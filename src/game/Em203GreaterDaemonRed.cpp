@@ -909,11 +909,12 @@ inline void Em203GreaterDaemonRed::StartSkill_unk(int state) {
 }
 
 // inferred: chooses the next ground skill (wait: only after GrandAttackTime/GrandBreathTime)
-// NONMATCHING: 99.72% - stack slots of the direction temporaries
 void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
     atn::Vector3 target(*m14B0->fn_8013C38C());
-    atn::Vector3 dir = target - ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
+    atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
+    atn::Vector3 dir = target - spine;
     dir.y = 0.0f;
+    float limit;
     float dist = dir.Length_unk();
     if (dist < 0.00001f) {
         dir.Set_unk(0.0f, 0.0f, 1.0f);
@@ -930,7 +931,6 @@ void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
         fn_8029B24C();
         next = 1;
     } else {
-        float limit;
         if (m58C == 15) {
             limit = 0.0f;
         } else {
@@ -953,7 +953,7 @@ void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
     }
     if (next) {
         m151C++;
-        if (m151C >= (int)fn_800E0AA8(&m1504[1])) {
+        if (m151C >= (int)fn_800E0AA8(&m1504[0])) {
             m151C = 0;
         }
     }
@@ -1027,9 +1027,9 @@ static inline atn::Vector3 FrontV_unk(float angle) {
 }
 static inline atn::Vector3 Front_unk(const float& angle) {
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', angle);
-    PSMTXMultVec(m, &front, &front);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(angle);
+    PSMTXMultVec(m.m, &front, &front);
     return front;
 }
 
@@ -1249,7 +1249,6 @@ void Em203GreaterDaemonRed::fn_80298580() {
 }
 
 // inferred: state 14 (turns to the target and strikes with the claws)
-// NONMATCHING: 98.86% - load of mRot.y scheduled before the node position store
 void Em203GreaterDaemonRed::fn_80298850() {
     float end = mMotion.mTracks[0].m08;
     if (end >= mMotion.fn_80097D7C(0)) {
@@ -1269,16 +1268,16 @@ void Em203GreaterDaemonRed::fn_80298850() {
 }
 
 // inferred: state 15 (walks to the target)
-// NONMATCHING: 96.91% - register allocation of the walk vectors
 void Em203GreaterDaemonRed::fn_80298B10() {
-    atn::Vector3 dir = m14B0->mPos - mPos;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
     dir.y = 0.0f;
     float dist = dir.Length_unk();
     dir.Normalize_unk();
     float frame = mMotion.mTracks[0].m08;
     if (frame > 21.0f && frame <= 38.0f) {
         mRot.y += atn::WrapAngle_unk(m1548 - m1544) / 17.0f;
-        if (dist < 70.0f || dist > 90.0f) {
+        if (dist < 70.0f || 90.0f < dist) {
             mPos += dir * 80.0f * 0.2f;
         }
     } else {
@@ -1290,7 +1289,6 @@ void Em203GreaterDaemonRed::fn_80298B10() {
 }
 
 // inferred: state 16 (breath on the ground: starts the bolts of fn_8029B704)
-// NONMATCHING: 98.80% - load of mRot.y scheduled before the node position store
 void Em203GreaterDaemonRed::fn_80298E98() {
     atn::Vector3 target = m14B0->mPos;
     atn::Vector3 dir = target - mPos;
@@ -1597,8 +1595,16 @@ void Em203GreaterDaemonRed::fn_8029A788() {
     m1530 -= dir * 85.0f;
 }
 
+// inferred: yaw from `self` to `other` in the xz plane (name invented)
+inline float YawTo_unk(CharaTask* self, CharaTask* other) {
+    atn::Vector3 target = other->mPos;
+    atn::Vector3 dir = target - self->mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    return dir.ToRotation_unk().y;
+}
+
 // inferred: starts state 14 (claws)
-// NONMATCHING: 98.70% - stack slots of the ToRotation temporaries
 void Em203GreaterDaemonRed::fn_8029A928() {
     m58C = 14;
     ResetState_unk();
@@ -1606,60 +1612,47 @@ void Em203GreaterDaemonRed::fn_8029A928() {
     m560 = 4;
     PlayMotion_unk(0x15F, 0, 0, 1.0f);
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
 }
 
 // inferred: starts state 15 (turns and walks to the target)
-// NONMATCHING: 86.69% - stack slots of the ToRotation temporaries and WrapAngle form
 void Em203GreaterDaemonRed::fn_8029AC1C() {
     m58C = 15;
     ResetState_unk();
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
     if (atn::WrapAngle_unk(m1548 - m1544) < 0.0f) {
-        PlayMotion_unk(0x158, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x158, 0, 1, 1, 0.0f, 0.1f);
     } else {
-        PlayMotion_unk(0x159, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x159, 0, 1, 1, 0.0f, 0.1f);
     }
 }
 
 // inferred: starts state 16 (breath on the ground)
-// NONMATCHING: 98.67% - stack slots of the ToRotation temporaries
 void Em203GreaterDaemonRed::fn_8029AF6C() {
     m58C = 16;
     ResetState_unk();
     PlayMotion_unk(0x160, 0, 0, 1.0f);
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
 }
 
 // inferred: starts state 21 (walks to the centre of the arena)
-// NONMATCHING: 86.41% - stack slots of the ToRotation temporaries and WrapAngle form
 void Em203GreaterDaemonRed::fn_8029B24C() {
     ResetState_unk();
     m58C = 21;
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
     m1544 = mRot.y;
-    atn::Vector3 target = m14B0->mPos;
-    atn::Vector3 dir = target - mPos;
-    dir.y = 0.0f;
-    dir.Normalize_unk();
-    m1548 = dir.ToRotation_unk().y;
+    m1548 = YawTo_unk(this, m14B0);
     if (atn::WrapAngle_unk(m1548 - m1544) < 0.0f) {
-        PlayMotion_unk(0x158, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x158, 0, 1, 1, 0.0f, 0.1f);
     } else {
-        PlayMotion_unk(0x159, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x159, 0, 1, 1, 0.0f, 0.1f);
     }
 }
 

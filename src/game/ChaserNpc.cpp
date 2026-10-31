@@ -428,7 +428,7 @@ void ChaserNpc::fn_80181D94() {
     } else {
         speed = 0.0f;
     }
-    vf34(&rot, 0, speed, m14C4);
+    vf34(rot, 0, speed, m14C4);
 }
 
 bool ChaserNpc::fn_80182134() {

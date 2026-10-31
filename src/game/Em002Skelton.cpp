@@ -1,8 +1,6 @@
 #include "game/Em002Skelton.h"
 
 extern "C" int strcmp(const char* a, const char* b);
-extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask
-extern "C" void fn_800EB49C(CharaTask* chara); // inferred: BattleCharaTask (knocked back)
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -14,7 +12,6 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: parameters of fn_8003EA3C (defined in CharaTask.cpp)
 struct HitParam_unk;
 extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
@@ -100,7 +97,7 @@ void Em002Skelton::vfE8(HitMsg_unk* msg) {
         if (!(m55C == 6 && m560 == 0x3B)) {
             fn_8015E7A0(msg->m28 * 5.0f, 0x2E, 0);
         }
-        fn_800EB49C(this);
+        fn_800EB49C();
     }
     if (CanAct_unk() && (mStatus.m0C & 0x40) != 0x40 && mC58.m11C.m00 >= 2) {
         if (msg->mAttacker != 0 && msg->mAttacker->mFlag28) {
@@ -135,12 +132,12 @@ void Em002Skelton::vfF0() {
         mColli.mFlags &= ~1;
         if (m1434 > 0) {
             mFlag25 = 1;
-            fn_800EAECC(this);
+            fn_800EAECC();
         } else {
             mFlag15 = 1;
             m14B0 = m5C->mParam.m98;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
         mColli.mFlags &= ~1;
     }

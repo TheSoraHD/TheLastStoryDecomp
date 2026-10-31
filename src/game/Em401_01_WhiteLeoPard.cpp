@@ -56,7 +56,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800EB49C(CharaTask* chara);     // inferred: BattleCharaTask (death?)
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -277,7 +276,7 @@ void Em401_01_WhiteLeoPard::fn_8031FD34(HitMsg_unk* msg) {
         if (!(m55C == 6 && (m560 == 23 || m560 == 0x3B))) {
             fn_8015E7A0(msg->m28 * 5.0f, -1, 0);
         }
-        fn_800EB49C(this);
+        fn_800EB49C();
     }
 }
 
@@ -304,8 +303,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: deals a hit, returns the damage dealt
 
-extern "C" void fn_800EAECC(CharaTask* chara); // inferred: BattleCharaTask (as in game/Em002Skelton.cpp)
-extern "C" void fn_800EB270(CharaTask* chara, int arg); // inferred: BattleCharaTask
 extern "C" int rand();
 extern "C" double sqrt(double x);
 extern "C" double cos(double x);
@@ -413,7 +410,7 @@ void Em401_01_WhiteLeoPard::fn_8031FE4C() {
         } else {
             mColli.mFlags &= ~1;
             mFlag25 = 1;
-            fn_800EAECC(this);
+            fn_800EAECC();
         }
         break;
     case 3:
@@ -465,7 +462,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
         if (fn_80370A78(lbl_8087F430, 0x3D) == 0) {
             rate *= 0.7f;
             if (dist < m1524 && m1560 > m15A0) {
-                fn_800EB270(this, 200);
+                fn_800EB270(200);
                 m1560 = 0;
                 m1564++;
                 return;
@@ -487,7 +484,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
             }
         } else if (m1560 > m15A0) {
             if (dist < m1524) {
-                fn_800EB270(this, 200);
+                fn_800EB270(200);
                 m1560 = 0;
                 m1564++;
                 return;
@@ -515,11 +512,11 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
         fn_8013A258();
         return;
     }
-    vf34(&rot, 0, speed, rate);
+    vf34(rot, 0, speed, rate);
 }
 
-void Em401_01_WhiteLeoPard::vf34(void* target, int arg, float a, float b) {
-    fn_803209E0(*(atn::Vector3*)target, 0, a, m568 * b);
+void Em401_01_WhiteLeoPard::vf34(const atn::Vector3& rot, int arg, float a, float b) {
+    fn_803209E0(rot, 0, a, m568 * b);
 }
 
 // NONMATCHING: 98.32% - same as Em403WarLion::fn_80324A38 (FPR of the turn and of the clamp of m584, stores

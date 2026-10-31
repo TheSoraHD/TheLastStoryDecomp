@@ -8,7 +8,6 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -85,9 +84,9 @@ inline atn::Vector3 Neg_unk(const atn::Vector3& v) {
 // inferred: forward direction of a character (name invented)
 inline atn::Vector3 GetFront_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', rot.y);
-    PSMTXMultVec(m, &v, &v);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &v, &v);
     return v;
 }
 
@@ -301,7 +300,7 @@ void EnemyFieldMagician::vf10() {
             fn_80145334();
             fn_8014C540();
         } else {
-            fn_800E2FE0(this);
+            fn_800E2FE0();
         }
         break;
     }
@@ -330,7 +329,6 @@ void EnemyFieldMagician::fn_8032CF10() {
     }
 }
 
-// NONMATCHING: 98.8% - mRot.y is read through r3 before `this` moves to r31 in the original
 void EnemyFieldMagician::fn_8032D1F4() {
     m1610 = 0;
     float frame = mMotion.mTracks[0].m08;

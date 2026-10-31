@@ -29,11 +29,6 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id);              // inferred: 
 extern "C" const wchar_t lbl_808813D0[2];                          // inferred: empty text
 extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
-extern "C" void fn_80510FB8(NewCampPartsBase* self, int a, int b); // inferred: moves the cursor (m80/m88)
-extern "C" void fn_80510E94(NewCampPartsBase* self, int a, int b);
-extern "C" void fn_80510D64(NewCampPartsBase* self, int a, int b);
-extern "C" void fn_805112A8(NewCampPartsBase* self, NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime,
-                            const atn::Vector3& pos, const atn::Vector3& scale, const char* name);
 extern "C" void* lbl_8087F430; // inferred: field
 extern "C" int fn_80370174(void* field, int id);
 extern "C" void fn_80370320(void* field, int id, int a, int b);
@@ -209,7 +204,7 @@ void CosEditProtector::fn_801D54C0() {
         }
     } else {
         int cursor = m80;
-        fn_80510FB8(this, 1, 3);
+        fn_80510FB8(1, 3);
         if (cursor != m80) {
             m1BA0 = m80;
         }
@@ -227,7 +222,7 @@ void CosEditProtector::fn_801D59A8() {
         vf34(4);
     } else {
         int cursor = m80;
-        fn_80510E94(this, 1, 3);
+        fn_80510E94(1, 3);
         if (cursor != m80) {
             m1BB8 = m80;
         }
@@ -299,7 +294,7 @@ void CosEditProtector::fn_801D5AB0() {
         } else {
             int cursor = m80;
             int top = m88;
-            fn_80510FB8(this, 1, 3);
+            fn_80510FB8(1, 3);
             if (cursor != m80) {
                 if (m1BB0 == 1) {
                     m1BA8 = m80;
@@ -350,7 +345,7 @@ void CosEditProtector::fn_801D5F04() {
         } else {
             int cursor = m80;
             int top = m88;
-            fn_80510FB8(this, 1, 3);
+            fn_80510FB8(1, 3);
             if (cursor != m80) {
                 m1BAC = m80;
             }
@@ -512,7 +507,7 @@ void CosEditProtector::fn_801D6754() {
         vf34(4);
     } else {
         int cursor = m80;
-        fn_80510D64(this, 1, 3);
+        fn_80510D64(1, 3);
         if (cursor != m80) {
             m1BC0 = m80;
         }
@@ -771,13 +766,13 @@ void CosEditProtector::fn_801D7560(int member, CharaStatus* status, NewCampParts
     atn::D3AnimeInstance* inst = mark >= 0 ? mColorMarks[mark] : 0;
     if (inst && inst->GetTask()) {
         inst->mVisible = 1;
-        fn_805112A8(this, entry, inst, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        fn_805112A8(entry, inst, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)inst->GetTask(), "base_pos",
                     fn_801F4E8C(task, fn_800DC6B4(name)));
     }
     if (m1378->GetTask()) {
         m1378->mVisible = 1;
-        fn_805112A8(this, entry, m1378, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        fn_805112A8(entry, m1378, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)m1378->GetTask(), "base_pos",
                     fn_801F4E8C(task, fn_800DC6B4(name)));
         if (mark > 0) {
@@ -814,7 +809,7 @@ void CosEditProtector::fn_801D77A4(int* ids, atn::D3AnimeInstance** items, NewCa
     for (int i = 0; i < 8; i++) {
         atn::D3AnimeInstance* mark = items[i];
         mark->mVisible = 1;
-        fn_805112A8(this, entry, mark, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        fn_805112A8(entry, mark, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         char name[0x40];
         sprintf(name, "palette%02d", i);
         fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "base_pos",
@@ -853,7 +848,7 @@ void CosEditProtector::fn_801D7AC0(int* ids, atn::D3AnimeInstance** items, NewCa
     for (int i = 0; i < 8; i++) {
         atn::D3AnimeInstance* mark = items[i];
         mark->mVisible = 1;
-        fn_805112A8(this, entry, mark, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        fn_805112A8(entry, mark, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
         char name[0x40];
         sprintf(name, "palette%02d", i);
         fn_801F6E78((atn::D2A_TaskInstanceBase<32, 8>*)mark->GetTask(), "base_pos",

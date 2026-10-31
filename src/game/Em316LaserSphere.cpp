@@ -57,7 +57,6 @@ struct GameState_unk {
     float m3A4;
 };
 extern "C" GameState_unk* lbl_8087EFA8;
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the sphere (laser, laser end, ?, death); name invented
@@ -647,9 +646,9 @@ void Em316LaserSphere::fn_803199A4() {
     }
     m1534 = rate * (m1538 - m1534) + m1534;
     atn::Vector3 v(m1528);
-    Mtx rot;
-    PSMTXRotRad(rot, 'y', m1534);
-    PSMTXMultVec(rot, &v, &v);
+    atn::Matrix3x4 rot;
+    rot.fn_8013A13C(m1534);
+    PSMTXMultVec(rot.m, &v, &v);
     mPos = fn_80318648(m14B8) + v * 25.0f;
 }
 
@@ -692,7 +691,7 @@ void Em316LaserSphere::fn_8031A484() {
         fn_80319998((LaserCatch_unk*)fn_80318F90(caught));
         m15B4 = 0;
     }
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 int Em316LaserSphere::vfE4() {

@@ -36,7 +36,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
@@ -87,7 +86,6 @@ inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
 struct KrakenMpColl_unk {
@@ -1064,7 +1062,7 @@ void Em302KrakenMp::vfEC() {
     if (mMotion.mTracks[0].m08 <= 0.0f || m1654 < 0) {
         mFlag25 = 1;
         mColli.mFlags &= ~1;
-        fn_800EE360(this);
+        fn_800EE360();
         mFlag15 = 1;
         fn_801765D8();
     }
@@ -1193,7 +1191,7 @@ void Em302KrakenMp::fn_802E177C() {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
     fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 void Em302KrakenMp::fn_802E1A0C() {

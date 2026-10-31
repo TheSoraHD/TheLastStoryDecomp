@@ -1,7 +1,7 @@
 #include "game/EnemyQuarkFirst.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
-#include "chr/ControlBase.h"
+#include "chr/ControlAttackBase.h"
 #include "game/CharaManager.h"
 #include "game/CharaStatus.h"
 #include "game/EnemyManager.h"
@@ -53,10 +53,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, 
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, float min, float max, float step,
                             int arg6, int arg7);
-// inferred: constructor of chr::ControlAttackLastOne (chr/ControlAttackBase.cpp, 0x38 bytes; it stores
-// __vt__Q23chr20ControlAttackLastOne); only called here and by BattleCharaTask
-extern "C" chr::ControlBase* fn_8018E438(void* self, CharaTask* chara, const atn::Vector3* dir, CharaTask* target,
-                                         int type, HitInfo_unk* skill);
 
 EnemyQuarkFirst::EnemyQuarkFirst(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14D8(2), m14DC(1), m14E0(300.0f), m14E8(60.0f), m1504(40),
@@ -274,12 +270,8 @@ void EnemyQuarkFirst::vf40(HitInfo_unk* hit) {
         m5A0 = 1.0f;
         m14E4 = mC58.mC4;
         m598 = 0;
-        void* p = ::operator new(0x38, (MemoryTag)3, "", "", 0);
-        if (p != 0) {
-            atn::Vector3 dir(-msg->m28.x, -msg->m28.y, -msg->m28.z);
-            p = fn_8018E438(p, this, &dir, m14E4, 10, m1514);
-        }
-        fn_80178208((chr::ControlBase*)p);
+        fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlAttackLastOne(
+            this, atn::Vector3(-msg->m28.x, -msg->m28.y, -msg->m28.z), m14E4, 10, m1514));
         mMotion.mTracks[0].m08 = 12.0f; // inferred: frame
     }
     if ((unsigned int)(m560 - 0x16) <= 1 || m560 == 10) {
@@ -414,11 +406,7 @@ void EnemyQuarkFirst::vf100(int state) {
         if (!m14E4->mFlag5 && m14E4->vfC4()) {
             atn::Vector3 dir(m14E4->mPos.x - mPos.x, 0.0f, m14E4->mPos.z - mPos.z);
             dir.Normalize_unk();
-            void* p = ::operator new(0x38, (MemoryTag)3, "", "", 0);
-            if (p != 0) {
-                p = fn_8018E438(p, this, &dir, m14E4, 9, m1514);
-            }
-            fn_80178208((chr::ControlBase*)p);
+            fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlAttackLastOne(this, dir, m14E4, 9, m1514));
         } else {
             fn_8015783C(m1510, m14E4->mPos, 0.0f);
         }

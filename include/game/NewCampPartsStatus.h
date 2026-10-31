@@ -79,7 +79,7 @@ public:
     NewCampStatusSetList_unk mSets;  // 0x11C
     float mScroll;                   // 0x5D4
     int mSkill;                      // 0x5D8
-    struct NewCampStatusTutorial_unk* mTutorial; // 0x5DC
+    class TutorialTask* mTutorial; // 0x5DC
     int mWait;                       // 0x5E0
     atn::Vector3 mOffset;            // 0x5E4
     atn::Vector3 mMove;              // 0x5F0: inferred: "MoveOffset"

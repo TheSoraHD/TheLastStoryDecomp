@@ -123,7 +123,7 @@ int ControlUseSkill::vf0C() {
         result = 1;
     }
 end:
-    mChara->vf34(&rot, 0, 0.0f, 1.0f);
+    mChara->vf34(rot, 0, 0.0f, 1.0f);
     return result;
 }
 

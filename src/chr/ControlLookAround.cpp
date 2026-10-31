@@ -26,7 +26,7 @@ int ControlLookAround::vf0C() {
     if (--mTime <= 0) {
         return 1;
     }
-    mChara->vf34(&mChara->mRot, 0, 0.0f, 1.0f);
+    mChara->vf34(mChara->mRot, 0, 0.0f, 1.0f);
     return 0;
 }
 
@@ -41,7 +41,7 @@ ControlLookAroundEgg::ControlLookAroundEgg(Chara_unk* chara, int time) : Control
 }
 
 int ControlLookAroundEgg::vf0C() {
-    mChara->vf34(&mChara->mRot, 0, 0.0f, 1.0f);
+    mChara->vf34(mChara->mRot, 0, 0.0f, 1.0f);
     return 0;
 }
 

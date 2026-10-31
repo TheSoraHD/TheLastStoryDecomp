@@ -35,7 +35,6 @@ struct KrakenMsgTable_unk {
 };
 extern "C" KrakenMsgTable_unk* lbl_8087F1E4;
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -76,7 +75,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
 struct KrakenColl_unk {
     KrakenColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -1245,7 +1243,7 @@ void Em302Kraken::vfEC() {
     if (mMotion.mTracks[0].m08 <= 0.0f) {
         mFlag25 = 1;
         mColli.mFlags &= ~1;
-        fn_800EE360(this);
+        fn_800EE360();
         mFlag15 = 1;
         fn_801765D8();
     }
@@ -1398,7 +1396,7 @@ void Em302Kraken::fn_802DC618() {
     blur.m0C = m16A0;
     game->m2AC = blur;
     fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 // inferred: next command of "act_command" for the legs (called by Em303KrakenFoot); the default

@@ -2,8 +2,6 @@
 #include "math/Vec.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_802CFAE4(Em209SmallGolem* golem); // inferred: Em209SmallGolem (not decompiled yet)
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -81,7 +79,7 @@ void Em209BigGolem::vfEC() {
         if (!m1548) {
             if (m1434 > 0) {
                 if (m1434 == 30) {
-                    fn_800EB7A0(this);
+                    fn_800EB7A0();
                 } else if (m1434 == 15) {
                     Color4f_unk color;
                     atn::Vector3 rot;
@@ -103,7 +101,7 @@ void Em209BigGolem::vfEC() {
             } else {
                 mFlag15 = 1;
                 fn_801765D8();
-                fn_800EE360(this);
+                fn_800EE360();
             }
         }
     } else {

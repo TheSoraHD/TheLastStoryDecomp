@@ -278,10 +278,10 @@ void MotionObject::fn_804137F4() {
     MotionTarget_unk* target = colli->mTarget;
     if (target != 0) {
         atn::Vector3 base = model != 0 ? ((atn::Matrix3x4*)model->mMtx)->GetTrans_unk() : lbl_807C7060.GetTrans_unk();
-        Mtx mtx;
-        PSMTXRotRad(mtx, 'y', m78.y);
+        atn::Matrix3x4 mtx;
+        mtx.fn_8013A13C(m78.y);
         atn::Vector3 offset(target->mOffset);
-        PSMTXMultVec(mtx, &offset, &offset);
+        PSMTXMultVec(mtx.m, &offset, &offset);
         target->mSphere.mSphere = atn::ColliSphere::Sphere_unk(base + offset, target->mRadius);
     }
 }

@@ -64,7 +64,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -87,7 +86,6 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: arena UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em003LesserDaemon.cpp)
 extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E6850(GameUI* ui, CharaTask* chara, int count, int max, int arg);
 extern "C" void fn_803E3384(GameUI* ui); // inferred: closes the button prompt
 // inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4 (as in game/CharaStatus.cpp)
 struct ZanGame_unk {
@@ -299,9 +297,9 @@ inline atn::Vector3 Front_unk(float roty) {
 // inferred: same, reading the rotation after the vector is set (name invented)
 inline atn::Vector3 FrontR_unk(const atn::Vector3& rot) {
     atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', rot.y);
-    PSMTXMultVec(m, &v, &v);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(rot.y);
+    PSMTXMultVec(m.m, &v, &v);
     return v;
 }
 // inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
@@ -634,7 +632,7 @@ void Em201ZanGurgFinal::vf14() {
     if (m1634 == 0) {
         atn::Vector3 d = lbl_8087F8A0->mHead->mPos - mPos;
         if (PSVECSquareMag(&d) < 1600.0f) {
-            fn_803E6850(lbl_8087F490, this, m1658, m165C, 0);
+            lbl_8087F490->fn_803E6850(this, m1658, m165C, 0);
         }
     }
 }

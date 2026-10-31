@@ -93,8 +93,6 @@ inline float Clamp01_unk(float x) {
 }
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_800EB7A0(CharaTask* chara);  // inferred: BattleCharaTask (death effect?)
-extern "C" void fn_800EE360(CharaTask* chara);  // inferred: BattleCharaTask (enemies only)
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -208,8 +206,6 @@ int Em403WarLion::vf0C() {
 
 // inferred: setter of the state (weak copy 0x802657FC of game/Em201ZanGurgFinal.cpp)
 extern "C" void fn_802657FC(CharaTask* chara, int state);
-// inferred: BattleCharaTask flag 0x04000000 of m14A8 (weak copy 0x800EC1F4)
-extern "C" void fn_800EC1F4(BattleCharaTask* chara, int value);
 // inferred: next character of a manager list (weak copy 0x802A4094)
 extern "C" CharaTask* fn_802A4094(CharaTask* chara);
 // inferred: model matrix (weak copy 0x80266154)
@@ -366,7 +362,7 @@ void Em403WarLion::vf10() {
             } else {
                 mLook.fn_80129978(m14BC->GetModel_unk(), "neck", lbl_807C7030, 0.3f);
             }
-            fn_800EC1F4(this, m58C != 20);
+            SetFlagC26_unk(m58C != 20);
         }
     }
     for (CharaTask* c = fn_80323C2C()->fn_8036554C(); c != 0; c = fn_802A4094(c)) {
@@ -499,7 +495,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
         if (m1598 != 0) {
             m1598->fn_8016EB48(0, 0, 0);
         }
-        fn_800EB7A0(this);
+        fn_800EB7A0();
     }
 }
 
@@ -1557,7 +1553,7 @@ void Em403WarLion::vfEC() {
         mColli.mFlags &= ~1;
         vf9C(1);
         mFlag15 = 1;
-        fn_800EE360(this);
+        fn_800EE360();
     } else {
         m1434 = 0;
     }

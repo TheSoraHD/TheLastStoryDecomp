@@ -73,7 +73,6 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;  // inferred: player manager
-extern "C" void fn_800EAECC(CharaTask* chara);       // inferred: BattleCharaTask
 extern "C" void fn_8011CD84(CharaD74_unk* label, CharaTask* chara, int kind); // inferred: shows a label
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
@@ -221,7 +220,7 @@ void SpecialEnemyBase::fn_805A40B8() {
 dead:
     mColli.mFlags &= ~1;
     mFlag25 = 1;
-    fn_800EAECC(this);
+    fn_800EAECC();
 }
 
 void SpecialEnemyBase::fn_805A4188(HitMsg_unk* msg) {
@@ -283,9 +282,9 @@ void SpecialEnemyBase::fn_805A4254() {
 int SpecialEnemyBase::fn_805A45F8(float radius, float angle, float rotOffset) {
     int count = 0;
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m;
-    PSMTXRotRad(m, 'y', mRot.y);
-    PSMTXMultVec(m, &front, &front);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(mRot.y);
+    PSMTXMultVec(m.m, &front, &front);
     Mtx m2;
     PSMTXRotRad(m2, 'y', rotOffset);
     PSMTXMultVec(m2, &front, &front);

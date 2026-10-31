@@ -1,6 +1,7 @@
 #include "game/CharaFaceControl.h"
 #include "game/CharaTask.h"
 #include "atn/Csv.h"
+#include "atn/LH_Motion.h"
 #include "atn/Memory.h"
 #include "atn/Model_unk.h"
 #include "std/vector.h"
@@ -40,12 +41,6 @@ struct MotionBuffer {
 };
 } // namespace atn
 
-// inferred: node pose filled from a motion (0x2C bytes, as in gmk/MapLift.h)
-struct MotionPose_unk {
-    MotionPose_unk(); // 0x800A08E0
-    int m00;
-    unsigned char m04[0x2C - 0x04];
-};
 
 CharaFaceControl::CharaFaceControl() : m00(0), m5C(0), m60(-1.0f), m78(0), m7C(1.0f) {}
 

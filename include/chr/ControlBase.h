@@ -37,7 +37,7 @@ public:
     virtual float vf20() { return 0.0f; }
     virtual int vf24() { return 0; }
     virtual int vf28() { return 0; }
-    virtual void vf2C();
+    virtual int vf2C(); // inferred: returns an int (number of hit windows in chr::ControlAttackBase)
     virtual int vf30(); // inferred: returns an int (0 in ControlBase, 0x800E60FC; compared with 5 by callers of CharaTask::fn_8017A450, tested by vf5C)
     // inferred: inline (weak copies 0x8017A220 and 0x8017A2F8 in game/CharaTask.cpp, read through
     // CharaTask::fn_8017A160 and fn_8017A228)
@@ -50,7 +50,8 @@ public:
     virtual int vf44() { return 0; }
     virtual int vf48() { return 0; }
     virtual atn::Vector3 vf4C() { return lbl_807C7030; }
-    virtual int vf50(); // inferred: returns an int (0 in ControlBase, 0x800EE5A4; ControlMagic)
+    // inferred: returns an int (ControlMagic); inline (weak copy 0x800EE5A4 after BattleCharaTask::vfE4)
+    virtual int vf50() { return 0; }
     virtual int vf54() { return 0; } // inferred: weak copy 0x80151180 (tested by CharaTask::fn_8015076C)
     virtual int vf58() { return 0; }
     virtual void vf5C() {}

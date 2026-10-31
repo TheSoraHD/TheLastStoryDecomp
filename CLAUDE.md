@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `close-one-func-2` (2026-10-30, mergeada en `main`): **8770 / 18215 funciones al 100%** (código 31,49%), 380 unidades enlazadas (+`game/MapPartsEfp`, `game/Gun`), `main.dol: OK`. El resto de la lista (12 unidades ≥ 95%) sigue sin enlazar por residuos de registros; detalle en `docs/close-one-func-2.md`.
-- `close-one-func` (2026-10-30, mergeada): 8768 funciones, +`gmk/TodomeCountUp`, `gmk/CharaObj`, `atn/TaskBase` (`docs/close-one-func.md`).
-- `list-const-iter` (2026-10-30, mergeada): 8765 funciones, sin matches nuevos; `const_iterator` por valor, `erase(const_iterator)` (`docs/list-const-iter.md`, `docs/list-get-unk.md`, `docs/msl_cpp.md`).
+- `auto-20261030` (2026-10-31, sesion autonoma, **sin mergear**): **9113 / 18215 funciones al 100%** (codigo 32,93%), 380 unidades enlazadas, `main.dol: OK`. Unidades nuevas sin enlazar: `BattleCharaTask` (58/88), `NewCampPartsBase`, `FragileObject`, `QuadrupedTask`, `NewCampPartsOption`, `TutorialTask`, `ControlAttackBase`; `GameUI` 10 -> 33. Detalle y pendientes en `docs/auto-20261030.md`.
+- `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
+- `close-one-func` (2026-10-30, mergeada): 8768 funciones, +`gmk/TodomeCountUp`, `gmk/CharaObj`, `atn/TaskBase`; `list-const-iter` (8765, `docs/list-const-iter.md`).
 - Anteriores: `k2-close-units` + `vector-push-back` (K2, `push_back`; `docs/k2-close-units.md`), `i2-poolorder` (I2, mergeada; `poolorder.py`, `docs/i2-poolorder.md`), `fb2-materialparser` (F-b2), `fb3-drawhelper-paso3` (`atn/DrawHelper` 53/68), `fb3-comdrawtexture`, `fb-materialparser`, `batch-auto-50kb-atn` (F), `batch-auto-20kb-game` (E), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
 - objdiff da 100% aunque cambie la condición de un salto (`beq`/`bne`): pasar `tools/decomp/mnemcheck.py <unidad>` a las funciones al 100%. Tras editar una unidad ya emparejada: `resetlocal.py`, `pairdata.py --apply`, `configure`.
 - Al cerrar un lote: sustituir estas tres líneas, añadir **una** fila a `docs/historial.md`, el resumen y las decisiones en `docs/<lote>.md`, y los hallazgos generales (una línea cada uno) en `docs/trucos-mwcc.md`.

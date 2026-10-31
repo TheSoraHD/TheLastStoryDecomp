@@ -238,7 +238,7 @@ int ControlDropDown::vf0C() {
         speed = 0.3f * mVel.Length_unk();
     }
     atn::Vector3 pos = mChara->mPos;
-    mChara->vf34(&mChara->mRot, m2C, speed, scale);
+    mChara->vf34(mChara->mRot, m2C, speed, scale);
     mFallSpeed += 0.4f * ((pos.y - mChara->mPos.y) - mFallSpeed);
     if (mFallSpeed < 0.3f * lbl_8087EFA8->m3A4) {
         m2C = 1;
@@ -274,7 +274,7 @@ int ControlDropDownQuadruped::vf0C() {
         speed = 1.0f;
     }
     atn::Vector3 pos = mChara->mPos;
-    mChara->vf34(&mChara->mRot, 0, speed, scale);
+    mChara->vf34(mChara->mRot, 0, speed, scale);
     return 0;
 }
 

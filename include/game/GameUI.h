@@ -67,15 +67,22 @@ struct GameUIDuration_unk {
 struct GameUIGauge_unk : public atn::Task {
     bool fn_803CFC58(); // inferred: (mFlags & 4) != 0
     float fn_803CFC64(); // inferred: returns m100
-    unsigned char m48[0x100 - 0x48];
-    float m100;
+    unsigned char m48[0xA0 - 0x48];
+    float mA0;  // inferred: end value (GameUI::fn_803E5940)
+    unsigned char mA4[0x100 - 0xA4];
+    float m100; // inferred: current value
+    float m104; // inferred: set to -1 by GameUI::fn_803E4510
+    bool IsEnd_unk() const { // inferred: name invented
+        float end = mA0;
+        return m100 >= end;
+    }
 };
 
 // inferred: timed entry (0xC bytes) of the list at 0x3F0; names invented
 struct GameUIEntry_unk {
     int m00;
     int mFrames;
-    int m08;
+    unsigned int m08; // inferred: id (compared unsigned by GameUI::fn_803E6C88)
 };
 
 // inferred: counter reset by fn_803CF734 (name invented)
@@ -174,9 +181,11 @@ struct GameUIElem0C_unk {
 };
 
 // inferred: 0x10-byte element of the array at 0x25D0 (names invented)
+class CharaTask;
 struct GameUIElem10_unk {
     GameUIElem10_unk() : m00(0), m04(0), m08(1), m0C(0) {}
-    int m00;
+    GameUIElem10_unk(CharaTask* chara, int count, int max, int arg) : m00(chara), m04(count), m08(max), m0C(arg) {}
+    CharaTask* m00; // inferred: character of the counter (GameUI::fn_803E6850)
     int m04;
     int m08;
     int m0C;
@@ -207,6 +216,12 @@ struct GameUIColor_unk {
 };
 
 // inferred from __vt__6GameUI (0x8078C584): the game HUD; lbl_8087F490 points to it
+// inferred: message window of GameUI::m2640 (game/GameChoiceWindow.cpp); names invented
+struct GameUIWindow_unk {
+    unsigned char m00[0xB4];
+    int mB4;
+};
+
 class GameUI : public atn::Task {
 public:
     GameUI(atn::Task* parent); // 0x803CE980
@@ -217,6 +232,29 @@ public:
 
     void fn_803CF740();
     void fn_803CF74C();
+    void fn_803E32EC();
+    void fn_803E3BE8(void* msg, int arg, float time);
+    void fn_803E4100();
+    bool fn_803E43A4();
+    void fn_803E43B8(int on);
+    void fn_803E4434(int on); // inferred: names invented for the fields set here
+    void fn_803E4478();
+    void fn_803E44C4(int on, int id, int count);
+    void fn_803E4510();
+    void fn_803E4950();
+    void fn_803E4A20(int a, int b);
+    float fn_803E4A48();
+    void fn_803E58CC();
+    void fn_803E58E4();
+    bool fn_803E5940();
+    void fn_803E63D0();
+    bool fn_803E644C();
+    void fn_803E64F0();
+    void fn_803E656C();
+    void fn_803E65F8();
+    void fn_803E6850(CharaTask* chara, int count, int max, int arg); // inferred: shows a counter
+    void fn_803E6BF0(unsigned int id, int value);
+    bool fn_803E6C88(unsigned int id);
 
     float m48;
     float m4C;
@@ -265,7 +303,7 @@ public:
     GameUIElem1C_unk m7C0;
     GameUIElem1C_unk m7DC;
     GameUIElem1C_unk m7F8;
-    int m814[8];
+    GameUIGauge_unk* m814[8]; // inferred: pairs of gauges (fn_803E4100)
     int m834;
     int m838;
     GameUIGauge_unk* m83C;                     // 0x83C
@@ -303,7 +341,8 @@ public:
     GameUIMarker_unk mD40;                     // 0xD40
     unsigned char mD60[0xD6C - 0xD60];
     int mD6C;
-    unsigned char mD70[0xD78 - 0xD70];
+    atn::Task* mD70; // inferred: frozen by fn_803E4478
+    atn::Task* mD74;
     int mD78;
     int mD7C;
     int mD80;
@@ -315,11 +354,11 @@ public:
     int mDA8;
     int mDAC;
     int mDB0;
-    int mDB4;
+    GameUIGauge_unk* mDB4; // inferred: same kind of object as m2654 (fn_803E4950)
     int mDB8;
     int mDBC;
-    int mDC0;
-    int mDC4;
+    GameUIGauge_unk* mDC0; // inferred: fn_803E58CC
+    GameUIGauge_unk* mDC4; // inferred: fn_803E58E4, fn_803E5940
     int mDC8;
     int mDCC;
     float mDD0;
@@ -378,24 +417,26 @@ public:
     } m2568;                                   // 0x2568
     struct W25CC_unk {
         W25CC_unk() : m00(0) {}
-        int m00;
+        bool Full_unk() const { return m00 >= 4; } // inferred: name invented
+        unsigned int m00; // inferred: count (compared unsigned in fn_803E6850)
         GameUIElem10_unk m[4];
     } m25CC;                                   // 0x25CC
     int m2610[7];
+    // inferred: three gauges and their state (fn_803E63D0 to fn_803E65F8)
     struct W262C_unk {
         W262C_unk() : m00(0), m04(0), m08(0), m0C(0) {}
-        int m00;
-        int m04;
-        int m08;
+        GameUIGauge_unk* m00;
+        GameUIGauge_unk* m04;
+        GameUIGauge_unk* m08;
         int m0C;
     } m262C;
     int m263C;
-    int m2640;
+    GameUIWindow_unk* m2640; // inferred: message window (fn_803E3BE8)
     int m2644;
     int m2648;
     int m264C;
     int m2650;
-    int m2654;
+    GameUIGauge_unk* m2654; // inferred: floats 0x100/0x104 reset by fn_803E4510
     int m2658;
     int mSeState;                              // 0x265C: inferred: state of the gauge sound
     unsigned int mSeMask;                      // 0x2660: inferred: sounds to play (1 << index)

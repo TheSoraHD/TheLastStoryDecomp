@@ -1,4 +1,5 @@
 #include "game/Em003LesserDaemon.h"
+#include "game/GameUI.h"
 #include "chr/ControlChant.h"
 #include "math/Vec.h"
 #include "game/CharaManager.h"
@@ -63,7 +64,6 @@ extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
@@ -73,7 +73,6 @@ struct Color4f_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -95,9 +94,7 @@ struct DaemonAi_unk {
 extern "C" DaemonAi_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
 extern "C" int fn_80108378(DaemonAi_unk* ai, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: arena/UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em305VampireMp.cpp)
-struct MpArena_unk;
-extern "C" MpArena_unk* lbl_8087F490;
-extern "C" void fn_803E6850(MpArena_unk* arena, CharaTask* chara, int count, int max, int arg);
+extern "C" GameUI* lbl_8087F490;
 extern "C" double fmod(double x, double y);
 extern "C" double sin(double x);
 // inferred: frame time (lbl_8087EFA8, as FrameTime_unk in game/CharaStatus.cpp)
@@ -497,7 +494,7 @@ inline void ClearHate_unk(CharaTask* self) {
 // inferred: shows the barrier hits left (name invented)
 // (the original reads m1624 again after the test: `*(volatile int*)&`, as in the notes of the q5 queue)
 inline void Em003LesserDaemon::ShowHits_unk() {
-    fn_803E6850(lbl_8087F490, this, *(volatile int*)&m1624, m1628[m14C0], 0);
+    lbl_8087F490->fn_803E6850(this, *(volatile int*)&m1624, m1628[m14C0], 0);
 }
 
 // inferred: turns towards a position (name invented)
@@ -1141,7 +1138,7 @@ void Em003LesserDaemon::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         m1434 = 30;
@@ -1461,7 +1458,7 @@ void Em003LesserDaemon::fn_8024FCDC() {
     fn_8015495C(0, 1, 1, 1);
     fn_8016DA4C();
     fn_80239DAC(lbl_8087F3C0, &m1504, 0, 0);
-    fn_800EB7A0(this);
+    fn_800EB7A0();
     for (unsigned int i = 0; i < mLinks.mSize; i++) {
         if (mLinks.mData[i]->m58C != 2) {
             mLinks.mData[i]->fn_8024FE18(0);

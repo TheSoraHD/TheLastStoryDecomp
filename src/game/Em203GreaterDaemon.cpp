@@ -83,7 +83,6 @@ extern "C" inline Field_unk* fn_80121F00() {
 }
 // inferred: player manager accessor (weak copy 0x8000D9E8 of another file)
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
-extern "C" void fn_800EC24C(RouteWalker_unk* route, int value); // inferred: sets a mode of the route walker
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 extern "C" double sqrt(double x);
@@ -319,7 +318,7 @@ int Em203GreaterDaemon::vf0C() {
         m1568.IsLoading() == 0 && m1574.IsLoading() == 0 && fn_80288DD8(&m1944) == 0 &&
         fn_80288DD8(&m192C) == 0 && fn_80288DD8(&m195C) == 0 && m15D8.IsLoading() == 0 &&
         m1634.IsLoading() == 0) {
-        fn_800EC24C(&mRoute, 2);
+        mRoute.SetA0_unk(2);
         fn_80288E30(this, 1.0f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
@@ -808,6 +807,16 @@ static inline atn::Vector3 Front_unk(const float& angle) {
     return front;
 }
 
+// inferred: same rotation built with atn::Matrix3x4 (as Front_unk of game/Em203GreaterDaemonRed.cpp; name
+// invented)
+static inline atn::Vector3 FrontM_unk(const float& angle) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    m.fn_8013A13C(angle);
+    PSMTXMultVec(m.m, &front, &front);
+    return front;
+}
+
 // inferred: moves along the spline of the four route points `points` (t: progress 0..1)
 void Em203GreaterDaemon::fn_8028AA38(const atn::Vector3* points, float t) {
     atn::Vector3 pos = fn_8028AC70(points[0], points[1], points[2], points[3], t < 1.0f ? t : 1.0f);
@@ -881,7 +890,7 @@ void Em203GreaterDaemon::fn_8028ADF4() {
 
 // inferred: flies along the route (moving: the spline is followed; otherwise only the passing of
 // the point is tested)
-// NONMATCHING: 74.69% - flight state machine; branch layout and register allocation differ
+// NONMATCHING: 85.57% - the original recomputes the offsets of mPaths[cur - 1]; register allocation
 void Em203GreaterDaemon::fn_8028AFD8(int moving) {
     int next = 0;
     float speed;
@@ -895,8 +904,10 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
         speed = 1.0f / m1998;
     }
     if (m58C == 7) {
-        int a = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
-        int b = fn_803C1560(lbl_8087F430->m10D8, &m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+        RouteTable_unk* t1 = lbl_8087F430->m10D8;
+        int a = fn_803C1560(t1, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+        RouteTable_unk* t2 = lbl_8087F430->m10D8;
+        int b = fn_803C1560(t2, &m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
         cur = m1504;
         prev = m1508;
         p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
@@ -909,8 +920,10 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
             p3 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], a - 1);
         }
     } else if (m58C == 8) {
-        int a = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
-        int b = fn_803C1560(lbl_8087F430->m10D8, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        RouteTable_unk* t3 = lbl_8087F430->m10D8;
+        int a = fn_803C1560(t3, &m152C->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        RouteTable_unk* t4 = lbl_8087F430->m10D8;
+        int b = fn_803C1560(t4, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         cur = m1504;
         prev = m1508;
         p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
@@ -947,7 +960,8 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
         m1510 = 0.0f;
     }
     if (m1990 != 0) {
-        int point = fn_803C1560(lbl_8087F430->m10D8, &m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        RouteTable_unk* t5 = lbl_8087F430->m10D8;
+        int point = fn_803C1560(t5, &m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         lbl_8087EEB0->fn_80063D3C(lbl_8087F430->m10D8->mPoints[point - 1].mPos, 10.0f, 10000.0f, 0xFF0000FF);
     }
 }
@@ -1376,14 +1390,15 @@ inline void Em203GreaterDaemon::StartTackle_unk() {
 }
 
 // inferred: state 13 (dives to the ground, then tackles)
-// NONMATCHING: 91.91% - stack slots and camera look stores
 void Em203GreaterDaemon::fn_8028DF34() {
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
         StartTackle_unk();
         return;
     }
     if (mMotion.mTracks[0].m08 <= 42.0f) {
-        mPos += m151C * 0.023809524f;
+        float k = 0.023809524f;
+        mPos += m151C * k;
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 41.0f && m14DC != 0 && mMotion.mTracks[0].m08 >= 40.0f) {
         ShakeCamera_unk(10, 1.0f, 2.0f);
@@ -1398,12 +1413,13 @@ void Em203GreaterDaemon::fn_8028DF34() {
 }
 
 // inferred: state 15 (turns to the target and strikes with the claws)
-// NONMATCHING: 84.13% - register allocation
 void Em203GreaterDaemon::fn_8028E1A0() {
-    atn::Vector3 dir = m14B0->mPos - mPos;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
     fn_801C3910(dir);
-    dir.Normalize_unk();
-    if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+    PSVECNormalize(&dir, &dir);
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
         StartTackle_unk();
         return;
     }
@@ -1412,27 +1428,22 @@ void Em203GreaterDaemon::fn_8028E1A0() {
     }
     if ((mMotion.mTracks[0].m08 > 36.0f && mMotion.mTracks[0].m08 < 40.0f) ||
         (mMotion.mTracks[0].m08 > 56.0f && mMotion.mTracks[0].m08 < 60.0f)) {
-        atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine"))->GetTrans_unk();
-        atn::Vector3 front(0.0f, 0.0f, 1.0f);
-        Mtx m;
-        PSMTXRotRad(m, 'y', mRot.y);
-        PSMTXMultVec(m, &front, &front);
-        atn::Vector3 pos = spine + front * 20.0f;
+        atn::Vector3 spine = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
+        spine += FrontM_unk(mRot.y) * 20.0f;
         fn_800F8C6C(lbl_8087F048, 0, 0, this, m14E0, m590, 30, -1, 0.0f);
-        (void)pos;
     } else {
         m590 = fn_800F8548(lbl_8087F048);
     }
 }
 
 // inferred: state 16 (walks to the target, then strikes)
-// NONMATCHING: 96.92% - stack slots
 void Em203GreaterDaemon::fn_8028E488() {
     ASSERT_UNK(m14B0 != 0);
     ASSERT_UNK(m14B0 != 0);
     ASSERT_UNK(m14B0 != 0);
     ASSERT_UNK(m14B0 != 0);
-    atn::Vector3 dir = m14B0->mPos - mPos;
+    atn::Vector3 target = m14B0->mPos;
+    atn::Vector3 dir = target - mPos;
     dir.y = 0.0f;
     float dist = dir.Length_unk();
     dir.Normalize_unk();
@@ -1616,7 +1627,6 @@ void Em203GreaterDaemon::fn_8028F4AC() {
 }
 
 // inferred: starts state 7 (takes off for the flight around the arena)
-// NONMATCHING: 92.04% - register allocation of the route vectors
 void Em203GreaterDaemon::fn_8028F560() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -1628,8 +1638,10 @@ void Em203GreaterDaemon::fn_8028F560() {
     m58C = 7;
     fn_8016E970(3);
     PlayMotion_unk(0x142, 0, 0, 1.0f);
-    m1504 = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
-    m1508 = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    m1504 = fn_803C1560(table, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+    table = lbl_8087F430->m10D8;
+    m1508 = fn_803C1560(table, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
     m151C = m152C->mPos - mPos;
     mRot.y = (m1978 - mPos).GetNormalize().ToRotation_unk().y;
     m1528 = -1.5707964f;
@@ -1792,7 +1804,6 @@ void Em203GreaterDaemon::fn_8028FDB0() {
 }
 
 // inferred: starts state 16 (turns and walks to the target)
-// NONMATCHING: 94.23% - register allocation
 void Em203GreaterDaemon::fn_80290088() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -1811,10 +1822,13 @@ void Em203GreaterDaemon::fn_80290088() {
     dir.y = 0.0f;
     dir.Normalize_unk();
     float angle = atn::WrapAngle_unk(dir.ToRotation_unk().y - mRot.y);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
     if (angle < 0.0f) {
-        PlayMotion_unk(0x158, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x158, 0, 1, 1, 0.0f, 0.1f);
     } else {
-        PlayMotion_unk(0x159, 0, 1, 1.0f);
+        mMotion.fn_80097C08(0, 0x159, 0, 1, 1, 0.0f, 0.1f);
     }
     m1534 = mRot.y;
     m1538 = dir.ToRotation_unk().y;

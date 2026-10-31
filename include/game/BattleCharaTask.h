@@ -14,11 +14,42 @@ public:
     virtual void vf2C(const char* params, int arg); // inferred: calls CharaTask::vf2C
     virtual void vf40(HitInfo_unk* hit);
     virtual void vf44();
-    virtual int vfA4(); // inferred: returns 1/0 (0x800EE494)
+    virtual int vfA4(atn::Vector3* pos, atn::Vector3* rot); // inferred: point m1464 (0x800EE494)
     virtual int vfE4(); // inferred: returns 1/0 (EnemySeaLizerd 0x80355954 returns 1 or tail-calls it)
     virtual void vfE8(HitMsg_unk* msg); // inferred: a hit was received (Em002Skelton reads the message)
     virtual void vfEC();
     virtual void vfF0();
+
+    void fn_800E2FE0(); // inferred: update (the body of vf10)
+    // inferred: weak copy 0x800EC1F4 (name invented)
+    void SetFlagC26_unk(int value) { mFlagC26 = value; }
+    void fn_800E610C(); // inferred: moves (or swaps places) in the input direction; the party follows in mode 2
+    int fn_800E70EC(int a, int b, int c);
+    int fn_800E7214(CharaTask** out, int keep);
+    int fn_800E73EC(struct Field_unk* field, int b, int c); // inferred: input of the player (lock-on, auto attack) // inferred: target of the player's attack (keep: prefer m1440) // inferred: auto attack of the player (button attack correction)
+    void fn_800E8FB8(); // inferred: shoots the selected arrow of the crossbow
+    void fn_800E9110(); // inferred: casts the magic m145C of m2D0 in front (or at the aimed point)
+    void fn_800E932C(atn::Vector3* from, atn::Vector3* to, int arg); // inferred: aimed shot
+    void fn_800E7650(struct Field_unk* field); // inferred: input of the player in the battle mode (lock-on, crossbow)
+    void fn_800E7BB0(); // inferred: starts the overdrive/special skill of the character
+    void fn_800E7F04();
+    void fn_800E8688(int a, int b, CharaTask* target, const atn::Vector3* pos, int c, int d); // inferred: starts an attack
+    void fn_800EAECC(); // inferred: called by vfF0 when mFlag16 is clear
+    void fn_800E3F5C(); // inferred: cursor target under the camera ray
+    void fn_800E426C(); // inferred: called on the player from GameTask
+    void fn_800EB49C(); // inferred: calls vf44 (knocked back / death)
+    void fn_800EB270(int id); // inferred: starts the skill `id` (200: the normal attack)
+    void fn_800EB4AC(); // inferred: aims the weapon (shoots when the step of the mode is 2)
+    void fn_800EB7A0(); // inferred: death effect
+    void fn_800EBA5C(); // inferred: full reset (revive)
+    void fn_800EBD00(int mode, int prev); // inferred: switches the motion set (1: town)
+    int fn_800EBE84();  // inferred: applies the motion sets once loaded (1 while loading)
+    int fn_800EE180(); // inferred: the character can start an action against its target
+    void fn_800EE360(); // inferred: death reward (item of the battle result or message 3 to the gimmick m1438)
+    void fn_800EE5AC(class Arms* arms);
+    int fn_800EE640(CharaTask* chara); // inferred: chara is a valid target for this character
+ // inferred: starts the effect of a weapon when its condition holds
+    int fn_800EEFDC();  // inferred: nonzero if the character can be targeted here
 
     // inferred: members cleared by the constructor (0x800E2AF8); names keep the offsets
     int m1424;
@@ -37,7 +68,7 @@ public:
     float m1458;
     int m145C;
     int m1460;
-    int m1464;
+    RoutePlace_unk* m1464; // inferred: "magicPointId" place (vf2C)
     int m1468;
     int m146C;
     short m1470;
@@ -53,7 +84,21 @@ public:
     float m149C;
     int m14A0;
     int m14A4;
-    unsigned int m14A8; // inferred: flags
+    // inferred: flags; the C bits (names invented) keep them apart from the B bits of CharaTask
+    union {
+        unsigned int m14A8; // inferred: flags
+        struct {
+            unsigned int mFlagC31 : 1;
+            unsigned int mFlagC30 : 1;
+            unsigned int mFlagC29 : 1;
+            unsigned int mFlagC28 : 1;
+            unsigned int mFlagC27 : 1;
+            unsigned int mFlagC26 : 1; // inferred: set by the constructor and by the weak setter 0x800EC1F4
+            unsigned int mFlagC25 : 1;
+            unsigned int mFlagC24 : 1; // inferred: set by vf0C for type 2 without m146C
+            unsigned int mFlagC23_0 : 24;
+        };
+    };
 };
 
 #endif

@@ -314,7 +314,7 @@ void Em002_01BlackSkelton::fn_80247FB0() {
         float len = dir.Length_unk();
         if (len > 1.0f) {
             rot = dir.GetNormalize().ToRotation_unk();
-            vf34(&rot, 0, len, 1.0f);
+            vf34(rot, 0, len, 1.0f);
         } else {
             m14B0 = 0;
             mColli.mFlags &= ~1;

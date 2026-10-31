@@ -17,7 +17,6 @@ extern "C" double strtod(const char* str);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -80,7 +79,6 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                           // inferred: nonzero while playing
@@ -821,7 +819,7 @@ void Em305Vampire::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         m1434 = 0;
@@ -930,7 +928,7 @@ void Em305Vampire::fn_802EC280() {
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
     fn_800CB5C8(&m15A0, 5, 0);
     fn_800CB5C8(&m15A4, 5, 0);
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 // inferred: debug menu of the vampire

@@ -2,6 +2,7 @@
 #define ATN_LH_MOTION_H
 
 #include "atn/LoadHandle.h"
+#include "math/Vec.h"
 
 namespace atn {
 
@@ -22,5 +23,14 @@ public:
 };
 
 } // namespace atn
+
+// inferred: node pose filled by fn_800A04A0 from a motion (0x2C bytes); constructor 0x800A08E0
+struct MotionPose_unk {
+    MotionPose_unk(); // 0x800A08E0
+    int m00;
+    atn::Vector3 mPos; // 0x04
+    atn::Quaternion_unk m10; // inferred: rotation
+    atn::Vector3 mScale; // 0x20
+};
 
 #endif

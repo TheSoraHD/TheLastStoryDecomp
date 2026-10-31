@@ -31,9 +31,9 @@ public:
     virtual void vfEC();
     virtual int vf68(CharaTask* attacker) { return 0; }
     virtual void vf6C(int kind, CharaTask* other) {}
-    // inferred: inline (weak copy 0x802F6E54 emitted at the end of the file); the slot 0x60
-    // (0x802F6E5C, returns 8.0f) is not written: CharaTask::vf60 is declared void in the shared header
+    // inferred: inline (weak copies 0x802F6E54 and 0x802F6E5C emitted at the end of the file)
     virtual float vf90() { return 3.5f; }
+    virtual float vf60() { return 8.0f; }
 
     int fn_802F2C50(); // inferred: ground below is water/lava (ray test attributes 0x14, 0x15, 0x1A-0x1D)
     void fn_802F33A0(); // inferred: movement

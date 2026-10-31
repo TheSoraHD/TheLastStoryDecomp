@@ -18,8 +18,7 @@ struct NewCampTutorial_unk {
     int mCategory;       // 0xA8
 };
 
-// inferred: tutorial task (game/NewCampPartsHint.cpp)
-struct NewCampHintTutorial_unk;
+class TutorialTask;
 
 // inferred: colour of the debug menu (4 floats); name invented
 struct NewCampColor_unk {
@@ -70,7 +69,7 @@ public:
     atn::D3AnimeInstance* mScroll;    // 0x124
     int m128;                         // inferred: a tutorial was started
     NewCampTutorialList_unk mList;    // 0x12C
-    NewCampHintTutorial_unk* mTutorial; // 0x138
+    class TutorialTask* mTutorial; // 0x138
     int mWait;                        // 0x13C
     float mOpen;                      // 0x140
     atn::Vector3 mMove;               // 0x144: inferred: "MoveOffset"

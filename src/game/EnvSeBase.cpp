@@ -241,6 +241,10 @@ void EnvSeLine::vf1C(atn::Csv* csv) {
     }
 }
 
+// inferred: the original inlines push_back in vf1C, so its "vector length error" comes right after the
+// ":" of vf1C in the string pool; ours calls it out of line, instantiated here to keep that order
+template void std::vector<int>::push_back(const int& x);
+
 EnvSeLine::~EnvSeLine() {}
 
 int EnvSeLine::vf0C() {
@@ -481,8 +485,6 @@ void EnvSeArea_unk::fn_80362FA4(atn::Csv* csv) {
     mA0 = fn_800DC288(csv->fn_8005B9CC());
 }
 
-// NONMATCHING: 99.85% - only the pool offsets of "Area[%d] %s" and "ReverbParamId" (the literals of
-// the inlined std::vector::push_back of EnvSeLine::vf1C come before them in the original).
 void EnvSeArea_unk::fn_80363108(void* root) {
     if (root != 0) {
         char name[0x100];

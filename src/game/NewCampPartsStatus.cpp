@@ -1,4 +1,5 @@
 #include "game/NewCampPartsStatus.h"
+#include "game/TutorialTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/D3Anime.h"
@@ -48,58 +49,13 @@ extern "C" void fn_803DD160(atn::D2ATask_unk* task, int arg);
 extern "C" void fn_803D70B4(atn::D2ATask_unk* task, const char* name, const wchar_t* text); // inferred: sets a text
 extern "C" void fn_803D6EF8(atn::D2ATask_unk* task, const char* name, float value);         // inferred: sets a value
 
-// inferred: 2D point of a d2anime pane (0x14 bytes)
-struct NewCampStatusPoint_unk {
-    NewCampStatusPoint_unk() {}
-    float x;
-    float y;
-    float m08;
-    float m0C;
-    float m10;
-};
-extern "C" NewCampStatusPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
+extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 
-// inferred: model of an entry (atn::ModelInstance, src/atn/ModelInstance.cpp); only the members used here
-namespace atn {
-class ModelInstance {
-public:
-    void fn_8009EE30(const Matrix3x4& mtx); // inferred: sets the matrix
-    unsigned char* m00;
-    unsigned char* m04; // inferred: resource; its data starts at 0x10
-    unsigned char m08[0x30 - 0x08];
-    Matrix3x4 mMtx; // 0x30
-    unsigned char m60[0x88 - 0x60];
-    unsigned int mHidden : 1; // 0x88
-};
-} // namespace atn
-struct NewCampPartsModel_unk : public atn::ModelInstance {};
-// inferred: the null-checked cast of the model (name invented)
-inline atn::ModelInstance* GetModel_unk(NewCampPartsModel_unk* model) {
-    return model != 0 ? static_cast<atn::ModelInstance*>(model) : 0;
-}
-// inferred: data of the resource of the model (name invented)
-inline unsigned char* GetModelData_unk(NewCampPartsModel_unk* model) {
-    return model != 0 ? model->m04 + 0x10 : 0;
-}
 
 // inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
-extern "C" int fn_8050FD20(NewCampPartsBase* self); // inferred: these parts are the current ones
-extern "C" void fn_8050FB38(NewCampPartsBase* self, int count, NewCampPartsEntry_unk* entries,
-                            const NewCampPartsFile_unk* file, int a, int b);
-extern "C" void fn_8050FC88(NewCampPartsBase* self, int count, NewCampPartsEntry_unk* entries, int a);
-extern "C" void fn_8050FD38(NewCampPartsBase* self, NewCampScene_unk* scene, NewCampPartsEntry_unk* entries,
-                            const NewCampPartsFile_unk* file, int count, const char* name);
-extern "C" void fn_80510D64(NewCampPartsBase* self, int a, int b); // inferred: moves the cursor (m80/m84)
-extern "C" void fn_80510E94(NewCampPartsBase* self, int a, int b);
-extern "C" void fn_80511258(NewCampPartsBase* self, NewCampPartsEntry_unk* entries, atn::D3Anime* anime,
-                            const atn::Vector3& pos, const atn::Vector3& scale, const char* name);
-extern "C" void fn_805112A8(NewCampPartsBase* self, NewCampPartsEntry_unk* entries, atn::D3AnimeInstance* anime,
-                            const atn::Vector3& pos, const atn::Vector3& scale, const char* name);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int a, int b, float c, float d);
 extern "C" void fn_805115D0(atn::Task* anime, int a, int b, float c, float d);
-extern "C" void fn_805118B4(NewCampPartsBase* self, atn::Task* task, const char* name, NewCampPartsEntry_unk* entry,
-                            const NewCampStatusPoint_unk& pos, int b); // inferred: cursor of a model
 extern "C" void fn_80511D9C(atn::D2AInstance_unk* task, CharaStatus* status, int chara, int arg);
 
 // inferred: camp task (the parent m48); only the members used here
@@ -119,13 +75,6 @@ struct NewCampStatusCamp_unk {
     int mMemberCount;                    // 0x1224
     NewCampStatusMember_unk mMembers[1]; // 0x1228
 };
-// inferred: tutorial task made by fn_805B9F50; only the member used here
-struct NewCampStatusTutorial_unk : public atn::Task {
-    unsigned char m48[0x88 - 0x48];
-    int m88; // inferred: state
-};
-extern "C" NewCampStatusTutorial_unk* fn_805B9F50(atn::Task* parent, int id, int arg); // inferred: starts a tutorial
-extern "C" void fn_805BA354(NewCampStatusTutorial_unk* task, void* arg);
 // inferred: tutorial entry (fn_8021F09C)
 struct NewCampStatusHelp_unk {
     int mFlag;
@@ -207,7 +156,7 @@ inline atn::Vector3 LerpFrom_unk(const atn::Vector3& a, const atn::Vector3& b, f
     return (b - a) * t + a;
 }
 
-inline NewCampStatusPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
+inline NewCampPartsPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));
 }
 // inferred: set a text/value of the pane `name` (names invented)
@@ -241,8 +190,8 @@ NewCampPartsStatus::NewCampPartsStatus(atn::Task* parent)
     m4C = 8;
     if (m4C > 0) {
         m50.Reset_unk(new ((MemoryTag)1, "", "", 0) NewCampPartsEntry_unk[m4C]);
-        fn_8050FB38(this, m4C, m50.mData, sFiles, 0, 0);
-        fn_8050FC88(this, m4C, m50.mData, 1);
+        fn_8050FB38(m4C, m50.mData, sFiles, 0, 0);
+        fn_8050FC88(m4C, m50.mData, 1);
     }
     m5C.vf0C("camera/ui/status_camera.xsca");
     for (int i = 0; i < 7; i++) {
@@ -263,7 +212,7 @@ int NewCampPartsStatus::vf4C() {
 }
 
 void NewCampPartsStatus::vf1C(NewCampScene_unk* scene) {
-    fn_8050FD38(this, scene, m50.mData, sFiles, m4C, sBoard);
+    fn_8050FD38(scene, m50.mData, sFiles, m4C, sBoard);
     m58 = -1.0f;
     for (int i = 0; i < 7; i++) {
         mPages[i].mBase->fn_800D246C(0);
@@ -294,7 +243,7 @@ void NewCampPartsStatus::vf10() {
 // source vector address and its copy swap r3/r4)
 void NewCampPartsStatus::vf14() {
     int show = 0;
-    if (fn_8050FD20(this) && ((NewCampStatusCamp_unk*)m48)->m11F8 != 1) {
+    if (fn_8050FD20() && ((NewCampStatusCamp_unk*)m48)->m11F8 != 1) {
         show = 1;
     }
     vf3C(show);
@@ -340,16 +289,16 @@ void NewCampPartsStatus::vf14() {
         if (layout->mBase->GetTask() != 0) {
             char name[0x40];
             sprintf(name, "null_cursor");
-            NewCampStatusPoint_unk pos = GetPanePos_unk(layout->mBase->GetTask(), name);
-            fn_805118B4(this, 0, 0, cursor, pos, m7C != 0);
+            NewCampPartsPoint_unk pos = GetPanePos_unk(layout->mBase->GetTask(), name);
+            fn_805118B4(0, 0, cursor, pos, m7C != 0);
             if (m7C != 0) {
                 int skill = mSkill;
                 if (skill >= 0 && skill < (int)set->mSkills.mSize && set->mSkills.mData[skill].mTension != 0) {
                     skill = 9;
                 }
                 sprintf(name, "camp_cursor%d", skill + 1);
-                NewCampStatusPoint_unk pos2 = GetPanePos_unk(layout->mBase->GetTask(), name);
-                fn_805118B4(this, layout->mBase->GetTask(), sCursorNames[skill], cursor, pos2, 0);
+                NewCampPartsPoint_unk pos2 = GetPanePos_unk(layout->mBase->GetTask(), name);
+                fn_805118B4(layout->mBase->GetTask(), sCursorNames[skill], cursor, pos2, 0);
             }
         }
     }
@@ -459,7 +408,7 @@ void NewCampPartsStatus::vf2C() {
     switch (m7C) {
     case 0:
         fn_805289A8();
-        if (fn_8050FD20(this) && ((NewCampStatusCamp_unk*)m48)->m11F8 != 1 && mPage >= 0 &&
+        if (fn_8050FD20() && ((NewCampStatusCamp_unk*)m48)->m11F8 != 1 && mPage >= 0 &&
             (unsigned int)mPage < (unsigned int)mSets.mSize && mSets[mPage].mSkills.mSize != 0) {
             fn_804A5E40(MenuCommonTask::sInstance, 0xF, lbl_807C7030, 0);
         }
@@ -472,9 +421,9 @@ void NewCampPartsStatus::vf2C() {
             if (--mWait <= 0) {
                 fn_805288BC(1);
             }
-        } else if (mTutorial->IsFlag_unk(2) && mTutorial->m88 == 0) {
-            fn_805BA354(mTutorial, ((NewCampStatusCamp_unk*)m48)->m6C);
-        } else if (mTutorial->m88 == 4) {
+        } else if (mTutorial->IsFlag_unk(2) && mTutorial->mState == 0) {
+            mTutorial->fn_805BA354((const Camera_unk*)((NewCampStatusCamp_unk*)m48)->m6C);
+        } else if (mTutorial->mState == 4) {
             fn_800D2338(mTutorial);
             mTutorial = 0;
             mWait = 15;
@@ -708,7 +657,7 @@ void NewCampPartsStatus::fn_80528694() {
     int page = mPage;
     m80 = page;
     m84 = mSets.mSize;
-    fn_80510E94(this, 1, 0x11);
+    fn_80510E94(1, 0x11);
     mPage = m80;
     if (mPage != page) {
         if (fn_800A55AC(pad, 0, 0x17) || fn_800A55AC(pad, 0, 2)) {
@@ -764,7 +713,7 @@ void NewCampPartsStatus::fn_805288BC(int state) {
                 }
                 fn_805288BC(1);
             } else {
-                mTutorial = fn_805B9F50(this, help->mFlag, 0);
+                mTutorial = TutorialTask::fn_805B9F50(this, help->mFlag, 0);
             }
         } else {
             fn_805288BC(1);
@@ -794,7 +743,7 @@ void NewCampPartsStatus::fn_80528A90() {
     void* pad = lbl_8087EF70;
     m80 = mSkill;
     m84 = mSets[mPage].mSkills.mSize;
-    fn_80510D64(this, 1, 3);
+    fn_80510D64(1, 3);
     mSkill = m80;
     NewCampStatusHelp_unk* help = fn_8021F09C(mSets[mPage].mSkills.mData[mSkill].mHelp);
     if (help != 0) {
@@ -839,7 +788,7 @@ void NewCampPartsStatus::fn_80528BF0() {
             continue;
         }
         NewCampPartsEntry_unk* entry = &m50[slot];
-        NewCampStatusPoint_unk pos;
+        NewCampPartsPoint_unk pos;
         pos.x = 0.0f;
         pos.y = 0.0f;
         pos.m08 = 0.0f;
@@ -851,10 +800,8 @@ void NewCampPartsStatus::fn_80528BF0() {
         if (mPages[i].mParam->GetTask() != 0) {
             fn_801F6E78(mPages[i].mParam->GetTask(), "basePos", &pos);
         }
-        fn_80511258(this, entry, mPages[i].mBase, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
-                    "reference");
-        fn_805112A8(this, entry, mPages[i].mParam, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
-                    "reference");
+        fn_80511258(entry, mPages[i].mBase, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        fn_805112A8(entry, mPages[i].mParam, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
     }
 }
 

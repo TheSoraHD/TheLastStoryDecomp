@@ -569,9 +569,9 @@ void Em101ElderZesya::vf10() {
         PSMTXRotRad(m, 'y', rot.y);
         PSMTXMultVec(m, &offs[1], &offs[1]);
         offs[2] = atn::Vector3(sChantOffset_unk.x, 0.0f, -sChantOffset_unk.x);
-        Mtx m2;
-        PSMTXRotRad(m2, 'y', rot.y);
-        PSMTXMultVec(m2, &offs[2], &offs[2]);
+        atn::Matrix3x4 m2;
+        m2.fn_8013A13C(rot.y);
+        PSMTXMultVec(m2.m, &offs[2], &offs[2]);
         float angles[3];
         angles[0] = 0.0f;
         angles[1] = -1.5707964f;

@@ -7,7 +7,6 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: bullets (as in gmk/LandMine.cpp)
 struct BulletMgr_unk;
@@ -126,7 +125,7 @@ void EnemyLizerdBlade::vf10() {
             }
         }
         if (m58C < 6) {
-            fn_800E2FE0(this);
+            fn_800E2FE0();
         } else {
             fn_80145334();
             fn_8014C540();

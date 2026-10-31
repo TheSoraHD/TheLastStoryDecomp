@@ -37,8 +37,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
-extern "C" void fn_800EB7A0(CharaTask* chara);     // inferred: BattleCharaTask (death effect?)
-extern "C" void fn_800EE360(CharaTask* chara);     // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 // inferred: field (lbl_8087F430); fn_80370AE4 sets an event flag
 struct Field_unk;
@@ -215,7 +213,7 @@ void Em201ZanGurg::vf10() {
                 mColli.mFlags &= ~1;
                 mFlag15 = 1;
                 fn_801765D8();
-                fn_800EE360(this);
+                fn_800EE360();
             }
             break;
         }
@@ -319,7 +317,7 @@ void Em201ZanGurg::vf40(HitInfo_unk* hit) {
         fn_8016DA4C();
         m58C = 2;
         PlayMotion_unk(&mMotion, 0x2E, 0, 0);
-        fn_800EB7A0(this);
+        fn_800EB7A0();
     }
 }
 

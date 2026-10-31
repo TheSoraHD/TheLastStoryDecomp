@@ -90,6 +90,19 @@ public:
     void fn_80112174();
 
     bool HasFlag_unk(unsigned int flag) const { return (m04 & flag) == flag; }
+    // inferred: copy of the shot parameters (member by member, chr::ControlHitBackBullet::vf0C); name
+    // invented
+    BulletShot_unk GetShot_unk() const {
+        BulletShot_unk shot;
+        shot.m00 = m5C;
+        shot.m04 = m60;
+        shot.m08 = m64;
+        shot.m0C = m68;
+        shot.m10 = m6C;
+        shot.m14 = m70;
+        shot.m18 = m74;
+        return shot;
+    }
 
     unsigned int m04;       // inferred: flags
     atn::Vector3 m08;       // inferred: position

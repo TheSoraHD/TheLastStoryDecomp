@@ -40,7 +40,6 @@ struct EffectMgr_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
@@ -87,7 +86,6 @@ struct ElderMsgTable_unk {
 extern "C" ElderMsgTable_unk* lbl_8087F1E4;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_800EE360(CharaTask* chara);     // inferred: BattleCharaTask (enemies only)
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); nonzero while the magic is active
 extern "C" void* lbl_8087F9E8;
@@ -282,7 +280,7 @@ void Em101ElderZesyaSecond::vf10() {
                 mColli.mFlags &= ~1;
                 mFlag15 = 1;
                 fn_801765D8();
-                fn_800EE360(this);
+                fn_800EE360();
             }
             break;
         }
@@ -505,7 +503,7 @@ void Em101ElderZesyaSecond::vf40(HitInfo_unk* hit) {
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
-            fn_800EB7A0(this);
+            fn_800EB7A0();
         } else {
             mStatus.fn_8013322C(0x20);
             mStatus.m04 = 1.0f;

@@ -34,7 +34,6 @@ extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xEC];
@@ -790,7 +789,7 @@ void Em005DoppelGanger::vf3C(HitInfo_unk* hit) {
                     m14B8 = 0;
                     m590 = fn_800F8548(lbl_8087F048);
                     m58C = 1;
-                    fn_8015DEC0((int)&msg->m10);
+                    fn_8015DEC0(msg->m10);
                     ((Control1C_unk*)mControl.get())->m1C = 1;
                     msg->mAttacker->vf7C(1);
                     msg->m90 = 0;
@@ -828,7 +827,7 @@ void Em005DoppelGanger::vf40(HitInfo_unk* hit) {
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
-            fn_800EB7A0(this);
+            fn_800EB7A0();
         }
     } else if (m14BC == 2) {
         int kind = m560;

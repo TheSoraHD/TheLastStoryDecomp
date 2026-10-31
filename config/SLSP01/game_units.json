@@ -2909,6 +2909,13 @@
   "matching": false
  },
  {
+  "name": "game/NewCampPartsBase.cpp",
+  "classes": [
+   "NewCampPartsBase"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/NewCampPartsGmk.cpp",
   "classes": [
    "NewCampPartsGmk"

@@ -17,10 +17,19 @@ public:
     virtual void vf20();
     virtual void vf24();
     virtual void vf28(); // inferred: draws the movie
+    virtual void vf2C();
+    virtual int vf30();  // inferred: current frame (TutorialTask::vf10)
+    virtual void vf34();
+    virtual void vf38();
+    virtual void vf3C();
 
     int m04;  // inferred: kind (0, or 2/3 for RTMV movies)
     int m08;  // inferred: nonzero once playing
-    unsigned char m0C[0x98 - 0x0C];
+    int m0C;  // inferred: set to 1 by TutorialTask::fn_805BA934 (loop?)
+    float m10; // inferred: depth of the movie (TutorialTask::fn_805BA934)
+    unsigned char m14[0x1C - 0x14];
+    int m1C;  // inferred: nonzero at the end of the movie (TutorialTask::vf10)
+    unsigned char m20[0x98 - 0x20];
 };
 
 } // namespace atn

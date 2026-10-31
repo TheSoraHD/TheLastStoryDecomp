@@ -8,7 +8,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" double sqrt(double x);
 extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
-extern "C" void fn_800E2FE0(BattleCharaTask* chara); // inferred: BattleCharaTask per-frame update
 // inferred: bullets (as in gmk/LandMine.cpp)
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048;
@@ -95,7 +94,7 @@ void EnemySeaLizerd::fn_80354910() {
 // NONMATCHING: 99.9% - r28/r29 swapped between the bullet manager and the bullet data
 void EnemySeaLizerd::vf10() {
     if (mFlag2) {
-        fn_800E2FE0(this);
+        fn_800E2FE0();
         return;
     }
     switch (m58C) {
@@ -144,7 +143,7 @@ void EnemySeaLizerd::vf10() {
                 m14C4 = m14C8;
                 m14CC = 60;
             }
-            fn_800E2FE0(this);
+            fn_800E2FE0();
         } else {
             fn_80145334();
         }

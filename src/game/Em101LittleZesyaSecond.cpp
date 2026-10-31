@@ -126,7 +126,6 @@ extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, Hit
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in game/Em101ElderZesyaSecond.cpp)
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 struct Color4f_unk {
     Color4f_unk() {}
@@ -329,7 +328,7 @@ void Em101LittleZesyaSecond::vf10() {
                 mFlag25 = 1;
                 mMotion.mTracks[0].m0C = 0.0f;
                 fn_800D246C(1);
-                fn_800EE360(this);
+                fn_800EE360();
             }
         } else {
             fn_8016E970(3);
@@ -424,7 +423,7 @@ void Em101LittleZesyaSecond::vf10() {
                 mFlag25 = 1;
                 mMotion.mTracks[0].m0C = 0.0f;
                 fn_800D246C(1);
-                fn_800EE360(this);
+                fn_800EE360();
             }
             break;
         }

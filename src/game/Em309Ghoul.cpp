@@ -31,7 +31,6 @@ struct GhoulMsgTable_unk {
 extern "C" GhoulMsgTable_unk* lbl_8087F1E4;
 // inferred: debug drawing (lbl_8087EEB0, see game/CharaTask.cpp)
 
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -531,12 +530,12 @@ void Em309Ghoul::vf40(HitInfo_unk* hit) {
             vf44();
             Die_unk(0x37, 1);
             fn_80239DAC(lbl_8087F3C0, this, 0x131, 1);
-            fn_800EB7A0(this);
+            fn_800EB7A0();
         } else {
             fn_80239DAC(lbl_8087F3C0, this, 0x190, 1);
             vf44();
             Die_unk(0x2E, 0);
-            fn_800EB7A0(this);
+            fn_800EB7A0();
         }
     }
 }
@@ -1082,7 +1081,6 @@ struct GhoulParams_unk {
 };
 extern "C" GhoulParams_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes, as in gmk/MotionObject.cpp)
 struct GhoulCollResult_unk {
@@ -1174,7 +1172,7 @@ void Em309Ghoul::vfEC() {
             lbl_8087EFA8->mTimeScale = 1.0f;
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         lbl_8087EFA8->mTimeScale = 0.5f;

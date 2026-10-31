@@ -1,4 +1,5 @@
 #include "game/GameUI.h"
+#include "game/CharaTask.h"
 #include "atn/SoundRef.h"
 #include "string.h"
 
@@ -14,6 +15,12 @@ struct GameUIField_unk {
     atn::Task* m10D8;
 };
 extern "C" GameUIField_unk* lbl_8087F430;
+extern "C" int fn_80370C2C(GameUIField_unk* field);
+extern "C" void fn_80370BD0(GameUIField_unk* field, int frames, int arg, float speed);
+extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int frames, int arg, float speed);
+extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
+extern "C" void fn_803B78E8(void* self); // inferred: closes the window (game/GameChoiceWindow.cpp)
+extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float time); // inferred: shows a message
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" void fn_803E668C(GameUI* ui);
@@ -298,3 +305,271 @@ float GameUIDuration_unk::fn_803CFC6C() {
 }
 
 void GameUI::vf14() {}
+
+void GameUI::fn_803E32EC() {
+    memcpy(&m748, &m764, sizeof(GameUIElem1C_unk));
+    m764 = GameUIElem1C_unk();
+    memcpy(&m7F8, &m7C0, sizeof(GameUIElem1C_unk));
+    m7C0 = GameUIElem1C_unk();
+}
+
+void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
+    if (msg != 0 && m2640 != 0) {
+        m2640->mB4 = 0;
+        fn_803B78E8(m2640);
+        fn_803B6970(m2640, msg, arg, time);
+        m2658 = 0;
+    }
+}
+
+void GameUI::fn_803E4100() {
+    m748 = GameUIElem1C_unk();
+    m764 = GameUIElem1C_unk();
+    m780 = GameUIElem1C_unk();
+    for (int i = 0; i < 3; i++) {
+        m814[i * 2]->m100 = m814[i * 2]->mA0;
+    }
+    for (int i = 0; i < 3; i++) {
+        m814[i * 2 + 1]->m100 = m814[i * 2 + 1]->mA0;
+    }
+    m834 = 0;
+}
+
+bool GameUI::fn_803E43A4() {
+    return m1130 != 0;
+}
+
+void GameUI::fn_803E43B8(int on) {
+    if (on) {
+        mD8C = 1;
+        mD84 = 0;
+        mD7C = 8;
+        fn_800C31F4(lbl_80750618[3], 0, -1, 0.5f);
+    } else {
+        mD8C = 0;
+        mD88 = 0;
+        mD84 = 0;
+    }
+}
+
+void GameUI::fn_803E4434(int on) {
+    if (on) {
+        mD8C = 2;
+        mD84 = 0;
+        mD80 = 1;
+        mD7C = 5;
+    } else {
+        mD8C = 0;
+        mD88 = 0;
+        mD80 = 0;
+        mD84 = 0;
+    }
+}
+
+void GameUI::fn_803E4478() {
+    mD78 = 0;
+    mD8C = 0;
+    mD88 = 0;
+    mD84 = 0;
+    mD80 = 0;
+    if (mD70 != 0) {
+        mD70->FreezeTask();
+    }
+    if (mD74 != 0) {
+        mD74->FreezeTask();
+    }
+}
+
+void GameUI::fn_803E44C4(int on, int id, int count) {
+    if (on) {
+        m2644 = 1;
+        m2648 = id;
+        m264C = count;
+        m2650 = 0;
+    } else if (m2644 != 0 && m2648 == id) {
+        m2650 = m264C + 1;
+    }
+}
+
+void GameUI::fn_803E4510() {
+    m2644 = 0;
+    m2648 = 0;
+    m264C = 0x2D;
+    m2650 = 0;
+    if (m2654 != 0) {
+        m2654->m104 = -1.0f;
+        m2654->m100 = 0.0f;
+    }
+}
+
+void GameUI::fn_803E4950() {
+    mD90.m00 = 0;
+    mDB0 = 0;
+    mDB4->m100 = 0.0f;
+    mDB4->m104 = -1.0f;
+}
+
+void GameUI::fn_803E4A20(int a, int b) {
+    if (a) {
+        mD90.m00 = 1;
+        mD90.m04 = 1;
+        mDA4 = a;
+        mDA8 = b;
+        mDB0 = 2;
+    }
+}
+
+// NONMATCHING: 99% - code matches; 10.0f sits later in the float pool (earlier users unwritten)
+float GameUI::fn_803E4A48() {
+    return mDB4->m100 / 10.0f;
+}
+
+// inferred: true while the character cannot be controlled (states 0x8/0x200, a counter, state 0x800000)
+extern "C" bool fn_803E4DD4(CharaTask* chara) {
+    if (chara != 0) {
+        bool down = chara->mStatus.IsState_unk(8) || chara->mStatus.IsState_unk(0x200);
+        if (down) {
+            return true;
+        }
+    }
+    if (chara != 0 && chara->mStatus.m430 > 0) {
+        return true;
+    }
+    if (chara != 0 && chara->mStatus.IsState_unk(0x800000)) {
+        return true;
+    }
+    return false;
+}
+
+void GameUI::fn_803E58CC() {
+    if (mDC0 != 0) {
+        mDC0->m100 = 0.0f;
+    }
+}
+
+void GameUI::fn_803E58E4() {
+    if (mDC4 != 0) {
+        mDC4->m100 = 0.0f;
+        fn_800C31F4(lbl_80750618[12], 0, -1, 1.0f);
+    }
+}
+
+bool GameUI::fn_803E5940() {
+    if (mDC4 != 0) {
+        return (mDC4->mFlags & 4) != 4 && !mDC4->IsEnd_unk();
+    }
+    return false;
+}
+
+void GameUI::fn_803E63D0() {
+    if (m262C.m00 != 0) {
+        fn_800D2338(m262C.m00);
+        m262C.m00 = 0;
+    }
+    if (m262C.m04 != 0) {
+        fn_800D2338(m262C.m04);
+        m262C.m04 = 0;
+    }
+    if (m262C.m08 != 0) {
+        fn_800D2338(m262C.m08);
+        m262C.m08 = 0;
+    }
+    m262C.m0C = 0;
+}
+
+bool GameUI::fn_803E644C() {
+    if (m262C.m00 != 0 && (m262C.m00->mFlags & 2) != 2) {
+        return true;
+    }
+    if (m262C.m04 != 0 && (m262C.m04->mFlags & 2) != 2) {
+        return true;
+    }
+    if (m262C.m08 != 0 && (m262C.m08->mFlags & 2) != 2) {
+        return true;
+    }
+    if (!fn_80370C2C(lbl_8087F430)) {
+        return true;
+    }
+    return false;
+}
+
+void GameUI::fn_803E64F0() {
+    m262C.m00->fn_800D246C(0);
+    m262C.m00->FreezeTask();
+    m262C.m04->fn_800D246C(0);
+    m262C.m04->FreezeTask();
+    m262C.m08->fn_800D246C(0);
+    m262C.m08->FreezeTask();
+}
+
+void GameUI::fn_803E656C() {
+    if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
+        return;
+    }
+    if (m262C.m0C == 1 || m262C.m0C == 2) {
+        return;
+    }
+    m262C.m00->m100 = 0.0f;
+    m262C.m00->m104 = 1.0f;
+    m262C.m04->m100 = 0.0f;
+    m262C.m04->m104 = 1.0f;
+    m262C.m08->m100 = 0.0f;
+    m262C.m0C = 1;
+    if (lbl_8087F430 != 0) {
+        fn_80370BD0(lbl_8087F430, 30, 0, 1e-5f);
+    }
+}
+
+// NONMATCHING: 99.3% - f0/f1 of -1.0f and the second mA0 swapped
+void GameUI::fn_803E65F8() {
+    if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
+        return;
+    }
+    if (m262C.m0C == 3 || m262C.m0C == 0) {
+        return;
+    }
+    m262C.m00->m100 = m262C.m00->mA0;
+    m262C.m00->m104 = -1.0f;
+    m262C.m04->m100 = m262C.m04->mA0;
+    m262C.m04->m104 = -1.0f;
+    m262C.m0C = 3;
+    if (lbl_8087F430 != 0) {
+        fn_80370B78(lbl_8087F430, 0xFF000000, 30, 0, 1e-4f);
+    }
+}
+
+void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
+    if (!m25CC.Full_unk()) {
+        new (&m25CC.m[m25CC.m00]) GameUIElem10_unk(chara, count, max, arg);
+        m25CC.m00++;
+    }
+}
+
+// NONMATCHING: 90.4% - the original reloads the count for the slot and stores the temporary after it
+void GameUI::fn_803E6BF0(unsigned int id, int value) {
+    for (unsigned int i = 0; i < m3F0.mCount; i++) {
+        unsigned int v = m3F0.mData[i].m08;
+        if (v == id) {
+            m3F0.mData[i].mFrames = 0;
+            m3F0.mData[i].m00 = value;
+            return;
+        }
+    }
+    if (m3F0.mCount < 32) {
+        GameUIEntry_unk e;
+        e.m00 = value;
+        e.mFrames = 0;
+        e.m08 = id;
+        m3F0.PushBack_unk(e);
+    }
+}
+
+bool GameUI::fn_803E6C88(unsigned int id) {
+    for (unsigned int i = 0; i < m3F0.mCount; i++) {
+        unsigned int v = m3F0.mData[i].m08;
+        if (v == id) {
+            return true;
+        }
+    }
+    return false;
+}

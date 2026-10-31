@@ -70,8 +70,6 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
-extern "C" void fn_800EB7A0(CharaTask* chara); // inferred: BattleCharaTask (death effect?)
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
@@ -1334,7 +1332,7 @@ void Em204Mulue::vfEC() {
         } else {
             mFlag15 = 1;
             fn_801765D8();
-            fn_800EE360(this);
+            fn_800EE360();
         }
     } else {
         int motion = mMotion.mTracks[0].m00;
@@ -1550,7 +1548,7 @@ void Em204Mulue::fn_802ABF6C() {
         m1644->fn_8015AC48(-1);
         m1644 = 0;
     }
-    fn_800EB7A0(this);
+    fn_800EB7A0();
 }
 
 void Em204Mulue::fn_802AC0E0() {

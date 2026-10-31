@@ -720,7 +720,7 @@ int ControlMagic::vf0C() {
                     opt.m14 = 0;
                     atn::Vector3 a;
                     atn::Vector3 b;
-                    if (mChara->vfA4()) {
+                    if (mChara->vfA4(&a, &b)) {
                         fn_8003EA3C(&damage, hit, mChara, m14, 0, &opt, &a, &b);
                     } else {
                         fn_8003EA3C(&damage, hit, mChara, m14, 0, lbl_807C6B90, 0, 0);

@@ -3,6 +3,7 @@
 #include "atn/LoadHandle.h"
 #include "game/CrowdManager.h"
 #include "game/CharaTask.h"
+#include "game/BattleCharaTask.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
 #include "chr/ControlAttackBase.h"
@@ -1324,7 +1325,7 @@ void CharaTask::fn_80139560() {
         }
     }
     if (!mFlag2) {
-        vf34(&rot, 0, a, b);
+        vf34(rot, 0, a, b);
     } else {
         fn_8013CB68(rot, 0, a, b);
     }
@@ -2335,7 +2336,7 @@ inline bool CharaTask::HasRideParts_unk() {
 // NONMATCHING: 95.6% - the flag word of the mFlag31 test stays in r3 (the original reloads it for
 // fn_80139EB0), and from/to of the ray test get r30/r31 the other way round; tried accessors, local
 // orders, an inline ray-test helper.
-void CharaTask::vf34(void* target, int arg, float a, float b) {
+void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
     atn::Vector3 oldPos(mPos);
     atn::Vector3 oldRot(mRot);
     if (lbl_8087F048 != 0 && !mFlag31) {
@@ -2386,31 +2387,31 @@ void CharaTask::vf34(void* target, int arg, float a, float b) {
                 }
             }
         } else if (m55C == 6) {
-            fn_8013CB68(*(const atn::Vector3*)target, 0, a, b);
+            fn_8013CB68(rot, 0, a, b);
         } else {
-            fn_80141674(target, a, b);
+            fn_80141674((void*)&rot, a, b);
         }
     } else if (fn_80139EB0() || fn_80139E9C()) {
         m13AC = 0;
         float rate = m568 * MIN(0.52f, b);
-        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(0.52f, rate));
+        fn_8013CB68(rot, 0, a, MAX(0.52f, rate));
     } else if (fn_80139EBC()) {
         float rate = 0.6f;
-        fn_8013CB68(*(const atn::Vector3*)target, 0, a, MAX(rate, m568 * rate));
+        fn_8013CB68(rot, 0, a, MAX(rate, m568 * rate));
     } else if (fn_80139ED0() || fn_80139EDC()) {
         m13AC = 0;
         if (m55C == 6) {
-            fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
+            fn_8013CB68(rot, arg, a, b);
         } else {
             b *= 0.675f;
             if (mFC0 != 0) {
-                fn_80140588(target, a, b);
+                fn_80140588((void*)&rot, a, b);
             } else {
-                fn_801426A4(target, a, b);
+                fn_801426A4((void*)&rot, a, b);
             }
         }
     } else {
-        fn_8013CB68(*(const atn::Vector3*)target, arg, a, b);
+        fn_8013CB68(rot, arg, a, b);
     }
     if (m55C != 6) {
         fn_80171F3C(&mPos, &m574);
@@ -4773,9 +4774,9 @@ void CharaTask::vf20() {
         }
         case 3: {
             atn::Vector3 offset(mFlag29 ? 2.0f : -3.0f, 0.0f, -1.0f);
-            Mtx m;
-            PSMTXRotRad(m, 'y', mRot.y);
-            PSMTXMultVec(m, &offset, &offset);
+            atn::Matrix3x4 m;
+            m.fn_8013A13C(mRot.y);
+            PSMTXMultVec(m.m, &offset, &offset);
             a += offset;
             break;
         }
@@ -7097,7 +7098,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
         } else if ((flags & 8) == 8) {
             if (!mFlag31 && !GetStatus_unk()->mParamB.fn_801404E0(0x10) && !(m55C == 6 && m560 == 23)) {
                 if ((flags & 0x2000) == 0x2000) {
-                    fn_8015DEC0((int)&dir); // inferred: the parameter is declared int (it receives &dir)
+                    fn_8015DEC0(dir);
                 } else {
                     float power = 0.1f;
                     if (msg != 0 && (msg->mData->mAC & 0x20000000) == 0x20000000) {
@@ -8657,8 +8658,8 @@ void CharaTask::vf7C(int arg) {
     fn_80178208(control);
 }
 
-void CharaTask::fn_8015DEC0(int a) {
-    chr::ControlGuardCounter* control = new ((MemoryTag)0, "", "", 0) chr::ControlGuardCounter(this, a);
+void CharaTask::fn_8015DEC0(const atn::Vector3& dir) {
+    chr::ControlGuardCounter* control = new ((MemoryTag)0, "", "", 0) chr::ControlGuardCounter(this, dir);
     fn_80178208(control);
 }
 
@@ -9487,7 +9488,6 @@ namespace chr {
 // the constructors, sizes from the operator new calls
 } // namespace chr
 
-extern "C" void fn_800EE360(CharaTask* chara); // inferred: BattleCharaTask (enemies only)
 
 // inferred: hangs from a cliff
 void CharaTask::fn_8016939C(int a, int b, float f) {
@@ -9507,7 +9507,7 @@ void CharaTask::fn_801698E4(const atn::Vector3& rot) {
     fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlFallDead(this, rot));
     mFlag16 = 0;
     if (mType == 2 && (m54C & 0x400) != 0x400) {
-        fn_800EE360(this);
+        static_cast<BattleCharaTask*>(this)->fn_800EE360(); // inferred: only enemies get here
     }
 }
 
@@ -12538,7 +12538,7 @@ int CharaTask::fn_8017CB2C() {
     return result;
 }
 
-int CharaTask::vfA4() {
+int CharaTask::vfA4(atn::Vector3* pos, atn::Vector3* rot) {
     return 0;
 }
 

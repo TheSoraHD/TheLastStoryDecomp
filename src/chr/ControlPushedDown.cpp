@@ -234,7 +234,7 @@ int ControlPushedDown::vf0C() {
                 m38 = 3;
             }
         } else {
-            mChara->vf34(&rot, 0, zero, one);
+            mChara->vf34(rot, 0, zero, one);
             Chara_unk* c = mChara;
             c->m580 = 0.0f;
             c->m584 = 0.0f;
@@ -284,7 +284,7 @@ int ControlPushedDown::vf0C() {
                 m38 = 3;
             }
         }
-        mChara->vf34(&rot, 0, zero, one);
+        mChara->vf34(rot, 0, zero, one);
         Chara_unk* c = mChara;
         c->m580 = 0.0f;
         c->m584 = 0.0f;
@@ -374,7 +374,7 @@ ControlOttotto::ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int ti
     }
 }
 
-// NONMATCHING: 99.56% - the counter goes to r0 instead of r5 and the stack slots of the negated
+// NONMATCHING: 99.74% - the counter goes to r0 instead of r5 and the stack slots of the negated
 // direction, its rotation and the normalized direction differ.
 int ControlOttotto::vf0C() {
     int count = --m14;
@@ -401,8 +401,7 @@ int ControlOttotto::vf0C() {
     if (frame >= motion->fn_80097D7C(0)) {
         return 1;
     }
-    atn::Vector3 rot = m08.ToRotation_unk();
-    mChara->vf34(&rot, 0, 0.0f, 1.0f);
+    mChara->vf34(m08.ToRotation_unk(), 0, 0.0f, 1.0f);
     Chara_unk* c = mChara;
     c->m580 = 0.0f;
     c->m584 = 0.0f;

@@ -1,4 +1,5 @@
 #include "game/Em305VampireMp.h"
+#include "game/GameUI.h"
 #include "atn/Material_unk.h"
 #include "atn/Csv.h"
 #include "math/Vec.h"
@@ -24,9 +25,7 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                       // inferred: nonzero while playing
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 // inferred: arena of the multiplayer mode (lbl_8087F490); fn_803E6850 shows the arrows left
-struct MpArena_unk;
-extern "C" MpArena_unk* lbl_8087F490;
-extern "C" void fn_803E6850(MpArena_unk* arena, CharaTask* chara, int count, int max, int arg);
+extern "C" GameUI* lbl_8087F490;
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
 extern "C" MpSession_unk* lbl_8087F610;
@@ -250,7 +249,7 @@ void Em305VampireMp::vf10() {
         vf104();
     }
     if (m1528 == 0) {
-        fn_803E6850(lbl_8087F490, this, m1604 - m1540, m1604, 0);
+        lbl_8087F490->fn_803E6850(this, m1604 - m1540, m1604, 0);
     }
     if (!CanAct_unk()) {
         fn_800CB5C8(&m15A0, 5, 0);
