@@ -23,14 +23,30 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: camera of the field (lbl_8087F430 + 0x6C, as in game/FinishCamera_unk.cpp)
 struct CameraSub_unk {
     void fn_80389838(int arg);
-    unsigned char m000[0x10D0 - 0x6C];
+    unsigned char m000[0x868 - 0x6C];
 };
+// inferred: battle area of the field (lbl_8087F430->m10D8); names invented
+struct BattleAreaInfo_unk {
+    unsigned char m00[0x48];
+    int m48;
+};
+struct BattleArea_unk {
+    unsigned char m00[0x64];
+    BattleAreaInfo_unk* m64;
+};
+extern "C" int fn_803CCA4C(BattleArea_unk* area, CharaTask* chara);
+extern "C" int fn_803CCA64(BattleArea_unk* area, CharaTask* chara, int arg, float range);
+extern "C" int fn_803CCA34(BattleArea_unk* area, CharaTask* chara);
 struct Field_unk {
     void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
     int fn_803761BC();
     unsigned char m0000[0x6C];
     CameraSub_unk m006C; // inferred: also the object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
+    int m868; // inferred: mode (3 and 4: battle, as in game/CharaTask.cpp)
+    unsigned char m86C[0x10D0 - 0x86C];
     int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
+    int m10D4;
+    BattleArea_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
@@ -209,6 +225,86 @@ int BattleCharaTask::vf0C() {
         }
     }
     return ok;
+}
+
+// inferred: ray result (0x50 bytes, as CollResult_unk in game/CharaTask.cpp)
+struct RayObj_unk {
+    unsigned char m00[0x08];
+    unsigned int m08; // inferred: flags (2: the object is a character)
+    CharaTask* m0C;
+};
+struct RayResult_unk {
+    RayResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x34];
+    int m34;
+    RayObj_unk* m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" int fn_8004ED34(void* colli, RayResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+extern "C" void* lbl_8087EE98;
+extern "C" void fn_801021B4(Effect_unk* mgr, RayObj_unk* obj, int a, int b); // inferred: cursor target
+atn::Vector3 fn_8017C9AC(CharaTask* chara); // inferred: position of the character's eyes
+// inferred: camera (lbl_8087EFB4); eye and target at 0x10C and 0x118 (View_unk in game/CharaTask.cpp)
+struct BattleCamera_unk {
+    unsigned char m000[0x10C];
+    atn::Vector3 mEye;    // 0x10C
+    atn::Vector3 mTarget; // 0x118
+};
+extern "C" BattleCamera_unk* lbl_8087EFB4;
+
+// inferred: looks for the character under the camera ray
+// NONMATCHING: 99.84% - stack slots of the two vector temporaries swapped, r3/r4 of the copy
+// of the start crossed (~12 forms)
+void BattleCharaTask::fn_800E3F5C() {
+    Field_unk* field = lbl_8087F430;
+    if (field == 0 || lbl_8087F048 == 0) {
+        return;
+    }
+    RayObj_unk* obj = 0;
+    int enemy = 0;
+    int b = 0;
+    BattleArea_unk* area = field->m10D8;
+    int mode = field->m868;
+    if (!(mode != 3 && mode != 4)) {
+        BattleCamera_unk* camera = lbl_8087EFB4;
+        atn::Vector3 from = fn_8017C9AC(this);
+        atn::Vector3 dir;
+        dir = camera->mTarget - camera->mEye;
+        dir.Normalize_unk();
+        float range = 800.0f > mStatus.mParamB.m28 ? 800.0f : mStatus.mParamB.m28;
+        atn::Vector3 start = from;
+        atn::Vector3 to = from + dir * range;
+        RayResult_unk result;
+        unsigned int mask = 4;
+        if (area != 0 && area->m64 != 0 && area->m64->m48 == 1) {
+            mask = 0x10;
+        }
+        int found = 0;
+        if (fn_8004ED34(lbl_8087EE98, &result, &start, &to, mask, &mColli, 0) != 0 && result.m38 != 0 &&
+            (result.m38->m08 & 2) == 2) {
+            CharaTask* chara = result.m38->m0C;
+            enemy = 0;
+            if (!chara->fn_8016F3D0(this, 1) && !chara->IsPartyMember_unk()) {
+                enemy = 1;
+            }
+            if ((chara->m54C & 0x400000) == 0x400000) {
+                enemy = !enemy;
+            }
+            found = 1;
+            if (area != 0 && fn_803CCA4C(area, chara) && !fn_803CCA64(area, chara, 0, 80.0f)) {
+                found = 0;
+                enemy = 0;
+            }
+        }
+        if (!found && area != 0) {
+            b = fn_803CCA34(area, this);
+        }
+        obj = result.m38;
+    }
+    fn_801021B4(lbl_8087F048, obj, enemy, b);
 }
 
 void BattleCharaTask::vf14() {
