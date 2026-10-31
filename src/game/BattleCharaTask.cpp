@@ -13,11 +13,16 @@
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
+// inferred: camera of the field (lbl_8087F430 + 0x6C, as in game/FinishCamera_unk.cpp)
+struct CameraSub_unk {
+    void fn_80389838(int arg);
+    unsigned char m000[0x10D0 - 0x6C];
+};
 struct Field_unk {
     void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
     int fn_803761BC();
     unsigned char m0000[0x6C];
-    unsigned char m006C[0x10D0 - 0x6C]; // inferred: object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
+    CameraSub_unk m006C; // inferred: also the object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
     int m10D0; // inferred: story progress (as in game/GameBgm.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -263,7 +268,7 @@ int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
 
 int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
     GameConfig_unk* config = lbl_8087F0A8;
-    void* obj = field->m006C;
+    void* obj = &field->m006C;
     int ret = 1;
     if (config->mInput.fn_801231D0(0x11)) {
         fn_8037EF30(obj, 0, 1, -1.0f);
@@ -325,6 +330,38 @@ void BattleCharaTask::vf44() {
         fn_80375184(lbl_8087F430);
     }
     m1470 = 0;
+}
+
+// NONMATCHING: 98.7% - the m2D0 entry is addressed from 0xAA0 (a FixedArray of CharaStatus?) and stack slots of the
+// scaled direction temporaries
+void BattleCharaTask::fn_800E9110() {
+    HitInfo_unk* hit = fn_80219E6C(mStatus.m2D0[m145C].m[0]);
+    atn::Vector3 pos = mPos;
+    atn::Vector3 dir(0.0f, 0.0f, 50.0f);
+    if (mFlag31 && mC48 != 0) {
+        atn::Vector3 from;
+        atn::Vector3 to;
+        fn_800E932C(&from, &to, 1);
+        dir = to * 50.0f;
+    } else {
+        Mtx m;
+        PSMTXRotRad(m, 'y', mRot.y);
+        PSMTXMultVec(m, &dir, &dir);
+    }
+    pos += dir;
+    if ((unsigned char)(hit->m02 - 3) <= 1) {
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m2;
+        PSMTXRotRad(m2, 'y', mRot.y);
+        PSMTXMultVec(m2, &front, &front);
+        pos = mPos + front * 0.1f;
+    }
+    if (mFlag6) {
+        lbl_8087F430->m006C.fn_80389838(3);
+    }
+    fn_8015F568(pos, 0, hit);
+    mFC0 = 0;
+    mFlag4 = 0;
 }
 
 // NONMATCHING: 97.3% - the original reloads the flag word for mFlag25 after the mFlag16 test (as CharaTask::vf34)
