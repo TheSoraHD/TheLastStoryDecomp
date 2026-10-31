@@ -303,6 +303,7 @@ public:
     void fn_803DE648(); // inferred: updates the markers of the skill effects
     void fn_803DE89C(Bullet_unk* bullet, int index);
     GameUIColor_unk fn_803DF138(Bullet_unk* bullet);
+    const wchar_t* fn_803DF2DC(Bullet_unk* bullet); // inferred: name of a skill effect
     void fn_803DF5B4();
     void fn_803DF648(int arg);
     void fn_803E0D4C();

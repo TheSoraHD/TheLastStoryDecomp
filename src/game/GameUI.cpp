@@ -649,6 +649,51 @@ GameUIColor_unk GameUI::fn_803DF138(Bullet_unk* bullet) {
     return GameUIColor_unk(40, 40, 40, 255);
 }
 
+const wchar_t* GameUI::fn_803DF2DC(Bullet_unk* bullet) {
+    HitInfo_unk* hit = 0;
+    if (bullet != 0) {
+        hit = bullet->GetHit_unk();
+    }
+    if (bullet != 0 && bullet->m08 != 0 && bullet->m08->mType != 2) {
+        switch (hit->m04) {
+        case 0x4EEC:
+            return lbl_8087F1E4->Get_unk(0x253);
+        case 0x4EED:
+            return lbl_8087F1E4->Get_unk(0x25D);
+        case 0x4EEF:
+            return lbl_8087F1E4->Get_unk(0x255);
+        case 0x4EF0:
+            return lbl_8087F1E4->Get_unk(0x25F);
+        case 0x4EF2:
+            return lbl_8087F1E4->Get_unk(0x257);
+        case 0x4EF3:
+        case 0x4FD0:
+            return lbl_8087F1E4->Get_unk(0x261);
+        case 0x4EE9:
+            return lbl_8087F1E4->Get_unk(0x259);
+        case 0x4EEA:
+        case 0x4FC9:
+            return lbl_8087F1E4->Get_unk(0x263);
+        case 0x4EF8:
+            return lbl_8087F1E4->Get_unk(0x251);
+        case 0x4EF9:
+            return lbl_8087F1E4->Get_unk(0x25B);
+        default:
+            if (fn_8021A984(hit)) {
+                return lbl_8087F1E4->Get_unk(0x251);
+            }
+            break;
+        }
+    }
+    if (bullet != 0 && hit != 0 && (hit->mAC & 0x40) == 0x40) {
+        return lbl_8087F1E4->Get_unk(0x265);
+    }
+    if (hit != 0 && (hit->mAC & 0x100000) == 0x100000) {
+        return lbl_8087F1E4->Get_unk(0x269);
+    }
+    return lbl_8087F1E4->Get_unk(0x267);
+}
+
 void GameUI::fn_803DF5B4() {
     m2F0 = 0;
     for (int i = 0; i < 6; i++) {
