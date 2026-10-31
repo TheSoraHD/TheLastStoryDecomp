@@ -5248,6 +5248,10 @@ nw4r/src/snd/snd_AxVoiceManager.cpp:
 	.bss        start:0x80862F30 end:0x80862F68
 	.sbss       start:0x808804A0 end:0x808804A8
 
+ss_nw4r/src/snd/snd_AxfxImpl.cpp:
+	.text       start:0x80708AF0 end:0x80708CE8
+	.sbss       start:0x808804A8 end:0x808804B0
+
 ss_nw4r/src/snd/snd_Bank.cpp:
 	.text       start:0x80708CF0 end:0x80708F68
 	.sdata2     start:0x80889048 end:0x80889068
@@ -5268,6 +5272,12 @@ ss_nw4r/src/snd/snd_BasicSound.cpp:
 	.sbss       start:0x808804B0 end:0x808804B8
 	.sdata2     start:0x80889078 end:0x80889088
 
+ss_nw4r/src/snd/snd_Channel.cpp:
+	.text       start:0x8070B4B0 end:0x8070C648
+	.bss        start:0x80862F68 end:0x80862F98
+	.sbss       start:0x808804B8 end:0x808804C0
+	.sdata2     start:0x80889098 end:0x808890C0
+
 nw4r/src/snd/snd_DisposeCallbackManager.cpp:
 	.text       start:0x8070C650 end:0x8070C9DC
 	.bss        start:0x80862F98 end:0x80862FB0
@@ -5277,6 +5287,9 @@ nw4r/src/snd/snd_EnvGenerator.cpp:
 	.text       start:0x8070CAE0 end:0x8070CEB0
 	.rodata     start:0x8076CCA0 end:0x8076CFA0
 	.sdata2     start:0x808890C0 end:0x808890F0
+
+ss_nw4r/src/snd/snd_ExternalSoundPlayer.cpp:
+	.text       start:0x8070CEB0 end:0x8070D358
 
 nw4r/src/snd/snd_FrameHeap.cpp:
 	.text       start:0x8070D360 end:0x8070DC0C
