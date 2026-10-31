@@ -4638,12 +4638,6 @@ int CharaTask::fn_801479D8() {
     return mFlag6;
 }
 
-void atn::Matrix3x4::fn_801479E4(const Vector3& v) {
-    m[0][3] = v.x;
-    m[1][3] = v.y;
-    m[2][3] = v.z;
-}
-
 atn::Model::Node_unk* atn::Model::fn_80147A00() {
     return m220;
 }
@@ -5112,25 +5106,6 @@ inline void Rotate_unk(atn::Matrix3x4& mtx, char axis, float rad) {
     PSMTXRotRad(r, axis, rad);
     PSMTXConcat(mtx.m, r, t);
     __MtxCopy(mtx.m, t);
-}
-
-void atn::Matrix3x4::fn_801496A8(float x, float y, float z) {
-    Vector3 rot(x, y, z);
-    Matrix3x4 t;
-    Matrix3x4 m;
-    Matrix3x4* p = &m;
-    p->SetIdentity();
-    if (0.0f != rot.z) {
-        Rotate_unk(*p, 'z', rot.z);
-    }
-    if (0.0f != rot.y) {
-        Rotate_unk(*p, 'y', rot.y);
-    }
-    if (0.0f != rot.x) {
-        Rotate_unk(*p, 'x', rot.x);
-    }
-    PSMTXConcat(this->m, p->m, t.m);
-    *this = t;
 }
 
 atn::Quaternion_unk& atn::Quaternion_unk::fn_8014989C(const Quaternion_unk& a) {

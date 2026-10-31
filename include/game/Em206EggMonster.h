@@ -40,6 +40,8 @@ public:
     void fn_802C653C(); // inferred: next wave of eggs (0x802C653C)
     void fn_802C6878(CharaTask* chara, const atn::Vector3& pos);
     int fn_802C69BC(); // inferred: inside the limits of the arena (0x802C69BC)
+    void fn_802C5F5C(); // 0x802C5F5C
+    void fn_802C6DF4(); // 0x802C6DF4
     // inferred: ends the current action (name invented; inlined in every state)
     inline void EndAction_unk();
     inline void StartTurn_unk(); // inferred: starts state 4 (name invented)
@@ -48,12 +50,14 @@ public:
     atn::Vector3 m14B0;   // inferred: point it runs to (state 10)
     float m14BC;          // inferred: 1772.0f
     float m14C0;          // inferred: 1835.0f
-    unsigned char m14C4[0x14D0 - 0x14C4];
+    atn::Vector3 m14C4;   // inferred: position of the target taken at frames 90-95 of the attack
     int m14D0;
     int m14D4;
     int m14D8;
-    unsigned char m14DC[0x1524 - 0x14DC];
-    int m1524;
+    atn::Vector3 m14DC;   // inferred: speed of the thrown egg (vf10, state 3)
+    unsigned char m14E8[0x14F4 - 0x14E8];
+    atn::Matrix3x4 m14F4; // inferred: matrix of the effect m156C
+    CharaTask* m1524;     // inferred: copy of m1528 when the egg is thrown
     CharaTask* m1528;     // inferred: target of the attack
     unsigned char m152C[0x156C - 0x152C];
     atn::EffFile m156C;   // inferred: "/effect/ef_bs046b_01.eff"

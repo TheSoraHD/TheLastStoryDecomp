@@ -339,6 +339,237 @@ int Em206EggMonster::vf0C() {
     return 0;
 }
 
+// inferred: waves of eggs: team id and the three route points/characters (table lbl_80746C38; names invented)
+struct EggWave_unk {
+    int mTeam;
+    int mIds[3];
+};
+static const EggWave_unk sWaves_unk[3] = {
+    {101, {101, 102, 103}},
+    {102, {104, 105, 106}},
+    {103, {107, 108, 109}},
+};
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
+
+// inferred: scale matrix and matrix product by value (names invented, as in gmk/Leaf.cpp)
+inline atn::Matrix3x4 ScaleMtx_unk(const atn::Vector3& s) {
+    atn::Matrix3x4 r;
+    PSMTXScale(r.m, s.x, s.y, s.z);
+    return r;
+}
+inline atn::Matrix3x4 MtxMul_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 r;
+    PSMTXConcat(a.m, b.m, r.m);
+    return r;
+}
+
+// NONMATCHING: 98.1% - stack slots of the throw vectors (target, hand, rotation) and of the node
+// positions (as in vf0C); registers of the wave loop
+void Em206EggMonster::vf10() {
+    m500 = 0.03f;
+    if (m15F0 == 0) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                CharaTask* c = EnemyManager::sInstance->Find_unk(sWaves_unk[i].mIds[j]);
+                if (c != 0) {
+                    c->fn_801765D8();
+                }
+            }
+        }
+        m15F0++;
+    }
+    if (mC58.mC0 != 0) {
+        fn_802C5F5C();
+    }
+    int turn = 0;
+    m1588 = m1584;
+    m1584 = mC58.mC4;
+    m1590++;
+    m15BC--;
+    if (mC58.mC0 == 0 || m1584 == 0) {
+        fn_8016E970(3);
+    } else if (m1584 != 0) {
+        switch (m58C) {
+        case 1:
+            fn_802C3EDC();
+            turn = 1;
+            break;
+        case 2:
+            fn_802C42D4();
+            turn = 1;
+            break;
+        case 3: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                m1590 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 0;
+                fn_8016E970(3);
+                fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+            } else if ((frame = mMotion.mTracks[0].m08, 90.0f <= frame) && frame <= 95.0f) {
+                m14C4 = m1528->mColli.m3C;
+            } else if (mMotion.mTracks[0].m08 >= 102.1f && mMotion.mTracks[0].m08 <= 103.0f) {
+                m14D0 = 1;
+                atn::Vector3 target = m14C4;
+                CharaTask* t = m1528;
+                fn_80239DAC(lbl_8087F3C0, this, 0x65, 1);
+                m14D4 = 0;
+                m14D8 = 150;
+                atn::Vector3 hand = GetNodePos_unk(mMotion.GetNodeMtx_unk("righthand"));
+                m14DC = target - hand;
+                m14DC *= 0.15f;
+                m1524 = t;
+                m14F4.SetIdentity();
+                atn::Vector3 rot = m14DC.ToRotation_unk();
+                m14F4.RotateZYX_unk(rot);
+                atn::Matrix3x4* mtx = &m14F4;
+                *mtx = MtxMul_unk(*mtx, ScaleMtx_unk(sEffectScale_unk));
+                m14F4.fn_801479E4(hand);
+                fn_80232B7C(this, 0x65);
+                EffectMgr_unk* mgr = lbl_8087F3C0;
+                fn_8023A680(mgr, &m156C, -1, 5, mtx, 0, 0, 0, 0, -1, 1, 1.0f);
+            }
+            break;
+        }
+        case 4:
+            fn_802C4480();
+            turn = 1;
+            break;
+        case 5: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                m1590 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 0;
+                fn_8016E970(3);
+                fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+            } else if (mMotion.mTracks[0].m08 >= 55.1f && mMotion.mTracks[0].m08 <= 56.0f) {
+                fn_802C653C();
+                if (fn_80370A78(lbl_8087F430, 0xF8) == 0) {
+                    fn_80370AE4(lbl_8087F430, 0xF8, 1);
+                }
+                Effect_unk* mgr = lbl_8087F048;
+                HitInfo_unk* data = fn_80219E6C(0x57C);
+                fn_800FAB80(mgr, this, data, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            }
+            if (mMotion.mTracks[0].m08 >= 50.1f && mMotion.mTracks[0].m08 <= 51.0f && mMotion.mTracks[0].m00 == 0x145) {
+                turn = 1;
+            }
+            break;
+        }
+        case 6: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                m1590 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 0;
+                fn_8016E970(3);
+                fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+            }
+            break;
+        }
+        case 7: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                m1590 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 0;
+                fn_8016E970(3);
+                fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+            }
+            break;
+        }
+        case 8: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                m1590 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 0;
+                fn_8016E970(3);
+                fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+            }
+            break;
+        }
+        case 9:
+            vfEC();
+            break;
+        case 10:
+            fn_802C3EDC();
+            turn = 1;
+            break;
+        case 11: {
+            atn::Vector3 d;
+            d = m1584->mPos - mPos;
+            PSVECNormalize(&d, &d);
+            if (PSVECMag(&d) < 70.0f || (CharaTask*)lbl_8087F8A0->mHead == m1584) {
+                m58C = 0;
+                if (m55C == 6 && m560 == 4) {
+                    fn_8016E970(3);
+                }
+            }
+            break;
+        }
+        default:
+            if (m55C != 6) {
+                if (m55C == 7) {
+                    if (m1594 != 2 && m1584 != (CharaTask*)mC58.mC8) {
+                        fn_8016E970(3);
+                        fn_80170A20(m1584, 0, -1.0f);
+                    }
+                } else {
+                    fn_8016E970(3);
+                    fn_80170A20(m1584, 0, -1.0f);
+                }
+            }
+            fn_802C2BCC();
+            fn_802C3154();
+            break;
+        }
+    }
+    if (((CharaTask*)lbl_8087F8A0->mHead)->mFlag28) {
+        if (fn_80370A78(lbl_8087F430, 0xFD) == 0) {
+            fn_80370AE4(lbl_8087F430, 0xFD, 1);
+        }
+    } else if (fn_80370A78(lbl_8087F430, 0xFD) != 0) {
+        fn_80370AE4(lbl_8087F430, 0xFD, 0);
+    }
+    if (turn != 0) {
+        float radius = 20.0f;
+        float angle = 3.1415927f;
+        if (m58C == 10) {
+            radius *= 1.5f;
+        }
+        if (m58C == 5) {
+            radius = 120.0f;
+            angle = 4.712389f;
+        }
+        fn_802C4E80(100, radius, angle);
+    }
+    fn_8014C540();
+    fn_80145334();
+    fn_802C1FEC();
+    m1600.mSphere.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    m1600.mSphere.mRadius = 20.0f;
+    atn::Vector3 a = GetNodePos_unk(mMotion.GetNodeMtx_unk("tail1"));
+    atn::Vector3 b = GetNodePos_unk(mMotion.GetNodeMtx_unk("tail3"));
+    m164C.m3C = a;
+    m164C.m48 = b;
+    m164C.m54 = 15.0f;
+    m148C = GetNodePos_unk(mMotion.GetNodeMtx_unk("ef_eye"));
+    m1498 = 0.01f;
+    fn_802C6DF4();
+    if (fn_802C69BC() != 0 && m1594 != 2) {
+        m16BC = 0;
+        fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+        m1594 = 2;
+        fn_80370AE4(lbl_8087F430, 0xFA, 1);
+        m58C = 0;
+    }
+}
+
 // NONMATCHING: 99.92% - f2/f3 of the sine and the MIN result in the m1700 branch (the other two match)
 // inferred: pulses the colour of the body (head chant, hit or idle) and fades it with the motion
 // of the attacks (states 2 and 4)
@@ -1041,17 +1272,6 @@ int Em206EggMonster::vfF4() {
     return 0;
 }
 
-// inferred: waves of eggs: team id and the three route points/characters (table lbl_80746C38; names invented)
-struct EggWave_unk {
-    int mTeam;
-    int mIds[3];
-};
-static const EggWave_unk sWaves_unk[3] = {
-    {101, {101, 102, 103}},
-    {102, {104, 105, 106}},
-    {103, {107, 108, 109}},
-};
-
 // NONMATCHING: 97.9% - registers of the inlined RouteTable_unk::FindPlace_unk
 // inferred: sends the next wave: the three characters of the table go to their route points (80 units up)
 // and the team AI is told to attack
@@ -1112,7 +1332,7 @@ void Em206EggMonster::fn_802C6878(CharaTask* chara, const atn::Vector3& pos) {
 // NONMATCHING: 99.43% - r28/r30 of the channels in the inlined Color4f_unk::ToU32
 // inferred: draws the two limits of the arena (debug) and tells whether the egg is between them: mPos
 // and the point (m14BC, m14C0) on different sides of the first line and on the same side of the second
-int Em206EggMonster::fn_802C69BC() {
+__declspec(noinline) int Em206EggMonster::fn_802C69BC() {
     if (m1710 != 0) {
         atn::Vector3 pts[4] = {
             atn::Vector3(m15D0[0], -90.0f, m15D0[1]),
