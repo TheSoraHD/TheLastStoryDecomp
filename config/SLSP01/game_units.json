@@ -3192,15 +3192,6 @@
   "matching": true
  },
  {
-  "name": "nw4r/SeqNoteOnCallback.cpp",
-  "classes": [
-   "nw4r::snd::SoundArchivePlayer",
-   "nw4r::snd::SoundArchivePlayer::WsdCallback",
-   "nw4r::snd::SoundArchivePlayer::SeqNoteOnCallback"
-  ],
-  "matching": false
- },
- {
   "name": "game/SpecialEnemyFactory_unk.cpp",
   "classes": [],
   "matching": true

@@ -3400,7 +3400,7 @@ nw4r/SoundArchive.cpp:
 	.rodata     start:0x80762660 end:0x807626F8
 	.data       start:0x80796D18 end:0x80796D38
 
-nw4r/SeqNoteOnCallback.cpp:
+ss_nw4r/src/snd/snd_SoundArchivePlayer.cpp:
 	.text       start:0x8059E7EC end:0x805A2240
 	.rodata     start:0x807626F8 end:0x80763228
 	.data       start:0x80796D38 end:0x80797330
