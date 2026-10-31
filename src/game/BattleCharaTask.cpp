@@ -36,6 +36,11 @@ extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::
                                   float radius, float theta);
 extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model); // inferred: death effect of a model
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+// inferred: target searches of the effect manager (in front / around)
+extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
+                           float theta);
+extern "C" int fn_80100BB8(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
+                           float theta);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 // inferred: multiplayer session (lbl_8087F610)
 struct MpSession_unk;
@@ -168,6 +173,41 @@ int BattleCharaTask::fn_800E70EC(int a, int b, int c) {
                     fn_800E8688(0xC8, 1, 0, 0, 0, 0);
                 }
             }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
+    GameConfig_unk* config = lbl_8087F0A8;
+    if (mFlag31 || mFlagB16) {
+        return 0;
+    }
+    if (SetConfig::sInstance->mAttackType == 0) {
+        if (fn_80178078() < 0.4f || m1424 > 0) {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+    float range = config->m248;
+    atn::Vector3 dir = fn_80178018();
+    int ok = 1;
+    if (mFlag31) {
+        ok = atn::Abs_unk(atn::WrapAngle_unk(dir.y - mRot.y)) > 1.5707964f;
+    }
+    if (keep) {
+        range *= 1.2f;
+    }
+    if (ok) {
+        if (fn_801004FC(lbl_8087F048, out, this, &dir, range, config->m24C)) {
+            if (keep == 0 || (CharaTask*)m1440 != *out || SetConfig::sInstance->mAttackType != 0) {
+                m1440 = (int)*out;
+                return 1;
+            }
+        }
+        if (fn_80100BB8(lbl_8087F048, out, this, &dir, config->m248, config->m24C)) {
             return 1;
         }
     }

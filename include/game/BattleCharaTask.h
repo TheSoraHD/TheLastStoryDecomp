@@ -21,7 +21,8 @@ public:
     virtual void vfF0();
 
     void fn_800E2FE0(); // inferred: update (the body of vf10)
-    int fn_800E70EC(int a, int b, int c); // inferred: auto attack of the player (button attack correction)
+    int fn_800E70EC(int a, int b, int c);
+    int fn_800E7214(CharaTask** out, int keep); // inferred: target of the player's attack (keep: prefer m1440) // inferred: auto attack of the player (button attack correction)
     void fn_800E8688(int a, int b, CharaTask* target, const atn::Vector3* pos, int c, int d); // inferred: starts an attack
     void fn_800EAECC(); // inferred: called by vfF0 when mFlag16 is clear
     void fn_800EB7A0(); // inferred: death effect
