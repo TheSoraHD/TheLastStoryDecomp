@@ -21,7 +21,7 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" double ceil(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void C_MTXLookAt(Mtx m, const atn::Vector3* eye, const atn::Vector3* up, const atn::Vector3* target);
-extern "C" void fn_805F9420(const Mtx m, const atn::Vector3* src, atn::Vector3* dst,
+extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTXMultVecArray
 extern "C" void GXSetViewport(float x, float y, float w, float h, float n, float f);
 extern "C" void GXSetColorUpdate(unsigned char enable);
@@ -189,7 +189,7 @@ inline atn::AABB_unk TransformBox_unk(const Mtx m, const atn::AABB_unk* box) {
     corners[5] = atn::Vector3(minX, maxY, minZ);
     corners[6] = atn::Vector3(maxX, minY, minZ);
     corners[7] = atn::Vector3(minX, minY, minZ);
-    fn_805F9420(m, corners, corners, 8);
+    PSMTXMultVecArray(m, corners, corners, 8);
     atn::Vector3 max(corners[0]);
     atn::Vector3 min(corners[0]);
     __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[1].x);

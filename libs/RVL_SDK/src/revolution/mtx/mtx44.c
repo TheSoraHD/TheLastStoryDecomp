@@ -107,7 +107,76 @@ void C_MTX44Concat(){
 }
 
 //unused
-asm void PSMTX44Concat(){
+// inferred: written from main.dol (0x805F9640)
+asm void PSMTX44Concat(register const Mtx44 a, register const Mtx44 b, register Mtx44 ab) {
+    // clang-format off
+    nofralloc
+    psq_l f0, 0x0(r3), 0, 0
+    psq_l f2, 0x0(r4), 0, 0
+    ps_muls0 f6, f2, f0
+    psq_l f3, 0x10(r4), 0, 0
+    psq_l f4, 0x20(r4), 0, 0
+    ps_madds1 f6, f3, f0, f6
+    psq_l f1, 0x8(r3), 0, 0
+    psq_l f5, 0x30(r4), 0, 0
+    ps_madds0 f6, f4, f1, f6
+    psq_l f0, 0x10(r3), 0, 0
+    ps_madds1 f6, f5, f1, f6
+    psq_l f1, 0x18(r3), 0, 0
+    ps_muls0 f8, f2, f0
+    ps_madds1 f8, f3, f0, f8
+    psq_l f0, 0x20(r3), 0, 0
+    ps_madds0 f8, f4, f1, f8
+    ps_madds1 f8, f5, f1, f8
+    psq_l f1, 0x28(r3), 0, 0
+    ps_muls0 f10, f2, f0
+    ps_madds1 f10, f3, f0, f10
+    psq_l f0, 0x30(r3), 0, 0
+    ps_madds0 f10, f4, f1, f10
+    ps_madds1 f10, f5, f1, f10
+    psq_l f1, 0x38(r3), 0, 0
+    ps_muls0 f12, f2, f0
+    psq_l f2, 0x8(r4), 0, 0
+    ps_madds1 f12, f3, f0, f12
+    psq_l f0, 0x0(r3), 0, 0
+    ps_madds0 f12, f4, f1, f12
+    psq_l f3, 0x18(r4), 0, 0
+    ps_madds1 f12, f5, f1, f12
+    psq_l f1, 0x8(r3), 0, 0
+    ps_muls0 f7, f2, f0
+    psq_l f4, 0x28(r4), 0, 0
+    ps_madds1 f7, f3, f0, f7
+    psq_l f5, 0x38(r4), 0, 0
+    ps_madds0 f7, f4, f1, f7
+    psq_l f0, 0x10(r3), 0, 0
+    ps_madds1 f7, f5, f1, f7
+    psq_l f1, 0x18(r3), 0, 0
+    ps_muls0 f9, f2, f0
+    psq_st f6, 0x0(r5), 0, 0
+    ps_madds1 f9, f3, f0, f9
+    psq_l f0, 0x20(r3), 0, 0
+    ps_madds0 f9, f4, f1, f9
+    psq_st f8, 0x10(r5), 0, 0
+    ps_madds1 f9, f5, f1, f9
+    psq_l f1, 0x28(r3), 0, 0
+    ps_muls0 f11, f2, f0
+    psq_st f10, 0x20(r5), 0, 0
+    ps_madds1 f11, f3, f0, f11
+    psq_l f0, 0x30(r3), 0, 0
+    ps_madds0 f11, f4, f1, f11
+    psq_st f12, 0x30(r5), 0, 0
+    ps_madds1 f11, f5, f1, f11
+    psq_l f1, 0x38(r3), 0, 0
+    ps_muls0 f13, f2, f0
+    psq_st f7, 0x8(r5), 0, 0
+    ps_madds1 f13, f3, f0, f13
+    psq_st f9, 0x18(r5), 0, 0
+    ps_madds0 f13, f4, f1, f13
+    psq_st f11, 0x28(r5), 0, 0
+    ps_madds1 f13, f5, f1, f13
+    psq_st f13, 0x38(r5), 0, 0
+    blr
+    // clang-format on
 }
 
 //unused

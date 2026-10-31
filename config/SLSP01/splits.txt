@@ -3750,11 +3750,14 @@ RVL_SDK/src/revolution/mtx/mtx.c:
 	.sdata2     start:0x80888550 end:0x80888560
 
 RVL_SDK/src/revolution/mtx/mtxvec.c:
-	.text       start:0x805F93C0 end:0x805F9414
+	.text       start:0x805F93C0 end:0x805F94AC
 
 RVL_SDK/src/revolution/mtx/mtx44.c:
-	.text       start:0x805F94B0 end:0x805F9638
+	.text       start:0x805F94B0 end:0x805F9744
 	.sdata2     start:0x80888560 end:0x80888578
+
+RVL_SDK/src/revolution/mtx/mtx44vec.c:
+	.text       start:0x805F9750 end:0x805F98C8
 
 smg2/src/RVL_SDK/mtx/vec.c:
 	.text       start:0x805F98D0 end:0x805F99EC
