@@ -277,6 +277,53 @@ void BattleCharaTask::fn_800EE5AC(Arms* arms) {
     }
 }
 
+// inferred: self and chara are on the same side of the same group (self may be null; name invented)
+inline bool IsSameGroup_unk(CharaTask* chara, CharaTask* self) {
+    if (self != 0) {
+        if (!chara->fn_8016F3D0(self, 1)) {
+            return false;
+        }
+        if (self->mC58.mB4 > 0 && chara->mC58.mB4 > 0 && self->mC58.mB4 != chara->mC58.mB4) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int BattleCharaTask::fn_800EE640(CharaTask* chara) {
+    if (chara == 0) {
+        return 0;
+    }
+    if ((chara->mFlags & 4) == 4 || (chara->m54C & 0x2000) == 0x2000 ||
+        (chara->mStatus.mParamB.m98 > 0 && chara->mStatus.m224 <= 0) || chara->m5C == 0) {
+        return 0;
+    }
+    if (chara->m55C == 6) {
+        switch (chara->m560) {
+        case 0x11:
+        case 0x12:
+        case 0x52:
+        case 0x53:
+        case 0x58:
+        case 0x59:
+        case 0x6D:
+        case 0x6E:
+        case 0x6F:
+        case 0x70:
+        case 0x71:
+        case 0x72:
+        case 0x73:
+        case 0x74:
+        case 0x75:
+        case 0x76:
+        case 0x77:
+        case 0x7A:
+            return 0;
+        }
+    }
+    return IsSameGroup_unk(chara, this);
+}
+
 int BattleCharaTask::fn_800EEFDC() {
     if (m50 == 0x189C1 && lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
         MapInfo_unk* info = fn_80373148(lbl_8087F430);
