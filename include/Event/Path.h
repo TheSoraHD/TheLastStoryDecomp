@@ -5,6 +5,7 @@
 #include "atn/Camera_unk.h"
 #include "std/string.h"
 #include "std/vector.h"
+#include "Event/PathCubic.h"
 #include "macros.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -20,15 +21,6 @@ struct PathPoint_unk {
     float mRotY;
 };
 
-// inferred: cubic of one segment and axis: a0 + a1 u + a2 u^2 + a3 u^3
-struct PathCubic_unk {
-    // inferred: empty constructor (as WarLionCubic_unk): copied float by float
-    PathCubic_unk() {}
-    float m0;
-    float m1;
-    float m2;
-    float m3;
-};
 
 // inferred: lengths of the segments: a class derived from std::vector<float> (its destructor has one more
 // level than those of the other vectors, as WarLionPathList_unk of game/Em403WarLion.h)

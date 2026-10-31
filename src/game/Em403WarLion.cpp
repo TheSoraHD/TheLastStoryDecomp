@@ -1911,10 +1911,10 @@ extern "C" inline void fn_8032B7F0(WarLionPath_unk* path, const float* y, WarLio
         c[i] = z[i] - mu[i] * c[i + 1];
     }
     for (int i = 0; i < path->m00 - 1; i++) {
-        out->m00 = y[0];
-        out->m04 = c[i];
-        out->m08 = 3.0f * (y[1] - y[0]) - 2.0f * c[i] - c[i + 1];
-        out->m0C = 2.0f * (y[0] - y[1]) + c[i] + c[i + 1];
+        out->m0 = y[0];
+        out->m1 = c[i];
+        out->m2 = 3.0f * (y[1] - y[0]) - 2.0f * c[i] - c[i + 1];
+        out->m3 = 2.0f * (y[0] - y[1]) + c[i] + c[i + 1];
         y++;
         out++;
     }
