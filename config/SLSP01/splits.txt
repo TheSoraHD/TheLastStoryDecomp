@@ -3796,6 +3796,12 @@ RVL_SDK/src/revolution/euart/euart.c:
 	.text       start:0x8061A250 end:0x8061A5D0
 	.sbss       start:0x808800C0 end:0x808800D0
 
+RVL_SDK/src/revolution/fs/fs.c:
+	.text       start:0x8061A5D0 end:0x8061BCA0
+	.data       start:0x807B0F40 end:0x807B0F68
+	.sdata      start:0x8087E8C0 end:0x8087E8D0
+	.sbss       start:0x808800D0 end:0x808800E8
+
 RVL_SDK/src/revolution/ipc/ipcMain.c:
 	.text       start:0x8061BCA0 end:0x8061BD88
 	.sbss       start:0x808800E8 end:0x80880100

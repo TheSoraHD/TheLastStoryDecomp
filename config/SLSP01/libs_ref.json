@@ -9877,5 +9877,39 @@
   ],
   "category": "sdk",
   "matching": true
+ },
+ {
+  "name": "RVL_SDK/src/revolution/fs/fs.c",
+  "mw_version": "Wii/1.1",
+  "cflags": [
+   "-nodefaults",
+   "-proc gekko",
+   "-align powerpc",
+   "-enum int",
+   "-fp hardware",
+   "-Cpp_exceptions off",
+   "-O4,p",
+   "-inline auto",
+   "-pragma \"cats off\"",
+   "-pragma \"warn_notinlined off\"",
+   "-maxerrors 1",
+   "-nosyspath",
+   "-RTTI off",
+   "-fp_contract on",
+   "-str reuse",
+   "-enc SJIS",
+   "-i include",
+   "-i libs/PowerPC_EABI_Support/include/stl",
+   "-i libs/PowerPC_EABI_Support/include/",
+   "-DNDEBUG=1",
+   "-lang=c",
+   "-inline auto",
+   "-ipa file",
+   "-fp_contract off",
+   "-func_align 16",
+   "-i libs/RVL_SDK/include/"
+  ],
+  "category": "sdk",
+  "matching": true
  }
 ]
