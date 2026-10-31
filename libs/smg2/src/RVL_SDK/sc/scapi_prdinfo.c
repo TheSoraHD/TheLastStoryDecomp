@@ -1,6 +1,7 @@
 #include "revolution/sc.h"
 #include "revolution/os.h"
 #include <cstring>
+#include <cstdio>
 
 typedef struct {
     s8 area;
@@ -103,6 +104,30 @@ s8 SCGetProductArea(void) {
     }
 
     return -1;
+}
+
+// inferred: SCGetProductCode_unk/SCGetProductSN_unk are in the 2010 SDK (DWC calls them for the
+// console serial); keywords "CODE" and "SERNO" of the product info file
+const char* SCGetProductCode_unk(void) {
+    static char code[6];
+
+    if (__SCF1("CODE", code, sizeof(code))) {
+        return code;
+    }
+
+    return NULL;
+}
+
+BOOL SCGetProductSN_unk(u32* serno) {
+    char buf[11];
+
+    if (__SCF1("SERNO", buf, sizeof(buf))) {
+        if (sscanf(buf, "%u", serno) == 1) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
 
 typedef struct {

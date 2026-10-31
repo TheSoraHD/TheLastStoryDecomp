@@ -4053,6 +4053,12 @@ RVL_SDK/src/revolution/sc/scsystem.c:
 RVL_SDK/src/revolution/sc/scapi.c:
 	.text       start:0x80624830 end:0x80624D38
 
+smg2/src/RVL_SDK/sc/scapi_prdinfo.c:
+	.text       start:0x80624D90 end:0x806250C4
+	.data       start:0x807B3098 end:0x807B30F8
+	.sdata      start:0x8087EA48 end:0x8087EA70
+	.sbss       start:0x80880150 end:0x80880158
+
 RVL_SDK/src/revolution/wenc/wenc.c:
 	.text       start:0x80625910 end:0x80625BE8
 	.rodata     start:0x80764C00 end:0x80764C40
