@@ -20,6 +20,8 @@ public:
     virtual void vfEC();
     virtual void vfF0();
 
+    void fn_800EAECC(); // inferred: called by vfF0 when mFlag16 is clear
+
     // inferred: members cleared by the constructor (0x800E2AF8); names keep the offsets
     int m1424;
     int m1428;
