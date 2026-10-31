@@ -1623,7 +1623,6 @@ void Em203GreaterDaemon::fn_8028F4AC() {
 }
 
 // inferred: starts state 7 (takes off for the flight around the arena)
-// NONMATCHING: 92.04% - register allocation of the route vectors
 void Em203GreaterDaemon::fn_8028F560() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
@@ -1635,8 +1634,10 @@ void Em203GreaterDaemon::fn_8028F560() {
     m58C = 7;
     fn_8016E970(3);
     PlayMotion_unk(0x142, 0, 0, 1.0f);
-    m1504 = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
-    m1508 = fn_803C1560(lbl_8087F430->m10D8, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    m1504 = fn_803C1560(table, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+    table = lbl_8087F430->m10D8;
+    m1508 = fn_803C1560(table, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
     m151C = m152C->mPos - mPos;
     mRot.y = (m1978 - mPos).GetNormalize().ToRotation_unk().y;
     m1528 = -1.5707964f;
