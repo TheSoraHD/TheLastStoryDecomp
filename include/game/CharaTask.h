@@ -572,6 +572,8 @@ public:
     void fn_8016E800(int arg); // inferred: calls fn_80566398 on every equipment
     float fn_8016E864(); // inferred: speed rate of the character
     void fn_8016E970(int state); // inferred: sets m55C (state 6 = a control is running)
+    // inferred: sets m56C (weak copy 0x80288E30 in game/Em203GreaterDaemon)
+    void fn_80288E30(float value) { m56C = value; }
     void fn_8016B8D4(const atn::Vector3& dir, int a, int b, int c); // inferred: chr::ControlPushedDown
     void fn_8016D0A0(int a); // inferred: releases the gimmick and starts chr::ControlSlip
     // inferred: controls started by 0x8016939C-0x8016DC14 (class names from the constructors' vtables)

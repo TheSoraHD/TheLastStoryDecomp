@@ -319,7 +319,7 @@ int Em203GreaterDaemon::vf0C() {
         fn_80288DD8(&m192C) == 0 && fn_80288DD8(&m195C) == 0 && m15D8.IsLoading() == 0 &&
         m1634.IsLoading() == 0) {
         mRoute.SetA0_unk(2);
-        fn_80288E30(this, 1.0f);
+        fn_80288E30(1.0f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC219;

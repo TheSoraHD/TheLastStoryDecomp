@@ -58,7 +58,6 @@ extern "C" inline PlayerManager* fn_8000D9E8() {
 }
 // inferred: atn::Model member of another unit (sets a value of the model, weak copy 0x80288E30 of
 // game/Em203GreaterDaemon.cpp)
-extern "C" void fn_80288E30(CharaTask* chara, float value);
 extern "C" void fn_80338CDC(atn::ColliBase* colli, int upright);
 
 EnemyQuarkSecond::EnemyQuarkSecond(atn::Task* parent, EnemyInfo_unk* info)
@@ -139,7 +138,7 @@ int EnemyQuarkSecond::vf0C() {
         fn_800D3FA4() != 0) {
         fn_80344780();
         SetFlag(0x200);
-        fn_80288E30(this, 0.03f);
+        fn_80288E30(0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;

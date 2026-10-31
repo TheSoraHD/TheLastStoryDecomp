@@ -174,7 +174,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: weak copies of other files, called out of line
-extern "C" void fn_80288E30(CharaTask* chara, float value);
 extern "C" bool fn_800E0AB0(const IntVector_unk* v);
 extern "C" unsigned int fn_800E0AA8(const IntVector_unk* v);
 extern "C" int* fn_8028B74C(IntVector_unk* v, int i);
@@ -233,7 +232,7 @@ Em203GreaterDaemonRed::~Em203GreaterDaemonRed() {}
 int Em203GreaterDaemonRed::vf0C() {
     if (fn_8013655C() == 0 && m1660.fn_80473F50() == 0 && m15BC.IsLoading() == 0 && m15C8.IsLoading() == 0 &&
         m162C.IsLoading() == 0 && m15E4.IsLoading() == 0) {
-        fn_80288E30(this, 1.0f);
+        fn_80288E30(1.0f);
         mStatus.m18 |= 0x1C0;
         mStatus.m18 |= 0x10000;
         mStatus.m18 |= 0xC219;

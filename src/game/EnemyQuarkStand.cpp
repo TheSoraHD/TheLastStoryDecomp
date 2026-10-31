@@ -244,7 +244,6 @@ struct QuarkSettings_unk {
 extern "C" QuarkSettings_unk* lbl_8087F0A8;
 // inferred: weak copies of small inline helpers of other files, called out of line because vf0C is over
 // the inline budget (names kept)
-extern "C" void fn_80288E30(CharaTask* chara, float value);          // inferred: m56C = value
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager                  // inferred: player manager
 // inferred: more weak copies of small inline helpers called out of line by vf10 (names kept)
@@ -364,7 +363,7 @@ int EnemyQuarkStand::vf0C() {
         m16B4.IsLoading() == 0 && m1CAC.IsLoading() == 0 && fn_800D3FA4() != 0) {
         fn_80353370();
         SetFlag(0x200);
-        fn_80288E30(this, 0.03f);
+        fn_80288E30(0.03f);
         mMotion.fn_80099E9C("hips", "em211", 4.3f);
         m17F4->fn_800D246C(0);
         m17F4->FreezeTask();

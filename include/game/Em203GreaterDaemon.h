@@ -37,11 +37,6 @@ extern "C" inline int fn_80288DD8(DaemonResPair_unk* pair) {
     return result;
 }
 
-// inferred: sets CharaTask::m56C (weak copy 0x80288E30, also called by Em203GreaterDaemonRed,
-// Em203GreaterDaemonRedMp, EnemyQuarkSecond and EnemyQuarkStand)
-extern "C" inline void fn_80288E30(CharaTask* chara, float value) {
-    chara->m56C = value;
-}
 
 // inferred: 0x74-byte entry of the hate lines (Em203GreaterDaemon::m1674): a direction, two matrices,
 // a counter and a character. Names invented.
