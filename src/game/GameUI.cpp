@@ -1,4 +1,5 @@
 #include "game/GameUI.h"
+#include "game/CharaTask.h"
 #include "atn/SoundRef.h"
 #include "string.h"
 
@@ -421,6 +422,23 @@ void GameUI::fn_803E4A20(int a, int b) {
 // NONMATCHING: 99% - code matches; 10.0f sits later in the float pool (earlier users unwritten)
 float GameUI::fn_803E4A48() {
     return mDB4->m100 / 10.0f;
+}
+
+// inferred: true while the character cannot be controlled (states 0x8/0x200, a counter, state 0x800000)
+extern "C" bool fn_803E4DD4(CharaTask* chara) {
+    if (chara != 0) {
+        bool down = chara->mStatus.IsState_unk(8) || chara->mStatus.IsState_unk(0x200);
+        if (down) {
+            return true;
+        }
+    }
+    if (chara != 0 && chara->mStatus.m430 > 0) {
+        return true;
+    }
+    if (chara != 0 && chara->mStatus.IsState_unk(0x800000)) {
+        return true;
+    }
+    return false;
 }
 
 void GameUI::fn_803E58CC() {
