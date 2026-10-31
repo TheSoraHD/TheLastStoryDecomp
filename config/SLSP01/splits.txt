@@ -3521,6 +3521,11 @@ RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_arcResourceAccessor.cpp:
 	.text       start:0x805CD490 end:0x805CD830
 	.data       start:0x80798E70 end:0x80798EF0
 
+RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_drawInfo.cpp:
+	.text       start:0x805CE830 end:0x805CE8F0
+	.rodata     start:0x80764548 end:0x80764550
+	.data       start:0x80798FD8 end:0x80799008
+
 RVL_SDK/src/revolution/hbm/nw4hbm/math/math_triangular.cpp:
 	.text       start:0x805D7CE0 end:0x805D7F90
 	.rodata     start:0x807645E0 end:0x80764608
@@ -3535,6 +3540,9 @@ RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_CharStrmReader.cpp:
 RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_Font.cpp:
 	.text       start:0x805D9B30 end:0x805D9BD4
 	.data       start:0x8079A4D8 end:0x8079A508
+
+RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_LinkList.cpp:
+	.text       start:0x805D9BE0 end:0x805D9CEC
 
 RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_list.cpp:
 	.text       start:0x805D9CF0 end:0x805D9E60
