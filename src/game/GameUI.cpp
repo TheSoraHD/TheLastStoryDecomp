@@ -4,6 +4,8 @@
 #include "game/GimmickCommon.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
 #include "game/SkillEffectManager.h"
 #include "atn/GraphicsDevice.h"
 #include "game/HitInfo_unk.h"
@@ -50,6 +52,35 @@ struct GameUIMsgTable_unk {
 };
 extern "C" GameUIMsgTable_unk* lbl_8087F1E4;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+// inferred: state checks of CharaTask written with a result flag (as in game/BattleCharaTask.cpp)
+static inline bool IsActiveB_unk(CharaTask* c) {
+    bool r = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsFreeB_unk(CharaTask* c) {
+    bool r = false;
+    if (IsActiveB_unk(c) && (c->mStatus.m0C & 0x20) != 0x20) {
+        r = true;
+    }
+    return r;
+}
+static inline bool IsGrappledB_unk(CharaTask* c) {
+    bool r = false;
+    if (c->m55C == 6 && c->m560 == 28) {
+        r = true;
+    }
+    return r;
+}
+static inline bool CanActB_unk(CharaTask* c) {
+    bool r = false;
+    if (IsFreeB_unk(c) && !IsGrappledB_unk(c)) {
+        r = true;
+    }
+    return r;
+}
 // inferred: item data returned by fn_80211480 (only the members used here; names invented)
 struct GameUIItem_unk {
     unsigned char m00[0x64];
@@ -157,7 +188,7 @@ GameUI::GameUI(atn::Task* parent)
       mD8C(0), mDA4(0), mDA8(0), mDAC(0), mDB0(0), mDC8(0), m1118(0), m1130(0), m1140(0), m1144(0), m1148(0), m114C(0), m1150(0), m1154(0), m1170(0), m15B4(0), m15B8(0),
       m253C(0), m2540(0), m254C(0), m255C(-1), m2560(0.0f), m2658(0), mSeState(0), mSeMask(0), m2668(1.0f), m266C(0.07f), m2670(5.0f), m2674(3000.0f),
       m2678(128, 128, 128, 255), m2688(10, 10, 128, 255), m2698(128, 128, 128, 255), m26A8(10, 10, 255, 255), m26B8(0, 0, 0, 255), m26C8(19, 59, 23, 255), m26D8(220, 220, 200, 255), m26E8(250, 150, 90, 255), m26F8(140, 170, 220, 255), m2708(60, 100, 70, 255), m2718(250, 240, 130, 255), m2728(255, 180, 0, 0), m2738(0, 180, 80, 0), m2748(255, 100, 100, 0), m2758(90, 90, 90, 0), m2768(50, 20, 90, 0), m2778(150, 100, 200, 0), m288C(255, 255, 255, 0), m289C(85, 112, 206, 255) {
-    m2788 = 0;
+    m2788.mCount = 0;
     for (int i = 0; i < 6; i++) {
         m318[i].mInst[0] = 0;
         m318[i].mInst[1] = 0;
@@ -954,6 +985,46 @@ void GameUI::fn_803E4A20(int a, int b) {
 
 float GameUI::fn_803E4A48() {
     return mDB4->m100 / 10.0f;
+}
+
+// inferred: enemies around the leader that pass `filter`, sorted by distance (farthest first)
+// NONMATCHING: 99.9% - r4/r5 of the result flags of the inlined state checks swapped
+void GameUI::fn_803E4A5C(GameUIDistList_unk* list, bool (*filter)(CharaTask*)) {
+    atn::Vector3 pos;
+    PlayerTask* player = lbl_8087F8A0->mHead;
+    if (player != 0) {
+        pos = player->mPos;
+    }
+    list->mCount = 0;
+    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+        if (CanActB_unk(e) && (e->m54C & 0x2000) != 0x2000 && e->mC58.mC0 != 0 && e->mFlag26 == 1) {
+            float dist = (pos - e->mPos).LengthSq_unk();
+            bool ok = false;
+            if (filter != 0 && filter(e)) {
+                ok = true;
+            }
+            if (ok) {
+                GameUIDist_unk entry;
+                entry.mDist = dist;
+                entry.mChara = e;
+                bool done = false;
+                // inferred: the original bounds the search with m2788 itself (the list passed in)
+                for (unsigned int i = 0; i < m2788.mCount; i++) {
+                    if (list->mData[i].mDist < dist) {
+                        if (list->full()) {
+                            list->mCount--;
+                        }
+                        list->insert(&list->mData[i], entry);
+                        done = true;
+                        break;
+                    }
+                }
+                if (!done && !list->full()) {
+                    list->PushBack_unk(entry);
+                }
+            }
+        }
+    }
 }
 
 // inferred: true while the character cannot be controlled (states 0x8/0x200, a counter, state 0x800000)

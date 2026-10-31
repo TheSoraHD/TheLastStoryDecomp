@@ -166,6 +166,30 @@ struct GameUIMark24_unk {
     float mDist;
 };
 
+// inferred: character and its squared distance (GameUI::fn_803E4A5C); names invented
+struct GameUIDist_unk {
+    float mDist;
+    CharaTask* mChara;
+};
+// inferred: list of 32 of them with the members of FixedArray_unk (no constructor: GameUI clears the count)
+struct GameUIDistList_unk {
+    bool full() const { return mCount >= 32; }
+    void insert(GameUIDist_unk* it, const GameUIDist_unk& x) {
+        unsigned int pos = it - mData;
+        for (unsigned int i = mCount; i > pos; i--) {
+            mData[i] = mData[i - 1];
+        }
+        mData[pos] = x;
+        mCount++;
+    }
+    void PushBack_unk(const GameUIDist_unk& x) {
+        new (&mData[mCount]) GameUIDist_unk(x);
+        mCount++;
+    }
+    unsigned int mCount;
+    GameUIDist_unk mData[32];
+};
+
 // inferred: 0x1C-byte entry at 0x748 (names invented)
 struct GameUIElem1C_unk {
     GameUIElem1C_unk() : m00(-1), m04(-1), m08(-1), m0C(0), m10(0), m14(0), m18(0) {}
@@ -300,6 +324,7 @@ public:
     void fn_803E4510();
     void fn_803E454C(); // inferred: resets the HUD
     void fn_803E4950();
+    void fn_803E4A5C(GameUIDistList_unk* list, bool (*filter)(CharaTask*)); // inferred: enemies by distance
     void fn_803E4978(const wchar_t* text); // inferred: shows a message
     void fn_803E4A20(int a, int b);
     float fn_803E4A48();
@@ -550,8 +575,7 @@ public:
     GameUIColor_unk m2758;
     GameUIColor_unk m2768;
     GameUIColor_unk m2778;
-    int m2788;
-    unsigned char m278C[0x100];
+    GameUIDistList_unk m2788; // 0x2788: inferred: enemies sorted by distance (fn_803E4A5C)
     GameUIColor_unk m288C;
     GameUIColor_unk m289C;
 };
