@@ -5,16 +5,9 @@
 // library (layout as libs/nw4r/include/nw4r/snd/snd_SoundArchive.h) with the asserts enabled.
 // The game include path does not reach libs/nw4r, so only what SoundArchive.cpp needs is declared.
 
+#include "nw4r/ut/FileStream.h"
+
 namespace nw4r {
-namespace db {
-void Panic(const char* file, int line, const char* fmt, ...);
-void Warning(const char* file, int line, const char* msg, ...);
-} // namespace db
-
-namespace ut {
-class FileStream;
-} // namespace ut
-
 namespace snd {
 
 class SoundArchive;
@@ -135,6 +128,11 @@ namespace detail {
 // inferred: layout as libs/nw4r (string trees at 0x34-0x40); only the members used here
 class SoundArchiveFileReader {
 public:
+    SoundArchiveFileReader();
+    void Init(const void* pSoundArchiveBin);
+    void SetStringChunk(const void* pChunk, unsigned long size);
+    void SetInfoChunk(const void* pChunk, unsigned long size);
+
     SoundType GetSoundType(unsigned long id) const;
     bool ReadSoundInfo(unsigned long id, SoundArchive::SoundInfo* pInfo) const;
     bool ReadSound3DParam(unsigned long id, SoundArchive::Sound3DParam* pParam) const;
@@ -165,11 +163,26 @@ public:
         return ConvertLabelStringToId(mStringTreeGroup, pLabel);
     }
 
+    unsigned long GetLabelStringChunkOffset() const { return mSymbolDataOffset; }
+    unsigned long GetLabelStringChunkSize() const { return mSymbolDataSize; }
+    unsigned long GetInfoChunkOffset() const { return mInfoOffset; }
+    unsigned long GetInfoChunkSize() const { return mInfoSize; }
+
 private:
     unsigned long ConvertLabelStringToId(const SoundArchiveFile::StringTree* pTree,
                                          const char* pLabel) const;
 
-    unsigned char m00[0x34];
+    // inferred: SoundArchiveFile::Header (binary file header, then the chunk offsets and sizes)
+    unsigned char mFileHeader[0x10];  // at 0x0
+    unsigned long mSymbolDataOffset;  // at 0x10
+    unsigned long mSymbolDataSize;    // at 0x14
+    unsigned long mInfoOffset;        // at 0x18
+    unsigned long mInfoSize;          // at 0x1C
+    unsigned long mFileImageOffset;   // at 0x20
+    unsigned long mFileImageSize;     // at 0x24
+    const void* mInfo;                // at 0x28
+    const void* mStringBase;          // at 0x2C
+    const void* mStringTable;         // at 0x30
     const SoundArchiveFile::StringTree* mStringTreeSound;  // at 0x34
     const SoundArchiveFile::StringTree* mStringTreePlayer; // at 0x38
     const SoundArchiveFile::StringTree* mStringTreeGroup;  // at 0x3C

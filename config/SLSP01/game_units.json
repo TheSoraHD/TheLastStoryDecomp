@@ -3182,7 +3182,7 @@
    "nw4r::snd::DvdSoundArchive::DvdFileStream",
    "nw4r::snd::DvdSoundArchive"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "nw4r/SoundArchive.cpp",
