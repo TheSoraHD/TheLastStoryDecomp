@@ -939,6 +939,38 @@ struct RedMpState_unk {
     int m0C;
 };
 
+// inferred: linear interpolation (name invented)
+inline atn::Vector3 LerpV_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: state 16 (turns on the ground; with m1594 also dashes from m157C to m1588)
+void Em203GreaterDaemonRedMp::fn_802A0B00() {
+    atn::Vector3 target = m14D4->mPos;
+    atn::Vector3 dir = target - mPos;
+    dir.y = 0.0f;
+    float dist = dir.Length_unk();
+    dir.Normalize_unk();
+    float frame = mMotion.mTracks[0].m08;
+    if (frame > 21.0f && frame <= 38.0f) {
+        mRot.y += atn::WrapAngle_unk(m1578 - m1574) / 17.0f;
+        if (m1594 != 0) {
+            mPos = LerpV_unk(m157C, m1588, (frame - 21.0f) / 17.0f);
+        } else if (dist < 85.0f) {
+            mPos += dir * -85.0f * 0.2f;
+        }
+    } else {
+        m1578 = dir.ToRotation_unk().y;
+    }
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        if (m1598 != 0) {
+            fn_802A325C();
+        } else {
+            fn_8029F148(0);
+        }
+    }
+}
+
 // inferred: state 17 (breath on the ground: turns to the target, then starts the breath at frame 42)
 void Em203GreaterDaemonRedMp::fn_802A118C() {
     atn::Vector3 target = m14D4->mPos;
@@ -980,10 +1012,10 @@ void Em203GreaterDaemonRedMp::fn_802A16A4() {
 }
 
 // inferred: state 15 (moves from m157C to m1588 in 54 frames, then hovers)
-// NONMATCHING: 95.7% - stack slots of the two vector temporaries swapped
+// NONMATCHING: 99.13% - float registers of the interpolation off by one
 void Em203GreaterDaemonRedMp::fn_802A17CC() {
     float t = mMotion.mTracks[0].m08 / 54.0f;
-    mPos = (m1588 - m157C) * (1.0f < t ? 1.0f : t) + m157C;
+    mPos = LerpV_unk(m157C, m1588, 1.0f < t ? 1.0f : t);
     if (mMotion.mTracks[0].m08 > 70.0f && mMotion.mTracks[0].m08 < 80.0f) {
         mMotion.mTracks[0].m08 = 190.0f;
     }
