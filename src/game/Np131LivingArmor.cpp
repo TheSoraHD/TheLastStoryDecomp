@@ -58,7 +58,6 @@ struct PlayerManager_unk {
 };
 extern "C" PlayerManager_unk* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E3384(GameUI* ui);
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
@@ -366,7 +365,7 @@ void Np131LivingArmor::fn_80547468() {
                 found->vf70(3);
                 fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {
-                    fn_803E3384(lbl_8087F490);
+                    lbl_8087F490->fn_803E3384();
                 }
             }
         }

@@ -57,7 +57,6 @@ struct PlayerManager_unk {
 };
 extern "C" PlayerManager_unk* lbl_8087F8A0;
 extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E3384(GameUI* ui);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087F0A8; // inferred: settings (pad at 0x48C)
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
@@ -249,7 +248,7 @@ void Em209SmallGolem::vf10() {
                 StartRevive_unk(player);
                 fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
                 if (lbl_8087F490 != 0) {
-                    fn_803E3384(lbl_8087F490);
+                    lbl_8087F490->fn_803E3384();
                 }
             }
         }

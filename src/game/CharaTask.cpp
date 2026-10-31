@@ -3,6 +3,7 @@
 #include "atn/LoadHandle.h"
 #include "game/CrowdManager.h"
 #include "game/CharaTask.h"
+#include "game/GameUI.h"
 #include "game/BattleCharaTask.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
@@ -6999,14 +7000,6 @@ struct HitEvent_unk {
     unsigned int mFlags;
 };
 
-// inferred: object behind lbl_8087F490 (weak copies 0x80151204 and 0x80151210); names invented
-struct Unk8087F490_unk;
-extern "C" Unk8087F490_unk* lbl_8087F490;
-extern "C" void fn_803E2110(Unk8087F490_unk* obj, int arg, CharaTask* chara);
-struct Unk8087F490_unk {
-    static Unk8087F490_unk* Get_unk() { return lbl_8087F490; }
-    void Remove_unk(CharaTask* chara) { fn_803E2110(this, 1, chara); }
-};
 
 // inferred: reaction to a hit (knock back, down, guard...) and record of the hit in m6D0
 void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3& v2, int arg, unsigned int flags,
@@ -7223,7 +7216,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
                 mC58.m2B4 = 30;
             }
         }
-        Unk8087F490_unk::Get_unk()->Remove_unk(this);
+        GameUI::Get_unk()->Remove_unk(this);
     }
     m6D0.PushBack_unk(CharaPair8_unk(id, arg));
 }
@@ -9754,13 +9747,12 @@ int CharaTask::fn_8016DAB0() {
     return result;
 }
 
-extern "C" void fn_803E6BB4(Unk8087F490_unk* obj, CharaTask* target);
 
 void CharaTask::fn_8016DC14(CharaTask* target, int quiet) {
     if (mFC4 != target) {
         mFC4 = target;
         if (lbl_8087F490 != 0) {
-            fn_803E6BB4(lbl_8087F490, target);
+            lbl_8087F490->fn_803E6BB4(target);
             if (quiet == 0) {
                 if (target != 0) {
                     fn_800C31F4(sSoundNames_unk[8], 0, -1, 1.0f);

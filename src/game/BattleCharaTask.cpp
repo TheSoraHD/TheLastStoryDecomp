@@ -1,4 +1,5 @@
 #include "game/BattleCharaTask.h"
+#include "game/GameUI.h"
 #include "game/GameConfig_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/GimmickManager.h"
@@ -182,10 +183,6 @@ BattleCharaTask::~BattleCharaTask() {
     }
 }
 
-// inferred: the HUD (lbl_8087F490, game/GameUI.h); only passed to fn_803E2110 here
-struct GameUI;
-extern "C" GameUI* lbl_8087F490;
-extern "C" void fn_803E2110(GameUI* ui, int arg, CharaTask* chara); // inferred: HUD notice (3: low hit points)
 extern "C" int fn_80370A78(Field_unk* field, int id);
 extern "C" void fn_80370AE4(Field_unk* field, int id, int value);
 
@@ -786,7 +783,7 @@ void BattleCharaTask::vfE8(HitMsg_unk* msg) {
         float before = (mStatus.m04 + (float)msg->m68) / (float)mStatus.mParamB.m84;
         float after = mStatus.m04 / (float)mStatus.mParamB.m84;
         if (before > 0.3f && after < 0.3f) {
-            fn_803E2110(lbl_8087F490, 3, this);
+            lbl_8087F490->fn_803E2110(3, this); // 3: low hit points
         }
         if (fn_80370174(lbl_8087F430, 0x38A) == 1 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 &&
             fn_80370A78(lbl_8087F430, 0xFA) == 0) {

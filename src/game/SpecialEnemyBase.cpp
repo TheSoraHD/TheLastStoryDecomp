@@ -1,3 +1,4 @@
+#include "game/GameUI.h"
 #include "game/SpecialEnemyBase.h"
 #include "atn/Csv.h"
 #include "atn/ColliBase.h"
@@ -104,11 +105,7 @@ extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);
-// inferred: arena of the multiplayer mode (lbl_8087F490)
-struct MpArena_unk;
-extern "C" MpArena_unk* lbl_8087F490;
-extern "C" void fn_803E6ADC(MpArena_unk* arena, const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_803E3050(MpArena_unk* arena, const atn::Vector3* pos, const void* rect, const void* size,
+extern "C" void fn_803E3050(GameUI* ui, const atn::Vector3* pos, const void* rect, const void* size,
                             float dist, float arg);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, float volume, int arg2, int arg3);
 
@@ -386,7 +383,7 @@ int SpecialEnemyBase::fn_805A4A54(SpecialAim_unk* aim) {
         if (fn_80051B70(&eye, &center) != 0 && fn_803ABE54(&eye, &center, radius) != 0) {
             atn::Vector3 a = center + lo;
             atn::Vector3 b = center + hi;
-            fn_803E6ADC(lbl_8087F490, &a, &b);
+            lbl_8087F490->fn_803E6ADC(a, b);
             fn_800C31F4(sSound, 1.0f, 0, -1);
             return 1;
         }

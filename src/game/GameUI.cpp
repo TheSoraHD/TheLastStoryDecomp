@@ -1,10 +1,11 @@
 #include "game/GameUI.h"
+#include "atn/D2A_Task.h"
 #include "game/CharaTask.h"
+#include "game/GimmickCommon.h"
 #include "atn/SoundRef.h"
 #include "string.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" GameUI* lbl_8087F490;      // inferred: the HUD instance
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: sounds of the HUD ("SE_UI001_012", ...); the table is in the auto .rodata before the split
 extern "C" const char* const lbl_80750618[14];
@@ -24,6 +25,19 @@ extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float tim
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" void fn_803E668C(GameUI* ui);
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
+// inferred: sets one component of a layout parameter by name (name invented)
+inline void SetLayoutValue_unk(atn::D2A_Layout_unk* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+// inferred: effect manager (atn/EffectManager.cpp); only the field used here
+struct EffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int group, int flag); // inferred: stops the effects of owner
 
 // inferred: bit `i` of `mask` is set (name invented)
 inline bool __IsBit_unk(unsigned int mask, int i) {
@@ -59,6 +73,32 @@ GAMEUI_CHECK(m2664, 0x2664);
 GAMEUI_CHECK(m2678, 0x2678);
 GAMEUI_CHECK(m288C, 0x288C);
 
+GameUI* lbl_8087F490;
+int lbl_8087F494;     // inferred: the game runs at 60 frames per second (else 30)
+
+// inferred: frames to whole seconds, rounded up past the first (60 or 30 frames per second)
+extern "C" int fn_803CE854(int frames) {
+    if (lbl_8087F494 != 0) {
+        return frames / 60 + 1;
+    }
+    return frames / 30 + 1;
+}
+
+// inferred: frames within the current second (in 1/30 s units)
+extern "C" int fn_803CE8A8(int frames) {
+    if (lbl_8087F494 != 0) {
+        return (frames % 60) / 2;
+    }
+    return frames % 30;
+}
+
+GameUI* GameUI::fn_803CE910(atn::Task* parent) {
+    if (parent != 0 && lbl_8087F490 == 0) {
+        lbl_8087F490 = new ((MemoryTag)1, "", "", 0) GameUI(parent);
+    }
+    return lbl_8087F490;
+}
+
 // NONMATCHING: 98.1% - scheduling only: (1) the original keeps the load of the list count (Clear of 0x30C)
 // after the six resets of m318, here it is hoisted above them (the scheduling windows of the block end one
 // node earlier); (2) the zero of the resets after the 0x5BC loop is materialised twice in the original (r3
@@ -72,11 +112,11 @@ GameUI::GameUI(atn::Task* parent)
       m2678(128, 128, 128, 255), m2688(10, 10, 128, 255), m2698(128, 128, 128, 255), m26A8(10, 10, 255, 255), m26B8(0, 0, 0, 255), m26C8(19, 59, 23, 255), m26D8(220, 220, 200, 255), m26E8(250, 150, 90, 255), m26F8(140, 170, 220, 255), m2708(60, 100, 70, 255), m2718(250, 240, 130, 255), m2728(255, 180, 0, 0), m2738(0, 180, 80, 0), m2748(255, 100, 100, 0), m2758(90, 90, 90, 0), m2768(50, 20, 90, 0), m2778(150, 100, 200, 0), m288C(255, 255, 255, 0), m289C(85, 112, 206, 255) {
     m2788 = 0;
     for (int i = 0; i < 6; i++) {
-        m318[i].m00 = 0;
-        m318[i].m04 = 0;
-        m318[i].m08 = 0;
-        m318[i].m0C = 0;
-        m318[i].m10 = 0;
+        m318[i].mInst[0] = 0;
+        m318[i].mInst[1] = 0;
+        m318[i].mInst[2] = 0;
+        m318[i].mInst[3] = 0;
+        m318[i].mInst[4] = 0;
     }
     m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
     m3D8 = 0;
@@ -198,9 +238,12 @@ GameUI::GameUI(atn::Task* parent)
     m2564 = 0;
     m2568.m00 = 0;
     m25CC.m00 = 0;
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 4; i++) {
         m2610[i] = 0;
     }
+    m2620 = 0;
+    m2624 = 0;
+    m2628 = 0;
     mDC0 = 0;
     mDC4 = 0;
     fn_803CF740();
@@ -242,8 +285,6 @@ int GameUI::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.95% - only the int-to-float double differs: it is in the auto .rodata (0x80750650), outside
-// the split (the .rodata of the real file also holds the tables of fn_803CFC78).
 void GameUI::vf10() {
     fn_803E668C(this);
     if (m840 != 0 && !m840->IsFlag_unk(4) && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0 &&
@@ -306,11 +347,99 @@ float GameUIDuration_unk::fn_803CFC6C() {
 
 void GameUI::vf14() {}
 
+// inferred: nonzero while the resources of the HUD are loading (called by game/GameTask)
+int GameUI::fn_803D1574() {
+    int busy = 0;
+    if (mDC8 != 0) {
+        // inferred: the textures are seen through GimmickUvOwner_unk, as in the other callers of fn_800D59B8
+        if (((GimmickUvOwner_unk*)&mDD4)->fn_800D59B8() || ((GimmickUvOwner_unk*)&mE04)->fn_800D59B8() ||
+            ((GimmickUvOwner_unk*)&mE34)->fn_800D59B8() || ((GimmickUvOwner_unk*)&mE64)->fn_800D59B8()) {
+            busy = 1;
+        }
+        for (int i = 0; i < 4; i++) {
+            if (m1554[i].IsLoading() || m1584[i].IsLoading()) {
+                busy = 1;
+            }
+        }
+    }
+    if (!fn_800D3FA4()) {
+        busy = 1;
+    }
+    return busy;
+}
+
+// inferred: stops the effects of m1554 (called by game/TacView)
+void GameUI::fn_803D8344() {
+    if (m15B8 != 0) {
+        lbl_8087F3C0->mB8 = 5;
+        fn_80239DAC(lbl_8087F3C0, m1554, 0, 0);
+        lbl_8087F3C0->mB8 = 0;
+        m15B8 = 0;
+    }
+}
+
+void GameUI::fn_803DF5B4() {
+    m2F0 = 0;
+    for (int i = 0; i < 6; i++) {
+        mB0[i].m00 = 0;
+        mB0[i].m08 = 0;
+    }
+    fn_803DF648(0);
+    for (unsigned int i = 0; i < m2F0; i++) {
+        m2F4[i]->m00 = 20;
+    }
+}
+
+void GameUI::fn_803E0D4C() {
+    m50.m30 = 0;
+    m50.m34 = 0;
+    m50.m38 = 0;
+    m50.m3C = 0.0f;
+    m50.m40 = 0;
+    m50.m44 = 0.0f;
+    m50.m48 = 0;
+    m50.m4C = 0;
+    m50.m54 = 0;
+    m50.m58 = 0;
+    m50.m5C = 0;
+}
+
+// inferred: rewinds the d2anime instances of m318 (the check of the element pointer is in the original)
+void GameUI::fn_803E0D84() {
+    for (int i = 0; i < 6; i++) {
+        m318[i].m1C = -1;
+        for (int j = 0; j < 5; j++) {
+            GameUIElem20_unk* e = &m318[i];
+            if (e != 0) {
+                m318[i].mInst[j]->mFrame = 0.0f;
+            }
+        }
+    }
+    m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+}
+
 void GameUI::fn_803E32EC() {
     memcpy(&m748, &m764, sizeof(GameUIElem1C_unk));
     m764 = GameUIElem1C_unk();
     memcpy(&m7F8, &m7C0, sizeof(GameUIElem1C_unk));
     m7C0 = GameUIElem1C_unk();
+}
+
+// inferred: closes the button prompt (called by the enemies that grab the player)
+void GameUI::fn_803E3384() {
+    m834 = 1;
+    m79C = m764;
+    for (int i = 0; i < 2; i++) {
+        m814[i * 2]->SetFrame_unk(m814[i * 2]->mA0);
+    }
+    m814[4]->SetFrame_unk(0.0f);
+    for (int i = 0; i < 2; i++) {
+        m814[i * 2 + 1]->SetFrame_unk(m814[i * 2 + 1]->mA0);
+    }
+    m814[5]->SetFrame_unk(0.0f);
+    m748 = GameUIElem1C_unk();
+    m764 = GameUIElem1C_unk();
+    m780 = GameUIElem1C_unk();
 }
 
 void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
@@ -409,6 +538,15 @@ void GameUI::fn_803E4950() {
     mDB4->m104 = -1.0f;
 }
 
+void GameUI::fn_803E4978(const wchar_t* text) {
+    if (text != 0) {
+        mD90.m00 = 1;
+        mD90.m04 = 0;
+        mD90.m08 = text;
+        mDB0 = 2;
+    }
+}
+
 void GameUI::fn_803E4A20(int a, int b) {
     if (a) {
         mD90.m00 = 1;
@@ -419,7 +557,6 @@ void GameUI::fn_803E4A20(int a, int b) {
     }
 }
 
-// NONMATCHING: 99% - code matches; 10.0f sits later in the float pool (earlier users unwritten)
 float GameUI::fn_803E4A48() {
     return mDB4->m100 / 10.0f;
 }
@@ -520,7 +657,6 @@ void GameUI::fn_803E656C() {
     }
 }
 
-// NONMATCHING: 99.3% - f0/f1 of -1.0f and the second mA0 swapped
 void GameUI::fn_803E65F8() {
     if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
         return;
@@ -528,9 +664,9 @@ void GameUI::fn_803E65F8() {
     if (m262C.m0C == 3 || m262C.m0C == 0) {
         return;
     }
-    m262C.m00->m100 = m262C.m00->mA0;
+    m262C.m00->SetFrame_unk(m262C.m00->mA0);
     m262C.m00->m104 = -1.0f;
-    m262C.m04->m100 = m262C.m04->mA0;
+    m262C.m04->SetFrame_unk(m262C.m04->mA0);
     m262C.m04->m104 = -1.0f;
     m262C.m0C = 3;
     if (lbl_8087F430 != 0) {
@@ -542,6 +678,30 @@ void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {
     if (!m25CC.Full_unk()) {
         new (&m25CC.m[m25CC.m00]) GameUIElem10_unk(chara, count, max, arg);
         m25CC.m00++;
+    }
+}
+
+// NONMATCHING: 99.8% - code matches; only the offset of "basePos" in the string pool (the strings
+// of the earlier functions are not written yet)
+void GameUI::fn_803E6ADC(const atn::Vector3& a, const atn::Vector3& b) {
+    if (mA84 != 0) {
+        mA84->mFrame = 0.0f;
+        SetLayoutValue_unk(&mA84->mData.m10, "basePos", 0, 320.0f);
+        SetLayoutValue_unk(&mA84->mData.m10, "basePos", 1, 224.0f);
+    }
+    if (mA88 != 0) {
+        mA88->mFrame = 0.0f;
+    }
+    m888 = a;
+    m894 = b;
+}
+
+void GameUI::fn_803E6BB4(CharaTask* id) {
+    CharaTask* old = m2620;
+    m2624 = old;
+    m2620 = id;
+    if (id != 0 && old != 0 && id != old && m2628 != 0) {
+        m2628->m100 = 0.0f;
     }
 }
 

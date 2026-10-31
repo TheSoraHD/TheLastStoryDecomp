@@ -9,8 +9,11 @@ namespace atn {
 
 // inferred: d2anime instance task (fn_801F64D0); only the members used here
 struct D2AInstance_unk : public Task {
-    unsigned char m48[0x4E - 0x48];
+    unsigned char m48[0x4D - 0x48];
+    unsigned char mLoop; // 0x4D: inferred: D2A_TaskInstanceBase::mLoop
     unsigned char m4E;
+    float mFrame;        // 0x50: inferred: D2A_TaskInstanceBase::mFrame
+    float mSpeed;        // 0x54
 };
 
 // inferred: instance of a d2anime layout drawn in 3D (same layout as D3Anime)

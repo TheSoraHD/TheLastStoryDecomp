@@ -1,6 +1,7 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
 #include "chr/ControlChant.h"
+#include "game/GameUI.h"
 #include "game/HitInfo_unk.h"
 #include "game/HomingBullet.h"
 #include "game/EnemyManager.h"
@@ -110,10 +111,6 @@ extern "C" int fn_80370174(Field_unk* field, int id);                     // inf
 extern "C" void fn_80370320(Field_unk* field, int id, int arg2, int arg3); // inferred: starts an event
 extern "C" int fn_803761AC(Field_unk* field);
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed
-// inferred: object behind lbl_8087F490 (as in game/CharaTask.cpp)
-struct Unk8087F490_unk;
-extern "C" Unk8087F490_unk* lbl_8087F490;
-extern "C" void fn_803E2110(Unk8087F490_unk* obj, int arg, CharaTask* chara);
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 struct TacView_unk;
 extern "C" TacView_unk* lbl_8087F9F8;
@@ -272,7 +269,7 @@ ControlChant::ControlChant(Chara_unk* chara, CharaTask* target, const atn::Vecto
     if (fn_8004ED34(lbl_8087EE98, &res, &from, &to, 0x80000000, 0, 0)) {
         m14 = res.m04;
     }
-    fn_803E2110(lbl_8087F490, 0, mChara);
+    lbl_8087F490->fn_803E2110(0, mChara);
     if (lbl_8087F498 && mChara->mType == 3 && (time > 90 || (m3C->mAC & 0x40000) == 0x40000)) {
         fn_803EA77C(lbl_8087F498, chara, 0x15, 0, 1.0f, 10.0f);
     }
@@ -527,7 +524,7 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
     if ((mChara->mType == 0 || mChara->mType == 3) && !m1F) {
         model->mTracks[0].m08 = lbl_8087F0A8->m2BC;
     }
-    fn_803E2110(lbl_8087F490, 2, mChara);
+    lbl_8087F490->fn_803E2110(2, mChara);
     if (m1F) {
         int voice = 0x24;
         if (hit && (hit->m04 == 0x179A || hit->m04 == 0x6C2)) {
