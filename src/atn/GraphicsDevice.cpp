@@ -107,13 +107,13 @@ extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, int al
                              const char* file, int line); // inferred: allocation of a fixed block
 
 // SDK render modes
-extern "C" GXRenderModeObj lbl_807B093C; // GXNtsc480IntDf
-extern "C" GXRenderModeObj lbl_807B0978; // GXNtsc480Prog
-extern "C" GXRenderModeObj lbl_807B09F0; // GXMpal480IntDf
-extern "C" GXRenderModeObj lbl_807B0A2C; // GXMpal480Prog
-extern "C" GXRenderModeObj lbl_807B0AA4; // GXPal528IntDf
-extern "C" GXRenderModeObj lbl_807B0B1C; // GXEurgb60Hz480IntDf
-extern "C" GXRenderModeObj lbl_807B0B58; // GXEurgb60Hz480Prog
+extern "C" GXRenderModeObj GXNtsc480Int;
+extern "C" GXRenderModeObj GXNtsc480Prog;
+extern "C" GXRenderModeObj GXMpal480Int;
+extern "C" GXRenderModeObj GXMpal480Prog;
+extern "C" GXRenderModeObj GXPal528Int;
+extern "C" GXRenderModeObj GXEurgb60Hz480Int;
+extern "C" GXRenderModeObj GXEurgb60Hz480Prog;
 
 struct OSThreadQueue {
     void* head;
@@ -319,14 +319,14 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     if (SCGetProgressiveMode() == 1 && VIGetDTVStatus() == 1) {
         switch (VIGetTvFormat()) {
         case 0:
-            rm = &lbl_807B0978;
+            rm = &GXNtsc480Prog;
             break;
         case 1:
         case 5:
-            rm = &lbl_807B0B58;
+            rm = &GXEurgb60Hz480Prog;
             break;
         case 2:
-            rm = &lbl_807B0A2C;
+            rm = &GXMpal480Prog;
             break;
         default:
             OSPanic("atn_graphics_device.cpp", 243, "invalid TV format\n");
@@ -335,20 +335,20 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     } else {
         switch (VIGetTvFormat()) {
         case 0:
-            rm = &lbl_807B093C;
+            rm = &GXNtsc480Int;
             break;
         case 1:
             if (SCGetEuRgb60Mode() == 1) {
-                rm = &lbl_807B0B1C;
+                rm = &GXEurgb60Hz480Int;
             } else {
-                rm = &lbl_807B0AA4;
+                rm = &GXPal528Int;
             }
             break;
         case 5:
-            rm = &lbl_807B0B1C;
+            rm = &GXEurgb60Hz480Int;
             break;
         case 2:
-            rm = &lbl_807B09F0;
+            rm = &GXMpal480Int;
             break;
         default:
             OSPanic("atn_graphics_device.cpp", 264, "invalid TV format\n");
