@@ -55,7 +55,7 @@ public:
     int m14D4;
     int m14D8;
     atn::Vector3 m14DC;   // inferred: speed of the thrown egg (vf10, state 3)
-    unsigned char m14E8[0x14F4 - 0x14E8];
+    atn::Vector3 m14E8;   // inferred: point where the egg fell on the ground
     atn::Matrix3x4 m14F4; // inferred: matrix of the effect m156C
     CharaTask* m1524;     // inferred: copy of m1528 when the egg is thrown
     CharaTask* m1528;     // inferred: target of the attack

@@ -106,7 +106,11 @@ struct EggFieldCam_unk {
     int m838;
     unsigned char m83C[0x858 - 0x83C];
     int m858;
-    unsigned char m85C[0x910 - 0x85C];
+    unsigned char m85C[0x900 - 0x85C];
+    int m900;             // inferred: shake of the camera (field + 0x96C)
+    int m904;             // inferred: frames of the shake
+    float m908;
+    float m90C;
     EggLook_unk m910;     // field + 0x97C
 };
 extern "C" void fn_8037F6D8(EggFieldCam_unk* cam, const atn::Vector3* pos); // inferred: starts looking at pos
@@ -1460,6 +1464,116 @@ __declspec(noinline) int Em206EggMonster::fn_802C69BC() {
         return 1;
     }
     return 0;
+}
+
+extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" void fn_800FDB20(Effect_unk* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
+                            const atn::Vector3* pos, const atn::Vector3* dir, int time, float scale);
+extern "C" void fn_80101434(Effect_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
+
+// NONMATCHING: 98.4% - stack slots of the local vectors and matrices
+// inferred: flight of the thrown egg (m14F4): it explodes after m14D8 frames, sticks to the character it
+// hits or stays where it falls on the ground
+void Em206EggMonster::fn_802C6DF4() {
+    if (m14D0 == 0) {
+        return;
+    }
+    if (--m14D8 < 0) {
+        atn::Vector3 pos = m14F4.GetTrans_unk();
+        if (m1524 != 0) {
+            pos = m1524->mPos;
+            pos += FrontDir_unk(m1524->mRot);
+        }
+        HitInfo_unk* data;
+        if (m1700 != 0) {
+            data = fn_80219E6C(0x583);
+        } else {
+            data = fn_80219E6C(0x579);
+        }
+        fn_800FAB80(lbl_8087F048, this, data, 2000, &pos, &lbl_807C7030, 0, 30, -1, -1, 0.0f, 1.0f);
+        fn_800C31F4("SE_EM206_035", 1.0f, 0, -1);
+        Field_unk* field = lbl_8087F430;
+        field->mCamera.m900 %= 2;
+        field->mCamera.m904 = 10;
+        field->mCamera.m908 = 1.5f;
+        field->mCamera.m90C = 1.5f;
+        m14D0 = 0;
+        fn_80239DAC(lbl_8087F3C0, this, 0x65, 1);
+        m14D4 = 0;
+        return;
+    }
+    if (m14D4 != 0) {
+        if (m1524 != 0) {
+            atn::Matrix3x4* mtx = &m14F4;
+            m14F4.SetIdentity();
+            atn::Matrix3x4::RotateAxis_unk(m14F4, 'y', 3.1415927f);
+            *mtx = MtxMul_unk(*mtx, ScaleMtx_unk(sEffectScale_unk));
+            atn::Vector3 off(3.0f, 0.0f, 0.0f);
+            m14F4.fn_801479E4(off);
+            atn::Matrix3x4 node(m1524->mMotion.GetNodeMtx_unk("spine"));
+            PSMTXConcat(node.m, m14F4.m, m14F4.m);
+        } else {
+            atn::Vector3 rot = m14DC.ToRotation_unk();
+            m14F4.SetIdentity();
+            rot.z = 0.0f;
+            atn::Matrix3x4* mtx = &m14F4;
+            *mtx = MtxMul_unk(*mtx, ScaleMtx_unk(sEffectScale_unk));
+            atn::Vector3 off(3.0f, 0.0f, 0.0f);
+            m14F4.fn_801479E4(off);
+            atn::Matrix3x4 r;
+            r.SetIdentity();
+            r.RotateZYX_unk(rot);
+            r.fn_801479E4(m14E8);
+            PSMTXConcat(r.m, m14F4.m, m14F4.m);
+        }
+        return;
+    }
+    atn::Vector3 from = m14F4.GetTrans_unk();
+    atn::Vector3 to = from + m14DC;
+    CollResult_unk result;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 6, &mColli, 0) != 0) {
+        CharaTask* chara = 0;
+        if (result.m38 != 0 && (result.m38->mFlags & 2) == 2) {
+            chara = (CharaTask*)result.m38->m0C;
+        }
+        if (chara == this) {
+            m14F4.fn_801479E4(to);
+        } else if (chara != 0) {
+            atn::Vector3 dir = m14DC;
+            PSVECNormalize(&dir, &dir);
+            dir *= 2.0f;
+            m14D4 = 1;
+            m14D8 = 60;
+            m1524 = (CharaTask*)result.m38->m0C;
+            fn_800C344C("SE_SP015_001", &result.m10, 0, -1, 1.0f);
+            if (chara->m55C != 5) {
+                HitInfo_unk* data;
+                if (m1700 != 0) {
+                    data = fn_80219E6C(0x583);
+                } else {
+                    data = fn_80219E6C(0x579);
+                }
+                atn::Vector3 pos = m14F4.GetTrans_unk();
+                fn_800FDB20(lbl_8087F048, this, m1524, 0, data, 10000, &pos, &m14DC, 30, 0.0f);
+                if ((m1524->mStatus.m0C & 0x20) != 0x20) {
+                    m1524->fn_8015E4B0(dir, 0x33);
+                }
+            }
+        } else {
+            m14D4 = 1;
+            m14D8 = 10;
+            m1524 = 0;
+            atn::Vector3 back(-m14DC.x, -m14DC.y, -m14DC.z);
+            m14E8 = result.m10;
+            atn::Vector3 rot = back.ToRotation_unk();
+            rot.z = 0.0f;
+            fn_80101434(lbl_8087F048, &result.m10, &rot, 1, 2);
+        }
+    } else {
+        m14F4.fn_801479E4(to);
+    }
 }
 
 int Em206EggMonster::vfE4() {
