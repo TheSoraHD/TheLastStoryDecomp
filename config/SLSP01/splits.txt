@@ -3574,6 +3574,13 @@ RVL_SDK/src/revolution/exi/EXICommon.c:
 	.text       start:0x805E96D0 end:0x805E9858
 	.sdata2     start:0x808884E8 end:0x808884F0
 
+smg2/src/RVL_SDK/si/SIBios.c:
+	.text       start:0x805E9860 end:0x805EA894
+	.data       start:0x8079BD58 end:0x8079BDC8
+	.bss        start:0x807CB010 end:0x807CB240
+	.sdata      start:0x8087E728 end:0x8087E72C
+	.sbss       start:0x8087FB80 end:0x8087FB90
+
 smg2/src/RVL_SDK/si/SISamplingRate.c:
 	.text       start:0x805EA8A0 end:0x805EA988
 	.data       start:0x8079BDC8 end:0x8079BE60
