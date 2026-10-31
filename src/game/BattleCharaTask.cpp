@@ -1269,6 +1269,248 @@ void BattleCharaTask::fn_800E9110() {
     mFlag4 = 0;
 }
 
+extern "C" int fn_8021AF98(int id); // inferred: skill id of a skill growth entry (db/SkillGrowth_unk)
+
+// inferred: control with a timer (ids 10 and 12 of m560; class unknown, names invented)
+class ControlTimer_unk : public chr::ControlBase {
+public:
+    bool IsDone_unk() const { return m08 <= 0.0f; }
+    float m08;
+    unsigned char m0C[0x1C - 0x0C];
+    int m1C; // inferred: set to end the control early
+};
+
+// inferred: first skill of the weapon (name invented)
+inline int WeaponSkill_unk(Arms* arms) {
+    int id = 0;
+    if (arms != 0 && arms->m274 != 0) {
+        id = arms->m274->mAC[0];
+    }
+    return id;
+}
+
+// inferred: controls (m560) that let the character move freely (name invented)
+inline bool IsFreeControl_unk(int id) {
+    switch (id) {
+    case 0x14:
+    case 0x42:
+        return false;
+    case 2:
+    case 3:
+    case 0x11:
+    case 0x12:
+    case 0x13:
+    case 0x15:
+    case 0x16:
+    case 0x17:
+    case 0x27:
+    case 0x34:
+    case 0x35:
+    case 0x41:
+    case 0x43:
+    case 0x47:
+    case 0x63:
+    case 0x6E:
+    case 0x6F:
+    case 0x70:
+    case 0x71:
+    case 0x72:
+    case 0x73:
+    case 0x74:
+    case 0x75:
+    case 0x76:
+    case 0x77:
+    case 0x7B:
+    case 0x7C:
+    case 0x7D:
+    case 0x7E:
+    case 0x7F:
+    case 0x8E:
+        return true;
+    }
+    return false;
+}
+
+// NONMATCHING: 97.8% - the result of IsFreeControl_unk is materialized (the original branches from its switch);
+// registers of the fn_800F8C6C arguments
+// inferred: update of the party members and enemies with a weapon (types 1-3; fn_800E589C for the player)
+void BattleCharaTask::fn_800E9ED8() {
+    switch (m58C) {
+    case 0:
+        if (m55C == 6 && IsFreeControl_unk(m560)) {
+            mC58.m2B0 = 0;
+            fn_80139560();
+        } else if (m55C == 6 && m560 == 10) {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame > 9.0f && frame < 12.0f && mControl) {
+                ControlTimer_unk* control = (ControlTimer_unk*)mControl.get();
+                if (control != 0) {
+                    control->m1C = 1;
+                    if (fn_8016E484()) {
+                        fn_800EB270(fn_8021AF98(2));
+                    } else {
+                        int id = 0xD0;
+                        if (mType == 2) {
+                            id = 0xE5;
+                        }
+                        fn_800EB270(id);
+                    }
+                }
+            }
+        } else if (m55C == 7) {
+            atn::Vector3 pos = mPos;
+            fn_80139560();
+            pos.x -= mPos.x;
+            pos.y -= mPos.y;
+            pos.z -= mPos.z;
+            if (m570 > 0.4f && atn::Abs_unk(pos.x) < 0.2f && atn::Abs_unk(pos.y) < 0.2f && atn::Abs_unk(pos.z) < 0.2f) {
+                if (++mC58.m2B0 > 1) {
+                    if (fn_8016F67C()) {
+                        atn::Vector3 front = FrontDir_unk(mRot);
+                        vf74(front);
+                        mC58.m2B0 = 0;
+                    } else if (fn_801725EC(&mPos, &m574, 0)) {
+                        mC58.m2B0 = 0;
+                    }
+                }
+            } else {
+                mC58.m2B0 = 0;
+            }
+        } else if (mC58.mMode == 5 && mC58.mStep == 2) {
+            if (mType == 2 && mMotion.fn_80097D40(0x173) && lbl_8087F0A8->m080 > 0 &&
+                ((unsigned int)mStatus.mParamB.m9C & 0x1000) != 0x1000) {
+                m58C = 5;
+                fn_80158EF0(lbl_8087F0A8->m080);
+            } else {
+                fn_800EB270(WeaponSkill_unk((Arms*)m648));
+            }
+        } else if (mC58.mMode == 6 && mC58.mStep >= 1) {
+            fn_800EB4AC();
+        } else {
+            atn::Vector3 pos = mPos;
+            if (lbl_8087F610 == 0) {
+                fn_80139560();
+            } else if (mType == 3 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead == this) {
+                int grappled = 0;
+                if (m55C == 6 && m560 == 28) {
+                    grappled = 1;
+                }
+                fn_80139560();
+                if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
+                    fn_803748E0(lbl_8087F430, 1);
+                    lbl_8087F430->m94C = 1;
+                }
+            } else {
+                fn_80139560();
+            }
+            pos.x -= mPos.x;
+            pos.y -= mPos.y;
+            pos.z -= mPos.z;
+            if (m570 > 0.4f && atn::Abs_unk(pos.x) < 0.2f && atn::Abs_unk(pos.y) < 0.2f && atn::Abs_unk(pos.z) < 0.2f) {
+                if (++mC58.m2B0 > 1) {
+                    CharaTask* other = 0;
+                    if (fn_8016F67C()) {
+                        atn::Vector3 front = FrontDir_unk(mRot);
+                        vf74(front);
+                        mC58.m2B0 = 0;
+                    } else if (!mFlagC25 && fn_801725EC(&mPos, &m574, &other)) {
+                        if (mC58.mMode == 5 && mC58.mStep == 1 && mC58.mD0 == 0 && mC58.mC4 != 0) {
+                            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+                            atn::Vector3 front = FrontDir_unk(mRot);
+                            atn::Vector3 side;
+                            PSVECCrossProduct(&front, &up, &side);
+                            mC14 = side;
+                            m58C = 1;
+                            if (lbl_8087F048 != 0) {
+                                m590 = fn_800F8548(lbl_8087F048);
+                            }
+                            m594 = -1;
+                            CharaTask* target = mC58.mC4;
+                            float radius = target->m5B0;
+                            fn_801562A0(fn_80219E6C(200), target->mPos, 1, 1, 0, other, radius);
+                        }
+                        mC58.m2B0 = 0;
+                    }
+                }
+            } else {
+                mC58.m2B0 = 0;
+            }
+        }
+        break;
+    case 1: {
+        if (fn_80158BB4()) {
+            m58C = 0;
+            if ((unsigned int)(m560 - 0x15) > 2 && m560 != 0x47 && m560 != 0x8E && m55C != 7) {
+                fn_8016EB48(1, 1, 1);
+            }
+        }
+        GameConfig_unk* config = lbl_8087F0A8;
+        float frame = HitFrame_unk(mMotion.mTracks[0].m00);
+        if (mFlagC29 && config->mAttackGuardWait > 0.0f && mMotion.mTracks[0].m08 >= frame) {
+            float rest = mMotion.fn_80097D7C(0) - frame;
+            float speed = rest / (rest + config->mAttackGuardWait);
+            if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
+                speed *= fn_8010CA34(lbl_8087F048);
+            }
+            mMotion.mTracks[0].m0C = speed;
+        }
+        fn_80139560();
+        if (lbl_8087F048 != 0 && fn_80158CA4()) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 1;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            if (m594 != 0) {
+                fn_80144710();
+                HitResult_unk results[8];
+                int n = fn_800F8C6C(lbl_8087F048, results, 8, this, m638, m590, 30, m594, 0.0f);
+                if (n > 0) {
+                    if (m594 > 0) {
+                        m594 -= n;
+                    }
+                    int critical = 0;
+                    for (int i = 0; i < n; i++) {
+                        if ((results[i].mFlags & 8) == 8) {
+                            critical = 1;
+                        }
+                    }
+                    if (critical && (unsigned int)(m560 - 4) <= 1) {
+                        mFlagC29 = 1;
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case 5:
+        if (m55C != 6 || m560 != 12) {
+            m58C = 0;
+            fn_80139560();
+        } else {
+            fn_80139560();
+            if (((ControlTimer_unk*)mControl.get())->IsDone_unk()) {
+                fn_800EB270(WeaponSkill_unk((Arms*)m648));
+            }
+        }
+        break;
+    case 2:
+        if (lbl_8087F610 == 0) {
+            vfF0();
+        } else if (mType == 3 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead == this) {
+            vfEC();
+        } else {
+            vfF0();
+        }
+        break;
+    case 3:
+    case 4:
+        fn_80139560();
+        break;
+    }
+    fn_800E7BB0();
+}
+
 // NONMATCHING: 97.3% - the original reloads the flag word for mFlag25 after the mFlag16 test (as CharaTask::vf34)
 // inferred: end of the knock-down: after m1450 frames down the character dies (event 0x1B7 for type 3)
 void BattleCharaTask::vfF0() {
