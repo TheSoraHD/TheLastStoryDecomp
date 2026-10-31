@@ -24,18 +24,18 @@ static u32 BI2DebugFlagHolder;
 
 static char GameNameBuffer[sizeof('ABCD') + 1];
 
-static f64 ZeroF;     // for lfd
-static f32 ZeroPS[2]; // for psl_l
-
 static OSExceptionHandler* OSExceptionTable;
 
 static BOOL AreWeInitialized;
+
+static f32 ZeroPS[2]; // for psl_l
+static f64 ZeroF;     // for lfd
 DECL_WEAK BOOL __OSIsGcam;
 BOOL __OSInNandBoot;
 BOOL __OSInIPL;
 
 const char* __OSVersion =
-    "<< RVL_SDK - OS \trelease build: Feb 27 2009 10:04:29 (0x4302_145) >>";
+    "<< RVL_SDK - OS \trelease build: Aug 23 2010 17:33:06 (0x4302_145) >>";
 
 static void OSExceptionInit(void);
 
@@ -362,7 +362,7 @@ static void CheckTargets(void) {
         OSReport("OS ERROR: boot program is not for RVL target. Please use "
                  "correct boot program.\n");
         // clang-format off
-#line 1153
+#line 1160
         OS_ERROR("Failed to run app");
         // clang-format on
         break;
@@ -376,7 +376,7 @@ static void CheckTargets(void) {
         OSReport("OS ERROR: apploader[D].img is not for RVL target. Please use "
                  "correct apploader[D].img.\n");
         // clang-format off
-#line 1171
+#line 1178
         OS_ERROR("Failed to run app");
         // clang-format on
         break;
@@ -393,7 +393,7 @@ static void ReportOSInfo(void) {
     u32 tdev;
 
     OSReport("\nRevolution OS\n");
-    OSReport("Kernel built : %s %s\n", "Feb 27 2009", "10:04:29");
+    OSReport("Kernel built : %s %s\n", "Aug 23 2010", "17:33:06");
 
     OSReport("Console Type : ");
     type = OSGetConsoleType();
@@ -479,7 +479,7 @@ static void CheckFirmare(void){
         || rev.idLo == (OS_MINIMUM_IOS_VERSION >> 16) && myVersion < OS_MINIMUM_IOS_VERSION) {
         OSReport("OS ERROR: This firmware is an improper version for this SDK. Please use a correct Firmware.\n");
         OSFatal(textColor, bgColor, "\n\nERROR #002\nAn error has occurred.\nPress the Eject Button, remove the\nGame Disc, and turn off the power to \nthe console. \nPlease read the Wii Operations Manual \nfor further instructions.\n");
-#line 1236
+#line 1243
         OS_ERROR("Failed to run app");
       }
 }
@@ -502,6 +502,8 @@ void OSInit(void) {
     void* mem1hi;
     void* mem2lo;
     void* mem2hi;
+    void* arenaLo = ROUND_UP_PTR(__ArenaLo, 32);
+    void* arenaHi = (void*)0x81730000;
 
     if (!AreWeInitialized) {
         AreWeInitialized = TRUE;
@@ -547,10 +549,10 @@ void OSInit(void) {
         mem1lo = *(void**)OSPhysicalToCached(OS_PHYS_USABLE_MEM1_START);
         if (mem1lo == NULL) {
             // Use the linker-generated arena if it is in MEM1...
-            if (OSIsMEM1Region(__ArenaLo)) {
+            if (OSIsMEM1Region(arenaLo)) {
                 // ...and if the OS boot info does not specify one
                 mem1lo =
-                    BootInfo->arenaLo == NULL ? __ArenaLo : BootInfo->arenaLo;
+                    BootInfo->arenaLo == NULL ? arenaLo : BootInfo->arenaLo;
 
                 /**
                  * Linker generates stack/arena in this order:
@@ -567,7 +569,7 @@ void OSInit(void) {
                  */
                 if (BootInfo->arenaLo == NULL && BI2DebugFlag != NULL &&
                     *BI2DebugFlag < 2) {
-                    mem1lo = ROUND_UP_PTR(_db_stack_end, 32);
+                    mem1lo = ROUND_UP_PTR(_stack_addr, 32);
                 }
             } else {
                 // ???
@@ -581,7 +583,7 @@ void OSInit(void) {
         if (mem1hi == NULL) {
             // Use the linker-generated arena if OS boot info does not specify
             // one
-            mem1hi = BootInfo->arenaHi == NULL ? __ArenaHi : BootInfo->arenaHi;
+            mem1hi = BootInfo->arenaHi == NULL ? arenaHi : BootInfo->arenaHi;
         }
         OSSetMEM1ArenaHi(mem1hi);
 
@@ -589,12 +591,12 @@ void OSInit(void) {
         mem2lo = *(void**)OSPhysicalToCached(OS_PHYS_USABLE_MEM2_START);
         if (mem2lo != NULL) {
             // Use the linker-generated arena if it is in MEM2
-            if (OSIsMEM2Region(__ArenaLo)) {
-                mem2lo = __ArenaLo;
+            if (OSIsMEM2Region(arenaLo)) {
+                mem2lo = arenaLo;
 
                 // Use debugger stack if it would be wasted
                 if (BI2DebugFlag != NULL && *BI2DebugFlag < 2) {
-                    mem2lo = ROUND_UP_PTR(_db_stack_end, 32);
+                    mem2lo = ROUND_UP_PTR(_stack_addr, 32);
                 }
             }
             // First 2K of MEM2 is reserved?
@@ -714,7 +716,6 @@ static void OSExceptionInit(void) {
     dst = (u32*)OSPhysicalToCached(OS_PHYS_DB_INTEGRATOR_HOOK);
     // Code is empty if DB integrator has not yet been installed
     if (*dst == 0) {
-        DBPrintf("Installing OSDBIntegrator\n");
         memcpy(dst, __OSDBINTSTART, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
         DCFlushRangeNoSync(dst, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
         __sync();
@@ -722,24 +723,16 @@ static void OSExceptionInit(void) {
     }
 
     for (i = 0; i < OS_EXC_MAX; i++) {
-        if (BI2DebugFlag != NULL && *BI2DebugFlag >= 2 &&
-            __DBIsExceptionMarked(i)) {
-            DBPrintf(">>> OSINIT: exception %d commandeered by TRK\n", i);
+        if (BI2DebugFlag != NULL && *BI2DebugFlag >= 2) {
         } else {
             // Modify li instruction with exception ID
             *pInst = inst | i;
 
-            if (__DBIsExceptionMarked(i)) {
-                DBPrintf(">>> OSINIT: exception %d vectored to debugger\n", i);
-                memcpy(__DBVECTOR, __OSDBJUMPSTART,
-                       (u32)__OSDBJUMPEND - (u32)__OSDBJUMPSTART);
-            } else {
-                code = (u32*)__DBVECTOR;
-                for (j = 0; j < (u32)__OSDBJUMPEND - (u32)__OSDBJUMPSTART;
-                     j += sizeof(u32), code++) {
-                    // Write nop
-                    *code = 0x60000000;
-                }
+            code = (u32*)__DBVECTOR;
+            for (j = 0; j < (u32)__OSDBJUMPEND - (u32)__OSDBJUMPSTART;
+                 j += sizeof(u32), code++) {
+                // Write nop
+                *code = 0x60000000;
             }
 
             dst = OSPhysicalToCached(__OSExceptionLocations[i]);
@@ -758,7 +751,6 @@ static void OSExceptionInit(void) {
 
     // Restore original instruction
     *pInst = inst;
-    DBPrintf("Exceptions initialized...\n");
 }
 
 static asm void __OSDBIntegrator(void) {

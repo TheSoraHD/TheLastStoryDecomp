@@ -26,7 +26,7 @@ typedef struct NCDIfConfig_unk {
 s32 NCDGetCurrentIfConfig(NCDIfConfig_unk* config);
 
 // inferred: other DWC / system helpers, no source yet
-const char* fn_805EBFD0(void);  // inferred: game code string (HTTP_X_GAMECD, gamecd)
+const char* OSGetAppGamename(void);  // inferred: game code string (HTTP_X_GAMECD, gamecd)
 void fn_80698A28(u8* macAddress);
 const char* fn_80624F90(void);  // inferred: console serial number prefix
 BOOL fn_80624FD0(u32* serial);  // inferred: console serial number
@@ -598,8 +598,8 @@ void DWCi_Auth_SendRequest(int action, const wchar_t* ingamesn, const char* gsbr
     value = strstr(host, "/");
     *value = '\0';
     NHTTPAddHeaderField(request, "Host", host);
-    NHTTPAddHeaderField(request, "HTTP_X_GAMECD", fn_805EBFD0());
-    DWC_Printf(DWC_REPORTFLAG_AUTH, " HTTP_X_GAMECD = %s\n", fn_805EBFD0());
+    NHTTPAddHeaderField(request, "HTTP_X_GAMECD", OSGetAppGamename());
+    DWC_Printf(DWC_REPORTFLAG_AUTH, " HTTP_X_GAMECD = %s\n", OSGetAppGamename());
 
     switch (action) {
     case 0:
@@ -649,7 +649,7 @@ void DWCi_Auth_SendRequest(int action, const wchar_t* ingamesn, const char* gsbr
 
     str = "001000";
     DWC_AUTH_ADD_POST("sdkver", str, strlen(str));
-    str = fn_805EBFD0();
+    str = OSGetAppGamename();
     DWC_AUTH_ADD_POST("gamecd", str, strlen(str));
 
     ret = NANDGetHomeDir(homeDir);
