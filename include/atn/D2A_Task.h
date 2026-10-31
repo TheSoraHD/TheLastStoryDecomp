@@ -31,6 +31,13 @@ public:
     void GetDrawParams_unk(unsigned int id, D2A_DrawRect* rect, D2A_DrawColor* color, D2A_DrawExtra* extra,
                            void* work); // 0x801F4F84
     void SetFloat_unk(const char* name, float value);
+    // inferred: weak copies in game/GameUI (0x803D2A54-style setters); names invented
+    void SetFrame_unk(float f) { mFrame = f; }
+    void SetSpeed_unk(float s) { mSpeed = s; }
+    bool IsEnd_unk() const { // inferred: the frame reached the end frame
+        float end = mData.mEndFrame;
+        return mFrame >= end;
+    }
 
     D2A_Data mData;  // 0x48
     LH_Binary mFile; // 0xF0

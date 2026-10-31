@@ -2,8 +2,11 @@
 #include "atn/D2A_Task.h"
 #include "game/CharaTask.h"
 #include "game/GimmickCommon.h"
+#include "game/SkillEffectManager.h"
+#include "game/HitInfo_unk.h"
 #include "atn/SoundRef.h"
 #include "string.h"
+extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -24,8 +27,11 @@ extern "C" void fn_803B78E8(void* self); // inferred: closes the window (game/Ga
 extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float time); // inferred: shows a message
 extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
-extern "C" void fn_803E668C(GameUI* ui);
+extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the hit heals
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void* lbl_8087EFB4; // inferred: render system (camera)
+extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
+extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
 extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
 // inferred: sets one component of a layout parameter by name (name invented)
 inline void SetLayoutValue_unk(atn::D2A_Layout_unk* layout, const char* name, int index, float value) {
@@ -216,9 +222,11 @@ GameUI::GameUI(atn::Task* parent)
     m2644 = 0;
     m2648 = 0;
     m2650 = 0;
-    for (int i = 0; i < 5; i++) {
-        m1104[i] = 0;
-    }
+    m1104 = 0;
+    m1108 = 0;
+    m110C = 0;
+    m1110 = 0;
+    m1114 = 0;
     m1120 = 0;
     m1124 = 0;
     m1128 = 0;
@@ -286,7 +294,7 @@ int GameUI::vf0C() {
 }
 
 void GameUI::vf10() {
-    fn_803E668C(this);
+    fn_803E668C();
     if (m840 != 0 && !m840->IsFlag_unk(4) && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0 &&
         lbl_8087F430->m10D8->IsFlag_unk(2) && fn_803CC900(lbl_8087F430->m10D8) > 0) {
         if (mSeState == 0) {
@@ -378,6 +386,30 @@ void GameUI::fn_803D8344() {
     }
 }
 
+// inferred: colour of the marker of a skill effect (by the kind of its hit data)
+GameUIColor_unk GameUI::fn_803DF138(Bullet_unk* bullet) {
+    if (bullet != 0 && bullet->m08 != 0 && bullet->m08->mType != 2) {
+        HitInfo_unk* hit = bullet->GetHit_unk();
+        if (fn_8021A984(hit)) {
+            return GameUIColor_unk(220, 220, 200, 255);
+        }
+        if (hit->m74.m00 > 0.0f) {
+            return GameUIColor_unk(250, 150, 90, 255);
+        }
+        if (hit->m74.m04 > 0.0f) {
+            return GameUIColor_unk(140, 170, 220, 255);
+        }
+        if (hit->m74.m0C > 0.0f) {
+            return GameUIColor_unk(60, 100, 70, 255);
+        }
+        if (hit->m74.m10 > 0.0f) {
+            return GameUIColor_unk(250, 240, 130, 255);
+        }
+        return GameUIColor_unk(250, 150, 90, 255);
+    }
+    return GameUIColor_unk(40, 40, 40, 255);
+}
+
 void GameUI::fn_803DF5B4() {
     m2F0 = 0;
     for (int i = 0; i < 6; i++) {
@@ -462,6 +494,46 @@ void GameUI::fn_803E4100() {
         m814[i * 2 + 1]->m100 = m814[i * 2 + 1]->mA0;
     }
     m834 = 0;
+}
+
+// inferred: position of a node matrix (name invented)
+inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
+    return atn::Vector3(m[0][3], m[1][3], m[2][3]);
+}
+
+// inferred: starts the marker over the head of a character
+// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
+void GameUI::fn_803E41AC(CharaTask* chara) {
+    if (m1104 != 0) {
+        m1104->mFrame = 0.0f;
+        m1104->mSpeed = 1.0f;
+        m1108->mFrame = 0.0f;
+        m1108->mSpeed = 1.0f;
+        m1110->mFrame = 0.0f;
+        m1110->mSpeed = 1.0f;
+        m1114->mFrame = 0.0f;
+        m1114->mSpeed = 1.0f;
+        m110C = chara;
+        m1118 = 0;
+        m111C = 0;
+        m112C = 0;
+        m1120 = 0;
+        m1124 = 0;
+        m1128 = 0;
+        m1130 = 0;
+        if (chara != 0) {
+            fn_800C31F4("SE_UI001_011", 0, -1, 1.0f);
+            MtxPtr head = m110C->mMotion.GetNodeMtx_unk("head");
+            atn::Vector3 pos = GetNodePos_unk(head);
+            pos.y += 2.0f;
+            atn::Vector3 screen;
+            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            SetLayoutValue_unk(&m1104->mData.m10, "base_point", 0, screen.x);
+            SetLayoutValue_unk(&m1104->mData.m10, "base_point", 1, screen.y);
+            SetLayoutValue_unk(&m1108->mData.m10, "base_point", 0, screen.x);
+            SetLayoutValue_unk(&m1108->mData.m10, "base_point", 1, screen.y);
+        }
+    }
 }
 
 bool GameUI::fn_803E43A4() {
@@ -598,6 +670,32 @@ bool GameUI::fn_803E5940() {
     return false;
 }
 
+// NONMATCHING: code matches; only the offsets of its strings in the pool differ (earlier strings unwritten)
+void GameUI::fn_803E627C(int town) {
+    char path[0x100];
+    if (m262C.m00 == 0) {
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a", town - 1);
+        m262C.m00 = fn_801F3FF8(this, path, 0);
+        m262C.m00->fn_800D246C(1);
+        m262C.m00->mRepeat = 0;
+        m262C.m00->mBlend = 18;
+    }
+    if (m262C.m04 == 0) {
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_op.d2a", town - 1);
+        m262C.m04 = fn_801F3FF8(this, path, 0);
+        m262C.m04->fn_800D246C(1);
+        m262C.m04->mRepeat = 0;
+        m262C.m04->mBlend = 15;
+    }
+    if (m262C.m08 == 0) {
+        sprintf(path, "/data/d2anime/ui_shop_town%02d_loop.d2a", town - 1);
+        m262C.m08 = fn_801F3FF8(this, path, 0);
+        m262C.m08->fn_800D246C(1);
+        m262C.m08->mRepeat = 1;
+        m262C.m08->mBlend = 15;
+    }
+}
+
 void GameUI::fn_803E63D0() {
     if (m262C.m00 != 0) {
         fn_800D2338(m262C.m00);
@@ -646,11 +744,11 @@ void GameUI::fn_803E656C() {
     if (m262C.m0C == 1 || m262C.m0C == 2) {
         return;
     }
-    m262C.m00->m100 = 0.0f;
-    m262C.m00->m104 = 1.0f;
-    m262C.m04->m100 = 0.0f;
-    m262C.m04->m104 = 1.0f;
-    m262C.m08->m100 = 0.0f;
+    m262C.m00->mFrame = 0.0f;
+    m262C.m00->mSpeed = 1.0f;
+    m262C.m04->mFrame = 0.0f;
+    m262C.m04->mSpeed = 1.0f;
+    m262C.m08->mFrame = 0.0f;
     m262C.m0C = 1;
     if (lbl_8087F430 != 0) {
         fn_80370BD0(lbl_8087F430, 30, 0, 1e-5f);
@@ -664,14 +762,48 @@ void GameUI::fn_803E65F8() {
     if (m262C.m0C == 3 || m262C.m0C == 0) {
         return;
     }
-    m262C.m00->SetFrame_unk(m262C.m00->mA0);
-    m262C.m00->m104 = -1.0f;
-    m262C.m04->SetFrame_unk(m262C.m04->mA0);
-    m262C.m04->m104 = -1.0f;
+    m262C.m00->SetFrame_unk(m262C.m00->mData.mEndFrame);
+    m262C.m00->mSpeed = -1.0f;
+    m262C.m04->SetFrame_unk(m262C.m04->mData.mEndFrame);
+    m262C.m04->mSpeed = -1.0f;
     m262C.m0C = 3;
     if (lbl_8087F430 != 0) {
         fn_80370B78(lbl_8087F430, 0xFF000000, 30, 0, 1e-4f);
     }
+}
+
+// inferred: update of the shop animations (called by vf10)
+// NONMATCHING: 99.7% - f1/f2 of the end frame and the frame swapped in the alpha (the original loads the
+// frame first into f1); tried locals in both orders, -(a - b), min as if/ternary (12 variants)
+void GameUI::fn_803E668C() {
+    if (m262C.m00 == 0 || m262C.m04 == 0 || m262C.m08 == 0) {
+        return;
+    }
+    if (!m262C.m00->IsFlag_unk(2) || !m262C.m04->IsFlag_unk(2) || !m262C.m08->IsFlag_unk(2)) {
+        return;
+    }
+    m262C.m00->mFlags |= 4;
+    m262C.m04->mFlags |= 4;
+    m262C.m08->mFlags |= 4;
+    if (m262C.m0C == 1) {
+        m262C.m00->mFlags &= ~4;
+        m262C.m04->mFlags &= ~4;
+        if (m262C.m00->IsEnd_unk()) {
+            m262C.m0C = 2;
+        }
+    } else if (m262C.m0C == 2) {
+        m262C.m08->mFlags &= ~4;
+    } else if (m262C.m0C == 3) {
+        m262C.m00->mFlags &= ~4;
+        m262C.m04->mFlags &= ~4;
+        if (m262C.m00->mFrame <= 0.0f) {
+            m262C.m0C = 0;
+        }
+    }
+    atn::D2A_Task* task = m262C.m00;
+    float frame = task->mFrame;
+    float alpha = (task->mData.mEndFrame - frame) / 7.0f;
+    fn_801FECE0(&task->mData.m10, fn_800DC6B4("alpha"), 1.0f < alpha ? 1.0f : alpha);
 }
 
 void GameUI::fn_803E6850(CharaTask* chara, int count, int max, int arg) {

@@ -209,6 +209,7 @@ class D2A_Task;
 }
 class GameUI;
 class CharaTask;
+struct Bullet_unk;
 extern "C" GameUI* lbl_8087F490; // inferred: the HUD instance (defined in game/GameUI.cpp)
 
 // inferred from __vt__6GameUI (0x8078C584): the game HUD; lbl_8087F490 points to it
@@ -234,6 +235,7 @@ public:
     void fn_803CF74C();
     int fn_803D1574();
     void fn_803D8344();
+    GameUIColor_unk fn_803DF138(Bullet_unk* bullet);
     void fn_803DF5B4();
     void fn_803DF648(int arg);
     void fn_803E0D4C();
@@ -243,6 +245,7 @@ public:
     void fn_803E3384();
     void fn_803E3BE8(void* msg, int arg, float time);
     void fn_803E4100();
+    void fn_803E41AC(CharaTask* chara);
     bool fn_803E43A4();
     void fn_803E43B8(int on);
     void fn_803E4434(int on); // inferred: names invented for the fields set here
@@ -256,11 +259,13 @@ public:
     void fn_803E58CC();
     void fn_803E58E4();
     bool fn_803E5940();
+    void fn_803E627C(int town); // inferred: loads the shop animations of a town
     void fn_803E63D0();
     bool fn_803E644C();
     void fn_803E64F0();
     void fn_803E656C();
     void fn_803E65F8();
+    void fn_803E668C();
     void fn_803E6850(CharaTask* chara, int count, int max, int arg); // inferred: shows a counter
     void fn_803E6ADC(const atn::Vector3& a, const atn::Vector3& b);
     void fn_803E6BB4(CharaTask* target); // inferred: new target
@@ -389,7 +394,11 @@ public:
     int m10F8;
     int m10FC;
     float m1100;
-    int m1104[5];
+    atn::D2A_Task* m1104; // inferred: head marker animations (fn_803E41AC)
+    atn::D2A_Task* m1108;
+    CharaTask* m110C;     // inferred: character with the marker
+    atn::D2A_Task* m1110;
+    atn::D2A_Task* m1114;
     int m1118;
     int m111C;
     int m1120;
@@ -440,9 +449,9 @@ public:
     // inferred: three gauges and their state (fn_803E63D0 to fn_803E65F8)
     struct W262C_unk {
         W262C_unk() : m00(0), m04(0), m08(0), m0C(0) {}
-        GameUIGauge_unk* m00;
-        GameUIGauge_unk* m04;
-        GameUIGauge_unk* m08;
+        atn::D2A_Task* m00; // inferred: shop animations (fn_803E627C)
+        atn::D2A_Task* m04;
+        atn::D2A_Task* m08;
         int m0C;
     } m262C;
     int m263C;
