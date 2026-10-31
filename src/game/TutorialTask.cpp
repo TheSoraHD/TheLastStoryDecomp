@@ -11,6 +11,7 @@
 #include "game/EnvSeManager.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -179,17 +180,78 @@ void TutorialTask::fn_805BA934() {
 }
 
 // inferred: helpers of the field and of the UI (names keep the addresses)
-struct TutorialField_unk;
+// inferred: field (lbl_8087F430); name invented
+struct TutorialField_unk {
+    void SetFadeMode_unk(int mode) { m563C = mode; } // inferred: weak copy 0x805BB594
+    unsigned char m00[0x563C];
+    int m563C;
+};
 extern "C" TutorialField_unk* lbl_8087F430;
-extern "C" void fn_802F0990();
-extern "C" void fn_80366DF8(int show);
+struct TutorialScene_unk;
+extern "C" TutorialScene_unk* fn_802F0990();                // inferred: returns lbl_8087EFA8
+extern "C" void fn_80366DF8(TutorialScene_unk* scene, int show); // inferred: shows the HUD
+// inferred: fade object of the tutorial (m5B8)
+struct TutorialFade_unk {
+    virtual void vf08(int mode);
+    virtual void vf0C(int a, int color, int b, int c, int frames);
+};
+// inferred: state accessors of the movie (weak copies 0x805BB558-0x805BB580); names invented
+inline void SetVideoState3_unk(atn::VideoTHP* video) {
+    video->m08 = 3;
+}
+inline int IsVideoEnd_unk(atn::VideoTHP* video) {
+    return video->m1C;
+}
+inline int GetVideoState_unk(atn::VideoTHP* video) {
+    return video->m08;
+}
+inline void SetVideoState5_unk(atn::VideoTHP* video) {
+    video->m08 = 5;
+}
+inline void SetVideoState4_unk(atn::VideoTHP* video) {
+    video->m08 = 4;
+}
+inline MenuCommonTask* GetMenuCommon_unk() { // inferred: weak copy 0x805BB58C
+    return MenuCommonTask::sInstance;
+}
+extern "C" void fn_804A5E40(MenuCommonTask* menu, int kind, atn::Vector3 pos, int arg); // inferred: shows a help mark
+// inferred: accessors of other files called by vf10 (their weak copies are elsewhere)
+inline SetConfig* GetSetConfig_unk() {
+    return SetConfig::sInstance;
+}
+struct TutorialAttack_unk {
+    int m00;
+    int m04; // inferred: SetConfig::mAttackType
+};
+extern "C" inline TutorialAttack_unk* fn_80122280(SetConfig* config) {
+    return (TutorialAttack_unk*)&config->m24;
+}
+extern "C" inline int fn_801231B8(SetConfig* config) {
+    return config->mAttackType == 0;
+}
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
+extern "C" inline void fn_800F80A8(atn::Matrix3x4* m, const atn::Vector3* v) {
+    PSMTXTrans(m->m, v->x, v->y, v->z);
+}
+extern "C" inline void fn_8008CD50(atn::Matrix3x4* out, const atn::Matrix3x4* a, const atn::Matrix3x4* b) {
+    PSMTXConcat(b->m, a->m, out->m);
+}
+extern "C" inline void fn_8008CD1C(atn::Matrix3x4* out, const atn::Matrix3x4* in) {
+    *out = *in;
+}
+extern "C" inline atn::Vector3* fn_803727D4(CharaTask* chara) {
+    return &chara->m540;
+}
+extern "C" void fn_80372754(atn::Matrix3x4* m, atn::Vector3* scale); // inferred: scales the matrix
+extern "C" void fn_80316E38(atn::Model* model, const atn::Matrix3x4* m); // inferred: sets the model matrix
 extern "C" int fn_803D6F44(atn::D2A_Task* gauge);
 extern "C" void fn_803D2134(atn::D2A_Task* gauge, float speed);
 extern "C" void fn_803D6F68(atn::D2A_Task* gauge, float value);
 extern "C" void fn_8037F688(Camera_unk* camera, float fovy);
 extern "C" Camera_unk* fn_8008B964();
 extern "C" void fn_80392A04(Camera_unk* a, Camera_unk* b);
-extern "C" void fn_8037529C(int a, int color, int b, int c, int frames);
+extern "C" void fn_8037529C(TutorialField_unk* field, int a, int color, int b, int c, int frames);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r,
                             float t);
@@ -209,47 +271,165 @@ inline atn::Quaternion_unk Slerp_unk(const atn::Quaternion_unk& a, const atn::Qu
     return q;
 }
 
-// NONMATCHING: written from m2c; the original calls most of its inline helpers out of line (the
-// weak copies 0x805BB50C-0x805BB594 follow it)
+// NONMATCHING: written from the asm; the original is over the inlining budget and calls its inline
+// helpers out of line (the weak copies 0x805BA348/0x805BA920 and 0x805BB50C-0x805BB594 come from here)
 void TutorialTask::vf10() {
     TutorialPage_unk* page = &mPages[mPage];
     switch (mState) {
     case 1:
         if (HasMotion_unk(&page->mMotion.mLoader) && mChara != 0) {
-            fn_802F0990();
-            fn_80366DF8(1);
+            fn_80366DF8(fn_802F0990(), 1);
             m84 = m84 + 1.0f;
-            float rate = m84 / 15.0f > 1.0f ? 1.0f : m84 / 15.0f;
+            float rate = 1.0f < m84 / 15.0f ? 1.0f : m84 / 15.0f;
             atn::Vector3 pos(page->mPos);
             atn::Vector3 target(page->mTarget);
-            atn::Vector3 base = atn::Lerp_unk(mPos, mPos2, 1.5f * rate > 1.0f ? 1.0f : 1.5f * rate);
+            atn::Vector3 base = atn::Lerp_unk(mPos, mPos2, 1.0f < 1.5f * rate ? 1.0f : 1.5f * rate);
             atn::Quaternion_unk q0 = YawQuat_unk(mRot.y);
             atn::Quaternion_unk q1 = YawQuat_unk(mRot2.y);
-            atn::Quaternion_unk q = Slerp_unk(q0, q1, 1.5f * rate > 1.0f ? 1.0f : 1.5f * rate);
-            atn::Matrix3x4 m0;
-            m0.fn_80147A08(q);
-            atn::Matrix3x4 m1;
-            m1.fn_80147A08(q1);
-            pos.fn_80011410(m1);
-            target.fn_80011410(m1);
-            m84 = m84;
+            atn::Quaternion_unk q = Slerp_unk(q0, q1, 1.0f < 1.5f * rate ? 1.0f : 1.5f * rate);
+            atn::Matrix3x4 rot = atn::Matrix3x4::fn_80147A08(q);
+            atn::Matrix3x4 rot2 = atn::Matrix3x4::fn_80147A08(q1);
+            pos.fn_80011410(rot2);
+            target.fn_80011410(rot2);
+            const atn::Vector3* camPos = mCamera.GetPosition_unk();
+            atn::Vector3 camDir = *mCamera.GetTarget_unk() - *camPos;
+            atn::Vector3 dir = target - pos;
+            atn::Quaternion_unk qa = atn::Quaternion_unk::fn_801498F0(camDir.ToRotation_unk());
+            atn::Quaternion_unk qb = atn::Quaternion_unk::fn_801498F0(dir.ToRotation_unk());
+            atn::Quaternion_unk qd = Slerp_unk(qa, qb, rate);
+            float lenB = dir.Length_unk();
+            float lenA = camDir.Length_unk();
+            atn::Vector3 back(0.0f, 0.0f, fn_800F8524(&lenA, &lenB, rate));
+            back.fn_80011410(atn::Matrix3x4::fn_80147A08(qd));
+            target = atn::Lerp_unk(*mCamera.GetTarget_unk(), base + target, rate);
+            pos = target - back;
+            float fovy = mCamera.GetFovy_unk();
+            float f = fn_800F8524(&fovy, &page->mFovy, rate);
             mCamera2.SetPosition(pos);
             mCamera2.SetTarget_unk(target);
+            fn_8037F688(&mCamera2, f);
             mCamera2.fn_8004B378();
             *fn_8008B964() = mCamera2;
+            atn::Matrix3x4 trans;
+            fn_800F80A8(&trans, &base);
+            atn::Matrix3x4 world;
+            fn_8008CD50(&world, &rot, &trans);
+            fn_8008CD1C(&trans, &world);
+            fn_80372754(&trans, fn_803727D4(mChara));
+            fn_80316E38(mChara->GetModel_unk(), &trans);
+            mChara->GetModel_unk()->fn_80097C08(0, mPage + 0xEA, 1, 0, 1, 0.0f, 0.1f);
+            mChara->GetModel_unk()->SetMotionFrame(0, page->mFrame);
+            mChara->GetModel_unk()->fn_80097E80(1);
+            mChara->GetModel_unk()->CalcMatrixStack(0);
+            mChara->fn_80148B38(10.0f);
         } else if (m84 < 15.0f) {
             m84 = 15.0f;
         }
         if (m84 >= 15.0f) {
-            if (m5C0 == 0) {
-                m5C0 = 0;
+            if (page->mLayout->IsFrozen_unk()) {
+                page->mLayout->MeltTask();
+                if (page->mVideo != 0) {
+                    SetVideoState3_unk(page->mVideo);
+                    page->mVideoLayout->MeltTask();
+                }
             }
+            if (page->mVideo != 0 && IsVideoEnd_unk(page->mVideo)) {
+                m5C0 = 1;
+            }
+            int end = page->mLayout->IsEnd_unk();
+            if (page->mType != 0 && page->mLayout->GetFrame_unk() >= page->m38 - 1.0f) {
+                if (m5B4 == 0) {
+                    if (page->mLayout->GetFrame_unk() >= 1.0f + page->m38) {
+                        page->mLayout->SetSpeed_unk(-1.0f);
+                    } else {
+                        page->mLayout->SetSpeed_unk(1.0f);
+                        page->mLayout->SetFrame_unk(page->m38 - 1.0f);
+                        end = 1;
+                    }
+                } else {
+                    page->mLayout->SetSpeed_unk(1.0f);
+                }
+            }
+            if (page->mVideo != 0) {
+                if (!page->mLayout->IsEnd_unk() && GetVideoState_unk(page->mVideo) == 4) {
+                    SetVideoState5_unk(page->mVideo);
+                } else if (page->mLayout->IsEnd_unk() && GetVideoState_unk(page->mVideo) == 5) {
+                    SetVideoState4_unk(page->mVideo);
+                }
+                if (page->mVideoLayout != 0) {
+                    page->mVideoLayout->SetFrame_unk((float)page->mVideo->vf30());
+                }
+            }
+            if (end) {
+                if (mPages[mPage].mType == 1) {
+                    if (lbl_8087F0A8->mInput.fn_801231D0(0x25)) {
+                        fn_80122280(GetSetConfig_unk())->m04 = 0;
+                    }
+                    if (lbl_8087F0A8->mInput.fn_801231D0(0x26)) {
+                        fn_80122280(GetSetConfig_unk())->m04 = 1;
+                    }
+                    m5B4 = fn_801231B8(GetSetConfig_unk()) == 0;
+                }
+                int next = 0;
+                if (page->mVideo != 0) {
+                    if (m5BC == 0) {
+                        if (lbl_8087F0A8->mInput.fn_801231D0(0x29)) {
+                            m5BC = 1;
+                        }
+                        if (atn::Keyboard::Order() != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B1)) {
+                            m5BC = 1;
+                        }
+                    } else {
+                        if (lbl_8087F0A8->mInput.fn_801231D0(0x2A)) {
+                            next = 1;
+                        }
+                        if (atn::Keyboard::Order() != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B1)) {
+                            next = 1;
+                        } else if (lbl_8087F0A8->mInput.fn_801231D0(1)) {
+                            m5BC = 0;
+                        }
+                    }
+                } else {
+                    if (lbl_8087F0A8->mInput.fn_801231D0(0)) {
+                        next = 1;
+                    }
+                    if (atn::Keyboard::Order() != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B1)) {
+                        next = 1;
+                    }
+                }
+                if (m5C0 != 0) {
+                    m5BC = 1;
+                }
+                if (m5BC != 0 && GetMenuCommon_unk() != 0) {
+                    if (page->mVideo != 0) {
+                        fn_804A5E40(GetMenuCommon_unk(), 7, atn::Vector3(lbl_807C7030), 0);
+                    } else {
+                        fn_804A5E40(GetMenuCommon_unk(), 6, atn::Vector3(lbl_807C7030), 0);
+                    }
+                }
+                if (next) {
+                    fn_80366DF8(fn_802F0990(), 0);
+                    if (m5B8 != 0) {
+                        m5B8->vf08(0x12);
+                    } else {
+                        lbl_8087F430->SetFadeMode_unk(0x12);
+                    }
+                    if (page->mVideo != 0 && page->mVideoLayout != 0) {
+                        page->mVideoLayout->FreezeTask();
+                    }
+                    mState = 3;
+                    return;
+                }
+            }
+        } else {
+            return;
         }
         break;
     case 3:
         if (m5B8 != 0) {
+            m5B8->vf0C(-1, 0xFFFFFF, 0, 0, 15);
         } else {
-            fn_8037529C(-1, 0xFFFFFF, 0, 0, 15);
+            fn_8037529C(lbl_8087F430, -1, 0xFFFFFF, 0, 0, 15);
         }
         fn_805BBD7C();
         return;
