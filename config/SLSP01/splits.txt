@@ -4089,6 +4089,12 @@ smg2/src/RVL_SDK/bte/bte_logmsg.c:
 	.bss        start:0x8081E2E0 end:0x8081EAC0
 	.sdata      start:0x8087EAB8 end:0x8087EABC
 
+smg2/src/RVL_SDK/bte/bte_main.c:
+	.text       start:0x806298F0 end:0x80629A60
+	.bss        start:0x8081EAC0 end:0x8081FAF0
+	.sdata      start:0x8087EAC0 end:0x8087EAC8
+	.sbss       start:0x80880178 end:0x80880180
+
 smg2/src/RVL_SDK/bte/btu_task1.c:
 	.text       start:0x80629A60 end:0x80629EA4
 	.bss        start:0x8081FAF0 end:0x8081FB78
