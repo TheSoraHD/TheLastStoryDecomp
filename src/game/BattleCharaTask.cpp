@@ -24,6 +24,12 @@ BattleCharaTask::~BattleCharaTask() {
 
 // inferred: multiplayer session (lbl_8087F610); only tested for null here
 extern "C" void* lbl_8087F610;
+// inferred: the HUD (lbl_8087F490, game/GameUI.h); only passed to fn_803E2110 here
+struct GameUI;
+extern "C" GameUI* lbl_8087F490;
+extern "C" void fn_803E2110(GameUI* ui, int arg, CharaTask* chara); // inferred: HUD notice (3: low hit points)
+extern "C" int fn_80370A78(Field_unk* field, int id);
+extern "C" void fn_80370AE4(Field_unk* field, int id, int value);
 
 int BattleCharaTask::vf0C() {
     int ok = 1;
@@ -133,6 +139,46 @@ void BattleCharaTask::vfF0() {
     } else {
         mFlag25 = 1;
         fn_800EAECC();
+    }
+}
+
+// inferred: a hit was received
+void BattleCharaTask::vfE8(HitMsg_unk* msg) {
+    if (mFlag2) {
+        return;
+    }
+    if (m55C != 2 && !(m55C == 6 && m560 == 0x1D)) {
+        fn_8015495C(0, 1, 1, 1);
+    }
+    if (mStatus.IsState_unk(0x20)) {
+        if (m55C != 6 || (m560 != 0x17 && m560 != 0x3B && m560 != 0x8E)) {
+            fn_8015E7A0(msg->m28 * 5.0f, -1, 0);
+        }
+        vf44();
+        return;
+    }
+    if (mType == 3 && msg->m68 > 0) {
+        float before = (mStatus.m04 + (float)msg->m68) / (float)mStatus.mParamB.m84;
+        float after = mStatus.m04 / (float)mStatus.mParamB.m84;
+        if (before > 0.3f && after < 0.3f) {
+            fn_803E2110(lbl_8087F490, 3, this);
+        }
+        if (fn_80370174(lbl_8087F430, 0x38A) == 1 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 &&
+            fn_80370A78(lbl_8087F430, 0xFA) == 0) {
+            Field_unk* field = lbl_8087F430;
+            fn_80370AE4(field, 0xFA, fn_80219558(m50));
+        }
+    }
+    if (mType == 2 && (mStatus.m0C & 0x40) != 0x40 && mC58.m11C.m00 >= 2) {
+        if (msg->mAttacker != 0 && msg->mAttacker->mFlag28) {
+            mC58.m11C.fn_8011CD84(this, 1);
+        } else if (mC58.m11C.m08 >= 0 && mC58.m11C.m00 >= 2) {
+            if (msg->m44 == 1) {
+                mC58.m11C.fn_8011CD84(this, 4);
+            } else {
+                mC58.m11C.fn_8011CD84(this, 1);
+            }
+        }
     }
 }
 
