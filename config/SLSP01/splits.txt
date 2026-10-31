@@ -5247,6 +5247,10 @@ nw4r/src/snd/snd_Lfo.cpp:
 nw4r/src/snd/snd_SoundHandle.cpp:
 	.text       start:0x807175E0 end:0x80717680
 
+nw4r/src/snd/snd_SoundHeap.cpp:
+	.text       start:0x80717680 end:0x80717988
+	.data       start:0x807C6328 end:0x807C6338
+
 nw4r/src/snd/snd_StrmChannel.cpp:
 	.text       start:0x80718ED0 end:0x80719108
 
