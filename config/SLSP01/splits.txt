@@ -3671,6 +3671,18 @@ RVL_SDK/src/revolution/dvd/dvd_broadway.c:
 	.sdata      start:0x8087E7F8 end:0x8087E808
 	.sbss       start:0x8087FDB8 end:0x8087FDE0
 
+RVL_SDK/src/revolution/ai/ai.c:
+	.text       start:0x806077A0 end:0x80607D6C
+	.data       start:0x807AC578 end:0x807AC5BD
+	.sdata      start:0x8087E840 end:0x8087E848
+	.sbss       start:0x8087FEB8 end:0x8087FEF8
+
+RVL_SDK/src/revolution/ax/AX.c:
+	.text       start:0x80607D70 end:0x80607DD8
+	.data       start:0x807AC5C0 end:0x807AC605
+	.sdata      start:0x8087E848 end:0x8087E850
+	.sbss       start:0x8087FEF8 end:0x8087FF00
+
 RVL_SDK/src/revolution/ax/AXAlloc.c:
 	.text       start:0x80607DE0 end:0x806082CC
 	.bss        start:0x807D1630 end:0x807D1740

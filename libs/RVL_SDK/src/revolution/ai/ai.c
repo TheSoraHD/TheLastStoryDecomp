@@ -6,7 +6,7 @@
 //#define BUILD_DATE "Feb 27 2009"
 //#define BUILD_TIME "10:01:30"
 
-const char* __AIVersion = "<< RVL_SDK - AI \trelease build: Feb 27 2009 10:01:30 (0x4302_145) >>";
+const char* __AIVersion = "<< RVL_SDK - AI \trelease build: Aug 23 2010 17:29:47 (0x4302_145) >>";
 
 static AIDMACallback __AID_Callback;
 
