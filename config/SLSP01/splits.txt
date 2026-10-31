@@ -4527,6 +4527,13 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common/math_api.c:
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/misc_io.c:
 	.text       start:0x8067E5EC end:0x8067E5FC
 
+PowerPC_EABI_Support/src/MSL_C/MSL_Common/printf.c:
+	.text       start:0x8067E5FC end:0x80680B88
+	.rodata     start:0x80765840 end:0x80765868
+	.data       start:0x807BB3C8 end:0x807BB5F8
+	.sdata      start:0x8087EBE8 end:0x8087EBF0
+	.sdata2     start:0x80888AB0 end:0x80888AB8
+
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/rand.c:
 	.text       start:0x80680CF8 end:0x80680D20
 	.sdata      start:0x8087EBF0 end:0x8087EBF8

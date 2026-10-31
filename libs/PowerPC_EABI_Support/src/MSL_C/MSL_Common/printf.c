@@ -1329,8 +1329,19 @@ static void* __StringWrite(void *pCtrl, const char *pBuffer, size_t char_num) {
     return (void*)1;
 }
 
-//unused
-void printf(){
+int printf(const char *format, ...) {
+    int res;
+
+    if (fwide(stdout, -1) >= 0) {
+        return -1;
+    }
+
+    {
+        va_list args;
+        va_start(args, format);
+        res = __pformatter(&__FileWrite, (void*)stdout, format, args, FALSE);
+        return res;
+    }
 }
 
 //unused
