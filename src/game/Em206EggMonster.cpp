@@ -1,3 +1,5 @@
+#include "atn/Color4f_unk.h"
+#include "atn/DrawHelper.h"
 #include "game/Em206EggMonster.h"
 #include "game/CharaStatus.h"
 #include "math/Vec.h"
@@ -801,6 +803,40 @@ void Em206EggMonster::fn_802C6878(CharaTask* chara, const atn::Vector3& pos) {
         chara->mC58.mC0 = 1;
         chara->vf8C(lbl_807C7030);
     }
+}
+
+// inferred: 2D helpers of the arena limits (names invented)
+inline atn::Vector2_unk Sub2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
+    return atn::Vector2_unk(a.x - b.x, a.y - b.y);
+}
+inline float Cross2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
+    return a.x * b.y - a.y * b.x;
+}
+
+// NONMATCHING: 99.43% - r28/r30 of the channels in the inlined Color4f_unk::ToU32
+// inferred: draws the two limits of the arena (debug) and tells whether the egg is between them: mPos
+// and the point (m14BC, m14C0) on different sides of the first line and on the same side of the second
+int Em206EggMonster::fn_802C69BC() {
+    if (m1710 != 0) {
+        atn::Vector3 pts[4] = {
+            atn::Vector3(m15D0[0], -90.0f, m15D0[1]),
+            atn::Vector3(m15D0[2], -90.0f, m15D0[3]),
+            atn::Vector3(m15D0[4], -90.0f, m15D0[5]),
+            atn::Vector3(m15D0[6], -90.0f, m15D0[7]),
+        };
+        lbl_8087EEB0->fn_80063764(pts[0], pts[1], 1000.0f, atn::Color4f_unk(255.0f, 255.0f, 0.0f, 255.0f).ToU32());
+        lbl_8087EEB0->fn_80063764(pts[2], pts[3], 1000.0f, atn::Color4f_unk(255.0f, 0.0f, 255.0f, 255.0f).ToU32());
+    }
+    atn::Vector2_unk p(mPos.x, mPos.z);
+    const atn::Vector2_unk* l = (const atn::Vector2_unk*)m15D0;
+    const atn::Vector2_unk& q = *(const atn::Vector2_unk*)&m14BC;
+    if (Cross2_unk(Sub2_unk(l[1], l[0]), Sub2_unk(p, l[0])) * Cross2_unk(Sub2_unk(l[1], l[0]), Sub2_unk(q, l[0])) <
+            0.0f &&
+        Cross2_unk(Sub2_unk(l[3], l[2]), Sub2_unk(p, l[2])) * Cross2_unk(Sub2_unk(l[3], l[2]), Sub2_unk(q, l[2])) >
+            0.0f) {
+        return 1;
+    }
+    return 0;
 }
 
 int Em206EggMonster::vfE4() {
