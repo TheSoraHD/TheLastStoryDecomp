@@ -2,9 +2,9 @@
 #include <revolution/OS.h>
 #include <string.h>
 
-#define IPC_QUEUE_CAPACITY 16
+#define IPC_QUEUE_CAPACITY 48
 #define IPC_HEAP_SIZE_OLD 0x800
-#define IPC_HEAP_SIZE 0x1000
+#define IPC_HEAP_SIZE 0x2000
 
 typedef struct IPCRequestQueue {
     u32 sent;                                // at 0x0
