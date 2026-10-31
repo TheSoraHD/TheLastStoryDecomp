@@ -4375,6 +4375,9 @@ NdevExi2A/src/DebuggerDriver.c:
 NdevExi2A/src/exi2.c:
 	.text       start:0x8067476C end:0x80674EF8
 
+PowerPC_EABI_Support/src/MetroTRK/targsupp.c:
+	.text       start:0x80674EF8 end:0x80674F18
+
 PowerPC_EABI_Support/src/MetroTRK/custconn/cc_gdev.c:
 	.text       start:0x80674F18 end:0x80675190
 	.bss        start:0x8082FFA8 end:0x808304C8
