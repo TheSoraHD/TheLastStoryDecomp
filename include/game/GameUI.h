@@ -12,6 +12,15 @@
 
 // inferred: list {data, count} freed with delete (GameUI 0x30C); names invented. The three levels
 // give the three null checks of the inlined destructor (0x803CF79C).
+class CharaTask;
+namespace atn {
+class D2A_Task;
+template <int N, int M>
+class D2A_TaskInstanceBase;
+}
+// inferred: d2anime instances of the HUD (atn::D2A_TaskInstanceBase<32, 8>, frame at 0x50)
+typedef atn::D2A_TaskInstanceBase<32, 8> GameUIInst_unk;
+
 struct GameUIListBase_unk {
     ~GameUIListBase_unk() {
         if (mData != 0) {
@@ -22,6 +31,13 @@ struct GameUIListBase_unk {
     void Clear_unk(); // 0x803CF78C
     unsigned char* begin_unk() { return mData; }
     unsigned char* end_unk() { return mData + mCount; }
+    // inferred: 8-byte entries {index, character} (weak copies 0x803D738C, 0x803D739C); names invented
+    struct Entry_unk {
+        int m00;
+        CharaTask* m04;
+    };
+    Entry_unk* At_unk(unsigned int i) { return (Entry_unk*)mData + i; }
+    unsigned int Size_unk() const { return mCount; }
 
     unsigned char* mData;
     unsigned int mCount;
@@ -46,30 +62,11 @@ struct GameUIBufferOwner_unk {
     std::basic_string<wchar_t> m08; // inferred: message text (fn_803E4978)
 };
 
-// inferred: object with a duration at 0xA0 (GameUI 0x3EC); names invented
-struct GameUIDuration_unk {
-    float fn_803CFC6C(); // inferred: returns m0A0
-    unsigned char m00[0xA0];
-    float mA0;
-};
+// inferred: d2anime task with an end frame (GameUI 0x3EC); defined in game/GameUI.cpp
+struct GameUIDuration_unk;
 
-// inferred: gauge task with a value at 0x100 (GameUI 0x83C, 0x840); names invented
-struct GameUIGauge_unk : public atn::Task {
-    bool fn_803CFC58(); // inferred: (mFlags & 4) != 0
-    float fn_803CFC64(); // inferred: returns m100
-    unsigned char m48[0xA0 - 0x48];
-    float mA0;  // inferred: end value (GameUI::fn_803E5940)
-    unsigned char mA4[0x100 - 0xA4];
-    float m100; // inferred: current value
-    float m104; // inferred: set to -1 by GameUI::fn_803E4510
-    void SetEnd_unk() { m100 = mA0; }     // inferred: name invented
-    void SetFrame_unk(float f) { m100 = f; } // inferred: name invented
-    void SetSpeed_unk(float f) { m104 = f; } // inferred: name invented
-    bool IsEnd_unk() const { // inferred: name invented
-        float end = mA0;
-        return m100 >= end;
-    }
-};
+// inferred: gauges of the HUD (GameUI 0x83C, 0x840): d2anime tasks; defined in game/GameUI.cpp
+struct GameUIGauge_unk;
 
 // inferred: timed entry (0xC bytes) of the list at 0x3F0; names invented
 struct GameUIEntry_unk {
@@ -103,15 +100,15 @@ struct GameUIElem60_unk {
     int m00;
     int m04;
     int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    int m1C;
-    int m20;
-    int m24;
-    int m28;
-    int m2C;
+    GameUIInst_unk* m0C; // inferred: d2anime instances of the window (GameUI::fn_803D164C)
+    GameUIInst_unk* m10;
+    GameUIInst_unk* m14;
+    GameUIInst_unk* m18;
+    GameUIInst_unk* m1C;
+    GameUIInst_unk* m20;
+    GameUIInst_unk* m24;
+    GameUIInst_unk* m28;
+    GameUIInst_unk* m2C;
     int m30;
     int m34;
     int m38;
@@ -149,7 +146,7 @@ struct GameUIElem20_unk {
         mInst[3] = 0;
         mInst[4] = 0;
     }
-    atn::D2AInstance_unk* mInst[5]; // inferred: d2anime instances (frame at 0x50, GameUI::fn_803E0D84)
+    GameUIInst_unk* mInst[5]; // inferred: d2anime instances (frame at 0x50, GameUI::fn_803E0D84)
     int m14;
     int m18;
     int m1C;
@@ -206,10 +203,20 @@ struct GameUIElem1C_unk {
     int m00;
     int m04;
     int m08;
-    int m0C;
+    CharaTask* m0C; // inferred: character of the action (GameUI::fn_803D2A6C)
     int m10;
     int m14;
     int m18;
+};
+
+// inferred: objects whose names the description window shows (GameUI::fn_803D2A6C); names invented
+struct GameUIName08_unk {
+    unsigned char m00[0x08];
+    const wchar_t* m08;
+};
+struct GameUIName0C_unk {
+    unsigned char m00[0x0C];
+    const wchar_t* m0C;
 };
 
 // inferred: 0x7C-byte element of the arrays at 0x1174 and 0x15BC (names invented)
@@ -347,7 +354,13 @@ public:
     void fn_803E6890(CharaTask* chara, HitInfo_unk* hit); // inferred: adds the icon of a skill
     void fn_803E6ADC(const atn::Vector3& a, const atn::Vector3& b);
     void fn_803E6BB4(CharaTask* target); // inferred: new target
+    void fn_803D2A6C(); // inferred: updates the HUD
     void fn_803DCA84(CharaTask* chara, float* fade);
+    void fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index); // inferred: updates a window
+    void fn_803E3468(atn::D2A_Task* a, atn::D2A_Task* b, GameUIElem1C_unk* button, int arg);
+    // inferred: weak copies 0x803D6DE4 and 0x803D71A8; names invented
+    bool IsNoMenu_unk() const { return m262C.m0C == 0; }
+    bool IsHint1_unk() const { return mD8C == 1; }
     void fn_803E6BF0(unsigned int id, int value);
     bool fn_803E6C88(unsigned int id);
 
@@ -355,46 +368,36 @@ public:
     float m4C;
     GameUIElem60_unk m50;                      // 0x50
     GameUIElem60_unk mB0[6];                   // 0xB0
-    int m2F0;
-    GameUIElem60_unk* m2F4[6]; // inferred: active entries of mB0 (fn_803DF5B4)
+    FixedArray_unk<GameUIElem60_unk*, 6> m2F0; // inferred: active entries of mB0 (fn_803DF5B4)
     GameUIList_unk m30C;                       // 0x30C
     GameUIElem20_unk m318[6];                  // 0x318
-    int m3D8;
-    int m3DC;
-    int m3E0;
-    int m3E4;
-    int m3E8;
+    atn::D2A_Task* m3D8;
+    GameUIInst_unk* m3DC[4];
     GameUIDuration_unk* m3EC;                  // 0x3EC
     FixedArray_unk<GameUIEntry_unk, 32> m3F0;  // 0x3F0
-    int m574[8];
-    int m594[8];
+    GameUIInst_unk* m574[8]; // inferred: gauges over the nearest characters (fn_803D2A6C)
+    GameUIInst_unk* m594[8];
     int m5B4;
-    int m5B8;
+    atn::D2A_Task* m5B8;
     atn::Task* m5BC[16][5];
-    int m6FC;
-    int m700;
-    int m704;
-    int m708;
-    int m70C;
-    int m710;
-    int m714;
-    long long m718;
-    int m720;
+    GameUIInst_unk* m6FC[6];
+    atn::D2A_Task* m714[2]; // inferred: indexed by the button type (fn_803D2A6C)
+    atn::D2A_Task* m71C[2];
     int m724;
     int m728;
-    int m72C;
-    int m730;
+    atn::D2A_Task* m72C;
+    atn::D2A_Task* m730;
     int m734;
     int m738;
-    int m73C;
-    int m740;
-    int m744;
+    atn::D2A_Task* m73C;
+    atn::D2A_Task* m740;
+    atn::D2A_Task* m744;
     GameUIElem1C_unk m748;
     GameUIElem1C_unk m764;
     GameUIElem1C_unk m780;
     GameUIElem1C_unk m79C;
-    int m7B8;
-    int m7BC;
+    atn::D2A_Task* m7B8;
+    atn::D2A_Task* m7BC;
     GameUIElem1C_unk m7C0;
     GameUIElem1C_unk m7DC;
     GameUIElem1C_unk m7F8;
@@ -405,13 +408,12 @@ public:
     GameUIGauge_unk* m840;                     // 0x840
     atn::Task* m844;
     atn::Task* m848[5];
-    int m85C;
-    unsigned char m860[0x870 - 0x860];
-    atn::Task* m870;
+    FixedArray_unk<CharaTask*, 4> m85C; // inferred: characters near the player (fn_803D2A6C)
+    atn::D2A_Task* m870;
     atn::Task* m874[5];
     atn::Vector3 m888; // inferred: fn_803E6ADC
     atn::Vector3 m894;
-    int m8A0[12];
+    GameUIInst_unk* m8A0[12];
     FixedArray_unk<GameUIMark24_unk, 12> m8D0; // 0x8D0: inferred: nearest marks
     atn::D2A_Task* mA84; // inferred: frame and "basePos" set by fn_803E6ADC
     atn::D2A_Task* mA88;
@@ -422,15 +424,21 @@ public:
     atn::Task* mB08[6];
     atn::Task* mB20[6];
     struct {
-        int m00;
-        int m04;
-        unsigned char m08[0x20 - 0x08];
+        atn::D3AnimeInstance* m00;
+        atn::D3AnimeInstance* m04;
+        atn::D3AnimeInstance* m08;
+        atn::D3AnimeInstance* m0C;
+        atn::D3AnimeInstance* m10;
+        atn::D3AnimeInstance* m14;
+        atn::D3AnimeInstance* m18;
+        atn::D3AnimeInstance* m1C;
     } mB38[8];
     // inferred: count and markers (names invented)
     struct MarkerList_unk {
         MarkerList_unk() : mCount(0) {}
         // inferred: same members as FixedArray_unk (game/CharaStatus.h)
         bool full() const { return mCount >= 8; }
+        GameUIMarker_unk& operator[](int i) { return m[i]; } // inferred: weak copy 0x803D73A4
         void insert(GameUIMarker_unk* it, const GameUIMarker_unk& x) {
             unsigned int pos = it - m;
             for (unsigned int i = mCount; i > pos; i--) {
@@ -448,10 +456,10 @@ public:
     } mC38;                                    // 0xC38
     int mD3C;                                  // 0xD3C
     GameUIMarker_unk mD40;                     // 0xD40
-    unsigned char mD60[0xD6C - 0xD60];
+    atn::Vector3 mD60; // inferred: screen position of the action menu (fn_803D2A6C)
     int mD6C;
-    atn::Task* mD70; // inferred: frozen by fn_803E4478
-    atn::Task* mD74;
+    atn::D2A_Task* mD70; // inferred: frozen by fn_803E4478
+    atn::D2A_Task* mD74;
     int mD78;
     int mD7C;
     int mD80;
@@ -459,9 +467,9 @@ public:
     int mD88;
     int mD8C;
     GameUIBufferOwner_unk mD90;                // 0xD90
-    int mDA4;
-    int mDA8;
-    int mDAC;
+    GameUIName08_unk* mDA4; // inferred: owner of the description (fn_803D2A6C)
+    GameUIName0C_unk* mDA8;
+    CharaTask* mDAC;
     int mDB0;
     GameUIGauge_unk* mDB4; // inferred: same kind of object as m2654 (fn_803E4950)
     atn::D2A_Task* mDB8; // inferred: item notice (fn_803E5E64)

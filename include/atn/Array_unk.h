@@ -91,6 +91,7 @@ public:
     }
     T& operator[](int i) { return mData[i]; }
     const T& operator[](int i) const { return mData[i]; }
+    unsigned int size() const { return mSize; } // inferred: weak copy 0x803D6ED4 (game/GameUI.cpp)
     void push_back(const T& value) {
         if (mData == 0 || mCapacity == 0) {
             reserve(8);

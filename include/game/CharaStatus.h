@@ -417,6 +417,7 @@ struct FixedArray_unk {
         mCount = mCount - 1;
     }
     bool full() const { return mCount >= N; }
+    bool empty() const { return mCount == 0; } // inferred: weak copy 0x803D6EDC (game/GameUI.cpp)
     // inferred: inserts before `it` (CharaTask::fn_8014F2B4)
     void insert(T* it, const T& x) {
         unsigned int pos = it - mData;

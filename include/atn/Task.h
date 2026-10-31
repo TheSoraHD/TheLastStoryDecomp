@@ -47,6 +47,11 @@ public:
     bool IsFlag_unk(unsigned int flag) const { return (mFlags & flag) == flag; }
     // name from the RSO (weak copy 0x80244CAC, first emitted by game/Em001Necromancer.cpp)
     void FreezeTask() { mFlags |= 4; }
+    // name from the RSO (weak copy 0x803D6E2C, emitted by game/GameUI.cpp)
+    void MeltTask() { mFlags &= ~4; }
+    // inferred: weak copies in game/GameUI.cpp (0x803CFC58, 0x803D6E70); names invented
+    bool IsFrozen_unk() const { return (mFlags & 4) != 0; }
+    unsigned int GetFlag1_unk() const { return mFlags & 1; }
 
     void fn_800D1D94(Task* parent); // inferred: links the task into the tree of `parent` (ctor body)
     void fn_800D4558(); // inferred: sets flag 4 (hidden/stopped) in all the descendants

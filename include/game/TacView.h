@@ -16,6 +16,9 @@ public:
 
     // inferred: state 0 (inlined by GameUI::fn_803DCA84); name invented
     bool IsIdle_unk() const { return m48 == 0; }
+    // inferred: weak copies in game/GameUI.cpp (0x803D718C, 0x803D7194); names invented
+    int GetOpen_unk() const { return mA70; }
+    int* GetCursor_unk() { return &m15D8; }
 
     unsigned char m00[0x48 - 0x00];
     int m48;              // inferred: state (GameUI::fn_803DCA84 compares it with 0 and 2)

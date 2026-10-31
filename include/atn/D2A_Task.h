@@ -38,6 +38,15 @@ public:
         float end = mData.mEndFrame;
         return mFrame >= end;
     }
+    float GetFrame_unk() const { return mFrame; }   // inferred: weak copy 0x803CFC64
+    void SetEnd_unk() { mFrame = mData.mEndFrame; } // inferred: weak copy 0x803D213C
+    void Rewind_unk() { mFrame = 0.0f; }            // inferred: weak copy 0x803D2A54
+    // inferred: layout parameters by name (weak copies 0x803D6EF0, 0x803D6EF8, 0x803D6F78, 0x803D70B4 in
+    // game/GameUI.cpp, which defines them: the helpers they call are declared differently per file)
+    inline void* GetTrack_unk(const char* name);
+    inline void SetLayoutValue_unk(const char* name, float value);
+    inline void SetLayoutValue_unk(const char* name, int index, float value);
+    inline void SetLayoutText_unk(const char* name, const wchar_t* text);
 
     D2A_Data mData;  // 0x48
     LH_Binary mFile; // 0xF0

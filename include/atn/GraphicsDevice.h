@@ -131,6 +131,9 @@ struct ShadowMap_unk {
 // (game/main.cpp, game/HomeButton_unk.cpp, atn/Layer3D.cpp). One type for every file: do not add
 // another partial view of this object.
 struct GraphicsDevice_unk {
+    // inferred: weak copies in game/GameUI.cpp (0x803D71BC, 0x803D71CC); names invented
+    int GetWidth_unk() const { return mWidth; }
+    int GetHeight_unk() const { return mHeight; }
     // inferred: vertex format shared by the models that use it (fn_80076C44, fn_80076F88)
     struct VtxFormatRef_unk {
         VtxFormatRef_unk() : mFormat(0), mRefs(0) {}

@@ -27,6 +27,12 @@ struct Color4f_unk : public D2A_DrawColor {
         b = b_;
         a = a_;
     }
+    void Set_unk(float r_, float g_, float b_, float a_) { // inferred: weak copy of another file
+        r = r_;
+        g = g_;
+        b = b_;
+        a = a_;
+    }
     unsigned int ToU32() const {
         unsigned int ur = ColorToU8_unk(r);
         unsigned int ug = ColorToU8_unk(g);

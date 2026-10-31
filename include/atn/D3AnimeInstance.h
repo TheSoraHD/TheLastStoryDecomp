@@ -32,6 +32,12 @@ public:
     void SetMatrix(const Matrix3x4& m); // 0x8020303C
     void UpdateMtx();                   // 0x80203260
 
+    // inferred: weak copies in game/GameUI.cpp (0x803D7108-0x803D7158); names invented
+    Matrix3x4* GetRotation_unk() { return &mRot; }
+    void SetPosition_unk(const Vector3& pos) { mPos = pos; }
+    void SetRotation_unk(const Matrix3x4& rot) { mRot = rot; }
+    void SetScale_unk(const Vector3& scale) { mScale = scale; }
+
     int UpdateLoad_unk() {
         int busy;
         if (mState == 1 && mTask != 0) {

@@ -78,6 +78,7 @@ public:
     int m1450;
     int m1454;
     float m1458;
+    float GetM1458_unk() const { return m1458; } // inferred: weak copy 0x803D717C (game/GameUI.cpp)
     int m145C;
     int m1460;
     RoutePlace_unk* m1464; // inferred: "magicPointId" place (vf2C)

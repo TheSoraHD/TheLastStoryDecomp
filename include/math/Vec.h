@@ -254,6 +254,8 @@ public:
     // inferred: names invented (weak copies 0x8000D3A4, 0x800F7FD8, 0x801162A0)
     float Length_unk() const;
     float LengthSq_unk() const;
+    // inferred: squared length on the ground plane (weak copy 0x803D6EC0, game/GameUI.cpp); name invented
+    float LengthSqXZ_unk() const { return x * x + z * z; }
     Vector3 GetNormalize() const;
     Vector3 ToRotation_unk() const; // inferred: x = pitch, y = yaw of the direction
     void fn_80139F60(); // inferred: in-place ToRotation_unk (weak copy 0x80139F60)

@@ -26,6 +26,11 @@ public:
     void fn_8057F198(int value);     // inferred: sets mA4 (+10 into lbl_8087EFA8)
     void fn_8057F1B4(const SoundSettings_unk* settings); // inferred: loads the sound settings
 
+    // inferred: weak copies in game/GameUI.cpp (0x803D6FE4, 0x803D703C, 0x803D7174); names invented
+    int GetShakeType_unk() const { return mShakeType; }
+    int GetPlayerHpBarShow_unk() const { return mPlayerHpBarShow; }
+    int* GetBattleDraw_unk() { return &mBattleDrawHateLine; }
+
     ResHandle mMenu;       // 0x00
     int mShakeType;        // 0x04
     int mSwingReplay;      // 0x08

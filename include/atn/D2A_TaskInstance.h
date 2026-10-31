@@ -114,6 +114,16 @@ public:
     void SetFloat_unk(const char* name, float value); // inferred: removed by the linker
     D2A_DrawRect GetRect_unk(const char* name);
     void* GetLayout_unk(); // inferred: layout of the shared task (inline)
+    // inferred: weak copies in game/GameUI.cpp (0x803D2148, 0x803D218C, 0x803D2A60, 0x803D737C,
+    // 0x803D7384); names invented
+    void SetLoop_unk(int loop) { mLoop = loop != 0; }
+    void SetSpeed_unk(float speed) { mSpeed = speed; }
+    void Rewind_unk() { mFrame = 0.0f; }
+    float GetFrame_unk() const { return mFrame; }
+    void SetFrame_unk(float frame) { mFrame = frame; }
+    // inferred: weak copies 0x803D215C and 0x803D733C; defined for <32, 8> in atn/D2A_TaskInstanceC.h
+    inline void SetEnd_unk();
+    inline bool IsEnd_unk();
 
     D2A_Task* mTask;                         // 0x48
     unsigned char mPlaying;                  // 0x4C

@@ -20,4 +20,15 @@ extern "C" void fn_801F7DF0(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* 
 extern "C" void fn_801F837C(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, const wchar_t* text);
 extern "C" void fn_801F8598(atn::D2A_TaskInstanceBase<32, 8>* inst, const char* name, int value, int digits);
 
+namespace atn {
+template <>
+inline void D2A_TaskInstanceBase<32, 8>::SetEnd_unk() {
+    mFrame = fn_801F6C2C(this);
+}
+template <>
+inline bool D2A_TaskInstanceBase<32, 8>::IsEnd_unk() {
+    return mFrame >= fn_801F6C2C(this);
+}
+} // namespace atn
+
 #endif

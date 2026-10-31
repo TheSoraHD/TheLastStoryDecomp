@@ -687,6 +687,18 @@ public:
     void fn_8016D74C(HitInfo_unk* data, int a, const atn::Vector3* target); // inferred: target position (null: in front)
     // inferred: weak copy 0x800F52F0 (name invented)
     CharaStatus* GetStatus_unk() { return &mStatus; }
+    // inferred: accessors called out of line by GameUI::fn_803D2A6C (weak copies 0x803D6EA0-0x803D71D4 in
+    // game/GameUI.cpp); names invented
+    unsigned int GetFlag54C13_unk() const { return (m54C >> 13) & 1; }
+    unsigned int GetFlag26_unk() const { return mFlag26; }
+    atn::Vector3* GetF60_unk() { return &mF60; }
+    bool HasPart648_unk() const { return m648 != 0; }
+    float GetFBC_unk() const { return mFBC; }
+    float GetFB8_unk() const { return mFB8; }
+    unsigned int GetFlag22_unk() const { return mFlag22; }
+    CharaInfo_unk* GetInfo_unk() const { return m60; }
+    unsigned int GetHitFlag7_unk() const { return (m1374 >> 7) & 1; }
+    chr::CharaPart_unk* GetPart648_unk() const { return m648; }
     void fn_801698E4(const atn::Vector3& rot);
     int fn_80171F3C(const atn::Vector3* pos, const atn::Vector3* dest); // inferred: nonzero if fn_8036DBC0 accepts the move
     int fn_801720AC(atn::Vector3* pos, atn::Vector3* vel); // inferred: nonzero keeps the rotation (fn_80140588)
@@ -802,6 +814,7 @@ public:
         int m00;
         Sphere_unk m04; // inferred: drawn as a debug sphere (0x80149A30)
     };
+    atn::SimpleVector<Item14_unk>* GetSpheres_unk() { return &m624; } // inferred: weak copy 0x803D6EB8
     Item14_unk* fn_80148B0C(int index);
     int fn_8014969C();
     void fn_8014C0B4(int a, int b);
