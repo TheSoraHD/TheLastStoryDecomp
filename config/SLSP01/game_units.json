@@ -3189,7 +3189,7 @@
   "classes": [
    "nw4r::snd::SoundArchive"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "nw4r/SeqNoteOnCallback.cpp",
