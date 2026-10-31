@@ -9,6 +9,7 @@
 #include "game/EquipItemData.h"
 #include "game/BattleResult.h"
 #include "game/SetConfig.h"
+#include "game/CrossbowMenuTask.h"
 #include "atn/SoundRef.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -330,6 +331,34 @@ void BattleCharaTask::vf44() {
         fn_80375184(lbl_8087F430);
     }
     m1470 = 0;
+}
+
+void BattleCharaTask::fn_800E8FB8() {
+    if (m648 == 0) {
+        return;
+    }
+    atn::Vector3 from;
+    atn::Vector3 to;
+    fn_800E932C(&from, &to, 1);
+    int bullet = CrossbowMenuTask::sInstance->fn_801EA01C();
+    CharaStatusRef_unk* ref = mStatus.fn_80134134(0x3D);
+    if (ref != 0 && fn_80219E6C(ref->mEntry->mValue) != 0 &&
+        CrossbowMenuTask::sInstance->m4C[CrossbowMenuTask::sInstance->m150] == 0x65) {
+        bullet = ref->mEntry->mValue;
+    }
+    if (lbl_8087F610 != 0 && CrossbowMenuTask::sInstance->m4C[CrossbowMenuTask::sInstance->m150] == 0x65) {
+        if (m5C->m11C == 3 || m50 == 0xAAE72) {
+            HitInfo_unk* hit = fn_80219E6C(mStatus.m2D0[m145C].m[0]);
+            if (hit != 0 && hit->mC8 > 0) {
+                bullet = hit->mC8;
+            }
+        } else if (m50 == 0xAAE76 || m50 == 0xAAE77) {
+            bullet = mStatus.m2D0[1].m[0];
+        }
+    }
+    if (bullet > 0) {
+        fn_80165C5C(bullet, from, to);
+    }
 }
 
 // NONMATCHING: 98.7% - the m2D0 entry is addressed from 0xAA0 (a FixedArray of CharaStatus?) and stack slots of the
