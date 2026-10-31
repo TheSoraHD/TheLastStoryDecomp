@@ -234,24 +234,4 @@ void BTA_HhGetAclQueueInfo(void) {
     }
 }
 
-void BTA_HhParseBootRpt(tBTA_HH_BOOT_RPT* p_data, UINT8* p_report, UINT16 report_len) {
-    p_data->dev_type = BTA_HH_DEVT_UNKNOWN;
-
-    if (p_report) {
-        switch (p_report[0]) {
-        case BTA_HH_KEYBD_RPT_ID:
-            p_data->dev_type = p_report[0];
-            bta_hh_parse_keybd_rpt(p_data, p_report + 1, report_len - 1);
-            break;
-
-        case BTA_HH_MOUSE_RPT_ID:
-            p_data->dev_type = p_report[0];
-            bta_hh_parse_mice_rpt(p_data, p_report + 1, report_len - 1);
-            break;
-
-        default:
-            APPL_TRACE(DEBUG, "Unknown boot report: %d", p_report[0]);
-            break;
-        }
-    }
-}
+// BTA_HhParseBootRpt: not in the BTE build of this game (its trace string is not in .data)

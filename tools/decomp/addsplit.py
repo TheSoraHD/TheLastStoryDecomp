@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # usage: addsplit.py <unitname> "<sec> <start> <end>" ... : insert a split block sorted by .text start
-#        and a libs_ref entry (flags of OSMutex.c, or of --like X)
+#        and a libs_ref entry (flags of OSMutex.c, or of --like X; MW=<version> overrides its compiler)
 import os, sys, json, re
 ROOT=os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
 args=sys.argv[1:]; like='OSMutex.c'
@@ -22,6 +22,7 @@ open(p,'w').write('\n\n'.join(out))
 p=ROOT+'/config/SLSP01/libs_ref.json'; d=json.load(open(p))
 ref=[u for u in d if u['name'].endswith('/'+like) or u['name']==like][0]
 e=dict(ref); e['name']=name; e['matching']=True
+if os.environ.get('MW'): e['mw_version']=os.environ['MW']  # compiler other than the like unit's
 d.append(e)
 open(p,'w').write(json.dumps(d, indent=1, ensure_ascii=False))
 print('ok')

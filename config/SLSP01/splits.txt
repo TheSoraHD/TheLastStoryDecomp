@@ -4170,6 +4170,11 @@ smg2/src/RVL_SDK/bte/bta_hh_act.c:
 	.data       start:0x807B34E8 end:0x807B39E0
 	.sdata      start:0x8087EAD0 end:0x8087EAD8
 
+smg2/src/RVL_SDK/bte/bta_hh_api.c:
+	.text       start:0x8062F0A0 end:0x8062F470
+	.data       start:0x807B39E0 end:0x807B3A10
+	.sdata2     start:0x80888870 end:0x80888878
+
 smg2/src/RVL_SDK/bte/bta_hh_main.c:
 	.text       start:0x8062F470 end:0x8062F9C4
 	.rodata     start:0x80764EC8 end:0x80764F50
@@ -4222,6 +4227,9 @@ smg2/src/RVL_SDK/bte/btu_init.c:
 smg2/src/RVL_SDK/bte/wbt_ext.c:
 	.text       start:0x8063B494 end:0x8063B574
 
+smg2/src/RVL_SDK/bte/gap_api.c:
+	.text       start:0x8063B574 end:0x8063B5D4
+
 smg2/src/RVL_SDK/bte/gap_utils.c:
 	.text       start:0x8063C110 end:0x8063C72C
 	.data       start:0x807B56F0 end:0x807B59E0
@@ -4230,6 +4238,12 @@ smg2/src/RVL_SDK/bte/gap_utils.c:
 smg2/src/RVL_SDK/bte/hcicmds.c:
 	.text       start:0x8063C72C end:0x8063EE48
 	.rodata     start:0x80764F70 end:0x80764F80
+
+smg2/src/RVL_SDK/bte/hidd_api.c:
+	.text       start:0x8063EE48 end:0x8063EEB0
+
+smg2/src/RVL_SDK/bte/hidd_pm.c:
+	.text       start:0x8063F038 end:0x8063F3B4
 
 smg2/src/RVL_SDK/bte/hidh_api.c:
 	.text       start:0x8063F3B4 end:0x80640134
@@ -4257,6 +4271,9 @@ smg2/src/RVL_SDK/bte/l2c_main.c:
 	.text       start:0x806453A8 end:0x806463D8
 	.data       start:0x807B7168 end:0x807B7464
 	.bss        start:0x808230E0 end:0x808238C8
+
+smg2/src/RVL_SDK/bte/port_api.c:
+	.text       start:0x8064829C end:0x806482EC
 
 smg2/src/RVL_SDK/bte/port_rfc.c:
 	.text       start:0x806482EC end:0x806496E8
