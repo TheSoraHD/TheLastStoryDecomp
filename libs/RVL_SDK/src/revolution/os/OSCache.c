@@ -409,7 +409,24 @@ asm void LCAllocNoInvalidate(){
 }
 
 //unused
-asm void LCLoadData(){
+u32 LCLoadData(void* dst, const void* src, u32 len) {
+    u32 blocks = (len + 31) / 32;
+    u32 ret = (blocks + 127) / 128;
+
+    while (blocks > 0) {
+        if (blocks < 128) {
+            LCLoadBlocks(dst, src, blocks);
+            blocks = 0;
+        } else {
+            LCLoadBlocks(dst, src, 0);
+            blocks -= 128;
+
+            dst = (u8*)dst + 0x1000;
+            src = (u8*)src + 0x1000;
+        }
+    }
+
+    return ret;
 }
 
 u32 LCStoreData(void* dst, const void* src, u32 len) {
@@ -502,7 +519,6 @@ void L2GlobalInvalidate(void) {
     PPCMtl2cr(l2cr & ~L2CR_L2I);
 
     while (PPCMfl2cr() & L2CR_L2IP) {
-        DBPrintf(">>> L2 INVALIDATE : SHOULD NEVER HAPPEN\n");
     }
 }
 
@@ -550,20 +566,16 @@ void DMAErrorHandler(u8 error, OSContext* ctx, u32 dsisr, u32 dar, ...) {
 void __OSCacheInit(void) {
     if (!(PPCMfhid0() & HID0_ICE)) {
         ICEnable();
-        DBPrintf("L1 i-caches initialized\n");
     }
 
     if (!(PPCMfhid0() & HID0_DCE)) {
         DCEnable();
-        DBPrintf("L1 d-caches initialized\n");
     }
 
     if (!(PPCMfl2cr() & L2CR_L2E)) {
         L2Init();
         L2Enable();
-        DBPrintf("L2 cache initialized\n");
     }
 
     OSSetErrorHandler(OS_ERR_MACHINE_CHECK, DMAErrorHandler);
-    DBPrintf("Locked cache machine check handler installed\n");
 }

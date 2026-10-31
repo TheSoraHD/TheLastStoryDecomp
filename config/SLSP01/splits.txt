@@ -3575,6 +3575,10 @@ RVL_SDK/src/revolution/os/OSAudioSystem.c:
 	.text       start:0x805ECC80 end:0x805ED140
 	.data       start:0x8079C2B8 end:0x8079C338
 
+RVL_SDK/src/revolution/os/OSCache.c:
+	.text       start:0x805ED140 end:0x805ED7F8
+	.data       start:0x8079C338 end:0x8079C4C0
+
 RVL_SDK/src/revolution/os/OSContext.c:
 	.text       start:0x805ED800 end:0x805EE0C8
 	.data       start:0x8079C4C0 end:0x8079C678
