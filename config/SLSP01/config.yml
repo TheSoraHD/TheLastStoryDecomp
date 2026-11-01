@@ -16,6 +16,9 @@ ldscript_template: config/SLSP01/module/ldscript.tpl
 # library units linked from source that the original kept).
 force_active:
   - NETGetRexPPCVersionPrintable
+  # MetroTRK targsupp: stubs without callers that the original keeps (assembled from a .s)
+  - TRKOpenFile
+  - TRKPositionFile
 
 # (optional) Block relocations that dtk detected incorrectly.
 block_relocations:
