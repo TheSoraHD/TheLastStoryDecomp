@@ -295,8 +295,9 @@ public:
     virtual void vf10();
     virtual void vf14();
 
-    void fn_80228AF4(int slot, Actor_unk* actor, int kind, int arg);
-    void fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg); // inferred: shows a balloon
+    // inferred: the last two arguments (length and an option of Event::ActionDialogSpeaker) are not used
+    void fn_80228AF4(int slot, Actor_unk* actor, int kind, int arg, int frames, int option);
+    void fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg, int frames, int option); // inferred: shows a balloon
     void fn_80228CA0(int slot, const wchar_t* text, int align, int size, int arg, float f1, float f2,
                      unsigned int color, int mode, int offset); // inferred: adds a text
     void fn_80228FD8(); // inferred: starts the conversation
@@ -458,11 +459,11 @@ static std::basic_string<char> GetPath_unk(Actor_unk* actor, int kind) {
     return name;
 }
 
-void Dialog::fn_80228AF4(int slot, Actor_unk* actor, int kind, int arg) {
-    fn_80228AF8(slot, actor, kind, arg);
+void Dialog::fn_80228AF4(int slot, Actor_unk* actor, int kind, int arg, int frames, int option) {
+    fn_80228AF8(slot, actor, kind, arg, frames, option);
 }
 
-void Dialog::fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg) {
+void Dialog::fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg, int frames, int option) {
     Head_unk* head = FindHead_unk(actor, kind);
     if (head != 0) {
         if (mSlots[slot].mHead != 0) {
