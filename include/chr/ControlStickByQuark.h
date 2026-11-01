@@ -75,9 +75,12 @@ public:
     virtual int vf0C();
     virtual void vf1C();
     virtual int vf54() { return m28; }
-    unsigned char m08[0x28 - 0x08];
+    Chara_unk* mQuark;    // 0x08
+    int mKind;            // 0x0C
+    atn::Vector3 mTarget; // 0x10
+    atn::Vector3 mStart;  // 0x1C
     int m28;
-    unsigned char m2C[0x38 - 0x2C];
+    atn::Vector3 mFront;  // 0x2C
 };
 
 // inferred: thrust on a ghoul (vtable 0x8077EAA8), started by Em309GhoulSimple::vfB4; `name` is the node

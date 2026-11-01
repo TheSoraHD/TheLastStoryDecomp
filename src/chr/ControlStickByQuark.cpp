@@ -505,6 +505,35 @@ atn::Vector3 ControlThrustForKraken::vf14() {
     return mFrom + (mFrom - mTarget).GetNormalize() * 30.0f;
 }
 
+// NONMATCHING: 99.87% - r7/r8 swapped between the vtable address and the zero of m28
+// inferred: thrust at a standing quark (control id 0x89); `kind` 2 thrusts from 30 units further
+ControlThrustForQuarkStand::ControlThrustForQuarkStand(Chara_unk* chara, Chara_unk* quark, int kind)
+    : ControlBase(chara), mQuark(quark), mKind(kind), m28(0) {
+    chara->SetControlId_unk(0x89);
+    Motion_unk* m = &mChara->mMotion;
+    int motion = 0x215;
+    if (mKind == 2) {
+        motion = 0x216;
+    }
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, motion, 0, 0, 1, 1.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+    mStart = mChara->mPos;
+    mTarget = quark->mPos;
+    if (mKind == 2) {
+        atn::Vector3 dir(mStart.x - mTarget.x, 0.0f, mStart.z - mTarget.z);
+        dir.Normalize_unk();
+        mChara->mRot = dir.ToRotation_unk();
+        mTarget += dir * 30.0f;
+    } else {
+        atn::Vector3 dir(mStart.x - mTarget.x, 0.0f, mStart.z - mTarget.z);
+        dir.Normalize_unk();
+        mChara->mRot = dir.ToRotation_unk();
+    }
+    mFront = Front_unk(mChara);
+}
+
 void ControlThrustForQuarkStand::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
     lbl_8087EFA8->mSlow.mOn = 0;
