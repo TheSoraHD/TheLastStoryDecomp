@@ -143,6 +143,8 @@ public:
     virtual int vf0C();
     virtual boost::function<void()> vf10();
     virtual void vf1C();
+    MtxPtr mHolder; // 0x08: inferred: node matrix of the mat
+    int mCount;     // 0x0C: inferred: swings left
 };
 
 // inferred: control 0x6E of a character held by Em403WarLion (game/Em403WarLion.cpp)

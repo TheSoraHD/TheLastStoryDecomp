@@ -13,6 +13,7 @@
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
 struct Input_unk {
     int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
+    int fn_801231D0(int action); // inferred: action triggered
 };
 
 struct Unk_8087F0A8 {
@@ -49,6 +50,7 @@ extern "C" Camera_unk* lbl_8087F430;
 extern "C" void* lbl_8087F498; // inferred: voice player
 extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 extern "C" int rand();
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048; // inferred: effect/bullet manager
 extern "C" int fn_800F8548(Effect_unk* mgr);
@@ -180,6 +182,15 @@ namespace chr {
 // inferred: a + (b - a) * t (name invented, as in chr/ControlLadder.cpp)
 static inline atn::Vector3 LerpTo_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
     return (b - a) * t + a;
+}
+
+// inferred: m = m * translation(v) (name invented, as in gmk/Chain.cpp)
+static inline void TranslateMtx_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
+    Mtx t;
+    Mtx r;
+    PSMTXTrans(t, v.x, v.y, v.z);
+    PSMTXConcat(m.m, t, r);
+    __MtxCopy(m.m, r);
 }
 
 // inferred: frame of track 0 (name invented)
@@ -859,6 +870,47 @@ bool ControlStickSwordSp::fn_80196C68() const {
         }
     }
     return ret;
+}
+
+// NONMATCHING: 92.9% - copies of the front vector and of the new position; guards while held by the mat (the player shakes the remote to break free)
+int ControlMatHoldGuard::vf0C() {
+    if ((mChara->mStatus.m0C & 0x20) == 0x20) {
+        mChara->vf44();
+        return 1;
+    }
+    Motion_unk* m = &mChara->mMotion;
+    if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        lbl_8087EFA8->m3A4 = 1.0f;
+        return 1;
+    }
+    if (Frame_unk(m) >= m->fn_80097D7C(0) - 8.0f) {
+        float speed = m->mTracks[0].m0C - 0.1f;
+        m->mTracks[0].m0C = 0.05f > speed ? 0.05f : speed;
+    }
+    if (mChara->mType == 0) {
+        lbl_8087F490->m738 = 1;
+        if (mCount > 0 && lbl_8087F0A8->mInput.fn_801231D0(0)) {
+            mCount--;
+        }
+    }
+    atn::Matrix3x4 mtx = *(atn::Matrix3x4*)mHolder;
+    atn::Vector3 off;
+    off.z = -9.0f;
+    off.y = 0.0f;
+    off.x = -5.0f;
+    TranslateMtx_unk(mtx, off);
+    mChara->mPos = LerpTo_unk(mChara->mPos, mtx.GetTrans_unk(), 0.2f);
+    mtx.m[0][3] = 0.0f;
+    mtx.m[1][3] = 0.0f;
+    mtx.m[2][3] = 0.0f;
+    atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+    PSMTXMultVec(mtx.m, &dir, &dir);
+    mChara->mRot = dir.ToRotation_unk();
+    if (mCount <= 0) {
+        lbl_8087EFA8->m3A4 = 1.0f;
+        return 1;
+    }
+    return 0;
 }
 
 void ControlMatHoldGuard::vf1C() {
