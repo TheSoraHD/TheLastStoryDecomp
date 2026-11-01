@@ -58,6 +58,21 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void* lbl_8087EF70; // inferred: pad
+// inferred: result of the collision ray test (as in chr/ControlLadder.cpp)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    unsigned char m10[0x34 - 0x10];
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    unsigned char m44[0x50 - 0x44];
+};
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7);
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 
 // inferred: HUD hint request (as ZanUIHint_unk of game/Em201ZanGurgFinal.cpp)
@@ -606,6 +621,89 @@ ControlThrustForGhoul::ControlThrustForGhoul(Chara_unk* chara, Chara_unk* other,
     atn::Vector3 dir(mTarget.x - mStart.x, 0.0f, mTarget.z - mStart.z);
     mChara->mRot = dir.ToRotationZ_unk();
     m10 = mStart;
+}
+
+// inferred: turns `v` around the y axis (name invented)
+static inline void RotY_unk(atn::Vector3& v, float rad) {
+    atn::Matrix3x4 m;
+    PSMTXRotRad(m.m, 'y', rad);
+    PSMTXMultVec(m.m, &v, &v);
+}
+
+// NONMATCHING: draft - the thrust (frames 0-15), the hit (15-65) and the step back (65-80); the back
+// point is moved aside when a wall is behind the character
+int ControlThrustForGhoul::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    m34 -= lbl_8087EFA8->m3A4 * m->mTracks[0].m0C;
+    float frame = m->mTracks[0].m08;
+    if (frame <= 15.0001f) {
+        float scale = lbl_8087EFA8->m3A4 - 0.05f;
+        lbl_8087EFA8->m3A4 = 0.5f > scale ? 0.5f : scale;
+        lbl_8087EFA8->mSlow.mOn = 1;
+        float t = m->mTracks[0].m08 / 15.0f;
+        mChara->mPos = LerpTo_unk(mStart, mOther->mPos, t);
+        m10 = mChara->mPos;
+        m10.y += 20.0f * t;
+    } else if (frame <= 65.0001f) {
+        lbl_8087EFA8->mSlow.mOn = 0;
+        lbl_8087EFA8->m3A4 = 1.0f;
+        if (!m38 && m->mTracks[0].m08 > 30.0f) {
+            m38 = true;
+            mChara->fn_8016DA4C();
+            HitInfo_unk* hit = mChara->m638;
+            atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
+            ShootHit_unk(lbl_8087F048, mChara, hit, node->GetTrans_unk(), &mChara->mRot);
+            lbl_8087F430->Shake_unk(6, 0.0f, 2.0f);
+        }
+        m10 = mChara->mPos;
+        m10.y += 20.0f;
+    } else if (frame <= 80.0001f) {
+        if (!m39) {
+            atn::Vector3 back = Front_unk(mChara) * -25.0f;
+            mTarget = mChara->mPos + back;
+            atn::Vector3 from = mChara->mPos;
+            from.y += 10.0f;
+            atn::Vector3 to = from + back;
+            CollResult_unk result;
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                back = Front_unk(mChara) * -25.0f;
+                RotY_unk(back, 0.9424779f);
+                mTarget = mChara->mPos + back;
+                to = from + back;
+                if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                    back = Front_unk(mChara) * -25.0f;
+                    RotY_unk(back, -0.9424779f);
+                    mTarget = mChara->mPos + back;
+                    to = from + back;
+                    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                        back = Front_unk(mChara) * -20.0f;
+                        mTarget = mChara->mPos + back;
+                    }
+                }
+            }
+            from = mTarget;
+            from.y += 10.0f;
+            to = mTarget;
+            to.y -= 10.0f;
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                mTarget = result.m04;
+            }
+            mStart = mChara->mPos;
+            m39 = true;
+        }
+        float t = 1.0f - (m->mTracks[0].m08 - 65.0f) / 15.0f;
+        mChara->mPos = LerpTo_unk(mTarget, mStart, t);
+        m10 = LerpTo_unk(mChara->mPos, mOther->mPos, t);
+        m10.y += 20.0f * t;
+    } else {
+        m10 = mChara->mPos;
+    }
+    if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        mChara->m570 = 0.0f;
+        mChara->m574 = lbl_807C7030;
+        return 1;
+    }
+    return 0;
 }
 
 // NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
