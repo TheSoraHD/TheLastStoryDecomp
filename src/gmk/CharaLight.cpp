@@ -213,7 +213,8 @@ int CharaLight::vf60() {
     return ret;
 }
 
-// NONMATCHING: scheduling only (the string pool address is built in r3 before `group` is moved).
+// NONMATCHING: 96.3% - scheduling only (the string pool address is built in r3 before `group` is moved);
+// same form as the matched FloatingBox/LottaSummon vf6C; tried group = 0 first, a ternary, a separate store.
 void CharaLight::vf6C(void* menu) {
     char name[0x20];
     fn_803EC758(name);
