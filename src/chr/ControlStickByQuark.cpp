@@ -1368,6 +1368,31 @@ int ControlCaughtSkelton::vf0C() {
     return 0;
 }
 
+// inferred: thrown by the skeleton king at `target`, head first (control id 0x71); `data` is the hit
+ControlThrownSkelton::ControlThrownSkelton(Chara_unk* chara, const atn::Vector3& target, HitInfo_unk* data)
+    : ControlBase(chara), mHit(data), mTarget(target) {
+    chara->SetControlId_unk(0x71);
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag31) {
+        chara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
+    m->fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.2f);
+    CharaTask* c = mChara;
+    mDir = mTarget - c->mPos;
+    mDir.Normalize_unk();
+    atn::Vector3 rot = mDir.ToRotation_unk();
+    rot.x += 1.5707964f;
+    mChara->mRot = rot;
+    mChara->mF1C = 0;
+}
+
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it

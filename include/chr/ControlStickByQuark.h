@@ -225,7 +225,9 @@ public:
     ControlThrownSkelton(Chara_unk* chara, const atn::Vector3& target, HitInfo_unk* data); // 0x8019A580
     virtual int vf0C();
     virtual boost::function<void()> vf10();
-    unsigned char m08[0x24 - 0x08];
+    HitInfo_unk* mHit;    // 0x08
+    atn::Vector3 mTarget; // 0x0C
+    atn::Vector3 mDir;    // 0x18
 };
 
 class ControlThrownBreakSkelton : public ControlBase {
