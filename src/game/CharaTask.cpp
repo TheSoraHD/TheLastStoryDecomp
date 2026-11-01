@@ -8573,8 +8573,8 @@ void CharaTask::fn_8015C6A0() {
     fn_80178208(control);
 }
 
-void CharaTask::fn_8015C988(int a, int b) {
-    chr::ControlAbsorbedHP* control = new ((MemoryTag)0, "", "", 0) chr::ControlAbsorbedHP(this, a, b);
+void CharaTask::fn_8015C988(CharaTask* other, HitInfo_unk* hit) {
+    chr::ControlAbsorbedHP* control = new ((MemoryTag)0, "", "", 0) chr::ControlAbsorbedHP(this, other, hit);
     fn_80178208(control);
 }
 

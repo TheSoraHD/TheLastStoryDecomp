@@ -9,6 +9,7 @@
 #include "game/GameUI.h"
 #include "game/GimmickCommon.h"
 #include "chr/ControlDropDown.h"
+#include "chr/ControlDamage.h"
 #include "chr/FuncPair_unk.h"
 #include <boost/bind.hpp>
 
@@ -101,6 +102,19 @@ struct Damage_unk {
 };
 extern "C" void fn_80108C10(Effect_unk* effect, Damage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* chara, int b, int c);
+// inferred: the damage computation (game/DamageCalc_unk.h, with the record above)
+struct DamageParam_unk;
+extern "C" DamageParam_unk lbl_807C6B90;
+extern "C" int fn_8003EA3C(Damage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* target,
+                           unsigned int flags, const DamageParam_unk* param, const atn::Vector3* pos,
+                           const atn::Vector3* rot);
+extern "C" int swprintf(wchar_t* buf, unsigned long size, const wchar_t* format, ...);
+extern "C" void* lbl_8087F8A8; // inferred: popup text manager
+// inferred: start yaw of the climb (a zero float in .sdata in the original, only read here; ours goes to
+// .sbss without explicit_zero_data)
+float lbl_8087DA00 = 0.0f;
+extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
+                            int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 
@@ -1636,6 +1650,230 @@ boost::function<void()> ControlBoundShade::vf10() {
                             boost::bind(&CharaTask::fn_80164454, (CharaTask*)mChara, m18, (int)mChara, (int)mChara, 0));
     }
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
+}
+
+// NONMATCHING: 98.2% - float register numbering (f6/f7 for the int-to-float constant and the time scale)
+int ControlThrownSimple::vf0C() {
+    CharaTask* c = mChara;
+    c->mPos = c->mPos + mVel;
+    int fps = lbl_8087F0A8->mFps;
+    mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
+    mFrames--;
+    return 0;
+}
+
+// NONMATCHING: 60% - the original stores x/y with psq_st before the stfs of z
+atn::Vector3 ControlThrownSimple::vf14() {
+    return mTarget;
+}
+
+ControlAbsorbedHP::ControlAbsorbedHP(Chara_unk* chara, CharaTask* other, HitInfo_unk* hit)
+    : ControlBase(chara), mCount(30), mTimer(3) {
+    chara->m58C = 0;
+    mChara->SetControlId_unk(0x82);
+    mOther = other;
+    mHit = hit;
+    atn::Vector3 dir(0.0f, 0.0f, 15.0f);
+    RotY_unk(dir, other->mRot.y);
+    CharaTask* o = mOther;
+    mTarget = o->mPos + dir;
+    atn::Vector3 rot(0.0f, 3.1415927f + o->mRot.y, 0.0f);
+    mChara->mRot = rot;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
+    m->fn_80097C08(0, 0x227, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// NONMATCHING: 99.95% - only the label of the L"%d" string (fixed by pairdata)
+int ControlAbsorbedHP::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    if (mChara->mStatus.IsState_unk(0x20)) {
+        mChara->vf44();
+        return 1;
+    }
+    if (m->mTracks[0].m00 == 0x227) {
+        if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+            m->m34C = 1;
+            m->mTracks[0].m20 = 1.0f;
+            m->mTracks[0].m0C = 1.0f;
+            m->fn_80097C08(0, 0x228, 1, 0, 1, 0.0f, 0.1f);
+        }
+        atn::Vector3 pos = mChara->mPos;
+        pos = LerpTo_unk(pos, mTarget, 0.3f);
+        mChara->mPos = pos;
+    } else {
+        if (--mTimer < 0) {
+            mTimer = 30;
+            Damage_unk damage;
+            fn_8003EA3C(&damage, mHit, mOther, mChara, 0, &lbl_807C6B90, 0, 0);
+            atn::Vector3 pos = mChara->fn_80148B0C(0)->m04.mCenter;
+            pos += atn::Vector3(0.0f, 15.0f, 0.0f);
+            fn_80108C10(lbl_8087F048, &damage, pos, mOther, mChara, 0, 0);
+            mOther->mStatus.fn_8012DF7C(-damage.m04, 0, 0);
+            pos = mOther->fn_80148B0C(0)->m04.mCenter;
+            pos += atn::Vector3(0.0f, 15.0f, 0.0f);
+            wchar_t text[0x20];
+            swprintf(text, 0x20, L"%d", damage.m04);
+            fn_8054D794(lbl_8087F8A8, 1, text, &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
+        }
+        if (mChara->mType == 0) {
+            lbl_8087F490->m728 = 1;
+            if (lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
+                mCount--;
+            }
+        }
+    }
+    return mCount <= 0;
+}
+
+inline ControlAbsorbedHPReleased::ControlAbsorbedHPReleased(Chara_unk* chara) : ControlBase(chara) {
+    chara->SetControlId_unk(0x83);
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x229, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+// NONMATCHING: 96.7% - the original loads mCount before saving r31 (as StickByQuark::vf10)
+boost::function<void()> ControlAbsorbedHP::vf10() {
+    if (mCount > 0) {
+        atn::Vector3 dir(0.0f, 0.0f, -1.0f);
+        RotY_unk(dir, mChara->mRot.y);
+        ControlKnockdown* next = new ((MemoryTag)0, "", "", 0) ControlKnockdown(mChara, dir, -1, 0);
+        return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+    }
+    ControlAbsorbedHPReleased* next = new ((MemoryTag)0, "", "", 0) ControlAbsorbedHPReleased(mChara);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+}
+
+int ControlAbsorbedHPReleased::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    return Frame_unk(m) >= m->fn_80097D7C(0);
+}
+
+// NONMATCHING: 80.7% - the original copies mFrom and mTo before the stores of ControlBase
+ControlCliffhangZanGurg::ControlCliffhangZanGurg(Chara_unk* chara, atn::Vector3 from, atn::Vector3 to,
+                                                 atn::Vector3 face)
+    : ControlBase(chara) {
+    mFrom = from;
+    mTo = to;
+    mState = 0;
+    mCount = 0;
+    mFace = face;
+    chara->SetControlId_unk(0x85);
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->IsFlag5_unk() != 0) {
+        mChara->mFlag5 = 0;
+    }
+    atn::Vector3 dir;
+    dir = mTo - mFrom;
+    PSVECNormalize(&dir, &dir);
+    mDir = dir;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x3A, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+int ControlCliffhangZanGurg::vf0C() {
+    CharaTask* c = mChara;
+    Motion_unk* m = &c->mMotion;
+    if (mState == 0) {
+        atn::Vector3 pos = LerpTo_unk(mFrom, mTo, Frame_unk(m) / 20.0f);
+        c->mPos = pos;
+        atn::Vector3 rot = mChara->mRot;
+        atn::Vector3 dir = LerpTo_unk(mDir, mFace, Frame_unk(m) / 20.0f);
+        rot.y = dir.ToRotationZ_unk().y;
+        mChara->mRot = rot;
+        if (Frame_unk(m) >= 20.0f) {
+            mState = 1;
+            m->m34C = 1;
+            m->mTracks[0].m20 = 1.0f;
+            m->fn_80097C08(0, 0x22A, 0, 0, 1, 0.0f, 0.1f);
+            m->mTracks[0].m0C = 1.0f;
+        }
+    } else if (mState == 1) {
+        lbl_8087F490->m738 = 1;
+        if (fn_800A555C(lbl_8087EF70, 0, 4)) {
+            mCount++;
+        }
+        mChara->mPos = mTo;
+        if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+            mState = 2;
+            m->m34C = 1;
+            m->mTracks[0].m20 = 1.0f;
+            m->fn_80097C08(0, 0x22B, 0, 0, 1, 0.0f, 0.1f);
+            m->mTracks[0].m0C = 1.0f;
+        }
+    } else if (mState == 2) {
+        lbl_8087F490->m738 = 1;
+        if (fn_800A555C(lbl_8087EF70, 0, 4)) {
+            mCount++;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
+atn::Vector3 ControlCliffhangZanGurg::vf14() {
+    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    pos.y -= 15.0f;
+    return pos;
+}
+
+// NONMATCHING: 92.2% - the original loads `target` before the stores of ControlBase (as the
+// CliffhangZanGurg ctor)
+ControlEndCliffhangZanGurg::ControlEndCliffhangZanGurg(Chara_unk* chara, atn::Vector3 target)
+    : ControlBase(chara), mTarget(target) {
+    chara->SetControlId_unk(0x86);
+    mChara->fn_8016DA4C();
+    mOffset = mChara->mPos - mTarget;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x22C, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+// NONMATCHING: 99.7% - stack slots of offset/pos/rot
+int ControlEndCliffhangZanGurg::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    float frame = Frame_unk(m);
+    float end = m->fn_80097D7C(0);
+    float t = frame / end;
+    Mtx mtx;
+    PSMTXRotRad(mtx, 'y', t * (2.0943952f - lbl_8087DA00) + lbl_8087DA00);
+    atn::Vector3 offset = mOffset;
+    PSMTXMultVec(mtx, &offset, &offset);
+    atn::Vector3 pos = mTarget + offset;
+    atn::Vector3 rot = (mTarget - pos).ToRotationZ_unk();
+    mChara->mPos = pos;
+    mChara->mRot = rot;
+    if (frame >= end) {
+        return 1;
+    }
+    return 0;
+}
+
+// NONMATCHING: 86.5% - the original loads mChara before saving r31; node pointer in r4
+atn::Vector3 ControlEndCliffhangZanGurg::vf14() {
+    Motion_unk* m = &mChara->mMotion;
+    float frame = Frame_unk(m);
+    float end = m->fn_80097D7C(0);
+    atn::Vector3 pos = ((atn::Matrix3x4*)m->GetNodeMtx_unk("hips"))->GetTrans_unk();
+    pos.y -= 15.0f;
+    pos = LerpTo_unk(pos, mChara->mPos, frame / end);
+    return pos;
 }
 
 } // namespace chr

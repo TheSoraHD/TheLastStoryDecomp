@@ -530,7 +530,7 @@ public:
     void fn_8015C0C0(int a, int b);
     void fn_8015C3A8(int a);
     void fn_8015C6A0();
-    void fn_8015C988(int a, int b);
+    void fn_8015C988(CharaTask* other, HitInfo_unk* hit); // inferred: HP absorbed by other
     void fn_8015CC70(const atn::Vector3& a, const atn::Vector3& b, const atn::Vector3& c);
     void fn_8015CF98(const atn::Vector3& a);
     void fn_8015D2A0(const atn::Vector3& a, const atn::Vector3& b);

@@ -1159,7 +1159,7 @@ void EnemyJill::fn_80331DAC() {
             }
             float dist = PSVECMag(&d);
             if (-25.0f < a && a < 25.0f && dist < 40.0f) {
-                mC58.mC4->fn_8015C988((int)this, (int)m14E4);
+                mC58.mC4->fn_8015C988(this, m14E4);
             }
         }
     } else if (mC58.mC4->m55C != 6 || mC58.mC4->m560 != 0x82) {

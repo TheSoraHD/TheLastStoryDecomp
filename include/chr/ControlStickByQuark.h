@@ -281,43 +281,63 @@ public:
     int m18;
 };
 
+// inferred: simple flight under gravity (no ctor in the DOL; same layout as the start of ControlThrown)
 class ControlThrownSimple : public ControlBase {
 public:
     virtual int vf0C();
     virtual atn::Vector3 vf14();
+
+    atn::Vector3 mTarget; // 0x08
+    atn::Vector3 mVel;    // 0x14
+    int mFrames;          // 0x20
 };
 
+// inferred: the HP of the character is absorbed by `other` (control id 0x82, EnemyJill's skill):
+// the player shakes the remote to break free
 class ControlAbsorbedHP : public ControlBase {
 public:
-    ControlAbsorbedHP(Chara_unk* chara, int a, int b); // 0x8019DA50
+    ControlAbsorbedHP(Chara_unk* chara, CharaTask* other, HitInfo_unk* hit); // 0x8019DA50
     virtual int vf0C();
     virtual boost::function<void()> vf10();
-    unsigned char m08[0x24 - 0x08];
+
+    atn::Vector3 mTarget; // 0x08: inferred: in front of `other`
+    int mCount;           // 0x14: inferred: shakes left to break free
+    int mTimer;           // 0x18: inferred: frames to the next drain
+    CharaTask* mOther;    // 0x1C
+    HitInfo_unk* mHit;    // 0x20
 };
 
 class ControlAbsorbedHPReleased : public ControlBase {
 public:
-    ControlAbsorbedHPReleased(Chara_unk* chara);
+    inline ControlAbsorbedHPReleased(Chara_unk* chara); // inlined in ControlAbsorbedHP::vf10
     virtual int vf0C();
 };
 
+// inferred: hanging from a cliff of Zangurg (control id 0x85)
 class ControlCliffhangZanGurg : public ControlBase {
 public:
     ControlCliffhangZanGurg(Chara_unk* chara, atn::Vector3 a, atn::Vector3 b, atn::Vector3 c); // 0x8019E4F4
     virtual int vf0C();
     virtual atn::Vector3 vf14();
-    virtual int vf30() { return m0C; }
-    unsigned char m08[0x0C - 0x08];
-    int m0C;
-    unsigned char m10[0x40 - 0x10];
+    virtual int vf30() { return mCount; }
+
+    int mState;           // 0x08
+    int mCount;           // 0x0C: inferred: button presses while hanging
+    atn::Vector3 mFrom;   // 0x10
+    atn::Vector3 mTo;     // 0x1C
+    atn::Vector3 mDir;    // 0x28: inferred: normalized mTo - mFrom
+    atn::Vector3 mFace;   // 0x34: inferred: direction faced at the end of the climb
 };
 
+// inferred: climbing up from the cliff of Zangurg (control id 0x86)
 class ControlEndCliffhangZanGurg : public ControlBase {
 public:
-    ControlEndCliffhangZanGurg(Chara_unk* chara, atn::Vector3 a); // 0x8019EB7C
+    ControlEndCliffhangZanGurg(Chara_unk* chara, atn::Vector3 target); // 0x8019EB7C
     virtual int vf0C();
     virtual atn::Vector3 vf14();
-    unsigned char m08[0x20 - 0x08];
+
+    atn::Vector3 mTarget; // 0x08
+    atn::Vector3 mOffset; // 0x14: inferred: start position relative to mTarget
 };
 
 class ControlStickZanGurgStand : public ControlBase {
