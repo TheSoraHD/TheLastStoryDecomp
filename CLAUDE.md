@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `config-relocs-20261101` (2026-11-01): **11489 / 18307 funciones al 100%**, `main.dol: OK`. `block_relocations` por `target` (constantes 0x80808081 y tablas que dtk tomaba por punteros a `gki_cb` y al buffer de SoundSystem); enlazados `bte/gki_ppc.c` (13), `snd_SoundSystem.cpp` (5) y MetroTRK `targsupp.c` (4, asm aprobado). Detalle en `docs/config-relocs-20261101.md`.
+- `config-relocs-20261101` (2026-11-01, mergeada en `main`): **11489 / 18307 funciones al 100%**, `main.dol: OK`. `block_relocations` por `target` (constantes 0x80808081 y tablas que dtk tomaba por punteros a `gki_cb` y al buffer de SoundSystem); enlazados `bte/gki_ppc.c` (13), `snd_SoundSystem.cpp` (5) y MetroTRK `targsupp.c` (4, asm aprobado). Detalle en `docs/config-relocs-20261101.md`.
 - `auto-20261101` (mergeada): 11463 funciones; FxChorus/FxDelay, `ControlStickByQuark`, `SkillEffectManager`, `pairdata` (`docs/auto-20261101.md`).
 - `auto-20261031c` (mergeada): 11284 funciones; NW4R snd/ut 2010 desde SS (`libs/ss_nw4r`), MSL, MetroTRK, bte (`docs/auto-20261031c.md`). `auto-20261031b`: 10002; `auto-20261031`: 9129; `auto-20261030`: 9113.
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
