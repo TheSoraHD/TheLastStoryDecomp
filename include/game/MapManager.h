@@ -37,7 +37,9 @@ struct MapModel_unk : public MapModelBase_unk {
     void* mC0; // inferred: light of gmk::CharaLight
     unsigned char mC4[0x114 - 0xC4];
     int m114;
-    unsigned char m118[0x300 - 0x118];
+    unsigned char m118[0x16C - 0x118];
+    int m16C; // inferred: reflection mode (Event::ActionMapReflect)
+    unsigned char m170[0x300 - 0x170];
     void* mMaterial; // 0x300
 };
 // inferred: group of models of a map part

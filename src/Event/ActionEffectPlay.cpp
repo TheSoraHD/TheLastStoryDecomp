@@ -4,6 +4,9 @@
 #include "atn/Bgm.h"
 #include "atn/SoundRef.h"
 #include "Event/Cut.h"
+#include "std/string.h"
+#include <boost/bind.hpp>
+#include "game/MapManager.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -41,6 +44,26 @@ extern "C" void fn_8048EE78(EventEffects_unk* mgr, int a, float r, float g, floa
                             float f);
 extern "C" void fn_8048F184(EventEffects_unk* mgr, int a, float r, float g, float b, float c, float d, int e,
                             float f);
+extern "C" void fn_80488050(EventEffects_unk* mgr, Event::EventManager_unk* manager, Event::Action* arg);
+extern "C" void fn_80488A74(EventEffects_unk* mgr, const char* name, int fade, float volume); // inferred: plays a stream
+extern "C" void fn_80488D80(EventEffects_unk* mgr, int fade); // inferred: stops the stream
+// inferred: map locator shown or hidden by ActionLocatorHide
+struct Locator_unk {
+    unsigned char m00[0x88];
+    unsigned int mHidden : 1; // 0x88
+    unsigned int m88_1 : 31;
+};
+struct MapLocators_unk;
+extern "C" MapLocators_unk* fn_80480438(EventEffects_unk* mgr);                      // inferred: map locators
+extern "C" Locator_unk* fn_804A0614(MapLocators_unk* map, const std::string& name); // inferred: by name
+// inferred: light settings of the camera (as in gmk/CharaLight.cpp)
+struct ReflectTarget_unk {
+    unsigned char m00[0x120];
+    int m120; // inferred: map reflection
+};
+class Camera_unk;
+extern "C" Camera_unk* lbl_8087EFB4;
+extern "C" ReflectTarget_unk* fn_800C16B4(Camera_unk* camera);
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
 extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3& pos, float radius, int color);
@@ -54,6 +77,24 @@ extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred:
 extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
 
 namespace Event {
+
+// inferred: named entry of the event (found by id): streams of the multi audio actions, locators
+struct AudioEntry_unk {
+    unsigned char m00[0x08];
+    std::string mName; // 0x08: inferred: stream name
+    int m14;           // inferred: id
+};
+
+// inferred: stream `id` of the event (as EventManager_unk::FindActor_unk)
+inline AudioEntry_unk* FindAudio_unk(EventManager_unk* manager, int id) {
+    for (int i = 0; i < manager->m118; i++) {
+        AudioEntry_unk* entry = &manager->m114[(unsigned int)i];
+        if (id == entry->m14) {
+            return entry;
+        }
+    }
+    return 0;
+}
 
 // inferred: message window of the events (state 2 or 4: open)
 struct MsgChoice_unk {
@@ -255,6 +296,7 @@ class ActionMapReflect : public ActionProcessor, public atn::SingletonNoStatic<A
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
+    void fn_805628B8(MapModel_unk* model, void* arg); // inferred: applies parameter 0 to a map model
 };
 
 class ActionLocatorHide : public ActionProcessor, public atn::SingletonNoStatic<ActionLocatorHide> {
@@ -410,6 +452,38 @@ int ActionMusicPlay::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+int ActionMultiAudio::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        if (arg->GetParam_unk(0)->m04.i != 0) {
+            break;
+        }
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(1)->m04.i;
+        float volume = arg->GetParam_unk(2)->m04.f;
+        AudioEntry_unk* entry = FindAudio_unk(manager, id);
+        if (entry != 0) {
+            fn_80488050(lbl_8087F540, manager, arg);
+            int fade = 60;
+            if (arg->m18 > 0) {
+                fade = arg->m18;
+            }
+            if (lbl_8087F540->mC4 == 0) {
+                fn_80488A74(lbl_8087F540, entry->mName.c_str(), fade, volume);
+            }
+        }
+        break;
+    }
+    case 3:
+        if (arg->GetParam_unk(0)->m04.i != 0) {
+            fn_80488D80(lbl_8087F540, arg->m1C);
+        }
+        break;
+    }
+    return 0;
+}
+
 int ActionMultiAudio::vf08(Action* arg) {
     if (arg->GetParam_unk(0)->m04.i == 0) {
         int busy = 0;
@@ -543,6 +617,54 @@ int ActionColorGradation::vf0C(Action* arg, int phase) {
         } else {
             fn_8048F184(lbl_8087F540, a, r, g, b, c, d, e, f);
         }
+    }
+    return 0;
+}
+
+int ActionLocatorHide::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        MapLocators_unk* map = fn_80480438(lbl_8087F540);
+        for (int i = 0; i < 12; i++) {
+            AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
+            if (entry != 0) {
+                Locator_unk* locator = fn_804A0614(map, entry->mName);
+                if (locator != 0) {
+                    locator->mHidden = 1;
+                }
+            }
+        }
+        break;
+    }
+    case 3:
+    case 4: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        MapLocators_unk* map = fn_80480438(lbl_8087F540);
+        for (int i = 0; i < 12; i++) {
+            AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
+            if (entry != 0) {
+                Locator_unk* locator = fn_804A0614(map, entry->mName);
+                if (locator != 0) {
+                    locator->mHidden = 0;
+                }
+            }
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
+void ActionMapReflect::fn_805628B8(MapModel_unk* model, void* arg) {
+    model->m16C = ((Action*)arg)->GetParam_unk(0)->m04.i;
+}
+
+int ActionMapReflect::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        ReflectTarget_unk* target = fn_800C16B4(lbl_8087EFB4);
+        target->m120 = arg->GetParam_unk(0)->m04.i;
+        MapManager::sInstance->fn_80491528(boost::bind(&ActionMapReflect::fn_805628B8, this, _1, _2), arg);
     }
     return 0;
 }

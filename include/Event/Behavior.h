@@ -86,7 +86,10 @@ struct EventManager_unk {
     unsigned char m000[0xB8];
     CutEntry_unk* mB8; // 0xB8: inferred: cuts of the event
     int mBC;
-    unsigned char mC0[0x124 - 0xC0];
+    unsigned char mC0[0x114 - 0xC0];
+    struct AudioEntry_unk* m114; // 0x114: inferred: multi audio streams of the event (0x18 bytes each)
+    int m118;
+    unsigned char m11C[0x124 - 0x11C];
     struct CameraAnim_unk* m124; // 0x124: inferred: camera animations of the event (0x1C bytes each)
     int m128;
     unsigned char m12C[0x164 - 0x12C];
