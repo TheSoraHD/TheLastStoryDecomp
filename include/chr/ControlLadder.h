@@ -25,7 +25,10 @@ class ControlAlleyWay : public ControlBase {
 public:
     ControlAlleyWay(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b); // 0x801BB1C8
     virtual int vf0C();                                                              // 0x801BB514
-    unsigned char m08[0x30 - 0x08];
+    atn::Vector3 mStart;  // 0x08: inferred: start of the alley way
+    atn::Vector3 mTarget; // 0x14: inferred: end of the alley way
+    atn::Vector3 mDir;    // 0x20: inferred: direction (unit)
+    int mFrames;          // 0x2C: inferred: expected length in frames
 };
 
 class ControlCrawling : public ControlBase {

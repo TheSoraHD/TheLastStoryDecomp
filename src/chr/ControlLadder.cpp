@@ -36,6 +36,83 @@ void ControlLadder::vf40() {
     }
 }
 
+// inferred: walks sideways through an alley way from `start` to `target` (motion 0x4B)
+ControlAlleyWay::ControlAlleyWay(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& target)
+    : ControlBase(chara), mStart(start), mTarget(target) {
+    chara->SetControlId_unk(0x28);
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x4B, 1, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+    mChara->mPos = start;
+    atn::Vector3 dir = target - start;
+    float dist = dir.Length_unk();
+    dir.Normalize_unk();
+    mDir = dir;
+    mFrames = dist / 0.3f + 3.0f;
+    mChara->mRot = mDir.ToRotationZ_unk();
+    mChara->fn_801446F0();
+}
+
+// inferred: the stick moves the character along the alley way (0.3 per frame, motions 0x4B/0x4C,
+// 0x4D standing); it ends at either side. Enemies (mType != 0) and mFlag0 move straight to the end.
+int ControlAlleyWay::vf0C() {
+    int ret = 0;
+    CharaTask* chara = mChara;
+    Motion_unk* m = &chara->mMotion;
+    if (chara->mType == 0 && !chara->mFlag0) {
+        atn::Vector3 in = mChara->fn_80178018();
+        float speed;
+        float frame;
+        if (m->mTracks[0].m00 == 0x4D || (frame = m->mTracks[0].m08, frame >= m->fn_80097D7C(0) - 1.0f)) {
+            speed = 0.3f;
+            if (atn::Abs_unk(atn::WrapAngle_unk(in.y - mChara->mRot.y)) > 1.5707964f) {
+                speed = -speed;
+            }
+            if (mChara->fn_80178078() < 0.4f) {
+                speed = 0.0f;
+            }
+            if (atn::Abs_unk(speed) < 1.1920929e-7f) {
+                m->fn_80097C08(0, 0x4D, 1, 0, 1, 0.0f, 0.1f);
+            } else if (speed > 0.0f) {
+                m->fn_80097C08(0, 0x4B, 1, 0, 1, 0.0f, 0.1f);
+            } else {
+                m->fn_80097C08(0, 0x4C, 1, 0, 1, 0.0f, 0.1f);
+            }
+        } else if (m->mTracks[0].m00 == 0x4B) {
+            speed = 0.3f;
+        } else if (m->mTracks[0].m00 == 0x4C) {
+            speed = -0.3f;
+        } else {
+            speed = 0.0f;
+        }
+        atn::Vector3 pos = mChara->mPos;
+        pos += mDir * speed;
+        atn::Vector3 d = mTarget - pos;
+        if (d.LengthSq_unk() < 1.0f && m->mTracks[0].m00 == 0x4B) {
+            ret = 1;
+        }
+        d = mStart - pos;
+        if (d.LengthSq_unk() < 1.0f && m->mTracks[0].m00 == 0x4C) {
+            ret = 1;
+        }
+        mChara->mPos = pos;
+    } else {
+        atn::Vector3 pos = chara->mPos;
+        pos += mDir * 0.3f;
+        atn::Vector3 d = mTarget - pos;
+        if (d.LengthSq_unk() < 1.0f) {
+            ret = 1;
+        }
+        mChara->mPos = pos;
+    }
+    return ret;
+}
+
 // NONMATCHING: draft (~82%) - the original computes the offsets (front * 15, * 10, * 4) in another order
 // and keeps them in other registers
 // inferred: climbs onto the deck in front (rotation `rot`): the position is lifted over the edge
@@ -103,8 +180,6 @@ ControlCrawling::ControlCrawling(Chara_unk* chara, const atn::Vector3& start, co
     mChara->fn_801446F0();
 }
 
-// NONMATCHING: 99.68% - stack slots of the three vector temporaries of state 1 (the original puts the
-// one of the second test above the other two); tried named/unnamed temporaries, a scope and min forms
 // inferred: moves the character along the crawl at 0.6 per frame between the enter and leave motions
 int ControlCrawling::vf0C() {
     Motion_unk* m = &mChara->mMotion;
@@ -123,7 +198,8 @@ int ControlCrawling::vf0C() {
             step = dist;
         }
         pos += mDir * step;
-        if ((mTarget - pos).LengthSq_unk() < 1.0f) {
+        atn::Vector3 rest = mTarget - pos;
+        if (rest.LengthSq_unk() < 1.0f) {
             m->fn_80097C08(0, 0x209, 0, 0, 1, 0.0f, 0.1f);
             mState = 2;
         } else {
