@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `auto-20261101b` (2026-11-01, **sin mergear**): **11569 / 18308 funciones al 100%** (report.json), `main.dol: OK`. Procesadores de acciones de los eventos (`Event/ActionEffectPlay` 53/70, `ActionCameraMode` 10/20, `Event/Node` 19/29), `MapModel_unk` es `MapArea` (RTTI), `SongManager` en cabecera, split de ActionEffectPlay ampliado (`.rodata`/`.data`). Tras tocar una cabecera: `labelcheck.py` + `pd.sh`. Detalle en `docs/auto-20261101b.md`.
+- `auto-20261101b` (2026-11-01, mergeada en `main`): **11569 / 18308 funciones al 100%** (report.json), `main.dol: OK`. Procesadores de acciones de los eventos (`Event/ActionEffectPlay` 53/70, `ActionCameraMode` 10/20, `Event/Node` 19/29), `MapModel_unk` es `MapArea` (RTTI), `SongManager` en cabecera, split de ActionEffectPlay ampliado (`.rodata`/`.data`). Tras tocar una cabecera: `labelcheck.py` + `pd.sh`. Detalle en `docs/auto-20261101b.md`.
 - `config-relocs-20261101` (mergeada en `main`): 11489 funciones; `block_relocations` por `target`; enlazados `bte/gki_ppc.c`, `snd_SoundSystem.cpp`, MetroTRK `targsupp.c` (`docs/config-relocs-20261101.md`).
 - `auto-20261101` (mergeada): 11463 funciones; FxChorus/FxDelay, `ControlStickByQuark`, `SkillEffectManager`, `pairdata` (`docs/auto-20261101.md`). `auto-20261031c`: 11284 (NW4R snd/ut, MSL, MetroTRK, bte).
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
