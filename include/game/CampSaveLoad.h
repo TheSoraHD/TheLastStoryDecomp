@@ -6,6 +6,7 @@
 #include "atn/LH_Binary.h"
 #include "atn/Array_unk.h"
 #include "std/string.h"
+#include "game/GameSaveTask.h"
 
 // inferred: reference to a shared resource of the load manager (functions 0x80470364/0x80470528);
 // same layout as in atn/LH_MotionSet.cpp
@@ -82,7 +83,7 @@ public:
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
-    CampSaveData_unk* GetData_unk() { return mMode == 0 ? m4C : m50; }
+    CampSaveData_unk* GetData_unk() { return mMode == 0 ? (CampSaveData_unk*)m4C : m50; }
     void fn_80119030(int state, int arg); // inferred: changes the state
     void fn_8011968C();                   // inferred: handles the cancel/back input
     void fn_8011979C();                   // inferred: handles the confirmation window input
@@ -92,7 +93,7 @@ public:
     int fn_8011BBD0(int slot);            // inferred: nonzero if the slot is newer than the current data
 
     int mMode;                  // 0x48: inferred: 0 save, 1 load
-    CampSaveData_unk* m4C;      // 0x4C: inferred: save data of the save menu
+    GameSaveTask* m4C;          // 0x4C: save menu task (fn_803B7944); seen as CampSaveData_unk by GetData_unk
     CampSaveData_unk* m50;      // 0x50: inferred: save data of the load menu
     int m54;
     atn::Task* m58;             // 0x58: inferred: new map icon animation

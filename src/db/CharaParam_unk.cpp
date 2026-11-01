@@ -18,7 +18,6 @@ extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
 // inferred: current field of the CSV reader (weak copy of an inline accessor of atn::CsvBase in
 // another file; its name is unknown)
-extern "C" const char* fn_800422CC(atn::Csv* csv);
 
 // inferred: entry of the character id table (db/CharaIdTable_unk.cpp)
 struct CharaIdEntry_unk {
@@ -230,14 +229,14 @@ extern "C" void fn_80209960() {
                     sEntries[i].mD4[j] = 3;
                     sEntries[i].mD8[j] = 0;
                 } else {
-                    if (strncmp(fn_800422CC(&csv), "ws", 2) == 0) {
+                    if (strncmp(csv.GetField_unk(), "ws", 2) == 0) {
                         sEntries[i].mD4[j] = 0;
-                    } else if (strncmp(fn_800422CC(&csv), "wg", 2) == 0) {
+                    } else if (strncmp(csv.GetField_unk(), "wg", 2) == 0) {
                         sEntries[i].mD4[j] = 1;
                     } else {
                         sEntries[i].mD4[j] = 2;
                     }
-                    sEntries[i].mD8[j] = atoi(fn_800422CC(&csv) + 2);
+                    sEntries[i].mD8[j] = atoi(csv.GetField_unk() + 2);
                 }
             }
             for (int j = 0; j < 4; j++) {

@@ -13,13 +13,6 @@ extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg);
 // inferred: creates a d2anime task (other variant of fn_801F3FF8, no extra argument)
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path);
-// inferred: makes the save data of the save menu
-extern "C" CampSaveData_unk* fn_803B7944(atn::Task* parent, void* arg);
-// inferred: view of GameSaveLoadCommon (game/GameSaveLoadBackgroundCommon.cpp), the class of the save data
-class GameSaveLoadCommon {
-public:
-    void fn_803B8758(int slot); // inferred: starts reading `slot` (-1: all)
-};
 
 // inferred: copies a string unless it is the destination itself (name invented)
 inline void CopyString_unk(char* dst, const char* src) {
@@ -65,8 +58,6 @@ inline bool IsRepeated_unk(int button) {
 
 // inferred: save and load of a slot (save menu: fn_803B7FC8/fn_803B807C, load menu:
 // fn_803B3270/fn_803B3310)
-extern "C" void fn_803B7FC8(CampSaveData_unk* data, int slot);
-extern "C" void fn_803B807C(CampSaveData_unk* data, int slot);
 extern "C" void fn_803B3270(CampSaveData_unk* data, int slot);
 extern "C" void fn_803B3310(CampSaveData_unk* data, int slot);
 
@@ -140,7 +131,7 @@ MenuSaveTask* MenuSaveTask::fn_8011770C(atn::Task* parent) {
 MenuSaveTask::MenuSaveTask(atn::Task* parent) : CampSaveLoad(parent) {
     mMode = 0;
     (m70 = fn_801F3FF8(this, "/data/d2anime/save_select.d2a", 0))->fn_800D246C(1);
-    m4C = fn_803B7944(this, lbl_8087F430 != 0 ? lbl_8087F430->m5634 : 0);
+    m4C = GameSaveTask::fn_803B7944(this, lbl_8087F430 != 0 ? (GameSaveBackground*)lbl_8087F430->m5634 : 0);
     m4C->mD64 = 0;
 }
 
@@ -288,7 +279,7 @@ void CampSaveLoad::fn_8011979C() {
                     lbl_8087F0A8->m113C = m128;
                 }
                 if (mMode == 0) {
-                    fn_803B7FC8(m4C, m128);
+                    m4C->fn_803B7FC8(m128);
                 } else {
                     fn_803B3270(m50, m128);
                 }
@@ -299,7 +290,7 @@ void CampSaveLoad::fn_8011979C() {
                 fn_80117228(1);
             } else {
                 if (mMode == 0) {
-                    fn_803B807C(m4C, m128);
+                    m4C->fn_803B807C(m128);
                 } else {
                     fn_803B3310(m50, m128);
                 }

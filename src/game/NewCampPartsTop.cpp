@@ -6,6 +6,7 @@
 #include "atn/D3AnimeInstance.h"
 #include "atn/FadeCommon.h"
 #include "MP/SaveLoad.h"
+#include "game/GameSaveLoadBackgroundCommon.h"
 #include "string.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -55,19 +56,8 @@ struct NewCampTopLayout_unk : public atn::Task {
     float mFrame; // 0x50
 };
 
-// inferred: save data object made by fn_803B27F8 (game/CampSaveLoad.h); only the members used here
-class GameSaveLoadBackgroundCommon {
-public:
-    int fn_803B8144(); // inferred: error code of the save/load manager
-    unsigned char m000[0x154];
-    unsigned char m154; // inferred: active flag
-};
-struct CampSaveData_unk : public atn::Task {
-    unsigned char m048[0xC84 - 0x48];
-    int mC84;
-    unsigned char mC88[0xD60 - 0xC88];
-    int mD60;
-    int mD64;
+// inferred: load task made by fn_803B27F8 (src/auto_03_803B27AC_text.cpp); only the members used here
+struct CampSaveData_unk : public GameSaveLoadCommon {
     unsigned char mD68[0x14F60 - 0xD68];
     GameSaveLoadBackgroundCommon* m14F60;
 };
@@ -82,10 +72,8 @@ inline void CopyString_unk(char* dst, const char* src) {
     }
 }
 extern "C" CampSaveData_unk* fn_803B27F8(atn::Task* parent, const CampSaveArg_unk* arg);
-extern "C" int fn_803B87A8(CampSaveData_unk* data);
 extern "C" void fn_803B3270(CampSaveData_unk* data, int slot);
 extern "C" void fn_803B2FBC(CampSaveData_unk* data, int slot);
-extern "C" void fn_803B8758(CampSaveData_unk* data, int arg);
 class MenuLoadTask : public atn::Task {
 public:
     static MenuLoadTask* fn_80117914(atn::Task* parent, CampSaveData_unk* data);
@@ -424,7 +412,7 @@ void NewCampPartsTop::vf2C() {
         int done = 0;
         if (actions[mCursor] == 0) {
             if (m1D0 != 0) {
-                if (fn_803B87A8(mSave) == 0) {
+                if (mSave->fn_803B87A8() == 0) {
                     if (mSave->mC84 == 7) {
                         m1D0 = 0;
                         done = 1;
@@ -480,7 +468,7 @@ void NewCampPartsTop::vf2C() {
             if (actions[mCursor] == 0) {
                 if (mSave != 0) {
                     if (mSave->mD60 == 0) {
-                        fn_803B8758(mSave, 0);
+                        mSave->fn_803B8758(0);
                         m1D0 = 1;
                     } else {
                         fn_803B3270(mSave, 0);

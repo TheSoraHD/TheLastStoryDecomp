@@ -1421,13 +1421,6 @@ atn::Vector3* RouteWalker_unk::fn_80139F58() {
     return &m58;
 }
 
-// inferred: rotation around y returned by value (callers build it in place); name invented
-inline atn::Matrix3x4 RotY_unk(float rad) {
-    atn::Matrix3x4 r;
-    r.fn_8013A13C(rad);
-    return r;
-}
-
 // inferred: object at CharaTask+0xD74 (class unknown)
 int CharaD74_unk::fn_8013A144() {
     return m20 & 1;
@@ -4916,7 +4909,9 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
         if (m648 == 0) {
             atn::Vector3 pos = mtx->GetTrans_unk();
             mtx->fn_8010F668();
-            mtx->fn_801495E8(RotY_unk(m580 - 0.7f * m584));
+            Mtx rot1; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+            ((atn::Matrix3x4*)rot1)->fn_8013A13C(m580 - 0.7f * m584);
+            mtx->fn_801495E8(*(atn::Matrix3x4*)rot1);
             mtx->fn_801479E4(pos);
         } else if (m648 != 0 && m648->fn_8013C43C() == 1) {
             if ((mFlag31 && mC48 != 0) || fn_801479D8()) {
@@ -4944,13 +4939,17 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
                 }
                 atn::Vector3 pos = mtx->GetTrans_unk();
                 mtx->fn_8010F668();
-                mtx->fn_801495E8(RotY_unk(angle));
+                Mtx rot2; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+                ((atn::Matrix3x4*)rot2)->fn_8013A13C(angle);
+                mtx->fn_801495E8(*(atn::Matrix3x4*)rot2);
                 mtx->fn_801479E4(pos);
             }
         } else if (m648 == 0 && !mFlag6) {
             atn::Vector3 pos = mtx->GetTrans_unk();
             mtx->fn_8010F668();
-            mtx->fn_801495E8(RotY_unk(0.9f * m580 + m584));
+            Mtx rot3; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+            ((atn::Matrix3x4*)rot3)->fn_8013A13C(0.9f * m580 + m584);
+            mtx->fn_801495E8(*(atn::Matrix3x4*)rot3);
             mtx->fn_801479E4(pos);
         }
     } else if (strcmp(name, "hips") == 0) {
@@ -4966,7 +4965,9 @@ void CharaTask::fn_80148CC4(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
                     }
                     atn::Vector3 pos = mtx->GetTrans_unk();
                     mtx->fn_8010F668();
-                    mtx->fn_801495E8(RotY_unk(angle));
+                    Mtx rot4; // inferred: a plain Mtx viewed as a matrix (no constructor call)
+                    ((atn::Matrix3x4*)rot4)->fn_8013A13C(angle);
+                    mtx->fn_801495E8(*(atn::Matrix3x4*)rot4);
                     mtx->fn_801479E4(pos);
                 }
             }
