@@ -192,11 +192,12 @@ public:
 
 class ControlThrownAway : public ControlBase {
 public:
-    ControlThrownAway(Chara_unk* chara, int a, int b); // 0x80199348
+    ControlThrownAway(Chara_unk* chara, int mtx, int frames); // 0x80199348
     virtual ~ControlThrownAway();
     virtual int vf0C();
     virtual atn::Vector3 vf14();
-    unsigned char m08[0x10 - 0x08];
+    int mMtx;    // 0x08: inferred: matrix the character follows
+    int mFrames; // 0x0C
 };
 
 class ControlThrownAvoid : public ControlBase {

@@ -1223,6 +1223,47 @@ atn::Vector3 ControlThrown::vf14() {
     return mTarget;
 }
 
+// inferred: carried away on the matrix `mtx` for `frames` frames (control id 0x72)
+ControlThrownAway::ControlThrownAway(Chara_unk* chara, int mtx, int frames)
+    : ControlBase(chara), mMtx(mtx), mFrames(frames) {
+    chara->SetControlId_unk(0x72);
+    mChara->mF1C = mMtx;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x224, 1, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+// NONMATCHING: 87.4% - the original stores the vtable pointer at the start of the destructor
+ControlThrownAway::~ControlThrownAway() {
+    if (mChara) {
+        mChara->mF1C = 0;
+    }
+}
+
+// NONMATCHING: frame 0x10 smaller than the original (as in ControlMatHold::vf1C)
+int ControlThrownAway::vf0C() {
+    if (mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+        atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        dir.fn_80139F60();
+        mChara->mRot = dir;
+        mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
+    }
+    if (--mFrames < 0) {
+        return 1;
+    }
+    return 0;
+}
+
+atn::Vector3 ControlThrownAway::vf14() {
+    atn::Vector3 pos = mChara->mPos;
+    pos.y -= 10.0f;
+    return pos;
+}
+
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it
