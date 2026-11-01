@@ -288,7 +288,6 @@ struct DVDFileInfo_unk {
 extern "C" void OSLockMutex(OSMutex_unk* mutex);
 extern "C" void OSUnlockMutex(OSMutex_unk* mutex);
 
-extern "C" int fn_8070DC00(void* frameHeap);           // inferred: FrameHeap::GetCurrentLevel
 extern "C" unsigned long fn_8070DC10(void* frameHeap); // inferred: FrameHeap::GetFreeSize
 
 // inferred: nw4r::ut::AutoMutexLock
@@ -311,9 +310,59 @@ public:
 
 namespace snd {
 
-// The names of the classes are in the DOL (vtables 0x80796BF0 and 0x80796D38); the layouts are only sizes.
-class DvdSoundArchive {
+class SoundHandle;
+
+// inferred: only the members called here (no data of its own)
+class SoundArchive {
 public:
+    unsigned long GetSoundLabelString(unsigned long id) const;
+    unsigned long ConvertLabelStringToSoundId(const char* label) const;
+    unsigned long ConvertLabelStringToGroupId(const char* label) const;
+    int GetSoundType(unsigned long id) const;
+    struct GroupInfo;
+    void detail_ReadGroupInfo(unsigned long id, GroupInfo* info) const;
+};
+
+class SoundStartable {
+public:
+    struct StartInfo;
+    int detail_StartSound(SoundHandle* handle, unsigned long soundId, const StartInfo* startInfo);
+    int detail_PrepareSound(SoundHandle* handle, unsigned long soundId, const StartInfo* startInfo);
+};
+
+class SoundSystem {
+public:
+    static void InitSoundSystem(long priority, long dvdPriority);
+};
+
+class RemoteSpeaker {
+public:
+    void Setup(void (*callback)(long, long));
+    void Shutdown(void (*callback)(long, long));
+};
+
+namespace detail {
+class FrameHeap {
+public:
+    int GetCurrentLevel() const;
+    unsigned char m00[0x10];
+};
+struct FxReverbStdParam;
+} // namespace detail
+
+class FxReverbStdDpl2 {
+public:
+    unsigned long GetRequiredMemSize();
+    bool SetParam(const detail::FxReverbStdParam& param);
+};
+
+// The names of the classes are in the DOL (vtables 0x80796BF0 and 0x80796D38); the layouts are only sizes.
+class DvdSoundArchive : public SoundArchive {
+public:
+    bool Open(const char* path);
+    void Close();
+    bool LoadHeader(void* buffer, unsigned long size);
+    bool LoadLabelStringData(void* buffer, unsigned long size);
     DvdSoundArchive();
     ~DvdSoundArchive();
     unsigned char m00[0x11C];
@@ -329,6 +378,13 @@ class SoundArchivePlayer {
 public:
     SoundArchivePlayer();
     ~SoundArchivePlayer();
+    unsigned long GetRequiredMemSize(const SoundArchive* archive);
+    unsigned long GetRequiredStrmBufferSize(const SoundArchive* archive);
+    int Setup(const SoundArchive* archive, void* buffer, unsigned long size, void* strmBuffer,
+              unsigned long strmSize);
+    void Shutdown();
+    void Update();
+    int LoadGroup_unk(unsigned long id, const void* address, const void* waveDataAddress); // inferred
     unsigned char m00[0x0C];
     unsigned char mStartable[0xEC - 0x0C]; // 0x0C: inferred: SoundStartable base
 };
@@ -340,36 +396,30 @@ public:
     ~SoundHeap();
     virtual void vf08();
     virtual void* Alloc(unsigned long size); // 0x0C
+    int Create(void* buffer, unsigned long size);
+    void Destroy();
+    void Clear();
+    int SaveState();
+    void LoadState(int level);
     // inferred: inline members of the NW4R header
     int GetCurrentLevel() {
         AutoMutexLock_unk lock(mMutex);
-        return fn_8070DC00(mFrameHeap);
+        return mFrameHeap.GetCurrentLevel();
     }
     unsigned long GetFreeSize() {
         AutoMutexLock_unk lock(mMutex);
-        return fn_8070DC10(mFrameHeap);
+        return fn_8070DC10(&mFrameHeap);
     }
-    bool IsValid() { return *(void**)mFrameHeap != 0; }
+    bool IsValid() { return *(void**)&mFrameHeap != 0; }
 
     OSMutex_unk mMutex;          // 0x04
-    unsigned char mFrameHeap[0x10]; // 0x1C
+    detail::FrameHeap mFrameHeap; // 0x1C
 };
 
 } // namespace snd
 } // namespace nw4r
 
-extern "C" void fn_807177D0(nw4r::snd::SoundHeap* heap); // inferred: Clear
-extern "C" void fn_80717750(nw4r::snd::SoundHeap* heap); // inferred: Destroy
-extern "C" int fn_80717740(nw4r::snd::SoundHeap* heap, void* buffer, unsigned long size); // inferred: Create
-extern "C" int fn_80717840(nw4r::snd::SoundHeap* heap); // inferred: SaveState
-extern "C" void fn_807178A0(nw4r::snd::SoundHeap* heap, int level); // inferred: LoadState
 
-extern "C" unsigned long fn_8059E314(void* archive, unsigned long id);       // inferred: label of an id
-extern "C" unsigned long fn_8059E31C(void* archive, const char* label);    // inferred: group id of a label
-extern "C" unsigned long fn_8059E32C(void* archive, const char* label);    // inferred: sound id of a label
-extern "C" int fn_8059E344(void* archive, unsigned long id);               // inferred: sound type
-extern "C" int fn_80718470(void* startable, void* handle, unsigned long id, void* info);
-extern "C" int fn_807184D0(void* startable, void* handle, unsigned long id, void* info);
 
 namespace atn {
 
@@ -483,7 +533,7 @@ public:
             return 0;
         }
         if (m04 != 0) {
-            return fn_8059E32C(&mArchive, name) + 1;
+            return mArchive.ConvertLabelStringToGroupId(name) + 1;
         }
         return 0;
     }
@@ -499,7 +549,7 @@ public:
             return 0;
         }
         if (m04 != 0) {
-            return fn_8059E31C(&mArchive, name) + 1;
+            return mArchive.ConvertLabelStringToSoundId(name) + 1;
         }
         return 0;
     }
@@ -522,7 +572,7 @@ public:
             return 0;
         }
         if (m04 != 0) {
-            return fn_8059E314(&mArchive, id - 1);
+            return mArchive.GetSoundLabelString(id - 1);
         }
         return 0;
     }
@@ -561,7 +611,7 @@ public:
     void UnloadBanks_unk() {
         if (m04 != 0) {
             mBanks.clear();
-            fn_807178A0(&m300, 0);
+            m300.LoadState(0);
         }
     }
 
@@ -697,14 +747,6 @@ extern "C" int fn_8006AA20(const char* path);          // inferred: the file exi
 extern "C" void fn_8006AD24(std::string& path, const std::string& name); // inferred: replaces the file name
 extern "C" void AIInit(void* stack);
 extern "C" void AXInit();
-extern "C" void fn_807184F0(int priority, int dvdPriority); // inferred: SoundSystem::InitSoundSystem
-extern "C" int fn_8059D8B0(nw4r::snd::DvdSoundArchive* archive, const char* path); // inferred: Open
-extern "C" int fn_8059DD48(nw4r::snd::DvdSoundArchive* archive, void* buffer, unsigned long size);
-extern "C" int fn_8059DE64(nw4r::snd::DvdSoundArchive* archive, void* buffer, unsigned long size);
-extern "C" unsigned long fn_8059EF90(nw4r::snd::SoundArchivePlayer* player, nw4r::snd::DvdSoundArchive* archive);
-extern "C" unsigned long fn_8059F0FC(nw4r::snd::SoundArchivePlayer* player, nw4r::snd::DvdSoundArchive* archive);
-extern "C" int fn_8059EBD4(nw4r::snd::SoundArchivePlayer* player, nw4r::snd::DvdSoundArchive* archive, void* buf,
-                           unsigned long size, void* strmBuf, unsigned long strmSize);
 extern "C" unsigned char SCGetSoundMode();
 extern "C" void* GetInstance__Q44nw4r3snd6detail9AxManagerFv();
 extern "C" int GetOutputMode__Q44nw4r3snd6detail9AxManagerFv(void* mgr);
@@ -720,7 +762,7 @@ extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
     audio->m91C.mPath = path;
     AIInit(0);
     AXInit();
-    fn_807184F0(4, 3);
+    nw4r::snd::SoundSystem::InitSoundSystem(4, 3);
     std::string file(path);
     fn_8006A9A4(file);
     file = fn_8006B53C(file);
@@ -738,23 +780,23 @@ extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
     if (fn_8006AA20(ids.c_str()) != 0) {
         fn_8004A3FC(audio, ids.c_str());
     }
-    fn_8059D8B0(&audio->mArchive, file.c_str());
+    audio->mArchive.Open(file.c_str());
     unsigned long size = audio->mArchive.mHeaderSize;
     audio->m194 = AudioAlloc_unk(size);
-    fn_8059DD48(&audio->mArchive, audio->m194, size);
+    audio->mArchive.LoadHeader(audio->m194, size);
     audio->mBankFile = audio->mArchive.mFileInfo;
     if (audio->m8E0 == 0) {
         unsigned long labelSize = audio->mArchive.mLabelSize;
         audio->m198 = AudioAlloc_unk(labelSize);
-        fn_8059DE64(&audio->mArchive, audio->m198, labelSize);
+        audio->mArchive.LoadLabelStringData(audio->m198, labelSize);
     }
-    unsigned long playerSize = fn_8059EF90(&audio->mPlayer, &audio->mArchive);
-    unsigned long strmSize = fn_8059F0FC(&audio->mPlayer, &audio->mArchive) * 2;
+    unsigned long playerSize = audio->mPlayer.GetRequiredMemSize(&audio->mArchive);
+    unsigned long strmSize = audio->mPlayer.GetRequiredStrmBufferSize(&audio->mArchive) * 2;
     audio->m2C4 = AudioAlloc_unk(playerSize);
     audio->m2C8 = AudioAlloc_unk(strmSize);
     memset(audio->m2C4, 0, playerSize);
     memset(audio->m2C8, 0, strmSize);
-    fn_8059EBD4(&audio->mPlayer, &audio->mArchive, audio->m2C4, playerSize, audio->m2C8, strmSize);
+    audio->mPlayer.Setup(&audio->mArchive, audio->m2C4, playerSize, audio->m2C8, strmSize);
     unsigned long size3d = audio->m364.GetRequiredMemSize(reinterpret_cast<const nw4r::snd::SoundArchive*>(&audio->mArchive));
     audio->m390 = AudioAlloc_unk(size3d);
     audio->m364.Setup(reinterpret_cast<const nw4r::snd::SoundArchive*>(&audio->mArchive), audio->m390, size3d);
@@ -773,8 +815,6 @@ extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
     return 1;
 }
 
-extern "C" void fn_8059EDE4(nw4r::snd::SoundArchivePlayer* player); // inferred: Shutdown
-extern "C" void fn_8059DA40(nw4r::snd::DvdSoundArchive* archive);   // inferred: Close
 extern "C" void ShutdownSoundSystem__Q34nw4r3snd11SoundSystemFv();
 
 // NONMATCHING: 24.03% - misma recursion de Destroy de los mapas (un nivel mas de inline)
@@ -782,8 +822,8 @@ extern "C" void ShutdownSoundSystem__Q34nw4r3snd11SoundSystemFv();
 extern "C" void fn_80047628(AudioDevice* audio) {
     audio->UnloadBanks_unk();
     fn_80047B54(audio, 0);
-    fn_8059EDE4(&audio->mPlayer);
-    fn_8059DA40(&audio->mArchive);
+    audio->mPlayer.Shutdown();
+    audio->mArchive.Close();
     AudioDevice::Free_unk(audio->m194);
     AudioDevice::Free_unk(audio->m198);
     AudioDevice::Free_unk(audio->m2C4);
@@ -814,8 +854,8 @@ extern "C" void fn_80047B54(AudioDevice* audio, unsigned long size) {
         if (size == audio->m300.GetFreeSize()) {
             return;
         }
-        fn_807177D0(&audio->m300);
-        fn_80717750(&audio->m300);
+        audio->m300.Clear();
+        audio->m300.Destroy();
         atn::MemoryManager::Instance()->Free(audio->m32C);
         audio->m32C = 0;
         audio->mBanks.clear();
@@ -823,14 +863,12 @@ extern "C" void fn_80047B54(AudioDevice* audio, unsigned long size) {
     if (size != 0) {
         audio->m32C = AudioAlloc_unk(size);
         memset(audio->m32C, 0, size);
-        fn_80717740(&audio->m300, audio->m32C, size);
+        audio->m300.Create(audio->m32C, size);
     }
 }
 
 extern "C" void* GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv();
 extern "C" void* GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(void* mgr, int i);
-extern "C" void fn_80710A80(void* speaker, void (*callback)(int, unsigned long)); // inferred: RemoteSpeaker::Setup
-extern "C" void fn_80710B40(void* speaker, void (*callback)(int, unsigned long)); // inferred: RemoteSpeaker::Shutdown
 
 // inferred: starts the reverb and the remote speaker
 extern "C" void fn_80047C74(AudioDevice* audio) {
@@ -842,9 +880,9 @@ extern "C" void fn_80047C74(AudioDevice* audio) {
         memset(audio->m8C4, 0, audio->m8C8);
         audio->mReverb.AssignWorkBuffer(audio->m8C4, audio->m8C8);
     }
-    fn_80710A80(GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(
-                    GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv(), 0),
-                fn_80046220);
+    static_cast<nw4r::snd::RemoteSpeaker*>(GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(
+                    GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv(), 0))
+        ->Setup(reinterpret_cast<void (*)(long, long)>(fn_80046220));
 }
 
 // inferred: stops them
@@ -857,9 +895,9 @@ extern "C" void fn_80047D20(AudioDevice* audio) {
         audio->mReverb.ReleaseWorkBuffer();
     }
     AudioDevice::Free_unk(audio->m8C4);
-    fn_80710B40(GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(
-                    GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv(), 0),
-                fn_80046224);
+    static_cast<nw4r::snd::RemoteSpeaker*>(GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(
+                    GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv(), 0))
+        ->Shutdown(reinterpret_cast<void (*)(long, long)>(fn_80046224));
 }
 
 // inferred: DVD read callback of the banks
@@ -869,8 +907,6 @@ extern "C" void fn_80047DBC(long result, DVDFileInfo_unk* fileInfo) {
 
 extern "C" int DVDReadAsyncPrio(DVDFileInfo_unk* file, void* addr, long length, long offset,
                                 void (*callback)(long, DVDFileInfo_unk*), int prio);
-extern "C" void fn_8059F874(nw4r::snd::SoundArchivePlayer* player); // inferred: Update
-extern "C" int fn_805A1C00(nw4r::snd::SoundArchivePlayer* player, unsigned long id, void* buf0, void* buf1);
 
 // inferred: debug message list (atn/FileUtil_unk.cpp)
 struct DebugMessages_unk {
@@ -883,7 +919,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
     if (audio->m04 == 0) {
         return;
     }
-    fn_8059F874(&audio->mPlayer);
+    audio->mPlayer.Update();
     if (audio->m400 != 0) {
         for (AudioBank_unk* bank = audio->mBankQueue.mData;
              bank != audio->mBankQueue.mData + audio->mBankQueue.mSize; bank++) {
@@ -914,7 +950,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
                 break;
             } else if (bank->mState == 2) {
                 bank->mState = 3;
-                if (fn_805A1C00(&audio->mPlayer, bank->mId - 1, bank->mBuffer0, bank->mBuffer1) == 0) {
+                if (audio->mPlayer.LoadGroup_unk(bank->mId - 1, bank->mBuffer0, bank->mBuffer1) == 0) {
                     bank->mState = 4;
                 }
             } else if (bank->mState == 4) {
@@ -961,7 +997,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
             }
         } else if (bank->mState == 2) {
             bank->mState = 3;
-            if (fn_805A1C00(&audio->mPlayer, bank->mId - 1, bank->mBuffer0, bank->mBuffer1) == 0) {
+            if (audio->mPlayer.LoadGroup_unk(bank->mId - 1, bank->mBuffer0, bank->mBuffer1) == 0) {
                 bank->mState = 4;
             }
             audio->m404 = 0;
@@ -1004,7 +1040,7 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
                 return;
             } else if (bank->mState == 2) {
                 bank->mState = 3;
-                if (fn_805A1C00(&audio->mPlayer, bank->mId - 1, bank->mBuffer0, bank->mBuffer1) == 0) {
+                if (audio->mPlayer.LoadGroup_unk(bank->mId - 1, bank->mBuffer0, bank->mBuffer1) == 0) {
                     bank->mState = 4;
                 }
             } else if (bank->mState == 4) {
@@ -1019,7 +1055,6 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
     }
 }
 
-extern "C" void fn_8059E38C(nw4r::snd::DvdSoundArchive* archive, unsigned long id, unsigned int* info); // inferred: ReadGroupInfo
 
 // NONMATCHING: 99.98% - orden de operandos de un add (m2FC + info[5])
 // inferred: loads the banks `names` into the queue heap
@@ -1030,7 +1065,7 @@ extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int 
             const char* name = names[i];
             if (name != 0 && strlen(name) != 0) {
                 unsigned int info[6];
-                fn_8059E38C(&audio->mArchive, audio->GetSoundId_unk(name) - 1, info);
+                audio->mArchive.detail_ReadGroupInfo(audio->GetSoundId_unk(name) - 1, reinterpret_cast<nw4r::snd::SoundArchive::GroupInfo*>(info));
                 audio->m2FC += info[3];
                 audio->m2FC = info[5] + audio->m2FC + 0x100;
             }
@@ -1039,7 +1074,7 @@ extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int 
         memset(audio->m2F8, 0, audio->m2FC);
     }
     if (!audio->m2CC.IsValid()) {
-        fn_80717740(&audio->m2CC, audio->m2F8, audio->m2FC);
+        audio->m2CC.Create(audio->m2F8, audio->m2FC);
     }
     for (unsigned int i = 0; i < n; i++) {
         const char* name = names[i];
@@ -1048,10 +1083,10 @@ extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int 
             AudioBank_unk bank;
             sprintf(bank.mName, "%s\0", names[i]);
             bank.mId = id;
-            fn_8059E38C(&audio->mArchive, id - 1, bank.mInfo);
+            audio->mArchive.detail_ReadGroupInfo(id - 1, reinterpret_cast<nw4r::snd::SoundArchive::GroupInfo*>(bank.mInfo));
             bank.mBuffer0 = audio->m2CC.Alloc(bank.mInfo[3]);
             bank.mBuffer1 = audio->m2CC.Alloc(bank.mInfo[5]);
-            fn_80717840(&audio->m2CC);
+            audio->m2CC.SaveState();
             bank.mHeapState = audio->m2CC.GetCurrentLevel();
             audio->mBankQueue.push_back(bank);
             audio->m400 = 1;
@@ -1066,8 +1101,8 @@ extern "C" void fn_8004895C(AudioDevice* audio) {
         return;
     }
     if (audio->m2CC.IsValid()) {
-        fn_807177D0(&audio->m2CC);
-        fn_80717750(&audio->m2CC);
+        audio->m2CC.Clear();
+        audio->m2CC.Destroy();
         atn::MemoryManager::Instance()->Free(audio->m2F8);
         audio->m2F8 = 0;
     }
@@ -1093,10 +1128,10 @@ extern "C" int fn_800489F4(AudioDevice* audio, const char* name) {
     AudioBank_unk bank;
     sprintf(bank.mName, "%s\0", name);
     bank.mId = id;
-    fn_8059E38C(&audio->mArchive, id - 1, bank.mInfo);
+    audio->mArchive.detail_ReadGroupInfo(id - 1, reinterpret_cast<nw4r::snd::SoundArchive::GroupInfo*>(bank.mInfo));
     bank.mBuffer0 = audio->m300.Alloc(bank.mInfo[3]);
     bank.mBuffer1 = audio->m300.Alloc(bank.mInfo[5]);
-    fn_80717840(&audio->m300);
+    audio->m300.SaveState();
     bank.mHeapState = audio->m300.GetCurrentLevel();
     audio->mBanks.push_back(bank);
     return 1;
@@ -1180,7 +1215,7 @@ extern "C" void fn_8004937C(AudioDevice* audio, const char* name) {
         }
     }
     if (level < audio->m300.GetCurrentLevel()) {
-        fn_807178A0(&audio->m300, level);
+        audio->m300.LoadState(level);
     }
 }
 
@@ -1200,11 +1235,11 @@ extern "C" int fn_800496C0(AudioDevice* audio, const char* name) {
     }
     audio->m35C = AudioAlloc_unk(audio->m360);
     memset(audio->m35C, 0, audio->m360);
-    fn_80717740(&audio->m330, audio->m35C, audio->m360);
+    audio->m330.Create(audio->m35C, audio->m360);
     AudioBank_unk* bank = &audio->mExtraBank;
     sprintf(bank->mName, "%s\0", name);
     bank->mId = id;
-    fn_8059E38C(&audio->mArchive, id - 1, bank->mInfo);
+    audio->mArchive.detail_ReadGroupInfo(id - 1, reinterpret_cast<nw4r::snd::SoundArchive::GroupInfo*>(bank->mInfo));
     bank->mBuffer0 = audio->m330.Alloc(bank->mInfo[3]);
     bank->mBuffer1 = audio->m330.Alloc(bank->mInfo[5]);
     bank->mHeapState = audio->m300.GetCurrentLevel(); // inferred: the original reads the bank heap here
@@ -1223,8 +1258,8 @@ extern "C" void fn_800498D4(AudioDevice* audio) {
         return;
     }
     if (audio->m330.IsValid()) {
-        fn_807177D0(&audio->m330);
-        fn_80717750(&audio->m330);
+        audio->m330.Clear();
+        audio->m330.Destroy();
         atn::MemoryManager::Instance()->Free(audio->m35C);
         audio->m35C = 0;
     }
@@ -1269,20 +1304,24 @@ extern "C" int fn_80049AE4(AudioDevice* audio, void* handle, unsigned long id, v
     if (audio->m04 == 0) {
         return 0;
     }
-    return fn_80718470(audio->mPlayer.mStartable, handle, id - 1, info);
+    return reinterpret_cast<nw4r::snd::SoundStartable*>(audio->mPlayer.mStartable)
+        ->detail_StartSound(static_cast<nw4r::snd::SoundHandle*>(handle), id - 1,
+                            static_cast<const nw4r::snd::SoundStartable::StartInfo*>(info));
 }
 
 extern "C" int fn_80049B08(AudioDevice* audio, void* handle, unsigned long id, void* info) {
     if (audio->m04 == 0) {
         return 0;
     }
-    return fn_807184D0(audio->mPlayer.mStartable, handle, id - 1, info);
+    return reinterpret_cast<nw4r::snd::SoundStartable*>(audio->mPlayer.mStartable)
+        ->detail_PrepareSound(static_cast<nw4r::snd::SoundHandle*>(handle), id - 1,
+                              static_cast<const nw4r::snd::SoundStartable::StartInfo*>(info));
 }
 
 // inferred: the sound is a stream
 extern "C" int fn_80049B2C(AudioDevice* audio, unsigned long id) {
     if (audio->m04 != 0) {
-        return fn_8059E344(&audio->mArchive, id - 1) == 2;
+        return audio->mArchive.GetSoundType(id - 1) == 2;
     }
     return 0;
 }
@@ -1328,8 +1367,6 @@ struct ReverbPreset_unk {
     float m20;
 };
 
-extern "C" void fn_8070EA60(void* fx, const AudioFxPreset_unk* param); // inferred: FxReverbHi::SetParam
-extern "C" unsigned long fn_8070E830(void* fx);                        // inferred: GetRequiredMemSize
 
 #define AUDIO_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
 #define AUDIO_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
@@ -1353,8 +1390,9 @@ extern "C" void fn_80049E54(AudioDevice* audio, const ReverbPreset_unk* preset) 
     value.first = preset->mId;
     value.second = param;
     audio->m8AC.insert(value);
-    fn_8070EA60(&audio->mReverb, &param);
-    unsigned long size = fn_8070E830(&audio->mReverb);
+    reinterpret_cast<nw4r::snd::FxReverbStdDpl2*>(&audio->mReverb)
+        ->SetParam(reinterpret_cast<const nw4r::snd::detail::FxReverbStdParam&>(param));
+    unsigned long size = reinterpret_cast<nw4r::snd::FxReverbStdDpl2*>(&audio->mReverb)->GetRequiredMemSize();
     if (audio->m8C8 < size) {
         audio->m8C8 = size;
     }
@@ -1391,7 +1429,8 @@ extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
     }
     AudioMap_unk<int, AudioFxPreset_unk, 4>::Node* it = audio->m8AC.find(preset);
     if (it != audio->m8AC.end()) {
-        fn_8070EA60(&audio->mReverb, &it->mValue.second);
+        reinterpret_cast<nw4r::snd::FxReverbStdDpl2*>(&audio->mReverb)
+            ->SetParam(reinterpret_cast<const nw4r::snd::detail::FxReverbStdParam&>(it->mValue.second));
         if (audio->m8BC <= 0) {
             AppendEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusPQ34nw4r3snd6FxBase(
                 GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 0, &audio->mReverb);
