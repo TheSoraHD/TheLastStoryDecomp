@@ -21,7 +21,8 @@ extern "C" inline void* fn_8008B964() {
 extern "C" inline void* fn_800F7258(void* camera) {
     return (char*)camera + 0x104;
 }
-extern "C" inline float fn_801C1060(float x) {
+// inferred: weak copy 0x801C1060 (name from symbols.txt)
+inline float Cos_unk(float x) {
     return cos(x);
 }
 extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
@@ -29,9 +30,6 @@ extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b
 }
 extern "C" inline float fn_801C3910(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
-}
-extern "C" inline void fn_801C0738(CharaTask* chara, const atn::Vector3& rot) {
-    chara->mRot = rot;
 }
 
 // inferred: a camera position and the point it looks at (two of them in CursorField_unk)
@@ -140,7 +138,7 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
                 dir = -dir;
             }
             float dot = fn_801A03E8(dir, move);
-            if (dot < fn_801C1060(atn::Abs_unk(0.5f * turn))) {
+            if (dot < Cos_unk(atn::Abs_unk(0.5f * turn))) {
                 float a = move.ToRotation_unk().y;
                 float b = dir.ToRotation_unk().y;
                 float diff = atn::WrapAngle_unk(a - b);
@@ -152,7 +150,7 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
                     b -= atn::Abs_unk(0.5f * turn);
                     rest = diff + atn::Abs_unk(0.5f * turn);
                 }
-                move.Set_unk(0.0f, 0.0f, dist * fn_801C1060(rest));
+                move.Set_unk(0.0f, 0.0f, dist * Cos_unk(rest));
                 atn::Matrix3x4 mtx2;
                 mtx2.fn_8013A13C(b);
                 move.fn_80011410(mtx2);
@@ -161,7 +159,7 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
         }
         atn::Vector3 newRot(*mChara->GetRot_unk());
         newRot.y = move.ToRotation_unk().y;
-        fn_801C0738(mChara, newRot);
+        mChara->SetRot_unk(newRot);
     } else {
         m20 = 0.0f;
     }
@@ -187,7 +185,7 @@ void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, flo
     }
     atn::Vector3 look = field->m74.GetDir_unk();
     look.y = 0.0f;
-    fn_801C0738(mChara, look.ToRotation_unk());
+    mChara->SetRot_unk(look.ToRotation_unk());
 }
 
 // NONMATCHING: 89.3% - scheduling: the original loads mChara before the two float constants and the
