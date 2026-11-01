@@ -1,4 +1,5 @@
 #include "chr/ControlWallUp.h"
+#include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
@@ -75,7 +76,6 @@ extern "C" void* lbl_8087F498;
 extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 // inferred: moves a destination out of the walls (chr/ControlCharge.cpp)
-extern "C" void fn_801A4E08(CharaTask* chara, atn::Vector3* pos, atn::Vector3* dest);
 
 // inferred: linear interpolation with the product first (name invented)
 inline atn::Vector3 LerpWall_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
@@ -196,7 +196,7 @@ int ControlWallUp::vf0C() {
         }
         atn::Vector3 pos = m14;
         pos.y = m14.y;
-        fn_801A4E08(mChara, &pos, &m08);
+        ControlChargeAttackBase::fn_801A4E08(mChara, pos, m08);
         if (lbl_8087F610 == 0 && fn_80373148(lbl_8087F430)->m4C == 40 && fn_80373148(lbl_8087F430)->m50 == 8) {
             WallCollResult_unk result;
             atn::Vector3 top = m08;

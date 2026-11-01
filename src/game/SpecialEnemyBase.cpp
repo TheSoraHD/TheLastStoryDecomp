@@ -74,7 +74,6 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;  // inferred: player manager
-extern "C" void fn_8011CD84(CharaD74_unk* label, CharaTask* chara, int kind); // inferred: shows a label
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 // inferred: debug menu entries (as in gmk/SwingObject.cpp)
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
@@ -221,12 +220,12 @@ dead:
 void SpecialEnemyBase::fn_805A4188(HitMsg_unk* msg) {
     if ((mStatus.m0C & 0x40) != 0x40 && mC58.m11C.fn_8011D21C() == 0) {
         if (msg->mAttacker != 0 && msg->mAttacker->mFlag28) {
-            fn_8011CD84(&mC58.m11C, this, 1);
+            mC58.m11C.fn_8011CD84(this, 1);
         } else if (mC58.m11C.m08 >= 0 && mC58.m11C.m00 >= 2) {
             if (msg->m44 == 1) {
-                fn_8011CD84(&mC58.m11C, this, 4);
+                mC58.m11C.fn_8011CD84(this, 4);
             } else {
-                fn_8011CD84(&mC58.m11C, this, 1);
+                mC58.m11C.fn_8011CD84(this, 1);
             }
         }
     }

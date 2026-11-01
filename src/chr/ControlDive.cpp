@@ -1,4 +1,5 @@
 #include "chr/ControlDive.h"
+#include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
 #include "game/Input_unk.h"
 
@@ -42,7 +43,6 @@ struct DiveInput_unk {
 extern "C" DiveInput_unk* lbl_8087F0A8;
 
 // inferred: moves the back step destination out of the walls (chr/ControlCharge.cpp)
-extern "C" void fn_801A4E08(CharaTask* chara, atn::Vector3* pos, atn::Vector3* dest);
 
 // inferred: starts motion `id` on track 0 (name invented)
 inline void PlayDiveMotion_unk(chr::Motion_unk* m, int id, float speed) {
@@ -265,7 +265,7 @@ ControlBackStep::ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int 
     PlayDiveMotion_unk(m, 0x1EA, 0.5f);
     m14 = mChara->mPos;
     if (a != 0) {
-        fn_801A4E08(mChara, &m14, &m08);
+        ControlChargeAttackBase::fn_801A4E08(mChara, m14, m08);
     }
     atn::Vector3 dir2 = NegDive_unk(m08 - m14);
     dir2.y = 0.0f;

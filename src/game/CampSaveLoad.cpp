@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "MP/SaveLoad.h"
+#include "game/TutorialTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -72,7 +73,6 @@ extern "C" void fn_803B3310(CampSaveData_unk* data, int slot);
 // inferred: plays a system sound effect
 extern "C" atn::SoundRef fn_80117228(int id);
 // inferred: creates a message window task
-extern "C" atn::Task* fn_805BC6C8(atn::Task* parent, int msg, int arg);
 extern "C" void fn_8036E964(Field_unk* field);
 
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -236,7 +236,7 @@ void CampSaveLoad::fn_80119030(int state, int arg) {
         if (m16C == 0) {
             m148 = 0;
             if (mMode == 1 && m174 == 0 && fn_8011BBD0(m128)) {
-                (m178 = fn_805BC6C8(this, 0x1B5, 0))->fn_800D246C(1);
+                (m178 = TutorialPopup::fn_805BC6C8(this, 0x1B5, 0))->fn_800D246C(1);
                 if (lbl_8087F0A8 != 0) {
                     lbl_8087F0A8->m1140 = 1;
                 }

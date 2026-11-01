@@ -8,7 +8,7 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int fn_80239030(void* data, void* effect);       // inferred: parses the effect data
 extern "C" void fn_8022D754(void* entry);                   // inferred: prepares an entry
-extern "C" std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
+std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" std::string fn_8006D008(const std::string& a, const char* b); // inferred: a + b
 extern "C" void fn_8006AD24(std::string& path, const std::string& dir); // inferred
 extern "C" void fn_8008AD4C(void* model, const char* path, const char* texture); // inferred: loads a model

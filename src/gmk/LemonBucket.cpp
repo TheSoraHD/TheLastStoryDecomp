@@ -1,4 +1,5 @@
 #include "gmk/LemonBucket.h"
+#include "gmk/Lemon.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -26,7 +27,6 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
-extern "C" GimmickCommon* fn_8041524C(atn::Task* parent, int id, int arg); // inferred: gmk::Lemon factory
 
 // inferred: game settings
 struct Settings_unk {
@@ -278,7 +278,7 @@ void LemonBucket::vf20() {
             mRange = fn_800DC288(csv.fn_8005B9CC());
             mLemons.Resize_unk(atoi(csv.fn_8005B9CC()), 0);
             for (unsigned int i = 0; i < mLemons.mSize; i++) {
-                mLemons[i] = fn_8041524C(this, 30000, i);
+                mLemons[i] = Lemon::fn_8041524C(this, 30000, i);
             }
         }
     } while (csv.fn_8005BBF8() != 0);

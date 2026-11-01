@@ -5,6 +5,7 @@
 #include "game/CharaTask.h"
 #include "game/GameUI.h"
 #include "game/BattleCharaTask.h"
+#include "game/ChaserNpc.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
 #include "chr/ControlAttackBase.h"
@@ -2426,13 +2427,6 @@ void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
     }
 }
 
-// inferred: battle character with a state at 0x14B0 (checked when the type data kind m24 is 0x35);
-// the class is unknown (larger than CharaTask)
-struct BattleChara14B0_unk : public CharaTask {
-    unsigned char m1424[0x14B0 - 0x1424];
-    int m14B0;
-};
-extern "C" BattleChara14B0_unk* fn_8018059C(); // inferred: returns lbl_8087F090
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: line check
 extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
@@ -2458,7 +2452,7 @@ inline bool UsesSweepFlag_unk(CharaTask* chara) {
     }
     return IsField25_unk();
 }
-// inferred: kinds 1 and 3 of BattleChara14B0_unk::m14B0 (name invented)
+// inferred: kinds 1 and 3 of ChaserNpc::m14B0 (name invented)
 inline bool IsNotKind13_unk(int kind) {
     bool result = false;
     if (kind != 1 && kind != 3) {
@@ -2753,7 +2747,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
                 int otherType = other->mType;
                 if (otherType == 2) {
                     if (other->m60->m24 == 0x35) {
-                        if (!IsNotKind13_unk(((BattleChara14B0_unk*)other)->m14B0)) {
+                        if (!IsNotKind13_unk(((ChaserNpc*)other)->m14B0)) {
                             push = 0;
                         }
                     } else {
@@ -2835,13 +2829,13 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
                             dir = other->mPos - oldPos;
                     dir.Normalize_unk();
                     other->fn_8016B8D4(dir, 0, flag, IsPlayer());
-                    if (IsPlayer() && fn_8018059C() != 0 && fn_8018059C()->m14B0 != 0) {
+                    if (IsPlayer() && ChaserNpc::fn_8018059C() != 0 && ChaserNpc::fn_8018059C()->m14B0 != 0) {
                         if (lbl_8087F0A8->m580 != 0) {
                             fn_8016B8D4(-dir, 1, flag, 0);
                         }
                         return;
                     }
-                    if (mType == 2 && fn_8018059C() != 0 && fn_8018059C()->m14B0 != 0) {
+                    if (mType == 2 && ChaserNpc::fn_8018059C() != 0 && ChaserNpc::fn_8018059C()->m14B0 != 0) {
                         if (lbl_8087F0A8->m57C != 0) {
                             fn_8016B8D4(-dir, 1, flag, 0);
                         }
@@ -12152,7 +12146,6 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
 extern "C" void fn_80096218(atn::Model* model, atn::SimpleVector<int>* list, void* arg); // inferred: collects resources
 extern "C" void fn_80563A60(chr::CharaEquip_unk* equip, atn::SimpleVector<int>* list, void* arg);
-extern "C" int fn_80473F34(atn::LH_MotionSet* set);
 
 // inferred: collects the resources of the character (models, parts, equipment, motion set)
 void CharaTask::fn_8017AD44(atn::SimpleVector<int>* list, void* arg) {
@@ -12169,7 +12162,7 @@ void CharaTask::fn_8017AD44(atn::SimpleVector<int>* list, void* arg) {
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
         fn_80096218(&m6A4.mData[i]->mModel, list, arg);
     }
-    list->push_back(fn_80473F34(&m98));
+    list->push_back(m98.fn_80473F34());
 }
 
 int CharaTask::vfB8(wchar_t* name) {
@@ -12214,7 +12207,6 @@ inline RouteTable_unk* GetRouteTable_unk() {
     return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
 }
 
-extern "C" void fn_8011C044(CharaC58_unk* c58, int arg);
 
 // inferred: reports a point move to a missing warp point (name invented)
 static void ReportPointMove_unk(CharaTask* chara, int id) {
@@ -12283,7 +12275,7 @@ void CharaTask::fn_8017B434() {
         mRoute.fn_80128818(id, &mPos, 8);
         if (mRoute.fn_801255C8()) {
             Reset_unk(0, 1, 1, 1);
-            fn_8011C044(&mC58, 0);
+            mC58.fn_8011C044(0);
             fn_80017064(lbl_8087EE68, this);
             fn_8016E970(7);
             if (m1208 != 0) {
