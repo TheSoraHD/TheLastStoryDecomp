@@ -1005,17 +1005,47 @@ boost::function<void()> ControlMatHold::vf10() {
     return ControlBase::vf10();
 }
 
-// NONMATCHING: 89.9% - the original frame is 0x20 bigger (one more saved register)
-// inferred: faces the direction of the mat matrix when released
-void ControlMatHold::vf1C() {
-    if (mChara->mF1C) {
-        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+// inferred: the character leaves the matrix it follows, facing its z axis (name invented)
+static inline void LeaveMtx_unk(ControlBase* control) {
+    if (control->mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(control->mChara)->GetRotation_unk();
         atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
-        mChara->mRot = dir.ToRotation_unk();
-        mChara->fn_80144710();
+        control->mChara->mRot = dir.ToRotation_unk();
+        control->mChara->fn_80144710();
     }
-    mChara->mF1C = 0;
+    control->mChara->mF1C = 0;
+}
+
+// NONMATCHING: 88.8% - the original frame is 0x20 bigger (one more saved register), as in the
+// constructor of ControlMatHoldRelease
+void ControlMatHold::vf1C() {
+    LeaveMtx_unk(this);
+}
+
+// NONMATCHING: 89.9% - frame of the inlined LeaveMtx_unk (see ControlMatHold::vf1C)
+// inferred: released by the mat (control id 0x70)
+ControlMatHoldRelease::ControlMatHoldRelease(Chara_unk* chara) : ControlBase(chara) {
+    chara->SetControlId_unk(0x70);
+    LeaveMtx_unk(this);
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x1DE, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+// inferred: pushed backwards for the first 25 frames
+int ControlMatHoldRelease::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    if (m->mTracks[0].m08 < 25.0f) {
+        atn::Vector3 back = Neg_unk(Front_unk(mChara));
+        mChara->SetM6B8_unk(back * 0.33f);
+    }
+    if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        return 1;
+    }
+    return 0;
 }
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
