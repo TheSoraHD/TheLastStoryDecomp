@@ -136,6 +136,17 @@ void Action::fn_80538DC4(int n) {
     SetTyped_unk(n + 2, 6, v.z);
 }
 
+void Action::fn_80538FD4(int n) {
+    atn::Vector3 v;
+    v.x = GetParamAt_unk(n)->m04.f;
+    v.y = GetParamAt_unk(n + 1)->m04.f;
+    v.z = GetParamAt_unk(n + 2)->m04.f;
+    v = fn_805381C8()->fn_80541C94(v);
+    SetTyped_unk(n, 1, v.x);
+    SetTyped_unk(n + 1, 1, v.y);
+    SetTyped_unk(n + 2, 1, v.z);
+}
+
 int Action::fn_805391E4(unsigned int hash) {
     CommandDef_unk* def = fn_800081C0(m0C);
     // inferred: empty asserts of the release build (with them it is not inlined into its callers,

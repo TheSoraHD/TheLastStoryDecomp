@@ -38,6 +38,7 @@ public:
     EventManager_unk* fn_805381C8();      // inferred: sequence of the cut of the section
     atn::Vector3 fn_805382BC(int n);      // inferred: a position read from the parameters
     void fn_80538DC4(int n);
+    void fn_80538FD4(int n);              // inferred: rotates the vector parameters n..n+2 by the event yaw
     atn::Vector3 fn_805381F0(int n);      // inferred: parameters n, n+1 and n+2 as a vector
     MtxPtr fn_805389B8(int n);            // inferred: node matrix of an actor (params n: actor id, n+1: node)
     atn::Vector3 fn_80538B18(int n);      // inferred: vector parameter rotated by the event yaw
