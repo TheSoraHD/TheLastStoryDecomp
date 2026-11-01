@@ -1441,6 +1441,7 @@ boost::function<void()> ControlThrownBreakSkelton::vf10() {
 }
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it
 ControlThreadCatch::ControlThreadCatch(Chara_unk* chara, int other, int b)
@@ -1474,6 +1475,39 @@ ControlThreadCatch::ControlThreadCatch(Chara_unk* chara, int other, int b)
 
 ControlThreadCatch::~ControlThreadCatch() {
     fn_800CB5C8(&mSound, 3, 0);
+}
+
+// inferred: pulled by the thread, then struggles (the player shakes the remote to break it)
+int ControlThreadCatch::vf0C() {
+    if (m08 == 0) {
+        mChara->fn_8013CB68(mDir.ToRotation_unk(), 0, 0.0f, mChara->m568);
+        Motion_unk* m = &mChara->mMotion;
+        float frame = mChara->mMotion.mTracks[0].m08;
+        if (frame >= m->fn_80097D7C(0)) {
+            m->m34C = 1;
+            m->mTracks[0].m20 = 1.0f;
+            m->fn_80097C08(0, 0x32, 1, 0, 1, 0.0f, 0.1f);
+            m->mTracks[0].m0C = 1.0f;
+            m08 = 1;
+            mChara->SetControlId_unk(0x75);
+            if (m24) {
+                mSound = fn_800C344C("SE_EM202_013", &mChara->mPos, 0, -1, 1.0f);
+            }
+        }
+    } else if (m08 == 1) {
+        if (mChara->mType == 0) {
+            lbl_8087F490->m728 = 1;
+            if (lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
+                m1C -= 5;
+            }
+        }
+        if (m1C <= 0) {
+            mChara->mColli.mFlags |= 1;
+            return 1;
+        }
+        fn_800CB6E4(&mSound, &mChara->mPos);
+    }
+    return 0;
 }
 
 void ControlThreadCatch::vf1C() {
