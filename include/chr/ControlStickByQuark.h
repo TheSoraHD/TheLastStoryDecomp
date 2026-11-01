@@ -364,10 +364,16 @@ public:
     atn::Vector3 mDir; // 0x14
 };
 
+// inferred: the player reflects a laser with the shield (never constructed in this file)
 class ControlReflectLaser : public ControlBase {
 public:
     virtual ~ControlReflectLaser();
     virtual int vf0C();
+
+    atn::Vector3 mDir;     // 0x08: inferred: direction of the reflected laser
+    atn::Matrix3x4 mMtx;   // 0x14: inferred: matrix of the laser effect
+    float mLength;         // 0x48
+    int mDone;             // 0x4C
 };
 
 } // namespace chr

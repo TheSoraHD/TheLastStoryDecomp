@@ -4,6 +4,7 @@
 #include "chr/ControlStickByQuark.h"
 #include "game/CharaTask.h"
 #include "game/EnemyQuarkStand.h"
+#include "game/EnemyManager.h"
 #include "game/Em302Kraken.h"
 #include "atn/Memory.h"
 #include "game/GameUI.h"
@@ -18,12 +19,20 @@
 struct Input_unk {
     int fn_8012476C(int button); // inferred: nonzero when `button` was pressed
     int fn_801231D0(int action); // inferred: action triggered
+    int fn_801240B4(int action); // inferred: action held
 };
 
 struct Unk_8087F0A8 {
     unsigned char m000[0x30];
     int mFps; // 0x30: inferred: frame rate
     unsigned char m034[0x48C - 0x34];
+    Input_unk mInput; // 0x48C
+};
+
+// inferred: the same object seen from the game settings (fn_800F52F8 returns lbl_8087F0A8)
+struct Settings_unk {
+    Input_unk* fn_80116BAC() { return &mInput; } // inferred: weak copy 0x80116BAC
+    unsigned char m000[0x48C];
     Input_unk mInput; // 0x48C
 };
 
@@ -1988,6 +1997,171 @@ ControlReflectLaser::~ControlReflectLaser() {
     if (lbl_8087F3C0) {
         fn_80239DAC(lbl_8087F3C0, this, -2, 0);
     }
+}
+
+// inferred: helpers called by ControlReflectLaser::vf0C (over the inlining budget, so all of them are
+// weak copies; the ones first emitted here are at 0x801A03E0-0x801A0408). Names invented.
+extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+// inferred: Matrix3x4 copy (weak copy 0x8008CD1C of atn/Model.cpp)
+extern "C" inline void fn_8008CD1C(atn::Matrix3x4* dst, const atn::Matrix3x4* src) {
+    *dst = *src;
+}
+// inferred: mtx = mtx * rot_z * rot_y * rot_x (weak copy 0x800F80B8 of game/BattleTask.cpp)
+extern "C" inline void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot) {
+    ((atn::Matrix3x4*)mtx)->RotateZYX_unk(*rot);
+}
+// inferred: mtx = mtx * scale (weak copy 0x800F8290 of game/BattleTask.cpp)
+extern "C" inline void fn_800F8290(MtxPtr mtx, float x, float y, float z) {
+    Mtx s;
+    PSMTXScale(s, x, y, z);
+    Mtx t;
+    PSMTXConcat(mtx, s, t);
+    __MtxCopy(mtx, t);
+}
+// inferred: the hit object of a collision result
+struct CollObj_unk {
+    int m00;
+    int m04;
+    unsigned int m08;
+    CharaTask* m0C; // inferred: owner
+};
+extern "C" inline EnemyManager* fn_801A03E0() {
+    return EnemyManager::sInstance;
+}
+extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+extern "C" inline EnemyTask* fn_801A03EC(EnemyTask* chara) {
+    return chara->mNext;
+}
+extern "C" inline int fn_801A03F4(CollObj_unk* obj) {
+    return (obj->m08 >> 1) & 1; // inferred: the object is a character
+}
+extern "C" inline CharaTask* fn_801A0400(CollObj_unk* obj) {
+    return obj->m0C;
+}
+extern "C" inline EnemyTask* fn_801A0408(EnemyManager* mgr) {
+    return mgr->mHead;
+}
+// inferred: rotation matrix from euler angles (weak copy 0x800109E0 of Event/Puppeteer_CharaTask.cpp)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+extern "C" inline void fn_800F80A8(MtxPtr mtx, const atn::Vector3* pos) {
+    PSMTXTrans(mtx, pos->x, pos->y, pos->z);
+}
+extern "C" inline Settings_unk* fn_800F52F8() {
+    return (Settings_unk*)lbl_8087F0A8;
+}
+inline Effect_unk* fn_8013A194() {
+    return lbl_8087F048;
+}
+inline void* fn_801404F8() {
+    return lbl_8087EE98;
+}
+
+// NONMATCHING: 0% - over the inlining budget in the original (every inline call is a bl and the weak
+// accessors 0x801A03E0-0x801A0408 follow it); ours stays under the budget, so one candidate of about the
+// size of fn_800109E0 is missing (one more call of it flips the decision). The logic is complete.
+int ControlReflectLaser::vf0C() {
+    if (mDone) {
+        return 1;
+    }
+    int ret = 0;
+    atn::Model* model = mChara->GetModel_unk();
+    float end = model->fn_80097D7C(0) - 4.0f;
+    if (model->GetMotionFrame(0) > end) {
+        model->SetMotionSpeed(0, 0.02f);
+    }
+    mChara->SetM6B8_unk(mChara->fn_8014052C() * -0.05f);
+    mChara->vf34(*mChara->GetRot_unk(), 0, 0.0f, 1.0f);
+    atn::Vector3 pos(*mChara->fn_8013C38C());
+    pos.y += 13.0f;
+    pos += mChara->fn_8014052C() * 4.0f;
+    atn::Vector3 rot = mDir.ToRotation_unk();
+    if (mChara->IsPlayer()) {
+        if (mChara->fn_80178078() > 0.4f) {
+            atn::Vector3 front = mChara->fn_80178018();
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            dir.fn_80011410(fn_800109E0(front));
+            float best = 1e16f;
+            EnemyTask* target = 0;
+            for (EnemyTask* e = fn_801A0408(fn_801A03E0()); e != 0; e = fn_801A03EC(e)) {
+                if (e->CanAct_unk()) {
+                    atn::Vector3 d = *e->fn_8013C38C() - pos;
+                    float len = d.Length_unk();
+                    d.y = 0.0f;
+                    d.Normalize_unk();
+                    if (fn_801A03E8(dir, d) > 0.5f && len < best) {
+                        best = len;
+                        target = e;
+                    }
+                }
+            }
+            if (target) {
+                atn::Vector3 d = *target->fn_8013C38C() - pos;
+                d.Normalize_unk();
+                atn::Vector3 diff = d.ToRotation_unk() - rot;
+                diff.Apply_unk(atn::WrapAngle_unk);
+                float maxYaw = 0.04712389f;
+                float maxPitch = 0.02199115f;
+                diff.y = diff.y >= 0.0f ? (diff.y < maxYaw ? diff.y : maxYaw) : (diff.y > -maxYaw ? diff.y : -maxYaw);
+                diff.x = diff.x >= 0.0f ? (diff.x < maxPitch ? diff.x : maxPitch)
+                                        : (diff.x > -maxPitch ? diff.x : -maxPitch);
+                rot += diff;
+                mDir.Set_unk(0.0f, 0.0f, 1.0f);
+                mDir.fn_80011410(fn_800109E0(rot));
+            }
+        }
+    }
+    CollResult_unk result;
+    atn::Vector3 from(pos);
+    atn::Vector3 to = pos + mDir * 1000.0f;
+    if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 6, mChara->GetColli_unk(), 0)) {
+        CollObj_unk* obj = (CollObj_unk*)result.m38;
+        if (obj != 0 && fn_801A03F4(obj)) {
+            CharaTask* hit = fn_801A0400((CollObj_unk*)result.m38);
+            if (hit != 0 && hit->fn_8013A158() && hit->CanAct_unk()) {
+                fn_800FAB80(fn_8013A194(), mChara, fn_80219E6C(0x76F), fn_800F8548(fn_8013A194()), &result.m04,
+                            &lbl_807C7030, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+            }
+        }
+    }
+    if (mChara->IsPlayer() && !fn_800F52F8()->fn_80116BAC()->fn_801240B4(7)) {
+        ret = 1;
+    }
+    mLength = 0.1f + mLength < 100.0f ? 0.1f + mLength : 100.0f;
+    atn::Matrix3x4 mtx;
+    fn_800F80A8(mtx.m, &pos);
+    fn_8008CD1C(&mMtx, &mtx);
+    fn_800F80B8(mMtx.m, &rot);
+    fn_800F8290(mMtx.m, 1.0f, 1.0f, mLength);
+    return ret;
 }
 
 } // namespace chr
