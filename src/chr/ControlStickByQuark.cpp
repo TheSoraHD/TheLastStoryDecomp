@@ -925,6 +925,40 @@ void ControlMatHoldGuard::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
+// inferred: grabbed by the holder (control id 0x6E); plays with the speed of the holder
+ControlMatHoldPre::ControlMatHoldPre(Chara_unk* chara, Chara_unk* holder) : ControlBase(chara), m08(holder) {
+    chara->m58C = 0;
+    mChara->SetControlId_unk(0x6E);
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->mTracks[0].m0C = m08->mMotion.mTracks[0].m0C;
+    m->fn_80097C08(0, 0x21C, 0, 0, 1, 0.0f, 0.1f);
+}
+
+// inferred: turns towards the holder
+int ControlMatHoldPre::vf0C() {
+    mChara->mMotion.mTracks[0].m0C = m08->mMotion.mTracks[0].m0C;
+    if ((mChara->mStatus.m0C & 0x20) == 0x20) {
+        mChara->vf44();
+        return 1;
+    }
+    atn::Vector3 dir = m08->mPos - mChara->mPos;
+    dir.y = 0.0f;
+    dir.RotZ_unk();
+    atn::Vector3 rot = mChara->mRot;
+    rot.y += 0.3f * atn::WrapAngle_unk(dir.y - rot.y);
+    mChara->mRot = rot;
+    return 0;
+}
+
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it
