@@ -70,7 +70,40 @@ extern "C" inline PlayerInput_unk* fn_80122550(Field_unk* field) {
     return (PlayerInput_unk*)((char*)field + 0x6C);
 }
 // inferred: starts a rumble (weak copy 0x8028CFB8, also called by Em309Ghoul and EnemyQuarkSecond)
+// inferred: the empty asserts (release build) only count for the inline budget: with them fn_8028CB38 goes over
+// it and calls every inline out of line, as the original (about 130-150 are needed; the original had
+// statements of its own somewhere in its inline candidates, docs/inlining.md R3)
 extern "C" inline void fn_8028CFB8(PlayerInput_unk* input, int frames, float a, float b) {
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
+    ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0); ASSERT_UNK(input != 0);
     input->m904 = frames;
     input->m908 = a;
     input->m900 = input->m900 % 2;
@@ -1179,12 +1212,12 @@ static float lbl_8087DC38 = -15.0f; // inferred: start and end angles of the bre
 static float lbl_8087DC3C = -70.0f;
 
 // inferred: state 10 (breath: sweeps the flames from the neck while the motion runs)
-// NONMATCHING: 0% - original is over the inline budget (calls fn_802913B0, fn_800109E0, rotX out of line); ours inlines them (0xE4C vs 0x478)
+// over the inline budget as the original (empty asserts in fn_8028CFB8): every inline is called out of line
 void Em203GreaterDaemon::fn_8028CB38() {
     if (m14B4 == 0) {
         if (fn_802913B0() != 0 && mMotion.GetMotionFrame(0) >= 28.0f) {
             fn_8016E970(6);
-            fn_801C0730(this, 30);
+            SetControlId_unk(30);
             m14B4 = 1;
             mMotion.fn_80139F24(1);
             mMotion.fn_8013C554(0, 1.0f);
@@ -1206,7 +1239,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
         if (mMotion.GetMotionFrame(0) > length) {
             fn_8028F4AC();
         }
-        if (mMotion.GetMotionFrame(0) >= 75.0f && mMotion.GetMotionFrame(0) < 150.0f) {
+        if (75.0f <= mMotion.GetMotionFrame(0) && mMotion.GetMotionFrame(0) < 150.0f) {
             if (m154C == 0) {
                 m154C = 1;
                 m1548 = 0;
@@ -1224,8 +1257,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
             atn::Vector3 dir(0.0f, -1.0f, 0.0f);
             dir.fn_80011410(fn_8028CFB0(atn::DegToRad_unk(fn_800F8524(&lbl_8087DC38, &lbl_8087DC3C, t))));
             dir.fn_80011410(fn_800109E0(mRot));
-            atn::Matrix3x4 m = fn_800109E0(dir.ToRotation_unk());
-            fn_8008CD1C(&m1580, &m);
+            fn_8008CD1C(&m1580, &fn_800109E0(dir.ToRotation_unk()));
             MtxPtr neck = mMotion.GetNodeMtx_unk("chin");
             atn::Vector3 pos(neck != 0 ? ((atn::Matrix3x4*)neck)->GetTrans_unk() : mPos);
             m1580.fn_801479E4(pos);
