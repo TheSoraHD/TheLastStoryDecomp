@@ -4121,6 +4121,10 @@ smg2/src/RVL_SDK/bte/gki_buffer.c:
 smg2/src/RVL_SDK/bte/gki_time.c:
 	.text       start:0x80627A70 end:0x80627FF4
 
+smg2/src/RVL_SDK/bte/gki_ppc.c:
+	.text       start:0x80628000 end:0x80628304
+	.bss        start:0x807F3760 end:0x8081C240
+
 smg2/src/RVL_SDK/bte/hcisu_h2.c:
 	.text       start:0x80628310 end:0x806289CC
 	.rodata     start:0x80764C40 end:0x80764C58
@@ -5444,6 +5448,14 @@ ss_nw4r/src/snd/snd_SoundPlayer.cpp:
 
 ss_nw4r/src/snd/snd_SoundStartable.cpp:
 	.text       start:0x80718470 end:0x807184E8
+
+nw4r/src/snd/snd_SoundSystem.cpp:
+	.text       start:0x807184F0 end:0x807187C8
+	.ctors      start:0x8072D414 end:0x8072D418
+	.data       start:0x807C6338 end:0x807C6380
+	.bss        start:0x808638E0 end:0x80879200
+	.sdata      start:0x8087EE28 end:0x8087EE30
+	.sbss       start:0x808804E8 end:0x808804F0
 
 ss_nw4r/src/snd/snd_SoundThread.cpp:
 	.text       start:0x807187D0 end:0x80718ED0

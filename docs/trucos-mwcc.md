@@ -292,3 +292,4 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Un float repetido en el `.sdata2` de un split indica dos ficheros: MWCC funde las constantes iguales dentro de un TU (`game/SkillEffect` / `SkillEffectManager`). (`auto-20261101`)
 - El nombre real de una clase `_unk` puede aparecer en las cadenas RTTI de `boost::bind` de otras unidades (`mf1<void, gmk::HealPoint, SkillEffect *>`); `poolcheck.py` también delata tipos de parámetros mal deducidos en esas cadenas. (`auto-20261101`)
 - `pairdata.py --apply` puede dar a estáticas de dos unidades el mismo nombre global (`sOffset_unk`, `sFiles`, `sBoard`): el enlace falla con "multiply-defined"; añadir `scope:local` en symbols.txt. Build completo tras cada tanda. (`auto-20261101`)
+- dtk `block_relocations` admite `target:` (con `end:` opcional): bloquea todas las relocaciones hacia esa direccion; mejor que listar cada `lis/addi` de una constante tipo 0x80808081.

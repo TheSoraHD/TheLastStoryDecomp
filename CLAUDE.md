@@ -8,7 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `auto-20261101` (2026-11-01, sesion autonoma, mergeada en `main`): **11463 / 18307 funciones al 100%** (codigo 38,71%), 564 unidades enlazadas, `main.dol: OK`. FxChorus/FxDelay NW4R 2010; `chr/ControlStickByQuark` nuevo (110/159); `game/SkillEffectManager` 9 -> 40 (extern C -> metodos); split `game/SkillEffect.cpp` (clase real `SkillEffect`, antes `Bullet_unk`); `pairdata` en ~40 unidades (+~150 en objdiff). Detalle en `docs/auto-20261101.md`.
+- `config-relocs-20261101` (2026-11-01): **11489 / 18307 funciones al 100%**, `main.dol: OK`. `block_relocations` por `target` (constantes 0x80808081 y tablas que dtk tomaba por punteros a `gki_cb` y al buffer de SoundSystem); enlazados `bte/gki_ppc.c` (13), `snd_SoundSystem.cpp` (5) y MetroTRK `targsupp.c` (4, asm aprobado). Detalle en `docs/config-relocs-20261101.md`.
+- `auto-20261101` (mergeada): 11463 funciones; FxChorus/FxDelay, `ControlStickByQuark`, `SkillEffectManager`, `pairdata` (`docs/auto-20261101.md`).
 - `auto-20261031c` (mergeada): 11284 funciones; NW4R snd/ut 2010 desde SS (`libs/ss_nw4r`), MSL, MetroTRK, bte (`docs/auto-20261031c.md`). `auto-20261031b`: 10002; `auto-20261031`: 9129; `auto-20261030`: 9113.
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
 - Anteriores: `close-one-func` (8768, `docs/list-const-iter.md`), `k2-close-units` + `vector-push-back` (K2, `push_back`; `docs/k2-close-units.md`), `i2-poolorder` (I2, mergeada; `poolorder.py`, `docs/i2-poolorder.md`), `fb2-materialparser` (F-b2), `fb3-drawhelper-paso3` (`atn/DrawHelper` 53/68), `fb3-comdrawtexture`, `fb-materialparser`, `batch-auto-50kb-atn` (F), `batch-auto-20kb-game` (E), `close-near-units` (K), `rso-names*`; revisión de Svenchu/Codex en `docs/revision-2026-10-29.md`.
@@ -35,6 +36,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - asm de librería de `boost/detail/sp_counted_base_cw_ppc.hpp` (Boost 1.35.0 en `libs/boost`);
    - `OSInitFastCast` (`include/sdk/OSFastCast.h`, usada en `game/main`);
    - paired-single cuantizado GQR6 solo en `atn/ModelDraw_unk fn_8009BF3C` (`SetGQR6_unk`, `SetMatColor_unk`); el de `LH_Binary` **no** está aprobado;
+   - asm de MetroTRK `targsupp.c`: cuatro stubs `asm` con `nofralloc` y `twi 31, r0, 0; blr` (el original es un `.s`), aprobado 2026-11-01;
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
    - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
 3. Avisar y explicar antes de tocar `splits.txt`, `symbols.txt` (salvo renombrados), `configure.py`, `config.yml` o flags.

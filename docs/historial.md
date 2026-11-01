@@ -67,3 +67,4 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 - Al 100% sin enlazar: `std/char_traits_char`, `db/EventIdTable_unk`, `gmk/SparkCube`; `MP/Popup` solo le falta `vf10`.
 - Avisos de `poolcheck.py` en 25 unidades fuera de los lotes (propuesta I).
 - No rinde: rondas de pulido de NONMATCHING de registros (`__VecCopy` r3/r4, `push_back` en bucles, `SetPaneText` en menús MP).
+| `config-relocs-20261101` | 2026-11-01 | 11489 | `block_relocations` por `target` en `config.yml`; enlazados `bte/gki_ppc.c`, `snd_SoundSystem.cpp`, MetroTRK `targsupp.c` (asm aprobado) | `docs/config-relocs-20261101.md` |

@@ -22,6 +22,15 @@ force_active:
 
 # (optional) Block relocations that dtk detected incorrectly.
 block_relocations:
+  # constants that look like pointers into gki_cb (bte gki_ppc.c .bss): 0x80808080/0x80808081
+  # (strlen masks, division by 255), byte tables 0x807F8084/0x80818283 (rodata, GXTexture)
+  - target: .bss:0x807F8084
+  - target: .bss:0x80808080
+    end: .bss:0x80808082
+  - target: .bss:0x80818283
+  # SoundSystem work buffer (0x808638E0-0x80879200): values of the rodata byte table lbl_80767388
+  - target: .bss:0x80868085
+  - target: .bss:0x80877B48
   # table data (0x8000A000) that looks like a pointer inside the __sinit of Event/EventCommandDef_unk
   - source: .data:0x807AC0D8
   # random table data whose value equals a jump target inside gpiProcessSearch
