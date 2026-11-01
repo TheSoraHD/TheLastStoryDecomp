@@ -916,7 +916,7 @@ public:
     void fn_8015B520();
     void fn_8015B808(const atn::Vector3& dir, int a);
     void fn_80178A6C();
-    int fn_801784BC(struct Bullet_unk* bullet, int flag);
+    int fn_801784BC(struct SkillEffect* bullet, int flag);
     int fn_80178668(HitInfo_unk* hit, HitInfo_unk* parent, int time, CharaTask* attacker, int flag);
     int fn_80178864(HitInfo_unk* hit, CharaTask* attacker);
     unsigned int fn_80179730(HitInfo_unk* hit, int flag);

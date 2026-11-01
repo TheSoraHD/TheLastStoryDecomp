@@ -139,7 +139,6 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the nex
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80103600(Effect_unk* mgr, CharaTask* chara);
 extern "C" int fn_8021A888(HitInfo_unk* hit);
-extern "C" void fn_805991E0(Bullet_unk* bullet); // inferred: stops an effect of a skill
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
@@ -1236,9 +1235,9 @@ void Em301LShade::fn_802D4238() {
         vf9C(1);
         fn_80239DAC(lbl_8087F3C0, m15F0, 0, 1);
         for (int i = 0; i < 32; i++) {
-            Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+            SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
             if (bullet->IsActive_unk() && (bullet->m08 == 0 || bullet->m08->mType != 2)) {
-                fn_805991E0(bullet);
+                bullet->fn_805991E0();
             }
         }
         m15C8 = 1;

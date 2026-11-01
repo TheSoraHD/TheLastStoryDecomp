@@ -2242,7 +2242,7 @@ void GameUI::fn_803DE648() {
         if (count >= 8) {
             break;
         }
-        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
         HitInfo_unk* hit = bullet->GetHit_unk();
         if (bullet->IsActive_unk() && hit != 0 && fn_8021A9CC(hit) && bullet->m5C * bullet->m28 >= limit &&
             (signed char)hit->m02 != 4 && (signed char)hit->m02 != 0) {
@@ -2255,7 +2255,7 @@ void GameUI::fn_803DE648() {
     }
 }
 
-void GameUI::fn_803DEE24(Bullet_unk* bullet, GameUIColor_unk* add, GameUIColor_unk* mul) {
+void GameUI::fn_803DEE24(SkillEffect* bullet, GameUIColor_unk* add, GameUIColor_unk* mul) {
     *add = GameUIColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
     *mul = GameUIColor_unk(100, 100, 100, 255);
     if (bullet != 0 && bullet->m08 != 0) {
@@ -2288,7 +2288,7 @@ void GameUI::fn_803DEE24(Bullet_unk* bullet, GameUIColor_unk* add, GameUIColor_u
 }
 
 // inferred: colour of the marker of a skill effect (by the kind of its hit data)
-GameUIColor_unk GameUI::fn_803DF138(Bullet_unk* bullet) {
+GameUIColor_unk GameUI::fn_803DF138(SkillEffect* bullet) {
     if (bullet != 0 && bullet->m08 != 0 && bullet->m08->mType != 2) {
         HitInfo_unk* hit = bullet->GetHit_unk();
         if (fn_8021A984(hit)) {
@@ -2311,7 +2311,7 @@ GameUIColor_unk GameUI::fn_803DF138(Bullet_unk* bullet) {
     return GameUIColor_unk(40, 40, 40, 255);
 }
 
-const wchar_t* GameUI::fn_803DF2DC(Bullet_unk* bullet) {
+const wchar_t* GameUI::fn_803DF2DC(SkillEffect* bullet) {
     HitInfo_unk* hit = 0;
     if (bullet != 0) {
         hit = bullet->GetHit_unk();

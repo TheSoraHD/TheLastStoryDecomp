@@ -15,7 +15,6 @@ extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_8021A984(HitInfo_unk* hit);
-extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara); // inferred: the effect can reach `chara`
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80093C8C(atn::Model* model, const char* name); // inferred: nonzero while the named motion part plays
@@ -623,9 +622,9 @@ void Em205Ogre::fn_802B9C5C() {
     m14F8 = 0;
     if (lbl_8087F9E8 != 0) {
         for (unsigned int i = 0; i < 32; i++) {
-            Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+            SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
             if (bullet != 0 && bullet->IsActive_unk() && fn_8021A984(bullet->m04) &&
-                fn_80599C90(bullet, this)) {
+                bullet->fn_80599C90(this)) {
                 atn::Vector3 d = bullet->m10 - mPos;
                 float dist = PSVECMag(&d) - 0.75f * (bullet->m5C * bullet->m28);
                 if (dist < best) {

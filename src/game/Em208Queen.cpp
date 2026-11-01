@@ -121,11 +121,11 @@ struct QueenD2A_unk : public atn::Task {
 extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
 
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
-struct Bullet_unk;
+struct SkillEffect;
 extern "C" void* lbl_8087F9E8;
-extern "C" Bullet_unk* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
+extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
-                                   boost::function<void(Bullet_unk*)> callback, float rate);
+                                   boost::function<void(SkillEffect*)> callback, float rate);
 extern "C" void fn_801031D0(Effect_unk* mgr, CharaTask* chara, CharaTask* other, int arg);
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
@@ -323,7 +323,7 @@ inline void Em208Queen::CastSkill_unk() {
         pos = place->mPos;
     }
     fn_8059B66C(lbl_8087F9E8, skill, this, this, &pos, &atn::Vector3(0.0f, 0.0f, 0.0f),
-                boost::function<void(Bullet_unk*)>(), 1.0f);
+                boost::function<void(SkillEffect*)>(), 1.0f);
 }
 
 // NONMATCHING: 99.86% - f7/f8 of pi and 0.0f in the "eat_point" rotation (state 13); tried the rotation

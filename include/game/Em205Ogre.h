@@ -5,7 +5,7 @@
 #include "game/SpecialEnemyBase.h"
 #include <boost/scoped_ptr.hpp>
 
-struct Bullet_unk;
+struct SkillEffect;
 
 // inferred from __vt__9Em205Ogre (0x807863B4): ogre driven by the SpecialEnemyBase state machine. Data
 // file "/database/chara/special/" + db_name (default "db_em205_00_00.csv"). The factory allocates
@@ -45,7 +45,7 @@ public:
     int m14EC;             // inferred: "SwingSkillId"
     int m14F0;             // inferred: "SpitSkillId"
     int m14F4;             // inferred: "WaitFrame"
-    Bullet_unk* m14F8;     // inferred: nearest heal circle
+    SkillEffect* m14F8;     // inferred: nearest heal circle
     int m14FC;
     int m1500;             // inferred: "HealCircleMoveHpMin"
     int m1504;             // inferred: "HealCircleMoveHpMax"

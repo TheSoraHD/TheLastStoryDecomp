@@ -3175,9 +3175,9 @@
   "matching": false
  },
  {
-  "name": "game/SkillEffect_unk.cpp",
+  "name": "game/SkillEffect.cpp",
   "classes": [
-   "Bullet_unk"
+   "SkillEffect"
   ],
   "matching": false
  },

@@ -2587,7 +2587,7 @@ extern "C" int fn_8004D388(void* world, RayResult_unk* result, const atn::Vector
 // NONMATCHING: 98.9% - registers and stack slots
 // inferred: sends the character to the healing magic `effect` (or to the nearest one, or to a player who can
 // heal): state 1 of m1470 with a point 0.7 of the way there put on the ground; returns 1 when it has to move
-int BattleCharaTask::fn_800EE794(Bullet_unk* effect) {
+int BattleCharaTask::fn_800EE794(SkillEffect* effect) {
     if (!CanAct_unk()) {
         return 0;
     }
@@ -2596,7 +2596,7 @@ int BattleCharaTask::fn_800EE794(Bullet_unk* effect) {
     if (effect == 0 && lbl_8087F9E8 != 0) {
         float best = 1e16f;
         for (int i = 0; i < 32; i++) {
-            Bullet_unk* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
+            SkillEffect* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
             if (fn_800EE640(bullet->m08)) {
                 HitInfo_unk* hit = bullet->m04;
                 if (hit != 0 && fn_8021A984(hit) && (hit->mAC & 0x1000000) != 0x1000000) {
@@ -2610,7 +2610,7 @@ int BattleCharaTask::fn_800EE794(Bullet_unk* effect) {
             }
         }
         for (int i = 0; i < 32; i++) {
-            Bullet_unk* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
+            SkillEffect* bullet = ((SkillEffectManager*)lbl_8087F9E8)->GetBullet_unk(i);
             if (fn_800EE640(bullet->m08)) {
                 HitInfo_unk* hit = bullet->m04;
                 if (hit != 0 && fn_8021A984(hit) && (hit->mAC & 0x400000) == 0x400000 &&

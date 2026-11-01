@@ -40,11 +40,11 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 // inferred: skill effects (as in gmk/HealPoint.cpp); the callback is empty here
-struct Bullet_unk;
+struct SkillEffect;
 extern "C" void* lbl_8087F9E8;
-extern "C" Bullet_unk* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
+extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
-                                   boost::function<void(Bullet_unk*)> callback, float rate);
+                                   boost::function<void(SkillEffect*)> callback, float rate);
 // inferred: game state (lbl_8087EFA8): time of a frame at 0x3A4 (as in game/Em301LShade.cpp)
 struct NecroGame_unk {
     float GetTime_unk() const { return m3A4; } // inferred: accessor (as in game/CharaStatus.cpp)
@@ -417,7 +417,7 @@ void Em001Necromancer::vf10() {
             float frame = mMotion.mTracks[0].m08;
             m638 = m1520[m152C];
             if ((float)__fabs(frame - 30.0f) < 1.1920929e-7f) {
-                fn_8059B66C(lbl_8087F9E8, m638, this, 0, &m1534, &mRot, boost::function<void(Bullet_unk*)>(),
+                fn_8059B66C(lbl_8087F9E8, m638, this, 0, &m1534, &mRot, boost::function<void(SkillEffect*)>(),
                             1.0f);
                 if (m152C == 1) {
                     m1550 = 900;

@@ -1,3 +1,4 @@
+#include "game/SkillEffectManager.h"
 #include "gmk/HealPoint.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -18,11 +19,9 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: skill effect manager (class unknown); fn_8059B66C casts a skill and returns its effect,
 // the callback is called when the effect ends; fn_805991E0 stops an effect
-extern "C" void* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
-extern "C" void fn_805991E0(SkillEffect* effect);
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -45,7 +44,7 @@ namespace gmk {
 inline void HealPoint::StopEffect_unk() {
     mWait = 0;
     if (mEffect != 0) {
-        fn_805991E0(mEffect);
+        mEffect->fn_805991E0();
     }
 }
 

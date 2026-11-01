@@ -277,7 +277,7 @@ class D2A_Task;
 }
 class GameUI;
 class CharaTask;
-struct Bullet_unk;
+struct SkillEffect;
 extern "C" GameUI* lbl_8087F490; // inferred: the HUD instance (defined in game/GameUI.cpp)
 
 // inferred from __vt__6GameUI (0x8078C584): the game HUD; lbl_8087F490 points to it
@@ -308,10 +308,10 @@ public:
     int fn_803D1574();
     void fn_803D8344();
     void fn_803DE648(); // inferred: updates the markers of the skill effects
-    void fn_803DE89C(Bullet_unk* bullet, int index);
-    void fn_803DEE24(Bullet_unk* bullet, GameUIColor_unk* add, GameUIColor_unk* mul); // inferred: colours of a marker
-    GameUIColor_unk fn_803DF138(Bullet_unk* bullet);
-    const wchar_t* fn_803DF2DC(Bullet_unk* bullet); // inferred: name of a skill effect
+    void fn_803DE89C(SkillEffect* bullet, int index);
+    void fn_803DEE24(SkillEffect* bullet, GameUIColor_unk* add, GameUIColor_unk* mul); // inferred: colours of a marker
+    GameUIColor_unk fn_803DF138(SkillEffect* bullet);
+    const wchar_t* fn_803DF2DC(SkillEffect* bullet); // inferred: name of a skill effect
     void fn_803DF5B4();
     void fn_803DF648(int arg);
     void fn_803E0D4C();
@@ -489,7 +489,7 @@ public:
     int m1014[32];
     float m1094[8];
     atn::Task* m10B4[8];   // inferred: effect markers (fn_803DE648)
-    Bullet_unk* m10D4[8];  // inferred: skill effects shown by the markers
+    SkillEffect* m10D4[8];  // inferred: skill effects shown by the markers
     atn::Task* m10F4;
     atn::Task* m10F8;
     int m10FC;

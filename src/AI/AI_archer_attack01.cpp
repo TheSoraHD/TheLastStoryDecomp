@@ -210,7 +210,6 @@ void __register_global_object(void* object, void (*destructor)(void*, int), void
 int fn_80018078(void* routes, CharaTask* chara);
 int fn_80018BAC(void* routes, CharaTask* chara);
 int fn_8021A984(HitInfo_unk* hit);
-int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
 int fn_8001AEDC(int mode, int* a, int* b, int* c, int* d);
 void fn_8001A464(CharaTask** list);
 void fn_8001A65C(CharaTask** list);

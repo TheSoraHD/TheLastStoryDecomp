@@ -5,7 +5,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "game/GimmickCommon.h"
 
-class SkillEffect;
+struct SkillEffect;
 struct HitInfo_unk;
 
 namespace gmk {

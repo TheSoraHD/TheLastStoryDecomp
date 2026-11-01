@@ -2,7 +2,8 @@
 #include "game/CharaTask.h"
 #include "game/MapManager.h"
 
-// Methods of Bullet_unk (the effects of SkillEffectManager). A file of its own: its float pool
+// Methods of SkillEffect (class name from the RTTI of the boost::bind in gmk::HealPoint and TacView;
+// file name inferred). A file of its own: its float pool
 // (0x80888178-0x808881C0) repeats 0.0f, which SkillEffectManager.cpp also uses (0x808881FC).
 
 // inferred: effect manager of the efp files (fields set around the stop calls)
@@ -23,23 +24,45 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int
 extern "C" void fn_80232B7C(void* owner, int id); // inferred: names the next effect of `owner`
 extern "C" atn::EfpFile* fn_800EFC64(int id);     // inferred: efp of a skill (game/BattleEfp_unk.cpp)
 extern "C" atn::Vector3 lbl_807C7030;             // inferred: zero vector
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
-Bullet_unk::Bullet_unk() : m00(3), m04(0), m08(0), m10(0.0f, 0.0f, 0.0f), m1C(0.0f, 0.0f, 0.0f), m28(1.0f), m60(0),
+SkillEffect::SkillEffect() : m00(3), m04(0), m08(0), m10(0.0f, 0.0f, 0.0f), m1C(0.0f, 0.0f, 0.0f), m28(1.0f), m60(0),
       m7C(0) {
     m13C = 0;
 }
 
-Bullet_unk::~Bullet_unk() {}
+SkillEffect::~SkillEffect() {}
 
-void Bullet_unk::fn_80599C6C() {
+void SkillEffect::fn_805991E0() {
+    if (mCallback) {
+        mCallback(this);
+    }
+    fn_80239DAC(lbl_8087F3C0, this, m04->m04, 1);
+    fn_800CB5C8(&m64, 30, 0);
+    fn_8059A1FC(0);
+    m00 = 3;
+    if (m08 != 0) {
+        m08->fn_801763E0((CharaAttach_unk*)this); // inferred: CharaAttach_unk is a view of SkillEffect
+        if (m04->m04 == 6004) {
+            m08->fn_80178864(m04, m08);
+        }
+    }
+    m08 = 0;
+    m0C = 0;
+    m04 = 0;
+    m60 = 0;
+    mCallback.clear();
+}
+
+void SkillEffect::fn_80599C6C() {
     if (!IsActive_unk()) {
         return;
     }
 }
 
-int Bullet_unk::fn_80599C90(CharaTask* chara) {
+int SkillEffect::fn_80599C90(CharaTask* chara) {
     CharaTask* owner = m08;
     int kind = GetHit_unk()->m64;
     if (kind == 0) {
@@ -61,7 +84,7 @@ int Bullet_unk::fn_80599C90(CharaTask* chara) {
 
 // NONMATCHING: 99.3% - m04/m08 registers swapped in the inlined fn_80599C90 and GetHit_unk; the kind
 // range test subtracts 3 before the clrlwi
-int Bullet_unk::fn_80599D60(CharaTask* chara, int check) {
+int SkillEffect::fn_80599D60(CharaTask* chara, int check) {
     if (m00 != 1) {
         return 0;
     }
@@ -89,7 +112,7 @@ int Bullet_unk::fn_80599D60(CharaTask* chara, int check) {
 }
 
 // NONMATCHING: 98% - float registers; the pool order needs the functions before it
-float Bullet_unk::fn_80599FB4(int keep) {
+float SkillEffect::fn_80599FB4(int keep) {
     float scale = 1.0f;
     if (!keep || (15.0f <= m5C && m5C <= 150.0f)) {
         scale = m5C / 15.0f;
@@ -97,7 +120,7 @@ float Bullet_unk::fn_80599FB4(int keep) {
     return m28 * scale;
 }
 
-void Bullet_unk::fn_80599FFC(const atn::Vector3* pos) {
+void SkillEffect::fn_80599FFC(const atn::Vector3* pos) {
     if (m04 == 0) {
         return;
     }
@@ -110,7 +133,7 @@ void Bullet_unk::fn_80599FFC(const atn::Vector3* pos) {
 }
 
 // NONMATCHING: 99.15% - stack slots of the sphere and light temporaries (as SkillEffectManager::fn_8059D3B0)
-void Bullet_unk::fn_8059A0B4(atn::EffFile* eff) {
+void SkillEffect::fn_8059A0B4(atn::EffFile* eff) {
     if (m7C) {
         return;
     }
@@ -128,7 +151,7 @@ void Bullet_unk::fn_8059A0B4(atn::EffFile* eff) {
     m7C = 1;
 }
 
-void Bullet_unk::fn_8059A1FC(int keep) {
+void SkillEffect::fn_8059A1FC(int keep) {
     if (m7C) {
         lbl_8087F3C0->mD0 = 1;
         fn_80239DAC(lbl_8087F3C0, &m2C, 1, !keep);
@@ -137,7 +160,7 @@ void Bullet_unk::fn_8059A1FC(int keep) {
     }
 }
 
-int Bullet_unk::fn_8059A264() {
+int SkillEffect::fn_8059A264() {
     if (m08 != 0 && m04 != 0 && m13C != 0) {
         return 1;
     }

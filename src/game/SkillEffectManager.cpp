@@ -44,12 +44,11 @@ extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_8021A9CC(HitInfo_unk* hit);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-// inferred: methods of Bullet_unk in the auto split before this file
-extern "C" void fn_805989A4(Bullet_unk* bullet, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
+// inferred: methods of SkillEffect in the auto split before this file
+extern "C" void fn_805989A4(SkillEffect* bullet, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                             const atn::Vector3* pos, const atn::Vector3* rot,
-                            boost::function<void(Bullet_unk*)> callback, float rate); // inferred: starts it
-extern "C" void fn_805991E0(Bullet_unk* bullet);                     // inferred: stops it
-extern "C" void fn_80599454(Bullet_unk* bullet, int arg);            // inferred: update
+                            boost::function<void(SkillEffect*)> callback, float rate); // inferred: starts it
+extern "C" void fn_80599454(SkillEffect* bullet, int arg);            // inferred: update
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: reflection test
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0; // inferred: effect manager of the efp files
@@ -152,7 +151,7 @@ static const char* const sEfpName9 = sEfp9;
 static const char* const sEfpName10 = sEfp10;
 static const char* const sEfpName11 = sEfp11;
 static const char* const sEfpName12 = sEfp12;
-extern "C" Bullet_unk* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill, CharaTask* user, CharaTask* target, const atn::Vector3* pos, const atn::Vector3* rot, boost::function<void(Bullet_unk*)> callback, float rate);
+extern "C" SkillEffect* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill, CharaTask* user, CharaTask* target, const atn::Vector3* pos, const atn::Vector3* rot, boost::function<void(SkillEffect*)> callback, float rate);
 
 // inferred: empty
 extern "C" void fn_8059AB94() {}
@@ -250,14 +249,14 @@ int SkillEffectManager::fn_8059B1B4() {
 // NONMATCHING: 98.69% - register allocation only: the loop counters/pointers of the first and the
 // unsigned loops get other registers (tried shared counters, declaration order).
 void SkillEffectManager::vf10() {
-    Bullet_unk* bullets = mBullets;
+    SkillEffect* bullets = mBullets;
     for (int i = 0; i < 32; i++) {
         fn_80599454(&bullets[i], m2928);
     }
     PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
     if (player != 0 && player->mStatus.m04 < 0.3f * player->mStatus.mParamB.m84) {
         for (unsigned int i = 0; i < 32; i++) {
-            Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+            SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
             if (bullet != 0 && bullet->IsActive_unk()) {
                 int type = bullet->m08->mType;
                 if (type == 3 || type == 0) {
@@ -275,7 +274,7 @@ void SkillEffectManager::vf10() {
         }
     } else {
         for (unsigned int i = 0; i < 32; i++) {
-            Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+            SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
             if (bullet != 0 && bullet->IsActive_unk()) {
                 bullet->fn_8059A1FC(0);
             }
@@ -301,7 +300,7 @@ void SkillEffectManager::vf10() {
 }
 
 void SkillEffectManager::vf14() {
-    Bullet_unk* bullet = mBullets;
+    SkillEffect* bullet = mBullets;
     for (int i = 0; i < 32; i++, bullet++) {
         if (bullet->IsActive_unk()) {
             bullet->fn_80599C6C();
@@ -312,13 +311,13 @@ void SkillEffectManager::vf14() {
 // NONMATCHING: 99.01% - register allocation of the parameters (user gets r25 instead of r31) and
 // the order of two increments in the unrolled search; tried member function, if/else layout.
 // inferred: casts `skill`; returns the effect (null if none is free or the skill is of kind 7)
-extern "C" Bullet_unk* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill, CharaTask* user,
+extern "C" SkillEffect* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill, CharaTask* user,
                                    CharaTask* target, const atn::Vector3* pos, const atn::Vector3* rot,
-                                   boost::function<void(Bullet_unk*)> callback, float rate) {
+                                   boost::function<void(SkillEffect*)> callback, float rate) {
     if (GetKind_unk(skill) == 7) {
         self->fn_8059B8A8(skill, user, pos, rot);
     } else {
-        Bullet_unk* bullet = self->FindFree_unk();
+        SkillEffect* bullet = self->FindFree_unk();
         if (bullet != 0) {
             fn_805989A4(bullet, skill, user, target, pos, rot, callback, rate);
             if (lbl_8087F610 != 0 && fn_8021A984(skill)) {
@@ -336,9 +335,9 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
                                      const atn::Vector3* rot) {
     atn::FixedArray_unk<Pair_unk<HitInfo_unk*, CharaTask*>, 32> hits;
     atn::FixedArray_unk<Pair_unk<HitInfo_unk*, CharaTask*>, 32> heals;
-    atn::FixedArray_unk<Pair_unk<Bullet_unk*, HitInfo_unk*>, 32> subs;
+    atn::FixedArray_unk<Pair_unk<SkillEffect*, HitInfo_unk*>, 32> subs;
     for (unsigned int i = 0; i < 32; i++) {
-        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
         HitInfo_unk* hit = 0;
         if (bullet != 0) {
             hit = bullet->GetHit_unk();
@@ -387,7 +386,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
                         subs.push_back(MakePair_unk(bullet, sub));
                     }
                 }
-                fn_805991E0(bullet);
+                bullet->fn_805991E0();
             }
         }
     }
@@ -417,7 +416,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
     for (int i = 0; i < subs.size(); i++) {
         if (!user->mFlag2) {
             subs[i].first->fn_80599FB4(1);
-            Bullet_unk* bullet = subs[i].first;
+            SkillEffect* bullet = subs[i].first;
             fn_800FB1BC(lbl_8087F048, bullet->m08, subs[i].second, &bullet->m10, &bullet->m1C, 0, 0);
         }
         if (lbl_8087F490 != 0) {
@@ -436,7 +435,7 @@ void SkillEffectManager::fn_8059C084(CharaTask* chara) {
         ok = 0;
     }
     if (ok) {
-        Bullet_unk* bullet = mBullets;
+        SkillEffect* bullet = mBullets;
         for (int i = 0; i < 32; i++, bullet++) {
             if (!bullet->IsActive_unk()) {
                 continue;
@@ -474,28 +473,28 @@ void SkillEffectManager::fn_8059C084(CharaTask* chara) {
 }
 
 void SkillEffectManager::fn_8059C2A8(CharaTask* target, HitInfo_unk* hit) {
-    Bullet_unk* bullet = mBullets;
+    SkillEffect* bullet = mBullets;
     for (int i = 0; i < 32; i++, bullet++) {
         if (bullet->m0C == target && (hit == 0 || bullet->m04 == hit)) {
-            fn_805991E0(bullet);
+            bullet->fn_805991E0();
         }
     }
 }
 
 void SkillEffectManager::fn_8059C32C(int clear) {
-    Bullet_unk* bullet = mBullets;
+    SkillEffect* bullet = mBullets;
     for (int i = 0; i < 32; i++, bullet++) {
         if (bullet->IsActive_unk()) {
             if (clear) {
-                bullet->SetCallback_unk(boost::function<void(Bullet_unk*)>());
+                bullet->SetCallback_unk(boost::function<void(SkillEffect*)>());
             }
-            fn_805991E0(bullet);
+            bullet->fn_805991E0();
         }
     }
 }
 
-Bullet_unk* SkillEffectManager::fn_8059C5DC(CharaTask* owner, int id, int flags) {
-    Bullet_unk* bullet = mBullets;
+SkillEffect* SkillEffectManager::fn_8059C5DC(CharaTask* owner, int id, int flags) {
+    SkillEffect* bullet = mBullets;
     for (int i = 0; i < 32; bullet++, i++) {
         if (bullet->IsActive_unk() && (owner == 0 || bullet->m08 == owner) && (id <= 0 || id == bullet->m04->m04) &&
             (flags <= 0 || (flags & bullet->m04->mAC) == flags)) {
@@ -726,7 +725,7 @@ void SkillEffectManager::fn_8059D168(CharaTask* chara) {
 
 void SkillEffectManager::fn_8059D178() {
     for (unsigned int i = 0; i < 32; i++) {
-        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
         if (bullet != 0 && bullet->IsActive_unk() && (bullet->m08->mType == 3 || bullet->m08->mType == 0) &&
             fn_8021A984(!bullet->fn_8059A264() ? bullet->m04 : bullet->GetOwnHit_unk())) {
             bullet->fn_8059A0B4(&m28A0);
@@ -736,7 +735,7 @@ void SkillEffectManager::fn_8059D178() {
 
 void SkillEffectManager::fn_8059D268(int arg) {
     for (unsigned int i = 0; i < 32; i++) {
-        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        SkillEffect* bullet = lbl_8087F9E8->GetBullet_unk(i);
         if (bullet != 0 && bullet->IsActive_unk()) {
             bullet->fn_8059A1FC(arg);
         }
@@ -767,7 +766,7 @@ void SkillEffectManager::fn_8059D3B0(CharaTask* chara) {
         return;
     }
     for (int i = 0; i < 32; i++) {
-        Bullet_unk* bullet = &mBullets[i];
+        SkillEffect* bullet = &mBullets[i];
         if (!bullet->IsActive_unk() || bullet->m08 == 0 || bullet->m08->fn_8016F3D0(chara, 1) ||
             bullet->fn_8059A264()) {
             continue;

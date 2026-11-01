@@ -439,7 +439,7 @@ void Bullet::vf14(const Mtx m) {
 // collision and hits with fn_80110858
 void Bullet::fn_801100A0() {
     if (lbl_8087F9E8 != 0 && fn_8021A8D0(m68) == 0) {
-        Bullet_unk* shield = lbl_8087F9E8->fn_8059C5DC(0, 0, 0x400000); // inferred: shield effect
+        SkillEffect* shield = lbl_8087F9E8->fn_8059C5DC(0, 0, 0x400000); // inferred: shield effect
         if (shield != 0 && shield->m08 != 0 && m88 != 0 && shield->m08->fn_8016F3D0(m88, 1) == 0) {
             atn::ColliCapsuleShape_unk seg;
             seg.mStart = m14;
@@ -554,7 +554,7 @@ void Bullet::fn_80112174() {
     }
     CollResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &m14, &m08, mask, 0, 0) != 0) {
-        ((Bullet_unk*)m8C)->fn_80599FFC(&res.m10); // inferred: m8C is a skill effect
+        ((SkillEffect*)m8C)->fn_80599FFC(&res.m10); // inferred: m8C is a skill effect
         vf0C(1, 0);
     }
 }

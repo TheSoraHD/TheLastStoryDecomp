@@ -12,12 +12,13 @@
 
 class CharaTask;
 
-// inferred: effect of a skill/magic (0x140 bytes, 32 of them in SkillEffectManager); its methods
-// are in game/SkillEffect_unk.cpp (0x80598874-0x8059AB94, its own float pool). The name
-// Bullet_unk is the one used by CharaTask::fn_801784BC; gmk::HealPoint calls it SkillEffect.
-struct Bullet_unk {
-    Bullet_unk();  // 0x80598874
-    ~Bullet_unk(); // 0x80598900
+// Effect of a skill/magic (0x140 bytes, 32 of them in SkillEffectManager); its methods are in
+// game/SkillEffect.cpp (0x80598874-0x8059AB94, its own float pool). Class name from the RTTI of
+// boost::_bi::bind_t<..., mf1<void, gmk::HealPoint, SkillEffect *>> (previously Bullet_unk).
+struct SkillEffect {
+    SkillEffect();  // 0x80598874
+    ~SkillEffect(); // 0x80598900
+    void fn_805991E0();        // inferred: stops it (runs the callback)
     void fn_80599C6C();        // inferred: draw (empty in this build)
     int fn_80599C90(CharaTask* chara); // inferred: the effect can reach `chara`
     int fn_80599D60(CharaTask* chara, int check); // inferred: the effect touches `chara`
@@ -28,7 +29,7 @@ struct Bullet_unk {
     int fn_8059A264(); // inferred: nonzero when the effect uses its own copy of the hit data (m80)
 
     // inferred: replaces the callback (weak copy 0x8059C3F4; name invented)
-    void SetCallback_unk(boost::function<void(Bullet_unk*)> callback) { mCallback = callback; }
+    void SetCallback_unk(boost::function<void(SkillEffect*)> callback) { mCallback = callback; }
     // inferred: state 3 = finished
     bool IsActive_unk() { return m04 != 0 && m00 != 3; }
     // inferred: own copy of the hit data
@@ -53,7 +54,7 @@ struct Bullet_unk {
     float m5C;         // inferred: radius
     int m60;           // inferred: frame counter
     atn::SoundRef m64;
-    boost::function<void(Bullet_unk*)> mCallback; // 0x68: inferred: called when the effect ends
+    boost::function<void(SkillEffect*)> mCallback; // 0x68: inferred: called when the effect ends
     int m7C;           // inferred: the efp effect is playing
     BulletParam_unk m80; // inferred: own copy of the hit data
     int m13C; // inferred: set when the effect is reflected (fn_8059D3B0)
@@ -79,7 +80,7 @@ public:
     void fn_8059C32C(int clear); // inferred: stops every effect (and drops its callback)
     // inferred: active effect of `owner` (any if null) with skill id `id` (any if <= 0) and all the
     // flags `flags` (any if <= 0)
-    Bullet_unk* fn_8059C5DC(CharaTask* owner, int id, int flags);
+    SkillEffect* fn_8059C5DC(CharaTask* owner, int id, int flags);
     int fn_8059C6DC(HitInfo_unk* hit, CharaTask* owner); // inferred: `owner` has an effect of `hit`
     // inferred: status effects shown on a character (start/stop pairs; ids 10-15 of fn_80232B7C)
     void fn_8059C800(CharaTask* chara);
@@ -113,15 +114,15 @@ public:
     void fn_8059D3B0(CharaTask* chara); // inferred: `chara` reflects the enemy effects
 
     // inferred: effect slot i (null out of range); called on the singleton
-    Bullet_unk* GetBullet_unk(unsigned int i) {
+    SkillEffect* GetBullet_unk(unsigned int i) {
         if (i >= 32) {
             return 0;
         }
         return &mBullets[i];
     }
     // inferred: first free effect slot
-    Bullet_unk* FindFree_unk() {
-        Bullet_unk* bullet = mBullets;
+    SkillEffect* FindFree_unk() {
+        SkillEffect* bullet = mBullets;
         for (int i = 0; i < 32; i++, bullet++) {
             if (!bullet->IsActive_unk()) {
                 return &mBullets[i];
@@ -130,7 +131,7 @@ public:
         return 0;
     }
 
-    Bullet_unk mBullets[32];   // 0x48
+    SkillEffect mBullets[32];   // 0x48
     int mLoaded;               // 0x2848
     atn::EfpFile m284C;
     atn::EfpFile m2858;

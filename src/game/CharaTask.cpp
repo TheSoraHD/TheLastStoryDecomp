@@ -11342,7 +11342,7 @@ inline bool IsArena01_unk() {
 }
 
 // inferred: records the hit of `bullet` (and of its second bullet) on the character
-int CharaTask::fn_801784BC(Bullet_unk* bullet, int flag) {
+int CharaTask::fn_801784BC(SkillEffect* bullet, int flag) {
     int result = 0;
     HitInfo_unk* data = bullet->GetHit_unk();
     HitInfo_unk* sub = data->m6C > 0 ? fn_80219E6C(data->m6C) : 0;

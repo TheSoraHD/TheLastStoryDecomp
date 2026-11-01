@@ -592,7 +592,6 @@ extern "C" int fn_8001BEE0(CharaTask* chara) {
 extern "C" int fn_80018078(void* routes, CharaTask* chara);
 extern "C" int fn_80018BAC(void* routes, CharaTask* chara);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
-extern "C" int fn_80599C90(Bullet_unk* bullet, CharaTask* chara);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 
 // inferred: stub that ignores its two characters (callers in AI_archer_attack01 pass them)
@@ -612,11 +611,11 @@ extern "C" SkillEffectManager* lbl_8087F9E8;
 
 extern "C" int fn_8001BF64(CharaTask* chara) {
     int count = 0;
-    Bullet_unk* bullet = 0;
+    SkillEffect* bullet = 0;
     for (unsigned int i = 0; i < 32; i++) {
         bullet = lbl_8087F9E8->GetBullet_unk(i);
         if (bullet != 0 && bullet->IsActive_unk() && fn_8021A984(bullet->m04) &&
-            fn_80599C90(bullet, chara)) {
+            bullet->fn_80599C90(chara)) {
             count++;
         }
     }

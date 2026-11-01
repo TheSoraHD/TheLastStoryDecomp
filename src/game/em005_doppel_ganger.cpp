@@ -151,7 +151,6 @@ extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg3); // i
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill (game/BattleEfp_unk.cpp)
-extern "C" void fn_805991E0(Bullet_unk* bullet); // inferred: stops an effect of a skill
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, void* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
@@ -462,7 +461,7 @@ void Em005DoppelGanger::vf10() {
             }
         }
         for (int i = 0; i < 32; i++) {
-            Bullet_unk* b = lbl_8087F9E8->GetBullet_unk(i);
+            SkillEffect* b = lbl_8087F9E8->GetBullet_unk(i);
             if (b->IsActive_unk() && (b->m08 == 0 || b->m08->mType != 2) && b->m04 != 0 && b->m04->m01 == 4) {
                 if (b->m10.z > sOffsetB_unk.z) {
                     atn::EfpFile* efp = fn_800EFC64(b->m04->mB0);
@@ -497,7 +496,7 @@ void Em005DoppelGanger::vf10() {
                         }
                     }
                 }
-                fn_805991E0(b);
+                b->fn_805991E0();
             }
         }
     } else if (m14BC == 1) {
@@ -728,7 +727,7 @@ void Em005DoppelGanger::vf10() {
     if (lbl_8087F3D8 == 0) {
         if (fn_80370A78(lbl_8087F430, 0xEA) == 0) {
             for (unsigned int i = 0; i < 32; i++) {
-                Bullet_unk* b = lbl_8087F9E8->GetBullet_unk(i);
+                SkillEffect* b = lbl_8087F9E8->GetBullet_unk(i);
                 if (b != 0 && b->IsActive_unk() && b->fn_8059A264()) {
                     fn_80370AE4(lbl_8087F430, 0xEA, 1);
                     break;
@@ -1084,9 +1083,9 @@ namespace {
 int ControlCall::vf0C() {
     int result = 0;
     CharaTask* chara = mChara;
-    Bullet_unk* bullet = 0;
+    SkillEffect* bullet = 0;
     for (int i = 0; i < 32; i++) {
-        Bullet_unk* b = lbl_8087F9E8->GetBullet_unk(i);
+        SkillEffect* b = lbl_8087F9E8->GetBullet_unk(i);
         if (b->IsActive_unk() && b->m08 == chara && b->m04 != 0 && b->m04->m01 == 5) {
             bullet = b;
             break;
