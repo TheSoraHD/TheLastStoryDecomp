@@ -92,8 +92,7 @@ extern "C" void fn_800CB518(atn::SoundRef* self, int fadeFrames) {
     if (self->mPtr != 0 && self->mPtr->mSound != 0) self->mPtr->mSound->FadeIn(fadeFrames);
 }
 
-// NONMATCHING: 90.48% - comparacion > 0 del resultado del ternario.
-extern "C" bool fn_800CB538(atn::SoundRef* self) {
+extern "C" bool fn_800CB538(const atn::SoundRef* self) {
     if (self->mPtr != 0) {
         return (self->mPtr->mSound != 0 ? self->mPtr->mSound->GetRemainingFadeFrames() : 0) > 0;
     }
