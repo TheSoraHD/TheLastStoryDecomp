@@ -69,6 +69,35 @@ public:
     virtual int vf0C(Action* arg, int phase);
 };
 
+class ActionCameraMode : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraMode> {
+public:
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
+};
+
+int ActionCameraMode::vf08(Action* arg) {
+    EventManager_unk* manager = arg->fn_805381C8();
+    ActionOwner_unk* section = arg->fn_805381A0();
+    float now = manager->m198;
+    int length;
+    int start = arg->m10;
+    int mode = arg->GetParam_unk(0)->m04.i;
+    if (mode == 0) {
+        length = arg->m18;
+        if (length <= 0) {
+            return 0;
+        }
+        GetCamera_unk(section)->fn_801129C0((now - start) / length);
+    } else if (mode == 4) {
+        length = arg->m14 - start;
+        if (length <= 0) {
+            return 0;
+        }
+        GetCamera_unk(section)->fn_801129C0((now - start) / length);
+    }
+    return 0;
+}
+
 int ActionCameraShake::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
