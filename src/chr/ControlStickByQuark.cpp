@@ -4,6 +4,7 @@
 #include "chr/ControlStickByQuark.h"
 #include "game/CharaTask.h"
 #include "game/EnemyQuarkStand.h"
+#include "game/Em302Kraken.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 
@@ -38,6 +39,15 @@ extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, flo
 extern "C" int rand();
 extern "C" Unk_8087F490* lbl_8087F490;
 
+// inferred: game state (lbl_8087F490 of chr/ControlAttackBase.cpp): m3A4 is the time scale
+struct GameState_unk {
+    unsigned char m000[0x240];
+    int m240; // inferred: slow motion on
+    unsigned char m244[0x3A4 - 0x244];
+    float m3A4;
+};
+extern "C" GameState_unk* lbl_8087EFA8;
+
 struct EffectMgr_unk;
 struct Color4f_unk {
     Color4f_unk() {}
@@ -49,6 +59,24 @@ extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row 
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
+
+// inferred: plays an effect on a model (name invented)
+static inline void PlayEfp_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
 
 // inferred: special sword attack held by chr::ControlStickSwordSp (class unknown)
 struct SwordEffect_unk {
@@ -219,6 +247,60 @@ ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 of
     }
 }
 
+// NONMATCHING: 97.5% - scheduling of the copy of `target` (the original reloads target.x/z for dir)
+// inferred: thrust at a kraken from `target`; the effect is played for the kraken of kind 0x1E
+ControlThrustForKraken::ControlThrustForKraken(Chara_unk* chara, int kraken, atn::Vector3 target)
+    : ControlBase(chara) {
+    Em302Kraken* k = (Em302Kraken*)kraken;
+    chara->m58C = 0;
+    mChara->SetControlId_unk(0x4D);
+    if (k->m60->m24 == 0x1E) {
+        PlayEfp_unk(lbl_8087F3C0, &k->m15F4, (atn::Model*)mChara->m648->m010);
+    }
+    mTarget = target;
+    mTarget.y = 70.0f + k->mPos.y;
+    mFrom = k->mPos;
+    mFrom.y = 70.0f + k->mPos.y;
+    atn::Vector3 dir = mTarget - mFrom;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    mDest = mFrom + dir * 30.0f;
+    mDir = dir;
+    mDir2 = dir;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x20D, 0, 1, 1, 1.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+    m->mTracks[0].m08 = 23.0f;
+    if (lbl_8087F498 != 0) {
+        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+    }
+}
+
+// NONMATCHING: 71.9% - the original loads m10/m1C before saving r31 (as in a const method)
+atn::Vector3 ControlThrustForKraken::vf14() {
+    return mFrom + (mFrom - mTarget).GetNormalize() * 30.0f;
+}
+
+void ControlThrustForQuarkStand::vf1C() {
+    lbl_8087EFA8->m3A4 = 1.0f;
+    lbl_8087EFA8->m240 = 0;
+}
+
+// NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
+atn::Vector3 ControlThrustForGhoul::vf14() {
+    return m10;
+}
+
+void ControlThrustForGhoul::vf40() {
+}
+
+void ControlThrustForGhoul::vf1C() {
+    lbl_8087EFA8->m3A4 = 1.0f;
+    lbl_8087EFA8->m240 = 0;
+}
+
 ControlAbsorbed::ControlAbsorbed(Chara_unk* chara) : ControlBase(chara) {
     chara->m58C = 0;
     mChara->SetControlId_unk(0x41);
@@ -300,6 +382,10 @@ bool ControlStickSwordSp::fn_80196C68() const {
         }
     }
     return ret;
+}
+
+void ControlMatHoldGuard::vf1C() {
+    lbl_8087EFA8->m3A4 = 1.0f;
 }
 
 } // namespace chr

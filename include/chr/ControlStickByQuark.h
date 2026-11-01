@@ -52,10 +52,14 @@ public:
 
 class ControlThrustForKraken : public ControlBase {
 public:
-    ControlThrustForKraken(Chara_unk* chara, int a, atn::Vector3 v); // 0x80194550
+    ControlThrustForKraken(Chara_unk* chara, int kraken, atn::Vector3 target); // 0x80194550
     virtual int vf0C();
     virtual atn::Vector3 vf14();
-    unsigned char m08[0x44 - 0x08];
+    atn::Vector3 mTarget; // 0x08
+    atn::Vector3 mFrom;   // 0x14: inferred: the kraken
+    atn::Vector3 mDest;   // 0x20
+    atn::Vector3 mDir;    // 0x2C
+    atn::Vector3 mDir2;   // 0x38
 };
 
 // inferred: constructor 0x80194E2C (0x38 bytes; the vtable 0x8077EB20 is stored first), called by
@@ -81,7 +85,9 @@ public:
     virtual void vf1C();
     virtual void vf40();
     virtual int vf54() { return m38; }
-    unsigned char m08[0x38 - 0x08];
+    unsigned char m08[0x10 - 0x08];
+    atn::Vector3 m10;
+    unsigned char m1C[0x38 - 0x1C];
     bool m38;
     unsigned char m39[0x3C - 0x39];
 };
