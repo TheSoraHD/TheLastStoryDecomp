@@ -44,7 +44,10 @@ struct ScreenInfo_unk {
     unsigned char m000[0x120];
     int m120;
 };
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // inferred: sets the reflection plane

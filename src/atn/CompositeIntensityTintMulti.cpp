@@ -8,7 +8,10 @@
 // of its inline helpers (0x800D87A4-0x800D8C14: handle ctor/AddRef/Release/texture, RGBA ctor, texture
 // accessors, push_back of the command list...) before the constructor.
 
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 // inferred: fn_800D59B8 is a member of the texture class (see game/StrapTask.cpp)
 struct GimmickUvOwner_unk {

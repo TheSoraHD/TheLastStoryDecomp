@@ -22,7 +22,10 @@ extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
 extern "C" void* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text

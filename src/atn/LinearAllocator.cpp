@@ -6,7 +6,10 @@
 // The real file defines atn::PostFxManager (RTTI name at 0x80732AC8), a task that owns the
 // post effects and a linear allocator for their temporary textures.
 
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 // inferred: render parameters (fields named by offset)
 struct PostFxParams_unk {
     unsigned char m000[0x54];

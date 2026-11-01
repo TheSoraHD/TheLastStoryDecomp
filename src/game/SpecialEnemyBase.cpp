@@ -99,7 +99,10 @@ extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" int fn_80370174(Field_unk* field, int index);
 extern "C" void fn_80370320(Field_unk* field, int index, int value, int arg);
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test

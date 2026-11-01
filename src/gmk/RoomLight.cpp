@@ -33,7 +33,10 @@ struct LightTarget_unk {
     unsigned char m78[0xC8 - 0x78];
     int mC8;
 };
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 

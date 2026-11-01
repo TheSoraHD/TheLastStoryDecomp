@@ -52,7 +52,10 @@ struct CameraLens_unk {
     unsigned char m000[0x2FC];
     Lens_unk* m2FC;
 };
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 struct ScreenInfo_unk {
     unsigned char m00[0x2C];

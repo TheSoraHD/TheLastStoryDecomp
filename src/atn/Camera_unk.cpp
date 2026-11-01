@@ -153,14 +153,14 @@ inline Vector3 Cross_unk(const Vector3& a, const Vector3& b) {
     return r;
 }
 
-Camera_unk::Camera_unk(int type, int projType)
+atn::Camera::Camera(int type, int projType)
     : mType(type), mProjType(projType), mPos(1.0f, 1.0f, 1.0f), mTarget(0.0f, 0.0f, 0.0f), mUp(0.0f, 1.0f, 0.0f),
       mRot(0.7853982f, 0.7853982f, 0.0f), mRoll(0.0f), mTop(1.0f), mBottom(-1.0f), mLeft(-1.0f), mRight(1.0f),
       mDist(1.0f), mFovy(0.5235988f), mAspect(1.0f), mNear(1.0f), mFar(10000.0f) {
     fn_8004B378();
 }
 
-Camera_unk::~Camera_unk() {}
+atn::Camera::~Camera() {}
 
 // NONMATCHING: 99.97% - r3/r4 swapped in the copy of the cross product (__VecCopy, known blocker)
 void Camera_unk::fn_8004B378() {

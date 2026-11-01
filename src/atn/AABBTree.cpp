@@ -3,7 +3,10 @@
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 // inferred: frustum of the camera (camera + 0x204)
 struct AABBFrustum_unk;
 // inferred: camera of the scene (fields named by offset)

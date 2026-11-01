@@ -47,7 +47,10 @@ struct Settings_unk {
     int mDrawDebug; // 0x34
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_803E2A30(void* draw, int kind, int alpha, atn::Vector3 pos, int a, int b);

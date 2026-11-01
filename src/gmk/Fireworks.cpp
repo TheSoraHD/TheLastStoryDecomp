@@ -42,7 +42,10 @@ struct LightTarget_unk {
     int mC8;
     void SetLayer_unk(int layer) { mC8 = layer; }
 };
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 // inferred: debug settings

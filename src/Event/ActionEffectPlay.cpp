@@ -61,7 +61,10 @@ struct ReflectTarget_unk {
     unsigned char m00[0x120];
     int m120; // inferred: map reflection
 };
-class Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" ReflectTarget_unk* fn_800C16B4(Camera_unk* camera);
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume

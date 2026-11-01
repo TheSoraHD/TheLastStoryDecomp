@@ -11,7 +11,10 @@
 // (iostream facets, up to 0x802411B8) and the EfpInfoList loader, and ends with the this-adjusting
 // thunks of EffectManager for its IRender base (0x8024372C/0x80243734, emitted by MWCC at the end).
 
-struct Camera_unk;
+namespace atn {
+struct Camera;
+}
+typedef atn::Camera Camera_unk;
 namespace atn {
 struct Model;
 }

@@ -33,29 +33,32 @@ extern "C" int fn_800500FC(const Frustum_unk* fr, const atn::Vector3* box); // i
 extern "C" int fn_800502A8(const Frustum_unk* fr, const atn::Vector3* box); // inferred: box: 0 out, 1 in
 extern "C" int fn_80050420(const Frustum_unk* fr, const atn::Vector3* seg, atn::Vector3* out); // inferred: clips a segment
 
-// inferred: engine camera (0x1F4 bytes; also atn/LH_Scene.cpp, game/CharaTask.cpp). Names invented.
-struct Camera_unk {
-    Camera_unk(int type = 0, int projType = 0);
-    ~Camera_unk();
+namespace atn {
+
+// engine camera atn::Camera (0x1F4 bytes; name from SetPosition__Q23atn6Camera of the RSO; the
+// other member names are invented). Camera_unk is kept as a typedef for the existing code.
+struct Camera {
+    Camera(int type = 0, int projType = 0);
+    ~Camera();
     void fn_8004B378(); // inferred: updates the view, projection and frustum
     // inferred: free debug camera moved with the pad; true when it moved
     bool fn_8004BF64(float speed, float rotSpeed);
     // inferred: accessors (weak copies 0x80113CCC, 0x80112958, 0x80112960, 0x80114AA0, 0x80116E6C and
     // 0x80116BA4 in Event/Path.cpp; the one at 0x80114AA0 is SetPosition__Q23atn6Camera in the RSO,
     // so this class is atn::Camera)
-    const atn::Vector3* GetPosition_unk() const { return &mPos; }
-    const atn::Vector3* GetTarget_unk() const { return &mTarget; }
-    void SetTarget_unk(const atn::Vector3& v) { mTarget = v; }
-    void SetPosition(const atn::Vector3& v) { mPos = v; }
-    const atn::Vector3* GetRot_unk() const { return &mRot; }
+    const Vector3* GetPosition_unk() const { return &mPos; }
+    const Vector3* GetTarget_unk() const { return &mTarget; }
+    void SetTarget_unk(const Vector3& v) { mTarget = v; }
+    void SetPosition(const Vector3& v) { mPos = v; }
+    const Vector3* GetRot_unk() const { return &mRot; }
     float GetFovy_unk() const { return mFovy; }
 
     int mType;              // 0x00: 0 = look at, 1 = position and angles, 2 = look at with roll
     int mProjType;          // 0x04: 0 = perspective, 1 = orthographic
-    atn::Vector3 mPos;      // 0x08
-    atn::Vector3 mTarget;   // 0x14
-    atn::Vector3 mUp;       // 0x20
-    atn::Vector3 mRot;      // 0x2C: angles (x, y, z)
+    Vector3 mPos;      // 0x08
+    Vector3 mTarget;   // 0x14
+    Vector3 mUp;       // 0x20
+    Vector3 mRot;      // 0x2C: angles (x, y, z)
     float mRoll;            // 0x38
     float mTop;             // 0x3C
     float mBottom;          // 0x40
@@ -64,13 +67,17 @@ struct Camera_unk {
     float mDist;            // 0x4C
     float mFovy;            // 0x50
     float mAspect;          // 0x54
-    atn::Matrix3x4 mView;   // 0x58
-    atn::Matrix44_unk mProj; // 0x88
+    Matrix3x4 mView;   // 0x58
+    Matrix44_unk mProj; // 0x88
     float mNear;            // 0xC8
     float mFar;             // 0xCC
-    atn::Matrix3x4 mInvView; // 0xD0
+    Matrix3x4 mInvView; // 0xD0
     Frustum_unk mFrustum;   // 0x100
 };
+
+} // namespace atn
+
+typedef atn::Camera Camera_unk;
 
 // inferred: camera parameter applied to a model by fn_80095F10 (game/CharaTask.cpp, Event/DialogHead.cpp);
 // names invented
