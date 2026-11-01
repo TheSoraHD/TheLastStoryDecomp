@@ -4,7 +4,7 @@
 namespace Event {
 
 // inferred: walks the actor to the position of parameter 1 (radius in parameter 5)
-int BehaviorMoveTo::vf0C(ActionArg_unk* arg, int phase) {
+int BehaviorMoveTo::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         ActionOwner_unk* owner = arg->fn_805381A0();
@@ -35,7 +35,7 @@ int BehaviorMoveTo::vf0C(ActionArg_unk* arg, int phase) {
     return 0;
 }
 
-int BehaviorMoveTo::vf08(ActionArg_unk* arg) {
+int BehaviorMoveTo::vf08(Action* arg) {
     ActionOwner_unk* owner = arg->fn_805381A0();
     EventManager_unk* mgr = arg->fn_805381C8();
     int id = owner->m10;

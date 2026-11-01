@@ -6,7 +6,7 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 namespace Event {
 
 // inferred: test behaviour, plays one of four motions when its pad button is pressed
-int BehaviorGesture::vf08(ActionArg_unk* arg) {
+int BehaviorGesture::vf08(Action* arg) {
     ActionOwner_unk* owner = arg->fn_805381A0();
     EventManager_unk* mgr = arg->fn_805381C8();
     int id = owner->m10;
@@ -29,7 +29,7 @@ int BehaviorGesture::vf08(ActionArg_unk* arg) {
     return 0;
 }
 
-int BehaviorGesture::vf0C(ActionArg_unk* arg, int phase) {
+int BehaviorGesture::vf0C(Action* arg, int phase) {
     return 0;
 }
 

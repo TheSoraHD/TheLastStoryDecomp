@@ -5,6 +5,7 @@
 // what Event/BehaviorFollow.cpp uses is declared; member names are invented.
 
 #include "math/Vec.h"
+#include "Event/Action.h"
 
 class CharaTask;
 
@@ -48,7 +49,7 @@ struct Actor_unk {
     unsigned char m24[0x1C0 - 0x24];
 };
 
-// inferred: event manager returned by ActionArg_unk::fn_805381C8
+// inferred: event manager returned by Action::fn_805381C8
 struct EventManager_unk {
     // inferred: lookup of an actor by id (inlined)
     // The unsigned index gives the registers of the original in BehaviorFollow/BehaviorMoveTo::vf0C
@@ -75,55 +76,32 @@ struct ActionOwner_unk {
     int m10; // inferred: id of the actor
 };
 
-// inferred: parameter of an action (8 bytes)
-struct ActionParam_unk {
-    int m00;
-    union {
-        int i;
-        float f;
-    } m04;
-};
-
-// inferred: running action passed to the processors
-struct ActionArg_unk {
-    ActionOwner_unk* fn_805381A0();
-    EventManager_unk* fn_805381C8();
-    atn::Vector3 fn_805382BC(int arg); // inferred: a position read from the parameters
-    void fn_80538DC4(int arg);
-
-    // inferred: inlined accessor (0 when the action has fewer parameters)
-    ActionParam_unk* GetParam_unk(int n) { return m30 > n ? &m2C[n] : 0; }
-
-    unsigned char m00[0x2C];
-    ActionParam_unk* m2C;
-    int m30;
-};
 
 class ActionProcessor {
 public:
-    virtual int vf08(ActionArg_unk* arg) = 0;
-    virtual int vf0C(ActionArg_unk* arg, int phase) = 0;
+    virtual int vf08(Action* arg) = 0;
+    virtual int vf0C(Action* arg, int phase) = 0;
 };
 
 class BehaviorMoveTo : public ActionProcessor, public atn::Singleton<BehaviorMoveTo> {
 public:
     ~BehaviorMoveTo();
-    virtual int vf08(ActionArg_unk* arg);
-    virtual int vf0C(ActionArg_unk* arg, int phase);
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
 };
 
 class BehaviorFollow : public ActionProcessor, public atn::Singleton<BehaviorFollow> {
 public:
     ~BehaviorFollow();
-    virtual int vf08(ActionArg_unk* arg);
-    virtual int vf0C(ActionArg_unk* arg, int phase);
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
 };
 
 class BehaviorGesture : public ActionProcessor, public atn::Singleton<BehaviorGesture> {
 public:
     ~BehaviorGesture();
-    virtual int vf08(ActionArg_unk* arg);
-    virtual int vf0C(ActionArg_unk* arg, int phase);
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
 };
 
 // inferred: table of the behaviours (Event/Behavior_unk.cpp); names invented
