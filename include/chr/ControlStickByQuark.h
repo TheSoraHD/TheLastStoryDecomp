@@ -105,8 +105,14 @@ public:
 
 class ControlThrustForCocoon : public ControlBase {
 public:
-    ControlThrustForCocoon(Chara_unk* chara); // 0x80196428
+    ControlThrustForCocoon(Chara_unk* chara, Chara_unk* cocoon, int a); // 0x80196428
     virtual int vf0C();
+    atn::Vector3 mTarget; // 0x08: inferred: the cocoon
+    atn::Vector3 mStart;  // 0x14
+    float mYaw;           // 0x20
+    Chara_unk* mCocoon;   // 0x24
+    int m28;
+    bool m2C;
 };
 
 class ControlAbsorbed : public ControlBase {

@@ -719,6 +719,21 @@ void ControlThrustForGhoul::vf1C() {
     lbl_8087EFA8->mSlow.mOn = 0;
 }
 
+// inferred: thrust at a cocoon (control id 0x4F), facing it
+ControlThrustForCocoon::ControlThrustForCocoon(Chara_unk* chara, Chara_unk* cocoon, int a)
+    : ControlBase(chara), mCocoon(cocoon), m28(a), m2C(false) {
+    chara->m58C = 0;
+    mChara->SetControlId_unk(0x4F);
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x212, 0, 1, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+    mYaw = atn::WrapAngle_unk(3.1415927f + cocoon->mRot.y);
+    mTarget = cocoon->mPos;
+    mStart = mChara->mPos;
+}
+
 ControlAbsorbed::ControlAbsorbed(Chara_unk* chara) : ControlBase(chara) {
     chara->m58C = 0;
     mChara->SetControlId_unk(0x41);
