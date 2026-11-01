@@ -188,6 +188,10 @@ struct Vector2_unk {
         __Vec2Copy(&x, &v.x);
         return *this;
     }
+    // inferred: as the Vector3 ones (gmk::CharaLight::vf10)
+    Vector2_unk operator+(const Vector2_unk& v) const { return Vector2_unk(x + v.x, y + v.y); }
+    Vector2_unk operator-(const Vector2_unk& v) const { return Vector2_unk(x - v.x, y - v.y); }
+    Vector2_unk operator*(float f) const { return Vector2_unk(x * f, y * f); }
     float x, y;
 };
 

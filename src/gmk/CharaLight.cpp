@@ -1,12 +1,14 @@
 #include "gmk/CharaLight.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "game/CharaTask.h"
 #include "game/EnemyManager.h"
 #include "game/NpcManager.h"
 #include "game/ResHandle.h"
 #include <boost/function.hpp>
 #include "game/MapManager.h"
 #include "atn/LambdaPlaceholders_unk.h"
+#include "macros.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -107,6 +109,51 @@ void CharaLight::Start() {
     mLight.m04.y = m6C.z;
     GimmickMsg_unk msg(1);
     vf40(&msg);
+}
+
+extern "C" atn::Vector2_unk lbl_807C7028; // inferred: zero 2D vector (atn/Math_unk.cpp)
+extern "C" double sin(double x);
+// inferred: float sine (as Cos_unk__Ff 0x801C1060 of chr/ControlMoveCursor.cpp; name invented)
+inline float Sin_unk(float x) { return sin(x); }
+
+// inferred: a + (b - a) * t (name invented)
+inline atn::Vector2_unk Lerp2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: follows the target and animates the size of the light (states 2-6 grow it towards the
+// size of their PARAM row and make it pulse)
+void CharaLight::vf10() {
+    if (m54 == 0) {
+        Start();
+    }
+    MapManager::sInstance->fn_80491528(&fn_804225E0, &mLight);
+    m150 += 0.08726646f;
+    m150 = atn::WrapAngle_unk(m150);
+    if (m54 == 1) {
+        mLight.mSize = lbl_807C7028;
+    } else if (m54 >= 2) {
+        int i = m54 - 2;
+        if (i >= 0 && 5 > i) {
+            Param_unk* param = &mParams[i];
+            if ((float)m14C < param->m00) {
+                m14C++;
+            }
+            float t = param->m00 > 0.0f ? (float)m14C / param->m00 : 1.0f;
+            mLight.mSize = Lerp2_unk(mStartSize, mCurSize, t);
+            mLight.mSize.x = MAX(1.0f, 10.0f * Sin_unk(m150) + mLight.mSize.x);
+            mLight.mSize.y = MAX(1.0f, 10.0f * Sin_unk(m150) + mLight.mSize.y);
+        }
+    }
+    if (mTarget != 0) {
+        mLight.m04.x = ((CharaTask*)mTarget)->mPos.x;
+        mLight.m04.y = ((CharaTask*)mTarget)->mPos.z;
+        mLight.mDir = atn::Vector3(0.0f, 0.0f, 0.0f);
+    } else {
+        mLight.m04.x = m6C.x;
+        mLight.m04.y = m6C.z;
+        mLight.mDir = atn::Vector3(0.0f, 0.0f, 0.0f);
+    }
 }
 
 void CharaLight::vf14() {}
