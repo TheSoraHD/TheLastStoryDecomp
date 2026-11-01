@@ -151,7 +151,7 @@ SkillParam_unk::SkillParam_unk() {
 }
 
 // inferred: adds the lengths of the two texts of a row (with room for the terminators)
-extern "C" void fn_80219F1C(atn::CsvU* csv, int* a, int* b) {
+extern "C" __declspec(noinline) void fn_80219F1C(atn::CsvU* csv, int* a, int* b) {
     *b += wcslen(csv->fn_8005B9CC()) + 2;
     *b += wcslen(csv->fn_8005B9CC()) + 2;
 }

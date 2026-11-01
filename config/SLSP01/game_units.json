@@ -1325,7 +1325,7 @@
  {
   "name": "db/SkillParam_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/HairBackControl_unk.cpp",
