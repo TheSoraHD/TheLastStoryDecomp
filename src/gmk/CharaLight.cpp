@@ -6,6 +6,7 @@
 #include "game/ResHandle.h"
 #include <boost/function.hpp>
 #include "game/MapManager.h"
+#include "atn/LambdaPlaceholders_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* s, const char* format, ...);

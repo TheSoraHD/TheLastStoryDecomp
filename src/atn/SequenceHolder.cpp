@@ -3,18 +3,7 @@
 #include "atn/SequenceControl.h"
 #include "atn/SequenceHolder.h"
 
-// inferred: boost::lambda placeholders (free1..3 and the references _1.._3, set up by the __sinit)
-struct LambdaPlaceholder1_unk {};
-struct LambdaPlaceholder2_unk {};
-struct LambdaPlaceholder3_unk {};
-namespace {
-LambdaPlaceholder1_unk free1;
-LambdaPlaceholder2_unk free2;
-LambdaPlaceholder3_unk free3;
-LambdaPlaceholder1_unk& _1 = free1;
-LambdaPlaceholder2_unk& _2 = free2;
-LambdaPlaceholder3_unk& _3 = free3;
-} // namespace
+#include "atn/LambdaPlaceholders_unk.h"
 
 // inferred: lookups used through a void* by SequenceControl (see include/atn/SequenceControl.h)
 extern "C" atn::SequenceHolder::SequenceUnitBase* fn_800C3D74(atn::SequenceHolder* holder, const char* name);
