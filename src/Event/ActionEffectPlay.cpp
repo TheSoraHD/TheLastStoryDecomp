@@ -20,6 +20,8 @@ struct EventEffects_unk {
     int mC4; // inferred: nonzero when the music fades are shortened
     unsigned char mC8[0x1A38 - 0xC8];
     int m1A38; // inferred: camera change in progress
+    unsigned char m1A3C[0x238C - 0x1A3C];
+    int m238C; // inferred: nonzero while messages are blocked
 };
 extern "C" EventEffects_unk* lbl_8087F540;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
@@ -33,6 +35,36 @@ extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3
 // inferred: spot light (position, direction, two angles, color)
 extern "C" void fn_80485964(EventEffects_unk* mgr, const atn::Vector3& pos, const atn::Vector3& dir, float a,
                             float b, int color);
+
+struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
+extern "C" GameVars_unk* lbl_8087F430;
+extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred: value of a variable
+extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
+
+namespace Event {
+
+// inferred: message window of the events (state 2 or 4: open)
+struct MsgChoice_unk {
+    unsigned char m00[0x7C];
+    unsigned int m7C; // inferred: chosen answer
+};
+struct MsgWindow_unk {
+    bool IsOpen_unk() { return m50 == 2 || m50 == 4; }
+    unsigned char m00[0x50];
+    int m50;
+    MsgChoice_unk* m54; // inferred: answers of a choice
+};
+
+} // namespace Event
+
+extern "C" void* fn_803B3B38(void* table, int id);                              // inferred: message `id`
+extern "C" void fn_803B5830(Event::MsgWindow_unk* window, void* msg, int arg); // inferred: next message
+extern "C" void fn_803B5774(Event::MsgWindow_unk* window, void* msg, int arg); // inferred: opens with a message
+extern "C" void fn_803B57B0(Event::MsgWindow_unk* window, int arg);            // inferred: closes
+extern "C" void fn_803B58D8(Event::MsgWindow_unk* window, void* msg);          // inferred: opens a choice
+extern "C" void fn_803B57EC(Event::MsgWindow_unk* window);                     // inferred: closes the choice
+extern "C" int fn_803B4C24(Event::MsgChoice_unk* choice);                       // inferred: answered
+extern "C" void fn_8054136C(Event::EventManager_unk* manager, int label);      // inferred: jumps to a label
 
 namespace Event {
 
@@ -221,6 +253,108 @@ public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
 };
+
+int ActionNotify::vf0C(Action* arg, int phase) {
+    if (phase == 5 || phase == 0) {
+        if (lbl_8087F430 == 0) {
+            return 2;
+        }
+        int id = arg->fn_805381C8()->m1AC;
+        if (id == -1) {
+            return 2;
+        }
+        int value = fn_80370A78(lbl_8087F430, id);
+        int result = value;
+        int op = arg->GetParam_unk(0)->m04.i;
+        int operand = arg->GetParam_unk(1)->m04.i;
+        if (op == 0) {
+            result = operand;
+        } else if (op == 1) {
+            result = value + operand;
+        } else if (op == 2) {
+            result = value - operand;
+        } else if (op == 3) {
+            result = value * operand;
+        } else if (op == 4) {
+            result = value / operand;
+        }
+        fn_80370AE4(lbl_8087F430, id, result);
+    }
+    return 0;
+}
+
+int ActionMessageChoice::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        if (lbl_8087F540->m238C > 0) {
+            break;
+        }
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        void* msg = fn_803B3B38(manager->m1D4, arg->GetParam_unk(0)->m04.i);
+        fn_803B58D8(manager->m1EC, msg);
+        break;
+    }
+    case 3:
+    case 4: {
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        fn_8054136C(manager, arg->GetParam_unk(4)->m04.i);
+        fn_803B57EC(manager->m1EC);
+        break;
+    }
+    }
+    return 0;
+}
+
+int ActionMessageChoice::vf08(Action* arg) {
+    MsgWindow_unk* window;
+    arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    window = manager->m1EC;
+    if (fn_803B4C24(window->m54)) {
+        int labels[3];
+        labels[0] = arg->GetParam_unk(1)->m04.i;
+        labels[1] = arg->GetParam_unk(2)->m04.i;
+        labels[2] = arg->GetParam_unk(3)->m04.i;
+        unsigned int answer = window->m54->m7C;
+        if (answer <= 2) {
+            fn_8054136C(manager, labels[answer]);
+        }
+        fn_803B57EC(window);
+    }
+    return 0;
+}
+
+int ActionMessageWindow::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        if (lbl_8087F540->m238C > 0) {
+            break;
+        }
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        void* msg = fn_803B3B38(manager->m1D4, arg->GetParam_unk(0)->m04.i);
+        MsgWindow_unk* window = manager->m1EC;
+        if (window->IsOpen_unk()) {
+            fn_803B5830(window, msg, 0);
+        } else {
+            fn_803B5774(window, msg, 0);
+        }
+        break;
+    }
+    case 3:
+    case 4: {
+        arg->fn_805381A0();
+        MsgWindow_unk* window = arg->fn_805381C8()->m1EC;
+        if (arg->GetParam_unk(1)->m04.i == 0 && window->IsOpen_unk()) {
+            fn_803B57B0(window, 0);
+        }
+        break;
+    }
+    }
+    return 0;
+}
 
 int ActionMessagePrint::vf08(Action* arg) {
     return 0;

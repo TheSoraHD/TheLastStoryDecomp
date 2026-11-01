@@ -84,6 +84,11 @@ struct EventManager_unk {
     int m190; // inferred: id of the event (0x5E6 halves the music fades)
     unsigned char m194[0x198 - 0x194];
     float m198; // 0x198: inferred: current frame
+    unsigned char m19C[0x1AC - 0x19C];
+    int m1AC; // inferred: game variable changed by ActionNotify (-1 none)
+    unsigned char m1B0[0x1D4 - 0x1B0];
+    unsigned char m1D4[0x1EC - 0x1D4]; // inferred: message table of the event (fn_803B3B38)
+    struct MsgWindow_unk* m1EC;        // inferred: message window
 };
 
 struct ActionOwner_unk {
