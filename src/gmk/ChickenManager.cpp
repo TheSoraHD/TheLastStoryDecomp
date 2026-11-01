@@ -108,7 +108,6 @@ Chicken_unk::Chicken_unk()
 
 Chicken_unk::~Chicken_unk() {}
 
-// NONMATCHING: 99.91% - only .sdata2 order.
 void Chicken_unk::fn_8040B668() {
     switch (mState) {
     case 1:
@@ -161,7 +160,6 @@ void Chicken_unk::fn_8040B668() {
     }
 }
 
-// NONMATCHING: 99.73% - only .sdata2 order.
 void Chicken_unk::fn_8040BC38() {
     mState = 1;
     float r = (float)sqrt(mRadius * mRadius / 2.0f);
@@ -189,7 +187,6 @@ void Chicken_unk::fn_8040BC38() {
     m418 = 0;
 }
 
-// NONMATCHING: 99.83% - only .sdata2 order.
 void Chicken_unk::fn_8040BE88() {
     if (m430 == 0) {
         mModel.fn_80097C08(0, 1, 1, 0, 1, 0.0f, 0.1f);
@@ -218,52 +215,6 @@ void Chicken_unk::fn_8040BE88() {
         m3EC.z = (float)cos(-m3E0.y);
     }
     m41C--;
-}
-
-// NONMATCHING: 99.61% - only .sdata2/.rodata order.
-void Chicken_unk::fn_8040CD2C(CharaTask* player) {
-    atn::Vector3 d = mPos - player->mPos;
-    if (m42C > 150 || PSVECSquareMag(&d) < 25.0f) {
-        if (mState != 4) {
-            m41C = 33;
-        }
-        m414 = 1.0f;
-        mState = 4;
-        if (m420 == 1) {
-            float a = 0.017453292f * (-1.0f * (float)(rand() % 10));
-            m3E0.y = m3E0.y + a;
-        } else {
-            float a = 0.017453292f * (float)(rand() % 10);
-            m3E0.y = m3E0.y + a;
-        }
-        m3EC.x = (float)sin(m3E0.y);
-        m3EC.z = (float)cos(-m3E0.y);
-    } else if (PSVECSquareMag(&d) < 225.0f && mState != 4) {
-        m414 = 0.5f;
-        mState = 3;
-        m42C++;
-    } else if (PSVECSquareMag(&d) < 400.0f && mState != 4) {
-        m414 = 0.3f;
-        mState = 3;
-        d.y = 0.0f;
-        PSVECNormalize(&d, &d);
-        atn::Vector3 rot = d.ToRotation_unk();
-        float a = atn::WrapAngle_unk(rot.y - m3E0.y);
-        if (atn::Abs_unk(a) > 0.08726646f) {
-            if (a > 0.0f) {
-                a = 0.08726646f;
-                m420 = 1;
-            } else {
-                m420 = 0;
-                a = -0.08726646f;
-            }
-        }
-        Mtx r;
-        PSMTXRotRad(r, 'y', a);
-        PSMTXMultVec(r, &m3EC, &m3EC);
-        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
-        m42C++;
-    }
 }
 
 // NONMATCHING: 97.3% - same body as gmk::Pigeon_unk::fn_804052EC (stack slots).
@@ -413,6 +364,52 @@ void Chicken_unk::fn_8040C610() {
     }
     m41C--;
 }
+
+void Chicken_unk::fn_8040CD2C(CharaTask* player) {
+    atn::Vector3 d = mPos - player->mPos;
+    if (m42C > 150 || PSVECSquareMag(&d) < 25.0f) {
+        if (mState != 4) {
+            m41C = 33;
+        }
+        m414 = 1.0f;
+        mState = 4;
+        if (m420 == 1) {
+            float a = 0.017453292f * (-1.0f * (float)(rand() % 10));
+            m3E0.y = m3E0.y + a;
+        } else {
+            float a = 0.017453292f * (float)(rand() % 10);
+            m3E0.y = m3E0.y + a;
+        }
+        m3EC.x = (float)sin(m3E0.y);
+        m3EC.z = (float)cos(-m3E0.y);
+    } else if (PSVECSquareMag(&d) < 225.0f && mState != 4) {
+        m414 = 0.5f;
+        mState = 3;
+        m42C++;
+    } else if (PSVECSquareMag(&d) < 400.0f && mState != 4) {
+        m414 = 0.3f;
+        mState = 3;
+        d.y = 0.0f;
+        PSVECNormalize(&d, &d);
+        atn::Vector3 rot = d.ToRotation_unk();
+        float a = atn::WrapAngle_unk(rot.y - m3E0.y);
+        if (atn::Abs_unk(a) > 0.08726646f) {
+            if (a > 0.0f) {
+                a = 0.08726646f;
+                m420 = 1;
+            } else {
+                m420 = 0;
+                a = -0.08726646f;
+            }
+        }
+        Mtx r;
+        PSMTXRotRad(r, 'y', a);
+        PSMTXMultVec(r, &m3EC, &m3EC);
+        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
+        m42C++;
+    }
+}
+
 
 GimmickCommon* ChickenManager::fn_8040D1D0(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {

@@ -882,52 +882,6 @@ inline void EnemyQuarkStand::TurnTo_unk(float rate) {
     }
 }
 
-// inferred: walks toward the target, turning 12 degrees per frame, until it is in front within the
-// short range
-void EnemyQuarkStand::fn_80348568() {
-    CharaTask* target = (CharaTask*)m14B0;
-    atn::Vector3 d(target->mPos.x - mPos.x, target->mPos.y, target->mPos.z - mPos.z);
-    d.y = 0.0f;
-    float len = PSVECMag(&d);
-    int walk = 1;
-    if (len < m1CE0 && len > 0.0f) {
-        PSVECNormalize(&d, &d);
-        atn::Vector3 front = QuarkFrontOf_unk(this);
-        if (PSVECDotProduct(&d, &front) > 0.25881904f) {
-            walk = 0;
-        }
-    }
-    if (walk != 0 || mMotion.mTracks[0].m00 == 20) {
-        TurnTo_unk(0.1f);
-        QuarkPlayMotion_unk(&mMotion, 0x14, 1, 0, 1.0f);
-        mPos += QuarkFrontOf_unk(this) * 0.3f;
-    } else {
-        m14C0++;
-    }
-}
-
-// NONMATCHING: 99.50% - stack slots of the front direction and its temporaries (the original builds the
-// direction before the item); the rest only differs in the pool offsets
-// inferred: damage spheres: one in front of the capsule and three on the nodes "head", "spine" and
-// "spine1"
-void EnemyQuarkStand::vf50() {
-    Item14_unk item;
-    item.m04.mCenter = m614 + QuarkFrontOf_unk(this) * 10.0f;
-    item.m04.mRadius = m620;
-    item.m04.mCenter.y -= 10.0f;
-    m624.push_back(item);
-    item.m04.mRadius = 10.0f;
-    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("head"));
-    m624.push_back(item);
-    item.m04.mRadius = 18.0f;
-    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
-    m624.push_back(item);
-    item.m04.mRadius = 18.0f;
-    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1"));
-    m624.push_back(item);
-    mFlagB29 = 1;
-}
-
 // inferred: as QuarkFrontOf_unk, copying the rotation first (name invented)
 inline atn::Vector3 QuarkFrontY_unk(CharaTask* c) {
     atn::Vector3 dir(0.0f, 0.0f, 1.0f);
@@ -959,6 +913,27 @@ void EnemyQuarkStand::fn_803470F0() {
     QuarkSetCapsule_unk(mColli, cap);
 }
 
+// inferred: damage spheres: one in front of the capsule and three on the nodes "head", "spine" and
+// "spine1"
+void EnemyQuarkStand::vf50() {
+    Item14_unk item;
+    item.m04.mCenter = m614 + QuarkFrontOf_unk(this) * 10.0f;
+    item.m04.mRadius = m620;
+    item.m04.mCenter.y -= 10.0f;
+    m624.push_back(item);
+    item.m04.mRadius = 10.0f;
+    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("head"));
+    m624.push_back(item);
+    item.m04.mRadius = 18.0f;
+    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine"));
+    m624.push_back(item);
+    item.m04.mRadius = 18.0f;
+    item.m04.mCenter = GetTransOf_unk(mMotion.GetNodeMtx_unk("spine1"));
+    m624.push_back(item);
+    mFlagB29 = 1;
+}
+
+
 // inferred: updates the damage spheres of vf50
 // NONMATCHING: 95.35% - registros de la copia de los nodos "spine"/"spine1" (r3/r5 del original frente a
 // r5/r6, familia __VecCopy); ~10 variantes (indices, temporales, inline del frente)
@@ -981,6 +956,31 @@ void EnemyQuarkStand::vf54() {
 atn::Vector3 EnemyQuarkStand::vf64(int center) {
     return m624.mData->m04.mCenter;
 }
+
+// inferred: walks toward the target, turning 12 degrees per frame, until it is in front within the
+// short range
+void EnemyQuarkStand::fn_80348568() {
+    CharaTask* target = (CharaTask*)m14B0;
+    atn::Vector3 d(target->mPos.x - mPos.x, target->mPos.y, target->mPos.z - mPos.z);
+    d.y = 0.0f;
+    float len = PSVECMag(&d);
+    int walk = 1;
+    if (len < m1CE0 && len > 0.0f) {
+        PSVECNormalize(&d, &d);
+        atn::Vector3 front = QuarkFrontOf_unk(this);
+        if (PSVECDotProduct(&d, &front) > 0.25881904f) {
+            walk = 0;
+        }
+    }
+    if (walk != 0 || mMotion.mTracks[0].m00 == 20) {
+        TurnTo_unk(0.1f);
+        QuarkPlayMotion_unk(&mMotion, 0x14, 1, 0, 1.0f);
+        mPos += QuarkFrontOf_unk(this) * 0.3f;
+    } else {
+        m14C0++;
+    }
+}
+
 
 // inferred: range of the laser (lbl_8087DC80/84) and lerp ends passed by address to fn_800F8524
 // (lbl_8087DC88/8C); names invented
@@ -2263,6 +2263,16 @@ inline QuarkItemSlot_unk* QuarkSlots_unk(void* mgr) {
     return (QuarkItemSlot_unk*)((char*)mgr + 0x8310);
 }
 
+// inferred: state 20 (motion 0x144)
+void EnemyQuarkStand::fn_803519C4() {
+    fn_8034F384();
+    fn_8016E970(3);
+    m58C = 20;
+    QuarkPlayMotion_unk(&mMotion, 0x144, 0, 0, 1.0f);
+    m1CB8 = 0;
+    m1CBC = 0;
+}
+
 // inferred: Quark loses the sword to `chara` (state 13): faces it (motion 0x3C when `kind` is 2, else 0x36 or
 // 0x37) and gives back the two weapons and two armors kept in the item manager
 // NONMATCHING: 99.23% - the original builds the slot address (Inventory::instance_ + 0x8310) through r3 before r31
@@ -2313,15 +2323,6 @@ void EnemyQuarkStand::fn_80351AB8(CharaTask* chara, int kind) {
     }
 }
 
-// inferred: state 20 (motion 0x144)
-void EnemyQuarkStand::fn_803519C4() {
-    fn_8034F384();
-    fn_8016E970(3);
-    m58C = 20;
-    QuarkPlayMotion_unk(&mMotion, 0x144, 0, 0, 1.0f);
-    m1CB8 = 0;
-    m1CBC = 0;
-}
 
 // inferred: state 16 (down): the sword can be grabbed (m14BC = 1), sets the field flags 0xC9 and 0x389
 void EnemyQuarkStand::fn_803520D8() {
@@ -2336,11 +2337,6 @@ void EnemyQuarkStand::fn_803520D8() {
     fn_80370320(lbl_8087F430, 0x389, 1, 0);
     m14A8 &= ~0x4000000;
     fn_800C31F4("SE_DG040_109", 0, -1, 1.0f);
-}
-
-// inferred: plays motion `motion` at `speed` (out of line in vf10)
-void EnemyQuarkStand::fn_803524AC(int motion, int arg3, float speed) {
-    QuarkPlayMotion_unk(&mMotion, motion, arg3, 0, speed);
 }
 
 // inferred: sonic wave ring: 180 bullets of SonicSkillID on a circle of radius m16DC around m16E0 (with the
@@ -2367,6 +2363,12 @@ void EnemyQuarkStand::fn_8035223C() {
     }
     m16DC += m1CC8;
 }
+
+// inferred: plays motion `motion` at `speed` (out of line in vf10)
+void EnemyQuarkStand::fn_803524AC(int motion, int arg3, float speed) {
+    QuarkPlayMotion_unk(&mMotion, motion, arg3, 0, speed);
+}
+
 
 // inferred: counts down the delayed explosions: each one fires LaserExplodeSkillID at its position, every
 // fourth plays "SE_MB003_003" and shakes the camera
@@ -2436,6 +2438,27 @@ void EnemyQuarkStand::fn_803526A8() {
 }
 
 
+// inferred: out-of-line turn toward the target (the same body as TurnTo_unk)
+// NONMATCHING: 99.11% - slots de pila de la diferencia y de la copia de ToRotationZ_unk intercambiados
+// (0x50/0x5C); ~8 variantes (inline TurnTo_unk, temporales, bloques)
+void EnemyQuarkStand::fn_80352938(float rate) {
+    CharaTask* target = (CharaTask*)m14B0;
+    atn::Vector3 d(target->mPos - mPos);
+    float y = d.ToRotationZ_unk().y;
+    float diff = atn::WrapAngle_unk(y - mRot.y);
+    float step = 12.0f * rate;
+    float abs = diff < 0.0f ? -diff : diff;
+    step = 0.017453292f * step;
+    if (abs <= step) {
+        fn_80097CCC(&mMotion, 1, 0.0f);
+        mRot.y = y;
+    } else if (diff <= 0.0f) {
+        mRot.y -= step;
+    } else {
+        mRot.y += step;
+    }
+}
+
 // inferred: shock of the body against the gimmicks 48001 and 48004 around the "spine" node: a gimmick
 // within `range` and inside the cone `angle` in front gets a hit message of kind `kind` (when `hit`); one
 // within 2 * range in state 3 clears its value at 0x920
@@ -2470,26 +2493,6 @@ void EnemyQuarkStand::fn_80352C3C(int kind, int hit, float range, float angle) {
     }
 }
 
-// inferred: out-of-line turn toward the target (the same body as TurnTo_unk)
-// NONMATCHING: 99.11% - slots de pila de la diferencia y de la copia de ToRotationZ_unk intercambiados
-// (0x50/0x5C); ~8 variantes (inline TurnTo_unk, temporales, bloques)
-void EnemyQuarkStand::fn_80352938(float rate) {
-    CharaTask* target = (CharaTask*)m14B0;
-    atn::Vector3 d(target->mPos - mPos);
-    float y = d.ToRotationZ_unk().y;
-    float diff = atn::WrapAngle_unk(y - mRot.y);
-    float step = 12.0f * rate;
-    float abs = diff < 0.0f ? -diff : diff;
-    step = 0.017453292f * step;
-    if (abs <= step) {
-        fn_80097CCC(&mMotion, 1, 0.0f);
-        mRot.y = y;
-    } else if (diff <= 0.0f) {
-        mRot.y -= step;
-    } else {
-        mRot.y += step;
-    }
-}
 
 // inferred: shows the two direction arrows of the d2anime
 void EnemyQuarkStand::fn_80352EA4() {
@@ -2525,6 +2528,23 @@ boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
         return boost::bind(&CharaTask::fn_80178208, chara, next);
     }
     return boost::function<void()>();
+}
+
+// inferred: debug menu "Quark"
+void EnemyQuarkStand::fn_80353370() {
+    void* group = m1CC0.Load("Quark");
+    fn_80087994(group, "DebugDisp", &m1CC4, 0, 0);
+    fn_800874C8(group, "AttackWaitTime", &m1CD0, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "GatheringBurstCount", &m1818, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "DownCount", &m17FC, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "StundUpDamageCount", &m1800, 1, 999999, 1, 0, 0);
+    fn_800874C8(group, "AttakedInStick", &m1CD4, 1, 999, 1, 0, 0);
+    fn_8008771C(group, "ShortRange", &m1CE0, 0, 0, 0.0f, 9999.0f, 0.01f);
+    fn_8008771C(group, "MiddleRange", &m1CE4, 0, 0, 0.0f, 9999.0f, 0.01f);
+    fn_8008771C(group, "LongRange", &m1CE8, 0, 0, 0.0f, 9999.0f, 0.01f);
+    fn_8008771C(group, "SwordDirectionLine", &m1CD8, 0, 0, 0.0f, 1000.0f, 0.01f);
+    fn_800874C8(group, "SwordThrowTime", &m1CDC, 0, 999999, 1, 0, 0);
+    fn_8008771C(group, "ShockExpandSonicWave", &m1CC8, 0, 0, 0.0f, 100.0f, 0.01f);
 }
 
 // inferred: picks the character stuck by the sword: the target when it can be stuck (control 0x17), else the
@@ -2584,22 +2604,6 @@ void EnemyQuarkStand::fn_8035359C() {
     }
 }
 
-// inferred: debug menu "Quark"
-void EnemyQuarkStand::fn_80353370() {
-    void* group = m1CC0.Load("Quark");
-    fn_80087994(group, "DebugDisp", &m1CC4, 0, 0);
-    fn_800874C8(group, "AttackWaitTime", &m1CD0, 1, 999999, 1, 0, 0);
-    fn_800874C8(group, "GatheringBurstCount", &m1818, 1, 999999, 1, 0, 0);
-    fn_800874C8(group, "DownCount", &m17FC, 1, 999999, 1, 0, 0);
-    fn_800874C8(group, "StundUpDamageCount", &m1800, 1, 999999, 1, 0, 0);
-    fn_800874C8(group, "AttakedInStick", &m1CD4, 1, 999, 1, 0, 0);
-    fn_8008771C(group, "ShortRange", &m1CE0, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "MiddleRange", &m1CE4, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "LongRange", &m1CE8, 0, 0, 0.0f, 9999.0f, 0.01f);
-    fn_8008771C(group, "SwordDirectionLine", &m1CD8, 0, 0, 0.0f, 1000.0f, 0.01f);
-    fn_800874C8(group, "SwordThrowTime", &m1CDC, 0, 999999, 1, 0, 0);
-    fn_8008771C(group, "ShockExpandSonicWave", &m1CC8, 0, 0, 0.0f, 100.0f, 0.01f);
-}
 
 int EnemyQuarkStand::vf78() {
     float frame;

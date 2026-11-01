@@ -122,7 +122,6 @@ Pigeon_unk::Pigeon_unk()
 
 Pigeon_unk::~Pigeon_unk() {}
 
-// NONMATCHING: 99.93% - only .sdata2 order (vf0C differs).
 void Pigeon_unk::fn_804048CC() {
     switch (mState) {
     case 1:
@@ -171,7 +170,6 @@ void Pigeon_unk::fn_804048CC() {
     }
 }
 
-// NONMATCHING: 99.73% - only .sdata2 order.
 void Pigeon_unk::fn_80404E70() {
     mState = 1;
     float r = (float)sqrt(mRadius * mRadius / 2.0f);
@@ -199,7 +197,6 @@ void Pigeon_unk::fn_80404E70() {
     }
 }
 
-// NONMATCHING: 99.78% - only .sdata2 order. The local `d` keeps the add out of a fused fmadds.
 void Pigeon_unk::fn_804050C0() {
     if (m424 == 0) {
         switch (rand() % 2) {
@@ -237,42 +234,6 @@ void Pigeon_unk::fn_804050C0() {
         m3EC.z = (float)cos(-m3E0.y);
     }
     m418--;
-}
-
-// NONMATCHING: 98.7% - only .sdata2/.rodata order (both atan2 go through Atan2_unk).
-void Pigeon_unk::fn_80405A14(CharaTask* player) {
-    atn::Vector3 d = mPos - player->mPos;
-    float distSq = PSVECSquareMag(&d);
-    if (distSq < 225.0f) {
-        m414 = 2.0f;
-        mState = 3;
-        d.y = 15.0f;
-        PSVECNormalize(&d, &d);
-        m3EC = d;
-        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
-        m418 = 300;
-        mSound = fn_800C344C(sSe[0], &mPos, 0, -1, 1.0f);
-    } else if (distSq < 400.0f) {
-        m414 = 0.5f;
-        mState = 2;
-        d.y = 0.0f;
-        PSVECNormalize(&d, &d);
-        atn::Vector3 rot = d.ToRotation_unk();
-        float a = atn::WrapAngle_unk(rot.y - m3E0.y);
-        if ((a < 0.0f ? -a : a) > 0.08726646f) {
-            if (a > 0.0f) {
-                a = 0.08726646f;
-                m41C = 1;
-            } else {
-                m41C = 0;
-                a = -0.08726646f;
-            }
-        }
-        Mtx r;
-        PSMTXRotRad(r, 'y', a);
-        PSMTXMultVec(r, &m3EC, &m3EC);
-        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
-    }
 }
 
 // NONMATCHING: 97.3% - stack slots of the temporaries of the neighbour test and of the direction.
@@ -365,6 +326,42 @@ void Pigeon_unk::fn_804058A4() {
     }
     mPos = hit;
 }
+
+void Pigeon_unk::fn_80405A14(CharaTask* player) {
+    atn::Vector3 d = mPos - player->mPos;
+    float distSq = PSVECSquareMag(&d);
+    if (distSq < 225.0f) {
+        m414 = 2.0f;
+        mState = 3;
+        d.y = 15.0f;
+        PSVECNormalize(&d, &d);
+        m3EC = d;
+        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
+        m418 = 300;
+        mSound = fn_800C344C(sSe[0], &mPos, 0, -1, 1.0f);
+    } else if (distSq < 400.0f) {
+        m414 = 0.5f;
+        mState = 2;
+        d.y = 0.0f;
+        PSVECNormalize(&d, &d);
+        atn::Vector3 rot = d.ToRotation_unk();
+        float a = atn::WrapAngle_unk(rot.y - m3E0.y);
+        if ((a < 0.0f ? -a : a) > 0.08726646f) {
+            if (a > 0.0f) {
+                a = 0.08726646f;
+                m41C = 1;
+            } else {
+                m41C = 0;
+                a = -0.08726646f;
+            }
+        }
+        Mtx r;
+        PSMTXRotRad(r, 'y', a);
+        PSMTXMultVec(r, &m3EC, &m3EC);
+        m3E0.y = Atan2_unk(m3EC.x, m3EC.z);
+    }
+}
+
 
 GimmickCommon* PigeonManager::fn_80405DD4(atn::Task* parent, GimmickDesc_unk* desc) {
     if (parent != 0) {
@@ -459,7 +456,6 @@ static inline float PlayerDist_unk(const atn::Vector3& pos) {
     return (((CharaTask*)lbl_8087F8A0->mHead)->mPos - pos).Length_unk();
 }
 
-// NONMATCHING: 99.93% - only the .sdata2 order.
 // The second loop reuses `active` as its counter: that gives the register of the original.
 void PigeonManager::vf10() {
     if (mDesc->m7C == 0) {
