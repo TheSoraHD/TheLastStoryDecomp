@@ -48,9 +48,11 @@ public:
 
 class ControlThrustForCrab : public ControlBase {
 public:
-    ControlThrustForCrab(Chara_unk* chara, Chara_unk* other); // 0x80193EF8 (reads other->mPos)
+    ControlThrustForCrab(Chara_unk* chara, Chara_unk* crab); // 0x80193EF8
     virtual int vf0C();
-    unsigned char m08[0x24 - 0x08];
+    atn::Vector3 mStep; // 0x08: inferred: move per frame forward
+    atn::Vector3 mBack; // 0x14: inferred: move per frame back
+    int m20;
 };
 
 class ControlThrustForKraken : public ControlBase {

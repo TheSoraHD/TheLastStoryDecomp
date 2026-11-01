@@ -36,6 +36,13 @@ struct Camera_unk {
     float m9C4;           // inferred: zoom of the thrust
     float m9C8;
     atn::Vector3 m9CC;    // inferred: eye offset kept during the thrust
+    // inferred: starts a camera shake (name invented)
+    void Shake_unk(int time, float a, float b) {
+        m96C %= 2;
+        m970 = time;
+        m974 = a;
+        m978 = b;
+    }
 };
 
 extern "C" Camera_unk* lbl_8087F430;
@@ -154,6 +161,17 @@ public:
 extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
 namespace chr {
+
+// inferred: frame of track 0 (name invented)
+static inline float Frame_unk(Motion_unk* m) {
+    return m->mTracks[0].m08;
+}
+
+// inferred: fires the bullet `id` from a character (name invented)
+static inline void Shoot_unk(Effect_unk* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
+                             const atn::Vector3* rot) {
+    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
 
 // inferred: front of a character (z axis turned by its yaw; name invented)
 static inline atn::Vector3 Front_unk(CharaTask* chara) {
@@ -298,18 +316,6 @@ ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 of
     }
 }
 
-// NONMATCHING: 97.5% - scheduling of the copy of `target` (the original reloads target.x/z for dir)
-// inferred: frame of track 0 (name invented)
-static inline float Frame_unk(Motion_unk* m) {
-    return m->mTracks[0].m08;
-}
-
-// inferred: fires the bullet `id` from a character (name invented)
-static inline void Shoot_unk(Effect_unk* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
-                             const atn::Vector3* rot) {
-    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
-}
-
 // NONMATCHING: 95% - copies of the slow motion parameters (the original keeps the stack copy of the
 // second one) and register order around the bullet call
 // inferred: forward, hold and back phases of the thrust; the player can push again (button 4) for
@@ -340,11 +346,7 @@ int ControlThrust::vf0C() {
         lbl_8087F430->m9C4 = 1.0f;
         if (m->mTracks[0].m08 > 54.0f && m->mTracks[0].m08 <= 55.0f) {
             Shoot_unk(lbl_8087F048, mChara, 0xCC, &mChara->mPos, &mChara->mRot);
-            Camera_unk* cam = lbl_8087F430;
-            cam->m96C %= 2;
-            cam->m970 = 10;
-            cam->m974 = 0.3f;
-            cam->m978 = 0.3f;
+            lbl_8087F430->Shake_unk(10, 0.3f, 0.3f);
             if (m20 >= 1) {
                 fn_800C344C("SE_SP009_002", &mChara->mPos, 0, -1, 1.5f);
             }
@@ -383,6 +385,51 @@ int ControlThrust::vf0C() {
     return frame >= m->fn_80097D7C(0);
 }
 
+// NONMATCHING: 89% - the original keeps the offset vector out of the stack (frame 0x170)
+// inferred: thrust at a crab (control id 0x4C); faces the crab
+ControlThrustForCrab::ControlThrustForCrab(Chara_unk* chara, Chara_unk* crab) : ControlBase(chara) {
+    chara->m58C = 0;
+    mChara->SetControlId_unk(0x4C);
+    atn::Vector3 target = atn::Vector3(0.0f, -20.451f, 0.0f) + crab->mPos;
+    mStep = atn::Vector3(target - mChara->mPos) * 0.025f * 1.5f;
+    mBack = atn::Vector3(mChara->mPos - target) * 0.04f;
+    atn::Vector3 rot = mChara->mRot;
+    rot.y = (target - mChara->mPos).ToRotation_unk().y;
+    mChara->mRot = rot;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x20E, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.5f;
+    if (lbl_8087F498 != 0 && rand() % 2 == 0) {
+        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+    }
+}
+
+// NONMATCHING: 99.5% - r29/r31 swapped between the motion and the bullet manager
+int ControlThrustForCrab::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    atn::Vector3 pos = mChara->mPos;
+    if (m->mTracks[0].m08 >= 0.0f && m->mTracks[0].m08 < 40.0f) {
+        m->mTracks[0].m0C = 1.5f;
+        pos += mStep;
+    } else if (Frame_unk(m) >= m->fn_80097D7C(0) - 25.0f && Frame_unk(m) <= m->fn_80097D7C(0)) {
+        m->mTracks[0].m0C = 1.0f;
+        pos += mBack;
+    } else {
+        m->mTracks[0].m0C = 1.0f;
+    }
+    mChara->mPos = pos;
+    if (m->mTracks[0].m08 >= 41.0f && m->mTracks[0].m08 < 43.0f) {
+        CharaTask* c = mChara;
+        Effect_unk* mgr = lbl_8087F048;
+        fn_800FAB80(mgr, mChara, fn_80219E6C(0xD1), 1000, &c->mPos, &c->mRot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+        lbl_8087F430->Shake_unk(10, 0.3f, 0.3f);
+    }
+    return Frame_unk(m) >= m->fn_80097D7C(0);
+}
+
+// NONMATCHING: 97.5% - scheduling of the copy of `target` (the original reloads target.x/z for dir)
 // inferred: thrust at a kraken from `target`; the effect is played for the kraken of kind 0x1E
 ControlThrustForKraken::ControlThrustForKraken(Chara_unk* chara, int kraken, atn::Vector3 target)
     : ControlBase(chara) {
