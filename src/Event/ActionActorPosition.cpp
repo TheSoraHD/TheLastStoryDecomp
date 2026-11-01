@@ -181,6 +181,9 @@ public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
     static void fn_80553A74(Action* arg, float now); // inferred: eyes towards the camera, with jitter
+    // inferred: eyes towards a point (`cur` moves towards `goal` in `frames`; angles from the parameters
+    // when `mode` is not 0)
+    static void fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames);
 };
 
 class ActionActorPose : public ActionProcessor, public atn::SingletonNoStatic<ActionActorPose> {
@@ -230,6 +233,11 @@ extern "C" atn::Vector3 fn_80541BD8(EventManager_unk* manager, const atn::Vector
 extern "C" float fn_80541CF0(EventManager_unk* manager, float yaw); // inferred: event to world yaw
 extern "C" void fn_8008CD1C(atn::Matrix3x4* dst, const atn::Matrix3x4* src); // inferred: matrix copy
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
+
+// inferred: step of `cur` towards `goal` in `frames` frames (name invented)
+inline atn::Vector3 Approach_unk(const atn::Vector3& cur, const atn::Vector3& goal, float frames) {
+    return (goal - cur) * (1.0f / frames) + cur;
+}
 
 // inferred: helpers of the moves (names invented; weak copies after fn_80551194)
 inline atn::Vector3 GetAxisZ_unk(const atn::Matrix3x4& m) {
@@ -789,6 +797,31 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     jitter.x = 2.0f * rx * ((float)rand() / 32767.0f) - rx;
     jitter.y = 2.0f * ry * ((float)rand() / 32767.0f) - ry;
     actor->fn_80012D34(target, node, cam, 0, jitter, 1, weight, rad);
+}
+
+// NONMATCHING: 99.1% - volatile registers of the second inlined actor lookup: the original loads the count
+// before the id (same in fn_80553A74; a const int& parameter in FindActor_unk is worse)
+void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames) {
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor_unk* actor = manager->FindActor_unk(section->m10);
+    float weight = 1.0f;
+    Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    int node = arg->GetParam_unk(1)->m04.i;
+    *cur = Approach_unk(*cur, *goal, frames);
+    if (mode != 0) {
+        atn::Vector3 angles;
+        angles.x = atn::DegToRad_unk(arg->GetParam_unk(6)->m04.f);
+        angles.y = atn::DegToRad_unk(arg->GetParam_unk(7)->m04.f);
+        angles.z = atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f);
+        actor->fn_80012D34(target, node, angles, mode, *cur, 0, weight, 0.0f);
+    } else {
+        atn::Vector3 pos = arg->fn_805381F0(2);
+        if (target->m20 == 6) {
+            pos = fn_80541BD8(manager, pos);
+        }
+        actor->fn_80012D34(target, node, pos, mode, *cur, 0, weight, 0.0f);
+    }
 }
 
 int ActionActorWind::vf0C(Action* arg, int phase) {
