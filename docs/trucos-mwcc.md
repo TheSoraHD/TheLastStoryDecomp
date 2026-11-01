@@ -298,3 +298,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Callback de `boost::bind` con `const void*`: escribirlo con ese parametro y convertir dentro (`Action* a = (Action*)data;`) da la planificacion del original (ActionCameraEffect::fn_8055BB08 78% -> 99,9%); el tipo sale de la cadena RTTI del `bind_t`. (`auto-20261101b`)
 - Un hueco de `.rodata`/`.data` sin dueno entre dos splits suele ser del fichero siguiente: el double `@3226` de int->float va primero y luego los nombres RTTI (Event/ActionEffectPlay, +3 al ampliar el split). (`auto-20261101b`)
 - Un `Mtx` de nodo leido como `((atn::Matrix3x4*)mtx)->GetTrans_unk()` o una tabla de 12 matrices de `RsVector4_unk` con expresiones `(1.0f - c) * 0.5f` reproducen el `__sinit` y las constantes plegadas del original (ColorMatrix). (`auto-20261101b`)
+- Funciones al 99,9% "solo orden de .sdata2" en una unidad con `ordercheck` > 0: poner el fuente en el orden del `.dol` y pasar `pd.sh` las deja al 100% (ChickenManager +4, PigeonManager +5, EnemyQuarkStand +7, RouteWalker +6).
+- `subi rA,r3,1; subfic rB,rA,-1; addi rC,rA,1; or; srwi.` tras una llamada = `fn(...) - 1 != -1` (la funcion devuelve indice + 1: `fn_80049B74`, `fn_80049D74`).
+- Inline que devuelve un struct por valor con copia explicita (`T result = local; return result;`) reproduce la doble copia a pila y la relectura de `m30` de los parametros (ActionCameraEffect vf08).
+- `li rN,k; cmpwi rN,0; blt` antes de cada `GetParamAt_unk(k)` con k constante = bucle desenrollado (`for (i...) a[i] = GetParamAt_unk(k0 + i)`); un array de float se copia con `lwz/stw` y los float sueltos con `lfs/stfs` (BloomParam_unk).
+- Temporales rellenados miembro a miembro en vez de constructores bajan el coste de inlining (R3): ActionCameraEffect vf0C pasa de 32% a 99,4% (docs/inlining.md).
+- `k * param` con la carga del parametro antes que la constante: leer el parametro a un local primero (`float h = P; s = 1.2f * h;`).

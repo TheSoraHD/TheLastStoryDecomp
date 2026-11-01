@@ -90,6 +90,14 @@ There is no budget: every inline function is inlined. However, non-inline templa
   - EnvSeBase fn_803614E8 inlines all of the tokenizer except `begin`/`end`/`++` (R1);
   - LastCocoonEgg fn_8045374C, which is over budget, contains no inline expansion at all (R3).
 
+- Getting a function under budget (auto-20261101c, Event::ActionCameraEffect::vf0C 0x8055BCA8, 0x1248
+  bytes): with `atn::Vector2_unk(a, b)`, `RsVector4_unk(...)` and `RsColor_unk(...)` temporaries it went
+  over budget (every `GetParam_unk` called, 32%). Writing the same temporaries member by member
+  (`RsColor_unk c; c.r = ...; x = c;`, one `atn::Vector2_unk v` reused for every pair) turns candidate
+  cost into own statements: everything is inlined and the stack layout is the original one (99.4%).
+  The opposite move (constructors or inline helpers instead of member-wise code) is the first thing to
+  try when the original is over budget and ours is not.
+
 ## Open case: LoadSeTableTask::vf0C (0x803EEEDC)
 
 The original inlines `FixedString_unk::operator=`, `std::string(const char*)`, `~basic_string`, the
