@@ -49,7 +49,9 @@ struct Actor_unk {
     unsigned int m18_3 : 29;
     unsigned char m1C[0x20 - 0x1C];
     int m20; // inferred: state (6 is checked by BehaviorFollow::vf0C)
-    unsigned char m24[0x1C0 - 0x24];
+    unsigned char m24[0xB8 - 0x24];
+    class Action* mB8[3]; // 0xB8: inferred: motion actions playing on the actor (ActionActorMotion)
+    unsigned char mC4[0x1C0 - 0xC4];
 };
 
 // inferred: camera animation of an event (0x1C bytes, found by id)

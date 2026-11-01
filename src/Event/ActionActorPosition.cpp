@@ -109,6 +109,73 @@ int ActionActorPosition::vf08(Action* arg) {
     return 0;
 }
 
+extern "C" void fn_80012540(Actor_unk* actor, int arg);                 // inferred: stops the motions
+extern "C" void fn_80012294(Actor_unk* actor, int track, int a, int b); // inferred: stops a track
+
+// inferred: free motion slot of the actor for `arg` (-1 if none)
+inline int AddMotionAction_unk(Actor_unk* actor, Action* arg) {
+    for (int i = 0; i < 3; i++) {
+        if (actor->mB8[i] == 0) {
+            actor->mB8[i] = arg;
+            return i;
+        }
+    }
+    return -1;
+}
+
+// NONMATCHING: 97.2% - saved registers: the original reuses the register of the section for the actor
+int ActionActorMotion::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor_unk* actor = manager->FindActor_unk(section->m10);
+        int motion = arg->GetParam_unk(0)->m04.i;
+        int a1 = arg->GetParam_unk(1)->m04.i;
+        float blend1 = arg->GetParam_unk(2)->m04.f;
+        float speed1 = arg->GetParam_unk(3)->m04.i;
+        int b1 = arg->GetParam_unk(4)->m04.i;
+        int upper = arg->GetParam_unk(5)->m04.i;
+        int a2 = arg->GetParam_unk(6)->m04.i;
+        float blend2 = arg->GetParam_unk(7)->m04.f;
+        float speed2 = arg->GetParam_unk(8)->m04.i;
+        int b2 = arg->GetParam_unk(9)->m04.i;
+        int stop = arg->GetParam_unk(10)->m04.i;
+        int c = arg->GetParam_unk(11)->m04.i;
+        fn_80012540(actor, stop);
+        int slot = AddMotionAction_unk(actor, arg);
+        if (slot == -1) {
+            break;
+        }
+        if (upper != 0) {
+            actor->fn_800119C0(1, a1, b1, motion, manager, slot, c, blend1, speed1);
+            actor->fn_800119C0(2, a2, b2, motion, manager, slot, c, blend2, speed2);
+        } else {
+            actor->fn_800119C0(0, a1, b1, motion, manager, slot, c, blend1, speed1);
+            fn_80012294(actor, 2, 0, 0);
+        }
+        break;
+    }
+    case 3:
+    case 4: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Actor_unk* actor = manager->FindActor_unk(section->m10);
+        if (actor->mB8[0] == arg) {
+            actor->mB8[0] = 0;
+        }
+        if (actor->mB8[1] == arg) {
+            actor->mB8[1] = 0;
+        }
+        if (actor->mB8[2] == arg) {
+            actor->mB8[2] = 0;
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
 // inferred: sets the facial expression of an actor (0x80011E98)
 extern "C" void fn_80011E98(Actor_unk* actor, int face, EventManager_unk* manager, int a, int b, int c, float d);
 
