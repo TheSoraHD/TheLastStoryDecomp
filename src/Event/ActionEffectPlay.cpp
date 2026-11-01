@@ -10,6 +10,8 @@
 #include "game/EnvSeManager.h"
 #include "game/GameUI.h"
 #include "atn/D2A_Task.h"
+#include "atn/Color4f_unk.h"
+#include "atn/Model_unk.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -83,6 +85,28 @@ extern "C" float lbl_807C8AB0[3][2]; // inferred: text speeds of the message act
 // inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)
 extern "C" void fn_80541548(Event::EventManager_unk* manager, int window, void* msg, unsigned int kind, int style,
                             int size, int flags, float start, float length, float speed0, float speed1);
+// inferred: effect manager lbl_8087F3C0 (only the member used here)
+struct EffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8; // inferred: owner kind of the next effects (4: events)
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80232B7C(Event::EventManager_unk* manager, Event::Action* arg); // inferred: owner of the next effects
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* efp, int a, int b, MtxPtr mtx, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int c, int d, int e, int f, float scale); // inferred: plays an efp
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* data, atn::Model* model, int a, const atn::Vector3* pos,
+                            const atn::Vector3* rot, const atn::Color4f_unk* color, int b, int c, int d, float scale);
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
+extern "C" void fn_805430A0(Event::EventManager_unk* manager, int key, int id, Event::Action* arg);
+extern "C" void* fn_805430BC(Event::EventManager_unk* manager, int key, int id);
+extern "C" atn::Model* fn_8001296C(Event::Actor_unk* actor); // inferred: model of an actor
+extern "C" MtxPtr fn_80012AC4(Event::Actor_unk* actor, int node); // inferred: node matrix of an actor
+extern "C" unsigned int fn_800DC6B4(const char* str);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" atn::Vector3 fn_80541BD8(Event::EventManager_unk* manager, const atn::Vector3& pos); // inferred: event to world
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" int fn_800A58D0(void* pad, int port); // inferred: classic controller connected
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
 extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3& pos, float radius, int color);
@@ -96,6 +120,25 @@ extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred:
 extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
 
 namespace Event {
+
+// inferred: effect of the event (0x20 bytes, found by id): m1C 2 = efp, otherwise a model effect
+struct EffectEntry_unk {
+    unsigned char m00[0x14];
+    int m14;    // inferred: id
+    void* m18;  // inferred: the effect data
+    int m1C;    // inferred: kind
+};
+
+// inferred: effect `id` of the event (as EventManager_unk::FindActor_unk)
+inline EffectEntry_unk* FindEffect_unk(EventManager_unk* manager, int id) {
+    for (int i = 0; i < manager->mE8; i++) {
+        EffectEntry_unk* entry = &manager->mE4[(unsigned int)i];
+        if (id == entry->m14) {
+            return entry;
+        }
+    }
+    return 0;
+}
 
 // inferred: 2D animation of the event (0x20 bytes, found by id)
 struct AnimEntry_unk {
@@ -374,6 +417,115 @@ public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
 };
+
+// NONMATCHING: first draft
+int ActionEffectPlay::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int effect = arg->GetParam_unk(0)->m04.i;
+        int actorId = arg->GetParam_unk(1)->m04.i;
+        int node = arg->GetParam_unk(2)->m04.i;
+        atn::Vector3 pos;
+        pos.x = arg->GetParam_unk(3)->m04.f;
+        pos.y = arg->GetParam_unk(4)->m04.f;
+        pos.z = arg->GetParam_unk(5)->m04.f;
+        float scale = arg->GetParam_unk(6)->m04.f;
+        int follow = arg->GetParam_unk(7)->m04.i;
+        atn::Vector3 rot;
+        rot.x = 0.017453292f * arg->GetParam_unk(8)->m04.f;
+        rot.y = 0.017453292f * arg->GetParam_unk(9)->m04.f;
+        rot.z = 0.017453292f * arg->GetParam_unk(10)->m04.f;
+        if (arg->GetParam_unk(12)->m04.i != 0) {
+            ActionParam_unk* keyed = arg->GetParam_unk(13);
+            ActionParam_unk* key = arg->GetParam_unk(14);
+            if (keyed->m04.i != 0) {
+                break;
+            }
+            fn_805430A0(manager, key->m04.i, effect, arg);
+        }
+        EffectEntry_unk* entry = FindEffect_unk(manager, effect);
+        Actor_unk* actor = manager->FindActor_unk(actorId);
+        if (actor->m20 == 6) {
+            pos = fn_80541BD8(manager, pos);
+        }
+        atn::Vector3 base = actor->fn_80010374();
+        atn::Vector3 angle = lbl_807C7030;
+        angle.x += rot.x;
+        angle.y += rot.y;
+        angle.z += rot.z;
+        atn::Vector3 world;
+        world.x = base.x + pos.x;
+        world.y = base.y + pos.y;
+        world.z = base.z + pos.z;
+        atn::Model* model = fn_8001296C(actor);
+        MtxPtr mtx = fn_80012AC4(actor, node);
+        fn_800DC6B4("[weapon]");
+        lbl_8087F3C0->mB8 = 4;
+        if (entry->m1C == 2) {
+            void* efp = entry->m18;
+            fn_80232B7C(manager, arg);
+            if (mtx != 0) {
+                fn_8023A680(lbl_8087F3C0, efp, -1, 5, mtx, &pos, &angle, 0, follow != 0, -1, 1, scale);
+            } else {
+                fn_8023A680(lbl_8087F3C0, efp, -1, 0, 0, &world, &angle, 0, 0, -1, 1, scale);
+            }
+        } else {
+            void* data = entry->m18;
+            fn_80232B7C(manager, arg);
+            atn::Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
+            fn_8023A8B4(lbl_8087F3C0, data, model, 0, &pos, &angle, &color, -1, -1, 1, scale);
+        }
+        lbl_8087F3C0->mB8 = 0;
+        break;
+    }
+    case 3:
+    case 4: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        void* owner = arg;
+        int keyed = arg->GetParam_unk(12)->m04.i;
+        int key = arg->GetParam_unk(13)->m04.i;
+        if (keyed != 0) {
+            int id = arg->GetParam_unk(14)->m04.i;
+            if (key == 0) {
+                break;
+            }
+            owner = fn_805430BC(manager, id, arg->GetParam_unk(0)->m04.i);
+            if (owner == (void*)-1) {
+                break;
+            }
+        }
+        if ((arg->m14 - arg->m10 > 0 && keyed == 0) || (keyed != 0 && key == 1)) {
+            int keep = arg->GetParam_unk(11)->m04.i;
+            lbl_8087F3C0->mB8 = 4;
+            fn_80239DAC(lbl_8087F3C0, manager, owner, keep == 0);
+            lbl_8087F3C0->mB8 = 0;
+        }
+        break;
+    }
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(1)->m04.i;
+        if (manager->FindActor_unk(id)->m20 == 6) {
+            arg->fn_80538DC4(3);
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
+int ActionAnimationPlay::vf08(Action* arg) {
+    arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    AnimEntry_unk* entry = FindAnim_unk(manager, arg->GetParam_unk(0)->m04.i);
+    if (entry->m1C == 1 && lbl_8087EF70 != 0) {
+        atn::D2A_Task* task = entry->m18;
+        float classic = fn_800A58D0(lbl_8087EF70, 0) != 0 ? 1.0f : 0.0f;
+        fn_801FECE0((char*)task + 0x58, fn_800DC6B4("contorolClassic"), classic);
+    }
+    return 0;
+}
 
 // NONMATCHING: 97% - registers of the animation search (id in r5 in the original)
 int ActionAnimationPlay::vf0C(Action* arg, int phase) {

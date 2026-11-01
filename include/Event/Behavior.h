@@ -91,7 +91,10 @@ struct EventManager_unk {
     unsigned char mC0[0xD4 - 0xC0];
     struct AnimEntry_unk* mD4; // 0xD4: inferred: 2D animations of the event (0x20 bytes each)
     int mD8;
-    unsigned char mDC[0x114 - 0xDC];
+    unsigned char mDC[0xE4 - 0xDC];
+    struct EffectEntry_unk* mE4; // 0xE4: inferred: effects of the event (0x20 bytes each)
+    int mE8;
+    unsigned char mEC[0x114 - 0xEC];
     struct AudioEntry_unk* m114; // 0x114: inferred: multi audio streams of the event (0x18 bytes each)
     int m118;
     unsigned char m11C[0x124 - 0x11C];
