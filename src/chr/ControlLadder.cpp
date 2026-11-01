@@ -84,4 +84,58 @@ int ControlClimbDeck::vf0C() {
     return ret;
 }
 
+// inferred: crawls from `start` to `target` (motions 0x207 enter, 0x208 crawl, 0x209 leave)
+ControlCrawling::ControlCrawling(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& target)
+    : ControlBase(chara), mStart(start), mTarget(target), mState(0) {
+    chara->SetControlId_unk(0x78);
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x207, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.25f;
+    mChara->mPos = start;
+    atn::Vector3 dir = target - start;
+    float dist = dir.Length_unk();
+    dir.Normalize_unk();
+    mDir = dir;
+    mFrames = dist / 0.6f + 3.0f;
+    mChara->mRot = mDir.ToRotationZ_unk();
+    mChara->fn_801446F0();
+}
+
+// NONMATCHING: 99.68% - stack slots of the three vector temporaries of state 1 (the original puts the
+// one of the second test above the other two); tried named/unnamed temporaries, a scope and min forms
+// inferred: moves the character along the crawl at 0.6 per frame between the enter and leave motions
+int ControlCrawling::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    int ret = 0;
+    if (mState == 0) {
+        float frame = m->mTracks[0].m08;
+        if (frame >= m->fn_80097D7C(0)) {
+            m->fn_80097C08(0, 0x208, 1, 0, 1, 0.0f, 0.1f);
+            mState = 1;
+        }
+    } else if (mState == 1) {
+        atn::Vector3 pos = mChara->mPos;
+        float step = 0.6f;
+        float dist = (mTarget - pos).Length_unk();
+        if (dist < step) {
+            step = dist;
+        }
+        pos += mDir * step;
+        if ((mTarget - pos).LengthSq_unk() < 1.0f) {
+            m->fn_80097C08(0, 0x209, 0, 0, 1, 0.0f, 0.1f);
+            mState = 2;
+        } else {
+            mChara->mPos = pos;
+        }
+    } else if (mState == 2) {
+        float frame = m->mTracks[0].m08;
+        if (frame >= m->fn_80097D7C(0)) {
+            ret = 1;
+        }
+    }
+    return ret;
+}
+
 } // namespace chr

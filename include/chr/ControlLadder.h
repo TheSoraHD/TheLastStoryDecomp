@@ -32,7 +32,11 @@ class ControlCrawling : public ControlBase {
 public:
     ControlCrawling(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b); // 0x801BBC48
     virtual int vf0C();                                                              // 0x801BBF84
-    unsigned char m08[0x34 - 0x08];
+    atn::Vector3 mStart;  // 0x08: inferred: start of the crawl
+    atn::Vector3 mTarget; // 0x14: inferred: end of the crawl
+    atn::Vector3 mDir;    // 0x20: inferred: direction of the crawl (unit)
+    int mFrames;          // 0x2C: inferred: expected length in frames (unused here)
+    int mState;           // 0x30: inferred: 0 entering, 1 crawling, 2 leaving
 };
 
 // inferred: created by CharaTask::fn_80165F54 (control 0x6C)
