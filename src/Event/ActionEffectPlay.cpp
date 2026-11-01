@@ -19,6 +19,7 @@
 #include "game/GameConfig_unk.h"
 #include "atn/IRender.h"
 #include "atn/Sphere.h"
+#include "Event/Dialog.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -58,7 +59,8 @@ struct EventEffects_unk {
     float m1F6C; // inferred: movie fade time
     unsigned char m1F70[0x238C - 0x1F70];
     int m238C; // inferred: nonzero while messages are blocked
-    unsigned char m2390[0x23B4 - 0x2390];
+    int m2390; // inferred: nonzero: the dialog texts are flushed at once (fn_800DBC1C)
+    unsigned char m2394[0x23B4 - 0x2394];
     int m23B4; // inferred: set when the check of type 1 succeeds
     unsigned char m23B8[0x2400 - 0x23B8];
     NewStaffRoll* m2400; // inferred: staff roll of the ending
@@ -338,6 +340,27 @@ struct MsgWindow_unk {
 } // namespace Event
 
 extern "C" void* fn_803B3B38(void* table, int id);                              // inferred: message `id`
+
+// inferred: voices of the event (lbl_8087F498, game/GameVoice)
+extern "C" void* lbl_8087F498;
+extern "C" int fn_803EB2A4(void* mgr, const char* name); // inferred: nonzero if the voice is loaded
+extern "C" atn::SoundRef fn_803EA09C(void* mgr, CharaTask* chara, const char* name, int a, int b, int c,
+                                     float volume); // inferred: voice spoken by a character (lip sync)
+extern "C" atn::SoundRef fn_803E9608(void* mgr, const char* name, int a, int b, float volume);
+extern "C" void fn_80489A2C(EventEffects_unk* manager); // inferred: loads the missing event voices
+extern "C" void fn_80489A50(EventEffects_unk* manager, Event::Action* action, int arg);
+// inferred: text of the dialog balloons (atn, lbl_8087F008); the type is the one of Event/Dialog.cpp
+struct DialogTextMgr_unk;
+extern "C" DialogTextMgr_unk* lbl_8087F008;
+extern "C" void fn_800DBC1C(DialogTextMgr_unk* mgr); // inferred: shows all the texts at once
+extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context); // inferred: wcstok
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+// inferred: message of the event table (fn_803B3B38): its text at 0x08
+struct MsgText_unk {
+    unsigned char m00[0x08];
+    const wchar_t* m08;
+};
+extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" void fn_803B5830(Event::MsgWindow_unk* window, void* msg, int arg); // inferred: next message
 extern "C" void fn_803B5774(Event::MsgWindow_unk* window, void* msg, int arg); // inferred: opens with a message
 extern "C" void fn_803B57B0(Event::MsgWindow_unk* window, int arg);            // inferred: closes
@@ -1282,6 +1305,92 @@ int ActionAudioEffect::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// inferred: the sound engine knows `name` (it returns index + 1, as in atn/Se_unk fn_800C3094)
+inline bool HasSound_unk(const char* name) {
+    return fn_80049B74(lbl_8087EE90, name) - 1 != -1;
+}
+
+// inferred: plays the voice of an actor: with lip sync on its character (or on the balloon head when
+// the event shows dialog heads, flag 0x00800000), or without when it has none
+// NONMATCHING: 97.4% - arg in r27 (r28 in the original) and the long-string test of size() is shared
+// with c_str() here (the original tests it again); tried size()/length()/empty() forms and Keep_unk
+int ActionVoicePlay::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParam_unk(0)->m04.i);
+        if (entry == 0) {
+            break;
+        }
+        if (entry->mName.size() == 0) {
+            break;
+        }
+        if (lbl_8087EE90 != 0 && !HasSound_unk(entry->mName.c_str())) {
+            break;
+        }
+        atn::Vector3 pos = arg->fn_805384CC(2);
+        float volume = arg->GetParam_unk(7)->m04.f;
+        float range = arg->GetParam_unk(8)->m04.f;
+        float pitch = arg->GetParam_unk(9)->m04.f;
+        int noKeep = arg->GetParam_unk(10)->m04.i;
+        int lipSync = arg->GetParam_unk(11)->m04.i;
+        if (fn_803EB2A4(lbl_8087F498, entry->mName.c_str()) == 0) {
+            fn_80489A2C(lbl_8087F540);
+        }
+        if (lbl_8087F0A8->mVoiceLimitLevel >= 3) {
+            volume = 0.0f;
+        }
+        atn::SoundRef sound;
+        Actor_unk* actor = manager->FindActor_unk(arg->GetParam_unk(2)->m04.i);
+        CharaTask* chara = actor != 0 ? actor->fn_800128FC() : 0;
+        if (((manager->m98 >> 23) & 1) == 1) {
+            chara = manager->m280->fn_8022960C(actor);
+        }
+        if (entry != 0) {
+            if (lipSync != 0 && chara != 0) {
+                sound = fn_803EA09C(lbl_8087F498, chara, entry->mName.c_str(), 0, 1, 0, volume);
+            } else {
+                sound = fn_803E9608(lbl_8087F498, entry->mName.c_str(), 0, 1, volume);
+            }
+        }
+        fn_80489A50(lbl_8087F540, arg, 0);
+        if (arg->m18 > 0) {
+            fn_800CB518(&sound, arg->m18);
+        }
+        fn_800CB688(&sound, 0, pitch);
+        if (lbl_8087F540->mC4 != 0) {
+            fn_800CB5B4(&sound, 10, 0.0f);
+        }
+        atn::SoundObject* handle = 0;
+        if (noKeep == 0 && sound.mPtr != 0) {
+            sound.mPtr->mRefCount++;
+            handle = sound.mPtr;
+        }
+        arg->m38 = (int)handle;
+        break;
+    }
+    case 2: {
+        bool stop = arg->GetParam_unk(10)->m04.i == 0 && arg->m38 != 0;
+        if (stop) {
+            atn::SoundRef sound;
+            sound = (atn::SoundObject*)arg->m38;
+            sound.mPtr->mRefCount--;
+            fn_800CB5C8(&sound, arg->m1C, 0);
+        }
+        break;
+    }
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        if (manager->FindActor_unk(arg->GetParam_unk(2)->m04.i)->m20 == 6) {
+            arg->fn_80538DC4(4);
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
 int ActionMultiAudio::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -1868,6 +1977,84 @@ inline Cut* FindCut_unk(EventManager_unk* manager, int index) {
         Cut* cut = manager->mB8[(unsigned int)i].mCut;
         if (index == cut->mIndex) {
             return cut;
+        }
+    }
+    return 0;
+}
+
+// inferred: shows the balloon of an actor (slot of the section); the big balloon when the third
+// parameter is set
+// NONMATCHING: 96.3% - arg and owner swapped (r31/r30 in the original) and the volatile registers of
+// the parameters; tried ~13 forms (slot local, early return, switch, frames local, bool flag)
+int ActionDialogSpeaker::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        ActionOwner_unk* owner = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Dialog* dialog = manager->m280;
+        if (dialog != 0) {
+            int id = arg->GetParam_unk(0)->m04.i;
+            int kind = arg->GetParam_unk(1)->m04.i;
+            int big = arg->GetParam_unk(2)->m04.i;
+            int extra = arg->GetParam_unk(3)->m04.i;
+            Actor_unk* actor = manager->FindActor_unk(id);
+            if (actor != 0) {
+                int option = arg->GetParam_unk(4)->m04.i;
+                if (big != 0) {
+                    dialog->fn_80228AF8(owner->m10, actor, kind, extra, arg->m14 - arg->m10, option);
+                } else {
+                    dialog->fn_80228AF4(owner->m10, actor, kind, extra, arg->m14 - arg->m10, option);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+// inferred: message `id` of the event in the balloon of the section, one text per line ("\\n" in the
+// message)
+static wchar_t sNewLine_unk[] = L"\n";
+int ActionDialogText::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        ActionOwner_unk* owner = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        Dialog* dialog = manager->m280;
+        if (dialog != 0) {
+            int id = arg->GetParam_unk(0)->m04.i;
+            int align = arg->GetParam_unk(1)->m04.i;
+            int size = arg->GetParam_unk(2)->m04.i;
+            int param3 = arg->GetParam_unk(3)->m04.i;
+            unsigned int color = arg->GetParam_unk(4)->m04.i;
+            int mode = arg->GetParam_unk(5)->m04.i;
+            float height = arg->GetParam_unk(6)->m04.f;
+            float scale = 1.2f * height;
+            MsgText_unk* msg = (MsgText_unk*)fn_803B3B38(manager->m1D4, id);
+            if (msg != 0) {
+                wchar_t text[256];
+                wchar_t line[256];
+                wcscpy(text, msg->m08);
+                int len = wcslen(text);
+                wchar_t* p = text;
+                for (int i = 0; i < len - 1; i++, p++) {
+                    if (p[0] == L'\\' && p[1] == L'n') {
+                        p[1] = L'\n';
+                        p[0] = L'\n';
+                    }
+                }
+                wchar_t* context;
+                int n = 0;
+                wchar_t* token = fn_800DC3C8(text, sNewLine_unk, &context);
+                while (token != 0) {
+                    dialog->fn_80228CA0(owner->m10, token, align, size, param3, (float)(arg->m14 - arg->m10), scale,
+                                        color, mode, n);
+                    mode = 0;
+                    wcscpy(line, token);
+                    token = fn_800DC3C8(0, sNewLine_unk, &context);
+                    n++;
+                }
+                if (lbl_8087F540->m2390 != 0) {
+                    fn_800DBC1C(lbl_8087F008);
+                }
+            }
         }
     }
     return 0;

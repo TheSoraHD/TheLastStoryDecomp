@@ -5,9 +5,12 @@
 #include "atn/Texture_unk.h"
 #include "atn/LipSync_unk.h"
 #include "math/Vec.h"
-#include "MP/D2AMpMenu_unk.h"
 #include "Event/Behavior.h"
 #include "Event/DialogHead.h"
+
+namespace MP {
+struct MpD2A_unk;
+}
 
 // Everything here is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
