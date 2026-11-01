@@ -8,6 +8,8 @@
 #include <boost/bind.hpp>
 #include "game/MapManager.h"
 #include "game/EnvSeManager.h"
+#include "game/GameUI.h"
+#include "atn/D2A_Task.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -27,7 +29,9 @@ struct EventEffects_unk {
     int mC4; // inferred: nonzero when the music fades are shortened
     unsigned char mC8[0x1A38 - 0xC8];
     int m1A38; // inferred: camera change in progress
-    unsigned char m1A3C[0x1F20 - 0x1A3C];
+    unsigned char m1A3C[0x1EB0 - 0x1A3C];
+    int m1EB0; // inferred: set by ActionCheck (type 1)
+    unsigned char m1EB4[0x1F20 - 0x1EB4];
     atn::Bgm m1F20; // inferred: BGM of the multi audio actions
     int m1F34;      // inferred: m1F20 is in use
     unsigned char m1F38[0x1F6C - 0x1F38];
@@ -74,6 +78,11 @@ typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" ReflectTarget_unk* fn_800C16B4(Camera_unk* camera);
 extern "C" void fn_8048E9E0(EventEffects_unk* mgr); // inferred: starts the movie
+extern "C" void fn_804817D4(EventEffects_unk* mgr);
+extern "C" float lbl_807C8AB0[3][2]; // inferred: text speeds of the message actions
+// inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)
+extern "C" void fn_80541548(Event::EventManager_unk* manager, int window, void* msg, unsigned int kind, int style,
+                            int size, int flags, float start, float length, float speed0, float speed1);
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
 extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3& pos, float radius, int color);
@@ -87,6 +96,25 @@ extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred:
 extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
 
 namespace Event {
+
+// inferred: 2D animation of the event (0x20 bytes, found by id)
+struct AnimEntry_unk {
+    unsigned char m00[0x14];
+    int m14;              // inferred: id
+    atn::D2A_Task* m18;
+    int m1C;              // inferred: 1 when loaded
+};
+
+// inferred: animation `id` of the event (as EventManager_unk::FindActor_unk)
+inline AnimEntry_unk* FindAnim_unk(EventManager_unk* manager, int id) {
+    for (int i = 0; i < manager->mD8; i++) {
+        AnimEntry_unk* entry = &manager->mD4[(unsigned int)i];
+        if (id == entry->m14) {
+            return entry;
+        }
+    }
+    return 0;
+}
 
 // inferred: movie of the event (found by id)
 struct MovieState_unk {
@@ -347,6 +375,91 @@ public:
     virtual int vf0C(Action* arg, int phase);
 };
 
+// NONMATCHING: 97% - registers of the animation search (id in r5 in the original)
+int ActionAnimationPlay::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(0)->m04.i;
+        float speed = arg->GetParam_unk(1)->m04.f;
+        int repeat = arg->GetParam_unk(2)->m04.i;
+        AnimEntry_unk* entry = FindAnim_unk(manager, id);
+        if (entry->m1C == 1) {
+            atn::D2A_Task* task = entry->m18;
+            if ((task->mFlags & 4) == 4) {
+                task->mFlags &= ~4;
+            }
+            if (speed >= 0.0f) {
+                task->Rewind_unk();
+            } else {
+                task->SetEnd_unk();
+            }
+            task->mSpeed = speed;
+            task->mRepeat = repeat;
+        }
+        break;
+    }
+    case 3:
+    case 4: {
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        AnimEntry_unk* entry = FindAnim_unk(manager, arg->GetParam_unk(0)->m04.i);
+        if (entry->m1C == 1) {
+            atn::D2A_Task* task = entry->m18;
+            if ((task->mFlags & 4) != 4) {
+                task->mFlags |= 4;
+            }
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.2% - registers of the parameter count and of the label read before the call
+int ActionCheck::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0:
+        arg->m38 = 0;
+        break;
+    case 5: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        if (arg->GetParam_unk(0)->m04.i == 0) {
+            fn_8054136C(manager, arg->GetParam_unk(1)->m04.i);
+            return 1;
+        }
+    }
+    case 3:
+    case 4: {
+        int type = arg->GetParam_unk(0)->m04.i;
+        if (type == 2 || type == 3) {
+            int flags = arg->m38;
+            if (arg->GetParam_unk(6)->m04.i != 0 && ((flags >> 1) & 1) == 0) {
+                int label = arg->GetParam_unk(5)->m04.i;
+                fn_8054136C(arg->fn_805381C8(), label);
+                return 1;
+            }
+        }
+        if (type == 1) {
+            fn_804817D4(lbl_8087F540);
+            lbl_8087F540->m1EB0 = 1;
+        }
+        break;
+    }
+    case 6:
+        if (arg->GetParam_unk(0)->m04.i == 1) {
+            EventManager_unk* manager = arg->fn_805381C8();
+            int id = arg->GetParam_unk(2)->m04.i;
+            if (manager->FindActor_unk(id)->m20 == 6) {
+                arg->fn_80538DC4(4);
+            }
+        }
+        break;
+    }
+    return 0;
+}
+
 int ActionNotify::vf0C(Action* arg, int phase) {
     if (phase == 5 || phase == 0) {
         if (lbl_8087F430 == 0) {
@@ -450,6 +563,43 @@ int ActionMessageWindow::vf0C(Action* arg, int phase) {
 }
 
 int ActionMessagePrint::vf08(Action* arg) {
+    return 0;
+}
+
+int ActionMessagePrint::vf0C(Action* arg, int phase) {
+    if (phase == 0 && lbl_8087F540->m238C <= 0) {
+        int window;
+        int text;
+        unsigned int kind;
+        int style;
+        int size;
+        int wait;
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        window = arg->GetParam_unk(0)->m04.i;
+        text = arg->GetParam_unk(1)->m04.i;
+        kind = arg->GetParam_unk(4)->m04.i;
+        style = arg->GetParam_unk(5)->m04.i;
+        size = arg->GetParam_unk(6)->m04.i;
+        wait = arg->GetParam_unk(7)->m04.i;
+        float speed0 = 0.5f;
+        float speed1 = 0.5f;
+        if (kind <= 2) {
+            speed0 = lbl_807C8AB0[kind][0];
+            speed1 = lbl_807C8AB0[kind][1];
+        }
+        void* msg = fn_803B3B38(manager->m1D4, text);
+        if (kind == 0 && style == 0 && manager->m50 == 3 && lbl_8087F490 != 0 && lbl_8087F490->m2640 != 0) {
+            lbl_8087F490->fn_803E3BE8(msg, arg->m14 - arg->m10, 0.0f);
+        } else {
+            int flags = 1;
+            if (wait != 0) {
+                flags |= 0x01000000;
+            }
+            int start = arg->m10;
+            fn_80541548(manager, window, msg, kind, style, size, flags, start, arg->m14 - start, speed0, speed1);
+        }
+    }
     return 0;
 }
 

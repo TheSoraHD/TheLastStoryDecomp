@@ -83,10 +83,15 @@ struct EventManager_unk {
         Cut* mCut;
         int m04;
     };
-    unsigned char m000[0xB8];
+    unsigned char m000[0x50];
+    int m50; // inferred: kind of event (3: messages go to the HUD window)
+    unsigned char m054[0xB8 - 0x54];
     CutEntry_unk* mB8; // 0xB8: inferred: cuts of the event
     int mBC;
-    unsigned char mC0[0x114 - 0xC0];
+    unsigned char mC0[0xD4 - 0xC0];
+    struct AnimEntry_unk* mD4; // 0xD4: inferred: 2D animations of the event (0x20 bytes each)
+    int mD8;
+    unsigned char mDC[0x114 - 0xDC];
     struct AudioEntry_unk* m114; // 0x114: inferred: multi audio streams of the event (0x18 bytes each)
     int m118;
     unsigned char m11C[0x124 - 0x11C];
