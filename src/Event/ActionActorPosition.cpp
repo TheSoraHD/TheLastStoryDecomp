@@ -549,12 +549,12 @@ inline void Actor_unk::SetPath_unk(Path* path) {
     for (int i = 0; i < (int)path->mPoints.size(); i++) {
         pts[i] = path->mPoints[i].mPos;
     }
-    int n = pts.size();
-    const atn::Vector3* p = pts.begin();
-    mPath.Build_unk(p, n);
+    mPath.Build_unk(pts.begin(), pts.size());
 }
 
-// NONMATCHING: new
+// NONMATCHING: 98.67% - saved registers: the original keeps arg in r26 and the count of the points in r31
+// (ours r31/r30); the register of the frame step in the inlined vf08 (tried ~14 forms: shared locals, switch
+// on the mode, members/free inlines for the path, locals for the points)
 int ActionActorPosition::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
