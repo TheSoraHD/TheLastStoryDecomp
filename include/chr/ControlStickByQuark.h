@@ -271,10 +271,14 @@ public:
 // inferred: created by CharaTask::fn_80164168 (the caller passes 15 as the last argument)
 class ControlBoundShade : public ControlBase {
 public:
-    ControlBoundShade(Chara_unk* chara, int a, int b, int c); // 0x8019BFF0
+    ControlBoundShade(Chara_unk* chara, int time, int b, int count); // 0x8019BFF0
     virtual int vf0C();
     virtual boost::function<void()> vf10();
-    unsigned char m08[0x1C - 0x08];
+    int mState; // 0x08
+    int mTime;  // 0x0C
+    int mTimer; // 0x10
+    int mCount; // 0x14: inferred: swings left
+    int m18;
 };
 
 class ControlThrownSimple : public ControlBase {

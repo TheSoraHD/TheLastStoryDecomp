@@ -1147,7 +1147,7 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
     }
-    if (mChara->mFlag5) {
+    if (mChara->IsFlag5_unk()) {
         mChara->mFlag5 = 0;
     }
     float n = (float)frames;
@@ -1572,6 +1572,60 @@ int ControlThreadRelease::vf0C() {
     Motion_unk* m = &mChara->mMotion;
     float frame = m->mTracks[0].m08;
     return frame >= m->fn_80097D7C(0);
+}
+
+// inferred: bound by a shade (control id 0x7A) for `time` frames; the player breaks free with `count`
+// swings
+ControlBoundShade::ControlBoundShade(Chara_unk* chara, int time, int b, int count)
+    : ControlBase(chara), mState(0), mTime(time), mTimer(0), mCount(count), m18(b) {
+    chara->SetControlId_unk(0x7A);
+    if (mChara->mType == 0) {
+        mChara->m564 = (CharaTask::CONTROL_MODE)1;
+    } else {
+        mChara->m564 = (CharaTask::CONTROL_MODE)2;
+    }
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    if (mChara->IsFlag5_unk()) {
+        mChara->mFlag5 = 0;
+    }
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x84, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+int ControlBoundShade::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    if (mState == 0) {
+        float frame = m->mTracks[0].m08;
+        if (frame >= m->fn_80097D7C(0)) {
+            mState++;
+            m->m34C = 1;
+            m->mTracks[0].m20 = 1.0f;
+            m->fn_80097C08(0, 0x1E4, 1, 0, 1, 0.0f, 0.1f);
+            m->mTracks[0].m0C = 1.0f;
+        }
+    } else {
+        if (++mTimer > mTime) {
+            return 1;
+        }
+        if (mChara->mType == 0) {
+            lbl_8087F490->m728 = 1;
+            if (lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
+                mCount--;
+            }
+            if (mCount <= 0) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 } // namespace chr
