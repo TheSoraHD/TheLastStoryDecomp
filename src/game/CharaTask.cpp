@@ -235,7 +235,7 @@ extern "C" int fn_80375184(Field_unk* field);
 extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
 extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 extern "C" int fn_800F8548(Effect_unk* mgr);
-extern "C" void fn_800FD658(Effect_unk* mgr, int a, int b, void* bullet, int arg4, int arg5, int arg6);
+extern "C" void fn_800FD658(Effect_unk* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
 // inferred: globals returned by accessors that are called out of line
 extern "C" void* lbl_8087EE68;
@@ -9002,7 +9002,7 @@ void CharaTask::fn_80164168(int a, int b) {
 inline Effect_unk* GetEffect_unk() { return lbl_8087F048; }
 
 // inferred: starts the bullet `id` (this is unused)
-void CharaTask::fn_80164454(int id, int a, int b, int c) {
+void CharaTask::fn_80164454(int id, CharaTask* a, CharaTask* b, unsigned int flags) {
     Effect_unk* mgr = lbl_8087F048;
     if (mgr != 0) {
         void* bullet;

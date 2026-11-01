@@ -340,22 +340,28 @@ public:
     atn::Vector3 mOffset; // 0x14: inferred: start position relative to mTarget
 };
 
+// inferred: stuck on Zangurg while it stands (control id 0x87)
 class ControlStickZanGurgStand : public ControlBase {
 public:
-    ControlStickZanGurgStand(Chara_unk* chara, atn::Vector3 a, atn::Vector3 b); // 0x8019F0A8
+    ControlStickZanGurgStand(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir); // 0x8019F0A8
     virtual int vf0C();
     virtual boost::function<void()> vf10();
     virtual atn::Vector3 vf14();
-    unsigned char m08[0x20 - 0x08];
+
+    atn::Vector3 mPos; // 0x08
+    atn::Vector3 mDir; // 0x14
 };
 
+// inferred: stuck on Zangurg at the cliff (control id 0x88)
 class ControlStickZanGurgCliff : public ControlBase {
 public:
-    ControlStickZanGurgCliff(Chara_unk* chara, atn::Vector3 a, atn::Vector3 b); // 0x8019F8E8
+    ControlStickZanGurgCliff(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir); // 0x8019F8E8
     virtual int vf0C();
     virtual boost::function<void()> vf10();
     virtual atn::Vector3 vf14();
-    unsigned char m08[0x20 - 0x08];
+
+    atn::Vector3 mPos; // 0x08
+    atn::Vector3 mDir; // 0x14
 };
 
 class ControlReflectLaser : public ControlBase {

@@ -171,6 +171,7 @@ struct Color4f_unk {
     float r, g, b, a;
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
@@ -1647,7 +1648,7 @@ int ControlBoundShade::vf0C() {
 boost::function<void()> ControlBoundShade::vf10() {
     if (mCount > 0) {
         return DoubleFunction(boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false),
-                            boost::bind(&CharaTask::fn_80164454, (CharaTask*)mChara, m18, (int)mChara, (int)mChara, 0));
+                            boost::bind(&CharaTask::fn_80164454, (CharaTask*)mChara, m18, (CharaTask*)mChara, (CharaTask*)mChara, 0));
     }
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
@@ -1874,6 +1875,119 @@ atn::Vector3 ControlEndCliffhangZanGurg::vf14() {
     pos.y -= 15.0f;
     pos = LerpTo_unk(pos, mChara->mPos, frame / end);
     return pos;
+}
+
+// NONMATCHING: 93.8% - the original copies mPos/mDir before the stores of ControlBase; this in r31
+ControlStickZanGurgStand::ControlStickZanGurgStand(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir)
+    : ControlBase(chara), mPos(pos), mDir(dir) {
+    chara->SetControlId_unk(0x87);
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->IsFlag5_unk() != 0) {
+        mChara->mFlag5 = 0;
+    }
+    mChara->mRot = mDir.ToRotation_unk();
+    mChara->mPos = mPos;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x22D, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+int ControlStickZanGurgStand::vf0C() {
+    CharaTask* c = mChara;
+    Motion_unk* m = &c->mMotion;
+    float frame = Frame_unk(m);
+    if (frame < 45.0f) {
+        atn::Vector3 pos = c->mPos;
+        pos += mDir * (20.0f / 45.0f);
+        c->mPos = pos;
+    } else if (45.0f <= frame && frame < 70.0f) {
+        atn::Vector3 rot = c->mRot;
+        rot.y += 0.12566371f;
+        c->mRot = rot;
+    } else if (70.0f <= frame && frame < 80.0f) {
+        atn::Vector3 pos = c->mPos;
+
+        pos += mDir * 3.0f;
+        mChara->mPos = pos;
+    }
+    return frame >= m->fn_80097D7C(0);
+}
+
+// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
+atn::Vector3 ControlStickZanGurgStand::vf14() {
+    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    pos.y -= 15.0f;
+    return pos;
+}
+
+boost::function<void()> ControlStickZanGurgStand::vf10() {
+    ControlGetUp* next = new ((MemoryTag)0, "", "", 0) ControlGetUp(mChara);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+}
+
+// NONMATCHING: 65.5% - the original copies mPos/mDir before the stores of ControlBase
+ControlStickZanGurgCliff::ControlStickZanGurgCliff(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir)
+    : ControlBase(chara), mPos(pos), mDir(dir) {
+    chara->SetControlId_unk(0x88);
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x22E, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+int ControlStickZanGurgCliff::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    float frame = Frame_unk(m);
+    if (atn::Abs_unk(frame - 45.0f) < 1.1920929e-7f) {
+        m->m34C = 1;
+        m->mTracks[0].m20 = 1.0f;
+        m->fn_80097C08(0, 0x22D, 0, 0, 1, 1.0f, 0.1f);
+        m->mTracks[0].m0C = 1.0f;
+        m->mTracks[0].m08 = 45.0f;
+    }
+    if (frame < 45.0f) {
+        atn::Vector3 pos = mChara->mPos;
+        pos += mDir * (20.0f / 45.0f);
+        mChara->mPos = pos;
+    } else if (45.0f <= frame && frame < 70.0f) {
+        atn::Vector3 rot = mChara->mRot;
+        rot.y += 0.12566371f;
+        mChara->mRot = rot;
+    } else if (70.0f <= frame && frame < 80.0f) {
+        atn::Vector3 pos = mChara->mPos;
+        pos += mDir * 3.0f;
+        mChara->mPos = pos;
+    } else if (80.0f <= frame && frame < 82.0f) {
+        mChara->vf44();
+    }
+    return Frame_unk(m) >= m->fn_80097D7C(0);
+}
+
+// NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
+atn::Vector3 ControlStickZanGurgCliff::vf14() {
+    atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+    pos.y -= 15.0f;
+    return pos;
+}
+
+boost::function<void()> ControlStickZanGurgCliff::vf10() {
+    ControlGetUp* next = new ((MemoryTag)0, "", "", 0) ControlGetUp(mChara);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+}
+
+ControlReflectLaser::~ControlReflectLaser() {
+    if (lbl_8087F3C0) {
+        fn_80239DAC(lbl_8087F3C0, this, -2, 0);
+    }
 }
 
 } // namespace chr
