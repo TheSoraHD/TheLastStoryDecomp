@@ -913,6 +913,14 @@ int ControlMatHoldGuard::vf0C() {
     return 0;
 }
 
+// inferred: thrown backwards when broken free
+boost::function<void()> ControlMatHoldGuard::vf10() {
+    if (mCount <= 0) {
+        return boost::bind(&CharaTask::fn_8015DEC0, (CharaTask*)mChara, Neg_unk(Front_unk(mChara)));
+    }
+    return ControlBase::vf10();
+}
+
 void ControlMatHoldGuard::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
