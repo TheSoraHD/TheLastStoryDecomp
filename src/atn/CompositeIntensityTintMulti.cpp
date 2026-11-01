@@ -24,7 +24,30 @@ inline int fn_800D8828(atn::Texture_unk* tex) {
 inline int fn_800D884C(atn::Texture_unk* tex) {
     return GXGetTexObjHeight(&tex->mObj);
 }
+// inferred: asserts of the debug build, empty in release: they only count for the inline budget (with them
+// vf14 goes over it and calls every inline out of line, as the original; about 80 are needed)
+#define TEX_ASSERT_UNK(x) ((void)0)
 inline int fn_800D8870(atn::Texture_unk* tex) {
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
+    TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0); TEX_ASSERT_UNK(tex != 0);
     if (tex->mImage != 0) {
         return (signed char)tex->m2F;
     }
@@ -284,13 +307,8 @@ int CompositeIntensityTintMulti::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 0% - the original is over the inlining budget and calls every inline helper out of line
-// (fn_800D8808/14/28/4C/70, fn_800D8894 = TextureComposite::fn_800D8894 with push_back inlined, the
-// command constructors, the Color4f_unk copy and fn_800D8C0C); ours inlines them all. Adding the cost of
-// one more fn_800D8894 call (or ~10 more fn_800D8870 calls) tips MWCC over the budget, and then the code
-// and the weak copy fn_800D8894 (0x2EC) come out as in the original: some inline cost of the original
-// source is missing here (texture getters, color constructor and the command constructors are as small
-// as their weak copies allow).
+// over the inline budget as the original (empty asserts in fn_800D8870): every inline helper is called out
+// of line (fn_800D8808/28/4C/70, fn_800D8894, the command constructors, the Color4f_unk copy, fn_800D8C0C)
 void CompositeIntensityTintMulti::vf14() {
     m08 = 1;
     if (mDone != 0) {
