@@ -426,8 +426,9 @@ u32 StrmPlayer::GetPlaySamplePosition() const
 	return t + sample;
 }
 
-// NONMATCHING: ~95% - the int to float conversions of blocks and of the task count come out in
-// the other order (15 variants of the expression tried)
+// NOTE: code at 100%, but the unit does not link: the original .sdata2 pool has 100.0f before the
+// two int-to-float doubles (0.0f, 100.0f, doubles); MWCC creates the doubles first with any form of
+// the expression and any compiler version tried (a stripped function using 100.0f earlier?).
 // inferred: The Last Story addition (0x8071A800), percentage of the stream buffer still loaded
 // ahead of the playing position (while preparing, of the blocks already loaded)
 f32 StrmPlayer::GetBufferRatio_unk() const
@@ -448,9 +449,9 @@ f32 StrmPlayer::GetBufferRatio_unk() const
 		sample = mTracks[0].mVoice->GetCurrentPlayingSample();
 
 	u32 blockSamples = mStrmInfo.blockSamples;
-	f32 pos = static_cast<int>(sample - mPlayingBufferBlockIndex * blockSamples) / static_cast<f32>(blockSamples);
 	int blocks = mBufferBlockCountBase - 1;
-	f32 ratio = 100.0f * (blocks - (pos + mStrmDataLoadTaskList.GetSize())) / blocks;
+	f32 pos = static_cast<int>(sample - mPlayingBufferBlockIndex * blockSamples) / static_cast<f32>(blockSamples) + mStrmDataLoadTaskList.GetSize();
+	f32 ratio = 100.0f * (blocks - pos) / blocks;
 
 	return ratio < 0.0f ? 0.0f : ratio;
 }
