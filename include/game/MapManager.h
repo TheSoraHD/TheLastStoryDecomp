@@ -32,7 +32,7 @@ struct MapModelBase_unk {
     unsigned int mSegmentNum;   // 0x2C
     unsigned char m30[0x4C - 0x30];
 };
-struct MapModel_unk : public MapModelBase_unk {
+struct MapArea : public MapModelBase_unk {
     unsigned char m4C[0xBC - 0x4C];
     int mBC;   // inferred: set by gmk::CharaLight (callback 0x804225E0)
     void* mC0; // inferred: light of gmk::CharaLight
@@ -48,7 +48,7 @@ struct MapModel_unk : public MapModelBase_unk {
 // inferred: group of models of a map part
 struct MapGroup_unk {
     unsigned char m00[0x58];
-    std::vector<MapModel_unk*> mModels; // 0x58
+    std::vector<MapArea*> mModels; // 0x58
 };
 // inferred: map part (MapPartsBase)
 struct MapPart_unk {
@@ -76,7 +76,7 @@ struct MapPart_unk {
 };
 // inferred: camera callback: the map model hit by a sphere
 typedef boost::function<atn::Scene*(atn::Sphere, void*)> MapHitFunc_unk;
-typedef boost::function<void(MapModel_unk*, void*)> MapModelFunc_unk;
+typedef boost::function<void(MapArea*, void*)> MapModelFunc_unk;
 
 // inferred: list of the model groups; a class derived from the vector (the destructor of
 // 0x80491324 tests the address four times)
@@ -92,11 +92,11 @@ public:
     void fn_80491418(MapPart_unk* part);
     void fn_80491440(MapPart_unk* part);
     void fn_80491528(MapModelFunc_unk func, void* arg);
-    MapModel_unk* fn_804918A4(atn::Sphere sphere);
+    MapArea* fn_804918A4(atn::Sphere sphere);
     MapColor_unk fn_80491D50(atn::Sphere sphere);
     MapColor_unk fn_80491DF8(atn::Sphere sphere);
     // inferred: name invented (the callback copies the sphere twice, 0x804914BC)
-    MapModel_unk* Find_unk(atn::Sphere sphere) { return fn_804918A4(sphere); }
+    MapArea* Find_unk(atn::Sphere sphere) { return fn_804918A4(sphere); }
 
     static MapManager* sInstance; // 0x8087F558
 

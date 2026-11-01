@@ -59,7 +59,7 @@ extern "C" FireworksDebug_unk* lbl_8087F0A8;
 static float sRate = 0.1f;
 
 // inferred: sets the light of a map part (callback of fn_80491528)
-void fn_8041CD24(MapModel_unk* part, void* light) {
+void fn_8041CD24(MapArea* part, void* light) {
     part->mC0 = light;
     part->mBC = light != 0 || part->mBC != 0;
     part->m114 = -1;

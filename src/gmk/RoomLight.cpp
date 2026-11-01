@@ -41,7 +41,7 @@ extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 
 // inferred: sets the light of a map part (callback of fn_80491528)
-void fn_8041FED8(MapModel_unk* part, void* light) {
+void fn_8041FED8(MapArea* part, void* light) {
     part->mC0 = light;
     part->mBC = light != 0 || part->mBC != 0;
     part->m114 = ((RoomLightData_unk*)light)->m50;

@@ -5,11 +5,11 @@
 
 
 // inferred: the atn::Scene part of a model (null-checked cast, 0x80491504)
-inline atn::Scene* ToScene_unk(MapModel_unk* model) {
+inline atn::Scene* ToScene_unk(MapArea* model) {
     return model != 0 ? (atn::Scene*)((char*)model + 0x4C) : 0;
 }
 
-extern "C" MapModel_unk* fn_804962B0(MapGroup_unk* group, const atn::Sphere* sphere); // inferred: model hit by the sphere
+extern "C" MapArea* fn_804962B0(MapGroup_unk* group, const atn::Sphere* sphere); // inferred: model hit by the sphere
 
 extern "C" int fn_800709F4(void* bound, const atn::Sphere* sphere); // inferred: intersection test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -100,7 +100,7 @@ static atn::Scene* fn_804914BC(atn::Sphere sphere, void* manager) {
 
 // inferred: calls `func` on the models of the parts and of the groups
 void MapManager::fn_80491528(MapModelFunc_unk func, void* arg) {
-    MapModel_unk** model;
+    MapArea** model;
     for (MapPart_unk** it = mParts.mData; it != &mParts.mData[mParts.mSize]; it++) {
         MapPart_unk* part = *it;
         if (mType == 0 && part->mType == 6) {
@@ -135,7 +135,7 @@ void MapManager::fn_80491528(MapModelFunc_unk func, void* arg) {
 // inferred: model hit by a sphere
 // NONMATCHING: 97.6% - register allocation of the loops, and the original reloads m108 of the
 // field part inside GetGroup_unk
-MapModel_unk* MapManager::fn_804918A4(atn::Sphere sphere) {
+MapArea* MapManager::fn_804918A4(atn::Sphere sphere) {
     if (mType != 0) {
         MapPart_unk** end = &mParts.mData[mParts.mSize];
         for (MapPart_unk** it = mParts.mData; it != end; it++) {
@@ -164,7 +164,7 @@ MapModel_unk* MapManager::fn_804918A4(atn::Sphere sphere) {
             }
             MapGroup_unk* group = part->GetGroup_unk();
             if (group != 0) {
-                MapModel_unk* model = fn_804962B0(group, &sphere);
+                MapArea* model = fn_804962B0(group, &sphere);
                 if (model != 0) {
                     return model;
                 }
@@ -197,7 +197,7 @@ MapModel_unk* MapManager::fn_804918A4(atn::Sphere sphere) {
     for (unsigned int i = 0; i < mGroups.size(); i++) {
         MapGroup_unk* group = mGroups[i];
         if (group != 0) {
-            MapModel_unk* model = fn_804962B0(group, &sphere);
+            MapArea* model = fn_804962B0(group, &sphere);
             if (model != 0) {
                 return model;
             }
@@ -207,7 +207,7 @@ MapModel_unk* MapManager::fn_804918A4(atn::Sphere sphere) {
     for (unsigned int i = 0; i < mGroups.size(); i++) {
         MapGroup_unk* group = mGroups[i];
         if (group != 0) {
-            for (MapModel_unk** model = group->mModels.begin(); model != group->mModels.end(); model++) {
+            for (MapArea** model = group->mModels.begin(); model != group->mModels.end(); model++) {
                 for (unsigned int j = 0; j < (*model)->mSegmentNum; j++) {
                     MapSegment_unk* seg = &(*model)->mSegments[j];
                     float d0 = DistSq_unk(seg->mStart, sphere.mCenter);
@@ -226,7 +226,7 @@ MapModel_unk* MapManager::fn_804918A4(atn::Sphere sphere) {
 // NONMATCHING: 71% - scheduling: the original loads the sphere before saving r31 (the implicit copy
 // of the sphere gives 78%, but the callback 0x804914BC needs the copy with z first)
 MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
-    MapModel_unk* model = fn_804918A4(sphere);
+    MapArea* model = fn_804918A4(sphere);
     if (model != 0 && model->mMaterial != 0) {
         return *(const MapColor_unk*)((AreaEffConfig*)model->mMaterial)->fn_80043014(2, 0);
     }
@@ -236,7 +236,7 @@ MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
 // inferred: color 3 of the material of the model hit by a sphere
 // NONMATCHING: 71% - as fn_80491D50
 MapColor_unk MapManager::fn_80491DF8(atn::Sphere sphere) {
-    MapModel_unk* model = fn_804918A4(sphere);
+    MapArea* model = fn_804918A4(sphere);
     if (model != 0 && model->mMaterial != 0) {
         return *(const MapColor_unk*)((AreaEffConfig*)model->mMaterial)->fn_80043014(3, 0);
     }

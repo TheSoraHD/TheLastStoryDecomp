@@ -291,7 +291,7 @@ class ActionColorMatrix : public ActionProcessor, public atn::SingletonNoStatic<
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
-    void fn_80561B50(MapModel_unk* model, void* arg); // inferred: applies the color matrix to a map model
+    void fn_80561B50(MapArea* model, void* arg); // inferred: applies the color matrix to a map model
 };
 
 class ActionBrightness : public ActionProcessor, public atn::SingletonNoStatic<ActionBrightness> {
@@ -455,7 +455,7 @@ class ActionMapReflect : public ActionProcessor, public atn::SingletonNoStatic<A
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
-    void fn_805628B8(MapModel_unk* model, void* arg); // inferred: applies parameter 0 to a map model
+    void fn_805628B8(MapArea* model, const void* arg); // inferred: applies parameter 0 to a map model
 };
 
 class ActionLocatorHide : public ActionProcessor, public atn::SingletonNoStatic<ActionLocatorHide> {
@@ -1179,7 +1179,7 @@ int ActionCameraChange::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-void ActionColorMatrix::fn_80561B50(MapModel_unk* model, void* arg) {
+void ActionColorMatrix::fn_80561B50(MapArea* model, void* arg) {
     ColorMatrixParam_unk* dst = model->m2AC != 0 ? &model->m2B0 : &lbl_8087EFA8->m324;
     *dst = *(ColorMatrixParam_unk*)arg;
 }
@@ -1312,7 +1312,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-void ActionMapReflect::fn_805628B8(MapModel_unk* model, void* arg) {
+void ActionMapReflect::fn_805628B8(MapArea* model, const void* arg) {
     model->m16C = ((Action*)arg)->GetParam_unk(0)->m04.i;
 }
 
