@@ -997,6 +997,27 @@ int ControlMatHold::vf0C() {
     return 0;
 }
 
+// inferred: thrown backwards when broken free
+boost::function<void()> ControlMatHold::vf10() {
+    if (mCount <= 0) {
+        return boost::bind(&CharaTask::fn_8015DEC0, (CharaTask*)mChara, Neg_unk(Front_unk(mChara)));
+    }
+    return ControlBase::vf10();
+}
+
+// NONMATCHING: 89.9% - the original frame is 0x20 bigger (one more saved register)
+// inferred: faces the direction of the mat matrix when released
+void ControlMatHold::vf1C() {
+    if (mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+        atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        mChara->mRot = dir.ToRotation_unk();
+        mChara->fn_80144710();
+    }
+    mChara->mF1C = 0;
+}
+
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it
