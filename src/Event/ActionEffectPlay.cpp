@@ -2,6 +2,7 @@
 #include "game/GameBgm.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/Bgm.h"
+#include "atn/SoundRef.h"
 #include "Event/Cut.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
@@ -35,6 +36,12 @@ extern "C" void fn_804846FC(EventEffects_unk* mgr, const atn::Vector3& dir, int 
 extern "C" void fn_80484A78(EventEffects_unk* mgr, int frames);          // inferred: ambient light
 extern "C" void fn_80486DAC(EventEffects_unk* mgr, int on);              // inferred: surrounding light
 extern "C" void fn_80487064(EventEffects_unk* mgr, int on);              // inferred: brightness
+// inferred: color gradation on / off (same arguments)
+extern "C" void fn_8048EE78(EventEffects_unk* mgr, int a, float r, float g, float b, float c, float d, int e,
+                            float f);
+extern "C" void fn_8048F184(EventEffects_unk* mgr, int a, float r, float g, float b, float c, float d, int e,
+                            float f);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
 extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3& pos, float radius, int color);
 // inferred: spot light (position, direction, two angles, color)
@@ -368,6 +375,18 @@ int ActionMessagePrint::vf08(Action* arg) {
     return 0;
 }
 
+int ActionSoundPlay::vf08(Action* arg) {
+    if (arg->m38 != 0) {
+        atn::SoundRef sound;
+        sound = (atn::SoundObject*)arg->m38;
+        sound.mPtr->mRefCount--;
+        int frame = arg->fn_805381C8()->m198;
+        float volume = arg->GetParam_unk(7)->m04.f;
+        fn_800CB5B4(&sound, 0, volume * arg->fn_8053A2E8(arg->fn_805393A4(frame)));
+    }
+    return 0;
+}
+
 // NONMATCHING: 89.8% - load order of GameBgm::sInstance and the action length (tried locals for the
 // instance, the length and the parameter)
 int ActionMusicPlay::vf0C(Action* arg, int phase) {
@@ -502,6 +521,28 @@ int ActionCameraChange::vf0C(Action* arg, int phase) {
     case 4:
         lbl_8087F540->m1A38 = 0;
         break;
+    }
+    return 0;
+}
+
+// NONMATCHING: 99.1% - the original keeps parameter 0 in r0 and the parameter count in r5 (tried
+// the arguments inside each call and a parameter pointer)
+int ActionColorGradation::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        int on = arg->GetParam_unk(0)->m04.i;
+        int a = arg->GetParam_unk(1)->m04.i;
+        float r = arg->GetParam_unk(2)->m04.f;
+        float g = arg->GetParam_unk(3)->m04.f;
+        float b = arg->GetParam_unk(4)->m04.f;
+        float c = arg->GetParam_unk(5)->m04.f;
+        float d = arg->GetParam_unk(6)->m04.f;
+        int e = arg->GetParam_unk(7)->m04.i;
+        float f = arg->GetParam_unk(8)->m04.f;
+        if (on != 0) {
+            fn_8048EE78(lbl_8087F540, a, r, g, b, c, d, e, f);
+        } else {
+            fn_8048F184(lbl_8087F540, a, r, g, b, c, d, e, f);
+        }
     }
     return 0;
 }
