@@ -17,13 +17,6 @@ class Csv;
 
 typedef IntVector_unk QuarkTable_unk; // inferred: a range table ("ShortRangeTableMode1"...)
 
-// inferred: 0x30-byte member at 0x15E0 with an empty constructor (weak copy 0x803165E0 of
-// game/Em316LaserSphere.cpp, which has three of them); a matrix filled with the paired-single copy.
-// Not atn::Matrix3x4: the linker would have kept one copy of both constructors. Name invented.
-struct MtxBlock_unk {
-    MtxBlock_unk() {}
-    float m[3][4];
-};
 
 // inferred: jump of the boss (0x30 bytes at 0x1568, empty constructor: weak copy 0x80338D04): target on
 // the ground, rotation towards it, horizontal direction and start position. Names invented.
@@ -136,7 +129,7 @@ public:
     atn::EfpFile m15BC; // inferred: "ef_bs054a.efp"
     atn::EffFile m15C8;      // inferred: "ef_bs054e_01.eff"
     atn::Vector3 m15D4;
-    MtxBlock_unk m15E0;
+    atn::Matrix3x4 m15E0; // inferred: its empty constructor is called (weak copy 0x803165E0)
     atn::EfpFile m1610; // inferred: "ef_bu040a.efp"
     atn::EfpFile m161C; // inferred: "ef_bu040h.efp"
     unsigned char m1628;
