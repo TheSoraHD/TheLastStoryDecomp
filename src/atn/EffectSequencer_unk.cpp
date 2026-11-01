@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "std/string_members.h"
 #include "std/ios_init.h"
+#include "math/VecOps_unk.h"
 
 // Effect sequences (.efp text files: "EffectSequencer", "EffectLine", "Effect" blocks with
 // Frame/Pos/Rot/Scl/Color/Parent and "Throw" sub-blocks). Name of the file invented (its pool
@@ -32,19 +33,6 @@ extern "C" int fn_800E0D54(TextParser_unk* parser);                 // inferred:
 extern "C" void fn_800E0D70(TextParser_unk* parser);                // inferred: next token
 extern "C" std::string* fn_800E0F84(TextParser_unk* parser);        // inferred: name of the token
 extern "C" std::string* fn_800E114C(TextParser_unk* parser, int i); // inferred: argument `i`
-
-// inferred: converts degrees to radians in place (inline, name invented)
-inline void fn_DegToRad_unk(float* v) {
-    float x = v[0];
-    float y = v[1];
-    float z = v[2];
-    x = 0.017453292f * x;
-    y = 0.017453292f * y;
-    z = 0.017453292f * z;
-    v[0] = x;
-    v[1] = y;
-    v[2] = z;
-}
 
 EfpData_unk::EfpData_unk() : mCount(0), mElems(0), mState(0), mLength(0), mEnd(0) {}
 

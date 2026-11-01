@@ -5,13 +5,10 @@
 #include "atn/Bgm.h"
 #include "game/EnvSeManager.h"
 #include "math/Vec.h"
+#include "math/VecOps_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
-// inferred: scalar times vector (not in math/Vec.h)
-inline atn::Vector3 operator*(float f, const atn::Vector3& v) {
-    return atn::Vector3(v * f);
-}
 
 // inferred: value interpolated over a time (name invented): the time advances by mSpeed every frame
 // and the value goes from mFrom to mTo

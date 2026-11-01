@@ -5,7 +5,7 @@
 #include "atn/Camera_unk.h"
 #include "std/string.h"
 #include "std/vector.h"
-#include "Event/PathCubic.h"
+#include "Event/PathSpline.h"
 #include "macros.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -21,24 +21,6 @@ struct PathPoint_unk {
     float mRotY;
 };
 
-
-// inferred: lengths of the segments: a class derived from std::vector<float> (its destructor has one more
-// level than those of the other vectors, as WarLionPathList_unk of game/Em403WarLion.h)
-struct PathLengths_unk : public std::vector<float> {};
-
-// inferred: natural cubic spline through the points (names invented; see game/PathData_unk.cpp; same
-// class as WarLionPath_unk of game/Em403WarLion.h)
-struct PathSpline_unk {
-    PathSpline_unk() : mNumSegments(0), mLength(0.0f) {}
-    int mNumSegments;                    // 0x00
-    float mLength;                       // 0x04
-    atn::Vector3 mStart;                 // 0x08
-    atn::Vector3 mEnd;                   // 0x14
-    std::vector<PathCubic_unk> mX;       // 0x20
-    std::vector<PathCubic_unk> mY;       // 0x2C
-    std::vector<PathCubic_unk> mZ;       // 0x38
-    PathLengths_unk mLengths;            // 0x44
-};
 
 // inferred: path of the event cameras (class name from the vtable, 0x84 bytes). The point
 // editor of game/PathData_unk.cpp works on the same object.

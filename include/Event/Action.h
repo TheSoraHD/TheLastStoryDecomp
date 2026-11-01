@@ -14,6 +14,14 @@ struct EventManager_unk;
 // inferred: action of a channel (0x40 bytes, vtable 0x80793AB0, defined in Event/Node)
 // inferred: parameter of an action (8 bytes)
 struct ActionParam_unk {
+    // inferred: the value read for different uses (four weak copies with the same code in
+    // Event/ActionActorPosition: 0x80551D28, 0x80551D6C, 0x80551D88, 0x80552024; not templates, which
+    // would be emitted after the other weak copies); names invented
+    int GetMode_unk() const { return m04.i; }
+    int GetActorId_unk() const { return m04.i; }
+    unsigned int GetHash_unk() const { return m04.i; }
+    int GetIndex_unk() const { return m04.i; }
+
     int m00;
     union {
         int i;

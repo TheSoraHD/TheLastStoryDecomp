@@ -7,6 +7,7 @@
 #include "math/Vec.h"
 #include "Event/Action.h"
 #include "atn/SoundRef.h"
+#include "Event/PathSpline.h"
 
 class CharaTask;
 
@@ -42,8 +43,25 @@ struct Actor_unk {
     // inferred: plays motion `motion` on the actor (used by Event::BehaviorGesture)
     void fn_800119C0(int arg1, int motion, int arg3, int arg4, void* arg5, int arg6, int arg7, float arg8,
                      float arg9);
+    void fn_8001011C(const atn::Vector3& pos); // inferred: moves the actor to `pos`
+    void fn_80010490(const atn::Vector3& rot); // inferred: sets the rotation (radians)
+    void fn_80011420(float yaw);               // inferred: sets the rotation around y
+    // inferred: places the actor with a matrix, optionally relative to the node matrix `node`
+    void fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx);
+    void fn_800121F0(int arg, float distance); // inferred: called with the distance moved
     void SetWait_unk(unsigned int v) { mWait_unk = v; } // inferred: inlined setter
     unsigned int GetWait_unk() const { return mWait_unk; }
+    // inferred: accessors called out of line by Event/ActionActorPosition (weak copies 0x80551D74-0x805521D8);
+    // names invented
+    bool IsState6_unk() const { return m20 == 6; }
+    int GetCurve_unk() const { return m130; }
+    atn::Vector3 GetTarget_unk() const { return mD0; }
+    atn::Vector3 GetRot_unk() const { return mC4; }
+    void SetRot_unk(const atn::Vector3& v) { mC4 = v; }
+    void SetTarget_unk(const atn::Vector3& v) { mD0 = v; }
+    int GetState_unk() const { return m20; }
+    atn::Vector3 GetPathPos_unk(float t) { return mPath.GetPos_unk(t); }
+    void TurnTo_unk(const atn::Vector3& dir) { fn_80010490(dir.ToRotation_unk()); }
 
     unsigned char m00[0x14];
     int m14; // inferred: id
@@ -52,10 +70,35 @@ struct Actor_unk {
     unsigned int m18_3 : 29;
     unsigned char m1C[0x20 - 0x1C];
     int m20; // inferred: state (6 is checked by BehaviorFollow::vf0C)
-    unsigned char m24[0xB8 - 0x24];
+    unsigned char m24[0x5C - 0x24];
+    PathSpline_unk mPath; // 0x5C: inferred: path of the actor (ActionActorPosition, mode 1)
+    unsigned char mAC[0xB8 - 0xAC];
     class Action* mB8[3]; // 0xB8: inferred: motion actions playing on the actor (ActionActorMotion)
-    unsigned char mC4[0x1C0 - 0xC4];
+    atn::Vector3 mC4;     // 0xC4: inferred: rotation
+    atn::Vector3 mD0;     // 0xD0: inferred: position the actor moves from
+    unsigned char mDC[0x130 - 0xDC];
+    int m130; // inferred: curve of the moves (fn_8048BD04)
+    unsigned char m134[0x1C0 - 0x134];
 };
+
+// inferred: the actors of the event {data, count} (names invented); Find_unk is a template member
+// emitted at the end of the file (0x8055A400 in Event/ActionActorPosition)
+template <class T>
+struct ActorList_unk {
+    T* Find_unk(int id);
+    T* mData;
+    int mSize;
+};
+
+template <class T>
+T* ActorList_unk<T>::Find_unk(int id) {
+    for (int i = 0; i < mSize; i++) {
+        if (id == mData[i].m14) {
+            return &mData[i];
+        }
+    }
+    return 0;
+}
 
 // inferred: camera animation of an event (0x1C bytes, found by id)
 struct CameraAnim_unk {
@@ -69,14 +112,16 @@ struct EventManager_unk {
     // inferred: lookup of an actor by id (inlined)
     // The unsigned index gives the registers of the original in BehaviorFollow/BehaviorMoveTo::vf0C
     Actor_unk* FindActor_unk(int id) {
-        for (int i = 0; i < m168; i++) {
-            Actor_unk* actor = &m164[(unsigned int)i];
+        for (int i = 0; i < m164.mSize; i++) {
+            Actor_unk* actor = &m164.mData[(unsigned int)i];
             if (id == actor->m14) {
                 return actor;
             }
         }
         return 0;
     }
+
+    ActorList_unk<Actor_unk>* GetActors_unk() { return &m164; } // inferred: weak copy 0x80551D20
 
     // inferred: rotates `v` by the yaw at 0xB4 (0x80541C94 in Event/Sequence)
     atn::Vector3 fn_80541C94(const atn::Vector3& v);
@@ -110,8 +155,7 @@ struct EventManager_unk {
     struct MovieEntry_unk* m144; // 0x144: inferred: movies of the event (0x1C bytes each)
     int m148;
     unsigned char m14C[0x164 - 0x14C];
-    Actor_unk* m164;
-    int m168;
+    ActorList_unk<Actor_unk> m164; // 0x164
     unsigned char m16C[0x174 - 0x16C];
     atn::SoundRef m174[4]; // 0x174: inferred: sounds of the event (ActionEnvSound)
     unsigned char m184[0x190 - 0x184];
