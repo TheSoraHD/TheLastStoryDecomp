@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `auto-20261101c` (2026-11-01, rama sin mergear): **11574 / 18308 funciones al 100%** (report.json), `main.dol: OK`. Fuente en orden del `.dol` + `pd.sh` (+23 en fnstat), `include/Event/Dialog.h`, ActionCameraEffect vf0C bajo el presupuesto de inlining (temporales miembro a miembro, `docs/inlining.md`), `MotionBlurParam_unk`/`BloomParam_unk` en `RenderSetting_unk`. Detalle y decisiones en `docs/auto-20261101c.md`.
+- `auto-20261101c` (2026-11-01, mergeada en `main`): **11574 / 18308 funciones al 100%** (report.json), `main.dol: OK`. Fuente en orden del `.dol` + `pd.sh` (+23 en fnstat), `include/Event/Dialog.h`, ActionCameraEffect vf0C bajo el presupuesto de inlining (temporales miembro a miembro, `docs/inlining.md`), `MotionBlurParam_unk`/`BloomParam_unk` en `RenderSetting_unk`. Detalle y decisiones en `docs/auto-20261101c.md`.
 - `auto-20261101b` (mergeada en `main`): 11569 funciones; procesadores de acciones de los eventos, `MapModel_unk` es `MapArea`; tras tocar una cabecera: `labelcheck.py` + `pd.sh` (`docs/auto-20261101b.md`). `config-relocs-20261101`: 11489 (`docs/config-relocs-20261101.md`).
 - `auto-20261101` (mergeada): 11463 funciones; FxChorus/FxDelay, `ControlStickByQuark`, `SkillEffectManager`, `pairdata` (`docs/auto-20261101.md`). `auto-20261031c`: 11284 (NW4R snd/ut, MSL, MetroTRK, bte).
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
