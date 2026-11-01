@@ -132,7 +132,60 @@ inline void Em316LaserSphere::SetState_unk(int state) {
 }
 
 // inferred: the tests of fn_80316F74 (bits 3 and 9 of the status flags); name invented
+// inferred: asserts of the debug build, empty in release: they only count for the inline budget (with them
+// vf10 goes over it and calls fn_80316E38, fn_80316F74, fn_80316F9C... out of line, as the original)
+#define SPHERE_ASSERT_UNK(x) ((void)0)
 extern "C" inline int fn_80316F74(CharaStatus* status) {
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
+    SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0); SPHERE_ASSERT_UNK(status != 0);
     return (status->m0C & 8) == 8 || (status->m0C & 0x200) == 0x200;
 }
 
@@ -293,7 +346,8 @@ inline float LaserMinF_unk(float a, float b) {
     return a < b ? a : b;
 }
 
-// NONMATCHING: 0% - over the inline budget in the original: it calls fn_80266154, fn_80316E38, fn_80316F74,
+// NONMATCHING: 79.5% - over the inline budget as the original now (empty asserts in fn_80316F74), but the
+// original calls GetModel_unk once and builds another boost::function. Before: it calls fn_80266154, fn_80316E38, fn_80316F74,
 // fn_80316F9C, fn_80316FC0, fn_8000DD14, fn_8000DD98 and the boost::function constructor out of line, while
 // here everything is inlined (state functions of the switch included); written to place its strings and
 // floats in the pools
