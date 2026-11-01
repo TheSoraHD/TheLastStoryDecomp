@@ -60,12 +60,13 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void* lbl_8087EF70; // inferred: pad
-// inferred: result of the collision ray test (as in chr/ControlLadder.cpp)
+// inferred: result of the collision tests (as in game/Em401_01_WhiteLeoPard.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
     unsigned char m00[0x04];
     atn::Vector3 m04; // inferred: hit position
-    unsigned char m10[0x34 - 0x10];
+    atn::Vector3 m10; // inferred: position after the sweep
+    unsigned char m1C[0x34 - 0x1C];
     int m34;
     int m38;
     int m3C;
@@ -75,6 +76,31 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
+// inferred: damage record shown by fn_80108C10 (as DaemonDamage_unk of game/Em203GreaterDaemon.cpp)
+struct Damage_unk {
+    Damage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
+        m1C = 0;
+        m18 = -1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C : 4;
+    unsigned int m1C_rest : 28;
+};
+extern "C" void fn_80108C10(Effect_unk* effect, Damage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
+                            CharaTask* chara, int b, int c);
+// inferred: game settings behind lbl_8087F0A8 (the frame rate at 0x30)
+struct Settings_unk {
+    unsigned char m00[0x30];
+    int mFps;
+};
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 
 // inferred: HUD hint request (as ZanUIHint_unk of game/Em201ZanGurgFinal.cpp)
@@ -1043,6 +1069,55 @@ int ControlMatHoldRelease::vf0C() {
         mChara->SetM6B8_unk(back * 0.33f);
     }
     if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: damaged by the mat (control id 0x6F)
+ControlMatHoldDamage::ControlMatHoldDamage(Chara_unk* chara) : ControlBase(chara) {
+    chara->SetControlId_unk(0x6F);
+    LeaveMtx_unk(this);
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x21E, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+// NONMATCHING: draft - falls back for 64 frames, then takes a 10000 damage
+int ControlMatHoldDamage::vf0C() {
+    CharaTask* c = mChara;
+    Motion_unk* m = &c->mMotion;
+    if (m->mTracks[0].m08 < 64.0f) {
+        int fps = ((Settings_unk*)lbl_8087F0A8)->mFps;
+        atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), -0.46875f);
+        atn::Matrix3x4 rot;
+        rot.SetIdentity();
+        if (0.0f != c->mRot.z) {
+            atn::Matrix3x4::RotateAxis_unk(rot, 'z', c->mRot.z);
+        }
+        if (0.0f != c->mRot.y) {
+            atn::Matrix3x4::RotateAxis_unk(rot, 'y', c->mRot.y);
+        }
+        if (0.0f != c->mRot.x) {
+            atn::Matrix3x4::RotateAxis_unk(rot, 'x', c->mRot.x);
+        }
+        PSMTXMultVec(rot.m, &move, &move);
+        CollResult_unk result;
+        CharaTask::Sphere_unk sphere = mChara->fn_80176548(mChara->mPos);
+        fn_8004D388(lbl_8087EE98, &result, &sphere, &move, 0x80000000, mChara->GetColli_unk(), 0, sphere.mRadius);
+        atn::Vector3 pos = result.m10;
+        pos -= mChara->m5A4;
+        pos.y -= sphere.mRadius;
+        mChara->mPos = pos;
+    }
+    if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        Damage_unk damage;
+        damage.m04 = 10000;
+        damage.m00 = 1;
+        fn_80108C10(lbl_8087F048, &damage, mChara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), 0, mChara, 0, 0);
+        mChara->vf44();
         return 1;
     }
     return 0;

@@ -236,8 +236,6 @@ extern "C" CharaTask* fn_8000DCF4(CharaManager<PlayerTask>* mgr);
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg);
 extern "C" void fn_800F84D0(EffectMgr_unk* mgr, int layer); // inferred: mB8 = layer
-// inferred: CharaTask::m6B8 = v (weak copy of chr/ControlStickByQuark.cpp)
-extern "C" void fn_80198514(CharaTask* chara, const atn::Vector3& v);
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 // inferred: weak copies kept in this file (accessors of CharaTask and of the shield)
 extern "C" inline FixedArray_unk<chr::CharaPart_unk*, 8>* fn_80266FA4(CharaTask* chara) {
@@ -787,7 +785,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
                     m1504 = 0;
                 } else {
                     fn_8015D8C0(0.1f, dir, (int)msg->mAttacker);
-                    fn_80198514(this, dir * 0.9f);
+                    SetM6B8_unk(dir * 0.9f);
                     fn_802657FC(this, 0);
                     fn_8026AF24();
                 }

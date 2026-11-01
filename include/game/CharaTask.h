@@ -1090,8 +1090,9 @@ public:
     // inferred: setters called out of line from chr::ControlGuardMountle (weak copies 0x801C0730,
     // 0x801C0738, 0x801C1050); names invented
     void SetControlId_unk(int id) { m560 = id; }
-    // inferred: name invented (weak copy 0x80198514, chr/ControlStickByQuark.cpp)
+    // inferred: names invented (weak copies 0x80198514 and 0x80198C00, chr/ControlStickByQuark.cpp)
     void SetM6B8_unk(const atn::Vector3& v) { m6B8 = v; }
+    atn::ColliCapsule* GetColli_unk() { return &mColli; }
     void SetRot_unk(const atn::Vector3& rot) { mRot = rot; }
     void SetFlag4_unk(bool on) { mFlag4 = on; }
     // inferred: third constructor argument (Event::DialogHead passes the one of the character it copies;

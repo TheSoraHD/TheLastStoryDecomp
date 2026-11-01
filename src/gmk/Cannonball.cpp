@@ -110,9 +110,6 @@ extern "C" inline CharaTask* fn_801A03EC(CharaTask* chara) {
 extern "C" inline atn::Model* fn_800F84C8(CharaTask* chara) {
     return (atn::Model*)&chara->mMotion;
 }
-extern "C" inline atn::ColliCapsule* fn_80198C00(CharaTask* chara) {
-    return &chara->mColli;
-}
 // inferred: segment and radius of a capsule
 struct CannonCapsule_unk {
     atn::Vector3 m00;
@@ -473,7 +470,7 @@ void Cannonball::vf10() {
                 for (CharaTask* chara = fn_802A36B0(fn_8000D9E8()); chara != 0; chara = fn_802A4094(chara)) {
                     if (chara->CanAct_unk()) {
                         atn::Vector3 d = *chara->fn_8013C38C() - m6C;
-                        float r = fn_80315644(fn_80198C00(chara))->m18 + 1.0f;
+                        float r = fn_80315644(chara->GetColli_unk())->m18 + 1.0f;
                         if (d.LengthSq_unk() < r * r) {
                             fn_803FB870(&m6C, 0, 0);
                         }
@@ -482,7 +479,7 @@ void Cannonball::vf10() {
                 for (CharaTask* chara = fn_801A0408(fn_801A03E0()); chara != 0; chara = fn_801A03EC(chara)) {
                     if (chara->CanAct_unk()) {
                         atn::Vector3 d = *chara->fn_8013C38C() - m6C;
-                        float r = fn_80315644(fn_80198C00(chara))->m18 + 8.0f;
+                        float r = fn_80315644(chara->GetColli_unk())->m18 + 8.0f;
                         if (d.LengthSq_unk() < r * r) {
                             fn_803FB870(&m6C, 0, 0);
                         }
@@ -565,7 +562,7 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
                 lbl_8087F430->fn_803750E4(0x94);
             }
         }
-        mIgnore = mHolder != 0 ? fn_80198C00(mHolder) : 0;
+        mIgnore = mHolder != 0 ? mHolder->GetColli_unk() : 0;
         break;
     }
     case 3:

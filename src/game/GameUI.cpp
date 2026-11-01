@@ -737,7 +737,6 @@ extern "C" int fn_80267B28(CharaTask* chara);               // inferred: returns
 extern "C" int fn_8038B648(CharaTask* chara);               // inferred: returns +0xC48
 extern "C" int fn_80339F04(CharaTask* chara);               // inferred: !(m54C bit 3)
 extern "C" CharaC58_unk* fn_800F530C(CharaTask* chara);     // inferred: chara + 0xC58
-extern "C" atn::ColliCapsule* fn_80198C00(CharaTask* chara); // inferred: chara + 0x5B8
 // inferred: shape of the collision capsule; its centre is at +0xC
 struct GameUICapsule_unk {
     unsigned char m00[0xC];
@@ -1136,7 +1135,7 @@ void GameUI::fn_803D2A6C() {
                     m844->MeltTask();
                     MtxPtr mtx = m764.m0C->GetModel_unk()->GetNodeMtx_unk("head");
                     atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk()
-                                              : fn_80315644(fn_80198C00(m764.m0C))->m0C);
+                                              : fn_80315644(m764.m0C->GetColli_unk())->m0C);
                     pos.y += 2.0f;
                     atn::Vector3 screen;
                     fn_800BFAC8(&screen, fn_8008B964(), &pos);
@@ -1158,7 +1157,7 @@ void GameUI::fn_803D2A6C() {
                         if (m85C[i] != m764.m0C) {
                             MtxPtr mtx = m85C[i]->GetModel_unk()->GetNodeMtx_unk("head");
                             atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk()
-                                                      : fn_80315644(fn_80198C00(m85C[i]))->m0C);
+                                                      : fn_80315644(m85C[i]->GetColli_unk())->m0C);
                             pos.y += 2.0f;
                             atn::Vector3 screen;
                             fn_800BFAC8(&screen, fn_8008B964(), &pos);
@@ -1289,7 +1288,7 @@ void GameUI::fn_803D2A6C() {
             atn::Vector3 headScreen;
             CharaTask* player = fn_8000DCF4(fn_8000D9E8());
             MtxPtr mtx = player->GetModel_unk()->GetNodeMtx_unk("head");
-            head = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(fn_80198C00(player))->m0C;
+            head = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(player->GetColli_unk())->m0C;
             head.y += 5.0f;
             atn::Vector3 tmp;
             fn_800BFAC8(&tmp, fn_8008B964(), &head);
@@ -1795,7 +1794,7 @@ void GameUI::fn_803D2A6C() {
                     GameUIEntry_unk* e = &m3F0[i];
                     CharaTask* c = (CharaTask*)e->m08;
                     MtxPtr mtx = c->GetModel_unk()->GetNodeMtx_unk("head");
-                    atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(fn_80198C00(c))->m0C);
+                    atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(c->GetColli_unk())->m0C);
                     pos.y += 5.0f;
                     atn::Vector3 screen;
                     fn_800BFAC8(&screen, fn_8008B964(), &pos);
@@ -1888,7 +1887,7 @@ void GameUI::fn_803D2A6C() {
                     CharaTask* c = nearChara[i];
                     if (c != 0) {
                         MtxPtr mtx = c->GetModel_unk()->GetNodeMtx_unk("head");
-                        head = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(fn_80198C00(c))->m0C;
+                        head = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(c->GetColli_unk())->m0C;
                         head.y += 5.0f;
                         atn::Vector3 tmp2;
                         fn_800BFAC8(&tmp2, fn_8008B964(), &head);
