@@ -6,8 +6,11 @@ extern "C" {
 
 #include "rvl/AXFX/AXFXChorus.h"
 #include "rvl/AXFX/AXFXChorusExp.h"
+#include "rvl/AXFX/AXFXChorusExpDpl2.h"
 #include "rvl/AXFX/AXFXCommon.h"
 #include "rvl/AXFX/AXFXDelay.h"
+#include "rvl/AXFX/AXFXDelayExp.h"
+#include "rvl/AXFX/AXFXDelayExpDpl2.h"
 #include "rvl/AXFX/AXFXHooks.h"
 #include "rvl/AXFX/AXFXLfoTable.h"
 #include "rvl/AXFX/AXFXReverbHi.h"

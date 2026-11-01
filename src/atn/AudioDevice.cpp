@@ -350,10 +350,59 @@ public:
 struct FxReverbStdParam;
 } // namespace detail
 
-class FxReverbStdDpl2 {
+// inferred: the NW4R effects of the AUX bus (libs/ss_nw4r/include/nw4r/snd/Fx*.h); only the members
+// used here. The destructors are inline in the NW4R headers: their weak copies are emitted here.
+class FxBase {
 public:
+    virtual ~FxBase() {}
+    virtual bool StartUp();
+    virtual void Shutdown();
+    virtual void UpdateBuffer(int channels, void** buffer, unsigned long size, int format, float sampleRate,
+                              int mode);
+    virtual void OnChangeOutputMode();
+
+    unsigned char mFxLink[0x08]; // 0x04: ut::LinkListNode
+};
+
+class FxReverbStdDpl2 : public FxBase {
+public:
+    FxReverbStdDpl2();
+    virtual ~FxReverbStdDpl2() {
+        Shutdown();
+        ReleaseWorkBuffer();
+    }
+    virtual bool AssignWorkBuffer(void* buffer, unsigned long size);
+    virtual void ReleaseWorkBuffer();
     unsigned long GetRequiredMemSize();
     bool SetParam(const detail::FxReverbStdParam& param);
+
+    unsigned char m0C[0x230 - 0x0C];
+};
+
+class FxChorus : public FxBase {
+public:
+    FxChorus();
+    virtual ~FxChorus() {
+        Shutdown();
+        ReleaseWorkBuffer();
+    }
+    virtual bool AssignWorkBuffer(void* buffer, unsigned long size);
+    virtual void ReleaseWorkBuffer();
+
+    unsigned char m0C[0x184 - 0x0C];
+};
+
+class FxDelay : public FxBase {
+public:
+    FxDelay();
+    virtual ~FxDelay() {
+        Shutdown();
+        ReleaseWorkBuffer();
+    }
+    virtual bool AssignWorkBuffer(void* buffer, unsigned long size);
+    virtual void ReleaseWorkBuffer();
+
+    unsigned char m0C[0xE8 - 0x0C];
 };
 
 // The names of the classes are in the DOL (vtables 0x80796BF0 and 0x80796D38); the layouts are only sizes.
@@ -438,40 +487,6 @@ struct AudioPath_unk {
     std::string mPath;
 };
 
-// inferred: the NW4R effects of the AUX bus (their classes are not reconstructed: the constructors
-// are called by address and the inline destructors set the vtable of the library and call the
-// Shutdown/ReleaseWorkBuffer virtuals)
-// inferred: virtual functions of nw4r::snd::FxBase used here (never constructed here)
-class AudioFxBase_unk {
-public:
-    virtual void vf08();
-    virtual void vf0C();
-    virtual void Shutdown();
-    virtual void vf14();
-    virtual void vf18();
-    virtual int AssignWorkBuffer(void* buf, unsigned long size);
-    virtual void ReleaseWorkBuffer();
-};
-
-#define AUDIO_FX_UNK(Name, Size, Ctor, Vtable)                                                     \
-    extern "C" void Ctor(void* fx);                                                                \
-    extern "C" void* Vtable[];                                                                     \
-    struct Name {                                                                                  \
-        Name() { Ctor(this); }                                                                     \
-        ~Name() {                                                                                  \
-            *(void***)this = Vtable;                                                               \
-            ((AudioFxBase_unk*)this)->Shutdown();                                                  \
-            ((AudioFxBase_unk*)this)->ReleaseWorkBuffer();                                         \
-        }                                                                                          \
-        void AssignWorkBuffer(void* buf, unsigned long size) {                                     \
-            ((AudioFxBase_unk*)this)->AssignWorkBuffer(buf, size);                                 \
-        }                                                                                          \
-        void ReleaseWorkBuffer() { ((AudioFxBase_unk*)this)->ReleaseWorkBuffer(); }                \
-        unsigned char m00[Size];                                                                   \
-    };
-AUDIO_FX_UNK(AudioFxA_unk, 0x230, fn_8070E760, lbl_807C5F28)
-AUDIO_FX_UNK(AudioFxB_unk, 0x184, fn_8070DC20, lbl_807C5ED8)
-AUDIO_FX_UNK(AudioFxC_unk, 0xE8, fn_8070E190, lbl_807C5F00)
 
 struct LinkList_unk : public nw4r::ut::detail::LinkListImpl {
     ~LinkList_unk() {}
@@ -640,9 +655,9 @@ public:
     int m404; // inferred: the extra bank is being loaded
     int m408; // inferred: the reverb is enabled
     unsigned int m40C;
-    AudioFxA_unk mReverb;                  // 0x410
-    AudioFxB_unk m640;
-    AudioFxC_unk m7C4;
+    nw4r::snd::FxReverbStdDpl2 mReverb; // 0x410
+    nw4r::snd::FxChorus mChorus;        // 0x640: inferred: never used after its construction
+    nw4r::snd::FxDelay mDelay;          // 0x7C4: inferred: never used after its construction
     AudioMap_unk<int, AudioFxPreset_unk, 4> m8AC; // inferred: effect presets
     int m8BC;
     int m8C0;
@@ -1390,9 +1405,8 @@ extern "C" void fn_80049E54(AudioDevice* audio, const ReverbPreset_unk* preset) 
     value.first = preset->mId;
     value.second = param;
     audio->m8AC.insert(value);
-    reinterpret_cast<nw4r::snd::FxReverbStdDpl2*>(&audio->mReverb)
-        ->SetParam(reinterpret_cast<const nw4r::snd::detail::FxReverbStdParam&>(param));
-    unsigned long size = reinterpret_cast<nw4r::snd::FxReverbStdDpl2*>(&audio->mReverb)->GetRequiredMemSize();
+    audio->mReverb.SetParam(reinterpret_cast<const nw4r::snd::detail::FxReverbStdParam&>(param));
+    unsigned long size = audio->mReverb.GetRequiredMemSize();
     if (audio->m8C8 < size) {
         audio->m8C8 = size;
     }
@@ -1429,8 +1443,7 @@ extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
     }
     AudioMap_unk<int, AudioFxPreset_unk, 4>::Node* it = audio->m8AC.find(preset);
     if (it != audio->m8AC.end()) {
-        reinterpret_cast<nw4r::snd::FxReverbStdDpl2*>(&audio->mReverb)
-            ->SetParam(reinterpret_cast<const nw4r::snd::detail::FxReverbStdParam&>(it->mValue.second));
+        audio->mReverb.SetParam(reinterpret_cast<const nw4r::snd::detail::FxReverbStdParam&>(it->mValue.second));
         if (audio->m8BC <= 0) {
             AppendEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusPQ34nw4r3snd6FxBase(
                 GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 0, &audio->mReverb);

@@ -5308,6 +5308,16 @@ ss_nw4r/src/snd/snd_ExternalSoundPlayer.cpp:
 nw4r/src/snd/snd_FrameHeap.cpp:
 	.text       start:0x8070D360 end:0x8070DC0C
 
+ss_nw4r/src/snd/snd_FxChorus.cpp:
+	.text       start:0x8070DC20 end:0x8070E190
+	.data       start:0x807C5ED8 end:0x807C5F00
+	.sdata2     start:0x808890F0 end:0x80889110
+
+ss_nw4r/src/snd/snd_FxDelay.cpp:
+	.text       start:0x8070E190 end:0x8070E760
+	.data       start:0x807C5F00 end:0x807C5F28
+	.sdata2     start:0x80889110 end:0x80889128
+
 ss_nw4r/src/snd/snd_FxReverbStdDpl2.cpp:
 	.text       start:0x8070E760 end:0x8070EE90
 	.data       start:0x807C5F28 end:0x807C5F50

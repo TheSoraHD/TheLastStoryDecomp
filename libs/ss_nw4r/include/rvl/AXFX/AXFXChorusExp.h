@@ -51,7 +51,7 @@ u32 AXFXChorusExpGetMemSize(const AXFX_CHORUS_EXP *fx);
 BOOL AXFXChorusExpInit(AXFX_CHORUS_EXP *fx);
 void AXFXChorusExpShutdown(AXFX_CHORUS_EXP *fx);
 BOOL AXFXChorusExpSettings(AXFX_CHORUS_EXP *fx);
-void AXFXChorusExpCallback(struct AXFX_BUFFERUPDATE *update, AXFX_CHORUS_EXP *fx);
+void AXFXChorusExpCallback(void *chans, AXFX_CHORUS_EXP *fx); // The Last Story: chans as in AXFXReverbStdExpCallback
 
 #ifdef __cplusplus
 }

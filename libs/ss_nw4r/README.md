@@ -19,3 +19,10 @@ Changes for The Last Story:
 
 The unit is compiled with the game flags plus `-DNW4R_ASSERT` (see
 `config/SLSP01/libs_ref.json`).
+
+Written for The Last Story (not from Skyward Sword, whose versions are older):
+- `src/snd/snd_FxChorus.cpp`, `src/snd/snd_FxDelay.cpp` and their headers: the 2010
+  `FxChorus`/`FxDelay` (AXFX `ChorusExp`/`DelayExp` plus their DPL2 variants), written by analogy
+  with `snd_FxReverbStdDpl2.cpp` (2026-11-01, `docs/auto-20261101.md`).
+- `include/rvl/AXFX/AXFXDelayExp.h`, `AXFXDelayExpDpl2.h`, `AXFXChorusExpDpl2.h`: parameter layouts
+  inferred from those classes; `AXFXChorusExpCallback` takes the channel array (`void*`).
