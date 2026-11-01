@@ -172,6 +172,12 @@ static inline float Frame_unk(Motion_unk* m) {
     return m->mTracks[0].m08;
 }
 
+// inferred: fires `hit` from `pos` (name invented)
+static inline void ShootHit_unk(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* hit, const atn::Vector3& pos,
+                                const atn::Vector3* rot) {
+    fn_800FAB80(mgr, chara, hit, fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 // inferred: fires the bullet `id` from `pos` (name invented)
 static inline void ShootFrom_unk(Effect_unk* mgr, CharaTask* chara, int id, int arg, const atn::Vector3& pos,
                                  const atn::Vector3* rot) {
@@ -532,6 +538,53 @@ ControlThrustForQuarkStand::ControlThrustForQuarkStand(Chara_unk* chara, Chara_u
         mChara->mRot = dir.ToRotation_unk();
     }
     mFront = Front_unk(mChara);
+}
+
+// NONMATCHING: 89% - order of the lerp products and of the bullet call, copy of the position
+int ControlThrustForQuarkStand::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    float frame = m->mTracks[0].m08;
+    if (frame <= 20.0001f) {
+        if (mKind != 2) {
+            mChara->mPos = LerpTo_unk(mStart, mTarget, frame / 20.0f);
+        } else {
+            mChara->mPos = atn::Vector3(mTarget);
+        }
+        lbl_8087EFA8->mSlow.mOn = 1;
+    } else if (mKind == 2) {
+        lbl_8087EFA8->mSlow.mOn = !(frame >= 180.0f);
+        if (m->mTracks[0].m08 >= 120.0f && m->mTracks[0].m08 < 165.0f) {
+            float scale = lbl_8087EFA8->m3A4 - 0.05f;
+            lbl_8087EFA8->m3A4 = 0.3f > scale ? 0.3f : scale;
+            if (m28 == 0 && m->mTracks[0].m08 >= 130.0f) {
+                m28 = 1;
+            }
+        } else {
+            lbl_8087EFA8->m3A4 = 1.0f;
+        }
+    } else if (frame <= 26.0001f) {
+    } else if (frame <= 60.0001f) {
+        lbl_8087EFA8->mSlow.mOn = 0;
+        lbl_8087EFA8->m3A4 = 1.0f;
+        if (m28 == 0 && m->mTracks[0].m08 > 55.0f) {
+            m28 = 1;
+            mChara->fn_8016DA4C();
+            HitInfo_unk* hit = mChara->m638;
+            atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
+            ShootHit_unk(lbl_8087F048, mChara, hit, node->GetTrans_unk(), &mChara->mRot);
+        }
+    } else if (frame > 90.0001f) {
+        mChara->mPos = atn::Vector3(mChara->mPos) + mFront * 1.8333334f;
+        atn::Vector3 rot = mChara->mRot;
+        rot.y = atn::WrapAngle_unk(rot.y + 3.1415927f / (m->fn_80097D7C(0) - 90.0f));
+        mChara->mRot = rot;
+    }
+    if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        mChara->m570 = 0.0f;
+        mChara->m574 = lbl_807C7030;
+        return 1;
+    }
+    return 0;
 }
 
 void ControlThrustForQuarkStand::vf1C() {
