@@ -1,5 +1,6 @@
 #include "Event/Behavior.h"
 #include "game/GameBgm.h"
+#include "atn/RenderSetting_unk.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -17,13 +18,21 @@ class SingletonNoStatic {};
 struct EventEffects_unk {
     unsigned char m00[0xC4];
     int mC4; // inferred: nonzero when the music fades are shortened
+    unsigned char mC8[0x1A38 - 0xC8];
+    int m1A38; // inferred: camera change in progress
 };
 extern "C" EventEffects_unk* lbl_8087F540;
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 extern "C" void fn_80486BEC(EventEffects_unk* mgr, int on, float value); // inferred: god rays
 extern "C" void fn_804846FC(EventEffects_unk* mgr, const atn::Vector3& dir, int frames); // inferred: sun light
 extern "C" void fn_80484A78(EventEffects_unk* mgr, int frames);          // inferred: ambient light
 extern "C" void fn_80486DAC(EventEffects_unk* mgr, int on);              // inferred: surrounding light
 extern "C" void fn_80487064(EventEffects_unk* mgr, int on);              // inferred: brightness
+// inferred: point light (index, position, radius, color)
+extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3& pos, float radius, int color);
+// inferred: spot light (position, direction, two angles, color)
+extern "C" void fn_80485964(EventEffects_unk* mgr, const atn::Vector3& pos, const atn::Vector3& dir, float a,
+                            float b, int color);
 
 namespace Event {
 
@@ -264,9 +273,53 @@ int ActionSunLight::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+
 int ActionAmbientLight::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         fn_80484A78(lbl_8087F540, arg->GetParam_unk(1)->m04.i);
+    }
+    return 0;
+}
+
+int ActionPointLight::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        int index = arg->GetParam_unk(0)->m04.i;
+        atn::Vector3 pos = arg->fn_805384CC(1);
+        float radius = arg->GetParam_unk(6)->m04.f;
+        fn_80485028(lbl_8087F540, index, pos, radius, arg->GetParam_unk(7)->m04.i);
+        break;
+    }
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(1)->m04.i;
+        if (manager->FindActor_unk(id)->m20 == 6) {
+            arg->fn_80538DC4(3);
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
+int ActionSpotLight::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        atn::Vector3 pos = arg->fn_805384CC(0);
+        atn::Vector3 dir = arg->fn_80538B18(5);
+        float a = arg->GetParam_unk(8)->m04.f;
+        float b = arg->GetParam_unk(9)->m04.f;
+        fn_80485964(lbl_8087F540, pos, dir, a, b, arg->GetParam_unk(10)->m04.i);
+        break;
+    }
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(0)->m04.i;
+        if (manager->FindActor_unk(id)->m20 == 6) {
+            arg->fn_80538DC4(2);
+        }
+        break;
+    }
     }
     return 0;
 }
@@ -285,7 +338,39 @@ int ActionBrightness::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+int ActionCameraChange::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0:
+        arg->m38 = 0;
+        break;
+    case 3:
+    case 4:
+        lbl_8087F540->m1A38 = 0;
+        break;
+    }
+    return 0;
+}
+
 int ActionGameSetting::vf08(Action* arg) {
+    return 0;
+}
+
+int ActionGameSetting::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        float speed = arg->GetParam_unk(0)->m04.f;
+        if (lbl_8087EFA8 != 0) {
+            lbl_8087EFA8->m3A4 = speed;
+        }
+        break;
+    }
+    case 3:
+    case 4:
+        if (lbl_8087EFA8 != 0) {
+            lbl_8087EFA8->m3A4 = 1.0f;
+        }
+        break;
+    }
     return 0;
 }
 

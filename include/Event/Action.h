@@ -37,6 +37,7 @@ public:
     ActionOwner_unk* fn_805381A0();       // inferred: section of the channel
     EventManager_unk* fn_805381C8();      // inferred: sequence of the cut of the section
     atn::Vector3 fn_805382BC(int n);      // inferred: a position read from the parameters
+    atn::Vector3 fn_805384CC(int n);      // inferred: a position read from the parameters (actor node)
     void fn_80538DC4(int n);
     void fn_80538FD4(int n);              // inferred: rotates the vector parameters n..n+2 by the event yaw
     atn::Vector3 fn_805381F0(int n);      // inferred: parameters n, n+1 and n+2 as a vector
@@ -82,7 +83,8 @@ public:
     int m1C;
     std::vector<ActionKey_unk> mKeys;     // 0x20: inferred: curve (fn_8053A2E8)
     std::vector<ActionParam_unk> mParams; // 0x2C
-    unsigned char m38[0x40 - 0x38];
+    int m38; // inferred: cleared by ActionCameraChange when it starts
+    int m3C;
 };
 
 } // namespace Event
