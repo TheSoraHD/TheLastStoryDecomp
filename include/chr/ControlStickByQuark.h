@@ -202,11 +202,12 @@ public:
 
 class ControlThrownAvoid : public ControlBase {
 public:
-    ControlThrownAvoid(Chara_unk* chara, int a, const atn::Vector3& dir); // 0x80199788
+    ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vector3& dir); // 0x80199788
     virtual int vf0C();
     virtual boost::function<void()> vf10();
     virtual atn::Vector3 vf14();
-    unsigned char m08[0x18 - 0x08];
+    int mMtx;          // 0x08
+    atn::Vector3 mDir; // 0x0C
 };
 
 // inferred: controls of the skeletons grabbed by Em002_02SkeltonKing

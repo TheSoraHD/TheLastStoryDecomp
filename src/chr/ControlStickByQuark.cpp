@@ -1030,29 +1030,31 @@ boost::function<void()> ControlMatHold::vf10() {
     return ControlBase::vf10();
 }
 
-// inferred: the character leaves the matrix it follows, facing its z axis (name invented)
-static inline void LeaveMtx_unk(ControlBase* control) {
-    if (control->mChara->mF1C) {
-        atn::Matrix3x4 mtx = FollowMtx_unk(control->mChara)->GetRotation_unk();
-        atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
-        PSMTXMultVec(mtx.m, &dir, &dir);
-        control->mChara->mRot = dir.ToRotation_unk();
-        control->mChara->fn_80144710();
-    }
-    control->mChara->mF1C = 0;
-}
-
-// NONMATCHING: 88.8% - the original frame is 0x20 bigger (one more saved register), as in the
-// constructor of ControlMatHoldRelease
+// inferred: leaves the matrix of the mat, facing its z axis
 void ControlMatHold::vf1C() {
-    LeaveMtx_unk(this);
+    if (mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+        atn::Vector3 dir;
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        mChara->mRot = dir.ToRotation_unk();
+        mChara->fn_80144710();
+    }
+    mChara->mF1C = 0;
 }
 
-// NONMATCHING: 89.9% - frame of the inlined LeaveMtx_unk (see ControlMatHold::vf1C)
 // inferred: released by the mat (control id 0x70)
 ControlMatHoldRelease::ControlMatHoldRelease(Chara_unk* chara) : ControlBase(chara) {
     chara->SetControlId_unk(0x70);
-    LeaveMtx_unk(this);
+    if (mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+        atn::Vector3 dir;
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        mChara->mRot = dir.ToRotation_unk();
+        mChara->fn_80144710();
+    }
+    mChara->mF1C = 0;
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
     m->mTracks[0].m20 = 1.0f;
@@ -1076,7 +1078,15 @@ int ControlMatHoldRelease::vf0C() {
 // inferred: damaged by the mat (control id 0x6F)
 ControlMatHoldDamage::ControlMatHoldDamage(Chara_unk* chara) : ControlBase(chara) {
     chara->SetControlId_unk(0x6F);
-    LeaveMtx_unk(this);
+    if (mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+        atn::Vector3 dir;
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        mChara->mRot = dir.ToRotation_unk();
+        mChara->fn_80144710();
+    }
+    mChara->mF1C = 0;
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
     m->mTracks[0].m20 = 1.0f;
@@ -1242,13 +1252,14 @@ ControlThrownAway::~ControlThrownAway() {
     }
 }
 
-// NONMATCHING: frame 0x10 smaller than the original (as in ControlMatHold::vf1C)
+// NONMATCHING: 97.1% - the original copies the facing vector to mRot through the stack
 int ControlThrownAway::vf0C() {
     if (mChara->mF1C) {
         atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
-        atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        atn::Vector3 dir;
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f);
         PSMTXMultVec(mtx.m, &dir, &dir);
-        dir.fn_80139F60();
+        dir.RotZ_unk();
         mChara->mRot = dir;
         mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
     }
@@ -1262,6 +1273,28 @@ atn::Vector3 ControlThrownAway::vf14() {
     atn::Vector3 pos = mChara->mPos;
     pos.y -= 10.0f;
     return pos;
+}
+
+// NONMATCHING: 96.2% - copies of the facing vector (as in ControlThrownAway::vf0C)
+// inferred: thrown and caught again on the matrix `mtx` (control id 0x73)
+ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vector3& dir)
+    : ControlBase(chara), mMtx(mtx), mDir(dir) {
+    chara->SetControlId_unk(0x73);
+    mChara->mF1C = mMtx;
+    if (mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+        atn::Vector3 dir;
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        dir.RotZ_unk();
+        mChara->mRot = dir;
+        mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
+    }
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x223, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
 }
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
