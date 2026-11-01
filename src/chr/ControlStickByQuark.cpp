@@ -8,6 +8,7 @@
 #include "atn/Memory.h"
 #include "game/GameUI.h"
 #include "game/GimmickCommon.h"
+#include "chr/ControlDropDown.h"
 #include <boost/bind.hpp>
 
 
@@ -1297,6 +1298,47 @@ ControlThrownAvoid::ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vec
     m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, 0x223, 0, 0, 1, 0.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
+}
+
+// NONMATCHING: 97.5% - follows the matrix for 8 frames, then flies along mDir
+int ControlThrownAvoid::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        return 1;
+    }
+    if (m->mTracks[0].m08 >= 8.0f) {
+        mChara->mF1C = 0;
+        float speed = mDir.Length_unk();
+        atn::Vector3 dir = mDir;
+        dir.fn_80139F60();
+        mChara->fn_801426A4(&dir, speed, 1.5f);
+    } else if (mChara->mF1C) {
+        atn::Matrix3x4 mtx = FollowMtx_unk(mChara)->GetRotation_unk();
+        atn::Vector3 dir;
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+        PSMTXMultVec(mtx.m, &dir, &dir);
+        dir.RotZ_unk();
+        mChara->mRot = dir;
+        mChara->mPos = FollowMtx_unk(mChara)->GetTrans_unk();
+    }
+    return 0;
+}
+
+// NONMATCHING: 93.7% - scheduling of the constants and of mChara
+// inferred: point below the feet, turned with the character
+atn::Vector3 ControlThrownAvoid::vf14() {
+    atn::Vector3 v(0.0f, -5.0f, 0.5f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', mChara->mRot.y);
+    PSMTXMultVec(m, &v, &v);
+    v += mChara->mPos;
+    return v;
+}
+
+// inferred: falls along mDir afterwards
+boost::function<void()> ControlThrownAvoid::vf10() {
+    ControlDropDown* next = new ((MemoryTag)0, "", "", 0) ControlDropDown(mChara, mDir);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
