@@ -180,6 +180,7 @@ class ActionActorEyes : public ActionProcessor, public atn::SingletonNoStatic<Ac
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
+    static void fn_80553A74(Action* arg, float now); // inferred: eyes towards the camera, with jitter
 };
 
 class ActionActorPose : public ActionProcessor, public atn::SingletonNoStatic<ActionActorPose> {
@@ -750,6 +751,44 @@ int ActionActorFacial::vf0C(Action* arg, int phase) {
         fn_80011E98(actor, face, manager, a, b, c, d);
     }
     return 0;
+}
+
+// inferred: the global camera (lbl_8087EFB4) seen through the point the eyes look at
+struct EyesCamera_unk {
+    unsigned char m000[0x10C];
+    atn::Vector3 m10C; // inferred: eye position
+};
+
+extern "C" EyesCamera_unk* lbl_8087EFB4;
+extern "C" int rand();
+
+// NONMATCHING: 95.7% - volatile registers of the two inlined actor lookups and the parameter checks; the
+// weight 1.0 in f29 (ours f30)
+void ActionActorEyes::fn_80553A74(Action* arg, float now) {
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor_unk* actor = manager->FindActor_unk(section->m10);
+    float t = now - (float)arg->m10;
+    float weight = 1.0f;
+    Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    int node = arg->GetParam_unk(1)->m04.i;
+    atn::Vector3 cam = lbl_8087EFB4->m10C;
+    float angle = arg->GetParam_unk(14)->m04.f;
+    int fadeIn = arg->m18;
+    int length = arg->m14 - arg->m10;
+    int fadeOut = arg->m1C;
+    if ((float)fadeIn > t && fadeIn >= 1) {
+        angle *= t / (float)fadeIn;
+    } else if ((float)(length - fadeOut) < t && fadeOut >= 1) {
+        angle *= ((float)length - t) / (float)fadeOut;
+    }
+    float rad = 0.017453292f * angle;
+    float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
+    float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
+    atn::Vector3 jitter(lbl_807C7030);
+    jitter.x = 2.0f * rx * ((float)rand() / 32767.0f) - rx;
+    jitter.y = 2.0f * ry * ((float)rand() / 32767.0f) - ry;
+    actor->fn_80012D34(target, node, cam, 0, jitter, 1, weight, rad);
 }
 
 int ActionActorWind::vf0C(Action* arg, int phase) {

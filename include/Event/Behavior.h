@@ -51,6 +51,9 @@ struct Actor_unk {
     // inferred: places the actor with a matrix, optionally relative to the node matrix `node`
     void fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx);
     void fn_800121F0(int arg, float distance); // inferred: called with the distance moved
+    // inferred: turns the eyes towards `target` (node, camera position, jitter, weight, angle)
+    void fn_80012D34(Actor_unk* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
+                     int arg6, float weight, float angle);
     void SetWait_unk(unsigned int v) { mWait_unk = v; } // inferred: inlined setter
     unsigned int GetWait_unk() const { return mWait_unk; }
     // inferred: accessors called out of line by Event/ActionActorPosition (weak copies 0x80551D74-0x805521D8;
