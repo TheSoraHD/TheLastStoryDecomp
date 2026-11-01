@@ -6,13 +6,9 @@
 #include "game/EnemyQuarkStand.h"
 #include "game/Em302Kraken.h"
 #include "atn/Memory.h"
+#include "game/GameUI.h"
 #include <boost/bind.hpp>
 
-// inferred: object behind lbl_8087F490 (the HUD)
-struct Unk_8087F490 {
-    unsigned char m000[0x728];
-    int m728; // inferred: shows the "swing the remote" icon
-};
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
 struct Input_unk {
@@ -29,7 +25,16 @@ struct Camera_unk {
     unsigned char m000[0x74];
     atn::Vector3 mEye;    // 0x74
     atn::Vector3 mAt;     // 0x80
-    unsigned char m08C[0x9CC - 0x8C];
+    unsigned char m08C[0x8A0 - 0x8C];
+    CharaTask* m8A0;      // inferred: character the camera follows
+    unsigned char m8A4[0x96C - 0x8A4];
+    int m96C;             // inferred: camera shake
+    int m970;
+    float m974;
+    float m978;
+    unsigned char m97C[0x9C4 - 0x97C];
+    float m9C4;           // inferred: zoom of the thrust
+    float m9C8;
     atn::Vector3 m9CC;    // inferred: eye offset kept during the thrust
 };
 
@@ -37,14 +42,60 @@ extern "C" Camera_unk* lbl_8087F430;
 extern "C" void* lbl_8087F498; // inferred: voice player
 extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 extern "C" int rand();
-extern "C" Unk_8087F490* lbl_8087F490;
+struct Effect_unk;
+extern "C" Effect_unk* lbl_8087F048; // inferred: effect/bullet manager
+extern "C" int fn_800F8548(Effect_unk* mgr);
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
+
+// inferred: HUD hint request (as ZanUIHint_unk of game/Em201ZanGurgFinal.cpp)
+struct ThrustHint_unk : public GameUIElem1C_unk {
+    ThrustHint_unk(int a, int b, int c) {
+        m00 = a;
+        m04 = b;
+        m08 = c;
+        m0C = 0;
+        m10 = 0;
+        m14 = 0;
+        m18 = 1;
+    }
+};
 
 // inferred: game state (lbl_8087F490 of chr/ControlAttackBase.cpp): m3A4 is the time scale
+// inferred: slow motion settings (names invented)
+struct SlowParam_unk {
+    SlowParam_unk() {}
+    int m00;
+    int m04;
+    float m08;
+    float m0C;
+    int m10;
+    int m14;
+    float m18;
+    float m1C;
+};
+struct Slow_unk {
+    Slow_unk(int on, const SlowParam_unk& param) : mOn(on), mParam(param) {}
+    int mOn;
+    SlowParam_unk mParam;
+};
 struct GameState_unk {
     unsigned char m000[0x240];
-    int m240; // inferred: slow motion on
-    unsigned char m244[0x3A4 - 0x244];
-    float m3A4;
+    // inferred: turns the slow motion on with the parameters of `s` (only the flag is stored; name
+    // invented)
+    void Start_unk(const Slow_unk& s) { mSlow.mOn = s.mOn; }
+    void Set_unk(const Slow_unk& s) {
+        mSlow.mOn = s.mOn;
+        mSlow.mParam = s.mParam;
+    }
+    Slow_unk mSlow; // 0x240
+    unsigned char m264[0x3A4 - 0x264];
+    float m3A4;     // inferred: time scale
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
@@ -248,6 +299,90 @@ ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 of
 }
 
 // NONMATCHING: 97.5% - scheduling of the copy of `target` (the original reloads target.x/z for dir)
+// inferred: frame of track 0 (name invented)
+static inline float Frame_unk(Motion_unk* m) {
+    return m->mTracks[0].m08;
+}
+
+// inferred: fires the bullet `id` from a character (name invented)
+static inline void Shoot_unk(Effect_unk* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
+                             const atn::Vector3* rot) {
+    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
+// NONMATCHING: 95% - copies of the slow motion parameters (the original keeps the stack copy of the
+// second one) and register order around the bullet call
+// inferred: forward, hold and back phases of the thrust; the player can push again (button 4) for
+// a second thrust while the enemy is down
+int ControlThrust::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    atn::Vector3 pos = mChara->mPos;
+    atn::Vector3 rot = mChara->mRot;
+    if (m24) {
+        if (m1C && m20 < 2 && mOther && mOther->CanAct_unk() && lbl_8087F490) {
+            lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
+        }
+        if (m->mTracks[0].m08 <= 42.0f) {
+            m->mTracks[0].m0C = 1.0f;
+            m24 = 0;
+        }
+    } else if (m->mTracks[0].m08 >= 0.0f && m->mTracks[0].m08 < 24.0f) {
+        lbl_8087F430->m9C4 = m->mTracks[0].m08 / 24.0f;
+        pos += mStep;
+        rot.y += m14;
+    } else if (Frame_unk(m) >= m->fn_80097D7C(0) - 24.0f && Frame_unk(m) <= m->fn_80097D7C(0)) {
+        lbl_8087F430->m9C4 = (m->fn_80097D7C(0) - Frame_unk(m)) / 24.0f;
+        pos.x -= mStep.x * 1.1f;
+        pos.y -= mStep.y;
+        pos.z -= mStep.z * 1.1f;
+        rot.y -= m14;
+    } else {
+        lbl_8087F430->m9C4 = 1.0f;
+        if (m->mTracks[0].m08 > 54.0f && m->mTracks[0].m08 <= 55.0f) {
+            Shoot_unk(lbl_8087F048, mChara, 0xCC, &mChara->mPos, &mChara->mRot);
+            Camera_unk* cam = lbl_8087F430;
+            cam->m96C %= 2;
+            cam->m970 = 10;
+            cam->m974 = 0.3f;
+            cam->m978 = 0.3f;
+            if (m20 >= 1) {
+                fn_800C344C("SE_SP009_002", &mChara->mPos, 0, -1, 1.5f);
+            }
+        }
+        bool hint = CanRepeat_unk() && mOther->CanAct_unk();
+        if (hint && m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f && hint && lbl_8087F490) {
+            lbl_8087F490->m764 = ThrustHint_unk(6, 0x10, -1);
+        }
+        if (m->mTracks[0].m08 > 55.0f && m->mTracks[0].m08 <= 75.0f && fn_800A555C(lbl_8087EF70, 0, 4)) {
+            m24 = 1;
+            m20++;
+            m->mTracks[0].m0C = -1.5f;
+            fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+            if (lbl_8087F490) {
+                lbl_8087F490->fn_803E3384();
+            }
+        }
+        if (mOther && (mOther->mStatus.m0C & 0x20) == 0x20) {
+            Camera_unk* cam = lbl_8087F430;
+            if (m->mTracks[0].m08 > 42.0f && m->mTracks[0].m08 <= 75.0f) {
+                lbl_8087EFA8->Start_unk(Slow_unk(1, lbl_8087EFA8->mSlow.mParam));
+                lbl_8087EFA8->m3A4 = 0.4f;
+                cam->m8A0 = mChara;
+                cam->m9C8 = 0.3f * ((m->mTracks[0].m08 - 42.0f) / 35.0f) + 1.0f;
+            } else {
+                lbl_8087EFA8->Set_unk(Slow_unk(0, lbl_8087EFA8->mSlow.mParam));
+                lbl_8087EFA8->m3A4 = 1.0f;
+                cam->m8A0 = 0;
+                cam->m9C8 = 1.0f;
+            }
+        }
+    }
+    mChara->mPos = pos;
+    mChara->mRot = rot;
+    float frame = m->mTracks[0].m08;
+    return frame >= m->fn_80097D7C(0);
+}
+
 // inferred: thrust at a kraken from `target`; the effect is played for the kraken of kind 0x1E
 ControlThrustForKraken::ControlThrustForKraken(Chara_unk* chara, int kraken, atn::Vector3 target)
     : ControlBase(chara) {
@@ -285,7 +420,7 @@ atn::Vector3 ControlThrustForKraken::vf14() {
 
 void ControlThrustForQuarkStand::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
-    lbl_8087EFA8->m240 = 0;
+    lbl_8087EFA8->mSlow.mOn = 0;
 }
 
 // NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
@@ -298,7 +433,7 @@ void ControlThrustForGhoul::vf40() {
 
 void ControlThrustForGhoul::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
-    lbl_8087EFA8->m240 = 0;
+    lbl_8087EFA8->mSlow.mOn = 0;
 }
 
 ControlAbsorbed::ControlAbsorbed(Chara_unk* chara) : ControlBase(chara) {

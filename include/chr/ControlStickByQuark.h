@@ -36,6 +36,8 @@ class ControlThrust : public ControlBase {
 public:
     ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 offset, int b); // 0x8019356C
     virtual int vf0C();
+    // inferred: the player may thrust again (name invented)
+    bool CanRepeat_unk() const { return m1C && m20 < 2 && mOther; }
     atn::Vector3 mStep; // 0x08: inferred: move per frame
     float m14;          // inferred: turn per frame
     Chara_unk* mOther;  // 0x18
