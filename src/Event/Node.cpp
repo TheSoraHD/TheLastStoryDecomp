@@ -59,6 +59,31 @@ atn::Vector3 Action::fn_805381F0(int n) {
 
 namespace Event {
 
+atn::Vector3 Action::fn_80538B18(int n) {
+    atn::Vector3 v;
+    v.x = GetParam_unk(n)->m04.f;
+    v.y = GetParam_unk(n + 1)->m04.f;
+    v.z = GetParam_unk(n + 2)->m04.f;
+    void* context = reinterpret_cast<void**>(this)[2];
+    context = reinterpret_cast<void**>(context)[2];
+    context = reinterpret_cast<void**>(context)[2];
+    return reinterpret_cast<EventManager_unk**>(context)[2]->fn_80541C94(v);
+}
+
+atn::Vector3 Action::fn_80538C14(int n) {
+    atn::Vector3 v;
+    v.x = GetParam_unk(n)->m04.f;
+    v.y = GetParam_unk(n + 1)->m04.f;
+    v.z = GetParam_unk(n + 2)->m04.f;
+    return v;
+}
+
+void Action::fn_80538CE0(int n, const atn::Vector3& v) {
+    SetFloat_unk(n, v.x);
+    SetFloat_unk(n + 1, v.y);
+    SetFloat_unk(n + 2, v.z);
+}
+
 int Action::fn_805391E4(unsigned int hash) {
     CommandDef_unk* def = fn_800081C0(m0C);
     // inferred: empty asserts of the release build (with them it is not inlined into its callers,

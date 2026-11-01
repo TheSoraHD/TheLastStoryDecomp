@@ -59,6 +59,9 @@ struct EventManager_unk {
         return 0;
     }
 
+    // inferred: rotates `v` by the yaw at 0xB4 (0x80541C94 in Event/Sequence)
+    atn::Vector3 fn_80541C94(const atn::Vector3& v);
+
     unsigned char m000[0x164];
     Actor_unk* m164;
     int m168;

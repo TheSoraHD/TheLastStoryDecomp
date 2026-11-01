@@ -27,6 +27,9 @@ public:
 
     void fn_805377F0(int arg, int index); // inferred: reads the action from the event data
     atn::Vector3 fn_805381F0(int n);      // inferred: parameters n, n+1 and n+2 as a vector
+    atn::Vector3 fn_80538B18(int n);      // inferred: vector parameter rotated by the event yaw
+    atn::Vector3 fn_80538C14(int n);      // inferred: same code as fn_805381F0
+    void fn_80538CE0(int n, const atn::Vector3& v); // inferred: sets parameters n..n+2 to a vector
     int fn_805391E4(unsigned int hash);   // inferred: index of the attribute `hash`, -1 if none
     ActionValue_unk* fn_805392BC(unsigned int hash); // inferred: attribute `hash`, 0 if none
     ActionValue_unk* fn_80539330(unsigned int hash); // inferred: same code as fn_805392BC
@@ -39,6 +42,12 @@ public:
             valid = true;
         }
         return valid ? &mParams[n] : 0;
+    }
+    // inferred: sets parameter n to a float (type 3); inlined
+    void SetFloat_unk(int n, float value) {
+        ActionValue_unk* p = GetParam_unk(n);
+        p->m00 = 3;
+        p->m04.f = value;
     }
 
     Channel* mChannel; // 0x08
