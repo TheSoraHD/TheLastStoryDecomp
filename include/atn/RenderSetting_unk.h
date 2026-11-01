@@ -130,6 +130,42 @@ struct GammaParams_unk {
     float mIndY;     // 0x30: Gamma Scale
 };
 
+// inferred: bloom parameters (names of the "Bloom" menu; Event::ActionCameraEffect copies a whole one,
+// 0x8055BCA8)
+struct BloomParam_unk {
+    BloomParam_unk()
+        : mEnabled(1), mDebug(0), mSize(3), mDarkSteps(3), mStrength(1), mStrengthScale(1.0f), mBlurWidth(1.25f),
+          mBlurHeight(1.25f), mBlurAngle(0.0f), mKernel0(2.0f), mKernel1(1.0f), mKernel2(0.5f), mKernel3(1.0f),
+          mKernel4(0.5f), mColor1(White_unk()), mColor2(White_unk()), mColor3(White_unk()), mBias1(0), mBias2(0),
+          mBias3(0), mScale1(0), mScale2(0), mScale3(0) {}
+    // inferred: white (returned by value: closer to the original than temporaries; name invented)
+    static RsColor_unk White_unk() { return RsColor_unk(1.0f, 1.0f, 1.0f, 1.0f); }
+
+    int mEnabled;         // 0x00: *Bloom Enabled
+    int mDebug;           // 0x04: Bloom Debug
+    int mSize;            // 0x08: BloomSize
+    int mDarkSteps;       // 0x0C: Dark Steps
+    int mStrength;        // 0x10: Strength
+    float mStrengthScale; // 0x14: Strength Scale
+    float mBlurWidth;     // 0x18: *Blur Width
+    float mBlurHeight;    // 0x1C: *Blur Height
+    float mBlurAngle;     // 0x20: Blur Angle
+    float mKernel0;       // 0x24: Kernel0
+    float mKernel1;       // 0x28
+    float mKernel2;       // 0x2C
+    float mKernel3;       // 0x30
+    float mKernel4;       // 0x34
+    RsColor_unk mColor1;  // 0x38: *Color 1
+    RsColor_unk mColor2;  // 0x48: *Color 2
+    RsColor_unk mColor3;  // 0x58: *Color 3
+    int mBias1;           // 0x68: *Bias 1
+    int mBias2;           // 0x6C
+    int mBias3;           // 0x70
+    int mScale1;          // 0x74: *Scale 1
+    int mScale2;          // 0x78
+    int mScale3;          // 0x7C
+};
+
 // inferred: motion blur parameters (names of the "MotionBlur" menu; Event::ActionCameraEffect copies
 // a whole one, 0x8055D0B8)
 struct MotionBlurParam_unk {
@@ -180,29 +216,7 @@ public:
     RsColor_unk m03C;         // ClearColor
     void* m04C;               // inferred: root of the debug menu
     int m050;                 // Simple Shaders
-    int m054;                 // *Bloom Enabled
-    int m058;                 // Bloom Debug
-    int m05C;                 // BloomSize
-    int m060;                 // Dark Steps
-    int m064;                 // Strength
-    float m068;               // Strength Scale
-    float m06C;               // *Blur Width
-    float m070;               // *Blur Height
-    float m074;               // Blur Angle
-    float m078;               // Kernel0
-    float m07C;               // Kernel1
-    float m080;               // Kernel2
-    float m084;               // Kernel3
-    float m088;               // Kernel4
-    RsColor_unk m08C;         // *Color 1
-    RsColor_unk m09C;         // *Color 2
-    RsColor_unk m0AC;         // *Color 3
-    int m0BC;                 // *Bias 1
-    int m0C0;                 // *Bias 2
-    int m0C4;                 // *Bias 3
-    int m0C8;                 // *Scale 1
-    int m0CC;                 // *Scale 2
-    int m0D0;                 // *Scale 3
+    BloomParam_unk m054;      // Bloom
     int m0D4;                 // *Dof Enabled
     int m0D8;                 // Dof Debug
     int m0DC;                 // Dof View

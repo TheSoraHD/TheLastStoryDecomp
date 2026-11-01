@@ -4,6 +4,8 @@
 #include "atn/Color4f_unk.h"
 #include "game/MapManager.h"
 #include "macros.h"
+#include "atn/SoundManager.h"
+#include <boost/bind.hpp>
 
 // Camera actions of the events: processors with vf08 (per frame) and vf0C (phase 0: start, 3/4:
 // end), as the Event::Behavior* ones. Class names from the RTTI; the order of the vtables is
@@ -37,6 +39,27 @@ struct CameraOwner_unk {
 
 extern "C" Event::CameraOwner_unk* lbl_8087F540;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
+// inferred: settings of the render view (fn_800C16B4): fog at 0x3C (as MapArea::m88) and haze at 0x1F8
+struct ViewSetting_unk {
+    unsigned char m00[0x3C];
+    int m3C;                // inferred: fog kind + 1 (0: off)
+    float m40;              // inferred: fog start
+    float m44;              // inferred: fog end
+    atn::Color4f_unk m48;   // inferred: fog color
+    unsigned char m58[0x1F8 - 0x58];
+    HazeParam_unk m1F8;     // inferred: haze
+};
+namespace atn {
+struct RenderView_unk;
+}
+extern "C" atn::RenderView_unk* lbl_8087EFB4;
+extern "C" ViewSetting_unk* fn_800C16B4(atn::RenderView_unk* view);
+// inferred: scene of the event (fn_80541210): its kind at 0x0C
+struct EventScene_unk {
+    unsigned char m00[0x0C];
+    int m0C;
+};
+extern "C" EventScene_unk* fn_80541210(Event::EventManager_unk* manager);
 extern "C" int fn_8047F6B0(Event::CameraOwner_unk* manager, int frames); // inferred: 3 when the fade is done
 extern "C" void fn_8047F8A4(Event::CameraOwner_unk* manager, float level);
 extern "C" void fn_8047F850(Event::CameraOwner_unk* manager, int frames, int colorStart, int colorEnd);
@@ -212,6 +235,149 @@ void ActionCameraEffect::fn_8055BB08(MapArea* area, const void* data) {
 
 void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
     area->m244 = *(HazeParam_unk*)arg;
+}
+
+// inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
+// 7 screen fade), phase 2 fades the screen back and phase 3 restores the settings
+// NONMATCHING: 32% - over the inlining budget (docs/inlining.md R3): GetParam_unk and the constructors
+// are called instead of inlined. Dropping case 1, 2 or 6 is enough to inline everything; a loop for the
+// bloom bias/scale (the original looks unrolled: li r4,3 / cmpwi r4,0) is not
+int ActionCameraEffect::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0:
+        fn_80481818(lbl_8087F540);
+        arg->fn_805381A0();
+        switch (arg->GetParam_unk(0)->m04.i) {
+        case 1: {
+            int enable = arg->GetParam_unk(1)->m04.i;
+            if (enable != 0) {
+                BloomParam_unk bloom = lbl_8087EFA8->m054;
+                bloom.mEnabled = enable;
+                unsigned int c = arg->GetParam_unk(2)->m04.i;
+                bloom.mColor1 = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                            (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+                bloom.mBias1 = arg->GetParamAt_unk(3)->m04.i;
+                bloom.mBias2 = arg->GetParamAt_unk(4)->m04.i;
+                bloom.mBias3 = arg->GetParamAt_unk(5)->m04.i;
+                bloom.mScale1 = arg->GetParamAt_unk(6)->m04.i;
+                bloom.mScale2 = arg->GetParamAt_unk(7)->m04.i;
+                bloom.mScale3 = arg->GetParamAt_unk(8)->m04.i;
+                bloom.mStrength = arg->GetParam_unk(9)->m04.i;
+                if (bloom.mStrength < 0) {
+                    bloom.mStrength = 0;
+                }
+                if (bloom.mStrength > 0x80) {
+                    bloom.mStrength = 0x80;
+                }
+                lbl_8087EFA8->m054 = bloom;
+            } else {
+                lbl_8087EFA8->m054.mEnabled = enable;
+            }
+            break;
+        }
+        case 2: {
+            ViewSetting_unk* view = fn_800C16B4(lbl_8087EFB4);
+            if (arg->GetParam_unk(1)->m04.i != 0) {
+                view->m3C = arg->GetParam_unk(2)->m04.i + 1;
+                view->m40 = arg->GetParam_unk(3)->m04.f;
+                view->m44 = arg->GetParam_unk(4)->m04.f;
+                unsigned int c = arg->GetParam_unk(5)->m04.i;
+                view->m48 = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                             (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+            } else {
+                view->m3C = 0;
+            }
+            MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BB08, this, _1, _2), arg);
+            break;
+        }
+        case 3:
+            arg->m38 = 0;
+            break;
+        case 4: {
+            DamageParam_unk damage;
+            damage.mEnabled = 1;
+            unsigned int c = arg->GetParam_unk(1)->m04.i;
+            damage.mColor = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                        (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+            damage.mAngle = arg->GetParam_unk(2)->m04.f;
+            damage.mScale = arg->GetParam_unk(3)->m04.f;
+            damage.mZoom = MIN(MAX(arg->GetParam_unk(4)->m04.f, -1.0f), 0.05f);
+            DamageParam_unk result = damage;
+            lbl_8087EFA8->m374 = result;
+            break;
+        }
+        case 5: {
+            RainParam_unk rain;
+            rain.mEnabled = arg->GetParam_unk(1)->m04.i;
+            rain.mRate = arg->GetParam_unk(2)->m04.f;
+            rain.mWarp = arg->GetParam_unk(3)->m04.f;
+            lbl_8087EFA8->m2AC = rain;
+            break;
+        }
+        case 6: {
+            HazeParam_unk haze;
+            haze.mEnabled = arg->GetParam_unk(1)->m04.i;
+            haze.mWarp = arg->GetParam_unk(2)->m04.f;
+            atn::Vector2_unk scale(arg->GetParam_unk(3)->m04.f, arg->GetParam_unk(4)->m04.f);
+            if (scale.x <= 0.0f) {
+                scale.x = 0.01f;
+            }
+            if (scale.y <= 0.0f) {
+                scale.y = 0.01f;
+            }
+            haze.mScale = scale;
+            haze.mScroll = atn::Vector2_unk(arg->GetParam_unk(5)->m04.f, arg->GetParam_unk(6)->m04.f);
+            haze.mPos = atn::Vector2_unk(arg->GetParam_unk(7)->m04.f, arg->GetParam_unk(8)->m04.f);
+            haze.mSize = atn::Vector2_unk(arg->GetParam_unk(9)->m04.f, arg->GetParam_unk(10)->m04.f);
+            haze.mFade = RsVector4_unk(arg->GetParam_unk(11)->m04.f, arg->GetParam_unk(12)->m04.f,
+                                       arg->GetParam_unk(13)->m04.f, arg->GetParam_unk(14)->m04.f);
+            fn_800C16B4(lbl_8087EFB4)->m1F8 = haze;
+            MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
+            break;
+        }
+        case 7: {
+            arg->m38 = 0;
+            int color = arg->GetParam_unk(1)->m04.i;
+            fn_8047F8A4(lbl_8087F540, -1.0f);
+            fn_8047F850(lbl_8087F540, arg->m18, color & 0x00FFFFFF, color | 0xFF000000);
+            if (arg->fn_805381C8()->m190 == 0x151E && arg->m18 > 0 && lbl_8087EFE8 != 0) {
+                lbl_8087EFE8->fn_800CF7DC(1, 4, arg->m18 - 30);
+            }
+            break;
+        }
+        }
+        break;
+    case 2:
+        if (arg->GetParam_unk(0)->m04.i == 7) {
+            int color = arg->GetParam_unk(1)->m04.i;
+            fn_8047F8A4(lbl_8087F540, -1.0f);
+            fn_8047F850(lbl_8087F540, arg->m1C, color | 0xFF000000, color & 0x00FFFFFF);
+        }
+        break;
+    case 3:
+        switch (arg->GetParam_unk(0)->m04.i) {
+        case 0:
+            lbl_8087F540->m1DC0 = lbl_8087EFA8->m240;
+            break;
+        case 4:
+            lbl_8087EFA8->m374 = DamageParam_unk();
+            break;
+        case 7: {
+            EventManager_unk* manager = arg->fn_805381C8();
+            if (manager == 0 ||
+                (manager->m190 != 0xC87 &&
+                 (manager->m190 != 0xFB5 || fn_80541210(manager) == 0 || fn_80541210(manager)->m0C != 0xE))) {
+                fn_8047F8A4(lbl_8087F540, -100.0f);
+            }
+            if (arg->fn_805381C8()->m190 == 0x151E && arg->m18 > 0 && lbl_8087EFE8 != 0) {
+                lbl_8087EFE8->fn_800CF45C(0, 0);
+            }
+            break;
+        }
+        }
+        break;
+    }
+    return 0;
 }
 
 // inferred: 0 to 1 over the fade in (m18 frames from the start), 1 to 0 over the fade out (m1C frames

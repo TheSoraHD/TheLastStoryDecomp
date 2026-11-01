@@ -53,20 +53,13 @@ extern "C" void fn_800B95C4() {
     }
 }
 
-// NONMATCHING: 96.92% - the three white bloom colors get their stack temporaries in the opposite
-// order and the scheduler places some constant loads and stores differently (a helper returning the
-// color by value is slightly closer than the temporaries in the initializer list)
-// inferred: white color (helper, name invented)
-static inline RsColor_unk sWhite_unk() {
-    return RsColor_unk(1.0f, 1.0f, 1.0f, 1.0f);
-}
+// NONMATCHING: 96.85% (96.92% before MotionBlurParam_unk) - the three white bloom colors get their stack temporaries in the opposite
+// order and the scheduler places some constant loads and stores differently (BloomParam_unk::White_unk
+// returns the color by value: slightly closer than the temporaries in the initializer list)
 
 RenderSetting_unk::RenderSetting_unk()
     : m000(0), m004(0), m008(0), m00C(0), m010(0), m014(0), m018(0), m01C(0), m020(0), m024(0), m028(0), m02C(0),
-      m030(0), m034(10), m038(0), m03C(0.0f, 0.0f, 0.0f, 1.0f), m050(0), m054(1), m058(0), m05C(3), m060(3),
-      m064(1), m068(1.0f), m06C(1.25f), m070(1.25f), m074(0.0f), m078(2.0f), m07C(1.0f), m080(0.5f), m084(1.0f),
-      m088(0.5f), m08C(sWhite_unk()), m09C(sWhite_unk()),
-      m0AC(sWhite_unk()), m0BC(0), m0C0(0), m0C4(0), m0C8(0), m0CC(0), m0D0(0), m0D4(1),
+      m030(0), m034(10), m038(0), m03C(0.0f, 0.0f, 0.0f, 1.0f), m050(0), m054(), m0D4(1),
       m0D8(0), m0DC(0), m0E0(1), m0E4(200.0f), m0E8(500.0f), m0EC(30.0f), m0F0(10.0f), m0F4(320), m0F8(224),
       m0FC(1.5f), m100(1.5f), m12C(0), m138(1), m13C(0), m140(1), m144(1), m148(0), m14C(0), m150(1), m154(0),
       m158(lbl_8087EEE0->mWidth), m15C(lbl_8087EEE0->mHeight), m160(200.0f), m164(-200.0f), m168(200.0f),
@@ -188,29 +181,29 @@ RenderSetting_unk::RenderSetting_unk()
     void* g9 = fn_8008937C(g3, "GodRay");
     m264.fn_800BB4FC(g9);
     void* g10 = fn_8008937C(g3, "Bloom");
-    fn_80087994(g10, "*Bloom Enabled", &m054, 0, 0);
-    fn_80087994(g10, "Bloom Debug", &m058, 0, 0);
-    fn_80088AF4(g10, "*Color 1", &m08C, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088AF4(g10, "*Color 2", &m09C, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088AF4(g10, "*Color 3", &m0AC, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_800874C8(g10, "*Bias 1", &m0BC, 0, 2, 1, 0, 0);
-    fn_800874C8(g10, "*Bias 2", &m0C0, 0, 2, 1, 0, 0);
-    fn_800874C8(g10, "*Bias 3", &m0C4, 0, 2, 1, 0, 0);
-    fn_800874C8(g10, "*Scale 1", &m0C8, 0, 3, 1, 0, 0);
-    fn_800874C8(g10, "*Scale 2", &m0CC, 0, 3, 1, 0, 0);
-    fn_800874C8(g10, "*Scale 3", &m0D0, 0, 3, 1, 0, 0);
-    fn_8008771C(g10, "*Blur Width", &m06C, 0, 0, 0.0f, 10.0f, 0.1f);
-    fn_8008771C(g10, "*Blur Height", &m070, 0, 0, 0.0f, 10.0f, 0.1f);
-    fn_800874C8(g10, "BloomSize", &m05C, 1, 8, 1, 0, 0);
-    fn_800874C8(g10, "Strength", &m064, 0, 128, 1, 0, 0);
-    fn_8008771C(g10, "Strength Scale", &m068, 0, 0, 0.0f, 1.0f, 0.02f);
-    fn_800874C8(g10, "Dark Steps", &m060, 0, 64, 1, 0, 0);
-    fn_80087858(g10, "Blur Angle", &m074, 0, 0, -180.0f, 180.0f, 2.0f);
-    fn_8008771C(g10, "Kernel0", &m078, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel1", &m07C, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel2", &m080, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel3", &m084, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel4", &m088, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_80087994(g10, "*Bloom Enabled", &m054.mEnabled, 0, 0);
+    fn_80087994(g10, "Bloom Debug", &m054.mDebug, 0, 0);
+    fn_80088AF4(g10, "*Color 1", &m054.mColor1, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088AF4(g10, "*Color 2", &m054.mColor2, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088AF4(g10, "*Color 3", &m054.mColor3, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_800874C8(g10, "*Bias 1", &m054.mBias1, 0, 2, 1, 0, 0);
+    fn_800874C8(g10, "*Bias 2", &m054.mBias2, 0, 2, 1, 0, 0);
+    fn_800874C8(g10, "*Bias 3", &m054.mBias3, 0, 2, 1, 0, 0);
+    fn_800874C8(g10, "*Scale 1", &m054.mScale1, 0, 3, 1, 0, 0);
+    fn_800874C8(g10, "*Scale 2", &m054.mScale2, 0, 3, 1, 0, 0);
+    fn_800874C8(g10, "*Scale 3", &m054.mScale3, 0, 3, 1, 0, 0);
+    fn_8008771C(g10, "*Blur Width", &m054.mBlurWidth, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_8008771C(g10, "*Blur Height", &m054.mBlurHeight, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_800874C8(g10, "BloomSize", &m054.mSize, 1, 8, 1, 0, 0);
+    fn_800874C8(g10, "Strength", &m054.mStrength, 0, 128, 1, 0, 0);
+    fn_8008771C(g10, "Strength Scale", &m054.mStrengthScale, 0, 0, 0.0f, 1.0f, 0.02f);
+    fn_800874C8(g10, "Dark Steps", &m054.mDarkSteps, 0, 64, 1, 0, 0);
+    fn_80087858(g10, "Blur Angle", &m054.mBlurAngle, 0, 0, -180.0f, 180.0f, 2.0f);
+    fn_8008771C(g10, "Kernel0", &m054.mKernel0, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel1", &m054.mKernel1, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel2", &m054.mKernel2, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel3", &m054.mKernel3, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel4", &m054.mKernel4, 0, 0, 0.0f, 100.0f, 0.1f);
     void* g11 = fn_8008937C(g3, "DoF");
     fn_80087994(g11, "*Dof Enabled", &m0D4, 0, 0);
     fn_80087994(g11, "Dof Debug", &m0D8, 0, 0);
