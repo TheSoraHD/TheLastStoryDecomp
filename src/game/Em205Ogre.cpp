@@ -146,8 +146,6 @@ Em205Ogre::Em205Ogre(atn::Task* parent, EnemyInfo_unk* info)
     m149C = 4.0f;
 }
 
-Em205Ogre::~Em205Ogre() {}
-
 int Em205Ogre::vf0C() {
     if (fn_8013655C() != 0) {
         return 0;
@@ -674,3 +672,5 @@ boost::function<void()> Em205Ogre::vfB4(CharaTask* chara) {
     chr::ControlWallSlash* next = new ((MemoryTag)0, "", "", 0) chr::ControlWallSlash(chara, target, &land);
     return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
+
+Em205Ogre::~Em205Ogre() {}

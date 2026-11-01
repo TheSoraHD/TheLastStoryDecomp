@@ -122,8 +122,6 @@ Em309GhoulSimple::Em309GhoulSimple(atn::Task* parent, EnemyInfo_unk* info)
     mFlag22 = 1;
 }
 
-Em309GhoulSimple::~Em309GhoulSimple() {}
-
 int Em309GhoulSimple::vf0C() {
     if (m164C == 0) {
         if (m14B4.fn_80473F50() != 0) {
@@ -286,11 +284,6 @@ int Em309GhoulSimple::vf10C(HitMsg_unk* msg) {
     return 1;
 }
 
-void Em309GhoulSimple::vfFC() {
-    fn_8016E970(2);
-    vf100(6);
-}
-
 // inferred: names invented (as in game/Em205Ogre.cpp)
 inline void SafeNormalize_unk(atn::Vector3* v) {
     if ((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f) {
@@ -328,6 +321,12 @@ void Em309GhoulSimple::vf40(HitInfo_unk* hit) {
         m1570 = 1;
     }
 }
+
+void Em309GhoulSimple::vfFC() {
+    fn_8016E970(2);
+    vf100(6);
+}
+
 
 // NONMATCHING: 99.96% - stack slots of the direction temporaries of states 9-11 and 12 (~15 variants)
 void Em309GhoulSimple::vf100(int state) {
@@ -919,3 +918,4 @@ float Em309GhoulSimple::vf90() {
     return 3.0f;
 }
 
+Em309GhoulSimple::~Em309GhoulSimple() {}
