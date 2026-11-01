@@ -2,6 +2,7 @@
 #include "Event/Path.h"
 #include "atn/LH_Xsca.h"
 #include "atn/Color4f_unk.h"
+#include "game/MapManager.h"
 
 // Camera actions of the events: processors with vf08 (per frame) and vf0C (phase 0: start, 3/4:
 // end), as the Event::Behavior* ones. Class names from the RTTI; the order of the vtables is
@@ -71,19 +72,19 @@ public:
 };
 
 // inferred: screen effect of the camera mode action (fade/flash: kind, two times and an ARGB color)
-struct CameraFx_unk {
-    unsigned char m00[0x88];
-    int m88; // inferred: kind + 1 (0: off)
-    float m8C;
-    float m90;
-    atn::Color4f_unk m94;
-};
 
 class ActionCameraMode : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraMode> {
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
-    void fn_8055BB08(CameraFx_unk* fx, Action* arg); // inferred: bound with boost::bind (0x80794D78)
+};
+
+class ActionCameraEffect : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraEffect> {
+public:
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
+    void fn_8055BB08(MapArea* area, const void* arg); // inferred: fog of a map area (bound with boost::bind)
+    void fn_8055BC5C(MapArea* area, void* arg);       // inferred: haze of a map area (bound with boost::bind)
 };
 
 int ActionCameraMode::vf08(Action* arg) {
@@ -188,17 +189,22 @@ int ActionCameraSetting::vf08(Action* arg) {
 
 // NONMATCHING: 78.6% - scheduling: the original loads the next parameter count before each store
 // (tried locals and a const accessor); the color part matches
-void ActionCameraMode::fn_8055BB08(CameraFx_unk* fx, Action* arg) {
+void ActionCameraEffect::fn_8055BB08(MapArea* area, const void* data) {
+    Action* arg = (Action*)data;
     if (arg->GetParam_unk(1)->m04.i != 0) {
-        fx->m88 = arg->GetParam_unk(2)->m04.i + 1;
-        fx->m8C = arg->GetParam_unk(3)->m04.f;
-        fx->m90 = arg->GetParam_unk(4)->m04.f;
+        area->m88 = arg->GetParam_unk(2)->m04.i + 1;
+        area->m8C = arg->GetParam_unk(3)->m04.f;
+        area->m90 = arg->GetParam_unk(4)->m04.f;
         unsigned int c = arg->GetParam_unk(5)->m04.i;
-        fx->m94 = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+        area->m94 = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                                    (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
     } else {
-        fx->m88 = 0;
+        area->m88 = 0;
     }
+}
+
+void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
+    area->m244 = *(HazeParam_unk*)arg;
 }
 
 // inferred: speeds of the focus change selected by parameter 5 (pairs of the same value)

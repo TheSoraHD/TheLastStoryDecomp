@@ -7,6 +7,7 @@
 #include "std/vector.h"
 #include <boost/function.hpp>
 #include "atn/RenderSetting_unk.h"
+#include "atn/Color4f_unk.h"
 
 namespace atn {
 class Scene; // the name is in the DOL (type_info 0x80756690)
@@ -33,14 +34,21 @@ struct MapModelBase_unk {
     unsigned char m30[0x4C - 0x30];
 };
 struct MapArea : public MapModelBase_unk {
-    unsigned char m4C[0xBC - 0x4C];
+    unsigned char m4C[0x88 - 0x4C];
+    int m88;                // inferred: fog kind + 1 (0: off; Event::ActionCameraEffect)
+    float m8C;              // inferred: fog start
+    float m90;              // inferred: fog end
+    atn::Color4f_unk m94;   // inferred: fog color
+    unsigned char mA4[0xBC - 0xA4];
     int mBC;   // inferred: set by gmk::CharaLight (callback 0x804225E0)
     void* mC0; // inferred: light of gmk::CharaLight
     unsigned char mC4[0x114 - 0xC4];
     int m114;
     unsigned char m118[0x16C - 0x118];
     int m16C; // inferred: reflection mode (Event::ActionMapReflect)
-    unsigned char m170[0x2AC - 0x170];
+    unsigned char m170[0x244 - 0x170];
+    HazeParam_unk m244;          // inferred: haze of the model (Event::ActionCameraEffect)
+    unsigned char m280[0x2AC - 0x280];
     int m2AC;                    // inferred: m2B0 is used instead of the global color matrix
     ColorMatrixParam_unk m2B0;   // inferred: color matrix of the model (Event::ActionColorMatrix)
     void* mMaterial; // 0x300
