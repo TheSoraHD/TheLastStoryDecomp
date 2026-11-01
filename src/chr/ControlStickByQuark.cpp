@@ -162,9 +162,20 @@ extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
 namespace chr {
 
+// inferred: a + (b - a) * t (name invented, as in chr/ControlLadder.cpp)
+static inline atn::Vector3 LerpTo_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
 // inferred: frame of track 0 (name invented)
 static inline float Frame_unk(Motion_unk* m) {
     return m->mTracks[0].m08;
+}
+
+// inferred: fires the bullet `id` from `pos` (name invented)
+static inline void ShootFrom_unk(Effect_unk* mgr, CharaTask* chara, int id, int arg, const atn::Vector3& pos,
+                                 const atn::Vector3* rot) {
+    fn_800FAB80(mgr, chara, fn_80219E6C(id), arg, &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
 // inferred: fires the bullet `id` from a character (name invented)
@@ -458,6 +469,35 @@ ControlThrustForKraken::ControlThrustForKraken(Chara_unk* chara, int kraken, atn
     if (lbl_8087F498 != 0) {
         fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
     }
+}
+
+// NONMATCHING: 98.6% - f3/f4 of the frame and 23.0f, register order of the lerps
+// inferred: swings the weapon around the kraken and thrusts it (frames 23-62), holds it, then pulls
+// back (frames 112-153); the bullet is fired from the weapon node at frame 48
+int ControlThrustForKraken::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    atn::Vector3 pos = mChara->mPos;
+    atn::Vector3 rot = mChara->mRot;
+    if (m->mTracks[0].m08 > 23.0f && m->mTracks[0].m08 <= 62.0f) {
+        mChara->mF1C = 0;
+        float t = (m->mTracks[0].m08 - 23.0f) / 39.0f;
+        pos = LerpTo_unk(mTarget - mDir2 * 45.0f, mFrom, t);
+        rot = LerpTo_unk(mDir, mDir2, t);
+        rot.RotZ_unk();
+    } else if (m->mTracks[0].m08 > 62.0f && m->mTracks[0].m08 <= 112.0f) {
+        pos = mFrom;
+    } else if (m->mTracks[0].m08 > 112.0f && m->mTracks[0].m08 <= 153.0f) {
+        float t = (m->mTracks[0].m08 - 112.0f) / 41.0f;
+        pos = LerpTo_unk(mFrom, mDest, t);
+    }
+    mChara->mPos = pos;
+    mChara->mRot = rot;
+    if (m->mTracks[0].m08 >= 48.0f && m->mTracks[0].m08 < 50.0f) {
+        const atn::Vector3* r = &mChara->mRot;
+        atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
+        ShootFrom_unk(lbl_8087F048, mChara, 0xD5, 1000, node->GetTrans_unk(), r);
+    }
+    return Frame_unk(m) >= m->fn_80097D7C(0);
 }
 
 // NONMATCHING: 71.9% - the original loads m10/m1C before saving r31 (as in a const method)
