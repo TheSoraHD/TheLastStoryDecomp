@@ -1,3 +1,4 @@
+#include "gmk/SavePoint.h"
 #include "game/GimmickManager.h"
 #include "game/GimmickCommon.h"
 #include "game/CharaTask.h"
@@ -15,7 +16,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC6B4(const char* s);   // inferred: string hash
-extern "C" GimmickCommon* fn_80435CE4(atn::Task* parent, int id, int arg); // inferred: gimmick constructors
 extern "C" GimmickCommon* fn_804093B4(atn::Task* parent, int id, int arg);
 extern "C" void fn_800D2338(atn::Task* task);              // inferred: deletes a task
 extern "C" int fn_8049D5DC(char* name, int a, int b, int c); // inferred: name of a map
@@ -130,7 +130,7 @@ GimmickManager::~GimmickManager() {
 int GimmickManager::vf0C() {
     if (m88 == 0) {
         m88 = 1;
-        m80 = fn_80435CE4(this, 63000, -1);
+        m80 = gmk::SavePoint::fn_80435CE4(this, 63000, -1);
         m80->fn_800D246C(1);
         fn_803EE41C(m80);
         m84 = fn_804093B4(this, 18000, -1);
