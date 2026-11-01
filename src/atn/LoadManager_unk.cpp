@@ -7,7 +7,7 @@
 #include "atn/FixedArray.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
-extern "C" int fn_805F9EF0(const char* path); // inferred: DVDConvertPathToEntrynum
+extern "C" int DVDConvertPathToEntrynum(const char* path); // inferred: DVDConvertPathToEntrynum
 
 // inferred: SDK DVD file (only what is used here)
 struct DVDCommandBlock_unk {
@@ -414,7 +414,7 @@ int Loader::fn_8046C3FC(LoadCore* core) {
     unsigned int offset = 0;
     unsigned long long pos = 0;
     int search = 1;
-    if (m3ED8 != 0 && fn_805F9EF0(path) >= 0) {
+    if (m3ED8 != 0 && DVDConvertPathToEntrynum(path) >= 0) {
         search = 0;
     }
     if (search) {
@@ -438,7 +438,7 @@ int Loader::fn_8046C3FC(LoadCore* core) {
         FindMounted_unk(this, path, req, index, offset, size, packed, pos);
     }
     if (index == -1) {
-        req->mEntry = fn_805F9EF0(path);
+        req->mEntry = DVDConvertPathToEntrynum(path);
         if (req->mEntry == -1) {
             if (m3ED8 != 0) {
                 FindMounted_unk(this, path, req, index, offset, size, packed, pos);

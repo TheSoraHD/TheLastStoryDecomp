@@ -245,9 +245,6 @@ extern "C" inline atn::Vector3* fn_803727D4(CharaTask* chara) {
 }
 extern "C" void fn_80372754(atn::Matrix3x4* m, atn::Vector3* scale); // inferred: scales the matrix
 extern "C" void fn_80316E38(atn::Model* model, const atn::Matrix3x4* m); // inferred: sets the model matrix
-extern "C" int fn_803D6F44(atn::D2A_Task* gauge);
-extern "C" void fn_803D2134(atn::D2A_Task* gauge, float speed);
-extern "C" void fn_803D6F68(atn::D2A_Task* gauge, float value);
 extern "C" void fn_8037F688(Camera_unk* camera, float fovy);
 extern "C" Camera_unk* fn_8008B964();
 extern "C" void fn_80392A04(Camera_unk* a, Camera_unk* b);

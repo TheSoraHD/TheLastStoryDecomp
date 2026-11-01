@@ -5,9 +5,6 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-extern "C" void fn_80709F20(void*);
-extern "C" int fn_8070ABE0(void*);
-extern "C" void fn_8070AD70(void*, float);
 extern "C" char lbl_807C7030[];
 
 extern "C" atn::SoundEngine_unk* lbl_8087EE90;
@@ -91,14 +88,14 @@ extern "C" void fn_800CB504(atn::SoundRef* self) {
     if (self->mPtr != 0) reinterpret_cast<atn::SoundCore*>(self->mPtr)->fn_800CA098();
 }
 
-extern "C" void fn_800CB518(atn::SoundRef* self) {
-    if (self->mPtr != 0 && self->mPtr->mSound != 0) fn_80709F20(self->mPtr->mSound);
+extern "C" void fn_800CB518(atn::SoundRef* self, int fadeFrames) {
+    if (self->mPtr != 0 && self->mPtr->mSound != 0) self->mPtr->mSound->FadeIn(fadeFrames);
 }
 
 // NONMATCHING: 90.48% - comparacion > 0 del resultado del ternario.
 extern "C" bool fn_800CB538(atn::SoundRef* self) {
     if (self->mPtr != 0) {
-        return (self->mPtr->mSound != 0 ? fn_8070ABE0(self->mPtr->mSound) : 0) > 0;
+        return (self->mPtr->mSound != 0 ? self->mPtr->mSound->GetRemainingFadeFrames() : 0) > 0;
     }
     return false;
 }
@@ -129,8 +126,8 @@ extern "C" void fn_800CB654(atn::SoundRef* self, float a1, float a2, float a3) {
     if (self->mPtr != 0) reinterpret_cast<atn::SoundCore*>(self->mPtr)->fn_800CA2FC(a1, a2, a3);
 }
 
-extern "C" void fn_800CB668(atn::SoundRef* self, float value) {
-    if (self->mPtr != 0 && self->mPtr->mSound != 0) fn_8070AD70(self->mPtr->mSound, value);
+extern "C" void fn_800CB668(atn::SoundRef* self, int flag) {
+    if (self->mPtr != 0 && self->mPtr->mSound != 0) self->mPtr->mSound->SetOutputLineFlag(flag);
 }
 
 extern "C" void fn_800CB688(atn::SoundRef* self, int a1, float a2) {
@@ -425,7 +422,7 @@ void SoundManager::fn_800CECF0() {
                 fn_800BFAC8(&screen, lbl_8087EFB4, &sound.m08.mActor.mPosition);
                 if (screen.z >= 0.0f && 1.0f >= screen.z) {
                     unsigned int color = 0xFF00FFFF;
-                    if ((sound.mHandle.mSound != 0 ? fn_8070ABE0(sound.mHandle.mSound) : 0) > 0) {
+                    if (sound.mHandle.GetRemainingFadeFrames() > 0) {
                         color = 0xFFFFFF00;
                     }
                     if (sound.mHandle.mSound == 0 && sound.mA4 > 0) {

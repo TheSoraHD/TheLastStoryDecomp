@@ -10,7 +10,7 @@
 // texts by icons. Names invented (atn_d2a_manager.cpp, from the class name of the RTTI).
 
 extern "C" unsigned long wcslen(const wchar_t* s);
-extern "C" int fn_80686B24(const wchar_t* a, const wchar_t* b, int n); // inferred: wcsncmp
+extern "C" int wcsncmp(const wchar_t* a, const wchar_t* b, int n); // inferred: wcsncmp
 extern "C" unsigned int fn_800DC6B4(const char* s);                    // inferred: string hash
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 
@@ -398,7 +398,7 @@ extern "C" float fn_801F1418(wchar_t c, const wchar_t** text, float size) {
         int length = wcslen(p);
         for (int i = 0; i < 0x60; i++) {
             if (sIconDefs[i].mLength - 1 <= length &&
-                fn_80686B24(p, &sIconDefs[i].mName[1], sIconDefs[i].mLength - 1) == 0) {
+                wcsncmp(p, &sIconDefs[i].mName[1], sIconDefs[i].mLength - 1) == 0) {
                 *text += sIconDefs[i].mLength - 1;
                 return size * sIconDefs[i].mWidth * sIconDefs[i].mScaleY;
             }
@@ -445,7 +445,7 @@ extern "C" void fn_801F1658(std::vector<D2A_MsgPiece_unk>* pieces, std::basic_st
             int length = wcslen(&(*line)[i]);
             for (int j = 0; j < 0x60; j++) {
                 int n = sIconDefs[j].mLength - 1;
-                if (n <= length && fn_80686B24(line->data() + i, &sIconDefs[j].mName[1], n) == 0) {
+                if (n <= length && wcsncmp(line->data() + i, &sIconDefs[j].mName[1], n) == 0) {
                     if (i - 1 - start != 0) {
                         piece.mText = std::basic_string<wchar_t>(*line, start, i - 1 - start);
                         piece.mIcon = -1;

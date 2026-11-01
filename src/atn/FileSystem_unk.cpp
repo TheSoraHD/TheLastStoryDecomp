@@ -10,7 +10,7 @@
 extern "C" int sprintf(char* s, const char* format, ...);
 struct DebugMessages_unk { void fn_800698DC(const char* path); }; // inferred: see atn/FileUtil_unk.cpp
 extern "C" DebugMessages_unk* lbl_8087EEB8;                                 // inferred: listener of failed loads
-extern "C" int fn_805F9EF0(const char* name);                  // inferred: opens the archive file
+extern "C" int DVDConvertPathToEntrynum(const char* name);                  // inferred: opens the archive file
 extern "C" std::string fn_8006AC08(const std::string& path);     // inferred: extension of a path
 
 // inferred: output of the directory listing (atn::FileList, 16-byte entries: kind first)
@@ -202,7 +202,7 @@ PfsArchive_unk::PfsArchive_unk(const char* name, const char* index, int flags)
         }
     }
     if (!(flags & 1)) {
-        m24 = fn_805F9EF0(name);
+        m24 = DVDConvertPathToEntrynum(name);
     }
 }
 

@@ -71,6 +71,9 @@ public:
     void SetBiquadFilter(int type, float value);
     void ResetOutputLineFlag();
     void SetFxSend(AuxBus bus, float send);
+    void FadeIn(int fadeFrames);
+    int GetRemainingFadeFrames() const;
+    void SetOutputLineFlag(int flag);
 
     unsigned char m04[0x30 - 0x04];
     SoundParam_unk m30;
@@ -93,6 +96,7 @@ public:
     void SetBiquadFilter(int type, float value);
     void ResetOutputLineFlag(); // inferred: see BasicSound
     void SetFxSend(AuxBus bus, float send);
+    int GetRemainingFadeFrames() const { return IsAttachedSound() ? mSound->GetRemainingFadeFrames() : 0; }
     detail::SoundParam_unk* GetParam_unk() const { return IsAttachedSound() ? &mSound->m30 : 0; }
     void DetachSound();
 

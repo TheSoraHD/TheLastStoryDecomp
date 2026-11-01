@@ -24,7 +24,7 @@ typedef void (*AIDCallback)(void);
 void* memset(void* dst, int c, unsigned long n);
 void* memcpy(void* dst, const void* src, unsigned long n);
 int strcmp(const char* a, const char* b);
-BOOL fn_805FA270(const char* fileName, DVDFileInfo* fileInfo); // DVDOpen
+BOOL DVDOpen(const char* fileName, DVDFileInfo* fileInfo); // DVDOpen
 s32 DVDReadPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset, s32 prio);
 BOOL DVDReadAsyncPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset, DVDCallback callback,
                       s32 prio);
@@ -214,7 +214,7 @@ BOOL fn_805B5710(const char* fileName) {
     }
     memset(&SimpleControl.videoInfo, 0, sizeof(THPVideoInfo));
     memset(&SimpleControl.audioInfo, 0, sizeof(THPAudioInfo));
-    if (!fn_805FA270(fileName, &SimpleControl.fileInfo)) {
+    if (!DVDOpen(fileName, &SimpleControl.fileInfo)) {
         return 0;
     }
     if (DVDReadPrio(&SimpleControl.fileInfo, WorkBuffer, 64, 0, 2) < 0) {

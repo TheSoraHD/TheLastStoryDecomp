@@ -33,7 +33,7 @@ struct DVDFileInfo_unk {
     unsigned long mLength;
     unsigned char m38[4];
 };
-extern "C" int fn_805FA270(const char* path, DVDFileInfo_unk* info); // DVDOpen
+extern "C" int DVDOpen(const char* path, DVDFileInfo_unk* info); // DVDOpen
 extern "C" int DVDReadPrio(DVDFileInfo_unk* info, void* addr, long length, long offset, long prio);
 extern "C" int DVDClose(DVDFileInfo_unk* info);
 
@@ -81,7 +81,7 @@ extern "C" void fn_8006A9A4(std::string& path) {
 }
 
 extern "C" std::string fn_8006AB54(const char* path);
-extern "C" int fn_805F9EF0(const char* path); // inferred: DVDConvertPathToEntrynum
+extern "C" int DVDConvertPathToEntrynum(const char* path); // inferred: DVDConvertPathToEntrynum
 
 // inferred: nonzero when the file exists (in a mounted archive or on the disc)
 extern "C" int fn_8006AA20(const char* name) {
@@ -90,7 +90,7 @@ extern "C" int fn_8006AA20(const char* name) {
         return 1;
     }
     __ToSlashes_unk(path);
-    return fn_805F9EF0(path.c_str()) != -1;
+    return DVDConvertPathToEntrynum(path.c_str()) != -1;
 }
 
 // inferred: path resolved by the loader, from a C string
@@ -281,7 +281,7 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int own) {
     }
     DVDFileInfo_unk info;
     void* data = 0;
-    if (fn_805FA270(path, &info)) {
+    if (DVDOpen(path, &info)) {
         *size = info.mLength;
         data = atn::MemoryManager::Instance()->AllocFromMem2((*size + 0x1F) & ~0x1F, 0x20, (MemoryTag)1, "", "", 0, 0);
         DVDReadPrio(&info, data, (*size + 0x1F) & ~0x1F, 0, 2);

@@ -10,7 +10,6 @@ extern "C" EffectMgr_unk* lbl_8087F498;
 extern "C" void fn_803EA77C(EffectMgr_unk* mgr, chr::Chara_unk* chara, int id, int arg, float a, float b);
 extern "C" float lbl_8087DA08; // inferred: ground height used by ControlGmkCoffinGetUp
 extern "C" void fn_80547708(void* arg, chr::GmkTarget_unk* target);
-extern "C" void fn_805F9750(float (*m)[4], atn::Vector3* src, atn::Vector3* dst); // inferred: 4x4 matrix times vector
 
 namespace chr {
 
@@ -190,7 +189,7 @@ ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* targ
         m4[3][0] = m4[3][1] = m4[3][2] = 0.0f;
         m4[3][3] = 1.0f;
         atn::Vector3 local = dir;
-        fn_805F9750(m4, &local, &local);
+        PSMTX44MultVec(m4, &local, &local);
         angles.x = -__Atan2_unk(local.y, local.z);
         angles.z = 0.0f;
         rot.y = angles.y;

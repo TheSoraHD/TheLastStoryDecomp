@@ -7,7 +7,7 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" void* memmove(void* dst, const void* src, unsigned long n);
-extern "C" wchar_t* fn_80686AC4(wchar_t* dst, const wchar_t* src);  // inferred: wcscat
+extern "C" wchar_t* wcscat(wchar_t* dst, const wchar_t* src);  // inferred: wcscat
 extern "C" int fn_800DC1DC(const wchar_t* s);                       // inferred: wide string to int
 extern "C" int fn_8006BA30();                                       // inferred: language of the game
 extern "C" wchar_t* itow(int value, wchar_t* buf, int radix);
@@ -29,7 +29,7 @@ extern "C" wchar_t* fn_800DD1EC(wchar_t* width, wchar_t* str) {
             p++;
         }
         width[count] = 0;
-        fn_80686AC4(width, str);
+        wcscat(width, str);
         str = width;
     }
     return str;
@@ -61,7 +61,7 @@ extern "C" wchar_t* fn_800DD2A8(wchar_t* width, wchar_t* str) {
             p++;
         }
         width[count] = 0;
-        fn_80686AC4(width, str);
+        wcscat(width, str);
         width[wcslen(str) - (fracLen - precision)] = 0;
         str = width;
     }

@@ -15,7 +15,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strrchr(const char* s, int c); // inferred: strrchr
-extern "C" int fn_805F9EF0(const char* path);      // inferred: DVDConvertPathToEntrynum
+extern "C" int DVDConvertPathToEntrynum(const char* path);      // inferred: DVDConvertPathToEntrynum
 extern "C" void fn_8006A9A4(std::string& path);    // inferred: path normalisation
 extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
@@ -81,7 +81,7 @@ inline D2APoint_unk GetPanePos_unk(Task* layout, const char* name) {
 static int fn_8046CBC0(const char* path) {
     std::string s(path);
     fn_8006A9A4(s);
-    return fn_805F9EF0(s.c_str()) != -1;
+    return DVDConvertPathToEntrynum(s.c_str()) != -1;
 }
 
 // inferred: full path of a resource (std::string version of fn_8046D1EC). Called by
