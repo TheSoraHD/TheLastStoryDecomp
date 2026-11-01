@@ -17,6 +17,8 @@
 #include "game/ColliAttrManager.h"
 #include "game/SongManager.h"
 #include "game/GameConfig_unk.h"
+#include "atn/IRender.h"
+#include "atn/Sphere.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -29,15 +31,23 @@ template <class T>
 class SingletonNoStatic {};
 } // namespace atn
 
+class NewStaffRoll;
+
 // inferred: the event manager (lbl_8087F540) seen through the members used here
 struct EventEffects_unk {
-    unsigned char m00[0xC4];
+    unsigned char m00[0x4C];
+    atn::Sphere m4C; // inferred: target of the check of type 1 (ActionCheck)
+    unsigned char m5C[0xC4 - 0x5C];
     int mC4; // inferred: nonzero when the music fades are shortened
     Event::EventCamera_unk mCameras[4]; // 0xC8: inferred: one per section (as in Event/ActionCameraMode)
     int m1A38; // inferred: current camera
     unsigned char m1A3C[0x1D70 - 0x1A3C];
     ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
-    unsigned char m1DC0[0x1EB0 - 0x1DC0];
+    unsigned char m1DC0[0x1E94 - 0x1DC0];
+    atn::Sphere m1E94; // inferred: sphere looked at by ActionCheck (type 1)
+    unsigned char m1EA4[0x1EA8 - 0x1EA4];
+    int m1EA8; // inferred: the sphere is in sight
+    unsigned char m1EAC[0x1EB0 - 0x1EAC];
     int m1EB0; // inferred: set by ActionCheck (type 1)
     unsigned char m1EB4[0x1F0C - 0x1EB4];
     int m1F0C; // inferred: cloud map shown by ActionCloudMap
@@ -48,9 +58,14 @@ struct EventEffects_unk {
     float m1F6C; // inferred: movie fade time
     unsigned char m1F70[0x238C - 0x1F70];
     int m238C; // inferred: nonzero while messages are blocked
-    unsigned char m2390[0x2404 - 0x2390];
+    unsigned char m2390[0x23B4 - 0x2390];
+    int m23B4; // inferred: set when the check of type 1 succeeds
+    unsigned char m23B8[0x2400 - 0x23B8];
+    NewStaffRoll* m2400; // inferred: staff roll of the ending
     unsigned char mMoviePlaying : 1; // 0x2404
     unsigned char m2404_1 : 7;
+    unsigned char m2405[0x2448 - 0x2405];
+    int m2448; // inferred: nonzero to pass the checks without input
 };
 extern "C" EventEffects_unk* lbl_8087F540;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
@@ -90,8 +105,8 @@ namespace atn {
 struct Camera;
 } // namespace atn
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" ReflectTarget_unk* fn_800C16B4(Camera_unk* camera);
+extern "C" atn::RenderView_unk* lbl_8087EFB4;
+extern "C" ReflectTarget_unk* fn_800C16B4(atn::RenderView_unk* view);
 extern "C" void fn_8048E9E0(EventEffects_unk* mgr); // inferred: starts the movie
 extern "C" void fn_804817D4(EventEffects_unk* mgr);
 extern "C" float lbl_807C8AB0[3][2]; // inferred: text speeds of the message actions
@@ -192,6 +207,16 @@ extern "C" void fn_8048E9A4(EventEffects_unk* mgr, Event::MovieState_unk* movie,
 extern "C" void fn_8048EC7C(EventEffects_unk* mgr); // inferred: ends the movie
 extern "C" int fn_800CB4A4(atn::SoundRef* sound);   // inferred: sound state flags
 extern "C" int fn_803CE160(int a, int b, int c);
+
+extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* view, const atn::Vector3* pos); // to screen
+extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
+extern "C" void fn_80481800(EventEffects_unk* mgr, int on);                  // inferred: shows the check sphere
+extern "C" int fn_80531E80(NewStaffRoll* roll);
+extern "C" int fn_800A5584(void* pad, int port, int button); // inferred: button pressed
+extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+extern "C" float PSVECMag(const atn::Vector3* v);
+extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
 struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
 extern "C" GameVars_unk* lbl_8087F430;
@@ -720,6 +745,192 @@ int ActionCheck::vf0C(Action* arg, int phase) {
             }
         }
         break;
+    }
+    return 0;
+}
+
+// inferred: stick axes of the checks of type 1 (any) and 3 (by parameter 1)
+static int sCheckAxes_unk[2] = {0, 1};
+static int sStickAxes_unk[6] = {4, 5, 6, 7, 8, 9};
+
+// inferred: state of the check of type 2 and 3 kept in Action::m38
+union CheckState_unk {
+    int mWord;
+    struct {
+        unsigned int mCount : 16; // inferred: inputs counted
+        unsigned int mWait : 14;  // inferred: frames without input (types 2 and 3) or held (type 2, mode 4)
+        unsigned int mDone : 1;
+        unsigned int mDir : 1;    // inferred: last stick direction (type 3)
+    } s;
+};
+
+// NONMATCHING: 93.9% - first draft: the screen size of the sphere (d1/d2), the eye and direction copies,
+// the copy of the sphere into m4C and a signed compare of the stick direction still differ
+int ActionCheck::vf08(Action* arg) {
+    arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    switch (arg->GetParam_unk(0)->m04.i) {
+    case 0:
+        fn_8054136C(manager, arg->GetParam_unk(1)->m04.i);
+        return 1;
+    case 1: {
+        manager->m98 &= ~0x40000;
+        atn::Sphere sphere;
+        sphere.mCenter = arg->fn_805384CC(2);
+        sphere.mRadius = arg->GetParam_unk(7)->m04.f;
+        atn::Vector3 center;
+        fn_800BFAC8(&center, lbl_8087EFB4, &sphere.mCenter);
+        atn::Vector3 top;
+        fn_800BFAC8(&top, lbl_8087EFB4, &(sphere.mCenter + atn::Vector3(0.0f, sphere.mRadius, 0.0f)));
+        atn::Vector3 bottom;
+        fn_800BFAC8(&bottom, lbl_8087EFB4, &(sphere.mCenter + atn::Vector3(0.0f, -sphere.mRadius, 0.0f)));
+        atn::Vector3 d1(center.x - top.x, center.y - top.y, 0.0f);
+        float size = PSVECMag(&d1);
+        atn::Vector3 d2 = center - bottom;
+        if (size > PSVECMag(&d2)) {
+            size = PSVECMag(&d2);
+        }
+        sphere.mRadius += 0.8f * (50.0f * sphere.mRadius / size - sphere.mRadius);
+        lbl_8087F540->m1EA8 = 0;
+        fn_80481800(lbl_8087F540, 1);
+        lbl_8087F540->m1E94 = sphere;
+        lbl_8087EFB4->m54964 = 1;
+        atn::Vector3 eye;
+        eye.Assign_unk(lbl_8087F540->mCameras[lbl_8087F540->m1A38].mPos);
+        atn::Vector3 dir = lbl_8087F540->mCameras[lbl_8087F540->m1A38].mTarget - eye;
+        PSVECNormalize(&dir, &dir);
+        dir = dir * 800.0f + eye; // inferred: unused (only the stores are left)
+        if (fn_80051B70(&eye, &sphere.mCenter) == 0 && lbl_8087F540->m2448 == 0) {
+            break;
+        }
+        lbl_8087F540->m1EA8 = 1;
+        int still = 1;
+        for (unsigned int i = 0; i < 2; i++) {
+            if ((float)__fabs(fn_800A56A8(lbl_8087EF70, 0, sCheckAxes_unk[i], 0)) < 0.3f) {
+                continue;
+            }
+            still = 0;
+            break;
+        }
+        unsigned int frames = arg->m38;
+        if (still != 0) {
+            frames++;
+            if (frames > 3) {
+                fn_8054136C(manager, arg->GetParam_unk(1)->m04.i);
+                fn_804817D4(lbl_8087F540);
+                fn_80481800(lbl_8087F540, 0);
+                lbl_8087F540->m4C = sphere;
+                lbl_8087F540->m23B4 = 1;
+                return 1;
+            }
+        } else {
+            frames = 0;
+        }
+        arg->m38 = frames;
+        break;
+    }
+    case 2: {
+        manager->m98 &= ~0x40000;
+        int button = arg->GetParam_unk(1)->m04.i;
+        int mode = arg->GetParam_unk(2)->m04.i;
+        unsigned int count = arg->GetParam_unk(3)->m04.i;
+        unsigned int limit = arg->GetParam_unk(4)->m04.i;
+        if (count == 0) {
+            count = 1;
+        }
+        CheckState_unk state;
+        state.mWord = arg->m38;
+        if (mode == 0) {
+            if (fn_800A555C(lbl_8087EF70, 0, button) != 0 || lbl_8087F540->m2448 != 0) {
+                state.s.mCount++;
+            }
+        } else if (mode == 1) {
+            if (fn_800A555C(lbl_8087EF70, 0, button) != 0 || lbl_8087F540->m2448 != 0) {
+                state.s.mCount++;
+            } else {
+                state.s.mWait++;
+            }
+            if (state.s.mWait >= limit) {
+                state.s.mCount = state.s.mWait = 0;
+            }
+        } else if (mode == 2) {
+            if (fn_800A5584(lbl_8087EF70, 0, button) != 0 || lbl_8087F540->m2448 != 0) {
+                state.s.mCount++;
+            }
+        } else if (mode == 3) {
+            if (fn_800A5584(lbl_8087EF70, 0, button) != 0 || lbl_8087F540->m2448 != 0) {
+                state.s.mCount++;
+            } else {
+                state.s.mWait++;
+            }
+            if (state.s.mWait >= limit) {
+                state.s.mCount = state.s.mWait = 0;
+            }
+        } else if (mode == 4) {
+            if (fn_800A55D4(lbl_8087EF70, 0, button) != 0 || lbl_8087F540->m2448 != 0) {
+                state.s.mWait++;
+            } else {
+                state.s.mWait = 0;
+            }
+            if (state.s.mWait >= limit) {
+                state.s.mCount++;
+            }
+        }
+        if (state.s.mCount >= count) {
+            if (manager->m190 != 0x151E ||
+                (lbl_8087F540->m2400 != 0 && fn_80531E80(lbl_8087F540->m2400) != 0)) {
+                state.s.mDone = 1;
+            }
+        }
+        arg->m38 = state.mWord;
+        int keep = arg->GetParam_unk(6)->m04.i;
+        if (state.s.mDone == 1 && keep == 0) {
+            fn_8054136C(manager, arg->GetParam_unk(5)->m04.i);
+            return 1;
+        }
+        break;
+    }
+    case 3: {
+        manager->m98 &= ~0x40000;
+        int axis = arg->GetParam_unk(1)->m04.i;
+        int mode = arg->GetParam_unk(2)->m04.i;
+        unsigned int count = arg->GetParam_unk(3)->m04.i;
+        unsigned int limit = arg->GetParam_unk(4)->m04.i;
+        if (count == 0) {
+            count = 1;
+        }
+        CheckState_unk state;
+        state.mWord = arg->m38;
+        if (mode == 0) {
+            int moved = 0;
+            float value = fn_800A56A8(lbl_8087EF70, 0, sStickAxes_unk[axis], 0);
+            if ((float)__fabs(value) > 0.1f) {
+                bool dir = !(value < 0.0f);
+                if (dir != state.s.mDir) {
+                    moved = 1;
+                    state.s.mDir = dir == true;
+                }
+            }
+            if (moved != 0 || lbl_8087F540->m2448 != 0) {
+                state.s.mCount++;
+            } else {
+                state.s.mWait++;
+            }
+            if (state.s.mWait >= limit) {
+                state.s.mCount = state.s.mWait = 0;
+            }
+        }
+        if (state.s.mCount >= count) {
+            state.s.mDone = 1;
+        }
+        arg->m38 = state.mWord;
+        int keep = arg->GetParam_unk(6)->m04.i;
+        if (state.s.mDone == 1 && keep == 0) {
+            fn_8054136C(manager, arg->GetParam_unk(5)->m04.i);
+            return 1;
+        }
+        break;
+    }
     }
     return 0;
 }

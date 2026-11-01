@@ -87,7 +87,9 @@ struct EventManager_unk {
     };
     unsigned char m000[0x50];
     int m50; // inferred: kind of event (3: messages go to the HUD window)
-    unsigned char m054[0xB8 - 0x54];
+    unsigned char m054[0x98 - 0x54];
+    unsigned int m98; // inferred: flags (0x40000 cleared by the checks of Event::ActionCheck)
+    unsigned char m09C[0xB8 - 0x9C];
     CutEntry_unk* mB8; // 0xB8: inferred: cuts of the event
     int mBC;
     unsigned char mC0[0xD4 - 0xC0];

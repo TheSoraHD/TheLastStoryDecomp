@@ -14,6 +14,8 @@ struct RenderView_unk {
     Camera_unk mCamera; // 0x104
     unsigned char m2F8[4];
     NewCampScene2_unk* mScene; // 0x2FC: inferred: lights and cameras of the scene (atn/TextureDraw_unk.cpp)
+    unsigned char m300[0x54964 - 0x300];
+    int m54964; // inferred: set by Event::ActionCheck (type 1)
     void SetCamera_unk(const Camera_unk& camera) { mCamera = camera; } // inferred: name invented
 };
 
