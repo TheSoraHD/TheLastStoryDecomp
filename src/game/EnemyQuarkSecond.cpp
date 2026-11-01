@@ -264,7 +264,14 @@ extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); /
 // a body: its constants are in the pool of that unit, not in this one)
 extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg);
-extern "C" void fn_8023A254(EffectMgr_unk* mgr, atn::EfpFile* efp, int arg, float rate);
+namespace atn {
+// inferred: effect manager (atn/EffectManager.cpp); only the member called here is declared (as in
+// game/EnemyQuarkStand.cpp)
+class EffectManager {
+public:
+    void fn_8023A254(unsigned int owner, int group, float rate); // inferred: speed of the effects
+};
+} // namespace atn
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
                             const atn::Vector3& rot, int a, int b, int c, float scale);
 struct Color4f_unk {
@@ -426,7 +433,7 @@ void EnemyQuarkSecond::vf10() {
                 fn_800F7FA8(fn_800F7FA0(), &m1680, 0);
                 fn_8026607C(fn_800F7FA0(), &m1680, &mMotion, 1);
                 fn_8023A108(fn_800F7FA0(), &m1680, 0, 6);
-                fn_8023A254(fn_800F7FA0(), &m1680, 0, 0.5f);
+                ((atn::EffectManager*)fn_800F7FA0())->fn_8023A254((unsigned int)&m1680, 0, 0.5f);
             }
             mMotion.SetMotionSpeed(0, 0.5f);
             fn_8016E4C4(1);

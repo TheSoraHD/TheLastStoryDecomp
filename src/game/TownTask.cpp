@@ -1,3 +1,4 @@
+#include "game/MapPartsLocatorSet.h"
 #include "std/tree.h"
 #include "game/TownTask.h"
 #include "atn/Memory.h"
@@ -41,7 +42,6 @@ struct TownField_unk {
     int m553C;
 };
 extern "C" TownField_unk* lbl_8087F430;
-extern "C" void fn_8049B780(MapObject_unk* obj, void* arg);
 
 TownTask* lbl_8087FA20;
 
@@ -111,7 +111,7 @@ int TownTask::vf0C() {
     if (MapTask::vf0C() != 0) {
         for (MapObject_unk* obj = m70; obj != 0; obj = obj->mNext) {
             if (obj->mType == 4) {
-                fn_8049B780(obj, fn_800C16B4(lbl_8087EFB4));
+                ((MapPartsLocatorSet*)obj)->fn_8049B780(fn_800C16B4(lbl_8087EFB4)); // inferred: type 4 is a locator set
             }
         }
         return 1;
