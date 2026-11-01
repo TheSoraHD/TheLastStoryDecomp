@@ -179,10 +179,15 @@ public:
 
 class ControlThrown : public ControlBase {
 public:
-    ControlThrown(Chara_unk* chara, const atn::Vector3& dir, int a); // 0x80198C08
+    ControlThrown(Chara_unk* chara, const atn::Vector3& target, int frames); // 0x80198C08
     virtual int vf0C();
     virtual atn::Vector3 vf14();
-    unsigned char m08[0x30 - 0x08];
+    atn::Vector3 mTarget; // 0x08
+    atn::Vector3 mVel;    // 0x14
+    int mFrames;          // 0x20
+    int mState;           // 0x24
+    int mCount;           // 0x28: inferred: swings left
+    int mDone;            // 0x2C
 };
 
 class ControlThrownAway : public ControlBase {

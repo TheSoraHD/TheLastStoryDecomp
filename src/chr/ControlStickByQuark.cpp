@@ -7,6 +7,7 @@
 #include "game/Em302Kraken.h"
 #include "atn/Memory.h"
 #include "game/GameUI.h"
+#include "game/GimmickCommon.h"
 #include <boost/bind.hpp>
 
 
@@ -17,7 +18,9 @@ struct Input_unk {
 };
 
 struct Unk_8087F0A8 {
-    unsigned char m000[0x48C];
+    unsigned char m000[0x30];
+    int mFps; // 0x30: inferred: frame rate
+    unsigned char m034[0x48C - 0x34];
     Input_unk mInput; // 0x48C
 };
 
@@ -96,11 +99,7 @@ struct Damage_unk {
 };
 extern "C" void fn_80108C10(Effect_unk* effect, Damage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* chara, int b, int c);
-// inferred: game settings behind lbl_8087F0A8 (the frame rate at 0x30)
-struct Settings_unk {
-    unsigned char m00[0x30];
-    int mFps;
-};
+
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 
 // inferred: HUD hint request (as ZanUIHint_unk of game/Em201ZanGurgFinal.cpp)
@@ -1090,7 +1089,7 @@ int ControlMatHoldDamage::vf0C() {
     CharaTask* c = mChara;
     Motion_unk* m = &c->mMotion;
     if (m->mTracks[0].m08 < 64.0f) {
-        int fps = ((Settings_unk*)lbl_8087F0A8)->mFps;
+        int fps = lbl_8087F0A8->mFps;
         atn::Vector3 move(0.0f, -98.1f / (float)(fps * fps), -0.46875f);
         atn::Matrix3x4 rot;
         rot.SetIdentity();
@@ -1121,6 +1120,107 @@ int ControlMatHoldDamage::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// NONMATCHING: 89.6% - copies of the direction vector and the order of the velocity products
+// inferred: thrown by the mat towards `target` (control id 0x71), landing after `frames` frames
+ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int frames)
+    : ControlBase(chara), mTarget(target), mFrames(frames), mCount(15), mDone(0) {
+    chara->SetControlId_unk(0x71);
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->mFlag5) {
+        mChara->mFlag5 = 0;
+    }
+    float n = (float)frames;
+    mVel = (mTarget - mChara->mPos) * (1.0f / n);
+    mVel.y -= 0.5f * (n * (0.5f * (-98.1f / (float)(lbl_8087F0A8->mFps *
+                                                     lbl_8087F0A8->mFps))));
+    atn::Vector3 dir = mTarget - mChara->mPos;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    mChara->mRot = dir.ToRotation_unk();
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
+    if (mChara->m1208) {
+        m->fn_80097C08(0, 0x221, 1, 0, 1, 0.0f, 0.1f);
+        mState = 0;
+    } else {
+        m->fn_80097C08(0, 0x220, 1, 0, 1, 0.0f, 0.1f);
+        mState = 1;
+    }
+    if (lbl_8087F498 != 0) {
+        fn_803EA77C(lbl_8087F498, mChara, 0x10, 0, 1.0f, 10.0f);
+    }
+}
+
+// NONMATCHING: 92.3% - flight, then landing (the player can shake the remote to land on his feet)
+int ControlThrown::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    mChara->mPos = mChara->mPos + mVel;
+    int fps = lbl_8087F0A8->mFps;
+    mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
+    mFrames--;
+    switch (mState) {
+    case 0:
+        if (mFrames < 0) {
+            if (mChara->m1208) {
+                GimmickCommon* gimmick = (GimmickCommon*)mChara->m1208;
+                mChara->fn_801750FC();
+                GimmickMsg_unk msg(6);
+                msg.mVec = mTarget;
+                msg.m04 = 1;
+                gimmick->vf40(&msg);
+            }
+            return 1;
+        }
+        break;
+    case 1:
+        if (mChara->mType == 0 && mCount > 0 && mFrames > 30) {
+            lbl_8087F490->m728 = 1;
+            if (lbl_8087F0A8->mInput.fn_8012476C(0x22)) {
+                mCount--;
+            }
+            if (mCount <= 0) {
+                mDone = 1;
+            }
+        }
+        if (mDone && m->mTracks[0].m08 >= 30.0f) {
+            m->m34C = 1;
+            m->mTracks[0].m20 = 1.0f;
+            m->mTracks[0].m0C = 1.0f;
+            m->fn_80097C08(0, 0x222, 0, 0, 1, 0.0f, 0.1f);
+            mState = 2;
+        }
+        break;
+    case 2:
+        if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+            m->m34C = 1;
+            m->mTracks[0].m20 = 1.0f;
+            m->mTracks[0].m0C = 1.0f;
+            m->fn_80097C08(0, 0x68, 1, 0, 1, 0.0f, 0.1f);
+            mState = 3;
+        }
+        break;
+    case 3:
+        if (mFrames < 0) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
+
+// NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
+atn::Vector3 ControlThrown::vf14() {
+    return mTarget;
 }
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
