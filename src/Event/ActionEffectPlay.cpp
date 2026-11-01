@@ -16,6 +16,7 @@
 #include "atn/SoundManager.h"
 #include "game/ColliAttrManager.h"
 #include "game/SongManager.h"
+#include "game/GameConfig_unk.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -180,8 +181,21 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" void fn_800CB654(atn::SoundRef* sound, float a, float b, float c); // inferred: 3D parameters
 extern "C" void fn_800CB668(atn::SoundRef* sound, int mode);                    // inferred: loop
 
+extern "C" GameConfig_unk* lbl_8087F0A8;
+// inferred: starts the movie of the event (name, fade frames, the BGM is stopped...)
+extern "C" void fn_804881B8(EventEffects_unk* mgr, Event::EventManager_unk* manager, const char* name, int fade,
+                            int stopBgm, int a, int b, int c, float volume, int d, int flags);
+namespace Event {
+struct MovieState_unk;
+}
+extern "C" void fn_8048E9A4(EventEffects_unk* mgr, Event::MovieState_unk* movie, int frames);
+extern "C" void fn_8048EC7C(EventEffects_unk* mgr); // inferred: ends the movie
+extern "C" int fn_800CB4A4(atn::SoundRef* sound);   // inferred: sound state flags
+extern "C" int fn_803CE160(int a, int b, int c);
+
 struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
 extern "C" GameVars_unk* lbl_8087F430;
+extern "C" void fn_80370B78(GameVars_unk* game, int color, int frames, int arg, float speed); // inferred: fade
 extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred: value of a variable
 extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
 
@@ -226,9 +240,25 @@ inline AnimEntry_unk* FindAnim_unk(EventManager_unk* manager, int id) {
 }
 
 // inferred: movie of the event (found by id)
+// inferred: movie player (only the virtual and the members used here)
 struct MovieState_unk {
-    unsigned char m00[0x08];
-    int m08; // inferred: 2 when finished
+    virtual void vf08();
+    virtual void vf0C();
+    virtual void vf10();
+    virtual void vf14();
+    virtual void vf18();
+    virtual void vf1C();
+    virtual void vf20();
+    virtual void vf24();
+    virtual void vf28();
+    virtual void vf2C();
+    virtual void vf30();
+    virtual void vf34();
+    virtual void vf38();
+    virtual void vf3C(int frames, float volume); // inferred: starts the playback (fade in)
+    int m04;
+    int m08; // inferred: 2 when finished, 4 paused
+    int m0C; // inferred: loop
 };
 struct MovieRes_unk {
     unsigned char m00[0x4C];
@@ -1067,6 +1097,82 @@ int ActionMultiAudio::vf08(Action* arg) {
         if (busy) {
             return 3;
         }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.3% - registers of the id and the entry, the BGM sound is tested through lwzu, and the
+// 1.0f of phase 2 is loaded before the virtual (tried the entry declared first)
+int ActionMoviePlay::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(0)->m04.i;
+        int loop = arg->GetParam_unk(2)->m04.i;
+        float volume = arg->GetParam_unk(3)->m04.f;
+        MovieEntry_unk* entry = FindMovie_unk(manager, id);
+        MovieState_unk* movie = entry != 0 ? entry->m18->m4C : 0;
+        if (movie != 0) {
+            if (loop != 0) {
+                movie->m0C = 1;
+            } else {
+                movie->m0C = 0;
+            }
+            movie->vf3C(arg->m18, volume);
+            int stopBgm = 1;
+            GameBgm* bgm = GameBgm::sInstance;
+            if (bgm != 0) {
+                int next = bgm->m84 != 0 ? bgm->mNext.mId : bgm->mReq.mId;
+                if (next > 0 && bgm->mCur != 0 && bgm->mCur->mSound.mPtr != 0 &&
+                    fn_800CB4A4(&bgm->mCur->mSound) == 0 && fn_803CE160(0, 0, 0) == 0) {
+                    stopBgm = 0;
+                }
+            }
+            if (manager->m190 == 0x151F) {
+                stopBgm = 0;
+            }
+            fn_804881B8(lbl_8087F540, manager, "", 10, stopBgm, 1, 1, 1, 1.0f, 1, 0x400000);
+            if (manager->m190 == 0x5E6 && GameBgm::sInstance != 0) {
+                if (GameBgm::sInstance->mCur != 0) {
+                    GameBgm::sInstance->mCur->fn_8004B1EC(0);
+                }
+                if (GameBgm::sInstance->mPrev != 0) {
+                    GameBgm::sInstance->mPrev->fn_8004B1EC(0);
+                }
+            }
+        }
+        fn_8048E9A4(lbl_8087F540, movie, 10);
+        break;
+    }
+    case 2:
+        if (arg->m1C > 0) {
+            EventManager_unk* manager = arg->fn_805381C8();
+            MovieEntry_unk* entry = FindMovie_unk(manager, arg->GetParam_unk(0)->m04.i);
+            if (entry != 0 && entry->m18->m4C != 0) {
+                entry->m18->m4C->vf3C(arg->m1C, 1.0f);
+            }
+        }
+        break;
+    case 3:
+    case 4:
+    case 5: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        MovieEntry_unk* entry = FindMovie_unk(manager, arg->GetParam_unk(0)->m04.i);
+        if (entry != 0) {
+            MovieState_unk* movie = entry->m18->m4C;
+            if (movie != 0 && movie->m08 == 4) {
+                movie->m08 = 1;
+            }
+        }
+        fn_8048EC7C(lbl_8087F540);
+        if (lbl_8087F0A8->m194 != 0 && manager->m190 == 0x19D) {
+            fn_80370B78(lbl_8087F430, -1, 0, 0, 1.0f);
+            manager->fn_8053E8C8(11);
+        } else {
+            manager->fn_8053E8C8(13);
+        }
+        break;
+    }
     }
     return 0;
 }

@@ -1,5 +1,6 @@
 #include "game/SetConfig.h"
 #include "Event/Cut.h"
+#include "Event/Behavior.h"
 
 extern "C" int fn_805510F8();
 extern "C" int fn_80551100();
@@ -18,7 +19,6 @@ extern "C" void fn_8047F850(void* object, int start, int colorStart, int colorEn
 extern "C" void fn_8047F88C(void* object, int frame);
 extern "C" void fn_8047F994(void* object, int arg1, int arg2);
 extern "C" void fn_8047F984(void* object, float value);
-extern "C" void fn_8053E8C8(void* self, int state);
 extern "C" int fn_8054011C(void* self);
 extern "C" void* fn_80541210(void* self);
 extern "C" int fn_8010DB54(int eventId);
@@ -78,13 +78,13 @@ extern "C" void fn_8054F9DC(void* self) {
         if (fn_8054011C(self)) {
             *reinterpret_cast<float*>(bytes + 0x198) = lbl_80887E20;
             *reinterpret_cast<float*>(bytes + 0x19C) = lbl_80887E20;
-            fn_8053E8C8(self, 9);
+            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(9);
         } else {
-            fn_8053E8C8(self, 6);
+            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(6);
             flags |= 0x00100000;
         }
     } else if (state == 12) {
-        fn_8053E8C8(self, 10);
+        static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(10);
     }
     *reinterpret_cast<unsigned int*>(bytes + 0x38) &= ~2u;
     fn_8047F984(lbl_8087F540, lbl_80887E24);
@@ -94,7 +94,7 @@ extern "C" void fn_8054FFE0(void* self);
 
 extern "C" void fn_8054FAD4(void* self) {
     if (*reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x194) == 10) {
-        fn_8053E8C8(self, 11);
+        static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(11);
     }
     fn_8047F984(lbl_8087F540, lbl_80887E20);
 }
@@ -108,12 +108,12 @@ extern "C" void fn_8054FB10(void* self, int mark) {
         *reinterpret_cast<float*>(bytes + 0x198) = lbl_80887E20;
         *reinterpret_cast<float*>(bytes + 0x19C) = lbl_80887E20;
         *reinterpret_cast<int*>(bytes + 0x1A4) = -1;
-        fn_8053E8C8(self, 7);
+        static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(7);
     } else if (state == 14) {
         *reinterpret_cast<float*>(bytes + 0x198) = lbl_80887E20;
         *reinterpret_cast<float*>(bytes + 0x19C) = lbl_80887E20;
         *reinterpret_cast<int*>(bytes + 0x1A4) = -1;
-        fn_8053E8C8(self, 14);
+        static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(14);
     }
     fn_8047F984(lbl_8087F540, lbl_80887E24);
     if (mark != 0) {
@@ -402,9 +402,9 @@ extern "C" void fn_80550254(void* self) {
         } else if (lbl_8087F0A8 != 0 && *reinterpret_cast<int*>(static_cast<unsigned char*>(lbl_8087F0A8) + 0x194) != 0 &&
                    *reinterpret_cast<int*>(object + 0x190) == 0x19D) {
             fn_80370B78(lbl_8087F430, -1, lbl_80887E20, 0, 0);
-            fn_8053E8C8(self, 11);
+            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(11);
         } else {
-            fn_8053E8C8(self, 13);
+            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(13);
         }
     }
     *reinterpret_cast<float*>(object + 0x19C) = time;
@@ -586,7 +586,7 @@ extern "C" void fn_80550CE0(void* self) {
             *reinterpret_cast<int*>(object + 0x1B0) = 0;
         }
     }
-    fn_8053E8C8(self, 13);
+    static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(13);
 }
 
 // The short status helpers are kept here in address order while the behaviour dispatchers are

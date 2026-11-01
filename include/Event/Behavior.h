@@ -78,6 +78,7 @@ struct EventManager_unk {
 
     // inferred: rotates `v` by the yaw at 0xB4 (0x80541C94 in Event/Sequence)
     atn::Vector3 fn_80541C94(const atn::Vector3& v);
+    void fn_8053E8C8(int state); // inferred: sets the state (0x194)
 
     // inferred: cut list entry (the cut and a second word)
     struct CutEntry_unk {
