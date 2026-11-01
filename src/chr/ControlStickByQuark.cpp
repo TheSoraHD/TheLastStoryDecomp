@@ -959,6 +959,44 @@ int ControlMatHoldPre::vf0C() {
     return 0;
 }
 
+// inferred: held by the mat (control id 0x6E); the player shakes the remote 20 times to break free
+ControlMatHold::ControlMatHold(Chara_unk* chara, int mtx) : ControlBase(chara), mMtx(mtx), mCount(20) {
+    chara->m58C = 0;
+    mChara->SetControlId_unk(0x6E);
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    Motion_unk* m = &mChara->mMotion;
+    mChara->mF1C = mMtx;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
+    m->fn_80097C08(0, 0x21D, 1, 0, 1, 0.0f, 0.1f);
+}
+
+int ControlMatHold::vf0C() {
+    if ((mChara->mStatus.m0C & 0x20) == 0x20) {
+        mChara->mF1C = 0;
+        mChara->vf44();
+        return 1;
+    }
+    if (mChara->mType == 0) {
+        lbl_8087F490->m738 = 1;
+        if (mCount > 0 && lbl_8087F0A8->mInput.fn_801231D0(0)) {
+            mCount--;
+        }
+    }
+    if (mCount <= 0) {
+        vf1C();
+        return 1;
+    }
+    return 0;
+}
+
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it

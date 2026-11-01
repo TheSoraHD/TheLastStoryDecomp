@@ -157,11 +157,12 @@ public:
 
 class ControlMatHold : public ControlBase {
 public:
-    ControlMatHold(Chara_unk* chara, int a); // 0x801978C0
+    ControlMatHold(Chara_unk* chara, int mtx); // 0x801978C0
     virtual int vf0C();
     virtual boost::function<void()> vf10();
     virtual void vf1C();
-    unsigned char m08[0x10 - 0x08];
+    int mMtx;   // 0x08: inferred: node matrix of the mat (copied to CharaTask::mF1C)
+    int mCount; // 0x0C: inferred: swings left
 };
 
 class ControlMatHoldRelease : public ControlBase {
