@@ -29,6 +29,14 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+extern "C" const char* fn_800EFE3C(int id); // inferred: start sound of a skill effect
+extern "C" const char* fn_800EFEA0(int id); // inferred: loop sound of a skill effect
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
+extern "C" void* lbl_8087EE98; // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
+extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: places a ground effect
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
@@ -153,6 +161,110 @@ void SkillEffect::fn_805991E0() {
     mCallback.clear();
 }
 
+// NONMATCHING: 94.6% - stack slots of the sphere/light temporaries, argument scheduling of the effect
+// calls, the bool test of fn_8059A298 and the matrices of RotateZYX_unk (as fn_805989A4)
+void SkillEffect::fn_80599454(int pause) {
+    if (m00 == 0) {
+        m00 = 1;
+        atn::EfpFile* efp = fn_800EFC64(m04->mB0);
+        float scale = fn_80599FB4(1);
+        switch ((char)m04->m02) {
+        case 0:
+        case 1:
+        case 2:
+        case 6:
+        case 8:
+        case 9:
+            if (efp != 0) {
+                MapColor_unk light = MapManager::sInstance->fn_80491D50(atn::Sphere(m0C->mPos, 10.0f));
+                fn_80232B7C(this, m04->m04);
+                fn_8023A8B4(lbl_8087F3C0, efp, m0C->GetModel_unk(), 0, lbl_807C7030, lbl_807C7030, light, -1, -1, 1,
+                            scale);
+            }
+            break;
+        case 4:
+            if (efp != 0) {
+                MapColor_unk light = MapManager::sInstance->fn_80491D50(atn::Sphere(m0C->mPos, 10.0f));
+                fn_80232B7C(this, m04->m04);
+                fn_8023A8B4(lbl_8087F3C0, efp, m0C->GetModel_unk(), 0, lbl_807C7030, lbl_807C7030, light, -1, -1, 1,
+                            scale);
+            }
+            break;
+        case 3:
+        case 5:
+            if (!fn_8059A298(&m10, &m1C, (char)m04->m02 == 5)) {
+                fn_805991E0();
+                return;
+            }
+            if (efp != 0) {
+                MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(m10, 10.0f));
+                fn_80232B7C(this, m04->m04);
+                fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, m10, m1C, light, -1, -1, 1, scale);
+            }
+            break;
+        case 7:
+            break;
+        }
+        const char* start = fn_800EFE3C(m04->mB0);
+        const char* loop = fn_800EFEA0(m04->mB0);
+        fn_800C344C(start, &m10, 0, -1, 1.0f);
+        m64 = fn_800C344C(loop, &m10, 0, -1, 1.0f);
+    } else if (m00 == 1) {
+        if (pause == 0) {
+            int life = m04->m5C;
+            if (m13C) {
+                life = m80.m5C;
+            }
+            if (life >= 0) {
+                if (m60 >= life) {
+                    m00 = 2;
+                } else {
+                    m60++;
+                }
+            }
+            if (m04->m04 == 6004 || m04->m04 == 6047) {
+                if (m08 != 0 && (m08->mFlags & 4) == 4) {
+                    m00 = 2;
+                }
+                if (m0C != 0 && (m0C->mFlags & 4) == 4) {
+                    m00 = 2;
+                }
+            } else {
+                if (m08 != 0 && !m08->CanAct_unk()) {
+                    m00 = 2;
+                }
+                if (m0C != 0 && !m0C->CanAct_unk()) {
+                    m00 = 2;
+                }
+            }
+            char kind = m04->m02;
+            if (kind == 5 || kind == 3) {
+                atn::Vector3 from = m10 + atn::Vector3(0.0f, 10.0f, 0.0f);
+                atn::Vector3 to = m10 + atn::Vector3(0.0f, -12.0f, 0.0f);
+                if (!fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0)) {
+                    m00 = 2;
+                }
+            }
+            if (m0C != 0 && (char)m04->m02 == 0) {
+                m10 = m0C->mPos;
+                m1C = m0C->mRot;
+                fn_800CB6E4(&m64, &m10);
+            }
+            if (m08 != 0 && m04->m02 == 4) {
+                m10 = m08->mPos;
+                m1C = m08->mRot;
+                fn_800CB6E4(&m64, &m10);
+            }
+        }
+    } else if (m00 == 2) {
+        fn_805991E0();
+        return;
+    }
+    m2C.SetIdentity();
+    m2C.RotateZYX_unk(m1C);
+    m2C.fn_801479E4(m10);
+}
+
 void SkillEffect::fn_80599C6C() {
     if (!IsActive_unk()) {
         return;
@@ -214,7 +326,7 @@ float SkillEffect::fn_80599FB4(int keep) {
     if (!keep || (15.0f <= m5C && m5C <= 150.0f)) {
         scale = m5C / 15.0f;
     }
-    return m28 * scale;
+    return scale * m28;
 }
 
 void SkillEffect::fn_80599FFC(const atn::Vector3* pos) {

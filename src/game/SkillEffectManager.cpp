@@ -46,7 +46,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 
 // inferred: methods of SkillEffect in the auto split before this file
 // inferred: starts it
-extern "C" void fn_80599454(SkillEffect* bullet, int arg);            // inferred: update
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: reflection test
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0; // inferred: effect manager of the efp files
@@ -249,7 +248,7 @@ int SkillEffectManager::fn_8059B1B4() {
 void SkillEffectManager::vf10() {
     SkillEffect* bullets = mBullets;
     for (int i = 0; i < 32; i++) {
-        fn_80599454(&bullets[i], m2928);
+        bullets[i].fn_80599454(m2928);
     }
     PlayerTask* player = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
     if (player != 0 && player->mStatus.m04 < 0.3f * player->mStatus.mParamB.m84) {

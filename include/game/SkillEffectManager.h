@@ -22,6 +22,7 @@ struct SkillEffect {
     void fn_805989A4(HitInfo_unk* skill, CharaTask* user, CharaTask* target, const atn::Vector3* pos,
                      const atn::Vector3* rot, boost::function<void(SkillEffect*)> callback, float rate);
     void fn_805991E0();        // inferred: stops it (runs the callback)
+    void fn_80599454(int pause); // inferred: update
     void fn_80599C6C();        // inferred: draw (empty in this build)
     int fn_80599C90(CharaTask* chara); // inferred: the effect can reach `chara`
     int fn_80599D60(CharaTask* chara, int check); // inferred: the effect touches `chara`
