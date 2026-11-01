@@ -239,11 +239,11 @@ void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
 
 // inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
 // 7 screen fade), phase 2 fades the screen back and phase 3 restores the settings
-// NONMATCHING: 99.2% - stack slots (the bloom copy and the conversion temporaries 8 bytes higher, the
-// damage reset local lower). The haze vectors and the bloom color are filled member by member: with
-// the constructors the function goes over the inlining budget (docs/inlining.md R3) and GetParam_unk
-// is called out of line (32%). The bias/scale loops and the kernel array give the unrolled checks and
-// the word copy of the original
+// NONMATCHING: 99.4% - stack slots of the temporaries (colors, rain, damage copies: other order; the
+// haze uses one vector temporary for all its pairs). The haze vectors and the bloom color are filled
+// member by member: with the constructors the function goes over the inlining budget (docs/inlining.md
+// R3) and GetParam_unk is called out of line (32%). The bias/scale loops and the kernel array give the
+// unrolled checks and the word copy of the original
 int ActionCameraEffect::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0:
@@ -324,17 +324,16 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             HazeParam_unk haze;
             haze.mEnabled = arg->GetParam_unk(1)->m04.i;
             haze.mWarp = arg->GetParam_unk(2)->m04.f;
-            atn::Vector2_unk scale;
-            scale.x = arg->GetParam_unk(3)->m04.f;
-            scale.y = arg->GetParam_unk(4)->m04.f;
-            if (scale.x <= 0.0f) {
-                scale.x = 0.01f;
-            }
-            if (scale.y <= 0.0f) {
-                scale.y = 0.01f;
-            }
-            haze.mScale = scale;
             atn::Vector2_unk v;
+            v.x = arg->GetParam_unk(3)->m04.f;
+            v.y = arg->GetParam_unk(4)->m04.f;
+            if (v.x <= 0.0f) {
+                v.x = 0.01f;
+            }
+            if (v.y <= 0.0f) {
+                v.y = 0.01f;
+            }
+            haze.mScale = v;
             v.x = arg->GetParam_unk(5)->m04.f;
             v.y = arg->GetParam_unk(6)->m04.f;
             haze.mScroll = v;
