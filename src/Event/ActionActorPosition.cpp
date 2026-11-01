@@ -29,6 +29,19 @@ struct EventStep_unk {
 
 extern "C" Event::EventStep_unk* lbl_8087F540;
 
+// NONMATCHING: 99.7% - the quotient is in f1 here, f0 in the original (tried several groupings)
+// inferred: scales a displacement to the part covered in one step of the event (`frames` left)
+void ScaleStep_unk(atn::Vector3& v, float frames) {
+    float len = PSVECMag(&v);
+    if (len > 0.0f) {
+        float scale = (len / frames) * lbl_8087F540->mB4;
+        PSVECNormalize(&v, &v);
+        v.x *= scale;
+        v.y *= scale;
+        v.z *= scale;
+    }
+}
+
 namespace Event {
 
 class ActionActorPosition : public ActionProcessor, public atn::SingletonNoStatic<ActionActorPosition> {
