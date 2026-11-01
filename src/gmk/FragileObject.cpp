@@ -15,10 +15,7 @@ extern "C" int atoi(const char* s);
 extern "C" double sqrt(double x);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" int fn_80208748(const char* name); // inferred: character type from its id string
 extern "C" void fn_80092A00(atn::Model* model, float blend); // inferred: light map blend
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -368,26 +365,26 @@ void FragileObject::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL_BEFORE") == 0) {
-            fn_8008AD4C(&mModelBefore, csv.fn_8005B9CC(), 0);
+            mModelBefore.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModelBefore, &csv);
         } else if (strcmp(field, "MODEL_LOD_BEFORE") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80092F1C(&mModelBefore, path, 0, fn_800DC288(csv.fn_8005B9CC()));
+            mModelBefore.fn_80092F1C(path, 0, fn_800DC288(csv.fn_8005B9CC()));
         } else if (strcmp(field, "MODEL_AFTER") == 0) {
-            fn_8008AD4C(&mModelAfter, csv.fn_8005B9CC(), 0);
+            mModelAfter.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModelAfter, &csv);
         } else if (strcmp(field, "MODEL_LOD_AFTER") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80092F1C(&mModelAfter, path, 0, fn_800DC288(csv.fn_8005B9CC()));
+            mModelAfter.fn_80092F1C(path, 0, fn_800DC288(csv.fn_8005B9CC()));
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80097A88(&mModelAfter, fn_802180A8(csv.fn_8005B9CC()), path);
+            mModelAfter.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(field, "MOTION_BEFORE") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80097A88(&mModelBefore, fn_802180A8(csv.fn_8005B9CC()), path);
+            mModelBefore.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(field, "MOTION_WAIT") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80097A88(&mModelBefore, fn_802180A8(csv.fn_8005B9CC()), path);
+            mModelBefore.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(field, "COLLISION_BEFORE") == 0) {
             mColliBeforeFrame = fn_800DC288(csv.fn_8005B9CC());
             mColliBefore.fn_80058078(csv.fn_8005B9CC());

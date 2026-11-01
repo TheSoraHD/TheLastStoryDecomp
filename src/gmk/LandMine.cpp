@@ -8,7 +8,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -85,7 +84,7 @@ void LandMine::vf20() {
         } else if (strcmp(field, "EFP_WAIT") == 0) {
             mEfpWait.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MODEL") == 0) {
-            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            mModel.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel, &csv);
             mHasModel = 1;
         } else if (strcmp(field, "COLLI_RADIUS") == 0) {

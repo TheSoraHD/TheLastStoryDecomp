@@ -6,7 +6,6 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -122,7 +121,7 @@ CostumeEditChara::CostumeEditChara(atn::Task* parent, CharaTask* chara, int face
     if (chara == 0) {
         (mFaceIcon = (CostumeEditFace_unk*)fn_801F64D0(this, "data/d2anime/equip_face.d2a"))->fn_800D246C(1);
     }
-    fn_8008AD4C(&mShadow, "/map/cosedit/hk_shadow1.model", 0);
+    mShadow.fn_8008AD4C("/map/cosedit/hk_shadow1.model", 0);
 }
 
 CostumeEditChara::~CostumeEditChara() {}

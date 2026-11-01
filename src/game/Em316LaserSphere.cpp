@@ -36,7 +36,6 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
                             float step);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: control of a character caught by the tackle (only m4C, set to end it); name invented
@@ -164,7 +163,7 @@ Em316LaserSphere::Em316LaserSphere(atn::Task* parent, EnemyInfo_unk* info)
     m159C.LoadRequest("ef_sk043g_01.eff");
     m15A8.LoadRequest("ef_sk043g_02.eff");
     for (int i = 0; i < 3; i++) {
-        fn_8008AD4C((atn::Model*)&m1648[i], "em316_00_bs00.model", 0);
+        ((atn::Model*)&m1648[i])->fn_8008AD4C("em316_00_bs00.model", 0);
     }
     mFlag21 = 1;
 }

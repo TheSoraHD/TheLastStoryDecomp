@@ -14,8 +14,6 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" atn::Matrix3x4 lbl_807C7060;
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
-extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance); // inferred: LOD    // inferred: identity matrix
 
 extern "C" ArmsData_unk* fn_80206B14(int arg, int item);     // inferred: equipment data
 extern "C" ArmsEffect_unk* fn_802072AC(int arg, int item);   // inferred: effect data of the equipment
@@ -113,16 +111,16 @@ void Arms::fn_8004439C() {
             strcpy(path, csv.fn_8005B9CC());
             strcpy(node, csv.fn_8005B9CC());
             if (strcmp(node, "") == 0) {
-                fn_8008AD4C(GetModel_unk(), path, 0);
+                GetModel_unk()->fn_8008AD4C(path, 0);
             } else {
-                fn_8008AD4C(GetModel_unk(), path, node);
+                GetModel_unk()->fn_8008AD4C(path, node);
             }
         } else if (strcmp(field, "MODEL_LOD") == 0) {
             strcpy(path, csv.fn_8005B9CC());
             if (strcmp(node, "") == 0) {
-                fn_80092F1C(GetModel_unk(), path, 0, fn_800DC288(csv.fn_8005B9CC()));
+                GetModel_unk()->fn_80092F1C(path, 0, fn_800DC288(csv.fn_8005B9CC()));
             } else {
-                fn_80092F1C(GetModel_unk(), path, node, fn_800DC288(csv.fn_8005B9CC()));
+                GetModel_unk()->fn_80092F1C(path, node, fn_800DC288(csv.fn_8005B9CC()));
             }
         } else if (strcmp(field, "ROTATION") == 0) {
             m258.x = fn_800DC288(csv.fn_8005B9CC());

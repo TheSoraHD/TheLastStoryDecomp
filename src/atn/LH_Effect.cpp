@@ -11,7 +11,6 @@ extern "C" void fn_8022D754(void* entry);                   // inferred: prepare
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" std::string fn_8006D008(const std::string& a, const char* b); // inferred: a + b
 extern "C" void fn_8006AD24(std::string& path, const std::string& dir); // inferred
-extern "C" void fn_8008AD4C(void* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path);        // inferred: loads a texture
 
 // inferred: fn_800D59B8 is a member of the texture class (it follows its constructor), declared for
@@ -146,9 +145,9 @@ void LoadEffect::vf0C() {
             EffectModel_unk* model = new ((MemoryTag)7, "", "", 0) EffectModel_unk(0x2000001);
             if (strcmp(entry->mTexture, "") != 0) {
                 std::string texture = fn_8006D008(fn_8006D008(dir, "/"), entry->mTexture);
-                fn_8008AD4C(model, name.c_str(), texture.c_str());
+                ((atn::Model*)model)->fn_8008AD4C(name.c_str(), texture.c_str());
             } else {
-                fn_8008AD4C(model, name.c_str(), 0);
+                ((atn::Model*)model)->fn_8008AD4C(name.c_str(), 0);
             }
             mData.mObjects[i] = model;
         } else if (entry->mType == 2) {

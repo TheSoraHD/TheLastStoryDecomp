@@ -16,8 +16,6 @@ extern "C" double sqrt(double x);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: debug settings
 struct BatDebug_unk {
@@ -268,9 +266,9 @@ void Bat::vf20() {
     } while (csv.fn_8005BBF8() != 0);
     mBats.Resize_unk(mNum, 0);
     for (i = 0; i < mNum; i++) {
-        fn_8008AD4C(&mBats.mData[(unsigned int)i].mModel, model, 0);
-        fn_80097A88(&mBats.mData[(unsigned int)i].mModel, 0, path);
-        fn_80097A88(&mBats.mData[(unsigned int)i].mModel, 1, name);
+        (&mBats.mData[(unsigned int)i].mModel)->fn_8008AD4C(model, 0);
+        (&mBats.mData[(unsigned int)i].mModel)->fn_80097A88(0, path);
+        (&mBats.mData[(unsigned int)i].mModel)->fn_80097A88(1, name);
     }
 }
 

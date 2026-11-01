@@ -11,7 +11,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" float fn_800DC288(const char* s);  // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" void fn_80097CCC(atn::Model* model, int track, float value);   // inferred: stops a track
 extern "C" void fn_8032AF90(gmk::PathData_unk* path, std::vector<atn::Vector3>* points); // inferred: builds the path
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -260,9 +259,9 @@ void CharaPathMove::vf6C(void* menu) {
 
 void PathChara_unk::fn_8043E6B0(const char* motion, float speed, std::vector<std::string>* uppers) {
     if (mChara != 0) {
-        fn_80097A88(&mChara->mMotion, 0x13F, motion);
+        mChara->mMotion.fn_80097A88(0x13F, motion);
         for (unsigned int i = 0; i < uppers->size(); i++) {
-            fn_80097A88(&mChara->mMotion, 0xEF + i, (*uppers)[i].data());
+            mChara->mMotion.fn_80097A88(0xEF + i, (*uppers)[i].data());
         }
     }
     mSpeed = speed;

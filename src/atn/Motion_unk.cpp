@@ -30,8 +30,6 @@ std::basic_string<char> fn_8006B0C8(const std::basic_string<char>& path);
 
 extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
 
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node);
-extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance);
 extern "C" void fn_80095CD0(atn::Model* model); // inferred: update
 
 // inferred: map model loaded from a csv list (0x22C bytes; created by fn_8009F788). Names invented.
@@ -133,18 +131,18 @@ extern "C" void fn_800A005C(MapModel_unk* model) {
             sprintf(path, "%s/%s", folder.c_str(), csv.fn_8005B9CC());
             const char* node = csv.fn_8005B9CC();
             if (strcmp(node, "") == 0) {
-                fn_8008AD4C(model->mModel.GetModel_unk(), path, 0);
+                (model->mModel.GetModel_unk())->fn_8008AD4C(path, 0);
             } else {
                 char nodePath[0x100];
                 sprintf(nodePath, "%s/%s", folder.c_str(), node);
-                fn_8008AD4C(model->mModel.GetModel_unk(), path, nodePath);
+                (model->mModel.GetModel_unk())->fn_8008AD4C(path, nodePath);
             }
         } else if (strcmp(key, "MODEL_LOD") == 0) {
             char path[0x100];
             sprintf(path, "%s/%s", folder.c_str(), csv.fn_8005B9CC());
             char nodePath[0x100];
             sprintf(nodePath, "%s/%s", folder.c_str(), csv.fn_8005B9CC());
-            fn_80092F1C(model->mModel.GetModel_unk(), path, nodePath, scale * fn_800DC288(csv.fn_8005B9CC()));
+            (model->mModel.GetModel_unk())->fn_80092F1C(path, nodePath, scale * fn_800DC288(csv.fn_8005B9CC()));
         }
     } while (csv.fn_8005BBF8() != 0);
 }

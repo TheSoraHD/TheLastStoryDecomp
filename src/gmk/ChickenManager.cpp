@@ -8,8 +8,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
@@ -458,9 +456,9 @@ int ChickenManager::vf0C() {
         if (!mLoaded) {
             for (int i = 0; i < mCount; i++) {
                 mChickens[i].mOwner = this;
-                fn_8008AD4C(&mChickens[i].mModel, mModelName, 0);
+                (&mChickens[i].mModel)->fn_8008AD4C(mModelName, 0);
                 for (int j = 0; j < 3; j++) {
-                    fn_80097A88(&mChickens[i].mModel, mMotionId[j], mMotionName[j]);
+                    (&mChickens[i].mModel)->fn_80097A88(mMotionId[j], mMotionName[j]);
                 }
                 atn::Vector3 center = mCenter;
                 mChickens[i].mCenter = center;

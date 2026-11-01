@@ -26,10 +26,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: camera (lbl_8087EFB4) and field (lbl_8087F430); classes unknown
 struct WaitCamera_unk {
     unsigned char m00[0x10C];
@@ -284,14 +281,14 @@ void WaitObject::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL") == 0) {
-            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            mModel.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel, &csv);
         } else if (strcmp(field, "MODEL_LOD") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80092F1C(&mModel, path, 0, fn_800DC288(csv.fn_8005B9CC()));
+            mModel.fn_80092F1C(path, 0, fn_800DC288(csv.fn_8005B9CC()));
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80097A88(&mModel, fn_802180A8(csv.fn_8005B9CC()), path);
+            mModel.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.reset(new ((MemoryTag)12, "", "", 0) atn::ColliObject());
             mColli->fn_80058078(csv.fn_8005B9CC());

@@ -9,9 +9,7 @@ extern "C" float fn_800DC288(const char* s);         // inferred: string to floa
 extern "C" unsigned int fn_800DC6B4(const char* s);  // inferred: string hash
 extern "C" int fn_800DC12C(const char* s);           // inferred: string to int
 extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* name);        // inferred: motion id
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: adds a motion
 extern "C" void fn_80097D9C(atn::Model* model, atn::Model* source);  // inferred: shares the motions
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -22,7 +20,6 @@ struct NodeEdit_unk {
     unsigned char m00[0x2C];
 };
 extern "C" void fn_80089EE4(NodeEdit_unk* edit, atn::CsvTab* csv);
-extern "C" void fn_80093F58(atn::Model* model, NodeEdit_unk* edit);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 
@@ -40,7 +37,7 @@ EquipItemData::EquipItemData(atn::CsvTab* csv)
         mLoader.vf0C(path);
         mState = 0;
     } else {
-        fn_8008AD4C(&mModel, path, 0);
+        mModel.fn_8008AD4C(path, 0);
         mNode = fn_800DC6B4(csv->fn_8005B9CC());
         if (strcmp(csv->fn_8005B9CC(), "") != 0) {
             mScale.x = fn_800DC288(csv->mField);
@@ -87,9 +84,9 @@ void EquipItemData::fn_803635E8() {
             strcpy(path, csv.fn_8005B9CC());
             strcpy(texture, csv.fn_8005B9CC());
             if (strcmp(texture, "") == 0) {
-                fn_8008AD4C(&mModel, path, 0);
+                mModel.fn_8008AD4C(path, 0);
             } else {
-                fn_8008AD4C(&mModel, path, texture);
+                mModel.fn_8008AD4C(path, texture);
             }
         } else if (strcmp(field, "COPY_MOTION") == 0) {
             mFlags.mCopyMotion = 1;
@@ -98,7 +95,7 @@ void EquipItemData::fn_803635E8() {
             if ((mModel.mFlags & 1) != 1) {
                 char path[0x100];
                 strcpy(path, csv.fn_8005B9CC());
-                fn_80097A88(&mModel, fn_802180A8(csv.fn_8005B9CC()), path);
+                mModel.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
             }
         }
     } while (csv.fn_8005BBF8() != 0);
@@ -121,7 +118,7 @@ void EquipItemData::fn_803637D4() {
         } else if (strcmp(field, "NODE_EDIT") == 0) {
             NodeEdit_unk edit;
             fn_80089EE4(&edit, &csv);
-            fn_80093F58(&mModel, &edit);
+            mModel.fn_80093F58(&edit);
         }
     } while (csv.fn_8005BBF8() != 0);
 }

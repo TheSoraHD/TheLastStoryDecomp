@@ -16,9 +16,7 @@ extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -299,16 +297,16 @@ void Brazier::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL") == 0) {
-            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            mModel.fn_8008AD4C(csv.fn_8005B9CC(), 0);
         } else if (strcmp(field, "MODEL_CRUSH") == 0) {
-            fn_8008AD4C(&mModelCrush, csv.fn_8005B9CC(), 0);
+            mModelCrush.fn_8008AD4C(csv.fn_8005B9CC(), 0);
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(motion, csv.fn_8005B9CC());
             int id = fn_802180A8(csv.fn_8005B9CC());
             if (id != 2) {
-                fn_80097A88(&mModel, id, motion);
+                mModel.fn_80097A88(id, motion);
             } else {
-                fn_80097A88(&mModelCrush, id, motion);
+                mModelCrush.fn_80097A88(id, motion);
             }
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());

@@ -15,8 +15,6 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -307,10 +305,10 @@ void Cannonball::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL") == 0) {
-            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            mModel.fn_8008AD4C(csv.fn_8005B9CC(), 0);
         } else if (strcmp(field, "MODEL_LOD") == 0) {
             strcpy(lod, csv.fn_8005B9CC());
-            fn_80092F1C(&mModel, lod, 0, fn_800DC288(csv.fn_8005B9CC()));
+            mModel.fn_80092F1C(lod, 0, fn_800DC288(csv.fn_8005B9CC()));
         } else if (strcmp(field, "EFP") == 0) {
             const char* path = csv.fn_8005B9CC();
             if (path[0] != 0) {

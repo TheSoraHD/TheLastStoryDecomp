@@ -4,7 +4,6 @@
 #include "game/CrossbowMenuTask.h"
 #include "game/HitInfo_unk.h"
 
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" int fn_804444E8(void* items, int id);       // inferred: number of items `id` owned
@@ -57,7 +56,7 @@ Gun::Gun(int kind, int id, int arg0C, CharaTask* chara, int arg5) : Arms(kind, i
     GunOwner_unk* owner = (GunOwner_unk*)m270;
     if (owner->m48 == 0 || owner->m50 == 1) {
         m2A8.reset(new ((MemoryTag)3, "", "", 0) EffectModel_unk(0x505));
-        fn_8008AD4C(m2A8->GetModel_unk(), "it090_00.model", 0);
+        m2A8->GetModel_unk()->fn_8008AD4C("it090_00.model", 0);
     }
 }
 

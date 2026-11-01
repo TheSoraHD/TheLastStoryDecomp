@@ -10,9 +10,7 @@ extern "C" int atoi(const char* s);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
@@ -260,14 +258,14 @@ void LemonBucket::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL_BEFORE") == 0) {
-            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            mModel.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel, &csv);
         } else if (strcmp(field, "MODEL_AFTER") == 0) {
-            fn_8008AD4C(&mModel2, csv.fn_8005B9CC(), 0);
+            mModel2.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel2, &csv);
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80097A88(&mModel2, fn_802180A8(csv.fn_8005B9CC()), path);
+            mModel2.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
         } else if (strcmp(field, "MATALPHA") == 0) {
             fades++;

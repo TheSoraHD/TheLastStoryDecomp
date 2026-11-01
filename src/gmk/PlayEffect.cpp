@@ -6,7 +6,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
@@ -117,7 +116,7 @@ void PlayEffect::vf20() {
         }
         if (strcmp(field, "MODEL") == 0) {
             mModel = new ((MemoryTag)12, "", "", 0) atn::Model(8, 32);
-            fn_8008AD4C(mModel, csv.fn_8005B9CC(), 0);
+            mModel->fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(mModel, &csv);
         } else if (strcmp(field, "EFF") == 0) {
             for (int i = 0; i < 2; i++) {

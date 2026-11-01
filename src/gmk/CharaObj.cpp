@@ -9,7 +9,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: plays a face motion on CharaTask::m1188
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -111,12 +110,12 @@ void CharaObj::vf20() {
         } else if (strcmp(field, "MOTION") == 0) {
             if (mChara != 0) {
                 strcpy(path, csv.fn_8005B9CC());
-                fn_80097A88(&mChara->mMotion, 0x13F, path);
+                mChara->mMotion.fn_80097A88(0x13F, path);
             }
         } else if (strcmp(field, "FACE_MOTION") == 0) {
             if (mChara != 0) {
                 strcpy(path, csv.fn_8005B9CC());
-                fn_80097A88(&mChara->mMotion, 0x142, path);
+                mChara->mMotion.fn_80097A88(0x142, path);
                 mHasFace = 1;
             }
         }

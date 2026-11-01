@@ -7,7 +7,6 @@ extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
 extern "C" double sqrt(double x);
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: bullets (as in gmk/LandMine.cpp)
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048;
@@ -52,9 +51,9 @@ EnemySeaLizerd::EnemySeaLizerd(atn::Task* parent, EnemyInfo_unk* info)
         path = "/database/chara/special/" + path;
     }
     m14B0.vf0C(path.c_str());
-    fn_80097A88(&mMotion, 0x13F, "em000_apa00a_00.motion");
-    fn_80097A88(&mMotion, 0x140, "em000_apa00b_00.motion");
-    fn_80097A88(&mMotion, 0x142, "em000_skd03_01.motion");
+    mMotion.fn_80097A88(0x13F, "em000_apa00a_00.motion");
+    mMotion.fn_80097A88(0x140, "em000_apa00b_00.motion");
+    mMotion.fn_80097A88(0x142, "em000_skd03_01.motion");
     mFlagB12 = 1;
 }
 

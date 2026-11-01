@@ -22,7 +22,6 @@ public:
     atn::Model::TreeEntry_unk fn_80045A24(const AABB_unk* box);
 };
 } // namespace atn
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 
 // inferred: camera (lbl_8087EFB4)
 struct Camera_unk {
@@ -58,7 +57,7 @@ MapPartsModel::MapPartsModel(atn::Task* parent, void* arg, atn::CsvTab* csv)
     mCenterCamera = 0;
     mHasBox = 0;
     mDraw = 1;
-    fn_8008AD4C(&mModel, csv->fn_8005B9CC(), 0);
+    mModel.fn_8008AD4C(csv->fn_8005B9CC(), 0);
     vf28(csv);
 }
 

@@ -7,7 +7,6 @@
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -142,8 +141,8 @@ EnemyFieldMagician::EnemyFieldMagician(atn::Task* parent, EnemyInfo_unk* info)
     m14B0[0].mFlags &= ~1;
     m14B0[1].fn_80058078("ef_col01n.hcb");
     m14B0[1].mFlags &= ~1;
-    fn_80097A88(&mMotion, 0x13F, "na000_skn00a_04.motion");
-    fn_80097A88(&mMotion, 0x140, "na000_skn00b_04.motion");
+    mMotion.fn_80097A88(0x13F, "na000_skn00a_04.motion");
+    mMotion.fn_80097A88(0x140, "na000_skn00b_04.motion");
     m15FC.LoadRequest("ef_bu040g_01.eff");
     std::string path;
     const char* name = strstr(info->m2C, "db_name=");

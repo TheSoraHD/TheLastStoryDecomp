@@ -4004,9 +4004,6 @@ extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // in
 extern "C" void fn_8009757C(atn::Model* model);
 extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 extern "C" void fn_80098698(atn::Model* model);
-extern "C" void fn_80093F1C(atn::Model* model, const char* node, const atn::Vector3* a, const atn::Vector3* b,
-                            const atn::Vector3* scale, int arg); // inferred: node edit
-extern "C" void fn_80094778(atn::Model* model, const char* node); // inferred: clears a node edit
 extern "C" int fn_802185FC(const char* name);
 extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -4419,15 +4416,15 @@ void CharaTask::fn_80145334() {
         chr::CharaEquip_unk* coat = m680[0];
         if (coat != 0 && coat->m004 % 1000 / 10 == 46) {
             if (m648 != 0 || m55C == 8) {
-                fn_80093F1C(&mMotion, "leftcoat1", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
-                fn_80093F1C(&mMotion, "leftcoat2", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
-                fn_80093F1C(&mMotion, "rightcoat1", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
-                fn_80093F1C(&mMotion, "rightcoat2", &chr::lbl_807C7030, &chr::lbl_807C7030, &atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                mMotion.fn_80093F1C("leftcoat1", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                mMotion.fn_80093F1C("leftcoat2", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                mMotion.fn_80093F1C("rightcoat1", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
+                mMotion.fn_80093F1C("rightcoat2", chr::lbl_807C7030, chr::lbl_807C7030, atn::Vector3(1.0f, 1.0f, 1.0f), 8);
             } else {
-                fn_80094778(&mMotion, "leftcoat1");
-                fn_80094778(&mMotion, "leftcoat2");
-                fn_80094778(&mMotion, "rightcoat1");
-                fn_80094778(&mMotion, "rightcoat2");
+                mMotion.fn_80094778("leftcoat1");
+                mMotion.fn_80094778("leftcoat2");
+                mMotion.fn_80094778("rightcoat1");
+                mMotion.fn_80094778("rightcoat2");
             }
         }
         int updated = mMotion.fn_80097E80(animate);

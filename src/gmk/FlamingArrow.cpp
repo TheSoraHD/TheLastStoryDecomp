@@ -11,8 +11,6 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
 
 // inferred: frame time (class unknown)
@@ -199,18 +197,18 @@ void FlamingArrow::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL_BASE") == 0) {
-            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            mModel.fn_8008AD4C(csv.fn_8005B9CC(), 0);
         } else if (strcmp(field, "MODEL_ARROW") == 0) {
             const char* path = csv.fn_8005B9CC();
             for (unsigned int i = 0; i < 8; i++) {
-                fn_8008AD4C(&mArrows[i].mModel, path, 0);
+                (&mArrows[i].mModel)->fn_8008AD4C(path, 0);
             }
         } else if (strcmp(field, "MOTION_BASE") == 0) {
-            fn_80097A88(&mModel, 0, csv.fn_8005B9CC());
+            mModel.fn_80097A88(0, csv.fn_8005B9CC());
         } else if (strcmp(field, "MOTION_ARROW") == 0) {
             const char* path = csv.fn_8005B9CC();
             for (unsigned int i = 0; i < 8; i++) {
-                fn_80097A88(&mArrows[i].mModel, 0, path);
+                (&mArrows[i].mModel)->fn_80097A88(0, path);
             }
         } else if (strcmp(field, "EFP_SHOOT") == 0) {
             mEfpShoot.LoadRequest(csv.fn_8005B9CC());

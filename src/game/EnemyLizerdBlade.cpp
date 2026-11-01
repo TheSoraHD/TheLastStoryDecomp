@@ -6,7 +6,6 @@
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: bullets (as in gmk/LandMine.cpp)
 struct BulletMgr_unk;
@@ -58,10 +57,10 @@ EnemyLizerdBlade::EnemyLizerdBlade(atn::Task* parent, EnemyInfo_unk* info)
         path = "/database/chara/special/" + path;
     }
     m14B0.vf0C(path.c_str());
-    fn_80097A88(&mMotion, 0x13F, "na000_skd02_00.motion");
-    fn_80097A88(&mMotion, 0x142, "na000_skd02a_01.motion");
-    fn_80097A88(&mMotion, 0x143, "na000_skd02b_01.motion");
-    fn_80097A88(&mMotion, 0x144, "na000_skd02c_01.motion");
+    mMotion.fn_80097A88(0x13F, "na000_skd02_00.motion");
+    mMotion.fn_80097A88(0x142, "na000_skd02a_01.motion");
+    mMotion.fn_80097A88(0x143, "na000_skd02b_01.motion");
+    mMotion.fn_80097A88(0x144, "na000_skd02c_01.motion");
     mFlagB4 = 1;
 }
 

@@ -11,7 +11,6 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
@@ -102,7 +101,7 @@ void Ocean::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL") == 0) {
-            fn_8008AD4C(&mModel, csv.fn_8005B9CC(), 0);
+            mModel.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModel, &csv);
         } else if (strcmp(field, "WAVE") == 0) {
             int state = fn_800DC12C(csv.fn_8005B9CC());

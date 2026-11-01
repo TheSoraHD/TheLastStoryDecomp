@@ -20,7 +20,6 @@ extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // infer
 extern "C" std::string fn_8006B174(const std::string& path);          // inferred: file name of a path
 extern "C" int fn_8006AA20(const char* path);                          // inferred: the file exists
 // inferred: reads the poses of a binary file
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" void fn_8008A00C(atn::SimpleVector<Event::PoseKey_unk>* poses, void* data, int size);
 // inferred: debug text
 
@@ -86,7 +85,7 @@ int AnimationData::vf10() const {
 
 void ModelData::vf08() {
     m24 = new ((MemoryTag)4, "", "", 0) atn::Model(0x100, 0x28);
-    fn_8008AD4C(m24, m08.c_str(), 0);
+    m24->fn_8008AD4C(m08.c_str(), 0);
 }
 
 void ModelData::vf0C() {

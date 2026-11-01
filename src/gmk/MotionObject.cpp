@@ -12,10 +12,7 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
-extern "C" void fn_80092F1C(atn::Model* model, const char* path, int arg, float lod); // inferred: adds a LOD model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -346,16 +343,16 @@ void MotionObject::vf20() {
                 switches = 0;
             }
             model++;
-            fn_8008AD4C(&mModels[model], csv.fn_8005B9CC(), 0);
+            mModels[model].fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mModels[model], &csv);
             mHasModel[model] = 1;
         } else if (strcmp(field, "MODEL_LOD") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80092F1C(&mModels[model], path, 0, fn_800DC288(csv.fn_8005B9CC()));
+            mModels[model].fn_80092F1C(path, 0, fn_800DC288(csv.fn_8005B9CC()));
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(path, csv.fn_8005B9CC());
             MotionPlay_unk* play = &mPlay[model];
-            fn_80097A88(&mModels[model], play->mMotion = fn_802180A8(csv.fn_8005B9CC()), path);
+            mModels[model].fn_80097A88(play->mMotion = fn_802180A8(csv.fn_8005B9CC()), path);
             play->mBlend = fn_800DC288(csv.fn_8005B9CC());
             play->mLoop = atoi(csv.fn_8005B9CC()) == 1;
             play->mReverse = atoi(csv.fn_8005B9CC()) == 1;

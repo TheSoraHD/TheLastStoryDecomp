@@ -5,9 +5,7 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -133,14 +131,14 @@ void DoorSeal::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL_BEFORE") == 0) {
-            fn_8008AD4C(&mBefore, csv.fn_8005B9CC(), 0);
+            mBefore.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mBefore, &csv);
         } else if (strcmp(field, "MODEL_AFTER") == 0) {
-            fn_8008AD4C(&mAfter, csv.fn_8005B9CC(), 0);
+            mAfter.fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(&mAfter, &csv);
         } else if (strcmp(field, "MOTION") == 0) {
             strcpy(path, csv.fn_8005B9CC());
-            fn_80097A88(&mAfter, fn_802180A8(csv.fn_8005B9CC()), path);
+            mAfter.fn_80097A88(fn_802180A8(csv.fn_8005B9CC()), path);
         } else if (strcmp(field, "COLLI_OBJECT") == 0) {
             mColli.fn_80058078(csv.fn_8005B9CC());
         } else if (strcmp(field, "EFP") == 0) {

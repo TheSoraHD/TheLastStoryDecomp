@@ -16,9 +16,7 @@ extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 // inferred: debug settings
 struct FlyDebug_unk {
     unsigned char m00[0x18];
@@ -126,7 +124,7 @@ inline int FlyObjManager::FindNearest_unk(const atn::Vector3& pos) {
 }
 
 inline void FlyObj::LoadMotion_unk(const char* name, const char* path) {
-    fn_80097A88(&mModel, fn_802180A8(name), path);
+    mModel.fn_80097A88(fn_802180A8(name), path);
 }
 
 FlyObj::FlyObj() : mRadius(3.0f), mModel(8, 32), mPos(0.0f, 0.0f, 0.0f), mRot(0.0f, 0.0f, 0.0f), mVel(0.0f, 0.0f, 1.0f) {
@@ -202,7 +200,7 @@ int FlyObjManager::vf0C() {
         if (fn_803EC91C() == 0) {
             for (unsigned int i = 0; i < mCount; i++) {
                 mObjs.mData[i].mOwner = this;
-                fn_8008AD4C(&mObjs.mData[i].mModel, mModelName, 0);
+                (&mObjs.mData[i].mModel)->fn_8008AD4C(mModelName, 0);
                 for (int j = 0; j < 2; j++) {
                     mObjs.mData[i].LoadMotion_unk(mMotionName[j], mMotionPath[j]);
                 }

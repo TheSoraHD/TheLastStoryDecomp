@@ -4,7 +4,6 @@
 #include "game/EnemyManager.h"
 #include "game/NpcManager.h"
 
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -76,7 +75,7 @@ Chain::Chain(atn::Task* parent, GimmickDesc_unk* desc)
     m6C = desc->mPos;
     m78 = atn::Vector3(0.0f, desc->mRotY, 0.0f);
     m90 = atn::Vector3(1.0f, 1.0f, 1.0f);
-    fn_8008AD4C(mModel.GetModel_unk(), "it087_00.model", 0);
+    mModel.GetModel_unk()->fn_8008AD4C("it087_00.model", 0);
     mModel.GetModel_unk()->mAC = 5.0f;
 }
 

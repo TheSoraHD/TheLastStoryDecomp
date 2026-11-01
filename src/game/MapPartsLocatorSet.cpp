@@ -15,7 +15,6 @@ extern "C" int fn_8006AA20(const char* path);        // inferred: the file exist
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
 std::string fn_8006B0C8(const std::string& path);            // inferred: directory of a path
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 extern "C" void* fn_804962B0(void* tree, const atn::Sphere* sphere); // inferred: light of a place
 extern "C" int fn_800502A8(void* frustum, const MapPartsBox_unk* box); // inferred: box visible
@@ -131,7 +130,7 @@ MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, void* arg, atn::CsvTab
         sprintf(name, "merge_%s_occ.model", fn_8006B2D8(fn_8006B174(std::string(path))).c_str());
         if (fn_8006AA20(name)) {
             mHasModel = 1;
-            fn_8008AD4C(mModel.GetModel_unk(), name, 0);
+            mModel.GetModel_unk()->fn_8008AD4C(name, 0);
         }
     }
     if (lbl_8087F0A8->m5B4 != 0) {
@@ -140,7 +139,7 @@ MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, void* arg, atn::CsvTab
         if (fn_8006AA20(name)) {
             mHasMerged = 1;
             mMerged.reset(new ((MemoryTag)12, "", "", 0) EffectModel_unk(9));
-            fn_8008AD4C(mMerged->GetModel_unk(), name, 0);
+            mMerged->GetModel_unk()->fn_8008AD4C(name, 0);
         }
     }
     const char* field = csv->fn_8005B9CC();

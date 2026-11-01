@@ -9,7 +9,6 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* texture); // inferred: loads a model
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -257,7 +256,7 @@ void SavePoint::vf20() {
             continue;
         }
         if (strcmp(field, "MODEL") == 0) {
-            fn_8008AD4C(mModel.GetModel_unk(), csv.fn_8005B9CC(), 0);
+            mModel.GetModel_unk()->fn_8008AD4C(csv.fn_8005B9CC(), 0);
             fn_803EC7A0(mModel.GetModel_unk(), &csv);
         } else if (strcmp(field, "EFP") == 0 && count < 3) {
             mEfp[count++].LoadRequest(csv.fn_8005B9CC());

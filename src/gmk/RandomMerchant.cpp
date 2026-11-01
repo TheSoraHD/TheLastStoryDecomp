@@ -16,7 +16,6 @@ extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" void fn_80097A88(atn::Model* model, int id, const char* path); // inferred: loads a motion
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: creates the gimmick of an item (kind 10) as a child of parent
@@ -140,7 +139,7 @@ int RandomMerchant::vf0C() {
                 }
                 entry->mMotionBase = 0xEF;
                 for (int j = 0; j < 3; j++) {
-                    fn_80097A88(&entry->mChara->mMotion, entry->mMotionBase + j, entry->mMotions[j].mStr);
+                    (&entry->mChara->mMotion)->fn_80097A88(entry->mMotionBase + j, entry->mMotions[j].mStr);
                 }
                 if (entry->mItem / 1000 == 10) {
                     entry->mItemGimmick = fn_803EC16C(this, entry->mItem, i);
