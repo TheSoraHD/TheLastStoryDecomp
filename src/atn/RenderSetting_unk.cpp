@@ -53,9 +53,10 @@ extern "C" void fn_800B95C4() {
     }
 }
 
-// NONMATCHING: 96.85% (96.92% before MotionBlurParam_unk) - the three white bloom colors get their stack temporaries in the opposite
-// order and the scheduler places some constant loads and stores differently (BloomParam_unk::White_unk
-// returns the color by value: slightly closer than the temporaries in the initializer list)
+// NONMATCHING: 96.85% (96.92% before MotionBlurParam_unk: the constants of the members after it get
+// other registers) - the three white bloom colors get their stack temporaries in the opposite order and
+// the scheduler places some constant loads and stores differently (BloomParam_unk::White_unk returns
+// the color by value: slightly closer than the temporaries in the initializer list)
 
 RenderSetting_unk::RenderSetting_unk()
     : m000(0), m004(0), m008(0), m00C(0), m010(0), m014(0), m018(0), m01C(0), m020(0), m024(0), m028(0), m02C(0),
