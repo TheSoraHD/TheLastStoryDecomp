@@ -149,6 +149,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Dos tipos de la misma forma en unidades distintas dan nombres weak distintos (`vector<T>::__allocate`): unificar el tipo (`Event::PathCubic_unk`).
 - Un nombre de `symbols.txt` repetido entre una copia weak nuestra y otra funcion hace que el enlazador tire la nuestra: renombrar la mal nombrada (`ut::DvdFileStream::CanAsync`).
 - Las estaticas de un `.c` se colocan en `.sbss`/`.bss` al reves de su orden de declaracion (OS.c del SDK).
+- Copias weak: gana la primera en orden de enlace y las demas desaparecen; si la primera esta en una unidad del juego (destructor weak de una clase NW4R emitido por `atn::AudioDevice`), el simbolo de esa direccion necesita el nombre real o nuestra copia se queda y crece `.text`. Comprobarlo con las vtables (`tools/decomp/ss/vtmap.py`). (`auto-20261031c`)
+- dtk nombra mal funciones de bytes iguales (dtor trivial, `blr`, thunks `@N@`): tras renombrar por bytes, `main.dol: OK` y las vtables son la prueba; un `fn_` de 4 bytes justo tras un `bctr` es el `blr` de la funcion anterior (borrarlo y ampliar su tamano). (`auto-20261031c`)
+- Al pasar una unidad a fuente, los `extern "C" fn_X` del juego que la llaman dejan de enlazar: declarar el metodo en la clase del juego (`atn/SoundCore.h`) con la firma de NW4R. (`auto-20261031c`)
 
 ## Splits
 
@@ -162,6 +165,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 
 - Split de un fichero de libreria: `.text` acaba en el final de su ultima funcion (no en el siguiente limite de 16); los datos, en el final del simbolo de `symbols.txt` (incluye el relleno). Objetos sin referencias los quita el enlazador.
 - `.c` del SDK de `libs/` que no enlazan suelen fallar por: cadena de version (Aug 23 2010), fechas de `OSReport`, `#line` de asserts, `DBPrintf` que la build de 2010 no tiene, stubs vacios de la referencia.
+- `.bss`: el split acaba al final de nuestro objeto (sin el relleno hasta el simbolo siguiente); si es la ultima unidad de `.sbss` el original redondea el tamano de la seccion y no se puede enlazar (ut_TextWriterBase). (`auto-20261031c`)
+- Fuentes de otra decomp con la misma version de libreria (NW4R 2010 de Skyward Sword): cabeceras sin prefijo para los `__FILE__` de los asserts; los nombres de tipo que ya usa el juego mandan sobre los de la decomp (PanParam, detail::SoundArchiveFile). (`auto-20261031c`)
 
 ## Patrones del juego
 
