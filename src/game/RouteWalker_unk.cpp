@@ -114,6 +114,26 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 
+void RouteWalker_unk::fn_80127D8C(int a, int b, int c) {
+    chr::Chara_unk* chara = mChara;
+    m4C = chara->mPos;
+    m58 = lbl_807C7030;
+    if (chara->CanAct_unk()) {
+        ((CharaTask*)chara)->fn_8016EB48(a, b, c);
+    }
+    m2C = 1;
+    if (mChara->mFlag31 == 0 && m44 == 1 && mLink > 0) {
+        RouteTable_unk* table = GetRouteTable_unk();
+        if (table != 0) {
+            RouteLink_unk* link = &table->mLinks[mLink - 1];
+            if (link->m3C != 0) {
+                link->m3C = 0;
+            }
+        }
+    }
+}
+
+
 // NONMATCHING: the target materializes (m48 & 1) != 1 as a value (subfic/or/srwi.) before testing
 // it; the rest (fn_80127D8C inlined) is the same. Tried: bool and int locals, inline predicates
 // returning bool or int, a ternary.
@@ -147,55 +167,6 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
                         mPointA = mDestPoint;
                     }
                 }
-            }
-        }
-    }
-}
-
-// NONMATCHING: only the order of the two radius loads (target loads mChara's first into f1).
-// Tried: both operand orders, locals, an inline adder, adding 5 first or last. `float r = mChara->m5B0;
-// r = 5.0f + (target->m5B0 + r);` gives the load order but swaps f1/f2/f3 (99.3%).
-void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg) {
-    RouteTable_unk* table = GetRouteTable_unk();
-    if (table == 0 || target == 0) {
-        return;
-    }
-    fn_8012539C();
-    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
-    mMode = 4;
-    m48 = arg;
-    mTarget = target;
-    float r = 5.0f + (target->m5B0 + mChara->m5B0);
-    mRadius = 30.0f > r ? 30.0f : r;
-}
-
-void RouteWalker_unk::fn_80128A30(const atn::Vector3* pos, const atn::Vector3* dest, int arg, float radius) {
-    RouteTable_unk* table = GetRouteTable_unk();
-    if (table != 0) {
-        fn_8012539C();
-        fn_80128508(fn_803C1560(table, pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
-        mMode = 5;
-        m48 = arg;
-        m30 = *pos;
-        m3C = radius;
-        mRadius = 3.0f;
-    }
-}
-
-void RouteWalker_unk::fn_80127D8C(int a, int b, int c) {
-    chr::Chara_unk* chara = mChara;
-    m4C = chara->mPos;
-    m58 = lbl_807C7030;
-    if (chara->CanAct_unk()) {
-        ((CharaTask*)chara)->fn_8016EB48(a, b, c);
-    }
-    m2C = 1;
-    if (mChara->mFlag31 == 0 && m44 == 1 && mLink > 0) {
-        RouteTable_unk* table = GetRouteTable_unk();
-        if (table != 0) {
-            RouteLink_unk* link = &table->mLinks[mLink - 1];
-            if (link->m3C != 0) {
-                link->m3C = 0;
             }
         }
     }
@@ -236,6 +207,37 @@ void RouteWalker_unk::fn_80128818(int id, const atn::Vector3* b, int c) {
     mPlace = id;
     mRadius = 3.0f;
 }
+
+// NONMATCHING: only the order of the two radius loads (target loads mChara's first into f1).
+// Tried: both operand orders, locals, an inline adder, adding 5 first or last. `float r = mChara->m5B0;
+// r = 5.0f + (target->m5B0 + r);` gives the load order but swaps f1/f2/f3 (99.3%).
+void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* dest, int arg) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table == 0 || target == 0) {
+        return;
+    }
+    fn_8012539C();
+    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+    mMode = 4;
+    m48 = arg;
+    mTarget = target;
+    float r = 5.0f + (target->m5B0 + mChara->m5B0);
+    mRadius = 30.0f > r ? 30.0f : r;
+}
+
+void RouteWalker_unk::fn_80128A30(const atn::Vector3* pos, const atn::Vector3* dest, int arg, float radius) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (table != 0) {
+        fn_8012539C();
+        fn_80128508(fn_803C1560(table, pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+        mMode = 5;
+        m48 = arg;
+        m30 = *pos;
+        m3C = radius;
+        mRadius = 3.0f;
+    }
+}
+
 
 void RouteWalker_unk::fn_80128B20(chr::Chara_unk* target, const atn::Vector3* dest, int arg, float radius) {
     RouteTable_unk* table = GetRouteTable_unk();
