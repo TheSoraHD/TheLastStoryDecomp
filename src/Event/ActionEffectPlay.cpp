@@ -7,6 +7,7 @@
 #include "std/string.h"
 #include <boost/bind.hpp>
 #include "game/MapManager.h"
+#include "game/EnvSeManager.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -450,6 +451,18 @@ int ActionMusicPlay::vf0C(Action* arg, int phase) {
                 }
             }
             GameBgm::sInstance->fn_8037D4C0(id, fade, 1, 0, volume);
+        }
+    }
+    return 0;
+}
+
+int ActionAudioEffect::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        arg->fn_805381A0();
+        arg->fn_805381C8();
+        int reverb = arg->GetParam_unk(0)->m04.i;
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_803601E4(reverb, 1.0f);
         }
     }
     return 0;

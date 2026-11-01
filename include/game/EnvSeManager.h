@@ -110,7 +110,8 @@ public:
     void fn_8035F3D4(); // inferred: parses the CSV
     EnvSePoint* fn_8035FF44(int id); // inferred: point sound by id
     void fn_8035FF94(int area, int fade, int wait); // inferred: applies an area
-    void fn_803601E4(int reverb);
+    // inferred: the float is not used (Event::ActionAudioEffect passes 1.0f; inlined in this file)
+    void fn_803601E4(int reverb, float volume = 1.0f);
     int fn_80360230(int id);           // inferred: starts the sound of a record
     void fn_80360504(int id, int fade); // inferred: stops the sound of a record
     void fn_8036055C(int id);          // inferred: moves the sound of a record

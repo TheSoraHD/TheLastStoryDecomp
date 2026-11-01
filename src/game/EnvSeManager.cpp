@@ -576,7 +576,7 @@ void EnvSeManager::fn_8035FF94(int id, int fade, int wait) {
     }
 }
 
-void EnvSeManager::fn_803601E4(int reverb) {
+void EnvSeManager::fn_803601E4(int reverb, float volume) {
     if (mCurReq.mReverb != reverb) {
         fn_8004A1D4(lbl_8087EE90, reverb);
         mCurReq.mReverb = reverb;
