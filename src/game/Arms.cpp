@@ -17,8 +17,8 @@ extern "C" atn::Matrix3x4 lbl_807C7060;
 extern "C" void fn_8008AD4C(atn::Model* model, const char* path, const char* node); // inferred: loads a model
 extern "C" void fn_80092F1C(atn::Model* model, const char* path, const char* node, float distance); // inferred: LOD    // inferred: identity matrix
 
-extern "C" ArmsData_unk* fn_80206B14(void* arg, int item);     // inferred: equipment data
-extern "C" ArmsEffect_unk* fn_802072AC(void* arg, int item);   // inferred: effect data of the equipment
+extern "C" ArmsData_unk* fn_80206B14(int arg, int item);     // inferred: equipment data
+extern "C" ArmsEffect_unk* fn_802072AC(int arg, int item);   // inferred: effect data of the equipment
 extern "C" std::string fn_8006B2D8(const std::string& path);  // inferred: name without extension
 extern "C" HitInfo_unk* fn_80219E6C(int id);                   // inferred: bullet/skill data by id
 
@@ -52,9 +52,9 @@ extern "C" ArmsEffectMgr_unk* lbl_8087F048; // inferred: effect manager of the c
 extern "C" int fn_8010D770(ArmsEffectMgr_unk* mgr, HitInfo_unk* hit);
 
 
-Arms::Arms(void* arg04, int arg08, int arg0C, int arg270)
-    : m04(arg04), m08(arg08), m0C(arg0C), mModel(0x505), m224(0), m258(0.0f, 0.0f, 0.0f), m264(1.0f, 1.0f, 1.0f),
-      m270(arg270), m278(-1), m284(3), m288(-1), m28C(0), m2A0(0), m2A4(0) {
+Arms::Arms(int kind, int id, int arg0C, CharaTask* chara, int arg5)
+    : m04(kind), m08(id), m0C(arg0C), mModel(0x505), m224(0), m258(0.0f, 0.0f, 0.0f), m264(1.0f, 1.0f, 1.0f),
+      m270(chara), m278(-1), m284(3), m288(-1), m28C(0), m2A0(0), m2A4(0) {
     m228.SetIdentity();
     m274 = fn_80206B14(m04, m08);
     m2A4 = fn_802072AC(m04, m08);

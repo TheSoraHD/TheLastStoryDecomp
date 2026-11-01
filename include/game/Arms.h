@@ -44,7 +44,7 @@ struct ArmsEffect_unk {
 // chr::CharaPart_unk (CharaTask::m648). Parameters named by the members they are stored in.
 class Arms {
 public:
-    Arms(void* arg04, int arg08, int arg0C, int arg270); // 0x80043EAC
+    Arms(int kind, int id, int arg0C, CharaTask* chara, int arg5); // 0x80043EAC (arg5 unused)
     virtual ~Arms();                                     // 0x80044134
     virtual int vf0C();                                  // 0x8004424C
     virtual void vf10();                                 // 0x80044780
@@ -67,7 +67,7 @@ public:
 
     atn::Model* GetModel_unk() { return mModel.GetModel_unk(); }
 
-    void* m04;
+    int m04; // inferred: kind (0 sword, 1 and 2 guns; see fn_800457A4)
     int m08;
     int m0C;
     EffectModel_unk mModel;   // 0x10
@@ -75,7 +75,7 @@ public:
     atn::Matrix3x4 m228;      // inferred: offset matrix applied on top of m224
     atn::Vector3 m258;        // inferred: rotation (degrees in the file)
     atn::Vector3 m264;        // inferred: scale
-    int m270;
+    CharaTask* m270; // inferred: owner
     ArmsData_unk* m274;
     int m278;                 // inferred: index of the "shot" node
     atn::LH_Binary m27C;      // inferred: the .chr file

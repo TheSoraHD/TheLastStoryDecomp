@@ -1,6 +1,6 @@
 #include "game/Sword.h"
 
-Sword::Sword(void* arg04, int arg08, int arg0C, int arg270) : Arms(arg04, arg08, arg0C, arg270) {}
+Sword::Sword(int kind, int id, int arg0C, CharaTask* chara, int arg5) : Arms(kind, id, arg0C, chara, arg5) {}
 
 Sword::~Sword() {}
 

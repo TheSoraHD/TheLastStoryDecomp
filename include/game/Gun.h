@@ -7,7 +7,7 @@
 // model ("it090_00.model") shown on it.
 class Gun : public Arms {
 public:
-    Gun(void* arg04, int arg08, int arg0C, int arg270); // 0x8043F028
+    Gun(int kind, int id, int arg0C, CharaTask* chara, int arg5); // 0x8043F028
     virtual ~Gun();                                     // 0x8043F0F4
     virtual int vf0C();                                 // 0x8043F178
     virtual void vf14();                                // 0x8043F24C
