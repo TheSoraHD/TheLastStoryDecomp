@@ -1,3 +1,4 @@
+#include "game/SkillEffectManager.h"
 #include "game/Em308InvertCrab.h"
 #include "atn/Csv.h"
 #include "math/Vec.h"
@@ -75,8 +76,6 @@ struct CollResult_unk {
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); fn_8059C6DC tests whether the
 // skill is already running for the user; the callback is empty here
 struct CrabSkill_unk;
-extern "C" void* lbl_8087F9E8;
-extern "C" int fn_8059C6DC(void* mgr, HitInfo_unk* skill, CharaTask* user);
 extern "C" CrabSkill_unk* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                       const atn::Vector3* pos, const atn::Vector3* rot,
                                       boost::function<void(CrabSkill_unk*)> callback, float rate);
@@ -413,7 +412,7 @@ void Em308InvertCrab::vf10() {
         }
     }
     if ((m157C & 8) == 8 && !mStatus.IsState_unk(0x20) && fn_802F2C50() &&
-        fn_8059C6DC(lbl_8087F9E8, m1550, this) == 0) {
+        lbl_8087F9E8->fn_8059C6DC(m1550, this) == 0) {
         if ((unsigned char)(m1550->m01 - 4) <= 2) {
             fn_8059B66C(lbl_8087F9E8, m1550, this, this, &mPos, &mRot, boost::function<void(CrabSkill_unk*)>(),
                         1.0f);

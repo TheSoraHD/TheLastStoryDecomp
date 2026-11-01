@@ -1,3 +1,4 @@
+#include "game/SkillEffectManager.h"
 #include "game/EnemyTasha.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -53,9 +54,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* owner, HitInfo_unk* hit, int arg,
                            float f);
 // inferred: skill effect manager (lbl_8087F9E8; weak copy 0x80356FFC is its accessor)
-struct SkillEffectManager;
-extern "C" SkillEffectManager* lbl_8087F9E8;
-extern "C" void fn_8059C2A8(SkillEffectManager* mgr, CharaTask* owner, HitInfo_unk* skill); // inferred: stops the skill
 
 // inferred: collision world and its ray test (as in game/EnemyTrista.cpp)
 struct CollResult_unk {
@@ -376,7 +374,7 @@ int EnemyTasha::vf10C(HitMsg_unk* msg) {
         if ((msg->mData->m90.mFlags & 0x80000) == 0x80000) {
             m14E0 = 3;
             m14E8 = 300.0f;
-            fn_8059C2A8(lbl_8087F9E8, this, m1578[1]);
+            lbl_8087F9E8->fn_8059C2A8(this, m1578[1]);
             if (fn_805A49E4((SpecialFlag_unk*)&m167C) == 0) {
                 fn_805A4A1C((SpecialFlag_unk*)&m167C, 1);
             }
@@ -396,7 +394,7 @@ int EnemyTasha::vf10C(HitMsg_unk* msg) {
         if ((f & 8) == 8 || (f & 0x200) == 0x200 || (f & 0x800000) == 0x800000) {
             m14E0 = 3;
             m14E8 = 300.0f;
-            fn_8059C2A8(lbl_8087F9E8, this, m1578[2]);
+            lbl_8087F9E8->fn_8059C2A8(this, m1578[2]);
             if (fn_805A49E4((SpecialFlag_unk*)&m1694) == 0) {
                 fn_805A4A1C((SpecialFlag_unk*)&m1694, 1);
             }
@@ -716,9 +714,9 @@ void EnemyTasha::vf100(int state) {
         m14E0 = m14E4;
         m14E8 = 600.0f;
         m14E4 = (m14E4 + 1) % 3;
-        fn_8059C2A8(fn_80356FFC(), this, m1578[0]);
-        fn_8059C2A8(fn_80356FFC(), this, m1578[1]);
-        fn_8059C2A8(fn_80356FFC(), this, m1578[2]);
+        fn_80356FFC()->fn_8059C2A8(this, m1578[0]);
+        fn_80356FFC()->fn_8059C2A8(this, m1578[1]);
+        fn_80356FFC()->fn_8059C2A8(this, m1578[2]);
         TashaDamage_unk result;
         fn_8003EA3C(&result, m1578[m14E0], this, this, 0, lbl_807C6B90, 0, 0);
         if (m14E0 == 0) {

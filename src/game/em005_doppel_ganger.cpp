@@ -150,8 +150,6 @@ inline void ClearDoppel_unk(Em005DoppelGanger* self) {
 extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg3); // inferred: sets a field flag
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" SkillEffectManager* lbl_8087F9E8;
-extern "C" void fn_8059C8E8(SkillEffectManager* mgr, CharaTask* chara); // inferred: traps the character
-extern "C" void fn_8059C98C(SkillEffectManager* mgr, CharaTask* chara); // inferred: frees the character
 extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill (game/BattleEfp_unk.cpp)
 extern "C" void fn_805991E0(Bullet_unk* bullet); // inferred: stops an effect of a skill
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
@@ -442,11 +440,11 @@ void Em005DoppelGanger::vf10() {
         }
     }
     if (m154C != 0 && wasTrapped == 0) {
-        fn_8059C8E8(lbl_8087F9E8, m14FC);
+        lbl_8087F9E8->fn_8059C8E8(m14FC); // inferred: traps the character
         fn_8023A02C(lbl_8087F3C0, m14FC, 11, 16);
         fn_8023A02C(lbl_8087F3C0, m14FC, 11, 8);
     } else if (m154C == 0 && wasTrapped != 0) {
-        fn_8059C98C(lbl_8087F9E8, m14FC);
+        lbl_8087F9E8->fn_8059C98C(m14FC); // inferred: frees the character
     }
     if (m14BC == 0) {
         fn_80370320(lbl_8087F430, 0x389, 1, 0);

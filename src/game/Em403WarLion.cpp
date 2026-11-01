@@ -1,3 +1,4 @@
+#include "game/SkillEffectManager.h"
 #include "game/Em403WarLion.h"
 #include "atn/LoadHandle.h"
 #include "chr/ControlBase.h"
@@ -1254,9 +1255,6 @@ void Em403WarLion::fn_80328270() {
     }
 }
 
-// inferred: weapon manager (as in game/CharaTask.cpp, class unknown)
-extern "C" void* lbl_8087F9E8;
-extern "C" void fn_8059C32C(void* mgr, int arg);
 
 // inferred: comes down at place 0x262 (state 10), roars and sends message 2 to the gimmick 40 of kind 1
 void Em403WarLion::fn_8032853C() {
@@ -1299,7 +1297,7 @@ void Em403WarLion::fn_8032853C() {
             frame = mMotion.mTracks[0].m08;
             if (45.0f <= frame && frame <= 47.0f && fn_80370A78(lbl_8087F430, 0x5C) < 1) {
                 fn_80370AE4(lbl_8087F430, 0x5C, 1);
-                fn_8059C32C(lbl_8087F9E8, 0);
+                lbl_8087F9E8->fn_8059C32C(0);
                 for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m50 == 40 && g->m4C == 1) {
                         GimmickMsg_unk msg(2);

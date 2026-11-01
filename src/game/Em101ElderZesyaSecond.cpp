@@ -1,3 +1,4 @@
+#include "game/SkillEffectManager.h"
 #include "game/Em101ElderZesyaSecond.h"
 #include "chr/ControlChant.h"
 #include "game/HitInfo_unk.h"
@@ -88,8 +89,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp); nonzero while the magic is active
-extern "C" void* lbl_8087F9E8;
-extern "C" int fn_8059C6DC(void* mgr, HitInfo_unk* skill, CharaTask* owner);
 // inferred: per-player weights of an effect (floats at +0x128, as in game/Em309Ghoul.cpp); names invented
 struct ElderWeights_unk {
     unsigned char m00[0x128];
@@ -381,8 +380,8 @@ void Em101ElderZesyaSecond::vf10() {
                     PlayEffectM_unk(lbl_8087F3C0, &m1530, &mMotion);
                 } else if (m14D0 != 0) {
                     int kind = 1;
-                    void* mgr = lbl_8087F9E8;
-                    if (fn_8059C6DC(mgr, fn_80219E6C(m14FC[1]), this) != 0) {
+                    SkillEffectManager* mgr = lbl_8087F9E8;
+                    if (mgr->fn_8059C6DC(fn_80219E6C(m14FC[1]), this) != 0) {
                         kind = 0;
                     }
                     fn_8025C29C(kind);

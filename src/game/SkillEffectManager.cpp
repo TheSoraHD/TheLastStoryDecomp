@@ -3,14 +3,13 @@
 #include "atn/FixedArray.h"
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
+#include "game/Arms.h"
 #include "game/PlayerTask.h"
 #include "game/EnemyTask.h"
 #include "game/EnemyManager.h"
 #include "game/CharaManager.h"
 #include <boost/function.hpp>
 
-// inferred: the singleton (referenced as lbl_8087F9E8 by game/CharaTask.cpp and gmk/HealPoint.cpp)
-extern "C" SkillEffectManager* lbl_8087F9E8;
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F610;                     // inferred: arena mode (see game/CharaTask.cpp)
@@ -54,6 +53,58 @@ extern "C" void fn_80599C6C(Bullet_unk* bullet);                     // inferred
 extern "C" void fn_80599FB4(Bullet_unk* bullet, int arg);
 extern "C" void fn_8059A0B4(Bullet_unk* bullet, atn::EffFile* res);
 extern "C" void fn_8059A1FC(Bullet_unk* bullet, int arg);
+extern "C" int fn_80599D60(Bullet_unk* bullet, CharaTask* chara, int arg); // inferred: touches chara
+struct EffectMgr_unk;
+extern "C" EffectMgr_unk* lbl_8087F3C0; // inferred: effect manager of the efp files
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80232B7C(void* owner, int id); // inferred: names the next effect of `owner`
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+                            const atn::Vector3* pos, int arg6, int arg7, int arg8, int arg9, int arg10, float scale);
+extern "C" unsigned long strlen(const char* s);
+// inferred: weapon of a character (CharaTask keeps it as chr::CharaPart_unk)
+inline Arms* GetArms_unk(chr::CharaPart_unk* part) {
+    return (Arms*)part;
+}
+// inferred: weapons 406-412 and 883-886 (of each thousand) carry their effects higher (name invented)
+inline bool IsHighArms_unk(CharaTask* chara) {
+    if (chara->m648 == 0 || GetArms_unk(chara->m648)->m274 == 0 || GetArms_unk(chara->m648)->m274->m78 != 0) {
+        return false;
+    }
+    int n = GetArms_unk(chara->m648)->m274->m80 % 1000;
+    if ((406 <= n && n <= 412) || (883 <= n && n <= 886)) {
+        return true;
+    }
+    return false;
+}
+
+// inferred: an enemy outside the arena (names invented)
+inline bool IsEnemyField_unk(CharaTask* chara) {
+    bool result = false;
+    if (chara->mType == 2 && lbl_8087F610 == 0) {
+        result = true;
+    }
+    return result;
+}
+// inferred: plays `efp` on `model` at the origin (as PlayEfp_unk of chr/ControlStickByQuark.cpp)
+inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, scale);
+}
 
 // inferred: pair of pointers (Pair_unk is not available; names invented)
 template <class A, class B>
@@ -376,4 +427,339 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
             GameUI::Get_unk()->fn_803E6890(subs[i].first->m08, subs[i].second);
         }
     }
+}
+
+void SkillEffectManager::fn_8059C084(CharaTask* chara) {
+    if ((chara->mFlags & 4) == 4 || chara->mStatus.IsState_unk(0x20)) {
+        chara->fn_80178A6C();
+        return;
+    }
+    int ok = 1;
+    if (chara->m55C == 6 && chara->m560 >= 27 && chara->m560 <= 28) {
+        ok = 0;
+    }
+    if (ok) {
+        Bullet_unk* bullet = mBullets;
+        for (int i = 0; i < 32; i++, bullet++) {
+            if (!bullet->IsActive_unk()) {
+                continue;
+            }
+            if (fn_80599D60(bullet, chara, 1)) {
+                if (fn_8021A960(bullet->m04)) {
+                    if (chara->mFlag22 == 1 && !chara->mFlagB15) {
+                        continue;
+                    }
+                    if (chara->mFlag21 == 1) {
+                        continue;
+                    }
+                    if (chara->mStatus.IsState_unk(0x20)) {
+                        continue;
+                    }
+                    if (chara->mFlagB1) {
+                        continue;
+                    }
+                    if (chara->mType == 0 && chara->m55C == 6 && chara->m560 == 14) {
+                        continue;
+                    }
+                }
+                if (chara->mFlag22 == 1 && (chara->fn_80179730(bullet->m04, 0) & 0x100) == 0x100) {
+                    continue;
+                }
+                chara->fn_801784BC(bullet, 0);
+            } else if (fn_8021A960(bullet->m04) && fn_80599D60(bullet, chara, 0)) {
+                HitInfo_unk* hit = bullet->m04;
+                if (hit->m74.m00 > 0.0f || hit->m74.m04 > 0.0f || hit->m74.m10 > 0.0f || hit->m74.m0C > 0.0f) {
+                    chara->fn_801784BC(bullet, 1);
+                }
+            }
+        }
+    }
+}
+
+void SkillEffectManager::fn_8059C2A8(CharaTask* target, HitInfo_unk* hit) {
+    Bullet_unk* bullet = mBullets;
+    for (int i = 0; i < 32; i++, bullet++) {
+        if (bullet->m0C == target && (hit == 0 || bullet->m04 == hit)) {
+            fn_805991E0(bullet);
+        }
+    }
+}
+
+void SkillEffectManager::fn_8059C32C(int clear) {
+    Bullet_unk* bullet = mBullets;
+    for (int i = 0; i < 32; i++, bullet++) {
+        if (bullet->IsActive_unk()) {
+            if (clear) {
+                bullet->SetCallback_unk(boost::function<void(Bullet_unk*)>());
+            }
+            fn_805991E0(bullet);
+        }
+    }
+}
+
+Bullet_unk* SkillEffectManager::fn_8059C5DC(CharaTask* owner, int id, int flags) {
+    Bullet_unk* bullet = mBullets;
+    for (int i = 0; i < 32; bullet++, i++) {
+        if (bullet->IsActive_unk() && (owner == 0 || bullet->m08 == owner) && (id <= 0 || id == bullet->m04->m04) &&
+            (flags <= 0 || (flags & bullet->m04->mAC) == flags)) {
+            return bullet;
+        }
+    }
+    return 0;
+}
+
+int SkillEffectManager::fn_8059C6DC(HitInfo_unk* hit, CharaTask* owner) {
+    if (hit == 0) {
+        return 0;
+    }
+    return fn_8059C5DC(owner, hit->m04, hit->mAC) != 0;
+}
+
+void SkillEffectManager::fn_8059C800(CharaTask* chara) {
+    fn_80232B7C(chara, 10);
+    atn::EfpFile* efp = IsEnemyField_unk(chara) ? &m2858 : &m284C;
+    float scale = chara->m1258;
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void SkillEffectManager::fn_8059C8D8(CharaTask* chara) {
+    fn_80239DAC(lbl_8087F3C0, chara, 10, 1);
+}
+
+void SkillEffectManager::fn_8059C8E8(CharaTask* chara) {
+    fn_80232B7C(chara, 11);
+    PlayEfp_unk(&m2864, chara->GetModel_unk(), 1.0f);
+}
+
+void SkillEffectManager::fn_8059C98C(CharaTask* chara) {
+    fn_80239DAC(lbl_8087F3C0, chara, 11, 1);
+}
+
+void SkillEffectManager::fn_8059C99C(CharaTask* chara) {
+    fn_80232B7C(chara, 12);
+    atn::EfpFile* efp = IsEnemyField_unk(chara) ? &m287C : &m2870;
+    float scale = chara->m1258;
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void SkillEffectManager::fn_8059CA74(CharaTask* chara) {
+    fn_80239DAC(lbl_8087F3C0, chara, 12, 1);
+}
+
+void SkillEffectManager::fn_8059CA84(CharaTask* chara) {
+    fn_80232B7C(chara, 13);
+    atn::EfpFile* efp = &m2888;
+    float scale = chara->m1258;
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void SkillEffectManager::fn_8059CB2C(CharaTask* chara) {
+    fn_80239DAC(lbl_8087F3C0, chara, 13, 1);
+}
+
+void SkillEffectManager::fn_8059CB3C(CharaTask* chara) {
+    fn_80232B7C(chara, 14);
+    atn::EfpFile* efp = &m2894;
+    float scale = chara->m1258;
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void SkillEffectManager::fn_8059CBE4(CharaTask* chara) {
+    fn_80239DAC(lbl_8087F3C0, chara, 14, 1);
+}
+
+void SkillEffectManager::fn_8059CBF4(CharaTask* chara) {
+    fn_80232B7C(chara, 15);
+    atn::EfpFile* efp = &m28AC;
+    float scale = chara->m1258;
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void SkillEffectManager::fn_8059CC9C(CharaTask* chara) {
+    fn_80239DAC(lbl_8087F3C0, chara, 15, 1);
+}
+
+// NONMATCHING: 96.2% - the original loads m648 before the other arguments of the first fn_8023A680
+// and swaps two registers in the copy of the second position
+void SkillEffectManager::fn_8059CCAC(CharaTask* chara, int id, atn::EffFile* eff, const atn::Vector3* offset) {
+    if (chara->m648 == 0) {
+        return;
+    }
+    ArmsData_unk* data = GetArms_unk(chara->m648)->m274;
+    if (strlen(data->m8C) == 0) {
+        return;
+    }
+    float scale = data->mB8 == 1 ? 0.5f : 1.0f;
+    atn::Vector3 pos = *offset * scale;
+    if (IsHighArms_unk(chara)) {
+        pos.y += -9.0f * scale;
+    }
+    fn_80232B7C(chara, id);
+    fn_8023A680(lbl_8087F3C0, eff, -1, 3, (atn::Model*)chara->m648->m010, &pos, 0, 0, 0, -1, 1, scale);
+    if (chara->m64C != 0) {
+        float scale2 = GetArms_unk(chara->m64C)->m274->mB8 == 1 ? 0.5f : 1.0f;
+        pos = *offset * scale2;
+        if (IsHighArms_unk(chara)) {
+            pos.y += -9.0f * scale2;
+        }
+        fn_8023A680(lbl_8087F3C0, eff, -1, 3, (atn::Model*)chara->m64C->m010, &pos, 0, 0, 0, -1, 1, scale2);
+    }
+}
+
+void SkillEffectManager::fn_8059CF70(CharaTask* chara) {
+    fn_8059CCAC(chara, 16, &m28C4, &atn::Vector3(0.0f, 7.0f, 0.0f));
+}
+
+void SkillEffectManager::fn_8059CFB0(CharaTask* chara, int keep) {
+    fn_80239DAC(lbl_8087F3C0, chara, 16, !keep);
+}
+
+void SkillEffectManager::fn_8059CFC4(CharaTask* chara) {
+    fn_8059CCAC(chara, 17, &m28D0, &atn::Vector3(0.0f, 4.0f, 0.0f));
+}
+
+void SkillEffectManager::fn_8059D004(CharaTask* chara, int keep) {
+    fn_80239DAC(lbl_8087F3C0, chara, 17, !keep);
+}
+
+void SkillEffectManager::fn_8059D018(CharaTask* chara) {
+    fn_8059CCAC(chara, 18, &m28DC, &atn::Vector3(0.0f, 4.0f, 0.0f));
+}
+
+void SkillEffectManager::fn_8059D058(CharaTask* chara, int keep) {
+    fn_80239DAC(lbl_8087F3C0, chara, 18, !keep);
+}
+
+void SkillEffectManager::fn_8059D06C(CharaTask* chara) {
+    fn_8059CCAC(chara, 19, &m28E8, &atn::Vector3(0.0f, 4.0f, 0.0f));
+}
+
+void SkillEffectManager::fn_8059D0AC(CharaTask* chara, int keep) {
+    fn_80239DAC(lbl_8087F3C0, chara, 19, !keep);
+}
+
+void SkillEffectManager::fn_8059D0C0(CharaTask* chara) {
+    fn_80232B7C(chara, 20);
+    atn::EfpFile* efp = &m28F4;
+    float scale = chara->m1258;
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, pos, rot, color, -1, -1, 1, scale);
+}
+
+void SkillEffectManager::fn_8059D168(CharaTask* chara) {
+    fn_80239DAC(lbl_8087F3C0, chara, 20, 1);
+}
+
+void SkillEffectManager::fn_8059D178() {
+    for (unsigned int i = 0; i < 32; i++) {
+        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        if (bullet != 0 && bullet->IsActive_unk() && (bullet->m08->mType == 3 || bullet->m08->mType == 0) &&
+            fn_8021A984(!bullet->fn_8059A264() ? bullet->m04 : bullet->GetOwnHit_unk())) {
+            fn_8059A0B4(bullet, &m28A0);
+        }
+    }
+}
+
+void SkillEffectManager::fn_8059D268(int arg) {
+    for (unsigned int i = 0; i < 32; i++) {
+        Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
+        if (bullet != 0 && bullet->IsActive_unk()) {
+            fn_8059A1FC(bullet, arg);
+        }
+    }
+}
+
+int SkillEffectManager::fn_8059D30C(CharaTask* chara) {
+    int count = 0;
+    for (int i = 0; i < 32; i++) {
+        if (mBullets[i].m08 != 0 && mBullets[i].m08->fn_8016F3D0(chara, 1)) {
+            HitInfo_unk* hit = mBullets[i].m04;
+            if (hit != 0) {
+                if (mBullets[i].fn_8059A264()) {
+                    hit = mBullets[i].GetOwnHit_unk();
+                }
+                if (fn_8021A984(hit)) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
 }

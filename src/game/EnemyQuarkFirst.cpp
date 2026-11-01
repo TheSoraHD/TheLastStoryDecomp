@@ -1,3 +1,4 @@
+#include "game/SkillEffectManager.h"
 #include "game/EnemyQuarkFirst.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -30,9 +31,6 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 // inferred: skill effect manager (lbl_8087F9E8); fn_8059C2A8 shows the skill of a character
-struct SkillEffect_unk;
-extern "C" SkillEffect_unk* lbl_8087F9E8;
-extern "C" void fn_8059C2A8(SkillEffect_unk* mgr, CharaTask* chara, HitInfo_unk* skill);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: collision world and its ray test (see game/ChaserNpc.cpp)
 extern "C" void* lbl_8087EE98;
@@ -221,7 +219,7 @@ int EnemyQuarkFirst::vf10C(HitMsg_unk* msg) {
         if ((msg->mData->m90.mFlags & 0x80000) == 0x80000) {
             m14D8 = 2;
             m14E0 = 300.0f;
-            fn_8059C2A8(lbl_8087F9E8, this, m1524);
+            lbl_8087F9E8->fn_8059C2A8(this, m1524);
             if (fn_805A49E4((SpecialFlag_unk*)&m1554) == 0) {
                 fn_805A4A1C((SpecialFlag_unk*)&m1554, 1);
             }
@@ -428,8 +426,8 @@ void EnemyQuarkFirst::vf100(int state) {
         if (mode == 1) {
             m14E0 = 300.0f;
         }
-        fn_8059C2A8(lbl_8087F9E8, this, m1520);
-        fn_8059C2A8(lbl_8087F9E8, this, m1524);
+        lbl_8087F9E8->fn_8059C2A8(this, m1520);
+        lbl_8087F9E8->fn_8059C2A8(this, m1524);
         QuarkDamage_unk result;
         fn_8003EA3C(&result, (&m1520)[m14D8], this, this, 0, &lbl_807C6B90, 0, 0);
         if (m14D8 == 0) {

@@ -23,12 +23,15 @@ struct ArmsCond_unk {
 
 // inferred: equipment data returned by fn_80206B14 (names invented)
 struct ArmsData_unk {
-    unsigned char m00[0x80];
+    unsigned char m00[0x78];
+    int m78;          // inferred: nonzero for some weapons (SkillEffectManager::fn_8059CCAC)
+    unsigned char m7C[0x80 - 0x7C];
     int m80;          // inferred: compared with the condition 8 parameter + 300
     unsigned char m84[0x8C - 0x84];
     char m8C[0x20];   // inferred: name of the .chr file
     int mAC[3];       // inferred: skill ids
-    unsigned char mB8[0xC4 - 0xB8];
+    int mB8;          // inferred: 1 halves the size of the weapon effects (SkillEffectManager::fn_8059CCAC)
+    unsigned char mBC[0xC4 - 0xBC];
     ArmsCond_unk mC4[2];
 };
 

@@ -6,6 +6,7 @@
 #include "atn/ResLoader_unk.h"
 #include "game/HitInfo_unk.h"
 #include "math/Vec.h"
+#include <boost/function.hpp>
 
 class CharaTask;
 
@@ -17,6 +18,8 @@ struct Bullet_unk {
     ~Bullet_unk(); // 0x80598900
     int fn_8059A264(); // inferred: nonzero when the effect uses its own copy of the hit data (m80)
 
+    // inferred: replaces the callback (weak copy 0x8059C3F4; name invented)
+    void SetCallback_unk(boost::function<void(Bullet_unk*)> callback) { mCallback = callback; }
     // inferred: state 3 = finished
     bool IsActive_unk() { return m04 != 0 && m00 != 3; }
     // inferred: own copy of the hit data
@@ -40,7 +43,9 @@ struct Bullet_unk {
     unsigned char m2C[0x5C - 0x2C];
     float m5C;         // inferred: radius
     int m60;           // inferred: frame counter
-    unsigned char m64[0x80 - 0x64];
+    unsigned char m64[0x68 - 0x64];
+    boost::function<void(Bullet_unk*)> mCallback; // 0x68: inferred: called when the effect ends
+    unsigned char m7C[0x80 - 0x7C];
     unsigned char m80[0x140 - 0x80];
 };
 
@@ -59,6 +64,42 @@ public:
     void fn_8059B0F0(); // inferred: releases the effect files
     int fn_8059B1B4();  // inferred: nonzero while loading
     void fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const atn::Vector3* pos, const atn::Vector3* rot);
+    void fn_8059C084(CharaTask* chara); // inferred: hits `chara` with the effects that touch it
+    void fn_8059C2A8(CharaTask* target, HitInfo_unk* hit); // inferred: stops the effects on target (of `hit`)
+    void fn_8059C32C(int clear); // inferred: stops every effect (and drops its callback)
+    // inferred: active effect of `owner` (any if null) with skill id `id` (any if <= 0) and all the
+    // flags `flags` (any if <= 0)
+    Bullet_unk* fn_8059C5DC(CharaTask* owner, int id, int flags);
+    int fn_8059C6DC(HitInfo_unk* hit, CharaTask* owner); // inferred: `owner` has an effect of `hit`
+    // inferred: status effects shown on a character (start/stop pairs; ids 10-15 of fn_80232B7C)
+    void fn_8059C800(CharaTask* chara);
+    void fn_8059C8D8(CharaTask* chara);
+    void fn_8059C8E8(CharaTask* chara);
+    void fn_8059C98C(CharaTask* chara);
+    void fn_8059C99C(CharaTask* chara);
+    void fn_8059CA74(CharaTask* chara);
+    void fn_8059CA84(CharaTask* chara);
+    void fn_8059CB2C(CharaTask* chara);
+    void fn_8059CB3C(CharaTask* chara);
+    void fn_8059CBE4(CharaTask* chara);
+    void fn_8059CBF4(CharaTask* chara);
+    void fn_8059CC9C(CharaTask* chara);
+    // inferred: plays `eff` on the weapons of `chara` at `offset` (effect id `id`)
+    void fn_8059CCAC(CharaTask* chara, int id, atn::EffFile* eff, const atn::Vector3* offset);
+    // inferred: weapon effects (start/stop pairs, ids 16-19) and status effect 20
+    void fn_8059CF70(CharaTask* chara);
+    void fn_8059CFB0(CharaTask* chara, int keep);
+    void fn_8059CFC4(CharaTask* chara);
+    void fn_8059D004(CharaTask* chara, int keep);
+    void fn_8059D018(CharaTask* chara);
+    void fn_8059D058(CharaTask* chara, int keep);
+    void fn_8059D06C(CharaTask* chara);
+    void fn_8059D0AC(CharaTask* chara, int keep);
+    void fn_8059D0C0(CharaTask* chara);
+    void fn_8059D168(CharaTask* chara);
+    void fn_8059D178();         // inferred: refreshes the effects of the players and allies (fn_8021A984)
+    void fn_8059D268(int arg);  // inferred: fn_8059A1FC on every active effect
+    int fn_8059D30C(CharaTask* chara); // inferred: effects of the allies of `chara` with fn_8021A984
 
     // inferred: effect slot i (null out of range); called on the singleton
     Bullet_unk* GetBullet_unk(unsigned int i) {
@@ -102,5 +143,8 @@ public:
     int m2928; // inferred: passed to every effect by vf10
     int m292C;
 };
+
+// inferred: the singleton (referenced by game/CharaTask.cpp and gmk/HealPoint.cpp)
+extern "C" SkillEffectManager* lbl_8087F9E8;
 
 #endif

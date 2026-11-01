@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/SkillEffectManager.h"
 #include "game/Inventory.h"
 #include "atn/LoadHandle.h"
 #include "game/CrowdManager.h"
@@ -6248,8 +6249,6 @@ static inline void AttachWeapons_unk(CharaTask* chara) {
     }
 }
 
-extern "C" atn::Task* lbl_8087F9E8; // inferred: manager notified when the weapon changes (flags read as a task)
-extern "C" void fn_8059C084(void* mgr, CharaTask* chara);
 
 // NONMATCHING: ~90% (102/985 lines) - everything matches except the r3/r4 swap in the matrix copies
 // of the inlined AttachWeapons_unk (see there) and the @stringBase0 offsets.
@@ -6288,7 +6287,7 @@ void CharaTask::fn_8014DEE4(int index, int keep, int noMotion) {
     }
     mStatus.fn_8012B988();
     if (lbl_8087F9E8 != 0) {
-        fn_8059C084(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059C084(this);
     }
     mStatus.fn_8013407C();
     if (lbl_8087F048 != 0) {
@@ -11332,25 +11331,6 @@ void CharaTask::fn_80178208(chr::ControlBase* control) {
     mControl.reset(control);
 }
 
-// inferred: bullet instance that hits characters (class unknown): m04 is its data, m08 its owner and
-// m80 a copy of the data used when fn_8059A264 is set
-struct Bullet_unk {
-    int fn_8059A264(); // inferred: m80 is in use
-    // inferred: name invented
-    HitInfo_unk* GetData_unk() {
-        HitInfo_unk* data = m04;
-        if (fn_8059A264()) {
-            data = &m80;
-        }
-        return data;
-    }
-
-    unsigned char m00[0x04];
-    HitInfo_unk* m04;
-    CharaTask* m08;
-    unsigned char m0C[0x80 - 0x0C];
-    HitInfo_unk m80;
-};
 
 // inferred: arena modes 0 and 1 (name invented)
 inline bool IsArena01_unk() {
@@ -11364,7 +11344,7 @@ inline bool IsArena01_unk() {
 // inferred: records the hit of `bullet` (and of its second bullet) on the character
 int CharaTask::fn_801784BC(Bullet_unk* bullet, int flag) {
     int result = 0;
-    HitInfo_unk* data = bullet->GetData_unk();
+    HitInfo_unk* data = bullet->GetHit_unk();
     HitInfo_unk* sub = data->m6C > 0 ? fn_80219E6C(data->m6C) : 0;
     if (data != 0) {
         int time = sub != 0 ? 2 : data->m5C;
@@ -11435,53 +11415,42 @@ int CharaTask::fn_801789D8(int id, unsigned int flags) {
     return FindHit_unk(id, flags) != 0;
 }
 
-extern "C" void fn_8059C8D8(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CA74(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059C98C(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CB2C(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CC9C(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CBE4(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CFB0(atn::Task* mgr, CharaTask* chara, int arg);
-extern "C" void fn_8059D004(atn::Task* mgr, CharaTask* chara, int arg);
-extern "C" void fn_8059D058(atn::Task* mgr, CharaTask* chara, int arg);
-extern "C" void fn_8059D0AC(atn::Task* mgr, CharaTask* chara, int arg);
-extern "C" void fn_8059D168(atn::Task* mgr, CharaTask* chara);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg);
 
 // inferred: ends the effects of the recorded hits and clears them
 void CharaTask::fn_80178A6C() {
     if ((m1374 & 1) == 1) {
-        fn_8059C8D8(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059C8D8(this);
     }
     if ((m1374 & 4) == 4) {
-        fn_8059CA74(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CA74(this);
     }
     if ((m1374 & 2) == 2) {
-        fn_8059C98C(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059C98C(this);
     }
     if ((m1374 & 8) == 8) {
-        fn_8059CB2C(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CB2C(this);
     }
     if ((m1374 & 0x100) == 0x100) {
-        fn_8059CC9C(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CC9C(this);
     }
     if ((m1374 & 0x10) == 0x10) {
-        fn_8059CBE4(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CBE4(this);
     }
     if ((m1374 & 0x20) == 0x20) {
-        fn_8059CFB0(lbl_8087F9E8, this, 0);
+        lbl_8087F9E8->fn_8059CFB0(this, 0);
     }
     if ((m1374 & 0x40) == 0x40) {
-        fn_8059D004(lbl_8087F9E8, this, 0);
+        lbl_8087F9E8->fn_8059D004(this, 0);
     }
     if ((m1374 & 0x200) == 0x200) {
-        fn_8059D058(lbl_8087F9E8, this, 0);
+        lbl_8087F9E8->fn_8059D058(this, 0);
     }
     if ((m1374 & 0x400) == 0x400) {
-        fn_8059D0AC(lbl_8087F9E8, this, 0);
+        lbl_8087F9E8->fn_8059D0AC(this, 0);
     }
     if ((m1374 & 0x800) == 0x800) {
-        fn_8059D168(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059D168(this);
     }
     m1374 = 0;
     m12D0.mCount = 0;
@@ -11489,17 +11458,6 @@ void CharaTask::fn_80178A6C() {
     fn_800CB5C8(&m1414, 0, 0);
 }
 
-extern "C" void fn_8059C800(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059C99C(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059C8E8(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CA84(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CBF4(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CB3C(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CF70(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059CFC4(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059D018(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059D06C(atn::Task* mgr, CharaTask* chara);
-extern "C" void fn_8059D0C0(atn::Task* mgr, CharaTask* chara);
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" int fn_8021A9A8(HitInfo_unk* hit);
@@ -11511,7 +11469,7 @@ extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames);
 // inferred: per-frame update of the recorded hits (status effects, timers, the hit sound)
 void CharaTask::fn_80178BFC() {
     if ((mStatus.m0C & 0x20) != 0x20 && (m54C & 0x2000) != 0x2000 && lbl_8087F9E8 != 0) {
-        fn_8059C084(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059C084(this);
     }
     int removed = 0;
     if (m674 != 0 || m1208 != 0) {
@@ -11562,72 +11520,72 @@ void CharaTask::fn_80178BFC() {
     }
     if ((m54C & 8) != 8 && !mFlagB1) {
         if ((m1374 & 1) != 1 && (flags & 1) == 1) {
-            fn_8059C800(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059C800(this);
         }
         if ((m1374 & 4) != 4 && (flags & 4) == 4) {
-            fn_8059C99C(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059C99C(this);
         }
         if ((m1374 & 2) != 2 && (flags & 2) == 2) {
-            fn_8059C8E8(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059C8E8(this);
         }
         if ((m1374 & 8) != 8 && (flags & 8) == 8 &&
             (mType != 2 || IsArena01_unk())) {
-            fn_8059CA84(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059CA84(this);
         }
         if ((m1374 & 0x100) != 0x100 && (flags & 0x100) == 0x100) {
-            fn_8059CBF4(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059CBF4(this);
         }
         if ((m1374 & 0x10) != 0x10 && (flags & 0x10) == 0x10) {
-            fn_8059CB3C(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059CB3C(this);
         }
         if ((m1374 & 0x20) != 0x20 && (flags & 0x20) == 0x20) {
-            fn_8059CF70(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059CF70(this);
         }
         if ((m1374 & 0x40) != 0x40 && (flags & 0x40) == 0x40) {
-            fn_8059CFC4(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059CFC4(this);
         }
         if ((m1374 & 0x200) != 0x200 && (flags & 0x200) == 0x200) {
-            fn_8059D018(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059D018(this);
         }
         if ((m1374 & 0x400) != 0x400 && (flags & 0x400) == 0x400) {
-            fn_8059D06C(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059D06C(this);
         }
         if ((m1374 & 0x800) != 0x800 && (flags & 0x800) == 0x800) {
-            fn_8059D0C0(lbl_8087F9E8, this);
+            lbl_8087F9E8->fn_8059D0C0(this);
         }
     }
     if ((m1374 & 1) == 1 && (flags & 1) != 1) {
-        fn_8059C8D8(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059C8D8(this);
     }
     if ((m1374 & 4) == 4 && (flags & 4) != 4) {
-        fn_8059CA74(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CA74(this);
     }
     if ((m1374 & 2) == 2 && (flags & 2) != 2) {
-        fn_8059C98C(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059C98C(this);
     }
     if ((m1374 & 8) == 8 && (flags & 8) != 8) {
-        fn_8059CB2C(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CB2C(this);
     }
     if ((m1374 & 0x100) == 0x100 && (flags & 0x100) != 0x100) {
-        fn_8059CC9C(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CC9C(this);
     }
     if ((m1374 & 0x10) == 0x10 && (flags & 0x10) != 0x10) {
-        fn_8059CBE4(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059CBE4(this);
     }
     if ((m1374 & 0x20) == 0x20 && (flags & 0x20) != 0x20) {
-        fn_8059CFB0(lbl_8087F9E8, this, removed);
+        lbl_8087F9E8->fn_8059CFB0(this, removed);
     }
     if ((m1374 & 0x40) == 0x40 && (flags & 0x40) != 0x40) {
-        fn_8059D004(lbl_8087F9E8, this, removed);
+        lbl_8087F9E8->fn_8059D004(this, removed);
     }
     if ((m1374 & 0x200) == 0x200 && (flags & 0x200) != 0x200) {
-        fn_8059D058(lbl_8087F9E8, this, removed);
+        lbl_8087F9E8->fn_8059D058(this, removed);
     }
     if ((m1374 & 0x400) == 0x400 && (flags & 0x400) != 0x400) {
-        fn_8059D0AC(lbl_8087F9E8, this, removed);
+        lbl_8087F9E8->fn_8059D0AC(this, removed);
     }
     if ((m1374 & 0x800) == 0x800 && (flags & 0x800) != 0x800) {
-        fn_8059D168(lbl_8087F9E8, this);
+        lbl_8087F9E8->fn_8059D168(this);
     }
     m1374 = flags;
     mStatus.m240 = effect;

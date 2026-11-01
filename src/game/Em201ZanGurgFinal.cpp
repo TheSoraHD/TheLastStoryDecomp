@@ -1,3 +1,4 @@
+#include "game/SkillEffectManager.h"
 #include "game/Em201ZanGurgFinal.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
@@ -118,9 +119,6 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-// inferred: skill effects (lbl_8087F9E8)
-extern "C" void* lbl_8087F9E8;
-extern "C" void fn_8059C32C(void* mgr, int arg);
 // inferred: damage record (as QueenDamage_unk of game/Em208Queen.cpp)
 struct ZanDamage_unk {
     ZanDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -1590,7 +1588,7 @@ void Em201ZanGurgFinal::fn_8026A34C() {
         field->m970 = 35;
         field->m974 = 0.3f;
         field->m978 = 0.3f;
-        fn_8059C32C(lbl_8087F9E8, 0);
+        lbl_8087F9E8->fn_8059C32C(0);
     }
 }
 

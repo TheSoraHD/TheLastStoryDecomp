@@ -122,7 +122,6 @@ extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vecto
                            unsigned int mask, void* ignore, int arg, HitInfo_unk* data, float radius); // inferred: sphere sweep
 
 extern "C" SkillEffectManager* lbl_8087F9E8;
-extern "C" Bullet_unk* fn_8059C5DC(SkillEffectManager* mgr, int a, int b, unsigned int mask); // inferred: shield effect
 extern "C" int fn_8021A8D0(HitInfo_unk* data); // inferred: the bullet goes through shields
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_8005361C(CollResult_unk* result, const atn::ColliCapsuleShape_unk* seg,
@@ -441,7 +440,7 @@ void Bullet::vf14(const Mtx m) {
 // collision and hits with fn_80110858
 void Bullet::fn_801100A0() {
     if (lbl_8087F9E8 != 0 && fn_8021A8D0(m68) == 0) {
-        Bullet_unk* shield = fn_8059C5DC(lbl_8087F9E8, 0, 0, 0x400000);
+        Bullet_unk* shield = lbl_8087F9E8->fn_8059C5DC(0, 0, 0x400000); // inferred: shield effect
         if (shield != 0 && shield->m08 != 0 && m88 != 0 && shield->m08->fn_8016F3D0(m88, 1) == 0) {
             atn::ColliCapsuleShape_unk seg;
             seg.mStart = m14;

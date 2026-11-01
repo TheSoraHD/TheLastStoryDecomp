@@ -340,7 +340,6 @@ struct ParamRecord_unk {
 };
 extern "C" void fn_80105DCC(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* motion, int arg); // inferred
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp)
-extern "C" void* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
