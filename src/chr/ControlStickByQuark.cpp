@@ -211,11 +211,15 @@ static inline atn::Vector3 LerpTo_unk(const atn::Vector3& a, const atn::Vector3&
 
 // inferred: m = m * translation(v) (name invented, as in gmk/Chain.cpp)
 static inline void TranslateMtx_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
-    Mtx t;
     Mtx r;
+    Mtx t;
     PSMTXTrans(t, v.x, v.y, v.z);
     PSMTXConcat(m.m, t, r);
     __MtxCopy(m.m, r);
+}
+
+static inline void TranslateXYZ_unk(atn::Matrix3x4& m, float x, float y, float z) {
+    TranslateMtx_unk(m, atn::Vector3(x, y, z));
 }
 
 // inferred: frame of track 0 (name invented)
@@ -897,7 +901,7 @@ bool ControlStickSwordSp::fn_80196C68() const {
     return ret;
 }
 
-// NONMATCHING: 92.9% - copies of the front vector and of the new position; guards while held by the mat (the player shakes the remote to break free)
+// NONMATCHING: 99.84% - stack slots of the lerp temporaries; guards while held by the mat (the player shakes the remote to break free)
 int ControlMatHoldGuard::vf0C() {
     if ((mChara->mStatus.m0C & 0x20) == 0x20) {
         mChara->vf44();
@@ -919,16 +923,14 @@ int ControlMatHoldGuard::vf0C() {
         }
     }
     atn::Matrix3x4 mtx = *(atn::Matrix3x4*)mHolder;
-    atn::Vector3 off;
-    off.z = -9.0f;
-    off.y = 0.0f;
-    off.x = -5.0f;
-    TranslateMtx_unk(mtx, off);
-    mChara->mPos = LerpTo_unk(mChara->mPos, mtx.GetTrans_unk(), 0.2f);
+    TranslateXYZ_unk(mtx, -5.0f, 0.0f, -9.0f);
+    atn::Vector3 pos = mtx.GetTrans_unk();
+    mChara->mPos = LerpTo_unk(mChara->mPos, pos, 0.2f);
     mtx.m[0][3] = 0.0f;
     mtx.m[1][3] = 0.0f;
     mtx.m[2][3] = 0.0f;
-    atn::Vector3 dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+    atn::Vector3 dir;
+    dir = atn::Vector3(0.0f, 0.0f, 1.0f);
     PSMTXMultVec(mtx.m, &dir, &dir);
     mChara->mRot = dir.ToRotation_unk();
     if (mCount <= 0) {
