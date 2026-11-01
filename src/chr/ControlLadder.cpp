@@ -4,6 +4,7 @@
 // are still asm.
 #include "chr/ControlLadder.h"
 #include "game/CharaTask.h"
+#include "macros.h"
 
 // inferred: collision world and its ray test (as in chr/ControlWallUp.cpp)
 struct LadderCollResult_unk {
@@ -23,6 +24,77 @@ extern "C" int fn_8004ED34(void* colli, LadderCollResult_unk* result, const atn:
                            unsigned int mask, void* ignore, int arg7);
 
 namespace chr {
+
+// inferred: climbs the ladder from `start` to `end` (motion 0x56 up, 0x55 down)
+ControlLadder::ControlLadder(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& end)
+    : ControlBase(chara), mStart(start), mEnd(end), m4C(0.0f) {
+    chara->SetControlId_unk(0x54);
+    Motion_unk* m = &mChara->mMotion;
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    m->m34C = 1;
+    m->mTracks[0].m0C = m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, mStart.y < mEnd.y ? 0x56 : 0x55, 0, 0, 1, 0.0f, 0.1f);
+    atn::Vector3 dir = mEnd - mStart;
+    dir.Length_unk();
+    dir.Normalize_unk();
+    mDir = dir;
+    m2C = 0;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    mChara->mPos = mStart;
+    mChara->mRot = dir.ToRotation_unk();
+    mChara->fn_801446F0();
+    mChara->fn_80176DFC(1, 0, 0);
+    mUp = mDir.y > 0.0f;
+}
+
+// inferred: progress of the motion of track 0 (frame / length; name invented)
+static inline float MotionRate_unk(Motion_unk* m) {
+    float frame = m->mTracks[0].m08;
+    return frame / m->fn_80097D7C(0);
+}
+
+// NONMATCHING: 94.7% - stack slots of the 0x59 case (the original puts the difference vector above
+// its product) and the scheduling of the prologue (the original loads mChara before saving r29-r31);
+// tried a switch, named/unnamed temporaries, a nested block. The clamp of the 0x59 case is expanded
+// once per component (the inliner substitutes the pure argument of operator*).
+// inferred: position of the character for the camera/collision while it gets on or off the ladder
+atn::Vector3 ControlLadder::vf14() {
+    Motion_unk* m = &mChara->mMotion;
+    if (m->mTracks[0].m00 == 0x59) {
+        float len = m->fn_80097D7C(0) - 24.0f;
+        float frame = m->mTracks[0].m08 - 24.0f;
+        return (mChara->mPos - m30) * MIN(1.0f, MAX(0.0f, frame / len)) + m30;
+    }
+    if (m->mTracks[0].m00 == 0x56) {
+        atn::Vector3 target = mChara->mPos;
+        target.y -= 16.0f;
+        float t = MIN(1.0f, MAX(0.0f, MotionRate_unk(m)));
+        return (target - mChara->mPos) * t + mChara->mPos;
+    }
+    if (m->mTracks[0].m00 == 0x55) {
+        atn::Vector3 target = mChara->mPos;
+        target.y -= 16.0f;
+        float t = MIN(1.0f, MAX(0.0f, MotionRate_unk(m)));
+        return (target - mChara->mPos) * t + mChara->mPos;
+    }
+    if (m->mTracks[0].m00 == 0x58) {
+        atn::Vector3 r = mChara->mPos;
+        r.y -= 16.0f;
+        return r;
+    }
+    if (m->mTracks[0].m00 == 0x5A) {
+        atn::Vector3 r = mChara->mPos;
+        r.y -= 16.0f * MAX(0.0f, 1.0f - (1.0f + m->mTracks[0].m08) / m->fn_80097D7C(0));
+        return r;
+    }
+    return mChara->mPos;
+}
 
 // NONMATCHING: 97.2% - offset of "hips" in the string pool: "spine" comes first in the original (it is
 // used by vf0C/vf14, not written yet)
