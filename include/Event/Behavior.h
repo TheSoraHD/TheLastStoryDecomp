@@ -12,6 +12,7 @@ class CharaTask;
 namespace atn {
 
 class Model;
+class LH_Xsca;
 
 // inferred: base giving the class a single instance (a function-local static, see
 // Event/Behavior_unk.cpp)
@@ -49,6 +50,13 @@ struct Actor_unk {
     unsigned char m24[0x1C0 - 0x24];
 };
 
+// inferred: camera animation of an event (0x1C bytes, found by id)
+struct CameraAnim_unk {
+    unsigned char m00[0x14];
+    int m14;              // inferred: id
+    atn::LH_Xsca* m18;    // inferred: the loaded animation
+};
+
 // inferred: event manager returned by Action::fn_805381C8
 struct EventManager_unk {
     // inferred: lookup of an actor by id (inlined)
@@ -66,9 +74,14 @@ struct EventManager_unk {
     // inferred: rotates `v` by the yaw at 0xB4 (0x80541C94 in Event/Sequence)
     atn::Vector3 fn_80541C94(const atn::Vector3& v);
 
-    unsigned char m000[0x164];
+    unsigned char m000[0x124];
+    struct CameraAnim_unk* m124; // 0x124: inferred: camera animations of the event (0x1C bytes each)
+    int m128;
+    unsigned char m12C[0x164 - 0x12C];
     Actor_unk* m164;
     int m168;
+    unsigned char m16C[0x198 - 0x16C];
+    float m198; // 0x198: inferred: current frame
 };
 
 struct ActionOwner_unk {

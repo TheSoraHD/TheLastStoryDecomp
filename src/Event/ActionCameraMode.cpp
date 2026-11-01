@@ -1,15 +1,235 @@
-extern "C" int fn_8055DBD4() {
+#include "Event/Behavior.h"
+#include "Event/Path.h"
+#include "atn/LH_Xsca.h"
+
+// Camera actions of the events: processors with vf08 (per frame) and vf0C (phase 0: start, 3/4:
+// end), as the Event::Behavior* ones. Class names from the RTTI; the order of the vtables is
+// Inertia, Motion, Focus, Setting, Shake, Effect, Mode.
+
+namespace atn {
+
+// inferred: base named in the RTTI of the processors (no member is used here)
+template <class T>
+class SingletonNoStatic {};
+
+} // namespace atn
+
+extern "C" void fn_80481818(void* manager); // inferred: called when a camera action starts
+extern "C" atn::Vector3 lbl_807C7030;      // inferred: zero vector
+
+namespace Event {
+
+// inferred: the event manager (lbl_8087F540) seen through its cameras (four of 0x65C bytes at
+// 0xC8, one per section: Section::m10)
+struct CameraOwner_unk {
+    unsigned char m00[0xC8];
+    EventCamera_unk mCameras[4];
+};
+
+} // namespace Event
+
+extern "C" Event::CameraOwner_unk* lbl_8087F540;
+
+namespace Event {
+
+// inferred: camera of the section of an action
+inline EventCamera_unk* GetCamera_unk(ActionOwner_unk* section) {
+    return &lbl_8087F540->mCameras[section->m10];
+}
+
+class ActionCameraInertia : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraInertia> {
+public:
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
+};
+
+class ActionCameraMotion : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraMotion> {
+public:
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
+};
+
+class ActionCameraFocus : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraFocus> {
+public:
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
+};
+
+class ActionCameraSetting : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraSetting> {
+public:
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
+};
+
+class ActionCameraShake : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraShake> {
+public:
+    virtual int vf08(Action* arg);
+    virtual int vf0C(Action* arg, int phase);
+};
+
+int ActionCameraShake::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        fn_80481818(lbl_8087F540);
+        ActionOwner_unk* section = arg->fn_805381A0();
+        arg->fn_805381C8();
+        atn::Vector3 amp;
+        amp.x = arg->GetParam_unk(0)->m04.f;
+        amp.y = arg->GetParam_unk(1)->m04.f;
+        amp.z = arg->GetParam_unk(2)->m04.f;
+        float a = arg->GetParam_unk(3)->m04.f;
+        atn::Vector3 freq;
+        freq.x = arg->GetParam_unk(4)->m04.f;
+        freq.y = arg->GetParam_unk(5)->m04.f;
+        freq.z = arg->GetParam_unk(6)->m04.f;
+        float b = arg->GetParam_unk(7)->m04.f;
+        GetCamera_unk(section)->fn_8011462C(1, amp, freq, a, b);
+        break;
+    }
+    case 3:
+    case 4:
+        GetCamera_unk(arg->fn_805381A0())->fn_8011462C(0, lbl_807C7030, lbl_807C7030, 0.0f, 0.0f);
+        break;
+    }
     return 0;
 }
 
-extern "C" int fn_8055DBDC() {
+int ActionCameraSetting::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        fn_80481818(lbl_8087F540);
+        ActionOwner_unk* section = arg->fn_805381A0();
+        if (arg->GetParam_unk(0)->m04.i != 0) {
+            GetCamera_unk(section)->fn_80112840();
+        }
+    }
     return 0;
 }
 
-extern "C" int fn_8055DBE4() {
+// inferred: speeds of the focus change selected by parameter 5 (pairs of the same value)
+static float sFocusSpeed_unk[5][2] = {
+    {0.5f, 0.5f}, {1.0f, 1.0f}, {1.5f, 1.5f}, {0.1f, 0.1f}, {0.01f, 0.01f},
+};
+
+// NONMATCHING: 96.9% - registers of the speed row (the original indexes with lfsx and keeps the
+// parameter 6 pointer in r7)
+int ActionCameraFocus::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        fn_80481818(lbl_8087F540);
+        ActionOwner_unk* section = arg->fn_805381A0();
+        if (arg->GetParam_unk(0)->m04.i != 0) {
+            float a = arg->GetParam_unk(1)->m04.f;
+            float b = arg->GetParam_unk(2)->m04.f;
+            float c = arg->GetParam_unk(3)->m04.f;
+            float d = arg->GetParam_unk(4)->m04.f;
+            int speed = arg->GetParam_unk(5)->m04.i;
+            ActionParam_unk* mode = arg->GetParam_unk(6);
+            float* sp = sFocusSpeed_unk[speed];
+            float e = sp[0];
+            GetCamera_unk(section)->fn_8011447C(a, b, c, d, sp[1], e, arg->m18, mode->m04.i);
+        } else {
+            GetCamera_unk(section)->fn_80114468();
+        }
+    }
     return 0;
 }
 
-extern "C" int fn_8055DBEC() {
+// inferred: camera animation `id` of the event (no null test of the entry, as in the original)
+inline CameraAnim_unk* FindCameraAnim_unk(EventManager_unk* manager, int id) {
+    for (int i = 0; i < manager->m128; i++) {
+        CameraAnim_unk* anim = &manager->m124[(unsigned int)i];
+        if (id == anim->m14) {
+            return anim;
+        }
+    }
     return 0;
 }
+inline Xsca_unk* GetCameraAnim_unk(EventManager_unk* manager, int id) {
+    CameraAnim_unk* anim = FindCameraAnim_unk(manager, id);
+    return anim->m18 != 0 ? (Xsca_unk*)anim->m18->fn_804786F8() : 0;
+}
+
+// NONMATCHING: 94.9% - registers of the animation search and order of the int->float conversions of
+// the start time (tried casts, a local for the current frame, both groupings)
+int ActionCameraMotion::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        fn_80481818(lbl_8087F540);
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = arg->GetParam_unk(0)->m04.i;
+        float a = arg->GetParam_unk(1)->m04.f;
+        float b = arg->GetParam_unk(2)->m04.f;
+        float c = arg->GetParam_unk(3)->m04.f;
+        int frame = arg->GetParam_unk(4)->m04.i;
+        Xsca_unk* anim = GetCameraAnim_unk(manager, id);
+        EventCamera_unk* camera = GetCamera_unk(section);
+        camera->m400 = anim;
+        camera->m404 = a;
+        camera->m40C = b;
+        camera->m410 = c;
+        camera->m408 = frame;
+        camera->m41C = 0;
+        camera = GetCamera_unk(section);
+        camera->m414 = arg->m18 + (arg->m10 - manager->m198);
+        camera->m418 = 0.0f;
+        break;
+    }
+    case 2: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        EventCamera_unk* camera = GetCamera_unk(section);
+        float now = manager->m198;
+        camera->m414 = -(arg->m18 + ((arg->m14 - arg->m1C) - now));
+        camera->m418 = 0.0f;
+        break;
+    }
+    case 3:
+    case 4: {
+        EventCamera_unk* camera = GetCamera_unk(arg->fn_805381A0());
+        camera->m400 = 0;
+        camera->m404 = 1.0f;
+        camera->m40C = 1.0f;
+        camera->m410 = 1.0f;
+        camera->m408 = 0.0f;
+        camera->m41C = 0;
+        break;
+    }
+    }
+    return 0;
+}
+
+int ActionCameraInertia::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        fn_80481818(lbl_8087F540);
+        ActionOwner_unk* section = arg->fn_805381A0();
+        float a = arg->GetParam_unk(0)->m04.f;
+        float b = arg->GetParam_unk(1)->m04.f;
+        GetCamera_unk(section)->fn_80112974(1, a, b);
+        break;
+    }
+    case 3:
+    case 4:
+        GetCamera_unk(arg->fn_805381A0())->fn_80112974(0, 1.0f, 1.0f);
+        break;
+    }
+    return 0;
+}
+
+int ActionCameraInertia::vf08(Action* arg) {
+    return 0;
+}
+
+int ActionCameraMotion::vf08(Action* arg) {
+    return 0;
+}
+
+int ActionCameraFocus::vf08(Action* arg) {
+    return 0;
+}
+
+int ActionCameraShake::vf08(Action* arg) {
+    return 0;
+}
+
+} // namespace Event
