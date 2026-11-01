@@ -165,7 +165,6 @@ inline T Clamp_unk(T x, T lo, T hi) {
     return lo;
 }
 
-// NONMATCHING: new
 void ActionActorPosition::fn_80551194(Action* arg, float t) {
     ActionOwner_unk* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
@@ -212,8 +211,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
             }
         }
         if (t > 0.0f) {
-            float s = 1.0f - t / (float)fn_80223EB8(arg);
-            s = fn_8048BD04(fn_8000DB1C(), actor->GetCurve_unk(), s);
+            float s = fn_8048BD04(fn_8000DB1C(), actor->GetCurve_unk(), 1.0f - t / (float)fn_80223EB8(arg));
             atn::Vector3 from = actor->GetTarget_unk();
             atn::Vector3 d = pos - from;
             float len = d.Length_unk();
@@ -246,7 +244,8 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
             if (node == 0) {
                 actor->SetTarget_unk(pos);
             } else {
-                actor->SetTarget_unk(pos + ((atn::Matrix3x4*)node)->GetTrans_unk());
+                atn::Vector3 world = pos + ((atn::Matrix3x4*)node)->GetTrans_unk();
+                actor->SetTarget_unk(world);
             }
             actor->fn_8001011C(pos);
             if (face == 0 || diff.Length_unk() > 0.0f) {
@@ -267,8 +266,9 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
                     offset.fn_80011410(nm);
                     pos = offset;
                 }
-                atn::Matrix3x4 r = MakeRotYXZ_unk(rot);
-                fn_8008CD1C(&mtx, &r);
+                // the address of the temporary (warning "not an lvalue", as in game/Em403WarLion.cpp) gives
+                // the stack slots of the original; a named local or a reference do not
+                fn_8008CD1C(&mtx, &MakeRotYXZ_unk(rot));
                 mtx.fn_801479E4(pos);
             }
         }
@@ -279,7 +279,8 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         // along the path of the actor
         if (arg->GetParamAt_unk(1)->GetIndex_unk() != -1) {
             float u = Clamp_unk(1.0f - t / (float)fn_80223EB8(arg), 0.0f, 1.0f);
-            actor->fn_8001011C(fn_80541BD8(manager, actor->GetPathPos_unk(u)));
+            atn::Vector3 world = fn_80541BD8(manager, actor->GetPathPos_unk(u));
+            actor->fn_8001011C(world);
             int turn = arg->GetParamAt_unk(2)->GetMode_unk();
             if (turn != 0) {
                 float u0 = Clamp_unk(u - 0.001f, 0.0f, 1.0f);
@@ -297,7 +298,8 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         moveArg = fn_802245B8(arg->GetParamAt_unk(4));
     } else if (mode == 2) {
         // to an actor (or one of its nodes) plus an offset, without rotation
-        Actor_unk* target = manager->GetActors_unk()->Find_unk(arg->GetParamAt_unk(1)->GetActorId_unk());
+        int id = arg->GetParamAt_unk(1)->GetActorId_unk();
+        Actor_unk* target = manager->GetActors_unk()->Find_unk(id);
         atn::Vector3 pos = target->fn_80010374();
         atn::Vector3 offset = arg->fn_805381F0(3);
         if (target->IsState6_unk()) {
@@ -335,7 +337,8 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         moveArg = fn_802245B8(arg->GetParamAt_unk(9));
     } else if (mode == 3) {
         // rotation only (optionally relative to a node)
-        Actor_unk* target = manager->GetActors_unk()->Find_unk(arg->GetParamAt_unk(1)->GetActorId_unk());
+        int id = arg->GetParamAt_unk(1)->GetActorId_unk();
+        Actor_unk* target = manager->GetActors_unk()->Find_unk(id);
         MtxPtr node = arg->fn_805389B8(1);
         int addRot = fn_80224610(arg->GetParamAt_unk(6));
         atn::Vector3 rot = arg->fn_80538C14(3);
@@ -363,8 +366,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         }
         atn::Matrix3x4 mtx = MakeIdentity_unk();
         if (node != 0) {
-            atn::Matrix3x4 r = MakeRotYXZ_unk(rot);
-            fn_8008CD1C(&mtx, &r);
+            fn_8008CD1C(&mtx, &MakeRotYXZ_unk(rot));
         }
         actor->fn_8001122C(node, 0, 1, mtx);
     }

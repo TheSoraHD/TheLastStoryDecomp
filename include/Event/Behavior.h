@@ -58,6 +58,8 @@ struct Actor_unk {
     atn::Vector3 GetTarget_unk() const { return mD0; }
     atn::Vector3 GetRot_unk() const { return mC4; }
     void SetRot_unk(const atn::Vector3& v) { mC4 = v; }
+    // NONMATCHING: weak copy 0x80551E3C 60% - the original stores z before the paired single (tried
+    // Assign_unk, a temporary and a by-value parameter)
     void SetTarget_unk(const atn::Vector3& v) { mD0 = v; }
     int GetState_unk() const { return m20; }
     atn::Vector3 GetPathPos_unk(float t) { return mPath.GetPos_unk(t); }
