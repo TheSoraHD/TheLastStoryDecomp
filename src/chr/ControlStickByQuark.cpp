@@ -1147,7 +1147,7 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
     if (mChara->mFlag31) {
         mChara->fn_801539E0();
     }
-    if (mChara->IsFlag5_unk()) {
+    if (mChara->mFlag5) {
         mChara->mFlag5 = 0;
     }
     float n = (float)frames;
