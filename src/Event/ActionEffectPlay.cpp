@@ -516,6 +516,11 @@ public:
 };
 
 // NONMATCHING: first draft
+// inferred: degrees to radians
+inline float ToRad_unk(float deg) {
+    return 0.017453292f * deg;
+}
+
 int ActionEffectPlay::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -530,9 +535,9 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
         float scale = arg->GetParam_unk(6)->m04.f;
         int follow = arg->GetParam_unk(7)->m04.i;
         atn::Vector3 rot;
-        rot.x = 0.017453292f * arg->GetParam_unk(8)->m04.f;
-        rot.y = 0.017453292f * arg->GetParam_unk(9)->m04.f;
-        rot.z = 0.017453292f * arg->GetParam_unk(10)->m04.f;
+        rot.x = ToRad_unk(arg->GetParam_unk(8)->m04.f);
+        rot.y = ToRad_unk(arg->GetParam_unk(9)->m04.f);
+        rot.z = ToRad_unk(arg->GetParam_unk(10)->m04.f);
         if (arg->GetParam_unk(12)->m04.i != 0) {
             ActionParam_unk* keyed = arg->GetParam_unk(13);
             ActionParam_unk* key = arg->GetParam_unk(14);
