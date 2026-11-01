@@ -3,6 +3,7 @@
 
 #include "chr/ControlBase.h"
 #include "chr/ControlCdn.h"
+#include "atn/SoundRef.h"
 
 class EnemyQuarkStand;
 class SwordAttack_unk;
@@ -214,7 +215,12 @@ public:
     virtual int vf0C();
     virtual boost::function<void()> vf10();
     virtual void vf1C();
-    unsigned char m08[0x28 - 0x08];
+    int m08;
+    CharaTask* mOther;    // 0x0C
+    atn::Vector3 mDir;    // 0x10
+    int m1C;
+    atn::SoundRef mSound; // 0x20
+    int m24;
 };
 
 class ControlThreadDead : public ControlBase {

@@ -388,6 +388,46 @@ void ControlMatHoldGuard::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+
+// inferred: caught by the thread of `other` (control id 0x74), pulled towards it
+ControlThreadCatch::ControlThreadCatch(Chara_unk* chara, int other, int b)
+    : ControlBase(chara), m08(0), mOther((CharaTask*)other), m1C(0x5A), m24(b) {
+    if (mChara->m58C != 2) {
+        mChara->m58C = 0;
+    }
+    mChara->SetControlId_unk(0x74);
+    mChara->mColli.mFlags &= ~1;
+    mChara->fn_8016DA4C();
+    mChara->fn_80164DCC(1);
+    if (mChara->mFlag31) {
+        chara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    CharaTask* c = mChara;
+    mDir = c->mPos - ((CharaTask*)other)->mPos;
+    mDir.y = 0.0f;
+    mDir.Normalize_unk();
+    mDir *= 15.0f;
+    mChara->SetM6B8_unk(mDir);
+    mChara->mRot = mDir.ToRotation_unk();
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x225, 0, 0, 1, 0.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+}
+
+ControlThreadCatch::~ControlThreadCatch() {
+    fn_800CB5C8(&mSound, 3, 0);
+}
+
+void ControlThreadCatch::vf1C() {
+    mChara->mColli.mFlags |= 1;
+}
+
 // inferred: killed by the thread (control id 0x76); the collision is turned off until the end
 ControlThreadDead::ControlThreadDead(Chara_unk* chara, int a) : ControlBase(chara), m08(a) {
     chara->SetControlId_unk(0x76);
