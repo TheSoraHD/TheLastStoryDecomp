@@ -11,6 +11,7 @@
 #include "std/string.h"
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
+#include "Event/Dialog.h"
 
 // Everything below is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
@@ -56,16 +57,6 @@ struct DialogColor_unk {
 struct DialogColor4_unk {
     float r, g, b, a;
 };
-// inferred: two floats copied with one paired single
-struct DialogVec2_unk {
-    DialogVec2_unk() {}
-    DialogVec2_unk(const DialogVec2_unk& o) { __Vec2Copy(&x, &o.x); }
-    DialogVec2_unk& operator=(const DialogVec2_unk& o) {
-        __Vec2Copy(&x, &o.x);
-        return *this;
-    }
-    float x, y;
-};
 struct DialogText_unk {
     DialogText_unk() {}
     int mSlot;
@@ -108,24 +99,6 @@ struct DialogPostFx_unk {
 };
 extern "C" DialogPostFx_unk* lbl_8087EF8C;
 
-// inferred: fog parameters (lbl_8087EFA8 + 0xD4)
-struct DialogFog_unk {
-    DialogFog_unk()
-        : mEnable(1), m04(0), m08(0), m0C(1), m10(200.0f), m14(500.0f), m18(30.0f), m1C(10.0f), m20(0x140), m24(0xE0),
-          m28(1.5f), m2C(1.5f) {}
-    int mEnable;
-    int m04;
-    int m08;
-    int m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    int m20;
-    int m24;
-    float m28;
-    float m2C;
-};
 // inferred: four floats copied with paired singles (color of the bloom)
 struct DialogVec4_unk {
     DialogVec4_unk() {}
@@ -265,87 +238,29 @@ struct DialogEvent_unk {
     int m168;
 };
 
-// inferred: position of a balloon slot (fractions of the screen)
-struct DialogPos_unk {
-    float x;
-    float y;
-    int mKind;
-};
 static const DialogPos_unk sPos[4] = {{0.07f, 0.645f, 1}, {0.9f, 0.645f, 2}, {0.6f, 0.4f, 1}, {0.3f, 0.2f, 1}};
 static const char* const sSound = "SE_UICOM_027";
 
-// inferred from __vt__Q25Event6Dialog (0x807839E0): balloons of the event conversations
-class Dialog : public atn::Task {
-public:
-    struct Head_unk {
-        Head_unk() : mKey(0) {}
-        unsigned int mKey;
-        DialogHead* mHead;
-    };
-    struct Slot_unk {
-        const DialogPos_unk* mPos;
-        DialogVec2_unk mXY;
-        DialogHead* mHead;
-    };
-
-    Dialog(atn::Task* parent);
-    static Dialog* fn_802288D0(atn::Task* parent); // inferred: creates the task
-    virtual ~Dialog();
-    virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
-
-    // inferred: the last two arguments (length and an option of Event::ActionDialogSpeaker) are not used
-    void fn_80228AF4(int slot, Actor_unk* actor, int kind, int arg, int frames, int option);
-    void fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg, int frames, int option); // inferred: shows a balloon
-    void fn_80228CA0(int slot, const wchar_t* text, int align, int size, int arg, float f1, float f2,
-                     unsigned int color, int mode, int offset); // inferred: adds a text
-    void fn_80228FD8(); // inferred: starts the conversation
-    int fn_802291BC();
-    void fn_80229240(); // inferred: ends the conversation
-    void fn_802292AC(int hide);
-    void fn_80229414(); // inferred: input
-    DialogHead* fn_8022960C(Actor_unk* actor);
-    void fn_802297AC(); // inferred: update
-
-    void ResetPos_unk() {
-        float w = lbl_8087EEE0->mWidth;
-        float h = lbl_8087EEE0->mHeight;
-        for (int i = 0; i < 4; i++) {
-            mSlots[i].mXY.x = w * sPos[i].x;
-            mSlots[i].mXY.y = h * sPos[i].y;
-        }
+inline void Dialog::ResetPos_unk() {
+    float w = lbl_8087EEE0->mWidth;
+    float h = lbl_8087EEE0->mHeight;
+    for (int i = 0; i < 4; i++) {
+        mSlots[i].mXY.x = w * sPos[i].x;
+        mSlots[i].mXY.y = h * sPos[i].y;
     }
-    static unsigned int MakeKey_unk(Actor_unk* actor, int kind) {
-        DialogKey_unk key;
-        key.w = 0;
-        CharaTask* chara = fn_80012934(actor);
-        if (chara != 0) {
-            key.s.mType = chara->fn_80179AB4();
-            key.s.mId = chara->fn_80179A34() / 10000;
-            key.s.mKind = kind;
-        }
-        return key.w;
-    }
-    Head_unk* FindHead_unk(Actor_unk* actor, int kind);
+}
 
-    int m48; // inferred: number of balloons
-    Head_unk mHeads[16];
-    Slot_unk mSlots[4];
-    DialogD2A_unk* m10C; // inferred: ui_c_event_button.d2a
-    int m110;            // inferred: state
-    int m114;
-    int m118; // inferred: saved camera mode
-    int m11C; // inferred: last slot with a text
-    atn::Texture_unk m120;
-    int m150; // inferred: fade counter
-    DialogFog_unk mFog;
-    LipSyncData_unk m184;
-    LipSyncKeys_unk m190; // inferred: default keys
-    unsigned char m198;
-    unsigned char m199;
-    int m19C;
-};
+inline unsigned int Dialog::MakeKey_unk(Actor_unk* actor, int kind) {
+    DialogKey_unk key;
+    key.w = 0;
+    CharaTask* chara = fn_80012934(actor);
+    if (chara != 0) {
+        key.s.mType = chara->fn_80179AB4();
+        key.s.mId = chara->fn_80179A34() / 10000;
+        key.s.mKind = kind;
+    }
+    return key.w;
+}
 
 // inferred: name of the balloon file of a character (defined after the creator)
 static std::basic_string<char> GetPath_unk(Actor_unk* actor, int kind);
