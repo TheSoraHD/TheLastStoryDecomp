@@ -41,6 +41,7 @@ symbol is still `fn_<ADDR>` but our code uses a real name.
   `.text`) and the `libs_ref.json` entry. Then configure + `ninja` (main.dol: OK is the check).
 
 - `pd.sh <unidad>`: resetlocal + pairdata con reversión si baja fnstat (auto-20261101b).
+- `labelcheck.py <unidad...>`: etiquetas `@N` de los datos del split que faltan en nuestro `.o` (tras tocar una cabecera, repetir `pd.sh` en esas unidades; report.json no lo detecta).
 - `gap.py <report.json>`: unidades con más 100% en report.json que en objdiff (candidatas a pairdata).
 - `blonly.py`: funciones que solo fallan por el destino de llamadas (`bl X | bl Y`) y nombres de etiquetas.
 - `tomethod.py FN fichero...`: convierte llamadas `extern "C" FN(obj, ...)` en `obj->FN(...)`.
