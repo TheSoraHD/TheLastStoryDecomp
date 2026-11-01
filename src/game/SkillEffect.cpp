@@ -25,6 +25,10 @@ extern "C" void fn_80232B7C(void* owner, int id); // inferred: names the next ef
 extern "C" atn::EfpFile* fn_800EFC64(int id);     // inferred: efp of a skill (game/BattleEfp_unk.cpp)
 extern "C" atn::Vector3 lbl_807C7030;             // inferred: zero vector
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
+extern "C" int fn_8021A960(HitInfo_unk* hit);
+extern "C" int fn_8021A984(HitInfo_unk* hit);
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
@@ -34,6 +38,99 @@ SkillEffect::SkillEffect() : m00(3), m04(0), m08(0), m10(0.0f, 0.0f, 0.0f), m1C(
 }
 
 SkillEffect::~SkillEffect() {}
+
+// NONMATCHING: 89% - the original copies the skill data word by word (0x14-0x74 in a loop), so the
+// real struct has no float members there (ours: BulletParam_unk, typed copies); the local matrices of
+// RotateZYX_unk are above the rotation temporaries in the original
+void SkillEffect::fn_805989A4(HitInfo_unk* skill, CharaTask* user, CharaTask* target, const atn::Vector3* pos,
+                              const atn::Vector3* rot, boost::function<void(SkillEffect*)> callback, float rate) {
+    if (skill == 0) {
+        return;
+    }
+    m00 = 0;
+    m04 = skill;
+    m08 = user;
+    if (user != 0) {
+        user->fn_8017639C((CharaAttach_unk*)this); // inferred: CharaAttach_unk is a view of SkillEffect
+    }
+    m0C = target;
+    m5C = m04->m58;
+    m28 = rate;
+    m60 = 0;
+    mCallback = callback;
+    m7C = 0;
+    m13C = 0;
+    char kind = m04->m02;
+    if (kind == 0) {
+        m10 = m0C->mPos;
+        m1C = m0C->mRot;
+    } else if (kind == 4) {
+        m10 = m08->mPos;
+        m1C = m08->mRot;
+    } else if (kind == 3) {
+        m10 = *pos;
+        m1C = *rot;
+    } else {
+        m10 = *pos;
+        m1C = *rot;
+    }
+    m2C.SetIdentity();
+    m2C.RotateZYX_unk(m1C);
+    m2C.fn_801479E4(m10);
+    m80 = *(BulletParam_unk*)skill;
+    if (fn_8021A960(m04) || fn_8021A984(m04)) {
+        m80.m5C = ((BulletParam_unk*)m04)->m5C;
+        for (int i = 0; i < 4; i++) {
+            int v = m80.m98[i];
+            if (v > 0) {
+                m80.m98[i] = -(v < 5 ? v : 5);
+            } else {
+                m80.m98[i] = -(v > -5 ? v : -5);
+            }
+        }
+        if (m80.mKind == 5) {
+            m80.mKind = 4;
+            BulletParam_unk* data = (BulletParam_unk*)fn_80219E6C(0x694);
+            if (data != 0) {
+                m80.mId = data->mId;
+                m80.mName = data->mName;
+                m80.mText = data->mText;
+                m80.m64 = data->m64;
+                m80.m6C = data->m6C;
+                m80.m70 = data->m70;
+                m80.m02 = data->m02;
+                m80.m90 = data->m90;
+                m80.m94 = data->m94;
+                m80.mAC = data->mAC & ~0x20;
+                memcpy(m80.m74, data->m74, sizeof(m80.m74));
+            }
+        } else if (m80.mKind == 4) {
+            m80.mKind = 5;
+            BulletParam_unk* data = (BulletParam_unk*)fn_80219E6C(0x7EC);
+            BulletParam_unk* name = (BulletParam_unk*)fn_80219E6C(0x4EF8);
+            if (data != 0 && name != 0) {
+                m80.mId = name->mId;
+                m80.mName = name->mName;
+                m80.mText = name->mText;
+                m80.m64 = data->m64;
+                m80.m6C = data->m6C;
+                m80.m70 = data->m70;
+                m80.m02 = data->m02;
+                m80.m90 = data->m90;
+                m80.m94 = data->m94;
+                m80.mAC = data->mAC;
+                memcpy(m80.m74, data->m74, sizeof(m80.m74));
+                if ((skill->mAC & 0x20) == 0x20) {
+                    m80.m58 = data->m58;
+                    m80.m5C = data->m5C;
+                }
+            }
+        }
+    }
+    if ((skill->mAC & 0x800000) == 0x800000) {
+        lbl_8087F9E8->fn_8059D3B0(m08);
+    }
+}
 
 void SkillEffect::fn_805991E0() {
     if (mCallback) {

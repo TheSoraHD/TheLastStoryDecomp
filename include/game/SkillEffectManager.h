@@ -18,6 +18,9 @@ class CharaTask;
 struct SkillEffect {
     SkillEffect();  // 0x80598874
     ~SkillEffect(); // 0x80598900
+    // inferred: starts the effect of `skill` from `user` on `target`
+    void fn_805989A4(HitInfo_unk* skill, CharaTask* user, CharaTask* target, const atn::Vector3* pos,
+                     const atn::Vector3* rot, boost::function<void(SkillEffect*)> callback, float rate);
     void fn_805991E0();        // inferred: stops it (runs the callback)
     void fn_80599C6C();        // inferred: draw (empty in this build)
     int fn_80599C90(CharaTask* chara); // inferred: the effect can reach `chara`

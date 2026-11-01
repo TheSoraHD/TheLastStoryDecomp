@@ -45,9 +45,7 @@ extern "C" int fn_8021A9CC(HitInfo_unk* hit);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 // inferred: methods of SkillEffect in the auto split before this file
-extern "C" void fn_805989A4(SkillEffect* bullet, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
-                            const atn::Vector3* pos, const atn::Vector3* rot,
-                            boost::function<void(SkillEffect*)> callback, float rate); // inferred: starts it
+// inferred: starts it
 extern "C" void fn_80599454(SkillEffect* bullet, int arg);            // inferred: update
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: reflection test
 struct EffectMgr_unk;
@@ -319,7 +317,7 @@ extern "C" SkillEffect* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill
     } else {
         SkillEffect* bullet = self->FindFree_unk();
         if (bullet != 0) {
-            fn_805989A4(bullet, skill, user, target, pos, rot, callback, rate);
+            bullet->fn_805989A4(skill, user, target, pos, rot, callback, rate);
             if (lbl_8087F610 != 0 && fn_8021A984(skill)) {
                 bullet->fn_8059A0B4(&self->m28A0);
             }
