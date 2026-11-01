@@ -12,6 +12,7 @@
 #include "atn/D2A_Task.h"
 #include "atn/Color4f_unk.h"
 #include "atn/Model_unk.h"
+#include "Event/Path.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -29,11 +30,15 @@ class SingletonNoStatic {};
 struct EventEffects_unk {
     unsigned char m00[0xC4];
     int mC4; // inferred: nonzero when the music fades are shortened
-    unsigned char mC8[0x1A38 - 0xC8];
-    int m1A38; // inferred: camera change in progress
-    unsigned char m1A3C[0x1EB0 - 0x1A3C];
+    Event::EventCamera_unk mCameras[4]; // 0xC8: inferred: one per section (as in Event/ActionCameraMode)
+    int m1A38; // inferred: current camera
+    unsigned char m1A3C[0x1D70 - 0x1A3C];
+    ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
+    unsigned char m1DC0[0x1EB0 - 0x1DC0];
     int m1EB0; // inferred: set by ActionCheck (type 1)
-    unsigned char m1EB4[0x1F20 - 0x1EB4];
+    unsigned char m1EB4[0x1F0C - 0x1EB4];
+    int m1F0C; // inferred: cloud map shown by ActionCloudMap
+    unsigned char m1F10[0x1F20 - 0x1F10];
     atn::Bgm m1F20; // inferred: BGM of the multi audio actions
     int m1F34;      // inferred: m1F20 is in use
     unsigned char m1F38[0x1F6C - 0x1F38];
@@ -72,6 +77,9 @@ extern "C" Locator_unk* fn_804A0614(MapLocators_unk* map, const std::string& nam
 struct ReflectTarget_unk {
     unsigned char m00[0x120];
     int m120; // inferred: map reflection
+    unsigned char m124[0x260 - 0x124];
+    int m260;                  // inferred: m264 is used instead of the global color matrix
+    ColorMatrixParam_unk m264; // inferred: color matrix of the camera
 };
 namespace atn {
 struct Camera;
@@ -113,6 +121,48 @@ extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3
 // inferred: spot light (position, direction, two angles, color)
 extern "C" void fn_80485964(EventEffects_unk* mgr, const atn::Vector3& pos, const atn::Vector3& dir, float a,
                             float b, int color);
+
+// inferred: cloud map shadow (scale, position, rate)
+extern "C" void fn_80484D64(EventEffects_unk* mgr, atn::Vector2_unk scale, atn::Vector2_unk pos);
+extern "C" void fn_80484BF4(EventEffects_unk* mgr);
+extern "C" void fn_80484D40(EventEffects_unk* mgr, atn::Vector2_unk scale, atn::Vector2_unk pos, float rate);
+extern "C" void fn_80484E88(EventEffects_unk* mgr);
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" void* fn_8001260C(Event::Actor_unk* actor);        // inferred: collision of an actor
+extern "C" void* lbl_8087EE98;                                // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
+extern "C" ColorMatrixParam_unk* fn_80483F70(EventEffects_unk* mgr); // inferred: current color matrix
+extern "C" void fn_80484088(EventEffects_unk* mgr, ColorMatrixParam_unk* param, float rate);
+
+// inferred: preset color matrices of ActionColorMatrix (identity, mono, sepia, negative, brightness and
+// contrast)
+static RsVector4_unk sColorMatrices_unk[12][4] = {
+    {RsVector4_unk(1.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 1.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 1.0f, 0.0f),
+     RsVector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {RsVector4_unk(0.299f, 0.299f, 0.299f, 0.0f), RsVector4_unk(0.587f, 0.587f, 0.587f, 0.0f),
+     RsVector4_unk(0.114f, 0.114f, 0.114f, 0.0f), RsVector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {RsVector4_unk(0.393f, 0.349f, 0.272f, 0.0f), RsVector4_unk(0.769f, 0.686f, 0.534f, 0.0f),
+     RsVector4_unk(0.189f, 0.168f, 0.131f, 0.0f), RsVector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {RsVector4_unk(-1.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, -1.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, -1.0f, 0.0f),
+     RsVector4_unk(0.0f, 0.0f, 0.0f, 0.0f)},
+    {RsVector4_unk(1.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 1.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 1.0f, 0.0f),
+     RsVector4_unk(-0.5f, -0.5f, -0.5f, 1.0f)},
+    {RsVector4_unk(1.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 1.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 1.0f, 0.0f),
+     RsVector4_unk(-0.2f, -0.2f, -0.2f, 1.0f)},
+    {RsVector4_unk(1.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 1.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 1.0f, 0.0f),
+     RsVector4_unk(0.2f, 0.2f, 0.2f, 1.0f)},
+    {RsVector4_unk(1.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 1.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 1.0f, 0.0f),
+     RsVector4_unk(0.5f, 0.5f, 0.5f, 1.0f)},
+    {RsVector4_unk(0.5f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.5f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 0.5f, 0.0f),
+     RsVector4_unk((1.0f - 0.5f) * 0.5f, (1.0f - 0.5f) * 0.5f, (1.0f - 0.5f) * 0.5f, 0.0f)},
+    {RsVector4_unk(0.8f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.8f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 0.8f, 0.0f),
+     RsVector4_unk((1.0f - 0.8f) * 0.5f, (1.0f - 0.8f) * 0.5f, (1.0f - 0.8f) * 0.5f, 0.0f)},
+    {RsVector4_unk(1.2f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 1.2f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 1.2f, 0.0f),
+     RsVector4_unk((1.0f - 1.2f) * 0.5f, (1.0f - 1.2f) * 0.5f, (1.0f - 1.2f) * 0.5f, 0.0f)},
+    {RsVector4_unk(2.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 2.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 2.0f, 0.0f),
+     RsVector4_unk((1.0f - 2.0f) * 0.5f, (1.0f - 2.0f) * 0.5f, (1.0f - 2.0f) * 0.5f, 0.0f)},
+};
 
 struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
 extern "C" GameVars_unk* lbl_8087F430;
@@ -241,6 +291,7 @@ class ActionColorMatrix : public ActionProcessor, public atn::SingletonNoStatic<
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
+    void fn_80561B50(MapModel_unk* model, void* arg); // inferred: applies the color matrix to a map model
 };
 
 class ActionBrightness : public ActionProcessor, public atn::SingletonNoStatic<ActionBrightness> {
@@ -271,6 +322,7 @@ class ActionCloudMap : public ActionProcessor, public atn::SingletonNoStatic<Act
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
+    static atn::Vector2_unk fn_80560FE8(Action* arg); // inferred: position of the cloud map
 };
 
 class ActionAmbientLight : public ActionProcessor, public atn::SingletonNoStatic<ActionAmbientLight> {
@@ -899,6 +951,77 @@ int ActionAmbientLight::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// inferred: position of the cloud map: actor of parameter 0 (node of parameter 1) plus the offset of
+// parameters 2-4, seen from above
+atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
+    EventManager_unk* manager = arg->fn_805381C8();
+    int id = arg->GetParam_unk(0)->m04.i;
+    unsigned int node = arg->GetParam_unk(1)->m04.i;
+    atn::Vector3 offset = arg->fn_805381F0(2);
+    float unused = arg->GetParam_unk(5)->m04.f;
+    Actor_unk* actor = manager->FindActor_unk(id);
+    if (actor == 0) {
+        return atn::Vector2_unk(0.0f, 0.0f);
+    }
+    atn::Vector3 pos = actor->fn_80010374();
+    if (actor->m20 == 6) {
+        offset = fn_80541BD8(manager, offset);
+    }
+    atn::Model* model = fn_8001296C(actor);
+    if (model != 0) {
+        MtxPtr mtx = model->GetNodeMtx_unk(model->fn_800928B0(node, 0));
+        if (mtx != 0) {
+            pos = atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]);
+        }
+    }
+    pos += offset;
+    return atn::Vector2_unk(pos.x, pos.z);
+}
+
+int ActionCloudMap::vf08(Action* arg) {
+    float scale = arg->GetParam_unk(5)->m04.f;
+    atn::Vector2_unk pos = fn_80560FE8(arg);
+    atn::Vector2_unk size(scale, scale);
+    fn_80484D64(lbl_8087F540, size, pos);
+    return 0;
+}
+
+// inferred: 1 / frames (1 without frames)
+inline float Rate_unk(int frames) {
+    return frames > 0 ? 1.0f / frames : 1.0f;
+}
+
+int ActionCloudMap::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        float scale = arg->GetParam_unk(5)->m04.f;
+        atn::Vector2_unk pos = fn_80560FE8(arg);
+        atn::Vector2_unk size(scale, scale);
+        float rate = Rate_unk(arg->m18);
+        size.x *= rate;
+        size.y *= rate;
+        fn_80484BF4(lbl_8087F540);
+        lbl_8087F540->m1F0C = 1;
+        fn_80484D40(lbl_8087F540, size, pos, rate);
+        break;
+    }
+    case 2:
+        if (arg->m1C > 0) {
+            float scale = arg->GetParam_unk(5)->m04.f;
+            atn::Vector2_unk pos = fn_80560FE8(arg);
+            atn::Vector2_unk size(scale, scale);
+            float rate = Rate_unk(arg->m1C);
+            lbl_8087F540->m1F0C = 0;
+            fn_80484D40(lbl_8087F540, size, pos, rate);
+        }
+        break;
+    case 3:
+        fn_80484E88(lbl_8087F540);
+        break;
+    }
+    return 0;
+}
+
 int ActionPointLight::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -956,6 +1079,93 @@ int ActionBrightness::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+int ActionCameraChange::vf08(Action* arg) {
+    int wait = arg->GetParam_unk(5)->m04.i;
+    int mode = arg->GetParam_unk(0)->m04.i;
+    if (mode == 0) {
+        if (fn_800A555C(lbl_8087EF70, 0, 6) != 0) {
+            int cameras[4];
+            int current = lbl_8087F540->m1A38;
+            int last = 3;
+            int next = 0;
+            for (int i = 0; i < 4; i++) {
+                int camera = arg->GetParamAt_unk(i + 1)->m04.i;
+                cameras[i] = camera;
+                if (current == camera - 1) {
+                    next = i;
+                }
+                if (camera == 0) {
+                    last = i;
+                    break;
+                }
+            }
+            next++;
+            if (next > last) {
+                next = 0;
+            }
+            int camera = cameras[next] - 1;
+            lbl_8087F540->m1A38 = camera < 0 ? 0 : camera;
+        }
+    } else if (mode == 1) {
+        int timer = arg->m38;
+        if (timer == 0) {
+            float best = 3.4028235e+38f;
+            int selected = 0;
+            for (int i = 0; i < 4; i++) {
+                int camera = arg->GetParamAt_unk(i + 1)->m04.i;
+                if (camera == 0) {
+                    break;
+                }
+                EventCamera_unk* cam = &lbl_8087F540->mCameras[camera - 1];
+                atn::Vector3 dir = cam->mTarget - cam->mPos;
+                float dist = PSVECMag(&dir);
+                if (dist < best) {
+                    best = dist;
+                    selected = camera - 1;
+                }
+            }
+            if (selected != lbl_8087F540->m1A38) {
+                lbl_8087F540->m1A38 = selected < 0 ? 0 : selected;
+                timer = wait;
+            }
+        } else {
+            timer--;
+        }
+        arg->m38 = timer;
+    } else if (mode == 2) {
+        int timer = arg->m38;
+        if (timer == 0) {
+            int selected = 0;
+            for (int i = 0; i < 4; i++) {
+                int camera = arg->GetParamAt_unk(i + 1)->m04.i;
+                if (camera == 0) {
+                    break;
+                }
+                EventCamera_unk* cam = &lbl_8087F540->mCameras[camera - 1];
+                void* ignore = 0;
+                if (cam->m240.mActor != 0) {
+                    ignore = fn_8001260C(cam->m240.mActor);
+                }
+                atn::Vector3 hit;
+                int a = fn_8004ECC0(lbl_8087EE98, &hit, &cam->mPos, &cam->mTarget, 0, ignore, 0);
+                int b = fn_8004ECC0(lbl_8087EE98, &hit, &cam->mTarget, &cam->mPos, 0, ignore, 0);
+                if (a == 0 && b == 0) {
+                    selected = camera - 1;
+                    break;
+                }
+            }
+            if (selected != lbl_8087F540->m1A38) {
+                lbl_8087F540->m1A38 = selected < 0 ? 0 : selected;
+                timer = wait;
+            }
+        } else {
+            timer--;
+        }
+        arg->m38 = timer;
+    }
+    return 0;
+}
+
 int ActionCameraChange::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0:
@@ -965,6 +1175,82 @@ int ActionCameraChange::vf0C(Action* arg, int phase) {
     case 4:
         lbl_8087F540->m1A38 = 0;
         break;
+    }
+    return 0;
+}
+
+void ActionColorMatrix::fn_80561B50(MapModel_unk* model, void* arg) {
+    ColorMatrixParam_unk* dst = model->m2AC != 0 ? &model->m2B0 : &lbl_8087EFA8->m324;
+    *dst = *(ColorMatrixParam_unk*)arg;
+}
+
+int ActionColorMatrix::vf08(Action* arg) {
+    EventManager_unk* manager = arg->fn_805381C8();
+    if (manager == 0) {
+        return 0;
+    }
+    float frame = manager->m198;
+    int start = arg->m10;
+    int end = arg->m14;
+    float rate;
+    if ((float)start <= frame && frame <= (float)(start + arg->m18)) {
+        float t = frame - (float)start;
+        if (t <= 0.0f) {
+            rate = 0.0f;
+        } else {
+            rate = t / (float)arg->m18;
+        }
+    } else if ((float)(end - arg->m1C) <= frame && frame <= (float)end) {
+        float t = frame - (float)(end - arg->m1C);
+        if (t <= 0.0f) {
+            rate = 1.0f;
+        } else {
+            rate = 1.0f - t / (float)arg->m1C;
+        }
+    } else {
+        rate = 1.0f;
+    }
+    ColorMatrixParam_unk dst;
+    dst.mEnabled = 1;
+    ColorMatrixParam_unk src;
+    src.mEnabled = 1;
+    EventEffects_unk* mgr = lbl_8087F540;
+    for (int i = 0; i < 4; i++) {
+        src.mRows[i] = mgr->m1D70.mRows[i];
+    }
+    int type = arg->GetParam_unk(0)->m04.i;
+    if (type == 0) {
+        for (int i = 0; i < 4; i++) {
+            dst.mRows[i] = RsVector4_unk(arg->GetParamAt_unk(i * 3 + 1)->m04.f, arg->GetParamAt_unk(i * 3 + 2)->m04.f,
+                                         arg->GetParamAt_unk(i * 3 + 3)->m04.f, 1.0f);
+        }
+    } else if (type == 1) {
+        fn_80484088(lbl_8087F540, &src, rate);
+        return 0;
+    } else {
+        for (int i = 0; i < 4; i++) {
+            dst.mRows[i] = sColorMatrices_unk[type - 1][i];
+        }
+    }
+    float inv = 1.0f - rate;
+    for (int i = 0; i < 4; i++) {
+        dst.mRows[i].x = dst.mRows[i].x * rate + src.mRows[i].x * inv;
+        dst.mRows[i].y = dst.mRows[i].y * rate + src.mRows[i].y * inv;
+        dst.mRows[i].z = dst.mRows[i].z * rate + src.mRows[i].z * inv;
+        dst.mRows[i].w = dst.mRows[i].w * rate + src.mRows[i].w * inv;
+    }
+    ReflectTarget_unk* target = fn_800C16B4(lbl_8087EFB4);
+    ColorMatrixParam_unk* out = target->m260 != 0 ? &target->m264 : &lbl_8087EFA8->m324;
+    *out = dst;
+    MapManager::sInstance->fn_80491528(boost::bind(&ActionColorMatrix::fn_80561B50, this, _1, _2), &dst);
+    return 0;
+}
+
+int ActionColorMatrix::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        ColorMatrixParam_unk param = *fn_80483F70(lbl_8087F540);
+        param.mEnabled = 1;
+        lbl_8087F540->m1D70 = param;
     }
     return 0;
 }

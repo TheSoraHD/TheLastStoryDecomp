@@ -6,6 +6,7 @@
 #include "atn/Sphere.h"
 #include "std/vector.h"
 #include <boost/function.hpp>
+#include "atn/RenderSetting_unk.h"
 
 namespace atn {
 class Scene; // the name is in the DOL (type_info 0x80756690)
@@ -39,7 +40,9 @@ struct MapModel_unk : public MapModelBase_unk {
     int m114;
     unsigned char m118[0x16C - 0x118];
     int m16C; // inferred: reflection mode (Event::ActionMapReflect)
-    unsigned char m170[0x300 - 0x170];
+    unsigned char m170[0x2AC - 0x170];
+    int m2AC;                    // inferred: m2B0 is used instead of the global color matrix
+    ColorMatrixParam_unk m2B0;   // inferred: color matrix of the model (Event::ActionColorMatrix)
     void* mMaterial; // 0x300
 };
 // inferred: group of models of a map part
