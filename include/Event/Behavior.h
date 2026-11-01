@@ -85,7 +85,12 @@ struct Actor_unk {
     atn::Vector3 mD0;     // 0xD0: inferred: position the actor moves from
     unsigned char mDC[0x130 - 0xDC];
     int m130; // inferred: curve of the moves (fn_8048BD04)
-    unsigned char m134[0x1C0 - 0x134];
+    unsigned char m134[0x18C - 0x134];
+    int m18C;             // 0x18C: inferred: frames left of the current eye movement (ActionActorEyes)
+    atn::Vector3 m190;    // 0x190: inferred: goal of the eyes
+    atn::Vector3 m19C;    // 0x19C: inferred: current eye angles
+    atn::Vector3 m1A8;    // 0x1A8
+    unsigned char m1B4[0x1C0 - 0x1B4];
 };
 
 // inferred: objects of the event found by their id at 0x14 (actors, paths): {data, count} (names

@@ -184,6 +184,8 @@ public:
     // inferred: eyes towards a point (`cur` moves towards `goal` in `frames`; angles from the parameters
     // when `mode` is not 0)
     static void fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames);
+    // inferred: eyes outside the wandering window (`left` frames left, at frame `now`)
+    static void fn_80554088(Action* arg, int length, atn::Vector3* v, int mode, float left, float now);
 };
 
 class ActionActorPose : public ActionProcessor, public atn::SingletonNoStatic<ActionActorPose> {
@@ -822,6 +824,58 @@ void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vec
         }
         actor->fn_80012D34(target, node, pos, mode, *cur, 0, weight, 0.0f);
     }
+}
+
+// NONMATCHING: 92.4% - saved registers (the original gives r31/r30 to camera/mode and r28 to arg) and the
+// volatile registers of the inlined lookups; fn_80554088 (between fn_80553DC8 and this one) is not written yet
+int ActionActorEyes::vf08(Action* arg) {
+    float now = arg->fn_805381C8()->m198;
+    float frames = arg->GetParam_unk(12)->m04.f;
+    int camera = arg->GetParam_unk(13)->m04.i;
+    int mode = arg->GetParam_unk(9)->m04.i;
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor_unk* actor = manager->FindActor_unk(section->m10);
+    Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    int length = arg->m14 - arg->m10;
+    if (arg->m1C > 0 && (float)arg->m14 - manager->m198 < (float)arg->m1C) {
+        return 0;
+    }
+    if (camera != 0) {
+        fn_80553A74(arg, now);
+        return 0;
+    }
+    bool wander = true;
+    if (frames <= 0.0f) {
+        wander = false;
+    }
+    int end = arg->m10 + arg->m18;
+    if ((float)end > now || (float)(arg->m14 - arg->m1C) < now) {
+        wander = false;
+    }
+    if (wander) {
+        if (actor->m18C <= 0) {
+            Actor_unk* target2 = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+            float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
+            float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
+            actor->m190.Set_unk(2.0f * rx * ((float)rand() / 32767.0f) - rx, 2.0f * ry * ((float)rand() / 32767.0f) - ry,
+                                0.0f);
+            actor->m18C = (int)frames;
+        } else {
+            fn_80553DC8(arg, &actor->m19C, &actor->m190, mode, frames);
+            actor->m18C--;
+        }
+    } else {
+        float cur = arg->fn_805381C8()->m198;
+        float fend = (float)end;
+        float min = lbl_8087F540->mB4;
+        float left = fend - cur;
+        if (left < min) {
+            left = 0.0f;
+        }
+        fn_80554088(arg, length, &actor->m1A8, mode, left, now);
+    }
+    return 0;
 }
 
 int ActionActorWind::vf0C(Action* arg, int phase) {
