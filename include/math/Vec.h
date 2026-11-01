@@ -188,12 +188,23 @@ struct Vector2_unk {
         __Vec2Copy(&x, &v.x);
         return *this;
     }
-    // inferred: as the Vector3 ones (gmk::CharaLight::vf10)
-    Vector2_unk operator+(const Vector2_unk& v) const { return Vector2_unk(x + v.x, y + v.y); }
-    Vector2_unk operator-(const Vector2_unk& v) const { return Vector2_unk(x - v.x, y - v.y); }
-    Vector2_unk operator*(float f) const { return Vector2_unk(x * f, y * f); }
     float x, y;
 };
+
+// inferred: by-value operators of the 2D vector and a + (b - a) * t (names invented; gmk::RoomLight,
+// gmk::CharaLight)
+inline Vector2_unk operator-(const Vector2_unk& a, const Vector2_unk& b) {
+    return Vector2_unk(a.x - b.x, a.y - b.y);
+}
+inline Vector2_unk operator+(const Vector2_unk& a, const Vector2_unk& b) {
+    return Vector2_unk(a.x + b.x, a.y + b.y);
+}
+inline Vector2_unk operator*(const Vector2_unk& a, float s) {
+    return Vector2_unk(a.x * s, a.y * s);
+}
+inline Vector2_unk Lerp2_unk(const Vector2_unk& from, const Vector2_unk& to, float t) {
+    return (to - from) * t + from;
+}
 
 // The engine's 3D vector (the name is in the DOL: boost::_bi::value<atn::Vector3>).
 class Vector3 {

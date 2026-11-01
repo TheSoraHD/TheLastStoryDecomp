@@ -37,20 +37,6 @@ struct Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 
-// inferred: by-value operators of the 2D vector (names invented)
-inline atn::Vector2_unk operator-(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
-    return atn::Vector2_unk(a.x - b.x, a.y - b.y);
-}
-inline atn::Vector2_unk operator+(const atn::Vector2_unk& a, const atn::Vector2_unk& b) {
-    return atn::Vector2_unk(a.x + b.x, a.y + b.y);
-}
-inline atn::Vector2_unk operator*(const atn::Vector2_unk& a, float s) {
-    return atn::Vector2_unk(a.x * s, a.y * s);
-}
-inline atn::Vector2_unk Lerp2_unk(const atn::Vector2_unk& from, const atn::Vector2_unk& to, float t) {
-    return (to - from) * t + from;
-}
-
 // inferred: sets the light of a map part (callback of fn_80491528)
 void fn_8041FED8(MapModel_unk* part, void* light) {
     part->mC0 = light;

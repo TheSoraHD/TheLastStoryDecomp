@@ -116,11 +116,6 @@ extern "C" double sin(double x);
 // inferred: float sine (as Cos_unk__Ff 0x801C1060 of chr/ControlMoveCursor.cpp; name invented)
 inline float Sin_unk(float x) { return sin(x); }
 
-// inferred: a + (b - a) * t (name invented)
-inline atn::Vector2_unk Lerp2_unk(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t) {
-    return (b - a) * t + a;
-}
-
 // inferred: follows the target and animates the size of the light (states 2-6 grow it towards the
 // size of their PARAM row and make it pulse)
 void CharaLight::vf10() {
