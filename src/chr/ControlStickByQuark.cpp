@@ -1393,6 +1393,53 @@ ControlThrownSkelton::ControlThrownSkelton(Chara_unk* chara, const atn::Vector3&
     mChara->mF1C = 0;
 }
 
+// NONMATCHING: 93.1% - flies along mDir until it hits a wall; the hit fires the bullet mHit
+int ControlThrownSkelton::vf0C() {
+    CollResult_unk result;
+    atn::Vector3 from = mChara->mPos + mDir * 5.0f;
+    atn::Vector3 to = mChara->mPos + mDir * 30.0f;
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mChara->fn_80179D44(), &mChara->mColli, 0)) {
+        mChara->mPos = result.m04;
+        mDir.y = 0.0f;
+        mChara->mRot = mDir.ToRotation_unk();
+        ShootHit_unk(lbl_8087F048, mChara, mHit, result.m04, &mChara->mRot);
+        return 1;
+    }
+    mChara->mPos = mChara->mPos + mDir * 10.0f;
+    return 0;
+}
+
+// inferred: breaks against the wall
+boost::function<void()> ControlThrownSkelton::vf10() {
+    ControlThrownBreakSkelton* next = new ((MemoryTag)0, "", "", 0) ControlThrownBreakSkelton(mChara);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+}
+
+// inferred: the skeleton breaks apart (control id 0x71)
+ControlThrownBreakSkelton::ControlThrownBreakSkelton(Chara_unk* chara) : ControlBase(chara) {
+    chara->SetControlId_unk(0x71);
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
+    m->fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
+}
+
+int ControlThrownBreakSkelton::vf0C() {
+    float frame = mChara->mMotion.mTracks[0].m08;
+    if (frame >= mChara->mMotion.fn_80097D7C(0)) {
+        return 1;
+    }
+    mChara->vf34(mChara->mRot, 0, 0.0f, 1.0f);
+    return 0;
+}
+
+// NONMATCHING: 93.6% - the original loads mChara before saving r31 (as in a const method)
+// inferred: revives as a skeleton
+boost::function<void()> ControlThrownBreakSkelton::vf10() {
+    return boost::bind(&CharaTask::fn_8015EFAC, (CharaTask*)mChara, (CharaTask::CONTROL_MODE)1);
+}
+
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it
