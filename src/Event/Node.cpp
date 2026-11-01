@@ -1,6 +1,11 @@
 #include "Event/Behavior.h"
 #include "Event/Action.h"
 #include "Event/Channel.h"
+#include "Event/Section.h"
+#include "Event/Cut.h"
+#include "atn/Model_unk.h"
+
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 namespace Event {
 
@@ -58,6 +63,21 @@ atn::Vector3 Action::fn_805381F0(int n) {
 } // namespace Event
 
 namespace Event {
+
+// NONMATCHING: 96.9% - scheduling: the original loads mChannel before the first range check (same in
+// fn_805382BC); tried the ActionArg_unk accessor, a typed chain and the id in a local first
+MtxPtr Action::fn_805389B8(int n) {
+    // inferred: the event manager is the Sequence of the cut (fn_80541C94 is in Event/Sequence)
+    EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
+    Actor_unk* actor = manager->FindActor_unk(GetParam_unk(n)->m04.i);
+    atn::Vector3 pos = lbl_807C7030; // inferred: unused (only the copy is left)
+    MtxPtr mtx = 0;
+    atn::Model* model = actor->fn_80012A1C();
+    if (model != 0) {
+        mtx = model->GetNodeMtx_unk(model->fn_800928B0(GetParam_unk(n + 1)->m04.i, 0));
+    }
+    return mtx;
+}
 
 atn::Vector3 Action::fn_80538B18(int n) {
     atn::Vector3 v;
