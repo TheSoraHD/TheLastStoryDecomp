@@ -797,6 +797,16 @@ inline void NextAttack_unk(Em302KrakenMp* k) {
     }
 }
 
+// inferred: action of a character that climbed the wall next to the kraken: jumps onto the point
+// above the head (see vfB0)
+boost::function<void()> Em302KrakenMp::vfB4(CharaTask* chara) {
+    Item14_unk* it = m624.mData;
+    atn::Vector3 target = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
+    chr::ControlWallSlash* next = new ((MemoryTag)0, "", "", 0) chr::ControlWallSlash(chara, target, 0);
+    return boost::bind(&CharaTask::fn_80178208, chara, next);
+}
+
+
 // inferred: changes the behaviour step m14DC (0: appears at the next point, 1: attacks, 2: sinks,
 // 3: waits for the reinforcements, 4: anger); m14E4 counts the frames of the step
 void Em302KrakenMp::fn_802E03F0() {
@@ -914,15 +924,6 @@ void Em302KrakenMp::fn_802E03F0() {
         break;
     }
     m14E4++;
-}
-
-// inferred: action of a character that climbed the wall next to the kraken: jumps onto the point
-// above the head (see vfB0)
-boost::function<void()> Em302KrakenMp::vfB4(CharaTask* chara) {
-    Item14_unk* it = m624.mData;
-    atn::Vector3 target = it->m04.mCenter + atn::Vector3(0.0f, 1.0f, 0.0f) * mColli.m54 * 0.6f;
-    chr::ControlWallSlash* next = new ((MemoryTag)0, "", "", 0) chr::ControlWallSlash(chara, target, 0);
-    return boost::bind(&CharaTask::fn_80178208, chara, next);
 }
 
 // inferred: waits for the reinforcements (returns 0 when the wait ends)
