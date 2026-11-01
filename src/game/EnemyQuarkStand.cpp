@@ -263,13 +263,8 @@ extern "C" int fn_80267B28(CharaTask* chara);                    // inferred: re
 class EnemyQuarkStand;
 extern "C" void fn_80353EE4(EnemyQuarkStand* self); // inferred: releases the camera
 extern "C" void fn_80353F0C(EnemyQuarkStand* self); // inferred: frees the character stuck by the sword
-// inferred: {id, value} pair of CharaStatus::m2D0 (as CharaStatusPair_unk); 0x80339718 builds it
-struct QuarkPair_unk {
-    int m00;
-    int m04;
-};
-extern "C" QuarkPair_unk* fn_80339718(QuarkPair_unk* pair, int id);
-extern "C" void fn_803396FC(CharaStatus* status, int index, const QuarkPair_unk* pair);
+// inferred: stores a pair in CharaStatus::m2D0 (weak copy in game/EnemyQuarkSecond.cpp)
+extern "C" void fn_803396FC(CharaStatus* status, int index, const CharaStatusPair_unk& pair);
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 extern "C" void* lbl_8087F498; // inferred: voice manager
 extern "C" void fn_803EBAC8(void* mgr, int a, int b); // inferred: voice mode (as in Event/Dialog.cpp)
@@ -460,8 +455,7 @@ int EnemyQuarkStand::vf0C() {
             } while (csv.fn_8005BBF8());
         }
         if (m153C != 0) {
-            QuarkPair_unk pair;
-            fn_803396FC(&mStatus, 3, fn_80339718(&pair, m153C->m04));
+            fn_803396FC(&mStatus, 3, CharaStatusPair_unk(m153C->m04));
         }
         return 1;
     }
