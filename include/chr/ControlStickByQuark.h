@@ -215,7 +215,9 @@ class ControlCaughtSkelton : public ControlBase {
 public:
     ControlCaughtSkelton(Chara_unk* chara, CharaTask* holder); // 0x8019A3F4
     virtual int vf0C();
-    unsigned char m08[0x1C - 0x08];
+    CharaTask* mHolder;      // 0x08
+    atn::Matrix3x4* mNode;   // 0x0C: inferred: weapon node of the holder
+    unsigned char m10[0x1C - 0x10];
 };
 
 class ControlThrownSkelton : public ControlBase {

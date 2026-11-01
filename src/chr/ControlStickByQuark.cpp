@@ -1341,6 +1341,33 @@ boost::function<void()> ControlThrownAvoid::vf10() {
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 
+// inferred: held by the skeleton king on its weapon node (control id 0x71)
+ControlCaughtSkelton::ControlCaughtSkelton(Chara_unk* chara, CharaTask* holder) : ControlBase(chara), mHolder(holder) {
+    chara->SetControlId_unk(0x71);
+    mChara->fn_8016DA4C();
+    if (mChara->mFlag31) {
+        chara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->mTracks[0].m0C = 1.0f;
+    m->fn_80097C08(0, 0x28, 1, 0, 1, 0.0f, 0.1f);
+    mNode = (atn::Matrix3x4*)mHolder->mMotion.GetNodeMtx_unk("rightwepoint");
+    mChara->mPos = mNode->GetTrans_unk();
+}
+
+// NONMATCHING: 98.5% - r4/r5/r6 order of the node, the temporary and mChara
+int ControlCaughtSkelton::vf0C() {
+    atn::Matrix3x4* node = mNode;
+    mChara->mPos = node->GetTrans_unk();
+    mChara->mRot.Assign_unk(mHolder->mRot);
+    return 0;
+}
+
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 
 // inferred: caught by the thread of `other` (control id 0x74), pulled towards it
