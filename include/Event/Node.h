@@ -43,6 +43,20 @@ struct ParamDef_unk {
     const ParamEnum_unk* mEnumNames; // 0x14
 };
 
+// inferred: definition of an event command (0x28 bytes, table 0x80775208 in Event/EventCommandDef_unk)
+struct CommandDef_unk {
+    int mId;                       // 0x00
+    const char* mLabel;            // 0x04: inferred: name shown by the tools
+    const char* mName;             // 0x08: xml name
+    unsigned int mHash;            // 0x0C: fn_800DC880(mName, 789456)
+    int m10;                       // 0x10: inferred: category (1 effect/audio, 2 camera...)
+    int mParamCount;               // 0x14
+    ParamDef_unk* mParams;         // 0x18
+    int mVariantParam;             // 0x1C: inferred: attribute that selects the variant, -1 none
+    int mVariantCount;             // 0x20
+    ParamDef_unk** mVariants;      // 0x24: inferred: attributes of each variant
+};
+
 // inferred: name buffer of a node (freed with delete[] by ~Node, 0x80537780)
 struct NodeName_unk {
     NodeName_unk() : mBuf(0) {}
@@ -69,5 +83,8 @@ public:
 inline Node::~Node() {}
 
 } // namespace Event
+
+// inferred: definition of the command `id` (Event/EventCommandDef_unk)
+extern "C" Event::CommandDef_unk* fn_800081C0(int id);
 
 #endif

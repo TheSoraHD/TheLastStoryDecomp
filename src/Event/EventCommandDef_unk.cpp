@@ -9,20 +9,6 @@
 
 namespace Event {
 
-// inferred: definition of an event command (0x28 bytes, table 0x80775208)
-struct CommandDef_unk {
-    int mId;                       // 0x00
-    const char* mLabel;            // 0x04: inferred: name shown by the tools
-    const char* mName;             // 0x08: xml name
-    unsigned int mHash;            // 0x0C: fn_800DC880(mName, 789456)
-    int m10;                       // 0x10: inferred: category (1 effect/audio, 2 camera...)
-    int mParamCount;               // 0x14
-    ParamDef_unk* mParams;         // 0x18
-    int mVariantParam;             // 0x1C: inferred: attribute that selects the variant, -1 none
-    int mVariantCount;             // 0x20
-    ParamDef_unk** mVariants;      // 0x24: inferred: attributes of each variant
-};
-
 static ParamDef_unk sCommonParams_unk[5] = {
     {"name", fn_800DC880("name"), 0x1C, 0},
     {"frame_start", fn_800DC880("frame_start"), 0, 0},

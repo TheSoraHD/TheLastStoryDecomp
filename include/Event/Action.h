@@ -27,6 +27,10 @@ public:
 
     void fn_805377F0(int arg, int index); // inferred: reads the action from the event data
     atn::Vector3 fn_805381F0(int n);      // inferred: parameters n, n+1 and n+2 as a vector
+    int fn_805391E4(unsigned int hash);   // inferred: index of the attribute `hash`, -1 if none
+    ActionValue_unk* fn_805392BC(unsigned int hash); // inferred: attribute `hash`, 0 if none
+    ActionValue_unk* fn_80539330(unsigned int hash); // inferred: same code as fn_805392BC
+    float fn_805393A4(int frame);         // inferred: position of `frame` between m10 and m14
 
     // inferred: parameter n, 0 if out of range (inlined in vf0C)
     ActionValue_unk* GetParam_unk(int n) {

@@ -59,6 +59,48 @@ atn::Vector3 Action::fn_805381F0(int n) {
 
 namespace Event {
 
+int Action::fn_805391E4(unsigned int hash) {
+    CommandDef_unk* def = fn_800081C0(m0C);
+    // inferred: empty asserts of the release build (with them it is not inlined into its callers,
+    // as in the original)
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ((void)0);
+    ParamDef_unk* params = def->mParams;
+    for (int i = 0; i < def->mParamCount; i++) {
+        if (def->mVariantParam >= 0 && i >= def->mVariantParam) {
+            params = def->mVariants[GetParam_unk(def->mVariantParam)->m04.i];
+        }
+        if (hash == params[i].mHash) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+ActionValue_unk* Action::fn_805392BC(unsigned int hash) {
+    int i = fn_805391E4(hash);
+    if (i != -1) {
+        return GetParam_unk(i);
+    }
+    return 0;
+}
+
+ActionValue_unk* Action::fn_80539330(unsigned int hash) {
+    int i = fn_805391E4(hash);
+    if (i != -1) {
+        return GetParam_unk(i);
+    }
+    return 0;
+}
+
+// NONMATCHING: 61.9% - scheduling: the original loads m10 and the 0x4330 high word before the stack
+// frame is made (tried locals for start/end/length, float and int temporaries)
+float Action::fn_805393A4(int frame) {
+    return (float)(frame - m10) / (float)(m14 - m10);
+}
+
 void Action::vf0C(int n, int value) {
     GetParam_unk(n)->m04.i = value;
 }
