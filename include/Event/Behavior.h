@@ -51,19 +51,18 @@ struct Actor_unk {
     void fn_800121F0(int arg, float distance); // inferred: called with the distance moved
     void SetWait_unk(unsigned int v) { mWait_unk = v; } // inferred: inlined setter
     unsigned int GetWait_unk() const { return mWait_unk; }
-    // inferred: accessors called out of line by Event/ActionActorPosition (weak copies 0x80551D74-0x805521D8);
-    // names invented
-    bool IsState6_unk() const { return m20 == 6; }
-    int GetCurve_unk() const { return m130; }
-    atn::Vector3 GetTarget_unk() const { return mD0; }
-    atn::Vector3 GetRot_unk() const { return mC4; }
-    void SetRot_unk(const atn::Vector3& v) { mC4 = v; }
-    // NONMATCHING: weak copy 0x80551E3C 60% - the original stores z before the paired single (tried
-    // Assign_unk, a temporary and a by-value parameter)
-    void SetTarget_unk(const atn::Vector3& v) { mD0 = v; }
-    int GetState_unk() const { return m20; }
-    atn::Vector3 GetPathPos_unk(float t) { return mPath.GetPos_unk(t); }
-    void TurnTo_unk(const atn::Vector3& dir) { fn_80010490(dir.ToRotation_unk()); }
+    // inferred: accessors called out of line by Event/ActionActorPosition (weak copies 0x80551D74-0x805521D8;
+    // names invented). Defined in that file: a new inline body in this header renumbers the @N labels of
+    // every file that includes it.
+    inline bool IsState6_unk() const;
+    inline int GetCurve_unk() const;
+    inline atn::Vector3 GetTarget_unk() const;
+    inline atn::Vector3 GetRot_unk() const;
+    inline void SetRot_unk(const atn::Vector3& v);
+    inline void SetTarget_unk(const atn::Vector3& v);
+    inline int GetState_unk() const;
+    inline atn::Vector3 GetPathPos_unk(float t);
+    inline void TurnTo_unk(const atn::Vector3& dir);
 
     unsigned char m00[0x14];
     int m14; // inferred: id
@@ -84,23 +83,13 @@ struct Actor_unk {
 };
 
 // inferred: the actors of the event {data, count} (names invented); Find_unk is a template member
-// emitted at the end of the file (0x8055A400 in Event/ActionActorPosition)
+// emitted at the end of the file (0x8055A400, defined in Event/ActionActorPosition.cpp)
 template <class T>
 struct ActorList_unk {
     T* Find_unk(int id);
     T* mData;
     int mSize;
 };
-
-template <class T>
-T* ActorList_unk<T>::Find_unk(int id) {
-    for (int i = 0; i < mSize; i++) {
-        if (id == mData[i].m14) {
-            return &mData[i];
-        }
-    }
-    return 0;
-}
 
 // inferred: camera animation of an event (0x1C bytes, found by id)
 struct CameraAnim_unk {
@@ -123,7 +112,7 @@ struct EventManager_unk {
         return 0;
     }
 
-    ActorList_unk<Actor_unk>* GetActors_unk() { return &m164; } // inferred: weak copy 0x80551D20
+    inline ActorList_unk<Actor_unk>* GetActors_unk(); // inferred: weak copy 0x80551D20 (Event/ActionActorPosition.cpp)
 
     // inferred: rotates `v` by the yaw at 0xB4 (0x80541C94 in Event/Sequence)
     atn::Vector3 fn_80541C94(const atn::Vector3& v);

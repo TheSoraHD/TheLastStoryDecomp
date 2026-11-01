@@ -2,7 +2,7 @@
 #include "atn/Memory.h"
 #include "std/string_members.h"
 #include "std/ios_init.h"
-#include "math/VecOps_unk.h"
+#include "math/DegToRad_unk.h"
 
 // Effect sequences (.efp text files: "EffectSequencer", "EffectLine", "Effect" blocks with
 // Frame/Pos/Rot/Scl/Color/Parent and "Throw" sub-blocks). Name of the file invented (its pool

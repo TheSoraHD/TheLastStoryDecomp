@@ -67,11 +67,6 @@ struct Model : public ModelBase {
     MtxPtr GetNodeMtx_unk(int index) const {
         return (index < 0) ? 0 : mNodeMtx[index];
     }
-    // inferred: matrix of the node with name hash `hash` (weak copy 0x80551D90, Event/ActionActorPosition);
-    // name invented
-    MtxPtr GetNodeMtxByHash_unk(unsigned int hash) {
-        return GetNodeMtx_unk(fn_800928B0(hash, 0));
-    }
     // inferred: matrix of the node called `name` (weak copy 0x800132EC); name invented
     MtxPtr GetNodeMtx_unk(const char* name) const {
         return GetNodeMtx_unk(GetNodeNoByName(name, 0));

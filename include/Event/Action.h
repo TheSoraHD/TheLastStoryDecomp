@@ -17,10 +17,12 @@ struct ActionParam_unk {
     // inferred: the value read for different uses (four weak copies with the same code in
     // Event/ActionActorPosition: 0x80551D28, 0x80551D6C, 0x80551D88, 0x80552024; not templates, which
     // would be emitted after the other weak copies); names invented
-    int GetMode_unk() const { return m04.i; }
-    int GetActorId_unk() const { return m04.i; }
-    unsigned int GetHash_unk() const { return m04.i; }
-    int GetIndex_unk() const { return m04.i; }
+    // (defined in that file: a new inline body in a shared header renumbers the @N labels of every file
+    // that includes it)
+    inline int GetMode_unk() const;
+    inline int GetActorId_unk() const;
+    inline unsigned int GetHash_unk() const;
+    inline int GetIndex_unk() const;
 
     int m00;
     union {

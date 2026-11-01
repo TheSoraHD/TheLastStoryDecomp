@@ -1,6 +1,8 @@
 #include "Event/Behavior.h"
 #include "atn/Model_unk.h"
 #include "math/VecOps_unk.h"
+#include "math/DegToRad_unk.h"
+#include "std/ios_init.h"
 
 // Actor actions of the events: processors with vf08 (per frame) and vf0C (phase), as in
 // Event/ActionCameraMode. Class names from the RTTI; vtables in the order Material, Wind, Setting,
@@ -20,6 +22,112 @@ extern "C" atn::Model* fn_8001296C(Event::Actor_unk* actor);
 extern "C" void fn_80097750(atn::Model* model, const atn::Vector3& dir, int frames, float a, float b);
 
 namespace Event {
+
+// Inline members declared in the headers and defined here (a new inline body in a shared header renumbers
+// the @N labels of every file that includes it). All of them are called out of line by fn_80551194.
+inline int ActionParam_unk::GetMode_unk() const {
+    return m04.i;
+}
+inline int ActionParam_unk::GetActorId_unk() const {
+    return m04.i;
+}
+inline unsigned int ActionParam_unk::GetHash_unk() const {
+    return m04.i;
+}
+inline int ActionParam_unk::GetIndex_unk() const {
+    return m04.i;
+}
+
+inline ActorList_unk<Actor_unk>* EventManager_unk::GetActors_unk() {
+    return &m164;
+}
+
+template <class T>
+T* ActorList_unk<T>::Find_unk(int id) {
+    for (int i = 0; i < mSize; i++) {
+        T* p = &mData[i];
+        if (id == p->m14) {
+            return p;
+        }
+    }
+    return 0;
+}
+
+inline bool Actor_unk::IsState6_unk() const {
+    return m20 == 6;
+}
+inline int Actor_unk::GetCurve_unk() const {
+    return m130;
+}
+inline atn::Vector3 Actor_unk::GetTarget_unk() const {
+    return mD0;
+}
+inline atn::Vector3 Actor_unk::GetRot_unk() const {
+    return mC4;
+}
+inline void Actor_unk::SetRot_unk(const atn::Vector3& v) {
+    mC4 = v;
+}
+// NONMATCHING: weak copy 0x80551E3C 60% - the original stores z before the paired single (tried
+// Assign_unk, a temporary and a by-value parameter)
+inline void Actor_unk::SetTarget_unk(const atn::Vector3& v) {
+    mD0 = v;
+}
+inline int Actor_unk::GetState_unk() const {
+    return m20;
+}
+
+// inferred: point of segment `i` at `u` in [0, 1] (as WarLionPath_unk::Segment_unk)
+inline atn::Vector3 PathSpline_unk::Segment_unk(int i, float u) {
+    if (i < 0) {
+        return mStart;
+    }
+    if (i >= mNumSegments - 1) {
+        return mEnd;
+    }
+    if (mNumSegments < 2) {
+        return lbl_807C7030;
+    }
+    atn::Vector3 r;
+    r.x = mX[i].Eval_unk(u);
+    r.y = mY[i].Eval_unk(u);
+    r.z = mZ[i].Eval_unk(u);
+    return r;
+}
+
+// inferred: point at `t` in [0, 1] of the whole path (as WarLionPath_unk::GetPos_unk; inlined in the
+// weak copy 0x8055202C, Actor_unk::GetPathPos_unk)
+inline atn::Vector3 PathSpline_unk::GetPos_unk(float t) {
+    if (t <= 0.0f) {
+        return mStart;
+    }
+    if (t >= 1.0f) {
+        return mEnd;
+    }
+    t = mLength * t;
+    for (int i = 0; i < mNumSegments - 1; i++) {
+        float len = mLengths[i];
+        if (t <= len) {
+            return Segment_unk(i, t == 0.0f ? 0.0f : t / len);
+        }
+        t -= len;
+    }
+    return mStart;
+}
+
+inline atn::Vector3 Actor_unk::GetPathPos_unk(float t) {
+    return mPath.GetPos_unk(t);
+}
+
+inline void Actor_unk::TurnTo_unk(const atn::Vector3& dir) {
+    fn_80010490(dir.ToRotation_unk());
+}
+
+// inferred: matrix of the node of `model` with name hash `hash` (weak copy 0x80551D90; a free function
+// here: a member in atn/Model_unk.h would renumber the @N labels of its 245 files)
+inline MtxPtr GetNodeMtxByHash_unk(atn::Model* model, unsigned int hash) {
+    return model->GetNodeMtx_unk(model->fn_800928B0(hash, 0));
+}
 
 // inferred: the event manager (lbl_8087F540) seen through its frame step
 struct EventStep_unk {
@@ -187,7 +295,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         MtxPtr node = 0;
         atn::Model* model = fn_8001296C(target);
         if (model != 0) {
-            node = model->GetNodeMtxByHash_unk(arg->GetParamAt_unk(2)->GetHash_unk());
+            node = GetNodeMtxByHash_unk(model, arg->GetParamAt_unk(2)->GetHash_unk());
             if (node != 0) {
                 pos.Set_unk(0.0f, 0.0f, 0.0f);
             }
@@ -307,7 +415,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         }
         atn::Model* model = fn_8001296C(target);
         if (model != 0) {
-            MtxPtr node = model->GetNodeMtxByHash_unk(arg->GetParamAt_unk(2)->GetHash_unk());
+            MtxPtr node = GetNodeMtxByHash_unk(model, arg->GetParamAt_unk(2)->GetHash_unk());
             if (node != 0) {
                 pos = ((atn::Matrix3x4*)node)->GetTrans_unk();
                 atn::Matrix3x4 m(node);
