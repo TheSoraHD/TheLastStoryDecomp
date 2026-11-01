@@ -189,6 +189,11 @@ float Action::fn_805393A4(int frame) {
     return (float)(frame - m10) / (float)(m14 - m10);
 }
 
+// inferred: comparator of the curve keys (its address is passed to std::sort by fn_805393F8)
+bool KeyLess_unk(const ActionKey_unk& a, const ActionKey_unk& b) {
+    return a.mTime < b.mTime;
+}
+
 // NONMATCHING: 89% - the original reloads the key buffer (m20) for the comparison in the loop but
 // uses the one loaded at the start for the interpolation (tried &mKeys[0] locals, begin(), at())
 float Action::fn_8053A2E8(float t) {
