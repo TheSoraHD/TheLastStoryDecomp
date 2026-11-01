@@ -529,7 +529,7 @@ int ControlRevival::vf0C() {
 boost::function<void()> ControlRevival::vf10() {
     CharaTask* chara = mChara;
     if (chara->mType != 0 && chara->m564 != 7) {
-        return FuncPair_unk(boost::bind(&CharaTask::fn_8016EB48, chara, false, false, false),
+        return DoubleFunction(boost::bind(&CharaTask::fn_8016EB48, chara, false, false, false),
                             boost::bind(&CharaTask::fn_8015ECC4, (CharaTask*)mChara));
     }
     return boost::bind(&CharaTask::fn_8015ECC4, chara);

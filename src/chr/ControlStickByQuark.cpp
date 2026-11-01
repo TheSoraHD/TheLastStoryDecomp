@@ -9,6 +9,7 @@
 #include "game/GameUI.h"
 #include "game/GimmickCommon.h"
 #include "chr/ControlDropDown.h"
+#include "chr/FuncPair_unk.h"
 #include <boost/bind.hpp>
 
 
@@ -1626,6 +1627,15 @@ int ControlBoundShade::vf0C() {
         }
     }
     return 0;
+}
+
+// inferred: gets up and fires the bullet m18 at itself when not broken free in time
+boost::function<void()> ControlBoundShade::vf10() {
+    if (mCount > 0) {
+        return DoubleFunction(boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false),
+                            boost::bind(&CharaTask::fn_80164454, (CharaTask*)mChara, m18, (int)mChara, (int)mChara, 0));
+    }
+    return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
 
 } // namespace chr

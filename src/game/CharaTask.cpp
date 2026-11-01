@@ -9002,7 +9002,7 @@ void CharaTask::fn_80164168(int a, int b) {
 inline Effect_unk* GetEffect_unk() { return lbl_8087F048; }
 
 // inferred: starts the bullet `id` (this is unused)
-void CharaTask::fn_80164454(int id, int a, int b) {
+void CharaTask::fn_80164454(int id, int a, int b, int c) {
     Effect_unk* mgr = lbl_8087F048;
     if (mgr != 0) {
         void* bullet;

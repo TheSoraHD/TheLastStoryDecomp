@@ -555,7 +555,7 @@ public:
     void fn_80163B88(const atn::Vector3& a, const atn::Vector3& b);
     void fn_80163E70(CharaTask* rider);
     void fn_80164168(int a, int b);
-    void fn_80164454(int id, int a, int b);
+    void fn_80164454(int id, int a, int b, int c); // inferred: c is unused (bound by chr::ControlBoundShade::vf10)
     void fn_801644D4(const atn::Vector3& start, CharaTask* target);
     void fn_801647BC();
     void fn_80164B00(const CharaShade_unk& shade); // inferred: starts a shade (timers at mFC8)
