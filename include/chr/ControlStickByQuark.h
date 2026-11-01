@@ -93,11 +93,14 @@ public:
     virtual void vf1C();
     virtual void vf40();
     virtual int vf54() { return m38; }
-    unsigned char m08[0x10 - 0x08];
-    atn::Vector3 m10;
-    unsigned char m1C[0x38 - 0x1C];
+    Chara_unk* mOther;    // 0x08
+    int m0C;
+    atn::Vector3 m10;     // inferred: position returned by vf14
+    atn::Vector3 mTarget; // 0x1C
+    atn::Vector3 mStart;  // 0x28
+    float m34;
     bool m38;
-    unsigned char m39[0x3C - 0x39];
+    bool m39;
 };
 
 class ControlThrustForCocoon : public ControlBase {

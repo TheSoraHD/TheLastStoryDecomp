@@ -592,6 +592,22 @@ void ControlThrustForQuarkStand::vf1C() {
     lbl_8087EFA8->mSlow.mOn = 0;
 }
 
+// inferred: thrust at the neck of a ghoul (control id 0x51)
+ControlThrustForGhoul::ControlThrustForGhoul(Chara_unk* chara, Chara_unk* other, const char* name)
+    : ControlBase(chara), mOther(other), m34(15.0f), m38(false), m39(false) {
+    chara->SetControlId_unk(0x51);
+    mStart = mChara->mPos;
+    mTarget = mOther->mPos;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x20A, 0, 0, 1, 1.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+    atn::Vector3 dir(mTarget.x - mStart.x, 0.0f, mTarget.z - mStart.z);
+    mChara->mRot = dir.ToRotationZ_unk();
+    m10 = mStart;
+}
+
 // NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
 atn::Vector3 ControlThrustForGhoul::vf14() {
     return m10;
