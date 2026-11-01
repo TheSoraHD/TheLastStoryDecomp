@@ -388,4 +388,58 @@ void ControlMatHoldGuard::vf1C() {
     lbl_8087EFA8->m3A4 = 1.0f;
 }
 
+// inferred: killed by the thread (control id 0x76); the collision is turned off until the end
+ControlThreadDead::ControlThreadDead(Chara_unk* chara, int a) : ControlBase(chara), m08(a) {
+    chara->SetControlId_unk(0x76);
+    mChara->mColli.mFlags &= ~1;
+    Motion_unk* m = &mChara->mMotion;
+    m->m34C = 1;
+    m->mTracks[0].m20 = 1.0f;
+    m->fn_80097C08(0, 0x226, 0, 0, 1, 1.0f, 0.1f);
+    m->mTracks[0].m0C = 1.0f;
+    if (lbl_8087F498 != 0) {
+        fn_803EA77C(lbl_8087F498, chara, 0xA, 0x1E, 1.0f, 10.0f);
+    }
+}
+
+int ControlThreadDead::vf0C() {
+    float frame = mChara->mMotion.mTracks[0].m08;
+    if (frame >= mChara->mMotion.fn_80097D7C(0)) {
+        mChara->mColli.mFlags |= 1;
+        return 1;
+    }
+    return 0;
+}
+
+void ControlThreadDead::vf1C() {
+    mChara->mColli.mFlags |= 1;
+}
+
+ControlThreadRelease::ControlThreadRelease(Chara_unk* chara) : ControlBase(chara) {
+    Motion_unk* m = &chara->mMotion;
+    if ((chara->mStatus.m0C & 0x20) == 0x20) {
+        m->m34C = 1;
+        m->mTracks[0].m20 = 1.0f;
+        m->fn_80097C08(0, 0x32, 1, 0, 1, 0.0f, 0.1f);
+        m->mTracks[0].m0C = 1.0f;
+        mDone = 1;
+    } else {
+        chara->SetControlId_unk(0x77);
+        m->m34C = 1;
+        m->mTracks[0].m20 = 1.0f;
+        m->fn_80097C08(0, 0x3C, 0, 0, 1, 0.0f, 0.1f);
+        m->mTracks[0].m0C = 1.0f;
+        mDone = 0;
+    }
+}
+
+int ControlThreadRelease::vf0C() {
+    if (mDone) {
+        return 1;
+    }
+    Motion_unk* m = &mChara->mMotion;
+    float frame = m->mTracks[0].m08;
+    return frame >= m->fn_80097D7C(0);
+}
+
 } // namespace chr

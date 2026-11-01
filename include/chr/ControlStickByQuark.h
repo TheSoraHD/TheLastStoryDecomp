@@ -222,14 +222,14 @@ public:
     ControlThreadDead(Chara_unk* chara, int a); // 0x8019BD48
     virtual int vf0C();
     virtual void vf1C();
-    unsigned char m08[0xC - 0x08];
+    int m08;
 };
 
 class ControlThreadRelease : public ControlBase {
 public:
     ControlThreadRelease(Chara_unk* chara); // 0x8019BE9C
     virtual int vf0C();
-    unsigned char m08[0xC - 0x08];
+    int mDone; // 0x08: inferred: already down
 };
 
 // inferred: created by CharaTask::fn_80164168 (the caller passes 15 as the last argument)
