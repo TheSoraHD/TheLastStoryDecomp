@@ -80,7 +80,9 @@ struct EventManager_unk {
     unsigned char m12C[0x164 - 0x12C];
     Actor_unk* m164;
     int m168;
-    unsigned char m16C[0x198 - 0x16C];
+    unsigned char m16C[0x190 - 0x16C];
+    int m190; // inferred: id of the event (0x5E6 halves the music fades)
+    unsigned char m194[0x198 - 0x194];
     float m198; // 0x198: inferred: current frame
 };
 
