@@ -182,7 +182,6 @@ extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
-extern "C" void fn_80192FB4(chr::ControlBase* control); // inferred: chr::ControlStickByQuark, stuck pose
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
 extern "C" void fn_803EAF60(void* mgr, int arg); // inferred: voice
 // inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
@@ -1482,7 +1481,7 @@ void EnemyQuarkStand::fn_8034B8CC() {
             if (m17E4->m55C != 6 || m17E4->m560 != 0x53) {
                 m17E4->fn_8016C7D8(this);
             }
-            fn_80192FB4(m17E4->mControl.get());
+            ((chr::ControlStickByQuark*)m17E4->mControl.get())->fn_80192FB4();
             m14B4++;
         }
     } else if (m14B4 == 1) {
