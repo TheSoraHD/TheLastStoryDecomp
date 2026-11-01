@@ -19,6 +19,12 @@ struct ActionValue_unk {
     } m04;
 };
 
+// inferred: key of the curve of an action (time, value)
+struct ActionKey_unk {
+    float mTime;
+    float mValue;
+};
+
 class Action : public Node {
 public:
     Action(Channel* channel, int index); // 0x80537708
@@ -30,6 +36,7 @@ public:
     atn::Vector3 fn_80538B18(int n);      // inferred: vector parameter rotated by the event yaw
     atn::Vector3 fn_80538C14(int n);      // inferred: same code as fn_805381F0
     void fn_80538CE0(int n, const atn::Vector3& v); // inferred: sets parameters n..n+2 to a vector
+    float fn_8053A2E8(float t);           // inferred: value of the curve at t (linear)
     int fn_805391E4(unsigned int hash);   // inferred: index of the attribute `hash`, -1 if none
     ActionValue_unk* fn_805392BC(unsigned int hash); // inferred: attribute `hash`, 0 if none
     ActionValue_unk* fn_80539330(unsigned int hash); // inferred: same code as fn_805392BC
@@ -56,7 +63,7 @@ public:
     int m14;
     int m18;
     int m1C;
-    std::vector<int> m20;                 // inferred: element type unknown (POD)
+    std::vector<ActionKey_unk> mKeys;     // 0x20: inferred: curve (fn_8053A2E8)
     std::vector<ActionValue_unk> mParams; // 0x2C (m2C/m30 of ActionArg_unk)
     unsigned char m38[0x40 - 0x38];
 };

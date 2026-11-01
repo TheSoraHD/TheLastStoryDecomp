@@ -126,6 +126,32 @@ float Action::fn_805393A4(int frame) {
     return (float)(frame - m10) / (float)(m14 - m10);
 }
 
+// NONMATCHING: 89% - the original reloads the key buffer (m20) for the comparison in the loop but
+// uses the one loaded at the start for the interpolation (tried &mKeys[0] locals, begin(), at())
+float Action::fn_8053A2E8(float t) {
+    if (mKeys.size() == 0) {
+        return 0.0f;
+    }
+    if (t <= mKeys[0].mTime) {
+        return mKeys[0].mValue;
+    }
+    int last = mKeys.size() - 1;
+    if (t >= mKeys[last].mTime) {
+        return mKeys[last].mValue;
+    }
+    for (int i = 0; i < last; i++) {
+        if (t <= mKeys[i + 1].mTime) {
+            ActionKey_unk& a = mKeys[i];
+            ActionKey_unk& b = mKeys[i + 1];
+            if (a.mTime == b.mTime) {
+                return 0.5f * (a.mValue + b.mValue);
+            }
+            return (t - a.mTime) / (b.mTime - a.mTime) * (b.mValue - a.mValue) + a.mValue;
+        }
+    }
+    return 0.0f;
+}
+
 void Action::vf0C(int n, int value) {
     GetParam_unk(n)->m04.i = value;
 }
