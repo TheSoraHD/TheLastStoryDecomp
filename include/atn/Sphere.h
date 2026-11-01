@@ -10,6 +10,8 @@ namespace atn {
 // inferred: bounding sphere (center and radius)
 struct Sphere {
     Sphere() {}
+    // inferred: name invented (SkillEffectManager::fn_8059D3B0 builds the argument in place)
+    Sphere(const Vector3& center, float radius) : mCenter(center), mRadius(radius) {}
     // inferred: the center is copied with z loaded first (0x80491D50)
     Sphere(const Sphere& o) {
         mCenter.Assign_unk(o.mCenter);

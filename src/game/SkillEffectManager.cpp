@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
 #include "game/Arms.h"
+#include "game/MapManager.h"
 #include "game/PlayerTask.h"
 #include "game/EnemyTask.h"
 #include "game/EnemyManager.h"
@@ -50,14 +51,15 @@ extern "C" void fn_805989A4(Bullet_unk* bullet, HitInfo_unk* skill, CharaTask* u
 extern "C" void fn_805991E0(Bullet_unk* bullet);                     // inferred: stops it
 extern "C" void fn_80599454(Bullet_unk* bullet, int arg);            // inferred: update
 extern "C" void fn_80599C6C(Bullet_unk* bullet);                     // inferred: draw
-extern "C" void fn_80599FB4(Bullet_unk* bullet, int arg);
+extern "C" float fn_80599FB4(Bullet_unk* bullet, int arg); // inferred: returns the scale
 extern "C" void fn_8059A0B4(Bullet_unk* bullet, atn::EffFile* res);
 extern "C" void fn_8059A1FC(Bullet_unk* bullet, int arg);
+extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: reflection test
 extern "C" int fn_80599D60(Bullet_unk* bullet, CharaTask* chara, int arg); // inferred: touches chara
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0; // inferred: effect manager of the efp files
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
-                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const MapColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int id); // inferred: names the next effect of `owner`
@@ -92,7 +94,7 @@ inline bool IsEnemyField_unk(CharaTask* chara) {
 inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
     atn::Vector3 pos;
     atn::Vector3 rot;
-    Color4f_unk color;
+    MapColor_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -521,7 +523,7 @@ void SkillEffectManager::fn_8059C800(CharaTask* chara) {
     float scale = chara->m1258;
     atn::Vector3 pos;
     atn::Vector3 rot;
-    Color4f_unk color;
+    MapColor_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -554,7 +556,7 @@ void SkillEffectManager::fn_8059C99C(CharaTask* chara) {
     float scale = chara->m1258;
     atn::Vector3 pos;
     atn::Vector3 rot;
-    Color4f_unk color;
+    MapColor_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -578,7 +580,7 @@ void SkillEffectManager::fn_8059CA84(CharaTask* chara) {
     float scale = chara->m1258;
     atn::Vector3 pos;
     atn::Vector3 rot;
-    Color4f_unk color;
+    MapColor_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -602,7 +604,7 @@ void SkillEffectManager::fn_8059CB3C(CharaTask* chara) {
     float scale = chara->m1258;
     atn::Vector3 pos;
     atn::Vector3 rot;
-    Color4f_unk color;
+    MapColor_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -626,7 +628,7 @@ void SkillEffectManager::fn_8059CBF4(CharaTask* chara) {
     float scale = chara->m1258;
     atn::Vector3 pos;
     atn::Vector3 rot;
-    Color4f_unk color;
+    MapColor_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -709,7 +711,7 @@ void SkillEffectManager::fn_8059D0C0(CharaTask* chara) {
     float scale = chara->m1258;
     atn::Vector3 pos;
     atn::Vector3 rot;
-    Color4f_unk color;
+    MapColor_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -762,4 +764,62 @@ int SkillEffectManager::fn_8059D30C(CharaTask* chara) {
         }
     }
     return count;
+}
+
+// NONMATCHING: 99.94% - stack slots of the sphere and light temporaries (0x40/0x60 against 0x60/0x50)
+void SkillEffectManager::fn_8059D3B0(CharaTask* chara) {
+    if (chara == 0) {
+        return;
+    }
+    for (int i = 0; i < 32; i++) {
+        Bullet_unk* bullet = &mBullets[i];
+        if (!bullet->IsActive_unk() || bullet->m08 == 0 || bullet->m08->fn_8016F3D0(chara, 1) ||
+            bullet->fn_8059A264()) {
+            continue;
+        }
+        HitInfo_unk* hit = bullet->m04;
+        if (fn_8021A960(hit) && (hit->m90.mFlags & 1U) != 1 && (hit->m90.mFlags & 0x400000U) != 0x400000 &&
+            (hit->m90.mFlags & 0x40U) != 0x40) {
+            atn::Vector3 pos = chara->mPos;
+            atn::Vector3 rot = chara->mRot;
+            if (fn_8059A298(&pos, &rot, 0)) {
+                bullet->m10 = pos;
+                bullet->m1C = rot;
+                if (bullet->GetOwnHit_unk()) {
+                    bullet->m5C = bullet->GetOwnHit_unk()->m58;
+                }
+                bullet->m13C = 1;
+                bullet->m60 = 0;
+                bullet->m08 = chara;
+                float scale = fn_80599FB4(bullet, 0);
+                MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
+                fn_80239DAC(lbl_8087F3C0, bullet, bullet->m04->m04, 1);
+                fn_80232B7C(0, 0);
+                fn_8023A8B4(lbl_8087F3C0, &m2900, 0, 0, bullet->m10, bullet->m1C, MapColor_unk(1.0f, 1.0f, 1.0f, 1.0f),
+                            -1, -1, 1, scale);
+                fn_80232B7C(bullet, bullet->m04->m04);
+                if (fn_8021A960(hit)) {
+                    fn_8023A8B4(lbl_8087F3C0, &m2918, 0, 0, bullet->m10, bullet->m1C, light, -1, -1, 1, scale);
+                } else {
+                    fn_8023A8B4(lbl_8087F3C0, &m290C, 0, 0, bullet->m10, bullet->m1C, light, -1, -1, 1, scale);
+                }
+            }
+        } else if (fn_8021A960(hit) || fn_8021A984(hit)) {
+            bullet->m13C = 1;
+            bullet->m60 = 0;
+            bullet->m08 = chara;
+            float scale = fn_80599FB4(bullet, 0);
+            MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
+            fn_80239DAC(lbl_8087F3C0, bullet, bullet->m04->m04, 1);
+            fn_80232B7C(0, 0);
+            fn_8023A8B4(lbl_8087F3C0, &m2900, 0, 0, bullet->m10, bullet->m1C, MapColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1,
+                        -1, 1, scale);
+            fn_80232B7C(bullet, bullet->m04->m04);
+            if (fn_8021A960(hit)) {
+                fn_8023A8B4(lbl_8087F3C0, &m2918, 0, 0, bullet->m10, bullet->m1C, light, -1, -1, 1, scale);
+            } else {
+                fn_8023A8B4(lbl_8087F3C0, &m290C, 0, 0, bullet->m10, bullet->m1C, light, -1, -1, 1, scale);
+            }
+        }
+    }
 }

@@ -46,7 +46,8 @@ struct Bullet_unk {
     unsigned char m64[0x68 - 0x64];
     boost::function<void(Bullet_unk*)> mCallback; // 0x68: inferred: called when the effect ends
     unsigned char m7C[0x80 - 0x7C];
-    unsigned char m80[0x140 - 0x80];
+    unsigned char m80[0x13C - 0x80];
+    int m13C; // inferred: set when the effect is reflected (fn_8059D3B0)
 };
 
 // inferred from __vt__18SkillEffectManager (0x80796B28): effects of skills and magic
@@ -100,6 +101,7 @@ public:
     void fn_8059D178();         // inferred: refreshes the effects of the players and allies (fn_8021A984)
     void fn_8059D268(int arg);  // inferred: fn_8059A1FC on every active effect
     int fn_8059D30C(CharaTask* chara); // inferred: effects of the allies of `chara` with fn_8021A984
+    void fn_8059D3B0(CharaTask* chara); // inferred: `chara` reflects the enemy effects
 
     // inferred: effect slot i (null out of range); called on the singleton
     Bullet_unk* GetBullet_unk(unsigned int i) {
