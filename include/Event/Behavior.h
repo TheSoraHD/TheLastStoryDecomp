@@ -6,6 +6,7 @@
 
 #include "math/Vec.h"
 #include "Event/Action.h"
+#include "atn/SoundRef.h"
 
 class CharaTask;
 
@@ -106,7 +107,9 @@ struct EventManager_unk {
     unsigned char m14C[0x164 - 0x14C];
     Actor_unk* m164;
     int m168;
-    unsigned char m16C[0x190 - 0x16C];
+    unsigned char m16C[0x174 - 0x16C];
+    atn::SoundRef m174[4]; // 0x174: inferred: sounds of the event (ActionEnvSound)
+    unsigned char m184[0x190 - 0x184];
     int m190; // inferred: id of the event (0x5E6 halves the music fades)
     unsigned char m194[0x198 - 0x194];
     float m198; // 0x198: inferred: current frame

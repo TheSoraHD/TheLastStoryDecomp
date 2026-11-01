@@ -13,6 +13,9 @@
 #include "atn/Color4f_unk.h"
 #include "atn/Model_unk.h"
 #include "Event/Path.h"
+#include "atn/SoundManager.h"
+#include "game/ColliAttrManager.h"
+#include "game/SongManager.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -23,7 +26,6 @@ namespace atn {
 // inferred: base named in the RTTI of the processors (no member is used here)
 template <class T>
 class SingletonNoStatic {};
-
 } // namespace atn
 
 // inferred: the event manager (lbl_8087F540) seen through the members used here
@@ -81,9 +83,11 @@ struct ReflectTarget_unk {
     int m260;                  // inferred: m264 is used instead of the global color matrix
     ColorMatrixParam_unk m264; // inferred: color matrix of the camera
 };
+
 namespace atn {
+
 struct Camera;
-}
+} // namespace atn
 typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" ReflectTarget_unk* fn_800C16B4(Camera_unk* camera);
@@ -163,6 +167,18 @@ static RsVector4_unk sColorMatrices_unk[12][4] = {
     {RsVector4_unk(2.0f, 0.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 2.0f, 0.0f, 0.0f), RsVector4_unk(0.0f, 0.0f, 2.0f, 0.0f),
      RsVector4_unk((1.0f - 2.0f) * 0.5f, (1.0f - 2.0f) * 0.5f, (1.0f - 2.0f) * 0.5f, 0.0f)},
 };
+
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
+extern "C" void fn_800CB518(atn::SoundRef* sound, int frames);          // inferred: fades the sound in
+extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
+
+extern "C" void* lbl_8087EE90; // inferred: sound engine
+extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
+extern "C" int fn_805A38F0(const char* name, int arg2, int arg3);   // inferred: the sound can be played
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // 3D sound
+extern "C" void fn_800CB654(atn::SoundRef* sound, float a, float b, float c); // inferred: 3D parameters
+extern "C" void fn_800CB668(atn::SoundRef* sound, int mode);                    // inferred: loop
 
 struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
 extern "C" GameVars_unk* lbl_8087F430;
@@ -264,7 +280,6 @@ struct MsgWindow_unk {
     int m50;
     MsgChoice_unk* m54; // inferred: answers of a choice
 };
-
 } // namespace Event
 
 extern "C" void* fn_803B3B38(void* table, int id);                              // inferred: message `id`
@@ -807,6 +822,111 @@ int ActionMessagePrint::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// inferred: sound slot `n` of the event
+inline atn::SoundRef* GetSound_unk(EventManager_unk* manager, unsigned int n) {
+    return n <= 3 ? &manager->m174[n] : 0;
+}
+
+// inferred: the sound object of `sound` with one more reference (kept in Action::m38)
+inline atn::SoundObject* Keep_unk(atn::SoundRef& sound) {
+    atn::SoundObject* p = sound.mPtr;
+    if (p != 0) {
+        p->mRefCount++;
+    } else {
+        p = 0;
+    }
+    return p;
+}
+
+// NONMATCHING: 99.0% - the kept sound object is in r27 in the original (r30 here; tried an inline
+// helper with early returns)
+int ActionSoundPlay::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        atn::SoundObject* handle = 0;
+        if (lbl_8087F540->mC4 == 0) {
+            arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParam_unk(0)->m04.i);
+            int is3D = arg->GetParam_unk(1)->m04.i;
+            atn::Vector3 pos = arg->fn_805384CC(2);
+            float volume = arg->GetParam_unk(7)->m04.f;
+            float range = arg->GetParam_unk(8)->m04.f;
+            float pitch = arg->GetParam_unk(9)->m04.f;
+            int noKeep = arg->GetParam_unk(10)->m04.i;
+            int loop = arg->GetParam_unk(11)->m04.i;
+            if (entry != 0) {
+                if (entry->mName == "SONG_PLAY") {
+                    if (SongManager::sInstance != 0) {
+                        SongManager::sInstance->mF4 = arg->m18;
+                        SongManager::sInstance->fn_805A2FD4(1);
+                        SongManager::sInstance->mF4 = 0;
+                    }
+                    handle = 0;
+                } else if (entry->mName == "SONG_STOP") {
+                    if (SongManager::sInstance != 0) {
+                        SongManager::sInstance->mF4 = arg->m1C;
+                        SongManager::sInstance->fn_805A2FD4(0);
+                        SongManager::sInstance->mF4 = 0;
+                    }
+                    handle = 0;
+                } else {
+                    unsigned int id = lbl_8087EE90 != 0 ? fn_80049B74(lbl_8087EE90, entry->mName.c_str()) : 0;
+                    if (id != 0 && (id == fn_80049B74(lbl_8087EE90, "SE_EV0605_001") ||
+                                    id == fn_80049B74(lbl_8087EE90, "SE_EV2527_001"))) {
+                        lbl_8087EFE8->m34D0 = 5;
+                    } else {
+                        lbl_8087EFE8->m34D0 = 3;
+                    }
+                    atn::SoundRef sound;
+                    if (fn_805A38F0(entry->mName.c_str(), 3, 0) != 0) {
+                        if (is3D != 0) {
+                            sound = fn_800C344C(entry->mName.c_str(), &pos, 0, -1, volume);
+                            fn_800CB654(&sound, range, 1.0f, 1.0f);
+                        } else {
+                            sound = fn_800C31F4(entry->mName.c_str(), 0, -1, volume);
+                        }
+                    }
+                    lbl_8087EFE8->m34D0 = 0;
+                    if (arg->m18 > 0) {
+                        fn_800CB518(&sound, arg->m18);
+                    }
+                    if (loop != 0) {
+                        fn_800CB668(&sound, 2);
+                    }
+                    fn_800CB688(&sound, 0, pitch);
+                    if (noKeep != 0) {
+                        handle = 0;
+                    } else {
+                        handle = Keep_unk(sound);
+                    }
+                }
+            }
+        }
+        arg->m38 = (int)handle;
+        break;
+    }
+    case 2: {
+        bool stop = arg->GetParam_unk(10)->m04.i == 0 && arg->m38 != 0;
+        if (stop) {
+            atn::SoundRef sound;
+            sound = (atn::SoundObject*)arg->m38;
+            sound.mPtr->mRefCount--;
+            fn_800CB5C8(&sound, arg->m1C, 0);
+        }
+        break;
+    }
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        if (manager->FindActor_unk(arg->GetParam_unk(2)->m04.i)->m20 == 6) {
+            arg->fn_80538DC4(4);
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
 int ActionSoundPlay::vf08(Action* arg) {
     if (arg->m38 != 0) {
         atn::SoundRef sound;
@@ -815,6 +935,58 @@ int ActionSoundPlay::vf08(Action* arg) {
         int frame = arg->fn_805381C8()->m198;
         float volume = arg->GetParam_unk(7)->m04.f;
         fn_800CB5B4(&sound, 0, volume * arg->fn_8053A2E8(arg->fn_805393A4(frame)));
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.1% - the original keeps arg in r30 and the entry in r31 (tried the id in a local and
+// a switch on the type)
+int ActionEnvSound::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int type = arg->GetParam_unk(0)->m04.i;
+        if (type == 0) {
+            if (lbl_8087F540->mC4 == 0) {
+                int slot = arg->GetParam_unk(1)->m04.i;
+                AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParam_unk(2)->m04.i);
+                float volume = arg->GetParam_unk(3)->m04.f;
+                float unused = arg->GetParam_unk(4)->m04.f;
+                float pitch = arg->GetParam_unk(5)->m04.f;
+                atn::SoundRef* sound = GetSound_unk(manager, slot);
+                if (entry != 0 && sound != 0) {
+                    fn_800CB5C8(sound, 0, 0);
+                    lbl_8087EFE8->m34D0 = 3;
+                    lbl_8087EFE8->m34C8 = 0;
+                    *sound = fn_800C31F4(entry->mName.c_str(), 0, -1, volume);
+                    lbl_8087EFE8->m34C8 = 1;
+                    lbl_8087EFE8->m34D0 = 0;
+                    if (arg->m18 > 0) {
+                        fn_800CB518(sound, arg->m18);
+                    }
+                    fn_800CB688(sound, 0, pitch);
+                }
+            }
+        } else if (type == 1) {
+            atn::SoundRef* sound = GetSound_unk(manager, arg->GetParam_unk(1)->m04.i);
+            if (sound != 0) {
+                fn_800CB5C8(sound, arg->m1C, 0);
+            }
+        } else if (type == 2) {
+            int on = arg->GetParam_unk(1)->m04.i;
+            if (lbl_8087F418 != 0) {
+                lbl_8087F418->fn_80360780(on, 4, arg->m18 + arg->m1C);
+            }
+        } else if (type == 3) {
+            int on = arg->GetParam_unk(1)->m04.i;
+            if (lbl_8087F418 != 0) {
+                lbl_8087F418->fn_803606CC(on, 4, arg->m18 + arg->m1C);
+            }
+        } else if (type == 4) {
+            int enabled = arg->GetParam_unk(1)->m04.i;
+            if (ColliAttrManager::sInstance != 0) {
+                ColliAttrManager::sInstance->mEnabled = enabled;
+            }
+        }
     }
     return 0;
 }
@@ -943,7 +1115,6 @@ int ActionSunLight::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-
 int ActionAmbientLight::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         fn_80484A78(lbl_8087F540, arg->GetParam_unk(1)->m04.i);
@@ -953,9 +1124,12 @@ int ActionAmbientLight::vf0C(Action* arg, int phase) {
 
 // inferred: position of the cloud map: actor of parameter 0 (node of parameter 1) plus the offset of
 // parameters 2-4, seen from above
+// NONMATCHING: 99.8% - r3/r4 swapped in the copy of the node position (tried a Vector3 built from the
+// matrix, GetTrans_unk on MtxPtr and on a Matrix3x4 pointer)
 atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
+    int id;
     EventManager_unk* manager = arg->fn_805381C8();
-    int id = arg->GetParam_unk(0)->m04.i;
+    id = arg->GetParam_unk(0)->m04.i;
     unsigned int node = arg->GetParam_unk(1)->m04.i;
     atn::Vector3 offset = arg->fn_805381F0(2);
     float unused = arg->GetParam_unk(5)->m04.f;
@@ -969,13 +1143,14 @@ atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
     }
     atn::Model* model = fn_8001296C(actor);
     if (model != 0) {
-        MtxPtr mtx = model->GetNodeMtx_unk(model->fn_800928B0(node, 0));
+        atn::Matrix3x4* mtx = (atn::Matrix3x4*)model->GetNodeMtx_unk(model->fn_800928B0(node, 0));
         if (mtx != 0) {
-            pos = atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]);
+            pos = mtx->GetTrans_unk();
         }
     }
     pos += offset;
-    return atn::Vector2_unk(pos.x, pos.z);
+    atn::Vector2_unk ret(pos.x, pos.z);
+    return ret;
 }
 
 int ActionCloudMap::vf08(Action* arg) {
@@ -991,6 +1166,8 @@ inline float Rate_unk(int frames) {
     return frames > 0 ? 1.0f / frames : 1.0f;
 }
 
+// NONMATCHING: 93.1% - the manager for the m1F0C store goes in r5 and is scheduled before the copies of
+// the arguments
 int ActionCloudMap::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
@@ -1079,6 +1256,8 @@ int ActionBrightness::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// NONMATCHING: 98.6% - register allocation of the three modes (the original keeps arg in r27 and the
+// wait in r30; tried the hit vector at the top of mode 2)
 int ActionCameraChange::vf08(Action* arg) {
     int wait = arg->GetParam_unk(5)->m04.i;
     int mode = arg->GetParam_unk(0)->m04.i;
@@ -1135,6 +1314,7 @@ int ActionCameraChange::vf08(Action* arg) {
     } else if (mode == 2) {
         int timer = arg->m38;
         if (timer == 0) {
+            atn::Vector3 hit;
             int selected = 0;
             for (int i = 0; i < 4; i++) {
                 int camera = arg->GetParamAt_unk(i + 1)->m04.i;
@@ -1146,7 +1326,6 @@ int ActionCameraChange::vf08(Action* arg) {
                 if (cam->m240.mActor != 0) {
                     ignore = fn_8001260C(cam->m240.mActor);
                 }
-                atn::Vector3 hit;
                 int a = fn_8004ECC0(lbl_8087EE98, &hit, &cam->mPos, &cam->mTarget, 0, ignore, 0);
                 int b = fn_8004ECC0(lbl_8087EE98, &hit, &cam->mTarget, &cam->mPos, 0, ignore, 0);
                 if (a == 0 && b == 0) {
@@ -1246,11 +1425,14 @@ int ActionColorMatrix::vf08(Action* arg) {
     return 0;
 }
 
+// NONMATCHING: 99.1% - the four row pointers of the copy into the manager get the registers in reverse
+// order (tried a pointer to m1D70 and an assignment after the declaration)
 int ActionColorMatrix::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         ColorMatrixParam_unk param = *fn_80483F70(lbl_8087F540);
         param.mEnabled = 1;
-        lbl_8087F540->m1D70 = param;
+        EventEffects_unk* mgr = lbl_8087F540;
+        mgr->m1D70 = param;
     }
     return 0;
 }
@@ -1454,5 +1636,4 @@ int ActionNotify::vf08(Action* arg) {
 int ActionEffectPlay::vf08(Action* arg) {
     return 0;
 }
-
 } // namespace Event
