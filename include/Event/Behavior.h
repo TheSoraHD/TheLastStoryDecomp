@@ -32,6 +32,7 @@ public:
 namespace Event {
 
 class Dialog;
+class Path;
 
 class Cut;
 
@@ -39,6 +40,7 @@ class Cut;
 struct Actor_unk {
     CharaTask* fn_800128FC();      // inferred: character of the actor (0 if none)
     atn::Vector3 fn_80010374();    // inferred: position of the actor
+    atn::Vector3 fn_80010B68();    // inferred: rotation of the actor
     atn::Model* fn_80012A1C();     // inferred: model of the actor (0 if none)
     // inferred: plays motion `motion` on the actor (used by Event::BehaviorGesture)
     void fn_800119C0(int arg1, int motion, int arg3, int arg4, void* arg5, int arg6, int arg7, float arg8,
@@ -63,6 +65,7 @@ struct Actor_unk {
     inline int GetState_unk() const;
     inline atn::Vector3 GetPathPos_unk(float t);
     inline void TurnTo_unk(const atn::Vector3& dir);
+    inline void SetPath_unk(class Path* path); // inferred: builds mPath from an event path
 
     unsigned char m00[0x14];
     int m14; // inferred: id
@@ -82,10 +85,11 @@ struct Actor_unk {
     unsigned char m134[0x1C0 - 0x134];
 };
 
-// inferred: the actors of the event {data, count} (names invented); Find_unk is a template member
-// emitted at the end of the file (0x8055A400, defined in Event/ActionActorPosition.cpp)
+// inferred: objects of the event found by their id at 0x14 (actors, paths): {data, count} (names
+// invented); Find_unk is a template member emitted at the end of the file (0x8055A400, defined in
+// Event/ActionActorPosition.cpp)
 template <class T>
-struct ActorList_unk {
+struct IdList_unk {
     T* Find_unk(int id);
     T* mData;
     int mSize;
@@ -112,7 +116,9 @@ struct EventManager_unk {
         return 0;
     }
 
-    inline ActorList_unk<Actor_unk>* GetActors_unk(); // inferred: weak copy 0x80551D20 (Event/ActionActorPosition.cpp)
+    // inferred: lookup of a path by id (inlined in ActionActorPosition::vf0C; defined there)
+    inline Path* FindPath_unk(int id);
+    inline IdList_unk<Actor_unk>* GetActors_unk(); // inferred: weak copy 0x80551D20 (Event/ActionActorPosition.cpp)
 
     // inferred: rotates `v` by the yaw at 0xB4 (0x80541C94 in Event/Sequence)
     atn::Vector3 fn_80541C94(const atn::Vector3& v);
@@ -145,8 +151,10 @@ struct EventManager_unk {
     unsigned char m12C[0x144 - 0x12C];
     struct MovieEntry_unk* m144; // 0x144: inferred: movies of the event (0x1C bytes each)
     int m148;
-    unsigned char m14C[0x164 - 0x14C];
-    ActorList_unk<Actor_unk> m164; // 0x164
+    unsigned char m14C[0x154 - 0x14C];
+    IdList_unk<Path> m154; // 0x154: inferred: paths of the event (0x84 bytes each)
+    unsigned char m15C[0x164 - 0x15C];
+    IdList_unk<Actor_unk> m164; // 0x164
     unsigned char m16C[0x174 - 0x16C];
     atn::SoundRef m174[4]; // 0x174: inferred: sounds of the event (ActionEnvSound)
     unsigned char m184[0x190 - 0x184];

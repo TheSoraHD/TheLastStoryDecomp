@@ -1,4 +1,5 @@
 #include "Event/Behavior.h"
+#include "Event/Path.h"
 #include "atn/Model_unk.h"
 #include "math/VecOps_unk.h"
 #include "math/DegToRad_unk.h"
@@ -38,12 +39,12 @@ inline int ActionParam_unk::GetIndex_unk() const {
     return m04.i;
 }
 
-inline ActorList_unk<Actor_unk>* EventManager_unk::GetActors_unk() {
+inline IdList_unk<Actor_unk>* EventManager_unk::GetActors_unk() {
     return &m164;
 }
 
 template <class T>
-T* ActorList_unk<T>::Find_unk(int id) {
+T* IdList_unk<T>::Find_unk(int id) {
     for (int i = 0; i < mSize; i++) {
         T* p = &mData[i];
         if (id == p->m14) {
@@ -483,15 +484,179 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
     }
 }
 
-// NONMATCHING: 96.2% - the original loads lbl_8087F540 before the current frame (tried locals, the
-// comparison both ways and a ternary)
+// inferred: helpers of the spline compiled in another file (weak copies, C names as in game/Em403WarLion.cpp)
+// inferred: raw storage of a std::vector<float> (constructed and destroyed through the weak copies)
+struct PathFloats_unk {
+    float* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+};
+extern "C" void fn_8032B314(std::vector<PathCubic_unk>* v, unsigned int n);          // inferred: resize
+extern "C" PathFloats_unk* fn_8032B6F8(PathFloats_unk* v, unsigned int n);           // inferred: vector(n)
+extern "C" void fn_8000D844(PathFloats_unk* v, int flag);                            // inferred: ~vector<float>
+extern "C" void fn_8032B7F0(PathSpline_unk* spline, const float* y, PathCubic_unk* out); // inferred: solve
+extern "C" void fn_8032BE88(std::vector<float>* v, unsigned int n);                  // inferred: resize
+extern "C" float fn_8032C1EC(PathSpline_unk* spline, int i);                         // inferred: segment length
+extern "C" int fn_8048B3B8(EventStep_unk* step, int id);    // inferred: move curve by id
+extern "C" void fn_8048C884(EventStep_unk* step, int curve); // inferred: releases a move curve
+
+inline Path* EventManager_unk::FindPath_unk(int id) {
+    for (int i = 0; i < m154.mSize; i++) {
+        Path* path = &m154.mData[(unsigned int)i];
+        if (id == path->m14) {
+            return path;
+        }
+    }
+    return 0;
+}
+
+// inferred: builds the spline through the points (same code as WarLionBuild_unk of game/Em403WarLion.cpp)
+inline void PathSpline_unk::Build_unk(const atn::Vector3* pts, int n) {
+    mNumSegments = n;
+    fn_8032B314(&mX, n - 1);
+    fn_8032B314(&mY, n - 1);
+    fn_8032B314(&mZ, n - 1);
+    PathFloats_unk zs;
+    PathFloats_unk ys;
+    PathFloats_unk xs;
+    fn_8032B6F8(&xs, n);
+    fn_8032B6F8(&ys, n);
+    fn_8032B6F8(&zs, n);
+    for (int i = 0; i < n; i++) {
+        xs.mData[i] = pts[i].x;
+        ys.mData[i] = pts[i].y;
+        zs.mData[i] = pts[i].z;
+    }
+    fn_8032B7F0(this, xs.mData, mX.begin());
+    fn_8032B7F0(this, ys.mData, mY.begin());
+    fn_8032B7F0(this, zs.mData, mZ.begin());
+    mStart = pts[0];
+    mEnd = pts[n - 1];
+    mLength = 0.0f;
+    fn_8032BE88(&mLengths, n - 1);
+    for (int i = 0; i < n - 1; i++) {
+        mLengths[i] = fn_8032C1EC(this, i);
+        mLength += mLengths[i];
+    }
+    fn_8000D844(&zs, -1);
+    fn_8000D844(&ys, -1);
+    fn_8000D844(&xs, -1);
+}
+
+// inferred: the path of the actor follows the points of an event path
+inline void Actor_unk::SetPath_unk(Path* path) {
+    std::vector<atn::Vector3> pts(path->mPoints.size());
+    for (int i = 0; i < (int)path->mPoints.size(); i++) {
+        pts[i] = path->mPoints[i].mPos;
+    }
+    int n = pts.size();
+    const atn::Vector3* p = pts.begin();
+    mPath.Build_unk(p, n);
+}
+
+// NONMATCHING: new
+int ActionActorPosition::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        int mode = arg->GetParam_unk(0)->m04.i;
+        if (mode == 0) {
+            ActionOwner_unk* section = arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            arg->fn_80538CE0(14, actor->fn_80010B68());
+            if (arg->GetParam_unk(12)->m04.i != 0) {
+                actor->fn_800119C0(0, arg->GetParam_unk(13)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
+            }
+            if (arg->m18 > 0) {
+                actor->m130 = fn_8048B3B8(lbl_8087F540, arg->GetParam_unk(17)->m04.i);
+            }
+            ActionActorPosition::vf08(arg);
+        } else if (mode == 1) {
+            ActionOwner_unk* section = arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            int id = arg->GetParam_unk(1)->m04.i;
+            if (id != -1) {
+                Path* path = manager->FindPath_unk(id);
+                if (path != 0) {
+                    actor->SetPath_unk(path);
+                }
+            }
+            if (arg->GetParam_unk(3)->m04.i != 0) {
+                actor->fn_800119C0(0, arg->GetParam_unk(4)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
+            }
+        } else if (mode == 2) {
+            ActionOwner_unk* section = arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            if (arg->GetParam_unk(8)->m04.i != 0) {
+                actor->fn_800119C0(0, arg->GetParam_unk(9)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
+            }
+            if (arg->m18 > 0) {
+                actor->m130 = fn_8048B3B8(lbl_8087F540, arg->GetParam_unk(10)->m04.i);
+            }
+        } else if (mode == 3) {
+            ActionOwner_unk* section = arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            arg->fn_80538CE0(7, actor->fn_80010B68());
+        }
+        break;
+    }
+    case 3: {
+        int mode = arg->GetParam_unk(0)->m04.i;
+        if ((mode == 0 || mode == 2) && arg->m18 > 0) {
+            ActionOwner_unk* section = arg->fn_805381A0();
+            EventManager_unk* manager = arg->fn_805381C8();
+            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            fn_8048C884(lbl_8087F540, actor->m130);
+        }
+        break;
+    }
+    case 5: {
+        if (arg->GetParam_unk(0)->m04.i == 1) {
+            int id = arg->GetParam_unk(1)->m04.i;
+            if (id != -1) {
+                ActionOwner_unk* section = arg->fn_805381A0();
+                EventManager_unk* manager = arg->fn_805381C8();
+                Actor_unk* actor = manager->FindActor_unk(section->m10);
+                Path* path = manager->FindPath_unk(id);
+                if (path != 0) {
+                    actor->SetPath_unk(path);
+                }
+            }
+        }
+        fn_80551194(arg, 0.0f);
+        break;
+    }
+    case 6: {
+        if (arg->GetParam_unk(0)->m04.i == 0) {
+            EventManager_unk* manager = arg->fn_805381C8();
+            Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(1)->m04.i);
+            if (target->m20 == 6) {
+                arg->fn_80538DC4(3);
+                float yaw = fn_80541CF0(manager, atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f));
+                float deg = 57.29578f * yaw;
+                ActionParam_unk* p = arg->GetParam_unk(8);
+                p->m00 = 3;
+                p->m04.f = deg;
+            }
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
 int ActionActorPosition::vf08(Action* arg) {
     int length = arg->m18;
     int start = arg->m10;
     EventManager_unk* manager = arg->fn_805381C8();
     float now = manager->m198;
-    float left = (float)(start + length) - now;
-    if (left < lbl_8087F540->mB4) {
+    float end = (float)(start + length);
+    float min = lbl_8087F540->mB4;
+    float left = end - now;
+    if (left < min) {
         left = 0.0f;
     }
     fn_80551194(arg, left);

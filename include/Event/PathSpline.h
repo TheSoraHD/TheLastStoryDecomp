@@ -21,6 +21,7 @@ struct PathSpline_unk {
     // the @N labels of the files that include it)
     inline atn::Vector3 Segment_unk(int i, float u);
     inline atn::Vector3 GetPos_unk(float t);
+    inline void Build_unk(const atn::Vector3* pts, int n);
 
     int mNumSegments;                    // 0x00
     float mLength;                       // 0x04
