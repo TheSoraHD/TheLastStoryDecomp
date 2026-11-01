@@ -5,6 +5,8 @@
 #include "chr/ControlLadder.h"
 #include "game/CharaTask.h"
 #include "macros.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 
 // inferred: collision world and its ray test (as in chr/ControlWallUp.cpp)
 struct LadderCollResult_unk {
@@ -12,7 +14,8 @@ struct LadderCollResult_unk {
     unsigned char m00[0x04];
     atn::Vector3 m04; // inferred: hit position
     atn::Vector3 m08_unk;
-    unsigned char m1C[0x34 - 0x1C];
+    unsigned char m1C[0x28 - 0x1C];
+    atn::Vector3 mNormal; // 0x28: inferred: normal of the hit wall
     int m34;
     int m38;
     int m3C;
@@ -23,7 +26,21 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, LadderCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 
+extern "C" void* lbl_8087F498; // inferred: voice player
+extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" int fn_80051A88(const atn::ColliSphereShape_unk* a, const atn::ColliSphereShape_unk* b); // inferred: spheres touch
+extern "C" int rand();
+
 namespace chr {
+
+// inferred: progress of the motion of track 0 (frame / length; name invented)
+static inline float MotionRate_unk(Motion_unk* m) {
+    float frame = m->mTracks[0].m08;
+    return frame / m->fn_80097D7C(0);
+}
 
 // inferred: climbs the ladder from `start` to `end` (motion 0x56 up, 0x55 down)
 ControlLadder::ControlLadder(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& end)
@@ -53,10 +70,184 @@ ControlLadder::ControlLadder(Chara_unk* chara, const atn::Vector3& start, const 
     mUp = mDir.y > 0.0f;
 }
 
-// inferred: progress of the motion of track 0 (frame / length; name invented)
-static inline float MotionRate_unk(Motion_unk* m) {
-    float frame = m->mTracks[0].m08;
-    return frame / m->fn_80097D7C(0);
+
+// inferred: (b - a) * t + a (name invented)
+static inline atn::Vector3 LerpTo_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: front of the character (z axis turned by its yaw; name invented)
+static inline atn::Vector3 Front_unk(CharaTask* chara) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m;
+    PSMTXRotRad(m.m, 'y', chara->mRot.y);
+    PSMTXMultVec(m.m, &v, &v);
+    return v;
+}
+
+// inferred: plays the climbing voice (always for the player, half of the time for the others)
+static inline void ClimbVoice_unk(ControlBase* control) {
+    if (lbl_8087F498 != 0 && (control->mChara->mType == 0 || rand() % 2 == 0)) {
+        fn_803EA77C(lbl_8087F498, control->mChara, 0xF, 0, 1.0f, 10.0f);
+    }
+}
+
+// NONMATCHING: 98.0% - stack layout: the original has a 4-byte hole above the first vector of state 0
+// and a slot of its own for the result of the state 2 interpolation (here it shares the one of a
+// spine position); tried a named result, a named difference, a function-level frame.
+// inferred: 0 gets on (motion 0x55/0x56), 1 climbs with the stick (players) or straight on (others),
+// 2 gets off (0x59 at the top, 0x5A at the bottom). Two climbers whose spines touch push the hips
+// apart (m4C, used by vf40).
+int ControlLadder::vf0C() {
+    int ret = 0;
+    Motion_unk* m = &mChara->mMotion;
+    switch (m2C) {
+    case 0: {
+        float frame = m->mTracks[0].m08;
+        if (frame >= m->fn_80097D7C(0) - 1.0f) {
+            if (m->mTracks[0].m00 == 0x55) {
+                atn::Vector3 rot = mChara->mRot;
+                rot.y = atn::WrapAngle_unk(3.1415927f + rot.y);
+                mChara->mRot = rot;
+            }
+            m->fn_80097C08(0, 0x58, 1, 0, 1, 1.0f, 0.1f);
+            mChara->fn_80176DFC(0, 0, 0);
+            m2C = 1;
+        } else {
+            atn::Vector3 pos = mChara->mPos;
+            if (m->mTracks[0].m00 == 0x56) {
+                atn::Vector3 end = mEnd;
+                if (end.y - pos.y < 1.0f) {
+                    m2C = 2;
+                    m->fn_80097C08(0, 0x59, 0, 0, 1, 0.0f, 0.1f);
+                    m->mTracks[0].m0C = 1.0f;
+                    m->mTracks[0].m08 = 24.0f;
+                    m30 = pos;
+                    m30.y -= 16.0f;
+                    pos = end;
+                    mChara->fn_80176DFC(0, 0, 0);
+                    ClimbVoice_unk(this);
+                }
+            } else {
+                atn::Vector3 end = mEnd;
+                if (end.y - pos.y > -18.0f) {
+                    m2C = 2;
+                    m->fn_80097C08(0, 0x5A, 0, 0, 1, 1.0f, 0.1f);
+                    m->mTracks[0].m0C = 1.0f;
+                    m30 = pos;
+                    m3C = end;
+                    atn::Vector3 rot = mChara->mRot;
+                    rot.y = atn::WrapAngle_unk(3.1415927f + rot.y);
+                    mChara->mRot = rot;
+                    mChara->fn_80176DFC(0, 0, 0);
+                    ClimbVoice_unk(this);
+                }
+            }
+            mChara->mPos = pos;
+        }
+        break;
+    }
+    case 1: {
+        float speed = 0.0f;
+        int up = mDir.y > 0.0f;
+        if (mChara->mType == 0 && !mChara->mFlag0) {
+            float stick = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+            if (atn::Abs_unk(stick) > 0.4f) {
+                speed = stick > 0.0f ? 0.3f : -0.3f;
+                speed *= (atn::Abs_unk(stick) - 0.4f) / 0.6f;
+                mUp = stick > 0.0f;
+            }
+        } else {
+            speed = up ? 0.3f : -0.3f;
+            mUp = up;
+        }
+        int move = 1;
+        m->mTracks[0].m0C = speed / 0.3f;
+        atn::Vector3 pos = mChara->mPos;
+        atn::Vector3 rot = mChara->mRot;
+        pos += mDir * (up ? speed : -speed);
+        if (speed > 0.0f) {
+            atn::Vector3 top = up ? mEnd : mStart;
+            if (top.y - pos.y < 1.0f) {
+                m2C = 2;
+                m->fn_80097C08(0, 0x59, 0, 0, 1, 0.0f, 0.1f);
+                m->mTracks[0].m0C = 1.0f;
+                move = 0;
+                m->mTracks[0].m08 = 24.0f;
+                m30 = pos;
+                m30.y -= 16.0f;
+                pos = top;
+                ClimbVoice_unk(this);
+            }
+        } else if (speed < 0.0f) {
+            atn::Vector3 bottom = up ? mStart : mEnd;
+            if (bottom.y - pos.y > -18.0f) {
+                m2C = 2;
+                m->fn_80097C08(0, 0x5A, 0, 0, 1, 0.0f, 0.1f);
+                m->mTracks[0].m0C = 1.0f;
+                move = 0;
+                m30 = pos;
+                m3C = bottom;
+                ClimbVoice_unk(this);
+            }
+        }
+        LadderCollResult_unk result;
+        if (move) {
+            atn::Vector3 from = pos - Front_unk(mChara) * 8.0f;
+            atn::Vector3 to = pos + Front_unk(mChara) * 8.0f;
+            from.y -= 5.0f;
+            to.y -= 5.0f;
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0)) {
+                pos.x = result.m04.x;
+                pos.z = result.m04.z;
+                atn::Vector3 n(-result.mNormal.x, -result.mNormal.y, -result.mNormal.z);
+                rot = n.ToRotationZ_unk();
+            }
+        }
+        mChara->mPos = pos;
+        mChara->mRot = rot;
+        int hit = 0;
+        atn::ColliSphereShape_unk self(
+            m->GetNodeMtx_unk("spine") != 0 ? ((atn::Matrix3x4*)m->GetNodeMtx_unk("spine"))->GetTrans_unk() : pos,
+            9.0f);
+        atn::ColliSphereShape_unk other;
+        other.mRadius = 9.0f;
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            if (p == mChara) {
+                continue;
+            }
+            if (p->CanAct_unk() && p->IsFlag_unk(2) && p->m55C == 6 && p->m560 == 0x54) {
+                Motion_unk* pm = &p->mMotion;
+                other.mCenter = pm->GetNodeMtx_unk("spine") != 0
+                                    ? ((atn::Matrix3x4*)pm->GetNodeMtx_unk("spine"))->GetTrans_unk()
+                                    : p->mPos;
+                if (fn_80051A88(&self, &other)) {
+                    hit = 1;
+                    break;
+                }
+            }
+        }
+        if (hit) {
+            m4C = MIN(0.5f + m4C, 3.0f);
+        } else {
+            m4C = MAX(m4C - 0.5f, 0.0f);
+        }
+        break;
+    }
+    case 2: {
+        if (m->mTracks[0].m00 == 0x5A) {
+            float t = MIN(1.0f, 1.1f * MotionRate_unk(m));
+            mChara->mPos = LerpTo_unk(m30, m3C, t);
+        }
+        float frame = m->mTracks[0].m08;
+        if (frame >= m->fn_80097D7C(0)) {
+            mChara->fn_80176DFC(0, 0, 0);
+            ret = 1;
+        }
+        break;
+    }
+    }
+    return ret;
 }
 
 // NONMATCHING: 94.7% - stack slots of the 0x59 case (the original puts the difference vector above

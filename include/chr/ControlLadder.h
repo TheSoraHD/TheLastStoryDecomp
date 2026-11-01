@@ -19,8 +19,8 @@ public:
     atn::Vector3 mEnd;   // 0x14: inferred: other end
     atn::Vector3 mDir;   // 0x20: inferred: direction of the ladder (unit)
     int m2C; // inferred: state (1: climbing, the hips node is moved by m4C)
-    atn::Vector3 m30; // inferred: position of the hands on the step (motion 0x59)
-    unsigned char m3C[0x48 - 0x3C];
+    atn::Vector3 m30; // inferred: position when it starts getting off (motions 0x59/0x5A)
+    atn::Vector3 m3C; // inferred: position where it gets off at the bottom (motion 0x5A)
     int mUp;   // 0x48: inferred: the ladder goes up (mDir.y > 0)
     float m4C; // inferred: vertical offset of the hips
 };
