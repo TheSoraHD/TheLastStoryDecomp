@@ -135,9 +135,17 @@ struct GammaParams_unk {
 struct BloomParam_unk {
     BloomParam_unk()
         : mEnabled(1), mDebug(0), mSize(3), mDarkSteps(3), mStrength(1), mStrengthScale(1.0f), mBlurWidth(1.25f),
-          mBlurHeight(1.25f), mBlurAngle(0.0f), mKernel0(2.0f), mKernel1(1.0f), mKernel2(0.5f), mKernel3(1.0f),
-          mKernel4(0.5f), mColor1(White_unk()), mColor2(White_unk()), mColor3(White_unk()), mBias1(0), mBias2(0),
-          mBias3(0), mScale1(0), mScale2(0), mScale3(0) {}
+          mBlurHeight(1.25f), mBlurAngle(0.0f), mColor1(White_unk()), mColor2(White_unk()), mColor3(White_unk()) {
+        mKernel[0] = 2.0f;
+        mKernel[1] = 1.0f;
+        mKernel[2] = 0.5f;
+        mKernel[3] = 1.0f;
+        mKernel[4] = 0.5f;
+        for (int i = 0; i < 3; i++) {
+            mBias[i] = 0;
+            mScale[i] = 0;
+        }
+    }
     // inferred: white (returned by value: closer to the original than temporaries; name invented)
     static RsColor_unk White_unk() { return RsColor_unk(1.0f, 1.0f, 1.0f, 1.0f); }
 
@@ -150,20 +158,12 @@ struct BloomParam_unk {
     float mBlurWidth;     // 0x18: *Blur Width
     float mBlurHeight;    // 0x1C: *Blur Height
     float mBlurAngle;     // 0x20: Blur Angle
-    float mKernel0;       // 0x24: Kernel0
-    float mKernel1;       // 0x28
-    float mKernel2;       // 0x2C
-    float mKernel3;       // 0x30
-    float mKernel4;       // 0x34
+    float mKernel[5];     // 0x24: Kernel0-4
     RsColor_unk mColor1;  // 0x38: *Color 1
     RsColor_unk mColor2;  // 0x48: *Color 2
     RsColor_unk mColor3;  // 0x58: *Color 3
-    int mBias1;           // 0x68: *Bias 1
-    int mBias2;           // 0x6C
-    int mBias3;           // 0x70
-    int mScale1;          // 0x74: *Scale 1
-    int mScale2;          // 0x78
-    int mScale3;          // 0x7C
+    int mBias[3];         // 0x68: *Bias 1-3
+    int mScale[3];        // 0x74: *Scale 1-3
 };
 
 // inferred: motion blur parameters (names of the "MotionBlur" menu; Event::ActionCameraEffect copies

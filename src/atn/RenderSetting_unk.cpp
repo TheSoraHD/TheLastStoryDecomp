@@ -53,11 +53,12 @@ extern "C" void fn_800B95C4() {
     }
 }
 
-// NONMATCHING: 96.85% (96.92% before MotionBlurParam_unk: the constants of the members after it get
-// other registers) - the three white bloom colors get their stack temporaries in the opposite order and
-// the scheduler places some constant loads and stores differently (BloomParam_unk::White_unk returns
-// the color by value: slightly closer than the temporaries in the initializer list)
-
+// NONMATCHING: 96.36% (96.92% with the motion blur and bloom members loose: MotionBlurParam_unk gives
+// the constants after it other registers, -0.07%, and BloomParam_unk sets its kernel array and the
+// bias/scale arrays in the body, -0.45%; the arrays are what Event::ActionCameraEffect::vf0C needs) -
+// the three white bloom colors get their stack temporaries in the opposite order and the scheduler
+// places some constant loads and stores differently (BloomParam_unk::White_unk returns the color by
+// value: slightly closer than the temporaries in the initializer list)
 RenderSetting_unk::RenderSetting_unk()
     : m000(0), m004(0), m008(0), m00C(0), m010(0), m014(0), m018(0), m01C(0), m020(0), m024(0), m028(0), m02C(0),
       m030(0), m034(10), m038(0), m03C(0.0f, 0.0f, 0.0f, 1.0f), m050(0), m054(), m0D4(1),
@@ -187,12 +188,12 @@ RenderSetting_unk::RenderSetting_unk()
     fn_80088AF4(g10, "*Color 1", &m054.mColor1, 0, 0, 0.0f, 1.0f, 0.01f);
     fn_80088AF4(g10, "*Color 2", &m054.mColor2, 0, 0, 0.0f, 1.0f, 0.01f);
     fn_80088AF4(g10, "*Color 3", &m054.mColor3, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_800874C8(g10, "*Bias 1", &m054.mBias1, 0, 2, 1, 0, 0);
-    fn_800874C8(g10, "*Bias 2", &m054.mBias2, 0, 2, 1, 0, 0);
-    fn_800874C8(g10, "*Bias 3", &m054.mBias3, 0, 2, 1, 0, 0);
-    fn_800874C8(g10, "*Scale 1", &m054.mScale1, 0, 3, 1, 0, 0);
-    fn_800874C8(g10, "*Scale 2", &m054.mScale2, 0, 3, 1, 0, 0);
-    fn_800874C8(g10, "*Scale 3", &m054.mScale3, 0, 3, 1, 0, 0);
+    fn_800874C8(g10, "*Bias 1", &m054.mBias[0], 0, 2, 1, 0, 0);
+    fn_800874C8(g10, "*Bias 2", &m054.mBias[1], 0, 2, 1, 0, 0);
+    fn_800874C8(g10, "*Bias 3", &m054.mBias[2], 0, 2, 1, 0, 0);
+    fn_800874C8(g10, "*Scale 1", &m054.mScale[0], 0, 3, 1, 0, 0);
+    fn_800874C8(g10, "*Scale 2", &m054.mScale[1], 0, 3, 1, 0, 0);
+    fn_800874C8(g10, "*Scale 3", &m054.mScale[2], 0, 3, 1, 0, 0);
     fn_8008771C(g10, "*Blur Width", &m054.mBlurWidth, 0, 0, 0.0f, 10.0f, 0.1f);
     fn_8008771C(g10, "*Blur Height", &m054.mBlurHeight, 0, 0, 0.0f, 10.0f, 0.1f);
     fn_800874C8(g10, "BloomSize", &m054.mSize, 1, 8, 1, 0, 0);
@@ -200,11 +201,11 @@ RenderSetting_unk::RenderSetting_unk()
     fn_8008771C(g10, "Strength Scale", &m054.mStrengthScale, 0, 0, 0.0f, 1.0f, 0.02f);
     fn_800874C8(g10, "Dark Steps", &m054.mDarkSteps, 0, 64, 1, 0, 0);
     fn_80087858(g10, "Blur Angle", &m054.mBlurAngle, 0, 0, -180.0f, 180.0f, 2.0f);
-    fn_8008771C(g10, "Kernel0", &m054.mKernel0, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel1", &m054.mKernel1, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel2", &m054.mKernel2, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel3", &m054.mKernel3, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g10, "Kernel4", &m054.mKernel4, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel0", &m054.mKernel[0], 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel1", &m054.mKernel[1], 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel2", &m054.mKernel[2], 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel3", &m054.mKernel[3], 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g10, "Kernel4", &m054.mKernel[4], 0, 0, 0.0f, 100.0f, 0.1f);
     void* g11 = fn_8008937C(g3, "DoF");
     fn_80087994(g11, "*Dof Enabled", &m0D4, 0, 0);
     fn_80087994(g11, "Dof Debug", &m0D8, 0, 0);

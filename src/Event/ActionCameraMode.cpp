@@ -239,9 +239,11 @@ void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
 
 // inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
 // 7 screen fade), phase 2 fades the screen back and phase 3 restores the settings
-// NONMATCHING: 32% - over the inlining budget (docs/inlining.md R3): GetParam_unk and the constructors
-// are called instead of inlined. Dropping case 1, 2 or 6 is enough to inline everything; a loop for the
-// bloom bias/scale (the original looks unrolled: li r4,3 / cmpwi r4,0) is not
+// NONMATCHING: 99.2% - stack slots (the bloom copy and the conversion temporaries 8 bytes higher, the
+// damage reset local lower). The haze vectors and the bloom color are filled member by member: with
+// the constructors the function goes over the inlining budget (docs/inlining.md R3) and GetParam_unk
+// is called out of line (32%). The bias/scale loops and the kernel array give the unrolled checks and
+// the word copy of the original
 int ActionCameraEffect::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0:
@@ -254,14 +256,18 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
                 BloomParam_unk bloom = lbl_8087EFA8->m054;
                 bloom.mEnabled = enable;
                 unsigned int c = arg->GetParam_unk(2)->m04.i;
-                bloom.mColor1 = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
-                                            (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
-                bloom.mBias1 = arg->GetParamAt_unk(3)->m04.i;
-                bloom.mBias2 = arg->GetParamAt_unk(4)->m04.i;
-                bloom.mBias3 = arg->GetParamAt_unk(5)->m04.i;
-                bloom.mScale1 = arg->GetParamAt_unk(6)->m04.i;
-                bloom.mScale2 = arg->GetParamAt_unk(7)->m04.i;
-                bloom.mScale3 = arg->GetParamAt_unk(8)->m04.i;
+                RsColor_unk color;
+                color.r = (1.0f / 255.0f) * ((c >> 16) & 0xFF);
+                color.g = (1.0f / 255.0f) * ((c >> 8) & 0xFF);
+                color.b = (1.0f / 255.0f) * (c & 0xFF);
+                color.a = (1.0f / 255.0f) * (c >> 24);
+                bloom.mColor1 = color;
+                for (int i = 0; i < 3; i++) {
+                    bloom.mBias[i] = arg->GetParamAt_unk(3 + i)->m04.i;
+                }
+                for (int i = 0; i < 3; i++) {
+                    bloom.mScale[i] = arg->GetParamAt_unk(6 + i)->m04.i;
+                }
                 bloom.mStrength = arg->GetParam_unk(9)->m04.i;
                 if (bloom.mStrength < 0) {
                     bloom.mStrength = 0;
@@ -318,7 +324,9 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             HazeParam_unk haze;
             haze.mEnabled = arg->GetParam_unk(1)->m04.i;
             haze.mWarp = arg->GetParam_unk(2)->m04.f;
-            atn::Vector2_unk scale(arg->GetParam_unk(3)->m04.f, arg->GetParam_unk(4)->m04.f);
+            atn::Vector2_unk scale;
+            scale.x = arg->GetParam_unk(3)->m04.f;
+            scale.y = arg->GetParam_unk(4)->m04.f;
             if (scale.x <= 0.0f) {
                 scale.x = 0.01f;
             }
@@ -326,11 +334,22 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
                 scale.y = 0.01f;
             }
             haze.mScale = scale;
-            haze.mScroll = atn::Vector2_unk(arg->GetParam_unk(5)->m04.f, arg->GetParam_unk(6)->m04.f);
-            haze.mPos = atn::Vector2_unk(arg->GetParam_unk(7)->m04.f, arg->GetParam_unk(8)->m04.f);
-            haze.mSize = atn::Vector2_unk(arg->GetParam_unk(9)->m04.f, arg->GetParam_unk(10)->m04.f);
-            haze.mFade = RsVector4_unk(arg->GetParam_unk(11)->m04.f, arg->GetParam_unk(12)->m04.f,
-                                       arg->GetParam_unk(13)->m04.f, arg->GetParam_unk(14)->m04.f);
+            atn::Vector2_unk v;
+            v.x = arg->GetParam_unk(5)->m04.f;
+            v.y = arg->GetParam_unk(6)->m04.f;
+            haze.mScroll = v;
+            v.x = arg->GetParam_unk(7)->m04.f;
+            v.y = arg->GetParam_unk(8)->m04.f;
+            haze.mPos = v;
+            v.x = arg->GetParam_unk(9)->m04.f;
+            v.y = arg->GetParam_unk(10)->m04.f;
+            haze.mSize = v;
+            RsVector4_unk fade;
+            fade.x = arg->GetParam_unk(11)->m04.f;
+            fade.y = arg->GetParam_unk(12)->m04.f;
+            fade.z = arg->GetParam_unk(13)->m04.f;
+            fade.w = arg->GetParam_unk(14)->m04.f;
+            haze.mFade = fade;
             fn_800C16B4(lbl_8087EFB4)->m1F8 = haze;
             MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
             break;
@@ -360,7 +379,9 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             lbl_8087F540->m1DC0 = lbl_8087EFA8->m240;
             break;
         case 4:
-            lbl_8087EFA8->m374 = DamageParam_unk();
+            DamageParam_unk damage;
+            DamageParam_unk result = damage;
+            lbl_8087EFA8->m374 = result;
             break;
         case 7: {
             EventManager_unk* manager = arg->fn_805381C8();
