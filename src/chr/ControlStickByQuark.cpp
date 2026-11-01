@@ -199,6 +199,12 @@ static inline void ShootFrom_unk(Effect_unk* mgr, CharaTask* chara, int id, int 
     fn_800FAB80(mgr, chara, fn_80219E6C(id), arg, &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
 }
 
+// inferred: fires the bullet `id` from `pos` (name invented)
+static inline void ShootIdFrom_unk(Effect_unk* mgr, CharaTask* chara, int id, const atn::Vector3& pos,
+                                   const atn::Vector3* rot) {
+    fn_800FAB80(mgr, chara, fn_80219E6C(id), fn_800F8548(mgr), &pos, rot, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+}
+
 // inferred: fires the bullet `id` from a character (name invented)
 static inline void Shoot_unk(Effect_unk* mgr, CharaTask* chara, int id, const atn::Vector3* pos,
                              const atn::Vector3* rot) {
@@ -630,7 +636,7 @@ static inline void RotY_unk(atn::Vector3& v, float rad) {
     PSMTXMultVec(m.m, &v, &v);
 }
 
-// NONMATCHING: draft - the thrust (frames 0-15), the hit (15-65) and the step back (65-80); the back
+// NONMATCHING: 93.8% - the thrust (frames 0-15), the hit (15-65) and the step back (65-80); the back
 // point is moved aside when a wall is behind the character
 int ControlThrustForGhoul::vf0C() {
     Motion_unk* m = &mChara->mMotion;
@@ -732,6 +738,44 @@ ControlThrustForCocoon::ControlThrustForCocoon(Chara_unk* chara, Chara_unk* coco
     mYaw = atn::WrapAngle_unk(3.1415927f + cocoon->mRot.y);
     mTarget = cocoon->mPos;
     mStart = mChara->mPos;
+}
+
+// NONMATCHING: 96.7% - registers around the bullet call; approach (frames 0-25), thrust and bullet (140), step back from frame 175
+int ControlThrustForCocoon::vf0C() {
+    Motion_unk* m = &mChara->mMotion;
+    atn::Vector3 pos = mChara->mPos;
+    atn::Vector3 rot = mChara->mRot;
+    float frame = m->mTracks[0].m08;
+    if (frame < 25.0f) {
+        pos = LerpTo_unk(mStart, mTarget, frame / 30.0f);
+        rot.y += 0.1f * atn::WrapAngle_unk(mYaw - rot.y);
+    } else if (frame > 175.0f) {
+        float t = (frame - 175.0f) / 50.0f;
+        t = 1.0f < t ? 1.0f : t;
+        pos = LerpTo_unk(mTarget, mStart, t);
+    } else {
+        pos = mTarget;
+        rot.y = mYaw;
+        lbl_8087F430->m9C4 = 1.0f;
+        if (!m2C && m->mTracks[0].m08 > 140.0f) {
+            m2C = true;
+            const atn::Vector3* r = &mChara->mRot;
+            atn::Matrix3x4* node = (atn::Matrix3x4*)m->GetNodeMtx_unk("rightwepoint");
+            ShootIdFrom_unk(lbl_8087F048, mChara, m28, node->GetTrans_unk(), r);
+        }
+    }
+    rot.x = atn::WrapAngle_unk(rot.x);
+    rot.y = atn::WrapAngle_unk(rot.y);
+    rot.z = atn::WrapAngle_unk(rot.z);
+    mChara->mPos = pos;
+    mChara->mRot = rot;
+    if (Frame_unk(m) >= m->fn_80097D7C(0)) {
+        return 1;
+    }
+    if ((mCocoon->mStatus.m0C & 0x20) != 0x20 && m->mTracks[0].m08 >= 240.0f) {
+        return 1;
+    }
+    return 0;
 }
 
 ControlAbsorbed::ControlAbsorbed(Chara_unk* chara) : ControlBase(chara) {
