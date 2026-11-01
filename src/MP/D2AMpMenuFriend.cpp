@@ -3,18 +3,18 @@
 #include "game/MenuCommonTask.h"
 #include "std/vector.h"
 #include "game/Input_unk.h"
+#include "MP/SaveLoad.h"
 
 // inferred: multiplayer session manager (lbl_8087F610); only the members used here
 struct MpSession_unk {
     unsigned char m000[0x4FC];
     int m4FC;
     unsigned char m500[0x514 - 0x500];
-    void* m514; // inferred: friend manager
+    MP::SaveLoad* m514; // inferred: save/load manager (MP::SaveLoad::fn_80502848)
 };
 extern "C" MpSession_unk* lbl_8087F610;
 extern "C" void fn_804DC858(MpSession_unk* s); // inferred: requests the list
 extern "C" int fn_804DCA4C(MpSession_unk* s, int id, int arg);
-extern "C" int fn_80502848(void* mgr);
 
 // inferred: friend list (lbl_8087F628 + 0x430)
 struct MpFriendList_unk {
@@ -518,7 +518,7 @@ void D2AMpMenuFriend::fn_804B7F88() {
                 m318 = -1;
             }
         }
-    } else if (m48[0] == 0 || lbl_8087F610->m514 == 0 || fn_80502848(lbl_8087F610->m514) == 0) {
+    } else if (m48[0] == 0 || lbl_8087F610->m514 == 0 || lbl_8087F610->m514->fn_80502848() == 0) {
         fn_80117228(12);
         fn_804B6F08(2);
         if (m48[0] != 0) {
@@ -609,7 +609,7 @@ void D2AMpMenuFriend::fn_804B83F4() {
             fn_804B6F08(1);
         }
         fn_804B9960();
-    } else if (lbl_8087F610->m514 == 0 || fn_80502848(lbl_8087F610->m514) == 0) {
+    } else if (lbl_8087F610->m514 == 0 || lbl_8087F610->m514->fn_80502848() == 0) {
         D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 1);
         D2ACommonDialog::sInstance->fn_804ACD10();
         D2ACommonDialog::sInstance->fn_804AD1EC(lbl_8087F86C->Get_unk(0xEB));
