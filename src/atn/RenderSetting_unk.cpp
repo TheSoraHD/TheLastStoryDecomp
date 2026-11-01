@@ -75,7 +75,7 @@ RenderSetting_unk::RenderSetting_unk()
       m1B4(0), m1B8(200.0f), m1BC(0), m1C0(1.0f), m1C4(5000.0f), m1C8(0), m1CC(2), m1D0(1), m1D4(1),
       m1D8(0.0001f), m1DC(0), m1E0(0), m1E4(0), m1E8(6), m1EC(1000.0f), m1F0(25.0f), m1F4(50.0f),
       m1F8(1.0f, 1.0f, 1.0f), m204(1), m208(0), m224(1), m228(1), m22C(0.0f), m230(0), m234(0), m238(0.0f),
-      m23C(0.0f), m240(0), m244(0), m248(0), m24C(1.0f), m250(0.0f), m254(0), m258(0), m25C(0.02f), m260(0.02f),
+      m23C(0.0f), m240(),
       m2F8(1), m2FC(256.0f), m300(0.5f), m304(0.5f), m308(0), m30C(0), m310(0), m314(320), m318(224), m31C(0),
       m320(0), m398(1), m39C(1), m3A0(1), m3A4(1.0f), m3A8(2), m3D0(0), m3D4(0), m3D8(0.0f), m410(1), m414(0),
       m418(0.5f), m41C(0.5f), m420(0.0f) {
@@ -225,15 +225,15 @@ RenderSetting_unk::RenderSetting_unk()
     fn_8008771C(g11, "Blur Width", &m0FC, 0, 0, 0.0f, 10.0f, 0.1f);
     fn_8008771C(g11, "Blur Height", &m100, 0, 0, 0.0f, 10.0f, 0.1f);
     void* g12 = fn_8008937C(g3, "MotionBlur");
-    fn_80087994(g12, "Enabled", &m240, 0, 0);
-    fn_80087994(g12, "Debug", &m244, 0, 0);
-    fn_80087994(g12, "Frozen", &m248, 0, 0);
-    fn_8008771C(g12, "Scale", &m24C, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_8008771C(g12, "Shift", &m250, 0, 0, 0.0f, 100.0f, 0.1f);
-    fn_80087994(g12, "StartBlend", &m254, 0, 0);
-    fn_80087994(g12, "EndBlend", &m258, 0, 0);
-    fn_8008771C(g12, "StartBlendSpeed", &m25C, 0, 0, 0.0f, 100.0f, 0.01f);
-    fn_8008771C(g12, "EndBlendSpeed", &m260, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_80087994(g12, "Enabled", &m240.mEnabled, 0, 0);
+    fn_80087994(g12, "Debug", &m240.mDebug, 0, 0);
+    fn_80087994(g12, "Frozen", &m240.mFrozen, 0, 0);
+    fn_8008771C(g12, "Scale", &m240.mScale, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_8008771C(g12, "Shift", &m240.mShift, 0, 0, 0.0f, 100.0f, 0.1f);
+    fn_80087994(g12, "StartBlend", &m240.mStartBlend, 0, 0);
+    fn_80087994(g12, "EndBlend", &m240.mEndBlend, 0, 0);
+    fn_8008771C(g12, "StartBlendSpeed", &m240.mStartBlendSpeed, 0, 0, 0.0f, 100.0f, 0.01f);
+    fn_8008771C(g12, "EndBlendSpeed", &m240.mEndBlendSpeed, 0, 0, 0.0f, 100.0f, 0.01f);
     void* g13 = fn_8008937C(g3, "Damage");
     fn_80087994(g13, "Enabled", &m374.mEnabled, 0, 0);
     fn_80087994(g13, "Debug", &m374.mDebug, 0, 0);

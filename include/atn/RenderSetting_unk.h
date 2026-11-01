@@ -130,6 +130,23 @@ struct GammaParams_unk {
     float mIndY;     // 0x30: Gamma Scale
 };
 
+// inferred: motion blur parameters (names of the "MotionBlur" menu; Event::ActionCameraEffect copies
+// a whole one, 0x8055D0B8)
+struct MotionBlurParam_unk {
+    MotionBlurParam_unk()
+        : mEnabled(0), mDebug(0), mFrozen(0), mScale(1.0f), mShift(0.0f), mStartBlend(0), mEndBlend(0),
+          mStartBlendSpeed(0.02f), mEndBlendSpeed(0.02f) {}
+    int mEnabled;           // 0x00
+    int mDebug;             // 0x04
+    int mFrozen;            // 0x08
+    float mScale;           // 0x0C
+    float mShift;           // 0x10
+    int mStartBlend;        // 0x14
+    int mEndBlend;          // 0x18
+    float mStartBlendSpeed; // 0x1C
+    float mEndBlendSpeed;   // 0x20
+};
+
 // inferred: damage post effect parameters
 struct DamageParam_unk {
     DamageParam_unk() : mEnabled(0), mDebug(0), mColor(1.0f, 1.0f, 1.0f, 1.0f), mAngle(0.0f), mScale(0.0f), mZoom(0.0f) {}
@@ -262,15 +279,7 @@ public:
     int m234;                 // Show Mips
     float m238;
     float m23C;
-    int m240;                 // MotionBlur: Enabled
-    int m244;                 // Debug
-    int m248;                 // Frozen
-    float m24C;               // Scale
-    float m250;               // Shift
-    int m254;                 // StartBlend
-    int m258;                 // EndBlend
-    float m25C;               // StartBlendSpeed
-    float m260;               // EndBlendSpeed
+    MotionBlurParam_unk m240; // MotionBlur
     GodRayParam_unk m264;     // GodRay
     RainParam_unk m2AC;       // Rain
     HazeParam_unk m2BC;       // Haze

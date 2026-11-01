@@ -3,6 +3,7 @@
 #include "atn/LH_Xsca.h"
 #include "atn/Color4f_unk.h"
 #include "game/MapManager.h"
+#include "macros.h"
 
 // Camera actions of the events: processors with vf08 (per frame) and vf0C (phase 0: start, 3/4:
 // end), as the Event::Behavior* ones. Class names from the RTTI; the order of the vtables is
@@ -28,11 +29,17 @@ struct CameraOwner_unk {
     float mB4; // inferred: frames of the current step (Setting interpolates over them)
     unsigned char mB8[0xC8 - 0xB8];
     EventCamera_unk mCameras[4];
+    unsigned char m1A38[0x1DC0 - 0x1A38];
+    MotionBlurParam_unk m1DC0; // inferred: motion blur of the map (ActionCameraEffect blends from it)
 };
 
 } // namespace Event
 
 extern "C" Event::CameraOwner_unk* lbl_8087F540;
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
+extern "C" int fn_8047F6B0(Event::CameraOwner_unk* manager, int frames); // inferred: 3 when the fade is done
+extern "C" void fn_8047F8A4(Event::CameraOwner_unk* manager, float level);
+extern "C" void fn_8047F850(Event::CameraOwner_unk* manager, int frames, int colorStart, int colorEnd);
 
 namespace Event {
 
@@ -205,6 +212,109 @@ void ActionCameraEffect::fn_8055BB08(MapArea* area, const void* data) {
 
 void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
     area->m244 = *(HazeParam_unk*)arg;
+}
+
+// inferred: 0 to 1 over the fade in (m18 frames from the start), 1 to 0 over the fade out (m1C frames
+// before the end), 1 in between
+inline float FadeRate_unk(Action* arg, float now, int start, int end) {
+    float rate;
+    if (start <= now && now <= start + arg->m18) {
+        float t = now - start;
+        if (t <= 0.0f) {
+            rate = 0.0f;
+        } else {
+            rate = t / arg->m18;
+        }
+    } else if (end - arg->m1C <= now && now <= end) {
+        float t = now - (end - arg->m1C);
+        if (t <= 0.0f) {
+            rate = 1.0f;
+        } else {
+            rate = 1.0f - t / arg->m1C;
+        }
+    } else {
+        rate = 1.0f;
+    }
+    return rate;
+}
+
+// inferred: damage effect of the parameters of `arg` (zoom faded in and out)
+inline DamageParam_unk GetDamage_unk(Action* arg, float now, int start, int end) {
+    DamageParam_unk damage;
+    damage.mEnabled = 1;
+    unsigned int c = arg->GetParam_unk(1)->m04.i;
+    damage.mColor = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+    damage.mAngle = arg->GetParam_unk(2)->m04.f;
+    damage.mScale = arg->GetParam_unk(3)->m04.f;
+    float rate = FadeRate_unk(arg, now, start, end);
+    float wide = arg->GetParam_unk(4)->m04.f;
+    float zoom = rate * (1.0f + wide);
+    damage.mZoom = MIN(MAX(zoom - 1.0f, -1.0f), 0.05f);
+    DamageParam_unk result = damage;
+    return result;
+}
+
+// NONMATCHING: 98.6% - only the saved registers (arg r28, start r31, end r30, fade in r29, fade out r27
+// in the original); tried ~15 orders of the locals. The fade helper takes start/end but reads m18/m1C
+// and the damage copy goes through a local (the original copies it twice)
+// inferred: per frame: 0 motion blur, 3 waits for the fade of the event, 4 damage effect, 7 fade of the
+// screen to a color
+int ActionCameraEffect::vf08(Action* arg) {
+    EventManager_unk* manager = arg->fn_805381C8();
+    int fadeIn = arg->m18;
+    float now = manager->m198;
+    int end = arg->m14;
+    int start = arg->m10;
+    int fadeOut = arg->m1C;
+    switch (arg->GetParam_unk(0)->m04.i) {
+    case 0: {
+        MotionBlurParam_unk& from = lbl_8087F540->m1DC0;
+        MotionBlurParam_unk blur;
+        blur.mEnabled = arg->GetParam_unk(1)->m04.i;
+        float left = (float)(start + fadeIn) - now;
+        float t;
+        if (left > 0.0f) {
+            t = 1.0f - left / fadeIn;
+        } else {
+            t = 1.0f;
+        }
+        blur.mScale = arg->GetParam_unk(2)->m04.f;
+        float shift = arg->GetParam_unk(3)->m04.f;
+        blur.mScale = from.mScale + t * (blur.mScale - from.mScale);
+        blur.mShift = from.mShift + t * (shift - from.mShift);
+        lbl_8087EFA8->m240 = blur;
+        break;
+    }
+    case 3:
+        if (arg->m38 == 0) {
+            if (fadeIn == 0) {
+                fadeIn = end - start;
+            }
+            if (fn_8047F6B0(lbl_8087F540, fadeIn) == 3) {
+                arg->m38 = 1;
+            }
+        }
+        break;
+    case 4:
+        lbl_8087EFA8->m374 = GetDamage_unk(arg, now, start, end);
+        break;
+    case 7:
+        if (fadeIn >= now - start) {
+            break;
+        }
+        if (fadeOut >= end - now) {
+            break;
+        }
+        if (arg->m38 == 0) {
+            int color = arg->GetParam_unk(1)->m04.i | 0xFF000000;
+            fn_8047F8A4(lbl_8087F540, -1.0f);
+            fn_8047F850(lbl_8087F540, (end - fadeOut) - (start + fadeIn), color, color);
+            arg->m38 = 1;
+        }
+        break;
+    }
+    return 0;
 }
 
 // inferred: speeds of the focus change selected by parameter 5 (pairs of the same value)
