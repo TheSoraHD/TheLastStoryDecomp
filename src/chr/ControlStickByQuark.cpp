@@ -2036,7 +2036,40 @@ extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b
 extern "C" inline EnemyTask* fn_801A03EC(EnemyTask* chara) {
     return chara->mNext;
 }
+// inferred: asserts of the debug build, empty in release: they only count for the inline budget (with them
+// ControlReflectLaser::vf0C goes over it and calls every inline out of line, as the original)
+#define LASER_ASSERT_UNK(x) ((void)0)
 extern "C" inline int fn_801A03F4(CollObj_unk* obj) {
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
+    LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0); LASER_ASSERT_UNK(obj != 0);
     return (obj->m08 >> 1) & 1; // inferred: the object is a character
 }
 extern "C" inline CharaTask* fn_801A0400(CollObj_unk* obj) {
@@ -2072,22 +2105,27 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     }
     return m;
 }
-extern "C" inline void fn_800F80A8(MtxPtr mtx, const atn::Vector3* pos) {
-    PSMTXTrans(mtx, pos->x, pos->y, pos->z);
+// inferred: translation matrix by value (weak copy 0x800F80A8 of game/BattleTask.cpp)
+extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, pos->x, pos->y, pos->z);
+    return m;
 }
 extern "C" inline Settings_unk* fn_800F52F8() {
     return (Settings_unk*)lbl_8087F0A8;
 }
+} // namespace chr
+// inferred: global accessors (weak copies of other files, outside chr)
 inline Effect_unk* fn_8013A194() {
     return lbl_8087F048;
 }
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
+namespace chr {
 
-// NONMATCHING: 0% - over the inlining budget in the original (every inline call is a bl and the weak
-// accessors 0x801A03E0-0x801A0408 follow it); ours stays under the budget, so one candidate of about the
-// size of fn_800109E0 is missing (one more call of it flips the decision). The logic is complete.
+// over the inline budget as the original (empty asserts in fn_801A03F4): every inline call is a bl and the
+// weak accessors 0x801A03E0-0x801A0408 follow it
 int ControlReflectLaser::vf0C() {
     if (mDone) {
         return 1;
@@ -2138,17 +2176,17 @@ int ControlReflectLaser::vf0C() {
                 mDir.fn_80011410(fn_800109E0(rot));
             }
         }
-    }
-    CollResult_unk result;
-    atn::Vector3 from(pos);
-    atn::Vector3 to = pos + mDir * 1000.0f;
-    if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 6, mChara->GetColli_unk(), 0)) {
-        CollObj_unk* obj = (CollObj_unk*)result.m38;
-        if (obj != 0 && fn_801A03F4(obj)) {
-            CharaTask* hit = fn_801A0400((CollObj_unk*)result.m38);
-            if (hit != 0 && hit->fn_8013A158() && hit->CanAct_unk()) {
-                fn_800FAB80(fn_8013A194(), mChara, fn_80219E6C(0x76F), fn_800F8548(fn_8013A194()), &result.m04,
-                            &lbl_807C7030, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+        CollResult_unk result;
+        atn::Vector3 from(pos);
+        atn::Vector3 to = pos + mDir * 1000.0f;
+        if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 6, mChara->GetColli_unk(), 0)) {
+            CollObj_unk* obj = (CollObj_unk*)result.m38;
+            if (obj != 0 && fn_801A03F4(obj)) {
+                CharaTask* hit = fn_801A0400((CollObj_unk*)result.m38);
+                if (hit != 0 && hit->fn_8013A158() && hit->CanAct_unk()) {
+                    fn_800FAB80(fn_8013A194(), mChara, fn_80219E6C(0x76F), fn_800F8548(fn_8013A194()), &result.m04,
+                                &lbl_807C7030, 0, 0x1E, -1, -1, 0.0f, 1.0f);
+                }
             }
         }
     }
@@ -2156,9 +2194,7 @@ int ControlReflectLaser::vf0C() {
         ret = 1;
     }
     mLength = 0.1f + mLength < 100.0f ? 0.1f + mLength : 100.0f;
-    atn::Matrix3x4 mtx;
-    fn_800F80A8(mtx.m, &pos);
-    fn_8008CD1C(&mMtx, &mtx);
+    fn_8008CD1C(&mMtx, &fn_800F80A8(&pos));
     fn_800F80B8(mMtx.m, &rot);
     fn_800F8290(mMtx.m, 1.0f, 1.0f, mLength);
     return ret;

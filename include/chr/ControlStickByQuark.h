@@ -372,6 +372,7 @@ public:
 
     atn::Vector3 mDir;     // 0x08: inferred: direction of the reflected laser
     atn::Matrix3x4 mMtx;   // 0x14: inferred: matrix of the laser effect
+    unsigned char m44[4];
     float mLength;         // 0x48
     int mDone;             // 0x4C
 };
