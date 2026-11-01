@@ -283,13 +283,14 @@ void Bullet::fn_8010F41C() {
     lbl_8087F3C0->mB8 = 0;
 }
 
-// NONMATCHING: 0% here - the original calls every helper out of line (GetModel_unk, GetNodeMtx_unk,
-// GetTrans_unk, the Matrix3x4 and Vector3 constructors, Transform_unk, ToRotation_unk, SetIdentity,
-// Translate_unk); this source gets them all inlined (inlining budget of docs/inlining.md R3)
+// NONMATCHING: 97.1% - over the inline budget as the original (empty asserts in Translate_unk), with the flag
+// tests written out (the original does not call HasFlag_unk); left: "spine" is a separate .rodata object in
+// the original (lbl_807366A8) and the stack slots of the vector temporaries (Transform_unk(...).ToRotation_unk()
+// chains, m08.Transform_unk of the node itself)
 void Bullet::fn_8010F4BC() {
-    if (m94 >= 0.0f && HasFlag_unk(0x20) && m9C != 0) {
+    if (m94 >= 0.0f && (m04 & 0x20) == 0x20 && m9C != 0) {
         MtxPtr node = m9C->GetModel_unk()->GetNodeMtx_unk("spine");
-        if (HasFlag_unk(0x80000)) {
+        if ((m04 & 0x80000) == 0x80000) {
             atn::Vector3 trans = ((atn::Matrix3x4*)node)->GetTrans_unk();
             atn::Matrix3x4 rot(node);
             rot.fn_8010F668();
@@ -322,7 +323,85 @@ inline void atn::Matrix3x4::fn_8010F668() {
     m[2][3] = 0.0f;
 }
 
+// inferred: asserts of the debug build, empty in release: they only count for the inline budget (with them
+// Bullet::fn_8010F4BC goes over it and calls its helpers out of line, as the original)
+#define BULLET_ASSERT_UNK(x) ((void)0)
 inline void atn::Matrix3x4::Translate_unk(const Vector3& v) {
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
     Mtx t;
     PSMTXTrans(t, v.x, v.y, v.z);
     Mtx r;
