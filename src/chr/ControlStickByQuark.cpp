@@ -1514,6 +1514,12 @@ void ControlThreadCatch::vf1C() {
     mChara->mColli.mFlags |= 1;
 }
 
+// inferred: released afterwards
+boost::function<void()> ControlThreadCatch::vf10() {
+    ControlThreadRelease* next = new ((MemoryTag)0, "", "", 0) ControlThreadRelease(mChara);
+    return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
+}
+
 // inferred: killed by the thread (control id 0x76); the collision is turned off until the end
 ControlThreadDead::ControlThreadDead(Chara_unk* chara, int a) : ControlBase(chara), m08(a) {
     chara->SetControlId_unk(0x76);
