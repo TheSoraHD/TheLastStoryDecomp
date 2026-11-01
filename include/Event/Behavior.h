@@ -92,7 +92,10 @@ struct EventManager_unk {
     unsigned char m11C[0x124 - 0x11C];
     struct CameraAnim_unk* m124; // 0x124: inferred: camera animations of the event (0x1C bytes each)
     int m128;
-    unsigned char m12C[0x164 - 0x12C];
+    unsigned char m12C[0x144 - 0x12C];
+    struct MovieEntry_unk* m144; // 0x144: inferred: movies of the event (0x1C bytes each)
+    int m148;
+    unsigned char m14C[0x164 - 0x14C];
     Actor_unk* m164;
     int m168;
     unsigned char m16C[0x190 - 0x16C];

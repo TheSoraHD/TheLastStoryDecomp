@@ -30,8 +30,13 @@ struct EventEffects_unk {
     unsigned char m1A3C[0x1F20 - 0x1A3C];
     atn::Bgm m1F20; // inferred: BGM of the multi audio actions
     int m1F34;      // inferred: m1F20 is in use
-    unsigned char m1F38[0x238C - 0x1F38];
+    unsigned char m1F38[0x1F6C - 0x1F38];
+    float m1F6C; // inferred: movie fade time
+    unsigned char m1F70[0x238C - 0x1F70];
     int m238C; // inferred: nonzero while messages are blocked
+    unsigned char m2390[0x2404 - 0x2390];
+    unsigned char mMoviePlaying : 1; // 0x2404
+    unsigned char m2404_1 : 7;
 };
 extern "C" EventEffects_unk* lbl_8087F540;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
@@ -68,6 +73,7 @@ struct Camera;
 typedef atn::Camera Camera_unk;
 extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" ReflectTarget_unk* fn_800C16B4(Camera_unk* camera);
+extern "C" void fn_8048E9E0(EventEffects_unk* mgr); // inferred: starts the movie
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
 extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3& pos, float radius, int color);
@@ -81,6 +87,32 @@ extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred:
 extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
 
 namespace Event {
+
+// inferred: movie of the event (found by id)
+struct MovieState_unk {
+    unsigned char m00[0x08];
+    int m08; // inferred: 2 when finished
+};
+struct MovieRes_unk {
+    unsigned char m00[0x4C];
+    MovieState_unk* m4C;
+};
+struct MovieEntry_unk {
+    unsigned char m00[0x14];
+    int m14; // inferred: id
+    MovieRes_unk* m18;
+};
+
+// inferred: movie `id` of the event (as EventManager_unk::FindActor_unk)
+inline MovieEntry_unk* FindMovie_unk(EventManager_unk* manager, int id) {
+    for (int i = 0; i < manager->m148; i++) {
+        MovieEntry_unk* entry = &manager->m144[(unsigned int)i];
+        if (id == entry->m14) {
+            return entry;
+        }
+    }
+    return 0;
+}
 
 // inferred: named entry of the event (found by id): streams of the multi audio actions, locators
 struct AudioEntry_unk {
@@ -508,6 +540,26 @@ int ActionMultiAudio::vf08(Action* arg) {
         }
         if (busy) {
             return 3;
+        }
+    }
+    return 0;
+}
+
+int ActionMoviePlay::vf08(Action* arg) {
+    EventManager_unk* manager = arg->fn_805381C8();
+    int id = arg->GetParam_unk(0)->m04.i;
+    MovieEntry_unk* entry = FindMovie_unk(manager, id);
+    if (!lbl_8087F540->mMoviePlaying) {
+        bool fading = lbl_8087F540->m1F6C > 0.0f;
+        if (!fading) {
+            fn_8048E9E0(lbl_8087F540);
+        } else {
+            return 3;
+        }
+    } else if (entry != 0) {
+        MovieState_unk* state = entry->m18->m4C;
+        if (state != 0 && state->m08 == 2) {
+            vf0C(arg, 3);
         }
     }
     return 0;
