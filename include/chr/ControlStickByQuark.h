@@ -5,6 +5,7 @@
 #include "chr/ControlCdn.h"
 
 class EnemyQuarkStand;
+class SwordAttack_unk;
 
 namespace chr {
 
@@ -32,9 +33,14 @@ public:
 
 class ControlThrust : public ControlBase {
 public:
-    ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 v, int b); // 0x8019356C
+    ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 offset, int b); // 0x8019356C
     virtual int vf0C();
-    unsigned char m08[0x28 - 0x08];
+    atn::Vector3 mStep; // 0x08: inferred: move per frame
+    float m14;          // inferred: turn per frame
+    Chara_unk* mOther;  // 0x18
+    int m1C;
+    int m20;
+    int m24;
 };
 
 class ControlThrustForCrab : public ControlBase {
@@ -95,6 +101,7 @@ public:
 class ControlStickSword : public ControlBase {
 public:
     virtual int vf0C();
+    Chara_unk* m08; // inferred: the other character
 };
 
 // inferred: control id 0x43; fn_80196C68 lies between the vf0C of ControlStickSwordSp (0x80196A98)
@@ -102,7 +109,10 @@ public:
 class ControlStickSwordSp : public ControlBase {
 public:
     virtual int vf0C();
-    bool fn_80196C68(); // inferred: can be cancelled
+    bool fn_80196C68() const; // inferred: can be cancelled
+    unsigned char m08[0x14 - 0x08];
+    ::SwordAttack_unk* mAttack; // 0x14
+    int mState;                     // 0x18
 };
 
 class ControlMatHoldGuard : public ControlBase {
