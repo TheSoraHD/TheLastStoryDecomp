@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `auto-20261101d` (2026-11-01/02, rama sin mergear): **11636 / 18308 funciones al 100%** (report.json), `main.dol: OK`. `Event/ActionActorPosition` fn_80551194 al 100% con sus copias weak (6 -> 31/51); asserts vacios para pasar del presupuesto de inlining (Em203, CompositeIntensityTintMulti, ControlReflectLaser, Em201 al 100%); `db/SkillParam_unk` enlazada; cuerpos inline nuevos en cabeceras = renumerado de `@N` (definirlos en el `.cpp`). Detalle en `docs/auto-20261101d.md`.
+- `auto-20261101d` (2026-11-01/02, mergeada en `main`): **11636 / 18308 funciones al 100%** (report.json), `main.dol: OK`. `Event/ActionActorPosition` fn_80551194 al 100% con sus copias weak (6 -> 31/51); asserts vacios para pasar del presupuesto de inlining (Em203, CompositeIntensityTintMulti, ControlReflectLaser, Em201 al 100%); `db/SkillParam_unk` enlazada; cuerpos inline nuevos en cabeceras = renumerado de `@N` (definirlos en el `.cpp`). Detalle en `docs/auto-20261101d.md`.
 - `auto-20261101c` (mergeada en `main`): 11574 funciones; orden del `.dol` + `pd.sh`, `include/Event/Dialog.h`, ActionCameraEffect vf0C bajo el presupuesto de inlining, `MotionBlurParam_unk`/`BloomParam_unk` (`docs/auto-20261101c.md`). `auto-20261101b`: 11569 (`docs/auto-20261101b.md`).
 - `auto-20261101` (mergeada): 11463 funciones; FxChorus/FxDelay, `ControlStickByQuark`, `SkillEffectManager`, `pairdata` (`docs/auto-20261101.md`). `auto-20261031c`: 11284 (NW4R snd/ut, MSL, MetroTRK, bte).
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
