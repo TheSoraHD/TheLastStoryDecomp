@@ -333,6 +333,7 @@ public:
 class SoundSystem {
 public:
     static void InitSoundSystem(long priority, long dvdPriority);
+    static void ShutdownSoundSystem();
 };
 
 class RemoteSpeaker {
@@ -404,6 +405,35 @@ public:
 
     unsigned char m0C[0xE8 - 0x0C];
 };
+
+enum OutputMode { OUTPUT_MODE_STEREO, OUTPUT_MODE_SURROUND, OUTPUT_MODE_DPL2, OUTPUT_MODE_MONO };
+enum AuxBus { AUX_A, AUX_B, AUX_C };
+
+namespace detail {
+// inferred: only the members used here; the master volume is a MoveValue at 0x1C (start, target,
+// frames, current frame)
+class AxManager {
+public:
+    static AxManager& GetInstance();
+    OutputMode GetOutputMode();
+    void SetOutputMode(OutputMode mode);
+    void SetMasterVolume(float volume, int frames);
+    bool AppendEffect(AuxBus bus, FxBase* fx);
+    void ClearEffect(AuxBus bus, int frames);
+
+    unsigned char m00[0x1C];
+    float mMasterVolumeStart;  // 0x1C
+    float mMasterVolumeTarget; // 0x20
+    int mMasterVolumeFrames;   // 0x24
+    int mMasterVolumeFrame;    // 0x28
+};
+
+class RemoteSpeakerManager {
+public:
+    static RemoteSpeakerManager& GetInstance();
+    RemoteSpeaker& GetRemoteSpeaker(int i);
+};
+} // namespace detail
 
 // The names of the classes are in the DOL (vtables 0x80796BF0 and 0x80796D38); the layouts are only sizes.
 class DvdSoundArchive : public SoundArchive {
@@ -763,10 +793,6 @@ extern "C" void fn_8006AD24(std::string& path, const std::string& name); // infe
 extern "C" void AIInit(void* stack);
 extern "C" void AXInit();
 extern "C" unsigned char SCGetSoundMode();
-extern "C" void* GetInstance__Q44nw4r3snd6detail9AxManagerFv();
-extern "C" int GetOutputMode__Q44nw4r3snd6detail9AxManagerFv(void* mgr);
-extern "C" void SetOutputMode__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd10OutputMode(void* mgr, int mode);
-extern "C" void SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi(void* mgr, float volume, int frames);
 
 // inferred: initializes the device with the sound archive `path`
 extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
@@ -820,17 +846,16 @@ extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
     fn_80047B54(audio, 0x2D5000);
     unsigned char mode = SCGetSoundMode();
     if (mode == 0) {
-        SetOutputMode__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd10OutputMode(GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 3);
+        nw4r::snd::detail::AxManager::GetInstance().SetOutputMode(nw4r::snd::OUTPUT_MODE_MONO);
     } else if (mode == 2) {
-        SetOutputMode__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd10OutputMode(GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 2);
+        nw4r::snd::detail::AxManager::GetInstance().SetOutputMode(nw4r::snd::OUTPUT_MODE_DPL2);
     } else {
-        SetOutputMode__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd10OutputMode(GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 0);
+        nw4r::snd::detail::AxManager::GetInstance().SetOutputMode(nw4r::snd::OUTPUT_MODE_STEREO);
     }
     audio->m04 = 1;
     return 1;
 }
 
-extern "C" void ShutdownSoundSystem__Q34nw4r3snd11SoundSystemFv();
 
 // NONMATCHING: 24.03% - misma recursion de Destroy de los mapas (un nivel mas de inline)
 // inferred: shuts the device down
@@ -852,7 +877,7 @@ extern "C" void fn_80047628(AudioDevice* audio) {
         delete[] audio->m8E4;
         audio->m8E4 = 0;
     }
-    ShutdownSoundSystem__Q34nw4r3snd11SoundSystemFv();
+    nw4r::snd::SoundSystem::ShutdownSoundSystem();
     audio->m04 = 0;
 }
 
@@ -882,8 +907,6 @@ extern "C" void fn_80047B54(AudioDevice* audio, unsigned long size) {
     }
 }
 
-extern "C" void* GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv();
-extern "C" void* GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(void* mgr, int i);
 
 // inferred: starts the reverb and the remote speaker
 extern "C" void fn_80047C74(AudioDevice* audio) {
@@ -895,9 +918,7 @@ extern "C" void fn_80047C74(AudioDevice* audio) {
         memset(audio->m8C4, 0, audio->m8C8);
         audio->mReverb.AssignWorkBuffer(audio->m8C4, audio->m8C8);
     }
-    static_cast<nw4r::snd::RemoteSpeaker*>(GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(
-                    GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv(), 0))
-        ->Setup(reinterpret_cast<void (*)(long, long)>(fn_80046220));
+    nw4r::snd::detail::RemoteSpeakerManager::GetInstance().GetRemoteSpeaker(0).Setup(reinterpret_cast<void (*)(long, long)>(fn_80046220));
 }
 
 // inferred: stops them
@@ -910,9 +931,7 @@ extern "C" void fn_80047D20(AudioDevice* audio) {
         audio->mReverb.ReleaseWorkBuffer();
     }
     AudioDevice::Free_unk(audio->m8C4);
-    static_cast<nw4r::snd::RemoteSpeaker*>(GetRemoteSpeaker__Q44nw4r3snd6detail20RemoteSpeakerManagerFi(
-                    GetInstance__Q44nw4r3snd6detail20RemoteSpeakerManagerFv(), 0))
-        ->Shutdown(reinterpret_cast<void (*)(long, long)>(fn_80046224));
+    nw4r::snd::detail::RemoteSpeakerManager::GetInstance().GetRemoteSpeaker(0).Shutdown(reinterpret_cast<void (*)(long, long)>(fn_80046224));
 }
 
 // inferred: DVD read callback of the banks
@@ -1284,34 +1303,25 @@ extern "C" void fn_800498D4(AudioDevice* audio) {
 
 // inferred: output mode of the AX manager
 extern "C" int fn_800499D0(AudioDevice* audio) {
-    return GetOutputMode__Q44nw4r3snd6detail9AxManagerFv(GetInstance__Q44nw4r3snd6detail9AxManagerFv());
+    return nw4r::snd::detail::AxManager::GetInstance().GetOutputMode();
 }
 
 extern "C" void fn_800499F4(AudioDevice* audio, int mode) {
-    SetOutputMode__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd10OutputMode(GetInstance__Q44nw4r3snd6detail9AxManagerFv(),
-                                                                       mode);
+    nw4r::snd::detail::AxManager::GetInstance().SetOutputMode((nw4r::snd::OutputMode)mode);
 }
-
-// inferred: AX manager fields (master volume as a MoveValue: start 0x1C, target 0x20, frame 0x24/0x28)
-struct AxManager_unk {
-    unsigned char m00[0x1C];
-    float mStart;
-    float mTarget;
-    int mFrames;
-    int mFrame;
-};
 
 // inferred: current master volume
 extern "C" float fn_80049A28(AudioDevice* audio) {
-    AxManager_unk* ax = (AxManager_unk*)GetInstance__Q44nw4r3snd6detail9AxManagerFv();
-    if (ax->mFrame >= ax->mFrames) {
-        return ax->mTarget;
+    nw4r::snd::detail::AxManager* ax = &nw4r::snd::detail::AxManager::GetInstance();
+    if (ax->mMasterVolumeFrame >= ax->mMasterVolumeFrames) {
+        return ax->mMasterVolumeTarget;
     }
-    return ax->mStart + (float)ax->mFrame * (ax->mTarget - ax->mStart) / (float)ax->mFrames;
+    return ax->mMasterVolumeStart + (float)ax->mMasterVolumeFrame * (ax->mMasterVolumeTarget - ax->mMasterVolumeStart) /
+                                        (float)ax->mMasterVolumeFrames;
 }
 
 extern "C" void fn_80049AAC(AudioDevice* audio, float volume) {
-    SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi(GetInstance__Q44nw4r3snd6detail9AxManagerFv(), volume, 0);
+    nw4r::snd::detail::AxManager::GetInstance().SetMasterVolume(volume, 0);
 }
 
 // inferred: starts a sound (the handle and the start info are passed through)
@@ -1422,9 +1432,6 @@ extern "C" void fn_8004A03C(AudioDevice* audio) {
     audio->m8C0 = 0;
 }
 
-extern "C" void ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi(void* mgr, int bus, int frames);
-extern "C" int AppendEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusPQ34nw4r3snd6FxBase(void* mgr, int bus,
-                                                                                               void* fx);
 
 // NONMATCHING: 98.79% - registros nodo/resultado en la busqueda del mapa
 // inferred: selects the reverb preset (0: none)
@@ -1437,7 +1444,7 @@ extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
     }
     audio->m8C0 = audio->m8BC;
     if (preset <= 0) {
-        ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi(GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 0, 0);
+        nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, 0);
         audio->m8BC = 0;
         return;
     }
@@ -1445,8 +1452,7 @@ extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
     if (it != audio->m8AC.end()) {
         audio->mReverb.SetParam(reinterpret_cast<const nw4r::snd::detail::FxReverbStdParam&>(it->mValue.second));
         if (audio->m8BC <= 0) {
-            AppendEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusPQ34nw4r3snd6FxBase(
-                GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 0, &audio->mReverb);
+            nw4r::snd::detail::AxManager::GetInstance().AppendEffect(nw4r::snd::AUX_A, &audio->mReverb);
         }
     }
     audio->m8BC = preset;
@@ -1456,14 +1462,12 @@ extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
 extern "C" void fn_8004A2CC(AudioDevice* audio, int suspend, unsigned int mask, int fade) {
     if (suspend != 0) {
         if (audio->m40C == 0) {
-            ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi(GetInstance__Q44nw4r3snd6detail9AxManagerFv(),
-                                                                           0, fade * 1000 / 30);
+            nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, fade * 1000 / 30);
         }
         audio->m40C |= mask;
     } else {
         if ((audio->m40C &= ~mask) == 0 && audio->m8BC > 0) {
-            AppendEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusPQ34nw4r3snd6FxBase(
-                GetInstance__Q44nw4r3snd6detail9AxManagerFv(), 0, &audio->mReverb);
+            nw4r::snd::detail::AxManager::GetInstance().AppendEffect(nw4r::snd::AUX_A, &audio->mReverb);
         }
     }
 }
