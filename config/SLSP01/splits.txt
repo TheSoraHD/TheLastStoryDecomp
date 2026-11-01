@@ -5547,3 +5547,11 @@ nw4r/src/ut/ut_CharWriter.cpp:
 	.bss        start:0x8087D690 end:0x8087D6A0
 	.sbss       start:0x80880570 end:0x80880578
 	.sdata2     start:0x80889358 end:0x80889378
+
+ss_nw4r/src/ut/ut_TextWriterBase.cpp:
+	.text       start:0x80727E50 end:0x8072D204
+	.ctors      start:0x8072D430 end:0x8072D434
+	.bss        start:0x8087D6A0 end:0x8087D6B8
+	.sdata      start:0x8087EE40 end:0x8087EE48
+	.sbss       start:0x80880578 end:0x8088058C
+	.sdata2     start:0x80889378 end:0x8088938C
