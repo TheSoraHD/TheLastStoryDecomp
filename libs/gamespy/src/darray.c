@@ -5,9 +5,7 @@
 
 #define DEF_GROWBY 8
 
-// inferred: MSL qsort (not yet named in symbols.txt)
-extern void fn_80680B88(void* base, size_t num, size_t size, ArrayCompareFn compare);
-#define qsort fn_80680B88
+extern void qsort(void* base, size_t num, size_t size, ArrayCompareFn compare);
 
 struct DArrayImplementation {
     int count;

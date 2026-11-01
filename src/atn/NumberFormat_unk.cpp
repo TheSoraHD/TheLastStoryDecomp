@@ -10,7 +10,7 @@ extern "C" void* memmove(void* dst, const void* src, unsigned long n);
 extern "C" wchar_t* fn_80686AC4(wchar_t* dst, const wchar_t* src);  // inferred: wcscat
 extern "C" int fn_800DC1DC(const wchar_t* s);                       // inferred: wide string to int
 extern "C" int fn_8006BA30();                                       // inferred: language of the game
-extern "C" wchar_t* fn_8068B2A0(int value, wchar_t* buf, int radix); // inferred: integer to text
+extern "C" wchar_t* itow(int value, wchar_t* buf, int radix);
 
 // inferred: pads the number `str` to the width written in `width` (the buffer is reused)
 extern "C" wchar_t* fn_800DD1EC(wchar_t* width, wchar_t* str) {
@@ -118,26 +118,26 @@ extern "C" int fn_800DD3FC(wchar_t* buf, const wchar_t* format, ...) {
                 text = tmp;
                 break;
             case L'b':
-                text = fn_8068B2A0(va_arg(args, int), tmp, 2);
+                text = itow(va_arg(args, int), tmp, 2);
                 if (widthLen > 0) {
                     text = fn_800DD1EC(width, text);
                 }
                 break;
             case L'o':
-                text = fn_8068B2A0(va_arg(args, int), tmp, 8);
+                text = itow(va_arg(args, int), tmp, 8);
                 if (widthLen > 0) {
                     text = fn_800DD1EC(width, text);
                 }
                 break;
             case L'x':
-                text = fn_8068B2A0(va_arg(args, int), tmp, 16);
+                text = itow(va_arg(args, int), tmp, 16);
                 if (widthLen > 0) {
                     text = fn_800DD1EC(width, text);
                 }
                 break;
             case L'd':
                 num = va_arg(args, int);
-                text = fn_8068B2A0(num, tmp, 10);
+                text = itow(num, tmp, 10);
                 if (widthLen > 0) {
                     memcpy(tmp, fn_800DD1EC(width, text), sizeof(tmp));
                     text = tmp;
@@ -157,10 +157,10 @@ extern "C" int fn_800DD3FC(wchar_t* buf, const wchar_t* format, ...) {
                 if (num > 0) {
                     num += 5;
                 }
-                text = fn_8068B2A0(integer, tmp, 10);
+                text = itow(integer, tmp, 10);
                 int len = wcslen(text);
                 text[len] = (unsigned int)(fn_8006BA30() - 2) <= 3 ? L',' : L'.';
-                fn_8068B2A0(num, &text[len + 1], 10);
+                itow(num, &text[len + 1], 10);
                 text = number;
                 if (widthLen > 0) {
                     text = fn_800DD2A8(width, number);

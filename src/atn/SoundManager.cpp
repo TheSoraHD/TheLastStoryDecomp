@@ -7,7 +7,6 @@
 
 extern "C" void fn_80709F20(void*);
 extern "C" int fn_8070ABE0(void*);
-extern "C" void fn_80709AD0(void*, int);
 extern "C" void fn_8070AD70(void*, float);
 extern "C" char lbl_807C7030[];
 
@@ -22,10 +21,6 @@ extern "C" void fn_80049AAC(atn::SoundEngine_unk* engine, float volume);
 extern "C" int fn_80049B2C(atn::SoundEngine_unk* engine, unsigned int id); // the sound is a stream
 extern "C" void fn_8004A388(atn::SoundEngine_unk* engine, int compressor);
 extern "C" void fn_8004A660(atn::SoundEngine_unk* engine);
-// inferred: nw4r::snd::Sound3DListener setters
-extern "C" void fn_80715D60(nw4r::snd::Sound3DListener* listener, float size);     // interior size
-extern "C" void fn_80715D70(nw4r::snd::Sound3DListener* listener, float distance); // max volume distance
-extern "C" void fn_80715D80(nw4r::snd::Sound3DListener* listener, float distance); // unit distance
 // inferred: debug menu entries
 extern "C" void fn_80087994(void* menu, const char* name, int* value, int callback, int arg);
 extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int callback,
@@ -121,7 +116,7 @@ extern "C" void fn_800CB5B4(atn::SoundRef* self, float a1, int a2) {
 
 extern "C" void fn_800CB5C8(atn::SoundRef* self, int frames, int detach) {
     if (self->mPtr != 0 && self->mPtr->mSound != 0) {
-        fn_80709AD0(self->mPtr->mSound, frames);
+        self->mPtr->mSound->Stop(frames);
     }
     if (detach == 0) self->Reset();
 }
@@ -314,9 +309,9 @@ void SoundManager::fn_800CE6E0() {
     fn_800499F4(lbl_8087EE90, mOutputMode);
     fn_80049AAC(lbl_8087EE90, mMasterVolume);
     fn_8004A388(lbl_8087EE90, mCompressor);
-    fn_80715D70(&mListener.mListener, mMaxVolumeDistance);
-    fn_80715D80(&mListener.mListener, mUnitDistance);
-    fn_80715D60(&mListener.mListener, mInteriorSize);
+    mListener.mListener.SetMaxVolumeDistance(mMaxVolumeDistance);
+    mListener.mListener.SetUnitDistance(mUnitDistance);
+    mListener.mListener.SetInteriorSize(mInteriorSize);
     SoundCore* sound = mSounds;
     for (int i = 0; i < 32; i++, sound++) {
         sound->fn_800C82FC();

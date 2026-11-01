@@ -10,7 +10,7 @@
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
-extern "C" int fn_80686B24(const wchar_t* a, const wchar_t* b, int n); // inferred: wcsncmp
+extern "C" int wcsncmp(const wchar_t* a, const wchar_t* b, unsigned long n);
 extern "C" void fn_801F6C80(atn::Task* task, const char* name, float value); // inferred: sets a value
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* text); // inferred: sets a text
@@ -299,7 +299,7 @@ void NewCampPartsOption::fn_80522938() {
     NewCampOptionInfo_unk info;
     csv.SetData((const wchar_t*)m184.fn_80470580(), (unsigned int)m184.fn_8047059C() / 2);
     do {
-        if (fn_80686B24(csv.fn_8005B9CC(), L"", 1) != 0) {
+        if (wcsncmp(csv.fn_8005B9CC(), L"", 1) != 0) {
             void* font = lbl_8087EEC8;
             std::string name;
             fn_8006F5E8(font, &name, csv.fn_8005B9CC());

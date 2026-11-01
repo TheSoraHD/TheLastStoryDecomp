@@ -12,7 +12,9 @@ extern "C" int fn_80049B08(atn::SoundEngine_unk* engine, nw4r::snd::SoundHandle*
 extern "C" const char* fn_80049CDC(atn::SoundEngine_unk* engine, unsigned int id); // label of a sound id
 extern "C" int fn_80049B2C(atn::SoundEngine_unk* engine, unsigned int id);
 
-inline atn::Sound3dActor::Sound3dActor() : mActor(lbl_8087EE90->mPlayer, &lbl_8087EE90->m364) {}
+inline atn::Sound3dActor::Sound3dActor()
+    : mActor(*reinterpret_cast<nw4r::snd::SoundArchivePlayer*>(lbl_8087EE90->mPlayer),
+             *reinterpret_cast<nw4r::snd::Sound3DManager*>(&lbl_8087EE90->m364)) {}
 
 // inferred: debug message output (lbl_8087EEB8)
 struct DebugMessages_unk {
@@ -70,7 +72,7 @@ void Sound3dListener::fn_800C7F08(const Vector3& pos, const Vector3& rot) {
     target.Set_unk(mPos.x + dir.x, mPos.y + dir.y, mPos.z + dir.z);
     C_MTXLookAt(view.m, &mPos, &up, &target);
     m = view;
-    fn_80715BA0(&mListener, m.m);
+    mListener.SetMatrix(*reinterpret_cast<const nw4r::math::MTX34*>(m.m));
 }
 
 Sound3dActor::~Sound3dActor() {}
@@ -107,9 +109,9 @@ void SoundCore::fn_800C82FC() {
     mEC.Update();
     m10C.Update();
     m12C.Update();
-    mHandle.fn_8070AD40_unk(mEC.m18);
-    mHandle.fn_8070AD50_unk(m10C.m18);
-    mHandle.fn_8070AD60_unk(mC8, m12C.m18);
+    mHandle.SetPitch(mEC.m18);
+    mHandle.SetLpfFreq(m10C.m18);
+    mHandle.SetBiquadFilter(mC8, m12C.m18);
     if (mD4 != 0) {
         mD8 = m08.mActor.mPosition;
     }
@@ -130,7 +132,7 @@ inline void SoundCore::StartSetup_unk(unsigned int id) {
     mC8 = 0;
     mCC = 0.0f;
     m12C.Start(mCC, 0.0f);
-    mHandle.fn_8070AD80_unk();
+    mHandle.ResetOutputLineFlag();
     fn_800CA798(0, 0.0f);
     mD0 = 0;
     m98 = id;
@@ -153,7 +155,7 @@ void SoundCore::fn_800C8BA4(const char* label, const Vector3* pos) {
         fn_80049E3C(lbl_8087EE90, id);
         SoundStartInfo_unk info;
         SetStartOffset_unk(info, m08.mActor.mStartOffset_unk);
-        if ((m90 = fn_80718470(&m08.mActor, &mHandle, id - 1, &info)) != 0) {
+        if ((m90 = m08.mActor.detail_StartSound(&mHandle, id - 1, reinterpret_cast<const nw4r::snd::SoundStartable::StartInfo*>(&info))) != 0) {
             PrintSoundError_unk(m90, fn_80049CDC(lbl_8087EE90, id));
         }
         StartSetup_unk(id);
@@ -200,7 +202,7 @@ void SoundCore::fn_800C97F8(const char* label, const Vector3* pos) {
         fn_80049E3C(lbl_8087EE90, id);
         SoundStartInfo_unk info;
         SetStartOffset_unk(info, m08.mActor.mStartOffset_unk);
-        if ((m90 = fn_807184D0(&m08.mActor, &mHandle, id - 1, &info)) != 0) {
+        if ((m90 = m08.mActor.detail_PrepareSound(&mHandle, id - 1, reinterpret_cast<const nw4r::snd::SoundStartable::StartInfo*>(&info))) != 0) {
             PrintSoundError_unk(m90, fn_80049CDC(lbl_8087EE90, id));
         }
         StartSetup_unk(id);
@@ -235,7 +237,7 @@ bool SoundCore::fn_800CA028() {
 }
 
 void SoundCore::fn_800CA098() {
-    mHandle.fn_80709AB0_unk();
+    mHandle.StartPrepared();
 }
 
 void SoundCore::fn_800CA0AC(float volume, int frames) {
@@ -263,8 +265,8 @@ void SoundCore::fn_800CA1D4(int pause, unsigned long mask, int frames) {
 void SoundCore::fn_800CA2FC(float a, float b, float c) {
     mC4 = a;
     fn_800CA3D4();
-    mHandle.fn_8070AD90_unk(1, b);
-    mHandle.fn_8070AD90_unk(2, c);
+    mHandle.SetFxSend(nw4r::snd::AUX_B, b);
+    mHandle.SetFxSend(nw4r::snd::AUX_C, c);
 }
 
 void SoundCore::fn_800CA3D4() {
@@ -278,7 +280,7 @@ void SoundCore::fn_800CA3D4() {
     if (mB0 != 0) {
         v *= mB0->mFxSend;
     }
-    mHandle.fn_8070AD90_unk(0, v);
+    mHandle.SetFxSend(nw4r::snd::AUX_A, v);
 }
 
 void SoundCore::fn_800CA42C(float pitch, int frames) {
@@ -341,7 +343,7 @@ void SoundCore::fn_800CA7D4(int offset) {
 }
 
 void SoundCore::fn_800CA7E8(const Vector3* pos) {
-    fn_80714C50(&m08.mActor, pos);
+    m08.mActor.SetPosition(*reinterpret_cast<const nw4r::math::VEC3*>(pos));
     if (mD4 != 0) {
         mD8 = m08.mActor.mPosition;
     }
@@ -431,7 +433,7 @@ float SoundCore::fn_800CACEC() {
         return 0.0f;
     }
     StrmSoundHandle_unk strm(&mHandle);
-    return strm.fn_8071A800_unk() / 100.0f;
+    return strm.GetBufferRatio_unk() / 100.0f;
 }
 
 } // namespace atn

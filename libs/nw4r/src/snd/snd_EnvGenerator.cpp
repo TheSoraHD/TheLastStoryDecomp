@@ -26,6 +26,7 @@ EnvGenerator::EnvGenerator() {
 
 void EnvGenerator::Init(f32 db) {
     SetAttack(ATTACK_INIT);
+    SetHold(HOLD_INIT);
     SetDecay(DECAY_INIT);
     SetSustain(SUSTAIN_INIT);
     SetRelease(RELEASE_INIT);
@@ -50,12 +51,26 @@ void EnvGenerator::Update(int msec) {
     case STATUS_ATTACK: {
         while (msec > 0) {
             mValue *= mAttack;
-            msec--;
 
             if (mValue > -(1.0f / 32.0f)) {
                 mValue = 0.0f;
-                mStatus = STATUS_DECAY;
+                mStatus = STATUS_HOLD;
+                mHoldCounter = mHold;
+                break;
             }
+
+            msec--;
+        }
+        break;
+    }
+
+    case STATUS_HOLD: {
+        if (msec < mHoldCounter) {
+            mHoldCounter -= msec;
+        } else {
+            msec -= mHoldCounter;
+            mHoldCounter = 0;
+            mStatus = STATUS_DECAY;
         }
 
         if (mStatus != STATUS_DECAY) {
@@ -69,12 +84,10 @@ void EnvGenerator::Update(int msec) {
         f32 decay = CalcDecibelSquare(mSustain);
         mValue -= mDecay * msec;
 
-        if (mValue > decay) {
-            break;
+        if (mValue < decay) {
+            mValue = decay;
+            mStatus = STATUS_SUSTAIN;
         }
-
-        mValue = decay;
-        mStatus = STATUS_SUSTAIN;
         break;
     }
 
@@ -115,6 +128,10 @@ void EnvGenerator::SetAttack(int attack) {
         0.3298770f, 0.0000000f};
 
     mAttack = attackTable[attack];
+}
+
+void EnvGenerator::SetHold(int hold) {
+    mHold = (hold + 1) * (hold + 1) / 4;
 }
 
 void EnvGenerator::SetDecay(int decay) {

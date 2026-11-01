@@ -6,8 +6,8 @@
 #include "atn/DrawHelper.h"
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_805F9640(const float a[4][4], const float b[4][4], float ab[4][4]); // inferred: PSMTX44Concat
-extern "C" void fn_805F97D0(const float m[4][4], const atn::Vector3* src, atn::Vector3* dst,
+extern "C" void PSMTX44Concat(const float a[4][4], const float b[4][4], float ab[4][4]); // inferred: PSMTX44Concat
+extern "C" void PSMTX44MultVecArray(const float m[4][4], const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTX44MultVecArray
 
 // inferred: plane (normal, distance); names invented
@@ -126,7 +126,7 @@ inline atn::AABB_unk ProjectBox_unk(const float m[4][4], const atn::AABB_unk* bo
     corners[5] = atn::Vector3(minX, maxY, minZ);
     corners[6] = atn::Vector3(maxX, minY, minZ);
     corners[7] = atn::Vector3(minX, minY, minZ);
-    fn_805F97D0(m, corners, corners, 8);
+    PSMTX44MultVecArray(m, corners, corners, 8);
     atn::Vector3 max(corners[0]);
     atn::Vector3 min(corners[0]);
     __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[1].x);
@@ -145,7 +145,7 @@ extern "C" void fn_8006FEBC(atn::AABB_unk* screen, const atn::AABB_unk* box) {
     atn::Matrix44_unk view;
     ToMatrix44_unk(&view, cam->mView);
     float m[4][4];
-    fn_805F9640(cam->mProj, view.m, m);
+    PSMTX44Concat(cam->mProj, view.m, m);
     atn::AABB_unk b = ProjectBox_unk(m, box);
     float hw = 0.5f * (float)lbl_8087EEE0->mWidth;
     float hh = 0.5f * (float)lbl_8087EEE0->mHeight;

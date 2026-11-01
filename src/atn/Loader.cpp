@@ -14,7 +14,7 @@ extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* s, const char* format, ...);
-extern "C" char* fn_806825B4(const char* s, int c); // inferred: strrchr
+extern "C" char* strrchr(const char* s, int c); // inferred: strrchr
 extern "C" int fn_805F9EF0(const char* path);      // inferred: DVDConvertPathToEntrynum
 extern "C" void fn_8006A9A4(std::string& path);    // inferred: path normalisation
 extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path
@@ -164,7 +164,7 @@ extern "C" void fn_8046D1EC(char* out, const char* in) {
         strcpy(out, path);
         return;
     }
-    const char* ext = fn_806825B4(path, '.');
+    const char* ext = strrchr(path, '.');
     if (ext == 0) {
         strcpy(out, path);
         return;
@@ -223,8 +223,8 @@ extern "C" void fn_8046D1EC(char* out, const char* in) {
         dir = "data/material/";
     }
     if (dir != 0) {
-        const char* name = fn_806825B4(path, '/');
-        const char* name2 = fn_806825B4(path, '\\');
+        const char* name = strrchr(path, '/');
+        const char* name2 = strrchr(path, '\\');
         if (name < name2) {
             name = name2;
         }

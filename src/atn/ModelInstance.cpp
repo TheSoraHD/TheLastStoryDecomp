@@ -129,7 +129,7 @@ extern "C" int fn_8004FF58(void* frustum, const atn::Sphere* sphere);    // infe
 extern "C" int fn_800C0A50(InstCamera_unk* camera, InstBox_unk* box);   // inferred: occlusion test
 extern "C" void fn_800BDB58(InstCamera_unk* camera, void* render, float order, int pass); // inferred: queues a render
 extern "C" void fn_80091684(InstModel_unk* model, void* view, void* lod);
-extern "C" void fn_805F9420(const Mtx m, const atn::Vector3* src, atn::Vector3* dst, unsigned int count); // PSMTXMultVecArray
+extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst, unsigned int count); // PSMTXMultVecArray
 extern "C" InstBox_unk fn_80070B60(const InstBox_unk* box, float scale); // inferred: scales a box
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
@@ -441,7 +441,7 @@ void ModelInstance::fn_8009EE30(const Matrix3x4& mtx) {
     corners[5] = Vector3(local.mMax.x, local.mMin.y, local.mMax.z);
     corners[6] = Vector3(local.mMin.x, local.mMax.y, local.mMax.z);
     corners[7] = Vector3(local.mMax.x, local.mMax.y, local.mMax.z);
-    fn_805F9420(mMtx.m, corners, corners, 8);
+    PSMTXMultVecArray(mMtx.m, corners, corners, 8);
     InstBox_unk out;
     out.mMin = corners[0];
     out.mMax = corners[0];

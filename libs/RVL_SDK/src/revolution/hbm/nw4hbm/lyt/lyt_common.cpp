@@ -106,7 +106,7 @@ void TexCoordAry::Copy(const void* pSrc, u8 num) {
 }
 
 //unused
-void DrawLine(const math::VEC2 &pos, const Size &size, ut::Color &color) {
+void DrawLine(const math::VEC2& pos, const Size& size, ut::Color color) {
 }
 
 /******************************************************************************

@@ -46,6 +46,7 @@ static tL2CAP_APPL_INFO const reg_info = {
  * functions
  */
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 tHID_STATUS hidd_conn_reg(void) {
     if (!L2CA_Register(17, (tL2CAP_APPL_INFO*)&reg_info)) {
         HIDD_TRACE(ERROR, "HID Control Registration failed");
@@ -82,12 +83,16 @@ tHID_STATUS hidd_conn_reg(void) {
 
     return HID_SUCCESS;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void hidd_conn_dereg(void) {
     L2CA_Deregister(17);
     L2CA_Deregister(19);
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void hidd_conn_disconnect(void) {
     tHID_CONN* p_hcon = &hd_cb.conn;
     tHID_DEV_PWR_MD act_pm = {0};
@@ -109,6 +114,7 @@ void hidd_conn_disconnect(void) {
         p_hcon->conn_state = HID_CONN_STATE_UNUSED;
     }
 }
+#endif
 
 tHID_STATUS hidd_conn_initiate(void) {
     tHID_CONN* p_hcon = &hd_cb.conn;
@@ -128,6 +134,7 @@ tHID_STATUS hidd_conn_initiate(void) {
     }
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void hidd_sec_check_complete_term(BD_ADDR bd_addr, void* p_ref_data, UINT8 res) {
     tHID_CONN* p_hcon = &hd_cb.conn;
 
@@ -139,7 +146,9 @@ void hidd_sec_check_complete_term(BD_ADDR bd_addr, void* p_ref_data, UINT8 res) 
         hidd_conn_disconnect();
     }
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_connect_ind(BD_ADDR bd_addr, UINT16 l2cap_cid, UINT16 psm, UINT8 l2cap_id) {
     tHID_CONN* p_hcon = &hd_cb.conn;
     BOOLEAN bAccept = TRUE;
@@ -195,7 +204,9 @@ static void hidd_l2cif_connect_ind(BD_ADDR bd_addr, UINT16 l2cap_cid, UINT16 psm
 
     HIDD_TRACE(EVENT, "HID - Rcvd L2CAP conn ind, sent config req, PSM: 0x%04x  CID 0x%x", psm, l2cap_cid);
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void hidd_sec_check_complete_orig(BD_ADDR bd_addr, void* p_ref_data, UINT8 res) {
     UINT32 reason;
     tHID_CONN* p_hcon = &hd_cb.conn;
@@ -221,7 +232,9 @@ void hidd_sec_check_complete_orig(BD_ADDR bd_addr, void* p_ref_data, UINT8 res) 
     if (res && p_hcon->conn_state == 6)
         hidd_conn_disconnect();
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_connect_cfm(UINT16 l2cap_cid, UINT16 result) {
     UINT32 reason;
     tHID_CONN* p_hcon = &hd_cb.conn;
@@ -266,7 +279,9 @@ static void hidd_l2cif_connect_cfm(UINT16 l2cap_cid, UINT16 result) {
 
     HIDD_TRACE(EVENT, "HID - got CTRL conn cnf, sent cfg req, CID: 0x%x", l2cap_cid);
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void hidd_l2c_connected(tHID_CONN* p_hcon) {
     p_hcon->conn_state = 4;
 
@@ -277,7 +292,9 @@ void hidd_l2c_connected(tHID_CONN* p_hcon) {
     hidd_pm_init();
     hidd_pm_start();
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_config_ind(UINT16 l2cap_cid, tL2CAP_CFG_INFO* p_cfg) {
     tHID_CONN* p_hcon = &hd_cb.conn;
 
@@ -308,7 +325,9 @@ static void hidd_l2cif_config_ind(UINT16 l2cap_cid, tL2CAP_CFG_INFO* p_cfg) {
         hidd_l2c_connected(p_hcon);
     }
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_config_cfm(UINT16 l2cap_cid, tL2CAP_CFG_INFO* p_cfg) {
     UINT32 reason;
     tHID_CONN* p_hcon = &hd_cb.conn;
@@ -340,7 +359,9 @@ static void hidd_l2cif_config_cfm(UINT16 l2cap_cid, tL2CAP_CFG_INFO* p_cfg) {
         hidd_l2c_connected(p_hcon);
     }
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_disconnect_ind(UINT16 l2cap_cid, BOOLEAN ack_needed) {
     tHID_CONN* p_hcon = &hd_cb.conn;
     UINT16 disc_res = 0;
@@ -382,7 +403,9 @@ static void hidd_l2cif_disconnect_ind(UINT16 l2cap_cid, BOOLEAN ack_needed) {
     hidd_mgmt_process_evt(evt, &disc_res);
     hidd_pm_stop();
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_disconnect_cfm(UINT16 l2cap_cid, UINT16 result) {
     UINT16 disc_res = 0;
     tHID_CONN* p_hcon = &hd_cb.conn;
@@ -410,7 +433,9 @@ static void hidd_l2cif_disconnect_cfm(UINT16 l2cap_cid, UINT16 result) {
     hidd_mgmt_process_evt(1, &disc_res);
     hidd_pm_stop();
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_cong_ind(UINT16 l2cap_cid, BOOLEAN congested) {
     tHID_CONN* p_hcon = &hd_cb.conn;
 
@@ -428,7 +453,9 @@ static void hidd_l2cif_cong_ind(UINT16 l2cap_cid, BOOLEAN congested) {
 
     (*hd_cb.callback)(14, p_hcon->ctrl_cid == l2cap_cid, (tHID_DEV_REG_INFO_CBACK_DATA*)&congested);
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static void hidd_l2cif_data_ind(UINT16 l2cap_cid, BT_HDR* p_msg) {
     tHID_CONN* p_hcon = &hd_cb.conn;
     UINT8* p_data = (UINT8*)(p_msg + 1) + p_msg->offset;
@@ -531,7 +558,9 @@ static void hidd_l2cif_data_ind(UINT16 l2cap_cid, BT_HDR* p_msg) {
     if (ttype != 5 && ttype != 10 && ttype != 11)
         GKI_freebuf(p_msg);
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 tHID_STATUS hidd_conn_snd_data(tSND_DATA_PARAMS* p_data) {
     tHID_CONN* p_hcon = &hd_cb.conn;
     BT_HDR* p_buf;
@@ -620,3 +649,4 @@ tHID_STATUS hidd_conn_snd_data(tSND_DATA_PARAMS* p_data) {
 
     return 0;
 }
+#endif

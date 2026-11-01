@@ -21,10 +21,8 @@ devsupport@gamespy.com
 #include "ghttp/ghttpCommon.h"
 
 // MSL rewind / fread (not declared by our stdio.h)
-void fn_8067DED8(FILE* stream);
-size_t fn_8067D27C(void* ptr, size_t size, size_t n, FILE* stream);
-#define rewind fn_8067DED8
-#define fread fn_8067D27C
+void rewind(FILE* stream);
+size_t fread(void* ptr, size_t size, size_t n, FILE* stream);
 
 // from common/gsSSL.h
 #define GS_SSL_MAX_CONTENTLENGTH ((0x4000) - (0xFF))

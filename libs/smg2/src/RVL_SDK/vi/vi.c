@@ -163,7 +163,7 @@ GXRenderModeObj GXPal524ProgAa = {
 };
 
 static BOOL OnShutdown(BOOL final, u32 event);
-void fn_806070F0(void); // inferred: vi3in1.c, __VISetGammaImm of the default gamma
+void __VISetGamma1_0(void); // vi3in1.c
 static OSShutdownFunctionInfo ShutdownFunctionInfo = {OnShutdown, 127};
 
 static BOOL OnShutdown(BOOL final, u32 event) {
@@ -195,7 +195,7 @@ static BOOL OnShutdown(BOOL final, u32 event) {
         case 0:
         case 6:
         case 5:
-            fn_806070F0();
+            __VISetGamma1_0();
             retval = TRUE;
             break;
         }

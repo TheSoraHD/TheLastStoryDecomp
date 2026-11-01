@@ -28,6 +28,7 @@ static tHID_STATUS hidd_disc_ing_proc_evt(UINT8 event, void* p_data);
  * variables
  */
 
+#if 0 /* not in this build */
 // .rodata
 tHID_DEV_PROC_EVT* const hidd_sm_proc_evt[] = {
     &hidd_no_conn_proc_evt,
@@ -35,6 +36,7 @@ tHID_DEV_PROC_EVT* const hidd_sm_proc_evt[] = {
     &hidd_connected_proc_evt,
     &hidd_disc_ing_proc_evt,
 };
+#endif
 
 // .bss
 tHID_DEV_CTB hd_cb;
@@ -43,6 +45,7 @@ tHID_DEV_CTB hd_cb;
  * functions
  */
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 tHID_STATUS hidd_mgmt_process_evt(UINT8 event, void* p_data) {
     HIDD_TRACE(DEBUG, "hidd_mgmt_process_evt known: %d, s:%d, e:%d", hd_cb.host_known, hd_cb.dev_state, event);
 
@@ -61,7 +64,9 @@ tHID_STATUS hidd_mgmt_process_evt(UINT8 event, void* p_data) {
         return 13;
     }
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static tHID_STATUS hidd_no_conn_proc_evt(UINT8 event, void* p_data) {
     tHID_STATUS st = 0;
 
@@ -91,6 +96,7 @@ static tHID_STATUS hidd_no_conn_proc_evt(UINT8 event, void* p_data) {
 
     return st;
 }
+#endif
 
 void hidd_proc_repage_timeout(void) {
     HIDD_TRACE(DEBUG, "hidd_proc_repage_timeout");
@@ -109,6 +115,7 @@ void hidd_proc_repage_timeout(void) {
     }
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static tHID_STATUS hidd_connecting_proc_evt(UINT8 event, void* p_data) {
     UINT16 reason;
 
@@ -148,7 +155,9 @@ static tHID_STATUS hidd_connecting_proc_evt(UINT8 event, void* p_data) {
 
     return 0;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void hidd_mgmt_conn_closed(UINT16 reason) {
     if (hd_cb.unplug_on)
         hd_cb.host_known = FALSE;
@@ -157,7 +166,9 @@ void hidd_mgmt_conn_closed(UINT16 reason) {
 
     (*hd_cb.callback)(1, reason, NULL);
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static tHID_STATUS hidd_connected_proc_evt(UINT8 event, void* p_data) {
     switch (event) {
     case 2:
@@ -185,7 +196,9 @@ static tHID_STATUS hidd_connected_proc_evt(UINT8 event, void* p_data) {
 
     return 0;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 static tHID_STATUS hidd_disc_ing_proc_evt(UINT8 event, void* p_data) {
     switch (event) {
     case 1:
@@ -200,3 +213,4 @@ static tHID_STATUS hidd_disc_ing_proc_evt(UINT8 event, void* p_data) {
 
     return 0;
 }
+#endif

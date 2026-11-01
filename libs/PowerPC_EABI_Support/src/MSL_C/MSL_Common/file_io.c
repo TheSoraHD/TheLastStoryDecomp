@@ -2,6 +2,8 @@
 #include "PowerPC_EABI_Support/MSL_C/MSL_Common/ansi_files.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <string.h>
 
 //unused
 void remove(){
@@ -135,16 +137,71 @@ void __set_ref_con(){
 void __set_idle_proc(){
 }
 
-//unused
-void __msl_strnicmp(){
+int __msl_strnicmp(const char* s1, const char* s2, int n)
+{
+    int i;
+    char c1, c2;
+
+    for (i = 0; i < n; i++) {
+        c1 = tolower(*s1++);
+        c2 = tolower(*s2++);
+
+        if (c1 < c2) {
+            return -1;
+        }
+        if (c1 > c2) {
+            return 1;
+        }
+        if (c1 == 0) {
+            return 0;
+        }
+    }
+    return 0;
 }
 
-//unused
-void __msl_strrev(){
+char* __msl_strrev(char* str)
+{
+    int SmallIndex = 0;
+    int BigIndex = strlen(str) - 1;
+    char Temp;
+
+    while (SmallIndex < BigIndex) {
+        Temp = str[SmallIndex];
+        str[SmallIndex++] = str[BigIndex];
+        str[BigIndex--] = Temp;
+    }
+
+    return str;
 }
 
-//unused
-void __msl_itoa(){
+char* __msl_itoa(int val, char* str, int radix)
+{
+    int is_neg = 0;
+    int len = 0;
+    unsigned int num;
+    int digit;
+
+    if (val < 0) {
+        val = -val;
+        is_neg = 1;
+    }
+
+    num = val;
+    do {
+        digit = num % radix;
+        if (digit > 9) {
+            str[len++] = digit + ('A' - 10);
+        } else {
+            str[len++] = digit + '0';
+        }
+    } while ((num /= radix) != 0);
+
+    if (is_neg) {
+        str[len++] = '-';
+    }
+    str[len] = 0;
+
+    return __msl_strrev(str);
 }
 
 //unused

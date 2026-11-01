@@ -311,6 +311,7 @@ BOOLEAN SDP_AddAttribute(UINT32 handle, UINT16 attr_id, UINT8 attr_type, UINT32 
     return FALSE;
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 BOOLEAN SDP_AddSequence(UINT32 handle, UINT16 attr_id, UINT16 num_elem, UINT8* type, UINT8* len, UINT8** p_val) {
     UINT16 xx;
     UINT8 buff[SDP_MAX_ATTR_LEN * 2];
@@ -368,6 +369,7 @@ BOOLEAN SDP_AddSequence(UINT32 handle, UINT16 attr_id, UINT16 num_elem, UINT8* t
 
     return SDP_AddAttribute(handle, attr_id, DATA_ELE_SEQ_DESC_TYPE, p - buff, buff);
 }
+#endif
 
 BOOLEAN SDP_AddUuidSequence(UINT32 handle, UINT16 attr_id, UINT16 num_uuids, UINT16* p_uuids) {
     UINT16 xx;

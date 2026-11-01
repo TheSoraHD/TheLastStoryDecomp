@@ -2,7 +2,6 @@
 #include "atn/SoundCore.h"
 #include "atn/SoundManager.h"
 
-extern "C" void fn_80709AD0(void* sound, int frames);
 extern "C" unsigned long strlen(const char* s);
 
 // inferred: sound engine (lbl_8087EE90); only the member read here
@@ -32,7 +31,7 @@ Bgm::Bgm() : m04(0), m0C(0), m10(0) {}
 Bgm::~Bgm() {
     // inferred: inlined handle stop (cf. nw4r::snd::SoundHandle::Stop)
     if (mSound.mPtr != 0 && mSound.mPtr->mSound != 0) {
-        fn_80709AD0(mSound.mPtr->mSound, 0);
+        mSound.mPtr->mSound->Stop(0);
     }
     mSound.Reset();
 }
@@ -115,7 +114,7 @@ int Bgm::fn_8004B158(float volume, int fade) {
 
 void Bgm::fn_8004B1EC(int fade) {
     if (mSound.mPtr != 0 && mSound.mPtr->mSound != 0) {
-        fn_80709AD0(mSound.mPtr->mSound, fade);
+        mSound.mPtr->mSound->Stop(fade);
     }
 }
 

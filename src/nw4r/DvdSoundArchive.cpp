@@ -13,7 +13,7 @@ extern "C" long DVDReadPrio(DVDFileInfo* pInfo, void* pDst, long size, long offs
 extern "C" int DVDReadAsyncPrio(DVDFileInfo* pInfo, void* pDst, long size,
                                 long offset, void (*pCallback)(long, DVDFileInfo*),
                                 long prio);
-extern "C" long fn_805F9EF0(const char* path); // inferred: DVDConvertPathToEntrynum
+extern "C" long DVDConvertPathToEntrynum(const char* path);
 
 // inferred: atn::AudioDevice: read callback (sets the flag and the result), the wait step and
 // the flag and result it writes (see atn/AudioDevice.cpp)
@@ -62,7 +62,7 @@ bool DvdSoundArchive::Open(long entrynum) {
 }
 
 bool DvdSoundArchive::Open(const char* pPath) {
-    long entrynum = fn_805F9EF0(pPath);
+    long entrynum = DVDConvertPathToEntrynum(pPath);
     if (entrynum < 0) {
         db::Warning("snd_DvdSoundArchive.cpp", 107, "Cannot find file %s\n", pPath);
         return false;
@@ -123,7 +123,7 @@ ut::FileStream* DvdSoundArchive::OpenExtStream(void* pBuffer, int size, const ch
         return 0;
     }
 
-    long entrynum = fn_805F9EF0(pExtPath);
+    long entrynum = DVDConvertPathToEntrynum(pExtPath);
     if (entrynum < 0) {
         db::Warning("snd_DvdSoundArchive.cpp", 174, "OpenExtStream: Cannot open file \"%s\"", pExtPath);
         return 0;

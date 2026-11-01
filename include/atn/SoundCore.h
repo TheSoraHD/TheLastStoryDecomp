@@ -11,6 +11,13 @@
 // headers). LinkListImpl::Insert/Erase return an iterator in NW4R; the result is unused here and
 // the mangled names do not include it.
 namespace nw4r {
+namespace math {
+struct VEC3;
+struct MTX34;
+} // namespace math
+} // namespace nw4r
+
+namespace nw4r {
 namespace db {
 void Panic(const char* file, int line, const char* fmt, ...);
 } // namespace db
@@ -39,6 +46,7 @@ public:
 } // namespace ut
 
 namespace snd {
+enum AuxBus { AUX_A, AUX_B, AUX_C };
 namespace detail {
 // inferred: only the virtual used here (IsPrepared at 0x14) and the parameter block at 0x30
 struct SoundParam_unk {
@@ -53,6 +61,16 @@ public:
     virtual void vf0C();
     virtual void vf10();
     virtual bool IsPrepared() const; // 0x14
+    void StartPrepared();
+    void Stop(int fadeFrames);
+    void Pause(bool flag, int fadeFrames);
+    bool IsPause() const;
+    void SetVolume(float volume, int frames);
+    void SetPitch(float pitch);
+    void SetLpfFreq(float lpfFreq);
+    void SetBiquadFilter(int type, float value);
+    void ResetOutputLineFlag();
+    void SetFxSend(AuxBus bus, float send);
 
     unsigned char m04[0x30 - 0x04];
     SoundParam_unk m30;
@@ -68,13 +86,13 @@ public:
     bool IsPause() const;
     void Stop(int frames);
     void Pause(bool flag, int frames);
-    void fn_80709AB0_unk();
+    void StartPrepared();
     void SetVolume(float volume, int frames);
-    void fn_8070AD40_unk(float value);
-    void fn_8070AD50_unk(float value);
-    void fn_8070AD60_unk(int type, float value);
-    void fn_8070AD80_unk();
-    void fn_8070AD90_unk(int bus, float value);
+    void SetPitch(float pitch);
+    void SetLpfFreq(float lpfFreq);
+    void SetBiquadFilter(int type, float value);
+    void ResetOutputLineFlag(); // inferred: see BasicSound
+    void SetFxSend(AuxBus bus, float send);
     detail::SoundParam_unk* GetParam_unk() const { return IsAttachedSound() ? &mSound->m30 : 0; }
     void DetachSound();
 
@@ -84,32 +102,6 @@ public:
 } // namespace nw4r
 
 // NW4R functions without a symbol name yet
-extern "C" void fn_80715B20(void* self);                    // inferred: nw4r::snd::Sound3DListener::Sound3DListener
-extern "C" void fn_80715BA0(void* self, const Mtx m);       // inferred: nw4r::snd::Sound3DListener::SetMatrix
-extern "C" void fn_80714930(void* self, void* player, void* manager); // inferred: nw4r::snd::Sound3DActor ctor
-extern "C" void fn_80709AD0(void* sound, int frames);       // inferred: nw4r::snd::detail::BasicSound::Stop
-extern "C" void fn_80709AB0(void* sound);
-extern "C" bool fn_8070A030(void* sound);                   // inferred: nw4r::snd::detail::BasicSound::IsPause
-extern "C" void fn_80709CC0(void* sound, bool flag, int frames); // inferred: nw4r::snd::detail::BasicSound::Pause
-extern "C" void fn_8070ACB0(void* sound, float volume, int frames); // inferred: nw4r::snd::detail::BasicSound::SetVolume
-extern "C" void fn_8070AD40(void* sound, float value);
-extern "C" void fn_8070AD50(void* sound, float value);
-extern "C" void fn_8070AD60(void* sound, float value, int type);
-extern "C" void fn_8070AD80(void* sound);
-extern "C" void fn_8070AD90(void* sound, int bus, float value);
-extern "C" void fn_80714C50(void* actor, const atn::Vector3* pos); // inferred: nw4r::snd::Sound3DActor::SetPosition
-extern "C" int fn_80718470(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor start
-extern "C" int fn_807184D0(void* actor, void* handle, unsigned int id, void* info); // inferred: nw4r::snd::SoundActor prepare
-extern "C" void fn_8071D0E0(void* strmHandle, void* handle);   // inferred: nw4r::snd::StrmSoundHandle::StrmSoundHandle
-extern "C" void fn_8071D1E0(void* strmHandle);                 // inferred: nw4r::snd::StrmSoundHandle::DetachSound
-extern "C" bool fn_8071A680(void* player, void* info);         // inferred: StrmPlayer: reads the stream data info
-extern "C" int fn_8071A720(void* player);                      // inferred: StrmPlayer: play position (samples)
-extern "C" float fn_8071A800(void* player);
-extern "C" void fn_8071CD20(void* sound, unsigned long mask, float volume, int frames); // inferred: StrmSound track volume
-extern "C" void fn_80721890(void* waveHandle, void* handle);   // inferred: nw4r::snd::WaveSoundHandle::WaveSoundHandle
-extern "C" void fn_80721990(void* waveHandle);                 // inferred: nw4r::snd::WaveSoundHandle::DetachSound
-extern "C" bool fn_80722440(void* player, void* info);         // inferred: WsdPlayer: reads the wave data info
-extern "C" int fn_80722500(void* player);                      // inferred: WsdPlayer: play position (samples)
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void C_MTXLookAt(Mtx m, const atn::Vector3* camPos, const atn::Vector3* camUp, const atn::Vector3* target);
 
@@ -122,20 +114,54 @@ extern "C" float lbl_8087D938;
 namespace nw4r {
 namespace snd {
 
-// inferred: 0x6C bytes, list node at 0x64. The constructor has no symbol name yet, so it calls
-// fn_80715B20 directly.
+class SoundArchivePlayer;
+class Sound3DManager;
+struct StrmDataInfo;
+struct WsdDataInfo;
+namespace detail {
+class WsdPlayer {
+public:
+    bool ReadWsdDataInfo(WsdDataInfo* info) const;
+    long GetPlaySamplePosition() const;
+};
+class StrmPlayer {
+public:
+    bool ReadStrmDataInfo(StrmDataInfo* info) const;
+    unsigned long GetPlaySamplePosition() const;
+    float GetBufferRatio_unk() const; // inferred: see libs/ss_nw4r
+};
+class StrmSound {
+public:
+    void SetTrackVolume(unsigned long trackBitFlag, float volume, int fadeFrames);
+};
+} // namespace detail
+
+// inferred: 0x6C bytes, list node at 0x64
 class Sound3DListener {
 public:
-    Sound3DListener() { fn_80715B20(this); }
+    Sound3DListener();
+    void SetMatrix(const math::MTX34& mtx);
+    void SetInteriorSize(float size);
+    void SetMaxVolumeDistance(float distance);
+    void SetUnitDistance(float distance);
 
     unsigned char m00[0x64];
     ut::LinkListNode mLinkNode; // 0x64
 };
 
-// inferred: 0x84 bytes. The constructor has no symbol name yet (fn_80714930).
-class Sound3DActor {
+// inferred: only the start functions called by atn::SoundCore (no data of its own here)
+class SoundStartable {
 public:
-    Sound3DActor(void* player, void* manager) { fn_80714930(this, player, manager); }
+    struct StartInfo;
+    int detail_StartSound(SoundHandle* handle, unsigned long soundId, const StartInfo* startInfo);
+    int detail_PrepareSound(SoundHandle* handle, unsigned long soundId, const StartInfo* startInfo);
+};
+
+// inferred: 0x84 bytes
+class Sound3DActor : public SoundStartable {
+public:
+    Sound3DActor(SoundArchivePlayer& player, Sound3DManager& manager);
+    void SetPosition(const math::VEC3& position);
     ~Sound3DActor();
 
     unsigned char m00[0x60];
@@ -150,7 +176,7 @@ public:
 
 inline void nw4r::snd::SoundHandle::Stop(int frames) {
     if (mSound != 0) {
-        fn_80709AD0(mSound, frames);
+        mSound->Stop(frames);
     }
 }
 
@@ -159,56 +185,56 @@ inline bool nw4r::snd::SoundHandle::IsPrepared() const {
 }
 
 inline bool nw4r::snd::SoundHandle::IsPause() const {
-    return IsAttachedSound() && fn_8070A030(mSound);
+    return IsAttachedSound() && mSound->IsPause();
 }
 
 inline void nw4r::snd::SoundHandle::Pause(bool flag, int frames) {
     if (IsAttachedSound()) {
-        fn_80709CC0(mSound, flag, frames);
+        mSound->Pause(flag, frames);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_80709AB0_unk() {
+inline void nw4r::snd::SoundHandle::StartPrepared() {
     if (IsAttachedSound()) {
-        fn_80709AB0(mSound);
+        mSound->StartPrepared();
     }
 }
 
 inline void nw4r::snd::SoundHandle::SetVolume(float volume, int frames) {
     if (IsAttachedSound()) {
-        fn_8070ACB0(mSound, volume, frames);
+        mSound->SetVolume(volume, frames);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD40_unk(float value) {
+inline void nw4r::snd::SoundHandle::SetPitch(float pitch) {
     if (IsAttachedSound()) {
-        fn_8070AD40(mSound, value);
+        mSound->SetPitch(pitch);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD50_unk(float value) {
+inline void nw4r::snd::SoundHandle::SetLpfFreq(float lpfFreq) {
     if (IsAttachedSound()) {
-        fn_8070AD50(mSound, value);
+        mSound->SetLpfFreq(lpfFreq);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD60_unk(int type, float value) {
+inline void nw4r::snd::SoundHandle::SetBiquadFilter(int type, float value) {
     (void)((type >= 0 && type <= 127) ||
            (nw4r::db::Panic("SoundHandle.h", 0x80, "type is out of bounds(%d)\n%d <= type <= %d not satisfied.", type, 0, 127), 0));
     if (IsAttachedSound()) {
-        fn_8070AD60(mSound, value, type);
+        mSound->SetBiquadFilter(type, value);
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD80_unk() {
+inline void nw4r::snd::SoundHandle::ResetOutputLineFlag() {
     if (IsAttachedSound()) {
-        fn_8070AD80(mSound);
+        mSound->ResetOutputLineFlag();
     }
 }
 
-inline void nw4r::snd::SoundHandle::fn_8070AD90_unk(int bus, float value) {
+inline void nw4r::snd::SoundHandle::SetFxSend(AuxBus bus, float send) {
     if (IsAttachedSound()) {
-        fn_8070AD90(mSound, bus, value);
+        mSound->SetFxSend(bus, send);
     }
 }
 
@@ -393,23 +419,44 @@ struct SoundPlayer_unk {
     unsigned char m00[4];
 };
 struct HandleSound_unk {
-    bool ReadStrmDataInfo(SoundDataInfo_unk* info) const { return fn_8071A680((void*)&mPlayer, info); }
-    long GetStrmPlaySamplePosition() const { return fn_8071A720((void*)&mPlayer); }
-    float fn_8071A800_unk() const { return fn_8071A800((void*)&mPlayer); }
-    bool ReadWaveSoundDataInfo(SoundDataInfo_unk* info) const { return fn_80722440((void*)&mPlayer, info); }
-    long GetWavePlaySamplePosition() const { return fn_80722500((void*)&mPlayer); }
-    void SetTrackVolume(unsigned long mask, float volume, int frames) { fn_8071CD20(this, mask, volume, frames); }
+    bool ReadStrmDataInfo(SoundDataInfo_unk* info) const {
+        return reinterpret_cast<const nw4r::snd::detail::StrmPlayer*>(&mPlayer)->ReadStrmDataInfo(
+            reinterpret_cast<nw4r::snd::StrmDataInfo*>(info));
+    }
+    long GetStrmPlaySamplePosition() const {
+        return reinterpret_cast<const nw4r::snd::detail::StrmPlayer*>(&mPlayer)->GetPlaySamplePosition();
+    }
+    float GetBufferRatio_unk() const {
+        return reinterpret_cast<const nw4r::snd::detail::StrmPlayer*>(&mPlayer)->GetBufferRatio_unk();
+    }
+    bool ReadWaveSoundDataInfo(SoundDataInfo_unk* info) const {
+        return reinterpret_cast<const nw4r::snd::detail::WsdPlayer*>(&mPlayer)->ReadWsdDataInfo(
+            reinterpret_cast<nw4r::snd::WsdDataInfo*>(info));
+    }
+    long GetWavePlaySamplePosition() const {
+        return reinterpret_cast<const nw4r::snd::detail::WsdPlayer*>(&mPlayer)->GetPlaySamplePosition();
+    }
+    void SetTrackVolume(unsigned long mask, float volume, int frames) {
+        reinterpret_cast<nw4r::snd::detail::StrmSound*>(this)->SetTrackVolume(mask, volume, frames);
+    }
 
     unsigned char m00[0x110];
     SoundPlayer_unk mPlayer; // 0x110
 };
 
-// inferred: nw4r::snd::StrmSoundHandle / WaveSoundHandle
-struct StrmSoundHandle_unk {
-    StrmSoundHandle_unk(nw4r::snd::SoundHandle* h) { fn_8071D0E0(this, h); }
-    ~StrmSoundHandle_unk() { fn_8071D1E0(this); }
+} // namespace atn
+
+// inferred: nw4r::snd::StrmSoundHandle (only what atn::SoundCore uses; the sound is seen through
+// atn::HandleSound_unk)
+namespace nw4r {
+namespace snd {
+class StrmSoundHandle {
+public:
+    StrmSoundHandle(SoundHandle* handle);
+    ~StrmSoundHandle() { DetachSound(); }
+    void DetachSound();
     bool IsAttachedSound() const { return mSound != 0; }
-    bool ReadStrmDataInfo(SoundDataInfo_unk* info) const {
+    bool ReadStrmDataInfo(atn::SoundDataInfo_unk* info) const {
         if (mSound == 0) {
             return false;
         }
@@ -421,11 +468,11 @@ struct StrmSoundHandle_unk {
         }
         return mSound->GetStrmPlaySamplePosition();
     }
-    float fn_8071A800_unk() const {
+    float GetBufferRatio_unk() const {
         if (mSound == 0) {
             return 0.0f;
         }
-        return mSound->fn_8071A800_unk();
+        return mSound->GetBufferRatio_unk();
     }
     void SetTrackVolume(unsigned long mask, float volume, int frames) {
         if (IsAttachedSound()) {
@@ -433,13 +480,26 @@ struct StrmSoundHandle_unk {
         }
     }
 
-    HandleSound_unk* mSound;
+    atn::HandleSound_unk* mSound;
 };
-struct WaveSoundHandle_unk {
-    WaveSoundHandle_unk(nw4r::snd::SoundHandle* h) { fn_80721890(this, h); }
-    ~WaveSoundHandle_unk() { fn_80721990(this); }
+} // namespace snd
+} // namespace nw4r
+
+namespace atn {
+typedef nw4r::snd::StrmSoundHandle StrmSoundHandle_unk;
+
+} // namespace atn
+
+// inferred: nw4r::snd::WaveSoundHandle (only what atn::SoundCore uses)
+namespace nw4r {
+namespace snd {
+class WaveSoundHandle {
+public:
+    WaveSoundHandle(SoundHandle* handle);
+    ~WaveSoundHandle() { DetachSound(); }
+    void DetachSound();
     bool IsAttachedSound() const { return mSound != 0; }
-    bool ReadWaveSoundDataInfo(SoundDataInfo_unk* info) const {
+    bool ReadWaveSoundDataInfo(atn::SoundDataInfo_unk* info) const {
         if (mSound == 0) {
             return false;
         }
@@ -452,8 +512,14 @@ struct WaveSoundHandle_unk {
         return mSound->GetWavePlaySamplePosition();
     }
 
-    HandleSound_unk* mSound;
+    atn::HandleSound_unk* mSound;
 };
+} // namespace snd
+} // namespace nw4r
+
+namespace atn {
+typedef nw4r::snd::WaveSoundHandle WaveSoundHandle_unk;
+
 
 class SoundCore {
 public:

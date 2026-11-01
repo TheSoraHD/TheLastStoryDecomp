@@ -123,7 +123,7 @@ s32 DVDConvertPathToEntrynum(const char* pathPtr) {
             }
 
             if (illegal) {
-                OSPanic(__FILE__, 0x1BB, "DVDConvertEntrynumToPath(possibly DVDOpen or DVDChangeDir or DVDOpenDir): specified directory or file (%s) doesn't match standard 8.3 format. This is a temporary restriction and will be removed soon\n", origPathPtr);
+                OSPanic(__FILE__, 0x1C4, "DVDConvertEntrynumToPath(possibly DVDOpen or DVDChangeDir or DVDOpenDir): specified directory or file (%s) doesn't match standard 8.3 format. This is a temporary restriction and will be removed soon\n", origPathPtr);
             }
         }
         else {
@@ -210,16 +210,30 @@ static u32 myStrncpy(char* dest, char* src, u32 maxlen) {
     return (maxlen - i);
 }
 
-u32 entryToPath(u32 entry, char* path, u32 maxlen) {
+static u32 entryToPath(u32 entry, char* path, u32 maxlen) {
     char* name;
     u32 loc;
+    u32 parent;
 
     if (entry == 0) {
         return 0;
     }
 
     name = FstStringStart + stringOff(entry);
-    loc = entryToPath(parentDir(entry), path, maxlen);
+
+    // inferred: the 2010 version also accepts a file entry (it looks for the directory holding it)
+    if (entryIsDir(entry)) {
+        parent = parentDir(entry);
+    }
+    else {
+        for (parent = entry; parent != 0; parent--) {
+            if (entryIsDir(parent) && nextDir(parent) > entry) {
+                break;
+            }
+        }
+    }
+
+    loc = entryToPath(parent, path, maxlen);
 
     if (loc == maxlen) {
         return loc;
@@ -259,11 +273,11 @@ static void cbForReadAsync(s32 result, DVDCommandBlock* block);
 
 BOOL DVDReadAsyncPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset, DVDCallback callback, s32 prio) {
     if (!((0 <= offset) && (offset <= fileInfo->length))) {
-        OSPanic(__FILE__, 0x337, "DVDReadAsync(): specified area is out of the file  ");
+        OSPanic(__FILE__, 0x34D, "DVDReadAsync(): specified area is out of the file  ");
     }
 
     if (!((0 <= offset + length) && (offset + length < fileInfo->length + 32))) {
-        OSPanic(__FILE__, 0x33D, "DVDReadAsync(): specified area is out of the file  ");
+        OSPanic(__FILE__, 0x353, "DVDReadAsync(): specified area is out of the file  ");
     }
 
     fileInfo->callback = callback;
@@ -287,11 +301,11 @@ s32 DVDReadPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset, s32 p
     s32 state, retVal;
 
     if (!((0 <= offset) && (offset <= fileInfo->length))) {
-        OSPanic(__FILE__, 0x37D, "DVDRead(): specified area is out of the file  ");
+        OSPanic(__FILE__, 0x393, "DVDRead(): specified area is out of the file  ");
     }
 
     if (!((0 <= offset + length) && (offset + length < fileInfo->length + 32))) {
-         OSPanic(__FILE__, 0x383, "DVDRead(): specified area is out of the file  ");
+         OSPanic(__FILE__, 0x399, "DVDRead(): specified area is out of the file  ");
     }
 
     block = &fileInfo->cb;
@@ -330,6 +344,18 @@ s32 DVDReadPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset, s32 p
 
 static void cbForReadSync(s32 result, DVDCommandBlock* block) {
     OSWakeupThread(&__DVDThreadQueue);
+}
+
+// inferred: in the 2010 SDK (0x805FA710), not in the 2007 source
+BOOL DVDFastOpenDir(s32 entrynum, DVDDir* dir) {
+    if ((entrynum < 0) || (entrynum >= MaxEntryNum) || !entryIsDir(entrynum)) {
+        return FALSE;
+    }
+
+    dir->entryNum = (u32)entrynum;
+    dir->location = (u32)entrynum + 1;
+    dir->next = nextDir(entrynum);
+    return TRUE;
 }
 
 BOOL DVDOpenDir(const char* dirName, DVDDir* dir) {

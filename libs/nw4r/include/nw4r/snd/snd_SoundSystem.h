@@ -43,6 +43,7 @@ public:
                                 u32 workSize);
 
     static void ShutdownSoundSystem();
+    static bool IsInitializedSoundSystem(); // inferred: 2010 (0x80718770)
     static void WaitForResetReady();
 
     static void PrepareReset() {

@@ -80,7 +80,7 @@ static void uusb_CloseDeviceCB(long result, void* p_data);
 static void uusb_ReadIntrDataCB(long result, void* p_data);
 static void uusb_ReadBulkDataCB(long result, void* p_data);
 static void uusb_issue_bulk_read(void);
-void uusb_issue_intr_read(void) NO_INLINE;
+void uusb_issue_intr_read(void);
 static void uusb_WriteCtrlDataCB(long result, void* p_data);
 static void uusb_WriteBulkDataCB(long result, void* p_data);
 static long uusb_get_devId(int vid, int pid);
@@ -112,14 +112,19 @@ UINT32 __ntd_ohci_init_flag = FALSE;
  * functions
  */
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void HCI_TRACE(char const* p_msg) {
     /* ... */
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void HCI_TRACE1(char const* p_msg, UINT32 arg1) {
     /* ... */
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void __ntd_set_ohci(UINT8 ohci) {
     if (ohci == 0) {
         __ntd_ohci = 0;
@@ -129,17 +134,23 @@ void __ntd_set_ohci(UINT8 ohci) {
         __ntd_ohci_init_flag = TRUE;
     }
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void __ntd_set_pid_vid(int pid, int vid) {
     __ntd_vid = vid;
     __ntd_pid = pid;
     __ntd_pid_vid_specified = TRUE;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 int __ntd_get_usb_file_descriptor(void) {
     return __ntd_ios_file_descriptor;
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 UINT32 __ntd_get_allocated_mem_size(void) {
     UINT32 size = 0;
 
@@ -150,6 +161,7 @@ UINT32 __ntd_get_allocated_mem_size(void) {
 
     return size;
 }
+#endif
 
 void uusb_set_trace_state(UINT8 state) {
     usb.trace_state = state;
@@ -545,13 +557,17 @@ UINT16 UUSB_Read(UINT8 param_1, void* param_2, UINT16 param_3) {
     return 0;
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void UUSB_ReadBuf(/* ... */) {
     /* ... */
 }
+#endif
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 unk_t UUSB_WriteBuf(/* ... */) {
     return 0;
 }
+#endif
 
 UINT16 UUSB_Write(UINT8 param_1, void* p_data, UINT16 len, void* param_4) {
     unk2_t sp18 = 0;
@@ -659,9 +675,11 @@ UINT16 UUSB_Write(UINT8 param_1, void* p_data, UINT16 len, void* param_4) {
     return ret;
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void UUSB_Ioctl(tUUSB_IOCTL_OP op, void* p_data) {
     /* ... */
 }
+#endif
 
 void UUSB_Close(void) {
     GKI_disable();
@@ -696,6 +714,8 @@ void UUSB_Unregister(void) {
     GKI_enable();
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 unk_t UUSB_Feature(void) {
     return 0;
 }
+#endif

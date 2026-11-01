@@ -20,7 +20,7 @@ extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound 
 extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" int fn_8067CE80(int x); // inferred: abs
+extern "C" int abs(int x);
 
 // Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file).
@@ -695,7 +695,7 @@ void ShopBuySell::fn_805866F4(int id, int member, int slot) {
                 layout = mEven[slot][i];
             }
             if (layout != 0) {
-                int value = fn_8067CE80(diff[i]);
+                int value = abs(diff[i]);
                 sprintf(name, "param%02d_updw", i);
                 ShopPoint_unk point = GetPanePos_unk(anime, name);
                 layout->mFlags &= ~4;

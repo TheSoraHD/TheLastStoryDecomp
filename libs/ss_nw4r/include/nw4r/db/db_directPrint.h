@@ -1,0 +1,67 @@
+#ifndef NW4R_DB_DIRECT_PRINT_H
+#define NW4R_DB_DIRECT_PRINT_H
+
+#include "common.h"
+
+#include "rvl/GX.h" // IWYU pragma: export
+
+#include <cstdarg>
+
+namespace nw4r {
+
+namespace db {
+
+struct FrameBufferInfo {
+    /* 0x00 */ u8 *frameMemory;
+    /* 0x04 */ u32 frameSize;
+    /* 0x08 */ u16 frameWidth;
+    /* 0x0A */ u16 frameHeight;
+    /* 0x0C */ u16 frameRow;
+    /* 0x0E */ u16 reserved;
+};
+
+struct YUVColorInfo {
+    /* 0x00 */ GXColor colorRGBA;
+    /* 0x04 */ u16 colorY256;
+    /* 0x06 */ u16 colorU;
+    /* 0x08 */ u16 colorU2;
+    /* 0x0A */ u16 colorU4;
+    /* 0x0C */ u16 colorV;
+    /* 0x0E */ u16 colorV2;
+    /* 0x10 */ u16 colorV4;
+    /* 0x12 */ u16 reserved;
+};
+
+void DirectPrint_Init();
+bool DirectPrint_IsActive();
+void DirectPrint_EraseXfb(int posh, int posv, int sizeh, int sizev);
+void DirectPrint_ChangeXfb(void *framBuf);
+void DirectPrint_ChangeXfb(void *framBuf, u16 width, u16 height);
+void DirectPrint_StoreCache();
+void DirectPrint_Printf(int posh, int posv, const char *format, ...);
+void DirectPrint_printfsub(
+    int posh, int posv, const char *format,
+    __va_list_struct *args
+); // ????? Not from a symbol, needs the arg?
+void DirectPrint_Printf(int posh, int posv, bool turnOver, const char *format, ...);
+void DirectPrint_DrawString(int posh, int posv, const char *format, ...);
+void DirectPrint_DrawString(int posh, int posv, bool turnOver, const char *format, ...);
+void DirectPrint_SetColor(GXColor color);
+void DirectPrint_SetColor(u8 r, u8 g, u8 b);
+GXColor DirectPrint_GetColor();
+namespace detail {
+void DirectPrint_DrawStringToXfb(
+    int posh, int posv, const char *format, __va_list_struct *args, bool turnover, bool backErase
+);
+
+void WaitVIRetrace_();
+
+void *CreateFB_(const _GXRenderModeObj *rmode);
+void *DirectPrint_SetupFB(const _GXRenderModeObj *rmode);
+
+} // namespace detail
+
+} // namespace db
+
+} // namespace nw4r
+#endif

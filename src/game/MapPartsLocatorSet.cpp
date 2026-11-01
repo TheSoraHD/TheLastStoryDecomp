@@ -20,7 +20,7 @@ extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inf
 extern "C" void* fn_804962B0(void* tree, const atn::Sphere* sphere); // inferred: light of a place
 extern "C" int fn_800502A8(void* frustum, const MapPartsBox_unk* box); // inferred: box visible
 
-extern "C" void fn_805F9420(const Mtx m, const atn::Vector3* src, atn::Vector3* dst,
+extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTXMultVecArray
 
 namespace atn {
@@ -64,7 +64,7 @@ inline atn::AABB_unk TransformBox_unk(const Mtx m, const atn::AABB_unk* box) {
     corners[5] = atn::Vector3(minX, maxY, minZ);
     corners[6] = atn::Vector3(maxX, minY, minZ);
     corners[7] = atn::Vector3(minX, minY, minZ);
-    fn_805F9420(m, corners, corners, 8);
+    PSMTXMultVecArray(m, corners, corners, 8);
     atn::Vector3 max(corners[0]);
     atn::Vector3 min(corners[0]);
     __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[1].x);

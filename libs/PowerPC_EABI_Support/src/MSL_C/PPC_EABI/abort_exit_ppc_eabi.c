@@ -9,8 +9,10 @@ void abort(void) {
     exit(1);
 }
 
-//unused
-void atexit(){
+int __register_atexit(void (*func)(void));
+
+int atexit(void (*func)(void)) {
+    return __register_atexit(func);
 }
 
 //unused

@@ -1,5 +1,10 @@
 #include <types.h>
 #include <ctype.h>
+#include <wchar.h>
+
+int __msl_strnicmp(const char* s1, const char* s2, int n);
+char* __msl_itoa(int val, char* str, int radix);
+size_t wcslen(const wchar_t* str);
 
 //unused
 void strdup(){
@@ -41,12 +46,21 @@ int stricmp(char* param_1, char* param_2)
 }
 
 
-//unused
-void strnicmp(){
+char* strupr(char* str)
+{
+    char* p = str;
+
+    while (*p) {
+        *p = toupper(*p);
+        p++;
+    }
+
+    return str;
 }
 
-//unused
-void strupr(){
+int strnicmp(const char* s1, const char* s2, int n)
+{
+    return __msl_strnicmp(s1, s2, n);
 }
 
 //unused
@@ -77,8 +91,23 @@ void strcmpi(){
 void strncmpi(){
 }
 
-//unused
-void strcasecmp(){
+int strcasecmp(char* param_1, char* param_2)
+{
+    s8 a_var;
+    s8 b_var;
+
+    do {
+        b_var = tolower(*param_1++);
+        a_var = tolower(*param_2++);
+
+        if (b_var < a_var) {
+            return -1;
+        }
+        if (b_var > a_var) {
+            return 1;
+        }
+    } while (b_var != 0);
+    return 0;
 }
 
 //unused
@@ -93,8 +122,9 @@ void strncoll(){
 void strnicoll(){
 }
 
-//unused
-void itoa(){
+char* itoa(int val, char* str, int radix)
+{
+    return __msl_itoa(val, str, radix);
 }
 
 //unused
@@ -125,8 +155,21 @@ void wcsicmp(){
 void wcsnicmp(){
 }
 
-//unused
-void wcsrev(){
+wchar_t* wcsrev(wchar_t* str)
+{
+    int SmallIndex = 0;
+    int BigIndex = wcslen(str) - 1;
+    wchar_t Temp;
+
+    while (SmallIndex < BigIndex) {
+        Temp = str[SmallIndex];
+        str[SmallIndex] = str[BigIndex];
+        str[BigIndex] = Temp;
+        SmallIndex++;
+        BigIndex--;
+    }
+
+    return str;
 }
 
 //unused
@@ -161,8 +204,34 @@ void wcsncoll(){
 void wcsnicoll(){
 }
 
-//unused
-void itow(){
+wchar_t* itow(int val, wchar_t* str, int radix)
+{
+    int is_neg = 0;
+    int len = 0;
+    unsigned int num;
+    int digit;
+
+    if (val < 0) {
+        val = -val;
+        is_neg = 1;
+    }
+
+    num = val;
+    do {
+        digit = num % radix;
+        if (digit > 9) {
+            str[len++] = digit + ('A' - 10);
+        } else {
+            str[len++] = digit + '0';
+        }
+    } while ((num /= radix) != 0);
+
+    if (is_neg) {
+        str[len++] = '-';
+    }
+    str[len] = 0;
+
+    return wcsrev(str);
 }
 
 //unused

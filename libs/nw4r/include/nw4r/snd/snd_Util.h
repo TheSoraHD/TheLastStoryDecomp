@@ -172,6 +172,10 @@ private:
     // tbl[idx] = 1 - (idx * (1 / PAN_TABLE_MAX))
     static const f32 Pan2RatioTableLinear[PAN_TABLE_SIZE];
 
+    // inferred: low-pass frequency per step of 1/30 (2010 CalcLpfFreq)
+    static const int LPF_FREQ_TABLE_SIZE = 24;
+    static const u16 LpfFreqTable[LPF_FREQ_TABLE_SIZE];
+
     // Pan curve tables
     static const int PAN_CURVE_NUM = PAN_CURVE_LINEAR + 1;
     static const f32* PanTableTable[PAN_CURVE_NUM];

@@ -58,7 +58,7 @@ extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int soun
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
-extern "C" void fn_8068B2A0(int value, wchar_t* buf, int radix); // inferred: integer to text
+extern "C" void itow(int value, wchar_t* buf, int radix);
 extern "C" void fn_800D2338(atn::Task* task);                    // inferred: removes the task
 
 inline void* GetPad_unk() { return lbl_8087EF70; }
@@ -833,7 +833,7 @@ void D2AMpMenuFriend::fn_804B9960() {
         sprintf(name, "null_00%02d(1)", nulls[i]);
         rect = GetPaneRect_unk(m280, name);
         fn_801F4728(m288[i], "pos0003(1)", &rect);
-        fn_8068B2A0(m2E8[i], text, 10);
+        itow(m2E8[i], text, 10);
         SetPaneText_unk(m288[i]->mLayout, "num", text);
         if (i == m2E4) {
             fn_801F4728(m284, "pos0003(1)", &rect);

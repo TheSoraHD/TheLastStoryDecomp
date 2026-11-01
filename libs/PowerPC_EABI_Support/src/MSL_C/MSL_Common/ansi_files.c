@@ -112,12 +112,16 @@ FILE __files[_STATIC_FILES] = {
 };
 
 //unused
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void __find_unopened_file(){
 }
+#endif
 
 //unused
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 void __init_file(){
 }
+#endif
 
 void __close_all(){
     FILE* p = &__files[0];
@@ -141,7 +145,21 @@ void __close_all(){
 }
 
 //unused
-void __flush_line_buffered_output_files(){
+int __flush_line_buffered_output_files(void)
+{
+    int retval = 0;
+    FILE* __stream;
+    __stream = &__files[0];
+    while (__stream) {
+        if (__stream->mode.file_kind && (__stream->mode.buffer_mode & _IOLBF) &&
+            __stream->state.io_state == __writing) {
+            if (fflush(__stream)) {
+                retval = -1;
+            }
+        }
+        __stream = __stream->next_file_struct;
+    }
+    return retval;
 }
 
 u32 __flush_all()

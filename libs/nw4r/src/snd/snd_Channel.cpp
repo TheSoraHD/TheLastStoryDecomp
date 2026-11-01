@@ -13,8 +13,8 @@ ChannelManager& ChannelManager::GetInstance() {
 
 ChannelManager::ChannelManager() : mInitialized(false), mChannelCount(0) {}
 
-u32 ChannelManager::GetRequiredMemSize() {
-    return (AXGetMaxVoices() + VOICE_MARGIN) * sizeof(Channel);
+u32 ChannelManager::GetRequiredMemSize(int voiceCount) {
+    return (voiceCount + VOICE_MARGIN) * sizeof(Channel);
 }
 
 void ChannelManager::Setup(void* pWork, u32 workSize) {

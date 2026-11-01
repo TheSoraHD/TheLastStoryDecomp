@@ -1069,6 +1069,7 @@ static void bta_dm_link_quality_cback(tBTM_LINK_QUALITY_RESULTS* p_result) {
     }
 }
 
+#if 0 // not in the BTE build of this game (its strings are not in main.dol)
 BOOLEAN bta_sys_check_compress(unk_t param_1, UINT8 app_id, BD_ADDR peer_addr) {
     BOOLEAN status = FALSE;
     int i;
@@ -1085,6 +1086,7 @@ BOOLEAN bta_sys_check_compress(unk_t param_1, UINT8 app_id, BD_ADDR peer_addr) {
 
     return status;
 }
+#endif
 
 static BOOLEAN bta_dm_l2cap_server_compress_cback(BD_ADDR peer_addr, unk_t param_2, unk_t param_3, unk_t param_4, unk_t param_5, unk_t param_6,
                                                   unk_t param_7, UINT8** p_mem_pool, UINT32* mem_pool_size) {

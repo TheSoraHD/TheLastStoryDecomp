@@ -95,3 +95,68 @@ s32 NANDCheck(const u32 fsBlock, const u32 inode, u32* answer) {
     *answer = nandCheck(fsBlock, inode, homeBlocks, homeInodes, userBlocks, userInodes);
     return NAND_RESULT_OK;
 }
+// inferred: the async check (0x80622260) and its callback are in the 2010 SDK, not in the 2007 source;
+// the callback also serves a second request (state 0x15, free area) that the game does not use
+static void nandUserAreaCallback(ISFSError result, void* ctxt);
+
+s32 NANDCheckAsync(u32 fsBlock, u32 inode, u32* answer, NANDCallback cb, NANDCommandBlock* block) {
+    if (!nandIsInitialized()) {
+        return NAND_RESULT_FATAL_ERROR;
+    }
+
+    block->callback = cb;
+    block->reqBlocks = fsBlock;
+    block->reqInodes = inode;
+    block->answer = answer;
+    block->userBlocks = 0;
+    block->userInodes = 0;
+    block->workBlocks = 0;
+    block->workInodes = 0;
+    block->dir = USER_DIR_LIST;
+    block->state = 0x14;
+    return nandConvertErrorCode(ISFS_GetUsageAsync((const u8*)nandGetHomeDir(), &block->homeBlocks, &block->homeInodes, nandUserAreaCallback, block));
+}
+
+static void nandUserAreaCallback(ISFSError result, void* ctxt) {
+    NANDCommandBlock* b = (NANDCommandBlock*)ctxt;
+
+    if (result == ISFS_ERROR_OK || result == ISFS_ERROR_NOEXISTS) {
+        const char* dir = *(b->dir);
+
+        if (result == ISFS_ERROR_OK) {
+            b->userBlocks += b->workBlocks;
+            b->userInodes += b->workInodes;
+        }
+
+        if (dir) {
+            ISFSError ret;
+            ++b->dir;
+            ret = ISFS_GetUsageAsync((const u8*)dir, &(b->workBlocks), &(b->workInodes), nandUserAreaCallback, ctxt);
+
+            if (ret != ISFS_ERROR_OK) {
+                ((NANDCallback)(b->callback))(nandConvertErrorCode(ret), b);
+            }
+        }
+        else if (b->state == 0x14) {
+            *(b->answer) = nandCheck(b->reqBlocks, b->reqInodes, b->homeBlocks, b->homeInodes, b->userBlocks, b->userInodes);
+            ((NANDCallback)(b->callback))(nandConvertErrorCode(ISFS_ERROR_OK), b);
+        }
+        else if (b->state == 0x15) {
+            u32 userBlocks = (b->userBlocks > 0x4400) ? 0 : 0x4400 - b->userBlocks;
+            u32 userInodes = (b->userInodes > 0xFA0) ? 0 : 0xFA0 - b->userInodes;
+            u32 homeBlocks = (b->homeBlocks > 0x400) ? 0 : 0x400 - b->homeBlocks;
+            u32 homeInodes = (b->homeInodes > 0x21) ? 0 : 0x21 - b->homeInodes;
+
+            *(u32*)(b->bytes) = (userBlocks < homeBlocks) ? userBlocks : homeBlocks;
+            *(u32*)(b->inodes) = (userInodes < homeInodes) ? userInodes : homeInodes;
+            ((NANDCallback)(b->callback))(nandConvertErrorCode(ISFS_ERROR_OK), b);
+        }
+        else {
+            OSReport("Illegal status is detected at %s()", __FUNCTION__);
+            ((NANDCallback)(b->callback))(nandConvertErrorCode(ISFS_ERROR_UNKNOWN), b);
+        }
+    }
+    else {
+        ((NANDCallback)(b->callback))(nandConvertErrorCode(result), b);
+    }
+}

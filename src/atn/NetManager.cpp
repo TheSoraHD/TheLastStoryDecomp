@@ -119,7 +119,7 @@ extern "C" int fn_806B3C20();
 extern "C" int fn_806B3C40(int open, void (*cb)(int result, int open, void* param), void* param);
 extern "C" int fn_806B3CC0();
 extern "C" void fn_806CE060(unsigned long value);
-extern "C" int fn_80624D40();
+extern "C" int SCCheckPCMessageRestriction();
 
 // atn/DwcAllocator_unk.cpp
 extern "C" void fn_8050D3E8();
@@ -454,7 +454,7 @@ int Manager::fn_80509A98() {
     if (mState != 2) {
         return 0;
     }
-    if (fn_80624D40() != 0) {
+    if (SCCheckPCMessageRestriction() != 0) {
         mState = 3;
     } else {
         mState = 4;

@@ -75,7 +75,17 @@ f32 Util::CalcSurroundPanRatio(f32 pan, const PanInfo& rInfo) {
 
 int Util::CalcLpfFreq(f32 scale) {
     scale = ut::Clamp(scale, 0.0f, 1.0f);
-    return static_cast<int>(32000 * std::pow(2.0, 10.0 * (scale - 1.0)));
+
+    if (scale < 0.13561438f) {
+        return 80;
+    }
+
+    if (scale >= 0.9f) {
+        return 16000;
+    }
+
+    scale -= 0.13561438f;
+    return LpfFreqTable[static_cast<int>(scale / 0.033333335f)];
 }
 
 void Util::GetRemoteFilterCoefs(int filter, u16* pB0, u16* pB1, u16* pB2,
@@ -662,6 +672,11 @@ const u16 Util::RemoteFilterCoefTable[COEF_TABLE_SIZE][IIR_COEF_COUNT] = {
     {1,     1,      1,      32536,  49382}
     // clang-format on
 };
+
+const u16 Util::LpfFreqTable[LPF_FREQ_TABLE_SIZE] = {
+    80,   100,  128,  160,  200,  256,  320,  400,
+    500,  640,  800,  1000, 1280, 1600, 2000, 2560,
+    3200, 4000, 5120, 6400, 8000, 10240, 12800, 16000};
 
 } // namespace detail
 } // namespace snd

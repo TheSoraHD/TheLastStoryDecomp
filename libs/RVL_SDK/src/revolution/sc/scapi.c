@@ -1,3 +1,4 @@
+#include <revolution/OS.h>
 #include <revolution/SC.h>
 
 u8 SCGetAspectRatio(void) {
@@ -425,8 +426,17 @@ void SCGetInstalledChannelAppCount(){
 void SCSetInstalledChannelAppCount(){
 }
 
-//unused
-void SCCheckPCMessageRestriction(){
+// inferred: from main.dol (0x80624D40); bit 1 of the content restriction flags
+BOOL SCCheckPCMessageRestriction(void) {
+    u32 flags;
+
+    OSReport("<< RVL_SDK - SCCheckPCMessageRestriction >>\n");
+
+    if (!SCFindU32Item(&flags, SC_ITEM_NET_CTPC)) {
+        flags = 0;
+    }
+
+    return (flags >> 1) & 1;
 }
 
 //unused

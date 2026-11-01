@@ -5,6 +5,43 @@
 #include "revolution/gx/GXRegs.h"
 #include "revolution/gx/shortcut_pe_reg.h"
 
+// inferred: not in the 2007 source; written from main.dol (0x80614B20)
+void GXAdjustForOverscan(const GXRenderModeObj* rmin, GXRenderModeObj* rmout, u16 hor, u16 ver) {
+    u16 hor2 = (u16)(hor * 2);
+    u16 ver2 = (u16)(ver * 2);
+    u32 verf;
+    u32 mode;
+
+    if (rmin != rmout) {
+        *rmout = *rmin;
+    }
+
+    mode = rmin->viTVmode & 3;
+
+    rmout->fbWidth = (u16)(rmin->fbWidth - hor2);
+    verf = (ver2 * rmin->efbHeight) / (u32)rmin->xfbHeight;
+    rmout->efbHeight = (u16)(rmin->efbHeight - verf);
+
+    if (rmin->xFBmode == VI_XFBMODE_SF && mode == 0) {
+        rmout->xfbHeight = (u16)(rmin->xfbHeight - ver2 / 2);
+    }
+    else {
+        rmout->xfbHeight = (u16)(rmin->xfbHeight - ver2);
+    }
+
+    rmout->viWidth = (u16)(rmin->viWidth - hor2);
+
+    if (mode == 1) {
+        rmout->viHeight = (u16)(rmin->viHeight - ver2 * 2);
+    }
+    else {
+        rmout->viHeight = (u16)(rmin->viHeight - ver2);
+    }
+
+    rmout->viXOrigin = (u16)(rmin->viXOrigin + hor);
+    rmout->viYOrigin = (u16)(rmin->viYOrigin + ver);
+}
+
 void GXSetDispCopySrc(u16 left, u16 top, u16 wd, u16 ht) {
     gx->cpDispSrc = 0;
     SC_PE_COPY_SRC_ADDR_SET_X(gx->cpDispSrc, left);
@@ -419,11 +456,29 @@ GXRenderModeObj GXNtsc480IntDf = {
 GXRenderModeObj GXNtsc480Int = {
     0, 640, 480, 480, 40, 0, 640, 480, 1, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {0, 0, 21, 22, 21, 0, 0}};
 
+GXRenderModeObj GXNtsc480Prog = {
+    2, 640, 480, 480, 40, 0, 640, 480, 0, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {0, 0, 21, 22, 21, 0, 0}};
+
 GXRenderModeObj GXMpal480IntDf = {
     8, 640, 480, 480, 40, 0, 640, 480, 1, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {8, 8, 10, 12, 10, 8, 8}};
+
+GXRenderModeObj GXMpal480Int = {
+    8, 640, 480, 480, 40, 0, 640, 480, 1, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {0, 0, 21, 22, 21, 0, 0}};
+
+GXRenderModeObj GXMpal480Prog = {
+    10, 640, 480, 480, 40, 0, 640, 480, 0, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {0, 0, 21, 22, 21, 0, 0}};
 
 GXRenderModeObj GXPal528IntDf = {
     4, 640, 528, 528, 40, 23, 640, 528, 1, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {8, 8, 10, 12, 10, 8, 8}};
 
+GXRenderModeObj GXPal528Int = {
+    4, 640, 528, 528, 40, 23, 640, 528, 1, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {0, 0, 21, 22, 21, 0, 0}};
+
 GXRenderModeObj GXEurgb60Hz480IntDf = {
     20, 640, 480, 480, 40, 0, 640, 480, 1, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {8, 8, 10, 12, 10, 8, 8}};
+
+GXRenderModeObj GXEurgb60Hz480Int = {
+    20, 640, 480, 480, 40, 0, 640, 480, 1, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {0, 0, 21, 22, 21, 0, 0}};
+
+GXRenderModeObj GXEurgb60Hz480Prog = {
+    22, 640, 480, 480, 40, 0, 640, 480, 0, 0, 0, {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, {0, 0, 21, 22, 21, 0, 0}};

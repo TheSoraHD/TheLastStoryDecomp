@@ -21,8 +21,8 @@ extern "C" void OSSetResetCallback(void (*callback)());
 extern "C" void OSSetPowerCallback(void (*callback)());
 extern "C" void OSReturnToMenu();
 extern "C" void OSShutdownSystem();
-extern "C" void fn_805F38A0(int arg);   // inferred: OSRestart
-extern "C" void fn_805F3C50();          // inferred: restart to the disc channel
+extern "C" void OSRestart(int arg);   // inferred: OSRestart
+extern "C" void OSReturnToDataManager();          // inferred: restart to the disc channel
 extern "C" void HBMStartBlackOut();     // inferred: HBM library (stops the HOME button menu sound)
 extern "C" void* VISetPreRetraceCallback(void* callback);
 extern "C" void* VISetPostRetraceCallback(void* callback);
@@ -260,7 +260,7 @@ extern "C" void fn_80570CF8(GameSystem_unk* sys) {
     }
     if (sys->mShutdown != 0) {
         if (sys->mPower != 0 && sys->mWait != 0 && fn_800A4228(lbl_8087EF68, &out) == 0) {
-            fn_805F38A0(0);
+            OSRestart(0);
         }
         return;
     }
@@ -287,11 +287,11 @@ extern "C" void fn_80570CF8(GameSystem_unk* sys) {
         VIFlush();
         VIWaitForRetrace();
         if (sys->mPower != 0) {
-            fn_805F38A0(0);
+            OSRestart(0);
         } else if (sys->mToMenu != 0) {
             OSReturnToMenu();
         } else if (sys->mToDisc != 0) {
-            fn_805F3C50();
+            OSReturnToDataManager();
         } else {
             OSShutdownSystem();
         }
@@ -301,7 +301,7 @@ extern "C" void fn_80570CF8(GameSystem_unk* sys) {
         if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m84 >= 1 && HomeButtonMenu::sInstance->m84 <= 2) {
             if (sys->mWait != 0) {
                 if (fn_800A4228(lbl_8087EF68, &out) == 0) {
-                    fn_805F38A0(0);
+                    OSRestart(0);
                 }
             } else {
                 HBMStartBlackOut();

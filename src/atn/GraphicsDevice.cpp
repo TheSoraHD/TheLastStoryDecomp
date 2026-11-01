@@ -28,7 +28,7 @@ void GXPixModeSync();
 void GXSetCopyClear(GXColor color, unsigned int z);
 void GXInvalidateVtxCache();
 void GXInvalidateTexAll();
-void fn_80607120(int gamma); // inferred: VISetGamma
+void VISetGamma(int gamma);
 void GXFlush();
 void GXGetCPUFifo(GXFifoObj* fifo);
 void GXGetFifoPtrs(GXFifoObj* fifo, void** readPtr, void** writePtr);
@@ -77,7 +77,7 @@ void GXSetDstAlpha(unsigned char enable, unsigned char alpha);
 int OSDisableInterrupts();
 int OSRestoreInterrupts(int level);
 GXFifoObj* GXInit(void* base, unsigned int size);
-void fn_80614B20(const GXRenderModeObj* rmin, GXRenderModeObj* rmout, unsigned short hor,
+void GXAdjustForOverscan(const GXRenderModeObj* rmin, GXRenderModeObj* rmout, unsigned short hor,
                  unsigned short ver); // inferred: GXAdjustForOverscan
 float GXGetYScaleFactor(unsigned short efbHeight, unsigned short xfbHeight);
 unsigned int GXSetDispCopyYScale(float yscale);
@@ -107,13 +107,13 @@ extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, int al
                              const char* file, int line); // inferred: allocation of a fixed block
 
 // SDK render modes
-extern "C" GXRenderModeObj lbl_807B093C; // GXNtsc480IntDf
-extern "C" GXRenderModeObj lbl_807B0978; // GXNtsc480Prog
-extern "C" GXRenderModeObj lbl_807B09F0; // GXMpal480IntDf
-extern "C" GXRenderModeObj lbl_807B0A2C; // GXMpal480Prog
-extern "C" GXRenderModeObj lbl_807B0AA4; // GXPal528IntDf
-extern "C" GXRenderModeObj lbl_807B0B1C; // GXEurgb60Hz480IntDf
-extern "C" GXRenderModeObj lbl_807B0B58; // GXEurgb60Hz480Prog
+extern "C" GXRenderModeObj GXNtsc480Int;
+extern "C" GXRenderModeObj GXNtsc480Prog;
+extern "C" GXRenderModeObj GXMpal480Int;
+extern "C" GXRenderModeObj GXMpal480Prog;
+extern "C" GXRenderModeObj GXPal528Int;
+extern "C" GXRenderModeObj GXEurgb60Hz480Int;
+extern "C" GXRenderModeObj GXEurgb60Hz480Prog;
 
 struct OSThreadQueue {
     void* head;
@@ -319,14 +319,14 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     if (SCGetProgressiveMode() == 1 && VIGetDTVStatus() == 1) {
         switch (VIGetTvFormat()) {
         case 0:
-            rm = &lbl_807B0978;
+            rm = &GXNtsc480Prog;
             break;
         case 1:
         case 5:
-            rm = &lbl_807B0B58;
+            rm = &GXEurgb60Hz480Prog;
             break;
         case 2:
-            rm = &lbl_807B0A2C;
+            rm = &GXMpal480Prog;
             break;
         default:
             OSPanic("atn_graphics_device.cpp", 243, "invalid TV format\n");
@@ -335,20 +335,20 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     } else {
         switch (VIGetTvFormat()) {
         case 0:
-            rm = &lbl_807B093C;
+            rm = &GXNtsc480Int;
             break;
         case 1:
             if (SCGetEuRgb60Mode() == 1) {
-                rm = &lbl_807B0B1C;
+                rm = &GXEurgb60Hz480Int;
             } else {
-                rm = &lbl_807B0AA4;
+                rm = &GXPal528Int;
             }
             break;
         case 5:
-            rm = &lbl_807B0B1C;
+            rm = &GXEurgb60Hz480Int;
             break;
         case 2:
-            rm = &lbl_807B09F0;
+            rm = &GXMpal480Int;
             break;
         default:
             OSPanic("atn_graphics_device.cpp", 264, "invalid TV format\n");
@@ -357,7 +357,7 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     }
     device->mWide = SCGetAspectRatio();
     unsigned short xfbHeight = rm->xfbHeight;
-    fn_80614B20(rm, &device->mRMode, 0, 16);
+    GXAdjustForOverscan(rm, &device->mRMode, 0, 16);
     device->mRMode.xfbHeight = xfbHeight;
     device->mRMode.viHeight = xfbHeight;
     device->mRMode.viYOrigin = 0;
@@ -435,7 +435,7 @@ inline GXColor ToGXColor_unk(unsigned int argb) {
 extern "C" void fn_8007192C(GraphicsDevice_unk* device) {
     if (lbl_8087D73C != lbl_8087EFA8->m034) {
         lbl_8087D73C = lbl_8087EFA8->m034;
-        fn_80607120(lbl_8087D73C);
+        VISetGamma(lbl_8087D73C);
     }
     GXSetDispCopyGamma(lbl_8087EFA8->m030);
     GXSetCopyClear(ToGXColor_unk(device->mClearColor), device->mClearZ);

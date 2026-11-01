@@ -18,8 +18,8 @@ extern "C" int NANDGetStatus(const char* path, NandStatus_unk* stat);
 extern "C" int NANDSeek(NandFileInfo_unk* info, int offset, int whence);
 extern "C" int NANDRead(NandFileInfo_unk* info, void* buf, unsigned int len);
 // inferred: NANDSafeOpen / NANDSafeClose
-extern "C" int fn_8061FC70(const char* path, NandFileInfo_unk* info, unsigned char mode, void* buf, unsigned int len);
-extern "C" int fn_80620030(NandFileInfo_unk* info);
+extern "C" int NANDSimpleSafeOpen(const char* path, NandFileInfo_unk* info, unsigned char mode, void* buf, unsigned int len);
+extern "C" int NANDSimpleSafeClose(NandFileInfo_unk* info);
 
 // inferred: game settings (lbl_8087F0A8), only the field read here
 struct SaveSettings_unk {
@@ -161,13 +161,13 @@ void GameSaveLoadCommon::fn_803B85EC() {
     for (int i = 0; i < 17; i++) {
         int offset;
         GameSaveLoadBackgroundCommon::fn_803B83A4(name, &offset, i);
-        if (fn_8061FC70(name, &info, 1, buffer, sizeof(buffer)) == 0) {
+        if (NANDSimpleSafeOpen(name, &info, 1, buffer, sizeof(buffer)) == 0) {
             int pos = NANDSeek(&info, offset, 0);
             if (pos == offset) {
                 if (NANDRead(&info, header, sizeof(header)) > 0) {
                     memcpy(&mSlots[i], header, sizeof(GameSaveSlot_unk));
                 }
-                fn_80620030(&info);
+                NANDSimpleSafeClose(&info);
             }
         }
     }

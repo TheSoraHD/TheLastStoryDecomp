@@ -14,8 +14,11 @@ Bounding::Bounding(const res::Bounding* pRes, const ResBlockSet& rBlockSet)
 Bounding::~Bounding() {}
 
 void Bounding::DrawSelf(const DrawInfo& rInfo) {
-#pragma unused(rInfo)
-    // Debug draw stripped out
+    if (rInfo.IsDebugDrawMode()) {
+        LoadMtx(rInfo);
+
+        detail::DrawLine(GetVtxPos(), mSize, ut::Color(0x00FF00FF));
+    }
 }
 
 } // namespace lyt

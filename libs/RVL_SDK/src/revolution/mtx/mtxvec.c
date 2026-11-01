@@ -53,8 +53,48 @@ asm void PSMTXMultVec(register const Mtx mtx, register const Vec* vec,
 void C_MTXMultVecArray(){
 }
 
-//unused
-asm void PSMTXMultVecArray(){
+// inferred: written from main.dol (0x805F9420)
+asm void PSMTXMultVecArray(register const Mtx m, register const Vec* srcBase, register Vec* dstBase,
+                           register u32 count) {
+    // clang-format off
+    nofralloc
+    psq_l f13, 0x0(r3), 0, 0
+    psq_l f12, 0x10(r3), 0, 0
+    subi r6, r6, 0x1
+    psq_l f11, 0x8(r3), 0, 0
+    ps_merge00 f0, f13, f12
+    subi r5, r5, 0x4
+    psq_l f10, 0x18(r3), 0, 0
+    ps_merge11 f1, f13, f12
+    mtctr r6
+    psq_l f4, 0x20(r3), 0, 0
+    ps_merge00 f2, f11, f10
+    psq_l f5, 0x28(r3), 0, 0
+    ps_merge11 f3, f11, f10
+    psq_l f6, 0x0(r4), 0, 0
+    psq_lu f7, 0x8(r4), 1, 0
+    ps_madds0 f8, f0, f6, f3
+    ps_mul f9, f4, f6
+    ps_madds1 f8, f1, f6, f8
+    ps_madd f10, f5, f7, f9
+L_805F946C:
+    psq_lu f6, 0x4(r4), 0, 0
+    ps_madds0 f12, f2, f7, f8
+    psq_lu f7, 0x8(r4), 1, 0
+    ps_sum0 f13, f10, f9, f10
+    ps_madds0 f8, f0, f6, f3
+    ps_mul f9, f4, f6
+    psq_stu f12, 0x4(r5), 0, 0
+    ps_madds1 f8, f1, f6, f8
+    psq_stu f13, 0x8(r5), 1, 0
+    ps_madd f10, f5, f7, f9
+    bdnz L_805F946C
+    ps_madds0 f12, f2, f7, f8
+    ps_sum0 f13, f10, f9, f10
+    psq_stu f12, 0x4(r5), 0, 0
+    psq_stu f13, 0x8(r5), 1, 0
+    blr
+    // clang-format on
 }
 
 //unused

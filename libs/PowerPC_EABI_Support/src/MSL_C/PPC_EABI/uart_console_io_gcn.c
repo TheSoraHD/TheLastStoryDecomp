@@ -32,9 +32,11 @@ BOOL __write_console(__file_handle handle, u8* buffer, size_t* count, __ref_con 
     return FALSE;
 }
 
+#if 0 /* not in this build: __close_console comes from MetroTRK/mslsupp.c */
 int __close_console(__file_handle handle){
     return 0;
 }
+#endif
 
 //unused
 void __delete_file(){

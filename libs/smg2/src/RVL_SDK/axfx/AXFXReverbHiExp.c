@@ -18,6 +18,28 @@ static void __FreeDelayLine(AXFX_REVERBHI_EXP* reverb);
 static void __BzeroDelayLines(AXFX_REVERBHI_EXP* reverb);
 static BOOL __InitParams(AXFX_REVERBHI_EXP* reverb);
 
+// inferred: present in the 2010 SDK (AXFXReverbHiExp.h); not used by the game, but its 32000.0f
+// comes first in .sdata2
+u32 AXFXReverbHiExpGetMemSize(const AXFX_REVERBHI_EXP* reverb) {
+    u32 i, size;
+
+    size = sizeof(f32) * (__EarlySizeTable[8 - 1][2] + (u32)(reverb->preDelayTimeMax * (f32)32000));
+
+    for (i = 0; i < 3; i++) {
+        size += sizeof(f32) * __FilterSizeTable[6][i];
+    }
+
+    for (i = 0; i < 2; i++) {
+        size += sizeof(f32) * __FilterSizeTable[6][3 + i];
+    }
+
+    for (i = 0; i < 3; i++) {
+        size += sizeof(f32) * __FilterSizeTable[6][5 + i];
+    }
+
+    return size * 3;
+}
+
 BOOL AXFXReverbHiExpInit(AXFX_REVERBHI_EXP* reverb) {
     u32 ch, i;
     BOOL result = TRUE;
@@ -375,7 +397,10 @@ static BOOL __InitParams(AXFX_REVERBHI_EXP* reverb) {
     for (i = 0; i < 3; i++) {
         reverb->combPos[i] = 0;
         reverb->combLength[i] = __FilterSizeTable[reverb->fusedMode][i];
-        reverb->combCoef[i] = pow(10.0f, (-3.0f * (f32)(reverb->combLength[i]) / (f32)(reverb->fusedTime * 32000)));
+        {
+            f32 exp = -3.0f * (f32)(reverb->combLength[i]) / (f32)(reverb->fusedTime * 32000);
+            reverb->combCoef[i] = pow(10.0f, exp);
+        }
     }
 
     for (i = 0; i < 2; i++) {
