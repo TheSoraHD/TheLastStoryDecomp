@@ -22,7 +22,9 @@ namespace Event {
 // inferred: the event manager (lbl_8087F540) seen through its cameras (four of 0x65C bytes at
 // 0xC8, one per section: Section::m10)
 struct CameraOwner_unk {
-    unsigned char m00[0xC8];
+    unsigned char m00[0xB4];
+    float mB4; // inferred: frames of the current step (Setting interpolates over them)
+    unsigned char mB8[0xC8 - 0xB8];
     EventCamera_unk mCameras[4];
 };
 
@@ -101,6 +103,45 @@ int ActionCameraSetting::vf0C(Action* arg, int phase) {
         if (arg->GetParam_unk(0)->m04.i != 0) {
             GetCamera_unk(section)->fn_80112840();
         }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.7% - the interpolation factor is in f2 here, f3 in the original (tried ternaries,
+// inverted branches, a copy of the factor)
+int ActionCameraSetting::vf08(Action* arg) {
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    float now = manager->m198;
+    float left = (float)(arg->m10 + arg->m18) - now;
+    float t;
+    if (left > 0.0f) {
+        t = lbl_8087F540->mB4 / left;
+        if (t > 1.0f) {
+            t = 1.0f;
+        }
+    } else {
+        t = 1.0f;
+    }
+    EventCamera_unk* camera = GetCamera_unk(section);
+    float fovy = arg->GetParam_unk(1)->m04.f;
+    if (fovy != 0.0f) {
+        float f = camera->mFovy + t * (atn::DegToRad_unk(fovy) - camera->mFovy);
+        camera->m1FC = f;
+        camera->mFovy = f;
+    }
+    float aspect = arg->GetParam_unk(2)->m04.f;
+    if (aspect != 0.0f) {
+        camera->mAspect = camera->mAspect + t * (aspect - camera->mAspect);
+    }
+    // inferred: two more parameters are tested but not used
+    float p3 = arg->GetParam_unk(3)->m04.f;
+    if (p3 != 0.0f) {
+        float unused = p3;
+    }
+    float p4 = arg->GetParam_unk(4)->m04.f;
+    if (p4 != 0.0f) {
+        float unused = p4;
     }
     return 0;
 }
