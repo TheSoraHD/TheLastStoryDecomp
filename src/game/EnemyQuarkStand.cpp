@@ -281,7 +281,6 @@ inline QuarkStandState_unk::QuarkStandState_unk()
       m3C(0.0f), m40(0), m44(0.0f), m48(0), m4C(0), m50(0), m54(0), m58(0), m5C(0) {}
 inline QuarkSlot_unk::QuarkSlot_unk() : m14(0) {}
 inline QuarkDir_unk::QuarkDir_unk() {}
-inline Mtx34_unk::Mtx34_unk() {}
 inline QuarkShot_unk::QuarkShot_unk() {}
 inline QuarkBulletShot_unk::QuarkBulletShot_unk() {
     m00 = 0.1f;
@@ -1119,7 +1118,7 @@ inline void QuarkScaleF_unk(atn::Matrix3x4& m, float s) {
 }
 // inferred: m1660 seen as a matrix (name invented)
 inline atn::Matrix3x4& QuarkLaserMtx_unk(EnemyQuarkStand* e) {
-    return *(atn::Matrix3x4*)&e->m1660;
+    return e->m1660;
 }
 
 // inferred: matrix of the laser beam: from `target` toward the point in front of the body, scaled

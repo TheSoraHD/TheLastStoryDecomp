@@ -101,13 +101,6 @@ struct QuarkDir_unk {
     atn::Vector3 mStart;  // inferred: position when the attack started
 };
 
-// inferred: object of 0x30 bytes with an empty out-of-line constructor (weak copy 0x803165E0 in
-// game/Em316LaserSphere, which builds three of them); probably a matrix, but not atn::Matrix3x4 (its
-// constructor is inline and never called). Name invented.
-struct Mtx34_unk {
-    Mtx34_unk();
-    float m[3][4];
-};
 
 // inferred from __vt__15EnemyQuarkStand (0x80789550): Quark standing (third fight). Data file
 // "database/chara/special/" + db_name (default "db_enemy_quark_stand.csv"). The factory allocates
@@ -221,7 +214,7 @@ public:
     atn::EfpFile m163C;      // inferred: "ef_bs070a.efp"
     atn::EffFile m1648;           // inferred: "ef_bs070e_01.eff"
     atn::Vector3 m1654;
-    Mtx34_unk m1660;
+    atn::Matrix3x4 m1660; // inferred: its empty constructor is called (weak copy 0x803165E0)
     atn::EfpFile m1690;      // inferred: "ef_bd009a.efp"
     atn::EfpFile m169C;      // inferred: "ef_bd009b.efp"
     atn::EfpFile m16A8;      // inferred: "ef_bs078c.efp"
