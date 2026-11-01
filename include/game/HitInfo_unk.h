@@ -45,7 +45,8 @@ struct HitInfo_unk {
     unsigned char m50[0x58 - 0x50];
     float m58; // inferred: passed to chr::ControlChant (CharaTask::fn_8015F568)
     int m5C; // inferred: duration of the hit (CharaTask::fn_801784BC)
-    unsigned char m60[0x68 - 0x60];
+    unsigned char m60[0x64 - 0x60];
+    int m64; // inferred: who the effect reaches: 0 the owner, 1-2 allies, 3-4 enemies (fn_80599C90)
     int m68;
     int m6C; // inferred: id of a second bullet (CharaTask::fn_801784BC); 2 and 5 are tested by fn_80178BFC
     int m70; // inferred: id of a sub bullet (CharaTask::fn_8014C540)

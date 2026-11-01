@@ -50,12 +50,7 @@ extern "C" void fn_805989A4(Bullet_unk* bullet, HitInfo_unk* skill, CharaTask* u
                             boost::function<void(Bullet_unk*)> callback, float rate); // inferred: starts it
 extern "C" void fn_805991E0(Bullet_unk* bullet);                     // inferred: stops it
 extern "C" void fn_80599454(Bullet_unk* bullet, int arg);            // inferred: update
-extern "C" void fn_80599C6C(Bullet_unk* bullet);                     // inferred: draw
-extern "C" float fn_80599FB4(Bullet_unk* bullet, int arg); // inferred: returns the scale
-extern "C" void fn_8059A0B4(Bullet_unk* bullet, atn::EffFile* res);
-extern "C" void fn_8059A1FC(Bullet_unk* bullet, int arg);
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: reflection test
-extern "C" int fn_80599D60(Bullet_unk* bullet, CharaTask* chara, int arg); // inferred: touches chara
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0; // inferred: effect manager of the efp files
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
@@ -267,7 +262,7 @@ void SkillEffectManager::vf10() {
                 int type = bullet->m08->mType;
                 if (type == 3 || type == 0) {
                     if (fn_8021A984(!bullet->fn_8059A264() ? bullet->m04 : bullet->GetOwnHit_unk())) {
-                        fn_8059A0B4(bullet, &m28A0);
+                        bullet->fn_8059A0B4(&m28A0);
                     }
                 }
             }
@@ -275,14 +270,14 @@ void SkillEffectManager::vf10() {
     } else if (lbl_8087F610 != 0) {
         for (int i = 0; i < 32; i++, bullets++) {
             if (bullets->IsActive_unk() && bullets->m60 > 90) {
-                fn_8059A1FC(bullets, 0);
+                bullets->fn_8059A1FC(0);
             }
         }
     } else {
         for (unsigned int i = 0; i < 32; i++) {
             Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
             if (bullet != 0 && bullet->IsActive_unk()) {
-                fn_8059A1FC(bullet, 0);
+                bullet->fn_8059A1FC(0);
             }
         }
     }
@@ -309,7 +304,7 @@ void SkillEffectManager::vf14() {
     Bullet_unk* bullet = mBullets;
     for (int i = 0; i < 32; i++, bullet++) {
         if (bullet->IsActive_unk()) {
-            fn_80599C6C(bullet);
+            bullet->fn_80599C6C();
         }
     }
 }
@@ -327,7 +322,7 @@ extern "C" Bullet_unk* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill,
         if (bullet != 0) {
             fn_805989A4(bullet, skill, user, target, pos, rot, callback, rate);
             if (lbl_8087F610 != 0 && fn_8021A984(skill)) {
-                fn_8059A0B4(bullet, &self->m28A0);
+                bullet->fn_8059A0B4(&self->m28A0);
             }
         }
         return bullet;
@@ -421,7 +416,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
     }
     for (int i = 0; i < subs.size(); i++) {
         if (!user->mFlag2) {
-            fn_80599FB4(subs[i].first, 1);
+            subs[i].first->fn_80599FB4(1);
             Bullet_unk* bullet = subs[i].first;
             fn_800FB1BC(lbl_8087F048, bullet->m08, subs[i].second, &bullet->m10, &bullet->m1C, 0, 0);
         }
@@ -446,7 +441,7 @@ void SkillEffectManager::fn_8059C084(CharaTask* chara) {
             if (!bullet->IsActive_unk()) {
                 continue;
             }
-            if (fn_80599D60(bullet, chara, 1)) {
+            if (bullet->fn_80599D60(chara, 1)) {
                 if (fn_8021A960(bullet->m04)) {
                     if (chara->mFlag22 == 1 && !chara->mFlagB15) {
                         continue;
@@ -468,7 +463,7 @@ void SkillEffectManager::fn_8059C084(CharaTask* chara) {
                     continue;
                 }
                 chara->fn_801784BC(bullet, 0);
-            } else if (fn_8021A960(bullet->m04) && fn_80599D60(bullet, chara, 0)) {
+            } else if (fn_8021A960(bullet->m04) && bullet->fn_80599D60(chara, 0)) {
                 HitInfo_unk* hit = bullet->m04;
                 if (hit->m74.m00 > 0.0f || hit->m74.m04 > 0.0f || hit->m74.m10 > 0.0f || hit->m74.m0C > 0.0f) {
                     chara->fn_801784BC(bullet, 1);
@@ -734,7 +729,7 @@ void SkillEffectManager::fn_8059D178() {
         Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
         if (bullet != 0 && bullet->IsActive_unk() && (bullet->m08->mType == 3 || bullet->m08->mType == 0) &&
             fn_8021A984(!bullet->fn_8059A264() ? bullet->m04 : bullet->GetOwnHit_unk())) {
-            fn_8059A0B4(bullet, &m28A0);
+            bullet->fn_8059A0B4(&m28A0);
         }
     }
 }
@@ -743,7 +738,7 @@ void SkillEffectManager::fn_8059D268(int arg) {
     for (unsigned int i = 0; i < 32; i++) {
         Bullet_unk* bullet = lbl_8087F9E8->GetBullet_unk(i);
         if (bullet != 0 && bullet->IsActive_unk()) {
-            fn_8059A1FC(bullet, arg);
+            bullet->fn_8059A1FC(arg);
         }
     }
 }
@@ -791,7 +786,7 @@ void SkillEffectManager::fn_8059D3B0(CharaTask* chara) {
                 bullet->m13C = 1;
                 bullet->m60 = 0;
                 bullet->m08 = chara;
-                float scale = fn_80599FB4(bullet, 0);
+                float scale = bullet->fn_80599FB4(0);
                 MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
                 fn_80239DAC(lbl_8087F3C0, bullet, bullet->m04->m04, 1);
                 fn_80232B7C(0, 0);
@@ -808,7 +803,7 @@ void SkillEffectManager::fn_8059D3B0(CharaTask* chara) {
             bullet->m13C = 1;
             bullet->m60 = 0;
             bullet->m08 = chara;
-            float scale = fn_80599FB4(bullet, 0);
+            float scale = bullet->fn_80599FB4(0);
             MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
             fn_80239DAC(lbl_8087F3C0, bullet, bullet->m04->m04, 1);
             fn_80232B7C(0, 0);

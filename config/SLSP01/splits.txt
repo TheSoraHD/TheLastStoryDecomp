@@ -3387,12 +3387,18 @@ game/ShopUpGrade.cpp:
 	.sbss       start:0x8087F9E0 end:0x8087F9E8
 	.sdata2     start:0x80888150 end:0x80888178
 
+game/SkillEffect_unk.cpp:
+	.text       start:0x80598874 end:0x8059AB94
+	.rodata     start:0x80762118 end:0x80762128
+	.data       start:0x80796AF0 end:0x80796B28
+	.sdata2     start:0x80888178 end:0x808881C0
+
 game/SkillEffectManager.cpp:
-	.text       start:0x80598874 end:0x8059D7D8
-	.rodata     start:0x80762118 end:0x807622E0
-	.data       start:0x80796AF0 end:0x80796B60
+	.text       start:0x8059AB94 end:0x8059D7D8
+	.rodata     start:0x80762128 end:0x807622E0
+	.data       start:0x80796B28 end:0x80796B60
 	.sbss       start:0x8087F9E8 end:0x8087F9F0
-	.sdata2     start:0x80888178 end:0x80888218
+	.sdata2     start:0x808881C0 end:0x80888218
 
 nw4r/DvdSoundArchive.cpp:
 	.text       start:0x8059D7D8 end:0x8059E21C

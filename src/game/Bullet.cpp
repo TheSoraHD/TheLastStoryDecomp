@@ -112,7 +112,6 @@ extern "C" void fn_800FB4B0(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* d
 extern "C" void* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg);
-extern "C" void fn_80599FFC(int obj, const atn::Vector3* pos); // inferred
 extern "C" void fn_800FB1BC(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
 extern "C" int fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, int id, const atn::Vector3* pos,
@@ -555,7 +554,7 @@ void Bullet::fn_80112174() {
     }
     CollResult_unk res;
     if (fn_8004ED34(lbl_8087EE98, &res, &m14, &m08, mask, 0, 0) != 0) {
-        fn_80599FFC(m8C, &res.m10);
+        ((Bullet_unk*)m8C)->fn_80599FFC(&res.m10); // inferred: m8C is a skill effect
         vf0C(1, 0);
     }
 }

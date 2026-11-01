@@ -5,17 +5,26 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/ResLoader_unk.h"
 #include "game/HitInfo_unk.h"
+#include "db/ParseUtil_unk.h"
+#include "atn/SoundRef.h"
 #include "math/Vec.h"
 #include <boost/function.hpp>
 
 class CharaTask;
 
 // inferred: effect of a skill/magic (0x140 bytes, 32 of them in SkillEffectManager); its methods
-// are in the auto split before game/SkillEffectManager.cpp (0x80598874-0x8059AB98). The name
+// are in game/SkillEffect_unk.cpp (0x80598874-0x8059AB94, its own float pool). The name
 // Bullet_unk is the one used by CharaTask::fn_801784BC; gmk::HealPoint calls it SkillEffect.
 struct Bullet_unk {
     Bullet_unk();  // 0x80598874
     ~Bullet_unk(); // 0x80598900
+    void fn_80599C6C();        // inferred: draw (empty in this build)
+    int fn_80599C90(CharaTask* chara); // inferred: the effect can reach `chara`
+    int fn_80599D60(CharaTask* chara, int check); // inferred: the effect touches `chara`
+    float fn_80599FB4(int keep);        // inferred: scale of the effect
+    void fn_80599FFC(const atn::Vector3* pos); // inferred: plays the efp of the skill at `pos`
+    void fn_8059A0B4(atn::EffFile* eff);       // inferred: starts its eff effect (lit by the map)
+    void fn_8059A1FC(int keep);         // inferred: stops its efp effect
     int fn_8059A264(); // inferred: nonzero when the effect uses its own copy of the hit data (m80)
 
     // inferred: replaces the callback (weak copy 0x8059C3F4; name invented)
@@ -23,7 +32,7 @@ struct Bullet_unk {
     // inferred: state 3 = finished
     bool IsActive_unk() { return m04 != 0 && m00 != 3; }
     // inferred: own copy of the hit data
-    HitInfo_unk* GetOwnHit_unk() { return (HitInfo_unk*)m80; }
+    HitInfo_unk* GetOwnHit_unk() { return (HitInfo_unk*)&m80; }
     // inferred: hit data of the effect
     HitInfo_unk* GetHit_unk() {
         HitInfo_unk* hit = m04;
@@ -40,13 +49,13 @@ struct Bullet_unk {
     atn::Vector3 m10;  // inferred: position
     atn::Vector3 m1C;  // inferred: rotation
     float m28;         // inferred: scale
-    unsigned char m2C[0x5C - 0x2C];
+    atn::Matrix3x4 m2C; // inferred: matrix of its eff effect (also the owner key of the effect)
     float m5C;         // inferred: radius
     int m60;           // inferred: frame counter
-    unsigned char m64[0x68 - 0x64];
+    atn::SoundRef m64;
     boost::function<void(Bullet_unk*)> mCallback; // 0x68: inferred: called when the effect ends
-    unsigned char m7C[0x80 - 0x7C];
-    unsigned char m80[0x13C - 0x80];
+    int m7C;           // inferred: the efp effect is playing
+    BulletParam_unk m80; // inferred: own copy of the hit data
     int m13C; // inferred: set when the effect is reflected (fn_8059D3B0)
 };
 

@@ -3175,6 +3175,13 @@
   "matching": false
  },
  {
+  "name": "game/SkillEffect_unk.cpp",
+  "classes": [
+   "Bullet_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/SkillEffectManager.cpp",
   "classes": [
    "SkillEffectManager"
