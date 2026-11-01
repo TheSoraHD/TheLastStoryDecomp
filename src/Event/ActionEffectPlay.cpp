@@ -1,6 +1,8 @@
 #include "Event/Behavior.h"
 #include "game/GameBgm.h"
 #include "atn/RenderSetting_unk.h"
+#include "atn/Bgm.h"
+#include "Event/Cut.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -20,7 +22,10 @@ struct EventEffects_unk {
     int mC4; // inferred: nonzero when the music fades are shortened
     unsigned char mC8[0x1A38 - 0xC8];
     int m1A38; // inferred: camera change in progress
-    unsigned char m1A3C[0x238C - 0x1A3C];
+    unsigned char m1A3C[0x1F20 - 0x1A3C];
+    atn::Bgm m1F20; // inferred: BGM of the multi audio actions
+    int m1F34;      // inferred: m1F20 is in use
+    unsigned char m1F38[0x238C - 0x1F38];
     int m238C; // inferred: nonzero while messages are blocked
 };
 extern "C" EventEffects_unk* lbl_8087F540;
@@ -65,6 +70,9 @@ extern "C" void fn_803B58D8(Event::MsgWindow_unk* window, void* msg);          /
 extern "C" void fn_803B57EC(Event::MsgWindow_unk* window);                     // inferred: closes the choice
 extern "C" int fn_803B4C24(Event::MsgChoice_unk* choice);                       // inferred: answered
 extern "C" void fn_8054136C(Event::EventManager_unk* manager, int label);      // inferred: jumps to a label
+extern "C" Event::Cut* fn_80541210(Event::EventManager_unk* manager);           // inferred: current cut
+extern "C" int fn_80541198(Event::EventManager_unk* manager, Event::Cut* cut);  // inferred: index of a cut
+extern "C" void fn_80541520(Event::EventManager_unk* manager, int index, int arg); // inferred: goes to a cut
 
 namespace Event {
 
@@ -383,6 +391,19 @@ int ActionMusicPlay::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+int ActionMultiAudio::vf08(Action* arg) {
+    if (arg->GetParam_unk(0)->m04.i == 0) {
+        int busy = 0;
+        if (lbl_8087F540->m1F34 != 0 && lbl_8087F540->m1F20.fn_8004B0E4() != 0) {
+            busy = 1;
+        }
+        if (busy) {
+            return 3;
+        }
+    }
+    return 0;
+}
+
 int ActionGodRay::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         int on = arg->GetParam_unk(0)->m04.i;
@@ -504,6 +525,33 @@ int ActionGameSetting::vf0C(Action* arg, int phase) {
             lbl_8087EFA8->m3A4 = 1.0f;
         }
         break;
+    }
+    return 0;
+}
+
+// inferred: cut `index` of the event (as Event::EventManager_unk::FindActor_unk)
+inline Cut* FindCut_unk(EventManager_unk* manager, int index) {
+    for (int i = 0; i < manager->mBC; i++) {
+        Cut* cut = manager->mB8[(unsigned int)i].mCut;
+        if (index == cut->mIndex) {
+            return cut;
+        }
+    }
+    return 0;
+}
+
+int ActionCutAdjust::vf0C(Action* arg, int phase) {
+    if (phase == 0) {
+        arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int start = arg->m10;
+        int length = arg->m14 - start;
+        if (length == 0) {
+            int index = fn_80541210(manager)->fn_8053B028();
+            fn_80541520(manager, fn_80541198(manager, FindCut_unk(manager, index)), 0);
+            return 1;
+        }
+        manager->m198 = start + length;
     }
     return 0;
 }

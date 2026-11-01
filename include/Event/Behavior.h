@@ -29,6 +29,8 @@ public:
 
 namespace Event {
 
+class Cut;
+
 // inferred: an actor of the event (0x1C0 bytes)
 struct Actor_unk {
     CharaTask* fn_800128FC();      // inferred: character of the actor (0 if none)
@@ -74,7 +76,15 @@ struct EventManager_unk {
     // inferred: rotates `v` by the yaw at 0xB4 (0x80541C94 in Event/Sequence)
     atn::Vector3 fn_80541C94(const atn::Vector3& v);
 
-    unsigned char m000[0x124];
+    // inferred: cut list entry (the cut and a second word)
+    struct CutEntry_unk {
+        Cut* mCut;
+        int m04;
+    };
+    unsigned char m000[0xB8];
+    CutEntry_unk* mB8; // 0xB8: inferred: cuts of the event
+    int mBC;
+    unsigned char mC0[0x124 - 0xC0];
     struct CameraAnim_unk* m124; // 0x124: inferred: camera animations of the event (0x1C bytes each)
     int m128;
     unsigned char m12C[0x164 - 0x12C];
