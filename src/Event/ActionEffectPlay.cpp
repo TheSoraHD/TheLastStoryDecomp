@@ -612,14 +612,24 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// inferred: sets the layout value called `name` (as atn::D2A_Task::SetLayoutValue_unk of game/GameUI.cpp,
+// with the layout taken first)
+inline void SetLayoutValue_unk(atn::D2A_Layout_unk* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+
 int ActionAnimationPlay::vf08(Action* arg) {
     arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
-    AnimEntry_unk* entry = FindAnim_unk(manager, arg->GetParam_unk(0)->m04.i);
-    if (entry->m1C == 1 && lbl_8087EF70 != 0) {
+    int id = arg->GetParam_unk(0)->m04.i;
+    AnimEntry_unk* entry = FindAnim_unk(manager, id);
+    if (entry->m1C == 1) {
         atn::D2A_Task* task = entry->m18;
-        float classic = fn_800A58D0(lbl_8087EF70, 0) != 0 ? 1.0f : 0.0f;
-        fn_801FECE0((char*)task + 0x58, fn_800DC6B4("contorolClassic"), classic);
+        if (lbl_8087EF70 != 0) {
+            int classic = fn_800A58D0(lbl_8087EF70, 0);
+            atn::D2A_Layout_unk* layout = &task->mData.m10;
+            SetLayoutValue_unk(layout, "contorolClassic", classic != 0 ? 1.0f : 0.0f);
+        }
     }
     return 0;
 }
