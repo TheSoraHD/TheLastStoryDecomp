@@ -4,6 +4,8 @@
 #include "game/CharaStatus.h"
 #include "chr/ControlBase.h"
 #include "game/EnemyManager.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
 #include "game/PlayerManager.h"
 #include "game/FriendManager.h"
 #include "math/Vec.h"
@@ -101,8 +103,9 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b,
                             int d, int e, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: effect `efp` on the model (shared with gmk/FlamingArrow, Em315Coffin and the Quark enemies)
-extern "C" inline void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
-                                   const atn::Vector3* rot, int a5, int a6, int a7, float scale) {
+inline void PlayEffectInline_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model,
+                                 const atn::Vector3* pos, const atn::Vector3* rot, int a5, int a6, int a7,
+                                 float scale) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -110,6 +113,8 @@ extern "C" inline void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::M
     color.a = 1.0f;
     fn_8023A8B4(mgr, efp, model, 0, *pos, *rot, color, a5, a6, a7, scale);
 }
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a5, int a6, int a7, float scale);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text);     // inferred: shows a battle message
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -957,9 +962,19 @@ void Em202ForestSpider::vf164() {
             fn_802790A0(i);
         }
     }
-    fn_80276AE4(lbl_8087F3C0, &m1914, &mMotion, &lbl_807C7030, &lbl_807C7030, -1, -1, 1, 1.0f);
+    PlayEffectInline_unk(lbl_8087F3C0, &m1914, &mMotion, &lbl_807C7030, &lbl_807C7030, -1, -1, 1, 1.0f);
     vf9C(1);
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+}
+
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a5, int a6, int a7, float scale) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, *pos, *rot, color, a5, a6, a7, scale);
 }
 
 void Em202ForestSpider::vf140() {
@@ -1444,6 +1459,43 @@ void Em202ForestSpider::fn_80279280() {
         PSMTXScale(sm, 1.0f, 1.0f, scale);
         PSMTXConcat(t->m58.m, sm, t->m58.m);
     }
+}
+
+// inferred: head of the linked list owned by the singleton GimmickManager.
+extern "C" GimmickCommon* fn_80279788(GimmickManager* manager) {
+    return manager->mHead;
+}
+
+// inferred: current GimmickManager singleton.
+extern "C" GimmickManager* fn_80279790() {
+    return GimmickManager::instance_;
+}
+
+// inferred: gimmick type field used to filter the manager list.
+extern "C" int fn_80279798(GimmickCommon* gimmick) {
+    return gimmick->m50;
+}
+
+// inferred: address of the gimmick's position.
+extern "C" atn::Vector3* fn_802797A0(GimmickCommon* gimmick) {
+    return &gimmick->m6C;
+}
+
+// inferred: default construction for a GimmickMsg_unk local in the thread collision loop.
+extern "C" void fn_802797A8(GimmickMsg_unk* msg) {
+    msg->mType = 0;
+    msg->m04 = 0;
+    msg->m08 = 0;
+    msg->m0C = 0;
+    msg->m10 = 0;
+    msg->mVec.x = 0.0f;
+    msg->mVec.y = 0.0f;
+    msg->mVec.z = 0.0f;
+}
+
+// inferred: next entry in the GimmickManager linked list.
+extern "C" GimmickCommon* fn_802797D4(GimmickCommon* gimmick) {
+    return gimmick->m5C;
 }
 
 void Em202ForestSpider::fn_802797DC() {

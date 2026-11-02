@@ -68,6 +68,11 @@ CharaPathMove::~CharaPathMove() {
     Clear_unk(mPoints);
 }
 
+// inferred: address of the indexed character pointer.
+extern "C" PathChara_unk** fn_8043D930(PathCharaList_unk* charas, unsigned int index) {
+    return &charas->mData[index];
+}
+
 // inferred: the character has finished loading (then it is shown); name invented
 static inline int IsLoading_unk(PathChara_unk* pc) {
     GmkChara* chara = pc->mChara;
@@ -194,7 +199,7 @@ void CharaPathMove::vf20() {
     } while (csv.fn_8005BBF8() != 0);
     fn_8032AF90(&mPath, &mPoints);
     for (unsigned int i = 0; i < mCharas.size(); i++) {
-        mCharas[i]->fn_8043E6B0(mMotion.c_str(), mSpeed, &mUpperMotions);
+        (*fn_8043D930(&mCharas, i))->fn_8043E6B0(mMotion.c_str(), mSpeed, &mUpperMotions);
     }
 }
 

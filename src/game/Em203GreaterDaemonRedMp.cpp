@@ -10,6 +10,7 @@
 #include "game/HomingBullet.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "std/vector.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -1400,13 +1401,45 @@ void Em203GreaterDaemonRedMp::fn_802A35B0(int kind) {
     m1634 = 0;
 }
 
+// inferred: rotation-matrix helper for the Z angle in fn_802A3D80.
+extern "C" void fn_802A3D64(Mtx m, float rad) {
+    PSMTXRotRad(m, 'z', rad);
+}
+
 int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
     m15F8 = skill;
     return skill != 0;
 }
 
+// inferred: next EnemyTask link used by the daemon's homing target search.
+extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy) {
+    return enemy->mNext;
+}
+
+// inferred: whether the C25 battle-character flag is set.
+extern "C" unsigned int fn_802A409C(BattleCharaTask* chara) {
+    return chara->mFlagC25;
+}
+
 // NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)
 // inferred: the route point nearest to the daemon among the high hover points (m156C)
+// inferred: current count in the character manager.
+extern "C" int fn_802A4168(CharaManager<EnemyTask>* manager) {
+    return manager->mCount;
+}
+
+// inferred: default construction of the temporary vector of candidate enemies in fn_802A3D80.
+extern "C" void fn_802A4170(std::vector<EnemyTask*>* candidates) {
+    candidates->mData = 0;
+    candidates->mSize = 0;
+    candidates->mCap = 0;
+}
+
+// inferred: address of the indexed candidate pointer in a vector.
+extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* candidates, int index) {
+    return &candidates->mData[index];
+}
+
 int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
     if (m15A8.size() == 0) {
         return 0;
