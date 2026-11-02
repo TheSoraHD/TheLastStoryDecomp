@@ -1,174 +1,65 @@
-// auto_03_803B27F8_text.cpp: starts at 0x803B27F8. The virtual-base destructor thunks of
-// basic_istream/basic_iostream/basic_stringstream<char> (0x803B27AC-0x803B27F8) belong to
-// game/GameEventScript (its vtables are in that unit's .data); they are emitted by the compiler there.
+// game/GameLoadTask.cpp: debug load menu (0x803B27F8-0x803B33F8). It starts at 0x803B27F8; the
+// virtual-base destructor thunks of basic_istream/basic_iostream/basic_stringstream<char>
+// (0x803B27AC-0x803B27F8) belong to game/GameEventScript.
+#include "game/GameLoadTask.h"
+#include "game/GameLoadBackground.h"
+#include "MP/SaveLoad.h"
 #include "atn/SequenceBoot_unk.h"
 #include "atn/FileList.h"
 #include "atn/DrawHelper.h"
-struct ElemA { char data[0x2D4]; ~ElemA(); };
-struct ElemB { char data[0x240]; ~ElemB(); };
-struct InnerA { char pad_0x00[0x11C4]; ElemA arr[0x1C]; ~InnerA() {} };
-struct InnerB { ElemB arr[7]; ~InnerB() {} };
+#include "std/ios_init.h"
 
-struct Heap {
-    char pad_0x0000[0x539C];
-    InnerB field_0x539C;
-    char pad_0x635C[0x3B04];
-    InnerA field_0x9E60;
-    char pad_0xFF54[0x3554];
-    ~Heap() {}
-};
+extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" int sprintf(char* dst, const char* fmt, ...);
 
-typedef union UnkName {
-    int words[16];
-    char chars[0x40];
-} UnkName;
+extern "C" void* lbl_8087EF70;                               // inferred: pad
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
+extern "C" void fn_800D2338(atn::Task* task);                // inferred: removes the task
+extern "C" void* fn_8006BA8C(const char* path, int* size, int flag); // inferred: loads a file
+extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/GameSaveData_unk)
+extern "C" int lbl_8087DD60;               // inferred: slot of the current save data
+extern "C" int lbl_8087DD64;               // inferred: format of the current save data
+extern "C" int lbl_8087F630;               // inferred: number of LAN match players
+// inferred: constructor and "apply" of the save data (game/GameSaveData_unk.cpp, without source yet)
+extern "C" MP::SaveData_unk* fn_803BDB60(MP::SaveData_unk* data);
+extern "C" void fn_803BE850(MP::SaveData_unk* data);
 
-typedef struct UnkArg {
-    UnkName field_0x00;
-    int field_0x40;
-} UnkArg;
+// inferred: name shown for an empty slot (.sdata 0x8087DD68)
+static const char* sNewName_unk = "(New)";
 
-typedef struct UnkElem {
-    int field_0x00;
-    int field_0x04;
-    char pad_0x08[0xB0];
-} UnkElem;
-
-typedef struct Unk {
-    void* field_0x00;
-    char pad_0x04[0x48 - 0x04];
-    int field_0x48;
-    UnkElem field_0x4C[17];
-    char pad_0xC84[0xD64 - 0xC84];
-    int field_0xD64;
-    int field_0xD68;
-    UnkArg field_0xD6C;
-    unsigned char field_0xDB0;
-    unsigned char field_0xDB1;
-    char pad_0xDB2[2];
-    UnkElem field_0xDB4[17];
-    char pad_0x19EC[0x1A00 - 0x19EC];
-    char field_0x1A00[0x13560];
-    void* field_0x14F60;
-} Unk;
-
-void operator delete(void* p);
-
+// inferred: header of the slot that was loaded last (read by MP::SaveLoad); kept with its dtk name
 extern "C" {
+GameSaveSlot_unk lbl_807C8508;
+}
 
-extern char lbl_8074FBA4[];
-extern char lbl_8078B3A0[];
-extern char lbl_807C8508[];
-extern char lbl_807C85C0[];
-extern void* lbl_8087EF70;
-extern Heap* lbl_8087F460;
-extern int lbl_8087DD60;
-extern int lbl_8087DD64;
-extern int lbl_8087F630;
-extern const char* lbl_8087DD68;
-extern const float lbl_80885C00;
-extern const float lbl_80885C04;
-extern const float lbl_80885C08;
-extern const float lbl_80885C0C;
-extern const float lbl_80885C10;
-extern const float lbl_80885C14;
+// inferred: text of the LAN match line (0x807C85C0)
+static char sLanText_unk[0x40];
 
-unsigned long strlen(const char*);
-void* memcpy(void* dst, const void* src, unsigned long n);
-void* memset(void* dst, int c, unsigned long n);
-int sprintf(char* dst, const char* fmt, ...);
+// inferred: replaces the current save data with an empty one (inlined three times)
+// inferred: size of the save data (MP::SaveData_unk only declares its first 0xFF54 bytes)
+static const unsigned long kSaveDataSize_unk = 0x134A8;
 
-void* fn_80084320(int size, int field_a, const char* name1, const char* name2, int field_b);
-void fn_803B82C0(void* self, void* arg1);
-void fn_803BE8B4(void* elem);
-void* fn_803B33F8(void* self);
-void fn_803B85EC(void* self);
-void fn_803B8758(void* self, int arg);
-int fn_803B87A8(void* self);
-void dtor_80084684(void* self);
-void fn_803B834C(void* self, int arg);
-int fn_800A55AC(void* a, int b, int c);
-int fn_800A555C(void* a, int b, int c);
-int fn_803BEAB4(UnkElem* elem);
-void fn_803B83A4(char* buf, int* out, int idx);
-void* fn_8006BA8C(char* buf, int* out, int flag);
-void fn_803BE850(Heap* h);
-void fn_803B3530(void* a, char* b, char* c, int d, int e);
-void fn_800D2338(void* self);
-Heap* fn_803BDB60(Heap* self);
-void fn_803B8B08(void* self, UnkElem* elem);
-void fn_803B8160(void* p);
-
-Unk* fn_803B2870(Unk* self, void* arg1, const UnkArg* arg2);
-
-void* fn_803B27F8(void* a, void* b) {
-    void* p;
-    if (a != 0) {
-        p = fn_80084320(0x14F80, 1, lbl_8074FBA4, lbl_8074FBA4, 0);
-        if (p != 0) {
-            p = fn_803B2870((Unk*)p, a, (const UnkArg*)b);
-        }
-    } else {
-        p = 0;
+static inline void ResetSaveData_unk() {
+    if (lbl_8087F460 != 0) {
+        delete lbl_8087F460;
+        lbl_8087F460 = 0;
     }
-    return p;
-}
-
-#pragma push
-#pragma use_lmw_stmw on
-Unk* fn_803B2870(Unk* self, void* arg1, const UnkArg* arg2) {
-    fn_803B82C0(self, arg1);
-    self->field_0x00 = lbl_8078B3A0;
-    self->field_0xD68 = 0;
-    self->field_0xD6C = *arg2;
-    self->field_0xDB0 = 0;
-    self->field_0xDB1 = 0;
-    UnkElem* p = self->field_0xDB4;
-    do {
-        fn_803BE8B4(p);
-        ++p;
-    } while (p < &self->field_0xDB4[17]);
-    self->field_0x14F60 = fn_803B33F8(self);
-    if (strlen(self->field_0xD6C.field_0x00.chars) != 0) {
-        fn_803B85EC(self);
-    } else if (self->field_0xD6C.field_0x40 != 0) {
-        fn_803B8758(self, -1);
+    MP::SaveData_unk* p = (MP::SaveData_unk*)operator new(kSaveDataSize_unk, (MemoryTag)1, "", "", 0);
+    if (p != 0) {
+        p = fn_803BDB60(p);
     }
-    return self;
-}
-#pragma pop
-
-} // extern "C"
-
-// inferred: destructor of the temporary that builds a GameLoadTask::Option (called by
-// atn/SequenceUnitParam1_const_int.cpp after registering the GameLoad sequences)
-struct GameLoadTask {
-    struct OptionTmp_unk {
-        ~OptionTmp_unk();
-    };
-};
-
-GameLoadTask::OptionTmp_unk::~OptionTmp_unk() {}
-
-extern "C" {
-
-
-Unk* fn_803B29E8(Unk* self, int flag) {
-    if (self != 0) {
-        fn_803B834C(self, 0);
-        if (flag > 0) {
-            dtor_80084684(self);
-        }
-    }
-    return self;
+    lbl_8087F460 = p;
 }
 
-int fn_803B2A40(Unk* self) {
-    return fn_803B87A8(self) == 0;
+// inferred: format of a slot (int at 0x04 of GameSaveSlot_unk; the header declares only bytes there)
+static inline int SlotFormat_unk(const GameSaveSlot_unk& slot) {
+    return ((const int*)slot.m00)[1];
 }
 
-static inline bool RangeEq(const char* first, const char* last, const char* lit) {
-    for (; first != last; ++first, ++lit) {
+// inferred: the option names the "Multiplayer" sequence
+static inline bool RangeEq_unk(const char* first, const char* last, const char* lit) {
+    for (; first != last; first++, lit++) {
         if (*first != *lit) {
             return false;
         }
@@ -176,173 +67,167 @@ static inline bool RangeEq(const char* first, const char* last, const char* lit)
     return true;
 }
 
-static inline bool NameIs(const Unk* self, const char* lit) {
-    int n = strlen(self->field_0xD6C.field_0x00.chars);
-    return lit[n] == 0 &&
-           RangeEq(self->field_0xD6C.field_0x00.chars,
-                   &self->field_0xD6C.field_0x00.chars[n], lit);
-}
-
-static inline void ReplaceHeap(void) {
-    Heap* old = lbl_8087F460;
-    if (old != 0) {
-        delete old;
-        lbl_8087F460 = 0;
+static inline bool IsMultiplayer_unk(const char* name) {
+    const char* lit = "Multiplayer";
+    int n = strlen(name);
+    bool eq = lit[n] == 0;
+    if (eq) {
+        eq = RangeEq_unk(name, name + n, lit);
     }
-    Heap* p = (Heap*)fn_80084320(0x134A8, 1, lbl_8074FBA4, lbl_8074FBA4, 0);
-    if (p != 0) {
-        p = fn_803BDB60(p);
+    return eq;
+}
+
+GameLoadTask* GameLoadTask::fn_803B27F8(atn::Task* parent, const Option& option) {
+    if (parent != 0) {
+        return new ((MemoryTag)1, "", "", 0) GameLoadTask(parent, option);
     }
-    lbl_8087F460 = p;
+    return 0;
 }
 
-static inline void BuildSlot(Unk* self, int idx) {
-    int local_0x8;
-    char buf[0x100];
-    fn_803B83A4(buf, &local_0x8, idx);
-    memset(self->field_0x1A00, 0, 0x13560);
-    fn_803B3530(self->field_0x14F60, buf, self->field_0x1A00, 0x13560, local_0x8);
-    memcpy(lbl_807C8508, &self->field_0x4C[idx], 0xB8);
-    self->field_0xD68 = 3;
+GameLoadTask::GameLoadTask(atn::Task* parent, const Option& option)
+    : GameSaveLoadCommon(parent), mD68(0), mD6C(option), mDB0(0), mDB1(0) {
+    m14F60 = GameLoadBackground::fn_803B33F8(this);
+    if (strlen(mD6C.mNext) != 0) {
+        fn_803B85EC();
+    } else if (mD6C.mFlag != 0) {
+        fn_803B8758(-1);
+    }
 }
 
-void fn_803B2A68(Unk* self) {
-    if (self->field_0xD64 == 0) {
+GameLoadTask::OptionTmp_unk::~OptionTmp_unk() {}
+
+GameLoadTask::~GameLoadTask() {}
+
+int GameLoadTask::vf0C() {
+    return fn_803B87A8() == 0;
+}
+
+// NONMATCHING: 99.95% - in the "Debug Data" branch the file buffer is in r29 and the deleted save data in
+// r30 (swapped); declaring the buffer earlier or scoping the reset does not change it
+void GameLoadTask::vf10() {
+    if (mD64 == 0) {
         return;
     }
-    switch (self->field_0xD68) {
+    switch (mD68) {
     case 0:
-        self->field_0xD68 = 1;
+        mD68 = 1;
         break;
-    case 1: {
-        if (NameIs(self, lbl_8074FBA4 + 1)) {
-        }
-        if (fn_800A55AC(lbl_8087EF70, 0, 0) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x1A) != 0) {
-            if (NameIs(self, lbl_8074FBA4 + 1)) {
-                int v = 0x10;
-                if (self->field_0x48 >= 0) {
-                    v = self->field_0x48 - 1;
-                }
-                self->field_0x48 = v;
+    case 1:
+        IsMultiplayer_unk(mD6C.mNext);
+        if (fn_800A55AC(lbl_8087EF70, 0, 0) || fn_800A55AC(lbl_8087EF70, 0, 0x1A)) {
+            if (IsMultiplayer_unk(mD6C.mNext)) {
+                m48 = m48 >= 0 ? m48 - 1 : 16;
             } else {
-                int v = 0x10;
-                if (self->field_0x48 != 0) {
-                    v = self->field_0x48 - 1;
-                }
-                self->field_0x48 = v;
+                m48 = m48 != 0 ? m48 - 1 : 16;
             }
-        } else if (fn_800A55AC(lbl_8087EF70, 0, 1) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x19) != 0) {
-            self->field_0x48 = (self->field_0x48 + 1) % 17;
+        } else if (fn_800A55AC(lbl_8087EF70, 0, 1) || fn_800A55AC(lbl_8087EF70, 0, 0x19)) {
+            m48 = (m48 + 1) % 17;
         }
-        if (fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
-            if (self->field_0x48 < 0) {
-                self->field_0xD68 = 4;
-            } else if (self->field_0xDB0 != 0) {
-                if (fn_803BEAB4(&self->field_0xDB4[self->field_0x48]) != 0) {
-                    int local_0x10;
-                    int local_0xC;
-                    char buf_0x118[0x100];
-                    sprintf(buf_0x118, lbl_8074FBA4 + 0xD);
-                    ReplaceHeap();
-                    void* r30 = fn_8006BA8C(buf_0x118, &local_0xC, 0);
-                    fn_803B83A4(buf_0x118, &local_0x10, self->field_0x48);
-                    memcpy(lbl_8087F460, (char*)r30 + local_0x10 + 0xB8, 0x134A8);
-                    atn::FileFreeBuffer((char*)r30, false);
+        if (fn_800A555C(lbl_8087EF70, 0, 4)) {
+            if (m48 < 0) {
+                mD68 = 4;
+            } else if (mDB0 != 0) {
+                if (mDB4[m48].fn_803BEAB4()) {
+                    int offset;
+                    int size;
+                    char path[0x100];
+                    sprintf(path, "/test/savedata/savedata.dat");
+                    ResetSaveData_unk();
+                    char* buf = (char*)fn_8006BA8C(path, &size, 0);
+                    GameSaveLoadBackgroundCommon::fn_803B83A4(path, &offset, m48);
+                    memcpy(lbl_8087F460, buf + offset + sizeof(GameSaveSlot_unk), kSaveDataSize_unk);
+                    atn::FileFreeBuffer(buf, false);
                     fn_803BE850(lbl_8087F460);
-                    self->field_0xD68 = 4;
+                    mD68 = 4;
                 }
-            } else {
-                if (fn_803BEAB4(&self->field_0x4C[self->field_0x48]) != 0) {
-                    BuildSlot(self, self->field_0x48);
-                }
+            } else if (mSlots[m48].fn_803BEAB4()) {
+                fn_803B3270(this, m48);
             }
         }
-        if (fn_800A555C(lbl_8087EF70, 0, 5) != 0) {
-            sSequenceBoot_unk->SetNext_unk(lbl_8074FBA4 + 0x29);
-            fn_800D2338(self);
+        if (fn_800A555C(lbl_8087EF70, 0, 5)) {
+            sSequenceBoot_unk->SetNext_unk("Title");
+            fn_800D2338(this);
         }
         break;
-    }
     case 3:
-        if (((unsigned char*)self->field_0x14F60)[0x154] == 0) {
-            self->field_0xD68 = 4;
+        if (m14F60->m154 == 0) {
+            mD68 = 4;
         }
         break;
     case 4:
-        if (self->field_0xDB0 == 0 && self->field_0x48 >= 0) {
-            ReplaceHeap();
-            int i = self->field_0x48;
-            lbl_8087DD60 = i;
-            int kind = self->field_0x4C[i].field_0x04;
-            lbl_8087DD64 = kind;
-            if (kind < 4) {
-                memcpy(lbl_8087F460, &self->field_0x1A00[0x38], 0x134A8);
+        if (mDB0 == 0 && m48 >= 0) {
+            ResetSaveData_unk();
+            lbl_8087DD60 = m48;
+            lbl_8087DD64 = SlotFormat_unk(mSlots[m48]);
+            if (lbl_8087DD64 < 4) {
+                memcpy(lbl_8087F460, m1A00.mHeader + 0x38, kSaveDataSize_unk);
             } else {
-                memcpy(lbl_8087F460, &self->field_0x1A00[0xB8], 0x134A8);
+                memcpy(lbl_8087F460, &m1A00.mData, kSaveDataSize_unk);
             }
             fn_803BE850(lbl_8087F460);
         }
-        sSequenceBoot_unk->SetNext_unk(self->field_0xD6C.field_0x00.chars);
-        fn_800D2338(self);
-        break;
-    default:
+        sSequenceBoot_unk->SetNext_unk(mD6C.mNext);
+        fn_800D2338(this);
         break;
     }
 }
 
-void fn_803B2FBC(Unk* self, int idx) {
-    if (idx >= 0) {
-        ReplaceHeap();
-        lbl_8087DD60 = idx;
-        int kind = self->field_0x4C[idx].field_0x04;
-        lbl_8087DD64 = kind;
-        if (kind < 4) {
-            memcpy(lbl_8087F460, &self->field_0x1A00[0x38], 0x134A8);
+void fn_803B2FBC(GameLoadTask* task, int slot) {
+    if (slot >= 0) {
+        ResetSaveData_unk();
+        lbl_8087DD60 = slot;
+        lbl_8087DD64 = SlotFormat_unk(task->mSlots[slot]);
+        if (lbl_8087DD64 < 4) {
+            memcpy(lbl_8087F460, task->m1A00.mHeader + 0x38, kSaveDataSize_unk);
         } else {
-            memcpy(lbl_8087F460, &self->field_0x1A00[0xB8], 0x134A8);
+            memcpy(lbl_8087F460, &task->m1A00.mData, kSaveDataSize_unk);
         }
         fn_803BE850(lbl_8087F460);
     }
 }
 
-void fn_803B30D8(Unk* self) {
-    if (self->field_0xD64 != 0) {
-        if (self->field_0xDB0 != 0) {
-            fn_803B8B08(self, self->field_0xDB4);
+void GameLoadTask::vf14() {
+    if (mD64 != 0) {
+        if (mDB0 != 0) {
+            fn_803B8B08(mDB4);
         } else {
-            fn_803B8B08(self, self->field_0x4C);
+            fn_803B8B08(mSlots);
         }
-        if (NameIs(self, lbl_8074FBA4 + 1)) {
-            const char* name;
+        if (IsMultiplayer_unk(mD6C.mNext)) {
+            const char* text;
             if (lbl_8087F630 == 0) {
-                name = lbl_8087DD68;
+                text = sNewName_unk;
             } else {
-                sprintf(lbl_807C85C0, lbl_8074FBA4 + 0x2F);
-                name = lbl_807C85C0;
+                sprintf(sLanText_unk, "(New) *** Enable LAN MATCH players:%d ***", lbl_8087F630);
+                text = sLanText_unk;
             }
-            lbl_8087EEB0->fn_800616C0(lbl_80885C00, lbl_80885C04, lbl_80885C08, lbl_80885C0C, lbl_80885C0C, name, self->field_0x48 == -1 ? 0xFFFFFF00 : 0xFFFFFFFF, lbl_80885C08, 1, 1, 0);
+            lbl_8087EEB0->fn_800616C0(100.0f, 62.0f, 0.0f, 16.0f, 16.0f, text, m48 == -1 ? 0xFFFFFF00 : 0xFFFFFFFF, 0.0f, 1, 1, 0);
         }
-        if (self->field_0xDB0 != 0) {
-            lbl_8087EEB0->fn_800616C0(lbl_80885C10, lbl_80885C14, lbl_80885C08, lbl_80885C0C, lbl_80885C0C, lbl_8074FBA4 + 0x59, 0xFF00FFFF, lbl_80885C08, 1, 1, 0);
+        if (mDB0 != 0) {
+            lbl_8087EEB0->fn_800616C0(60.0f, 40.0f, 0.0f, 16.0f, 16.0f, "Debug Data", 0xFF00FFFF, 0.0f, 1, 1, 0);
         }
     }
 }
 
-void fn_803B3270(Unk* self, int idx) {
-    BuildSlot(self, idx);
+void fn_803B3270(GameLoadTask* task, int slot) {
+    char name[0x100];
+    int size;
+    GameSaveLoadBackgroundCommon::fn_803B83A4(name, &size, slot);
+    memset(&task->m1A00, 0, sizeof(GameSaveFile_unk));
+    task->m14F60->fn_803B3530(name, (int)&task->m1A00, sizeof(GameSaveFile_unk), size);
+    memcpy(&lbl_807C8508, &task->mSlots[slot], sizeof(GameSaveSlot_unk));
+    task->mD68 = 3;
 }
 
-void fn_803B3310(Unk* self, int idx) {
-    void* p = self->field_0x14F60;
-    if (p == 0) {
-        self->field_0xD68 = 1;
+void fn_803B3310(GameLoadTask* task, int slot) {
+    GameLoadBackground* bg = task->m14F60;
+    if (bg == 0) {
+        task->mD68 = 1;
     } else {
-        if (p != 0) {
-            fn_803B8160(p);
-            memset(&self->field_0x4C[idx], 0, 0xB8);
+        if (bg != 0) {
+            bg->fn_803B8160(slot);
+            memset(&task->mSlots[slot], 0, sizeof(GameSaveSlot_unk));
         }
-        self->field_0xD68 = 5;
+        task->mD68 = 5;
     }
-}
-
 }
