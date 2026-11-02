@@ -56,6 +56,7 @@ struct Model : public ModelBase {
     using ModelBase::CalcMatrixStack;
     void CalcMatrixStack(ModelNodeCallback_unk callback); // 0x8000D430
     struct NodeEdit_unk;
+    struct MaterialList_unk;
     int fn_8009290C(unsigned int hash);          // inferred: material index by name hash
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     Material_unk* fn_800929C0(unsigned int hash); // inferred: material by name hash
@@ -73,6 +74,8 @@ struct Model : public ModelBase {
     void fn_80094F14(float u, float v);            // inferred: UV translation of every material
     Material_unk* fn_80094B6C(const char* name);   // inferred: material by name (second copy)
     void fn_80095CD0();                            // inferred: steps the texture animations
+    void fn_8008C850(MaterialList_unk* list);      // inferred
+    void fn_80094D88(int arg, int flag, int a, int b, int c); // inferred: material mode of every material
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
     void fn_8008CD60();                          // inferred
@@ -145,7 +148,10 @@ struct Model : public ModelBase {
     // inferred: node edit (0x2C bytes; fn_80093F58/fn_80094778); names invented
     struct NodeEdit_unk {
         unsigned int mHash;
-        unsigned char m04[0x2C - 0x4];
+        unsigned int mFlags; // inferred: 1 offset, 2 rotation, 4 scale (set when not identity)
+        atn::Vector3 m08;    // inferred: offset
+        atn::Vector3 m14;    // inferred: rotation
+        atn::Vector3 m20;    // inferred: scale
     };
     unsigned int mD8; // inferred: number of node edits
     int mDC;
@@ -265,7 +271,10 @@ struct Model : public ModelBase {
     boost::function<void(atn::MotionBuffer*, int)> m35C;
     // inferred: callback run on the node poses (set by CharaFaceControl::Initialize)
     boost::function<void(atn::MotionBuffer*, int)> m370;
-    unsigned char m384[0x3D0 - 0x384];
+    unsigned char m384[0x3C0 - 0x384];
+    int m3C0;     // inferred: node index (fn_80099E9C)
+    float m3C4;
+    char m3C8[8]; // inferred: name copied by fn_80099E9C
 };
 
 } // namespace atn

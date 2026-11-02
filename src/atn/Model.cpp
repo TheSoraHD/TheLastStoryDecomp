@@ -17,6 +17,76 @@ extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the
 
 namespace atn {
 
+extern "C" void fn_800D58A4(Texture_unk* tex); // inferred: releases a texture
+
+} // namespace atn
+
+// inferred: owner of a loading texture (method of atn::Texture_unk named after its first user; see
+// game/LibraryTask.cpp)
+struct GimmickUvOwner_unk {
+    int fn_800D59B8(); // inferred: nonzero while loading
+};
+
+// inferred: releases the textures of every material (CharaManager::vf14 passes atn::Model::m104)
+extern "C" void fn_80089AD4(atn::Model::MaterialList_unk* list) {
+    for (unsigned int i = 0; i < list->mSize; i++) {
+        for (int j = 0; j < list->mData[i]->m4A; j++) {
+            if (list->mData[i]->m0C[j].mTexture != 0) {
+                atn::fn_800D58A4(list->mData[i]->m0C[j].mTexture);
+            }
+        }
+    }
+}
+
+// inferred: the texture has an image or finished loading
+inline int IsTextureReady_unk(atn::Texture_unk* tex) {
+    int ready = 0;
+    if (tex->mImage != 0 || (((GimmickUvOwner_unk*)tex)->fn_800D59B8() == 0 && tex->m20.fn_80473EFC() == 3)) {
+        ready = 1;
+    }
+    return ready;
+}
+
+// inferred: a texture of the materials is ready
+extern "C" int fn_80089B5C(atn::Model::MaterialList_unk* list) {
+    for (unsigned int i = 0; i < list->mSize; i++) {
+        for (int j = 0; j < list->mData[i]->m4A; j++) {
+            atn::Texture_unk* tex = list->mData[i]->m0C[j].mTexture;
+            if (tex != 0) {
+                if (IsTextureReady_unk(tex)) {
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+// inferred: fills a node edit (flags: which parts are not identity); called by atn::Model::fn_80093F1C
+// NONMATCHING: 99.7% - the first fabs goes to f0 instead of f3
+extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, const atn::Vector3& offset,
+                            const atn::Vector3& rot, const atn::Vector3& scale, int flags) {
+    edit->mHash = fn_800DC6B4(name);
+    edit->m08 = offset;
+    edit->m14 = rot;
+    edit->m20 = scale;
+    edit->mFlags = flags;
+    if (!(atn::Abs_unk(offset.x) < 1.1920929e-7f && atn::Abs_unk(offset.y) < 1.1920929e-7f &&
+          atn::Abs_unk(offset.z) < 1.1920929e-7f)) {
+        edit->mFlags |= 1;
+    }
+    if (!(atn::Abs_unk(rot.x) < 1.1920929e-7f && atn::Abs_unk(rot.y) < 1.1920929e-7f &&
+          atn::Abs_unk(rot.z) < 1.1920929e-7f)) {
+        edit->mFlags |= 2;
+    }
+    if (!(atn::Abs_unk(scale.x - 1.0f) < 1.1920929e-7f && atn::Abs_unk(scale.y - 1.0f) < 1.1920929e-7f &&
+          atn::Abs_unk(scale.z - 1.0f) < 1.1920929e-7f)) {
+        edit->mFlags |= 4;
+    }
+}
+
+namespace atn {
+
 // inferred: node index by name hash in the given LOD (inline of fn_800928B0)
 inline int FindNodeRes_unk(const Model::Res_unk* res, unsigned int hash) {
     if (res == 0) {
@@ -175,6 +245,13 @@ void Model::fn_80093EEC(int show) {
     }
 }
 
+void Model::fn_80093F1C(const char* name, const atn::Vector3& a, const atn::Vector3& b, const atn::Vector3& c,
+                        int flags) {
+    NodeEdit_unk edit;
+    fn_80089D70(&edit, name, a, b, c, flags);
+    fn_80093F58(&edit);
+}
+
 Model::NodeEdit_unk* Model::fn_800948F0(const char* name) {
     unsigned int hash = fn_800DC6B4(name);
     for (unsigned int i = 0; i < mD8; i++) {
@@ -195,6 +272,23 @@ Material_unk* Model::fn_80094B6C(const char* name) {
         }
     }
     return 0;
+}
+
+void Model::fn_80094D88(int arg, int flag, int a, int b, int c) {
+    unsigned int n = m104.mSize;
+    for (unsigned int i = 0; i < n; i++) {
+        Material_unk* m = m104.mData[i];
+        m->fn_8007FAF0(arg);
+        int mode = 3;
+        if (flag != 0) {
+            mode = 0;
+        }
+        m->m4C = mode;
+        m->m14_20 = a == 0;
+        m->m14_21 = b == 0;
+        m->m14_25 = c == 0;
+    }
+    fn_8008C850(&m104);
 }
 
 void Model::fn_80094E2C(int value) {
@@ -316,6 +410,14 @@ float Model::fn_80097D7C(int track) {
         return fn_800A08D4((LH_Motion*)mTracks[track].m04);
     }
     return 0.0f;
+}
+
+void Model::fn_80099E9C(const char* node, const char* name, float value) {
+    m3C0 = FindNode_unk(this, fn_800DC6B4(node), 0);
+    m3C4 = value;
+    if (name != m3C8) {
+        memcpy(m3C8, name, strlen(name) + 1);
+    }
 }
 
 } // namespace atn
