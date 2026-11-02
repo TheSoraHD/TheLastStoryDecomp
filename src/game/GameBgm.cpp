@@ -70,8 +70,8 @@ GameBgm* GameBgm::sInstance;
 extern "C" const char lbl_8074E000[8] = {0};
 
 // inferred: name of the BGM `id`, with the replacements of the alternative set and of the story
-// NONMATCHING: 99.3% - `name` and `progress` swap r30/r31.
 static const char* fn_8037C71C(int id) {
+    int progress;
     const char* name = fn_80207EE8(id);
     if (lbl_8087F0A8->m15C != 0) {
         switch (id) {
@@ -92,7 +92,7 @@ static const char* fn_8037C71C(int id) {
         }
     }
     if (lbl_8087F430 != 0) {
-        int progress = lbl_8087F430->m10D0;
+        progress = lbl_8087F430->m10D0;
         if (0 <= progress && progress < 400000 && id == 0x191) {
             name = fn_80207EE8(0x192);
         }
