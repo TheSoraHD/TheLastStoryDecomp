@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `model-20261102` (2026-11-02, rama sin mergear): **11876 / 18308 funciones al 100%**, `main.dol: OK`. `atn/Model` 33 -> 98/155 (no enlazable aun: 38 NONMATCHING, ~20 sin escribir, pool y copias weak; lista en `docs/model-20261102.md`). `Node_unk : MotionPose_unk`, `Track_unk::m04` es `LH_Motion*`, `mCC` sin signo. Anterior: `auto-20261102b` (11811, `docs/auto-20261102b.md`).
+- `model-20261102` (2026-11-02, mergeada en `main`): **11876 / 18308 funciones al 100%**, `main.dol: OK`. `atn/Model` 33 -> 98/155 (no enlazable aun: 38 NONMATCHING, ~20 sin escribir, pool y copias weak; lista en `docs/model-20261102.md`). `Node_unk : MotionPose_unk`, `Track_unk::m04` es `LH_Motion*`, `mCC` sin signo. Anterior: `auto-20261102b` (11811, `docs/auto-20261102b.md`).
 - `auto-20261102` (mergeada en `main`): 11764 funciones; GameScene 0 -> 117/188, PacketPack 7/380, `SimpleArray::operator[]` real, `callpair.py`/`selfnames.py` (`docs/auto-20261102.md`). `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`).
 - `auto-20261101c` (mergeada): 11574 (`docs/auto-20261101c.md`); `auto-20261101b`: 11569 (`docs/auto-20261101b.md`); `auto-20261101`: 11463 (`docs/auto-20261101.md`); `auto-20261031c`: 11284 (NW4R snd/ut, MSL, MetroTRK, bte).
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
@@ -37,6 +37,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - `OSInitFastCast` (`include/sdk/OSFastCast.h`, usada en `game/main`);
    - paired-single cuantizado GQR6 solo en `atn/ModelDraw_unk fn_8009BF3C` (`SetGQR6_unk`, `SetMatColor_unk`); el de `LH_Binary` **no** está aprobado;
    - asm de MetroTRK `targsupp.c`: cuatro stubs `asm` con `nofralloc` y `twi 31, r0, 0; blr` (el original es un `.s`), aprobado 2026-11-01;
+   - asm paired-single de `atn/Model` `fn_80099F74` y `fn_8009A018` (skinning en la cache bloqueada, `nofralloc`), aprobado en `prompt-model` 2026-11-02;
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
    - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
 3. Avisar y explicar antes de tocar `splits.txt`, `symbols.txt` (salvo renombrados), `configure.py`, `config.yml` o flags.
