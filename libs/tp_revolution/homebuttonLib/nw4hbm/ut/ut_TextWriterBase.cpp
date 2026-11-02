@@ -319,19 +319,7 @@ namespace nw4hbm {
             } while (remain > 0);
         }
 
-        template <typename charT>
-        void TextWriterBase<charT>::ut_TextWriterBase_unused1(Rect* pRect, const charT* str,
-                                                              int length) {
-            void* buffer = 0;
-            int size = 0;
-
-            NW4HBM_ASSERT_VALID_PTR(0, this);
-            NW4HBM_ASSERT_VALID_PTR(0, pRect);
-            NW4HBM_ASSERT_VALID_PTR(0, str);
-            NW4R_ASSERT_MIN(0, length, 0);
-            NW4HBM_ASSERT_VALID_PTR(0, buffer);
-            NW4R_ASSERT_MIN(0, size, 1);
-        }
+        // (TP-only ut_TextWriterBase_unused1 removed: not in SLSP01)
 
         template <typename charT>
         int TextWriterBase<charT>::CalcLineRectImpl(Rect* pRect, const charT* str, int length) {

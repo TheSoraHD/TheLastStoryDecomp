@@ -65,7 +65,7 @@ namespace nw4hbm {
 
             void InitReaderFunc(FontEncoding encoding);
 
-            CharStrmReader GetCharStrmReader() const NO_INLINE {
+            CharStrmReader GetCharStrmReader() const {  // inline in SLSP01 (TP marks it NO_INLINE)
                 //! TODO: required to make `ut_TextWriterBase.cpp` happy
                 #ifndef NO_THIS_ASSERT
                 NW4HBM_ASSERT_VALID_PTR(117, this);
