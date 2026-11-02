@@ -7,6 +7,7 @@
 #include "math/Vec.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "atn/FixedArray.h"
 
 namespace atn {
 class Model;
@@ -363,6 +364,14 @@ struct Table2D_unk {
 
 } // namespace gs
 
+class CharaTask;
+
+// inferred: pair queued by GameScene::fn_803CCC84 (names invented)
+struct GameScenePair_unk {
+    int m00;
+    int m04;
+};
+
 // inferred from __vt__9GameScene (0x8078BC48): the scene of a map, read from the .gs files
 // (0x9B8 bytes)
 class GameScene : public atn::Task {
@@ -402,8 +411,35 @@ public:
     template <class G, class T>
     void fn_803C6FE4(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& points, atn::Csv& csv); // inferred: point groups
     void fn_803CA0F4();
+    void fn_803CA530();
     void fn_803CA604();
     void fn_803CAABC();
+    void fn_803CAED0();
+    void fn_803CB044();
+    void fn_803CB474();
+    void fn_803CB618();
+    void fn_803CB820();
+    int fn_803CC198(int a, int b, CharaTask* chara);
+    int fn_803CC1A4(int a, int b, CharaTask* chara, float radius, float scale);
+    void fn_803CC3BC();
+    void fn_803CC5E4();
+    void* fn_803CC6B4(int id); // inferred: message `id` (>= 10000: common messages of the field)
+    gs::ConstrainModel* fn_803CC6D0(int id); // inferred: constrained model with the given id
+    void fn_803CC718(unsigned int key, int value);
+    atn::Vector3 fn_803CC754(int index); // inferred: position of a NPC set point
+    int fn_803CC774(int arg);
+    void fn_803CC77C();
+    void fn_803CC900();
+    int fn_803CCA34(int arg);
+    int fn_803CCA4C(int arg);
+    int fn_803CCA64(int a, int b);
+    void fn_803CCA84();
+    int fn_803CCC4C(); // inferred: the event script is running
+    void fn_803CCC70(int value);
+    void fn_803CCC84(int a, int b); // inferred: queues a pair
+    void fn_803CCCC0();
+    void fn_803CCD98();
+    void fn_803CCDAC();
 
     int m48;                            // inferred: loading step
     atn::LH_Binary m4C[3];              // inferred: the .gs files (main, _sub2, _sub3)
@@ -448,8 +484,7 @@ public:
     atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> > m178; // "EnemyGroup"
     atn::SimpleArray<int> m180;            // "EventIdList"
     atn::SimpleArray<gs::Unk148_unk> m188;
-    int m190;
-    unsigned char m194[0x994 - 0x194];
+    atn::FixedArray_unk<GameScenePair_unk, 0x100> m190; // inferred: pairs queued by fn_803CCC84
     ResRef_unk m994;                       // inferred: levels/%s.pk
     ResRef_unk m998[6];                    // inferred: levels/%s_tmp%d.pk (the last one: town_sp)
     int m9B0;

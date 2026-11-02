@@ -52,6 +52,7 @@ extern "C" void fn_8047E5DC(void* mgr, int id);
 extern "C" int fn_8047F268(void* mgr, int id);
 extern "C" void fn_803B3C10(GameMessageTable_unk* table, const char* path); // inferred: loads the messages
 extern "C" int fn_803B3CA8(GameMessageTable_unk* table); // inferred: nonzero while loading
+extern "C" void* fn_803B3B38(void* table, int id); // inferred: message `id`
 
 // inferred: game flow manager (lbl_8087F420), only the members used here
 struct GameFlow_unk {
@@ -85,7 +86,8 @@ extern "C" AreaData_unk* fn_8021771C(int area, int map, int sub);
 struct Field_unk {
     unsigned char m0000[0x10D0];
     int m10D0;
-    unsigned char m10D4[0x5514 - 0x10D4];
+    unsigned char m10D4[0x54F4 - 0x10D4];
+    unsigned char m54F4[0x20]; // inferred: common message table (fn_803B3B38)
     int m5514;
     int m5518;
     int m551C;
@@ -125,6 +127,12 @@ struct SoundManager_unk {
 };
 extern "C" SoundManager_unk* lbl_8087EFE8;
 
+// inferred: chara radius (CharaTask::m620)
+struct CharaRadius_unk {
+    unsigned char m000[0x620];
+    float m620;
+};
+
 // inferred: path of a scene file of the current map (inline: "li r0, 1" before the test)
 inline bool MakeScenePath_unk(char* out, const char* fmt, int area, int map, int sub) {
     char name[0x100];
@@ -144,7 +152,7 @@ GameScene* GameScene::fn_803BEBAC(atn::Task* parent, int area, int map, int sub)
 
 GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     : atn::Task(parent), m48(0), m64(0), m68(0), m6C(0), m70(0), m74(0), mA8(0), m134(0), m138(-1),
-      m13C(1.0f), m140(0), m144(0), m190(0), m9B0(0) {
+      m13C(1.0f), m140(0), m144(0), m9B0(0) {
     char name[0x20];
     char path[0x100];
     if (fn_8049D52C(name, area, map, sub)) {
@@ -252,7 +260,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     if (lbl_8087F430 != 0 && SongManager::fn_805A2404(area, map, sub)) {
         SongManager::fn_805A2240(this);
     }
-    m190 = 0;
+    m190.clear();
 }
 
 GameScene::~GameScene() {
@@ -1210,3 +1218,148 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
     }
 }
 
+// inferred: event script task (fn_80393610, game/GameEventScript.cpp); only the members used here
+struct EventScript_unk : public atn::Task {
+    int fn_803ABFD4(int arg);
+    int fn_803AC3D8(int a, int b, int c);
+    int fn_803AC708(int arg);
+    int fn_803AC978(int arg);
+    void fn_803ACD08();
+    unsigned char m48[0x8C - 0x48];
+    int m8C;
+    unsigned char m90[0xB4 - 0x90];
+    int mB4;
+};
+
+// NONMATCHING: stub
+void GameScene::fn_803CA0F4() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CA530() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CA604() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CAABC() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CAED0() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CB044() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CB474() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CB618() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CB820() {}
+
+int GameScene::fn_803CC198(int a, int b, CharaTask* chara) {
+    return fn_803CC1A4(a, b, chara, ((CharaRadius_unk*)chara)->m620, 0.5f);
+}
+
+// NONMATCHING: stub
+int GameScene::fn_803CC1A4(int a, int b, CharaTask* chara, float radius, float scale) {
+    return 0;
+}
+
+// NONMATCHING: stub
+void GameScene::fn_803CC3BC() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CC5E4() {}
+
+void* GameScene::fn_803CC6B4(int id) {
+    if (id < 10000) {
+        return fn_803B3B38(&m11C, id);
+    }
+    return fn_803B3B38(lbl_8087F430->m54F4, id);
+}
+
+gs::ConstrainModel* GameScene::fn_803CC6D0(int id) {
+    for (unsigned int i = 0; i < (unsigned int)mDC.mSize; i++) {
+        if (id == mDC.mData[i].m00) {
+            return &mDC.mData[i];
+        }
+    }
+    return 0;
+}
+
+void GameScene::fn_803CC718(unsigned int key, int value) {
+    for (unsigned int i = 0; i < (unsigned int)mDC.mSize; i++) {
+        if (key == mDC.mData[i].m08) {
+            mDC.mData[i].m1C = value;
+        }
+    }
+}
+
+atn::Vector3 GameScene::fn_803CC754(int index) {
+    return m80.mData[index].mPos;
+}
+
+int GameScene::fn_803CC774(int arg) {
+    return ((EventScript_unk*)m134)->fn_803ABFD4(arg);
+}
+
+// NONMATCHING: stub
+void GameScene::fn_803CC77C() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803CC900() {}
+
+int GameScene::fn_803CCA34(int arg) {
+    if (m134 != 0) {
+        return ((EventScript_unk*)m134)->fn_803AC708(arg);
+    }
+    return 0;
+}
+
+int GameScene::fn_803CCA4C(int arg) {
+    if (m134 != 0) {
+        return ((EventScript_unk*)m134)->fn_803AC978(arg);
+    }
+    return 0;
+}
+
+int GameScene::fn_803CCA64(int a, int b) {
+    if (m134 != 0) {
+        return ((EventScript_unk*)m134)->fn_803AC3D8(a, 0, b);
+    }
+    return 0;
+}
+
+// NONMATCHING: stub
+void GameScene::fn_803CCA84() {}
+
+int GameScene::fn_803CCC4C() {
+    return m134 != 0 && ((EventScript_unk*)m134)->m8C != 0;
+}
+
+void GameScene::fn_803CCC70(int value) {
+    if (m134 != 0) {
+        ((EventScript_unk*)m134)->mB4 = value;
+    }
+}
+
+void GameScene::fn_803CCC84(int a, int b) {
+    GameScenePair_unk pair;
+    pair.m00 = a;
+    pair.m04 = b;
+    m190.push_back(pair);
+}
+
+// NONMATCHING: stub
+void GameScene::fn_803CCCC0() {}
+
+void GameScene::fn_803CCD98() {
+    if (m134 != 0) {
+        ((EventScript_unk*)m134)->fn_803ACD08();
+    }
+}
+
+// NONMATCHING: stub
+void GameScene::fn_803CCDAC() {}
