@@ -60,14 +60,15 @@ inline T* GetData_unk(const atn::SimpleArray<T>& a) {
 }
 template <class T>
 inline void Grow_unk(atn::SimpleArray<T>& a, unsigned int n, int heap, const char* name) {
+    T* data;
     unsigned int old = a.mSize;
     if (n == old) {
         return;
     }
     a.mSize = n;
-    T* data = a.mData;
-    if (n != 0) {
-        a.mData = new ((MemoryTag)heap, "", "", 0) T[n];
+    data = a.mData;
+    if (a.mSize != 0) {
+        a.mData = new ((MemoryTag)heap, "", "", 0) T[a.mSize];
         if (data != 0 && old != 0) {
             for (unsigned int i = 0; i < (old < (unsigned int)a.mSize ? old : (unsigned int)a.mSize); i++) {
                 a.mData[i] = data[i];

@@ -1072,58 +1072,6 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
     }
 }
 
-template <class T>
-void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file) {
-    unsigned int base = 0;
-    if (gs::GetData_unk(points) == 0) {
-        points.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
-    } else {
-        base = fn_80089ACC(&points);
-        gs::Grow_unk(points, base + atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
-    }
-    int offset = file * 10000;
-    unsigned int i = base;
-    while (csv.fn_8005BBF8()) {
-        std::string s(csv.fn_8005B9CC());
-        if (s == "end") {
-            break;
-        }
-        if (s[0] == ';') {
-            continue;
-        }
-        points[i].mIndex = base + atoi(s.c_str());
-        fn_803C3724(&points[i], csv);
-        points[i].m14 = fn_800DC288(csv.fn_8005B9CC());
-        points[i].m18 = atoi(csv.fn_8005B9CC());
-        points[i].m1C = atoi(csv.fn_8005B9CC());
-        points[i].m20 = atoi(csv.fn_8005B9CC());
-        std::string scripts(csv.fn_8005B9CC());
-        IntVector_unk ids;
-        Tokenizer tok(scripts, boost::char_separator<char>(":"));
-        for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
-            ids.push_back(atoi(it->c_str()));
-        }
-        points[i].m140.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
-        for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
-            if (file > 0) {
-                *fn_8028B74C(&ids, j) += offset;
-            }
-            points[i].m140[j] = *fn_8028B74C(&ids, j);
-        }
-        csv.fn_8005B9CC();
-        points[i].m24 = atoi(csv.fn_8005B9CC());
-        points[i].m28 = atoi(csv.fn_8005B9CC());
-        strncpy(points[i].mName, csv.fn_8005B9CC(), 0xFF);
-        points[i].mName[0xFF] = 0;
-        points[i].m12C = atoi(csv.fn_8005B9CC());
-        for (int k = 0; k < 3; k++) {
-            points[i].m130[k] = atoi(csv.fn_8005B9CC());
-        }
-        points[i].m13C = atoi(csv.fn_8005B9CC());
-        i++;
-    }
-}
-
 template <class G, class T>
 void GameScene::fn_803C606C(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& points, atn::Csv& csv) {
     unsigned int i = 0;
@@ -1209,3 +1157,56 @@ void GameScene::fn_803C6FE4(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& po
         i++;
     }
 }
+
+template <class T>
+void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file) {
+    unsigned int base = 0;
+    if (gs::GetData_unk(points) == 0) {
+        points.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
+    } else {
+        base = fn_80089ACC(&points);
+        gs::Grow_unk(points, base + atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
+    }
+    int offset = file * 10000;
+    unsigned int i = base;
+    while (csv.fn_8005BBF8()) {
+        std::string s(csv.fn_8005B9CC());
+        if (s == "end") {
+            break;
+        }
+        if (s[0] == ';') {
+            continue;
+        }
+        points[i].mIndex = base + atoi(s.c_str());
+        fn_803C3724(&points[i], csv);
+        points[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+        points[i].m18 = atoi(csv.fn_8005B9CC());
+        points[i].m1C = atoi(csv.fn_8005B9CC());
+        points[i].m20 = atoi(csv.fn_8005B9CC());
+        std::string scripts(csv.fn_8005B9CC());
+        IntVector_unk ids;
+        Tokenizer tok(scripts, boost::char_separator<char>(":"));
+        for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+            ids.push_back(atoi(it->c_str()));
+        }
+        points[i].m140.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
+        for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
+            if (file > 0) {
+                *fn_8028B74C(&ids, j) += offset;
+            }
+            points[i].m140[j] = *fn_8028B74C(&ids, j);
+        }
+        csv.fn_8005B9CC();
+        points[i].m24 = atoi(csv.fn_8005B9CC());
+        points[i].m28 = atoi(csv.fn_8005B9CC());
+        strncpy(points[i].mName, csv.fn_8005B9CC(), 0xFF);
+        points[i].mName[0xFF] = 0;
+        points[i].m12C = atoi(csv.fn_8005B9CC());
+        for (int k = 0; k < 3; k++) {
+            points[i].m130[k] = atoi(csv.fn_8005B9CC());
+        }
+        points[i].m13C = atoi(csv.fn_8005B9CC());
+        i++;
+    }
+}
+
