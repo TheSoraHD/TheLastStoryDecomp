@@ -1,4 +1,5 @@
 #include "game/GameScene.h"
+extern "C" float lbl_80885CCC;
 #include "game/GameEventScript.h"
 #include "game/CrowdManager.h"
 #include "game/ColliAttrManager.h"
@@ -2169,7 +2170,7 @@ int GameScene::fn_803CB618(GameSceneRoute_unk* out, CharaTask* chara) {
 void GameScene::fn_803CB820() {}
 
 int GameScene::fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara) {
-    return fn_803CC1A4(pos, ((CharaRadius_unk*)chara)->m620, 0.5f, dir);
+    return fn_803CC1A4(pos, ((CharaRadius_unk*)chara)->m620, lbl_80885CCC, dir);
 }
 
 // inferred: a x b
