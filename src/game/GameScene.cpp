@@ -2016,10 +2016,11 @@ int GameScene::fn_803CB474(GameSceneRoute_unk* out, CharaTask* chara, int point,
         Mtx m;
         PSMTXRotRad(m, 'y', chara->mRot.y);
         PSMTXMultVec(m, &fwd, &fwd);
-        if (PSVECDotProduct(&side, &fwd) >= 0.70710677f) {
-            fn_803CAED0(out, &link);
-            return 1;
+        if (PSVECDotProduct(&side, &fwd) < 0.70710677f) {
+            continue;
         }
+        fn_803CAED0(out, &link);
+        return 1;
     }
     return 0;
 }
