@@ -31,6 +31,52 @@ extern "C" int fn_8021150C(int code);                     // inferred: index of 
 extern "C" int fn_80206BE4(WeaponParamEntry_unk* weapon);  // inferred: item code of a weapon
 extern "C" int fn_8020EF80(EquipParamEntry_unk* equip);    // inferred: item code of a protector
 
+// inferred: inline members of include/game/GameSaveData.h (defined here so that the units that include
+// the header keep their label numbering)
+inline MP::SaveElemBPart_unk::SaveElemBPart_unk() : mId(-1), m02(0), m04(-1.0f), m08(1.0f), m0C(1.0f), m10(-1.0f) {}
+
+inline GameSaveFlags_unk::GameSaveFlags_unk() : mState(0), mSpotCount(0) {
+    memset(mFlags, 0, sizeof(mFlags));
+    memset(mWork, 0, sizeof(mWork));
+}
+
+inline GameSaveEquipExtra_unk::GameSaveEquipExtra_unk() {
+    for (int i = 0; i < 8; i++) {
+        mIds[i] = -1;
+    }
+    memset(m20, 0, sizeof(m20));
+}
+
+inline GameSaveGimmick_unk::GameSaveGimmick_unk() : mFlags(0) {}
+
+inline void GameSaveGimmick_unk::Set_unk(GimmickCommon* gimmick) {
+    mFlags |= 1;
+    mState = gimmick->m54;
+    mId = gimmick->mId;
+    m04 = gimmick->m4C;
+}
+
+inline int GameSaveGimmicks_unk::FindGimmick_unk(GimmickCommon* gimmick) {
+    int i;
+    for (i = 0; i < 0x200; i++) {
+        if ((mEntries[i].mFlags & 1) != 1) {
+            break;
+        }
+        if (mEntries[i].mId == gimmick->mId && mEntries[i].m04 == gimmick->m4C) {
+            break;
+        }
+    }
+    return i;
+}
+
+inline GameSavePlayer_unk::GameSavePlayer_unk() : mFlags(0) {}
+
+inline GameSaveEnemy_unk::GameSaveEnemy_unk() : mFlags(0) {}
+
+inline GameSaveSettings_unk::GameSaveSettings_unk() {
+    memset(m8C, 0, sizeof(m8C));
+}
+
 // inferred: flags kept when a new game starts from a cleared save (fn_803BA120); in .data
 static int sKeptFlags_unk[273] = {
     0x1E, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,

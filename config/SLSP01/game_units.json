@@ -3800,6 +3800,13 @@
   "matching": false
  },
  {
+  "name": "game/ItemManager_unk.cpp",
+  "classes": [
+   "Inventory"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/ColliTest_unk.cpp",
   "classes": [],
   "matching": false

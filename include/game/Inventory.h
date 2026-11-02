@@ -2,6 +2,7 @@
 #define GAME_INVENTORY_H
 
 #include "atn/FixedArray.h"
+#include "MP/SaveElemB_unk.h"
 
 class CharaStatus;
 class CharaTask;
@@ -57,6 +58,11 @@ public:
     void AddMoney(int n);
     // inferred: sets the money (0x8044D6E0, right after AddMoney; game/DamageCalc_unk.cpp)
     void fn_8044D6E0(int money);
+    void fn_8044D028(); // inferred: clears the party of the last battle
+    void fn_8044D060(int slot, int item, int unused, int chara); // inferred: sets a protector
+    void fn_8044D0DC(int slot, int item, int unused, int index); // inferred: sets a protector
+    void fn_8044D4F0(); // inferred: clears the items to identify
+    int fn_8044D530(int index); // inferred: item to identify (same as fn_8044D500)
 
     // RSO: GetPlayerStatusInfo__9InventoryFi (weak copy 0x805282A8); inferred: the block is a
     // CharaStatus (game/NewCampPartsStatus.cpp passes it as one)
@@ -71,10 +77,12 @@ public:
     unsigned char m64C8[0x64EC - 0x64C8];
     PlayerStatus_unk mPlayers[7];                   // 0x64EC
     Equip_unk mEquip[7];                            // 0x8290: inferred: one per player
-    unsigned char m8450[0xD380 - 0x8450];
+    MP::SaveElemB_unk mUpgrades[28];                // 0x8450: inferred: upgraded equipment (fn_8044D034)
     Equip_unk mEquipShown[7];                       // 0xD380: inferred: equipment shown by the costume menu
     Equip_unk mEquipSetA[16];                       // 0xD540: inferred: costume sets (game/CosEditBase.cpp)
-    Equip_unk mEquipSetB[16];                       // 0xD940
+    Equip_unk mEquipSetB[7];                        // 0xD940 (at most 7: the list below starts at 0xDB2C)
+    unsigned char mDB00[0xDB2C - 0xDB00];
+    atn::FixedArray_unk<int, 0x100> mIdentify;      // 0xDB2C: inferred: items to identify (game/ShopIdentify)
 
     static Inventory* instance_;
 };

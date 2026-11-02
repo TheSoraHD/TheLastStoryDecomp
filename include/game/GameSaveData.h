@@ -5,7 +5,6 @@
 // MP::SaveData_unk (include/MP/SaveLoad.h) is another view of the same buffer. Names invented.
 #include "game/CharaStatus.h"
 
-extern "C" void* memset(void* dst, int c, unsigned long n);
 #include "game/GimmickCommon.h"
 #include "game/Inventory.h"
 #include "MP/SaveLoad.h"
@@ -29,10 +28,7 @@ struct GameSaveRoute_unk {
 // inferred: game flags of the save data (at +0x04 of GameSaveData_unk): values and work values of the
 // flag manager (lbl_8087F430), the route spots and the characters of the map
 struct GameSaveFlags_unk {
-    GameSaveFlags_unk() : mState(0), mSpotCount(0) {
-        memset(mFlags, 0, sizeof(mFlags));
-        memset(mWork, 0, sizeof(mWork));
-    }
+    inline GameSaveFlags_unk();
     void fn_803B9804(); // inferred: collects the flags
     void fn_803B9C98(); // inferred: restores the flags
     void fn_803B9D78(); // inferred: restores the work values and the routes
@@ -57,12 +53,7 @@ struct GameSaveFlags_unk {
 
 // inferred: 0x40 bytes saved per party member next to the equipment (copied whole into packets)
 struct GameSaveEquipExtra_unk {
-    GameSaveEquipExtra_unk() {
-        for (int i = 0; i < 8; i++) {
-            mIds[i] = -1;
-        }
-        memset(m20, 0, sizeof(m20));
-    }
+    inline GameSaveEquipExtra_unk();
 
     int mIds[8];
     unsigned char m20[0x20];
@@ -111,15 +102,10 @@ struct GameSaveParty_unk {
 
 // inferred: gimmick saved with its state (0x18 bytes)
 struct GameSaveGimmick_unk {
-    GameSaveGimmick_unk() : mFlags(0) {}
+    inline GameSaveGimmick_unk();
 
     // inferred: stores the state of `gimmick` (inlined twice in fn_803BB248; name invented)
-    void Set_unk(GimmickCommon* gimmick) {
-        mFlags |= 1;
-        mState = gimmick->m54;
-        mId = gimmick->mId;
-        m04 = gimmick->m4C;
-    }
+    inline void Set_unk(GimmickCommon* gimmick);
 
     int mId;                // 0x00: GimmickCommon::mId
     unsigned short m04;     // 0x04: GimmickCommon::m4C
@@ -132,18 +118,7 @@ struct GameSaveGimmick_unk {
 struct GameSaveGimmicks_unk {
     void fn_803BB248(); // inferred: collects the state of the gimmicks
     // inferred: index of the saved state of `gimmick` (0x200 if not found; name invented)
-    int FindGimmick_unk(GimmickCommon* gimmick) {
-        int i;
-        for (i = 0; i < 0x200; i++) {
-            if ((mEntries[i].mFlags & 1) != 1) {
-                break;
-            }
-            if (mEntries[i].mId == gimmick->mId && mEntries[i].m04 == gimmick->m4C) {
-                break;
-            }
-        }
-        return i;
-    }
+    inline int FindGimmick_unk(GimmickCommon* gimmick);
 
     GameSaveGimmick_unk mEntries[0x200];
 };
@@ -151,7 +126,7 @@ struct GameSaveGimmicks_unk {
 // inferred: blocks restored by their own function; contents not known yet
 // inferred: player saved with its position and route (0x44 bytes)
 struct GameSavePlayer_unk {
-    GameSavePlayer_unk() : mFlags(0) {}
+    inline GameSavePlayer_unk();
 
     unsigned short mFlags;  // bit 0: used, 1: dead, 2: on a ledge, 3: character flag, 4: walking a route
     unsigned char m02;      // inferred: CharaC58_unk::mC0
@@ -173,7 +148,7 @@ struct GameSavePlayers_unk {
 };
 // inferred: enemy saved with its state (0x2C bytes)
 struct GameSaveEnemy_unk {
-    GameSaveEnemy_unk() : mFlags(0) {}
+    inline GameSaveEnemy_unk();
 
     unsigned short mFlags;  // bit 0: used, 1: dead, 2: on a ledge, 3..6: character flags
     unsigned char m02;      // inferred: CharaC58_unk::mC0
@@ -208,7 +183,7 @@ struct GameSaveInventory_unk {
 };
 // inferred: settings of the save data (0xFC bytes): copy of SetConfig 0x24..0xA8
 struct GameSaveSettings_unk {
-    GameSaveSettings_unk() { memset(m8C, 0, sizeof(m8C)); }
+    inline GameSaveSettings_unk();
     void fn_803BD79C(); // inferred: restores the settings
 
     unsigned int mMagic;        // 0x00: 0xDEADBEEF
