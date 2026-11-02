@@ -5,6 +5,7 @@
 // MP::SaveData_unk (include/MP/SaveLoad.h) is another view of the same buffer. Names invented.
 #include "game/CharaStatus.h"
 #include "game/GimmickCommon.h"
+#include "game/Inventory.h"
 
 // inferred: character, enemy or player of the map saved with its state (8 bytes; type 1: npc,
 // 2: enemy, 3: player)
@@ -39,11 +40,52 @@ struct GameSaveFlags_unk {
     unsigned char m4D18[0x200];      // inferred: copy of 0x154 of the route tables
 };
 
+// inferred: 0x40 bytes saved per party member next to the equipment (copied whole into packets)
+struct GameSaveEquipExtra_unk {
+    int m00[0x10];
+};
+
+// inferred: item of the bag in the save data (8 bytes, format 10 and later)
+struct GameSaveItem_unk {
+    int mCode;              // inferred: item code (kind * 1000000 + id)
+    unsigned char mCount;   // 0x04
+    unsigned char m05;
+    unsigned short mAge;    // 0x06: inferred: number of items obtained since this one
+};
+// inferred: item of the bag in the save data (0xC bytes, formats before 10)
+struct GameSaveItemOld_unk {
+    int mCode;
+    unsigned short mCount;  // 0x04
+    unsigned short m06;
+    int m08;
+};
+
+// inferred: upgraded weapon or protector (0x2D4 bytes, 28 of them; MP::SaveElemB_unk is the same)
+struct GameSaveUpgrade_unk {
+    unsigned char m000[0xC];
+    int m00C;
+    unsigned char m010[0x2D4 - 0x10];
+};
+
+// inferred: equipment entry of a network packet (atn/PacketPack fn_804D8910); names invented
+struct GameSavePacketEquip_unk {
+    int mSlot;                   // 0x00
+    int mItem;                   // 0x04
+    unsigned short mValid : 1;   // 0x08
+    unsigned short mMarked : 1;  // inferred: GameSaveParty_unk m230 bit
+    unsigned short mColor : 8;   // inferred: CharaStatusBase::m231
+    unsigned short m08_5 : 6;
+    unsigned char m0A[2];
+    int m0C;
+    GameSaveEquipExtra_unk mExtra; // 0x10
+};
+
 // inferred: status of the seven party members (0xFC4 bytes; its constructor 0x803BAA90 is called by
 // game/GameTask)
 struct GameSaveParty_unk {
     GameSaveParty_unk(); // 0x803BAA90
     void fn_803BAD6C(); // inferred: copies the saved status to the players
+    int fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, int bit) const; // inferred: costume flags of a packet
 
     CharaStatusBase mStatus[7];
     unsigned int mMask; // 0xFC0: inferred: bit i set when member i is saved
@@ -69,7 +111,17 @@ struct GameSaveEnemies_unk {
 };
 struct GameSaveInventory_unk {
     void fn_803BC2D4(); // inferred: restores the inventory
-    unsigned char m0000[0x94C8];
+    int fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const; // inferred: protector of a packet
+    int fn_803BD22C(GameSavePacketEquip_unk* equip, int chara, int slot) const; // inferred: weapon of a packet
+    int fn_803BD2B0(int code, int count); // inferred: adds items (at most 99, and 10 of each weapon or protector)
+    int fn_803BD49C(int code) const;      // inferred: number of items `code` (bag and equipment)
+    unsigned char m0000[0x404];
+    GameSaveItemOld_unk mOldItems[0x100]; // 0x404: inferred: items 0x400.. of the old format
+    GameSaveEquipExtra_unk mExtras[7]; // 0x1004
+    GameSaveUpgrade_unk mUpgrades[28]; // 0x11C4
+    GameSaveItem_unk mItems[0x600];    // 0x60F4
+    Inventory::Equip_unk mEquips[7]; // 0x90F4: inferred: copy of Inventory::mEquips
+    unsigned char m92B4[0x94C8 - 0x92B4];
     int m94C8; // inferred: shown in the slot header (GameSaveSlot_unk::m70)
     unsigned char m94CC[0x9548 - 0x94CC];
 };

@@ -13,6 +13,8 @@
 #include "game/GimmickManager.h"
 #include "game/GimmickCommon.h"
 #include "game/GameBgm.h"
+#include "db/WeaponParam_unk.h"
+#include "db/EquipParam_unk.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -21,6 +23,9 @@ extern "C" void fn_804A1C4C(GameMap_unk* map); // inferred: refreshes the map af
 extern "C" int lbl_8087DD64;                   // inferred: format of the loaded save data
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" int fn_8021150C(int code);                     // inferred: index of an item code in the bag
+extern "C" int fn_80206BE4(WeaponParamEntry_unk* weapon);  // inferred: item code of a weapon
+extern "C" int fn_8020EF80(EquipParamEntry_unk* equip);    // inferred: item code of a protector
 
 void GameSaveFlags_unk::fn_803B9C98() {
     GameField_unk* field = lbl_8087F430;
@@ -74,6 +79,110 @@ void GameSaveParty_unk::fn_803BAD6C() {
             }
         }
     }
+}
+
+int GameSaveParty_unk::fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, int bit) const {
+    if (equip->mValid) {
+        int index = fn_80219558(chara);
+        if (0 <= index && index < 7) {
+            const CharaStatusBase& status = mStatus[index];
+            equip->mMarked = (status.m230 & (1 << bit)) == (1 << bit);
+            equip->mColor = status.m231;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int GameSaveInventory_unk::fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const {
+    int index = fn_80219558(chara);
+    if (0 <= index && index < 7) {
+        const Inventory::Equip_unk& equipment = mEquips[index];
+        equip->mSlot = slot;
+        equip->mItem = equipment.mProtectors[slot].mId;
+        equip->mValid = 0;
+        int upgrade = equipment.mProtectors[slot].m04;
+        if (upgrade >= 0) {
+            equip->m0C = mUpgrades[upgrade].m00C;
+            equip->mExtra = mExtras[index];
+            equip->mValid = 1;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int GameSaveInventory_unk::fn_803BD22C(GameSavePacketEquip_unk* equip, int chara, int slot) const {
+    int index = fn_80219558(chara);
+    if (0 <= index && index < 7) {
+        equip->mSlot = slot;
+        equip->mItem = mEquips[index].mWeapons[slot].mId;
+        return 1;
+    }
+    return 0;
+}
+
+int GameSaveInventory_unk::fn_803BD2B0(int code, int count) {
+    int index = fn_8021150C(code);
+    if (index < 0) {
+        return 0;
+    }
+    if (fn_80206B9C(code) || fn_8020EF04(code)) {
+        int have = fn_803BD49C(code);
+        if (have + count >= 10) {
+            count = 10 - have;
+        }
+    }
+    if (count <= 0) {
+        return 0;
+    }
+    if (index < 0x500) {
+        int n = mItems[index].mCount + count;
+        mItems[index].mCount = n < 99 ? n : 99;
+        for (int i = 0; i < 0x600; i++) {
+            mItems[i].mAge++;
+        }
+        mItems[index].mAge = 0;
+    } else {
+        int n = mOldItems[index - 0x500].mCount + count;
+        mOldItems[index - 0x500].mCount = n < 99 ? n : 99;
+    }
+    return 1;
+}
+
+int GameSaveInventory_unk::fn_803BD49C(int code) const {
+    int count = 0;
+    for (int i = 0; i < 0x600; i++) {
+        if (code == mItems[i].mCode % 1000000) {
+            count += mItems[i].mCount;
+        }
+    }
+    if (fn_80206B9C(code)) {
+        const Inventory::Equip_unk* equips = mEquips;
+        for (int c = 0; c < 7; c++) {
+            for (int w = 0; w < 2; w++) {
+                WeaponParamEntry_unk* weapon = fn_80206B14(0, equips[c].mWeapons[w].mId);
+                if (c == 0 && w == 1) {
+                    weapon = fn_80206B14(1, equips[c].mWeapons[w].mId);
+                }
+                if (weapon && code == fn_80206BE4(weapon) % 1000000) {
+                    count++;
+                }
+            }
+        }
+    }
+    if (fn_8020EF04(code)) {
+        const Inventory::Equip_unk* equips = mEquips;
+        for (int c = 0; c < 7; c++) {
+            for (int p = 0; p < 2; p++) {
+                EquipParamEntry_unk* equip = fn_8020ED84(p, equips[c].mProtectors[p].mId);
+                if (equip && code == fn_8020EF80(equip)) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
 }
 
 extern "C" void fn_803BE550(GameSaveData_unk* data) {
