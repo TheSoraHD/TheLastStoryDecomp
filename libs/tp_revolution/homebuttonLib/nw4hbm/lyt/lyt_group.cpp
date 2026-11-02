@@ -59,9 +59,10 @@ namespace nw4hbm {
 
                 mGroupList.Erase(currIt);
 
-                if (!currIt->IsUserAllocated()) {
-                    currIt->~Group();
-                    Layout::FreeMemory(&*currIt);
+                Group* pGroup = &*currIt;
+                if (!pGroup->IsUserAllocated()) {
+                    pGroup->~Group();
+                    Layout::FreeMemory(pGroup);
                 }
             }
         }

@@ -39,7 +39,7 @@ namespace nw4hbm {
             /* 1 */ ANIMOPTION_SKIP_INVISIBLE = (1 << 0),
         };
 
-        class Pane : detail::PaneBase {
+        class Pane : public detail::PaneBase {  // public in SLSP01 (RTTI base list of Picture/TextBox/Window)
         private:
             enum {
                 /* 0 */ BIT_VISIBLE = 0,

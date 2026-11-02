@@ -3572,9 +3572,23 @@ tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_layout.cpp:
 	.data       start:0x80799030 end:0x80799080
 	.bss        start:0x807CA1F8 end:0x807CA200
 
+tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_picture.cpp:
+	.text       start:0x805D3CA0 end:0x805D4200
+	.ctors      start:0x8072D3F0 end:0x8072D3F4
+	.rodata     start:0x807645A8 end:0x807645AC
+	.data       start:0x80799170 end:0x80799210
+	.bss        start:0x807CA208 end:0x807CA210
+
 tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_resourceAccessor.cpp:
 	.text       start:0x805D4200 end:0x805D4258
 	.data       start:0x80799210 end:0x80799228
+
+tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_window.cpp:
+	.text       start:0x805D56B0 end:0x805D7CE0
+	.ctors      start:0x8072D3F8 end:0x8072D3FC
+	.rodata     start:0x807645C8 end:0x807645E0
+	.data       start:0x807992D8 end:0x807993C0
+	.bss        start:0x807CA218 end:0x807CA220
 
 RVL_SDK/src/revolution/hbm/nw4hbm/math/math_triangular.cpp:
 	.text       start:0x805D7CE0 end:0x805D7F90
