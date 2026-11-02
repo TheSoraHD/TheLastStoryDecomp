@@ -18,16 +18,22 @@ namespace atn {
 class LoadHandle;
 class LH_Motion;
 struct MotionCmd_unk; // inferred: motion command entry of a motion slot (16 bytes)
+// inferred: per-node work entry of a model (18 bytes, cleared by its weak ctor 0x800979E8); name invented
+struct NodeWork_unk {
+    NodeWork_unk() { memset(this, 0, sizeof(NodeWork_unk)); }
+    unsigned short m00[9];
+};
 class Matrix3x4;
 struct NodeChunk;
 struct ModelNodeCallbackContext;
 struct MotionBuffer; // inferred: node pose passed to the m370 callback (name from the RTTI of CharaFaceControl)
-struct ModelChild_unk; // inferred: objects owned by a model (deleted through their virtual destructor)
+class PBoneInterface; // physics bones owned by a model (include/atn/PBone.h)
 struct MotionSlot_unk; // inferred: motion slot of a model (defined in atn/Model.cpp)
 struct ModelComposite_unk; // inferred: composite texture of a model (defined in atn/Model.cpp)
 struct ModelCompositeTex_unk; // inferred: texture composite object (defined in atn/Model.cpp)
 struct Model;
 struct AABB_unk;
+class CsvTab;
 }
 // inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
 // and by the equipment at 0x80564108); defined where it is used
@@ -274,11 +280,13 @@ struct Model : public ModelBase {
     // inferred: node edit of `name` (offsets a, b and scale c); flags as fn_80089D70
     void fn_80093F1C(const char* name, const atn::Vector3& a, const atn::Vector3& b, const atn::Vector3& c, int flags);
     void fn_80094778(const char* name); // inferred: removes the node edit of `name`
-    void fn_800973C0(void* csv); // inferred: scale
+    void fn_800973C0(CsvTab* csv); // inferred: adds a physics bone from a CSV line
     void fn_80095D44(int node, int parent);
     void fn_80091CFC(const char* node);
     void fn_80099E9C(const char* node, const char* name, float value);
-    void fn_80097510();
+    void fn_80097510(); // inferred: resets the physics bones
+    void fn_8009757C(); // inferred: wind on the physics bones
+    void fn_80097D9C(Model* src); // inferred: copies the node poses of src by node name
     atn::LoadHandle* fn_80097D40(int motion); // inferred: handle of the motion (12-byte entries of m224), zero if missing
 
     // inferred: per-node data (0x2C bytes)
@@ -322,7 +330,7 @@ struct Model : public ModelBase {
     void fn_8013C554(int track, float weight);
     float GetMotionSpeed(int track) const { return mTracks[track].m0C; } // weak copy 0x80224628
 
-    SimpleArray<Matrix3x4> m214;     // inferred: element type
+    SimpleArray<NodeWork_unk> m214;  // inferred: 18-byte per-node work entries (cleared by their ctor 0x800979E8)
     SimpleArray<Node_unk> m21C;      // inferred: per-node data
     SimpleArray<MotionSlot_unk> m224; // inferred: motion slots (mSize: NpcManager::fn_80547B54)
     Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
@@ -334,8 +342,8 @@ struct Model : public ModelBase {
     boost::function<void(atn::MotionBuffer*, int)> m35C;
     // inferred: callback run on the node poses (set by CharaFaceControl::Initialize)
     boost::function<void(atn::MotionBuffer*, int)> m370;
-    unsigned int m384;          // inferred: number of objects in m388
-    ModelChild_unk* m388[8];    // inferred: owned objects (deleted by the destructor)
+    unsigned int m384;          // inferred: number of bones in m388
+    PBoneInterface* m388[8];    // inferred: physics bones (deleted by the destructor)
     atn::Vector3 m3A8; // inferred: direction (normalized, fn_80097750)
     float m3B4;
     float m3B8;

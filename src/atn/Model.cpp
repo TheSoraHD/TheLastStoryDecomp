@@ -9,6 +9,8 @@
 #include "atn/MemoryManager.h"
 #include "std/string.h"
 #include "atn/AABB_unk.h"
+#include "atn/PBone.h"
+#include "std/new.h"
 #include <boost/bind.hpp>
 
 extern "C" char* strcpy(char* dst, const char* src);
@@ -22,6 +24,7 @@ std::string fn_8006B0C8(const std::string& path); // inferred: directory of a pa
 extern "C" void* lbl_8087EFB4; // inferred: render system
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int memcmp(const void* a, const void* b, unsigned long n);
+extern "C" int rand();
 extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* srcBase, atn::Vector3* dstBase, unsigned int count);
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXConcatArray(const Mtx a, const Mtx* srcBase, Mtx* dstBase, unsigned int count);
@@ -43,22 +46,24 @@ inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
 extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd); // inferred: clears
+
 namespace atn {
+
 // inferred: motion command entry of a motion slot (16 bytes, atn::Model::m354); its destructor clears it
 // (fn_800A1060); names invented
 struct MotionCmd_unk {
+    MotionCmd_unk() { m04 = 0; m00 = 0; m08 = 0; } // inferred: weak ctor 0x80097BF4
     ~MotionCmd_unk() { fn_800A1060(this); }
-    unsigned char m00[0x10];
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
 };
 // inferred: motion slot of a model (the array is built with the constructor of LH_Motion and destroyed
 // with its own destructor 0x800970CC); name invented
 struct MotionSlot_unk {
     LH_Motion& GetMotion_unk() { return mMotion; }
     LH_Motion mMotion;
-};
-// inferred: objects owned by a model (deleted through their virtual destructor)
-struct ModelChild_unk {
-    virtual ~ModelChild_unk();
 };
 } // namespace atn
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
@@ -1136,6 +1141,12 @@ void Model::fn_80095D44(int node, int parent) {
     }
 }
 
+// inferred: appends a bone to the fixed array (name invented)
+inline void PushBone_unk(Model* model, PBoneInterface* bone) {
+    new (&model->m388[model->m384]) PBoneInterface*(bone);
+    model->m384++;
+}
+
 // NONMATCHING: 83% - the copy of dir is scheduled before the arguments
 // inferred: node pose of the shared pose buffer (implicit constructor 0x8008A4B0); name invented
 struct NodePose_unk : public MotionPose_unk {};
@@ -1175,6 +1186,46 @@ Model::~Model() {
     for (unsigned int i = 0; i < m384; i++) {
         delete m388[i];
     }
+}
+
+void Model::fn_800973C0(CsvTab* csv) {
+    if (m384 < 8) {
+        int type = fn_800DC12C(csv->fn_8005B9CC());
+        if (type == 0) {
+            PBoneInterface* bone = new ((MemoryTag)6, "", "", 0) PBoneBasic;
+            bone->vf1C((PBoneModel_unk*)this, csv);
+            PushBone_unk(this, bone);
+        } else if (type == 1) {
+            PBoneInterface* bone = new ((MemoryTag)6, "", "", 0) PBoneOutForce;
+            bone->vf1C((PBoneModel_unk*)this, csv);
+            PushBone_unk(this, bone);
+        }
+    }
+}
+
+void Model::fn_80097510() {
+    for (unsigned int i = 0; i < m384; i++) {
+        m388[i]->vf0C();
+    }
+}
+
+// inferred: pushes the physics bones in the wind direction (random strength and angle) and updates them
+void Model::fn_8009757C() {
+    for (unsigned int i = 0; i < m384; i++) {
+        if (m3BC > 0) {
+            Vector3 dir(m3A8);
+            float b;
+            float a = m3B4;
+            b = m3B8;
+            dir *= (a - b) * (rand() / 32767.0f) + b;
+            Mtx rot;
+            PSMTXRotRad(rot, 'y', 0.08726646f * ((rand() % 1001) / 1000.0f));
+            PSMTXMultVec(rot, &dir, &dir);
+            m388[i]->vf28(dir);
+        }
+        m388[i]->vf10();
+    }
+    m3BC--;
 }
 
 void Model::fn_80097750(const atn::Vector3& dir, float a, float b, int c) {
@@ -1284,6 +1335,35 @@ float Model::fn_80097D7C(int track) {
         return fn_800A08D4((LH_Motion*)mTracks[track].m04);
     }
     return 0.0f;
+}
+
+// inferred: rebuilds the per-node arrays from the loaded data and the motion commands of the slots
+// NONMATCHING: 99.2% - loop counter allocated after the two offsets (r28 instead of r30)
+void Model::vf24() {
+    Res_unk* res = (Res_unk*)mLods[0].m08;
+    if (res == 0) {
+        return;
+    }
+    if ((mFlags & 1) != 1) {
+        m214.Resize_unk(res->m44, 0xb);
+        m21C.Resize_unk(((Res_unk*)mLods[0].m08)->m44, 0xb);
+    }
+    if ((mFlags & 1) != 1) {
+        m354.Resize_unk(m224.mSize, 6);
+        for (unsigned int i = 0; i < m224.size(); i++) {
+            fn_800A0A68(&m354.mData[i], this, &m224.mData[i].mMotion);
+        }
+    }
+}
+
+// NONMATCHING: 97% - registers of the inlined node search
+void Model::fn_80097D9C(Model* src) {
+    for (int i = 0; i < ((Res_unk*)mLods[0].m08)->m44; i++) {
+        int j = FindNodeRes_unk((Res_unk*)src->mLods[0].m08, ((Res_unk*)mLods[0].m08)->m48[i]->m14);
+        if (j >= 0) {
+            m21C.mData[i] = src->m21C.mData[j];
+        }
+    }
 }
 
 void Model::fn_80099E9C(const char* node, const char* name, float value) {

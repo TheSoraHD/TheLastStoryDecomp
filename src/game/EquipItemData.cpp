@@ -10,7 +10,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s);  // inferred: string hash
 extern "C" int fn_800DC12C(const char* s);           // inferred: string to int
 extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path
 extern "C" int fn_802180A8(const char* name);        // inferred: motion id
-extern "C" void fn_80097D9C(atn::Model* model, atn::Model* source);  // inferred: shares the motions
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" float PSVECMag(const atn::Vector3* v);
@@ -152,7 +151,7 @@ void EquipItemData::vf08() {
     atn::Vector3 s(sx, sy, sz);
     mModel.m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
     if (mFlags.mCopyMotion) {
-        fn_80097D9C(&mModel, mTarget);
+        mModel.fn_80097D9C(mTarget);
         atn::Model::Node_unk* nodes = mModel.m21C.mData;
         nodes[mModel.GetNodeNoByName("head", 0)].m00 = 0;
     }
