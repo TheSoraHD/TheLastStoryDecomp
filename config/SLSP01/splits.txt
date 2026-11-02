@@ -3572,6 +3572,11 @@ RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_binaryFileFormat.cpp:
 RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_CharStrmReader.cpp:
 	.text       start:0x805D8010 end:0x805D8130
 
+RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_CharWriter.cpp:
+	.text       start:0x805D8130 end:0x805D9B30
+	.rodata     start:0x80764608 end:0x80764628
+	.bss        start:0x807CA220 end:0x807CA238
+
 RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_Font.cpp:
 	.text       start:0x805D9B30 end:0x805D9BE0
 	.data       start:0x8079A4D8 end:0x8079A508
