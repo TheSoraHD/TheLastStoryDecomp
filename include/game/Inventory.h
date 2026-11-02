@@ -2,6 +2,7 @@
 #define GAME_INVENTORY_H
 
 #include "atn/FixedArray.h"
+#include "MP/SaveElemB_unk.h"
 
 class CharaStatus;
 class CharaTask;
@@ -27,7 +28,19 @@ public:
     struct PlayerStatus_unk {
         unsigned char m000[0x230];
         unsigned char mEquipFlags; // 0x230: inferred: one bit per equipment slot (game/CharaTask)
-        unsigned char m231[0x43C - 0x231];
+        unsigned char m231[0x2F0 - 0x231];
+        int m2F0; // inferred: cleared when the save data is restored (GameSaveData_unk::fn_803BE590)
+        unsigned char m2F4[0x380 - 0x2F4];
+        int m380; // inferred: cleared together with m2F0
+        unsigned char m384[0x43C - 0x384];
+    };
+
+    // inferred: item of the bag (0x10 bytes)
+    struct Item_unk {
+        int mCode;   // inferred: kind * 1000000 + id
+        int mCount;  // 0x04
+        unsigned short m08;
+        int m0C;
     };
 
     // inferred: equipped item of one slot
@@ -53,12 +66,19 @@ public:
     void AddMoney(int n);
     // inferred: sets the money (0x8044D6E0, right after AddMoney; game/DamageCalc_unk.cpp)
     void fn_8044D6E0(int money);
+    Item_unk* fn_80444744(int code); // inferred: finds an item of the bag
+    Item_unk* fn_80444804(int index); // inferred: item of the bag by index
+    void fn_8044D028(); // inferred: clears the party of the last battle
+    void fn_8044D060(int slot, int item, int unused, int chara); // inferred: sets a protector
+    void fn_8044D0DC(int slot, int item, int unused, int index); // inferred: sets a protector
+    void fn_8044D4F0(); // inferred: clears the items to identify
+    int fn_8044D530(int index); // inferred: item to identify (same as fn_8044D500)
 
     // RSO: GetPlayerStatusInfo__9InventoryFi (weak copy 0x805282A8); inferred: the block is a
     // CharaStatus (game/NewCampPartsStatus.cpp passes it as one)
     CharaStatus* GetPlayerStatusInfo(int i) { return (CharaStatus*)&mPlayers[i]; }
 
-    unsigned char m0000[0x6000];
+    Item_unk mItems[0x600];                         // 0x0000: inferred: the bag (code < 0: free slot)
     int mMoney;                                     // 0x6000
     unsigned char m6004[0x601C - 0x6004];
     atn::FixedArray_unk<ExpEntry_unk, 7> mExpEntries; // 0x601C: inferred: party of the last battle
@@ -67,10 +87,12 @@ public:
     unsigned char m64C8[0x64EC - 0x64C8];
     PlayerStatus_unk mPlayers[7];                   // 0x64EC
     Equip_unk mEquip[7];                            // 0x8290: inferred: one per player
-    unsigned char m8450[0xD380 - 0x8450];
+    MP::SaveElemB_unk mUpgrades[28];                // 0x8450: inferred: upgraded equipment (fn_8044D034)
     Equip_unk mEquipShown[7];                       // 0xD380: inferred: equipment shown by the costume menu
     Equip_unk mEquipSetA[16];                       // 0xD540: inferred: costume sets (game/CosEditBase.cpp)
-    Equip_unk mEquipSetB[16];                       // 0xD940
+    Equip_unk mEquipSetB[7];                        // 0xD940 (at most 7: the list below starts at 0xDB2C)
+    unsigned char mDB00[0xDB2C - 0xDB00];
+    atn::FixedArray_unk<int, 0x100> mIdentify;      // 0xDB2C: inferred: items to identify (game/ShopIdentify)
 
     static Inventory* instance_;
 };

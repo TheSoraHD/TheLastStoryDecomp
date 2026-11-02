@@ -217,6 +217,13 @@
   "matching": false
  },
  {
+  "name": "atn/Keyboard.cpp",
+  "classes": [
+   "atn::Keyboard"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/LensFlare.cpp",
   "classes": [
    "atn::LensFlare"
@@ -1969,6 +1976,13 @@
   "matching": false
  },
  {
+  "name": "game/GameLoadTask.cpp",
+  "classes": [
+   "GameLoadTask"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/GameLoadBackground.cpp",
   "classes": [
    "GameLoadBackground"
@@ -2004,6 +2018,16 @@
    "atn::CsvTabU",
    "atn::CsvBase<wchar_t, 9, 13, 34>",
    "GameSaveBanner"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameSaveData_unk.cpp",
+  "classes": [
+   "GameSaveData_unk",
+   "GameSaveFlags_unk",
+   "GameSaveParty_unk",
+   "GameSaveSlot_unk"
   ],
   "matching": false
  },
@@ -3773,6 +3797,13 @@
  {
   "name": "game/DamageCalc_unk.cpp",
   "classes": [],
+  "matching": false
+ },
+ {
+  "name": "game/ItemManager_unk.cpp",
+  "classes": [
+   "Inventory"
+  ],
   "matching": false
  },
  {
