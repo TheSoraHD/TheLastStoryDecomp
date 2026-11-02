@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `auto-20261102` (2026-11-02, sin mergear): **11755 / 18308 funciones al 100%** (report.json), `main.dol: OK`. `game/GameScene` 0 -> 109/188 (parser `.gs` de 10 KB al 100% con todas sus copias weak; quedan stubs, no enlazable), `atn/PacketPack` 0 -> 7/380 (sin cortes: un solo pool). Emparejado automatico con `tools/decomp/callpair.py` y `selfnames.py`. Detalle en `docs/auto-20261102.md`.
+- `auto-20261102` (2026-11-02, mergeada en `main`): **11764 / 18308 funciones al 100%** (report.json), `main.dol: OK`. `game/GameScene` 0 -> 117/188 (parser `.gs` de 10 KB al 100% con sus copias weak; quedan stubs, no enlazable), `atn/PacketPack` 0 -> 7/380 (sin cortes). `atn::SimpleArray::operator[]` con su firma real `(unsigned int) const`; `GetData_unk`/`Grow_unk` miembros de `SimpleArray`; llamadores de GameScene como metodos. `tools/decomp/callpair.py`, `selfnames.py`. Detalle en `docs/auto-20261102.md`.
 - `auto-20261101d` (mergeada en `main`): 11636 funciones; asserts vacios para pasar del presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`). `auto-20261101c`: 11574 (`docs/auto-20261101c.md`).
 - `auto-20261101b` (mergeada): 11569 (`docs/auto-20261101b.md`); `auto-20261101`: 11463 (`docs/auto-20261101.md`); `auto-20261031c`: 11284 (NW4R snd/ut, MSL, MetroTRK, bte).
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
