@@ -42,7 +42,9 @@ extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model); // inferred: inver
 extern "C" int fn_80476194(atn::LH_Model* model); // inferred: the model has no occlusion data
 extern "C" int fn_804761B0(atn::LH_Model* model); // inferred: the occlusion data is ready
 namespace atn { struct ModelBase; }
-extern "C" void fn_8008BD10(atn::ModelBase* model); // inferred: binds the shaders (not written yet; a ModelBase member)
+extern "C" void fn_8008BD10(atn::ModelBase* model); // inferred: creates the materials (a ModelBase member in the original)
+extern "C" ShaderManager_unk* lbl_8087EFE0; // inferred: shader manager
+extern "C" int fn_80476204(atn::LH_Model* model); // inferred: the model keeps the material flags
 extern "C" atn::AABB_unk fn_80070B60(const atn::AABB_unk* box, float scale); // inferred: scales a box
 
 // inferred: empty asserts of the release build (they keep fn_80091684 and fn_80095300 over the inline
@@ -597,6 +599,161 @@ void ModelBase::fn_8008B978(int unbound) {
         mFlag2_unk = 1;
     }
 }
+
+// inferred: loaded material `i` of the material file (LoadMaterial::mMaterials)
+inline Material_unk* LoadedMaterial_unk(LH_Material& file, int i) {
+    return (*(std::vector<Material_unk*>*)file.fn_80474860())[i];
+}
+
+// inferred: debug menu folder of the model (created on first use when the debug menu is on)
+inline void* ModelFolder_unk(ResHandle& handle, const char* name) {
+    void* parent = *(void**)((char*)lbl_8087EFA8 + 0x4C); // inferred: debug menu folder of the models
+    if (handle.mRes == 0 && parent != 0 && lbl_8087EF10 != 0) {
+        return handle.mRes = fn_8008937C(parent, name);
+    }
+    return 0;
+}
+
+} // namespace atn
+
+// NONMATCHING: 97.1% - registers (the original saves r20 too and keeps the zero of the first loop as a copy of
+// the counter), and the "" of the pool at 0xA
+// inferred: creates the materials and binds their shaders after the material file is loaded. A member of
+// ModelBase in the original (declared here until Model_unk.h is changed in a batch re-pairing).
+extern "C" void fn_8008BD10(atn::ModelBase* model) {
+    using namespace atn;
+    int count = model->GetRes_unk()->m30;
+    if (count > 0xFE) {
+        char msg[0x100];
+        sprintf(msg, "WARNING Too many materials (%d) in '%s'\n", count, model->mLods[0].mHandle.fn_80473F18());
+        msg[0xFF] = 0;
+        lbl_8087EEB8->fn_800697D8(msg);
+    }
+    model->m144.Resize_unk(count, 6);
+    model->m104.mMaterials.Resize_unk(count, 6);
+    if ((model->mFlags & 0x800000) == 0x800000) {
+        model->mF4.Resize_unk(count, 6);
+    }
+    for (int i = 0; i < count; i++) {
+        model->m144.mData[i] = 0;
+        model->m104.mMaterials.mData[i] = 0;
+        if (model->mF4.mSize != 0) {
+            model->mF4.mData[i] = 1;
+        }
+    }
+    if (model->mFC.fn_80473EFC() == 3) {
+        if ((int)model->mFC.fn_8047486C() > 0xFE) {
+            char msg[0x100];
+            sprintf(msg, "WARNING Too many materials (%d) in '%s'\n", model->mFC.fn_8047486C(), model->mFC.fn_80473F18());
+            msg[0xFF] = 0;
+            lbl_8087EEB8->fn_800697D8(msg);
+        }
+        if (fn_80476204(&model->mLods[0].mHandle) == 0) {
+            for (int i = 0; i < (int)model->mFC.fn_8047486C(); i++) {
+                Material_unk* m = LoadedMaterial_unk(model->mFC, i);
+                unsigned char* flags = (unsigned char*)&m->m4E; // inferred: four tristate flags (1 = model default)
+                for (int k = 0; k < 4; k++) {
+                    if ((int)flags[k] == 1) {
+                        flags[k] = 0;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < count; i++) {
+            Material_unk* found = 0;
+            const char* name = model->GetRes_unk()->m50[i];
+            unsigned int hash = fn_800DC6B4(name);
+            for (int j = 0; j < (int)model->mFC.fn_8047486C(); j++) {
+                if (hash == LoadedMaterial_unk(model->mFC, j)->m00) {
+                    found = LoadedMaterial_unk(model->mFC, j);
+                    break;
+                }
+            }
+            ShaderLOD_unk* lod;
+            if (found == 0) {
+                char msg[0x100];
+                sprintf(msg, "WARNING Material '%s' was not matched in model '%s'\n", name, model->mLods[0].mHandle.fn_80473F18());
+                msg[0xFF] = 0;
+                lbl_8087EEB8->fn_800697D8(msg);
+                lod = lbl_8087EFE0->fn_800C5F5C("error_unmatched_material");
+            } else {
+                lod = lbl_8087EFE0->fn_800C5FF0(found->m04);
+            }
+            if (lod == 0) {
+                char msg[0x100];
+                sprintf(msg, "WARNING Shader was not found for model '%s'\n", model->mLods[0].mHandle.fn_80473F18());
+                msg[0xFF] = 0;
+                lbl_8087EEB8->fn_800697D8(msg);
+                lod = lbl_8087EFE0->fn_800C5F5C("error_missing_shader");
+            }
+            model->m144.mData[i] = lod;
+            lod->m00++;
+            if (found != 0) {
+                model->m104.mMaterials.mData[i] = new ((MemoryTag)6, "", "", 0) Material_unk(lod->mLODs[0].mShader);
+                model->m104.mMaterials.mData[i]->fn_80080584(*found);
+            } else {
+                model->m104.mMaterials.mData[i] = new ((MemoryTag)6, "", "", 0) Material_unk(lod->mLODs[0].mShader);
+                model->m104.mMaterials.mData[i]->fn_80080B34(lod->mLODs[0].mShader->mDesc);
+            }
+        }
+    } else {
+        char msg[0x100];
+        sprintf(msg, "WARNING no material file found: '%s'\n", model->mLods[0].mHandle.fn_80473F18());
+        msg[0xFF] = 0;
+        lbl_8087EEB8->fn_800697D8(msg);
+        ModelLod_unk* main = &model->mLods[0];
+        model->m13C.Resize_unk(((ModelBase::Res_unk*)main->m08)->m30, 6);
+        if (((ModelBase::Res_unk*)main->m08)->m34 != 0) {
+            for (int i = 0; i < ((ModelBase::Res_unk*)main->m08)->m30; i++) {
+                ShaderTex_unk* tex = new ((MemoryTag)6, "", "", 0) ShaderTex_unk(main, ((ModelBase::Res_unk*)main->m08)->m34[i]);
+                ShaderLOD_unk* lod = new ((MemoryTag)6, "", "", 0) ShaderLOD_unk();
+                lod->fn_800C4ECC(tex, 0.0f);
+                model->m13C.mData[i] = lod;
+                model->m144.mData[i] = lod;
+                lod->m00++;
+                lod->fn_800C4F38(&model->m104.mMaterials.mData[i]);
+                model->m104.mMaterials.mData[i]->fn_80080B34(model->GetRes_unk()->m34[i]);
+            }
+        } else {
+            ShaderLOD_unk* lod = lbl_8087EFE0->fn_800C5F5C("error_missing_material");
+            for (int i = 0; i < ((ModelBase::Res_unk*)main->m08)->m30; i++) {
+                lod->m00++;
+                lod->fn_800C4F38(&model->m104.mMaterials.mData[i]);
+            }
+        }
+    }
+    model->m104.m08[0].Resize_unk(count, 6);
+    model->m104.m28.Resize_unk(count, 6);
+    for (unsigned int i = 0; i < model->m104.mMaterials.size(); i++) {
+        model->m104.m08[0].mData[i] = i;
+        model->m104.m28.mData[i] = model->m104.mMaterials.mData[i]->fn_800804D0(0xB);
+        if (model->m104.mMaterials.mData[i]->m4B != 0) {
+            model->m20C_0 = 1;
+        }
+    }
+    for (int i = 1; i < model->m20C_23_16; i++) {
+        model->fn_8008C62C(i);
+    }
+    if ((model->mFlags & 0x200) == 0x200) {
+        void* folder = ModelFolder_unk(model->m210, fn_8006B174(std::string(model->fn_8008B130())).c_str());
+        for (unsigned int i = 0; i < model->m104.mMaterials.size(); i++) {
+            const char* matched = 0;
+            if (model->mFC.fn_80473EFC() == 3) {
+                const char* name = model->GetRes_unk()->m50[i];
+                unsigned int hash = fn_800DC6B4(name);
+                for (int j = 0; j < (int)model->mFC.fn_8047486C(); j++) {
+                    if (hash == LoadedMaterial_unk(model->mFC, j)->m00) {
+                        matched = name;
+                        break;
+                    }
+                }
+            }
+            model->m104.mMaterials.mData[i]->fn_800816B4(folder, matched);
+        }
+    }
+}
+
+namespace atn {
 
 // inferred: index of the material with the given name hash (the size is read once)
 inline int FindMaterial_unk(const SimpleArray<Material_unk*>& mats, unsigned int hash) {
