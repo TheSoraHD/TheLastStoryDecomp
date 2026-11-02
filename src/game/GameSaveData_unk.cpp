@@ -17,6 +17,7 @@
 #include "game/EnemyTask.h"
 #include "db/WeaponParam_unk.h"
 #include "db/EquipParam_unk.h"
+#include "db/ItemParam_unk.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -493,6 +494,26 @@ int GameSaveInventory_unk::fn_803BD49C(int code) const {
         }
     }
     return count;
+}
+
+void GameSaveInventory_unk::fn_803BD6C0(int mode) {
+    if (mode == 2) {
+        for (int i = 0; i < 4; i++) {
+            mEquips[2].mProtectors[i].mId = 0x1D;
+        }
+        mEquips[2].mWeapons[0].mId = 0x1F8;
+        for (int i = 0; i < 0x600; i++) {
+            ItemParamEntry_unk* item = fn_802114E0(i);
+            if (item && item->mBC == 0 && item->mId != 0x1C2 && item->mId != 0x1C3 && item->mId != 0x14A &&
+                item->mId != 0x19D) {
+                if (i < 0x500) {
+                    mItems[i].mCount = 0;
+                } else {
+                    mOldItems[i - 0x500].mCount = 0;
+                }
+            }
+        }
+    }
 }
 
 GameSaveData_unk::GameSaveData_unk() : m0000(0) {}
