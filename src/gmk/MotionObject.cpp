@@ -291,10 +291,10 @@ void MotionObject::fn_804139D8() {
     ((void)0);
     ((void)0);
     if (model != 0) {
-        for (int i = 0; i < (unsigned int)mFades[m54].mSize; i++) {
+        for (unsigned int i = 0; i < (unsigned int)mFades[m54].mSize; i++) {
             mFades[m54][i].fn_803EBE74(model);
         }
-        for (int i = 0; i < (unsigned int)mSwitches[m54].mSize; i++) {
+        for (unsigned int i = 0; i < (unsigned int)mSwitches[m54].mSize; i++) {
             mSwitches[m54][i].fn_803EC0F8(model);
         }
     }

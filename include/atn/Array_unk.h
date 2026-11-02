@@ -188,7 +188,8 @@ public:
             mData = 0;
         }
     }
-    T& operator[](int i) { return mData[i]; }
+    // name from the copies of game/GameScene.cpp (__vc__Q23atn31SimpleArray<Q22gs11NpcSetPoint>CFUi)
+    T& operator[](unsigned int i) const { return mData[i]; }
     // inferred: called out of line by EnvSeManager::fn_8035F3D4 (fn_80089ACC, a copy of another file)
     unsigned int size() const { return mSize; }
 

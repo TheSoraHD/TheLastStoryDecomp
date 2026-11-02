@@ -128,7 +128,7 @@ void CrowdManager::vf10() {
                 atn::Vector3 d(npc->mPos.x - mCenter.x, npc->mPos.y - mCenter.y, npc->mPos.z - mCenter.z);
                 if (PSVECSquareMag(&d) > kill) {
                     CrowdSimulation* sim = CrowdSimulation::sInstance;
-                    for (unsigned int i = 0; (int)i < sim->mWalkers.mSize; i++) {
+                    for (int i = 0; i < sim->mWalkers.mSize; i++) {
                         if (npc == sim->mWalkers[i].mChara) {
                             fn_801EB7C4(&sim->mWalkers[i]);
                         }

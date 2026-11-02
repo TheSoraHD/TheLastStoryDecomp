@@ -251,12 +251,12 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
 }
 
 int GimmickCommonB0_unk::fn_803F06B0() {
-    for (int i = 0; i < (unsigned int)mEff.mSize; i++) {
+    for (unsigned int i = 0; i < (unsigned int)mEff.mSize; i++) {
         if (mEff[i].IsLoading() != 0) {
             return 1;
         }
     }
-    for (int i = 0; i < (unsigned int)mEfp.mSize; i++) {
+    for (unsigned int i = 0; i < (unsigned int)mEfp.mSize; i++) {
         if (mEfp[i].IsLoading() != 0) {
             return 1;
         }
@@ -291,7 +291,7 @@ void GimmickCommonB0_unk::fn_803F0764(GimmickCommon* gimmick) {
         fn_803F10AC(0);
         mMotion = motion;
     }
-    for (int i = 0; i < (unsigned int)mCmds.mSize; i++) {
+    for (unsigned int i = 0; i < (unsigned int)mCmds.mSize; i++) {
         GimmickMotionCmd_unk* cmd = &mCmds[i];
         if (cmd->mMotion != motion) {
             continue;
@@ -420,18 +420,18 @@ void GimmickCommonB0_unk::fn_803F10AC(int arg) {
         if ((mEff.mSize != 0 || mEfp.mSize != 0) && lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, mMotion, 0);
         }
-        for (int i = 0; i < (unsigned int)mSounds.mSize; i++) {
+        for (unsigned int i = 0; i < (unsigned int)mSounds.mSize; i++) {
             fn_800CB5C8(&mSounds[i], 0, 0);
         }
     } else {
         if ((mEff.mSize != 0 || mEfp.mSize != 0) && lbl_8087F3C0 != 0) {
             fn_80239DAC(lbl_8087F3C0, this, mMotion, 1);
         }
-        for (int i = 0; i < (unsigned int)mSounds.mSize; i++) {
+        for (unsigned int i = 0; i < (unsigned int)mSounds.mSize; i++) {
             fn_800CB5C8(&mSounds[i], 15, 0);
         }
     }
-    for (int i = 0; i < (unsigned int)mCmds.mSize; i++) {
+    for (unsigned int i = 0; i < (unsigned int)mCmds.mSize; i++) {
         mCmds[i].mDone = 0;
     }
     mMotion = -1;
@@ -441,7 +441,7 @@ void GimmickCommonB0_unk::fn_803F10AC(int arg) {
 // NONMATCHING: 99.57% - only the offsets of "Motcmd".."Scale" in the string pool (see fn_803EF780)
 void GimmickCommonB0_unk::fn_803F11F8(void* menu) {
     void* group = fn_8008937C(menu, "Motcmd");
-    for (int i = 0; i < (unsigned int)mCmds.mSize; i++) {
+    for (unsigned int i = 0; i < (unsigned int)mCmds.mSize; i++) {
         GimmickMotionCmd_unk* cmd = &mCmds[i];
         char name[0x100];
         // inferred: the pool has a second zero after "%s %s" (offset 0x44), as if the literal ended in \0

@@ -445,9 +445,9 @@ void FragileObject::vf24() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
     const char* flag = csv.mField;
-    int fade = 0;
-    int sw = 0;
-    int glow = 0;
+    unsigned int fade = 0;
+    unsigned int sw = 0;
+    unsigned int glow = 0;
     do {
         const char* field = csv.fn_8005B9CC();
         if (field[0] == ';') {

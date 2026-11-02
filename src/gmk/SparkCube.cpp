@@ -208,7 +208,7 @@ void SparkCube::vf10() {
     }
     mColli.SetMtx_unk(*(atn::Matrix3x4*)GetMtx_unk(&mModel, "model01"));
     if (m54 >= 3) {
-        for (int i = 0; i < (unsigned int)mFades.mSize; i++) {
+        for (unsigned int i = 0; i < (unsigned int)mFades.mSize; i++) {
             mFades[i].fn_803EBE74(&mSpark);
         }
         if (m54 == 3) {
@@ -335,7 +335,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
         if (model != 0 && model->fn_80097D40(1) != 0) {
             model->fn_80097C08(0, 1, 0, 1, 1, 1.0f, 0.1f);
             m9C = 1;
-            for (int i = 0; i < (unsigned int)mFades.mSize; i++) {
+            for (unsigned int i = 0; i < (unsigned int)mFades.mSize; i++) {
                 mFades[i].mReverse = 0;
             }
         }
@@ -367,7 +367,7 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
         if (model != 0 && model->fn_80097D40(0) != 0) {
             model->fn_80097C08(0, 0, 0, 1, 1, 1.0f, 0.1f);
             model->mTracks[0].m08 = 1.0f;
-            for (int i = 0; i < (unsigned int)mFades.mSize; i++) {
+            for (unsigned int i = 0; i < (unsigned int)mFades.mSize; i++) {
                 mFades[i].mReverse = 1;
             }
         }

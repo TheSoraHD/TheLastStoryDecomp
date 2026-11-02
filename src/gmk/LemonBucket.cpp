@@ -120,7 +120,7 @@ LemonBucket::LemonBucket(atn::Task* parent, GimmickDesc_unk* desc)
 int LemonBucket::vf0C() {
     if (fn_803EC91C() == 0 && fn_800D3FA4() != 0) {
         m54 = 1;
-        for (int i = 0; i < (unsigned int)mLemons.mSize; i++) {
+        for (unsigned int i = 0; i < (unsigned int)mLemons.mSize; i++) {
             GimmickCommon* lemon = mLemons[i];
             lemon->mFlags |= 4;
         }
@@ -287,8 +287,8 @@ void LemonBucket::vf20() {
 void LemonBucket::vf24() {
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
-    int fade = 0;
-    int sw = 0;
+    unsigned int fade = 0;
+    unsigned int sw = 0;
     do {
         const char* field = csv.fn_8005B9CC();
         if (field[0] == ';') {
