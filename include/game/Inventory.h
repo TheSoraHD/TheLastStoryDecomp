@@ -35,6 +35,14 @@ public:
         unsigned char m384[0x43C - 0x384];
     };
 
+    // inferred: item of the bag (0x10 bytes)
+    struct Item_unk {
+        int mCode;   // inferred: kind * 1000000 + id
+        int mCount;  // 0x04
+        unsigned short m08;
+        int m0C;
+    };
+
     // inferred: equipped item of one slot
     struct EquipSlot_unk {
         int mId;
@@ -58,6 +66,8 @@ public:
     void AddMoney(int n);
     // inferred: sets the money (0x8044D6E0, right after AddMoney; game/DamageCalc_unk.cpp)
     void fn_8044D6E0(int money);
+    Item_unk* fn_80444744(int code); // inferred: finds an item of the bag
+    Item_unk* fn_80444804(int index); // inferred: item of the bag by index
     void fn_8044D028(); // inferred: clears the party of the last battle
     void fn_8044D060(int slot, int item, int unused, int chara); // inferred: sets a protector
     void fn_8044D0DC(int slot, int item, int unused, int index); // inferred: sets a protector
@@ -68,7 +78,7 @@ public:
     // CharaStatus (game/NewCampPartsStatus.cpp passes it as one)
     CharaStatus* GetPlayerStatusInfo(int i) { return (CharaStatus*)&mPlayers[i]; }
 
-    unsigned char m0000[0x6000];
+    Item_unk mItems[0x600];                         // 0x0000: inferred: the bag (code < 0: free slot)
     int mMoney;                                     // 0x6000
     unsigned char m6004[0x601C - 0x6004];
     atn::FixedArray_unk<ExpEntry_unk, 7> mExpEntries; // 0x601C: inferred: party of the last battle

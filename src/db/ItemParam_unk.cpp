@@ -5,6 +5,7 @@
 #include "db/EquipParam_unk.h"
 #include "db/ParseUtil_unk.h"
 #include "db/WeaponParam_unk.h"
+#include "db/ItemParam_unk.h"
 #include "gmk/SeTable.h"
 
 extern "C" int strcmp(const char* a, const char* b);
@@ -26,38 +27,6 @@ extern "C" int fn_80370174(ItemField_unk* field, int flag);
 // inferred: text sizes of a row of the UTF-16 text file (db/SkillParam_unk.cpp)
 extern "C" void fn_80219F1C(atn::CsvU* csv, int* a, int* b);
 
-// inferred: five numbers
-struct ItemParamFive_unk {
-    ItemParamFive_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0) {}
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-};
-
-// inferred: one row of /boot/item_param.csv (0x138 bytes); the last 0x100 rows are free slots for the
-// upgraded weapons and equipment
-struct ItemParamEntry_unk : public BulletParam_unk {
-    ItemParamEntry_unk();
-
-    short mBC;
-    short mBE;
-    unsigned char mItemKind; // inferred: index in sKinds
-    unsigned char mUser;  // inferred: index in sUsers
-    unsigned char mC2;
-    unsigned char mC3;
-    int mC4;
-    int mC8; // inferred: price
-    atn::FixedString_unk<0x10> mCC;
-    atn::FixedString_unk<0x10> mDC;
-    ItemParamFive_unk mEC[2];
-    atn::FixedString_unk<0x8> m114;
-    int m11C[4];
-    unsigned char m12C[4];
-    int m130;
-    int m134;
-};
 
 static const char* const sKinds[6] = {"menu", "batt", "bowg", "inst", "scri", "trap"};
 static const char* const sUsers[2] = {"all", "elza"};
