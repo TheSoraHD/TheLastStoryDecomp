@@ -4,9 +4,12 @@
 // inferred: serialized game state (game/GameSaveData_unk.cpp, 0x803B9804-0x803BEBAC; 0x134A8 bytes).
 // MP::SaveData_unk (include/MP/SaveLoad.h) is another view of the same buffer. Names invented.
 #include "game/CharaStatus.h"
+
+extern "C" void* memset(void* dst, int c, unsigned long n);
 #include "game/GimmickCommon.h"
 #include "game/Inventory.h"
 #include "MP/SaveLoad.h"
+#include "game/SetConfig.h"
 
 // inferred: character, enemy or player of the map saved with its state (8 bytes; type 1: npc,
 // 2: enemy, 3: player)
@@ -17,12 +20,23 @@ struct GameSaveChara_unk {
     unsigned char m6[2];
 };
 
+// inferred: 8-byte entry copied from 0x154 of the route tables
+struct GameSaveRoute_unk {
+    int m00;
+    int m04;
+};
+
 // inferred: game flags of the save data (at +0x04 of GameSaveData_unk): values and work values of the
 // flag manager (lbl_8087F430), the route spots and the characters of the map
 struct GameSaveFlags_unk {
+    GameSaveFlags_unk() : mState(0), mSpotCount(0) {
+        memset(mFlags, 0, sizeof(mFlags));
+        memset(mWork, 0, sizeof(mWork));
+    }
     void fn_803B9804(); // inferred: collects the flags
     void fn_803B9C98(); // inferred: restores the flags
     void fn_803B9D78(); // inferred: restores the work values and the routes
+    void fn_803BA120(int mode); // inferred: reset for a new game (mode 2: from a cleared save)
 
     int mState;                      // 0x0000: inferred: copy of the field 0x10D0
     int mFlags[0x1000];              // 0x0004
@@ -38,12 +52,20 @@ struct GameSaveFlags_unk {
     unsigned short mPoint;           // 0x4D0E
     int m4D10;
     int mLeader;                     // 0x4D14: inferred: character id of the first player
-    unsigned char m4D18[0x200];      // inferred: copy of 0x154 of the route tables
+    GameSaveRoute_unk m4D18[64];     // inferred: copy of 0x154 of the route tables
 };
 
 // inferred: 0x40 bytes saved per party member next to the equipment (copied whole into packets)
 struct GameSaveEquipExtra_unk {
-    int m00[0x10];
+    GameSaveEquipExtra_unk() {
+        for (int i = 0; i < 8; i++) {
+            mIds[i] = -1;
+        }
+        memset(m20, 0, sizeof(m20));
+    }
+
+    int mIds[8];
+    unsigned char m20[0x20];
 };
 
 // inferred: item of the bag in the save data (8 bytes, format 10 and later)
@@ -79,6 +101,7 @@ struct GameSavePacketEquip_unk {
 // game/GameTask)
 struct GameSaveParty_unk {
     GameSaveParty_unk(); // 0x803BAA90
+    void fn_803BAAE0(); // inferred: collects the status of the party (players or inventory)
     void fn_803BAD6C(); // inferred: copies the saved status to the players
     int fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, int bit) const; // inferred: costume flags of a packet
 
@@ -88,6 +111,8 @@ struct GameSaveParty_unk {
 
 // inferred: gimmick saved with its state (0x18 bytes)
 struct GameSaveGimmick_unk {
+    GameSaveGimmick_unk() : mFlags(0) {}
+
     // inferred: stores the state of `gimmick` (inlined twice in fn_803BB248; name invented)
     void Set_unk(GimmickCommon* gimmick) {
         mFlags |= 1;
@@ -126,6 +151,8 @@ struct GameSaveGimmicks_unk {
 // inferred: blocks restored by their own function; contents not known yet
 // inferred: player saved with its position and route (0x44 bytes)
 struct GameSavePlayer_unk {
+    GameSavePlayer_unk() : mFlags(0) {}
+
     unsigned short mFlags;  // bit 0: used, 1: dead, 2: on a ledge, 3: character flag, 4: walking a route
     unsigned char m02;      // inferred: CharaC58_unk::mC0
     unsigned char m03;      // inferred: CharaTask::m674
@@ -146,6 +173,8 @@ struct GameSavePlayers_unk {
 };
 // inferred: enemy saved with its state (0x2C bytes)
 struct GameSaveEnemy_unk {
+    GameSaveEnemy_unk() : mFlags(0) {}
+
     unsigned short mFlags;  // bit 0: used, 1: dead, 2: on a ledge, 3..6: character flags
     unsigned char m02;      // inferred: CharaC58_unk::mC0
     unsigned char m03;      // inferred: CharaTask::m674
@@ -159,12 +188,15 @@ struct GameSaveEnemies_unk {
     GameSaveEnemy_unk mEntries[64];
 };
 struct GameSaveInventory_unk {
+    void fn_803BB584(); // inferred: collects the inventory
     void fn_803BC2D4(); // inferred: restores the inventory
+    void fn_803BD6C0(int mode); // inferred: resets the bag for a new game (mode 2)
     int fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const; // inferred: protector of a packet
     int fn_803BD22C(GameSavePacketEquip_unk* equip, int chara, int slot) const; // inferred: weapon of a packet
     int fn_803BD2B0(int code, int count); // inferred: adds items (at most 99, and 10 of each weapon or protector)
     int fn_803BD49C(int code) const;      // inferred: number of items `code` (bag and equipment)
-    unsigned char m0000[0x404];
+    int m0000;
+    GameSaveEquipExtra_unk m0004[16];
     GameSaveItemOld_unk mOldItems[0x100]; // 0x404: inferred: items 0x400.. of the old format
     GameSaveEquipExtra_unk mExtras[7]; // 0x1004
     MP::SaveElemB_unk mUpgrades[28];   // 0x11C4: inferred: upgraded equipment
@@ -174,12 +206,42 @@ struct GameSaveInventory_unk {
     int m94C8; // inferred: shown in the slot header (GameSaveSlot_unk::m70)
     unsigned char m94CC[0x9548 - 0x94CC];
 };
+// inferred: settings of the save data (0xFC bytes): copy of SetConfig 0x24..0xA8
 struct GameSaveSettings_unk {
+    GameSaveSettings_unk() { memset(m8C, 0, sizeof(m8C)); }
     void fn_803BD79C(); // inferred: restores the settings
-    unsigned char m00[0xFC];
+
+    unsigned int mMagic;        // 0x00: 0xDEADBEEF
+    int mAlwaysBirdview;        // 0x04: inferred: GameConfig_unk::mAlwaysBirdview != 0
+    int m08;                    // SetConfig::m24
+    int mAttackType;            // 0x0C
+    int mDiveType;              // 0x10
+    int mInTacviewType;         // 0x14
+    int mGatheringType;         // 0x18
+    unsigned char m1C[8];       // SetConfig::m38
+    float mAttackTurnSpeed;     // 0x24
+    float mTurnSpeed;           // 0x28
+    float mRollbackSpeed;       // 0x2C
+    float mCameraRotSpeed;      // 0x30
+    int m34;                    // SetConfig::m50
+    float mRotDelay;            // 0x38
+    int mBattleDrawHateLine;    // 0x3C
+    int mDrawEnemyHP;           // 0x40
+    int mDrawEnemyPopup;        // 0x44
+    int mDrawFriendPopup;       // 0x48
+    unsigned char m4C[0x10];    // SetConfig::m68
+    int mShowDialog;            // 0x5C
+    int mShowTutorial;          // 0x60
+    int mEventSkipType;         // 0x64
+    int mEventCameraControl;    // 0x68
+    unsigned char m6C[0xC];     // SetConfig::m88
+    SoundSettings_unk mSound;   // 0x78
+    int m88;                    // SetConfig::mA4
+    unsigned char m8C[0xFC - 0x8C];
 };
 
 struct GameSaveData_unk {
+    GameSaveData_unk(); // 0x803BDB60
     void fn_803BDEE4(); // inferred: collects the current game state
     void fn_803BE590(); // inferred: restores the party, the inventory and the flags
     void fn_803BE670(); // inferred: restores the work values

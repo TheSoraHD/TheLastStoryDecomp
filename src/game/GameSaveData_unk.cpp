@@ -22,6 +22,7 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" unsigned int fn_800DC500(const void* data, unsigned long len); // inferred: checksum
 extern "C" void fn_804A1C4C(GameMap_unk* map); // inferred: refreshes the map after a load
+extern "C" void fn_804A1D2C(GameMap_unk* map); // inferred: stores the state of the map
 extern "C" int lbl_8087DD64;                   // inferred: format of the loaded save data
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
@@ -29,6 +30,48 @@ extern "C" int fn_8036DAF4(GameField_unk* field, Ledge_unk* ledge, CharaTask* ch
 extern "C" int fn_8021150C(int code);                     // inferred: index of an item code in the bag
 extern "C" int fn_80206BE4(WeaponParamEntry_unk* weapon);  // inferred: item code of a weapon
 extern "C" int fn_8020EF80(EquipParamEntry_unk* equip);    // inferred: item code of a protector
+
+// inferred: flags kept when a new game starts from a cleared save (fn_803BA120); in .data
+static int sKeptFlags_unk[273] = {
+    0x1E, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,
+    0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E,
+    0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
+    0xA9, 0xAB, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4,
+    0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE,
+    0xBF, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xDA, 0xDB,
+    0xDC, 0xDD, 0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5,
+    0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
+    0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9,
+    0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF, 0x100, 0x101, 0x102, 0x103,
+    0x104, 0x105, 0x106, 0x107, 0x108, 0x109, 0x10A, 0x10B, 0x10C, 0x10D,
+    0x10E, 0x10F, 0x110, 0x111, 0x112, 0x113, 0x114, 0x115, 0x116, 0x117,
+    0x118, 0x12C, 0x12D, 0x12E, 0x12F, 0x130, 0x131, 0x132, 0x133, 0x134,
+    0x135, 0x136, 0x137, 0x138, 0x139, 0x13A, 0x13B, 0x13C, 0x13D, 0x13E,
+    0x13F, 0x140, 0x141, 0x142, 0x143, 0x144, 0x145, 0x146, 0x147, 0x148,
+    0x149, 0x14A, 0x14B, 0x14C, 0x14D, 0x14E, 0x14F, 0x150, 0x151, 0x152,
+    0x153, 0x154, 0x155, 0x156, 0x157, 0x158, 0x159, 0x15A, 0x15B, 0x15C,
+    0x15D, 0x15E, 0x15F, 0x160, 0x161, 0x162, 0x163, 0x164, 0x165, 0x166,
+    0x167, 0x168, 0x169, 0x16A, 0x16B, 0x16C, 0x16D, 0x16E, 0x16F, 0x170,
+    0x171, 0x172, 0x173, 0x174, 0x175, 0x176, 0x177, 0x178, 0x179, 0x17A,
+    0x17B, 0x17C, 0x190, 0x191, 0x192, 0x193, 0x194, 0x195, 0x196, 0x197,
+    0x198, 0x199, 0x19A, 0x19B, 0x19C, 0x19D, 0x19E, 0x19F, 0x1A0, 0x1A1,
+    0x1A2, 0x1A3, 0x1AE, 0x1AF, 0x1B0, 0x1B1, 0x1B2, 0x1B3, 0x1B4, 0x1B5,
+    0x1B6, 0x1B7, 0x1B8, 0x1B9, 0x1BA, 0x1BB, 0x1BC, 0x1BD, 0x1BE, 0x1BF,
+    0x1C0, 0x1C1, 0x1D6, 0x1D7, 0x1D8, 0x1D9, 0x1DA, 0x1DB, 0x1DC, 0x1DD,
+    0x1DE, 0x1DF, 0x1E0, 0x1E1, 0x1E2, 0x1E3, 0x1E4, 0x1E5, 0x1E6, 0x1E7,
+    0x1E8, 0x1E9, 0x1EA, 0x1EB, 0x1EC, 0x1ED, 0x1EE, 0x1EF, 0x1F0, 0x1F1,
+    0x1F2, 0x1F3, 0x1F4,
+};
+
+// inferred: true if `flag` is in sKeptFlags_unk (name invented)
+static inline bool IsKeptFlag_unk(int flag) {
+    for (int i = 0; i < 273; i++) {
+        if (flag == sKeptFlags_unk[i]) {
+            return true;
+        }
+    }
+    return false;
+}
 
 void GameSaveFlags_unk::fn_803B9C98() {
     GameField_unk* field = lbl_8087F430;
@@ -58,6 +101,46 @@ extern "C" GameSaveChara_unk* fn_803BA0CC(GameSaveFlags_unk* flags, int type, in
         }
     }
     return 0;
+}
+
+void GameSaveFlags_unk::fn_803BA120(int mode) {
+    if (mode == 2) {
+        int level = mFlags[0x11B];
+        mState = 0x18A88;
+        for (int i = 0; i < 0x1000; i++) {
+            if (!IsKeptFlag_unk(i)) {
+                mFlags[i] = 0;
+            }
+        }
+        level++;
+        mFlags[0x11B] = level > 1 ? 1 : level;
+        mFlags[0x387] = 0;
+        mFlags[0x388] = 0;
+        mFlags[0x38B] = 1;
+        mFlags[0x385] = 0;
+        mFlags[0x386] = 0;
+        mFlags[0x38F] = 0;
+        mFlags[0x390] = 100;
+        mFlags[0x397] = 0;
+        mFlags[0x398] = 0;
+        mFlags[0] = 1;
+        mFlags[0x1E] = 1;
+        mFlags[0x2C] = 1;
+        memset(mWork, 0, sizeof(mWork));
+        memset(mSpots, 0, sizeof(mSpots));
+        mSpotCount = 0;
+        mMap = 2;
+        mPoint = 4;
+        mArea = 1;
+        for (int i = 0; i < 0x100; i++) {
+            mCharas[i].mId = 0;
+        }
+        mCharaCount = 0;
+        mLeader = -1;
+        for (int i = 0; i < 64; i++) {
+            m4D18[i].m00 = 0;
+        }
+    }
 }
 
 // NONMATCHING: register numbering only (the original keeps the entry offset in r4 and the player in r5)
@@ -114,6 +197,20 @@ void GameSavePlayers_unk::fn_803BA408() {
 
 GameSaveParty_unk::GameSaveParty_unk() {
     mMask = 0;
+}
+
+void GameSaveParty_unk::fn_803BAAE0() {
+    for (unsigned int i = 0; i < 7; i++) {
+        // inferred: the header declares the argument as a name, but it is the member index here
+        PlayerTask* player = lbl_8087F8A0->fn_8054A33C((const char*)i);
+        if (player) {
+            mStatus[i] = player->mStatus;
+            mMask |= 1 << i;
+        } else {
+            mStatus[i] = *Inventory::instance_->GetPlayerStatusInfo(i);
+            mMask |= 1 << i;
+        }
+    }
 }
 
 void GameSaveParty_unk::fn_803BAD6C() {
@@ -350,6 +447,88 @@ int GameSaveInventory_unk::fn_803BD49C(int code) const {
         }
     }
     return count;
+}
+
+GameSaveData_unk::GameSaveData_unk() : m0000(0) {}
+
+// NONMATCHING: the original copies SetConfig 0x24..0xA8 in seven struct assignments (one load of
+// SetConfig::sInstance each); SetConfig declares single members there (game/SetConfig.h)
+void GameSaveData_unk::fn_803BDEE4() {
+    m0000 = 1;
+    if (GameTimer::sInstance) {
+        GameTimer::sInstance->fn_803CE7E0();
+    }
+    if (GameBgm::sInstance) {
+        GameBgm::sInstance->fn_8037D808();
+    }
+    if (lbl_8087F430 && fn_80373148(lbl_8087F430)) {
+        fn_804A1D2C(fn_80373148(lbl_8087F430));
+    }
+    if (lbl_8087F418) {
+        lbl_8087F418->fn_803608A8();
+    }
+    mFlags.fn_803B9804();
+    mPlayers.fn_803BA408();
+    mParty.fn_803BAAE0();
+    mEnemies.fn_803BAEF8();
+    mGimmicks.fn_803BB248();
+    mInventory.fn_803BB584();
+    mSettings.mMagic = 0xDEADBEEF;
+    mSettings.mAlwaysBirdview = 0;
+    int mode = mFlags.mFlags[0x391];
+    mSettings.mAlwaysBirdview = lbl_8087F0A8->mAlwaysBirdview != 0;
+    mSettings.m08 = SetConfig::sInstance->m24;
+    mSettings.mAttackType = SetConfig::sInstance->mAttackType;
+    mSettings.mDiveType = SetConfig::sInstance->mDiveType;
+    mSettings.mInTacviewType = SetConfig::sInstance->mInTacviewType;
+    mSettings.mGatheringType = SetConfig::sInstance->mGatheringType;
+    memcpy(mSettings.m1C, SetConfig::sInstance->m38, sizeof(mSettings.m1C));
+    mSettings.mAttackTurnSpeed = SetConfig::sInstance->mAttackTurnSpeed;
+    mSettings.mTurnSpeed = SetConfig::sInstance->mTurnSpeed;
+    mSettings.mRollbackSpeed = SetConfig::sInstance->mRollbackSpeed;
+    mSettings.mCameraRotSpeed = SetConfig::sInstance->mCameraRotSpeed;
+    mSettings.m34 = SetConfig::sInstance->m50;
+    mSettings.mRotDelay = SetConfig::sInstance->mRotDelay;
+    mSettings.mBattleDrawHateLine = SetConfig::sInstance->mBattleDrawHateLine;
+    mSettings.mDrawEnemyHP = SetConfig::sInstance->mDrawEnemyHP;
+    mSettings.mDrawEnemyPopup = SetConfig::sInstance->mDrawEnemyPopup;
+    mSettings.mDrawFriendPopup = SetConfig::sInstance->mDrawFriendPopup;
+    memcpy(mSettings.m4C, SetConfig::sInstance->m68, sizeof(mSettings.m4C));
+    mSettings.mShowDialog = SetConfig::sInstance->mShowDialog;
+    mSettings.mShowTutorial = SetConfig::sInstance->mShowTutorial;
+    mSettings.mEventSkipType = SetConfig::sInstance->mEventSkipType;
+    mSettings.mEventCameraControl = SetConfig::sInstance->mEventCameraControl;
+    memcpy(mSettings.m6C, SetConfig::sInstance->m88, sizeof(mSettings.m6C));
+    mSettings.mSound = SetConfig::sInstance->mSound;
+    mSettings.m88 = SetConfig::sInstance->mA4;
+    mFlags.fn_803BA120(mode);
+    if (mode == 2) {
+        for (int i = 0; i < 16; i++) {
+            mPlayers.mEntries[i].mFlags = 0;
+        }
+    }
+    if (mode == 2) {
+        mParty.mStatus[2].m1A8.m08 = mParty.mStatus[0].m1A8.m08;
+        mParty.mStatus[2].mParamA.m78 = mParty.mStatus[0].mParamA.m78;
+        mParty.mStatus[2].mParamB.m78 = mParty.mStatus[0].mParamB.m78;
+        mParty.mStatus[2].m228 = 0.0f;
+    }
+    if (mode == 2) {
+        for (int i = 0; i < 64; i++) {
+            mEnemies.mEntries[i].mFlags = 0;
+        }
+    }
+    if (mode == 2) {
+        for (int i = 0; i < 0x200; i++) {
+            mGimmicks.mEntries[i].mFlags = 0;
+        }
+    }
+    mInventory.fn_803BD6C0(mode);
+    if (mode == 2) {
+        mSettings.mEventSkipType = 1;
+        mSettings.mEventCameraControl = 1;
+    }
+    mChecksum = fn_800DC500(this, (char*)&mChecksum - (char*)this);
 }
 
 extern "C" void fn_803BE550(GameSaveData_unk* data) {

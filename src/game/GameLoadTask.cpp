@@ -21,8 +21,7 @@ extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/
 extern "C" int lbl_8087DD60;               // inferred: slot of the current save data
 extern "C" int lbl_8087DD64;               // inferred: format of the current save data
 extern "C" int lbl_8087F630;               // inferred: number of LAN match players
-// inferred: constructor and "apply" of the save data (game/GameSaveData_unk.cpp, without source yet)
-extern "C" MP::SaveData_unk* fn_803BDB60(MP::SaveData_unk* data);
+// inferred: called after the save data is loaded (game/GameSaveData_unk.cpp)
 extern "C" void fn_803BE850(MP::SaveData_unk* data);
 
 // inferred: name shown for an empty slot (.sdata 0x8087DD68)
@@ -45,11 +44,7 @@ static inline void ResetSaveData_unk() {
         delete lbl_8087F460;
         lbl_8087F460 = 0;
     }
-    MP::SaveData_unk* p = (MP::SaveData_unk*)operator new(kSaveDataSize_unk, (MemoryTag)1, "", "", 0);
-    if (p != 0) {
-        p = fn_803BDB60(p);
-    }
-    lbl_8087F460 = p;
+    lbl_8087F460 = (MP::SaveData_unk*)new ((MemoryTag)1, "", "", 0) GameSaveData_unk;
 }
 
 // inferred: format of a slot (GameSaveSlot_unk::m04)
