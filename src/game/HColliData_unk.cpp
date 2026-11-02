@@ -349,3 +349,21 @@ void ColliTreeData_unk::fn_8044058C(int* list, u32_unk count) {
         }
     }
 }
+
+// inferred: once guards emitted by the original .ctors entry for the collision data templates.
+extern "C" signed char lbl_8087F3CC;
+extern "C" signed char lbl_8087F3CD;
+
+class ColliDataInit_unk {
+public:
+    ColliDataInit_unk() {
+        if (lbl_8087F3CC == 0) {
+            lbl_8087F3CC = 1;
+        }
+        if (lbl_8087F3CD == 0) {
+            lbl_8087F3CD = 1;
+        }
+    }
+};
+
+static ColliDataInit_unk sColliDataInit;
