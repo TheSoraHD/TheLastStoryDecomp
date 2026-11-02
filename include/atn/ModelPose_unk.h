@@ -19,7 +19,9 @@ struct ModelJoint_unk {
     unsigned int m14; // inferred: name hash (CharaFaceControl)
     int m18;          // inferred: index of the node in atn::Model::m21C
     int m1C;          // inferred: parent node
-    unsigned char m20[0x40 - 0x20];
+    int m20;          // inferred: first child (-1: none)
+    int m24;          // inferred: next sibling (-1: none)
+    unsigned char m28[0x40 - 0x28];
     atn::Vector3 m40; // inferred: initial rotation (euler)
 };
 

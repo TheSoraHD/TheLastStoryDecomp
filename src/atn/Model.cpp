@@ -311,13 +311,15 @@ void ModelBase::fn_8008B978(int unbound) {
 
 // inferred: index of the material with the given name hash (the size is read once)
 inline int FindMaterial_unk(const SimpleArray<Material_unk*>& mats, unsigned int hash) {
+    int index = -1;
     unsigned int n = mats.mSize;
     for (unsigned int i = 0; i < n; i++) {
         if (hash == mats.mData[i]->m00) {
-            return i;
+            index = i;
+            break;
         }
     }
-    return -1;
+    return index;
 }
 
 // NONMATCHING: 91.6% - registers and frame (the original keeps two more saved registers around the string)
@@ -668,10 +670,53 @@ void Model::fn_80092A00(float alpha) {
     }
 }
 
+void ModelBase::fn_80092EC8(const char* path) {
+    mFlag4_unk = 1;
+    mFlag5_unk = 1;
+    m1C4.mHandle.vf0C(path);
+    m1C4.m0C = 0.0f;
+    m1C4.m08 = 0;
+}
+
+void ModelBase::fn_80092F1C(const char* path, const char* node, float distance) {
+    int n = m20C_23_16;
+    m20C_23_16 = n + 1;
+    ModelLod_unk* lod = &mLods[n];
+    lod->mHandle.vf0C(path);
+    lod->m0C = distance;
+    lod->m08 = 0;
+}
+
+void ModelBase::fn_80092F90() {
+    ModelLod_unk* lod = &mLods[1];
+    for (int i = 1; i < m20C_23_16; lod++, i++) {
+        lod->mHandle.fn_80473F88();
+        lod->m08 = 0;
+    }
+    m20C_23_16 = 1;
+}
+
 void Model::fn_80093014(int on) {
     mFlag1_unk = on;
     if (mFlag1_unk) {
         m20C_31_24 = 5;
+    }
+}
+
+// NONMATCHING: 99.6% - register of the level pointer of the second loop (r30 in the original)
+void ModelBase::fn_8009303C() {
+    for (int j = mFlag1_unk != 0; j < m20C_23_16; j++) {
+        mLods[j].m08 = mLods[j].mHandle.fn_80475DF8();
+    }
+    int i = mFlag1_unk != 0;
+    for (ModelLod_unk* lod = &mLods[i]; i < m20C_23_16; lod++, i++) {
+        if (lod->m08 != 0) {
+            fn_80093158(lod);
+        }
+    }
+    if (mFlag5_unk && !mFlag1_unk) {
+        m1C4.m08 = m1C4.mHandle.fn_80475DF8();
+        fn_80093158(&m1C4);
     }
 }
 
@@ -686,6 +731,26 @@ void Model::fn_800937E8(unsigned int hash, int show) {
     int i = FindNode_unk(this, hash, 0);
     if (i >= 0) {
         mEC.mData[i] = show != 0;
+    }
+}
+
+// NONMATCHING: 96.6% - the inlined node search reloads the joint array (the original reuses it)
+void Model::fn_8009385C(unsigned int hash, bool show, int children, int siblings) {
+    fn_80093A1C(fn_800928B0(hash, 0), show, children, siblings);
+}
+
+// NONMATCHING: 95.8% - same as fn_8009385C (the recursion is inlined twice, as in the original)
+void Model::fn_80093A1C(int node, bool show, int children, int siblings) {
+    while (node >= 0) {
+        ModelJoint_unk* joint = ((Res_unk*)mLods[0].m08)->m48[node];
+        fn_800937E8(joint->m14, show);
+        if (children && joint->m20 >= 0) {
+            fn_80093A1C(joint->m20, show, 1, 1);
+        }
+        if (!siblings) {
+            break;
+        }
+        node = joint->m24;
     }
 }
 
@@ -755,6 +820,45 @@ void Model::fn_80093F1C(const char* name, const atn::Vector3& a, const atn::Vect
     fn_80093F58(&edit);
 }
 
+// inferred: index of the node edit of a node (the size is read once)
+inline int FindEdit_unk(const SimpleVector<Model::NodeEdit_unk>& v, unsigned int hash) {
+    int index = -1;
+    unsigned int n = v.mSize;
+    for (unsigned int i = 0; i < n; i++) {
+        if (hash == v.mData[i].m00) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+
+// inferred: removes an element, moving the next ones down (name invented)
+inline void EraseEdit_unk(SimpleVector<Model::NodeEdit_unk>& v, Model::NodeEdit_unk* it) {
+    if (it != v.mData + v.mSize) {
+        for (unsigned int k = it - v.mData; k < v.mSize - 1; k++) {
+            v.mData[k] = v.mData[k + 1];
+        }
+        v.mSize = v.mSize - 1;
+    }
+}
+
+// NONMATCHING: 97.7% - registers of the search and of the index fix-up loop
+void Model::fn_80094778(const char* name) {
+    int index = FindEdit_unk(mD8, fn_800DC6B4(name));
+    if (index >= 0) {
+        EraseEdit_unk(mD8, &mD8.mData[index]);
+        for (int i = 0; i < ((Res_unk*)mLods[0].m08)->m44; i++) {
+            short v = mE4.mData[i];
+            if (index == v) {
+                mE4.mData[i] = -1;
+            } else if (v > index) {
+                mE4.mData[i] = v - 1;
+            }
+        }
+    }
+}
+
 Model::NodeEdit_unk* Model::fn_800948F0(const char* name) {
     unsigned int hash = fn_800DC6B4(name);
     for (unsigned int i = 0; i < mD8.mSize; i++) {
@@ -764,6 +868,31 @@ Model::NodeEdit_unk* Model::fn_800948F0(const char* name) {
         }
     }
     return 0;
+}
+
+// inferred: float colour written to a material as bytes (name invented)
+struct ModelColor_unk {
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
+    float r, g, b, a;
+};
+
+void Model::fn_80094958(const char* name, const void* a, const void* b, const void* c) {
+    unsigned int hash = fn_800DC6B4(name);
+    for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
+        Material_unk* m = m104.mMaterials.mData[i];
+        if (m->m00 == hash) {
+            m->mColor = ((const ModelColor_unk*)a)->ToGX();
+            m->m20 = ((const ModelColor_unk*)b)->ToGX();
+            m->m1C = ((const ModelColor_unk*)c)->ToGX();
+        }
+    }
 }
 
 Material_unk* Model::fn_80094B6C(const char* name) {

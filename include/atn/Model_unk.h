@@ -99,6 +99,11 @@ struct ModelBase : public IRender {
     void fn_80091A90(const Mtx m);                   // inferred: updates the skinning matrices for m
     void fn_80091C10(const ModelBase* src, const int* map, int reset); // inferred: copies node matrices
     void fn_80095CD0();                          // inferred: steps the texture animations
+    void fn_80092EC8(const char* path);          // inferred: loads the shadow model
+    void fn_80092F1C(const char* path, const char* node, float distance); // inferred: adds a level of detail
+    void fn_80092F90();                          // inferred: releases the levels of detail
+    void fn_8009303C();                          // inferred: fetches the loaded levels
+    void fn_80093158(ModelLod_unk* lod);         // inferred: sets up a loaded level
     atn::Texture_unk* fn_80095B08(const std::string& name); // inferred: texture of a stage name (bound for the materials)
 
     // inferred: world matrix (the inherited m) and node matrices (sub-object at 0x08; its implicit
@@ -231,7 +236,8 @@ struct Model : public ModelBase {
     void fn_8008CD60();                          // inferred
     void fn_800954DC(void* owner, atn::Vector2_unk uv, float f); // inferred: UV scroll
     int fn_80097E80(int arg); // inferred: returns nonzero when the motion was updated (CharaTask::fn_80145334)
-    void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
+    void fn_8009385C(unsigned int hash, bool show, int children, int siblings); // inferred: shows/hides a node tree
+    void fn_80093A1C(int node, bool show, int children, int siblings);           // inferred: same from a node index
     int fn_800928B0(unsigned int hash, int arg);      // inferred: node index by name hash, < 0 if missing
 
     // inferred: matrix of node `index`, null for a missing node (inlined at 0x8049CCD4)
@@ -248,14 +254,11 @@ struct Model : public ModelBase {
     void fn_80097C08(int arg1, int motion, int arg3, int arg4, int arg5, float blend, float speed); // inferred: play motion
     float fn_80097D7C(int track); // inferred: motion length
     // inferred: called on load by CharaTask (names keep the address)
-    void fn_80092F1C(const char* path, const char* node, float distance); // inferred: adds a LOD
-    void fn_80092EC8(const char* path);   // inferred: shadow LOD
     void fn_80097A88(int motion, const char* path); // inferred: loads a motion
     void fn_80097A20(unsigned int motion);          // inferred: releases a motion slot
     void fn_80097A9C(int motion, const LH_Motion* src); // inferred: copies a motion slot
     int fn_80097B34(); // inferred: number of loaded motions
     void fn_80097CCC(int track, float blend); // inferred: stops the motion of a track
-    void fn_80092F90();
     void fn_80093014(int arg);
     void fn_8009373C(const char* name, int part); // inferred: shows/hides the named node (option part)
     void fn_80094958(const char* name, const void* a, const void* b, const void* c); // inferred: material edit
