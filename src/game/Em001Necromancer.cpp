@@ -118,7 +118,7 @@ namespace atn {
 // inferred: fixed-size path (0x100 bytes) with an empty destructor; the destructor is the weak copy
 // kept in atn/NandManager.cpp (0x800A2D20, named NandEmpty_unk there)
 struct NandEmpty_unk {
-    NandEmpty_unk(const char* str) { *this = str; }
+    NandEmpty_unk(const char* str);
     ~NandEmpty_unk();
     NandEmpty_unk& operator=(const char* str);
     const char* c_str() const;
@@ -893,4 +893,8 @@ void Em001Necromancer::fn_80247258() {
                     *(const wchar_t**)((char*)info + 4));
         fn_80109828(lbl_8087F048, text);
     }
+}
+
+atn::NandEmpty_unk::NandEmpty_unk(const char* str) {
+    *this = str;
 }
