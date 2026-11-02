@@ -118,13 +118,8 @@ namespace nw4hbm {
             pChild->mpParent = this;
         }
 
-        void dummyString() {
-            OSReport("NW4HBM:Pointer must not be NULL (pNext)");
-            OSReport("NW4HBM:Failed assertion pNext->mpParent == this");
-            OSReport("NW4HBM:Failed assertion pChild->mpParent == this");
-        }
+        // (TP-only dummyString removed: its strings are not in SLSP01)
 
-#pragma ppc_iro_level 0
 
         const ut::Rect Pane::GetPaneRect(const DrawInfo& drawInfo) const {
             ut::Rect ret;
@@ -143,7 +138,6 @@ namespace nw4hbm {
             return ret;
         }
 
-#pragma ppc_iro_level reset
 
         ut::Color Pane::GetVtxColor(u32) const {
             return ut::Color(0xFFFFFFFF);
