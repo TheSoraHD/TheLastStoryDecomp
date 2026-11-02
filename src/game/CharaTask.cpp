@@ -3997,7 +3997,6 @@ extern "C" atn::Vector3 fn_804188A0(int id, const Segment_unk* seg);
 extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
 extern "C" void fn_8009757C(atn::Model* model);
 extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
-extern "C" void fn_80098698(atn::Model* model);
 extern "C" int fn_802185FC(const char* name);
 extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -4328,7 +4327,7 @@ void CharaTask::fn_80145334() {
     atn::Vector3 nodePos;
     atn::Vector3 nodeRot;
     if (m1254 != 0) {
-        unsigned int motion = mMotion.mTracks[0].m04;
+        unsigned int motion = (unsigned int)mMotion.mTracks[0].m04;
         if (motion != (unsigned int)m518) {
             reset = true;
         }
@@ -4338,7 +4337,7 @@ void CharaTask::fn_80145334() {
             reset = true;
         }
         m51C = frame;
-        nodePos = node->m04;
+        nodePos = node->mPos;
         nodeRot.Set_unk(0.0f, 0.0f, 1.0f);
         if (!(atn::Abs_unk(node->m10.x) < 1.1920929e-7f && atn::Abs_unk(node->m10.y) < 1.1920929e-7f &&
               atn::Abs_unk(node->m10.z) < 1.1920929e-7f && atn::Abs_unk(node->m10.w) < 1.1920929e-7f)) {
@@ -4429,11 +4428,11 @@ void CharaTask::fn_80145334() {
             vf28();
         }
         if (mFlag2) {
-            mMotion.m21C.mData[m524].m04 = m13E8;
+            mMotion.m21C.mData[m524].mPos = m13E8;
         }
         if (!reset && m1254 != 0) {
             if ((m1254 & 1) == 1 && (node->m00 & 1) == 1) {
-                atn::Vector3 move = node->m04 - nodePos;
+                atn::Vector3 move = node->mPos - nodePos;
                 atn::Matrix3x4 rot = ((atn::Matrix3x4*)mMotion.mMtx.m)->GetRotation_unk();
                 PSMTXMultVec(rot.m, &move, &move);
                 mPos += move;
@@ -4450,18 +4449,18 @@ void CharaTask::fn_80145334() {
                 node->m00 &= ~2;
             }
             if ((m1254 & 4) == 4 && (node->m00 & 4) == 4) {
-                m540 = node->m20;
+                m540 = node->mScale;
                 node->m00 &= ~4;
             }
             fn_80144710();
         }
         if (updated) {
             if (m588 > 0.01f) {
-                mMotion.m21C.mData[m524].m04.y -= m588;
+                mMotion.m21C.mData[m524].mPos.y -= m588;
             }
             mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             if (m588 > 0.01f) {
-                mMotion.m21C.mData[m524].m04.y += m588;
+                mMotion.m21C.mData[m524].mPos.y += m588;
             }
         } else if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
             fn_8009076C(&mMotion, &inv);
@@ -4478,7 +4477,7 @@ void CharaTask::fn_80145334() {
         mLook.fn_80129A48(0.3f);
         mLook.fn_80129A6C();
         if (animate) {
-            fn_80098698(&mMotion);
+            mMotion.fn_80098698();
         }
         if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
             fn_8009076C(&mMotion, &inv);

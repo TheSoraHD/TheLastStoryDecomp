@@ -59,10 +59,10 @@ void ControlAppear::vf40() {
     float t = frame / motion->fn_80097D7C(0);
     Chara_unk* chara = mChara;
     Motion_unk::Entry_unk* e = &motion->m21C.mData[chara->m524];
-    chara->mPos = e->m04 + mStart + mOffset * t;
-    e->m04.x = 0.0f;
-    e->m04.y = 0.0f;
-    e->m04.z = 0.0f;
+    chara->mPos = e->mPos + mStart + mOffset * t;
+    e->mPos.x = 0.0f;
+    e->mPos.y = 0.0f;
+    e->mPos.z = 0.0f;
 }
 
 boost::function<void()> ControlAppear::vf10() {

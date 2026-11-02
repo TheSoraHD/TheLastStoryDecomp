@@ -21,8 +21,14 @@ struct ModelJoint_unk {
     int m1C;          // inferred: parent node
     int m20;          // inferred: first child (-1: none)
     int m24;          // inferred: next sibling (-1: none)
-    unsigned char m28[0x40 - 0x28];
+    unsigned char m28[0x34 - 0x28];
+    atn::Vector3 m34; // inferred: initial scale
     atn::Vector3 m40; // inferred: initial rotation (euler)
+    atn::Vector3 m4C; // inferred: initial position
+    // inferred: bind pose by value (defined in atn/Model.cpp, used by fn_80099010); names invented
+    inline atn::Vector3 GetScale_unk() const;
+    inline atn::Vector3 GetRot_unk() const;
+    inline atn::Vector3 GetTrans_unk() const;
 };
 
 // inferred: node matrices block of the loaded model data (count at 0x10)

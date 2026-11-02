@@ -236,7 +236,7 @@ void ControlWallUp::vf40() {
     float t = m40 / 15.0f;
     float s = 1.0f - t;
     Motion_unk::Entry_unk* e = &mChara->mMotion.m21C.mData[mChara->m524];
-    e->m04 += atn::Vector3(0.0f, 0.0f, 5.0f * s);
+    e->mPos += atn::Vector3(0.0f, 0.0f, 5.0f * s);
 }
 
 void ControlWallUp::vf1C() {

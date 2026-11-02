@@ -7,6 +7,7 @@
 #include "atn/Array_unk.h"
 #include "atn/IRender.h"
 #include "atn/LH_Model.h"
+#include "atn/LH_Motion.h"
 #include "atn/LH_Material.h"
 #include "game/ResHandle.h"
 #include "Event/PoseKey_unk.h"
@@ -293,18 +294,17 @@ struct Model : public ModelBase {
     atn::LoadHandle* fn_80097D40(int motion); // inferred: handle of the motion (12-byte entries of m224), zero if missing
 
     // inferred: per-node data (0x2C bytes)
-    struct Node_unk {
-        unsigned int m00; // inferred: flags (2: the rotation m10 is set, CharaTask::fn_80148CC4)
-        atn::Vector3 m04;
-        atn::Quaternion_unk m10;
-        atn::Vector3 m20; // inferred: scale (copied to CharaTask::m540 by fn_80145334)
+    // inferred: node pose of the model (0x2C bytes): a MotionPose_unk (its constructor is called by the weak
+    // constructor 0x8008A4B0); m00 flags (1 position, 2 rotation, 4 scale; CharaTask::fn_80148CC4)
+    struct Node_unk : public MotionPose_unk {
+        inline Node_unk(); // inferred: defined in atn/Model.cpp
     };
     Res_unk* fn_8000DD04(); // inferred: returns the loaded data of the first level
     typedef Node_unk Entry_unk;
     // inferred: motion track (0x30 bytes, six of them at 0x22C; accessors 0x80139550-0x8013C554)
     struct Track_unk {
         int m00;   // inferred: motion id
-        int m04;   // inferred: compared with CharaTask::m518 (fn_80145334)
+        LH_Motion* m04; // inferred: motion played (kept by CharaTask::m518 to detect a change, fn_80145334)
         float m08; // inferred: frame
         float m0C; // inferred: speed
         float m10; // inferred: set to 1.0 when CharaTask::mFlag7 is set (fn_80145334)
@@ -313,10 +313,18 @@ struct Model : public ModelBase {
         unsigned char m19[0x1C - 0x19];
         float m1C; // inferred: current value (moved towards the key by the lip sync)
         float m20; // inferred: weight
-        int m24;   // inferred: previous motion slot (m04)
+        LH_Motion* m24; // inferred: previous motion (m04)
         float m28; // inferred: previous frame (m08)
         float m2C; // inferred: previous m10
     };
+    // inferred: replaces the node edits and rebuilds the node -> edit table mE4
+    void fn_80094420(const SimpleVector<NodeEdit_unk>& edits);
+    // inferred: samples the motion of a track on a node and its children (fn_80098DD8)
+    void fn_80098C90(int node, int siblings, int replace, Res_unk* res, Track_unk* track, const int* remap);
+    // inferred: advances the motion tracks without sampling them (fn_80097E80)
+    void fn_80098698();
+    // inferred: samples the fading track 3 (fn_80097E80)
+    void fn_80098DD8(int advance);
 
     // inferred: accessors called out of line from CharaTask (names keep the address)
     Node_unk* fn_80147A00();

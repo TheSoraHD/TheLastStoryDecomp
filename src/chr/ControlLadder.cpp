@@ -295,7 +295,7 @@ void ControlLadder::vf40() {
         atn::Model* model = &mChara->mMotion;
         Motion_unk::Entry_unk* nodes = model->m21C.mData;
         Motion_unk::Entry_unk* e = &nodes[model->GetNodeNoByName("hips", 0)];
-        e->m04.x += mChara->mType == 0 ? m4C : -m4C;
+        e->mPos.x += mChara->mType == 0 ? m4C : -m4C;
     }
 }
 

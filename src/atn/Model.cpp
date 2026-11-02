@@ -11,6 +11,7 @@
 #include "atn/AABB_unk.h"
 #include "atn/PBone.h"
 #include "atn/RenderView_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "std/new.h"
 #include <boost/bind.hpp>
 
@@ -23,6 +24,7 @@ extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext); 
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" void* lbl_8087EFB4; // inferred: render system
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 // inferred: base of the locked cache (scratch for the node matrices); name invented
 #define LOCKED_CACHE_UNK ((atn::Matrix3x4*)0xE0000000)
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -68,6 +70,14 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
 // inferred: skin matrices of the weighted vertex blocks (the paired-single versions 0x8009A0F8/0x8009A2C0
 // work on the locked cache; 0x80090C58/0x800910D4 on main memory and advance the output pointer)
+extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r, float t);
+extern "C" unsigned long LCLoadData(void* dst, void* src, unsigned long size);
+extern "C" void LCQueueWait(unsigned long len);
+extern "C" void fn_80099F74(const SkinWeight2_unk* w, const atn::Matrix3x4* mats, atn::Matrix3x4* out, int n);
+extern "C" void fn_8009A018(const SkinWeight3_unk* w, const atn::Matrix3x4* mats, atn::Matrix3x4* out, int n);
+extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
+extern "C" void fn_800A05FC(atn::LH_Motion* motion, MotionPose_unk* pose, int key, atn::NodeWork_unk* work, float frame); // inferred: samples a motion key
+extern "C" void fn_80098948(MotionPose_unk* out, unsigned int n, const MotionPose_unk* a, const MotionPose_unk* b, float t);
 extern "C" void DCZeroRange(void* addr, unsigned long size);
 extern "C" void fn_8009A490(Mtx* out, const Mtx* a, const Mtx* b, int n, const Mtx root);
 extern "C" void fn_8009A504(Mtx* out, const Mtx* a, const Mtx* mats, const int* index, int n, const Mtx root);
@@ -87,7 +97,7 @@ struct MotionCmd_unk {
     ~MotionCmd_unk() { fn_800A1060(this); }
     int m00;
     int m04;
-    int m08;
+    short* m08; // inferred: motion key of each node (-1: none)
     int m0C;
 };
 // inferred: motion slot of a model (the array is built with the constructor of LH_Motion and destroyed
@@ -101,6 +111,42 @@ extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const at
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
 
 namespace atn {
+
+inline Model::Node_unk::Node_unk() {
+}
+
+inline atn::Vector3 ModelJoint_unk::GetScale_unk() const {
+    return m34;
+}
+
+inline atn::Vector3 ModelJoint_unk::GetRot_unk() const {
+    return m40;
+}
+
+inline atn::Vector3 ModelJoint_unk::GetTrans_unk() const {
+    return m4C;
+}
+
+// inferred: rotation from euler angles (same as Quaternion_unk::fn_801498F0 of game/CharaTask.cpp); name
+// invented
+inline Quaternion_unk EulerToQuat_unk(const Vector3& rot) {
+    Quaternion_unk q;
+    float rx = rot.x;
+    float ry = rot.y;
+    float rz = rot.z;
+    float cx, cy, cz;
+    float sx, sy, sz;
+    fn_8072D210(40.743664f * (rx / 2.0f), &sx, &cx);
+    fn_8072D210(40.743664f * (ry / 2.0f), &sy, &cy);
+    fn_8072D210(40.743664f * (rz / 2.0f), &sz, &cz);
+    float cycz = cy * cz;
+    float sysz = sy * sz;
+    q.w = cx * cycz + sx * sysz;
+    q.x = sx * cycz - cx * sysz;
+    q.y = cz * (cx * sy) + sz * (sx * cy);
+    q.z = sz * (cx * cy) - cz * (sx * sy);
+    return q;
+}
 
 inline NodeWork_unk::NodeWork_unk() {
     memset(this, 0, sizeof(NodeWork_unk));
@@ -1014,6 +1060,97 @@ inline void EraseEdit_unk(SimpleVector<Model::NodeEdit_unk>& v, Model::NodeEdit_
     }
 }
 
+// inferred: float colour written to a material as bytes (name invented)
+struct ModelColor_unk {
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
+    float r, g, b, a;
+};
+
+// inferred: appends a bone to the fixed array (name invented)
+inline void PushBone_unk(Model* model, PBoneInterface* bone) {
+    new (&model->m388[model->m384]) PBoneInterface*(bone);
+    model->m384++;
+}
+
+// NONMATCHING: 83% - the copy of dir is scheduled before the arguments
+// inferred: node pose of the shared pose buffer (implicit constructor 0x8008A4B0); name invented
+struct NodePose_unk : public MotionPose_unk {};
+
+// inferred: pose buffer shared by every model (0x400 nodes, allocated by the first model)
+static NodePose_unk* sNodePoses;
+} // namespace atn
+
+// inferred: out[i] = root * b[i] * a[i]
+// NONMATCHING: 97.6% - register allocation of the pointers
+extern "C" void DCZeroRange(void* addr, unsigned long size);
+extern "C" asm void fn_80099F74(register const SkinWeight2_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
+extern "C" asm void fn_8009A018(register const SkinWeight3_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
+
+// inferred: skinning weights of a vertex block with three joints (0x1C bytes); names invented
+struct SkinWeight3_unk {
+    int m00;
+    int mIndex0;
+    float mWeight0;
+    int mIndex1;
+    float mWeight1;
+    int mIndex2;
+    float mWeight2;
+};
+
+// inferred: double-buffered transfer of an array to the locked cache, 32 entries a block (buffers at
+// 0xE0001800 and right after the first one); names invented
+template <class T>
+struct LCStream_unk {
+    LCStream_unk(const T* src, int count) {
+        mSrc = src;
+        mCount = count;
+        mIndex = 0;
+        mBuf[0] = (T*)0xE0001800;
+        mBuf[1] = (T*)(0xE0001800 + 32 * sizeof(T) + 32);
+    }
+    unsigned long Load_unk(int count) {
+        mOffset[mIndex] = (unsigned long)mSrc & 31;
+        unsigned long n = LCLoadData(mBuf[mIndex], (char*)mSrc - mOffset[mIndex], count * sizeof(T));
+        mSrc += count;
+        mCount -= count;
+        return n;
+    }
+
+    const T* mSrc;
+    int mCount;
+    int mIndex;
+    T* mBuf[2];
+    int mOffset[2];
+};
+extern "C" void fn_80099010(MotionPose_unk* pose, const ModelJoint_unk* joint);
+
+namespace atn {
+
+// inferred: replaces the node edits and rebuilds the node -> edit table
+void Model::fn_80094420(const SimpleVector<NodeEdit_unk>& edits) {
+    mD8.clear();
+    for (int i = 0; i < GetRes_unk()->m44; i++) {
+        mE4.mData[i] = -1;
+    }
+    mD8 = edits;
+    for (unsigned int i = 0; i < mD8.mSize; i++) {
+        Res_unk* res = GetRes_unk();
+        for (int j = 0; j < res->m44; j++) {
+            if (res->m48[j]->m14 == mD8.mData[i].m00) {
+                mE4.mData[j] = i;
+                break;
+            }
+        }
+    }
+}
+
 // NONMATCHING: 97.7% - registers of the search and of the index fix-up loop
 void Model::fn_80094778(const char* name) {
     int index = FindEdit_unk(mD8, fn_800DC6B4(name));
@@ -1040,19 +1177,6 @@ Model::NodeEdit_unk* Model::fn_800948F0(const char* name) {
     }
     return 0;
 }
-
-// inferred: float colour written to a material as bytes (name invented)
-struct ModelColor_unk {
-    GXColor ToGX() const {
-        GXColor c;
-        c.r = (unsigned char)(255.0f * r);
-        c.g = (unsigned char)(255.0f * g);
-        c.b = (unsigned char)(255.0f * b);
-        c.a = (unsigned char)(255.0f * a);
-        return c;
-    }
-    float r, g, b, a;
-};
 
 void Model::fn_80094958(const char* name, const void* a, const void* b, const void* c) {
     unsigned int hash = fn_800DC6B4(name);
@@ -1252,19 +1376,6 @@ void Model::fn_80095D44(int node, int parent) {
     }
 }
 
-// inferred: appends a bone to the fixed array (name invented)
-inline void PushBone_unk(Model* model, PBoneInterface* bone) {
-    new (&model->m388[model->m384]) PBoneInterface*(bone);
-    model->m384++;
-}
-
-// NONMATCHING: 83% - the copy of dir is scheduled before the arguments
-// inferred: node pose of the shared pose buffer (implicit constructor 0x8008A4B0); name invented
-struct NodePose_unk : public MotionPose_unk {};
-
-// inferred: pose buffer shared by every model (0x400 nodes, allocated by the first model)
-static NodePose_unk* sNodePoses;
-
 // NONMATCHING: 99.3% - the "" of the pool is at 0xA in the original, and the motion slots are built with
 // the constructor of LH_Motion (here the implicit one of MotionSlot_unk)
 Model::Model(int flags, int motions)
@@ -1416,7 +1527,7 @@ void Model::fn_80097C08(int track, int motion, int loop, int force, int arg5, fl
         t.m2C = t.m10;
         t.m00 = motion;
         if (motion >= 0 && motion < (int)m224.mSize && m224.mData[motion].GetMotion_unk().m08 != 0) {
-            t.m04 = (int)&m224.mData[motion].GetMotion_unk();
+            t.m04 = &m224.mData[motion].GetMotion_unk();
             t.m08 = 0.0f;
             t.m10 = blend;
             t.m18 = loop != 0;
@@ -1477,6 +1588,232 @@ void Model::fn_80097D9C(Model* src) {
     }
 }
 
+// inferred: advances the motion tracks without sampling them (models that are not drawn); track 3 is the
+// fading one, tracks 4 and 5 only loop forwards
+void Model::fn_80098698() {
+    float dt = m350 * lbl_8087EFA8->m3A4;
+    for (int i = 0; i < m34C; i++) {
+        Track_unk* t = &mTracks[i];
+        LH_Motion* motion = t->m04;
+        if (motion != 0) {
+            t->m10 += t->m14 * dt;
+            if (t->m10 > t->m1C) {
+                t->m10 = t->m1C;
+            }
+            t->m08 += t->m0C * dt;
+            if (t->m18 && t->m08 >= fn_800A08D4(motion) && t->m0C > 0.0f) {
+                t->m08 -= fn_800A08D4(motion);
+            }
+            if (t->m18 && t->m08 < 0.0f && t->m0C < 0.0f) {
+                t->m08 += fn_800A08D4(motion);
+            }
+        }
+    }
+    if (mTracks[3].m04 != 0 || mTracks[3].m24 != 0) {
+        LH_Motion* motion = (mTracks[3].m04 != 0) ? mTracks[3].m04 : mTracks[3].m24;
+        if (mTracks[3].m04 == 0) {
+            mTracks[3].m10 -= mTracks[3].m14 * dt;
+            if (mTracks[3].m10 <= 0.0f) {
+                mTracks[3].m10 = 0.0f;
+                mTracks[3].m24 = 0;
+                mTracks[3].m00 = -1;
+            }
+        } else {
+            mTracks[3].m10 += mTracks[3].m14 * dt;
+        }
+        if (mTracks[3].m10 > mTracks[3].m1C) {
+            mTracks[3].m10 = mTracks[3].m1C;
+        }
+        mTracks[3].m08 += mTracks[3].m0C * dt;
+        if (mTracks[3].m18 && mTracks[3].m08 >= fn_800A08D4(motion)) {
+            mTracks[3].m08 -= fn_800A08D4(motion);
+        }
+    }
+    for (int i = 4; i <= 5; i++) {
+        Track_unk* t = &mTracks[i];
+        LH_Motion* motion = t->m04;
+        if (motion != 0) {
+            t->m10 += t->m14 * dt;
+            if (t->m10 > t->m1C) {
+                t->m10 = t->m1C;
+            }
+            t->m08 += t->m0C * dt;
+            if (t->m18 && t->m08 >= fn_800A08D4(motion)) {
+                t->m08 -= fn_800A08D4(motion);
+            }
+        }
+    }
+}
+} // namespace atn
+
+// inferred: blends n node poses: out = a * (1 - t) + b * t for the parts set in both (slerp for the
+// rotation); a part set in only one of them is copied, a part set in none is reset
+extern "C" void fn_80098948(MotionPose_unk* out, unsigned int n, const MotionPose_unk* a, const MotionPose_unk* b, float t) {
+    float s = 1.0f - t;
+    for (unsigned int i = 0; i < n; i++) {
+        if (a->m00 & 1) {
+            if (b->m00 & 1) {
+                if (atn::Abs_unk(t) < 1.1920929e-7f) {
+                    out->mPos = a->mPos;
+                } else if (1.0f == t) {
+                    out->mPos = b->mPos;
+                } else {
+                    out->mPos.x = a->mPos.x * s + b->mPos.x * t;
+                    out->mPos.y = a->mPos.y * s + b->mPos.y * t;
+                    out->mPos.z = a->mPos.z * s + b->mPos.z * t;
+                }
+            } else {
+                out->mPos = a->mPos;
+            }
+        } else if (b->m00 & 1) {
+            out->mPos = b->mPos;
+        } else {
+            out->mPos.x = 0.0f;
+            out->mPos.y = 0.0f;
+            out->mPos.z = 0.0f;
+        }
+        if (a->m00 & 2) {
+            if (b->m00 & 2) {
+                if (atn::Abs_unk(t) < 1.1920929e-7f) {
+                    out->m10 = a->m10;
+                } else if (1.0f == t) {
+                    out->m10 = b->m10;
+                } else {
+                    atn::Quaternion_unk q;
+                    C_QUATSlerp(&a->m10, &b->m10, &q, t);
+                    out->m10 = q;
+                }
+            } else {
+                out->m10 = a->m10;
+            }
+        } else if (b->m00 & 2) {
+            out->m10 = b->m10;
+        } else {
+            out->m10.x = 0.0f;
+            out->m10.y = 0.0f;
+            out->m10.z = 0.0f;
+            out->m10.w = 1.0f;
+        }
+        if (a->m00 & 4) {
+            if (b->m00 & 4) {
+                if (atn::Abs_unk(t) < 1.1920929e-7f) {
+                    out->mScale = a->mScale;
+                } else if (1.0f == t) {
+                    out->mScale = b->mScale;
+                } else {
+                    out->mScale.x = a->mScale.x * s + b->mScale.x * t;
+                    out->mScale.y = a->mScale.y * s + b->mScale.y * t;
+                    out->mScale.z = a->mScale.z * s + b->mScale.z * t;
+                }
+            } else {
+                out->mScale = a->mScale;
+            }
+        } else if (b->m00 & 4) {
+            out->mScale = b->mScale;
+        } else {
+            out->mScale.x = 1.0f;
+            out->mScale.y = 1.0f;
+            out->mScale.z = 1.0f;
+        }
+        out->m00 = a->m00 | b->m00;
+        a++;
+        b++;
+        out++;
+    }
+}
+
+namespace atn {
+
+// inferred: samples the motion of a track on the node and its children (and its next siblings when
+// `siblings`); without `replace` the sample is blended into the current pose with the track weight
+void Model::fn_80098C90(int node, int siblings, int replace, Res_unk* res, Track_unk* track, const int* remap) {
+    MotionPose_unk pose;
+    while (node >= 0) {
+        NodeRes_unk* joint = res->m48[node];
+        int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+        int key = m354.mData[track->m00].m08[index];
+        if (key >= 0) {
+            if (replace) {
+                fn_800A05FC(track->m04, &m21C.mData[index], key, &m214.mData[index], track->m08);
+            } else {
+                fn_800A05FC(track->m04, &pose, key, &m214.mData[index], track->m08);
+                fn_80098948(&m21C.mData[index], 1, &m21C.mData[index], &pose, track->m10);
+            }
+        }
+        if (joint->m20 >= 0) {
+            fn_80098C90(joint->m20, 1, replace, res, track, remap);
+        }
+        if (!siblings) {
+            break;
+        }
+        node = joint->m24;
+    }
+}
+
+// inferred: samples the fading track 3 from the "spine" node (an upper body motion); while it fades out
+// the previous motion is sampled
+void Model::fn_80098DD8(int advance) {
+    Track_unk* t = &mTracks[3];
+    if (t->m04 == 0 && t->m24 == 0) {
+        return;
+    }
+    Res_unk* res = (Res_unk*)mLods[m50].m08;
+    const int* remap = mLods[m50].m10.mData;
+    LH_Motion* motion = (t->m04 != 0) ? t->m04 : t->m24;
+    float dt = m350 * lbl_8087EFA8->m3A4;
+    bool fading = false;
+    if (t->m04 == 0) {
+        if (advance) {
+            t->m10 -= t->m14;
+        }
+        if (t->m10 <= 0.0f) {
+            t->m10 = 0.0f;
+            t->m24 = 0;
+            t->m00 = -1;
+            return;
+        }
+        fading = true;
+    } else if (advance) {
+        t->m10 += t->m14;
+    }
+    if (t->m10 > t->m1C) {
+        t->m10 = t->m1C;
+    }
+    if (fading) {
+        t->m04 = t->m24;
+    }
+    int node = FindNodeRes_unk((Res_unk*)mLods[m50].m08, fn_800DC6B4("spine"));
+    fn_80098C90(node, 0, Abs_unk(t->m10 - 1.0f) < 1.1920929e-7f, res, t, remap);
+    if (fading) {
+        t->m04 = 0;
+    }
+    if (advance) {
+        t->m08 += t->m0C * dt;
+    }
+    if (t->m18 && t->m08 >= fn_800A08D4(motion)) {
+        t->m08 -= fn_800A08D4(motion);
+    }
+}
+} // namespace atn
+
+// inferred: completes a pose with the bind pose of the joint (the parts the motion did not set)
+extern "C" void fn_80099010(MotionPose_unk* pose, const ModelJoint_unk* joint) {
+    if ((pose->m00 & 1) != 1) {
+        pose->mPos = joint->GetTrans_unk();
+        pose->m00 |= 1;
+    }
+    if ((pose->m00 & 2) != 2) {
+        pose->m10 = EulerToQuat_unk(joint->GetRot_unk());
+        pose->m00 |= 2;
+    }
+    if ((pose->m00 & 4) != 4) {
+        pose->mScale = joint->GetScale_unk();
+        pose->m00 |= 4;
+    }
+}
+
+namespace atn {
+
 void Model::fn_80099E9C(const char* node, const char* name, float value) {
     m3C0 = FindNode_unk(this, fn_800DC6B4(node), 0);
     m3C4 = value;
@@ -1484,11 +1821,186 @@ void Model::fn_80099E9C(const char* node, const char* name, float value) {
         memcpy(m3C8, name, strlen(name) + 1);
     }
 }
+
+int ModelBase::GetRenderType_unk() {
+    return 0;
+}
 } // namespace atn
 
-// inferred: out[i] = root * b[i] * a[i]
-// NONMATCHING: 97.6% - register allocation of the pointers
-extern "C" void DCZeroRange(void* addr, unsigned long size);
+// inferred: skin matrices of the two-joint weights: out[i] = mats[w.mIndex0] * w.mWeight0 +
+// mats[w.mIndex1] * w.mWeight1 (paired singles on the locked cache; asm approved for this function)
+extern "C" asm void fn_80099F74(register const SkinWeight2_unk* w, register const atn::Matrix3x4* mats,
+                     register atn::Matrix3x4* out, register int n) {
+    nofralloc
+    mtctr r6
+    subi r5, r5, 0x8
+L_80099F7C:
+    lwz r7, 0x4(r3)
+    lwz r8, 0xc(r3)
+    lfs f0, 0x8(r3)
+    lfs f1, 0x10(r3)
+    mulli r7, r7, 0x30
+    mulli r8, r8, 0x30
+    psq_lux f2, r7, r4, 0, 0
+    psq_lu f3, 0x8(r7), 0, 0
+    psq_lu f4, 0x8(r7), 0, 0
+    psq_lu f5, 0x8(r7), 0, 0
+    psq_lu f6, 0x8(r7), 0, 0
+    psq_lu f7, 0x8(r7), 0, 0
+    psq_lux f8, r8, r4, 0, 0
+    psq_lu f9, 0x8(r8), 0, 0
+    psq_lu f10, 0x8(r8), 0, 0
+    psq_lu f11, 0x8(r8), 0, 0
+    psq_lu f12, 0x8(r8), 0, 0
+    psq_lu f13, 0x8(r8), 0, 0
+    ps_muls0 f2, f2, f0
+    ps_muls0 f3, f3, f0
+    ps_muls0 f4, f4, f0
+    ps_muls0 f5, f5, f0
+    ps_muls0 f6, f6, f0
+    ps_muls0 f7, f7, f0
+    ps_madds0 f2, f8, f1, f2
+    ps_madds0 f3, f9, f1, f3
+    ps_madds0 f4, f10, f1, f4
+    ps_madds0 f5, f11, f1, f5
+    ps_madds0 f6, f12, f1, f6
+    ps_madds0 f7, f13, f1, f7
+    psq_stu f2, 0x8(r5), 0, 0
+    psq_stu f3, 0x8(r5), 0, 0
+    psq_stu f4, 0x8(r5), 0, 0
+    psq_stu f5, 0x8(r5), 0, 0
+    psq_stu f6, 0x8(r5), 0, 0
+    psq_stu f7, 0x8(r5), 0, 0
+    addi r3, r3, 0x14
+    bdnz L_80099F7C
+    blr
+}
+
+// inferred: same with three joints (SkinWeight3_unk, 0x1C bytes; asm approved for this function)
+extern "C" asm void fn_8009A018(register const SkinWeight3_unk* w, register const atn::Matrix3x4* mats,
+                     register atn::Matrix3x4* out, register int n) {
+    nofralloc
+    mtctr r6
+    subi r5, r5, 0x8
+L_8009A020:
+    lwz r7, 0x4(r3)
+    lwz r8, 0xc(r3)
+    lfs f0, 0x8(r3)
+    lfs f1, 0x10(r3)
+    mulli r7, r7, 0x30
+    mulli r8, r8, 0x30
+    psq_lux f2, r7, r4, 0, 0
+    psq_lu f3, 0x8(r7), 0, 0
+    psq_lu f4, 0x8(r7), 0, 0
+    psq_lu f5, 0x8(r7), 0, 0
+    psq_lu f6, 0x8(r7), 0, 0
+    psq_lu f7, 0x8(r7), 0, 0
+    psq_lux f8, r8, r4, 0, 0
+    psq_lu f9, 0x8(r8), 0, 0
+    psq_lu f10, 0x8(r8), 0, 0
+    psq_lu f11, 0x8(r8), 0, 0
+    psq_lu f12, 0x8(r8), 0, 0
+    psq_lu f13, 0x8(r8), 0, 0
+    ps_muls0 f2, f2, f0
+    ps_muls0 f3, f3, f0
+    ps_muls0 f4, f4, f0
+    ps_muls0 f5, f5, f0
+    ps_muls0 f6, f6, f0
+    ps_muls0 f7, f7, f0
+    ps_madds0 f2, f8, f1, f2
+    ps_madds0 f3, f9, f1, f3
+    ps_madds0 f4, f10, f1, f4
+    ps_madds0 f5, f11, f1, f5
+    ps_madds0 f6, f12, f1, f6
+    ps_madds0 f7, f13, f1, f7
+    lwz r8, 0x14(r3)
+    lfs f1, 0x18(r3)
+    mulli r8, r8, 0x30
+    psq_lux f8, r8, r4, 0, 0
+    psq_lu f9, 0x8(r8), 0, 0
+    psq_lu f10, 0x8(r8), 0, 0
+    psq_lu f11, 0x8(r8), 0, 0
+    psq_lu f12, 0x8(r8), 0, 0
+    psq_lu f13, 0x8(r8), 0, 0
+    ps_madds0 f2, f8, f1, f2
+    ps_madds0 f3, f9, f1, f3
+    ps_madds0 f4, f10, f1, f4
+    ps_madds0 f5, f11, f1, f5
+    ps_madds0 f6, f12, f1, f6
+    ps_madds0 f7, f13, f1, f7
+    psq_stu f2, 0x8(r5), 0, 0
+    psq_stu f3, 0x8(r5), 0, 0
+    psq_stu f4, 0x8(r5), 0, 0
+    psq_stu f5, 0x8(r5), 0, 0
+    psq_stu f6, 0x8(r5), 0, 0
+    psq_stu f7, 0x8(r5), 0, 0
+    addi r3, r3, 0x1c
+    bdnz L_8009A020
+    blr
+}
+
+// inferred: skin matrices of the two-joint weights, streamed through the locked cache
+// NONMATCHING: 98% - the original keeps the queue count in r27 and the block pointer in r28
+extern "C" void fn_8009A0F8(atn::Matrix3x4* out, const atn::Matrix3x4* mats, const SkinWeight2_unk* w, int n) {
+    if (n == 0) {
+        return;
+    }
+    LCStream_unk<SkinWeight2_unk> stream(w, n);
+    int first = (n >= 32) ? 32 : n;
+    if (first != 0) {
+        stream.Load_unk(first);
+    }
+    unsigned long pending = 0;
+    do {
+        int count = (n > 32) ? 32 : n;
+        SkinWeight2_unk* cur = stream.mBuf[stream.mIndex] + stream.mOffset[stream.mIndex];
+        stream.mIndex = (stream.mIndex + 1) % 2;
+        int next = (stream.mCount >= 32) ? 32 : stream.mCount;
+        unsigned long loads;
+        if (next != 0) {
+            loads = stream.Load_unk(next);
+        } else {
+            loads = 0;
+        }
+        LCQueueWait(pending + loads);
+        fn_80099F74(cur, mats, out, count);
+        pending = 0;
+        out += count;
+        n -= count;
+    } while (n > 0);
+}
+
+// inferred: same with three joints; the output pointer is advanced
+// NONMATCHING: 98% - same registers as fn_8009A0F8
+extern "C" void fn_8009A2C0(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight3_unk* w, int n) {
+    if (n == 0) {
+        return;
+    }
+    LCStream_unk<SkinWeight3_unk> stream(w, n);
+    int first = (n >= 32) ? 32 : n;
+    if (first != 0) {
+        stream.Load_unk(first);
+    }
+    unsigned long pending = 0;
+    do {
+        int count = (n > 32) ? 32 : n;
+        SkinWeight3_unk* cur = stream.mBuf[stream.mIndex] + stream.mOffset[stream.mIndex];
+        stream.mIndex = (stream.mIndex + 1) % 2;
+        int next = (stream.mCount >= 32) ? 32 : stream.mCount;
+        unsigned long loads;
+        if (next != 0) {
+            loads = stream.Load_unk(next);
+        } else {
+            loads = 0;
+        }
+        LCQueueWait(pending + loads);
+        fn_8009A018(cur, mats, *out, count);
+        pending = 0;
+        *out += count;
+        n -= count;
+    } while (n > 0);
+}
+
 extern "C" void fn_8009A490(Mtx* out, const Mtx* a, const Mtx* b, int n, const Mtx root) {
     while (n != 0) {
         PSMTXConcat(*b, *a, *out);
