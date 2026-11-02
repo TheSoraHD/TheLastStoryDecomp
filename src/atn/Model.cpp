@@ -3,6 +3,7 @@
 #include "atn/Model_unk.h"
 #include "atn/Material_unk.h"
 #include "atn/LH_Motion.h"
+#include "atn/ModelCamera_unk.h"
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 namespace atn {
@@ -26,6 +27,12 @@ extern "C" void fn_800D58A4(Texture_unk* tex); // inferred: releases a texture
 struct GimmickUvOwner_unk {
     int fn_800D59B8(); // inferred: nonzero while loading
 };
+
+MaterialSet_unk::~MaterialSet_unk() {
+    for (unsigned int i = 0; i < mMaterials.size(); i++) {
+        delete mMaterials.mData[i];
+    }
+}
 
 // inferred: releases the textures of every material (CharaManager::vf14 calls it on atn::Model::m104)
 void MaterialSet_unk::fn_80089AD4() {
@@ -66,24 +73,56 @@ int MaterialSet_unk::fn_80089B5C() {
 // NONMATCHING: 99.7% - the first fabs goes to f0 instead of f3
 extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, const atn::Vector3& offset,
                             const atn::Vector3& rot, const atn::Vector3& scale, int flags) {
-    edit->mHash = fn_800DC6B4(name);
+    edit->m00 = fn_800DC6B4(name);
     edit->m08 = offset;
     edit->m14 = rot;
     edit->m20 = scale;
-    edit->mFlags = flags;
+    edit->m04 = flags;
     if (!(atn::Abs_unk(offset.x) < 1.1920929e-7f && atn::Abs_unk(offset.y) < 1.1920929e-7f &&
           atn::Abs_unk(offset.z) < 1.1920929e-7f)) {
-        edit->mFlags |= 1;
+        edit->m04 |= 1;
     }
     if (!(atn::Abs_unk(rot.x) < 1.1920929e-7f && atn::Abs_unk(rot.y) < 1.1920929e-7f &&
           atn::Abs_unk(rot.z) < 1.1920929e-7f)) {
-        edit->mFlags |= 2;
+        edit->m04 |= 2;
     }
     if (!(atn::Abs_unk(scale.x - 1.0f) < 1.1920929e-7f && atn::Abs_unk(scale.y - 1.0f) < 1.1920929e-7f &&
           atn::Abs_unk(scale.z - 1.0f) < 1.1920929e-7f)) {
-        edit->mFlags |= 4;
+        edit->m04 |= 4;
     }
 }
+
+namespace atn {
+
+ModelBase::ModelBase(unsigned int flags)
+    : mFlags(flags), m40(1.0f, 1.0f, 1.0f, 1.0f), m50(0), m54(1.0f), m58(0), m5C(0), m94(6), m98(0.0f), m134(0),
+      m138(0), m14C(1.0f), m150(1.0f), m154(0.0f), m158(1.0f), m15C(0), m160(0), m1DC(0), m1E0(0), m1F0(0), m1F4(0),
+      m1F8(0), m1FC(0), m208(0) {
+    m20C_31_24 = 0;
+    m20C_23_16 = 1;
+    m20C_15_8 = 0;
+    m20C_7 = 0;
+    mFlag6_unk = 1;
+    mFlag5_unk = 0;
+    mFlag4_unk = 0;
+    m20C_3 = 0;
+    mFlag2_unk = 0;
+    mFlag1_unk = 0;
+    m20C_0 = 0;
+    m9C[0] = 0.0f;
+    m9C[1] = 0.0f;
+    m9C[2] = 0.0f;
+    m9C[3] = 0.0f;
+    mAC = 1.0f;
+    mB0 = -1;
+    mB4 = -1;
+}
+
+ModelBase::~ModelBase() {
+    fn_8008AA90();
+}
+
+} // namespace atn
 
 namespace atn {
 
@@ -296,7 +335,7 @@ Model::NodeEdit_unk* Model::fn_800948F0(const char* name) {
     unsigned int hash = fn_800DC6B4(name);
     for (unsigned int i = 0; i < mD8.mSize; i++) {
         NodeEdit_unk* e = &mD8.mData[i];
-        if (hash == e->mHash) {
+        if (hash == e->m00) {
             return e;
         }
     }

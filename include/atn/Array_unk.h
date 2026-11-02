@@ -107,15 +107,26 @@ public:
     T* mData;
 };
 
+// inferred: non-template base of atn::SimpleArray holding the size: the size accessor is a single
+// function for every element type (weak copy 0x80089ACC of atn/Model.cpp, called out of line by
+// GameScene, EnvSeManager, MiniMapTask and PacketPack on arrays of different types). Name invented.
+class SimpleArrayBase_unk {
+public:
+    SimpleArrayBase_unk() : mSize(0) {}
+    unsigned int size() const { return mSize; }
+
+    int mSize;
+};
+
 // atn::SimpleArray (name from the RSO: SimpleArray<T>, SetMotionParts takes a
 // SimpleArray<CharaFaceControl::MotionPart>); array allocated once with new[] {size, data};
 // member names invented
 template <class T>
-class SimpleArray {
+class SimpleArray : public SimpleArrayBase_unk {
 public:
-    SimpleArray() : mSize(0), mData(0) {}
+    SimpleArray() : mData(0) {}
     // inferred: weak copy 0x80514218 (inlined in the copy of a record of game/NewCampPartsGmk.cpp)
-    SimpleArray(const SimpleArray& o) : mSize(0), mData(0) {
+    SimpleArray(const SimpleArray& o) : mData(0) {
         Resize_unk(o.mSize, 0);
         for (unsigned int i = 0; i < mSize; i++) {
             mData[i] = o.mData[i];
@@ -216,10 +227,7 @@ public:
     }
     // name from the copies of game/GameScene.cpp (__vc__Q23atn31SimpleArray<Q22gs11NpcSetPoint>CFUi)
     T& operator[](unsigned int i) const { return mData[i]; }
-    // inferred: called out of line by EnvSeManager::fn_8035F3D4 (fn_80089ACC, a copy of another file)
-    unsigned int size() const { return mSize; }
 
-    int mSize;
     T* mData;
 };
 

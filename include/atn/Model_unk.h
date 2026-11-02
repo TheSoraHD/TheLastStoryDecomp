@@ -9,6 +9,7 @@
 #include "atn/LH_Model.h"
 #include "atn/LH_Material.h"
 #include "game/ResHandle.h"
+#include "Event/PoseKey_unk.h"
 #include <boost/function.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -80,15 +81,18 @@ struct ModelBase : public IRender {
     void CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_unk callback); // 0x800902C0
     // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci (0x80092814): node index by name, < 0 if missing
     int GetNodeNoByName(const char* name, int arg) const;
+    void fn_8008AA90(); // inferred: releases the loaded data (called first by the destructor)
 
-    // inferred: world matrix and node matrices (sub-object at 0x08; its implicit destructor frees
-    // the node matrices). Names invented.
-    struct Mtx_unk {
-        Mtx m;                          // 0x00: inferred: world matrix
+    // inferred: world matrix (the inherited m) and node matrices (sub-object at 0x08; its implicit
+    // destructor frees the node matrices). Names invented.
+    struct Mtx_unk : public Matrix3x4 {
+        Mtx_unk() { SetIdentity(); }
         SimpleArray<Matrix3x4> mNodes;  // 0x30: inferred: node matrices
     };
     // inferred: four values copied to the parts and equipment of a character (CharaTask::fn_80148B38)
     struct Float4_unk {
+        Float4_unk() {}
+        Float4_unk(float a, float b, float c, float d) : m00(a), m04(b), m08(c), m0C(d) {}
         float m00;
         float m04;
         float m08;
@@ -96,17 +100,14 @@ struct ModelBase : public IRender {
     };
     // inferred: entry of the model in a map tree (set by MapPartsModel::vf24); names invented
     struct TreeEntry_unk {
+        TreeEntry_unk() : mTree(0), mNode(0) {}
         void* mTree;
         void* mNode;
     };
-    // inferred: node edit (0x2C bytes; fn_80093F58/fn_80094778); names invented
-    struct NodeEdit_unk {
-        unsigned int mHash;
-        unsigned int mFlags; // inferred: 1 offset, 2 rotation, 4 scale (set when not identity)
-        atn::Vector3 m08;    // inferred: offset
-        atn::Vector3 m14;    // inferred: rotation
-        atn::Vector3 m20;    // inferred: scale
-    };
+    // inferred: node edit (0x2C bytes; fn_80093F58/fn_80094778): the pose key of Event (same
+    // SimpleVector<Event::PoseKey_unk> as CharaFaceControl, read with fn_80089EE4 from "NODE_EDIT" lines).
+    // m00: node name hash, m04: flags (1 offset, 2 rotation, 4 scale), m08 offset, m14 rotation, m20 scale.
+    typedef Event::PoseKey_unk NodeEdit_unk;
     // inferred: resource data of the model (accessor 0x8000DD04); names invented
     struct NodeRes_unk {
         unsigned char m00[0x14];
@@ -166,7 +167,10 @@ struct ModelBase : public IRender {
     struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
     int m1E0;
     SimpleVector<int> m1E4; // inferred: element type
-    unsigned char m1F0[0x200 - 0x1F0];
+    int m1F0;
+    int m1F4;
+    int m1F8;
+    int m1FC;
     TreeEntry_unk m200;
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
     unsigned int m20C_31_24 : 8;
