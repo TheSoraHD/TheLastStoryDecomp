@@ -2022,6 +2022,16 @@
   "matching": false
  },
  {
+  "name": "game/GameSaveData_unk.cpp",
+  "classes": [
+   "GameSaveData_unk",
+   "GameSaveFlags_unk",
+   "GameSaveParty_unk",
+   "GameSaveSlot_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/GameScene.cpp",
   "classes": [
    "GameScene"

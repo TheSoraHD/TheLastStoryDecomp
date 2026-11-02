@@ -27,7 +27,11 @@ public:
     struct PlayerStatus_unk {
         unsigned char m000[0x230];
         unsigned char mEquipFlags; // 0x230: inferred: one bit per equipment slot (game/CharaTask)
-        unsigned char m231[0x43C - 0x231];
+        unsigned char m231[0x2F0 - 0x231];
+        int m2F0; // inferred: cleared when the save data is restored (GameSaveData_unk::fn_803BE590)
+        unsigned char m2F4[0x380 - 0x2F4];
+        int m380; // inferred: cleared together with m2F0
+        unsigned char m384[0x43C - 0x384];
     };
 
     // inferred: equipped item of one slot

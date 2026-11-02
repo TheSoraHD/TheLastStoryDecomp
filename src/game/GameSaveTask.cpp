@@ -115,11 +115,11 @@ void GameSaveTask::fn_803B7FC8(int slot) {
         mD6C = 1;
         return;
     }
-    mD80.mData.fn_803BDEE4();
+    mD80.GetData_unk()->fn_803BDEE4();
     GameSaveSlot_unk* header = &mSlots[slot];
     SaveTime_unk time;
     fn_8004B20C(&time);
-    header->fn_803BE8C0(&mD80.mData, &time);
+    header->fn_803BE8C0(mD80.GetData_unk(), &time);
     memcpy(mD80.mHeader, header, sizeof(GameSaveSlot_unk));
     if (mD70 != 0) {
         mD70->fn_803B8E60(&mD80, slot, 1);

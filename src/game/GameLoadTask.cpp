@@ -52,9 +52,9 @@ static inline void ResetSaveData_unk() {
     lbl_8087F460 = p;
 }
 
-// inferred: format of a slot (int at 0x04 of GameSaveSlot_unk; the header declares only bytes there)
+// inferred: format of a slot (GameSaveSlot_unk::m04)
 static inline int SlotFormat_unk(const GameSaveSlot_unk& slot) {
-    return ((const int*)slot.m00)[1];
+    return slot.m04;
 }
 
 // inferred: the option names the "Multiplayer" sequence
