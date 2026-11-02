@@ -3556,15 +3556,24 @@ RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_arcResourceAccessor.cpp:
 	.data       start:0x80798E70 end:0x80798EF0
 
 RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_bounding.cpp:
-	.text       start:0x805CD830 end:0x805CD9A4
+	.text       start:0x805CD830 end:0x805CD9B0
 	.ctors      start:0x8072D3E8 end:0x8072D3EC
 	.data       start:0x80798EF0 end:0x80798FD8
 	.bss        start:0x807CA1C8 end:0x807CA1D0
+
+tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_common.cpp:
+	.text       start:0x805CD9B0 end:0x805CE830
+	.rodata     start:0x80764538 end:0x80764548
+	.bss        start:0x807CA1D0 end:0x807CA1F8
 
 RVL_SDK/src/revolution/hbm/nw4hbm/lyt/lyt_drawInfo.cpp:
 	.text       start:0x805CE830 end:0x805CE8F0
 	.rodata     start:0x80764548 end:0x80764550
 	.data       start:0x80798FD8 end:0x80799008
+
+tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_group.cpp:
+	.text       start:0x805CE8F0 end:0x805CEC40
+	.data       start:0x80799008 end:0x80799030
 
 tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_layout.cpp:
 	.text       start:0x805CEC40 end:0x805CF8DC
