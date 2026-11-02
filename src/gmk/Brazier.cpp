@@ -251,7 +251,7 @@ void Brazier::vf10() {
         }
         break;
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
 }
 
 // NONMATCHING: 99.94% - same .sdata2 order of 0.5f as vf10
@@ -355,7 +355,7 @@ int Brazier::vf40(GimmickMsg_unk* msg) {
         fn_803ED5D0(&mModelCrush);
         mModel.mTracks[0].m08 = 0.0f;
         mModelCrush.mTracks[0].m08 = 0.0f;
-        mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+        mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
         mColli.mFlags |= 1;
         lbl_8087F3C0->mB8 = 1;
         fn_80239DAC(lbl_8087F3C0, this, 1, 0);

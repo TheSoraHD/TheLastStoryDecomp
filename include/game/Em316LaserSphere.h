@@ -1,7 +1,7 @@
 #ifndef GAME_EM316LASERSPHERE_H
 #define GAME_EM316LASERSPHERE_H
 
-#include "atn/EffectModel_unk.h"
+#include "atn/Model_unk.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/ResLoader_unk.h"
@@ -89,7 +89,7 @@ public:
     atn::Matrix3x4 m15B8; // inferred: the empty constructor 0x803165E0 is the weak copy of Matrix3x4()
     atn::Matrix3x4 m15E8;
     atn::Matrix3x4 m1618;
-    EffectModel_unk m1648[3]; // inferred: "em316_00_bs00.model" (trail of the sphere)
+    atn::ModelBase m1648[3]; // inferred: "em316_00_bs00.model" (trail of the sphere)
     int m1C84;                // inferred: "LaserWait"
     int m1C88;                // inferred: "MoveWait"
     ResHandle m1C8C;          // inferred: debug menu group

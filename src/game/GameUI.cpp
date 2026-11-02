@@ -2117,7 +2117,7 @@ void GameUI::fn_803D8344() {
 // folds the two compares or reloads the member); register numbers follow
 void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
     bool selected = false;
-    atn::Vector3 pos = ((atn::Matrix3x4*)chara->mMotion.mMtx)->GetTrans_unk();
+    atn::Vector3 pos = ((atn::Matrix3x4*)chara->mMotion.mMtx.m)->GetTrans_unk();
     atn::Vector3 rot(-1.5707964f, 0.0f, 0.0f);
     float size = 3.5f * (2.0f * chara->m5B0);
     pos.y += 6.0f;

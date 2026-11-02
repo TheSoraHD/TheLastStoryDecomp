@@ -71,7 +71,7 @@ int NpcManager::fn_80547B54() {
             if (((*npc)->mFlags & 2) == 2) {
                 (*npc)->fn_800D246C(0);
                 (*npc)->mFlags |= 4;
-                for (unsigned int j = 0; j < (*npc)->GetModel_unk()->mMotionCount; j++) {
+                for (unsigned int j = 0; j < (*npc)->GetModel_unk()->m224.mSize; j++) {
                     (*npc)->GetModel_unk()->fn_80097A20(j);
                 }
                 (*npc)->m8C.fn_80473F88();

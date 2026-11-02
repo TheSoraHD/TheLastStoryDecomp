@@ -145,7 +145,7 @@ extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b
 }
 // inferred: model matrix helpers
 extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
-    return (atn::Matrix3x4*)model->mMtx;
+    return (atn::Matrix3x4*)model->mMtx.m;
 }
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" inline void fn_800F80A8(MtxPtr mtx, const atn::Vector3* pos) {
@@ -238,7 +238,7 @@ inline MtxPtr GetNode_unk(atn::Model* model, const char* name) {
     if (index < 0) {
         mtx = 0;
     } else {
-        mtx = model->mNodeMtx[index];
+        mtx = model->mMtx.mNodes.mData[index].m;
     }
     return mtx;
 }

@@ -1,7 +1,7 @@
 #ifndef GAME_ARMS_H
 #define GAME_ARMS_H
 
-#include "atn/EffectModel_unk.h"
+#include "atn/Model_unk.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/LH_Binary.h"
 #include "math/Vec.h"
@@ -73,7 +73,7 @@ public:
     int m04; // inferred: kind (0 sword, 1 and 2 guns; see fn_800457A4)
     int m08;
     int m0C;
-    EffectModel_unk mModel;   // 0x10
+    atn::ModelBase mModel;   // 0x10
     MtxPtr m224;              // inferred: node matrix followed by the weapon
     atn::Matrix3x4 m228;      // inferred: offset matrix applied on top of m224
     atn::Vector3 m258;        // inferred: rotation (degrees in the file)

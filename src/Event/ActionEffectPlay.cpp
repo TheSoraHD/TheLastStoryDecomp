@@ -17,7 +17,7 @@
 #include "game/ColliAttrManager.h"
 #include "game/SongManager.h"
 #include "game/GameConfig_unk.h"
-#include "atn/IRender.h"
+#include "atn/RenderView_unk.h"
 #include "atn/Sphere.h"
 #include "Event/Dialog.h"
 

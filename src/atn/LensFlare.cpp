@@ -188,7 +188,7 @@ void LensFlare::fn_80077534() {
 
 // NONMATCHING: 90.2% - register allocation of the negated light direction and of the clamps,
 // and the order of the loads of the projected box
-void LensFlare::vf10(void* arg) {
+void LensFlare::vf10(RenderView_unk* arg) {
     LensCamera_unk* camera = (LensCamera_unk*)arg;
     fn_800BDB40(camera, 0);
     if (m04 == 1) {

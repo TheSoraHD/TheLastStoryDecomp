@@ -336,7 +336,7 @@ void D2AMpMenuCockpit::vf14() {
 // literal is in @stringBase0)
 static atn::Vector3 GetMarkPos_unk(MpChara_unk* chara) {
     int node = chara->mModel.GetNodeNoByName("neck", 0);
-    float (*mtx)[4] = node < 0 ? 0 : chara->mModel.mNodeMtx[node];
+    float (*mtx)[4] = node < 0 ? 0 : chara->mModel.mMtx.mNodes.mData[node].m;
     return mtx != 0 ? atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]) + atn::Vector3(0.0f, 3.0f, 0.0f) : chara->vf58();
 }
 

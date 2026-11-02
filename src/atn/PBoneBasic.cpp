@@ -1,4 +1,5 @@
 #include "atn/Csv.h"
+#include "atn/PBone.h"
 #include "atn/Model_unk.h"
 #include "math/Vec.h"
 #include "std/string.h"
@@ -24,30 +25,6 @@ extern "C" void fn_80087858(void* group, const char* name, float* value, int arg
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 
-// inferred: model data of the loaded file (same as the local copy in atn/LH_Model.cpp)
-struct ModelJoint_unk {
-    unsigned char m00[0x1C];
-    int m1C; // inferred: parent node
-};
-struct ModelData_unk {
-    unsigned char m00[0x48];
-    ModelJoint_unk** mJoints; // 0x48
-};
-
-// inferred: pose of a model, built on the stack to compute the joint matrices (same as the local
-// copy in atn/LH_Model.cpp)
-struct ModelPose_unk {
-    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, int a, boost::function<void()> callback, int b,
-                  int c);
-
-    unsigned char m00[0x18];
-    boost::function<void()> m18;
-    boost::function<void()> m2C;
-    unsigned char m40[0x58 - 0x40];
-};
-// inferred: updates the matrices of the joints under `joint`
-extern "C" void fn_8009ADA4(ModelPose_unk* pose, int joint, void* arg2, atn::Matrix3x4* parent, int arg4);
-
 // inferred: model of the bone (node matrices at m3C)
 struct PBoneModel_unk {
     unsigned char m000[0x3C];
@@ -63,78 +40,6 @@ struct PBoneModel_unk {
 // inferred: rotation (x, y, z) that turns the z axis to dir
 void fn_800A73A4(atn::Vector3* rot, const atn::Vector3* dir);
 
-namespace atn {
-
-// inferred: interface of the physics bones
-class PBoneInterface {
-public:
-    virtual ~PBoneInterface() {}
-    virtual void vf0C() = 0;
-    virtual void vf10() = 0;
-    virtual void vf14() = 0;
-    virtual void vf18() = 0;
-    virtual int vf1C(PBoneModel_unk* model, CsvBase<char, 9, 13, 34>* csv) = 0;
-    virtual void vf20(int enable) = 0;
-    virtual int vf24() = 0;
-    virtual void vf28(const Vector3& force) = 0;
-    virtual void vf2C(void* menu) = 0;
-    virtual const char* vf30() = 0;
-    virtual void vf34() = 0;
-};
-
-class PBoneBasic : public PBoneInterface {
-public:
-    PBoneBasic();
-    virtual ~PBoneBasic();
-    virtual void vf0C(); // inferred: reset
-    virtual void vf10(); // inferred: update
-    virtual void vf14(); // inferred: rest pose
-    virtual void vf18(); // inferred: debug draw
-    virtual int vf1C(PBoneModel_unk* model, CsvBase<char, 9, 13, 34>* csv); // inferred: load
-    virtual void vf20(int enable) { m04 = enable; }
-    virtual int vf24() { return m04; }
-    virtual void vf28(const Vector3& force);
-    virtual void vf2C(void* menu); // inferred: debug menu
-    virtual const char* vf30() { return mName.data(); }
-    virtual void vf34(); // inferred: physics step
-
-    int m04;          // inferred: enabled
-    Vector3 m08;      // inferred: tip position
-    Vector3 m14;      // inferred: direction
-    Vector3 m20;      // inferred: velocity
-    Vector3 m2C;      // inferred: previous root position / external force
-    int m38;          // inferred: root node
-    int m3C;          // inferred: tip node
-    int m40;
-    int m44;
-    float m48;        // inferred: Y limit min
-    float m4C;        // inferred: Z limit min
-    float m50;
-    float m54;        // inferred: Y limit max
-    float m58;        // inferred: Z limit max
-    float m5C;        // inferred: length
-    float m60;        // inferred: wait
-    PBoneModel_unk* m64;
-    int m68;          // inferred: debug display
-    std::string mName; // 0x6C
-};
-
-// inferred: bone pushed by an external force
-class PBoneOutForce : public PBoneBasic {
-public:
-    PBoneOutForce();
-    virtual ~PBoneOutForce();
-    // NONMATCHING: 75.0% - the original stores z before x and y (psq_l, lfs, stfs, psq_st); the
-    // Vector3 copy of math/Vec.h stores x and y first
-    virtual void vf28(const Vector3& force) {
-        if (m04 != 0) {
-            m2C = force;
-        }
-    }
-    virtual void vf34();
-};
-
-} // namespace atn
 
 // inferred: atan2 on floats (name invented)
 inline float Atan2_unk(float y, float x) {
@@ -269,9 +174,9 @@ void PBoneBasic::vf10() {
     *root = world;
     SetTrans_unk(root, rootPos);
     SetTrans_unk(m64->GetNodeMtx_unk(m3C), rootPos + m14);
-    ModelJoint_unk* joint = m64->m16C->mJoints[m3C];
+    ModelJoint_unk* joint = m64->m16C->m48[m3C];
     ModelPose_unk pose(m64->m16C, m64->mNodeMtx, 0, boost::function<void()>(), 0, 0);
-    fn_8009ADA4(&pose, m3C, m64->m220, m64->GetNodeMtx_unk(joint->m1C), 0);
+    fn_8009ADA4(&pose, m3C, (const atn::MotionBuffer*)m64->m220, m64->GetNodeMtx_unk(joint->m1C), 0);
     m08 = rootPos;
     m2C = lbl_807C7030;
 }

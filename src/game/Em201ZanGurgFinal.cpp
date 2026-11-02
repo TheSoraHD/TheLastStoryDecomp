@@ -211,7 +211,7 @@ extern "C" inline void fn_8026610C(PlayerInput_unk* input, const atn::Vector3& p
     input->m914 = keep != 0 ? input->m918 : 0;
 }
 extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
-    return (atn::Matrix3x4*)model->mMtx;
+    return (atn::Matrix3x4*)model->mMtx.m;
 }
 extern "C" inline atn::Model* fn_8026615C(chr::CharaPart_unk* part) {
     return (atn::Model*)part->m010;
@@ -2378,11 +2378,11 @@ inline float ZanMaxScale_unk(const atn::Matrix3x4& mtx) {
 // inferred: puts the shield model on a node matrix (name invented)
 inline void SetShieldMtx_unk(chr::CharaPart_unk* part, const atn::Matrix3x4& m) {
     atn::Model* model = (atn::Model*)part->m010;
-    __MtxCopy(model->mMtx, m.m);
+    __MtxCopy(model->mMtx.m, m.m);
     model->m54 = ZanMaxScale_unk(m);
 }
 inline atn::Matrix3x4& ShieldMtx_unk(chr::CharaPart_unk* part) {
-    return *(atn::Matrix3x4*)((atn::Model*)part->m010)->mMtx;
+    return *(atn::Matrix3x4*)((atn::Model*)part->m010)->mMtx.m;
 }
 
 // NONMATCHING: stack layout of the temporaries and the scale helper (f0/f8 of the column loads); logic follows

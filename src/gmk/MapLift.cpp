@@ -163,7 +163,7 @@ int MapLift::vf0C() {
                     Entry_unk& e = mEntries.mData[n++];
                     e.mType = 0;
                     e.mObject = part->m50;
-                    e.mPos = ((atn::Matrix3x4*)((atn::Model*)part->m50)->mMtx)->GetTrans_unk();
+                    e.mPos = ((atn::Matrix3x4*)((atn::Model*)part->m50)->mMtx.m)->GetTrans_unk();
                 }
                 break;
             case 4:
@@ -354,7 +354,7 @@ void MapLift::fn_8042AB58(const atn::Vector3* pos, const atn::Vector3* prev) {
         Entry_unk& e = mEntries.mData[i];
         if (e.mType == 0) {
             atn::Model* model = (atn::Model*)e.mObject;
-            atn::Matrix3x4& mtx = *(atn::Matrix3x4*)model->mMtx;
+            atn::Matrix3x4& mtx = *(atn::Matrix3x4*)model->mMtx.m;
             atn::Matrix3x4 m(mtx);
             SetTrans_unk(m, e.mPos + *pos);
             mtx = m;

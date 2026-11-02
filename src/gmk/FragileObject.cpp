@@ -173,7 +173,7 @@ inline void FragileObject::UpdateColli_unk() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModelBefore.mMtx);
+    atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModelBefore.mMtx.m);
     mColliBefore.SetMtx_unk(mtx);
     mColliAfter.SetMtx_unk(mtx);
     atn::Matrix3x4 rot;
@@ -280,7 +280,7 @@ void FragileObject::vf10() {
         if (IsColliOn_unk(mColliBefore) && mColliBeforeFrame < frame) {
             mColliBefore.mFlags &= ~1;
             m54 = 5;
-            atn::Vector3 pos = ((atn::Matrix3x4*)mModelBefore.mMtx)->GetTrans_unk();
+            atn::Vector3 pos = ((atn::Matrix3x4*)mModelBefore.mMtx.m)->GetTrans_unk();
             pos.y += 15.0f;
             if (lbl_8087F048 != 0 && mExplode > 0) {
                 int chara = 0;
@@ -723,7 +723,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
         for (CharaTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = ((FragileCharaNode_unk*)chara)->mNext) {
             if ((!chara->IsFlag_unk(4) || chara->m55C == 8) && mType == chara->fn_80179AB4() &&
                 mId == chara->fn_80179A34() / 10000) {
-                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx)->GetTrans_unk() - chara->mPos;
+                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos;
                 float dist = PSVECSquareMag(&d);
                 if (dist < best) {
                     best = dist;
@@ -737,7 +737,7 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
              chara = ((FragileCharaNode_unk*)chara)->mNext) {
             if ((!chara->IsFlag_unk(4) || chara->m55C == 8) && mType == chara->fn_80179AB4() &&
                 mId == chara->fn_80179A34() / 10000) {
-                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx)->GetTrans_unk() - chara->mPos;
+                atn::Vector3 d = ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() - chara->mPos;
                 float dist = PSVECSquareMag(&d);
                 if (dist < best) {
                     best = dist;

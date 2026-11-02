@@ -1,23 +1,11 @@
 #ifndef ATN_IRENDER_H
 #define ATN_IRENDER_H
 
-#include "atn/Camera_unk.h"
-
-struct NewCampScene2_unk;
 
 namespace atn {
 
-// inferred: render system passed to the IRender draw virtuals (lbl_8087EFB4, atn/RenderSystem_unk.cpp);
-// only the camera used by Event::DialogHead is declared. Name invented.
-struct RenderView_unk {
-    unsigned char m000[0x104];
-    Camera_unk mCamera; // 0x104
-    unsigned char m2F8[4];
-    NewCampScene2_unk* mScene; // 0x2FC: inferred: lights and cameras of the scene (atn/TextureDraw_unk.cpp)
-    unsigned char m300[0x54964 - 0x300];
-    int m54964; // inferred: set by Event::ActionCheck (type 1)
-    void SetCamera_unk(const Camera_unk& camera) { mCamera = camera; } // inferred: name invented
-};
+// inferred: render system passed to the draw virtuals (defined in atn/RenderView_unk.h)
+struct RenderView_unk;
 
 // inferred: renderer interface (RTTI __RTTI__Q23atn7IRender; base of atn::ModelBase and Event::DialogHead).
 // Other files still keep local copies (atn/LensFlare.h, atn/PostFx.h, atn/VideoTHP.cpp, ...). The first

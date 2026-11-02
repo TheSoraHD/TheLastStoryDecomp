@@ -204,12 +204,12 @@ int OnOff::vf0C() {
             switch (part->mType) {
             case 0: {
                 atn::Model* model = (atn::Model*)part->m50;
-                atn::Matrix3x4 mtx = *(atn::Matrix3x4*)model->mMtx;
+                atn::Matrix3x4 mtx = *(atn::Matrix3x4*)model->mMtx.m;
                 atn::Matrix3x4 rot;
                 __MakeRotation_unk(rot, m78);
                 PSMTXConcat(rot.m, mtx.m, mtx.m);
                 __SetTrans_unk(mtx, mtx.GetTrans_unk() + m6C);
-                __MtxCopy(model->mMtx, mtx.m);
+                __MtxCopy(model->mMtx.m, mtx.m);
                 atn::Vector3 az(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]);
                 float sz = PSVECMag(&az);
                 atn::Vector3 ay(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]);
@@ -334,7 +334,7 @@ void OnOff::fn_803F8324() {
     }
     if (mHasColli != 0) {
         if (mHasModel != 0) {
-            mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+            mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
         } else {
             mColli.SetMtx_unk(mMtx);
         }

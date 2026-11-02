@@ -54,7 +54,7 @@ extern "C" void fn_800FAB80(BulletMgr_unk* mgr, int arg1, void* bullet, int arg3
                             float arg11);
 extern "C" void* lbl_8087F610; // inferred: arena mode
 
-// inferred: resource data of the spark model (atn::Model::m16C): material names (names invented)
+// inferred: resource data of the spark model (atn::ModelBase::GetRes_unk): material names (names invented)
 struct SparkRes_unk {
     unsigned char m00[0x30];
     int mCount;           // 0x30
@@ -119,7 +119,7 @@ inline MtxPtr GetMtx_unk(atn::Model* model, const char* name) {
     if (mtx != 0) {
         return mtx;
     }
-    return model->mMtx;
+    return model->mMtx.m;
 }
 
 namespace gmk {
@@ -152,9 +152,9 @@ int SparkCube::vf0C() {
         if (mId == 48000) {
             mColli.m20 = 0xF8;
         } else {
-            mFades.Resize_unk(((SparkRes_unk*)mSpark.m16C)->mCount, 0);
-            for (int i = 0; i < ((SparkRes_unk*)mSpark.m16C)->mCount; i++) {
-                mFades.mData[(unsigned int)i].fn_803EBD6C(&mSpark, ((SparkRes_unk*)mSpark.m16C)->mNames[i], 30, 30, 0.0f);
+            mFades.Resize_unk(((SparkRes_unk*)mSpark.GetRes_unk())->mCount, 0);
+            for (int i = 0; i < ((SparkRes_unk*)mSpark.GetRes_unk())->mCount; i++) {
+                mFades.mData[(unsigned int)i].fn_803EBD6C(&mSpark, ((SparkRes_unk*)mSpark.GetRes_unk())->mNames[i], 30, 30, 0.0f);
             }
         }
         return 1;
@@ -346,9 +346,9 @@ int SparkCube::vf40(GimmickMsg_unk* msg) {
             rot.x = 0.0f;
             rot.y = 0.0f;
             rot.z = 0.0f;
-            float z = mModel.mMtx[2][3];
-            float y = mModel.mMtx[1][3];
-            float x = mModel.mMtx[0][3];
+            float z = mModel.mMtx.m[2][3];
+            float y = mModel.mMtx.m[1][3];
+            float x = mModel.mMtx.m[0][3];
             pos.x = x;
             pos.y = y;
             pos.z = z;
@@ -433,9 +433,9 @@ atn::ColliBase* SparkCube::vf50() {
 }
 
 atn::Vector3 SparkCube::vf54() {
-    float z = mModel.mMtx[2][3];
-    float y = mModel.mMtx[1][3];
-    float x = mModel.mMtx[0][3];
+    float z = mModel.mMtx.m[2][3];
+    float y = mModel.mMtx.m[1][3];
+    float x = mModel.mMtx.m[0][3];
     return atn::Vector3(x, y, z);
 }
 

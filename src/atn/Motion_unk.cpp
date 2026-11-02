@@ -4,7 +4,7 @@
 // kept in static maps (0x800A0A68-0x800A2664, not written yet) and the random generator of
 // MP::CryptMP (0x800A2664, not written yet). The __sinit is the one of <iostream>.
 #include "atn/Csv.h"
-#include "atn/EffectModel_unk.h"
+#include "atn/Model_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/LH_Motion.h"
 #include "atn/Light_unk.h"
@@ -44,7 +44,7 @@ struct MapArea {
     atn::LH_Binary mFile;   // 0x00: inferred: the csv list
     int m08;                // inferred: the csv was read
     int m0C;                // inferred: the model is loaded
-    EffectModel_unk mModel; // 0x10
+    atn::ModelBase mModel; // 0x10
     unsigned int m224;      // inferred: hash of the file name
     int m228;               // inferred: reference count
 };
@@ -342,7 +342,7 @@ struct MotionModelRes_unk {
 
 // inferred: index of each node of a model in a motion (-1: not animated)
 extern "C" void fn_800A09D0(short* out, atn::Model* model, atn::LH_Motion* motion) {
-    MotionModelRes_unk* res = (MotionModelRes_unk*)model->m16C;
+    MotionModelRes_unk* res = (MotionModelRes_unk*)model->GetRes_unk();
     MotionModelRes_unk::Node_unk* node;
     int n = res->m44;
     node = res->m4C;

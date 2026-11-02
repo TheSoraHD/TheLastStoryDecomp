@@ -147,7 +147,7 @@ void Chain::fn_8043C508() {
         PSMTXRotRad(r, 'y', a);
         PSMTXConcat(m.m, r, t);
         __MtxCopy(m.m, t);
-        __MtxCopy(mModel.GetModel_unk()->mMtx, m.m);
+        __MtxCopy(mModel.GetModel_unk()->mMtx.m, m.m);
         mModel.GetModel_unk()->m54 = MaxScale_unk(m);
         mModel.GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
         for (int i = 0; i < mNumJoints; i++) {

@@ -170,7 +170,7 @@ void FallingTower::Start() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     GimmickMsg_unk msg(1);
     vf40(&msg);
 }
@@ -191,9 +191,9 @@ void FallingTower::fn_8041044C() {
     }
     for (int i = 0; i < 2; i++) {
         if (nodes[i] > -1) {
-            MtxPtr mtx = mModel.mNodeMtx[nodes[i]];
+            MtxPtr mtx = mModel.mMtx.mNodes.mData[nodes[i]].m;
             *(atn::Matrix3x4*)mtx = TransMtx_unk(atn::Vector3(0.0f, heights[i], 0.0f));
-            PSMTXConcat(mModel.mMtx, mtx, mtx);
+            PSMTXConcat(mModel.mMtx.m, mtx, mtx);
         }
     }
     mWaveTime += 0.033333335f;
@@ -216,7 +216,7 @@ int FallingTower::vf40(GimmickMsg_unk* msg) {
         if (vf38() != 0) {
             fn_803ED0D4(vf38(), 1);
         }
-        mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+        mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
         if (vf38() != 0) {
             fn_803ED5D0(vf38());
         }

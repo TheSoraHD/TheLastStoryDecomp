@@ -269,12 +269,12 @@ void MotionObject::fn_804137F4() {
         if (colli->mNode != 0) {
             colli->mObject->SetMtx_unk(*(atn::Matrix3x4*)colli->mNode);
         } else {
-            colli->mObject->SetMtx_unk(*(atn::Matrix3x4*)model->mMtx);
+            colli->mObject->SetMtx_unk(*(atn::Matrix3x4*)model->mMtx.m);
         }
     }
     MotionTarget_unk* target = colli->mTarget;
     if (target != 0) {
-        atn::Vector3 base = model != 0 ? ((atn::Matrix3x4*)model->mMtx)->GetTrans_unk() : lbl_807C7060.GetTrans_unk();
+        atn::Vector3 base = model != 0 ? ((atn::Matrix3x4*)model->mMtx.m)->GetTrans_unk() : lbl_807C7060.GetTrans_unk();
         atn::Matrix3x4 mtx;
         mtx.fn_8013A13C(m78.y);
         atn::Vector3 offset(target->mOffset);
@@ -523,7 +523,7 @@ int MotionObject::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int fla
 void MotionObject::vf4C(CharaTask* chara) {
     if (mActions[m54].mEnabled != 0) {
         atn::Vector3 pos(mActions[m54].mPos);
-        PSMTXMultVec(mModels[m54].mMtx, &pos, &pos);
+        PSMTXMultVec(mModels[m54].mMtx.m, &pos, &pos);
         atn::Vector3 rot(m78);
         rot.y = atn::WrapAngle_unk(rot.y + mActions[m54].mRotY);
         chara->mPos = pos;

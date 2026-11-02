@@ -1222,7 +1222,7 @@ void Em309Ghoul::vfEC() {
     atn::Vector3 target;
     curve->fn_805BF410(m1688, &eye.x, 1, 2, 3);
     curve->fn_805BF410(m1688, &target.x, 7, 8, 9);
-    atn::Matrix3x4 m(mMotion.mMtx);
+    atn::Matrix3x4 m(mMotion.mMtx.m);
     Mtx rz;
     if (m1684 != 0) {
         Mtx r;

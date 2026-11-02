@@ -1,7 +1,7 @@
 #ifndef GMK_SWINGOBJECT_H
 #define GMK_SWINGOBJECT_H
 
-#include "atn/EffectModel_unk.h"
+#include "atn/Model_unk.h"
 #include "atn/EfpHandle_unk.h"
 #include "game/GimmickCommon.h"
 
@@ -76,7 +76,7 @@ public:
     void fn_803FFC50(); // inferred: selects the parameters of the state
     virtual void vf3C(void* lens); // 0x80400714
 
-    EffectModel_unk mModel;     // 0xF4: "MODEL"
+    atn::ModelBase mModel;     // 0xF4: "MODEL"
     MtxPtr mNodeMtx[3];         // 0x308
     SwingCore_unk mCore;        // 0x314
     bool mHidden;               // 0x394

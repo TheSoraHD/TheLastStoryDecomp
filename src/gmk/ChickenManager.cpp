@@ -146,15 +146,15 @@ void Chicken_unk::fn_8040B668() {
         }
     }
     if (update || mState == 4) {
-        __MtxCopy(mModel.mMtx, mtx.m);
+        __MtxCopy(mModel.mMtx.m, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
         mModel.fn_80097E80(1);
         mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
     } else {
         atn::Matrix3x4 inv;
-        __MtxCopy(inv.m, mModel.mMtx);
+        __MtxCopy(inv.m, mModel.mMtx.m);
         PSMTXInverse(inv.m, inv.m);
-        __MtxCopy(mModel.mMtx, mtx.m);
+        __MtxCopy(mModel.mMtx.m, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
         fn_8009076C(&mModel, &inv);
     }

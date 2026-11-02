@@ -84,7 +84,7 @@ void SkeltonsMirror::Start() {
         fn_803ED0D4(vf38(), 1);
     }
     m54 = 1;
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     mColli.mFlags &= ~1;
 }
 

@@ -540,7 +540,7 @@ void ControlRevival::vf1C() {
 }
 
 void ControlRevival::vf40() {
-    atn::Vector3& v = mChara->mMotion.m220[mChara->m524].m04;
+    atn::Vector3& v = mChara->mMotion.m21C.mData[mChara->m524].mPos;
     v.x = 0.0f;
     v.y = 0.0f;
     v.z = 0.0f;

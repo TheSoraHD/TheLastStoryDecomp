@@ -53,12 +53,12 @@ void CharaLook_unk::fn_80129978(atn::Model* model, const char* node, const atn::
         // inferred: written without atn::Model::GetNodeMtx_unk, whose weak copy is emitted after
         // fn_80129A6C (the first function that refers to it)
         int index = model->GetNodeNoByName(node, 0);
-        mTarget = (index < 0) ? 0 : (float*)model->mNodeMtx[index];
+        mTarget = (index < 0) ? 0 : (float*)model->mMtx.mNodes.mData[index].m;
         mOffset = offset;
         mType = 1;
         mSpeed = speed;
     } else {
-        mTarget = (float*)model->mMtx;
+        mTarget = (float*)model->mMtx.m;
         mOffset = offset;
         mType = 1;
         mSpeed = speed;

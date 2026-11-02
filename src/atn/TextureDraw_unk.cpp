@@ -1,7 +1,7 @@
 // inferred: texture projection matrices (versions of the SDK C_MTXLight* functions and the texture
 // projection used by the engine passes). File name invented.
 #include "math/Vec.h"
-#include "atn/IRender.h"
+#include "atn/RenderView_unk.h"
 #include "atn/Sphere.h"
 #include "game/NewCampScene2_unk.h"
 #include <string.h>

@@ -203,10 +203,10 @@ void Coffin::vf10() {
     mColliAfter[1].mFlags &= ~1;
     if ((unsigned int)(m54 - 3) <= 3) {
         mColliAfter[mSide].mFlags |= 1;
-        mColliAfter[mSide].SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+        mColliAfter[mSide].SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     } else {
         mColli.mFlags |= 1;
-        mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+        mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     }
     switch (m54) {
     case 3: {

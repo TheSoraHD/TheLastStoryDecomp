@@ -155,7 +155,7 @@ inline void Bat::UpdateModel_unk(int i) {
     PSMTXConcat(rot.m, mtx.m, mtx.m);
     BatUnit_unk& b = mBats.mData[i];
     __SetTransV_unk(mtx, m6C + b.mPos);
-    __MtxCopy(b.mModel.mMtx, mtx.m);
+    __MtxCopy(b.mModel.mMtx.m, mtx.m);
     b.mModel.m54 = MaxScale_unk(mtx);
     mBats.mData[i].mModel.fn_80097E80(1);
     mBats.mData[i].mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());

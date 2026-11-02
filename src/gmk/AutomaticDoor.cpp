@@ -187,8 +187,8 @@ void AutomaticDoor::Start() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColliClose.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
-    mColliOpen.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColliClose.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
+    mColliOpen.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     if (mHasClose != 0) {
         mColliClose.mFlags |= 1;
     } else {
@@ -234,8 +234,8 @@ void AutomaticDoor::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColliClose.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
-    mColliOpen.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColliClose.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
+    mColliOpen.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     if (mPlaying != 0 && vf38() != 0) {
         fn_803ED5D0(vf38());
     }

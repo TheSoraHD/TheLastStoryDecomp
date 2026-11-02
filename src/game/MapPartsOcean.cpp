@@ -76,7 +76,7 @@ void MapPartsOcean::vf10() {
         Mtx m;
         PSMTXTrans(m, trans.x, trans.y, trans.z);
         __MtxCopy(node, m);
-        PSMTXConcat(mModel.mMtx, node, node);
+        PSMTXConcat(mModel.mMtx.m, node, node);
     }
     mTime += 1.0f / 30.0f;
     MapPartsModel::vf10();

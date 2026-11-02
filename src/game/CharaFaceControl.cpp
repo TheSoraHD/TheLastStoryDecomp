@@ -99,7 +99,7 @@ void CharaFaceControl::fn_8011D844(atn::MotionBuffer* nodes, int arg) {
         m60 -= lbl_8087EFA8->mTimeScale;
     }
     if (m44[!m5C].mSize != 0 || m44[m5C].mSize != 0) {
-        atn::Model::Res_unk* res = m00->m16C;
+        atn::Model::Res_unk* res = m00->GetRes_unk();
         FixedArray_unk<Event::PoseKey_unk, 32> edits;
         edits.mCount = 0;
         for (unsigned int i = 0; i < m44[!m5C].mSize; i++) {
@@ -170,9 +170,9 @@ void CharaFaceControl::fn_8011E200(MotionSet* entry, atn::SimpleVector<Event::Po
     if (!fixed) {
         entry->m08 = FACE_MAX(0.0f, FACE_MIN(entry->m10, entry->m08 + entry->m0C));
     }
-    atn::Model::Node_unk* poses = m00->m220;
+    atn::Model::Node_unk* poses = m00->m21C.mData;
     MotionPose_unk pose;
-    atn::Model::Res_unk* res = m00->m16C;
+    atn::Model::Res_unk* res = m00->GetRes_unk();
     unsigned int head = fn_800DC6B4("head");
     unsigned int neck = fn_800DC6B4("neck");
     unsigned int eyeL = fn_800DC6B4("eye_L");

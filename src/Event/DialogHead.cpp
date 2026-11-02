@@ -198,10 +198,10 @@ void DialogHead::vf10() {
     DialogSide_unk* side = GetSide_unk();
     atn::Matrix3x4 trans;
     PSMTXTrans(trans.m, side->mPos.x, side->mPos.y, side->mPos.z);
-    __MtxCopy(mMotion.mMtx, trans.m);
+    __MtxCopy(mMotion.mMtx.m, trans.m);
     mMotion.m54 = __MaxScaleT_unk(trans);
-    for (int i = 0; i < mMotion.m16C->m44; i++) {
-        mMotion.m220[i].m00 = 0;
+    for (int i = 0; i < mMotion.GetRes_unk()->m44; i++) {
+        mMotion.m21C.mData[i].m00 = 0;
     }
     m1154.fn_8007A7BC(&mMotion);
     if (--m1A10 <= 0) {
@@ -342,7 +342,7 @@ void DialogHead::fn_80227434(int kind, int arg, int right) {
 // rotated)
 int DialogHead::fn_80227A94(char* path, int kind, int arg, int right) {
     std::string name("");
-    if (m1428 != 0 && m1428->GetModel_unk()->m16C != 0) {
+    if (m1428 != 0 && m1428->GetModel_unk()->GetRes_unk() != 0) {
         name = std::string(fn_8006B174(m1428->GetModel_unk()->fn_8008B130()), 0, 5);
     }
     const char* k = "";

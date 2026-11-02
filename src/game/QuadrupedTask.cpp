@@ -703,7 +703,7 @@ inline atn::Quaternion_unk QuatAxis_unk(const atn::Vector3& axis, float rad) {
 // NONMATCHING: 97.62% - same as Em403WarLion::fn_803256F8 (one more saved GPR and order of the quaternions)
 void QuadrupedTask::fn_805686F0(atn::MotionBuffer* nodes, int count) {
     for (int i = 0; i < count; i++) {
-        const char* name = ((ModelNodeDesc_unk*)mMotion.m16C->m48[i])->mName;
+        const char* name = ((ModelNodeDesc_unk*)mMotion.GetRes_unk()->m48[i])->mName;
         if (strcmp(name, "neck") == 0) {
             if (m648 == 0) {
                 atn::Quaternion_unk rot(nodes[i].m10);
@@ -809,7 +809,7 @@ void QuadrupedTask::vf20() {
     atn::Vector3 b;
     int tail = mMotion.GetNodeNoByName("tale", 0);
     if (tail > -1) {
-        b = GetNodePos_unk(mMotion.mNodeMtx[tail]);
+        b = GetNodePos_unk(mMotion.mMtx.mNodes.mData[tail].m);
         b.y -= 1.0f;
     } else {
         b = a;

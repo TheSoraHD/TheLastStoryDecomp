@@ -321,7 +321,7 @@ void EnemyFieldMagician::fn_8032CF10() {
     }
     for (int i = 0; i < 2; i++) {
         if ((m14B0[i].mFlags & 1) == 1) {
-            atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mMotion.mMtx);
+            atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mMotion.mMtx.m);
             mtx = MulMtx_unk(mtx, TransMtx_unk(atn::Vector3(0.0f, 15.0f, 10.0f)));
             m14B0[i].SetMtx_unk(mtx);
         }
