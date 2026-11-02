@@ -41,7 +41,7 @@ template <class T>
 void CharaManager<T>::vf14() {
     for (T* chara = mHead; chara != 0; chara = chara->mNext) {
         if (chara->mFlagB22) {
-            fn_80089AD4(chara->mMotion.m104);
+            fn_80089AD4(&chara->mMotion.m104);
             chara->mFlagB22 = 0;
         }
     }

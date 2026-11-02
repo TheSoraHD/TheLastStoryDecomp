@@ -1,0 +1,271 @@
+// atn::Model / atn::ModelBase (0x800899DC-0x8009A5CC). Written in the order of the .dol; the
+// functions not written yet are missing from this file (the unit is not linked).
+#include "atn/Model_unk.h"
+#include "atn/Material_unk.h"
+#include "atn/LH_Motion.h"
+
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+namespace atn {
+// inferred: motion command entry of a motion slot (16 bytes, atn::Model::m358); names invented
+struct MotionCmd_unk {
+    unsigned char m00[0x10];
+};
+} // namespace atn
+extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd);                                 // inferred: clears
+extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
+extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
+
+namespace atn {
+
+// inferred: node index by name hash in the given LOD (inline of fn_800928B0)
+inline int FindNodeRes_unk(const Model::Res_unk* res, unsigned int hash) {
+    if (res == 0) {
+        return -1;
+    }
+    for (int i = 0; i < res->m44; i++) {
+        if (hash == res->m48[i]->m14) {
+            return i;
+        }
+    }
+    return -1;
+}
+inline int FindNode_unk(const Model* model, unsigned int hash, int lod) {
+    return FindNodeRes_unk(model->mLods[lod].mRes, hash);
+}
+
+// RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci; the members are the ones of atn::Model (the class
+// layout lives in Model in include/atn/Model_unk.h)
+int ModelBase::GetNodeNoByName(const char* name, int lod) const {
+    return FindNode_unk((const Model*)this, fn_800DC6B4(name), lod);
+}
+
+int Model::fn_800928B0(unsigned int hash, int lod) {
+    return FindNode_unk(this, hash, lod);
+}
+
+// inferred: index of the material with the given name hash (inline of fn_8009290C)
+inline int FindMaterialIndex_unk(Model* model, unsigned int hash) {
+    for (unsigned int i = 0; i < model->m104.mSize; i++) {
+        if (hash == model->m104.mData[i]->m00) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Model::fn_8009290C(unsigned int hash) {
+    for (unsigned int i = 0; i < m104.mSize; i++) {
+        if (hash == m104.mData[i]->m00) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// inferred: material by name hash (inline of fn_800929C0)
+inline Material_unk* FindMaterial_unk(Model* model, unsigned int hash) {
+    for (unsigned int i = 0; i < model->m104.mSize; i++) {
+        Material_unk* m = model->m104.mData[i];
+        if (hash == m->m00) {
+            return m;
+        }
+    }
+    return 0;
+}
+
+Material_unk* Model::fn_80092954(const char* name) {
+    return FindMaterial_unk(this, fn_800DC6B4(name));
+}
+
+// inferred: material with the given name hash
+Material_unk* Model::fn_800929C0(unsigned int hash) {
+    for (unsigned int i = 0; i < m104.mSize; i++) {
+        Material_unk* m = m104.mData[i];
+        if (hash == m->m00) {
+            return m;
+        }
+    }
+    return 0;
+}
+
+// inferred: sets the alpha of every material
+void Model::fn_80092A00(float alpha) {
+    for (unsigned int i = 0; i < m104.mSize; i++) {
+        m104.mData[i]->m3C = (int)(255.0f * alpha);
+    }
+}
+
+void Model::fn_8009373C(const char* name, int show) {
+    int i = FindNode_unk(this, fn_800DC6B4(name), 0);
+    if (i >= 0) {
+        mF0[i] = show != 0;
+    }
+}
+
+void Model::fn_800937E8(unsigned int hash, int show) {
+    int i = FindNode_unk(this, hash, 0);
+    if (i >= 0) {
+        mF0[i] = show != 0;
+    }
+}
+
+void Model::fn_80093B88(const char* name) {
+    int i = FindNode_unk(this, fn_800DC6B4(name), 0);
+    if (i >= 0) {
+        mF0[i] = 1;
+    }
+}
+
+void Model::fn_80093C20(unsigned int hash) {
+    int i = FindNode_unk(this, hash, 0);
+    if (i >= 0) {
+        mF0[i] = 1;
+    }
+}
+
+int Model::fn_80093C8C(const char* name) {
+    int i = FindNode_unk(this, fn_800DC6B4(name), 0);
+    if (i >= 0) {
+        return mF0[i];
+    }
+    return 1;
+}
+
+int Model::fn_80093D28(unsigned int hash) {
+    int i = FindNode_unk(this, hash, 0);
+    if (i >= 0) {
+        return mF0[i];
+    }
+    return 1;
+}
+
+void Model::fn_80093D98(const char* name, int show) {
+    int i = FindMaterialIndex_unk(this, fn_800DC6B4(name));
+    if (i >= 0) {
+        mF8[i] = show != 0;
+    }
+}
+
+void Model::fn_80093E30(unsigned int hash, int show) {
+    int i = FindMaterialIndex_unk(this, hash);
+    if (i >= 0) {
+        mF8[i] = show != 0;
+    }
+}
+
+int Model::fn_80093E90(unsigned int hash) {
+    int i = FindMaterialIndex_unk(this, hash);
+    if (i >= 0) {
+        return mF8[i];
+    }
+    return 0;
+}
+
+void Model::fn_80093EEC(int show) {
+    unsigned char on = show != 0;
+    for (unsigned int i = 0; i < m104.mSize; i++) {
+        mF8[i] = on;
+    }
+}
+
+void Model::fn_80097A20(unsigned int motion) {
+    LH_Motion* slot = &m228[motion];
+    slot->fn_80473F88();
+    slot->m08 = 0;
+    fn_800A1060(&m358[motion]);
+}
+
+void Model::fn_80097A88(int motion, const char* path) {
+    m228[motion].fn_800A03E4(path);
+}
+
+void Model::fn_80097A9C(int motion, const LH_Motion* src) {
+    if ((int)mMotionCount <= motion || motion < 0) {
+        return;
+    }
+    LH_Motion* slot = &m228[motion];
+    *slot = *src;
+    slot->m08 = src->m08;
+    fn_800A0A68(&m358[motion], this, src);
+}
+
+int Model::fn_80097B34() {
+    int n = 0;
+    for (int i = 0; i < (int)mMotionCount; i++) {
+        if (m228[i].m08 != 0) {
+            n++;
+        }
+    }
+    return n;
+}
+
+int Model::fn_80097B74() {
+    int busy = 0;
+    for (int i = 0; i < (int)mMotionCount; i++) {
+        if (m228[i].fn_800A0448()) {
+            busy = 1;
+        }
+    }
+    return busy;
+}
+
+void Model::fn_80097C08(int track, int motion, int loop, int force, int arg5, float blend, float speed) {
+    if (force != 0 || motion != mTracks[track].m00) {
+        Track_unk& t = mTracks[track];
+        t.m24 = t.m04;
+        t.m28 = t.m08;
+        t.m2C = t.m10;
+        t.m00 = motion;
+        if (motion >= 0 && motion < (int)mMotionCount && m228[motion].m08 != 0) {
+            t.m04 = (int)&m228[motion];
+            t.m08 = 0.0f;
+            t.m10 = blend;
+            t.m18 = loop != 0;
+            t.m14 = speed;
+            t.m19[0] = arg5 != 0;
+        } else {
+            t.m04 = 0;
+        }
+    } else {
+        mTracks[track].m18 = loop != 0;
+    }
+}
+
+void Model::fn_80097CCC(int track, float blend) {
+    Track_unk& t = mTracks[track];
+    t.m24 = t.m04;
+    t.m28 = t.m08;
+    t.m2C = t.m10;
+    if (track == 3) {
+        t.m04 = 0;
+        t.m10 = blend < t.m2C ? blend : t.m2C;
+    } else {
+        t.m00 = -1;
+        t.m04 = 0;
+        if (track >= 3) {
+            t.m08 = 0.0f;
+            t.m10 = blend;
+            t.m18 = 0;
+        }
+    }
+}
+
+atn::LoadHandle* Model::fn_80097D40(int motion) {
+    if (motion < 0 || motion >= (int)mMotionCount) {
+        return 0;
+    }
+    LH_Motion* slot = &m228[motion];
+    if (slot->m08 != 0) {
+        return slot;
+    }
+    return 0;
+}
+
+float Model::fn_80097D7C(int track) {
+    if (mTracks[track].m04 != 0) {
+        return fn_800A08D4((LH_Motion*)mTracks[track].m04);
+    }
+    return 0.0f;
+}
+
+} // namespace atn
