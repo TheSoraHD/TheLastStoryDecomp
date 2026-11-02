@@ -94,7 +94,10 @@ struct ModelBase : public IRender {
     void fn_8008C62C(int lod);                   // inferred: maps the materials of a level to the main ones
     void fn_8008C950();                          // inferred: sets up the nodes after loading
     void fn_8008D78C();                          // inferred
-    void fn_80091684(void* view, int* remap);    // inferred
+    void fn_8009076C(const Mtx m);               // inferred: applies m to the world and node matrices
+    void fn_80091684(const Mtx m, const int* remap); // inferred: builds the skinning matrices
+    void fn_80091A90(const Mtx m);                   // inferred: updates the skinning matrices for m
+    void fn_80091C10(const ModelBase* src, const int* map, int reset); // inferred: copies node matrices
     void fn_80095CD0();                          // inferred: steps the texture animations
     atn::Texture_unk* fn_80095B08(const std::string& name); // inferred: texture of a stage name (bound for the materials)
 
@@ -140,7 +143,7 @@ struct ModelBase : public IRender {
     float m54;       // inferred: largest scale axis
     void* m58; // inferred: block of the memory manager (freed by fn_8008AA90)
     int m5C;
-    unsigned char m60[0x90 - 0x60];
+    Matrix3x4 m60; // inferred: matrix the skinning matrices were last built with
     Matrix3x4* m90; // inferred: inverse joint matrices of the loaded data
     int m94;
     float m98; // inferred: draw priority ("PRIORITY" of the map parts)
@@ -184,7 +187,7 @@ struct ModelBase : public IRender {
     unsigned int m20C_7 : 1;
     int mFlag6_unk : 1; // inferred: tested by gmk::SwingObject::vf10
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
-    unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
+    int mFlag4_unk : 1; // inferred: set together with the equipment
     int mFlag3_unk : 1; // inferred: the textures of the materials are not bound (fn_8008B978)
     int mFlag2_unk : 1; // inferred: CharaManager::vf10 calls fn_8008B140 while it is set
     int mFlag1_unk : 1; // inferred: fn_80093014 (sets m20C_31_24 to 5)

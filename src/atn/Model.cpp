@@ -20,6 +20,9 @@ extern "C" std::string fn_8006B174(const std::string& path); // inferred: file n
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" void* lbl_8087EFB4; // inferred: render system
 extern "C" int sprintf(char* buf, const char* fmt, ...);
+extern "C" int memcmp(const void* a, const void* b, unsigned long n);
+extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
+extern "C" void PSMTXConcatArray(const Mtx a, const Mtx* srcBase, Mtx* dstBase, unsigned int count);
 // inferred: collects the warnings of the loaders (see game/main.cpp)
 struct DebugMessages_unk {
     void fn_800697D8(const char* msg);
@@ -406,7 +409,7 @@ void ModelBase::vf18(RenderView_unk* view) {
     if (m20C_31_24 == 8) {
         fn_8008D78C();
         if (mFlag6_unk) {
-            fn_80091684((char*)view + 0x15C, mLods[m50].m10.mData);
+            fn_80091684(*(const Mtx*)((char*)view + 0x15C), mLods[m50].m10.mData);
         }
         if (m20C_0) {
             fn_80095CD0();
@@ -450,6 +453,159 @@ void ModelPose_unk::fn_80090584(atn::ModelNodeCallback_unk callback) {
 }
 
 namespace atn {
+
+// inferred: applies `m` to the world matrix and to every node matrix
+void ModelBase::fn_8009076C(const Mtx m) {
+    Mtx_unk* mtx = &mMtx;
+    Res_unk* data;
+    const int* remap = mLods[m50].m10.mData;
+    data = (Res_unk*)mLods[m50].m08;
+    Mtx t;
+    PSMTXConcat(mtx->m, m, t);
+    if (remap != 0) {
+        for (int n = data->m44; n > 0; n--, remap++) {
+            Matrix3x4* node = &mtx->mNodes.mData[*remap];
+            PSMTXConcat(t, node->m, node->m);
+        }
+    } else {
+        int n = data->m44;
+        for (int i = 0; n > 0; n--, i++) {
+            Matrix3x4* node = &mtx->mNodes.mData[i];
+            PSMTXConcat(t, node->m, node->m);
+        }
+    }
+}
+} // namespace atn
+
+// inferred: out[i] = root * b[remap[i]] * a[i]
+extern "C" void fn_80090834(atn::Matrix3x4* out, const atn::Matrix3x4* a, const atn::Matrix3x4* b, const int* remap,
+                            unsigned int n, const atn::Matrix3x4& root) {
+    for (unsigned int i = 0; i < n; i++) {
+        atn::Matrix3x4 r;
+        atn::Matrix3x4 t;
+        PSMTXConcat(b[remap[i]].m, a[i].m, t.m);
+        PSMTXConcat(root.m, t.m, r.m);
+        out[i] = r;
+    }
+}
+
+// inferred: out[i] = root * b[i] * a[i]
+extern "C" void fn_800908FC(atn::Matrix3x4* out, const atn::Matrix3x4* a, const atn::Matrix3x4* b, unsigned int n,
+                            const atn::Matrix3x4& root) {
+    for (unsigned int i = 0; i < n; i++) {
+        atn::Matrix3x4 r;
+        atn::Matrix3x4 t;
+        PSMTXConcat(b[i].m, a[i].m, t.m);
+        PSMTXConcat(root.m, t.m, r.m);
+        out[i] = r;
+    }
+}
+
+// inferred: skinning weights of a vertex block with two joints (0x14 bytes); names invented
+struct SkinWeight2_unk {
+    int m00;
+    int mIndex0;
+    float mWeight0;
+    int mIndex1;
+    float mWeight1;
+};
+
+// inferred: matrix scaled by a weight (name invented)
+inline atn::Matrix3x4 ScaleMtx_unk(const atn::Matrix3x4& a, float w) {
+    atn::Matrix3x4 r;
+    r.m[0][0] = a.m[0][0] * w;
+    r.m[0][1] = a.m[0][1] * w;
+    r.m[0][2] = a.m[0][2] * w;
+    r.m[0][3] = a.m[0][3] * w;
+    r.m[1][0] = a.m[1][0] * w;
+    r.m[1][1] = a.m[1][1] * w;
+    r.m[1][2] = a.m[1][2] * w;
+    r.m[1][3] = a.m[1][3] * w;
+    r.m[2][0] = a.m[2][0] * w;
+    r.m[2][1] = a.m[2][1] * w;
+    r.m[2][2] = a.m[2][2] * w;
+    r.m[2][3] = a.m[2][3] * w;
+    return r;
+}
+
+// inferred: element-wise sum (name invented)
+inline void AddMtx_unk(atn::Matrix3x4& d, const atn::Matrix3x4& a) {
+    d.m[0][0] += a.m[0][0];
+    d.m[0][1] += a.m[0][1];
+    d.m[0][2] += a.m[0][2];
+    d.m[0][3] += a.m[0][3];
+    d.m[1][0] += a.m[1][0];
+    d.m[1][1] += a.m[1][1];
+    d.m[1][2] += a.m[1][2];
+    d.m[1][3] += a.m[1][3];
+    d.m[2][0] += a.m[2][0];
+    d.m[2][1] += a.m[2][1];
+    d.m[2][2] += a.m[2][2];
+    d.m[2][3] += a.m[2][3];
+}
+
+// inferred: out[i] = mats[a] * wa + mats[b] * wb for each weight
+// NONMATCHING: 45% - the original computes and stores the first matrix before loading the second one
+// (8 saved float registers instead of 17)
+extern "C" void fn_800909B0(atn::Matrix3x4* out, const atn::Matrix3x4* mats, const SkinWeight2_unk* w, int n) {
+    for (int i = 0; i < n; i++) {
+        *out = ScaleMtx_unk(mats[w->mIndex0], w->mWeight0);
+        atn::Matrix3x4 t = ScaleMtx_unk(mats[w->mIndex1], w->mWeight1);
+        AddMtx_unk(*out, t);
+        w++;
+        out++;
+    }
+}
+
+namespace atn {
+
+// inferred: the two matrices are equal (name invented)
+inline bool SameMtx_unk(const Mtx a, const Mtx b) {
+    return memcmp(a, b, 0x30) == 0;
+}
+
+// NONMATCHING: 99.6% - the store order of the copy into m60
+void ModelBase::fn_80091A90(const Mtx m) {
+    if (mFlag4_unk && mFlag5_unk && *(int*)((char*)lbl_8087EFB4 + 0x2F8) == 3) {
+        fn_80091684(m, m1C4.m10.mData);
+        return;
+    }
+    if (m5C != m50) {
+        fn_80091684(m, mLods[m50].m10.mData);
+        return;
+    }
+    if (SameMtx_unk(m60.m, m)) {
+        return;
+    }
+    Matrix3x4 inv(m60);
+    PSMTXInverse(inv.m, inv.m);
+    PSMTXConcat(m, inv.m, inv.m);
+    m60 = *(const Matrix3x4*)m;
+    Res_unk* data = (Res_unk*)mLods[0].m08;
+    Mtx* skin = (Mtx*)m58;
+    if (data->m38->m10 > 1) {
+        PSMTXConcatArray(inv.m, skin, skin, data->m38->m10);
+    } else {
+        PSMTXConcat(inv.m, *skin, *skin);
+    }
+}
+
+// NONMATCHING: 98.1% - the joint pointer is kept in r12 in the original
+void ModelBase::fn_80091C10(const ModelBase* src, const int* map, int reset) {
+    Res_unk* data = (Res_unk*)mLods[0].m08;
+    for (int i = 0; i < data->m44; i++) {
+        int index = map[i];
+        ModelJoint_unk* joint = data->m48[i];
+        if (index == -1) {
+            if (reset) {
+                mMtx.mNodes.mData[joint->m18].SetIdentity();
+            }
+        } else {
+            const Matrix3x4* s = (index < 0) ? 0 : &src->mMtx.mNodes.mData[index];
+            mMtx.mNodes.mData[joint->m18] = *s;
+        }
+    }
+}
 
 // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci
 int ModelBase::GetNodeNoByName(const char* name, int lod) const {
