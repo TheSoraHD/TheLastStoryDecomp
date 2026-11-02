@@ -1561,6 +1561,18 @@ void Model::fn_80095D44(int node, int parent) {
     }
 }
 
+// inferred: copies a camera into the model's own camera (if it has one) and flags it (0x80000). Declared
+// extern "C" in atn/Camera_unk.h, the callers (game/CharaTask.cpp, gmk/AutomaticDoor.cpp, Event/DialogHead.cpp) use
+// that name. The test is the boolean conversion of boost::scoped_ptr (__ptmf_test of &scoped_ptr::get).
+// The copy goes through ModelCamera_unk (the implicit operator= of the parameter type copies in another order).
+extern "C" void fn_80095F10(void* model, ModelCameraParam_unk* param) {
+    ModelBase* base = (ModelBase*)model;
+    if (base->m208) {
+        *base->m208 = *(const ModelCamera_unk*)param;
+        base->mFlags |= 0x80000;
+    }
+}
+
 // NONMATCHING: 99.3% - the "" of the pool is at 0xA in the original, and the motion slots are built with
 // the constructor of LH_Motion (here the implicit one of MotionSlot_unk)
 Model::Model(int flags, int motions)
