@@ -188,6 +188,32 @@ public:
             mData = 0;
         }
     }
+    // inferred: data pointer (weak copies 0x803C63C8... of game/GameScene.cpp; name invented)
+    T* GetData_unk() const { return mData; }
+    // inferred: resize keeping the first elements (weak copies 0x803C647C... of game/GameScene.cpp;
+    // name invented). The third argument is the name of the owner, unused in release.
+    void Grow_unk(unsigned int n, int heap, const char* name) {
+        T* data;
+        unsigned int old = mSize;
+        if (n == old) {
+            return;
+        }
+        mSize = n;
+        data = mData;
+        if (mSize != 0) {
+            mData = new ((MemoryTag)heap, "", "", 0) T[mSize];
+            if (data != 0 && old != 0) {
+                for (unsigned int i = 0; i < (old < (unsigned int)mSize ? old : (unsigned int)mSize); i++) {
+                    mData[i] = data[i];
+                }
+            }
+        } else {
+            mData = 0;
+        }
+        if (data != 0) {
+            delete[] data;
+        }
+    }
     // name from the copies of game/GameScene.cpp (__vc__Q23atn31SimpleArray<Q22gs11NpcSetPoint>CFUi)
     T& operator[](unsigned int i) const { return mData[i]; }
     // inferred: called out of line by EnvSeManager::fn_8035F3D4 (fn_80089ACC, a copy of another file)

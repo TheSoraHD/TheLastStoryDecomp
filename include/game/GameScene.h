@@ -52,36 +52,8 @@ struct GameMessageTable_unk {
 
 namespace gs {
 
-// inferred: helpers of atn::SimpleArray used by the scene loader (weak copies of this file). They may
-// be members of atn::SimpleArray, but declaring anything new in that template renumbers the @N labels
-// of every unit that includes atn/Array_unk.h, so they are free templates here. Names invented.
-template <class T>
-inline T* GetData_unk(const atn::SimpleArray<T>& a) {
-    return a.mData;
-}
-template <class T>
-inline void Grow_unk(atn::SimpleArray<T>& a, unsigned int n, int heap, const char* name) {
-    T* data;
-    unsigned int old = a.mSize;
-    if (n == old) {
-        return;
-    }
-    a.mSize = n;
-    data = a.mData;
-    if (a.mSize != 0) {
-        a.mData = new ((MemoryTag)heap, "", "", 0) T[a.mSize];
-        if (data != 0 && old != 0) {
-            for (unsigned int i = 0; i < (old < (unsigned int)a.mSize ? old : (unsigned int)a.mSize); i++) {
-                a.mData[i] = data[i];
-            }
-        }
-    } else {
-        a.mData = 0;
-    }
-    if (data != 0) {
-        delete[] data;
-    }
-}
+// inferred: index of the element with the given id (function template: its weak copies come out in
+// reverse order of first use, before the other templates of game/GameScene.cpp). Name invented.
 template <class T>
 inline int FindIndex_unk(const atn::SimpleArray<T>& a, int id) {
     for (unsigned int i = 0; i < (unsigned int)a.mSize; i++) {
