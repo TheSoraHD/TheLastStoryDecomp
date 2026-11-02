@@ -5,6 +5,8 @@
 #include "atn/LH_Binary.h"
 #include "atn/Array_unk.h"
 #include "math/Vec.h"
+#include "atn/Csv.h"
+#include "atn/Memory.h"
 
 namespace atn {
 class Model;
@@ -47,55 +49,132 @@ struct GameMessageTable_unk {
     atn::LH_Binary m10;
 };
 
+namespace gs {
+
+// inferred: atn::SimpleArray with the helpers used by the scene loader (weak copies of this file; the
+// helpers may belong to atn::SimpleArray itself, but declaring them there renumbers the @N labels of
+// every unit that includes atn/Array_unk.h). Names invented.
+template <class T>
+class Array_unk : public atn::SimpleArray<T> {
+public:
+    T* GetData_unk() const { return this->mData; }
+    void Grow_unk(unsigned int n, int heap, const char* name) {
+        unsigned int old = this->mSize;
+        if (n == old) {
+            return;
+        }
+        this->mSize = n;
+        T* data = this->mData;
+        if (n != 0) {
+            this->mData = new ((MemoryTag)heap, "", "", 0) T[n];
+            if (data != 0 && old != 0) {
+                for (unsigned int i = 0; i < (old < (unsigned int)this->mSize ? old : (unsigned int)this->mSize); i++) {
+                    this->mData[i] = data[i];
+                }
+            }
+        } else {
+            this->mData = 0;
+        }
+        if (data != 0) {
+            delete[] data;
+        }
+    }
+    T* Find_unk(int id) const {
+        for (unsigned int i = 0; i < (unsigned int)this->mSize; i++) {
+            if (id == this->mData[i].mId) {
+                return &this->mData[i];
+            }
+        }
+        return 0;
+    }
+    int FindIndex_unk(int id) const {
+        for (unsigned int i = 0; i < (unsigned int)this->mSize; i++) {
+            if (id == this->mData[i].mId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+};
+
+} // namespace gs
+
 // The element types of the scene file (.gs). NpcSetPoint and EventBox are confirmed by the mangled
 // names of their SimpleArray<T>::operator[] copies; the other names are the section names of the file.
 namespace gs {
 
-// inferred: "WarpPoint" (0x28 bytes)
-struct WarpPoint {
-    WarpPoint() {}
+// inferred: id and position at the start of every point of the file (read by GameScene::fn_803C3724)
+struct PointBase_unk {
     int mId;
     atn::Vector3 mPos;
-    unsigned char m10[0x28 - 0x10];
+};
+
+// inferred: "WarpPoint" (0x28 bytes)
+struct WarpPoint : public PointBase_unk {
+    WarpPoint() {}
+    int mIndex; // 0x10: id plus the offset of the file
+    float m14;
+    int m18[3];
+    int m24;
 };
 
 // "NpcSetPoint"/"EnemySetPoint"/"FriendSetPoint" (0x148 bytes)
-struct NpcSetPoint {
-    int mId;
-    unsigned char m04[0x140 - 0x04];
+struct NpcSetPoint : public PointBase_unk {
+    unsigned char m10[0x140 - 0x10];
     atn::SimpleArray<int> m140;
 };
 
 // inferred: "MovePoint" (0x30 bytes)
-struct MovePoint {
+struct MovePoint : public PointBase_unk {
     MovePoint() {}
-    int mId;
-    unsigned char m04[0x30 - 0x04];
+    int mIndex;
+    float m14;
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+    int m28;
+    int m2C;
 };
 
 // inferred: "HidePoint" (0x40 bytes)
-struct HidePoint {
+struct HidePoint : public PointBase_unk {
     HidePoint() {}
-    int mId;
-    unsigned char m04[0x40 - 0x04];
+    int mIndex;
+    int m14;
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+    int m28[4];
+    int m38;
+    int m3C;
 };
 
-// inferred: (0x18 bytes)
+// inferred: link between two hide points (0x18 bytes)
 struct HideLink_unk {
     HideLink_unk() {}
-    unsigned char m00[0x18];
+    int mFrom;
+    int mTo;
+    int m08;
+    atn::Vector3 mMid; // inferred: middle of the two points
 };
 
 // inferred: (0xC bytes)
 struct HideLink2_unk {
-    unsigned char m00[0xC];
+    int mFrom;
+    int mTo;
+    int m08;
 };
 
 // inferred: "InteractionPoint" (0x30 bytes)
-struct InteractionPoint {
+struct InteractionPoint : public PointBase_unk {
     InteractionPoint() {}
-    int mId;
-    unsigned char m04[0x30 - 0x04];
+    int mIndex;
+    int m14;
+    int m18;
+    int m1C[4];
+    int m2C;
 };
 
 // inferred: "InteractionConnection" (8 bytes)
@@ -106,11 +185,11 @@ struct InteractionConnection {
 
 // inferred: "NpcAi" (0x20 bytes)
 struct NpcAi {
-    NpcAi();
+    NpcAi() : m00(0), m04(0), m08(0), m0C(0.0f), m10(0.0f), m14(0), m18(0), m1C(0) {}
     int m00;
     int m04;
     int m08;
-    int m0C;
+    float m0C;
     float m10;
     int m14;
     int m18;
@@ -119,65 +198,114 @@ struct NpcAi {
 
 // inferred: "SceneCosntrainModel" (0x20 bytes)
 struct ConstrainModel {
-    ConstrainModel();
+    ConstrainModel() : m00(0), m04(0), m08(0), m0C(0), m10(0.0f, 0.0f, 0.0f), m1C(1) {}
     int m00;
     atn::Model* m04; // inferred: model being loaded
-    unsigned char m08[0x20 - 0x08];
+    int m08;
+    int m0C;
+    atn::Vector3 m10;
+    int m1C;
 };
 
 // "EventBox" (0x48 bytes)
-struct EventBox {
+struct EventBox : public PointBase_unk {
     EventBox() {}
-    int mId;
-    unsigned char m04[0x24 - 0x04];
+    int mIndex;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
     atn::SimpleArray<int> m24; // inferred: "SceneScript"
-    unsigned char m2C[0x48 - 0x2C];
+    int m2C;
+    int m30;
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    int m44;
 };
 
 // inferred: "EventSphere" (0x28 bytes)
-struct EventSphere {
+struct EventSphere : public PointBase_unk {
     EventSphere() {}
-    int mId;
-    unsigned char m04[0x18 - 0x04];
+    int mIndex;
+    float m14;
     atn::SimpleArray<int> m18; // inferred: "SceneScript"
-    unsigned char m20[0x28 - 0x20];
+    int m20;
+    int m24;
 };
 
 // inferred: "AiArea" (0x30 bytes)
-struct AiArea {
+struct AiArea : public PointBase_unk {
     AiArea() {}
-    int mId;
-    unsigned char m04[0x30 - 0x04];
+    int mIndex;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
+    int m24;
+    int m28;
+    int m2C;
 };
 
 // inferred: "AttentionPoint" (0x40 bytes)
-struct AttentionPoint {
+struct AttentionPoint : public PointBase_unk {
     AttentionPoint() {}
-    int mId;
-    unsigned char m04[0x40 - 0x04];
+    int mIndex;
+    float m14;
+    int m18;
+    int m1C[4];
+    int m2C[3];
+    int m38;
+    int m3C;
 };
 
 // inferred: "Gimmick" (0x80 bytes)
-struct Gimmick {
+struct Gimmick : public PointBase_unk {
     Gimmick() {}
-    int mId;
-    unsigned char m04[0x80 - 0x04];
+    int mIndex;
+    float m14;
+    int m18;
+    int m1C;
+    int m20[8];
+    float m40[8];
+    int m60[4];
+    int m70[3];
+    int m7C;
 };
 
 // inferred: "CameraBox" (0x58 bytes)
-struct CameraBox {
+struct CameraBox : public PointBase_unk {
     CameraBox() {}
-    int mId;
-    unsigned char m04[0x58 - 0x04];
+    int mIndex;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
+    int m24;
+    int m28;
+    int m2C;
+    int m30;
+    int m34;
+    int m38[4];
+    int m48[3];
+    int m54;
 };
 
 // inferred: "BgmBox" (0x50 bytes)
-struct BgmBox {
+struct BgmBox : public PointBase_unk {
     BgmBox() {}
-    int mId;
-    unsigned char m04[0x24 - 0x04];
+    int mIndex;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
     int mBgm; // 0x24: inferred: BGM id
-    unsigned char m28[0x50 - 0x28];
+    float m28;
+    int m2C;
+    int m30[4];
+    int m40[3];
+    int m4C;
 };
 
 // inferred: "MovePointGroup"/"HidePointGroup"/"WarpPointGroup" (0x94 bytes, one copy of the members
@@ -202,6 +330,30 @@ struct Unk148_unk {
     unsigned char m00[4];
 };
 
+// inferred: rows x columns of T (MovePointConnection, HideVsHideConnection); names invented
+template <class T>
+struct Table2D_unk {
+    Table2D_unk() : mData(0), mRows(0), mCols(0) {}
+    ~Table2D_unk() {
+        if (mData != 0) {
+            delete[] mData;
+        }
+    }
+    void Alloc(int rows, int cols) {
+        if (mData != 0) {
+            delete[] mData;
+        }
+        mRows = rows;
+        mCols = cols;
+        mData = new ((MemoryTag)0, "", "", 0) T[rows * cols];
+    }
+    T* operator[](int row) { return &mData[row * mCols]; }
+
+    T* mData;
+    int mRows;
+    int mCols;
+};
+
 } // namespace gs
 
 // inferred from __vt__9GameScene (0x8078BC48): the scene of a map, read from the .gs files
@@ -218,7 +370,28 @@ public:
     void fn_803C0634(unsigned int index);
     void fn_803C0938(unsigned int index);
     void fn_803C0C2C(unsigned int index);
+    void fn_803C0F48();
+    void fn_803C11A4();
+    void fn_803C1338();
+    void fn_803C1560();
+    void fn_803C17FC();
+    void fn_803C1840();
+    void fn_803C1884();
+    void fn_803C18DC();
+    void fn_803C1CAC();
+    void fn_803C1E3C();
+    void fn_803C2048();
+    void fn_803C2090();
+    void fn_803C3724(gs::PointBase_unk* point, atn::Csv& csv); // inferred: id and position
+    void fn_803C3798(int* values, atn::Csv& csv);              // inferred: four integers
+    void fn_803C380C(int* values, atn::Csv& csv);              // inferred: a range (start, value, end)
     void fn_803C3894(const char* text, int length, int file); // inferred: reads a .gs file
+    template <class T>
+    void fn_803C74E0(gs::Array_unk<T>& points, atn::Csv& csv, int file); // inferred: chara set points
+    template <class G, class T>
+    void fn_803C606C(gs::Array_unk<G>& groups, gs::Array_unk<T>& points, atn::Csv& csv); // inferred: chara groups
+    template <class G, class T>
+    void fn_803C6FE4(gs::Array_unk<G>& groups, gs::Array_unk<T>& points, atn::Csv& csv); // inferred: point groups
     void fn_803CA0F4();
     void fn_803CA604();
     void fn_803CAABC();
@@ -230,42 +403,42 @@ public:
     int m6C;                            // "EnemyNum"
     int m70;                            // "PlayerStartPoint"
     int m74;                            // inferred: number of move points
-    atn::SimpleArray<gs::WarpPoint> m78;
-    atn::SimpleArray<gs::NpcSetPoint> m80; // "NpcSetPoint"
-    atn::SimpleArray<gs::NpcSetPoint> m88; // "EnemySetPoint"
-    atn::SimpleArray<gs::NpcSetPoint> m90; // "FriendSetPoint"
-    atn::SimpleArray<gs::MovePoint> m98;
-    atn::SimpleArray<U16Table_unk> mA0;    // inferred: "MovePointConnection"
+    gs::Array_unk<gs::WarpPoint> m78;
+    gs::Array_unk<gs::NpcSetPoint> m80; // "NpcSetPoint"
+    gs::Array_unk<gs::NpcSetPoint> m88; // "EnemySetPoint"
+    gs::Array_unk<gs::NpcSetPoint> m90; // "FriendSetPoint"
+    gs::Array_unk<gs::MovePoint> m98;
+    gs::Array_unk<U16Table_unk> mA0;    // inferred: "MovePointConnection"
     int mA8;                               // inferred: number of hide points
-    atn::SimpleArray<gs::HidePoint> mAC;
-    atn::SimpleArray<gs::HideLink_unk> mB4;
-    atn::SimpleArray<gs::HideLink2_unk> mBC;
-    atn::SimpleArray<gs::InteractionPoint> mC4;
-    atn::SimpleArray<gs::InteractionConnection> mCC;
-    atn::SimpleArray<gs::NpcAi> mD4;
-    atn::SimpleArray<gs::ConstrainModel> mDC;
-    atn::SimpleArray<gs::EventBox> mE4;
-    atn::SimpleArray<gs::EventSphere> mEC;
-    atn::SimpleArray<gs::AiArea> mF4;
-    atn::SimpleArray<gs::AttentionPoint> mFC;
-    atn::SimpleArray<gs::Gimmick> m104;
-    atn::SimpleArray<gs::CameraBox> m10C;
-    atn::SimpleArray<gs::BgmBox> m114;
+    gs::Array_unk<gs::HidePoint> mAC;
+    gs::Array_unk<gs::HideLink_unk> mB4;
+    gs::Array_unk<gs::HideLink2_unk> mBC;
+    gs::Array_unk<gs::InteractionPoint> mC4;
+    gs::Array_unk<gs::InteractionConnection> mCC;
+    gs::Array_unk<gs::NpcAi> mD4;
+    gs::Array_unk<gs::ConstrainModel> mDC;
+    gs::Array_unk<gs::EventBox> mE4;
+    gs::Array_unk<gs::EventSphere> mEC;
+    gs::Array_unk<gs::AiArea> mF4;
+    gs::Array_unk<gs::AttentionPoint> mFC;
+    gs::Array_unk<gs::Gimmick> m104;
+    gs::Array_unk<gs::CameraBox> m10C;
+    gs::Array_unk<gs::BgmBox> m114;
     GameMessageTable_unk m11C;
     atn::Task* m134;                       // inferred: event script task (fn_80393610)
     int m138;
     float m13C;
     gs::BgmBox* m140;                      // inferred: current BGM box
     void* m144;                            // inferred: area data (fn_8021771C)
-    atn::SimpleArray<gs::Unk148_unk> m148;
-    atn::SimpleArray<gs::Unk148_unk> m150;
-    atn::SimpleArray<gs::PointGroup<gs::MovePoint> > m158;
-    atn::SimpleArray<gs::PointGroup<gs::HidePoint> > m160;
-    atn::SimpleArray<gs::PointGroup<gs::WarpPoint> > m168;
-    atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> > m170; // "FriendGroup"
-    atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> > m178; // "EnemyGroup"
-    atn::SimpleArray<int> m180;            // "EventIdList"
-    atn::SimpleArray<gs::Unk148_unk> m188;
+    gs::Array_unk<gs::Unk148_unk> m148;
+    gs::Array_unk<gs::Unk148_unk> m150;
+    gs::Array_unk<gs::PointGroup<gs::MovePoint> > m158;
+    gs::Array_unk<gs::PointGroup<gs::HidePoint> > m160;
+    gs::Array_unk<gs::PointGroup<gs::WarpPoint> > m168;
+    gs::Array_unk<gs::CharaGroup<gs::NpcSetPoint> > m170; // "FriendGroup"
+    gs::Array_unk<gs::CharaGroup<gs::NpcSetPoint> > m178; // "EnemyGroup"
+    gs::Array_unk<int> m180;            // "EventIdList"
+    gs::Array_unk<gs::Unk148_unk> m188;
     int m190;
     unsigned char m194[0x994 - 0x194];
     ResRef_unk m994;                       // inferred: levels/%s.pk

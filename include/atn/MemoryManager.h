@@ -35,6 +35,16 @@ public:
     void* AllocFromMem2(unsigned long size, unsigned long align, MemoryTag tag, const char* name, const char* file,
                         int line, int mayFail);
 
+    // inferred: weak copies 0x803C5FC4/0x803C5FD0 of game/GameScene.cpp (names invented)
+    void SetMode_unk(int mode, unsigned long align) {
+        mMode = mode;
+        mAlign = align;
+    }
+    void ResetMode_unk() {
+        mMode = 0;
+        mAlign = 0x20;
+    }
+
     int mMode;                              // 0x000: inferred: 1 = small blocks only from SMA2
     unsigned long mAlign;                   // 0x004
     MEMAllocator_unk mSdk[3];               // 0x008

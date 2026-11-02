@@ -11,6 +11,19 @@
 #include "atn/Model_unk.h"
 #include "atn/SoundCore.h"
 #include "std/string.h"
+#include "std/vector.h"
+#include "game/IntVector_unk.h"
+#include "atn/MemoryManager.h"
+#include <boost/tokenizer.hpp>
+
+typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+
+extern "C" int abs(int x);
+extern "C" unsigned int fn_80089ACC(const void* array); // inferred: SimpleArray size (weak copy of atn/Model.cpp)
+extern "C" unsigned int fn_800E0AA8(const IntVector_unk* v); // inferred: size (weak copy)
+extern "C" int* fn_8028B74C(IntVector_unk* v, int i);        // inferred: element (weak copy)
+extern "C" void fn_803CCF64(U16Table_unk* table, const unsigned short* values, unsigned int count);
+extern "C" void fn_803CD598(U16Table_unk* table, atn::Csv* csv, unsigned int count);
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -380,3 +393,691 @@ int GameScene::vf0C() {
     }
     return 0;
 }
+
+// NONMATCHING: stub
+void GameScene::fn_803C0634(unsigned int index) {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C0938(unsigned int index) {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C0C2C(unsigned int index) {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C0F48() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C11A4() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C1338() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C1560() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C17FC() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C1840() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C1884() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C18DC() {}
+
+// NONMATCHING: stub
+void GameScene::vf10() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C1CAC() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C1E3C() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C2048() {}
+
+// NONMATCHING: stub
+void GameScene::fn_803C2090() {}
+
+// NONMATCHING: stub
+void GameScene::vf14() {}
+
+void GameScene::fn_803C3724(gs::PointBase_unk* point, atn::Csv& csv) {
+    point->mId = atoi(csv.fn_8005B9CC());
+    point->mPos.x = fn_800DC288(csv.fn_8005B9CC());
+    point->mPos.y = fn_800DC288(csv.fn_8005B9CC());
+    point->mPos.z = fn_800DC288(csv.fn_8005B9CC());
+}
+
+void GameScene::fn_803C3798(int* values, atn::Csv& csv) {
+    values[0] = atoi(csv.fn_8005B9CC());
+    values[1] = atoi(csv.fn_8005B9CC());
+    values[2] = atoi(csv.fn_8005B9CC());
+    values[3] = atoi(csv.fn_8005B9CC());
+}
+
+void GameScene::fn_803C380C(int* values, atn::Csv& csv) {
+    values[0] = atoi(csv.fn_8005B9CC());
+    values[1] = atoi(csv.fn_8005B9CC());
+    values[2] = atoi(csv.fn_8005B9CC());
+    if (values[1] < 0 || values[2] <= 0 || values[1] > values[2]) {
+        values[0] = 0;
+    }
+}
+
+void GameScene::fn_803C3894(const char* text, int length, int file) {
+    atn::Csv csv(text, length);
+    std::string s;
+    int offset = file * 10000;
+    int version = 0;
+    unsigned int boxBase = 0;
+    unsigned int sphereBase = 0;
+    do {
+        s = csv.fn_8005B9CC();
+        if (s == "begin") {
+            s = csv.fn_8005B9CC();
+            if (s == "Header" && file <= 0) {
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s == "Version") {
+                        version = atoi(csv.fn_8005B9CC());
+                    }
+                }
+            } else if (s == "MainSetting") {
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s == "NpcNum" && file <= 0) {
+                        m68 = atoi(csv.fn_8005B9CC());
+                    } else if (s == "EnemyNum" && file <= 0) {
+                        m6C = atoi(csv.fn_8005B9CC());
+                    } else if (s == "PlayerStartPoint" && file <= 0) {
+                        m70 = atoi(csv.fn_8005B9CC());
+                    } else if (s == "NpcAiNum" && file <= 0) {
+                        mD4.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "NpcAi");
+                        for (unsigned int i = 0; i < fn_80089ACC(&mD4); i++) {
+                            if (!csv.fn_8005BBF8()) {
+                                break;
+                            }
+                            s = csv.fn_8005B9CC();
+                            if (s[0] == ';') {
+                                i--;
+                                continue;
+                            }
+                            mD4[i].m04 = atoi(csv.fn_8005B9CC());
+                            mD4[i].m08 = atoi(csv.fn_8005B9CC());
+                            mD4[i].m10 = fn_800DC288(csv.fn_8005B9CC());
+                            mD4[i].m00 = atoi(csv.fn_8005B9CC());
+                            mD4[i].m14 = atoi(csv.fn_8005B9CC());
+                            mD4[i].m18 = atoi(csv.fn_8005B9CC());
+                            mD4[i].m1C = atoi(csv.fn_8005B9CC());
+                        }
+                    } else if (s == "ConstrainModelNum") {
+                        unsigned int i = 0;
+                        if (mDC.GetData_unk() == 0) {
+                            mDC.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneCosntrainModel");
+                        } else {
+                            i = fn_80089ACC(&mDC);
+                            mDC.Grow_unk(i + atoi(csv.fn_8005B9CC()), 3, "SceneCosntrainModel");
+                        }
+                        for (; i < fn_80089ACC(&mDC); i++) {
+                            if (!csv.fn_8005BBF8()) {
+                                break;
+                            }
+                            s = csv.fn_8005B9CC();
+                            if (s[0] == ';') {
+                                i--;
+                                continue;
+                            }
+                            mDC[i].m00 = atoi(s.c_str());
+                            mDC[i].m04 = new ((MemoryTag)12, "", "", 0) atn::Model(0x100, 0x20);
+                            const char* name = csv.fn_8005B9CC();
+                            mDC[i].m04->fn_8008AD4C(name, 0);
+                        }
+                    }
+                }
+            } else if (s == "WarpPoint") {
+                s = csv.fn_8005B9CC();
+                unsigned int base = 0;
+                if (m78.GetData_unk() == 0) {
+                    m78.Resize_unk(atoi(s.c_str()), 3, "SceneWarpPoint");
+                } else {
+                    base = fn_80089ACC(&m78);
+                    m78.Grow_unk(base + atoi(s.c_str()), 3, "SceenWarpPoint");
+                }
+                unsigned int i = base;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    m78[i].mIndex = base + atoi(s.c_str());
+                    fn_803C3724(&m78[i], csv);
+                    m78[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+                    fn_803C380C(m78[i].m18, csv);
+                    m78[i].m24 = 1;
+                    i++;
+                }
+            } else if (s == "NpcSetPoint") {
+                fn_803C74E0(m80, csv, file);
+            } else if (s == "EnemySetPoint") {
+                fn_803C74E0(m88, csv, file);
+            } else if (s == "FriendSetPoint") {
+                fn_803C74E0(m90, csv, file);
+            } else if (s == "MovePoint" && file <= 0) {
+                s = csv.fn_8005B9CC();
+                m74 = atoi(s.c_str());
+                m98.Resize_unk(m74, 3, "SceneMovePoint");
+                unsigned int i = 0;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    m98[i].mIndex = atoi(s.c_str());
+                    fn_803C3724(&m98[i], csv);
+                    m98[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+                    m98[i].m18 = atoi(csv.fn_8005B9CC());
+                    m98[i].m1C = atoi(csv.fn_8005B9CC());
+                    m98[i].m20 = atoi(csv.fn_8005B9CC());
+                    int unused[4];
+                    fn_803C3798(unused, csv);
+                    m98[i].m2C = 1;
+                    m98[i].m24 = atoi(csv.fn_8005B9CC());
+                    m98[i].m28 = atoi(csv.fn_8005B9CC());
+                    i++;
+                }
+            } else if (s == "HidePoint" && file <= 0) {
+                s = csv.fn_8005B9CC();
+                mA8 = atoi(s.c_str());
+                mAC.Resize_unk(mA8, 3, "SceneHidePoint");
+                unsigned int i = 0;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    mAC[i].mIndex = atoi(s.c_str());
+                    fn_803C3724(&mAC[i], csv);
+                    mAC[i].m14 = atoi(csv.fn_8005B9CC());
+                    mAC[i].m18 = atoi(csv.fn_8005B9CC());
+                    mAC[i].m1C = atoi(csv.fn_8005B9CC());
+                    fn_803C3798(mAC[i].m28, csv);
+                    mAC[i].m38 = 1;
+                    mAC[i].m20 = atoi(csv.fn_8005B9CC());
+                    mAC[i].m24 = atoi(csv.fn_8005B9CC());
+                    mAC[i].m3C = 0;
+                    i++;
+                }
+            } else if (s == "InteractionPoint" && file <= 0) {
+                mC4.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneInteractPoint");
+                unsigned int i = 0;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    mC4[i].mIndex = atoi(s.c_str());
+                    fn_803C3724(&mC4[i], csv);
+                    mC4[i].m14 = atoi(csv.fn_8005B9CC());
+                    fn_803C3798(mC4[i].m1C, csv);
+                    mC4[i].m18 = atoi(csv.fn_8005B9CC());
+                    mC4[i].m2C = 1;
+                    i++;
+                }
+            } else if (s == "AttentionPoint") {
+                unsigned int base = 0;
+                if (mFC.GetData_unk() == 0) {
+                    mFC.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneAttentionPoint");
+                } else {
+                    base = fn_80089ACC(&mFC);
+                    mFC.Grow_unk(base + atoi(csv.fn_8005B9CC()), 3, "SceneAttentionPoint");
+                }
+                unsigned int i = base;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    mFC[i].mIndex = base + atoi(s.c_str());
+                    fn_803C3724(&mFC[i], csv);
+                    mFC[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+                    mFC[i].m18 = atoi(csv.fn_8005B9CC());
+                    fn_803C3798(mFC[i].m1C, csv);
+                    mFC[i].m3C = atoi(csv.fn_8005B9CC());
+                    fn_803C380C(mFC[i].m2C, csv);
+                    mFC[i].m38 = 1;
+                    i++;
+                }
+            } else if (s == "EventBox") {
+                boxBase = 0;
+                if (mE4.GetData_unk() == 0) {
+                    mE4.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneEventBox");
+                } else {
+                    boxBase = fn_80089ACC(&mE4);
+                    mE4.Grow_unk(boxBase + atoi(csv.fn_8005B9CC()), 3, "SceneEventBox");
+                }
+                unsigned int i = boxBase;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    gs::EventBox& box = mE4[i];
+                    box.mIndex = boxBase + atoi(s.c_str());
+                    fn_803C3724(&box, csv);
+                    box.m14 = fn_800DC288(csv.fn_8005B9CC());
+                    csv.fn_8005B9CC();
+                    box.m18 = fn_800DC288(csv.fn_8005B9CC());
+                    box.m1C = fn_800DC288(csv.fn_8005B9CC());
+                    box.m20 = fn_800DC288(csv.fn_8005B9CC());
+                    std::string scripts(csv.fn_8005B9CC());
+                    IntVector_unk ids;
+                    Tokenizer tok(scripts, boost::char_separator<char>(":"));
+                    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+                        ids.push_back(atoi(it->c_str()));
+                    }
+                    box.m24.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
+                    for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
+                        if (file > 0) {
+                            *fn_8028B74C(&ids, j) += offset;
+                        }
+                        box.m24[j] = *fn_8028B74C(&ids, j);
+                    }
+                    box.m2C = atoi(csv.fn_8005B9CC());
+                    box.m30 = atoi(csv.fn_8005B9CC()) == 1;
+                    box.m38 = atoi(csv.fn_8005B9CC());
+                    box.m3C = atoi(csv.fn_8005B9CC());
+                    box.m34 = atoi(csv.fn_8005B9CC());
+                    box.m40 = atoi(csv.fn_8005B9CC());
+                    box.m44 = atoi(csv.fn_8005B9CC());
+                    i++;
+                }
+            } else if (s == "EventSphere") {
+                sphereBase = 0;
+                if (mEC.GetData_unk() == 0) {
+                    mEC.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneEventSphere");
+                } else {
+                    sphereBase = fn_80089ACC(&mEC);
+                    mEC.Grow_unk(sphereBase + atoi(csv.fn_8005B9CC()), 3, "SceneEventSphere");
+                }
+                unsigned int i = sphereBase;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    gs::EventSphere& sphere = mEC[i];
+                    sphere.mIndex = sphereBase + atoi(s.c_str());
+                    fn_803C3724(&sphere, csv);
+                    sphere.m14 = fn_800DC288(csv.fn_8005B9CC());
+                    csv.fn_8005B9CC();
+                    std::string scripts(csv.fn_8005B9CC());
+                    IntVector_unk ids;
+                    Tokenizer tok(scripts, boost::char_separator<char>(":"));
+                    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+                        ids.push_back(atoi(it->c_str()));
+                    }
+                    sphere.m18.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
+                    for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
+                        if (file > 0) {
+                            *fn_8028B74C(&ids, j) += offset;
+                        }
+                        sphere.m18[j] = *fn_8028B74C(&ids, j);
+                    }
+                    sphere.m20 = atoi(csv.fn_8005B9CC());
+                    csv.fn_8005B9CC();
+                    csv.fn_8005B9CC();
+                    sphere.m24 = atoi(csv.fn_8005B9CC());
+                    i++;
+                }
+            } else if (s == "AiArea" && file <= 0) {
+                mF4.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneAiArea");
+                unsigned int i = 0;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    mF4[i].mIndex = atoi(s.c_str());
+                    fn_803C3724(&mF4[i], csv);
+                    mF4[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+                    csv.fn_8005B9CC();
+                    mF4[i].m18 = fn_800DC288(csv.fn_8005B9CC());
+                    mF4[i].m1C = fn_800DC288(csv.fn_8005B9CC());
+                    mF4[i].m20 = fn_800DC288(csv.fn_8005B9CC());
+                    mF4[i].m24 = atoi(csv.fn_8005B9CC());
+                    mF4[i].m28 = atoi(csv.fn_8005B9CC());
+                    mF4[i].m2C = atoi(csv.fn_8005B9CC()) == 1;
+                    i++;
+                }
+            } else if (s == "MovePointGroup") {
+                fn_803C6FE4(m158, m98, csv);
+            } else if (s == "HidePointGroup") {
+                fn_803C6FE4(m160, mAC, csv);
+            } else if (s == "WarpPointGroup") {
+                fn_803C6FE4(m168, m78, csv);
+            } else if (s == "NpcGroup") {
+            } else if (s == "EnemyGroup") {
+                fn_803C606C(m178, m88, csv);
+            } else if (s == "FriendGroup") {
+                fn_803C606C(m170, m90, csv);
+            } else if (s == "Gimmick") {
+                s = csv.fn_8005B9CC();
+                unsigned int base = 0;
+                if (m104.GetData_unk() == 0) {
+                    m104.Resize_unk(atoi(s.c_str()), 3, "SceneGimmick");
+                } else {
+                    base = fn_80089ACC(&m104);
+                    m104.Grow_unk(base + atoi(s.c_str()), 3, "SceneGimmick");
+                }
+                unsigned int i = base;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    m104[i].mIndex = base + atoi(s.c_str());
+                    fn_803C3724(&m104[i], csv);
+                    m104[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+                    csv.fn_8005B9CC();
+                    m104[i].m18 = atoi(csv.fn_8005B9CC());
+                    m104[i].m1C = atoi(csv.fn_8005B9CC());
+                    for (int k = 0; k < 8; k++) {
+                        m104[i].m20[k] = atoi(csv.fn_8005B9CC());
+                    }
+                    for (int k = 0; k < 8; k++) {
+                        m104[i].m40[k] = fn_800DC288(csv.fn_8005B9CC());
+                    }
+                    fn_803C3798(m104[i].m60, csv);
+                    fn_803C380C(m104[i].m70, csv);
+                    m104[i].m7C = 1;
+                    i++;
+                }
+            } else if (s == "CameraBox") {
+                s = csv.fn_8005B9CC();
+                unsigned int base = 0;
+                if (m10C.GetData_unk() == 0) {
+                    m10C.Resize_unk(atoi(s.c_str()), 3, "SceneCameraBox");
+                } else {
+                    base = fn_80089ACC(&m10C);
+                    m10C.Grow_unk(base + atoi(s.c_str()), 3, "SceneCameraBox");
+                }
+                unsigned int i = base;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    m10C[i].mIndex = base + atoi(s.c_str());
+                    fn_803C3724(&m10C[i], csv);
+                    m10C[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+                    csv.fn_8005B9CC();
+                    m10C[i].m18 = fn_800DC288(csv.fn_8005B9CC());
+                    m10C[i].m1C = fn_800DC288(csv.fn_8005B9CC());
+                    m10C[i].m20 = fn_800DC288(csv.fn_8005B9CC());
+                    fn_803C3798(m10C[i].m38, csv);
+                    m10C[i].m24 = atoi(csv.fn_8005B9CC());
+                    m10C[i].m28 = atoi(csv.fn_8005B9CC());
+                    m10C[i].m2C = atoi(csv.fn_8005B9CC());
+                    m10C[i].m30 = atoi(csv.fn_8005B9CC());
+                    m10C[i].m34 = atoi(csv.fn_8005B9CC());
+                    fn_803C380C(m10C[i].m48, csv);
+                    m10C[i].m54 = 1;
+                    i++;
+                }
+            } else if (s == "BgmBox") {
+                s = csv.fn_8005B9CC();
+                unsigned int base = 0;
+                if (m114.GetData_unk() == 0) {
+                    m114.Resize_unk(atoi(s.c_str()), 3, "SceneBgmBox");
+                } else {
+                    base = fn_80089ACC(&m114);
+                    m114.Grow_unk(base + atoi(s.c_str()), 3, "SceneBgmBox");
+                }
+                unsigned int i = base;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    m114[i].mIndex = base + atoi(s.c_str());
+                    fn_803C3724(&m114[i], csv);
+                    m114[i].m14 = fn_800DC288(csv.fn_8005B9CC());
+                    csv.fn_8005B9CC();
+                    m114[i].m18 = fn_800DC288(csv.fn_8005B9CC());
+                    m114[i].m1C = fn_800DC288(csv.fn_8005B9CC());
+                    m114[i].m20 = fn_800DC288(csv.fn_8005B9CC());
+                    fn_803C3798(m114[i].m30, csv);
+                    m114[i].mBgm = atoi(csv.fn_8005B9CC());
+                    m114[i].m28 = fn_800DC288(csv.fn_8005B9CC());
+                    m114[i].m2C = atoi(csv.fn_8005B9CC());
+                    fn_803C380C(m114[i].m40, csv);
+                    m114[i].m4C = 1;
+                    i++;
+                }
+            } else if (s == "MovePointConnection" && file <= 0) {
+                gs::Table2D_unk<unsigned short> table;
+                table.Alloc(m74, m74);
+                unsigned int row = 0;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    for (int k = 0; k < m74; k++) {
+                        table[row][k] = atoi(csv.fn_8005B9CC());
+                    }
+                    row++;
+                }
+                atn::MemoryManager::Instance()->SetMode_unk(1, 0x20);
+                mA0.Resize_unk(m74, 3, "ScenePointConnect");
+                for (unsigned int j = 0; j < fn_80089ACC(&mA0); j++) {
+                    fn_803CCF64(&mA0[j], table[j], fn_80089ACC(&mA0));
+                }
+                atn::MemoryManager::Instance()->ResetMode_unk();
+            } else if (s == "MovePointConnectionPack" && file <= 0) {
+                mA0.Resize_unk(m74, 3, "ScenePointConnect");
+                unsigned int j = 0;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    fn_803CD598(&mA0[j], &csv, m74);
+                    j++;
+                }
+            } else if (s == "HideVsHideConnection" && file <= 0) {
+                if (version >= 7) {
+                    std::vector<gs::HideLink_unk> links;
+                    std::vector<gs::HideLink2_unk> links2;
+                    while (csv.fn_8005BBF8()) {
+                        s = csv.fn_8005B9CC();
+                        if (s == "end") {
+                            break;
+                        }
+                        if (s[0] == ';') {
+                            continue;
+                        }
+                        atoi(csv.GetField_unk());
+                        int from = atoi(csv.fn_8005B9CC());
+                        int to = atoi(csv.fn_8005B9CC());
+                        int flags = atoi(csv.fn_8005B9CC());
+                        if ((flags & 1) == 1) {
+                            gs::HideLink_unk link;
+                            link.mFrom = from;
+                            link.mTo = to;
+                            link.m08 = 1;
+                            link.mMid = (mAC[from].mPos + mAC[to].mPos) * 0.5f;
+                            links.push_back(link);
+                        }
+                        if ((flags & 4) == 4) {
+                            gs::HideLink2_unk link2;
+                            link2.mFrom = from;
+                            link2.mTo = to;
+                            link2.m08 = 1;
+                            links2.push_back(link2);
+                        }
+                    }
+                    mB4.Resize_unk(links.size(), 3, "ScenePointConnect");
+                    for (unsigned int j = 0; j < links.size(); j++) {
+                        mB4[j] = links[j];
+                    }
+                    mBC.Resize_unk(links2.size(), 3, "ScenePointConnect");
+                    for (unsigned int j = 0; j < links2.size(); j++) {
+                        mBC[j] = links2[j];
+                    }
+                } else {
+                    s = csv.fn_8005B9CC();
+                    gs::Table2D_unk<unsigned char> table;
+                    table.Alloc(mA8, mA8);
+                    unsigned int row = 0;
+                    while (csv.fn_8005BBF8()) {
+                        s = csv.fn_8005B9CC();
+                        if (s == "end") {
+                            break;
+                        }
+                        if (s[0] == ';') {
+                            continue;
+                        }
+                        for (int k = 0; k < mA8; k++) {
+                            table[row][k] = atoi(csv.fn_8005B9CC());
+                        }
+                        row++;
+                    }
+                    std::vector<gs::HideLink_unk> links;
+                    std::vector<gs::HideLink2_unk> links2;
+                    for (unsigned int a = 0; a < fn_80089ACC(&mAC); a++) {
+                        for (unsigned int b = 0; b < fn_80089ACC(&mAC); b++) {
+                            if ((table[a][b] & 1) == 1) {
+                                gs::HideLink_unk link;
+                                link.mFrom = a;
+                                link.mTo = b;
+                                link.m08 = 1;
+                                link.mMid = (mAC[a].mPos + mAC[b].mPos) * 0.5f;
+                                links.push_back(link);
+                            }
+                            if ((table[a][b] & 4) == 4) {
+                                gs::HideLink2_unk link2;
+                                link2.mFrom = a;
+                                link2.mTo = b;
+                                link2.m08 = 1;
+                                links2.push_back(link2);
+                            }
+                        }
+                    }
+                    mB4.Resize_unk(links.size(), 3, "ScenePointConnect");
+                    for (unsigned int j = 0; j < links.size(); j++) {
+                        mB4[j] = links[j];
+                    }
+                    mBC.Resize_unk(links2.size(), 3, "ScenePointConnect");
+                    for (unsigned int j = 0; j < links2.size(); j++) {
+                        mBC[j] = links2[j];
+                    }
+                }
+            } else if (s == "InteractionConnection" && file <= 0) {
+                mCC.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "ScenePointConnect");
+                unsigned int j = 0;
+                while (csv.fn_8005BBF8()) {
+                    s = csv.fn_8005B9CC();
+                    if (s == "end") {
+                        break;
+                    }
+                    if (s[0] == ';') {
+                        continue;
+                    }
+                    mCC[j].m00 = atoi(s.c_str());
+                    mCC[j].m04 = atoi(csv.fn_8005B9CC());
+                    j++;
+                }
+            } else if (s == "EventIdList") {
+                int count = atoi(csv.fn_8005B9CC());
+                int i = 0;
+                if (m180.GetData_unk() == 0) {
+                    m180.Resize_unk(count, 3, "SceneEventIdList");
+                } else {
+                    i = fn_80089ACC(&m180);
+                    m180.Grow_unk(i + count, 3, "SceneEventIdList");
+                }
+                if (csv.fn_8005BBF8()) {
+                    for (; i < (int)fn_80089ACC(&m180); i++) {
+                        m180[i] = abs(atoi(csv.fn_8005B9CC()));
+                    }
+                }
+            }
+        }
+    } while (csv.fn_8005BBF8());
+    for (unsigned int i = boxBase; i < fn_80089ACC(&mE4); i++) {
+        if (mE4[i].m2C > 0) {
+            mE4[i].m2C = mE4.FindIndex_unk(mE4[i].m2C);
+        } else {
+            mE4[i].m2C = -1;
+        }
+    }
+    for (unsigned int i = sphereBase; i < fn_80089ACC(&mEC); i++) {
+        if (mEC[i].m20 > 0) {
+            mEC[i].m20 = mEC.FindIndex_unk(mEC[i].m20);
+        } else {
+            mEC[i].m20 = -1;
+        }
+    }
+}
+
+// NONMATCHING: stub
+template <class T>
+void GameScene::fn_803C74E0(gs::Array_unk<T>& points, atn::Csv& csv, int file) {}
+
+// NONMATCHING: stub
+template <class G, class T>
+void GameScene::fn_803C606C(gs::Array_unk<G>& groups, gs::Array_unk<T>& points, atn::Csv& csv) {}
+
+// NONMATCHING: stub
+template <class G, class T>
+void GameScene::fn_803C6FE4(gs::Array_unk<G>& groups, gs::Array_unk<T>& points, atn::Csv& csv) {}
