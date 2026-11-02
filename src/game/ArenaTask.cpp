@@ -1,4 +1,5 @@
 #include "game/ArenaTask.h"
+#include "game/GameScene.h"
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -52,7 +53,6 @@ struct ArenaVoiceOwner_unk {
     ArenaVoiceWin_unk* m2640;
 };
 extern "C" ArenaVoiceOwner_unk* lbl_8087F490;
-extern "C" void* fn_803CC6B4(RouteTable_unk* table, int id); // inferred: message by id
 extern "C" void fn_803B6970(ArenaVoiceWin_unk* win, void* msg, int arg, float time); // inferred: shows a message
 extern "C" void fn_803B78B4(ArenaVoiceWin_unk* win, void* msg); // inferred: queues a message
 
@@ -301,14 +301,14 @@ void ArenaTask::fn_80043D58(int side) {
     unsigned int n = voices.mCount;
     Voice_unk& v = voices.mData[rand() % n];
 
-    void* msg = fn_803CC6B4(table, v.mFirst);
+    void* msg = ((GameScene*)table)->fn_803CC6B4(v.mFirst);
     if (msg != 0) {
         fn_803B6970(win, msg, 0, 6.0f);
     }
     win->mB4 = 0;
     if (v.mLast > 0) {
         for (int id = v.mFirst + 1; id <= v.mLast; id++) {
-            msg = fn_803CC6B4(table, id);
+            msg = ((GameScene*)table)->fn_803CC6B4(id);
             if (msg != 0) {
                 fn_803B78B4(win, msg);
             }

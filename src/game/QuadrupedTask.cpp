@@ -1,4 +1,5 @@
 #include "game/QuadrupedTask.h"
+#include "game/GameScene.h"
 #include "chr/ControlDropDown.h"
 #include "chr/ControlMountle.h"
 #include "atn/Memory.h"
@@ -344,8 +345,6 @@ void QuadrupedTask::fn_80566FB4() {
     }
 }
 
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6);
 
 // inferred: chooses the move of the AI state (mC58) from the distance to its target
 // NONMATCHING: 88.00% - order of the distance checks and of the stack temporaries
@@ -361,7 +360,7 @@ void QuadrupedTask::fn_80567424(CharaTask* target) {
         d.Length_unk();
     }
     if (target->mC58.m00 == 0) {
-        target->mC58.m0C.mDestPoint = fn_803C1560(table, &target->mPos, target->fn_80179D44(), 0, 0, 1, -1.0f);
+        target->mC58.m0C.mDestPoint = ((GameScene*)table)->fn_803C1560(&target->mPos, target->fn_80179D44(), 0, 0, 1, -1.0f);
     }
     if (target->mC58.mC0 >= 1) {
         if (target->mC58.mDone_unk) {

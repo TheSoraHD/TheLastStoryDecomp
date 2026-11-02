@@ -1,4 +1,5 @@
 #include "game/CrowdManager.h"
+#include "game/GameScene.h"
 #include "game/CrowdSimulation.h"
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
@@ -28,8 +29,6 @@ struct CrowdField_unk {
     int mMode;  // 0x54E4
 };
 extern "C" CrowdField_unk* lbl_8087F430;
-extern "C" int fn_803C1560(void* routes, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float dist); // inferred: nearest route point
 // inferred: camera (only the members used here)
 struct CrowdCamera_unk {
     unsigned char m000[0x10C];
@@ -128,7 +127,7 @@ void CrowdManager::vf10() {
                 atn::Vector3 d(npc->mPos.x - mCenter.x, npc->mPos.y - mCenter.y, npc->mPos.z - mCenter.z);
                 if (PSVECSquareMag(&d) > kill) {
                     CrowdSimulation* sim = CrowdSimulation::sInstance;
-                    for (unsigned int i = 0; (int)i < sim->mWalkers.mSize; i++) {
+                    for (int i = 0; i < sim->mWalkers.mSize; i++) {
                         if (npc == sim->mWalkers[i].mChara) {
                             fn_801EB7C4(&sim->mWalkers[i]);
                         }
@@ -295,7 +294,7 @@ void CrowdManager::fn_801EB7C4(CrowdWalker_unk* walker) {
     mCount--;
     mGroupCount.mData[npc->m142C]--;
     routes = lbl_8087F430->mRoutes;
-    int point = fn_803C1560(routes, &npc->mPos, npc->fn_80179D44(), 0, 0, 1, -1.0f);
+    int point = ((GameScene*)routes)->fn_803C1560(&npc->mPos, npc->fn_80179D44(), 0, 0, 1, -1.0f);
     i = 0;
     walker->mPoint = point;
     walker->mDest = point;

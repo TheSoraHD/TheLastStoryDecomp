@@ -1,4 +1,5 @@
 #include "game/Em101LittleZesya.h"
+#include "game/GameScene.h"
 #include "chr/ControlBase.h"
 #include "chr/ControlDive.h"
 #include "game/CharaManager.h"
@@ -24,8 +25,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);         // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6); // inferred: nearest route point (as in gmk/MeetingSpot.cpp)
 // inferred: collision world and its ray test (as in game/ChaserNpc.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -316,7 +315,7 @@ inline int Em101LittleZesya::Nearest_unk(const atn::Vector3& pos) {
 // inferred: route point next to `target` (at most 40 from it, dropped to the ground) and the rotation
 // looking at the target; name invented
 inline void Em101LittleZesya::WarpNear_unk(CharaTask* target, atn::Vector3* dest, float* rot) {
-    int point = fn_803C1560(lbl_8087F430->m10D8, &target->mPos, 0, 0, 0, 1, -1.0f);
+    int point = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&target->mPos, 0, 0, 0, 1, -1.0f);
     *dest = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
     *rot = (target->mPos - *dest).ToRotationZ_unk().y;
     atn::Vector3 e = *dest - target->mPos;
@@ -548,7 +547,7 @@ void Em101LittleZesya::fn_8025E100() {
         CharaTask* target = m14B8;
         mMotion.mTracks[0].m08 = 0.0f;
         if (target != 0) {
-            int point = fn_803C1560(lbl_8087F430->m10D8, &target->mPos, 0, 0, 0, 1, -1.0f);
+            int point = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&target->mPos, 0, 0, 0, 1, -1.0f);
             *dest = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
             m1558 = (target->mPos - *dest).ToRotationZ_unk().y;
             atn::Vector3 e = *dest - target->mPos;

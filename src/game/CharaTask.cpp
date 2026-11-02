@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/GameScene.h"
 #include "game/SkillEffectManager.h"
 #include "game/Inventory.h"
 #include "atn/LoadHandle.h"
@@ -8225,7 +8226,6 @@ inline atn::Vector3 GetFront2_unk(Mtx m, const atn::Vector3& rot) {
 }
 
 // inferred: route test from `pos` along `dir` (game route table at lbl_8087F430->m10D8)
-extern "C" int fn_803CC198(RouteTable_unk* table, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
 
 // inferred: starts an attack toward `pos`; `dist` is the distance kept from the target, `type` 1/2
 // selects a jump attack (2 = second kind), otherwise a dash or jump attack is chosen by ray tests.
@@ -8282,7 +8282,7 @@ void CharaTask::fn_801562A0(HitInfo_unk* hit, const atn::Vector3& pos, int type,
             from.y += 8.0f;
             to.y += 8.0f;
             if (!fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0) &&
-                fn_803CC198(lbl_8087F430->m10D8, &mPos, &dir, this)) {
+                ((GameScene*)lbl_8087F430->m10D8)->fn_803CC198(&mPos, &dir, this)) {
                 jump = true;
             }
         }
@@ -9979,7 +9979,6 @@ bool CharaTask::fn_8016F67C() {
     return false;
 }
 
-extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> start index
 
 void CharaTask::fn_8016F824(int point, int arg) {
     RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
@@ -9987,7 +9986,7 @@ void CharaTask::fn_8016F824(int point, int arg) {
         return;
     }
     if (point > 0) {
-        mRoute.fn_80128508(fn_803C17FC(table, point), &mPos, arg);
+        mRoute.fn_80128508(((GameScene*)table)->fn_803C17FC(point), &mPos, arg);
         if (mRoute.fn_801255C8()) {
             fn_801718F8();
             return;
@@ -10001,7 +10000,6 @@ void CharaTask::fn_8016F824(int point, int arg) {
     }
 }
 
-extern "C" int fn_803C1840(RouteTable_unk* table, int point); // inferred: route point -> link
 
 void CharaTask::fn_8016FDCC(int point, int arg) {
     RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
@@ -10009,7 +10007,7 @@ void CharaTask::fn_8016FDCC(int point, int arg) {
         return;
     }
     if (point > 0) {
-        int link = fn_803C1840(table, point);
+        int link = ((GameScene*)table)->fn_803C1840(point);
         if (IsOnLedge_unk() && (mC38 == link || mC3C == link)) {
             return;
         }
@@ -10194,7 +10192,7 @@ int CharaTask::fn_801720AC(atn::Vector3* pos, atn::Vector3* vel) {
         to.y += 5.0f;
         to += dir * (3.0f + m620);
         if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000000, 0, 0) != 0 &&
-            fn_803CC198(lbl_8087F430->m10D8, pos, &dir, this)) {
+            ((GameScene*)lbl_8087F430->m10D8)->fn_803CC198(pos, &dir, this)) {
             StartMountle_unk(this, dir);
             return 1;
         }
@@ -10295,7 +10293,6 @@ inline bool IsSameTypes_unk(int a, int b) {
 }
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 // inferred: nonzero if a wall can be climbed from `pos` along `dir` (route table query)
-extern "C" int fn_803CC3BC(RouteTable_unk* table, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
 
 // inferred: same tests as CharaTask::IsActive_unk, IsFree_unk, IsGrappled_unk, CanAct_unk and
 // CanReact_unk, written with a result variable (each level is materialized in fn_80172EFC); names
@@ -10398,7 +10395,7 @@ int CharaTask::fn_80172EFC(atn::Vector3* pos, atn::Vector3* move) {
     to += dir * (5.0f + (3.0f + m620));
     CollResult_unk result;
     if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x80000020, 0, 0) != 0) {
-        if (++m13AC > limit && fn_803CC3BC(lbl_8087F430->m10D8, pos, &dir, this) != 0 &&
+        if (++m13AC > limit && ((GameScene*)lbl_8087F430->m10D8)->fn_803CC3BC(pos, &dir, this) != 0 &&
             PSVECDotProduct(&result.m28, &-dir) > 0.8660254f) {
             atn::Vector3 hit(result.m04);
             atn::Vector3 normal(result.m28);
@@ -10898,7 +10895,6 @@ CharaTask::Sphere_unk CharaTask::fn_80176548(const atn::Vector3& pos) {
     return sphere;
 }
 
-extern "C" void fn_803CC718(RouteTable_unk* table, CharaTask* chara, int arg);
 
 void CharaTask::fn_801765D8() {
     mFlags |= 4;
@@ -10924,7 +10920,7 @@ void CharaTask::fn_801765D8() {
     if (lbl_8087F430 != 0) {
         RouteTable_unk* table = lbl_8087F430->m10D8;
         if (table != 0 && (table->m38 & 2) == 2) {
-            fn_803CC718(table, this, 0);
+            ((GameScene*)table)->fn_803CC718(this, 0);
         }
     }
 }
@@ -10938,7 +10934,7 @@ void CharaTask::fn_80176ACC() {
     if (lbl_8087F430 != 0) {
         RouteTable_unk* table = lbl_8087F430->m10D8;
         if (table != 0 && (table->m38 & 2) == 2) {
-            fn_803CC718(table, this, 1);
+            ((GameScene*)table)->fn_803CC718(this, 1);
         }
     }
 }

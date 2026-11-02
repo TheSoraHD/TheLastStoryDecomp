@@ -1,4 +1,5 @@
 #include "game/Em101LittleZesyaSecond.h"
+#include "game/GameScene.h"
 #include "game/CharaManager.h"
 #include "game/HomingBullet.h"
 #include "game/PlayerTask.h"
@@ -140,8 +141,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a, float b);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6); // inferred: nearest route point (as in gmk/MeetingSpot.cpp)
 // inferred: collision world and its ray test (as in game/Em101LittleZesya.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -789,7 +788,7 @@ void Em101LittleZesyaSecond::fn_802621D4(atn::Vector3* pos, float* rot) {
     if (fn_8004ED34(lbl_8087EE98, &result, pos, &to, 0x80000000, &mColli, 0) != 0) {
         *pos = result.m10;
     }
-    int point = fn_803C1560(lbl_8087F430->m10D8, pos, 0, 0, 0, 1, -1.0f);
+    int point = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(pos, 0, 0, 0, 1, -1.0f);
     *pos = lbl_8087F430->m10D8->mPoints[point - 1].mPos;
     *rot = (m14B8->mPos - *pos).ToRotationZ_unk().y;
 }

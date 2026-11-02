@@ -1,4 +1,5 @@
 #include "game/CharaStatus.h"
+#include "game/GameScene.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
 #include "game/CharaTask.h"
@@ -100,8 +101,6 @@ int RouteWalker_unk::fn_80125474() {
 struct RouteFinder_unk;
 extern "C" RouteFinder_unk* lbl_8087EE68;
 extern "C" int fn_80019E88(RouteFinder_unk* finder, atn::Vector3* pos, int* point, int link, int arg);
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6);
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 struct ColliWorld_unk;
@@ -149,7 +148,7 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
     RouteTable_unk* table = GetRouteTable_unk();
     if (table != 0 && start > 0) {
         fn_8012539C();
-        int end = fn_803C1560(table, dest, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
+        int end = ((GameScene*)table)->fn_803C1560(dest, mChara->fn_80179D44(), 0, mA0, 1, -1.0f);
         if (end > 0) {
             mMode = 0;
             m48 = arg;
@@ -179,7 +178,7 @@ void RouteWalker_unk::fn_801286F0(int link, const atn::Vector3* b, int c) {
         atn::Vector3 pos;
         int point;
         if (fn_80019E88(lbl_8087EE68, &pos, &point, link, 0) != 0) {
-            fn_80128508(fn_803C1560(table, &table->GetLink_unk(link)->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f),
+            fn_80128508(((GameScene*)table)->fn_803C1560(&table->GetLink_unk(link)->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f),
                         b, c);
             table->GetLink_unk(link)->m3C = 1;
             mLink = link;
@@ -201,7 +200,7 @@ void RouteWalker_unk::fn_80128818(int id, const atn::Vector3* b, int c) {
         return;
     }
     fn_8012539C();
-    fn_80128508(fn_803C1560(table, &place->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), b, c);
+    fn_80128508(((GameScene*)table)->fn_803C1560(&place->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), b, c);
     mMode = 3;
     m48 = c;
     mPlace = id;
@@ -217,7 +216,7 @@ void RouteWalker_unk::fn_80128930(chr::Chara_unk* target, const atn::Vector3* de
         return;
     }
     fn_8012539C();
-    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+    fn_80128508(((GameScene*)table)->fn_803C1560(&target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
     mMode = 4;
     m48 = arg;
     mTarget = target;
@@ -229,7 +228,7 @@ void RouteWalker_unk::fn_80128A30(const atn::Vector3* pos, const atn::Vector3* d
     RouteTable_unk* table = GetRouteTable_unk();
     if (table != 0) {
         fn_8012539C();
-        fn_80128508(fn_803C1560(table, pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+        fn_80128508(((GameScene*)table)->fn_803C1560(pos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
         mMode = 5;
         m48 = arg;
         m30 = *pos;
@@ -245,7 +244,7 @@ void RouteWalker_unk::fn_80128B20(chr::Chara_unk* target, const atn::Vector3* de
         return;
     }
     fn_8012539C();
-    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+    fn_80128508(((GameScene*)table)->fn_803C1560(&target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
     mMode = 6;
     m48 = arg;
     mTarget = target;
@@ -258,7 +257,7 @@ void RouteWalker_unk::fn_80128C08(chr::Chara_unk* target, const atn::Vector3* de
         return;
     }
     fn_8012539C();
-    fn_80128508(fn_803C1560(table, &target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
+    fn_80128508(((GameScene*)table)->fn_803C1560(&target->mPos, mChara->fn_80179D44(), 0, mA0, 1, -1.0f), dest, arg);
     mMode = 7;
     m48 = arg;
     mTarget = target;

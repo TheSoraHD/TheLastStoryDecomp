@@ -1,4 +1,5 @@
 #include "game/GameUI.h"
+#include "game/GameScene.h"
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskInstance.h"
 
@@ -52,7 +53,6 @@ extern "C" void fn_803B78E8(void* self); // inferred: closes the window (game/Ga
 extern "C" void fn_803B57B0(int window, int enabled); // inferred: game/GameChoiceWindow.cpp
 extern "C" void fn_803B6C88(GameUIWindow_unk* window, int arg);
 extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float time); // inferred: shows a message
-extern "C" int fn_803CC900(atn::Task* table); // inferred: number of entries
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the hit heals
 extern "C" int fn_8021A9CC(HitInfo_unk* hit); // inferred: kind test
@@ -399,7 +399,7 @@ int GameUI::vf0C() {
 void GameUI::vf10() {
     fn_803E668C();
     if (m840 != 0 && !m840->IsFlag_unk(4) && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0 &&
-        lbl_8087F430->m10D8->IsFlag_unk(2) && fn_803CC900(lbl_8087F430->m10D8) > 0) {
+        lbl_8087F430->m10D8->IsFlag_unk(2) && ((GameScene*)lbl_8087F430->m10D8)->fn_803CC900() > 0) {
         if (mSeState == 0) {
             if (m840->mFrame >= 4.0f) {
                 fn_800C31F4(lbl_80750618[4], 0, -1, 0.6f);
@@ -1104,7 +1104,7 @@ void GameUI::fn_803D2A6C() {
                             m83C->SetFrame_unk(1.0f);
                             if (fn_80121F00() != 0 && fn_80121F00()->fn_8013C504() != 0 &&
                                 fn_80244CA0(fn_80121F00()->fn_8013C504()) &&
-                                fn_803CC900(fn_80121F00()->fn_8013C504()) > 0) {
+                                ((GameScene*)fn_80121F00()->fn_8013C504())->fn_803CC900() > 0) {
                                 mSeState = 1;
                                 mSeMask |= 0x10;
                             }

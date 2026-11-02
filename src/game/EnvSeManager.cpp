@@ -347,7 +347,7 @@ void EnvSeManager::fn_8035ECCC() {
 
 // NONMATCHING: 99.7% - counter and offset of the loop swapped (r30/r31)
 void EnvSeManager::fn_8035F33C(const char* path) {
-    for (unsigned int i = 0; i < (unsigned int)mRecords.mSize; i++) {
+    for (int i = 0; i < (unsigned int)mRecords.mSize; i++) {
         if (mRecords[i].mTask != 0) {
             fn_800D2338(mRecords[i].mTask);
         }

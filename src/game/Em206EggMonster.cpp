@@ -1,4 +1,5 @@
 #include "atn/Color4f_unk.h"
+#include "game/GameScene.h"
 #include "atn/DrawHelper.h"
 #include "game/Em206EggMonster.h"
 #include "game/EnemyManager.h"
@@ -195,7 +196,6 @@ struct CollResult_unk {
 };
 extern "C" void fn_8004D388(void* mgr, CollResult_unk* result, CharaTask::Sphere_unk* sphere, atn::Vector3* move,
                             unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
-extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> index (1-based)
 // inferred: angle wrap to [-180, 180] (name invented)
 inline float WrapDeg_unk(float deg) {
     float d = fmod(deg, 360.0);
@@ -1012,7 +1012,7 @@ int Em206EggMonster::fn_802C38E4() {
     }
     if (next == 4) {
         RouteTable_unk* routes = lbl_8087F430->m10D8;
-        int index = fn_803C17FC(routes, 0x13);
+        int index = ((GameScene*)routes)->fn_803C17FC(0x13);
         if (index != 0) {
             atn::Vector3 d = routes->mPoints[index - 1].mPos - mPos;
             if (PSVECMag(&d) < 150.0f) {

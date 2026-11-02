@@ -1,4 +1,5 @@
 #include "gmk/MeetingSpot.h"
+#include "game/GameScene.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/NpcManager.h"
@@ -14,8 +15,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6);
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: link between two points
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: camera (only the position)
@@ -80,7 +79,7 @@ void MeetingSpot::Start() {
     if (mDesc->m2C == 1 || mDesc->m2C == 4) {
         m78.y = atn::WrapAngle_unk(3.1415927f + m78.y);
     }
-    m10C = fn_803C1560(lbl_8087F430->m10D8, &m6C, 0, 0, 0, 1, -1.0f);
+    m10C = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&m6C, 0, 0, 0, 1, -1.0f);
     fn_803FD328(0);
 }
 

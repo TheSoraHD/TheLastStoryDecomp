@@ -1,4 +1,5 @@
 #include "game/CrowdSimulation.h"
+#include "game/GameScene.h"
 #include "game/CharaStatus.h"
 #include "atn/Memory.h"
 #include <boost/function.hpp>
@@ -11,7 +12,6 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
-extern "C" atn::Vector3 fn_803C11A4(RouteTable_unk* table, int point);  // inferred: position of a point
 
 // inferred: field status (lbl_8087F430); only the members used here
 struct Field_unk {
@@ -79,7 +79,7 @@ CrowdSimulation::CrowdSimulation(atn::Task* parent, CrowdDesc_unk* data)
             mWalkers[index].mChara = 0;
             atn::Vector3 dir(0.0f, 2.0f * ((rand() % 1001) / 1000.0f) - 1.0f, 0.0f);
             mWalkers[index].mDir = dir;
-            mWalkers[index].mPos = fn_803C11A4(lbl_8087F430->m10D8, point);
+            mWalkers[index].mPos = ((GameScene*)lbl_8087F430->m10D8)->fn_803C11A4(point);
             mWalkers[index].mNext = atn::Vector3(0.0f, 0.0f, 0.0f);
             index++;
         }
@@ -109,8 +109,7 @@ void CrowdSimulation::vf10() {
                                                     mDesc->mGroups[walker->mGroup].mRoute, 0, 1, walker->mDir.y,
                                                     360.0f, 100.0f, 10000.0f);
                         if (walker->mDest != 0 && walker->mPoint != walker->mDest) {
-                            walker->mNext = fn_803C11A4(
-                                table, fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8),
+                            walker->mNext = ((GameScene*)table)->fn_803C11A4(fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8),
                                                    walker->mDest - 1));
                             walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         }
@@ -120,7 +119,7 @@ void CrowdSimulation::vf10() {
                         if (LengthSq_unk(walker->mNext - walker->mPos) < limit) {
                             walker->mPoint = fn_803CD958(
                                 (RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8), walker->mDest - 1);
-                            walker->mNext = fn_803C11A4(table, walker->mPoint);
+                            walker->mNext = ((GameScene*)table)->fn_803C11A4(walker->mPoint);
                             walker->mDir = (walker->mNext - walker->mPos).GetNormalize();
                         } else {
                             walker->mPos += walker->mDir * mDesc->mGroups[walker->mGroup].mSpeed;

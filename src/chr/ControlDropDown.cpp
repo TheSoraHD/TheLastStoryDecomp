@@ -1,4 +1,5 @@
 #include "chr/ControlDropDown.h"
+#include "game/GameScene.h"
 #include "game/CharaManager.h"
 
 extern "C" int rand();
@@ -20,9 +21,6 @@ struct DropField_unk {
 };
 extern "C" DropField_unk* lbl_8087F430;
 extern "C" int fn_80370174(DropField_unk* field, int id); // inferred: field flag
-extern "C" int fn_803C1560(void* routes, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float dist); // inferred: nearest route point
-extern "C" atn::Vector3 fn_803C11A4(void* routes, int point); // inferred: position of a route point
 // inferred: camera settings (lbl_8087EFA8)
 struct DropCamera_unk {
     unsigned char m000[0x3A4];
@@ -214,9 +212,9 @@ int ControlDropDown::vf0C() {
                     }
                     void* routes = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
                     if (routes != 0) {
-                        int point = fn_803C1560(routes, &mChara->mPos, 0, 0, 0, 0, -1.0f);
+                        int point = ((GameScene*)routes)->fn_803C1560(&mChara->mPos, 0, 0, 0, 0, -1.0f);
                         if (point > 0) {
-                            mChara->mPos = fn_803C11A4(routes, point);
+                            mChara->mPos = ((GameScene*)routes)->fn_803C11A4(point);
                         }
                     }
                 }

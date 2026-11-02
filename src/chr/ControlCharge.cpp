@@ -2,6 +2,7 @@
 // its subclasses ControlChargeAttack, ControlHighJumpAttack, ControlQuarkSeirenAttack;
 // ControlZanTackle).
 #include "chr/ControlCharge.h"
+#include "game/GameScene.h"
 #include "chr/ControlDive.h"
 #include "game/HitInfo_unk.h"
 #include "gmk/Lemon.h"
@@ -78,7 +79,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
 extern "C" int fn_8036DAA8(Field_unk* field);
 extern "C" FieldMode_unk* fn_80373148(Field_unk* field);
-extern "C" int fn_803CC1A4(void* walls, const atn::Vector3* pos, float radius, float cos, const atn::Vector3* dir);
 extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7); // inferred: sweep test
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -449,7 +449,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
     while (loop) {
         loop = false;
         if (fn_8004ED34(lbl_8087EE98, &res, a, b, mask, 0, 0) != 0) {
-            if (fn_803CC1A4(lbl_8087F430->m10D8, &res.m04, 6.0f, 0.25881904f, &dir) != 0) {
+            if (((GameScene*)lbl_8087F430->m10D8)->fn_803CC1A4(&res.m04, 6.0f, 0.25881904f, &dir) != 0) {
                 a = res.m04 + dir * 0.1f;
                 loop = PSVECSquareMag(&(a - b)) > 1.0f;
             } else if (PSVECDotProduct(&res.m28, &atn::Vector3(0.0f, 1.0f, 0.0f)) > 0.70710677f) {

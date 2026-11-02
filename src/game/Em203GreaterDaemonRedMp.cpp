@@ -1,4 +1,5 @@
 #include "game/Em203GreaterDaemonRedMp.h"
+#include "game/GameScene.h"
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
 #include "atn/Keyboard.h"
@@ -139,8 +140,6 @@ struct FrameTime_unk {
 extern "C" FrameTime_unk* lbl_8087EFA8;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6); // inferred: nearest route point
 // inferred: skill effect manager (lbl_8087F9E8): 32 effects of 0x140 bytes at 0x48
 struct RedSkill_unk {
     int m00; // inferred: state (3 = finished)
@@ -1423,7 +1422,7 @@ int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
         }
     }
     RouteTable_unk* table = lbl_8087F430->m10D8;
-    int index = fn_803C1560(table, &m15A8[nearest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+    int index = ((GameScene*)table)->fn_803C1560(&m15A8[nearest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
     m156C = &table->mPoints[index];
     return 1;
 }
@@ -1451,7 +1450,7 @@ int Em203GreaterDaemonRedMp::fn_802A42CC() {
     }
     fn_802A4194(1);
     table = lbl_8087F430->m10D8;
-    int index = fn_803C1560(table, &m15A8[farthest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+    int index = ((GameScene*)table)->fn_803C1560(&m15A8[farthest]->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
     m1570 = &table->mPoints[index];
     if (m156C == 0 || m1570 == 0) {
         return 0;

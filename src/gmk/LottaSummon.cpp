@@ -1,4 +1,5 @@
 #include "gmk/LottaSummon.h"
+#include "game/GameScene.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
@@ -45,7 +46,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: finds the place where `chara` stands in the route tables
-extern "C" int fn_803CCA84(void* routes, CharaTask* chara, atn::Vector3* pos, atn::Vector3* rot);
 
 // inferred: request of an event (names invented)
 struct EventRequest_unk {
@@ -179,7 +179,7 @@ void LottaSummon::vf10() {
                 void* routes = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
                 atn::Vector3 pos;
                 atn::Vector3 rot;
-                if (routes != 0 && fn_803CCA84(routes, mNpc, &pos, &rot) != 0) {
+                if (routes != 0 && ((GameScene*)routes)->fn_803CCA84(mNpc, &pos, &rot) != 0) {
                     SetPos_unk(mNpc, pos);
                     SetRot_unk(mNpc, rot);
                 }

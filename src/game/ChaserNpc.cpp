@@ -1,4 +1,5 @@
 #include "game/ChaserNpc.h"
+#include "game/GameScene.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "atn/Csv.h"
@@ -43,8 +44,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float radius); // inferred: nearest route point
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
 // inferred: collision world and its ray test (see CharaTask.cpp)
 struct CollResult_unk {
@@ -354,8 +353,8 @@ void ChaserNpc::fn_80181A64() {
     CharaTask* player = lbl_8087F8A0->mHead;
     RouteTable_unk* table = lbl_8087F430->m10D8;
     int found = -1;
-    int playerPoint = fn_803C1560(table, &player->mPos, player->fn_80179D44(), 0, 0, 1, -1.0f);
-    int point = fn_803C1560(table, &mPos, fn_80179D44(), 0, 0, 1, -1.0f);
+    int playerPoint = ((GameScene*)table)->fn_803C1560(&player->mPos, player->fn_80179D44(), 0, 0, 1, -1.0f);
+    int point = ((GameScene*)table)->fn_803C1560(&mPos, fn_80179D44(), 0, 0, 1, -1.0f);
     atn::Vector3 away = (player->mPos - mPos).GetNormalize();
     int count = 0;
     int best = -1;
@@ -363,7 +362,7 @@ void ChaserNpc::fn_80181A64() {
     float bestAngle = 0.0f;
     while (found == -1) {
         RoutePlace_unk* place = table->FindPlace_unk(m14B4[i]);
-        int dest = fn_803C1560(table, &place->mPos, fn_80179D44(), 0, 0, 1, -1.0f);
+        int dest = ((GameScene*)table)->fn_803C1560(&place->mPos, fn_80179D44(), 0, 0, 1, -1.0f);
         bool ok = true;
         count++;
         int next = fn_803CD958((RoutePath_unk*)((char*)table->mPaths + (point - 1) * 8), dest - 1);
@@ -406,7 +405,7 @@ void ChaserNpc::fn_80181D94() {
     RouteWalker_unk& route = mC58.m0C;
     if (route.fn_80125474() == 0) {
         RouteTable_unk* table = lbl_8087F430->m10D8;
-        int point = fn_803C1560(table, &mPos, 0, 0, 0, 1, -1.0f);
+        int point = ((GameScene*)table)->fn_803C1560(&mPos, 0, 0, 0, 1, -1.0f);
         if (point != 0) {
             mPos = table->mPoints[point - 1].mPos;
         } else {

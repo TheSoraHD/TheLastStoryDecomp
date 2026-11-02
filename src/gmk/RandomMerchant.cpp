@@ -1,4 +1,5 @@
 #include "gmk/RandomMerchant.h"
+#include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
@@ -63,7 +64,6 @@ struct MerchantMsg_unk {
     int m30;
     int m34;
 };
-extern "C" MerchantMsg_unk* fn_803CC6B4(void* table, int id);                 // inferred: message by id
 extern "C" void itow(int value, wchar_t* buf, int radix);
 extern "C" void fn_800DD8A8(wchar_t* buf, const wchar_t* format, int count, ...); // inferred: formats a message
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -306,7 +306,7 @@ void RandomMerchant::vf10() {
                 sprintf(buf, "cannot found item %d!", mItemId);
                 ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
             }
-            MerchantMsg_unk* msg = fn_803CC6B4(lbl_8087F430->m10D8, mEntries[mCur].m290);
+            MerchantMsg_unk* msg = (MerchantMsg_unk*)((GameScene*)lbl_8087F430->m10D8)->fn_803CC6B4(mEntries[mCur].m290);
             wchar_t numText[0x40] = {0};
             wchar_t priceText[0x40] = {0};
             itow(mItemNum, numText, 10);

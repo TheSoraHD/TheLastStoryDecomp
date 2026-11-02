@@ -1,4 +1,5 @@
 #include "chr/ControlCliffhang.h"
+#include "game/GameScene.h"
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
@@ -31,7 +32,6 @@ struct CliffField_unk {
     CliffTable_unk* m10D8;
 };
 extern "C" CliffField_unk* lbl_8087F430;
-extern "C" CliffLink_unk* fn_803C18DC(CliffTable_unk* table, int type, int link);
 
 // inferred: game state (lbl_8087EFA8): m3A4 is the time scale
 struct GameState_unk {
@@ -261,7 +261,7 @@ int ControlCliffhang::fn_801AB9E4(int route) {
     if (table == 0) {
         return 0;
     }
-    CliffLink_unk* link = fn_803C18DC(table, 5, route);
+    CliffLink_unk* link = (CliffLink_unk*)((GameScene*)table)->fn_803C18DC(5, route);
     if (link == 0) {
         return 0;
     }

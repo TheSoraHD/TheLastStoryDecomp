@@ -1,4 +1,5 @@
 #include "chr/ControlDive.h"
+#include "game/GameScene.h"
 #include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
 #include "game/Input_unk.h"
@@ -14,7 +15,6 @@ struct DiveField_unk {
 };
 extern "C" DiveField_unk* lbl_8087F430;
 // inferred: nearest route point (stored in RouteWalker_unk::mDestPoint)
-extern "C" int fn_803C1560(void* routes, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5, float f);
 // inferred: finds the ledge of route link `link` near `chara`
 extern "C" int fn_8036DAF4(DiveField_unk* field, Ledge_unk* ledge, CharaTask* chara, int arg, int link);
 
@@ -54,7 +54,7 @@ inline void PlayDiveMotion_unk(chr::Motion_unk* m, int id, float speed) {
 
 // inferred: point of the route tables nearest to the character (name invented)
 inline int FindRoutePoint_unk(void* routes, CharaTask* chara) {
-    return fn_803C1560(routes, &chara->mPos, chara->fn_80179D44(), chara->mC58.mB4, chara->mC58.m0C.mA0, 1, -1.0f);
+    return ((GameScene*)routes)->fn_803C1560(&chara->mPos, chara->fn_80179D44(), chara->mC58.mB4, chara->mC58.m0C.mA0, 1, -1.0f);
 }
 
 // inferred: negated vector (name invented)
@@ -103,7 +103,7 @@ int ControlDive::vf0C() {
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0) - 5.0f) {
         if (mChara->m564 == 2) {
-            mChara->mC58.m0C.mDestPoint = fn_803C1560(lbl_8087F430->m10D8, &mChara->mPos, mChara->fn_80179D44(),
+            mChara->mC58.m0C.mDestPoint = ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(&mChara->mPos, mChara->fn_80179D44(),
                                                       mChara->mC58.mB4, mChara->mC58.m0C.mA0, 1, -1.0f);
         }
         mChara->mStatus.m18 &= ~0x20000;

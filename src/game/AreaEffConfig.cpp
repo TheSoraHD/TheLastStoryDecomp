@@ -96,11 +96,11 @@ const atn::D2A_DrawColor* AreaEffConfig::fn_80043014(int type, const char* name)
     if (name != 0) {
         unsigned int count = mEntries.mSize;
         unsigned int n;
-        for (int i = 0; i < count; i++) {
+        for (unsigned int i = 0; i < count; i++) {
             AreaEffEntry_unk& entry = mEntries[i];
             if (entry.mType == type) {
                 n = entry.mNames.mSize;
-                for (int j = 0; j < n; j++) {
+                for (unsigned int j = 0; j < n; j++) {
                     if (entry.mNames[j] == name) {
                         return &entry.mColor;
                     }

@@ -1,4 +1,5 @@
 #include "game/Em203GreaterDaemon.h"
+#include "game/GameScene.h"
 #include "atn/Csv.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -143,8 +144,6 @@ extern "C" void* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
-extern "C" int fn_803C1560(RouteTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6); // inferred: nearest route point
 // inferred: route between two points (8 bytes; declared in game/CharaStatus.h, as in gmk/MeetingSpot.cpp)
 struct RoutePath_unk {
     int m00;
@@ -527,7 +526,7 @@ inline void Em203GreaterDaemon::StartFly_unk() {
     fn_8016E970(6);
     m560 = 4;
     RouteTable_unk* table = lbl_8087F430->m10D8;
-    int index = fn_803C1560(table, &mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+    int index = ((GameScene*)table)->fn_803C1560(&mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
     atn::Vector3& point = table->mPoints[index].mPos;
     m151C = point - mPos;
     m1528 = atn::WrapAngle_unk((m1978 - point).ToRotationZ_unk().y - mRot.y);
@@ -938,9 +937,9 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
     }
     if (m58C == 7) {
         RouteTable_unk* t1 = lbl_8087F430->m10D8;
-        int a = fn_803C1560(t1, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+        int a = ((GameScene*)t1)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
         RouteTable_unk* t2 = lbl_8087F430->m10D8;
-        int b = fn_803C1560(t2, &m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+        int b = ((GameScene*)t2)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
         cur = m1504;
         prev = m1508;
         p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
@@ -954,9 +953,9 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
         }
     } else if (m58C == 8) {
         RouteTable_unk* t3 = lbl_8087F430->m10D8;
-        int a = fn_803C1560(t3, &m152C->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        int a = ((GameScene*)t3)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         RouteTable_unk* t4 = lbl_8087F430->m10D8;
-        int b = fn_803C1560(t4, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        int b = ((GameScene*)t4)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         cur = m1504;
         prev = m1508;
         p2 = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], b - 1);
@@ -994,7 +993,7 @@ void Em203GreaterDaemon::fn_8028AFD8(int moving) {
     }
     if (m1990 != 0) {
         RouteTable_unk* t5 = lbl_8087F430->m10D8;
-        int point = fn_803C1560(t5, &m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
+        int point = ((GameScene*)t5)->fn_803C1560(&m14B0->mPos, fn_80179D44(), 0, 1, 1, -1.0f);
         lbl_8087EEB0->fn_80063D3C(lbl_8087F430->m10D8->mPoints[point - 1].mPos, 10.0f, 10000.0f, 0xFF0000FF);
     }
 }
@@ -1132,7 +1131,7 @@ void Em203GreaterDaemon::fn_8028BFE0() {
         }
     } else if (m14B4 == 1) {
         RouteTable_unk* table = lbl_8087F430->m10D8;
-        if (m150C == fn_803C1560(table, &m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f) && m1514 > m1518) {
+        if (m150C == ((GameScene*)table)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f) && m1514 > m1518) {
             if (m14C8 != 0) {
                 if (fn_80370A78(lbl_8087F430, 0x14) == 0) {
                     fn_80370AE4(lbl_8087F430, 0x14, 1);
@@ -1142,7 +1141,7 @@ void Em203GreaterDaemon::fn_8028BFE0() {
                 m14B4 = 2;
                 m1514 = 0.0f;
                 RouteTable_unk* table2 = lbl_8087F430->m10D8;
-                int index = fn_803C1560(table2, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+                int index = ((GameScene*)table2)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
                 RoutePoint_unk& point = table2->mPoints[index];
                 m151C = point.mPos - mPos;
                 m1528 = atn::WrapAngle_unk((m1978 - m1530->mPos).ToRotationZ_unk().y - mRot.y);
@@ -1160,7 +1159,7 @@ void Em203GreaterDaemon::fn_8028BFE0() {
             fn_80239DAC(lbl_8087F3C0, this, -2, 1);
             FaceCenter_unk();
             RouteTable_unk* table = lbl_8087F430->m10D8;
-            int index = fn_803C1560(table, &m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
+            int index = ((GameScene*)table)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 1, 1, -1.0f) - 1;
             mPos = table->mPoints[index].mPos;
         } else {
             mPos += m151C * (1.0f / length);
@@ -1671,9 +1670,9 @@ void Em203GreaterDaemon::fn_8028F560() {
     fn_8016E970(3);
     PlayMotion_unk(0x142, 0, 0, 1.0f);
     RouteTable_unk* table = lbl_8087F430->m10D8;
-    m1504 = fn_803C1560(table, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+    m1504 = ((GameScene*)table)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
     table = lbl_8087F430->m10D8;
-    m1508 = fn_803C1560(table, &m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
+    m1508 = ((GameScene*)table)->fn_803C1560(&m152C->mPos, fn_80179D44(), 0, 2, 1, -1.0f);
     m151C = m152C->mPos - mPos;
     mRot.y = (m1978 - mPos).GetNormalize().ToRotation_unk().y;
     m1528 = -1.5707964f;

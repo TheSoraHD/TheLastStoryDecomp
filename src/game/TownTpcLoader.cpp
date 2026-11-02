@@ -1,4 +1,5 @@
 #include "game/TownTpcLoader.h"
+#include "game/GameScene.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "game/CharaTask.h"
@@ -47,10 +48,6 @@ extern "C" Target_unk* lbl_8087F490;
 extern "C" void* lbl_8087F498;
 extern "C" TownMap_unk* lbl_8087FA20;
 extern "C" void fn_805B8110(TownMap_unk* map, const atn::Vector3* pos, int* x, int* z); // inferred: position to cell
-extern "C" atn::Vector3 fn_803CC754(CharaList_unk* list, unsigned int i); // inferred: position of entry i
-extern "C" atn::Task* fn_803C0634(CharaList_unk* list, unsigned int i);
-extern "C" void fn_803CC774(CharaList_unk* list, atn::Task* chara);
-extern "C" void fn_803CC718(CharaList_unk* list, atn::Task* chara, int arg);
 extern "C" void fn_803957F0(void* obj, void* arg);
 extern "C" void fn_803EAC3C(void* obj, atn::Task* chara);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
@@ -75,12 +72,12 @@ int TownTpcLoader::vf0C() {
             CharaList_unk* list = lbl_8087F430->m10D8;
             if (list->m48 > 0) {
                 for (unsigned int i = 0; i < list->mNum; i++) {
-                    atn::Vector3 pos = fn_803CC754(list, i);
+                    atn::Vector3 pos = ((GameScene*)list)->fn_803CC754(i);
                     int x = 0;
                     int z = 0;
                     fn_805B8110(lbl_8087FA20, &pos, &x, &z);
                     if (x == mCellX && z == mCellZ) {
-                        atn::Task* chara = fn_803C0634(list, i);
+                        atn::Task* chara = ((GameScene*)list)->fn_803C0634(i);
                         if (chara != 0) {
                             mCharas.push_back(chara);
                         }
@@ -111,9 +108,9 @@ int TownTpcLoader::vf0C() {
 void TownTpcLoader::fn_805B9D58() {
     CharaList_unk* list = lbl_8087F430->m10D8;
     for (int i = 0; i < mCharas.size(); i++) {
-        fn_803CC774(list, mCharas[i]);
+        ((GameScene*)list)->fn_803CC774(mCharas[i]);
         fn_803957F0(list->m134, ((Chara_unk*)mCharas[i])->m58);
-        fn_803CC718(list, mCharas[i], 0);
+        ((GameScene*)list)->fn_803CC718(mCharas[i], 0);
         if (lbl_8087F498 != 0) {
             fn_803EAC3C(lbl_8087F498, mCharas[i]);
         }

@@ -1,4 +1,5 @@
 #include "game/BattleCharaTask.h"
+#include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
@@ -52,9 +53,6 @@ struct BattleArea_unk {
     unsigned char m00[0x64];
     BattleAreaInfo_unk* m64;
 };
-extern "C" int fn_803CCA4C(BattleArea_unk* area, CharaTask* chara);
-extern "C" int fn_803CCA64(BattleArea_unk* area, CharaTask* chara, int arg, float range);
-extern "C" int fn_803CCA34(BattleArea_unk* area, CharaTask* chara);
 struct Field_unk {
     void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
     int fn_803761BC();
@@ -575,13 +573,13 @@ void BattleCharaTask::fn_800E3F5C() {
                 enemy = !enemy;
             }
             found = 1;
-            if (area != 0 && fn_803CCA4C(area, chara) && !fn_803CCA64(area, chara, 0, 80.0f)) {
+            if (area != 0 && ((GameScene*)area)->fn_803CCA4C(chara) && !((GameScene*)area)->fn_803CCA64(chara, 0, 80.0f)) {
                 found = 0;
                 enemy = 0;
             }
         }
         if (!found && area != 0) {
-            b = fn_803CCA34(area, this);
+            b = ((GameScene*)area)->fn_803CCA34(this);
         }
         obj = result.m38;
     }
