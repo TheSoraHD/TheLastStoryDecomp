@@ -42,14 +42,25 @@ inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& 
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
+extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd); // inferred: clears
 namespace atn {
-
-// inferred: motion command entry of a motion slot (16 bytes, atn::Model::m358); names invented
+// inferred: motion command entry of a motion slot (16 bytes, atn::Model::m354); its destructor clears it
+// (fn_800A1060); names invented
 struct MotionCmd_unk {
+    ~MotionCmd_unk() { fn_800A1060(this); }
     unsigned char m00[0x10];
 };
+// inferred: motion slot of a model (the array is built with the constructor of LH_Motion and destroyed
+// with its own destructor 0x800970CC); name invented
+struct MotionSlot_unk {
+    LH_Motion& GetMotion_unk() { return mMotion; }
+    LH_Motion mMotion;
+};
+// inferred: objects owned by a model (deleted through their virtual destructor)
+struct ModelChild_unk {
+    virtual ~ModelChild_unk();
+};
 } // namespace atn
-extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd);                                 // inferred: clears
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
 
@@ -1126,6 +1137,46 @@ void Model::fn_80095D44(int node, int parent) {
 }
 
 // NONMATCHING: 83% - the copy of dir is scheduled before the arguments
+// inferred: node pose of the shared pose buffer (implicit constructor 0x8008A4B0); name invented
+struct NodePose_unk : public MotionPose_unk {};
+
+// inferred: pose buffer shared by every model (0x400 nodes, allocated by the first model)
+static NodePose_unk* sNodePoses;
+
+// NONMATCHING: 99.3% - the "" of the pool is at 0xA in the original, and the motion slots are built with
+// the constructor of LH_Motion (here the implicit one of MotionSlot_unk)
+Model::Model(int flags, int motions)
+    : ModelBase(flags), m34C(1), m350(1.0f), m384(0), m3A8(0.0f, 0.0f, 0.0f), m3B4(0.0f), m3B8(0.0f), m3BC(0),
+      m3C0(-1), m3C4(0.0f) {
+    m3C8[0] = 0;
+    if (sNodePoses == 0) {
+        sNodePoses = new ((MemoryTag)6, "", "", 0) NodePose_unk[0x400];
+    }
+    for (int i = 0; i < 6; i++) {
+        mTracks[i].m00 = -1;
+        mTracks[i].m08 = 0.0f;
+        mTracks[i].m0C = 1.0f;
+        mTracks[i].m18 = 1;
+        mTracks[i].m10 = 0.0f;
+        mTracks[i].m14 = 0.1f;
+        mTracks[i].m1C = 1.0f;
+        mTracks[i].m20 = 1.0f;
+        mTracks[i].m04 = 0;
+        mTracks[i].m24 = 0;
+        mTracks[i].m28 = 0.0f;
+        mTracks[i].m2C = 0.0f;
+    }
+    if ((mFlags & 1) != 1) {
+        m224.Resize_unk(motions, 11);
+    }
+}
+
+Model::~Model() {
+    for (unsigned int i = 0; i < m384; i++) {
+        delete m388[i];
+    }
+}
+
 void Model::fn_80097750(const atn::Vector3& dir, float a, float b, int c) {
     atn::Vector3 n(dir);
     n.Normalize_unk();
@@ -1136,21 +1187,21 @@ void Model::fn_80097750(const atn::Vector3& dir, float a, float b, int c) {
 }
 
 void Model::fn_80097A20(unsigned int motion) {
-    LH_Motion* slot = &m224.mData[motion];
+    LH_Motion* slot = &m224.mData[motion].GetMotion_unk();
     slot->fn_80473F88();
     slot->m08 = 0;
     fn_800A1060(&m354.mData[motion]);
 }
 
 void Model::fn_80097A88(int motion, const char* path) {
-    m224.mData[motion].fn_800A03E4(path);
+    m224.mData[motion].GetMotion_unk().fn_800A03E4(path);
 }
 
 void Model::fn_80097A9C(int motion, const LH_Motion* src) {
     if ((int)m224.mSize <= motion || motion < 0) {
         return;
     }
-    LH_Motion* slot = &m224.mData[motion];
+    LH_Motion* slot = &m224.mData[motion].GetMotion_unk();
     *slot = *src;
     slot->m08 = src->m08;
     fn_800A0A68(&m354.mData[motion], this, src);
@@ -1159,7 +1210,7 @@ void Model::fn_80097A9C(int motion, const LH_Motion* src) {
 int Model::fn_80097B34() {
     int n = 0;
     for (int i = 0; i < (int)m224.mSize; i++) {
-        if (m224.mData[i].m08 != 0) {
+        if (m224.mData[i].GetMotion_unk().m08 != 0) {
             n++;
         }
     }
@@ -1169,7 +1220,7 @@ int Model::fn_80097B34() {
 int Model::vf20() {
     int busy = 0;
     for (int i = 0; i < (int)m224.mSize; i++) {
-        if (m224.mData[i].fn_800A0448()) {
+        if (m224.mData[i].GetMotion_unk().fn_800A0448()) {
             busy = 1;
         }
     }
@@ -1183,8 +1234,8 @@ void Model::fn_80097C08(int track, int motion, int loop, int force, int arg5, fl
         t.m28 = t.m08;
         t.m2C = t.m10;
         t.m00 = motion;
-        if (motion >= 0 && motion < (int)m224.mSize && m224.mData[motion].m08 != 0) {
-            t.m04 = (int)&m224.mData[motion];
+        if (motion >= 0 && motion < (int)m224.mSize && m224.mData[motion].GetMotion_unk().m08 != 0) {
+            t.m04 = (int)&m224.mData[motion].GetMotion_unk();
             t.m08 = 0.0f;
             t.m10 = blend;
             t.m18 = loop != 0;
@@ -1221,7 +1272,7 @@ atn::LoadHandle* Model::fn_80097D40(int motion) {
     if (motion < 0 || motion >= (int)m224.mSize) {
         return 0;
     }
-    LH_Motion* slot = &m224.mData[motion];
+    LH_Motion* slot = &m224.mData[motion].GetMotion_unk();
     if (slot->m08 != 0) {
         return slot;
     }

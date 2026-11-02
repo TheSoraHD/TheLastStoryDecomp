@@ -23,6 +23,7 @@ struct NodeChunk;
 struct ModelNodeCallbackContext;
 struct MotionBuffer; // inferred: node pose passed to the m370 callback (name from the RTTI of CharaFaceControl)
 struct ModelChild_unk; // inferred: objects owned by a model (deleted through their virtual destructor)
+struct MotionSlot_unk; // inferred: motion slot of a model (defined in atn/Model.cpp)
 struct ModelComposite_unk; // inferred: composite texture of a model (defined in atn/Model.cpp)
 struct ModelCompositeTex_unk; // inferred: texture composite object (defined in atn/Model.cpp)
 struct Model;
@@ -323,7 +324,7 @@ struct Model : public ModelBase {
 
     SimpleArray<Matrix3x4> m214;     // inferred: element type
     SimpleArray<Node_unk> m21C;      // inferred: per-node data
-    SimpleArray<LH_Motion> m224;     // inferred: motion slots (mSize: NpcManager::fn_80547B54)
+    SimpleArray<MotionSlot_unk> m224; // inferred: motion slots (mSize: NpcManager::fn_80547B54)
     Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
     int m34C;
     float m350; // inferred: time scale of the character (multiplied with the frame time, CharaTask::fn_8013CB68)
