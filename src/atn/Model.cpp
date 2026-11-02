@@ -599,7 +599,7 @@ void ModelBase::CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_un
 } // namespace atn
 
 ModelPose_unk::ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap,
-                             boost::function<void()> callback, const int* extra, int extraCount)
+                             boost::function<void()> callback, const unsigned int* extra, int extraCount)
     : m00(model), m04(matrices), m08(remap), m0C(0), m10(0), m14(0), m18(callback), m40(extra), m44(extraCount),
       m48(0) {}
 
@@ -826,28 +826,10 @@ void ModelBase::fn_80091C10(const ModelBase* src, const int* map, int reset) {
     }
 }
 
-// RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci
-int ModelBase::GetNodeNoByName(const char* name, int lod) const {
-    return FindNode_unk(this, fn_800DC6B4(name), lod);
-}
-
-int Model::fn_800928B0(unsigned int hash, int lod) {
-    return FindNode_unk(this, hash, lod);
-}
-
 // inferred: index of the material with the given name hash (inline of fn_8009290C)
 inline int FindMaterialIndex_unk(Model* model, unsigned int hash) {
     for (unsigned int i = 0; i < model->m104.mMaterials.mSize; i++) {
         if (hash == model->m104.mMaterials.mData[i]->m00) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-int Model::fn_8009290C(unsigned int hash) {
-    for (unsigned int i = 0; i < m104.mMaterials.mSize; i++) {
-        if (hash == m104.mMaterials.mData[i]->m00) {
             return i;
         }
     }
@@ -863,6 +845,283 @@ inline Material_unk* FindMaterial_unk(Model* model, unsigned int hash) {
         }
     }
     return 0;
+}
+
+// inferred: index of the node edit of a node (the size is read once)
+inline int FindEdit_unk(const SimpleVector<Model::NodeEdit_unk>& v, unsigned int hash) {
+    int index = -1;
+    unsigned int n = v.mSize;
+    for (unsigned int i = 0; i < n; i++) {
+        if (hash == v.mData[i].m00) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+
+// inferred: removes an element, moving the next ones down (name invented)
+inline void EraseEdit_unk(SimpleVector<Model::NodeEdit_unk>& v, Model::NodeEdit_unk* it) {
+    if (it != v.mData + v.mSize) {
+        for (unsigned int k = it - v.mData; k < v.mSize - 1; k++) {
+            v.mData[k] = v.mData[k + 1];
+        }
+        v.mSize = v.mSize - 1;
+    }
+}
+
+// inferred: float colour written to a material as bytes (name invented)
+struct ModelColor_unk {
+    GXColor ToGX() const {
+        GXColor c;
+        c.r = (unsigned char)(255.0f * r);
+        c.g = (unsigned char)(255.0f * g);
+        c.b = (unsigned char)(255.0f * b);
+        c.a = (unsigned char)(255.0f * a);
+        return c;
+    }
+    float r, g, b, a;
+};
+
+// inferred: appends a bone to the fixed array (name invented)
+inline void PushBone_unk(Model* model, PBoneInterface* bone) {
+    new (&model->m388[model->m384]) PBoneInterface*(bone);
+    model->m384++;
+}
+
+// NONMATCHING: 83% - the copy of dir is scheduled before the arguments
+// inferred: node pose of the shared pose buffer (implicit constructor 0x8008A4B0); name invented
+struct NodePose_unk : public MotionPose_unk {};
+
+// inferred: pose buffer shared by every model (0x400 nodes, allocated by the first model)
+static NodePose_unk* sNodePoses;
+} // namespace atn
+
+// inferred: out[i] = root * b[i] * a[i]
+// NONMATCHING: 97.6% - register allocation of the pointers
+extern "C" void DCZeroRange(void* addr, unsigned long size);
+extern "C" asm void fn_80099F74(register const SkinWeight2_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
+extern "C" asm void fn_8009A018(register const SkinWeight3_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
+
+// inferred: skinning weights of a vertex block with three joints (0x1C bytes); names invented
+struct SkinWeight3_unk {
+    int m00;
+    int mIndex0;
+    float mWeight0;
+    int mIndex1;
+    float mWeight1;
+    int mIndex2;
+    float mWeight2;
+};
+
+// inferred: double-buffered transfer of an array to the locked cache, 32 entries a block (buffers at
+// 0xE0001800 and right after the first one); names invented
+template <class T>
+struct LCStream_unk {
+    LCStream_unk(const T* src, int count) {
+        mSrc = src;
+        mCount = count;
+        mIndex = 0;
+        mBuf[0] = (T*)0xE0001800;
+        mBuf[1] = (T*)(0xE0001800 + 32 * sizeof(T) + 32);
+    }
+    unsigned long Load_unk(int count) {
+        mOffset[mIndex] = (unsigned long)mSrc & 31;
+        unsigned long n = LCLoadData(mBuf[mIndex], (char*)mSrc - mOffset[mIndex], count * sizeof(T));
+        mSrc += count;
+        mCount -= count;
+        return n;
+    }
+
+    const T* mSrc;
+    int mCount;
+    int mIndex;
+    T* mBuf[2];
+    int mOffset[2];
+};
+extern "C" void fn_80099010(MotionPose_unk* pose, const ModelJoint_unk* joint);
+
+// inferred: quicksort of the engine for the node lists (selection sort up to 20 elements, pivot from the
+// median of two positions moved by a rotating offset and the last element); names invented
+int lbl_8087D7A8 = -4;
+
+template <class T>
+inline void Swap_unk(T& a, T& b) {
+    T t = a;
+    a = b;
+    b = t;
+}
+
+struct LessU_unk {
+    bool operator()(const unsigned int& a, const unsigned int& b) const { return a < b; }
+};
+
+// NONMATCHING: 73% - the original computes the two comparisons with subf/orc instead of xor/cntlzw
+template <class T, class C>
+void Median3_unk(T* a, T* b, T* c, C comp) {
+    bool ca = comp(*c, *a);
+    bool bc = comp(*b, *c);
+    if (ca && bc) {
+        return;
+    }
+    if (!ca && !bc) {
+        Swap_unk(*a, *b);
+        return;
+    }
+    if (comp(*b, *a)) {
+        Swap_unk(*a, *b);
+    }
+    if (ca) {
+        Swap_unk(*b, *c);
+    } else {
+        Swap_unk(*a, *c);
+    }
+}
+
+template <class T, class C>
+inline T* MinElement_unk(T* first, T* last, C comp) {
+    T* m = first;
+    if (first != last) {
+        while (++first != last) {
+            if (comp(*first, *m)) {
+                m = first;
+            }
+        }
+    }
+    return m;
+}
+
+// NONMATCHING: 90% - registers and the comparisons of the partition
+template <class T, class C>
+void Sort_unk(T* first, T* last, C comp) {
+    for (;;) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first == last) {
+                return;
+            }
+            for (; first != last - 1; first++) {
+                T* m = MinElement_unk(first, last, comp);
+                if (m != first) {
+                    Swap_unk(*m, *first);
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + lbl_8087D7A8 % 5);
+        if (++lbl_8087D7A8 >= 5) {
+            lbl_8087D7A8 = -4;
+        }
+        T* b = first + (n * 3 / 4 + lbl_8087D7A8 % 5);
+        if (++lbl_8087D7A8 >= 5) {
+            lbl_8087D7A8 = -4;
+        }
+        T* p = last - 1;
+        Median3_unk(a, b, p, comp);
+        T* i = first;
+        T* j = p;
+        while (comp(*i, *p)) {
+            ++i;
+        }
+        while (--j != i && !comp(*j, *p)) {
+        }
+        if (i < j) {
+            Swap_unk(*i, *j);
+            ++i;
+            for (;;) {
+                while (comp(*i, *p)) {
+                    ++i;
+                }
+                while (!comp(*--j, *p)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                Swap_unk(*i, *j);
+                ++i;
+            }
+        }
+        if (i == first) {
+            Swap_unk(*i, *p);
+            ++i;
+            j = last - 1;
+            if (!comp(*first, *(last - 1))) {
+                while (i != last && !comp(*first, *i)) {
+                    ++i;
+                }
+                if (i < j) {
+                    Swap_unk(*i, *j);
+                }
+            }
+            if (i < j) {
+                for (;;) {
+                    while (!comp(*first, *i)) {
+                        ++i;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    Swap_unk(*i, *j);
+                    ++i;
+                }
+            }
+            first = i;
+            continue;
+        }
+        if (i - first < last - i) {
+            Sort_unk(first, i, comp);
+            first = i;
+        } else {
+            Sort_unk(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+namespace atn {
+
+// NONMATCHING: 98% - same as fn_800920B8 (inlined)
+void Model::fn_80091CFC(const char* node) {
+    fn_800920B8(fn_800DC6B4(node));
+}
+
+// inferred: adds a node to the sorted list of the nodes with the node callback enabled
+// NONMATCHING: 98% - registers of the inlined reserve copy loops
+void Model::fn_800920B8(unsigned int hash) {
+    int node = FindNodeRes_unk(GetRes_unk(), hash);
+    if (node < 0) {
+        return;
+    }
+    for (unsigned int i = 0; i < mCC.size(); i++) {
+        if (node == mCC[i]) {
+            return;
+        }
+    }
+    mCC.push_back(node);
+    Sort_unk(mCC.mData, mCC.mData + mCC.mSize, LessU_unk());
+}
+
+// RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci
+int ModelBase::GetNodeNoByName(const char* name, int lod) const {
+    return FindNode_unk(this, fn_800DC6B4(name), lod);
+}
+
+int Model::fn_800928B0(unsigned int hash, int lod) {
+    return FindNode_unk(this, hash, lod);
+}
+
+int Model::fn_8009290C(unsigned int hash) {
+    for (unsigned int i = 0; i < m104.mMaterials.mSize; i++) {
+        if (hash == m104.mMaterials.mData[i]->m00) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 Material_unk* Model::fn_80092954(const char* name) {
@@ -1037,103 +1296,29 @@ void Model::fn_80093F1C(const char* name, const atn::Vector3& a, const atn::Vect
     fn_80093F58(&edit);
 }
 
-// inferred: index of the node edit of a node (the size is read once)
-inline int FindEdit_unk(const SimpleVector<Model::NodeEdit_unk>& v, unsigned int hash) {
-    int index = -1;
-    unsigned int n = v.mSize;
-    for (unsigned int i = 0; i < n; i++) {
-        if (hash == v.mData[i].m00) {
-            index = i;
-            break;
+// inferred: sets the node edit of a node: replaces the one with the same node name or adds it and points
+// the node at it
+void Model::fn_80093F58(const void* p) {
+    const NodeEdit_unk* edit = (const NodeEdit_unk*)p;
+    for (unsigned int i = 0; i < mD8.size(); i++) {
+        NodeEdit_unk* e = &mD8[i];
+        if (edit->m00 == e->m00) {
+            *e = *edit;
+            return;
         }
     }
-    return index;
-}
-
-// inferred: removes an element, moving the next ones down (name invented)
-inline void EraseEdit_unk(SimpleVector<Model::NodeEdit_unk>& v, Model::NodeEdit_unk* it) {
-    if (it != v.mData + v.mSize) {
-        for (unsigned int k = it - v.mData; k < v.mSize - 1; k++) {
-            v.mData[k] = v.mData[k + 1];
+    mD8.push_back(*edit);
+    Res_unk* res = GetRes_unk();
+    for (int j = 0; j < res->m44; j++) {
+        if (edit->m00 == res->m48[j]->m14) {
+            mE4.mData[j] = mD8.mSize - 1;
+            return;
         }
-        v.mSize = v.mSize - 1;
     }
 }
-
-// inferred: float colour written to a material as bytes (name invented)
-struct ModelColor_unk {
-    GXColor ToGX() const {
-        GXColor c;
-        c.r = (unsigned char)(255.0f * r);
-        c.g = (unsigned char)(255.0f * g);
-        c.b = (unsigned char)(255.0f * b);
-        c.a = (unsigned char)(255.0f * a);
-        return c;
-    }
-    float r, g, b, a;
-};
-
-// inferred: appends a bone to the fixed array (name invented)
-inline void PushBone_unk(Model* model, PBoneInterface* bone) {
-    new (&model->m388[model->m384]) PBoneInterface*(bone);
-    model->m384++;
-}
-
-// NONMATCHING: 83% - the copy of dir is scheduled before the arguments
-// inferred: node pose of the shared pose buffer (implicit constructor 0x8008A4B0); name invented
-struct NodePose_unk : public MotionPose_unk {};
-
-// inferred: pose buffer shared by every model (0x400 nodes, allocated by the first model)
-static NodePose_unk* sNodePoses;
-} // namespace atn
-
-// inferred: out[i] = root * b[i] * a[i]
-// NONMATCHING: 97.6% - register allocation of the pointers
-extern "C" void DCZeroRange(void* addr, unsigned long size);
-extern "C" asm void fn_80099F74(register const SkinWeight2_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
-extern "C" asm void fn_8009A018(register const SkinWeight3_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
-
-// inferred: skinning weights of a vertex block with three joints (0x1C bytes); names invented
-struct SkinWeight3_unk {
-    int m00;
-    int mIndex0;
-    float mWeight0;
-    int mIndex1;
-    float mWeight1;
-    int mIndex2;
-    float mWeight2;
-};
-
-// inferred: double-buffered transfer of an array to the locked cache, 32 entries a block (buffers at
-// 0xE0001800 and right after the first one); names invented
-template <class T>
-struct LCStream_unk {
-    LCStream_unk(const T* src, int count) {
-        mSrc = src;
-        mCount = count;
-        mIndex = 0;
-        mBuf[0] = (T*)0xE0001800;
-        mBuf[1] = (T*)(0xE0001800 + 32 * sizeof(T) + 32);
-    }
-    unsigned long Load_unk(int count) {
-        mOffset[mIndex] = (unsigned long)mSrc & 31;
-        unsigned long n = LCLoadData(mBuf[mIndex], (char*)mSrc - mOffset[mIndex], count * sizeof(T));
-        mSrc += count;
-        mCount -= count;
-        return n;
-    }
-
-    const T* mSrc;
-    int mCount;
-    int mIndex;
-    T* mBuf[2];
-    int mOffset[2];
-};
-extern "C" void fn_80099010(MotionPose_unk* pose, const ModelJoint_unk* joint);
-
-namespace atn {
 
 // inferred: replaces the node edits and rebuilds the node -> edit table
+// NONMATCHING: 98.1% - registers of the -1 fill loop and of the copy in the inlined Assign_unk
 void Model::fn_80094420(const SimpleVector<NodeEdit_unk>& edits) {
     mD8.clear();
     for (int i = 0; i < GetRes_unk()->m44; i++) {
@@ -1591,10 +1776,12 @@ void Model::fn_80097D9C(Model* src) {
 // inferred: advances the motion tracks without sampling them (models that are not drawn); track 3 is the
 // fading one, tracks 4 and 5 only loop forwards
 void Model::fn_80098698() {
-    float dt = m350 * lbl_8087EFA8->m3A4;
+    LH_Motion* motion;
+    float speed = lbl_8087EFA8->m3A4;
+    float dt = m350 * speed;
     for (int i = 0; i < m34C; i++) {
         Track_unk* t = &mTracks[i];
-        LH_Motion* motion = t->m04;
+        motion = t->m04;
         if (motion != 0) {
             t->m10 += t->m14 * dt;
             if (t->m10 > t->m1C) {
@@ -1752,16 +1939,23 @@ void Model::fn_80098C90(int node, int siblings, int replace, Res_unk* res, Track
 
 // inferred: samples the fading track 3 from the "spine" node (an upper body motion); while it fades out
 // the previous motion is sampled
+// NONMATCHING: 99.5% - the remap pointer is kept in r27 instead of r24, and "spine" is at 0x5E of the pool
+// instead of 0x26C
 void Model::fn_80098DD8(int advance) {
     Track_unk* t = &mTracks[3];
+    Res_unk* res;
+    LH_Motion* motion;
+    bool fading;
+    const int* remap;
     if (t->m04 == 0 && t->m24 == 0) {
         return;
     }
-    Res_unk* res = (Res_unk*)mLods[m50].m08;
-    const int* remap = mLods[m50].m10.mData;
-    LH_Motion* motion = (t->m04 != 0) ? t->m04 : t->m24;
-    float dt = m350 * lbl_8087EFA8->m3A4;
-    bool fading = false;
+    res = (Res_unk*)mLods[m50].m08;
+    remap = mLods[m50].m10.mData;
+    motion = (t->m04 != 0) ? t->m04 : t->m24;
+    float speed = lbl_8087EFA8->m3A4;
+    float dt = m350 * speed;
+    fading = false;
     if (t->m04 == 0) {
         if (advance) {
             t->m10 -= t->m14;
@@ -1782,7 +1976,7 @@ void Model::fn_80098DD8(int advance) {
     if (fading) {
         t->m04 = t->m24;
     }
-    int node = FindNodeRes_unk((Res_unk*)mLods[m50].m08, fn_800DC6B4("spine"));
+    int node = FindNode_unk(this, fn_800DC6B4("spine"), m50);
     fn_80098C90(node, 0, Abs_unk(t->m10 - 1.0f) < 1.1920929e-7f, res, t, remap);
     if (fading) {
         t->m04 = 0;

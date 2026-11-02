@@ -27,7 +27,7 @@ public:
 // inferred: node pose filled by fn_800A04A0 from a motion (0x2C bytes); constructor 0x800A08E0
 struct MotionPose_unk {
     MotionPose_unk(); // 0x800A08E0
-    int m00;
+    unsigned int m00; // inferred: flags of the parts set (1 position, 2 rotation, 4 scale)
     atn::Vector3 mPos; // 0x04
     atn::Quaternion_unk m10; // inferred: rotation
     atn::Vector3 mScale; // 0x20

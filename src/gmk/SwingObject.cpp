@@ -14,7 +14,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC6B4(const char* s);   // inferred: hash of a name
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" void fn_800920B8(atn::Model* model, int hash); // inferred: enables the node callback of a node
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -299,9 +298,9 @@ int SwingObject::vf0C() {
             mModel.GetModel_unk()->GetNodeMtx_unk(mModel.GetModel_unk()->fn_800928B0(mCore.mNodes[2], 0));
         if (mNodeMtx[0] != 0 && mNodeMtx[1] != 0 && mNodeMtx[2] != 0) {
             fn_800F29D0(mModel.GetModel_unk(), boost::bind(&SwingObject::fn_803FEF78, this, _1, _2));
-            fn_800920B8(mModel.GetModel_unk(), mCore.mNodes[0]);
-            fn_800920B8(mModel.GetModel_unk(), mCore.mNodes[1]);
-            fn_800920B8(mModel.GetModel_unk(), mCore.mNodes[2]);
+            mModel.GetModel_unk()->fn_800920B8(mCore.mNodes[0]);
+            mModel.GetModel_unk()->fn_800920B8(mCore.mNodes[1]);
+            mModel.GetModel_unk()->fn_800920B8(mCore.mNodes[2]);
         }
         if ((m58 & 2) != 2) {
             fn_80232B7C(this, 1);

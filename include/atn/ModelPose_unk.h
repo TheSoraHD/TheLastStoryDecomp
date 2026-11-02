@@ -79,7 +79,7 @@ struct ModelData_unk {
 // 0x800904E0; 0x58 bytes); its two callbacks are destroyed inline. Names invented.
 struct ModelPose_unk {
     ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap, boost::function<void()> callback,
-                  const int* extra, int extraCount);
+                  const unsigned int* extra, int extraCount);
     void fn_80090584(atn::ModelNodeCallback_unk callback); // inferred: sets the node callback
     // inferred: node edits (names invented)
     void SetEdits_unk(const short* order, const void* edits, unsigned int count) {
@@ -98,7 +98,7 @@ struct ModelPose_unk {
     unsigned int m14;
     boost::function<void()> m18;
     atn::ModelNodeCallback_unk m2C;
-    const int* m40;
+    const unsigned int* m40; // inferred: sorted nodes with the callback enabled (Model::mCC)
     int m44;
     int m48;
     unsigned char m4C[0x58 - 0x4C];

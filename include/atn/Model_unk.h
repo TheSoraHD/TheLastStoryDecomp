@@ -171,7 +171,7 @@ struct ModelBase : public IRender {
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
     int mB4;
     boost::function<void()> mB8; // inferred: signature
-    SimpleVector<int> mCC;       // inferred: element type (passed to ModelPose_unk)
+    SimpleVector<unsigned int> mCC; // inferred: sorted nodes with the node callback enabled (fn_800920B8)
     SimpleVector<NodeEdit_unk> mD8; // inferred: node edits
     SimpleArray<short> mE4; // inferred: one entry per node (-1 at load)
     SimpleArray<unsigned char> mEC; // inferred: node visibility (one byte per node)
@@ -323,6 +323,8 @@ struct Model : public ModelBase {
     void fn_80098C90(int node, int siblings, int replace, Res_unk* res, Track_unk* track, const int* remap);
     // inferred: advances the motion tracks without sampling them (fn_80097E80)
     void fn_80098698();
+    // inferred: enables the node callback of a node (by hash / by name; the list mCC is kept sorted)
+    void fn_800920B8(unsigned int hash);
     // inferred: samples the fading track 3 (fn_80097E80)
     void fn_80098DD8(int advance);
 
