@@ -10,6 +10,7 @@
 #include "atn/LH_Material.h"
 #include "game/ResHandle.h"
 #include "Event/PoseKey_unk.h"
+#include "atn/ModelPose_unk.h"
 #include <boost/function.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -22,6 +23,7 @@ struct NodeChunk;
 struct ModelNodeCallbackContext;
 struct MotionBuffer; // inferred: node pose passed to the m370 callback (name from the RTTI of CharaFaceControl)
 struct ModelChild_unk; // inferred: objects owned by a model (deleted through their virtual destructor)
+struct ModelComposite_unk; // inferred: composite texture of a model (defined in atn/Model.cpp)
 struct Model;
 }
 // inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
@@ -32,6 +34,11 @@ struct Lens_unk;
 
 // material of a model node (returned by atn::Model::fn_80092954; include/atn/Material_unk.h)
 struct Material_unk;
+struct ShaderLOD_unk; // include/atn/Shader_unk.h
+#include "std/string.h"
+namespace atn {
+class Texture_unk;
+}
 
 // inferred: materials of a model (0x30 bytes, atn::ModelBase+0x104; also owned by CharaTask::m480).
 // The destructor is defined first in atn/Model.cpp (0x800899DC) and deletes every material.
@@ -42,14 +49,11 @@ struct MaterialSet_unk {
     int fn_80089B5C();   // inferred: a texture of the materials is ready
 
     atn::SimpleArray<Material_unk*> mMaterials; // 0x00
-    atn::SimpleArray<unsigned short> m08[4];    // 0x08: inferred: element type
+    atn::SimpleArray<int> m08[4];    // 0x08: inferred: index in mMaterials of each material of a level of detail
     atn::SimpleArray<unsigned short> m28;       // 0x28: inferred: element type
 };
 
 namespace atn {
-
-// callback run on the node matrices by CalcMatrixStack (type from the RSO names)
-typedef boost::function<void(Matrix3x4*, const NodeChunk&, const ModelNodeCallbackContext&)> ModelNodeCallback_unk;
 
 // inferred: one level of detail of a model (0x18 bytes; constructor 0x80089C28 and destructor
 // 0x80089CE4 are weak copies of atn/Model.cpp). Names invented.
@@ -60,7 +64,7 @@ struct ModelLod_unk {
     LH_Model mHandle; // 0x00
     void* m08;        // inferred: loaded data (atn::ModelBase::Res_unk)
     float m0C;        // inferred: distance of the level
-    SimpleArray<unsigned short> m10; // inferred: element type
+    SimpleArray<int> m10; // inferred: element type (same constructor copy as MaterialSet_unk::m08)
 };
 
 // atn::ModelBase (vtable __vt__Q23atn9ModelBase, RTTI with atn::IRender as base); 0x214 bytes.
@@ -82,6 +86,17 @@ struct ModelBase : public IRender {
     // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci (0x80092814): node index by name, < 0 if missing
     int GetNodeNoByName(const char* name, int arg) const;
     void fn_8008AA90(); // inferred: releases the loaded data (called first by the destructor)
+    void fn_8008AD4C(const char* path, const char* node); // inferred: loads the model ("MODEL")
+    const char* fn_8008B130();                   // inferred: model name
+    unsigned int fn_8008B138();                  // inferred: hash of the model path
+    int fn_8008B140();                           // inferred: nonzero while loading
+    void fn_8008B978(int unbound);               // inferred: binds the textures of the materials
+    void fn_8008C62C(int lod);                   // inferred: maps the materials of a level to the main ones
+    void fn_8008C950();                          // inferred: sets up the nodes after loading
+    void fn_8008D78C();                          // inferred
+    void fn_80091684(void* view, int* remap);    // inferred
+    void fn_80095CD0();                          // inferred: steps the texture animations
+    atn::Texture_unk* fn_80095B08(const std::string& name); // inferred: texture of a stage name (bound for the materials)
 
     // inferred: world matrix (the inherited m) and node matrices (sub-object at 0x08; its implicit
     // destructor frees the node matrices). Names invented.
@@ -108,22 +123,10 @@ struct ModelBase : public IRender {
     // SimpleVector<Event::PoseKey_unk> as CharaFaceControl, read with fn_80089EE4 from "NODE_EDIT" lines).
     // m00: node name hash, m04: flags (1 offset, 2 rotation, 4 scale), m08 offset, m14 rotation, m20 scale.
     typedef Event::PoseKey_unk NodeEdit_unk;
-    // inferred: resource data of the model (accessor 0x8000DD04); names invented
-    struct NodeRes_unk {
-        unsigned char m00[0x14];
-        unsigned int m14; // inferred: name hash (CharaFaceControl)
-        int m18;          // inferred: index of the node in m21C
-        unsigned char m1C[0x40 - 0x1C];
-        atn::Vector3 m40; // inferred: initial rotation (euler)
-    };
-    struct Res_unk {
-        unsigned char m00[0x10];
-        atn::Vector3 mMin; // 0x10: inferred: bounding box (MapPartsModel::vf24)
-        atn::Vector3 mMax; // 0x1C
-        unsigned char m28[0x44 - 0x28];
-        int m44; // inferred: number of nodes
-        NodeRes_unk** m48;
-    };
+    // inferred: loaded data of the model (atn/ModelPose_unk.h)
+    typedef ModelJoint_unk NodeRes_unk;
+    typedef ModelMtxBlock_unk ResMtx_unk;
+    typedef ModelData_unk Res_unk;
     // inferred: loaded data of the first level (the main model)
     Res_unk* GetRes_unk() const { return (Res_unk*)mLods[0].m08; }
     // inferred: the same object seen through the atn::Model declarations (the members embedded as
@@ -135,52 +138,54 @@ struct ModelBase : public IRender {
     Float4_unk m40;
     int m50; // inferred: node index (moved into m20C bits 15-8 while m55C is 8, CharaTask::fn_80145334)
     float m54;       // inferred: largest scale axis
-    int m58;
+    void* m58; // inferred: block of the memory manager (freed by fn_8008AA90)
     int m5C;
-    unsigned char m60[0x94 - 0x60];
+    unsigned char m60[0x90 - 0x60];
+    Matrix3x4* m90; // inferred: inverse joint matrices of the loaded data
     int m94;
     float m98; // inferred: draw priority ("PRIORITY" of the map parts)
-    float m9C[4];
+    Vector3 m9C; // inferred: center of the bounding box
+    float mA8;   // inferred: radius of the bounding sphere
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
     int mB4;
     boost::function<void()> mB8; // inferred: signature
-    SimpleVector<int> mCC;       // inferred: element type
+    SimpleVector<int> mCC;       // inferred: element type (passed to ModelPose_unk)
     SimpleVector<NodeEdit_unk> mD8; // inferred: node edits
-    SimpleArray<int> mE4;           // inferred: element type
+    SimpleArray<short> mE4; // inferred: one entry per node (-1 at load)
     SimpleArray<unsigned char> mEC; // inferred: node visibility (one byte per node)
     SimpleArray<unsigned char> mF4; // inferred: material visibility (one byte per material)
     LH_Material mFC;
     MaterialSet_unk m104; // inferred: materials (passed to MaterialSet_unk::fn_80089AD4 by CharaManager::vf14)
     int m134;
     MaterialSet_unk* m138; // inferred: materials in use (null: m104)
-    SimpleArray<int> m13C; // inferred: element type
-    SimpleArray<int> m144; // inferred: element type
+    SimpleArray<ShaderLOD_unk*> m13C; // inferred: own shader LODs (deleted with their first shader)
+    SimpleArray<ShaderLOD_unk*> m144; // inferred: shared shader LODs (reference counted)
     float m14C;
     float m150;
     float m154;
     float m158;
-    int m15C;
-    int m160;
+    MaterialSet_unk* m15C; // inferred: owned
+    MaterialSet_unk* m160; // inferred: owned
     ModelLod_unk mLods[4]; // 0x164: inferred: levels of detail; the first is the main model
     ModelLod_unk m1C4;     // inferred: shadow model
     struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
     int m1E0;
-    SimpleVector<int> m1E4; // inferred: element type
+    SimpleVector<ModelComposite_unk*> m1E4; // inferred: composite textures
     int m1F0;
     int m1F4;
     int m1F8;
     int m1FC;
     TreeEntry_unk m200;
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
-    unsigned int m20C_31_24 : 8;
+    int m20C_31_24 : 8; // inferred: load state (8 = ready)
     int m20C_23_16 : 8; // inferred: LOD counter (gmk::SwingObject::vf10 restores m50 from it)
     unsigned int m20C_15_8 : 8; // inferred: saved copy of m50 (CharaTask::fn_80145334)
     unsigned int m20C_7 : 1;
     int mFlag6_unk : 1; // inferred: tested by gmk::SwingObject::vf10
     int mFlag5_unk : 1;          // inferred: tested by CharaTask::fn_8013655C
     unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
-    unsigned int m20C_3 : 1;
+    int mFlag3_unk : 1; // inferred: the textures of the materials are not bound (fn_8008B978)
     int mFlag2_unk : 1; // inferred: CharaManager::vf10 calls fn_8008B140 while it is set
     int mFlag1_unk : 1; // inferred: fn_80093014 (sets m20C_31_24 to 5)
     unsigned int m20C_0 : 1;
@@ -215,19 +220,15 @@ struct Model : public ModelBase {
     void fn_80094E2C(int value);                   // inferred: sets Material_unk::m34 on every material
     void fn_80094F14(float u, float v);            // inferred: UV translation of every material
     Material_unk* fn_80094B6C(const char* name);   // inferred: material by name (second copy)
-    void fn_80095CD0();                            // inferred: steps the texture animations
     void fn_8008C828(MaterialSet_unk* list);       // inferred: sets the materials in use
     void fn_80097750(const atn::Vector3& dir, float a, float b, int c); // inferred: direction parameters
     void fn_8008C850(MaterialSet_unk* list);       // inferred: flags from the materials
     void fn_80094D88(int arg, int flag, int a, int b, int c); // inferred: material mode of every material
     void fn_80092A4C();                          // inferred
-    const char* fn_8008B130();                   // inferred: model name
     void fn_8008CD60();                          // inferred
     void fn_800954DC(void* owner, atn::Vector2_unk uv, float f); // inferred: UV scroll
     int fn_80097E80(int arg); // inferred: returns nonzero when the motion was updated (CharaTask::fn_80145334)
     void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
-    int fn_8008B140();                                // inferred: nonzero while loading
-    void fn_8008B978(int arg);                        // inferred
     int fn_800928B0(unsigned int hash, int arg);      // inferred: node index by name hash, < 0 if missing
 
     // inferred: matrix of node `index`, null for a missing node (inlined at 0x8049CCD4)
@@ -244,7 +245,6 @@ struct Model : public ModelBase {
     void fn_80097C08(int arg1, int motion, int arg3, int arg4, int arg5, float blend, float speed); // inferred: play motion
     float fn_80097D7C(int track); // inferred: motion length
     // inferred: called on load by CharaTask (names keep the address)
-    void fn_8008AD4C(const char* path, const char* node); // inferred: loads the model ("MODEL")
     void fn_80092F1C(const char* path, const char* node, float distance); // inferred: adds a LOD
     void fn_80092EC8(const char* path);   // inferred: shadow LOD
     void fn_80097A88(int motion, const char* path); // inferred: loads a motion

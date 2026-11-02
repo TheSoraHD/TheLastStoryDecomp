@@ -31,6 +31,8 @@ public:
     MemoryManager();
     static MemoryManager* Instance(); // 0x800827E0
     void Free(void* p);               // 0x80083AD4
+    // inferred: aligned allocation from a heap (atn::ModelBase::fn_8008C950 allocates the skinning matrices)
+    void* fn_800838B8(unsigned long size, unsigned long align, MemoryTag tag, const char* name, const char* file, int line);
     // RSO: AllocFromMem2__Q23atn13MemoryManagerFUlUl9MemoryTagPCcPCcii (0x800839EC)
     void* AllocFromMem2(unsigned long size, unsigned long align, MemoryTag tag, const char* name, const char* file,
                         int line, int mayFail);

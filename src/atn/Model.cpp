@@ -4,9 +4,33 @@
 #include "atn/Material_unk.h"
 #include "atn/LH_Motion.h"
 #include "atn/ModelCamera_unk.h"
+#include "atn/Csv.h"
+#include "atn/Shader_unk.h"
+#include "atn/MemoryManager.h"
+#include "std/string.h"
+#include <boost/bind.hpp>
+
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" float fn_800DC288(const char* s); // inferred: atof
+extern "C" int fn_800DC12C(const char* s);   // inferred: atoi
+extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
+extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext); // inferred: changes the extension
+extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
+std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
+extern "C" void* lbl_8087EFB4; // inferred: render system
+extern "C" int sprintf(char* buf, const char* fmt, ...);
+// inferred: collects the warnings of the loaders (see game/main.cpp)
+struct DebugMessages_unk {
+    void fn_800697D8(const char* msg);
+};
+extern "C" DebugMessages_unk* lbl_8087EEB8;
+extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model); // inferred: inverse joint matrices
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+
 namespace atn {
+
 // inferred: motion command entry of a motion slot (16 bytes, atn::Model::m358); names invented
 struct MotionCmd_unk {
     unsigned char m00[0x10];
@@ -19,7 +43,6 @@ extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the
 namespace atn {
 
 extern "C" void fn_800D58A4(Texture_unk* tex); // inferred: releases a texture
-
 } // namespace atn
 
 // inferred: owner of a loading texture (method of atn::Texture_unk named after its first user; see
@@ -92,6 +115,37 @@ extern "C" void fn_80089D70(atn::Model::NodeEdit_unk* edit, const char* name, co
     }
 }
 
+// inferred: reads a node edit from a "NODE_EDIT" line: node name, offset, rotation, scale and flags
+extern "C" __declspec(noinline) void fn_80089EE4(atn::Model::NodeEdit_unk* edit, atn::CsvTab* csv) {
+    char name[0x100];
+    strcpy(name, csv->fn_8005B9CC());
+    float x = fn_800DC288(csv->fn_8005B9CC());
+    float y = fn_800DC288(csv->fn_8005B9CC());
+    float z = fn_800DC288(csv->fn_8005B9CC());
+    atn::Vector3 offset(x, y, z);
+    x = fn_800DC288(csv->fn_8005B9CC());
+    y = fn_800DC288(csv->fn_8005B9CC());
+    z = fn_800DC288(csv->fn_8005B9CC());
+    atn::Vector3 rot(x, y, z);
+    x = fn_800DC288(csv->fn_8005B9CC());
+    y = fn_800DC288(csv->fn_8005B9CC());
+    z = fn_800DC288(csv->fn_8005B9CC());
+    atn::Vector3 scale(x, y, z);
+    fn_80089D70(edit, name, offset, rot, scale, fn_800DC12C(csv->fn_8005B9CC()));
+}
+
+// inferred: appends the node edits ("NODE_EDIT" lines) of a text file
+extern "C" void fn_8008A00C(atn::SimpleVector<atn::Model::NodeEdit_unk>* edits, const void* text, int size) {
+    atn::CsvTab csv(text, size);
+    do {
+        if (strcmp(csv.fn_8005B9CC(), "NODE_EDIT") == 0) {
+            atn::Model::NodeEdit_unk edit;
+            fn_80089EE4(&edit, &csv);
+            edits->push_back(edit);
+        }
+    } while (csv.fn_8005BBF8() != 0);
+}
+
 namespace atn {
 
 ModelBase::ModelBase(unsigned int flags)
@@ -105,14 +159,14 @@ ModelBase::ModelBase(unsigned int flags)
     mFlag6_unk = 1;
     mFlag5_unk = 0;
     mFlag4_unk = 0;
-    m20C_3 = 0;
+    mFlag3_unk = 0;
     mFlag2_unk = 0;
     mFlag1_unk = 0;
     m20C_0 = 0;
-    m9C[0] = 0.0f;
-    m9C[1] = 0.0f;
-    m9C[2] = 0.0f;
-    m9C[3] = 0.0f;
+    m9C.x = 0.0f;
+    m9C.y = 0.0f;
+    m9C.z = 0.0f;
+    mA8 = 0.0f;
     mAC = 1.0f;
     mB0 = -1;
     mB4 = -1;
@@ -122,9 +176,56 @@ ModelBase::~ModelBase() {
     fn_8008AA90();
 }
 
-} // namespace atn
+struct CompositeCacheEntry_unk;
+// inferred: reference to an entry of the texture composite cache (its methods are compiled in
+// atn/CompositeIntensityTintMulti.cpp: constructor 0x800D87A4, 0x800D87B0, Release_unk 0x800D87C4)
+struct CompositeCacheHandle_unk {
+    void Release_unk();
+    CompositeCacheEntry_unk* mEntry;
+};
 
-namespace atn {
+// inferred: polymorphic texture object owned by a composite entry
+struct ModelCompositeTex_unk {
+    virtual ~ModelCompositeTex_unk();
+};
+
+// inferred: composite texture of a model (atn::ModelBase::m1E4); names invented
+struct ModelComposite_unk {
+    std::string mName;
+    int m0C;
+    ModelCompositeTex_unk* m10;
+    CompositeCacheHandle_unk m14;
+};
+
+// NONMATCHING: 97.9% - registers of the composite loop (the zero stored to m10 is a copy of the counter)
+void ModelBase::fn_8008AA90() {
+    m20C_31_24 = 0;
+    for (unsigned int i = 0; i < m144.size(); i++) {
+        m144.mData[i]->m00--;
+    }
+    for (unsigned int i = 0; i < m13C.size(); i++) {
+        delete m13C.mData[i]->mLODs.mData[0].mShader;
+        delete m13C.mData[i];
+    }
+    for (unsigned int i = 0; i < m1E4.mSize; i++) {
+        if (m1E4.mData[i]->m10 != 0) {
+            delete m1E4.mData[i]->m10;
+            m1E4.mData[i]->m10 = 0;
+        }
+        m1E4.mData[i]->m14.Release_unk();
+        delete m1E4.mData[i];
+    }
+    if (m15C != 0) {
+        delete m15C;
+    }
+    if (m160 != 0) {
+        delete m160;
+    }
+    if (m58 != 0) {
+        MemoryManager::Instance()->Free(m58);
+        m58 = 0;
+    }
+}
 
 // inferred: node index by name hash in the given LOD (inline of fn_800928B0)
 inline int FindNodeRes_unk(const Model::Res_unk* res, unsigned int hash) {
@@ -145,6 +246,96 @@ inline int FindNode_unk(const ModelBase* model, unsigned int hash, int lod) {
 // inferred: the material has a texture stage with the given id
 inline bool HasStage_unk(Material_unk* m, int id) {
     return m->fn_80080528(id) != 0;
+}
+
+// inferred: loads the model, its materials ("material" next to the model, or `node`) and sets the
+// draw priority from the hash of the file name
+// NONMATCHING: 98.8% - registers (this/path in r30/r31 instead of r29/r30), and "material" follows a "" in the pool
+void ModelBase::fn_8008AD4C(const char* path, const char* node) {
+    m20C_31_24 = 1;
+    mLods[0].mHandle.vf0C(path);
+    std::string mat;
+    if (node == 0) {
+        mat.assign(path);
+        mat = fn_8006AD24(mat, std::string("material"));
+    } else {
+        mat.assign(node);
+    }
+    if (fn_8006AA20(mat.c_str())) {
+        mFC.vf0C(mat.c_str());
+    }
+    unsigned int lo = fn_800DC6B4(fn_8006B174(std::string(path)).c_str());
+    unsigned int hi = fn_800DC6B4(fn_8006B174(std::string(path)).c_str());
+    m98 = 1e-5f * (float)((hi & 0xFF00) | (lo & 0xFF));
+}
+
+const char* ModelBase::fn_8008B130() {
+    return mLods[0].mHandle.fn_80473F18();
+}
+
+unsigned int ModelBase::fn_8008B138() {
+    return mLods[0].mHandle.fn_80473F34();
+}
+} // namespace atn
+
+// inferred: the render system (lbl_8087EFB4); called out of line by GameUI and others
+extern "C" void* fn_8008B964() {
+    return lbl_8087EFB4;
+}
+
+namespace atn {
+
+int ModelBase::vf20() {
+    return 0;
+}
+
+void ModelBase::vf24() {
+}
+
+// NONMATCHING: 92.3% - stack layout (the path strings are above the boost::function temporaries)
+void ModelBase::fn_8008B978(int unbound) {
+    mFlag3_unk = unbound;
+    if (!mFlag3_unk) {
+        std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
+        for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
+            TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
+            m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
+        }
+        m20C_31_24 = 4;
+        mFlag2_unk = 1;
+    }
+}
+
+// inferred: index of the material with the given name hash (the size is read once)
+inline int FindMaterial_unk(const SimpleArray<Material_unk*>& mats, unsigned int hash) {
+    unsigned int n = mats.mSize;
+    for (unsigned int i = 0; i < n; i++) {
+        if (hash == mats.mData[i]->m00) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// NONMATCHING: 91.6% - registers and frame (the original keeps two more saved registers around the string)
+void ModelBase::fn_8008C62C(int lod) {
+    Res_unk* main = (Res_unk*)mLods[0].m08;
+    ModelLod_unk* l = &mLods[lod];
+    int n = ((Res_unk*)l->m08)->m30;
+    m104.m08[lod].Resize_unk(main->m30, 6);
+    for (int i = 0; i < n; i++) {
+        const char* name = ((Res_unk*)l->m08)->m50[i];
+        int index = FindMaterial_unk(m104.mMaterials, fn_800DC6B4(name));
+        if (index < 0) {
+            char msg[0x100];
+            sprintf(msg, "Lod \"%s\" material \"%s\" not matched\n",
+                    fn_8006B174(std::string(l->mHandle.fn_80473F18())).c_str(), name);
+            msg[0xFF] = 0;
+            lbl_8087EEB8->fn_800697D8(msg);
+            index = -4;
+        }
+        m104.m08[lod].mData[i] = index;
+    }
 }
 
 void Model::fn_8008C828(MaterialSet_unk* list) {
@@ -182,6 +373,83 @@ void Model::fn_8008C850(MaterialSet_unk* list) {
         }
     }
 }
+
+// NONMATCHING: 97.3% - the "" of the pool is at 0xA in the original, and the minimum z of the radius is rounded (frsp)
+void ModelBase::fn_8008C950() {
+    ModelLod_unk* lod = &mLods[0];
+    Res_unk* res = (Res_unk*)lod->m08;
+    if (res == 0) {
+        return;
+    }
+    mMtx.mNodes.Resize_unk(res->m44, 6);
+    if (((Res_unk*)lod->m08)->m44 * 0x30 > 0x1800) {
+        char msg[0x100];
+        sprintf(msg, "Model %s: too many nodes (%d, max %d)", fn_8008B130(), ((Res_unk*)lod->m08)->m44, 0x80);
+        lbl_8087EEB8->fn_800697D8(msg);
+    }
+    unsigned int size = (((Res_unk*)lod->m08)->m38->m10 * 0x30 + 0x1F) & ~0x1F;
+    m58 = MemoryManager::Instance()->fn_800838B8(size, 0x20, (MemoryTag)9, "", "", 0);
+    mE4.Resize_unk(((Res_unk*)lod->m08)->m44, 6);
+    mEC.Resize_unk(((Res_unk*)lod->m08)->m44, 6);
+    for (int i = 0; i < ((Res_unk*)lod->m08)->m44; i++) {
+        mE4.mData[i] = -1;
+        mEC.mData[i] = 1;
+    }
+    m90 = fn_80476130(&lod->mHandle);
+    res = (Res_unk*)lod->m08;
+    m9C = (res->GetMax_unk() + res->GetMin_unk()) * 0.5f;
+    mA8 = (res->GetMax_unk() - res->GetMin_unk()).Length_unk() * 0.5f;
+    CalcMatrixStack(0, ModelNodeCallback_unk());
+}
+
+void ModelBase::vf18(RenderView_unk* view) {
+    if (m20C_31_24 == 8) {
+        fn_8008D78C();
+        if (mFlag6_unk) {
+            fn_80091684((char*)view + 0x15C, mLods[m50].m10.mData);
+        }
+        if (m20C_0) {
+            fn_80095CD0();
+        }
+    }
+}
+
+void ModelBase::vf1C() {
+}
+
+// NONMATCHING: 97.9% - registers (the original keeps &mMtx in r29 and this in r30)
+void ModelBase::CalcMatrixStack(const MotionBuffer* motion, ModelNodeCallback_unk callback) {
+    Mtx_unk& mtx = mMtx;
+    Res_unk* data = (Res_unk*)mLods[m50].m08;
+    const int* remap = mLods[m50].m10.mData;
+    if (data == 0) {
+        return;
+    }
+    ModelPose_unk pose(data, mtx.mNodes.mData, remap, mB8, mCC.mData, mCC.mSize);
+    if (!callback.empty()) {
+        pose.fn_80090584(callback);
+    }
+    if (mD8.mSize != 0) {
+        pose.SetEdits_unk(mE4.mData, mD8.mData, mD8.mSize);
+    }
+    if (motion == 0) {
+        pose.fn_8009A584(mtx);
+    } else {
+        pose.fn_8009A5A8(mtx, motion);
+    }
+}
+} // namespace atn
+
+ModelPose_unk::ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, const int* remap,
+                             boost::function<void()> callback, const int* extra, int extraCount)
+    : m00(model), m04(matrices), m08(remap), m0C(0), m10(0), m14(0), m18(callback), m40(extra), m44(extraCount),
+      m48(0) {}
+
+void ModelPose_unk::fn_80090584(atn::ModelNodeCallback_unk callback) {
+    m2C = callback;
+}
+
+namespace atn {
 
 // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci
 int ModelBase::GetNodeNoByName(const char* name, int lod) const {
@@ -383,7 +651,7 @@ void Model::fn_80094F14(float u, float v) {
     }
 }
 
-void Model::fn_80095CD0() {
+void ModelBase::fn_80095CD0() {
     for (unsigned int i = 0; i < m104.mMaterials.mSize; i++) {
         if (m104.mMaterials.mData[i]->m4B != 0) {
             m104.mMaterials.mData[i]->fn_80080048(1.0f / 30.0f);
@@ -508,7 +776,6 @@ void Model::fn_80099E9C(const char* node, const char* name, float value) {
         memcpy(m3C8, name, strlen(name) + 1);
     }
 }
-
 } // namespace atn
 
 // inferred: out[i] = root * b[i] * a[i]
@@ -534,5 +801,17 @@ extern "C" void fn_8009A504(Mtx* out, const Mtx* a, const Mtx* mats, const int* 
         a++;
         index++;
         n--;
+    }
+}
+
+__declspec(noinline) void ModelPose_unk::fn_8009A584(const atn::Matrix3x4& root) {
+    if (m00->m44 > 0) {
+        fn_8009A5CC(this, 0, &root, 0);
+    }
+}
+
+__declspec(noinline) void ModelPose_unk::fn_8009A5A8(const atn::Matrix3x4& root, const atn::MotionBuffer* motion) {
+    if (m00->m44 > 0) {
+        fn_8009ADA4(this, 0, motion, &root, 0);
     }
 }

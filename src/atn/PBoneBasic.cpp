@@ -24,30 +24,6 @@ extern "C" void fn_80087858(void* group, const char* name, float* value, int arg
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 
-// inferred: model data of the loaded file (same as the local copy in atn/LH_Model.cpp)
-struct ModelJoint_unk {
-    unsigned char m00[0x1C];
-    int m1C; // inferred: parent node
-};
-struct ModelData_unk {
-    unsigned char m00[0x48];
-    ModelJoint_unk** mJoints; // 0x48
-};
-
-// inferred: pose of a model, built on the stack to compute the joint matrices (same as the local
-// copy in atn/LH_Model.cpp)
-struct ModelPose_unk {
-    ModelPose_unk(ModelData_unk* model, atn::Matrix3x4* matrices, int a, boost::function<void()> callback, int b,
-                  int c);
-
-    unsigned char m00[0x18];
-    boost::function<void()> m18;
-    boost::function<void()> m2C;
-    unsigned char m40[0x58 - 0x40];
-};
-// inferred: updates the matrices of the joints under `joint`
-extern "C" void fn_8009ADA4(ModelPose_unk* pose, int joint, void* arg2, atn::Matrix3x4* parent, int arg4);
-
 // inferred: model of the bone (node matrices at m3C)
 struct PBoneModel_unk {
     unsigned char m000[0x3C];
@@ -269,9 +245,9 @@ void PBoneBasic::vf10() {
     *root = world;
     SetTrans_unk(root, rootPos);
     SetTrans_unk(m64->GetNodeMtx_unk(m3C), rootPos + m14);
-    ModelJoint_unk* joint = m64->m16C->mJoints[m3C];
+    ModelJoint_unk* joint = m64->m16C->m48[m3C];
     ModelPose_unk pose(m64->m16C, m64->mNodeMtx, 0, boost::function<void()>(), 0, 0);
-    fn_8009ADA4(&pose, m3C, m64->m220, m64->GetNodeMtx_unk(joint->m1C), 0);
+    fn_8009ADA4(&pose, m3C, (const atn::MotionBuffer*)m64->m220, m64->GetNodeMtx_unk(joint->m1C), 0);
     m08 = rootPos;
     m2C = lbl_807C7030;
 }
