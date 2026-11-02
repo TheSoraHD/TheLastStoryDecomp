@@ -103,8 +103,9 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b,
                             int d, int e, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: effect `efp` on the model (shared with gmk/FlamingArrow, Em315Coffin and the Quark enemies)
-extern "C" inline void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
-                                   const atn::Vector3* rot, int a5, int a6, int a7, float scale) {
+inline void PlayEffectInline_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model,
+                                 const atn::Vector3* pos, const atn::Vector3* rot, int a5, int a6, int a7,
+                                 float scale) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -112,6 +113,8 @@ extern "C" inline void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::M
     color.a = 1.0f;
     fn_8023A8B4(mgr, efp, model, 0, *pos, *rot, color, a5, a6, a7, scale);
 }
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a5, int a6, int a7, float scale);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text);     // inferred: shows a battle message
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -959,9 +962,19 @@ void Em202ForestSpider::vf164() {
             fn_802790A0(i);
         }
     }
-    fn_80276AE4(lbl_8087F3C0, &m1914, &mMotion, &lbl_807C7030, &lbl_807C7030, -1, -1, 1, 1.0f);
+    PlayEffectInline_unk(lbl_8087F3C0, &m1914, &mMotion, &lbl_807C7030, &lbl_807C7030, -1, -1, 1, 1.0f);
     vf9C(1);
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
+}
+
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a5, int a6, int a7, float scale) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, *pos, *rot, color, a5, a6, a7, scale);
 }
 
 void Em202ForestSpider::vf140() {
