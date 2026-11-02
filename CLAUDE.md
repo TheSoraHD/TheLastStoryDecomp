@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `auto-20261102b` (2026-11-02, mergeada en `main`): **11811 / 18308 funciones al 100%** (report.json), `main.dol: OK`. `game/GameScene` 117 -> 129/188 (todas las stubs escritas salvo `vf14`, `fn_803CB820` y `__sinit`; no enlazable), `atn/Model` unidad nueva 33/155, `atn/PacketPack` 8/380. Declarar metodos en `atn::Model` renumera las `@N` de ~105 unidades: re-emparejado en lote. Detalle en `docs/auto-20261102b.md`.
+- `model-20261102` (2026-11-02, rama sin mergear): **11876 / 18308 funciones al 100%**, `main.dol: OK`. `atn/Model` 33 -> 98/155 (no enlazable aun: 38 NONMATCHING, ~20 sin escribir, pool y copias weak; lista en `docs/model-20261102.md`). `Node_unk : MotionPose_unk`, `Track_unk::m04` es `LH_Motion*`, `mCC` sin signo. Anterior: `auto-20261102b` (11811, `docs/auto-20261102b.md`).
 - `auto-20261102` (mergeada en `main`): 11764 funciones; GameScene 0 -> 117/188, PacketPack 7/380, `SimpleArray::operator[]` real, `callpair.py`/`selfnames.py` (`docs/auto-20261102.md`). `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`).
 - `auto-20261101c` (mergeada): 11574 (`docs/auto-20261101c.md`); `auto-20261101b`: 11569 (`docs/auto-20261101b.md`); `auto-20261101`: 11463 (`docs/auto-20261101.md`); `auto-20261031c`: 11284 (NW4R snd/ut, MSL, MetroTRK, bte).
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
