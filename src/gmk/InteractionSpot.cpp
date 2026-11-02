@@ -1,4 +1,5 @@
 #include "gmk/InteractionSpot.h"
+#include "game/GameScene.h"
 #include "atn/Memory.h"
 #include "chr/ControlBase.h"
 
@@ -54,8 +55,6 @@ struct Field_unk {
     SpotTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_803C1560(SpotTable_unk* table, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float arg6);
 
 namespace gmk {
 
@@ -85,7 +84,7 @@ void InteractionSpot::Start() {
     if (mSpot[1] == 0) {
         mSpot[1] = table->FindLinkB_unk(mSpot[0]);
     }
-    m10C = fn_803C1560(table, &mSpot[0]->mPos, 0, 0, 0, 1, -1.0f);
+    m10C = ((GameScene*)table)->fn_803C1560(&mSpot[0]->mPos, 0, 0, 0, 1, -1.0f);
     fn_8042952C(0);
 }
 

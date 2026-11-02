@@ -1,4 +1,5 @@
 #include "game/GameScene.h"
+#include "game/GameEventScript.h"
 #include "game/CrowdManager.h"
 #include "game/ColliAttrManager.h"
 #include "game/ArenaTask.h"
@@ -37,7 +38,7 @@ extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext); 
 extern "C" std::string fn_80393BEC(const int& value); // inferred: lexical_cast<std::string>(int)
 extern "C" int fn_8049D52C(char* name, int area, int map, int sub); // inferred: name of a map
 extern "C" void* fn_8049D704(atn::Task* parent, int area, int map, int sub); // inferred: map data
-extern "C" atn::Task* fn_80393610(atn::Task* parent, const char* path, int area, int map); // inferred: event script
+extern "C" GameEventScript* fn_80393610(atn::Task* parent, const char* path, int area, int map); // inferred: event script
 extern "C" int fn_803CE160(int area, int map, int sub); // inferred: the map uses the town BGM groups
 extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
 extern "C" int fn_800C3118(const char* group); // inferred: the sound group is loaded
@@ -405,7 +406,9 @@ int GameScene::vf0C() {
 }
 
 // NONMATCHING: stub
-void GameScene::fn_803C0634(unsigned int index) {}
+atn::Task* GameScene::fn_803C0634(unsigned int index) {
+    return 0;
+}
 
 // NONMATCHING: stub
 void GameScene::fn_803C0938(unsigned int index) {}
@@ -417,25 +420,35 @@ void GameScene::fn_803C0C2C(unsigned int index) {}
 void GameScene::fn_803C0F48() {}
 
 // NONMATCHING: stub
-void GameScene::fn_803C11A4() {}
+atn::Vector3 GameScene::fn_803C11A4(int point) {
+    return atn::Vector3(0.0f, 0.0f, 0.0f);
+}
 
 // NONMATCHING: stub
 void GameScene::fn_803C1338() {}
 
 // NONMATCHING: stub
-void GameScene::fn_803C1560() {}
+int GameScene::fn_803C1560(const atn::Vector3* pos, int a2, int a3, int a4, int a5, float radius) {
+    return 0;
+}
 
 // NONMATCHING: stub
-void GameScene::fn_803C17FC() {}
+int GameScene::fn_803C17FC(int point) {
+    return 0;
+}
 
 // NONMATCHING: stub
-void GameScene::fn_803C1840() {}
+int GameScene::fn_803C1840(int point) {
+    return 0;
+}
 
 // NONMATCHING: stub
 void GameScene::fn_803C1884() {}
 
 // NONMATCHING: stub
-void GameScene::fn_803C18DC() {}
+void* GameScene::fn_803C18DC(int type, int link) {
+    return 0;
+}
 
 // NONMATCHING: stub
 void GameScene::vf10() {}
@@ -1218,18 +1231,6 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
     }
 }
 
-// inferred: event script task (fn_80393610, game/GameEventScript.cpp); only the members used here
-struct EventScript_unk : public atn::Task {
-    int fn_803ABFD4(int arg);
-    int fn_803AC3D8(int a, int b, int c);
-    int fn_803AC708(int arg);
-    int fn_803AC978(int arg);
-    void fn_803ACD08();
-    unsigned char m48[0x8C - 0x48];
-    int m8C;
-    unsigned char m90[0xB4 - 0x90];
-    int mB4;
-};
 
 // NONMATCHING: stub
 void GameScene::fn_803CA0F4() {}
@@ -1258,17 +1259,19 @@ void GameScene::fn_803CB618() {}
 // NONMATCHING: stub
 void GameScene::fn_803CB820() {}
 
-int GameScene::fn_803CC198(int a, int b, CharaTask* chara) {
-    return fn_803CC1A4(a, b, chara, ((CharaRadius_unk*)chara)->m620, 0.5f);
+int GameScene::fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara) {
+    return fn_803CC1A4(pos, ((CharaRadius_unk*)chara)->m620, 0.5f, dir);
 }
 
 // NONMATCHING: stub
-int GameScene::fn_803CC1A4(int a, int b, CharaTask* chara, float radius, float scale) {
+int GameScene::fn_803CC1A4(const atn::Vector3* pos, float radius, float cos, const atn::Vector3* dir) {
     return 0;
 }
 
 // NONMATCHING: stub
-void GameScene::fn_803CC3BC() {}
+int GameScene::fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara) {
+    return 0;
+}
 
 // NONMATCHING: stub
 void GameScene::fn_803CC5E4() {}
@@ -1289,59 +1292,63 @@ gs::ConstrainModel* GameScene::fn_803CC6D0(int id) {
     return 0;
 }
 
-void GameScene::fn_803CC718(unsigned int key, int value) {
+void GameScene::fn_803CC718(atn::Task* chara, int value) {
     for (unsigned int i = 0; i < (unsigned int)mDC.mSize; i++) {
-        if (key == mDC.mData[i].m08) {
+        if (mDC.mData[i].m08 == chara) {
             mDC.mData[i].m1C = value;
         }
     }
 }
 
-atn::Vector3 GameScene::fn_803CC754(int index) {
+atn::Vector3 GameScene::fn_803CC754(unsigned int index) {
     return m80.mData[index].mPos;
 }
 
-int GameScene::fn_803CC774(int arg) {
-    return ((EventScript_unk*)m134)->fn_803ABFD4(arg);
+void GameScene::fn_803CC774(atn::Task* chara) {
+    m134->fn_803ABFD4(chara);
 }
 
 // NONMATCHING: stub
 void GameScene::fn_803CC77C() {}
 
 // NONMATCHING: stub
-void GameScene::fn_803CC900() {}
+int GameScene::fn_803CC900() {
+    return 0;
+}
 
-int GameScene::fn_803CCA34(int arg) {
+int GameScene::fn_803CCA34(CharaTask* chara) {
     if (m134 != 0) {
-        return ((EventScript_unk*)m134)->fn_803AC708(arg);
+        return m134->fn_803AC708(chara);
     }
     return 0;
 }
 
-int GameScene::fn_803CCA4C(int arg) {
+int GameScene::fn_803CCA4C(CharaTask* chara) {
     if (m134 != 0) {
-        return ((EventScript_unk*)m134)->fn_803AC978(arg);
+        return m134->fn_803AC978(chara);
     }
     return 0;
 }
 
-int GameScene::fn_803CCA64(int a, int b) {
+int GameScene::fn_803CCA64(CharaTask* chara, int arg, float range) {
     if (m134 != 0) {
-        return ((EventScript_unk*)m134)->fn_803AC3D8(a, 0, b);
+        return m134->fn_803AC3D8(chara, 0, arg, range);
     }
     return 0;
 }
 
 // NONMATCHING: stub
-void GameScene::fn_803CCA84() {}
+int GameScene::fn_803CCA84(CharaTask* chara, atn::Vector3* pos, atn::Vector3* rot) {
+    return 0;
+}
 
 int GameScene::fn_803CCC4C() {
-    return m134 != 0 && ((EventScript_unk*)m134)->m8C != 0;
+    return m134 != 0 && m134->m8C != 0;
 }
 
 void GameScene::fn_803CCC70(int value) {
     if (m134 != 0) {
-        ((EventScript_unk*)m134)->mB4 = value;
+        m134->mB4 = value;
     }
 }
 
@@ -1357,7 +1364,7 @@ void GameScene::fn_803CCCC0() {}
 
 void GameScene::fn_803CCD98() {
     if (m134 != 0) {
-        ((EventScript_unk*)m134)->fn_803ACD08();
+        m134->fn_803ACD08();
     }
 }
 

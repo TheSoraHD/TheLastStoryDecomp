@@ -1,4 +1,5 @@
 #include "gmk/Augur.h"
+#include "game/GameScene.h"
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
@@ -22,8 +23,6 @@ struct Field_unk {
     AugurRoutes_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_803C1560(AugurRoutes_unk* routes, const atn::Vector3* pos, int arg2, int arg3, int arg4, int arg5,
-                           float radius); // inferred: nearest route point
 extern "C" unsigned short fn_803CD958(void* entry, int point); // inferred: the two points are linked
 // inferred: camera (class unknown)
 struct AugurCamera_unk {
@@ -99,7 +98,7 @@ void Augur::Start() {
     mFront = m6C + front;
     mFrontRot = m78;
     mFrontRot.y = atn::WrapAngle_unk(1.5707964f + mFrontRot.y);
-    mRoute = fn_803C1560(routes, &mFront, 0, 0, 0, 1, -1.0f);
+    mRoute = ((GameScene*)routes)->fn_803C1560(&mFront, 0, 0, 0, 1, -1.0f);
     mTarget = 0;
     mLast = 0;
     mLastId = 0;

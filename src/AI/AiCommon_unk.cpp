@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): AI helpers of the scripts of AI/AI_archer_attack01.cpp. They
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
 #include "game/CharaTask.h"
+#include "game/GameScene.h"
 #include "game/NpcManager.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -38,7 +39,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int index); // inferred: reads a value of the field
-extern "C" int fn_803C1560(RouteTable_unk* table, int a, int b, int c, int d, int e, float f);
 // inferred: enemy manager (lbl_8087F048); slots of 0x934 bytes (as in game/ArenaTask.cpp)
 struct AiEnemySlot_unk {
     CharaTask* mChara;
@@ -402,8 +402,8 @@ extern "C" void fn_8001B508(const char* motion, CharaTask* target) {
 }
 
 // NONMATCHING: 99.50% - .sdata2 order of -1.0f (see fn_8001B508)
-extern "C" int fn_8001B5B4(int a, int b) {
-    return fn_803C1560(lbl_8087F430->m10D8, a, 0, b, 0, 1, -1.0f);
+extern "C" int fn_8001B5B4(const atn::Vector3* a, int b) {
+    return ((GameScene*)lbl_8087F430->m10D8)->fn_803C1560(a, 0, b, 0, 1, -1.0f);
 }
 
 extern "C" int fn_8001B5DC(CharaTask* chara) {

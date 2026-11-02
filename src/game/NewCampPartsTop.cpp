@@ -1,4 +1,5 @@
 #include "game/NewCampPartsTop.h"
+#include "game/GameScene.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -97,7 +98,6 @@ extern "C" int fn_80370174(NewCampTopField_unk* field, int id); // inferred: eve
 extern "C" void fn_80370320(NewCampTopField_unk* field, int id, int value, int arg);
 extern "C" void fn_80370F8C(NewCampTopField_unk* field, int a, MP::SaveData_unk* data, int b);
 extern "C" void fn_803743AC(NewCampTopField_unk* field);
-extern "C" void fn_803CCC70(atn::Task* task, int arg);
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 // inferred: game UI (lbl_8087F490)
@@ -390,7 +390,7 @@ void NewCampPartsTop::vf2C() {
                 fn_8052CA6C(m48);
                 fn_80370320(lbl_8087F430, 0x1B, 1, 0);
                 if (lbl_8087F430->m10D8 != 0) {
-                    fn_803CCC70(lbl_8087F430->m10D8, 999999);
+                    ((GameScene*)lbl_8087F430->m10D8)->fn_803CCC70(999999);
                 }
                 fn_803B57B0(lbl_8087F490->m263C, 1);
                 fn_803B6C88(lbl_8087F490->m2640, 1);

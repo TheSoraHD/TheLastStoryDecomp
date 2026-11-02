@@ -178,7 +178,7 @@ struct ConstrainModel {
     ConstrainModel() : m00(0), m04(0), m08(0), m0C(0), m10(0.0f, 0.0f, 0.0f), m1C(1) {}
     int m00;
     atn::Model* m04; // inferred: model being loaded
-    int m08;
+    atn::Task* m08; // inferred: chara attached to the model
     int m0C;
     atn::Vector3 m10;
     int m1C;
@@ -337,6 +337,7 @@ struct Table2D_unk {
 } // namespace gs
 
 class CharaTask;
+class GameEventScript;
 
 // inferred: pair queued by GameScene::fn_803CCC84 (names invented)
 struct GameScenePair_unk {
@@ -355,17 +356,17 @@ public:
     virtual void vf10();      // 0x803C1950
     virtual void vf14();      // 0x803C221C
 
-    void fn_803C0634(unsigned int index);
+    atn::Task* fn_803C0634(unsigned int index); // inferred: spawns the NPC of a set point
     void fn_803C0938(unsigned int index);
     void fn_803C0C2C(unsigned int index);
     void fn_803C0F48();
-    void fn_803C11A4();
+    atn::Vector3 fn_803C11A4(int point); // inferred: position of a move point
     void fn_803C1338();
-    void fn_803C1560();
-    void fn_803C17FC();
-    void fn_803C1840();
+    int fn_803C1560(const atn::Vector3* pos, int a2, int a3, int a4, int a5, float radius); // inferred: nearest route point
+    int fn_803C17FC(int point); // inferred: route point -> index
+    int fn_803C1840(int point); // inferred: route point -> link
     void fn_803C1884();
-    void fn_803C18DC();
+    void* fn_803C18DC(int type, int link); // inferred: cliff link
     void fn_803C1CAC();
     void fn_803C1E3C();
     void fn_803C2048();
@@ -391,21 +392,21 @@ public:
     void fn_803CB474();
     void fn_803CB618();
     void fn_803CB820();
-    int fn_803CC198(int a, int b, CharaTask* chara);
-    int fn_803CC1A4(int a, int b, CharaTask* chara, float radius, float scale);
-    void fn_803CC3BC();
+    int fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
+    int fn_803CC1A4(const atn::Vector3* pos, float radius, float cos, const atn::Vector3* dir);
+    int fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
     void fn_803CC5E4();
     void* fn_803CC6B4(int id); // inferred: message `id` (>= 10000: common messages of the field)
     gs::ConstrainModel* fn_803CC6D0(int id); // inferred: constrained model with the given id
-    void fn_803CC718(unsigned int key, int value);
-    atn::Vector3 fn_803CC754(int index); // inferred: position of a NPC set point
-    int fn_803CC774(int arg);
+    void fn_803CC718(atn::Task* chara, int value);
+    atn::Vector3 fn_803CC754(unsigned int index); // inferred: position of a NPC set point
+    void fn_803CC774(atn::Task* chara);
     void fn_803CC77C();
-    void fn_803CC900();
-    int fn_803CCA34(int arg);
-    int fn_803CCA4C(int arg);
-    int fn_803CCA64(int a, int b);
-    void fn_803CCA84();
+    int fn_803CC900(); // inferred: number of entries
+    int fn_803CCA34(CharaTask* chara);
+    int fn_803CCA4C(CharaTask* chara);
+    int fn_803CCA64(CharaTask* chara, int arg, float range);
+    int fn_803CCA84(CharaTask* chara, atn::Vector3* pos, atn::Vector3* rot);
     int fn_803CCC4C(); // inferred: the event script is running
     void fn_803CCC70(int value);
     void fn_803CCC84(int a, int b); // inferred: queues a pair
@@ -442,7 +443,7 @@ public:
     atn::SimpleArray<gs::CameraBox> m10C;
     atn::SimpleArray<gs::BgmBox> m114;
     GameMessageTable_unk m11C;
-    atn::Task* m134;                       // inferred: event script task (fn_80393610)
+    GameEventScript* m134;                 // inferred: event script (fn_80393610)
     int m138;
     float m13C;
     gs::BgmBox* m140;                      // inferred: current BGM box

@@ -1,4 +1,5 @@
 #include "game/Em310Gargoyle.h"
+#include "game/GameScene.h"
 #include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "game/EnemyManager.h"
@@ -19,7 +20,6 @@ struct Field_unk {
     RouteTable_unk* m10D8; // inferred: route tables (as in gmk/ReinforcePoint.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_803C17FC(RouteTable_unk* table, int point); // inferred: route point -> index
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 // inferred: per type data, indexed by type - 0x385
 extern "C" Em310Gargoyle::Data_unk lbl_80787F68[];
@@ -581,8 +581,8 @@ void Em310Gargoyle::fn_8030B92C() {
     int prev;
     int end;
     int start;
-    start = fn_803C17FC(lbl_8087F430->m10D8, mData.m14);
-    end = fn_803C17FC(lbl_8087F430->m10D8, mData.m18);
+    start = ((GameScene*)lbl_8087F430->m10D8)->fn_803C17FC(mData.m14);
+    end = ((GameScene*)lbl_8087F430->m10D8)->fn_803C17FC(mData.m18);
     cur = m1588;
     prev = m158C;
     next = fn_803CD958(&lbl_8087F430->m10D8->mPaths[cur - 1], end - 1);
@@ -756,7 +756,7 @@ void Em310Gargoyle::fn_8030C490() {
             m14B8 = 0;
         }
     }
-    atn::Vector3 end(fn_8030C190(table, fn_803C17FC(fn_80121F00()->fn_8013C504(), mData.m18))->mPos);
+    atn::Vector3 end(fn_8030C190(table, ((GameScene*)fn_80121F00()->fn_8013C504())->fn_803C17FC(mData.m18))->mPos);
     atn::Vector3 endDiff = end - mPos;
     if (fn_801C3910(endDiff) < 20.0f) {
         fn_8030CF84(0);
@@ -825,8 +825,8 @@ void Em310Gargoyle::fn_8030CBC0() {
 void Em310Gargoyle::fn_8030CF84(int warp) {
     m58C = 7;
     if (warp != 0) {
-        int start = fn_803C17FC(lbl_8087F430->m10D8, mData.m14);
-        m158C = fn_803C17FC(lbl_8087F430->m10D8, mData.m18);
+        int start = ((GameScene*)lbl_8087F430->m10D8)->fn_803C17FC(mData.m14);
+        m158C = ((GameScene*)lbl_8087F430->m10D8)->fn_803C17FC(mData.m18);
         m1588 = start;
         m1590 = 0.0f;
         mPos = fn_8030C190(lbl_8087F430->m10D8, start)->mPos;

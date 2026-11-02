@@ -1,4 +1,5 @@
 #include "game/Em006DarkMaster.h"
+#include "game/GameScene.h"
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
 #include "game/EnemyManager.h"
@@ -22,7 +23,6 @@ struct RouteSearch_unk {
                     float range, float min, float max);
 };
 extern "C" RouteSearch_unk* lbl_8087EE68;
-extern "C" atn::Vector3 fn_803C11A4(void* routes, int point); // inferred: position of a route point
 
 // inferred: servant of the master (enemy of kind 42); its master is at 0x14D4
 struct DarkServant_unk : public EnemyTask {
@@ -218,7 +218,7 @@ void Em006DarkMaster::vf100(int state) {
                                         30.0f, 100.0f);
         }
         if (point > 0) {
-            m14FC = fn_803C11A4(routes, point);
+            m14FC = ((GameScene*)routes)->fn_803C11A4(point);
         } else {
             m14FC = mPos;
         }
