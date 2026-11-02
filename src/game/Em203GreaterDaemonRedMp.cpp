@@ -10,6 +10,7 @@
 #include "game/HomingBullet.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "std/vector.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -1407,6 +1408,13 @@ int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
 
 // NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)
 // inferred: the route point nearest to the daemon among the high hover points (m156C)
+// inferred: default construction of the temporary vector of candidate enemies in fn_802A3D80.
+extern "C" void fn_802A4170(std::vector<EnemyTask*>* candidates) {
+    candidates->mData = 0;
+    candidates->mSize = 0;
+    candidates->mCap = 0;
+}
+
 int Em203GreaterDaemonRedMp::fn_802A4194(int arg) {
     if (m15A8.size() == 0) {
         return 0;
