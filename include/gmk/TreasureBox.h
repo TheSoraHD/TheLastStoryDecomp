@@ -15,7 +15,8 @@ class TreasureBox : public GimmickCommon {
 public:
     // inferred: chest data (fn_8021ECD0); names invented
     struct Data_unk {
-        unsigned char m00[0x08];
+        int m00;
+        int mType;  // 0x04: inferred: kind of chest (gimmick id 21000 + mType)
         int mTable; // 0x08: inferred: item table id
         int mFlag;  // 0x0C: inferred: field flag (opened)
     };

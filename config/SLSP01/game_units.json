@@ -254,6 +254,14 @@
   "matching": false
  },
  {
+  "name": "atn/Model.cpp",
+  "classes": [
+   "atn::Model",
+   "atn::ModelBase"
+  ],
+  "matching": false
+ },
+ {
   "name": "atn/ModelDraw_unk.cpp",
   "classes": [],
   "matching": false

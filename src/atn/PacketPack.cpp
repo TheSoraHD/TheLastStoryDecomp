@@ -5,6 +5,7 @@
 #include "atn/Model_unk.h"
 #include "atn/Keyboard.h"
 #include "game/CharaTask.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" long long OSGetTime();
@@ -251,4 +252,33 @@ extern "C" int fn_804D0140(int arg) {
         return fn_8005C220(lbl_8087EEA8, 0, arg);
     }
     return 0;
+}
+
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (atn::RenderConfig)
+
+// inferred: render settings of the multiplayer game: sepia-like color matrix, no bloom and no depth
+// of field, grey clear color (SetClearColor__Q23atn12RenderConfigFRCQ23atn5Color inlined)
+extern "C" void fn_804D0164() {
+    ColorMatrixParam_unk cm;
+    cm.mEnabled = 1;
+    cm.mRows[0].x = 0.9f;
+    cm.mRows[0].y = 0.1f;
+    cm.mRows[0].z = 0.1f;
+    cm.mRows[0].w = 0.0f;
+    cm.mRows[1].x = 0.1f;
+    cm.mRows[1].y = 0.9f;
+    cm.mRows[1].z = 0.1f;
+    cm.mRows[1].w = 0.0f;
+    cm.mRows[2].x = 0.1f;
+    cm.mRows[2].y = 0.1f;
+    cm.mRows[2].z = 0.9f;
+    cm.mRows[2].w = 0.0f;
+    cm.mRows[3].x = 0.0f;
+    cm.mRows[3].y = 0.0f;
+    cm.mRows[3].z = 0.0f;
+    cm.mRows[3].w = 0.0f;
+    lbl_8087EFA8->m324 = cm;
+    lbl_8087EFA8->m0D4 = 0;
+    lbl_8087EFA8->m054.mEnabled = 0;
+    lbl_8087EFA8->m03C = RsColor_unk(0.8627f, 0.8627f, 0.8627f, 1.0f);
 }

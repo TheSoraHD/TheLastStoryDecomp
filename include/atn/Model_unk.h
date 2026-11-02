@@ -9,6 +9,8 @@
 
 namespace atn {
 class LoadHandle;
+class LH_Motion;
+struct MotionCmd_unk; // inferred: motion command entry of a motion slot (16 bytes)
 class Matrix3x4;
 struct NodeChunk;
 struct ModelNodeCallbackContext;
@@ -53,7 +55,29 @@ struct Model : public ModelBase {
     virtual ~Model(); // 0x800971D4
     using ModelBase::CalcMatrixStack;
     void CalcMatrixStack(ModelNodeCallback_unk callback); // 0x8000D430
+    struct NodeEdit_unk;
+    struct MaterialList_unk;
+    int fn_8009290C(unsigned int hash);          // inferred: material index by name hash
     Material_unk* fn_80092954(const char* name); // inferred: material by name
+    Material_unk* fn_800929C0(unsigned int hash); // inferred: material by name hash
+    void fn_80092A00(float alpha);               // inferred: alpha of every material
+    void fn_800937E8(unsigned int hash, int show); // inferred: shows/hides a node by name hash
+    void fn_80093B88(const char* name);            // inferred: shows a node
+    void fn_80093C20(unsigned int hash);           // inferred: shows a node by name hash
+    int fn_80093C8C(const char* name);             // inferred: the node is shown (1 if missing)
+    int fn_80093D28(unsigned int hash);            // inferred: the node is shown (1 if missing)
+    void fn_80093E30(unsigned int hash, int show); // inferred: shows/hides a material by name hash
+    int fn_80093E90(unsigned int hash);            // inferred: the material is shown (0 if missing)
+    void fn_80093EEC(int show);                    // inferred: shows/hides every material
+    NodeEdit_unk* fn_800948F0(const char* name);   // inferred: node edit by node name
+    void fn_80094E2C(int value);                   // inferred: sets Material_unk::m34 on every material
+    void fn_80094F14(float u, float v);            // inferred: UV translation of every material
+    Material_unk* fn_80094B6C(const char* name);   // inferred: material by name (second copy)
+    void fn_80095CD0();                            // inferred: steps the texture animations
+    void fn_8008C828(MaterialList_unk* list);      // inferred: sets the materials in use
+    void fn_80097750(const atn::Vector3& dir, float a, float b, int c); // inferred: direction parameters
+    void fn_8008C850(MaterialList_unk* list);      // inferred: flags from the materials
+    void fn_80094D88(int arg, int flag, int a, int b, int c); // inferred: material mode of every material
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
     void fn_8008CD60();                          // inferred
@@ -61,6 +85,7 @@ struct Model : public ModelBase {
     int fn_80097E80(int arg); // inferred: returns nonzero when the motion was updated (CharaTask::fn_80145334)
     void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
     int fn_8008B140();                                // inferred: nonzero while loading
+    void fn_8008B978(int arg);                        // inferred
     int fn_800928B0(unsigned int hash, int arg);      // inferred: node index by name hash, < 0 if missing
 
     // inferred: matrix of node `index`, null for a missing node (inlined at 0x8049CCD4)
@@ -96,6 +121,10 @@ struct Model : public ModelBase {
     void fn_80092EC8(const char* path);   // inferred: shadow LOD
     void fn_80097A88(int motion, const char* path); // inferred: loads a motion
     void fn_80097A20(unsigned int motion);          // inferred: releases a motion slot
+    void fn_80097A9C(int motion, const LH_Motion* src); // inferred: copies a motion slot
+    int fn_80097B34(); // inferred: number of loaded motions
+    int fn_80097B74(); // inferred: a motion is still loading
+    void fn_80097CCC(int track, float blend); // inferred: stops the motion of a track
     void fn_80092F90();
     void fn_80093014(int arg);
     void fn_8009373C(const char* name, int part); // inferred: shows/hides the named node (option part)
@@ -117,11 +146,43 @@ struct Model : public ModelBase {
     unsigned char m9C[0xAC - 0x9C];
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
-    unsigned char mB4[0x104 - 0xB4];
-    unsigned char m104[0x16C - 0x104]; // inferred: passed to fn_80089AD4 by CharaManager::vf14
+    unsigned char mB4[0xD8 - 0xB4];
+    // inferred: node edit (0x2C bytes; fn_80093F58/fn_80094778); names invented
+    struct NodeEdit_unk {
+        unsigned int mHash;
+        unsigned int mFlags; // inferred: 1 offset, 2 rotation, 4 scale (set when not identity)
+        atn::Vector3 m08;    // inferred: offset
+        atn::Vector3 m14;    // inferred: rotation
+        atn::Vector3 m20;    // inferred: scale
+    };
+    unsigned int mD8; // inferred: number of node edits
+    int mDC;
+    NodeEdit_unk* mE0;
+    unsigned char mE4[0xF0 - 0xE4];
+    unsigned char* mF0; // inferred: node visibility (one byte per node)
+    unsigned char mF4[0xF8 - 0xF4];
+    unsigned char* mF8; // inferred: material visibility (one byte per material)
+    unsigned char mFC[0x104 - 0xFC];
+    // inferred: materials (atn::SimpleArray<Material_unk*> layout; passed to fn_80089AD4 by CharaManager::vf14)
+    struct MaterialList_unk {
+        unsigned int mSize;
+        Material_unk** mData;
+    };
+    MaterialList_unk m104;
+    unsigned char m10C[0x138 - 0x10C];
+    MaterialList_unk* m138; // inferred: materials in use (null: m104)
+    unsigned char m13C[0x16C - 0x13C];
     struct Res_unk;
-    Res_unk* m16C; // inferred: resource data (accessor fn_8000DD04; read directly by MapPartsModel::vf24)
-    unsigned char m170[0x1DC - 0x170];
+    // inferred: one entry per LOD (0x18 bytes, GetNodeNoByName); the first is the main model
+    struct Lod_unk {
+        Res_unk* mRes;
+        unsigned char m04[0x18 - 0x4];
+    };
+    union {
+        Res_unk* m16C; // inferred: resource data (accessor fn_8000DD04; read directly by MapPartsModel::vf24)
+        Lod_unk mLods[4];
+    };
+    unsigned char m1CC[0x1DC - 0x1CC];
     struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
     unsigned char m1E0[0x200 - 0x1E0];
     // inferred: entry of the model in a map tree (set by MapPartsModel::vf24); names invented
@@ -140,7 +201,8 @@ struct Model : public ModelBase {
     unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
     unsigned int m20C_3 : 1;
     int mFlag2_unk : 1; // inferred: CharaManager::vf10 calls fn_8008B140 while it is set
-    unsigned int m20C_1_0 : 2;
+    int mFlag1_unk : 1; // inferred: fn_80093014 (sets m20C_31_24 to 5)
+    unsigned int m20C_0 : 1;
     unsigned char m210[0x220 - 0x210];
     // inferred: accessor (the original reads the flag word again before setting mFlag4_unk); name invented
     int IsFlag5_unk() const { return mFlag5_unk; }
@@ -181,7 +243,9 @@ struct Model : public ModelBase {
         unsigned char m19[0x1C - 0x19];
         float m1C; // inferred: current value (moved towards the key by the lip sync)
         float m20; // inferred: weight
-        unsigned char m24[0x30 - 0x24];
+        int m24;   // inferred: previous motion slot (m04)
+        float m28; // inferred: previous frame (m08)
+        float m2C; // inferred: previous m10
     };
 
     // inferred: accessors called out of line from CharaTask (names keep the address)
@@ -200,17 +264,25 @@ struct Model : public ModelBase {
 
     Node_unk* m220;
     unsigned int mMotionCount; // 0x224: inferred: number of motion slots (NpcManager::fn_80547B54)
-    unsigned char m228[0x22C - 0x228];
+    LH_Motion* m228; // inferred: motion slots (mMotionCount)
     Track_unk mTracks[6]; // 0x22C (track 0: frame at 0x234, speed at 0x238)
     int m34C;
     float m350; // inferred: time scale of the character (multiplied with the frame time, CharaTask::fn_8013CB68)
-    unsigned char m354[0x35C - 0x354];
+    int m354;
+    MotionCmd_unk* m358; // inferred: motion commands, one 16-byte entry per motion slot
     // inferred: second node pose callback (set by fn_8031F2A4 of game/Em401_01_WhiteLeoPard.cpp, used by the
     // white leopard and the war lion)
     boost::function<void(atn::MotionBuffer*, int)> m35C;
     // inferred: callback run on the node poses (set by CharaFaceControl::Initialize)
     boost::function<void(atn::MotionBuffer*, int)> m370;
-    unsigned char m384[0x3D0 - 0x384];
+    unsigned char m384[0x3A8 - 0x384];
+    atn::Vector3 m3A8; // inferred: direction (normalized, fn_80097750)
+    float m3B4;
+    float m3B8;
+    int m3BC;
+    int m3C0;     // inferred: node index (fn_80099E9C)
+    float m3C4;
+    char m3C8[8]; // inferred: name copied by fn_80099E9C
 };
 
 } // namespace atn

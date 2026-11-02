@@ -12,6 +12,7 @@
 namespace atn {
 class Model;
 }
+class CharaTask;
 
 // inferred: reference to a pfs archive of the load manager (4 bytes here: GameScene builds an array
 // of six with a weak constructor that only clears mRes, 0x803BF818; the destructor is the weak copy
@@ -179,7 +180,7 @@ struct ConstrainModel {
     int m00;
     atn::Model* m04; // inferred: model being loaded
     atn::Task* m08; // inferred: chara attached to the model
-    int m0C;
+    const atn::Matrix3x4* m0C; // inferred: matrix the model follows
     atn::Vector3 m10;
     int m1C;
 };
@@ -188,10 +189,8 @@ struct ConstrainModel {
 struct EventBox : public PointBase_unk {
     EventBox() {}
     int mIndex;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
+    float m14;          // inferred: rotation y
+    atn::Vector3 mSize; // 0x18: inferred: half size
     atn::SimpleArray<int> m24; // inferred: "SceneScript"
     int m2C;
     int m30;
@@ -255,10 +254,8 @@ struct Gimmick : public PointBase_unk {
 struct CameraBox : public PointBase_unk {
     CameraBox() {}
     int mIndex;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
+    float m14;          // inferred: rotation y
+    atn::Vector3 mSize; // 0x18: inferred: half size
     int m24;
     int m28;
     int m2C;
@@ -273,10 +270,8 @@ struct CameraBox : public PointBase_unk {
 struct BgmBox : public PointBase_unk {
     BgmBox() {}
     int mIndex;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
+    float m14;          // inferred: rotation y
+    atn::Vector3 mSize; // 0x18: inferred: half size
     int mBgm; // 0x24: inferred: BGM id
     float m28;
     int m2C;
@@ -303,6 +298,16 @@ struct CharaGroup : public PointBase_unk {
     T* m94;   // inferred: leader
     int m98;
     int m9C;
+};
+
+// inferred: group of characters of the scene built from the groups of the file (0x90 bytes); names
+// invented
+struct SceneGroup_unk {
+    int mType;              // inferred: 3 party, 2 enemies
+    int mId;
+    int m08;
+    CharaTask* mCharas[32];
+    CharaTask* mLeader;     // 0x8C
 };
 
 // inferred: (unknown rows)
@@ -336,8 +341,26 @@ struct Table2D_unk {
 
 } // namespace gs
 
-class CharaTask;
 class GameEventScript;
+class GimmickCommon;
+
+// inferred: save data used by GameScene (name invented)
+struct GameSceneSave_unk {
+    int m00;
+    unsigned char m04[4];
+};
+
+// inferred: hide route filled by GameScene::fn_803CAED0 (0x40 bytes; names invented)
+struct GameSceneRoute_unk {
+    atn::Vector3 mDir;   // 0x00
+    atn::Vector3 mSide;  // 0x0C
+    atn::Vector3 mFrom;  // 0x18
+    atn::Vector3 mTo;    // 0x24
+    unsigned int mFlags; // 0x30: inferred: 1 start on, 2 end on, 4 wide
+    int mType;       // 0x34
+    int mFromIndex;  // 0x38
+    int mToIndex;    // 0x3C
+};
 
 // inferred: pair queued by GameScene::fn_803CCC84 (names invented)
 struct GameScenePair_unk {
@@ -357,20 +380,20 @@ public:
     virtual void vf14();      // 0x803C221C
 
     atn::Task* fn_803C0634(unsigned int index); // inferred: spawns the NPC of a set point
-    void fn_803C0938(unsigned int index);
-    void fn_803C0C2C(unsigned int index);
-    void fn_803C0F48();
+    atn::Task* fn_803C0938(unsigned int index); // inferred: spawns the party member of a set point
+    atn::Task* fn_803C0C2C(unsigned int index); // inferred: spawns the enemy of a set point
+    void fn_803C0F48(int warp); // inferred: moves the party to a warp point
     atn::Vector3 fn_803C11A4(int point); // inferred: position of a move point
-    void fn_803C1338();
-    int fn_803C1560(const atn::Vector3* pos, int a2, int a3, int a4, int a5, float radius); // inferred: nearest route point
+    atn::Vector3 fn_803C1338(int point, const atn::Vector3* dir); // inferred: random position of a move point ahead of dir
+    int fn_803C1560(const atn::Vector3* pos, int mask, int group, int type, int check, float radius); // inferred: nearest route point
     int fn_803C17FC(int point); // inferred: route point -> index
     int fn_803C1840(int point); // inferred: route point -> link
-    void fn_803C1884();
+    gs::AiArea* fn_803C1884(int id); // inferred: AI area with the given id
     void* fn_803C18DC(int type, int link); // inferred: cliff link
     void fn_803C1CAC();
     void fn_803C1E3C();
-    void fn_803C2048();
-    void fn_803C2090();
+    gs::CameraBox* fn_803C2048(CharaTask* chara); // inferred: camera box of type 1 or 2 around chara
+    gs::CameraBox* fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, CharaTask* chara); // inferred: smallest box around chara
     void fn_803C3724(gs::PointBase_unk* point, atn::Csv& csv); // inferred: id and position
     void fn_803C3798(int* values, atn::Csv& csv);              // inferred: four integers
     void fn_803C380C(int* values, atn::Csv& csv);              // inferred: a range (start, value, end)
@@ -387,21 +410,21 @@ public:
     void fn_803CA530();
     void fn_803CA604();
     void fn_803CAABC();
-    void fn_803CAED0();
-    void fn_803CB044();
-    void fn_803CB474();
-    void fn_803CB618();
+    void fn_803CAED0(GameSceneRoute_unk* out, gs::HideLink_unk* link); // inferred: route along a hide link
+    int fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check, int point); // inferred: nearest hide link ahead
+    int fn_803CB474(GameSceneRoute_unk* out, CharaTask* chara, int point, int exclude); // inferred: next hide link
+    int fn_803CB618(GameSceneRoute_unk* out, CharaTask* chara); // inferred: link from the held point
     void fn_803CB820();
     int fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
-    int fn_803CC1A4(const atn::Vector3* pos, float radius, float cos, const atn::Vector3* dir);
+    int fn_803CC1A4(const atn::Vector3* pos, float radius, float cosMin, const atn::Vector3* dir); // inferred: a wall link is near
     int fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
-    void fn_803CC5E4();
+    int fn_803CC5E4(int type, int id); // inferred: chara of a set point (-1 if missing)
     void* fn_803CC6B4(int id); // inferred: message `id` (>= 10000: common messages of the field)
     gs::ConstrainModel* fn_803CC6D0(int id); // inferred: constrained model with the given id
     void fn_803CC718(atn::Task* chara, int value);
     atn::Vector3 fn_803CC754(unsigned int index); // inferred: position of a NPC set point
     void fn_803CC774(atn::Task* chara);
-    void fn_803CC77C();
+    int fn_803CC77C(); // inferred: number of things left
     int fn_803CC900(); // inferred: number of entries
     int fn_803CCA34(CharaTask* chara);
     int fn_803CCA4C(CharaTask* chara);
@@ -412,7 +435,7 @@ public:
     void fn_803CCC84(int a, int b); // inferred: queues a pair
     void fn_803CCCC0();
     void fn_803CCD98();
-    void fn_803CCDAC();
+    gs::BgmBox* fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTask* chara); // inferred: smallest box around chara
 
     int m48;                            // inferred: loading step
     atn::LH_Binary m4C[3];              // inferred: the .gs files (main, _sub2, _sub3)
@@ -448,19 +471,19 @@ public:
     float m13C;
     gs::BgmBox* m140;                      // inferred: current BGM box
     void* m144;                            // inferred: area data (fn_8021771C)
-    atn::SimpleArray<gs::Unk148_unk> m148;
-    atn::SimpleArray<gs::Unk148_unk> m150;
+    atn::SimpleArray<gs::SceneGroup_unk> m148; // inferred: party groups
+    atn::SimpleArray<gs::SceneGroup_unk> m150; // inferred: enemy groups
     atn::SimpleArray<gs::PointGroup<gs::MovePoint> > m158;
     atn::SimpleArray<gs::PointGroup<gs::HidePoint> > m160;
     atn::SimpleArray<gs::PointGroup<gs::WarpPoint> > m168;
     atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> > m170; // "FriendGroup"
     atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> > m178; // "EnemyGroup"
     atn::SimpleArray<int> m180;            // "EventIdList"
-    atn::SimpleArray<gs::Unk148_unk> m188;
+    atn::SimpleArray<GimmickCommon*> m188; // inferred: treasure boxes of the event boxes
     atn::FixedArray_unk<GameScenePair_unk, 0x100> m190; // inferred: pairs queued by fn_803CCC84
     ResRef_unk m994;                       // inferred: levels/%s.pk
     ResRef_unk m998[6];                    // inferred: levels/%s_tmp%d.pk (the last one: town_sp)
-    int m9B0;
+    GameSceneSave_unk* m9B0; // inferred: save data being loaded (entries at +4)
 };
 
 #endif
