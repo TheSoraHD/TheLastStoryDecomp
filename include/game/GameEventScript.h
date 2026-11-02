@@ -9,6 +9,9 @@ class CharaTask;
 // GameScene::m134); only the members used by game/GameScene.cpp, method names invented
 class GameEventScript : public atn::Task {
 public:
+    int fn_80398530(int event);          // inferred: the event is done
+    int fn_80398590(int event, int arg); // inferred: the event can start
+    int fn_8039CC24(int id);             // inferred: event with the given id
     int fn_803ABFD4(atn::Task* chara);
     int fn_803AC3D8(CharaTask* chara, int a, int b, float range);
     int fn_803AC708(CharaTask* chara);

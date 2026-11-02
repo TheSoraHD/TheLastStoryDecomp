@@ -61,6 +61,7 @@ struct Model : public ModelBase {
     int fn_80097E80(int arg); // inferred: returns nonzero when the motion was updated (CharaTask::fn_80145334)
     void fn_8009385C(int motion, bool play, int arg2, int arg3);  // inferred
     int fn_8008B140();                                // inferred: nonzero while loading
+    void fn_8008B978(int arg);                        // inferred
     int fn_800928B0(unsigned int hash, int arg);      // inferred: node index by name hash, < 0 if missing
 
     // inferred: matrix of node `index`, null for a missing node (inlined at 0x8049CCD4)

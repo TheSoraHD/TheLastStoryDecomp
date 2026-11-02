@@ -179,7 +179,7 @@ struct ConstrainModel {
     int m00;
     atn::Model* m04; // inferred: model being loaded
     atn::Task* m08; // inferred: chara attached to the model
-    int m0C;
+    const atn::Matrix3x4* m0C; // inferred: matrix the model follows
     atn::Vector3 m10;
     int m1C;
 };
@@ -255,10 +255,8 @@ struct Gimmick : public PointBase_unk {
 struct CameraBox : public PointBase_unk {
     CameraBox() {}
     int mIndex;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
+    float m14;          // inferred: rotation y
+    atn::Vector3 mSize; // 0x18: inferred: half size
     int m24;
     int m28;
     int m2C;
@@ -273,10 +271,8 @@ struct CameraBox : public PointBase_unk {
 struct BgmBox : public PointBase_unk {
     BgmBox() {}
     int mIndex;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
+    float m14;          // inferred: rotation y
+    atn::Vector3 mSize; // 0x18: inferred: half size
     int mBgm; // 0x24: inferred: BGM id
     float m28;
     int m2C;
@@ -339,6 +335,12 @@ struct Table2D_unk {
 class CharaTask;
 class GameEventScript;
 
+// inferred: save data used by GameScene (name invented)
+struct GameSceneSave_unk {
+    int m00;
+    unsigned char m04[4];
+};
+
 // inferred: pair queued by GameScene::fn_803CCC84 (names invented)
 struct GameScenePair_unk {
     int m00;
@@ -357,20 +359,20 @@ public:
     virtual void vf14();      // 0x803C221C
 
     atn::Task* fn_803C0634(unsigned int index); // inferred: spawns the NPC of a set point
-    void fn_803C0938(unsigned int index);
-    void fn_803C0C2C(unsigned int index);
-    void fn_803C0F48();
+    atn::Task* fn_803C0938(unsigned int index); // inferred: spawns the party member of a set point
+    atn::Task* fn_803C0C2C(unsigned int index); // inferred: spawns the enemy of a set point
+    void fn_803C0F48(int warp); // inferred: moves the party to a warp point
     atn::Vector3 fn_803C11A4(int point); // inferred: position of a move point
-    void fn_803C1338();
-    int fn_803C1560(const atn::Vector3* pos, int a2, int a3, int a4, int a5, float radius); // inferred: nearest route point
+    atn::Vector3 fn_803C1338(int point, const atn::Vector3* dir); // inferred: random position of a move point ahead of dir
+    int fn_803C1560(const atn::Vector3* pos, int mask, int group, int type, int check, float radius); // inferred: nearest route point
     int fn_803C17FC(int point); // inferred: route point -> index
     int fn_803C1840(int point); // inferred: route point -> link
-    void fn_803C1884();
+    gs::AiArea* fn_803C1884(int id); // inferred: AI area with the given id
     void* fn_803C18DC(int type, int link); // inferred: cliff link
     void fn_803C1CAC();
     void fn_803C1E3C();
-    void fn_803C2048();
-    void fn_803C2090();
+    gs::CameraBox* fn_803C2048(CharaTask* chara); // inferred: camera box of type 1 or 2 around chara
+    gs::CameraBox* fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, CharaTask* chara); // inferred: smallest box around chara
     void fn_803C3724(gs::PointBase_unk* point, atn::Csv& csv); // inferred: id and position
     void fn_803C3798(int* values, atn::Csv& csv);              // inferred: four integers
     void fn_803C380C(int* values, atn::Csv& csv);              // inferred: a range (start, value, end)
@@ -412,7 +414,7 @@ public:
     void fn_803CCC84(int a, int b); // inferred: queues a pair
     void fn_803CCCC0();
     void fn_803CCD98();
-    void fn_803CCDAC();
+    gs::BgmBox* fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTask* chara); // inferred: smallest box around chara
 
     int m48;                            // inferred: loading step
     atn::LH_Binary m4C[3];              // inferred: the .gs files (main, _sub2, _sub3)
@@ -460,7 +462,7 @@ public:
     atn::FixedArray_unk<GameScenePair_unk, 0x100> m190; // inferred: pairs queued by fn_803CCC84
     ResRef_unk m994;                       // inferred: levels/%s.pk
     ResRef_unk m998[6];                    // inferred: levels/%s_tmp%d.pk (the last one: town_sp)
-    int m9B0;
+    GameSceneSave_unk* m9B0; // inferred: save data being loaded (entries at +4)
 };
 
 #endif
