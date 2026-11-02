@@ -3576,10 +3576,15 @@ tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_group.cpp:
 	.data       start:0x80799008 end:0x80799030
 
 tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_layout.cpp:
-	.text       start:0x805CEC40 end:0x805CF8DC
+	.text       start:0x805CEC40 end:0x805CF8E0
 	.rodata     start:0x80764550 end:0x80764558
 	.data       start:0x80799030 end:0x80799080
 	.bss        start:0x807CA1F8 end:0x807CA200
+
+tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_material.cpp:
+	.text       start:0x805CF8E0 end:0x805D2B50
+	.rodata     start:0x80764558 end:0x80764588
+	.data       start:0x80799080 end:0x80799108
 
 tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_picture.cpp:
 	.text       start:0x805D3CA0 end:0x805D4200

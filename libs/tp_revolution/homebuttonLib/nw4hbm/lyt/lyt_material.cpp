@@ -9,6 +9,8 @@
 #include <string>
 
 static const GXColorS10 DefaultBlackColor = {0, 0, 0, 0};
+// SLSP01: a second constant follows DefaultBlackColor in .rodata (0x80764560)
+static const GXColorS10 DefaultWhiteColor = {255, 255, 255, 255};
 
 static inline void SetDefaultWhiteColor(GXColorS10* p) {
     p->r = 255;
@@ -1053,7 +1055,7 @@ namespace nw4hbm {
                         }
 
                         if (mTevCols[TEVCOLOR_REG0] != DefaultBlackColor ||
-                            !IsDefaultWhiteColor(&mTevCols[TEVCOLOR_REG1]))
+                            mTevCols[TEVCOLOR_REG1] != DefaultWhiteColor)
                         {
                             GXTevStageID tevStage = static_cast<GXTevStageID>(tevStageID);
 
