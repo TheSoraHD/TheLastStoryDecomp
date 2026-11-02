@@ -22,7 +22,7 @@ r=subprocess.run(cmd,capture_output=True,text=True)
 if r.returncode: print(r.stdout[-3000:],r.stderr[-2000:]); sys.exit(1)
 syms={}
 for l in open('config/SLSP01/symbols.txt'):
-    m=re.match(r'(\S+) = \.text:0x([0-9A-F]+); // type:function size:0x([0-9A-F]+)',l)
+    m=re.match(r'(\S+) = \.(?:text|init):0x([0-9A-F]+); // type:function size:0x([0-9A-F]+)',l)
     if m: syms.setdefault(m.group(1),(int(m.group(2),16),int(m.group(3),16)))
 for kv in os.environ.get('OVR','').split(','):
     if '=' in kv:
