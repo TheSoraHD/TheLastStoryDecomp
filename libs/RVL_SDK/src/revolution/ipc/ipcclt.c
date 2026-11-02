@@ -5,6 +5,7 @@
 #define IPC_QUEUE_CAPACITY 48
 #define IPC_HEAP_SIZE_OLD 0x800
 #define IPC_HEAP_SIZE 0x2000
+#define IPC_HEAP_SIZE_REINIT 0x1000 // SLSP01 (0x8061C2C4)
 
 typedef struct IPCRequestQueue {
     u32 sent;                                // at 0x0
@@ -258,11 +259,11 @@ s32 IPCCltReInit(void) {
     void* lo;
 
     lo = IPCGetBufferLo();
-    if ((char*)lo + IPC_HEAP_SIZE_OLD > IPCGetBufferHi()) {
+    if ((char*)lo + IPC_HEAP_SIZE_REINIT > IPCGetBufferHi()) {
         err = IPC_RESULT_ALLOC_FAILED;
     } else {
-        hid = iosCreateHeap(lo, IPC_HEAP_SIZE_OLD);
-        IPCSetBufferLo((char*)lo + IPC_HEAP_SIZE_OLD);
+        hid = iosCreateHeap(lo, IPC_HEAP_SIZE_REINIT);
+        IPCSetBufferLo((char*)lo + IPC_HEAP_SIZE_REINIT);
     }
 
     return err;
