@@ -51,51 +51,44 @@ struct GameMessageTable_unk {
 
 namespace gs {
 
-// inferred: atn::SimpleArray with the helpers used by the scene loader (weak copies of this file; the
-// helpers may belong to atn::SimpleArray itself, but declaring them there renumbers the @N labels of
-// every unit that includes atn/Array_unk.h). Names invented.
+// inferred: helpers of atn::SimpleArray used by the scene loader (weak copies of this file). They may
+// be members of atn::SimpleArray, but declaring anything new in that template renumbers the @N labels
+// of every unit that includes atn/Array_unk.h, so they are free templates here. Names invented.
 template <class T>
-class Array_unk : public atn::SimpleArray<T> {
-public:
-    T* GetData_unk() const { return this->mData; }
-    void Grow_unk(unsigned int n, int heap, const char* name) {
-        unsigned int old = this->mSize;
-        if (n == old) {
-            return;
-        }
-        this->mSize = n;
-        T* data = this->mData;
-        if (n != 0) {
-            this->mData = new ((MemoryTag)heap, "", "", 0) T[n];
-            if (data != 0 && old != 0) {
-                for (unsigned int i = 0; i < (old < (unsigned int)this->mSize ? old : (unsigned int)this->mSize); i++) {
-                    this->mData[i] = data[i];
-                }
-            }
-        } else {
-            this->mData = 0;
-        }
-        if (data != 0) {
-            delete[] data;
-        }
+inline T* GetData_unk(const atn::SimpleArray<T>& a) {
+    return a.mData;
+}
+template <class T>
+inline void Grow_unk(atn::SimpleArray<T>& a, unsigned int n, int heap, const char* name) {
+    unsigned int old = a.mSize;
+    if (n == old) {
+        return;
     }
-    T* Find_unk(int id) const {
-        for (unsigned int i = 0; i < (unsigned int)this->mSize; i++) {
-            if (id == this->mData[i].mId) {
-                return &this->mData[i];
+    a.mSize = n;
+    T* data = a.mData;
+    if (n != 0) {
+        a.mData = new ((MemoryTag)heap, "", "", 0) T[n];
+        if (data != 0 && old != 0) {
+            for (unsigned int i = 0; i < (old < (unsigned int)a.mSize ? old : (unsigned int)a.mSize); i++) {
+                a.mData[i] = data[i];
             }
         }
-        return 0;
+    } else {
+        a.mData = 0;
     }
-    int FindIndex_unk(int id) const {
-        for (unsigned int i = 0; i < (unsigned int)this->mSize; i++) {
-            if (id == this->mData[i].mId) {
-                return i;
-            }
+    if (data != 0) {
+        delete[] data;
+    }
+}
+template <class T>
+inline int FindIndex_unk(const atn::SimpleArray<T>& a, int id) {
+    for (unsigned int i = 0; i < (unsigned int)a.mSize; i++) {
+        if (id == a.mData[i].mId) {
+            return i;
         }
-        return -1;
     }
-};
+    return -1;
+}
 
 } // namespace gs
 
@@ -120,8 +113,18 @@ struct WarpPoint : public PointBase_unk {
 
 // "NpcSetPoint"/"EnemySetPoint"/"FriendSetPoint" (0x148 bytes)
 struct NpcSetPoint : public PointBase_unk {
-    unsigned char m10[0x140 - 0x10];
-    atn::SimpleArray<int> m140;
+    int mIndex;
+    float m14;
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+    int m28;
+    char mName[0x100]; // 0x2C
+    int m12C;
+    int m130[3];
+    int m13C;
+    atn::SimpleArray<int> m140; // inferred: script ids
 };
 
 // inferred: "MovePoint" (0x30 bytes)
@@ -311,18 +314,21 @@ struct BgmBox : public PointBase_unk {
 // inferred: "MovePointGroup"/"HidePointGroup"/"WarpPointGroup" (0x94 bytes, one copy of the members
 // per point type)
 template <class T>
-struct PointGroup {
+struct PointGroup : public PointBase_unk {
     PointGroup() {}
-    int mId;
-    unsigned char m04[0x94 - 0x04];
+    T* mPoints[32];
+    T* m90; // inferred: main point
 };
 
 // inferred: "EnemyGroup"/"FriendGroup" (0xA0 bytes)
 template <class T>
-struct CharaGroup {
+struct CharaGroup : public PointBase_unk {
     CharaGroup() {}
-    int mId;
-    unsigned char m04[0xA0 - 0x04];
+    T* mPoints[32];
+    int m90;  // inferred: id of the leader
+    T* m94;   // inferred: leader
+    int m98;
+    int m9C;
 };
 
 // inferred: (unknown rows)
@@ -387,11 +393,13 @@ public:
     void fn_803C380C(int* values, atn::Csv& csv);              // inferred: a range (start, value, end)
     void fn_803C3894(const char* text, int length, int file); // inferred: reads a .gs file
     template <class T>
-    void fn_803C74E0(gs::Array_unk<T>& points, atn::Csv& csv, int file); // inferred: chara set points
+    void fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file); // inferred: chara set points
     template <class G, class T>
-    void fn_803C606C(gs::Array_unk<G>& groups, gs::Array_unk<T>& points, atn::Csv& csv); // inferred: chara groups
+    void fn_803C606C(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& points, atn::Csv& csv); // inferred: chara groups
+    template <class T>
+    T* FindPoint_unk(atn::SimpleArray<T>& points, int id); // inferred: point with the given id
     template <class G, class T>
-    void fn_803C6FE4(gs::Array_unk<G>& groups, gs::Array_unk<T>& points, atn::Csv& csv); // inferred: point groups
+    void fn_803C6FE4(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& points, atn::Csv& csv); // inferred: point groups
     void fn_803CA0F4();
     void fn_803CA604();
     void fn_803CAABC();
@@ -403,42 +411,42 @@ public:
     int m6C;                            // "EnemyNum"
     int m70;                            // "PlayerStartPoint"
     int m74;                            // inferred: number of move points
-    gs::Array_unk<gs::WarpPoint> m78;
-    gs::Array_unk<gs::NpcSetPoint> m80; // "NpcSetPoint"
-    gs::Array_unk<gs::NpcSetPoint> m88; // "EnemySetPoint"
-    gs::Array_unk<gs::NpcSetPoint> m90; // "FriendSetPoint"
-    gs::Array_unk<gs::MovePoint> m98;
-    gs::Array_unk<U16Table_unk> mA0;    // inferred: "MovePointConnection"
+    atn::SimpleArray<gs::WarpPoint> m78;
+    atn::SimpleArray<gs::NpcSetPoint> m80; // "NpcSetPoint"
+    atn::SimpleArray<gs::NpcSetPoint> m88; // "EnemySetPoint"
+    atn::SimpleArray<gs::NpcSetPoint> m90; // "FriendSetPoint"
+    atn::SimpleArray<gs::MovePoint> m98;
+    atn::SimpleArray<U16Table_unk> mA0;    // inferred: "MovePointConnection"
     int mA8;                               // inferred: number of hide points
-    gs::Array_unk<gs::HidePoint> mAC;
-    gs::Array_unk<gs::HideLink_unk> mB4;
-    gs::Array_unk<gs::HideLink2_unk> mBC;
-    gs::Array_unk<gs::InteractionPoint> mC4;
-    gs::Array_unk<gs::InteractionConnection> mCC;
-    gs::Array_unk<gs::NpcAi> mD4;
-    gs::Array_unk<gs::ConstrainModel> mDC;
-    gs::Array_unk<gs::EventBox> mE4;
-    gs::Array_unk<gs::EventSphere> mEC;
-    gs::Array_unk<gs::AiArea> mF4;
-    gs::Array_unk<gs::AttentionPoint> mFC;
-    gs::Array_unk<gs::Gimmick> m104;
-    gs::Array_unk<gs::CameraBox> m10C;
-    gs::Array_unk<gs::BgmBox> m114;
+    atn::SimpleArray<gs::HidePoint> mAC;
+    atn::SimpleArray<gs::HideLink_unk> mB4;
+    atn::SimpleArray<gs::HideLink2_unk> mBC;
+    atn::SimpleArray<gs::InteractionPoint> mC4;
+    atn::SimpleArray<gs::InteractionConnection> mCC;
+    atn::SimpleArray<gs::NpcAi> mD4;
+    atn::SimpleArray<gs::ConstrainModel> mDC;
+    atn::SimpleArray<gs::EventBox> mE4;
+    atn::SimpleArray<gs::EventSphere> mEC;
+    atn::SimpleArray<gs::AiArea> mF4;
+    atn::SimpleArray<gs::AttentionPoint> mFC;
+    atn::SimpleArray<gs::Gimmick> m104;
+    atn::SimpleArray<gs::CameraBox> m10C;
+    atn::SimpleArray<gs::BgmBox> m114;
     GameMessageTable_unk m11C;
     atn::Task* m134;                       // inferred: event script task (fn_80393610)
     int m138;
     float m13C;
     gs::BgmBox* m140;                      // inferred: current BGM box
     void* m144;                            // inferred: area data (fn_8021771C)
-    gs::Array_unk<gs::Unk148_unk> m148;
-    gs::Array_unk<gs::Unk148_unk> m150;
-    gs::Array_unk<gs::PointGroup<gs::MovePoint> > m158;
-    gs::Array_unk<gs::PointGroup<gs::HidePoint> > m160;
-    gs::Array_unk<gs::PointGroup<gs::WarpPoint> > m168;
-    gs::Array_unk<gs::CharaGroup<gs::NpcSetPoint> > m170; // "FriendGroup"
-    gs::Array_unk<gs::CharaGroup<gs::NpcSetPoint> > m178; // "EnemyGroup"
-    gs::Array_unk<int> m180;            // "EventIdList"
-    gs::Array_unk<gs::Unk148_unk> m188;
+    atn::SimpleArray<gs::Unk148_unk> m148;
+    atn::SimpleArray<gs::Unk148_unk> m150;
+    atn::SimpleArray<gs::PointGroup<gs::MovePoint> > m158;
+    atn::SimpleArray<gs::PointGroup<gs::HidePoint> > m160;
+    atn::SimpleArray<gs::PointGroup<gs::WarpPoint> > m168;
+    atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> > m170; // "FriendGroup"
+    atn::SimpleArray<gs::CharaGroup<gs::NpcSetPoint> > m178; // "EnemyGroup"
+    atn::SimpleArray<int> m180;            // "EventIdList"
+    atn::SimpleArray<gs::Unk148_unk> m188;
     int m190;
     unsigned char m194[0x994 - 0x194];
     ResRef_unk m994;                       // inferred: levels/%s.pk
