@@ -1,3 +1,4 @@
+#include <hbm_sound_compat.h>
 #include "seq.h"
 
 
@@ -5,7 +6,7 @@
 
 #include "syn.h"
 
-// #include <revolution/os.h>
+#include <revolution/os.h>
 // #include <revolution/os/OSInterrupt.h>
 
 

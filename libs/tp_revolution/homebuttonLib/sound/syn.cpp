@@ -1,3 +1,4 @@
+#include <hbm_sound_compat.h>
 #include "syn.h"
 
 
@@ -9,8 +10,8 @@
 
 #include "mix.h"
 
-// #include <revolution/ax.h>
-// #include <revolution/os.h>
+#include <revolution/ax.h>
+#include <revolution/os.h>
 // #include <revolution/os/OSAddress.h>
 // #include <revolution/os/OSInterrupt.h>
 

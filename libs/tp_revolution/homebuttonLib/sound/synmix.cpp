@@ -1,3 +1,4 @@
+#include <hbm_sound_compat.h>
 #include "synprivate.h"
 
 
@@ -5,7 +6,7 @@
 
 #include "mix.h"
 
-// #include <revolution/os.h>
+#include <revolution/os.h>
 
 
 

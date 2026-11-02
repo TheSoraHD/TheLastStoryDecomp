@@ -1,9 +1,10 @@
+#include <hbm_sound_compat.h>
 #include "synprivate.h"
 
 
 #include <revolution/types.h>
 
-// #include <revolution/ax.h>
+#include <revolution/ax.h>
 
 
 
