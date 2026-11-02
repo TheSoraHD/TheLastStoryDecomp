@@ -39,6 +39,10 @@ struct DebugMessages_unk {
 };
 extern "C" DebugMessages_unk* lbl_8087EEB8;
 extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model); // inferred: inverse joint matrices
+extern "C" int fn_80476194(atn::LH_Model* model); // inferred: the model has no occlusion data
+extern "C" int fn_804761B0(atn::LH_Model* model); // inferred: the occlusion data is ready
+namespace atn { struct ModelBase; }
+extern "C" void fn_8008BD10(atn::ModelBase* model); // inferred: binds the shaders (not written yet; a ModelBase member)
 extern "C" atn::AABB_unk fn_80070B60(const atn::AABB_unk* box, float scale); // inferred: scales a box
 
 // inferred: empty asserts of the release build (they keep fn_80091684 and fn_80095300 over the inline
@@ -309,7 +313,11 @@ struct CompositeCacheHandle_unk {
 // reference at 0x04)
 struct ModelCompositeTex_unk {
     virtual ~ModelCompositeTex_unk();
+    virtual int vf0C();  // inferred: still building (fn_8008B140)
+    virtual int vf10();  // inferred: finished
+    virtual void vf14(); // inferred: starts building
     CompositeCacheHandle_unk m04;
+    int m08; // inferred: nonzero once started
 };
 
 // inferred: composite texture of a model (atn::ModelBase::m1E4); names invented
@@ -398,6 +406,167 @@ const char* ModelBase::fn_8008B130() {
 
 unsigned int ModelBase::fn_8008B138() {
     return mLods[0].mHandle.fn_80473F34();
+}
+
+// inferred: load state machine (m20C_31_24); returns nonzero while the model is still loading
+// NONMATCHING: 99.2% - loop registers (counter/offset swapped, as in fn_8008AA90), the "" of the pool at 0xA and
+// the stack slots of the path strings (below the boost::function temporaries in the original, as fn_8008B978)
+int ModelBase::fn_8008B140() {
+    switch (m20C_31_24) {
+    case 1:
+        if (mLods[0].mHandle.fn_80473F50()) {
+            return 1;
+        }
+        if (mLods[0].mHandle.fn_80473EFC() == 3) {
+            m20C_31_24 = 5;
+        } else {
+            m20C_31_24 = 9;
+            break;
+        }
+    case 5: {
+        int busy = 0;
+        for (int i = 1; i < m20C_23_16; i++) {
+            if (mLods[i].mHandle.fn_80473F50()) {
+                busy = 1;
+            }
+        }
+        if (mFlag5_unk) {
+            int shadow = m1C4.mHandle.fn_80473F50();
+            busy = busy || shadow;
+            if (!shadow && m1C4.mHandle.fn_80473EFC() == 4) {
+                mFlag5_unk = 0;
+            }
+        }
+        if (busy) {
+            return 1;
+        }
+        fn_8009303C();
+        if (mFlag1_unk) {
+            for (int i = 1; i < m20C_23_16; i++) {
+                fn_8008C62C(i);
+            }
+            m20C_31_24 = 8;
+            mFlag1_unk = 0;
+            break;
+        }
+        fn_8008C950();
+        int done = 1;
+        int plain = 1;
+        if ((mFlags & 2) != 2 && fn_80476194(&mLods[0].mHandle) == 0) {
+            plain = 0;
+        }
+        if (!plain && fn_804761B0(&mLods[0].mHandle) == 0) {
+            done = 0;
+        }
+        if (done) {
+            Res_unk* res = GetRes_unk();
+            if (res != 0 && res->m38->m10 != 1) {
+                char msg[0x100];
+                sprintf(msg, "WARNING Occlusion '%s' was build with motion\n", mLods[0].mHandle.fn_80473F18());
+                msg[0xFF] = 0;
+                lbl_8087EEB8->fn_800697D8(msg);
+            }
+            m20C_31_24 = 8;
+            break;
+        }
+        m20C_31_24 = 2;
+    }
+    case 2:
+        if (m1E4.mSize != 0) {
+            int busy = 0;
+            for (unsigned int i = 0; i < m1E4.mSize; i++) {
+                ModelCompositeTex_unk* tex = m1E4.mData[i]->m10;
+                if (tex != 0 && tex->vf0C()) {
+                    busy = 1;
+                }
+            }
+            if (busy || *(int*)((char*)lbl_8087EFB4 + 0x54) != 0) {
+                return 1;
+            }
+            for (unsigned int i = 0; i < m1E4.mSize; i++) {
+                ModelCompositeTex_unk* tex = m1E4.mData[i]->m10;
+                if (tex != 0) {
+                    if (tex->m08 == 0) {
+                        tex->vf14();
+                        return 1;
+                    }
+                    if (!tex->vf10()) {
+                        return 1;
+                    }
+                    if (m1E4.mData[i]->m10 != 0) {
+                        delete m1E4.mData[i]->m10;
+                        m1E4.mData[i]->m10 = 0;
+                    }
+                }
+            }
+        }
+        m20C_31_24 = 3;
+    case 3:
+        if (m1E4.mSize != 0) {
+            int ready = 1;
+            for (unsigned int i = 0; i < m1E4.mSize; i++) {
+                ModelCompositeTex_unk* tex = m1E4.mData[i]->m10;
+                if (tex != 0 && !tex->vf10()) {
+                    ready = 0;
+                }
+            }
+            if (!ready) {
+                return 1;
+            }
+            for (unsigned int i = 0; i < m1E4.mSize; i++) {
+                if (m1E4.mData[i]->m10 != 0) {
+                    delete m1E4.mData[i]->m10;
+                }
+                m1E4.mData[i]->m10 = 0;
+            }
+        }
+        m20C_31_24 = 7;
+    case 7:
+        if (mFC.fn_80473F50()) {
+            return 1;
+        }
+        fn_8008BD10(this);
+        GetModel_unk()->fn_8008C850(&m104);
+        if (!mFlag3_unk) {
+            std::string dir = fn_8006B0C8(std::string(fn_8008B130()));
+            for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
+                TexGetter_unk getter = boost::bind(&ModelBase::fn_80095B08, this, _1);
+                m104.mMaterials.mData[i]->fn_80080C20(dir, getter);
+            }
+        }
+        m20C_31_24 = 4;
+    case 4: {
+        int loading = 0;
+        for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
+            for (int j = 0; j < m104.mMaterials.mData[i]->m4A; j++) {
+                Texture_unk* tex = m104.mMaterials.mData[i]->m0C[j].mTexture;
+                if (tex != 0 && ((GimmickUvOwner_unk*)tex)->fn_800D59B8()) {
+                    loading = 1;
+                }
+            }
+        }
+        if (loading) {
+            return 1;
+        }
+        for (unsigned int i = 0; i < m104.mMaterials.size(); i++) {
+            m104.mMaterials.mData[i]->fn_80081BD0();
+        }
+        if (mFlag2_unk) {
+            mFlag2_unk = 0;
+            m20C_31_24 = 8;
+        } else {
+            m20C_31_24 = 6;
+        }
+    }
+    case 6:
+        if (vf20()) {
+            return 1;
+        }
+        m20C_31_24 = 8;
+        vf24();
+        break;
+    }
+    return 0;
 }
 } // namespace atn
 
