@@ -120,13 +120,8 @@ namespace atn {
 struct NandEmpty_unk {
     NandEmpty_unk(const char* str) { *this = str; }
     ~NandEmpty_unk();
-    NandEmpty_unk& operator=(const char* str) {
-        if (str != mStr) {
-            memcpy(mStr, str, strlen(str) + 1);
-        }
-        return *this;
-    }
-    const char* c_str() const { return mStr; }
+    NandEmpty_unk& operator=(const char* str);
+    const char* c_str() const;
     char mStr[0x100];
 };
 } // namespace atn
@@ -364,6 +359,17 @@ inline int Em001Necromancer::CountNear_unk(float dist) {
         }
     }
     return count;
+}
+
+atn::NandEmpty_unk& atn::NandEmpty_unk::operator=(const char* str) {
+    if (str != mStr) {
+        memcpy(mStr, str, strlen(str) + 1);
+    }
+    return *this;
+}
+
+const char* atn::NandEmpty_unk::c_str() const {
+    return mStr;
 }
 
 void Em001Necromancer::vf10() {
