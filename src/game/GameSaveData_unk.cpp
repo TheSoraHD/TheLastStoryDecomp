@@ -13,6 +13,8 @@
 #include "game/GimmickManager.h"
 #include "game/GimmickCommon.h"
 #include "game/GameBgm.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
 #include "db/WeaponParam_unk.h"
 #include "db/EquipParam_unk.h"
 
@@ -23,6 +25,7 @@ extern "C" void fn_804A1C4C(GameMap_unk* map); // inferred: refreshes the map af
 extern "C" int lbl_8087DD64;                   // inferred: format of the loaded save data
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" int fn_8036DAF4(GameField_unk* field, Ledge_unk* ledge, CharaTask* chara, int arg, int link); // inferred: finds a ledge
 extern "C" int fn_8021150C(int code);                     // inferred: index of an item code in the bag
 extern "C" int fn_80206BE4(WeaponParamEntry_unk* weapon);  // inferred: item code of a weapon
 extern "C" int fn_8020EF80(EquipParamEntry_unk* equip);    // inferred: item code of a protector
@@ -55,6 +58,58 @@ extern "C" GameSaveChara_unk* fn_803BA0CC(GameSaveFlags_unk* flags, int type, in
         }
     }
     return 0;
+}
+
+// NONMATCHING: register numbering only (the original keeps the entry offset in r4 and the player in r5)
+void GameSavePlayers_unk::fn_803BA408() {
+    for (int i = 0; i < 16; i++) {
+        mEntries[i].mFlags = 0;
+    }
+    int n = 0;
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player; player = player->mNext, n++) {
+        mEntries[n].mFlags |= 1;
+        if (player->mStatus.IsState_unk(0x20)) {
+            mEntries[n].mFlags |= 2;
+        }
+        if (player->mFlag31) {
+            mEntries[n].mFlags |= 4;
+        }
+        if (player->IsFlag54C_unk(0x2000)) {
+            mEntries[n].mFlags |= 8;
+        }
+        mEntries[n].m04 = player->m58;
+        mEntries[n].mPos = player->mPos;
+        mEntries[n].mRot = player->mRot;
+        mEntries[n].m02 = player->mC58.mC0;
+        mEntries[n].m20 = player->mC58.mB4;
+        mEntries[n].m03 = player->m674;
+        if (player->m55C == 7 || (player->m55C == 6 && player->m564 == 7)) {
+            mEntries[n].mFlags |= 0x10;
+            RouteTable_unk* table = lbl_8087F430 ? lbl_8087F430->m10D8 : 0;
+            if (table) {
+                RouteWalker_unk& route = player->mRoute;
+                mEntries[n].mRouteMode = route.m44;
+                mEntries[n].mRouteFlag = route.m48;
+                switch (route.m44) {
+                case 0:
+                    mEntries[n].mRouteTarget = table->mPoints[route.mPointB - 1].m00;
+                    break;
+                case 1:
+                    mEntries[n].mRouteTarget = table->mLinks[route.mLink - 1].m00;
+                    break;
+                case 3:
+                    mEntries[n].mRouteTarget = route.mPlace;
+                    break;
+                case 6:
+                    if (route.mTarget && (route.mTarget->mType == 0 || player->mType == 3)) {
+                        mEntries[n].mRouteTarget = route.mTarget->m58;
+                        mEntries[n].mRouteRadius = route.mRadius;
+                    }
+                    break;
+                }
+            }
+        }
+    }
 }
 
 GameSaveParty_unk::GameSaveParty_unk() {
@@ -92,6 +147,118 @@ int GameSaveParty_unk::fn_803BAE54(GameSavePacketEquip_unk* equip, int chara, in
         }
     }
     return 0;
+}
+
+void GameSaveEnemies_unk::fn_803BAEF8() {
+    for (int i = 0; i < 64; i++) {
+        mEntries[i].mFlags = 0;
+    }
+    GameSaveEnemy_unk* entry = mEntries;
+    for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy; enemy = enemy->mNext) {
+        entry->mFlags |= 1;
+        if (enemy->mStatus.IsState_unk(0x20)) {
+            entry->mFlags |= 2;
+        }
+        if (enemy->mFlag31) {
+            entry->mFlags |= 4;
+        }
+        if (enemy->IsFlag54C_unk(0x2000)) {
+            entry->mFlags |= 8;
+        }
+        if ((enemy->m137C & 0x80) == 0x80 && (enemy->mFlagB20 || enemy->mMotion.m104.fn_80089B5C())) {
+            entry->mFlags |= 0x10;
+        }
+        if ((enemy->m137C & 0x80) != 0x80 && (enemy->mFlagB22 || !enemy->mMotion.m104.fn_80089B5C())) {
+            entry->mFlags |= 0x20;
+        }
+        if (enemy->mFlag15) {
+            entry->mFlags |= 0x40;
+        }
+        entry->m04 = enemy->m58;
+        entry->m02 = enemy->mC58.mC0;
+        entry->m08 = enemy->mC58.mB4;
+        entry->m03 = enemy->m674;
+        entry++;
+    }
+}
+
+void GameSaveEnemies_unk::fn_803BB0E0() {
+    GameSaveEnemy_unk* entry = mEntries;
+    for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy; enemy = enemy->mNext) {
+        if ((entry->mFlags & 1) == 1) {
+            enemy->mC58.mC0 = entry->m02;
+            enemy->mC58.mB4 = entry->m08;
+            if ((entry->mFlags & 2) == 2) {
+                enemy->mStatus.fn_8012DD70();
+                enemy->fn_801765D8();
+            }
+            enemy->fn_8014DEE4(entry->m03, 0, 0);
+            if ((entry->mFlags & 4) == 4) {
+                enemy->fn_80145334();
+                Ledge_unk ledge;
+                if (fn_8036DAF4(lbl_8087F430, &ledge, enemy, 1, 0)) {
+                    enemy->fn_80153698(&ledge, 0);
+                }
+            }
+            if ((entry->mFlags & 8) == 8) {
+                enemy->m54C |= 0x2000;
+            }
+            if ((entry->mFlags & 0x10) == 0x10) {
+                enemy->mFlagB20 = 1;
+                enemy->mMotion.fn_8008B978(0);
+            }
+            if ((entry->mFlags & 0x20) == 0x20) {
+                enemy->mFlagB22 = 1;
+                enemy->mFlagB20 = 0;
+            }
+            if ((entry->mFlags & 0x40) == 0x40) {
+                enemy->mFlag15 = 1;
+            }
+            entry++;
+        }
+    }
+}
+
+void GameSaveGimmicks_unk::fn_803BB248() {
+    for (int i = 0; i < 0x200; i++) {
+        mEntries[i].mFlags = 0;
+    }
+    int n = 0;
+    for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick && n < 0x200; gimmick = gimmick->m5C) {
+        switch (gimmick->m50) {
+        case 1:
+        case 2:
+        case 4:
+        case 5:
+        case 6:
+        case 8:
+        case 17:
+        case 21:
+        case 22:
+        case 24:
+        case 28:
+        case 34:
+        case 36:
+        case 38:
+        case 43:
+        case 45:
+        case 46:
+        case 51:
+            mEntries[n++].Set_unk(gimmick);
+            break;
+        case 7:
+            if (gimmick->mId % 1000 == 1) {
+                mEntries[n++].Set_unk(gimmick);
+            }
+            break;
+        }
+    }
+}
+
+// NONMATCHING: the original compares the array end once (cr0 reused after the first element)
+MP::SaveElemB_unk::SaveElemB_unk() : m000(-1), m004(-1), m008(-1), m00C(-1) {
+    m290 = 0;
+    m294 = 0;
 }
 
 int GameSaveInventory_unk::fn_803BD0FC(GameSavePacketEquip_unk* equip, int chara, int slot) const {
@@ -220,13 +387,13 @@ void GameSaveData_unk::fn_803BE670() {
 
 // NONMATCHING: 91.5% - the original loads the saved id before the gimmick id in the search loop
 void GameSaveData_unk::fn_803BE6B8() {
-    m4F5C.fn_803BA620();
+    mPlayers.fn_803BA620();
     mParty.fn_803BAD6C();
     mEnemies.fn_803BB0E0();
     for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick; gimmick = gimmick->m5C) {
-        int i = FindGimmick_unk(gimmick);
-        if (i != 0x200 && (mGimmicks[i].mFlags & 1) == 1) {
-            gimmick->vf70(mGimmicks[i].mState);
+        int i = mGimmicks.FindGimmick_unk(gimmick);
+        if (i != 0x200 && (mGimmicks.mEntries[i].mFlags & 1) == 1) {
+            gimmick->vf70(mGimmicks.mEntries[i].mState);
         }
     }
     if (GameBgm::sInstance) {
