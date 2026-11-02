@@ -206,6 +206,10 @@ atn/GraphicsDevice.cpp:
 	.sbss       start:0x8087EED8 end:0x8087EEF0
 	.sdata2     start:0x80880A70 end:0x80880AD0
 
+atn/Keyboard.cpp:
+	.text       start:0x8007708C end:0x80077160
+	.sbss       start:0x8087EEF0 end:0x8087EEF8
+
 atn/LensFlare.cpp:
 	.text       start:0x80077160 end:0x80079044
 	.rodata     start:0x80731838 end:0x807318A0
@@ -631,12 +635,12 @@ game/BattleResult.cpp:
 	.sdata2     start:0x808813B8 end:0x808813D0
 
 game/BattleTask.cpp:
-	.text       start:0x800F1430 end:0x8010D98C
-	.rodata     start:0x807355C8 end:0x80736040
+	.text       start:0x800F13BC end:0x8010D98C
+	.rodata     start:0x807355C8 end:0x80736548
 	.data       start:0x80779CE0 end:0x80779E28
 	.bss        start:0x807C7840 end:0x807C7858
 	.sdata      start:0x8087D978 end:0x8087D980
-	.sbss       start:0x8087F04C end:0x8087F050
+	.sbss       start:0x8087F048 end:0x8087F050
 	.sdata2     start:0x808813D4 end:0x808815F8
 
 Event/Behavior_unk.cpp:
@@ -1056,7 +1060,7 @@ game/CosEditItemList_unk.cpp:
 	.sdata2     start:0x80882AF0 end:0x80882B10
 
 game/CostumeEditChara.cpp:
-	.text       start:0x801E7FF8 end:0x801E9218
+	.text       start:0x801E7FF8 end:0x801E9398
 	.rodata     start:0x8073CB78 end:0x8073CBD0
 	.data       start:0x807828C8 end:0x80782900
 	.sdata2     start:0x80882B10 end:0x80882B30
@@ -2050,7 +2054,7 @@ game/GameEventScript_cont2.cpp:
 	.text       start:0x803AD148 end:0x803B27F8
 	.ctors      start:0x8072D358 end:0x8072D35C
 
-auto_03_803B27F8_text.cpp:
+game/GameLoadTask.cpp:
 	.text       start:0x803B27F8 end:0x803B33F8
 	.ctors      start:0x8072D35C end:0x8072D360
 	.rodata     start:0x8074FB78 end:0x8074FC08

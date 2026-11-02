@@ -217,6 +217,13 @@
   "matching": false
  },
  {
+  "name": "atn/Keyboard.cpp",
+  "classes": [
+   "atn::Keyboard"
+  ],
+  "matching": true
+ },
+ {
   "name": "atn/LensFlare.cpp",
   "classes": [
    "atn::LensFlare"
@@ -1965,6 +1972,13 @@
   "name": "game/GameEventScript_cont2.cpp",
   "classes": [
    "GameEventScript"
+  ],
+  "matching": false
+ },
+ {
+  "name": "game/GameLoadTask.cpp",
+  "classes": [
+   "GameLoadTask"
   ],
   "matching": false
  },
