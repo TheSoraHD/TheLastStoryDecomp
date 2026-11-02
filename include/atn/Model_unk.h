@@ -74,7 +74,9 @@ struct Model : public ModelBase {
     void fn_80094F14(float u, float v);            // inferred: UV translation of every material
     Material_unk* fn_80094B6C(const char* name);   // inferred: material by name (second copy)
     void fn_80095CD0();                            // inferred: steps the texture animations
-    void fn_8008C850(MaterialList_unk* list);      // inferred
+    void fn_8008C828(MaterialList_unk* list);      // inferred: sets the materials in use
+    void fn_80097750(const atn::Vector3& dir, float a, float b, int c); // inferred: direction parameters
+    void fn_8008C850(MaterialList_unk* list);      // inferred: flags from the materials
     void fn_80094D88(int arg, int flag, int a, int b, int c); // inferred: material mode of every material
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
@@ -167,7 +169,9 @@ struct Model : public ModelBase {
         Material_unk** mData;
     };
     MaterialList_unk m104;
-    unsigned char m10C[0x16C - 0x10C];
+    unsigned char m10C[0x138 - 0x10C];
+    MaterialList_unk* m138; // inferred: materials in use (null: m104)
+    unsigned char m13C[0x16C - 0x13C];
     struct Res_unk;
     // inferred: one entry per LOD (0x18 bytes, GetNodeNoByName); the first is the main model
     struct Lod_unk {
@@ -271,7 +275,11 @@ struct Model : public ModelBase {
     boost::function<void(atn::MotionBuffer*, int)> m35C;
     // inferred: callback run on the node poses (set by CharaFaceControl::Initialize)
     boost::function<void(atn::MotionBuffer*, int)> m370;
-    unsigned char m384[0x3C0 - 0x384];
+    unsigned char m384[0x3A8 - 0x384];
+    atn::Vector3 m3A8; // inferred: direction (normalized, fn_80097750)
+    float m3B4;
+    float m3B8;
+    int m3BC;
     int m3C0;     // inferred: node index (fn_80099E9C)
     float m3C4;
     char m3C8[8]; // inferred: name copied by fn_80099E9C

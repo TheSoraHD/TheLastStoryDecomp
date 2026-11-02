@@ -103,6 +103,47 @@ inline int FindNode_unk(const Model* model, unsigned int hash, int lod) {
     return FindNodeRes_unk(model->mLods[lod].mRes, hash);
 }
 
+// inferred: the material has a texture stage with the given id
+inline bool HasStage_unk(Material_unk* m, int id) {
+    return m->fn_80080528(id) != 0;
+}
+
+void Model::fn_8008C828(MaterialList_unk* list) {
+    if (list == m138) {
+        return;
+    }
+    m138 = list;
+    if (list != 0) {
+        fn_8008C850(list);
+    } else {
+        fn_8008C850(&m104);
+    }
+}
+
+void Model::fn_8008C850(MaterialList_unk* list) {
+    mFlags &= ~0x2000;
+    mFlags &= ~0x40000;
+    mFlags &= ~0x30;
+    mFlags &= ~0x20000;
+    for (unsigned int i = 0; i < list->mSize; i++) {
+        Material_unk* m = list->mData[i];
+        if (m->fn_800816A8()) {
+            mFlags |= 0x10;
+        } else {
+            mFlags |= 0x20;
+        }
+        if (HasStage_unk(m, 0x15)) {
+            mFlags |= 0x2000;
+        }
+        if (HasStage_unk(m, 0x14)) {
+            mFlags |= 0x40000;
+        }
+        if (m->m48 & 2) {
+            mFlags |= 0x20000;
+        }
+    }
+}
+
 // RSO: GetNodeNoByName__Q23atn9ModelBaseCFPCci; the members are the ones of atn::Model (the class
 // layout lives in Model in include/atn/Model_unk.h)
 int ModelBase::GetNodeNoByName(const char* name, int lod) const {
@@ -312,6 +353,16 @@ void Model::fn_80095CD0() {
     }
 }
 
+// NONMATCHING: 83% - the copy of dir is scheduled before the arguments
+void Model::fn_80097750(const atn::Vector3& dir, float a, float b, int c) {
+    atn::Vector3 n(dir);
+    n.Normalize_unk();
+    m3A8 = n;
+    m3B4 = a;
+    m3B8 = b;
+    m3BC = c;
+}
+
 void Model::fn_80097A20(unsigned int motion) {
     LH_Motion* slot = &m228[motion];
     slot->fn_80473F88();
@@ -421,3 +472,29 @@ void Model::fn_80099E9C(const char* node, const char* name, float value) {
 }
 
 } // namespace atn
+
+// inferred: out[i] = root * b[i] * a[i]
+// NONMATCHING: 97.6% - register allocation of the pointers
+extern "C" void fn_8009A490(Mtx* out, const Mtx* a, const Mtx* b, int n, const Mtx root) {
+    while (n != 0) {
+        PSMTXConcat(*b, *a, *out);
+        PSMTXConcat(root, *out, *out);
+        out++;
+        n--;
+        a++;
+        b++;
+    }
+}
+
+// inferred: out[i] = root * mats[index[i]] * a[i]
+// NONMATCHING: 97.5% - register allocation of the pointers
+extern "C" void fn_8009A504(Mtx* out, const Mtx* a, const Mtx* mats, const int* index, int n, const Mtx root) {
+    while (n != 0) {
+        PSMTXConcat(mats[*index], *a, *out);
+        PSMTXConcat(root, *out, *out);
+        out++;
+        a++;
+        index++;
+        n--;
+    }
+}
