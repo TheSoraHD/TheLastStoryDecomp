@@ -4886,6 +4886,12 @@ PowerPC_EABI_Support/src/Runtime/ptmf.c:
 	.text       start:0x80695AD0 end:0x80695B28
 	.rodata     start:0x80766768 end:0x80766778
 
+PowerPC_EABI_Support/src/Runtime/MWRTTI.cp:
+	extab       start:0x80007BDC end:0x80007BE4
+	extabindex  start:0x80008134 end:0x80008140
+	.text       start:0x80695B28 end:0x80695D84
+	.rodata     start:0x80766778 end:0x807667C0
+
 PowerPC_EABI_Support/src/Runtime/runtime.c:
 	.text       start:0x80695D84 end:0x80696578
 	.rodata     start:0x807667C0 end:0x807667D8
