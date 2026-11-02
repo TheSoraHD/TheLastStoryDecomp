@@ -1401,6 +1401,11 @@ void Em203GreaterDaemonRedMp::fn_802A35B0(int kind) {
     m1634 = 0;
 }
 
+// inferred: rotation-matrix helper for the Z angle in fn_802A3D80.
+extern "C" void fn_802A3D64(Mtx m, float rad) {
+    PSMTXRotRad(m, 'z', rad);
+}
+
 int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
     m15F8 = skill;
     return skill != 0;
