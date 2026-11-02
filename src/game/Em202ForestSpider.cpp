@@ -4,6 +4,8 @@
 #include "game/CharaStatus.h"
 #include "chr/ControlBase.h"
 #include "game/EnemyManager.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
 #include "game/PlayerManager.h"
 #include "game/FriendManager.h"
 #include "math/Vec.h"
@@ -1444,6 +1446,43 @@ void Em202ForestSpider::fn_80279280() {
         PSMTXScale(sm, 1.0f, 1.0f, scale);
         PSMTXConcat(t->m58.m, sm, t->m58.m);
     }
+}
+
+// inferred: head of the linked list owned by the singleton GimmickManager.
+extern "C" GimmickCommon* fn_80279788(GimmickManager* manager) {
+    return manager->mHead;
+}
+
+// inferred: current GimmickManager singleton.
+extern "C" GimmickManager* fn_80279790() {
+    return GimmickManager::instance_;
+}
+
+// inferred: gimmick type field used to filter the manager list.
+extern "C" int fn_80279798(GimmickCommon* gimmick) {
+    return gimmick->m50;
+}
+
+// inferred: address of the gimmick's position.
+extern "C" atn::Vector3* fn_802797A0(GimmickCommon* gimmick) {
+    return &gimmick->m6C;
+}
+
+// inferred: default construction for a GimmickMsg_unk local in the thread collision loop.
+extern "C" void fn_802797A8(GimmickMsg_unk* msg) {
+    msg->mType = 0;
+    msg->m04 = 0;
+    msg->m08 = 0;
+    msg->m0C = 0;
+    msg->m10 = 0;
+    msg->mVec.x = 0.0f;
+    msg->mVec.y = 0.0f;
+    msg->mVec.z = 0.0f;
+}
+
+// inferred: next entry in the GimmickManager linked list.
+extern "C" GimmickCommon* fn_802797D4(GimmickCommon* gimmick) {
+    return gimmick->m5C;
 }
 
 void Em202ForestSpider::fn_802797DC() {
