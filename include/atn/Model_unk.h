@@ -55,6 +55,7 @@ struct Model : public ModelBase {
     virtual ~Model(); // 0x800971D4
     using ModelBase::CalcMatrixStack;
     void CalcMatrixStack(ModelNodeCallback_unk callback); // 0x8000D430
+    struct NodeEdit_unk;
     int fn_8009290C(unsigned int hash);          // inferred: material index by name hash
     Material_unk* fn_80092954(const char* name); // inferred: material by name
     Material_unk* fn_800929C0(unsigned int hash); // inferred: material by name hash
@@ -67,6 +68,11 @@ struct Model : public ModelBase {
     void fn_80093E30(unsigned int hash, int show); // inferred: shows/hides a material by name hash
     int fn_80093E90(unsigned int hash);            // inferred: the material is shown (0 if missing)
     void fn_80093EEC(int show);                    // inferred: shows/hides every material
+    NodeEdit_unk* fn_800948F0(const char* name);   // inferred: node edit by node name
+    void fn_80094E2C(int value);                   // inferred: sets Material_unk::m34 on every material
+    void fn_80094F14(float u, float v);            // inferred: UV translation of every material
+    Material_unk* fn_80094B6C(const char* name);   // inferred: material by name (second copy)
+    void fn_80095CD0();                            // inferred: steps the texture animations
     void fn_80092A4C();                          // inferred
     const char* fn_8008B130();                   // inferred: model name
     void fn_8008CD60();                          // inferred
@@ -135,7 +141,16 @@ struct Model : public ModelBase {
     unsigned char m9C[0xAC - 0x9C];
     float mAC; // inferred: draw distance scale (CharaTask sets 1.0 or 1.3, 0x80149A30)
     int mB0; // inferred: compared with 0 by CharaTask::fn_8013655C
-    unsigned char mB4[0xF0 - 0xB4];
+    unsigned char mB4[0xD8 - 0xB4];
+    // inferred: node edit (0x2C bytes; fn_80093F58/fn_80094778); names invented
+    struct NodeEdit_unk {
+        unsigned int mHash;
+        unsigned char m04[0x2C - 0x4];
+    };
+    unsigned int mD8; // inferred: number of node edits
+    int mDC;
+    NodeEdit_unk* mE0;
+    unsigned char mE4[0xF0 - 0xE4];
     unsigned char* mF0; // inferred: node visibility (one byte per node)
     unsigned char mF4[0xF8 - 0xF4];
     unsigned char* mF8; // inferred: material visibility (one byte per material)
@@ -176,7 +191,8 @@ struct Model : public ModelBase {
     unsigned int mFlag4_unk : 1; // inferred: set together with the equipment
     unsigned int m20C_3 : 1;
     int mFlag2_unk : 1; // inferred: CharaManager::vf10 calls fn_8008B140 while it is set
-    unsigned int m20C_1_0 : 2;
+    int mFlag1_unk : 1; // inferred: fn_80093014 (sets m20C_31_24 to 5)
+    unsigned int m20C_0 : 1;
     unsigned char m210[0x220 - 0x210];
     // inferred: accessor (the original reads the flag word again before setting mFlag4_unk); name invented
     int IsFlag5_unk() const { return mFlag5_unk; }

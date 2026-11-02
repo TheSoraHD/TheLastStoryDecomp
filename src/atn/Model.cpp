@@ -95,6 +95,13 @@ void Model::fn_80092A00(float alpha) {
     }
 }
 
+void Model::fn_80093014(int on) {
+    mFlag1_unk = on;
+    if (mFlag1_unk) {
+        m20C_31_24 = 5;
+    }
+}
+
 void Model::fn_8009373C(const char* name, int show) {
     int i = FindNode_unk(this, fn_800DC6B4(name), 0);
     if (i >= 0) {
@@ -165,6 +172,49 @@ void Model::fn_80093EEC(int show) {
     unsigned char on = show != 0;
     for (unsigned int i = 0; i < m104.mSize; i++) {
         mF8[i] = on;
+    }
+}
+
+Model::NodeEdit_unk* Model::fn_800948F0(const char* name) {
+    unsigned int hash = fn_800DC6B4(name);
+    for (unsigned int i = 0; i < mD8; i++) {
+        NodeEdit_unk* e = &mE0[i];
+        if (hash == e->mHash) {
+            return e;
+        }
+    }
+    return 0;
+}
+
+Material_unk* Model::fn_80094B6C(const char* name) {
+    unsigned int hash = fn_800DC6B4(name);
+    for (unsigned int i = 0; i < m104.mSize; i++) {
+        Material_unk* m = m104.mData[i];
+        if (m->m00 == hash) {
+            return m;
+        }
+    }
+    return 0;
+}
+
+void Model::fn_80094E2C(int value) {
+    unsigned int n = m104.mSize;
+    for (unsigned int i = 0; i < n; i++) {
+        m104.mData[i]->m34 = value;
+    }
+}
+
+void Model::fn_80094F14(float u, float v) {
+    for (unsigned int i = 0; i < m104.mSize; i++) {
+        m104.mData[i]->fn_80081514(u, v);
+    }
+}
+
+void Model::fn_80095CD0() {
+    for (unsigned int i = 0; i < m104.mSize; i++) {
+        if (m104.mData[i]->m4B != 0) {
+            m104.mData[i]->fn_80080048(1.0f / 30.0f);
+        }
     }
 }
 
