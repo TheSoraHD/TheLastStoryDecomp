@@ -24,7 +24,9 @@ struct ModelNodeCallbackContext;
 struct MotionBuffer; // inferred: node pose passed to the m370 callback (name from the RTTI of CharaFaceControl)
 struct ModelChild_unk; // inferred: objects owned by a model (deleted through their virtual destructor)
 struct ModelComposite_unk; // inferred: composite texture of a model (defined in atn/Model.cpp)
+struct ModelCompositeTex_unk; // inferred: texture composite object (defined in atn/Model.cpp)
 struct Model;
+struct AABB_unk;
 }
 // inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
 // and by the equipment at 0x80564108); defined where it is used
@@ -50,7 +52,7 @@ struct MaterialSet_unk {
 
     atn::SimpleArray<Material_unk*> mMaterials; // 0x00
     atn::SimpleArray<int> m08[4];    // 0x08: inferred: index in mMaterials of each material of a level of detail
-    atn::SimpleArray<unsigned short> m28;       // 0x28: inferred: element type
+    atn::SimpleArray<int> m28;       // 0x28: inferred: texture stage of each material that takes an external texture (-1: none)
 };
 
 namespace atn {
@@ -99,6 +101,7 @@ struct ModelBase : public IRender {
     void fn_80091A90(const Mtx m);                   // inferred: updates the skinning matrices for m
     void fn_80091C10(const ModelBase* src, const int* map, int reset); // inferred: copies node matrices
     void fn_80095CD0();                          // inferred: steps the texture animations
+    void fn_80095750(const char* name, ModelCompositeTex_unk* tex); // inferred: adds a composite texture
     void fn_80092EC8(const char* path);          // inferred: loads the shadow model
     void fn_80092F1C(const char* path, const char* node, float distance); // inferred: adds a level of detail
     void fn_80092F90();                          // inferred: releases the levels of detail
@@ -135,6 +138,8 @@ struct ModelBase : public IRender {
     typedef ModelJoint_unk NodeRes_unk;
     typedef ModelMtxBlock_unk ResMtx_unk;
     typedef ModelData_unk Res_unk;
+    // inferred: world matrix block (weak copies 0x8008D784 and 0x800952F8); name invented
+    Mtx_unk* GetMtx_unk() { return &mMtx; }
     // inferred: loaded data of the first level (the main model)
     Res_unk* GetRes_unk() const { return (Res_unk*)mLods[0].m08; }
     // inferred: the same object seen through the atn::Model declarations (the members embedded as
@@ -232,6 +237,7 @@ struct Model : public ModelBase {
     void fn_80097750(const atn::Vector3& dir, float a, float b, int c); // inferred: direction parameters
     void fn_8008C850(MaterialSet_unk* list);       // inferred: flags from the materials
     void fn_80094D88(int arg, int flag, int a, int b, int c); // inferred: material mode of every material
+    void fn_80094BD8(int mode); // inferred: blend mode of every material
     void fn_80092A4C();                          // inferred
     void fn_8008CD60();                          // inferred
     void fn_800954DC(void* owner, atn::Vector2_unk uv, float f); // inferred: UV scroll
@@ -304,6 +310,7 @@ struct Model : public ModelBase {
     Node_unk* fn_80147A00();
     typedef atn::Sphere Sphere_unk;
     Sphere_unk fn_80094F98(); // inferred: bounding sphere (passed to MapManager::fn_804918A4)
+    AABB_unk fn_80095300();   // inferred: bounding box in world space
     float GetMotionFrame(int track) const; // 0x80139550
     void fn_80139F24(int value);
     int fn_80139F2C(int track);

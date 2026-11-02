@@ -8,6 +8,7 @@
 #include "atn/Shader_unk.h"
 #include "atn/MemoryManager.h"
 #include "std/string.h"
+#include "atn/AABB_unk.h"
 #include <boost/bind.hpp>
 
 extern "C" char* strcpy(char* dst, const char* src);
@@ -21,6 +22,7 @@ std::string fn_8006B0C8(const std::string& path); // inferred: directory of a pa
 extern "C" void* lbl_8087EFB4; // inferred: render system
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int memcmp(const void* a, const void* b, unsigned long n);
+extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* srcBase, atn::Vector3* dstBase, unsigned int count);
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXConcatArray(const Mtx a, const Mtx* srcBase, Mtx* dstBase, unsigned int count);
 // inferred: collects the warnings of the loaders (see game/main.cpp)
@@ -29,6 +31,14 @@ struct DebugMessages_unk {
 };
 extern "C" DebugMessages_unk* lbl_8087EEB8;
 extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model); // inferred: inverse joint matrices
+extern "C" atn::AABB_unk fn_80070B60(const atn::AABB_unk* box, float scale); // inferred: scales a box
+
+// inferred: b * a by value (weak copy 0x8008CD50); name invented
+inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 r;
+    PSMTXConcat(b.m, a.m, r.m);
+    return r;
+}
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
@@ -183,19 +193,24 @@ struct CompositeCacheEntry_unk;
 // inferred: reference to an entry of the texture composite cache (its methods are compiled in
 // atn/CompositeIntensityTintMulti.cpp: constructor 0x800D87A4, 0x800D87B0, Release_unk 0x800D87C4)
 struct CompositeCacheHandle_unk {
+    CompositeCacheHandle_unk();    // 0x800D87A4
+    void AddRef_unk() const;       // 0x800D87B0
     void Release_unk();
+    Texture_unk* fn_800D8808(); // inferred: texture of the entry
     CompositeCacheEntry_unk* mEntry;
 };
 
-// inferred: polymorphic texture object owned by a composite entry
+// inferred: polymorphic texture object owned by a composite entry (a texture composite with its cache
+// reference at 0x04)
 struct ModelCompositeTex_unk {
     virtual ~ModelCompositeTex_unk();
+    CompositeCacheHandle_unk m04;
 };
 
 // inferred: composite texture of a model (atn::ModelBase::m1E4); names invented
 struct ModelComposite_unk {
     std::string mName;
-    int m0C;
+    unsigned int m0C; // inferred: hash of the name
     ModelCompositeTex_unk* m10;
     CompositeCacheHandle_unk m14;
 };
@@ -418,6 +433,39 @@ void ModelBase::vf18(RenderView_unk* view) {
         }
     }
 }
+} // namespace atn
+
+// inferred: bounding box of `box` transformed by `m` (its eight corners)
+atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m) {
+    float maxZ = box.mMax.z;
+    float maxY = box.mMax.y;
+    float maxX = box.mMax.x;
+    float minX = box.mMin.x;
+    float minY = box.mMin.y;
+    float minZ = box.mMin.z;
+    atn::Vector3 corners[8];
+    corners[0] = atn::Vector3(maxX, maxY, maxZ);
+    corners[1] = atn::Vector3(minX, maxY, maxZ);
+    corners[2] = atn::Vector3(maxX, minY, maxZ);
+    corners[3] = atn::Vector3(minX, minY, maxZ);
+    corners[4] = atn::Vector3(maxX, maxY, minZ);
+    corners[5] = atn::Vector3(minX, maxY, minZ);
+    corners[6] = atn::Vector3(maxX, minY, minZ);
+    corners[7] = atn::Vector3(minX, minY, minZ);
+    PSMTXMultVecArray(m.m, corners, corners, 8);
+    atn::Vector3 max(corners[0]);
+    atn::Vector3 min(corners[0]);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[1].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[2].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[3].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[4].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[5].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[6].x);
+    __VecMinMax(&min.x, &max.x, &min.x, &max.x, &corners[7].x);
+    return atn::AABB_unk(min, max);
+}
+
+namespace atn {
 
 void ModelBase::vf1C() {
 }
@@ -906,6 +954,48 @@ Material_unk* Model::fn_80094B6C(const char* name) {
     return 0;
 }
 
+void Model::fn_80094BD8(int mode) {
+    if (mode == 4) {
+        unsigned int n = m104.mMaterials.mSize;
+        for (unsigned int i = 0; i < n; i++) {
+            Material_unk* m = m104.mMaterials.mData[i];
+            if ((int)m->m14_0 == 1) {
+                m->fn_8007FAF0(7);
+                m->m48 |= 2;
+            } else if ((int)m->m14_12 == 1) {
+                m->m44 = -1;
+            } else {
+                m->fn_8007FAF0(mode);
+                m->m48 |= 2;
+            }
+        }
+    } else if (mode == 3) {
+        unsigned int n = m104.mMaterials.mSize;
+        for (unsigned int i = 0; i < n; i++) {
+            Material_unk* m = m104.mMaterials.mData[i];
+            if ((int)m->m14_0 == 1) {
+                m->fn_8007FAF0(8);
+                m->m48 = m->m48 & 0xFFFFFFFD;
+            }
+        }
+    } else if (mode == 1) {
+        unsigned int n = m104.mMaterials.mSize;
+        for (unsigned int i = 0; i < n; i++) {
+            Material_unk* m = m104.mMaterials.mData[i];
+            if ((int)m->m14_0 == 1) {
+                m->fn_8007FAF0(8);
+                m->m48 = m->m48 & 0xFFFFFFFD;
+            } else if ((m->m48 & ~2) == 0) {
+                m->m44 = -1;
+            } else {
+                m->fn_8007FAF0(1);
+                m->m48 = m->m48 & 0xFFFFFFFD;
+            }
+        }
+    }
+    fn_8008C850(&m104);
+}
+
 void Model::fn_80094D88(int arg, int flag, int a, int b, int c) {
     unsigned int n = m104.mMaterials.mSize;
     for (unsigned int i = 0; i < n; i++) {
@@ -936,10 +1026,101 @@ void Model::fn_80094F14(float u, float v) {
     }
 }
 
+// NONMATCHING: 9.6% - the original is over the inline budget (R3): every accessor, matrix product and box
+// assignment is called out of line (weak copies 0x8008CD50, 0x8008E2E0, 0x80091C00, 0x800952F8...)
+AABB_unk Model::fn_80095300() {
+    AABB_unk box;
+    box.mMin = fn_8000DD04()->GetMin_unk();
+    box.mMax = fn_8000DD04()->GetMax_unk();
+    Mtx_unk* mtx = GetMtx_unk();
+    Matrix3x4 world(mtx->m);
+    if (mB0 >= 0) {
+        Matrix3x4* inv = fn_80476130(&mLods[0].mHandle);
+        if (mB4 >= 0) {
+            Matrix3x4 m0 = MulMtx_unk(inv[mB0], mtx->mNodes[mB0]);
+            AABB_unk a = fn_80070B60(&box, mAC);
+            a = fn_8008F5F8(a, m0);
+            Matrix3x4 m1 = MulMtx_unk(inv[mB4], mtx->mNodes[mB4]);
+            AABB_unk b = fn_80070B60(&box, mAC);
+            b = fn_8008F5F8(b, m1);
+            box = a.Merge_unk(b);
+            return box;
+        }
+        world = MulMtx_unk(inv[mB0], mtx->mNodes[mB0]);
+    }
+    box = fn_80070B60(&box, mAC);
+    box = fn_8008F5F8(box, world);
+    return box;
+}
+
+// inferred: sets an external texture with a UV scale and offset on the materials that take one
+void Model::fn_800954DC(void* tex, Vector2_unk uv, float scale) {
+    if (tex == 0) {
+        return;
+    }
+    unsigned int n = m104.mMaterials.mSize;
+    for (unsigned int i = 0; i < n; i++) {
+        Material_unk* m = m104.mMaterials.mData[i];
+        int stage = m104.m28.mData[i];
+        if (stage > -1) {
+            TexStage_unk* st = &m->m0C[stage];
+            st->SetScaleU(scale);
+            st->SetScaleV(scale);
+            st->SetTransU(uv.x);
+            st->SetTransV(uv.y);
+            if (st->mOwnsTexture && st->mTexture != 0) {
+                delete st->mTexture;
+                st->mOwnsTexture = 0;
+                st->mTexture = 0;
+            }
+            st->mTexture = (Texture_unk*)tex;
+        }
+    }
+}
+
+void ModelBase::fn_80095750(const char* name, ModelCompositeTex_unk* tex) {
+    ModelComposite_unk* e = new ((MemoryTag)6, "", "", 0) ModelComposite_unk;
+    e->mName.assign(name);
+    e->m0C = fn_800DC6B4(name);
+    e->m10 = tex;
+    tex->m04.AddRef_unk();
+    e->m14.mEntry = tex->m04.mEntry;
+    m1E4.push_back(e);
+}
+
+// NONMATCHING: 97.9% - registers (this/name in r27/r28 in the original)
+Texture_unk* ModelBase::fn_80095B08(const std::string& name) {
+    if (m1E4.mSize != 0) {
+        unsigned int hash = fn_800DC6B4(name.c_str());
+        for (unsigned int i = 0; i < m1E4.mSize; i++) {
+            if (hash == m1E4.mData[i]->m0C && name == m1E4.mData[i]->mName) {
+                return m1E4.mData[i]->m14.fn_800D8808();
+            }
+        }
+    }
+    return 0;
+}
+
 void ModelBase::fn_80095CD0() {
     for (unsigned int i = 0; i < m104.mMaterials.mSize; i++) {
         if (m104.mMaterials.mData[i]->m4B != 0) {
             m104.mMaterials.mData[i]->fn_80080048(1.0f / 30.0f);
+        }
+    }
+}
+
+// inferred: bounds follow nodes `node` and `parent` (mB0/mB4); moves the bounding center to their midpoint
+void Model::fn_80095D44(int node, int parent) {
+    mB0 = node;
+    mB4 = parent;
+    if (node >= 0) {
+        if (parent >= 0) {
+            m9C -= (((const Matrix3x4*)GetNodeMtx_unk(node))->GetTrans_unk() +
+                    ((const Matrix3x4*)GetNodeMtx_unk(parent))->GetTrans_unk()) *
+                       0.5f -
+                   mMtx.GetTrans_unk();
+        } else {
+            m9C -= ((const Matrix3x4*)GetNodeMtx_unk(node))->GetTrans_unk() - mMtx.GetTrans_unk();
         }
     }
 }
