@@ -3,7 +3,7 @@
 
 #include "game/CharaTask.h"
 #include "game/CharaFaceControl.h"
-#include "atn/IRender.h"
+#include "atn/RenderView_unk.h"
 #include "atn/Camera_unk.h"
 #include "atn/Array_unk.h"
 #include "atn/LipSync_unk.h"

@@ -19,14 +19,6 @@ struct GimmickUvOwner_unk {
     int fn_800D59B8();
 };
 
-// inferred: object deleted through its virtual destructor (type 1 entries; probably the model
-// class of include/atn/Model_unk.h, which is declared there without its vtable)
-struct EffectModel_unk {
-    EffectModel_unk(unsigned int flags); // 0x8008A4E0
-    virtual ~EffectModel_unk();
-    unsigned char m04[0x214 - 0x4];
-};
-
 // inferred: two textures (type 2 entries), destroyed by the implicit destructor
 struct EffectTexturePair_unk {
     // inferred: one of the two textures is still loading
@@ -80,7 +72,7 @@ LoadEffect::~LoadEffect() {
         object = (EffectTexturePair_unk*)mData.mObjects[i];
         if (object != 0) {
             if (entry->mType == 1) {
-                delete (EffectModel_unk*)object;
+                delete (atn::ModelBase*)object;
             } else if (entry->mType == 2) {
                 delete object;
             } else {
@@ -142,7 +134,7 @@ void LoadEffect::vf0C() {
         fn_8022D754(entry);
         std::string name = fn_8006D008(fn_8006D008(dir, "/"), entry->mName);
         if (entry->mType == 1) {
-            EffectModel_unk* model = new ((MemoryTag)7, "", "", 0) EffectModel_unk(0x2000001);
+            atn::ModelBase* model = new ((MemoryTag)7, "", "", 0) atn::ModelBase(0x2000001);
             if (strcmp(entry->mTexture, "") != 0) {
                 std::string texture = fn_8006D008(fn_8006D008(dir, "/"), entry->mTexture);
                 ((atn::Model*)model)->fn_8008AD4C(name.c_str(), texture.c_str());

@@ -5,19 +5,10 @@
 #include "atn/Texture_unk.h"
 #include "game/ResHandle.h"
 #include "math/Vec.h"
+#include "atn/IRender.h"
 
 namespace atn {
 
-// inferred: renderer interface (same as the local copies in atn/Rain.cpp and atn/VideoTHP.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10(void* camera) = 0;
-    virtual int vf14(void* arg1, void* arg2, void* frustum) = 0;
-    virtual void vf18() = 0;
-    virtual void vf1C(); // 0x800461FC
-};
 
 // inferred: one flare element (0x1C bytes), filled from map parts CSV fields
 struct LensFlareElem {
@@ -63,9 +54,9 @@ class LensFlare : public IRender {
 public:
     LensFlare(int arg, int count, const atn::Vector3& pos, float size); // 0x80077160
     virtual ~LensFlare();
-    virtual void vf10(void* camera);
+    virtual void vf10(RenderView_unk* view);
     virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; }
-    virtual void vf18() {}
+    virtual void vf18(RenderView_unk* view) {}
 
     int fn_800774D4(); // inferred: nonzero while loading
     void fn_80077534(); // inferred: per-frame update

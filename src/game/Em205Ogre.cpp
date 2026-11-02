@@ -591,7 +591,7 @@ void Em205Ogre::fn_802B98B0() {
     atn::Vector3 head;
     int neck = mMotion.GetNodeNoByName("neck", 0);
     if (neck > -1) {
-        head = GetNodePos_unk(mMotion.mNodeMtx[neck]);
+        head = GetNodePos_unk(mMotion.mMtx.mNodes.mData[neck].m);
         head.y -= 1.0f;
     } else {
         head = top;

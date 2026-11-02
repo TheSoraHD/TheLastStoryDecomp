@@ -809,7 +809,7 @@ void Em309GhoulSimple::vf20() {
     atn::Vector3 head;
     int spine = mMotion.GetNodeNoByName("spine1", 0);
     if (spine > -1) {
-        head = GetNodePos_unk(mMotion.mNodeMtx[spine]);
+        head = GetNodePos_unk(mMotion.mMtx.mNodes.mData[spine].m);
     } else {
         head = top;
         head.y += m5B4 - 2.0f * m620;

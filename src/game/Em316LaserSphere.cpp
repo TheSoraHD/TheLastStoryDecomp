@@ -224,7 +224,7 @@ Em316LaserSphere::Em316LaserSphere(atn::Task* parent, EnemyInfo_unk* info)
 // NONMATCHING: 99.49% - in the last loop the original steps `this` itself (0x164C(r30)) for the model
 // flags and keeps the counter in r27; ~12 variants (pointer, index, increments, locals)
 int Em316LaserSphere::vf0C() {
-    EffectModel_unk* models = m1648;
+    atn::ModelBase* models = m1648;
     for (int i = 0; i < 3; i++) {
         if (models[i].GetModel_unk()->fn_8008B140() != 0) {
             return 0;
@@ -287,7 +287,7 @@ int Em316LaserSphere::vf0C() {
 // inferred: matrix of a model (weak copy 0x80266154, first emitted by game/Em201ZanGurgFinal; as in
 // gmk/Cannonball.cpp)
 extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
-    return (atn::Matrix3x4*)model->mMtx;
+    return (atn::Matrix3x4*)model->mMtx.m;
 }
 // inferred: largest of three values (as in game/Gun.cpp)
 inline float LaserMax3_unk(const atn::Vector3& v) {
@@ -301,7 +301,7 @@ inline float LaserColumn_unk(const atn::Matrix3x4& m, int i) {
 // inferred: sets the world matrix of a model and its largest scale axis (weak copy 0x80316E38, called by
 // gmk/Cannonball.cpp and gmk/FlamingArrow.cpp; as SetMtx_unk of game/Gun.cpp)
 extern "C" inline void fn_80316E38(atn::Model* model, const atn::Matrix3x4* mtx) {
-    __MtxCopy(model->mMtx, mtx->m);
+    __MtxCopy(model->mMtx.m, mtx->m);
     float sz = LaserColumn_unk(*mtx, 2);
     float sy = LaserColumn_unk(*mtx, 1);
     float sx = LaserColumn_unk(*mtx, 0);
@@ -352,7 +352,7 @@ inline float LaserMinF_unk(float a, float b) {
 // here everything is inlined (state functions of the switch included); written to place its strings and
 // floats in the pools
 void Em316LaserSphere::vf10() {
-    EffectModel_unk* models = m1648;
+    atn::ModelBase* models = m1648;
     for (int i = 2; i >= 0; i--) {
         atn::Matrix3x4* m;
         if (i == 0) {
@@ -444,7 +444,7 @@ void Em316LaserSphere::vf14() {
     sShared_unk = 0;
     fn_80149A30();
     for (int i = 0; i < 3; i++) {
-        atn::Vector3 d = GetTrans_unk(mMotion.mMtx) - GetTrans_unk(m1648[i].GetModel_unk()->mMtx);
+        atn::Vector3 d = GetTrans_unk(mMotion.mMtx.m) - GetTrans_unk(m1648[i].GetModel_unk()->mMtx.m);
         if (PSVECSquareMag(&d) > 25.0f) {
             m1648[i].GetModel_unk()->fn_8008CD60();
         }

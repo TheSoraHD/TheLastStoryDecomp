@@ -132,9 +132,9 @@ void Ocean::fn_804186D8() {
     }
     for (int i = 0; i < 2; i++) {
         if (nodes[i] > -1) {
-            MtxPtr mtx = mModel.mNodeMtx[nodes[i]];
+            MtxPtr mtx = mModel.mMtx.mNodes.mData[nodes[i]].m;
             *(atn::Matrix3x4*)mtx = TransMtx_unk(atn::Vector3(0.0f, heights[i], 0.0f));
-            PSMTXConcat(mModel.mMtx, mtx, mtx);
+            PSMTXConcat(mModel.mMtx.m, mtx, mtx);
         }
     }
     mTime += 0.033333335f;
@@ -152,7 +152,7 @@ inline float Bilinear_unk(const float* c, float u, float w) {
 }
 extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) {
     atn::Vector3 origin(-1000.0f, 0.0f, -1000.0f);
-    atn::Matrix3x4 inv(*(atn::Matrix3x4*)ocean->mModel.mMtx);
+    atn::Matrix3x4 inv(*(atn::Matrix3x4*)ocean->mModel.mMtx.m);
     PSMTXInverse(inv.m, inv.m);
     atn::Vector3 local(*pos);
     PSMTXMultVec(inv.m, &local, &local);
@@ -179,7 +179,7 @@ extern "C" atn::Vector3 fn_804188A0(gmk::Ocean* ocean, const atn::Vector3* pos) 
     nodes[1] = ocean->mModel.GetNodeNoByName("joint2", 0);
     for (int i = 0; i < 2; i++) {
         if (nodes[i] > -1) {
-            y[i] = ((atn::Matrix3x4*)ocean->mModel.mNodeMtx[nodes[i]])->GetTrans_unk().y;
+            y[i] = ((atn::Matrix3x4*)ocean->mModel.mMtx.mNodes.mData[nodes[i]].m)->GetTrans_unk().y;
         }
     }
     atn::Vector3 ret(*pos);

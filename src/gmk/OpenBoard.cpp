@@ -125,10 +125,10 @@ void OpenBoard::vf10() {
     if (m54 == 2) {
         return;
     }
-    atn::Model::Res_unk* res = mModel.m16C;
+    atn::Model::Res_unk* res = mModel.GetRes_unk();
     BoardBox_unk box(res->mMin, res->mMax);
     float half = BoardAbs_unk(box.mMax.x - box.mMin.x) * 0.5f;
-    atn::Matrix3x4 inv(*(atn::Matrix3x4*)mModel.mMtx);
+    atn::Matrix3x4 inv(*(atn::Matrix3x4*)mModel.mMtx.m);
     PSMTXInverse(inv.m, inv.m);
     float dist = mOpenDistance;
     if (lbl_8087F8A0 != 0) {

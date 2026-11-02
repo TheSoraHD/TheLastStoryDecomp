@@ -146,7 +146,7 @@ void TreasureBox::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     if (m54 != 6) {
         mColli.mFlags |= 1;
     } else {
@@ -201,7 +201,7 @@ void TreasureBox::Start() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     if (m54 != 6) {
         mColli.mFlags |= 1;
     } else {

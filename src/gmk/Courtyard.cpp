@@ -41,8 +41,8 @@ void Courtyard::Start() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli0.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
-    mColli1.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli0.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
+    mColli1.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     GimmickMsg_unk msg(1);
     if (m58 == 1) {
         msg.mType = 4;
@@ -61,8 +61,8 @@ void Courtyard::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli0.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
-    mColli1.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli0.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
+    mColli1.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     switch (m54) {
     case 1:
         if (mModel.fn_80097D40(1) != 0 && vf38() != 0) {

@@ -3,7 +3,7 @@
 #include "atn/Camera_unk.h"
 #include "atn/ColliBase.h"
 #include "atn/GXDecl.h"
-#include "atn/IRender.h"
+#include "atn/RenderView_unk.h"
 #include "atn/LoadHandle.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"

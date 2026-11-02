@@ -179,7 +179,7 @@ void WaitObject::Start() {
         fn_803ED0D4(vf38(), 1);
     }
     if (mColli) {
-        mColli->SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+        mColli->SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     }
     if (mColli) {
         mColli->mFlags |= 1;
@@ -226,7 +226,7 @@ void WaitObject::vf10() {
         fn_803ED0D4(vf38(), 1);
     }
     if (mColli) {
-        mColli->SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+        mColli->SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     }
     m7F8++;
     int trigger = fn_8041AAC0();

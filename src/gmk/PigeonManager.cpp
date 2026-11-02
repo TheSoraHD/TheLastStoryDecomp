@@ -155,16 +155,16 @@ void Pigeon_unk::fn_804048CC() {
         }
     }
     if (m438 || update || mState == 3) {
-        __MtxCopy(mModel.mMtx, mtx.m);
+        __MtxCopy(mModel.mMtx.m, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
         mModel.fn_80097E80(1);
         mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
         m438 = false;
     } else {
         atn::Matrix3x4 inv;
-        __MtxCopy(inv.m, mModel.mMtx);
+        __MtxCopy(inv.m, mModel.mMtx.m);
         PSMTXInverse(inv.m, inv.m);
-        __MtxCopy(mModel.mMtx, mtx.m);
+        __MtxCopy(mModel.mMtx.m, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
         fn_8009076C(&mModel, &inv);
     }

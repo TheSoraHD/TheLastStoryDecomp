@@ -786,7 +786,7 @@ void GameScene::vf10() {
         }
         PSMTXConcat(c.m0C->m, m.m, m.m);
         atn::Model* model = c.m04;
-        __MtxCopy(model->mMtx, m.m);
+        __MtxCopy(model->mMtx.m, m.m);
         atn::Vector3 scale(atn::Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
                            atn::Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
                            atn::Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());

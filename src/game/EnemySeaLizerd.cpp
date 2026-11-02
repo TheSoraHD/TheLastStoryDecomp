@@ -269,7 +269,7 @@ void EnemySeaLizerd::vf28() {
     if (m58C == 6) {
         float frame = mMotion.mTracks[0].m08;
         float t = frame / mMotion.fn_80097D7C(0);
-        atn::Model::Node_unk* node = &mMotion.m220[m524];
+        atn::Model::Node_unk* node = &mMotion.m21C.mData[m524];
         atn::Vector3* v = &node->m04;
         mPos = *v + LerpBA_unk(m14E4, m14D8, t);
         v->x = 0.0f;

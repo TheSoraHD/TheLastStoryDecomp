@@ -3,7 +3,7 @@
 
 #include "atn/Array_unk.h"
 #include "atn/Csv.h"
-#include "atn/EffectModel_unk.h"
+#include "atn/Model_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/Texture_unk.h"
 #include "game/MapInstance_unk.h"
@@ -35,8 +35,8 @@ public:
     atn::FixedString_unk<0x40> mTexName;  // 0x9C: inferred: light map ("LMAP")
     atn::Texture_unk mTexture;            // 0xDC
     unsigned int mFlags;                  // 0x10C: inferred: model flags (REFLECT, NO_SHADOW...)
-    EffectModel_unk mModel;               // 0x110: inferred: "merge_%s_occ.model"
-    boost::scoped_ptr<EffectModel_unk> mMerged; // 0x324: inferred: "merge_%s_loc.model"
+    atn::ModelBase mModel;               // 0x110: inferred: "merge_%s_occ.model"
+    boost::scoped_ptr<atn::ModelBase> mMerged; // 0x324: inferred: "merge_%s_loc.model"
     MapPartsBox_unk mBox;                 // 0x328
     int mLoaded : 1;                      // 0x340 bit 31
     int mLinked : 1;                      // inferred: light map given to the instances

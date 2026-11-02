@@ -139,7 +139,7 @@ void EquipItemData::vf08() {
     Mtx t;
     PSMTXConcat(mtx.m, scale, t);
     __MtxCopy(mtx.m, t);
-    __MtxCopy(mModel.mMtx, mtx.m);
+    __MtxCopy(mModel.mMtx.m, mtx.m);
     atn::Vector3 ax;
     atn::Vector3 ay;
     atn::Vector3 az;
@@ -153,7 +153,7 @@ void EquipItemData::vf08() {
     mModel.m54 = __MAX_unk(s.x, __MAX_unk(s.y, s.z));
     if (mFlags.mCopyMotion) {
         fn_80097D9C(&mModel, mTarget);
-        atn::Model::Node_unk* nodes = mModel.m220;
+        atn::Model::Node_unk* nodes = mModel.m21C.mData;
         nodes[mModel.GetNodeNoByName("head", 0)].m00 = 0;
     }
     mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());

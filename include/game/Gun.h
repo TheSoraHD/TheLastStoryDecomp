@@ -13,7 +13,7 @@ public:
     virtual void vf14();                                // 0x8043F24C
     virtual void vf18(const atn::Vector3& a, const atn::Vector3& b, int c, int d); // 0x8043F244
 
-    boost::scoped_ptr<EffectModel_unk> m2A8; // inferred: arrow model
+    boost::scoped_ptr<atn::ModelBase> m2A8; // inferred: arrow model
 };
 
 #endif

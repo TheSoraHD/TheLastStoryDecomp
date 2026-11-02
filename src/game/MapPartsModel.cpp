@@ -193,7 +193,7 @@ void MapPartsModel::vf28(atn::CsvTab* csv) {
     __MtxRotateZYX_unk(mtx, rot);
     __MtxScale_unk(mtx, scale);
     {
-        __MtxCopy(mModel.mMtx, mtx.m);
+        __MtxCopy(mModel.mMtx.m, mtx.m);
         atn::Vector3 ax;
         atn::Vector3 ay;
         atn::Vector3 az;
@@ -231,13 +231,13 @@ void MapPartsModel::vf14() {
         }
     }
     if (mCenterCamera != 0) {
-        atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModel.mMtx);
+        atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModel.mMtx.m);
         const atn::Vector3& p = lbl_8087EFB4->mPos;
         mtx.m[0][3] = p.x;
         mtx.m[1][3] = p.y;
         mtx.m[2][3] = p.z;
         {
-            __MtxCopy(mModel.mMtx, mtx.m);
+            __MtxCopy(mModel.mMtx.m, mtx.m);
             atn::Vector3 ax;
             atn::Vector3 ay;
             atn::Vector3 az;
@@ -259,7 +259,7 @@ void MapPartsModel::vf14() {
 
 MapPartsBox_unk MapPartsModel::vf24(MapPartsTree_unk* tree) {
     MapPartsBox_unk box;
-    atn::Model::Res_unk* res = mModel.m16C;
+    atn::Model::Res_unk* res = mModel.GetRes_unk();
     if (res != 0) {
         box.mMin = atn::Vector3(res->mMin);
         box.mMax = atn::Vector3(res->mMax);

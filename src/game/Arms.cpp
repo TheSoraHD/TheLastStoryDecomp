@@ -203,18 +203,18 @@ void Arms::vf10() {
     mtx = t;
     RotateYXZ_unk(mtx, m258);
     Scale_unk(mtx, m264);
-    __MtxCopy(GetModel_unk()->mMtx, mtx.m);
+    __MtxCopy(GetModel_unk()->mMtx.m, mtx.m);
     atn::Vector3 s(atn::Vector3(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]).Length_unk(),
                    atn::Vector3(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]).Length_unk(),
                    atn::Vector3(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]).Length_unk());
     GetModel_unk()->m54 = Max3_unk(s);
-    if (GetModel_unk()->m16C != 0) {
+    if (GetModel_unk()->GetRes_unk() != 0) {
         GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
     }
 }
 
 void Arms::vf14() {
-    if (m284 == 3 && GetModel_unk()->m16C != 0) {
+    if (m284 == 3 && GetModel_unk()->GetRes_unk() != 0) {
         GetModel_unk()->fn_8008CD60();
     }
 }
@@ -223,7 +223,7 @@ atn::Vector3 Arms::fn_80044BD4() {
     if (m278 >= 0) {
         return ((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk(m278))->GetTrans_unk();
     }
-    return ((atn::Matrix3x4*)GetModel_unk()->mMtx)->GetTrans_unk();
+    return ((atn::Matrix3x4*)GetModel_unk()->mMtx.m)->GetTrans_unk();
 }
 
 HitInfo_unk* Arms::fn_80044C30(int i) {

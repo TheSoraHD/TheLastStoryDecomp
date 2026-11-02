@@ -1,7 +1,7 @@
 #ifndef GMK_SAVEPOINT_H
 #define GMK_SAVEPOINT_H
 
-#include "atn/EffectModel_unk.h"
+#include "atn/Model_unk.h"
 #include "atn/EfpHandle_unk.h"
 #include "game/GimmickCommon.h"
 
@@ -35,7 +35,7 @@ public:
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
-    EffectModel_unk mModel;     // 0xF4: "MODEL"
+    atn::ModelBase mModel;     // 0xF4: "MODEL"
     atn::EfpFile mEfp[3]; // 0x308: "EFP" (one per state)
     int mShown;                 // 0x32C
     float mRadius;              // 0x330: inferred: range of state 2

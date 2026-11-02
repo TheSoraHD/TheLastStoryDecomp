@@ -367,7 +367,7 @@ static std::basic_string<char> GetPath_unk(Actor_unk* actor, int kind) {
     if (chara == 0) {
         return std::basic_string<char>("");
     }
-    if (chara->GetModel_unk()->m16C == 0) {
+    if (chara->GetModel_unk()->GetRes_unk() == 0) {
         return std::basic_string<char>("");
     }
     std::basic_string<char> name(chara->GetModel_unk()->fn_8008B130());

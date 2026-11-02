@@ -138,7 +138,7 @@ MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, void* arg, atn::CsvTab
         sprintf(name, "merge_%s_loc.model", fn_8006B2D8(fn_8006B174(std::string(path))).c_str());
         if (fn_8006AA20(name)) {
             mHasMerged = 1;
-            mMerged.reset(new ((MemoryTag)12, "", "", 0) EffectModel_unk(9));
+            mMerged.reset(new ((MemoryTag)12, "", "", 0) atn::ModelBase(9));
             mMerged->GetModel_unk()->fn_8008AD4C(name, 0);
         }
     }

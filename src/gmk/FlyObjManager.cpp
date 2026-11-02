@@ -162,7 +162,7 @@ void FlyObj::fn_80427870() {
     __MakeRotation_unk(rot, mRot);
     PSMTXConcat(rot.m, mtx.m, mtx.m);
     __SetTrans_unk(mtx, mPos.x, mPos.y, mPos.z);
-    __MtxCopy(mModel.mMtx, mtx.m);
+    __MtxCopy(mModel.mMtx.m, mtx.m);
     mModel.m54 = MaxScale_unk(mtx);
     mModel.CalcMatrixStack(atn::ModelNodeCallback_unk());
     mModel.fn_80097E80(1);

@@ -329,7 +329,7 @@ extern "C" void fn_80234CD8() {
                     continue;
                 }
                 fn_80094F14(model, item->m50, item->m54);
-                *(atn::Matrix3x4*)model->mMtx = item->mMtx;
+                *(atn::Matrix3x4*)model->mMtx.m = item->mMtx;
                 atn::Vector3 scale(Mag_unk(atn::Vector3(item->mMtx.m[0][0], item->mMtx.m[1][0], item->mMtx.m[2][0])),
                                    Mag_unk(atn::Vector3(item->mMtx.m[0][1], item->mMtx.m[1][1], item->mMtx.m[2][1])),
                                    Mag_unk(atn::Vector3(item->mMtx.m[0][2], item->mMtx.m[1][2], item->mMtx.m[2][2])));

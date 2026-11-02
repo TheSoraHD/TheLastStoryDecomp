@@ -1,7 +1,7 @@
 #ifndef GMK_CHAIN_H
 #define GMK_CHAIN_H
 
-#include "atn/EffectModel_unk.h"
+#include "atn/Model_unk.h"
 #include "game/CharaTask.h"
 #include "game/GimmickCommon.h"
 
@@ -44,7 +44,7 @@ public:
     void fn_8043CF58(); // inferred: orients the joints along the chain
 
     GimmickDesc_unk* mDesc; // 0xF4
-    EffectModel_unk mModel; // 0xF8
+    atn::ModelBase mModel; // 0xF8
     CharaTask* mTarget;     // 0x30C
     int mNode;              // 0x310: inferred: node of the target
     atn::Vector3 m314;      // inferred: position of the first joint (the node of the target)

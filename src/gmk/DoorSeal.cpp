@@ -61,7 +61,7 @@ void DoorSeal::Start() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mBefore.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mBefore.mMtx.m);
     GimmickMsg_unk msg(1);
     if (m58 == 1) {
         msg.mType = 4;
@@ -80,7 +80,7 @@ void DoorSeal::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mBefore.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mBefore.mMtx.m);
     switch (m54) {
     case 3: {
         if (vf38() != 0) {

@@ -132,7 +132,7 @@ inline atn::Vector3 MultVec_unk(const Mtx m, const atn::Vector3& in) {
 // inferred: copies the model matrix and computes the largest scale axis (as CharaTask::fn_80144710);
 // name invented
 inline void SetModelMtx_unk(atn::Model* model, const Mtx mtx) {
-    __MtxCopy(model->mMtx, mtx);
+    __MtxCopy(model->mMtx.m, mtx);
     float sz = ColLength2_unk(mtx, 2);
     float sy = ColLength2_unk(mtx, 1);
     float sx = ColLength2_unk(mtx, 0);
@@ -164,11 +164,11 @@ void CopyRobotTask::vf10() {
         }
         m54C |= 0x2000;
         CharaTask* src = m14B4;
-        SetModelMtx_unk(&mMotion, src->mMotion.mMtx);
+        SetModelMtx_unk(&mMotion, src->mMotion.mMtx.m);
         mPos = m14B4->mPos;
         mRot = m14B4->mRot;
         mMotion.fn_80097C08(0, m14B4->mMotion.mTracks[0].m00, 1, 0, 1, 0.0f, 0.1f);
-        memcpy(mMotion.m220, m14B4->mMotion.m220,
+        memcpy(mMotion.m21C.mData, m14B4->mMotion.m21C.mData,
                (*(CopyModelRes_unk**)((char*)&mMotion + 0x16C))->mNumNodes * sizeof(atn::Model::Node_unk));
         mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
         fn_80148B38(LengthSq_unk(lbl_8087EFB4->mEye - mPos));

@@ -135,28 +135,18 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 namespace atn {
 
-// inferred: renderer interface (see atn/VideoTHP.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C(); // 0x80046218
-    virtual void vf10(InstCamera_unk* camera) = 0;
-    virtual int vf14() = 0;
-    virtual void vf18(InstCamera_unk* camera) = 0;
-    virtual void vf1C(); // 0x800461FC
-};
 
 // inferred from __vt__Q23atn13ModelInstance (0x80778958): instance of a shared model
 class ModelInstance : public IRender {
 public:
     ModelInstance(InstData_unk* data);
     virtual ~ModelInstance();
-    virtual int vf0C() { return 1; }
-    virtual void vf10(InstCamera_unk* camera); // inferred: draw
-    virtual int vf14() { return 1; }
-    virtual void vf18(InstCamera_unk* camera) {
+    virtual int GetRenderType_unk() { return 1; }
+    virtual void vf10(RenderView_unk* view); // inferred: draw
+    virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; }
+    virtual void vf18(RenderView_unk* view) {
         if (mData->mModel.mType == 8 && mVisible && lbl_8087EFA8->m1D0 != 0) {
-            mVisible = fn_800C0A50(camera, &mBox);
+            mVisible = fn_800C0A50((InstCamera_unk*)view, &mBox);
         }
     }
     virtual void vf1C() {}
@@ -382,7 +372,8 @@ inline void ModelInstance::DrawModel_unk(InstModel_unk* model, InstCamera_unk* c
 
 // NONMATCHING: 98.84% - r4/r5 for the two callbacks and the stack slots of the callback and lens
 // temporaries; the draw part is an inline (its camera parameter gives the saved registers)
-void ModelInstance::vf10(InstCamera_unk* camera) {
+void ModelInstance::vf10(RenderView_unk* view) {
+    InstCamera_unk* camera = (InstCamera_unk*)view;
     InstModel_unk* model = &mData->mModel;
     switch (camera->m2F8) {
     case 0:

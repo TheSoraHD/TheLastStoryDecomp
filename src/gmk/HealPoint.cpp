@@ -80,7 +80,7 @@ void HealPoint::Start() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
     mColli.mFlags |= 1;
     mWait = 0;
     GimmickMsg_unk msg(2);
@@ -106,7 +106,7 @@ void HealPoint::vf10() {
     if (vf38() != 0) {
         fn_803ED0D4(vf38(), 1);
     }
-    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx);
+    mColli.SetMtx_unk(*(atn::Matrix3x4*)mModel.mMtx.m);
 }
 
 void HealPoint::vf14() {

@@ -44,7 +44,7 @@ inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
 
 // inferred: sets the world matrix of a model and its largest scale axis (name invented)
 inline void SetMtx_unk(atn::Model* model, const atn::Matrix3x4& mtx) {
-    __MtxCopy(model->mMtx, mtx.m);
+    __MtxCopy(model->mMtx.m, mtx.m);
     float sz = ColumnLength_unk(mtx, 2);
     float sy = ColumnLength_unk(mtx, 1);
     float sx = ColumnLength_unk(mtx, 0);
@@ -55,7 +55,7 @@ inline void SetMtx_unk(atn::Model* model, const atn::Matrix3x4& mtx) {
 Gun::Gun(int kind, int id, int arg0C, CharaTask* chara, int arg5) : Arms(kind, id, arg0C, chara, arg5) {
     GunOwner_unk* owner = (GunOwner_unk*)m270;
     if (owner->m48 == 0 || owner->m50 == 1) {
-        m2A8.reset(new ((MemoryTag)3, "", "", 0) EffectModel_unk(0x505));
+        m2A8.reset(new ((MemoryTag)3, "", "", 0) atn::ModelBase(0x505));
         m2A8->GetModel_unk()->fn_8008AD4C("it090_00.model", 0);
     }
 }
@@ -107,8 +107,8 @@ void Gun::vf14() {
         show = 0;
     }
     GetModel_unk()->fn_8009373C("op_01_arrow", show);
-    if (arrow && m2A8 && m2A8->GetModel_unk()->m16C != 0) {
-        atn::Matrix3x4 mtx(GetModel_unk()->mMtx);
+    if (arrow && m2A8 && m2A8->GetModel_unk()->GetRes_unk() != 0) {
+        atn::Matrix3x4 mtx(GetModel_unk()->mMtx.m);
         atn::Matrix3x4 r;
         atn::Matrix3x4 t;
         float x, y, z;

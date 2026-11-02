@@ -191,7 +191,7 @@ int RotaryRoom::vf0C() {
                 switch (e.mType) {
                 case 0: {
                     atn::Model* model = (atn::Model*)e.mObject;
-                    *(atn::Matrix3x4*)model->mMtx = e.mMtx;
+                    *(atn::Matrix3x4*)model->mMtx.m = e.mMtx;
                     atn::Vector3 az(e.mMtx.m[0][2], e.mMtx.m[1][2], e.mMtx.m[2][2]);
                     float sz = PSVECMag(&az);
                     atn::Vector3 ay(e.mMtx.m[0][1], e.mMtx.m[1][1], e.mMtx.m[2][1]);

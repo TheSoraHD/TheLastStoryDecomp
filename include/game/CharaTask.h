@@ -145,10 +145,6 @@ extern "C" int fn_80219558(int id);
 struct HitInfo_unk;
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id (see LandMine.cpp)
 
-// inferred: object pointed to by CharaTask::m480 (destructor 0x800899DC; class unknown)
-struct Chara480_unk {
-    ~Chara480_unk();
-};
 
 
 // inferred: listeners notified by CharaTask (function-local static of fn_8014F8F4, destructor
@@ -1117,7 +1113,7 @@ public:
     atn::LH_Binary mA4;
     int mAC;    // inferred: set when m84 starts loading
     chr::Motion_unk mMotion; // 0xB0
-    Chara480_unk* m480;
+    MaterialSet_unk* m480; // inferred: own materials (include/atn/Model_unk.h)
     int m484[31]; // inferred: motion ids, indexed by fn_801370B8 (m484[0] is played on load)
     float m500;
     float m504;

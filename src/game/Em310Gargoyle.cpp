@@ -259,7 +259,7 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
                             float b); // inferred: fires a bullet
 // inferred: model matrix (weak copy 0x80266154, as in gmk/Cannonball.cpp)
 extern "C" inline atn::Matrix3x4* fn_80266154(atn::Model* model) {
-    return (atn::Matrix3x4*)model->mMtx;
+    return (atn::Matrix3x4*)model->mMtx.m;
 }
 // inferred: enemy list accessors (weak copies of other files, as in gmk/Cannonball.cpp)
 extern "C" inline EnemyManager* fn_801A03E0() {

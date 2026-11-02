@@ -470,7 +470,7 @@ void GimmickCommon::fn_803ECBD4(atn::Model* model, int callback) {
     __MakeRotation_unk(offset, m84);
     PSMTXConcat(offset.m, mtx.m, mtx.m);
     __SetTrans_unk(mtx, m6C.x, m6C.y, m6C.z);
-    __MtxCopy(model->mMtx, mtx.m);
+    __MtxCopy(model->mMtx.m, mtx.m);
     atn::Vector3 ax;
     atn::Vector3 ay;
     atn::Vector3 az;
@@ -500,7 +500,7 @@ void GimmickCommon::fn_803ED0D4(atn::Model* model, int callback) {
     __MakeRotation_unk(offset, m84);
     PSMTXConcat(offset.m, mtx.m, mtx.m);
     __SetTrans_unk(mtx, m6C.x, m6C.y, m6C.z);
-    __MtxCopy(model->mMtx, mtx.m);
+    __MtxCopy(model->mMtx.m, mtx.m);
     atn::Vector3 ax;
     atn::Vector3 ay;
     atn::Vector3 az;

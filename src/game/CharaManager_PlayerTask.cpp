@@ -2,7 +2,6 @@
 #include "game/PlayerTask.h"
 #include "game/EnemyTask.h"
 
-extern "C" void fn_80089AD4(void* arg);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" int fn_80219544(int name);         // inferred: character id of a name id
 
@@ -41,7 +40,7 @@ template <class T>
 void CharaManager<T>::vf14() {
     for (T* chara = mHead; chara != 0; chara = chara->mNext) {
         if (chara->mFlagB22) {
-            fn_80089AD4(&chara->mMotion.m104);
+            chara->mMotion.m104.fn_80089AD4();
             chara->mFlagB22 = 0;
         }
     }

@@ -122,16 +122,6 @@ struct EffectEntry_unk {
 
 namespace atn {
 
-// inferred: renderer interface (see atn/AABBTree.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C() { return 2; }
-    virtual void vf10(Camera_unk* camera) = 0;
-    virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; }
-    virtual void vf18() {}
-    virtual void vf1C() {}
-};
 
 // inferred: plays the effects (efp resources) of the game
 class EffectManager : public Task, public IRender {
@@ -140,7 +130,7 @@ public:
     virtual ~EffectManager();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderView_unk* view);
 
     static EffectManager* fn_80239798(Task* parent, int a, int b, int c, unsigned int max);
     void fn_80239C14();
@@ -273,7 +263,7 @@ void EffectManager::vf14() {
     }
 }
 
-void EffectManager::vf10(Camera_unk* camera) {
+void EffectManager::vf10(RenderView_unk* view) {
     mSystem.fn_802368B0(mDrawArg);
     mDrawArg = 0;
 }

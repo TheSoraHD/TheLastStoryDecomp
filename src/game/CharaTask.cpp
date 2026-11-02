@@ -3936,7 +3936,7 @@ void CharaTask::fn_80144710() {
         PSMTXConcat(mtx.m, scale, t);
         __MtxCopySD_unk(t, mtx.m);
     }
-    __MtxCopy(mMotion.mMtx, mtx.m);
+    __MtxCopy(mMotion.mMtx.m, mtx.m);
     atn::Vector3 ax;
     atn::Vector3 ay;
     atn::Vector3 az;
@@ -4274,7 +4274,7 @@ void CharaTask::fn_80145334() {
         MtxPtr node = mMotion.GetNodeMtx_unk(m520);
         if (node != 0) {
             atn::Matrix3x4 inv;
-            __MtxCopy(inv.m, mMotion.mMtx);
+            __MtxCopy(inv.m, mMotion.mMtx.m);
             PSMTXInverse(inv.m, inv.m);
             fn_80144710();
             fn_8009076C(&mMotion, &inv);
@@ -4303,7 +4303,7 @@ void CharaTask::fn_80145334() {
     m13D0[1] = m13D0[0];
     m13D0[0] = mRot.y;
     atn::Matrix3x4 prev;
-    __MtxCopy(prev.m, mMotion.mMtx);
+    __MtxCopy(prev.m, mMotion.mMtx.m);
     atn::Matrix3x4 inv(prev);
     PSMTXInverse(inv.m, inv.m);
     fn_80144710();
@@ -4320,10 +4320,10 @@ void CharaTask::fn_80145334() {
     }
     if ((mStatus.m0C & 0x40) == 0x40 && mF94 == 0) {
         atn::Vector3 offset = mF88;
-        atn::Matrix3x4* mtx = (atn::Matrix3x4*)mMotion.mMtx;
+        atn::Matrix3x4* mtx = (atn::Matrix3x4*)mMotion.mMtx.m;
         mtx->fn_801479E4(mtx->GetTrans_unk() + offset);
     }
-    atn::Model::Node_unk* node = &mMotion.m220[m524];
+    atn::Model::Node_unk* node = &mMotion.m21C.mData[m524];
     bool reset = false;
     atn::Vector3 nodePos;
     atn::Vector3 nodeRot;
@@ -4429,12 +4429,12 @@ void CharaTask::fn_80145334() {
             vf28();
         }
         if (mFlag2) {
-            mMotion.m220[m524].m04 = m13E8;
+            mMotion.m21C.mData[m524].m04 = m13E8;
         }
         if (!reset && m1254 != 0) {
             if ((m1254 & 1) == 1 && (node->m00 & 1) == 1) {
                 atn::Vector3 move = node->m04 - nodePos;
-                atn::Matrix3x4 rot = ((atn::Matrix3x4*)mMotion.mMtx)->GetRotation_unk();
+                atn::Matrix3x4 rot = ((atn::Matrix3x4*)mMotion.mMtx.m)->GetRotation_unk();
                 PSMTXMultVec(rot.m, &move, &move);
                 mPos += move;
                 node->m00 &= ~1;
@@ -4457,11 +4457,11 @@ void CharaTask::fn_80145334() {
         }
         if (updated) {
             if (m588 > 0.01f) {
-                mMotion.m220[m524].m04.y -= m588;
+                mMotion.m21C.mData[m524].m04.y -= m588;
             }
             mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             if (m588 > 0.01f) {
-                mMotion.m220[m524].m04.y += m588;
+                mMotion.m21C.mData[m524].m04.y += m588;
             }
         } else if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
             fn_8009076C(&mMotion, &inv);
@@ -4625,7 +4625,7 @@ int CharaTask::fn_801479D8() {
 }
 
 atn::Model::Node_unk* atn::Model::fn_80147A00() {
-    return m220;
+    return m21C.mData;
 }
 
 atn::Matrix3x4 atn::Matrix3x4::fn_80147A08(const Quaternion_unk& q) {
