@@ -2173,9 +2173,10 @@ gs::ConstrainModel* GameScene::fn_803CC6D0(int id) {
 }
 
 void GameScene::fn_803CC718(atn::Task* chara, int value) {
-    for (unsigned int i = 0; i < (unsigned int)mDC.mSize; i++) {
-        if (mDC.mData[i].m08 == chara) {
-            mDC.mData[i].m1C = value;
+    for (unsigned int i = 0; i < mDC.size(); i++) {
+        gs::ConstrainModel& c = mDC[i];
+        if (c.m08 == chara) {
+            c.m1C = value;
         }
     }
 }
