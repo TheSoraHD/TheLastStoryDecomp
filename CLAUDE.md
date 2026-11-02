@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `claude-20261102` (2026-11-02, sin mergear; en paralelo con `codex-20261102`): **12145 / 18119 al 100%** (el total baja: 183 `pad_` de relleno absorbidos), `main.dol: OK`, 567 -> 582 unidades completas. Tramos `auto_`: 352 -> 151. Enlazadas: `atn/Keyboard`, `__start.c`, `MWRTTI.cp`, nw4hbm `ut_CharWriter` y 11 nw4hbm lyt/ut con el homebuttonLib de zeldaret/tp (`libs/tp_revolution`). `game/GameLoadTask` con clase real (10/11). Notas: `docs/claude-20261102.md`.
+- `claude-20261102` (2026-11-03, sin mergear; en paralelo con `codex-20261102`): **12200 / 18119 al 100%** (el total baja: 183 `pad_` absorbidos), `main.dol: OK`, 567 -> 582 unidades completas. Tramos `auto_`: 352 -> 151. Enlazadas: `atn/Keyboard`, `__start.c`, `MWRTTI.cp`, nw4hbm (homebuttonLib de zeldaret/tp en `libs/tp_revolution`). Unidades nuevas: `game/GameSaveData_unk` (25/37), `game/ItemManager_unk` (codigo de `Inventory`, 29/61); `game/GameLoadTask` 10/11. Notas: `docs/claude-20261102.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`). Anterior: `auto-20261102b` (11811), `auto-20261102` (11764, GameScene 117/188, `docs/auto-20261102.md`).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).
 - `close-one-func-2` (2026-10-30, mergeada en `main`): 8770 funciones, +`game/MapPartsEfp`, `game/Gun` (`docs/close-one-func-2.md`).
