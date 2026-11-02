@@ -1237,6 +1237,25 @@ void Model::fn_80097750(const atn::Vector3& dir, float a, float b, int c) {
     m3BC = c;
 }
 
+// inferred: rebuilds the per-node arrays from the loaded data and the motion commands of the slots
+// NONMATCHING: 99.2% - loop counter allocated after the two offsets (r28 instead of r30)
+void Model::vf24() {
+    Res_unk* res = (Res_unk*)mLods[0].m08;
+    if (res == 0) {
+        return;
+    }
+    if ((mFlags & 1) != 1) {
+        m214.Resize_unk(res->m44, 0xb);
+        m21C.Resize_unk(((Res_unk*)mLods[0].m08)->m44, 0xb);
+    }
+    if ((mFlags & 1) != 1) {
+        m354.Resize_unk(m224.mSize, 6);
+        for (unsigned int i = 0; i < m224.size(); i++) {
+            fn_800A0A68(&m354.mData[i], this, &m224.mData[i].mMotion);
+        }
+    }
+}
+
 void Model::fn_80097A20(unsigned int motion) {
     LH_Motion* slot = &m224.mData[motion].GetMotion_unk();
     slot->fn_80473F88();
@@ -1335,25 +1354,6 @@ float Model::fn_80097D7C(int track) {
         return fn_800A08D4((LH_Motion*)mTracks[track].m04);
     }
     return 0.0f;
-}
-
-// inferred: rebuilds the per-node arrays from the loaded data and the motion commands of the slots
-// NONMATCHING: 99.2% - loop counter allocated after the two offsets (r28 instead of r30)
-void Model::vf24() {
-    Res_unk* res = (Res_unk*)mLods[0].m08;
-    if (res == 0) {
-        return;
-    }
-    if ((mFlags & 1) != 1) {
-        m214.Resize_unk(res->m44, 0xb);
-        m21C.Resize_unk(((Res_unk*)mLods[0].m08)->m44, 0xb);
-    }
-    if ((mFlags & 1) != 1) {
-        m354.Resize_unk(m224.mSize, 6);
-        for (unsigned int i = 0; i < m224.size(); i++) {
-            fn_800A0A68(&m354.mData[i], this, &m224.mData[i].mMotion);
-        }
-    }
 }
 
 // NONMATCHING: 97% - registers of the inlined node search
