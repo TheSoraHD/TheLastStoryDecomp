@@ -45,6 +45,8 @@ struct Field_unk;
 extern "C" int fn_80375184(Field_unk* field);
 extern "C" int fn_80370174(Field_unk* field, int index); // inferred: reads a value of the field
 extern "C" int fn_80370A78(Field_unk* field, int index); // inferred: reads a flag of the field
+extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
+extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gmk/WindyItem.cpp)
 extern "C" void fn_80370320(Field_unk* field, int index, int value, int arg3); // inferred: writes a value of the field
 extern "C" gmk::TreasureBox::Data_unk* fn_8021ECD0(int id); // inferred: treasure data
 extern "C" int fn_80051CD8(const atn::ColliSphereShape_unk* sphere, const atn::ColliBoxShape_unk* box); // inferred: sphere in box
@@ -2061,18 +2063,98 @@ int GameScene::fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, Cha
     return fn_803CC1A4(pos, ((CharaRadius_unk*)chara)->m620, 0.5f, dir);
 }
 
-// NONMATCHING: stub
-int GameScene::fn_803CC1A4(const atn::Vector3* pos, float radius, float cos, const atn::Vector3* dir) {
+// inferred: a x b
+inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 r;
+    PSVECCrossProduct(&a, &b, &r);
+    return r;
+}
+
+int GameScene::fn_803CC1A4(const atn::Vector3* pos, float radius, float cosMin, const atn::Vector3* dir) {
+    for (unsigned int i = 0; i < mB4.size(); i++) {
+        gs::HideLink_unk& link = mB4[i];
+        if (link.m08 == 0) {
+            continue;
+        }
+        if (mAC[link.mFrom].m14 != 1) {
+            continue;
+        }
+        if (atn::Vector3(link.mMid.x - pos->x, link.mMid.y - pos->y, link.mMid.z - pos->z).LengthSq_unk() > 10000.0f) {
+            continue;
+        }
+        Segment_unk seg;
+        seg.mStart = mAC[link.mFrom].mPos;
+        seg.mEnd = mAC[link.mTo].mPos;
+        atn::Vector3 side(seg.mEnd.x - seg.mStart.x, seg.mEnd.y - seg.mStart.y, seg.mEnd.z - seg.mStart.z);
+        side.Normalize_unk();
+        side = Cross_unk(side, atn::Vector3(0.0f, 1.0f, 0.0f));
+        if (PSVECDotProduct(&side, dir) < cosMin) {
+            continue;
+        }
+        if (fn_80050A1C(pos, &seg, 0) > radius * radius) {
+            continue;
+        }
+        return 1;
+    }
     return 0;
 }
 
-// NONMATCHING: stub
 int GameScene::fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara) {
+    float cosMin = cos(1.0471975803375244);
+    float radius = chara->m620;
+    for (unsigned int i = 0; i < mB4.size(); i++) {
+        gs::HideLink_unk& link = mB4[i];
+        if (link.m08 == 0) {
+            continue;
+        }
+        if (mAC[link.mFrom].m14 != 0) {
+            continue;
+        }
+        if (atn::Vector3(link.mMid.x - pos->x, link.mMid.y - pos->y, link.mMid.z - pos->z).LengthSq_unk() > 10000.0f) {
+            continue;
+        }
+        Segment_unk seg;
+        seg.mStart = mAC[link.mFrom].mPos;
+        seg.mEnd = mAC[link.mTo].mPos;
+        atn::Vector3 side(seg.mEnd.x - seg.mStart.x, seg.mEnd.y - seg.mStart.y, seg.mEnd.z - seg.mStart.z);
+        side.Normalize_unk();
+        side = Cross_unk(side, atn::Vector3(0.0f, 1.0f, 0.0f));
+        if (PSVECDotProduct(&side, dir) < cosMin) {
+            continue;
+        }
+        if (fn_80050A1C(pos, &seg, 0) > radius * radius) {
+            continue;
+        }
+        return 1;
+    }
     return 0;
 }
 
-// NONMATCHING: stub
-void GameScene::fn_803CC5E4() {}
+int GameScene::fn_803CC5E4(int type, int id) {
+    if (type == 1) {
+        for (int i = 0; i < m80.mSize; i++) {
+            gs::NpcSetPoint& p = m80.mData[i];
+            if (id == p.mId) {
+                return p.m20;
+            }
+        }
+    } else if (type == 2) {
+        for (int i = 0; i < m88.mSize; i++) {
+            gs::NpcSetPoint& p = m88.mData[i];
+            if (id == p.mId) {
+                return p.m20;
+            }
+        }
+    } else if (type == 3) {
+        for (int i = 0; i < m90.mSize; i++) {
+            gs::NpcSetPoint& p = m90.mData[i];
+            if (id == p.mId) {
+                return p.m20;
+            }
+        }
+    }
+    return -1;
+}
 
 void* GameScene::fn_803CC6B4(int id) {
     if (id < 10000) {
@@ -2106,12 +2188,52 @@ void GameScene::fn_803CC774(atn::Task* chara) {
     m134->fn_803ABFD4(chara);
 }
 
-// NONMATCHING: stub
-void GameScene::fn_803CC77C() {}
+int GameScene::fn_803CC77C() {
+    GameEventScript* script = m134;
+    int n = 0;
+    if (script != 0) {
+        n = script->fn_803AC088();
+    }
+    if (EnemyManager::sInstance != 0) {
+        for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+            if (e->CanAct_unk() && (e->m54C & 0x2000) != 0x2000) {
+                n += e->vfF4();
+            }
+        }
+    }
+    if (GimmickManager::instance_ != 0) {
+        GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(61000, 1);
+        if (g != 0) {
+            n += fn_80435CBC(g);
+        }
+        g = GimmickManager::instance_->fn_803EEE10(64000, 1);
+        if (g != 0) {
+            n += fn_8043A530(g);
+        }
+    }
+    if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0xA1E) > 0) {
+        n = 0;
+    }
+    return n;
+}
 
-// NONMATCHING: stub
 int GameScene::fn_803CC900() {
-    return 0;
+    GameEventScript* script = m134;
+    int n = 0;
+    if (script != 0) {
+        n = script->fn_803AC230();
+    }
+    if (EnemyManager::sInstance != 0) {
+        for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+            if (e->CanAct_unk() && (e->m54C & 0x2000) != 0x2000) {
+                n += e->vfF4();
+            }
+        }
+    }
+    if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0xA1E) > 0) {
+        n = 0;
+    }
+    return n;
 }
 
 int GameScene::fn_803CCA34(CharaTask* chara) {
@@ -2135,9 +2257,41 @@ int GameScene::fn_803CCA64(CharaTask* chara, int arg, float range) {
     return 0;
 }
 
-// NONMATCHING: stub
-int GameScene::fn_803CCA84(CharaTask* chara, atn::Vector3* pos, atn::Vector3* rot) {
+// inferred: position and rotation of the set point of `chara` in `points`
+inline int GetSetPoint_unk(atn::SimpleArray<gs::NpcSetPoint>& points, CharaTask* chara, atn::Vector3* pos,
+                           atn::Vector3* rot) {
+    for (unsigned int i = 0; i < points.size(); i++) {
+        gs::NpcSetPoint& p = points[i];
+        if (p.mId == chara->m58) {
+            if (pos != 0) {
+                *pos = p.mPos;
+            }
+            if (rot != 0) {
+                *rot = atn::Vector3(0.0f, p.m14, 0.0f);
+            }
+            return 1;
+        }
+    }
     return 0;
+}
+
+int GameScene::fn_803CCA84(CharaTask* chara, atn::Vector3* pos, atn::Vector3* rot) {
+    if (chara == 0) {
+        return 0;
+    }
+    int found = 0;
+    switch (chara->mType) {
+    case 1:
+        found = GetSetPoint_unk(m80, chara, pos, rot);
+        break;
+    case 2:
+        found = GetSetPoint_unk(m88, chara, pos, rot);
+        break;
+    case 3:
+        found = GetSetPoint_unk(m90, chara, pos, rot);
+        break;
+    }
+    return found;
 }
 
 int GameScene::fn_803CCC4C() {
@@ -2157,8 +2311,30 @@ void GameScene::fn_803CCC84(int a, int b) {
     m190.push_back(pair);
 }
 
-// NONMATCHING: stub
-void GameScene::fn_803CCCC0() {}
+void GameScene::fn_803CCCC0() {
+    for (unsigned int i = 0; i < m190.size(); i++) {
+        GameScenePair_unk& pair = m190[i];
+        CharaTask* chara = 0;
+        switch (pair.m00) {
+        case 0:
+            chara = lbl_8087F8A0->Find_unk(pair.m04);
+            break;
+        case 1:
+            chara = NpcManager::sInstance->Find_unk(pair.m04);
+            break;
+        case 2:
+            chara = EnemyManager::sInstance->Find_unk(pair.m04);
+            break;
+        case 3:
+            chara = lbl_8087F8A0->Find_unk(pair.m04);
+            break;
+        }
+        if (chara != 0) {
+            chara->fn_8016E4C4(1);
+        }
+    }
+    m190.clear();
+}
 
 void GameScene::fn_803CCD98() {
     if (m134 != 0) {

@@ -416,15 +416,15 @@ public:
     int fn_803CB618(GameSceneRoute_unk* out, CharaTask* chara); // inferred: link from the held point
     void fn_803CB820();
     int fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
-    int fn_803CC1A4(const atn::Vector3* pos, float radius, float cos, const atn::Vector3* dir);
+    int fn_803CC1A4(const atn::Vector3* pos, float radius, float cosMin, const atn::Vector3* dir); // inferred: a wall link is near
     int fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
-    void fn_803CC5E4();
+    int fn_803CC5E4(int type, int id); // inferred: chara of a set point (-1 if missing)
     void* fn_803CC6B4(int id); // inferred: message `id` (>= 10000: common messages of the field)
     gs::ConstrainModel* fn_803CC6D0(int id); // inferred: constrained model with the given id
     void fn_803CC718(atn::Task* chara, int value);
     atn::Vector3 fn_803CC754(unsigned int index); // inferred: position of a NPC set point
     void fn_803CC774(atn::Task* chara);
-    void fn_803CC77C();
+    int fn_803CC77C(); // inferred: number of things left
     int fn_803CC900(); // inferred: number of entries
     int fn_803CCA34(CharaTask* chara);
     int fn_803CCA4C(CharaTask* chara);

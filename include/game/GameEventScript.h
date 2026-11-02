@@ -13,6 +13,8 @@ public:
     int fn_80398590(int event, int arg); // inferred: the event can start
     int fn_8039CC24(int id);             // inferred: event with the given id
     int fn_803ABFD4(atn::Task* chara);
+    int fn_803AC088(); // inferred: count
+    int fn_803AC230(); // inferred: count
     int fn_803AC3D8(CharaTask* chara, int a, int b, float range);
     int fn_803AC708(CharaTask* chara);
     int fn_803AC978(CharaTask* chara);
