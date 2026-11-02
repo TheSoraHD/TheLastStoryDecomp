@@ -1781,6 +1781,18 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
     }
 }
 
+// inferred: data pointer of the NPC-set point array.
+extern "C" gs::NpcSetPoint* fn_803C795C(const atn::SimpleArray<gs::NpcSetPoint>* points) {
+    return points->mData;
+}
+
+// inferred: clears the run counts and data pointer of a U16Table_unk.
+extern "C" void fn_803C94BC(U16Table_unk* table) {
+    table->mCount = 0;
+    table->mRuns = 0;
+    table->mData = 0;
+}
+
 
 void GameScene::fn_803CA0F4() {
     int n = 0;
@@ -2471,3 +2483,21 @@ gs::BgmBox* GameScene::fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTas
     }
     return best;
 }
+
+// inferred: once guards shared with the weak collision-data initializer.
+extern "C" signed char lbl_8087F3CC;
+extern "C" signed char lbl_8087F3CD;
+
+class GameSceneInit_unk {
+public:
+    GameSceneInit_unk() {
+        if (lbl_8087F3CC == 0) {
+            lbl_8087F3CC = 1;
+        }
+        if (lbl_8087F3CD == 0) {
+            lbl_8087F3CD = 1;
+        }
+    }
+};
+
+static GameSceneInit_unk sGameSceneInit;
