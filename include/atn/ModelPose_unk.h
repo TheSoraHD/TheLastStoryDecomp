@@ -26,9 +26,27 @@ struct ModelJoint_unk {
 };
 
 // inferred: node matrices block of the loaded model data (count at 0x10)
+struct SkinWeight2_unk;
+struct SkinWeight3_unk;
+struct SkinWeight4_unk;
+// inferred: rigid entry of the skin block: one node per skin matrix (8 bytes)
+struct ModelRigidSkin_unk {
+    int m00;
+    int mNode;
+};
+// inferred: skin matrix block of the model data (names invented): m10 skin matrices in total, made of
+// m14 rigid entries, m1C two-joint, m24 three-joint and m2C four-joint weights (ModelBase::fn_80091684)
 struct ModelMtxBlock_unk {
     unsigned char m00[0x10];
     int m10;
+    int mRigidCount;
+    ModelRigidSkin_unk* mRigid;
+    int mSkin2Count;
+    const SkinWeight2_unk* mSkin2;
+    int mSkin3Count;
+    const SkinWeight3_unk* mSkin3;
+    int mSkin4Count;
+    const SkinWeight4_unk* mSkin4;
 };
 
 // inferred: model data of the loaded file (the 'modl' chunk; also a local copy in atn/LH_Model.cpp)

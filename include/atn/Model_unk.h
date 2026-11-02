@@ -20,7 +20,7 @@ class LH_Motion;
 struct MotionCmd_unk; // inferred: motion command entry of a motion slot (16 bytes)
 // inferred: per-node work entry of a model (18 bytes, cleared by its weak ctor 0x800979E8); name invented
 struct NodeWork_unk {
-    NodeWork_unk() { memset(this, 0, sizeof(NodeWork_unk)); }
+    inline NodeWork_unk(); // inferred: defined in atn/Model.cpp
     unsigned short m00[9];
 };
 class Matrix3x4;
@@ -221,6 +221,9 @@ struct Model : public ModelBase {
     Model(int flags = 8, int arg = 32); // 0x80096E94
     virtual ~Model(); // 0x800971D4
     virtual int vf20(); // 0x80097B74: inferred: a motion is still loading
+    // inferred: atn::Model declares its own accessor of the matrix block (second weak copy 0x800952F8, used
+    // by fn_80095300; defined in atn/Model.cpp)
+    inline Mtx_unk* GetMtx_unk();
     virtual void vf24(); // 0x800977F0
     using ModelBase::CalcMatrixStack;
     void CalcMatrixStack(ModelNodeCallback_unk callback); // 0x8000D430

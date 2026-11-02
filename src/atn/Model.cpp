@@ -10,6 +10,7 @@
 #include "std/string.h"
 #include "atn/AABB_unk.h"
 #include "atn/PBone.h"
+#include "atn/RenderView_unk.h"
 #include "std/new.h"
 #include <boost/bind.hpp>
 
@@ -22,6 +23,8 @@ extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext); 
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" void* lbl_8087EFB4; // inferred: render system
+// inferred: base of the locked cache (scratch for the node matrices); name invented
+#define LOCKED_CACHE_UNK ((atn::Matrix3x4*)0xE0000000)
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int memcmp(const void* a, const void* b, unsigned long n);
 extern "C" int rand();
@@ -36,14 +39,42 @@ extern "C" DebugMessages_unk* lbl_8087EEB8;
 extern "C" atn::Matrix3x4* fn_80476130(atn::LH_Model* model); // inferred: inverse joint matrices
 extern "C" atn::AABB_unk fn_80070B60(const atn::AABB_unk* box, float scale); // inferred: scales a box
 
+// inferred: empty asserts of the release build (they keep fn_80091684 and fn_80095300 over the inline
+// budget, as in the original); name invented
+#define MTX_ASSERT_UNK(x) ((void)0)
+// inferred: ten of them (about 400 are needed)
+#define MTX_ASSERT10_UNK(x) \
+    MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x); \
+    MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x); MTX_ASSERT_UNK(x)
+
 // inferred: b * a by value (weak copy 0x8008CD50); name invented
 inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
+    MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0); MTX_ASSERT10_UNK(&a != 0);
     atn::Matrix3x4 r;
     PSMTXConcat(b.m, a.m, r.m);
     return r;
 }
 
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+
+// inferred: skin matrices of the weighted vertex blocks (the paired-single versions 0x8009A0F8/0x8009A2C0
+// work on the locked cache; 0x80090C58/0x800910D4 on main memory and advance the output pointer)
+extern "C" void DCZeroRange(void* addr, unsigned long size);
+extern "C" void fn_8009A490(Mtx* out, const Mtx* a, const Mtx* b, int n, const Mtx root);
+extern "C" void fn_8009A504(Mtx* out, const Mtx* a, const Mtx* mats, const int* index, int n, const Mtx root);
+extern "C" void fn_8009A0F8(atn::Matrix3x4* out, const atn::Matrix3x4* mats, const SkinWeight2_unk* w, int n);
+extern "C" void fn_8009A2C0(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight3_unk* w, int n);
+extern "C" void fn_80090C58(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight3_unk* w, int n);
+extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight4_unk* w, int n);
 
 extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd); // inferred: clears
 
@@ -70,6 +101,18 @@ extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const at
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
 
 namespace atn {
+
+inline NodeWork_unk::NodeWork_unk() {
+    memset(this, 0, sizeof(NodeWork_unk));
+}
+
+inline int RenderView_unk::GetPass_unk() const {
+    return m2F8;
+}
+
+inline ModelBase::Mtx_unk* Model::GetMtx_unk() {
+    return &mMtx;
+}
 
 extern "C" void fn_800D58A4(Texture_unk* tex); // inferred: releases a texture
 } // namespace atn
@@ -630,6 +673,70 @@ inline bool SameMtx_unk(const Mtx a, const Mtx b) {
     return memcmp(a, b, 0x30) == 0;
 }
 
+// inferred: skin matrices of the model for the world matrix m; the node matrices are multiplied in the
+// locked cache when they fit in it (0x1800 bytes = 0x80 nodes)
+// NONMATCHING: 97.5% - the original reads m50 through the pointer returned by GetMtx_unk (0x48 from the
+// block at 0x08): the matrix block probably extends to m5C
+void ModelBase::fn_80091684(const Mtx m, const int* remap) {
+    Mtx_unk* mtx = GetMtx_unk();
+    m60 = *(const Matrix3x4*)m;
+    m5C = m50;
+    ModelLod_unk* lod = &mLods[m50];
+    if (mFlag4_unk && mFlag5_unk && ((RenderView_unk*)fn_8008B964())->GetPass_unk() == 3) {
+        m5C = -1;
+        lod = &m1C4;
+    }
+    bool cached = mtx->mNodes.size() * sizeof(Matrix3x4) <= 0x1800;
+    ResMtx_unk* block = ((Res_unk*)lod->m08)->m38;
+    Matrix3x4* nodes = mtx->mNodes.GetData_unk();
+    Matrix3x4* inv = fn_80476130(&lod->mHandle);
+    Matrix3x4* skin = (Matrix3x4*)m58;
+    DCZeroRange(skin, block->m10 * sizeof(Matrix3x4));
+    if (cached) {
+        if (remap != 0) {
+            fn_8009A504((Mtx*)LOCKED_CACHE_UNK, (const Mtx*)inv, (const Mtx*)nodes, remap, ((Res_unk*)lod->m08)->m44, m60.m);
+            for (int i = 0; i < block->mRigidCount; i++) {
+                *skin = MulMtx_unk(nodes[remap[block->mRigid[i].mNode]], m60);
+                skin++;
+            }
+        } else {
+            fn_8009A490((Mtx*)LOCKED_CACHE_UNK, (const Mtx*)inv, (const Mtx*)nodes, mtx->mNodes.size(), m60.m);
+            for (int i = 0; i < block->mRigidCount; i++) {
+                *skin = MulMtx_unk(nodes[block->mRigid[i].mNode], m60);
+                skin++;
+            }
+        }
+        if (block->mSkin2Count != 0 || block->mSkin3Count != 0 || block->mSkin4Count != 0) {
+            fn_8009A0F8(skin, LOCKED_CACHE_UNK, block->mSkin2, block->mSkin2Count);
+            skin += block->mSkin2Count;
+            fn_8009A2C0(&skin, LOCKED_CACHE_UNK, block->mSkin3, block->mSkin3Count);
+            skin += block->mSkin3Count;
+            fn_800910D4(&skin, LOCKED_CACHE_UNK, block->mSkin4, block->mSkin4Count);
+        }
+    } else {
+        if (remap != 0) {
+            fn_80090834(LOCKED_CACHE_UNK, inv, nodes, remap, ((Res_unk*)lod->m08)->m44, m60);
+            for (int i = 0; i < block->mRigidCount; i++) {
+                *skin = MulMtx_unk(nodes[remap[block->mRigid[i].mNode]], m60);
+                skin++;
+            }
+        } else {
+            fn_800908FC(LOCKED_CACHE_UNK, inv, nodes, mtx->mNodes.size(), m60);
+            for (int i = 0; i < block->mRigidCount; i++) {
+                *skin = MulMtx_unk(nodes[block->mRigid[i].mNode], m60);
+                skin++;
+            }
+        }
+        if (block->mSkin2Count != 0 || block->mSkin3Count != 0 || block->mSkin4Count != 0) {
+            fn_800909B0(skin, LOCKED_CACHE_UNK, block->mSkin2, block->mSkin2Count);
+            skin += block->mSkin2Count;
+            fn_80090C58(&skin, LOCKED_CACHE_UNK, block->mSkin3, block->mSkin3Count);
+            skin += block->mSkin3Count;
+            fn_800910D4(&skin, LOCKED_CACHE_UNK, block->mSkin4, block->mSkin4Count);
+        }
+    }
+}
+
 // NONMATCHING: 99.6% - the store order of the copy into m60
 void ModelBase::fn_80091A90(const Mtx m) {
     if (mFlag4_unk && mFlag5_unk && *(int*)((char*)lbl_8087EFB4 + 0x2F8) == 3) {
@@ -1042,27 +1149,31 @@ void Model::fn_80094F14(float u, float v) {
     }
 }
 
-// NONMATCHING: 9.6% - the original is over the inline budget (R3): every accessor, matrix product and box
+// inferred: over the inline budget (R3) as the original: every accessor, matrix product and box
 // assignment is called out of line (weak copies 0x8008CD50, 0x8008E2E0, 0x80091C00, 0x800952F8...)
 AABB_unk Model::fn_80095300() {
     AABB_unk box;
     box.mMin = fn_8000DD04()->GetMin_unk();
     box.mMax = fn_8000DD04()->GetMax_unk();
+    int n;
     Mtx_unk* mtx = GetMtx_unk();
     Matrix3x4 world(mtx->m);
     if (mB0 >= 0) {
         Matrix3x4* inv = fn_80476130(&mLods[0].mHandle);
         if (mB4 >= 0) {
-            Matrix3x4 m0 = MulMtx_unk(inv[mB0], mtx->mNodes[mB0]);
+            n = mB0;
+            Matrix3x4 m0 = MulMtx_unk(inv[n], mtx->mNodes[n]);
             AABB_unk a = fn_80070B60(&box, mAC);
             a = fn_8008F5F8(a, m0);
-            Matrix3x4 m1 = MulMtx_unk(inv[mB4], mtx->mNodes[mB4]);
+            n = mB4;
+            Matrix3x4 m1 = MulMtx_unk(inv[n], mtx->mNodes[n]);
             AABB_unk b = fn_80070B60(&box, mAC);
             b = fn_8008F5F8(b, m1);
             box = a.Merge_unk(b);
             return box;
         }
-        world = MulMtx_unk(inv[mB0], mtx->mNodes[mB0]);
+        n = mB0;
+        world = MulMtx_unk(inv[n], mtx->mNodes[n]);
     }
     box = fn_80070B60(&box, mAC);
     box = fn_8008F5F8(box, world);
@@ -1377,6 +1488,7 @@ void Model::fn_80099E9C(const char* node, const char* name, float value) {
 
 // inferred: out[i] = root * b[i] * a[i]
 // NONMATCHING: 97.6% - register allocation of the pointers
+extern "C" void DCZeroRange(void* addr, unsigned long size);
 extern "C" void fn_8009A490(Mtx* out, const Mtx* a, const Mtx* b, int n, const Mtx root) {
     while (n != 0) {
         PSMTXConcat(*b, *a, *out);

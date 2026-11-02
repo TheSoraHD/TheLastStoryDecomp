@@ -13,7 +13,8 @@ namespace atn {
 struct RenderView_unk {
     unsigned char m000[0x104];
     Camera_unk mCamera; // 0x104
-    unsigned char m2F8[4];
+    int m2F8; // inferred: render pass (3: shadow pass, ModelBase::fn_80091684; 4: one matrix per item)
+    inline int GetPass_unk() const; // inferred: weak copy 0x8008E2D4 (defined in atn/Model.cpp); name invented
     NewCampScene2_unk* mScene; // 0x2FC: inferred: lights and cameras of the scene (atn/TextureDraw_unk.cpp)
     unsigned char m300[0x54964 - 0x300];
     int m54964; // inferred: set by Event::ActionCheck (type 1)
