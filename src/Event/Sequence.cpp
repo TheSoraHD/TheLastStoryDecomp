@@ -1082,7 +1082,7 @@ void Sequence::fn_80541F18() {
 }
 
 // NONMATCHING: stub
-void Sequence::fn_8054204C() {
+void Sequence::fn_8054204C(int id, const EffectLists_unk& lists) {
 }
 
 // NONMATCHING: stub

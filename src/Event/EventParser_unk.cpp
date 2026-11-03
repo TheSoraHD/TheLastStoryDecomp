@@ -55,7 +55,7 @@ struct ParserState_unk {
     MovieData* m4C;
     Path* m50;
     Actor* m54;
-    int m58;
+    EffectLists_unk* m58; // inferred: current curve ("CURV")
 };
 
 static ParserState_unk* sState_unk; // inferred: the reader (lbl_8087F9B8)
@@ -157,9 +157,78 @@ static int ParseCAT_unk(unsigned int tag, int size, const char* data, ParserStat
     return 4;
 }
 
-// NONMATCHING: stub - settings of the sequence ("SEQU" and "SEQ2" records)
+// inferred: settings of the sequence ("SEQU" and "SEQ2" records, 0x28 bytes; the flags moved in "SEQ2")
+// inferred: flags of the sequence as stored in the file (copied to Sequence::m58)
+struct SequenceStateRec_unk {
+    unsigned short m00;
+    unsigned char m02;
+    unsigned char m03;
+};
+struct SequenceRecord_unk {
+    unsigned int mFlags; // inferred: kind (bits 0-3), m54 (bits 4-7), then the flags of m98
+    SequenceStateRec_unk mState;
+    short m08;
+    short m0A;
+    float mPos[3];
+    float mRot[3];
+    float mYaw;
+};
+
+inline void SetFlag3_unk(Sequence* seq, int on) { seq->m98_3 = on != 0; }
+inline void SetFlag4_unk(Sequence* seq, int on) { seq->m98_4 = on != 0; }
+inline void SetFlag7_unk(Sequence* seq, int on) { seq->m98_7 = on != 0; }
+inline void SetFlag8_unk(Sequence* seq, int on) { seq->m98_8 = on != 0; }
+inline void SetFlag9_unk(Sequence* seq, int on) { seq->m98_9 = on != 0; }
+
+// NONMATCHING: the copy of the state (m58) loads its bytes in reverse order and stores a temporary late
+// (also tried a raw buffer and memberwise copies); the rest matches
 static int ParseSEQ2_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    sState_unk->m14 = 0;
+    sState_unk->m18 = 0;
+    sState_unk->m1C = 0;
+    sState_unk->m20 = 0;
+    sState_unk->m24 = 0;
+    sState_unk->m28 = 0;
+    if (tag == 'SEQU') {
+        SequenceRecord_unk rec;
+        memcpy(&rec, data, sizeof(rec));
+        seq->m50 = rec.mFlags & 0xF;
+        seq->m54 = (rec.mFlags >> 4) & 0xF;
+        SetFlag3_unk(seq, rec.mFlags & 0x20);
+        SetFlag7_unk(seq, rec.mFlags & 0x40);
+        SetFlag4_unk(seq, rec.mFlags & 0x80);
+        SetFlag8_unk(seq, rec.mFlags & 0x100);
+        SetFlag9_unk(seq, rec.mFlags & 0x200);
+        SequenceStateRec_unk st = rec.mState;
+        seq->m58.m00 = st.m00;
+        seq->m58.m02 = st.m02;
+        seq->m58.m03 = st.m03;
+        seq->m94 = rec.m08;
+        seq->m9C = atn::Vector3(rec.mPos[0], rec.mPos[1], rec.mPos[2]);
+        seq->mA8 = atn::Vector3(rec.mRot[0], rec.mRot[1], rec.mRot[2]);
+        seq->mB4 = rec.mYaw;
+        return sizeof(rec);
+    } else {
+        SequenceRecord_unk rec;
+        memcpy(&rec, data, sizeof(rec));
+        seq->m50 = rec.mFlags & 0xF;
+        seq->m54 = (rec.mFlags >> 4) & 0xF;
+        SetFlag3_unk(seq, rec.mFlags & 0x100);
+        SetFlag7_unk(seq, rec.mFlags & 0x200);
+        SetFlag4_unk(seq, rec.mFlags & 0x400);
+        SetFlag8_unk(seq, rec.mFlags & 0x800);
+        SetFlag9_unk(seq, rec.mFlags & 0x1000);
+        SequenceStateRec_unk st = rec.mState;
+        seq->m58.m00 = st.m00;
+        seq->m58.m02 = st.m02;
+        seq->m58.m03 = st.m03;
+        seq->m94 = rec.m08;
+        seq->m9C = atn::Vector3(rec.mPos[0], rec.mPos[1], rec.mPos[2]);
+        seq->mA8 = atn::Vector3(rec.mRot[0], rec.mRot[1], rec.mRot[2]);
+        seq->mB4 = rec.mYaw;
+        return sizeof(rec);
+    }
 }
 
 // inferred: name of the sequence
@@ -308,9 +377,17 @@ static int ParseSTNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - curve
+// inferred: curve of the sequence (list at 0x184)
+// NONMATCHING: order of the stores of the two vector constructors (the original clears the data and capacity
+// words of both before the sizes)
 static int ParseCURV_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    int id;
+    memcpy(&id, data, sizeof(id));
+    Sequence* seq = sState_unk->m10;
+    EffectLists_unk lists;
+    seq->fn_8054204C(id, lists);
+    sState_unk->m58 = seq->fn_80543060(id);
+    return sizeof(id);
 }
 
 // NONMATCHING: stub - points of the curve

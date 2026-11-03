@@ -134,8 +134,12 @@ struct ScreenEffect_unk {
 
 // inferred: two lists of an entry of the list at 0x184 (names invented)
 struct EffectLists_unk {
+    EffectLists_unk() { // inferred: built by the reader of "CURV" (Event/EventParser_unk)
+        m0C = 0.0f;
+        m1C = 0;
+    }
     std::vector<int> m00;
-    int m0C;
+    float m0C;
     IntVector_unk m10; // inferred: one destructor level more than m00 (four address tests)
     int m1C;
 };
@@ -202,7 +206,7 @@ public:
     float fn_80541CF0(float yaw);
     int fn_80541CFC(int kind, int num);
     void fn_80541F18();
-    void fn_8054204C();
+    void fn_8054204C(int id, const EffectLists_unk& lists); // inferred: adds the curve `id` (list at 0x184)
     void fn_80542684();
     void fn_805428A8();
     EffectLists_unk* fn_80543060(int id);
@@ -236,6 +240,7 @@ public:
     void fn_80550254();
     void fn_80575FCC();
     void fn_80576258();
+    int fn_8047F400(); // inferred: the sequence is ending (Event/Manager.cpp)
     int fn_8057D8C0(); // inferred: reads the chunks of the event data (Event/EventParser_unk.cpp)
     // inferred: inlined by the reader of "SEMS" (Event/EventParser_unk.cpp); name invented
     void SetMessage_unk(const char* name) { m68 = name; }

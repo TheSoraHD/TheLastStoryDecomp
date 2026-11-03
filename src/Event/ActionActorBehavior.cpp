@@ -2,16 +2,15 @@
 #include "Event/Cut.h"
 #include "Event/Behavior.h"
 #include "Event/Sequence.h"
+#include "Event/Manager.h"
 
 extern "C" int fn_805510F8();
 extern "C" int fn_80551100();
 
 extern "C" void fn_8054FBC8(void* self);
 
-extern "C" void* lbl_8087F540;
 extern "C" volatile float lbl_80887E20;
 extern "C" volatile float lbl_80887E24;
-extern "C" void fn_8047F8C0(void* object, int enabled);
 extern "C" void fn_8047F6E4(void* object);
 extern "C" void fn_8047F8B0(void* object);
 extern "C" void fn_8047F850(void* object, int start, int colorStart, int colorEnd);
@@ -235,9 +234,9 @@ void Event::Sequence::fn_805501DC(int enabled) {
     void* self = this;
     int& state = *reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x1C0);
     if (state == 0 && enabled != 0) {
-        fn_8047F8C0(lbl_8087F540, 1);
+        lbl_8087F540->fn_8047F8C0(1);
     } else if (state != 0 && enabled == 0) {
-        fn_8047F8C0(lbl_8087F540, 0);
+        lbl_8087F540->fn_8047F8C0(0);
     }
     state = enabled;
 }
@@ -268,7 +267,7 @@ void Event::Sequence::fn_80550254() {
         if (handler == 0 || reinterpret_cast<int (*)(void*, void*)>(
                 (*reinterpret_cast<void***>(handler))[2])(handler, current) != 3) {
             if (current != 0) {
-                fn_8047F8C0(manager, 0);
+                ((Manager*)manager)->fn_8047F8C0(0);
             }
             *reinterpret_cast<void**>(object + 0x1C0) = 0;
         } else {
@@ -363,7 +362,7 @@ void Event::Sequence::fn_80550254() {
                                 reinterpret_cast<int (*)(void*, void*)>(table[2])(handler, action);
                         }
                         if (*reinterpret_cast<int*>(object + 0x1C0) == 3) {
-                            fn_8047F8C0(manager, 1);
+                            ((Manager*)manager)->fn_8047F8C0(1);
                         }
                     }
                 }
