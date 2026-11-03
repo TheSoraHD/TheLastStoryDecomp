@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `solo-20261103b` (2026-11-03, **sin mergear**): **12384 / 18119** en `report.json` (al 100% en objdiff 12152 -> 12232), 584 unidades, `main.dol: OK`, lost 1 aceptado (`EnemyQuarkSecond fn_80341BEC`). Inventory, GameChoiceWindow y GameVoice con clases; `tools/decomp/pdbatch.sh`. Notas: `docs/solo-20261103b.md`.
+- `solo-20261103b` (2026-11-03, mergeada en `main`): **12384 / 18119** en `report.json` (al 100% en objdiff 12152 -> 12232), 584 unidades, `main.dol: OK`, lost 1 aceptado (`EnemyQuarkSecond fn_80341BEC`). Inventory, GameChoiceWindow y GameVoice con clases; `tools/decomp/pdbatch.sh`. Notas: `docs/solo-20261103b.md`.
 - `trk-exception` (mergeada): MetroTRK `__exception.s` enlazado, 12331. `solo-20261103` (mergeada): 12330, presupuesto de inlining + `push_back` instanciado (`docs/solo-20261103.md`).
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200, `docs/claude-20261102.md`) y `codex-20261102` (11922, `docs/codex-20261102.md`); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
