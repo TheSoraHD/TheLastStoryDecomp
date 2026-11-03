@@ -253,6 +253,25 @@ void GameVoiceChannel_unk::CheckPrepared_unk(const char* name) {
     }
 }
 
+// inferred: stops the prepared voice of the channel if it is not `id` (inlined in fn_803E9B7C,
+// removed by the linker; name invented)
+void GameVoiceChannel_unk::CheckPreparedId_unk(unsigned int id) {
+    if (mPlaying) {
+        if (id != fn_800CB6F8(&mSound)) {
+            if (lbl_8087EEB8 != 0) {
+                char buf[0x100];
+                const char* name = fn_80049CDC(lbl_8087EE90, id);
+                atn::SoundEngine_unk* engine = lbl_8087EE90;
+                const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
+                sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]", id, name,
+                        fn_800CB6F8(&mSound), label);
+                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+            }
+            Stop_unk(0);
+        }
+    }
+}
+
 // NONMATCHING: 99.0% - the voice id goes through r3 instead of r4 (VoiceId_unk); register of the id
 atn::SoundRef GameVoice::fn_803E907C(const char* name, const atn::Vector3* pos, int offset, int steal, float volume) {
     atn::SoundRef ref;
@@ -329,6 +348,44 @@ atn::SoundRef GameVoice::fn_803E9608(const char* name, int offset, int steal, fl
     if (fn_80049C3C(lbl_8087EE90, name) != 0) {
         fn_800CB654(&channel->mSound, 0.0f, 0.0f, 0.0f);
     }
+    GameVoiceRequest_unk request;
+    request.mState = 1;
+    request.mChannel = channel;
+    mRequests.push_back(request);
+    return channel->mSound;
+}
+
+// NONMATCHING: 99.88% - r3/r4 swapped in the dead code of GameVoiceRequest_unk::Reset_unk (as its constructor)
+atn::SoundRef GameVoice::fn_803E9B7C(unsigned int id, int offset, int steal, float volume) {
+    atn::SoundRef ref;
+    if (mRequests.size() >= 32) {
+        return ref;
+    }
+    GameVoiceChannel_unk* channel = fn_803EB7E4(id, steal);
+    if (channel == 0) {
+        return ref;
+    }
+    channel->CheckPreparedId_unk(id);
+    if (!channel->mPlaying) {
+        channel->Stop_unk(0);
+        atn::SoundCore* sound = NewVoice_unk(id);
+        if (sound == 0) {
+            sound = 0;
+        } else {
+            sound->mA8 = lbl_8087EFE8->fn_800CFDA0(2);
+            sound->mAC = lbl_8087EFE8->fn_800CFDC8(8);
+            sound->fn_800CA7D4(offset);
+            sound->fn_800C9C64(id);
+        }
+        channel->mSound = (atn::SoundObject*)sound;
+        if (channel->mSound.mPtr == 0) {
+            return ref;
+        }
+    }
+    channel->mPlaying = 0;
+    channel->mPrepared = 0;
+    fn_800CB5B4(&channel->mSound, volume, 0);
+    fn_800CB654(&channel->mSound, 1.0f, 1.0f, 1.0f);
     GameVoiceRequest_unk request;
     request.mState = 1;
     request.mChannel = channel;

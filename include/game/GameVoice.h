@@ -28,7 +28,8 @@ struct GameVoiceChannel_unk {
     inline void DetachLip_unk();
     // inferred: stops the prepared voice if it is not `name` (inlined in fn_803E907C and the other
     // players, removed by the linker; name invented)
-    void CheckPrepared_unk(const char* name); // inferred: the character stops using this lip sync (name invented)
+    void CheckPrepared_unk(const char* name);
+    void CheckPreparedId_unk(unsigned int id); // inferred: as CheckPrepared_unk, with a sound id // inferred: the character stops using this lip sync (name invented)
 
     atn::SoundRef mSound;     // 0x00
     LipSyncData_unk mLipSync; // 0x04
@@ -138,6 +139,8 @@ public:
     void fn_803EAC3C(CharaTask* chara); // inferred: forgets the voices of `chara` (0: all)
     // inferred: plays the voice `name` (no position)
     atn::SoundRef fn_803E9608(const char* name, int offset, int steal, float volume);
+    // inferred: plays the voice with sound id `id`
+    atn::SoundRef fn_803E9B7C(unsigned int id, int offset, int steal, float volume);
     void fn_803EAF60(CharaTask* chara); // inferred: removes the delayed voices of `chara` (0: all)
     int fn_803EB038(const char* name, int offset); // inferred: prepares the voice `name`
     int fn_803EB234();                   // inferred: a voice is playing or loading
