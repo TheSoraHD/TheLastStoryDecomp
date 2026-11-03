@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `nuevas-20261103` (2026-11-03, sin mergear): **12480 / 18119** en `report.json` (al 100% en objdiff 12232 -> 12328), lost 0. Event/Sequence (unida con StringData y Sequence_cont, 6 -> 80/119), Event/Manager unida con PostSequence y Manager_cont, Event/Puppeteer_CharaTask 0 -> 22/111; `EventManager_unk` = `Event::Sequence`, `Event::Actor`, `GameMessageList`. Notas: `docs/nuevas-20261103.md`.
+- `nuevas-20261103` (2026-11-03, sin mergear): **12564 / 18119** en `report.json`, lost 0. Event/Sequence (unida con StringData y Sequence_cont) 80/119, Event/Manager (unida con PostSequence y Manager_cont) 26/185, Event/Puppeteer_CharaTask 61/111, Event/EventParser_unk (nueva) 26/53; `EventManager_unk` = `Event::Sequence`, `Event::Actor`, `GameMessageList`, `String_unk` propio. Notas: `docs/nuevas-20261103.md`.
 - `solo-20261103b` (mergeada en `main`): 12384 (objdiff 12232), Inventory, GameChoiceWindow y GameVoice con clases, `pdbatch.sh` (`docs/solo-20261103b.md`); `trk-exception` 12331; `solo-20261103` 12330 (`docs/solo-20261103.md`).
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200, `docs/claude-20261102.md`) y `codex-20261102` (11922, `docs/codex-20261102.md`); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
