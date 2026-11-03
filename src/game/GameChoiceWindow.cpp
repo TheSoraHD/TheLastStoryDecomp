@@ -352,7 +352,7 @@ GameMessageWindow* GameMessageWindow::fn_803B5470(atn::Task* parent) {
 }
 
 
-GameMessageWindow::GameMessageWindow(atn::Task* parent) : atn::Task(parent), m4C(0), mState(0), mTimer(0) {
+GameMessageWindow::GameMessageWindow(atn::Task* parent) : atn::Task(parent), mMessage(0), mState(0), mTimer(0) {
     mLayout = fn_801F64D0(this, sMessageLayout_unk);
     mLayout->mLoop = 0;
     mLayout->fn_800D246C(1);
@@ -397,8 +397,8 @@ void GameMessageWindow::vf10() {
     fn_801F7590(mLayout, "btnUvMask", uv);
 }
 
-void GameMessageWindow::fn_803B5774(int arg, int time) {
-    m4C = arg;
+void GameMessageWindow::fn_803B5774(GameMessage* msg, int time) {
+    mMessage = msg;
     mState = 1;
     mLayout->mFrame = 0.0f;
     mLayout->mSpeed = 1.5f;
@@ -424,8 +424,8 @@ void GameMessageWindow::fn_803B57EC() {
     }
 }
 
-void GameMessageWindow::fn_803B5830(int arg, int time) {
-    m4C = arg;
+void GameMessageWindow::fn_803B5830(GameMessage* msg, int time) {
+    mMessage = msg;
     mTimer = time;
     fn_803B5974();
 }
@@ -527,9 +527,9 @@ void GameTextMessageWindow::fn_803B6E04() {}
 // NONMATCHING: stub
 void GameTextMessageWindow::fn_803B710C() {}
 
-void GameTextMessageWindow::fn_803B78B4(int value) {
+void GameTextMessageWindow::fn_803B78B4(GameMessage* msg) {
     if (GetCount_unk() < 0x40) {
-        Push_unk(value);
+        Push_unk(msg);
     }
 }
 

@@ -10,6 +10,7 @@
 #include "Event/PathSpline.h"
 
 class CharaTask;
+class GameMessageWindow;
 
 namespace atn {
 
@@ -173,7 +174,7 @@ struct EventManager_unk {
     int m1AC; // inferred: game variable changed by ActionNotify (-1 none)
     unsigned char m1B0[0x1D4 - 0x1B0];
     unsigned char m1D4[0x1EC - 0x1D4]; // inferred: message table of the event (fn_803B3B38)
-    struct MsgWindow_unk* m1EC;        // inferred: message window
+    GameMessageWindow* m1EC;           // inferred: message window (game/GameChoiceWindow)
     unsigned char m1F0[0x280 - 0x1F0];
     Dialog* m280; // inferred: balloons of the conversations (ActionDialogText/Speaker, ActionVoicePlay)
 };

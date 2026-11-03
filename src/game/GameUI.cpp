@@ -2427,9 +2427,9 @@ void GameUI::fn_803E3384() {
 
 void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
     if (msg != 0 && m2640 != 0) {
-        m2640->mB4 = 0;
-        ((GameTextMessageWindow*)m2640)->fn_803B78E8();
-        ((GameTextMessageWindow*)m2640)->fn_803B6970((GameMessage*)msg, arg, time);
+        m2640->mCount = 0;
+        m2640->fn_803B78E8();
+        m2640->fn_803B6970((GameMessage*)msg, arg, time);
         m2658 = 0;
     }
 }
@@ -2612,8 +2612,8 @@ void GameUI::fn_803E4510() {
 // NONMATCHING: 99.2% - r5/r6 of the first gauge and of the pointer of the mB0 loop swapped
 void GameUI::fn_803E454C() {
     fn_803E41AC(0);
-    ((GameMessageWindow*)m263C)->fn_803B57B0(1);
-    ((GameTextMessageWindow*)m2640)->fn_803B6C88(1);
+    m263C->fn_803B57B0(1);
+    m2640->fn_803B6C88(1);
     m114C = 0;
     m110C = 0;
     m1170 = 0;

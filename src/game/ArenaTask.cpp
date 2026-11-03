@@ -1,5 +1,6 @@
 #include "game/ArenaTask.h"
 #include "game/GameScene.h"
+#include "game/GameUI.h"
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -36,25 +37,6 @@ struct ArenaEnemyMgr_unk {
     int mNumSlots; // 0x363B0
 };
 extern "C" ArenaEnemyMgr_unk* lbl_8087F048;
-
-// inferred: voice/message window (lbl_8087F490->m2640)
-struct ArenaVoiceWin_unk {
-    // inferred: no message is shown or it is about to end (name invented)
-    bool IsFree_unk() { return m50 == 0 || 6.0f <= m60; }
-    unsigned char m00[0x50];
-    int m50;   // inferred: nonzero while a message is shown
-    unsigned char m54[0x60 - 0x54];
-    float m60; // inferred: time left
-    unsigned char m64[0xB4 - 0x64];
-    int mB4;
-};
-struct ArenaVoiceOwner_unk {
-    unsigned char m00[0x2640];
-    ArenaVoiceWin_unk* m2640;
-};
-extern "C" ArenaVoiceOwner_unk* lbl_8087F490;
-extern "C" void fn_803B6970(ArenaVoiceWin_unk* win, void* msg, int arg, float time); // inferred: shows a message
-extern "C" void fn_803B78B4(ArenaVoiceWin_unk* win, void* msg); // inferred: queues a message
 
 static ArenaTask* sInstance;
 
@@ -281,7 +263,7 @@ void ArenaTask::fn_80043D58(int side) {
     if (mVoice == 0) {
         return;
     }
-    ArenaVoiceWin_unk* win = lbl_8087F490->m2640;
+    GameTextMessageWindow* win = lbl_8087F490->m2640;
     if (win == 0 || !win->IsFree_unk()) {
         return;
     }
@@ -301,16 +283,16 @@ void ArenaTask::fn_80043D58(int side) {
     unsigned int n = voices.mCount;
     Voice_unk& v = voices.mData[rand() % n];
 
-    void* msg = ((GameScene*)table)->fn_803CC6B4(v.mFirst);
+    GameMessage* msg = (GameMessage*)((GameScene*)table)->fn_803CC6B4(v.mFirst);
     if (msg != 0) {
-        fn_803B6970(win, msg, 0, 6.0f);
+        win->fn_803B6970(msg, 0, 6.0f);
     }
-    win->mB4 = 0;
+    win->mCount = 0;
     if (v.mLast > 0) {
         for (int id = v.mFirst + 1; id <= v.mLast; id++) {
-            msg = ((GameScene*)table)->fn_803CC6B4(id);
+            msg = (GameMessage*)((GameScene*)table)->fn_803CC6B4(id);
             if (msg != 0) {
-                fn_803B78B4(win, msg);
+                win->fn_803B78B4(msg);
             }
         }
     }

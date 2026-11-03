@@ -92,10 +92,10 @@ public:
     virtual int vf0C();           // 0x803B55BC
     virtual void vf10();          // 0x803B5618
 
-    void fn_803B5774(int arg, int time); // inferred: opens the window
+    void fn_803B5774(GameMessage* msg, int time); // inferred: opens the window
     void fn_803B57B0(int enabled);
     void fn_803B57EC();
-    void fn_803B5830(int arg, int time);
+    void fn_803B5830(GameMessage* msg, int time); // inferred: next message
     void fn_803B583C(int id); // inferred: shows the choices of the message `id` of the scene
     void fn_803B58D8(GameMessage* msg);
     int fn_803B5950();
@@ -103,7 +103,7 @@ public:
     bool IsShown_unk() const { return mState == 2 || mState == 4; } // inferred: name invented
 
     GameLayout_unk* mLayout;     // 0x48
-    int m4C;
+    GameMessage* mMessage;       // 0x4C
     int mState;                  // 0x50
     GameChoiceWindow* mChoices;  // 0x54
     int mTimer;                  // 0x58
@@ -124,11 +124,13 @@ public:
     void fn_803B6C88(int enabled);
     void fn_803B6E04();
     void fn_803B710C();
-    void fn_803B78B4(int value); // inferred: queues a value
+    void fn_803B78B4(GameMessage* msg); // inferred: queues a message
     void fn_803B78E8();          // inferred: sets the event counter of the message
     unsigned int GetCount_unk() const { return mCount; } // inferred: name invented
-    void Push_unk(int value) {
-        mQueue[(mHead + mCount) & 0x3F] = value;
+    // inferred: no message is shown or it is about to end (game/ArenaTask, name invented)
+    bool IsFree_unk() const { return mState == 0 || 6.0f <= m60; }
+    void Push_unk(GameMessage* msg) {
+        mQueue[(mHead + mCount) & 0x3F] = msg;
         mCount++;
     }
 
@@ -155,7 +157,7 @@ public:
     int mAC;
     int mB0;
     unsigned int mCount;     // 0xB4
-    int mQueue[0x40];        // 0xB8
+    GameMessage* mQueue[0x40]; // 0xB8
     unsigned int mHead;      // 0x1B8
     int m1BC;
 };
