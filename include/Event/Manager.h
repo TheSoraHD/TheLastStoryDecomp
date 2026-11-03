@@ -39,6 +39,7 @@ struct ManagerFade_unk : public atn::Task {
 struct ManagerTask1A7C_unk : public atn::Task {
     unsigned char m48[0x100 - 0x48];
     float m100;
+    float m104;
 };
 
 // inferred: event manager (Event/Manager.cpp, vtable __vt__Q25Event7Manager; instance lbl_8087F540).
@@ -78,6 +79,9 @@ public:
     void fn_8047F88C(int arg);
     void fn_8047F8A4(float value);
     void fn_8047F8C0(int arg);
+    int fn_80481654();   // inferred: the task m1A7C is not frozen (no event is running)
+    int fn_80481668();   // inferred: nonzero while the song stops the characters
+    void fn_80481800(int on); // inferred: shows the check sphere
     // inferred: next state of m1AA0 (inlined in fn_8047F6B0 and fn_8047F6E4); name invented
     void Step1AA0_unk() {
         if (m1AA0 == 0) {
@@ -108,7 +112,12 @@ public:
     int m1AA4;
     ManagerFade_unk* m1AA8;
     int m1AAC;
-    unsigned char m1AB0[0x1F10 - 0x1AB0];
+    unsigned char m1AB0[0x1EA4 - 0x1AB0];
+    int m1EA4; // inferred: the check sphere is shown (fn_80481800)
+    int m1EA8;
+    int m1EAC;
+    int m1EB0;
+    unsigned char m1EB4[0x1F10 - 0x1EB4];
     std::vector<int> m1F10; // inferred: cleared by fn_80484FBC with the lights
     int m1F1C;
     atn::Bgm m1F20; // inferred: music of the event

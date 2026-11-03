@@ -107,6 +107,20 @@ void Manager::fn_8047F8C0(int arg) {
     }
 }
 
+int Manager::fn_80481654() {
+    return m1A7C->IsFrozen_unk() == 0;
+}
+
+int Manager::fn_80481668() {
+    int result = 0;
+    if (!m1A7C->IsFlag_unk(4)) {
+        if (m1A7C->m104 >= 0.0f) {
+            result = 1;
+        }
+    }
+    return result;
+}
+
 void Manager::fn_8048169C(int arg) {
     if (arg == 0) {
         if (m1A90 == 0) {
@@ -125,6 +139,13 @@ void Manager::fn_804817D4() {
     if (!m1A80->IsFlag_unk(4)) {
         m1A80->FreezeTask();
         m1A88 = 1;
+    }
+}
+
+void Manager::fn_80481800(int on) {
+    m1EA4 = on;
+    if (on != 0) {
+        m1EB0 = 0;
     }
 }
 
