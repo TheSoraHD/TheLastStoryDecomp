@@ -103,7 +103,10 @@ struct Actor : public CommonData {
     void fn_80013530(float speed);
     atn::Vector3 fn_80010374();    // inferred: position of the actor
     atn::Vector3 fn_80010B68();    // inferred: rotation of the actor
+    atn::Model* fn_8001296C();     // inferred: same code as fn_80012A1C
     atn::Model* fn_80012A1C();     // inferred: model of the actor (0 if none)
+    MtxPtr fn_80012AC4(unsigned int node); // inferred: node matrix of the actor (ActionEffectPlay)
+    void fn_8001268C(int msg, int state); // inferred: message to a gimmick actor
     void fn_8000EE8C();            // inferred: update (Event::Sequence::vf10)
     void fn_8000F1EC();            // inferred: start of the event
     void fn_8000FAE8();            // inferred: end of the event
@@ -118,6 +121,7 @@ struct Actor : public CommonData {
     // inferred: places the actor with a matrix, optionally relative to the node matrix `node`
     void fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx);
     void fn_800121F0(int arg, float distance); // inferred: called with the distance moved
+    float fn_80011964(); // inferred: rotation around y
     // inferred: turns the eyes towards `target` (node, camera position, jitter, weight, angle)
     void fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                      int arg6, float weight, float angle);

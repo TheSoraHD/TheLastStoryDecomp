@@ -127,8 +127,6 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* efp, int a, int b, MtxPtr 
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* data, atn::Model* model, int a, const atn::Vector3* pos,
                             const atn::Vector3* rot, const atn::Color4f_unk* color, int b, int c, int d, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
-extern "C" atn::Model* fn_8001296C(Event::Actor* actor); // inferred: model of an actor
-extern "C" MtxPtr fn_80012AC4(Event::Actor* actor, int node); // inferred: node matrix of an actor
 extern "C" unsigned int fn_800DC6B4(const char* str);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70; // inferred: pad
@@ -554,8 +552,8 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
         world.x = base.x + pos.x;
         world.y = base.y + pos.y;
         world.z = base.z + pos.z;
-        atn::Model* model = fn_8001296C(actor);
-        MtxPtr mtx = fn_80012AC4(actor, node);
+        atn::Model* model = actor->fn_8001296C();
+        MtxPtr mtx = actor->fn_80012AC4(node);
         fn_800DC6B4("[weapon]");
         lbl_8087F3C0->mB8 = 4;
         if (entry->m1C == 2) {
@@ -1529,7 +1527,7 @@ atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
     if (actor->m20 == 6) {
         offset = manager->fn_80541BD8(offset);
     }
-    atn::Model* model = fn_8001296C(actor);
+    atn::Model* model = actor->fn_8001296C();
     if (model != 0) {
         atn::Matrix3x4* mtx = (atn::Matrix3x4*)model->GetNodeMtx_unk(model->fn_800928B0(node, 0));
         if (mtx != 0) {

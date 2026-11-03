@@ -29,6 +29,12 @@ struct DebugMessages_unk {
     void fn_800697D8(const char* message);
 };
 extern "C" DebugMessages_unk* lbl_8087EEB8; // inferred: debug message output
+// inferred: motion resource info (as in game/CharaTask.cpp: fn_802096A8 looks it up by the motion name)
+struct MotionInfo_unk {
+    int m00;
+    float m04; // inferred: distance covered by the motion
+};
+extern "C" MotionInfo_unk* fn_802096A8(const char* name);
 
 // inferred: the party manager and the event manager (weak copies 0x8000D9E8 and 0x8000DB1C; their names are
 // unknown, other files call them as fn_8000D9E8 and fn_8000DB1C)
@@ -505,6 +511,83 @@ int Actor::vf10() const {
     return 1;
 }
 
+// inferred: position of the actor
+atn::Vector3 Actor::fn_80010374() {
+    switch (m20) {
+    case 6:
+        return lbl_807C7030;
+    case 7:
+    case 1:
+        if (m1C != 0) {
+            return ((Puppeteer<CharaTask>*)m1C)->m48->mPos;
+        }
+    case 2:
+        if (m1C != 0) {
+            return ((GimmickCommon*)m1C)->m6C;
+        }
+    case 3:
+        if (m1C != 0) {
+            return ((Puppeteer<atn::Model>*)m1C)->m48->mMtx.GetTrans_unk();
+        }
+    case 4:
+        if (m1C != 0) {
+            atn::Matrix3x4* mtx = (atn::Matrix3x4*)((Data48_unk*)m1C)->m18;
+            return atn::Vector3(mtx->m[0][3], mtx->m[1][3], mtx->m[2][3]);
+        }
+    }
+    return lbl_807C7030;
+}
+
+// inferred: places the actor on the matrix `mtx`, optionally relative to the node matrix `node`
+// NONMATCHING: the original keeps the compares of the empty cases 2 and 4 and copies the matrix through a
+// stack copy interleaved with the stores to m58 (probably inlines that are not known)
+void Actor::fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx) {
+    switch (m20) {
+    case 7:
+    case 1: {
+        atn::Matrix3x4 m(mtx);
+        ((Puppeteer<CharaTask>*)m1C)->m58 = m;
+        ((Puppeteer<CharaTask>*)m1C)->m54 = (atn::Matrix3x4*)node;
+        ((Puppeteer<CharaTask>*)m1C)->mB8 = arg2;
+        ((Puppeteer<CharaTask>*)m1C)->mB9 = arg3;
+        break;
+    }
+    case 2:
+        break;
+    case 3:
+        ((Puppeteer<atn::Model>*)m1C)->m54 = (atn::Matrix3x4*)node;
+        ((Puppeteer<atn::Model>*)m1C)->mB8 = arg2;
+        ((Puppeteer<atn::Model>*)m1C)->mB9 = arg3;
+        break;
+    case 4:
+        break;
+    }
+}
+
+// inferred: rotation of the actor around y
+float Actor::fn_80011964() {
+    switch (m20) {
+    case 6:
+        return 0.0f;
+    case 7:
+    case 1:
+        return GetChara_unk()->mRot.y;
+    case 2:
+        return ((GimmickCommon*)m1C)->m78.y;
+    }
+    return 0.0f;
+}
+
+// inferred: sets the speed of the motion `motion` from the distance moved
+void Actor::fn_800121F0(int motion, float distance) {
+    if (m20 == 7 || m20 == 1) {
+        atn::Model* model = m1C != 0 ? GetChara_unk()->GetModel_unk() : 0;
+        atn::LoadHandle* handle = model->fn_80097D40(motion);
+        MotionInfo_unk* info = handle != 0 ? fn_802096A8(handle->fn_80473F18()) : 0;
+        model->mTracks[0].m0C = info != 0 ? distance / info->m04 : 0.0f;
+    }
+}
+
 // inferred: the character driven by a character actor (kinds 1 and 7)
 inline CharaTask* Actor::GetChara_unk() {
     return ((Puppeteer<CharaTask>*)m1C)->m48;
@@ -560,6 +643,18 @@ void Actor::fn_80012638(int on) {
     }
 }
 
+// inferred: sends the message `msg` to a gimmick actor (or sets its state)
+void Actor::fn_8001268C(int msg, int state) {
+    if (m20 == 2) {
+        if (state != 0) {
+            ((GimmickCommon*)m1C)->vf70(msg);
+        } else {
+            GimmickMsg_unk m(msg);
+            ((GimmickCommon*)m1C)->vf40(&m);
+        }
+    }
+}
+
 void Actor::fn_8001271C(int on) {
     switch (m20) {
     case 7:
@@ -607,6 +702,28 @@ int Actor::fn_800127CC(int id, int b) {
     return 0;
 }
 
+void Actor::fn_8001282C(int id, int b) {
+    if (m20 == 7 || m20 == 1) {
+        if (id == -1) {
+            CharaTask* chara = GetChara_unk();
+            if (chara->m648 != 0) {
+                chara->fn_8014EEC4(0);
+            }
+        } else {
+            fn_800127CC(id, b);
+            CharaTask* chara = GetChara_unk();
+            int i;
+            FixedArray_unk<chr::CharaPart_unk*, 8>& parts = chara->mParts;
+            for (i = 0; i < (int)parts.mCount; i++) {
+                if (id == parts.mData[(unsigned int)i]->m04) {
+                    chara->fn_8014DEE4(i, 0, 0);
+                    return;
+                }
+            }
+        }
+    }
+}
+
 CharaTask* Actor::fn_800128FC() {
     if (m20 == 7 || m20 == 1) {
         if (m1C != 0) {
@@ -623,6 +740,84 @@ CharaTask* Actor::fn_80012934() {
             return GetChara_unk();
         }
         return 0;
+    }
+    return 0;
+}
+
+// inferred: model of the actor (same code as fn_80012A1C)
+atn::Model* Actor::fn_8001296C() {
+    switch (m20) {
+    case 7:
+    case 1:
+        if (m1C != 0) {
+            return GetChara_unk()->GetModel_unk();
+        }
+        return 0;
+    case 2:
+        if (m1C != 0) {
+            return ((GimmickCommon*)m1C)->vf38();
+        }
+        return 0;
+    case 3:
+        if (m1C != 0) {
+            return ((Puppeteer<atn::Model>*)m1C)->m48;
+        }
+        return 0;
+    case 4:
+    case 6:
+        return 0;
+    }
+    return 0;
+}
+
+atn::Model* Actor::fn_80012A1C() {
+    switch (m20) {
+    case 7:
+    case 1:
+        if (m1C != 0) {
+            return GetChara_unk()->GetModel_unk();
+        }
+        return 0;
+    case 2:
+        if (m1C != 0) {
+            return ((GimmickCommon*)m1C)->vf38();
+        }
+        return 0;
+    case 3:
+        if (m1C != 0) {
+            return ((Puppeteer<atn::Model>*)m1C)->m48;
+        }
+        return 0;
+    case 4:
+    case 6:
+        return 0;
+    }
+    return 0;
+}
+
+// inferred: matrix of the node `node` (name hash) of the actor, its world matrix for 0
+// NONMATCHING: 99.6% - the original loads m20 before saving r31 and r30 (prologue scheduling); tried a local
+// for the kind, a cast, a result variable, a default case, if/else and an int argument
+MtxPtr Actor::fn_80012AC4(unsigned int node) {
+    switch (m20) {
+    case 7:
+    case 1:
+        if (node != 0) {
+            return GetChara_unk()->GetModel_unk()->GetNodeMtxByHash_unk(node);
+        }
+        return GetChara_unk()->GetModel_unk()->mMtx.m;
+    case 2:
+        if (node != 0) {
+            return ((GimmickCommon*)m1C)->vf38()->GetNodeMtxByHash_unk(node);
+        }
+        return ((GimmickCommon*)m1C)->vf38()->mMtx.m;
+    case 3:
+        if (node != 0) {
+            return ((Puppeteer<atn::Model>*)m1C)->m48->GetNodeMtxByHash_unk(node);
+        }
+        return ((Puppeteer<atn::Model>*)m1C)->m48->mMtx.m;
+    case 4:
+        return (MtxPtr)((Data48_unk*)m1C)->m18; // inferred: m18 holds a 3x4 matrix (0x30 bytes)
     }
     return 0;
 }

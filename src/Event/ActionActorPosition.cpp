@@ -18,7 +18,6 @@ class SingletonNoStatic {};
 } // namespace atn
 
 // inferred: model of an actor (0 if none); not the same as Actor::fn_80012A1C
-extern "C" atn::Model* fn_8001296C(Event::Actor* actor);
 // inferred: starts a wind on the model (direction, frames, two strengths)
 
 namespace Event {
@@ -301,7 +300,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         atn::Vector3 pos = target->fn_80010374();
         atn::Vector3 cur = actor->fn_80010374();
         MtxPtr node = 0;
-        atn::Model* model = fn_8001296C(target);
+        atn::Model* model = target->fn_8001296C();
         if (model != 0) {
             node = GetNodeMtxByHash_unk(model, arg->GetParamAt_unk(2)->GetHash_unk());
             if (node != 0) {
@@ -421,7 +420,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         if (target->IsState6_unk()) {
             offset = manager->fn_80541BD8(offset);
         }
-        atn::Model* model = fn_8001296C(target);
+        atn::Model* model = target->fn_8001296C();
         if (model != 0) {
             MtxPtr node = GetNodeMtxByHash_unk(model, arg->GetParamAt_unk(2)->GetHash_unk());
             if (node != 0) {
@@ -880,7 +879,7 @@ int ActionActorWind::vf0C(Action* arg, int phase) {
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
-        atn::Model* model = fn_8001296C(manager->FindActor_unk(id));
+        atn::Model* model = manager->FindActor_unk(id)->fn_8001296C();
         if (model != 0) {
             atn::Vector3 dir;
             dir = arg->fn_80538B18(0);
