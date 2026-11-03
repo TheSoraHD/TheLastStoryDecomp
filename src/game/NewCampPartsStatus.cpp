@@ -7,6 +7,7 @@
 #include "game/CharaStatus.h"
 #include "game/CharaTask.h"
 #include "game/Inventory.h"
+#include "game/PlayerManager.h"
 #include "std/string_members.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -90,7 +91,6 @@ extern "C" void fn_80376324(NewCampStatusField_unk* field, int id);
 
 // inferred: characters (fn_8000D9E8 returns the manager lbl_8087F8A0)
 extern "C" void* fn_8000D9E8();
-extern "C" CharaTask* fn_8054A33C(void* manager, int id); // inferred: character of a member
 extern "C" void fn_801D80A0(Inventory* party, int chara);
 // inferred: character name data (fn_8020924C)
 struct NewCampStatusName_unk {
@@ -443,7 +443,7 @@ void NewCampPartsStatus::vf30() {
 // NONMATCHING: 99.40% - register allocation only (the page tasks, the character task and the status
 // get other saved registers)
 void NewCampPartsStatus::fn_80527938() {
-    CharaTask* leaderTask = fn_8054A33C(fn_8000D9E8(), 0);
+    CharaTask* leaderTask = ((PlayerManager*)fn_8000D9E8())->fn_8054A33C(0);
     CharaStatus* leader;
     if (leaderTask != 0) {
         leader = leaderTask->GetStatus_unk();
@@ -458,7 +458,7 @@ void NewCampPartsStatus::fn_80527938() {
         if (base == 0 || param == 0) {
             continue;
         }
-        CharaTask* task = fn_8054A33C(fn_8000D9E8(), set.mChara);
+        CharaTask* task = ((PlayerManager*)fn_8000D9E8())->fn_8054A33C(set.mChara);
         CharaStatus* status;
         if (task != 0) {
             status = task->GetStatus_unk();

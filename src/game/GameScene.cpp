@@ -31,7 +31,6 @@ typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 extern "C" int abs(int x);
 extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 extern "C" void* memset(void* dst, int c, unsigned long n);
-extern "C" unsigned int fn_80089ACC(const void* array); // inferred: SimpleArray size (weak copy of atn/Model.cpp)
 extern "C" int rand();
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* lbl_8087EE98; // inferred: collision world
@@ -54,7 +53,6 @@ extern "C" int fn_80051CD8(const atn::ColliSphereShape_unk* sphere, const atn::C
 extern "C" void fn_80376194(Field_unk* field, int on);
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 extern "C" unsigned int fn_800E0AA8(const IntVector_unk* v); // inferred: size (weak copy)
-extern "C" int* fn_8028B74C(IntVector_unk* v, int i);        // inferred: element (weak copy)
 extern "C" void fn_803CCF64(U16Table_unk* table, const unsigned short* values, unsigned int count);
 extern "C" void fn_803CD598(U16Table_unk* table, atn::Csv* csv, unsigned int count);
 
@@ -981,7 +979,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                         m70 = atoi(csv.fn_8005B9CC());
                     } else if (s == "NpcAiNum" && file <= 0) {
                         mD4.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "NpcAi");
-                        for (unsigned int i = 0; i < fn_80089ACC(&mD4); i++) {
+                        for (unsigned int i = 0; i < mD4.size(); i++) {
                             if (!csv.fn_8005BBF8()) {
                                 break;
                             }
@@ -1003,10 +1001,10 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                         if (mDC.GetData_unk() == 0) {
                             mDC.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneCosntrainModel");
                         } else {
-                            i = fn_80089ACC(&mDC);
+                            i = mDC.size();
                             mDC.Grow_unk(i + atoi(csv.fn_8005B9CC()), 3, "SceneCosntrainModel");
                         }
-                        for (; i < fn_80089ACC(&mDC); i++) {
+                        for (; i < mDC.size(); i++) {
                             if (!csv.fn_8005BBF8()) {
                                 break;
                             }
@@ -1028,7 +1026,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (m78.GetData_unk() == 0) {
                     m78.Resize_unk(atoi(s.c_str()), 3, "SceneWarpPoint");
                 } else {
-                    base = fn_80089ACC(&m78);
+                    base = m78.size();
                     m78.Grow_unk(base + atoi(s.c_str()), 3, "SceenWarpPoint");
                 }
                 unsigned int i = base;
@@ -1128,7 +1126,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (mFC.GetData_unk() == 0) {
                     mFC.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneAttentionPoint");
                 } else {
-                    base = fn_80089ACC(&mFC);
+                    base = mFC.size();
                     mFC.Grow_unk(base + atoi(csv.fn_8005B9CC()), 3, "SceneAttentionPoint");
                 }
                 unsigned int i = base;
@@ -1155,7 +1153,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (mE4.GetData_unk() == 0) {
                     mE4.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneEventBox");
                 } else {
-                    boxBase = fn_80089ACC(&mE4);
+                    boxBase = mE4.size();
                     mE4.Grow_unk(boxBase + atoi(csv.fn_8005B9CC()), 3, "SceneEventBox");
                 }
                 unsigned int i = boxBase;
@@ -1184,9 +1182,9 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                     box.m24.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
                     for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
                         if (file > 0) {
-                            *fn_8028B74C(&ids, j) += offset;
+                            ids[j] += offset;
                         }
-                        box.m24[j] = *fn_8028B74C(&ids, j);
+                        box.m24[j] = ids[j];
                     }
                     box.m2C = atoi(csv.fn_8005B9CC());
                     box.m30 = atoi(csv.fn_8005B9CC()) == 1;
@@ -1202,7 +1200,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (mEC.GetData_unk() == 0) {
                     mEC.Resize_unk(atoi(csv.fn_8005B9CC()), 3, "SceneEventSphere");
                 } else {
-                    sphereBase = fn_80089ACC(&mEC);
+                    sphereBase = mEC.size();
                     mEC.Grow_unk(sphereBase + atoi(csv.fn_8005B9CC()), 3, "SceneEventSphere");
                 }
                 unsigned int i = sphereBase;
@@ -1228,9 +1226,9 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                     sphere.m18.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
                     for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
                         if (file > 0) {
-                            *fn_8028B74C(&ids, j) += offset;
+                            ids[j] += offset;
                         }
-                        sphere.m18[j] = *fn_8028B74C(&ids, j);
+                        sphere.m18[j] = ids[j];
                     }
                     sphere.m20 = atoi(csv.fn_8005B9CC());
                     csv.fn_8005B9CC();
@@ -1278,7 +1276,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (m104.GetData_unk() == 0) {
                     m104.Resize_unk(atoi(s.c_str()), 3, "SceneGimmick");
                 } else {
-                    base = fn_80089ACC(&m104);
+                    base = m104.size();
                     m104.Grow_unk(base + atoi(s.c_str()), 3, "SceneGimmick");
                 }
                 unsigned int i = base;
@@ -1313,7 +1311,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (m10C.GetData_unk() == 0) {
                     m10C.Resize_unk(atoi(s.c_str()), 3, "SceneCameraBox");
                 } else {
-                    base = fn_80089ACC(&m10C);
+                    base = m10C.size();
                     m10C.Grow_unk(base + atoi(s.c_str()), 3, "SceneCameraBox");
                 }
                 unsigned int i = base;
@@ -1348,7 +1346,7 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (m114.GetData_unk() == 0) {
                     m114.Resize_unk(atoi(s.c_str()), 3, "SceneBgmBox");
                 } else {
-                    base = fn_80089ACC(&m114);
+                    base = m114.size();
                     m114.Grow_unk(base + atoi(s.c_str()), 3, "SceneBgmBox");
                 }
                 unsigned int i = base;
@@ -1394,8 +1392,8 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 }
                 atn::MemoryManager::Instance()->SetMode_unk(1, 0x20);
                 mA0.Resize_unk(m74, 3, "ScenePointConnect");
-                for (unsigned int j = 0; j < fn_80089ACC(&mA0); j++) {
-                    fn_803CCF64(&mA0[j], table[j], fn_80089ACC(&mA0));
+                for (unsigned int j = 0; j < mA0.size(); j++) {
+                    fn_803CCF64(&mA0[j], table[j], mA0.size());
                 }
                 atn::MemoryManager::Instance()->ResetMode_unk();
             } else if (s == "MovePointConnectionPack" && file <= 0) {
@@ -1472,8 +1470,8 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                     }
                     std::vector<gs::HideLink_unk> links;
                     std::vector<gs::HideLink2_unk> links2;
-                    for (unsigned int a = 0; a < fn_80089ACC(&mAC); a++) {
-                        for (unsigned int b = 0; b < fn_80089ACC(&mAC); b++) {
+                    for (unsigned int a = 0; a < mAC.size(); a++) {
+                        for (unsigned int b = 0; b < mAC.size(); b++) {
                             if ((table[a][b] & 1) == 1) {
                                 gs::HideLink_unk link;
                                 link.mFrom = a;
@@ -1521,25 +1519,25 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                 if (m180.GetData_unk() == 0) {
                     m180.Resize_unk(count, 3, "SceneEventIdList");
                 } else {
-                    i = fn_80089ACC(&m180);
+                    i = m180.size();
                     m180.Grow_unk(i + count, 3, "SceneEventIdList");
                 }
                 if (csv.fn_8005BBF8()) {
-                    for (; i < (int)fn_80089ACC(&m180); i++) {
+                    for (; i < (int)m180.size(); i++) {
                         m180[i] = abs(atoi(csv.fn_8005B9CC()));
                     }
                 }
             }
         }
     } while (csv.fn_8005BBF8());
-    for (unsigned int i = boxBase; i < fn_80089ACC(&mE4); i++) {
+    for (unsigned int i = boxBase; i < mE4.size(); i++) {
         if (mE4[i].m2C > 0) {
             mE4[i].m2C = gs::FindIndex_unk(mE4, mE4[i].m2C);
         } else {
             mE4[i].m2C = -1;
         }
     }
-    for (unsigned int i = sphereBase; i < fn_80089ACC(&mEC); i++) {
+    for (unsigned int i = sphereBase; i < mEC.size(); i++) {
         if (mEC[i].m20 > 0) {
             mEC[i].m20 = gs::FindIndex_unk(mEC, mEC[i].m20);
         } else {
@@ -1554,7 +1552,7 @@ void GameScene::fn_803C606C(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& po
     if (groups.GetData_unk() == 0) {
         groups.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "SceneCharaGroup");
     } else {
-        i = fn_80089ACC(&groups);
+        i = groups.size();
         groups.Grow_unk(i + atoi(csv.fn_8005B9CC()), 1, "SceneCharaGroup");
     }
     while (csv.fn_8005BBF8()) {
@@ -1616,11 +1614,6 @@ extern "C" void fn_803C68E4(atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* gr
     groups->Resize_unk(size, heap, name);
 }
 
-// inferred: default construction of a warp-point group.
-extern "C" void fn_803C698C(gs::PointGroup<gs::WarpPoint>* group) {
-    (void)group;
-}
-
 // inferred: grows the warp-point group array.
 // NONMATCHING: 96.22% - allocator/constructor relocations and old/new data register allocation differ.
 extern "C" void fn_803C6990(atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* groups, int size, int heap,
@@ -1646,11 +1639,6 @@ extern "C" void fn_803C6DE0(atn::SimpleArray<gs::PointGroup<gs::HidePoint> >* gr
     groups->Resize_unk(size, heap, name);
 }
 
-// inferred: default construction of a hide-point group.
-extern "C" void fn_803C6E88(gs::PointGroup<gs::HidePoint>* group) {
-    (void)group;
-}
-
 // inferred: grows the hide-point group array.
 // NONMATCHING: 96.22% - allocator/constructor relocations and old/new data register allocation differ.
 extern "C" void fn_803C6E8C(atn::SimpleArray<gs::PointGroup<gs::HidePoint> >* groups, int size, int heap,
@@ -1670,7 +1658,7 @@ void GameScene::fn_803C6FE4(atn::SimpleArray<G>& groups, atn::SimpleArray<T>& po
     if (groups.GetData_unk() == 0) {
         groups.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "ScenePointGroup");
     } else {
-        i = fn_80089ACC(&groups);
+        i = groups.size();
         groups.Grow_unk(i + atoi(csv.fn_8005B9CC()), 1, "ScenePointGroup");
     }
     while (csv.fn_8005BBF8()) {
@@ -1712,11 +1700,6 @@ extern "C" void fn_803C72DC(atn::SimpleArray<gs::PointGroup<gs::MovePoint> >* gr
     groups->Resize_unk(size, heap, name);
 }
 
-// inferred: default construction of a move-point group.
-extern "C" void fn_803C7384(gs::PointGroup<gs::MovePoint>* group) {
-    (void)group;
-}
-
 // inferred: grows the move-point group array.
 // NONMATCHING: 96.22% - allocator/constructor relocations and old/new data register allocation differ.
 extern "C" void fn_803C7388(atn::SimpleArray<gs::PointGroup<gs::MovePoint> >* groups, int size, int heap,
@@ -1736,7 +1719,7 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
     if (points.GetData_unk() == 0) {
         points.Resize_unk(atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
     } else {
-        base = fn_80089ACC(&points);
+        base = points.size();
         points.Grow_unk(base + atoi(csv.fn_8005B9CC()), 1, "SceneCharaPoint");
     }
     int offset = file * 10000;
@@ -1764,9 +1747,9 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
         points[i].m140.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
         for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
             if (file > 0) {
-                *fn_8028B74C(&ids, j) += offset;
+                ids[j] += offset;
             }
-            points[i].m140[j] = *fn_8028B74C(&ids, j);
+            points[i].m140[j] = ids[j];
         }
         csv.fn_8005B9CC();
         points[i].m24 = atoi(csv.fn_8005B9CC());

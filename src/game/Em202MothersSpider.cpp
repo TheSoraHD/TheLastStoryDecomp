@@ -221,7 +221,7 @@ int Em202MothersSpider::vf0C() {
 void Em202MothersSpider::vf10() {
     vfF8();
     if (mStatus.IsState_unk(4)) {
-        CharaTask* player = lbl_8087F8A0->fn_8054A33C((const char*)5);
+        CharaTask* player = lbl_8087F8A0->fn_8054A33C(5);
         if (player != 0 && IsTargetable_unk(player)) {
             mStatus.fn_80133130(4, 10, 0);
         }

@@ -658,7 +658,6 @@ inline void TashaPlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: fires an attack (number of hits, as in game/Em201ZanGurg.cpp)
 
@@ -764,7 +763,7 @@ void EnemyTasha::vf100(int state) {
         if (fn_805A49E4((SpecialFlag_unk*)&m168C) == 0) {
             fn_805A4A1C((SpecialFlag_unk*)&m168C, 1);
         }
-        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.fn_80097CCC(0, 0.0f);
         fn_8035ACB8(0x1EA, 0, 1.0f);
         fn_8035ACF0(m58C);
         fn_803576F8(m1528);
@@ -1179,7 +1178,7 @@ void EnemyTasha::vf108() {
         if (m14BC == 0) {
             if (frame > mMotion.fn_80097D7C(0)) {
                 mPos = m1534;
-                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.fn_80097CCC(0, 0.0f);
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 2.0f;

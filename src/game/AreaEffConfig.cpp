@@ -37,12 +37,8 @@ int AreaEffConfig::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 0% - the original is over the inlining budget and calls every inline member out of
-// line (the weak copies 0x8004203C-0x80042EEC and 0x80043130 come from here); ours inlines them all.
-// Measured: one extra first candidate of about 81 statements tips it over and then the body matches
-// apart from symbol names (same open case as LoadSeTableTask::vf0C, docs/inlining.md). The generic
-// std::vector::push_back of include/std/vector.h also differs from these weak copies (see
-// docs/batch-auto-10kb-qG1.md).
+// The original is over the inlining budget and calls every inline member out of line (weak copies
+// 0x8004203C-0x80042EEC and 0x80043130): the asserts of AreaEffEntry_unk() put it over.
 void AreaEffConfig::fn_80041D44() {
     int size = mBinary.fn_8047059C();
     atn::Csv csv((const char*)mBinary.fn_80470580(), size);
@@ -89,6 +85,11 @@ void AreaEffConfig::fn_80041D44() {
         mEntries[i] = entries[i];
     }
 }
+
+// push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
+// behind fn_80041D44 and its "vector length error" goes to the pool before the string literals
+template void std::vector<atn::static_string<32> >::push_back(const atn::static_string<32>& x);
+template void std::vector<AreaEffEntry_unk>::push_back(const AreaEffEntry_unk& x);
 
 // NONMATCHING: register allocation - the outer count and the strength-reduced offset of the inner
 // loop take r27/r28 swapped (tried index types, declaration orders and size in the condition)

@@ -8,7 +8,7 @@ namespace atn {
 class D3AnimeInstance;
 class D2A_Task;
 } // namespace atn
-struct CampSaveData_unk;
+class GameLoadTask;
 
 // inferred: menu entry of the camp top (names invented)
 struct NewCampTopInfo_unk {
@@ -45,7 +45,7 @@ public:
     int mCursor;                                         // 0x1BC: inferred: cursor of the sub menu
     int mTimer;                                          // 0x1C0
     int m1C4;
-    CampSaveData_unk* mSave;                             // 0x1C8
+    GameLoadTask* mSave;                                 // 0x1C8
     int mCanLoad;                                        // 0x1CC
     int m1D0;
     int m1D4;

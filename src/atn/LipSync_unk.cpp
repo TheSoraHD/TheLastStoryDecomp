@@ -7,7 +7,6 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" void fn_80097CCC(atn::Model* model, int track, float weight); // inferred: stops a track
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 
 #define LS_MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -53,7 +52,7 @@ Chara1154_unk::Chara1154_unk()
 // NONMATCHING: 99.70% - FPR allocation of the clamp (current value and m2C swapped f2/f3)
 void Chara1154_unk::fn_8007A7BC(atn::Model* model) {
     if (m00 == 0 || (m00 != 0 ? m04 >= m00->mCount : true)) {
-        fn_80097CCC(model, 5, 0.0f);
+        model->fn_80097CCC(5, 0.0f);
         return;
     }
     int i = LS_MIN((int)m00->mCount - 1, (int)(m04 + m10));

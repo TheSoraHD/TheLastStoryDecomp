@@ -8,6 +8,8 @@
 #include "atn/FadeCommon.h"
 #include "MP/SaveLoad.h"
 #include "game/GameSaveLoadBackgroundCommon.h"
+#include "game/GameLoadBackground.h"
+#include "game/GameLoadTask.h"
 #include "string.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -57,27 +59,9 @@ struct NewCampTopLayout_unk : public atn::Task {
     float mFrame; // 0x50
 };
 
-// inferred: load task made by fn_803B27F8 (src/auto_03_803B27AC_text.cpp); only the members used here
-struct CampSaveData_unk : public GameSaveLoadCommon {
-    unsigned char mD68[0x14F60 - 0xD68];
-    GameSaveLoadBackgroundCommon* m14F60;
-};
-// inferred: name and flag given to fn_803B27F8 (as in game/CampSaveLoad.cpp)
-struct CampSaveArg_unk {
-    char mName[0x40];
-    int mFlag; // 0x40
-};
-inline void CopyString_unk(char* dst, const char* src) {
-    if (src != dst) {
-        memcpy(dst, src, strlen(src) + 1);
-    }
-}
-extern "C" CampSaveData_unk* fn_803B27F8(atn::Task* parent, const CampSaveArg_unk* arg);
-extern "C" void fn_803B3270(CampSaveData_unk* data, int slot);
-extern "C" void fn_803B2FBC(CampSaveData_unk* data, int slot);
 class MenuLoadTask : public atn::Task {
 public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, CampSaveData_unk* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data);
     static MenuLoadTask* sInstance;
     unsigned char m48[0x13C - 0x48];
     int m13C; // inferred: state
@@ -344,11 +328,9 @@ void NewCampPartsTop::vf24() {
         fn_800D2338(mSave);
         mSave = 0;
     }
-    CampSaveArg_unk arg;
     // inferred: a 2-byte literal (00 00), not merged with ""
-    CopyString_unk(arg.mName, "\0");
-    arg.mFlag = 0;
-    mSave = fn_803B27F8(this, &arg);
+    GameLoadTask::Option arg("\0", 0);
+    mSave = GameLoadTask::fn_803B27F8(this, arg);
     mSave->mD64 = 0;
 }
 
@@ -418,14 +400,14 @@ void NewCampPartsTop::vf2C() {
                         done = 1;
                     } else {
                         m1D0 = 0;
-                        fn_803B3270(mSave, 0);
+                        mSave->fn_803B3270(0);
                     }
                 }
             } else if (mSave != 0 && mSave->m14F60->m154 == 0) {
                 if (mSave->m14F60->fn_803B8144()) {
                     done = 1;
                 } else {
-                    fn_803B2FBC(mSave, 0);
+                    mSave->fn_803B2FBC(0);
                     if (fn_803BE854(lbl_8087F460)) {
                         if (lbl_8087F460 != 0) {
                             delete lbl_8087F460;
@@ -454,7 +436,7 @@ void NewCampPartsTop::vf2C() {
         } else if (done) {
             lbl_8087DCCC = 0;
             lbl_8087F434 = 1;
-            CampSaveData_unk* save = mSave;
+            GameLoadTask* save = mSave;
             if (save != 0) {
                 save->mD60 = 0;
                 save->mC84 = 0;
@@ -471,7 +453,7 @@ void NewCampPartsTop::vf2C() {
                         mSave->fn_803B8758(0);
                         m1D0 = 1;
                     } else {
-                        fn_803B3270(mSave, 0);
+                        mSave->fn_803B3270(0);
                     }
                     m7C = 5;
                     fn_80117228(1);

@@ -235,9 +235,8 @@ int Em204BigMulue::vf0C() {
     return 1;
 }
 
-// NONMATCHING: 0% - the original calls the atn::Csv constructor, the element constructors (0x802ACC94,
-// 0x802AD358), the push_backs and the element destructors out of line (caller over the inline budget);
-// ours inlines all of them. Tried: explicit instantiations, explicit element constructors/destructors
+// The original calls the atn::Csv constructor, the element constructors, the push_backs and the
+// element destructors out of line: the asserts of BigMulueCapsule_unk() put it over the inline budget.
 void Em204BigMulue::fn_802AC8E8(const char* text, int length) {
     atn::Csv csv(text, length);
     do {

@@ -33,7 +33,6 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
@@ -556,7 +555,7 @@ void Em308ParmCrab::vf40(HitInfo_unk* hit) {
 void Em308ParmCrab::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     ResetAttack_unk();
     m58C = 13;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -646,7 +645,7 @@ void Em308ParmCrab::fn_802F93F0() {
                 if (fn_802FBE00(m15BC, 11) == 0) {
                     ResetAttack_unk();
                     m58C = 11;
-                    fn_80097CCC(&mMotion, 0, 0.0f);
+                    mMotion.fn_80097CCC(0, 0.0f);
                     mMotion.m34C = 1;
                     mMotion.mTracks[0].m20 = 1.0f;
                     mMotion.mTracks[0].m0C = 1.0f;
@@ -658,7 +657,7 @@ void Em308ParmCrab::fn_802F93F0() {
                 if (fn_802FBE00(m15BC, 10) == 0) {
                     ResetAttack_unk();
                     m58C = 10;
-                    fn_80097CCC(&mMotion, 0, 0.0f);
+                    mMotion.fn_80097CCC(0, 0.0f);
                     mMotion.m34C = 1;
                     mMotion.mTracks[0].m20 = 1.0f;
                     mMotion.mTracks[0].m0C = 1.0f;
@@ -808,7 +807,7 @@ void Em308ParmCrab::fn_802F9F3C() {
             if (fn_802FBE00(m15C4, 10) == 0) {
                 ResetAttack_unk();
                 m58C = 10;
-                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.fn_80097CCC(0, 0.0f);
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
@@ -819,7 +818,7 @@ void Em308ParmCrab::fn_802F9F3C() {
             if (fn_802FBE00(m15BC, 11) == 0) {
                 ResetAttack_unk();
                 m58C = 11;
-                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.fn_80097CCC(0, 0.0f);
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
@@ -864,7 +863,7 @@ void Em308ParmCrab::fn_802FA2F4() {
         if (fn_802FBE00(m15BC, 11) == 0 && fn_802FBE00(m15BC, 11) == 0) {
             ResetAttack_unk();
             m58C = 11;
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -909,7 +908,7 @@ void Em308ParmCrab::fn_802FA764() {
         if (fn_802FBE00(m15BC, 10) == 0 && fn_802FBE00(m15BC, 10) == 0) {
             ResetAttack_unk();
             m58C = 10;
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -1024,7 +1023,7 @@ void Em308ParmCrab::fn_802FB6AC(CharaTask* target) {
         mRot = rot;
         mRot.x = 0.0f;
         mRot.z = 0.0f;
-        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.fn_80097CCC(0, 0.0f);
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = fn_8016E864();
@@ -1056,7 +1055,7 @@ void Em308ParmCrab::fn_802FBA30(CharaTask* target) {
             mRot.x = 0.0f;
             mRot.z = 0.0f;
             m15D8 = 0;
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -1083,7 +1082,7 @@ int Em308ParmCrab::fn_802FBE00(CharaTask* target, int next) {
     m15C4 = target;
     ResetAttack_unk();
     m58C = 9;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 2.0f;
@@ -1102,7 +1101,7 @@ void Em308ParmCrab::fn_802FC188() {
     ResetAttack_unk();
     m58C = 2;
     fn_8016E970(9);
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -1123,7 +1122,7 @@ void Em308ParmCrab::fn_802FC2E0(CharaTask* target) {
     if (fn_802FBE00(target, 12) == 0) {
         ResetAttack_unk();
         m58C = 12;
-        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.fn_80097CCC(0, 0.0f);
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = 1.0f;

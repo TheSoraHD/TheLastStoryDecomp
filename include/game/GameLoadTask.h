@@ -39,6 +39,9 @@ public:
     virtual void vf14();                                   // 0x803B30D8
 
     static GameLoadTask* fn_803B27F8(atn::Task* parent, const Option& option); // inferred: creator
+    void fn_803B2FBC(int slot); // inferred: makes the loaded slot current
+    void fn_803B3270(int slot); // inferred: starts loading `slot`
+    void fn_803B3310(int slot); // inferred: clears `slot`
 
     int mD68;    // inferred: state of vf10
     Option mD6C; // inferred: sequence to start after loading ("" = load only)
@@ -50,11 +53,5 @@ public:
     GameLoadBackground* m14F60;
     unsigned char m14F64[0x14F80 - 0x14F64];
 };
-
-// inferred: helpers called with a GameLoadTask by CampSaveLoad, GameOverTask and NewCampPartsTop; those
-// units (Codex's) declare them extern "C", so they stay free functions until they are converted together
-extern "C" void fn_803B2FBC(GameLoadTask* task, int slot); // inferred: makes the loaded slot current
-extern "C" void fn_803B3270(GameLoadTask* task, int slot); // inferred: starts loading `slot`
-extern "C" void fn_803B3310(GameLoadTask* task, int slot); // inferred: clears `slot`
 
 #endif

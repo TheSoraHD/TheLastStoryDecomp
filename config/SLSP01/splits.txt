@@ -2084,9 +2084,14 @@ game/GameSaveTask.cpp:
 	.sdata2     start:0x80885C58 end:0x80885C78
 
 game/GameSaveLoadBackgroundCommon.cpp:
-	.text       start:0x803B80F4 end:0x803B8C6C
-	.rodata     start:0x8074FF88 end:0x80750020
-	.data       start:0x8078B548 end:0x8078B5A8
+	.text       start:0x803B80F4 end:0x803B82C0
+	.rodata     start:0x8074FF88 end:0x8074FF90
+	.data       start:0x8078B548 end:0x8078B568
+
+game/GameSaveLoadCommon.cpp:
+	.text       start:0x803B82C0 end:0x803B8C6C
+	.rodata     start:0x8074FF90 end:0x80750020
+	.data       start:0x8078B568 end:0x8078B5A8
 	.sdata2     start:0x80885C78 end:0x80885C98
 
 game/GameSaveBackground.cpp:

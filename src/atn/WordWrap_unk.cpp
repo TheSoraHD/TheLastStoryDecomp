@@ -126,7 +126,7 @@ bool fn_800DF22C(const wchar_t* p, const wchar_t* begin) {
 }
 
 // inferred: skips the spaces at the start of a line (and one line feed); null at the end of the text
-const wchar_t* fn_800DFADC(const wchar_t* p) {
+__declspec(noinline) const wchar_t* fn_800DFADC(const wchar_t* p) {
     while (IsSpace_unk(*p)) {
         p++;
     }
@@ -142,7 +142,7 @@ const wchar_t* fn_800DFADC(const wchar_t* p) {
 // inferred: measures one character; returns < 0 to use the font
 typedef float (*MeasureChar_unk)(wchar_t c, const wchar_t** p, float size);
 
-// NONMATCHING: 75.8% - word wrap of `text` to `maxWidth` (inserts line feeds). Same blocks; the
+// NONMATCHING: 83.4% (fn_800DFADC out of line, as the original) - word wrap of `text` to `maxWidth` (inserts line feeds). Same blocks; the
 // original loads the iterator tag of each appended character once before the loops and keeps the
 // stack addresses out of registers (wstring += wchar_t of include/std/string.h may differ from MSL).
 std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float maxWidth, float size, float spacing, int a,

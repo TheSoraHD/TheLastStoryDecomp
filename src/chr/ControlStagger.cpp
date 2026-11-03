@@ -2,7 +2,6 @@
 #include "macros.h"
 
 extern "C" int rand();
-extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 // inferred: result of the ray test fn_8004ED34 (as in game/ChaserNpc.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -200,7 +199,7 @@ ControlSlip::ControlSlip(Chara_unk* chara, int stop) : ControlBase(chara), mStop
         c->m580 = 0.0f;
         c->m584 = 0.0f;
         Chara_unk* chara2 = mChara;
-        fn_80097CCC(&chara2->mMotion, 3, 0.0f);
+        chara2->mMotion.fn_80097CCC(3, 0.0f);
         chara2->m12BC = -1;
         mChara->m570 = 0.0f;
         mChara->m574 = lbl_807C7030;

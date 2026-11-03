@@ -1194,7 +1194,7 @@ void Em201ZanGurgFinal::fn_80266FC4() {
     if (m14C0 == 1) {
         mC58.mC8 = (int)mC58.mC4;
         CharaTask* leader = lbl_8087F8A0->mHead;
-        CharaTask* yurick = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C((const char*)3);
+        CharaTask* yurick = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C(3);
         if (leader->mFlag28 || (m1630 != 0 && m1660 == 3)) {
             m1454 = 0;
             m14B8 = leader;

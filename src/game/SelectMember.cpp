@@ -78,11 +78,10 @@ struct SelectMemberChara_unk {
     unsigned char m000[0x7D4];
     CharaStatus mStatus; // 0x7D4
 };
-// inferred: view of PlayerManager (game/PlayerManager.cpp): fn_8054A33C finds a player by character name;
-// here the member id is passed as the name
+// inferred: view of PlayerManager (game/PlayerManager.cpp): fn_8054A33C finds the player of a party member
 class PlayerManager {
 public:
-    SelectMemberChara_unk* fn_8054A33C(const char* name);
+    SelectMemberChara_unk* fn_8054A33C(int member);
 };
 extern "C" int fn_80219544(int name); // inferred: character id of a name id
 struct SelectMemberInfo_unk {
@@ -420,7 +419,7 @@ void SelectMember::fn_80572450() {
         SelectMemberInfo_unk* info = fn_8020924C(fn_80219544(member->mId));
         mAnims[1 + i]->mFlags &= ~4;
         fn_801F837C(mAnims[1 + i], "name(1)", info->m08);
-        SelectMemberChara_unk* chara = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C((const char*)member->mId);
+        SelectMemberChara_unk* chara = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C(member->mId);
         CharaStatus* status = chara != 0 ? &chara->mStatus : Inventory::instance_->GetPlayerStatusInfo(member->mId);
         CharaParam_unk param = fn_80134800(status, member->mId, 0, 0, 0, 0, 0, 0);
         fn_801F8598(mAnims[1 + i], "nowLv", param.m78, 0);

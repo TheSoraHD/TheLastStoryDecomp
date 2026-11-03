@@ -16,7 +16,7 @@ public:
     virtual void vf1C();       // 0x8054A000
     void fn_80549F14(int mode); // inferred: creates the player (multiplayer modes 3 and 4)
     void fn_8054A09C(PlayerTask* player, int swap); // inferred: makes `player` the leader
-    PlayerTask* fn_8054A33C(const char* name);      // inferred: player by character name
+    PlayerTask* fn_8054A33C(int member);           // inferred: player of a party member (character id via fn_80219544)
     void fn_8054A398();                              // inferred: fn_800D2338 on all but the leader
 
     PlayerTask* m54;  // inferred: leader when the party was created

@@ -1,7 +1,6 @@
 #include "chr/ControlOneMotion.h"
 #include "macros.h"
 
-extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 
 namespace chr {
 
@@ -14,7 +13,7 @@ inline void ResetMove_unk(ControlBase* control, const atn::Vector3& vel) {
     c->m580 = 0.0f;
     c->m584 = 0.0f;
     Chara_unk* chara = control->mChara;
-    fn_80097CCC(&chara->mMotion, 3, 0.0f);
+    chara->mMotion.fn_80097CCC(3, 0.0f);
     chara->m12BC = -1;
     Chara_unk* c2 = control->mChara;
     c2->m570 = 0.0f;
@@ -32,7 +31,7 @@ ControlOneMotion::ControlOneMotion(Chara_unk* chara, int motion, int a, int b, f
     if (start >= 0.0f) {
         m->mTracks[0].m08 = start;
     }
-    fn_80097CCC(m, 3, 0.0f);
+    m->fn_80097CCC(3, 0.0f);
     mEnd = end >= 0.0f ? end : m->fn_80097D7C(0);
     if (a != 0 && b > 0) {
         mCount = b;
@@ -61,7 +60,7 @@ ControlOneMotionTarget::ControlOneMotionTarget(Chara_unk* chara, int motion, int
     m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, motion, a, 0, 1, 0.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
-    fn_80097CCC(m, 3, 0.0f);
+    m->fn_80097CCC(3, 0.0f);
     ResetMove_unk(this, lbl_807C7030);
 }
 
@@ -109,7 +108,7 @@ ControlOneMotionTransition::ControlOneMotionTransition(Chara_unk* chara, int mot
     m->mTracks[0].m20 = 1.0f;
     m->fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
-    fn_80097CCC(m, 3, 0.0f);
+    m->fn_80097CCC(3, 0.0f);
     ResetMove_unk(this, lbl_807C7030);
     mStart = mChara->mPos;
 }

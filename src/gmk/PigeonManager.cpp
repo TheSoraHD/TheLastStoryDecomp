@@ -21,7 +21,6 @@ extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
-extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
 // inferred: camera (only the position)
 struct PigeonCamera_unk {
     unsigned char m00[0x10C];
@@ -166,7 +165,7 @@ void Pigeon_unk::fn_804048CC() {
         PSMTXInverse(inv.m, inv.m);
         __MtxCopy(mModel.mMtx.m, mtx.m);
         mModel.m54 = MaxScale_unk(mtx);
-        fn_8009076C(&mModel, &inv);
+        mModel.fn_8009076C(inv.m);
     }
 }
 

@@ -50,7 +50,6 @@ struct Field_unk {
 };
 struct Effect_unk;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
@@ -421,11 +420,8 @@ Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     m1644.clear();
 }
 
-// NONMATCHING: 0% - inline budget: the original calls every inline candidate out of line (Csv ctor,
-// FindPlace_unk, the three push_back, GetNodeMtx_unk, IsSet_unk), ours inlines them all. With an extra
-// candidate of about 50 statements the body comes out at 99.16% (only the names of the push_back weak
-// copies, fn_80244CCC/fn_80244FC0, differ), so the original has more inline code somewhere (open case,
-// as LoadSeTableTask::vf0C in docs/inlining.md). Tried: the reading in an inline helper.
+// The original is over the inline budget (asserts of ShadeFlag_unk::IsSet_unk) and calls every inline
+// candidate out of line (Csv ctor, FindPlace_unk, the three push_back, GetNodeMtx_unk, IsSet_unk).
 int Em301LShade::vf0C() {
     if (fn_8013655C() == 0 && m1514.IsLoading() == 0 && m1520.IsLoading() == 0 &&
         m1548.IsLoading() == 0 && m1554.IsLoading() == 0 && m157C.IsLoading() == 0 &&
@@ -519,6 +515,11 @@ int Em301LShade::vf0C() {
     }
     return 0;
 }
+
+// push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
+// behind vf0C and its "vector length error" goes to the pool before the literals of the next functions
+template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
 // NONMATCHING: draft
 void Em301LShade::vf10() {
@@ -941,7 +942,7 @@ atn::Vector3 Em301LShade::vf64(int center) {
 
 // inferred: plays a motion on track 0 after stopping it (names invented)
 inline void RestartMotion_unk(Em301LShade* e, int motion) {
-    fn_80097CCC((atn::Model*)&e->mMotion, 0, 0.0f);
+    ((atn::Model*)&e->mMotion)->fn_80097CCC(0, 0.0f);
     e->mMotion.m34C = 1;
     e->mMotion.mTracks[0].m20 = 1.0f;
     e->mMotion.mTracks[0].m0C = 1.0f;
@@ -1497,7 +1498,7 @@ void Em301LShade::fn_802D57B8() {
     fn_8016DA4C();
     m58C = 2;
     fn_8016E970(3);
-    fn_80097CCC((atn::Model*)&mMotion, 0, 0.0f);
+    ((atn::Model*)&mMotion)->fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;

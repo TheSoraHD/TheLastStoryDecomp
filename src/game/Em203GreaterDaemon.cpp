@@ -163,11 +163,8 @@ extern "C" inline unsigned int fn_800E0AA8(const IntVector_unk* v) {
 extern "C" inline bool fn_800E0AB0(const IntVector_unk* v) {
     return v->mSize == 0;
 }
-// inferred: element i of a list of ids (weak copy 0x8028B74C, also called by Em203GreaterDaemonRed,
-// EnemyQuarkSecond and GameScene)
-extern "C" inline int* fn_8028B74C(IntVector_unk* v, int i) {
-    return &v->mData[i];
-}
+// std::vector<int>::operator[] is emitted out of line here (weak copy 0x8028B74C, also called by
+// Em203GreaterDaemonRed, EnemyQuarkSecond and GameScene)
 // inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0 of
 // Event/Puppeteer_CharaTask.cpp)
 extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
@@ -197,7 +194,6 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     return m;
 }
 // inferred: Matrix3x4 assignment out of line (weak copy 0x8008CD1C of atn/Model.cpp)
-extern "C" void fn_8008CD1C(atn::Matrix3x4* dst, const atn::Matrix3x4* src);
 // inferred: collision world and its ray test (as in game/Em003LesserDaemon.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -1036,7 +1032,7 @@ void Em203GreaterDaemon::fn_8028B47C() {
     } else if (state == 2) {
         IntVector_unk* list = &m15EC[0];
         if (!fn_800E0AB0(list)) {
-            switch (*fn_8028B74C(list, m1628)) {
+            switch ((*list)[m1628]) {
             case 1:
                 if (HpRate_unk() < 0.4f) {
                     fn_8029055C();
@@ -1256,7 +1252,7 @@ void Em203GreaterDaemon::fn_8028CB38() {
             atn::Vector3 dir(0.0f, -1.0f, 0.0f);
             dir.fn_80011410(fn_8028CFB0(atn::DegToRad_unk(fn_800F8524(&lbl_8087DC38, &lbl_8087DC3C, t))));
             dir.fn_80011410(fn_800109E0(mRot));
-            fn_8008CD1C(&m1580, &fn_800109E0(dir.ToRotation_unk()));
+            m1580 = fn_800109E0(dir.ToRotation_unk());
             MtxPtr neck = mMotion.GetNodeMtx_unk("chin");
             atn::Vector3 pos(neck != 0 ? ((atn::Matrix3x4*)neck)->GetTrans_unk() : mPos);
             m1580.fn_801479E4(pos);

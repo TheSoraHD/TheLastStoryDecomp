@@ -3994,9 +3994,7 @@ extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 // inferred: sphere cast against the collision (hit in `result`, nonzero on a hit)
 extern "C" int fn_80418318(); // inferred: id of the water (ground follow) used by fn_804188A0
 extern "C" atn::Vector3 fn_804188A0(int id, const Segment_unk* seg);
-extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
 extern "C" void fn_8009757C(atn::Model* model);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 extern "C" int fn_802185FC(const char* name);
 extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -4276,7 +4274,7 @@ void CharaTask::fn_80145334() {
             __MtxCopy(inv.m, mMotion.mMtx.m);
             PSMTXInverse(inv.m, inv.m);
             fn_80144710();
-            fn_8009076C(&mMotion, &inv);
+            mMotion.fn_8009076C(inv.m);
             int id = fn_80418318();
             float dy = node[1][3] - mPos.y;
             atn::Vector3 pos = fn_804188A0(id, &Segment_unk(mPos, ((atn::Matrix3x4*)node)->GetTrans_unk()));
@@ -4463,14 +4461,14 @@ void CharaTask::fn_80145334() {
                 mMotion.m21C.mData[m524].mPos.y += m588;
             }
         } else if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
-            fn_8009076C(&mMotion, &inv);
+            mMotion.fn_8009076C(inv.m);
         }
         fn_8009757C(&mMotion);
         if (m12BC >= 0) {
             float frame = mMotion.mTracks[3].m08;
             if (frame >= mMotion.fn_80097D7C(3)) {
                 m12BC = -1;
-                fn_80097CCC(&mMotion, 3, 1.0f);
+                mMotion.fn_80097CCC(3, 1.0f);
             }
         }
     } else {
@@ -4480,7 +4478,7 @@ void CharaTask::fn_80145334() {
             mMotion.fn_80098698();
         }
         if (!IsPartyMember_unk() || mC54 != 0 || m55C != 2) {
-            fn_8009076C(&mMotion, &inv);
+            mMotion.fn_8009076C(inv.m);
         }
     }
     MapInfo_unk* map = 0;
@@ -4635,22 +4633,22 @@ atn::Matrix3x4 atn::Matrix3x4::fn_80147A08(const Quaternion_unk& q) {
 
 void CharaTask::fn_80147A18(int value) {
     m13F4 = value;
-    fn_80094E2C(&mMotion, value);
+    mMotion.fn_80094E2C(value);
     if (m648 != 0) {
-        fn_80094E2C(m648->m010, value);
+        ((atn::Model*)m648->m010)->fn_80094E2C(value);
         if (m64C != 0) {
-            fn_80094E2C(m64C->m010, value);
+            ((atn::Model*)m64C->m010)->fn_80094E2C(value);
         }
     }
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
         if (*p != 0) {
-            fn_80094E2C((*p)->m024, value);
+            ((atn::Model*)(*p)->m024)->fn_80094E2C(value);
         }
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
-            fn_80094E2C(&m6A4.mData[i]->mModel, value);
+            m6A4.mData[i]->mModel.fn_80094E2C(value);
         }
     }
 }
@@ -11882,7 +11880,7 @@ void CharaTask::fn_8017A33C(CharaTask* rider, int release) {
         rider->mColli.mFlags &= ~1;
         rider->mFlag11 = 1;
     } else if (m139C != 0) {
-        fn_80097CCC(&mMotion, 3, 0.0f);
+        mMotion.fn_80097CCC(3, 0.0f);
         if (release) {
             m139C->mF1C = 0;
             m139C->mColli.mFlags |= 1;
