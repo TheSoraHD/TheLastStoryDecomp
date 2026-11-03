@@ -8,6 +8,7 @@
 #include "Event/Action.h"
 #include "atn/SoundRef.h"
 #include "Event/PathSpline.h"
+#include "Event/CommonData.h"
 
 class CharaTask;
 class GameMessageWindow;
@@ -33,16 +34,22 @@ public:
 namespace Event {
 
 class Dialog;
+class Sequence;
 class Path;
 
 class Cut;
 
 // inferred: an actor of the event (0x1C0 bytes)
-struct Actor_unk {
+struct Actor_unk : public CommonData {
+    Actor_unk(class Sequence* owner, const char* name, int arg); // 0x8000D528
     CharaTask* fn_800128FC();      // inferred: character of the actor (0 if none)
     atn::Vector3 fn_80010374();    // inferred: position of the actor
     atn::Vector3 fn_80010B68();    // inferred: rotation of the actor
     atn::Model* fn_80012A1C();     // inferred: model of the actor (0 if none)
+    void fn_8000EE8C();            // inferred: update (Event::Sequence::vf10)
+    void fn_8000F1EC();            // inferred: start of the event
+    void fn_8000FAE8();            // inferred: end of the event
+    void fn_8001282C(int a, int b);
     // inferred: plays motion `motion` on the actor (used by Event::BehaviorGesture)
     void fn_800119C0(int arg1, int motion, int arg3, int arg4, void* arg5, int arg6, int arg7, float arg8,
                      float arg9);
@@ -71,11 +78,11 @@ struct Actor_unk {
     inline void TurnTo_unk(const atn::Vector3& dir);
     inline void SetPath_unk(class Path* path); // inferred: builds mPath from an event path
 
-    unsigned char m00[0x14];
-    int m14; // inferred: id
     unsigned int m18_0 : 2;
     unsigned int mWait_unk : 1; // inferred: set while the actor has no character or is moving
-    unsigned int m18_3 : 29;
+    unsigned int m18_3 : 4;
+    unsigned int m18_7 : 1; // inferred: the actor is not reset at the start of the event (Event::Sequence)
+    unsigned int m18_8 : 24;
     unsigned char m1C[0x20 - 0x1C];
     int m20; // inferred: state (6 is checked by BehaviorFollow::vf0C)
     unsigned char m24[0x5C - 0x24];

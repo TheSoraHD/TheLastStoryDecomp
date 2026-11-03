@@ -968,7 +968,7 @@ int ActionMessageChoice::vf0C(Action* arg, int phase) {
         }
         arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(arg->GetParam_unk(0)->m04.i);
+        GameMessage* msg = ((GameMessageList*)manager->m1D4)->fn_803B3B38(arg->GetParam_unk(0)->m04.i);
         manager->m1EC->fn_803B58D8(msg);
         break;
     }
@@ -1011,7 +1011,7 @@ int ActionMessageWindow::vf0C(Action* arg, int phase) {
         }
         arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(arg->GetParam_unk(0)->m04.i);
+        GameMessage* msg = ((GameMessageList*)manager->m1D4)->fn_803B3B38(arg->GetParam_unk(0)->m04.i);
         GameMessageWindow* window = manager->m1EC;
         if (window->IsShown_unk()) {
             window->fn_803B5830(msg, 0);
@@ -1059,7 +1059,7 @@ int ActionMessagePrint::vf0C(Action* arg, int phase) {
             speed0 = lbl_807C8AB0[kind][0];
             speed1 = lbl_807C8AB0[kind][1];
         }
-        GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(text);
+        GameMessage* msg = ((GameMessageList*)manager->m1D4)->fn_803B3B38(text);
         if (kind == 0 && style == 0 && manager->m50 == 3 && lbl_8087F490 != 0 && lbl_8087F490->m2640 != 0) {
             lbl_8087F490->fn_803E3BE8(msg, arg->m14 - arg->m10, 0.0f);
         } else {
@@ -2000,7 +2000,7 @@ int ActionDialogText::vf0C(Action* arg, int phase) {
             int mode = arg->GetParam_unk(5)->m04.i;
             float height = arg->GetParam_unk(6)->m04.f;
             float scale = 1.2f * height;
-            GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(id);
+            GameMessage* msg = ((GameMessageList*)manager->m1D4)->fn_803B3B38(id);
             if (msg != 0) {
                 wchar_t text[256];
                 wchar_t line[256];

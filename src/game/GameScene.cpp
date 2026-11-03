@@ -127,7 +127,7 @@ struct Field_unk {
     unsigned char m10D4[0x54E4 - 0x10D4];
     int m54E4; // inferred: mode (8: no BGM boxes)
     unsigned char m54E8[0x54F4 - 0x54E8];
-    GameMessageTable_unk m54F4; // inferred: common message table (fn_803B3B38)
+    GameMessageList m54F4; // inferred: common message table (fn_803B3B38)
     unsigned char m550C[0x5514 - 0x550C];
     int m5514;
     int m5518;

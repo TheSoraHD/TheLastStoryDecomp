@@ -22,7 +22,7 @@ static const char* const sTextLayout_unk = "/data/d2anime/ui_friend_mes.d2a";
 // one fills them (the texts lose the "\r" that are not followed by a line feed)
 // NONMATCHING: 96.6% - the BOM test of the CsvU constructor keeps size / 2 - 1 in another register (the
 // original computes size / 2 - 2 from size / 2); the rest are the registers that follow
-void GameMessageTable_unk::fn_803B35FC(const wchar_t* data, unsigned int size) {
+void GameMessageList::fn_803B35FC(const wchar_t* data, unsigned int size) {
     if (data == 0) {
         return;
     }
@@ -81,7 +81,7 @@ void GameMessageTable_unk::fn_803B35FC(const wchar_t* data, unsigned int size) {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-void GameMessageTable_unk::fn_803B3AC4() {
+void GameMessageList::fn_803B3AC4() {
     mMessages.Free_unk();
     mTexts.Free_unk();
     mFile.fn_80473F88();
@@ -106,7 +106,7 @@ struct GameChoiceField_unk {
 extern "C" GameChoiceField_unk* lbl_8087F430;
 extern "C" int fn_80370174(GameChoiceField_unk* field, int index); // inferred: reads an event counter
 
-GameMessage* GameMessageTable_unk::fn_803B3B38(int id) {
+GameMessage* GameMessageList::fn_803B3B38(int id) {
     if (lbl_8087F430 != 0) {
         const GameMessageAlias_unk* alias = sAliases_unk;
         for (unsigned int i = 0; i < 6; i++, alias++) {
@@ -124,12 +124,12 @@ GameMessage* GameMessageTable_unk::fn_803B3B38(int id) {
     return 0;
 }
 
-void GameMessageTable_unk::fn_803B3C10(const char* path) {
+void GameMessageList::fn_803B3C10(const char* path) {
     fn_803B3AC4();
     mFile.vf0C(path);
 }
 
-int GameMessageTable_unk::fn_803B3CA8() {
+int GameMessageList::fn_803B3CA8() {
     if (mFile.fn_80473F50() != 0) {
         return 1;
     }
