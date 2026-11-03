@@ -3031,12 +3031,13 @@
   "matching": false
  },
  {
-  "name": "Event/StringData.cpp",
+  "name": "Event/Sequence.cpp",
   "classes": [
-   "Event::DummyData",
-   "Event::StringData"
+   "Event::Sequence",
+   "Event::StringData",
+   "Event::DummyData"
   ],
-  "matching": true
+  "matching": false
  },
  {
   "name": "game/Np131LivingArmor.cpp",

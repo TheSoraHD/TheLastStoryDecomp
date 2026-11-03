@@ -3197,22 +3197,12 @@ Event/Section.cpp:
 	.sdata2     start:0x80887C90 end:0x80887C98
 
 Event/Sequence.cpp:
-	.text       start:0x8053D0F4 end:0x805430E8
-	.rodata     start:0x8075DEF8 end:0x8075E120
-	.data       start:0x807940F0 end:0x80794430
+	.text       start:0x8053D0F4 end:0x80546000
+	.ctors      start:0x8072D3D0 end:0x8072D3D4
+	.rodata     start:0x8075DEF8 end:0x8075E300
+	.data       start:0x807940F0 end:0x80794608
 	.sdata      start:0x8087E4C0 end:0x8087E4D8
 	.sdata2     start:0x80887C98 end:0x80887CD8
-
-Event/StringData.cpp:
-	.text       start:0x805430E8 end:0x80543108
-	.rodata     start:0x8075E120 end:0x8075E148
-	.data       start:0x80794430 end:0x80794480
-
-Event/Sequence_cont.cpp:
-	.text       start:0x80543108 end:0x80546000
-	.ctors      start:0x8072D3D0 end:0x8072D3D4
-	.rodata     start:0x8075E148 end:0x8075E300
-	.data       start:0x80794480 end:0x80794608
 
 game/Np131LivingArmor.cpp:
 	.text       start:0x80546000 end:0x805477C8
