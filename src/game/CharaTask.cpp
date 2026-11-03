@@ -12108,7 +12108,7 @@ void CharaTask::fn_8017AD44(atn::SimpleVector<int>* list, void* arg) {
 
 int CharaTask::vfB8(wchar_t* name) {
     if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
-        GameMessage* entry = fn_803B3B38((GameMessageTable_unk*)lbl_8087F430->m54F4, m5C->mC4);
+        GameMessage* entry = ((GameMessageTable_unk*)lbl_8087F430->m54F4)->fn_803B3B38(m5C->mC4);
         if (entry != 0) {
             wcscpy(name, entry->mText);
             return 1;

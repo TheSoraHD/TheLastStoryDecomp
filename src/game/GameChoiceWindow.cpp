@@ -22,7 +22,7 @@ static const char* const sTextLayout_unk = "/data/d2anime/ui_friend_mes.d2a";
 // one fills them (the texts lose the "\r" that are not followed by a line feed)
 // NONMATCHING: 96.6% - the BOM test of the CsvU constructor keeps size / 2 - 1 in another register (the
 // original computes size / 2 - 2 from size / 2); the rest are the registers that follow
-extern "C" void fn_803B35FC(GameMessageTable_unk* table, const wchar_t* data, unsigned int size) {
+void GameMessageTable_unk::fn_803B35FC(const wchar_t* data, unsigned int size) {
     if (data == 0) {
         return;
     }
@@ -41,8 +41,8 @@ extern "C" void fn_803B35FC(GameMessageTable_unk* table, const wchar_t* data, un
             length += wcslen(csv.fn_8005B9CC()) + 1;
         }
     } while (csv.fn_8005BBF8() != 0);
-    table->mTexts.Resize_unk(length, 1);
-    table->mMessages.Resize_unk(count, 1);
+    mTexts.Resize_unk(length, 1);
+    mMessages.Resize_unk(count, 1);
     csv.SetData(data, size / 2 - 1);
     unsigned int pos = 0;
     unsigned int index = 0;
@@ -52,11 +52,11 @@ extern "C" void fn_803B35FC(GameMessageTable_unk* table, const wchar_t* data, un
     char name[0x10];
     do {
         if (fn_800DC1DC(csv.fn_8005B9CC()) != 1) {
-            GameMessage* msg = &table->mMessages.mData[index];
+            GameMessage* msg = &mMessages.mData[index];
             csv.fn_8005B9CC();
             msg->mId = fn_800DC1DC(csv.fn_8005B9CC());
             msg->m04 = fn_800DC1DC(csv.fn_8005B9CC());
-            msg->mText = &table->mTexts.mData[pos];
+            msg->mText = &mTexts.mData[pos];
             wcscpy(msg->mText, csv.fn_8005B9CC());
             unsigned int n = wcslen(msg->mText);
             for (unsigned int j = 0; j < n; j++) {
@@ -81,10 +81,10 @@ extern "C" void fn_803B35FC(GameMessageTable_unk* table, const wchar_t* data, un
     } while (csv.fn_8005BBF8() != 0);
 }
 
-extern "C" void fn_803B3AC4(GameMessageTable_unk* table) {
-    table->mMessages.Free_unk();
-    table->mTexts.Free_unk();
-    table->mFile.fn_80473F88();
+void GameMessageTable_unk::fn_803B3AC4() {
+    mMessages.Free_unk();
+    mTexts.Free_unk();
+    mFile.fn_80473F88();
 }
 
 // inferred: messages replaced while an event counter is set (id, replacement, counter)
@@ -106,7 +106,7 @@ struct GameChoiceField_unk {
 extern "C" GameChoiceField_unk* lbl_8087F430;
 extern "C" int fn_80370174(GameChoiceField_unk* field, int index); // inferred: reads an event counter
 
-extern "C" GameMessage* fn_803B3B38(GameMessageTable_unk* table, int id) {
+GameMessage* GameMessageTable_unk::fn_803B3B38(int id) {
     if (lbl_8087F430 != 0) {
         const GameMessageAlias_unk* alias = sAliases_unk;
         for (unsigned int i = 0; i < 6; i++, alias++) {
@@ -116,27 +116,27 @@ extern "C" GameMessage* fn_803B3B38(GameMessageTable_unk* table, int id) {
             }
         }
     }
-    for (unsigned int i = 0; i < (unsigned int)table->mMessages.mSize; i++) {
-        if (id == table->mMessages.mData[i].mId) {
-            return &table->mMessages.mData[i];
+    for (unsigned int i = 0; i < (unsigned int)mMessages.mSize; i++) {
+        if (id == mMessages.mData[i].mId) {
+            return &mMessages.mData[i];
         }
     }
     return 0;
 }
 
-extern "C" void fn_803B3C10(GameMessageTable_unk* table, const char* path) {
-    fn_803B3AC4(table);
-    table->mFile.vf0C(path);
+void GameMessageTable_unk::fn_803B3C10(const char* path) {
+    fn_803B3AC4();
+    mFile.vf0C(path);
 }
 
-extern "C" int fn_803B3CA8(GameMessageTable_unk* table) {
-    if (table->mFile.fn_80473F50() != 0) {
+int GameMessageTable_unk::fn_803B3CA8() {
+    if (mFile.fn_80473F50() != 0) {
         return 1;
     }
-    if (table->mMessages.mSize == 0) {
-        int size = table->mFile.fn_8047059C();
-        fn_803B35FC(table, (const wchar_t*)table->mFile.fn_80470580(), size);
-        table->mFile.fn_80473F88();
+    if (mMessages.mSize == 0) {
+        int size = mFile.fn_8047059C();
+        fn_803B35FC((const wchar_t*)mFile.fn_80470580(), size);
+        mFile.fn_80473F88();
     }
     return 0;
 }

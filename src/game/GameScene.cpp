@@ -265,7 +265,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     }
     char message[0x100];
     if (MakeScenePath_unk(message, "/game_message/%s_xx.u16", area, map, sub)) {
-        fn_803B3C10(&m11C, message);
+        m11C.fn_803B3C10(message);
     }
     m64 = fn_8049D704(this, area, map, sub);
     if (lbl_8087FA20 != 0) {
@@ -406,7 +406,7 @@ int GameScene::vf0C() {
             }
         }
     } else if (m48 == 1) {
-        if (fn_800D3FA4() && !fn_803B3CA8(&m11C) && GameBgm::sInstance->mState != 2) {
+        if (fn_800D3FA4() && !m11C.fn_803B3CA8() && GameBgm::sInstance->mState != 2) {
             for (unsigned int i = 0; i < m180.size(); i++) {
                 if (m180[i] >= 0) {
                     fn_8047E5DC(lbl_8087F540, m180[i]);
@@ -2244,9 +2244,9 @@ int GameScene::fn_803CC5E4(int type, int id) {
 
 void* GameScene::fn_803CC6B4(int id) {
     if (id < 10000) {
-        return fn_803B3B38(&m11C, id);
+        return m11C.fn_803B3B38(id);
     }
-    return fn_803B3B38(&lbl_8087F430->m54F4, id);
+    return lbl_8087F430->m54F4.fn_803B3B38(id);
 }
 
 gs::ConstrainModel* GameScene::fn_803CC6D0(int id) {

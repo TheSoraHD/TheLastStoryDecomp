@@ -778,7 +778,7 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
 int Em206EggMonster::vfB8(wchar_t* name) {
     if (lbl_8087F430->m5694 == 0) {
         if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
-            GameMessage* entry = fn_803B3B38((GameMessageTable_unk*)lbl_8087F430->m54F4, m5C->mC4);
+            GameMessage* entry = ((GameMessageTable_unk*)lbl_8087F430->m54F4)->fn_803B3B38(m5C->mC4);
             if (entry != 0) {
                 wcscpy(name, entry->mText);
                 return 1;

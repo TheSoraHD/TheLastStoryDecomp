@@ -30,17 +30,18 @@ struct GameMessage {
 };
 
 // inferred: message table of a scene (game/GameScene m11C and the field table lbl_8087F430 + 0x54F4);
-// the functions are called with this view by the other files (names invented)
+// (member names invented)
 struct GameMessageTable_unk {
+    void fn_803B35FC(const wchar_t* data, unsigned int size); // inferred: parses
+    void fn_803B3AC4();                    // inferred: releases the messages
+    GameMessage* fn_803B3B38(int id);      // inferred: message `id`
+    void fn_803B3C10(const char* path);    // inferred: loads the messages
+    int fn_803B3CA8();                     // inferred: nonzero while loading
+
     atn::SimpleArray<wchar_t> mTexts;      // 0x00: inferred: buffer of all the texts
     atn::SimpleArray<GameMessage> mMessages; // 0x08
     atn::LH_Binary mFile;                  // 0x10
 };
-extern "C" void fn_803B35FC(GameMessageTable_unk* table, const wchar_t* data, unsigned int size); // inferred: parses
-extern "C" void fn_803B3AC4(GameMessageTable_unk* table); // inferred: releases the messages
-extern "C" GameMessage* fn_803B3B38(GameMessageTable_unk* table, int id); // inferred: message `id`
-extern "C" void fn_803B3C10(GameMessageTable_unk* table, const char* path); // inferred: loads the messages
-extern "C" int fn_803B3CA8(GameMessageTable_unk* table); // inferred: nonzero while loading
 
 // inferred from __vt__16GameChoiceWindow (0x8078B4D0): the four choices of a message (0x88 bytes)
 class GameChoiceWindow : public atn::Task {
