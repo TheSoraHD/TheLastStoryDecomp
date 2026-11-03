@@ -28,6 +28,7 @@ struct ActionParam_unk {
     union {
         int i;
         float f;
+        short h[2]; // inferred: two values packed in one parameter (Event::Sequence::fn_8053F818)
     } m04;
 };
 

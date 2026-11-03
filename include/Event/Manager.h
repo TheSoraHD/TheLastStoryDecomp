@@ -14,6 +14,9 @@ class Sequence;
 // inferred: task of the event manager at 0x2400 (stopped during some events; float at 0x48)
 struct ManagerSubTask_unk : public atn::Task {
     float m48;
+    float m4C;
+    float m50;
+    float m54;
 };
 
 // inferred: event manager (Event/Manager.cpp, vtable __vt__Q25Event7Manager; instance lbl_8087F540).
@@ -32,6 +35,7 @@ public:
     void fn_80489A50(Action* action, int arg);
     void fn_8048E904();
     void fn_8048F184(int arg);
+    void fn_8048FE88();
     void fn_8048FEF0();
 
     unsigned char m48[0x70 - 0x48];

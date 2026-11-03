@@ -1,6 +1,7 @@
 #include "game/SetConfig.h"
 #include "Event/Cut.h"
 #include "Event/Behavior.h"
+#include "Event/Sequence.h"
 
 extern "C" int fn_805510F8();
 extern "C" int fn_80551100();
@@ -237,7 +238,9 @@ extern "C" void fn_8054FFE0(void* self) {
     *reinterpret_cast<int*>(object + 0x1A4) = *reinterpret_cast<int*>(object + 0x1A0);
 }
 
-extern "C" void fn_805501DC(void* self, int enabled) {
+// inferred: method of Event::Sequence (layout still read through offsets here)
+void Event::Sequence::fn_805501DC(int enabled) {
+    void* self = this;
     int& state = *reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x1C0);
     if (state == 0 && enabled != 0) {
         fn_8047F8C0(lbl_8087F540, 1);
@@ -249,7 +252,8 @@ extern "C" void fn_805501DC(void* self, int enabled) {
 
 // NONMATCHING: 65.17% - manager gating, action windows, cut changes and timeouts are reconstructed;
 // exact MWCC register allocation and nested action-state dispatch still differ.
-extern "C" void fn_80550254(void* self) {
+void Event::Sequence::fn_80550254() {
+    void* self = this;
     unsigned char* object = static_cast<unsigned char*>(self);
     unsigned int& flags = *reinterpret_cast<unsigned int*>(object + 0x98);
     flags |= 0x00040000;
@@ -295,7 +299,7 @@ extern "C" void fn_80550254(void* self) {
         fn_80488DB8(manager);
     }
 
-    unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+    unsigned char* event = static_cast<unsigned char*>((void*)fn_80541210());
     if (event != 0) {
         int count = *reinterpret_cast<int*>(event + 0x40);
         unsigned char** records = *reinterpret_cast<unsigned char***>(event + 0x3C);
@@ -380,7 +384,7 @@ extern "C" void fn_80550254(void* self) {
     if (mode == 1 || mode == 3) {
         fn_8048F9B0(manager, event);
     }
-    event = static_cast<unsigned char*>(fn_80541210(self));
+    event = static_cast<unsigned char*>((void*)fn_80541210());
     if (event != 0 && time > static_cast<float>(*reinterpret_cast<int*>(event + 0x2C))) {
         time = static_cast<float>(*reinterpret_cast<int*>(event + 0x2C));
         int cutId = reinterpret_cast<Event::Cut*>(event)->fn_8053B028();
@@ -391,20 +395,20 @@ extern "C" void fn_80550254(void* self) {
             for (; i < count; ++i) {
                 if (*reinterpret_cast<int*>(entries[i] + 0x0C) == cutId) break;
             }
-            fn_80541520(self, fn_80541198(self), 0);
+            fn_80541520(fn_80541198(0), 0);
             if (mode == 1 || mode == 3) {
                 fn_80484FBC(manager); fn_804870F4(manager); fn_80486F50(manager);
                 fn_8048F184(manager, 0); fn_8048F184(manager, 1); fn_8048FC7C(manager);
             }
             if (reinterpret_cast<Event::Cut*>(event)->fn_8053B028() != *reinterpret_cast<int*>(event + 0x0C)) {
-                fn_80550254(self);
+                fn_80550254();
             }
         } else if (lbl_8087F0A8 != 0 && *reinterpret_cast<int*>(static_cast<unsigned char*>(lbl_8087F0A8) + 0x194) != 0 &&
                    *reinterpret_cast<int*>(object + 0x190) == 0x19D) {
             fn_80370B78(lbl_8087F430, -1, lbl_80887E20, 0, 0);
-            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(11);
+            fn_8053E8C8(11);
         } else {
-            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(13);
+            fn_8053E8C8(13);
         }
     }
     *reinterpret_cast<float*>(object + 0x19C) = time;

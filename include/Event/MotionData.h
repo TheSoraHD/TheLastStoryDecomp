@@ -71,9 +71,7 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    int m18;
-    int m1C;
-    int m20;
+    std::string m18; // inferred: destroyed with the data (Event::Sequence, 0x8053D8F0)
     atn::Model* m24;
 };
 

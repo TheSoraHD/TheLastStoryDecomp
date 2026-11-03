@@ -129,7 +129,8 @@ struct ScreenEffect_unk {
 struct EffectLists_unk {
     std::vector<int> m00;
     int m0C;
-    std::vector<int> m10;
+    IntVector_unk m10; // inferred: one destructor level more than m00 (four address tests)
+    int m1C;
 };
 
 // inferred: entry of the list at 0x184 of the sequence (0x24 bytes)
@@ -201,11 +202,13 @@ public:
     int fn_805430BC(unsigned int index, int key);
 
     // inferred: inline helpers (names invented)
+    unsigned int GetFlag7_unk() const { return m98_7; }
+    unsigned int GetFlag15_unk() const { return (m98 >> 16) & 1; }
     bool IsCutIndex_unk(int i) const { return i >= 0 && i < (int)mB8.size(); }
-    Cut* GetCut_unk(int i) { return (i >= 0 && i < (short)mB8.size()) ? mB8[i].get() : 0; }
+    inline Cut* FindCutByIndex_unk(int index); // inferred: defined in Event/Sequence.cpp
     Actor_unk* FindActor_unk(int id) {
-        for (int i = 0; i < m164.mSize; i++) {
-            Actor_unk* actor = &m164.mData[(unsigned int)i];
+        for (int i = 0; i < (int)m164.size(); i++) {
+            Actor_unk* actor = &m164[(unsigned int)i];
             if (id == actor->m14) {
                 return actor;
             }
@@ -213,7 +216,11 @@ public:
         return 0;
     }
 
-    // inferred: defined in other files
+    // inferred: defined in other files (Event/EventLoader_unk.cpp, Event/EventParser_unk.cpp...)
+    int fn_80575F0C();
+    void* fn_80575F6C();
+    void fn_80576030(const char* path, void* arg);
+    void fn_8057D5F4(const char* path, void* arg);
     void fn_805501DC(int arg);
     void fn_80550254();
     void fn_80575FCC();
@@ -288,8 +295,8 @@ public:
     int m1BC;
     int m1C0;
     atn::LH_Binary m1C4;
-    int m1CC;
-    int m1D0;
+    int m1CC;  // inferred: size of the event data when it is owned (m98_0)
+    void* m1D0; // inferred: event data when it is owned
     GameMessageList m1D4;
     GameMessageWindow* m1EC;
     ScreenEffect_unk m1F0[4];

@@ -49,6 +49,7 @@ struct Actor_unk : public CommonData {
     void fn_8000EE8C();            // inferred: update (Event::Sequence::vf10)
     void fn_8000F1EC();            // inferred: start of the event
     void fn_8000FAE8();            // inferred: end of the event
+    void fn_800127CC(int a, int b); // inferred: pose of the actor (from an action of a character channel)
     void fn_8001282C(int a, int b);
     // inferred: plays motion `motion` on the actor (used by Event::BehaviorGesture)
     void fn_800119C0(int arg1, int motion, int arg3, int arg4, void* arg5, int arg6, int arg7, float arg8,

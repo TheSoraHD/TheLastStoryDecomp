@@ -3,6 +3,7 @@
 // template instances emitted after them (vector growth, DataList_unk::SetOwner_unk...).
 #include "Event/Sequence.h"
 #include "Event/Cut.h"
+#include "Event/Action.h"
 #include "Event/Manager.h"
 #include "Event/Dialog.h"
 #include "atn/Memory.h"
@@ -44,6 +45,8 @@ extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, floa
 // inferred: text of a pane (returned by value) and its width with the font lbl_8087EEC8
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
 extern "C" void* lbl_8087EEC8;
+extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: path without its extension
+extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
 
 namespace Event {
@@ -165,12 +168,12 @@ void Sequence::fn_8053E8D0() {
         }
     }
     fn_805501DC(0);
-    for (int i = 0; i < m164.mSize; i++) {
-        m164.mData[i].fn_8000F1EC();
+    for (int i = 0; i < (int)m164.size(); i++) {
+        m164[i].fn_8000F1EC();
     }
     if (m98_3) {
-        for (int i = 0; i < m164.mSize; i++) {
-            Actor_unk* actor = &m164.mData[i];
+        for (int i = 0; i < (int)m164.size(); i++) {
+            Actor_unk* actor = &m164[i];
             if (actor->m18_7 != 1) {
                 actor->fn_8001282C(-1, 0);
             }
@@ -220,7 +223,7 @@ void Sequence::fn_8053ED4C() {
     }
     if (m50 == 1 || m50 == 3) {
         if (lbl_8087F0A8->m194 == 0 || m190 != 0x19D) {
-            lbl_8087F540->fn_80483714(m98_7, m98_15);
+            lbl_8087F540->fn_80483714(GetFlag7_unk(), GetFlag15_unk());
         }
         for (int i = 0; i < 4; i++) {
             lbl_8087F540->mCameras[i].fn_80112784();
@@ -252,8 +255,8 @@ void Sequence::fn_8053EF70() {
     if (lbl_8087F540 == 0) {
         return;
     }
-    for (int i = 0; i < m164.mSize; i++) {
-        m164.mData[i].fn_8000FAE8();
+    for (int i = 0; i < (int)m164.size(); i++) {
+        m164[i].fn_8000FAE8();
     }
     if (m50 == 1 || m50 == 3) {
         EventIdEntry_unk* entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(m190);
@@ -283,11 +286,14 @@ void Sequence::fn_8053EF70() {
 
 void Sequence::vf10() {
     fn_8053F1B4();
-    for (int i = 0; i < m164.mSize; i++) {
-        m164.mData[i].fn_8000EE8C();
+    for (int i = 0; i < (int)m164.size(); i++) {
+        m164[i].fn_8000EE8C();
     }
-    if (m280 != 0 && m194 >= 5 && !(m194 == 11 || m194 == 12)) {
-        m280->fn_802297AC();
+    if (m280 != 0 && m194 >= 5) {
+        bool ending = m194 == 11 || m194 == 12;
+        if (!ending) {
+            m280->fn_802297AC();
+        }
     }
 }
 
@@ -344,8 +350,9 @@ void Sequence::fn_8053F1B4() {
         m194 = 10;
         if ((unsigned int)(m190 - 0x238D) <= 5) {
             atn::D2A_Task* task = static_cast<atn::D2A_Task*>(mD4.mData[0].m18);
-            std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(&task->mData.m10, "mapName"), 0, 0);
-            float width = fn_8006EF48(lbl_8087EEC8, text.c_str(), 20.0f, 0.0f, 1, 1);
+            float width =
+                fn_8006EF48(lbl_8087EEC8, fn_800A4450(fn_801FEC74(&task->mData.m10, "mapName"), 0, 0).c_str(), 20.0f,
+                            0.0f, 1, 1);
             fn_801FECE0(&task->mData.m10, fn_800DC6B4("strLength"), width);
         }
     }
@@ -418,8 +425,8 @@ void Sequence::vf14() {
     }
     if (m98_16 == 1) {
         if (m98_1 == 1) {
-            for (int i = 0; i < m164.mSize; i++) {
-                m164.mData[i].vf0C();
+            for (int i = 0; i < (int)m164.size(); i++) {
+                m164[i].vf0C();
             }
             m98_1 = 0;
             m98_15 = 0;
@@ -448,17 +455,102 @@ void Sequence::fn_8053F6EC() {
         fn_8053F818();
         m98_12 = 0;
     }
-    sprintf(m74, "GROUP_EV%04d", m190);
+    sprintf(m74, "GROUP_EV%04d\0", m190);
     fn_800C3094(m74);
     m98_1 = 1;
     m194 = 6;
     MeltTask();
 }
 
-// NONMATCHING: stub - reads the data of the event (the loops over the lists and the string of m68)
+// inferred: starts loading the data of the event (the message file, the windows, the actor poses)
 void Sequence::fn_8053F818() {
-    for (int i = 0; i < mC4.mSize; i++) {
-        mC4.mData[i].vf08();
+    for (int i = 0; i < (int)mC4.size(); i++) {
+        mC4[i].vf08();
+    }
+    for (int i = 0; i < (int)mD4.size(); i++) {
+        mD4[i].vf08();
+    }
+    for (int i = 0; i < (int)mE4.size(); i++) {
+        mE4[i].vf08();
+    }
+    for (int i = 0; i < (int)mF4.size(); i++) {
+        mF4[i].vf08();
+    }
+    for (int i = 0; i < (int)m104.size(); i++) {
+        m104[i].vf08();
+    }
+    for (int i = 0; i < (int)m124.size(); i++) {
+        m124[i].vf08();
+    }
+    for (int i = 0; i < (int)m134.size(); i++) {
+        m134[i].vf08();
+    }
+    for (int i = 0; i < (int)m144.size(); i++) {
+        m144[i].vf08();
+    }
+    for (int i = 0; i < (int)m154.size(); i++) {
+        m154[i].vf08();
+    }
+    for (int i = 0; i < (int)m164.size(); i++) {
+        m164[i].vf08();
+    }
+    if (m68.size() != 0) {
+        std::string::size_type pos = m68.rfind('_');
+        if (pos == std::string::npos) {
+            m68 = fn_8006B2D8(m68) + "_xx.u16";
+        } else if (std::string(m68, pos).size() == 7) {
+            m68 = std::string(m68, 0, pos) + "_xx.u16";
+        } else {
+            m68 = fn_8006B2D8(m68) + "_xx.u16";
+        }
+        m1D4.fn_803B3C10(m68.c_str());
+    }
+    if (m1EC == 0) {
+        m1EC = GameMessageWindow::fn_803B5470(this);
+        if (m280 == 0) {
+            if (m98_8 == 1 && (m50 == 1 || m50 == 3)) {
+                m280 = Dialog::fn_802288D0(this);
+            }
+            for (int i = 0; i < (int)mB8.size(); i++) {
+                Cut* cut = IsCutIndex_unk(i) ? mB8[i].get() : 0;
+                for (int j = 0; j < (int)cut->mSections.size(); j++) {
+                    Section* section = cut->IsSectionIndex_unk(j) ? cut->mSections[j].get() : 0;
+                    if (section->m0C != 3) {
+                        continue;
+                    }
+                    for (int k = 0; k < (int)section->mChannels.size(); k++) {
+                        Channel* channel = section->IsChannelIndex_unk(k) ? section->mChannels[k].get() : 0;
+                        if (channel->m0C != 0x26) {
+                            continue;
+                        }
+                        for (int l = 0; l < (int)channel->mActions.size(); l++) {
+                            Action* action = channel->IsActionIndex_unk(l) ? channel->mActions[l].get() : 0;
+                            if (action->GetParam_unk(0)->m04.i == 2) {
+                                Actor_unk* actor = FindActor_unk(section->m10);
+                                int a = action->GetParam_unk(1)->m04.h[1];
+                                int b = action->GetParam_unk(1)->m04.h[0];
+                                actor->fn_800127CC(a, b);
+                            }
+                        }
+                    }
+                }
+            }
+            if (m190 == 0x270E) {
+                lbl_8087F540->fn_8048FE88();
+                lbl_8087F540->m2400->fn_800D246C(1);
+            }
+            if (m190 == 0x151B) {
+                lbl_8087F540->fn_8048FE88();
+                lbl_8087F540->m2400->fn_800D246C(1);
+                lbl_8087F540->m2400->m4C = lbl_8087F540->m2400->m4C / 1.31f;
+                lbl_8087F540->m2400->m54 = 1763.0f;
+            }
+            if (lbl_8087F0A8->m194 != 0 && m190 == 0x19D) {
+                m2C0 = fn_801F3FF8(this, "/data/d2anime/ui_demo_end.d2a", 0);
+                m2C0->fn_800D246C(1);
+                m2C0->mRepeat = 0;
+            }
+        }
     }
 }
 
@@ -489,36 +581,36 @@ void Sequence::fn_805406BC(int keep) {
     }
     mNoKill_unk = keep != 0;
     m29C.fn_80470528();
-    for (int i = 0; i < mC4.mSize; i++) {
-        mC4.mData[i].vf0C();
+    for (int i = 0; i < (int)mC4.size(); i++) {
+        mC4[i].vf0C();
     }
-    for (int i = 0; i < mD4.mSize; i++) {
-        mD4.mData[i].vf0C();
+    for (int i = 0; i < (int)mD4.size(); i++) {
+        mD4[i].vf0C();
     }
-    for (int i = 0; i < mE4.mSize; i++) {
-        mE4.mData[i].vf0C();
+    for (int i = 0; i < (int)mE4.size(); i++) {
+        mE4[i].vf0C();
     }
-    for (int i = 0; i < mF4.mSize; i++) {
-        mF4.mData[i].vf0C();
+    for (int i = 0; i < (int)mF4.size(); i++) {
+        mF4[i].vf0C();
     }
-    for (int i = 0; i < m104.mSize; i++) {
-        m104.mData[i].vf0C();
+    for (int i = 0; i < (int)m104.size(); i++) {
+        m104[i].vf0C();
     }
-    for (int i = 0; i < m124.mSize; i++) {
-        m124.mData[i].vf0C();
+    for (int i = 0; i < (int)m124.size(); i++) {
+        m124[i].vf0C();
     }
-    for (int i = 0; i < m134.mSize; i++) {
-        m134.mData[i].vf0C();
+    for (int i = 0; i < (int)m134.size(); i++) {
+        m134[i].vf0C();
     }
-    for (int i = 0; i < m144.mSize; i++) {
-        m144.mData[i].vf0C();
+    for (int i = 0; i < (int)m144.size(); i++) {
+        m144[i].vf0C();
     }
-    for (int i = 0; i < m154.mSize; i++) {
-        m154.mData[i].vf0C();
+    for (int i = 0; i < (int)m154.size(); i++) {
+        m154[i].vf0C();
     }
     if (!m98_15) {
-        for (int i = 0; i < m164.mSize; i++) {
-            m164.mData[i].vf0C();
+        for (int i = 0; i < (int)m164.size(); i++) {
+            m164[i].vf0C();
         }
     }
     m1D4.fn_803B3AC4();
@@ -541,8 +633,8 @@ void Sequence::fn_805406BC(int keep) {
     if (!m98_15) {
         m98_1 = 0;
     }
-    m194 = 4;
     m98_14 = 0;
+    m194 = 4;
 }
 
 // NONMATCHING: stub - builds the cuts of the event from the parsed file
@@ -561,12 +653,20 @@ int Sequence::fn_80541198(Cut* cut) {
 
 // inferred: current cut (same code as fn_80541210)
 Cut* Sequence::fn_805411DC() {
-    return GetCut_unk(m1A0);
+    int i = m1A0;
+    if (i < 0 || i >= (short)mB8.size()) {
+        return 0;
+    }
+    return mB8[i].get();
 }
 
 // inferred: current cut
 Cut* Sequence::fn_80541210() {
-    return GetCut_unk(m1A0);
+    int i = m1A0;
+    if (i < 0 || i >= (short)mB8.size()) {
+        return 0;
+    }
+    return mB8[i].get();
 }
 
 // inferred: goes to cut `index`
@@ -578,8 +678,8 @@ void Sequence::fn_80541244(int index) {
     if (m194 != 10) {
         return;
     }
-    for (int i = 0; i < m164.mSize; i++) {
-        Actor_unk* actor = &m164.mData[i];
+    for (int i = 0; i < (int)m164.size(); i++) {
+        Actor_unk* actor = &m164[i];
         if (actor != 0) {
             actor->mB8[0] = 0;
             actor->mB8[1] = 0;
@@ -590,14 +690,22 @@ void Sequence::fn_80541244(int index) {
 
 // inferred: label `index` of any cut
 Label* Sequence::fn_805412A8(int index) {
-    int n = mB8.size();
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < (int)mB8.size(); i++) {
         Cut* cut = IsCutIndex_unk(i) ? mB8[i].get() : 0;
-        for (int j = 0; j < cut->mLabels.size(); j++) {
+        for (int j = 0; j < (int)cut->mLabels.size(); j++) {
             Label* label = cut->IsLabelIndex_unk(j) ? cut->mLabels[j].get() : 0;
             if (index == label->mIndex) {
                 return label;
             }
+        }
+    }
+    return 0;
+}
+
+inline Cut* Sequence::FindCutByIndex_unk(int index) {
+    for (int i = 0; i < (int)mB8.size(); i++) {
+        if (index == mB8[i]->mIndex) {
+            return mB8[i].get();
         }
     }
     return 0;
@@ -610,13 +718,7 @@ void Sequence::fn_8054136C(int label) {
     }
     if (label & 0x8000) {
         int index = label & ~0x8000;
-        Cut* cut = 0;
-        for (int i = 0; i < mB8.size(); i++) {
-            if (index == mB8[i]->mIndex) {
-                cut = mB8[i].get();
-                break;
-            }
-        }
+        Cut* cut = FindCutByIndex_unk(index);
         fn_80541520(fn_80541198(cut), 0);
     } else {
         Label* found = fn_805412A8(label);
@@ -649,7 +751,7 @@ void Sequence::fn_80541548(int slot, ScreenEffectObj_unk* obj, float start, floa
     effect.m14 = c;
     effect.m18 = d;
     effect.m1C = e;
-    if (effect.m20 & 0x2000000) {
+    if (effect.m20 & 0x1000000) {
         flags |= 0x2000000;
     }
     effect.m20 = flags;
@@ -676,9 +778,10 @@ atn::Vector3 Sequence::fn_80541BD8(const atn::Vector3& pos) {
 
 // inferred: rotates `v` by the yaw of the event
 atn::Vector3 Sequence::fn_80541C94(const atn::Vector3& v) {
+    float yaw = mB4;
     atn::Vector3 r = v;
     Mtx m;
-    PSMTXRotRad(m, 'y', mB4);
+    PSMTXRotRad(m, 'y', yaw);
     PSMTXMultVec(m, &r, &r);
     return r;
 }
@@ -690,8 +793,8 @@ float Sequence::fn_80541CF0(float yaw) {
 
 // inferred: an actor named after a character of kind `kind` ("np", "em", "fr") and number `num` exists
 int Sequence::fn_80541CFC(int kind, int num) {
-    for (int i = 0; i < m164.mSize; i++) {
-        Actor_unk* actor = &m164.mData[i];
+    for (int i = 0; i < (int)m164.size(); i++) {
+        Actor_unk* actor = &m164[i];
         if (actor->m08.size() == 0) {
             continue;
         }
@@ -732,12 +835,12 @@ int Sequence::fn_80541CFC(int kind, int num) {
 
 // inferred: marks the actors that no character section of a cut uses
 void Sequence::fn_80541F18() {
-    for (int i = 0; i < m164.mSize; i++) {
-        m164.mData[i].m18_7 = 1;
+    for (int i = 0; i < (int)m164.size(); i++) {
+        m164[i].m18_7 = 1;
     }
-    for (int i = 0; i < mB8.size(); i++) {
+    for (int i = 0; i < (int)mB8.size(); i++) {
         Cut* cut = IsCutIndex_unk(i) ? mB8[i].get() : 0;
-        for (int j = 0; j < cut->mSections.size(); j++) {
+        for (int j = 0; j < (int)cut->mSections.size(); j++) {
             Section* section = cut->IsSectionIndex_unk(j) ? cut->mSections[j].get() : 0;
             if (section->m0C == 3) {
                 Actor_unk* actor = FindActor_unk(section->m10);
@@ -763,7 +866,7 @@ void Sequence::fn_805428A8() {
 
 // inferred: effect lists of the entry `id` of the list at 0x184
 EffectLists_unk* Sequence::fn_80543060(int id) {
-    for (int i = 0; i < m184.size(); i++) {
+    for (int i = 0; i < (int)m184.size(); i++) {
         if (id == m184[i].m00) {
             return &m184[i].m04;
         }
@@ -776,8 +879,9 @@ void Sequence::fn_805430A0(unsigned int index, int key, int id) {
     if (index > 3) {
         return;
     }
-    m294[index].m00 = key;
-    m294[index].m04 = id;
+    ContinueEffect_unk& effect = m294[index];
+    effect.m00 = key;
+    effect.m04 = id;
 }
 
 // inferred: id of the continue effect `index` with the key `key` (-1 if none)
