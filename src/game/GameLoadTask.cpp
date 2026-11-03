@@ -136,7 +136,7 @@ void GameLoadTask::vf10() {
                     mD68 = 4;
                 }
             } else if (mSlots[m48].fn_803BEAB4()) {
-                fn_803B3270(this, m48);
+                fn_803B3270(m48);
             }
         }
         if (fn_800A555C(lbl_8087EF70, 0, 5)) {
@@ -167,15 +167,15 @@ void GameLoadTask::vf10() {
     }
 }
 
-void fn_803B2FBC(GameLoadTask* task, int slot) {
+void GameLoadTask::fn_803B2FBC(int slot) {
     if (slot >= 0) {
         ResetSaveData_unk();
         lbl_8087DD60 = slot;
-        lbl_8087DD64 = SlotFormat_unk(task->mSlots[slot]);
+        lbl_8087DD64 = SlotFormat_unk(mSlots[slot]);
         if (lbl_8087DD64 < 4) {
-            memcpy(lbl_8087F460, task->m1A00.mHeader + 0x38, kSaveDataSize_unk);
+            memcpy(lbl_8087F460, m1A00.mHeader + 0x38, kSaveDataSize_unk);
         } else {
-            memcpy(lbl_8087F460, &task->m1A00.mData, kSaveDataSize_unk);
+            memcpy(lbl_8087F460, &m1A00.mData, kSaveDataSize_unk);
         }
         fn_803BE850(lbl_8087F460);
     }
@@ -204,25 +204,25 @@ void GameLoadTask::vf14() {
     }
 }
 
-void fn_803B3270(GameLoadTask* task, int slot) {
+void GameLoadTask::fn_803B3270(int slot) {
     char name[0x100];
     int size;
     GameSaveLoadBackgroundCommon::fn_803B83A4(name, &size, slot);
-    memset(&task->m1A00, 0, sizeof(GameSaveFile_unk));
-    task->m14F60->fn_803B3530(name, (int)&task->m1A00, sizeof(GameSaveFile_unk), size);
-    memcpy(&lbl_807C8508, &task->mSlots[slot], sizeof(GameSaveSlot_unk));
-    task->mD68 = 3;
+    memset(&m1A00, 0, sizeof(GameSaveFile_unk));
+    m14F60->fn_803B3530(name, (int)&m1A00, sizeof(GameSaveFile_unk), size);
+    memcpy(&lbl_807C8508, &mSlots[slot], sizeof(GameSaveSlot_unk));
+    mD68 = 3;
 }
 
-void fn_803B3310(GameLoadTask* task, int slot) {
-    GameLoadBackground* bg = task->m14F60;
+void GameLoadTask::fn_803B3310(int slot) {
+    GameLoadBackground* bg = m14F60;
     if (bg == 0) {
-        task->mD68 = 1;
+        mD68 = 1;
     } else {
         if (bg != 0) {
             bg->fn_803B8160(slot);
-            memset(&task->mSlots[slot], 0, sizeof(GameSaveSlot_unk));
+            memset(&mSlots[slot], 0, sizeof(GameSaveSlot_unk));
         }
-        task->mD68 = 5;
+        mD68 = 5;
     }
 }

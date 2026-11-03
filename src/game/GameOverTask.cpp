@@ -9,6 +9,8 @@
 #include "atn/SoundRef.h"
 #include "atn/Task.h"
 #include "MP/SaveLoad.h"
+#include "game/GameLoadBackground.h"
+#include "game/GameLoadTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -52,43 +54,9 @@ struct GameOverPoint_unk {
 extern "C" GameOverPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
 extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 
-// inferred: save data object made by fn_803B27F8 (as in game/NewCampPartsTop.cpp)
-class GameSaveLoadBackgroundCommon {
-public:
-    int fn_803B8144(); // inferred: error code of the save/load manager
-    unsigned char m000[0x154];
-    unsigned char m154; // inferred: active flag
-};
-struct CampSaveData_unk : public atn::Task {
-    unsigned char m048[0xC84 - 0x48];
-    int mC84;
-    unsigned char mC88[0xD60 - 0xC88];
-    int mD60;
-    int mD64;
-    unsigned char mD68[0x14F60 - 0xD68];
-    GameSaveLoadBackgroundCommon* m14F60;
-};
-// inferred: name and flag given to fn_803B27F8 (as in game/CampSaveLoad.cpp)
-struct CampSaveArg_unk {
-    char mName[0x40];
-    int mFlag; // 0x40
-};
-inline void CopyString_unk(char* dst, const char* src) {
-    if (dst != src) {
-        memcpy(dst, src, strlen(src) + 1);
-    }
-}
-extern "C" CampSaveData_unk* fn_803B27F8(atn::Task* parent, const CampSaveArg_unk* arg);
-extern "C" void fn_803B3270(CampSaveData_unk* data, int slot);
-extern "C" void fn_803B2FBC(CampSaveData_unk* data, int slot);
-class GameSaveLoadCommon {
-public:
-    void fn_803B8758(int arg);
-    int fn_803B87A8();
-};
 class MenuLoadTask : public atn::Task {
 public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, CampSaveData_unk* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data);
     static MenuLoadTask* sInstance;
     unsigned char m48[0x13C - 0x48];
     int m13C; // inferred: state
@@ -238,7 +206,7 @@ public:
     GameOverD2A_unk* mDemoEnd;  // 0x50: ui_demo_end.d2a
     atn::EfpFile mEfp;    // 0x54
     unsigned char m60[4];
-    CampSaveData_unk* mSave;    // 0x64
+    GameLoadTask* mSave;    // 0x64
     int mLoading;               // 0x68
     int mMode;                  // 0x6C
     int mState;                 // 0x70
@@ -273,10 +241,8 @@ GameOverTask::GameOverTask(atn::Task* parent, int mode)
         mDemoEnd->fn_800D246C(1);
     }
     mEfp.LoadRequest("be010_008.efp");
-    CampSaveArg_unk arg;
-    CopyString_unk(arg.mName, "\0");
-    arg.mFlag = 0;
-    mSave = fn_803B27F8(this, &arg);
+    GameLoadTask::Option arg("\0", 0);
+    mSave = GameLoadTask::fn_803B27F8(this, arg);
     mSave->mD64 = 0;
 }
 
@@ -489,10 +455,10 @@ void GameOverTask::vf10() {
             if (choice == 0 || choice == 3) {
                 if (mSave != 0) {
                     if (mSave->mD60 == 0) {
-                        ((GameSaveLoadCommon*)mSave)->fn_803B8758(0);
+                        mSave->fn_803B8758(0);
                         mLoading = 1;
                     } else {
-                        fn_803B3270(mSave, 0);
+                        mSave->fn_803B3270(0);
                     }
                     mState = 3;
                 }
@@ -519,19 +485,19 @@ void GameOverTask::vf10() {
     } else if (mState == 3) {
         int done = 0;
         if (mLoading != 0) {
-            if (((GameSaveLoadCommon*)mSave)->fn_803B87A8() == 0) {
+            if (mSave->fn_803B87A8() == 0) {
                 if (mSave->mC84 == 7) {
                     done = 1;
                 } else {
                     mLoading = 0;
-                    fn_803B3270(mSave, 0);
+                    mSave->fn_803B3270(0);
                 }
             }
         } else if (mSave != 0 && mSave->m14F60->m154 == 0) {
             if (mSave->m14F60->fn_803B8144()) {
                 done = 1;
             } else {
-                fn_803B2FBC(mSave, 0);
+                mSave->fn_803B2FBC(0);
                 if (fn_803BE854(lbl_8087F460)) {
                     if (lbl_8087F460 != 0) {
                         delete lbl_8087F460;
@@ -546,7 +512,7 @@ void GameOverTask::vf10() {
         if (done) {
             lbl_8087DCCC = 0;
             lbl_8087F434 = 1;
-            CampSaveData_unk* save = mSave;
+            GameLoadTask* save = mSave;
             if (save != 0) {
                 save->mD60 = 0;
                 save->mC84 = 0;

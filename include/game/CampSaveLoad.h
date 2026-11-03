@@ -53,7 +53,9 @@ struct SaveSlot_unk {
     unsigned char m34[0xB8 - 0x34];
 };
 
-// inferred: save data object made by fn_803B7944 / fn_803B27F8 (see src/auto_03_803B27AC_text.cpp)
+class GameLoadTask;
+
+// inferred: view of GameSaveLoadCommon (save task fn_803B7944 / load task fn_803B27F8) (see src/auto_03_803B27AC_text.cpp)
 struct CampSaveData_unk {
     unsigned char m000[0x4C];
     SaveSlot_unk mSlots[17]; // 0x4C
@@ -83,7 +85,7 @@ public:
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
-    CampSaveData_unk* GetData_unk() { return mMode == 0 ? (CampSaveData_unk*)m4C : m50; }
+    CampSaveData_unk* GetData_unk() { return mMode == 0 ? (CampSaveData_unk*)m4C : (CampSaveData_unk*)m50; }
     void fn_80119030(int state, int arg); // inferred: changes the state
     void fn_8011968C();                   // inferred: handles the cancel/back input
     void fn_8011979C();                   // inferred: handles the confirmation window input
@@ -94,7 +96,7 @@ public:
 
     int mMode;                  // 0x48: inferred: 0 save, 1 load
     GameSaveTask* m4C;          // 0x4C: save menu task (fn_803B7944); seen as CampSaveData_unk by GetData_unk
-    CampSaveData_unk* m50;      // 0x50: inferred: save data of the load menu
+    GameLoadTask* m50;          // 0x50: inferred: load task of the load menu (seen as CampSaveData_unk by GetData_unk)
     int m54;
     atn::Task* m58;             // 0x58: inferred: new map icon animation
     atn::Task* m5C;             // 0x5C: inferred: info bar

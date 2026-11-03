@@ -5,6 +5,7 @@
 #include "atn/SoundRef.h"
 #include "MP/SaveLoad.h"
 #include "game/TutorialTask.h"
+#include "game/GameLoadTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -14,19 +15,6 @@ extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg);
 // inferred: creates a d2anime task (other variant of fn_801F3FF8, no extra argument)
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path);
 
-// inferred: copies a string unless it is the destination itself (name invented)
-inline void CopyString_unk(char* dst, const char* src) {
-    if (src != dst) {
-        memcpy(dst, src, strlen(src) + 1);
-    }
-}
-
-// inferred: name and flag given to fn_803B27F8 (see UnkArg in src/auto_03_803B27AC_text.cpp)
-struct CampSaveArg_unk {
-    char mName[0x40];
-    int mFlag; // 0x40
-};
-extern "C" CampSaveData_unk* fn_803B27F8(atn::Task* parent, const CampSaveArg_unk* arg);
 
 // inferred: field data (lbl_8087F430)
 struct Field_unk {
@@ -56,10 +44,6 @@ inline bool IsRepeated_unk(int button) {
     return lbl_8087EF70 != 0 ? fn_800A55AC(lbl_8087EF70, 0, button) : 0;
 }
 
-// inferred: save and load of a slot (save menu: fn_803B7FC8/fn_803B807C, load menu:
-// fn_803B3270/fn_803B3310)
-extern "C" void fn_803B3270(CampSaveData_unk* data, int slot);
-extern "C" void fn_803B3310(CampSaveData_unk* data, int slot);
 
 // inferred: plays a system sound effect
 extern "C" atn::SoundRef fn_80117228(int id);
@@ -110,8 +94,8 @@ public:
 
 class MenuLoadTask : public CampSaveLoad {
 public:
-    MenuLoadTask(atn::Task* parent, CampSaveData_unk* data);
-    static MenuLoadTask* fn_80117914(atn::Task* parent, CampSaveData_unk* data);
+    MenuLoadTask(atn::Task* parent, GameLoadTask* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data);
     virtual ~MenuLoadTask();
 
     static MenuLoadTask* sInstance; // 0x8087F06C
@@ -145,7 +129,7 @@ void MenuSaveTask::vf20() {
     lbl_8087D990 = m150 != 0 ? m128 : -1;
 }
 
-MenuLoadTask* MenuLoadTask::fn_80117914(atn::Task* parent, CampSaveData_unk* data) {
+MenuLoadTask* MenuLoadTask::fn_80117914(atn::Task* parent, GameLoadTask* data) {
     if (sInstance == 0) {
         sInstance = new ((MemoryTag)1, "", "", 0) MenuLoadTask(parent, data);
     }
@@ -153,18 +137,16 @@ MenuLoadTask* MenuLoadTask::fn_80117914(atn::Task* parent, CampSaveData_unk* dat
 }
 
 // inferred: not inline (its literals are in the pool); inlined into fn_80117914
-MenuLoadTask::MenuLoadTask(atn::Task* parent, CampSaveData_unk* data) : CampSaveLoad(parent) {
+MenuLoadTask::MenuLoadTask(atn::Task* parent, GameLoadTask* data) : CampSaveLoad(parent) {
     mMode = 1;
     (m70 = fn_801F3FF8(this, "/data/d2anime/load_select.d2a", 0))->fn_800D246C(1);
     m50 = data;
     if (data == 0) {
-        CampSaveArg_unk arg;
         // inferred: a 2-byte literal (0x80736B4D: 00 00), not merged with ""
-        CopyString_unk(arg.mName, "\0");
-        arg.mFlag = 1;
-        m50 = fn_803B27F8(this, &arg);
+        GameLoadTask::Option arg("\0", 1);
+        m50 = GameLoadTask::fn_803B27F8(this, arg);
     } else if (data->mD60 == 0) {
-        ((GameSaveLoadCommon*)data)->fn_803B8758(-1);
+        data->fn_803B8758(-1);
     }
     m50->mD64 = 0;
 }
@@ -281,7 +263,7 @@ void CampSaveLoad::fn_8011979C() {
                 if (mMode == 0) {
                     m4C->fn_803B7FC8(m128);
                 } else {
-                    fn_803B3270(m50, m128);
+                    m50->fn_803B3270(m128);
                 }
                 fn_80119030(5, 0);
                 fn_80117228(1);
@@ -292,7 +274,7 @@ void CampSaveLoad::fn_8011979C() {
                 if (mMode == 0) {
                     m4C->fn_803B807C(m128);
                 } else {
-                    fn_803B3310(m50, m128);
+                    m50->fn_803B3310(m128);
                 }
                 fn_80119030(5, 0);
                 fn_80117228(1);
