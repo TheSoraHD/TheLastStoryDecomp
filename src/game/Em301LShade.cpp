@@ -421,11 +421,8 @@ Em301LShade::Em301LShade(atn::Task* parent, EnemyInfo_unk* info)
     m1644.clear();
 }
 
-// NONMATCHING: 0% - inline budget: the original calls every inline candidate out of line (Csv ctor,
-// FindPlace_unk, the three push_back, GetNodeMtx_unk, IsSet_unk), ours inlines them all. With an extra
-// candidate of about 50 statements the body comes out at 99.16% (only the names of the push_back weak
-// copies, fn_80244CCC/fn_80244FC0, differ), so the original has more inline code somewhere (open case,
-// as LoadSeTableTask::vf0C in docs/inlining.md). Tried: the reading in an inline helper.
+// The original is over the inline budget (asserts of ShadeFlag_unk::IsSet_unk) and calls every inline
+// candidate out of line (Csv ctor, FindPlace_unk, the three push_back, GetNodeMtx_unk, IsSet_unk).
 int Em301LShade::vf0C() {
     if (fn_8013655C() == 0 && m1514.IsLoading() == 0 && m1520.IsLoading() == 0 &&
         m1548.IsLoading() == 0 && m1554.IsLoading() == 0 && m157C.IsLoading() == 0 &&
@@ -519,6 +516,11 @@ int Em301LShade::vf0C() {
     }
     return 0;
 }
+
+// push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
+// behind vf0C and its "vector length error" goes to the pool before the literals of the next functions
+template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
+template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
 // NONMATCHING: draft
 void Em301LShade::vf10() {
