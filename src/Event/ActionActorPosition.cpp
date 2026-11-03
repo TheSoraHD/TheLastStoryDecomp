@@ -38,14 +38,14 @@ inline int ActionParam_unk::GetIndex_unk() const {
     return m04.i;
 }
 
-inline IdList_unk<Actor_unk>* EventManager_unk::GetActors_unk() {
+inline DataList_unk<Actor_unk>* EventManager_unk::GetActors_unk() {
     return &m164;
 }
 
 template <class T>
-T* IdList_unk<T>::Find_unk(int id) {
-    for (int i = 0; i < mSize; i++) {
-        T* p = &mData[i];
+T* DataList_unk<T>::Find_unk(int id) {
+    for (int i = 0; i < (int)this->size(); i++) {
+        T* p = &this->mData[i];
         if (id == p->m14) {
             return p;
         }
@@ -230,8 +230,6 @@ extern "C" int fn_80224618(ActionOwner_unk* section); // inferred: section->m10 
 extern "C" int fn_80223EB8(Action* arg);              // inferred: arg->m18 (length in frames)
 extern "C" EventStep_unk* fn_8000DB1C();              // inferred: returns lbl_8087F540
 extern "C" float fn_8048BD04(EventStep_unk* step, int curve, float t); // inferred: value of a move curve
-extern "C" atn::Vector3 fn_80541BD8(EventManager_unk* manager, const atn::Vector3& pos); // inferred: event to world
-extern "C" float fn_80541CF0(EventManager_unk* manager, float yaw); // inferred: event to world yaw
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
 
 // inferred: step of `cur` towards `goal` in `frames` frames (name invented)
@@ -298,7 +296,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         int keepLocal = fn_80224610(arg->GetParamAt_unk(6));
         int addRot = fn_80224610(arg->GetParamAt_unk(10));
         if (target->IsState6_unk()) {
-            offset = fn_80541BD8(manager, offset);
+            offset = manager->fn_80541BD8(offset);
         }
         atn::Vector3 pos = target->fn_80010374();
         atn::Vector3 cur = actor->fn_80010374();
@@ -322,7 +320,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
             rot = arg->fn_80538C14(7);
             fn_DegToRad_unk(&rot.x);
             if (target->IsState6_unk()) {
-                rot.y = fn_80541CF0(manager, rot.y);
+                rot.y = manager->fn_80541CF0(rot.y);
             }
             if (addRot != 0 && node == 0) {
                 rot += arg->fn_80538C14(14);
@@ -397,14 +395,14 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         // along the path of the actor
         if (arg->GetParamAt_unk(1)->GetIndex_unk() != -1) {
             float u = Clamp_unk(1.0f - t / (float)fn_80223EB8(arg), 0.0f, 1.0f);
-            atn::Vector3 world = fn_80541BD8(manager, actor->GetPathPos_unk(u));
+            atn::Vector3 world = manager->fn_80541BD8(actor->GetPathPos_unk(u));
             actor->fn_8001011C(world);
             int turn = arg->GetParamAt_unk(2)->GetMode_unk();
             if (turn != 0) {
                 float u0 = Clamp_unk(u - 0.001f, 0.0f, 1.0f);
                 float u1 = Clamp_unk(0.001f + u, 0.0f, 1.0f);
-                atn::Vector3 a = fn_80541BD8(manager, actor->GetPathPos_unk(u0));
-                atn::Vector3 b = fn_80541BD8(manager, actor->GetPathPos_unk(u1));
+                atn::Vector3 a = manager->fn_80541BD8(actor->GetPathPos_unk(u0));
+                atn::Vector3 b = manager->fn_80541BD8(actor->GetPathPos_unk(u1));
                 if (turn == 1) {
                     actor->fn_80011420((b - a).ToRotation_unk().y);
                 } else if (turn == 2) {
@@ -421,7 +419,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         atn::Vector3 pos = target->fn_80010374();
         atn::Vector3 offset = arg->fn_805381F0(3);
         if (target->IsState6_unk()) {
-            offset = fn_80541BD8(manager, offset);
+            offset = manager->fn_80541BD8(offset);
         }
         atn::Model* model = fn_8001296C(target);
         if (model != 0) {
@@ -462,7 +460,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         atn::Vector3 rot = arg->fn_80538C14(3);
         fn_DegToRad_unk(&rot.x);
         if (target->IsState6_unk()) {
-            rot.y = fn_80541CF0(manager, rot.y);
+            rot.y = manager->fn_80541CF0(rot.y);
         }
         atn::Vector3 cur = actor->GetRot_unk();
         if (addRot != 0 && node == 0) {
@@ -510,8 +508,8 @@ extern "C" int fn_8048B3B8(EventStep_unk* step, int id);    // inferred: move cu
 extern "C" void fn_8048C884(EventStep_unk* step, int curve); // inferred: releases a move curve
 
 inline Path* EventManager_unk::FindPath_unk(int id) {
-    for (int i = 0; i < m154.mSize; i++) {
-        Path* path = &m154.mData[(unsigned int)i];
+    for (int i = 0; i < (int)m154.size(); i++) {
+        Path* path = &m154[(unsigned int)i];
         if (id == path->m14) {
             return path;
         }
@@ -644,7 +642,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
             Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(1)->m04.i);
             if (target->m20 == 6) {
                 arg->fn_80538DC4(3);
-                float yaw = fn_80541CF0(manager, atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f));
+                float yaw = manager->fn_80541CF0(atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f));
                 float deg = 57.29578f * yaw;
                 ActionParam_unk* p = arg->GetParam_unk(8);
                 p->m00 = 3;
@@ -818,7 +816,7 @@ void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vec
     } else {
         atn::Vector3 pos = arg->fn_805381F0(2);
         if (target->m20 == 6) {
-            pos = fn_80541BD8(manager, pos);
+            pos = manager->fn_80541BD8(pos);
         }
         actor->fn_80012D34(target, node, pos, mode, *cur, 0, weight, 0.0f);
     }

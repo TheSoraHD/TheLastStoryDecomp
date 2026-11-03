@@ -24,6 +24,7 @@ struct ManagerSubTask_unk : public atn::Task {
 // Partial: only what Event/Sequence.cpp uses; member and method names are invented.
 class Manager : public atn::Task {
 public:
+    void fn_8047E528();
     void fn_8047F580();
     void fn_8047F8B0();
     void fn_8047F994(int a, int b);

@@ -24,6 +24,7 @@ class LH_Xsca;
 class LH_Binary;
 class EfpFile;
 class VideoTHP;
+class D2A_Task;
 } // namespace atn
 
 namespace Event {
@@ -61,7 +62,7 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    atn::Task* m18; // inferred: d2anime task
+    atn::D2A_Task* m18; // inferred: d2anime task
     int m1C;
 };
 

@@ -11,10 +11,11 @@
 #include "atn/VideoTHP.h"
 #include "std/string_members.h"
 #include "atn/DrawHelper.h"
+#include "atn/D2A_Task.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
+extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
 extern "C" void fn_800D2338(atn::Task* task);                                     // inferred: deletes a task
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
 extern "C" std::string fn_8006B174(const std::string& path);          // inferred: file name of a path

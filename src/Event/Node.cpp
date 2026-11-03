@@ -7,7 +7,6 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: event position to world (Event/Sequence, also used by game/PathData_unk)
-extern "C" atn::Vector3 fn_80541BD8(Event::EventManager_unk* manager, const atn::Vector3& pos);
 extern "C" float fn_80011964(Event::Actor_unk* actor); // inferred: yaw of the actor
 
 namespace Event {
@@ -76,7 +75,7 @@ atn::Vector3 Action::fn_805382BC(int n) {
     v.y = GetParamAt_unk(n + 2)->m04.f;
     v.z = GetParamAt_unk(n + 3)->m04.f;
     if (actor->m20 == 6) {
-        return fn_80541BD8(manager, v);
+        return manager->fn_80541BD8(v);
     }
     Mtx m;
     PSMTXRotRad(m, 'y', fn_80011964(actor));
@@ -130,7 +129,7 @@ void Action::fn_80538DC4(int n) {
     v.x = GetParamAt_unk(n)->m04.f;
     v.y = GetParamAt_unk(n + 1)->m04.f;
     v.z = GetParamAt_unk(n + 2)->m04.f;
-    v = fn_80541BD8(fn_805381C8(), v);
+    v = fn_805381C8()->fn_80541BD8(v);
     SetTyped_unk(n, 4, v.x);
     SetTyped_unk(n + 1, 5, v.y);
     SetTyped_unk(n + 2, 6, v.z);

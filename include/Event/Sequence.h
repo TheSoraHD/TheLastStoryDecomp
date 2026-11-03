@@ -2,7 +2,6 @@
 #define EVENT_SEQUENCE_H
 
 #include "atn/Task.h"
-#include "atn/D2A_Task.h"
 #include "atn/LH_Binary.h"
 #include "atn/Array_unk.h"
 #include "atn/SoundRef.h"
@@ -17,12 +16,15 @@
 #include "Event/Path.h"
 #include "Event/StringData.h"
 #include "Event/DummyData.h"
-#include "Event/Behavior.h"
+#include "Event/Actor.h"
 #include "game/IntVector_unk.h"
 #include "game/ResRef_unk.h"
 #include "game/GameMessageList.h"
 
 class GameMessageWindow;
+namespace atn {
+class D2A_Task;
+}
 
 // inferred: assertions compiled out (they only count for the inlining budget)
 #define SEQ_ASSERT_UNK(x) ((void)0)
@@ -72,6 +74,9 @@ public:
         SEQ_ASSERT100_UNK;
     }
     void SetOwner_unk(Sequence* owner);
+    // inferred: entry with the id `id` (template member emitted at the end of Event/ActionActorPosition.cpp,
+    // 0x8055A400; defined there)
+    T* Find_unk(int id);
     // inferred: all the data of the list is loaded (inlined in Event::Sequence::fn_8054011C)
     bool IsLoaded_unk() {
         for (int i = 0; i < (int)this->size(); i++) {
@@ -102,14 +107,7 @@ public:
     unsigned char m18[0x48 - 0x18];
 };
 
-// inferred: object of a screen effect slot (only its text m08 is read)
-struct ScreenEffectObj_unk {
-    int m00;
-    int m04;
-    const wchar_t* m08;
-};
-
-// inferred: screen effect slot of the sequence (0x24 bytes, four at 0x1F0; names invented)
+// inferred: message slot of the sequence (0x24 bytes, four at 0x1F0; names invented)
 struct ScreenEffect_unk {
     void Reset_unk() {
         m00 = 0;
@@ -123,7 +121,7 @@ struct ScreenEffect_unk {
         m20 = 0;
     }
 
-    struct ScreenEffectObj_unk* m00; // inferred: the effect (its m08 is passed to fn_80541588)
+    GameMessage* m00; // inferred: the message shown (its text is drawn by fn_80541588)
     float m04;           // inferred: start frame
     float m08;           // inferred: length in frames
     float m0C;
@@ -159,7 +157,7 @@ struct SequenceState_unk {
 // inferred: entry of the "ContinueEffectList" array (8 bytes)
 struct ContinueEffect_unk {
     int m00;
-    int m04;
+    void* m04; // inferred: owner of the effect (an action)
 };
 
 // inferred: event sequence (Event/Sequence.cpp, 0x2C8 bytes): a task that owns the cuts and the data of
@@ -195,8 +193,8 @@ public:
     void fn_8054136C(int label);
     void fn_80541520(int index, int frame);
     void fn_80541534(int index, int frame);
-    void fn_80541548(int slot, ScreenEffectObj_unk* obj, float start, float length, float a, float b, int c, int d,
-                     int e, unsigned int flags);
+    void fn_80541548(int slot, GameMessage* msg, unsigned int kind, int style, int size, unsigned int flags,
+                     float start, float length, float speed0, float speed1);
     void fn_80541588(const wchar_t* text, float x, float y, int show, int align, unsigned int color,
                      unsigned int flags, float alpha);
     atn::Vector3 fn_80541BD8(const atn::Vector3& pos);
@@ -208,17 +206,20 @@ public:
     void fn_80542684();
     void fn_805428A8();
     EffectLists_unk* fn_80543060(int id);
-    void fn_805430A0(unsigned int index, int key, int id);
-    int fn_805430BC(unsigned int index, int key);
+    void fn_805430A0(unsigned int index, int key, void* owner);
+    void* fn_805430BC(unsigned int index, int key);
 
     // inferred: inline helpers (names invented)
     unsigned int GetFlag7_unk() const { return m98_7; }
     unsigned int GetFlag15_unk() const { return (m98 >> 16) & 1; }
     bool IsCutIndex_unk(int i) const { return i >= 0 && i < (int)mB8.size(); }
     inline Cut* FindCutByIndex_unk(int index); // inferred: defined in Event/Sequence.cpp
+    // inferred: lookup of a path by id (inlined in ActionActorPosition::vf0C; defined there)
+    inline Path* FindPath_unk(int id);
+    inline DataList_unk<Actor_unk>* GetActors_unk(); // inferred: weak copy 0x80551D20 (Event/ActionActorPosition.cpp)
     Actor_unk* FindActor_unk(int id) {
-        for (int i = 0; i < (int)m164.size(); i++) {
-            Actor_unk* actor = &m164[(unsigned int)i];
+        for (int i = 0; i < (int)m164.mSize; i++) {
+            Actor_unk* actor = &m164.mData[(unsigned int)i];
             if (id == actor->m14) {
                 return actor;
             }

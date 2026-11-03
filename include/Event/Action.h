@@ -9,7 +9,8 @@ namespace Event {
 
 class Channel;
 struct ActionOwner_unk;
-struct EventManager_unk;
+class Sequence;
+typedef Sequence EventManager_unk; // inferred: the event manager of the actions is the sequence (Event/Sequence.h)
 
 // inferred: action of a channel (0x40 bytes, vtable 0x80793AB0, defined in Event/Node)
 // inferred: parameter of an action (8 bytes)

@@ -24,7 +24,7 @@ Event/EventCommandDef_unk.cpp:
 Event/Puppeteer_CharaTask.cpp:
 	.text       start:0x8000CBD0 end:0x800142C4
 	.rodata     start:0x8072F890 end:0x8072FA00
-	.data       start:0x807759B0 end:0x80775A20
+	.data       start:0x807759B0 end:0x80775AE0
 	.sdata      start:0x8087D6C8 end:0x8087D6DC
 	.sdata2     start:0x80880668 end:0x808806A0
 

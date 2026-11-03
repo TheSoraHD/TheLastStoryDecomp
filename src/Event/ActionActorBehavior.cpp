@@ -6,8 +6,6 @@
 extern "C" int fn_805510F8();
 extern "C" int fn_80551100();
 
-extern "C" void fn_8053EF70(void* self);
-extern "C" void fn_8053F6EC(void* self);
 extern "C" void fn_8054FBC8(void* self);
 
 extern "C" void* lbl_8087F540;
@@ -20,15 +18,11 @@ extern "C" void fn_8047F850(void* object, int start, int colorStart, int colorEn
 extern "C" void fn_8047F88C(void* object, int frame);
 extern "C" void fn_8047F994(void* object, int arg1, int arg2);
 extern "C" void fn_8047F984(void* object, float value);
-extern "C" int fn_8054011C(void* self);
-extern "C" void* fn_80541210(void* self);
 extern "C" int fn_8010DB54(int eventId);
 extern "C" void* lbl_807C9140[];
 extern "C" void* lbl_8087F8B0;
 void operator delete(void* ptr);
 extern "C" void fn_80550A78(void* self);
-extern "C" int fn_80541198(void* self);
-extern "C" void fn_80541520(void* self, int target, int flags);
 extern "C" void fn_8054FAD4(void* self);
 extern "C" void fn_8054FB10(void* self, int mark);
 extern "C" void fn_8054F9DC(void* self);
@@ -38,8 +32,6 @@ extern "C" void fn_80481A20(void* manager);
 extern "C" void fn_80489A50(void* manager, int arg1, int arg2);
 extern "C" void fn_80488DB8(void* manager);
 extern "C" void fn_8048F9B0(void* manager, void* event);
-extern "C" int fn_80541198(void* self);
-extern "C" void fn_80541520(void* self, int target, int flags);
 extern "C" void fn_80484FBC(void* manager);
 extern "C" void fn_804870F4(void* manager);
 extern "C" void fn_80486F50(void* manager);
@@ -71,12 +63,12 @@ extern "C" void fn_8054F9DC(void* self) {
     if (state == 4) {
         flags |= 0x00300000;
     } else if (state == 5) {
-        fn_8053F6EC(self);
+        static_cast<Event::Sequence*>(self)->fn_8053F6EC();
         flags |= 0x00100000;
     } else if (state == 6) {
         flags |= 0x00100000;
     } else if (state == 8 || state == 14) {
-        if (fn_8054011C(self)) {
+        if (static_cast<Event::Sequence*>(self)->fn_8054011C()) {
             *reinterpret_cast<float*>(bytes + 0x198) = lbl_80887E20;
             *reinterpret_cast<float*>(bytes + 0x19C) = lbl_80887E20;
             static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(9);
@@ -125,7 +117,7 @@ extern "C" void fn_8054FB10(void* self, int mark) {
 // NONMATCHING: 81.67% - MWCC combines the bit extraction with a record-form instruction.
 extern "C" void fn_8054FBC8(void* self) {
     if (((*reinterpret_cast<unsigned int*>(static_cast<unsigned char*>(self) + 0x98) >> 16) & 1) != 0) {
-        fn_8053EF70(self);
+        static_cast<Event::Sequence*>(self)->fn_8053EF70();
     }
 }
 
@@ -171,7 +163,7 @@ extern "C" void fn_8054FBE0(void* self, int dispatch) {
         int id = *reinterpret_cast<int*>(object + 0x190);
         bool clearFlag = id == 0x5E7 || id == 0x841;
         if (id == 0xE14 || id == 0x151E) {
-            unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+            unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
             int type = event == 0 ? -1 : *reinterpret_cast<int*>(event + 0x0C);
             clearFlag = id == 0xE14 ? type == 0 : type == 3;
         }
@@ -189,7 +181,7 @@ extern "C" void fn_8054FBE0(void* self, int dispatch) {
 // NONMATCHING: 59.98% - camera transition timing and colors reconstructed from the event mode and frame checks.
 extern "C" void fn_8054FFE0(void* self) {
     unsigned char* object = static_cast<unsigned char*>(self);
-    unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+    unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
     if (event != 0) {
         int mode = *reinterpret_cast<int*>(object + 0x50);
         if (mode == 1 || mode == 3) {
@@ -418,7 +410,7 @@ void Event::Sequence::fn_80550254() {
 // is inferred from the field accesses at 0x80550A78.
 extern "C" void fn_80550A78(void* self) {
     unsigned char* object = static_cast<unsigned char*>(self);
-    unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+    unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
     if (event == 0) {
         return;
     }
@@ -487,7 +479,7 @@ extern "C" void fn_80550CE0(void* self) {
     unsigned char* object = static_cast<unsigned char*>(self);
     int stop = 0;
     for (int eventIndex = 0; !stop; ++eventIndex) {
-        unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+        unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
         if (event == 0 || eventIndex >= *reinterpret_cast<int*>(event + 0x40)) {
             break;
         }
@@ -559,8 +551,8 @@ extern "C" void fn_80550CE0(void* self) {
                     break;
                 }
             }
-            int target = fn_80541198(self);
-            fn_80541520(self, target, 0);
+            int target = static_cast<Event::Sequence*>(self)->fn_80541198(0);
+            static_cast<Event::Sequence*>(self)->fn_80541520(target, 0);
         }
 
         int mode = *reinterpret_cast<int*>(object + 0x1B0);

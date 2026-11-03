@@ -480,7 +480,7 @@ void Sequence::vf14() {
             } else if (frame > end - 5.0f && !(m1F0[i].m20 & 0x1000000)) {
                 t = (end - frame) / 5.0f;
             }
-            fn_80541588(m1F0[i].m00->m08, m1F0[i].m0C, m1F0[i].m10, m1F0[i].m14, m1F0[i].m18, m1F0[i].m1C, m1F0[i].m20, t);
+            fn_80541588(m1F0[i].m00->mText, m1F0[i].m0C, m1F0[i].m10, m1F0[i].m14, m1F0[i].m18, m1F0[i].m1C, m1F0[i].m20, t);
         }
     }
     if (m98_6 == 1) {
@@ -884,17 +884,17 @@ void Sequence::fn_80541534(int index, int frame) {
     m1B8 = frame;
 }
 
-void Sequence::fn_80541548(int slot, ScreenEffectObj_unk* obj, float start, float length, float a, float b, int c,
-                           int d, int e, unsigned int flags) {
+void Sequence::fn_80541548(int slot, GameMessage* msg, unsigned int kind, int style, int size, unsigned int flags,
+                           float start, float length, float speed0, float speed1) {
     ScreenEffect_unk& effect = m1F0[slot];
-    effect.m00 = obj;
+    effect.m00 = msg;
     effect.m04 = start;
     effect.m08 = length;
-    effect.m0C = a;
-    effect.m10 = b;
-    effect.m14 = c;
-    effect.m18 = d;
-    effect.m1C = e;
+    effect.m0C = speed0;
+    effect.m10 = speed1;
+    effect.m14 = kind;
+    effect.m18 = style;
+    effect.m1C = size;
     if (effect.m20 & 0x1000000) {
         flags |= 0x2000000;
     }
@@ -1104,21 +1104,21 @@ EffectLists_unk* Sequence::fn_80543060(int id) {
 }
 
 // inferred: sets the continue effect `index`
-void Sequence::fn_805430A0(unsigned int index, int key, int id) {
+void Sequence::fn_805430A0(unsigned int index, int key, void* owner) {
     if (index > 3) {
         return;
     }
     ContinueEffect_unk& effect = m294[index];
     effect.m00 = key;
-    effect.m04 = id;
+    effect.m04 = owner;
 }
 
 // inferred: id of the continue effect `index` with the key `key` (-1 if none)
-int Sequence::fn_805430BC(unsigned int index, int key) {
+void* Sequence::fn_805430BC(unsigned int index, int key) {
     if (index <= 3 && key == m294[index].m00) {
         return m294[index].m04;
     }
-    return -1;
+    return (void*)-1;
 }
 
 // TAIL: the functions below come after all the others of the file
