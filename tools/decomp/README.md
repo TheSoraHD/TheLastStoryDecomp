@@ -47,3 +47,15 @@ symbol is still `fn_<ADDR>` but our code uses a real name.
 - `gap.py <report.json>`: unidades con más 100% en report.json que en objdiff (candidatas a pairdata).
 - `blonly.py`: funciones que solo fallan por el destino de llamadas (`bl X | bl Y`) y nombres de etiquetas.
 - `tomethod.py FN fichero...`: convierte llamadas `extern "C" FN(obj, ...)` en `obj->FN(...)`.
+
+## Escaneos rápidos (2026-11-03, `solo-20261103`)
+
+Sin argumentos recorren todas las unidades del juego sin enlazar que tienen fuente (~1 min cada uno; una llamada a objdiff por unidad). Repetirlos tras cada lote.
+
+- `symdiff.py [unidad...]`: funciones < 100% cuyas diferencias son solo nombres de símbolos (llamadores `extern "C"` de métodos con nombre mangled en `symbols.txt`, `@N` desfasadas → `pd.sh`, copias débiles aún `fn_`).
+- `missbl.py [unidad...]`: el original llama con `bl` a una función del mismo tramo que nosotros inlineamos → `noinl.sh`, receta del presupuesto de inlining o corte de fichero si las funciones siguientes del original sí la inlinean.
+- `sizepair.py [unidad...]`: propone nombres para `fn_XXXXXXXX` sin pareja emparejando por tamaño con nuestros símbolos sin pareja (solo propuestas: aplicar, compilar y quedarse con las que dan 100%).
+- `rep100.py [unidad...]`: funciones que `report.json` da al 100% y objdiff no (no cuentan, regla 1).
+- `tomember.py <func> <ficheros...>`: convierte llamadas `func(obj, ...)` de una `extern "C"` con `self` en llamadas a método y quita la declaración (revisar el diff).
+- `noinl.sh <unidad> <Clase::metodo>`: prueba `__declspec(noinline)` en esa definición y muestra el cambio de `fnstat`.
+- `scanlib.py`: funciones comunes.
