@@ -1,4 +1,5 @@
 #include "chr/ControlDive.h"
+#include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
@@ -24,9 +25,6 @@ extern "C" float fn_8010CA3C(void* obj, float f);
 extern "C" void fn_801065E4(void* obj, CharaTask* chara);
 extern "C" void fn_8010653C(void* obj, CharaTask* chara, void* motion);
 
-// inferred: voice/sound player (lbl_8087F498); fn_803EA77C plays voice `id` of a character
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 // inferred: game state (lbl_8087EFA8): m3A4 is the time scale
 struct DiveGameState_unk {
@@ -89,7 +87,7 @@ ControlDive::ControlDive(Chara_unk* chara, const atn::Vector3& dir) : ControlBas
         mChara->m570 = 1.2f;
     }
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0, 0, 1.0f, 10.0f);
     }
 }
 
@@ -205,7 +203,7 @@ ControlSwapPos::ControlSwapPos(Chara_unk* chara, const atn::Vector3& dir) : Cont
     chara->m560 = 0x3F;
     PlayDiveMotion_unk(&mChara->mMotion, 0x62, 1.0f);
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xC, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xC, 0, 1.0f, 10.0f);
     }
 }
 
@@ -273,7 +271,7 @@ ControlBackStep::ControlBackStep(Chara_unk* chara, const atn::Vector3& dir, int 
         mChara->mRot = dir2.ToRotation_unk();
     }
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xC, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xC, 0, 1.0f, 10.0f);
     }
 }
 

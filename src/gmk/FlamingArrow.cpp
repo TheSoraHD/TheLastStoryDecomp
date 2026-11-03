@@ -59,12 +59,6 @@ struct ArrowMtx_unk {
 extern "C" void fn_800F80A8(ArrowMtx_unk* mtx, const atn::Vector3* pos);
 extern "C" void fn_800F80B8(ArrowMtx_unk* mtx, const atn::Vector3* rot);
 extern "C" void fn_80316E38(atn::Model* model, ArrowMtx_unk* mtx);
-// inferred: callback object passed to atn::Model::CalcMatrixStack (0x14 bytes, constructor and destructor out of line)
-struct ArrowCallback_unk {
-    unsigned char m00[0x14];
-};
-extern "C" void fn_80317034(ArrowCallback_unk* callback, int arg);
-extern "C" void fn_8000D3A8(ArrowCallback_unk* callback, int arg);
 // inferred: color (class unknown)
 struct ArrowColor_unk {
     float r, g, b, a;

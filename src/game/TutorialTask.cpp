@@ -30,13 +30,18 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 
 // inferred: settings (lbl_8087F0A8); only the members used here
-struct TutorialSettings_unk {
+struct Settings_unk {
+    Input_unk* fn_80116BAC() { return &mInput; } // inferred: weak copy 0x80116BAC
     unsigned char m000[0x484];
     float m484;         // inferred: offset of the popups
     unsigned char m488[0x48C - 0x488];
     Input_unk mInput;   // 0x48C
 };
-extern "C" TutorialSettings_unk* lbl_8087F0A8;
+extern "C" Settings_unk* lbl_8087F0A8;
+// inferred: accessor of the settings (weak copy 0x800F52F8 of another file)
+extern "C" inline Settings_unk* fn_800F52F8() {
+    return lbl_8087F0A8;
+}
 extern "C" void* lbl_8087EF70; // inferred: pad
 
 class HomeButtonMenu {
@@ -187,6 +192,10 @@ struct TutorialField_unk {
     int m563C;
 };
 extern "C" TutorialField_unk* lbl_8087F430;
+// inferred: accessor of the field (weak copy 0x80121F00 of another file)
+extern "C" inline TutorialField_unk* fn_80121F00() {
+    return lbl_8087F430;
+}
 struct TutorialScene_unk;
 extern "C" TutorialScene_unk* fn_802F0990();                // inferred: returns lbl_8087EFA8
 extern "C" void fn_80366DF8(TutorialScene_unk* scene, int show); // inferred: shows the HUD
@@ -231,14 +240,17 @@ extern "C" inline int fn_801231B8(SetConfig* config) {
 }
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
-extern "C" inline void fn_800F80A8(atn::Matrix3x4* m, const atn::Vector3* v) {
-    PSMTXTrans(m->m, v->x, v->y, v->z);
+// inferred: translation matrix (weak copy 0x800F80A8 of game/BattleTask.cpp)
+extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, pos->x, pos->y, pos->z);
+    return m;
 }
-extern "C" inline void fn_8008CD50(atn::Matrix3x4* out, const atn::Matrix3x4* a, const atn::Matrix3x4* b) {
-    PSMTXConcat(b->m, a->m, out->m);
-}
-extern "C" inline void fn_8008CD1C(atn::Matrix3x4* out, const atn::Matrix3x4* in) {
-    *out = *in;
+// inferred: a * b (weak copy 0x8008CD50 of atn/Model.cpp)
+inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& b) {
+    atn::Matrix3x4 m;
+    PSMTXConcat(b.m, a.m, m.m);
+    return m;
 }
 extern "C" inline atn::Vector3* fn_803727D4(CharaTask* chara) {
     return &chara->m540;
@@ -268,15 +280,15 @@ inline atn::Quaternion_unk Slerp_unk(const atn::Quaternion_unk& a, const atn::Qu
     return q;
 }
 
-// NONMATCHING: written from the asm; the original is over the inlining budget and calls its inline
-// helpers out of line (the weak copies 0x805BA348/0x805BA920 and 0x805BB50C-0x805BB594 come from here)
+// Over the inlining budget as the original: it calls its inline helpers out of line (the weak copies
+// 0x805BA348/0x805BA920 and 0x805BB50C-0x805BB594 come from here)
 void TutorialTask::vf10() {
     TutorialPage_unk* page = &mPages[mPage];
     switch (mState) {
     case 1:
         if (HasMotion_unk(&page->mMotion.mLoader) && mChara != 0) {
             fn_80366DF8(fn_802F0990(), 1);
-            m84 = m84 + 1.0f;
+            m84 += 1.0f;
             float rate = 1.0f < m84 / 15.0f ? 1.0f : m84 / 15.0f;
             atn::Vector3 pos(page->mPos);
             atn::Vector3 target(page->mTarget);
@@ -294,8 +306,9 @@ void TutorialTask::vf10() {
             atn::Quaternion_unk qa = atn::Quaternion_unk::fn_801498F0(camDir.ToRotation_unk());
             atn::Quaternion_unk qb = atn::Quaternion_unk::fn_801498F0(dir.ToRotation_unk());
             atn::Quaternion_unk qd = Slerp_unk(qa, qb, rate);
+            float lenA;
             float lenB = dir.Length_unk();
-            float lenA = camDir.Length_unk();
+            lenA = camDir.Length_unk();
             atn::Vector3 back(0.0f, 0.0f, fn_800F8524(&lenA, &lenB, rate));
             back.fn_80011410(atn::Matrix3x4::fn_80147A08(qd));
             target = atn::Lerp_unk(*mCamera.GetTarget_unk(), base + target, rate);
@@ -307,11 +320,8 @@ void TutorialTask::vf10() {
             fn_8037F688(&mCamera2, f);
             mCamera2.fn_8004B378();
             *fn_8008B964() = mCamera2;
-            atn::Matrix3x4 trans;
-            fn_800F80A8(&trans, &base);
-            atn::Matrix3x4 world;
-            fn_8008CD50(&world, &rot, &trans);
-            fn_8008CD1C(&trans, &world);
+            atn::Matrix3x4 trans = fn_800F80A8(&base);
+            trans = MulMtx_unk(rot, trans);
             fn_80372754(&trans, fn_803727D4(mChara));
             fn_80316E38(mChara->GetModel_unk(), &trans);
             mChara->GetModel_unk()->fn_80097C08(0, mPage + 0xEA, 1, 0, 1, 0.0f, 0.1f);
@@ -354,15 +364,15 @@ void TutorialTask::vf10() {
                     SetVideoState4_unk(page->mVideo);
                 }
                 if (page->mVideoLayout != 0) {
-                    page->mVideoLayout->SetFrame_unk((float)page->mVideo->vf30());
+                    page->mVideoLayout->SetFrame_unk((float)(unsigned int)page->mVideo->vf30());
                 }
             }
             if (end) {
                 if (mPages[mPage].mType == 1) {
-                    if (lbl_8087F0A8->mInput.fn_801231D0(0x25)) {
+                    if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x25)) {
                         fn_80122280(GetSetConfig_unk())->m04 = 0;
                     }
-                    if (lbl_8087F0A8->mInput.fn_801231D0(0x26)) {
+                    if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x26)) {
                         fn_80122280(GetSetConfig_unk())->m04 = 1;
                     }
                     m5B4 = fn_801231B8(GetSetConfig_unk()) == 0;
@@ -370,24 +380,24 @@ void TutorialTask::vf10() {
                 int next = 0;
                 if (page->mVideo != 0) {
                     if (m5BC == 0) {
-                        if (lbl_8087F0A8->mInput.fn_801231D0(0x29)) {
+                        if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x29)) {
                             m5BC = 1;
                         }
                         if (atn::Keyboard::Order() != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B1)) {
                             m5BC = 1;
                         }
                     } else {
-                        if (lbl_8087F0A8->mInput.fn_801231D0(0x2A)) {
+                        if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x2A)) {
                             next = 1;
                         }
                         if (atn::Keyboard::Order() != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B1)) {
                             next = 1;
-                        } else if (lbl_8087F0A8->mInput.fn_801231D0(1)) {
+                        } else if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(1)) {
                             m5BC = 0;
                         }
                     }
                 } else {
-                    if (lbl_8087F0A8->mInput.fn_801231D0(0)) {
+                    if (fn_800F52F8()->fn_80116BAC()->fn_801231D0(0)) {
                         next = 1;
                     }
                     if (atn::Keyboard::Order() != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B1)) {
@@ -409,29 +419,26 @@ void TutorialTask::vf10() {
                     if (m5B8 != 0) {
                         m5B8->vf08(0x12);
                     } else {
-                        lbl_8087F430->SetFadeMode_unk(0x12);
+                        fn_80121F00()->SetFadeMode_unk(0x12);
                     }
                     if (page->mVideo != 0 && page->mVideoLayout != 0) {
                         page->mVideoLayout->FreezeTask();
                     }
                     mState = 3;
-                    return;
                 }
             }
-        } else {
-            return;
         }
         break;
     case 3:
         if (m5B8 != 0) {
             m5B8->vf0C(-1, 0xFFFFFF, 0, 0, 15);
         } else {
-            fn_8037529C(lbl_8087F430, -1, 0xFFFFFF, 0, 0, 15);
+            fn_8037529C(fn_80121F00(), -1, 0xFFFFFF, 0, 0, 15);
         }
         fn_805BBD7C();
         return;
     case 2:
-        m84 = m84 + 1.0f;
+        m84 += 1.0f;
         if (m84 >= 15.0f) {
             fn_80392A04(&mCamera, &mCamera2);
             mPos = mPos2;
@@ -650,7 +657,7 @@ void TutorialPopup::vf10() {
         if (atn::Keyboard::Order() != 0 && atn::Keyboard::Order()->Press(atn::Keyboard::PORT0_unk, 0xF1B1)) {
             mTime = line->mWait;
         }
-        if (lbl_8087EF70 != 0 && lbl_8087F0A8->mInput.fn_801231D0(0x2B) != 0) {
+        if (lbl_8087EF70 != 0 && fn_800F52F8()->fn_80116BAC()->fn_801231D0(0x2B) != 0) {
             mTime = line->mWait;
         }
         if (mTime >= line->mWait) {

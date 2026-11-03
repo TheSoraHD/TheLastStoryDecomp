@@ -1,5 +1,6 @@
 #include "game/NewCampPartsTop.h"
 #include "game/GameScene.h"
+#include "game/GameUI.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -84,15 +85,6 @@ extern "C" void fn_80370F8C(NewCampTopField_unk* field, int a, MP::SaveData_unk*
 extern "C" void fn_803743AC(NewCampTopField_unk* field);
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
-// inferred: game UI (lbl_8087F490)
-struct NewCampTopUI_unk {
-    unsigned char m0000[0x263C];
-    void* m263C;
-    void* m2640;
-};
-extern "C" NewCampTopUI_unk* lbl_8087F490;
-extern "C" void fn_803B57B0(void* p, int arg);
-extern "C" void fn_803B6C88(void* p, int arg);
 extern "C" atn::Task* lbl_8087F8A0;
 class EnemyManager {
 public:
@@ -374,8 +366,8 @@ void NewCampPartsTop::vf2C() {
                 if (lbl_8087F430->m10D8 != 0) {
                     ((GameScene*)lbl_8087F430->m10D8)->fn_803CCC70(999999);
                 }
-                fn_803B57B0(lbl_8087F490->m263C, 1);
-                fn_803B6C88(lbl_8087F490->m2640, 1);
+                lbl_8087F490->m263C->fn_803B57B0(1);
+                lbl_8087F490->m2640->fn_803B6C88(1);
                 lbl_8087F8A0->fn_800D246C(1);
                 EnemyManager::sInstance->fn_800D246C(1);
                 NpcManager::sInstance->fn_800D246C(1);

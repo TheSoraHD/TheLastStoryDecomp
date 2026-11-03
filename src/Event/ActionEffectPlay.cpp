@@ -1,4 +1,5 @@
 #include "Event/Behavior.h"
+#include "game/GameVoice.h"
 #include "game/GameBgm.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/Bgm.h"
@@ -20,6 +21,7 @@
 #include "atn/RenderView_unk.h"
 #include "atn/Sphere.h"
 #include "Event/Dialog.h"
+#include "game/GameChoiceWindow.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -326,27 +328,9 @@ inline AudioEntry_unk* FindAudio_unk(EventManager_unk* manager, int id) {
     return 0;
 }
 
-// inferred: message window of the events (state 2 or 4: open)
-struct MsgChoice_unk {
-    unsigned char m00[0x7C];
-    unsigned int m7C; // inferred: chosen answer
-};
-struct MsgWindow_unk {
-    bool IsOpen_unk() { return m50 == 2 || m50 == 4; }
-    unsigned char m00[0x50];
-    int m50;
-    MsgChoice_unk* m54; // inferred: answers of a choice
-};
 } // namespace Event
 
-extern "C" void* fn_803B3B38(void* table, int id);                              // inferred: message `id`
 
-// inferred: voices of the event (lbl_8087F498, game/GameVoice)
-extern "C" void* lbl_8087F498;
-extern "C" int fn_803EB2A4(void* mgr, const char* name); // inferred: nonzero if the voice is loaded
-extern "C" atn::SoundRef fn_803EA09C(void* mgr, CharaTask* chara, const char* name, int a, int b, int c,
-                                     float volume); // inferred: voice spoken by a character (lip sync)
-extern "C" atn::SoundRef fn_803E9608(void* mgr, const char* name, int a, int b, float volume);
 extern "C" void fn_80489A2C(EventEffects_unk* manager); // inferred: loads the missing event voices
 extern "C" void fn_80489A50(EventEffects_unk* manager, Event::Action* action, int arg);
 // inferred: text of the dialog balloons (atn, lbl_8087F008); the type is the one of Event/Dialog.cpp
@@ -355,18 +339,7 @@ extern "C" DialogTextMgr_unk* lbl_8087F008;
 extern "C" void fn_800DBC1C(DialogTextMgr_unk* mgr); // inferred: shows all the texts at once
 extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context); // inferred: wcstok
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
-// inferred: message of the event table (fn_803B3B38): its text at 0x08
-struct MsgText_unk {
-    unsigned char m00[0x08];
-    const wchar_t* m08;
-};
 extern "C" unsigned long wcslen(const wchar_t* s);
-extern "C" void fn_803B5830(Event::MsgWindow_unk* window, void* msg, int arg); // inferred: next message
-extern "C" void fn_803B5774(Event::MsgWindow_unk* window, void* msg, int arg); // inferred: opens with a message
-extern "C" void fn_803B57B0(Event::MsgWindow_unk* window, int arg);            // inferred: closes
-extern "C" void fn_803B58D8(Event::MsgWindow_unk* window, void* msg);          // inferred: opens a choice
-extern "C" void fn_803B57EC(Event::MsgWindow_unk* window);                     // inferred: closes the choice
-extern "C" int fn_803B4C24(Event::MsgChoice_unk* choice);                       // inferred: answered
 extern "C" void fn_8054136C(Event::EventManager_unk* manager, int label);      // inferred: jumps to a label
 extern "C" Event::Cut* fn_80541210(Event::EventManager_unk* manager);           // inferred: current cut
 extern "C" int fn_80541198(Event::EventManager_unk* manager, Event::Cut* cut);  // inferred: index of a cut
@@ -995,8 +968,8 @@ int ActionMessageChoice::vf0C(Action* arg, int phase) {
         }
         arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        void* msg = fn_803B3B38(manager->m1D4, arg->GetParam_unk(0)->m04.i);
-        fn_803B58D8(manager->m1EC, msg);
+        GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(arg->GetParam_unk(0)->m04.i);
+        manager->m1EC->fn_803B58D8(msg);
         break;
     }
     case 3:
@@ -1004,7 +977,7 @@ int ActionMessageChoice::vf0C(Action* arg, int phase) {
         arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         fn_8054136C(manager, arg->GetParam_unk(4)->m04.i);
-        fn_803B57EC(manager->m1EC);
+        manager->m1EC->fn_803B57EC();
         break;
     }
     }
@@ -1012,20 +985,20 @@ int ActionMessageChoice::vf0C(Action* arg, int phase) {
 }
 
 int ActionMessageChoice::vf08(Action* arg) {
-    MsgWindow_unk* window;
+    GameMessageWindow* window;
     arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
     window = manager->m1EC;
-    if (fn_803B4C24(window->m54)) {
+    if (window->mChoices->fn_803B4C24()) {
         int labels[3];
         labels[0] = arg->GetParam_unk(1)->m04.i;
         labels[1] = arg->GetParam_unk(2)->m04.i;
         labels[2] = arg->GetParam_unk(3)->m04.i;
-        unsigned int answer = window->m54->m7C;
+        unsigned int answer = window->mChoices->mChoice;
         if (answer <= 2) {
             fn_8054136C(manager, labels[answer]);
         }
-        fn_803B57EC(window);
+        window->fn_803B57EC();
     }
     return 0;
 }
@@ -1038,21 +1011,21 @@ int ActionMessageWindow::vf0C(Action* arg, int phase) {
         }
         arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        void* msg = fn_803B3B38(manager->m1D4, arg->GetParam_unk(0)->m04.i);
-        MsgWindow_unk* window = manager->m1EC;
-        if (window->IsOpen_unk()) {
-            fn_803B5830(window, msg, 0);
+        GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(arg->GetParam_unk(0)->m04.i);
+        GameMessageWindow* window = manager->m1EC;
+        if (window->IsShown_unk()) {
+            window->fn_803B5830(msg, 0);
         } else {
-            fn_803B5774(window, msg, 0);
+            window->fn_803B5774(msg, 0);
         }
         break;
     }
     case 3:
     case 4: {
         arg->fn_805381A0();
-        MsgWindow_unk* window = arg->fn_805381C8()->m1EC;
-        if (arg->GetParam_unk(1)->m04.i == 0 && window->IsOpen_unk()) {
-            fn_803B57B0(window, 0);
+        GameMessageWindow* window = arg->fn_805381C8()->m1EC;
+        if (arg->GetParam_unk(1)->m04.i == 0 && window->IsShown_unk()) {
+            window->fn_803B57B0(0);
         }
         break;
     }
@@ -1086,7 +1059,7 @@ int ActionMessagePrint::vf0C(Action* arg, int phase) {
             speed0 = lbl_807C8AB0[kind][0];
             speed1 = lbl_807C8AB0[kind][1];
         }
-        void* msg = fn_803B3B38(manager->m1D4, text);
+        GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(text);
         if (kind == 0 && style == 0 && manager->m50 == 3 && lbl_8087F490 != 0 && lbl_8087F490->m2640 != 0) {
             lbl_8087F490->fn_803E3BE8(msg, arg->m14 - arg->m10, 0.0f);
         } else {
@@ -1335,7 +1308,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         float pitch = arg->GetParam_unk(9)->m04.f;
         int noKeep = arg->GetParam_unk(10)->m04.i;
         int lipSync = arg->GetParam_unk(11)->m04.i;
-        if (fn_803EB2A4(lbl_8087F498, entry->mName.c_str()) == 0) {
+        if (lbl_8087F498->fn_803EB2A4(entry->mName.c_str()) == 0) {
             fn_80489A2C(lbl_8087F540);
         }
         if (lbl_8087F0A8->mVoiceLimitLevel >= 3) {
@@ -1349,9 +1322,9 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         }
         if (entry != 0) {
             if (lipSync != 0 && chara != 0) {
-                sound = fn_803EA09C(lbl_8087F498, chara, entry->mName.c_str(), 0, 1, 0, volume);
+                sound = lbl_8087F498->fn_803EA09C(chara, entry->mName.c_str(), 0, 1, 0, volume);
             } else {
-                sound = fn_803E9608(lbl_8087F498, entry->mName.c_str(), 0, 1, volume);
+                sound = lbl_8087F498->fn_803E9608(entry->mName.c_str(), 0, 1, volume);
             }
         }
         fn_80489A50(lbl_8087F540, arg, 0);
@@ -2027,11 +2000,11 @@ int ActionDialogText::vf0C(Action* arg, int phase) {
             int mode = arg->GetParam_unk(5)->m04.i;
             float height = arg->GetParam_unk(6)->m04.f;
             float scale = 1.2f * height;
-            MsgText_unk* msg = (MsgText_unk*)fn_803B3B38(manager->m1D4, id);
+            GameMessage* msg = ((GameMessageTable_unk*)manager->m1D4)->fn_803B3B38(id);
             if (msg != 0) {
                 wchar_t text[256];
                 wchar_t line[256];
-                wcscpy(text, msg->m08);
+                wcscpy(text, msg->mText);
                 int len = wcslen(text);
                 wchar_t* p = text;
                 for (int i = 0; i < len - 1; i++, p++) {

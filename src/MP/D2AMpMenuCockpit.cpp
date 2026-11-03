@@ -1,4 +1,5 @@
 #include "MP/D2AMpMenu_unk.h"
+#include "game/GameVoice.h"
 #include "math/Vec.h"
 #include "atn/Model_unk.h"
 
@@ -95,8 +96,6 @@ extern "C" MpRender_unk* lbl_8087EEE0;
 extern "C" void* lbl_8087EFB4; // inferred: camera
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 
-extern "C" void* lbl_8087F498; // inferred: voice manager
-extern "C" atn::SoundRef fn_803E9608(void* mgr, const char* name, int a, int b, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 struct MpArena_unk {
     unsigned char m0000[0x255C];
@@ -270,12 +269,12 @@ void D2AMpMenuCockpit::fn_804B5360() {
     if (m10C == 0 && m48->mFrame < 45.0f) {
         m10C++;
         if (lbl_8087F498 != 0) {
-            fn_803E9608(lbl_8087F498, "VO_ARCOM_001", 0, 1, 1.0f);
+            lbl_8087F498->fn_803E9608("VO_ARCOM_001", 0, 1, 1.0f);
         }
     } else if (m10C == 1 && m48->mFrame >= 45.0f) {
         m10C++;
         if (lbl_8087F498 != 0) {
-            fn_803E9608(lbl_8087F498, "VO_ARCOM_002", 0, 1, 1.0f);
+            lbl_8087F498->fn_803E9608("VO_ARCOM_002", 0, 1, 1.0f);
         }
     }
     if (m48->IsEnd_unk()) {

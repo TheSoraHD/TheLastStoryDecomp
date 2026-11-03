@@ -1,13 +1,10 @@
 #include "chr/ControlGmkCoffinOpening.h"
+#include "game/GameVoice.h"
 #include "game/CharaTask.h"
 #include <boost/bind.hpp>
 
 extern "C" double atan2(double y, double x);
 
-// inferred: effect manager behind lbl_8087F498 (class unknown)
-struct EffectMgr_unk {};
-extern "C" EffectMgr_unk* lbl_8087F498;
-extern "C" void fn_803EA77C(EffectMgr_unk* mgr, chr::Chara_unk* chara, int id, int arg, float a, float b);
 extern "C" float lbl_8087DA08; // inferred: ground height used by ControlGmkCoffinGetUp
 extern "C" void fn_80547708(void* arg, chr::GmkTarget_unk* target);
 
@@ -85,7 +82,7 @@ ControlGmkCoffinGetUp::ControlGmkCoffinGetUp(Chara_unk* chara, const atn::Vector
     mChara->mRot = rot;
     ((CharaTask*)mChara)->fn_80145334();
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xE, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xE, 0, 1.0f, 10.0f);
     }
 }
 

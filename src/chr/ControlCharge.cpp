@@ -2,6 +2,7 @@
 // its subclasses ControlChargeAttack, ControlHighJumpAttack, ControlQuarkSeirenAttack;
 // ControlZanTackle).
 #include "chr/ControlCharge.h"
+#include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "chr/ControlDive.h"
 #include "game/HitInfo_unk.h"
@@ -89,14 +90,12 @@ extern "C" double sqrt(double x);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
 extern "C" int rand();
-extern "C" void* lbl_8087F498; // inferred: voice manager
 // inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
 struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;
 };
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
-extern "C" void fn_803EA77C(void* voice, CharaTask* chara, int id, int arg, float volume, float arg2);
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
@@ -581,7 +580,7 @@ ControlChargeAttack::ControlChargeAttack(Chara_unk* chara, const atn::Vector3& t
     mChara->mPos = m14;
     motion->mTracks[0].m0C = 1.0f;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -658,7 +657,7 @@ ControlHighJumpAttack::ControlHighJumpAttack(Chara_unk* chara, const atn::Vector
         fn_8010653C(lbl_8087F048, mChara, &mChara->mMotion);
     }
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -776,7 +775,7 @@ ControlQuarkSeirenAttack::ControlQuarkSeirenAttack(Chara_unk* chara, const atn::
         fn_800C31F4(buf, 0, -1, 1.0f);
     }
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x24, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x24, 0, 1.0f, 10.0f);
     }
 }
 

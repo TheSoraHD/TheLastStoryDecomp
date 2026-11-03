@@ -172,9 +172,7 @@ struct DropWeapon_unk {
     unsigned char m7C[0x80 - 0x7C];
     int m80;
 };
-extern "C" int fn_8044909C(void* mgr);
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
-extern "C" int fn_80448F9C(void* mgr, int id);
 extern "C" int fn_80444EFC(CharaTask* chara);
 extern "C" int fn_8021E4E4(int* itemId, int* num, int id, unsigned int flags);
 extern "C" int fn_80450B84(int table, int arg1, int arg2);
@@ -640,7 +638,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         mColor[3] = 1.0f;
         mData = 0;
         if (msg->m0C == 0) {
-            if (fn_8021E4E4(&mItem, &mCount, m154, Inventory::instance_ != 0 ? fn_8044909C(Inventory::instance_) : 0) == 0) {
+            if (fn_8021E4E4(&mItem, &mCount, m154, Inventory::instance_ != 0 ? Inventory::instance_->fn_8044909C() : 0) == 0) {
                 mItem = 0;
                 mCount = 0;
             }
@@ -665,7 +663,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             m17C = 1;
             if (fn_80206B9C(mItem)) {
                 m17C = 0;
-                int chance = fn_80448F9C(Inventory::instance_, mItem);
+                int chance = Inventory::instance_->fn_80448F9C(mItem);
                 if (chance > rand() % 100) {
                     m17C = 1;
                 }

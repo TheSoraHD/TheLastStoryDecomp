@@ -349,3 +349,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Prueba de corte de fichero: con `-ipa file`, una funcion del tramo que llama con `bl` a otra del mismo tramo que las siguientes inlinean esta en otro fichero (GameSaveLoadBackgroundCommon / GameSaveLoadCommon).
 - Diferencias solo de nombres (`R_PPC` con otro simbolo): llamadores `extern "C"` de metodos que `symbols.txt` ya nombra con mangled (`Model::fn_80097CCC`, `SimpleArrayBase_unk::size`, `Matrix3x4::operator=`) y copias de `boost::bind` con nombre `fn_`; un escaneo por unidad las encuentra en segundos.
 - `main.dol: OK` puede venir de un `.dol` viejo si falla el enlace: `pairdata` deja nombres globales duplicados (`sSe`) que hay que marcar `scope:local`.
+- Funcion fuerte no `inline` del mismo fichero llamada una vez: se auto-inlinea y el enlazador la quita; da los registros del original (los locales del inline van antes) y deja sus literales en `@stringBase0` (con `inline` irian a `@STRING@`) (GameVoice StopInvalid_unk).
+- `erase` de un array de structs donde parte de la copia usa un puntero recalculado `this + (i+1)*size`: esa parte es un miembro struct propio (copia implicita anidada) (GameVoiceRequestInfo_unk).
+- Argumentos de llamada que son llamadas: MWCC evalua de derecha a izquierda (`fn_8007A530(data(), size())` llama primero a `size()`); un global usado como primer argumento de una llamada anidada se guarda en un registro salvado si se escribe en una local (`engine = lbl_8087EE90`).
+- `if (!boolCall())` da `beq`; `if (boolCall() == 0)` da `bne` + `b` como el original en GameVoice fn_803EA77C.
+- Cabeceras compartidas: cada declaracion nueva renumera las `@N` de todos sus usuarios; usar `tools/decomp/pdbatch.sh` con todos ellos (un solo `dtk split`).

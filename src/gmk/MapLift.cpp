@@ -84,8 +84,9 @@ GimmickCommon* MapLift::fn_80429668(atn::Task* parent, GimmickDesc_unk* desc) {
     return 0;
 }
 
-// NONMATCHING: 99.90% - the original destroys the motion array with fn_800970CC (a destructor
-// with two null checks, also used by atn::Model::Model) instead of atn::LH_Motion::~LH_Motion.
+// NONMATCHING: 99.90% - the original builds the motion slots with the constructor of LH_Motion and
+// destroys them with the one of atn::MotionSlot_unk (0x800970CC); here the implicit constructor of
+// MotionSlot_unk is called (same problem as atn::Model::Model).
 MapLift::MapLift(atn::Task* parent, GimmickDesc_unk* desc)
     : GimmickCommon(parent, desc->mId, desc->mArg), mDesc(desc), mF8(0), mFC(-1), mPos(0.0f, 0.0f, 0.0f),
       mPrevPos(0.0f, 0.0f, 0.0f) {
@@ -236,7 +237,7 @@ void MapLift::vf10() {
     if (m54 != mF8) {
         int idx = MotionIndex_unk(m54);
         if (idx >= 0 && 7 > idx && mSpeed[idx] < 0.0f) {
-            mFrame = fn_800A08D4(&mMotion[idx]);
+            mFrame = fn_800A08D4(&mMotion[idx].mMotion);
         } else {
             mFrame = 0.0f;
         }
@@ -249,7 +250,7 @@ void MapLift::vf10() {
     int idx = MotionIndex_unk(m54);
     if (idx >= 0 && 7 > idx) {
         mFrame += mSpeed[idx];
-        atn::LH_Motion* motion = &mMotion[idx];
+        atn::LH_Motion* motion = &mMotion[idx].mMotion;
         if (fn_800A08D4(motion) <= mFrame) {
             if (mLoop[idx] != 0) {
                 mFrame -= fn_800A08D4(motion);
@@ -278,7 +279,7 @@ void MapLift::vf14() {}
 
 int MapLift::vf1C() {
     for (int i = 0; i < 7; i++) {
-        if (mMotion[i].fn_800A0448() != 0) {
+        if (mMotion[i].mMotion.fn_800A0448() != 0) {
             return 1;
         }
     }
@@ -298,7 +299,7 @@ void MapLift::vf20() {
         }
         if (strcmp(field, "MOTION") == 0) {
             if (n < 7) {
-                mMotion[n].fn_800A03E4(csv.fn_8005B9CC());
+                mMotion[n].mMotion.fn_800A03E4(csv.fn_8005B9CC());
                 mMotionId[n] = fn_802180A8(csv.fn_8005B9CC());
                 m190[n] = fn_800DC288(csv.fn_8005B9CC());
                 mSpeed[n] = fn_800DC288(csv.fn_8005B9CC());
@@ -376,25 +377,25 @@ void MapLift::fn_8042AE60(int state) {
     switch (state) {
     case 0:
     case 1:
-        fn_800A04A0(&mMotion[0], &mPose, mNode, m26C, 0.0f);
+        fn_800A04A0(&mMotion[0].mMotion, &mPose, mNode, m26C, 0.0f);
         mPos = mPose.mPos;
         fn_8042AB58(&mPos, &mPrevPos);
         mPrevPos = mPos;
         break;
     case 3:
-        fn_800A04A0(&mMotion[0], &mPose, mNode, m26C, fn_800A08D4(&mMotion[0]));
+        fn_800A04A0(&mMotion[0].mMotion, &mPose, mNode, m26C, fn_800A08D4(&mMotion[0].mMotion));
         mPos = mPose.mPos;
         fn_8042AB58(&mPos, &mPrevPos);
         mPrevPos = mPos;
         break;
     case 5:
-        fn_800A04A0(&mMotion[1], &mPose, mNode, m26C, fn_800A08D4(&mMotion[1]));
+        fn_800A04A0(&mMotion[1].mMotion, &mPose, mNode, m26C, fn_800A08D4(&mMotion[1].mMotion));
         mPos = mPose.mPos;
         fn_8042AB58(&mPos, &mPrevPos);
         mPrevPos = mPos;
         break;
     case 9:
-        fn_800A04A0(&mMotion[4], &mPose, mNode, m26C, fn_800A08D4(&mMotion[4]));
+        fn_800A04A0(&mMotion[4].mMotion, &mPose, mNode, m26C, fn_800A08D4(&mMotion[4].mMotion));
         mPos = mPose.mPos;
         fn_8042AB58(&mPos, &mPrevPos);
         mPrevPos = mPos;

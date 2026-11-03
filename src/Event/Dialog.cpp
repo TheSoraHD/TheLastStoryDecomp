@@ -1,4 +1,5 @@
 #include "MP/D2AMpMenu_unk.h"
+#include "game/GameVoice.h"
 #include "math/Vec.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -151,8 +152,6 @@ extern "C" DialogGame_unk* lbl_8087F540;
 extern "C" void fn_80489C98(DialogGame_unk* game);
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void* lbl_8087F498; // inferred: voice manager
-extern "C" void fn_803EBAC8(void* mgr, int a, int b);
 
 // inferred: game settings (lbl_8087F0A8): help/button display at 0x48C
 struct DialogUv_unk {
@@ -570,7 +569,7 @@ void Dialog::fn_80229414() {
                 }
             }
             if (lbl_8087F498 != 0) {
-                fn_803EBAC8(lbl_8087F498, 15, 1);
+                lbl_8087F498->fn_803EBAC8(15, 1);
             }
         }
     }

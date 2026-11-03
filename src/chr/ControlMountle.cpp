@@ -1,6 +1,7 @@
 // Climbing onto a ledge (ControlMountle, ControlMountleQuadruped), onto a guarding character
 // (ControlGuardMountle) or a wall (ControlWallMountle), and the jump towards a ledge (ControlJump).
 #include "chr/ControlMountle.h"
+#include "game/GameVoice.h"
 #include "game/HitInfo_unk.h"
 #include "atn/Memory.h"
 #include "macros.h"
@@ -62,9 +63,6 @@ extern "C" int fn_800F8548(MountleEffect_unk* mgr); // inferred: new bullet id
 extern "C" int fn_800F8C6C(MountleEffect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                            int c, float f); // inferred: deals a hit
 
-// inferred: voice/sound player (lbl_8087F498)
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 // inferred: inline in the original (weak copies 0x8013C3B4, 0x8013C394, 0x8013C38C, 0x8013C460,
 // 0x80139F24, 0x8013C554, 0x80139F3C, defined out of line in game/CharaTask.cpp): inlined by
@@ -144,7 +142,7 @@ ControlMountle::ControlMountle(Chara_unk* chara, const atn::Vector3& dir, float 
     m->fn_80097C08(0, 0x60, 0, 0, 1, 0.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xE, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xE, 0, 1.0f, 10.0f);
     }
     m24 = 9.0f;
     m28 = 5.0f;

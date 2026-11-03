@@ -1,6 +1,7 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
 #include "chr/ControlChant.h"
+#include "game/GameVoice.h"
 #include "game/GameUI.h"
 #include "game/HitInfo_unk.h"
 #include "game/HomingBullet.h"
@@ -89,8 +90,6 @@ extern "C" void fn_8003F030(MagicDamage_unk* result, HitInfo_unk* data, CharaTas
                             const atn::Vector3* rot, int flags);
 extern "C" void fn_80108C10(Effect_unk* effect, MagicDamage_unk* damage, const atn::Vector3& pos, CharaTask* attacker,
                             CharaTask* target, int a, int b);
-extern "C" void* lbl_8087F498; // inferred: voice manager
-extern "C" void fn_803EA77C(void* voice, CharaTask* chara, int id, int arg, float volume, float arg2);
 // inferred: one line of the voice table (defined in atn/ptr_string_base_char_0.cpp)
 struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;
@@ -271,7 +270,7 @@ ControlChant::ControlChant(Chara_unk* chara, CharaTask* target, const atn::Vecto
     }
     lbl_8087F490->fn_803E2110(0, mChara);
     if (lbl_8087F498 && mChara->mType == 3 && (time > 90 || (m3C->mAC & 0x40000) == 0x40000)) {
-        fn_803EA77C(lbl_8087F498, chara, 0x15, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(chara, 0x15, 0, 1.0f, 10.0f);
     }
 }
 
@@ -537,10 +536,10 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
             fn_800C31F4(buf, 0, -1, 1.0f);
         }
         if (lbl_8087F498) {
-            fn_803EA77C(lbl_8087F498, mChara, voice, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(mChara, voice, 0, 1.0f, 10.0f);
         }
     } else if (lbl_8087F498) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x19, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x19, 0, 1.0f, 10.0f);
     }
 }
 
@@ -770,7 +769,7 @@ int ControlMagic::vf0C() {
             }
         }
         if (lbl_8087F498 && (fn_8021A8D0(hit) || fn_8021A918(hit)) && mChara->mType == 2) {
-            fn_803EA77C(lbl_8087F498, 0, 0x1E, 0x1E, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(0, 0x1E, 0x1E, 1.0f, 10.0f);
         }
         if ((fn_8021A8D0(hit) || fn_8021A918(hit)) && lbl_8087F048) {
             CharaTask* chara = mChara;

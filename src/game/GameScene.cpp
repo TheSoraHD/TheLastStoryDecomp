@@ -1,4 +1,5 @@
 #include "game/GameScene.h"
+#include "game/GameVoice.h"
 extern "C" float lbl_80885CCC;
 #include "game/GameEventScript.h"
 #include "game/CrowdManager.h"
@@ -79,9 +80,6 @@ extern "C" void fn_803EC374(atn::Task* parent, gs::Gimmick* gimmick); // inferre
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index); // inferred: creates a gimmick
 extern "C" void fn_8047E5DC(void* mgr, int id);
 extern "C" int fn_8047F268(void* mgr, int id);
-extern "C" void fn_803B3C10(GameMessageTable_unk* table, const char* path); // inferred: loads the messages
-extern "C" int fn_803B3CA8(GameMessageTable_unk* table); // inferred: nonzero while loading
-extern "C" void* fn_803B3B38(void* table, int id); // inferred: message `id`
 // inferred: entry of the save data (8 bytes, game/GameSaveData_unk.cpp)
 struct SaveEntry_unk {
     int m00;
@@ -129,7 +127,8 @@ struct Field_unk {
     unsigned char m10D4[0x54E4 - 0x10D4];
     int m54E4; // inferred: mode (8: no BGM boxes)
     unsigned char m54E8[0x54F4 - 0x54E8];
-    unsigned char m54F4[0x20]; // inferred: common message table (fn_803B3B38)
+    GameMessageTable_unk m54F4; // inferred: common message table (fn_803B3B38)
+    unsigned char m550C[0x5514 - 0x550C];
     int m5514;
     int m5518;
     int m551C;
@@ -157,12 +156,6 @@ struct MapData_unk {
 };
 extern "C" void fn_804A04AC(void* map, int camera, int a, int b, gs::CameraBox* box); // inferred: sets the camera
 
-// inferred: voice manager (lbl_8087F498)
-struct Voice_unk {
-    unsigned char m000[0x10C];
-    int m10C;
-};
-extern "C" Voice_unk* lbl_8087F498;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session
 
 extern "C" EnvSeManager* lbl_8087F418;
@@ -272,7 +265,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     }
     char message[0x100];
     if (MakeScenePath_unk(message, "/game_message/%s_xx.u16", area, map, sub)) {
-        fn_803B3C10(&m11C, message);
+        m11C.fn_803B3C10(message);
     }
     m64 = fn_8049D704(this, area, map, sub);
     if (lbl_8087FA20 != 0) {
@@ -299,9 +292,9 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     }
     if (lbl_8087F498 != 0 && lbl_8087F610 == 0) {
         if (area == 1) {
-            lbl_8087F498->m10C = 2;
+            lbl_8087F498->mNumChannels = 2;
         } else {
-            lbl_8087F498->m10C = 1;
+            lbl_8087F498->mNumChannels = 1;
         }
     }
     if (ArenaTask::fn_800431F4(area, map)) {
@@ -413,7 +406,7 @@ int GameScene::vf0C() {
             }
         }
     } else if (m48 == 1) {
-        if (fn_800D3FA4() && !fn_803B3CA8(&m11C) && GameBgm::sInstance->mState != 2) {
+        if (fn_800D3FA4() && !m11C.fn_803B3CA8() && GameBgm::sInstance->mState != 2) {
             for (unsigned int i = 0; i < m180.size(); i++) {
                 if (m180[i] >= 0) {
                     fn_8047E5DC(lbl_8087F540, m180[i]);
@@ -2251,9 +2244,9 @@ int GameScene::fn_803CC5E4(int type, int id) {
 
 void* GameScene::fn_803CC6B4(int id) {
     if (id < 10000) {
-        return fn_803B3B38(&m11C, id);
+        return m11C.fn_803B3B38(id);
     }
-    return fn_803B3B38(lbl_8087F430->m54F4, id);
+    return lbl_8087F430->m54F4.fn_803B3B38(id);
 }
 
 gs::ConstrainModel* GameScene::fn_803CC6D0(int id) {

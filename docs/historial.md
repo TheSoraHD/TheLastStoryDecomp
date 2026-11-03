@@ -4,6 +4,7 @@ Una fila por rama mergeada en `main`. El detalle (resultado por unidad, decision
 
 | Fecha | Rama | Merge | Funciones al 100% | Código / fuzzy | Enlazados | Detalle |
 |---|---|---|---|---|---|---|
+| 2026-11-03 | `solo-20261103b` (sesion larga sin Codex) | sin mergear | 12331 → 12384 / 18119 en `report.json`; al 100% en objdiff 12152 → 12232 | 41,22 → 41,40% / 67,71 → 68,03% fuzzy | 584 → 584 | `docs/solo-20261103b.md` (Inventory en ItemManager_unk 29 → 39, GameChoiceWindow 8 → 28 y GameVoice 8 → 15 con clases reales, llamadores a metodos, `pdbatch.sh`) |
 | 2026-11-03 | `trk-exception` (MetroTRK `__exception.s`, excepcion de asm aprobada) | merge en `main` | 12330 → 12331 / 18119 | 41,11 → 41,22% | 583 → 584 | `.s` de `libs/` sin el relleno final de 0xC bytes (en esta version la tabla acaba en el ultimo `rfi`); split `.init` 0x800043C4-0x800062F8 y entrada en `libs_ref.json` |
 | 2026-11-03 | `solo-20261103` (sesion larga sin Codex) | merge en `main` | 12248 → 12330 / 18119 (+ ~210 que `report.json` ya contaba y objdiff no) | 40,89 → 41,11% | 582 → 583 | `docs/solo-20261103.md` (presupuesto de inlining con asserts + `push_back` instanciado, corte de GameSaveLoadBackgroundCommon, re-emparejado en lote, metodos de `Model` en vez de `extern "C"`) |
 | 2026-11-03 | `integ-20261103` (integra `claude-20261102` + `codex-20261102`, 11922) | merge en `main` | 11876 → 12248 / 18119 | 39,68 → 40,89% | 567 → 582 | `docs/integ-20261103.md` (un conflicto en `symbols.txt`; `pd.sh` de las unidades de Codex; `CostumeEditChara` fn_801E9218/fn_801E92D4) |

@@ -80,7 +80,84 @@ extern "C" int fn_802088A4(char* dst, const wchar_t* src, int size) {
 }
 
 // inferred: rounds a length up to an even number
+// inferred: asserts of the debug build, empty in release: they only count for the inline budget
+#define CHARAID_ASSERT_UNK(x) ((void)0)
 static inline int Align2_unk(int len) {
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
+    CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0); CHARAID_ASSERT_UNK(len >= 0);
     if (len % 2 == 1) {
         len++;
     }
@@ -116,10 +193,10 @@ extern "C" void fn_80208BE0() {
 }
 
 // inferred: loads the character id table (UTF-16 CSV)
-// NONMATCHING: the original calls fn_802088A4, fn_802089C4, fn_80208A3C, fn_80209184 and the
-// atn::CsvU constructor (weak copy fn_80209048) out of line: the inlining budget of this function is
-// exceeded there but not here (three more fn_80208A3C calls are enough to exceed it; probably the
-// std::string reconstruction has fewer statements than the original). Same statements otherwise.
+// NONMATCHING: 99.62% - over the inline budget as the original (empty asserts of Align2_unk): it calls
+// fn_802088A4, fn_802089C4, fn_80208A3C, fn_80209184 and the atn::CsvU constructor (weak copy fn_80209048)
+// out of line. Left: the two widePos results of the second loop go to two registers here (r27, r29),
+// one in the original (declaration order and a named temporary do not change it).
 extern "C" void fn_80208BE8(const char* path) {
     unsigned long size = 0;
     void* data = fn_8006BA8C(path, &size, 0);

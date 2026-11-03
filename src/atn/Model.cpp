@@ -1,5 +1,6 @@
 // atn::Model / atn::ModelBase (0x800899DC-0x8009A5CC). Written in the order of the .dol; the
 // functions not written yet are missing from this file (the unit is not linked).
+#include "atn/MotionSlot_unk.h"
 #include "atn/Model_unk.h"
 #include "atn/Material_unk.h"
 #include "atn/LH_Motion.h"
@@ -105,12 +106,6 @@ struct MotionCmd_unk {
     int m04;
     short* m08; // inferred: motion key of each node (-1: none)
     int m0C;
-};
-// inferred: motion slot of a model (the array is built with the constructor of LH_Motion and destroyed
-// with its own destructor 0x800970CC); name invented
-struct MotionSlot_unk {
-    LH_Motion& GetMotion_unk() { return mMotion; }
-    LH_Motion mMotion;
 };
 } // namespace atn
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies

@@ -12,6 +12,9 @@ extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" float fn_800DC288(const char* s);  // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int
 extern "C" void fn_8032AF90(gmk::PathData_unk* path, std::vector<atn::Vector3>* points); // inferred: builds the path
+// inferred: std::vector<atn::Vector3>::push_back, first emitted in game/Em403WarLion.cpp (declared there with
+// this name, so vf20 calls it the same way)
+extern "C" void fn_8032AC1C(std::vector<atn::Vector3>* v, const atn::Vector3* p);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
 extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -68,6 +71,9 @@ CharaPathMove::~CharaPathMove() {
 }
 
 // inferred: address of the indexed character pointer.
+// inferred: size() of a vector of pointers (MSL shares one copy for all of them; called out of line by
+// vf20, which is over the inline budget)
+extern "C" unsigned int fn_800E0AA8(const PathCharaList_unk* v);
 extern "C" PathChara_unk** fn_8043D930(PathCharaList_unk* charas, unsigned int index) {
     return &charas->mData[index];
 }
@@ -152,18 +158,17 @@ int CharaPathMove::vf1C() {
 
 static GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path);
 
-// NONMATCHING: the original goes over the inline budget (docs/inlining.md): the path reset, the
+// The original goes over the inline budget (docs/inlining.md; here with the empty asserts of fn_8043E07C): the path reset, the
 // clears, the CSV constructor (fn_803EFCA8), the string/vector members (fn_8003E4A4,
 // fn_8020A780, fn_801207D4, fn_8032AC1C, fn_8004212C, fn_800E0AA8), the character creation
-// (0x8043E134) and push_back (0x8043E1F0) are all called out of line there; here they are inlined.
+// (0x8043E134) and push_back (0x8043E1F0) are all called out of line, as here.
 void CharaPathMove::vf20() {
     mPath.fn_8043E07C();
     Clear_unk(mPoints);
     mUpperMotions.clear();
     atn::Vector3 point;
-    atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
+    atn::CsvTab csv(mBinary.fn_80470580(), mBinary.fn_8047059C());
     char path[0x100];
-    csv.fn_8005BCE8(lbl_8087D710);
     do {
         const char* field = csv.fn_8005B9CC();
         if (field[0] == ';') {
@@ -187,7 +192,7 @@ void CharaPathMove::vf20() {
             point.x = fn_800DC288(csv.fn_8005B9CC());
             point.y = fn_800DC288(csv.fn_8005B9CC());
             point.z = fn_800DC288(csv.fn_8005B9CC());
-            mPoints.push_back(point);
+            fn_8032AC1C(&mPoints, &point);
         } else if (strcmp(field, "MOVE_SPEED") == 0) {
             mSpeed = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(field, "PARAM") == 0) {
@@ -197,13 +202,91 @@ void CharaPathMove::vf20() {
         }
     } while (csv.fn_8005BBF8() != 0);
     fn_8032AF90(&mPath, &mPoints);
-    for (unsigned int i = 0; i < mCharas.size(); i++) {
+    for (unsigned int i = 0; i < fn_800E0AA8(&mCharas); i++) {
         (*fn_8043D930(&mCharas, i))->fn_8043E6B0(mMotion.c_str(), mSpeed, &mUpperMotions);
     }
 }
 
+// inferred: asserts of the debug build, empty in release: they only count for the inline budget (with
+// them vf20 goes over it and calls every helper out of line, as the original)
+#define CPM_ASSERT_UNK(x) ((void)0)
 // NONMATCHING: 83.52% - register numbers of the four clears.
-void PathData_unk::fn_8043E07C() {
+inline void PathData_unk::fn_8043E07C() {
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
+    CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0); CPM_ASSERT_UNK(this != 0);
     m00 = 0;
     m04 = 0.0f;
     m08 = lbl_807C7030;
@@ -214,14 +297,20 @@ void PathData_unk::fn_8043E07C() {
     Clear_unk(m44);
 }
 
-PathChara_unk::PathChara_unk(CharaPathMove* owner)
+inline PathChara_unk::PathChara_unk(CharaPathMove* owner)
     : mOwner(owner), mState(0), mChara(0), m0C(lbl_807C7030), m18(lbl_807C7030), mSpeed(0.2f), mPoint(0),
       mTimer(0) {}
 
 // inferred: creates the character of the file `path` (name invented)
 static GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path) {
-    return parent != 0 ? new ((MemoryTag)1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(parent, path) : 0;
+    if (parent != 0) {
+        return new ((MemoryTag)1, lbl_8087DFC4, lbl_8087DFC0, 0) GmkChara(parent, path);
+    }
+    return 0;
 }
+
+// emitted here in the original (weak copy 0x8043E1F0 after the helpers of vf20)
+template void std::vector<gmk::PathChara_unk*>::push_back(gmk::PathChara_unk* const& x);
 
 int CharaPathMove::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {

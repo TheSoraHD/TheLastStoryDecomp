@@ -1,4 +1,6 @@
 #include "game/SetConfig.h"
+#include "game/GameVoice.h"
+#include "game/Arms.h"
 #include "game/GameScene.h"
 #include "game/SkillEffectManager.h"
 #include "game/Inventory.h"
@@ -555,15 +557,13 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
     memset(m13D0, 0, sizeof(m13D0));
 }
 
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EBBCC(void* manager, CharaTask* chara);
 
 // NONMATCHING: 98.8% - in the inlined listener loop the original gives the list r27 and the
 // index r28 (ours the other way round); tried a local for the list and other loop forms.
 CharaTask::~CharaTask() {
     m1220.fn_80121E14(1);
     if (lbl_8087F498 != 0) {
-        fn_803EBBCC(lbl_8087F498, this);
+        lbl_8087F498->fn_803EBBCC(this);
     }
     for (unsigned int i = 0; i < mParts.mCount; i++) {
         delete mParts.mData[i];
@@ -622,7 +622,6 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_802180A8(const char* name); // inferred: motion name to id
 extern "C" int fn_8020EE8C(const char* name); // inferred: equipment slot by name
-extern "C" int fn_8044D208(Inventory* party, int slot, int id);
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: node callback of a model (the functor manager of the original uses the default allocator of
 // boost::function3, std::allocator<function_base>)
@@ -932,9 +931,9 @@ void CharaTask::fn_801371AC() {
                 if (Inventory::instance_ != 0 && IsPartyIndex_unk(fn_80219558(m50))) {
                     int index = fn_80219558(m50);
                     unsigned int mask = 1 << slot;
-                    equipped = (mask & Inventory::instance_->mPlayers[index].mEquipFlags) == mask;
+                    equipped = (mask & Inventory::instance_->mPlayers[index].m230) == mask;
                 }
-                fn_8014FF9C(slot, fn_8044D208(Inventory::instance_, slot, m50), equipped);
+                fn_8014FF9C(slot, Inventory::instance_->fn_8044D208(slot, m50), equipped);
             } else {
                 chr::CharaEquip_unk* equip = new ((MemoryTag)0, "", "", 0) chr::CharaEquip_unk(slot, -1, 0, this, 0, 0, 0, 1, 1);
                 std::string path(name);
@@ -9764,16 +9763,14 @@ int CharaTask::fn_8016E484() {
     return IsPartyIndex_unk(fn_80219558(m50));
 }
 
-extern "C" int fn_80044C50(chr::CharaPart_unk* part, CharaTask* chara);
-extern "C" void fn_80044CCC(chr::CharaPart_unk* part);
 extern "C" void fn_80566398(chr::CharaEquip_unk* equip, int arg);
 
 // inferred: same as fn_8016E71C(show, 1) with the equipment loop of fn_8016E800 written out
 // (inlining fn_8016E71C gives the loop registers in the other order)
 inline void CharaTask::SetPartsVisible_unk(int show) {
     if (show) {
-        if (m648 != 0 && fn_80044C50(m648, this)) {
-            fn_80044CCC(m648);
+        if (m648 != 0 && ((Arms*)m648)->fn_80044C50(this)) {
+            ((Arms*)m648)->fn_80044CCC();
         }
     } else {
         if (m648 != 0) {
@@ -9811,8 +9808,8 @@ void CharaTask::fn_8016E5F0(int show) {
 
 void CharaTask::fn_8016E71C(int show, int arg) {
     if (show) {
-        if (m648 != 0 && fn_80044C50(m648, this)) {
-            fn_80044CCC(m648);
+        if (m648 != 0 && ((Arms*)m648)->fn_80044C50(this)) {
+            ((Arms*)m648)->fn_80044CCC();
         }
     } else {
         if (m648 != 0) {
@@ -12086,11 +12083,6 @@ void CharaTask::fn_8017AC44(int clear) {
 }
 
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (names invented)
-struct NameEntry_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName;
-};
-extern "C" NameEntry_unk* fn_803B3B38(void* table, int id);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
 extern "C" void fn_80096218(atn::Model* model, atn::SimpleVector<int>* list, void* arg); // inferred: collects resources
@@ -12116,9 +12108,9 @@ void CharaTask::fn_8017AD44(atn::SimpleVector<int>* list, void* arg) {
 
 int CharaTask::vfB8(wchar_t* name) {
     if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
-        NameEntry_unk* entry = fn_803B3B38(lbl_8087F430->m54F4, m5C->mC4);
+        GameMessage* entry = ((GameMessageTable_unk*)lbl_8087F430->m54F4)->fn_803B3B38(m5C->mC4);
         if (entry != 0) {
-            wcscpy(name, entry->mName);
+            wcscpy(name, entry->mText);
             return 1;
         }
     }
@@ -12322,7 +12314,6 @@ atn::Vector3 CharaTask::vfD0(float angle) {
     return pos;
 }
 
-extern "C" void fn_80094BD8(void* model, int mode);
 
 // NONMATCHING: 88% - only registers: the original keeps &d in r30 and &dir in r29, &from in r28 and
 // &base in r27 (ours swapped); tried: copy/assignment forms of d and from, declarations outside the
@@ -12362,20 +12353,20 @@ void CharaTask::fn_8017C7F8(unsigned int on) {
         if (mFlagB1) {
             mode = 4;
         }
-        fn_80094BD8(&mMotion, mode);
+        mMotion.fn_80094BD8(mode);
         for (unsigned int i = 0; i < mParts.mCount; i++) {
             if (mParts.mData[i] != 0) {
-                fn_80094BD8(mParts.mData[i]->m010, mode);
+                ((atn::Model*)mParts.mData[i]->m010)->fn_80094BD8(mode);
             }
         }
         chr::CharaEquip_unk** equips = m680;
         for (unsigned int i = 0; i < 8; i++) {
             if (equips[i] != 0) {
-                fn_80094BD8(equips[i]->m024, mode);
+                equips[i]->GetModel_unk()->fn_80094BD8(mode);
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
-            fn_80094BD8(&m6A4.mData[i]->mModel, mode);
+            m6A4.mData[i]->mModel.fn_80094BD8(mode);
         }
     }
 }

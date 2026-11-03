@@ -13,7 +13,6 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-extern "C" int fn_80097B34(atn::Model* model); // inferred: number of motions
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" atn::Matrix3x4 lbl_807C7060; // inferred: identity matrix
 
@@ -493,7 +492,7 @@ void OnOff::fn_803F8F30(int on) {
         state = 2;
     }
     m54 = state;
-    if (mHasModel != 0 && (mOn != 0 || (mFlags & 0x80) == 0x80) && fn_80097B34(&mModel) > 0) {
+    if (mHasModel != 0 && (mOn != 0 || (mFlags & 0x80) == 0x80) && mModel.fn_80097B34() > 0) {
         int loop = ((mFlags >> 1) & 1) ^ 1;
         int reset = 0;
         if (loop == 0 || (mFlags & 0x200) == 0x200) {

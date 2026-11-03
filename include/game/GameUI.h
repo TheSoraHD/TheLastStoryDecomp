@@ -276,17 +276,13 @@ namespace atn {
 class D2A_Task;
 }
 class GameUI;
+class GameMessageWindow;     // game/GameChoiceWindow.h
+class GameTextMessageWindow; // game/GameChoiceWindow.h
 class CharaTask;
 struct SkillEffect;
 extern "C" GameUI* lbl_8087F490; // inferred: the HUD instance (defined in game/GameUI.cpp)
 
 // inferred from __vt__6GameUI (0x8078C584): the game HUD; lbl_8087F490 points to it
-// inferred: message window of GameUI::m2640 (game/GameChoiceWindow.cpp); names invented
-struct GameUIWindow_unk {
-    unsigned char m00[0xB4];
-    int mB4;
-};
-
 class GameUI : public atn::Task {
 public:
     GameUI(atn::Task* parent); // 0x803CE980
@@ -554,14 +550,14 @@ public:
         atn::D2A_Task* m08;
         int m0C;
     } m262C;
-    int m263C;
-    GameUIWindow_unk* m2640; // inferred: message window (fn_803E3BE8)
+    GameMessageWindow* m263C;     // inferred: message window with choices
+    GameTextMessageWindow* m2640; // inferred: message window (fn_803E3BE8)
     int m2644;
     int m2648;
     int m264C;
     int m2650;
     GameUIGauge_unk* m2654; // inferred: floats 0x100/0x104 reset by fn_803E4510
-    int m2658;
+    CharaTask* m2658; // inferred: speaker of the message (game/GameVoice fn_803EAA7C)
     int mSeState;                              // 0x265C: inferred: state of the gauge sound
     unsigned int mSeMask;                      // 0x2660: inferred: sounds to play (1 << index)
     ResHandle m2664;                           // 0x2664

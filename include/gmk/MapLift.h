@@ -2,7 +2,7 @@
 #define GMK_MAPLIFT_H
 
 #include "atn/Array_unk.h"
-#include "atn/LH_Motion.h"
+#include "atn/MotionSlot_unk.h"
 #include "game/GimmickCommon.h"
 #include "std/string.h"
 #include "std/vector.h"
@@ -42,7 +42,7 @@ public:
     int mF8;                  // inferred: previous state
     int mFC;                  // inferred: "INIT_STATE"
     float mFrame;             // 0x100
-    atn::LH_Motion mMotion[7]; // 0x104
+    atn::MotionSlot_unk mMotion[7]; // 0x104
     int m158[7];
     int mMotionId[7];         // 0x174
     float m190[7];

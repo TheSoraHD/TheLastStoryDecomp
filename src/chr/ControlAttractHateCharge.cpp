@@ -1,4 +1,5 @@
 #include "chr/ControlAttractHateCharge.h"
+#include "game/GameVoice.h"
 #include "atn/SoundRef.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
@@ -32,10 +33,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;
 };
-// inferred: effect manager behind lbl_8087F498 (as in chr/ControlGmkCoffinOpening.cpp)
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F498;
-extern "C" void fn_803EA77C(EffectMgr_unk* mgr, CharaTask* chara, int id, int arg, float a, float b);
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" void* lbl_8087EE68;
 extern "C" void* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
@@ -168,7 +165,7 @@ ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
         fn_800C31F4(buf, 0, -1, 1.0f);
     }
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x24, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x24, 0, 1.0f, 10.0f);
     }
     mChara->SetHit_unk(fn_80219E6C(mSkill));
 }

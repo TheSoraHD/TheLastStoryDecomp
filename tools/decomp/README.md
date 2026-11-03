@@ -42,6 +42,7 @@ symbol is still `fn_<ADDR>` but our code uses a real name.
   `.text`) and the `libs_ref.json` entry. Then configure + `ninja` (main.dol: OK is the check).
 
 - `pd.sh <unidad>`: `pairdata --relabel --apply` con reversión si baja fnstat (auto-20261101b). Desde 2026-11-03 sin `resetlocal`: un solo `dtk split` (~1 min) en vez de dos; vale también para CharaTask, GameScene y Model (antes 40 min o por pasos).
+- `pdbatch.sh <unidad...>`: lo mismo que `pd.sh` para varias unidades con un solo `dtk split` y reversión por unidad (solo sus líneas de `symbols.txt`); 10 unidades en ~1,5 min (solo-20261103b). Revisar después `__vt__`/`sInstance` en el diff.
 - `pairdata.py <unidad> [--apply] [--local] [--relabel]`: una sola llamada a objdiff por unidad (segundos; antes una por función). `--relabel` re-empareja también las `@NNNN` desfasadas (solo dentro de los rangos de datos de la unidad); `--local` solo propone nombres `@NNNN`/`@stringBase` (usarlo en lotes de muchas unidades).
 - `labelcheck.py <unidad...>`: etiquetas `@N` de los datos del split que faltan en nuestro `.o` (tras tocar una cabecera, repetir `pd.sh` en esas unidades; report.json no lo detecta).
 - `gap.py <report.json>`: unidades con más 100% en report.json que en objdiff (candidatas a pairdata).

@@ -502,7 +502,7 @@ extern "C" void* fn_801FEB9C(atn::D2A_Layout_unk* layout, const char* name) {
     void** it = array->mData;
     while (it != end) {
         void* value = *it;
-        if (*(unsigned int*)value == hash) {
+        if (hash == *(unsigned int*)value) {
             return value;
         }
         it++;
@@ -518,7 +518,7 @@ extern "C" void* fn_801FEC08(atn::D2A_Layout_unk* layout, const char* name) {
     void** it = array->mData;
     while (it != end) {
         void* value = *it;
-        if (*(unsigned int*)value == hash) {
+        if (hash == *(unsigned int*)value) {
             return value;
         }
         it++;
@@ -534,7 +534,7 @@ extern "C" void* fn_801FEC74(atn::D2A_Layout_unk* layout, const char* name) {
     void** it = array->mData;
     while (it != end) {
         void* value = *it;
-        if (*(unsigned int*)value == hash) {
+        if (hash == *(unsigned int*)value) {
             return value;
         }
         it++;
@@ -547,7 +547,7 @@ static void SetLayoutFloat_unk(D2A_PointerArray_unk* array, unsigned int hash, i
     void** end = it + array->mSize;
     while (it != end) {
         atn::D2A_Anim_unk<1>* anim = (atn::D2A_Anim_unk<1>*)*it;
-        if (anim->mName == hash) {
+        if (hash == anim->mName) {
             anim->mTables[index].fn_801F04FC(0, 1, value);
             return;
         }
@@ -597,7 +597,7 @@ extern "C" void fn_801FEEFC(atn::D2A_Layout_unk* layout, unsigned int hash, int 
     atn::D2A_IntAnim_unk** it = (atn::D2A_IntAnim_unk**)array->mData;
     while (it != end) {
         atn::D2A_IntAnim_unk* anim = *it;
-        if (anim->mName == hash) {
+        if (hash == anim->mName) {
             fn_801F0364(&anim->mTables[0], 0, value, 1);
             return;
         }

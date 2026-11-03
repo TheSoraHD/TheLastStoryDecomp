@@ -1,4 +1,5 @@
 #include "chr/ControlCliffhang.h"
+#include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
@@ -49,9 +50,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* colli, int arg, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, int arg5, int arg6);
 
-// inferred: voice/sound player (lbl_8087F498); fn_803EA77C plays voice `id` of a character
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 // inferred: linear interpolation with the product first (name invented)
 inline atn::Vector3 LerpCliff_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
@@ -214,7 +212,7 @@ void ControlCliffhang::fn_801AB6B8(int route, int first, float angle) {
             motion->mTracks[0].m0C = 1.0f;
             m84 = mChara->mPos;
             if (lbl_8087F498 != 0 && (mChara->mType == 0 || rand() % 2 == 0)) {
-                fn_803EA77C(lbl_8087F498, mChara, 0xF, 0, 1.0f, 10.0f);
+                lbl_8087F498->fn_803EA77C(mChara, 0xF, 0, 1.0f, 10.0f);
             }
         } else {
             m0C = 1;
@@ -234,7 +232,7 @@ void ControlCliffhang::fn_801AB6B8(int route, int first, float angle) {
         float turn = atn::WrapAngle_unk(rot.y - mChara->mRot.y);
         m90 = turn / (motion->fn_80097D7C(0) - 2.0f);
         if (m98 != 0 && lbl_8087F498 != 0 && (mChara->mType == 0 || rand() % 2 == 0)) {
-            fn_803EA77C(lbl_8087F498, mChara, 0xC, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(mChara, 0xC, 0, 1.0f, 10.0f);
         }
         break;
     }

@@ -1,4 +1,5 @@
 #include "chr/ControlAttackBase.h"
+#include "game/GameVoice.h"
 #include "game/CharaTask.h"
 #include "game/SetConfig.h"
 #include "game/GameBgm.h"
@@ -33,9 +34,6 @@ struct GameState_unk {
 };
 extern "C" GameState_unk* lbl_8087EFA8;
 
-// inferred: voice/sound player (lbl_8087F498); fn_803EA77C plays voice `id` of a character
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 extern "C" const char* fn_800EFF04(int id); // inferred: sound name of an effect id
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -324,7 +322,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
     fn_80106878(lbl_8087F048, mChara);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0, 0, 1.0f, 10.0f);
     }
 }
 
@@ -450,7 +448,7 @@ ControlAttackNext::ControlAttackNext(Chara_unk* chara, const atn::Vector3& dir) 
     fn_80106878(lbl_8087F048, mChara);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0, 0, 1.0f, 10.0f);
     }
 }
 
@@ -542,7 +540,7 @@ ControlDashAttack::ControlDashAttack(Chara_unk* chara, const atn::Vector3& pos)
     mDir = (mTarget - mStart).GetNormalize();
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -577,7 +575,7 @@ ControlJumpAttack::ControlJumpAttack(Chara_unk* chara, const atn::Vector3& pos, 
     mDir = (pos - mStart).GetNormalize();
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -631,7 +629,7 @@ ControlJumpAttack2::ControlJumpAttack2(Chara_unk* chara, const atn::Vector3& pos
     mDir = (pos - mStart).GetNormalize();
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -695,7 +693,7 @@ ControlMultiAttack::ControlMultiAttack(Chara_unk* chara, const atn::Vector3& dir
     fn_80106878(lbl_8087F048, mChara);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 2, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);
     }
 }
 
@@ -734,7 +732,7 @@ ControlSideWallAttack::ControlSideWallAttack(Chara_unk* chara, const atn::Vector
     motion->mTracks[0].m08 = frame * MIN(1.0f, speed);
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 2, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);
     }
 }
 
@@ -764,7 +762,7 @@ ControlGuardCounter::ControlGuardCounter(Chara_unk* chara, const atn::Vector3& d
     }
     LoadTable_unk();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 2, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);
     }
     fn_800C344C(sSwingSe[3], &mChara->mPos, 0, -1, 1.0f);
 }
@@ -814,7 +812,7 @@ ControlHitBackBullet::ControlHitBackBullet(Chara_unk* chara, const atn::Vector3&
     LoadTable_unk();
     mBullets.push_back(bullet);
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 2, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);
     }
     fn_800C344C(sSwingSe[4], &mChara->mPos, 0, -1, 1.0f);
 }
@@ -887,7 +885,7 @@ ControlSwapAttack::ControlSwapAttack(Chara_unk* chara, Chara_unk* target)
     mStartRot = mChara->mRot;
     mChara->m574 = mDir * 2.0f;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0, 0, 1.0f, 10.0f);
     }
 }
 
@@ -1025,7 +1023,7 @@ int ControlAttackLastOne::vf0C() {
         c->m638 = mSkill;
         mHit = 0;
         if (mHitCount == 1 && lbl_8087F498 != 0) {
-            fn_803EA77C(lbl_8087F498, mChara, 2, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(mChara, 2, 0, 1.0f, 10.0f);
         }
     }
     if (mType == 11 && motion->mTracks[0].m08 < 100.0f) {

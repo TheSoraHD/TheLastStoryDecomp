@@ -151,7 +151,6 @@ extern "C" void fn_80108C10(Effect_unk* effect, ZanDamage_unk* damage, const atn
                             CharaTask* chara, int b, int c);
 // inferred: item manager (Inventory::instance_)
 extern "C" int fn_80206BE4(void* item); // inferred: item id
-extern "C" void fn_804438E0(void* mgr, int id);
 extern "C" void fn_8044D104(void* mgr, int kind, int id, int arg, int chara);
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id
 extern "C" void fn_800FDB20(Effect_unk* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
@@ -2488,7 +2487,7 @@ inline void TakeShield_unk(Em201ZanGurgFinal* z, CharaTask* leader) {
     }
     if (z->m1624 == z->m1628) {
         if (z->m162C == 0) {
-            fn_804438E0(Inventory::instance_, 0x18875);
+            Inventory::instance_->fn_804438E0(0x18875);
         }
         z->m162C = 1;
     }

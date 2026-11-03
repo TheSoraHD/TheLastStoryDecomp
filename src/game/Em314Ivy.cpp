@@ -1,4 +1,5 @@
 #include "game/Em314Ivy.h"
+#include "game/GameVoice.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -29,8 +30,6 @@ struct IvyColor_unk {
     float r, g, b, a;
 };
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)
-extern "C" void* lbl_8087F498; // inferred: voice manager
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
@@ -333,7 +332,7 @@ void Em314Ivy::fn_8031319C(CharaTask* target) {
         }
         fn_80310314(0, &m14E4->mPos);
         if (lbl_8087F498 != 0) {
-            fn_803EA77C(lbl_8087F498, m14E4, 0x2A, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(m14E4, 0x2A, 0, 1.0f, 10.0f);
         }
     }
 }
