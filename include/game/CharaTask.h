@@ -139,6 +139,8 @@ struct CharaD68_unk {
     float m5C;
 };
 
+// TODO: unused now (callers use atn::Model::fn_80094E2C); removing it renumbers the @N of every user of
+// this header, so it goes with the next batch of header changes
 extern "C" void fn_80094E2C(void* model, int value); // inferred: sets a value on every node
 extern "C" void fn_80044E0C(void* object, int arg);
 extern "C" int fn_80219558(int id);
