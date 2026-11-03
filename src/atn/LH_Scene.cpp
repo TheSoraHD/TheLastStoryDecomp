@@ -3,6 +3,7 @@
 #include "atn/LoadManager.h"
 #include "atn/Loader_unk.h"
 #include "math/Vec.h"
+#include "atn/Camera_unk.h"
 
 // inferred: animation track of the scene file (12 bytes); evaluates the value at `frame`
 struct SceneTrack_unk {
@@ -38,32 +39,6 @@ struct SceneHeader_unk {
     void** mLights;                   // 0x24
 };
 
-// inferred: engine camera (0x1F4 bytes; constructor 0x8004B290 with default arguments,
-// destructor 0x8004B338, update 0x8004B378)
-struct Camera_unk {
-    Camera_unk(int a = 0, int b = 0);
-    ~Camera_unk();
-    void fn_8004B378();
-
-    int mType;               // 0x00
-    int mFovType;            // 0x04
-    float mPos[3];           // 0x08
-    float mTarget[3];        // 0x14
-    unsigned char m20[0xC];
-    atn::Vector3 mDir;       // 0x2C
-    float m38;
-    float m3C;
-    float m40;
-    float m44;
-    float m48;
-    unsigned char m4C[4];
-    float m50;
-    float mFov;              // 0x54
-    unsigned char m58[0xC8 - 0x58];
-    float mC8;
-    float mCC;
-    unsigned char mD0[0x1F4 - 0xD0];
-};
 
 // inferred: engine light (0x44 bytes; constructor 0x80079044, no destructor)
 struct LightPair_unk {
@@ -128,39 +103,39 @@ void LoadScene::fn_804778DC(SceneHeader_unk* header) {
         float x = __EvalTrack_unk(data->mPos[0]);
         float y = __EvalTrack_unk(data->mPos[1]);
         float z = __EvalTrack_unk(data->mPos[2]);
-        camera->mPos[0] = x;
-        camera->mPos[1] = y;
-        camera->mPos[2] = z;
+        camera->mPos.x = x;
+        camera->mPos.y = y;
+        camera->mPos.z = z;
         float fov = __EvalTrack_unk(data->m98);
-        camera->mFov = fov;
-        camera->mC8 = __EvalTrack_unk(data->mA4);
-        camera->mCC = __EvalTrack_unk(data->mB0);
+        camera->mAspect = fov;
+        camera->mNear = __EvalTrack_unk(data->mA4);
+        camera->mFar = __EvalTrack_unk(data->mB0);
         if (data->mType == 1) {
             float tx = __EvalTrack_unk(data->mTarget[0]);
             float ty = __EvalTrack_unk(data->mTarget[1]);
             float tz = __EvalTrack_unk(data->mTarget[2]);
-            camera->mTarget[0] = tx;
-            camera->mTarget[1] = ty;
-            camera->mTarget[2] = tz;
-            camera->m38 = __EvalTrack_unk(data->m8C);
+            camera->mTarget.x = tx;
+            camera->mTarget.y = ty;
+            camera->mTarget.z = tz;
+            camera->mRoll = __EvalTrack_unk(data->m8C);
             camera->mType = 2;
         } else {
             float dx = __EvalTrack_unk(data->mDir[0]);
             float dy = __EvalTrack_unk(data->mDir[1]);
             float dz = __EvalTrack_unk(data->mDir[2]);
-            camera->mDir = Vector3(dx, dy, dz);
+            camera->mRot = Vector3(dx, dy, dz);
             camera->mType = 1;
         }
         if (data->mFovType == 1) {
-            camera->m50 = __EvalTrack_unk(data->mBC);
-            camera->mFovType = 0;
+            camera->mFovy = __EvalTrack_unk(data->mBC);
+            camera->mProjType = 0;
         } else {
             float v = __EvalTrack_unk(data->mC8);
-            camera->m3C = v;
-            camera->m40 = -v;
-            camera->m44 = -v * fov;
-            camera->m48 = v * fov;
-            camera->mFovType = 1;
+            camera->mTop = v;
+            camera->mBottom = -v;
+            camera->mLeft = -v * fov;
+            camera->mRight = v * fov;
+            camera->mProjType = 1;
         }
         camera->fn_8004B378();
     }
