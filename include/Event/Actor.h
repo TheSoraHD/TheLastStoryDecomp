@@ -7,8 +7,14 @@
 #include "math/Vec.h"
 #include "Event/CommonData.h"
 #include "Event/PathSpline.h"
+#include "atn/Array_unk.h"
+#include "std/vector.h"
+#include "game/IntVector_unk.h"
 
 class CharaTask;
+namespace atn {
+class Task;
+}
 
 namespace atn {
 class Model;
@@ -19,6 +25,37 @@ namespace Event {
 class Action;
 class Path;
 class Sequence;
+
+// inferred: 0x2C-byte key of the animation lists of an actor (a constructor: built with
+// __construct_new_array); content unknown
+struct ActorKey2C_unk {
+    ActorKey2C_unk() {}
+    int m00;
+    atn::Vector3 m04;
+    atn::Vector3 m10;
+    atn::Vector3 m1C;
+    float m28;
+};
+
+// inferred: 0x10-byte key of the lists of an actor (built with __construct_new_array)
+struct ActorKey10_unk {
+    ActorKey10_unk() {}
+    atn::Vector3 m00;
+    float m0C;
+};
+
+// inferred: 8-byte entry of the list at 0xAC of an actor
+struct ActorPair_unk {
+    int m00;
+    int m04;
+};
+
+// inferred: animation state of an actor (0x34 bytes at 0x24)
+struct ActorAnim_unk {
+    atn::SimpleVector<ActorKey2C_unk> m00;
+    unsigned char m0C[0x28 - 0x0C];
+    IntVector_unk m28;
+};
 
 // inferred: an actor of the event (0x1C0 bytes)
 struct Actor_unk : public CommonData {
@@ -65,17 +102,37 @@ struct Actor_unk : public CommonData {
     unsigned int m18_3 : 4;
     unsigned int m18_7 : 1; // inferred: the actor is not reset at the start of the event (Event::Sequence)
     unsigned int m18_8 : 24;
-    unsigned char m1C[0x20 - 0x1C];
-    int m20; // inferred: state (6 is checked by BehaviorFollow::vf0C)
-    unsigned char m24[0x5C - 0x24];
+    atn::Task* m1C; // inferred: what the actor drives (by m20: 1 and 7 Puppeteer<CharaTask>, 2 a gimmick, 3 Puppeteer<atn::Model>)
+    int m20; // inferred: kind of actor (6 is checked by BehaviorFollow::vf0C)
+    ActorAnim_unk m24;    // 0x24
+    int m58;              // inferred: -1 after construction
     PathSpline_unk mPath; // 0x5C: inferred: path of the actor (ActionActorPosition, mode 1)
-    unsigned char mAC[0xB8 - 0xAC];
+    std::vector<ActorPair_unk> mAC;
     class Action* mB8[3]; // 0xB8: inferred: motion actions playing on the actor (ActionActorMotion)
     atn::Vector3 mC4;     // 0xC4: inferred: rotation
     atn::Vector3 mD0;     // 0xD0: inferred: position the actor moves from
-    unsigned char mDC[0x130 - 0xDC];
-    int m130; // inferred: curve of the moves (fn_8048BD04)
-    unsigned char m134[0x18C - 0x134];
+    atn::Vector3 mDC;
+    atn::Vector3 mE8;
+    atn::Vector3 mF4;
+    atn::Vector3 m100;
+    atn::Vector3 m10C;
+    atn::SimpleVector<ActorKey10_unk> m118;
+    atn::SimpleVector<ActorKey10_unk> m124;
+    int m130; // inferred: curve of the moves (fn_8048BD04); -1 after construction
+    int m134; // inferred: -1 after construction
+    int m138;
+    int m13C;
+    int m140;
+    unsigned char m144; // inferred: 1 after construction
+    unsigned char m145;
+    unsigned char m146;
+    IntVector_unk m148;
+    int m154;
+    std::vector<ActorKey10_unk> m158;
+    IntVector_unk m164;
+    std::vector<ActorKey10_unk> m170;
+    IntVector_unk m17C;
+    unsigned char m188; // inferred: 1 after construction
     int m18C;             // 0x18C: inferred: frames left of the current eye movement (ActionActorEyes)
     atn::Vector3 m190;    // 0x190: inferred: goal of the eyes
     atn::Vector3 m19C;    // 0x19C: inferred: current eye angles
