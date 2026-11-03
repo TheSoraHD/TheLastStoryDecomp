@@ -8,6 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
+- `trk-exception` (2026-11-03, mergeada en `main`): MetroTRK `__exception.s` enlazado (aprobado por el usuario): **12331 / 18119**, 584 unidades completas.
 - `solo-20261103` (2026-11-03, mergeada en `main`): **12330 / 18119** en `report.json`, 583 unidades completas, `main.dol: OK`, lost 0. Receta de presupuesto de inlining + `push_back` instanciado, corte de `GameSaveLoadBackgroundCommon` (enlazada), re-emparejado en lote y metodos de `Model` en vez de `extern "C"`. Notas: `docs/solo-20261103.md`.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200, `docs/claude-20261102.md`) y `codex-20261102` (11922, `docs/codex-20261102.md`); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
@@ -38,6 +39,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - `OSInitFastCast` (`include/sdk/OSFastCast.h`, usada en `game/main`);
    - paired-single cuantizado GQR6 solo en `atn/ModelDraw_unk fn_8009BF3C` (`SetGQR6_unk`, `SetMatColor_unk`); el de `LH_Binary` **no** está aprobado;
    - asm de MetroTRK `targsupp.c`: cuatro stubs `asm` con `nofralloc` y `twi 31, r0, 0; blr` (el original es un `.s`), aprobado 2026-11-01;
+   - MetroTRK `__exception.s` (`gTRKInterruptVectorTable`, `.init` 0x800043C4-0x800062F8): fichero `.s` ensamblado con el `as` de binutils (el original es un `.s`), aprobado 2026-11-03;
    - asm paired-single de `atn/Model` `fn_80099F74` y `fn_8009A018` (skinning en la cache bloqueada, `nofralloc`), aprobado en `prompt-model` 2026-11-02;
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
    - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.

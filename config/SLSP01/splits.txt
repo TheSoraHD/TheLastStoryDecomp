@@ -4869,6 +4869,9 @@ auto_03_80692BFC_text.cpp:
 auto_03_8069512C_text.cpp:
 	.text       start:0x8069512C end:0x80695138
 
+PowerPC_EABI_Support/src/MetroTRK/__exception.s:
+	.init       start:0x800043C4 end:0x800062F8
+
 PowerPC_EABI_Support/src/Runtime/__mem.c:
 	.init       start:0x800062F8 end:0x80006678
 	.text       start:0x8069533C end:0x80695358
