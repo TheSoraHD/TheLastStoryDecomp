@@ -554,7 +554,7 @@ void TutorialTask::fn_805BBD7C() {
 }
 
 // NONMATCHING: not written yet (free position of the camera around the character)
-void TutorialTask::fn_805BC1C0() {
+__declspec(noinline) void TutorialTask::fn_805BC1C0() {
     mPos2 = mPos;
     mRot2 = mRot;
 }
