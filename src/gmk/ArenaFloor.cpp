@@ -128,8 +128,8 @@ void ArenaFloor::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: fn_8041E7E4 gets inlined here (and in vf40) while fn_8041E480 is not defined in
-// this file; with both defined the inlining budget (docs/inlining.md, R3) would keep both calls.
+// The original calls fn_8041E7E4 out of line here and in vf40 (__declspec(noinline) on it; with
+// fn_8041E480 written the inlining budget might do the same).
 void ArenaFloor::vf10() {
     if (m54 == 0) {
         Start();
@@ -160,7 +160,7 @@ void ArenaFloor::vf10() {
     }
 }
 
-void ArenaFloor::fn_8041E7E4(int on) {
+__declspec(noinline) void ArenaFloor::fn_8041E7E4(int on) {
     if (on) {
         for (ArenaPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
