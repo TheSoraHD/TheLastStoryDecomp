@@ -1108,7 +1108,7 @@ void EnemyQuarkSecond::fn_8034100C() {
     }
 }
 
-// NONMATCHING: 99.9% - only the offset of "SE_EM211_012" in @stringBase0 (the strings of the
+// NONMATCHING: 99.99% - only the offset of "SE_EM211_012" in @stringBase0 (the strings of the
 // functions not written yet come before it)
 void EnemyQuarkSecond::fn_80341BEC() {
     if (m14B4 == 0) {
