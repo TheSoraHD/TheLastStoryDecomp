@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/GameVoice.h"
 #include "game/Arms.h"
 #include "game/GameScene.h"
 #include "game/SkillEffectManager.h"
@@ -556,15 +557,13 @@ CharaTask::CharaTask(atn::Task* parent, int type, void* data)
     memset(m13D0, 0, sizeof(m13D0));
 }
 
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EBBCC(void* manager, CharaTask* chara);
 
 // NONMATCHING: 98.8% - in the inlined listener loop the original gives the list r27 and the
 // index r28 (ours the other way round); tried a local for the list and other loop forms.
 CharaTask::~CharaTask() {
     m1220.fn_80121E14(1);
     if (lbl_8087F498 != 0) {
-        fn_803EBBCC(lbl_8087F498, this);
+        lbl_8087F498->fn_803EBBCC(this);
     }
     for (unsigned int i = 0; i < mParts.mCount; i++) {
         delete mParts.mData[i];

@@ -1,4 +1,5 @@
 #include "Event/Behavior.h"
+#include "game/GameVoice.h"
 #include "game/GameBgm.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/Bgm.h"
@@ -331,8 +332,6 @@ inline AudioEntry_unk* FindAudio_unk(EventManager_unk* manager, int id) {
 
 
 // inferred: voices of the event (lbl_8087F498, game/GameVoice)
-extern "C" void* lbl_8087F498;
-extern "C" int fn_803EB2A4(void* mgr, const char* name); // inferred: nonzero if the voice is loaded
 extern "C" atn::SoundRef fn_803EA09C(void* mgr, CharaTask* chara, const char* name, int a, int b, int c,
                                      float volume); // inferred: voice spoken by a character (lip sync)
 extern "C" atn::SoundRef fn_803E9608(void* mgr, const char* name, int a, int b, float volume);
@@ -1313,7 +1312,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         float pitch = arg->GetParam_unk(9)->m04.f;
         int noKeep = arg->GetParam_unk(10)->m04.i;
         int lipSync = arg->GetParam_unk(11)->m04.i;
-        if (fn_803EB2A4(lbl_8087F498, entry->mName.c_str()) == 0) {
+        if (lbl_8087F498->fn_803EB2A4(entry->mName.c_str()) == 0) {
             fn_80489A2C(lbl_8087F540);
         }
         if (lbl_8087F0A8->mVoiceLimitLevel >= 3) {

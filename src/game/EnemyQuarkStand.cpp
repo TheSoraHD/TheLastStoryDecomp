@@ -1,4 +1,5 @@
 #include "game/EnemyQuarkStand.h"
+#include "game/GameVoice.h"
 #include "game/Inventory.h"
 #include "atn/Keyboard.h"
 #include "atn/Csv.h"
@@ -182,7 +183,6 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: segment test
 extern "C" void fn_8023A108(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: effect fade
 extern "C" GameUI* lbl_8087F490; // inferred: game UI
-extern "C" void fn_803EAF60(void* mgr, int arg); // inferred: voice
 // inferred: per-player weights of an effect (floats at +0x128, as GhoulWeights_unk of game/Em309Ghoul.cpp)
 struct QuarkWeights_unk {
     unsigned char m00[0x128];
@@ -265,8 +265,6 @@ extern "C" void fn_80353F0C(EnemyQuarkStand* self); // inferred: frees the chara
 // inferred: stores a pair in CharaStatus::m2D0 (weak copy in game/EnemyQuarkSecond.cpp)
 extern "C" void fn_803396FC(CharaStatus* status, int index, const CharaStatusPair_unk& pair);
 extern "C" HitInfo_unk* fn_80219E6C(int id);
-extern "C" void* lbl_8087F498; // inferred: voice manager
-extern "C" void fn_803EBAC8(void* mgr, int a, int b); // inferred: voice mode (as in Event/Dialog.cpp)
 extern "C" void fn_803EA77C(void* mgr, CharaTask* chara, int id, int arg, float a, float b); // inferred: voice
 
 // inferred: inline constructors of the helper members (weak copies 0x8034585C-0x803458E0)
@@ -1976,8 +1974,8 @@ void EnemyQuarkStand::fn_8034ECE8() {
                         lbl_8087EFE8->fn_800CF45C(0x5A, 0);
                     }
                     if (lbl_8087F498 != 0) {
-                        fn_803EBAC8(lbl_8087F498, 15, 0);
-                        fn_803EAF60(lbl_8087F498, 0);
+                        lbl_8087F498->fn_803EBAC8(15, 0);
+                        lbl_8087F498->fn_803EAF60(0);
                     }
                     fn_800C31F4("SE_DG040_107", 0, -1, 1.0f);
                     mC58.mC0 = 0;
@@ -2519,7 +2517,7 @@ boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
             lbl_8087EFE8->fn_800CF45C(0x5A, 0);
         }
         if (lbl_8087F498 != 0) {
-            fn_803EBAC8(lbl_8087F498, 15, 0);
+            lbl_8087F498->fn_803EBAC8(15, 0);
         }
         fn_800C31F4("SE_DG040_107", 0, -1, 1.0f);
         mC58.mC0 = 0;
