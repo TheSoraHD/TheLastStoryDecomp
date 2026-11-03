@@ -472,5 +472,6 @@ gTRKInterruptVectorTable:
     mtsrr0 r3
     li r3, 0x1f00
     rfi
-.fill 0xC
+# The Last Story (SLSP01): the table ends right after this rfi (0x800062F4; memcpy follows at
+# 0x800062F8), without the 0xC bytes of padding of other versions.
 gTRKInterruptVectorTableEnd:
