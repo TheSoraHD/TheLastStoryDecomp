@@ -22,6 +22,10 @@
 #include "atn/D2A_Task.h"
 #include "atn/FadeCommon.h"
 #include "atn/MemoryManager.h"
+#include "atn/GraphicsDevice.h"
+#include "atn/DrawHelper.h"
+#include "game/SetConfig.h"
+#include "game/GameVoice.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -37,6 +41,7 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_8006AA20(const char* path);    // inferred: the file exists
 extern "C" void fn_800C3094(const char* name);   // inferred: loads a message group
 extern "C" void fn_800C3124(const char* name);   // inferred: releases a message group
+extern "C" int fn_800C310C(const char* name);    // inferred: nonzero while the message group loads
 extern "C" void fn_800D2338(atn::Task* task);    // inferred: deletes the task
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 // inferred: layout pane by name and value by name hash (atn::D2A_Layout_unk)
@@ -45,11 +50,71 @@ extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, floa
 // inferred: text of a pane (returned by value) and its width with the font lbl_8087EEC8
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
 extern "C" void* lbl_8087EEC8;
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (screen size)
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context); // inferred: wcstok
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: path without its extension
 extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
 
 namespace Event {
+
+// inferred: values of the "type" attribute of the sequence
+static const ParamEnum_unk sTypeNames_unk[4] = {
+    {"invalid", "invalid"},
+    {"main", "main"},
+    {"backgound", "backgound"},
+    {"in game", "in game"},
+};
+
+// inferred: values of the "wait_mode" attribute
+static const ParamEnum_unk sWaitModes_unk[3] = {
+    {"continue", "continue"},
+    {"freeze", "freeze"},
+    {"black out", "black out"},
+};
+
+// inferred: values of the "map_type" attribute
+static const ParamEnum_unk sMapTypes_unk[5] = {
+    {"world", "world"},
+    {"town", "town"},
+    {"dungeon", "dungeon"},
+    {"mp coop", "mp coop"},
+    {"mp pvp", "mp pvp"},
+};
+
+// inferred: attributes of the sequence (read from the event file; only the table and its __sinit are
+// left)
+static ParamDef_unk sSequenceParams_unk[27] = {
+    {"name", fn_800DC880("name"), 0x1C, ""},
+    {"type", fn_800DC880("type"), 0x1F, 1, 4, sTypeNames_unk},
+    {"wait_mode", fn_800DC880("wait_mode"), 0x1F, 0, 3, sWaitModes_unk},
+    {"map_type", fn_800DC880("map_type"), 0x24, 2, 5, sMapTypes_unk},
+    {"map_id", fn_800DC880("map_id"), 0x25, 0},
+    {"map_sub", fn_800DC880("map_sub"), 0x26, 0},
+    {"msg_file", fn_800DC880("msg_file"), 0x23, ""},
+    {"start_cut", fn_800DC880("start_cut"), 0x1A, 0},
+    {"hands", fn_800DC880("hands"), 2, 1},
+    {"fov", fn_800DC880("fov"), 2, 1},
+    {"origin_x", fn_800DC880("origin_x"), 4, 0.0f},
+    {"origin_y", fn_800DC880("origin_y"), 5, 0.0f},
+    {"origin_z", fn_800DC880("origin_z"), 6, 0.0f},
+    {"pos_x", fn_800DC880("pos_x"), 4, 0.0f},
+    {"pos_y", fn_800DC880("pos_y"), 5, 0.0f},
+    {"pos_z", fn_800DC880("pos_z"), 6, 0.0f},
+    {"angle_y", fn_800DC880("angle_y"), 3, 0.0f},
+    {"cut_num", fn_800DC880("cut_num"), 0, 0},
+    {"cam_pos_x", fn_800DC880("cam_pos_x"), 4, 0.0f},
+    {"cam_pos_y", fn_800DC880("cam_pos_y"), 5, 0.0f},
+    {"cam_pos_z", fn_800DC880("cam_pos_z"), 6, 0.0f},
+    {"cam_tar_x", fn_800DC880("cam_tar_x"), 4, 0.0f},
+    {"cam_tar_y", fn_800DC880("cam_tar_y"), 5, 0.0f},
+    {"cam_tar_z", fn_800DC880("cam_tar_z"), 6, 0.0f},
+    {"bgm", fn_800DC880("bgm"), 2, 1},
+    {"c-event", fn_800DC880("c-event"), 2, 0},
+    {"backup_loc", fn_800DC880("backup_loc"), 2, 0},
+};
 
 // inferred: the assertions put the constructor over the inlining budget, as in the original
 inline void Sequence::SetFlag3_unk(int on) {
@@ -399,24 +464,23 @@ void Sequence::fn_8053F1B4() {
 void Sequence::vf14() {
     if (m194 == 10) {
         for (int i = 0; i < 4; i++) {
-            ScreenEffect_unk& effect = m1F0[i];
-            if (effect.m00 == 0) {
+            if (m1F0[i].m00 == 0) {
                 continue;
             }
             float frame = m198;
-            float start = effect.m04;
-            float end = effect.m08 + start;
-            if ((frame < start || end < frame) && !(effect.m20 & 0x1000000)) {
-                effect.Reset_unk();
+            float start = m1F0[i].m04;
+            float end = m1F0[i].m08 + m1F0[i].m04;
+            if ((frame < start || end < frame) && !(m1F0[i].m20 & 0x1000000)) {
+                m1F0[i].Reset_unk();
                 continue;
             }
             float t = 1.0f;
-            if (frame < start + 5.0f && !(effect.m20 & 0x2000000)) {
+            if (frame < start + 5.0f && !(m1F0[i].m20 & 0x2000000)) {
                 t = (frame - start) / 5.0f;
-            } else if (frame > end - 5.0f && !(effect.m20 & 0x1000000)) {
+            } else if (frame > end - 5.0f && !(m1F0[i].m20 & 0x1000000)) {
                 t = (end - frame) / 5.0f;
             }
-            fn_80541588(effect.m00->m08, effect.m0C, effect.m10, effect.m14, effect.m18, effect.m1C, effect.m20, t);
+            fn_80541588(m1F0[i].m00->m08, m1F0[i].m0C, m1F0[i].m10, m1F0[i].m14, m1F0[i].m18, m1F0[i].m1C, m1F0[i].m20, t);
         }
     }
     if (m98_6 == 1) {
@@ -425,11 +489,12 @@ void Sequence::vf14() {
     }
     if (m98_16 == 1) {
         if (m98_1 == 1) {
-            for (int i = 0; i < (int)m164.size(); i++) {
-                m164[i].vf0C();
+            for (int j = 0; j < (int)m164.size(); j++) {
+                m164[j].vf0C();
             }
             m98_1 = 0;
             m98_15 = 0;
+            m98_16 = 0;
         }
         m98_16 = 0;
     }
@@ -554,9 +619,78 @@ void Sequence::fn_8053F818() {
     }
 }
 
-// NONMATCHING: stub
+// inferred: the data of the event is loaded
 int Sequence::fn_8054011C() {
-    return 0;
+    if (m98_1 != 1) {
+        return 0;
+    }
+    if (m98_12) {
+        return 0;
+    }
+    for (int i = 0; i < (int)m164.size(); i++) {
+        Actor_unk* actor = &m164[i];
+        if (actor != 0) {
+            bool chara = actor->m20 == 1 || actor->m20 == 7;
+            if (chara) {
+                CharaTask* task = actor->fn_800128FC();
+                if (task != 0 && task->fn_8013655C() != 0) {
+                    return 0;
+                }
+            }
+        }
+    }
+    if (!mC4.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!mD4.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!mE4.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!mF4.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!m104.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!m124.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!m134.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!m144.IsLoaded_unk()) {
+        return 0;
+    }
+    if (!m164.IsLoaded_unk()) {
+        return 0;
+    }
+    if (m1D4.fn_803B3CA8() != 0) {
+        return 0;
+    }
+    if (!m1EC->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (m280 != 0 && !m280->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (fn_800C310C(m74) != 0) {
+        return 0;
+    }
+    if (lbl_8087F498 != 0 && lbl_8087F498->fn_803EB234() != 0) {
+        return 0;
+    }
+    if (lbl_8087F540->IsBgmBusy_unk()) {
+        return 0;
+    }
+    int used = m284 - ((int)atn::MemoryManager::Instance()->mMem1.fn_80084F84() +
+                       (int)atn::MemoryManager::Instance()->mMem2.fn_80084F84());
+    m288 = used != 0 ? used : m288;
+    for (int i = 0; i < (int)m134.size(); i++) {
+        m134[i].fn_80204230();
+    }
+    return lbl_8087F540->fn_8048FF34() == 0;
 }
 
 void Sequence::fn_80540664(int arg) {
@@ -637,8 +771,18 @@ void Sequence::fn_805406BC(int keep) {
     m194 = 4;
 }
 
-// NONMATCHING: stub - builds the cuts of the event from the parsed file
-void Sequence::fn_80540A08() {
+// NONMATCHING: same blocker as Event::Cut::fn_8053B030 (inlined std::vector::push_back growth path)
+// inferred: appends a new cut, numbered after the highest index
+Cut* Sequence::fn_80540A08() {
+    int index = 0;
+    for (int i = 0; i < (int)mB8.size(); i++) {
+        if (mB8[i]->mIndex >= index) {
+            index = mB8[i]->mIndex + 1;
+        }
+    }
+    boost::shared_ptr<Cut> cut(new ((MemoryTag)4, "", "", 0) Cut(this, index));
+    mB8.push_back(cut);
+    return mB8[mB8.size() - 1].get();
 }
 
 // inferred: index of a cut (-1 if missing)
@@ -757,8 +901,93 @@ void Sequence::fn_80541548(int slot, ScreenEffectObj_unk* obj, float start, floa
     effect.m20 = flags;
 }
 
-// NONMATCHING: stub - applies a screen effect
-void Sequence::fn_80541588(int arg, float a, float b, int c, int d, int e, unsigned int f, float t) {
+// inferred: color as floats (r, g, b, a); name invented
+struct SeqColor_unk {
+    float r, g, b, a;
+};
+
+// inferred: 0-1 component to 0-255 (rounded); name invented
+static inline unsigned int ToByte_unk(float c) {
+    if (c >= 1.0f) {
+        return 0xFF;
+    }
+    if (c <= 0.0f) {
+        return 0;
+    }
+    return 255.0f * c + 0.5f;
+}
+
+// inferred: draws a text of the event (lines separated by "\\n"), outlined or with a shadow
+void Sequence::fn_80541588(const wchar_t* text, float x, float y, int show, int align, unsigned int color,
+                           unsigned int flags, float alpha) {
+    if (show == 0 && align == 0 && SetConfig::sInstance->mShowDialog == 0) {
+        return;
+    }
+    float width = lbl_8087EEE0->GetWidth_unk();
+    float height = lbl_8087EEE0->GetHeight_unk();
+    int len = wcslen(text);
+    if (len == 0) {
+        return;
+    }
+    wchar_t buf[0x100];
+    wcscpy(buf, text);
+    int lines = 1;
+    wchar_t* p = buf;
+    for (int i = 0; i < len - 1; i++, p++) {
+        if (p[0] == '\\' && p[1] == 'n') {
+            p[1] = '\n';
+            lines++;
+            p[0] = '\n';
+        }
+    }
+    float top;
+    if (lines > 1) {
+        top = 20.0f * -(lines - 1) * 0.5f;
+    } else {
+        top = 0.0f;
+    }
+    SeqColor_unk c;
+    c.r = 1.0f / 255.0f * ((color >> 16) & 0xFF);
+    c.g = 1.0f / 255.0f * ((color >> 8) & 0xFF);
+    c.b = 1.0f / 255.0f * (color & 0xFF);
+    c.a = alpha;
+    int a = 255.0f * alpha;
+    wchar_t* context;
+    int line = 0;
+    for (wchar_t* tok = fn_800DC3C8(buf, L"\n", &context); tok != 0; tok = fn_800DC3C8(0, L"\n", &context)) {
+        float px;
+        switch (align) {
+        case 0:
+            px = width * x - 0.5f * fn_8006EF48(lbl_8087EEC8, tok, 20.0f, 0.0f, 1, 1);
+            break;
+        case 1:
+            px = width * x;
+            break;
+        case 2:
+            px = width * x - fn_8006EF48(lbl_8087EEC8, tok, 20.0f, 0.0f, 1, 1);
+            break;
+        }
+        float py = top + (height * y + 20.0f * line++);
+        if (flags & 1) {
+            lbl_8087EEB0->fn_80061824(px - 1.0f, py - 1.0f, -1.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, tok, a << 24, 1, 1,
+                                      0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(px - 1.0f, 1.0f + py, -1.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, tok, a << 24, 1, 1,
+                                      0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(1.0f + px, 1.0f + py, -1.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, tok, a << 24, 1, 1,
+                                      0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(1.0f + px, py - 1.0f, -1.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, tok, a << 24, 1, 1,
+                                      0, 0, 0xFF000000);
+        } else if (flags & 2) {
+            lbl_8087EEB0->fn_80061824(1.0f + px, 1.0f + py, -1.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, tok, a << 24, 1, 1,
+                                      0, 0, 0xFF000000);
+        }
+        unsigned int r = ToByte_unk(c.r);
+        unsigned int g = ToByte_unk(c.g);
+        unsigned int b = ToByte_unk(c.b);
+        unsigned int al = ToByte_unk(c.a);
+        lbl_8087EEB0->fn_80061824(px, py, -1.0f, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, tok,
+                                  (b | (g << 8)) | ((al << 24) | (r << 16)), 1, 1, 0, 0, 0xFF000000);
+    }
 }
 
 // inferred: event position to world

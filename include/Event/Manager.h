@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "Event/Path.h"
+#include "atn/Bgm.h"
 
 class GameScene;
 
@@ -37,6 +38,9 @@ public:
     void fn_8048F184(int arg);
     void fn_8048FE88();
     void fn_8048FEF0();
+    int fn_8048FF34(); // inferred: nonzero while loading
+    // inferred: the music of the event is being prepared (inlined in Event::Sequence; name invented)
+    bool IsBgmBusy_unk() { return m1F34 != 0 && m1F20.fn_8004B0E4() != 0; }
 
     unsigned char m48[0x70 - 0x48];
     Sequence* m70; // inferred: current sequence
@@ -47,7 +51,10 @@ public:
     GameScene* m1A6C; // inferred: scene of the event when there is no field
     unsigned char m1A70[0x1AA0 - 0x1A70];
     int m1AA0;
-    unsigned char m1AA4[0x2380 - 0x1AA4];
+    unsigned char m1AA4[0x1F20 - 0x1AA4];
+    atn::Bgm m1F20; // inferred: music of the event
+    int m1F34;      // inferred: the music is used
+    unsigned char m1F38[0x2380 - 0x1F38];
     int m2380;
     unsigned char m2384[0x2400 - 0x2384];
     ManagerSubTask_unk* m2400;

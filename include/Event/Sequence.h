@@ -72,6 +72,15 @@ public:
         SEQ_ASSERT100_UNK;
     }
     void SetOwner_unk(Sequence* owner);
+    // inferred: all the data of the list is loaded (inlined in Event::Sequence::fn_8054011C)
+    bool IsLoaded_unk() {
+        for (int i = 0; i < (int)this->size(); i++) {
+            if ((*this)[i].vf10() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
     // inferred: appends a new entry made from the owner; only the actors have one, an explicit
     // specialization defined at the end of Event/Sequence.cpp (0x80543108, before the template instances)
     void Add_unk(const char* name, int arg);
@@ -93,11 +102,11 @@ public:
     unsigned char m18[0x48 - 0x18];
 };
 
-// inferred: object of a screen effect slot (only its m08 is read)
+// inferred: object of a screen effect slot (only its text m08 is read)
 struct ScreenEffectObj_unk {
     int m00;
     int m04;
-    int m08;
+    const wchar_t* m08;
 };
 
 // inferred: screen effect slot of the sequence (0x24 bytes, four at 0x1F0; names invented)
@@ -177,7 +186,7 @@ public:
     void fn_80540664(int arg);
     void fn_805406A0();
     void fn_805406BC(int keep = 0);
-    void fn_80540A08();
+    Cut* fn_80540A08();
     int fn_80541198(Cut* cut);
     Cut* fn_805411DC();
     Cut* fn_80541210();
@@ -188,7 +197,8 @@ public:
     void fn_80541534(int index, int frame);
     void fn_80541548(int slot, ScreenEffectObj_unk* obj, float start, float length, float a, float b, int c, int d,
                      int e, unsigned int flags);
-    void fn_80541588(int arg, float a, float b, int c, int d, int e, unsigned int f, float t);
+    void fn_80541588(const wchar_t* text, float x, float y, int show, int align, unsigned int color,
+                     unsigned int flags, float alpha);
     atn::Vector3 fn_80541BD8(const atn::Vector3& pos);
     atn::Vector3 fn_80541C94(const atn::Vector3& v);
     float fn_80541CF0(float yaw);
