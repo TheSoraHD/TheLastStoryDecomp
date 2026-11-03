@@ -92,52 +92,119 @@ struct GolemMatColor_unk {
     float r, g, b, a;
 };
 
-// inferred: colors of the golem (static array of the file, built by the __sinit 0x802CFFC8)
-struct GolemColor_unk {
-    GolemColor_unk() {}
-    GolemColor_unk(float r_, float g_, float b_, float a_) {
-        r = r_;
-        g = g_;
-        b = b_;
-        a = a_;
-    }
-    GolemColor_unk operator-(const GolemColor_unk& o) const {
-        return GolemColor_unk(r - o.r, g - o.g, b - o.b, a - o.a);
-    }
-    GolemColor_unk operator*(float f) const { return GolemColor_unk(r * f, g * f, b * f, a * f); }
-    GolemColor_unk operator+(const GolemColor_unk& o) const {
-        return GolemColor_unk(r + o.r, g + o.g, b + o.b, a + o.a);
-    }
-    float r, g, b, a;
-};
+// inferred: color operators of the file (always inlined); names invented
+inline atn::Color4f_unk operator-(const atn::Color4f_unk& x, const atn::Color4f_unk& o) {
+    return atn::Color4f_unk(x.r - o.r, x.g - o.g, x.b - o.b, x.a - o.a);
+}
+inline atn::Color4f_unk operator*(const atn::Color4f_unk& x, float f) {
+    return atn::Color4f_unk(x.r * f, x.g * f, x.b * f, x.a * f);
+}
+inline atn::Color4f_unk operator+(const atn::Color4f_unk& x, const atn::Color4f_unk& o) {
+    return atn::Color4f_unk(x.r + o.r, x.g + o.g, x.b + o.b, x.a + o.a);
+}
 // inferred: names invented
-inline GolemColor_unk GolemLerp_unk(const GolemColor_unk& a, const GolemColor_unk& b, float t) {
+inline atn::Color4f_unk GolemLerp_unk(const atn::Color4f_unk& a, const atn::Color4f_unk& b, float t) {
     return (b - a) * t + a;
 }
-static GolemColor_unk sColor0_unk(0.03f, 0.08f, 0.04f, 1.0f);
-static GolemColor_unk sColor1_unk(0.14f, 0.56f, 0.7f, 1.0f);
-static GolemColor_unk sColor2_unk(0.8f, 0.28f, 0.085f, 1.0f);
+// inferred: colors of the golem (static array of the file, built by the __sinit 0x802CFFC8)
+static atn::Color4f_unk sColor0_unk(0.03f, 0.08f, 0.04f, 1.0f);
+static atn::Color4f_unk sColor1_unk(0.14f, 0.56f, 0.7f, 1.0f);
+static atn::Color4f_unk sColor2_unk(0.8f, 0.28f, 0.085f, 1.0f);
 
 // inferred: sets flags of the parameters (weak copy 0x802660FC of game/Em201ZanGurgFinal.cpp); name invented
-inline void SetParamFlag_unk(CharaParam_unk* param, unsigned int flag) {
+// inferred: asserts of the debug build, empty in release: they only count for the inline budget (with them
+// the constructor goes over it and calls every helper out of line, as the original)
+#define GOLEM_ASSERT_UNK(x) ((void)0)
+extern "C" inline void fn_802660FC(CharaParam_unk* param, unsigned int flag) {
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
+    GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0); GOLEM_ASSERT_UNK(param != 0);
     *(unsigned int*)((char*)param + 0x9C) |= flag;
 }
 
-// NONMATCHING: the original is over the inlining budget and calls the Vector3, color, ResHandle and
-// parameter setters out of line, and the std::string, tokenizer and iterator members (same open case
-// as LastCocoonChrysalis and CharaTask::vf2C, docs/inlining.md). Written for the order of the strings.
+// The original is over the inlining budget and calls the Vector3, color, ResHandle and parameter setters
+// out of line, and the std::string, tokenizer and iterator members: the empty asserts of fn_802660FC
+// (called directly here) put it over, as in the original (docs/inlining.md).
 Em209SmallGolem::Em209SmallGolem(atn::Task* parent, EnemyInfo_unk* info)
-    : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m150C(0), m1510(0x407),
+    : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m14FC(sColor0_unk), m150C(0), m1510(0x407),
       m1514(0x406), m1518(10.0f), m151C(30.0f), m1520(60), m1524(150), m1540(0), m1544(0), m1548(0), m1549(0),
       m154C(0), m1554(0) {
-    m14FC[0] = sColor0_unk.r;
-    m14FC[1] = sColor0_unk.g;
-    m14FC[2] = sColor0_unk.b;
-    m14FC[3] = sColor0_unk.a;
-    SetParamFlag_unk(&GetStatus_unk()->mParamB, 0x10);
-    SetParamFlag_unk(&GetStatus_unk()->mParamB, 0x2);
-    SetParamFlag_unk(&GetStatus_unk()->mParamB, 0x8);
-    SetParamFlag_unk(&GetStatus_unk()->mParamB, 0x20);
+    fn_802660FC(&GetStatus_unk()->mParamB, 0x10);
+    fn_802660FC(&GetStatus_unk()->mParamB, 0x2);
+    fn_802660FC(&GetStatus_unk()->mParamB, 0x8);
+    fn_802660FC(&GetStatus_unk()->mParamB, 0x20);
     mStatus.m18 |= 0x40;
     std::string dir("database/chara/special/");
     std::string name("db_last_cocoon.csv");
@@ -145,13 +212,14 @@ Em209SmallGolem::Em209SmallGolem(atn::Task* parent, EnemyInfo_unk* info)
     typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
     Tokenizer tok(params, boost::char_separator<char>(";"));
     for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
-        if (strncmp((*it).c_str(), "db_name=", 8) == 0) {
-            name = (*it).c_str() + 8;
-        } else if (strcmp((*it).c_str(), "enemy_reboot") == 0) {
+        if (strncmp(it->c_str(), "db_name=", 8) == 0) {
+            name = it->c_str() + 8;
+        } else if (strcmp(it->c_str(), "enemy_reboot") == 0) {
             m1549 = 1;
         }
     }
-    m14B0.vf0C(fn_8006AFF8(dir, name).c_str());
+    std::string path = fn_8006AFF8(dir, name);
+    m14B0.vf0C(path.c_str());
     m1528.LoadRequest("/effect/ef_uc058.efp");
     m1534.LoadRequest("/effect/ef_uc051a.efp");
 }
@@ -163,7 +231,7 @@ int Em209SmallGolem::vf0C() {
         m1528.IsLoading() == 0 && m1534.IsLoading() == 0) {
         void* group = m1550.Load("Em209SmallGolem");
         fn_80087994(group, "DebugDisp", &m1554, 0, 0);
-        fn_80088FAC(group, "StoneColor", m14FC, 0, 0, 0.0f, 1.0f, 0.01f);
+        fn_80088FAC(group, "StoneColor", &m14FC.r, 0, 0, 0.0f, 1.0f, 0.01f);
         m1540 = m5C;
         mStatus.m18 |= 0xC2D8;
         mStatus.m18 |= 0x3800000;
@@ -348,14 +416,14 @@ void Em209SmallGolem::vf10() {
     {
         GolemMaterial_unk* material = (GolemMaterial_unk*)mMotion.fn_80092954("em209_core");
         if (material != 0) {
-            mMotion.fn_80094958("em209_core", m14FC, &GolemMatColor_unk(material->m20),
+            mMotion.fn_80094958("em209_core", &m14FC, &GolemMatColor_unk(material->m20),
                                 &GolemMatColor_unk(material->m1C));
         }
     }
     {
         GolemMaterial_unk* material = (GolemMaterial_unk*)mMotion.fn_80092954("em209_core_light");
         if (material != 0) {
-            mMotion.fn_80094958("em209_core_light", m14FC, &GolemMatColor_unk(material->m20),
+            mMotion.fn_80094958("em209_core_light", &m14FC, &GolemMatColor_unk(material->m20),
                                 &GolemMatColor_unk(material->m1C));
         }
     }
@@ -638,9 +706,9 @@ void Em209SmallGolem::fn_802CF728() {
     float frame0 = mMotion.mTracks[0].m08;
     float t = frame0 / mMotion.fn_80097D7C(0);
     if (own) {
-        *(GolemColor_unk*)m14FC = GolemLerp_unk(sColor0_unk, sColor2_unk, t);
+        m14FC = GolemLerp_unk(sColor0_unk, sColor2_unk, t);
     } else {
-        *(GolemColor_unk*)m14FC = GolemLerp_unk(sColor0_unk, sColor1_unk, t);
+        m14FC = GolemLerp_unk(sColor0_unk, sColor1_unk, t);
     }
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {

@@ -1,6 +1,7 @@
 #ifndef GAME_EM209SMALLGOLEM_H
 #define GAME_EM209SMALLGOLEM_H
 
+#include "atn/Color4f_unk.h"
 #include "atn/LH_Binary.h"
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
@@ -43,7 +44,7 @@ public:
     atn::Vector3 m14D8;
     atn::Vector3 m14E4;
     atn::Vector3 m14F0;
-    float m14FC[4]; // inferred: "StoneColor" (r, g, b, a; starts as sColor0_unk)
+    atn::Color4f_unk m14FC; // inferred: "StoneColor" (starts as sColor0_unk)
     int m150C;
     int m1510; // inferred: motion id (0x407, Em209BigGolem 0x409)
     int m1514; // inferred: motion id (0x406, Em209BigGolem 0x408)
