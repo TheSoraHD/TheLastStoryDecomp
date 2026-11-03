@@ -250,10 +250,10 @@ void Input_unk::fn_8012256C() {
     for (int i = 0; i < 0x36; i++) {
         if (m14[i]) {
             m14[i] = 0;
-            if (Held_unk(i)) {
-                m14[i] = 1;
-            } else {
+            if (Held_unk(i) == 0) {
                 m14[i] = 0;
+            } else {
+                m14[i] = 1;
             }
         }
     }

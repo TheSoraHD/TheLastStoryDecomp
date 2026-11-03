@@ -29,8 +29,9 @@ DECL_SECTION(".init") DECL_WEAK asm void __start(void) {
     // clang-format off
     nofralloc
 
-    // Setup hardware
+    // Setup hardware (this SDK version copies ROM/BSS before __init_hardware)
     bl __init_registers
+    bl __init_data
     bl __init_hardware
 
     // Create first stack frame
@@ -41,9 +42,6 @@ DECL_SECTION(".init") DECL_WEAK asm void __start(void) {
     stw r0, 4(r1)
     // Back chain (-1 to signify first frame)
     stw r0, 0(r1)
-
-    // Setup ROM/BSS
-    bl __init_data
 
     // Clear debugger exception mask
     li r0, 0
@@ -242,7 +240,6 @@ _no_args:
      */
 _init_os:
     // Initialize the OS and its debug monitor
-    bl DBInit
     bl OSInit
 
     // Load DVD device code address
@@ -283,6 +280,33 @@ _after_init_metro_trk_bba:
     // clang-format on
 }
 
+// inferred: 0x800041C0 in SLSP01 (not in the reference source): flushes the data cache of a
+// cleared .bss range and toggles HID0[ICFI]
+DECL_SECTION(".init") static asm void __my_flush_cache(register void* addr, register u32 size) {
+    // clang-format off
+    nofralloc
+
+    cmplwi size, 0
+    blelr
+    clrlwi r5, addr, 27
+    add size, size, r5
+    addi size, size, 31
+    srwi size, size, 5
+    mtctr size
+_loop:
+    dcbf r0, addr
+    addi addr, addr, 32
+    bdnz _loop
+    mfspr r6, HID0
+    ori r7, r6, 0x8
+    mtspr HID0, r7
+    isync
+    sync
+    mtspr HID0, r6
+    blr
+    // clang-format on
+}
+
 DECL_SECTION(".init")
 static void __copy_rom_section(void* dst, const void* src, size_t size) {
     if (size == 0 || dst == src) {
@@ -300,6 +324,7 @@ static void __init_bss_section(void* dst, size_t size) {
     }
 
     memset(dst, 0, size);
+    __my_flush_cache(dst, size);
 }
 
 DECL_SECTION(".init") static asm void __init_registers(void) {

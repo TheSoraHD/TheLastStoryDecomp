@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "game/CharaStatus.h"
+#include "MP/SaveElemB_unk.h"
 
 class GameLoadBackground;
 class GameSaveBackground;
@@ -33,11 +34,6 @@ struct ArrayPtr_unk {
     T* mPtr;
 };
 
-// inferred: element type destroyed by ~SaveLoad (only its size and destructor are known)
-struct SaveElemB_unk {
-    ~SaveElemB_unk(); // 0x80119ECC
-    unsigned char m000[0x2D4];
-};
 struct SaveDataSub_unk {
     unsigned char m0000[0x11C4];
     SaveElemB_unk mElems[0x1C]; // 0x11C4

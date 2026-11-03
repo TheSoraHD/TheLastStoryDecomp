@@ -6,6 +6,7 @@
 #include "std/new.h"
 #include "std/tree.h"
 #include "atn/Memory.h"
+#include "AI/AIValue_unk.h"
 
 struct AIStringWithAllocator_unk;
 
@@ -1848,6 +1849,28 @@ AI_sword_pointguard01::AI_sword_pointguard01() {} // 0x8001E710
 AI_return_guard01::AI_return_guard01() {} // 0x8001E720
 } // namespace Script
 } // namespace AI
+
+extern "C" int fn_8001ECD0(void* object, int type) {
+    AIValue_unk* value = (AIValue_unk*)object;
+    switch ((unsigned int)type) {
+    case 0: return value->vf08();
+    case 1: return value->vf0C();
+    case 2: return value->vf10();
+    case 3: return value->vf14();
+    case 4: return value->vf18();
+    case 5: return value->vf1C();
+    case 6: return value->vf20();
+    case 7: return value->vf24();
+    case 8: return value->vf28();
+    case 9: return value->vf2C();
+    case 10: return value->vf30();
+    case 11: return value->vf34();
+    case 12: return value->vf38();
+    case 13: return value->vf3C();
+    case 14: return value->vf40();
+    default: return -1;
+    }
+}
 
 int AI::Script::CharaAi::vf0C() { return -1; }
 

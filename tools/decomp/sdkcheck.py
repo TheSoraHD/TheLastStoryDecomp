@@ -11,7 +11,8 @@ src=sys.argv[1]
 d=json.load(open('config/SLSP01/libs_ref.json'))
 ref=[u for u in d if u['name'].endswith('OSMutex.c')][0]
 if len(sys.argv)>2: ref=[u for u in d if u['name'].endswith(sys.argv[2])][0]
-fl=ref['cflags']+os.environ.get('XFLAGS','').split(); mw=os.environ.get('MW',ref['mw_version'])
+fl=[f for f in ref['cflags'] if not any(x and (f==x[1:] if x[0]=='=' else x in f) for x in os.environ.get('DROP','').split(','))]+os.environ.get('XFLAGS','').split();  # DROP=substr,=exact,... removes flags of the like unit
+mw=os.environ.get('MW',ref['mw_version'])
 out=os.environ.get('SDK_OUT','/tmp/sdkcheck_out.o')
 # keep pragma quoting
 cmd=[os.environ.get('WIBO','build/tools/wibo'),os.path.join(os.environ.get('COMPILERS','build/compilers'),mw,'mwcceppc.exe')]
@@ -22,7 +23,7 @@ r=subprocess.run(cmd,capture_output=True,text=True)
 if r.returncode: print(r.stdout[-3000:],r.stderr[-2000:]); sys.exit(1)
 syms={}
 for l in open('config/SLSP01/symbols.txt'):
-    m=re.match(r'(\S+) = \.text:0x([0-9A-F]+); // type:function size:0x([0-9A-F]+)',l)
+    m=re.match(r'(\S+) = \.(?:text|init):0x([0-9A-F]+); // type:function size:0x([0-9A-F]+)',l)
     if m: syms.setdefault(m.group(1),(int(m.group(2),16),int(m.group(3),16)))
 for kv in os.environ.get('OVR','').split(','):
     if '=' in kv:

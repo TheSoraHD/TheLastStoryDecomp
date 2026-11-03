@@ -111,29 +111,17 @@ struct NecroD2A_unk : public atn::Task {
     float mFrame; // 0x100
 };
 
-// inferred: small inline helpers of other files whose weak copies are first emitted here (vf0C is over
-// the inline budget and calls them out of line; they are also called by other files, which keep the
-// automatic names)
-extern "C" inline int fn_80244CA0(atn::Task* task) {
-    return (task->mFlags >> 1) & 1;
-}
-extern "C" inline void fn_80244CBC(NecroD2A_unk* task, int repeat) {
-    task->mRepeat = repeat;
-}
+extern "C" int fn_80244CA0(atn::Task* task);
+extern "C" void fn_80244CBC(NecroD2A_unk* task, int repeat);
 
 namespace atn {
 // inferred: fixed-size path (0x100 bytes) with an empty destructor; the destructor is the weak copy
 // kept in atn/NandManager.cpp (0x800A2D20, named NandEmpty_unk there)
 struct NandEmpty_unk {
-    NandEmpty_unk(const char* str) { *this = str; }
+    NandEmpty_unk(const char* str);
     ~NandEmpty_unk();
-    NandEmpty_unk& operator=(const char* str) {
-        if (str != mStr) {
-            memcpy(mStr, str, strlen(str) + 1);
-        }
-        return *this;
-    }
-    const char* c_str() const { return mStr; }
+    NandEmpty_unk& operator=(const char* str);
+    const char* c_str() const;
     char mStr[0x100];
 };
 } // namespace atn
@@ -340,6 +328,14 @@ int Em001Necromancer::vf0C() {
     return 0;
 }
 
+// inferred: weak copies of the small task flag helpers first used by vf0C
+extern "C" int fn_80244CA0(atn::Task* task) {
+    return (task->mFlags >> 1) & 1;
+}
+extern "C" void fn_80244CBC(NecroD2A_unk* task, int repeat) {
+    task->mRepeat = repeat;
+}
+
 // inferred: starts state `state` (names invented)
 inline void Em001Necromancer::SetState_unk(int state) {
     m1514 = 0;
@@ -363,6 +359,17 @@ inline int Em001Necromancer::CountNear_unk(float dist) {
         }
     }
     return count;
+}
+
+atn::NandEmpty_unk& atn::NandEmpty_unk::operator=(const char* str) {
+    if (str != mStr) {
+        memcpy(mStr, str, strlen(str) + 1);
+    }
+    return *this;
+}
+
+const char* atn::NandEmpty_unk::c_str() const {
+    return mStr;
 }
 
 void Em001Necromancer::vf10() {
@@ -886,4 +893,8 @@ void Em001Necromancer::fn_80247258() {
                     *(const wchar_t**)((char*)info + 4));
         fn_80109828(lbl_8087F048, text);
     }
+}
+
+atn::NandEmpty_unk::NandEmpty_unk(const char* str) {
+    *this = str;
 }

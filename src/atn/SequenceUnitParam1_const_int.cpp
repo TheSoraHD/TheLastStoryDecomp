@@ -5,6 +5,7 @@
 #include "atn/SequenceHolder.h"
 #include "game/StrapTask.h"
 #include "atn/SequenceBoot_unk.h"
+#include "game/GameLoadTask.h"
 
 using atn::Task;
 using atn::SequenceHolder;
@@ -46,31 +47,6 @@ public:
 
 Task* fn_80365708(Task* parent, const GameTask::Option& option); // inferred: GameTask creator
 
-class GameLoadTask : public Task {
-public:
-    // inferred: name of the sequence to start after loading, plus a flag (0x44 bytes). It has a constructor,
-    // so MWCC copies it member by member; the copies made by boost::function are never destroyed.
-    struct Option {
-        Option(const char* next, int flag) {
-            if (next != mNext) {
-                memcpy(mNext, next, strlen(next) + 1);
-            }
-            mFlag = flag;
-        }
-        // inferred: user copy constructor (the copies are unrolled into registers, also for arguments)
-        Option(const Option& other) { *this = other; }
-        char mNext[0x40];
-        int mFlag;
-    };
-    // inferred: temporary used to build an Option (it has an out-of-line destructor, 0x803B29A8, that
-    // the copies of Option do not call). Name invented.
-    struct OptionTmp_unk : public Option {
-        OptionTmp_unk(const char* next, int flag) : Option(next, flag) {}
-        ~OptionTmp_unk(); // 0x803B29A8
-    };
-};
-
-extern "C" GameLoadTask* fn_803B27F8(Task* parent, const GameLoadTask::Option& option); // inferred: creator
 
 class NewTitleTask : public Task {};
 NewTitleTask* fn_80531ED0(Task* parent, int arg); // inferred: NewTitleTask creator
@@ -258,10 +234,10 @@ void SequenceBoot_unk::fn_80572BA0() {
             SequenceHolder::SequenceUnitParam1<const GameTask::Option>(map->mName, fn_80365708, map->mOption));
     }
     mHolders[0]->Regist_unk(SequenceHolder::SequenceUnitParam1<const GameLoadTask::Option>(
-        "GameLoadMultiplayer", fn_803B27F8, GameLoadTask::OptionTmp_unk("Multiplayer", 1)));
+        "GameLoadMultiplayer", GameLoadTask::fn_803B27F8, GameLoadTask::OptionTmp_unk("Multiplayer", 1)));
     mHolders[0]->Regist_unk(SequenceHolder::SequenceUnit("Multiplayer", MP::Manager2::Create_unk));
     mHolders[0]->Regist_unk(SequenceHolder::SequenceUnitParam1<const GameLoadTask::Option>(
-        "GameLoad", fn_803B27F8, GameLoadTask::OptionTmp_unk("Game", 1)));
+        "GameLoad", GameLoadTask::fn_803B27F8, GameLoadTask::OptionTmp_unk("Game", 1)));
     mHolders[0]->Regist_unk(SequenceHolder::SequenceUnit("Strap", StrapTask::fn_805A6208));
     mHolders[0]->Regist_unk(SequenceHolder::SequenceUnitParam1<const GameTask::Option>(
         "Game", fn_80365708, GameTask::Option(2, 4, 1, 0x18A88, -1, 1, 0)));
@@ -275,8 +251,8 @@ void SequenceBoot_unk::fn_80574918() {
             SequenceHolder::SequenceUnitParam1<const GameTask::Option>(map->mName, fn_80365708, map->mOption));
     }
     mHolders[1]->Regist_unk(SequenceHolder::SequenceUnitParam1<const GameLoadTask::Option>(
-        "GameLoadMultiplayer", fn_803B27F8, GameLoadTask::OptionTmp_unk("Multiplayer", 1)));
+        "GameLoadMultiplayer", GameLoadTask::fn_803B27F8, GameLoadTask::OptionTmp_unk("Multiplayer", 1)));
     mHolders[1]->Regist_unk(SequenceHolder::SequenceUnit("Multiplayer", MP::Manager2::Create_unk));
     mHolders[1]->Regist_unk(SequenceHolder::SequenceUnitParam1<const GameLoadTask::Option>(
-        "GameLoad", fn_803B27F8, GameLoadTask::OptionTmp_unk("Game", 1)));
+        "GameLoad", GameLoadTask::fn_803B27F8, GameLoadTask::OptionTmp_unk("Game", 1)));
 }

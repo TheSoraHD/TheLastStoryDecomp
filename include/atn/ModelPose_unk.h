@@ -7,6 +7,7 @@
 namespace atn {
 class Matrix3x4;
 struct NodeChunk;
+struct ShaderDesc_unk;
 struct ModelNodeCallbackContext;
 struct MotionBuffer;
 // callback run on the node matrices by CalcMatrixStack (type from the RSO names)
@@ -66,7 +67,7 @@ struct ModelData_unk {
     atn::Vector3 mMax; // 0x1C
     unsigned char m28[0x30 - 0x28];
     int m30; // inferred: number of materials
-    unsigned char m34[0x38 - 0x34];
+    atn::ShaderDesc_unk** m34; // inferred: shader descriptions of the materials (m30 of them)
     ModelMtxBlock_unk* m38;
     unsigned char m3C[0x44 - 0x3C];
     int m44;              // inferred: number of joints (nodes of atn::Model)

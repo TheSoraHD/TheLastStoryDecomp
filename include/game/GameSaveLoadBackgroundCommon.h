@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "atn/Memory.h"
+#include "game/GameSaveData.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
@@ -22,36 +23,55 @@ struct SaveTime_unk {
 };
 extern "C" void fn_8004B20C(SaveTime_unk* time); // inferred: current time
 
-// inferred: serialized game state (game/GameSaveData_unk.cpp); name invented
-struct GameSaveData_unk {
-    void fn_803BDEE4(); // inferred: collects the current game state
-    unsigned char m00[0x134A8];
+
+// inferred: party member shown in a save slot (character id and level); name invented
+struct GameSaveSlotChara_unk {
+    int mId;
+    int mLevel;
+};
+struct GameSaveSlotParty_unk {
+    GameSaveSlotChara_unk mCharas[7];
 };
 
 // inferred: header of a save slot (0xB8 bytes, game/GameSaveData_unk.cpp); name invented
 struct GameSaveSlot_unk {
     GameSaveSlot_unk(); // 0x803BE8B4
-    void fn_803BE8C0(GameSaveData_unk* data, SaveTime_unk* time); // inferred: fills the header
+    void fn_803BE8C0(const GameSaveData_unk* data, const SaveTime_unk* time); // inferred: fills the header
     int fn_803BEAB4();                                            // inferred: nonzero if the slot is used
 
-    unsigned char m00[0x08];
+    int m00; // inferred: 1 when the slot is used
+    int m04; // inferred: format version of the save (15 when written by fn_803BE8C0)
     int m08; // inferred: minutes
     int m0C; // inferred: hours
     int m10; // inferred: day
     int m14; // inferred: month (0-based)
     int m18; // inferred: year
     int m1C;
-    unsigned char m20[0x30 - 0x20];
+    int m20;
+    int m24;
+    int m28;
+    int m2C;
     unsigned char m30; // inferred: map
     unsigned char m31;
     unsigned short m32;
-    unsigned char m34[0xB8 - 0x34];
+    int m34;
+    GameSaveSlotParty_unk mParty; // 0x38
+    int m70;
+    int m74;
+    int m78;
+    int m7C;
+    int m80; // inferred: copy of GameConfig_unk::m194 != 0
+    unsigned char m84[0xB4 - 0x84];
+    unsigned int mB4; // inferred: checksum of 0x00..0xB4 (fn_800DC500)
 };
 
 // inferred: contents of a save file (header + game state, 0x13560 bytes)
+// (raw bytes: GameSaveData_unk is not constructed here, the constructor of GameSaveTask does not touch it)
 struct GameSaveFile_unk {
+    GameSaveData_unk* GetData_unk() { return (GameSaveData_unk*)mData; }
+
     unsigned char mHeader[0xB8]; // inferred: copy of a GameSaveSlot_unk
-    GameSaveData_unk mData;
+    unsigned char mData[sizeof(GameSaveData_unk)];
 };
 
 class GameSaveLoadBackgroundCommon : public atn::Task {

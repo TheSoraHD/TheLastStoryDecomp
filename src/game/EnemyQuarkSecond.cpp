@@ -283,6 +283,8 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" const char lbl_8074A4C0[];
+extern "C" float lbl_80885304;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 extern "C" void* lbl_8087F498; // inferred: camera shake manager
 extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
@@ -1114,12 +1116,12 @@ void EnemyQuarkSecond::fn_8034100C() {
 // functions not written yet come before it)
 void EnemyQuarkSecond::fn_80341BEC() {
     if (m14B4 == 0) {
-        if (mMotion.mTracks[0].m08 >= 35.0f) {
+        if (mMotion.mTracks[0].m08 >= lbl_80885304) {
             m14B4++;
             m14BC = 1;
             fn_80232B7C(&m1610, 0);
             PlayEffect_unk(&m1610, &mMotion, 4.0f);
-            fn_800C344C("SE_EM211_012", &mPos, 0, -1, 1.0f);
+            fn_800C344C(lbl_8074A4C0 + 0x36F, &mPos, 0, -1, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;

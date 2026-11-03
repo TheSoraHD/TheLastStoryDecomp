@@ -6,6 +6,9 @@
 #include "atn/Memory.h"
 
 extern "C" unsigned long strlen(const char* s);
+
+// inferred: empty release assertions keep the constructor out of line (0x8037C934)
+#define ASSERT_UNK(x) ((void)0)
 // see GameBgm::BgmArray_unk
 extern "C" void __ct__Q23atn3BgmFv();
 extern "C" void __dt__Q23atn3BgmFv();
@@ -63,9 +66,12 @@ static const int sBgmIds[7] = {0, 101, 201, 3, 4, 301, 6};
 
 GameBgm* GameBgm::sInstance;
 
+// inferred: empty allocation name and source strings (0x8074E000)
+extern "C" const char lbl_8074E000[8] = {0};
+
 // inferred: name of the BGM `id`, with the replacements of the alternative set and of the story
-// NONMATCHING: 99.3% - `name` and `progress` swap r30/r31.
 static const char* fn_8037C71C(int id) {
+    int progress;
     const char* name = fn_80207EE8(id);
     if (lbl_8087F0A8->m15C != 0) {
         switch (id) {
@@ -86,7 +92,7 @@ static const char* fn_8037C71C(int id) {
         }
     }
     if (lbl_8087F430 != 0) {
-        int progress = lbl_8087F430->m10D0;
+        progress = lbl_8087F430->m10D0;
         if (0 <= progress && progress < 400000 && id == 0x191) {
             name = fn_80207EE8(0x192);
         }
@@ -106,11 +112,9 @@ static const char* fn_8037C71C(int id) {
     return name;
 }
 
-// NONMATCHING: 0% - the constructor is inlined here; the original calls it (unknown why: it is
-// the single candidate of this function and no inlining rule found so far excludes it).
 GameBgm* GameBgm::fn_8037C8C4(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
-        sInstance = new ((MemoryTag)10, "", "", 0) GameBgm(parent);
+        sInstance = new ((MemoryTag)10, lbl_8074E000, lbl_8074E000, 0) GameBgm(parent);
     }
     return sInstance;
 }
@@ -120,6 +124,10 @@ inline GameBgm::BgmArray_unk::BgmArray_unk() {
 }
 
 GameBgm::GameBgm(atn::Task* parent) : atn::Task(parent), mState(0), mIndex(1), m80(0), m84(0), m88(0), mE0(0.0f) {
+    ASSERT_UNK(0);
+    ASSERT_UNK(0);
+    ASSERT_UNK(0);
+    ASSERT_UNK(0);
     mPrev = mBgm.Get(0);
     mCur = mBgm.Get(1);
 }
