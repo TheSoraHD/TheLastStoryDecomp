@@ -12084,11 +12084,6 @@ void CharaTask::fn_8017AC44(int clear) {
 }
 
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (names invented)
-struct NameEntry_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName;
-};
-extern "C" NameEntry_unk* fn_803B3B38(void* table, int id);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
 extern "C" void fn_80096218(atn::Model* model, atn::SimpleVector<int>* list, void* arg); // inferred: collects resources
@@ -12114,9 +12109,9 @@ void CharaTask::fn_8017AD44(atn::SimpleVector<int>* list, void* arg) {
 
 int CharaTask::vfB8(wchar_t* name) {
     if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
-        NameEntry_unk* entry = fn_803B3B38(lbl_8087F430->m54F4, m5C->mC4);
+        GameMessage* entry = fn_803B3B38((GameMessageTable_unk*)lbl_8087F430->m54F4, m5C->mC4);
         if (entry != 0) {
-            wcscpy(name, entry->mName);
+            wcscpy(name, entry->mText);
             return 1;
         }
     }

@@ -1,3 +1,4 @@
+#include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
 #include "game/GameScene.h"
 #include "atn/D2A_Task.h"
@@ -49,10 +50,6 @@ extern "C" void fn_80370BD0(GameUIField_unk* field, int frames, int arg, float s
 extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int frames, int arg, float speed);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" void fn_800D58A4(atn::Texture_unk* tex); // inferred: releases a render texture
-extern "C" void fn_803B78E8(void* self); // inferred: closes the window (game/GameChoiceWindow.cpp)
-extern "C" void fn_803B57B0(int window, int enabled); // inferred: game/GameChoiceWindow.cpp
-extern "C" void fn_803B6C88(GameUIWindow_unk* window, int arg);
-extern "C" void fn_803B6970(GameUIWindow_unk* win, void* msg, int arg, float time); // inferred: shows a message
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the hit heals
 extern "C" int fn_8021A9CC(HitInfo_unk* hit); // inferred: kind test
@@ -2431,8 +2428,8 @@ void GameUI::fn_803E3384() {
 void GameUI::fn_803E3BE8(void* msg, int arg, float time) {
     if (msg != 0 && m2640 != 0) {
         m2640->mB4 = 0;
-        fn_803B78E8(m2640);
-        fn_803B6970(m2640, msg, arg, time);
+        ((GameTextMessageWindow*)m2640)->fn_803B78E8();
+        ((GameTextMessageWindow*)m2640)->fn_803B6970((GameMessage*)msg, arg, time);
         m2658 = 0;
     }
 }
@@ -2615,8 +2612,8 @@ void GameUI::fn_803E4510() {
 // NONMATCHING: 99.2% - r5/r6 of the first gauge and of the pointer of the mB0 loop swapped
 void GameUI::fn_803E454C() {
     fn_803E41AC(0);
-    fn_803B57B0(m263C, 1);
-    fn_803B6C88(m2640, 1);
+    ((GameMessageWindow*)m263C)->fn_803B57B0(1);
+    ((GameTextMessageWindow*)m2640)->fn_803B6C88(1);
     m114C = 0;
     m110C = 0;
     m1170 = 0;

@@ -143,11 +143,6 @@ extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (as in game/CharaTask.cpp)
-struct NameEntry_unk {
-    unsigned char m00[0x08];
-    const wchar_t* mName;
-};
-extern "C" NameEntry_unk* fn_803B3B38(void* table, int id);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -783,9 +778,9 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
 int Em206EggMonster::vfB8(wchar_t* name) {
     if (lbl_8087F430->m5694 == 0) {
         if (m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
-            NameEntry_unk* entry = fn_803B3B38(lbl_8087F430->m54F4, m5C->mC4);
+            GameMessage* entry = fn_803B3B38((GameMessageTable_unk*)lbl_8087F430->m54F4, m5C->mC4);
             if (entry != 0) {
-                wcscpy(name, entry->mName);
+                wcscpy(name, entry->mText);
                 return 1;
             }
         }

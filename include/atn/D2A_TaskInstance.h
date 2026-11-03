@@ -102,7 +102,7 @@ public:
     void SetValue1_unk(const char* name, int index, float value);
     void SetValue2_unk(const char* name, int index, float value);
     void SetValues1_unk(const char* name, D2A_DrawRect r);
-    void SetValues1Rect_unk(const char* name, D2A_DrawRect r); // inferred: x, y and z only
+    void SetValues1Rect_unk(const char* name, D2A_DrawRect& r); // inferred: x, y and z only
     void SetValues2_unk(const char* name, D2A_DrawColor c);
     void SetValue3_unk(const char* name, int index, float value);
     void SetColor_unk(const char* name, unsigned int color);

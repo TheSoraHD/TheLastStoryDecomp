@@ -290,7 +290,7 @@ void D2A_TaskInstanceBase<N, M>::SetValues1_unk(const char* name, D2A_DrawRect r
 }
 
 template <int N, int M>
-void D2A_TaskInstanceBase<N, M>::SetValues1Rect_unk(const char* name, D2A_DrawRect r) {
+void D2A_TaskInstanceBase<N, M>::SetValues1Rect_unk(const char* name, D2A_DrawRect& r) {
     SetValue1_unk(name, 0, r.x);
     SetValue1_unk(name, 1, r.y);
     SetValue1_unk(name, 4, r.z);
@@ -463,7 +463,7 @@ void fn_801F6E78(D2A_TaskInstance32_unk* inst, const char* name, atn::D2A_DrawRe
     inst->SetValue1_unk(name, 4, r.z);
 }
 
-template void atn::D2A_TaskInstanceBase<32, 8>::SetValues1Rect_unk(const char* name, D2A_DrawRect r);
+template void atn::D2A_TaskInstanceBase<32, 8>::SetValues1Rect_unk(const char* name, D2A_DrawRect& r);
 
 void fn_801F7590(D2A_TaskInstance32_unk* inst, const char* name, atn::D2A_DrawColor c) {
     inst->SetValue2_unk(name, 0, c.r);

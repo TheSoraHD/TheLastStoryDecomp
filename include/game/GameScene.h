@@ -8,6 +8,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/FixedArray.h"
+#include "game/GameChoiceWindow.h"
 
 namespace atn {
 class Model;
@@ -35,20 +36,6 @@ struct U16Table_unk {
     unsigned short mCount; // inferred: number of values
     unsigned short mRuns;  // inferred: number of runs
     void* mData;
-};
-
-// inferred: message of the scene (dtor 0x80366364, game/GameTask.cpp)
-struct GameMessage {
-    ~GameMessage();
-    unsigned char m00[0xC];
-};
-
-// inferred: message table of the scene (functions 0x803B3B38-0x803B3CA8 of game/GameChoiceWindow.cpp);
-// name invented
-struct GameMessageTable_unk {
-    atn::SimpleArray<int> m00;
-    atn::SimpleArray<GameMessage> m08;
-    atn::LH_Binary m10;
 };
 
 namespace gs {
