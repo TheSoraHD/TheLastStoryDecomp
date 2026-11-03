@@ -17,8 +17,8 @@ class SingletonNoStatic {};
 
 } // namespace atn
 
-// inferred: model of an actor (0 if none); not the same as Actor_unk::fn_80012A1C
-extern "C" atn::Model* fn_8001296C(Event::Actor_unk* actor);
+// inferred: model of an actor (0 if none); not the same as Actor::fn_80012A1C
+extern "C" atn::Model* fn_8001296C(Event::Actor* actor);
 // inferred: starts a wind on the model (direction, frames, two strengths)
 
 namespace Event {
@@ -38,7 +38,7 @@ inline int ActionParam_unk::GetIndex_unk() const {
     return m04.i;
 }
 
-inline DataList_unk<Actor_unk>* EventManager_unk::GetActors_unk() {
+inline DataList_unk<Actor>* EventManager_unk::GetActors_unk() {
     return &m164;
 }
 
@@ -53,27 +53,27 @@ T* DataList_unk<T>::Find_unk(int id) {
     return 0;
 }
 
-inline bool Actor_unk::IsState6_unk() const {
+inline bool Actor::IsState6_unk() const {
     return m20 == 6;
 }
-inline int Actor_unk::GetCurve_unk() const {
+inline int Actor::GetCurve_unk() const {
     return m130;
 }
-inline atn::Vector3 Actor_unk::GetTarget_unk() const {
+inline atn::Vector3 Actor::GetTarget_unk() const {
     return mD0;
 }
-inline atn::Vector3 Actor_unk::GetRot_unk() const {
+inline atn::Vector3 Actor::GetRot_unk() const {
     return mC4;
 }
-inline void Actor_unk::SetRot_unk(const atn::Vector3& v) {
+inline void Actor::SetRot_unk(const atn::Vector3& v) {
     mC4 = v;
 }
 // NONMATCHING: weak copy 0x80551E3C 60% - the original stores z before the paired single (tried
 // Assign_unk, a temporary and a by-value parameter)
-inline void Actor_unk::SetTarget_unk(const atn::Vector3& v) {
+inline void Actor::SetTarget_unk(const atn::Vector3& v) {
     mD0 = v;
 }
-inline int Actor_unk::GetState_unk() const {
+inline int Actor::GetState_unk() const {
     return m20;
 }
 
@@ -96,7 +96,7 @@ inline atn::Vector3 PathSpline_unk::Segment_unk(int i, float u) {
 }
 
 // inferred: point at `t` in [0, 1] of the whole path (as WarLionPath_unk::GetPos_unk; inlined in the
-// weak copy 0x8055202C, Actor_unk::GetPathPos_unk)
+// weak copy 0x8055202C, Actor::GetPathPos_unk)
 inline atn::Vector3 PathSpline_unk::GetPos_unk(float t) {
     if (t <= 0.0f) {
         return mStart;
@@ -115,11 +115,11 @@ inline atn::Vector3 PathSpline_unk::GetPos_unk(float t) {
     return mStart;
 }
 
-inline atn::Vector3 Actor_unk::GetPathPos_unk(float t) {
+inline atn::Vector3 Actor::GetPathPos_unk(float t) {
     return mPath.GetPos_unk(t);
 }
 
-inline void Actor_unk::TurnTo_unk(const atn::Vector3& dir) {
+inline void Actor::TurnTo_unk(const atn::Vector3& dir) {
     fn_80010490(dir.ToRotation_unk());
 }
 
@@ -284,14 +284,14 @@ inline T Clamp_unk(T x, T lo, T hi) {
 void ActionActorPosition::fn_80551194(Action* arg, float t) {
     ActionOwner_unk* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
-    Actor_unk* actor = manager->GetActors_unk()->Find_unk(fn_80224618(section));
+    Actor* actor = manager->GetActors_unk()->Find_unk(fn_80224618(section));
     atn::Vector3 start = actor->fn_80010374();
     int moved = 0;
     int moveArg = 0;
     int mode = arg->GetParamAt_unk(0)->GetMode_unk();
     if (mode == 0) {
         // to an actor (or one of its nodes) plus an offset
-        Actor_unk* target = manager->GetActors_unk()->Find_unk(arg->GetParamAt_unk(1)->GetActorId_unk());
+        Actor* target = manager->GetActors_unk()->Find_unk(arg->GetParamAt_unk(1)->GetActorId_unk());
         atn::Vector3 offset = arg->fn_805381F0(3);
         int keepLocal = fn_80224610(arg->GetParamAt_unk(6));
         int addRot = fn_80224610(arg->GetParamAt_unk(10));
@@ -415,7 +415,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
     } else if (mode == 2) {
         // to an actor (or one of its nodes) plus an offset, without rotation
         int id = arg->GetParamAt_unk(1)->GetActorId_unk();
-        Actor_unk* target = manager->GetActors_unk()->Find_unk(id);
+        Actor* target = manager->GetActors_unk()->Find_unk(id);
         atn::Vector3 pos = target->fn_80010374();
         atn::Vector3 offset = arg->fn_805381F0(3);
         if (target->IsState6_unk()) {
@@ -454,7 +454,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
     } else if (mode == 3) {
         // rotation only (optionally relative to a node)
         int id = arg->GetParamAt_unk(1)->GetActorId_unk();
-        Actor_unk* target = manager->GetActors_unk()->Find_unk(id);
+        Actor* target = manager->GetActors_unk()->Find_unk(id);
         MtxPtr node = arg->fn_805389B8(1);
         int addRot = fn_80224610(arg->GetParamAt_unk(6));
         atn::Vector3 rot = arg->fn_80538C14(3);
@@ -551,7 +551,7 @@ inline void PathSpline_unk::Build_unk(const atn::Vector3* pts, int n) {
 }
 
 // inferred: the path of the actor follows the points of an event path
-inline void Actor_unk::SetPath_unk(Path* path) {
+inline void Actor::SetPath_unk(Path* path) {
     std::vector<atn::Vector3> pts(path->mPoints.size());
     for (int i = 0; i < (int)path->mPoints.size(); i++) {
         pts[i] = path->mPoints[i].mPos;
@@ -569,7 +569,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
         if (mode == 0) {
             ActionOwner_unk* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
-            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            Actor* actor = manager->FindActor_unk(section->m10);
             arg->fn_80538CE0(14, actor->fn_80010B68());
             if (arg->GetParam_unk(12)->m04.i != 0) {
                 actor->fn_800119C0(0, arg->GetParam_unk(13)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
@@ -581,7 +581,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
         } else if (mode == 1) {
             ActionOwner_unk* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
-            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            Actor* actor = manager->FindActor_unk(section->m10);
             int id = arg->GetParam_unk(1)->m04.i;
             if (id != -1) {
                 Path* path = manager->FindPath_unk(id);
@@ -595,7 +595,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
         } else if (mode == 2) {
             ActionOwner_unk* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
-            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            Actor* actor = manager->FindActor_unk(section->m10);
             if (arg->GetParam_unk(8)->m04.i != 0) {
                 actor->fn_800119C0(0, arg->GetParam_unk(9)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
             }
@@ -605,7 +605,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
         } else if (mode == 3) {
             ActionOwner_unk* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
-            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            Actor* actor = manager->FindActor_unk(section->m10);
             arg->fn_80538CE0(7, actor->fn_80010B68());
         }
         break;
@@ -615,7 +615,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
         if ((mode == 0 || mode == 2) && arg->m18 > 0) {
             ActionOwner_unk* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
-            Actor_unk* actor = manager->FindActor_unk(section->m10);
+            Actor* actor = manager->FindActor_unk(section->m10);
             fn_8048C884(lbl_8087F540, actor->m130);
         }
         break;
@@ -626,7 +626,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
             if (id != -1) {
                 ActionOwner_unk* section = arg->fn_805381A0();
                 EventManager_unk* manager = arg->fn_805381C8();
-                Actor_unk* actor = manager->FindActor_unk(section->m10);
+                Actor* actor = manager->FindActor_unk(section->m10);
                 Path* path = manager->FindPath_unk(id);
                 if (path != 0) {
                     actor->SetPath_unk(path);
@@ -639,7 +639,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
     case 6: {
         if (arg->GetParam_unk(0)->m04.i == 0) {
             EventManager_unk* manager = arg->fn_805381C8();
-            Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(1)->m04.i);
+            Actor* target = manager->FindActor_unk(arg->GetParam_unk(1)->m04.i);
             if (target->m20 == 6) {
                 arg->fn_80538DC4(3);
                 float yaw = manager->fn_80541CF0(atn::DegToRad_unk(arg->GetParam_unk(8)->m04.f));
@@ -670,11 +670,11 @@ int ActionActorPosition::vf08(Action* arg) {
     return 0;
 }
 
-extern "C" void fn_80012540(Actor_unk* actor, int arg);                 // inferred: stops the motions
-extern "C" void fn_80012294(Actor_unk* actor, int track, int a, int b); // inferred: stops a track
+extern "C" void fn_80012540(Actor* actor, int arg);                 // inferred: stops the motions
+extern "C" void fn_80012294(Actor* actor, int track, int a, int b); // inferred: stops a track
 
 // inferred: free motion slot of the actor for `arg` (-1 if none)
-inline int AddMotionAction_unk(Actor_unk* actor, Action* arg) {
+inline int AddMotionAction_unk(Actor* actor, Action* arg) {
     for (int i = 0; i < 3; i++) {
         if (actor->mB8[i] == 0) {
             actor->mB8[i] = arg;
@@ -690,7 +690,7 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
     case 0: {
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        Actor_unk* actor = manager->FindActor_unk(section->m10);
+        Actor* actor = manager->FindActor_unk(section->m10);
         int motion = arg->GetParam_unk(0)->m04.i;
         int a1 = arg->GetParam_unk(1)->m04.i;
         float blend1 = arg->GetParam_unk(2)->m04.f;
@@ -721,7 +721,7 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
     case 4: {
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
-        Actor_unk* actor = manager->FindActor_unk(section->m10);
+        Actor* actor = manager->FindActor_unk(section->m10);
         if (actor->mB8[0] == arg) {
             actor->mB8[0] = 0;
         }
@@ -738,14 +738,14 @@ int ActionActorMotion::vf0C(Action* arg, int phase) {
 }
 
 // inferred: sets the facial expression of an actor (0x80011E98)
-extern "C" void fn_80011E98(Actor_unk* actor, int face, EventManager_unk* manager, int a, int b, int c, float d);
+extern "C" void fn_80011E98(Actor* actor, int face, EventManager_unk* manager, int a, int b, int c, float d);
 
 int ActionActorFacial::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = section->m10;
-        Actor_unk* actor = manager->FindActor_unk(id);
+        Actor* actor = manager->FindActor_unk(id);
         int face = arg->GetParam_unk(0)->m04.i;
         // inferred: parameters 1 and 2 are read but not used (only their loads are left)
         float unused1 = arg->GetParam_unk(1)->m04.f;
@@ -773,10 +773,10 @@ extern "C" int rand();
 void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     ActionOwner_unk* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
-    Actor_unk* actor = manager->FindActor_unk(section->m10);
+    Actor* actor = manager->FindActor_unk(section->m10);
     float t = now - (float)arg->m10;
     float weight = 1.0f;
-    Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
     int node = arg->GetParam_unk(1)->m04.i;
     atn::Vector3 cam = lbl_8087EFB4->m10C;
     float angle = arg->GetParam_unk(14)->m04.f;
@@ -802,9 +802,9 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
 void ActionActorEyes::fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames) {
     ActionOwner_unk* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
-    Actor_unk* actor = manager->FindActor_unk(section->m10);
+    Actor* actor = manager->FindActor_unk(section->m10);
     float weight = 1.0f;
-    Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
     int node = arg->GetParam_unk(1)->m04.i;
     *cur = Approach_unk(*cur, *goal, frames);
     if (mode != 0) {
@@ -831,8 +831,8 @@ int ActionActorEyes::vf08(Action* arg) {
     int mode = arg->GetParam_unk(9)->m04.i;
     ActionOwner_unk* section = arg->fn_805381A0();
     EventManager_unk* manager = arg->fn_805381C8();
-    Actor_unk* actor = manager->FindActor_unk(section->m10);
-    Actor_unk* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+    Actor* actor = manager->FindActor_unk(section->m10);
+    Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
     int length = arg->m14 - arg->m10;
     if (arg->m1C > 0 && (float)arg->m14 - manager->m198 < (float)arg->m1C) {
         return 0;
@@ -851,7 +851,7 @@ int ActionActorEyes::vf08(Action* arg) {
     }
     if (wander) {
         if (actor->m18C <= 0) {
-            Actor_unk* target2 = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
+            Actor* target2 = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
             float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
             float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
             actor->m190.Set_unk(2.0f * rx * ((float)rand() / 32767.0f) - rx, 2.0f * ry * ((float)rand() / 32767.0f) - ry,

@@ -22,8 +22,8 @@ namespace Event {
 class Dialog;
 }
 
-extern "C" CharaTask* fn_80012934(Event::Actor_unk* actor); // inferred: character of an actor
-extern "C" void fn_80012054(Event::Actor_unk* actor, int a, int b, int c, float f1, float f2);
+extern "C" CharaTask* fn_80012934(Event::Actor* actor); // inferred: character of an actor
+extern "C" void fn_80012054(Event::Actor* actor, int a, int b, int c, float f1, float f2);
 extern "C" int fn_8006AA20(const char* path); // inferred: nonzero if the file exists
 
 // inferred: render manager (see game/MenuCommonTask.cpp)
@@ -233,7 +233,7 @@ struct DialogEvent_unk {
     unsigned char m000[0xB8];
     DialogList_unk<DialogScene2_unk> mB8;
     unsigned char m0C0[0x164 - 0xC0];
-    Actor_unk* m164;
+    Actor* m164;
     int m168;
 };
 
@@ -249,7 +249,7 @@ inline void Dialog::ResetPos_unk() {
     }
 }
 
-inline unsigned int Dialog::MakeKey_unk(Actor_unk* actor, int kind) {
+inline unsigned int Dialog::MakeKey_unk(Actor* actor, int kind) {
     DialogKey_unk key;
     key.w = 0;
     CharaTask* chara = fn_80012934(actor);
@@ -262,9 +262,9 @@ inline unsigned int Dialog::MakeKey_unk(Actor_unk* actor, int kind) {
 }
 
 // inferred: name of the balloon file of a character (defined after the creator)
-static std::basic_string<char> GetPath_unk(Actor_unk* actor, int kind);
+static std::basic_string<char> GetPath_unk(Actor* actor, int kind);
 
-inline Dialog::Head_unk* Dialog::FindHead_unk(Actor_unk* actor, int kind) {
+inline Dialog::Head_unk* Dialog::FindHead_unk(Actor* actor, int kind) {
     int i;
     unsigned int key = MakeKey_unk(actor, kind);
     for (i = 0; i < 16; i++) {
@@ -305,7 +305,7 @@ Dialog::Dialog(atn::Task* parent)
                 }
                 for (int l = 0; l < group->m14.mCount; l++) {
                     DialogCmd_unk* cmd = group->m14.Get_unk(l);
-                    Actor_unk* actor = ((EventManager_unk*)event)->FindActor_unk(cmd->GetParam_unk(0)->m04.i);
+                    Actor* actor = ((EventManager_unk*)event)->FindActor_unk(cmd->GetParam_unk(0)->m04.i);
                     if (actor == 0) {
                         continue;
                     }
@@ -361,7 +361,7 @@ Dialog* Dialog::fn_802288D0(atn::Task* parent) {
 }
 
 // NONMATCHING: 99.57% - registers inside the inlined basic_string(const char*) constructors
-static std::basic_string<char> GetPath_unk(Actor_unk* actor, int kind) {
+static std::basic_string<char> GetPath_unk(Actor* actor, int kind) {
     CharaTask* chara = fn_80012934(actor);
     if (chara == 0) {
         return std::basic_string<char>("");
@@ -373,11 +373,11 @@ static std::basic_string<char> GetPath_unk(Actor_unk* actor, int kind) {
     return name;
 }
 
-void Dialog::fn_80228AF4(int slot, Actor_unk* actor, int kind, int arg, int frames, int option) {
+void Dialog::fn_80228AF4(int slot, Actor* actor, int kind, int arg, int frames, int option) {
     fn_80228AF8(slot, actor, kind, arg, frames, option);
 }
 
-void Dialog::fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg, int frames, int option) {
+void Dialog::fn_80228AF8(int slot, Actor* actor, int kind, int arg, int frames, int option) {
     Head_unk* head = FindHead_unk(actor, kind);
     if (head != 0) {
         if (mSlots[slot].mHead != 0) {
@@ -462,13 +462,13 @@ void Dialog::fn_80228CA0(int slot, const wchar_t* text, int align, int size, int
 }
 
 // inferred: actor taking part in the conversation
-static inline bool IsTalking_unk(Actor_unk* actor) {
+static inline bool IsTalking_unk(Actor* actor) {
     return actor->m20 == 1 || actor->m20 == 7;
 }
 
 // NONMATCHING: 99.78% - the original increments the index before the actor offset
 void Dialog::fn_80228FD8() {
-    Actor_unk* actor;
+    Actor* actor;
     DialogEvent_unk* event = (DialogEvent_unk*)m20;
     for (int i = 0; i < event->m168; i++) {
         actor = &event->m164[i];
@@ -595,7 +595,7 @@ void Dialog::fn_80229414() {
 
 // NONMATCHING: 99.32% - the original keeps the strength-reduced pointer in r30 and the character in
 // r31 (tried the declaration orders and a pointer loop)
-DialogHead* Dialog::fn_8022960C(Actor_unk* actor) {
+DialogHead* Dialog::fn_8022960C(Actor* actor) {
     CharaTask* chara;
     if (actor == 0 || fn_80012934(actor) == 0) {
         return 0;

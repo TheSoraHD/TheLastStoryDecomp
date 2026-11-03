@@ -7,7 +7,7 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: event position to world (Event/Sequence, also used by game/PathData_unk)
-extern "C" float fn_80011964(Event::Actor_unk* actor); // inferred: yaw of the actor
+extern "C" float fn_80011964(Event::Actor* actor); // inferred: yaw of the actor
 
 namespace Event {
 
@@ -69,7 +69,7 @@ namespace Event {
 // NONMATCHING: 98.3% - scheduling of the first mChannel load (as fn_805389B8)
 atn::Vector3 Action::fn_805382BC(int n) {
     EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
-    Actor_unk* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
+    Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
     atn::Vector3 v;
     v.x = GetParamAt_unk(n + 1)->m04.f;
     v.y = GetParamAt_unk(n + 2)->m04.f;
@@ -89,7 +89,7 @@ atn::Vector3 Action::fn_805382BC(int n) {
 MtxPtr Action::fn_805389B8(int n) {
     // inferred: the event manager is the Sequence of the cut (fn_80541C94 is in Event/Sequence)
     EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
-    Actor_unk* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
+    Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
     atn::Vector3 pos = lbl_807C7030; // inferred: unused (only the copy is left)
     MtxPtr mtx = 0;
     atn::Model* model = actor->fn_80012A1C();

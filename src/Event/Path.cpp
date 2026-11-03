@@ -9,18 +9,9 @@
 #include "atn/SoundCore.h"
 #include "game/Input_unk.h"
 #include "std/string_members.h"
+#include "Event/Actor.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-
-namespace Event {
-
-struct Actor_unk {
-    atn::Model* fn_80012A1C();   // inferred: model of the actor (0 if none)
-    atn::Vector3 fn_80010374();  // inferred: position of the actor
-    atn::Vector3 fn_80010B68();  // inferred: rotation of the actor
-};
-
-} // namespace Event
 
 // inferred: the event manager (lbl_8087F540, Event/Manager.cpp); names invented
 struct EventMgr_unk;

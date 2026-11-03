@@ -16,7 +16,7 @@ int BehaviorFollow::vf0C(Action* arg, int phase) {
         ActionOwner_unk* owner = arg->fn_805381A0();
         EventManager_unk* mgr = arg->fn_805381C8();
         int id = owner->m10;
-        Actor_unk* actor = mgr->FindActor_unk(id);
+        Actor* actor = mgr->FindActor_unk(id);
         if (actor->fn_800128FC() != 0) {
             atn::Vector3 pos = arg->fn_805382BC(1);
             float radius = arg->GetParam_unk(5)->m04.f;
@@ -31,7 +31,7 @@ int BehaviorFollow::vf0C(Action* arg, int phase) {
     case 6: {
         EventManager_unk* mgr = arg->fn_805381C8();
         int id = arg->GetParam_unk(1)->m04.i;
-        Actor_unk* actor = mgr->FindActor_unk(id);
+        Actor* actor = mgr->FindActor_unk(id);
         if (actor->m20 == 6) {
             arg->fn_80538DC4(2);
         }
@@ -45,7 +45,7 @@ int BehaviorFollow::vf08(Action* arg) {
     ActionOwner_unk* owner = arg->fn_805381A0();
     EventManager_unk* mgr = arg->fn_805381C8();
     int id = owner->m10;
-    Actor_unk* actor = mgr->FindActor_unk(id);
+    Actor* actor = mgr->FindActor_unk(id);
     CharaTask* chara = actor->fn_800128FC();
     if (chara == 0) {
         if (actor->GetWait_unk() != 1) {

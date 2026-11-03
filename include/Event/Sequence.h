@@ -216,10 +216,10 @@ public:
     inline Cut* FindCutByIndex_unk(int index); // inferred: defined in Event/Sequence.cpp
     // inferred: lookup of a path by id (inlined in ActionActorPosition::vf0C; defined there)
     inline Path* FindPath_unk(int id);
-    inline DataList_unk<Actor_unk>* GetActors_unk(); // inferred: weak copy 0x80551D20 (Event/ActionActorPosition.cpp)
-    Actor_unk* FindActor_unk(int id) {
+    inline DataList_unk<Actor>* GetActors_unk(); // inferred: weak copy 0x80551D20 (Event/ActionActorPosition.cpp)
+    Actor* FindActor_unk(int id) {
         for (int i = 0; i < (int)m164.mSize; i++) {
-            Actor_unk* actor = &m164.mData[(unsigned int)i];
+            Actor* actor = &m164.mData[(unsigned int)i];
             if (id == actor->m14) {
                 return actor;
             }
@@ -289,7 +289,7 @@ public:
     DataList_unk<PoseData> m134;
     DataList_unk<MovieData> m144;
     DataList_unk<Path> m154;
-    DataList_unk<Actor_unk> m164;
+    DataList_unk<Actor> m164;
     atn::SoundRef m174[4];
     std::vector<EffectEntry24_unk> m184;
     int m190; // inferred: id of the event

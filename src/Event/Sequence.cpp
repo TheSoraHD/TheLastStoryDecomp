@@ -238,7 +238,7 @@ void Sequence::fn_8053E8D0() {
     }
     if (m98_3) {
         for (int i = 0; i < (int)m164.size(); i++) {
-            Actor_unk* actor = &m164[i];
+            Actor* actor = &m164[i];
             if (actor->m18_7 != 1) {
                 actor->fn_8001282C(-1, 0);
             }
@@ -591,7 +591,7 @@ void Sequence::fn_8053F818() {
                         for (int l = 0; l < (int)channel->mActions.size(); l++) {
                             Action* action = channel->IsActionIndex_unk(l) ? channel->mActions[l].get() : 0;
                             if (action->GetParam_unk(0)->m04.i == 2) {
-                                Actor_unk* actor = FindActor_unk(section->m10);
+                                Actor* actor = FindActor_unk(section->m10);
                                 int a = action->GetParam_unk(1)->m04.h[1];
                                 int b = action->GetParam_unk(1)->m04.h[0];
                                 actor->fn_800127CC(a, b);
@@ -628,7 +628,7 @@ int Sequence::fn_8054011C() {
         return 0;
     }
     for (int i = 0; i < (int)m164.size(); i++) {
-        Actor_unk* actor = &m164[i];
+        Actor* actor = &m164[i];
         if (actor != 0) {
             bool chara = actor->m20 == 1 || actor->m20 == 7;
             if (chara) {
@@ -823,7 +823,7 @@ void Sequence::fn_80541244(int index) {
         return;
     }
     for (int i = 0; i < (int)m164.size(); i++) {
-        Actor_unk* actor = &m164[i];
+        Actor* actor = &m164[i];
         if (actor != 0) {
             actor->mB8[0] = 0;
             actor->mB8[1] = 0;
@@ -1023,7 +1023,7 @@ float Sequence::fn_80541CF0(float yaw) {
 // inferred: an actor named after a character of kind `kind` ("np", "em", "fr") and number `num` exists
 int Sequence::fn_80541CFC(int kind, int num) {
     for (int i = 0; i < (int)m164.size(); i++) {
-        Actor_unk* actor = &m164[i];
+        Actor* actor = &m164[i];
         if (actor->m08.size() == 0) {
             continue;
         }
@@ -1072,7 +1072,7 @@ void Sequence::fn_80541F18() {
         for (int j = 0; j < (int)cut->mSections.size(); j++) {
             Section* section = cut->IsSectionIndex_unk(j) ? cut->mSections[j].get() : 0;
             if (section->m0C == 3) {
-                Actor_unk* actor = FindActor_unk(section->m10);
+                Actor* actor = FindActor_unk(section->m10);
                 if (actor != 0) {
                     actor->m18_7 = 0;
                 }
@@ -1138,8 +1138,8 @@ void DummyData::vf0C() {}
 void DummyData::vf08() {}
 
 template <>
-void DataList_unk<Actor_unk>::Add_unk(const char* name, int arg) {
-    push_back(Actor_unk(mOwner, name, arg));
+void DataList_unk<Actor>::Add_unk(const char* name, int arg) {
+    push_back(Actor(mOwner, name, arg));
 }
 
 } // namespace Event

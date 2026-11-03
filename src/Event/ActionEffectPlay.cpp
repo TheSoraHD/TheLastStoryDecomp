@@ -127,8 +127,8 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* efp, int a, int b, MtxPtr 
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, void* data, atn::Model* model, int a, const atn::Vector3* pos,
                             const atn::Vector3* rot, const atn::Color4f_unk* color, int b, int c, int d, float scale);
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, Event::EventManager_unk* manager, void* owner, int stop); // inferred: stops
-extern "C" atn::Model* fn_8001296C(Event::Actor_unk* actor); // inferred: model of an actor
-extern "C" MtxPtr fn_80012AC4(Event::Actor_unk* actor, int node); // inferred: node matrix of an actor
+extern "C" atn::Model* fn_8001296C(Event::Actor* actor); // inferred: model of an actor
+extern "C" MtxPtr fn_80012AC4(Event::Actor* actor, int node); // inferred: node matrix of an actor
 extern "C" unsigned int fn_800DC6B4(const char* str);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70; // inferred: pad
@@ -147,7 +147,7 @@ extern "C" void fn_80484BF4(EventEffects_unk* mgr);
 extern "C" void fn_80484D40(EventEffects_unk* mgr, atn::Vector2_unk scale, atn::Vector2_unk pos, float rate);
 extern "C" void fn_80484E88(EventEffects_unk* mgr);
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void* fn_8001260C(Event::Actor_unk* actor);        // inferred: collision of an actor
+extern "C" void* fn_8001260C(Event::Actor* actor);        // inferred: collision of an actor
 extern "C" void* lbl_8087EE98;                                // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
@@ -541,7 +541,7 @@ int ActionEffectPlay::vf0C(Action* arg, int phase) {
             manager->fn_805430A0(key->m04.i, effect, arg);
         }
         EffectEntry_unk* entry = FindEffect_unk(manager, effect);
-        Actor_unk* actor = manager->FindActor_unk(actorId);
+        Actor* actor = manager->FindActor_unk(actorId);
         if (actor->m20 == 6) {
             pos = manager->fn_80541BD8(pos);
         }
@@ -1288,7 +1288,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
             volume = 0.0f;
         }
         atn::SoundRef sound;
-        Actor_unk* actor = manager->FindActor_unk(arg->GetParam_unk(2)->m04.i);
+        Actor* actor = manager->FindActor_unk(arg->GetParam_unk(2)->m04.i);
         CharaTask* chara = actor != 0 ? actor->fn_800128FC() : 0;
         if (((manager->m98 >> 23) & 1) == 1) {
             chara = manager->m280->fn_8022960C(actor);
@@ -1521,7 +1521,7 @@ atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
     unsigned int node = arg->GetParam_unk(1)->m04.i;
     atn::Vector3 offset = arg->fn_805381F0(2);
     float unused = arg->GetParam_unk(5)->m04.f;
-    Actor_unk* actor = manager->FindActor_unk(id);
+    Actor* actor = manager->FindActor_unk(id);
     if (actor == 0) {
         return atn::Vector2_unk(0.0f, 0.0f);
     }
@@ -1943,7 +1943,7 @@ int ActionDialogSpeaker::vf0C(Action* arg, int phase) {
             int kind = arg->GetParam_unk(1)->m04.i;
             int big = arg->GetParam_unk(2)->m04.i;
             int extra = arg->GetParam_unk(3)->m04.i;
-            Actor_unk* actor = manager->FindActor_unk(id);
+            Actor* actor = manager->FindActor_unk(id);
             if (actor != 0) {
                 int option = arg->GetParam_unk(4)->m04.i;
                 if (big != 0) {

@@ -2,7 +2,7 @@
 #define EVENT_ACTOR_H
 
 // Event::Actor (vtable __vt__Q25Event5Actor, code in Event/Puppeteer_CharaTask.cpp): an actor of an event
-// sequence. Still named Actor_unk here (the mangled names of its methods use it); member names invented.
+// sequence. Still named Actor here (the mangled names of its methods use it); member names invented.
 
 #include "math/Vec.h"
 #include "Event/CommonData.h"
@@ -58,8 +58,8 @@ struct ActorAnim_unk {
 };
 
 // inferred: an actor of the event (0x1C0 bytes)
-struct Actor_unk : public CommonData {
-    Actor_unk(class Sequence* owner, const char* name, int arg); // 0x8000D528
+struct Actor : public CommonData {
+    Actor(class Sequence* owner, const char* name, int arg); // 0x8000D528
     CharaTask* fn_800128FC();      // inferred: character of the actor (0 if none)
     atn::Vector3 fn_80010374();    // inferred: position of the actor
     atn::Vector3 fn_80010B68();    // inferred: rotation of the actor
@@ -79,7 +79,7 @@ struct Actor_unk : public CommonData {
     void fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx);
     void fn_800121F0(int arg, float distance); // inferred: called with the distance moved
     // inferred: turns the eyes towards `target` (node, camera position, jitter, weight, angle)
-    void fn_80012D34(Actor_unk* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
+    void fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                      int arg6, float weight, float angle);
     void SetWait_unk(unsigned int v) { mWait_unk = v; } // inferred: inlined setter
     unsigned int GetWait_unk() const { return mWait_unk; }

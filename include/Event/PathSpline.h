@@ -14,7 +14,7 @@ namespace Event {
 struct PathLengths_unk : public std::vector<float> {};
 
 // inferred: natural cubic spline through the points (names invented; see game/PathData_unk.cpp; same
-// class as WarLionPath_unk of game/Em403WarLion.h). Also embedded in the event actors (Actor_unk at 0x5C).
+// class as WarLionPath_unk of game/Em403WarLion.h). Also embedded in the event actors (Actor at 0x5C).
 struct PathSpline_unk {
     PathSpline_unk() : mNumSegments(0), mLength(0.0f) {}
     // inferred: defined in Event/ActionActorPosition.cpp (their literals in a shared header would renumber
