@@ -161,7 +161,7 @@ static GmkChara* CreateChara_unk(atn::Task* parent, const std::string& path);
 // The original goes over the inline budget (docs/inlining.md; here with the empty asserts of fn_8043E07C): the path reset, the
 // clears, the CSV constructor (fn_803EFCA8), the string/vector members (fn_8003E4A4,
 // fn_8020A780, fn_801207D4, fn_8032AC1C, fn_8004212C, fn_800E0AA8), the character creation
-// (0x8043E134) and push_back (0x8043E1F0) are all called out of line there; here they are inlined.
+// (0x8043E134) and push_back (0x8043E1F0) are all called out of line, as here.
 void CharaPathMove::vf20() {
     mPath.fn_8043E07C();
     Clear_unk(mPoints);
