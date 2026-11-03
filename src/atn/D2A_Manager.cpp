@@ -64,7 +64,42 @@ struct D2A_IconUV_unk {
 };
 
 // inferred: piece of a line of text: a string or an icon (mIcon >= 0), as in atn/D2A_Message.cpp
+// The empty asserts (debug build only) of the constructor count against the inline budget of
+// fn_801F1658, which calls its inline helpers out of line as the original does.
+#define D2AMSG_ASSERT_UNK(x) ((void)0)
 struct D2A_MsgPiece_unk {
+    D2A_MsgPiece_unk() {
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+        D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0); D2AMSG_ASSERT_UNK(this != 0);
+    }
     std::basic_string<wchar_t> mText;
     int mIcon; // 0x0C
 };
@@ -426,17 +461,13 @@ extern "C" float fn_801F14FC(const wchar_t* text, int arg, int font, float size,
     return width;
 }
 
-// NONMATCHING: 0% - the original is over the inlining budget and calls all its inline helpers out of
-// line (weak copies 0x801F1818-0x801F19D0: operator=, clear, the piece constructor/destructor, size,
-// operator[], data and push_back); ours inlines them all. A candidate of 3-4 more statements is enough
-// to flip it, so the original push_back or piece helpers are slightly larger than ours (not found).
-// With the calls, only registers of the loop indices differ. Note also that the weak push_back loads
-// the size before the capacity (see include/std/vector.h) and orders its stack temporaries
-// differently.
+// The original is over the inlining budget and calls all its inline helpers out of line (weak copies
+// 0x801F1818-0x801F19D0): the asserts of the D2A_MsgPiece_unk constructor put it over.
 // inferred: splits a line in pieces of text and icons
 extern "C" void fn_801F1658(std::vector<D2A_MsgPiece_unk>* pieces, std::basic_string<wchar_t>* line) {
     D2A_MsgPiece_unk piece;
     unsigned int size = line->size();
+    int n;
     unsigned int start = 0;
     unsigned int i = 0;
     while (i < size) {
@@ -444,7 +475,7 @@ extern "C" void fn_801F1658(std::vector<D2A_MsgPiece_unk>* pieces, std::basic_st
             i++;
             int length = wcslen(&(*line)[i]);
             for (int j = 0; j < 0x60; j++) {
-                int n = sIconDefs[j].mLength - 1;
+                n = sIconDefs[j].mLength - 1;
                 if (n <= length && wcsncmp(line->data() + i, &sIconDefs[j].mName[1], n) == 0) {
                     if (i - 1 - start != 0) {
                         piece.mText = std::basic_string<wchar_t>(*line, start, i - 1 - start);
@@ -454,7 +485,7 @@ extern "C" void fn_801F1658(std::vector<D2A_MsgPiece_unk>* pieces, std::basic_st
                     piece.mText.clear();
                     piece.mIcon = j;
                     pieces->push_back(piece);
-                    i = sIconDefs[j].mLength + i - 1;
+                    i += sIconDefs[j].mLength - 1;
                     start = i;
                     break;
                 }
@@ -470,6 +501,13 @@ extern "C" void fn_801F1658(std::vector<D2A_MsgPiece_unk>* pieces, std::basic_st
         start += piece.mText.size();
     }
 }
+
+// push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
+// behind fn_801F1658 (after the substring constructor of std::wstring, as in the string pool)
+template std::basic_string<wchar_t>::basic_string(const std::basic_string<wchar_t>& str,
+                                                  std::basic_string<wchar_t>::size_type pos,
+                                                  std::basic_string<wchar_t>::size_type n);
+template void std::vector<D2A_MsgPiece_unk>::push_back(const D2A_MsgPiece_unk& x);
 
 // inferred: width of the icon `icon`
 extern "C" float fn_801F1E7C(int icon, float size) {
