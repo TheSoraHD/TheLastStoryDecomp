@@ -331,7 +331,6 @@ inline AudioEntry_unk* FindAudio_unk(EventManager_unk* manager, int id) {
 } // namespace Event
 
 
-extern "C" atn::SoundRef fn_803E9608(void* mgr, const char* name, int a, int b, float volume);
 extern "C" void fn_80489A2C(EventEffects_unk* manager); // inferred: loads the missing event voices
 extern "C" void fn_80489A50(EventEffects_unk* manager, Event::Action* action, int arg);
 // inferred: text of the dialog balloons (atn, lbl_8087F008); the type is the one of Event/Dialog.cpp
@@ -1325,7 +1324,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
             if (lipSync != 0 && chara != 0) {
                 sound = lbl_8087F498->fn_803EA09C(chara, entry->mName.c_str(), 0, 1, 0, volume);
             } else {
-                sound = fn_803E9608(lbl_8087F498, entry->mName.c_str(), 0, 1, volume);
+                sound = lbl_8087F498->fn_803E9608(entry->mName.c_str(), 0, 1, volume);
             }
         }
         fn_80489A50(lbl_8087F540, arg, 0);

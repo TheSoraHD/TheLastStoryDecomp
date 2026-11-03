@@ -44,7 +44,6 @@ extern "C" int fn_800C3184(const char* group); // inferred: loads a sound group
 extern "C" int fn_800C31E4();                  // inferred: a sound group is loading
 extern "C" void fn_800C31EC();                 // inferred: releases the sound group
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
-extern "C" atn::SoundRef fn_803E9608(GameVoice* mgr, const char* name, int a, int b, float volume);
 // inferred: loading sounds (db/MapEnvSeTable_unk.cpp)
 extern "C" LoadingEnvSe_unk* fn_80214ED4(int a, int b, int c, int d);
 extern "C" LoadingEnvSe_unk* fn_80214F38(unsigned int se);
@@ -613,7 +612,7 @@ int EnvSeManager::fn_80360230(int id) {
             *sound = stream->fn_803E907C(r->mData.mName, &r->mData.mPos, rand() % 5 * 3000, 0, r->mData.mVolume);
         } else {
             GameVoice* stream = lbl_8087F498;
-            *sound = fn_803E9608(stream, r->mData.mName, rand() % 5 * 3000, 0, r->mData.mVolume);
+            *sound = stream->fn_803E9608(r->mData.mName, rand() % 5 * 3000, 0, r->mData.mVolume);
         }
     }
     fn_800CB69C(sound, 0, r->mData.mLPF);

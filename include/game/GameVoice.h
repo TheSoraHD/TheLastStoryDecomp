@@ -136,6 +136,8 @@ public:
     void fn_803EAA7C(CharaTask* chara, int kind, float time); // inferred: shows the message of a voice
     CharaTask* fn_803EAC20(); // inferred: speaker of the HUD message (GameUI::m2658)
     void fn_803EAC3C(CharaTask* chara); // inferred: forgets the voices of `chara` (0: all)
+    // inferred: plays the voice `name` (no position)
+    atn::SoundRef fn_803E9608(const char* name, int offset, int steal, float volume);
     void fn_803EAF60(CharaTask* chara); // inferred: removes the delayed voices of `chara` (0: all)
     int fn_803EB038(const char* name, int offset); // inferred: prepares the voice `name`
     int fn_803EB234();                   // inferred: a voice is playing or loading
