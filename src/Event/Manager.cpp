@@ -6,8 +6,194 @@
 #include "Event/Manager.h"
 #include "Event/Sequence.h"
 #include "atn/Light_unk.h"
+#include "Event/Cut.h"
+#include "Event/Section.h"
+#include "Event/Channel.h"
+#include "Event/Action.h"
+#include "Event/Label.h"
 
 namespace Event {
+
+// inferred: same body as in Event/Sequence.cpp (declared inline in Event/Sequence.h)
+inline Cut* Sequence::FindCutByIndex_unk(int index) {
+    for (int i = 0; i < (int)mB8.size(); i++) {
+        if (index == mB8[i]->mIndex) {
+            return mB8[i].get();
+        }
+    }
+    return 0;
+}
+
+// inferred: target of a jump parameter (0x8000: start of the cut, otherwise a label); sets the cut
+// or the frame of the label in the cut itself (inlined three times in fn_8047B768)
+static inline void JumpTarget_unk(Sequence* seq, Cut* cut, ActionParam_unk* param, Cut*& result, int& frame) {
+    int value = param->m04.i;
+    if (value & 0x8000) {
+        int index = value & ~0x8000;
+        if (seq->FindCutByIndex_unk(index) != cut) {
+            result = seq->FindCutByIndex_unk(index);
+        }
+    } else {
+        Label* label = seq->fn_805412A8(value);
+        if (label->mCut != cut) {
+            result = label->mCut;
+        } else {
+            frame = label->mFrame;
+        }
+    }
+}
+
+// NONMATCHING: 99.3% - registers only (original: next cut r31, section r30, channel r29)
+// inferred: cut that follows `cut`: the first jump of the jump channels (kind 8 of the sections of
+// kind 1) to another cut, else the next cut. Names invented.
+Cut* fn_8047B768(Sequence* seq, Cut* cut) {
+    Cut* result = 0;
+    Cut* next = seq->FindCutByIndex_unk(cut->fn_8053B028());
+    int frame = 0;
+    for (int i = 0; i < (int)cut->mSections.size(); i++) {
+        Section* section = cut->GetSection_unk(i);
+        if (section->m14 != 0 && section->m0C == 1) {
+            for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                Channel* channel = section->GetChannel_unk(j);
+                if (channel->m10 != 0 && channel->m0C == 8) {
+                    for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                        Action* action = channel->GetAction_unk(k);
+                        if (action->m10 >= frame) {
+                            int type = action->GetParam_unk(0)->m04.i;
+                            if (type == 0) {
+                                JumpTarget_unk(seq, cut, action->GetParam_unk(1), result, frame);
+                            } else if (type == 1) {
+                                JumpTarget_unk(seq, cut, action->GetParam_unk(1), result, frame);
+                            } else if (type == 2 || type == 3) {
+                                JumpTarget_unk(seq, cut, action->GetParam_unk(5), result, frame);
+                            }
+                            if (result != 0) {
+                                break;
+                            }
+                        }
+                    }
+                    if (result != 0) {
+                        break;
+                    }
+                }
+            }
+            if (result != 0) {
+                break;
+            }
+        }
+    }
+    if (result == 0 && next != cut) {
+        result = next;
+    }
+    return result;
+}
+
+// inferred: one jump parameter of fn_8047BBBC (written out three times): a jump to another cut ends
+// the cut at the action, a jump to a label of the cut itself skips the frames up to the label
+#define JUMP_LENGTH_UNK(param)                                                                       \
+    {                                                                                                \
+        int value = (param)->m04.i;                                                                  \
+        if (value & 0x8000) {                                                                        \
+            int index = value & ~0x8000;                                                             \
+            if (seq->FindCutByIndex_unk(index) != cut) {                                             \
+                end = action->m10;                                                                   \
+                done = 1;                                                                            \
+                break;                                                                               \
+            }                                                                                        \
+        } else {                                                                                     \
+            Label* label = seq->fn_805412A8(value);                                                  \
+            if (label->mCut != cut) {                                                                \
+                end = action->m10;                                                                   \
+                done = 1;                                                                            \
+                break;                                                                               \
+            }                                                                                        \
+            frame = label->mFrame;                                                                   \
+            skipped += frame - action->m10;                                                          \
+        }                                                                                            \
+    }
+
+// inferred: number of frames played in `cut` (its length minus the frames skipped by jumps and
+// waits). Names invented.
+int fn_8047BBBC(Sequence* seq, Cut* cut) {
+    if (seq == 0 || cut == 0) {
+        return 0;
+    }
+    seq->FindCutByIndex_unk(cut->fn_8053B028());
+    int frame = 0;
+    int end = cut->m2C;
+    int skipped = 0;
+    int done = 0;
+    for (int i = 0; i < (int)cut->mSections.size(); i++) {
+        Section* section = cut->GetSection_unk(i);
+        if (section->m14 != 0 && section->m0C == 1) {
+            for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                Channel* channel = section->GetChannel_unk(j);
+                if (channel->m10 != 0 && (channel->m0C == 0x35 || channel->m0C == 8)) {
+                    for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                        Action* action = channel->GetAction_unk(k);
+                        if (action->m10 >= frame) {
+                            if (action->m0C == 8) {
+                                int type = action->GetParam_unk(0)->m04.i;
+                                if (type == 0) {
+                                    JUMP_LENGTH_UNK(action->GetParam_unk(1));
+                                } else if (type == 1) {
+                                    JUMP_LENGTH_UNK(action->GetParam_unk(1));
+                                } else if (type == 2 || type == 3) {
+                                    JUMP_LENGTH_UNK(action->GetParam_unk(5));
+                                }
+                            } else if (action->m0C == 0x35) {
+                                if (action->m14 - action->m10 <= 0) {
+                                    end = action->m10;
+                                    done = 1;
+                                    break;
+                                }
+                                skipped += action->m14 - action->m10;
+                                frame = action->m14;
+                            }
+                        }
+                    }
+                    if (done) {
+                        break;
+                    }
+                }
+            }
+            if (done) {
+                break;
+            }
+        }
+    }
+    return end - skipped;
+}
+#undef JUMP_LENGTH_UNK
+
+// NONMATCHING: 99.5% - registers only (original: section index r30, section count r12)
+// inferred: first action of kind 0x2B (channels of the sections of kind 1) whose first parameter is
+// 0, following the cuts from the current one. Names invented.
+Action* fn_8047BFF4(Sequence* seq) {
+    Cut* cut = seq != 0 ? seq->FindCutByIndex_unk(seq->m94) : 0;
+    while (cut != 0) {
+        int count = cut->mSections.size();
+        for (int i = 0; i < count; i++) {
+            Section* section = cut->GetSection_unk(i);
+            if (section->m0C == 1) {
+                int channels = section->mChannels.size();
+                for (int j = 0; j < channels; j++) {
+                    Channel* channel = section->GetChannel_unk(j);
+                    if (channel->m0C == 0x2B) {
+                        for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                            Action* action = channel->GetAction_unk(k);
+                            if (action->GetParam_unk(0)->m04.i == 0) {
+                                return action;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        cut = fn_8047B768(seq, cut);
+    }
+    return 0;
+}
 
 inline Sequence* Manager::FindSequence_unk(int id) {
     if (m70 != 0 && id == m70->m190) {

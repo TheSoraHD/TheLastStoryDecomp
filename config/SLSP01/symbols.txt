@@ -9983,9 +9983,9 @@ invoke__Q45boost6detail8function149void_function_obj_invoker0<Q35boost3_bi104bin
 manage__Q45boost6detail8function157functor_manager<Q35boost3_bi104bind_t<v,Q35boost4_mfi21mf0<v,12ErrorManager>,Q35boost3_bi43list1<Q35boost3_bi22value<P12ErrorManager>>>,Q23std12allocator<v>>FRCQ45boost6detail8function15function_bufferRQ45boost6detail8function15function_bufferQ45boost6detail8function30functor_manager_operation_type = .text:0x8047B5CC; // type:function size:0xB8
 invoke__Q45boost6detail8function151void_function_obj_invoker0<Q35boost3_bi106bind_t<v,Q35boost4_mfi22mf0<v,13ResetShutdown>,Q35boost3_bi44list1<Q35boost3_bi23value<P13ResetShutdown>>>,v>FRQ45boost6detail8function15function_buffer = .text:0x8047B684; // type:function size:0x2C
 manage__Q45boost6detail8function159functor_manager<Q35boost3_bi106bind_t<v,Q35boost4_mfi22mf0<v,13ResetShutdown>,Q35boost3_bi44list1<Q35boost3_bi23value<P13ResetShutdown>>>,Q23std12allocator<v>>FRCQ45boost6detail8function15function_bufferRQ45boost6detail8function15function_bufferQ45boost6detail8function30functor_manager_operation_type = .text:0x8047B6B0; // type:function size:0xB8
-fn_8047B768 = .text:0x8047B768; // type:function size:0x454
-fn_8047BBBC = .text:0x8047BBBC; // type:function size:0x438
-fn_8047BFF4 = .text:0x8047BFF4; // type:function size:0x1E4
+fn_8047B768__5EventFPQ25Event8SequencePQ25Event3Cut = .text:0x8047B768; // type:function size:0x454
+fn_8047BBBC__5EventFPQ25Event8SequencePQ25Event3Cut = .text:0x8047BBBC; // type:function size:0x438
+fn_8047BFF4__5EventFPQ25Event8Sequence = .text:0x8047BFF4; // type:function size:0x1E4
 fn_8047C1D8 = .text:0x8047C1D8; // type:function size:0x598
 fn_8047C770 = .text:0x8047C770; // type:function size:0x8
 fn_8047C778 = .text:0x8047C778; // type:function size:0x8
