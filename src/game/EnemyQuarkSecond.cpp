@@ -1,4 +1,5 @@
 #include "game/EnemyQuarkSecond.h"
+#include "game/GameVoice.h"
 #include "atn/ColliBase.h"
 #include "game/GimmickCommon.h"
 #include "gmk/SparkCube.h"
@@ -285,8 +286,6 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" float lbl_80885304;
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
-extern "C" void* lbl_8087F498; // inferred: camera shake manager
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 // inferred: accessors inlined by the small callers and called out of line by the functions over the
 // inline budget (the original links the weak copies of other units: game/Em201ZanGurgFinal.cpp,
 // game/Em203GreaterDaemonRedMp.cpp, game/PlayerInput_unk.cpp, Event/Puppeteer_CharaTask.cpp ...)
@@ -747,7 +746,7 @@ void EnemyQuarkSecond::vf40(HitInfo_unk* hit) {
             }
             fn_800C344C("SE_SP007_003", &mPos, 0, -1, 1.0f);
             if (lbl_8087F498 != 0) {
-                fn_803EA77C(lbl_8087F498, this, 6, 0, 1.0f, 10.0f);
+                lbl_8087F498->fn_803EA77C(this, 6, 0, 1.0f, 10.0f);
             }
             StartDown_unk();
         }
@@ -1209,7 +1208,7 @@ void EnemyQuarkSecond::fn_80344060() {
     PlayMotion_unk(0x14D, 0, 1.0f);
     m1628 = 1;
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, this, 2, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(this, 2, 0, 1.0f, 10.0f);
     }
 }
 

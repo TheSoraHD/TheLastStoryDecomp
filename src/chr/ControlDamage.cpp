@@ -1,6 +1,7 @@
 // Hit reactions: damage, guard, dodge, knockdown and getting up, revival, falling to death, guard
 // broken and the reaction of the enemies (ControlDamageLastOne).
 #include "chr/ControlDamage.h"
+#include "game/GameVoice.h"
 #include "chr/FuncPair_unk.h"
 #include "game/GimmickCommon.h"
 #include "gmk/Lemon.h"
@@ -43,8 +44,6 @@ struct Color4f_unk {
 extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
 extern "C" void fn_80107208(Effect_unk* effect, int id, const atn::Vector3* pos, float scale);
-extern "C" void* lbl_8087F498; // inferred: voice manager
-extern "C" void fn_803EA77C(void* voice, CharaTask* chara, int id, int arg, float volume, float arg2);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void* lbl_8087EE98; // inferred: collision world
 // inferred: collision world (out-of-line copy 0x801404F8 in game/CharaTask.cpp)
@@ -158,7 +157,7 @@ ControlDamage::ControlDamage(Chara_unk* chara, const atn::Vector3& dir, int moti
     }
     m14 = 2.0f * model->fn_80097D7C(0);
     if (lbl_8087F498 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 6, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 6, 0, 1.0f, 10.0f);
     }
 }
 
@@ -222,7 +221,7 @@ ControlAvoid::ControlAvoid(Chara_unk* chara, const atn::Vector3& dir) : ControlB
     model->fn_80097C08(0, 0x1EA, 0, 0, 1, 0.0f, 0.1f);
     model->mTracks[0].m0C = 1.0f;
     if (lbl_8087F498 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xC, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xC, 0, 1.0f, 10.0f);
     }
 }
 
@@ -304,12 +303,12 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
     }
     if (lbl_8087F498 && !mChara->mFlag2) {
         if (mChara->mStatus.IsState_unk(0x20)) {
-            fn_803EA77C(lbl_8087F498, chara, 0xA, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(chara, 0xA, 0, 1.0f, 10.0f);
             if (mChara->mType == 0 && lbl_8087F430 && !fn_80370174(lbl_8087F430, 0xB6)) {
                 fn_80370320(lbl_8087F430, 0xB6, 1, 0);
             }
         } else if (rand() % 2 == 0) {
-            fn_803EA77C(lbl_8087F498, chara, 8, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(chara, 8, 0, 1.0f, 10.0f);
         }
     }
 }
@@ -600,7 +599,7 @@ ControlFallDead::ControlFallDead(Chara_unk* chara, const atn::Vector3& rot) : Co
     m08 = 0;
     m1C = mChara->mColli.m48;
     if (lbl_8087F498) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xA, 0xF, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xA, 0xF, 1.0f, 10.0f);
     }
 }
 
@@ -762,7 +761,7 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
     }
     model->mTracks[0].m0C = 1.0f;
     if (lbl_8087F498 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 6, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 6, 0, 1.0f, 10.0f);
     }
 }
 

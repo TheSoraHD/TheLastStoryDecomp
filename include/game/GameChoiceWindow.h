@@ -127,8 +127,8 @@ public:
     void fn_803B78B4(GameMessage* msg); // inferred: queues a message
     void fn_803B78E8();          // inferred: sets the event counter of the message
     unsigned int GetCount_unk() const { return mCount; } // inferred: name invented
-    // inferred: no message is shown or it is about to end (game/ArenaTask, name invented)
-    bool IsFree_unk() const { return mState == 0 || 6.0f <= m60; }
+    // inferred: no message is shown or it has `time` left at most (game/ArenaTask, GameVoice; name invented)
+    bool IsFree_unk(float time) const { return mState == 0 || time <= m60; }
     void Push_unk(GameMessage* msg) {
         mQueue[(mHead + mCount) & 0x3F] = msg;
         mCount++;

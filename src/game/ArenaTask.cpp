@@ -264,7 +264,7 @@ void ArenaTask::fn_80043D58(int side) {
         return;
     }
     GameTextMessageWindow* win = lbl_8087F490->m2640;
-    if (win == 0 || !win->IsFree_unk()) {
+    if (win == 0 || !win->IsFree_unk(6.0f)) {
         return;
     }
     RouteTable_unk* table;

@@ -557,7 +557,7 @@ public:
     int m264C;
     int m2650;
     GameUIGauge_unk* m2654; // inferred: floats 0x100/0x104 reset by fn_803E4510
-    int m2658;
+    CharaTask* m2658; // inferred: speaker of the message (game/GameVoice fn_803EAA7C)
     int mSeState;                              // 0x265C: inferred: state of the gauge sound
     unsigned int mSeMask;                      // 0x2660: inferred: sounds to play (1 << index)
     ResHandle m2664;                           // 0x2664

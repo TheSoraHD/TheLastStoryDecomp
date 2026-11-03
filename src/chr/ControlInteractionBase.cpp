@@ -1,4 +1,5 @@
 #include "chr/ControlInteractionBase.h"
+#include "game/GameVoice.h"
 #include "game/CharaTask.h"
 
 extern "C" int rand();
@@ -7,9 +8,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 // inferred: closest point to `pos` on the segment a-b (written to `out`)
 extern "C" void fn_80050A1C(const atn::Vector3* pos, atn::Vector3 a, atn::Vector3* out, atn::Vector3 b);
 
-// inferred: voice/sound player (lbl_8087F498); fn_803EA77C plays voice `id` of a character
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 // inferred: camera/character manager (lbl_8087F048, class unknown)
 extern "C" void* lbl_8087F048;
@@ -112,7 +110,7 @@ ControlDuckUnderB::ControlDuckUnderB(Chara_unk* chara, const atn::Vector3& a, co
     m0C += m24 * -5.0f;
     mChara->fn_801446F0();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xC, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xC, 0, 1.0f, 10.0f);
     }
 }
 
@@ -129,7 +127,7 @@ ControlConstrict::ControlConstrict(Chara_unk* chara, const atn::Vector3& a, cons
     Setup_unk(a, b, f);
     mChara->fn_801446F0();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xC, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xC, 0, 1.0f, 10.0f);
     }
 }
 
@@ -138,10 +136,10 @@ ControlBumpHead::ControlBumpHead(Chara_unk* chara, const atn::Vector3& a, const 
     Setup_unk(a, b, 0.52f);
     mChara->fn_801446F0();
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x11, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x11, 0, 1.0f, 10.0f);
     }
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x12, 0x2D, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x12, 0x2D, 1.0f, 10.0f);
     }
     if (mChara->mType == 0 && lbl_8087F430 != 0) {
         // inferred: counts the bumps (flag 0xF8, at most 999)

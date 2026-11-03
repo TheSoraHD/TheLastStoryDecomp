@@ -1,4 +1,5 @@
 #include "chr/ControlDropDown.h"
+#include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
 
@@ -7,8 +8,6 @@ extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;    // inferred: player manager
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* mgr, CharaTask* chara, int id, int arg, float a, float b); // inferred: voice
 extern "C" void* lbl_8087F610;
 extern "C" void* lbl_8087F048;
 extern "C" void fn_8010A308(void* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
@@ -101,7 +100,7 @@ ControlDropDown::ControlDropDown(Chara_unk* chara, const atn::Vector3& vel)
 inline void ControlDropDown::Land_unk(Motion_unk* motion) {
     motion->fn_80097C08(0, 0x69, 0, 0, 1, 0.0f, 0.1f);
     if (!mChara->mFlag3 && lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0xE, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0xE, 0, 1.0f, 10.0f);
     }
 }
 

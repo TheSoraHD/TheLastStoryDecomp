@@ -3,8 +3,17 @@
 #include "atn/SoundCore.h"
 #include "atn/SoundManager.h"
 #include "atn/Memory.h"
+#include "game/GameUI.h"
+#include "game/GameChoiceWindow.h"
+#include "game/GameScene.h"
+#include "game/PlayerManager.h"
+#include "game/FriendManager.h"
+#include "game/GameConfig_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" int rand();
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" atn::SoundEngine_unk* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* name); // inferred: sound id of a name
@@ -13,6 +22,9 @@ extern "C" int fn_800CB4EC(atn::SoundRef* sound);  // inferred: the sound is bei
 extern "C" bool fn_800CB58C(atn::SoundRef* sound); // inferred: the sound is playing
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);  // inferred: sound id
 extern "C" int fn_8006AA20(const char* path);       // inferred: the file exists
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // inferred: sets the volume
+extern "C" void fn_800CB654(atn::SoundRef* sound, float a, float b, float c); // inferred: sets the effect sends
+extern "C" int fn_80049C3C(atn::SoundEngine_unk* engine, const char* name);  // inferred: the sound has no effects
 
 extern "C" void* lbl_8087EEB8; // inferred: debug message output
 // inferred: debug message list (atn/FileUtil_unk.cpp)
@@ -20,17 +32,48 @@ struct DebugMessages_unk {
     void fn_800697D8(const char* message);
 };
 
-// inferred: the HUD (lbl_8087F490, game/GameUI.cpp); only its sound object at 0x2658
-struct GameVoiceUI_unk {
-    unsigned char m0000[0x2658];
-    void* m2658;
+// inferred: one line of the voice table of the characters (CharaTask::m7C; db/VoiceTable, see
+// atn/ptr_string_base_char_0.cpp)
+struct VoiceEntry_unk {
+    const char* fn_8021FD7C(int kind) const; // inferred: name of the voice
+    int fn_8021FFB0(int kind) const;         // inferred: message of the voice
 };
-extern "C" GameVoiceUI_unk* lbl_8087F490;
+
+// inferred: the field (lbl_8087F430, game/GameTask.cpp); only the members used here
+struct GameVoiceField_unk {
+    unsigned char m0000[0x10D8];
+    void* m10D8;       // inferred: the scene (route tables, messages)
+    unsigned char m10DC[0x54E4 - 0x10DC];
+    int m54E4;         // inferred: state of the field (8: no voices)
+    unsigned char m54E8[0x5538 - 0x54E8];
+    int m5538;         // inferred: nonzero mutes the voices
+};
+extern "C" GameVoiceField_unk* lbl_8087F430;
+extern "C" int fn_803761CC(GameVoiceField_unk* field); // inferred: the voices are enabled
+// inferred: the battle (lbl_8087F540); only the pause flag
+struct GameVoiceBattle_unk {
+    unsigned char m00[0x70];
+    int m70;
+};
+extern "C" GameVoiceBattle_unk* lbl_8087F540;
 
 // inferred: sound id of a voice name (0 without a name; name invented)
 static inline unsigned int VoiceId_unk(const char* name) {
-    unsigned int id = name != 0 ? fn_80049B74(lbl_8087EE90, name) : 0;
-    return id;
+    return name != 0 ? fn_80049B74(lbl_8087EE90, name) : 0;
+}
+
+// inferred: the message window of the HUD is free or has `time` left at most (name invented)
+static inline bool IsMessageFree_unk(float time) {
+    if (lbl_8087F490 != 0 && lbl_8087F490->m2640 != 0 && lbl_8087F490->m2640->mState != 0 &&
+        lbl_8087F490->m2640->m60 < time) {
+        return false;
+    }
+    return true;
+}
+
+// inferred: voices 0x24, 0x26 and 0x28 (name invented)
+static inline bool IsCall_unk(int kind) {
+    return kind == 0x24 || kind == 0x26 || kind == 0x28;
 }
 
 // inferred: sound for a voice, without the duplicate check of the sound manager (name invented)
@@ -62,11 +105,13 @@ inline void GameVoiceChannel_unk::DetachLip_unk() {
     }
 }
 
-inline void GameVoiceChannel_unk::Stop_unk(int frames) {
+inline void GameVoiceChannel_unk::Stop_unk(int frames, int keepChara) {
     fn_800CB5C8(&mSound, frames, 0);
-    DetachLip_unk();
-    mFile.fn_80473F88();
-    mChara = 0;
+    if (keepChara == 0) {
+        DetachLip_unk();
+        mFile.fn_80473F88();
+        mChara = 0;
+    }
     mPos = lbl_807C7030;
     mTime = 0;
     mPlaying = 0;
@@ -88,7 +133,157 @@ int GameVoice::vf0C() {
     return fn_800D3FA4() != 0;
 }
 
-void* fn_803EAC20() {
+// inferred: stops the prepared voice of the channel if it is not `name` (inlined in fn_803E907C and
+// the other players, removed by the linker; name invented)
+void GameVoiceChannel_unk::CheckPrepared_unk(const char* name) {
+    if (mPlaying) {
+        unsigned int id = VoiceId_unk(name);
+        if (id != fn_800CB6F8(&mSound)) {
+            if (lbl_8087EEB8 != 0) {
+                char buf[0x100];
+                atn::SoundEngine_unk* engine = lbl_8087EE90;
+                const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
+                sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]", id, name,
+                        fn_800CB6F8(&mSound), label);
+                ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
+            }
+            Stop_unk(0);
+        }
+    }
+}
+
+atn::SoundRef GameVoice::fn_803E907C(const char* name, const atn::Vector3* pos, int offset, int steal, float volume) {
+    atn::SoundRef ref;
+    if (mRequests.size() >= 32) {
+        return ref;
+    }
+    GameVoiceChannel_unk* channel = fn_803EB7E4(VoiceId_unk(name), steal);
+    if (channel == 0) {
+        return ref;
+    }
+    channel->CheckPrepared_unk(name);
+    if (!channel->mPlaying) {
+        channel->Stop_unk(0);
+        atn::SoundCore* sound = NewVoice_unk(fn_80049B74(lbl_8087EE90, name));
+        if (sound == 0) {
+            sound = 0;
+        } else {
+            sound->mA8 = lbl_8087EFE8->fn_800CFDA0(2);
+            sound->mAC = lbl_8087EFE8->fn_800CFDC8(8);
+            sound->fn_800CA7D4(offset);
+            sound->fn_800C97F8(name, pos);
+        }
+        channel->mSound = (atn::SoundObject*)sound;
+        if (channel->mSound.mPtr == 0) {
+            return ref;
+        }
+    }
+    channel->mPlaying = 0;
+    channel->mPrepared = 0;
+    fn_800CB5B4(&channel->mSound, volume, 0);
+    fn_800CB654(&channel->mSound, 1.0f, 1.0f, 1.0f);
+    if (fn_80049C3C(lbl_8087EE90, name) != 0) {
+        fn_800CB654(&channel->mSound, 0.0f, 0.0f, 0.0f);
+    }
+    channel->mPos = *pos;
+    GameVoiceRequest_unk request;
+    request.mState = 1;
+    request.mChannel = channel;
+    mRequests.push_back(request);
+    return channel->mSound;
+}
+
+// NONMATCHING: 95% - branch shape of the battle check (bne + b), registers of the party loop
+void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time) {
+    if (lbl_8087F430 != 0 && fn_803761CC(lbl_8087F430) == 0) {
+        return;
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
+        return;
+    }
+    if (lbl_8087F540 != 0) {
+        if (lbl_8087F540->m70 != 0) {
+            return;
+        }
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
+        return;
+    }
+    if (!IsMessageFree_unk(time)) {
+        return;
+    }
+    if (mDelayed.size() >= 16) {
+        return;
+    }
+    if (!fn_803EBA54()) {
+        return;
+    }
+    if (chara == 0 && FriendManager::sInstance != 0) {
+        int n = lbl_8087F8A0->mCount - 1;
+        if (n > 0) {
+            PlayerTask* first = lbl_8087F8A0->FindByIndex_unk(rand() % n + 1);
+            PlayerTask* player = first;
+            do {
+                if (player->fn_80179EBC(kind) && ((VoiceEntry_unk*)player->m7C)->fn_8021FD7C(kind) != 0) {
+                    chara = player;
+                    break;
+                }
+                player = player->mNext;
+                if (player == 0) {
+                    player = (PlayerTask*)FriendManager::sInstance->fn_8036554C();
+                }
+            } while (player != first);
+        }
+    }
+    if (chara == 0) {
+        return;
+    }
+    if (chara->fn_80179EBC(kind) == 0) {
+        return;
+    }
+    const char* name = ((VoiceEntry_unk*)chara->m7C)->fn_8021FD7C(kind);
+    if (name == 0) {
+        return;
+    }
+    if (lbl_8087F0A8->mVoiceLimitLevel >= 1) {
+        volume = 0.0f;
+    }
+    bool call = IsCall_unk(kind);
+    bool other = kind != 0x24 && kind != 0x26 && kind != 0x28;
+    mDelayed.push_back(GameVoiceDelayed_unk(chara, kind, name, volume, time, other, call, delay));
+}
+
+// inferred: plays the message of the voice `kind` of `chara` in the HUD
+void GameVoice::fn_803EAA7C(CharaTask* chara, int kind, float time) {
+    atn::SoundRef sound;
+    if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
+        return;
+    }
+    if (!IsMessageFree_unk(time)) {
+        return;
+    }
+    if (chara == 0) {
+        return;
+    }
+    VoiceEntry_unk* voices = (VoiceEntry_unk*)chara->m7C;
+    if (voices == 0 || voices->fn_8021FFB0(kind) <= 0) {
+        return;
+    }
+    void* scene;
+    if (lbl_8087F430 != 0) {
+        scene = lbl_8087F430->m10D8;
+    } else {
+        scene = 0;
+    }
+    void* msg = scene != 0 ? ((GameScene*)scene)->fn_803CC6B4(voices->fn_8021FFB0(kind)) : 0;
+    if (msg == 0) {
+        return;
+    }
+    lbl_8087F490->fn_803E3BE8(msg, 0, time);
+    lbl_8087F490->m2658 = chara;
+}
+
+CharaTask* GameVoice::fn_803EAC20() {
     return lbl_8087F490 != 0 ? lbl_8087F490->m2658 : 0;
 }
 
@@ -172,6 +367,53 @@ int GameVoice::fn_803EB394(const char* name) {
         }
     }
     return 0;
+}
+
+void GameVoice::fn_803EB4A8(int keepChara, int keepRequests) {
+    for (int i = 0; i < 4; i++) {
+        GameVoiceChannel_unk* channel = &mChannels[i];
+        if (channel->mPlaying || channel->mPrepared) {
+            channel->Stop_unk(0);
+        }
+    }
+    mDelayed.clear();
+    if (keepRequests == 0) {
+        for (unsigned int i = 0; i < mRequests.size(); i++) {
+            GameVoiceChannel_unk* channel = mRequests[i].mChannel;
+            if (channel != 0) {
+                channel->Stop_unk(10, keepChara);
+            }
+        }
+        mRequests.clear();
+    }
+}
+
+GameVoiceChannel_unk* GameVoice::fn_803EB668(CharaTask* chara, const char* name, int steal) {
+    unsigned int id = VoiceId_unk(name);
+    GameVoiceChannel_unk* found = 0;
+    if (id != 0) {
+        GameVoiceChannel_unk* channel = mChannels;
+        for (int i = 0; i < mNumChannels; channel++, i++) {
+            if (id == fn_800CB6F8(&channel->mSound)) {
+                found = channel;
+                break;
+            }
+        }
+    }
+    if (found == 0 && chara != 0) {
+        GameVoiceChannel_unk* channel = mChannels;
+        for (int i = 0; i < mNumChannels; channel++, i++) {
+            if (channel->mChara == chara) {
+                channel->Stop_unk(5);
+                found = channel;
+                break;
+            }
+        }
+    }
+    if (found != 0) {
+        return found;
+    }
+    return fn_803EB7E4(id, steal);
 }
 
 // inferred: stops the prepared voices that lost their sound (name invented)

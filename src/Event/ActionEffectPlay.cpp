@@ -331,7 +331,6 @@ inline AudioEntry_unk* FindAudio_unk(EventManager_unk* manager, int id) {
 } // namespace Event
 
 
-// inferred: voices of the event (lbl_8087F498, game/GameVoice)
 extern "C" atn::SoundRef fn_803EA09C(void* mgr, CharaTask* chara, const char* name, int a, int b, int c,
                                      float volume); // inferred: voice spoken by a character (lip sync)
 extern "C" atn::SoundRef fn_803E9608(void* mgr, const char* name, int a, int b, float volume);

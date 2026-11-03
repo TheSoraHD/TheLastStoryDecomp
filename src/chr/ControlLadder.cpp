@@ -3,6 +3,7 @@
 // constructors of ControlLadder/ControlAlleyWay/ControlCrawling and the update functions (vf0C, vf14)
 // are still asm.
 #include "chr/ControlLadder.h"
+#include "game/GameVoice.h"
 #include "game/CharaTask.h"
 #include "macros.h"
 #include "game/CharaManager.h"
@@ -26,8 +27,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, LadderCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
 
-extern "C" void* lbl_8087F498; // inferred: voice player
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -88,7 +87,7 @@ static inline atn::Vector3 Front_unk(CharaTask* chara) {
 // inferred: plays the climbing voice (always for the player, half of the time for the others)
 static inline void ClimbVoice_unk(ControlBase* control) {
     if (lbl_8087F498 != 0 && (control->mChara->mType == 0 || rand() % 2 == 0)) {
-        fn_803EA77C(lbl_8087F498, control->mChara, 0xF, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(control->mChara, 0xF, 0, 1.0f, 10.0f);
     }
 }
 

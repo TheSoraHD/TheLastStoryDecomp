@@ -2,6 +2,7 @@
 // 0x8077DE00-0x8077ED00, RTTI names in .data). The classes are declared in .dol order in
 // chr/ControlStickByQuark.h (their implicit destructors are emitted at the end of the file).
 #include "chr/ControlStickByQuark.h"
+#include "game/GameVoice.h"
 #include "game/CharaTask.h"
 #include "game/EnemyQuarkStand.h"
 #include "game/EnemyManager.h"
@@ -62,8 +63,6 @@ struct Camera_unk {
 };
 
 extern "C" Camera_unk* lbl_8087F430;
-extern "C" void* lbl_8087F498; // inferred: voice player
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 extern "C" int rand();
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 struct Effect_unk;
@@ -416,7 +415,7 @@ ControlThrust::ControlThrust(Chara_unk* chara, Chara_unk* other, atn::Vector3 of
     mo->fn_80097C08(0, 0x20B, 0, 0, 1, 0.0f, 0.1f);
     mo->mTracks[0].m0C = 1.0f;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -506,7 +505,7 @@ ControlThrustForCrab::ControlThrustForCrab(Chara_unk* chara, Chara_unk* crab) : 
     m->fn_80097C08(0, 0x20E, 0, 0, 1, 0.0f, 0.1f);
     m->mTracks[0].m0C = 1.5f;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -560,7 +559,7 @@ ControlThrustForKraken::ControlThrustForKraken(Chara_unk* chara, int kraken, atn
     m->mTracks[0].m0C = 1.0f;
     m->mTracks[0].m08 = 23.0f;
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 
@@ -1195,7 +1194,7 @@ ControlThrown::ControlThrown(Chara_unk* chara, const atn::Vector3& target, int f
         mState = 1;
     }
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x10, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x10, 0, 1.0f, 10.0f);
     }
 }
 
@@ -1555,7 +1554,7 @@ ControlThreadDead::ControlThreadDead(Chara_unk* chara, int a) : ControlBase(char
     m->fn_80097C08(0, 0x226, 0, 0, 1, 1.0f, 0.1f);
     m->mTracks[0].m0C = 1.0f;
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, chara, 0xA, 0x1E, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(chara, 0xA, 0x1E, 1.0f, 10.0f);
     }
 }
 

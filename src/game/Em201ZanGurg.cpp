@@ -1,4 +1,5 @@
 #include "game/Em201ZanGurg.h"
+#include "game/GameVoice.h"
 #include "atn/Csv.h"
 #include "game/CharaManager.h"
 #include "math/Vec.h"
@@ -22,9 +23,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data
                             const atn::Vector3* dir, int a, int b, int c, float f1, float f2);
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f);
-// inferred: voice player (lbl_8087F498, as in chr/ControlCliffhang.cpp)
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -260,7 +258,7 @@ inline void Em201ZanGurg::StartCounter_unk(CharaTask* attacker) {
     mRot.y = rot.y;
     PlayMotion_unk(&mMotion, 0x1D2, 0, 0);
     if (lbl_8087F498 != 0) {
-        fn_803EA77C(lbl_8087F498, this, 0, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(this, 0, 0, 1.0f, 10.0f);
     }
 }
 
@@ -438,7 +436,7 @@ void Em201ZanGurg::fn_8026474C() {
             m16EC = m14B8->mPos;
             fn_80239DAC(lbl_8087F3C0, this, 0, 1);
             if (lbl_8087F498 != 0) {
-                fn_803EA77C(lbl_8087F498, this, 0x19, 0, 1.0f, 10.0f);
+                lbl_8087F498->fn_803EA77C(this, 0x19, 0, 1.0f, 10.0f);
             }
         }
     }

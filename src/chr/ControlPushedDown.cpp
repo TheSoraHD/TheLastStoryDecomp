@@ -1,4 +1,5 @@
 #include "chr/ControlPushedDown.h"
+#include "game/GameVoice.h"
 #include "chr/ControlChaseCaught.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
@@ -18,12 +19,6 @@ extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // infe
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
-// inferred: voice player (lbl_8087F498); fn_803EAC20 returns the character speaking now
-struct VoiceMgr_unk;
-extern "C" VoiceMgr_unk* lbl_8087F498;
-extern "C" CharaTask* fn_803EAC20(VoiceMgr_unk* mgr);
-extern "C" void fn_803EAA7C(VoiceMgr_unk* mgr, CharaTask* chara, int id, float delay);
-extern "C" void fn_803EA77C(VoiceMgr_unk* mgr, CharaTask* chara, int id, int arg, float a, float b);
 
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
 struct Field_unk {
@@ -171,17 +166,17 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
     if (m34 != 0 && lbl_8087F498 != 0 && rand() % 3 > 0) {
         if (ChaserNpc::fn_8018059C() == 0 || ChaserNpc::fn_8018059C()->m14B0 == 0 ||
             ChaserNpc::fn_8018059C()->m14B0 == 5) {
-            CharaTask* speaker = fn_803EAC20(lbl_8087F498);
+            CharaTask* speaker = lbl_8087F498->fn_803EAC20();
             if (speaker == 0 || (speaker != mChara && (unsigned int)speaker->m7C != (unsigned int)mChara->m7C)) {
                 int mode = lbl_8087F430 != 0 ? lbl_8087F430->fn_803761DC() : 0;
                 if (mode == 1) {
-                    fn_803EAA7C(lbl_8087F498, mChara, 1, 10.0f);
+                    lbl_8087F498->fn_803EAA7C(mChara, 1, 10.0f);
                 } else if (mode == 2) {
-                    fn_803EAA7C(lbl_8087F498, mChara, 3, 10.0f);
+                    lbl_8087F498->fn_803EAA7C(mChara, 3, 10.0f);
                 } else if (mode >= 3) {
-                    fn_803EAA7C(lbl_8087F498, mChara, 5, 10.0f);
+                    lbl_8087F498->fn_803EAA7C(mChara, 5, 10.0f);
                 } else {
-                    fn_803EAA7C(lbl_8087F498, mChara, 0, 10.0f);
+                    lbl_8087F498->fn_803EAA7C(mChara, 0, 10.0f);
                 }
             }
         }
@@ -215,13 +210,13 @@ int ControlPushedDown::vf0C() {
                 }
             }
             if (m34 != 0 && lbl_8087F498 != 0) {
-                if (fn_803EAC20(lbl_8087F498) == mChara) {
+                if (lbl_8087F498->fn_803EAC20() == mChara) {
                     if (mode == 1) {
-                        fn_803EAA7C(lbl_8087F498, mChara, 2, 10.0f);
+                        lbl_8087F498->fn_803EAA7C(mChara, 2, 10.0f);
                     } else if (mode == 2) {
-                        fn_803EAA7C(lbl_8087F498, mChara, 4, 10.0f);
+                        lbl_8087F498->fn_803EAA7C(mChara, 4, 10.0f);
                     } else if (mode >= 3) {
-                        fn_803EAA7C(lbl_8087F498, mChara, 6, 10.0f);
+                        lbl_8087F498->fn_803EAA7C(mChara, 6, 10.0f);
                     }
                 }
             }
@@ -369,7 +364,7 @@ ControlOttotto::ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int ti
     c2->m570 = 0.0f;
     mChara->m574 = atn::Vector3(0.0f, 0.0f, 0.0f);
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x13, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x13, 0, 1.0f, 10.0f);
     }
 }
 

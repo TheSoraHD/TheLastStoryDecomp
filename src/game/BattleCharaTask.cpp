@@ -1,4 +1,5 @@
 #include "game/BattleCharaTask.h"
+#include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/EnemyManager.h"
@@ -340,9 +341,6 @@ extern "C" void fn_80105DCC(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* 
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
-// inferred: voice player (lbl_8087F498, as in game/Em201ZanGurg.cpp)
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 extern "C" void* lbl_8087F540; // inferred: song battle (game/SongManager.cpp)
 extern "C" int fn_80481668(void* song); // inferred: nonzero while the song stops the characters
 
@@ -415,7 +413,7 @@ void BattleCharaTask::fn_800E2FE0() {
                     fn_8059B66C(lbl_8087F9E8, skill, this, this, &lbl_807C7030, &mRot,
                                 boost::bind(&TacView::fn_805AA4C8, lbl_8087F9F8, _1), 1.0f);
                     if (lbl_8087F498 != 0) {
-                        fn_803EA77C(lbl_8087F498, this, 0x20, 0, 1.0f, 10.0f);
+                        lbl_8087F498->fn_803EA77C(this, 0x20, 0, 1.0f, 10.0f);
                     }
                 }
                 mFlagB16 = 1;

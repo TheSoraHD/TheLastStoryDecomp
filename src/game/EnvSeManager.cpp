@@ -1,4 +1,5 @@
 #include "game/EnvSeManager.h"
+#include "game/GameVoice.h"
 #include "game/EnvSeBase.h"
 #include "game/GameConfig_unk.h"
 #include "atn/Memory.h"
@@ -43,12 +44,7 @@ extern "C" int fn_800C3184(const char* group); // inferred: loads a sound group
 extern "C" int fn_800C31E4();                  // inferred: a sound group is loading
 extern "C" void fn_800C31EC();                 // inferred: releases the sound group
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
-// inferred: streamed sounds (lbl_8087F498)
-struct EnvSeStream_unk;
-extern "C" EnvSeStream_unk* lbl_8087F498;
-extern "C" atn::SoundRef fn_803E907C(EnvSeStream_unk* mgr, const char* name, const void* pos, int a, int b,
-                                     float volume);
-extern "C" atn::SoundRef fn_803E9608(EnvSeStream_unk* mgr, const char* name, int a, int b, float volume);
+extern "C" atn::SoundRef fn_803E9608(GameVoice* mgr, const char* name, int a, int b, float volume);
 // inferred: loading sounds (db/MapEnvSeTable_unk.cpp)
 extern "C" LoadingEnvSe_unk* fn_80214ED4(int a, int b, int c, int d);
 extern "C" LoadingEnvSe_unk* fn_80214F38(unsigned int se);
@@ -613,10 +609,10 @@ int EnvSeManager::fn_80360230(int id) {
         lbl_8087EFE8->m34D0 = 0;
     } else if (fn_805A38F0(r->mData.mName, 8, 0) != 0) {
         if (r->mData.mType != 4) {
-            EnvSeStream_unk* stream = lbl_8087F498;
-            *sound = fn_803E907C(stream, r->mData.mName, &r->mData.mPos, rand() % 5 * 3000, 0, r->mData.mVolume);
+            GameVoice* stream = lbl_8087F498;
+            *sound = stream->fn_803E907C(r->mData.mName, &r->mData.mPos, rand() % 5 * 3000, 0, r->mData.mVolume);
         } else {
-            EnvSeStream_unk* stream = lbl_8087F498;
+            GameVoice* stream = lbl_8087F498;
             *sound = fn_803E9608(stream, r->mData.mName, rand() % 5 * 3000, 0, r->mData.mVolume);
         }
     }

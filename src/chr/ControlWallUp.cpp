@@ -1,4 +1,5 @@
 #include "chr/ControlWallUp.h"
+#include "game/GameVoice.h"
 #include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
 #include "atn/Memory.h"
@@ -71,9 +72,6 @@ extern "C" void fn_800FAB80(WallEffect_unk* mgr, CharaTask* owner, HitInfo_unk* 
 extern "C" void fn_800FB4B0(WallEffect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             int arg5, int arg6, int arg7, int arg8);
 
-// inferred: voice/sound player (lbl_8087F498)
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 
 // inferred: moves a destination out of the walls (chr/ControlCharge.cpp)
 
@@ -279,7 +277,7 @@ ControlWallSlash::ControlWallSlash(Chara_unk* chara, const atn::Vector3& target,
     mChara->mRot = d.ToRotationZ_unk();
     m08 = m20;
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x20, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
     }
 }
 

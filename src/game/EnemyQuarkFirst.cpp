@@ -1,4 +1,5 @@
 #include "game/SkillEffectManager.h"
+#include "game/GameVoice.h"
 #include "game/EnemyQuarkFirst.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -318,8 +319,6 @@ struct QuarkDamage_unk {
 };
 extern "C" void fn_8003EA3C(QuarkDamage_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2);
-extern "C" void* lbl_8087F498; // inferred: camera shake manager
-extern "C" void fn_803EA77C(void* player, CharaTask* chara, int id, int arg, float a, float b);
 struct Color4f_unk {
     Color4f_unk() {}
     float r, g, b, a;
@@ -492,7 +491,7 @@ void EnemyQuarkFirst::vf100(int state) {
         PlayMotion_unk(0x36, 1);
         mMotion.mTracks[0].m0C = 1.0f;
         if (lbl_8087F498 != 0) {
-            fn_803EA77C(lbl_8087F498, this, 2, 0, 1.0f, 600.0f);
+            lbl_8087F498->fn_803EA77C(this, 2, 0, 1.0f, 600.0f);
         }
         break;
     }

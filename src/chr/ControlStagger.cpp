@@ -1,4 +1,5 @@
 #include "chr/ControlStagger.h"
+#include "game/GameVoice.h"
 #include "macros.h"
 
 extern "C" int rand();
@@ -17,10 +18,6 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-// inferred: effect manager behind lbl_8087F498 (as in chr/ControlGmkCoffinOpening.cpp)
-struct EffectMgr_unk;
-extern "C" EffectMgr_unk* lbl_8087F498;
-extern "C" void fn_803EA77C(EffectMgr_unk* mgr, CharaTask* chara, int id, int arg, float a, float b);
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -123,9 +120,9 @@ ControlStagger::ControlStagger(Chara_unk* chara, int time, int kind)
     mot->mTracks[0].m0C = 1.0f;
     if (lbl_8087F498 != 0) {
         if (kind == 2) {
-            fn_803EA77C(lbl_8087F498, mChara, 0x11, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(mChara, 0x11, 0, 1.0f, 10.0f);
         } else if (kind == 3) {
-            fn_803EA77C(lbl_8087F498, mChara, 0x10, 0, 1.0f, 10.0f);
+            lbl_8087F498->fn_803EA77C(mChara, 0x10, 0, 1.0f, 10.0f);
         }
     }
 }
@@ -186,10 +183,10 @@ ControlSlip::ControlSlip(Chara_unk* chara, int stop) : ControlBase(chara), mStop
     motion->mTracks[0].m0C = 1.0f;
     Front4_unk(&mDir, mChara);
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x11, 0, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x11, 0, 1.0f, 10.0f);
     }
     if (lbl_8087F498 != 0 && rand() % 2 == 0) {
-        fn_803EA77C(lbl_8087F498, mChara, 0x12, 0x2D, 1.0f, 10.0f);
+        lbl_8087F498->fn_803EA77C(mChara, 0x12, 0x2D, 1.0f, 10.0f);
     }
     if (mChara->mType == 0 && lbl_8087F430 != 0) {
         fn_80370320(lbl_8087F430, 0xF9, MIN(fn_80370174(lbl_8087F430, 0xF9) + 1, 999), 0);

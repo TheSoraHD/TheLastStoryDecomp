@@ -24,8 +24,11 @@ struct GameVoiceChannel_unk {
     ~GameVoiceChannel_unk() {}
     // inferred: stops the voice and the lip sync of its character (inlined everywhere, defined in
     // game/GameVoice.cpp; name invented)
-    inline void Stop_unk(int frames);
-    inline void DetachLip_unk(); // inferred: the character stops using this lip sync (name invented)
+    inline void Stop_unk(int frames, int keepChara = 0);
+    inline void DetachLip_unk();
+    // inferred: stops the prepared voice if it is not `name` (inlined in fn_803E907C and the other
+    // players, removed by the linker; name invented)
+    void CheckPrepared_unk(const char* name); // inferred: the character stops using this lip sync (name invented)
 
     atn::SoundRef mSound;     // 0x00
     LipSyncData_unk mLipSync; // 0x04
@@ -39,6 +42,8 @@ struct GameVoiceChannel_unk {
 
 // inferred: voice waiting `mDelay` frames to be spoken (0x28 bytes; GameVoice::fn_803EA77C)
 struct GameVoiceDelayed_unk {
+    GameVoiceDelayed_unk(CharaTask* chara, int kind, const char* name, float volume, float time, int a, int b, int delay)
+        : mChara(chara), m04(0), mKind(kind), mName(name), mVolume(volume), mTime(time), m18(a), m1C(b), mDelay(delay), mTimer(0) {}
     GameVoiceDelayed_unk() : mChara(0), m04(0), mKind(-1), mName(0), mVolume(1.0f), mTime(0.0f), m18(1), m1C(0), mDelay(0), mTimer(0) {}
 
     CharaTask* mChara; // 0x00
@@ -113,19 +118,28 @@ public:
     virtual int vf0C();           // 0x803E8A24
     virtual void vf10();          // 0x803E8A50
 
+    // inferred: plays the voice `name` at `pos`
+    atn::SoundRef fn_803E907C(const char* name, const atn::Vector3* pos, int offset, int steal, float volume);
+    // inferred: says the voice `kind` of `chara` (or of a random member of the party) after `delay` frames
+    void fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time);
+    void fn_803EAA7C(CharaTask* chara, int kind, float time); // inferred: shows the message of a voice
+    CharaTask* fn_803EAC20(); // inferred: speaker of the HUD message (GameUI::m2658)
     void fn_803EAF60(CharaTask* chara); // inferred: removes the delayed voices of `chara` (0: all)
     int fn_803EB038(const char* name, int offset); // inferred: prepares the voice `name`
     int fn_803EB234();                   // inferred: a voice is playing or loading
     int fn_803EB2A4(const char* name);   // inferred: the voice `name` is prepared
     int fn_803EB338();                   // inferred: a voice is prepared
     int fn_803EB394(const char* name);   // inferred: stops the prepared voice `name`
+    void fn_803EB4A8(int keepChara, int keepRequests); // inferred: stops the voices
+    GameVoiceChannel_unk* fn_803EB668(CharaTask* chara, const char* name, int steal); // inferred: channel for a voice of `chara`
     GameVoiceChannel_unk* fn_803EB7E4(unsigned int id, int steal); // inferred: channel for the voice `id`
     int fn_803EBA54();                   // inferred: a channel is free
     void fn_803EBAC8(int frames, int keepPrepared); // inferred: stops all the voices
     void fn_803EBBCC(CharaTask* chara);  // inferred: forgets the character in the requests
     int fn_803EBC04(const char* name);   // inferred: the voice `name` exists
 
-    void StopInvalid_unk(); // inferred: inlined in fn_803EB7E4, removed by the linker
+    void StopInvalid_unk();
+    void CheckPrepared_unk(GameVoiceChannel_unk* channel, const char* name); // inferred: inlined, removed by the linker // inferred: inlined in fn_803EB7E4, removed by the linker
 
     GameVoiceChannel_unk mChannels[4]; // 0x48
     int m108;
@@ -135,6 +149,5 @@ public:
 };
 
 extern "C" GameVoice* lbl_8087F498; // inferred: the instance (fn_803E836C)
-extern "C" void* fn_803EAC20();      // inferred: GameUI::m2658 (0 without HUD)
 
 #endif
