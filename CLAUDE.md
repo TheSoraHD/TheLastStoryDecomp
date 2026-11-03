@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `solo-20261103` (2026-11-03, sin mergear): **12330 / 18119** en `report.json`, 583 unidades completas, `main.dol: OK`, lost 0. Receta de presupuesto de inlining + `push_back` instanciado, corte de `GameSaveLoadBackgroundCommon` (enlazada), re-emparejado en lote y metodos de `Model` en vez de `extern "C"`. Notas: `docs/solo-20261103.md`.
+- `solo-20261103` (2026-11-03, mergeada en `main`): **12330 / 18119** en `report.json`, 583 unidades completas, `main.dol: OK`, lost 0. Receta de presupuesto de inlining + `push_back` instanciado, corte de `GameSaveLoadBackgroundCommon` (enlazada), re-emparejado en lote y metodos de `Model` en vez de `extern "C"`. Notas: `docs/solo-20261103.md`.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200, `docs/claude-20261102.md`) y `codex-20261102` (11922, `docs/codex-20261102.md`); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).
