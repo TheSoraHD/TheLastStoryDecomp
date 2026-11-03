@@ -1,4 +1,5 @@
 #include "game/GameScene.h"
+#include "game/GameVoice.h"
 extern "C" float lbl_80885CCC;
 #include "game/GameEventScript.h"
 #include "game/CrowdManager.h"
@@ -155,12 +156,6 @@ struct MapData_unk {
 };
 extern "C" void fn_804A04AC(void* map, int camera, int a, int b, gs::CameraBox* box); // inferred: sets the camera
 
-// inferred: voice manager (lbl_8087F498)
-struct Voice_unk {
-    unsigned char m000[0x10C];
-    int m10C;
-};
-extern "C" Voice_unk* lbl_8087F498;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session
 
 extern "C" EnvSeManager* lbl_8087F418;
@@ -297,9 +292,9 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     }
     if (lbl_8087F498 != 0 && lbl_8087F610 == 0) {
         if (area == 1) {
-            lbl_8087F498->m10C = 2;
+            lbl_8087F498->mNumChannels = 2;
         } else {
-            lbl_8087F498->m10C = 1;
+            lbl_8087F498->mNumChannels = 1;
         }
     }
     if (ArenaTask::fn_800431F4(area, map)) {

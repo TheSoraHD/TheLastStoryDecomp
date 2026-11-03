@@ -144,6 +144,7 @@ static inline bool LipEnded_unk(Chara1154_unk& lip) {
     return lip.m00 != 0 ? lip.m04 >= lip.m00->mCount : true;
 }
 
+// NONMATCHING: 99.8% - in the loops the character and its lip sync go to r3/r4 swapped (see Stop_unk)
 void GameVoice::vf10() {
     for (GameVoiceDelayed_unk* it = mDelayed.begin(); it != mDelayed.end();) {
         if (it->mTimer >= it->mDelay) {
@@ -251,6 +252,7 @@ void GameVoiceChannel_unk::CheckPrepared_unk(const char* name) {
     }
 }
 
+// NONMATCHING: 99.0% - the voice id goes through r3 instead of r4 (VoiceId_unk); register of the id
 atn::SoundRef GameVoice::fn_803E907C(const char* name, const atn::Vector3* pos, int offset, int steal, float volume) {
     atn::SoundRef ref;
     if (mRequests.size() >= 32) {
@@ -386,6 +388,22 @@ CharaTask* GameVoice::fn_803EAC20() {
     return lbl_8087F490 != 0 ? lbl_8087F490->m2658 : 0;
 }
 
+// NONMATCHING: 99.3% - lbl_8087F490 is not reloaded for the store; r3/r4 of Stop_unk
+void GameVoice::fn_803EAC3C(CharaTask* chara) {
+    if (lbl_8087F490 != 0 && (lbl_8087F490->m2658 == chara || chara == 0)) {
+        lbl_8087F490->m2658 = 0;
+    }
+    for (GameVoiceRequest_unk* request = mRequests.begin(); request != mRequests.end();) {
+        if (request->mChara == chara) {
+            request->mChannel->Stop_unk(0);
+            mRequests.erase(request);
+        } else {
+            request++;
+        }
+    }
+    fn_803EAF60(chara);
+}
+
 void GameVoice::fn_803EAF60(CharaTask* chara) {
     for (GameVoiceDelayed_unk* it = mDelayed.begin(); it != mDelayed.end();) {
         if (it->mChara == chara || chara == 0) {
@@ -468,6 +486,7 @@ int GameVoice::fn_803EB394(const char* name) {
     return 0;
 }
 
+// NONMATCHING: 98.8% - r3/r4 of Stop_unk in the loops
 void GameVoice::fn_803EB4A8(int keepChara, int keepRequests) {
     for (int i = 0; i < 4; i++) {
         GameVoiceChannel_unk* channel = &mChannels[i];
@@ -487,6 +506,7 @@ void GameVoice::fn_803EB4A8(int keepChara, int keepRequests) {
     }
 }
 
+// NONMATCHING: 99.1% - registers of id, found and the loop pointer
 GameVoiceChannel_unk* GameVoice::fn_803EB668(CharaTask* chara, const char* name, int steal) {
     unsigned int id = VoiceId_unk(name);
     GameVoiceChannel_unk* found = 0;

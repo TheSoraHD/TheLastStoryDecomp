@@ -1,4 +1,5 @@
 #include "game/EnvSeManager.h"
+#include "game/GameVoice.h"
 #include "atn/Task.h"
 #include "atn/SoundCore.h"
 #include "atn/SoundManager.h"
@@ -42,16 +43,11 @@ struct SongBattle_unk {
     int m70;
 };
 extern "C" SongBattle_unk* lbl_8087F540;
-struct SongLimit_unk {
-    unsigned char m000[0x10C];
-    int m10C;
-};
-extern "C" SongLimit_unk* lbl_8087F498;
 extern "C" int fn_803CE160(int a, int b, int c);
 
 // inferred: limit of the sounds of kind 8
 static inline int __Limit_unk() {
-    return lbl_8087F498 != 0 ? lbl_8087F498->m10C : 1;
+    return lbl_8087F498 != 0 ? lbl_8087F498->mNumChannels : 1;
 }
 
 // inferred: the reference holds a sound (read as a word: the original reloads the pointer for the

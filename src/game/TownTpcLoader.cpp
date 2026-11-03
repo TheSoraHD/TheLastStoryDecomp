@@ -1,4 +1,5 @@
 #include "game/TownTpcLoader.h"
+#include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
@@ -45,11 +46,9 @@ struct TownMap_unk;
 
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Target_unk* lbl_8087F490;
-extern "C" void* lbl_8087F498;
 extern "C" TownMap_unk* lbl_8087FA20;
 extern "C" void fn_805B8110(TownMap_unk* map, const atn::Vector3* pos, int* x, int* z); // inferred: position to cell
 extern "C" void fn_803957F0(void* obj, void* arg);
-extern "C" void fn_803EAC3C(void* obj, atn::Task* chara);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 struct Chara_unk : public atn::Task {
@@ -112,7 +111,7 @@ void TownTpcLoader::fn_805B9D58() {
         fn_803957F0(list->m134, ((Chara_unk*)mCharas[i])->m58);
         ((GameScene*)list)->fn_803CC718(mCharas[i], 0);
         if (lbl_8087F498 != 0) {
-            fn_803EAC3C(lbl_8087F498, mCharas[i]);
+            lbl_8087F498->fn_803EAC3C((CharaTask*)mCharas[i]);
         }
         if (lbl_8087F490 != 0) {
             lbl_8087F490->Clear_unk(mCharas[i]);

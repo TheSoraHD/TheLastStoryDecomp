@@ -1,4 +1,5 @@
 #include "game/CrowdManager.h"
+#include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "game/CrowdSimulation.h"
 #include "game/NpcManager.h"
@@ -36,8 +37,6 @@ struct CrowdCamera_unk {
     atn::Vector3 mPos; // 0x118
 };
 extern "C" CrowdCamera_unk* lbl_8087EFB4;
-extern "C" void* lbl_8087F498;
-extern "C" void fn_803EAC3C(void* obj, NpcTask* npc);
 extern "C" int rand();
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -305,7 +304,7 @@ void CrowdManager::fn_801EB7C4(CrowdWalker_unk* walker) {
         }
     }
     if (lbl_8087F498 != 0) {
-        fn_803EAC3C(lbl_8087F498, npc);
+        lbl_8087F498->fn_803EAC3C(npc);
     }
     npc->mColli.mFlags &= ~1;
     fn_800D2338(npc);
