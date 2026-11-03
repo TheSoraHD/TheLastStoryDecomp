@@ -289,8 +289,8 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float 
 // inferred: accessors inlined by the small callers and called out of line by the functions over the
 // inline budget (the original links the weak copies of other units: game/Em201ZanGurgFinal.cpp,
 // game/Em203GreaterDaemonRedMp.cpp, game/PlayerInput_unk.cpp, Event/Puppeteer_CharaTask.cpp ...)
-extern "C" inline CharaTask* fn_8000DCF4(PlayerManager* mgr) {
-    return mgr->mHead;
+inline PlayerTask* PlayerManager::GetHead_unk() {
+    return mHead;
 }
 extern "C" inline CharaTask* fn_802A36B0(PlayerManager* mgr) {
     return mgr->mHead;
@@ -458,7 +458,7 @@ void EnemyQuarkSecond::vf10() {
     m14B0 = mC58.mC4;
     fn_803449AC();
     if (m14B0 == 0) {
-        CharaTask* leader = fn_8000DCF4(fn_8000D9E8());
+        CharaTask* leader = fn_8000D9E8()->GetHead_unk();
         m14B0 = leader;
         mC58.mC4 = leader;
     }
@@ -519,7 +519,7 @@ void EnemyQuarkSecond::vf10() {
             m14C8 = 1;
         }
     }
-    fn_8000DCF4(fn_8000D9E8());
+    fn_8000D9E8()->GetHead_unk();
     int kind;
     int busy = 0;
     if (mC58.mC0 == 0 || m14B0 == 0) {
@@ -587,7 +587,7 @@ void EnemyQuarkSecond::vf10() {
         }
         fn_80339F74(this, free);
         MapInfo_unk* map = fn_80373148(fn_80121F00());
-        if (mPos.y - fn_8000DCF4(fn_8000D9E8())->fn_8013C38C()->y > 20.0f) {
+        if (mPos.y - fn_8000D9E8()->GetHead_unk()->fn_8013C38C()->y > 20.0f) {
             kind = 3;
         } else {
             kind = 0;
@@ -773,7 +773,7 @@ inline void EnemyQuarkSecond::fn_8033A7A0() {
     if (m14B0 == 0) {
         return;
     }
-    fn_8000DCF4(fn_8000D9E8());
+    fn_8000D9E8()->GetHead_unk();
     float dist = fn_801C3910(mPos - atn::Vector3(*m14B0->fn_8013C38C()));
     int action = 0;
     if (m14BC != 2) {

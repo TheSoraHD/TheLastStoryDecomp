@@ -1096,6 +1096,11 @@ public:
     // inferred: third constructor argument (Event::DialogHead passes the one of the character it copies;
     // the original loads it before the type); name invented
     void* GetData_unk() { return (void*)m50; }
+    // inferred: accessors called out of line by Event::Actor (weak copies 0x8000D9F8 and 0x8000DCFC); names
+    // invented. Defined in Event/Puppeteer_CharaTask.cpp: a new inline body in this header renumbers the @N
+    // labels of every file that includes it.
+    inline int GetCharaNo_unk();
+    inline void SetM58_unk(int v);
 
 
     int mType;  // 0x48: also compared with 0 and 2 by the chr::Control* classes

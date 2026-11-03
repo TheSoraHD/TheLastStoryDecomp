@@ -6,6 +6,7 @@
 #include "atn/Bgm.h"
 
 class GameScene;
+class CharaTask;
 
 namespace Event {
 
@@ -24,6 +25,8 @@ struct ManagerSubTask_unk : public atn::Task {
 // Partial: only what Event/Sequence.cpp uses; member and method names are invented.
 class Manager : public atn::Task {
 public:
+    // inferred: creates the character `id` of kind `kind` for the event (Event::Actor)
+    CharaTask* fn_8047FF70(int kind, int id, float arg, const atn::Vector3& pos);
     void fn_8047E528();
     void fn_8047F580();
     void fn_8047F8B0();

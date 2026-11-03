@@ -10,6 +10,7 @@
 #include "atn/Array_unk.h"
 #include "std/vector.h"
 #include "game/IntVector_unk.h"
+#include "atn/ColorF_unk.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
@@ -77,6 +78,13 @@ struct Actor : public CommonData {
     virtual void vf0C();
     virtual int vf10() const;
     inline CharaTask* GetChara_unk(); // inferred: defined in Event/Puppeteer_CharaTask.cpp
+    inline Sequence* GetSequence_unk() const; // inferred: weak copy 0x8000EB84 (defined in Event/Puppeteer_CharaTask.cpp)
+    // inferred: binds the actor to what its name designates (Actor::vf08; names invented)
+    void fn_8000DB24(Sequence* seq, int kind, int id); // inferred: set point character ("em", "fr", "np")
+    void fn_8000E474(Sequence* seq, int kind, int id); // inferred: event character ("ev")
+    void fn_8000E5D0(int id, int usbId);               // inferred: gimmick ("gm")
+    void fn_8000E6B0(Sequence* seq, int id);           // inferred: model of the sequence ("md")
+    void fn_8000E7B8(Sequence* seq, int id);           // inferred: data of the list 0x104 of the sequence ("dm")
     CharaTask* fn_800128FC();      // inferred: character of the actor (0 if none)
     CharaTask* fn_80012934();      // inferred: same code as fn_800128FC
     void fn_80012540(int arg);
@@ -133,7 +141,8 @@ struct Actor : public CommonData {
         struct {
             unsigned int m18_0 : 2;
             unsigned int mWait_unk : 1; // inferred: set while the actor has no character or is moving
-            unsigned int m18_3 : 4;
+            unsigned int m18_3 : 3;
+            unsigned int m18_6 : 1; // inferred: set for set point characters and gimmicks
             unsigned int m18_7 : 1; // inferred: the actor is not reset at the start of the event (Event::Sequence)
             unsigned int m18_8 : 24;
         };
@@ -165,9 +174,9 @@ struct Actor : public CommonData {
     unsigned char m146;
     IntVector_unk m148;
     int m154;
-    std::vector<ActorKey10_unk> m158;
-    IntVector_unk m164;
-    std::vector<ActorKey10_unk> m170;
+    std::vector<ColorF_unk> m158; // inferred: material colors of the model (Actor::vf08)
+    IntVector_unk m164; // inferred: materials shown (Actor::vf08)
+    std::vector<ColorF_unk> m170;
     IntVector_unk m17C;
     unsigned char m188; // inferred: 1 after construction
     ActorEyes_unk m18C; // 0x18C

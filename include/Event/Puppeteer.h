@@ -2,6 +2,7 @@
 #define EVENT_PUPPETEER_H
 
 #include "atn/Task.h"
+#include "atn/Memory.h"
 #include "math/Vec.h"
 #include "Event/Sequence.h"
 
@@ -18,6 +19,11 @@ public:
         m4C_0 = 1;
     }
     virtual ~Puppeteer() {}
+    // inferred: weak copy 0x8000DDA0 for CharaTask (inlined for atn::Model); names invented
+    static Puppeteer* Create_unk(Sequence* sequence, T* target) {
+        return new ((MemoryTag)4, "", "", 0) Puppeteer(sequence, target);
+    }
+    T* GetTarget_unk() { return m48; } // inferred: weak copy 0x8000DE3C for CharaTask
     void SetFlag0_unk(int on) { m4C_0 = on != 0; } // inferred: inlined in Event::Actor::fn_8001256C
     virtual int vf0C();
     virtual void vf10();
