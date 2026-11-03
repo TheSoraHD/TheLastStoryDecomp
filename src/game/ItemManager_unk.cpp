@@ -7,6 +7,7 @@
 #include "db/WeaponParam_unk.h"
 #include "db/EquipParam_unk.h"
 #include "atn/Memory.h"
+#include "game/PlayerManager.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -59,6 +60,16 @@ int Inventory::fn_8044386C() {
         return 0;
     }
     return 1;
+}
+
+void Inventory::fn_804438E0(int code) {
+    Item_unk* item = &mItems[fn_8021150C(code)];
+    if (item->m08 != 0) {
+        for (int i = 0; i < 0x600; i++) {
+            mItems[i].m08++;
+        }
+        item->m08 = 0;
+    }
 }
 
 // inferred: removes `num` items `code`; returns the number removed (game shops, gimmicks)
@@ -236,12 +247,103 @@ extern "C" InventoryIconUV_unk fn_80444C50(Inventory* inventory, int icon) {
     return InventoryIconUV_unk(x * size, y * size, (x + 1) * size, (y + 1) * size);
 }
 
+extern "C" int fn_80370174(InventoryField_unk* field, int index); // inferred: reads an event counter
+// inferred: chance of finding a weapon by rank (the second one once the weapon was found)
+static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
+static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
+
+int Inventory::fn_80448F9C(int code) {
+    int rate = 100;
+    if (fn_80206B9C(code)) {
+        WeaponParamEntry_unk* weapon = fn_80206C50(code);
+        int index = fn_8021150C(code);
+        unsigned int flags;
+        if (index < 0 || 0x600 <= index) {
+            flags = 0;
+        } else {
+            flags = mItems[index].m0C;
+        }
+        if ((flags & 1) == 1) {
+            rate = sWeaponRate1_unk[weapon->m118];
+        } else {
+            rate = sWeaponRate0_unk[weapon->m118];
+        }
+        if (lbl_8087F430 != 0) {
+            if (fn_80370174(lbl_8087F430, 0x8A) == 1) {
+                rate = 0;
+            } else if (fn_80370174(lbl_8087F430, 0x8A) >= 2) {
+                rate = 100;
+            }
+        }
+    }
+    return rate;
+}
+
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: party
+extern "C" int fn_80375184(InventoryField_unk* field); // inferred: saving is allowed
+
+void Inventory::fn_804490E0(ItemParamEntry_unk* item, int member) {
+    if (lbl_8087F8A0 != 0) {
+        int type = item->mB4;
+        bool group = 8 <= type && type <= 10;
+        int stat = -1;
+        if (type == 11) {
+            stat = type;
+        } else if (!group) {
+            stat = type;
+        } else {
+            switch (type) {
+            case 9:
+                stat = 10;
+                break;
+            case 8:
+                stat = 0x1C;
+                break;
+            }
+        }
+        CharaTask* chara = (CharaTask*)lbl_8087F8A0->fn_8054A33C(member);
+        CharaStatus* status = chara != 0 ? chara->GetStatus_unk() : &mPlayers[member];
+        status->fn_801342D0((StatusItem_unk*)item, stat);
+        status->fn_8012B988();
+        if (lbl_8087F430 == 0 || fn_80375184(lbl_8087F430) == 0) {
+            status->fn_8012D8B8();
+        }
+    }
+}
+
+// inferred: rewards of a defeated enemy (outputs added to m6014/m6018); name invented
+extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
+// inferred: settings (lbl_8087F0A8); only the member used here
+struct InventorySettings_unk {
+    unsigned char m000[0x160];
+    int m160; // inferred: debug: fixed protectors (fn_8044D208)
+    unsigned char m164[0x18C - 0x164];
+    int m18C; // inferred: debug: random protectors (fn_8044D208)
+    unsigned char m190[0x280 - 0x190];
+    int m280; // inferred: experience is shared (fn_80449A18)
+};
+extern "C" InventorySettings_unk* lbl_8087F0A8;
+extern "C" void* lbl_8087F610; // inferred: multiplayer session
+
 int Inventory::fn_8044909C() {
     int flags = 0;
     if ((lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) || (mDB14 != 0 && mDB24 != 0)) {
         flags |= 6;
     }
     return flags;
+}
+
+void Inventory::fn_80449A18(int killer, int level, int exp, int arg4, float rate) {
+    if (lbl_8087F610 == 0) {
+        int a = 0;
+        int b = 0;
+        fn_804491F4(&a, &b, level, exp, arg4, rate);
+        m6014 += a;
+        m6018 += b;
+        if (lbl_8087F0A8->m280 != 0) {
+            fn_80449ABC(killer, level);
+        }
+    }
 }
 
 void Inventory::fn_8044D028() {
@@ -308,6 +410,48 @@ extern "C" void fn_8044D490(Inventory* inventory, int index) {
         return;
     }
     inventory->mIdentify.erase(&inventory->mIdentify[index]);
+}
+
+extern "C" int rand();
+
+int Inventory::fn_8044D208(int slot, int chara) {
+    int index = fn_80219558(chara);
+    if (index < 0 || index > 6) {
+        return -1;
+    }
+    if (lbl_8087F0A8->m160 != 0) {
+        switch (index) {
+        case 0:
+            return 0;
+        case 2:
+            return 20;
+        case 3:
+            return 40;
+        case 4:
+            return 60;
+        case 5:
+            return 80;
+        case 6:
+            return 100;
+        case 1:
+            return 120;
+        }
+    } else if (lbl_8087F0A8->m18C != 0 && slot == 2) {
+        int a = rand() % 8 * 20 + rand() % 10;
+        int b = rand() % 8 * 20 + rand() % 10;
+        mEquip[index].mProtectors[0].mId = a;
+        mEquip[index].mProtectors[1].mId = b;
+        mEquip[index].mProtectors[2].mId = a;
+        mEquip[index].mProtectors[3].mId = a;
+    }
+    return mEquip[index].mProtectors[slot].mId;
+}
+
+void Inventory::fn_8044D404(const int& code) {
+    ItemParamEntry_unk* entry = fn_80211480(code);
+    if (entry != 0 && entry->mBC == 2 && mIdentify.size() < 0x100) {
+        mIdentify.push_back(code);
+    }
 }
 
 void Inventory::fn_8044D4F0() {

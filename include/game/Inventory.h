@@ -7,6 +7,7 @@
 #include "atn/LH_Binary.h"
 
 class CharaTask;
+struct ItemParamEntry_unk;
 
 // Name from the RSO (Inventory::GetPlayerStatusInfo(int), AddItem, AddMoney, Order...; static
 // instance_ = 0x8087F4F0, Order() = 0x801D80B4). The code is game/ItemManager_unk.cpp (between
@@ -51,7 +52,15 @@ public:
     static void fn_80442F10();
     static void fn_80442F68();
     int fn_8044386C(); // inferred: nonzero while the file of mLoader is loading
+    void fn_804438E0(int code); // inferred: marks the item `code` as the newest one (game/Em201ZanGurgFinal)
+    int fn_80448F9C(int code); // inferred: chance (0-100) of finding the item `code` (gmk/TreasureBox, gmk/DropItem)
     int fn_8044909C(); // inferred: flags of the items that can be found (gmk/TreasureBox, gmk/DropItem)
+    void fn_804490E0(ItemParamEntry_unk* item, int member); // inferred: uses a stat item on a party member
+    // inferred: rewards of a defeated enemy (game/BattleCharaTask, gmk/FlyObjManager)
+    void fn_80449A18(int killer, int level, int exp, int arg4, float rate);
+    void fn_80449ABC(int killer, int level); // inferred: shares the experience of fn_80449A18
+    int fn_8044D208(int slot, int chara); // inferred: protector of a party member (debug settings, game/CharaTask)
+    void fn_8044D404(const int& code); // inferred: adds an item to identify
 
     // RSO: Order__9InventoryFv (weak copy 0x801D80B4)
     static Inventory* Order() { return instance_; }
@@ -76,7 +85,10 @@ public:
 
     Item_unk mItems[0x600];                         // 0x0000: inferred: the bag (code < 0: free slot)
     int mMoney;                                     // 0x6000
-    unsigned char m6004[0x601C - 0x6004];
+    unsigned char m6004[0x6014 - 0x6004];
+    int m6014; // inferred: totals added by fn_80449A18 (first output of fn_804491F4)
+    int m6018; // inferred: second output of fn_804491F4
+
     atn::FixedArray_unk<ExpEntry_unk, 7> mExpEntries; // 0x601C: inferred: party of the last battle
     unsigned char m6410[0x64A0 - 0x6410];
     int mOrder[10];                                 // 0x64A0: inferred: order of the members (RSO GetPlayerOrder)

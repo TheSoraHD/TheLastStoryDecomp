@@ -181,7 +181,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
 extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
 extern "C" void fn_80449448(int* a, int* b, int level, int cap);
-extern "C" void fn_80449A18(void* mgr, int killer, int level, int exp, int arg4, float rate);
 // inferred: popup texts (lbl_8087F8A8, as in gmk/FlyObjManager.cpp)
 extern "C" void* lbl_8087F8A8;
 extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
@@ -2315,7 +2314,7 @@ void BattleCharaTask::fn_800EB7A0() {
             swprintf(text, 0x20, L"%d", a);
             fn_8054D794(lbl_8087F8A8, 2, text, &pos, kind, 0, 1, 0, 0, 0, 1, -1, -1);
         }
-        fn_80449A18(Inventory::instance_, m13B0, level, exp, 0, rate);
+        Inventory::instance_->fn_80449A18(m13B0, level, exp, 0, rate);
     }
 }
 

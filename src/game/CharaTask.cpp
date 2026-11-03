@@ -623,7 +623,6 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" int fn_802180A8(const char* name); // inferred: motion name to id
 extern "C" int fn_8020EE8C(const char* name); // inferred: equipment slot by name
-extern "C" int fn_8044D208(Inventory* party, int slot, int id);
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: node callback of a model (the functor manager of the original uses the default allocator of
 // boost::function3, std::allocator<function_base>)
@@ -935,7 +934,7 @@ void CharaTask::fn_801371AC() {
                     unsigned int mask = 1 << slot;
                     equipped = (mask & Inventory::instance_->mPlayers[index].m230) == mask;
                 }
-                fn_8014FF9C(slot, fn_8044D208(Inventory::instance_, slot, m50), equipped);
+                fn_8014FF9C(slot, Inventory::instance_->fn_8044D208(slot, m50), equipped);
             } else {
                 chr::CharaEquip_unk* equip = new ((MemoryTag)0, "", "", 0) chr::CharaEquip_unk(slot, -1, 0, this, 0, 0, 0, 1, 1);
                 std::string path(name);

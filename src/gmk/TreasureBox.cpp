@@ -41,7 +41,6 @@ struct ItemTable_unk {
 extern "C" ItemTable_unk* fn_8021E444(int table);
 extern "C" int fn_8021E5A4(ItemTable_unk* table, int flags); // inferred: draws an entry
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
-extern "C" int fn_80448F9C(void* mgr, int id);
 extern "C" int fn_80450B84(int table, int arg1, int arg2);
 extern "C" void* fn_80211480(int id); // inferred: item data
 extern "C" int fn_80206B9C(int id);
@@ -267,7 +266,7 @@ int TreasureBox::vf40(GimmickMsg_unk* msg) {
             int rare = 1;
             if (fn_80206B9C(id) != 0) {
                 rare = 0;
-                int chance = fn_80448F9C(Inventory::instance_, id);
+                int chance = Inventory::instance_->fn_80448F9C(id);
                 if (chance > rand() % 100) {
                     rare = 1;
                 }
