@@ -36,8 +36,8 @@ public:
     void SetCur_unk(atn::Vector3 pos) { mCur = pos; }
     void fn_801E91A0(atn::Vector3 rot);            // inferred: sets the rotation
     bool fn_801E91B4();                            // inferred: the character is close to its target
-    void fn_801E9218(atn::Vector3 rot, atn::Vector3 scale); // inferred: shows it (0x801E9218, auto split)
-    void fn_801E92D4(atn::Vector3 from, atn::Vector3 to);   // inferred: moves it (0x801E92D4, auto split)
+    void fn_801E9218(atn::Vector3 rot, atn::Vector3 scale); // inferred: shows it (0x801E9218)
+    void fn_801E92D4(atn::Vector3 from, atn::Vector3 to);   // inferred: moves it (0x801E92D4)
 
     CharaTask* mChara;      // 0x48
     int mFace;              // 0x4C: inferred: passed to fn_804A4CE4

@@ -287,3 +287,26 @@ void CostumeEditChara::fn_801E91A0(atn::Vector3 rot) {
 bool CostumeEditChara::fn_801E91B4() {
     return PSVECSquareMag(&(mCur - mTarget)) < 900.0f;
 }
+
+void CostumeEditChara::fn_801E9218(atn::Vector3 rot, atn::Vector3 scale) {
+    fn_800D246C(0);
+    if (mChara != 0) {
+        mRot = rot;
+        mScale = scale;
+        mChara->mMotion.m34C = 1;
+        mChara->mMotion.mTracks[0].m20 = 1.0f;
+        mChara->mMotion.mTracks[0].m0C = 0.0f;
+        mChara->mMotion.fn_80097C08(0, 0x73, 0, 1, 1, 0.0f, 0.1f);
+    }
+}
+
+void CostumeEditChara::fn_801E92D4(atn::Vector3 from, atn::Vector3 to) {
+    fn_800D246C(0);
+    MeltTask();
+    SetCur_unk(from);
+    fn_801E9168(to);
+    if (mChara != 0) {
+        mChara->mMotion.mTracks[0].m0C = 1.0f;
+        mChara->mMotion.fn_80097C08(0, 2, 1, 1, 1, 1.0f, 0.1f);
+    }
+}
