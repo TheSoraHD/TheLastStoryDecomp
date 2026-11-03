@@ -22,6 +22,8 @@ extern "C" int fn_800CB4EC(atn::SoundRef* sound);  // inferred: the sound is bei
 extern "C" bool fn_800CB58C(atn::SoundRef* sound); // inferred: the sound is playing
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);  // inferred: sound id
 extern "C" int fn_8006AA20(const char* path);       // inferred: the file exists
+extern "C" void fn_800CB504(atn::SoundRef* sound);  // inferred: starts the prepared sound
+extern "C" void fn_800CB6E4(atn::SoundRef* sound, const void* pos); // inferred: sets the position
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // inferred: sets the volume
 extern "C" void fn_800CB654(atn::SoundRef* sound, float a, float b, float c); // inferred: sets the effect sends
 extern "C" int fn_80049C3C(atn::SoundEngine_unk* engine, const char* name);  // inferred: the sound has no effects
@@ -95,13 +97,17 @@ GameVoiceChannel_unk::GameVoiceChannel_unk() {
     Stop_unk(0);
 }
 
+// inferred: the character stops playing `data` (name invented)
+static inline void StopLip_unk(Chara1154_unk* lip, LipSyncData_unk* data) {
+    if (lip->m00 == data) {
+        lip->m00 = 0;
+        lip->m04 = 0.0f;
+    }
+}
+
 inline void GameVoiceChannel_unk::DetachLip_unk() {
     if (mChara != 0 && mLipSync.mCount != 0) {
-        Chara1154_unk& lip = mChara->m1154;
-        if (lip.m00 == &mLipSync) {
-            lip.m00 = 0;
-            lip.m04 = 0.0f;
-        }
+        StopLip_unk(&mChara->m1154, &mLipSync);
     }
 }
 
@@ -131,6 +137,99 @@ GameVoice::~GameVoice() {
 
 int GameVoice::vf0C() {
     return fn_800D3FA4() != 0;
+}
+
+// inferred: the lip sync of the character has ended (name invented)
+static inline bool LipEnded_unk(Chara1154_unk& lip) {
+    return lip.m00 != 0 ? lip.m04 >= lip.m00->mCount : true;
+}
+
+void GameVoice::vf10() {
+    for (GameVoiceDelayed_unk* it = mDelayed.begin(); it != mDelayed.end();) {
+        if (it->mTimer >= it->mDelay) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 0 && lbl_8087F540 != 0 && lbl_8087F540->m70 == 0) {
+                it->mChara->fn_80179F98(it->mKind);
+                fn_803EA09C(it->mChara, it->mName, it->m18, it->m1C, 0, it->mVolume);
+            }
+            mDelayed.erase(it);
+        } else {
+            it->mTimer++;
+            it++;
+        }
+    }
+    for (GameVoiceRequest_unk* request = mRequests.begin(); request != mRequests.end();) {
+        switch (request->mState) {
+        case 1:
+            if (request->mChannel != 0 &&
+                (fn_800CB4EC(&request->mChannel->mSound) != 0 || request->mChannel->mFile.fn_80473F50() != 0)) {
+                break;
+            }
+            if (request->mChannel != 0) {
+                if (request->mChara != 0) {
+                    for (unsigned int i = 0; i < 4; i++) {
+                        GameVoiceChannel_unk* channel = &mChannels[i];
+                        if (channel->mSound.mPtr != 0 && channel != request->mChannel && channel->mChara == request->mChara) {
+                            channel->Stop_unk(5);
+                        }
+                    }
+                }
+                fn_800CB504(&request->mChannel->mSound);
+                if (request->mChannel->mSound.mPtr != 0) {
+                    ((atn::SoundCore*)request->mChannel->mSound.mPtr)->fn_800CA144(0);
+                }
+                if (request->mChara != 0 && request->mChannel->mFile.fn_80470580() != 0) {
+                    request->mChannel->mLipSync.fn_8007A530((const char*)request->mChannel->mFile.fn_80470580(),
+                                                           request->mChannel->mFile.fn_8047059C());
+                    request->mChannel->mFile.fn_80473F88();
+                    Chara1154_unk& lip = request->mChara->m1154;
+                    lip.m00 = &request->mChannel->mLipSync;
+                    lip.m04 = 0.0f;
+                }
+            }
+            request->mState = 3;
+            break;
+        case 2:
+            if (request->mChannel != 0) {
+                request->mChannel->mSound.Reset();
+            }
+            request->mState = 0;
+            break;
+        case 3: {
+            if (request->mChara != 0 && request->mChannel != 0) {
+                fn_800CB6E4(&request->mChannel->mSound, &request->mChara->mPos);
+            }
+            bool done = false;
+            if (request->mLength > 0) {
+                if (request->mLength <= request->mTimer) {
+                    done = true;
+                }
+            } else if (request->mChannel != 0) {
+                if (!fn_800CB58C(&request->mChannel->mSound)) {
+                    if (request->mChara == 0 || LipEnded_unk(request->mChara->m1154)) {
+                        done = true;
+                    }
+                }
+            } else {
+                done = true;
+            }
+            if (done) {
+                request->mChannel->Stop_unk(0);
+                request->mState = 0;
+            } else {
+                request->mTimer++;
+                if (request->mChannel != 0) {
+                    request->mChannel->mTime = request->mTimer;
+                }
+            }
+            break;
+        }
+        }
+        if (request->mState == 0) {
+            mRequests.erase(request);
+        } else {
+            request++;
+        }
+    }
 }
 
 // inferred: stops the prepared voice of the channel if it is not `name` (inlined in fn_803E907C and

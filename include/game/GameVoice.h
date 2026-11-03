@@ -64,10 +64,24 @@ struct GameVoicePair_unk {
     int m04;
 };
 
+// inferred: second part of a voice request (0x38 bytes; the copy of GameVoiceRequest_unk copies it with
+// its own pointer, so it is a member of its own; name invented)
+struct GameVoiceRequestInfo_unk {
+    GameVoiceRequestInfo_unk() : m00(0), m04(0), m08(0), m0C(0), m30(0), mPairCount(0) {}
+
+    int m00;                          // 0x28 of the request
+    int m04;
+    int m08;
+    int m0C;
+    atn::FixedString_unk<0x20> mName; // 0x10 (0x38)
+    int m30;
+    int mPairCount;                   // 0x34 (0x5C): inferred: number of mPairs of the request
+};
+
 // inferred: voice request (0xE0 bytes; constructor 0x803E8820, destructor 0x803E8908)
 struct GameVoiceRequest_unk {
-    // NONMATCHING (0x803E8820, 99.31%): r4/r5 swapped in the dead code of Reset_unk
-    GameVoiceRequest_unk() : m00(0), mChannel(0), m28(0), m2C(0), m30(0), m34(0), m58(0) { Reset_unk(); }
+    // NONMATCHING (0x803E8820): r4/r5 swapped in the dead code of Reset_unk
+    GameVoiceRequest_unk() : m00(0), mChannel(0) { Reset_unk(); }
     ~GameVoiceRequest_unk() {}
     // inferred: clears the request and stops its channel (name invented)
     void Reset_unk() {
@@ -95,13 +109,8 @@ struct GameVoiceRequest_unk {
     int mLength;                      // 0x1C: inferred: frames to play (0: until the end)
     int mTimer;                       // 0x20
     GameVoiceChannel_unk* mChannel;   // 0x24
-    int m28;
-    int m2C;
-    int m30;
-    int m34;
-    atn::FixedString_unk<0x20> mName; // 0x38
-    int m58;
-    atn::FixedArray_unk<GameVoicePair_unk, 16> mPairs; // 0x5C
+    GameVoiceRequestInfo_unk mInfo;   // 0x28
+    GameVoicePair_unk mPairs[16];     // 0x60
 };
 
 // inferred: the requests; the destructor of GameVoice destroys them with two inline levels (name invented)
@@ -118,6 +127,8 @@ public:
     virtual int vf0C();           // 0x803E8A24
     virtual void vf10();          // 0x803E8A50
 
+    // inferred: plays the voice `name` of `chara`, with its lip sync
+    atn::SoundRef fn_803EA09C(CharaTask* chara, const char* name, int a, int b, int c, float volume);
     // inferred: plays the voice `name` at `pos`
     atn::SoundRef fn_803E907C(const char* name, const atn::Vector3* pos, int offset, int steal, float volume);
     // inferred: says the voice `kind` of `chara` (or of a random member of the party) after `delay` frames

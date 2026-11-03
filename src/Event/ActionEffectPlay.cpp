@@ -331,8 +331,6 @@ inline AudioEntry_unk* FindAudio_unk(EventManager_unk* manager, int id) {
 } // namespace Event
 
 
-extern "C" atn::SoundRef fn_803EA09C(void* mgr, CharaTask* chara, const char* name, int a, int b, int c,
-                                     float volume); // inferred: voice spoken by a character (lip sync)
 extern "C" atn::SoundRef fn_803E9608(void* mgr, const char* name, int a, int b, float volume);
 extern "C" void fn_80489A2C(EventEffects_unk* manager); // inferred: loads the missing event voices
 extern "C" void fn_80489A50(EventEffects_unk* manager, Event::Action* action, int arg);
@@ -1325,7 +1323,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         }
         if (entry != 0) {
             if (lipSync != 0 && chara != 0) {
-                sound = fn_803EA09C(lbl_8087F498, chara, entry->mName.c_str(), 0, 1, 0, volume);
+                sound = lbl_8087F498->fn_803EA09C(chara, entry->mName.c_str(), 0, 1, 0, volume);
             } else {
                 sound = fn_803E9608(lbl_8087F498, entry->mName.c_str(), 0, 1, volume);
             }

@@ -1,4 +1,5 @@
 #include "game/EnemyJill.h"
+#include "game/GameVoice.h"
 #include "atn/Keyboard.h"
 #include "atn/Csv.h"
 #include "math/Vec.h"
@@ -559,8 +560,6 @@ struct JillArena_unk {
     JillArenaPlayer_unk* m2640;
 };
 extern "C" JillArena_unk* lbl_8087F490;
-extern "C" void* lbl_8087F498; // inferred: voice manager
-extern "C" atn::SoundRef fn_803EA09C(void* mgr, CharaTask* chara, const char* name, int a, int b, int c, float volume);
 extern "C" int fn_800CB58C(atn::SoundRef* sound); // inferred: playing
 
 void EnemyJill::fn_8032F6A8() {
@@ -584,7 +583,7 @@ void EnemyJill::fn_8032F6A8() {
         }
     }
     if (ok && (m15B0.mPtr == 0 || fn_800CB58C(&m15B0) == 0)) {
-        m15B0 = fn_803EA09C(lbl_8087F498, this, m1614[m15B4.Front_unk()].c_str(), 0, 1, 0, 1.0f);
+        m15B0 = lbl_8087F498->fn_803EA09C(this, m1614[m15B4.Front_unk()].c_str(), 0, 1, 0, 1.0f);
         m15B4.Pop_unk();
     }
 }
