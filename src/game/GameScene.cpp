@@ -1614,11 +1614,6 @@ extern "C" void fn_803C68E4(atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* gr
     groups->Resize_unk(size, heap, name);
 }
 
-// inferred: default construction of a warp-point group.
-extern "C" void fn_803C698C(gs::PointGroup<gs::WarpPoint>* group) {
-    (void)group;
-}
-
 // inferred: grows the warp-point group array.
 // NONMATCHING: 96.22% - allocator/constructor relocations and old/new data register allocation differ.
 extern "C" void fn_803C6990(atn::SimpleArray<gs::PointGroup<gs::WarpPoint> >* groups, int size, int heap,
@@ -1642,11 +1637,6 @@ extern "C" gs::PointGroup<gs::HidePoint>* fn_803C6DD8(const atn::SimpleArray<gs:
 extern "C" void fn_803C6DE0(atn::SimpleArray<gs::PointGroup<gs::HidePoint> >* groups, int size, int heap,
                             const char* name) {
     groups->Resize_unk(size, heap, name);
-}
-
-// inferred: default construction of a hide-point group.
-extern "C" void fn_803C6E88(gs::PointGroup<gs::HidePoint>* group) {
-    (void)group;
 }
 
 // inferred: grows the hide-point group array.
@@ -1708,11 +1698,6 @@ extern "C" gs::PointGroup<gs::MovePoint>* fn_803C72D4(const atn::SimpleArray<gs:
 extern "C" void fn_803C72DC(atn::SimpleArray<gs::PointGroup<gs::MovePoint> >* groups, int size, int heap,
                             const char* name) {
     groups->Resize_unk(size, heap, name);
-}
-
-// inferred: default construction of a move-point group.
-extern "C" void fn_803C7384(gs::PointGroup<gs::MovePoint>* group) {
-    (void)group;
 }
 
 // inferred: grows the move-point group array.
