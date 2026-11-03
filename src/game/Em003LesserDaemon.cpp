@@ -10,6 +10,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "macros.h"
+#include "atn/Material_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -104,13 +105,6 @@ struct FrameTime_unk {
     float GetTime_unk() const { return m3A4; } // inferred: accessor (name invented)
 };
 extern "C" FrameTime_unk* lbl_8087EFA8;
-// inferred: material colors of a model (returned by fn_80094B6C; class unknown, names invented)
-struct MatColor_unk {
-    unsigned char m00[0x1C];
-    GXColor m1C;
-    GXColor m20;
-};
-extern "C" MatColor_unk* fn_80094B6C(chr::Motion_unk* model, const char* name); // inferred: material by name
 // inferred: color as four floats (as ColorF_unk in game/Em315Coffin.cpp)
 struct ColorF_unk {
     ColorF_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
@@ -664,7 +658,7 @@ void Em003LesserDaemon::fn_8024BE94() {
         m1648 = MIN(1.0f, m1648 + 0.05f * lbl_8087EFA8->GetTime_unk());
     }
     for (unsigned int i = 0; i < 6; i++) {
-        MatColor_unk* mat = fn_80094B6C(&mMotion, sMaterials[i]);
+        Material_unk* mat = mMotion.fn_80094B6C(sMaterials[i]);
         ColorF_unk color(m1648, m1648, m1648, 1.0f);
         mMotion.fn_80094958(sMaterials[i], &color, &ColorF_unk(mat->m20), &ColorF_unk(mat->m1C));
     }
@@ -687,7 +681,7 @@ void Em003LesserDaemon::fn_8024BE94() {
     }
     {
         const char* name = sLight;
-        MatColor_unk* mat = fn_80094B6C(&mMotion, name);
+        Material_unk* mat = mMotion.fn_80094B6C(name);
         ColorF_unk color(light, light, light, 1.0f);
         mMotion.fn_80094958(name, &color, &ColorF_unk(mat->m20), &ColorF_unk(mat->m1C));
     }
@@ -699,7 +693,7 @@ void Em003LesserDaemon::fn_8024BE94() {
     m16C8 = MAX(0.0f, MIN(1.0f, m16C8));
     {
         const char* name = sWepLight;
-        MatColor_unk* mat = fn_80094B6C(&mMotion, name);
+        Material_unk* mat = mMotion.fn_80094B6C(name);
         ColorF_unk color(m16C8, m16C8, m16C8, 1.0f);
         mMotion.fn_80094958(name, &color, &ColorF_unk(mat->m20), &ColorF_unk(mat->m1C));
     }

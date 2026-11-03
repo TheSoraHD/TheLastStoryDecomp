@@ -20,7 +20,6 @@ class SingletonNoStatic {};
 // inferred: model of an actor (0 if none); not the same as Actor_unk::fn_80012A1C
 extern "C" atn::Model* fn_8001296C(Event::Actor_unk* actor);
 // inferred: starts a wind on the model (direction, frames, two strengths)
-extern "C" void fn_80097750(atn::Model* model, const atn::Vector3& dir, int frames, float a, float b);
 
 namespace Event {
 
@@ -889,7 +888,7 @@ int ActionActorWind::vf0C(Action* arg, int phase) {
             dir = arg->fn_80538B18(0);
             float b = arg->GetParam_unk(3)->m04.f;
             float a = arg->GetParam_unk(4)->m04.f;
-            fn_80097750(model, dir, arg->m14 - arg->m10, a, b);
+            model->fn_80097750(dir, a, b, arg->m14 - arg->m10);
         }
         break;
     }

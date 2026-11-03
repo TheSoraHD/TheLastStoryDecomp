@@ -17,7 +17,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_80093C8C(atn::Model* model, const char* name); // inferred: nonzero while the named motion part plays
 extern "C" int rand();
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
@@ -387,7 +386,7 @@ void Em205Ogre::vf104() {
             if (PSVECSquareMag(&d) < r * r) {
                 vf100(9);
             } else {
-                if (fn_80093C8C(&mMotion, "op_02_mask") == 0 && m14C0 % 30 == 0 && rand() % 4 == 0) {
+                if (mMotion.fn_80093C8C("op_02_mask") == 0 && m14C0 % 30 == 0 && rand() % 4 == 0) {
                     vf100(10);
                 }
                 if (mFlag31) {

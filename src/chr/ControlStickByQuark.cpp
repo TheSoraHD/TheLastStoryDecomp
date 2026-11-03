@@ -2004,10 +2004,6 @@ ControlReflectLaser::~ControlReflectLaser() {
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-// inferred: Matrix3x4 copy (weak copy 0x8008CD1C of atn/Model.cpp)
-extern "C" inline void fn_8008CD1C(atn::Matrix3x4* dst, const atn::Matrix3x4* src) {
-    *dst = *src;
-}
 // inferred: mtx = mtx * rot_z * rot_y * rot_x (weak copy 0x800F80B8 of game/BattleTask.cpp)
 extern "C" inline void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot) {
     ((atn::Matrix3x4*)mtx)->RotateZYX_unk(*rot);
@@ -2194,7 +2190,7 @@ int ControlReflectLaser::vf0C() {
         ret = 1;
     }
     mLength = 0.1f + mLength < 100.0f ? 0.1f + mLength : 100.0f;
-    fn_8008CD1C(&mMtx, &fn_800F80A8(&pos));
+    mMtx = fn_800F80A8(&pos);
     fn_800F80B8(mMtx.m, &rot);
     fn_800F8290(mMtx.m, 1.0f, 1.0f, mLength);
     return ret;

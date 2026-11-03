@@ -7,6 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
+#include "atn/Material_unk.h"
 
 // inferred: event flags counted by fn_8031FE4C (lbl_80749898) and route places of the retreat
 // (lbl_807498A4)
@@ -164,14 +165,6 @@ void Em401_01_WhiteLeoPard::vf10() {
     }
 }
 
-// inferred: material with three colors (diffuse, ambient, specular) returned by fn_80094B6C; name invented
-struct LeoMaterial_unk {
-    unsigned char m00[0x18];
-    GXColor m18;
-    GXColor m1C;
-    GXColor m20;
-};
-extern "C" LeoMaterial_unk* fn_80094B6C(atn::Model* model, const char* name); // inferred: material by name
 // inferred: color as four floats (as in game/Em315Coffin.cpp)
 struct LeoColor_unk {
     LeoColor_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
@@ -191,8 +184,8 @@ void Em401_01_WhiteLeoPard::vf14() {
     fn_80149A30();
     m155C = (m155C + 1) % 120;
     float t = (float)m155C / 120.0f;
-    LeoMaterial_unk* material = fn_80094B6C(&mMotion, "em405_efc");
-    LeoColor_unk diffuse(material->m18);
+    Material_unk* material = mMotion.fn_80094B6C("em405_efc");
+    LeoColor_unk diffuse(material->mColor);
     float s = (float)sin(6.2831855f * t);
     diffuse.a = 0.5f * (1.0f + s);
     mMotion.fn_80094958("em405_efc", &diffuse, &LeoColor_unk(material->m20), &LeoColor_unk(material->m1C));

@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/Arms.h"
 #include "game/GameScene.h"
 #include "game/SkillEffectManager.h"
 #include "game/Inventory.h"
@@ -9764,16 +9765,14 @@ int CharaTask::fn_8016E484() {
     return IsPartyIndex_unk(fn_80219558(m50));
 }
 
-extern "C" int fn_80044C50(chr::CharaPart_unk* part, CharaTask* chara);
-extern "C" void fn_80044CCC(chr::CharaPart_unk* part);
 extern "C" void fn_80566398(chr::CharaEquip_unk* equip, int arg);
 
 // inferred: same as fn_8016E71C(show, 1) with the equipment loop of fn_8016E800 written out
 // (inlining fn_8016E71C gives the loop registers in the other order)
 inline void CharaTask::SetPartsVisible_unk(int show) {
     if (show) {
-        if (m648 != 0 && fn_80044C50(m648, this)) {
-            fn_80044CCC(m648);
+        if (m648 != 0 && ((Arms*)m648)->fn_80044C50(this)) {
+            ((Arms*)m648)->fn_80044CCC();
         }
     } else {
         if (m648 != 0) {
@@ -9811,8 +9810,8 @@ void CharaTask::fn_8016E5F0(int show) {
 
 void CharaTask::fn_8016E71C(int show, int arg) {
     if (show) {
-        if (m648 != 0 && fn_80044C50(m648, this)) {
-            fn_80044CCC(m648);
+        if (m648 != 0 && ((Arms*)m648)->fn_80044C50(this)) {
+            ((Arms*)m648)->fn_80044CCC();
         }
     } else {
         if (m648 != 0) {
@@ -12322,7 +12321,6 @@ atn::Vector3 CharaTask::vfD0(float angle) {
     return pos;
 }
 
-extern "C" void fn_80094BD8(void* model, int mode);
 
 // NONMATCHING: 88% - only registers: the original keeps &d in r30 and &dir in r29, &from in r28 and
 // &base in r27 (ours swapped); tried: copy/assignment forms of d and from, declarations outside the
@@ -12362,20 +12360,20 @@ void CharaTask::fn_8017C7F8(unsigned int on) {
         if (mFlagB1) {
             mode = 4;
         }
-        fn_80094BD8(&mMotion, mode);
+        mMotion.fn_80094BD8(mode);
         for (unsigned int i = 0; i < mParts.mCount; i++) {
             if (mParts.mData[i] != 0) {
-                fn_80094BD8(mParts.mData[i]->m010, mode);
+                ((atn::Model*)mParts.mData[i]->m010)->fn_80094BD8(mode);
             }
         }
         chr::CharaEquip_unk** equips = m680;
         for (unsigned int i = 0; i < 8; i++) {
             if (equips[i] != 0) {
-                fn_80094BD8(equips[i]->m024, mode);
+                equips[i]->GetModel_unk()->fn_80094BD8(mode);
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
-            fn_80094BD8(&m6A4.mData[i]->mModel, mode);
+            m6A4.mData[i]->mModel.fn_80094BD8(mode);
         }
     }
 }

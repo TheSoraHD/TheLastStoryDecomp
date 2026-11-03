@@ -22,7 +22,6 @@ extern "C" void fn_800760BC(GraphicsDevice_unk* device, int left, int top, int w
 extern "C" void fn_800760D0(GraphicsDevice_unk* device); // inferred: restores the viewport
 extern "C" atn::RenderView_unk* lbl_8087EFB4;
 extern "C" void fn_800BDB58(atn::RenderView_unk* view, atn::IRender* render, float order, int pass); // inferred: queues a render
-extern "C" void fn_80094BD8(void* model, int mode);
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
 extern "C" int fn_802180A8(const char* name);                // inferred: motion id from its name
@@ -145,16 +144,16 @@ int DialogHead::vf0C() {
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
             m6A4.mData[i]->mFlags.mFlag = GetItem_unk(m1428, i)->mFlags.mFlag;
         }
-        fn_80094BD8(&mMotion, 4);
+        mMotion.fn_80094BD8(4);
         chr::CharaEquip_unk** p = m680;
         for (unsigned int i = 0; i < 8; i++, p++) {
             if (*p != 0 && (*p)->m000 < 4) {
-                fn_80094BD8((*p)->m024, 4);
+                (*p)->GetModel_unk()->fn_80094BD8(4);
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
             if (m6A4.mData[i]->mFlags.mFlag) {
-                fn_80094BD8(&m6A4.mData[i]->mModel, 4);
+                m6A4.mData[i]->mModel.fn_80094BD8(4);
             }
         }
         m1824 = mMotion.GetNodeNoByName("head", 0);
@@ -227,16 +226,16 @@ void DialogHead::vf10() {
     } else {
         mode = 4;
     }
-    fn_80094BD8(&mMotion, mode);
+    mMotion.fn_80094BD8(mode);
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
         if (*p != 0 && (*p)->m000 < 4) {
-            fn_80094BD8((*p)->m024, mode);
+            (*p)->GetModel_unk()->fn_80094BD8(mode);
         }
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
         if (m6A4.mData[i]->mFlags.mFlag) {
-            fn_80094BD8(&m6A4.mData[i]->mModel, mode);
+            m6A4.mData[i]->mModel.fn_80094BD8(mode);
         }
     }
 }
