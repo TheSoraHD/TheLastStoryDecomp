@@ -22,7 +22,6 @@ namespace Event {
 class Dialog;
 }
 
-extern "C" CharaTask* fn_80012934(Event::Actor* actor); // inferred: character of an actor
 extern "C" void fn_80012054(Event::Actor* actor, int a, int b, int c, float f1, float f2);
 extern "C" int fn_8006AA20(const char* path); // inferred: nonzero if the file exists
 
@@ -252,7 +251,7 @@ inline void Dialog::ResetPos_unk() {
 inline unsigned int Dialog::MakeKey_unk(Actor* actor, int kind) {
     DialogKey_unk key;
     key.w = 0;
-    CharaTask* chara = fn_80012934(actor);
+    CharaTask* chara = actor->fn_80012934();
     if (chara != 0) {
         key.s.mType = chara->fn_80179AB4();
         key.s.mId = chara->fn_80179A34() / 10000;
@@ -319,7 +318,7 @@ Dialog::Dialog(atn::Task* parent)
                         mHeads[m48].mKey = MakeKey_unk(actor, kind);
                         std::basic_string<char> path = GetPath_unk(actor, kind);
                         if (fn_8006AA20(path.c_str()) != 0) {
-                            mHeads[m48].mHead = DialogHead::fn_802251F8(this, fn_80012934(actor));
+                            mHeads[m48].mHead = DialogHead::fn_802251F8(this, actor->fn_80012934());
                             mHeads[m48].mHead->fn_800D246C(1);
                         }
                         head = &mHeads[m48++];
@@ -362,7 +361,7 @@ Dialog* Dialog::fn_802288D0(atn::Task* parent) {
 
 // NONMATCHING: 99.57% - registers inside the inlined basic_string(const char*) constructors
 static std::basic_string<char> GetPath_unk(Actor* actor, int kind) {
-    CharaTask* chara = fn_80012934(actor);
+    CharaTask* chara = actor->fn_80012934();
     if (chara == 0) {
         return std::basic_string<char>("");
     }
@@ -597,14 +596,14 @@ void Dialog::fn_80229414() {
 // r31 (tried the declaration orders and a pointer loop)
 DialogHead* Dialog::fn_8022960C(Actor* actor) {
     CharaTask* chara;
-    if (actor == 0 || fn_80012934(actor) == 0) {
+    if (actor == 0 || actor->fn_80012934() == 0) {
         return 0;
     }
     for (int i = 0; i < m48; i++) {
         DialogHead* head = mHeads[i].mHead;
         if (head != 0 && !head->IsFlag_unk(4)) {
             chara = head->m1428;
-            if (chara == fn_80012934(actor)) {
+            if (chara == actor->fn_80012934()) {
                 return mHeads[i].mHead;
             }
         }

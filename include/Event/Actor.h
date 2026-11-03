@@ -11,6 +11,8 @@
 #include "std/vector.h"
 #include "game/IntVector_unk.h"
 
+extern "C" void* memset(void* dst, int c, unsigned long n);
+
 class CharaTask;
 namespace atn {
 class Task;
@@ -57,17 +59,47 @@ struct ActorAnim_unk {
     IntVector_unk m28;
 };
 
+// inferred: eye movement of an actor (0x34 bytes at 0x18C, cleared by its constructor; names invented)
+struct ActorEyes_unk {
+    ActorEyes_unk() { Clear_unk(); }
+    void Clear_unk() { memset(this, 0, sizeof(ActorEyes_unk)); }
+    int m00;             // inferred: frames left of the current eye movement (ActionActorEyes)
+    atn::Vector3 m04;    // inferred: goal of the eyes
+    atn::Vector3 m10;    // inferred: current eye angles
+    atn::Vector3 m1C;
+    unsigned char m28[0x34 - 0x28];
+};
+
 // inferred: an actor of the event (0x1C0 bytes)
 struct Actor : public CommonData {
     Actor(class Sequence* owner, const char* name, int arg); // 0x8000D528
+    virtual void vf08();
+    virtual void vf0C();
+    virtual int vf10() const;
+    inline CharaTask* GetChara_unk(); // inferred: defined in Event/Puppeteer_CharaTask.cpp
     CharaTask* fn_800128FC();      // inferred: character of the actor (0 if none)
+    CharaTask* fn_80012934();      // inferred: same code as fn_800128FC
+    void fn_80012540(int arg);
+    void fn_8001256C(int show);
+    void fn_800125C8(int on);
+    void* fn_8001260C();
+    void fn_80012638(int on);
+    void fn_8001271C(int on);
+    void fn_80012774(int on);
+    void fn_80012CBC(const atn::Vector3& pos, float speed);
+    void fn_80012CE4(const atn::Vector3& pos, float speed);
+    void fn_80012D0C(float speed);
+    void fn_800134B8(const atn::Vector3& pos, float speed);
+    void fn_800134E0(const atn::Vector3& pos, float speed);
+    void fn_80013508(float* target, const atn::Vector3& pos, float speed);
+    void fn_80013530(float speed);
     atn::Vector3 fn_80010374();    // inferred: position of the actor
     atn::Vector3 fn_80010B68();    // inferred: rotation of the actor
     atn::Model* fn_80012A1C();     // inferred: model of the actor (0 if none)
     void fn_8000EE8C();            // inferred: update (Event::Sequence::vf10)
     void fn_8000F1EC();            // inferred: start of the event
     void fn_8000FAE8();            // inferred: end of the event
-    void fn_800127CC(int a, int b); // inferred: pose of the actor (from an action of a character channel)
+    int fn_800127CC(int a, int b); // inferred: the character has the part (a: id)
     void fn_8001282C(int a, int b);
     // inferred: plays motion `motion` on the actor (used by Event::BehaviorGesture)
     void fn_800119C0(int arg1, int motion, int arg3, int arg4, void* arg5, int arg6, int arg7, float arg8,
@@ -97,11 +129,16 @@ struct Actor : public CommonData {
     inline void TurnTo_unk(const atn::Vector3& dir);
     inline void SetPath_unk(class Path* path); // inferred: builds mPath from an event path
 
-    unsigned int m18_0 : 2;
-    unsigned int mWait_unk : 1; // inferred: set while the actor has no character or is moving
-    unsigned int m18_3 : 4;
-    unsigned int m18_7 : 1; // inferred: the actor is not reset at the start of the event (Event::Sequence)
-    unsigned int m18_8 : 24;
+    union {
+        struct {
+            unsigned int m18_0 : 2;
+            unsigned int mWait_unk : 1; // inferred: set while the actor has no character or is moving
+            unsigned int m18_3 : 4;
+            unsigned int m18_7 : 1; // inferred: the actor is not reset at the start of the event (Event::Sequence)
+            unsigned int m18_8 : 24;
+        };
+        unsigned int m18;
+    };
     atn::Task* m1C; // inferred: what the actor drives (by m20: 1 and 7 Puppeteer<CharaTask>, 2 a gimmick, 3 Puppeteer<atn::Model>)
     int m20; // inferred: kind of actor (6 is checked by BehaviorFollow::vf0C)
     ActorAnim_unk m24;    // 0x24
@@ -133,11 +170,7 @@ struct Actor : public CommonData {
     std::vector<ActorKey10_unk> m170;
     IntVector_unk m17C;
     unsigned char m188; // inferred: 1 after construction
-    int m18C;             // 0x18C: inferred: frames left of the current eye movement (ActionActorEyes)
-    atn::Vector3 m190;    // 0x190: inferred: goal of the eyes
-    atn::Vector3 m19C;    // 0x19C: inferred: current eye angles
-    atn::Vector3 m1A8;    // 0x1A8
-    unsigned char m1B4[0x1C0 - 0x1B4];
+    ActorEyes_unk m18C; // 0x18C
 };
 
 } // namespace Event

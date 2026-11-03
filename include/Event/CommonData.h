@@ -15,6 +15,8 @@ struct DataOwner_unk;
 class CommonData {
 public:
     CommonData();
+    // inferred: inlined in the constructor of Event::Actor (0x8000D528)
+    CommonData(DataOwner_unk* owner, const char* name, int id) : m04(owner), m08(name), m14(id) {}
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;

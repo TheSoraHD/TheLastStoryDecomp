@@ -850,16 +850,16 @@ int ActionActorEyes::vf08(Action* arg) {
         wander = false;
     }
     if (wander) {
-        if (actor->m18C <= 0) {
+        if (actor->m18C.m00 <= 0) {
             Actor* target2 = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
             float rx = atn::Abs_unk(0.017453292f * arg->GetParam_unk(10)->m04.f);
             float ry = atn::Abs_unk(0.017453292f * arg->GetParam_unk(11)->m04.f);
-            actor->m190.Set_unk(2.0f * rx * ((float)rand() / 32767.0f) - rx, 2.0f * ry * ((float)rand() / 32767.0f) - ry,
+            actor->m18C.m04.Set_unk(2.0f * rx * ((float)rand() / 32767.0f) - rx, 2.0f * ry * ((float)rand() / 32767.0f) - ry,
                                 0.0f);
-            actor->m18C = (int)frames;
+            actor->m18C.m00 = (int)frames;
         } else {
-            fn_80553DC8(arg, &actor->m19C, &actor->m190, mode, frames);
-            actor->m18C--;
+            fn_80553DC8(arg, &actor->m18C.m10, &actor->m18C.m04, mode, frames);
+            actor->m18C.m00--;
         }
     } else {
         float cur = arg->fn_805381C8()->m198;
@@ -869,7 +869,7 @@ int ActionActorEyes::vf08(Action* arg) {
         if (left < min) {
             left = 0.0f;
         }
-        fn_80554088(arg, length, &actor->m1A8, mode, left, now);
+        fn_80554088(arg, length, &actor->m18C.m1C, mode, left, now);
     }
     return 0;
 }
