@@ -2781,25 +2781,14 @@ game/main.cpp:
 	.sdata2     start:0x80886F70 end:0x80886F80
 
 Event/Manager.cpp:
-	.text       start:0x8047B768 end:0x8048FF60
-	.rodata     start:0x80756310 end:0x80756358
-	.data       start:0x807900A0 end:0x807900F8
+	.text       start:0x8047B768 end:0x80490884
+	.ctors      start:0x8072D380 end:0x8072D384
+	.rodata     start:0x80756310 end:0x80756690
+	.data       start:0x807900A0 end:0x807901D8
+	.bss        start:0x807C8AB0 end:0x807C8AC8
 	.sdata      start:0x8087E088 end:0x8087E0B8
 	.sbss       start:0x8087F540 end:0x8087F550
-	.sdata2     start:0x80886F80 end:0x80887048
-
-Event/PostSequence.cpp:
-	.text       start:0x8048FF60 end:0x8049003C
-	.rodata     start:0x80756358 end:0x80756380
-	.data       start:0x807900F8 end:0x80790168
-
-Event/Manager_cont.cpp:
-	.text       start:0x8049003C end:0x80490884
-	.ctors      start:0x8072D380 end:0x8072D384
-	.rodata     start:0x80756380 end:0x80756690
-	.data       start:0x80790168 end:0x807901D8
-	.bss        start:0x807C8AB0 end:0x807C8AC8
-	.sdata2     start:0x80887048 end:0x80887050
+	.sdata2     start:0x80886F80 end:0x80887050
 
 game/MapInstance_unk.cpp:
 	.text       start:0x80490884 end:0x80490EB8

@@ -2667,17 +2667,11 @@
  {
   "name": "Event/Manager.cpp",
   "classes": [
-   "Event::Manager"
-  ],
-  "matching": false
- },
- {
-  "name": "Event/PostSequence.cpp",
-  "classes": [
+   "Event::Manager",
    "Event::PostSequence",
    "Event::SequenceRoot"
   ],
-  "matching": true
+  "matching": false
  },
  {
   "name": "game/MapManager.cpp",
