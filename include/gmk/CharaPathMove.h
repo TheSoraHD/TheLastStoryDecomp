@@ -12,7 +12,7 @@ class CharaPathMove;
 // inferred: character walking along the path of a gmk::CharaPathMove (0x30 bytes, built with new
 // in vf20). Names invented.
 struct PathChara_unk {
-    PathChara_unk(CharaPathMove* owner); // 0x8043E0E8 (weak, out of line)
+    inline PathChara_unk(CharaPathMove* owner); // 0x8043E0E8 (weak, out of line)
     void fn_8043E6B0(const char* motion, float speed, std::vector<std::string>* uppers); // inferred: loads the motions
     void fn_8043E770();          // inferred: starts walking from the first point
     void fn_8043EA64(int skip);  // inferred: update (skip = no upper motions)
@@ -37,7 +37,7 @@ struct PathCharaList_unk : public std::vector<PathChara_unk*> {
 struct PathVecList_unk : public std::vector<atn::Vector3> {};
 struct PathData_unk {
     PathData_unk() : m00(0), m04(0.0f) {}
-    void fn_8043E07C(); // inferred: reset (weak, out of line)
+    inline void fn_8043E07C(); // inferred: reset (weak, out of line)
     int m00;
     float m04;
     atn::Vector3 m08;
