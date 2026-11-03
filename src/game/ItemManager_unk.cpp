@@ -247,6 +247,61 @@ extern "C" InventoryIconUV_unk fn_80444C50(Inventory* inventory, int icon) {
     return InventoryIconUV_unk(x * size, y * size, (x + 1) * size, (y + 1) * size);
 }
 
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: message table (lbl_8087F1E4), read as single texts or as pairs (as in game/CharaTask.cpp and
+// game/ShopIdentify.cpp); names invented
+struct InventoryMsgPair_unk {
+    const wchar_t* mKey;
+    const wchar_t* mText;
+};
+struct InventoryMsgTable_unk {
+    const wchar_t* Get_unk(int id) {
+        if (mText[id] != 0) {
+            return mText[id];
+        }
+        return lbl_808813D0;
+    }
+    const wchar_t* GetPair_unk(int id) {
+        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
+    }
+    union {
+        const wchar_t* mText[1];
+        InventoryMsgPair_unk mPairs[1];
+    };
+};
+extern "C" InventoryMsgTable_unk* lbl_8087F1E4;
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+
+// inferred: text of `count` items `code` (game/GameUI, gmk/DropItem, game/BattleResult); 0 without a name
+// NONMATCHING: 93.9% - registers of the parameters (the original keeps text/count/rare in r28-r30 and
+// the entry in r31)
+extern "C" int fn_80444CF8(wchar_t* text, int code, int count, int rare) {
+    ItemParamEntry_unk* item = fn_80211480(code);
+    if (item == 0 || text == 0 || lbl_8087F1E4 == 0 || item->mName == 0) {
+        return 0;
+    }
+    if (fn_80206B9C(item->mId)) {
+        if (rare) {
+            fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x283), item->mName);
+        } else {
+            WeaponParamEntry_unk* weapon = fn_80206C50(item->mId);
+            if (weapon) {
+                const wchar_t* rank = lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB);
+                fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x1D5), rank);
+            }
+        }
+    } else if (fn_8020EF04(item->mId)) {
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x283), item->mName);
+    } else if (item->mId == 0x2714 || item->mId == 0x2719) {
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x287), count);
+    } else if (count == 1) {
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x283), item->mName);
+    } else {
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x285), item->mName, count);
+    }
+    return 1;
+}
+
 extern "C" int fn_80370174(InventoryField_unk* field, int index); // inferred: reads an event counter
 // inferred: chance of finding a weapon by rank (the second one once the weapon was found)
 static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
@@ -282,6 +337,28 @@ int Inventory::fn_80448F9C(int code) {
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: party
 extern "C" int fn_80375184(InventoryField_unk* field); // inferred: saving is allowed
 
+// inferred: rewards of a defeated enemy (outputs added to m6014/m6018); name invented
+extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
+// inferred: settings (lbl_8087F0A8); only the member used here
+struct InventorySettings_unk {
+    unsigned char m000[0x160];
+    int m160; // inferred: debug: fixed protectors (fn_8044D208)
+    unsigned char m164[0x18C - 0x164];
+    int m18C; // inferred: debug: random protectors (fn_8044D208)
+    unsigned char m190[0x280 - 0x190];
+    int m280; // inferred: experience is shared (fn_80449A18)
+};
+extern "C" InventorySettings_unk* lbl_8087F0A8;
+extern "C" void* lbl_8087F610; // inferred: multiplayer session
+
+int Inventory::fn_8044909C() {
+    int flags = 0;
+    if ((lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) || (mDB14 != 0 && mDB24 != 0)) {
+        flags |= 6;
+    }
+    return flags;
+}
+
 void Inventory::fn_804490E0(ItemParamEntry_unk* item, int member) {
     if (lbl_8087F8A0 != 0) {
         int type = item->mB4;
@@ -309,28 +386,6 @@ void Inventory::fn_804490E0(ItemParamEntry_unk* item, int member) {
             status->fn_8012D8B8();
         }
     }
-}
-
-// inferred: rewards of a defeated enemy (outputs added to m6014/m6018); name invented
-extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
-// inferred: settings (lbl_8087F0A8); only the member used here
-struct InventorySettings_unk {
-    unsigned char m000[0x160];
-    int m160; // inferred: debug: fixed protectors (fn_8044D208)
-    unsigned char m164[0x18C - 0x164];
-    int m18C; // inferred: debug: random protectors (fn_8044D208)
-    unsigned char m190[0x280 - 0x190];
-    int m280; // inferred: experience is shared (fn_80449A18)
-};
-extern "C" InventorySettings_unk* lbl_8087F0A8;
-extern "C" void* lbl_8087F610; // inferred: multiplayer session
-
-int Inventory::fn_8044909C() {
-    int flags = 0;
-    if ((lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) || (mDB14 != 0 && mDB24 != 0)) {
-        flags |= 6;
-    }
-    return flags;
 }
 
 void Inventory::fn_80449A18(int killer, int level, int exp, int arg4, float rate) {
@@ -394,23 +449,8 @@ extern "C" int fn_8044D1A4(Inventory* inventory, int slot, int chara) {
     }
     return -1;
 }
-
-// inferred: weapon of a party member (game/CharaTask)
-extern "C" int fn_8044D3A0(Inventory* inventory, int slot, int chara) {
-    int index = fn_80219558(chara);
-    if (index >= 0 && index < 7) {
-        return inventory->mEquip[index].mWeapons[slot].mId;
-    }
-    return -1;
-}
-
-// inferred: removes an item to identify (game/CosEditBase)
-extern "C" void fn_8044D490(Inventory* inventory, int index) {
-    if (index < 0 || index >= (int)inventory->mIdentify.size()) {
-        return;
-    }
-    inventory->mIdentify.erase(&inventory->mIdentify[index]);
-}
+extern "C" int fn_8044D3A0(Inventory* inventory, int slot, int chara);
+extern "C" void fn_8044D490(Inventory* inventory, int index);
 
 extern "C" int rand();
 
@@ -447,11 +487,28 @@ int Inventory::fn_8044D208(int slot, int chara) {
     return mEquip[index].mProtectors[slot].mId;
 }
 
+// inferred: weapon of a party member (game/CharaTask)
+extern "C" int fn_8044D3A0(Inventory* inventory, int slot, int chara) {
+    int index = fn_80219558(chara);
+    if (index >= 0 && index < 7) {
+        return inventory->mEquip[index].mWeapons[slot].mId;
+    }
+    return -1;
+}
+
 void Inventory::fn_8044D404(const int& code) {
     ItemParamEntry_unk* entry = fn_80211480(code);
     if (entry != 0 && entry->mBC == 2 && mIdentify.size() < 0x100) {
         mIdentify.push_back(code);
     }
+}
+
+// inferred: removes an item to identify (game/CosEditBase)
+extern "C" void fn_8044D490(Inventory* inventory, int index) {
+    if (index < 0 || index >= (int)inventory->mIdentify.size()) {
+        return;
+    }
+    inventory->mIdentify.erase(&inventory->mIdentify[index]);
 }
 
 void Inventory::fn_8044D4F0() {
