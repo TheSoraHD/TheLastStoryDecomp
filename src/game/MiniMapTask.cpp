@@ -53,10 +53,11 @@ void MiniMapTask::vf10(atn::RenderView_unk* view) {
     (void)view;
 }
 
-// NONMATCHING: 20.00% - target returns the renderer's concrete type value.
+// inferred: forwarded to the minimap model
 int MiniMapTask::GetRenderType_unk() {
-    return 0;
+    return m208.GetRenderType_unk();
 }
 
-// NONMATCHING: 10.00% - target reports render visibility/state.
-void MiniMapTask::vf1C() {}
+void MiniMapTask::vf1C() {
+    m208.vf1C();
+}
