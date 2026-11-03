@@ -42,8 +42,40 @@ extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
-// inferred: accessors (weak copies, names keep the addresses; also used by gmk::Cannonball)
+// inferred: accessors (weak copies, names keep the addresses; also used by gmk::Cannonball). The empty
+// asserts (debug build only) count against the inline budget of fn_803EF780.
+#define GSC_ASSERT_UNK(x) ((void)0)
 extern "C" inline int fn_803EFD9C(MapInfo_unk* info) {
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
+    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
     return info->m48;
 }
 extern "C" inline int fn_803EFDA4(MapInfo_unk* info) {
@@ -120,11 +152,7 @@ struct VecIter_unk {
     VecIter_unk(T* const& p) : mPtr(p) {}
     T* operator->() const { return mPtr; }
     T& operator*() const { return *mPtr; }
-    T* operator++(int) {
-        T* old = mPtr;
-        mPtr++;
-        return old;
-    }
+    T* operator++(int) { return mPtr++; }
     bool operator!=(T* const& p) const { return mPtr != p; }
     T* mPtr;
 };
@@ -156,12 +184,8 @@ GimmickCommonB0_unk::~GimmickCommonB0_unk() {
 
 // inferred: reads the motion commands ("MOTCMD motion frame command resource x y z scale node", with
 // "IF map"/"ELSE"/"ENDIF" blocks) and loads their resources
-// NONMATCHING: 0% - the original is over the inlining budget and calls every inline function out of
-// line (weak copies 0x803EFCA8-0x803F069C follow it); here they are all inlined. Statement for
-// statement the code is the same (with a probe of ~16 extra statements it matches up to registers:
-// this in r27, the counters in r29-r31), so the reconstructed MSL/atn inline functions are smaller than
-// the originals. Because of that the string pool differs too (the "MotionCommand" literal of the
-// resizes is dropped and "vector length error" moves), which costs fn_803F11F8 and fn_803F1310.
+// The original is over the inlining budget and calls every inline function out of line (weak copies
+// 0x803EFCA8-0x803F069C follow it): the asserts of fn_803EFD9C put it over (docs/auto-20261101d.md).
 void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
     atn::CsvTab csv(data, size);
     std::vector<std::string> names;
@@ -231,24 +255,35 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
     mEfp.Resize_unk(nEfp, 3, "MotionCommand");
     mSounds.Resize_unk(nSe, 3, "MotionCommand");
     mNames.Resize_unk(nSe, 3, "MotionCommand");
+    int eff;
+    int efp;
+    int se;
     int n = 0;
-    int eff = 0;
-    int efp = 0;
-    int se = 0;
+    eff = 0;
+    efp = 0;
+    se = 0;
     for (VecIter_unk<GimmickMotionCmd_unk> it(cmds.begin()); it != cmds.end(); it++) {
         if (it->mType == 0) {
             mEff[eff].LoadRequest(names[it->mIndex].c_str());
-            it->mIndex = eff++;
+            it->mIndex = eff;
+            eff++;
         } else if (it->mType == 1 || it->mType == 2) {
             mEfp[efp].LoadRequest(names[it->mIndex].c_str());
-            it->mIndex = efp++;
+            it->mIndex = efp;
+            efp++;
         } else if (it->mType == 3 || it->mType == 4 || it->mType == 6) {
             mNames[se] = names[it->mIndex].c_str();
-            it->mIndex = se++;
+            it->mIndex = se;
+            se++;
         }
-        mCmds[n++] = *it;
+        mCmds[n] = *it;
+        n++;
     }
 }
+
+// push_back is defined out of the class (include/std/vector.h): instantiated here so that it is emitted
+// behind fn_803EF780 and its "vector length error" goes to the pool after "MotionCommand"
+template void std::vector<GimmickMotionCmd_unk>::push_back(const GimmickMotionCmd_unk& x);
 
 int GimmickCommonB0_unk::fn_803F06B0() {
     for (unsigned int i = 0; i < (unsigned int)mEff.mSize; i++) {
