@@ -77,20 +77,53 @@ static const wchar_t sKeyChars_unk[3][4][11] = {
 // NOTE: in the original the constructor of MP::SoftKeyboard goes over the inline budget and calls
 // out of line this function, the Vector2_unk and key constructors, SoftKeyboardU's constructor,
 // fn_80503AB8/fn_80503B04, the seven boost::bind and the seven boost::function constructors (all
-// weak copies of this file, 0x805028D8-0x80503B04). Here it stays one statement below the budget
-// (one more inline call makes everything go out of line), so those 14 functions are not emitted.
-// Also, the original builds the key corners in place (Vector2 constructor on the key) without an
+// weak copies of this file, 0x805028D8-0x80503B04). The empty asserts (debug build only) of this
+// function put it over the budget.
+// NONMATCHING (fn_805028D8, 82%): the original adds the layout offset to the table base in every
+// branch (addi r0, base, 0x58/0xB0/0) before the row and the column. Also, the original builds the key corners in place (Vector2 constructor on the key) without an
 // operator=: not reproduced (tried temporaries, named locals, a corner type with implicit copy).
 // inferred: character of a key for the current language
-static wchar_t fn_805028D8(int row, int col) {
+#define SOFTKB_ASSERT_UNK(x) ((void)0)
+inline wchar_t fn_805028D8(int row, int col) {
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0); SOFTKB_ASSERT_UNK(row >= 0);
+    const wchar_t (*keys)[4][11] = sKeyChars_unk;
     wchar_t c;
     int lang = fn_8006BA30();
     if (lang == 3) {
-        c = sKeyChars_unk[1][row][col];
+        c = keys[1][row][col];
     } else if (lang == 2) {
-        c = sKeyChars_unk[2][row][col];
+        c = keys[2][row][col];
     } else {
-        c = sKeyChars_unk[0][row][col];
+        c = keys[0][row][col];
     }
     return c;
 }
