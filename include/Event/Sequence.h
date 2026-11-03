@@ -236,7 +236,9 @@ public:
     void fn_80550254();
     void fn_80575FCC();
     void fn_80576258();
-    void fn_8057D8C0();
+    int fn_8057D8C0(); // inferred: reads the chunks of the event data (Event/EventParser_unk.cpp)
+    // inferred: inlined by the reader of "SEMS" (Event/EventParser_unk.cpp); name invented
+    void SetMessage_unk(const char* name) { m68 = name; }
 
     // inferred: flag setters (called out of line by the constructor)
     inline void SetFlag3_unk(int on); // inferred: defined in Event/Sequence.cpp

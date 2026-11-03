@@ -32,6 +32,8 @@ public:
     virtual void vf08() {}
     virtual void vf0C() {}
     virtual int vf10() const { return 1; }
+    // inferred: inlined by the reader of "PANA" (Event/EventParser_unk.cpp); name invented
+    void SetName2_unk(const char* name) { m1C = name; }
 
     int m18;
     std::string m1C;

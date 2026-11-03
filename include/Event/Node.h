@@ -1,6 +1,8 @@
 #ifndef EVENT_NODE_H
 #define EVENT_NODE_H
 
+#include "atn/String_unk.h"
+
 // inferred: hash of an attribute name (CRC-32 style, 0x800DC880); the second argument is not read
 extern "C" unsigned int fn_800DC880(const char* str, int arg = 0);
 
@@ -57,17 +59,6 @@ struct CommandDef_unk {
     ParamDef_unk** mVariants;      // 0x24: inferred: attributes of each variant
 };
 
-// inferred: name buffer of a node (freed with delete[] by ~Node, 0x80537780)
-struct NodeName_unk {
-    NodeName_unk() : mBuf(0) {}
-    ~NodeName_unk() {
-        if (mBuf != 0) {
-            delete[] mBuf;
-            mBuf = 0;
-        }
-    }
-    char* mBuf;
-};
 
 // inferred: base of the event tree nodes (vtable 0x80793AD8)
 class Node {
@@ -75,7 +66,10 @@ public:
     Node() {}
     virtual ~Node(); // 0x80537780
 
-    NodeName_unk mName; // 0x04
+    // inferred: inlined by the readers of Event/EventParser_unk.cpp; name invented
+    void SetName_unk(const char* name) { mName = name; }
+
+    String_unk mName; // 0x04: inferred: freed with delete[] by ~Node (0x80537780)
 };
 
 // inferred: declared in the class and defined inline afterwards: Label's destructor (0x8053B7B4,

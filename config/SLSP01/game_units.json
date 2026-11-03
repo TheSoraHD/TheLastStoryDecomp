@@ -3621,6 +3621,13 @@
   "matching": false
  },
  {
+  "name": "Event/EventParser_unk.cpp",
+  "classes": [
+   "Event::Sequence"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/PathData_unk.cpp",
   "classes": [],
   "matching": false
