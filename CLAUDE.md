@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `solo-20261103b` (2026-11-03, mergeada en `main`): **12384 / 18119** en `report.json` (al 100% en objdiff 12152 -> 12232), 584 unidades, `main.dol: OK`, lost 1 aceptado (`EnemyQuarkSecond fn_80341BEC`). Inventory, GameChoiceWindow y GameVoice con clases; `tools/decomp/pdbatch.sh`. Notas: `docs/solo-20261103b.md`.
-- `trk-exception` (mergeada): MetroTRK `__exception.s` enlazado, 12331. `solo-20261103` (mergeada): 12330, presupuesto de inlining + `push_back` instanciado (`docs/solo-20261103.md`).
+- `nuevas-20261103` (2026-11-03, sin mergear): **12480 / 18119** en `report.json` (al 100% en objdiff 12232 -> 12328), lost 0. Event/Sequence (unida con StringData y Sequence_cont, 6 -> 80/119), Event/Manager unida con PostSequence y Manager_cont, Event/Puppeteer_CharaTask 0 -> 22/111; `EventManager_unk` = `Event::Sequence`, `Event::Actor`, `GameMessageList`. Notas: `docs/nuevas-20261103.md`.
+- `solo-20261103b` (mergeada en `main`): 12384 (objdiff 12232), Inventory, GameChoiceWindow y GameVoice con clases, `pdbatch.sh` (`docs/solo-20261103b.md`); `trk-exception` 12331; `solo-20261103` 12330 (`docs/solo-20261103.md`).
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200, `docs/claude-20261102.md`) y `codex-20261102` (11922, `docs/codex-20261102.md`); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).
