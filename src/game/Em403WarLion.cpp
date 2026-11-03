@@ -231,7 +231,6 @@ extern "C" inline FriendManager* fn_80323C2C() {
 extern "C" float DegToRad_unk__3atnFf(float deg);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: Matrix3x4 assignment out of line (weak copy of atn/Model.cpp, 0x8008CD1C)
-extern "C" void fn_8008CD1C(atn::Matrix3x4* dst, const atn::Matrix3x4* src);
 extern "C" int rand();
 // inferred: translation matrix by value (name invented)
 inline atn::Matrix3x4 TransMtx_unk(float x, float y, float z) {
@@ -393,7 +392,7 @@ void Em403WarLion::vf10() {
     if (raging != 0 && !IsRaging_unk()) {
         m15D4 = 1;
     }
-    fn_8008CD1C(&m159C, &TransMtx_unk(0.0f, 0.0f, 10.0f));
+    m159C = TransMtx_unk(0.0f, 0.0f, 10.0f);
     m159C.fn_80149624(3.1415927f);
     m159C.fn_801495E8(*fn_80266154(&mMotion));
 }

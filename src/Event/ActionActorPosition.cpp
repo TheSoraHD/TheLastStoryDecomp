@@ -233,7 +233,6 @@ extern "C" EventStep_unk* fn_8000DB1C();              // inferred: returns lbl_8
 extern "C" float fn_8048BD04(EventStep_unk* step, int curve, float t); // inferred: value of a move curve
 extern "C" atn::Vector3 fn_80541BD8(EventManager_unk* manager, const atn::Vector3& pos); // inferred: event to world
 extern "C" float fn_80541CF0(EventManager_unk* manager, float yaw); // inferred: event to world yaw
-extern "C" void fn_8008CD1C(atn::Matrix3x4* dst, const atn::Matrix3x4* src); // inferred: matrix copy
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
 
 // inferred: step of `cur` towards `goal` in `frames` frames (name invented)
@@ -388,7 +387,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
                 }
                 // the address of the temporary (warning "not an lvalue", as in game/Em403WarLion.cpp) gives
                 // the stack slots of the original; a named local or a reference do not
-                fn_8008CD1C(&mtx, &MakeRotYXZ_unk(rot));
+                mtx = MakeRotYXZ_unk(rot);
                 mtx.fn_801479E4(pos);
             }
         }
@@ -486,7 +485,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         }
         atn::Matrix3x4 mtx = MakeIdentity_unk();
         if (node != 0) {
-            fn_8008CD1C(&mtx, &MakeRotYXZ_unk(rot));
+            mtx = MakeRotYXZ_unk(rot);
         }
         actor->fn_8001122C(node, 0, 1, mtx);
     }
