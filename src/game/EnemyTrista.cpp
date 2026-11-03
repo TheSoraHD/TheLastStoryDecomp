@@ -439,7 +439,7 @@ inline atn::Vector3 Side_unk(CharaTask* chara, float up) {
     return side;
 }
 
-// NONMATCHING: 82.1% - stack slots of the temporaries of the side jump (Side_unk) and the registers of
+// NONMATCHING: 96.7% (fn_8035CE58 out of line, as the original) - stack slots of the temporaries of the side jump (Side_unk) and the registers of
 // SetHit_unk; same code otherwise
 void EnemyTrista::fn_8035C8CC() {
     switch (m55C) {
@@ -543,7 +543,7 @@ void EnemyTrista::fn_8035C8CC() {
     }
 }
 
-void EnemyTrista::fn_8035CE58() {
+__declspec(noinline) void EnemyTrista::fn_8035CE58() {
     m58C = 7;
     m14B8 = 0;
     m590 = fn_800F8548(lbl_8087F048);

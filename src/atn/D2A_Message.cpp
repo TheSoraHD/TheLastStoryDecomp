@@ -53,8 +53,8 @@ inline unsigned int MsgToU8_unk(float f) {
     return (f >= 1.0f) ? 255 : (f <= 0.0f) ? 0 : (unsigned int)(f * 255.0f + 0.5f);
 }
 
-// NONMATCHING: 66.61% - MWCC inlines fn_801F25E0 here (the original calls it); ((void)0), locals
-// and by-value helpers did not change that
+// NONMATCHING: 96.3% - the original calls fn_801F25E0 out of line (__declspec(noinline) on it); left:
+// the copy of the short std::wstring into mText (temporary and registers)
 D2A_Message::D2A_Message(D2A_Data* owner, unsigned short id)
     : D2A_Common(owner, id), mFont(1), mAlign(0), mLineSpace(2.0f) {
     mType = 1;
@@ -67,7 +67,7 @@ D2A_Message::D2A_Message(D2A_Data* owner, unsigned short id)
 
 // NONMATCHING: 70.76% - the original copies a short string word 1, word 0, word 2 and keeps the
 // copy address in r31 (one more saved register); same copy constructor as std/string.h otherwise
-void D2A_TextParam_unk::fn_801F25E0(int key, const std::basic_string<wchar_t>& value, int index, int arg) {
+__declspec(noinline) void D2A_TextParam_unk::fn_801F25E0(int key, const std::basic_string<wchar_t>& value, int index, int arg) {
     ((void)0);
     std::basic_string<wchar_t> copy(value);
     fn_801F0670(&mTables[index], key, copy, arg);
