@@ -609,8 +609,8 @@ void GameSaveData_unk::fn_803BE590() {
         for (unsigned int i = 0; i < 7; i++) {
             if ((mParty.mMask & (1 << i)) == (1 << i)) {
                 memcpy(&Inventory::instance_->mPlayers[i], &mParty.mStatus[i], sizeof(CharaStatusBase));
-                Inventory::instance_->mPlayers[i].m2F0 = 0;
-                Inventory::instance_->mPlayers[i].m380 = 0;
+                Inventory::instance_->mPlayers[i].mChara = 0;
+                Inventory::instance_->mPlayers[i].mRefs.mCount = 0;
             }
         }
     }

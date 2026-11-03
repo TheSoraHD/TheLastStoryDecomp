@@ -3,8 +3,9 @@
 
 #include "atn/FixedArray.h"
 #include "MP/SaveElemB_unk.h"
+#include "game/CharaStatus.h"
+#include "atn/LH_Binary.h"
 
-class CharaStatus;
 class CharaTask;
 
 // Name from the RSO (Inventory::GetPlayerStatusInfo(int), AddItem, AddMoney, Order...; static
@@ -22,17 +23,6 @@ public:
         int mExpB; // 0x84
         unsigned char m88[0x8C - 0x88];
         int mLevelUp; // 0x8C: inferred: levels won
-    };
-
-    // inferred: one 0x43C-byte block per player (size of CharaStatus, see GetPlayerStatusInfo)
-    struct PlayerStatus_unk {
-        unsigned char m000[0x230];
-        unsigned char mEquipFlags; // 0x230: inferred: one bit per equipment slot (game/CharaTask)
-        unsigned char m231[0x2F0 - 0x231];
-        int m2F0; // inferred: cleared when the save data is restored (GameSaveData_unk::fn_803BE590)
-        unsigned char m2F4[0x380 - 0x2F4];
-        int m380; // inferred: cleared together with m2F0
-        unsigned char m384[0x43C - 0x384];
     };
 
     // inferred: item of the bag (0x10 bytes)
@@ -56,6 +46,13 @@ public:
         unsigned char m30[0x40 - 0x30];
     };
 
+    Inventory(); // 0x80442FF4
+    // inferred: creates / deletes the instance (0x80442F10, 0x80442F68)
+    static void fn_80442F10();
+    static void fn_80442F68();
+    int fn_8044386C(); // inferred: nonzero while the file of mLoader is loading
+    int fn_8044909C(); // inferred: flags of the items that can be found (gmk/TreasureBox, gmk/DropItem)
+
     // RSO: Order__9InventoryFv (weak copy 0x801D80B4)
     static Inventory* Order() { return instance_; }
 
@@ -74,9 +71,8 @@ public:
     void fn_8044D4F0(); // inferred: clears the items to identify
     int fn_8044D530(int index); // inferred: item to identify (same as fn_8044D500)
 
-    // RSO: GetPlayerStatusInfo__9InventoryFi (weak copy 0x805282A8); inferred: the block is a
-    // CharaStatus (game/NewCampPartsStatus.cpp passes it as one)
-    CharaStatus* GetPlayerStatusInfo(int i) { return (CharaStatus*)&mPlayers[i]; }
+    // RSO: GetPlayerStatusInfo__9InventoryFi (weak copy 0x805282A8)
+    CharaStatus* GetPlayerStatusInfo(int i) { return &mPlayers[i]; }
 
     Item_unk mItems[0x600];                         // 0x0000: inferred: the bag (code < 0: free slot)
     int mMoney;                                     // 0x6000
@@ -85,14 +81,21 @@ public:
     unsigned char m6410[0x64A0 - 0x6410];
     int mOrder[10];                                 // 0x64A0: inferred: order of the members (RSO GetPlayerOrder)
     unsigned char m64C8[0x64EC - 0x64C8];
-    PlayerStatus_unk mPlayers[7];                   // 0x64EC
+    CharaStatus mPlayers[7];                        // 0x64EC (destroyed by fn_80442F68)
     Equip_unk mEquip[7];                            // 0x8290: inferred: one per player
     MP::SaveElemB_unk mUpgrades[28];                // 0x8450: inferred: upgraded equipment (fn_8044D034)
     Equip_unk mEquipShown[7];                       // 0xD380: inferred: equipment shown by the costume menu
     Equip_unk mEquipSetA[16];                       // 0xD540: inferred: costume sets (game/CosEditBase.cpp)
     Equip_unk mEquipSetB[7];                        // 0xD940 (at most 7: the list below starts at 0xDB2C)
-    unsigned char mDB00[0xDB2C - 0xDB00];
+    atn::LH_Binary mLoader;                         // 0xDB00
+    int mLoaded;                                    // 0xDB08: inferred: mLoader done (fn_8044386C)
+    unsigned char mDB0C[0xDB14 - 0xDB0C];
+    int mDB14;                                      // inferred: read by fn_8044909C
+    unsigned char mDB18[0xDB24 - 0xDB18];
+    int mDB24;                                      // inferred: read by fn_8044909C
+    unsigned char mDB28[0xDB2C - 0xDB28];
     atn::FixedArray_unk<int, 0x100> mIdentify;      // 0xDB2C: inferred: items to identify (game/ShopIdentify)
+    unsigned char mDF30[0xDFC4 - 0xDF30];           // (size from fn_80442F10)
 
     static Inventory* instance_;
 };

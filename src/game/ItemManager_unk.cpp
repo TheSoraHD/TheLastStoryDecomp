@@ -6,6 +6,7 @@
 #include "db/ItemParam_unk.h"
 #include "db/WeaponParam_unk.h"
 #include "db/EquipParam_unk.h"
+#include "atn/Memory.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -25,8 +26,40 @@ struct InventoryIconUV_unk {
     float v1;
 };
 
+// inferred: field (lbl_8087F430); only the member used here
+struct InventoryField_unk {
+    unsigned char m0000[0x5694];
+    int m5694; // inferred: read by fn_8044909C
+};
+extern "C" InventoryField_unk* lbl_8087F430;
+
 // inferred: the bag of items, the money and the equipment of the party
 Inventory* Inventory::instance_;
+
+void Inventory::fn_80442F10() {
+    if (instance_ == 0) {
+        instance_ = new ((MemoryTag)3, "", "", 0) Inventory();
+    }
+}
+
+void Inventory::fn_80442F68() {
+    if (instance_ != 0) {
+        delete instance_;
+        instance_ = 0;
+    }
+}
+
+int Inventory::fn_8044386C() {
+    if (mLoaded != 0) {
+        return 0;
+    }
+    if (mLoader.fn_80473F50() == 0) {
+        mLoaded = 1;
+        mLoader.fn_80473F88();
+        return 0;
+    }
+    return 1;
+}
 
 // inferred: removes `num` items `code`; returns the number removed (game shops, gimmicks)
 extern "C" int fn_8044441C(Inventory* inventory, int code, int num) {
@@ -201,6 +234,14 @@ extern "C" InventoryIconUV_unk fn_80444C50(Inventory* inventory, int icon) {
     int y = icon / 16;
     float size = 0.0625f;
     return InventoryIconUV_unk(x * size, y * size, (x + 1) * size, (y + 1) * size);
+}
+
+int Inventory::fn_8044909C() {
+    int flags = 0;
+    if ((lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) || (mDB14 != 0 && mDB24 != 0)) {
+        flags |= 6;
+    }
+    return flags;
 }
 
 void Inventory::fn_8044D028() {

@@ -933,7 +933,7 @@ void CharaTask::fn_801371AC() {
                 if (Inventory::instance_ != 0 && IsPartyIndex_unk(fn_80219558(m50))) {
                     int index = fn_80219558(m50);
                     unsigned int mask = 1 << slot;
-                    equipped = (mask & Inventory::instance_->mPlayers[index].mEquipFlags) == mask;
+                    equipped = (mask & Inventory::instance_->mPlayers[index].m230) == mask;
                 }
                 fn_8014FF9C(slot, fn_8044D208(Inventory::instance_, slot, m50), equipped);
             } else {

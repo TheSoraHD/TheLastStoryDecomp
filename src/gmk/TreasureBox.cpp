@@ -40,7 +40,6 @@ struct ItemTable_unk {
 };
 extern "C" ItemTable_unk* fn_8021E444(int table);
 extern "C" int fn_8021E5A4(ItemTable_unk* table, int flags); // inferred: draws an entry
-extern "C" int fn_8044909C(void* mgr);
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
 extern "C" int fn_80448F9C(void* mgr, int id);
 extern "C" int fn_80450B84(int table, int arg1, int arg2);
@@ -252,7 +251,7 @@ int TreasureBox::vf40(GimmickMsg_unk* msg) {
             table = fn_8021E444(mData->mTable);
         }
         if (table != 0) {
-            mItem = fn_8021E5A4(table, (Inventory::instance_ != 0 ? fn_8044909C(Inventory::instance_) : 0) | 1);
+            mItem = fn_8021E5A4(table, (Inventory::instance_ != 0 ? Inventory::instance_->fn_8044909C() : 0) | 1);
             if (mItem >= 0) {
                 ItemEntry_unk* entry = &table->mEntries[mItem];
                 id = entry->mId;

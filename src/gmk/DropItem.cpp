@@ -172,7 +172,6 @@ struct DropWeapon_unk {
     unsigned char m7C[0x80 - 0x7C];
     int m80;
 };
-extern "C" int fn_8044909C(void* mgr);
 extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
 extern "C" int fn_80448F9C(void* mgr, int id);
 extern "C" int fn_80444EFC(CharaTask* chara);
@@ -640,7 +639,7 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         mColor[3] = 1.0f;
         mData = 0;
         if (msg->m0C == 0) {
-            if (fn_8021E4E4(&mItem, &mCount, m154, Inventory::instance_ != 0 ? fn_8044909C(Inventory::instance_) : 0) == 0) {
+            if (fn_8021E4E4(&mItem, &mCount, m154, Inventory::instance_ != 0 ? Inventory::instance_->fn_8044909C() : 0) == 0) {
                 mItem = 0;
                 mCount = 0;
             }
