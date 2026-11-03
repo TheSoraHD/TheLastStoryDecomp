@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
 #include "game/GameScene.h"
@@ -716,9 +717,7 @@ inline void* GetPad_unk() {
 extern "C" int fn_800A58D0(void* pad, int port); // inferred: second stick available
 
 // inferred: other managers
-struct GameUIEventMgr_unk;
-extern "C" GameUIEventMgr_unk* fn_8000DB1C();               // inferred: returns lbl_8087F540
-extern "C" int fn_80481654(GameUIEventMgr_unk* mgr);        // inferred: no event is running
+extern "C" Event::Manager* fn_8000DB1C();                   // inferred: returns lbl_8087F540
 extern "C" CharaManager<PlayerTask>* fn_8000D9E8();         // inferred: returns lbl_8087F8A0
 extern "C" CharaTask* fn_8000DCF4(CharaManager<PlayerTask>* mgr); // inferred: the leader
 extern "C" CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr); // inferred: first character
@@ -939,11 +938,11 @@ void GameUI::fn_803D2A6C() {
     mDC0->FreezeTask();
     if (IsNoMenu_unk() && (fn_800F7F90() == 0 || fn_800F7F90()->IsWaiting_unk())) {
         bool resultShown = false;
-        if (fn_80121F00()->GetState_unk() == 8 && fn_8000DB1C() != 0 && fn_80481654(fn_8000DB1C()) != 0) {
+        if (fn_80121F00()->GetState_unk() == 8 && fn_8000DB1C() != 0 && fn_8000DB1C()->fn_80481654() != 0) {
             resultShown = true;
         }
         bool eventShown = false;
-        if (fn_80121F00()->GetState_unk() == 8 && (fn_8000DB1C() == 0 || fn_80481654(fn_8000DB1C()) == 0)) {
+        if (fn_80121F00()->GetState_unk() == 8 && (fn_8000DB1C() == 0 || fn_8000DB1C()->fn_80481654() == 0)) {
             eventShown = true;
         }
         CharaTask* leader = fn_8000DCF4(fn_8000D9E8());

@@ -7,8 +7,7 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: event position to world (Event/Sequence, also used by game/PathData_unk)
-extern "C" atn::Vector3 fn_80541BD8(Event::EventManager_unk* manager, const atn::Vector3& pos);
-extern "C" float fn_80011964(Event::Actor_unk* actor); // inferred: yaw of the actor
+extern "C" float fn_80011964(Event::Actor* actor); // inferred: yaw of the actor
 
 namespace Event {
 
@@ -70,13 +69,13 @@ namespace Event {
 // NONMATCHING: 98.3% - scheduling of the first mChannel load (as fn_805389B8)
 atn::Vector3 Action::fn_805382BC(int n) {
     EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
-    Actor_unk* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
+    Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
     atn::Vector3 v;
     v.x = GetParamAt_unk(n + 1)->m04.f;
     v.y = GetParamAt_unk(n + 2)->m04.f;
     v.z = GetParamAt_unk(n + 3)->m04.f;
     if (actor->m20 == 6) {
-        return fn_80541BD8(manager, v);
+        return manager->fn_80541BD8(v);
     }
     Mtx m;
     PSMTXRotRad(m, 'y', fn_80011964(actor));
@@ -90,7 +89,7 @@ atn::Vector3 Action::fn_805382BC(int n) {
 MtxPtr Action::fn_805389B8(int n) {
     // inferred: the event manager is the Sequence of the cut (fn_80541C94 is in Event/Sequence)
     EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
-    Actor_unk* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
+    Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
     atn::Vector3 pos = lbl_807C7030; // inferred: unused (only the copy is left)
     MtxPtr mtx = 0;
     atn::Model* model = actor->fn_80012A1C();
@@ -130,7 +129,7 @@ void Action::fn_80538DC4(int n) {
     v.x = GetParamAt_unk(n)->m04.f;
     v.y = GetParamAt_unk(n + 1)->m04.f;
     v.z = GetParamAt_unk(n + 2)->m04.f;
-    v = fn_80541BD8(fn_805381C8(), v);
+    v = fn_805381C8()->fn_80541BD8(v);
     SetTyped_unk(n, 4, v.x);
     SetTyped_unk(n + 1, 5, v.y);
     SetTyped_unk(n + 2, 6, v.z);

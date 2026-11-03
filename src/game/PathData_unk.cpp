@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): cubic paths of the events (Event/Path), built from the "pos_x",
 // "pos_y", "pos_z" and "rot_y" keys of their points.
 #include "Event/Node.h"
+#include "Event/Sequence.h"
 #include "math/Vec.h"
 #include "std/vector.h"
 
@@ -47,11 +48,13 @@ std::vector<T>::vector(size_type n, const T& value) {
     }
 }
 
-struct PathOwner_unk;
+namespace Event {
+class Sequence;
+}
+typedef Event::Sequence PathOwner_unk; // inferred: the owner of the path is the event sequence
 struct PathData_unk;
 extern "C" void fn_8054875C(PathData_unk* path);
 // inferred: local point of the path to world (Event/Path)
-extern "C" atn::Vector3 fn_80541BD8(PathOwner_unk* owner, const atn::Vector3& pos);
 
 // inferred: point of a path (position and rotation around y)
 struct PathPoint_unk {
@@ -197,7 +200,7 @@ extern "C" atn::Vector3 fn_8054856C(PathData_unk* path, float t) {
     if (path->mPoints.mSize < 2) {
         return lbl_807C7030;
     }
-    return fn_80541BD8(path->mOwner, GetLocal_unk(path, t));
+    return path->mOwner->fn_80541BD8(GetLocal_unk(path, t));
 }
 
 // inferred: rebuilds the path from its points (also inlined by fn_80547EA0)

@@ -13,7 +13,7 @@ struct Xsca_unk; // inferred: camera animation (xsca)
 
 namespace Event {
 
-struct Actor_unk;
+struct Actor;
 
 // inferred: point of a path (position and rotation around y)
 struct PathPoint_unk {
@@ -32,6 +32,8 @@ public:
     virtual void vf08() {}
     virtual void vf0C() {}
     virtual int vf10() const { return 1; }
+    // inferred: inlined by the reader of "PANA" (Event/EventParser_unk.cpp); name invented
+    void SetName2_unk(const char* name) { m1C = name; }
 
     int m18;
     std::string m1C;
@@ -42,9 +44,9 @@ public:
 // inferred: what an event camera looks at or is placed on: an actor (optionally one of its
 // nodes), an offset, or a path
 struct CameraTarget_unk {
-    CameraTarget_unk(Actor_unk* actor = 0, atn::Vector3 offset = lbl_807C7030)
+    CameraTarget_unk(Actor* actor = 0, atn::Vector3 offset = lbl_807C7030)
         : mActor(actor), mNode(0), mOffset(offset), mPath(0) {}
-    Actor_unk* mActor;    // 0x00
+    Actor* mActor;    // 0x00
     int mNode;            // 0x04: inferred: node name hash
     atn::Vector3 mOffset; // 0x08
     Path* mPath;          // 0x14

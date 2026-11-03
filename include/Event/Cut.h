@@ -20,6 +20,16 @@ public:
     Section* fn_8053B828(int index);    // inferred: appends a new section and returns it
     const char* fn_8053C124(int skip);  // inferred: name of a "skip" value
     void fn_Stripped_unk(std::string& path); // inferred: stripped by the linker (see Cut.cpp)
+    // inferred: index checks of the lists (inlined in Event/Sequence.cpp; names invented)
+    bool IsLabelIndex_unk(int i) const { return i >= 0 && i < (int)mLabels.size(); }
+    bool IsSectionIndex_unk(int i) const { return i >= 0 && i < (int)mSections.size(); }
+    // inferred: checked accessor (inlined in Event/EventLoader_unk.cpp; name invented)
+    Section* GetSection_unk(unsigned int i) {
+        if (IsSectionIndex_unk(i)) {
+            return mSections[i].get();
+        }
+        return 0;
+    }
 
     Sequence* mSequence; // 0x08
     int mIndex;          // 0x0C

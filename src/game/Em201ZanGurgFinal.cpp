@@ -531,8 +531,7 @@ extern "C" inline void fn_80266174(PlayerInput_unk* input, int value) {
     }
 }
 extern "C" PlayerInput_unk* fn_80122550(Field_unk* field);
-extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
-extern "C" CharaTask* fn_8000DCF4(CharaManager<PlayerTask>* mgr);
+extern "C" PlayerManager* fn_8000D9E8();
 extern "C" EffectMgr_unk* fn_800F7FA0(); // inferred: returns lbl_8087F3C0
 extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg);
 extern "C" void fn_800F84D0(EffectMgr_unk* mgr, int layer); // inferred: mB8 = layer
@@ -903,7 +902,7 @@ void Em201ZanGurgFinal::vf10() {
     fn_8014C540();
     fn_80145334();
     PlayerInput_unk* input = fn_80122550(fn_80121F00());
-    fn_8000DCF4(fn_8000D9E8());
+    fn_8000D9E8()->GetHead_unk();
     if (m163C == 0 && m1630 != 0 && m1644 != 0 && m1660 == 1 && m1668 < 0.7f) {
         if (m1640 == 0) {
             atn::Vector3 pos = fn_80266154(fn_8026615C(m1624))->GetTrans_unk();
@@ -1140,7 +1139,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
             fn_80370320(fn_80121F00(), 0x396, 0, 0);
             if (fn_80370A78(fn_80121F00(), 0xEA) == 0) {
                 fn_80370AE4(fn_80121F00(), 0xEA, 1);
-                if (fn_8000DCF4(fn_8000D9E8()) != 0 && *fn_80266FB4(fn_80266FA4(this), 0) == m1628 &&
+                if (fn_8000D9E8()->GetHead_unk() != 0 && *fn_80266FB4(fn_80266FA4(this), 0) == m1628 &&
                     m1624 != 0) {
                     Inventory::Order()->AddItem(fn_80206BE4(fn_80266FAC(m1624)), 1, 1, 0, 0, 1, 0);
                 }

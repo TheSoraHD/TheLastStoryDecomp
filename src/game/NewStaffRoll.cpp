@@ -1,3 +1,5 @@
+#include "Event/Manager.h"
+#include "Event/Sequence.h"
 #include "game/NewStaffRoll.h"
 #include "atn/FadeCommon.h"
 #include "game/GimmickCommon.h"
@@ -29,19 +31,7 @@ struct StaffRollScreen_unk {
     int mHeight; // 0x40
 };
 extern "C" StaffRollScreen_unk* lbl_8087EEE0;
-// inferred: scene manager (lbl_8087F540)
-struct StaffRollScene_unk {
-    unsigned char m00[0x190];
-    int m190; // inferred: id of the current event
-};
-struct StaffRollGame_unk {
-    unsigned char m00[0x70];
-    StaffRollScene_unk* m70;
-};
-extern "C" StaffRollGame_unk* lbl_8087F540;
-extern "C" void fn_8048169C(StaffRollGame_unk* game, int arg);
-extern "C" void fn_8047E528(StaffRollGame_unk* game);
-extern "C" void fn_8047F8B0(StaffRollGame_unk* game);
+// inferred: the event manager (lbl_8087F540, Event/Manager.h) and its current sequence
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
 extern "C" void* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
@@ -233,9 +223,9 @@ void NewStaffRoll::vf10() {
         }
         mEndTime += __GetDt_unk();
         if (mEndTime > 420.0f) {
-            fn_8048169C(lbl_8087F540, 1);
-            fn_8047E528(lbl_8087F540);
-            fn_8047F8B0(lbl_8087F540);
+            lbl_8087F540->fn_8048169C(1);
+            lbl_8087F540->fn_8047E528();
+            lbl_8087F540->fn_8047F8B0();
             fn_800D2338(this);
         }
     } else {

@@ -20,41 +20,7 @@ namespace atn {
 struct ShaderDesc_unk;
 }
 
-// inferred: string owned with new[] (heap 1); a null pointer reads as "" (lbl_8087EF00, also
-// used by the inlines of Event/DebugInfo_unk and game/GameTask)
-struct String_unk {
-    String_unk() : mPtr(0) {}
-    ~String_unk() {
-        if (mPtr != 0) {
-            delete[] mPtr;
-            mPtr = 0;
-        }
-    }
-    const char* c_str() const { return mPtr != 0 ? mPtr : &sEmpty_unk; }
-    void assign(const char* s, unsigned long len) {
-        if (s != 0 && len != 0) {
-            char* p = new ((MemoryTag)1, "", "", 0) char[len + 1];
-            memcpy(p, s, len);
-            p[len] = 0;
-            if (mPtr != 0) {
-                delete[] mPtr;
-                mPtr = 0;
-            }
-            mPtr = p;
-        } else if (mPtr != 0) {
-            delete[] mPtr;
-            mPtr = 0;
-        }
-    }
-    String_unk& operator=(const char* s) {
-        assign(s, s != 0 ? strlen(s) : 0);
-        return *this;
-    }
-    String_unk& operator=(const String_unk& o) { return *this = o.c_str(); }
-
-    char* mPtr;
-    static char sEmpty_unk; // lbl_8087EF00
-};
+#include "atn/String_unk.h"
 
 // inferred: UV transform of a texture stage (0x14 bytes); the defaults are const objects of
 // .sdata2 (0x80880B88-0x80880B98) that atn/ModelDraw_unk.cpp also reads

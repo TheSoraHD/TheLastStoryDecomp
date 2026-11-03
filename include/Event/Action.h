@@ -9,7 +9,8 @@ namespace Event {
 
 class Channel;
 struct ActionOwner_unk;
-struct EventManager_unk;
+class Sequence;
+typedef Sequence EventManager_unk; // inferred: the event manager of the actions is the sequence (Event/Sequence.h)
 
 // inferred: action of a channel (0x40 bytes, vtable 0x80793AB0, defined in Event/Node)
 // inferred: parameter of an action (8 bytes)
@@ -28,6 +29,7 @@ struct ActionParam_unk {
     union {
         int i;
         float f;
+        short h[2]; // inferred: two values packed in one parameter (Event::Sequence::fn_8053F818)
     } m04;
 };
 
@@ -60,6 +62,7 @@ public:
     ActionParam_unk* fn_805392BC(unsigned int hash); // inferred: attribute `hash`, 0 if none
     ActionParam_unk* fn_80539330(unsigned int hash); // inferred: same code as fn_805392BC
     float fn_805393A4(int frame);         // inferred: position of `frame` between m10 and m14
+    void fn_805393F8(const ActionKey_unk& key); // inferred: adds a key to the curve (sorted by time)
 
     // inferred: parameter n, 0 when the action has fewer parameters (inlined by the behaviours,
     // which only pass constants)

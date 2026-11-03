@@ -1,33 +1,27 @@
 #include "game/SetConfig.h"
 #include "Event/Cut.h"
 #include "Event/Behavior.h"
+#include "Event/Sequence.h"
+#include "Event/Manager.h"
 
 extern "C" int fn_805510F8();
 extern "C" int fn_80551100();
 
-extern "C" void fn_8053EF70(void* self);
-extern "C" void fn_8053F6EC(void* self);
 extern "C" void fn_8054FBC8(void* self);
 
-extern "C" void* lbl_8087F540;
 extern "C" volatile float lbl_80887E20;
 extern "C" volatile float lbl_80887E24;
-extern "C" void fn_8047F8C0(void* object, int enabled);
 extern "C" void fn_8047F6E4(void* object);
 extern "C" void fn_8047F8B0(void* object);
 extern "C" void fn_8047F850(void* object, int start, int colorStart, int colorEnd);
 extern "C" void fn_8047F88C(void* object, int frame);
 extern "C" void fn_8047F994(void* object, int arg1, int arg2);
 extern "C" void fn_8047F984(void* object, float value);
-extern "C" int fn_8054011C(void* self);
-extern "C" void* fn_80541210(void* self);
 extern "C" int fn_8010DB54(int eventId);
 extern "C" void* lbl_807C9140[];
 extern "C" void* lbl_8087F8B0;
 void operator delete(void* ptr);
 extern "C" void fn_80550A78(void* self);
-extern "C" int fn_80541198(void* self);
-extern "C" void fn_80541520(void* self, int target, int flags);
 extern "C" void fn_8054FAD4(void* self);
 extern "C" void fn_8054FB10(void* self, int mark);
 extern "C" void fn_8054F9DC(void* self);
@@ -37,8 +31,6 @@ extern "C" void fn_80481A20(void* manager);
 extern "C" void fn_80489A50(void* manager, int arg1, int arg2);
 extern "C" void fn_80488DB8(void* manager);
 extern "C" void fn_8048F9B0(void* manager, void* event);
-extern "C" int fn_80541198(void* self);
-extern "C" void fn_80541520(void* self, int target, int flags);
 extern "C" void fn_80484FBC(void* manager);
 extern "C" void fn_804870F4(void* manager);
 extern "C" void fn_80486F50(void* manager);
@@ -70,12 +62,12 @@ extern "C" void fn_8054F9DC(void* self) {
     if (state == 4) {
         flags |= 0x00300000;
     } else if (state == 5) {
-        fn_8053F6EC(self);
+        static_cast<Event::Sequence*>(self)->fn_8053F6EC();
         flags |= 0x00100000;
     } else if (state == 6) {
         flags |= 0x00100000;
     } else if (state == 8 || state == 14) {
-        if (fn_8054011C(self)) {
+        if (static_cast<Event::Sequence*>(self)->fn_8054011C()) {
             *reinterpret_cast<float*>(bytes + 0x198) = lbl_80887E20;
             *reinterpret_cast<float*>(bytes + 0x19C) = lbl_80887E20;
             static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(9);
@@ -124,7 +116,7 @@ extern "C" void fn_8054FB10(void* self, int mark) {
 // NONMATCHING: 81.67% - MWCC combines the bit extraction with a record-form instruction.
 extern "C" void fn_8054FBC8(void* self) {
     if (((*reinterpret_cast<unsigned int*>(static_cast<unsigned char*>(self) + 0x98) >> 16) & 1) != 0) {
-        fn_8053EF70(self);
+        static_cast<Event::Sequence*>(self)->fn_8053EF70();
     }
 }
 
@@ -170,7 +162,7 @@ extern "C" void fn_8054FBE0(void* self, int dispatch) {
         int id = *reinterpret_cast<int*>(object + 0x190);
         bool clearFlag = id == 0x5E7 || id == 0x841;
         if (id == 0xE14 || id == 0x151E) {
-            unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+            unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
             int type = event == 0 ? -1 : *reinterpret_cast<int*>(event + 0x0C);
             clearFlag = id == 0xE14 ? type == 0 : type == 3;
         }
@@ -188,7 +180,7 @@ extern "C" void fn_8054FBE0(void* self, int dispatch) {
 // NONMATCHING: 59.98% - camera transition timing and colors reconstructed from the event mode and frame checks.
 extern "C" void fn_8054FFE0(void* self) {
     unsigned char* object = static_cast<unsigned char*>(self);
-    unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+    unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
     if (event != 0) {
         int mode = *reinterpret_cast<int*>(object + 0x50);
         if (mode == 1 || mode == 3) {
@@ -237,19 +229,22 @@ extern "C" void fn_8054FFE0(void* self) {
     *reinterpret_cast<int*>(object + 0x1A4) = *reinterpret_cast<int*>(object + 0x1A0);
 }
 
-extern "C" void fn_805501DC(void* self, int enabled) {
+// inferred: method of Event::Sequence (layout still read through offsets here)
+void Event::Sequence::fn_805501DC(int enabled) {
+    void* self = this;
     int& state = *reinterpret_cast<int*>(static_cast<unsigned char*>(self) + 0x1C0);
     if (state == 0 && enabled != 0) {
-        fn_8047F8C0(lbl_8087F540, 1);
+        lbl_8087F540->fn_8047F8C0(1);
     } else if (state != 0 && enabled == 0) {
-        fn_8047F8C0(lbl_8087F540, 0);
+        lbl_8087F540->fn_8047F8C0(0);
     }
     state = enabled;
 }
 
 // NONMATCHING: 65.17% - manager gating, action windows, cut changes and timeouts are reconstructed;
 // exact MWCC register allocation and nested action-state dispatch still differ.
-extern "C" void fn_80550254(void* self) {
+void Event::Sequence::fn_80550254() {
+    void* self = this;
     unsigned char* object = static_cast<unsigned char*>(self);
     unsigned int& flags = *reinterpret_cast<unsigned int*>(object + 0x98);
     flags |= 0x00040000;
@@ -272,7 +267,7 @@ extern "C" void fn_80550254(void* self) {
         if (handler == 0 || reinterpret_cast<int (*)(void*, void*)>(
                 (*reinterpret_cast<void***>(handler))[2])(handler, current) != 3) {
             if (current != 0) {
-                fn_8047F8C0(manager, 0);
+                ((Manager*)manager)->fn_8047F8C0(0);
             }
             *reinterpret_cast<void**>(object + 0x1C0) = 0;
         } else {
@@ -295,7 +290,7 @@ extern "C" void fn_80550254(void* self) {
         fn_80488DB8(manager);
     }
 
-    unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+    unsigned char* event = static_cast<unsigned char*>((void*)fn_80541210());
     if (event != 0) {
         int count = *reinterpret_cast<int*>(event + 0x40);
         unsigned char** records = *reinterpret_cast<unsigned char***>(event + 0x3C);
@@ -367,7 +362,7 @@ extern "C" void fn_80550254(void* self) {
                                 reinterpret_cast<int (*)(void*, void*)>(table[2])(handler, action);
                         }
                         if (*reinterpret_cast<int*>(object + 0x1C0) == 3) {
-                            fn_8047F8C0(manager, 1);
+                            ((Manager*)manager)->fn_8047F8C0(1);
                         }
                     }
                 }
@@ -380,7 +375,7 @@ extern "C" void fn_80550254(void* self) {
     if (mode == 1 || mode == 3) {
         fn_8048F9B0(manager, event);
     }
-    event = static_cast<unsigned char*>(fn_80541210(self));
+    event = static_cast<unsigned char*>((void*)fn_80541210());
     if (event != 0 && time > static_cast<float>(*reinterpret_cast<int*>(event + 0x2C))) {
         time = static_cast<float>(*reinterpret_cast<int*>(event + 0x2C));
         int cutId = reinterpret_cast<Event::Cut*>(event)->fn_8053B028();
@@ -391,20 +386,20 @@ extern "C" void fn_80550254(void* self) {
             for (; i < count; ++i) {
                 if (*reinterpret_cast<int*>(entries[i] + 0x0C) == cutId) break;
             }
-            fn_80541520(self, fn_80541198(self), 0);
+            fn_80541520(fn_80541198(0), 0);
             if (mode == 1 || mode == 3) {
                 fn_80484FBC(manager); fn_804870F4(manager); fn_80486F50(manager);
                 fn_8048F184(manager, 0); fn_8048F184(manager, 1); fn_8048FC7C(manager);
             }
             if (reinterpret_cast<Event::Cut*>(event)->fn_8053B028() != *reinterpret_cast<int*>(event + 0x0C)) {
-                fn_80550254(self);
+                fn_80550254();
             }
         } else if (lbl_8087F0A8 != 0 && *reinterpret_cast<int*>(static_cast<unsigned char*>(lbl_8087F0A8) + 0x194) != 0 &&
                    *reinterpret_cast<int*>(object + 0x190) == 0x19D) {
             fn_80370B78(lbl_8087F430, -1, lbl_80887E20, 0, 0);
-            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(11);
+            fn_8053E8C8(11);
         } else {
-            static_cast<Event::EventManager_unk*>(self)->fn_8053E8C8(13);
+            fn_8053E8C8(13);
         }
     }
     *reinterpret_cast<float*>(object + 0x19C) = time;
@@ -414,7 +409,7 @@ extern "C" void fn_80550254(void* self) {
 // is inferred from the field accesses at 0x80550A78.
 extern "C" void fn_80550A78(void* self) {
     unsigned char* object = static_cast<unsigned char*>(self);
-    unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+    unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
     if (event == 0) {
         return;
     }
@@ -483,7 +478,7 @@ extern "C" void fn_80550CE0(void* self) {
     unsigned char* object = static_cast<unsigned char*>(self);
     int stop = 0;
     for (int eventIndex = 0; !stop; ++eventIndex) {
-        unsigned char* event = static_cast<unsigned char*>(fn_80541210(self));
+        unsigned char* event = reinterpret_cast<unsigned char*>(static_cast<Event::Sequence*>(self)->fn_80541210());
         if (event == 0 || eventIndex >= *reinterpret_cast<int*>(event + 0x40)) {
             break;
         }
@@ -555,8 +550,8 @@ extern "C" void fn_80550CE0(void* self) {
                     break;
                 }
             }
-            int target = fn_80541198(self);
-            fn_80541520(self, target, 0);
+            int target = static_cast<Event::Sequence*>(self)->fn_80541198(0);
+            static_cast<Event::Sequence*>(self)->fn_80541520(target, 0);
         }
 
         int mode = *reinterpret_cast<int*>(object + 0x1B0);

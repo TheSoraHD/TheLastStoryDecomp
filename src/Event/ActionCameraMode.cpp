@@ -1,3 +1,4 @@
+#include "Event/Cut.h"
 #include "Event/Behavior.h"
 #include "Event/Path.h"
 #include "atn/LH_Xsca.h"
@@ -59,7 +60,6 @@ struct EventScene_unk {
     unsigned char m00[0x0C];
     int m0C;
 };
-extern "C" EventScene_unk* fn_80541210(Event::EventManager_unk* manager);
 extern "C" int fn_8047F6B0(Event::CameraOwner_unk* manager, int frames); // inferred: 3 when the fade is done
 extern "C" void fn_8047F8A4(Event::CameraOwner_unk* manager, float level);
 extern "C" void fn_8047F850(Event::CameraOwner_unk* manager, int frames, int colorStart, int colorEnd);
@@ -386,7 +386,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             EventManager_unk* manager = arg->fn_805381C8();
             if (manager == 0 ||
                 (manager->m190 != 0xC87 &&
-                 (manager->m190 != 0xFB5 || fn_80541210(manager) == 0 || fn_80541210(manager)->m0C != 0xE))) {
+                 (manager->m190 != 0xFB5 || manager->fn_80541210() == 0 || manager->fn_80541210()->mIndex != 0xE))) {
                 fn_8047F8A4(lbl_8087F540, -100.0f);
             }
             if (arg->fn_805381C8()->m190 == 0x151E && arg->m18 > 0 && lbl_8087EFE8 != 0) {
@@ -532,9 +532,9 @@ int ActionCameraFocus::vf0C(Action* arg, int phase) {
 }
 
 // inferred: camera animation `id` of the event (no null test of the entry, as in the original)
-inline CameraAnim_unk* FindCameraAnim_unk(EventManager_unk* manager, int id) {
-    for (int i = 0; i < manager->m128; i++) {
-        CameraAnim_unk* anim = &manager->m124[(unsigned int)i];
+inline CameraData* FindCameraAnim_unk(EventManager_unk* manager, int id) {
+    for (int i = 0; i < (int)manager->m124.size(); i++) {
+        CameraData* anim = &manager->m124[(unsigned int)i];
         if (id == anim->m14) {
             return anim;
         }
@@ -542,7 +542,7 @@ inline CameraAnim_unk* FindCameraAnim_unk(EventManager_unk* manager, int id) {
     return 0;
 }
 inline Xsca_unk* GetCameraAnim_unk(EventManager_unk* manager, int id) {
-    CameraAnim_unk* anim = FindCameraAnim_unk(manager, id);
+    CameraData* anim = FindCameraAnim_unk(manager, id);
     return anim->m18 != 0 ? (Xsca_unk*)anim->m18->fn_804786F8() : 0;
 }
 

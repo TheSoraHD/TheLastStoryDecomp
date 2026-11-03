@@ -15,9 +15,13 @@ struct DataOwner_unk;
 class CommonData {
 public:
     CommonData();
+    // inferred: inlined in the constructor of Event::Actor (0x8000D528)
+    CommonData(DataOwner_unk* owner, const char* name, int id) : m04(owner), m08(name), m14(id) {}
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;
+    // inferred: inlined by the readers of Event/EventParser_unk.cpp ("..NA" chunks); name invented
+    void SetName_unk(const std::string& name) { m08 = name; }
 
     DataOwner_unk* m04; // inferred: owner (event scene task)
     std::string m08;    // inferred: file name

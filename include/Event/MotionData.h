@@ -24,6 +24,7 @@ class LH_Xsca;
 class LH_Binary;
 class EfpFile;
 class VideoTHP;
+class D2A_Task;
 } // namespace atn
 
 namespace Event {
@@ -61,7 +62,7 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    atn::Task* m18; // inferred: d2anime task
+    atn::D2A_Task* m18; // inferred: d2anime task
     int m1C;
 };
 
@@ -71,9 +72,10 @@ public:
     virtual void vf0C();
     virtual int vf10() const;
 
-    int m18;
-    int m1C;
-    int m20;
+    // inferred: inlined by the reader of "MDMA" (Event/EventParser_unk.cpp); name invented
+    void SetFile_unk(const std::string& file) { m18 = file; }
+
+    std::string m18; // inferred: destroyed with the data (Event::Sequence, 0x8053D8F0)
     atn::Model* m24;
 };
 

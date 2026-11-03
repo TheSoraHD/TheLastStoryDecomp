@@ -24,7 +24,7 @@ Event/EventCommandDef_unk.cpp:
 Event/Puppeteer_CharaTask.cpp:
 	.text       start:0x8000CBD0 end:0x800142C4
 	.rodata     start:0x8072F890 end:0x8072FA00
-	.data       start:0x807759B0 end:0x80775A20
+	.data       start:0x807759B0 end:0x80775AE0
 	.sdata      start:0x8087D6C8 end:0x8087D6DC
 	.sdata2     start:0x80880668 end:0x808806A0
 
@@ -2781,25 +2781,14 @@ game/main.cpp:
 	.sdata2     start:0x80886F70 end:0x80886F80
 
 Event/Manager.cpp:
-	.text       start:0x8047B768 end:0x8048FF60
-	.rodata     start:0x80756310 end:0x80756358
-	.data       start:0x807900A0 end:0x807900F8
+	.text       start:0x8047B768 end:0x80490884
+	.ctors      start:0x8072D380 end:0x8072D384
+	.rodata     start:0x80756310 end:0x80756690
+	.data       start:0x807900A0 end:0x807901D8
+	.bss        start:0x807C8AB0 end:0x807C8AC8
 	.sdata      start:0x8087E088 end:0x8087E0B8
 	.sbss       start:0x8087F540 end:0x8087F550
-	.sdata2     start:0x80886F80 end:0x80887048
-
-Event/PostSequence.cpp:
-	.text       start:0x8048FF60 end:0x8049003C
-	.rodata     start:0x80756358 end:0x80756380
-	.data       start:0x807900F8 end:0x80790168
-
-Event/Manager_cont.cpp:
-	.text       start:0x8049003C end:0x80490884
-	.ctors      start:0x8072D380 end:0x8072D384
-	.rodata     start:0x80756380 end:0x80756690
-	.data       start:0x80790168 end:0x807901D8
-	.bss        start:0x807C8AB0 end:0x807C8AC8
-	.sdata2     start:0x80887048 end:0x80887050
+	.sdata2     start:0x80886F80 end:0x80887050
 
 game/MapInstance_unk.cpp:
 	.text       start:0x80490884 end:0x80490EB8
@@ -3197,22 +3186,12 @@ Event/Section.cpp:
 	.sdata2     start:0x80887C90 end:0x80887C98
 
 Event/Sequence.cpp:
-	.text       start:0x8053D0F4 end:0x805430E8
-	.rodata     start:0x8075DEF8 end:0x8075E120
-	.data       start:0x807940F0 end:0x80794430
+	.text       start:0x8053D0F4 end:0x80546000
+	.ctors      start:0x8072D3D0 end:0x8072D3D4
+	.rodata     start:0x8075DEF8 end:0x8075E300
+	.data       start:0x807940F0 end:0x80794608
 	.sdata      start:0x8087E4C0 end:0x8087E4D8
 	.sdata2     start:0x80887C98 end:0x80887CD8
-
-Event/StringData.cpp:
-	.text       start:0x805430E8 end:0x80543108
-	.rodata     start:0x8075E120 end:0x8075E148
-	.data       start:0x80794430 end:0x80794480
-
-Event/Sequence_cont.cpp:
-	.text       start:0x80543108 end:0x80546000
-	.ctors      start:0x8072D3D0 end:0x8072D3D4
-	.rodata     start:0x8075E148 end:0x8075E300
-	.data       start:0x80794480 end:0x80794608
 
 game/Np131LivingArmor.cpp:
 	.text       start:0x80546000 end:0x805477C8

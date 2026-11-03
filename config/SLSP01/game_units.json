@@ -2667,17 +2667,11 @@
  {
   "name": "Event/Manager.cpp",
   "classes": [
-   "Event::Manager"
-  ],
-  "matching": false
- },
- {
-  "name": "Event/PostSequence.cpp",
-  "classes": [
+   "Event::Manager",
    "Event::PostSequence",
    "Event::SequenceRoot"
   ],
-  "matching": true
+  "matching": false
  },
  {
   "name": "game/MapManager.cpp",
@@ -3031,12 +3025,13 @@
   "matching": false
  },
  {
-  "name": "Event/StringData.cpp",
+  "name": "Event/Sequence.cpp",
   "classes": [
-   "Event::DummyData",
-   "Event::StringData"
+   "Event::Sequence",
+   "Event::StringData",
+   "Event::DummyData"
   ],
-  "matching": true
+  "matching": false
  },
  {
   "name": "game/Np131LivingArmor.cpp",
@@ -3623,6 +3618,13 @@
  {
   "name": "Event/EventLoader_unk.cpp",
   "classes": [],
+  "matching": false
+ },
+ {
+  "name": "Event/EventParser_unk.cpp",
+  "classes": [
+   "Event::Sequence"
+  ],
   "matching": false
  },
  {

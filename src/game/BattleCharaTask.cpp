@@ -1,3 +1,4 @@
+#include "Event/Manager.h"
 #include "game/BattleCharaTask.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
@@ -341,8 +342,6 @@ extern "C" void fn_80105DCC(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* 
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
                                     boost::function<void(SkillEffect*)> callback, float rate);
-extern "C" void* lbl_8087F540; // inferred: song battle (game/SongManager.cpp)
-extern "C" int fn_80481668(void* song); // inferred: nonzero while the song stops the characters
 
 // NONMATCHING: 99.2% - `mType == 3 || mType == 2` becomes a range compare; stack slots 4 bytes apart
 // inferred: per-frame update of the player characters: runs the pending state m1470 (skills, combined
@@ -468,7 +467,7 @@ void BattleCharaTask::fn_800E2FE0() {
         }
     }
     fn_8014C540();
-    if (lbl_8087F540 == 0 || fn_80481668(lbl_8087F540) == 0) {
+    if (lbl_8087F540 == 0 || lbl_8087F540->fn_80481668() == 0) {
         fn_800EE5AC((Arms*)m648);
         if (m64C != 0) {
             fn_800EE5AC((Arms*)m64C);

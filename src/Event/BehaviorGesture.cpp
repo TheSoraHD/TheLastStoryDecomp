@@ -10,7 +10,7 @@ int BehaviorGesture::vf08(Action* arg) {
     ActionOwner_unk* owner = arg->fn_805381A0();
     EventManager_unk* mgr = arg->fn_805381C8();
     int id = owner->m10;
-    Actor_unk* actor = mgr->FindActor_unk(id);
+    Actor* actor = mgr->FindActor_unk(id);
     int buttons[4];
     int motions[4];
     buttons[0] = arg->GetParam_unk(0)->m04.i;

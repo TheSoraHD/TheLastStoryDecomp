@@ -75,8 +75,8 @@ public:
     virtual void vf14();
 
     // inferred: the last two arguments (length and an option of Event::ActionDialogSpeaker) are not used
-    void fn_80228AF4(int slot, Actor_unk* actor, int kind, int arg, int frames, int option);
-    void fn_80228AF8(int slot, Actor_unk* actor, int kind, int arg, int frames, int option); // inferred: shows a balloon
+    void fn_80228AF4(int slot, Actor* actor, int kind, int arg, int frames, int option);
+    void fn_80228AF8(int slot, Actor* actor, int kind, int arg, int frames, int option); // inferred: shows a balloon
     void fn_80228CA0(int slot, const wchar_t* text, int align, int size, int arg, float f1, float f2,
                      unsigned int color, int mode, int offset); // inferred: adds a text
     void fn_80228FD8(); // inferred: starts the conversation
@@ -84,12 +84,12 @@ public:
     void fn_80229240(); // inferred: ends the conversation
     void fn_802292AC(int hide);
     void fn_80229414(); // inferred: input
-    DialogHead* fn_8022960C(Actor_unk* actor);
+    DialogHead* fn_8022960C(Actor* actor);
     void fn_802297AC(); // inferred: update
 
     void ResetPos_unk(); // inferred: defined in Dialog.cpp (uses its table sPos)
-    static unsigned int MakeKey_unk(Actor_unk* actor, int kind); // inferred: defined in Dialog.cpp
-    Head_unk* FindHead_unk(Actor_unk* actor, int kind);
+    static unsigned int MakeKey_unk(Actor* actor, int kind); // inferred: defined in Dialog.cpp
+    Head_unk* FindHead_unk(Actor* actor, int kind);
 
     int m48; // inferred: number of balloons
     Head_unk mHeads[16];

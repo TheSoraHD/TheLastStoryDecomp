@@ -6,12 +6,16 @@
 // this one has only what game/GameSaveData_unk.cpp reads. Name invented.
 struct RouteTable_unk;
 struct GameMap_unk;
+class GameScene;
 
 struct GameField_unk {
     unsigned char m0000[0x10D0];
     int m10D0;                  // inferred: state saved with the flags
     unsigned char m10D4[0x10D8 - 0x10D4];
     RouteTable_unk* m10D8;      // inferred: route tables of the map
+    // inferred: the route tables are the scene of the field (RouteTable_unk is a partial view of
+    // GameScene; Event/Sequence calls GameScene methods on it). Name invented.
+    GameScene* GetScene_unk() const { return (GameScene*)m10D8; }
 };
 extern "C" GameField_unk* lbl_8087F430;
 
