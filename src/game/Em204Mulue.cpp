@@ -69,7 +69,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" void fn_8004D124(void* world); // inferred: rebuilds the active shapes
 extern "C" void fn_805A5078(const atn::Vector3* pos, const atn::Vector3* dir, int id, float radius, float angle);
@@ -268,7 +267,7 @@ inline void Em204Mulue::Release_unk() {
     if (m1644 != 0 && m1644->m560 != 17 && m1644->m55C == 6) {
         m1644->fn_8015AC48(-1);
         m1644 = 0;
-        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.fn_80097CCC(0, 0.0f);
         m14C8 = 0;
         Rest_unk();
     }
@@ -457,7 +456,7 @@ void Em204Mulue::vf10() {
     m14C0++;
     if (mC58.mC0 == 0 || m14B0 == 0) {
         fn_8016E970(3);
-        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.fn_80097CCC(0, 0.0f);
         PlayMotion_unk(2, 1, 1.0f);
         Rest_unk();
     } else if (m14B0 != 0) {
@@ -734,7 +733,7 @@ void Em204Mulue::vf40(HitInfo_unk* hit) {
                 m1644->fn_8015AC48(-1);
                 m1644 = 0;
                 m14C8 = 0;
-                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.fn_80097CCC(0, 0.0f);
                 Rest_unk();
             }
         }

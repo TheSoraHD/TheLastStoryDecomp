@@ -73,7 +73,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
 struct KrakenColl_unk {
@@ -862,7 +861,7 @@ void Em302Kraken::fn_802DA174() {
             m590 = fn_800F8548(lbl_8087F048);
             m58C = 10;
             fn_8016E970(3);
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -1369,7 +1368,7 @@ void Em302Kraken::fn_802DC618() {
     fn_8016DA4C();
     m58C = 2;
     fn_8016E970(3);
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = -0.5f;

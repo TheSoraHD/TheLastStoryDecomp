@@ -32,7 +32,6 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -873,7 +872,7 @@ inline void EnemyQuarkStand::TurnTo_unk(float rate) {
     float abs = diff < 0.0f ? -diff : diff;
     step = 0.017453292f * step;
     if (abs <= step) {
-        fn_80097CCC(&mMotion, 1, 0.0f);
+        mMotion.fn_80097CCC(1, 0.0f);
         mRot.y = y;
     } else if (diff <= 0.0f) {
         mRot.y -= step;
@@ -2450,7 +2449,7 @@ void EnemyQuarkStand::fn_80352938(float rate) {
     float abs = diff < 0.0f ? -diff : diff;
     step = 0.017453292f * step;
     if (abs <= step) {
-        fn_80097CCC(&mMotion, 1, 0.0f);
+        mMotion.fn_80097CCC(1, 0.0f);
         mRot.y = y;
     } else if (diff <= 0.0f) {
         mRot.y -= step;

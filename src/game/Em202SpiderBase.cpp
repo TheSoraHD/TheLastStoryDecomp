@@ -41,7 +41,6 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" double cos(double x);
 extern "C" double sqrt(double x);
@@ -489,7 +488,7 @@ void Em202SpiderBase::vf40(HitInfo_unk* hit) {
 void Em202SpiderBase::vf80(const atn::Vector3& pos, const atn::Vector3& offset) {
     ResetAttack_unk();
     m58C = 13;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -590,7 +589,7 @@ void Em202SpiderBase::fn_80284CC8() {
         if (fn_80287400(m1580, 11) == 0) {
             ResetAttack_unk();
             m58C = 11;
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -603,7 +602,7 @@ void Em202SpiderBase::fn_80284CC8() {
         if (fn_80287400(m1580, 10) == 0) {
             ResetAttack_unk();
             m58C = 10;
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -704,7 +703,7 @@ void Em202SpiderBase::fn_802857B4() {
             if (fn_80287400(m1588, 10) == 0) {
                 ResetAttack_unk();
                 m58C = 10;
-                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.fn_80097CCC(0, 0.0f);
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
@@ -716,7 +715,7 @@ void Em202SpiderBase::fn_802857B4() {
             if (fn_80287400(m1580, 11) == 0) {
                 ResetAttack_unk();
                 m58C = 11;
-                fn_80097CCC(&mMotion, 0, 0.0f);
+                mMotion.fn_80097CCC(0, 0.0f);
                 mMotion.m34C = 1;
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
@@ -759,7 +758,7 @@ void Em202SpiderBase::fn_80285B7C() {
         if (fn_80287400(m1580, 11) == 0 && fn_80287400(m1580, 11) == 0) {
             ResetAttack_unk();
             m58C = 11;
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -805,7 +804,7 @@ void Em202SpiderBase::fn_80285FA0() {
         if (fn_80287400(m1580, 10) == 0 && fn_80287400(m1580, 10) == 0) {
             ResetAttack_unk();
             m58C = 10;
-            fn_80097CCC(&mMotion, 0, 0.0f);
+            mMotion.fn_80097CCC(0, 0.0f);
             mMotion.m34C = 1;
             mMotion.mTracks[0].m20 = 1.0f;
             mMotion.mTracks[0].m0C = 1.0f;
@@ -923,7 +922,7 @@ void Em202SpiderBase::fn_80286CB0(CharaTask* target) {
         mRot = rot;
         mRot.x = 0.0f;
         mRot.z = 0.0f;
-        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.fn_80097CCC(0, 0.0f);
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = 1.0f;
@@ -949,7 +948,7 @@ void Em202SpiderBase::fn_8028702C(CharaTask* target) {
         mRot.y = rot.y;
         mRot.z = 0.0f;
         m1598 = 0;
-        fn_80097CCC(&mMotion, 0, 0.0f);
+        mMotion.fn_80097CCC(0, 0.0f);
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         mMotion.mTracks[0].m0C = 1.0f;
@@ -974,7 +973,7 @@ int Em202SpiderBase::fn_80287400(CharaTask* target, int arg) {
     m1588 = target;
     ResetAttack_unk();
     m58C = 9;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 2.0f;
@@ -997,7 +996,7 @@ void Em202SpiderBase::fn_80287788() {
     fn_8015495C(0, 1, 1, 1);
     fn_8016DA4C();
     m58C = 2;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -1015,7 +1014,7 @@ void Em202SpiderBase::fn_802878EC(CharaTask* target) {
     }
     ResetAttack_unk();
     m58C = 12;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;

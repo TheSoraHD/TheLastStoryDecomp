@@ -50,7 +50,6 @@ struct Field_unk {
 };
 struct Effect_unk;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
@@ -943,7 +942,7 @@ atn::Vector3 Em301LShade::vf64(int center) {
 
 // inferred: plays a motion on track 0 after stopping it (names invented)
 inline void RestartMotion_unk(Em301LShade* e, int motion) {
-    fn_80097CCC((atn::Model*)&e->mMotion, 0, 0.0f);
+    ((atn::Model*)&e->mMotion)->fn_80097CCC(0, 0.0f);
     e->mMotion.m34C = 1;
     e->mMotion.mTracks[0].m20 = 1.0f;
     e->mMotion.mTracks[0].m0C = 1.0f;
@@ -1499,7 +1498,7 @@ void Em301LShade::fn_802D57B8() {
     fn_8016DA4C();
     m58C = 2;
     fn_8016E970(3);
-    fn_80097CCC((atn::Model*)&mMotion, 0, 0.0f);
+    ((atn::Model*)&mMotion)->fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;

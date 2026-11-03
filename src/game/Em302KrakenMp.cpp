@@ -84,7 +84,6 @@ inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
 }
 
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
@@ -1171,7 +1170,7 @@ void Em302KrakenMp::fn_802E177C() {
     m58C = 2;
     fn_8016E970(6);
     m560 = 23;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = -0.5f;

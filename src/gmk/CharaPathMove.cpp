@@ -11,7 +11,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" float fn_800DC288(const char* s);  // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);    // inferred: string to int
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value);   // inferred: stops a track
 extern "C" void fn_8032AF90(gmk::PathData_unk* path, std::vector<atn::Vector3>* points); // inferred: builds the path
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
@@ -342,13 +341,13 @@ void PathChara_unk::fn_8043EA64(int skip) {
             }
             float frame = motion->mTracks[3].m08;
             if (frame >= motion->fn_80097D7C(3)) {
-                fn_80097CCC(motion, 3, 0.0f);
+                motion->fn_80097CCC(3, 0.0f);
             }
         }
     } else {
         mChara->mPos = atn::Vector3(0.0f, -1000.0f, 0.0f);
         mChara->mRot = lbl_807C7030;
-        fn_80097CCC(&mChara->mMotion, 3, 0.0f);
+        mChara->mMotion.fn_80097CCC(3, 0.0f);
         mTimer = 0;
     }
 }

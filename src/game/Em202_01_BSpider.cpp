@@ -20,7 +20,6 @@ struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
 struct PlayerManager_unk {
@@ -571,7 +570,7 @@ void Em202_01_BSpider::fn_8027179C(CharaTask* target) {
     mRot = rot;
     mRot.x = 0.0f;
     mRot.z = 0.0f;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -593,7 +592,7 @@ void Em202_01_BSpider::fn_80271AA4(CharaTask* target) {
     mRot = rot;
     mRot.x = 0.0f;
     mRot.z = 0.0f;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -635,7 +634,7 @@ void Em202_01_BSpider::fn_80271DAC(CharaTask* target) {
     mRot.z = 0.0f;
     m14C4 = 0;
     m14D0 = 0;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
@@ -669,7 +668,7 @@ void Em202_01_BSpider::fn_802721A0() {
     m58C = 12;
     m14C4 = 0;
     m568 = 1.0f;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 2.0f;
@@ -691,7 +690,7 @@ int Em202_01_BSpider::fn_8027232C(CharaTask* target, int arg) {
     m14D8 = arg;
     m14E8 = target;
     m58C = 11;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 2.0f;
@@ -710,7 +709,7 @@ void Em202_01_BSpider::fn_80272660() {
     fn_8015495C(0, 1, 1, 1);
     fn_8016DA4C();
     m58C = 2;
-    fn_80097CCC(&mMotion, 0, 0.0f);
+    mMotion.fn_80097CCC(0, 0.0f);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;

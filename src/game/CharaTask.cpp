@@ -3996,7 +3996,6 @@ extern "C" int fn_80418318(); // inferred: id of the water (ground follow) used 
 extern "C" atn::Vector3 fn_804188A0(int id, const Segment_unk* seg);
 extern "C" void fn_8009076C(atn::Model* model, const atn::Matrix3x4* mtx); // inferred: updates the nodes
 extern "C" void fn_8009757C(atn::Model* model);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 extern "C" int fn_802185FC(const char* name);
 extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -4470,7 +4469,7 @@ void CharaTask::fn_80145334() {
             float frame = mMotion.mTracks[3].m08;
             if (frame >= mMotion.fn_80097D7C(3)) {
                 m12BC = -1;
-                fn_80097CCC(&mMotion, 3, 1.0f);
+                mMotion.fn_80097CCC(3, 1.0f);
             }
         }
     } else {
@@ -11882,7 +11881,7 @@ void CharaTask::fn_8017A33C(CharaTask* rider, int release) {
         rider->mColli.mFlags &= ~1;
         rider->mFlag11 = 1;
     } else if (m139C != 0) {
-        fn_80097CCC(&mMotion, 3, 0.0f);
+        mMotion.fn_80097CCC(3, 0.0f);
         if (release) {
             m139C->mF1C = 0;
             m139C->mColli.mFlags |= 1;

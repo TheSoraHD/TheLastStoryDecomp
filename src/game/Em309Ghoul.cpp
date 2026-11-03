@@ -20,7 +20,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg11);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float value); // inferred: stops a track
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, see MP/D2AMpMenuSetRule.cpp)
@@ -268,7 +267,7 @@ inline void Em309Ghoul::StartAttack_unk() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 7;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -286,7 +285,7 @@ inline void Em309Ghoul::ResetState_unk() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 0;
     fn_8016E970(3);
     m15F0++;
@@ -421,7 +420,7 @@ inline void Em309Ghoul::Die_unk(int motion, int flag) {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 2;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -841,7 +840,7 @@ void Em309Ghoul::fn_80300654() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 1;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -858,7 +857,7 @@ void Em309Ghoul::fn_8030073C() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 6;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -874,7 +873,7 @@ void Em309Ghoul::fn_803009F4() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 9;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -891,7 +890,7 @@ void Em309Ghoul::fn_80300AD8() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 10;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -959,7 +958,7 @@ void Em309Ghoul::fn_80300DF4() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 11;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1020,7 +1019,7 @@ void Em309Ghoul::fn_803010BC() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 12;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1043,7 +1042,7 @@ void Em309Ghoul::fn_80301200() {
     m14F0 = 0;
     m14F4 = 0;
     m590 = fn_800F8548(lbl_8087F048);
-    fn_80097CCC(&mMotion, 2, 0.0f);
+    mMotion.fn_80097CCC(2, 0.0f);
     m58C = 13;
     fn_8016E970(3);
     mMotion.m34C = 1;
@@ -1447,7 +1446,7 @@ void Em309Ghoul::fn_80302B84() {
         m14F0 = 0;
         m14F4 = 0;
         m590 = fn_800F8548(lbl_8087F048);
-        fn_80097CCC(&mMotion, 2, 0.0f);
+        mMotion.fn_80097CCC(2, 0.0f);
         m58C = 0;
         fn_8016E970(3);
         m15F0++;

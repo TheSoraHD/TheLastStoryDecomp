@@ -9,7 +9,6 @@ extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // infer
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" void fn_80097CCC(atn::Model* model, int arg, float value);
 extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
 extern "C" void fn_80565F34(chr::CharaEquip_unk* equip); // inferred: draws the equipment
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
@@ -141,7 +140,7 @@ int CostumeEditChara::vf0C() {
             mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             mChara->fn_80147A18(0);
             CharaTask* chara = mChara;
-            fn_80097CCC(&chara->mMotion, 3, 0.0f);
+            chara->mMotion.fn_80097CCC(3, 0.0f);
             chara->m12BC = -1;
             chara = mChara;
             chara->m580 = 0.0f;

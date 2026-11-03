@@ -13,7 +13,6 @@
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_80097CCC(atn::Model* model, int track, float weight);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 
@@ -130,7 +129,7 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
         mChara->fn_801539E0();
     }
     Chara_unk* c2 = mChara;
-    fn_80097CCC(&c2->mMotion, 3, 0.0f);
+    c2->mMotion.fn_80097CCC(3, 0.0f);
     c2->m12BC = -1;
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
@@ -349,7 +348,7 @@ ControlOttotto::ControlOttotto(Chara_unk* chara, const atn::Vector3* dir, int ti
         mChara->mFlag5 = 0;
     }
     Chara_unk* c = mChara;
-    fn_80097CCC(&c->mMotion, 3, 0.0f);
+    c->mMotion.fn_80097CCC(3, 0.0f);
     c->m12BC = -1;
     Motion_unk* m = &mChara->mMotion;
     m->m34C = 1;
@@ -416,7 +415,7 @@ ControlPushedAvoid::ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir
         mChara->fn_801539E0();
     }
     Chara_unk* c = mChara;
-    fn_80097CCC(&c->mMotion, 3, 0.0f);
+    c->mMotion.fn_80097CCC(3, 0.0f);
     c->m12BC = -1;
     Motion_unk* m = &mChara->mMotion;
     m->fn_80097C08(0, mChara->m484[1], 0, 0, 1, 0.0f, 0.1f);
