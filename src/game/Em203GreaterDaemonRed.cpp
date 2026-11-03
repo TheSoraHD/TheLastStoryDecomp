@@ -175,7 +175,6 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
 // inferred: weak copies of other files, called out of line
 extern "C" bool fn_800E0AB0(const IntVector_unk* v);
 extern "C" unsigned int fn_800E0AA8(const IntVector_unk* v);
-extern "C" int* fn_8028B74C(IntVector_unk* v, int i);
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 // inferred: bit 2 of the status flags (weak copy 0x8029597C); name invented
 extern "C" inline int fn_8029597C(CharaStatus* status) {
@@ -508,7 +507,7 @@ void Em203GreaterDaemonRed::vf10() {
         } else {
             StartState12_unk();
             m14C4 = 6;
-            CharaTask* player = lbl_8087F8A0->fn_8054A33C((const char*)1);
+            CharaTask* player = lbl_8087F8A0->fn_8054A33C(1);
             if (player == 0) {
                 player = lbl_8087F8A0->mHead;
             }
@@ -528,7 +527,7 @@ void Em203GreaterDaemonRed::vf10() {
     }
     m14B8++;
     if (lbl_8087F8A0 != 0) {
-        PlayerTask* player = lbl_8087F8A0->fn_8054A33C((const char*)1);
+        PlayerTask* player = lbl_8087F8A0->fn_8054A33C(1);
         if (player != 0) {
             if ((mStatus.m0C & 0x20) == 0x20) {
                 *(float*)((char*)player + 0xAD0) = 1.0f;
@@ -921,7 +920,7 @@ void Em203GreaterDaemonRed::fn_80296B8C(int wait) {
         dir.Normalize_unk();
     }
     int stun = 0;
-    if (!fn_800E0AB0(&m1504[1]) && *fn_8028B74C(&m1504[1], m151C) == 4 && fn_8029597C(&mStatus) == 0) {
+    if (!fn_800E0AB0(&m1504[1]) && m1504[1][m151C] == 4 && fn_8029597C(&mStatus) == 0) {
         stun = 1;
     }
     int next = 0;

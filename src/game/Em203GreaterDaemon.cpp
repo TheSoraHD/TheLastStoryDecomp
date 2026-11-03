@@ -163,11 +163,8 @@ extern "C" inline unsigned int fn_800E0AA8(const IntVector_unk* v) {
 extern "C" inline bool fn_800E0AB0(const IntVector_unk* v) {
     return v->mSize == 0;
 }
-// inferred: element i of a list of ids (weak copy 0x8028B74C, also called by Em203GreaterDaemonRed,
-// EnemyQuarkSecond and GameScene)
-extern "C" inline int* fn_8028B74C(IntVector_unk* v, int i) {
-    return &v->mData[i];
-}
+// std::vector<int>::operator[] is emitted out of line here (weak copy 0x8028B74C, also called by
+// Em203GreaterDaemonRed, EnemyQuarkSecond and GameScene)
 // inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0 of
 // Event/Puppeteer_CharaTask.cpp)
 extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
@@ -1036,7 +1033,7 @@ void Em203GreaterDaemon::fn_8028B47C() {
     } else if (state == 2) {
         IntVector_unk* list = &m15EC[0];
         if (!fn_800E0AB0(list)) {
-            switch (*fn_8028B74C(list, m1628)) {
+            switch ((*list)[m1628]) {
             case 1:
                 if (HpRate_unk() < 0.4f) {
                     fn_8029055C();

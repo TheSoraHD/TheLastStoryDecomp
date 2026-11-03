@@ -1158,7 +1158,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     MulueRotZYX_unk(m, mRot);
     atn::Model* model = &mMotion;
     atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));
-    PlayerTask* player = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C((const char*)1);
+    PlayerTask* player = ((PlayerManager*)lbl_8087F8A0)->fn_8054A33C(1);
     atn::Vector3 dir;
     if (player != 0) {
         // inferred: the original normalizes a shadowing local, `dir` stays unset

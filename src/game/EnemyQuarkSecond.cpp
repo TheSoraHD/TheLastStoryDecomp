@@ -222,7 +222,7 @@ int EnemyQuarkSecond::vf0C() {
             } while (csv.fn_8005BBF8());
         }
         m16C0 = m16C4;
-        m14C4 = fn_8000D9E8()->fn_8054A33C((const char*)4);
+        m14C4 = fn_8000D9E8()->fn_8054A33C(4);
         if (m14D8 != 0) {
             fn_803396FC(&mStatus, 3, CharaStatusPair_unk(m14D8->m04));
         }
@@ -366,9 +366,6 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
 // 0x8028B74C of game/Em203GreaterDaemon.cpp)
 extern "C" inline unsigned int fn_800E0AA8(const IntVector_unk* v) {
     return v->mSize;
-}
-extern "C" inline int* fn_8028B74C(IntVector_unk* v, int i) {
-    return &v->mData[i];
 }
 // inferred: length in the xz plane (weak copy 0x801C3910, as in chr/ControlMoveCursor.cpp)
 extern "C" inline float fn_801C3910(const atn::Vector3& v) {
@@ -767,7 +764,7 @@ inline int EnemyQuarkSecond::NextInTable_unk(int range, int& index) {
         i = fn_800E0AA8(&m14EC[m1558][range]) - 1;
     }
     index = i;
-    int id = *fn_8028B74C(&m14EC[m1558][range], i);
+    int id = m14EC[m1558][range][i];
     index = (unsigned int)(index + 1) % fn_800E0AA8(&m14EC[m1558][range]);
     return id;
 }

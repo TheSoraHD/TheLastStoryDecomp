@@ -54,7 +54,6 @@ extern "C" int fn_80051CD8(const atn::ColliSphereShape_unk* sphere, const atn::C
 extern "C" void fn_80376194(Field_unk* field, int on);
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 extern "C" unsigned int fn_800E0AA8(const IntVector_unk* v); // inferred: size (weak copy)
-extern "C" int* fn_8028B74C(IntVector_unk* v, int i);        // inferred: element (weak copy)
 extern "C" void fn_803CCF64(U16Table_unk* table, const unsigned short* values, unsigned int count);
 extern "C" void fn_803CD598(U16Table_unk* table, atn::Csv* csv, unsigned int count);
 
@@ -1184,9 +1183,9 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                     box.m24.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
                     for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
                         if (file > 0) {
-                            *fn_8028B74C(&ids, j) += offset;
+                            ids[j] += offset;
                         }
-                        box.m24[j] = *fn_8028B74C(&ids, j);
+                        box.m24[j] = ids[j];
                     }
                     box.m2C = atoi(csv.fn_8005B9CC());
                     box.m30 = atoi(csv.fn_8005B9CC()) == 1;
@@ -1228,9 +1227,9 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                     sphere.m18.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
                     for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
                         if (file > 0) {
-                            *fn_8028B74C(&ids, j) += offset;
+                            ids[j] += offset;
                         }
-                        sphere.m18[j] = *fn_8028B74C(&ids, j);
+                        sphere.m18[j] = ids[j];
                     }
                     sphere.m20 = atoi(csv.fn_8005B9CC());
                     csv.fn_8005B9CC();
@@ -1764,9 +1763,9 @@ void GameScene::fn_803C74E0(atn::SimpleArray<T>& points, atn::Csv& csv, int file
         points[i].m140.Resize_unk(fn_800E0AA8(&ids), 3, "SceneScript");
         for (unsigned int j = 0; j < fn_800E0AA8(&ids); j++) {
             if (file > 0) {
-                *fn_8028B74C(&ids, j) += offset;
+                ids[j] += offset;
             }
-            points[i].m140[j] = *fn_8028B74C(&ids, j);
+            points[i].m140[j] = ids[j];
         }
         csv.fn_8005B9CC();
         points[i].m24 = atoi(csv.fn_8005B9CC());

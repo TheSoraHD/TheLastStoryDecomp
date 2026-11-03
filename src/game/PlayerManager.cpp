@@ -40,7 +40,7 @@ extern "C" LeaderListener_unk* lbl_8087FA00;
 extern "C" void fn_805AE3C4(void* item);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" int fn_80219544(const char* name); // inferred: character id of a name
+extern "C" int fn_80219544(int member); // inferred: character id of a party member
 extern "C" void fn_800D2338(atn::Task* task);
 
 PlayerManager* PlayerManager::fn_80549D8C(atn::Task* parent) {
@@ -159,8 +159,8 @@ void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
     }
 }
 
-PlayerTask* PlayerManager::fn_8054A33C(const char* name) {
-    int id = fn_80219544(name);
+PlayerTask* PlayerManager::fn_8054A33C(int member) {
+    int id = fn_80219544(member);
     for (PlayerTask* player = mHead; player != 0; player = player->mNext) {
         if (id == player->m50) {
             return player;

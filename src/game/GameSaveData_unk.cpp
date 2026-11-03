@@ -249,7 +249,7 @@ GameSaveParty_unk::GameSaveParty_unk() {
 void GameSaveParty_unk::fn_803BAAE0() {
     for (unsigned int i = 0; i < 7; i++) {
         // inferred: the header declares the argument as a name, but it is the member index here
-        PlayerTask* player = lbl_8087F8A0->fn_8054A33C((const char*)i);
+        PlayerTask* player = lbl_8087F8A0->fn_8054A33C(i);
         if (player) {
             mStatus[i] = player->mStatus;
             mMask |= 1 << i;

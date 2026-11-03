@@ -314,7 +314,7 @@ int Em202ForestSpider::vf0C() {
 void Em202ForestSpider::vf10() {
     vfF8();
     if (mStatus.IsState_unk(4)) {
-        CharaTask* player = lbl_8087F8A0->fn_8054A33C((const char*)5);
+        CharaTask* player = lbl_8087F8A0->fn_8054A33C(5);
         if (player != 0 && IsTargetable_unk(player)) {
             mStatus.fn_80133130(4, 10, 0);
         }
@@ -1021,7 +1021,7 @@ CharaTask* Em202ForestSpider::vf174() {
     int ids[5] = {sIds[0], sIds[1], sIds[2], sIds[3], sIds[4]};
     CharaTask* found = 0;
     for (int* p = ids; found == 0 && *p >= 0; p++) {
-        found = lbl_8087F8A0->fn_8054A33C((const char*)*p);
+        found = lbl_8087F8A0->fn_8054A33C(*p);
         if (found != 0 && !found->IsActive_unk()) {
             found = 0;
         }
