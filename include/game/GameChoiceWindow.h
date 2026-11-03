@@ -99,7 +99,7 @@ public:
     void fn_803B583C(int id); // inferred: shows the choices of the message `id` of the scene
     void fn_803B58D8(GameMessage* msg);
     int fn_803B5950();
-    void fn_803B5974(int arg, int time);
+    void fn_803B5974(); // inferred: sets the texts of the window from m4C
     bool IsShown_unk() const { return mState == 2 || mState == 4; } // inferred: name invented
 
     GameLayout_unk* mLayout;     // 0x48

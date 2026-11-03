@@ -337,8 +337,9 @@ int GameChoiceWindow::fn_803B4C24() {
     return mState == 3;
 }
 
-// NONMATCHING: stub (splits the text into the choices, a std::vector of wide strings)
-void GameChoiceWindow::fn_803B4C38() {
+// NONMATCHING: stub (splits the text into the choices, a std::vector of wide strings); noinline until
+// it is written (the original, 2104 bytes, is always called with bl)
+__declspec(noinline) void GameChoiceWindow::fn_803B4C38() {
     mChoice = -1;
     mCount = 1;
 }
@@ -403,7 +404,7 @@ void GameMessageWindow::fn_803B5774(int arg, int time) {
     mLayout->mSpeed = 1.5f;
     mLayout->MeltTask();
     mTimer = time;
-    fn_803B5974(arg, time);
+    fn_803B5974();
 }
 
 void GameMessageWindow::fn_803B57B0(int enabled) {
@@ -426,7 +427,7 @@ void GameMessageWindow::fn_803B57EC() {
 void GameMessageWindow::fn_803B5830(int arg, int time) {
     m4C = arg;
     mTimer = time;
-    fn_803B5974(arg, time);
+    fn_803B5974();
 }
 
 void GameMessageWindow::fn_803B583C(int id) {
@@ -455,11 +456,9 @@ int GameMessageWindow::fn_803B5950() {
     return 0;
 }
 
-// NONMATCHING: stub
-void GameMessageWindow::fn_803B5974(int arg, int time) {
-    (void)arg;
-    (void)time;
-}
+// NONMATCHING: stub (sets the texts of the window); noinline until it is written (the original, 1976
+// bytes, is always called out of line)
+__declspec(noinline) void GameMessageWindow::fn_803B5974() {}
 GameTextMessageWindow* GameTextMessageWindow::fn_803B612C(atn::Task* parent) {
     if (parent != 0) {
         return new ((MemoryTag)1, "", "", 0) GameTextMessageWindow(parent);
