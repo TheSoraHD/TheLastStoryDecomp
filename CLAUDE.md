@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `nuevas-20261103` (2026-11-03, mergeada en `main`): **12564 / 18119** en `report.json`, lost 0. Event/Sequence (unida con StringData y Sequence_cont) 80/119, Event/Manager (unida con PostSequence y Manager_cont) 26/185, Event/Puppeteer_CharaTask 61/111, Event/EventParser_unk (nueva) 26/53; `EventManager_unk` = `Event::Sequence`, `Event::Actor`, `GameMessageList`, `String_unk` propio. Notas: `docs/nuevas-20261103.md`.
-- `solo-20261103b` (mergeada en `main`): 12384 (objdiff 12232), Inventory, GameChoiceWindow y GameVoice con clases, `pdbatch.sh` (`docs/solo-20261103b.md`); `trk-exception` 12331; `solo-20261103` 12330 (`docs/solo-20261103.md`).
+- `event100-20261104` (2026-11-04, sin mergear): **12577 / 18119** en `report.json`, lost 0. ActionActorBehavior 9/14 con metodos de `Event::Sequence`; vistas del gestor y de la secuencia unificadas (`EventEffects_unk`, `EventMgr_unk`, `EventStep_unk`, `DataOwner_unk`); `std/vector.h` destruye en el bufer los elementos con destructor no trivial. Notas: `docs/event100-20261104.md`.
+- `nuevas-20261103` (mergeada en `main`): 12564. Event/Sequence 80/119, Event/Manager 26/185, Puppeteer_CharaTask 61/111, EventParser_unk 26/53 (`docs/nuevas-20261103.md`); `solo-20261103b` 12384 (`docs/solo-20261103b.md`).
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200, `docs/claude-20261102.md`) y `codex-20261102` (11922, `docs/codex-20261102.md`); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).

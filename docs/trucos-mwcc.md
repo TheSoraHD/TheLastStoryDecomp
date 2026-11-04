@@ -364,3 +364,7 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Variables con registro intercambiado en una funcion pequena: declarar la que el original pone en el registro mas alto antes (p.ej. `int value;` al principio) (EventParser PARA, Actor::fn_8001282C con `int i;` antes de la referencia). (`nuevas-20261103`)
 - Lectura de un vector de 3 niveles con un nivel mas en el original (4 pruebas de direccion): una clase derivada vacia (`NodeList_unk : std::vector<Node*>`), como `IntVector_unk`. (`nuevas-20261103`)
 - Asignacion `m20 = 4; m18_6 = 0;` que en el original guarda m20 antes: escribir el campo de bits primero (el planificador invierte). (`nuevas-20261103`)
+- `__builtin_trivial_members(T)`: mascara de miembros triviales (1 destructor, 2 asignacion, 4 copia, 8 constructor por defecto); sirve para despachar en plantillas segun el destructor sin anadir llamadas inline. (`event100-20261104`)
+- Una division por constante que el original hace con `mulhwu` sobre un valor que el compilador conoce: la variable se sobrescribe despues (p.ej. `m = max_size()` y luego `m = cap + ...`), asi no se pliega. (`event100-20261104`)
+- Dos ramas iguales que el original compila igual y nosotros no: sacar el codigo comun a una inline (los registros salen iguales en las dos). (`event100-20261104`)
+- Lectura de campos en la direccion de vtables antes de la prueba de nulo del placement new: construir por un bucle de n elementos (`__append_n_unk(1, x)`), el compilador saca las constantes fuera. (`event100-20261104`)
