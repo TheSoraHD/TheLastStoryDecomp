@@ -145,7 +145,7 @@ void Sequence::fn_8054FBE0(int run) {
         if (m1B4 != m1A0) {
             LeaveCut_unk(this, run);
             Manager* manager = lbl_8087F540;
-            if (strlen(manager->m1F38) != 0) {
+            if (strlen(manager->m1F38.c_str()) != 0) {
                 if (lbl_8087F540->m1F5C != 0) {
                     manager->m1F5C = 0;
                 } else if ((lbl_8087F540->m1F1C & 0x80000000) == 0x80000000) {
