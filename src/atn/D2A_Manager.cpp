@@ -114,6 +114,7 @@ namespace std {
 // them before releasing its storage (as the lines of atn/D2A_MessageTable_unk.cpp)
 template <>
 struct __vec_split_unk<D2A_MsgPiece_unk> : public __vec_storage_unk<D2A_MsgPiece_unk> {
+    enum { __clear_src_unk = 1 }; // inferred: see std/vector.h
     typedef D2A_MsgPiece_unk T;
     __vec_split_unk(void* alloc) : mAlloc(alloc), mStart(0) {}
     ~__vec_split_unk() {

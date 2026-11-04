@@ -41,6 +41,7 @@ struct __vec_split_base_unk<string> {
 
 template <>
 struct __vec_split_unk<string> : public __vec_split_base_unk<string> {
+    enum { __clear_src_unk = 1 }; // inferred: see std/vector.h
     __vec_split_unk(void* alloc) : __vec_split_base_unk<string>(alloc), mStart(0) {}
     string* begin() { return this->mData + mStart; }
     void push_back(const string& x) {

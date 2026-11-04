@@ -61,6 +61,14 @@ public:
     void fn_80489A50(Action* action, int arg);
     void fn_8048E904();
     void fn_8048F184(int arg);
+    int fn_8048B048(int id);                  // inferred: time curve by id
+    int fn_8048B3B8(int id);                  // inferred: move curve by id
+    float fn_8048BCA4(int curve, float t);    // inferred: value of a time curve
+    float fn_8048BD04(int curve, float t);    // inferred: value of a move curve
+    void fn_8048C884(int curve);              // inferred: releases a move curve
+    // inferred: weak copies 0x80112F54 and 0x801130F4 (Event/Path.cpp)
+    Sequence* fn_80112F54() { return m70; }
+    int fn_801130F4() { return mC4; }
     void fn_8048FE88();
     void fn_8048FEF0();
     int fn_8048FF34(); // inferred: nonzero while loading
@@ -94,7 +102,10 @@ public:
     unsigned char m48[0x64 - 0x48];
     std::vector<Sequence*> m64; // inferred: sequences of the manager
     Sequence* m70; // inferred: current sequence
-    unsigned char m74[0xC8 - 0x74];
+    unsigned char m74[0xB4 - 0x74];
+    float mB4; // inferred: time of a frame
+    unsigned char mB8[0xC4 - 0xB8];
+    int mC4;   // inferred: the cameras are updated at once
     EventCamera_unk mCameras[4]; // 0xC8
     int m1A38;
     unsigned char m1A3C[0x1A6C - 0x1A3C];

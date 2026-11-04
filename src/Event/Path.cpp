@@ -4,6 +4,8 @@
 // shaken, and driven by a camera animation (Xsca).
 #include "Event/Path.h"
 #include "Event/MotionData.h"
+#include "Event/Manager.h"
+#include "Event/Sequence.h"
 #include "atn/Model_unk.h"
 #include "game/SetConfig.h"
 #include "atn/SoundCore.h"
@@ -13,28 +15,7 @@
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
-// inferred: the event manager (lbl_8087F540, Event/Manager.cpp); names invented
-struct EventMgr_unk;
-extern "C" int fn_8048B048(EventMgr_unk* mgr, int id);              // inferred: time curve by id
-extern "C" int fn_8048B3B8(EventMgr_unk* mgr, int id);
-extern "C" float fn_8048BCA4(EventMgr_unk* mgr, int curve, float t); // inferred: value of a time curve
-extern "C" float fn_8048BD04(EventMgr_unk* mgr, int curve, float t);
-struct EventMgr_unk {
-    // inferred: weak copies 0x80112F54 and 0x801130F4
-    Event::DataOwner_unk* fn_80112F54() { return m70; }
-    int fn_801130F4() { return mC4; }
-
-    unsigned char m00[0x70];
-    Event::DataOwner_unk* m70; // inferred: current scene
-    unsigned char m74[0xB4 - 0x74];
-    float mB4;   // inferred: time of a frame
-    unsigned char mB8[0xC4 - 0xB8];
-    int mC4;     // inferred: the cameras are updated at once
-    unsigned char mC8[0x1EAC - 0xC8];
-    int m1EAC;   // inferred: frame counter
-};
-extern "C" EventMgr_unk* lbl_8087F540;
-extern "C" EventMgr_unk* fn_8000DB1C(); // inferred: returns lbl_8087F540 (weak copy of another file)
+extern "C" Event::Manager* fn_8000DB1C(); // inferred: returns lbl_8087F540 (weak copy of another file)
 
 // inferred: screen (lbl_8087EEE0)
 struct Screen_unk;
@@ -241,7 +222,7 @@ void EventCamera_unk::fn_801128C4(int resetAngles) {
 void EventCamera_unk::fn_80112918(short a, short b, int id) {
     m284 = a;
     m286 = b;
-    m28C = fn_8048B3B8(lbl_8087F540, id);
+    m28C = lbl_8087F540->fn_8048B3B8(id);
 }
 
 void EventCamera_unk::fn_80112974(int on, float a, float b) {
@@ -281,7 +262,7 @@ atn::Vector3 EventCamera_unk::fn_80112A00(const CameraTarget_unk& target, float 
 
 // NONMATCHING: 93.2% - push_back of the path points: the store of the size is scheduled after the capacity check
 void EventCamera_unk::fn_80112B64(const atn::Vector3& pos, Path path, int keep) {
-    DataOwner_unk* owner = lbl_8087F540->fn_80112F54();
+    Sequence* owner = lbl_8087F540->fn_80112F54();
     if (owner == 0) {
         return;
     }
@@ -305,14 +286,14 @@ void EventCamera_unk::fn_80112B64(const atn::Vector3& pos, Path path, int keep) 
 void EventCamera_unk::fn_80112F5C(const CameraTarget_unk& eye, const CameraTarget_unk& at, int resetAngles, int keep,
                                   int id, float roll) {
     fn_801128C4(resetAngles);
-    m290 = fn_8048B048(fn_8000DB1C(), id);
+    m290 = fn_8000DB1C()->fn_8048B048(id);
     m1F4 = 1;
     m210 = eye;
     m240 = at;
     fn_80112B64(fn_80112A00(m210, 0.0f), m29C, keep);
     fn_80112B64(fn_80112A00(m240, 0.0f), m320, keep);
     m294 = 0.0f;
-    float t = fn_8048BCA4(fn_8000DB1C(), m290, m294);
+    float t = fn_8000DB1C()->fn_8048BCA4(m290, m294);
     m204 = fn_80112A00(m210, t);
     m228 = fn_80112A00(m240, t);
     m258 = roll;
@@ -363,10 +344,10 @@ void EventCamera_unk::fn_801139E4(const CameraTarget_unk& at, int resetAngles, f
 void EventCamera_unk::fn_80113CD4(const CameraTarget_unk& eye, const CameraTarget_unk& at, int id, int resetAngles,
                                   float roll) {
     fn_801128C4(resetAngles);
-    m290 = fn_8048B048(lbl_8087F540, id);
+    m290 = lbl_8087F540->fn_8048B048(id);
     m1F4 = 4;
     m294 = 0.0f;
-    float t = fn_8048BCA4(lbl_8087F540, m290, m294);
+    float t = lbl_8087F540->fn_8048BCA4(m290, m294);
     m210 = eye;
     m204 = fn_80112A00(m210, t);
     m240 = at;
@@ -381,11 +362,11 @@ void EventCamera_unk::fn_80113CD4(const CameraTarget_unk& eye, const CameraTarge
 void EventCamera_unk::fn_801140A0(Path* path, const CameraTarget_unk& at, int id, int resetAngles, float speed, float t,
                                   float roll) {
     fn_801128C4(resetAngles);
-    m290 = fn_8048B048(lbl_8087F540, id);
+    m290 = lbl_8087F540->fn_8048B048(id);
     m1F4 = 5;
     m298 = speed;
     m294 = t;
-    float time = fn_8048BCA4(lbl_8087F540, m290, t);
+    float time = lbl_8087F540->fn_8048BCA4(m290, t);
     m210.mPath = path;
     m204 = fn_80112A00(m210, time);
     m240 = at;
@@ -719,8 +700,8 @@ void EventCamera_unk::fn_801157DC() {
         mPos = m204;
         m25C.z = m258;
     } else {
-        float posDiv = total - fn_8048BD04(lbl_8087F540, m28C, 1.0f - left / total) * total;
-        float tgtDiv = total - fn_8048BCA4(lbl_8087F540, m290, 1.0f - left / total) * total;
+        float posDiv = total - lbl_8087F540->fn_8048BD04(m28C, 1.0f - left / total) * total;
+        float tgtDiv = total - lbl_8087F540->fn_8048BCA4(m290, 1.0f - left / total) * total;
         posDiv /= lbl_8087F540->mB4;
         tgtDiv /= lbl_8087F540->mB4;
         if (posDiv <= 1.0f) {
@@ -832,7 +813,7 @@ void EventCamera_unk::fn_801162A4(int arg) {
     case 0:
         return;
     case 1: {
-        float t = fn_8048BCA4(fn_8000DB1C(), m290, m294);
+        float t = fn_8000DB1C()->fn_8048BCA4(m290, m294);
         m204 = fn_80112A00(m210, t);
         m228 = fn_80112A00(m240, t);
         fn_801157DC();
@@ -856,7 +837,7 @@ void EventCamera_unk::fn_801162A4(int arg) {
         fn_80115704();
         padControl = 0;
     case 4: {
-        float t = fn_8048BCA4(fn_8000DB1C(), m290, m294);
+        float t = fn_8000DB1C()->fn_8048BCA4(m290, m294);
         m204 = fn_80112A00(m210, t);
         m228 = fn_80112A00(m240, t);
         fn_801157DC();

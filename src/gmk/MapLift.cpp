@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "game/GimmickManager.h"
 #include "std/string_members.h"
+#include "std/vector_string.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);

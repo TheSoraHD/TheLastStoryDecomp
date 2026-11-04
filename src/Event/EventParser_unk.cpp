@@ -247,14 +247,30 @@ static int ParseSEMS_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub
+// inferred: adds a number to the list m5C of the sequence
 static int ParseARNU_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int value;
+    memcpy(&value, data, 4);
+    seq->m5C.push_back((int)value);
+    return 4;
 }
 
-// NONMATCHING: stub - adds a motion data
+// inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
+template <class T>
+void DataList_unk<T>::Add_unk(const char* name, int arg) {
+    this->push_back(T(mOwner, name, arg));
+}
+
+// inferred: adds a motion data (its id is offset by 0xEF)
 static int ParseMOID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    id += 0xEF;
+    seq->mC4.Add_unk("", id);
+    sState_unk->m2C = &seq->mC4[seq->mC4.size() - 1];
+    return 4;
 }
 
 static int ParseMONA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {

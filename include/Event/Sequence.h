@@ -165,8 +165,8 @@ struct ContinueEffect_unk {
 };
 
 // inferred: event sequence (Event/Sequence.cpp, 0x2C8 bytes): a task that owns the cuts and the data of
-// an event; the callers of other files see it as EventManager_unk (Event/Behavior.h) and DataOwner_unk
-// (Event/MotionData.h). Member names are invented.
+// an event; the callers of other files see it as EventManager_unk (Event/Behavior.h), and it is the
+// owner of the Event::*Data. Member names are invented.
 class Sequence : public atn::Task, public Node {
 public:
     Sequence(atn::Task* parent);
@@ -251,6 +251,8 @@ public:
     void SetFlag7_unk(int on) { m98_7 = on != 0; }
     void SetFlag8_unk(int on) { m98_8 = on != 0; }
     void SetFlag9_unk(int on) { m98_9 = on != 0; }
+    // inferred: weak copy 0x80116B98 (Event/Path.cpp)
+    int IsPadCamera_unk() { return mPadCamera_unk; }
 
     int m50; // inferred: kind of event (1 and 3: in game)
     int m54;

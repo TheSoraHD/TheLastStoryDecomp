@@ -54,7 +54,7 @@ inline void CharaTask::SetM58_unk(int v) {
     m58 = v;
 }
 inline Event::Sequence* Event::Actor::GetSequence_unk() const {
-    return (Sequence*)m04;
+    return m04;
 }
 extern "C" inline Event::Manager* fn_8000DB1C() {
     return lbl_8087F540;
@@ -178,7 +178,7 @@ void Puppeteer<atn::Model>::vf14() {
 
 // NONMATCHING: registers of the vtable and of the memset arguments (r3/r4 swapped)
 Actor::Actor(Sequence* owner, const char* name, int id)
-    : CommonData((DataOwner_unk*)owner, name, id), m20(0), m58(-1) {
+    : CommonData(owner, name, id), m20(0), m58(-1) {
     m1C = 0;
     m18 = 0;
     mB8[0] = 0;

@@ -29,19 +29,6 @@ class D2A_Task;
 
 namespace Event {
 
-// inferred: owner of the event data (a task; flag 0x04000000 at 0x98)
-struct DataOwner_unk : public atn::Task {
-    unsigned char m48[0x98 - 0x48];
-    // inferred: weak copy 0x80116B98 (Event/Path.cpp)
-    int IsPadCamera_unk() { return mPadCamera_unk; }
-
-    unsigned int m98_0 : 5;
-    unsigned int mNoKill_unk : 1; // inferred: keeps the d2anime tasks alive when set
-    unsigned int m98_6 : 7;
-    unsigned int mPadCamera_unk : 1; // inferred: the event camera is moved with the pad
-    unsigned int m98_14 : 18;
-};
-
 // inferred: wrapper of the motion loader (the loader is destroyed as a member, non-virtually)
 struct MotionHandle_unk {
     atn::LH_Motion mLoader;
@@ -49,6 +36,8 @@ struct MotionHandle_unk {
 
 class MotionData : public CommonData {
 public:
+    // inferred: inlined by the reader of "MOID" (Event/EventParser_unk.cpp)
+    MotionData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;

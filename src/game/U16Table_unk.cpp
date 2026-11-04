@@ -34,6 +34,7 @@ struct __vec_imp_unk<U16RunPair_unk> : public __vec_storage_unk<U16RunPair_unk> 
 
 template <>
 struct __vec_split_unk<U16RunPair_unk> : public __vec_split_base_unk<U16RunPair_unk> {
+    enum { __clear_src_unk = 1 }; // inferred: see std/vector.h
     __vec_split_unk(void* alloc) : __vec_split_base_unk<U16RunPair_unk>(alloc), mStart(0) {}
     U16RunPair_unk* begin() { return this->mData + mStart; }
     void push_back(const U16RunPair_unk& x) {
