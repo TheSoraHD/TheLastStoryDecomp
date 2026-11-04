@@ -116,6 +116,7 @@ struct __vec_imp_unk<XscaEntry_unk> : public __vec_storage_unk<XscaEntry_unk> {
 
 template <>
 struct __vec_split_unk<XscaEntry_unk> : public __vec_split_base_unk<XscaEntry_unk> {
+    enum { __clear_src_unk = 1 }; // inferred: see std/vector.h
     __vec_split_unk(void* alloc) : __vec_split_base_unk<XscaEntry_unk>(alloc), mStart(0) {}
     XscaEntry_unk* begin() { return this->mData + mStart; }
     void push_back(const XscaEntry_unk& x) {

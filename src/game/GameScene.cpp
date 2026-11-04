@@ -2,6 +2,7 @@
 #include "game/GameVoice.h"
 extern "C" float lbl_80885CCC;
 #include "game/GameEventScript.h"
+#include "Event/Manager.h"
 #include "game/CrowdManager.h"
 #include "game/ColliAttrManager.h"
 #include "game/ArenaTask.h"
@@ -79,7 +80,6 @@ extern "C" void fn_801027A4(void* bullets, void* chara);
 extern "C" void fn_803EC374(atn::Task* parent, gs::Gimmick* gimmick); // inferred: creates a gimmick of the scene
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index); // inferred: creates a gimmick
 extern "C" void fn_8047E5DC(void* mgr, int id);
-extern "C" int fn_8047F268(void* mgr, int id);
 // inferred: entry of the save data (8 bytes, game/GameSaveData_unk.cpp)
 struct SaveEntry_unk {
     int m00;
@@ -161,7 +161,6 @@ extern "C" void* lbl_8087F610; // inferred: multiplayer session
 extern "C" EnvSeManager* lbl_8087F418;
 extern "C" TownTask* lbl_8087FA20;
 extern "C" ArenaTask* lbl_8087EE78;
-extern "C" void* lbl_8087F540;
 extern "C" atn::Task* lbl_8087F048;
 extern "C" PlayerManager* lbl_8087F8A0;
 struct SoundManager_unk {
@@ -420,7 +419,7 @@ int GameScene::vf0C() {
     } else if (m48 == 2) {
         int done = 1;
         for (unsigned int i = 0; i < m180.size(); i++) {
-            if (m180[i] >= 0 && !fn_8047F268(lbl_8087F540, m180[i])) {
+            if (m180[i] >= 0 && !lbl_8087F540->fn_8047F268(m180[i])) {
                 done = 0;
                 break;
             }

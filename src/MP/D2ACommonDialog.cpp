@@ -9,6 +9,7 @@ namespace std {
 // this file
 template <>
 struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_string<wchar_t> > {
+    enum { __clear_src_unk = 1 }; // inferred: see std/vector.h
     typedef basic_string<wchar_t> T;
     __vec_split_unk(void* alloc) : mAlloc(alloc), mStart(0) {}
     ~__vec_split_unk() {

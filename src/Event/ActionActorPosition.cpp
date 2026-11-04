@@ -1,5 +1,6 @@
 #include "Event/Behavior.h"
 #include "Event/Path.h"
+#include "Event/Manager.h"
 #include "atn/Model_unk.h"
 #include "math/VecOps_unk.h"
 #include "math/DegToRad_unk.h"
@@ -128,15 +129,8 @@ inline MtxPtr GetNodeMtxByHash_unk(atn::Model* model, unsigned int hash) {
     return model->GetNodeMtx_unk(model->fn_800928B0(hash, 0));
 }
 
-// inferred: the event manager (lbl_8087F540) seen through its frame step
-struct EventStep_unk {
-    unsigned char m00[0xB4];
-    float mB4; // inferred: frames of the current step
-};
-
 } // namespace Event
 
-extern "C" Event::EventStep_unk* lbl_8087F540;
 
 // NONMATCHING: 99.7% - the quotient is in f1 here, f0 in the original (tried several groupings)
 // inferred: scales a displacement to the part covered in one step of the event (`frames` left)
@@ -227,8 +221,7 @@ extern "C" int fn_80224610(ActionParam_unk* param);   // inferred: flag value of
 extern "C" int fn_802245B8(ActionParam_unk* param);   // inferred: integer value of a parameter
 extern "C" int fn_80224618(ActionOwner_unk* section); // inferred: section->m10 (actor id)
 extern "C" int fn_80223EB8(Action* arg);              // inferred: arg->m18 (length in frames)
-extern "C" EventStep_unk* fn_8000DB1C();              // inferred: returns lbl_8087F540
-extern "C" float fn_8048BD04(EventStep_unk* step, int curve, float t); // inferred: value of a move curve
+extern "C" Manager* fn_8000DB1C();              // inferred: returns lbl_8087F540
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
 
 // inferred: step of `cur` towards `goal` in `frames` frames (name invented)
@@ -326,7 +319,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
             }
         }
         if (t > 0.0f) {
-            float s = fn_8048BD04(fn_8000DB1C(), actor->GetCurve_unk(), 1.0f - t / (float)fn_80223EB8(arg));
+            float s = fn_8000DB1C()->fn_8048BD04(actor->GetCurve_unk(), 1.0f - t / (float)fn_80223EB8(arg));
             atn::Vector3 from = actor->GetTarget_unk();
             atn::Vector3 d = pos - from;
             float len = d.Length_unk();
@@ -435,7 +428,7 @@ void ActionActorPosition::fn_80551194(Action* arg, float t) {
         pos += offset;
         if (t > 0.0f) {
             float s = 1.0f - t / (float)fn_80223EB8(arg);
-            s = fn_8048BD04(fn_8000DB1C(), actor->GetCurve_unk(), s);
+            s = fn_8000DB1C()->fn_8048BD04(actor->GetCurve_unk(), s);
             atn::Vector3 from = actor->GetTarget_unk();
             atn::Vector3 d = pos - from;
             float len = d.Length_unk();
@@ -503,8 +496,6 @@ extern "C" void fn_8000D844(PathFloats_unk* v, int flag);                       
 extern "C" void fn_8032B7F0(PathSpline_unk* spline, const float* y, PathCubic_unk* out); // inferred: solve
 extern "C" void fn_8032BE88(std::vector<float>* v, unsigned int n);                  // inferred: resize
 extern "C" float fn_8032C1EC(PathSpline_unk* spline, int i);                         // inferred: segment length
-extern "C" int fn_8048B3B8(EventStep_unk* step, int id);    // inferred: move curve by id
-extern "C" void fn_8048C884(EventStep_unk* step, int curve); // inferred: releases a move curve
 
 inline Path* EventManager_unk::FindPath_unk(int id) {
     for (int i = 0; i < (int)m154.size(); i++) {
@@ -574,7 +565,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
                 actor->fn_800119C0(0, arg->GetParam_unk(13)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
             }
             if (arg->m18 > 0) {
-                actor->m130 = fn_8048B3B8(lbl_8087F540, arg->GetParam_unk(17)->m04.i);
+                actor->m130 = lbl_8087F540->fn_8048B3B8(arg->GetParam_unk(17)->m04.i);
             }
             ActionActorPosition::vf08(arg);
         } else if (mode == 1) {
@@ -599,7 +590,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
                 actor->fn_800119C0(0, arg->GetParam_unk(9)->m04.i, 1, 10, manager, 0, 1, 1.0f, 0.0f);
             }
             if (arg->m18 > 0) {
-                actor->m130 = fn_8048B3B8(lbl_8087F540, arg->GetParam_unk(10)->m04.i);
+                actor->m130 = lbl_8087F540->fn_8048B3B8(arg->GetParam_unk(10)->m04.i);
             }
         } else if (mode == 3) {
             ActionOwner_unk* section = arg->fn_805381A0();
@@ -615,7 +606,7 @@ int ActionActorPosition::vf0C(Action* arg, int phase) {
             ActionOwner_unk* section = arg->fn_805381A0();
             EventManager_unk* manager = arg->fn_805381C8();
             Actor* actor = manager->FindActor_unk(section->m10);
-            fn_8048C884(lbl_8087F540, actor->m130);
+            lbl_8087F540->fn_8048C884(actor->m130);
         }
         break;
     }

@@ -167,18 +167,65 @@ struct __vec_split_base_unk {
     void* mAlloc;
 };
 
-// inferred: generic elements are copy-constructed one by one (0x80476ED4, 0x104-byte elements)
+// inferred: base of the buffer of generic elements: destroys what is left before freeing (dead loop
+// after clear, Event/EventParser_unk.cpp 0x80576F70)
 template <class T>
-struct __vec_split_unk : public __vec_split_base_unk<T> {
-    __vec_split_unk(void* alloc) : __vec_split_base_unk<T>(alloc), mStart(0) {}
+struct __vec_split_gbase_unk {
+    __vec_split_gbase_unk(void* alloc) {
+        unsigned int* w = (unsigned int*)this;
+        w[0] = 0;
+        w[1] = 0;
+        w[2] = 0;
+        mAlloc = alloc;
+    }
+    ~__vec_split_gbase_unk() {
+        if (mData != 0) {
+            if (__builtin_trivial_members(T) & 1) {
+                mSize = 0;
+            } else {
+                T* p = mData + mSize;
+                unsigned int n = mSize;
+                mSize = 0;
+                for (; n != 0; n--) {
+                    --p;
+                    p->~T();
+                }
+            }
+            ::operator delete(mData);
+        }
+    }
+    T* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+    void* mAlloc;
+};
+
+// inferred: generic elements are copy-constructed one by one (0x80476ED4, 0x104-byte elements); the
+// old elements are swapped out with the storage and destroyed by the buffer (0x80576F70)
+template <class T>
+struct __vec_split_unk : public __vec_split_gbase_unk<T> {
+    __vec_split_unk(void* alloc) : __vec_split_gbase_unk<T>(alloc), mStart(0) {}
+    ~__vec_split_unk() {
+        if (!(__builtin_trivial_members(T) & 1)) {
+            T* first = begin();
+            T* last = first + this->mSize;
+            while (last > first) {
+                (--last)->~T();
+            }
+            this->mSize = 0;
+        }
+    }
+    // inferred: the vector forgets its old elements before the swap only when they have no destructor
+    // (otherwise the buffer destroys them, 0x80576F70)
+    enum { __clear_src_unk = __builtin_trivial_members(T) & 1 };
     T* begin() { return this->mData + mStart; }
     void push_back(const T& x) {
         if (__builtin_is_pod(T)) {
             begin()[this->mSize] = x;
+            this->mSize++;
         } else {
-            new (begin() + this->mSize) T(x);
+            __append_n_unk(1, x);
         }
-        this->mSize++;
     }
     // inferred: appends n copies of x (resize, weak copy 0x8032B314)
     void __append_n_unk(unsigned int n, const T& x) {
@@ -190,7 +237,8 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
     }
     // inferred: moves [first, last) in front of the stored elements, last one first
     void __push_front_unk(T* first, T* last) {
-        if (__builtin_is_pod(T)) {
+        // inferred: POD elements and elements with a destructor take the loop of resize
+        if (__builtin_is_pod(T) || !(__builtin_trivial_members(T) & 1)) {
             __push_front_resize_unk(first, last);
             return;
         }
@@ -219,6 +267,7 @@ struct __vec_split_unk : public __vec_split_base_unk<T> {
 template <class T>
 struct __vec_split_unk<T*> : public __vec_split_base_unk<T*> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<T*>(alloc), mStart(0) {}
+    enum { __clear_src_unk = 1 };
     T** begin() { return this->mData + mStart; }
     // inferred: appends n null pointers (resize, 0x801FFA04)
     void __append_n_unk(unsigned int n, T* const&) {
@@ -256,6 +305,7 @@ struct __vec_imp_unk<int> : public __vec_storage_unk<int> {
 template <>
 struct __vec_split_unk<int> : public __vec_split_base_unk<int> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<int>(alloc), mStart(0) {}
+    enum { __clear_src_unk = 1 };
     int* begin() { return this->mData + mStart; }
     void push_back(const int& x) {
         begin()[this->mSize] = x;
@@ -289,6 +339,7 @@ struct __vec_imp_unk<float> : public __vec_storage_unk<float> {
 template <>
 struct __vec_split_unk<float> : public __vec_split_base_unk<float> {
     __vec_split_unk(void* alloc) : __vec_split_base_unk<float>(alloc), mStart(0) {}
+    enum { __clear_src_unk = 1 };
     float* begin() { return this->mData + mStart; }
     void push_back(const float& x) {
         begin()[this->mSize] = x;
@@ -518,7 +569,9 @@ private:
     }
     void __swap_out_unk(__vec_split_unk<T>& buf) {
         buf.__push_front_unk(this->mData, this->mData + this->mSize);
-        this->mSize = 0;
+        if (__vec_split_unk<T>::__clear_src_unk) {
+            this->mSize = 0;
+        }
         __vec_swap_unk(this->mCap, buf.mCap);
         __vec_swap_unk(this->mData, buf.mData);
         __vec_swap_unk(this->mSize, buf.mSize);

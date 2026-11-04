@@ -55,6 +55,7 @@ namespace std {
 // its elements before releasing them (same as the wstring buffer of game/MenuCommonTask.cpp)
 template <>
 struct __vec_split_unk<D2A_TextLine_unk> : public __vec_storage_unk<D2A_TextLine_unk> {
+    enum { __clear_src_unk = 1 }; // inferred: see std/vector.h
     typedef D2A_TextLine_unk T;
     __vec_split_unk(void* alloc) : mAlloc(alloc), mStart(0) {}
     ~__vec_split_unk() {

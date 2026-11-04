@@ -165,8 +165,8 @@ struct ContinueEffect_unk {
 };
 
 // inferred: event sequence (Event/Sequence.cpp, 0x2C8 bytes): a task that owns the cuts and the data of
-// an event; the callers of other files see it as EventManager_unk (Event/Behavior.h) and DataOwner_unk
-// (Event/MotionData.h). Member names are invented.
+// an event; the callers of other files see it as EventManager_unk (Event/Behavior.h), and it is the
+// owner of the Event::*Data. Member names are invented.
 class Sequence : public atn::Task, public Node {
 public:
     Sequence(atn::Task* parent);
@@ -240,6 +240,15 @@ public:
     void fn_80550254();
     void fn_80575FCC();
     void fn_80576258();
+    // inferred: defined in Event/ActionActorBehavior.cpp
+    void fn_8054F9DC();
+    void fn_8054FAD4();
+    void fn_8054FB10(int mark);
+    void fn_8054FBC8();
+    void fn_8054FFE0();
+    void fn_8054FBE0(int run);
+    void fn_80550CE0();
+    void fn_80550A78();
     int fn_8047F400(); // inferred: the sequence is ending (Event/Manager.cpp)
     int fn_8057D8C0(); // inferred: reads the chunks of the event data (Event/EventParser_unk.cpp)
     // inferred: inlined by the reader of "SEMS" (Event/EventParser_unk.cpp); name invented
@@ -251,6 +260,8 @@ public:
     void SetFlag7_unk(int on) { m98_7 = on != 0; }
     void SetFlag8_unk(int on) { m98_8 = on != 0; }
     void SetFlag9_unk(int on) { m98_9 = on != 0; }
+    // inferred: weak copy 0x80116B98 (Event/Path.cpp)
+    int IsPadCamera_unk() { return mPadCamera_unk; }
 
     int m50; // inferred: kind of event (1 and 3: in game)
     int m54;
@@ -310,7 +321,7 @@ public:
     int m1B0;
     int m1B4;
     int m1B8;
-    int m1BC;
+    Actor* m1BC; // inferred: actor of the current character section (fn_80550A78)
     int m1C0;
     atn::LH_Binary m1C4;
     int m1CC;  // inferred: size of the event data when it is owned (m98_0)

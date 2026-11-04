@@ -1,4 +1,6 @@
 #include "Event/Behavior.h"
+#include "Event/Manager.h"
+#include "game/NewStaffRoll.h"
 #include "game/GameVoice.h"
 #include "game/GameBgm.h"
 #include "atn/RenderSetting_unk.h"
@@ -36,65 +38,16 @@ class SingletonNoStatic {};
 
 class NewStaffRoll;
 
-// inferred: the event manager (lbl_8087F540) seen through the members used here
-struct EventEffects_unk {
-    unsigned char m00[0x4C];
-    atn::Sphere m4C; // inferred: target of the check of type 1 (ActionCheck)
-    unsigned char m5C[0xC4 - 0x5C];
-    int mC4; // inferred: nonzero when the music fades are shortened
-    Event::EventCamera_unk mCameras[4]; // 0xC8: inferred: one per section (as in Event/ActionCameraMode)
-    int m1A38; // inferred: current camera
-    unsigned char m1A3C[0x1D70 - 0x1A3C];
-    ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
-    unsigned char m1DC0[0x1E94 - 0x1DC0];
-    atn::Sphere m1E94; // inferred: sphere looked at by ActionCheck (type 1)
-    unsigned char m1EA4[0x1EA8 - 0x1EA4];
-    int m1EA8; // inferred: the sphere is in sight
-    unsigned char m1EAC[0x1EB0 - 0x1EAC];
-    int m1EB0; // inferred: set by ActionCheck (type 1)
-    unsigned char m1EB4[0x1F0C - 0x1EB4];
-    int m1F0C; // inferred: cloud map shown by ActionCloudMap
-    unsigned char m1F10[0x1F20 - 0x1F10];
-    atn::Bgm m1F20; // inferred: BGM of the multi audio actions
-    int m1F34;      // inferred: m1F20 is in use
-    unsigned char m1F38[0x1F6C - 0x1F38];
-    float m1F6C; // inferred: movie fade time
-    unsigned char m1F70[0x238C - 0x1F70];
-    int m238C; // inferred: nonzero while messages are blocked
-    int m2390; // inferred: nonzero: the dialog texts are flushed at once (fn_800DBC1C)
-    unsigned char m2394[0x23B4 - 0x2394];
-    int m23B4; // inferred: set when the check of type 1 succeeds
-    unsigned char m23B8[0x2400 - 0x23B8];
-    NewStaffRoll* m2400; // inferred: staff roll of the ending
-    unsigned char mMoviePlaying : 1; // 0x2404
-    unsigned char m2404_1 : 7;
-    unsigned char m2405[0x2448 - 0x2405];
-    int m2448; // inferred: nonzero to pass the checks without input
-};
-extern "C" EventEffects_unk* lbl_8087F540;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
-extern "C" void fn_80486BEC(EventEffects_unk* mgr, int on, float value); // inferred: god rays
-extern "C" void fn_804846FC(EventEffects_unk* mgr, const atn::Vector3& dir, int frames); // inferred: sun light
-extern "C" void fn_80484A78(EventEffects_unk* mgr, int frames);          // inferred: ambient light
-extern "C" void fn_80486DAC(EventEffects_unk* mgr, int on);              // inferred: surrounding light
-extern "C" void fn_80487064(EventEffects_unk* mgr, int on);              // inferred: brightness
 // inferred: color gradation on / off (same arguments)
-extern "C" void fn_8048EE78(EventEffects_unk* mgr, int a, float r, float g, float b, float c, float d, int e,
-                            float f);
-extern "C" void fn_8048F184(EventEffects_unk* mgr, int a, float r, float g, float b, float c, float d, int e,
-                            float f);
-extern "C" void fn_80488050(EventEffects_unk* mgr, Event::EventManager_unk* manager, Event::Action* arg);
-extern "C" void fn_80488A74(EventEffects_unk* mgr, const char* name, int fade, float volume); // inferred: plays a stream
-extern "C" void fn_80488D80(EventEffects_unk* mgr, int fade); // inferred: stops the stream
 // inferred: map locator shown or hidden by ActionLocatorHide
 struct Locator_unk {
     unsigned char m00[0x88];
     unsigned int mHidden : 1; // 0x88
     unsigned int m88_1 : 31;
 };
-struct MapLocators_unk;
-extern "C" MapLocators_unk* fn_80480438(EventEffects_unk* mgr);                      // inferred: map locators
-extern "C" Locator_unk* fn_804A0614(MapLocators_unk* map, const std::string& name); // inferred: by name
+struct GameMap_unk;
+extern "C" Locator_unk* fn_804A0614(GameMap_unk* map, const std::string& name); // inferred: by name
 // inferred: light settings of the camera (as in gmk/CharaLight.cpp)
 struct ReflectTarget_unk {
     unsigned char m00[0x120];
@@ -111,8 +64,6 @@ struct Camera;
 typedef atn::Camera Camera_unk;
 extern "C" atn::RenderView_unk* lbl_8087EFB4;
 extern "C" ReflectTarget_unk* fn_800C16B4(atn::RenderView_unk* view);
-extern "C" void fn_8048E9E0(EventEffects_unk* mgr); // inferred: starts the movie
-extern "C" void fn_804817D4(EventEffects_unk* mgr);
 extern "C" float lbl_807C8AB0[3][2]; // inferred: text speeds of the message actions
 // inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)
 // inferred: effect manager lbl_8087F3C0 (only the member used here)
@@ -134,23 +85,14 @@ extern "C" int fn_800A58D0(void* pad, int port); // inferred: classic controller
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: sets the volume
 // inferred: point light (index, position, radius, color)
-extern "C" void fn_80485028(EventEffects_unk* mgr, int index, const atn::Vector3& pos, float radius, int color);
 // inferred: spot light (position, direction, two angles, color)
-extern "C" void fn_80485964(EventEffects_unk* mgr, const atn::Vector3& pos, const atn::Vector3& dir, float a,
-                            float b, int color);
 
 // inferred: cloud map shadow (scale, position, rate)
-extern "C" void fn_80484D64(EventEffects_unk* mgr, atn::Vector2_unk scale, atn::Vector2_unk pos);
-extern "C" void fn_80484BF4(EventEffects_unk* mgr);
-extern "C" void fn_80484D40(EventEffects_unk* mgr, atn::Vector2_unk scale, atn::Vector2_unk pos, float rate);
-extern "C" void fn_80484E88(EventEffects_unk* mgr);
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* fn_8001260C(Event::Actor* actor);        // inferred: collision of an actor
 extern "C" void* lbl_8087EE98;                                // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
-extern "C" ColorMatrixParam_unk* fn_80483F70(EventEffects_unk* mgr); // inferred: current color matrix
-extern "C" void fn_80484088(EventEffects_unk* mgr, ColorMatrixParam_unk* param, float rate);
 
 // inferred: preset color matrices of ActionColorMatrix (identity, mono, sepia, negative, brightness and
 // contrast)
@@ -195,19 +137,14 @@ extern "C" void fn_800CB668(atn::SoundRef* sound, int mode);                    
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: starts the movie of the event (name, fade frames, the BGM is stopped...)
-extern "C" void fn_804881B8(EventEffects_unk* mgr, Event::EventManager_unk* manager, const char* name, int fade,
-                            int stopBgm, int a, int b, int c, float volume, int d, int flags);
 namespace Event {
 struct MovieState_unk;
 }
-extern "C" void fn_8048E9A4(EventEffects_unk* mgr, Event::MovieState_unk* movie, int frames);
-extern "C" void fn_8048EC7C(EventEffects_unk* mgr); // inferred: ends the movie
 extern "C" int fn_800CB4A4(atn::SoundRef* sound);   // inferred: sound state flags
 extern "C" int fn_803CE160(int a, int b, int c);
 
 extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* view, const atn::Vector3* pos); // to screen
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
-extern "C" void fn_80481800(EventEffects_unk* mgr, int on);                  // inferred: shows the check sphere
 extern "C" int fn_80531E80(NewStaffRoll* roll);
 extern "C" int fn_800A5584(void* pad, int port, int button); // inferred: button pressed
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
@@ -306,8 +243,6 @@ inline AudioEntry_unk* FindAudio_unk(EventManager_unk* manager, int id) {
 } // namespace Event
 
 
-extern "C" void fn_80489A2C(EventEffects_unk* manager); // inferred: loads the missing event voices
-extern "C" void fn_80489A50(EventEffects_unk* manager, Event::Action* action, int arg);
 // inferred: text of the dialog balloons (atn, lbl_8087F008); the type is the one of Event/Dialog.cpp
 struct DialogTextMgr_unk;
 extern "C" DialogTextMgr_unk* lbl_8087F008;
@@ -698,7 +633,7 @@ int ActionCheck::vf0C(Action* arg, int phase) {
             }
         }
         if (type == 1) {
-            fn_804817D4(lbl_8087F540);
+            lbl_8087F540->fn_804817D4();
             lbl_8087F540->m1EB0 = 1;
         }
         break;
@@ -759,7 +694,7 @@ int ActionCheck::vf08(Action* arg) {
         }
         sphere.mRadius += 0.8f * (50.0f * sphere.mRadius / size - sphere.mRadius);
         lbl_8087F540->m1EA8 = 0;
-        fn_80481800(lbl_8087F540, 1);
+        lbl_8087F540->fn_80481800(1);
         lbl_8087F540->m1E94 = sphere;
         lbl_8087EFB4->m54964 = 1;
         atn::Vector3 eye;
@@ -784,8 +719,8 @@ int ActionCheck::vf08(Action* arg) {
             frames++;
             if (frames > 3) {
                 manager->fn_8054136C(arg->GetParam_unk(1)->m04.i);
-                fn_804817D4(lbl_8087F540);
-                fn_80481800(lbl_8087F540, 0);
+                lbl_8087F540->fn_804817D4();
+                lbl_8087F540->fn_80481800(0);
                 lbl_8087F540->m4C = sphere;
                 lbl_8087F540->m23B4 = 1;
                 return 1;
@@ -1280,7 +1215,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
         int noKeep = arg->GetParam_unk(10)->m04.i;
         int lipSync = arg->GetParam_unk(11)->m04.i;
         if (lbl_8087F498->fn_803EB2A4(entry->m08.c_str()) == 0) {
-            fn_80489A2C(lbl_8087F540);
+            lbl_8087F540->fn_80489A2C();
         }
         if (lbl_8087F0A8->mVoiceLimitLevel >= 3) {
             volume = 0.0f;
@@ -1298,7 +1233,7 @@ int ActionVoicePlay::vf0C(Action* arg, int phase) {
                 sound = lbl_8087F498->fn_803E9608(entry->m08.c_str(), 0, 1, volume);
             }
         }
-        fn_80489A50(lbl_8087F540, arg, 0);
+        lbl_8087F540->fn_80489A50(arg, 0);
         if (arg->m18 > 0) {
             fn_800CB518(&sound, arg->m18);
         }
@@ -1347,20 +1282,20 @@ int ActionMultiAudio::vf0C(Action* arg, int phase) {
         float volume = arg->GetParam_unk(2)->m04.f;
         AudioEntry_unk* entry = FindAudio_unk(manager, id);
         if (entry != 0) {
-            fn_80488050(lbl_8087F540, manager, arg);
+            lbl_8087F540->fn_80488050(manager, arg);
             int fade = 60;
             if (arg->m18 > 0) {
                 fade = arg->m18;
             }
             if (lbl_8087F540->mC4 == 0) {
-                fn_80488A74(lbl_8087F540, entry->m08.c_str(), fade, volume);
+                lbl_8087F540->fn_80488A74(entry->m08.c_str(), fade, volume);
             }
         }
         break;
     }
     case 3:
         if (arg->GetParam_unk(0)->m04.i != 0) {
-            fn_80488D80(lbl_8087F540, arg->m1C);
+            lbl_8087F540->fn_80488D80(arg->m1C);
         }
         break;
     }
@@ -1411,7 +1346,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
             if (manager->m190 == 0x151F) {
                 stopBgm = 0;
             }
-            fn_804881B8(lbl_8087F540, manager, "", 10, stopBgm, 1, 1, 1, 1.0f, 1, 0x400000);
+            lbl_8087F540->fn_804881B8(manager, "", 10, stopBgm, 1, 1, 1, 1.0f, 1, 0x400000);
             if (manager->m190 == 0x5E6 && GameBgm::sInstance != 0) {
                 if (GameBgm::sInstance->mCur != 0) {
                     GameBgm::sInstance->mCur->fn_8004B1EC(0);
@@ -1421,7 +1356,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
                 }
             }
         }
-        fn_8048E9A4(lbl_8087F540, movie, 10);
+        lbl_8087F540->fn_8048E9A4(movie, 10);
         break;
     }
     case 2:
@@ -1444,7 +1379,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
                 movie->m08 = 1;
             }
         }
-        fn_8048EC7C(lbl_8087F540);
+        lbl_8087F540->fn_8048EC7C();
         if (lbl_8087F0A8->m194 != 0 && manager->m190 == 0x19D) {
             fn_80370B78(lbl_8087F430, -1, 0, 0, 1.0f);
             manager->fn_8053E8C8(11);
@@ -1464,7 +1399,7 @@ int ActionMoviePlay::vf08(Action* arg) {
     if (!lbl_8087F540->mMoviePlaying) {
         bool fading = lbl_8087F540->m1F6C > 0.0f;
         if (!fading) {
-            fn_8048E9E0(lbl_8087F540);
+            lbl_8087F540->fn_8048E9E0();
         } else {
             return 3;
         }
@@ -1481,7 +1416,7 @@ int ActionGodRay::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         int on = arg->GetParam_unk(0)->m04.i;
         float value = arg->GetParam_unk(1)->m04.f;
-        fn_80486BEC(lbl_8087F540, on, value);
+        lbl_8087F540->fn_80486BEC(on, value);
     }
     return 0;
 }
@@ -1491,7 +1426,7 @@ int ActionSunLight::vf0C(Action* arg, int phase) {
     case 0: {
         arg->fn_805381C8();
         atn::Vector3 dir = arg->fn_80538B18(2);
-        fn_804846FC(lbl_8087F540, dir, arg->GetParam_unk(5)->m04.i);
+        lbl_8087F540->fn_804846FC(dir, arg->GetParam_unk(5)->m04.i);
         break;
     }
     case 6:
@@ -1503,7 +1438,7 @@ int ActionSunLight::vf0C(Action* arg, int phase) {
 
 int ActionAmbientLight::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        fn_80484A78(lbl_8087F540, arg->GetParam_unk(1)->m04.i);
+        lbl_8087F540->fn_80484A78(arg->GetParam_unk(1)->m04.i);
     }
     return 0;
 }
@@ -1543,7 +1478,7 @@ int ActionCloudMap::vf08(Action* arg) {
     float scale = arg->GetParam_unk(5)->m04.f;
     atn::Vector2_unk pos = fn_80560FE8(arg);
     atn::Vector2_unk size(scale, scale);
-    fn_80484D64(lbl_8087F540, size, pos);
+    lbl_8087F540->fn_80484D64(size, pos);
     return 0;
 }
 
@@ -1563,9 +1498,9 @@ int ActionCloudMap::vf0C(Action* arg, int phase) {
         float rate = Rate_unk(arg->m18);
         size.x *= rate;
         size.y *= rate;
-        fn_80484BF4(lbl_8087F540);
+        lbl_8087F540->fn_80484BF4();
         lbl_8087F540->m1F0C = 1;
-        fn_80484D40(lbl_8087F540, size, pos, rate);
+        lbl_8087F540->fn_80484D40(size, pos, rate);
         break;
     }
     case 2:
@@ -1575,11 +1510,11 @@ int ActionCloudMap::vf0C(Action* arg, int phase) {
             atn::Vector2_unk size(scale, scale);
             float rate = Rate_unk(arg->m1C);
             lbl_8087F540->m1F0C = 0;
-            fn_80484D40(lbl_8087F540, size, pos, rate);
+            lbl_8087F540->fn_80484D40(size, pos, rate);
         }
         break;
     case 3:
-        fn_80484E88(lbl_8087F540);
+        lbl_8087F540->fn_80484E88();
         break;
     }
     return 0;
@@ -1591,7 +1526,7 @@ int ActionPointLight::vf0C(Action* arg, int phase) {
         int index = arg->GetParam_unk(0)->m04.i;
         atn::Vector3 pos = arg->fn_805384CC(1);
         float radius = arg->GetParam_unk(6)->m04.f;
-        fn_80485028(lbl_8087F540, index, pos, radius, arg->GetParam_unk(7)->m04.i);
+        lbl_8087F540->fn_80485028(index, pos, radius, arg->GetParam_unk(7)->m04.i);
         break;
     }
     case 6: {
@@ -1613,7 +1548,7 @@ int ActionSpotLight::vf0C(Action* arg, int phase) {
         atn::Vector3 dir = arg->fn_80538B18(5);
         float a = arg->GetParam_unk(8)->m04.f;
         float b = arg->GetParam_unk(9)->m04.f;
-        fn_80485964(lbl_8087F540, pos, dir, a, b, arg->GetParam_unk(10)->m04.i);
+        lbl_8087F540->fn_80485964(pos, dir, a, b, arg->GetParam_unk(10)->m04.i);
         break;
     }
     case 6: {
@@ -1630,14 +1565,14 @@ int ActionSpotLight::vf0C(Action* arg, int phase) {
 
 int ActionLightSurround::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        fn_80486DAC(lbl_8087F540, arg->GetParam_unk(0)->m04.i);
+        lbl_8087F540->fn_80486DAC(arg->GetParam_unk(0)->m04.i);
     }
     return 0;
 }
 
 int ActionBrightness::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        fn_80487064(lbl_8087F540, arg->GetParam_unk(0)->m04.i);
+        lbl_8087F540->fn_80487064(arg->GetParam_unk(0)->m04.i);
     }
     return 0;
 }
@@ -1779,7 +1714,7 @@ int ActionColorMatrix::vf08(Action* arg) {
     dst.mEnabled = 1;
     ColorMatrixParam_unk src;
     src.mEnabled = 1;
-    EventEffects_unk* mgr = lbl_8087F540;
+    Event::Manager* mgr = lbl_8087F540;
     for (int i = 0; i < 4; i++) {
         src.mRows[i] = mgr->m1D70.mRows[i];
     }
@@ -1790,7 +1725,7 @@ int ActionColorMatrix::vf08(Action* arg) {
                                          arg->GetParamAt_unk(i * 3 + 3)->m04.f, 1.0f);
         }
     } else if (type == 1) {
-        fn_80484088(lbl_8087F540, &src, rate);
+        lbl_8087F540->fn_80484088(&src, rate);
         return 0;
     } else {
         for (int i = 0; i < 4; i++) {
@@ -1815,9 +1750,9 @@ int ActionColorMatrix::vf08(Action* arg) {
 // order (tried a pointer to m1D70 and an assignment after the declaration)
 int ActionColorMatrix::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ColorMatrixParam_unk param = *fn_80483F70(lbl_8087F540);
+        ColorMatrixParam_unk param = *lbl_8087F540->fn_80483F70();
         param.mEnabled = 1;
-        EventEffects_unk* mgr = lbl_8087F540;
+        Event::Manager* mgr = lbl_8087F540;
         mgr->m1D70 = param;
     }
     return 0;
@@ -1837,9 +1772,9 @@ int ActionColorGradation::vf0C(Action* arg, int phase) {
         int e = arg->GetParam_unk(7)->m04.i;
         float f = arg->GetParam_unk(8)->m04.f;
         if (on != 0) {
-            fn_8048EE78(lbl_8087F540, a, r, g, b, c, d, e, f);
+            lbl_8087F540->fn_8048EE78(a, r, g, b, c, d, e, f);
         } else {
-            fn_8048F184(lbl_8087F540, a, r, g, b, c, d, e, f);
+            lbl_8087F540->fn_8048F184(a);
         }
     }
     return 0;
@@ -1849,7 +1784,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         EventManager_unk* manager = arg->fn_805381C8();
-        MapLocators_unk* map = fn_80480438(lbl_8087F540);
+        GameMap_unk* map = lbl_8087F540->fn_80480438();
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {
@@ -1864,7 +1799,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
     case 3:
     case 4: {
         EventManager_unk* manager = arg->fn_805381C8();
-        MapLocators_unk* map = fn_80480438(lbl_8087F540);
+        GameMap_unk* map = lbl_8087F540->fn_80480438();
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {

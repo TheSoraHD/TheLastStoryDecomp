@@ -2,6 +2,7 @@
 // last class; its string pool has the std::string error messages, so it includes
 // std/string_members.h like game/GimmickManager.cpp).
 #include "Event/MotionData.h"
+#include "Event/Sequence.h"
 #include "atn/Memory.h"
 #include "atn/LH_Xsca.h"
 #include "atn/LH_Binary.h"
