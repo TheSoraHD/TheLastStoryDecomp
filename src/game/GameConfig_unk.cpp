@@ -99,12 +99,12 @@ void DialogConfig_unk::fn_801856B8(void* menu) {
         fn_80088FAC(group, "AmbientDark", &dark->mAmbient.r, 0.0f, 1.0f, 0.01f, 0, 0);
         fn_80088FAC(group, "LSDark", &dark->mLS.r, 0.0f, 1.0f, 0.01f, 0, 0);
         atn::MindowsFolder* fog = fn_8008937C(group, "Fog");
-        fn_800874C8(fog, "Fog Mode", &scene->mFogMode, 0, 6, 1, 0, 0);
-        fn_8008771C(fog, "Fog Start", &scene->mFogStart, 0.0f, 10000.0f, 1.0f, 0, 0);
-        fn_8008771C(fog, "Fog End", &scene->mFogEnd, 0.0f, 10000.0f, 1.0f, 0, 0);
-        fn_8008771C(fog, "Fog R", &scene->mFogR, 0.0f, 1.0f, 0.01f, 0, 0);
-        fn_8008771C(fog, "Fog G", &scene->mFogG, 0.0f, 1.0f, 0.01f, 0, 0);
-        fn_8008771C(fog, "Fog B", &scene->mFogB, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_800874C8(fog, "Fog Mode", &scene->mFog.mMode, 0, 6, 1, 0, 0);
+        fn_8008771C(fog, "Fog Start", &scene->mFog.mStart, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(fog, "Fog End", &scene->mFog.mEnd, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(fog, "Fog R", &scene->mFog.mColor.r, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(fog, "Fog G", &scene->mFog.mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(fog, "Fog B", &scene->mFog.mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
         atn::MindowsFolder* keyLight = fn_8008937C(group, "KeyLight");
         fn_800C2448(scene, 0)->fn_80079BC8(keyLight);
     }

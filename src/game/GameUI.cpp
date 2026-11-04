@@ -1249,19 +1249,19 @@ void GameUI::fn_803D2A6C() {
                 uv = fn_800F52F8()->fn_80116BAC()->fn_80124C6C(0);
                 {
                     ButtonUv_unk uvCopy1(uv);
-                    m72C->SetParam2_unk("btnUv", &uvCopy1.u0);
+                    m72C->SetParam2_unk("btnUv", &uvCopy1.x);
                 }
                 {
                     ButtonUv_unk uvCopy2(uv);
-                    m72C->SetParam2_unk("btnUvMask", &uvCopy2.u0);
+                    m72C->SetParam2_unk("btnUvMask", &uvCopy2.x);
                 }
                 {
                     ButtonUv_unk uvCopy3(uv);
-                    m730->SetParam2_unk("btnUv", &uvCopy3.u0);
+                    m730->SetParam2_unk("btnUv", &uvCopy3.x);
                 }
                 {
                     ButtonUv_unk uvCopy4(uv);
-                    m730->SetParam2_unk("btnUvMask", &uvCopy4.u0);
+                    m730->SetParam2_unk("btnUvMask", &uvCopy4.x);
                 }
                 if (m734 == 0) {
                     m730->Rewind_unk();
@@ -1501,19 +1501,19 @@ void GameUI::fn_803D2A6C() {
                 mD74->SetLayoutText_unk("string0002(1)", text);
                 {
                     ButtonUv_unk uvCopy5(uv);
-                    mD70->SetParam2_unk("btnUv", &uvCopy5.u0);
+                    mD70->SetParam2_unk("btnUv", &uvCopy5.x);
                 }
                 {
                     ButtonUv_unk uvCopy6(uv);
-                    mD70->SetParam2_unk("btnUvMask", &uvCopy6.u0);
+                    mD70->SetParam2_unk("btnUvMask", &uvCopy6.x);
                 }
                 {
                     ButtonUv_unk uvCopy7(uv);
-                    mD74->SetParam2_unk("btnUv", &uvCopy7.u0);
+                    mD74->SetParam2_unk("btnUv", &uvCopy7.x);
                 }
                 {
                     ButtonUv_unk uvCopy8(uv);
-                    mD74->SetParam2_unk("btnUvMask", &uvCopy8.u0);
+                    mD74->SetParam2_unk("btnUvMask", &uvCopy8.x);
                 }
                 float end = ((GameUIDuration_unk*)mD74)->fn_803CFC6C() - 1.0f;
                 if (mD74->GetFrame_unk() >= end) {

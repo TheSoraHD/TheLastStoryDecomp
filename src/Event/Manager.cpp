@@ -6,6 +6,7 @@
 #include "Event/Manager.h"
 #include "Event/Sequence.h"
 #include "atn/Light_unk.h"
+#include "game/NewCampScene2_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/GameField_unk.h"
 #include "Event/Cut.h"
@@ -197,6 +198,121 @@ Action* fn_8047BFF4(Sequence* seq) {
         cut = fn_8047B768(seq, cut);
     }
     return 0;
+}
+
+} // namespace Event
+
+extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r, float t);
+extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
+extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
+
+// inferred: euler angles to a quaternion (inlined here; same code as
+// atn::Quaternion_unk::fn_801498F0 of game/CharaTask.cpp)
+static inline atn::Quaternion_unk EulerToQuat_unk(const atn::Vector3& rot) {
+    atn::Quaternion_unk q;
+    float rx = rot.x;
+    float ry = rot.y;
+    float rz = rot.z;
+    float cx, cy, cz;
+    float sx, sy, sz;
+    fn_8072D210(40.743664f * (rx / 2.0f), &sx, &cx);
+    fn_8072D210(40.743664f * (ry / 2.0f), &sy, &cy);
+    fn_8072D210(40.743664f * (rz / 2.0f), &sz, &cz);
+    float cycz = cy * cz;
+    float sysz = sy * sz;
+    q.w = cx * cycz + sx * sysz;
+    q.x = sx * cycz - cx * sysz;
+    q.y = cz * (cx * sy) + sz * (sx * cy);
+    q.z = sz * (cx * cy) - cz * (sx * sy);
+    return q;
+}
+
+// inferred: name invented (same as in game/TutorialTask.cpp)
+static inline atn::Quaternion_unk Slerp_unk(const atn::Quaternion_unk& a, const atn::Quaternion_unk& b, float t) {
+    atn::Quaternion_unk q;
+    C_QUATSlerp(&a, &b, &q, t);
+    return q;
+}
+
+// NONMATCHING: 97.1% - stack layout: the original copies the slerp result (0xC8) into the dead slot of
+// qb (0xF0); here the copy gets a slot of its own (frame 0x270, not 0x260). Tried: no copy, RVO'd
+// helper, copy construction, by-value helper, nested temporaries.
+// inferred: direction between `a` and `b` (slerp of their rotations; names invented)
+atn::Vector3 fn_8047C1D8(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    atn::Quaternion_unk qa = EulerToQuat_unk(a.ToRotation_unk());
+    atn::Quaternion_unk qb = EulerToQuat_unk(b.ToRotation_unk());
+    atn::Quaternion_unk r;
+    r = Slerp_unk(qb, qa, t);
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXQuat(m, &r);
+    PSMTXMultVec(m, &dir, &dir);
+    return dir;
+}
+
+namespace atn {
+
+// inferred: by-value operators of the color and a + (b - a) * t (names invented)
+inline Color operator-(const Color& a, const Color& b) {
+    return Color(a.r - b.r, a.g - b.g, a.b - b.b, a.a - b.a);
+}
+inline Color operator+(const Color& a, const Color& b) {
+    return Color(a.r + b.r, a.g + b.g, a.b + b.b, a.a + b.a);
+}
+inline Color operator*(const Color& a, float s) {
+    return Color(a.r * s, a.g * s, a.b * s, a.a * s);
+}
+inline Vector4_unk operator-(const Vector4_unk& a, const Vector4_unk& b) {
+    return Vector4_unk(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+}
+inline Vector4_unk operator+(const Vector4_unk& a, const Vector4_unk& b) {
+    return Vector4_unk(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+}
+inline Vector4_unk operator*(const Vector4_unk& a, float s) {
+    return Vector4_unk(a.x * s, a.y * s, a.z * s, a.w * s);
+}
+template <class T>
+inline T Lerp_unk(const T& a, const T& b, float t) {
+    return (b - a) * t + a;
+}
+
+} // namespace atn
+
+inline ColorMatrixParam_unk* NewCampScene2_unk::fn_8047C7DC() {
+    return mUseColorMatrix != 0 ? &mColorMatrix : &lbl_8087EFA8->m324;
+}
+
+namespace Event {
+
+void SceneSetting_unk::fn_8047C88C(NewCampScene2_unk* scene) {
+    *scene->fn_8047C770() = mFog;
+    scene->GetAmbient_unk() = mAmbient;
+    scene->GetLS_unk() = mLS;
+    *scene->fn_8047C778() = m3C;
+    *scene->fn_8047C780() = mGodRay;
+    *scene->fn_8047C7D4() = mShadow;
+    *scene->fn_8047C7DC() = mColorMatrix;
+    *scene->fn_8047C848() = mHaze;
+    scene->fn_8047CB6C(m148);
+    *fn_800C2448(scene, 0) = mLight;
+}
+
+void SceneSetting_unk::fn_8047CB74(NewCampScene2_unk* scene, float t) {
+    *scene->fn_8047C770() = mFog;
+    scene->GetAmbient_unk() = atn::Lerp_unk(mAmbient, scene->GetAmbient_unk(), t);
+    scene->GetLS_unk() = atn::Lerp_unk(mLS, scene->GetLS_unk(), t);
+    *scene->fn_8047C778() = atn::Lerp_unk(m3C, *scene->fn_8047C778(), t);
+    scene->fn_8047C780()->mColor = atn::Lerp_unk(mGodRay.mColor, scene->fn_8047C780()->mColor, t);
+    scene->fn_8047C780()->mPos = atn::Lerp_unk(mGodRay.mPos, scene->fn_8047C780()->mPos, t);
+    scene->fn_8047C780()->mRadialScale = fn_800F8524(&mGodRay.mRadialScale, &scene->fn_8047C780()->mRadialScale, t);
+    *scene->fn_8047C7D4() = mShadow;
+    for (unsigned int i = 0; i < 4; i++) {
+        scene->fn_8047C7DC()->mRows[i] = atn::Lerp_unk(mColorMatrix.mRows[i], scene->fn_8047C7DC()->mRows[i], t);
+    }
+    *scene->fn_8047C848() = mHaze;
+    scene->fn_8047CB6C(m148);
+    fn_800C2448(scene, 0)->SetDir_unk(fn_8047C1D8(*mLight.GetDir_unk(), *fn_800C2448(scene, 0)->GetDir_unk(), t));
+    fn_800C2448(scene, 0)->SetColor(atn::Lerp_unk(*mLight.GetColor_unk(), *fn_800C2448(scene, 0)->GetColor_unk(), t));
 }
 
 inline Sequence* Manager::FindSequence_unk(int id) {

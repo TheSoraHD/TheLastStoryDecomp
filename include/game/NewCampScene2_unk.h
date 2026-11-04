@@ -3,6 +3,7 @@
 
 #include "atn/Light_unk.h"
 #include "std/vector.h"
+#include "atn/ColorMatrixParam_unk.h"
 
 // inferred: light setup of a scene (0x2B4 bytes; constructor 0x800C1D98 and destructor 0x800C1FB4 in
 // atn/RenderSystem_unk.cpp, which declares its own view). Name invented.
@@ -14,20 +15,31 @@ struct NewCampScene2_unk {
     void AddLight_unk(Light_unk light) { mLights.push_back(light); }
     atn::D2A_DrawColor& GetAmbient_unk() { return mAmbient; }
     atn::D2A_DrawColor& GetLS_unk() { return mLS; }
+    // inferred: weak copies 0x8047C770-0x8047CB6C (Event/Manager.cpp)
+    atn::FogSettings* fn_8047C770() { return &mFog; }
+    atn::Color* fn_8047C778() { return &m02C; }
+    GodRayParam_unk* fn_8047C780() { return &mGodRay; }
+    ShadowParam_unk* fn_8047C7D4() { return &mShadow; }
+    ColorMatrixParam_unk* fn_8047C7DC(); // inferred: own matrix or the one of the render settings (defined in Event/Manager.cpp)
+    HazeParam_unk* fn_8047C848() { return &mHaze; }
+    void fn_8047CB6C(int value) { m120 = value; }
 
     unsigned char m000[0x00C];
     atn::D2A_DrawColor mAmbient;    // 0x00C: debug menu "Ambient"
     atn::D2A_DrawColor mLS;         // 0x01C: debug menu "LS"
-    unsigned char m02C[0x03C - 0x02C];
-    int mFogMode;                   // 0x03C
-    float mFogStart;                // 0x040
-    float mFogEnd;                  // 0x044
-    float mFogR;                    // 0x048
-    float mFogG;                    // 0x04C
-    float mFogB;                    // 0x050
-    unsigned char m054[0x058 - 0x054];
+    atn::Color m02C;                // 0x02C
+    atn::FogSettings mFog;          // 0x03C
     std::vector<Light_unk> mLights; // 0x058
-    unsigned char m064[0x2B4 - 0x064];
+    unsigned char m064[0x120 - 0x064];
+    int m120;                       // 0x120
+    unsigned char m124[0x198 - 0x124];
+    GodRayParam_unk mGodRay;        // 0x198
+    unsigned char m1E0[0x1F8 - 0x1E0];
+    HazeParam_unk mHaze;            // 0x1F8
+    unsigned char m234[0x238 - 0x234];
+    ShadowParam_unk mShadow;        // 0x238
+    int mUseColorMatrix;            // 0x260: inferred: the scene has its own color matrix
+    ColorMatrixParam_unk mColorMatrix; // 0x264
 };
 
 // inferred: light `index` of the scene (atn/RenderSystem_unk.cpp)

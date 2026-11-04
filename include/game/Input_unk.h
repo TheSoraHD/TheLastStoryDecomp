@@ -2,21 +2,10 @@
 #define GAME_INPUT_UNK_H
 
 #include "math/Vec.h"
+#include "atn/Vector4_unk.h"
 
-// inferred: texture coordinates of a button icon (copied with paired singles)
-struct ButtonUv_unk {
-    ButtonUv_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
-    ButtonUv_unk(const ButtonUv_unk& o) { __Vec4Copy(&u0, &o.u0); }
-    // inferred: weak copy 0x803D7000 (game/GameUI.cpp)
-    ButtonUv_unk& operator=(const ButtonUv_unk& o) {
-        __Vec4Copy(&u0, &o.u0);
-        return *this;
-    }
-    float u0;
-    float v0;
-    float u1;
-    float v1;
-};
+// inferred: texture coordinates of a button icon (x, y: top left; z, w: bottom right)
+typedef atn::Vector4_unk ButtonUv_unk;
 
 // inferred: game actions read from the pad (0x50 bytes at +0x48C of the settings behind
 // lbl_8087F0A8; game/PlayerInput_unk.cpp). An action (0..0x35) is mapped to a pad button (0x21: none)

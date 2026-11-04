@@ -8,12 +8,14 @@
 #include "std/list.h"
 #include "atn/Sphere.h"
 #include "atn/ColorMatrixParam_unk.h"
+#include "atn/Light_unk.h"
 
 class GameScene;
 class CharaTask;
 class NewStaffRoll;
 struct GameMap_unk;
 struct ColorMatrixParam_unk;
+struct NewCampScene2_unk;
 
 namespace Event {
 
@@ -25,6 +27,24 @@ struct MovieState_unk;
 struct QueuedSequence_unk {
     int mId;
     int m04;
+};
+
+// inferred: light settings of a scene (0x190 bytes): copied into the scene (fn_8047C88C) or blended
+// with it (fn_8047CB74). Name invented.
+struct SceneSetting_unk {
+    void fn_8047C88C(NewCampScene2_unk* scene);          // inferred: copies the settings into the scene
+    void fn_8047CB74(NewCampScene2_unk* scene, float t); // inferred: blends the scene towards the settings
+
+    atn::FogSettings mFog;              // 0x000
+    atn::Color mAmbient;                // 0x01C
+    atn::Color mLS;                     // 0x02C
+    atn::Color m3C;                     // 0x03C
+    GodRayParam_unk mGodRay;            // 0x04C
+    ShadowParam_unk mShadow;            // 0x094
+    ColorMatrixParam_unk mColorMatrix;  // 0x0BC
+    HazeParam_unk mHaze;                // 0x10C
+    int m148;                           // 0x148
+    atn::Light mLight;                  // 0x14C
 };
 
 // inferred: task at 0x1AA8 of the event manager (names invented)
@@ -165,7 +185,9 @@ public:
     int m1AA4;
     ManagerFade_unk* m1AA8;
     int m1AAC;
-    unsigned char m1AB0[0x1D70 - 0x1AB0];
+    unsigned char m1AB0[0x1BD0 - 0x1AB0];
+    SceneSetting_unk m1BD0; // inferred: light settings of the event
+    unsigned char m1D60[0x1D70 - 0x1D60];
     ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
     unsigned char m1DC0[0x1E94 - 0x1DC0];
     atn::Sphere m1E94; // inferred: sphere looked at by ActionCheck (type 1)

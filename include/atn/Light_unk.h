@@ -47,6 +47,11 @@ struct Light {
     void fn_800798D8(float* a, float* b, float* c); // inferred: distance attenuation coefficients
     void fn_80079994(GXLightObj* obj, Mtx viewMtx); // inferred: GX light in view space
     void fn_80079BC8(void* menu);   // inferred: debug menu
+    // inferred: weak copies 0x8047CDE8-0x8047CE28 (Event/Manager.cpp); SetColor is the RSO name
+    void SetDir_unk(const atn::Vector3& dir) { mDir = dir; }
+    atn::Vector3* GetDir_unk() { return &mDir; }
+    void SetColor(const atn::Color& color) { mColor = color; }
+    atn::Color* GetColor_unk() { return &mColor; }
 
     LightData_unk* mData; // 0x00: inferred: scene file data
     int mType;            // 0x04: inferred: 0 off, 1 directional, 2 spot, 3 point, 4 ambient
