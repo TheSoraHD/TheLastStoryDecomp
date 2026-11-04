@@ -1,6 +1,8 @@
 #ifndef ATN_D2A_COMMON_H
 #define ATN_D2A_COMMON_H
 
+#include "atn/Color.h" // D2A_DrawColor is atn::Color
+
 namespace atn {
 
 struct D2A_Owner_unk;
@@ -22,10 +24,6 @@ struct D2A_ParamTable {
 struct D2A_DrawRect {
     D2A_DrawRect() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
     float x, y, w, h, z;
-};
-struct D2A_DrawColor {
-    D2A_DrawColor() {} // 0x80041B8C (weak)
-    float r, g, b, a;
 };
 struct D2A_DrawExtra {
     D2A_DrawExtra() : m00(0.0f), m04(0) {}

@@ -17,7 +17,10 @@
 // called here on uninitialized temporaries: they return the set by value (declared here as
 // static members; include/atn/Light_unk.h declares them as members of an existing set, which
 // gives the same symbols)
-struct Light_unk;
+namespace atn {
+struct Light;
+}
+typedef atn::Light Light_unk;
 struct LightList_unk;
 struct LightSet_unk {
     LightSet_unk();

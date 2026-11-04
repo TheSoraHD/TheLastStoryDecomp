@@ -10,7 +10,7 @@ extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, 
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step);
 
-Light_unk::Light_unk()
+atn::Light::Light()
     : mData(0), mType(4), mPos(0.0f, 0.0f, 0.0f), mDir(0.0f, 1.0f, 0.0f), mAttnType(0), mRadius(0.0f) {
     mColor.r = 0.0f;
     mColor.g = 0.0f;
@@ -18,11 +18,11 @@ Light_unk::Light_unk()
     mColor.a = 0.0f;
 }
 
-Light_unk::Light_unk(LightData_unk* data) : mData(data), mType(data->mType) {
+atn::Light::Light(LightData_unk* data) : mData(data), mType(data->mType) {
     fn_80079280(0.0f);
 }
 
-void Light_unk::fn_800790D0(const atn::Vector3& dir, const LightColor_unk& color) {
+void atn::Light::fn_800790D0(const atn::Vector3& dir, const LightColor_unk& color) {
     mType = 1;
     atn::Vector3 n(dir);
     n.Normalize_unk();
@@ -35,7 +35,7 @@ void Light_unk::fn_800790D0(const atn::Vector3& dir, const LightColor_unk& color
     mAttnType = 0;
 }
 
-void Light_unk::fn_800791B4(const atn::Vector3& pos, const LightColor_unk& color, float radius) {
+void atn::Light::fn_800791B4(const atn::Vector3& pos, const LightColor_unk& color, float radius) {
     mType = 3;
     mPos = pos;
     mRadius = radius;
@@ -48,7 +48,7 @@ void Light_unk::fn_800791B4(const atn::Vector3& pos, const LightColor_unk& color
     mAttnType = 2;
 }
 
-void Light_unk::fn_80079210(const atn::Vector3& pos, const atn::Vector3& dir, const LightColor_unk& color,
+void atn::Light::fn_80079210(const atn::Vector3& pos, const atn::Vector3& dir, const LightColor_unk& color,
                             float radius, float angle) {
     mType = 2;
     mPos = pos;
@@ -71,7 +71,7 @@ static inline float EvalTrack_unk(SceneTrack_unk& track, float value) {
 }
 
 // NONMATCHING: 99.74% - FPR allocation of the radius formula (b2/a2 swapped, (4*c2)*k operand order)
-void Light_unk::fn_80079280(float frame) {
+void atn::Light::fn_80079280(float frame) {
     if (mData == 0) {
         return;
     }
@@ -128,7 +128,7 @@ static inline unsigned int ToARGB_unk(const LightColor_unk& c) {
 }
 
 // NONMATCHING: 96.52% - scheduling of the call arguments after the color conversion
-void Light_unk::fn_800795DC() {
+void atn::Light::fn_800795DC() {
     switch (mType) {
     case 3:
         lbl_8087EEB0->fn_80063D3C(mPos, mRadius, 0.0f, ToARGB_unk(mColor));
@@ -139,7 +139,7 @@ void Light_unk::fn_800795DC() {
     }
 }
 
-void Light_unk::fn_800798D8(float* a, float* b, float* c) {
+void atn::Light::fn_800798D8(float* a, float* b, float* c) {
     float dist = mRefDist;
     float bright = mRefBright;
     switch (mAttnType) {
@@ -176,7 +176,7 @@ static inline GXColor ToGXColor_unk(const LightColor_unk& c) {
 // NONMATCHING: 76% - the original negates mDir with fneg (results kept as double) but -1.0f is still
 // in .sdata2 before 1000000.0f; written as -1.0f * x it keeps the pool order (fn_80079BC8 then matches)
 // but multiplies; the prologue is also interleaved with the color conversion in the original
-void Light_unk::fn_80079994(GXLightObj* obj, Mtx viewMtx) {
+void atn::Light::fn_80079994(GXLightObj* obj, Mtx viewMtx) {
     GXInitLightColor(obj, ToGXColor_unk(mColor));
     int type = mType;
     atn::Vector3 pos(mPos);
@@ -204,7 +204,7 @@ void Light_unk::fn_80079994(GXLightObj* obj, Mtx viewMtx) {
     }
 }
 
-void Light_unk::fn_80079BC8(void* menu) {
+void atn::Light::fn_80079BC8(void* menu) {
     switch (mType) {
     case 3:
         fn_80087E9C(menu, "Position", &mPos, 0, 0, -10000.0f, 10000.0f, 1.0f);

@@ -1,4 +1,5 @@
 #include "atn/Texture_unk.h"
+#include "atn/Color.h"
 #include "atn/Memory.h"
 #include "std/vector.h"
 
@@ -56,22 +57,7 @@ inline int fn_800D8870(atn::Texture_unk* tex) {
 
 namespace atn {
 
-// inferred: RGBA color with an out-of-line copy (weak copy 0x800D8BB4)
-struct Color4f_unk {
-    Color4f_unk() {}
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    Color4f_unk(const Color4f_unk& c) {
-        float r_ = c.r;
-        float g_ = c.g;
-        float b_ = c.b;
-        float a_ = c.a;
-        r = r_;
-        g = g_;
-        b = b_;
-        a = a_;
-    }
-    float r, g, b, a;
-};
+// atn::Color4f_unk is atn::Color (atn/Color.h)
 
 
 // inferred: RGBA color of the commands (see atn/TextureComposite.cpp)

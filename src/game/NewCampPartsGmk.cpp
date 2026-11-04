@@ -77,8 +77,9 @@ static const NewCampGmkName_unk sGmkNames[13] = {
 static const char* const sMenuBack = "menu_back";
 
 // inferred: engine light (0x44 bytes; see atn/LH_Scene.cpp)
-struct Light_unk {
-    Light_unk();
+namespace atn {
+struct Light {
+    Light();
     int m00;
     int m04;
     atn::Vector3 m08;
@@ -93,6 +94,8 @@ struct Light_unk {
     float m3C;
     float m40;
 };
+} // namespace atn
+typedef atn::Light Light_unk; // inferred: real name atn::Light (RSO)
 
 // inferred: plane of the view frustum (normal and distance)
 struct Plane_unk {

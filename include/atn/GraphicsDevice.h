@@ -33,7 +33,10 @@ struct GXVtxAttrFmtList {
 };
 struct GXFifoObj;
 
-struct Light_unk;
+namespace atn {
+struct Light;
+}
+typedef atn::Light Light_unk;
 
 namespace atn {
 

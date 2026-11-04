@@ -1,4 +1,5 @@
 #include "game/Em310Gargoyle.h"
+#include "atn/Color.h"
 #include "game/GameScene.h"
 #include "atn/Keyboard.h"
 #include "atn/Csv.h"
@@ -173,27 +174,7 @@ inline unsigned int GargoyleToU8_unk(float f) {
     }
     return (unsigned int)(f * 255.0f + 0.5f);
 }
-// inferred: RGBA color of the engine (ToU32: weak copy 0x800F8348, kept from another file)
-struct Color4f_unk {
-    Color4f_unk() {}
-    // inferred: weak copy 0x800D8814 (atn/CompositeIntensityTintMulti.cpp)
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    // inferred: first emitted here as fn_8030B408 (also called by game/GameUI and game/MapPartsGimmickLoc)
-    void Set_unk(float r_, float g_, float b_, float a_) {
-        r = r_;
-        g = g_;
-        b = b_;
-        a = a_;
-    }
-    unsigned int ToU32() const {
-        unsigned int ur = GargoyleToU8_unk(r);
-        unsigned int ug = GargoyleToU8_unk(g);
-        unsigned int ub = GargoyleToU8_unk(b);
-        unsigned int ua = GargoyleToU8_unk(a);
-        return (ua << 24) | (ur << 16) | (ug << 8) | ub;
-    }
-    float r, g, b, a;
-};
+// atn::Color4f_unk is atn::Color (atn/Color.h)
 } // namespace atn
 // inferred: rotation matrix from euler angles (weak copy 0x800109E0, as in game/Em203GreaterDaemon.cpp)
 extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {

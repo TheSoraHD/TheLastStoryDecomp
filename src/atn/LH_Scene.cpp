@@ -46,9 +46,10 @@ struct LightPair_unk {
     int b;
 };
 struct LightData_unk;
-struct Light_unk {
-    Light_unk();
-    Light_unk(LightData_unk* data); // inferred: builds a light from the file data (atn/Light_unk.cpp)
+namespace atn {
+struct Light {
+    Light();
+    Light(LightData_unk* data); // inferred: builds a light from the file data (atn/Light_unk.cpp)
     int m00;
     int m04;
     atn::Vector3 m08;
@@ -61,6 +62,8 @@ struct Light_unk {
     LightPair_unk m34;
     LightPair_unk m3C;
 };
+} // namespace atn
+typedef atn::Light Light_unk; // inferred: real name atn::Light (RSO)
 
 // inferred: value of a track at frame 0 (each call has its own frame variable on the stack)
 static inline float __EvalTrack_unk(SceneTrack_unk& track) {

@@ -1,4 +1,5 @@
 #include "atn/D2A_Window.h"
+#include "atn/Color.h"
 #include "atn/DrawHelper.h"
 
 // inferred: texture lookup and 2D renderer (classes unknown, automatic names)
@@ -21,19 +22,7 @@ inline unsigned int FloatToU8_unk(float f) {
     return (unsigned int)(f * 255.0f + 0.5f);
 }
 
-// inferred: RGBA color (copy 0x800D8BB4, ToU32 0x800F8348; both weak copies of other files)
-struct Color4f_unk {
-    Color4f_unk() {}
-    Color4f_unk(const Color4f_unk& c) : r(c.r), g(c.g), b(c.b), a(c.a) {}
-    unsigned int ToU32() const {
-        unsigned int ur = FloatToU8_unk(r);
-        unsigned int ug = FloatToU8_unk(g);
-        unsigned int ub = FloatToU8_unk(b);
-        unsigned int ua = FloatToU8_unk(a);
-        return (ua << 24) | (ur << 16) | (ug << 8) | ub;
-    }
-    float r, g, b, a;
-};
+// atn::Color4f_unk is atn::Color (atn/Color.h)
 
 typedef void (*D2A_DrawCallback_unk)(D2A_Window* window, D2A_DrawColor* color, Color4f_unk* outlineColor);
 

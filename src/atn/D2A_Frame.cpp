@@ -1,4 +1,5 @@
 #include "atn/D2A_Frame.h"
+#include "atn/Color.h"
 #include "atn/DrawHelper.h"
 
 // inferred: 2D renderer instance (class unknown) and its textured quad drawing method
@@ -10,12 +11,7 @@ inline unsigned int fn_ToU8(float f) {
     return (f >= 1.0f) ? 255 : (f <= 0.0f) ? 0 : (unsigned int)(f * 255.0f + 0.5f);
 }
 
-// inferred: RGBA color (names invented)
-struct Color4f_unk {
-    Color4f_unk() {}
-    Color4f_unk(const Color4f_unk& c) : r(c.r), g(c.g), b(c.b), a(c.a) {}
-    float r, g, b, a;
-};
+// atn::Color4f_unk is atn::Color (atn/Color.h)
 
 // inferred: outline parameters filled by D2A_Common::fn_801ED928 (offset and color)
 struct D2A_Outline_unk {

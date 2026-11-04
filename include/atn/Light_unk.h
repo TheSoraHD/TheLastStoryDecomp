@@ -31,10 +31,13 @@ struct LightData_unk {
 // fn_800790D0)
 typedef atn::Color4f_unk LightColor_unk;
 
-// inferred: engine light (0x44 bytes, atn/Light_unk.cpp). Names invented.
-struct Light_unk {
-    Light_unk();
-    Light_unk(LightData_unk* data); // inferred: light of a scene file (0x80079090)
+namespace atn {
+
+// engine light (0x44 bytes, atn/Light_unk.cpp). Real name from the RSO
+// (SetColor__Q23atn5LightFRCQ23atn5Color, 0x8047CE04); member names invented.
+struct Light {
+    Light();
+    Light(LightData_unk* data); // inferred: light of a scene file (0x80079090)
     void fn_800790D0(const atn::Vector3& dir, const LightColor_unk& color); // inferred: directional
     void fn_800791B4(const atn::Vector3& pos, const LightColor_unk& color, float radius); // inferred: point
     void fn_80079210(const atn::Vector3& pos, const atn::Vector3& dir, const LightColor_unk& color, float radius,
@@ -56,6 +59,9 @@ struct Light_unk {
     float mAngle;         // 0x30
     LightColor_unk mColor; // 0x34
 };
+} // namespace atn
+
+typedef atn::Light Light_unk; // inferred: older name in this project
 
 // inferred: list of the scene lights (singleton lbl_8087EEF8, created by fn_8007A100)
 struct LightList_unk {

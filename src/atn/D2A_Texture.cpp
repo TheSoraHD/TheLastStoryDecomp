@@ -1,4 +1,5 @@
 #include "atn/D2A_Texture.h"
+#include "atn/Color.h"
 #include "atn/D2A_Data.h"
 #include "atn/D2A_Message.h"
 #include "math/Vec.h"
@@ -188,18 +189,7 @@ void D2A_Texture::vf0C() {
 
 void D2A_Texture::vf14() {}
 
-struct Color4f_unk {
-    Color4f_unk() {}
-    Color4f_unk(const Color4f_unk& c) : r(c.r), g(c.g), b(c.b), a(c.a) {}
-    unsigned int ToU32() const {
-        unsigned int ur = fn_ToU8(r);
-        unsigned int ug = fn_ToU8(g);
-        unsigned int ub = fn_ToU8(b);
-        unsigned int ua = fn_ToU8(a);
-        return (ua << 24) | (ur << 16) | (ug << 8) | ub;
-    }
-    float r, g, b, a;
-};
+// atn::Color4f_unk is atn::Color (atn/Color.h)
 struct D2A_Outline_unk {
     float x;
     float y;
