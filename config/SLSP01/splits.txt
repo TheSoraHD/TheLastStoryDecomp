@@ -3238,13 +3238,13 @@ game/PlayerTask.cpp:
 
 game/PopupTask.cpp:
 	.text       start:0x8054A6E8 end:0x8054E574
-	.rodata     start:0x8075E480 end:0x8075E800
+	.rodata     start:0x8075E480 end:0x8075E7F8
 	.data       start:0x80794A60 end:0x80794AE0
 	.sdata2     start:0x80887D60 end:0x80887E20
 
 Event/ActionActorBehavior.cpp:
 	.text       start:0x8054E574 end:0x80551108
-	.rodata     start:0x8075E800 end:0x8075E850
+	.rodata     start:0x8075E7F8 end:0x8075E850
 	.data       start:0x80794AE0 end:0x80794B18
 	.bss        start:0x807C9140 end:0x807C9220
 	.sdata      start:0x8087E4E8 end:0x8087E670

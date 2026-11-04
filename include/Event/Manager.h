@@ -5,6 +5,7 @@
 #include "Event/Path.h"
 #include "atn/Bgm.h"
 #include "std/vector.h"
+#include "std/list.h"
 
 class GameScene;
 class CharaTask;
@@ -86,6 +87,8 @@ public:
     void fn_8047F850(int a, int b, int c);
     void fn_8047F88C(int arg);
     void fn_8047F8A4(float value);
+    void fn_8047F984(float time);
+    void fn_80488D6C(); // inferred: sets the frame time (also in the game settings)
     void fn_8047F8C0(int arg);
     int fn_80481654();   // inferred: the task m1A7C is not frozen (no event is running)
     int fn_80481668();   // inferred: nonzero while the song stops the characters
@@ -104,7 +107,7 @@ public:
     Sequence* m70; // inferred: current sequence
     unsigned char m74[0xB4 - 0x74];
     float mB4; // inferred: time of a frame
-    unsigned char mB8[0xC4 - 0xB8];
+    std::list<int> mB8; // inferred: element type unknown (cleared when the cut changes)
     int mC4;   // inferred: the cameras are updated at once
     EventCamera_unk mCameras[4]; // 0xC8
     int m1A38;
@@ -133,7 +136,9 @@ public:
     int m1F1C;
     atn::Bgm m1F20; // inferred: music of the event
     int m1F34;      // inferred: the music is used
-    unsigned char m1F38[0x2380 - 0x1F38];
+    char m1F38[0x24]; // inferred: a name (tested with strlen)
+    int m1F5C;
+    unsigned char m1F60[0x2380 - 0x1F60];
     int m2380;
     unsigned char m2384[0x23AC - 0x2384];
     atn::Task* m23AC; // inferred: frozen by fn_8048F184 (0)

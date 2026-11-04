@@ -182,9 +182,8 @@ ActionParam_unk* Action::fn_80539330(unsigned int hash) {
     return 0;
 }
 
-// NONMATCHING: 61.9% - scheduling: the original loads m10 and the 0x4330 high word before the stack
-// frame is made (tried locals for start/end/length, float and int temporaries)
-float Action::fn_805393A4(int frame) {
+// inferred: const (m10 is loaded before the stack frame is made)
+float Action::fn_805393A4(int frame) const {
     return (float)(frame - m10) / (float)(m14 - m10);
 }
 
