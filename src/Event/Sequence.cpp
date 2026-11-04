@@ -5,6 +5,7 @@
 #include "Event/Cut.h"
 #include "Event/Action.h"
 #include "Event/Manager.h"
+#include "game/NewStaffRoll.h"
 #include "Event/Dialog.h"
 #include "atn/Memory.h"
 #include "atn/RenderSetting_unk.h"
@@ -246,7 +247,7 @@ void Sequence::fn_8053E8D0() {
     }
     if (lbl_8087F540->m2400 != 0 && (m190 == 0x270E || m190 == 0x151B)) {
         lbl_8087F540->m2400->fn_800D246C(0);
-        lbl_8087F540->m2400->m48 = 0.0f;
+        lbl_8087F540->m2400->mPos = 0.0f;
     }
     if (m50 == 1 || m50 == 3) {
         lbl_8087F540->fn_80482ED8();
@@ -284,7 +285,7 @@ void Sequence::fn_8053ED4C() {
     }
     if (lbl_8087F540->m2400 != 0 && m190 != 0x151B && m190 != 0x151F && m190 != 0x151E) {
         lbl_8087F540->m2400->fn_800D246C(1);
-        lbl_8087F540->m2400->m48 = 0.0f;
+        lbl_8087F540->m2400->mPos = 0.0f;
     }
     if (m50 == 1 || m50 == 3) {
         if (lbl_8087F0A8->m194 == 0 || m190 != 0x19D) {
@@ -607,8 +608,8 @@ void Sequence::fn_8053F818() {
             if (m190 == 0x151B) {
                 lbl_8087F540->fn_8048FE88();
                 lbl_8087F540->m2400->fn_800D246C(1);
-                lbl_8087F540->m2400->m4C = lbl_8087F540->m2400->m4C / 1.31f;
-                lbl_8087F540->m2400->m54 = 1763.0f;
+                lbl_8087F540->m2400->mSpeed = lbl_8087F540->m2400->mSpeed / 1.31f;
+                lbl_8087F540->m2400->mWait = 1763.0f;
             }
             if (lbl_8087F0A8->m194 != 0 && m190 == 0x19D) {
                 m2C0 = fn_801F3FF8(this, "/data/d2anime/ui_demo_end.d2a", 0);

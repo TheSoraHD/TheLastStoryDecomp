@@ -6,22 +6,20 @@
 #include "atn/Bgm.h"
 #include "std/vector.h"
 #include "std/list.h"
+#include "atn/Sphere.h"
+#include "atn/ColorMatrixParam_unk.h"
 
 class GameScene;
 class CharaTask;
+class NewStaffRoll;
+struct MapLocators_unk;
+struct ColorMatrixParam_unk;
 
 namespace Event {
 
 class Action;
 class Sequence;
-
-// inferred: task of the event manager at 0x2400 (stopped during some events; float at 0x48)
-struct ManagerSubTask_unk : public atn::Task {
-    float m48;
-    float m4C;
-    float m50;
-    float m54;
-};
+struct MovieState_unk;
 
 // inferred: task at 0x1AA8 of the event manager (names invented)
 struct ManagerFade_unk : public atn::Task {
@@ -62,6 +60,30 @@ public:
     void fn_80489A50(Action* action, int arg);
     void fn_8048E904();
     void fn_8048F184(int arg);
+    // inferred: called by Event/ActionEffectPlay.cpp
+    void fn_80486BEC(int on, float value);
+    void fn_804846FC(const atn::Vector3& dir, int frames);
+    void fn_80484A78(int frames);
+    void fn_80486DAC(int on);
+    void fn_80487064(int on);
+    void fn_8048EE78(int a, float r, float g, float b, float c, float d, int e, float f);
+    void fn_80488050(Sequence* manager, Action* arg);
+    void fn_80488A74(const char* name, int fade, float volume);
+    void fn_80488D80(int fade);
+    MapLocators_unk* fn_80480438();
+    void fn_8048E9E0();
+    void fn_80485028(int index, const atn::Vector3& pos, float radius, int color);
+    void fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color);
+    void fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos);
+    void fn_80484BF4();
+    void fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float rate);
+    void fn_80484E88();
+    ColorMatrixParam_unk* fn_80483F70();
+    void fn_80484088(ColorMatrixParam_unk* param, float rate);
+    void fn_804881B8(Sequence* manager, const char* name, int fade, int stopBgm, int a, int b, int c, float volume, int d, int flags);
+    void fn_8048E9A4(MovieState_unk* movie, int frames);
+    void fn_8048EC7C();
+    void fn_80489A2C();
     int fn_8048B048(int id);                  // inferred: time curve by id
     int fn_8048B3B8(int id);                  // inferred: move curve by id
     float fn_8048BCA4(int curve, float t);    // inferred: value of a time curve
@@ -102,7 +124,9 @@ public:
         }
     }
 
-    unsigned char m48[0x64 - 0x48];
+    unsigned char m48[0x4C - 0x48];
+    atn::Sphere m4C; // inferred: target of the check of type 1 (ActionCheck)
+    unsigned char m5C[0x64 - 0x5C];
     std::vector<Sequence*> m64; // inferred: sequences of the manager
     Sequence* m70; // inferred: current sequence
     unsigned char m74[0xB4 - 0x74];
@@ -126,25 +150,39 @@ public:
     int m1AA4;
     ManagerFade_unk* m1AA8;
     int m1AAC;
-    unsigned char m1AB0[0x1EA4 - 0x1AB0];
+    unsigned char m1AB0[0x1D70 - 0x1AB0];
+    ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
+    unsigned char m1DC0[0x1E94 - 0x1DC0];
+    atn::Sphere m1E94; // inferred: sphere looked at by ActionCheck (type 1)
     int m1EA4; // inferred: the check sphere is shown (fn_80481800)
     int m1EA8;
     int m1EAC;
     int m1EB0;
-    unsigned char m1EB4[0x1F10 - 0x1EB4];
+    unsigned char m1EB4[0x1F0C - 0x1EB4];
+    int m1F0C; // inferred: cloud map shown by ActionCloudMap
     std::vector<int> m1F10; // inferred: cleared by fn_80484FBC with the lights
     int m1F1C;
     atn::Bgm m1F20; // inferred: music of the event
     int m1F34;      // inferred: the music is used
     char m1F38[0x24]; // inferred: a name (tested with strlen)
     int m1F5C;
-    unsigned char m1F60[0x2380 - 0x1F60];
+    unsigned char m1F60[0x1F6C - 0x1F60];
+    float m1F6C; // inferred: movie fade time
+    unsigned char m1F70[0x2380 - 0x1F70];
     int m2380;
-    unsigned char m2384[0x23AC - 0x2384];
+    unsigned char m2384[0x238C - 0x2384];
+    int m238C; // inferred: nonzero while messages are blocked
+    int m2390; // inferred: nonzero: the dialog texts are flushed at once
+    unsigned char m2394[0x23AC - 0x2394];
     atn::Task* m23AC; // inferred: frozen by fn_8048F184 (0)
     atn::Task* m23B0; // inferred: frozen by fn_8048F184 (1)
-    unsigned char m23B4[0x2400 - 0x23B4];
-    ManagerSubTask_unk* m2400;
+    int m23B4; // inferred: set when the check of type 1 succeeds
+    unsigned char m23B8[0x2400 - 0x23B8];
+    NewStaffRoll* m2400; // inferred: staff roll of the ending
+    unsigned char mMoviePlaying : 1; // 0x2404
+    unsigned char m2404_1 : 7;
+    unsigned char m2405[0x2448 - 0x2405];
+    int m2448; // inferred: nonzero to pass the checks without input
 };
 
 } // namespace Event
