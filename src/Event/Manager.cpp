@@ -22,6 +22,7 @@ extern "C" GameConfig_unk* lbl_8087F0A8;     // inferred: game settings
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 extern "C" atn::Vector2_unk lbl_807C7028;    // inferred: zero 2D vector
 extern "C" void fn_8054E574();               // inferred: creates the action processors (Event/ActionActorBehavior.cpp)
+extern "C" void fn_8054F380();               // inferred: deletes the action processors (Event/ActionActorBehavior.cpp)
 extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen capture fade
 // inferred: items of the debug menu (atn/MindowsCommon.h)
 extern "C" void fn_80087994(void* folder, const char* name, int* value, void* func, void* arg);
@@ -328,32 +329,33 @@ void SceneSetting_unk::fn_8047CB74(NewCampScene2_unk* scene, float t) {
     fn_800C2448(scene, 0)->SetColor(atn::Lerp_unk(*mLight.GetColor_unk(), *fn_800C2448(scene, 0)->GetColor_unk(), t));
 }
 
+inline EventConfig_unk::EventConfig_unk()
+    : m08(1), m0C(0), m10(3), m14(3), m18(1), m1C(1.0f), m20(1.25f), m24(1.25f), m28(0.0f), m2C(2.0f),
+      m30(1.0f), m34(0.5f), m38(1.0f), m3C(0.5f), m40(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)),
+      m50(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m60(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m70(0), m74(0),
+      m78(0), m7C(0), m80(0), m84(0), m88(1), m8C(0), m90(0), m94(1), m98(200.0f), m9C(500.0f), mA0(30.0f),
+      mA4(10.0f), mA8(320), mAC(224), mB0(1.5f), mB4(1.5f), mB8(0), mBC(0), mC0(0), mC4(1.0f), mC8(0.0f),
+      mCC(0), mD0(0), mD4(0.02f), mD8(0.02f), mDC(0), mE0(0), mE4(1.0f, 1.0f, 1.0f, 1.0f),
+      mF4(0.0f, 0.0f, 0.0f), m100(0), m104(0), m108(1.0f), m10C(0.05f) {}
+
 // NONMATCHING: 91% - float constant registers and the stack slots of the atn::Color temporaries
 // inferred: constructor of the event manager (0x8047CF7C)
 Manager::Manager(atn::Task* parent)
-    : atn::Task(parent), m70(0), mB4(1.0f), mC4(0), m1A38(0), m1A3C(0), m1A40(0), m1A44(0), m1A48(0), m1A4C(1),
-      m1A50(0x3E), m1A54(0), m1A58(8.0f), m1A60(0), m1A64(0), m1A68(0), m1A6C(0), m1A84(0.0f), m1A88(0),
-      m1A8C(5), m1A90(0), m1A94(0), m1A98(0), m1A9C(0), m1AB8(1), m1ABC(0), m1AC0(3), m1AC4(3), m1AC8(1),
-      m1ACC(1.0f), m1AD0(1.25f), m1AD4(1.25f), m1AD8(0.0f), m1ADC(2.0f), m1AE0(1.0f), m1AE4(0.5f), m1AE8(1.0f),
-      m1AEC(0.5f), m1AF0(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m1B00(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)),
-      m1B10(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m1B20(0), m1B24(0), m1B28(0), m1B2C(0), m1B30(0), m1B34(0),
-      m1B38(1), m1B3C(0), m1B40(0), m1B44(1), m1B48(200.0f), m1B4C(500.0f), m1B50(30.0f), m1B54(10.0f),
-      m1B58(320), m1B5C(224), m1B60(1.5f), m1B64(1.5f), m1B68(0), m1B6C(0), m1B70(0), m1B74(1.0f), m1B78(0.0f),
-      m1B7C(0), m1B80(0), m1B84(0.02f), m1B88(0.02f), m1B8C(0), m1B90(0), m1B94(1.0f, 1.0f, 1.0f, 1.0f),
-      m1BA4(0.0f, 0.0f, 0.0f), m1BB0(0), m1BB4(0), m1BB8(1.0f), m1BBC(0.05f), m1BC0(0), m1BC4(0), m1BC8(0),
-      m1DC0(0), m1DC4(0), m1DC8(0), m1DCC(1.0f), m1DD0(0.0f), m1DD4(0), m1DD8(0), m1DDC(0.02f), m1DE0(0.02f),
-      m1E74(0), m1E78(0), m1E7C(0), m1E80(0), m1E84(0), m1E88(0.0f), m1E8C(0.0f), m1E90(0), m1EA4(0), m1EA8(0),
-      m1EAC(0), m1EB0(0), m1EB4(30.0f), m1F1C(0), m1F34(0), m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f),
-      m1F6C(0.0f), m1F70(0), m1F74(0), m1F78(0), m1F7C(0), m237C(0), m2380(0), m2384(0), m2388(1), m238C(0),
-      m2390(0), m2394(0), m2398(0), m239C(0), m23A0(0), m23A4(0), m23A8(0), m23B8(0), m23FC(0), m2400(0),
-      m240C(0), m2410(0.5f), m2414(1.0f), m2418(1.0f), m2448(0) {
+    : atn::Task(parent), m70(0), mB4(1.0f), mC4(0), m1A38(0), m1A3C(0), m1A40(0), m1A44(0), m1A48(0),
+      m1A4C(1), m1A50(0x3E), m1A54(0), m1A58(8.0f), m1A6C(0), m1A84(0.0f), m1A88(0), m1A8C(5), m1A90(0),
+      m1A94(0), m1A98(0), m1A9C(0), m1DC0(0), m1DC4(0), m1DC8(0), m1DCC(1.0f), m1DD0(0.0f), m1DD4(0),
+      m1DD8(0), m1DDC(0.02f), m1DE0(0.02f), m1E74(0), m1E78(0), m1E88(0.0f),
+      m1E8C(0.0f), m1E90(0), m1EA4(0), m1EA8(0), m1EAC(0), m1EB0(0), m1EB4(30.0f), m1F1C(0), m1F34(0),
+      m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0), m1F74(0), m1F78(0),
+      m1F7C(0), m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m23B8(0), m23FC(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
+      m2418(1.0f), m2448(0) {
     fn_8054E574();
     fn_8010D98C();
     for (int i = 0; i < 16; i++) {
         m74[i] = 0;
     }
-    m1AB0 = 0;
-    m1AB1 = 0;
+    m1AB0.m00 = 0;
+    m1AB0.m01 = 0;
     m1DE4 = -1;
     m1DE8 = 0;
     m1DF8 = 0;
@@ -426,6 +428,22 @@ Manager::Manager(atn::Task* parent)
     if (lbl_8087F0A8->mPreloadEventMA == 0) {
         m1F60 = 0;
     }
+}
+
+// NONMATCHING: 96.4% - the vectors at 0x64, 0x1A60, 0x1A70 and 0x1F10 have one more null test of
+// their address in the original (one more base class; adding it to every vector<T*> loses 30
+// functions elsewhere), and registers (original: this in r29, the index in r31)
+Manager::~Manager() {
+    lbl_8087F540 = 0;
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        fn_8048D3A4(i);
+    }
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        fn_8048DE54(i);
+    }
+    m23A0.clear();
+    m2394.clear();
+    fn_8054F380();
 }
 
 inline Sequence* Manager::FindSequence_unk(int id) {
@@ -576,8 +594,8 @@ void Manager::fn_8047F984(float time) {
 }
 
 GameMap_unk* Manager::fn_80480438() {
-    if (m1A64 != 0) {
-        return *m1A60;
+    if (m1A60.size() != 0) {
+        return m1A60[0];
     }
     if (lbl_8087F430 != 0) {
         return fn_80373148(lbl_8087F430);

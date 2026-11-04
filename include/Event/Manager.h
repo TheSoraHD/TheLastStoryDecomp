@@ -5,6 +5,7 @@
 #include "Event/Path.h"
 #include "atn/Bgm.h"
 #include "std/vector.h"
+#include "std/string.h"
 #include "std/list.h"
 #include "atn/Sphere.h"
 #include "atn/ColorMatrixParam_unk.h"
@@ -14,6 +15,7 @@
 #include "game/ResHandle.h"
 #include "atn/CharaLightData_unk.h"
 #include "gmk/SeTable.h"
+#include "Event/DebugInfo_unk.h"
 
 class GameScene;
 class CharaTask;
@@ -42,12 +44,6 @@ struct ManagerEntry_unk {
     int m04;
 };
 
-// inferred: debug display of the event (0x78 bytes, Event/DebugInfo_unk.cpp; constructor 0x80221E08)
-struct DebugInfo_unk {
-    DebugInfo_unk();
-    unsigned char m00[0x78];
-};
-
 // inferred: light settings of a scene (0x190 bytes): copied into the scene (fn_8047C88C) or blended
 // with it (fn_8047CB74). Name invented.
 struct SceneSetting_unk {
@@ -65,6 +61,84 @@ struct SceneSetting_unk {
     int m148;                           // 0x148
     atn::Light mLight;                  // 0x14C
 };
+
+// inferred: light settings with their id (0x194 bytes; fn_804827D8 blends the scene towards one)
+struct SceneSettingEntry_unk {
+    int mId;
+    SceneSetting_unk mSetting; // 0x04
+};
+
+// inferred: settings of the event at 0x1AB0 of the manager (0x120 bytes). Names invented.
+struct EventConfig_unk {
+    EventConfig_unk();
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02[0x8 - 0x2];
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    float m1C;
+    float m20;
+    float m24;
+    float m28;
+    float m2C;
+    float m30;
+    float m34;
+    float m38;
+    float m3C;
+    atn::Color m40;
+    atn::Color m50;
+    atn::Color m60;
+    int m70;
+    int m74;
+    int m78;
+    int m7C;
+    int m80;
+    int m84;
+    int m88;
+    int m8C;
+    int m90;
+    int m94;
+    float m98;
+    float m9C;
+    float mA0;
+    float mA4;
+    int mA8;
+    int mAC;
+    float mB0;
+    float mB4;
+    int mB8;
+    int mBC;
+    int mC0;
+    float mC4;
+    float mC8;
+    int mCC;
+    int mD0;
+    float mD4;
+    float mD8;
+    int mDC;
+    int mE0;
+    atn::Color mE4;
+    atn::Vector3 mF4;
+    int m100;
+    int m104;
+    float m108;
+    float m10C;
+    std::vector<SceneSettingEntry_unk> m110; // inferred: light settings of the map
+    int m11C;
+};
+
+// inferred: curve of the manager (0x10 bytes; fn_8048B048, fn_8048B3B8). Names invented.
+struct Curve_unk {
+    int mId;
+    void* m04;
+    int m08;
+    int m0C;
+};
+
+
 
 // inferred: event manager (Event/Manager.cpp, vtable __vt__Q25Event7Manager; instance lbl_8087F540).
 // Partial: only what Event/Sequence.cpp uses; member and method names are invented.
@@ -119,6 +193,8 @@ public:
     float fn_8048BCA4(int curve, float t);    // inferred: value of a time curve
     float fn_8048BD04(int curve, float t);    // inferred: value of a move curve
     void fn_8048C884(int curve);              // inferred: releases a move curve
+    void fn_8048D3A4(int index);              // inferred: releases the time curve `index`
+    void fn_8048DE54(int index);              // inferred: releases the move curve `index`
     // inferred: weak copies 0x80112F54 and 0x801130F4 (Event/Path.cpp)
     Sequence* fn_80112F54() { return m70; }
     int fn_801130F4() { return mC4; }
@@ -181,11 +257,9 @@ public:
     int m1A54;
     float m1A58; // inferred: debug menu "FastForwardSpeed"
     ResHandle m1A5C; // inferred: debug menu folder "Event"
-    GameMap_unk** m1A60; // inferred: map of the event when m1A64 is set
-    int m1A64;
-    int m1A68;
+    std::vector<GameMap_unk*> m1A60; // inferred: map of the event (first entry) when not empty
     GameScene* m1A6C; // inferred: scene of the event when there is no field
-    std::vector<int> m1A70; // inferred: cleared by fn_804805B4
+    std::vector<CharaTask*> m1A70; // inferred: characters created for the event (fn_8047FF70)
     atn::D2A_Task* m1A7C; // inferred: "ui_c_black_mask.d2a" (frozen by fn_8048169C)
     atn::D2A_Task* m1A80; // inferred: "ui_event_start_flash.d2a" (frozen by fn_804817D4)
     float m1A84;
@@ -199,65 +273,7 @@ public:
     int m1AA4;
     atn::FadeColor* m1AA8;
     int m1AAC;
-    unsigned char m1AB0;
-    unsigned char m1AB1;
-    unsigned char m1AB2[0x1AB8 - 0x1AB2];
-    int m1AB8;
-    int m1ABC;
-    int m1AC0;
-    int m1AC4;
-    int m1AC8;
-    float m1ACC;
-    float m1AD0;
-    float m1AD4;
-    float m1AD8;
-    float m1ADC;
-    float m1AE0;
-    float m1AE4;
-    float m1AE8;
-    float m1AEC;
-    atn::Color m1AF0;
-    atn::Color m1B00;
-    atn::Color m1B10;
-    int m1B20;
-    int m1B24;
-    int m1B28;
-    int m1B2C;
-    int m1B30;
-    int m1B34;
-    int m1B38;
-    int m1B3C;
-    int m1B40;
-    int m1B44;
-    float m1B48;
-    float m1B4C;
-    float m1B50;
-    float m1B54;
-    int m1B58;
-    int m1B5C;
-    float m1B60;
-    float m1B64;
-    int m1B68;
-    int m1B6C;
-    int m1B70;
-    float m1B74;
-    float m1B78;
-    int m1B7C;
-    int m1B80;
-    float m1B84;
-    float m1B88;
-    int m1B8C;
-    int m1B90;
-    atn::Color m1B94;
-    atn::Vector3 m1BA4;
-    int m1BB0;
-    int m1BB4;
-    float m1BB8;
-    float m1BBC;
-    int m1BC0;
-    int m1BC4;
-    int m1BC8;
-    int m1BCC;
+    EventConfig_unk m1AB0; // inferred: settings of the event (0x120 bytes)
     SceneSetting_unk m1BD0; // inferred: light settings of the event
     unsigned char m1D60[0x1D70 - 0x1D60];
     ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
@@ -279,9 +295,7 @@ public:
     DebugInfo_unk m1DFC;
     int m1E74;
     int m1E78;
-    int m1E7C;
-    int m1E80;
-    int m1E84;
+    std::string m1E7C;
     float m1E88;
     float m1E8C;
     int m1E90; // inferred: debug menu "DrawViewEventSphere"
@@ -317,12 +331,8 @@ public:
     int m2388; // inferred: debug menu "FixEventDelay"
     int m238C; // inferred: debug menu "Draw2DMode"; nonzero while messages are blocked
     int m2390; // inferred: nonzero: the dialog texts are flushed at once
-    int m2394;
-    int m2398;
-    int m239C;
-    int m23A0;
-    int m23A4;
-    int m23A8;
+    std::vector<Curve_unk> m2394; // inferred: move curves (fn_8048B3B8)
+    std::vector<Curve_unk> m23A0; // inferred: time curves (fn_8048B048)
     atn::D2A_Task* m23AC; // inferred: "ev_gradation.d2a" (frozen by fn_8048F184 (0))
     atn::D2A_Task* m23B0; // inferred: "ev_gradation.d2a" (frozen by fn_8048F184 (1))
     int m23B4; // inferred: set when the check of type 1 succeeds
