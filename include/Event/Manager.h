@@ -12,7 +12,7 @@
 class GameScene;
 class CharaTask;
 class NewStaffRoll;
-struct MapLocators_unk;
+struct GameMap_unk;
 struct ColorMatrixParam_unk;
 
 namespace Event {
@@ -20,6 +20,12 @@ namespace Event {
 class Action;
 class Sequence;
 struct MovieState_unk;
+
+// inferred: entry of the queue of sequences to start (fn_8047E964)
+struct QueuedSequence_unk {
+    int mId;
+    int m04;
+};
 
 // inferred: task at 0x1AA8 of the event manager (names invented)
 struct ManagerFade_unk : public atn::Task {
@@ -70,7 +76,7 @@ public:
     void fn_80488050(Sequence* manager, Action* arg);
     void fn_80488A74(const char* name, int fade, float volume);
     void fn_80488D80(int fade);
-    MapLocators_unk* fn_80480438();
+    GameMap_unk* fn_80480438(); // inferred: map of the event (its locators)
     void fn_8048E9E0();
     void fn_80485028(int index, const atn::Vector3& pos, float radius, int color);
     void fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color);
@@ -100,7 +106,13 @@ public:
 
     // inferred: sequence with the id `id` (current one first, then the list m64; inlined); name invented
     Sequence* FindSequence_unk(int id);
+    int fn_8047E964(int id, int queue); // inferred: starts (or queues) the sequence `id`
+    int fn_8047F268(int id); // inferred: the sequence `id` is missing, not started or past state 5
     int fn_8047F2EC(int id); // inferred: the sequence `id` is playing (state 10)
+    int fn_8047F364(int id); // inferred: the sequence `id` is missing, not started or ending
+    void fn_8047EFD8(int id, int arg);
+    void fn_8047F91C(); // inferred: skips the current sequence to its end
+    void fn_804805B4();
     int fn_8047F420(int id); // inferred: the sequence `id` is missing or of kind 1
     int fn_8047F498(int id); // inferred: the sequence `id` is missing or of kind 3
     int fn_8047F510(int id); // inferred: the sequence `id` is missing or has m98_8
@@ -135,9 +147,12 @@ public:
     int mC4;   // inferred: the cameras are updated at once
     EventCamera_unk mCameras[4]; // 0xC8
     int m1A38;
-    unsigned char m1A3C[0x1A6C - 0x1A3C];
+    unsigned char m1A3C[0x1A60 - 0x1A3C];
+    GameMap_unk** m1A60; // inferred: map of the event when m1A64 is set
+    int m1A64;
+    unsigned char m1A68[0x1A6C - 0x1A68];
     GameScene* m1A6C; // inferred: scene of the event when there is no field
-    unsigned char m1A70[0x1A7C - 0x1A70];
+    std::vector<int> m1A70; // inferred: cleared by fn_804805B4
     ManagerTask1A7C_unk* m1A7C; // inferred: frozen by fn_8048169C
     atn::Task* m1A80;          // inferred: frozen by fn_804817D4
     int m1A84;
@@ -177,7 +192,9 @@ public:
     atn::Task* m23AC; // inferred: frozen by fn_8048F184 (0)
     atn::Task* m23B0; // inferred: frozen by fn_8048F184 (1)
     int m23B4; // inferred: set when the check of type 1 succeeds
-    unsigned char m23B8[0x2400 - 0x23B8];
+    int m23B8; // inferred: number of queued sequences
+    QueuedSequence_unk m23BC[8]; // inferred: ring of sequences to start
+    int m23FC; // inferred: first entry of the ring
     NewStaffRoll* m2400; // inferred: staff roll of the ending
     unsigned char mMoviePlaying : 1; // 0x2404
     unsigned char m2404_1 : 7;

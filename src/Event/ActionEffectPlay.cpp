@@ -46,8 +46,8 @@ struct Locator_unk {
     unsigned int mHidden : 1; // 0x88
     unsigned int m88_1 : 31;
 };
-struct MapLocators_unk;
-extern "C" Locator_unk* fn_804A0614(MapLocators_unk* map, const std::string& name); // inferred: by name
+struct GameMap_unk;
+extern "C" Locator_unk* fn_804A0614(GameMap_unk* map, const std::string& name); // inferred: by name
 // inferred: light settings of the camera (as in gmk/CharaLight.cpp)
 struct ReflectTarget_unk {
     unsigned char m00[0x120];
@@ -1784,7 +1784,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         EventManager_unk* manager = arg->fn_805381C8();
-        MapLocators_unk* map = lbl_8087F540->fn_80480438();
+        GameMap_unk* map = lbl_8087F540->fn_80480438();
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {
@@ -1799,7 +1799,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
     case 3:
     case 4: {
         EventManager_unk* manager = arg->fn_805381C8();
-        MapLocators_unk* map = lbl_8087F540->fn_80480438();
+        GameMap_unk* map = lbl_8087F540->fn_80480438();
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {

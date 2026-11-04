@@ -6,11 +6,15 @@
 #include "Event/Manager.h"
 #include "Event/Sequence.h"
 #include "atn/Light_unk.h"
+#include "atn/RenderSetting_unk.h"
+#include "game/GameField_unk.h"
 #include "Event/Cut.h"
 #include "Event/Section.h"
 #include "Event/Channel.h"
 #include "Event/Action.h"
 #include "Event/Label.h"
+
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 
 namespace Event {
 
@@ -207,12 +211,46 @@ inline Sequence* Manager::FindSequence_unk(int id) {
     return 0;
 }
 
+int Manager::fn_8047E964(int id, int queue) {
+    // NONMATCHING: 97.6% - the original reads m23B8 again for the index (tried a ring struct with
+    // its own push, unsigned casts, a pointer to the entry)
+    if (queue != 0 && (unsigned int)m23B8 < 8) {
+        QueuedSequence_unk* entry = &m23BC[(m23FC + m23B8) & 7];
+        entry->mId = id;
+        entry->m04 = 0;
+        m23B8++;
+    } else {
+        Sequence* seq = FindSequence_unk(id);
+        if (seq == 0) {
+            return 0;
+        }
+        seq->fn_8053F6EC();
+    }
+    return 1;
+}
+
+int Manager::fn_8047F268(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 1;
+    }
+    return seq->m194 >= 5 || seq->m194 == 0;
+}
+
 int Manager::fn_8047F2EC(int id) {
     Sequence* seq = FindSequence_unk(id);
     if (seq == 0) {
         return 0;
     }
     return seq->m194 == 10;
+}
+
+int Manager::fn_8047F364(int id) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 1;
+    }
+    return seq->fn_8047F400() || seq->m194 == 0;
 }
 
 // inferred: the sequence is ending (states 13 and 14)
@@ -291,6 +329,37 @@ void Manager::fn_8047F8C0(int arg) {
     if (m1A9C != 0) {
         m1A9C->fn_800D246C(arg);
     }
+}
+
+void Manager::fn_8047F91C() {
+    Sequence* seq = m70;
+    if (seq != 0) {
+        seq->fn_80550CE0();
+        fn_8047EFD8(seq->m190, 0);
+        seq->fn_8053E8C8(14);
+        fn_8048EC7C();
+    }
+}
+
+void Manager::fn_8047F984(float time) {
+    mB4 = time;
+    lbl_8087EFA8->m3A4 = time;
+}
+
+GameMap_unk* Manager::fn_80480438() {
+    if (m1A64 != 0) {
+        return *m1A60;
+    }
+    if (lbl_8087F430 != 0) {
+        return fn_80373148(lbl_8087F430);
+    }
+    return 0;
+}
+
+void Manager::fn_804805B4() {
+    m1A70.clear();
+    m23B8 = 0;
+    fn_8047F580();
 }
 
 int Manager::fn_80481654() {
