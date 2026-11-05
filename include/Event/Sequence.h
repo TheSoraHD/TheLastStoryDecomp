@@ -151,6 +151,8 @@ struct EffectLists_unk {
     }
     // inferred: the copy is in an inline helper over the inline budget: Set_unk keeps its tiny members
     // (size, operator[]) and calls Clear_unk, the two resize and fn_8048A968 (docs/inlining.md, R5)
+    // NONMATCHING: 99.96% - only the relocation of vector<float>::resize (fn_8032BE88, extern "C" in
+    // game/Em403WarLion.cpp)
     void Set_unk(const std::vector<atn::Vector3>& points) {
         SEQ_ASSERT100_UNK;
         Set_unk(points.size(), &points[0]);

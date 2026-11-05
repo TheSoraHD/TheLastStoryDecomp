@@ -2677,6 +2677,8 @@ inline float Integral_unk(atn::Curve* curve, float a, float b) {
     return integral->vf10(b) - va;
 }
 
+// NONMATCHING: 99.91% - only the relocations of the std::vector<atn::Vector3> weak copies (fn_8032AB90,
+// fn_8032AC1C, fn_8032ABA4: extern "C" in game/Em403WarLion.cpp) and of the jump table
 void Curve_unk::fn_80489D08(int type) {
     if (m04 != 0) {
         delete m04;
