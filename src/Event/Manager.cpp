@@ -1714,6 +1714,74 @@ void Manager::fn_804870F4() {
         map->m104 = m1D6C;
     }
 }
+// inferred: true when the tasks of the manager are loaded; then they are started, hidden
+int Manager::fn_80487184() {
+    if (lbl_8087F430 == 0 && m1A9C == 0) {
+        m1A9C = atn::FadeCapture::Create(this, 10, -1, 0xFFFFFF, 0);
+        m1A9C->fn_800D246C(1);
+        m1A9C->m78 = 0x12;
+    }
+    if (!m1A7C->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m1A80->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m1AA8->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (m1A9C != 0 && !m1A9C->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (m1EB8.fn_800C1990() != 0) {
+        return 0;
+    }
+    if (!m23AC->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m23B0->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m241C->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m2438->IsFlag_unk(2)) {
+        return 0;
+    }
+    if (!m48->IsFlag_unk(2)) {
+        return 0;
+    }
+    m1A7C->fn_800D246C(0);
+    m1A7C->FreezeTask();
+    m1A7C->mRepeat = 0;
+    m1A80->fn_800D246C(0);
+    m1A80->FreezeTask();
+    m1A80->mRepeat = 0;
+    m1AA8->fn_800D246C(0);
+    m1AA8->mActive = 0;
+    m23AC->fn_800D246C(0);
+    m23AC->FreezeTask();
+    m23AC->mRepeat = 0;
+    m23B0->fn_800D246C(0);
+    m23B0->FreezeTask();
+    m23B0->mRepeat = 0;
+    m48->fn_800D246C(0);
+    m48->FreezeTask();
+    m48->mRepeat = 0;
+    if (m1A9C != 0) {
+        m1A9C->fn_800D246C(0);
+        m1A9C->FreezeTask();
+        m1A9C->mPauseAtEnd = 1;
+    }
+    m241C->fn_800D246C(0);
+    m241C->mRepeat = 0;
+    m241C->FreezeTask();
+    m2438->fn_800D246C(0);
+    m2438->mRepeat = 1;
+    m2438->FreezeTask();
+    return 1;
+}
+
 
 
 
