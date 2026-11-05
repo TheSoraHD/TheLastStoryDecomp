@@ -8,6 +8,7 @@
 #include "game/EnemyTask.h"
 #include "game/ChaserGuard.h"
 #include "atn/RenderManager.h"
+#include "game/TownTask.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct ChaseEffectMgr_unk;
@@ -45,11 +46,6 @@ struct ChaseField_unk {
     int m5660;
 };
 extern "C" ChaseField_unk* lbl_8087F430;
-struct ChaseTown_unk {
-    unsigned char m00[0x258];
-    void* m258; // inferred: minimap
-};
-extern "C" ChaseTown_unk* lbl_8087FA20;
 struct ChaseColor_unk {
     ChaseColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;

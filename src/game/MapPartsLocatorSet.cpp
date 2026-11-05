@@ -24,6 +24,7 @@ extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vec
                             unsigned long n); // inferred: PSMTXMultVecArray
 
 #include "atn/AABB_unk.h"
+#include "game/TownTask.h"
 
 // inferred: resource data of an instance (bounding box at 0x10)
 struct LocatorInstRes_unk {
@@ -79,11 +80,6 @@ struct LocatorConfig_unk {
 extern "C" LocatorConfig_unk* lbl_8087F0A8;
 
 
-struct LocatorDebug_unk {
-    unsigned char m00[0x38];
-    unsigned int m38; // inferred: debug flags (4: no culling)
-};
-extern "C" LocatorDebug_unk* lbl_8087FA20;
 
 // inferred: ".building" file (names invented)
 struct BuildingFile_unk {
@@ -241,7 +237,7 @@ void MapPartsLocatorSet::vf14() {
             return;
         }
         int visible = 1;
-        if (lbl_8087FA20 != 0 && (lbl_8087FA20->m38 & 4) != 4 && !fn_800502A8(&atn::RenderManager::instance_->mCamera.mFrustum, &mBox.mMin)) {
+        if (lbl_8087FA20 != 0 && (lbl_8087FA20->mFlags & 4) != 4 && !fn_800502A8(&atn::RenderManager::instance_->mCamera.mFrustum, &mBox.mMin)) {
             visible = 0;
         }
         if (visible && lbl_8087F0A8->mDrawMap != 0) {

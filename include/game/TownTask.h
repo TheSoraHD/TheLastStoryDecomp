@@ -78,6 +78,8 @@ public:
     void fn_805B7B04(const atn::Vector3& pos); // inferred: sets the position
     void fn_805B7B24();
     void fn_805B8DB4(int arg);
+    void fn_805B8110(const atn::Vector3* pos, int* x, int* z); // inferred: block of a position, clamped
+    int fn_805B96A8(const atn::Vector3* pos); // inferred: nonzero when the position is in the town area
     // inferred: the loader at 0x58 holds the minimap csv (name invented)
     atn::LH_Binary* GetBinary_unk() { return &mFile; }
 

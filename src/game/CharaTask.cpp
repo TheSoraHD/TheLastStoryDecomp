@@ -66,6 +66,7 @@
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
 #include "game/MapTask.h"
+#include "game/TownTask.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -295,7 +296,6 @@ static const ModelName_unk sModelNames_unk[] = {
     {"em102_00_bs00.model", "em102_00_bs01.model"},
 };
 
-extern "C" int lbl_8087FA20;
 extern "C" void* lbl_8087EEB8; // inferred: debug message output
 extern "C" char lbl_807C7B28[32];
 extern "C" int fn_8036823C(Field_unk* field);
@@ -2385,7 +2385,6 @@ extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Spher
                            unsigned int mask, void* ignore, int arg, float radius); // inferred: sweep test
 extern "C" int fn_8004D314(void* world, int arg, const atn::Vector3* pos, const atn::Vector3* dir, unsigned int mask,
                            int arg5, int arg6, float radius); // inferred: sphere test
-extern "C" int fn_805B96A8(int town, const atn::Vector3* pos); // inferred: the position is in the town area
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -2586,7 +2585,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
     if (mFlagB9) {
         check = 0;
     }
-    if (lbl_8087FA20 != 0 && check && fn_805B96A8(lbl_8087FA20, &mPos) == 0) {
+    if (lbl_8087FA20 != 0 && check && lbl_8087FA20->fn_805B96A8(&mPos) == 0) {
         check = 0;
     }
     keepRot = 1;

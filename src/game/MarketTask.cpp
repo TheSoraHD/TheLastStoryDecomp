@@ -1,6 +1,7 @@
 #include "game/MarketTask.h"
 #include "atn/Memory.h"
 #include "game/Input_unk.h"
+#include "game/TownTask.h"
 
 extern "C" int rand();
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -41,7 +42,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                   // inferred: event flag
 extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 extern "C" void* lbl_8087F0A8;
-extern "C" int lbl_8087FA20;
 
 MarketTask* MarketTask::sInstance;
 

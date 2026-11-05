@@ -331,15 +331,15 @@ extern "C" TownNode_unk* fn_805B80B0(TownTree_unk* tree, const int* key, TownNod
 }
 
 // inferred: block coordinates of a position, clamped to the town size
-extern "C" void fn_805B8110(TownTask* town, const atn::Vector3* pos, int* x, int* z) {
-    float size = town->m134;
+void TownTask::fn_805B8110(const atn::Vector3* pos, int* x, int* z) {
+    float size = m134;
     float inv = 1.0f / size;
-    atn::Vector3 d = *pos - town->m140;
+    atn::Vector3 d = *pos - m140;
     atn::Vector3 cell = d * inv;
     *x = (int)cell.x;
     *z = (int)cell.z;
-    *x = TOWN_CLAMP(*x, lbl_8087E6F8, town->m138);
-    *z = TOWN_CLAMP(*z, lbl_8087E6FC, town->m13C);
+    *x = TOWN_CLAMP(*x, lbl_8087E6F8, m138);
+    *z = TOWN_CLAMP(*z, lbl_8087E6FC, m13C);
 }
 
 // NONMATCHING: 88% - scheduling of the x/z fmadds
@@ -490,7 +490,6 @@ extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int speci
     return list;
 }
 
-extern "C" void fn_805B8110(TownTask* town, const atn::Vector3* pos, int* x, int* z);
 
 // inferred: the position is inside the area (name invented)
 inline bool TownInside_unk(const atn::Vector3& pos, float minX, float maxX, float minZ, float maxZ) {
@@ -538,7 +537,7 @@ void TownTask::fn_805B8DB4(int reload) {
     }
     int x;
     int z;
-    fn_805B8110(this, &m168, &x, &z);
+    fn_805B8110(&m168, &x, &z);
     if (m174 != x || m178 != z) {
         float minX = m134 * (m174 - (m164 - 1.0f) / 2.0f) + m140.x;
         float minZ = m134 * (m178 - (m164 - 1.0f) / 2.0f) + m140.z;
@@ -663,15 +662,15 @@ void TownTask::fn_805B8DB4(int reload) {
 }
 
 // inferred: nonzero when the position is in the town area (the block under it is flagged)
-extern "C" int fn_805B96A8(TownTask* town, const atn::Vector3* pos) {
+int TownTask::fn_805B96A8(const atn::Vector3* pos) {
     int x;
     int z;
-    fn_805B8110(town, pos, &x, &z);
+    fn_805B8110(pos, &x, &z);
     if (x == 2 && z == 0) {
         return 1;
     }
     for (int i = 0; i < 9; i++) {
-        TownBlock_unk* block = &town->mBlocks[i];
+        TownBlock_unk* block = &mBlocks[i];
         if (block->mParts != 0 && block->mX == x && block->mZ == z) {
             return (block->mParts->mFlags >> 1) & 1;
         }

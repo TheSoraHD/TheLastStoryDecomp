@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "game/CharaTask.h"
+#include "game/TownTask.h"
 
 // inferred: classes of the globals are unknown
 struct CharaList_unk {
@@ -42,12 +43,9 @@ struct Target_unk {
         }
     }
 };
-struct TownMap_unk;
 
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Target_unk* lbl_8087F490;
-extern "C" TownMap_unk* lbl_8087FA20;
-extern "C" void fn_805B8110(TownMap_unk* map, const atn::Vector3* pos, int* x, int* z); // inferred: position to cell
 extern "C" void fn_803957F0(void* obj, void* arg);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
@@ -74,7 +72,7 @@ int TownTpcLoader::vf0C() {
                     atn::Vector3 pos = ((GameScene*)list)->fn_803CC754(i);
                     int x = 0;
                     int z = 0;
-                    fn_805B8110(lbl_8087FA20, &pos, &x, &z);
+                    lbl_8087FA20->fn_805B8110(&pos, &x, &z);
                     if (x == mCellX && z == mCellZ) {
                         atn::Task* chara = ((GameScene*)list)->fn_803C0634(i);
                         if (chara != 0) {

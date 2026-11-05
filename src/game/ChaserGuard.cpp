@@ -8,6 +8,7 @@
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
 #include "atn/DrawHelper.h"
+#include "game/TownTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -26,18 +27,12 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);         // inferred
 extern "C" GameUI* lbl_8087F490; // inferred: the HUD (fn_803E3BE8 shows a message)
-// inferred: owner of the list the guard registers in (class unknown)
-struct ChaserOwner_unk {
-    unsigned char m00[0x258];
-    void* m258;
-};
 // inferred: color as four floats (as in gmk/PlayEffect.cpp)
 struct Color4f_unk {
     Color4f_unk() {}
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" ChaserOwner_unk* lbl_8087FA20;
 extern "C" void fn_804AAFCC(void* list, ChaserGuard* guard); // inferred: removes the guard
 extern "C" void fn_804AAD68(void* list, ChaserGuard* guard, const Color4f_unk* color); // inferred: adds the guard
 // inferred: chase manager (class unknown)

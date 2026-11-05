@@ -5,6 +5,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include <boost/bind.hpp>
+#include "game/TownTask.h"
 
 // inferred: game settings (the pad state is at 0x48C)
 struct Input_unk {
@@ -43,7 +44,6 @@ struct CdnMessages_unk {
 };
 extern "C" CdnMessages_unk* lbl_8087F1E4;
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text (shared by the text tables, as in MP/Text.cpp)
-extern "C" void* lbl_8087FA20;
 // inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
 struct GameState_unk {
     unsigned char m000[0x3A4];

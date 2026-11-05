@@ -63,6 +63,7 @@
 #include "gmk/RandomMerchant.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "game/TownTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -86,7 +87,6 @@ struct Settings_unk {
     int m7C;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-extern "C" int lbl_8087FA20;
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
