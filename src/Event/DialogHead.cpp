@@ -9,6 +9,7 @@
 #include "macros.h"
 #include <boost/function.hpp>
 #include "std/string_members.h"
+#include "chr/CharaEquip_unk.h"
 
 // Everything below is inferred from Event::DialogHead (0x802251F8..0x802280B4); names are invented.
 
@@ -111,7 +112,7 @@ void DialogHead::fn_802254B0(float top, float bottom) {
     fn_80095F10(&mMotion, &m1624);
     for (unsigned int i = 0; i < 8; i++) {
         if (m680[i] != 0 && m680[i]->m000 < 4) {
-            fn_80095F10(m680[i]->m024, &m1624);
+            fn_80095F10(&m680[i]->m024, &m1624);
         }
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {

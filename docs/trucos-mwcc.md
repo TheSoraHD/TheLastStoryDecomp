@@ -411,3 +411,7 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `obj->f(g())` carga `obj` antes de `g()` en un registro salvado; si el original lo recarga despues, `void* x = g(); obj->f(x);` (MapPartsArea vf1C).
 - Bucle sobre `vector<T*>` con indice `unsigned` frente a `int`: cambia el reparto de los registros salvados (vf1C 98,7 -> 99,9 con `int`).
 - Temporales de varias asignaciones `rs->X = T()`: su orden en la pila depende de que esten dentro de una inline (MapTask fn_8049ED90).
+- Parametro puntero `const T*`: MWCC adelanta su primera carga a los `stw` de los registros salvados; sin `const` sale en el orden del original (TeamAI_unk fn_805AEA70/1A9C/1C84).
+- `static` de fichero en `.bss`/`.sbss` van por una sola base y su orden es el del **primer uso** en el fichero, no el de la declaracion; una funcion sin uso (el enlazador la quita) que las nombre fija el orden (ipcProfile).
+- Funcion inline con cuerpo en la clase + envoltorio fuerte: reproduce "inlineada en una funcion anterior y emitida tambien" (CharaEquip fn_805659B4).
+- `if (scoped_ptr)` sobre `boost::scoped_ptr` crea una constante de puntero a miembro en `.data` por uso (`&this_type::get`) y `get()` debil al final (CharaEquip).

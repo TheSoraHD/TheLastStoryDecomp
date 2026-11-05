@@ -14,6 +14,7 @@ class MapTask;
 class GameScene;
 
 struct GameField_unk {
+    int fn_803754C4(); // inferred: the task at 0x567C exists and is not stopped (chr/CharaEquip_unk.cpp)
     unsigned char m0000[0x6C];
     GameCamera mCamera;         // 0x6C: GameCamera (constructor 0x8037D8B8)
     unsigned char m0D18[0x10D0 - 0xD18];

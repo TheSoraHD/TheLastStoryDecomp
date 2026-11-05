@@ -67,6 +67,7 @@
 #include "atn/Scene.h"
 #include "game/MapTask.h"
 #include "game/TownTask.h"
+#include "chr/CharaEquip_unk.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -346,7 +347,6 @@ struct Capsule_unk : public Segment_unk {
     float mRadius;
 };
 
-extern "C" void fn_80565F34(chr::CharaEquip_unk* equip); // inferred: updates the equipment model
 
 // inferred: player manager (lbl_8087F8A0, CharaManager<PlayerTask>, see gmk/TodomeCountUp.cpp)
 struct PlayerManager_unk {
@@ -3933,7 +3933,7 @@ void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
         if (*p != 0) {
-            fn_80095F10((*p)->m024, &param);
+            fn_80095F10(&(*p)->m024, &param);
         }
     }
 }
@@ -4190,7 +4190,7 @@ void CharaTask::fn_80145334() {
         mMotion.mFlags &= ~0x80000;
         for (int i = 0; i < 8; i++) {
             if (m680[i] != 0) {
-                m680[i]->m028 &= ~0x80000;
+                m680[i]->m024.mFlags &= ~0x80000;
             }
         }
     }
@@ -4591,7 +4591,7 @@ void CharaTask::fn_80147A18(int value) {
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
         if (*p != 0) {
-            ((atn::Model*)(*p)->m024)->fn_80094E2C(value);
+            (*p)->m024.fn_80094E2C(value);
         }
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
@@ -4802,7 +4802,6 @@ CharaTask::Item14_unk* CharaTask::fn_80148B0C(int index) {
     return 0;
 }
 
-extern "C" void fn_80565B98(chr::CharaEquip_unk* equip); // inferred: updates the equipment
 
 // NONMATCHING: 96% - the instructions are the same; only the offsets in @stringBase0 differ
 // (the strings of the functions before this one are not all defined yet).
@@ -4826,7 +4825,7 @@ void CharaTask::fn_80148B38(float distSq) {
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
         if (*p != 0) {
-            fn_80565B98(*p);
+            (*p)->fn_80565B98();
         }
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
@@ -5298,7 +5297,7 @@ void CharaTask::fn_80149A30() {
                 for (unsigned int i = 0; i < 8; i++, p++) {
                     chr::CharaEquip_unk* equip = *p;
                     if (equip != 0 && ((1u << i) & m6A0) == (1u << i)) {
-                        equip->m028 |= 0x400;
+                        equip->m024.mFlags |= 0x400;
                     }
                 }
                 for (unsigned int i = 0; i < m6A4.mCount; i++) {
@@ -5318,7 +5317,7 @@ void CharaTask::fn_80149A30() {
                 for (unsigned int i = 0; i < 8; i++, p++) {
                     chr::CharaEquip_unk* equip = *p;
                     if (equip != 0 && ((1u << i) & m6A0) == (1u << i)) {
-                        equip->m028 &= ~0x400;
+                        equip->m024.mFlags &= ~0x400;
                     }
                 }
                 for (unsigned int i = 0; i < m6A4.mCount; i++) {
@@ -5403,13 +5402,13 @@ void CharaTask::fn_80149A30() {
                 }
                 if (equip->m000 == 4) {
                     if (shadow) {
-                        equip->m028 |= 4;
+                        equip->m024.mFlags |= 4;
                     } else {
-                        equip->m028 &= ~4;
+                        equip->m024.mFlags &= ~4;
                     }
                 }
                 if ((*p)->m000 != 4 || weapon) {
-                    fn_80565F34(*p);
+                    (*p)->fn_80565F34();
                 }
             }
         }
@@ -6676,7 +6675,7 @@ void CharaTask::fn_8014FF9C(int slot, int id, int arg) {
         }
     }
     // inferred: the fifth argument of the constructor is a pointer (declared int)
-    m680[slot] = new ((MemoryTag)0, "", "", 0) chr::CharaEquip_unk(slot, id, index, this, (int)data, 0, arg, 1, 1);
+    m680[slot] = new ((MemoryTag)0, "", "", 0) chr::CharaEquip_unk(slot, id, index, this, (unsigned int*)data, 0, arg, 1, 1);
     if (slot == 0) {
         fn_8014FD30();
     }
@@ -9685,7 +9684,6 @@ int CharaTask::fn_8016E484() {
     return IsPartyIndex_unk(fn_80219558(m50));
 }
 
-extern "C" void fn_80566398(chr::CharaEquip_unk* equip, int arg);
 
 // inferred: same as fn_8016E71C(show, 1) with the equipment loop of fn_8016E800 written out
 // (inlining fn_8016E71C gives the loop registers in the other order)
@@ -9704,7 +9702,7 @@ inline void CharaTask::SetPartsVisible_unk(int show) {
         chr::CharaEquip_unk** p = m680;
         for (unsigned int i = 0; i < 8; i++, p++) {
             if (*p != 0) {
-                fn_80566398(*p, 0);
+                (*p)->fn_80566398(0);
             }
         }
         if (mFlagB18) {
@@ -9752,7 +9750,7 @@ void CharaTask::fn_8016E800(int arg) {
     chr::CharaEquip_unk** p = m680;
     for (unsigned int i = 0; i < 8; i++, p++) {
         if (*p != 0) {
-            fn_80566398(*p, arg);
+            (*p)->fn_80566398(arg);
         }
     }
 }
@@ -11642,7 +11640,7 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
         }
         for (int i = 0; i < 8; i++) {
             if (m680[i] != 0) {
-                m680[i]->m028 &= ~mask;
+                m680[i]->m024.mFlags &= ~mask;
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
@@ -11658,7 +11656,7 @@ void CharaTask::fn_80179AD0(unsigned int mask, int clear) {
         }
         for (int i = 0; i < 8; i++) {
             if (m680[i] != 0) {
-                m680[i]->m028 |= mask;
+                m680[i]->m024.mFlags |= mask;
             }
         }
         for (unsigned int i = 0; i < m6A4.mCount; i++) {
@@ -12007,23 +12005,21 @@ void CharaTask::fn_8017AC44(int clear) {
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (names invented)
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
-extern "C" void fn_80096218(atn::Model* model, atn::SimpleVector<int>* list, void* arg); // inferred: collects resources
-extern "C" void fn_80563A60(chr::CharaEquip_unk* equip, atn::SimpleVector<int>* list, void* arg);
 
 // inferred: collects the resources of the character (models, parts, equipment, motion set)
-void CharaTask::fn_8017AD44(atn::SimpleVector<int>* list, void* arg) {
-    fn_80096218(&mMotion, list, arg);
+void CharaTask::fn_8017AD44(atn::SimpleVector<unsigned int>* list, void* arg) {
+    mMotion.fn_80096218(list, arg);
     for (unsigned int i = 0; i < mParts.mCount; i++) {
-        fn_80096218((atn::Model*)mParts.mData[i]->m010, list, arg);
+        ((atn::Model*)mParts.mData[i]->m010)->fn_80096218(list, arg);
     }
     chr::CharaEquip_unk** equips = m680;
     for (unsigned int i = 0; i < 8; i++) {
         if (equips[i] != 0) {
-            fn_80563A60(equips[i], list, arg);
+            equips[i]->fn_80563A60(list, arg);
         }
     }
     for (unsigned int i = 0; i < m6A4.mCount; i++) {
-        fn_80096218(&m6A4.mData[i]->mModel, list, arg);
+        m6A4.mData[i]->mModel.fn_80096218(list, arg);
     }
     list->push_back(m98.fn_80473F34());
 }

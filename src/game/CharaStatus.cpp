@@ -6,6 +6,7 @@
 #include "game/ResHandle.h"
 #include "game/HitInfo_unk.h"
 #include "macros.h"
+#include "chr/CharaEquip_unk.h"
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
 struct Input_unk {

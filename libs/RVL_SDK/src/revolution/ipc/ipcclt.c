@@ -104,6 +104,7 @@ exit:
     return ret;
 }
 
+// NONMATCHING: 98.45% - the Aug 2010 build compiles the switch as a compare tree (6, then 3, 7)
 static void IpcReplyHandler(s32 intr, OSContext* ctx) {
 #pragma unused(intr)
 
@@ -166,7 +167,7 @@ static void IpcReplyHandler(s32 intr, OSContext* ctx) {
                                   req->base.ioctlv.vectors[i].length);
             }
 
-            if (__relnchFl && __relnchRpc == req) {
+            if (__relnchFl && __relnchRpcSave == req) {
                 __relnchFl = FALSE;
                 if (__mailboxAck < 1) {
                     __mailboxAck++;
@@ -660,6 +661,7 @@ s32 IOS_Ioctlv(s32 fd, s32 type, s32 inCount, s32 outCount,
     return ret;
 }
 
+// NONMATCHING: 95% - registers and subfic+add in the inlined queue (docs/auto-20261031c.md)
 s32 IOS_IoctlvReboot(s32 fd, s32 type, s32 inCount, s32 outCount,
                      IPCIOVector* vectors) {
     IPCRequestEx* req;

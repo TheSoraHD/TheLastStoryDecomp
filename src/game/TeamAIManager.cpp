@@ -21,9 +21,7 @@ extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, i
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: entries of the field tables read here (names invented)
-struct TeamEntry_unk {
-    unsigned char m00[0x90];
-};
+typedef TeamData_unk TeamEntry_unk; // inferred: 0x90 bytes (include/game/TeamAIManager.h)
 struct TeamTarget_unk {
     int mId;
     unsigned char m04[0x94 - 0x04];
@@ -59,18 +57,6 @@ struct TeamField_unk {
 };
 extern "C" TeamField_unk* lbl_8087F430;
 
-
-// inferred: functions of game/TeamAI_unk.cpp
-extern "C" void fn_805AE26C(TeamAI_unk* team, int type, TeamEntry_unk* entry); // inferred: setup
-extern "C" void fn_805AE3C4(TeamAI_unk* team);
-extern "C" float fn_805AE454(TeamAI_unk* team); // inferred: HP ratio
-extern "C" float fn_805AE5E8(TeamAI_unk* team); // inferred: member ratio
-extern "C" float fn_805AE74C(TeamAI_unk* team); // inferred: leader HP ratio
-extern "C" int fn_805AE7B4(TeamAI_unk* team);
-extern "C" void fn_805AEA70(TeamAI_unk* team, const void* msg); // inferred: sends a message
-extern "C" void fn_805AEAC0(TeamAI_unk* team);
-extern "C" void fn_805B2028(TeamAI_unk* team, const void* arg);
-extern "C" void fn_805B2560(TeamNode_unk* team); // inferred: update
 
 // inferred: messages sent to a team (16 bytes, names invented)
 struct TeamMsgTarget_unk {
@@ -157,17 +143,17 @@ void TeamAIManager::Rebuild_unk() {
         }
         // inferred: `count` is reused for the number of enemy teams
         for (int i = 0; i < (count = table->mNumEnemies); i++) {
-            fn_805AE26C(&mTeams.mData[i], 3, &table->mEnemies[i]);
+            mTeams.mData[i].fn_805AE26C(3, &table->mEnemies[i]);
         }
         for (int i = 0; i < table->mNumFriends; i++) {
-            fn_805AE26C(&mTeams.mData[count + i], 2, &table->mFriends[i]);
+            mTeams.mData[count + i].fn_805AE26C(2, &table->mFriends[i]);
         }
     }
 }
 
 void TeamAIManager::vf10() {
     for (TeamNode_unk* node = mRoot.mChild; node != 0; node = node->mNext) {
-        fn_805B2560(node);
+        static_cast<TeamAI_unk*>(node)->fn_805B2560();
     }
 }
 
@@ -199,7 +185,7 @@ void TeamAIManager::OnTarget_unk(const TeamMsgIn_unk* in) {
             msg.mTarget = lbl_8087F430->m10D8->mTargets[2].Find_unk(in->m14);
             break;
         }
-        fn_805AEA70(team, &msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -227,7 +213,7 @@ void TeamAIManager::OnTarget2_unk(const TeamMsgIn_unk* in) {
             msg.mTarget = lbl_8087F430->m10D8->mTargets[2].Find_unk(in->m14);
             break;
         }
-        fn_805AEA70(team, &msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -243,7 +229,7 @@ void TeamAIManager::OnMsg20_unk(const TeamMsgIn_unk* in) {
         msg.m0D = in->m18;
         msg.m08 = in->m1C;
         msg.m0E = in->m20;
-        fn_805AEA70(team, &msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -261,8 +247,8 @@ void TeamAIManager::OnParent_unk(const TeamMsgIn_unk* in) {
                 node = &mRoot;
             }
             team->Attach_unk(node);
-            fn_805AE3C4(team);
-            fn_805AE3C4(parent);
+            team->fn_805AE3C4();
+            parent->fn_805AE3C4();
         }
     }
 }
@@ -274,7 +260,7 @@ void TeamAIManager::OnMembers_unk(const TeamMsgIn_unk* in) {
     int type = in->mType;
     TeamAI_unk* team = Find_unk(type, id);
     if (team != 0) {
-        fn_805AEAC0(team);
+        team->fn_805AEAC0();
         for (int i = 0; i < team->mNumMembers; i++) {
             team->mMembers[i]->mTeam = team;
         }
@@ -293,7 +279,7 @@ void TeamAIManager::OnMsg21_unk(const TeamMsgIn_unk* in) {
         msg.m04 = in->m10;
         msg.m08 = in->m14;
         msg.m0C = in->m18;
-        fn_805AEA70(team, &msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -321,7 +307,7 @@ void TeamAIManager::OnChara_unk(const TeamMsgIn_unk* in) {
             break;
         }
         msg.m08 = in->m18;
-        fn_805AEA70(team, &msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -337,7 +323,7 @@ void TeamAIManager::OnMsg24_unk(const TeamMsgIn_unk* in) {
         msg.mBody.m05 = in->m10;
         msg.mBody.m00 = in->m18;
         msg.mBody.m04 = in->m14;
-        fn_805B2028(team, &msg.mBody);
+        team->fn_805B2028((TeamSetParam_unk*)&msg.mBody);
     }
 }
 
@@ -439,15 +425,15 @@ void TeamAIManager::vf14() {
             y += line;
             y += 5.0f;
             draw->fn_800616C0(label1, y, z, size, size, "HPRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
-            sprintf(buf, "%.2f", fn_805AE454(team));
+            sprintf(buf, "%.2f", team->fn_805AE454());
             draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
             draw->fn_800616C0(label1, y, z, size, size, "LdrHPRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
-            sprintf(buf, "%.2f", fn_805AE74C(team));
+            sprintf(buf, "%.2f", team->fn_805AE74C());
             draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
             y += line;
             draw->fn_800616C0(label1, y, z, size, size, "MbrRatio", 0xD0FFFFAA, 0.0f, 1, 1, 0);
-            sprintf(buf, "%.2f", fn_805AE5E8(team));
+            sprintf(buf, "%.2f", team->fn_805AE5E8());
             draw->fn_800616C0(value1, y, z, size, size, buf, 0xD0FFFFFF, 0.0f, 1, 1, 0);
 
             float height = 17.0f;
@@ -463,11 +449,11 @@ void TeamAIManager::vf14() {
                     draw->fn_800638B0(0.0f, 7.0f, (pos + atn::Vector3(0.0f, 15.0f, 0.0f)), pos, 0xFF00FFFF);
                 }
             }
-            if (fn_805AE7B4(team) > 0) {
+            if (team->fn_805AE7B4() > 0) {
                 TeamAI_unk* other;
                 for (int i = 0; i < mTeams.mSize; i++) {
                     other = &mTeams.mData[i];
-                    if ((int)team->mType != (int)other->mType && fn_805AE7B4(other) > 0) {
+                    if ((int)team->mType != (int)other->mType && other->fn_805AE7B4() > 0) {
                         TeamChara_unk** members = other->mMembers;
                         for (int j = 0; j < other->mNumMembers; j++) {
                             atn::Vector3 pos = members[j]->mPos;

@@ -34,6 +34,7 @@
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
+#include "chr/CharaEquip_unk.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here

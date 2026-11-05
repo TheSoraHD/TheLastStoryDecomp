@@ -282,32 +282,8 @@ struct CharaPartData_unk {
     int mF0;
 };
 
-// inferred: equipment object (CharaTask::m680[]); m414 points to its parameters
-struct CharaEquip_unk {
-    // inferred: arguments unknown (CharaTask::fn_801371AC passes the slot and the character)
-    CharaEquip_unk(int slot, int a, int b, ::CharaTask* chara, int c, int d, int e, int f, int g); // 0x805634D0
-    ~CharaEquip_unk(); // 0x805638BC
-    void fn_80563A1C(const char* name); // inferred: loads the item
-    int fn_8056405C();  // inferred: nonzero while loading
-    void fn_80566010(); // inferred: attaches the model
-    void fn_805663F8();
-    void fn_80566408(); // inferred: undoes fn_805663F8 (CharaTask::fn_80145334)
-    void fn_805657CC(int color, unsigned int* bits); // inferred: applies the option bits
-    // inferred: the object at 0x24 is the model of the item (Event::DialogHead calls its virtuals)
-    atn::Model* GetModel_unk() { return (atn::Model*)m024; }
-    int m000; // inferred: kind (4 is handled apart by CharaTask::fn_80149A30)
-    int m004; // inferred: item id ((id % 1000) / 10 == 46: coat with "leftcoat"/"rightcoat" nodes)
-    int m008; // inferred: color (game/CosEditBase.cpp)
-    int m00C; // inferred: nonzero: no option parts (game/CosEditPalette_unk.cpp)
-    unsigned char m010[0x024 - 0x010];
-    unsigned char m024[0x028 - 0x024]; // inferred: model-like object (passed to fn_80094E2C)
-    unsigned int m028; // inferred: flags of that model
-    unsigned char m02C[0x414 - 0x02C];
-    CharaParam_unk* m414;
-    unsigned char m418[0x430 - 0x418];
-    OptionParts_unk* m430; // inferred: option parts (db/OptionParts_unk.cpp)
-    unsigned char m434[0x43C - 0x434];
-};
+// inferred: equipment object (CharaTask::m680[]): chr/CharaEquip_unk.h
+struct CharaEquip_unk;
 
 // inferred: character data pointed to by CharaTask::m5C; starts with the base parameters copied
 // into CharaStatusBase::mParamA (fn_8012B3E8). Name invented.
