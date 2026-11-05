@@ -184,10 +184,11 @@ public:
     void fn_8048E904();
     void fn_8048F184(int arg);
     // inferred: called by Event/ActionEffectPlay.cpp
-    void fn_80486BEC(int on, float value);
+    void fn_80486BEC(int color, float blur); // inferred: god ray color and blur
     void fn_804846FC(const atn::Vector3& dir, int color); // inferred: light of the scene and of the map areas
     void fn_80484A78(int color); // inferred: ambient color of the map areas
-    void fn_80486DAC(int on);
+    void fn_80486DAC(int color); // inferred: "LS" color
+    void fn_80486F50();
     void fn_80487064(int on);
     void fn_8048EE78(int a, float r, float g, float b, float c, float d, int e, float f);
     void fn_80488050(Sequence* manager, Action* arg);

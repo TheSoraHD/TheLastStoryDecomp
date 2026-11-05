@@ -1354,12 +1354,13 @@ void fn_80481B9C(MapArea* area, void* arg) {
     config->m110.push_back(entry);
 }
 
-// inferred: argument of fn_804827D8 (built by fn_80483E80 and fn_80487BB4). Names invented.
+// inferred: argument of fn_804827D8 and fn_80482E4C (built by fn_80483E80 and fn_80487BB4): the
+// event settings, the next entry (fn_80482E4C), blend or set, and the blend rate. Names invented.
 struct SceneApply_unk {
     // inferred: weak copy 0x80483E80 (called by fn_80487490)
-    SceneApply_unk(EventConfig_unk* config) : mConfig(config), m04(0), mBlend(false) {}
+    SceneApply_unk(EventConfig_unk* config) : mConfig(config), mIndex(0), mBlend(false) {}
     EventConfig_unk* mConfig;
-    int m04;
+    int mIndex;
     bool mBlend; // 0x08
     float mRate; // 0x0C
 };
@@ -1438,15 +1439,9 @@ void fn_80482E28(MapArea* area, void* arg) {
     area->GetLS_unk() = *(atn::Color*)arg;
 }
 
-// inferred: argument of fn_80482E4C: the event settings and the next entry. Names invented.
-struct SceneIter_unk {
-    EventConfig_unk* mConfig;
-    int mIndex;
-};
-
 // inferred: sets the "LS" color of the next light setting to a map area (callback)
 void fn_80482E4C(MapArea* area, void* arg) {
-    SceneIter_unk* it = (SceneIter_unk*)arg;
+    SceneApply_unk* it = (SceneApply_unk*)arg;
     if (it->mIndex < (int)it->mConfig->m110.size()) {
         area->GetLS_unk() = atn::Color(it->mConfig->m110[it->mIndex].mSetting.mLS);
         it->mIndex++;
@@ -1675,6 +1670,33 @@ void Manager::fn_80484E88() {
         MapManager::sInstance->fn_80491528(fn_80482B24, 0);
     }
 }
+// inferred: sets the color (0xAARRGGBB) and the blur of the god ray of the render scene and of the
+// map areas
+void Manager::fn_80486BEC(int color, float blur) {
+    GodRayParam_unk* godRay = fn_800C16B4(lbl_8087EFB4)->fn_8047C780();
+    unsigned int c = color;
+    godRay->mColor = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                                (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+    godRay->mBlurWidth = blur;
+    godRay->mBlurHeight = blur;
+    MapManager::sInstance->fn_80491528(fn_80482DF4, godRay);
+}
+
+// inferred: sets the "LS" color (0xAARRGGBB) of the render scene and of the map areas
+void Manager::fn_80486DAC(int color) {
+    atn::Color* ls = &fn_800C16B4(lbl_8087EFB4)->GetLS_unk();
+    unsigned int c = color;
+    *ls = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                     (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+    MapManager::sInstance->fn_80491528(fn_80482E28, ls);
+}
+
+// inferred: gives each map area the "LS" color of its light setting, in order
+void Manager::fn_80486F50() {
+    SceneApply_unk apply(&m1AB0);
+    MapManager::sInstance->fn_80491528(fn_80482E4C, &apply);
+}
+
 
 
 
