@@ -1096,18 +1096,20 @@ extern "C" void fn_800BF9C4(void** first, void** second, void** third) {
 
 void atn::RenderManager::fn_800BFAC4() {}
 
-extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderManager* view, const atn::Vector3* pos) {
+atn::Vector3 atn::RenderManager::GetScreenPosition(const atn::Vector3& pos) const {
     float projection[7];
     projection[0] = 0.0f; // inferred: GX_PERSPECTIVE
-    projection[1] = view->mCamera.mProj.m[0][0];
-    projection[2] = view->mCamera.mProj.m[0][2];
-    projection[3] = view->mCamera.mProj.m[1][1];
-    projection[4] = view->mCamera.mProj.m[1][2];
-    projection[5] = view->mCamera.mProj.m[2][2];
-    projection[6] = view->mCamera.mProj.m[2][3];
+    projection[1] = mCamera.mProj.m[0][0];
+    projection[2] = mCamera.mProj.m[0][2];
+    projection[3] = mCamera.mProj.m[1][1];
+    projection[4] = mCamera.mProj.m[1][2];
+    projection[5] = mCamera.mProj.m[2][2];
+    projection[6] = mCamera.mProj.m[2][3];
     float viewport[6];
     GXGetViewportv(viewport);
-    GXProject(pos->x, pos->y, pos->z, view->mCamera.mView.m, projection, viewport, &out->x, &out->y, &out->z);
+    atn::Vector3 out;
+    GXProject(pos.x, pos.y, pos.z, mCamera.mView.m, projection, viewport, &out.x, &out.y, &out.z);
+    return out;
 }
 
 void atn::RenderManager::fn_800BFB70() {

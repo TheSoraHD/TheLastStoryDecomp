@@ -522,8 +522,7 @@ void GimmickCommon::fn_803ED610(atn::Model* model) {
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
             atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
             if (PSVECSquareMag(&d) < 90000.0f) {
-                atn::Vector3 screen;
-                fn_800BFAC8(&screen, atn::RenderManager::instance_, &m6C);
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
                     char name[0x20];
                     char text[0x20];
@@ -540,10 +539,8 @@ void GimmickCommon::fn_803ED774(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
-            atn::Vector3 screen;
-            atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
-            if (PSVECSquareMag(&d) < 90000.0f) {
-                fn_800BFAC8(&screen, atn::RenderManager::instance_, &m6C);
+            if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - m6C)) < 90000.0f) {
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
                     char text[0x20];
                     char name[0x20];
@@ -636,10 +633,8 @@ void GimmickCommon::fn_803EDB18(atn::Model* model) {
 }
 
 void GimmickCommon::fn_803EDCF4() {
-    atn::Vector3 screen;
-    atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
-    if (PSVECSquareMag(&d) < 90000.0f) {
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &m6C);
+    if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - m6C)) < 90000.0f) {
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m6C);
         if (0.0f < screen.z && screen.z < 1.0f) {
             char text[0x20];
             char name[0x20];

@@ -63,8 +63,10 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
   symbols.txt (`Q23atn13RenderManager` -> `Q23atn14RenderView_unk`).
 - Metodos con nombre real: `AddRender` (los llamadores pasan ahora `(render, pass, order)`, el orden de la
   firma del RSO; sin cambios de codigo), `AddResolveTexture`, `FrameCallbackEntry` (antes
-  `RenderCallback_unk`), `mResolveCount`/`mResolve[8]` (`ResolveCommand`). `GetScreenPosition` sigue como
-  `fn_800BFAC8` libre (ver Pendientes). `GetScene`, `GetKeyLight` y `Order` no se han asignado: no hay
+  `RenderCallback_unk`), `mResolveCount`/`mResolve[8]` (`ResolveCommand`) y `GetScreenPosition` (miembro `const` que devuelve
+  `Vector3` por valor: los 51 llamadores declaran ahora el resultado en la llamada; en GimmickCommon la
+  distancia a la camara pasa a ser un temporal para que `screen` ocupe el hueco del original, y en
+  GameUI `a = GetScreenPosition(a)`). `GetScene`, `GetKeyLight` y `Order` no se han asignado: no hay
   pruebas de a que funcion corresponde cada una.
 - 0x80116BD4 se llamaba `__as__Q23atn6CameraFRCQ23atn6Camera`, pero escribe en 0x10C(r3): es
   `RenderManager::SetCamera_unk(const Camera&)` (copia debil en Event/Path; Path, TutorialTask y
@@ -87,6 +89,14 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 
 ## Hallazgos
 
+- Con un miembro que devuelve un struct por valor, MWCC construye el resultado en la variable solo si se
+  inicializa en la declaracion (`Vector3 s = f()`); `s = f()` con `s` declarada antes saca un temporal y
+  una copia. El hueco de pila sigue el orden en que se crean las variables: un temporal (`&(a - b)`) en
+  vez de una variable con nombre deja el hueco a la siguiente (GimmickCommon fn_803ED774/fn_803EDCF4).
+- pairdata no resuelve dos floats iguales en `.sdata2` de una unidad cuando la renumeracion las cruza
+  (GameUI 0x80885DE4/0x80885E68): sale un `@N` repetido. Se arregla sumando a mano el desfase de la
+  renumeracion a todas las etiquetas del rango.
+
 - fn_800BFAC8 (proyeccion a pantalla) no es un miembro que devuelve `Vector3` por valor: compila igual
   (NRVO), pero los llamadores declaran el resultado antes y pasan su direccion; con
   `screen = view->fn(...)` sale un temporal y una copia. Se deja libre con la vista como 2o parametro.
@@ -101,11 +111,6 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 
 ## Pendientes
 
-- `GetScreenPosition` (0x800BFAC8) es en el original un miembro `const` que devuelve `Vector3` por valor
-  (el cuerpo compila igual con NRVO), pero 22 ficheros lo llaman con el resultado declarado antes
-  (`fn_800BFAC8(&screen, view, &pos)`); con `screen = instance_->GetScreenPosition(pos)` sale un
-  temporal y una copia (GimmickCommon 100 -> 88). Pasarlo a miembro exige mover cada declaracion a la
-  llamada y comprobar el marco de pila caso a caso.
 - `atn::Camera` tiene en el RSO `__ct__Q23atn6CameraFQ33atn6Camera8CAM_TYPEQ33atn6Camera14CAM_PROJECTION`
   y metodos `SetPosition`, `GetTarget`, `CalcMatrix`... ; `atn::Frustum` es el nombre real de
   `Frustum_unk`; `atn::Scene` el de `NewCampScene2_unk` (importa `__ct__Q23atn5SceneFv`).

@@ -188,8 +188,7 @@ void CostumeEditChara::vf10() {
         } else {
             mFaceIcon->m54 = -2.0f;
         }
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &mPos);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos);
         screen.y = 220.0f;
         atn::Vector2_unk offset = lbl_8087F580->mOffset;
         atn::Vector2_unk size = lbl_8087F580->mSize;

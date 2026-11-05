@@ -5211,8 +5211,7 @@ void CharaTask::fn_80149A30() {
                 } else {
                     pos = mPos;
                 }
-                atn::Vector3 screen;
-                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 float hdist = 0.0f;
                 if (!(screen.z < 0.0f)) {
                     hdist = GetLengthXZSq_unk(atn::RenderManager::instance_->mCamera.mPos - pos);
@@ -5449,8 +5448,7 @@ void CharaTask::fn_80149A30() {
             mMotion.fn_8009373C("archery2_light", parts);
         }
 
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &mPos);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos);
         float y = screen.y - 40.0f;
         if (lbl_8087F0A8->m34 != 0 && dist < 62500.0f) {
             lbl_8087EEB0->fn_80063D3C(m614, m620, 0.0f, 0xFFFFFF00);
@@ -5577,8 +5575,7 @@ void CharaTask::fn_80149A30() {
                 }
                 float size = 12.0f;
                 float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-                atn::Vector3 screen;
-                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
                 }
@@ -5587,8 +5584,7 @@ void CharaTask::fn_80149A30() {
                 const wchar_t* text = lbl_8087F1E4->Get_unk(65);
                 float size = 12.0f;
                 float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-                atn::Vector3 screen;
-                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xD0AA88AA, 1, 1, 0, 0, 0xFF000000);
                 }
@@ -5597,8 +5593,7 @@ void CharaTask::fn_80149A30() {
                 const wchar_t* text = lbl_8087F1E4->Get_unk(97);
                 float size = 12.0f;
                 float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-                atn::Vector3 screen;
-                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xC0AA88FF, 1, 1, 0, 0, 0xFF000000);
                 }
@@ -5633,8 +5628,7 @@ void CharaTask::fn_80149A30() {
                 return;
             }
             float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-            atn::Vector3 screen;
-            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+            atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (!(screen.z > 0.0f)) {
                 return;
             }
@@ -5655,8 +5649,7 @@ void CharaTask::fn_80149A30() {
 
             float size = 30.0f * (0.4f * m12C8 + 1.0f);
             float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-            atn::Vector3 screen;
-            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+            atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
             }
@@ -5665,8 +5658,7 @@ void CharaTask::fn_80149A30() {
             const wchar_t* text = lbl_8087F1E4->Get_unk(121);
             float size = 30.0f * (0.4f * m12C8 + 1.0f);
             float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-            atn::Vector3 screen;
-            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+            atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA0FFC040, 1, 1, 0, 0, 0xFF000000);
             }

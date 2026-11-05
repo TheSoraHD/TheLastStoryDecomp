@@ -585,8 +585,7 @@ void Em001Necromancer::vf14() {
         float x = head[0][3];
         atn::Vector3 pos(x, y, z);
         pos.y += 2.0f;
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
         if (0.0f <= screen.z && screen.z <= 1.0f) {
             m15BC->mFlags &= ~4;
             SetPaneValue_unk(GetSlash_unk(this)->mLayout, "base_point", 0, screen.x);

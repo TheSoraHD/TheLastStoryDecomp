@@ -53,6 +53,7 @@ public:
     void AddRender(IRender* render, int pass, float order); // 0x800BDB58: queues a draw in a pass
     void fn_800BDBC8();                           // inferred: draws the frame
     void fn_800BFAC4();                           // inferred: empty
+    Vector3 GetScreenPosition(const Vector3& pos) const; // 0x800BFAC8
     void fn_800BFB70();                           // inferred: draws a full screen quad
     void fn_800BFC18(Color color, float a, float b); // inferred: full screen quad of a color
     void fn_800BFCB4(Color c0, Color c1, Color c2, Color c3, unsigned int width, unsigned int height, float a,
@@ -138,8 +139,5 @@ public:
 // inferred: the render manager (atn::RenderManager::instance_; defined in atn/Model.cpp)
 extern "C" atn::RenderManager* fn_8008B964();
 
-// inferred: world to screen position with the camera of a render view (the callers declare the result
-// first and pass its address, so it is not a member returning by value)
-extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderManager* view, const atn::Vector3* pos);
 
 #endif

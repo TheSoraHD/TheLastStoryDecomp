@@ -373,8 +373,7 @@ void D2AMpMenuCockpit::fn_804B5B10() {
                 break;
             }
             atn::Vector3 pos = GetMarkPos_unk(player->m00);
-            atn::Vector3 screen;
-            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+            atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (IsOnScreen_unk(screen)) {
                 m50[i]->SetColor_unk("col0002(1)", rank == 1 ? 0xFFE59E36 : 0xFF969696);
                 m50[i]->SetColor_unk("col0003(1)", rank == 1 ? 0xFFE59E36 : 0xFFCCCCCC);
@@ -391,8 +390,7 @@ void D2AMpMenuCockpit::fn_804B5B10() {
             MpPlayerInfo_unk* info = &lbl_8087F628->mInfos[i];
             if (info != 0 && player != 0 && team == player->mTeam) {
                 atn::Vector3 pos = GetMarkPos_unk(player->m00);
-                atn::Vector3 screen;
-                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+                atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (IsOnScreen_unk(screen)) {
                     m70[i]->mFlags &= ~4;
                     SetPaneValue_unk(m70[i]->mLayout, "basePoint", 0, screen.x);

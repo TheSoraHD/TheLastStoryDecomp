@@ -448,8 +448,7 @@ void Em208Queen::vf14() {
             MtxPtr head = mMotion.GetNodeMtx_unk("head");
             atn::Vector3 pos = GetNodePos_unk(head);
             pos.y += 2.0f;
-            atn::Vector3 screen;
-            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+            atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             SetPaneValue_unk(GetSlash_unk(this)->mLayout, "base_point", 0, screen.x);
             SetPaneValue_unk(GetSlash_unk(this)->mLayout, "base_point", 1, screen.y);
             const wchar_t* text = lbl_8087F1E4->Get_unk(0x2DB);

@@ -533,8 +533,7 @@ void DropItem::vf14() {
     } else {
         fn_80444CF8(text, mItem, mCount, m17C);
     }
-    atn::Vector3 screen;
-    fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+    atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
     if (!(0.0f <= screen.z && screen.z <= 1.0f)) {
         return;
     }

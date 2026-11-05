@@ -646,12 +646,9 @@ int ActionCheck::vf08(Action* arg) {
         atn::Sphere sphere;
         sphere.mCenter = arg->fn_805384CC(2);
         sphere.mRadius = arg->GetParam_unk(7)->m04.f;
-        atn::Vector3 center;
-        fn_800BFAC8(&center, atn::RenderManager::instance_, &sphere.mCenter);
-        atn::Vector3 top;
-        fn_800BFAC8(&top, atn::RenderManager::instance_, &(sphere.mCenter + atn::Vector3(0.0f, sphere.mRadius, 0.0f)));
-        atn::Vector3 bottom;
-        fn_800BFAC8(&bottom, atn::RenderManager::instance_, &(sphere.mCenter + atn::Vector3(0.0f, -sphere.mRadius, 0.0f)));
+        atn::Vector3 center = atn::RenderManager::instance_->GetScreenPosition(sphere.mCenter);
+        atn::Vector3 top = atn::RenderManager::instance_->GetScreenPosition(sphere.mCenter + atn::Vector3(0.0f, sphere.mRadius, 0.0f));
+        atn::Vector3 bottom = atn::RenderManager::instance_->GetScreenPosition(sphere.mCenter + atn::Vector3(0.0f, -sphere.mRadius, 0.0f));
         atn::Vector3 d1(center.x - top.x, center.y - top.y, 0.0f);
         float size = PSVECMag(&d1);
         atn::Vector3 d2 = center - bottom;

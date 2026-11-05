@@ -149,9 +149,7 @@ void EnvSeManager::vf14() {
             bool current = mAreas[i].mId == m84;
             EnvSeArea_unk* area = &mAreas[i];
             lbl_8087EEB0->fn_800629F0(lbl_807C7030, area->mSize, 0.0f, current ? 0xFFFF80FF : 0xFF7F407F, &area->mMtx);
-            atn::Vector3 screen;
-            atn::Vector3 pos = area->mMtx.GetTrans_unk();
-            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+            atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(area->mMtx.GetTrans_unk());
             if (0.0f < screen.z && screen.z < 1.0f) {
                 char text[0x100];
                 sprintf(text, "Area[%d] %s\0", area->mId, area->mData.mName);

@@ -296,8 +296,7 @@ void ChaserGuard::fn_8017D13C() {
         }
         float rot = mRot.y + mLook.mRot.y;
         lbl_8087EEB0->fn_80063484(12, ToArgb_unk(color), mPos.x, 15.0f + mPos.y, mPos.z, rot, 0.0f, range, lbl_8087F0A8->mChase.m4E8);
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &(mPos + atn::Vector3(0.0f, 25.0f, 0.0f)));
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos + atn::Vector3(0.0f, 25.0f, 0.0f));
         if (screen.z > 0.0f && screen.z < 1.0f) {
             wchar_t text[0x100];
             fn_8006F2F0(lbl_8087EEC8, text, sStateNames_unk[m14B0], 0x100);

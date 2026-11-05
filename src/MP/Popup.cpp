@@ -207,8 +207,7 @@ void Popup::vf10() {
             continue;
         }
         PopupTask_unk* task = (PopupTask_unk*)m48.mData[(unsigned int)i];
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &((PopupItem_unk*)p->mTarget)->mPos);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(((PopupItem_unk*)p->mTarget)->mPos);
         if (0.0f <= screen.z && screen.z <= 1.0f && p->mDist < 3600.0f && p->mDot >= 0.5f) {
         SetPaneValue_unk(task->mLayout, "pos0001(1)", 0, screen.x);
         SetPaneValue_unk(task->mLayout, "pos0001(1)", 1, screen.y);

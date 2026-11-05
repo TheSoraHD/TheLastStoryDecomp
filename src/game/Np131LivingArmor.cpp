@@ -232,8 +232,7 @@ void Np131LivingArmor::vfC0(void* draw) {
         float alpha = 1.0f - m14E8 / 60.0f;
         alpha *= 90.0f;
         atn::Vector3 pos = mPos + atn::Vector3(0.0f, 10.0f, 0.0f);
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
         if (0.0f < screen.z && screen.z < 1.0f) {
             int a = 0.999f + alpha;
             if (a < 0) {

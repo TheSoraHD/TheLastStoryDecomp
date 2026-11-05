@@ -126,8 +126,7 @@ void LastCocoonChrysalis::vf10() {
         const wchar_t* text = lbl_8087F1E4->Get_unk(127);
         float size = 12.0f;
         float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
         if (screen.z > 0.0f && screen.z < 1.0f) {
             lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
         }

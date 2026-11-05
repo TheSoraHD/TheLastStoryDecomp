@@ -295,8 +295,7 @@ void PostFxGodRay::fn_800AEF68() {
         Sphere sph;
         sph.mCenter = pos;
         sph.mRadius = p->mRadius;
-        Vector3 scr;
-        fn_800BFAC8(&scr, atn::RenderManager::instance_, &pos);
+        Vector3 scr = atn::RenderManager::instance_->GetScreenPosition(pos);
         mScreen = Vector2_unk(scr.x / fw, scr.y / fh);
         fb = atn::RenderManager::instance_;
         Vector3 a = (pos - fb->mCamera.mPos).GetNormalize();

@@ -177,8 +177,7 @@ void ChaserNpc::fn_80180AE0() {
         break;
     }
     if (lbl_8087F0A8->m53C != 0) {
-        atn::Vector3 screen;
-        fn_800BFAC8(&screen, atn::RenderManager::instance_, &(mPos + atn::Vector3(0.0f, 25.0f, 0.0f)));
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos + atn::Vector3(0.0f, 25.0f, 0.0f));
         if (screen.z > 0.0f && screen.z < 1.0f) {
             char text[0x100];
             float y = screen.y - 12.0f;

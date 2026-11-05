@@ -180,8 +180,7 @@ void EnvSeBase::fn_80361100(EnvSeBase* self) {
 // inferred: draws the name of the sound at `pos`. Inlined in every vf14 (the out-of-line copy is
 // not in the DOL); defined here for the order of the constants and literals.
 void EnvSeBase::DrawName_unk(const atn::Vector3& pos) {
-    atn::Vector3 screen;
-    fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+    atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
     if (0.0f < screen.z && screen.z < 1.0f) {
         char text[0x100];
         sprintf(text, "%s[%d] %s\0", sTypeNames[mData->mType], m4C, mData->mName);

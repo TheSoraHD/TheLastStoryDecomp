@@ -368,12 +368,10 @@ int SpecialEnemyBase::fn_805A4A54(SpecialAim_unk* aim) {
         m[2][3] = 0.0f;
         PSMTXMultVec(m, &lo, &lo);
         PSMTXMultVec(m, &hi, &hi);
-        atn::Vector3 screenLo;
         atn::Vector3 posLo = center + lo;
-        fn_800BFAC8(&screenLo, atn::RenderManager::instance_, &posLo);
-        atn::Vector3 screenHi;
+        atn::Vector3 screenLo = atn::RenderManager::instance_->GetScreenPosition(posLo);
         atn::Vector3 posHi = center + hi;
-        fn_800BFAC8(&screenHi, atn::RenderManager::instance_, &posHi);
+        atn::Vector3 screenHi = atn::RenderManager::instance_->GetScreenPosition(posHi);
         SpecialRect_unk rect;
         rect.mHeight = 0.5f * atn::Abs_unk(screenLo.y - screenHi.y) + 12.0f;
         rect.mWidth = 0.5f * atn::Abs_unk(screenLo.x - screenHi.x) + 12.0f;

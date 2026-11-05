@@ -1131,8 +1131,7 @@ void GameUI::fn_803D2A6C() {
                     atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk()
                                               : fn_80315644(m764.m0C->GetColli_unk())->m0C);
                     pos.y += 2.0f;
-                    atn::Vector3 screen;
-                    fn_800BFAC8(&screen, fn_8008B964(), &pos);
+                    atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
                     if (screen.z >= 0.0f && screen.z <= 1.0f) {
                         atn::D2A_Task* mark = static_cast<atn::D2A_Task*>(m848[0]);
                         mark->MeltTask();
@@ -1153,8 +1152,7 @@ void GameUI::fn_803D2A6C() {
                             atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk()
                                                       : fn_80315644(m85C[i]->GetColli_unk())->m0C);
                             pos.y += 2.0f;
-                            atn::Vector3 screen;
-                            fn_800BFAC8(&screen, fn_8008B964(), &pos);
+                            atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
                             if (screen.z >= 0.0f && screen.z <= 1.0f) {
                                 GameUIInst_unk* mark = static_cast<GameUIInst_unk*>(m848[i + 1]);
                                 mark->MeltTask();
@@ -1195,8 +1193,7 @@ void GameUI::fn_803D2A6C() {
                     if (bestIndex >= 0) {
                         atn::D2A_Task* mark = static_cast<atn::D2A_Task*>(m874[0]);
                         mark->MeltTask();
-                        atn::Vector3 screen;
-                        fn_800BFAC8(&screen, fn_8008B964(), &targets[bestIndex].mPos);
+                        atn::Vector3 screen = fn_8008B964()->GetScreenPosition(targets[bestIndex].mPos);
                         mark->SetLayoutValue_unk("base_point", 0, screen.x);
                         mark->SetLayoutValue_unk("base_point", 1, screen.y);
                         aim->SetTarget_unk(targets[bestIndex].mChara);
@@ -1206,8 +1203,7 @@ void GameUI::fn_803D2A6C() {
                         if (bestIndex != i) {
                             GameUIInst_unk* mark = static_cast<GameUIInst_unk*>(m874[count + 1]);
                             mark->MeltTask();
-                            atn::Vector3 screen;
-                            fn_800BFAC8(&screen, fn_8008B964(), &targets[i].mPos);
+                            atn::Vector3 screen = fn_8008B964()->GetScreenPosition(targets[i].mPos);
                             fn_801F6D7C(mark, "base_point", 0, screen.x);
                             fn_801F6D7C(mark, "base_point", 1, screen.y);
                             count++;
@@ -1284,8 +1280,7 @@ void GameUI::fn_803D2A6C() {
             MtxPtr mtx = player->GetModel_unk()->GetNodeMtx_unk("head");
             head = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(player->GetColli_unk())->m0C;
             head.y += 5.0f;
-            atn::Vector3 tmp;
-            fn_800BFAC8(&tmp, fn_8008B964(), &head);
+            atn::Vector3 tmp = fn_8008B964()->GetScreenPosition(head);
             headScreen = tmp;
             if ((!player->GetStatus_unk()->fn_80139F4C() || player->CanAct_unk()) && player->HasPart648_unk() &&
                 GetSetConfig_unk()->GetPlayerHpBarShow_unk() != 0) {
@@ -1454,11 +1449,9 @@ void GameUI::fn_803D2A6C() {
             }
             if (!mA88->IsEnd_unk()) {
                 atn::Vector3 a(m888);
-                fn_800BFAC8(&tmp, fn_8008B964(), &a);
-                a = tmp;
+                a = fn_8008B964()->GetScreenPosition(a);
                 atn::Vector3 b(m894);
-                fn_800BFAC8(&tmp, fn_8008B964(), &b);
-                b = tmp;
+                b = fn_8008B964()->GetScreenPosition(b);
                 atn::Vec2_unk center(0.5f * (a.x + b.x), 0.5f * (a.y + b.y));
                 atn::Vec2_unk size(0.5f * atn::Abs_unk(a.x - b.x), 0.5f * atn::Abs_unk(a.y - b.y));
                 size.x += 12.0f;
@@ -1790,8 +1783,7 @@ void GameUI::fn_803D2A6C() {
                     MtxPtr mtx = c->GetModel_unk()->GetNodeMtx_unk("head");
                     atn::Vector3 pos(mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(c->GetColli_unk())->m0C);
                     pos.y += 5.0f;
-                    atn::Vector3 screen;
-                    fn_800BFAC8(&screen, fn_8008B964(), &pos);
+                    atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
                     if (0.0f < screen.z && screen.z < 1.0f) {
                         m3EC->SetFrame_unk((float)e->mFrames);
                         m3EC->SetLayoutValue_unk("base_point", 0, screen.x);
@@ -1883,8 +1875,7 @@ void GameUI::fn_803D2A6C() {
                         MtxPtr mtx = c->GetModel_unk()->GetNodeMtx_unk("head");
                         head = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : fn_80315644(c->GetColli_unk())->m0C;
                         head.y += 5.0f;
-                        atn::Vector3 tmp2;
-                        fn_800BFAC8(&tmp2, fn_8008B964(), &head);
+                        atn::Vector3 tmp2 = fn_8008B964()->GetScreenPosition(head);
                         screen = tmp2;
                         if (0.0f < screen.z && screen.z < 1.0f) {
                             GameUIInst_unk* gauge = m574[i];
@@ -1932,8 +1923,7 @@ void GameUI::fn_803D2A6C() {
                     if (!c->GetFlag54C13_unk() && c->fn_80139EFC() && !c->IsFrozen_unk()) {
                         hips = ((atn::Matrix3x4*)c->GetModel_unk()->GetNodeMtx_unk("hips"))->GetTrans_unk();
                         hips.y += 2.0f;
-                        atn::Vector3 tmp2;
-                        fn_800BFAC8(&tmp2, fn_8008B964(), &hips);
+                        atn::Vector3 tmp2 = fn_8008B964()->GetScreenPosition(hips);
                         screen = tmp2;
                         if (0.0f < screen.z && screen.z < 1.0f) {
                             fn_801F6D7C(m6FC[n], "base_point", 0, screen.x);
@@ -1967,8 +1957,7 @@ void GameUI::fn_803D2A6C() {
                             c->fn_80139EFC() && !c->IsFrozen_unk()) {
                             hips = ((atn::Matrix3x4*)c->GetModel_unk()->GetNodeMtx_unk("hips"))->GetTrans_unk();
                             hips.y += 2.0f;
-                            atn::Vector3 tmp2;
-                            fn_800BFAC8(&tmp2, fn_8008B964(), &hips);
+                            atn::Vector3 tmp2 = fn_8008B964()->GetScreenPosition(hips);
                             screen = tmp2;
                             if (0.0f < screen.z && screen.z < 1.0f) {
                                 fn_801F6D7C(m6FC[n], "base_point", 0, screen.x);
@@ -2038,8 +2027,7 @@ void GameUI::fn_803D2A6C() {
                     pos = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() + atn::Vector3(0.0f, 5.0f, 0.0f)
                                    : *c->fn_8013C38C() + atn::Vector3(0.0f, 15.0f, 0.0f);
                 }
-                atn::Vector3 tmp2;
-                fn_800BFAC8(&tmp2, fn_8008B964(), &pos);
+                atn::Vector3 tmp2 = fn_8008B964()->GetScreenPosition(pos);
                 mD60 = tmp2;
             } else {
                 mD60.x = 0.5f * (float)((atn::GraphicsDevice_unk*)GetGraphics_unk())->GetWidth_unk();
@@ -2069,8 +2057,7 @@ void GameUI::fn_803D2A6C() {
                     if (p->GetPart648_unk() != 0 && p->fn_801479D8()) {
                         pos = *p->fn_8013C38C() + atn::Vector3(0.0f, 13.0f, 0.0f);
                     }
-                    atn::Vector3 screen;
-                    fn_800BFAC8(&screen, fn_8008B964(), &pos);
+                    atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
                     if (0.0f <= screen.z && screen.z <= 1.0f) {
                         mDB8->SetLayoutValue_unk("pos0001(1)", 0, screen.x);
                         mDB8->SetLayoutValue_unk("pos0001(1)", 1, screen.y);
@@ -2082,8 +2069,7 @@ void GameUI::fn_803D2A6C() {
                 CharaTask* p = fn_8000D9E8() != 0 ? fn_8000DCF4(fn_8000D9E8()) : 0;
                 if (p != 0) {
                     atn::Vector3 pos = *p->fn_8013C38C() + atn::Vector3(0.0f, 20.0f, 0.0f);
-                    atn::Vector3 screen;
-                    fn_800BFAC8(&screen, fn_8008B964(), &pos);
+                    atn::Vector3 screen = fn_8008B964()->GetScreenPosition(pos);
                     if (0.0f <= screen.z && screen.z <= 1.0f) {
                         mDBC->SetLayoutValue_unk("pos0001(1)", 0, screen.x);
                         mDBC->SetLayoutValue_unk("pos0001(1)", 1, screen.y);
@@ -2527,8 +2513,7 @@ void GameUI::fn_803E41AC(CharaTask* chara) {
             MtxPtr head = m110C->mMotion.GetNodeMtx_unk("head");
             atn::Vector3 pos = GetNodePos_unk(head);
             pos.y += 2.0f;
-            atn::Vector3 screen;
-            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+            atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             SetLayoutValue_unk(&m1104->mData.m10, "base_point", 0, screen.x);
             SetLayoutValue_unk(&m1104->mData.m10, "base_point", 1, screen.y);
             SetLayoutValue_unk(&m1108->mData.m10, "base_point", 0, screen.x);
@@ -2837,8 +2822,7 @@ void GameUI::fn_803E5C60(CharaTask* chara) {
         return;
     }
     atn::Vector3 pos = chara->vf58();
-    atn::Vector3 screen;
-    fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
+    atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
     if (0.0f < screen.z && screen.z < 1.0f) {
         atn::D2A_Task* task = m254C;
         task->SetNumber_unk("string0001(1)", fn_803CE854(chara->fn_8016DAB0()), 0);

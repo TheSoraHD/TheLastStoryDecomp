@@ -330,12 +330,11 @@ void AutomaticDoor::fn_803F53E0() {
         atn::Vector3 eye(atn::RenderManager::instance_->mCamera.mPos);
         float t = (front.x * (pos.x - eye.x) + front.y * (pos.y - eye.y) + front.z * (pos.z - eye.z)) / d;
         atn::Vector3 hit = eye - dir * t;
-        atn::Vector3 p0;
-        fn_800BFAC8(&p0, atn::RenderManager::instance_, &hit);
+        atn::Vector3 p0 = atn::RenderManager::instance_->GetScreenPosition(hit);
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 p1;
         atn::Vector3 top_pos = hit + up;
-        fn_800BFAC8(&p1, atn::RenderManager::instance_, &top_pos);
+        p1 = atn::RenderManager::instance_->GetScreenPosition(top_pos);
         if (p0.z < 0.0f || 1.0f < p0.z || p1.z < 0.0f || 1.0f < p1.z) {
             mModel.mFlags &= ~0x80000;
             return;

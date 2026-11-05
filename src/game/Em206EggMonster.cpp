@@ -1298,8 +1298,7 @@ struct EggRect_unk {
 
 // inferred: screen position of `pos` (name invented)
 inline atn::Vector3 ToScreen_unk(const atn::Vector3& pos) {
-    atn::Vector3 r;
-    fn_800BFAC8(&r, atn::RenderManager::instance_, &pos);
+    atn::Vector3 r = atn::RenderManager::instance_->GetScreenPosition(pos);
     return r;
 }
 
