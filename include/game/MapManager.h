@@ -9,6 +9,7 @@
 #include "atn/RenderSetting_unk.h"
 #include "atn/Color4f_unk.h"
 #include "atn/Scene.h"
+#include "atn/AABB_unk.h"
 
 namespace atn {
 class Scene; // the name is in the DOL (type_info 0x80756690)
@@ -35,12 +36,18 @@ struct MapModelBase_unk {
     unsigned int mSegmentNum;   // 0x2C
     unsigned char m30[0x4C - 0x30];
 };
+// inferred: bounds of a map area (only the box is known: game/TownTask.cpp moves it); name invented
+struct MapAreaBounds_unk {
+    unsigned char m00[0x84];
+    atn::AABB_unk mBox; // 0x84
+};
 // inferred: model of a map area: the scene of the area (atn::Scene, see game/MapManager.cpp ToScene_unk)
 // is its second base at 0x4C (Event::Manager fn_80481B9C copies its light settings)
 struct MapArea : public MapModelBase_unk, public atn::Scene {
     // inferred: conversion of this (no null test, Event::Manager fn_80481B9C); name invented
     atn::Scene& GetScene_unk() { return *this; }
     void* mMaterial; // 0x300
+    MapAreaBounds_unk* mBounds; // 0x304
 };
 // inferred: group of models of a map part
 struct MapGroup_unk {

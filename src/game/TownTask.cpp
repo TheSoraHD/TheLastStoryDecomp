@@ -122,23 +122,9 @@ extern "C" TownDefaults_unk* lbl_8087EFA8;
 inline const ColorMatrixParam_unk& TownGetE_unk(const atn::Override_unk<ColorMatrixParam_unk>& p) {
     return p.mSet != 0 ? p.mValue : lbl_8087EFA8->m324;
 }
-struct TownBox_unk {
-    atn::Vector3 mMin;
-    atn::Vector3 mMax;
-};
-struct TownBounds_unk {
-    unsigned char m00[0x84];
-    TownBox_unk mBox; // 0x84
-};
-// inferred: model of a map area (MapArea of game/MapManager.h; m300 differs)
-struct TownMesh_unk : public MapModelBase_unk, public atn::Scene {
-    atn::Scene& GetScene_unk() { return *this; } // inferred: as MapArea::GetScene_unk (no null test)
-    int m300;
-    TownBounds_unk* m304;
-};
 struct MapModelSet_unk {
     unsigned char m00[0x58];
-    TownMesh_unk** m58;
+    MapArea** m58;
     unsigned int m5C;
 };
 
@@ -180,8 +166,8 @@ void TownTask::vf10() {
             MapModelSet_unk* parts = ((MapTask*)block.mParts)->GetModel_unk();
             unsigned int n;
             for (unsigned int j = 0; j < (n = parts->m5C, n <= 1 ? n : 1); j++) {
-                TownMesh_unk* src = model->m58[j];
-                TownMesh_unk* dst = parts->m58[j];
+                MapArea* src = model->m58[j];
+                MapArea* dst = parts->m58[j];
                 dst->mAmbient = src->mAmbient;
                 dst->mLS = src->mLS;
                 const atn::Light* light = ((const atn::Scene&)src->GetScene_unk()).GetLight(0);
@@ -196,14 +182,14 @@ void TownTask::vf10() {
         }
         if (mC4 != 0) {
             for (unsigned int j = 0; j < mC4->m5C; j++) {
-                TownBox_unk box = mC4->m58[j]->m304->mBox;
-                TownBox_unk old = box;
+                atn::AABB_unk box = mC4->m58[j]->mBounds->mBox;
+                atn::AABB_unk old = box;
                 atn::Vector3 size = box.mMax - box.mMin;
                 box.mMin = m168 - size * 0.5f;
                 box.mMax = m168 + size * 0.5f;
                 box.mMin.y = old.mMin.y;
                 box.mMax.y = old.mMax.y;
-                mC4->m58[j]->m304->mBox = box;
+                mC4->m58[j]->mBounds->mBox = box;
             }
         }
     }
