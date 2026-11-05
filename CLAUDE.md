@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `maptask-20261105` (2026-11-05, rama sin mergear): **12710 / 18119**, lost 0. MapTask 20/27 al 100% (resto NONMATCHING con motivo; CreateParts 99,84%), `GameCamera` (`include/game/GameCamera.h`), `ResRef_unk` unica (`include/atn/ResRef_unk.h`), `GetMapType/GetMapId/GetMapSubId` de MapTask, `DofParam_unk`, `atn/Lerp_unk.h`, `atn/SceneColorMatrix_unk.h`, `atn/SceneAddLight_unk.h`, MapPartsArea vf1C 99,90%. Notas: `docs/maptask-20261105.md`.
+- `maptask-20261105` (2026-11-05, mergeada en `main`): **12710 / 18119**, lost 0. MapTask 20/27 al 100% (resto NONMATCHING con motivo; CreateParts 99,84%), `GameCamera` (`include/game/GameCamera.h`), `ResRef_unk` unica (`include/atn/ResRef_unk.h`), `GetMapType/GetMapId/GetMapSubId` de MapTask, `DofParam_unk`, `atn/Lerp_unk.h`, `atn/SceneColorMatrix_unk.h`, `atn/SceneAddLight_unk.h`, MapPartsArea vf1C 99,90%. Notas: `docs/maptask-20261105.md`.
 - `maparea-20261105` (mergeada): 12703, un solo tipo por objeto del mapa (`MapArea`, `MapPartsArea`, `MapTask`, `atn::AABBTree`, `MapId_unk`; `docs/maparea-20261105.md`); `scene-20261105` 12686 (`docs/scene-20261105.md`).
 - `nw4r-20261105` 12684 (snd_StrmPlayer enlazada; `docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679. `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.

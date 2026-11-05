@@ -1,6 +1,6 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-05, rama `maptask-20261105` cerrada, pendiente de revision y merge)
+## Estado actual (2026-11-05, rama `maptask-20261105` mergeada en `main`)
 
 - `maptask-20261105` (desde `main` 7a5c73f): **12710 / 18119** en `report.json` (lost 0, fuzzdrop 0, `main.dol: OK`;
   labelcheck sin empeorar, rep100 identico, ordercheck/poolcheck/mnemcheck limpios; build limpio). Notas en
