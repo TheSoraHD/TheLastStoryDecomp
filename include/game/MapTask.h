@@ -10,6 +10,7 @@
 
 class MapPartsArea;
 class MapPartsBase;
+class MapInstance_unk;
 namespace gs {
 struct CameraBox;
 }
@@ -38,7 +39,9 @@ public:
     static MapTask* fn_8049D704(atn::Task* parent, int type, int id, int subId);
     void fn_804A04AC(int camera, int a, int b, gs::CameraBox* box); // inferred: sets the camera of the map
     void fn_804A0580(int arg, const atn::Vector3* pos);           // inferred
-    void* fn_804A0614(const std::string& name);                    // inferred: locator of the gimmick parts
+    MapInstance_unk* fn_804A0614(const std::string& name);         // inferred: instance of the locator sets
+    void fn_804A0E18(const char* name, int draw);   // inferred: MapPartsBase::vf2C on all the parts
+    void fn_804A0E90(unsigned int hash, int draw);  // inferred: MapPartsBase::vf2C on all the parts
     void fn_804A1C4C(); // inferred: refreshes the map after a load
     void fn_804A1D2C(); // inferred: stores the state of the map
 

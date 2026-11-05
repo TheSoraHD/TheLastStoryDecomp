@@ -25,6 +25,7 @@
 #include "atn/Sphere.h"
 #include "Event/Dialog.h"
 #include "game/GameChoiceWindow.h"
+#include "game/MapInstance_unk.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -41,12 +42,6 @@ class NewStaffRoll;
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 // inferred: color gradation on / off (same arguments)
-// inferred: map locator shown or hidden by ActionLocatorHide
-struct Locator_unk {
-    unsigned char m00[0x88];
-    unsigned int mHidden : 1; // 0x88
-    unsigned int m88_1 : 31;
-};
 namespace atn {
 
 struct Camera;
@@ -1749,7 +1744,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {
-                Locator_unk* locator = (Locator_unk*)map->fn_804A0614(entry->m08);
+                MapInstance_unk* locator = map->fn_804A0614(entry->m08);
                 if (locator != 0) {
                     locator->mHidden = 1;
                 }
@@ -1764,7 +1759,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {
-                Locator_unk* locator = (Locator_unk*)map->fn_804A0614(entry->m08);
+                MapInstance_unk* locator = map->fn_804A0614(entry->m08);
                 if (locator != 0) {
                     locator->mHidden = 0;
                 }
