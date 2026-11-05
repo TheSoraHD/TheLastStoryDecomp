@@ -250,18 +250,18 @@ void MapPartsLocatorSet::vf14() {
 
 // NONMATCHING: 87.9% - the original reads the box of each instance twice (two copies of min and max,
 // z through frsp) and lays out the corner temporaries differently
-MapPartsBox_unk MapPartsLocatorSet::vf24(MapPartsTree_unk* tree) {
-    MapPartsBox_unk box = MapPartsBase::vf24(tree);
+atn::AABB_unk MapPartsLocatorSet::vf24(MapPartsTree_unk* tree) {
+    atn::AABB_unk box = MapPartsBase::vf24(tree);
     for (unsigned int i = 0; i < (unsigned int)mInstances.mSize; i++) {
         LocatorInstRes_unk* res = ((LocatorInstData_unk*)mInstances.mData[i]->mInst.mData)->m17C;
         if (res != 0) {
             atn::AABB_unk local(res->mMin, res->mMax);
-            *(atn::AABB_unk*)&box = ((atn::AABB_unk*)&box)->Merge_unk(TransformBox_unk(mInstances.mData[i]->mInst.mMtx.m, &local));
+            box = box.Merge_unk(TransformBox_unk(mInstances.mData[i]->mInst.mMtx.m, &local));
         }
     }
     if (mHasMerged) {
         atn::AABB_unk merged = fn_80095300(mMerged->GetModel_unk());
-        *(atn::AABB_unk*)&box = ((atn::AABB_unk*)&box)->Merge_unk(merged);
+        box = box.Merge_unk(merged);
     }
     return box;
 }

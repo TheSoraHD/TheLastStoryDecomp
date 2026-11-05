@@ -12,7 +12,7 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
-extern "C" int fn_800709F4(const MapPartsBox_unk* box, const atn::Vector3* pos); // inferred: pos inside box
+extern "C" int fn_800709F4(const atn::AABB_unk* box, const atn::Vector3* pos); // inferred: pos inside box
 
 // inferred: inserts a box into the map tree (atn/AABBTree.cpp)
 namespace atn {
@@ -166,7 +166,7 @@ void MapPartsModel::vf28(atn::CsvTab* csv) {
         } else if (strcmp(field, "PRIORITY") == 0) {
             mModel.m98 = fn_800DC288(csv->fn_8005B9CC());
         } else if (strcmp(field, "BOX") == 0) {
-            MapPartsBox_unk box;
+            atn::AABB_unk box;
             box.mMin.x = fn_800DC288(csv->fn_8005B9CC());
             box.mMin.y = fn_800DC288(csv->fn_8005B9CC());
             box.mMin.z = fn_800DC288(csv->fn_8005B9CC());
@@ -252,8 +252,8 @@ void MapPartsModel::vf14() {
     }
 }
 
-MapPartsBox_unk MapPartsModel::vf24(MapPartsTree_unk* tree) {
-    MapPartsBox_unk box;
+atn::AABB_unk MapPartsModel::vf24(MapPartsTree_unk* tree) {
+    atn::AABB_unk box;
     atn::Model::Res_unk* res = mModel.GetRes_unk();
     if (res != 0) {
         box.mMin = atn::Vector3(res->mMin);

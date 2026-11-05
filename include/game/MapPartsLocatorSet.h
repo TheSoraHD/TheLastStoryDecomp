@@ -24,7 +24,7 @@ public:
     virtual void vf10();                            // 0x8049AA1C
     virtual void vf14();                            // 0x8049AAFC
     virtual bool vf20(const atn::Vector3& pos);     // 0x8049B980
-    virtual MapPartsBox_unk vf24(MapPartsTree_unk* tree); // 0x8049AC18 (not decompiled)
+    virtual atn::AABB_unk vf24(MapPartsTree_unk* tree); // 0x8049AC18 (not decompiled)
     virtual void vf2C(unsigned int hash, int draw); // 0x8049B880
 
     void fn_8049B1F0();                 // inferred: creates the instances from the loaded file
@@ -40,7 +40,7 @@ public:
     unsigned int mFlags;                  // 0x10C: inferred: model flags (REFLECT, NO_SHADOW...)
     atn::ModelBase mModel;               // 0x110: inferred: "merge_%s_occ.model"
     boost::scoped_ptr<atn::ModelBase> mMerged; // 0x324: inferred: "merge_%s_loc.model"
-    MapPartsBox_unk mBox;                 // 0x328
+    atn::AABB_unk mBox;                 // 0x328
     int mLoaded : 1;                      // 0x340 bit 31
     int mLinked : 1;                      // inferred: light map given to the instances
     int mHide : 1;                        // inferred: hidden in the bird view

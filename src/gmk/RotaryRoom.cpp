@@ -222,11 +222,11 @@ int RotaryRoom::vf0C() {
                     }
                 }
             }
-            MapPartsBox_unk box;
+            atn::AABB_unk box;
             box.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
             box.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);
             for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
-                MapPartsBox_unk pbox = ((MapPartsBase*)part)->vf24(0);
+                atn::AABB_unk pbox = ((MapPartsBase*)part)->vf24(0);
                 *(atn::AABB_unk*)&box = ((atn::AABB_unk*)&box)->Merge_unk(*(atn::AABB_unk*)&pbox);
             }
             mGroup->mBox.mMin = box.mMin;

@@ -1,4 +1,5 @@
 #include "game/MapTask.h"
+#include "game/GameConfig_unk.h"
 
 // NONMATCHING: stub - iterate map-part objects and update the linked task entries.
 extern "C" void fn_8049D264() {}
@@ -26,15 +27,10 @@ extern "C" void fn_8049E480() {}
 // NONMATCHING: stub - update visible map components.
 void MapTask::vf10() {}
 
-// inferred: fades the map overlay when the settings flag at 0x1C is enabled.
-struct MapTaskSettings_unk {
-    unsigned char m00[0x1C];
-    int m1C;
-};
-extern "C" MapTaskSettings_unk* lbl_8087F0A8;
-extern "C" void fn_8006FE08(void* target, unsigned int color);
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" void fn_8006FE08(const atn::AABB_unk* box, unsigned int color); // inferred: draws a box (debug)
 void MapTask::vf14() {
-    if (lbl_8087F0A8->m1C != 0) {
+    if (lbl_8087F0A8->mDrawMapBounds != 0) {
         fn_8006FE08(&mBox, 0xFF00FFFFu);
     }
 }

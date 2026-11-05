@@ -15,7 +15,7 @@ public:
     virtual void vf10();               // 0x8049C454
     virtual void vf14();               // 0x8049C458
     virtual bool vf20(const atn::Vector3& pos); // 0x8049C8A8
-    virtual MapPartsBox_unk vf24(MapPartsTree_unk* tree); // 0x8049C688
+    virtual atn::AABB_unk vf24(MapPartsTree_unk* tree); // 0x8049C688
     virtual void vf28(atn::CsvTab* csv);     // 0x8049BB4C
     virtual void vf2C(unsigned int hash, int draw); // 0x8049C7AC
 
@@ -26,7 +26,7 @@ public:
     float mHideY;     // 0x424: inferred: height above which it is hidden ("HIDE_BIRDVIEW_Y")
     int mCenterCamera; // 0x428: inferred: follows the camera ("CENTER_CAMERA")
     int mHasBox;      // 0x42C: inferred: drawn only with the camera inside mBox ("BOX")
-    MapPartsBox_unk mBox; // 0x430
+    atn::AABB_unk mBox; // 0x430
     int mDraw;        // 0x448: inferred: set by vf2C for the model name or "<all>"
 // inferred: allocated with 0x450 bytes (fn_8049B9B8) while MapPartsOcean puts its first member at
 // 0x44C (the compiler reuses the tail padding): the class is 8-byte aligned, probably through a

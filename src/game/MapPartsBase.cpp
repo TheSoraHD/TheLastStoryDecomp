@@ -13,6 +13,8 @@
 #include "game/PlayerManager.h"
 #include "game/PlayerTask.h"
 #include "game/TownTask.h"
+#include "game/GameConfig_unk.h"
+#include "atn/DrawHelper.h"
 #include "std/new.h"
 #include "std/vector.h"
 
@@ -33,6 +35,8 @@ MapPartsArea* MapPartsArea::fn_80491F94(atn::Task* parent, int type, const char*
 }
 
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: names invented (same inline in game/CharaTask.cpp and game/ColliAttrManager.cpp)
 inline atn::Scene* CharaTask::GetLens_unk() {
@@ -150,19 +154,76 @@ extern "C" void fn_80495418(std::vector<MapArea::MatColorInfo>* values, const Ma
 // NONMATCHING: 0.22% - map debug menu entries are not reconstructed yet.
 void MapPartsArea::vf1C(void*) {}
 
-// NONMATCHING: 1.92% - map area color updates are not reconstructed yet.
-void MapPartsArea::vf10() {}
-
-// NONMATCHING: 0.70% - the map area's render/scene update is not reconstructed yet.
-void MapPartsArea::vf14() {}
-
-// NONMATCHING: 29.13% - map-part bounds are not reconstructed yet.
-MapPartsBox_unk MapPartsArea::vf24(MapPartsTree_unk* tree) {
-    return MapPartsBase::vf24(tree);
+// inferred: lights the characters with the light of each area
+void MapPartsArea::vf10() {
+    for (int i = 0; i < mAreas.size(); i++) {
+        atn::Scene& scene = mAreas[i]->mScene;
+        float speedY = lbl_8087EFA8->m304;
+        float speedX = lbl_8087EFA8->m300;
+        atn::Vector2_unk speed(speedX, speedY);
+        if (scene.GetLight_unk() != 0 && scene.m074 == 0) {
+            scene.GetLight_unk()->fn_800C18BC();
+        }
+    }
 }
 
-// NONMATCHING: 2.55% - lookup across map area collision and item records is not reconstructed yet.
-MapArea* MapPartsArea::fn_804962B0(const atn::Sphere* sphere) { return 0; }
+extern "C" void fn_8006FE08(const atn::AABB_unk* box, unsigned int color); // inferred: draws a box (debug)
+
+// inferred: draws the boxes and cylinders of the areas and the lights of their scenes (debug)
+// NONMATCHING: 95.65% - registers (the area in r31) and the order of the ors of Color::ToU32
+void MapPartsArea::vf14() {
+    if (lbl_8087F0A8->mDrawMapBounds != 0) {
+        for (unsigned int i = 0; i < mAreas.size(); i++) {
+            MapArea* area = mAreas[i];
+            unsigned int j = 0;
+            if (area->mSegments.size() != 0) {
+                for (; j < area->mSegments.size(); j++) {
+                    fn_8006FE08(&area->mSegments[j], area->mScene.mAmbient.ToU32());
+                }
+            }
+            for (unsigned int k = 0; k < area->mParams.size(); k++) {
+                MapPartsAreaParam_unk& cyl = area->mParams[k];
+                lbl_8087EEB0->fn_80062C8C(0x10, 0xFFFFFFFF, cyl.mPos.x, cyl.mPos.y, cyl.mPos.z, 0.0f, cyl.mC, cyl.m10);
+            }
+            area->mScene.fn_800C2D88();
+        }
+    }
+}
+
+// inferred: bounding box of the boxes of the areas
+atn::AABB_unk MapPartsArea::vf24(MapPartsTree_unk* tree) {
+    atn::AABB_unk box;
+    box.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
+    box.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);
+    for (int i = 0; i < mAreas.size(); i++) {
+        MapArea* area = mAreas[i];
+        for (int j = 0; j < area->mSegments.size(); j++) {
+            box = area->mSegments[j].Merge_unk(box);
+        }
+    }
+    return box;
+}
+
+extern "C" int fn_800709F4(const atn::AABB_unk* box, const atn::Sphere* sphere);              // inferred: box hit by the sphere
+extern "C" int fn_80070D04(const MapPartsAreaParam_unk* cylinder, const atn::Sphere* sphere); // inferred: cylinder hit by the sphere
+
+// inferred: area whose boxes or cylinders are hit by the sphere
+// NONMATCHING: 98.55% - the original keeps the area iterator in r31 and the element offset in r30
+MapArea* MapPartsArea::fn_804962B0(const atn::Sphere* sphere) {
+    for (MapArea** it = mAreas.begin(); it != mAreas.end(); it++) {
+        for (unsigned int i = 0; i < (*it)->mSegments.size(); i++) {
+            if (fn_800709F4(&(*it)->mSegments[i], sphere) != 0) {
+                return *it;
+            }
+        }
+        for (unsigned int i = 0; i < (*it)->mParams.size(); i++) {
+            if (fn_80070D04(&(*it)->mParams[i], sphere) != 0) {
+                return *it;
+            }
+        }
+    }
+    return 0;
+}
 
 int MapPartsBase::vf30() {
     return 0;

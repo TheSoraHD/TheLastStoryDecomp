@@ -28,7 +28,7 @@ public:
     virtual void vf10();
     virtual void vf14();
     virtual void vf1C(void* menu);
-    virtual MapPartsBox_unk vf24(MapPartsTree_unk* tree);
+    virtual atn::AABB_unk vf24(MapPartsTree_unk* tree);
 
     // creates the part from the file named in the csv (RSO name; 0x80491EA0)
     static MapPartsArea* SetTask(atn::Task* parent, int type, atn::CsvTab& csv);
