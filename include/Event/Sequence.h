@@ -178,6 +178,7 @@ public:
     static Sequence* fn_8053E86C(atn::Task* parent); // inferred: creates a sequence
 
     void fn_8053E8C8(int state); // inferred: sets the state
+    int GetId_unk() { return m190; } // inferred: weak copy 0x8047E5D4 (Event/Manager.cpp); name invented
     void fn_8053E8D0();
     void fn_8053ED4C();
     void fn_8053EF70();

@@ -149,6 +149,7 @@ public:
     virtual int vf0C();          // 0x80487184
     virtual void vf10();         // 0x80487490
     virtual void vf14();         // 0x80487FA0
+    static Manager* fn_8047E4BC(atn::Task* parent); // inferred: creates the single instance
     // inferred: creates the character `id` of kind `kind` for the event (Event::Actor)
     CharaTask* fn_8047FF70(int kind, int id, float arg, const atn::Vector3& pos);
     void fn_8047E528();
@@ -206,6 +207,8 @@ public:
 
     // inferred: sequence with the id `id` (current one first, then the list m64; inlined); name invented
     Sequence* FindSequence_unk(int id);
+    void AddSequence_unk(Sequence* seq); // inferred: not in the DOL (see Event/Manager.cpp)
+    int fn_8047E5DC(int id); // inferred: loads the sequence `id`
     int fn_8047E964(int id, int queue); // inferred: starts (or queues) the sequence `id`
     int fn_8047F268(int id); // inferred: the sequence `id` is missing, not started or past state 5
     int fn_8047F2EC(int id); // inferred: the sequence `id` is playing (state 10)

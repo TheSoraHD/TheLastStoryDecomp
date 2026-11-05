@@ -9,6 +9,7 @@
 #include "game/NewCampScene2_unk.h"
 #include "game/GameConfig_unk.h"
 #include "Event/Behavior.h"
+#include "db/EventIdTable_unk.h"
 #include "atn/RenderSetting_unk.h"
 #include "game/GameField_unk.h"
 #include "Event/Cut.h"
@@ -24,6 +25,8 @@ extern "C" atn::Vector2_unk lbl_807C7028;    // inferred: zero 2D vector
 extern "C" void fn_8054E574();               // inferred: creates the action processors (Event/ActionActorBehavior.cpp)
 extern "C" void fn_8054F380();               // inferred: deletes the action processors (Event/ActionActorBehavior.cpp)
 extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen capture fade
+extern "C" void fn_800D2338(atn::Task* task);   // inferred: removes the task
+extern "C" int sprintf(char* s, const char* format, ...);
 // inferred: items of the debug menu (atn/MindowsCommon.h)
 extern "C" void fn_80087994(void* folder, const char* name, int* value, void* func, void* arg);
 extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step, void* func,
@@ -446,6 +449,13 @@ Manager::~Manager() {
     fn_8054F380();
 }
 
+Manager* Manager::fn_8047E4BC(atn::Task* parent) {
+    if (lbl_8087F540 == 0) {
+        lbl_8087F540 = new ((MemoryTag)4, "", "", 0) Manager(parent);
+    }
+    return lbl_8087F540;
+}
+
 inline Sequence* Manager::FindSequence_unk(int id) {
     if (m70 != 0 && id == m70->m190) {
         return m70;
@@ -456,6 +466,47 @@ inline Sequence* Manager::FindSequence_unk(int id) {
         }
     }
     return 0;
+}
+
+// inferred: removes every sequence
+void Manager::fn_8047E528() {
+    for (Sequence** it = m64.begin(); it != m64.end(); ++it) {
+        fn_800D2338(*it);
+    }
+    m64.clear();
+    for (int i = 0; i < 16; i++) {
+        m74[i] = 0;
+    }
+    m70 = 0;
+}
+
+
+// inferred: adds a sequence that is not there yet. Nothing calls it, so the linker drops it, but the
+// original has it here: its weak copy of Sequence::GetId_unk (0x8047E5D4) is emitted before
+// fn_8047E5DC and its "vector length error" is in the string pool before "event2/%s.event". Body
+// invented from those two traces.
+void Manager::AddSequence_unk(Sequence* seq) {
+    if (FindSequence_unk(seq->GetId_unk()) == 0) {
+        m64.push_back(seq);
+    }
+}
+
+// NONMATCHING: 99.2% - registers of the growth path of push_back (size/capacity loaded into r5/r4)
+// inferred: loads the sequence `id` ("event2/<name>.event") unless it is already there
+int Manager::fn_8047E5DC(int id) {
+    if (FindSequence_unk(id) == 0) {
+        EventIdEntry_unk* entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(id);
+        if (entry == 0) {
+            return 0;
+        }
+        char path[0x100];
+        sprintf(path, "event2/%s.event", entry->mName.c_str());
+        Sequence* seq = Sequence::fn_8053E86C(SequenceRoot::sInstance);
+        m64.push_back(seq);
+        seq->m190 = id;
+        seq->fn_80576030(path, 0);
+    }
+    return 1;
 }
 
 int Manager::fn_8047E964(int id, int queue) {
