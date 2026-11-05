@@ -51,12 +51,6 @@ extern "C" inline Field_unk* fn_80121F00() {
 extern "C" inline int fn_803D6E24(Field_unk* field) {
     return field->m54E4;
 }
-extern "C" inline int fn_803EFDA4(MapTask* info) {
-    return info->mId;
-}
-extern "C" inline int fn_803EFDAC(MapTask* info) {
-    return info->mSubId;
-}
 // inferred: arena (lbl_8087F610)
 struct CannonArena_unk;
 extern "C" CannonArena_unk* lbl_8087F610;
@@ -383,7 +377,7 @@ void Cannonball::vf10() {
             SetSound_unk(mSound, fn_800C344C(sSe[1], &m6C, 0, -1, 1.0f));
         }
         if (fn_80121F00() != 0 && fn_80373148(fn_80121F00()) != 0 &&
-            fn_803EFDA4(fn_80373148(fn_80121F00())) == 11 && fn_803EFDAC(fn_80373148(fn_80121F00())) == 3 &&
+            fn_80373148(fn_80121F00())->GetMapId() == 11 && fn_80373148(fn_80121F00())->GetMapSubId() == 3 &&
             m54 == 2 && mTimer <= 180) {
             mTimer = 180;
         }
@@ -535,7 +529,7 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
     case 2: {
         int skip = 0;
         if (fn_80121F00() != 0 && fn_80373148(fn_80121F00()) != 0 &&
-            fn_803EFDA4(fn_80373148(fn_80121F00())) == 11 && fn_803EFDAC(fn_80373148(fn_80121F00())) == 3) {
+            fn_80373148(fn_80121F00())->GetMapId() == 11 && fn_80373148(fn_80121F00())->GetMapSubId() == 3) {
             skip = 1;
         }
         mTimer = mExplodeTime;

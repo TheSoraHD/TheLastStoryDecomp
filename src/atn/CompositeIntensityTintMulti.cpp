@@ -13,7 +13,6 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 // inferred: fn_800D59B8 is a member of the texture class (see game/StrapTask.cpp)
 struct GimmickUvOwner_unk {
     int fn_800D59B8(); // inferred: still loading
@@ -258,7 +257,7 @@ CompositeIntensityTintMulti::CompositeIntensityTintMulti(const char* base, const
     if (entry == 0) {
         mHandle.mEntry = CompositeCache_unk::Get_unk().fn_800D8698(base, layers, count);
         mHandle.mEntry->fn_800D8448();
-        fn_800D5908(&mBase, base);
+        mBase.fn_800D5908(base);
         for (int i = 0; i < mCount; i++) {
             mColors[i][0] = layers->mColor[0];
             mUse[i][0] = layers->mUse[0];
@@ -267,7 +266,7 @@ CompositeIntensityTintMulti::CompositeIntensityTintMulti(const char* base, const
             mColors[i][2] = layers->mColor[2];
             mUse[i][2] = layers->mUse[2];
             if (mUse[i][0] != 0 || mUse[i][1] != 0 || mUse[i][2] != 0) {
-                fn_800D5908(&mLayers[i], layers->mPath);
+                mLayers[i].fn_800D5908(layers->mPath);
             }
             layers++;
         }

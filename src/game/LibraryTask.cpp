@@ -38,7 +38,6 @@ extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size);
 // inferred: word wrap of a text
 extern "C" std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float width, float size, float f3, int a,
                                                    int b, int c, int d);
-extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 // inferred: the same function is named as a member of GimmickUvOwner_unk elsewhere
 struct GimmickUvOwner_unk {
     int fn_800D59B8(); // inferred: nonzero while loading
@@ -641,7 +640,7 @@ void BookTask::fn_8046B798(const void* data, unsigned int size) {
         fn_8006F420(font, path, csv.fn_8005B9CC(), 0x100);
         if (path[0] != 0) {
             strcat(path, ".texture");
-            fn_800D5908(&page->mPicture, path);
+            page->mPicture.fn_800D5908(path);
         }
         page->m3C = csv.fn_8005B9CC();
         page->mText = std::basic_string<wchar_t>(csv.fn_8005B9CC());

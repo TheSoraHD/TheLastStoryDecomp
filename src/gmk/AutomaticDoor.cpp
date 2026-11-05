@@ -18,7 +18,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -452,7 +451,7 @@ void AutomaticDoor::vf20() {
         } else if (strcmp(field, "COLLI_IMEDIATE") == 0) {
             mImmediate = fn_800DC12C(csv.fn_8005B9CC());
         } else if (strcmp(field, "PROJECT_EFFECT") == 0) {
-            fn_800D5908(&mTexture, csv.fn_8005B9CC());
+            mTexture.fn_800D5908(csv.fn_8005B9CC());
             mProject = 1;
         } else if (strcmp(field, "BOUND_CENTER_NODE") == 0) {
             mBoundNode.Set_unk(csv.fn_8005B9CC());

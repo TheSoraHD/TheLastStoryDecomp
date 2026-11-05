@@ -55,7 +55,7 @@ public:
     void fn_800C2E30(void* menu);      // inferred: debug menu
 
     // inferred: weak copies 0x80185188, 0x801856A4 and 0x801856AC (game/GameConfig_unk.cpp). AddLight_unk is
-    // inline, defined in game/GameConfig_unk.cpp (its only user; atn::Light is only declared here)
+    // inline, defined in atn/SceneAddLight_unk.h (atn::Light is only declared here)
     void AddLight_unk(Light light);
     Color& GetAmbientLight() { return mAmbient; } // RSO name
     Color& GetLS_unk() { return mLS; }
@@ -64,7 +64,7 @@ public:
     Color* fn_8047C778() { return &m02C; }
     GodRayParam_unk* fn_8047C780() { return &mGodRay.mValue; }
     ShadowParam_unk* fn_8047C7D4() { return &mShadow; }
-    ColorMatrixParam_unk* fn_8047C7DC(); // inferred: own matrix or the one of the render settings (defined in Event/Manager.cpp)
+    ColorMatrixParam_unk* fn_8047C7DC(); // inferred: own matrix or the one of the render settings (defined in atn/SceneColorMatrix_unk.h)
     HazeParam_unk* fn_8047C848() { return &mHaze.mValue; }
     void fn_8047CB6C(int value) { mReflectChara = value; }
     // inferred: mask of mLightMask (gmk::RoomLight sets -1); name invented
@@ -74,6 +74,8 @@ public:
         m074 = light;
         mLightOn = m074 != 0 || mLightOn != 0;
     }
+    // inferred: floor light (COVERAGEMAP) when on (inlined in MapPartsArea::vf1C); name invented
+    CharaLightData_unk* GetFloorLight_unk() { return mFloorLightOn != 0 ? &mFloorLight : 0; }
     // inferred: light of the scene: the one set by SetLight_unk or its own (mLight); null when off
     // (inlined in game/TownTask.cpp and atn/ModelDraw_unk.cpp); name invented
     CharaLightData_unk* GetLight_unk() const {

@@ -159,7 +159,7 @@ MenuLoadTask::~MenuLoadTask() {
 
 CampSaveLoad::CampSaveLoad(atn::Task* parent)
     : atn::Task(parent), m4C(0), m50(0), m54(0), m128(1), m138(0), m13C(0), m148(0), m150(0), m154(0), m158(0),
-      m15C(0), m160(0), m164(0), m168(0), m16C(0), m170(0), m174(0), m4B4(0) {
+      m15C(0), m160(0), m164(0), m168(0), m16C(0), m170(0), m174(0), m4B0(0), m4B4(0) {
     m4AC.fn_80470364("/preload/saveload.pk", 0, 0, 1);
     m130 = 0;
     m12C = 0;
@@ -224,7 +224,7 @@ void CampSaveLoad::fn_80119030(int state, int arg) {
         break;
     case 7:
         vf20();
-        if (mMode == 0 && lbl_8087F430 != 0 && m4AC.m04 == 0) {
+        if (mMode == 0 && lbl_8087F430 != 0 && m4B0 == 0) {
             fn_8036E964(lbl_8087F430);
         }
         break;

@@ -11,7 +11,6 @@
 #include "std/vector.h"
 
 extern "C" double fmod(double x, double y);
-extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 
 
 // inferred: debug menu entries (see game/GimmickCommon.cpp)
@@ -24,20 +23,20 @@ extern "C" void fn_8008771C(void* menu, const char* name, float* value, void (*c
 using namespace atn;
 
 CharaLightData_unk::CharaLightData_unk()
-    : m00(1), m04(0.0f, 0.0f), mSize(0.0f, 0.0f), m14(0.0f, 0.0f), m1C(0.0f), m20(0.0f), mDir(0.0f, 0.0f, 0.0f), m30(0.0f),
-      m34(0.0f), m38(0.0f), m44(0), m48(0), m4C(0) {
+    : m00(1), m04(0.0f, 0.0f), mSize(0.0f, 0.0f), m14(0.0f, 0.0f), m1C(0.0f), m20(0.0f), mDir(0.0f, 0.0f, 0.0f),
+      mPos(0.0f, 0.0f, 0.0f), m44(0), m48(0), m4C(0) {
 }
 
 CharaLightData_unk::CharaLightData_unk(const char* texture)
-    : m00(1), m04(0.0f, 0.0f), mSize(0.0f, 0.0f), m14(0.0f, 0.0f), m1C(0.0f), m20(0.0f), mDir(0.0f, 0.0f, 0.0f), m30(0.0f),
-      m34(0.0f), m38(0.0f), m44(0), m48(0), m4C(0) {
+    : m00(1), m04(0.0f, 0.0f), mSize(0.0f, 0.0f), m14(0.0f, 0.0f), m1C(0.0f), m20(0.0f), mDir(0.0f, 0.0f, 0.0f),
+      mPos(0.0f, 0.0f, 0.0f), m44(0), m48(0), m4C(0) {
     mTextures.Resize_unk(1, 0);
-    fn_800D5908(mTextures.mData, texture);
+    mTextures.mData->fn_800D5908(texture);
 }
 
 void CharaLightData_unk::fn_800C1814(const char* path) {
     mTextures.Resize_unk(1, 0);
-    fn_800D5908(mTextures.mData, path);
+    mTextures.mData->fn_800D5908(path);
 }
 
 // inferred: name invented
@@ -143,7 +142,7 @@ int Scene::fn_800C2108() {
     bool loaded = mWhite.mImage != 0 || (((GimmickUvOwner_unk*)&mWhite)->fn_800D59B8() == 0 &&
                                          ((LoadHandle*)&mWhite.m20)->fn_80473EFC() == 3);
     if (!loaded) {
-        fn_800D5908(&mWhite, "common/sys_white.texture");
+        mWhite.fn_800D5908("common/sys_white.texture");
     }
     int busy = ((GimmickUvOwner_unk*)&mWhite)->fn_800D59B8();
     if (mFloorLightOn != 0 && mFloorLight.fn_800C1990()) {
@@ -279,7 +278,7 @@ void Scene::fn_800C289C(const char* path) {
         return;
     }
     fn_800C2634(1);
-    fn_800D5908(mLight.mTextures.mData, path);
+    mLight.mTextures.mData->fn_800D5908(path);
 }
 
 void Scene::fn_800C2B24(const Vector2_unk* pos, const Vector2_unk* size, const char* path) {
@@ -289,7 +288,7 @@ void Scene::fn_800C2B24(const Vector2_unk* pos, const Vector2_unk* size, const c
     mFloorLight.mSize = *size;
     mFloorLight.m00 = 1;
     mFloorLight.mTextures.Resize_unk(1, 6);
-    fn_800D5908(mFloorLight.mTextures.mData, path);
+    mFloorLight.mTextures.mData->fn_800D5908(path);
     mFloorLight.m14 = Vector2_unk(0.0f, 0.0f);
 }
 

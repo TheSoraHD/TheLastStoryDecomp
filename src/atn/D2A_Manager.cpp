@@ -12,7 +12,6 @@
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" int wcsncmp(const wchar_t* a, const wchar_t* b, int n); // inferred: wcsncmp
 extern "C" unsigned int fn_800DC6B4(const char* s);                    // inferred: string hash
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 
 // inferred: setters of the layout at D2A_Data + 0x10 (automatic names)
 extern "C" void fn_801FED24(void* layout, unsigned int id, int index, float value);
@@ -319,10 +318,10 @@ extern "C" atn::D2A_Manager* fn_801F0D80(atn::Task* parent) {
 namespace atn {
 
 D2A_Manager::D2A_Manager(Task* parent) : Task(parent), mCurrent(0), m1AC(0) {
-    fn_800D5908(&mTextures[0][0], "wd_01_02.texture");
+    mTextures[0][0].fn_800D5908("wd_01_02.texture");
     mTextures[0][0].m2D = 0;
     mTextures[0][0].m2E = 0;
-    fn_800D5908(&mTextures[0][1], "wd_01_01.texture");
+    mTextures[0][1].fn_800D5908("wd_01_01.texture");
     mTextures[0][1].m2D = 0;
     mTextures[0][1].m2E = 0;
     fn_801F35B4(&mTexts, "/data/d2anime/d2a_text_xx.u16", 0);

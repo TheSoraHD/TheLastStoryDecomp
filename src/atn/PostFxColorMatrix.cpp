@@ -4,17 +4,10 @@
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
+#include "atn/Lerp_unk.h"
 
-// inferred: rows of the color matrix (atn::Vector4_unk); operators used by the blend (names invented)
+// inferred: rows of the color matrix (atn::Vector4_unk; operators in atn/Vector4_unk.h)
 typedef atn::Vector4_unk ColorVec4_unk;
-namespace atn {
-inline Vector4_unk operator*(const Vector4_unk& v, float f) {
-    return Vector4_unk(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-inline Vector4_unk operator+(const Vector4_unk& a, const Vector4_unk& v) {
-    return Vector4_unk(a.x + v.x, a.y + v.y, a.z + v.z, a.w + v.w);
-}
-} // namespace atn
 typedef ColorMatrixParam_unk ColorMatrix_unk;
 
 // inferred: render parameters (lbl_8087EFA8)

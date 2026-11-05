@@ -14,7 +14,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s);
 extern "C" float fn_801F0544(atn::D2A_ParamTable* table, int key);
 extern "C" const char lbl_8073E57C[];
 extern "C" void fn_800D58A4(atn::Texture_unk* texture);
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path);
 extern "C" void fn_801FE99C(atn::D2A_Layout_unk* layout, atn::D2A_Anim_unk<4>* value);
 extern "C" float fn_800A6BD4(const unsigned char* code, float value);
 extern "C" void fn_801EDCB8(atn::D2A_Common* element);
@@ -374,9 +373,9 @@ extern "C" int fn_801FD5A0(atn::D2A_Texture* texture, const char* path, int arg)
     }
     fn_800D58A4(&texture->mTexture0);
     if (fullPath[0] == 0) {
-        fn_800D5908(&texture->mTexture0, lbl_8073E57C + 0x26);
+        texture->mTexture0.fn_800D5908(lbl_8073E57C + 0x26);
     } else {
-        fn_800D5908(&texture->mTexture0, fullPath);
+        texture->mTexture0.fn_800D5908(fullPath);
     }
     texture->mTexture0.m2D = 1;
     texture->mTexture0.m2E = 1;
@@ -401,7 +400,7 @@ extern "C" int fn_801FDA20(atn::D2A_Texture* texture, const char* path, int arg)
         return 1;
     }
     fn_800D58A4(&texture->mTexture1);
-    fn_800D5908(&texture->mTexture1, fullPath);
+    texture->mTexture1.fn_800D5908(fullPath);
     texture->mTexture1.m2D = 1;
     texture->mTexture1.m2E = 1;
     return 1;

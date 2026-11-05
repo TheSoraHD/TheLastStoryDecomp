@@ -10,23 +10,23 @@ void* MapPartsGimmickLoc::fn_80498E7C(int index) {
     return entries + index * 0x30;
 }
 
-void MapPartsGimmickLoc::fn_80498EAC(const atn::Vector3& value) {
+void MapPartsGimmickLocObj_unk::fn_80498EAC(const atn::Vector3& value) {
     m6C = value;
 }
 
-void MapPartsGimmickLoc::fn_80498EC0(const atn::Vector3& value) {
+void MapPartsGimmickLocObj_unk::fn_80498EC0(const atn::Vector3& value) {
     m78 = value;
 }
 
-void MapPartsGimmickLoc::fn_80498ED4(const atn::Vector3& value) {
+void MapPartsGimmickLocObj_unk::fn_80498ED4(const atn::Vector3& value) {
     m90 = value;
 }
 
-void MapPartsGimmickLoc::fn_80498EE8(int value) {
+void MapPartsGimmickLocObj_unk::fn_80498EE8(int value) {
     m58 = value;
 }
 
-void MapPartsGimmickLoc::fn_80498EF0(int value) {
+void MapPartsGimmickLocObj_unk::fn_80498EF0(int value) {
     mA4 = value;
 }
 
@@ -47,7 +47,7 @@ const float lbl_808870E8 = 1.0f;
 const float lbl_808870F0 = -1.0f;
 
 // NONMATCHING: 0% - generated body is 52 bytes; target is 56 bytes.
-void MapPartsGimmickLoc::fn_80498F14(float value, const atn::Vector3& range) {
+void MapPartsGimmickLocObj_unk::fn_80498F14(float value, const atn::Vector3& range) {
     m6C.y = value;
     m6C.z = lbl_808870F0 * range.x / value;
     m78.x = lbl_808870E8 - (range.y + value) / value;

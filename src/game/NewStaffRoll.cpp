@@ -13,7 +13,6 @@ extern "C" float fn_800DC3CC(const wchar_t* s); // inferred: wide string to floa
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // inferred: debug switch
 extern "C" void fn_8008771C(void* menu, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step); // inferred: debug float slider
-extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 // inferred: field (lbl_8087F430)
@@ -127,7 +126,7 @@ NewStaffRoll::NewStaffRoll(atn::Task* parent)
     void* menu = mMenu.Load("StaffRoll");
     fn_80087994(menu, "DrawOff", &mDrawOff, 0, 0);
     fn_8008771C(menu, "Speed", &mSpeed, 0, 0, 0.0f, 10000.0f, 1.0f);
-    fn_800D5908(&mLogo, "ui_logo_nm.texture");
+    mLogo.fn_800D5908("ui_logo_nm.texture");
 }
 
 NewStaffRoll::~NewStaffRoll() {

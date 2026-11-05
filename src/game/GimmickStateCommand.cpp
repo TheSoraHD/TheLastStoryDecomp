@@ -36,48 +36,6 @@ extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
-// inferred: accessors (weak copies, names keep the addresses; also used by gmk::Cannonball). The empty
-// asserts (debug build only) count against the inline budget of fn_803EF780.
-#define GSC_ASSERT_UNK(x) ((void)0)
-extern "C" inline int fn_803EFD9C(MapTask* info) {
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    return info->mType;
-}
-extern "C" inline int fn_803EFDA4(MapTask* info) {
-    return info->mId;
-}
-extern "C" inline int fn_803EFDAC(MapTask* info) {
-    return info->mSubId;
-}
 // inferred: effects
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -179,7 +137,7 @@ GimmickCommonB0_unk::~GimmickCommonB0_unk() {
 // inferred: reads the motion commands ("MOTCMD motion frame command resource x y z scale node", with
 // "IF map"/"ELSE"/"ENDIF" blocks) and loads their resources
 // The original is over the inlining budget and calls every inline function out of line (weak copies
-// 0x803EFCA8-0x803F069C follow it): the asserts of fn_803EFD9C put it over (docs/auto-20261101d.md).
+// 0x803EFCA8-0x803F069C follow it): the asserts of MapTask::GetMapType (game/MapTask.h) put it over (docs/auto-20261101d.md).
 void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
     atn::CsvTab csv(data, size);
     std::vector<std::string> names;
@@ -219,7 +177,7 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
             if (fn_80216AFC(csv.fn_8005B9CC(), &type, &map, &point) && fn_80121F00() != 0 &&
                 fn_80373148(fn_80121F00()) != 0) {
                 MapTask* info = fn_80373148(fn_80121F00());
-                if (type != fn_803EFD9C(info) || map != fn_803EFDA4(info) || point != fn_803EFDAC(info)) {
+                if (type != info->GetMapType() || map != info->GetMapId() || point != info->GetMapSubId()) {
                     while (csv.fn_8005BBF8() != 0) {
                         const char* s = csv.fn_8005B9CC();
                         if (*s == ';') {

@@ -18,7 +18,6 @@ extern "C" int fn_8006AA20(const char* path);        // inferred: the file exist
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
 std::string fn_8006B0C8(const std::string& path);            // inferred: directory of a path
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 
 extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTXMultVecArray
@@ -284,7 +283,7 @@ void MapPartsLocatorSet::fn_8049B1F0() {
         mTexName = tex.c_str();
     }
     if (!mTexName.Equals_unk("")) {
-        fn_800D5908(&mTexture, mTexName.mStr);
+        mTexture.fn_800D5908(mTexName.mStr);
     }
     if (mHasMerged) {
         return;

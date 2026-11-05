@@ -11,7 +11,6 @@ extern "C" void fn_8022D754(void* entry);                   // inferred: prepare
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" std::string fn_8006D008(const std::string& a, const char* b); // inferred: a + b
 extern "C" void fn_8006AD24(std::string& path, const std::string& dir); // inferred
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path);        // inferred: loads a texture
 
 // inferred: fn_800D59B8 is a member of the texture class (it follows its constructor), declared for
 // now in include/game/GimmickCommon.h under this name: nonzero while the texture is loading
@@ -145,19 +144,19 @@ void LoadEffect::vf0C() {
         } else if (entry->mType == 2) {
             EffectTexturePair_unk* pair = new ((MemoryTag)7, "", "", 0) EffectTexturePair_unk;
             if (strlen(entry->mName) != 0) {
-                fn_800D5908(&pair->m00, name.c_str());
+                pair->m00.fn_800D5908(name.c_str());
             }
             pair->m00.m2D = 1;
             pair->m00.m2E = 1;
             name = fn_8006D008(fn_8006D008(dir, "/"), entry->mTexture);
-            fn_800D5908(&pair->m30, name.c_str());
+            pair->m30.fn_800D5908(name.c_str());
             pair->m30.m2D = 1;
             pair->m30.m2E = 1;
             mData.mObjects[i] = pair;
         } else if (strlen(entry->mName) != 0) {
             fn_8006AD24(name, "texture");
             Texture_unk* texture = new ((MemoryTag)7, "", "", 0) Texture_unk;
-            fn_800D5908(texture, name.c_str());
+            texture->fn_800D5908(name.c_str());
             texture->m2D = 1;
             texture->m2E = 1;
             mData.mObjects[i] = texture;

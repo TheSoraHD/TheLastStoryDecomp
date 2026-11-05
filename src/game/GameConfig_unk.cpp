@@ -4,12 +4,8 @@
 extern "C" int sprintf(char* buf, const char* format, ...);
 #include "macros.h"
 #include "atn/Light_unk.h"
+#include "atn/SceneAddLight_unk.h"
 
-// inferred: inline of atn::Scene (atn/Scene.h); defined here, its only user (weak copy 0x80185188)
-// NONMATCHING: AddLight_unk 95.3% - the growth path of std::vector::push_back (as in Event/Path.cpp)
-inline void atn::Scene::AddLight_unk(Light light) {
-    mLights.push_back(light);
-}
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int lbl_8087EED0; // inferred: profile layer (debug menu "Profile Layer")

@@ -18,7 +18,7 @@
 #include "Event/DummyData.h"
 #include "Event/Actor.h"
 #include "game/IntVector_unk.h"
-#include "game/ResRef_unk.h"
+#include "atn/ResRef_unk.h"
 #include "game/GameMessageList.h"
 
 class GameMessageWindow;

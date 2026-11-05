@@ -48,6 +48,8 @@
 #include "Event/StringData.h"
 #include "Event/Label.h"
 #include "atn/RenderManager.h"
+#include "atn/SceneColorMatrix_unk.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 
@@ -361,38 +363,6 @@ atn::Vector3 fn_8047C1D8(const atn::Vector3& a, const atn::Vector3& b, float t) 
     PSMTXQuat(m, &r);
     PSMTXMultVec(m, &dir, &dir);
     return dir;
-}
-
-namespace atn {
-
-// inferred: by-value operators of the color and a + (b - a) * t (names invented)
-inline Color operator-(const Color& a, const Color& b) {
-    return Color(a.r - b.r, a.g - b.g, a.b - b.b, a.a - b.a);
-}
-inline Color operator+(const Color& a, const Color& b) {
-    return Color(a.r + b.r, a.g + b.g, a.b + b.b, a.a + b.a);
-}
-inline Color operator*(const Color& a, float s) {
-    return Color(a.r * s, a.g * s, a.b * s, a.a * s);
-}
-inline Vector4_unk operator-(const Vector4_unk& a, const Vector4_unk& b) {
-    return Vector4_unk(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
-}
-inline Vector4_unk operator+(const Vector4_unk& a, const Vector4_unk& b) {
-    return Vector4_unk(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
-}
-inline Vector4_unk operator*(const Vector4_unk& a, float s) {
-    return Vector4_unk(a.x * s, a.y * s, a.z * s, a.w * s);
-}
-template <class T>
-inline T Lerp_unk(const T& a, const T& b, float t) {
-    return (b - a) * t + a;
-}
-
-} // namespace atn
-
-inline ColorMatrixParam_unk* atn::Scene::fn_8047C7DC() {
-    return mColorMatrix.mSet != 0 ? &mColorMatrix.mValue : &lbl_8087EFA8->m324;
 }
 
 namespace Event {
@@ -1551,18 +1521,18 @@ void Manager::fn_80482ED8() {
     atn::RenderManager* view = atn::RenderManager::instance_;
     if (rs != 0 && view != 0) {
         m1AB0.mBloom = rs->m054;
-        m1AB0.m88 = rs->m0D4;
-        m1AB0.m8C = rs->m0D8;
-        m1AB0.m90 = rs->m0DC;
-        m1AB0.m94 = rs->m0E0;
-        m1AB0.m98 = rs->m0E4;
-        m1AB0.m9C = rs->m0E8;
-        m1AB0.mA0 = rs->m0EC;
-        m1AB0.mA4 = rs->m0F0;
-        m1AB0.mA8 = rs->m0F4;
-        m1AB0.mAC = rs->m0F8;
-        m1AB0.mB0 = rs->m0FC;
-        m1AB0.mB4 = rs->m100;
+        m1AB0.m88 = rs->mDof.mEnabled;
+        m1AB0.m8C = rs->mDof.mDebug;
+        m1AB0.m90 = rs->mDof.mView;
+        m1AB0.m94 = rs->mDof.mClearFar;
+        m1AB0.m98 = rs->mDof.mStart;
+        m1AB0.m9C = rs->mDof.mEnd;
+        m1AB0.mA0 = rs->mDof.mNearStart;
+        m1AB0.mA4 = rs->mDof.mNearEnd;
+        m1AB0.mA8 = rs->mDof.mWidth;
+        m1AB0.mAC = rs->mDof.mHeight;
+        m1AB0.mB0 = rs->mDof.mBlurWidth;
+        m1AB0.mB4 = rs->mDof.mBlurHeight;
         m1AB0.mB8 = rs->m240;
         m1AB0.mDC = rs->m374;
         rs->m374 = DamageEffectParam_unk();
@@ -1600,18 +1570,18 @@ void Manager::fn_80483714(int a, int b) {
         rs->m240 = m1AB0.mB8;
     }
     rs->m054 = m1AB0.mBloom;
-    rs->m0D4 = m1AB0.m88;
-    rs->m0D8 = m1AB0.m8C;
-    rs->m0DC = m1AB0.m90;
-    rs->m0E0 = m1AB0.m94;
-    rs->m0E4 = m1AB0.m98;
-    rs->m0E8 = m1AB0.m9C;
-    rs->m0EC = m1AB0.mA0;
-    rs->m0F0 = m1AB0.mA4;
-    rs->m0F4 = m1AB0.mA8;
-    rs->m0F8 = m1AB0.mAC;
-    rs->m0FC = m1AB0.mB0;
-    rs->m100 = m1AB0.mB4;
+    rs->mDof.mEnabled = m1AB0.m88;
+    rs->mDof.mDebug = m1AB0.m8C;
+    rs->mDof.mView = m1AB0.m90;
+    rs->mDof.mClearFar = m1AB0.m94;
+    rs->mDof.mStart = m1AB0.m98;
+    rs->mDof.mEnd = m1AB0.m9C;
+    rs->mDof.mNearStart = m1AB0.mA0;
+    rs->mDof.mNearEnd = m1AB0.mA4;
+    rs->mDof.mWidth = m1AB0.mA8;
+    rs->mDof.mHeight = m1AB0.mAC;
+    rs->mDof.mBlurWidth = m1AB0.mB0;
+    rs->mDof.mBlurHeight = m1AB0.mB4;
     DamageEffectParam_unk damage = m1AB0.mDC;
     rs->m374 = damage;
     rs->m2AC = m1AB0.m100;

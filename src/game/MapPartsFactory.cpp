@@ -7,6 +7,7 @@
 #include "game/MapPartsArea.h"
 #include "game/MapPartsGimmickLoc_unk.h"
 #include "game/MapPartsLocatorSet.h"
+#include "game/MapPartsFactory.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 

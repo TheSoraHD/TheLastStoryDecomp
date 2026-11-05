@@ -14,7 +14,6 @@ extern "C" int fn_8006BA30();                                        // inferred
 extern "C" int fn_8006AA20(const char* path);                        // inferred: the file exists
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
 extern "C" void fn_800D58A4(atn::Texture_unk* tex);                  // inferred: releases a texture
-extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture and waits
 
 using namespace atn;
@@ -145,7 +144,7 @@ extern "C" void fn_8006D0C8(Font_unk* self, int town) {
             if (!fn_8006AA20(path.c_str())) {
                 break;
             }
-            fn_800D5908(&self->mTextures[1][style][size], path.c_str());
+            self->mTextures[1][style][size].fn_800D5908(path.c_str());
             path = "font/";
             path += name;
             fn_8006AD24(path, std::string("gly"));

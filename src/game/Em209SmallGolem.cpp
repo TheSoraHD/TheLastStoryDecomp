@@ -8,6 +8,7 @@
 #include <boost/tokenizer.hpp>
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -92,16 +93,6 @@ struct GolemMatColor_unk {
     float r, g, b, a;
 };
 
-// inferred: color operators of the file (always inlined); names invented
-inline atn::Color4f_unk operator-(const atn::Color4f_unk& x, const atn::Color4f_unk& o) {
-    return atn::Color4f_unk(x.r - o.r, x.g - o.g, x.b - o.b, x.a - o.a);
-}
-inline atn::Color4f_unk operator*(const atn::Color4f_unk& x, float f) {
-    return atn::Color4f_unk(x.r * f, x.g * f, x.b * f, x.a * f);
-}
-inline atn::Color4f_unk operator+(const atn::Color4f_unk& x, const atn::Color4f_unk& o) {
-    return atn::Color4f_unk(x.r + o.r, x.g + o.g, x.b + o.b, x.a + o.a);
-}
 // inferred: names invented
 inline atn::Color4f_unk GolemLerp_unk(const atn::Color4f_unk& a, const atn::Color4f_unk& b, float t) {
     return (b - a) * t + a;

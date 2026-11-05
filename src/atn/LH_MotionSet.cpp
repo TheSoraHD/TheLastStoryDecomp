@@ -5,6 +5,7 @@
 #include "atn/Csv.h"
 #include "gmk/SeTable.h"
 #include "std/vector.h"
+#include "atn/ResRef_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
@@ -17,16 +18,6 @@ struct MotionSetLine_unk {
 
 typedef int (*MotionSetCallback_unk)(const char* name); // inferred: motion name to id
 
-// inferred: reference to a shared resource of the load manager (functions 0x80470364/0x80470528)
-struct ResRef_unk {
-    ResRef_unk() : mRes(0), m04(0) {}
-    ~ResRef_unk() { fn_80470528(); }
-    void fn_80470364(const char* name, int a, int b, int c); // inferred: starts loading `name`
-    void fn_80470528();                                      // inferred: drops the reference
-
-    void* mRes;
-    void* m04;
-};
 
 // inferred: motion of the set (0x10 bytes)
 struct MotionSetEntry_unk {
@@ -44,7 +35,7 @@ namespace atn {
 // inferred from __vt__Q23atn13LoadMotionSet (0x8078FEC8)
 class LoadMotionSet : public LoadCore {
 public:
-    LoadMotionSet(const char* path) : LoadCore(path), mCallback(0), mParsed(0) {}
+    LoadMotionSet(const char* path) : LoadCore(path), mCallback(0), mParsed(0), m70(0) {}
     virtual ~LoadMotionSet();
     virtual void vf0C();
     // NONMATCHING: 95.6% - see the definition
@@ -54,6 +45,7 @@ public:
     MotionSetCallback_unk mCallback;         // 0x64
     int mParsed;                             // 0x68
     ResRef_unk m6C;
+    int m70; // inferred: set by fn_80476ED4 (was ResRef_unk::m04)
 };
 
 LoadMotionSet::~LoadMotionSet() {}
@@ -103,7 +95,7 @@ void LoadMotionSet::fn_80476ED4() {
                 lines.push_back(line);
             }
         } else if (strcmp(field, "PACK") == 0) {
-            if (m6C.m04 == 0) {
+            if (m70 == 0) {
                 m6C.fn_80470364(csv.fn_8005B9CC(), 0, 0, 1);
             }
         }
@@ -132,7 +124,7 @@ extern "C" void fn_80477694(atn::LH_MotionSet* set, const char* path) {
     set->fn_80473F88();
     set->mCore = lbl_8087F518->Get_unk<atn::LoadMotionSet>(path, 0);
     ((atn::LoadMotionSet*)set->mCore)->mCallback = (MotionSetCallback_unk)set->mCallback;
-    ((atn::LoadMotionSet*)set->mCore)->m6C.m04 = (void*)1;
+    ((atn::LoadMotionSet*)set->mCore)->m70 = 1;
 }
 
 // inferred: gives every motion of the set to `model`

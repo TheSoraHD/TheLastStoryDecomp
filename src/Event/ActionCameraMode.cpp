@@ -234,7 +234,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
                 color.g = (1.0f / 255.0f) * ((c >> 8) & 0xFF);
                 color.b = (1.0f / 255.0f) * (c & 0xFF);
                 color.a = (1.0f / 255.0f) * (c >> 24);
-                bloom.mColor1 = color;
+                bloom.mColor[0] = color;
                 for (int i = 0; i < 3; i++) {
                     bloom.mBias[i] = arg->GetParamAt_unk(3 + i)->m04.i;
                 }

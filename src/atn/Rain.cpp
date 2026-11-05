@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
+#include "atn/Lerp_unk.h"
 
 extern "C" int rand();
 
@@ -159,11 +160,7 @@ public:
     float mLengthVar;     // 0x5C
 };
 
-// inferred: linear interpolation (inline template, name invented)
-template <class T>
-inline T Lerp_unk(const T& a, const T& b, float t) {
-    return (b - a) * t + a;
-}
+// inferred: linear interpolation (the template is in math/Vec.h; float overload, name invented)
 inline float Lerp_unk(float a, float b, float t) {
     return t * (b - a) + a;
 }

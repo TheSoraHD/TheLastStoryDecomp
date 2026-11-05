@@ -1,8 +1,9 @@
 #ifndef ATN_LAYER3D_H
 #define ATN_LAYER3D_H
 
-// inferred: registers a debug toggle `name` bound to `flag` (class unknown)
-extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4);
+// inferred: registers a debug toggle `name` bound to `flag` (AddBool of atn/MindowsCommon.h: callback
+// called with `arg` and the address of the value pointer)
+extern "C" void fn_80087994(void* menu, const char* name, int* flag, void (*func)(void*, void*), void* arg);
 
 namespace atn {
 
