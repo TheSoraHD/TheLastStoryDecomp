@@ -375,19 +375,6 @@ void StrmPlayer::Pause(bool flag)
 	UpdatePauseStatus();
 }
 
-void float_order_snd_StrmPlayer() {
-	0.0f;
-	int zero = 0;
-	unsigned uzero = 0;
-	f32 z = zero;
-	z = uzero;
-}
-#if 0
-// Some functions in between idk
-DECOMP_FORCE(0.0f);
-DECOMP_FORCE(SI2D_CONSTANT);
-DECOMP_FORCE(UI2D_CONSTANT);
-#endif
 
 bool StrmPlayer::ReadStrmDataInfo(StrmDataInfo* info) const
 {
@@ -426,9 +413,8 @@ u32 StrmPlayer::GetPlaySamplePosition() const
 	return t + sample;
 }
 
-// NOTE: code at 100%, but the unit does not link: the original .sdata2 pool has 100.0f before the
-// two int-to-float doubles (0.0f, 100.0f, doubles); MWCC creates the doubles first with any form of
-// the expression and any compiler version tried (a stripped function using 100.0f earlier?).
+// The Last Story version: 0.0f and 100.0f are first used here, before the int-to-float doubles
+// (.sdata2 order 0.0f, 100.0f, doubles); no filler function before ReadStrmDataInfo.
 // inferred: The Last Story addition (0x8071A800), percentage of the stream buffer still loaded
 // ahead of the playing position (while preparing, of the blocks already loaded)
 f32 StrmPlayer::GetBufferRatio_unk() const

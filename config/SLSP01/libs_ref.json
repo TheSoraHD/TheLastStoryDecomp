@@ -15141,7 +15141,7 @@
    "-lang=c++"
   ],
   "category": "nw4r",
-  "matching": false
+  "matching": true
  },
  {
   "name": "ss_nw4r/src/snd/snd_StrmSound.cpp",
