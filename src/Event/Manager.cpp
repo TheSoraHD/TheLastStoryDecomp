@@ -26,6 +26,7 @@
 #include "game/MapManager.h"
 #include "game/ColliAttrManager.h"
 #include "game/GameBgm.h"
+#include "game/EnvSeManager.h"
 #include "game/PlayerManager.h"
 #include "game/Inventory.h"
 #include "game/NpcManager.h"
@@ -64,6 +65,9 @@ extern "C" int fn_8006AA20(const char* path);                        // inferred
 extern "C" GameMap_unk* fn_8049D68C(atn::Task* parent, const char* path); // inferred: creates a map
 extern "C" GameMap_unk* fn_8049D704(atn::Task* parent, int area, int map, int part);
 extern "C" void fn_800C3094(void* light);
+struct DialogTextMgr_unk;
+extern "C" DialogTextMgr_unk* lbl_8087F008;                     // inferred: text renderer (Event/Dialog.cpp)
+extern "C" void fn_800DAA3C(DialogTextMgr_unk* mgr, int arg);
 extern "C" NewCampScene2_unk* fn_800C16B4(Camera_unk* camera); // inferred: scene of the render view
 extern "C" void fn_8004895C(atn::SoundEngine_unk* sound);
 extern "C" void fn_80049654(atn::SoundEngine_unk* sound);
@@ -1352,6 +1356,8 @@ void fn_80481B9C(MapArea* area, void* arg) {
 
 // inferred: argument of fn_804827D8 (built by fn_80483E80 and fn_80487BB4). Names invented.
 struct SceneApply_unk {
+    // inferred: weak copy 0x80483E80 (called by fn_80487490)
+    SceneApply_unk(EventConfig_unk* config) : mConfig(config), m04(0), mBlend(false) {}
     EventConfig_unk* mConfig;
     int m04;
     bool mBlend; // 0x08
@@ -1497,6 +1503,101 @@ void Manager::fn_80482ED8() {
         m1AB0.m00 = 1;
     }
 }
+// NONMATCHING: 98.5% - load order of the damage copy (m1AB0.mDC)
+// inferred: restores what fn_80482ED8 saved (b != 0: keep it saved); then fn_80483E94(a)
+void Manager::fn_80483714(int a, int b) {
+    if (m1AB0.m00 == 0) {
+        return;
+    }
+    RenderSetting_unk* rs = lbl_8087EFA8;
+    if (rs == 0) {
+        return;
+    }
+    Camera_unk* view = lbl_8087EFB4;
+    if (view == 0) {
+        return;
+    }
+    if (rs != 0) {
+        rs->m240 = m1AB0.mB8;
+    }
+    rs->m054 = m1AB0.mBloom;
+    rs->m0D4 = m1AB0.m88;
+    rs->m0D8 = m1AB0.m8C;
+    rs->m0DC = m1AB0.m90;
+    rs->m0E0 = m1AB0.m94;
+    rs->m0E4 = m1AB0.m98;
+    rs->m0E8 = m1AB0.m9C;
+    rs->m0EC = m1AB0.mA0;
+    rs->m0F0 = m1AB0.mA4;
+    rs->m0F4 = m1AB0.mA8;
+    rs->m0F8 = m1AB0.mAC;
+    rs->m0FC = m1AB0.mB0;
+    rs->m100 = m1AB0.mB4;
+    DamageParam_unk damage = m1AB0.mDC;
+    rs->m374 = damage;
+    rs->m2AC = m1AB0.m100;
+    m1AB0.m01 = 0;
+    m1BD0.fn_8047C88C(fn_800C16B4(view));
+    SceneApply_unk apply(&m1AB0);
+    MapManager::sInstance->fn_80491528(fn_804827D8, &apply);
+    GameMap_unk* map = 0;
+    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+        map = fn_80373148(lbl_8087F430);
+    }
+    if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.size() != 0) {
+        map = (GameMap_unk*)MapManager::sInstance->mParts[0]; // inferred: the same map task
+    }
+    if (map != 0) {
+        map->m104 = m1D6C;
+    }
+    if (mC4 != 0) {
+        fn_8047F984(1.0f);
+        mC4 = 0;
+    }
+    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(m1AB0.m11C);
+    fn_800DAA3C(lbl_8087F008, 0);
+    if (b == 0) {
+        fn_80483E94(a);
+        m1AB0.m00 = 0;
+    }
+}
+// inferred: end of the saved state: restores the BGM (arg != 0), the sounds and the collision
+// attributes
+__declspec(noinline) void Manager::fn_80483E94(int arg) {
+    if (m1AB0.m00 != 0) {
+        if (arg != 0 && m1D64 != -1 && GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D4C0(m1D64, 60, 1, 0, m1D68);
+        }
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->fn_800CF680(3, 60, 0);
+        }
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_80360780(1, 4, 60);
+            lbl_8087F418->fn_803606CC(1, 4, 60);
+        }
+        if (ColliAttrManager::sInstance != 0 && ColliAttrManager::sInstance->mEnabled == 0) {
+            ColliAttrManager::sInstance->mEnabled = 1;
+        }
+        m1AB0.m00 = 0;
+    }
+}
+// inferred: color matrix of the map area at the target of the current camera, copied into the render
+// settings (uses the manager instance, not this)
+ColorMatrixParam_unk* Manager::fn_80483F70() {
+    Manager* manager = lbl_8087F540;
+    ColorMatrixParam_unk* dst = &lbl_8087EFA8->m324;
+    atn::Sphere sphere(manager->mCameras[manager->m1A38].mTarget, 30.0f);
+    if (MapManager::sInstance != 0) {
+        MapArea* area = MapManager::sInstance->fn_804918A4(sphere);
+        if (area != 0) {
+            *dst = *area->fn_8047C7DC();
+        }
+    }
+    return dst;
+}
+
+
+
 
 
 

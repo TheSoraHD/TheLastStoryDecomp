@@ -178,6 +178,7 @@ public:
     void fn_80482ED8();
     void fn_80483714(int a, int b);
     void fn_80483E94(int arg);
+    ColorMatrixParam_unk* fn_80483F70(); // inferred: color matrix of the map at the camera target
     void fn_80484FBC();
     void fn_80489A50(Action* action, int arg);
     void fn_8048E904();
@@ -206,7 +207,6 @@ public:
     void fn_80484BF4();
     void fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float rate);
     void fn_80484E88();
-    ColorMatrixParam_unk* fn_80483F70();
     void fn_80484088(ColorMatrixParam_unk* param, float rate);
     void fn_804881B8(Sequence* manager, const char* name, int fade, int stopBgm, int a, int b, int c, float volume, int d, int flags);
     void fn_8048E9A4(MovieState_unk* movie, int frames);

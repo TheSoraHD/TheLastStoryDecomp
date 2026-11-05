@@ -23,6 +23,12 @@ struct NewCampScene2_unk {
     ColorMatrixParam_unk* fn_8047C7DC(); // inferred: own matrix or the one of the render settings (defined in Event/Manager.cpp)
     HazeParam_unk* fn_8047C848() { return &mHaze; }
     void fn_8047CB6C(int value) { m120 = value; }
+    // inferred: sets the light of gmk::CharaLight/RoomLight (inlined in Event::Manager fn_80483714; as
+    // LightTarget_unk::SetLight_unk of gmk/RoomLight.cpp); name invented
+    void SetLight_unk(void* light) {
+        m074 = light;
+        m070 = m074 != 0 || m070 != 0;
+    }
 
     unsigned char m000[0x00C];
     atn::D2A_DrawColor mAmbient;    // 0x00C: debug menu "Ambient"
