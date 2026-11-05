@@ -91,7 +91,7 @@ public:
     int mLightOn;                       // 0x070: inferred: character light on
     CharaLightData_unk* m074;           // 0x074: inferred: light of gmk::CharaLight/RoomLight
     CharaLightData_unk mLight;          // 0x078: inferred: own character light
-    int mLightMask;                     // 0x0C8: inferred: bits 0/1 tested by atn/ModelDraw_unk (IsShadowA/B); gmk::RoomLight sets -1
+    unsigned int mLightMask;            // 0x0C8: inferred: bits 0/1 tested by atn/ModelDraw_unk (IsShadowA/B); gmk::RoomLight sets -1
     int mFloorLightOn;                  // 0x0CC
     CharaLightData_unk mFloorLight;     // 0x0D0
     int mReflectChara;                  // 0x120: debug menu "Reflect Chara" (Event::ActionMapReflect)
