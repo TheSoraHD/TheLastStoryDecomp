@@ -17,59 +17,13 @@ extern "C" {
 #define AX_VOICE_STOP 0
 #define AX_VOICE_RUN  1
 
-typedef struct _AXPBMIX {
-    /* 0x00 */ u16 vL;
-    /* 0x02 */ u16 vDeltaL;
-    /* 0x04 */ u16 vR;
-    /* 0x06 */ u16 vDeltaR;
-    /* 0x08 */ u16 vAuxAL;
-    /* 0x0A */ u16 vDeltaAuxAL;
-    /* 0x0C */ u16 vAuxAR;
-    /* 0x0E */ u16 vDeltaAuxAR;
-    /* 0x10 */ u16 vAuxBL;
-    /* 0x12 */ u16 vDeltaAuxBL;
-    /* 0x14 */ u16 vAuxBR;
-    /* 0x16 */ u16 vDeltaAuxBR;
-    /* 0x18 */ u16 vAuxBS;
-    /* 0x1A */ u16 vDeltaAuxBS;
-    /* 0x1C */ u16 vS;
-    /* 0x1E */ u16 vDeltaS;
-    /* 0x20 */ u16 vAuxAS;
-    /* 0x22 */ u16 vDeltaAuxAS;
-} AXPBMIX;
-
-typedef struct _AXPBITD {
-    /* 0x00 */ u16 flag;
-    /* 0x02 */ u16 bufferHi;
-    /* 0x04 */ u16 bufferLo;
-    /* 0x06 */ u16 shiftL;
-    /* 0x08 */ u16 shiftR;
-    /* 0x0A */ u16 targetShiftL;
-    /* 0x0C */ u16 targetShiftR;
-} AXPBITD;
-
+// Wii layout of the parameter block (libs/RVL_SDK/include/revolution/ax/AXPB.h): the TP copy had the
+// GameCube one (u16 mixerCtrl, no remote fields), which the homebuttonLib sound sources do not match.
 typedef struct _AXPBUPDATE {
     /* 0x00 */ u16 updNum[5];
     /* 0x0A */ u16 dataHi;
     /* 0x0C */ u16 dataLo;
 } AXPBUPDATE;
-
-typedef struct _AXPBDPOP {
-    /* 0x00 */ s16 aL;
-    /* 0x02 */ s16 aAuxAL;
-    /* 0x04 */ s16 aAuxBL;
-    /* 0x06 */ s16 aR;
-    /* 0x08 */ s16 aAuxAR;
-    /* 0x0A */ s16 aAuxBR;
-    /* 0x0C */ s16 aS;
-    /* 0x0E */ s16 aAuxAS;
-    /* 0x10 */ s16 aAuxBS;
-} AXPBDPOP;
-
-typedef struct _AXPBVE {
-    /* 0x00 */ u16 currentVolume;
-    /* 0x02 */ s16 currentDelta;
-} AXPBVE;
 
 typedef struct _AXPBFIR {
     /* 0x00 */ u16 numCoefs;
@@ -77,67 +31,182 @@ typedef struct _AXPBFIR {
     /* 0x04 */ u16 coefsLo;
 } AXPBFIR;
 
+typedef struct _AXPBMIX {
+    u16 vL;          // at 0x0
+    u16 vDeltaL;     // at 0x2
+    u16 vR;          // at 0x4
+    u16 vDeltaR;     // at 0x6
+    u16 vAuxAL;      // at 0x8
+    u16 vDeltaAuxAL; // at 0xA
+    u16 vAuxAR;      // at 0xC
+    u16 vDeltaAuxAR; // at 0xE
+    u16 vAuxBL;      // at 0x10
+    u16 vDeltaAuxBL; // at 0x12
+    u16 vAuxBR;      // at 0x14
+    u16 vDeltaAuxBR; // at 0x16
+    u16 vAuxCL;      // at 0x18
+    u16 vDeltaAuxCL; // at 0x1A
+    u16 vAuxCR;      // at 0x1C
+    u16 vDeltaAuxCR; // at 0x1E
+    u16 vS;          // at 0x20
+    u16 vDeltaS;     // at 0x22
+    u16 vAuxAS;      // at 0x24
+    u16 vDeltaAuxAS; // at 0x26
+    u16 vAuxBS;      // at 0x28
+    u16 vDeltaAuxBS; // at 0x2A
+    u16 vAuxCS;      // at 0x2C
+    u16 vDeltaAuxCS; // at 0x2E
+} AXPBMIX;
+
+typedef struct _AXPBITD {
+    u16 flag;         // at 0x0
+    u16 bufferHi;     // at 0x2
+    u16 bufferLo;     // at 0x4
+    u16 shiftL;       // at 0x6
+    u16 shiftR;       // at 0x8
+    u16 targetShiftL; // at 0xA
+    u16 targetShiftR; // at 0xC
+} AXPBITD;
+
+typedef struct _AXPBDPOP {
+    s16 aL;     // at 0x0
+    s16 aAuxAL; // at 0x2
+    s16 aAuxBL; // at 0x4
+    s16 aAuxCL; // at 0x6
+    s16 aR;     // at 0x8
+    s16 aAuxAR; // at 0xA
+    s16 aAuxBR; // at 0xC
+    s16 aAuxCR; // at 0xE
+    s16 aS;     // at 0x10
+    s16 aAuxAS; // at 0x12
+    s16 aAuxBS; // at 0x14
+    s16 aAuxCS; // at 0x16
+} AXPBDPOP;
+
+typedef struct _AXPBVE {
+    u16 currentVolume; // at 0x0
+    s16 currentDelta;  // at 0x2
+} AXPBVE;
+
 typedef struct _AXPBADDR {
-    /* 0x00 */ u16 loopFlag;
-    /* 0x02 */ u16 format;
-    /* 0x04 */ u16 loopAddressHi;
-    /* 0x06 */ u16 loopAddressLo;
-    /* 0x08 */ u16 endAddressHi;
-    /* 0x0A */ u16 endAddressLo;
-    /* 0x0C */ u16 currentAddressHi;
-    /* 0x0E */ u16 currentAddressLo;
+    u16 loopFlag;         // at 0x0
+    u16 format;           // at 0x2
+    u16 loopAddressHi;    // at 0x4
+    u16 loopAddressLo;    // at 0x6
+    u16 endAddressHi;     // at 0x8
+    u16 endAddressLo;     // at 0xA
+    u16 currentAddressHi; // at 0xC
+    u16 currentAddressLo; // at 0xE
 } AXPBADDR;
 
 typedef struct _AXPBADPCM {
-    /* 0x00 */ u16 a[8][2];
-    /* 0x20 */ u16 gain;
-    /* 0x22 */ u16 pred_scale;
-    /* 0x24 */ u16 yn1;
-    /* 0x26 */ u16 yn2;
+    u16 a[8][2];    // at 0x0
+    u16 gain;       // at 0x20
+    u16 pred_scale; // at 0x22
+    u16 yn1;        // at 0x24
+    u16 yn2;        // at 0x26
 } AXPBADPCM;
 
 typedef struct _AXPBSRC {
-    /* 0x00 */ u16 ratioHi;
-    /* 0x02 */ u16 ratioLo;
-    /* 0x04 */ u16 currentAddressFrac;
-    /* 0x06 */ u16 last_samples[4];
+    u16 ratioHi;            // at 0x0
+    u16 ratioLo;            // at 0x2
+    u16 currentAddressFrac; // at 0x4
+    u16 last_samples[4];    // at 0x6
 } AXPBSRC;
 
 typedef struct _AXPBADPCMLOOP {
-    /* 0x00 */ u16 loop_pred_scale;
-    /* 0x02 */ u16 loop_yn1;
-    /* 0x04 */ u16 loop_yn2;
+    u16 loop_pred_scale; // at 0x0
+    u16 loop_yn1;        // at 0x2
+    u16 loop_yn2;        // at 0x4
 } AXPBADPCMLOOP;
 
 typedef struct _AXPBLPF {
-    u16 on;
-    u16 yn1;
-    u16 a0;
-    u16 b0;
+    u16 on;  // at 0x0
+    u16 yn1; // at 0x2
+    u16 a0;  // at 0x4
+    u16 b0;  // at 0x6
 } AXPBLPF;
 
+typedef struct _AXPBBIQUAD {
+    u16 on;  // at 0x0
+    u16 xn1; // at 0x2
+    u16 xn2; // at 0x4
+    u16 yn1; // at 0x6
+    u16 yn2; // at 0x8
+    u16 b0;  // at 0xA
+    u16 b1;  // at 0xC
+    u16 b2;  // at 0xE
+    u16 a1;  // at 0x10
+    u16 a2;  // at 0x12
+} AXPBBIQUAD;
+
+typedef struct _AXPBRMTMIX {
+    u16 vMain0;      // at 0x0
+    u16 vDeltaMain0; // at 0x2
+    u16 vAux0;       // at 0x4
+    u16 vDeltaAux0;  // at 0x6
+    u16 vMain1;      // at 0x8
+    u16 vDeltaMain1; // at 0xA
+    u16 vAux1;       // at 0xC
+    u16 vDeltaAux1;  // at 0xE
+    u16 vMain2;      // at 0x10
+    u16 vDeltaMain2; // at 0x12
+    u16 vAux2;       // at 0x14
+    u16 vDeltaAux2;  // at 0x16
+    u16 vMain3;      // at 0x18
+    u16 vDeltaMain3; // at 0x1A
+    u16 vAux3;       // at 0x1C
+    u16 vDeltaAux3;  // at 0x1E
+} AXPBRMTMIX;
+
+typedef struct _AXPBRMTDPOP {
+    s16 aMain0; // at 0x0
+    s16 aMain1; // at 0x2
+    s16 aMain2; // at 0x4
+    s16 aMain3; // at 0x6
+    s16 aAux0;  // at 0x8
+    s16 aAux1;  // at 0xA
+    s16 aAux2;  // at 0xC
+    s16 aAux3;  // at 0xE
+} AXPBRMTDPOP;
+
+typedef struct _AXPBRMTSRC {
+    u16 currentAddressFrac; // at 0x0
+    u16 last_samples[4];    // at 0x2
+} AXPBRMTSRC;
+
+typedef union __AXPBRMTIIR {
+    AXPBLPF lpf;
+    AXPBBIQUAD biquad;
+} AXPBRMTIIR;
+
 typedef struct _AXPB {
-    /* 0x00 */ u16 nextHi;
-    /* 0x02 */ u16 nextLo;
-    /* 0x04 */ u16 currHi;
-    /* 0x06 */ u16 currLo;
-    /* 0x08 */ u16 srcSelect;
-    /* 0x0A */ u16 coefSelect;
-    /* 0x0C */ u16 mixerCtrl;
-    /* 0x0E */ u16 state;
-    /* 0x10 */ u16 type;
-    /* 0x12 */ AXPBMIX mix;
-    /* 0x36 */ AXPBITD itd;
-    /* 0x44 */ AXPBUPDATE update;
-    /* 0x52 */ AXPBDPOP dpop;
-    /* 0x64 */ AXPBVE ve;
-    /* 0x68 */ AXPBFIR fir;
-    /* 0x6E */ AXPBADDR addr;
-    /* 0x7E */ AXPBADPCM adpcm;
-    /* 0xA6 */ AXPBSRC src;
-    /* 0xB4 */ AXPBADPCMLOOP adpcmLoop;
-    /* 0xBA */ AXPBLPF lpf;
-    /* 0xC2 */ u16 pad[25];
+    u16 nextHi;                // at 0x0
+    u16 nextLo;                // at 0x2
+    u16 currHi;                // at 0x4
+    u16 currLo;                // at 0x6
+    u16 srcSelect;             // at 0x8
+    u16 coefSelect;            // at 0xA
+    u32 mixerCtrl;             // at 0xC
+    u16 state;                 // at 0x10
+    u16 type;                  // at 0x12
+    AXPBMIX mix;               // at 0x14
+    AXPBITD itd;               // at 0x44
+    AXPBDPOP dpop;             // at 0x52
+    AXPBVE ve;                 // at 0x6A
+    AXPBADDR addr;             // at 0x6E
+    AXPBADPCM adpcm;           // at 0x7E
+    AXPBSRC src;               // at 0xA6
+    AXPBADPCMLOOP adpcmLoop;   // at 0xB4
+    AXPBLPF lpf;               // at 0xBA
+    AXPBBIQUAD biquad;         // at 0xC2
+    u16 remote;                // at 0xD6
+    u16 rmtMixerCtrl;          // at 0xD8
+    AXPBRMTMIX rmtMix;         // at 0xDA
+    AXPBRMTDPOP rmtDpop;       // at 0xFA
+    AXPBRMTSRC rmtSrc;         // at 0x10A
+    AXPBRMTIIR rmtIIR;         // at 0x114
+    u8 padding[0x140 - 0x128]; // at 0x128
 } AXPB;
 
 typedef struct _AXVPB {
@@ -150,13 +219,8 @@ typedef struct _AXVPB {
     /* 0x018 */ u32 index;
     /* 0x01C */ u32 sync;
     /* 0x020 */ u32 depop;
-    /* 0x024 */ u32 updateMS;
-    /* 0x028 */ u32 updateCounter;
-    /* 0x02C */ u32 updateTotal;
-    /* 0x030 */ u16* updateWrite;
-    /* 0x034 */ u16 updateData[128];
-    /* 0x134 */ void* itdBuffer;
-    /* 0x138 */ AXPB pb;
+    /* 0x024 */ void* itdBuffer;
+    /* 0x028 */ AXPB pb; // Wii layout (libs/RVL_SDK/include/revolution/ax/AXVPB.h)
 } AXVPB;
 
 typedef struct _AXPBITDBUFFER {
@@ -219,43 +283,6 @@ typedef struct AX_AUX_DATA_DPL2 {
     /* 0x00 */ s32* ls;
     /* 0x00 */ s32* rs;
 } AX_AUX_DATA_DPL2;
-
-typedef struct _AXPBRMTMIX {
-    /* 0x0 */ u16 vMain0;
-    /* 0x2 */ u16 vDeltaMain0;
-    /* 0x4 */ u16 vAux0;
-    /* 0x6 */ u16 vDeltaAux0;
-    /* 0x8 */ u16 vMain1;
-    /* 0xA */ u16 vDeltaMain1;
-    /* 0xC */ u16 vAux1;
-    /* 0xE */ u16 vDeltaAux1;
-    /* 0x10 */ u16 vMain2;
-    /* 0x12 */ u16 vDeltaMain2;
-    /* 0x14 */ u16 vAux2;
-    /* 0x16 */ u16 vDeltaAux2;
-    /* 0x18 */ u16 vMain3;
-    /* 0x1A */ u16 vDeltaMain3;
-    /* 0x1C */ u16 vAux3;
-    /* 0x1E */ u16 vDeltaAux3;
-} AXPBRMTMIX;
-
-typedef struct _AXPBBIQUAD {
-    /* 0x0 */ u16 on;
-    /* 0x2 */ u16 xn1;
-    /* 0x4 */ u16 xn2;
-    /* 0x6 */ u16 yn1;
-    /* 0x8 */ u16 yn2;
-    /* 0xA */ u16 b0;
-    /* 0xC */ u16 b1;
-    /* 0xE */ u16 b2;
-    /* 0x10 */ u16 a1;
-    /* 0x12 */ u16 a2;
-} AXPBBIQUAD;
-
-typedef union __AXPBRMTIIR {
-    AXPBLPF lpf;
-    AXPBBIQUAD biquad;
-} AXPBRMTIIR;
 
 typedef void (*AXCallback)();
 typedef void (*AXAuxCallback)(void* chans, void* context);

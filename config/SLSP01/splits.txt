@@ -3648,6 +3648,44 @@ tp_revolution/homebuttonLib/nw4hbm/ut/ut_TextWriterBase.cpp:
 	.data       start:0x8079A730 end:0x8079A738
 	.bss        start:0x807CA238 end:0x807CA268
 
+tp_revolution/homebuttonLib/sound/mix.cpp:
+	.text       start:0x805E06E0 end:0x805E2050
+	.data       start:0x8079A738 end:0x8079B2C8
+	.bss        start:0x807CA268 end:0x807CA928
+
+tp_revolution/homebuttonLib/sound/syn.cpp:
+	.text       start:0x805E2050 end:0x805E24F0
+	.bss        start:0x807CA928 end:0x807CADF8
+
+tp_revolution/homebuttonLib/sound/synctrl.cpp:
+	.text       start:0x805E24F0 end:0x805E2990
+	.data       start:0x8079B2C8 end:0x8079B4C8
+
+tp_revolution/homebuttonLib/sound/synenv.cpp:
+	.text       start:0x805E2990 end:0x805E2D70
+	.rodata     start:0x80764648 end:0x80764668
+
+tp_revolution/homebuttonLib/sound/synmix.cpp:
+	.text       start:0x805E2D70 end:0x805E2EB0
+	.data       start:0x8079B4C8 end:0x8079B858
+
+tp_revolution/homebuttonLib/sound/synpitch.cpp:
+	.text       start:0x805E2EB0 end:0x805E3130
+	.rodata     start:0x80764668 end:0x80764680
+	.data       start:0x8079B858 end:0x8079BC48
+
+tp_revolution/homebuttonLib/sound/synsample.cpp:
+	.text       start:0x805E3130 end:0x805E35B0
+
+tp_revolution/homebuttonLib/sound/synvoice.cpp:
+	.text       start:0x805E35B0 end:0x805E3760
+
+tp_revolution/homebuttonLib/sound/seq.cpp:
+	.text       start:0x805E3760 end:0x805E4090
+	.rodata     start:0x80764680 end:0x807646A8
+	.data       start:0x8079BC48 end:0x8079BCC8
+	.bss        start:0x807CADF8 end:0x807CAE00
+
 RVL_SDK/src/revolution/exi/EXIBios.c:
 	.text       start:0x805E7A90 end:0x805E9390
 	.data       start:0x8079BD10 end:0x8079BD58

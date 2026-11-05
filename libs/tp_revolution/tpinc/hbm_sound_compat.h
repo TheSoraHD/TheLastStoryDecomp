@@ -42,6 +42,31 @@ enum AXVPBSyncFlags_et
 	AX_VPB_SYNC_FLAG_FULL_PB				= 1 << 31
 };
 BOOL AXIsInit(void);
+// Mixer control flags (names and values of libs/ss_nw4r/include/rvl/AX/AXPB.h) and voice priority.
+#ifndef AX_PRIORITY_MAX
+#define AX_PRIORITY_MAX 31
+#endif
+enum HBMAXMixerCtrl_et
+{
+	AX_MIXER_CTRL_L = 1 << 0, AX_MIXER_CTRL_R = 1 << 1, AX_MIXER_CTRL_DELTA = 1 << 2,
+	AX_MIXER_CTRL_S = 1 << 3, AX_MIXER_CTRL_DELTA_S = 1 << 4,
+	AX_MIXER_CTRL_A_L = 1 << 16, AX_MIXER_CTRL_A_R = 1 << 17, AX_MIXER_CTRL_A_DELTA = 1 << 18,
+	AX_MIXER_CTRL_A_S = 1 << 19, AX_MIXER_CTRL_A_DELTA_S = 1 << 20,
+	AX_MIXER_CTRL_B_L = 1 << 21, AX_MIXER_CTRL_B_R = 1 << 22, AX_MIXER_CTRL_B_DELTA = 1 << 23,
+	AX_MIXER_CTRL_B_S = 1 << 24, AX_MIXER_CTRL_B_DELTA_S = 1 << 25,
+	AX_MIXER_CTRL_C_L = 1 << 26, AX_MIXER_CTRL_C_R = 1 << 27, AX_MIXER_CTRL_C_DELTA = 1 << 28,
+	AX_MIXER_CTRL_C_S = 1 << 29, AX_MIXER_CTRL_C_DELTA_S = 1 << 30
+};
+// Release build: the asserts of the TP sources compile to nothing.
+#ifndef OSAssertMessage_Line
+#define OSAssertMessage_Line(line_, cond_, ...) ((void)0)
+#endif
+#ifndef POINTER_ADD_TYPE
+#define POINTER_ADD_TYPE(type_, ptr_, offset_) ((type_)((unsigned long)(ptr_) + (unsigned long)(offset_)))
+#endif
+#ifndef ATTR_UNUSED
+#define ATTR_UNUSED
+#endif
 #ifdef __cplusplus
 }
 #endif
