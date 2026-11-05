@@ -10,6 +10,8 @@ struct GameMap_unk : public atn::Task {
     int m48; // inferred: area
     int m4C; // inferred: map
     int m50; // inferred: part
+    unsigned char m54[0x104 - 0x54];
+    int m104; // inferred: saved by Event::Manager::fn_80482ED8
 };
 
 #endif

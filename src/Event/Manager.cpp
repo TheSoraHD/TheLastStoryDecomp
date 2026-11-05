@@ -64,6 +64,7 @@ extern "C" int fn_8006AA20(const char* path);                        // inferred
 extern "C" GameMap_unk* fn_8049D68C(atn::Task* parent, const char* path); // inferred: creates a map
 extern "C" GameMap_unk* fn_8049D704(atn::Task* parent, int area, int map, int part);
 extern "C" void fn_800C3094(void* light);
+extern "C" NewCampScene2_unk* fn_800C16B4(Camera_unk* camera); // inferred: scene of the render view
 extern "C" void fn_8004895C(atn::SoundEngine_unk* sound);
 extern "C" void fn_80049654(atn::SoundEngine_unk* sound);
 extern "C" void fn_8004829C(atn::SoundEngine_unk* sound, const char** groups, int count);
@@ -386,12 +387,8 @@ void SceneSetting_unk::fn_8047CB74(NewCampScene2_unk* scene, float t) {
 }
 
 inline EventConfig_unk::EventConfig_unk()
-    : m08(1), m0C(0), m10(3), m14(3), m18(1), m1C(1.0f), m20(1.25f), m24(1.25f), m28(0.0f), m2C(2.0f),
-      m30(1.0f), m34(0.5f), m38(1.0f), m3C(0.5f), m40(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)),
-      m50(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m60(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m70(0), m74(0),
-      m78(0), m7C(0), m80(0), m84(0), m88(1), m8C(0), m90(0), m94(1), m98(200.0f), m9C(500.0f), mA0(30.0f),
-      mA4(10.0f), mA8(320), mAC(224), mB0(1.5f), mB4(1.5f), mDC(0), mE0(0), mE4(1.0f, 1.0f, 1.0f, 1.0f),
-      mF4(0.0f, 0.0f, 0.0f), m100(0), m104(0), m108(1.0f), m10C(0.05f) {}
+    : m88(1), m8C(0), m90(0), m94(1), m98(200.0f), m9C(500.0f), mA0(30.0f), mA4(10.0f), mA8(320), mAC(224),
+      mB0(1.5f), mB4(1.5f) {}
 
 // NONMATCHING: 91% - float constant registers and the stack slots of the atn::Color temporaries
 // inferred: constructor of the event manager (0x8047CF7C)
@@ -1452,6 +1449,55 @@ void fn_80482E4C(MapArea* area, void* arg) {
 void fn_80482EB4(MapArea* area, void* arg) {
     area->GetAmbient_unk() = *(atn::Color*)arg;
 }
+// NONMATCHING: 97.8% - scheduling of the default damage constants and registers of m110.clear()
+// inferred: saves the render settings, the light settings of the scene and of the map areas, the
+// map and the BGM before an event (once: m1AB0.m00)
+void Manager::fn_80482ED8() {
+    if (m1AB0.m00 != 0) {
+        return;
+    }
+    RenderSetting_unk* rs = lbl_8087EFA8;
+    Camera_unk* view = lbl_8087EFB4;
+    if (rs != 0 && view != 0) {
+        m1AB0.mBloom = rs->m054;
+        m1AB0.m88 = rs->m0D4;
+        m1AB0.m8C = rs->m0D8;
+        m1AB0.m90 = rs->m0DC;
+        m1AB0.m94 = rs->m0E0;
+        m1AB0.m98 = rs->m0E4;
+        m1AB0.m9C = rs->m0E8;
+        m1AB0.mA0 = rs->m0EC;
+        m1AB0.mA4 = rs->m0F0;
+        m1AB0.mA8 = rs->m0F4;
+        m1AB0.mAC = rs->m0F8;
+        m1AB0.mB0 = rs->m0FC;
+        m1AB0.mB4 = rs->m100;
+        m1AB0.mB8 = rs->m240;
+        m1AB0.mDC = rs->m374;
+        rs->m374 = DamageParam_unk();
+        m1AB0.m100 = rs->m2AC;
+        m1BD0.Get_unk(fn_800C16B4(view));
+        m1AB0.m110.clear();
+        MapManager::sInstance->fn_80491528(fn_80481B9C, &m1AB0);
+        m1AB0.m11C = fn_800C16B4(lbl_8087EFB4)->m074;
+        GameMap_unk* map = 0;
+        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+            map = fn_80373148(lbl_8087F430);
+        }
+        if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.size() != 0) {
+            map = (GameMap_unk*)MapManager::sInstance->mParts[0]; // inferred: the same map task
+        }
+        if (map != 0) {
+            m1D6C = map->m104;
+        }
+        m1D64 = GameBgm::sInstance != 0
+                    ? (GameBgm::sInstance->m84 != 0 ? GameBgm::sInstance->mNext.mId : GameBgm::sInstance->mReq.mId)
+                    : -1;
+        m1D68 = GameBgm::sInstance != 0 ? GameBgm::sInstance->mReq.mVolume : 0.0f;
+        m1AB0.m00 = 1;
+    }
+}
+
 
 
 // inferred: removes the lights of the event

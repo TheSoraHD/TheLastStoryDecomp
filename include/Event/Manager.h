@@ -11,6 +11,7 @@
 #include "std/list.h"
 #include "atn/Sphere.h"
 #include "atn/ColorMatrixParam_unk.h"
+#include "atn/RenderSetting_unk.h"
 #include "atn/Light_unk.h"
 #include "atn/D2A_Task.h"
 #include "atn/FadeCommon.h"
@@ -116,33 +117,11 @@ struct SceneSettingEntry_unk {
 // inferred: settings of the event at 0x1AB0 of the manager (0x120 bytes). Names invented.
 struct EventConfig_unk {
     EventConfig_unk();
-    unsigned char m00;
+    unsigned char m00; // inferred: the render settings below were saved (fn_80482ED8)
     unsigned char m01;
     unsigned char m02[0x8 - 0x2];
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    float m1C;
-    float m20;
-    float m24;
-    float m28;
-    float m2C;
-    float m30;
-    float m34;
-    float m38;
-    float m3C;
-    atn::Color m40;
-    atn::Color m50;
-    atn::Color m60;
-    int m70;
-    int m74;
-    int m78;
-    int m7C;
-    int m80;
-    int m84;
-    int m88;
+    BloomParam_unk mBloom; // 0x08: inferred: bloom of the render settings (lbl_8087EFA8 + 0x54)
+    int m88;   // inferred: depth of field of the render settings (lbl_8087EFA8 + 0xD4 .. 0xF8)
     int m8C;
     int m90;
     int m94;
@@ -155,16 +134,10 @@ struct EventConfig_unk {
     float mB0;
     float mB4;
     MotionBlurParam_unk mB8; // inferred: motion blur of the event (restored by fn_8047FCC0)
-    int mDC;
-    int mE0;
-    atn::Color mE4;
-    atn::Vector3 mF4;
-    int m100;
-    int m104;
-    float m108;
-    float m10C;
+    DamageParam_unk mDC;     // inferred: damage effect of the render settings (+ 0x374)
+    RainParam_unk m100;      // inferred: rain of the render settings (+ 0x2AC)
     std::vector<SceneSettingEntry_unk> m110; // inferred: light settings of the map
-    int m11C;
+    void* m11C; // inferred: light of the render scene (NewCampScene2_unk::m074, fn_80482ED8)
 };
 
 // inferred: curve of the manager (0x10 bytes; fn_8048B048, fn_8048B3B8). Names invented.
@@ -331,7 +304,10 @@ public:
     int m1AAC;
     EventConfig_unk m1AB0; // inferred: settings of the event (0x120 bytes)
     SceneSetting_unk m1BD0; // inferred: light settings of the event
-    unsigned char m1D60[0x1D70 - 0x1D60];
+    int m1D60;
+    int m1D64;   // inferred: BGM playing when the settings were saved (fn_80482ED8)
+    float m1D68; // inferred: its volume
+    int m1D6C;   // inferred: GameMap_unk::m104 of the current map
     ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
     MotionBlurParam_unk m1DC0; // inferred: motion blur of the map (Event/ActionCameraMode blends from it)
     int m1DE4;
