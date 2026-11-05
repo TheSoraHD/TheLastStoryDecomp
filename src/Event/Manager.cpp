@@ -38,6 +38,7 @@
 #include "Event/Section.h"
 #include "Event/Channel.h"
 #include "Event/Action.h"
+#include "Event/StringData.h"
 #include "Event/Label.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
@@ -1998,6 +1999,36 @@ void Manager::vf14() {
         }
     }
 }
+// inferred: as in Event/ActionActorPosition.cpp (template member defined out of the class)
+template <class T>
+T* DataList_unk<T>::Find_unk(int id) {
+    for (int i = 0; i < (int)this->size(); i++) {
+        T* p = &this->mData[i];
+        if (id == p->m14) {
+            return p;
+        }
+    }
+    return 0;
+}
+
+// inferred: plays the stream named by the entry param 1 of the sequence (multi audio action)
+void Manager::fn_80488050(Sequence* seq, Action* action) {
+    if (seq == 0) {
+        seq = action->fn_805381C8();
+    }
+    int id = action->GetParam_unk(1)->m04.i;
+    float volume = action->GetParam_unk(2)->m04.f;
+    int stopBgm = action->GetParam_unk(3)->m04.i;
+    int a = action->GetParam_unk(4)->m04.i;
+    int b = action->GetParam_unk(5)->m04.i;
+    int c = action->GetParam_unk(6)->m04.i;
+    StringData* data = seq->m114.Find_unk(id);
+    if (data != 0) {
+        int fade = action->m18;
+        fn_804881B8(seq, data->m08.c_str(), fade, stopBgm, a, b, c, volume, 0, 0x200000);
+    }
+}
+
 
 
 

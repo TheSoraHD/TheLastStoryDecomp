@@ -200,7 +200,7 @@ public:
     void fn_804870F4();
     void fn_80487064(int mode); // inferred: GameMap_unk::m104 of the current map
     void fn_8048EE78(int a, float r, float g, float b, float c, float d, int e, float f);
-    void fn_80488050(Sequence* manager, Action* arg);
+    void fn_80488050(Sequence* seq, Action* action); // inferred: plays a stream of the sequence
     void fn_80488A74(const char* name, int fade, float volume);
     void fn_80488D80(int fade);
     void fn_80488534(Sequence* seq, int fade); // inferred: stops the music of the sequence
