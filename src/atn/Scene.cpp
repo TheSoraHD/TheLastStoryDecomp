@@ -92,12 +92,6 @@ struct SceneLightData_unk {
     SceneTrack_unk mColor[4]; // 0x18
 };
 
-extern "C" int fn_80477FDC(LH_Scene* scene);        // inferred: number of lights of the file
-extern "C" Light_unk* fn_80477FA4(LH_Scene* scene); // inferred: lights of the file
-extern "C" int fn_80477FF8(LH_Scene* scene);        // inferred: number of cameras of the file
-extern "C" Camera_unk* fn_80477FC0(LH_Scene* scene); // inferred: cameras of the file
-extern "C" int fn_80478014(LH_Scene* scene);        // inferred: number of light records of the file
-extern "C" SceneLightData_unk** fn_80478034(LH_Scene* scene); // inferred: light records of the file
 
 // inferred: value of a track at frame 0 (as in atn/LH_Scene.cpp)
 static inline float __EvalTrack_unk(SceneTrack_unk& track) {
@@ -134,7 +128,8 @@ inline Matrix3x4 Reflect_unk(const Plane_unk& p) {
     return m;
 }
 
-// NONMATCHING: 67.54% - stack order of the temporaries (light direction, colors, plane) and FPR allocation
+// NONMATCHING: 84.54% - ShadowParam_unk() keeps its own this (scene + 0x238) in r28 across PSVECNormalize (the
+// original addresses mShadow from the scene) and one GPR more; stack order of the temporaries (colors, plane)
 Scene::Scene()
     : mReady(0), mLightOn(0), m074(0), mLightMask(-1), mFloorLightOn(0), mReflectChara(0) {
     mAmbient = Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -176,8 +171,8 @@ void Scene::fn_800C2274() {
     mReady = 1;
     if (mFile.fn_80473EFC() == 3) {
         mAmbient = Color(0.0f, 0.0f, 0.0f, 1.0f);
-        for (int i = 0; i < fn_80478014(&mFile); i++) {
-            SceneLightData_unk* d = fn_80478034(&mFile)[i];
+        for (int i = 0; i < mFile.fn_80478014(); i++) {
+            SceneLightData_unk* d = ((SceneLightData_unk**)mFile.fn_80478034())[i];
             float r = __EvalTrack_unk(d->mColor[0]) / 255.0f;
             float g = __EvalTrack_unk(d->mColor[1]) / 255.0f;
             float b = __EvalTrack_unk(d->mColor[2]) / 255.0f;
@@ -193,7 +188,7 @@ void Scene::fn_800C2274() {
 // inferred: number of lights (name invented)
 inline int NumLights_unk(Scene* scene) {
     int n = scene->mLights.mSize;
-    int m = fn_80477FDC(&scene->mFile);
+    int m = scene->mFile.fn_80477FDC();
     return m + n;
 }
 
@@ -203,16 +198,16 @@ int Scene::fn_800C23E8() {
 
 int Scene::fn_800C2418() {
     int n = mCameras.mSize;
-    int m = fn_80477FF8(&mFile);
+    int m = mFile.fn_80477FF8();
     return m + n;
 }
 
 // inferred: light i (the lights of the file first)
 inline Light* LightAt_unk(Scene* scene, int i) {
-    if (i < fn_80477FDC(&scene->mFile)) {
-        return &fn_80477FA4(&scene->mFile)[i];
+    if (i < scene->mFile.fn_80477FDC()) {
+        return &scene->mFile.fn_80477FA4()[i];
     }
-    i -= fn_80477FDC(&scene->mFile);
+    i -= scene->mFile.fn_80477FDC();
     return &scene->mLights.mData[i];
 }
 
@@ -225,10 +220,10 @@ const Light* Scene::GetLight(int i) const {
 }
 
 Camera* Scene::fn_800C2520(int i) {
-    if (i < fn_80477FF8(&mFile)) {
-        return &fn_80477FC0(&mFile)[i];
+    if (i < mFile.fn_80477FF8()) {
+        return &mFile.fn_80477FC0()[i];
     }
-    int j = i - fn_80477FF8(&mFile);
+    int j = i - mFile.fn_80477FF8();
     return &mCameras.mData[j];
 }
 

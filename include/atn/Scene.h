@@ -19,7 +19,7 @@ struct Light;
 // the render settings when mSet is nonzero; game/TownTask.cpp copies them with Set_unk). Name invented.
 template <typename T>
 struct Override_unk {
-    Override_unk() : mSet(0) {}
+    Override_unk() { mSet = 0; }
     void Set_unk(const T& v) {
         mSet = 1;
         mValue = v;

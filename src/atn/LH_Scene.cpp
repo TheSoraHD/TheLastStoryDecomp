@@ -156,51 +156,51 @@ void LH_Scene::vf0C(const char* path) {
 
 } // namespace atn
 
-// Accessors called as free functions by atn/CharaLightData_unk.cpp (names kept).
+// Accessors of the loaded file (used by atn/Scene.cpp).
 // inferred: lights built from the file
-extern "C" Light_unk* fn_80477FA4(atn::LH_Scene* scene) {
-    if (scene->mCore != 0) {
-        return ((atn::LoadScene*)scene->mCore)->mLights.mData;
+Light_unk* atn::LH_Scene::fn_80477FA4() {
+    if (mCore != 0) {
+        return ((atn::LoadScene*)mCore)->mLights.mData;
     }
     return 0;
 }
 
 // inferred: cameras built from the file
-extern "C" Camera_unk* fn_80477FC0(atn::LH_Scene* scene) {
-    if (scene->mCore != 0) {
-        return ((atn::LoadScene*)scene->mCore)->mCameras.mData;
+Camera_unk* atn::LH_Scene::fn_80477FC0() {
+    if (mCore != 0) {
+        return ((atn::LoadScene*)mCore)->mCameras.mData;
     }
     return 0;
 }
 
 // inferred: number of lights
-extern "C" int fn_80477FDC(atn::LH_Scene* scene) {
-    if (scene->mCore != 0) {
-        return ((atn::LoadScene*)scene->mCore)->mLights.mSize;
+int atn::LH_Scene::fn_80477FDC() {
+    if (mCore != 0) {
+        return ((atn::LoadScene*)mCore)->mLights.mSize;
     }
     return 0;
 }
 
 // inferred: number of cameras
-extern "C" int fn_80477FF8(atn::LH_Scene* scene) {
-    if (scene->mCore != 0) {
-        return ((atn::LoadScene*)scene->mCore)->mCameras.mSize;
+int atn::LH_Scene::fn_80477FF8() {
+    if (mCore != 0) {
+        return ((atn::LoadScene*)mCore)->mCameras.mSize;
     }
     return 0;
 }
 
 // inferred: number of light records of the file (header at 0x10 of the data)
-extern "C" int fn_80478014(atn::LH_Scene* scene) {
-    if (scene->mCore != 0) {
-        return ((SceneHeader_unk*)((char*)((atn::LoadScene*)scene->mCore)->m54 + 0x10))->m18;
+int atn::LH_Scene::fn_80478014() {
+    if (mCore != 0) {
+        return ((SceneHeader_unk*)((char*)((atn::LoadScene*)mCore)->m54 + 0x10))->m18;
     }
     return 0;
 }
 
 // inferred: light records of the file
-extern "C" void** fn_80478034(atn::LH_Scene* scene) {
-    if (scene->mCore != 0) {
-        return ((SceneHeader_unk*)((char*)((atn::LoadScene*)scene->mCore)->m54 + 0x10))->m1C;
+void** atn::LH_Scene::fn_80478034() {
+    if (mCore != 0) {
+        return ((SceneHeader_unk*)((char*)((atn::LoadScene*)mCore)->m54 + 0x10))->m1C;
     }
     return 0;
 }
