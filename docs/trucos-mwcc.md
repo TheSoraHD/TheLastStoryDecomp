@@ -402,3 +402,5 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `v[i]`/`v.size()` de `std::vector` frente a `mData[i]`/`mSize` directos puede cambiar la asignacion de registros (RotaryRoom): probar ambas. (`maparea-20261105`)
 - Indice de bucle `int` frente a `unsigned`: cambia el orden del incremento y la comparacion (MapPartsArea vf0C/vf10). (`maparea-20261105`)
 - Una funcion `inline` nueva en una cabecera muy incluida (p. ej. `RenderManager::GetScene`) renumera las `@N` de todas las unidades que la incluyen: `pdbatch.sh` de todas ellas en el mismo lote. (`maparea-20261105`)
+- El orden de los `#include` puede cambiar la asignacion de registros de otra funcion: incluir `<boost/scoped_ptr.hpp>` antes de LH_Model.h en Model_unk.h cambiaba GimmickCommon fn_803EDB18 (enlazada); poner los includes nuevos despues de los existentes. (`maparea-20261105`)
+- Constructor con varias variables vivas: el orden de declaracion decide la asignacion (r24 la primera); declarar antes el puntero/temporal que el original tiene en el registro mas bajo (MapTask 0x8049D974). (`maparea-20261105`)

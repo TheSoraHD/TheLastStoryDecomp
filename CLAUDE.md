@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `maparea-20261105` (2026-11-05, rama sin mergear): **12698 / 18119**, lost 0. Un solo tipo por objeto del mapa: `MapArea` (`include/game/MapArea.h`, `atn::Scene` miembro en 0x4C), `MapPartsArea` (`include/game/MapPartsArea.h`), `MapTask` (`include/game/MapTask.h`); fuera `MapModelBase_unk`/`MapGroup_unk`/`MapPart_unk`/`GameMap_unk`. Notas: `docs/maparea-20261105.md`.
+- `maparea-20261105` (2026-11-05, rama sin mergear): **12703 / 18119**, lost 0. Un solo tipo por objeto del mapa: `MapArea` (`include/game/MapArea.h`, `atn::Scene` miembro en 0x4C), `MapPartsArea` (`include/game/MapPartsArea.h`), `MapTask` (`include/game/MapTask.h`, constructores y destructor al 100%), `atn::AABBTree` (`include/atn/AABBTree.h`), `MapId_unk` (`include/db/MapIdTable_unk.h`); fuera `MapModelBase_unk`/`MapGroup_unk`/`MapPart_unk`/`GameMap_unk`. Notas: `docs/maparea-20261105.md`.
 - `scene-20261105` (mergeada): 12686, `NewCampScene2_unk` -> `atn::Scene` (`docs/scene-20261105.md`); `nw4r-20261105` 12684 (snd_StrmPlayer enlazada; `docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679.
 - `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.

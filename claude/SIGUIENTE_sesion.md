@@ -2,7 +2,7 @@
 
 ## Estado actual (2026-11-05, rama `maparea-20261105` sin mergear)
 
-- `maparea-20261105` (desde `main` ff386cd): **12698 / 18119** en `report.json` (lost 0, fuzzdrop 0, `main.dol: OK` en compilación limpia y en un
+- `maparea-20261105` (desde `main` ff386cd): **12703 / 18119** en `report.json` (lost 0, fuzzdrop 0, `main.dol: OK` en compilación limpia y en un
   clon limpio de la rama; labelcheck sin empeorar, rep100 idéntico, ordercheck/poolcheck/mnemcheck limpios).
   Notas en `docs/maparea-20261105.md`.
   - Tipos únicos en cabeceras: `MapArea` (`include/game/MapArea.h`, 0x314, `atn::Scene` como **miembro** en 0x4C),
@@ -22,8 +22,9 @@
 
 ## Propuestas
 
-1. **`atn::AABBTree` en una cabecera** (con `IRender` de atn/IRender.h, propuesta 5): desbloquea constructores y
-   destructor de MapTask (0x8049D7E4, 0x8049D974, 0x8049DDD8), `SetTask` y `fn_8049D704`.
+1. Hecho (continuación del 05/11): `atn::AABBTree` en cabecera y constructores/destructor/SetTask de MapTask.
+   Siguiente en MapTask: vf0C (1436 bytes), vf10, fn_8049E480/ED90/F4F4 (carga y actualización), fn_804A0F80
+   (3276, transición de áreas; desbloquea fn_804A0EFC/F58). Unificar `ResRef_unk` (tres definiciones).
 2. **MapPartsBase**: ParseScene (7880 bytes, estructura ya analizada en las notas) y vf1C; con ellas el pool
    `@stringBase0` queda en orden y fn_80494354 (94%) puede subir. ParseScene en sí no llegará al 100%
    (`AddLight_unk` inlinea el crecimiento de `vector`). `fn_800DC288` devuelve `double`, no `float`.
