@@ -25,6 +25,7 @@ struct DebugInfoTable_unk {
 // Names invented.
 struct DebugInfo_unk {
     DebugInfo_unk();
+    void fn_80221F54(int arg); // inferred: draws the debug information (Manager::vf14)
     unsigned char m00[0x14];
     DebugInfoTable_unk m14;
     DebugInfoTable_unk m2C;

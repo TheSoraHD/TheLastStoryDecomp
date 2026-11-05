@@ -4,6 +4,7 @@
 #include "Event/SequenceRoot.h"
 #include "Event/PostSequence.h"
 #include "Event/Manager.h"
+#include "atn/DrawHelper.h"
 #include "macros.h"
 #include "Event/Sequence.h"
 #include "atn/Light_unk.h"
@@ -1748,6 +1749,7 @@ void Manager::fn_80487064(int mode) {
     }
 }
 
+
 // inferred: restores GameMap_unk::m104 of the current map (saved by fn_80482ED8)
 void Manager::fn_804870F4() {
     GameMap_unk* map = GetCurrentMap_unk();
@@ -1950,6 +1952,53 @@ void Manager::vf10() {
         GameBgm::GetInstance_unk()->fn_8037D3E8(1, 4, 0);
     }
 }
+// inferred: states 11 and 12 of a sequence (a bool, not folded with the test of 10); name invented
+inline bool IsCutState_unk(Sequence* seq) {
+    return seq->m194 == 11 || seq->m194 == 12;
+}
+
+// NONMATCHING: 99.4% - registers of the inlined Camera_unk copy (frustum loop) and of seq/the camera offset
+// inferred: after the sequences: copies the camera m1A94, updates the cameras of a running cut and
+// the pending changes of the manager
+void PostSequence::vf10() {
+    if (lbl_8087F540->m1A94 != 0) {
+        (Camera_unk&)lbl_8087F540->mCameras[lbl_8087F540->m1A98] = *lbl_8087F540->m1A94;
+        lbl_8087F540->mCameras[lbl_8087F540->m1A98].fn_801162A4(1);
+    }
+    Sequence* seq = lbl_8087F540->m70;
+    if (seq != 0 && (seq->m194 == 10 || IsCutState_unk(seq))) {
+        for (int i = 0; i < 4; i++) {
+            lbl_8087F540->mCameras[i].fn_801162A4(i == lbl_8087F540->m1A38);
+        }
+        if (seq->m98_2 == 1) {
+            seq->fn_8054FAD4();
+            seq->m98_2 = 0;
+        }
+    }
+    lbl_8087F540->m1A3C = lbl_8087F540->m1A38;
+    lbl_8087F540->fn_8047FCC0();
+    lbl_8087F540->fn_804814F8();
+    lbl_8087F540->fn_8047F730();
+}
+
+// inferred: draw of the manager (debug information, check sphere)
+void Manager::vf14() {
+    if (m70 != 0) {
+        if (m1A44 != 0) {
+            m1DFC.fn_80221F54(m1E74);
+        }
+        if (m1A48 != m1A44) {
+            if (m1A48 != 0 && m1A44 == 0) {
+                lbl_8087F0A8->mDrawSystemInfo = 0;
+            }
+            m1A48 = m1A44;
+        }
+        if (m1E90 != 0 && m1EA4 != 0) {
+            lbl_8087EEB0->fn_80063D3C(m1E94.mCenter, m1E94.mRadius, 0.0f, 0xFFFFFF00);
+        }
+    }
+}
+
 
 
 

@@ -307,7 +307,7 @@ public:
     int m1A88;
     int m1A8C;
     int m1A90;
-    int m1A94;
+    Camera_unk* m1A94; // inferred: camera copied into camera m1A98 (PostSequence::vf10)
     int m1A98;
     atn::FadeCapture* m1A9C;
     int m1AA0; // inferred: state (0, 1, 2, 3)
