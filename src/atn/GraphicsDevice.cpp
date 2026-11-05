@@ -1173,9 +1173,9 @@ extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
     RsColor_unk shadowColor = rs->m104.mColor;
     GXColor color = ToGXColor_unk(shadowColor);
     int mode = rs->m104.mMode;
-    if (atn::RenderManager::instance_->mScene->mShadow.mSet != 0) {
-        mode = atn::RenderManager::instance_->mScene->mShadow.mValue.mMode;
-        color = ToGXColor_unk(atn::RenderManager::instance_->mScene->mShadow.mValue.mColor);
+    if (atn::RenderManager::instance_->mScene->mShadowSet != 0) {
+        mode = atn::RenderManager::instance_->mScene->mShadow.mMode;
+        color = ToGXColor_unk(atn::RenderManager::instance_->mScene->mShadow.mColor);
     }
     if (rs->m12C != 0) {
         GXColor red = {0xFF, 0x00, 0x00, 0xFF};
@@ -1284,9 +1284,9 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     RsColor_unk shadowColor = rs->m104.mColor;
     GXColor color = ToGXColor_unk(shadowColor);
     int mode = rs->m104.mMode;
-    if (atn::RenderManager::instance_->mScene->mShadow.mSet != 0) {
-        mode = atn::RenderManager::instance_->mScene->mShadow.mValue.mMode;
-        color = ToGXColor_unk(atn::RenderManager::instance_->mScene->mShadow.mValue.mColor);
+    if (atn::RenderManager::instance_->mScene->mShadowSet != 0) {
+        mode = atn::RenderManager::instance_->mScene->mShadow.mMode;
+        color = ToGXColor_unk(atn::RenderManager::instance_->mScene->mShadow.mColor);
     }
     if (lbl_8087EFA8->m12C != 0) {
         GXColor red = {0xFF, 0x00, 0x00, 0xFF};
@@ -1368,8 +1368,8 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(view->mShadowCamera.mView, view->mCamera.mInvView));
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     int mode = lbl_8087EFA8->m104.mMode;
-    if (atn::RenderManager::instance_->mScene->mShadow.mSet != 0) {
-        mode = atn::RenderManager::instance_->mScene->mShadow.mValue.mMode;
+    if (atn::RenderManager::instance_->mScene->mShadowSet != 0) {
+        mode = atn::RenderManager::instance_->mScene->mShadow.mMode;
     }
     GXSetTevOrder(stage, coord, map, 0xFF);
     if (mode == 1) {

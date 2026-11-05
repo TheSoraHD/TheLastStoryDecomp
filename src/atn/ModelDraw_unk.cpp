@@ -783,12 +783,12 @@ void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, 
     c[2] = p->m110[2];
     c[3] = p->m110[3];
     int mode = p->m108;
-    if (lens->mShadow.mSet != 0) {
-        c[0] = lens->mShadow.mValue.mColor.r;
-        c[1] = lens->mShadow.mValue.mColor.g;
-        c[2] = lens->mShadow.mValue.mColor.b;
-        c[3] = lens->mShadow.mValue.mColor.a;
-        mode = lens->mShadow.mValue.mMode;
+    if (lens->mShadowSet != 0) {
+        c[0] = lens->mShadow.mColor.r;
+        c[1] = lens->mShadow.mColor.g;
+        c[2] = lens->mShadow.mColor.b;
+        c[3] = lens->mShadow.mColor.a;
+        mode = lens->mShadow.mMode;
     }
     float t = 0.0f;
     float start = p->m10C * sFogStart_unk;

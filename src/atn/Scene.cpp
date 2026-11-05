@@ -115,10 +115,12 @@ inline Matrix3x4 Reflect_unk(const Plane_unk& p) {
     return m;
 }
 
-// NONMATCHING: 84.60% - ShadowParam_unk() keeps its own this (scene + 0x238) in r28 across PSVECNormalize (the
-// original addresses mShadow from the scene) and one GPR more; stack order of the temporaries (colors, plane)
+// NONMATCHING: 90.05% - stack order of the four row temporaries of ColorMatrixParam_unk(), FPRs of two constants
+// and the inlined fn_800C2C20. The shadow is a flag + ShadowParam_unk and not an Override_unk: with the wrapper
+// the inlined ShadowParam_unk() keeps its own this (scene + 0x238) in r28 across PSVECNormalize (84.5%), while
+// the original addresses it from the scene; the other four overrides only match as Override_unk (67% if flat)
 Scene::Scene()
-    : mReady(0), mLightOn(0), m074(0), mLightMask(-1), mFloorLightOn(0), mReflectChara(0) {
+    : mReady(0), mLightOn(0), m074(0), mLightMask(-1), mFloorLightOn(0), mReflectChara(0), mShadowSet(0) {
     mAmbient = Color(0.0f, 0.0f, 0.0f, 1.0f);
     m02C = Color(1.0f, 1.0f, 1.0f, 1.0f);
     mLS = Color(0.3f, 0.3f, 0.3f, 1.0f);

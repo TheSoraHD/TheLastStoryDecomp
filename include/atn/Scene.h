@@ -19,7 +19,7 @@ struct Light;
 // the render settings when mSet is nonzero; game/TownTask.cpp copies them with Set_unk). Name invented.
 template <typename T>
 struct Override_unk {
-    Override_unk() { mSet = 0; }
+    Override_unk() : mSet(0) {}
     void Set_unk(const T& v) {
         mSet = 1;
         mValue = v;
@@ -63,7 +63,7 @@ public:
     FogSettings* GetFog() { return &mFog; } // RSO name
     Color* fn_8047C778() { return &m02C; }
     GodRayParam_unk* fn_8047C780() { return &mGodRay.mValue; }
-    ShadowParam_unk* fn_8047C7D4() { return &mShadow.mValue; }
+    ShadowParam_unk* fn_8047C7D4() { return &mShadow; }
     ColorMatrixParam_unk* fn_8047C7DC(); // inferred: own matrix or the one of the render settings (defined in Event/Manager.cpp)
     HazeParam_unk* fn_8047C848() { return &mHaze.mValue; }
     void fn_8047CB6C(int value) { mReflectChara = value; }
@@ -101,7 +101,8 @@ public:
     Override_unk<GodRayParam_unk> mGodRay;            // 0x194
     Override_unk<RainParam_unk> mRain;                // 0x1E0
     Override_unk<HazeParam_unk> mHaze;                // 0x1F4
-    Override_unk<ShadowParam_unk> mShadow;            // 0x234
+    int mShadowSet;                                   // 0x234: inferred: mShadow overrides the render settings
+    ShadowParam_unk mShadow;                          // 0x238: not an Override_unk (see atn/Scene.cpp constructor)
     Override_unk<ColorMatrixParam_unk> mColorMatrix;  // 0x260
 };
 

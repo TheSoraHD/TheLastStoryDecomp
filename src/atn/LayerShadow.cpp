@@ -311,8 +311,8 @@ void LayerShadow::vf10(void* arg) {
     RenderSetting_unk* s = lbl_8087EFA8;
     Vector3 dir(-s->m104.mDir.x, -s->m104.mDir.y, -s->m104.mDir.z);
     atn::Scene* light = atn::RenderManager::instance_->fn_800C1424();
-    if (light->mShadow.mSet != 0) {
-        dir = Vector3(-light->mShadow.mValue.mDir.x, -light->mShadow.mValue.mDir.y, -light->mShadow.mValue.mDir.z);
+    if (light->mShadowSet != 0) {
+        dir = Vector3(-light->mShadow.mDir.x, -light->mShadow.mDir.y, -light->mShadow.mDir.z);
     }
     if (dir.IsZero_unk()) {
         dir = Vector3(1.0f, -1.0f, 1.0f).GetNormalize();

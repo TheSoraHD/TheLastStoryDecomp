@@ -168,7 +168,8 @@ void TownTask::vf10() {
                 const atn::Light* light = ((const atn::Scene&)src->GetScene_unk()).GetLight(0);
                 *dst->GetScene_unk().GetLight(0) = *light;
                 dst->mFog = src->mFog;
-                dst->mShadow.Set_unk(src->mShadow.mValue);
+                dst->mShadowSet = 1;
+                dst->mShadow = src->mShadow;
                 dst->mGodRay.Set_unk(src->mGodRay.mValue);
                 dst->mColorMatrix.Set_unk(TownGetE_unk(src->mColorMatrix));
                 dst->mRain.Set_unk(src->mRain.mValue);
