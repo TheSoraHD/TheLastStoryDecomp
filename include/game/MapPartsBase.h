@@ -28,6 +28,9 @@ public:
     virtual void vf2C(unsigned int hash, int draw); // 0x80496394
     virtual int vf30();  // 0x8049638C
 
+    void fn_804963F8(MapPartsBase* part); // inferred: appends `part` at the end of the list
+    void fn_80496414(MapPartsBase* next); // inferred: sets mNext
+
     int mType;           // 0x48: inferred: type of the part (MapPartsFactory: 0 model, 2 colli tree, 3 efp,
                          // 4 locators, 5 gimmick loc, 6 area file, 7 lens flare; the ocean is 0)
     MapPartsBase* mNext; // 0x4C: inferred from the list append at 0x804963F8

@@ -21,6 +21,8 @@
 #include "game/MapPartsModel.h"
 #include "atn/Light_unk.h"
 #include "atn/SceneColorMatrix_unk.h"
+#include "game/MapPartsFactory.h"
+#include "atn/Plane_unk.h"
 #include "atn/Lerp_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -475,8 +477,209 @@ void MapTask::fn_8049ED90() {
     }
     CreateParts(csv, 0);
 }
-// NONMATCHING: stub - creates the parts of a csv.
-void MapTask::CreateParts(atn::CsvTab& csv, int arg) {}
+extern "C" float fn_800DC288(const char* text); // inferred: atof (atn/Util_unk.cpp)
+extern "C" int fn_800DC12C(const char* text);    // inferred: atoi
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task (atn::Task::DeleteTask in the RSO?)
+
+// inferred: adds a part at the end of the list
+inline void MapTask::AddPart_unk(MapPartsBase* part) {
+    if (part == 0) {
+        return;
+    }
+    part->fn_800D246C(1);
+    if (mParts == 0) {
+        mParts = part;
+    } else {
+        mParts->fn_804963F8(part);
+    }
+}
+
+// inferred: removes a part from the list and deletes it (the first one is only unlinked)
+inline void MapTask::RemovePart_unk(MapPartsBase* part) {
+    if (part == 0) {
+        return;
+    }
+    if (part == mParts) {
+        mParts = part->mNext;
+        return;
+    }
+    for (MapPartsBase* prev = mParts; prev != 0; prev = prev->mNext) {
+        if (prev->mNext == part) {
+            prev->fn_80496414(part->mNext);
+            part->fn_80496414(0);
+            fn_800D2338(part);
+            return;
+        }
+    }
+}
+
+// NONMATCHING: 99.84% - the part key and the replaced part swap r15/r16 in the default branch (~12 variants)
+// inferred: reads the map csv: render settings of the map (unless mF4) and the parts; with `replace`, a part
+// replaces the one of the same type and file, and CMD_DELETE removes one
+void MapTask::CreateParts(atn::CsvTab& csv, int replace) {
+    int noSettings = mF4;
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (*key == '\0' || *key == '#') {
+            continue;
+        }
+        if (strcmp(key, "AMBIENT_COLOR") == 0 && noSettings == 0) {
+            atn::Scene* scene = atn::RenderManager::instance_->GetScene();
+            scene->mAmbient.r = fn_800DC288(csv.fn_8005B9CC());
+            scene->mAmbient.g = fn_800DC288(csv.fn_8005B9CC());
+            scene->mAmbient.b = fn_800DC288(csv.fn_8005B9CC());
+            scene->mAmbient.a = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "CLEAR_COLOR") == 0 && noSettings == 0) {
+            m78 = fn_800DC288(csv.fn_8005B9CC());
+            m7C = fn_800DC288(csv.fn_8005B9CC());
+            m80 = fn_800DC288(csv.fn_8005B9CC());
+            RenderSetting_unk* setting = lbl_8087EFA8;
+            setting->m03C.r = m78;
+            setting->m03C.g = m7C;
+            setting->m03C.b = m80;
+            setting->m03C.a = m84;
+        } else if (strcmp(key, "CLOUDMAP") == 0 && noSettings == 0) {
+            atn::Scene* scene = atn::RenderManager::instance_->GetScene();
+            CharaLightData_unk light;
+            float width = fn_800DC288(csv.fn_8005B9CC());
+            float height = fn_800DC288(csv.fn_8005B9CC());
+            scene->fn_800C289C(csv.fn_8005B9CC());
+            scene->GetLight_unk()->m04 = atn::Vector2_unk(0.0f, 0.0f);
+            scene->GetLight_unk()->mSize = atn::Vector2_unk(width, height);
+        } else if (strcmp(key, "CAMERA_CLIP") == 0 && noSettings == 0) {
+            float nearClip = fn_800DC288(csv.fn_8005B9CC());
+            lbl_8087EFA8->m1C4 = fn_800DC288(csv.fn_8005B9CC());
+            lbl_8087EFA8->m1C0 = nearClip;
+        } else if (strcmp(key, "DOF") == 0 && noSettings == 0) {
+            int enabled = strcmp(csv.fn_8005B9CC(), "true") == 0;
+            lbl_8087EFA8->mDof.mEnabled = enabled;
+            if (enabled) {
+                DofParam_unk dof;
+                dof.mEnabled = enabled;
+                dof.mStart = fn_800DC288(csv.fn_8005B9CC());
+                dof.mEnd = fn_800DC288(csv.fn_8005B9CC());
+                dof.mNearStart = fn_800DC288(csv.fn_8005B9CC());
+                dof.mNearEnd = fn_800DC288(csv.fn_8005B9CC());
+                const char* blur = csv.fn_8005B9CC();
+                if (strcmp("", blur) != 0) {
+                    dof.mBlurWidth = fn_800DC288(blur);
+                    dof.mBlurHeight = fn_800DC288(csv.fn_8005B9CC());
+                }
+                const char* clear = csv.fn_8005B9CC();
+                if (strcmp("", clear) != 0) {
+                    dof.mClearFar = strcmp(clear, "CLEARFAR") == 0;
+                }
+                lbl_8087EFA8->mDof = dof;
+            }
+        } else if (strcmp(key, "FOG") == 0 && noSettings == 0) {
+            atn::Scene* scene = atn::RenderManager::instance_->GetScene();
+            int on = strcmp(csv.fn_8005B9CC(), "ON") == 0;
+            if (on) {
+                int mode = fn_800DC12C(csv.fn_8005B9CC());
+                float start = fn_800DC288(csv.fn_8005B9CC());
+                float end = fn_800DC288(csv.fn_8005B9CC());
+                float r = fn_800DC288(csv.fn_8005B9CC());
+                float g = fn_800DC288(csv.fn_8005B9CC());
+                float b = fn_800DC288(csv.fn_8005B9CC());
+                scene->mFog.mMode = mode;
+                scene->mFog.mStart = start;
+                scene->mFog.mEnd = end;
+                scene->mFog.mColor = atn::Color(r, g, b, 1.0f);
+            } else {
+                scene->mFog.mMode = 0;
+            }
+        } else if (strcmp(key, "BLOOM") == 0 && noSettings == 0) {
+            int enabled = strcmp(csv.fn_8005B9CC(), "true") == 0;
+            lbl_8087EFA8->m054.mEnabled = enabled;
+            if (enabled) {
+                BloomParam_unk bloom = lbl_8087EFA8->m054;
+                for (int i = 0; i < 3; i++) {
+                    if (strcmp("", csv.fn_8005B9CC()) == 0) {
+                        break;
+                    }
+                    bloom.mColor[i].r = fn_800DC288(csv.GetField_unk());
+                    bloom.mColor[i].g = fn_800DC288(csv.fn_8005B9CC());
+                    bloom.mColor[i].b = fn_800DC288(csv.fn_8005B9CC());
+                    bloom.mBias[i] = fn_800DC12C(csv.fn_8005B9CC());
+                    bloom.mScale[i] = fn_800DC12C(csv.fn_8005B9CC());
+                }
+                const char* blur = csv.fn_8005B9CC();
+                if (strcmp("", blur) != 0) {
+                    bloom.mBlurWidth = fn_800DC288(blur);
+                    bloom.mBlurHeight = fn_800DC288(csv.fn_8005B9CC());
+                    bloom.mBlurAngle = fn_800DC288(csv.fn_8005B9CC());
+                }
+                lbl_8087EFA8->m054 = bloom;
+            }
+        } else if (strcmp(key, "GODRAY") == 0 && noSettings == 0) {
+            GodRayParam_unk godRay;
+            godRay.fn_800BB6C0(&csv);
+            lbl_8087EFA8->m264 = godRay;
+        } else if (strcmp(key, "SHADOW") == 0 && noSettings == 0) {
+            lbl_8087EFA8->m104.fn_800BBD90(&csv);
+        } else if (strcmp(key, "GAMMA") == 0 && noSettings == 0) {
+            lbl_8087EFA8->m3DC.fn_800BC328(&csv);
+        } else if (strcmp(key, "REFLECT") == 0 && noSettings == 0) {
+            atn::Scene* scene = atn::RenderManager::instance_->GetScene();
+            scene->mReflectChara = 1;
+            Plane_unk plane;
+            plane.mNormal = atn::Vector3(fn_800DC288(csv.fn_8005B9CC()), fn_800DC288(csv.fn_8005B9CC()),
+                                         fn_800DC288(csv.fn_8005B9CC()));
+            plane.mDist = fn_800DC288(csv.fn_8005B9CC());
+            if (strcmp(csv.fn_8005B9CC(), "OFF") == 0) {
+                scene->mReflectChara = 0;
+            }
+            scene->fn_800C2C20(&plane);
+        } else if (strcmp(key, "LIGHT") == 0 && noSettings == 0) {
+            if (strcmp(csv.fn_8005B9CC(), "KEY") == 0) {
+                float r = fn_800DC288(csv.fn_8005B9CC());
+                float g = fn_800DC288(csv.fn_8005B9CC());
+                float b = fn_800DC288(csv.fn_8005B9CC());
+                float a = fn_800DC288(csv.fn_8005B9CC());
+                float x = fn_800DC288(csv.fn_8005B9CC());
+                float y = fn_800DC288(csv.fn_8005B9CC());
+                float z = fn_800DC288(csv.fn_8005B9CC());
+                atn::Scene* scene = atn::RenderManager::instance_->GetScene();
+                atn::Vector3 dir(x, y, z);
+                scene->GetLight(0)->SetDir_unk(dir);
+                scene->GetLight(0)->SetColor(atn::Color(r, g, b, a));
+            }
+        } else if (strcmp(key, "COLOR_MATRIX") == 0 && noSettings == 0) {
+            ColorMatrixParam_unk matrix = lbl_8087EFA8->m324;
+            matrix.fn_800BBFE8(&csv);
+            lbl_8087EFA8->m324 = matrix;
+        } else if (replace != 0 && strcmp(key, "CMD_DELETE") == 0) {
+            int type = fn_80496A28(csv.fn_8005B9CC());
+            MapPartsBase* part = fn_804A06B4(type, csv.fn_8005B9CC());
+            if (part != 0) {
+                RemovePart_unk(part);
+            }
+        } else {
+            MapPartsBase* old = 0;
+            if (replace != 0) {
+                int type = fn_80496A28(key);
+                old = fn_804A06B4(type, csv.fn_8005B9CC());
+                csv.Reset_unk();
+                key = csv.fn_8005B9CC();
+            }
+            MapPartsBase* part = fn_80496B3C(this, key, &csv);
+            if (part != 0) {
+                AddPart_unk(part);
+                if (part->mType == 6) {
+                    if (mAreas.mSize != 0 && mNextArea == 0) {
+                        mNextArea = MapPartsArea::fn_80491F94(this, 6, ((MapPartsArea*)part)->mFile.fn_80473F18());
+                    }
+                    mAreas.push_back((MapPartsArea*)part);
+                }
+                mFlags &= ~2;
+            }
+            if (replace != 0 && old != 0) {
+                RemovePart_unk(old);
+            }
+        }
+    } while (csv.fn_8005BBF8());
+}
 // inferred: sets the camera of the map (camera and sub camera of the camera csv m60, mode and box)
 void MapTask::fn_804A04AC(int camera, int sub, int mode, gs::CameraBox* box) {
     mCamera = camera;

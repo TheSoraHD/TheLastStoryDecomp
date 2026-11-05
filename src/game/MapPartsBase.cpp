@@ -274,21 +274,21 @@ void MapPartsBase::vf28(atn::CsvTab*) {}
 bool MapPartsBase::vf20(const atn::Vector3&) {
     return false;
 }
-extern "C" void fn_804963F8(MapPartsBase* self, MapPartsBase* next);
-extern "C" void fn_80496414(MapPartsBase* self, MapPartsBase* next);
-
 // inferred: not inlined into the creators of MapPartsArea (called with bl at 0x80491F08)
 __declspec(noinline) MapPartsBase::MapPartsBase(atn::Task* parent, int type) : atn::Task(parent), mType(type), mNext(0) {}
 
-extern "C" void fn_804963F8(MapPartsBase* self, MapPartsBase* next) {
-    while (self->mNext != 0) {
-        self = self->mNext;
+// inferred: appends `part` at the end of the list that starts here (MapTask::CreateParts)
+void MapPartsBase::fn_804963F8(MapPartsBase* part) {
+    MapPartsBase* last = this;
+    while (last->mNext != 0) {
+        last = last->mNext;
     }
-    self->mNext = next;
+    last->mNext = part;
 }
 
-extern "C" void fn_80496414(MapPartsBase* self, MapPartsBase* next) {
-    self->mNext = next;
+// inferred: sets the next part (MapTask::CreateParts)
+void MapPartsBase::fn_80496414(MapPartsBase* next) {
+    mNext = next;
 }
 
 void MapPartsBase::vf1C(void*) {}

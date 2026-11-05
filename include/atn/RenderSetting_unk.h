@@ -32,9 +32,9 @@ struct BloomParam_unk {
         mKernel[2] = 0.5f;
         mKernel[3] = 1.0f;
         mKernel[4] = 0.5f;
-        mColor1 = White_unk();
-        mColor2 = White_unk();
-        mColor3 = White_unk();
+        mColor[0] = White_unk();
+        mColor[1] = White_unk();
+        mColor[2] = White_unk();
         for (int i = 0; i < 3; i++) {
             mBias[i] = 0;
             mScale[i] = 0;
@@ -53,9 +53,7 @@ struct BloomParam_unk {
     float mBlurHeight;    // 0x1C: *Blur Height
     float mBlurAngle;     // 0x20: Blur Angle
     float mKernel[5];     // 0x24: Kernel0-4
-    RsColor_unk mColor1;  // 0x38: *Color 1
-    RsColor_unk mColor2;  // 0x48: *Color 2
-    RsColor_unk mColor3;  // 0x58: *Color 3
+    RsColor_unk mColor[3]; // 0x38: *Color 1-3 (MapTask::CreateParts reads them in a loop with the bias and scale)
     int mBias[3];         // 0x68: *Bias 1-3
     int mScale[3];        // 0x74: *Scale 1-3
 };

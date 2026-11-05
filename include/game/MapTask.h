@@ -51,7 +51,10 @@ public:
     static MapTask* fn_8049D704(atn::Task* parent, int type, int id, int subId);
     void fn_8049E480(); // inferred: applies the current area list (0x8049E480)
     void fn_8049ED90(); // inferred: resets the render settings and creates the parts of the map file (0x8049ED90)
-    void CreateParts(atn::CsvTab& csv, int arg); // 0x8049F4F4 (RSO name)
+    void CreateParts(atn::CsvTab& csv, int replace); // 0x8049F4F4 (RSO name)
+    // inferred: inlined in CreateParts (names invented)
+    void AddPart_unk(MapPartsBase* part);
+    void RemovePart_unk(MapPartsBase* part);
     void fn_804A04AC(int camera, int sub, int mode, gs::CameraBox* box); // inferred: sets the camera of the map
     void fn_804A0580(int arg, const atn::Vector3* pos);           // inferred
     MapInstance_unk* fn_804A0614(const std::string& name);         // inferred: instance of the locator sets

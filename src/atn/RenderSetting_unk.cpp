@@ -184,9 +184,9 @@ RenderSetting_unk::RenderSetting_unk()
     void* g10 = fn_8008937C(g3, "Bloom");
     fn_80087994(g10, "*Bloom Enabled", &m054.mEnabled, 0, 0);
     fn_80087994(g10, "Bloom Debug", &m054.mDebug, 0, 0);
-    fn_80088AF4(g10, "*Color 1", &m054.mColor1, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088AF4(g10, "*Color 2", &m054.mColor2, 0, 0, 0.0f, 1.0f, 0.01f);
-    fn_80088AF4(g10, "*Color 3", &m054.mColor3, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088AF4(g10, "*Color 1", &m054.mColor[0], 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088AF4(g10, "*Color 2", &m054.mColor[1], 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80088AF4(g10, "*Color 3", &m054.mColor[2], 0, 0, 0.0f, 1.0f, 0.01f);
     fn_800874C8(g10, "*Bias 1", &m054.mBias[0], 0, 2, 1, 0, 0);
     fn_800874C8(g10, "*Bias 2", &m054.mBias[1], 0, 2, 1, 0, 0);
     fn_800874C8(g10, "*Bias 3", &m054.mBias[2], 0, 2, 1, 0, 0);
