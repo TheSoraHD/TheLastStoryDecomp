@@ -332,7 +332,7 @@ public:
     int m1EB0;
     float m1EB4;
     CharaLightData_unk m1EB8; // inferred: "/data/texture/gm044_000a.texture"
-    int m1F08;
+    float m1F08; // inferred: speed of the size of the light (fn_80484D64)
     int m1F0C; // inferred: cloud map shown by ActionCloudMap
     IntVector_unk m1F10; // inferred: lights of the event (cleared by fn_80484FBC)
     int m1F1C;

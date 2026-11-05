@@ -1632,6 +1632,50 @@ void Manager::fn_80484BF4() {
     fn_800C16B4(lbl_8087EFB4)->SetLightIndex_unk(-1);
     MapManager::sInstance->fn_80491528(fn_80482B24, &m1EB8);
 }
+// inferred: position, size and speed of the light of the manager
+void Manager::fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float rate) {
+    m1F08 = rate;
+    m1EB8.m04.x = pos.x;
+    m1EB8.m04.y = pos.y;
+    m1EB8.mSize = scale;
+}
+
+// inferred: scales a 2D vector (weak copy 0x80484E6C); name invented
+inline atn::Vector2_unk Scale_unk(const atn::Vector2_unk& v, float s) {
+    return atn::Vector2_unk(v.x * s, v.y * s);
+}
+
+// inferred: moves the light and grows it towards `scale` (cloud map shown) or shrinks it
+void Manager::fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos) {
+    m1EB8.m04.x = pos.x;
+    m1EB8.m04.y = pos.y;
+    if (m1F0C != 0) {
+        if (m1EB8.mSize.x < scale.x && m1EB8.mSize.y < scale.y) {
+            atn::Vector2_unk d = Scale_unk(scale, m1F08);
+            m1EB8.mSize.x += d.x;
+            m1EB8.mSize.y += d.y;
+        } else {
+            m1EB8.mSize = scale;
+        }
+    } else if (m1EB8.mSize.x > 0.0f && m1EB8.mSize.y > 0.0f) {
+        atn::Vector2_unk d = Scale_unk(scale, m1F08);
+        m1EB8.mSize.x -= d.x;
+        m1EB8.mSize.y -= d.y;
+    } else {
+        atn::Vector2_unk d = Scale_unk(scale, 0.0f);
+        m1EB8.mSize.x -= d.x;
+        m1EB8.mSize.y -= d.y;
+    }
+}
+
+// inferred: removes the light of the manager from the render scene and from the map areas
+void Manager::fn_80484E88() {
+    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(0);
+    if (MapManager::sInstance != 0) {
+        MapManager::sInstance->fn_80491528(fn_80482B24, 0);
+    }
+}
+
 
 
 
