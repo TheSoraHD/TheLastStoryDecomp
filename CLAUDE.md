@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `nw4r-20261105` (2026-11-05, sin mergear): **12684 / 18119**, lost 0. `ss_nw4r` snd_StrmPlayer enlazada (NW4R 72/73; sobraba el relleno `float_order` de SS); `ncdsystem` `.bss align:32`. ut_TextWriterBase y Gecko_ExceptionPPC no enlazan por el ultimo objeto de `.sbss`/`extab` (reglas del enlazador en `docs/trucos-mwcc.md`). Notas: `docs/nw4r-20261105.md`.
+- `nw4r-20261105` (2026-11-05, mergeada en `main`): **12684 / 18119**, lost 0. `ss_nw4r` snd_StrmPlayer enlazada (NW4R 72/73; sobraba el relleno `float_order` de SS); `ncdsystem` `.bss align:32`. ut_TextWriterBase y Gecko_ExceptionPPC no enlazan por el ultimo objeto de `.sbss`/`extab` (reglas del enlazador en `docs/trucos-mwcc.md`). Notas: `docs/nw4r-20261105.md`.
 - `renderview-20261105` (mergeada en `main`): 12684. `lbl_8087EFB4` es `atn::RenderManager::instance_` (`docs/renderview-20261105.md`); `manager-20261104` 12679, Event/Manager 33 -> 131/185 (`docs/manager-20261104.md`).
 - `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
