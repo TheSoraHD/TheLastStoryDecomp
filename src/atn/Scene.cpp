@@ -23,19 +23,6 @@ extern "C" void fn_8008771C(void* menu, const char* name, float* value, void (*c
 
 using namespace atn;
 
-// inferred: resizes the texture array (names invented)
-inline void ResizeTextures_unk(TextureArray_unk& a, int n, int heap) {
-    if (a.mData != 0) {
-        delete[] a.mData;
-    }
-    a.mCount = n;
-    if (a.mCount != 0) {
-        a.mData = new ((MemoryTag)heap, "", "", 0) Texture_unk[a.mCount];
-    } else {
-        a.mData = 0;
-    }
-}
-
 CharaLightData_unk::CharaLightData_unk()
     : m00(1), m04(0.0f, 0.0f), mSize(0.0f, 0.0f), m14(0.0f, 0.0f), m1C(0.0f), m20(0.0f), mDir(0.0f, 0.0f, 0.0f), m30(0.0f),
       m34(0.0f), m38(0.0f), m44(0), m48(0), m4C(0) {
@@ -44,12 +31,12 @@ CharaLightData_unk::CharaLightData_unk()
 CharaLightData_unk::CharaLightData_unk(const char* texture)
     : m00(1), m04(0.0f, 0.0f), mSize(0.0f, 0.0f), m14(0.0f, 0.0f), m1C(0.0f), m20(0.0f), mDir(0.0f, 0.0f, 0.0f), m30(0.0f),
       m34(0.0f), m38(0.0f), m44(0), m48(0), m4C(0) {
-    ResizeTextures_unk(mTextures, 1, 0);
+    mTextures.Resize_unk(1, 0);
     fn_800D5908(mTextures.mData, texture);
 }
 
 void CharaLightData_unk::fn_800C1814(const char* path) {
-    ResizeTextures_unk(mTextures, 1, 0);
+    mTextures.Resize_unk(1, 0);
     fn_800D5908(mTextures.mData, path);
 }
 
@@ -74,13 +61,13 @@ void CharaLightData_unk::fn_800C18BC() {
     m4C++;
     if (m48 != 0 && m4C > m48) {
         m4C = 0;
-        m44 = (m44 + 1) % mTextures.mCount;
+        m44 = (m44 + 1) % mTextures.mSize;
     }
 }
 
 int CharaLightData_unk::fn_800C1990() {
     int busy = 0;
-    for (unsigned int i = 0; i < mTextures.mCount; i++) {
+    for (unsigned int i = 0; i < mTextures.mSize; i++) {
         busy = busy || ((GimmickUvOwner_unk*)&mTextures.mData[i])->fn_800D59B8();
     }
     return busy;
@@ -128,7 +115,7 @@ inline Matrix3x4 Reflect_unk(const Plane_unk& p) {
     return m;
 }
 
-// NONMATCHING: 84.54% - ShadowParam_unk() keeps its own this (scene + 0x238) in r28 across PSVECNormalize (the
+// NONMATCHING: 84.60% - ShadowParam_unk() keeps its own this (scene + 0x238) in r28 across PSVECNormalize (the
 // original addresses mShadow from the scene) and one GPR more; stack order of the temporaries (colors, plane)
 Scene::Scene()
     : mReady(0), mLightOn(0), m074(0), mLightMask(-1), mFloorLightOn(0), mReflectChara(0) {
@@ -229,14 +216,15 @@ Camera* Scene::fn_800C2520(int i) {
 
 // inferred: 2D vector operators (names invented)
 inline Vector2_unk Mul2_unk(const Vector2_unk& v, float f) {
-    return Vector2_unk(v.x * f, v.y * f);
+    return Vector2_unk(f * v.x, f * v.y);
 }
 inline Vector2_unk Sub2_unk(const Vector2_unk& a, const Vector2_unk& b) {
     return Vector2_unk(a.x - b.x, a.y - b.y);
 }
 
 // inferred: the floor light when pos is inside its rectangle
-// NONMATCHING: 99.4% - FPR of the 0.5 constant
+// NONMATCHING: 99.52% - operand order of the two fmuls (f * v.x gives the FPRs of the original, v.x * f the
+// operands); tried a named half vector, the order of p and min, a float local and Mul2_unk(float, v)
 CharaLightData_unk* Scene::fn_800C258C(const Vector3* pos) {
     if (mFloorLightOn != 0) {
         Vector2_unk p(pos->x, pos->z);
@@ -269,31 +257,26 @@ inline void EnableLight_unk(Scene* scene) {
 }
 
 // inferred: wrap mode of the textures (name invented)
-inline void SetWrap_unk(TextureArray_unk& a, int n) {
+inline void SetWrap_unk(SimpleArray<Texture_unk>& a, int n) {
     for (int i = 0; i < n; i++) {
-        Texture_unk& t = a.mData[i];
+        Texture_unk& t = a[i];
         t.m2D = 1;
         t.m2E = 1;
     }
 }
 
-// NONMATCHING: 85.55% - the original indexes the textures with mulli in the unrolled wrap loop
 void Scene::fn_800C2634(int n) {
     EnableLight_unk(this);
-    ResizeTextures_unk(mLight.mTextures, n, 6);
+    mLight.mTextures.Resize_unk(n, 6);
     SetWrap_unk(mLight.mTextures, n);
 }
 
-// NONMATCHING: 85.85% - same wrap loop as fn_800C2634
 void Scene::fn_800C289C(const char* path) {
     if (path == 0) {
         mLightOn = 0;
         return;
     }
-    int n = 1;
-    EnableLight_unk(this);
-    ResizeTextures_unk(mLight.mTextures, n, 6);
-    SetWrap_unk(mLight.mTextures, n);
+    fn_800C2634(1);
     fn_800D5908(mLight.mTextures.mData, path);
 }
 
@@ -303,12 +286,13 @@ void Scene::fn_800C2B24(const Vector2_unk* pos, const Vector2_unk* size, const c
     mFloorLight.m04 = *pos;
     mFloorLight.mSize = *size;
     mFloorLight.m00 = 1;
-    ResizeTextures_unk(mFloorLight.mTextures, 1, 6);
+    mFloorLight.mTextures.Resize_unk(1, 6);
     fn_800D5908(mFloorLight.mTextures.mData, path);
     mFloorLight.m14 = Vector2_unk(0.0f, 0.0f);
 }
 
-// NONMATCHING: 67.43% - FPR allocation and order of the reflection matrix products
+// NONMATCHING: 67.43% - FPR allocation and order of the reflection matrix products. Writing the body here without
+// Reflect_unk gives 74% (same frame) but the constructor and fn_800C2EE0, which inline this function, drop a lot
 void Scene::fn_800C2C20(const Plane_unk* plane) {
     mPlane.mNormal = plane->mNormal;
     mPlane.mDist = plane->mDist;
