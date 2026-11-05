@@ -25,6 +25,8 @@ struct NewCampScene2_unk {
     void fn_8047CB6C(int value) { m120 = value; }
     // inferred: sets the light of gmk::CharaLight/RoomLight (inlined in Event::Manager fn_80483714; as
     // LightTarget_unk::SetLight_unk of gmk/RoomLight.cpp); name invented
+    // inferred: index of the light (-1: none; gmk::RoomLight sets it); name invented
+    void SetLightIndex_unk(int index) { m0C8 = index; }
     void SetLight_unk(void* light) {
         m074 = light;
         m070 = m074 != 0 || m070 != 0;

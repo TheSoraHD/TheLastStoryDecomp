@@ -1388,6 +1388,8 @@ void fn_80482B24(MapArea* part, void* light) {
 // inferred: argument of fn_80482B54: color matrices of the steps, the next step, the matrix it blends
 // with and the rate. Names invented.
 struct ColorMatrixBlend_unk {
+    // inferred: built by fn_80484088
+    ColorMatrixBlend_unk(float rate) : mIndex(0), mRate(rate) {}
     std::vector<ColorMatrixParam_unk> mList;
     int mIndex;                   // 0x0C
     ColorMatrixParam_unk mTarget; // 0x10
@@ -1595,6 +1597,44 @@ ColorMatrixParam_unk* Manager::fn_80483F70() {
     }
     return dst;
 }
+// NONMATCHING: 95.1% - growth path of std::vector::push_back (see docs/msl_cpp.md)
+// inferred: blends the color matrices of the light settings of the map areas with `target`
+void Manager::fn_80484088(ColorMatrixParam_unk* target, float rate) {
+    ColorMatrixBlend_unk blend(rate);
+    blend.mTarget = *target;
+    blend.mList.clear();
+    for (int i = 0; i < (int)m1AB0.m110.size(); i++) {
+        blend.mList.push_back(m1AB0.m110[i].mSetting.mColorMatrix);
+    }
+    MapManager::sInstance->fn_80491528(fn_80482B54, &blend);
+}
+// inferred: sets the direction and the color (0xAARRGGBB) of the first light of the render scene and
+// of the map areas
+void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
+    atn::Light* light = fn_800C2448(fn_800C16B4(lbl_8087EFB4), 0);
+    unsigned int c = color;
+    light->SetDir_unk(dir);
+    light->SetColor(atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                               (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24)));
+    MapManager::sInstance->fn_80491528(fn_80482D90, light);
+}
+// inferred: sets the ambient color (0xAARRGGBB) of the map areas
+void Manager::fn_80484A78(int color) {
+    unsigned int c = color;
+    atn::Color ambient((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                       (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
+    MapManager::sInstance->fn_80491528(fn_80482EB4, &ambient);
+}
+
+// inferred: uses the light of the manager (m1EB8) for the render scene and the map areas
+void Manager::fn_80484BF4() {
+    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&m1EB8);
+    fn_800C16B4(lbl_8087EFB4)->SetLightIndex_unk(-1);
+    MapManager::sInstance->fn_80491528(fn_80482B24, &m1EB8);
+}
+
+
+
 
 
 
