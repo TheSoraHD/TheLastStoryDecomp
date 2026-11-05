@@ -8,6 +8,10 @@
 #include "gmk/Lemon.h"
 #include "atn/DrawHelper.h"
 #include "game/MapTask.h"
+#include "game/MapInstance_unk.h"
+#include "game/MapPartsGimmickLoc_unk.h"
+#include "game/MapPartsLocatorSet.h"
+#include "game/MapPartsModel.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -48,19 +52,7 @@ struct OnOffSettings_unk {
 extern "C" OnOffSettings_unk* lbl_8087F0A8;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
-// inferred: map part (type at 0x48, next at 0x4C; see gmk/ArenaFloor.cpp)
-struct OnOffPart_unk {
-    unsigned char m00[0x48];
-    int mType;
-    OnOffPart_unk* mNext;
-    unsigned char m50[0x344 - 0x50]; // inferred: a model (type 0)
-    int mObjCount;                   // 0x344: inferred: objects of a part of type 4
-    atn::ModelInstance** mObjs;      // 0x348
-};
 
-extern "C" void fn_8049994C(OnOffPart_unk* part, atn::Vector3* pos, atn::Vector3* rot); // inferred: places the gimmicks of a part
-extern "C" void fn_80499B9C(OnOffPart_unk* part);
-extern "C" void fn_80499C48(OnOffPart_unk* part);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 
@@ -192,10 +184,10 @@ int OnOff::vf0C() {
         fn_803EDB18(&mModel);
     }
     if (mMap != 0) {
-        for (OnOffPart_unk* part = (OnOffPart_unk*)mMap->mParts; part != 0; part = part->mNext) {
+        for (MapPartsBase* part = mMap->mParts; part != 0; part = part->mNext) {
             switch (part->mType) {
             case 0: {
-                atn::Model* model = (atn::Model*)part->m50;
+                atn::Model* model = &((MapPartsModel*)part)->mModel;
                 atn::Matrix3x4 mtx = *(atn::Matrix3x4*)model->mMtx.m;
                 atn::Matrix3x4 rot;
                 __MakeRotation_unk(rot, m78);
@@ -214,8 +206,8 @@ int OnOff::vf0C() {
                 break;
             }
             case 4:
-                for (int i = 0; i < part->mObjCount; i++) {
-                    atn::ModelInstance* obj = part->mObjs[i];
+                for (int i = 0; i < ((MapPartsLocatorSet*)part)->mInstances.mSize; i++) {
+                    atn::ModelInstance* obj = &((MapPartsLocatorSet*)part)->mInstances[i]->mInst;
                     atn::Matrix3x4 mtx = obj->mMtx;
                     atn::Matrix3x4 rot;
                     __MakeRotation_unk(rot, m78);
@@ -225,7 +217,7 @@ int OnOff::vf0C() {
                 }
                 break;
             case 5:
-                fn_8049994C(part, &m6C, &m78);
+                ((MapPartsGimmickLoc*)part)->fn_8049994C(m6C, m78);
                 for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m20 == part) {
                         g->m6C = g->m6C + m6C;
@@ -526,12 +518,12 @@ void OnOff::fn_803F8F30(int on) {
         } else {
             mMap->mFlags |= 4;
         }
-        for (OnOffPart_unk* part = (OnOffPart_unk*)mMap->mParts; part != 0; part = part->mNext) {
+        for (MapPartsBase* part = mMap->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
                 if (mOn != 0) {
-                    fn_80499B9C(part);
+                    ((MapPartsGimmickLoc*)part)->fn_80499B9C();
                 } else {
-                    fn_80499C48(part);
+                    ((MapPartsGimmickLoc*)part)->fn_80499C48();
                 }
             }
         }

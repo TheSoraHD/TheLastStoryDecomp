@@ -4,6 +4,8 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/MapTask.h"
+#include "game/MapInstance_unk.h"
+#include "game/MapPartsLocatorSet.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -17,20 +19,6 @@ struct PassBoardNames_unk {
     char mNames[5][0x40];
 };
 extern "C" PassBoardNames_unk lbl_80753960[];
-// inferred: map object (hash of its name at 0x8C)
-struct PassObject_unk {
-    unsigned char m00[0x8C];
-    unsigned int mHash;
-};
-// inferred: map part with a list of objects
-struct PassPart_unk {
-    unsigned char m00[0x48];
-    int mType;
-    PassPart_unk* mNext; // 0x4C
-    unsigned char m50[0x344 - 0x50];
-    int mNumObjects;            // 0x344
-    PassObject_unk** mObjects;  // 0x348
-};
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" MapTask* fn_80373148(Field_unk* field);
@@ -93,13 +81,13 @@ GimmickCommon* PassBoard::fn_8042D628(atn::Task* parent, int id, int arg) {
 // at the top in several orders.
 int PassBoard::vf0C() {
     int count;
-    PassObject_unk* object;
+    MapInstance_unk* object;
     unsigned int hash;
     char* name;
     Pair_unk* pair;
     PassBoardNames_unk* names;
     MapTask* group;
-    PassPart_unk* part;
+    MapPartsBase* part;
     int i;
     int j;
     if (fn_803EC91C() == 0) {
@@ -107,14 +95,14 @@ int PassBoard::vf0C() {
             names = &lbl_80753960[m4C - 1];
             group = fn_80373148(lbl_8087F430);
             if (group != 0) {
-                for (part = (PassPart_unk*)group->mParts; part != 0; part = part->mNext) {
+                for (part = group->mParts; part != 0; part = part->mNext) {
                     if (part->mType == 4) {
                         count = names->mCount;
                         name = names->mNames[0];
                         pair = mPairs;
                         for (i = 0; i < count; i++) {
-                            for (j = 0; j < part->mNumObjects; j++) {
-                                object = part->mObjects[j];
+                            for (j = 0; j < ((MapPartsLocatorSet*)part)->mInstances.mSize; j++) {
+                                object = ((MapPartsLocatorSet*)part)->mInstances[j];
                                 hash = object->mHash;
                                 if (hash == fn_800DC6B4(name)) {
                                     pair->mB = object;

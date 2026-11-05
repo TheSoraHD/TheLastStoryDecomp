@@ -6,6 +6,7 @@
 #include "std/string_members.h"
 #include "std/vector_string.h"
 #include "game/MapTask.h"
+#include "game/MapPartsGimmickLoc_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -45,7 +46,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: places the gimmicks of a part (pointers in gmk/ArenaFloor.cpp; references here, the
 // offset is a temporary)
-extern "C" void fn_8049994C(LiftMapPart_unk* part, const atn::Vector3& pos, const atn::Vector3& rot);
 
 // inferred: column of a matrix (name invented)
 static inline atn::Vector3 Col_unk(const atn::Matrix3x4& m, int i) {
@@ -363,7 +363,7 @@ void MapLift::fn_8042AB58(const atn::Vector3* pos, const atn::Vector3* prev) {
         } else if (e.mType == 2) {
             ((GimmickCommon*)e.mObject)->m6C = e.mPos + *pos;
         } else if (e.mType == 3) {
-            fn_8049994C((LiftMapPart_unk*)e.mObject, *pos - *prev, lbl_807C7030);
+            ((MapPartsGimmickLoc*)e.mObject)->fn_8049994C(*pos - *prev, lbl_807C7030);
         }
     }
 }

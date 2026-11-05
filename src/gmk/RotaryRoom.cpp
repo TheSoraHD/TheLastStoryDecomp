@@ -6,6 +6,11 @@
 #include "game/MapPartsBase.h"
 #include "gmk/Lemon.h"
 #include "game/MapTask.h"
+#include "game/MapArea.h"
+#include "game/MapPartsArea.h"
+#include "game/MapPartsGimmickLoc_unk.h"
+#include "game/MapInstance_unk.h"
+#include "game/MapPartsLocatorSet.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -23,33 +28,6 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 
 #include "atn/AABB_unk.h"
 
-// inferred: box pair of a locator (0x18 bytes); name invented
-struct RotaryBox_unk {
-    atn::Vector3 mMin;
-    atn::Vector3 mMax;
-};
-// inferred: locator of a part of type 6; name invented
-struct RotaryLocator_unk {
-    unsigned char m00[0x24];
-    unsigned int mHash;     // 0x24
-    RotaryBox_unk* mBoxes;  // 0x28
-    unsigned int mNumBoxes; // 0x2C
-};
-// inferred: part of a map group (as ArenaPart_unk in gmk/ArenaFloor.cpp); a MapPartsBase
-struct RotaryPart_unk {
-    unsigned char m00[0x48];
-    int mType;
-    RotaryPart_unk* mNext;
-    unsigned char m50[0x58 - 0x50];
-    RotaryLocator_unk** mLocators; // 0x58: inferred: type 6
-    unsigned int mNumLocators;     // 0x5C
-    unsigned char m60[0x344 - 0x60];
-    int mObjCount; // 0x344: inferred: objects of a part of type 4
-};
-
-extern "C" void fn_8049994C(RotaryPart_unk* part, const atn::Vector3* pos, const atn::Vector3* rot);
-extern "C" void fn_80499B9C(RotaryPart_unk* part);
-extern "C" void fn_80499C48(RotaryPart_unk* part);
 
 // NONMATCHING (__sinit): 99.94% - only .sdata2 order (fn_80424AD4/fn_80424FB4/fn_80425498 not decompiled).
 // inferred: far away position and the 24 orientations of the room (x, y, z rotations)
@@ -147,13 +125,13 @@ int RotaryRoom::vf0C() {
         m54 = 1;
         if (mGroup != 0) {
             int count = 0;
-            for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+            for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
                 switch (part->mType) {
                 case 0:
                     count++;
                     break;
                 case 4:
-                    count += part->mObjCount;
+                    count += ((MapPartsLocatorSet*)part)->mInstances.mSize;
                     break;
                 case 5:
                     for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
@@ -194,23 +172,25 @@ int RotaryRoom::vf0C() {
                 }
                 }
             }
-            for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+            for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
                 if (part->mType == 6) {
-                    for (unsigned int j = 0; j < part->mNumLocators; j++) {
-                        RotaryLocator_unk* loc = part->mLocators[j];
-                        for (unsigned int k = 0; k < loc->mNumBoxes; k++) {
-                            loc->mBoxes[k].mMin += m6C;
-                            loc->mBoxes[k].mMax += m6C;
+                    MapPartsArea* areas = (MapPartsArea*)part;
+                    for (unsigned int j = 0; j < areas->mAreas.mSize; j++) {
+                        MapArea* area = areas->mAreas.mData[j];
+                        for (unsigned int k = 0; k < area->mSegments.mSize; k++) {
+                            area->mSegments.mData[k].mMin += m6C;
+                            area->mSegments.mData[k].mMax += m6C;
                         }
                     }
                 }
             }
             for (unsigned int i = 0; i < 25; i++) {
                 if (mColli[i].mHash != 0) {
-                    for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+                    for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
                         if (part->mType == 6) {
-                            for (unsigned int j = 0; j < part->mNumLocators; j++) {
-                                if (part->mLocators[j]->mHash == mColli[i].mHash) {
+                            MapPartsArea* areas = (MapPartsArea*)part;
+                            for (unsigned int j = 0; j < areas->mAreas.mSize; j++) {
+                                if (areas->mAreas.mData[j]->mHash == mColli[i].mHash) {
                                     mColli[i].m08 = (int)part;
                                     break;
                                 }
@@ -225,9 +205,9 @@ int RotaryRoom::vf0C() {
             atn::AABB_unk box;
             box.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
             box.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);
-            for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
-                atn::AABB_unk pbox = ((MapPartsBase*)part)->vf24(0);
-                *(atn::AABB_unk*)&box = ((atn::AABB_unk*)&box)->Merge_unk(*(atn::AABB_unk*)&pbox);
+            for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
+                atn::AABB_unk pbox = part->vf24(0);
+                box = box.Merge_unk(pbox);
             }
             mGroup->mBox.mMin = box.mMin;
             mGroup->mBox.mMax = box.mMax;
@@ -282,16 +262,17 @@ void RotaryRoom::vf10() {
 
 void RotaryRoom::fn_80425878(int on) {
     if (on) {
-        for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+        for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
-                fn_8049994C(part, &lbl_807C7030, &mRotOffset);
-                fn_80499B9C(part);
+                MapPartsGimmickLoc* loc = (MapPartsGimmickLoc*)part;
+                loc->fn_8049994C(lbl_807C7030, mRotOffset);
+                loc->fn_80499B9C();
             }
         }
     } else {
-        for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+        for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
-                fn_80499C48(part);
+                ((MapPartsGimmickLoc*)part)->fn_80499C48();
             }
         }
     }

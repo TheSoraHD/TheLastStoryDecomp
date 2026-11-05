@@ -40,6 +40,9 @@ public:
     void fn_80498F14(float value, const atn::Vector3& range);
     void fn_80498F4C();
     void fn_80499388(int value);
+    void fn_8049994C(const atn::Vector3& pos, const atn::Vector3& rot); // inferred: places the gimmicks of the part
+    void fn_80499B9C(); // inferred
+    void fn_80499C48(); // inferred
 
     unsigned char m50[8];
     int m58;

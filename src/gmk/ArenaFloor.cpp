@@ -3,35 +3,16 @@
 #include "atn/Memory.h"
 #include "game/GimmickManager.h"
 #include "game/MapTask.h"
+#include "game/MapInstance_unk.h"
+#include "game/MapPartsGimmickLoc_unk.h"
+#include "game/MapPartsLocatorSet.h"
+#include "game/MapPartsModel.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
-// inferred: object of a part of type 4 (placed by its matrix)
-struct ArenaObj_unk {
-    unsigned char m00[0x30];
-    atn::Matrix3x4 mMtx; // 0x30
-};
-// inferred: object embedded in a part (placed by its matrix)
-struct ArenaPartObj_unk {
-    unsigned char m00[0x8];
-    atn::Matrix3x4 mMtx; // 0x58 in the part
-};
-// inferred: map part of the group (type at 0x48, next at 0x4C)
-struct ArenaPart_unk {
-    unsigned char m00[0x48];
-    int mType;
-    ArenaPart_unk* mNext;
-    ArenaPartObj_unk m50;
-    unsigned char m88[0x344 - 0x88];
-    int mObjCount;          // 0x344: inferred: objects of a part of type 4
-    ArenaObj_unk** mObjs;   // 0x348
-};
-extern "C" void fn_80499B9C(ArenaPart_unk* part);
-extern "C" void fn_80499C48(ArenaPart_unk* part);
 
-extern "C" void fn_8049994C(ArenaPart_unk* part, atn::Vector3* pos, atn::Vector3* rot); // inferred: places the gimmicks of a part
 struct Params_unk {
     unsigned char m000[0x3A4];
     float mTimeScale; // 0x3A4
@@ -55,13 +36,13 @@ int ArenaFloor::vf0C() {
         m54 = 5;
         if (mGroup != 0) {
             int count = 0;
-            for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+            for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
                 switch (part->mType) {
                 case 0:
                     count++;
                     break;
                 case 4:
-                    count += part->mObjCount;
+                    count += ((MapPartsLocatorSet*)part)->mInstances.mSize;
                     break;
                 case 5:
                     for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
@@ -74,27 +55,27 @@ int ArenaFloor::vf0C() {
             }
             mEntries.Resize_unk(count, 0);
             int n = 0;
-            for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+            for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
                 switch (part->mType) {
                 case 0: {
                     Entry_unk& e = mEntries.mData[n++];
                     e.mType = part->mType;
-                    e.mObject = &part->m50;
-                    e.mPos = part->m50.mMtx.GetTrans_unk() + m6C;
+                    e.mObject = &((MapPartsModel*)part)->mModel;
+                    e.mPos = ((MapPartsModel*)part)->mModel.mMtx.GetTrans_unk() + m6C;
                     break;
                 }
                 case 4:
-                    for (int i = 0; i < part->mObjCount; i++) {
-                        ArenaObj_unk* obj = part->mObjs[i];
+                    for (int i = 0; i < ((MapPartsLocatorSet*)part)->mInstances.mSize; i++) {
+                        MapInstance_unk* obj = ((MapPartsLocatorSet*)part)->mInstances[i];
                         Entry_unk& e = mEntries.mData[n];
                         n++;
                         e.mType = part->mType;
                         e.mObject = obj;
-                        e.mPos = obj->mMtx.GetTrans_unk() + m6C;
+                        e.mPos = obj->mInst.mMtx.GetTrans_unk() + m6C;
                     }
                     break;
                 case 5:
-                    fn_8049994C(part, &m6C, &m78);
+                    ((MapPartsGimmickLoc*)part)->fn_8049994C(m6C, m78);
                     for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                         if (g->m20 == part) {
                             Entry_unk& e = mEntries.mData[n++];
@@ -154,15 +135,15 @@ void ArenaFloor::vf10() {
 
 __declspec(noinline) void ArenaFloor::fn_8041E7E4(int on) {
     if (on) {
-        for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+        for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
-                fn_80499B9C(part);
+                ((MapPartsGimmickLoc*)part)->fn_80499B9C();
             }
         }
     } else {
-        for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
+        for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
-                fn_80499C48(part);
+                ((MapPartsGimmickLoc*)part)->fn_80499C48();
             }
         }
     }
