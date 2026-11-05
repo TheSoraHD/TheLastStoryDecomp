@@ -1257,13 +1257,13 @@ void Manager::fn_804816F4() {
         m1A80->mFrame = 0.0f;
         m1A80->mSpeed = 1.0f;
         m1A80->MeltTask();
-        DamageParam_unk damage = lbl_8087EFA8->m374;
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
         damage.mEnabled = 1;
         damage.mAngle = 0.0f;
         damage.mColor.Set_unk(0.7f, 0.9f, 0.95f, 1.0f);
         damage.mScale = -2.0f;
         damage.mZoom = 0.05f;
-        DamageParam_unk result = damage;
+        DamageEffectParam_unk result = damage;
         lbl_8087EFA8->m374 = result;
     }
 }
@@ -1284,7 +1284,7 @@ void Manager::fn_80481800(int on) {
 
 void Manager::fn_80481818() {
     if (m1A88 == 1) {
-        DamageParam_unk damage = lbl_8087EFA8->m374;
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
         if (damage.mEnabled == 0) {
             m1A88 = 0;
         } else {
@@ -1312,7 +1312,7 @@ void Manager::fn_80481818() {
 void Manager::fn_80481A20() {
     if (m1A88 == 2) {
         float t = m70->m198 - m1A84;
-        DamageParam_unk damage = lbl_8087EFA8->m374;
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
         if (damage.mEnabled == 0) {
             m1A88 = 0;
         } else {
@@ -1322,7 +1322,7 @@ void Manager::fn_80481A20() {
                 m1A88 = 0;
                 damage.mEnabled = 0;
             }
-            DamageParam_unk result = damage;
+            DamageEffectParam_unk result = damage;
             RenderSetting_unk* rs = lbl_8087EFA8;
             rs->m374 = result;
         }
@@ -1480,7 +1480,7 @@ void Manager::fn_80482ED8() {
         m1AB0.mB4 = rs->m100;
         m1AB0.mB8 = rs->m240;
         m1AB0.mDC = rs->m374;
-        rs->m374 = DamageParam_unk();
+        rs->m374 = DamageEffectParam_unk();
         m1AB0.m100 = rs->m2AC;
         m1BD0.Get_unk(fn_800C16B4(view));
         m1AB0.m110.clear();
@@ -1533,7 +1533,7 @@ void Manager::fn_80483714(int a, int b) {
     rs->m0F8 = m1AB0.mAC;
     rs->m0FC = m1AB0.mB0;
     rs->m100 = m1AB0.mB4;
-    DamageParam_unk damage = m1AB0.mDC;
+    DamageEffectParam_unk damage = m1AB0.mDC;
     rs->m374 = damage;
     rs->m2AC = m1AB0.m100;
     m1AB0.m01 = 0;

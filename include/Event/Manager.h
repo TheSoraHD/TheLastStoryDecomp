@@ -134,7 +134,7 @@ struct EventConfig_unk {
     float mB0;
     float mB4;
     MotionBlurParam_unk mB8; // inferred: motion blur of the event (restored by fn_8047FCC0)
-    DamageParam_unk mDC;     // inferred: damage effect of the render settings (+ 0x374)
+    DamageEffectParam_unk mDC;     // inferred: damage effect of the render settings (+ 0x374)
     RainParam_unk m100;      // inferred: rain of the render settings (+ 0x2AC)
     std::vector<SceneSettingEntry_unk> m110; // inferred: light settings of the map
     void* m11C; // inferred: light of the render scene (NewCampScene2_unk::m074, fn_80482ED8)

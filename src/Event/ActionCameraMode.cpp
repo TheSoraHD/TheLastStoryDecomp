@@ -285,7 +285,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             arg->m38 = 0;
             break;
         case 4: {
-            DamageParam_unk damage;
+            DamageEffectParam_unk damage;
             damage.mEnabled = 1;
             unsigned int c = arg->GetParam_unk(1)->m04.i;
             damage.mColor = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
@@ -293,7 +293,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             damage.mAngle = arg->GetParam_unk(2)->m04.f;
             damage.mScale = arg->GetParam_unk(3)->m04.f;
             damage.mZoom = MIN(MAX(arg->GetParam_unk(4)->m04.f, -1.0f), 0.05f);
-            DamageParam_unk result = damage;
+            DamageEffectParam_unk result = damage;
             lbl_8087EFA8->m374 = result;
             break;
         }
@@ -363,8 +363,8 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             lbl_8087F540->m1DC0 = lbl_8087EFA8->m240;
             break;
         case 4:
-            DamageParam_unk damage;
-            DamageParam_unk result = damage;
+            DamageEffectParam_unk damage;
+            DamageEffectParam_unk result = damage;
             lbl_8087EFA8->m374 = result;
             break;
         case 7: {
@@ -410,8 +410,8 @@ inline float FadeRate_unk(Action* arg, float now, int start, int end) {
 }
 
 // inferred: damage effect of the parameters of `arg` (zoom faded in and out)
-inline DamageParam_unk GetDamage_unk(Action* arg, float now, int start, int end) {
-    DamageParam_unk damage;
+inline DamageEffectParam_unk GetDamage_unk(Action* arg, float now, int start, int end) {
+    DamageEffectParam_unk damage;
     damage.mEnabled = 1;
     unsigned int c = arg->GetParam_unk(1)->m04.i;
     damage.mColor = RsColor_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
@@ -422,7 +422,7 @@ inline DamageParam_unk GetDamage_unk(Action* arg, float now, int start, int end)
     float wide = arg->GetParam_unk(4)->m04.f;
     float zoom = rate * (1.0f + wide);
     damage.mZoom = MIN(MAX(zoom - 1.0f, -1.0f), 0.05f);
-    DamageParam_unk result = damage;
+    DamageEffectParam_unk result = damage;
     return result;
 }
 

@@ -70,9 +70,9 @@ struct BloomParam_unk {
 };
 
 
-// inferred: damage post effect parameters
-struct DamageParam_unk {
-    DamageParam_unk() : mEnabled(0), mDebug(0), mColor(1.0f, 1.0f, 1.0f, 1.0f), mAngle(0.0f), mScale(0.0f), mZoom(0.0f) {}
+// inferred: damage post effect parameters (not DamageParam_unk of game/DamageCalc_unk.h)
+struct DamageEffectParam_unk {
+    DamageEffectParam_unk() : mEnabled(0), mDebug(0), mColor(1.0f, 1.0f, 1.0f, 1.0f), mAngle(0.0f), mScale(0.0f), mZoom(0.0f) {}
     int mEnabled;        // 0x00
     int mDebug;          // 0x04
     RsColor_unk mColor;  // 0x08: Color
@@ -196,7 +196,7 @@ public:
     int m31C;                 // View Mask
     int m320;                 // View Mask Full
     ColorMatrixParam_unk m324; // ColorMatrix
-    DamageParam_unk m374;     // Damage
+    DamageEffectParam_unk m374;     // Damage
     int m398;                 // Deferred
     int m39C;                 // DeferredSort
     int m3A0;                 // Material Delta

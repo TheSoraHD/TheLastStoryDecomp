@@ -23,12 +23,7 @@ struct MapPartsAreaRain_unk {
     atn::Rain mRain;
 };
 
-// inferred: constructor-only local declaration; the complete scene type is private to CharaLightData_unk.cpp.
-struct NewCampScene2_unk {
-    unsigned char m00[0x2B4];
-    NewCampScene2_unk();
-};
-
+// inferred: probably MapArea itself (game/MapManager.h: same scene at 0x4C; constructor 0x80494964)
 struct MapPartsAreaInit_unk {
     unsigned char m00[0x28];
     int m28;
