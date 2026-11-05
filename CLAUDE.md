@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `manager-20261104` (2026-11-05, mergeada en `main`): **12679 / 18119** en `report.json`, lost 0. Event/Manager 33 -> 131/185 (orden del `.dol`, sin fuera de orden): ajustes de luz, callbacks de `MapArea`, vf0C/vf10/vf14, voces, curvas, pelicula, AutoLightFix, staff roll; `atn::Light`, `atn::Color`, `lbl_8087EFB4` = `atn::RenderView_unk` (22 unidades), Dialog con los tipos reales. Notas: `docs/manager-20261104.md`.
-- `event100-20261104` (mergeada en `main`): 12577. ActionActorBehavior 9/14, vistas del gestor y de la secuencia unificadas (`docs/event100-20261104.md`); `nuevas-20261103` 12564 (`docs/nuevas-20261103.md`).
+- `renderview-20261105` (2026-11-05, sin mergear): **12684 / 18119** en `report.json`, lost 0, sin bajadas. `lbl_8087EFB4` es `atn::RenderManager::instance_` (nombre del RSO; `include/atn/RenderManager.h`, disposicion completa) en todas las unidades; metodos de RenderSystem_unk como miembros (`AddRender`, `GetScreenPosition`...); `atn::Sphere` con copia implicita. Notas: `docs/renderview-20261105.md`.
+- `manager-20261104` (mergeada en `main`): 12679. Event/Manager 33 -> 131/185; `atn::Light`, `atn::Color` (`docs/manager-20261104.md`); `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).

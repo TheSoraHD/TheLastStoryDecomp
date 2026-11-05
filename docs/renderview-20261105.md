@@ -44,6 +44,13 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 
 ## Resultado
 
+**Final:** `report.json` 12679 -> 12684 (lost 0, sin bajadas de fuzzy); en las 95 unidades tocadas, 1978 ->
+1992 funciones al 100% en `objdiff-cli` (ninguna baja): GimmickCommon x7 (enlazada), RenderManager x5
+(`AddRender`, `fn_800BD9C0`, `fn_800C0590`, `fn_800C122C`, `fn_800C1424`), LayerPostFx y LayerPost3D
+(constructores). labelcheck 204 -> 188 lineas, rep100 145 -> 145. Ninguna unidad ve ya `instance_` con un
+tipo propio; quedan casts a vistas de la escena y de las capas (Pendientes). `main.dol: OK` en build
+limpio.
+
 - Tanda 1 (29 unidades de solo camara): sin bajadas tras `pdbatch.sh`; labelcheck 204 -> 194.
 - Tanda 2 (metodos): 25 funciones `extern "C"` de atn/RenderSystem_unk.cpp pasadas a miembros (y el
   constructor 0x800BC874 como constructor real), mas `SetMapHit_unk` (MapManager) y los setters
@@ -88,7 +95,7 @@ Ninguno.
 
 - `Plane_unk` estaba definida en `atn/Camera_unk.h` y en `gmk/WaterLevel.h`: movida a
   `include/atn/Plane_unk.h` (las dos la incluyen).
-- `RenderView_unk.h` incluye `std/string.h` (fn_800BD9C0 recibe un `std::string`), `boost/function.hpp`,
+- `RenderManager.h` incluye `std/string.h` (fn_800BD9C0 recibe un `std::string`), `boost/function.hpp`,
   `atn/Texture_unk.h`, `atn/Color.h` y `atn/DrawCmd_unk.h`.
 - `DrawCmd_unk` / `DrawQueue_unk::push_back`: declarados en la cabecera, definidos en
   `atn/ModelDraw_unk.cpp` (su unico usuario); el constructor por defecto, en RenderSystem_unk.
@@ -107,9 +114,8 @@ Ninguno.
   (GameUI 0x80885DE4/0x80885E68): sale un `@N` repetido. Se arregla sumando a mano el desfase de la
   renumeracion a todas las etiquetas del rango.
 
-- fn_800BFAC8 (proyeccion a pantalla) no es un miembro que devuelve `Vector3` por valor: compila igual
-  (NRVO), pero los llamadores declaran el resultado antes y pasan su direccion; con
-  `screen = view->fn(...)` sale un temporal y una copia. Se deja libre con la vista como 2o parametro.
+- fn_800BFAC8 (`GetScreenPosition`) compila igual como miembro que devuelve `Vector3` por valor (NRVO);
+  los llamadores tienen que inicializar la variable en la llamada (ver el primer hallazgo).
 - fn_800C0900 si devuelve `Matrix3x4` por valor (ModelDraw recibe el resultado en su variable).
 - La esfera que recibe fn_800C122C por valor se copia en el llamador con copia miembro a miembro
   (centro con psq y luego radio), no con el constructor de copia de `atn::Sphere` (z primero): en
@@ -129,9 +135,17 @@ Ninguno.
   convierten con un cast marcado `// pending: view of the scene`: `RainOverride_unk`,
   `GodRayOverride_unk`, `ColorMatrixOwner_unk` (PostFx), `ShadowLight_unk` (LayerShadow),
   `ScreenInfo_unk` (CharaTask, ColliAttrManager, WaterLevel, AutomaticDoor), `Lens_unk` (CharaTask),
-  `InstLens_unk` (ModelInstance), `DrawLens_unk` (ModelDraw_unk). Unificarlas es la propuesta 5.
+  `InstLens_unk` (ModelInstance), `DrawLens_unk` (ModelDraw_unk), `RenderScene_unk` (GraphicsDevice),
+  `TownLightParam_unk` (TownTask, una `atn::Light`). Unificarlas es la propuesta 5.
+- `RenderTextures_unk` de GraphicsDevice es una vista de `LayerShadow` (`mLayers[3]`): cast.
+- RenderManager sin terminar: constructor 81%, fn_800BDBC8 73%, fn_800BFCB4 80%, fn_800BC468 88%,
+  fn_800BFB70 90%, fn_800BFC18 99.5% (orden de los temporales de los cuatro colores), fn_800C06B0 96%,
+  fn_800BC618 98% (desenrollado x2 del original); ordenaciones 0x800BECF0-0x800BF9C4 (la STL del
+  proyecto es un esbozo). `m894`..`m8AC` son una `atn::FogSettings` (no cambiado: obliga a incluir su
+  cabecera en RenderManager.h).
 - `DrawPass_unk` de ModelDraw_unk es una vista de las capas (`mLayers`, LayerShadow en 3): cast.
 - Copias locales de `atn::IRender` (PostFx.h, TextureComposite, VideoTHP, Rain...) con `vf10(void*)`:
-  `RenderView_unk.h` ya no incluye `atn/IRender.h` (solo lo declara) para no chocar con ellas.
+  `RenderManager.h` no incluye `atn/IRender.h` (solo lo declara) para no chocar con ellas. Unificarlas
+  choca con el nombre `vf0C`/`GetRenderType_unk` de 0x80046218 en las vtables (HomeButtonMenu esta enlazada).
 - Funciones del frustum (`fn_8004FF58`, `fn_800502A8`...) son `extern "C"` con `Frustum_unk*`: los
   llamadores que las declaraban con `void*` ahora hacen cast.
