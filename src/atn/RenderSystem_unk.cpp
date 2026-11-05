@@ -202,29 +202,31 @@ extern "C" void fn_800BC798();
 extern "C" int fn_800B5994(void* value, const void* bounds);
 extern "C" float fn_800B6218(void* value, const void* bounds);
 
+// inferred: clamp with the bounds passed by reference (each bound is read twice; name invented)
+static inline int ClampRef_unk(int value, const int& lo, const int& hi) {
+    return value < lo ? lo : (value > hi ? hi : value);
+}
+
 void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
-    // NONMATCHING: 80.88% - the reference unrolls the tiled gradient loop two pixels at a time.
-    unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
+    // inferred: 256x1 I8 ramp texture (4 rows of each 8x4 tile written)
+    // NONMATCHING: 87.64% - the original computes the tile offset before the clamp and keeps the size in r30
     unsigned char* image;
-    if (*(void**)((unsigned char*)this + 0x550) == 0) {
-        image = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "",
-                                             "", 0, 0);
+    unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
+    if (m550 == 0) {
+        image = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0,
+                                                                            0);
     } else {
-        image = (unsigned char*)*(void**)((unsigned char*)this + 0x550);
+        image = (unsigned char*)m550;
     }
 
     for (int i = 0; i < 256; ++i) {
         int value = (i - 128) * 4;
-        if (value < lbl_8087D8F8) {
-            value = lbl_8087D8F8;
-        } else if (value > lbl_8087D8FC) {
-            value = lbl_8087D8FC;
-        }
-        int offset = (i & 7) + ((i & 0x7C) << 2);
-        image[offset] = (unsigned char)value;
-        image[offset + 8] = (unsigned char)value;
-        image[offset + 16] = (unsigned char)value;
-        image[offset + 24] = (unsigned char)value;
+        unsigned char c = ClampRef_unk(value, lbl_8087D8F8, lbl_8087D8FC);
+        unsigned char* p = image + (i >> 3) * 32 + (i & 7);
+        p[0] = c;
+        p[8] = c;
+        p[16] = c;
+        p[24] = c;
     }
 
     GXInitTexObj(tex, image, 256, 1, 1, 0, 1, 0);
@@ -409,14 +411,13 @@ atn::RenderManager::FrameCallbackEntry::FrameCallbackEntry(boost::function<void(
     : mFunc(func), mArg(arg) {}
 
 void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name) {
-    // NONMATCHING: 93.59% - temporary texture setup still differs in register allocation.
-    const char* file = "";
+    // inferred: allocates the draw queue buffer and the frame buffer, depth and light textures
     {
         MemoryMode_unk mode(0, 0x20);
-        *(int*)((unsigned char*)this + 0xF4) = queueCapacity;
-        *(void**)((unsigned char*)this + 0xF0) =
-            ::operator new[](queueCapacity, (MemoryTag)6, (const char*)&lbl_8087D72C,
-                               (const char*)&lbl_8087D728, 0);
+        mQueueCapacity = queueCapacity;
+        mQueueBuffer = (unsigned char*)::operator new[](queueCapacity, (MemoryTag)6,
+                                                         (const char*)&lbl_8087D72C,
+                                                         (const char*)&lbl_8087D728, 0);
     }
     fn_800C5644();
     fn_8007A100();
@@ -424,21 +425,13 @@ void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name)
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     unsigned int size = GXGetTexBufferSize((unsigned short)width, (unsigned short)height, 0x13, 0, 0);
-    void* depth = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "",
-                              "", 0, 0);
-    *(void**)((unsigned char*)this + 0x79C) = depth;
-    ((atn::Texture_unk*)((unsigned char*)this + 0x74C))
-        ->fn_800D5B58(width, height, 6, 1, "FrameBuffer");
-    GXInitTexObjLOD((GXTexObj*)((unsigned char*)this + 0x74C), 1, 1, 0.0f, 0.0f,
-                    0.0f, 0, 0, 0);
+    m79C = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "", "", 0, 0);
+    m74C.fn_800D5B58(width, height, 6, 1, "FrameBuffer");
+    GXInitTexObjLOD(&m74C.mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     fn_800BC468(&m530);
-    fn_800BC618(&m50C,
-                *(int*)((unsigned char*)lbl_8087EFA8 + 0x154));
-    GXInitTexObj((GXTexObj*)((unsigned char*)this + 0x77C),
-                 *(void**)((unsigned char*)this + 0x79C), (unsigned short)width,
-                 (unsigned short)height, 3, 0, 0, 0);
-    GXInitTexObjLOD((GXTexObj*)((unsigned char*)this + 0x77C), 0, 0, 0.0f, 0.0f,
-                    0.0f, 0, 0, 0);
+    fn_800BC618(&m50C, *(int*)((unsigned char*)lbl_8087EFA8 + 0x154));
+    GXInitTexObj(&m77C, m79C, (unsigned short)width, (unsigned short)height, 3, 0, 0, 0);
+    GXInitTexObjLOD(&m77C, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 }
 
 void atn::RenderManager::fn_800BDB40(NewCampScene2_unk* scene) {

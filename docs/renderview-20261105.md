@@ -55,7 +55,8 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 
 - Funciones de RenderManager (atn/RenderSystem_unk.cpp) con los miembros reales: `AddRender` (asignaciones
   sobre una reserva del buffer de cola `AllocQueue_unk`, entrada `RenderEntry_unk` de 0x10),
-  `fn_800C0590`, `fn_800C122C`, `fn_800C1424` al 100%: RenderSystem_unk 15 -> 19/37.
+  `fn_800C0590`, `fn_800C122C`, `fn_800C1424`, `fn_800BD9C0` al 100%: RenderSystem_unk 15 -> 20/37; fn_800BC468
+  81 -> 88 (rampa I8 en mosaicos 8x4 con un clamp que lee dos veces cada limite).
 - `atn::Sphere` sin constructor de copia propio (copia implicita): sube fn_800C122C a 100, y
   MapManager fn_80491D50/fn_80491DF8 71 -> 78, DrawEntry_unk ctor 88 -> 90; sin bajadas en `report.json`
   (307 unidades la incluyen). El `@enum$` de ControlAppear pasa a 6741.
