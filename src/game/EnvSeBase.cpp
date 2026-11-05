@@ -37,7 +37,6 @@ struct EnvSeConfig_unk {
 extern "C" EnvSeConfig_unk* lbl_8087F0A8;
 
 // inferred: debug drawing and camera
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 
 // inferred: debug menu entries
 typedef void (*EnvSeMenuCallback_unk)(void* arg);

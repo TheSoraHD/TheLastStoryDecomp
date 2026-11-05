@@ -63,6 +63,7 @@
 #include "macros.h"
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -131,13 +132,6 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
-// inferred: camera eye and target (field camera at lbl_8087F430+0x260, default camera at
-// lbl_8087EFB4+0x104; the eye is the camera position used in Banana.cpp)
-struct View_unk {
-    unsigned char m00[8];
-    atn::Vector3 mEye;    // 0x08
-    atn::Vector3 mTarget; // 0x14
-};
 
 // inferred: line segment passed to fn_80050A1C
 struct Segment_unk {
@@ -162,8 +156,8 @@ struct Field_unk {
     int m4C;
     int m50;
     unsigned char m54[0x260 - 0x54];
-    View_unk m260;
-    unsigned char m280[0x868 - 0x280];
+    atn::Camera m260; // inferred: camera of the field
+    unsigned char m454[0x868 - 0x454];
     int m868; // inferred: mode (3, 4 and 6 are tested by CharaTask::fn_80149A30)
     int m86C;
     unsigned char m870[0x10D8 - 0x870];
@@ -181,29 +175,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 
-// inferred: camera (the global one is lbl_8087EFB4; a model owns one through atn::Model::m208);
-// 0x1F4 bytes, the eye (0x10C) is the camera position
-struct Camera_unk {
-    Camera_unk(int a = 0, int b = 0);
-    ~Camera_unk();
-    void fn_8004B378(); // inferred: updates the matrices (as in atn/LH_Scene.cpp)
-    // inferred: fields 0x00-0x54 named as in atn/LH_Scene.cpp
-    int mType;          // 0x00
-    int mFovType;       // 0x04
-    atn::Vector3 mPos;    // 0x08
-    atn::Vector3 mTarget; // 0x14
-    atn::Vector3 mUp;     // 0x20: inferred: set to (0, 1, 0) by CharaTask::fn_80144F4C
-    atn::Vector3 mDir;    // 0x2C
-    float m38;
-    float m3C; // inferred: projection bounds (orthographic camera of fn_80144F4C)
-    float m40;
-    float m44;
-    float m48;
-    unsigned char m4C[0x104 - 0x4C];
-    View_unk m104;
-    unsigned char m124[0x1F4 - 0x124];
-};
-extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 
@@ -361,7 +332,6 @@ inline int GetModelHeap_unk(atn::Task* parent, int id) {
 }
 
 // inferred: projection of a point to the screen (as in GimmickCommon.cpp)
-extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 // inferred: name invented
 inline float LengthSq_unk(const atn::Vector3& v) {
@@ -2618,7 +2588,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
         if (mFlag12) {
             check = 0;
         }
-        float dist = LengthSq_unk(lbl_8087EFB4->m104.mEye - mPos);
+        float dist = LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos);
         if (dist > 202500.0f) {
             check = 0;
         } else if (dist > 40000.0f && (mId + m1390) % 2 != 0) {
@@ -3033,7 +3003,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
         vel.y = -6.0f;
     }
     bool updateRot = true;
-    if (LengthSq_unk(lbl_8087EFB4->m104.mEye - mPos) < 202500.0f) {
+    if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos) < 202500.0f) {
         CollResult_unk result;
         atn::Vector3 start(pos);
         Sphere_unk sphere = fn_80176548(pos);
@@ -3400,7 +3370,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
     if (vel.y < -6.0f) {
         vel.y = -6.0f;
     }
-    if (LengthSq_unk(lbl_8087EFB4->m104.mEye - mPos) < 202500.0f) {
+    if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos) < 202500.0f) {
         if (m610 > 4) {
             atn::Vector3 to(pos);
             atn::Vector3 from(pos);
@@ -3746,7 +3716,7 @@ void CharaTask::vf24() {
     if (IsPartyMember_unk() || lbl_8087FA20 != 0) {
         dist = lbl_8087EFA8->m21C;
     }
-    if (LengthSq_unk(lbl_8087EFB4->m104.mEye - mPos) > dist * dist) {
+    if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos) > dist * dist) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {
@@ -3819,14 +3789,6 @@ void CharaTask::fn_801446F0() {
     m584 = 0.0f;
 }
 
-// inferred: camera parameter passed to fn_80095F10 (same block at DialogHead+0x1620; this file keeps its
-// own Camera_unk, so the type of atn/Camera_unk.h is not used here); name invented
-struct ModelCameraParam_unk {
-    ModelCameraParam_unk() : m00(0) {}
-    int m00;
-    void* m04;
-    Camera_unk mCamera;
-};
 // inferred: applies a camera to a model (also called by DialogHead)
 extern "C" void fn_80095F10(void* model, ModelCameraParam_unk* param);
 
@@ -3971,10 +3933,10 @@ void CharaTask::fn_80144F4C(int a, void* b, float y0, float y1) {
     camera.mUp.Set_unk(0.0f, 1.0f, 0.0f);
     camera.mPos.Set_unk(0.0f, center, -100.0f);
     camera.mTarget.Set_unk(0.0f, center, 0.0f);
-    camera.m3C = y0 - y1;
-    camera.m40 = 0.0f;
-    camera.m44 = -10.0f;
-    camera.m48 = 10.0f;
+    camera.mTop = y0 - y1;
+    camera.mBottom = 0.0f;
+    camera.mLeft = -10.0f;
+    camera.mRight = 10.0f;
     camera.fn_8004B378();
     ModelCameraParam_unk param;
     param.mCamera = camera;
@@ -4345,7 +4307,7 @@ void CharaTask::fn_80145334() {
         nodeRot.fn_80139F60();
     }
     bool update = true;
-    float distSq = __LengthSq_unk(lbl_8087EFB4->m104.mEye - mPos);
+    float distSq = __LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos);
     bool far = !mFlagB3 && (IsPartyMember_unk() || __IsPartless_unk(this) || __IsEventView_unk());
     if (lbl_8087F430 != 0 && lbl_8087F430->m56D4 == this) {
         far = false;
@@ -5234,7 +5196,7 @@ inline bool IsArenaWaiting_unk(Arena_unk* arena) {
 // Tried: bool/int/ternary forms of the tests, inline helpers, declaration orders.
 void CharaTask::fn_80149A30() {
     if (lbl_8087F0A8->m20 != 0 && (m54C & 8) != 8 && !mFlagB9) {
-        float dist = LengthSq_unk(lbl_8087EFB4->m104.mEye - mPos);
+        float dist = LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos);
         if (m55C != 8) {
             mMotion.mAC = 1.0f;
             if ((IsPartyMember_unk() || lbl_8087FA20 != 0) && dist > 360000.0f) {
@@ -5253,7 +5215,7 @@ void CharaTask::fn_80149A30() {
                 fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
                 float hdist = 0.0f;
                 if (!(screen.z < 0.0f)) {
-                    hdist = GetLengthXZSq_unk(lbl_8087EFB4->m104.mEye - pos);
+                    hdist = GetLengthXZSq_unk(lbl_8087EFB4->mCamera.mPos - pos);
                 }
 
                 if (mType == 0) {
@@ -5268,7 +5230,7 @@ void CharaTask::fn_80149A30() {
                         }
                     }
                     if (check) {
-                        atn::Vector3 cam = lbl_8087EFB4->m104.mEye;
+                        atn::Vector3 cam = lbl_8087EFB4->mCamera.mPos;
                         MtxPtr head = mMotion.GetNodeMtx_unk("head");
                         MtxPtr neck = mMotion.GetNodeMtx_unk("neck");
                         MtxPtr hips = mMotion.GetNodeMtx_unk("hips");
@@ -5307,7 +5269,7 @@ void CharaTask::fn_80149A30() {
                             }
                         }
                     }
-                } else if (mFlag22 != 1 && hdist < 25.0f && lbl_8087EFB4->m104.mEye.y - pos.y < 20.0f) {
+                } else if (mFlag22 != 1 && hdist < 25.0f && lbl_8087EFB4->mCamera.mPos.y - pos.y < 20.0f) {
                     return;
                 }
             }
@@ -5889,17 +5851,11 @@ struct Lens_unk {
     float m15C;
     float m160;
 };
-// inferred: the global camera seen with its lens pointer at 0x2FC
-struct CameraLens_unk {
-    unsigned char m000[0x2FC];
-    Lens_unk* m2FC;
-};
-// inferred: result of fn_800C122C (screen data of a sphere); m2C..m38 is a color
+// inferred: result of (screen data of a sphere)->fn_800C122C(); m2C..m38 is a color
 struct ScreenInfo_unk {
     unsigned char m00[0x2C];
     float mColor[4];
 };
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC)
 struct CharaListNode_unk {
@@ -5912,7 +5868,7 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
 
 // inferred: names invented
 inline Lens_unk* CharaTask::GetLens_unk() {
-    return (mMotion.m1DC == 0) ? ((CameraLens_unk*)lbl_8087EFB4)->m2FC : mMotion.m1DC;
+    return (mMotion.m1DC == 0) ? (Lens_unk*)lbl_8087EFB4->mScene /* pending: view of the scene */ : mMotion.m1DC;
 }
 
 // inferred: matrix of the emote above the head: translation to the head then the rotation
@@ -6111,9 +6067,8 @@ void CharaTask::fn_8014C540() {
         }
     } else if (emote) {
         SetEmoteMtx_unk();
-        Camera_unk* camera = lbl_8087EFB4;
-        atn::Model::Sphere_unk sphere = mMotion.fn_80094F98();
-        ScreenInfo_unk* info = fn_800C122C(camera, &sphere);
+        atn::RenderView_unk* camera = lbl_8087EFB4;
+        ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mMotion.fn_80094F98()); // pending: view of the scene
         float color[4];
         color[0] = info->mColor[0];
         color[1] = info->mColor[1];
@@ -12392,17 +12347,17 @@ int CharaTask::fn_8017C9A0() {
 // (target: target-eye lowest, then dir*5, dir*800, eye+dir*800); tried: named far/eye, +=,
 // Assign_unk, Segment_unk constructor, declaration orders.
 atn::Vector3 fn_8017C9AC(CharaTask* chara) {
-    View_unk* view;
+    atn::Camera* view;
     if (lbl_8087F430 != 0) {
         view = &lbl_8087F430->m260;
     } else {
-        view = &lbl_8087EFB4->m104;
+        view = &lbl_8087EFB4->mCamera;
     }
     Segment_unk seg;
     atn::Vector3 dir;
-    dir = view->mTarget - view->mEye;
+    dir = view->mTarget - view->mPos;
     PSVECNormalize(&dir, &dir);
-    atn::Vector3 eye = view->mEye;
+    atn::Vector3 eye = view->mPos;
     seg.mStart = eye;
     seg.mEnd = eye + dir * 800.0f;
     atn::Vector3 result;

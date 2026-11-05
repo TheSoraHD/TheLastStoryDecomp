@@ -6,6 +6,7 @@
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -26,8 +27,6 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4); name invented (as in game/CharaTask.cpp)
 struct MsgTable_unk {

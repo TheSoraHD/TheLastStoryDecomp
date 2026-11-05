@@ -16,13 +16,8 @@
 #include <boost/function.hpp>
 #include <new>
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
-struct RenderCallback_unk {
-    RenderCallback_unk(boost::function<void(void*)> func, int arg);
-
-    boost::function<void(void*)> mFunc;
-    int mArg;
-};
 
 struct MemoryMode_unk {
     MemoryMode_unk(int mode, unsigned long align);
@@ -39,9 +34,8 @@ extern "C" int lbl_8087D904;
 extern "C" float lbl_8087D908;
 extern "C" float lbl_8087D90C;
 extern "C" unsigned char lbl_8087D81C[];
-extern "C" int lbl_8087EFB8;
+extern "C" NewCampScene2_unk* lbl_8087EFB8; // inferred: default scene
 extern "C" void* lbl_8087EFA8;
-extern "C" void* lbl_8087EFB4;
 extern "C" void* lbl_8087EF8C;
 
 extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short width,
@@ -114,10 +108,8 @@ extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg
 extern "C" void fn_800C2E30(void* scene, void* menu);
 extern "C" Light_unk* fn_800C2448(void* scene, int index);
 
-extern "C" void* fn_800BC874(void* renderSystem);
 void fn_800C5644();
 extern "C" void fn_8007A100();
-extern "C" void fn_800BC618(void* renderSystem, GXTexObj* texture, int offset);
 extern "C" int lbl_8087D72C;
 extern "C" int lbl_8087D728;
 extern "C" void* lbl_8087EEE0;
@@ -128,26 +120,10 @@ namespace atn {
 class Scene;
 } // namespace atn
 
-typedef boost::function<atn::Scene*(atn::Sphere, void*)> RenderSceneCallback_unk;
-
-struct RenderSceneCallbackOwner_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 m10C;
-    atn::Vector3 m118;
-    unsigned char m124[0x2FC - 0x124];
-    atn::Scene* m2FC;
-    RenderSceneCallback_unk m300;
-    void* m314;
-    unsigned char m318[0x54964 - 0x318];
-    int m54964; // inferred: selects the camera position used by fn_800C1424
-};
-extern "C" atn::Scene* fn_800C122C(RenderSceneCallbackOwner_unk* render, atn::Sphere sphere);
-extern "C" atn::Scene* fn_800C1424(RenderSceneCallbackOwner_unk* render);
 extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned int height, unsigned int xShift, unsigned int yShift, unsigned int elementSize, unsigned int rowStride, unsigned char* scratch);
 extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned int height, unsigned int xShift, unsigned int yShift, unsigned int elementSize, unsigned int rowStride, unsigned char* scratch);
 extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
 extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
-extern "C" void fn_800BC618(void* render, GXTexObj* texture, int offset);
 
 static inline int fn_800BF_sortBefore(void* left, void* right) {
     float leftOrder = *(float*)((unsigned char*)left + 4);
@@ -209,11 +185,6 @@ static inline unsigned int fn_800BFCB4_colorWord(const float* color) {
            ((unsigned int)fn_800BFCB4_colorByte(color[1]) << 8) |
            (unsigned int)fn_800BFCB4_colorByte(color[2]);
 }
-extern "C" void fn_800BFCB4(void* render, float* c0, float* c1, float* c2, float* c3, unsigned int width, unsigned int height, float a, float b);
-extern "C" void fn_800BFC18(void* render, RenderColor_unk color, float a, float b);
-extern "C" void fn_800C08B0(void* render);
-extern "C" void fn_800C0508(void* render, int clear);
-extern "C" void fn_800C0590(void* render, int clear, int format);
 
 struct RenderQueueEntry_unk {
     void* render;
@@ -226,33 +197,20 @@ struct RenderSystemPassTables_unk {
     RenderQueueEntry_unk* heads[20];
     unsigned int counts[20];
 };
-extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int pass);
-extern "C" void fn_800BDBC8(void* renderSystem);
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos);
 extern "C" void fn_800BC798();
 
 extern "C" int fn_800B5994(void* value, const void* bounds);
 extern "C" float fn_800B6218(void* value, const void* bounds);
-extern "C" void fn_800C06B0(void* render, const void* fog);
-extern "C" int fn_800C0A50(void* renderSystem, const void* bounds);
-extern "C" void* fn_800C0A8C(void* value);
-extern "C" void* fn_800C0A98(void* value);
-extern "C" void fn_800BDB40(void* render, int value);
-extern "C" void fn_800BFAC4();
-extern "C" int fn_800C16B4();
-extern "C" void fn_800C16BC();
-extern "C" float fn_800C169C(void* renderSystem, const void* bounds);
-extern "C" void fn_800C1660(void* render, void* tex, int format);
 
-extern "C" void fn_800BC468(void* render, GXTexObj* tex) {
+void atn::RenderView_unk::fn_800BC468(GXTexObj* tex) {
     // NONMATCHING: 80.88% - the reference unrolls the tiled gradient loop two pixels at a time.
     unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
     unsigned char* image;
-    if (*(void**)((unsigned char*)render + 0x550) == 0) {
+    if (*(void**)((unsigned char*)this + 0x550) == 0) {
         image = (unsigned char*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "",
                                              "", 0, 0);
     } else {
-        image = (unsigned char*)*(void**)((unsigned char*)render + 0x550);
+        image = (unsigned char*)*(void**)((unsigned char*)this + 0x550);
     }
 
     for (int i = 0; i < 256; ++i) {
@@ -274,12 +232,12 @@ extern "C" void fn_800BC468(void* render, GXTexObj* tex) {
     DCFlushRange(image, size);
 }
 
-extern "C" void fn_800BC618(void* render, GXTexObj* texture, int offset) {
+void atn::RenderView_unk::fn_800BC618(GXTexObj* texture, int offset) {
     // NONMATCHING: 97.92% - two clamp branches still differ.
     unsigned short* remap;
     unsigned int size;
     size = GXGetTexBufferSize(256, 256, 3, 0, 0);
-    remap = (unsigned short*)*(void**)((unsigned char*)render + 0x52C);
+    remap = (unsigned short*)*(void**)((unsigned char*)this + 0x52C);
     if (remap == 0) {
         remap = (unsigned short*)atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6,
                                                "",
@@ -303,7 +261,7 @@ extern "C" void fn_800BC618(void* render, GXTexObj* texture, int offset) {
     GXInitTexObj(texture, remap, 256, 256, 3, 0, 1, 0);
     GXInitTexObjLOD(texture, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     DCFlushRange(remap, size);
-    *(void**)((unsigned char*)render + 0x52C) = remap;
+    *(void**)((unsigned char*)this + 0x52C) = remap;
 }
 
 extern "C" void fn_800BC798() {
@@ -323,103 +281,52 @@ extern "C" void fn_800BC798() {
     }
 
     if (lbl_8087EFB4 == 0) {
-        void* renderSystem = ::operator new(0x54968, (MemoryTag)6, "",
-                                                "", 0);
-        if (renderSystem != 0) {
-            renderSystem = fn_800BC874(renderSystem);
-        }
-        lbl_8087EFB4 = renderSystem;
+        lbl_8087EFB4 = new ((MemoryTag)6, "", "", 0) atn::RenderView_unk();
     }
 }
 
-extern "C" void* fn_800BC874(void* renderSystem) {
-    // inferred: initialize render cameras, callbacks, the default scene, and its render layers.
-    // NONMATCHING: 77.52% - render-state validation and additional menu fields remain incomplete;
-    // "3D Outline" and "3D Object" store the Layer3D vtable once more in the original (class unknown).
-    unsigned char* self = (unsigned char*)renderSystem;
-    *(int*)(self + 0xF0) = 0;
-    *(int*)(self + 0xF4) = 0;
-    *(int*)(self + 0xF8) = 0;
-    *(float*)(self + 0xFC) = 0.0f;
-    *(float*)(self + 0x100) = 0.0f;
-    new (self + 0x104) Camera_unk(0, 0);
-    *(int*)(self + 0x2F8) = -1;
-    *(int*)(self + 0x300) = 0;
-    *(int*)(self + 0x314) = 0;
-    new (self + 0x318) Camera_unk(0, 0);
-    *(int*)(self + 0x52C) = 0;
-    *(int*)(self + 0x550) = 0;
-    *(int*)(self + 0x554) = 0;
-    new (self + 0x558) Camera_unk(0, 0);
-    new (self + 0x74C) atn::Texture_unk();
-    *(float*)(self + 0x898) = 150.0f;
-    *(float*)(self + 0x89C) = 500.0f;
-    *(float*)(self + 0x8A0) = 0.5f;
-    *(float*)(self + 0x8A4) = 0.5f;
-    *(float*)(self + 0x8A8) = 0.5f;
-    *(float*)(self + 0x8AC) = 1.0f;
-    *(int*)(self + 0x890) = 0;
-    *(int*)(self + 0x894) = 0;
-    new (self + 0x8B0) RenderCallback_unk(boost::function<void(void*)>(), 0);
-    new (self + 0x8C8) RenderCallback_unk(boost::function<void(void*)>(), 0);
-    new (self + 0x8E0) RenderCallback_unk(boost::function<void(void*)>(), 0);
-    new (self + 0x8F8) RenderCallback_unk(boost::function<void(void*)>(), 0);
-    *(int*)(self + 0x910) = 0;
-    *(int*)(self + 0x958) = 0;
-    *(int*)(self + 0x895C) = 0;
-    *(int*)(self + 0x54960) = 0;
-    *(int*)(self + 0x54964) = 0;
+// inferred: inlined in the constructor of the render system (0x1000 commands)
+inline DrawCmd_unk::DrawCmd_unk() {
+    m04 = 0;
+    m08 = 0;
+    m0C = 0;
+    m10 = 0;
+    m14 = 0;
+    m18 = 0;
+    m1C = 0;
+    m20 = 0;
+    m24.m[0] = 1.0f;
+    m24.m[1] = 1.0f;
+    m24.m[2] = 1.0f;
+    m24.m[3] = 1.0f;
+    m34 = 0;
+    m38 = (void*)lbl_8087D81C;
+    m3C.mFunc1 = 0;
+    m3C.mFunc2 = 0;
+    m3C.mArg1 = 0;
+    m3C.mArg2 = 0;
+    m00 = 0;
+}
 
-    // inferred: 4096 fixed render records, each 0x4C bytes, begin at 0x8960.
-    struct RenderRecord_unk {
-        int field_00;
-        int field_04;
-        int field_08;
-        int field_0C;
-        int field_10;
-        int field_14;
-        int field_18;
-        int field_1C;
-        int field_20;
-        float field_24;
-        float field_28;
-        float field_2C;
-        float field_30;
-        int field_34;
-        const char* name;
-        int field_3C;
-        int field_40;
-        int field_44;
-        int field_48;
-    };
-    RenderRecord_unk* recordsEnd = (RenderRecord_unk*)(self + 0x54960);
-    RenderRecord_unk* records = (RenderRecord_unk*)(self + 0x8960);
-    for (; records != recordsEnd; ++records) {
-        records->field_04 = 0;
-        records->field_08 = 0;
-        records->field_0C = 0;
-        records->field_10 = 0;
-        records->field_14 = 0;
-        records->field_18 = 0;
-        records->field_1C = 0;
-        records->field_20 = 0;
-        records->field_24 = 1.0f;
-        records->field_28 = 1.0f;
-        records->field_2C = 1.0f;
-        records->field_30 = 1.0f;
-        records->field_34 = 0;
-        records->name = (const char*)lbl_8087D81C;
-        records->field_3C = 0;
-        records->field_40 = 0;
-        records->field_44 = 0;
-        records->field_48 = 0;
-        records->field_00 = 0;
-    }
+atn::RenderView_unk::RenderView_unk()
+    : mQueueBuffer(0), mQueueCapacity(0), mQueueUsed(0), m0FC(0.0f), m100(0.0f), mCamera(0, 0), m2F8(-1),
+      mMapHitArg(0), mShadowCamera(0, 0), m52C(0), m550(0), m554(0), m558(0, 0), m890(0), m894(0), m898(150.0f),
+      m89C(500.0f), m8A0(0.5f), m8A4(0.5f), m8A8(0.5f), m8AC(1.0f),
+      m8B0(boost::function<void(void*)>(), 0), m8C8(boost::function<void(void*)>(), 0),
+      m8E0(boost::function<void(void*)>(), 0), m8F8(boost::function<void(void*)>(), 0), m910(0), m54960(0),
+      m54964(0) {
+    // inferred: initialize render cameras, callbacks, the default scene, and its render layers.
+    // NONMATCHING: render-state validation and additional menu fields remain incomplete;
+    // "3D Outline" and "3D Object" store the Layer3D vtable once more in the original (class unknown).
+    unsigned char* self = (unsigned char*)this;
+    mKeys.mSize = 0;
+    mCmds.mSize = 0;
+
     memset(self + 0x50, 0, 0x50);
     memset(self + 0xA0, 0, 0x50);
     memset(self, 0, 0x50);
     NewCampScene2_unk* scene = new ((MemoryTag)6, "", "", 0) NewCampScene2_unk();
-    lbl_8087EFB8 = (int)scene;
+    lbl_8087EFB8 = scene;
     *(void**)(self + 0x2FC) = scene;
     Light_unk light;
     atn::Vector3 direction((-2.0f), (-3.0f), 4.0f);
@@ -496,18 +403,17 @@ extern "C" void* fn_800BC874(void* renderSystem) {
             layers[i]->vf0C(layerMenu);
         }
     }
-    return renderSystem;
 }
 
 RenderCallback_unk::RenderCallback_unk(boost::function<void(void*)> func, int arg) : mFunc(func), mArg(arg) {}
 
-extern "C" void fn_800BD9C0(void* render, int queueCapacity) {
+void atn::RenderView_unk::fn_800BD9C0(int queueCapacity, const std::string& name) {
     // NONMATCHING: 93.59% - temporary texture setup still differs in register allocation.
     const char* file = "";
     {
         MemoryMode_unk mode(0, 0x20);
-        *(int*)((unsigned char*)render + 0xF4) = queueCapacity;
-        *(void**)((unsigned char*)render + 0xF0) =
+        *(int*)((unsigned char*)this + 0xF4) = queueCapacity;
+        *(void**)((unsigned char*)this + 0xF0) =
             ::operator new[](queueCapacity, (MemoryTag)6, (const char*)&lbl_8087D72C,
                                (const char*)&lbl_8087D728, 0);
     }
@@ -519,34 +425,33 @@ extern "C" void fn_800BD9C0(void* render, int queueCapacity) {
     unsigned int size = GXGetTexBufferSize((unsigned short)width, (unsigned short)height, 0x13, 0, 0);
     void* depth = atn::MemoryManager::Instance()->AllocFromMem2(size, 0x20, (MemoryTag)6, "",
                               "", 0, 0);
-    *(void**)((unsigned char*)render + 0x79C) = depth;
-    ((atn::Texture_unk*)((unsigned char*)render + 0x74C))
+    *(void**)((unsigned char*)this + 0x79C) = depth;
+    ((atn::Texture_unk*)((unsigned char*)this + 0x74C))
         ->fn_800D5B58(width, height, 6, 1, "FrameBuffer");
-    GXInitTexObjLOD((GXTexObj*)((unsigned char*)render + 0x74C), 1, 1, 0.0f, 0.0f,
+    GXInitTexObjLOD((GXTexObj*)((unsigned char*)this + 0x74C), 1, 1, 0.0f, 0.0f,
                     0.0f, 0, 0, 0);
-    fn_800BC468(render, (GXTexObj*)((unsigned char*)render + 0x530));
-    fn_800BC618(render, (GXTexObj*)((unsigned char*)render + 0x50C),
+    fn_800BC468(&m530);
+    fn_800BC618(&m50C,
                 *(int*)((unsigned char*)lbl_8087EFA8 + 0x154));
-    GXInitTexObj((GXTexObj*)((unsigned char*)render + 0x77C),
-                 *(void**)((unsigned char*)render + 0x79C), (unsigned short)width,
+    GXInitTexObj((GXTexObj*)((unsigned char*)this + 0x77C),
+                 *(void**)((unsigned char*)this + 0x79C), (unsigned short)width,
                  (unsigned short)height, 3, 0, 0, 0);
-    GXInitTexObjLOD((GXTexObj*)((unsigned char*)render + 0x77C), 0, 0, 0.0f, 0.0f,
+    GXInitTexObjLOD((GXTexObj*)((unsigned char*)this + 0x77C), 0, 0, 0.0f, 0.0f,
                     0.0f, 0, 0, 0);
 }
 
-extern "C" void fn_800BDB40(void* render, int value) {
-    int* field = (int*)((unsigned char*)render + 0x2FC);
-    *field = value;
-    if (value != 0) {
+void atn::RenderView_unk::fn_800BDB40(NewCampScene2_unk* scene) {
+    mScene = scene;
+    if (scene != 0) {
         return;
     }
-    *field = lbl_8087EFB8;
+    mScene = lbl_8087EFB8;
 }
 
-extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int pass) {
+void atn::RenderView_unk::fn_800BDB58(atn::IRender* render, float order, int pass) {
     // NONMATCHING: 97.50% - the remaining differences are register allocation.
-    unsigned char* system = (unsigned char*)renderSystem;
-    RenderSystemPassTables_unk* passes = (RenderSystemPassTables_unk*)renderSystem;
+    unsigned char* system = (unsigned char*)this;
+    RenderSystemPassTables_unk* passes = (RenderSystemPassTables_unk*)this;
     if (passes->active[pass] == 0) {
         return;
     }
@@ -572,12 +477,12 @@ extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int p
     ++passes->counts[pass];
 }
 
-extern "C" void fn_800BDBC8(void* renderSystem) {
+void atn::RenderView_unk::fn_800BDBC8() {
     // inferred: collect, sort, and relink the queued render entries for each of 20 passes.
     // poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
     // time, so its operands were not literals there (source form unknown).
     // NONMATCHING: 72.91% - remaining render-state details and drawing callbacks still differ.
-    unsigned char* system = (unsigned char*)renderSystem;
+    unsigned char* system = (unsigned char*)this;
     Mtx matrixWork[8];
     void** entries = 0;
     unsigned int capacity = 0;
@@ -1188,63 +1093,45 @@ extern "C" void fn_800BF9C4(void** first, void** second, void** third) {
     }
 }
 
-extern "C" void fn_800BFAC4() {}
+void atn::RenderView_unk::fn_800BFAC4() {}
 
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos) {
+extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* view, const atn::Vector3* pos) {
     float projection[7];
     projection[0] = 0.0f; // inferred: GX_PERSPECTIVE
-    projection[1] = *(float*)((unsigned char*)camera + 0x18C);
-    projection[2] = *(float*)((unsigned char*)camera + 0x194);
-    projection[3] = *(float*)((unsigned char*)camera + 0x1A0);
-    projection[4] = *(float*)((unsigned char*)camera + 0x1A4);
-    projection[5] = *(float*)((unsigned char*)camera + 0x1B4);
-    projection[6] = *(float*)((unsigned char*)camera + 0x1B8);
+    projection[1] = view->mCamera.mProj.m[0][0];
+    projection[2] = view->mCamera.mProj.m[0][2];
+    projection[3] = view->mCamera.mProj.m[1][1];
+    projection[4] = view->mCamera.mProj.m[1][2];
+    projection[5] = view->mCamera.mProj.m[2][2];
+    projection[6] = view->mCamera.mProj.m[2][3];
     float viewport[6];
     GXGetViewportv(viewport);
-    GXProject(pos->x, pos->y, pos->z, (const float (*)[4])((unsigned char*)camera + 0x15C), projection, viewport,
-              &out->x, &out->y, &out->z);
+    GXProject(pos->x, pos->y, pos->z, view->mCamera.mView.m, projection, viewport, &out->x, &out->y, &out->z);
 }
 
-extern "C" void fn_800BFB70(void* render) {
-    // inferred: invoke the common projection helper with six all-ones work vectors and zero scalar bounds.
-    // NONMATCHING: 81.90% - local vector placement and initialization order differ.
-    float one = 1.0f;
-    float vectors[6][4] = {
-        {one, one, one, one},
-        {one, one, one, one},
-        {one, one, one, one},
-        {one, one, one, one},
-        {one, one, one, one},
-        {one, one, one, one},
-    };
+void atn::RenderView_unk::fn_800BFB70() {
+    // inferred: full screen quad in white
+    atn::Color color(1.0f, 1.0f, 1.0f, 1.0f);
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
-    fn_800BFCB4(render, vectors[4], vectors[3], vectors[2], vectors[1], width, height,
-                0.0f, 0.0f);
+    fn_800BFCB4(color, color, color, color, width, height, 0.0f, 0.0f);
 }
 
-extern "C" void fn_800BFC18(void* render, RenderColor_unk color, float a, float b) {
-    // inferred: duplicate the supplied four-float vector into the work arrays before projection setup.
-    // NONMATCHING: 94.87% - the width load is scheduled before the reference's array setup.
-    float alpha, blue, g, r;
-    r = color.r;
-    g = color.g;
-    blue = color.b;
-    alpha = color.a;
-    float vectors[5][4];
-    float* first = vectors[0];
+void atn::RenderView_unk::fn_800BFC18(atn::Color color, float a, float b) {
+    // inferred: full screen quad of one color
+    atn::Color c(color);
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
-    vectors[4][0] = r; vectors[4][1] = g; vectors[4][2] = blue; vectors[4][3] = alpha;
-    vectors[3][0] = r; vectors[3][1] = g; vectors[3][2] = blue; vectors[3][3] = alpha;
-    vectors[2][0] = r; vectors[2][1] = g; vectors[2][2] = blue; vectors[2][3] = alpha;
-    vectors[1][0] = r; vectors[1][1] = g; vectors[1][2] = blue; vectors[1][3] = alpha;
-    vectors[0][0] = r; vectors[0][1] = g; vectors[0][2] = blue; vectors[0][3] = alpha;
-    fn_800BFCB4(render, first, vectors[1], vectors[2], vectors[3], width, height, a, b);
+    fn_800BFCB4(c, c, c, c, width, height, a, b);
 }
 
-extern "C" void fn_800BFCB4(void* render, float* c0, float* c1, float* c2, float* c3,
-                              unsigned int width, unsigned int height, float a, float b) {
+void atn::RenderView_unk::fn_800BFCB4(atn::Color color0, atn::Color color1, atn::Color color2,
+                                      atn::Color color3, unsigned int width, unsigned int height, float a,
+                                      float b) {
+    const float* c0 = &color0.r;
+    const float* c1 = &color1.r;
+    const float* c2 = &color2.r;
+    const float* c3 = &color3.r;
     // inferred: set an orthographic projection and draw a four-corner colored screen quad.
     // NONMATCHING: 78.71% - color conversion and FIFO vertex writes still differ from the SDK call sequence.
     void* global = lbl_8087EEE0;
@@ -1309,50 +1196,50 @@ extern "C" void fn_800BFCB4(void* render, float* c0, float* c1, float* c2, float
     fn_80076A28(global, &previous);
 }
 
-extern "C" void fn_800C0508(void* render, int clear) {
+void atn::RenderView_unk::fn_800C0508(int clear) {
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
     GXSetTexCopyDst((unsigned short)width, (unsigned short)height, 6, 0);
-    GXCopyTex(*(void**)((unsigned char*)render + 0x774), (unsigned char)clear);
+    GXCopyTex(*(void**)((unsigned char*)this + 0x774), (unsigned char)clear);
     GXPixModeSync();
 }
 
-extern "C" void fn_800C0590(void* render, int clear, int format) {
+void atn::RenderView_unk::fn_800C0590(int clear, int format) {
     // NONMATCHING: texture object address is kept in a register instead of recalculated.
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
     GXSetTexCopyDst((unsigned short)width, (unsigned short)height, format, 0);
-    GXCopyTex(*(void**)((unsigned char*)render + 0x79C), (unsigned char)clear);
+    GXCopyTex(*(void**)((unsigned char*)this + 0x79C), (unsigned char)clear);
     GXPixModeSync();
 
-    GXTexObj* tex = (GXTexObj*)((unsigned char*)render + 0x77C);
+    GXTexObj* tex = (GXTexObj*)((unsigned char*)this + 0x77C);
     if (format != 0x16) {
-        GXInitTexObj(tex, *(void**)((unsigned char*)render + 0x79C), (unsigned short)width,
+        GXInitTexObj(tex, *(void**)((unsigned char*)this + 0x79C), (unsigned short)width,
                      (unsigned short)height, 3, 0, 0, 0);
         GXInitTexObjLOD(tex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     } else {
-        GXInitTexObj(tex, *(void**)((unsigned char*)render + 0x79C), (unsigned short)width,
+        GXInitTexObj(tex, *(void**)((unsigned char*)this + 0x79C), (unsigned short)width,
                      (unsigned short)height, 0x16, 0, 0, 0);
         GXInitTexObjLOD(tex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     }
 }
 
-extern "C" void fn_800C06B0(void* render, const void* fog) {
+void atn::RenderView_unk::fn_800C06B0(const atn::FogSettings* fog) {
     // NONMATCHING: 94.60% - conversion spill placement and early GX argument setup still differ.
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x2C) != 0) {
-        if (*(int*)((unsigned char*)render + 0x890) != 0) {
-            *(int*)((unsigned char*)render + 0x890) = 0;
+        if (*(int*)((unsigned char*)this + 0x890) != 0) {
+            *(int*)((unsigned char*)this + 0x890) = 0;
             unsigned int color = 0;
-            float farZ = *(float*)((unsigned char*)render + 0x1D0);
-            float nearZ = *(float*)((unsigned char*)render + 0x1CC);
+            float farZ = *(float*)((unsigned char*)this + 0x1D0);
+            float nearZ = *(float*)((unsigned char*)this + 0x1CC);
             GXSetFog(0, &color, 0.0f, 0.0f, nearZ, farZ);
         }
         return;
     }
 
-    unsigned char* bytes = (unsigned char*)render;
+    unsigned char* bytes = (unsigned char*)this;
     if (*(int*)(bytes + 0x890) != 0 && *(const int*)fog == *(int*)(bytes + 0x894) &&
         *(const float*)((const unsigned char*)fog + 4) == *(float*)(bytes + 0x898) &&
         *(const float*)((const unsigned char*)fog + 8) == *(float*)(bytes + 0x89C) &&
@@ -1396,55 +1283,57 @@ extern "C" void fn_800C06B0(void* render, const void* fog) {
              *(float*)(bytes + 0x1CC), *(float*)(bytes + 0x1D0));
 }
 
-extern "C" void fn_800C08B0(void* render) {
+void atn::RenderView_unk::fn_800C08B0() {
     // NONMATCHING: 90.00% - only the stack color-pointer setup remains out of order.
-    if (*(int*)((unsigned char*)render + 0x890) != 0) {
-        *(int*)((unsigned char*)render + 0x890) = 0;
+    if (*(int*)((unsigned char*)this + 0x890) != 0) {
+        *(int*)((unsigned char*)this + 0x890) = 0;
         unsigned int color = 0;
-        float farZ = *(float*)((unsigned char*)render + 0x1D0);
-        float nearZ = *(float*)((unsigned char*)render + 0x1CC);
+        float farZ = *(float*)((unsigned char*)this + 0x1D0);
+        float nearZ = *(float*)((unsigned char*)this + 0x1CC);
         GXSetFog(0, &color, 0.0f, 0.0f, nearZ, farZ);
     }
 }
 
-extern "C" void fn_800C0900(Mtx out, void* render, int mode, int a, int b, int c) {
+atn::Matrix3x4 atn::RenderView_unk::fn_800C0900(int mode, int a, int b, int c) {
+    atn::Matrix3x4 out;
     switch (mode) {
     case 1:
-        *(atn::Matrix3x4*)out = *(atn::Matrix3x4*)((unsigned char*)render + 0x800);
+        out = m7A0[2];
         break;
     case 2:
-        *(atn::Matrix3x4*)out = *(atn::Matrix3x4*)((unsigned char*)render + 0x7A0);
+        out = m7A0[0];
         break;
     case 3:
-        *(atn::Matrix3x4*)out = *(atn::Matrix3x4*)((unsigned char*)render + 0x7D0);
+        out = m7A0[1];
         break;
     case 4:
         if (a <= 0) {
-            *(atn::Matrix3x4*)out = *(atn::Matrix3x4*)((unsigned char*)render + 0x830);
+            out = m7A0[3];
         } else {
-            fn_800D5F68(out, 4, a, b, c);
+            fn_800D5F68(out.m, 4, a, b, c);
         }
         break;
     default:
-        *(atn::Matrix3x4*)out = *(atn::Matrix3x4*)((unsigned char*)render + 0x860);
+        out = m7A0[4];
         break;
     }
+    return out;
 }
 
-extern "C" int fn_800C0A50(void* renderSystem, const void* bounds) {
-    void* pass = *(void**)renderSystem;
+int atn::RenderView_unk::fn_800C0A50(const atn::AABB_unk* bounds) {
+    void* pass = *(void**)this;
     if (pass != 0) {
         return !fn_800B5994(pass, bounds);
     }
     return 1;
 }
 
-extern "C" void* fn_800C0A8C(void* value) {
-    return (unsigned char*)*(void**)((unsigned char*)value + 0x10) + 0x5C;
+atn::Texture_unk* atn::RenderView_unk::fn_800C0A8C() {
+    return &static_cast<atn::LayerReflect*>(mLayers[4])->mTexture;
 }
 
-extern "C" void* fn_800C0A98(void* value) {
-    return (unsigned char*)*(void**)((unsigned char*)value + 0x14) + 0x5C;
+atn::Texture_unk* atn::RenderView_unk::fn_800C0A98() {
+    return &static_cast<atn::LayerReflect*>(mLayers[5])->mTexture;
 }
 
 extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned int height,
@@ -1658,36 +1547,38 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
     return 1;
 }
 
-extern "C" atn::Scene* fn_800C122C(RenderSceneCallbackOwner_unk* render, atn::Sphere sphere) {
+// inferred: atn::Scene is NewCampScene2_unk (MapArea has it as its base at 0x4C); the callback type
+// keeps the name of the DOL, so its result is converted here
+NewCampScene2_unk* atn::RenderView_unk::fn_800C122C(atn::Sphere sphere) {
     // inferred: run the configured sphere-to-scene callback and fall back to the stored scene.
     // NONMATCHING: 96.75% - callback invoker data label and aggregate load order differ.
-    if (render->m300) {
-        atn::Scene* scene = render->m300(sphere, render->m314);
+    if (mMapHit) {
+        NewCampScene2_unk* scene = (NewCampScene2_unk*)mMapHit(sphere, mMapHitArg);
         if (scene != 0) {
             return scene;
         }
     }
-    return render->m2FC;
+    return mScene;
 }
 
-extern "C" atn::Scene* fn_800C1424(RenderSceneCallbackOwner_unk* render) {
+NewCampScene2_unk* atn::RenderView_unk::fn_800C1424() {
     // inferred: build a unit sphere at the selected camera position and query the scene callback.
     // NONMATCHING: 95.92% - callback invoker data and temporary stack layout differ.
-    const atn::Vector3& position = render->m54964 != 0 ? render->m10C : render->m118;
+    const atn::Vector3& position = m54964 != 0 ? mCamera.mPos : mCamera.mTarget;
     atn::Sphere sourceSphere;
     sourceSphere.mCenter.Assign_unk(position);
     sourceSphere.mRadius = 1.0f;
     atn::Sphere sphere(sourceSphere);
-    if (render->m300) {
-        atn::Scene* scene = render->m300(sphere, render->m314);
+    if (mMapHit) {
+        NewCampScene2_unk* scene = (NewCampScene2_unk*)mMapHit(sphere, mMapHitArg);
         if (scene != 0) {
             return scene;
         }
     }
-    return render->m2FC;
+    return mScene;
 }
 
-extern "C" void fn_800C1660(void* render, void* tex, int format) {
+void atn::RenderView_unk::fn_800C1660(atn::Texture_unk* tex, int format) {
     // inferred: preserve the by-value texture/format temporary before enqueueing the pair.
     struct TextureFormatPair {
         void* texture;
@@ -1696,8 +1587,8 @@ extern "C" void fn_800C1660(void* render, void* tex, int format) {
     volatile TextureFormatPair pair;
     pair.texture = tex;
     pair.format = format;
-    int* count = (int*)((unsigned char*)render + 0x910);
-    unsigned char* entry = (unsigned char*)render + 0x914 + *count * 8;
+    int* count = (int*)((unsigned char*)this + 0x910);
+    unsigned char* entry = (unsigned char*)this + 0x914 + *count * 8;
     if (entry != 0) {
         *(void**)entry = tex;
         *(int*)(entry + 4) = format;
@@ -1705,16 +1596,16 @@ extern "C" void fn_800C1660(void* render, void* tex, int format) {
     ++*count;
 }
 
-extern "C" float fn_800C169C(void* renderSystem, const void* bounds) {
-    void* pass = *(void**)renderSystem;
+float atn::RenderView_unk::fn_800C169C(const atn::AABB_unk* bounds) {
+    void* pass = *(void**)this;
     if (pass != 0) {
         return fn_800B6218(pass, bounds);
     }
     return 0.0f;
 }
 
-extern "C" int fn_800C16B4() {
+NewCampScene2_unk* atn::RenderView_unk::fn_800C16B4() {
     return lbl_8087EFB8;
 }
 
-extern "C" void fn_800C16BC() {}
+void atn::RenderView_unk::fn_800C16BC() {}

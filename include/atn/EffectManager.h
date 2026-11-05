@@ -18,7 +18,6 @@ typedef atn::Camera Camera_unk;
 namespace atn {
 struct Model;
 }
-extern "C" void fn_800BDB58(atn::RenderView_unk* view, void* render, float alpha, int layer); // inferred: queues a render
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" const char* fn_80473F18(void* name); // inferred: resource name
 

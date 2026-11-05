@@ -83,7 +83,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: camera and projection to the screen (as in game/Em208Queen.cpp)
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos);
 // inferred: panes of a d2anime layout (as in include/MP/D2AMpMenu_unk.h)
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);

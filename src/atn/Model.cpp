@@ -567,7 +567,7 @@ int ModelBase::fn_8008B140() {
 } // namespace atn
 
 // inferred: the render system (lbl_8087EFB4); called out of line by GameUI and others
-extern "C" void* fn_8008B964() {
+extern "C" atn::RenderView_unk* fn_8008B964() {
     return lbl_8087EFB4;
 }
 
@@ -1048,7 +1048,7 @@ void ModelBase::fn_80091684(const Mtx m, const int* remap) {
     m60 = *(const Matrix3x4*)m;
     m5C = m50;
     ModelLod_unk* lod = &mLods[m50];
-    if (mFlag4_unk && mFlag5_unk && ((RenderView_unk*)fn_8008B964())->GetPass_unk() == 3) {
+    if (mFlag4_unk && mFlag5_unk && fn_8008B964()->GetPass_unk() == 3) {
         m5C = -1;
         lod = &m1C4;
     }

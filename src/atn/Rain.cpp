@@ -1,6 +1,7 @@
 #include "atn/GXDecl.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int rand();
 
@@ -43,20 +44,11 @@ inline void GXPosition3f32_unk(float x, float y, float z) {
     GXWGFifo.f = z;
 }
 
-// inferred: render state, camera and debug menu functions (automatic names)
+// inferred: render state and debug menu functions (automatic names)
 struct RenderState_unk;
 extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" void fn_80076760(RenderState_unk* rs, int state, int value);
 extern "C" void fn_800761A8(RenderState_unk* rs);
-struct Camera_unk {
-    unsigned char m000[0x15C];
-    atn::Matrix3x4 m15C; // inferred: view matrix
-    unsigned char m18C[0x2F8 - 0x18C];
-    int m2F8; // inferred: current pass
-};
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float order, int pass); // inferred: queues a render
-extern "C" int fn_800502A8(void* frustum, const void* box); // inferred: box visibility test
 // inferred: ray test against the map (start, end, hit), returns nonzero on hit
 extern "C" int fn_8004ECC0(void* map, atn::Vector3* hit, const atn::Vector3* start, const atn::Vector3* end,
                            unsigned int mask, int arg5, int arg6);
@@ -81,7 +73,7 @@ class IRender {
 public:
     virtual ~IRender() {}
     virtual int vf0C(); // 0x80046218
-    virtual void vf10(Camera_unk* camera) = 0;
+    virtual void vf10(RenderView_unk* camera) = 0;
     virtual int vf14(void* arg1, void* arg2, void* frustum) = 0;
     virtual void vf18() = 0;
     virtual void vf1C(); // 0x800461FC
@@ -142,8 +134,8 @@ class Rain : public IRender {
 public:
     Rain();
     virtual ~Rain();
-    virtual void vf10(Camera_unk* camera);
-    virtual int vf14(void* arg1, void* arg2, void* frustum) { return fn_800502A8(frustum, &mAreaMin); }
+    virtual void vf10(RenderView_unk* camera);
+    virtual int vf14(void* arg1, void* arg2, void* frustum) { return fn_800502A8((const Frustum_unk*)frustum, &mAreaMin); }
     virtual void vf18() {}
 
     void fn_800B1C1C(); // inferred: queues the render
@@ -212,12 +204,12 @@ Rain::Rain() {
 Rain::~Rain() {}
 
 void Rain::fn_800B1C1C() {
-    fn_800BDB58(lbl_8087EFB4, this, -1.0f, 8);
+    lbl_8087EFB4->fn_800BDB58(this, -1.0f, 8);
 }
 
-void fn_800B1C44(Rain* rain, Camera_unk* camera);
+void fn_800B1C44(Rain* rain, RenderView_unk* camera);
 
-void Rain::vf10(Camera_unk* camera) {
+void Rain::vf10(RenderView_unk* camera) {
     if (camera->m2F8 == 8) {
         fn_800B1C44(this, camera);
         return;
@@ -226,7 +218,7 @@ void Rain::vf10(Camera_unk* camera) {
 
 // NONMATCHING: 99.79% - volatile registers of the two vertex loops differ (offset/FIFO address in
 // the first, vector/drop address in the second)
-void fn_800B1C44(Rain* rain, Camera_unk* camera) {
+void fn_800B1C44(Rain* rain, RenderView_unk* camera) {
     if (rain->mCount <= 0) {
         return;
     }
@@ -244,7 +236,7 @@ void fn_800B1C44(Rain* rain, Camera_unk* camera) {
     GXSetChanMatColor(4, ToGXColor_unk(rain->mColor));
     GXSetChanAmbColor(4, ToGXColor_unk(RainColor_unk(1.0f, 1.0f, 1.0f, 1.0f)));
     GXSetCurrentMtx(0);
-    Matrix3x4 view(camera->m15C);
+    Matrix3x4 view(camera->mCamera.mView);
     GXLoadPosMtxImm(view.m, 0);
     Matrix3x4 normal(view);
     PSMTXInverse(normal.m, normal.m);

@@ -5,6 +5,7 @@
 #include "math/Vec.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int rand();
 extern "C" void PSMTXScale(float m[3][4], float x, float y, float z);
@@ -49,7 +50,6 @@ struct RainOverride_unk {
     int m1F4;
     RainHeatSet_unk m1F8;
 };
-extern "C" RainOverride_unk* fn_800C1424(PostFxFrameBuffer_unk* fb);
 
 // inferred: frame buffer object (lbl_8087EFB4); only the member used here
 struct RainFrameBuffer_unk {
@@ -63,26 +63,7 @@ struct RainRenderMgr_unk {
     unsigned int mClearColor;
 };
 
-// inferred: RGBA color passed by value (copied with float loads/stores)
-struct RainColor_unk {
-    RainColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    RainColor_unk(const RainColor_unk& c) {
-        float r_ = c.r;
-        float g_ = c.g;
-        float b_ = c.b;
-        float a_ = c.a;
-        r = r_;
-        g = g_;
-        b = b_;
-        a = a_;
-    }
-    float r, g, b, a;
-};
 
-extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
-extern "C" void fn_800BFC18(PostFxFrameBuffer_unk* fb, RainColor_unk color, float a, float b);
-extern "C" void fn_800BFCB4(PostFxFrameBuffer_unk* fb, RainColor_unk c0, RainColor_unk c1, RainColor_unk c2,
-                            RainColor_unk c3, int width, int height, float a, float b);
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture and waits
 
 // inferred: rain drop on the lens (0x1C bytes)
@@ -214,7 +195,7 @@ void PostFxRain::fn_800B0A70() {
             int w = drop->mW;
             int h = drop->mH;
             fn_80075F58(lbl_8087EEE0, x, y, w, h);
-            fn_800BFC18(lbl_8087EFB4, RainColor_unk(1.0f, 1.0f, 1.0f, drop->mAlpha * m0C), 0.0f, 0.0f);
+            lbl_8087EFB4->fn_800BFC18(atn::Color(1.0f, 1.0f, 1.0f, drop->mAlpha * m0C), 0.0f, 0.0f);
         }
     }
     fn_80075DEC(lbl_8087EEE0);
@@ -266,16 +247,16 @@ void PostFxRain::fn_800B0CD4() {
     GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
     fn_800763FC(lbl_8087EEE0, &mB8.mObj, 0);
     GXSetBlendMode(1, 4, 5, 3);
-    RainColor_unk c[4] = {
-        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[0]),
-        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[1]),
-        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[2]),
-        RainColor_unk(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[3]),
+    atn::Color c[4] = {
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[0]),
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[1]),
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[2]),
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[3]),
     };
     fn_80075F58(lbl_8087EEE0, m54->mX, m54->mY, m54->mW, m54->mH);
     int sh = lbl_8087EEE0->mHeight;
     int sw = lbl_8087EEE0->mWidth;
-    fn_800BFCB4(lbl_8087EFB4, c[0], c[1], c[2], c[3], sw, sh, 0.0f, 0.0f);
+    lbl_8087EFB4->fn_800BFCB4(c[0], c[1], c[2], c[3], sw, sh, 0.0f, 0.0f);
     fn_80075DEC(lbl_8087EEE0);
     GXSetBlendMode(0, 1, 0, 3);
 }
@@ -318,7 +299,7 @@ void PostFxRain::vf10(void* camera) {
     GXInitTexObjLOD(&m60, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXPixModeSync();
     GXSetCopyClear(RainGXColor_unk(0x7F, 0x7F, 0x7F, 0x7F), 0xFFFFFF);
-    fn_800C0508(lbl_8087EFB4, 1);
+    lbl_8087EFB4->fn_800C0508(1);
     GXSetCopyClear(RainARGB_unk(((RainRenderMgr_unk*)lbl_8087EEE0)->mClearColor), 0xFFFFFF);
     fn_800B0CD4();
     fn_800B0A70();
@@ -383,7 +364,7 @@ void PostFxRain::vf10(void* camera) {
     } while (again);
     GXSetIndTexMtx(1, ind, exp);
     fn_80075DEC(lbl_8087EEE0);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetBlendMode(0, 1, 0, 3);
     if (lbl_8087EFA8->m2AC.mDebug != 0 || lbl_8087EFA8->m2BC.mDebug != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &m60, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
@@ -405,10 +386,10 @@ inline float Rand_unk(float lo, float hi) {
 
 // inferred: update: follows the settings and moves the drops
 void PostFxRain::fn_800B1598() {
-    PostFxFrameBuffer_unk* fb = lbl_8087EFB4;
+    atn::RenderView_unk* fb = lbl_8087EFB4;
     m14 = &lbl_8087EFA8->m2AC;
     m54 = &lbl_8087EFA8->m2BC;
-    RainOverride_unk* ovr = fn_800C1424(fb);
+    RainOverride_unk* ovr = (RainOverride_unk*)fb->fn_800C1424(); // pending: view of the scene
     if (ovr->m1E0 != 0) {
         m14 = &ovr->m1E4;
     }

@@ -1,6 +1,8 @@
 #include "std/string.h"
 #include "atn/MemoryManager.h"
 #include "std/string_members.h"
+#include "atn/RenderView_unk.h"
+#include "atn/Layer3D.h"
 
 // inferred: THP player of the SDK sample library (automatic names)
 extern "C" int fn_805B55A8(int audio);            // THPPlayerInit
@@ -29,7 +31,6 @@ extern "C" void fn_80087BB4(void* group, const char* name, float* value, int arg
                             float max, float step); // inferred: debug slider for a 2D vector
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" int fn_800499D0(void* audio);          // inferred: AudioDevice output mode
-extern "C" void fn_800BDB58(void* camera, void* video, float alpha, int arg);
 
 // inferred: debug menu manager (lbl_8087EF10); fn_8008937C adds a group, fn_800897D8 removes it
 struct DebugMenu_unk {
@@ -69,20 +70,7 @@ struct RenderState_unk {
     int mHeight; // 0x40
     int m44;     // inferred: progressive / 16:9 flag
 };
-struct Drawer_unk {
-    virtual void vf08();
-    virtual void vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf18();
-    virtual void vf1C();
-};
-struct Camera_unk {
-    unsigned char m00[0x48];
-    Drawer_unk* m48;
-};
 extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void* lbl_8087EE90;
 
 namespace atn {
@@ -212,7 +200,7 @@ void VideoTHP::vf24() {
 }
 
 void VideoTHP::vf28() {
-    fn_800BDB58(lbl_8087EFB4, this, m10, 0x12);
+    lbl_8087EFB4->fn_800BDB58(this, m10, 0x12);
 }
 
 // NONMATCHING: 99.28% - only volatile register choices differ (r8/r9 for the converted height,
@@ -289,7 +277,7 @@ void VideoTHP::vf10() {
     }
     m80 = fn_805B6474(rs, x, y, dw, dh);
     GXDrawDone();
-    lbl_8087EFB4->m48->vf1C();
+    lbl_8087EFB4->mLayers[18]->vf1C(); // inferred: layer "2D Object"
 }
 
 void VideoTHP::vf18() {}

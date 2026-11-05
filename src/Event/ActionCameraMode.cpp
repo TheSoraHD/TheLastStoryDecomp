@@ -28,21 +28,9 @@ namespace Event {
 
 } // namespace Event
 
-extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
-// inferred: settings of the render view (fn_800C16B4): fog at 0x3C (as MapArea::m88) and haze at 0x1F8
-struct ViewSetting_unk {
-    unsigned char m00[0x3C];
-    int m3C;                // inferred: fog kind + 1 (0: off)
-    float m40;              // inferred: fog start
-    float m44;              // inferred: fog end
-    atn::Color4f_unk m48;   // inferred: fog color
-    unsigned char m58[0x1F8 - 0x58];
-    HazeParam_unk m1F8;     // inferred: haze
-};
-namespace atn {
+extern "C" RenderSetting_unk* lbl_8087EFA8; namespace atn {
 struct RenderView_unk;
 }
-extern "C" ViewSetting_unk* fn_800C16B4(atn::RenderView_unk* view);
 // inferred: scene of the event (fn_80541210): its kind at 0x0C
 struct EventScene_unk {
     unsigned char m00[0x0C];
@@ -267,16 +255,16 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             break;
         }
         case 2: {
-            ViewSetting_unk* view = fn_800C16B4(lbl_8087EFB4);
+            NewCampScene2_unk* view = lbl_8087EFB4->fn_800C16B4();
             if (arg->GetParam_unk(1)->m04.i != 0) {
-                view->m3C = arg->GetParam_unk(2)->m04.i + 1;
-                view->m40 = arg->GetParam_unk(3)->m04.f;
-                view->m44 = arg->GetParam_unk(4)->m04.f;
+                view->mFog.mMode = arg->GetParam_unk(2)->m04.i + 1;
+                view->mFog.mStart = arg->GetParam_unk(3)->m04.f;
+                view->mFog.mEnd = arg->GetParam_unk(4)->m04.f;
                 unsigned int c = arg->GetParam_unk(5)->m04.i;
-                view->m48 = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+                view->mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                                              (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
             } else {
-                view->m3C = 0;
+                view->mFog.mMode = 0;
             }
             MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BB08, this, _1, _2), arg);
             break;
@@ -334,7 +322,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             fade.z = arg->GetParam_unk(13)->m04.f;
             fade.w = arg->GetParam_unk(14)->m04.f;
             haze.mFade = fade;
-            fn_800C16B4(lbl_8087EFB4)->m1F8 = haze;
+            lbl_8087EFB4->fn_800C16B4()->mHaze = haze;
             MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
             break;
         }

@@ -1,6 +1,7 @@
 #include "gmk/WaterLevel.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -48,8 +49,6 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // inferred: sets the reflection plane
 
 // inferred: normalizes unless the vector is (almost) zero; name invented
@@ -117,8 +116,8 @@ void WaterLevel::vf10() {
     UpdateBox_unk(this);
     mColli.mFlags |= 1;
     if (mReflect != 0 && mNode != -1) {
-        Camera_unk* camera = lbl_8087EFB4;
-        ScreenInfo_unk* info = fn_800C122C(camera, &mModel.fn_80094F98());
+        atn::RenderView_unk* camera = lbl_8087EFB4;
+        ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mModel.fn_80094F98()); // pending: view of the scene
         if (info != 0) {
             Plane_unk plane = mPlane;
             MtxPtr mtx = mModel.GetNodeMtx_unk(mNode);

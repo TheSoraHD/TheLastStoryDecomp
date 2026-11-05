@@ -1,5 +1,6 @@
 #include "atn/Texture_unk.h"
 #include "std/vector.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: GX/OS functions not in atn/GXDecl.h (enums as int)
 extern "C" {
@@ -21,24 +22,17 @@ void DCInvalidateRange(void* addr, unsigned int size);
 void DCFlushRange(void* addr, unsigned int size);
 }
 
-// inferred: render state and camera (automatic names, as in other atn files)
+// inferred: render state (automatic names, as in other atn files)
 struct RenderState_unk {
     unsigned char m00[0x3C];
     int mWidth;  // 0x3C
     int mHeight; // 0x40
 };
-struct Camera_unk {
-    unsigned char m000[0x79C];
-    void* m79C; // inferred: copy texture buffer
-};
 extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" void fn_80071E04(RenderState_unk* rs);
 extern "C" void fn_80075F58(RenderState_unk* rs, int x, int y, int w, int h); // inferred: set viewport
 extern "C" void fn_80075DEC(RenderState_unk* rs);
 extern "C" void fn_800763FC(RenderState_unk* rs, atn::Texture_unk* texture, int map); // inferred: loads a texture
-extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int arg);  // inferred: queues a render
-extern "C" void fn_800BFB70(Camera_unk* camera); // inferred: draws a full screen quad
 extern "C" void fn_800C0FBC(void* image, int format, int width, int height); // inferred: untiles an image
 extern "C" void fn_800D6E48(void* src, void* dst, int width, int height);    // inferred: tiles to RGBA8
 extern "C" void GXDrawDone();
@@ -59,7 +53,7 @@ class IRender {
 public:
     virtual ~IRender() {}
     virtual int vf0C(); // 0x80046218
-    virtual void vf10(Camera_unk* camera) = 0;
+    virtual void vf10(RenderView_unk* camera) = 0;
     virtual int vf14() = 0;
     virtual void vf18() = 0;
     virtual void vf1C(); // 0x800461FC
@@ -115,7 +109,7 @@ class TextureComposite : public IRender {
 public:
     TextureComposite();
     virtual ~TextureComposite();
-    virtual void vf10(Camera_unk* camera);
+    virtual void vf10(RenderView_unk* camera);
     virtual int vf14() { return 1; }
     virtual void vf18() {}
 
@@ -136,7 +130,7 @@ void TextureComposite::Request_unk(Texture_unk* texture, int format) {
     m08 = format;
     m0C = texture;
     m04 = 0;
-    fn_800BDB58(lbl_8087EFB4, this, 0.0f, 1);
+    lbl_8087EFB4->fn_800BDB58(this, 0.0f, 1);
 }
 
 // inferred: not inline; every use is auto-inlined and the out-of-line copy is removed by the linker,
@@ -170,7 +164,7 @@ inline int GetMipCount_unk(Texture_unk* tex) {
 // NONMATCHING: 98.34% - the original loads the image pointer twice (test and variable), which
 // shifts some saved registers; tried other views of the texture (also relative to the LH_Texture
 // member, which splits the loads but adds an addi), accessor inlines, field types and statement orders
-void TextureComposite::vf10(Camera_unk* camera) {
+void TextureComposite::vf10(RenderView_unk* camera) {
     fn_80071E04(lbl_8087EEE0);
     int format;
     Texture_unk* tex = m0C;
@@ -343,7 +337,7 @@ void TextureCompositeMaskIntensitySingle::vf0C() {
 
     GXSetZMode(0, 3, 0);
     GXSetBlendMode(1, 4, 5, 3);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
 }
 
 void TextureCompositeCopy::vf0C() {
@@ -368,7 +362,7 @@ void TextureCompositeCopy::vf0C() {
     GXSetTevDirect(0);
     GXSetZMode(0, 3, 0);
     GXSetBlendMode(0, 4, 5, 3);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
 }
 
 void TextureCompositeCopyAlpha::vf0C() {
@@ -390,7 +384,7 @@ void TextureCompositeCopyAlpha::vf0C() {
     GXSetTevDirect(0);
     GXSetZMode(0, 3, 0);
     GXSetBlendMode(0, 4, 5, 3);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTevSwapModeTable(0, 0, 1, 2, 3);
 }
 

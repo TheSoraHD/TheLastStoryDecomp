@@ -9,6 +9,7 @@
 #include "game/MapManager.h"
 #include "atn/LambdaPlaceholders_unk.h"
 #include "macros.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -25,25 +26,10 @@ inline PlayerTask* FindPlayer_unk(int id) {
     return lbl_8087F8A0->Find_unk(id);
 }
 
-// inferred: light settings of the camera (returned by fn_800C16B4)
-struct LightTarget_unk {
-    // inferred: name invented
-    void SetLight_unk(CharaLightData_unk* light) {
-        m74 = light;
-        m70 = m74 != 0 || m70 != 0;
-    }
-    unsigned char m00[0x70];
-    int m70;
-    CharaLightData_unk* m74;
-    unsigned char m78[0xC8 - 0x78];
-    int mC8;
-};
 namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 
 // inferred: sets the light of a map part (callback of fn_80491528). It is at 0x804225E0, just
 // before the CharaLight split (the split will have to start there when the unit is linked).
@@ -73,7 +59,7 @@ CharaLight::CharaLight(atn::Task* parent, GimmickDesc_unk* desc)
 }
 
 CharaLight::~CharaLight() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(0);
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
     if (MapManager::sInstance != 0) {
         MapManager::sInstance->fn_80491528(&fn_804225E0, 0);
     }
@@ -88,9 +74,9 @@ int CharaLight::vf0C() {
 }
 
 void CharaLight::Start() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
-    LightTarget_unk* target = fn_800C16B4(lbl_8087EFB4);
-    target->mC8 = -1;
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&mLight);
+    NewCampScene2_unk* target = lbl_8087EFB4->fn_800C16B4();
+    target->SetLightIndex_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_804225E0, &mLight);
     switch (mDesc->m20) {
     case 0:

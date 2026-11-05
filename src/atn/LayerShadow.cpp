@@ -3,6 +3,7 @@
 #include "math/Vec.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 namespace atn {
 
@@ -32,27 +33,8 @@ extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, i
 // render settings (atn/RenderSetting_unk.cpp)
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: render system (lbl_8087EFB4): current camera at 0x104, shadow camera at 0x318
-struct ShadowRenderSystem_unk {
-    // inferred: three per-pass tables, each with 20 entries (pass IDs 0..0x13).
-    void* mPassEnabled[0x14]; // 0x000
-    void* mPassQueueHeads[0x14]; // 0x050
-    int mPassQueueCounts[0x14]; // 0x0A0
-    void* mQueueBuffer; // 0x0F0
-    int mQueueCapacity; // 0x0F4
-    int mQueueUsed; // 0x0F8
-    unsigned char m0FC[0x104 - 0x0FC];
-    Camera_unk mCamera; // 0x104
-    int mCurrentPass; // 0x2F8
-    void* m2FC; // inferred: frame-scoped light/lens override
-    unsigned char m300[0x318 - 0x300];
-    Camera_unk mShadowCamera; // 0x318
-    unsigned char m50C[0x79C - 0x50C];
-    void* m79C; // inferred: depth copy buffer
-};
-extern "C" ShadowRenderSystem_unk* lbl_8087EFB4;
 
-// inferred: light settings returned by fn_800C1424 (direction at 0x254 when m234 is set)
+// inferred: light settings returned by (direction at 0x254 when m234 is set)->fn_800C1424()
 struct ShadowLight_unk {
     unsigned char m000[0x234];
     int m234;
@@ -61,8 +43,6 @@ struct ShadowLight_unk {
     float m258;
     float m25C;
 };
-extern "C" ShadowLight_unk* fn_800C1424(ShadowRenderSystem_unk* rs);
-extern "C" void fn_800BDB58(ShadowRenderSystem_unk* rs, void* render, float order, int pass); // inferred: queues a render
 
 // inferred: render manager (lbl_8087EEE0)
 struct ShadowRenderMgr_unk {
@@ -333,12 +313,12 @@ Camera_unk LayerShadow::fn_800B7090(const AABB_unk& box, const Vector3& dir) {
 // helpers are called out of line (weak copies), while the original inlines all of them
 void LayerShadow::vf10(void* arg) {
     if (arg == 0) {
-        fn_800BDB58(lbl_8087EFB4, 0, 0.0f, 3);
+        lbl_8087EFB4->fn_800BDB58(0, 0.0f, 3);
     }
     mCamera = lbl_8087EFB4->mCamera;
     RenderSetting_unk* s = lbl_8087EFA8;
     Vector3 dir(-s->m104.mDir.x, -s->m104.mDir.y, -s->m104.mDir.z);
-    ShadowLight_unk* light = fn_800C1424(lbl_8087EFB4);
+    ShadowLight_unk* light = (ShadowLight_unk*)lbl_8087EFB4->fn_800C1424(); // pending: view of the scene
     if (light->m234 != 0) {
         dir = Vector3(-light->m254, -light->m258, -light->m25C);
     }

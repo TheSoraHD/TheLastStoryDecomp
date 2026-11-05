@@ -1,6 +1,7 @@
 #include "game/MapManager.h"
 #include "atn/Memory.h"
 #include "game/AreaEffConfig.h"
+#include "atn/RenderView_unk.h"
 
 
 
@@ -19,20 +20,11 @@ struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" MapPart_unk* fn_80373148(Field_unk* field);
 
-// inferred: camera (lbl_8087EFB4); m300 is a callback with its argument at 0x314
-struct Camera_unk {
-    // inferred: weak copy at 0x8049103C (takes the function by value, so it is never inlined);
-    // name invented
-    void SetMapHit_unk(MapHitFunc_unk func, void* arg) {
-        mMapHit = func;
-        mMapHitArg = arg;
-    }
-
-    unsigned char m000[0x300];
-    MapHitFunc_unk mMapHit; // 0x300
-    void* mMapHitArg;       // 0x314
-};
-extern "C" Camera_unk* lbl_8087EFB4;
+// inferred: weak copy at 0x8049103C (takes the function by value, so it is never inlined)
+inline void atn::RenderView_unk::SetMapHit_unk(MapHitFunc_unk func, void* arg) {
+    mMapHit = func;
+    mMapHitArg = arg;
+}
 
 static atn::Scene* fn_804914BC(atn::Sphere sphere, void* manager);
 

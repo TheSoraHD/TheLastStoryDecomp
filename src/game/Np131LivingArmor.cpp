@@ -3,6 +3,7 @@
 #include "game/GimmickCommon.h"
 #include "std/vector.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int rand();
 extern "C" double cos(double x);
@@ -51,8 +52,6 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_803E2A30(void* draw, int kind, int alpha, atn::Vector3 pos, int a, int b);
 // inferred: player manager
 struct PlayerManager_unk {

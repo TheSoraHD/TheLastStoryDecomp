@@ -58,7 +58,6 @@ extern "C" int fn_8021A9CC(HitInfo_unk* hit); // inferred: kind test
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
 extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* text);
 // inferred: message table (lbl_8087F1E4, as in game/MenuCommonTask.cpp)
@@ -746,7 +745,7 @@ struct GameUIAimControl_unk {
     CharaTask* m50;
 };
 extern "C" GameUIAimControl_unk* fn_80318F90(CharaTask* chara);
-extern "C" void* fn_8008B964();                             // inferred: returns lbl_8087EFB4 (camera)
+extern "C" atn::RenderView_unk* fn_8008B964(); // inferred: returns lbl_8087EFB4
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" float lbl_8087DEE8;
 extern "C" float lbl_8087DEEC;

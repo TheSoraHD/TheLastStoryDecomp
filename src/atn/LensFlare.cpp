@@ -1,5 +1,7 @@
 #include "atn/LensFlare.h"
 #include "atn/GXDecl.h"
+#include "atn/RenderView_unk.h"
+#include "atn/AABB_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
@@ -46,33 +48,9 @@ struct LensLight_unk {
     float mDirZ;
 };
 
-// inferred: camera passed to the renderers (see also atn/Rain.cpp)
-struct LensCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mPos;          // 0x10C
-    unsigned char m118[0x204 - 0x118];
-    unsigned char mFrustum[0xF8]; // 0x204
-    void* m2FC;                 // inferred: light manager
-};
-extern "C" LensCamera_unk* lbl_8087EFB4;
-extern "C" void fn_800BDB40(LensCamera_unk* camera, int arg);
 extern "C" LensLight_unk* fn_800C2448(void* lights, int index);
-extern "C" void fn_800BDB58(LensCamera_unk* camera, void* render, float order, int pass); // inferred: queues a render
 
-// inferred: sphere and box used by the visibility tests
-struct LensSphere_unk {
-    atn::Vector3 mCenter;
-    float mRadius;
-};
-struct LensBox_unk {
-    LensBox_unk() {}
-    LensBox_unk(const atn::Vector3& min, const atn::Vector3& max) : mMin(min), mMax(max) {}
-    atn::Vector3 mMin;
-    atn::Vector3 mMax;
-};
-extern "C" int fn_8004FF58(void* frustum, const LensSphere_unk* sphere);
-extern "C" float fn_800C169C(LensCamera_unk* camera, const LensBox_unk* box); // inferred: visible fraction
-extern "C" void fn_8006FEBC(LensBox_unk* screen, const LensBox_unk* box);     // inferred: projects a box
+extern "C" void fn_8006FEBC(atn::AABB_unk* screen, const atn::AABB_unk* box);     // inferred: projects a box
 
 // inferred: render state (viewport size at 0x3C/0x40)
 struct LensRenderState_unk {
@@ -183,30 +161,30 @@ int LensFlare::fn_800774D4() {
 }
 
 void LensFlare::fn_80077534() {
-    fn_800BDB58(lbl_8087EFB4, this, 0.0f, 0xC);
+    lbl_8087EFB4->fn_800BDB58(this, 0.0f, 0xC);
 }
 
 // NONMATCHING: 90.2% - register allocation of the negated light direction and of the clamps,
 // and the order of the loads of the projected box
 void LensFlare::vf10(RenderView_unk* arg) {
-    LensCamera_unk* camera = (LensCamera_unk*)arg;
-    fn_800BDB40(camera, 0);
+    RenderView_unk* camera = arg;
+    camera->fn_800BDB40(0);
     if (m04 == 1) {
-        LensLight_unk* light = fn_800C2448(camera->m2FC, 0);
+        LensLight_unk* light = fn_800C2448(camera->mScene, 0);
         Vector3 dir(-light->mDirX, -light->mDirY, -light->mDirZ);
-        mPos = camera->mPos + dir * 800.0f;
+        mPos = camera->mCamera.mPos + dir * 800.0f;
     }
-    LensSphere_unk sphere;
+    atn::Sphere sphere;
     sphere.mCenter = mPos;
     sphere.mRadius = m14;
-    if (fn_8004FF58(camera->mFrustum, &sphere)) {
+    if (fn_8004FF58(&camera->mCamera.mFrustum, &sphere)) {
         float r = sphere.mRadius;
-        LensBox_unk box;
+        atn::AABB_unk box;
         box.mMin = sphere.mCenter - Vector3(r, r, r);
         box.mMax = sphere.mCenter + Vector3(r, r, r);
-        float visible = fn_800C169C(lbl_8087EFB4, &box);
+        float visible = lbl_8087EFB4->fn_800C169C(&box);
         if (visible != 0.0f) {
-            LensBox_unk screen;
+            atn::AABB_unk screen;
             fn_8006FEBC(&screen, &box);
             float width = lbl_8087EEE0->mWidth;
             float height = lbl_8087EEE0->mHeight;

@@ -4,6 +4,7 @@
 #include "math/Vec.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "atn/RenderView_unk.h"
 
 extern "C" char lbl_807C7030[];
 
@@ -25,8 +26,6 @@ extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, i
 extern "C" void fn_8008771C(void* menu, const char* name, float* value, int callback, int arg, float min, float max,
                             float step);
 // inferred: debug drawing (atn::DrawHelper)
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
-extern "C" void* lbl_8087EFB4;
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 namespace atn {

@@ -31,7 +31,6 @@ extern "C" atn::PostFxManager* lbl_8087EF8C;
 extern "C" RenderState* lbl_8087EEE0;
 extern "C" void fn_80071E04(RenderState*);
 extern "C" void fn_80076174(RenderState*, int);
-extern "C" void fn_800C0590(void*, int, int);
 
 namespace atn {
 
@@ -55,7 +54,7 @@ void LayerPostFx::vf1C() {
     lbl_8087EEE0->m58 = zero;
     fn_80071E04(lbl_8087EEE0);
     fn_80076174(lbl_8087EEE0, 0);
-    fn_800C0590(lbl_8087EFB4, 0, 0x13);
+    lbl_8087EFB4->fn_800C0590(0, 0x13);
 }
 
 void LayerPostFx::vf20() {

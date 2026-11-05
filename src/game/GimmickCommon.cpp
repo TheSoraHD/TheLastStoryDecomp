@@ -78,7 +78,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060;              // inferred: identity matrix
 
-extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* camera, const atn::Vector3* pos);
 // inferred: game settings (debug switches)
 struct Settings_unk {
     unsigned char m00[0x74];

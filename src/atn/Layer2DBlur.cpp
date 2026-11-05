@@ -1,5 +1,6 @@
 #include "atn/Layer2DBlur.h"
 #include "atn/GXDecl.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -16,13 +17,8 @@ struct DebugParams_unk {
     float m41C; // inferred: blur scale Y
     float m420; // inferred: blur angle
 };
-struct FrameBuffer_unk {
-    unsigned char m000[0x74C];
-    GXTexObj m74C;
-};
 extern "C" RenderMgr_unk* lbl_8087EEE0;
 extern "C" DebugParams_unk* lbl_8087EFA8;
-extern "C" FrameBuffer_unk* lbl_8087EFB4;
 namespace atn {
 // inferred: see atn/LinearAllocator.cpp
 class PostFxManager {
@@ -31,8 +27,6 @@ public:
 };
 } // namespace atn
 extern "C" atn::PostFxManager* lbl_8087EF8C;
-extern "C" void fn_800C0508(FrameBuffer_unk* fb, int arg);
-extern "C" void fn_800BFB70(FrameBuffer_unk* fb);
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, int arg5, int arg6,
                             float offsetX, float offsetY); // inferred: directional blur pass
 extern "C" void fn_800763FC(RenderMgr_unk* mgr, GXTexObj* obj, int map);
@@ -54,7 +48,7 @@ void Layer2DBlur::vf20() {
     int w = lbl_8087EEE0->mWidth;
     int h = lbl_8087EEE0->mHeight;
     GXPixModeSync();
-    fn_800C0508(lbl_8087EFB4, 1);
+    lbl_8087EFB4->fn_800C0508(1);
     w /= 4;
     h /= 4;
     GXTexObj obj0;
@@ -73,9 +67,9 @@ void Layer2DBlur::vf20() {
     GXSetTevOrder(0, 0, 0, 0xFF);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTevDirect(0);
-    fn_800763FC(lbl_8087EEE0, &lbl_8087EFB4->m74C, 0);
+    fn_800763FC(lbl_8087EEE0, &lbl_8087EFB4->m74C.mObj, 0);
     fn_80075F58(lbl_8087EEE0, 0, 0, w * 2, h * 2);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTexCopySrc(0, 0, w * 2, h * 2);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
@@ -95,7 +89,7 @@ void Layer2DBlur::vf20() {
     GXSetTevDirect(0);
     GXSetBlendMode(0, 1, 0, 3);
     fn_80075DEC(lbl_8087EEE0);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     Layer2D::vf20();
 }
 

@@ -2,6 +2,7 @@
 #include "atn/PostFx.h"
 #include "atn/MemoryManager.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                            unsigned char mipmap, unsigned char maxLod);
@@ -44,7 +45,6 @@ struct DofFrameBuffer_unk {
     GXTexObj m77C; // 0x77C: inferred: color texture
 };
 
-extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, const float* weights,
                             int forward, float dx, float dy);
@@ -90,7 +90,7 @@ void PostFxDof::vf10(void* camera) {
     GXInitTexObjLOD(&m28, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXPixModeSync();
     GXInvalidateTexAll();
-    fn_800C0508(lbl_8087EFB4, 0);
+    lbl_8087EFB4->fn_800C0508(0);
     GXSetTexCopySrc(0, 0, fullW, fullH);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
@@ -146,7 +146,7 @@ void PostFxDof::vf10(void* camera) {
         GXSetTevColorIn(2, 0, 0xE, 2, 0xF);
     }
     fn_80075DEC(lbl_8087EEE0);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     if (lbl_8087EFA8->mD8 != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &((DofFrameBuffer_unk*)lbl_8087EFB4)->m77C, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m08, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);

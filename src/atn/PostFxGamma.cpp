@@ -4,6 +4,7 @@
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" double pow(double x, double y);
 extern "C" unsigned int GXGetTexObjFmt(const GXTexObj* obj);
@@ -38,7 +39,6 @@ struct GammaFrameBuffer_unk {
     GXTexObj m74C; // 0x74C: inferred: depth texture
 };
 
-extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
 
 // inferred: scales an indirect matrix until its values are below 1 (exp gets the scale exponent)
@@ -206,7 +206,7 @@ void PostFxGamma::fn_800AD648() {
         GXSetTevDirect(i);
     }
     fn_80075F58(lbl_8087EEE0, 0, 0, 1, 1);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXPixModeSync();
     GXSetTexCopySrc(0, 0, 1, 1);
     GXSetTexCopyDst(1, 1, 0x28, 0);
@@ -220,7 +220,7 @@ void PostFxGamma::vf10(void* camera) {
         return;
     }
     GXPixModeSync();
-    fn_800C0508(lbl_8087EFB4, 0);
+    lbl_8087EFB4->fn_800C0508(0);
     GXSetTevSwapModeTable(0, 0, 1, 2, 3);
     GXSetTevSwapModeTable(1, 0, 1, 2, 3);
     GXSetTevSwapModeTable(2, 0, 1, 2, 3);
@@ -247,7 +247,7 @@ void PostFxGamma::vf10(void* camera) {
         GXSetTevDirect(0);
         fn_800763FC(lbl_8087EEE0, &((GammaFrameBuffer_unk*)lbl_8087EFB4)->m74C, 0);
         fn_80075F58(lbl_8087EEE0, 0, 0, w * 2, h * 2);
-        fn_800BFB70(lbl_8087EFB4);
+        lbl_8087EFB4->fn_800BFB70();
         GXPixModeSync();
     }
     GXSetTexCopySrc(0, 0, w * 2, h * 2);
@@ -280,7 +280,7 @@ void PostFxGamma::vf10(void* camera) {
         GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
         GXSetTevDirect(0);
         fn_80075F58(lbl_8087EEE0, 0, 0, cw * 2, sh * 2);
-        fn_800BFB70(lbl_8087EFB4);
+        lbl_8087EFB4->fn_800BFB70();
         GXPixModeSync();
         GXSetTexCopySrc(0, 0, cw * 2, sh * 2);
         GXSetTexCopyDst(cw, sh, 0x28, 1);
@@ -331,7 +331,7 @@ void PostFxGamma::vf10(void* camera) {
     fn_800ACFC8(ind, &exp);
     GXSetIndTexMtx(1, ind, exp);
     fn_80075F58(lbl_8087EEE0, 0, 0, 0x40, 1);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXPixModeSync();
     GXSetTexCopySrc(0, 0, 0x40, 1);
     GXSetTexCopyDst(0x40, 1, 0x28, 0);
@@ -376,7 +376,7 @@ void PostFxGamma::vf10(void* camera) {
     GXSetIndTexMtx(1, ind2, exp2);
     fn_80075DEC(lbl_8087EEE0);
     GXSetBlendMode(0, 4, 1, 3);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
 
     if (lbl_8087EFA8->mGamma.mDebug != 0) {
         float x = 8.0f;

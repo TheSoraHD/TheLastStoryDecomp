@@ -2,6 +2,7 @@
 #include "atn/MemoryManager.h"
 #include "atn/Texture_unk.h"
 #include "atn/Memory.h"
+#include "atn/RenderView_unk.h"
 
 // The real file defines atn::PostFxManager (RTTI name at 0x80732AC8), a task that owns the
 // post effects and a linear allocator for their temporary textures.
@@ -27,9 +28,7 @@ struct PostFxParams_unk {
     float mGammaAlpha; // 0x3E4
 };
 extern "C" PostFxParams_unk* lbl_8087EFA8;
-extern "C" Camera_unk* lbl_8087EFB4;
 // inferred: allocates from a memory manager
-extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int arg); // inferred: queues a render
 extern "C" unsigned long GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                             unsigned char mipmap, unsigned char maxLod);
 extern "C" void DCInvalidateRange(void* addr, unsigned long size);
@@ -232,25 +231,25 @@ PostFxManager::~PostFxManager() {}
 void PostFxManager::fn_800A9558() {
     if (lbl_8087EFA8->mBloom != 0) {
         float alpha = lbl_8087EFA8->mBloomAlpha;
-        fn_800BDB58(lbl_8087EFB4, &mBloom, alpha, m778);
+        lbl_8087EFB4->fn_800BDB58(&mBloom, alpha, m778);
     }
     if (mGodRay.fn_800AEF4C() != 0) {
-        fn_800BDB58(lbl_8087EFB4, &mGodRay, 0.0f, 0xE);
+        lbl_8087EFB4->fn_800BDB58(&mGodRay, 0.0f, 0xE);
     }
     if (lbl_8087EFA8->mDof != 0) {
         float alpha = lbl_8087EFA8->mDofAlpha;
-        fn_800BDB58(lbl_8087EFB4, &mDof, alpha, 0xE);
+        lbl_8087EFB4->fn_800BDB58(&mDof, alpha, 0xE);
     }
-    fn_800BDB58(lbl_8087EFB4, &mMotionBlur, 0.0f, 0xE);
+    lbl_8087EFB4->fn_800BDB58(&mMotionBlur, 0.0f, 0xE);
     if (lbl_8087EFA8->mColorMatrix != 0) {
-        fn_800BDB58(lbl_8087EFB4, &mColorMatrix, (float)mColorMatrix.m48, m778);
+        lbl_8087EFB4->fn_800BDB58(&mColorMatrix, (float)mColorMatrix.m48, m778);
     }
-    fn_800BDB58(lbl_8087EFB4, &mGamma, lbl_8087EFA8->mGammaAlpha, 0xE);
+    lbl_8087EFB4->fn_800BDB58(&mGamma, lbl_8087EFA8->mGammaAlpha, 0xE);
     if (mRain.fn_800B0A48() != 0) {
-        fn_800BDB58(lbl_8087EFB4, &mRain, 0.0f, 0xE);
+        lbl_8087EFB4->fn_800BDB58(&mRain, 0.0f, 0xE);
     }
     if (lbl_8087EFA8->mDamage != 0) {
-        fn_800BDB58(lbl_8087EFB4, &mDamage, 0.0f, 0xE);
+        lbl_8087EFB4->fn_800BDB58(&mDamage, 0.0f, 0xE);
     }
     mAlloc.mUsed = 0;
 }

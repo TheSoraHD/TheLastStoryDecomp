@@ -46,6 +46,7 @@
 #include "Event/Action.h"
 #include "Event/StringData.h"
 #include "Event/Label.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 
@@ -76,7 +77,6 @@ extern "C" void fn_800C3094(void* light);
 struct DialogTextMgr_unk;
 extern "C" DialogTextMgr_unk* lbl_8087F008;                     // inferred: text renderer (Event/Dialog.cpp)
 extern "C" void fn_800DAA3C(DialogTextMgr_unk* mgr, int arg);
-extern "C" NewCampScene2_unk* fn_800C16B4(atn::RenderView_unk* view); // inferred: scene of the render view
 extern "C" void fn_8004895C(atn::SoundEngine_unk* sound);
 extern "C" void fn_80049654(atn::SoundEngine_unk* sound);
 extern "C" void fn_8004829C(atn::SoundEngine_unk* sound, const char** groups, int count);
@@ -1578,10 +1578,10 @@ void Manager::fn_80482ED8() {
         m1AB0.mDC = rs->m374;
         rs->m374 = DamageEffectParam_unk();
         m1AB0.m100 = rs->m2AC;
-        m1BD0.Get_unk(fn_800C16B4(view));
+        m1BD0.Get_unk(view->fn_800C16B4());
         m1AB0.m110.clear();
         MapManager::sInstance->fn_80491528(fn_80481B9C, &m1AB0);
-        m1AB0.m11C = fn_800C16B4(lbl_8087EFB4)->m074;
+        m1AB0.m11C = lbl_8087EFB4->fn_800C16B4()->m074;
         GameMap_unk* map = GetCurrentMap_unk();
         if (map != 0) {
             m1D6C = map->m104;
@@ -1627,7 +1627,7 @@ void Manager::fn_80483714(int a, int b) {
     rs->m374 = damage;
     rs->m2AC = m1AB0.m100;
     m1AB0.m01 = 0;
-    m1BD0.fn_8047C88C(fn_800C16B4(view));
+    m1BD0.fn_8047C88C(view->fn_800C16B4());
     SceneApply_unk apply(&m1AB0);
     MapManager::sInstance->fn_80491528(fn_804827D8, &apply);
     GameMap_unk* map = GetCurrentMap_unk();
@@ -1638,7 +1638,7 @@ void Manager::fn_80483714(int a, int b) {
         fn_8047F984(1.0f);
         mC4 = 0;
     }
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(m1AB0.m11C);
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(m1AB0.m11C);
     fn_800DAA3C(lbl_8087F008, 0);
     if (b == 0) {
         fn_80483E94(a);
@@ -1693,7 +1693,7 @@ void Manager::fn_80484088(ColorMatrixParam_unk* target, float rate) {
 // inferred: sets the direction and the color (0xAARRGGBB) of the first light of the render scene and
 // of the map areas
 void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
-    atn::Light* light = fn_800C2448(fn_800C16B4(lbl_8087EFB4), 0);
+    atn::Light* light = fn_800C2448(lbl_8087EFB4->fn_800C16B4(), 0);
     unsigned int c = color;
     light->SetDir_unk(dir);
     light->SetColor(atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
@@ -1726,8 +1726,8 @@ void Manager::fn_80484A78(int color) {
 
 // inferred: uses the light of the manager (m1EB8) for the render scene and the map areas
 void Manager::fn_80484BF4() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&m1EB8);
-    fn_800C16B4(lbl_8087EFB4)->SetLightIndex_unk(-1);
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&m1EB8);
+    lbl_8087EFB4->fn_800C16B4()->SetLightIndex_unk(-1);
     MapManager::sInstance->fn_80491528(fn_80482B24, &m1EB8);
 }
 // inferred: position, size and speed of the light of the manager
@@ -1768,7 +1768,7 @@ void Manager::fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos) {
 
 // inferred: removes the light of the manager from the render scene and from the map areas
 void Manager::fn_80484E88() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(0);
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
     if (MapManager::sInstance != 0) {
         MapManager::sInstance->fn_80491528(fn_80482B24, 0);
     }
@@ -1839,7 +1839,7 @@ void Manager::fn_804862C4(const atn::Vector3& dir, int color) {
 // inferred: sets the color (0xAARRGGBB) and the blur of the god ray of the render scene and of the
 // map areas
 void Manager::fn_80486BEC(int color, float blur) {
-    GodRayParam_unk* godRay = fn_800C16B4(lbl_8087EFB4)->fn_8047C780();
+    GodRayParam_unk* godRay = lbl_8087EFB4->fn_800C16B4()->fn_8047C780();
     unsigned int c = color;
     godRay->mColor = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                                 (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
@@ -1850,7 +1850,7 @@ void Manager::fn_80486BEC(int color, float blur) {
 
 // inferred: sets the "LS" color (0xAARRGGBB) of the render scene and of the map areas
 void Manager::fn_80486DAC(int color) {
-    atn::Color* ls = &fn_800C16B4(lbl_8087EFB4)->GetLS_unk();
+    atn::Color* ls = &lbl_8087EFB4->fn_800C16B4()->GetLS_unk();
     unsigned int c = color;
     *ls = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                      (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
@@ -1955,12 +1955,12 @@ void Manager::vf10() {
     if (m1AB0.m01 != 0) {
         m1AB0.m04 -= 0.1f;
         if (m1AB0.m04 <= 0.0f) {
-            m1BD0.fn_8047C88C(fn_800C16B4(fn_8008B964()));
+            m1BD0.fn_8047C88C(fn_8008B964()->fn_800C16B4());
             SceneApply_unk apply(&m1AB0);
             MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
             m1AB0.m01 = 0;
         } else {
-            m1BD0.fn_8047CB74(fn_800C16B4(fn_8008B964()), m1AB0.m04);
+            m1BD0.fn_8047CB74(fn_8008B964()->fn_800C16B4(), m1AB0.m04);
             SceneApply_unk apply(&m1AB0, m1AB0.m04);
             MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
         }
@@ -3210,7 +3210,7 @@ void Manager::fn_8048F9B0(Cut* cut) {
             GetViewLight_unk(fn_8008B964())->SetColor(*m1BD0.mLight.GetColor_unk() * m2414);
         }
         if (!flags.m03) {
-            fn_800C16B4(fn_8008B964())->GetAmbient_unk() = m1BD0.mAmbient * m2418;
+            fn_8008B964()->fn_800C16B4()->GetAmbient_unk() = m1BD0.mAmbient * m2418;
         }
         LightFixIntensity_unk fix(&m1AB0, m2414, m2418, flags);
         MapManager::GetInstance_unk()->fn_80491528(fn_8048F844, &fix);

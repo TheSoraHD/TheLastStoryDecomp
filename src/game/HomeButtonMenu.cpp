@@ -3,6 +3,7 @@
 #include "atn/SoundManager.h"
 #include "game/HBMRso.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 namespace atn {
 
@@ -66,8 +67,6 @@ extern "C" void fn_80658240(int chan); // inferred: per controller channel (stop
 extern "C" void* lbl_8087F9A0;
 extern "C" void fn_8057155C(void* obj, int arg); // inferred: reset
 extern "C" void fn_805714DC(void* obj, int arg); // inferred: return to the Wii menu
-extern "C" void* lbl_8087EFB4;                   // inferred: camera
-extern "C" void fn_800BDB58(void* camera, void* render, float z, int arg); // inferred: queues a render
 // inferred: render manager (see game/StrapTask.cpp)
 struct HbmRender_unk {
     unsigned char m00[0x0E];
@@ -153,7 +152,7 @@ void HomeButtonMenu::fn_8044073C() {
                 break;
             }
         } else {
-            fn_800BDB58(lbl_8087EFB4, this, -100000.0f, 0x13);
+            lbl_8087EFB4->fn_800BDB58(this, -100000.0f, 0x13);
         }
     }
 }

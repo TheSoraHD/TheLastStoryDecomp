@@ -94,7 +94,6 @@ struct MpRender_unk {
     int mHeight; // 0x40
 };
 extern "C" MpRender_unk* lbl_8087EEE0;
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 struct MpArena_unk {

@@ -6,29 +6,12 @@
 #include "atn/LH_Binary.h"
 #include "game/TownTpcLoader.h"
 #include "std/string_members.h"
+#include "atn/RenderView_unk.h"
+#include "game/NewCampScene2_unk.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void* fn_804A7EA4(TownTask* task, const char* path); // inferred: loads a minimap csv
-// inferred: light settings of the camera (returned by fn_800C16B4)
-struct TownLightTarget_unk {
-    // inferred: name invented
-    void* GetLight_unk() const { return m70 != 0 ? (m74 != 0 ? m74 : (void*)m78) : 0; }
-    unsigned char m00[0x70];
-    int m70;
-    void* m74;
-    unsigned char m78[0x50];
-};
-// inferred: camera (lbl_8087EFB4); only the members used here
-struct TownCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 m10C; // inferred: target
-    atn::Vector3 m118; // inferred: eye
-    unsigned char m124[0x2FC - 0x124];
-    TownLightTarget_unk* m2FC;
-};
-extern "C" TownCamera_unk* lbl_8087EFB4;
-extern "C" TownLightTarget_unk* fn_800C16B4(TownCamera_unk* camera);
 extern "C" void fn_800C18BC(void* light); // inferred: updates the light
 // inferred: field (lbl_8087F430); only the members used here
 struct TownField_unk {
@@ -111,7 +94,7 @@ int TownTask::vf0C() {
     if (MapTask::vf0C() != 0) {
         for (MapObject_unk* obj = m70; obj != 0; obj = obj->mNext) {
             if (obj->mType == 4) {
-                ((MapPartsLocatorSet*)obj)->fn_8049B780(fn_800C16B4(lbl_8087EFB4)); // inferred: type 4 is a locator set
+                ((MapPartsLocatorSet*)obj)->fn_8049B780(lbl_8087EFB4->fn_800C16B4()); // inferred: type 4 is a locator set
             }
         }
         return 1;
@@ -262,7 +245,6 @@ struct MapModelSet_unk {
     unsigned int m5C;
 };
 extern "C" const TownLightParam_unk* fn_800C24B4(void* light, int arg);
-extern "C" TownLightParam_unk* fn_800C2448(void* light, int arg);
 
 // NONMATCHING: 98.3% - register allocation of the copied meshes (src gets r30 in the original), the
 // min() of the copy loop and the registers of the box addresses in the second loop
@@ -270,10 +252,10 @@ void TownTask::vf10() {
     m12C--;
     switch (m130) {
     case 0:
-        m168 = lbl_8087EFB4->m118;
+        m168 = lbl_8087EFB4->mCamera.mTarget;
         break;
     case 1:
-        m168 = lbl_8087EFB4->m10C;
+        m168 = lbl_8087EFB4->mCamera.mPos;
         break;
     }
     if (lbl_8087F430 != 0 && (lbl_8087F430->m868 == 3 || lbl_8087F430->m868 == 4)) {
@@ -313,7 +295,7 @@ void TownTask::vf10() {
                 dst->m058[6] = src->m058[6];
                 dst->m058[7] = src->m058[7];
                 const TownLightParam_unk* light = fn_800C24B4(src->m04C, 0);
-                *fn_800C2448(dst->m04C, 0) = *light;
+                *(TownLightParam_unk*)fn_800C2448((NewCampScene2_unk*)dst->m04C, 0) = *light; // pending: atn::Light
                 dst->m088 = src->m088;
                 dst->m280.Set_unk(src->m280.mValue);
                 dst->m1E0.Set_unk(src->m1E0.mValue);
@@ -335,8 +317,8 @@ void TownTask::vf10() {
             }
         }
     }
-    if (lbl_8087EFB4->m2FC->m74 == 0 && fn_800C16B4(lbl_8087EFB4)->GetLight_unk() != 0) {
-        fn_800C18BC(fn_800C16B4(lbl_8087EFB4)->GetLight_unk());
+    if (lbl_8087EFB4->mScene->m074 == 0 && lbl_8087EFB4->fn_800C16B4()->GetLight_unk() != 0) {
+        fn_800C18BC(lbl_8087EFB4->fn_800C16B4()->GetLight_unk());
     }
 }
 

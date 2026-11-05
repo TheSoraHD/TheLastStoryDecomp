@@ -12,6 +12,7 @@
 // thunks of EffectManager for its IRender base (0x8024372C/0x80243734, emitted by MWCC at the end).
 
 #include "atn/EffectManager.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: render parameters (fields named by offset)
 struct EffectParams_unk {
@@ -61,12 +62,12 @@ void EffectManager::fn_80239C20() {
 
 void EffectManager::vf14() {
     mSystem.fn_8022C3F0();
-    fn_800BDB58(lbl_8087EFB4, static_cast<IRender*>(this), 0.0f, 0xB);
+    lbl_8087EFB4->fn_800BDB58(static_cast<IRender*>(this), 0.0f, 0xB);
     if ((mSystem.mFlags & 1) == 1) {
-        fn_800BDB58(lbl_8087EFB4, static_cast<IRender*>(this), 0.0f, 6);
+        lbl_8087EFB4->fn_800BDB58(static_cast<IRender*>(this), 0.0f, 6);
     }
     if ((mSystem.mFlags & 8) == 8) {
-        fn_800BDB58(lbl_8087EFB4, static_cast<IRender*>(this), -10000000.0f, 4);
+        lbl_8087EFB4->fn_800BDB58(static_cast<IRender*>(this), -10000000.0f, 4);
     }
 }
 

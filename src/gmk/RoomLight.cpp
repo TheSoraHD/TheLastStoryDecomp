@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include <boost/function.hpp>
 #include "game/MapManager.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
@@ -20,25 +21,10 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 extern "C" void fn_80087BB4(void* group, const char* name, atn::Vector2_unk* value, int arg3, int arg4, float min,
                             float max, float step);
 
-// inferred: light settings of the camera (returned by fn_800C16B4)
-struct LightTarget_unk {
-    // inferred: name invented
-    void SetLight_unk(CharaLightData_unk* light) {
-        m74 = light;
-        m70 = m74 != 0 || m70 != 0;
-    }
-    unsigned char m00[0x70];
-    int m70;
-    CharaLightData_unk* m74;
-    unsigned char m78[0xC8 - 0x78];
-    int mC8;
-};
 namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 
 // inferred: sets the light of a map part (callback of fn_80491528)
 void fn_8041FED8(MapArea* part, void* light) {
@@ -57,7 +43,7 @@ GimmickCommon* RoomLight::fn_8041FF08(atn::Task* parent, int id, int arg) {
 }
 
 RoomLight::~RoomLight() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(0);
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
 }
 
 int RoomLight::vf0C() {
@@ -69,8 +55,8 @@ int RoomLight::vf0C() {
 }
 
 void RoomLight::Start() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
-    fn_800C16B4(lbl_8087EFB4)->mC8 = mLight.m50;
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&mLight);
+    lbl_8087EFB4->fn_800C16B4()->SetLightIndex_unk(mLight.m50);
     MapManager::sInstance->fn_80491528(&fn_8041FED8, &mLight);
     if (m58 == 0) {
         mFrame = 0;

@@ -2,6 +2,7 @@
 #define ATN_POSTFX_H
 
 #include "atn/GXDecl.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: render manager (lbl_8087EEE0; see atn/Layer2DBlur.cpp)
 struct PostFxRenderMgr_unk {
@@ -9,14 +10,11 @@ struct PostFxRenderMgr_unk {
     int mWidth;  // 0x3C
     int mHeight; // 0x40
 };
-struct PostFxFrameBuffer_unk;
 
 extern "C" PostFxRenderMgr_unk* lbl_8087EEE0;
-extern "C" PostFxFrameBuffer_unk* lbl_8087EFB4;
 extern "C" void fn_800763FC(PostFxRenderMgr_unk* mgr, GXTexObj* obj, int map); // inferred: binds a texture
 extern "C" void fn_80075F58(PostFxRenderMgr_unk* mgr, int x, int y, int w, int h); // inferred: viewport
 extern "C" void fn_80075DEC(PostFxRenderMgr_unk* mgr);  // inferred: restores the viewport
-extern "C" void fn_800BFB70(PostFxFrameBuffer_unk* fb); // inferred: draws a full screen quad
 
 namespace atn {
 

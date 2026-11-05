@@ -6,6 +6,7 @@
 #include "atn/Sphere.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" void GXSetIndTexOrder(int stage, int coord, int map);
 extern "C" void GXSetIndTexCoordScale(int stage, int scaleS, int scaleT);
@@ -74,9 +75,6 @@ struct GodRayFrameBuffer_unk {
     GXTexObj m77C; // 0x77C: inferred: color texture
 };
 
-extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
-extern "C" GodRayOverride_unk* fn_800C1424(PostFxFrameBuffer_unk* fb);
-extern "C" void fn_800BFAC8(atn::Vector3* out, PostFxFrameBuffer_unk* fb, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, const float* weights,
                             int forward, float dx, float dy);
@@ -209,7 +207,7 @@ extern "C" void fn_800AE568(GXTexObj* src, void* dst, int w, int h, int fmt, flo
     GXSetTevOrder(3, 0, 0, 0xFF);
     GXSetBlendMode(0, 4, 1, 3);
     fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTexCopySrc(0, 0, w, h);
     GXSetTexCopyDst(w, h, fmt, 0);
     GXCopyTex(dst, 0);
@@ -288,7 +286,7 @@ int PostFxGodRay::fn_800AEF4C() {
 // NONMATCHING: 97.59% - stack slots of the case 0 temporaries and FPR of the screen size
 void PostFxGodRay::fn_800AEF68() {
     mParams = &lbl_8087EFA8->mGodRay;
-    GodRayOverride_unk* o = fn_800C1424(lbl_8087EFB4);
+    GodRayOverride_unk* o = (GodRayOverride_unk*)lbl_8087EFB4->fn_800C1424(); // pending: view of the scene
     if (o->m194 != 0) {
         mParams = &o->m198;
     }
@@ -393,7 +391,7 @@ void PostFxGodRay::vf10(void* camera) {
     GXTexObj tmp;
     GXInitTexObj(&tmp, image1, w, h, fmt, 0, 0, 0);
     GXInitTexObjLOD(&tmp, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-    fn_800C0508(lbl_8087EFB4, 1);
+    lbl_8087EFB4->fn_800C0508(1);
     if (p->mUseDepth) {
         GXSetNumTevStages(2);
         GXSetNumTexGens(3);
@@ -439,7 +437,7 @@ void PostFxGodRay::vf10(void* camera) {
     } else {
         fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
     }
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     if (p->mShift > 0) {
         GXSetTexCopySrc(0, 0, w * 2, h * 2);
         GXSetTexCopyDst(w, h, copyFmt, 1);
@@ -508,7 +506,7 @@ void PostFxGodRay::vf10(void* camera) {
     fn_800763FC(lbl_8087EEE0, &m08, 1);
     GXSetBlendMode(0, 4, 1, 3);
     fn_80075F58(lbl_8087EEE0, 0, 0, fullW, fullH);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     if (lbl_8087EFA8->mGodRay.mDebug != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &((GodRayFrameBuffer_unk*)lbl_8087EFB4)->m77C, 0, 16.0f, 16.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m08, 0, 16.0f, 32.0f + (float)fullH / 3.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);

@@ -14,7 +14,6 @@ extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
 extern "C" void fn_80565F34(chr::CharaEquip_unk* equip); // inferred: draws the equipment
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b);
-extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* camera, const atn::Vector3* pos); // inferred: to screen
 // inferred: menu cursor (lbl_8087F580)
 struct CostumeEditCursor_unk {
     unsigned char m000[0x1EC];

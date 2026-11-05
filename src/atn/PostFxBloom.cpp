@@ -2,15 +2,12 @@
 #include "atn/PostFx.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
-// inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/LinearAllocator.cpp)
-struct BloomColor_unk {
-    float r, g, b, a;
-};
 struct BloomParams_unk {
     unsigned char m00[0x58];
     int m58;      // 0x58: inferred: debug display
@@ -22,12 +19,11 @@ struct BloomParams_unk {
     float m70;    // 0x70: inferred: blur length Y
     float m74;    // 0x74: inferred: blur angle
     float m78[5]; // 0x78: inferred: blur weights
-    BloomColor_unk m8C[3]; // 0x8C: inferred: color of each threshold pass
+    atn::Color m8C[3]; // 0x8C: inferred: color of each threshold pass
     int mBC[3];   // 0xBC: inferred: TEV bias of each pass
     int mC8[3];   // 0xC8: inferred: TEV scale of each pass
 };
 extern "C" BloomParams_unk* lbl_8087EFA8;
-extern "C" void fn_800BFC18(PostFxFrameBuffer_unk* fb, BloomColor_unk color, float a, float b);
 
 // inferred: translation matrix by value (names invented)
 static inline atn::Matrix3x4 MakeTrans_unk(const atn::Vector3& v) {
@@ -112,7 +108,7 @@ extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int
         GXSetTevDirect(i);
     }
     GXSetBlendMode(0, 4, 1, 3);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTexCopySrc(0, 0, width, height);
     GXSetTexCopyDst(width, height, format, 0);
     GXCopyTex(dst, 0);
@@ -178,7 +174,7 @@ void PostFxBloom::vf10(void* camera) {
     GXSetTevOp(0, 3);
     GXSetTevOrder(0, 0, 0, 0xFF);
     fn_80075F58(lbl_8087EEE0, 0, 0, w2, h2);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTexCopySrc(0, 0, w2, h2);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
@@ -193,7 +189,7 @@ void PostFxBloom::vf10(void* camera) {
     GXSetTevOp(0, 3);
     GXSetTevOrder(0, 0, 0, 0xFF);
     fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     for (int i = 0; i < 3; i++) {
         GXSetTevColorIn(0, 0xF, 8, 0xE, 0xF);
         GXSetTevColorOp(0, 0, lbl_8087EFA8->mBC[i], lbl_8087EFA8->mC8[i], 1, 0);
@@ -201,12 +197,12 @@ void PostFxBloom::vf10(void* camera) {
         GXSetTevOrder(0, 0, 0, 0xFF);
         GXSetTevKColorSel(0, 0xC);
         GXSetTevDirect(0);
-        BloomColor_unk& c = lbl_8087EFA8->m8C[i];
+        atn::Color& c = lbl_8087EFA8->m8C[i];
         GXColor color = {(unsigned char)(255.0f * c.r), (unsigned char)(255.0f * c.g), (unsigned char)(255.0f * c.b),
                          (unsigned char)(255.0f * c.a)};
         GXSetTevKColor(0, color);
         GXSetBlendMode(1, 2, 0, 3);
-        fn_800BFB70(lbl_8087EFB4);
+        lbl_8087EFB4->fn_800BFB70();
     }
     GXSetBlendMode(0, 1, 0, 3);
     GXSetTexCopySrc(0, 0, w, h);
@@ -230,15 +226,15 @@ void PostFxBloom::vf10(void* camera) {
     GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
     GXSetTevDirect(0);
     fn_80075F58(lbl_8087EEE0, 0, 0, w2, h2);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     fn_80075DEC(lbl_8087EEE0);
     // inferred: adds the bloom to the frame buffer
     GXSetBlendMode(1, 1, 1, 3);
     float intensity = lbl_8087EFA8->m68;
-    BloomColor_unk color = {intensity, intensity, intensity, 1.0f};
+    atn::Color color(intensity, intensity, intensity, 1.0f);
     fn_800763FC(lbl_8087EEE0, &m04, 0);
     for (int i = 1; i <= lbl_8087EFA8->m64; i++) {
-        fn_800BFC18(lbl_8087EFB4, color, 0.0f, 0.0f);
+        lbl_8087EFB4->fn_800BFC18(color, 0.0f, 0.0f);
     }
     GXSetBlendMode(0, 1, 0, 3);
     if (lbl_8087EFA8->m58 != 0) {

@@ -2,6 +2,7 @@
 // de color y desaturacion).
 #include "atn/PostFx.h"
 #include "math/Vec.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: 4-component vector copied with paired singles (name invented)
 struct ColorVec4_unk {
@@ -51,8 +52,6 @@ struct ColorMatrixOwner_unk {
     int m260;
     ColorMatrix_unk m264;
 };
-extern "C" ColorMatrixOwner_unk* fn_800C1424(PostFxFrameBuffer_unk* fb);
-extern "C" void fn_800C0508(PostFxFrameBuffer_unk* fb, int arg);
 
 // inferred: clamp limits (0.0f, 1.0f) of the time and of the four components, kept as globals in .sdata.
 // The original keeps the zeros in .sdata, which MWCC only does with explicit_zero_data (approved exception,
@@ -110,7 +109,7 @@ PostFxColorMatrix::PostFxColorMatrix() : mOwner(0), mTime(0.0f) {}
 // inferred: "1.0f - s" and "1.0f - k" written in the loops (hoisted by the compiler) and the gray vector built
 // from lum[i] directly give the FPR allocation and scheduling of the original
 void PostFxColorMatrix::fn_800AA8DC() {
-    ColorMatrixOwner_unk* owner = fn_800C1424(lbl_8087EFB4);
+    ColorMatrixOwner_unk* owner = (ColorMatrixOwner_unk*)lbl_8087EFB4->fn_800C1424(); // pending: view of the scene
     ColorMatrix_unk* src = owner->m260 != 0 ? &owner->m264 : &lbl_8087EFA8->m324;
     mTime += 0.05f;
     if (mTime >= 1.0f) {
@@ -171,7 +170,7 @@ static inline GXColor ToGXColorF_unk(const ColorF_unk& v) {
 // NONMATCHING: 97.12% - FPR allocation only (0.0f of the columns, copy of the column and clamp limits in other
 // registers); the clamps are expressions on the globals (the limit is loaded just before its comparison)
 void PostFxColorMatrix::vf10(void* camera) {
-    fn_800C0508(lbl_8087EFB4, 1);
+    lbl_8087EFB4->fn_800C0508(1);
     GXInvalidateTexAll();
     GXSetNumTexGens(1);
     GXSetNumChans(0);
@@ -247,7 +246,7 @@ void PostFxColorMatrix::vf10(void* camera) {
     GXSetTevOrder(3, 0xFF, 0xFF, 0xFF);
     GXSetTevDirect(3);
     GXSetBlendMode(0, 4, 1, 3);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTevSwapModeTable(0, 0, 1, 2, 3);
     GXSetTevSwapModeTable(1, 0, 1, 2, 3);
     GXSetTevSwapModeTable(2, 0, 1, 2, 3);

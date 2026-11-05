@@ -14,6 +14,7 @@
 #include <boost/function.hpp>
 #include "sdk/OSFastCast.h" // OSInitFastCast (SDK header asm, approved 2026-10-21)
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" void OSInit();
 extern "C" void OSReport(const char* fmt, ...);
@@ -156,28 +157,13 @@ extern "C" void fn_8004D258(void* obj, int a, int b, int c, int d, int e);
 extern "C" void fn_80047DCC(void* obj);
 extern "C" void fn_80071D60(void* obj, int arg);
 
-// inferred: callback of the render system with its argument (constructor 0x800BD94C)
-struct RenderCallback_unk {
-    RenderCallback_unk(boost::function<void(void*)> func, int arg);
-    boost::function<void(void*)> mFunc;
-    int mArg;
-};
-
-// inferred: render system (only the members used here)
-class RenderSystem_unk {
-public:
-    // inferred: inline setters of the callbacks run around the frame (weak copies here)
-    void fn_80479EA0(boost::function<void(void*)> func, int arg) { m8B0 = RenderCallback_unk(func, arg); }
-    void fn_8047A158(boost::function<void(void*)> func, int arg) { m8C8 = RenderCallback_unk(func, arg); }
-
-    unsigned char m000[0x8B0];
-    RenderCallback_unk m8B0;
-    RenderCallback_unk m8C8;
-};
-extern "C" RenderSystem_unk* lbl_8087EFB4;
-extern "C" void fn_800BD9C0(RenderSystem_unk* render, int size, const std::string& name);
-extern "C" void fn_800BDBC8(RenderSystem_unk* render);
-extern "C" void fn_800BFAC4(RenderSystem_unk* render);
+// inferred: inline setters of the callbacks run around the frame (weak copies here)
+inline void atn::RenderView_unk::fn_80479EA0(boost::function<void(void*)> func, int arg) {
+    m8B0 = RenderCallback_unk(func, arg);
+}
+inline void atn::RenderView_unk::fn_8047A158(boost::function<void(void*)> func, int arg) {
+    m8C8 = RenderCallback_unk(func, arg);
+}
 
 typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
 extern "C" FrameCallbacks_unk* lbl_8087EE94;
@@ -217,7 +203,7 @@ int main() {
             lbl_8087F540->m1EB4 = lbl_8087F534->fn_805A6D10();
         }
         fn_800A5554(lbl_8087EF70);
-        fn_800BDBC8(lbl_8087EFB4);
+        lbl_8087EFB4->fn_800BDBC8();
         lbl_8087F534->mTimer1.Start_unk();
         if (HomeButtonMenu::sInstance->m84 != 1) {
             fn_800D2494(lbl_8087F530);
@@ -231,7 +217,7 @@ int main() {
             fn_8004D258(lbl_8087EE98, 1, 0, lbl_8087F0A8->m10, -1, lbl_8087F0A8->m14);
         }
         lbl_8087EEB8->fn_80069E50(lbl_8087F0A8->m4C);
-        fn_800BFAC4(lbl_8087EFB4);
+        lbl_8087EFB4->fn_800BFAC4();
         lbl_8087F534->mTimer3.Start_unk();
         fn_80047DCC(lbl_8087EE90);
         lbl_8087EFE8->fn_800CE6E0();
@@ -312,7 +298,7 @@ void fn_8047A4C8() {
     OSReport("6\n");
     atn::PostFxManager::fn_800A8FF0(lbl_8087F530);
     OSReport("7\n");
-    fn_800BD9C0(lbl_8087EFB4, 0x40000, std::string(""));
+    lbl_8087EFB4->fn_800BD9C0(0x40000, std::string(""));
     atn::DrawHelper::fn_8005DD60();
     lbl_8087EEB0->fn_8005DED8(0x40000, std::string("font"));
     fn_80239794(0x480, 0x200, 0x100, -1);

@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/CharaTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -56,12 +57,10 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
 struct ScreenInfo_unk {
     unsigned char m00[0x2C];
     float mColor[4];
 };
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 
 // inferred: translation of a node matrix (name invented)
 inline atn::Vector3 NodePos_unk(MtxPtr mtx) {
@@ -234,9 +233,8 @@ inline void ColliAttrManager::PlayEffect_unk(atn::EffFile* res, const atn::Vecto
 void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int node, const atn::Vector3* ofs) {
     atn::Vector3 pos;
     atn::Vector3 rot = chara->mRot;
-    Camera_unk* camera = lbl_8087EFB4;
-    atn::Model::Sphere_unk sphere = chara->mMotion.fn_80094F98();
-    ScreenInfo_unk* info = fn_800C122C(camera, &sphere);
+    atn::RenderView_unk* camera = lbl_8087EFB4;
+    ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(chara->mMotion.fn_80094F98()); // pending: view of the scene
     unsigned int r = ToU8_unk(info->mColor[0]);
     unsigned int g = ToU8_unk(info->mColor[1]);
     unsigned int b = ToU8_unk(info->mColor[2]);

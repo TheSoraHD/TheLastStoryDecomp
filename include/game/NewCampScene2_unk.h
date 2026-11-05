@@ -31,6 +31,9 @@ struct NewCampScene2_unk {
         m074 = light;
         m070 = m074 != 0 || m070 != 0;
     }
+    // inferred: light of the scene: the one set by SetLight_unk or its own (m078); null when off
+    // (inlined in game/TownTask.cpp); name invented
+    void* GetLight_unk() const { return m070 != 0 ? (m074 != 0 ? m074 : (void*)m078) : 0; }
 
     unsigned char m000[0x00C];
     atn::D2A_DrawColor mAmbient;    // 0x00C: debug menu "Ambient"

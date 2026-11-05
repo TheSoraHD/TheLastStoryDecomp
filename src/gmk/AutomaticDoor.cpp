@@ -3,6 +3,7 @@
 #include "atn/LoadHandle.h"
 #include "atn/Memory.h"
 #include <boost/scoped_ptr.hpp>
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -40,32 +41,6 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
-// inferred: camera (layout as in game/CharaTask.cpp)
-struct DoorView_unk {
-    unsigned char m00[8];
-    atn::Vector3 mEye;    // 0x08
-    atn::Vector3 mTarget; // 0x14
-};
-struct Camera_unk {
-    Camera_unk(int a = 0, int b = 0);
-    ~Camera_unk();
-    void fn_8004B378(); // inferred: updates the matrices
-    int mType;            // 0x00
-    int mFovType;         // 0x04
-    atn::Vector3 mPos;    // 0x08
-    atn::Vector3 mTarget; // 0x14
-    atn::Vector3 mUp;     // 0x20
-    atn::Vector3 mDir;    // 0x2C
-    float m38;
-    float m3C; // inferred: projection bounds
-    float m40;
-    float m44;
-    float m48;
-    unsigned char m4C[0x104 - 0x4C];
-    DoorView_unk m104;
-    unsigned char m124[0x1F4 - 0x124];
-};
-extern "C" Camera_unk* lbl_8087EFB4;
 // inferred: camera owned by a model (as in game/CharaTask.cpp)
 struct ModelCamera_unk {
     ModelCamera_unk() : m00(0) {}
@@ -82,10 +57,8 @@ struct ScreenInfo_unk {
     unsigned char m000[0x120];
     int m120;
 };
-extern "C" ScreenInfo_unk* fn_800C122C(Camera_unk* camera, const atn::Model::Sphere_unk* sphere);
 extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // inferred: sets the reflection plane
 extern "C" int lbl_8087DF50; // inferred: reflections enabled
-extern "C" atn::Vector3 fn_800BFAC8(Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 // inferred: field and HUD (classes unknown)
 struct DoorField_unk {
     unsigned char m000[0x268];
@@ -103,14 +76,6 @@ struct DoorHud_unk {
     float m1100;
 };
 extern "C" DoorHud_unk* lbl_8087F490;
-// inferred: projection passed to fn_80095F10 (names invented)
-struct DoorProject_unk {
-    DoorProject_unk() : mType(0) {}
-    int mType;
-    atn::Texture_unk* mTexture;
-    Camera_unk mCamera;
-};
-extern "C" void fn_80095F10(atn::Model* model, DoorProject_unk* project);
 
 // inferred: normalizes unless the vector is (almost) zero (as in gmk::WaterLevel); name invented
 inline void SafeNormalize_unk(atn::Vector3* v) {
@@ -312,8 +277,8 @@ void AutomaticDoor::vf10() {
         }
     }
     if (mReflect != 0 && mReflectNode != -1) {
-        Camera_unk* camera = lbl_8087EFB4;
-        ScreenInfo_unk* info = fn_800C122C(camera, &mModel.fn_80094F98());
+        atn::RenderView_unk* camera = lbl_8087EFB4;
+        ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mModel.fn_80094F98()); // pending: view of the scene
         if (info != 0 && lbl_8087DF50 != 0) {
             Plane_unk plane = mPlane;
             MtxPtr mtx = mModel.GetNodeMtx_unk(mReflectNode);
@@ -348,7 +313,7 @@ void AutomaticDoor::fn_803F53E0() {
         float right = 1.0f;
         float top = right;
         atn::Vector3 dir;
-        dir = lbl_8087EFB4->m104.mTarget - lbl_8087EFB4->m104.mEye;
+        dir = lbl_8087EFB4->mCamera.mTarget - lbl_8087EFB4->mCamera.mPos;
         PSVECNormalize(&dir, &dir);
         atn::Vector3 pos;
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
@@ -362,15 +327,15 @@ void AutomaticDoor::fn_803F53E0() {
             mModel.mFlags &= ~0x80000;
             return;
         }
-        atn::Vector3 eye(lbl_8087EFB4->m104.mEye);
+        atn::Vector3 eye(lbl_8087EFB4->mCamera.mPos);
         float t = (front.x * (pos.x - eye.x) + front.y * (pos.y - eye.y) + front.z * (pos.z - eye.z)) / d;
         atn::Vector3 hit = eye - dir * t;
         atn::Vector3 p0;
-        p0 = fn_800BFAC8(lbl_8087EFB4, &hit);
+        fn_800BFAC8(&p0, lbl_8087EFB4, &hit);
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 p1;
         atn::Vector3 top_pos = hit + up;
-        p1 = fn_800BFAC8(lbl_8087EFB4, &top_pos);
+        fn_800BFAC8(&p1, lbl_8087EFB4, &top_pos);
         if (p0.z < 0.0f || 1.0f < p0.z || p1.z < 0.0f || 1.0f < p1.z) {
             mModel.mFlags &= ~0x80000;
             return;
@@ -387,15 +352,15 @@ void AutomaticDoor::fn_803F53E0() {
         camera.mUp = field->mCamUp;
         camera.mPos = field->mCamPos;
         camera.mTarget = field->mCamTarget;
-        camera.m3C = top;
-        camera.m40 = bottom;
-        camera.m44 = left;
-        camera.m48 = right;
+        camera.mTop = top;
+        camera.mBottom = bottom;
+        camera.mLeft = left;
+        camera.mRight = right;
         camera.fn_8004B378();
-        DoorProject_unk project;
+        ModelCameraParam_unk project;
         project.mCamera = camera;
-        project.mType = 3;
-        project.mTexture = &mTexture;
+        project.m00 = 3;
+        project.m04 = &mTexture;
         fn_80095F10(&mModel, &project);
     } else {
         mModel.mFlags &= ~0x80000;

@@ -1,5 +1,6 @@
 #include "math/Vec.h"
 #include "atn/Memory.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
@@ -7,20 +8,12 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-// inferred: frustum of the camera (camera + 0x204)
-struct AABBFrustum_unk;
-// inferred: camera of the scene (fields named by offset)
-struct AABBCamera_unk {
-    unsigned char m000[0x204];
-    unsigned char mFrustum[1]; // 0x204
-};
 // inferred: render parameters (fields named by offset)
 struct AABBParams_unk {
     unsigned char m000[0x1D4];
     int mCulling; // 0x1D4
 };
 extern "C" AABBParams_unk* lbl_8087EFA8;
-extern "C" AABBCamera_unk* lbl_8087EFB4;
 
 namespace atn {
 
@@ -35,8 +28,6 @@ struct AABB_unk {
 
 } // namespace atn
 
-extern "C" int fn_800502A8(void* frustum, const atn::AABB_unk* box);             // inferred: frustum test
-extern "C" int fn_800C0A50(AABBCamera_unk* camera, const atn::AABB_unk* box);   // inferred: occlusion test
 extern "C" int fn_80070A70(const atn::AABB_unk* box, const atn::AABB_unk* other); // inferred: a corner of other is in box
 
 namespace atn {
@@ -135,7 +126,7 @@ void AABBTree::vf18() {
     int* visible = mVisible.mData;
     if (lbl_8087EFA8->mCulling != 0) {
         memset(visible, 0, mVisible.mSize);
-        void* frustum = lbl_8087EFB4->mFrustum;
+        void* frustum = &lbl_8087EFB4->mCamera.mFrustum;
         mRoot.mNode->fn_80045C88(frustum, visible);
     } else {
         memset(visible, 1, mVisible.mSize);
@@ -150,10 +141,10 @@ AABBTreeNode_unk::~AABBTreeNode_unk() {
 
 void AABBTreeNode_unk::fn_80045C88(void* frustum, int* visible) {
     ((void)0); // inferred: keeps the recursive inlining to one level, as in the original
-    int vis = fn_800502A8(frustum, &mBounds);
+    int vis = fn_800502A8((const Frustum_unk*)frustum, &mBounds.mMin);
     visible[mIndex] = vis;
     if (vis != 0) {
-        vis = fn_800C0A50(lbl_8087EFB4, &mBounds);
+        vis = lbl_8087EFB4->fn_800C0A50(&mBounds);
     }
     for (int i = 0; i < 4; i++) {
         if (mChildren[i] != 0 && vis != 0) {

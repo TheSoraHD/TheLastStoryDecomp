@@ -4,6 +4,7 @@
 #include "atn/SoundRef.h"
 #include <boost/function.hpp>
 #include "game/MapManager.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -28,26 +29,10 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             int arg8, int arg9, float scale);
 extern "C" void fn_80232B7C(void* owner, int arg);
 
-// inferred: light settings of the camera (returned by fn_800C16B4)
-struct LightTarget_unk {
-    // inferred: name invented
-    void SetLight_unk(CharaLightData_unk* light) {
-        m74 = light;
-        m70 = m74 != 0 || m70 != 0;
-    }
-    unsigned char m00[0x70];
-    int m70;
-    CharaLightData_unk* m74;
-    unsigned char m78[0xC8 - 0x78];
-    int mC8;
-    void SetLayer_unk(int layer) { mC8 = layer; }
-};
 namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 // inferred: debug settings
 struct FireworksDebug_unk {
     unsigned char m00[0x74];
@@ -94,7 +79,7 @@ Fireworks::Fireworks(atn::Task* parent, int id, int arg)
 }
 
 Fireworks::~Fireworks() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(0);
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
     if (MapManager::sInstance != 0) {
         MapManager::sInstance->fn_80491528(&fn_8041CD24, 0);
     }
@@ -109,8 +94,8 @@ int Fireworks::vf0C() {
 }
 
 void Fireworks::Start() {
-    fn_800C16B4(lbl_8087EFB4)->SetLight_unk(&mLight);
-    fn_800C16B4(lbl_8087EFB4)->SetLayer_unk(-1);
+    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&mLight);
+    lbl_8087EFB4->fn_800C16B4()->SetLightIndex_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);

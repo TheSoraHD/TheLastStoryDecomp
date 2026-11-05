@@ -11,7 +11,6 @@ struct RenderState_unk {
 };
 extern "C" RenderState_unk* lbl_8087EEE0;
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
-extern "C" void fn_800C1660(void* camera, atn::Texture_unk* tex, int format); // inferred: copies the frame buffer
 extern "C" void fn_800D5A3C(atn::Texture_unk* tex);
 
 namespace atn {
@@ -125,7 +124,7 @@ void FadeCapture::vf14() {
 }
 
 void FadeCapture::Capture() {
-    fn_800C1660(lbl_8087EFB4, &mTex, m78);
+    lbl_8087EFB4->fn_800C1660(&mTex, m78);
     mCaptured = 1;
 }
 

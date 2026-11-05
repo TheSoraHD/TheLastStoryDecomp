@@ -4,6 +4,7 @@
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -113,7 +114,7 @@ extern "C" void fn_800AB774(GXTexObj* src, void* dst, int width, int height, int
         GXSetTevDirect(i);
     }
     GXSetBlendMode(0, 4, 1, 3);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTexCopySrc(0, 0, width, height);
     GXSetTexCopyDst(width, height, format, 0);
     GXCopyTex(dst, 0);
@@ -191,7 +192,7 @@ void PostFxDamage::vf10(void* camera) {
     GXSetTevOp(0, 3);
     GXSetTevOrder(0, 0, 0, 0xFF);
     fn_80075F58(lbl_8087EEE0, 0, 0, w2, h2);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetTexCopySrc(0, 0, (unsigned short)w * 2, (unsigned short)h * 2);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
@@ -209,7 +210,7 @@ void PostFxDamage::vf10(void* camera) {
     GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
     GXSetTevDirect(0);
     fn_80075F58(lbl_8087EEE0, 0, 0, w2, h2);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     // inferred: draws the blurred frame through the edge texture with the tint
     GXSetNumTexGens(2);
     GXSetNumChans(0);
@@ -254,7 +255,7 @@ void PostFxDamage::vf10(void* camera) {
     GXSetTevDirect(1);
     GXSetBlendMode(1, 4, 5, 3);
     fn_80075DEC(lbl_8087EEE0);
-    fn_800BFB70(lbl_8087EFB4);
+    lbl_8087EFB4->fn_800BFB70();
     GXSetBlendMode(0, 4, 1, 3);
     if (lbl_8087EFA8->m378 != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &sBlur, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);

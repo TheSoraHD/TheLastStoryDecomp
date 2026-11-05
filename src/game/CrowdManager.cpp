@@ -132,7 +132,6 @@ void CrowdManager::vf10() {
 }
 
 extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" int sprintf(char* dst, const char* format, ...);
 

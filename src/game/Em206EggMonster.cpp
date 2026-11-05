@@ -1285,7 +1285,6 @@ void Em206EggMonster::vf54() {
     }
 }
 
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, float volume, int arg2, int arg3);

@@ -12,6 +12,8 @@
 #include "math/Vec.h"
 #include "std/new.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
+#include "atn/ColorMatrixParam_unk.h"
 
 // inferred: up to four lights sorted by distance (atn/LightUtil_unk.cpp). The two selectors are
 // called here on uninitialized temporaries: they return the set by value (declared here as
@@ -157,7 +159,8 @@ struct DrawLens_unk {
     float m0C[4]; // inferred: ambient colour
     float m1C[4]; // inferred: constant colour
     unsigned char m2C[0x3C - 0x2C];
-    unsigned char m3C[0x70 - 0x3C];
+    atn::FogSettings m3C; // inferred: fog (passed to RenderView_unk::fn_800C06B0)
+    unsigned char m58[0x70 - 0x58];
     int m70; // inferred: shadow enabled
     void* m74;
     unsigned char m78[0xC8 - 0x78];
@@ -238,58 +241,24 @@ struct DrawMaterials_unk {
     Material_unk** mData;
 };
 
-// inferred: callbacks around the drawing of a mesh (InstCallback_unk of atn/ModelInstance.cpp)
-struct DrawCallback_unk {
-    void (*mFunc1)(void*, void*);
-    void (*mFunc2)(void*, void*);
-    void* mArg1;
-    void* mArg2;
-};
 
-struct DrawColor_unk {
-    float m[4];
-};
 
-// inferred: draw command of a mesh (0x4C bytes)
-struct DrawCmd_unk {
-    DrawCmd_unk(unsigned int flags, Material_unk* mat, DrawMesh_unk* mesh, DrawLens_unk* lens, Mtx* mtx,
-                void* vtx, DrawArray_unk* arrays, DrawColor_unk color, void* m34, void* m38, DrawCallback_unk cb)
-        : m04(flags), m08(mat), m0C(mesh), m10(lens), m14(mtx), m18(vtx), m1C(arrays), m20(0), m24(color),
-          m34(m34), m38(m38), m3C(cb) {}
-
-    int m00; // inferred: sort key
-    unsigned int m04;
-    Material_unk* m08;
-    DrawMesh_unk* m0C;
-    DrawLens_unk* m10;
-    Mtx* m14;
-    void* m18;
-    DrawArray_unk* m1C;
-    void* m20;
-    DrawColor_unk m24;
-    void* m34;
-    void* m38;
-    DrawCallback_unk m3C;
-};
+// inferred: draw command of a mesh (include/atn/DrawCmd_unk.h)
+inline DrawCmd_unk::DrawCmd_unk(unsigned int flags, Material_unk* mat, DrawMesh_unk* mesh, DrawLens_unk* lens,
+                                Mtx* mtx, void* vtx, DrawArray_unk* arrays, DrawColor_unk color, void* m34, void* m38,
+                                DrawCallback_unk cb)
+    : m04(flags), m08(mat), m0C(mesh), m10(lens), m14(mtx), m18(vtx), m1C(arrays), m20(0), m24(color), m34(m34),
+      m38(m38), m3C(cb) {}
 extern "C" void fn_800BC438(DrawCmd_unk* cmd); // inferred: computes the sort key
 
-struct DrawSortKey_unk {
-    DrawSortKey_unk(int key, int index) : mKey(key), mIndex(index) {}
-    int mKey;
-    int mIndex;
-};
 
 template <class T, int N>
-struct DrawQueue_unk {
-    void push_back(const T& v) {
-        new (&mData[mSize]) T(v);
-        mSize++;
-    }
-    unsigned int mSize;
-    T mData[N];
-};
+inline void DrawQueue_unk<T, N>::push_back(const T& v) {
+    new (&mData[mSize]) T(v);
+    mSize++;
+}
 
-// inferred: view of a pass of the camera
+// inferred: view of a render layer (atn::RenderView_unk::mLayers) seen by the draw of a mesh
 struct DrawPass_unk {
     unsigned char m00[0x0C];
     unsigned int m0C; // inferred: material mask
@@ -298,35 +267,11 @@ struct DrawPass_unk {
     atn::Vector3 m7C; // inferred: eye
 };
 
-// inferred: global camera (lbl_8087EFB4)
-struct DrawScene_unk {
-    DrawPass_unk* mPass[0x14]; // inferred: pass pointers; queue supports pass IDs 0..0x13
-    unsigned char m50[0x15C - 0x50];
-    atn::Matrix3x4 m15C;
-    unsigned char m18C[0x2F8 - 0x18C];
-    int m2F8; // inferred: current pass
-    DrawLens_unk* m2FC;
-    unsigned char m300[0x418 - 0x300];
-    unsigned char m418[0x74C - 0x418]; // inferred: frustum
-    atn::Texture_unk m74C;
-    unsigned char m77C[0x954 - 0x77C];
-    int m954; // inferred: queueing enabled
-    DrawQueue_unk<DrawSortKey_unk, 0x1000> mKeys;
-    DrawQueue_unk<DrawCmd_unk, 0x1000> mCmds;
-
-    void Push_unk(const DrawCmd_unk& cmd) {
-        mKeys.push_back(DrawSortKey_unk(cmd.m00, mCmds.mSize));
-        mCmds.push_back(cmd);
-    }
-};
-extern "C" DrawScene_unk* lbl_8087EFB4;
-extern "C" void fn_800C06B0(DrawScene_unk* scene, void* arg);
-extern "C" void fn_800C08B0(DrawScene_unk* scene);
-extern "C" void fn_800C0900(Mtx out, DrawScene_unk* scene, int mode, int a, int b, int c);
-extern "C" atn::Texture_unk* fn_800C0A8C(DrawScene_unk* scene);
-extern "C" atn::Texture_unk* fn_800C0A98(DrawScene_unk* scene);
-extern "C" void fn_800BDB40(DrawScene_unk* scene, DrawLens_unk* lens);
-extern "C" int fn_8004FF58(const void* frustum, const atn::Sphere* sphere);
+// inferred: queues a draw command (inlined)
+inline void atn::RenderView_unk::Push_unk(const DrawCmd_unk& cmd) {
+    mKeys.push_back(DrawSortKey_unk(cmd.m00, mCmds.mSize));
+    mCmds.push_back(cmd);
+}
 
 // inferred: render options (lbl_8087EFA8)
 struct DrawParams_unk {
@@ -483,7 +428,7 @@ static inline unsigned char SwapA_unk(SwapTable_unk c) { return c.a; }
 
 // NONMATCHING: 98.37% - r4/r5 swapped in the dead copy of the camera matrix (__MtxCopy, as the __VecCopy family)
 void fn_8009B93C(DrawEntry_unk* entry) {
-    atn::Matrix3x4 view = lbl_8087EFB4->m15C;
+    atn::Matrix3x4 view = lbl_8087EFB4->mCamera.mView;
     if ((entry->m04 & 0x20000) && lbl_8087EFB0 == 0) {
         sSecondPass_unk = 1;
         fn_8009E448(entry, entry->m0C->m48[0]);
@@ -563,8 +508,7 @@ void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
                     GXLoadTexMtxImm(mtx[mesh->m14], gen->m18, 0);
                 }
             }
-            Mtx proj;
-            fn_800C0900(proj, lbl_8087EFB4, src->m10, src->m14, src->m18, 0);
+            atn::Matrix3x4 proj = lbl_8087EFB4->fn_800C0900(src->m10, src->m14, src->m18, 0);
             float t;
             t = uvm[0][2];
             uvm[0][2] = uvm[0][3];
@@ -573,7 +517,7 @@ void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
             uvm[1][2] = uvm[1][3];
             uvm[1][3] = t;
             Mtx out;
-            PSMTXConcat(uvm, proj, out);
+            PSMTXConcat(uvm, proj.m, out);
             GXLoadTexMtxImm(out, texMtx, 0);
             texMtx += 3;
         } else if (mode == 0) {
@@ -689,9 +633,9 @@ void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, DrawLens_unk* lens, Draw
         return;
     }
     if (mat->m14_20) {
-        fn_800C06B0(lbl_8087EFB4, lens->m3C);
+        lbl_8087EFB4->fn_800C06B0(&lens->m3C);
     } else {
-        fn_800C08B0(lbl_8087EFB4);
+        lbl_8087EFB4->fn_800C08B0();
     }
     if (mat == sLastMat_unk && lbl_8087EFA8->m3A0 != 0) {
         fn_8009DCE0(mat);
@@ -764,10 +708,10 @@ void fn_8009C688(Material_unk* mat) {
         void* tex = 0;
         switch (id) {
         case 0x14:
-            tex = fn_800C0A8C(lbl_8087EFB4);
+            tex = lbl_8087EFB4->fn_800C0A8C();
             break;
         case 0x16:
-            tex = fn_800C0A98(lbl_8087EFB4);
+            tex = lbl_8087EFB4->fn_800C0A98();
             break;
         case 0x15:
             tex = &lbl_8087EFB4->m74C;
@@ -853,8 +797,8 @@ void fn_8009C84C(Material_unk* mat) {
 
 // NONMATCHING: 99.12% - r3/r4 of the two globals swapped, f26-f31 shifted, colour temporary at 0x1c instead of 0x8
 void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, int flag, float dist) {
-    fn_800C08B0(lbl_8087EFB4);
-    DrawLens_unk* lens = lbl_8087EFB4->m2FC;
+    lbl_8087EFB4->fn_800C08B0();
+    DrawLens_unk* lens = (DrawLens_unk*)lbl_8087EFB4->mScene; // pending: view of the scene
     DrawParams_unk* p = lbl_8087EFA8;
     float c[4];
     c[0] = p->m110[0];
@@ -1030,7 +974,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (sSecondPass_unk != 0 && (mat->m48 & 2) != 2) {
         return;
     }
-    DrawPass_unk* pass = lbl_8087EFB4->mPass[lbl_8087EFB4->m2F8];
+    DrawPass_unk* pass = (DrawPass_unk*)lbl_8087EFB4->mLayers[lbl_8087EFB4->m2F8]; // pending: view of the layer
     if (lbl_8087EFB0 == 0) {
         unsigned char m = mat->m49;
         if (m != (m & pass->m0C)) {
@@ -1111,7 +1055,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     cmd.m38 = entry->m0C->m50[part->m00];
     float dist = 0.0f;
     if (lbl_8087EFB0 != 0) {
-        DrawPass_unk* view = lbl_8087EFB4->mPass[3];
+        DrawPass_unk* view = (DrawPass_unk*)lbl_8087EFB4->mLayers[3]; // pending: view of the layer (LayerShadow)
         atn::Vector3 d(view->m7C.x - entry->m30.mCenter.x, view->m7C.y - entry->m30.mCenter.y,
                        view->m7C.z - entry->m30.mCenter.z);
         dist = PSVECMag(&d);
@@ -1119,7 +1063,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
     if (flags & 4) {
         cmd.m20 = entry->m5C != 0 ? entry->m5C : fn_800C258C(entry->m84, &entry->m30.mCenter);
     }
-    DrawScene_unk* scene = lbl_8087EFB4;
+    atn::RenderView_unk* scene = lbl_8087EFB4;
     int queue = 0;
     if (scene->m954 != 0 && scene->mCmds.mSize < 0x1000) {
         queue = 1;
@@ -1181,7 +1125,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     DrawArray_unk* arrays = cmd->m1C;
     Mtx* mtx = cmd->m14;
     DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
-    fn_800BDB40(lbl_8087EFB4, lens);
+    lbl_8087EFB4->fn_800BDB40((NewCampScene2_unk*)lens); // pending: view of the scene
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);
     }
@@ -1272,7 +1216,7 @@ void fn_8009E448(DrawEntry_unk* entry, DrawNode_unk* root) {
     int visible = 1;
     if ((((entry->m04 & 8) == 8 && lbl_8087EFA8->m104 != 0) || lbl_8087EFA8->m13C != 0) &&
         lbl_8087EFA8->m150 != 0) {
-        if (fn_8004FF58(lbl_8087EFB4->m418, &entry->m30) == 0) {
+        if (fn_8004FF58(&lbl_8087EFB4->mShadowCamera.mFrustum, &entry->m30) == 0) {
             visible = 0;
         }
     }

@@ -4,6 +4,7 @@
 #include "atn/Model_unk.h"
 #include "math/Vec.h"
 #include "atn/EffectSystem_unk.h"
+#include "atn/RenderView_unk.h"
 
 // Sorted drawing of the effect primitives: polygon strips (items A, 0x70 bytes) and models (items B,
 // 0x5C bytes) are queued by the effect system while it updates, bucket-sorted by view depth and
@@ -63,21 +64,6 @@ struct EffectSettings_unk {
 };
 extern "C" EffectSettings_unk* lbl_8087EFA8;
 
-// inferred: camera of the scene (fields named by use)
-struct EffectCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mPos;     // 0x10C
-    unsigned char m118[0x15C - 0x118];
-    atn::Matrix3x4 mView;  // 0x15C
-    unsigned char m18C[0x2F8 - 0x18C];
-    int m2F8;              // 0x2F8: inferred: render pass (4 = each item has its own matrix)
-    void* m2FC;            // 0x2FC: inferred: lights
-    unsigned char m300[0x954 - 0x300];
-    int m954;
-    unsigned char m958[0x895C - 0x958];
-    unsigned int m895C;
-};
-extern "C" EffectCamera_unk* lbl_8087EFB4;
 
 // inferred: renderer (automatic names)
 struct EffectRender_unk;
@@ -230,8 +216,6 @@ extern "C" void fn_80236938(int count, EffectVertex_unk* verts, const float* col
 extern "C" void fn_80071E04(EffectRender_unk* render);
 extern "C" void fn_80076760(EffectRender_unk* render, int state, int value);
 extern "C" void fn_800763C0(EffectRender_unk* render, int stage, void* texture);
-extern "C" void fn_800C06B0(EffectCamera_unk* camera, void* arg);
-extern "C" void fn_800C08B0(EffectCamera_unk* camera);
 extern "C" Light_unk* fn_800C2448(void* lights, int index);
 // inferred: functions of the models (automatic names)
 extern "C" void fn_80094F14(atn::Model* model, float a, float b);
@@ -258,14 +242,14 @@ extern "C" void fn_80076A28(EffectRender_unk* render, EffectBlend_unk* blend);
 struct EffectModelVt_unk {
     virtual ~EffectModelVt_unk();
     virtual void vf0C();
-    virtual void vf10(EffectCamera_unk* camera);
+    virtual void vf10(atn::RenderView_unk* camera);
     virtual void vf14();
-    virtual void vf18(EffectCamera_unk* camera);
+    virtual void vf18(atn::RenderView_unk* camera);
 };
 
 // inferred: name invented
-inline bool IsFar_unk(EffectCamera_unk* camera) {
-    return camera->m895C >= 0x1000;
+inline bool IsFar_unk(atn::RenderView_unk* camera) {
+    return camera->mCmds.mSize >= 0x1000;
 }
 
 #define EFFECT_MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -421,7 +405,7 @@ extern "C" void fn_80234CD8() {
     GXSetChanCtrl(4, 0, 0, 0, 0, 0, 2);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTexCoordGen2(1, 1, 4, 0x3C, 0, 0x7D);
-    atn::Matrix3x4 view = lbl_8087EFB4->mView;
+    atn::Matrix3x4 view = lbl_8087EFB4->mCamera.mView;
     GXLoadPosMtxImm(view.m, 0);
     GXSetCurrentMtx(0);
     GXClearVtxDesc();
@@ -430,7 +414,7 @@ extern "C" void fn_80234CD8() {
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
     GXLightObj light;
-    fn_800C2448(lbl_8087EFB4->m2FC, 0)->fn_80079994(&light, view.m);
+    fn_800C2448(lbl_8087EFB4->mScene, 0)->fn_80079994(&light, view.m);
     GXLoadLightObjImm(&light, 1);
     atn::Matrix3x4 inv = view;
     PSMTXInverse(inv.m, inv.m);
@@ -509,9 +493,9 @@ extern "C" void fn_80234CD8() {
                             (forceCenter != 0 || useCenter != 0) ? &item->mCenter : 0, 1);
             }
             if ((item->mFlags & 0x10) == 0x10) {
-                fn_800C06B0(lbl_8087EFB4, (char*)item->m6C + 0x3C);
+                lbl_8087EFB4->fn_800C06B0((const atn::FogSettings*)((char*)item->m6C + 0x3C));
             } else {
-                fn_800C08B0(lbl_8087EFB4);
+                lbl_8087EFB4->fn_800C08B0();
             }
         }
     }
@@ -566,7 +550,7 @@ extern "C" void fn_80236938(int count, EffectVertex_unk* verts, const float* col
                             int lit) {
     atn::Vector3 eye;
     if (lit != 0) {
-        eye = lbl_8087EFB4->mPos;
+        eye = lbl_8087EFB4->mCamera.mPos;
     }
     GXSetChanMatColor(4, ToGXColor_unk(color));
     fn_800761A8(lbl_8087EEE0);

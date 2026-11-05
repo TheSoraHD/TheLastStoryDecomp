@@ -48,22 +48,12 @@ struct Locator_unk {
     unsigned int m88_1 : 31;
 };
 struct GameMap_unk;
-extern "C" Locator_unk* fn_804A0614(GameMap_unk* map, const std::string& name); // inferred: by name
-// inferred: light settings of the camera (as in gmk/CharaLight.cpp)
-struct ReflectTarget_unk {
-    unsigned char m00[0x120];
-    int m120; // inferred: map reflection
-    unsigned char m124[0x260 - 0x124];
-    int m260;                  // inferred: m264 is used instead of the global color matrix
-    ColorMatrixParam_unk m264; // inferred: color matrix of the camera
-};
-
+extern "C" Locator_unk* fn_804A0614(GameMap_unk* map, const std::string& name); 
 namespace atn {
 
 struct Camera;
 } // namespace atn
 typedef atn::Camera Camera_unk;
-extern "C" ReflectTarget_unk* fn_800C16B4(atn::RenderView_unk* view);
 extern "C" float lbl_807C8AB0[3][2]; // inferred: text speeds of the message actions
 // inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)
 // inferred: effect manager lbl_8087F3C0 (only the member used here)
@@ -140,7 +130,6 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int fn_800CB4A4(atn::SoundRef* sound);   // inferred: sound state flags
 extern "C" int fn_803CE160(int a, int b, int c);
 
-extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* view, const atn::Vector3* pos); // to screen
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_80531E80(NewStaffRoll* roll);
 extern "C" int fn_800A5584(void* pad, int port, int button); // inferred: button pressed
@@ -1716,8 +1705,8 @@ int ActionColorMatrix::vf08(Action* arg) {
         dst.mRows[i].z = dst.mRows[i].z * rate + src.mRows[i].z * inv;
         dst.mRows[i].w = dst.mRows[i].w * rate + src.mRows[i].w * inv;
     }
-    ReflectTarget_unk* target = fn_800C16B4(lbl_8087EFB4);
-    ColorMatrixParam_unk* out = target->m260 != 0 ? &target->m264 : &lbl_8087EFA8->m324;
+    NewCampScene2_unk* target = lbl_8087EFB4->fn_800C16B4();
+    ColorMatrixParam_unk* out = target->mUseColorMatrix != 0 ? &target->mColorMatrix : &lbl_8087EFA8->m324;
     *out = dst;
     MapManager::sInstance->fn_80491528(boost::bind(&ActionColorMatrix::fn_80561B50, this, _1, _2), &dst);
     return 0;
@@ -1798,7 +1787,7 @@ void ActionMapReflect::fn_805628B8(MapArea* model, const void* arg) {
 
 int ActionMapReflect::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        ReflectTarget_unk* target = fn_800C16B4(lbl_8087EFB4);
+        NewCampScene2_unk* target = lbl_8087EFB4->fn_800C16B4();
         target->m120 = arg->GetParam_unk(0)->m04.i;
         MapManager::sInstance->fn_80491528(boost::bind(&ActionMapReflect::fn_805628B8, this, _1, _2), arg);
     }

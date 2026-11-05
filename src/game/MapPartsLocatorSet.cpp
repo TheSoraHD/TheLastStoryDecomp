@@ -5,6 +5,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/function.hpp>
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -17,7 +18,6 @@ extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name w
 std::string fn_8006B0C8(const std::string& path);            // inferred: directory of a path
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 extern "C" void* fn_804962B0(void* tree, const atn::Sphere* sphere); // inferred: light of a place
-extern "C" int fn_800502A8(void* frustum, const MapPartsBox_unk* box); // inferred: box visible
 
 extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTXMultVecArray
@@ -86,13 +86,6 @@ struct LocatorConfig_unk {
 };
 extern "C" LocatorConfig_unk* lbl_8087F0A8;
 
-// inferred: camera (frustum at 0x204)
-struct LocatorCamera_unk {
-    unsigned char m000[0x204];
-    unsigned char m204[0x10];
-};
-extern "C" LocatorCamera_unk* lbl_8087EFB4;
-extern "C" void* fn_800C16B4(LocatorCamera_unk* camera); // inferred: default light of the camera
 
 struct LocatorDebug_unk {
     unsigned char m00[0x38];
@@ -257,7 +250,7 @@ void MapPartsLocatorSet::vf14() {
             return;
         }
         int visible = 1;
-        if (lbl_8087FA20 != 0 && (lbl_8087FA20->m38 & 4) != 4 && !fn_800502A8(lbl_8087EFB4->m204, &mBox)) {
+        if (lbl_8087FA20 != 0 && (lbl_8087FA20->m38 & 4) != 4 && !fn_800502A8(&lbl_8087EFB4->mCamera.mFrustum, &mBox.mMin)) {
             visible = 0;
         }
         if (visible && lbl_8087F0A8->mDrawMap != 0) {
@@ -359,7 +352,7 @@ void MapPartsLocatorSet::fn_8049B7CC(void* tree) {
         if (light != 0) {
             mInstances.mData[i]->mInst.m64 = (char*)light + 0x4C;
         } else {
-            mInstances.mData[i]->mInst.m64 = fn_800C16B4(lbl_8087EFB4);
+            mInstances.mData[i]->mInst.m64 = lbl_8087EFB4->fn_800C16B4();
         }
     }
 }

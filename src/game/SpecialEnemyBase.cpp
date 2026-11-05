@@ -63,6 +63,7 @@
 #include "game/EnemyTrista.h"
 #include "game/LastCocoonChrysalis.h"
 #include "game/Np131LivingArmor.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -103,8 +104,6 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, float volume, int arg2, int arg3);

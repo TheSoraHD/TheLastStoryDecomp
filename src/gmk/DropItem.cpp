@@ -22,7 +22,6 @@ extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* te
 extern "C" void fn_801F791C(atn::Task* task, const char* name, int index, float value);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
-extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector

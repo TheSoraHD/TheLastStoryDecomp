@@ -37,7 +37,14 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 
 ## Resultado
 
-Tanda 1 (29 unidades de solo camara): sin bajadas tras `pdbatch.sh`; labelcheck 204 -> 194.
+- Tanda 1 (29 unidades de solo camara): sin bajadas tras `pdbatch.sh`; labelcheck 204 -> 194.
+- Tanda 2 (metodos): 25 funciones `extern "C"` de atn/RenderSystem_unk.cpp pasadas a miembros (y el
+  constructor 0x800BC874 como constructor real), mas `SetMapHit_unk` (MapManager) y los setters
+  0x80479EA0/0x8047A158 (game/main); 57 unidades llamadoras cambiadas. Sin bajadas en objdiff; suben al
+  100%: GimmickCommon x7 (enlazada), RoomLight vf10, LayerPostFx y LayerPost3D (constructores).
+  Mejoran: CharaTask fn_80144F4C 49 -> 98.8 (camara ortografica con `atn::Camera` real),
+  AutomaticDoor fn_803F53E0 66 -> 91, PostFxBloom vf10 86 -> 91, RenderSystem ctor 77 -> 81,
+  fn_800BFB70 82 -> 90, fn_800BFC18 95 -> 99.5. labelcheck 204 -> 177, rep100 145 -> 145.
 
 ## Cambios de splits
 
@@ -56,4 +63,27 @@ Tanda 1 (29 unidades de solo camara): sin bajadas tras `pdbatch.sh`; labelcheck 
 
 ## Hallazgos
 
+- fn_800BFAC8 (proyeccion a pantalla) no es un miembro que devuelve `Vector3` por valor: compila igual
+  (NRVO), pero los llamadores declaran el resultado antes y pasan su direccion; con
+  `screen = view->fn(...)` sale un temporal y una copia. Se deja libre con la vista como 2o parametro.
+- fn_800C0900 si devuelve `Matrix3x4` por valor (ModelDraw recibe el resultado en su variable).
+- La esfera que recibe fn_800C122C por valor se copia en el llamador con copia miembro a miembro
+  (centro con psq y luego radio), no con el constructor de copia de `atn::Sphere` (z primero): en
+  ModelInstance se construye con una inline local `SphereArg_unk`. Quitar el constructor de copia de
+  `atn::Sphere` daria lo mismo, pero MapManager::fn_804914BC necesita el de z primero (sin resolver).
+- `atn::Color` con constructor de copia por miembros da el mismo codigo que las copias con temporales
+  de las vistas `RainColor_unk`/`MotionBlurColor_unk`: se han sustituido por `atn::Color`.
+- `fn_800C0A8C`/`fn_800C0A98` son las texturas de `mLayers[4]`/`[5]` (`LayerReflect::mTexture`, 0x5C).
+
 ## Pendientes
+
+- Vistas de la escena (`NewCampScene2_unk`, que es `atn::Scene`) que siguen en sus unidades y se
+  convierten con un cast marcado `// pending: view of the scene`: `RainOverride_unk`,
+  `GodRayOverride_unk`, `ColorMatrixOwner_unk` (PostFx), `ShadowLight_unk` (LayerShadow),
+  `ScreenInfo_unk` (CharaTask, ColliAttrManager, WaterLevel, AutomaticDoor), `Lens_unk` (CharaTask),
+  `InstLens_unk` (ModelInstance), `DrawLens_unk` (ModelDraw_unk). Unificarlas es la propuesta 5.
+- `DrawPass_unk` de ModelDraw_unk es una vista de las capas (`mLayers`, LayerShadow en 3): cast.
+- Copias locales de `atn::IRender` (PostFx.h, TextureComposite, VideoTHP, Rain...) con `vf10(void*)`:
+  `RenderView_unk.h` ya no incluye `atn/IRender.h` (solo lo declara) para no chocar con ellas.
+- Funciones del frustum (`fn_8004FF58`, `fn_800502A8`...) son `extern "C"` con `Frustum_unk*`: los
+  llamadores que las declaraban con `void*` ahora hacen cast.

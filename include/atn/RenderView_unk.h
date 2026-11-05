@@ -2,7 +2,6 @@
 #define ATN_RENDERVIEW_UNK_H
 
 #include "atn/Camera_unk.h"
-#include "atn/IRender.h"
 #include "atn/Texture_unk.h"
 #include "atn/Sphere.h"
 #include "atn/Color.h"
@@ -14,6 +13,7 @@ struct NewCampScene2_unk;
 
 namespace atn {
 class Scene;
+class IRender;
 class IRenderLayer;
 struct AABB_unk;
 struct FogSettings;
@@ -45,10 +45,10 @@ struct RenderView_unk {
     void fn_800BDB58(IRender* render, float order, int pass); // inferred: queues a draw in a pass
     void fn_800BDBC8();                           // inferred: draws the frame
     void fn_800BFAC4();                           // inferred: empty
-    Vector3 fn_800BFAC8(const Vector3* pos);      // inferred: world to screen position
     void fn_800BFB70();                           // inferred: draws a full screen quad
     void fn_800BFC18(Color color, float a, float b); // inferred: full screen quad of a color
-    void fn_800BFCB4(Color c0, Color c1, Color c2, Color c3, float width, float height, float a, float b);
+    void fn_800BFCB4(Color c0, Color c1, Color c2, Color c3, unsigned int width, unsigned int height, float a,
+                     float b);
     void fn_800C0508(int clear);                  // inferred: copies the frame buffer
     void fn_800C0590(int clear, int format);
     void fn_800C06B0(const FogSettings* fog);     // inferred: sets the fog
@@ -70,6 +70,7 @@ struct RenderView_unk {
     // inferred: weak copy 0x8049103C (takes the function by value, so it is never inlined; defined in
     // game/MapManager.cpp); name invented
     inline void SetMapHit_unk(MapHitFunc_unk func, void* arg);
+    inline void Push_unk(const DrawCmd_unk& cmd); // inferred: queues a draw command (defined in atn/ModelDraw_unk.cpp)
     inline int GetPass_unk() const; // inferred: weak copy 0x8008E2D4 (defined in atn/Model.cpp); name invented
     void SetCamera_unk(const Camera& camera) { mCamera = camera; } // inferred: name invented
 
@@ -127,5 +128,9 @@ struct RenderView_unk {
 // inferred: the render system (created by atn/RenderSystem_unk.cpp; its camera at 0x104 is the camera of
 // the game, its scene at 0x2FC the scene drawn). One type for all the users.
 extern "C" atn::RenderView_unk* lbl_8087EFB4;
+
+// inferred: world to screen position with the camera of a render view (the callers declare the result
+// first and pass its address, so it is not a member returning by value)
+extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* view, const atn::Vector3* pos);
 
 #endif

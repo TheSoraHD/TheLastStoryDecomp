@@ -4,6 +4,7 @@
 #include "atn/ColliBase.h"
 #include "atn/GXDecl.h"
 #include "atn/RenderView_unk.h"
+#include "atn/IRender.h"
 #include "atn/LoadHandle.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
@@ -39,7 +40,6 @@ extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
-extern "C" void fn_800BDB58(void* renderSystem, void* render, float order, int pass); // inferred: queues a render
 extern "C" void fn_8006C7FC();
 extern "C" int fn_8006CABC(void* font, const std::string& dir);
 extern "C" void fn_800D594C(atn::Texture_unk* texture, const char* path); // inferred: loads a texture and waits
@@ -415,7 +415,7 @@ void DrawHelper::fn_8005E000(unsigned int color, GXTexObj* tex, int mode, int ar
     } else {
         cmd->m11 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_8005E3E4(unsigned int color, void* tex, float x, float y, float z, float w, float h, float u0,
@@ -464,7 +464,7 @@ void DrawHelper::fn_8005E40C(unsigned int color, void* tex, int arg, int flags, 
         cmd->m11 = 1;
     }
     cmd->m14 = arg;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_8005E7F4(unsigned int color, void* texture0, void* texture1, float x, float y, float z, float w,
@@ -515,7 +515,7 @@ void DrawHelper::fn_8005E838(unsigned int color, void* texture0, void* texture1,
         cmd->m14 = 1;
     }
     cmd->m18 = mode;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_8005ED6C(unsigned int color, Texture_unk* tex, float z) {
@@ -586,7 +586,7 @@ void DrawHelper::fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, 
         cmd->m11 = 1;
     }
     cmd->m14 = arg;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 // NONMATCHING: 99.1% - register allocation of the texture checks
@@ -636,7 +636,7 @@ void DrawHelper::fn_8005F36C(unsigned int color, void* texture0, void* texture1,
         cmd->m14 = 1;
     }
     cmd->m18 = mode;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 // NONMATCHING: 99.1% - register allocation of the texture check
@@ -678,7 +678,7 @@ void DrawHelper::fn_8005F90C(unsigned int color, void* texture, float x, float y
     } else {
         cmd->m11 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 // NONMATCHING: 98.9% - register allocation of the texture checks
@@ -722,7 +722,7 @@ void DrawHelper::fn_8005FD80(unsigned int color, void* texture0, void* texture1,
     } else {
         cmd->m14 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 // NONMATCHING: 99.7% - r3/r4 swapped for the vertex and position addresses in the loop
@@ -768,7 +768,7 @@ void DrawHelper::fn_800602E8(unsigned int color, void* texture, int blend_, unsi
     } else {
         cmd->m11 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 // NONMATCHING: 98.8% - register allocation of the texture checks
@@ -817,7 +817,7 @@ void DrawHelper::fn_800607C0(unsigned int color, void* texture0, void* texture1,
     } else {
         cmd->m14 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_80060D58(float x, float y, float z, float w, float h, unsigned int color) {
@@ -856,7 +856,7 @@ void DrawHelper::fn_80060D58(float x, float y, float z, float w, float h, unsign
     } else {
         cmd->m18 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_800610A4(unsigned int color, float x, float y, float z, float w, float h) {
@@ -898,7 +898,7 @@ void DrawHelper::fn_800610A4(unsigned int color, float x, float y, float z, floa
     } else {
         cmd->m18 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_8006144C(float x0, float y0, float x1, float y1, unsigned int color, float z) {
@@ -931,7 +931,7 @@ void DrawHelper::fn_8006144C(float x0, float y0, float x1, float y1, unsigned in
     } else {
         cmd->m18 = 1;
     }
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_800616C0(float x, float y, float z, float w, float h, const char* text, unsigned int color, float f6,
@@ -992,7 +992,7 @@ void DrawHelper::fn_80061824(float x, float y, float z, float w, float h, float 
                              const wchar_t* text, unsigned int color, int a, int b, int c, int d,
                              unsigned int color2) {
     DRAW_FONT_BODY(ComDrawFont)
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int b, int c, int d, unsigned int color2,
@@ -1002,7 +1002,7 @@ void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int
     cmd->m70 = clipX;
     cmd->m74 = clipW;
     cmd->m78 = clipScale;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 // inferred: window frame of 9 parts drawn with a corner texture (tex0) masked by tex1: the 4 corners
@@ -1118,7 +1118,7 @@ void DrawHelper::fn_80061E2C(float x, float y, float z, float w, float h, unsign
         cmd->m30 = 0;
     }
     cmd->m34 = arg;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, mA0);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
 }
 
 void DrawHelper::fn_80062908(ColliObject* colli, int a, int b, int c, int d, float z) {
@@ -1131,7 +1131,7 @@ void DrawHelper::fn_80062908(ColliObject* colli, int a, int b, int c, int d, flo
     cmd->m08 = a;
     cmd->m0C = b;
     cmd->m10 = c;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
 }
 
 void DrawHelper::fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float z) {
@@ -1144,7 +1144,7 @@ void DrawHelper::fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float
     cmd->m08 = a;
     cmd->m0C = b;
     cmd->m10 = c;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
 }
 
 void DrawHelper::fn_800629F0(const Vector3& center, const Vector3& size, float z, unsigned int color,
@@ -1192,7 +1192,7 @@ void DrawHelper::fn_800629F0(const Vector3& center, const Vector3& size, float z
     cmd->mCount = 0x14;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
 }
 
 void DrawHelper::fn_80062C8C(unsigned int segments, unsigned int color, float x, float y, float z, float a,
@@ -1227,7 +1227,7 @@ void DrawHelper::fn_80062C8C(unsigned int segments, unsigned int color, float x,
     cmd->mCount = (segments + 1) * 2;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 }
 
 void DrawHelper::fn_80062F7C(unsigned int segments, unsigned int color, float x, float y, float z, float a,
@@ -1265,7 +1265,7 @@ void DrawHelper::fn_80062F7C(unsigned int segments, unsigned int color, float x,
     cmd->mCount = 4;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 }
 
 void DrawHelper::fn_80063200(unsigned int segments, unsigned int color, float x, float y, float z, float a,
@@ -1295,7 +1295,7 @@ void DrawHelper::fn_80063200(unsigned int segments, unsigned int color, float x,
     cmd->mCount = segments + 1;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 }
 
 // NONMATCHING: 99.9% - operand order of the fnmsubs of the start angle (angle * 0.5f)
@@ -1331,7 +1331,7 @@ void DrawHelper::fn_80063484(unsigned int segments, unsigned int color, float x,
     cmd->mCount = segments + 2;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 }
 
 void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsigned int color) {
@@ -1353,7 +1353,7 @@ void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsign
     cmd->mCount = 2;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
 }
 
 // inferred: linear interpolation in the form of atn/Rain (local inline, name invented)
@@ -1381,7 +1381,7 @@ void DrawHelper::fn_800638B0(float a, float head, const Vector3& from, const Vec
     cmd->m10 = 1;
     cmd->mCount = 2;
     cmd->mVertex = v;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 
     cmd = m04.New_unk<ComDrawLine>();
     if (cmd == 0) {
@@ -1421,7 +1421,7 @@ void DrawHelper::fn_800638B0(float a, float head, const Vector3& from, const Vec
     cmd->mCount = 6;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 }
 
 // inferred: wire sphere (4 meridians around y, the arc down to the bottom, 4 meridians around x)
@@ -1484,7 +1484,7 @@ void DrawHelper::fn_80063D3C(const Vector3& pos, float radius, float a, unsigned
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 }
 
 // inferred: cross product returned by value (local inline, name invented)
@@ -1572,7 +1572,7 @@ void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned in
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, a, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
 }
 
 // inferred: exact comparison of two points (local inline, name invented)
@@ -1625,7 +1625,7 @@ void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int co
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
 }
 
 // inferred: textured quad of 1x1 centered in the origin, scaled, rotated (z, y, x) and moved to 'pos'
@@ -1679,7 +1679,7 @@ void DrawHelper::fn_80064AC4(const Vector3& pos, const Vector3& rot, const Vecto
     cmd->m1C = b;
     cmd->mVertex = v;
     cmd->m20 = c;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
 }
 
 void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int a, int b, float z) {
@@ -1701,7 +1701,7 @@ void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int 
     cmd->m1C = b;
     cmd->mVertex = v;
     cmd->m20 = 1;
-    fn_800BDB58(lbl_8087EFB4, cmd, z, 0xD);
+    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
 }
 
 // inferred: color 0xAARRGGBB to the GX order (RGBA)
