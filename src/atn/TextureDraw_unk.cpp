@@ -70,7 +70,6 @@ extern "C" __declspec(noinline) void fn_800D5E18(float m[3][4], float t, float b
     m[2][3] = 1.0f;
 }
 
-extern "C" atn::RenderView_unk* lbl_8087EFB4;
 extern "C" int fn_800C2418(NewCampScene2_unk* scene);                 // inferred: number of cameras
 extern "C" Camera_unk* fn_800C2520(NewCampScene2_unk* scene, int index); // inferred: camera `index`
 

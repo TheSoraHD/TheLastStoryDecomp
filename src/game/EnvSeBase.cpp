@@ -1,4 +1,5 @@
 #include "game/EnvSeBase.h"
+#include "atn/RenderView_unk.h"
 #include "atn/SoundManager.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -36,7 +37,6 @@ struct EnvSeConfig_unk {
 extern "C" EnvSeConfig_unk* lbl_8087F0A8;
 
 // inferred: debug drawing and camera
-extern "C" void* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 
 // inferred: debug menu entries

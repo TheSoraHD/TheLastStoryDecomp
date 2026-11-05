@@ -1,4 +1,5 @@
 #include "game/Input_unk.h"
+#include "atn/RenderView_unk.h"
 #include "game/SetConfig.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
@@ -61,7 +62,6 @@ extern "C" int fn_801237E0(SetConfig* config);
 extern "C" DialogConfig_unk* fn_801237E8(SetConfig* config);
 
 // inferred: camera of the game (lbl_8087EFB4); weak copies of another file
-extern "C" void* lbl_8087EFB4;
 extern "C" inline void* fn_8008B964() {
     return lbl_8087EFB4;
 }

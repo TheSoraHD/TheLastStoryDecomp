@@ -1,4 +1,5 @@
 #include "chr/ControlMoveCursor.h"
+#include "atn/RenderView_unk.h"
 #include "atn/Camera_unk.h"
 
 extern "C" double sqrt(double x);
@@ -7,7 +8,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
-extern "C" void* lbl_8087EFB4;                                        // inferred: camera
 
 // inferred: weak copies of small inlines (getters of the pad, the camera and its rotation, cosine,
 // dot product, horizontal length, rotation setter); the original calls them out of line in

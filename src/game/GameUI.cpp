@@ -1,4 +1,5 @@
 #include "Event/Manager.h"
+#include "atn/RenderView_unk.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
 #include "game/GameScene.h"
@@ -57,7 +58,6 @@ extern "C" int fn_8021A9CC(HitInfo_unk* hit); // inferred: kind test
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-extern "C" void* lbl_8087EFB4; // inferred: render system (camera)
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
 extern "C" void fn_801FEE08(atn::D2A_Layout_unk* layout, unsigned int hash, const wchar_t* text);

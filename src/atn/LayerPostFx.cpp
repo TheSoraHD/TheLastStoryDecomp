@@ -1,6 +1,7 @@
 // The 8-byte float pair copies are psq_l/psq_st in the original: Vec2f copies through __Vec2Copy
 // (math/Vec.h, approved paired-single helper).
 #include "atn/LayerPostFx.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: unknown callees and globals (automatic names)
 struct RenderObj {
@@ -18,7 +19,6 @@ struct RenderState {
     atn::Vec2f m58;
 };
 
-extern "C" void* lbl_8087EFB4;
 namespace atn {
 // inferred: see atn/LinearAllocator.cpp
 class PostFxManager {

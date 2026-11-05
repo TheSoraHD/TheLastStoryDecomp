@@ -1,4 +1,5 @@
 #include "Event/Cut.h"
+#include "atn/RenderView_unk.h"
 #include "Event/Manager.h"
 #include "Event/Behavior.h"
 #include "Event/Path.h"
@@ -41,7 +42,6 @@ struct ViewSetting_unk {
 namespace atn {
 struct RenderView_unk;
 }
-extern "C" atn::RenderView_unk* lbl_8087EFB4;
 extern "C" ViewSetting_unk* fn_800C16B4(atn::RenderView_unk* view);
 // inferred: scene of the event (fn_80541210): its kind at 0x0C
 struct EventScene_unk {

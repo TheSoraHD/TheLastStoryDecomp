@@ -1,4 +1,5 @@
 #include "atn/Color4f_unk.h"
+#include "atn/RenderView_unk.h"
 #include "game/GameScene.h"
 #include "atn/DrawHelper.h"
 #include "game/Em206EggMonster.h"
@@ -1284,7 +1285,6 @@ void Em206EggMonster::vf54() {
     }
 }
 
-extern "C" void* lbl_8087EFB4; // inferred: render system (camera)
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" int fn_80051B70(const atn::Vector3* from, const atn::Vector3* to); // inferred: visibility test
 extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);

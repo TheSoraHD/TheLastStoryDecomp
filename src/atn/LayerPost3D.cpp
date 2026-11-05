@@ -1,8 +1,8 @@
 #include "atn/LayerPost3D.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: unknown member function of the object pointed to by lbl_8087EFB4
 extern "C" void fn_800C0508(void* obj, int arg);
-extern "C" void* lbl_8087EFB4;
 
 namespace atn {
 

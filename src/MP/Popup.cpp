@@ -1,4 +1,5 @@
 #include "MP/Popup.h"
+#include "atn/RenderView_unk.h"
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
 #include "game/GimmickCommon.h"
@@ -88,7 +89,6 @@ struct PopupSession_unk {
 extern "C" PopupSession_unk* lbl_8087F610;
 extern "C" PopupPlayer_unk* fn_804EB870(PopupSession_unk* s); // inferred: local player
 extern "C" atn::Task* lbl_8087F430;                          // inferred: field task
-extern "C" void* lbl_8087EFB4;                               // inferred: camera
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" float PSVECSquareMag(const atn::Vector3* v);       // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);

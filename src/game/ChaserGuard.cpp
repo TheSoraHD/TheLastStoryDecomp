@@ -1,4 +1,5 @@
 #include "game/ChaserGuard.h"
+#include "atn/RenderView_unk.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/CharaManager.h"
@@ -103,7 +104,6 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0), font (lbl_8087EEC8) and camera (lbl_8087EFB4)
 extern "C" void* lbl_8087EEC8;
-extern "C" void* lbl_8087EFB4;
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound

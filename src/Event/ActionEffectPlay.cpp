@@ -63,7 +63,6 @@ namespace atn {
 struct Camera;
 } // namespace atn
 typedef atn::Camera Camera_unk;
-extern "C" atn::RenderView_unk* lbl_8087EFB4;
 extern "C" ReflectTarget_unk* fn_800C16B4(atn::RenderView_unk* view);
 extern "C" float lbl_807C8AB0[3][2]; // inferred: text speeds of the message actions
 // inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)

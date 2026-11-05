@@ -1,4 +1,5 @@
 #include "game/ChaserNpc.h"
+#include "atn/RenderView_unk.h"
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -61,7 +62,6 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: debug drawing (lbl_8087EEB0) and camera (lbl_8087EFB4)
-extern "C" void* lbl_8087EFB4;
 extern "C" void fn_800BFAC8(atn::Vector3* out, void* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 

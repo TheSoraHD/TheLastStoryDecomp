@@ -1,4 +1,5 @@
 #include "Event/DialogHead.h"
+#include "atn/RenderView_unk.h"
 #include "game/GameConfig_unk.h"
 #include "game/EquipItemData.h"
 #include "atn/LipSync_unk.h"
@@ -20,7 +21,6 @@ extern "C" void fn_8007642C(GraphicsDevice_unk* device, int a, int b);
 extern "C" void fn_80071D68(GraphicsDevice_unk* device, const float projection[4][4]);
 extern "C" void fn_800760BC(GraphicsDevice_unk* device, int left, int top, int width, int height); // inferred: viewport
 extern "C" void fn_800760D0(GraphicsDevice_unk* device); // inferred: restores the viewport
-extern "C" atn::RenderView_unk* lbl_8087EFB4;
 extern "C" void fn_800BDB58(atn::RenderView_unk* view, atn::IRender* render, float order, int pass); // inferred: queues a render
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
