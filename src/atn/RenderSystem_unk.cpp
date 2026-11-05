@@ -449,33 +449,32 @@ void atn::RenderManager::fn_800BDB40(NewCampScene2_unk* scene) {
     mScene = lbl_8087EFB8;
 }
 
+
+// inferred: bump allocation from the queue buffer (null when full); name invented
+inline void* atn::RenderManager::AllocQueue_unk(int size) {
+    int used = mQueueUsed;
+    int next = used + size;
+    if (next > mQueueCapacity) {
+        return 0;
+    }
+    mQueueUsed = next;
+    return mQueueBuffer + used;
+}
+
 void atn::RenderManager::AddRender(atn::IRender* render, int pass, float order) {
-    // NONMATCHING: 97.50% - the remaining differences are register allocation.
-    unsigned char* system = (unsigned char*)this;
-    RenderSystemPassTables_unk* passes = (RenderSystemPassTables_unk*)this;
-    if (passes->active[pass] == 0) {
+    if (mLayers[pass] == 0) {
         return;
     }
-
-    int tail = *(int*)(system + 0xF8);
-    int next = tail + 0x10;
-    RenderQueueEntry_unk* entry;
-    if (next > *(int*)(system + 0xF4)) {
-        entry = 0;
-    } else {
-        void* base = *(void**)(system + 0xF0);
-        *(int*)(system + 0xF8) = next;
-        entry = (RenderQueueEntry_unk*)((unsigned char*)base + tail);
-    }
+    atn::RenderEntry_unk* entry = (atn::RenderEntry_unk*)AllocQueue_unk(sizeof(atn::RenderEntry_unk));
     if (entry == 0) {
         return;
     }
-    entry->render = render;
-    entry->order = order;
-    entry->next = 0;
-    entry->next = passes->heads[pass];
-    passes->heads[pass] = entry;
-    ++passes->counts[pass];
+    entry->mRender = render;
+    entry->mOrder = order;
+    entry->mNext = 0;
+    entry->mNext = mPassHeads[pass];
+    mPassHeads[pass] = entry;
+    mPassCounts[pass]++;
 }
 
 void atn::RenderManager::fn_800BDBC8() {
@@ -1209,23 +1208,19 @@ void atn::RenderManager::fn_800C0508(int clear) {
 }
 
 void atn::RenderManager::fn_800C0590(int clear, int format) {
-    // NONMATCHING: texture object address is kept in a register instead of recalculated.
+    // inferred: copies the frame buffer into m79C and rebuilds its texture object m77C
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
     GXSetTexCopyDst((unsigned short)width, (unsigned short)height, format, 0);
-    GXCopyTex(*(void**)((unsigned char*)this + 0x79C), (unsigned char)clear);
+    GXCopyTex(m79C, (unsigned char)clear);
     GXPixModeSync();
-
-    GXTexObj* tex = (GXTexObj*)((unsigned char*)this + 0x77C);
     if (format != 0x16) {
-        GXInitTexObj(tex, *(void**)((unsigned char*)this + 0x79C), (unsigned short)width,
-                     (unsigned short)height, 3, 0, 0, 0);
-        GXInitTexObjLOD(tex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+        GXInitTexObj(&m77C, m79C, (unsigned short)width, (unsigned short)height, 3, 0, 0, 0);
+        GXInitTexObjLOD(&m77C, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     } else {
-        GXInitTexObj(tex, *(void**)((unsigned char*)this + 0x79C), (unsigned short)width,
-                     (unsigned short)height, 0x16, 0, 0, 0);
-        GXInitTexObjLOD(tex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+        GXInitTexObj(&m77C, m79C, (unsigned short)width, (unsigned short)height, 0x16, 0, 0, 0);
+        GXInitTexObjLOD(&m77C, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     }
 }
 
@@ -1565,20 +1560,11 @@ NewCampScene2_unk* atn::RenderManager::fn_800C122C(atn::Sphere sphere) {
 }
 
 NewCampScene2_unk* atn::RenderManager::fn_800C1424() {
-    // inferred: build a unit sphere at the selected camera position and query the scene callback.
-    // NONMATCHING: 95.92% - callback invoker data and temporary stack layout differ.
-    const atn::Vector3& position = m54964 != 0 ? mCamera.mPos : mCamera.mTarget;
-    atn::Sphere sourceSphere;
-    sourceSphere.mCenter.Assign_unk(position);
-    sourceSphere.mRadius = 1.0f;
-    atn::Sphere sphere(sourceSphere);
-    if (mMapHit) {
-        NewCampScene2_unk* scene = (NewCampScene2_unk*)mMapHit(sphere, mMapHitArg);
-        if (scene != 0) {
-            return scene;
-        }
-    }
-    return mScene;
+    // inferred: scene of a unit sphere at the camera position (m54964) or at its target
+    atn::Sphere sphere;
+    sphere.mCenter = m54964 != 0 ? mCamera.mPos : mCamera.mTarget;
+    sphere.mRadius = 1.0f;
+    return fn_800C122C(sphere);
 }
 
 void atn::RenderManager::AddResolveTexture(atn::Texture_unk* tex, int format) {

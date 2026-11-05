@@ -12,11 +12,9 @@ struct Sphere {
     Sphere() {}
     // inferred: name invented (SkillEffectManager::fn_8059D3B0 builds the argument in place)
     Sphere(const Vector3& center, float radius) : mCenter(center), mRadius(radius) {}
+    // inferred: implicit copy (center with paired singles, then the radius): it is what the copies of
+    // the by-value spheres of RenderManager::fn_800C122C and MapManager::fn_80491D50 give (renderview-20261105)
     // inferred: the center is copied with z loaded first (0x80491D50)
-    Sphere(const Sphere& o) {
-        mCenter.Assign_unk(o.mCenter);
-        mRadius = o.mRadius;
-    }
     Vector3 mCenter;
     float mRadius;
 };

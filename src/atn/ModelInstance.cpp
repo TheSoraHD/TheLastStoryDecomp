@@ -105,13 +105,6 @@ struct InstData_unk {
 };
 
 extern "C" int fn_8009FFCC(InstData_unk* data); // inferred: nonzero while loading
-// inferred: the sphere passed by value is a plain copy (center, then radius)
-inline atn::Sphere SphereArg_unk(const atn::Sphere& s) {
-    atn::Sphere r;
-    r.mCenter = s.mCenter;
-    r.mRadius = s.mRadius;
-    return r;
-}
 extern "C" void fn_80091684(InstModel_unk* model, void* view, void* lod);
 extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst, unsigned int count); // PSMTXMultVecArray
 extern "C" atn::AABB_unk fn_80070B60(const atn::AABB_unk* box, float scale); // inferred: scales a box
@@ -153,7 +146,7 @@ public:
         }
         mLens = lens;
         if (screen == 0) {
-            screen = atn::RenderManager::instance_->fn_800C122C(SphereArg_unk(mSphere));
+            screen = atn::RenderManager::instance_->fn_800C122C(mSphere);
             m64 = screen;
         }
         model->mLens = (InstLens_unk*)screen;

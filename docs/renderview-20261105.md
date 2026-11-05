@@ -53,7 +53,16 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
   AutomaticDoor fn_803F53E0 66 -> 91, PostFxBloom vf10 86 -> 91, RenderSystem ctor 77 -> 81,
   fn_800BFB70 82 -> 90, fn_800BFC18 95 -> 99.5. labelcheck 204 -> 177, rep100 145 -> 145.
 
+- Funciones de RenderManager (atn/RenderSystem_unk.cpp) con los miembros reales: `AddRender` (asignaciones
+  sobre una reserva del buffer de cola `AllocQueue_unk`, entrada `RenderEntry_unk` de 0x10),
+  `fn_800C0590`, `fn_800C122C`, `fn_800C1424` al 100%: RenderSystem_unk 15 -> 19/37.
+- `atn::Sphere` sin constructor de copia propio (copia implicita): sube fn_800C122C a 100, y
+  MapManager fn_80491D50/fn_80491DF8 71 -> 78, DrawEntry_unk ctor 88 -> 90; sin bajadas en `report.json`
+  (307 unidades la incluyen). El `@enum$` de ControlAppear pasa a 6741.
+
 ## Cambios de splits
+
+Ninguno.
 
 ## Decisiones tomadas sin el usuario
 
@@ -103,8 +112,8 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 - fn_800C0900 si devuelve `Matrix3x4` por valor (ModelDraw recibe el resultado en su variable).
 - La esfera que recibe fn_800C122C por valor se copia en el llamador con copia miembro a miembro
   (centro con psq y luego radio), no con el constructor de copia de `atn::Sphere` (z primero): en
-  ModelInstance se construye con una inline local `SphereArg_unk`. Quitar el constructor de copia de
-  `atn::Sphere` daria lo mismo, pero MapManager::fn_804914BC necesita el de z primero (sin resolver).
+  ModelInstance se construia con una inline local; al final se ha quitado el constructor de copia de
+  `atn::Sphere` (la copia implicita da exactamente eso y nada baja; MapManager fn_80491D50 sube).
 - `atn::Color` con constructor de copia por miembros da el mismo codigo que las copias con temporales
   de las vistas `RainColor_unk`/`MotionBlurColor_unk`: se han sustituido por `atn::Color`.
 - `fn_800C0A8C`/`fn_800C0A98` son las texturas de `mLayers[4]`/`[5]` (`LayerReflect::mTexture`, 0x5C).

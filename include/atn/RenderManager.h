@@ -24,6 +24,14 @@ typedef boost::function<atn::Scene*(atn::Sphere, void*)> MapHitFunc_unk;
 
 namespace atn {
 
+// inferred: entry of the draw list of a pass (0x10 bytes, taken from the queue buffer by AddRender)
+struct RenderEntry_unk {
+    IRender* mRender;
+    float mOrder;
+    RenderEntry_unk* mNext;
+    int m0C;
+};
+
 // Render manager (0x54968 bytes). The names atn::RenderManager, its static instance_ (lbl_8087EFB4),
 // AddRender, AddResolveTexture, GetScreenPosition, Order, GetScene, GetKeyLight and the nested types
 // FrameCallbackEntry and ResolveCommand (static_vector<ResolveCommand, 8>) come from the import and
@@ -51,6 +59,7 @@ public:
     void fn_800BD9C0(int size, const std::string& name); // inferred: allocates the queues and the textures
     void fn_800BDB40(NewCampScene2_unk* scene);   // inferred: sets the scene (null: the default one)
     void AddRender(IRender* render, int pass, float order); // 0x800BDB58: queues a draw in a pass
+    inline void* AllocQueue_unk(int size); // inferred: defined in atn/RenderSystem_unk.cpp
     void fn_800BDBC8();                           // inferred: draws the frame
     void fn_800BFAC4();                           // inferred: empty
     Vector3 GetScreenPosition(const Vector3& pos) const; // 0x800BFAC8
@@ -88,7 +97,7 @@ public:
 
     IRenderLayer* mLayers[0x14];   // 0x000: inferred: render layers (0: occlusion, 3: shadow, 4: reflection,
                                    // 6: 3D object, 14/17: post effects, 18: 2D object...)
-    IRender* mPassHeads[0x14];     // 0x050: inferred: list of the draws queued in each pass
+    RenderEntry_unk* mPassHeads[0x14]; // 0x050: inferred: list of the draws queued in each pass
     int mPassCounts[0x14];         // 0x0A0
     unsigned char* mQueueBuffer;   // 0x0F0: inferred: entries (0x10 bytes) of the pass lists
     int mQueueCapacity;            // 0x0F4
