@@ -11,7 +11,9 @@ namespace atn {
 // inferred: render system passed to the IRender draw virtuals (lbl_8087EFB4, atn/RenderSystem_unk.cpp);
 // only the camera used by Event::DialogHead is declared. Name invented.
 struct RenderView_unk {
-    unsigned char m000[0x104];
+    unsigned char m000[0x54];
+    int m054; // inferred: tested by atn::Model before drawing (busy)
+    unsigned char m058[0x104 - 0x58];
     Camera_unk mCamera; // 0x104
     int m2F8; // inferred: render pass (3: shadow pass, ModelBase::fn_80091684; 4: one matrix per item)
     inline int GetPass_unk() const; // inferred: weak copy 0x8008E2D4 (defined in atn/Model.cpp); name invented

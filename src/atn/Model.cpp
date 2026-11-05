@@ -24,7 +24,6 @@ extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext); // inferred: changes the extension
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
-extern "C" void* lbl_8087EFB4; // inferred: render system
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 // inferred: base of the locked cache (scratch for the node matrices); name invented
 #define LOCKED_CACHE_UNK ((atn::Matrix3x4*)0xE0000000)
@@ -477,7 +476,7 @@ int ModelBase::fn_8008B140() {
                     busy = 1;
                 }
             }
-            if (busy || *(int*)((char*)lbl_8087EFB4 + 0x54) != 0) {
+            if (busy || lbl_8087EFB4->m054 != 0) {
                 return 1;
             }
             for (unsigned int i = 0; i < m1E4.mSize; i++) {
@@ -1106,7 +1105,7 @@ void ModelBase::fn_80091684(const Mtx m, const int* remap) {
 
 // NONMATCHING: 99.6% - the store order of the copy into m60
 void ModelBase::fn_80091A90(const Mtx m) {
-    if (mFlag4_unk && mFlag5_unk && *(int*)((char*)lbl_8087EFB4 + 0x2F8) == 3) {
+    if (mFlag4_unk && mFlag5_unk && lbl_8087EFB4->m2F8 == 3) {
         fn_80091684(m, m1C4.m10.mData);
         return;
     }

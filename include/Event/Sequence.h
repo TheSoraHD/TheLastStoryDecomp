@@ -136,7 +136,6 @@ struct ScreenEffect_unk {
 // inferred: the second vector of the curve (lengths of the segments); a derived class (its destructor
 // tests the address four times)
 struct FloatVector_unk : public std::vector<float> {};
-extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: curve path of the sequence ("CURV"): cubic Bezier segments through mPoints (3n + 1 points),
 // their lengths and the total. The members are weak copies first emitted by Event/Manager.cpp

@@ -33,7 +33,6 @@ struct RenderState_unk {
 extern "C" int lbl_8087D72C;
 extern "C" int lbl_8087D728;
 extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" void* lbl_8087EFB4;
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
