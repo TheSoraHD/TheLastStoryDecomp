@@ -40,29 +40,29 @@ extern "C" void fn_8007A100() {
     lbl_8087EEF8 = new ((MemoryTag)6, "", "", 0) LightList_unk;
 }
 
-// NONMATCHING: 98.73% - the original reads mCount again after the bounds check (here the value is reused).
+// NONMATCHING: 98.73% - the original reads mSize again after the bounds check (here the value is reused).
 // A size accessor in the check gives the reload but the src/dst/count registers move (95.6%); also
 // tried an end accessor, a reference, a copy helper and an inline erase.
 void LightList_unk::fn_8007A154(int index) {
-    if (index < 0 || (int)mCount <= index) {
+    if (index < 0 || (int)mSize <= index) {
         return;
     }
     Light_unk* dst = &mData[index];
-    Light_unk* end = &mData[mCount];
+    Light_unk* end = &mData[mSize];
     if (end - dst - 1 != 0) {
         for (Light_unk* src = dst + 1; src < end; src++, dst++) {
             *dst = *src;
         }
     }
-    mCount--;
+    mSize--;
 }
 
 // The unsigned index makes MWCC increment i before the offset, as in the original
 void LightSet_unk::fn_8007A36C(LightList_unk* list, const atn::Vector3& pos, float radius, int arg) {
     Clear_unk();
     int n = 4;
-    if (list->mCount <= 4) {
-        n = list->mCount;
+    if (list->mSize <= 4) {
+        n = list->mSize;
     }
     for (int i = 0; i < n; i++) {
         Light_unk* light = &list->mData[(unsigned int)i];
@@ -76,8 +76,8 @@ void LightSet_unk::fn_8007A36C(LightList_unk* list, const atn::Vector3& pos, flo
 void LightSet_unk::fn_8007A41C(LightList_unk* list) {
     Clear_unk();
     int n = 4;
-    if (list->mCount <= 4) {
-        n = list->mCount;
+    if (list->mSize <= 4) {
+        n = list->mSize;
     }
     for (int i = 0; i < n; i++) {
         Light_unk* light = &list->mData[(unsigned int)i];
@@ -88,7 +88,7 @@ void LightSet_unk::fn_8007A41C(LightList_unk* list) {
 }
 
 void LightList_unk::fn_8007A4CC() {
-    for (unsigned int i = 0; i < mCount; i++) {
+    for (unsigned int i = 0; i < mSize; i++) {
         mData[i].fn_800795DC();
     }
 }

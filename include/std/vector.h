@@ -427,6 +427,13 @@ public:
     // original loads the size before the capacity (and keeps the capacity in r5); tried accessors,
     // the comparison reversed, if/else forms and a helper for the length check.
     void push_back(const T& x);
+    // inferred: erase of a POD element, moving the next ones with memmove (inlined in
+    // Event::Manager::fn_80485028, 0x80485090)
+    T* erase(T* pos) {
+        memmove(pos, pos + 1, (this->mData + this->mSize - pos - 1) * sizeof(T));
+        this->mSize--;
+        return pos;
+    }
     // inferred: inlined in atn::D2A_Message::vf18 (0x801F2A8C, std::wstring elements); pointer
     // elements take another buffer (atn::SequenceHolder::SequenceHolder, 0x800C3834)
     void reserve(size_type n) { __reserve_unk(n, (T*)0); }

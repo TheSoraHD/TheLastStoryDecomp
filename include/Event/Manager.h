@@ -214,8 +214,9 @@ public:
     void fn_80480468(Sequence* seq, unsigned int flags); // inferred: map change of the sequence
     void fn_804805F0(Sequence* seq, unsigned int flags); // inferred: loads what the sequence needs
     void fn_8048E9E0();
-    void fn_80485028(int index, const atn::Vector3& pos, float radius, int color);
-    void fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color);
+    void fn_80485028(int id, const atn::Vector3& pos, float radius, int color); // inferred: point light
+    void fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color); // inferred: spot light
+    void fn_804862C4(const atn::Vector3& dir, int color); // inferred: directional light
     void fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos);
     void fn_80484BF4();
     void fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float rate);

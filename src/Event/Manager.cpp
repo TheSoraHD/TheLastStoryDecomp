@@ -1733,12 +1733,66 @@ void Manager::fn_80484E88() {
 
 // inferred: removes the lights of the event
 void Manager::fn_80484FBC() {
-    int n = lbl_8087EEF8->mCount;
+    int n = lbl_8087EEF8->mSize;
     for (int i = 0; i < n; i++) {
         lbl_8087EEF8->fn_8007A154(0);
     }
     m1F10.clear();
 }
+// NONMATCHING: 86.8% - growth paths of the inlined std::vector::push_back (docs/msl_cpp.md)
+// inferred: adds the point light `id` of the event (replacing the one with the same id)
+void Manager::fn_80485028(int id, const atn::Vector3& pos, float radius, int color) {
+    for (int i = 0; i < (int)m1F10.size(); i++) {
+        if (id == m1F10[i]) {
+            m1F10.erase(m1F10.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+    m1F10.push_back(id);
+    atn::Light light;
+    unsigned int c = color;
+    light.fn_800791B4(pos, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
+                                     (1.0f / 255.0f) * (c >> 24)), radius);
+    lbl_8087EEF8->push_back(light);
+}
+
+// NONMATCHING: 87.5% - growth paths of the inlined std::vector::push_back (docs/msl_cpp.md)
+// inferred: adds the spot light of the event (id -1)
+void Manager::fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color) {
+    for (int i = 0; i < (int)m1F10.size(); i++) {
+        if (-1 == m1F10[i]) {
+            m1F10.erase(m1F10.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+    m1F10.push_back(-1);
+    atn::Light light;
+    unsigned int c = color;
+    light.fn_80079210(pos, dir, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
+                                     (1.0f / 255.0f) * (c >> 24)), a, b);
+    lbl_8087EEF8->push_back(light);
+}
+
+// NONMATCHING: 87.2% - growth paths of the inlined std::vector::push_back (docs/msl_cpp.md)
+// inferred: adds the directional light of the event (id -2)
+void Manager::fn_804862C4(const atn::Vector3& dir, int color) {
+    for (int i = 0; i < (int)m1F10.size(); i++) {
+        if (-2 == m1F10[i]) {
+            m1F10.erase(m1F10.begin() + i);
+            lbl_8087EEF8->fn_8007A154(i);
+            break;
+        }
+    }
+    m1F10.push_back(-2);
+    atn::Light light;
+    unsigned int c = color;
+    light.fn_800790D0(dir, atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF), (1.0f / 255.0f) * (c & 0xFF),
+                                     (1.0f / 255.0f) * (c >> 24)));
+    lbl_8087EEF8->push_back(light);
+}
+
 // inferred: sets the color (0xAARRGGBB) and the blur of the god ray of the render scene and of the
 // map areas
 void Manager::fn_80486BEC(int color, float blur) {

@@ -1,6 +1,8 @@
 #ifndef ATN_LIGHT_UNK_H
 #define ATN_LIGHT_UNK_H
 
+#include "std/vector.h"
+
 #include "math/Vec.h"
 #include "atn/Color4f_unk.h"
 
@@ -69,14 +71,11 @@ struct Light {
 typedef atn::Light Light_unk; // inferred: older name in this project
 
 // inferred: list of the scene lights (singleton lbl_8087EEF8, created by fn_8007A100)
-struct LightList_unk {
-    LightList_unk() : mData(0), mCount(0), mCapacity(0) {}
+// inferred: a std::vector of lights (Event::Manager pushes the lights of the events with the inlined
+// push_back of std::vector, 0x80485028)
+struct LightList_unk : public std::vector<Light_unk> {
     void fn_8007A154(int index); // inferred: removes a light
     void fn_8007A4CC();          // inferred: debug drawing of every light
-
-    Light_unk* mData;
-    unsigned int mCount;
-    unsigned int mCapacity;
 };
 
 // inferred: up to four lights sorted by distance (0x24 bytes)
