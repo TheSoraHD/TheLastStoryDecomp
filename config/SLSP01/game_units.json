@@ -3271,6 +3271,13 @@
   "matching": false
  },
  {
+  "name": "game/TeamAI_unk.cpp",
+  "classes": [
+   "TeamAI_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/TeamAIManager.cpp",
   "classes": [
    "TeamAIManager"
