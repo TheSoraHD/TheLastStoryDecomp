@@ -11,6 +11,8 @@
 #include "atn/ResRef_unk.h"
 #include "std/string.h"
 
+#define MAPTASK_ASSERT_UNK(x) ((void)0)
+
 class MapPartsArea;
 struct MapId_unk; // db/MapIdTable_unk.h
 class MapPartsBase;
@@ -63,10 +65,43 @@ public:
     void fn_804A1C4C(); // inferred: refreshes the map after a load
     void fn_804A1D2C(); // inferred: stores the state of the map
 
-    // RSO names. Their weak copies 0x803EFD9C, 0x803EFDA4 and 0x803EFDAC (game/GimmickStateCommand.cpp,
-    // called by gmk/Cannonball) are still extern "C" functions there: the one of GetMapType carries
-    // the empty asserts that put fn_803EF780 over the inlining budget (see docs/maparea-20261105.md)
-    int GetMapType() const { return mType; }
+    // RSO names; weak copies 0x803EFD9C, 0x803EFDA4 and 0x803EFDAC (game/GimmickStateCommand.cpp, also
+    // called by gmk/Cannonball and MapPartsGimmickLoc). GetMapType carries the empty asserts (debug build
+    // only) that put GimmickCommonB0_unk::fn_803EF780 over the inlining budget (docs/inlining.md R3), so
+    // that it calls the three accessors as the original does.
+    int GetMapType() const {
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0); MAPTASK_ASSERT_UNK(this != 0);
+        return mType;
+    }
     int GetMapId() const { return mId; }
     int GetMapSubId() const { return mSubId; }
     // inferred: weak copies 0x80339F7C and 0x80339F84 (game/EnemyQuarkSecond.cpp); names invented
