@@ -30,4 +30,12 @@ public:
     int m30;
 };
 
+// inferred: AI manager (instance lbl_8087EE68, code in game/AiTarget.cpp); only the methods called from
+// other units
+class AIManager {
+public:
+    void fn_80017EB0(CharaTask* chara, int gimmick, int arg); // inferred: makes a character use a gimmick
+};
+extern "C" AIManager* lbl_8087EE68;
+
 #endif

@@ -58,10 +58,6 @@ struct TeamField_unk {
 extern "C" TeamField_unk* lbl_8087F430;
 
 
-// inferred: functions of game/TeamAI_unk.cpp
-extern "C" void fn_805B2028(TeamAI_unk* team, const void* arg);
-extern "C" void fn_805B2560(TeamNode_unk* team); // inferred: update
-
 // inferred: messages sent to a team (16 bytes, names invented)
 struct TeamMsgTarget_unk {
     unsigned short mType;
@@ -157,7 +153,7 @@ void TeamAIManager::Rebuild_unk() {
 
 void TeamAIManager::vf10() {
     for (TeamNode_unk* node = mRoot.mChild; node != 0; node = node->mNext) {
-        fn_805B2560(node);
+        static_cast<TeamAI_unk*>(node)->fn_805B2560();
     }
 }
 
@@ -189,7 +185,7 @@ void TeamAIManager::OnTarget_unk(const TeamMsgIn_unk* in) {
             msg.mTarget = lbl_8087F430->m10D8->mTargets[2].Find_unk(in->m14);
             break;
         }
-        team->fn_805AEA70((const TeamCmd_unk*)&msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -217,7 +213,7 @@ void TeamAIManager::OnTarget2_unk(const TeamMsgIn_unk* in) {
             msg.mTarget = lbl_8087F430->m10D8->mTargets[2].Find_unk(in->m14);
             break;
         }
-        team->fn_805AEA70((const TeamCmd_unk*)&msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -233,7 +229,7 @@ void TeamAIManager::OnMsg20_unk(const TeamMsgIn_unk* in) {
         msg.m0D = in->m18;
         msg.m08 = in->m1C;
         msg.m0E = in->m20;
-        team->fn_805AEA70((const TeamCmd_unk*)&msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -283,7 +279,7 @@ void TeamAIManager::OnMsg21_unk(const TeamMsgIn_unk* in) {
         msg.m04 = in->m10;
         msg.m08 = in->m14;
         msg.m0C = in->m18;
-        team->fn_805AEA70((const TeamCmd_unk*)&msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -311,7 +307,7 @@ void TeamAIManager::OnChara_unk(const TeamMsgIn_unk* in) {
             break;
         }
         msg.m08 = in->m18;
-        team->fn_805AEA70((const TeamCmd_unk*)&msg);
+        team->fn_805AEA70((TeamCmd_unk*)&msg);
     }
 }
 
@@ -327,7 +323,7 @@ void TeamAIManager::OnMsg24_unk(const TeamMsgIn_unk* in) {
         msg.mBody.m05 = in->m10;
         msg.mBody.m00 = in->m18;
         msg.mBody.m04 = in->m14;
-        fn_805B2028(team, &msg.mBody);
+        team->fn_805B2028((TeamSetParam_unk*)&msg.mBody);
     }
 }
 

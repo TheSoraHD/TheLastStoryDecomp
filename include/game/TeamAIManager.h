@@ -86,13 +86,20 @@ struct TeamRing_unk {
         }
     }
     // inferred: adds an entry unless the ring is full (name invented)
-    void Push_unk(const T& value) {
+    void Push_unk(T value) {
         if (mHead != mTail) {
             mData[mHead] = value;
             mHead++;
             if (mHead >= N) {
                 mHead -= N;
             }
+        }
+    }
+    // inferred: drops the last entry (name invented)
+    void Pop_unk() {
+        mHead--;
+        if (mHead < 0) {
+            mHead += N;
         }
     }
     T* Last_unk() {
@@ -150,6 +157,32 @@ struct TeamVarOp_unk {
     unsigned char mOp;   // 0x0A
 };
 
+// inferred: order that sets a team parameter (names invented)
+struct TeamSetParam_unk {
+    int mValue;          // 0x00: inferred: constant, work index or flag (mSrc)
+    unsigned char mSrc;  // 0x04
+    unsigned char mKind; // 0x05: 0 HP ratio, 3 AI type, 4 battle mode, 5 area
+};
+
+// inferred: order that stores a team parameter in a field value (names invented)
+struct TeamGetParam_unk {
+    int mVar;            // 0x00: inferred: work index (mDst 0) or flag (mDst 1)
+    unsigned char mDst;  // 0x04
+    unsigned char mKind; // 0x05: 0 HP, 1 fighters, 2 leader HP (percent), 3 AI type, 4 battle mode, 5 area
+};
+
+// inferred: gimmick order (names invented)
+struct TeamGimmick_unk {
+    int mGimmick;       // 0x00: inferred: gimmick id (gm%03d_%03d)
+    int mArg;           // 0x04
+    int mMode;          // 0x08: 0 all, 1 members that can act, 2 the one with data m122 == 2
+};
+// inferred: attack order (names invented)
+struct TeamAttack_unk {
+    class CharaTask* mTarget;
+    unsigned char mMode; // 0x04: 0 all, 1 members that can act, 2 the nearest member
+};
+
 // inferred: AI of a team (0x37C bytes; class of game/TeamAI_unk.cpp, names invented)
 struct TeamAI_unk : public TeamNode_unk {
     TeamAI_unk()
@@ -167,19 +200,26 @@ struct TeamAI_unk : public TeamNode_unk {
     float fn_805AE74C();                            // inferred: leader HP ratio
     int fn_805AE7B4();                              // inferred: members able to act
     void fn_805AE864(int ratio);                    // inferred: sets the HP of the members
-    void SetAIType_unk(unsigned char type);         // 0x805AE9B8
+    void SetAIType_unk(unsigned int type);         // 0x805AE9B8
     void SetBattleMode_unk(int mode);       // 0x805AE9D0
     void SetAreaID_unk(int id);             // 0x805AEA08
     void SetM242_unk(int value);            // 0x805AEA40
-    void fn_805AEA70(const TeamCmd_unk* cmd);       // inferred: queues a command
+    void fn_805AEA70(TeamCmd_unk* cmd);       // inferred: queues a command
     void fn_805AEAC0();                             // inferred: resets the commands
-    int fn_805AEB34(unsigned int mode);
+    int fn_805AEB34(int mode);
     int fn_805AEC4C(TeamChara_unk** list, int count); // inferred: collects the members of the tree
-    void fn_805AED74(const TeamMove_unk* move);       // inferred: sends the members to points
+    void fn_805AED74(TeamMove_unk* move);       // inferred: sends the members to points
     // inferred: point for the member `index` (mode 0: by index, 1: random, 2: nearest; at most an even
     // share of the members on each point). Instantiations 0x805AEF9C, 0x805AF1C4 and 0x805AF3EC.
-    void fn_805B1918(const TeamMove_unk* move); // inferred: sends the members to hide points
-    void fn_805B1A9C(const TeamVarOp_unk* op);  // inferred: operation on a field value
+    void fn_805B1918(TeamMove_unk* move); // inferred: sends the members to hide points
+    void fn_805B1A9C(TeamVarOp_unk* op);  // inferred: operation on a field value
+    void fn_805B1C84(TeamGimmick_unk* order);
+    TeamChara_unk* FindGimmickUser_unk();
+    void fn_805B1E5C(TeamAttack_unk* order);
+    void fn_805B2028(TeamSetParam_unk* order);
+    void fn_805B228C(TeamGetParam_unk* order);
+    void fn_805B2560(); // inferred: update (runs the queued orders)
+    void fn_805B27A0();
     template <class P>
     int SelectPoint_unk(int index, P** points, int mode);
     template <class P>

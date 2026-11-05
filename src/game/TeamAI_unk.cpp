@@ -4,6 +4,7 @@
 #include "game/TeamAIManager.h"
 #include "game/CharaTask.h"
 #include "game/GameField_unk.h"
+#include "game/AiTarget.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
@@ -13,6 +14,13 @@ extern "C" void fn_80370AE4(GameField_unk* field, int index, int value); // infe
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048; // inferred: battle task
 extern "C" void fn_800FDE60(BulletMgr_unk* mgr, int arg, CharaTask* chara, const atn::Vector3* dir);
+extern "C" void fn_80102A40(BulletMgr_unk* mgr, CharaTask* chara, CharaTask* target, int a, int b); // inferred: attack
+extern "C" int sprintf(char* buf, const char* fmt, ...);
+// inferred: debug message list (as in gmk/RandomMerchant.cpp)
+struct DebugMessages_unk {
+    void fn_800697D8(const char* message);
+};
+extern "C" DebugMessages_unk* lbl_8087EEB8;
 
 // inferred: the member as a character (TeamChara_unk is a partial view)
 inline CharaTask* Chara_unk(TeamChara_unk* chara) {
@@ -125,7 +133,7 @@ void TeamAI_unk::fn_805AE864(int ratio) {
     }
 }
 
-void TeamAI_unk::SetAIType_unk(unsigned char type) {
+void TeamAI_unk::SetAIType_unk(unsigned int type) {
     if (type <= 2) {
         mAIType = type;
         m378 = 1;
@@ -155,8 +163,7 @@ void TeamAI_unk::SetM242_unk(int value) {
     }
 }
 
-// NONMATCHING: 73% - the original copies the command field by field (loads and stores interleaved)
-void TeamAI_unk::fn_805AEA70(const TeamCmd_unk* cmd) {
+void TeamAI_unk::fn_805AEA70(TeamCmd_unk* cmd) {
     m10.PushFront_unk(*cmd);
 }
 
@@ -170,7 +177,7 @@ void TeamAI_unk::fn_805AEAC0() {
 }
 
 // inferred: the members have finished moving (mode 0/1: the ones that can act; 2: any one moving)
-int TeamAI_unk::fn_805AEB34(unsigned int mode) {
+int TeamAI_unk::fn_805AEB34(int mode) {
     switch (mode) {
     case 0:
     case 1:
@@ -227,7 +234,7 @@ int TeamAI_unk::fn_805AEC4C(TeamChara_unk** list, int count) {
 }
 
 // NONMATCHING: 98.7% - this/move/character in r27/r28/r29 in the original (r28/r29/r27 here)
-void TeamAI_unk::fn_805AED74(const TeamMove_unk* move) {
+void TeamAI_unk::fn_805AED74(TeamMove_unk* move) {
     if (!(m23E & 1)) {
         if (move->m0A == 3 || move->m0A == 4) {
             if (move->mKind == 0) {
@@ -327,8 +334,8 @@ int TeamAI_unk::SelectPoint_unk(int index, P** points, int mode) {
     return -1;
 }
 
-// NONMATCHING: 95% - same registers as fn_805AED74
-void TeamAI_unk::fn_805B1918(const TeamMove_unk* move) {
+// NONMATCHING: 99.85% - the original loads m0A into r7 (r5 here), as in fn_805AED74
+void TeamAI_unk::fn_805B1918(TeamMove_unk* move) {
     if (!(m23E & 1)) {
         if (move->m0A == 3 || move->m0A == 4) {
             Move_unk(move->mKind, (TeamPointList_unk<TeamHidePoint_unk>*)move->mList, move->mFlags);
@@ -347,14 +354,16 @@ void TeamAI_unk::fn_805B1918(const TeamMove_unk* move) {
                 if (out) {
                     continue;
                 }
-                if (move->mKind == 1) {
+                switch (move->mKind) {
+                case 1:
                     chara->fn_8016FDCC(
                         SelectPoint_unk(i, ((TeamPointList_unk<TeamHidePoint_unk>*)move->mList)->mPoints, 2), 0);
-                    if (move->mMode == 2 && m23C != 0) {
-                        break;
-                    }
-                } else {
+                    break;
+                default:
                     return;
+                }
+                if (move->mMode == 2 && m23C != 0) {
+                    break;
                 }
             }
         }
@@ -364,8 +373,7 @@ void TeamAI_unk::fn_805B1918(const TeamMove_unk* move) {
     }
 }
 
-// NONMATCHING: 96.7% - the original saves r30 before it loads mDst (prologue scheduling)
-void TeamAI_unk::fn_805B1A9C(const TeamVarOp_unk* op) {
+void TeamAI_unk::fn_805B1A9C(TeamVarOp_unk* op) {
     int a;
     switch (op->mDst) {
     case 0:
@@ -443,5 +451,182 @@ void TeamAI_unk::fn_805B1A9C(const TeamVarOp_unk* op) {
     case 1:
         fn_80370320(lbl_8087F430, op->mVar, a, 0);
         break;
+    }
+}
+
+// inferred: the member whose data has m122 == 2, else the first one (name invented)
+inline TeamChara_unk* TeamAI_unk::FindGimmickUser_unk() {
+    for (int i = 0; i < mNumMembers; i++) {
+        TeamChara_unk* chara = mMembers[i];
+        if (Chara_unk(chara)->m5C->m122 == 2) {
+            return chara;
+        }
+    }
+    return mMembers[0];
+}
+
+void TeamAI_unk::fn_805B1C84(TeamGimmick_unk* order) {
+    switch (order->mMode) {
+    case 0:
+    case 1:
+        for (int i = 0; i < mNumMembers; i++) {
+            CharaTask* chara = Chara_unk(mMembers[i]);
+            if (chara->CanAct_unk() || order->mMode == 0) {
+                lbl_8087EE68->fn_80017EB0(chara, order->mGimmick, order->mArg);
+            }
+        }
+        break;
+    case 2: {
+        TeamChara_unk* chara = FindGimmickUser_unk();
+        if (chara != 0) {
+            lbl_8087EE68->fn_80017EB0(Chara_unk(chara), order->mGimmick, order->mArg);
+        } else if (lbl_8087EEB8 != 0) {
+            char buf[0x100];
+            sprintf(buf, "[TeamAI] Error: ExecuteAimGimmick chara not found [gm%03d_%03d_%04d]",
+                    order->mGimmick / 1000, order->mGimmick % 1000, order->mArg);
+            lbl_8087EEB8->fn_800697D8(buf);
+        }
+        break;
+    }
+    }
+}
+
+void TeamAI_unk::fn_805B1E5C(TeamAttack_unk* order) {
+    switch (order->mMode) {
+    case 0:
+    case 1:
+        for (int i = 0; i < mNumMembers; i++) {
+            CharaTask* chara = Chara_unk(mMembers[i]);
+            if (chara->CanAct_unk() || order->mMode == 0) {
+                fn_80102A40(lbl_8087F048, chara, order->mTarget, 100000, -1);
+            }
+        }
+        break;
+    case 2: {
+        CharaTask* target = order->mTarget;
+        CharaTask* nearest = Chara_unk(mMembers[0]);
+        float best = 3.4028235e38f;
+        if (mNumMembers > 0) {
+        for (int i = 0; i < mNumMembers; i++) {
+            CharaTask* chara = Chara_unk(mMembers[i]);
+            atn::Vector3 d(target->mPos.x - chara->mPos.x, target->mPos.y - chara->mPos.y,
+                           target->mPos.z - chara->mPos.z);
+            float dist = d.LengthSq_unk();
+            if (dist < best) {
+                nearest = chara;
+                best = dist;
+            }
+        }
+        }
+        fn_80102A40(lbl_8087F048, nearest, order->mTarget, 100000, -1);
+        break;
+    }
+    }
+}
+
+// NONMATCHING: 99.6% - inlined fn_805AE864: index/character and the two vectors swapped (r27/r28,
+// 0x8/0x14), as in fn_805AE864
+void TeamAI_unk::fn_805B2028(TeamSetParam_unk* order) {
+    int value;
+    switch (order->mSrc) {
+    case 0:
+        value = order->mValue;
+        break;
+    case 1:
+        value = fn_80370A78(lbl_8087F430, order->mValue);
+        break;
+    case 2:
+        value = fn_80370174(lbl_8087F430, order->mValue);
+        break;
+    case 3:
+        rand(); // inferred: a random source left unfinished
+    default:
+        return;
+    }
+    switch (order->mKind) {
+    case 0:
+        fn_805AE864(value);
+        break;
+    case 3:
+        SetAIType_unk(value);
+        break;
+    case 4:
+        SetBattleMode_unk(value);
+        break;
+    case 5:
+        SetAreaID_unk(value);
+        break;
+    }
+}
+
+// NONMATCHING: 97.5% - inlined fn_805AE454 (8x unrolled sum): register allocation, as in fn_805AE454
+void TeamAI_unk::fn_805B228C(TeamGetParam_unk* order) {
+    int value;
+    switch (order->mKind) {
+    case 0:
+        value = fn_805AE454();
+        break;
+    case 1:
+        value = fn_805AE5E8();
+        break;
+    case 2:
+        value = fn_805AE74C();
+        break;
+    case 3:
+        value = mAIType;
+        break;
+    case 4:
+        value = mBattleMode;
+        break;
+    case 5:
+        value = mAreaID;
+        break;
+    default:
+        return;
+    }
+    switch (order->mDst) {
+    case 0:
+        fn_80370AE4(lbl_8087F430, order->mVar, value);
+        break;
+    case 1:
+        fn_80370320(lbl_8087F430, order->mVar, value, 0);
+        break;
+    }
+}
+
+// NONMATCHING: 97.9% - the original loads mHead again for the index of Last_unk (and in the member
+// count of the inlined fn_805AE7B4 the counter is r5, r4 here)
+void TeamAI_unk::fn_805B2560() {
+    for (TeamCmd_unk* cmd = m10.Last_unk(); cmd != 0; cmd = m10.Last_unk()) {
+        switch (cmd->m00) {
+        case 28:
+            fn_805AED74((TeamMove_unk*)&cmd->m04);
+            break;
+        case 29:
+            fn_805B1918((TeamMove_unk*)&cmd->m04);
+            break;
+        case 32:
+            fn_805B1A9C((TeamVarOp_unk*)&cmd->m04);
+            break;
+        case 33:
+            fn_805B1C84((TeamGimmick_unk*)&cmd->m04);
+            break;
+        case 34:
+            fn_805B1E5C((TeamAttack_unk*)&cmd->m04);
+            break;
+        case 36:
+            fn_805B2028((TeamSetParam_unk*)&cmd->m04);
+            break;
+        case 35:
+            fn_805B228C((TeamGetParam_unk*)&cmd->m04);
+            break;
+        }
+        if (m23E & 1) {
+            break;
+        }
+        m10.Pop_unk();
+    }
+    if (fn_805AE7B4() > 0) {
+        fn_805B27A0();
     }
 }
