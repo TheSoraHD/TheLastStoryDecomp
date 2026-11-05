@@ -83,6 +83,7 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void* fn_8008B964(); // inferred: returns lbl_8087EFB4 (camera)
 extern "C" void* fn_805381B8(void* action); // inferred: cut of the action (Event/Node.cpp)
+extern "C" void* fn_805381DC(void* action); // inferred: sequence of the action (Event/Node.cpp)
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);                         // inferred: sound id
 extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* name); // inferred: id of a name
 extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
@@ -442,8 +443,8 @@ Manager::Manager(atn::Task* parent)
       m1A94(0), m1A98(0), m1A9C(0), m1DC0(),
       m1E74(0), m1E78(0), m1E88(0.0f),
       m1E8C(0.0f), m1E90(0), m1EA4(0), m1EA8(0), m1EAC(0), m1EB0(0), m1EB4(30.0f), m1F1C(0), m1F34(0),
-      m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0), m1F74(0), m1F78(0),
-      m1F7C(0), m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
+      m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0), m1F74(0),
+      m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
       m2418(1.0f), m2448(0) {
     fn_8054E574();
     fn_8010D98C();
@@ -664,7 +665,7 @@ int Manager::fn_8047EA34(int id, int arg, int arg2) {
                 }
                 mgr->m2378 = -1;
                 if (mgr->m1F74 != 0) {
-                    mgr->fn_80489A50(mgr->m1F78, 1);
+                    mgr->fn_80489A50(mgr->mVoices[0].mAction, 1);
                 }
                 mgr->m237C = 1;
             }
@@ -2296,6 +2297,63 @@ void Manager::fn_80489A2C() {
         lbl_8087F498->fn_803EB4A8(0, 1);
     }
 }
+// inferred: prepares the next voice of the event: the one after `action` (null: after the current one,
+// m2378); `keep` leaves the current index
+void Manager::fn_80489A50(Action* action, int keep) {
+    if (lbl_8087F0A8->mPreloadEventVoice == 0 || lbl_8087EE90 == 0 || lbl_8087EE90->m04 == 0) {
+        return;
+    }
+    if (lbl_8087F498 != 0 && (lbl_8087F498->fn_803EB338() != 0 || lbl_8087F498->fn_803EBA54() == 0)) {
+        return;
+    }
+    if (m70 == 0) {
+        return;
+    }
+    Action* next = 0;
+    if (action == 0) {
+        int i = m2378;
+        if (i >= 0 || m237C != 0) {
+            i++;
+            if (i >= 0 && i < m1F74) {
+                next = mVoices[i].mAction;
+            }
+        }
+    } else {
+        ManagerEntry_unk* voice = mVoices;
+        for (unsigned int j = 0; j < (unsigned int)m1F74; voice++, j++) {
+            if (action == voice->mAction) {
+                if (keep == 0) {
+                    m2378 = j;
+                }
+                int i = m2378 + 1;
+                if (i >= 0 && i < m1F74) {
+                    next = mVoices[i].mAction;
+                }
+                break;
+            }
+        }
+    }
+    if (next == 0) {
+        return;
+    }
+    int id = next->GetParam_unk(0)->m04.i;
+    StringData* data = ((Sequence*)fn_805381DC(next))->m114.Find_unk(id);
+    if (data == 0) {
+        return;
+    }
+    if (fn_805A38F0(data->m08.c_str(), 8, 0) == 0) {
+        return;
+    }
+    if (lbl_8087F498 != 0 && lbl_8087F498->fn_803EB338() == 0) {
+        if (lbl_8087F498->fn_803EB038(data->m08.c_str(), 0) != 0) {
+            m2378++;
+            if (m237C == 0) {
+                m237C = 1;
+            }
+        }
+    }
+}
+
 
 // NONMATCHING: 98.6% - registers of the sequence and the cut swapped
 // inferred: skips to the end of the current cut

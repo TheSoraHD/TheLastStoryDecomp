@@ -88,10 +88,11 @@ struct Ring_unk {
     unsigned int mFirst;
 };
 
-// inferred: 8-byte entry of the table at 0x1F80 of the manager (127 of them, cleared by the constructor)
+// inferred: voice of the event (8 bytes; 128 of them at 0x1F78 of the manager, m1F74 used): the voice
+// action and an unknown word. Name invented.
 struct ManagerEntry_unk {
-    ManagerEntry_unk() : m00(0), m04(0) {}
-    int m00;
+    ManagerEntry_unk() : mAction(0), m04(0) {}
+    Action* mAction;
     int m04;
 };
 
@@ -188,7 +189,7 @@ public:
     void fn_80483E94(int arg);
     ColorMatrixParam_unk* fn_80483F70(); // inferred: color matrix of the map at the camera target
     void fn_80484FBC();
-    void fn_80489A50(Action* action, int arg);
+    void fn_80489A50(Action* action, int keep); // inferred: prepares the next voice
     void fn_8048E904();
     void fn_8048F184(int arg);
     // inferred: called by Event/ActionEffectPlay.cpp
@@ -359,9 +360,7 @@ public:
     float m1F6C; // inferred: movie fade time
     int m1F70;
     int m1F74;
-    Action* m1F78;
-    int m1F7C;
-    ManagerEntry_unk m1F80[127];
+    ManagerEntry_unk mVoices[128]; // 0x1F78: inferred: voices of the event (m1F74 used)
     int m2378;
     int m237C;
     int m2380;
