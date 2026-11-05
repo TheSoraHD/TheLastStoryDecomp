@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `manager-20261104` (2026-11-05, sin mergear): **12679 / 18119** en `report.json`, lost 0. Event/Manager 33 -> 131/185 (orden del `.dol`, sin fuera de orden): ajustes de luz, callbacks de `MapArea`, vf0C/vf10/vf14, voces, curvas, pelicula, AutoLightFix, staff roll; `atn::Light`, `atn::Color`, `lbl_8087EFB4` = `atn::RenderView_unk` (22 unidades), Dialog con los tipos reales. Notas: `docs/manager-20261104.md`.
+- `manager-20261104` (2026-11-05, mergeada en `main`): **12679 / 18119** en `report.json`, lost 0. Event/Manager 33 -> 131/185 (orden del `.dol`, sin fuera de orden): ajustes de luz, callbacks de `MapArea`, vf0C/vf10/vf14, voces, curvas, pelicula, AutoLightFix, staff roll; `atn::Light`, `atn::Color`, `lbl_8087EFB4` = `atn::RenderView_unk` (22 unidades), Dialog con los tipos reales. Notas: `docs/manager-20261104.md`.
 - `event100-20261104` (mergeada en `main`): 12577. ActionActorBehavior 9/14, vistas del gestor y de la secuencia unificadas (`docs/event100-20261104.md`); `nuevas-20261103` 12564 (`docs/nuevas-20261103.md`).
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
