@@ -9,7 +9,9 @@
 
 struct Material_unk;
 struct DrawMesh_unk;
-struct DrawLens_unk;
+namespace atn {
+class Scene;
+}
 struct DrawArray_unk;
 
 // inferred: callbacks around the drawing of a mesh (InstCallback_unk of atn/ModelInstance.cpp)
@@ -27,7 +29,7 @@ struct DrawColor_unk {
 // inferred: draw command of a mesh (0x4C bytes; 0x1000 of them built by the constructor 0x800BC874)
 struct DrawCmd_unk {
     inline DrawCmd_unk(); // inferred: inlined in the constructor 0x800BC874 (atn/RenderSystem_unk.cpp)
-    inline DrawCmd_unk(unsigned int flags, Material_unk* mat, DrawMesh_unk* mesh, DrawLens_unk* lens, Mtx* mtx,
+    inline DrawCmd_unk(unsigned int flags, Material_unk* mat, DrawMesh_unk* mesh, atn::Scene* lens, Mtx* mtx,
                        void* vtx, DrawArray_unk* arrays, DrawColor_unk color, void* m34, void* m38,
                        DrawCallback_unk cb);
 
@@ -35,7 +37,7 @@ struct DrawCmd_unk {
     unsigned int m04;
     Material_unk* m08;
     DrawMesh_unk* m0C;
-    DrawLens_unk* m10;
+    atn::Scene* m10;
     Mtx* m14;
     void* m18;
     DrawArray_unk* m1C;

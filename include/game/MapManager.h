@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 #include "atn/RenderSetting_unk.h"
 #include "atn/Color4f_unk.h"
-#include "game/NewCampScene2_unk.h"
+#include "atn/Scene.h"
 
 namespace atn {
 class Scene; // the name is in the DOL (type_info 0x80756690)
@@ -37,9 +37,9 @@ struct MapModelBase_unk {
 };
 // inferred: model of a map area: the scene of the area (atn::Scene, see game/MapManager.cpp ToScene_unk)
 // is its second base at 0x4C (Event::Manager fn_80481B9C copies its light settings)
-struct MapArea : public MapModelBase_unk, public NewCampScene2_unk {
+struct MapArea : public MapModelBase_unk, public atn::Scene {
     // inferred: conversion of this (no null test, Event::Manager fn_80481B9C); name invented
-    NewCampScene2_unk& GetScene_unk() { return *this; }
+    atn::Scene& GetScene_unk() { return *this; }
     void* mMaterial; // 0x300
 };
 // inferred: group of models of a map part

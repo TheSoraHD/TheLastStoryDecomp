@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -40,16 +41,10 @@ struct Settings_unk {
     int m18;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-// inferred: screen data of a sphere (result of fn_800C122C); names invented
-struct ScreenInfo_unk {
-    unsigned char m000[0x120];
-    int m120;
-};
 namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // inferred: sets the reflection plane
 
 // inferred: normalizes unless the vector is (almost) zero; name invented
 inline void SafeNormalize_unk(atn::Vector3* v) {
@@ -117,7 +112,7 @@ void WaterLevel::vf10() {
     mColli.mFlags |= 1;
     if (mReflect != 0 && mNode != -1) {
         atn::RenderManager* camera = atn::RenderManager::instance_;
-        ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mModel.fn_80094F98()); // pending: view of the scene
+        atn::Scene* info = camera->fn_800C122C(mModel.fn_80094F98());
         if (info != 0) {
             Plane_unk plane = mPlane;
             MtxPtr mtx = mModel.GetNodeMtx_unk(mNode);
@@ -129,8 +124,8 @@ void WaterLevel::vf10() {
             SafeNormalize_unk(&plane.mNormal);
             atn::Vector3 trans = ((atn::Matrix3x4*)mtx)->GetTrans_unk();
             plane.mDist = -PSVECDotProduct(&plane.mNormal, &trans);
-            info->m120 = 0;
-            fn_800C2C20(info, &plane);
+            info->mReflectChara = 0;
+            info->fn_800C2C20(&plane);
         }
     }
 }

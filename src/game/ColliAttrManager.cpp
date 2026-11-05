@@ -4,6 +4,7 @@
 #include "atn/SoundRef.h"
 #include "game/CharaTask.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -42,29 +43,17 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
-// inferred: lens of a camera (as in game/CharaTask.cpp)
-struct Lens_unk {
-    unsigned char m000[0x158];
-    float m158;
-    float m15C;
-    float m160;
-};
 namespace atn {
 struct Camera;
 }
-typedef atn::Camera Camera_unk;
-struct ScreenInfo_unk {
-    unsigned char m00[0x2C];
-    float mColor[4];
-};
 
 // inferred: translation of a node matrix (name invented)
 inline atn::Vector3 NodePos_unk(MtxPtr mtx) {
     return atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]);
 }
 
-inline Lens_unk* CharaTask::GetLens_unk() {
-    return (mMotion.m1DC == 0) ? (Lens_unk*)atn::RenderManager::instance_->mScene /* pending: view of the scene */ : mMotion.m1DC;
+inline atn::Scene* CharaTask::GetLens_unk() {
+    return (mMotion.m1DC == 0) ? atn::RenderManager::instance_->mScene : mMotion.m1DC;
 }
 
 struct Color4f_unk {
@@ -230,11 +219,11 @@ void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int
     atn::Vector3 pos;
     atn::Vector3 rot = chara->mRot;
     atn::RenderManager* camera = atn::RenderManager::instance_;
-    ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(chara->mMotion.fn_80094F98()); // pending: view of the scene
-    unsigned int r = ToU8_unk(info->mColor[0]);
-    unsigned int g = ToU8_unk(info->mColor[1]);
-    unsigned int b = ToU8_unk(info->mColor[2]);
-    unsigned int a = ToU8_unk(info->mColor[3]);
+    atn::Scene* info = camera->fn_800C122C(chara->mMotion.fn_80094F98());
+    unsigned int r = ToU8_unk(info->m02C.r);
+    unsigned int g = ToU8_unk(info->m02C.g);
+    unsigned int b = ToU8_unk(info->m02C.b);
+    unsigned int a = ToU8_unk(info->m02C.a);
     unsigned int argb = (b | (g << 8)) | ((a << 24) | (r << 16));
     CollResult_unk result;
     int attr = fn_80184864(&result, chara, useNode, node);
@@ -242,7 +231,7 @@ void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int
         // inferred: through the reference returned by operator= (a plain assignment swaps r4/r5 of the copy)
         atn::Vector3& p = (pos = result.mPos + *ofs);
         if ((unsigned int)(attr - 0x14) <= 1) {
-            p.y = -chara->GetLens_unk()->m160 * chara->GetLens_unk()->m158 + 0.01f;
+            p.y = -chara->GetLens_unk()->mPlane.mDist * chara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
         }
         if (attr == 0x1F) {
             pos.y += 1.0f;

@@ -294,7 +294,7 @@ int Chain::vf40(GimmickMsg_unk* msg) {
 }
 
 void Chain::vf3C(void* lens) {
-    mModel.GetModel_unk()->m1DC = (Lens_unk*)lens;
+    mModel.GetModel_unk()->m1DC = (atn::Scene*)lens;
     mModel.GetModel_unk()->mFlags |= 0x10000;
 }
 } // namespace gmk

@@ -34,9 +34,9 @@ typedef atn::Camera Camera_unk;
 // inferred: sets the light of a map part (callback of fn_80491528). It is at 0x804225E0, just
 // before the CharaLight split (the split will have to start there when the unit is linked).
 void fn_804225E0(MapArea* part, void* light) {
-    part->m074 = light;
-    part->m070 = light != 0 || part->m070 != 0;
-    part->m0C8 = -1;
+    part->m074 = (CharaLightData_unk*)light;
+    part->mLightOn = light != 0 || part->mLightOn != 0;
+    part->mLightMask = -1;
 }
 
 namespace gmk {
@@ -75,8 +75,8 @@ int CharaLight::vf0C() {
 
 void CharaLight::Start() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
-    NewCampScene2_unk* target = atn::RenderManager::instance_->fn_800C16B4();
-    target->SetLightIndex_unk(-1);
+    atn::Scene* target = atn::RenderManager::instance_->fn_800C16B4();
+    target->SetLightMask_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_804225E0, &mLight);
     switch (mDesc->m20) {
     case 0:

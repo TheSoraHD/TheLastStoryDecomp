@@ -12,6 +12,7 @@
 #include "math/Vec.h"
 #include "std/new.h"
 #include "atn/DrawHelper.h"
+#include "atn/Scene.h"
 #include "atn/RenderManager.h"
 #include "atn/ColorMatrixParam_unk.h"
 
@@ -153,30 +154,6 @@ static inline TexStage_unk* FindStage_unk(Material_unk* mat, DrawTexEntry_unk* e
     return entry->mBind;
 }
 
-// inferred: lens of the camera (Lens_unk of include/atn/Model_unk.h)
-struct DrawLens_unk {
-    unsigned char m00[0x0C];
-    float m0C[4]; // inferred: ambient colour
-    float m1C[4]; // inferred: constant colour
-    unsigned char m2C[0x3C - 0x2C];
-    atn::FogSettings m3C; // inferred: fog (passed to RenderManager::fn_800C06B0)
-    unsigned char m58[0x70 - 0x58];
-    int m70; // inferred: shadow enabled
-    void* m74;
-    unsigned char m78[0xC8 - 0x78];
-    unsigned int mC8;
-    unsigned char mCC[0x234 - 0xCC];
-    int m234; // inferred: fog override
-    unsigned char m238[0x23C - 0x238];
-    int m23C;
-    unsigned char m240[0x244 - 0x240];
-    float m244[4];
-
-    // inferred: shadow texture (name invented)
-    void* GetShadow_unk() { return m70 != 0 ? (m74 != 0 ? m74 : (void*)m78) : 0; }
-};
-extern "C" int fn_800C24B4(DrawLens_unk* lens, int arg);
-extern "C" void* fn_800C258C(DrawLens_unk* lens, const atn::Vector3* pos);
 
 // inferred: mesh of a model
 struct DrawArray_unk {
@@ -244,7 +221,7 @@ struct DrawMaterials_unk {
 
 
 // inferred: draw command of a mesh (include/atn/DrawCmd_unk.h)
-inline DrawCmd_unk::DrawCmd_unk(unsigned int flags, Material_unk* mat, DrawMesh_unk* mesh, DrawLens_unk* lens,
+inline DrawCmd_unk::DrawCmd_unk(unsigned int flags, Material_unk* mat, DrawMesh_unk* mesh, atn::Scene* lens,
                                 Mtx* mtx, void* vtx, DrawArray_unk* arrays, DrawColor_unk color, void* m34, void* m38,
                                 DrawCallback_unk cb)
     : m04(flags), m08(mat), m0C(mesh), m10(lens), m14(mtx), m18(vtx), m1C(arrays), m20(0), m24(color), m34(m34),
@@ -337,7 +314,7 @@ extern "C" void* fn_80476170(atn::LH_Model* model, int mesh); // inferred: verte
 // inferred: draw state of a model (built on the stack by atn::Model, fn_8008E818)
 struct DrawEntry_unk {
     DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18, DrawColor_unk* color, DrawMaterials_unk* mats,
-                  DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40, unsigned int flags, DrawLens_unk* lens,
+                  DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40, unsigned int flags, atn::Scene* lens,
                   int m98, const DrawCallback_unk* cb);
 
     int m00; // inferred: pass
@@ -362,7 +339,7 @@ struct DrawEntry_unk {
     int m58;
     void* m5C;
     LightSet_unk m60;
-    DrawLens_unk* m84;
+    atn::Scene* m84;
     DrawCallback_unk m88;
     int m98;
 };
@@ -371,7 +348,7 @@ extern "C" {
 void fn_8009B93C(DrawEntry_unk* entry);
 void fn_8009B9E8(Material_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mtx* mtx, int* cache);
 void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx);
-void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, DrawLens_unk* lens, DrawColor_unk* color);
+void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, atn::Scene* lens, DrawColor_unk* color);
 void fn_8009C508(Material_unk* mat);
 void fn_8009C688(Material_unk* mat);
 void fn_8009C84C(Material_unk* mat);
@@ -550,7 +527,7 @@ static inline GXColor ToGXColor_unk(const float* c) {
 // ac = lens->m0C * (mat->m1C / 255) * 255. Its locals are laid out in ascending order (an inline in
 // the original). The register pointers are declared first so that the compiler sets them up before
 // the conversions (in a separate helper with parameters they are set up after them).
-static inline void SetMatColor_unk(Material_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
+static inline void SetMatColor_unk(Material_unk* mat, atn::Scene* lens, DrawColor_unk* color) {
     GXColor mc = mat->mColor;
     GXColor ac;
     GXColor src = mat->m1C;
@@ -559,7 +536,7 @@ static inline void SetMatColor_unk(Material_unk* mat, DrawLens_unk* lens, DrawCo
     register GXColor* pmc = &mc;
     register GXColor* pac = &ac;
     register DrawColor_unk* pcolor = color;
-    register DrawLens_unk* plens = lens;
+    register atn::Scene* plens = lens;
     amb[0] = (float)src.r / 255.0f;
     amb[1] = (float)src.g / 255.0f;
     amb[2] = (float)src.b / 255.0f;
@@ -600,11 +577,11 @@ static inline void SetMatColor_unk(Material_unk* mat, DrawLens_unk* lens, DrawCo
         GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
         GXSetTevKColor(1, white);
     }
-    GXSetTevKColor(2, ToGXColor_unk(lens->m1C));
+    GXSetTevKColor(2, ToGXColor_unk(&lens->mLS.r));
     GXSetChanAmbColor(4, ac);
     if (mat->m4C) {
         DrawRender_unk* rs = lbl_8087EEE0;
-        fn_8007642C(rs, 0, (void*)fn_800C24B4(lens, 0));
+        fn_8007642C(rs, 0, (void*)((const atn::Scene*)lens)->GetLight(0));
     }
 }
 
@@ -627,13 +604,13 @@ static inline void SetMatTev_unk(Material_unk* mat) {
     GXSetTevColor(3, mat->mTevColor[2]);
 }
 
-void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, DrawLens_unk* lens, DrawColor_unk* color) {
+void fn_8009BF3C(DrawMesh_unk* mesh, Material_unk* mat, atn::Scene* lens, DrawColor_unk* color) {
     if (mat == 0) {
         sLastMat_unk = 0;
         return;
     }
     if (mat->m14_20) {
-        atn::RenderManager::instance_->fn_800C06B0(&lens->m3C);
+        atn::RenderManager::instance_->fn_800C06B0(&lens->mFog);
     } else {
         atn::RenderManager::instance_->fn_800C08B0();
     }
@@ -798,7 +775,7 @@ void fn_8009C84C(Material_unk* mat) {
 // NONMATCHING: 99.12% - r3/r4 of the two globals swapped, f26-f31 shifted, colour temporary at 0x1c instead of 0x8
 void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, int flag, float dist) {
     atn::RenderManager::instance_->fn_800C08B0();
-    DrawLens_unk* lens = (DrawLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
+    atn::Scene* lens = atn::RenderManager::instance_->mScene;
     DrawParams_unk* p = lbl_8087EFA8;
     float c[4];
     c[0] = p->m110[0];
@@ -806,12 +783,12 @@ void fn_8009CC28(DrawMesh_unk* mesh, Material_unk* mat, DrawShader_unk* shader, 
     c[2] = p->m110[2];
     c[3] = p->m110[3];
     int mode = p->m108;
-    if (lens->m234 != 0) {
-        c[0] = lens->m244[0];
-        c[1] = lens->m244[1];
-        c[2] = lens->m244[2];
-        c[3] = lens->m244[3];
-        mode = lens->m23C;
+    if (lens->mShadow.mSet != 0) {
+        c[0] = lens->mShadow.mValue.mColor.r;
+        c[1] = lens->mShadow.mValue.mColor.g;
+        c[2] = lens->mShadow.mValue.mColor.b;
+        c[3] = lens->mShadow.mValue.mColor.a;
+        mode = lens->mShadow.mValue.mMode;
     }
     float t = 0.0f;
     float start = p->m10C * sFogStart_unk;
@@ -942,11 +919,11 @@ void fn_8009D1A4(Material_unk* mat) {
     fn_800763C0(lbl_8087EEE0, 0, tex);
 }
 
-static inline int IsShadowA_unk(DrawEntry_unk* entry, DrawLens_unk* lens) {
-    return (lens->mC8 & 1) == 1 && (entry->m04 & 0x100) == 0x100;
+static inline int IsShadowA_unk(DrawEntry_unk* entry, atn::Scene* lens) {
+    return (lens->mLightMask & 1) == 1 && (entry->m04 & 0x100) == 0x100;
 }
-static inline int IsShadowB_unk(DrawEntry_unk* entry, DrawLens_unk* lens) {
-    return (lens->mC8 & 2) == 2 && (entry->m04 & 8) == 8;
+static inline int IsShadowB_unk(DrawEntry_unk* entry, atn::Scene* lens) {
+    return (lens->mLightMask & 2) == 2 && (entry->m04 & 8) == 8;
 }
 
 // NONMATCHING: 83.57% - flag tests and the queue capacity test (orc/srwi idiom) not reproduced, register allocation
@@ -1010,7 +987,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
         }
     }
     if (p->m2F8 != 0) {
-        DrawLens_unk* lens = entry->m84;
+        atn::Scene* lens = entry->m84;
         int a = 1;
         int b = 1;
         if (!IsShadowA_unk(entry, lens) && !IsShadowB_unk(entry, lens)) {
@@ -1023,7 +1000,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
         if (a != 0 && (entry->m04 & 0x200000) != 0x200000) {
             c = 1;
         }
-        if (c != 0 && lens->GetShadow_unk() != 0) {
+        if (c != 0 && lens->GetLight_unk() != 0) {
             flags |= 8;
         }
     }
@@ -1061,7 +1038,7 @@ void fn_8009D58C(DrawEntry_unk* entry, DrawNode_unk* node, DrawPart_unk* part, i
         dist = PSVECMag(&d);
     }
     if (flags & 4) {
-        cmd.m20 = entry->m5C != 0 ? entry->m5C : fn_800C258C(entry->m84, &entry->m30.mCenter);
+        cmd.m20 = entry->m5C != 0 ? entry->m5C : entry->m84->fn_800C258C(&entry->m30.mCenter);
     }
     atn::RenderManager* scene = atn::RenderManager::instance_;
     int queue = 0;
@@ -1118,14 +1095,14 @@ void fn_8009DCE0(Material_unk* mat) {
 // NONMATCHING: 97.48% - register allocation
 void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
     Material_unk* mat = cmd->m08;
-    DrawLens_unk* lens = cmd->m10;
+    atn::Scene* lens = cmd->m10;
     unsigned int flags = cmd->m04;
     DrawMesh_unk* mesh = cmd->m0C;
     void* vtx = cmd->m18;
     DrawArray_unk* arrays = cmd->m1C;
     Mtx* mtx = cmd->m14;
     DrawShader_unk* shader = (DrawShader_unk*)mat->m08;
-    atn::RenderManager::instance_->fn_800BDB40((NewCampScene2_unk*)lens); // pending: view of the scene
+    atn::RenderManager::instance_->fn_800BDB40(lens);
     if (cmd->m3C.mFunc1 != 0) {
         cmd->m3C.mFunc1(cmd->m3C.mArg1, cmd->m3C.mArg2);
     }
@@ -1147,7 +1124,7 @@ void fn_8009DE60(DrawCmd_unk* cmd, float dist) {
         } else {
             lbl_8087EFA8->m18C = 1;
         }
-        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, cmd->m20, lens->GetShadow_unk(), cmd->m34);
+        fn_80074EC8(lbl_8087EEE0, shader->mDesc, flags, cmd->m20, lens->GetLight_unk(), cmd->m34);
         DrawDesc_unk* desc = shader->mDesc;
         int last = desc->m190 - 1;
         DrawTevStage_unk* st = &desc->m1BC_pad[last];
@@ -1196,7 +1173,7 @@ static inline const float& MaxF_unk(const float& a, const float& b) { return a >
 // NONMATCHING: 87.64% - order of the copies of the light set and of the scale vector
 DrawEntry_unk::DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18, DrawColor_unk* color,
                              DrawMaterials_unk* mats, DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40,
-                             unsigned int flags, DrawLens_unk* lens, int m98, const DrawCallback_unk* cb)
+                             unsigned int flags, atn::Scene* lens, int m98, const DrawCallback_unk* cb)
     : m00(-1), m04(flags), m08(model), m10(mtx), m14(nodes), m18(m18), m1C(color), m20(mats), m24(remap), m28(0),
       m30(*sphere), m40(m40), m44(0), m48(0), m4C(0), m50(0), m54(0), m58(0), m5C(0),
       m60(), m84(lens), m88(*cb), m98(m98) {

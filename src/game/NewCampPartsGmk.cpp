@@ -6,15 +6,13 @@
 #include "atn/Array_unk.h"
 #include "std/vector.h"
 #include "std/string_members.h"
+#include "atn/Light_unk.h"
+#include "atn/Scene.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 
-struct Color4f_unk {
-    Color4f_unk() {}
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
+typedef atn::Color Color4f_unk;
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -76,74 +74,6 @@ static const NewCampGmkName_unk sGmkNames[13] = {
 };
 static const char* const sMenuBack = "menu_back";
 
-// inferred: engine light (0x44 bytes; see atn/LH_Scene.cpp)
-namespace atn {
-struct Light {
-    Light();
-    int m00;
-    int m04;
-    atn::Vector3 m08;
-    atn::Vector3 m14;
-    int m20;
-    float m24;
-    float m28;
-    float m2C;
-    float m30;
-    float m34;
-    float m38;
-    float m3C;
-    float m40;
-};
-} // namespace atn
-typedef atn::Light Light_unk; // inferred: real name atn::Light (RSO)
-
-// inferred: plane of the view frustum (normal and distance)
-struct Plane_unk {
-    atn::Vector3 mNormal;
-    float mDist;
-};
-
-// inferred: engine camera (0x1F4 bytes; constructor 0x8004B290, destructor 0x8004B338). Layout
-// from its copy (0x80513F9C).
-struct Camera_unk {
-    Camera_unk(int a = 0, int b = 0);
-    ~Camera_unk();
-
-    int mType;            // 0x00
-    int mFovType;         // 0x04
-    atn::Vector3 mPos;    // 0x08
-    atn::Vector3 mTarget; // 0x14
-    atn::Vector3 mUp;     // 0x20
-    atn::Vector3 mDir;    // 0x2C
-    float m38;
-    float m3C;
-    float m40;
-    float m44;
-    float m48;
-    float m4C;
-    float m50;
-    float m54;
-    atn::Matrix3x4 m58;
-    atn::Matrix44_unk m88;
-    float mC8;
-    float mCC;
-    atn::Matrix3x4 mD0;
-    atn::Matrix3x4 m100;
-    int m130;
-    float m134;
-    float m138;
-    atn::Vector3 m13C;
-    float m148;
-    atn::Vector3 m14C;
-    float m158;
-    atn::Vector3 m15C;
-    float m168;
-    atn::Vector3 m16C;
-    float m178;
-    atn::Vector3 m17C;
-    atn::Vector3 m188;
-    Plane_unk m194[6];
-};
 
 // inferred: small records of the scene state (copied by weak copy constructors)
 struct SceneRec1C_unk {
@@ -245,49 +175,13 @@ struct ScenePair_unk {
     int b;
 };
 
-// inferred: scene of the camp (LH_Scene and the data built from it); destructor 0x800C1FB4
-struct NewCampScene2_unk {
-    ~NewCampScene2_unk();
-
-    atn::LH_Scene m000;
-    int m008;
-    float m00C[12];
-    SceneRec1C_unk m03C;
-    std::vector<Light_unk> m058;
-    std::vector<Camera_unk> m064;
-    int m070;
-    int m074;
-    SceneRec50_unk m078;
-    int m0C8;
-    int m0CC;
-    SceneRec50_unk m0D0;
-    int m120;
-    atn::Matrix3x4 m124;
-    atn::Vector3 m154;
-    float m160;
-    atn::Texture_unk m164;
-};
-
 // inferred: state of the camp scene (0x6B4 bytes), returned by value by NewCampTask_unk
 struct NewCampSceneState_unk {
     Camera_unk mCamera;       // 0x000
     Light_unk mLight;         // 0x1F4
     Color4f_unk mColor;       // 0x238: clear color
     Color4f_unk m248;
-    NewCampScene2_unk mScene; // 0x258
-    int m3EC;
-    SceneRec48_unk m3F0;
-    int m438;
-    int m43C;
-    int m440;
-    float m444;
-    float m448;
-    int m44C;
-    SceneRec3C_unk m450;
-    int m48C;
-    SceneRec28_unk m490;
-    int m4B8;
-    SceneRecExt_unk m4BC;
+    atn::Scene mScene;        // 0x258
     int m50C;
     int m510;
     int m514;

@@ -334,7 +334,7 @@ void MapPartsLocatorSet::fn_8049B72C(unsigned int flags) {
 
 void MapPartsLocatorSet::fn_8049B780(void* lens) {
     if (mHasMerged) {
-        mMerged->GetModel_unk()->m1DC = (Lens_unk*)lens;
+        mMerged->GetModel_unk()->m1DC = (atn::Scene*)lens;
         return;
     }
     for (unsigned int i = 0; i < (unsigned int)mInstances.mSize; i++) {

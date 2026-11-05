@@ -64,6 +64,7 @@
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -5836,18 +5837,6 @@ extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the eff
 extern "C" void fn_8023A680(void* mgr, void* res, int a, int b, atn::Matrix3x4* mtx, int c, int d, const float* color,
                             float scale, int e, int f, int g);
 
-// inferred: lens of a camera (atn::Model::m1DC, or the one of the global camera); names invented
-struct Lens_unk {
-    unsigned char m000[0x158];
-    float m158;
-    float m15C;
-    float m160;
-};
-// inferred: result of (screen data of a sphere)->fn_800C122C(); m2C..m38 is a color
-struct ScreenInfo_unk {
-    unsigned char m00[0x2C];
-    float mColor[4];
-};
 
 // inferred: link of the character lists of the managers (CharaTask + 0x14AC)
 struct CharaListNode_unk {
@@ -5859,14 +5848,14 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
 }
 
 // inferred: names invented
-inline Lens_unk* CharaTask::GetLens_unk() {
-    return (mMotion.m1DC == 0) ? (Lens_unk*)atn::RenderManager::instance_->mScene /* pending: view of the scene */ : mMotion.m1DC;
+inline atn::Scene* CharaTask::GetLens_unk() {
+    return (mMotion.m1DC == 0) ? atn::RenderManager::instance_->mScene : mMotion.m1DC;
 }
 
 // inferred: matrix of the emote above the head: translation to the head then the rotation
 inline void CharaTask::SetEmoteMtx_unk() {
     atn::Vector3 pos(mPos);
-    pos.y = -GetLens_unk()->m160 * GetLens_unk()->m158 + 0.01f;
+    pos.y = -GetLens_unk()->mPlane.mDist * GetLens_unk()->mPlane.mNormal.y + 0.01f;
     Mtx t;
     PSMTXTrans(t, pos.x, pos.y, pos.z);
     atn::Matrix3x4 rot;
@@ -6060,12 +6049,12 @@ void CharaTask::fn_8014C540() {
     } else if (emote) {
         SetEmoteMtx_unk();
         atn::RenderManager* camera = atn::RenderManager::instance_;
-        ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mMotion.fn_80094F98()); // pending: view of the scene
+        atn::Scene* info = camera->fn_800C122C(mMotion.fn_80094F98());
         float color[4];
-        color[0] = info->mColor[0];
-        color[1] = info->mColor[1];
-        color[2] = info->mColor[2];
-        color[3] = info->mColor[3];
+        color[0] = info->m02C.r;
+        color[1] = info->m02C.g;
+        color[2] = info->m02C.b;
+        color[3] = info->m02C.a;
         void* res = ColliAttrManager::sInstance->fn_801840D8(m634, 0);
         if (res != 0) {
             fn_80232B7C(&mF20, 0);

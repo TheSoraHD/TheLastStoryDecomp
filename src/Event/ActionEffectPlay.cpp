@@ -1643,7 +1643,7 @@ int ActionCameraChange::vf0C(Action* arg, int phase) {
 }
 
 void ActionColorMatrix::fn_80561B50(MapArea* model, void* arg) {
-    ColorMatrixParam_unk* dst = model->mUseColorMatrix != 0 ? &model->mColorMatrix : &lbl_8087EFA8->m324;
+    ColorMatrixParam_unk* dst = model->mColorMatrix.mSet != 0 ? &model->mColorMatrix.mValue : &lbl_8087EFA8->m324;
     *dst = *(ColorMatrixParam_unk*)arg;
 }
 
@@ -1702,8 +1702,8 @@ int ActionColorMatrix::vf08(Action* arg) {
         dst.mRows[i].z = dst.mRows[i].z * rate + src.mRows[i].z * inv;
         dst.mRows[i].w = dst.mRows[i].w * rate + src.mRows[i].w * inv;
     }
-    NewCampScene2_unk* target = atn::RenderManager::instance_->fn_800C16B4();
-    ColorMatrixParam_unk* out = target->mUseColorMatrix != 0 ? &target->mColorMatrix : &lbl_8087EFA8->m324;
+    atn::Scene* target = atn::RenderManager::instance_->fn_800C16B4();
+    ColorMatrixParam_unk* out = target->mColorMatrix.mSet != 0 ? &target->mColorMatrix.mValue : &lbl_8087EFA8->m324;
     *out = dst;
     MapManager::sInstance->fn_80491528(boost::bind(&ActionColorMatrix::fn_80561B50, this, _1, _2), &dst);
     return 0;
@@ -1779,13 +1779,13 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
 }
 
 void ActionMapReflect::fn_805628B8(MapArea* model, const void* arg) {
-    model->m120 = ((Action*)arg)->GetParam_unk(0)->m04.i;
+    model->mReflectChara = ((Action*)arg)->GetParam_unk(0)->m04.i;
 }
 
 int ActionMapReflect::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        NewCampScene2_unk* target = atn::RenderManager::instance_->fn_800C16B4();
-        target->m120 = arg->GetParam_unk(0)->m04.i;
+        atn::Scene* target = atn::RenderManager::instance_->fn_800C16B4();
+        target->mReflectChara = arg->GetParam_unk(0)->m04.i;
         MapManager::sInstance->fn_80491528(boost::bind(&ActionMapReflect::fn_805628B8, this, _1, _2), arg);
     }
     return 0;

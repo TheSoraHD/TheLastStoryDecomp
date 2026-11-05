@@ -9,8 +9,6 @@
 #include "std/string.h"
 #include <boost/function.hpp>
 
-struct NewCampScene2_unk;
-
 namespace atn {
 class Scene;
 class IRender;
@@ -57,7 +55,7 @@ public:
     void fn_800BC468(GXTexObj* tex);              // inferred: builds the light texture of the normals
     void fn_800BC618(GXTexObj* tex, int offset);  // inferred: builds the shadow map texture
     void fn_800BD9C0(int size, const std::string& name); // inferred: allocates the queues and the textures
-    void fn_800BDB40(NewCampScene2_unk* scene);   // inferred: sets the scene (null: the default one)
+    void fn_800BDB40(Scene* scene);   // inferred: sets the scene (null: the default one)
     void AddRender(IRender* render, int pass, float order); // 0x800BDB58: queues a draw in a pass
     inline void* AllocQueue_unk(int size); // inferred: defined in atn/RenderSystem_unk.cpp
     void fn_800BDBC8();                           // inferred: draws the frame
@@ -75,11 +73,11 @@ public:
     int fn_800C0A50(const AABB_unk* box);         // inferred: occlusion test (layer 0)
     Texture_unk* fn_800C0A8C();                   // inferred: texture of layer 4 (reflection)
     Texture_unk* fn_800C0A98();                   // inferred: texture of layer 5
-    NewCampScene2_unk* fn_800C122C(Sphere sphere); // inferred: scene of a sphere (mMapHit, else mScene)
-    NewCampScene2_unk* fn_800C1424();             // inferred: scene at the camera
+    Scene* fn_800C122C(Sphere sphere); // inferred: scene of a sphere (mMapHit, else mScene)
+    Scene* fn_800C1424();             // inferred: scene at the camera
     void AddResolveTexture(Texture_unk* tex, int format); // 0x800C1660: queues a copy of the frame buffer
     float fn_800C169C(const AABB_unk* box);       // inferred: visible fraction (layer 0)
-    NewCampScene2_unk* fn_800C16B4();             // inferred: default scene (lbl_8087EFB8)
+    Scene* fn_800C16B4();             // inferred: default scene (lbl_8087EFB8)
     void fn_800C16BC();                           // inferred: empty
 
     // inferred: weak copies 0x80479EA0 and 0x8047A158 (defined in game/main.cpp)
@@ -106,7 +104,7 @@ public:
     float m100;
     Camera mCamera;                // 0x104: camera of the game
     int m2F8;                      // 0x2F8: inferred: render pass (3: shadow pass; 4: one matrix per item)
-    NewCampScene2_unk* mScene;     // 0x2FC: inferred: scene drawn (lights, fog...)
+    Scene* mScene;     // 0x2FC: inferred: scene drawn (lights, fog...)
     MapHitFunc_unk mMapHit;        // 0x300: inferred: scene of a sphere
     void* mMapHitArg;              // 0x314
     Camera mShadowCamera;          // 0x318: inferred: light camera of the shadow and light map

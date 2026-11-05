@@ -7,12 +7,13 @@
 #include "game/TownTpcLoader.h"
 #include "std/string_members.h"
 #include "atn/RenderManager.h"
-#include "game/NewCampScene2_unk.h"
+#include "atn/Scene.h"
+#include "atn/Light_unk.h"
+#include "game/MapManager.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void* fn_804A7EA4(TownTask* task, const char* path); // inferred: loads a minimap csv
-extern "C" void fn_800C18BC(void* light); // inferred: updates the light
 // inferred: field (lbl_8087F430); only the members used here
 struct TownField_unk {
     unsigned char m0000[0x38];
@@ -113,107 +114,12 @@ struct TownPlayers_unk {
 };
 extern "C" TownPlayers_unk* lbl_8087F8A0;
 
-// inferred: environment parameters of the map meshes (all names invented)
-struct TownWords_unk {
-    int m00;
-    int m04;
-};
-struct TownLightParam_unk { // 0x44 bytes
-    int m00;
-    int m04;
-    atn::Vector3 m08;
-    atn::Vector3 m14;
-    int m20;
-    float m24;
-    float m28;
-    float m2C;
-    float m30;
-    TownWords_unk m34;
-    TownWords_unk m3C;
-};
-// inferred: float pair copied member by member
-struct TownFloat2_unk {
-    TownFloat2_unk& operator=(const TownFloat2_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        return *this;
-    }
-    float m00;
-    float m04;
-};
-struct TownParam88_unk { // 0x1C bytes
-    int m00;
-    TownFloat2_unk m04;
-    TownWords_unk m0C;
-    TownWords_unk m14;
-};
-struct TownParamA_unk { // 0x48 bytes
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    float m1C;
-    float m20;
-    float m24;
-    TownWords_unk m28;
-    TownWords_unk m30;
-    atn::Vector3 m38;
-    float m44;
-};
-struct TownParamB_unk { // 0x10 bytes
-    TownParamB_unk& operator=(const TownParamB_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08 = o.m08;
-        m0C = o.m0C;
-        return *this;
-    }
-    int m00;
-    int m04;
-    float m08;
-    float m0C;
-};
-struct TownParamC_unk { // 0x3C bytes
-    int m00;
-    int m04;
-    float m08;
-    atn::Vector2_unk m0C[4];
-    atn::Quaternion_unk m2C;
-};
-struct TownParamD_unk { // 0x28 bytes
-    int m00;
-    int m04;
-    float m08;
-    TownWords_unk m0C;
-    TownWords_unk m14;
-    atn::Vector3 m1C;
-};
-struct TownParamE_unk { // 0x50 bytes
-    int m00;
-    atn::Quaternion_unk m04[4];
-    int m44;
-    int m48;
-    float m4C;
-};
-// inferred: parameter with a "set" flag
-template <class T>
-struct TownParam_unk {
-    void Set_unk(const T& v) {
-        mSet = 1;
-        mValue = v;
-    }
-    int mSet;
-    T mValue;
-};
 struct TownDefaults_unk {
     unsigned char m000[0x324];
-    TownParamE_unk m324;
+    ColorMatrixParam_unk m324;
 };
 extern "C" TownDefaults_unk* lbl_8087EFA8;
-inline const TownParamE_unk& TownGetE_unk(const TownParam_unk<TownParamE_unk>& p) {
+inline const ColorMatrixParam_unk& TownGetE_unk(const atn::Override_unk<ColorMatrixParam_unk>& p) {
     return p.mSet != 0 ? p.mValue : lbl_8087EFA8->m324;
 }
 struct TownBox_unk {
@@ -224,18 +130,9 @@ struct TownBounds_unk {
     unsigned char m00[0x84];
     TownBox_unk mBox; // 0x84
 };
-struct TownMesh_unk {
-    unsigned char m000[0x4C];
-    unsigned char m04C[0x58 - 0x4C]; // inferred: light holder
-    float m058[8];
-    unsigned char m078[0x88 - 0x78];
-    TownParam88_unk m088;
-    unsigned char m0A4[0x1E0 - 0xA4];
-    TownParam_unk<TownParamA_unk> m1E0;
-    TownParam_unk<TownParamB_unk> m22C;
-    TownParam_unk<TownParamC_unk> m240;
-    TownParam_unk<TownParamD_unk> m280;
-    TownParam_unk<TownParamE_unk> m2AC;
+// inferred: model of a map area (MapArea of game/MapManager.h; m300 differs)
+struct TownMesh_unk : public MapModelBase_unk, public atn::Scene {
+    atn::Scene& GetScene_unk() { return *this; } // inferred: as MapArea::GetScene_unk (no null test)
     int m300;
     TownBounds_unk* m304;
 };
@@ -244,7 +141,6 @@ struct MapModelSet_unk {
     TownMesh_unk** m58;
     unsigned int m5C;
 };
-extern "C" const TownLightParam_unk* fn_800C24B4(void* light, int arg);
 
 // NONMATCHING: 98.3% - register allocation of the copied meshes (src gets r30 in the original), the
 // min() of the copy loop and the registers of the box addresses in the second loop
@@ -286,22 +182,16 @@ void TownTask::vf10() {
             for (unsigned int j = 0; j < (n = parts->m5C, n <= 1 ? n : 1); j++) {
                 TownMesh_unk* src = model->m58[j];
                 TownMesh_unk* dst = parts->m58[j];
-                dst->m058[0] = src->m058[0];
-                dst->m058[1] = src->m058[1];
-                dst->m058[2] = src->m058[2];
-                dst->m058[3] = src->m058[3];
-                dst->m058[4] = src->m058[4];
-                dst->m058[5] = src->m058[5];
-                dst->m058[6] = src->m058[6];
-                dst->m058[7] = src->m058[7];
-                const TownLightParam_unk* light = fn_800C24B4(src->m04C, 0);
-                *(TownLightParam_unk*)fn_800C2448((NewCampScene2_unk*)dst->m04C, 0) = *light; // pending: atn::Light
-                dst->m088 = src->m088;
-                dst->m280.Set_unk(src->m280.mValue);
-                dst->m1E0.Set_unk(src->m1E0.mValue);
-                dst->m2AC.Set_unk(TownGetE_unk(src->m2AC));
-                dst->m22C.Set_unk(src->m22C.mValue);
-                dst->m240.Set_unk(src->m240.mValue);
+                dst->mAmbient = src->mAmbient;
+                dst->mLS = src->mLS;
+                const atn::Light* light = ((const atn::Scene&)src->GetScene_unk()).GetLight(0);
+                *dst->GetScene_unk().GetLight(0) = *light;
+                dst->mFog = src->mFog;
+                dst->mShadow.Set_unk(src->mShadow.mValue);
+                dst->mGodRay.Set_unk(src->mGodRay.mValue);
+                dst->mColorMatrix.Set_unk(TownGetE_unk(src->mColorMatrix));
+                dst->mRain.Set_unk(src->mRain.mValue);
+                dst->mHaze.Set_unk(src->mHaze.mValue);
             }
         }
         if (mC4 != 0) {
@@ -318,7 +208,7 @@ void TownTask::vf10() {
         }
     }
     if (atn::RenderManager::instance_->mScene->m074 == 0 && atn::RenderManager::instance_->fn_800C16B4()->GetLight_unk() != 0) {
-        fn_800C18BC(atn::RenderManager::instance_->fn_800C16B4()->GetLight_unk());
+        atn::RenderManager::instance_->fn_800C16B4()->GetLight_unk()->fn_800C18BC();
     }
 }
 

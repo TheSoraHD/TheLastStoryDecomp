@@ -3,6 +3,13 @@
 #include "atn/Memory.h"
 extern "C" int sprintf(char* buf, const char* format, ...);
 #include "macros.h"
+#include "atn/Light_unk.h"
+
+// inferred: inline of atn::Scene (atn/Scene.h); defined here, its only user (weak copy 0x80185188)
+// NONMATCHING: AddLight_unk 95.3% - the growth path of std::vector::push_back (as in Event/Path.cpp)
+inline void atn::Scene::AddLight_unk(Light light) {
+    mLights.push_back(light);
+}
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" int lbl_8087EED0; // inferred: profile layer (debug menu "Profile Layer")
@@ -51,19 +58,19 @@ DialogConfig_unk::DialogConfig_unk() : mUseWaitMotion(1), mUseLipSync(1) {
     Light_unk light;
     light.fn_800790D0(atn::Vector3(0.1f, 0.1f, -1.0f).GetNormalize(), atn::Color4f_unk(0.5f, 0.5f, 0.5f, 1.0f));
     mScenes[0][0].AddLight_unk(light);
-    mScenes[0][0].GetAmbient_unk() = atn::Color4f_unk(0.8f, 0.75f, 0.75f, 1.0f);
+    mScenes[0][0].GetAmbientLight() = atn::Color4f_unk(0.8f, 0.75f, 0.75f, 1.0f);
     mScenes[0][0].GetLS_unk() = atn::Color4f_unk(0.1f, 0.1f, 0.1f, 1.0f);
     light.fn_800790D0(atn::Vector3(-1.0f, -0.2f, -0.99f).GetNormalize(), atn::Color4f_unk(0.5f, 0.5f, 0.5f, 1.0f));
     mScenes[0][1].AddLight_unk(light);
-    mScenes[0][1].GetAmbient_unk() = atn::Color4f_unk(0.8f, 0.75f, 0.75f, 1.0f);
+    mScenes[0][1].GetAmbientLight() = atn::Color4f_unk(0.8f, 0.75f, 0.75f, 1.0f);
     mScenes[0][1].GetLS_unk() = atn::Color4f_unk(0.1f, 0.1f, 0.1f, 1.0f);
     light.fn_800790D0(atn::Vector3(0.1f, 0.1f, -1.0f).GetNormalize(), atn::Color4f_unk(0.5f, 0.5f, 0.5f, 1.0f));
     mScenes[1][0].AddLight_unk(light);
-    mScenes[1][0].GetAmbient_unk() = atn::Color4f_unk(0.35f, 0.3f, 0.3f, 1.0f);
+    mScenes[1][0].GetAmbientLight() = atn::Color4f_unk(0.35f, 0.3f, 0.3f, 1.0f);
     mScenes[1][0].GetLS_unk() = atn::Color4f_unk(0.1f, 0.1f, 0.1f, 1.0f);
     light.fn_800790D0(atn::Vector3(-1.0f, -0.2f, -0.99f).GetNormalize(), atn::Color4f_unk(0.5f, 0.5f, 0.5f, 1.0f));
     mScenes[1][1].AddLight_unk(light);
-    mScenes[1][1].GetAmbient_unk() = atn::Color4f_unk(0.35f, 0.3f, 0.3f, 1.0f);
+    mScenes[1][1].GetAmbientLight() = atn::Color4f_unk(0.35f, 0.3f, 0.3f, 1.0f);
     mScenes[1][1].GetLS_unk() = atn::Color4f_unk(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
@@ -89,8 +96,8 @@ void DialogConfig_unk::fn_801856B8(void* menu) {
     fn_80087E9C(group, "Cam Target", &mRight.mCamTarget.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
     fn_80087858(group, "Cam AngleOfView", &mRight.mCamAngleOfView, -360.0f, 360.0f, 1.0f, 0, 0);
     const char* names[2] = {"SceneLeft", "SceneRight"};
-    NewCampScene2_unk* scene = &mScenes[0][0];
-    NewCampScene2_unk* dark = &mScenes[0][1];
+    atn::Scene* scene = &mScenes[0][0];
+    atn::Scene* dark = &mScenes[0][1];
     for (int i = 0; i < 2; i++, scene += 2, dark += 2) {
         
         group = fn_8008937C(dialog, names[i]);
@@ -106,7 +113,7 @@ void DialogConfig_unk::fn_801856B8(void* menu) {
         fn_8008771C(fog, "Fog G", &scene->mFog.mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
         fn_8008771C(fog, "Fog B", &scene->mFog.mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
         atn::MindowsFolder* keyLight = fn_8008937C(group, "KeyLight");
-        fn_800C2448(scene, 0)->fn_80079BC8(keyLight);
+        scene->GetLight(0)->fn_80079BC8(keyLight);
     }
 }
 

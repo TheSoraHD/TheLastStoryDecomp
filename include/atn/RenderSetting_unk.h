@@ -8,18 +8,6 @@
 // inferred: render settings edited from the debug menu (lbl_8087EFA8, created by fn_800B95C4).
 // Class and member names are invented; the comments give the debug menu labels.
 
-// inferred: rain parameters
-struct RainParam_unk {
-    RainParam_unk() : mEnabled(0), mDebug(0), mWarp(1.0f), mRate(0.05f) {}
-    void fn_800BB8D8(void* menu);
-    void fn_800BB994(RsCsv_unk* csv);
-
-    int mEnabled; // 0x00
-    int mDebug;   // 0x04
-    float mWarp;  // 0x08
-    float mRate;  // 0x0C
-};
-
 // inferred: gamma post effect parameters (see atn/PostFxGamma.cpp)
 struct GammaParams_unk {
     GammaParams_unk(); // 0x800BC2E0

@@ -7,6 +7,7 @@
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 extern "C" void GXSetIndTexOrder(int stage, int coord, int map);
 extern "C" void GXSetIndTexCoordScale(int stage, int scaleS, int scaleT);
@@ -31,36 +32,13 @@ struct GodRayColor_unk {
     float r, g, b, a;
 };
 
-// inferred: parameters of the effect (at lbl_8087EFA8+0x264, or from the scene). Names invented.
-struct GodRayParams_unk {
-    int mEnable;          // 0x00
-    int mDebug;           // 0x04
-    int mShift;           // 0x08: inferred: size of the work textures (frame size >> mShift)
-    int mPasses;          // 0x0C
-    int mUseDir;          // 0x10: inferred: light at the camera + direction * 800
-    int mUseDepth;        // 0x14
-    int mType;            // 0x18: 0 = point, 1 = direction, 2 = screen position
-    float m1C;            // 0x1C: inferred: radial blur parameters
-    float m20;
-    float m24;
-    GodRayColor_unk mColor; // 0x28
-    atn::Vector3 mPos;    // 0x38
-    float mRadius;        // 0x44
-};
-
 // inferred: render parameters (lbl_8087EFA8, fields named by offset; see atn/PostFxBloom.cpp)
 struct GodRayRenderParams_unk {
     unsigned char m000[0x264];
-    GodRayParams_unk mGodRay; // 0x264
+    GodRayParam_unk mGodRay; // 0x264
 };
 extern "C" GodRayRenderParams_unk* lbl_8087EFA8;
 
-// inferred: scene settings that can override the parameters (see atn/PostFxRain.cpp)
-struct GodRayOverride_unk {
-    unsigned char m000[0x194];
-    int m194;
-    GodRayParams_unk m198;
-};
 
 
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
@@ -251,7 +229,7 @@ public:
     int fn_800AEF4C();
     void fn_800AEF68();
 
-    GodRayParams_unk* mParams; // 0x04
+    GodRayParam_unk* mParams; // 0x04
     GXTexObj m08;              // 0x08
     GodRayColor_unk mColor;    // 0x28: inferred: current color (follows mParams->mColor)
     Texture_unk mRamp;         // 0x38: inferred: depth ramp
@@ -268,24 +246,24 @@ PostFxGodRay::PostFxGodRay()
 }
 
 int PostFxGodRay::fn_800AEF4C() {
-    return mParams != 0 ? mParams->mEnable : 0;
+    return mParams != 0 ? mParams->mEnabled : 0;
 }
 
 // NONMATCHING: 97.59% - stack slots of the case 0 temporaries and FPR of the screen size
 void PostFxGodRay::fn_800AEF68() {
     mParams = &lbl_8087EFA8->mGodRay;
-    GodRayOverride_unk* o = (GodRayOverride_unk*)atn::RenderManager::instance_->fn_800C1424(); // pending: view of the scene
-    if (o->m194 != 0) {
-        mParams = &o->m198;
+    atn::Scene* o = atn::RenderManager::instance_->fn_800C1424();
+    if (o->mGodRay.mSet != 0) {
+        mParams = &o->mGodRay.mValue;
     }
     float fw = lbl_8087EEE0->mWidth;
     float fh = lbl_8087EEE0->mHeight;
-    GodRayParams_unk* p = mParams;
+    GodRayParam_unk* p = mParams;
     atn::RenderManager* fb;
-    switch (p->mType) {
+    switch (p->mMode) {
     case 0: {
         Vector3 pos(p->mPos);
-        if (p->mUseDir) {
+        if (p->mDirectional) {
             Vector3 dir(p->mPos);
             if (IsZero2_unk(dir)) {
                 dir = Vector3(0.0f, 1.0f, 0.0f);
@@ -353,7 +331,7 @@ void PostFxGodRay::vf10(void* camera) {
     int fullW;
     int fullH;
     GXSetZMode(0, 3, 0);
-    GodRayParams_unk* p = mParams;
+    GodRayParam_unk* p = mParams;
     void* image0;
     if (mIntensity < 0.05f) {
         return;
@@ -365,9 +343,9 @@ void PostFxGodRay::vf10(void* camera) {
     int copyFmt = 0x28;
     fullW = lbl_8087EEE0->mWidth;
     fullH = lbl_8087EEE0->mHeight;
-    w = fullW >> p->mShift;
-    h = fullH >> p->mShift;
-    if (p->mUseDepth) {
+    w = fullW >> p->m08;
+    h = fullH >> p->m08;
+    if (p->mUseColor) {
         fmt = 4;
         copyFmt = 4;
     }
@@ -379,7 +357,7 @@ void PostFxGodRay::vf10(void* camera) {
     GXInitTexObj(&tmp, image1, w, h, fmt, 0, 0, 0);
     GXInitTexObjLOD(&tmp, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     atn::RenderManager::instance_->fn_800C0508(1);
-    if (p->mUseDepth) {
+    if (p->mUseColor) {
         GXSetNumTevStages(2);
         GXSetNumTexGens(3);
         GXSetNumChans(1);
@@ -412,20 +390,20 @@ void PostFxGodRay::vf10(void* camera) {
     GXSetTevColorOp(0, 0, 0, 0, 1, 0);
     GXSetTevOrder(0, 0, 0, 0xFF);
     GXSetTevSwapMode(0, 0, 0);
-    if (p->mUseDepth) {
+    if (p->mUseColor) {
         GXSetTevColorIn(1, 0xF, 8, 0, 0xF);
         GXSetTevColorOp(1, 0, 0, 0, 1, 0);
         GXSetTevOrder(1, 2, 2, 0xFF);
         GXSetTevSwapMode(1, 0, 0);
     }
     GXSetBlendMode(0, 4, 1, 3);
-    if (p->mShift > 0) {
+    if (p->m08 > 0) {
         fn_80075F58(lbl_8087EEE0, 0, 0, w * 2, h * 2);
     } else {
         fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
     }
     atn::RenderManager::instance_->fn_800BFB70();
-    if (p->mShift > 0) {
+    if (p->m08 > 0) {
         GXSetTexCopySrc(0, 0, w * 2, h * 2);
         GXSetTexCopyDst(w, h, copyFmt, 1);
     } else {
@@ -437,13 +415,13 @@ void PostFxGodRay::vf10(void* camera) {
     fn_80075DEC(lbl_8087EEE0);
     fn_800A981C(&m08, image1, w, h, copyFmt, 0, 0, 1.0f, 0.0f);
     fn_800A981C(&tmp, image0, w, h, copyFmt, 0, 0, 0.0f, 1.0f);
-    if (p->mType == 0 || p->mType == 2) {
-        for (int i = 0; i < p->mPasses; i++) {
-            fn_800AE568(&m08, image0, w, h, copyFmt, mScreen.x, mScreen.y, p->m1C, p->m20, p->m24);
+    if (p->mMode == 0 || p->mMode == 2) {
+        for (int i = 0; i < p->mIterations; i++) {
+            fn_800AE568(&m08, image0, w, h, copyFmt, mScreen.x, mScreen.y, p->mBlurWidth, p->mBlurHeight, p->mRadialScale);
         }
-    } else if (p->mType == 1) {
-        for (int i = 0; i < p->mPasses; i++) {
-            fn_800A981C(&m08, image0, w, h, copyFmt, 0, 1, mScreen.x * p->m1C, mScreen.y * p->m20);
+    } else if (p->mMode == 1) {
+        for (int i = 0; i < p->mIterations; i++) {
+            fn_800A981C(&m08, image0, w, h, copyFmt, 0, 1, mScreen.x * p->mBlurWidth, mScreen.y * p->mBlurHeight);
         }
     }
     GXSetNumTexGens(2);

@@ -24,6 +24,7 @@ struct CharaLightData_unk {
     CharaLightData_unk(); // 0x800C16C0
     CharaLightData_unk(const char* texture); // 0x800C1720: inferred: loads the texture
     void fn_800C1814(const char* path); // inferred: loads the texture
+    void fn_800C18BC();                 // inferred: update (scroll, rotation and texture animation)
     int fn_800C1990();                  // inferred: nonzero while loading
 
     int m00;

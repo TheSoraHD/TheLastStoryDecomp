@@ -17,6 +17,7 @@
 #include <new>
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 
 struct MemoryMode_unk {
@@ -34,7 +35,7 @@ extern "C" int lbl_8087D904;
 extern "C" float lbl_8087D908;
 extern "C" float lbl_8087D90C;
 extern "C" unsigned char lbl_8087D81C[];
-extern "C" NewCampScene2_unk* lbl_8087EFB8; // inferred: default scene
+extern "C" atn::Scene* lbl_8087EFB8; // inferred: default scene
 extern "C" void* lbl_8087EFA8;
 extern "C" void* lbl_8087EF8C;
 
@@ -64,23 +65,6 @@ extern "C" void* memset(void* dest, int value, unsigned long size);
 void operator delete[](void* ptr);
 extern "C" unsigned char lbl_8087D910[];
 extern "C" unsigned char lbl_8087D914[];
-// inferred: scene of the camp and the map (0x2B4 bytes). The full class is in atn/CharaLightData_unk.cpp;
-// only the constructor and the fields set up here are declared (pending: one header for it).
-struct NewCampScene2_unk {
-    NewCampScene2_unk(); // 0x800C1D98
-    unsigned char m000[0x00C];
-    float mAmbient[4];               // 0x00C: inferred: R, G, B (debug menu "Ambient")
-    float mLS[4];                    // 0x01C: inferred: "LS R/G/B"
-    unsigned char m02C[0x03C - 0x02C];
-    int mFogMode;                    // 0x03C
-    float mFogStart;                 // 0x040
-    float mFogEnd;                   // 0x044
-    float mFogColor[3];              // 0x048
-    unsigned char m054[0x058 - 0x054];
-    std::vector<Light_unk> mLights;  // 0x058
-    unsigned char m064[0x2B4 - 0x064];
-};
-
 namespace atn {
 // inferred: declared here only for their constructors; the classes are in atn/LayerShadow.cpp and
 // atn/LayerOcclusionCPU.cpp, which use local copies of IRenderLayer (vf10 takes an argument there).
@@ -105,8 +89,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, 
                               int arg7);
 extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min,
                             float max, float step);
-extern "C" void fn_800C2E30(void* scene, void* menu);
-extern "C" Light_unk* fn_800C2448(void* scene, int index);
 
 void fn_800C5644();
 extern "C" void fn_8007A100();
@@ -327,7 +309,7 @@ atn::RenderManager::RenderManager()
     memset(self + 0x50, 0, 0x50);
     memset(self + 0xA0, 0, 0x50);
     memset(self, 0, 0x50);
-    NewCampScene2_unk* scene = new ((MemoryTag)6, "", "", 0) NewCampScene2_unk();
+    atn::Scene* scene = new ((MemoryTag)6, "", "", 0) atn::Scene();
     lbl_8087EFB8 = scene;
     *(void**)(self + 0x2FC) = scene;
     Light_unk light;
@@ -340,36 +322,36 @@ atn::RenderManager::RenderManager()
 
     void* sceneMenu = *(void**)((unsigned char*)lbl_8087EFA8 + 0x4C);
     void* menuGroup = fn_8008937C(sceneMenu, "Reflection");
-    fn_800C2E30(scene, menuGroup);
+    scene->fn_800C2E30(menuGroup);
 
     menuGroup = fn_8008937C(sceneMenu, "Fog");
-    fn_800874C8(menuGroup, "Fog Mode", &scene->mFogMode, 0, 6, 1,
+    fn_800874C8(menuGroup, "Fog Mode", &scene->mFog.mMode, 0, 6, 1,
                 0, 0);
-    fn_8008771C(menuGroup, "Fog Start", &scene->mFogStart, 0, 0,
+    fn_8008771C(menuGroup, "Fog Start", &scene->mFog.mStart, 0, 0,
                 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog End", &scene->mFogEnd, 0, 0,
+    fn_8008771C(menuGroup, "Fog End", &scene->mFog.mEnd, 0, 0,
                 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog R", &scene->mFogColor[0], 0, 0,
+    fn_8008771C(menuGroup, "Fog R", &scene->mFog.mColor.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog G", &scene->mFogColor[1], 0, 0,
+    fn_8008771C(menuGroup, "Fog G", &scene->mFog.mColor.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog B", &scene->mFogColor[2], 0, 0,
+    fn_8008771C(menuGroup, "Fog B", &scene->mFog.mColor.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
 
     menuGroup = fn_8008937C(sceneMenu, "KeyLight");
-    fn_800C2448(scene, 0)->fn_80079BC8(menuGroup);
+    scene->GetLight(0)->fn_80079BC8(menuGroup);
     menuGroup = fn_8008937C(sceneMenu, "Ambient");
-    fn_8008771C(menuGroup, "Ambient R", &scene->mAmbient[0], 0, 0,
+    fn_8008771C(menuGroup, "Ambient R", &scene->mAmbient.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient G", &scene->mAmbient[1], 0, 0,
+    fn_8008771C(menuGroup, "Ambient G", &scene->mAmbient.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient B", &scene->mAmbient[2], 0, 0,
+    fn_8008771C(menuGroup, "Ambient B", &scene->mAmbient.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS R", &scene->mLS[0], 0, 0,
+    fn_8008771C(menuGroup, "LS R", &scene->mLS.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS G", &scene->mLS[1], 0, 0,
+    fn_8008771C(menuGroup, "LS G", &scene->mLS.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS B", &scene->mLS[2], 0, 0,
+    fn_8008771C(menuGroup, "LS B", &scene->mLS.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
 
     // The layer pointer table occupies the first 20 words of RenderSystem.
@@ -434,7 +416,7 @@ void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name)
     GXInitTexObjLOD(&m77C, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 }
 
-void atn::RenderManager::fn_800BDB40(NewCampScene2_unk* scene) {
+void atn::RenderManager::fn_800BDB40(atn::Scene* scene) {
     mScene = scene;
     if (scene != 0) {
         return;
@@ -1538,13 +1520,11 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
     return 1;
 }
 
-// inferred: atn::Scene is NewCampScene2_unk (MapArea has it as its base at 0x4C); the callback type
-// keeps the name of the DOL, so its result is converted here
-NewCampScene2_unk* atn::RenderManager::fn_800C122C(atn::Sphere sphere) {
+atn::Scene* atn::RenderManager::fn_800C122C(atn::Sphere sphere) {
     // inferred: run the configured sphere-to-scene callback and fall back to the stored scene.
     // NONMATCHING: 96.75% - callback invoker data label and aggregate load order differ.
     if (mMapHit) {
-        NewCampScene2_unk* scene = (NewCampScene2_unk*)mMapHit(sphere, mMapHitArg);
+        atn::Scene* scene = mMapHit(sphere, mMapHitArg);
         if (scene != 0) {
             return scene;
         }
@@ -1552,7 +1532,7 @@ NewCampScene2_unk* atn::RenderManager::fn_800C122C(atn::Sphere sphere) {
     return mScene;
 }
 
-NewCampScene2_unk* atn::RenderManager::fn_800C1424() {
+atn::Scene* atn::RenderManager::fn_800C1424() {
     // inferred: scene of a unit sphere at the camera position (m54964) or at its target
     atn::Sphere sphere;
     sphere.mCenter = m54964 != 0 ? mCamera.mPos : mCamera.mTarget;
@@ -1586,7 +1566,7 @@ float atn::RenderManager::fn_800C169C(const atn::AABB_unk* bounds) {
     return 0.0f;
 }
 
-NewCampScene2_unk* atn::RenderManager::fn_800C16B4() {
+atn::Scene* atn::RenderManager::fn_800C16B4() {
     return lbl_8087EFB8;
 }
 

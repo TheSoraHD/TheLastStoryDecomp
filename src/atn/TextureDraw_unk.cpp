@@ -3,7 +3,8 @@
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
 #include "atn/Sphere.h"
-#include "game/NewCampScene2_unk.h"
+#include "atn/Scene.h"
+#include "atn/Light_unk.h"
 #include <string.h>
 
 extern "C" double tan(double x);
@@ -70,8 +71,6 @@ extern "C" __declspec(noinline) void fn_800D5E18(float m[3][4], float t, float b
     m[2][3] = 1.0f;
 }
 
-extern "C" int fn_800C2418(NewCampScene2_unk* scene);                 // inferred: number of cameras
-extern "C" Camera_unk* fn_800C2520(NewCampScene2_unk* scene, int index); // inferred: camera `index`
 
 // inferred: vector helpers of the projection (names invented)
 inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
@@ -164,7 +163,7 @@ extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn
         CopyMtx_unk(v->mCamera.mView.m, camView.m);
         atn::Matrix3x4 camInv;
         CopyMtx_unk(v->mCamera.mInvView.m, camInv.m);
-        atn::Vector3 dir = fn_800C2448(v->mScene, 0)->mDir;
+        atn::Vector3 dir = v->mScene->GetLight(0)->mDir;
         atn::Vector3 up;
         UpFor_unk(dir, up);
         atn::Vector3 right;
@@ -195,7 +194,7 @@ extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn
         CopyMtx_unk(v->mCamera.mView.m, camView.m);
         atn::Matrix3x4 camInv;
         CopyMtx_unk(v->mCamera.mInvView.m, camInv.m);
-        atn::Vector3 dir = fn_800C2448(v->mScene, 0)->mDir;
+        atn::Vector3 dir = v->mScene->GetLight(0)->mDir;
         if (dir.x == 0.0f && dir.y == 0.0f && dir.z == 0.0f) {
             dir.y = -1.0f;
         }
@@ -242,9 +241,9 @@ extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn
                 c->mRight = bounds->mCenter.x - 2.0f * bounds->mRadius;
                 c->fn_8004B378();
             } else {
-                NewCampScene2_unk* scene = atn::RenderManager::instance_->mScene;
-                if (camera < fn_800C2418(scene)) {
-                    c = fn_800C2520(scene, camera);
+                atn::Scene* scene = atn::RenderManager::instance_->mScene;
+                if (camera < scene->fn_800C2418()) {
+                    c = scene->fn_800C2520(camera);
                 }
             }
         }

@@ -458,7 +458,7 @@ atn/RenderSystem_unk.cpp:
 	.sbss       start:0x8087EFB8 end:0x8087EFC0
 	.sdata2     start:0x80881088 end:0x808810D0
 
-atn/CharaLightData_unk.cpp:
+atn/Scene.cpp:
 	.text       start:0x800C16C0 end:0x800C3094
 	.rodata     start:0x807337A8 end:0x807337F0
 	.sdata      start:0x8087D918 end:0x8087D920

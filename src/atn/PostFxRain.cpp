@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 extern "C" int rand();
 extern "C" void PSMTXScale(float m[3][4], float x, float y, float z);
@@ -17,39 +18,15 @@ extern "C" void GXSetIndTexMtx(int id, const float offset[2][3], signed char sca
 extern "C" void GXSetTevAlphaIn(int stage, int a, int b, int c, int d);
 extern "C" void GXSetTevAlphaOp(int stage, int op, int bias, int scale, unsigned char clamp, int outReg);
 
-// inferred: drop settings (lbl_8087EFA8 + 0x2AC, or the override of fn_800C1424 + 0x1E4)
-struct RainDropSet_unk {
-    int mEnable; // 0x00
-    int mDebug;  // 0x04
-    float mRate; // 0x08: inferred: drops per frame
-    float mSize; // 0x0C
-};
-// inferred: heat wave settings (lbl_8087EFA8 + 0x2BC, or the override of fn_800C1424 + 0x1F8)
-struct RainHeatSet_unk {
-    int mEnable;          // 0x00
-    int mDebug;           // 0x04
-    float mAlpha;         // 0x08
-    float mScrollU;       // 0x0C
-    float mScrollV;       // 0x10
-    atn::Vector2_unk mScale; // 0x14
-    float mX, mY, mW, mH; // 0x1C: inferred: viewport
-    float mAlphas[4];     // 0x2C: inferred: alpha of the four corners
-};
+// inferred: drop settings: RainParam_unk (lbl_8087EFA8 + 0x2AC, or the one of the scene); heat wave
+// settings: HazeParam_unk (lbl_8087EFA8 + 0x2BC, or the one of the scene)
 struct RainParams_unk {
     unsigned char m00[0x2AC];
-    RainDropSet_unk m2AC;
-    RainHeatSet_unk m2BC;
+    RainParam_unk m2AC;
+    HazeParam_unk m2BC;
 };
 extern "C" RainParams_unk* lbl_8087EFA8;
 
-// inferred: settings that override the parameters (returned by fn_800C1424, see atn/PostFxColorMatrix.cpp)
-struct RainOverride_unk {
-    unsigned char m00[0x1E0];
-    int m1E0;
-    RainDropSet_unk m1E4;
-    int m1F4;
-    RainHeatSet_unk m1F8;
-};
 
 
 // inferred: render manager with its clear color (ARGB) at 0x48
@@ -108,7 +85,7 @@ public:
     int m08;
     float m0C;            // 0x0C: inferred: drop rate (smoothed)
     float m10;            // 0x10: inferred: drop size (smoothed)
-    RainDropSet_unk* m14; // 0x14
+    RainParam_unk* m14; // 0x14
     int m18;              // 0x18: inferred: heat waves active
     int m1C;
     float m20;            // 0x20: inferred: heat wave alpha (smoothed)
@@ -124,7 +101,7 @@ public:
     float m48;
     float m4C;
     float m50;
-    RainHeatSet_unk* m54; // 0x54
+    HazeParam_unk* m54; // 0x54
     float m58;            // 0x58: inferred: heat wave scroll
     float m5C;
     GXTexObj m60;         // 0x60: inferred: drops (indirect texture)
@@ -221,10 +198,10 @@ void PostFxRain::fn_800B0CD4() {
     GXSetChanCtrl(4, 0, 1, 1, 0, 0, 2);
     GXSetNumTexGens(1);
     GXSetTexCoordGen2(0, 1, 4, 0x1E, 0, 0x7D);
-    RainHeatSet_unk* heat = m54;
+    HazeParam_unk* heat = m54;
     Vector2_unk scale = heat->mScale;
-    m58 += heat->mScrollU;
-    m5C += heat->mScrollV;
+    m58 += heat->mScroll.x;
+    m5C += heat->mScroll.y;
     if (m5C > scale.y) {
         m5C -= scale.y;
     }
@@ -243,12 +220,12 @@ void PostFxRain::fn_800B0CD4() {
     fn_800763FC(lbl_8087EEE0, &mB8.mObj, 0);
     GXSetBlendMode(1, 4, 5, 3);
     atn::Color c[4] = {
-        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[0]),
-        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[1]),
-        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[2]),
-        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mAlphas[3]),
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mFade.x),
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mFade.y),
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mFade.z),
+        atn::Color(1.0f, 1.0f, 1.0f, m20 * m54->mFade.w),
     };
-    fn_80075F58(lbl_8087EEE0, m54->mX, m54->mY, m54->mW, m54->mH);
+    fn_80075F58(lbl_8087EEE0, m54->mPos.x, m54->mPos.y, m54->mSize.x, m54->mSize.y);
     int sh = lbl_8087EEE0->mHeight;
     int sw = lbl_8087EEE0->mWidth;
     atn::RenderManager::instance_->fn_800BFCB4(c[0], c[1], c[2], c[3], sw, sh, 0.0f, 0.0f);
@@ -384,23 +361,23 @@ void PostFxRain::fn_800B1598() {
     atn::RenderManager* fb = atn::RenderManager::instance_;
     m14 = &lbl_8087EFA8->m2AC;
     m54 = &lbl_8087EFA8->m2BC;
-    RainOverride_unk* ovr = (RainOverride_unk*)fb->fn_800C1424(); // pending: view of the scene
-    if (ovr->m1E0 != 0) {
-        m14 = &ovr->m1E4;
+    atn::Scene* ovr = fb->fn_800C1424();
+    if (ovr->mRain.mSet != 0) {
+        m14 = &ovr->mRain.mValue;
     }
-    if (ovr->m1F4 != 0) {
-        m54 = &ovr->m1F8;
+    if (ovr->mHaze.mSet != 0) {
+        m54 = &ovr->mHaze.mValue;
     }
-    int enable = m14->mEnable;
-    float rate = enable != 0 ? m14->mRate : 0.0f;
-    float size = enable != 0 ? m14->mSize : 0.0f;
+    int enable = m14->mEnabled;
+    float rate = enable != 0 ? m14->mWarp : 0.0f;
+    float size = enable != 0 ? m14->mRate : 0.0f;
     if (m04 == 0) {
         m04 = enable;
     } else if (enable == 0) {
         m04 = m0C > 0.0f;
     }
-    int heatEnable = m54->mEnable;
-    float heat = heatEnable != 0 ? m54->mAlpha : 0.0f;
+    int heatEnable = m54->mEnabled;
+    float heat = heatEnable != 0 ? m54->mWarp : 0.0f;
     if (m18 == 0) {
         m18 = heatEnable;
     } else if (heatEnable == 0) {

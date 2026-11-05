@@ -768,9 +768,9 @@ void FragileGlow_unk::fn_803F42C8(atn::Model* model) {
 
 void FragileObject::vf3C(void* lens) {
     mModelAfter.mFlags |= 0x10000;
-    mModelAfter.m1DC = (Lens_unk*)lens;
+    mModelAfter.m1DC = (atn::Scene*)lens;
     mModelBefore.mFlags |= 0x10000;
-    mModelBefore.m1DC = (Lens_unk*)lens;
+    mModelBefore.m1DC = (atn::Scene*)lens;
 }
 
 atn::Model* FragileObject::vf38() {

@@ -207,7 +207,7 @@ void ActionCameraEffect::fn_8055BB08(MapArea* area, const void* data) {
 }
 
 void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
-    area->mHaze = *(HazeParam_unk*)arg;
+    area->mHaze.mValue = *(HazeParam_unk*)arg;
 }
 
 // inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
@@ -255,7 +255,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             break;
         }
         case 2: {
-            NewCampScene2_unk* view = atn::RenderManager::instance_->fn_800C16B4();
+            atn::Scene* view = atn::RenderManager::instance_->fn_800C16B4();
             if (arg->GetParam_unk(1)->m04.i != 0) {
                 view->mFog.mMode = arg->GetParam_unk(2)->m04.i + 1;
                 view->mFog.mStart = arg->GetParam_unk(3)->m04.f;
@@ -322,7 +322,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             fade.z = arg->GetParam_unk(13)->m04.f;
             fade.w = arg->GetParam_unk(14)->m04.f;
             haze.mFade = fade;
-            atn::RenderManager::instance_->fn_800C16B4()->mHaze = haze;
+            atn::RenderManager::instance_->fn_800C16B4()->mHaze.mValue = haze;
             MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
             break;
         }
