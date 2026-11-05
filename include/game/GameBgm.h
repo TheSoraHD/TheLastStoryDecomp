@@ -58,6 +58,8 @@ public:
     float mE0;                // inferred: previous volume
 
     static GameBgm* sInstance; // lbl_8087F448
+    // inferred: weak getter (called with bl by Event::Manager, e.g. 0x80487510); name invented
+    static GameBgm* GetInstance_unk() { return sInstance; }
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "Event/SequenceRoot.h"
 #include "Event/PostSequence.h"
 #include "Event/Manager.h"
+#include "macros.h"
 #include "Event/Sequence.h"
 #include "atn/Light_unk.h"
 #include "game/NewCampScene2_unk.h"
@@ -38,6 +39,10 @@
 #include "Event/Label.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
+
+// inferred: zoom of the damage effect at the start and at the end of the event flash (fn_80481A20)
+float lbl_8087E088 = 0.05f;
+float lbl_8087E08C = -0.6f;
 extern "C" GameConfig_unk* lbl_8087F0A8;     // inferred: game settings
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 extern "C" atn::Vector2_unk lbl_807C7028;    // inferred: zero 2D vector
@@ -63,6 +68,14 @@ extern "C" void fn_8004895C(atn::SoundEngine_unk* sound);
 extern "C" void fn_80049654(atn::SoundEngine_unk* sound);
 extern "C" void fn_8004829C(atn::SoundEngine_unk* sound, const char** groups, int count);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+// inferred: sets the layout value `name` (as atn::D2A_Task::SetLayoutValue_unk of game/GameUI.cpp, with
+// the layout taken first, as in Event/ActionEffectPlay.cpp)
+inline void SetLayoutValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
 extern "C" void* lbl_8087F048;              // inferred: bullet manager
 extern "C" void fn_80370B78(GameField_unk* field, unsigned int color, int frames, int arg, float speed); // inferred: fade of the field
 extern "C" void fn_801011B8(void* bullets); // inferred: removes every bullet
@@ -385,8 +398,8 @@ inline EventConfig_unk::EventConfig_unk()
 Manager::Manager(atn::Task* parent)
     : atn::Task(parent), m70(0), mB4(1.0f), mC4(0), m1A38(0), m1A3C(0), m1A40(0), m1A44(0), m1A48(0),
       m1A4C(1), m1A50(0x3E), m1A54(0), m1A58(8.0f), m1A6C(0), m1A84(0.0f), m1A88(0), m1A8C(5), m1A90(0),
-      m1A94(0), m1A98(0), m1A9C(0), m1DC0(0), m1DC4(0), m1DC8(0), m1DCC(1.0f), m1DD0(0.0f), m1DD4(0),
-      m1DD8(0), m1DDC(0.02f), m1DE0(0.02f), m1E74(0), m1E78(0), m1E88(0.0f),
+      m1A94(0), m1A98(0), m1A9C(0), m1DC0(),
+      m1E74(0), m1E78(0), m1E88(0.0f),
       m1E8C(0.0f), m1E90(0), m1EA4(0), m1EA8(0), m1EAC(0), m1EB0(0), m1EB4(30.0f), m1F1C(0), m1F34(0),
       m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0), m1F74(0), m1F78(0),
       m1F7C(0), m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
@@ -1081,9 +1094,9 @@ void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
         m1A6C->fn_803CA530();
     }
     if ((flags & 0x100) && !(flags & 0x10000000) && areaData != 0 && !(flags & 0x200)) {
-        atn::FixedArray_unk<MapPart_unk*, 64>& parts = MapManager::sInstance->mParts;
+        atn::FixedArray_unk<MapPart_unk*, 64>& parts = MapManager::GetInstance_unk()->mParts;
         for (int i = 0; i < (int)parts.size(); i++) {
-            MapManager::sInstance->fn_80491440(parts[i]);
+            MapManager::GetInstance_unk()->fn_80491440(parts[i]);
         }
         if (area == 1) {
             std::string file = fn_800DC980("database\\map\\tw%02d_%02d.twn", map, part);
@@ -1111,7 +1124,7 @@ void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
             ColliAttrManager::fn_801839FC(this);
         }
         ColliAttrManager::sInstance->fn_80183D00(area, map, part);
-        if (GameBgm::sInstance == 0) {
+        if (GameBgm::GetInstance_unk() == 0) {
             GameBgm::fn_8037C8C4(this);
         }
         if (lbl_8087F498 == 0) {
@@ -1180,6 +1193,36 @@ void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
     }
 }
 
+void Manager::fn_804814F8() {
+    Sequence* seq = m70;
+    Cut* cut = seq != 0 ? seq->fn_80541210() : 0;
+    if (cut != 0 && seq->m194 == 10) {
+        if (cut->mCinematic != 0 && m1A7C->IsFlag_unk(4)) {
+            if (m1A7C->IsFlag_unk(4) != 0) {
+                m1A7C->mFrame = 1.0f;
+                m1A7C->mSpeed = 1.0f;
+                m1A7C->MeltTask();
+            }
+        } else if (cut->mCinematic == 0 && !m1A7C->IsFlag_unk(4)) {
+            if (m1A90 == 0) {
+                m1A90 = 1;
+                m1A8C = 5;
+            }
+        }
+    }
+    if (!m1A7C->IsFlag_unk(4) && m1A7C->mSpeed < 0.0f && m1A7C->mFrame <= 1.0f) {
+        m1A7C->FreezeTask();
+    }
+    if (m1A90 != 0) {
+        if (m1A8C == -1) {
+            m1A90 = 0;
+            m1A7C->mSpeed = -1.0f;
+        } else {
+            m1A8C--;
+        }
+    }
+}
+
 int Manager::fn_80481654() {
     return m1A7C->IsFrozen_unk() == 0;
 }
@@ -1208,6 +1251,22 @@ void Manager::fn_8048169C(int arg) {
     }
 }
 
+void Manager::fn_804816F4() {
+    if (m1A80->IsFlag_unk(4)) {
+        m1A80->mFrame = 0.0f;
+        m1A80->mSpeed = 1.0f;
+        m1A80->MeltTask();
+        DamageParam_unk damage = lbl_8087EFA8->m374;
+        damage.mEnabled = 1;
+        damage.mAngle = 0.0f;
+        damage.mColor.Set_unk(0.7f, 0.9f, 0.95f, 1.0f);
+        damage.mScale = -2.0f;
+        damage.mZoom = 0.05f;
+        DamageParam_unk result = damage;
+        lbl_8087EFA8->m374 = result;
+    }
+}
+
 void Manager::fn_804817D4() {
     if (!m1A80->IsFlag_unk(4)) {
         m1A80->FreezeTask();
@@ -1219,6 +1278,53 @@ void Manager::fn_80481800(int on) {
     m1EA4 = on;
     if (on != 0) {
         m1EB0 = 0;
+    }
+}
+
+void Manager::fn_80481818() {
+    if (m1A88 == 1) {
+        DamageParam_unk damage = lbl_8087EFA8->m374;
+        if (damage.mEnabled == 0) {
+            m1A88 = 0;
+        } else {
+            m1A88 = 2;
+            m1A84 = m70->m198;
+            if (m23B4 != 0) {
+                fn_800C31F4("SE_UICOM_011", 0, -1, 1.0f);
+                m48->FreezeTask();
+                float scale = m5C;
+                atn::Vector2_unk center(320.0f, 224.0f);
+                atn::Vector2_unk size(scale, scale);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 0, center.x);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 1, center.y);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 2, size.x);
+                SetLayoutValue_unk(&m48->mData.m10, "basePos", 3, size.y);
+                m48->mSpeed = m60;
+                m48->mFrame = 0.0f;
+                m48->mRepeat = 0;
+                m48->MeltTask();
+                m23B4 = 0;
+            }
+        }
+    }
+}
+void Manager::fn_80481A20() {
+    if (m1A88 == 2) {
+        float t = m70->m198 - m1A84;
+        DamageParam_unk damage = lbl_8087EFA8->m374;
+        if (damage.mEnabled == 0) {
+            m1A88 = 0;
+        } else {
+            float r = MIN(MAX(t / 20.0f, 0.0f), 1.0f);
+            damage.mZoom = lbl_8087E088 + r * (lbl_8087E08C - lbl_8087E088);
+            if (t >= 20.0f) {
+                m1A88 = 0;
+                damage.mEnabled = 0;
+            }
+            DamageParam_unk result = damage;
+            RenderSetting_unk* rs = lbl_8087EFA8;
+            rs->m374 = result;
+        }
     }
 }
 

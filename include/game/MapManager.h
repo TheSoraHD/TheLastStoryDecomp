@@ -107,6 +107,8 @@ public:
     MapArea* Find_unk(atn::Sphere sphere) { return fn_804918A4(sphere); }
 
     static MapManager* sInstance; // 0x8087F558
+    // inferred: weak getter (called with bl by Event::Manager, e.g. 0x80487510); name invented
+    static MapManager* GetInstance_unk() { return sInstance; }
 
     atn::FixedArray_unk<MapPart_unk*, 64> mParts; // 0x48
     int mType;                                    // 0x14C: inferred: only parts of this type (0: all)

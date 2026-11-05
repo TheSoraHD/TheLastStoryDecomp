@@ -194,8 +194,12 @@ public:
     void fn_8047F994(int cut, int now);
     void fn_8047FAD0(); // inferred: end of an event
     void fn_8047FCC0(); // inferred: applies the pending cut changes
+    void fn_804814F8(); // inferred: updates the black mask m1A7C
     void fn_8048169C(int arg);
+    void fn_804816F4(); // inferred: starts the flash m1A80 and the damage effect
     void fn_804817D4();
+    void fn_80481818(); // inferred: called when a camera action starts
+    void fn_80481A20();
     void fn_80482ED8();
     void fn_80483714(int a, int b);
     void fn_80483E94(int arg);
@@ -327,15 +331,7 @@ public:
     SceneSetting_unk m1BD0; // inferred: light settings of the event
     unsigned char m1D60[0x1D70 - 0x1D60];
     ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
-    int m1DC0;
-    int m1DC4;
-    int m1DC8;
-    float m1DCC;
-    float m1DD0;
-    int m1DD4;
-    int m1DD8;
-    float m1DDC;
-    float m1DE0;
+    MotionBlurParam_unk m1DC0; // inferred: motion blur of the map (Event/ActionCameraMode blends from it)
     int m1DE4;
     Sequence* m1DE8;
     int m1DEC;

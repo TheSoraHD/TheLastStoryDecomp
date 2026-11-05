@@ -1,4 +1,5 @@
 #include "Event/Cut.h"
+#include "Event/Manager.h"
 #include "Event/Behavior.h"
 #include "Event/Path.h"
 #include "atn/LH_Xsca.h"
@@ -20,25 +21,12 @@ class SingletonNoStatic {};
 
 } // namespace atn
 
-extern "C" void fn_80481818(void* manager); // inferred: called when a camera action starts
 extern "C" atn::Vector3 lbl_807C7030;      // inferred: zero vector
 
 namespace Event {
 
-// inferred: the event manager (lbl_8087F540) seen through its cameras (four of 0x65C bytes at
-// 0xC8, one per section: Section::m10)
-struct CameraOwner_unk {
-    unsigned char m00[0xB4];
-    float mB4; // inferred: frames of the current step (Setting interpolates over them)
-    unsigned char mB8[0xC8 - 0xB8];
-    EventCamera_unk mCameras[4];
-    unsigned char m1A38[0x1DC0 - 0x1A38];
-    MotionBlurParam_unk m1DC0; // inferred: motion blur of the map (ActionCameraEffect blends from it)
-};
-
 } // namespace Event
 
-extern "C" Event::CameraOwner_unk* lbl_8087F540;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings
 // inferred: settings of the render view (fn_800C16B4): fog at 0x3C (as MapArea::m88) and haze at 0x1F8
 struct ViewSetting_unk {
@@ -60,9 +48,6 @@ struct EventScene_unk {
     unsigned char m00[0x0C];
     int m0C;
 };
-extern "C" int fn_8047F6B0(Event::CameraOwner_unk* manager, int frames); // inferred: 3 when the fade is done
-extern "C" void fn_8047F8A4(Event::CameraOwner_unk* manager, float level);
-extern "C" void fn_8047F850(Event::CameraOwner_unk* manager, int frames, int colorStart, int colorEnd);
 
 namespace Event {
 
@@ -143,7 +128,7 @@ int ActionCameraMode::vf08(Action* arg) {
 int ActionCameraShake::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        fn_80481818(lbl_8087F540);
+        lbl_8087F540->fn_80481818();
         ActionOwner_unk* section = arg->fn_805381A0();
         arg->fn_805381C8();
         atn::Vector3 amp;
@@ -169,7 +154,7 @@ int ActionCameraShake::vf0C(Action* arg, int phase) {
 
 int ActionCameraSetting::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        fn_80481818(lbl_8087F540);
+        lbl_8087F540->fn_80481818();
         ActionOwner_unk* section = arg->fn_805381A0();
         if (arg->GetParam_unk(0)->m04.i != 0) {
             GetCamera_unk(section)->fn_80112840();
@@ -247,7 +232,7 @@ void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
 int ActionCameraEffect::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0:
-        fn_80481818(lbl_8087F540);
+        lbl_8087F540->fn_80481818();
         arg->fn_805381A0();
         switch (arg->GetParam_unk(0)->m04.i) {
         case 1: {
@@ -356,8 +341,8 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
         case 7: {
             arg->m38 = 0;
             int color = arg->GetParam_unk(1)->m04.i;
-            fn_8047F8A4(lbl_8087F540, -1.0f);
-            fn_8047F850(lbl_8087F540, arg->m18, color & 0x00FFFFFF, color | 0xFF000000);
+            lbl_8087F540->fn_8047F8A4(-1.0f);
+            lbl_8087F540->fn_8047F850(arg->m18, color & 0x00FFFFFF, color | 0xFF000000);
             if (arg->fn_805381C8()->m190 == 0x151E && arg->m18 > 0 && lbl_8087EFE8 != 0) {
                 lbl_8087EFE8->fn_800CF7DC(1, 4, arg->m18 - 30);
             }
@@ -368,8 +353,8 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
     case 2:
         if (arg->GetParam_unk(0)->m04.i == 7) {
             int color = arg->GetParam_unk(1)->m04.i;
-            fn_8047F8A4(lbl_8087F540, -1.0f);
-            fn_8047F850(lbl_8087F540, arg->m1C, color | 0xFF000000, color & 0x00FFFFFF);
+            lbl_8087F540->fn_8047F8A4(-1.0f);
+            lbl_8087F540->fn_8047F850(arg->m1C, color | 0xFF000000, color & 0x00FFFFFF);
         }
         break;
     case 3:
@@ -387,7 +372,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             if (manager == 0 ||
                 (manager->m190 != 0xC87 &&
                  (manager->m190 != 0xFB5 || manager->fn_80541210() == 0 || manager->fn_80541210()->mIndex != 0xE))) {
-                fn_8047F8A4(lbl_8087F540, -100.0f);
+                lbl_8087F540->fn_8047F8A4(-100.0f);
             }
             if (arg->fn_805381C8()->m190 == 0x151E && arg->m18 > 0 && lbl_8087EFE8 != 0) {
                 lbl_8087EFE8->fn_800CF45C(0, 0);
@@ -477,7 +462,7 @@ int ActionCameraEffect::vf08(Action* arg) {
             if (fadeIn == 0) {
                 fadeIn = end - start;
             }
-            if (fn_8047F6B0(lbl_8087F540, fadeIn) == 3) {
+            if (lbl_8087F540->fn_8047F6B0(fadeIn) == 3) {
                 arg->m38 = 1;
             }
         }
@@ -494,8 +479,8 @@ int ActionCameraEffect::vf08(Action* arg) {
         }
         if (arg->m38 == 0) {
             int color = arg->GetParam_unk(1)->m04.i | 0xFF000000;
-            fn_8047F8A4(lbl_8087F540, -1.0f);
-            fn_8047F850(lbl_8087F540, (end - fadeOut) - (start + fadeIn), color, color);
+            lbl_8087F540->fn_8047F8A4(-1.0f);
+            lbl_8087F540->fn_8047F850((end - fadeOut) - (start + fadeIn), color, color);
             arg->m38 = 1;
         }
         break;
@@ -512,7 +497,7 @@ static float sFocusSpeed_unk[5][2] = {
 // parameter 6 pointer in r7)
 int ActionCameraFocus::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        fn_80481818(lbl_8087F540);
+        lbl_8087F540->fn_80481818();
         ActionOwner_unk* section = arg->fn_805381A0();
         if (arg->GetParam_unk(0)->m04.i != 0) {
             float a = arg->GetParam_unk(1)->m04.f;
@@ -551,7 +536,7 @@ inline Xsca_unk* GetCameraAnim_unk(EventManager_unk* manager, int id) {
 int ActionCameraMotion::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        fn_80481818(lbl_8087F540);
+        lbl_8087F540->fn_80481818();
         ActionOwner_unk* section = arg->fn_805381A0();
         EventManager_unk* manager = arg->fn_805381C8();
         int id = arg->GetParam_unk(0)->m04.i;
@@ -599,7 +584,7 @@ int ActionCameraMotion::vf0C(Action* arg, int phase) {
 int ActionCameraInertia::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
-        fn_80481818(lbl_8087F540);
+        lbl_8087F540->fn_80481818();
         ActionOwner_unk* section = arg->fn_805381A0();
         float a = arg->GetParam_unk(0)->m04.f;
         float b = arg->GetParam_unk(1)->m04.f;
