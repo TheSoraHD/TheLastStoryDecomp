@@ -26,6 +26,11 @@
 ## Bloqueos conocidos (no repetir sin idea nueva)
 
 - `push_back<boost::shared_ptr>` y el crecimiento de `vector` no trivial (también los push_back de MapPartsBase).
+- Registros del contador de frames y del corte en fn_8048871C/88B5C; registros del gamma en fn_8048E9E0.
+- Matriz de reflejo de `atn::Scene` (fn_800C2C20/fn_800C2EE0).
+- MapManager fn_80491D50/DF8 (78%): el original carga la esfera antes de guardar r31.
+- Otros pendientes de antes: ut_TextWriterBase (objeto débil de `.sbss`), Gecko_ExceptionPPC (`extab`), DWC/NET
+  (registros); RenderManager `GetKeyLight` = `Event::GetViewLight_unk`?
 - Cadena y longitud del `std::string(const char*)` intercambiadas cuando el `const char*` sale de una llamada
   (MapTask fn_804A06B4/0BCC, constructor de MapPartsLocatorSet).
 - MapTask::fn_804A0F80: el original inlinea ~25 lerps de colores/vectores y accesores; el nuestro queda por encima
