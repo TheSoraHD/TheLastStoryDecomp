@@ -4,6 +4,8 @@
 // inferred: field of the game (instance lbl_8087F430, code in game/GameTask.cpp): game flags, work
 // values and the route tables of the map. Other units declare their own partial views (Field_unk);
 // this one has only what game/GameSaveData_unk.cpp reads. Name invented.
+#include "game/GameCamera.h"
+
 struct RouteTable_unk;
 namespace atn {
 class FadeCapture;
@@ -12,7 +14,9 @@ class MapTask;
 class GameScene;
 
 struct GameField_unk {
-    unsigned char m0000[0x10D0];
+    unsigned char m0000[0x6C];
+    GameCamera mCamera;         // 0x6C: GameCamera (constructor 0x8037D8B8)
+    unsigned char m0D18[0x10D0 - 0xD18];
     int m10D0;                  // inferred: state saved with the flags
     unsigned char m10D4[0x10D8 - 0x10D4];
     RouteTable_unk* m10D8;      // inferred: route tables of the map

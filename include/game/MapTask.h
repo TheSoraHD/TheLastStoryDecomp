@@ -18,6 +18,9 @@ class MapInstance_unk;
 namespace gs {
 struct CameraBox;
 }
+namespace atn {
+class CsvTab;
+}
 
 // Map of the field (vtable 0x80790740, 0x11C bytes): the map parts of a map file (areas, models,
 // locators...), created by SetTask (fn_8049D68C) or fn_8049D704 and registered in MapManager.
@@ -38,13 +41,20 @@ public:
     static int GetMapNameFromId(char* name, int type, int id, int subId);
     // inferred: name of a map (0x8049D5DC, same code with other folders)
     static int fn_8049D5DC(char* name, int type, int id, int subId);
+    // inferred: maps drawn without depth shadows (0x8049D2E4)
+    static bool fn_8049D2E4(int type, int id, int subId);
     // inferred: creates the map of a file (0x8049D68C; SetTask__7MapTaskFPQ23atn4TaskPCc in the RSO)
     static MapTask* SetTask(atn::Task* parent, const char* path);
     // inferred: creates the map of an id (0x8049D704)
     static MapTask* fn_8049D704(atn::Task* parent, int type, int id, int subId);
-    void fn_804A04AC(int camera, int a, int b, gs::CameraBox* box); // inferred: sets the camera of the map
+    void fn_8049E480(); // inferred: applies the current area list (0x8049E480)
+    void fn_8049ED90(); // inferred: resets the render settings and creates the parts of the map file (0x8049ED90)
+    void CreateParts(atn::CsvTab& csv, int arg); // 0x8049F4F4 (RSO name)
+    void fn_804A04AC(int camera, int sub, int mode, gs::CameraBox* box); // inferred: sets the camera of the map
     void fn_804A0580(int arg, const atn::Vector3* pos);           // inferred
     MapInstance_unk* fn_804A0614(const std::string& name);         // inferred: instance of the locator sets
+    MapPartsBase* fn_804A06B4(int type, const char* name); // inferred: part of a type with this file name
+    MapPartsBase* fn_804A0BCC(int type, unsigned int hash); // inferred: part of a type whose file name has this hash
     void fn_804A0E18(const char* name, int draw);   // inferred: MapPartsBase::vf2C on all the parts
     void fn_804A0E90(unsigned int hash, int draw);  // inferred: MapPartsBase::vf2C on all the parts
     void fn_804A0EFC(MapPartsArea* area);                // inferred: switches to an area list

@@ -64,7 +64,7 @@ public:
     Color* fn_8047C778() { return &m02C; }
     GodRayParam_unk* fn_8047C780() { return &mGodRay.mValue; }
     ShadowParam_unk* fn_8047C7D4() { return &mShadow; }
-    ColorMatrixParam_unk* fn_8047C7DC(); // inferred: own matrix or the one of the render settings (defined in Event/Manager.cpp)
+    ColorMatrixParam_unk* fn_8047C7DC(); // inferred: own matrix or the one of the render settings (defined in atn/SceneColorMatrix_unk.h)
     HazeParam_unk* fn_8047C848() { return &mHaze.mValue; }
     void fn_8047CB6C(int value) { mReflectChara = value; }
     // inferred: mask of mLightMask (gmk::RoomLight sets -1); name invented

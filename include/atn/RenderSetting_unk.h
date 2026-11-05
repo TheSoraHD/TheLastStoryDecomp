@@ -26,12 +26,15 @@ struct GammaParams_unk {
 struct BloomParam_unk {
     BloomParam_unk()
         : mEnabled(1), mDebug(0), mSize(3), mDarkSteps(3), mStrength(1), mStrengthScale(1.0f), mBlurWidth(1.25f),
-          mBlurHeight(1.25f), mBlurAngle(0.0f), mColor1(White_unk()), mColor2(White_unk()), mColor3(White_unk()) {
+          mBlurHeight(1.25f), mBlurAngle(0.0f) {
         mKernel[0] = 2.0f;
         mKernel[1] = 1.0f;
         mKernel[2] = 0.5f;
         mKernel[3] = 1.0f;
         mKernel[4] = 0.5f;
+        mColor1 = White_unk();
+        mColor2 = White_unk();
+        mColor3 = White_unk();
         for (int i = 0; i < 3; i++) {
             mBias[i] = 0;
             mScale[i] = 0;
@@ -69,9 +72,40 @@ struct DamageEffectParam_unk {
     float mZoom;         // 0x20: Zoom
 };
 
+// inferred: depth of field parameters (names of the "Dof" menu; MapTask::fn_8049ED90 assigns a
+// default one, which is built on the stack and copied)
+struct DofParam_unk {
+    DofParam_unk()
+        : mEnabled(1), mDebug(0), mView(0), mClearFar(1), mStart(200.0f), mEnd(500.0f), mNearStart(30.0f),
+          mNearEnd(10.0f), mWidth(320), mHeight(224), mBlurWidth(1.5f), mBlurHeight(1.5f) {}
+
+    int mEnabled;      // 0x00: *Dof Enabled
+    int mDebug;        // 0x04: Dof Debug
+    int mView;         // 0x08: Dof View
+    int mClearFar;     // 0x0C: Clear Far
+    float mStart;      // 0x10: *Dof Start
+    float mEnd;        // 0x14: *Dof End
+    float mNearStart;  // 0x18: *Dof Near Start
+    float mNearEnd;    // 0x1C: *Dof Near End
+    int mWidth;        // 0x20: *Width
+    int mHeight;       // 0x24: *Height
+    float mBlurWidth;  // 0x28: Blur Width
+    float mBlurHeight; // 0x2C: Blur Height
+};
+
 class RenderSetting_unk {
 public:
     RenderSetting_unk();
+    // inferred: default post effects (inlined in MapTask::fn_8049ED90: its temporaries are laid out as
+    // in an inlined call; name invented)
+    void ResetPostFx_unk() {
+        m054 = BloomParam_unk();
+        mDof = DofParam_unk();
+        m264 = GodRayParam_unk();
+        m324 = ColorMatrixParam_unk();
+    }
+    // inferred: default shadow (inlined in MapTask::fn_8049ED90; name invented)
+    void ResetShadow_unk() { m104 = ShadowParam_unk(); }
 
     void* m000;               // 0x000: inferred: "Render" menu
     int m004;                 // DrawLight
@@ -92,18 +126,7 @@ public:
     void* m04C;               // inferred: root of the debug menu
     int m050;                 // Simple Shaders
     BloomParam_unk m054;      // Bloom
-    int m0D4;                 // *Dof Enabled
-    int m0D8;                 // Dof Debug
-    int m0DC;                 // Dof View
-    int m0E0;                 // Clear Far
-    float m0E4;               // *Dof Start
-    float m0E8;               // *Dof End
-    float m0EC;               // *Dof Near Start
-    float m0F0;               // *Dof Near End
-    int m0F4;                 // *Width
-    int m0F8;                 // *Height
-    float m0FC;               // Blur Width
-    float m100;               // Blur Height
+    DofParam_unk mDof;        // 0x0D4: Dof
     ShadowParam_unk m104;     // Shadow
     int m12C;                 // Shadow Debug
     int m130;                 // Use Depth Map

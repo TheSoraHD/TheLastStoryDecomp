@@ -278,7 +278,7 @@ extern "C" void fn_804D0164() {
     cm.mRows[3].z = 0.0f;
     cm.mRows[3].w = 0.0f;
     lbl_8087EFA8->m324 = cm;
-    lbl_8087EFA8->m0D4 = 0;
+    lbl_8087EFA8->mDof.mEnabled = 0;
     lbl_8087EFA8->m054.mEnabled = 0;
     lbl_8087EFA8->m03C = RsColor_unk(0.8627f, 0.8627f, 0.8627f, 1.0f);
 }

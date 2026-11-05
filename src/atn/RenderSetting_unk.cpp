@@ -61,9 +61,8 @@ extern "C" void fn_800B95C4() {
 // value: slightly closer than the temporaries in the initializer list)
 RenderSetting_unk::RenderSetting_unk()
     : m000(0), m004(0), m008(0), m00C(0), m010(0), m014(0), m018(0), m01C(0), m020(0), m024(0), m028(0), m02C(0),
-      m030(0), m034(10), m038(0), m03C(0.0f, 0.0f, 0.0f, 1.0f), m050(0), m054(), m0D4(1),
-      m0D8(0), m0DC(0), m0E0(1), m0E4(200.0f), m0E8(500.0f), m0EC(30.0f), m0F0(10.0f), m0F4(320), m0F8(224),
-      m0FC(1.5f), m100(1.5f), m12C(0), m138(1), m13C(0), m140(1), m144(1), m148(0), m14C(0), m150(1), m154(0),
+      m030(0), m034(10), m038(0), m03C(0.0f, 0.0f, 0.0f, 1.0f), m050(0), m054(), mDof(),
+      m12C(0), m138(1), m13C(0), m140(1), m144(1), m148(0), m14C(0), m150(1), m154(0),
       m158(lbl_8087EEE0->mWidth), m15C(lbl_8087EEE0->mHeight), m160(200.0f), m164(-200.0f), m168(200.0f),
       m16C(-200.0f), m170(200.0f), m174(-200.0f), m178(2), m17C(1), m180(10.0f), m184(0), m188(0), m18C(1),
       m190(10.0f), m194(0), m198(0.0f), m19C(500.0f), m1A0(0.6f), m1A4(0.6f), m1A8(0.5f), m1AC(1.0f), m1B0(0.0f),
@@ -80,8 +79,8 @@ RenderSetting_unk::RenderSetting_unk()
     m20C[3] = 400.0f;
     m20C[4] = 150.0f;
     m220 = 2;
-    m0F4 = lbl_8087EEE0->mWidth / 2;
-    m0F8 = lbl_8087EEE0->mHeight / 2;
+    mDof.mWidth = lbl_8087EEE0->mWidth / 2;
+    mDof.mHeight = lbl_8087EEE0->mHeight / 2;
     void* root;
     if (m000 == 0 && lbl_8087EF10 != 0) {
         root = m000 = fn_8008937C(&lbl_8087EF10->m10, "Render");
@@ -207,18 +206,18 @@ RenderSetting_unk::RenderSetting_unk()
     fn_8008771C(g10, "Kernel3", &m054.mKernel[3], 0, 0, 0.0f, 100.0f, 0.1f);
     fn_8008771C(g10, "Kernel4", &m054.mKernel[4], 0, 0, 0.0f, 100.0f, 0.1f);
     void* g11 = fn_8008937C(g3, "DoF");
-    fn_80087994(g11, "*Dof Enabled", &m0D4, 0, 0);
-    fn_80087994(g11, "Dof Debug", &m0D8, 0, 0);
-    fn_80087994(g11, "Dof View", &m0DC, 0, 0);
-    fn_80087994(g11, "Clear Far", &m0E0, 0, 0);
-    fn_8008771C(g11, "*Dof Start", &m0E4, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(g11, "*Dof End", &m0E8, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(g11, "*Dof Near Start", &m0EC, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_8008771C(g11, "*Dof Near End", &m0F0, 0, 0, 0.0f, 100000.0f, 1.0f);
-    fn_800874C8(g11, "*Width", &m0F4, 16, 320, 16, 0, 0);
-    fn_800874C8(g11, "*Height", &m0F8, 16, lbl_8087EEE0->mHeight / 2, 16, 0, 0);
-    fn_8008771C(g11, "Blur Width", &m0FC, 0, 0, 0.0f, 10.0f, 0.1f);
-    fn_8008771C(g11, "Blur Height", &m100, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_80087994(g11, "*Dof Enabled", &mDof.mEnabled, 0, 0);
+    fn_80087994(g11, "Dof Debug", &mDof.mDebug, 0, 0);
+    fn_80087994(g11, "Dof View", &mDof.mView, 0, 0);
+    fn_80087994(g11, "Clear Far", &mDof.mClearFar, 0, 0);
+    fn_8008771C(g11, "*Dof Start", &mDof.mStart, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(g11, "*Dof End", &mDof.mEnd, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(g11, "*Dof Near Start", &mDof.mNearStart, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_8008771C(g11, "*Dof Near End", &mDof.mNearEnd, 0, 0, 0.0f, 100000.0f, 1.0f);
+    fn_800874C8(g11, "*Width", &mDof.mWidth, 16, 320, 16, 0, 0);
+    fn_800874C8(g11, "*Height", &mDof.mHeight, 16, lbl_8087EEE0->mHeight / 2, 16, 0, 0);
+    fn_8008771C(g11, "Blur Width", &mDof.mBlurWidth, 0, 0, 0.0f, 10.0f, 0.1f);
+    fn_8008771C(g11, "Blur Height", &mDof.mBlurHeight, 0, 0, 0.0f, 10.0f, 0.1f);
     void* g12 = fn_8008937C(g3, "MotionBlur");
     fn_80087994(g12, "Enabled", &m240.mEnabled, 0, 0);
     fn_80087994(g12, "Debug", &m240.mDebug, 0, 0);
