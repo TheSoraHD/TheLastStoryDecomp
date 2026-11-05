@@ -49,6 +49,15 @@ public:
     void FreezeTask() { mFlags |= 4; }
     // name from the RSO (weak copy 0x803D6E2C, emitted by game/GameUI.cpp)
     void MeltTask() { mFlags &= ~4; }
+    // inferred: restores a frozen state (the flag is read before the task: Event::Manager::fn_8048EC7C,
+    // 0x8048EC7C). Name invented.
+    void SetFrozen_unk(int frozen) {
+        if (frozen) {
+            FreezeTask();
+        } else {
+            MeltTask();
+        }
+    }
     // inferred: weak copies in game/GameUI.cpp (0x803CFC58, 0x803D6E70); names invented
     bool IsFrozen_unk() const { return (mFlags & 4) != 0; }
     unsigned int GetFlag1_unk() const { return mFlags & 1; }

@@ -111,13 +111,13 @@ void Sequence::fn_80576258() {
                             Action* action = channel->GetAction_unk(l);
                             int kind = action->m0C;
                             if (kind == 0x10) {
-                                cut->m48 = 1;
+                                cut->mLightFlags.m00 = 1;
                             } else if (kind == 0x2F) {
-                                cut->m49 = 1;
+                                cut->mLightFlags.m01 = 1;
                             } else if (kind == 0x11) {
-                                cut->m4A = 1;
+                                cut->mLightFlags.m02 = 1;
                             } else if (kind == 0x12) {
-                                cut->m4B = 1;
+                                cut->mLightFlags.m03 = 1;
                             }
                         }
                     }

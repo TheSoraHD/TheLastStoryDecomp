@@ -9,6 +9,17 @@ namespace Event {
 
 class Sequence;
 
+// inferred: actions found in a cut by the event loader (Sequence::fn_80576258): kinds 0x10, 0x2F and 0x11
+// (light) and 0x12 (ambient); while a cut has none of them Event::Manager::fn_8048F9B0 adjusts the
+// lights itself. Copied by a weak copy constructor (0x8048FC0C). Names invented.
+struct CutLightFlags_unk {
+    CutLightFlags_unk() : m00(0), m01(0), m02(0), m03(0) {}
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02;
+    unsigned char m03;
+};
+
 // inferred: cut of an event sequence (0x4C bytes, vtable 0x80793D98). The members after the
 // index follow the attributes of the cut ("skip", "cinematic", "in_effect", ... in Cut.cpp).
 class Cut : public Node {
@@ -43,10 +54,10 @@ public:
     int m2C;
     std::vector<boost::shared_ptr<Label> > mLabels;     // 0x30
     std::vector<boost::shared_ptr<Section> > mSections; // 0x3C
-    unsigned char m48; // inferred: flags set by the event loader (see Event/EventLoader_unk.cpp)
-    unsigned char m49;
-    unsigned char m4A;
-    unsigned char m4B;
+    // inferred: weak copy 0x8048FC30 (Event/Manager.cpp); name invented
+    const CutLightFlags_unk& GetLightFlags_unk() { return mLightFlags; }
+
+    CutLightFlags_unk mLightFlags; // 0x48: inferred: set by the event loader (Event/EventLoader_unk.cpp)
 };
 
 } // namespace Event

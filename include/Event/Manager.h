@@ -32,6 +32,7 @@ struct NewCampScene2_unk;
 namespace Event {
 
 class Action;
+class Cut;
 class Sequence;
 struct EffectLists_unk;
 struct MovieState_unk;
@@ -203,13 +204,16 @@ public:
     // inferred: called by Event/ActionEffectPlay.cpp
     void fn_80486BEC(int color, float blur); // inferred: god ray color and blur
     void fn_804846FC(const atn::Vector3& dir, int color); // inferred: light of the scene and of the map areas
-    static atn::Light fn_804848D0(); // inferred: light of the map area at the camera target
+    atn::Light fn_804848D0(); // inferred: light of the map area at the camera target (this is not used)
     void fn_80484A78(int color); // inferred: ambient color of the map areas
     void fn_80486DAC(int color); // inferred: "LS" color
     void fn_80486F50();
     void fn_804870F4();
     void fn_80487064(int mode); // inferred: GameMap_unk::m104 of the current map
-    void fn_8048EE78(int a, float r, float g, float b, float c, float d, int e, float f);
+    // inferred: shows the gradation `index` (color, position and size, rotation, frame)
+    void fn_8048F9B0(Cut* cut); // inferred: AutoLightFix of the current cut
+    void fn_8048FC7C();         // inferred: undoes the AutoLightFix
+    void fn_8048EE78(int index, float x, float y, float w, float h, float rot, int color, float frame);
     void fn_80488050(Sequence* seq, Action* action); // inferred: plays a stream of the sequence
     void fn_80488A74(const char* name, int fade, float volume);
     void fn_80488D80(int fade); // inferred: stops the music of the event
@@ -236,11 +240,13 @@ public:
     void fn_80488B5C(int fade); // inferred: stops the multi audio
     void fn_80489A2C(); // inferred: stops the voice of the event
     void fn_80489C98(); // inferred: skips to the end of the cut
-    int fn_8048B048(int id);                  // inferred: time curve by id
-    int fn_8048B3B8(int id);                  // inferred: move curve by id
+    int fn_8048B048(int type);                // inferred: adds a time curve, returns its id
+    int fn_8048B3B8(int type);                // inferred: adds a move curve, returns its id
+    float fn_8048B720(Curve_unk* curve, float t); // inferred: value of a curve at t
     float fn_8048BCA4(int curve, float t);    // inferred: value of a time curve
     float fn_8048BD04(int curve, float t);    // inferred: value of a move curve
-    void fn_8048C884(int curve);              // inferred: releases a move curve
+    void fn_8048BD64(int id);                 // inferred: releases the time curve `id`
+    void fn_8048C884(int id);                 // inferred: releases the move curve `id`
     void fn_8048D3A4(int index);              // inferred: releases the time curve `index`
     void fn_8048DE54(int index);              // inferred: releases the move curve `index`
     // inferred: weak copies 0x80112F54 and 0x801130F4 (Event/Path.cpp)
@@ -368,7 +374,7 @@ public:
     int m1F64; // inferred: debug menu "MAStartDelay"
     float m1F68;
     float m1F6C; // inferred: movie fade time
-    int m1F70;
+    MovieState_unk* m1F70; // inferred: movie being shown (fn_8048E9A4)
     atn::FixedArray_unk<ManagerEntry_unk, 128> mVoices; // 0x1F74: inferred: voices of the event (sorted by frame)
     int m2378;
     int m237C;
@@ -385,13 +391,18 @@ public:
     Ring_unk<QueuedSequence_unk, 8> m23B8; // inferred: sequences to start
     NewStaffRoll* m2400; // inferred: staff roll of the ending
     unsigned char mMoviePlaying : 1; // 0x2404
+    // inferred: frozen state of the tasks stopped while a movie plays (fn_8048E9E0, fn_8048EC7C): current
+    // map, party, enemies, NPCs, crowd, effects, gimmicks
     unsigned char m2404_1 : 1;
     unsigned char m2404_2 : 1;
     unsigned char m2404_3 : 1;
     unsigned char m2404_4 : 1;
     unsigned char m2404_5 : 1;
-    unsigned char m2404_6 : 2;
-    unsigned char m2405[0x240C - 0x2405];
+    unsigned char m2404_6 : 1;
+    unsigned char m2404_7 : 1;
+    unsigned char m2405_0 : 1; // inferred: video filter of the render settings before the movie
+    unsigned char m2406[2];
+    int m2408; // inferred: gamma of the render settings before the movie
     int m240C;   // inferred: debug menu "AutoLightFix/Type"
     float m2410; // inferred: debug menu "AutoLightFix/Ratio"
     float m2414; // inferred: debug menu "AutoLightFix/KeyIntensity"

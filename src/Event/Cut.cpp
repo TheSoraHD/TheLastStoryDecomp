@@ -7,7 +7,7 @@ namespace Event {
 
 Cut::Cut(Sequence* sequence, int index)
     : mSequence(sequence), mSkip(0), mCinematic(1), m18(0), m1C(0), m20(0), m24(0), mNextCut(-1),
-      m2C(0), m48(0), m49(0), m4A(0), m4B(0) {
+      m2C(0), mLightFlags() {
     mIndex = index;
 }
 

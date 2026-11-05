@@ -2,6 +2,7 @@
 #define GAME_NEWSTAFFROLL_H
 
 #include "atn/Task.h"
+#include "atn/Memory.h"
 #include "atn/LH_Binary.h"
 #include "atn/Array_unk.h"
 #include "atn/Texture_unk.h"
@@ -35,6 +36,9 @@ public:
     };
 
     NewStaffRoll(atn::Task* parent); // 0x8053108C
+    // inferred: creator inlined by Event::Manager::fn_8048FE88 (its literals are @STRING@ objects of
+    // Event/Manager.cpp, 0x8087E0A0); name invented
+    static NewStaffRoll* Create_unk(atn::Task* parent) { return new ((MemoryTag)1, "", "", 0) NewStaffRoll(parent); }
     virtual ~NewStaffRoll();         // 0x80531218
     virtual int vf0C();              // 0x80531338
     virtual void vf10();             // 0x8053181C

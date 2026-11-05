@@ -1,5 +1,6 @@
 #include "Event/Behavior.h"
 #include "Event/Manager.h"
+#include "Event/MovieState_unk.h"
 #include "game/NewStaffRoll.h"
 #include "game/GameVoice.h"
 #include "game/GameBgm.h"
@@ -137,9 +138,6 @@ extern "C" void fn_800CB668(atn::SoundRef* sound, int mode);                    
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: starts the movie of the event (name, fade frames, the BGM is stopped...)
-namespace Event {
-struct MovieState_unk;
-}
 extern "C" int fn_800CB4A4(atn::SoundRef* sound);   // inferred: sound state flags
 extern "C" int fn_803CE160(int a, int b, int c);
 
@@ -189,26 +187,6 @@ inline AnimEntry_unk* FindAnim_unk(EventManager_unk* manager, int id) {
 }
 
 // inferred: movie of the event (found by id)
-// inferred: movie player (only the virtual and the members used here)
-struct MovieState_unk {
-    virtual void vf08();
-    virtual void vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf18();
-    virtual void vf1C();
-    virtual void vf20();
-    virtual void vf24();
-    virtual void vf28();
-    virtual void vf2C();
-    virtual void vf30();
-    virtual void vf34();
-    virtual void vf38();
-    virtual void vf3C(int frames, float volume); // inferred: starts the playback (fade in)
-    int m04;
-    int m08; // inferred: 2 when finished, 4 paused
-    int m0C; // inferred: loop
-};
 struct MovieRes_unk {
     unsigned char m00[0x4C];
     MovieState_unk* m4C;

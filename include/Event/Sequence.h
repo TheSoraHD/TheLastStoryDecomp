@@ -185,6 +185,29 @@ struct EffectLists_unk {
         return mPoints[i] * u * u * u + mPoints[i + 1] * 3.0f * t * u * u + mPoints[i + 2] * 3.0f * t * t * u +
                mPoints[i + 3] * t * t * t;
     }
+    // inferred: point at `x` in [0, 1] of the whole path (by length)
+    atn::Vector3 GetPos_unk(float x) const {
+        if (x <= 0.0f) {
+            return mPoints[0];
+        }
+        if (x >= 1.0f) {
+            return mPoints[mPoints.size() - 1];
+        }
+        float d = m0C * x;
+        for (int i = 0; i < m1C; i++) {
+            if (d <= mLengths[i]) {
+                float s;
+                if (d == 0.0f) {
+                    s = 0.0f;
+                } else {
+                    s = d / mLengths[i];
+                }
+                return GetCurvePoint_unk(i, s);
+            }
+            d -= mLengths[i];
+        }
+        return lbl_807C7030;
+    }
     // inferred: length of a segment, sampled 64 times (weak copy 0x8048A968)
     // NONMATCHING: 82.69% - the original frame is 0x20 bytes larger (one more copy of the points) and it keeps
     // 1/64 and the int-to-float constant on the stack

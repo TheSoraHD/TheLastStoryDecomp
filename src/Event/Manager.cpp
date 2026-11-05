@@ -4,6 +4,7 @@
 #include "Event/SequenceRoot.h"
 #include "Event/PostSequence.h"
 #include "Event/Manager.h"
+#include "Event/MovieState_unk.h"
 #include "atn/DrawHelper.h"
 #include "macros.h"
 #include "Event/Sequence.h"
@@ -31,6 +32,8 @@
 #include "game/PlayerManager.h"
 #include "game/Inventory.h"
 #include "game/NpcManager.h"
+#include "game/CrowdManager.h"
+#include "game/NewStaffRoll.h"
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
@@ -122,6 +125,9 @@ inline atn::Matrix3x4 Inverse_unk(const atn::Matrix3x4& m) {
 // the layout taken first, as in Event/ActionEffectPlay.cpp)
 inline void SetLayoutValue_unk(void* layout, const char* name, int index, float value) {
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+inline void SetLayoutValue_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 extern "C" void* lbl_8087F048;              // inferred: bullet manager
 extern "C" void fn_80370B78(GameField_unk* field, unsigned int color, int frames, int arg, float speed); // inferred: fade of the field
@@ -2707,6 +2713,191 @@ void Curve_unk::fn_80489D08(int type) {
     }
 }
 
+// inferred: adds a time curve of type `type` with the next free id
+// NONMATCHING: 97.36% - inlined push_back (known family: size/capacity in r5/r4, stack slots of the
+// growth temporaries, order of the element copy) and the __allocate message (lbl_80790184)
+int Manager::fn_8048B048(int type) {
+    int id = 1;
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        if (m23A0[i].mId >= id) {
+            id = m23A0[i].mId + 1;
+        }
+    }
+    Curve_unk curve;
+    curve.mId = id;
+    curve.m04 = 0;
+    curve.m08 = 0;
+    curve.m0C = 0;
+    m23A0.push_back(curve);
+    m23A0[m23A0.size() - 1].fn_80489D08(type);
+    return id;
+}
+
+// inferred: adds a move curve of type `type` with the next free id
+// NONMATCHING: 97.36% - inlined push_back (known family: size/capacity in r5/r4, stack slots of the
+// growth temporaries, order of the element copy) and the __allocate message (lbl_80790184)
+int Manager::fn_8048B3B8(int type) {
+    int id = 1;
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        if (m2394[i].mId >= id) {
+            id = m2394[i].mId + 1;
+        }
+    }
+    Curve_unk curve;
+    curve.mId = id;
+    curve.m04 = 0;
+    curve.m08 = 0;
+    curve.m0C = 0;
+    m2394.push_back(curve);
+    m2394[m2394.size() - 1].fn_80489D08(type);
+    return id;
+}
+
+// inferred: value at `t` of a curve: integral over [0, t] of the curve (and of the second one), or the
+// height of the curve path where its first coordinate is `t` (bisection, ten steps)
+// NONMATCHING: 86.71% - scheduling and stack slots of the inlined Bezier point (the original evaluates the
+// third control point first and keeps 0.5 on the stack)
+float Manager::fn_8048B720(Curve_unk* curve, float t) {
+    float v = t;
+    if (curve->m04 != 0) {
+        v = Integral_unk(curve->m04, 0.0f, t);
+        if (curve->m08 != 0) {
+            v += Integral_unk(curve->m08, 0.0f, t);
+        }
+    } else if (curve->m0C != 0) {
+        float x = 0.5f;
+        float step = 0.5f;
+        atn::Vector3 p(0.0f, 0.0f, 0.0f);
+        for (int i = 0; i < 10; i++) {
+            p = curve->m0C->GetPos_unk(x);
+            if ((float)__fabs(v - p.x) < 0.001f) {
+                break;
+            }
+            step *= 0.5f;
+            if (v > p.x) {
+                x += step;
+            } else {
+                x -= step;
+            }
+        }
+        v = p.y;
+    }
+    return v;
+}
+
+// inferred: value at `t` of the time curve `id` (0 if there is none)
+float Manager::fn_8048BCA4(int id, float t) {
+    int index = -1;
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        if (id == m23A0[i].mId) {
+            index = i;
+        }
+    }
+    if (index == -1) {
+        return 0.0f;
+    }
+    return fn_8048B720(&m23A0[index], t);
+}
+
+// inferred: value at `t` of the move curve `id` (0 if there is none)
+float Manager::fn_8048BD04(int id, float t) {
+    int index = -1;
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        if (id == m2394[i].mId) {
+            index = i;
+        }
+    }
+    if (index == -1) {
+        return 0.0f;
+    }
+    return fn_8048B720(&m2394[index], t);
+}
+
+// inferred: releases the time curve `id` and removes it from the list
+// NONMATCHING: 33.12% - delete of the atn::Curve: depth of the inlined ~scoped_ptr -> checked_delete ->
+// ~Curve recursion (same blocker as the weak copies of atn/Curve.h)
+void Manager::fn_8048BD64(int id) {
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        if (id == m23A0[i].mId) {
+            if (m23A0[i].m04 != 0) {
+                delete m23A0[i].m04;
+                m23A0[i].m04 = 0;
+            }
+            if (m23A0[i].m08 != 0) {
+                delete m23A0[i].m08;
+                m23A0[i].m08 = 0;
+            }
+            if (m23A0[i].m0C != 0) {
+                delete m23A0[i].m0C;
+                m23A0[i].m0C = 0;
+            }
+            m23A0.erase(&m23A0[i]);
+            return;
+        }
+    }
+}
+
+// inferred: releases the move curve `id` and removes it from the list
+// NONMATCHING: 33.12% - delete of the atn::Curve: depth of the inlined ~scoped_ptr -> checked_delete ->
+// ~Curve recursion (same blocker as the weak copies of atn/Curve.h)
+void Manager::fn_8048C884(int id) {
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        if (id == m2394[i].mId) {
+            if (m2394[i].m04 != 0) {
+                delete m2394[i].m04;
+                m2394[i].m04 = 0;
+            }
+            if (m2394[i].m08 != 0) {
+                delete m2394[i].m08;
+                m2394[i].m08 = 0;
+            }
+            if (m2394[i].m0C != 0) {
+                delete m2394[i].m0C;
+                m2394[i].m0C = 0;
+            }
+            m2394.erase(&m2394[i]);
+            return;
+        }
+    }
+}
+
+// inferred: releases the curves of the time curve `index` (the entry stays in the list)
+// NONMATCHING: 30.81% - depth of the inlined ~Curve recursion (see fn_8048BD64)
+// inferred: noinline: called by ~Manager and fn_8048E904 (MWCC inlines it here because its ~Curve chain is
+// shallower than in the original)
+__declspec(noinline) void Manager::fn_8048D3A4(int index) {
+    if (m23A0[index].m04 != 0) {
+        delete m23A0[index].m04;
+        m23A0[index].m04 = 0;
+    }
+    if (m23A0[index].m08 != 0) {
+        delete m23A0[index].m08;
+        m23A0[index].m08 = 0;
+    }
+    if (m23A0[index].m0C != 0) {
+        delete m23A0[index].m0C;
+        m23A0[index].m0C = 0;
+    }
+}
+
+// inferred: releases the curves of the move curve `index` (the entry stays in the list)
+// NONMATCHING: 30.81% - depth of the inlined ~Curve recursion (see fn_8048BD64)
+// inferred: noinline: called by ~Manager and fn_8048E904 (MWCC inlines it here because its ~Curve chain is
+// shallower than in the original)
+__declspec(noinline) void Manager::fn_8048DE54(int index) {
+    if (m2394[index].m04 != 0) {
+        delete m2394[index].m04;
+        m2394[index].m04 = 0;
+    }
+    if (m2394[index].m08 != 0) {
+        delete m2394[index].m08;
+        m2394[index].m08 = 0;
+    }
+    if (m2394[index].m0C != 0) {
+        delete m2394[index].m0C;
+        m2394[index].m0C = 0;
+    }
+}
 
 
 
@@ -2729,6 +2920,158 @@ void Curve_unk::fn_80489D08(int type) {
 
 
 
+
+
+// inferred: releases every curve and empties both lists
+// NONMATCHING: 62.28% - the original also calls size and clear (weak copies 0x8048B3B0 and 0x8048E994): it
+// is over the inline budget because fn_8048D3A4 is a large candidate there (ours is called through
+// __declspec(noinline), see the ~Curve recursion blocker in fn_8048BD64)
+void Manager::fn_8048E904() {
+    for (int i = 0; i < (int)m23A0.size(); i++) {
+        fn_8048D3A4(i);
+    }
+    for (int i = 0; i < (int)m2394.size(); i++) {
+        fn_8048DE54(i);
+    }
+    m23A0.clear();
+    m2394.clear();
+}
+
+// inferred: movie shown by the event and its fade time
+void Manager::fn_8048E9A4(MovieState_unk* movie, int frames) {
+    m1F70 = movie;
+    m1F6C = 1.0f + (float)frames;
+}
+
+#define MOVIE_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
+#define MOVIE_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
+
+// inferred: start of a movie: stops the movie of the event, freezes the game tasks (keeping their state)
+// and raises the gamma for some events
+// NONMATCHING: 99.16% - registers of the gamma clamp (settings in r5, gamma in r3 in the original)
+void Manager::fn_8048E9E0() {
+    if (mMoviePlaying) {
+        return;
+    }
+    if (m1F70 != 0) {
+        m1F70->vf20();
+        m1F70->m08 = 3;
+    }
+    mMoviePlaying = 1;
+    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+        m2404_1 = fn_80373148(lbl_8087F430)->IsFrozen_unk();
+        fn_80373148(lbl_8087F430)->FreezeTask();
+    }
+    if (lbl_8087F8A0 != 0) {
+        m2404_2 = lbl_8087F8A0->IsFrozen_unk();
+        lbl_8087F8A0->FreezeTask();
+    }
+    if (EnemyManager::sInstance != 0) {
+        m2404_3 = EnemyManager::sInstance->IsFrozen_unk();
+        EnemyManager::sInstance->FreezeTask();
+    }
+    if (NpcManager::sInstance != 0) {
+        m2404_4 = NpcManager::sInstance->IsFrozen_unk();
+        NpcManager::sInstance->FreezeTask();
+    }
+    if (CrowdManager::sInstance != 0) {
+        m2404_5 = CrowdManager::sInstance->IsFrozen_unk();
+        CrowdManager::sInstance->FreezeTask();
+    }
+    if (lbl_8087F3C0 != 0) {
+        m2404_6 = lbl_8087F3C0->IsFrozen_unk();
+        lbl_8087F3C0->FreezeTask();
+    }
+    if (GimmickManager::instance_ != 0) {
+        m2404_7 = GimmickManager::instance_->IsFrozen_unk();
+        GimmickManager::instance_->FreezeTask();
+    }
+    m2408 = lbl_8087EFA8->m034;
+    m2405_0 = lbl_8087EFA8->m3AC != 0;
+    if (m70 != 0) {
+        switch (m70->m190) {
+        case 0x195:
+        case 0x1FB:
+        case 0x58D:
+        case 0x5E6:
+        case 0x26AD:
+            lbl_8087EFA8->m034 = MOVIE_MAX_UNK(lbl_8087EFA8->m034, MOVIE_MIN_UNK(lbl_8087EFA8->m034 + 1, 11));
+            break;
+        case 0x7D4:
+            lbl_8087EFA8->m034 = MOVIE_MAX_UNK(lbl_8087EFA8->m034, MOVIE_MIN_UNK(lbl_8087EFA8->m034 + 2, 12));
+            break;
+        }
+    }
+}
+
+// inferred: end of a movie: restores the frozen state of the game tasks and the render settings
+void Manager::fn_8048EC7C() {
+    if (!mMoviePlaying) {
+        return;
+    }
+    if (m1F70 != 0) {
+        m1F70 = 0;
+    }
+    mMoviePlaying = 0;
+    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+        fn_80373148(lbl_8087F430)->SetFrozen_unk(m2404_1);
+    }
+    if (lbl_8087F8A0 != 0) {
+        lbl_8087F8A0->SetFrozen_unk(m2404_2);
+    }
+    if (EnemyManager::sInstance != 0) {
+        EnemyManager::sInstance->SetFrozen_unk(m2404_3);
+    }
+    if (NpcManager::sInstance != 0) {
+        NpcManager::sInstance->SetFrozen_unk(m2404_4);
+    }
+    if (CrowdManager::sInstance != 0) {
+        CrowdManager::sInstance->SetFrozen_unk(m2404_5);
+    }
+    if (lbl_8087F3C0 != 0) {
+        lbl_8087F3C0->SetFrozen_unk(m2404_6);
+    }
+    if (GimmickManager::instance_ != 0) {
+        GimmickManager::instance_->SetFrozen_unk(m2404_7);
+    }
+    lbl_8087EFA8->m034 = m2408;
+    lbl_8087EFA8->m3AC = m2405_0;
+}
+
+// inferred: shows the gradation `index` (0: m23AC, 1: m23B0) with its color, position and size, rotation
+// and frame (a fraction of the animation)
+void Manager::fn_8048EE78(int index, float x, float y, float w, float h, float rot, int color, float frame) {
+    if ((unsigned int)index > 1) {
+        return;
+    }
+    if (index == 0) {
+        if (m23AC->IsFlag_unk(4)) {
+            m23AC->SetColor_unk("col0001(1)", color);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 0, x);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 1, y);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 2, w);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 3, h);
+            SetLayoutValue_unk(&m23AC->mData.m10, "pos0001(1)", 4, 0.8f);
+            SetLayoutValue_unk(&m23AC->mData.m10, "rot0001(1)", rot);
+            m23AC->mSpeed = 0.0f;
+            m23AC->mFrame = m23AC->mData.mEndFrame * frame;
+            m23AC->MeltTask();
+        }
+    } else {
+        if (m23B0->IsFlag_unk(4)) {
+            m23B0->SetColor_unk("col0001(1)", color);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 0, x);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 1, y);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 2, w);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 3, h);
+            SetLayoutValue_unk(&m23B0->mData.m10, "pos0001(1)", 4, 0.8f);
+            SetLayoutValue_unk(&m23B0->mData.m10, "rot0001(1)", rot);
+            m23B0->mSpeed = 0.0f;
+            m23B0->mFrame = m23B0->mData.mEndFrame * frame;
+            m23B0->MeltTask();
+        }
+    }
+}
 
 void Manager::fn_8048F184(int index) {
     if ((unsigned int)index > 1) {
@@ -2743,6 +3086,126 @@ void Manager::fn_8048F184(int index) {
             m23B0->FreezeTask();
         }
     }
+}
+
+// inferred: argument of the AutoLightFix callbacks (fn_8048F1DC: direction, fn_8048F844: intensities).
+// Names invented.
+struct LightFixDir_unk {
+    LightFixDir_unk(EventCamera_unk* camera, EventConfig_unk* config, int type, float ratio)
+        : mCamera(camera), mConfig(config), mType(type), mRatio(ratio) {}
+    EventCamera_unk* mCamera;
+    EventConfig_unk* mConfig;
+    int mType;
+    float mRatio;
+};
+struct LightFixIntensity_unk {
+    LightFixIntensity_unk(EventConfig_unk* config, float key, float ambient, CutLightFlags_unk flags)
+        : mConfig(config), mKey(key), mAmbient(ambient), mFlags(flags) {}
+    EventConfig_unk* mConfig;
+    float mKey;
+    float mAmbient;
+    CutLightFlags_unk mFlags;
+};
+
+// inferred: AutoLightFix, direction of the light of a map area (callback)
+void fn_8048F1DC(MapArea* area, void* arg);
+
+// inferred: AutoLightFix, intensities of the light and of the ambient color of a map area (callback)
+void fn_8048F844(MapArea* area, void* arg) {
+    LightFixIntensity_unk* fix = (LightFixIntensity_unk*)arg;
+    for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
+        if (area->m24 == fix->mConfig->m110[i].mId) {
+            if (!fix->mFlags.m00 && !fix->mFlags.m01 && !fix->mFlags.m02) {
+                fn_800C2448(&area->GetScene_unk(), 0)
+                    ->SetColor(*fix->mConfig->m110[i].mSetting.mLight.GetColor_unk() * fix->mKey);
+            }
+            if (!fix->mFlags.m03) {
+                area->GetAmbient_unk() = fix->mConfig->m110[i].mSetting.mAmbient * fix->mAmbient;
+            }
+            return;
+        }
+    }
+}
+
+// inferred: AutoLightFix (debug menu "AutoLightFix"): unless the cut moves the lights itself, turns the
+// light towards the camera (type 1) or adds a directional light (type 2), then scales the light and the
+// ambient color of the scene and of the map areas
+// NONMATCHING: 99.84% - stack slots of the temporaries of case 1 (the result of fn_8047C1D8 and the argument)
+void Manager::fn_8048F9B0(Cut* cut) {
+    CutLightFlags_unk flags = cut->GetLightFlags_unk();
+    if (!flags.m00 && !flags.m01 && !flags.m02) {
+        switch (m240C) {
+        case 1: {
+            EventCamera_unk* camera = fn_8000DB1C()->GetCamera_unk();
+            GetViewLight_unk(fn_8008B964())->SetDir_unk(fn_8047C1D8(fn_80383728(camera), *m1BD0.mLight.GetDir_unk(), m2410));
+            LightFixDir_unk fix(camera, &m1AB0, m240C, m2410);
+            MapManager::GetInstance_unk()->fn_80491528(fn_8048F1DC, &fix);
+            break;
+        }
+        case 2: {
+            EventCamera_unk* camera = fn_8000DB1C()->GetCamera_unk();
+            fn_804862C4(fn_80383728(camera), (*fn_804848D0().GetColor_unk() * m2410).ToU32());
+            break;
+        }
+        }
+    }
+    if (1.0f != m2414 || 1.0f != m2418) {
+        if (!flags.m00 && !flags.m01 && !flags.m02) {
+            GetViewLight_unk(fn_8008B964())->SetColor(*m1BD0.mLight.GetColor_unk() * m2414);
+        }
+        if (!flags.m03) {
+            fn_800C16B4(fn_8008B964())->GetAmbient_unk() = m1BD0.mAmbient * m2418;
+        }
+        LightFixIntensity_unk fix(&m1AB0, m2414, m2418, flags);
+        MapManager::GetInstance_unk()->fn_80491528(fn_8048F844, &fix);
+    }
+}
+
+// inferred: undoes the AutoLightFix (light direction of the event, or removes the light -2)
+// NONMATCHING: 99.85% - the index of case 2 in r29 instead of r30
+void Manager::fn_8048FC7C() {
+    switch (m240C) {
+    case 1: {
+        EventCamera_unk* camera = lbl_8087F540->GetCamera_unk();
+        GetViewLight_unk(lbl_8087EFB4)->SetDir_unk(*m1BD0.mLight.GetDir_unk());
+        LightFixDir_unk fix(camera, &m1AB0, m240C, 0.0f);
+        MapManager::sInstance->fn_80491528(fn_8048F1DC, &fix);
+        break;
+    }
+    case 2:
+        for (int i = 0; i < (int)m1F10.size(); i++) {
+            if (m1F10[i] == -2) {
+                m1F10.erase(m1F10.begin() + i);
+                lbl_8087EEF8->fn_8007A154(i);
+                break;
+            }
+        }
+        break;
+    }
+}
+
+// inferred: creates the staff roll of the ending
+void Manager::fn_8048FE88() {
+    if (m2400 == 0) {
+        m2400 = NewStaffRoll::Create_unk(this);
+        m2400->fn_800D246C(1);
+    }
+}
+
+// inferred: removes the staff roll
+void Manager::fn_8048FEF0() {
+    if (m2400 != 0) {
+        fn_800D2338(m2400);
+        m2400 = 0;
+    }
+}
+
+// inferred: nonzero while the staff roll is loading
+int Manager::fn_8048FF34() {
+    if (m2400 != 0 && !m2400->IsFlag_unk(2)) {
+        return 1;
+    }
+    return 0;
 }
 
 PostSequence::~PostSequence() {
