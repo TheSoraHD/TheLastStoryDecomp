@@ -131,6 +131,10 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Floats en locales con nombre: el orden de asignación decide el de `.sdata2` y el de declaración los registros; `float x, y, z; z = 3.7f; y = 0.5f; x = 0.0f;` da pool z-primero con x en el registro bajo (Gun::vf14).
 ## Enlazado y símbolos
 
+- Enlazador GC/1.3.2: quita datos no debiles sin referencias (tambien `static`), pero conserva los debiles (estaticos de plantilla, locales de inline) aunque nadie los use; un debil duplicado no ocupa sitio. Si de la seccion de un objeto no quita nada, copia la seccion entera (con su relleno final); si quita algo, reempaqueta por tamano de simbolo y la seccion acaba en el ultimo simbolo. Importa solo en el ultimo objeto de cada seccion (Gecko `extab`: 0x12 frente a 0x14). (`nw4r-20261105`)
+- Rellenos de otras decomps (`float_order_*`, `DECOMP_FORCE`) pueden ser justo lo que impide enlazar: en StrmPlayer el pool de `.sdata2` salio bien al quitar la funcion de relleno de SS. (`nw4r-20261105`)
+- Unidad no enlazada detras de una enlazada: su objeto generado lleva la alineacion de `splits.txt`; si el original la tiene mayor (`aligned(32)` en el SDK), poner `align:32` en su seccion o la enlazada de delante corre todo (ncdsystem). (`nw4r-20261105`)
+
 - objdiff da < 100% si una llamada apunta a un símbolo con otro nombre: dar nombre real al ctor/dtor de la base antes de pelear con las subclases.
 - Tras integrar ramas, muchas funciones bajan solo porque su pool sigue como `lbl_`: renombrar a `@stringBase0`/`@wstringBase0` (`scope:local data:string_table`). En unidades `auto_`, `scope:local` añade `_ADDR`: dejarlos globales.
 - Invokers/managers de `boost::bind`: casi siempre basta con `pairnames` + emparejar sus datos; `pairnames` se salta los nombres con `@` y se equivoca con inlines de 8 bytes.
@@ -165,7 +169,7 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 
 - Split de un fichero de libreria: `.text` acaba en el final de su ultima funcion (no en el siguiente limite de 16); los datos, en el final del simbolo de `symbols.txt` (incluye el relleno). Objetos sin referencias los quita el enlazador.
 - `.c` del SDK de `libs/` que no enlazan suelen fallar por: cadena de version (Aug 23 2010), fechas de `OSReport`, `#line` de asserts, `DBPrintf` que la build de 2010 no tiene, stubs vacios de la referencia.
-- `.bss`: el split acaba al final de nuestro objeto (sin el relleno hasta el simbolo siguiente); si es la ultima unidad de `.sbss` el original redondea el tamano de la seccion y no se puede enlazar (ut_TextWriterBase). (`auto-20261031c`)
+- `.bss`: el split acaba al final de nuestro objeto (sin el relleno hasta el simbolo siguiente). La ultima unidad de una seccion fija su tamano (`_bss_init_info`, `_rom_copy_info`): ver las reglas del enlazador en "Enlazado y simbolos" (ut_TextWriterBase, Gecko_ExceptionPPC). (`auto-20261031c`, `nw4r-20261105`)
 - Fuentes de otra decomp con la misma version de libreria (NW4R 2010 de Skyward Sword): cabeceras sin prefijo para los `__FILE__` de los asserts; los nombres de tipo que ya usa el juego mandan sobre los de la decomp (PanParam, detail::SoundArchiveFile). (`auto-20261031c`)
 
 ## Patrones del juego
