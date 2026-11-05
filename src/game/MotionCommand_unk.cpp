@@ -8,6 +8,7 @@
 #include "std/vector.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -51,11 +52,6 @@ struct Timer_unk {
     float m3A4; // inferred: frame time
 };
 extern "C" Timer_unk* lbl_8087EFA8;
-struct MapInfo_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: kind of map (1 town, 2-4 dungeon)
-    int m4C; // inferred: area
-};
 // inferred: camera shake request of the field (names invented)
 struct Field_unk {
     void SetShake_unk(int type, int frames, float power, float speed) {
@@ -71,7 +67,7 @@ struct Field_unk {
     float m978;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 
 // inferred: names of the command types and the areas (rodata tables 0x807370E8 and 0x80737118)
 static const char* const sTypeNames[8] = {"EFF_ATR", "EFF", "EFP", "EFP_LOOP", "SE_ATR", "SE", "SE_LOOP", "SHAKE"};
@@ -323,8 +319,8 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
     int area = 0;
     int ruins = 0;
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapInfo_unk* info = fn_80373148(lbl_8087F430);
-        switch (info->m48) {
+        MapTask* info = fn_80373148(lbl_8087F430);
+        switch (info->mType) {
         case 1:
             area = 1;
             break;
@@ -332,7 +328,7 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
         case 3:
         case 4:
             area = 2;
-            if (info->m4C == 0x12) {
+            if (info->mId == 0x12) {
                 ruins = 1;
             }
             break;

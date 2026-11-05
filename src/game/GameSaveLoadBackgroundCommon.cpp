@@ -35,7 +35,6 @@ extern "C" void fn_800A4D00(SaveLoadMgr_unk* mgr, void* buf, int size, int offse
 extern "C" void fn_800A4E08(SaveLoadMgr_unk* mgr, void* work); // inferred: close
 extern "C" void* lbl_8087F518;
 extern "C" void fn_8046ECDC(void* obj, int arg);
-extern "C" void fn_8049D52C(char* out, int map, int arg1, int arg2); // inferred: map name
 // inferred: text (the float after the color is evaluated after it, see game/GameSaveTask.cpp)
 
 // inferred: 8-byte zero object at the start of .rodata, passed as name and file to new[]

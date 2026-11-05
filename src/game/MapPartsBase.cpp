@@ -1,80 +1,42 @@
 #include "game/MapPartsBase.h"
+#include "game/MapArea.h"
 #include "game/MapManager.h"
+#include "game/MapPartsArea.h"
+#include "game/MapPartsRain.h"
+#include "atn/Memory.h"
 #include "atn/Rain.h"
+#include "atn/RenderManager.h"
 #include "std/new.h"
 #include "std/vector.h"
 
-// inferred: complete translation-unit-local view of the area task; vtable 0x80790218, size 0x70.
-class MapPartsArea : public MapPartsBase {
-public:
-    virtual ~MapPartsArea();
-    virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf1C(void* menu);
-    virtual MapPartsBox_unk vf24(MapPartsTree_unk* tree);
+// inferred: copies of inline functions of other classes that the original emits here (their caller,
+// fn_80494354, is not written yet: then they become the weak copies of inline functions again)
+extern "C" float fn_800DC288(const char* text);
+extern "C" void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv);
 
-    unsigned char m50[0x20];
-};
+MapPartsArea* MapPartsArea::SetTask(atn::Task* parent, int type, atn::CsvTab& csv) {
+    const char* path = csv.fn_8005B9CC();
+    if (parent == 0) {
+        return 0;
+    }
+    return new ((MemoryTag)12, "", "", 0) MapPartsArea(parent, type, path);
+}
 
-struct MapPartsAreaRain_unk {
-    unsigned char m00[0x50];
-    int m50;
-    atn::Rain mRain;
-};
-
-// inferred: probably MapArea itself (game/MapManager.h: same scene at 0x4C; constructor 0x80494964)
-struct MapPartsAreaInit_unk {
-    unsigned char m00[0x28];
-    int m28;
-    int m2C;
-    int m30;
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    int m44;
-    int m48;
-    atn::Scene m4C;
-    unsigned char m300[8];
-    int m308;
-    int m30C;
-    int m310;
-
-    MapPartsAreaInit_unk();
-};
-
-struct MapPartsAreaParam_unk {
-    atn::Vector3 mPos;
-    float mC;
-    float m10;
-};
-
-struct MapPartsAreaItem_unk {
-    MapPartsAreaItem_unk(const MapPartsAreaItem_unk& other)
-        : m00(other.m00), m04(other.m04), m08(other.m08), m0C(other.m0C), m10(other.m10) {}
-
-    int m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-};
-
-
-// NONMATCHING: 2.30% - map area allocation and loader setup are not reconstructed yet.
-extern "C" MapPartsArea* fn_80491EA0(atn::Task*, void*, atn::CsvTab*) { return 0; }
-
-// NONMATCHING: 2.37% - alternate map area allocation and loader setup are not reconstructed yet.
-extern "C" MapPartsArea* fn_80491F94(atn::Task*, void*, atn::CsvTab*) { return 0; }
+MapPartsArea* MapPartsArea::fn_80491F94(atn::Task* parent, int type, const char* path) {
+    if (parent == 0) {
+        return 0;
+    }
+    return new ((MemoryTag)12, "", "", 0) MapPartsArea(parent, type, path);
+}
 
 // NONMATCHING: 10.87% - cleanup of loaded actors and atn::Scene is not reconstructed yet.
 MapPartsArea::~MapPartsArea() {}
 
-extern "C" void* fn_804923AC(void* self) {
-    return *reinterpret_cast<void**>(reinterpret_cast<unsigned char*>(self) + 0x2FC);
+// inferred: weak copy of atn::RenderManager::GetScene (RSO name); defined here (not inline) until
+// its caller fn_80494354 is written
+atn::Scene* atn::RenderManager::GetScene() {
+    return mScene;
 }
-extern "C" void fn_8049248C(MapPartsArea*);
 
 // NONMATCHING: 2.59% - map loading and readiness checks are not reconstructed yet.
 int MapPartsArea::vf0C() {
@@ -82,22 +44,19 @@ int MapPartsArea::vf0C() {
 }
 
 // NONMATCHING: 0.05% - map area resource loading is not reconstructed yet.
-extern "C" void fn_8049248C(MapPartsArea*) {}
-extern "C" void fn_804948D8(MapPartsAreaRain_unk* self);
-
-extern "C" float fn_800DC288(const char* text);
-extern "C" void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv);
+void MapPartsArea::ParseScene(atn::Scene* scene, atn::CsvTab& csv) {}
 
 // NONMATCHING: 0.28% - map area CSV parsing and resource setup are not reconstructed yet.
-extern "C" void fn_80494354(MapPartsArea*, atn::CsvTab*) {}
+void MapPartsArea::fn_80494354() {}
 
-// inferred: starts the rain renderer when this area's enable flag is set.
-extern "C" void fn_804948D8(MapPartsAreaRain_unk* self) {
-    if (self->m50 != 0) {
-        self->mRain.fn_800B2180();
+// inferred: weak copy (starts the rain when it is on); defined here until fn_80494354 is written
+void MapPartsRain::fn_804948D8() {
+    if (mOn != 0) {
+        mRain.fn_800B2180();
     }
 }
 
+// inferred: reads a color (four values) from the csv
 extern "C" void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv) {
     values[0] = fn_800DC288(csv->fn_8005B9CC());
     values[1] = fn_800DC288(csv->fn_8005B9CC());
@@ -105,36 +64,38 @@ extern "C" void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv) {
     values[3] = fn_800DC288(csv->fn_8005B9CC());
 }
 
-MapPartsAreaInit_unk::MapPartsAreaInit_unk()
-    : m28(0), m2C(0), m30(0), m34(0), m38(0), m3C(0), m40(0), m44(0), m48(0), m4C(), m308(0), m30C(0),
-      m310(0) {}
+// inferred: the implicit constructor (weak copy); defined here until fn_80494354 is written
+MapArea::MapArea() {}
+
+// The four functions below are the push_back of the vectors of MapArea and MapPartsArea (weak copies
+// of std::vector<T>::push_back called by fn_80494354); written as functions until fn_80494354 is.
+// NONMATCHING: 92.69% - the in-place copy matches; the vector reallocation path differs from the
+// original's hand-inlined 24-byte element growth sequence.
+extern "C" void fn_804949D4(std::vector<atn::AABB_unk>* values, const atn::AABB_unk* value) {
+    values->push_back(*value);
+}
 
 // NONMATCHING: 96.56% - the allocator slow path matches, but MWCC loads size/capacity in the
 // opposite register order in the fast path (same standalone std::vector pointer specialization).
-// NONMATCHING: 92.69% - the in-place copy matches; the vector reallocation path differs from the
-// original's hand-inlined 24-byte element growth sequence.
-extern "C" void fn_804949D4(std::vector<MapSegment_unk>* values, const MapSegment_unk* value) {
+extern "C" void fn_80494D78(std::vector<MapArea*>* values, MapArea* const* value) {
     values->push_back(*value);
 }
 
-extern "C" void fn_80494D78(std::vector<void*>* values, void* const* value) {
-    values->push_back(*value);
-}
-
-extern "C" void fn_8049506C() {}
+// inferred: weak copy; defined here until fn_80494354 is written
+MapPartsAreaParam_unk::MapPartsAreaParam_unk() {}
 
 // NONMATCHING: 92.69% - the in-place 0x14-byte record copy matches; the vector reallocation path differs.
 extern "C" void fn_80495070(std::vector<MapPartsAreaParam_unk>* values, const MapPartsAreaParam_unk* value) {
     values->push_back(*value);
 }
 
-extern "C" void fn_80495414() {}
+// inferred: weak copy; defined here until fn_80494354 is written
+MapArea::MatColorInfo::MatColorInfo() {}
 
 // NONMATCHING: 92.90% - the in-place field copy matches; the vector reallocation path differs.
-extern "C" void fn_80495418(std::vector<MapPartsAreaItem_unk>* values, const MapPartsAreaItem_unk* value) {
+extern "C" void fn_80495418(std::vector<MapArea::MatColorInfo>* values, const MapArea::MatColorInfo* value) {
     values->push_back(*value);
 }
-extern "C" void* fn_804962B0(MapPartsArea*, const void*);
 
 // NONMATCHING: 0.22% - map debug menu entries are not reconstructed yet.
 void MapPartsArea::vf1C(void*) {}
@@ -151,7 +112,7 @@ MapPartsBox_unk MapPartsArea::vf24(MapPartsTree_unk* tree) {
 }
 
 // NONMATCHING: 2.55% - lookup across map area collision and item records is not reconstructed yet.
-extern "C" void* fn_804962B0(MapPartsArea*, const void*) { return 0; }
+MapArea* MapPartsArea::fn_804962B0(const atn::Sphere* sphere) { return 0; }
 
 int MapPartsBase::vf30() {
     return 0;
@@ -167,7 +128,7 @@ bool MapPartsBase::vf20(const atn::Vector3&) {
 extern "C" void fn_804963F8(MapPartsBase* self, MapPartsBase* next);
 extern "C" void fn_80496414(MapPartsBase* self, MapPartsBase* next);
 
-MapPartsBase::MapPartsBase(atn::Task* parent, void* arg) : atn::Task(parent), m48(arg), mNext(0) {}
+MapPartsBase::MapPartsBase(atn::Task* parent, int type) : atn::Task(parent), mType(type), mNext(0) {}
 
 extern "C" void fn_804963F8(MapPartsBase* self, MapPartsBase* next) {
     while (self->mNext != 0) {

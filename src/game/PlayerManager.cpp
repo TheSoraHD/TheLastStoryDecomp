@@ -27,7 +27,8 @@ struct Field_unk {
     PartyTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80373148(Field_unk* field);                   // inferred: map info of the field
+class MapTask;
+extern "C" MapTask* fn_80373148(Field_unk* field); // inferred: GameTask::GetCurrentMap (RSO); the result is unused
 extern "C" void fn_80371320(Field_unk* field, PlayerTask* player); // inferred: new leader
 
 // inferred: list of objects of 0x37C bytes updated when the leader changes (lbl_8087FA00)

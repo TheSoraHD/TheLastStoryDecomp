@@ -5,14 +5,14 @@ extern "C" int atoi(const char* str);
 // The game calls this without an end pointer (r4 is not set), so it is declared with one argument.
 extern "C" double strtod(const char* str);
 
-MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, void* arg, atn::CsvTab* csv) {
+MapPartsFlare* MapPartsFlare::fn_80496C3C(atn::Task* parent, int type, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new ((MemoryTag)12, "", "", 0) MapPartsFlare(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsFlare(parent, type, csv);
     }
     return 0;
 }
 
-MapPartsFlare::MapPartsFlare(atn::Task* parent, void* arg, atn::CsvTab* csv) : MapPartsBase(parent, arg) {
+MapPartsFlare::MapPartsFlare(atn::Task* parent, int type, atn::CsvTab* csv) : MapPartsBase(parent, type) {
     atn::LensFlareElem* e;
     int count = atoi(csv->fn_8005B9CC());
     mFlare = new ((MemoryTag)6, "", "", 0) atn::LensFlare(1, count, atn::Vector3(0.0f, 0.0f, 0.0f), 30.0f);

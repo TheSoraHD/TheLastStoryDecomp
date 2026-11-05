@@ -5,6 +5,7 @@
 #include "atn/SoundManager.h"
 #include "game/GameSaveBackground.h"
 #include "game/Input_unk.h"
+#include "game/MapTask.h"
 
 // inferred: stream of the field (two at Field_unk::m5620/m5624); names invented
 struct FieldStream_unk {
@@ -19,13 +20,6 @@ struct FieldStream_unk {
     unsigned int m70;
     float m74;
 
-};
-// inferred: map information returned by fn_80373148 (as PassGroup_unk in gmk/PassBoard.cpp)
-struct MapInfo_unk {
-    unsigned char m00[0x48];
-    int m48;
-    int m4C;
-    int m50;
 };
 // inferred: the stream is near its end (written as a macro: the original evaluates it in the branch
 // conditions); name invented
@@ -47,7 +41,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_803761FC(Field_unk* field);
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" int fn_80375184(Field_unk* field);
 // inferred: battle state kept by the effect manager (lbl_8087F048); names invented
 struct BattleState_unk {
@@ -142,8 +136,8 @@ void GameSoundControl::vf10() {
     fn_803CDF84();
     int boss = 0;
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapInfo_unk* info = fn_80373148(lbl_8087F430);
-        if (info->m48 == 2 && info->m4C == 0x36 && info->m50 == 1) {
+        MapTask* info = fn_80373148(lbl_8087F430);
+        if (info->mType == 2 && info->mId == 0x36 && info->mSubId == 1) {
             boss = 1;
         }
     }
@@ -301,9 +295,9 @@ extern "C" int fn_803CE160(int area, int room, int sub) {
     int ret = 0;
     if (area <= 0 || room <= 0) {
         if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-            area = fn_80373148(lbl_8087F430)->m48;
-            room = fn_80373148(lbl_8087F430)->m4C;
-            sub = fn_80373148(lbl_8087F430)->m50;
+            area = fn_80373148(lbl_8087F430)->mType;
+            room = fn_80373148(lbl_8087F430)->mId;
+            sub = fn_80373148(lbl_8087F430)->mSubId;
         } else if (lbl_8087F540 != 0) {
             MpRoom_unk* r = ((MpManager_unk*)lbl_8087F540)->m70;
             if (r != 0) {
@@ -336,9 +330,9 @@ extern "C" int fn_803CE278(int area, int room, int sub) {
     int ret = 1;
     if (area <= 0 || room <= 0) {
         if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-            area = fn_80373148(lbl_8087F430)->m48;
-            room = fn_80373148(lbl_8087F430)->m4C;
-            sub = fn_80373148(lbl_8087F430)->m50;
+            area = fn_80373148(lbl_8087F430)->mType;
+            room = fn_80373148(lbl_8087F430)->mId;
+            sub = fn_80373148(lbl_8087F430)->mSubId;
         } else if (lbl_8087F540 != 0) {
             MpRoom_unk* r = ((MpManager_unk*)lbl_8087F540)->m70;
             if (r != 0) {

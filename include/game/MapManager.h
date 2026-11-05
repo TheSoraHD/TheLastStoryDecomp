@@ -8,12 +8,10 @@
 #include <boost/function.hpp>
 #include "atn/RenderSetting_unk.h"
 #include "atn/Color4f_unk.h"
-#include "atn/Scene.h"
-#include "atn/AABB_unk.h"
+#include "game/MapArea.h"
 
-namespace atn {
-class Scene; // the name is in the DOL (type_info 0x80756690)
-}
+class MapTask;
+class MapPartsArea;
 
 // inferred: color returned by the material of a model (AreaEffConfig::fn_80043014)
 struct MapColor_unk {
@@ -22,93 +20,38 @@ struct MapColor_unk {
     MapColor_unk(const MapColor_unk& c) : r(c.r), g(c.g), b(c.b), a(c.a) {}
     float r, g, b, a;
 };
-// inferred: segment of a model (0x18 bytes)
-struct MapSegment_unk {
-    atn::Vector3 mStart;
-    atn::Vector3 mEnd;
-};
-
-// inferred: model of a map part; atn::Scene is its base at 0x4C (fn_804914BC)
-struct MapModelBase_unk {
-    unsigned char m00[0x24];
-    unsigned int m24;           // 0x24: inferred: id of the area (Event::Manager fn_80481B9C)
-    MapSegment_unk* mSegments;  // 0x28
-    unsigned int mSegmentNum;   // 0x2C
-    unsigned char m30[0x4C - 0x30];
-};
-// inferred: bounds of a map area (only the box is known: game/TownTask.cpp moves it); name invented
-struct MapAreaBounds_unk {
-    unsigned char m00[0x84];
-    atn::AABB_unk mBox; // 0x84
-};
-// inferred: model of a map area: the scene of the area (atn::Scene, see game/MapManager.cpp ToScene_unk)
-// is its second base at 0x4C (Event::Manager fn_80481B9C copies its light settings)
-struct MapArea : public MapModelBase_unk, public atn::Scene {
-    // inferred: conversion of this (no null test, Event::Manager fn_80481B9C); name invented
-    atn::Scene& GetScene_unk() { return *this; }
-    void* mMaterial; // 0x300
-    MapAreaBounds_unk* mBounds; // 0x304
-};
-// inferred: group of models of a map part
-struct MapGroup_unk {
-    unsigned char m00[0x58];
-    std::vector<MapArea*> mModels; // 0x58
-};
-// inferred: map part (MapPartsBase)
-struct MapPart_unk {
-    // inferred: names invented
-    bool IsValidIndex_unk(int i) const { return i >= 0 && i < mGroupNum; }
-    MapGroup_unk* GetGroup_unk() {
-        if (mGroupC4 != 0 && m108 != m10C) {
-            return mGroupC4;
-        }
-        return IsValidIndex_unk(m108) ? mGroups[m108] : 0;
-    }
-
-    unsigned char m00[0x48];
-    int mType;                   // 0x48
-    unsigned char m4C[0x88 - 0x4C];
-    unsigned char mBound[0x18];  // 0x88: inferred: bound tested by fn_800709F4
-    int mGroupNum;               // 0xA0
-    MapGroup_unk* mGroups[8];    // 0xA4
-    MapGroup_unk* mGroupC4;      // 0xC4
-    unsigned char mC8[0xF8 - 0xC8];
-    int mF8;                     // 0xF8: inferred: nonzero when hidden
-    unsigned char mFC[0x108 - 0xFC];
-    int m108;
-    int m10C;
-};
 // inferred: camera callback: the map model hit by a sphere
 typedef boost::function<atn::Scene*(atn::Sphere, void*)> MapHitFunc_unk;
 typedef boost::function<void(MapArea*, void*)> MapModelFunc_unk;
 
-// inferred: list of the model groups; a class derived from the vector (the destructor of
-// 0x80491324 tests the address four times)
-struct MapGroupList_unk : public std::vector<MapGroup_unk*> {};
+// inferred: areas registered without a map (AddArea/DeleteArea(MapPartsArea*) in the RSO): a
+// std::vector<MapPartsArea*> (DWARF) whose destructor (inlined in 0x80491324) tests the address four
+// times, one more than our std::vector<T*>: kept as a derived class (name invented)
+struct MapAreaList_unk : public std::vector<MapPartsArea*> {};
 
 // inferred from __vt__10MapManager (0x807901E0): manager of the map parts (singleton)
 class MapManager : public atn::Task {
 public:
     MapManager(atn::Task* parent);
-    static MapManager* fn_80490EB8(atn::Task* parent);
+    static MapManager* SetTask(atn::Task* parent);
     virtual ~MapManager();
     virtual int vf0C();
-    void fn_80491418(MapPart_unk* part);
-    void fn_80491440(MapPart_unk* part);
+    void fn_80491418(MapTask* map);  // inferred: adds a map (called by the MapTask constructors)
+    void fn_80491440(MapTask* map);  // inferred: removes a map
     void fn_80491528(MapModelFunc_unk func, void* arg);
-    MapArea* fn_804918A4(atn::Sphere sphere);
+    MapArea* FindArea(atn::Sphere sphere);
     MapColor_unk fn_80491D50(atn::Sphere sphere);
     MapColor_unk fn_80491DF8(atn::Sphere sphere);
     // inferred: name invented (the callback copies the sphere twice, 0x804914BC)
-    MapArea* Find_unk(atn::Sphere sphere) { return fn_804918A4(sphere); }
+    MapArea* Find_unk(atn::Sphere sphere) { return FindArea(sphere); }
 
-    static MapManager* sInstance; // 0x8087F558
+    static MapManager* instance_; // 0x8087F558
     // inferred: weak getter (called with bl by Event::Manager, e.g. 0x80487510); name invented
-    static MapManager* GetInstance_unk() { return sInstance; }
+    static MapManager* GetInstance_unk() { return instance_; }
 
-    atn::FixedArray_unk<MapPart_unk*, 64> mParts; // 0x48
-    int mType;                                    // 0x14C: inferred: only parts of this type (0: all)
-    MapGroupList_unk mGroups;                     // 0x150
+    atn::FixedArray_unk<MapTask*, 64> mMaps; // 0x48: atn::static_vector<MapTask*, 64> (DWARF)
+    int mType;                               // 0x14C: inferred: only maps of this type (0: all)
+    MapAreaList_unk mAreas;                  // 0x150
     int m15C;
 };
 

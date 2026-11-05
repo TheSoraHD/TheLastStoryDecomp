@@ -23,6 +23,7 @@
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -243,11 +244,7 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager  
 extern "C" void fn_80339F34(CharaTask* chara, int on);           // inferred: bit 0x2000 of m54C
 extern "C" void fn_80339F5C(atn::Model* model, int track, float speed); // inferred: speed of a track
 extern "C" void fn_80339F74(CharaTask* chara, int value);        // inferred: m1454 = value
-struct QuarkMapGroup_unk;
-extern "C" QuarkMapGroup_unk* fn_80373148(Field_unk* field);     // inferred: map group of the field
-extern "C" int fn_80339F7C(QuarkMapGroup_unk* group);            // inferred: returns m0E0
-extern "C" void fn_80339F84(QuarkMapGroup_unk* group, int value); // inferred: m0E8 = value
-extern "C" void fn_804A04AC(QuarkMapGroup_unk* group, int mode, int a, int b, int c); // inferred: map light mode
+extern "C" MapTask* fn_80373148(Field_unk* field);     // inferred: map group of the field
 extern "C" float fn_8029F3AC(CharaStatus* status);               // inferred: hit point ratio
 extern "C" void fn_80265804(CharaStatus* status, float value);   // inferred: m128 = value
 extern "C" CharaTask* fn_8000DCF4(CharaManager<PlayerTask>* mgr); // inferred: leader
@@ -597,15 +594,15 @@ void EnemyQuarkStand::vf10() {
         }
         fn_80339F74(this, roam);
         int mode;
-        QuarkMapGroup_unk* group = fn_80373148(fn_80121F00());
+        MapTask* group = fn_80373148(fn_80121F00());
         if (mPos.y - fn_8000DCF4(fn_8000D9E8())->fn_8013C38C()->y > 20.0f) {
             mode = 3;
         } else {
             mode = 1;
         }
-        if (mode != fn_80339F7C(group)) {
-            fn_804A04AC(group, mode, 15, -1, 0);
-            fn_80339F84(group, mode);
+        if (mode != group->GetCamera_unk()) {
+            group->fn_804A04AC(mode, 15, -1, 0);
+            group->SetDefaultCamera_unk(mode);
         }
     }
     fn_8014C540();

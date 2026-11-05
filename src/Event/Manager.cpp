@@ -68,11 +68,8 @@ struct AreaData_unk {
     void* m68;
 };
 extern "C" AreaData_unk* fn_8021771C(int area, int map, int part);
-extern "C" void fn_8049D52C(char* name, int area, int map, int part); // inferred: name of the scene file
 extern "C" char* fn_8006BA8C(const char* path, int* size, int arg);   // inferred: loads a file
 extern "C" int fn_8006AA20(const char* path);                        // inferred: the file exists
-extern "C" GameMap_unk* fn_8049D68C(atn::Task* parent, const char* path); // inferred: creates a map
-extern "C" GameMap_unk* fn_8049D704(atn::Task* parent, int area, int map, int part);
 extern "C" void fn_800C3094(void* light);
 struct DialogTextMgr_unk;
 extern "C" DialogTextMgr_unk* lbl_8087F008;                     // inferred: text renderer (Event/Dialog.cpp)
@@ -1076,7 +1073,7 @@ int Manager::fn_804803A4() {
     return 1;
 }
 
-GameMap_unk* Manager::fn_80480438() {
+MapTask* Manager::fn_80480438() {
     if (m1A60.size() != 0) {
         return m1A60[0];
     }
@@ -1149,7 +1146,7 @@ void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
     if ((flags & 0x10) && !(flags & 0x10000000) && areaData != 0) {
         char path[0x100];
         char name[0x100];
-        fn_8049D52C(name, area, map, part);
+        MapTask::GetMapNameFromId(name, area, map, part);
         sprintf(path, "/game_scene/%s.gs", name);
         int size;
         char* data = fn_8006BA8C(path, &size, 0);
@@ -1177,22 +1174,22 @@ void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
         m1A6C->fn_803CA530();
     }
     if ((flags & 0x100) && !(flags & 0x10000000) && areaData != 0 && !(flags & 0x200)) {
-        atn::FixedArray_unk<MapPart_unk*, 64>& parts = MapManager::GetInstance_unk()->mParts;
+        atn::FixedArray_unk<MapTask*, 64>& parts = MapManager::GetInstance_unk()->mMaps;
         for (int i = 0; i < (int)parts.size(); i++) {
             MapManager::GetInstance_unk()->fn_80491440(parts[i]);
         }
         if (area == 1) {
             std::string file = fn_800DC980("database\\map\\tw%02d_%02d.twn", map, part);
-            m1A60.push_back(fn_8049D68C(this, file.c_str()));
-            m1A60[0]->m48 = area;
-            m1A60[0]->m4C = map;
-            m1A60[0]->m50 = part;
+            m1A60.push_back(MapTask::SetTask(this, file.c_str()));
+            m1A60[0]->mType = area;
+            m1A60[0]->mId = map;
+            m1A60[0]->mSubId = part;
             for (int i = 0; i < (int)seq->m5C.size(); i++) {
                 file = fn_804805CC(map, seq->m5C[i * 2 + 1], seq->m5C[i * 2]);
-                m1A60.push_back(fn_8049D68C(this, file.c_str()));
+                m1A60.push_back(MapTask::SetTask(this, file.c_str()));
             }
         } else {
-            m1A60.push_back(fn_8049D704(this, area, map, part));
+            m1A60.push_back(MapTask::fn_8049D704(this, area, map, part));
         }
         if (lbl_8087EE90 != 0) {
             fn_8004895C(lbl_8087EE90);
@@ -1432,7 +1429,7 @@ void fn_80481B9C(MapArea* area, void* arg) {
     EventConfig_unk* config = (EventConfig_unk*)arg;
     SceneSettingEntry_unk entry;
     entry.mSetting.Get_unk(&area->GetScene_unk());
-    entry.mId = area->m24;
+    entry.mId = area->mHash;
     config->m110.push_back(entry);
 }
 
@@ -1454,7 +1451,7 @@ void fn_804827D8(MapArea* area, void* arg) {
     SceneApply_unk* apply = (SceneApply_unk*)arg;
     EventConfig_unk* config = apply->mConfig;
     for (unsigned int i = 0; i < config->m110.size(); i++) {
-        if (area->m24 == config->m110[i].mId) {
+        if (area->mHash == config->m110[i].mId) {
             if (apply->mBlend) {
                 config->m110[i].mSetting.fn_8047CB74(&area->GetScene_unk(), apply->mRate);
             } else {
@@ -1466,9 +1463,9 @@ void fn_804827D8(MapArea* area, void* arg) {
 }
 // inferred: sets the light of gmk::CharaLight on a map area (callback, as gmk fn_804225E0)
 void fn_80482B24(MapArea* part, void* light) {
-    part->m074 = (CharaLightData_unk*)light;
-    part->mLightOn = light != 0 || part->mLightOn != 0;
-    part->mLightMask = -1;
+    part->mScene.m074 = (CharaLightData_unk*)light;
+    part->mScene.mLightOn = light != 0 || part->mScene.mLightOn != 0;
+    part->mScene.mLightMask = -1;
 }
 // inferred: argument of fn_80482B54: color matrices of the steps, the next step, the matrix it blends
 // with and the rate. Names invented.
@@ -1495,7 +1492,7 @@ void fn_80482B54(MapArea* area, void* arg) {
             cm.mRows[i].z = t * cm.mRows[i].z + (1.0f - t) * target.mRows[i].z;
             cm.mRows[i].w = t * cm.mRows[i].w + (1.0f - t) * target.mRows[i].w;
         }
-        area->mColorMatrix.Set_unk(cm);
+        area->mScene.mColorMatrix.Set_unk(cm);
         blend->mIndex++;
     }
 }
@@ -1512,38 +1509,38 @@ void fn_80482D90(MapArea* area, void* arg) {
 // inferred: copies the color and the blur of a god ray to a map area (callback)
 void fn_80482DF4(MapArea* area, void* arg) {
     GodRayParam_unk* src = (GodRayParam_unk*)arg;
-    area->fn_8047C780()->mColor = src->mColor;
-    area->fn_8047C780()->mBlurHeight = src->mBlurHeight;
-    area->fn_8047C780()->mBlurWidth = src->mBlurWidth;
+    area->mScene.fn_8047C780()->mColor = src->mColor;
+    area->mScene.fn_8047C780()->mBlurHeight = src->mBlurHeight;
+    area->mScene.fn_8047C780()->mBlurWidth = src->mBlurWidth;
 }
 
 // inferred: sets the "LS" color of a map area (callback)
 void fn_80482E28(MapArea* area, void* arg) {
-    area->GetLS_unk() = *(atn::Color*)arg;
+    area->mScene.GetLS_unk() = *(atn::Color*)arg;
 }
 
 // inferred: sets the "LS" color of the next light setting to a map area (callback)
 void fn_80482E4C(MapArea* area, void* arg) {
     SceneApply_unk* it = (SceneApply_unk*)arg;
     if (it->mIndex < (int)it->mConfig->m110.size()) {
-        area->GetLS_unk() = atn::Color(it->mConfig->m110[it->mIndex].mSetting.mLS);
+        area->mScene.GetLS_unk() = atn::Color(it->mConfig->m110[it->mIndex].mSetting.mLS);
         it->mIndex++;
     }
 }
 
 // inferred: sets the ambient color of a map area (callback)
 void fn_80482EB4(MapArea* area, void* arg) {
-    area->GetAmbientLight() = *(atn::Color*)arg;
+    area->mScene.GetAmbientLight() = *(atn::Color*)arg;
 }
 // inferred: map of the field, else the first map part (inlined in fn_80482ED8, fn_80483714,
 // fn_80487064 and fn_804870F4); name invented
-inline GameMap_unk* GetCurrentMap_unk() {
-    GameMap_unk* map = 0;
+inline MapTask* GetCurrentMap_unk() {
+    MapTask* map = 0;
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
         map = fn_80373148(lbl_8087F430);
     }
-    if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.size() != 0) {
-        map = (GameMap_unk*)MapManager::sInstance->mParts[0]; // inferred: the same map task
+    if (map == 0 && MapManager::instance_ != 0 && MapManager::instance_->mMaps.size() != 0) {
+        map = MapManager::instance_->mMaps[0];
     }
     return map;
 }
@@ -1577,9 +1574,9 @@ void Manager::fn_80482ED8() {
         m1AB0.m100 = rs->m2AC;
         m1BD0.Get_unk(view->fn_800C16B4());
         m1AB0.m110.clear();
-        MapManager::sInstance->fn_80491528(fn_80481B9C, &m1AB0);
+        MapManager::instance_->fn_80491528(fn_80481B9C, &m1AB0);
         m1AB0.m11C = atn::RenderManager::instance_->fn_800C16B4()->m074;
-        GameMap_unk* map = GetCurrentMap_unk();
+        MapTask* map = GetCurrentMap_unk();
         if (map != 0) {
             m1D6C = map->m104;
         }
@@ -1626,8 +1623,8 @@ void Manager::fn_80483714(int a, int b) {
     m1AB0.m01 = 0;
     m1BD0.fn_8047C88C(view->fn_800C16B4());
     SceneApply_unk apply(&m1AB0);
-    MapManager::sInstance->fn_80491528(fn_804827D8, &apply);
-    GameMap_unk* map = GetCurrentMap_unk();
+    MapManager::instance_->fn_80491528(fn_804827D8, &apply);
+    MapTask* map = GetCurrentMap_unk();
     if (map != 0) {
         map->m104 = m1D6C;
     }
@@ -1668,10 +1665,10 @@ ColorMatrixParam_unk* Manager::fn_80483F70() {
     Manager* manager = lbl_8087F540;
     ColorMatrixParam_unk* dst = &lbl_8087EFA8->m324;
     atn::Sphere sphere(manager->mCameras[manager->m1A38].mTarget, 30.0f);
-    if (MapManager::sInstance != 0) {
-        MapArea* area = MapManager::sInstance->fn_804918A4(sphere);
+    if (MapManager::instance_ != 0) {
+        MapArea* area = MapManager::instance_->FindArea(sphere);
         if (area != 0) {
-            *dst = *area->fn_8047C7DC();
+            *dst = *area->mScene.fn_8047C7DC();
         }
     }
     return dst;
@@ -1685,7 +1682,7 @@ void Manager::fn_80484088(ColorMatrixParam_unk* target, float rate) {
     for (int i = 0; i < (int)m1AB0.m110.size(); i++) {
         blend.mList.push_back(m1AB0.m110[i].mSetting.mColorMatrix);
     }
-    MapManager::sInstance->fn_80491528(fn_80482B54, &blend);
+    MapManager::instance_->fn_80491528(fn_80482B54, &blend);
 }
 // inferred: sets the direction and the color (0xAARRGGBB) of the first light of the render scene and
 // of the map areas
@@ -1695,7 +1692,7 @@ void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
     light->SetDir_unk(dir);
     light->SetColor(atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                                (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24)));
-    MapManager::sInstance->fn_80491528(fn_80482D90, light);
+    MapManager::instance_->fn_80491528(fn_80482D90, light);
 }
 // inferred: first light of the scene of the render view (weak copy 0x804848C4); name invented
 inline atn::Light* GetViewLight_unk(atn::RenderManager* view) {
@@ -1704,9 +1701,9 @@ inline atn::Light* GetViewLight_unk(atn::RenderManager* view) {
 
 // inferred: first light of the map area at the target of the current camera (else of the render scene)
 atn::Light Manager::fn_804848D0() {
-    GameMap_unk* map = lbl_8087F540->fn_80480438(); // inferred: unused (the call stays)
+    MapTask* map = lbl_8087F540->fn_80480438(); // inferred: unused (the call stays)
     atn::Sphere sphere(lbl_8087F540->mCameras[lbl_8087F540->m1A38].mTarget, 30.0f);
-    MapArea* area = MapManager::sInstance->fn_804918A4(sphere);
+    MapArea* area = MapManager::instance_->FindArea(sphere);
     if (area != 0) {
         return *area->GetScene_unk().GetLight(0);
     }
@@ -1718,14 +1715,14 @@ void Manager::fn_80484A78(int color) {
     unsigned int c = color;
     atn::Color ambient((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                        (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
-    MapManager::sInstance->fn_80491528(fn_80482EB4, &ambient);
+    MapManager::instance_->fn_80491528(fn_80482EB4, &ambient);
 }
 
 // inferred: uses the light of the manager (m1EB8) for the render scene and the map areas
 void Manager::fn_80484BF4() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&m1EB8);
     atn::RenderManager::instance_->fn_800C16B4()->SetLightMask_unk(-1);
-    MapManager::sInstance->fn_80491528(fn_80482B24, &m1EB8);
+    MapManager::instance_->fn_80491528(fn_80482B24, &m1EB8);
 }
 // inferred: position, size and speed of the light of the manager
 void Manager::fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float rate) {
@@ -1766,8 +1763,8 @@ void Manager::fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos) {
 // inferred: removes the light of the manager from the render scene and from the map areas
 void Manager::fn_80484E88() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
-    if (MapManager::sInstance != 0) {
-        MapManager::sInstance->fn_80491528(fn_80482B24, 0);
+    if (MapManager::instance_ != 0) {
+        MapManager::instance_->fn_80491528(fn_80482B24, 0);
     }
 }
 
@@ -1842,7 +1839,7 @@ void Manager::fn_80486BEC(int color, float blur) {
                                 (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
     godRay->mBlurWidth = blur;
     godRay->mBlurHeight = blur;
-    MapManager::sInstance->fn_80491528(fn_80482DF4, godRay);
+    MapManager::instance_->fn_80491528(fn_80482DF4, godRay);
 }
 
 // inferred: sets the "LS" color (0xAARRGGBB) of the render scene and of the map areas
@@ -1851,18 +1848,18 @@ void Manager::fn_80486DAC(int color) {
     unsigned int c = color;
     *ls = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                      (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
-    MapManager::sInstance->fn_80491528(fn_80482E28, ls);
+    MapManager::instance_->fn_80491528(fn_80482E28, ls);
 }
 
 // inferred: gives each map area the "LS" color of its light setting, in order
 void Manager::fn_80486F50() {
     SceneApply_unk apply(&m1AB0);
-    MapManager::sInstance->fn_80491528(fn_80482E4C, &apply);
+    MapManager::instance_->fn_80491528(fn_80482E4C, &apply);
 }
-// inferred: sets GameMap_unk::m104 (0-3) of the current map
+// inferred: sets MapTask::m104 (0-3) of the current map
 void Manager::fn_80487064(int mode) {
     if (mode >= 0 && mode <= 3) {
-        GameMap_unk* map = GetCurrentMap_unk();
+        MapTask* map = GetCurrentMap_unk();
         if (map != 0) {
             map->m104 = mode;
         }
@@ -1870,9 +1867,9 @@ void Manager::fn_80487064(int mode) {
 }
 
 
-// inferred: restores GameMap_unk::m104 of the current map (saved by fn_80482ED8)
+// inferred: restores MapTask::m104 of the current map (saved by fn_80482ED8)
 void Manager::fn_804870F4() {
-    GameMap_unk* map = GetCurrentMap_unk();
+    MapTask* map = GetCurrentMap_unk();
     if (map != 0) {
         map->m104 = m1D6C;
     }
@@ -3152,7 +3149,7 @@ void fn_8048F1DC(MapArea* area, void* arg) {
         return;
     }
     for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
-        if (area->m24 == fix->mConfig->m110[i].mId) {
+        if (area->mHash == fix->mConfig->m110[i].mId) {
             atn::Vector3 dir;
             dir = fix->mCamera->mTarget - fix->mCamera->mPos;
             dir.Normalize_unk();
@@ -3167,13 +3164,13 @@ void fn_8048F1DC(MapArea* area, void* arg) {
 void fn_8048F844(MapArea* area, void* arg) {
     LightFixIntensity_unk* fix = (LightFixIntensity_unk*)arg;
     for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
-        if (area->m24 == fix->mConfig->m110[i].mId) {
+        if (area->mHash == fix->mConfig->m110[i].mId) {
             if (!fix->mFlags.m00 && !fix->mFlags.m01 && !fix->mFlags.m02) {
                 area->GetScene_unk().GetLight(0)
                     ->SetColor(*fix->mConfig->m110[i].mSetting.mLight.GetColor_unk() * fix->mKey);
             }
             if (!fix->mFlags.m03) {
-                area->GetAmbientLight() = fix->mConfig->m110[i].mSetting.mAmbient * fix->mAmbient;
+                area->mScene.GetAmbientLight() = fix->mConfig->m110[i].mSetting.mAmbient * fix->mAmbient;
             }
             return;
         }
@@ -3222,7 +3219,7 @@ void Manager::fn_8048FC7C() {
         EventCamera_unk* camera = lbl_8087F540->GetCamera_unk();
         GetViewLight_unk(atn::RenderManager::instance_)->SetDir_unk(*m1BD0.mLight.GetDir_unk());
         LightFixDir_unk fix(camera, &m1AB0, m240C, 0.0f);
-        MapManager::sInstance->fn_80491528(fn_8048F1DC, &fix);
+        MapManager::instance_->fn_80491528(fn_8048F1DC, &fix);
         break;
     }
     case 2:

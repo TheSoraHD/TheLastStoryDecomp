@@ -39,15 +39,15 @@ inline void __Vec3Set_unk(atn::Vector3& v, float x, float y, float z) {
     v.z = z;
 }
 
-MapPartsModel* MapPartsModel::fn_8049B9B8(atn::Task* parent, void* arg, atn::CsvTab* csv) {
+MapPartsModel* MapPartsModel::fn_8049B9B8(atn::Task* parent, int type, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new ((MemoryTag)12, "", "", 0) MapPartsModel(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsModel(parent, type, csv);
     }
     return 0;
 }
 
-MapPartsModel::MapPartsModel(atn::Task* parent, void* arg, atn::CsvTab* csv)
-    : MapPartsBase(parent, arg), mModel(9, 0x20) {
+MapPartsModel::MapPartsModel(atn::Task* parent, int type, atn::CsvTab* csv)
+    : MapPartsBase(parent, type), mModel(9, 0x20) {
     mHide = 0;
     mCenterCamera = 0;
     mHasBox = 0;

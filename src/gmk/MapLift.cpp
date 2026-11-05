@@ -5,6 +5,7 @@
 #include "game/GimmickManager.h"
 #include "std/string_members.h"
 #include "std/vector_string.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -31,27 +32,20 @@ public:
 } // namespace atn
 
 // inferred: part of a map group (as ArenaPart_unk in gmk/ArenaFloor.cpp)
-struct MapPart_unk {
+struct LiftMapPart_unk {
     unsigned char m00[0x48];
     int mType;
-    MapPart_unk* mNext;
+    LiftMapPart_unk* mNext;
     unsigned char m50[0x344 - 0x50]; // inferred: by type: model (0), name at 0x5C (4), resource at 0x58 (5)
     int mObjCount;               // 0x344
     atn::ModelInstance** mObjs;  // 0x348
 };
-// inferred: map information (as ArenaGroup_unk in gmk/ArenaFloor.cpp)
-struct MapGroup_unk {
-    unsigned char m00[0x38];
-    unsigned int mFlags; // 0x38: inferred: bit 1 when loaded
-    unsigned char m3C[0x70 - 0x3C];
-    MapPart_unk* mParts; // 0x70
-};
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapGroup_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: places the gimmicks of a part (pointers in gmk/ArenaFloor.cpp; references here, the
 // offset is a temporary)
-extern "C" void fn_8049994C(MapPart_unk* part, const atn::Vector3& pos, const atn::Vector3& rot);
+extern "C" void fn_8049994C(LiftMapPart_unk* part, const atn::Vector3& pos, const atn::Vector3& rot);
 
 // inferred: column of a matrix (name invented)
 static inline atn::Vector3 Col_unk(const atn::Matrix3x4& m, int i) {
@@ -118,8 +112,8 @@ bool MapLift::HasLocator_unk(const char* name) {
 }
 
 // inferred: map group of the field (null without a field)
-static inline MapGroup_unk* GetMapGroup_unk() {
-    MapGroup_unk* group = 0;
+static inline MapTask* GetMapGroup_unk() {
+    MapTask* group = 0;
     if (lbl_8087F430 != 0) {
         group = fn_80373148(lbl_8087F430);
     }
@@ -129,10 +123,10 @@ static inline MapGroup_unk* GetMapGroup_unk() {
 // NONMATCHING: 96.65% - register allocation only (the original keeps this in r31 and the group
 // in r21; tried an inline group getter and a member locator helper).
 int MapLift::vf0C() {
-    MapGroup_unk* group = GetMapGroup_unk();
+    MapTask* group = GetMapGroup_unk();
     if (fn_803EC91C() == 0 && group != 0 && (group->mFlags & 2) == 2) {
         int count = 0;
-        for (MapPart_unk* part = group->mParts; part != 0; part = part->mNext) {
+        for (LiftMapPart_unk* part = (LiftMapPart_unk*)group->mParts; part != 0; part = part->mNext) {
             switch (part->mType) {
             case 0:
                 if (HasLocator_unk(((atn::Model*)part->m50)->fn_8008B130())) {
@@ -158,7 +152,7 @@ int MapLift::vf0C() {
         }
         mEntries.Resize_unk(count, 0);
         int n = 0;
-        for (MapPart_unk* part = group->mParts; part != 0; part = part->mNext) {
+        for (LiftMapPart_unk* part = (LiftMapPart_unk*)group->mParts; part != 0; part = part->mNext) {
             switch (part->mType) {
             case 0:
                 if (HasLocator_unk(((atn::Model*)part->m50)->fn_8008B130())) {
@@ -369,7 +363,7 @@ void MapLift::fn_8042AB58(const atn::Vector3* pos, const atn::Vector3* prev) {
         } else if (e.mType == 2) {
             ((GimmickCommon*)e.mObject)->m6C = e.mPos + *pos;
         } else if (e.mType == 3) {
-            fn_8049994C((MapPart_unk*)e.mObject, *pos - *prev, lbl_807C7030);
+            fn_8049994C((LiftMapPart_unk*)e.mObject, *pos - *prev, lbl_807C7030);
         }
     }
 }

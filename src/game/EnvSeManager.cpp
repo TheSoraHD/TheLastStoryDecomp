@@ -8,6 +8,7 @@
 #include "std/string.h"
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
+#include "game/MapTask.h"
 
 // Everything below is inferred from EnvSeManager (0x8035DF48..0x80360C5C); names are invented.
 
@@ -57,13 +58,7 @@ extern "C" EnvSeField_unk* lbl_8087F430;
 extern "C" int fn_80370174(EnvSeField_unk* field, int id);
 extern "C" int fn_80370A78(EnvSeField_unk* field, int id);
 extern "C" void fn_80370320(EnvSeField_unk* field, int event, int arg2, int arg3);
-struct EnvSeGroup_unk {
-    unsigned char m00[0x48];
-    int m48;
-    int m4C;
-    int m50;
-};
-extern "C" EnvSeGroup_unk* fn_80373148(EnvSeField_unk* field);
+extern "C" MapTask* fn_80373148(EnvSeField_unk* field);
 
 // inferred: game settings (fn_800F52F8 returns lbl_8087F0A8; weak copy of another file)
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -647,8 +642,8 @@ void EnvSeManager::fn_803605EC(int fade, float volume) {
     atn::SoundCategory_unk* scope = lbl_8087EFE8->fn_800CFDC8(2);
     m188 = scope != 0 ? scope->mVolume : 0.0f;
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        EnvSeGroup_unk* group = fn_80373148(lbl_8087F430);
-        if (group->m48 == 2 && group->m4C == 40 && 9 <= group->m50 && group->m50 <= 12) {
+        MapTask* group = fn_80373148(lbl_8087F430);
+        if (group->mType == 2 && group->mId == 40 && 9 <= group->mSubId && group->mSubId <= 12) {
             volume = 1.0f;
         }
     }

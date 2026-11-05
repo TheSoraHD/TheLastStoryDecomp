@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/GimmickManager.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
@@ -29,16 +30,7 @@ struct ArenaPart_unk {
 };
 extern "C" void fn_80499B9C(ArenaPart_unk* part);
 extern "C" void fn_80499C48(ArenaPart_unk* part);
-// inferred: group of map parts returned by fn_8049D68C
-struct ArenaGroup_unk {
-    unsigned char m00[0x38];
-    unsigned int mFlags; // 0x38: inferred: bit 1 set while loading
-    unsigned char m3C[0x70 - 0x3C];
-    ArenaPart_unk* mParts; // 0x70
-    unsigned char m74[0xF4 - 0x74];
-    int mF4;
-};
-extern "C" ArenaGroup_unk* fn_8049D68C(void* owner, const char* name);
+
 extern "C" void fn_8049994C(ArenaPart_unk* part, atn::Vector3* pos, atn::Vector3* rot); // inferred: places the gimmicks of a part
 struct Params_unk {
     unsigned char m000[0x3A4];
@@ -63,7 +55,7 @@ int ArenaFloor::vf0C() {
         m54 = 5;
         if (mGroup != 0) {
             int count = 0;
-            for (ArenaPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+            for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
                 switch (part->mType) {
                 case 0:
                     count++;
@@ -82,7 +74,7 @@ int ArenaFloor::vf0C() {
             }
             mEntries.Resize_unk(count, 0);
             int n = 0;
-            for (ArenaPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+            for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
                 switch (part->mType) {
                 case 0: {
                     Entry_unk& e = mEntries.mData[n++];
@@ -162,13 +154,13 @@ void ArenaFloor::vf10() {
 
 __declspec(noinline) void ArenaFloor::fn_8041E7E4(int on) {
     if (on) {
-        for (ArenaPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+        for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
                 fn_80499B9C(part);
             }
         }
     } else {
-        for (ArenaPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+        for (ArenaPart_unk* part = (ArenaPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
                 fn_80499C48(part);
             }
@@ -196,7 +188,7 @@ void ArenaFloor::vf20() {
         }
         if (strcmp(field, "MAP") == 0) {
             if (m20 != 0) {
-                mGroup = fn_8049D68C(m20, csv.fn_8005B9CC());
+                mGroup = MapTask::SetTask((atn::Task*)m20, csv.fn_8005B9CC()); // inferred: atn::Task::m20 is the parent (void*)
                 if (mGroup != 0) {
                     mGroup->mF4 = 1;
                 }

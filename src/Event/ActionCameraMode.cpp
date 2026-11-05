@@ -195,19 +195,19 @@ int ActionCameraSetting::vf08(Action* arg) {
 void ActionCameraEffect::fn_8055BB08(MapArea* area, const void* data) {
     Action* arg = (Action*)data;
     if (arg->GetParam_unk(1)->m04.i != 0) {
-        area->mFog.mMode = arg->GetParam_unk(2)->m04.i + 1;
-        area->mFog.mStart = arg->GetParam_unk(3)->m04.f;
-        area->mFog.mEnd = arg->GetParam_unk(4)->m04.f;
+        area->mScene.mFog.mMode = arg->GetParam_unk(2)->m04.i + 1;
+        area->mScene.mFog.mStart = arg->GetParam_unk(3)->m04.f;
+        area->mScene.mFog.mEnd = arg->GetParam_unk(4)->m04.f;
         unsigned int c = arg->GetParam_unk(5)->m04.i;
-        area->mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+        area->mScene.mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                                    (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
     } else {
-        area->mFog.mMode = 0;
+        area->mScene.mFog.mMode = 0;
     }
 }
 
 void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
-    area->mHaze.mValue = *(HazeParam_unk*)arg;
+    area->mScene.mHaze.mValue = *(HazeParam_unk*)arg;
 }
 
 // inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
@@ -266,7 +266,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             } else {
                 view->mFog.mMode = 0;
             }
-            MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BB08, this, _1, _2), arg);
+            MapManager::instance_->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BB08, this, _1, _2), arg);
             break;
         }
         case 3:
@@ -323,7 +323,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             fade.w = arg->GetParam_unk(14)->m04.f;
             haze.mFade = fade;
             atn::RenderManager::instance_->fn_800C16B4()->mHaze.mValue = haze;
-            MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
+            MapManager::instance_->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
             break;
         }
         case 7: {

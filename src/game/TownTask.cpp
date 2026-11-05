@@ -10,6 +10,9 @@
 #include "atn/Scene.h"
 #include "atn/Light_unk.h"
 #include "game/MapManager.h"
+#include "game/MapArea.h"
+#include "game/MapPartsArea.h"
+#include "game/MapPartsRain.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -56,12 +59,12 @@ struct TownNodeHolder_unk {
 
 // inferred: creator of the task; not referenced (the task is created by another file), so the linker strips it,
 // but its "" literal stays at the start of the string pool. Name invented.
-TownTask* TownTask::Create_unk(atn::Task* parent) {
-    return new ((MemoryTag)1, "", "", 0) TownTask(parent);
+TownTask* TownTask::Create_unk(atn::Task* parent, int type, int id, int subId) {
+    return new ((MemoryTag)1, "", "", 0) TownTask(parent, type, id, subId);
 }
 
-TownTask::TownTask(atn::Task* parent)
-    : MapTask(parent), m120(0), m124(1), m128(0), m12C(2), m130(0), m134(50.0f), m138(0), m13C(0),
+TownTask::TownTask(atn::Task* parent, int type, int id, int subId)
+    : MapTask(parent, type, id, subId), m120(0), m124(1), m128(0), m12C(2), m130(0), m134(50.0f), m138(0), m13C(0),
       m140(0.0f, 0.0f, 0.0f), m164(1.1f), m168(0.0f, 0.0f, 0.0f), m174(0), m178(0), mWidth(3), mHeight(3) {
     lbl_8087FA20 = this;
     mF8 = 1;
@@ -93,7 +96,7 @@ int TownTask::vf0C() {
         m124 = 0;
     }
     if (MapTask::vf0C() != 0) {
-        for (MapObject_unk* obj = m70; obj != 0; obj = obj->mNext) {
+        for (MapPartsBase* obj = mParts; obj != 0; obj = obj->mNext) {
             if (obj->mType == 4) {
                 ((MapPartsLocatorSet*)obj)->fn_8049B780(atn::RenderManager::instance_->fn_800C16B4()); // inferred: type 4 is a locator set
             }
@@ -142,7 +145,7 @@ void TownTask::vf10() {
         fn_805B8DB4(0);
     }
     MapTask::vf10();
-    MapGroup_unk* model = GetModel_unk();
+    MapPartsArea* model = GetArea_unk();
     if (model != 0) {
         for (unsigned int i = 0; i < 9; i++) {
             TownBlock_unk& block = mBlocks[i];
@@ -155,37 +158,37 @@ void TownTask::vf10() {
             if (block.mX == 1 && block.mZ == 4) {
                 continue;
             }
-            if (block.mParts == 0 || !block.mParts->IsTown_unk()) {
+            if (block.mParts == 0 || !block.mParts->IsFlag_unk(2)) {
                 continue;
             }
-            MapGroup_unk* parts = ((MapTask*)block.mParts)->GetModel_unk();
+            MapPartsArea* parts = block.mParts->GetArea_unk();
             unsigned int n;
-            for (unsigned int j = 0; j < (n = parts->mModels.mSize, n <= 1 ? n : 1); j++) {
-                MapArea* src = model->mModels.mData[j];
-                MapArea* dst = parts->mModels.mData[j];
-                dst->mAmbient = src->mAmbient;
-                dst->mLS = src->mLS;
+            for (unsigned int j = 0; j < (n = parts->mAreas.size(), n <= 1 ? n : 1); j++) {
+                MapArea* src = model->mAreas[j];
+                MapArea* dst = parts->mAreas[j];
+                dst->mScene.mAmbient = src->mScene.mAmbient;
+                dst->mScene.mLS = src->mScene.mLS;
                 const atn::Light* light = ((const atn::Scene&)src->GetScene_unk()).GetLight(0);
                 *dst->GetScene_unk().GetLight(0) = *light;
-                dst->mFog = src->mFog;
-                dst->mShadowSet = 1;
-                dst->mShadow = src->mShadow;
-                dst->mGodRay.Set_unk(src->mGodRay.mValue);
-                dst->mColorMatrix.Set_unk(TownGetE_unk(src->mColorMatrix));
-                dst->mRain.Set_unk(src->mRain.mValue);
-                dst->mHaze.Set_unk(src->mHaze.mValue);
+                dst->mScene.mFog = src->mScene.mFog;
+                dst->mScene.mShadowSet = 1;
+                dst->mScene.mShadow = src->mScene.mShadow;
+                dst->mScene.mGodRay.Set_unk(src->mScene.mGodRay.mValue);
+                dst->mScene.mColorMatrix.Set_unk(TownGetE_unk(src->mScene.mColorMatrix));
+                dst->mScene.mRain.Set_unk(src->mScene.mRain.mValue);
+                dst->mScene.mHaze.Set_unk(src->mScene.mHaze.mValue);
             }
         }
-        if (mC4 != 0) {
-            for (unsigned int j = 0; j < mC4->mModels.mSize; j++) {
-                atn::AABB_unk box = mC4->mModels.mData[j]->mBounds->mBox;
-                atn::AABB_unk old = box;
+        if (mNextArea != 0) {
+            for (unsigned int j = 0; j < mNextArea->mAreas.size(); j++) {
+                MapPartsRain::Box_unk box = mNextArea->mAreas[j]->mRainPart->mBox;
+                MapPartsRain::Box_unk old = box;
                 atn::Vector3 size = box.mMax - box.mMin;
                 box.mMin = m168 - size * 0.5f;
                 box.mMax = m168 + size * 0.5f;
                 box.mMin.y = old.mMin.y;
                 box.mMax.y = old.mMax.y;
-                mC4->mModels.mData[j]->mBounds->mBox = box;
+                mNextArea->mAreas[j]->mRainPart->mBox = box;
             }
         }
     }
@@ -505,7 +508,6 @@ struct TownSettings_unk {
 extern "C" TownSettings_unk* lbl_8087F0A8;
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" TownBlockParts_unk* fn_8049D68C(void* owner, const char* name); // inferred: loads a map part
 extern "C" void fn_800D2338(void* task); // inferred: deletes the task
 
 // inferred: loads the blocks around the player (all of them with the debug setting); `reload` is set by
@@ -522,7 +524,7 @@ void TownTask::fn_805B8DB4(int reload) {
                 char path[0x100];
                 sprintf(path, "%s/%s.map", m158.data(), name);
                 if (fn_8006AA20(path) != 0) {
-                    TownBlockParts_unk* parts = fn_8049D68C(this, path);
+                    MapTask* parts = MapTask::SetTask(this, path);
                     if (parts != 0) {
                         parts->mF4 = 1;
                     }
@@ -605,7 +607,7 @@ void TownTask::fn_805B8DB4(int reload) {
                     block->mX = bx;
                     block->mZ = bz;
                     block->m00 = 1;
-                    block->mParts = fn_8049D68C(this, path);
+                    block->mParts = MapTask::SetTask(this, path);
                     if (block->mParts != 0) {
                         block->mParts->mF4 = 1;
                     }
@@ -632,8 +634,8 @@ void TownTask::fn_805B8DB4(int reload) {
     if (node != (TownNode_unk*)&m240.mRoot) {
         TownBlockList_unk& show = ((TownPair_unk*)&node->mValue)->mList;
         for (int i = 0; i < 9; i++) {
-            if (blocks[i].mParts != 0 && blocks[i].mParts->IsTown_unk()) {
-                blocks[i].mParts->SetHidden_unk();
+            if (blocks[i].mParts != 0 && blocks[i].mParts->IsFlag_unk(2)) {
+                blocks[i].mParts->FreezeTask();
             }
         }
         for (int k = 0; k < 9; k++) {
@@ -646,7 +648,7 @@ void TownTask::fn_805B8DB4(int reload) {
             for (int i = 0; i < 9; i++) {
                 TownBlock_unk* block = &blocks[i];
                 if (block->m00 != 0 && block->mZ == bz && block->mX == bx && block->mParts != 0) {
-                    block->mParts->m38 &= ~4;
+                    block->mParts->mFlags &= ~4;
                     break;
                 }
             }
@@ -654,7 +656,7 @@ void TownTask::fn_805B8DB4(int reload) {
     } else {
         for (int i = 0; i < 9; i++) {
             if (blocks[i].mParts != 0) {
-                blocks[i].mParts->m38 &= ~4;
+                blocks[i].mParts->mFlags &= ~4;
             }
         }
     }
@@ -671,7 +673,7 @@ extern "C" int fn_805B96A8(TownTask* town, const atn::Vector3* pos) {
     for (int i = 0; i < 9; i++) {
         TownBlock_unk* block = &town->mBlocks[i];
         if (block->mParts != 0 && block->mX == x && block->mZ == z) {
-            return (block->mParts->m38 >> 1) & 1;
+            return (block->mParts->mFlags >> 1) & 1;
         }
     }
     return 0;

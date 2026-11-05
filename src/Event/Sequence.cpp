@@ -27,6 +27,7 @@
 #include "atn/DrawHelper.h"
 #include "game/SetConfig.h"
 #include "game/GameVoice.h"
+#include "game/MapTask.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -37,7 +38,6 @@ extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3*
 extern "C" PlayerManager* lbl_8087F8A0;         // inferred: the party manager
 extern "C" RenderSetting_unk* lbl_8087EFA8;     // inferred: render settings
 extern "C" GameConfig_unk* lbl_8087F0A8;        // inferred: game settings
-extern "C" void fn_804A0580(GameMap_unk* map, int arg, const atn::Vector3* pos); // inferred
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_8006AA20(const char* path);    // inferred: the file exists
 extern "C" void fn_800C3094(const char* name);   // inferred: loads a message group
@@ -272,7 +272,7 @@ void Sequence::fn_8053E8D0() {
         if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && lbl_8087F8A0 != 0) {
             PlayerTask* leader = lbl_8087F8A0->mHead;
             if (leader != 0) {
-                fn_804A0580(fn_80373148(lbl_8087F430), 1, &leader->mPos);
+                fn_80373148(lbl_8087F430)->fn_804A0580(1, &leader->mPos);
             }
         }
     }

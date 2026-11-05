@@ -9,7 +9,7 @@
 // inferred from __vt__13MapPartsModel (0x80790630)
 class MapPartsModel : public MapPartsBase {
 public:
-    MapPartsModel(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x8049BAAC
+    MapPartsModel(atn::Task* parent, int type, atn::CsvTab* csv); // 0x8049BAAC
     virtual ~MapPartsModel();          // 0x8049C350
     virtual int vf0C();                // 0x8049C3C0
     virtual void vf10();               // 0x8049C454
@@ -19,7 +19,7 @@ public:
     virtual void vf28(atn::CsvTab* csv);     // 0x8049BB4C
     virtual void vf2C(unsigned int hash, int draw); // 0x8049C7AC
 
-    static MapPartsModel* fn_8049B9B8(atn::Task* parent, void* arg, atn::CsvTab* csv);
+    static MapPartsModel* fn_8049B9B8(atn::Task* parent, int type, atn::CsvTab* csv);
 
     atn::Model mModel; // 0x50
     int mHide;        // 0x420: inferred: hidden in the bird view ("HIDE_BIRDVIEW")

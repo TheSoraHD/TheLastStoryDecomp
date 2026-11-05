@@ -7,6 +7,7 @@
 #include "game/PlayerTask.h"
 #include "gmk/Lemon.h"
 #include "atn/DrawHelper.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -56,15 +57,7 @@ struct OnOffPart_unk {
     int mObjCount;                   // 0x344: inferred: objects of a part of type 4
     atn::ModelInstance** mObjs;      // 0x348
 };
-struct OnOffMap_unk {
-    unsigned char m00[0x38];
-    unsigned int mFlags; // 0x38: inferred: bit 1 set while loading, bit 2 hidden
-    unsigned char m3C[0x70 - 0x3C];
-    OnOffPart_unk* mParts; // 0x70
-    unsigned char m74[0xF4 - 0x74];
-    int mF4;
-};
-extern "C" OnOffMap_unk* fn_8049D68C(void* owner, const char* name);
+
 extern "C" void fn_8049994C(OnOffPart_unk* part, atn::Vector3* pos, atn::Vector3* rot); // inferred: places the gimmicks of a part
 extern "C" void fn_80499B9C(OnOffPart_unk* part);
 extern "C" void fn_80499C48(OnOffPart_unk* part);
@@ -199,7 +192,7 @@ int OnOff::vf0C() {
         fn_803EDB18(&mModel);
     }
     if (mMap != 0) {
-        for (OnOffPart_unk* part = mMap->mParts; part != 0; part = part->mNext) {
+        for (OnOffPart_unk* part = (OnOffPart_unk*)mMap->mParts; part != 0; part = part->mNext) {
             switch (part->mType) {
             case 0: {
                 atn::Model* model = (atn::Model*)part->m50;
@@ -419,7 +412,7 @@ void OnOff::vf20() {
         } else if (strcmp(field, "EFP") == 0) {
             mEfp.LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "MAP") == 0) {
-            mMap = fn_8049D68C(this, csv.fn_8005B9CC());
+            mMap = MapTask::SetTask(this, csv.fn_8005B9CC());
             if (mMap != 0) {
                 mMap->mF4 = 1;
             }
@@ -533,7 +526,7 @@ void OnOff::fn_803F8F30(int on) {
         } else {
             mMap->mFlags |= 4;
         }
-        for (OnOffPart_unk* part = mMap->mParts; part != 0; part = part->mNext) {
+        for (OnOffPart_unk* part = (OnOffPart_unk*)mMap->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
                 if (mOn != 0) {
                     fn_80499B9C(part);

@@ -27,6 +27,7 @@ extern "C" float lbl_80885CCC;
 #include "atn/MemoryManager.h"
 #include "atn/ColliBase.h"
 #include <boost/tokenizer.hpp>
+#include "game/MapTask.h"
 
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 
@@ -66,8 +67,6 @@ extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
 extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext); // inferred: sets the extension
 extern "C" std::string fn_80393BEC(const int& value); // inferred: lexical_cast<std::string>(int)
-extern "C" int fn_8049D52C(char* name, int area, int map, int sub); // inferred: name of a map
-extern "C" void* fn_8049D704(atn::Task* parent, int area, int map, int sub); // inferred: map data
 extern "C" GameEventScript* fn_80393610(atn::Task* parent, const char* path, int area, int map); // inferred: event script
 extern "C" int fn_803CE160(int area, int map, int sub); // inferred: the map uses the town BGM groups
 extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
@@ -143,18 +142,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 
-// inferred: map data (fn_8049D704)
-struct MapData_unk {
-    unsigned char m00[0x48];
-    int m48;
-    int m4C;
-    int m50; // inferred: map number
-    unsigned char m54[0xE0 - 0x54];
-    int mE0; // inferred: current camera
-    int mE4;
-    int mE8; // inferred: default camera
-};
-extern "C" void fn_804A04AC(void* map, int camera, int a, int b, gs::CameraBox* box); // inferred: sets the camera
 
 extern "C" void* lbl_8087F610; // inferred: multiplayer session
 
@@ -178,7 +165,7 @@ struct CharaRadius_unk {
 // inferred: path of a scene file of the current map (inline: "li r0, 1" before the test)
 inline bool MakeScenePath_unk(char* out, const char* fmt, int area, int map, int sub) {
     char name[0x100];
-    if (fn_8049D52C(name, area, map, sub)) {
+    if (MapTask::GetMapNameFromId(name, area, map, sub)) {
         sprintf(out, fmt, name);
         return true;
     }
@@ -197,7 +184,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
       m13C(1.0f), m140(0), m144(0), m9B0(0) {
     char name[0x20];
     char path[0x100];
-    if (fn_8049D52C(name, area, map, sub)) {
+    if (MapTask::GetMapNameFromId(name, area, map, sub)) {
         if (lbl_8087F420 != 0) {
             lbl_8087F420->m18 = 1;
             lbl_8087F420->m1C = 1;
@@ -266,7 +253,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
     if (MakeScenePath_unk(message, "/game_message/%s_xx.u16", area, map, sub)) {
         m11C.fn_803B3C10(message);
     }
-    m64 = fn_8049D704(this, area, map, sub);
+    m64 = MapTask::fn_8049D704(this, area, map, sub);
     if (lbl_8087FA20 != 0) {
         lbl_8087FA20->m128 = 1;
     }
@@ -831,11 +818,11 @@ void GameScene::fn_803C1CAC() {
     }
     gs::CameraBox* box = fn_803C2090(m10C, leader);
     if (box != 0) {
-        if (box->m24 != ((MapData_unk*)m64)->mE0) {
-            fn_804A04AC(m64, box->m24, box->m28, box->m2C, box);
+        if (box->m24 != m64->mCamera) {
+            m64->fn_804A04AC(box->m24, box->m28, box->m2C, box);
         }
-    } else if (((MapData_unk*)m64)->mE8 != ((MapData_unk*)m64)->mE0) {
-        fn_804A04AC(m64, ((MapData_unk*)m64)->mE8, -1, -1, 0);
+    } else if (m64->mDefaultCamera != m64->mCamera) {
+        m64->fn_804A04AC(m64->mDefaultCamera, -1, -1, 0);
     }
 }
 
@@ -1850,8 +1837,8 @@ void GameScene::fn_803CA530() {
         for (unsigned int i = 0; i < m104.size(); i++) {
             fn_803EC374(this, &m104[i]);
         }
-        if (((MapData_unk*)m64)->m48 == 1 && lbl_8087F430 != 0) {
-            if (((MapData_unk*)m64)->m4C != 3) {
+        if (m64->mType == 1 && lbl_8087F430 != 0) {
+            if (m64->mId != 3) {
                 fn_803EC16C(this, 60000, 1);
             }
             fn_803EC16C(this, 61000, 1);
@@ -1866,7 +1853,7 @@ void GameScene::fn_803CA604() {
         if (lbl_8087F430->m5694 != 0) {
             reset = 1;
             int maps = fn_80370174(lbl_8087F430, 0x392);
-            int map = ((MapData_unk*)m64)->m50;
+            int map = m64->mSubId;
             for (int i = 0; i < 8; i++) {
                 if (map == (maps & 0xF)) {
                     reset = 0;

@@ -11,6 +11,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/MapTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -141,16 +142,7 @@ extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-// inferred: map data of the field (as in gmk/Cannonball.cpp)
-struct MapInfo_unk {
-    unsigned char m00[0x4C];
-    int m4C; // inferred: area
-    unsigned char m50[0xE0 - 0x50];
-    int mE0; // inferred: BGM kind
-    unsigned char mE4[0xE8 - 0xE4];
-    int mE8;
-};
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
@@ -234,7 +226,6 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 extern "C" int rand();
-extern "C" void fn_804A04AC(MapInfo_unk* map, int kind, int arg2, int arg3, int arg4); // inferred: map BGM
 // inferred: battle state (fn_80103F60 returns a record per party member; m128: weights)
 struct BattleSlots_unk {
     unsigned char m000[0x128];
@@ -604,12 +595,12 @@ void Em301LShade::vf10() {
         }
     }
     if (m14D4 != 0 && m1620 != 0) {
-        MapInfo_unk* map = fn_80373148(lbl_8087F430);
+        MapTask* map = fn_80373148(lbl_8087F430);
         if (map != 0) {
             int kind = m14E0 != 3;
-            if (kind != map->mE0) {
-                fn_804A04AC(map, kind, 20, -1, 0);
-                map->mE8 = kind;
+            if (kind != map->mCamera) {
+                map->fn_804A04AC(kind, 20, -1, 0);
+                map->mDefaultCamera = kind;
             }
         }
     }
@@ -839,7 +830,7 @@ void Em301LShade::vf3C(HitInfo_unk* hit) {
     int ok = 0;
     if (m15E8 > 0) {
         ok = 1;
-        if (fn_80373148(lbl_8087F430)->m4C == 3 && msg->mData->m01 == 0 &&
+        if (fn_80373148(lbl_8087F430)->mId == 3 && msg->mData->m01 == 0 &&
             fn_80370A78(lbl_8087F430, 0x6E) == 0) {
             fn_80370AE4(lbl_8087F430, 0x6E, 1);
         }

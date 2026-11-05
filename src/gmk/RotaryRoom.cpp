@@ -5,6 +5,7 @@
 #include "game/GimmickManager.h"
 #include "game/MapPartsBase.h"
 #include "gmk/Lemon.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -20,15 +21,7 @@ extern "C" void fn_80088724(void* group, const char* name, atn::Vector3* value, 
                             float max, float step);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 
-namespace atn {
-// inferred: axis aligned box (see atn/Geometry_unk.cpp)
-struct AABB_unk {
-    AABB_unk() {}
-    AABB_unk Merge_unk(const AABB_unk& o) const; // 0x80070C98: union of both boxes
-    Vector3 mMin;
-    Vector3 mMax;
-};
-} // namespace atn
+#include "atn/AABB_unk.h"
 
 // inferred: box pair of a locator (0x18 bytes); name invented
 struct RotaryBox_unk {
@@ -53,19 +46,7 @@ struct RotaryPart_unk {
     unsigned char m60[0x344 - 0x60];
     int mObjCount; // 0x344: inferred: objects of a part of type 4
 };
-// inferred: map group (as ArenaGroup_unk in gmk/ArenaFloor.cpp)
-struct RotaryGroup_unk {
-    unsigned char m00[0x38];
-    unsigned int mFlags; // 0x38: inferred: bit 1 set while loading
-    unsigned char m3C[0x70 - 0x3C];
-    RotaryPart_unk* mParts; // 0x70
-    unsigned char m74[0x88 - 0x74];
-    atn::Vector3 mMin; // 0x88: inferred: bounding box of the group
-    atn::Vector3 mMax; // 0x94
-    unsigned char mA0[0xF4 - 0xA0];
-    int mF4;
-};
-extern "C" RotaryGroup_unk* fn_8049D68C(void* owner, const char* name);
+
 extern "C" void fn_8049994C(RotaryPart_unk* part, const atn::Vector3* pos, const atn::Vector3* rot);
 extern "C" void fn_80499B9C(RotaryPart_unk* part);
 extern "C" void fn_80499C48(RotaryPart_unk* part);
@@ -166,7 +147,7 @@ int RotaryRoom::vf0C() {
         m54 = 1;
         if (mGroup != 0) {
             int count = 0;
-            for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+            for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
                 switch (part->mType) {
                 case 0:
                     count++;
@@ -213,7 +194,7 @@ int RotaryRoom::vf0C() {
                 }
                 }
             }
-            for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+            for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
                 if (part->mType == 6) {
                     for (unsigned int j = 0; j < part->mNumLocators; j++) {
                         RotaryLocator_unk* loc = part->mLocators[j];
@@ -226,7 +207,7 @@ int RotaryRoom::vf0C() {
             }
             for (unsigned int i = 0; i < 25; i++) {
                 if (mColli[i].mHash != 0) {
-                    for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+                    for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
                         if (part->mType == 6) {
                             for (unsigned int j = 0; j < part->mNumLocators; j++) {
                                 if (part->mLocators[j]->mHash == mColli[i].mHash) {
@@ -244,12 +225,12 @@ int RotaryRoom::vf0C() {
             MapPartsBox_unk box;
             box.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
             box.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);
-            for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+            for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
                 MapPartsBox_unk pbox = ((MapPartsBase*)part)->vf24(0);
                 *(atn::AABB_unk*)&box = ((atn::AABB_unk*)&box)->Merge_unk(*(atn::AABB_unk*)&pbox);
             }
-            mGroup->mMin = box.mMin;
-            mGroup->mMax = box.mMax;
+            mGroup->mBox.mMin = box.mMin;
+            mGroup->mBox.mMax = box.mMax;
             RotaryColli_unk* colli = mColli;
             for (int i = 0; i < 25; i++, colli++) {
                 if (colli->mTree != 0) {
@@ -301,14 +282,14 @@ void RotaryRoom::vf10() {
 
 void RotaryRoom::fn_80425878(int on) {
     if (on) {
-        for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+        for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
                 fn_8049994C(part, &lbl_807C7030, &mRotOffset);
                 fn_80499B9C(part);
             }
         }
     } else {
-        for (RotaryPart_unk* part = mGroup->mParts; part != 0; part = part->mNext) {
+        for (RotaryPart_unk* part = (RotaryPart_unk*)mGroup->mParts; part != 0; part = part->mNext) {
             if (part->mType == 5) {
                 fn_80499C48(part);
             }
@@ -342,9 +323,9 @@ void RotaryRoom::vf20() {
             continue;
         }
         if (strcmp(field, "MAP") == 0) {
-            void* owner = m20;
+            atn::Task* owner = (atn::Task*)m20; // inferred: atn::Task::m20 is the parent (void*)
             if (owner != 0) {
-                mGroup = fn_8049D68C(owner, csv.fn_8005B9CC());
+                mGroup = MapTask::SetTask(owner, csv.fn_8005B9CC());
                 if (mGroup != 0) {
                     mGroup->mF4 = 1;
                 }

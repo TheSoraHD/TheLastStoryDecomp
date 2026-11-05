@@ -33,6 +33,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
+#include "game/MapTask.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -79,13 +80,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
 extern "C" int fn_80375184(Field_unk* field);
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
-// inferred: map information of the field (as in gmk/FragileObject.cpp)
-struct MapInfo_unk {
-    unsigned char m00[0x48];
-    int m48;
-    int m4C;
-};
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -2711,8 +2706,8 @@ int BattleCharaTask::fn_800EE794(SkillEffect* effect) {
 
 int BattleCharaTask::fn_800EEFDC() {
     if (m50 == 0x189C1 && lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapInfo_unk* info = fn_80373148(lbl_8087F430);
-        if (info->m48 == 2 && info->m4C == 0xD) {
+        MapTask* info = fn_80373148(lbl_8087F430);
+        if (info->mType == 2 && info->mId == 0xD) {
             return 0;
         }
     }

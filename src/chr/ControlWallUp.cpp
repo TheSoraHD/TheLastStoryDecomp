@@ -5,20 +5,15 @@
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 #include "game/Input_unk.h"
+#include "game/MapTask.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" HitInfo_unk* fn_80219E6C(int id);           // inferred: bullet/skill data by id
 
-// inferred: field object (lbl_8087F430): flags and current map data (class unknown)
-struct WallMap_unk {
-    unsigned char m00[0x4C];
-    int m4C; // inferred: area
-    int m50; // inferred: room
-};
 extern "C" void* lbl_8087F430;
 extern "C" int fn_80370174(void* field, int id);
-extern "C" WallMap_unk* fn_80373148(void* field);
+extern "C" MapTask* fn_80373148(void* field);
 
 // inferred: arena mode object (lbl_8087F610)
 extern "C" void* lbl_8087F610;
@@ -188,14 +183,14 @@ int ControlWallUp::vf0C() {
         }
     }
     if (ret != 0 && m4C && m50 == 0) {
-        if (lbl_8087F610 == 0 && fn_80373148(lbl_8087F430)->m4C == 40 && fn_80373148(lbl_8087F430)->m50 == 8) {
+        if (lbl_8087F610 == 0 && fn_80373148(lbl_8087F430)->mId == 40 && fn_80373148(lbl_8087F430)->mSubId == 8) {
             m08.y = m48;
             m14.y = m48;
         }
         atn::Vector3 pos = m14;
         pos.y = m14.y;
         ControlChargeAttackBase::fn_801A4E08(mChara, pos, m08);
-        if (lbl_8087F610 == 0 && fn_80373148(lbl_8087F430)->m4C == 40 && fn_80373148(lbl_8087F430)->m50 == 8) {
+        if (lbl_8087F610 == 0 && fn_80373148(lbl_8087F430)->mId == 40 && fn_80373148(lbl_8087F430)->mSubId == 8) {
             WallCollResult_unk result;
             atn::Vector3 top = m08;
             atn::Vector3 bottom = m08;

@@ -18,6 +18,7 @@
 #include "game/EquipItemData.h"
 #include <boost/tokenizer.hpp>
 #include "atn/DrawHelper.h"
+#include "game/MapTask.h"
 
 extern "C" double sqrt(double x);
 extern "C" int strcmp(const char* a, const char* b);
@@ -330,32 +331,18 @@ extern "C" float fn_8029F3AC(CharaStatus* status);
 extern "C" inline void fn_80265804(CharaStatus* status, float rate) {
     status->m2FC = rate;
 }
-// inferred: map of the field (fn_80373148, weak copy of game/GameTask.cpp) and its BGM
-struct MapInfo_unk {
-    unsigned char m00[0xE0];
-    int mE0; // inferred: kind of BGM
-    int mE4;
-    int mE8;
-};
 struct MapHolder_unk {
     unsigned char m00[0x64];
-    MapInfo_unk* m64;
+    MapTask* m64;
 };
 struct FieldMap_unk {
     unsigned char m0000[0x10D8];
     MapHolder_unk* m10D8;
 };
-extern "C" inline MapInfo_unk* fn_80373148(Field_unk* field) {
+extern "C" inline MapTask* fn_80373148(Field_unk* field) {
     MapHolder_unk* h = ((FieldMap_unk*)field)->m10D8;
     return h != 0 ? h->m64 : 0;
 }
-extern "C" inline int fn_80339F7C(MapInfo_unk* map) {
-    return map->mE0;
-}
-extern "C" inline void fn_80339F84(MapInfo_unk* map, int kind) {
-    map->mE8 = kind;
-}
-extern "C" void fn_804A04AC(MapInfo_unk* map, int kind, int arg2, int arg3, int arg4); // inferred: map BGM
 extern "C" void fn_80354110(EnemyTask* enemy); // inferred: EnemyQuarkStand member of another queue
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -586,15 +573,15 @@ void EnemyQuarkSecond::vf10() {
             free = 0;
         }
         fn_80339F74(this, free);
-        MapInfo_unk* map = fn_80373148(fn_80121F00());
+        MapTask* map = fn_80373148(fn_80121F00());
         if (mPos.y - fn_8000D9E8()->GetHead_unk()->fn_8013C38C()->y > 20.0f) {
             kind = 3;
         } else {
             kind = 0;
         }
-        if (kind != fn_80339F7C(map)) {
-            fn_804A04AC(map, kind, 0xF, -1, 0);
-            fn_80339F84(map, kind);
+        if (kind != map->GetCamera_unk()) {
+            map->fn_804A04AC(kind, 0xF, -1, 0);
+            map->SetDefaultCamera_unk(kind);
         }
     }
     fn_8014C540();

@@ -8,17 +8,6 @@
 #include "std/string.h"
 #include "std/vector.h"
 
-// inferred: map part shown in a block (only the flags are used here)
-struct TownBlockParts_unk {
-    // inferred: name invented
-    bool IsTown_unk() const { return (m38 & 2) == 2; }
-    void SetHidden_unk() { m38 |= 4; }
-
-    unsigned char m00[0x38];
-    unsigned int m38; // inferred: bit 1: the block belongs to the town area, bit 2: hidden
-    unsigned char m3C[0xF4 - 0x3C];
-    int mF4;
-};
 class TownTpcLoader;
 
 // inferred: one of the 3x3 loaded map blocks around the player (0x14 bytes); names invented
@@ -27,7 +16,7 @@ struct TownBlock_unk {
     int m00;
     int mX;  // 0x04
     int mZ;  // 0x08
-    TownBlockParts_unk* mParts; // 0x0C
+    MapTask* mParts;            // 0x0C: inferred: map of the block
     TownTpcLoader* m10;         // 0x10: inferred: NPC loader of the block
 };
 
@@ -80,8 +69,8 @@ struct TownList_unk : public std::vector<void*> {
 // inferred from __vt__8TownTask (0x807978C8): the map task of the towns
 class TownTask : public MapTask {
 public:
-    static TownTask* Create_unk(atn::Task* parent); // inferred: stripped by the linker
-    TownTask(atn::Task* parent); // 0x805B6C5C
+    static TownTask* Create_unk(atn::Task* parent, int type, int id, int subId); // inferred: stripped by the linker
+    TownTask(atn::Task* parent, int type, int id, int subId); // 0x805B6C5C
     virtual ~TownTask();         // 0x805B6EAC
     virtual int vf0C();          // 0x805B721C
     virtual void vf10();         // 0x805B7398
@@ -90,7 +79,7 @@ public:
     void fn_805B7B24();
     void fn_805B8DB4(int arg);
     // inferred: the loader at 0x58 holds the minimap csv (name invented)
-    atn::LH_Binary* GetBinary_unk() { return (atn::LH_Binary*)m58; }
+    atn::LH_Binary* GetBinary_unk() { return &mFile; }
 
     ResHandle m11C; // inferred: debug menu group
     int m120;       // inferred: initialized flag

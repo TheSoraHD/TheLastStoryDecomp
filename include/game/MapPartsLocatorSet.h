@@ -13,9 +13,12 @@
 
 // inferred from __vt__18MapPartsLocatorSet (0x807905D8): set of building instances placed by the
 // locators of a ".building" file, or one merged model ("merge_%s_occ.model"/"merge_%s_loc.model")
+class MapPartsArea;
+
 class MapPartsLocatorSet : public MapPartsBase {
 public:
-    MapPartsLocatorSet(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x8049A09C
+    MapPartsLocatorSet(atn::Task* parent, int type, atn::CsvTab* csv); // 0x8049A09C
+    static MapPartsLocatorSet* SetTask(atn::Task* parent, int type, atn::CsvTab& csv); // 0x8049A018 (RSO name)
     virtual ~MapPartsLocatorSet();                  // 0x8049A6B8
     virtual int vf0C();                             // 0x8049A7D8
     virtual void vf10();                            // 0x8049AA1C
@@ -27,7 +30,7 @@ public:
     void fn_8049B1F0();                 // inferred: creates the instances from the loaded file
     void fn_8049B72C(unsigned int flags); // inferred: sets the draw flags
     void fn_8049B780(atn::Scene* scene); // inferred: sets the scene of the instances
-    void fn_8049B7CC(void* tree);       // inferred: picks the light of each instance
+    void fn_8049B7CC(MapPartsArea* areas); // inferred: picks the scene of each instance (area hit by its bound)
 
     atn::LH_Binary mLoader;               // 0x50: the ".building" file
     float mHideY;                         // 0x58: inferred: "HIDE_BIRDVIEW_Y"

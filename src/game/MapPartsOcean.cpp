@@ -13,14 +13,14 @@ extern "C" void fn_80087858(void* menu, const char* name, float* value, int arg3
                             float min, float max, float step); // inferred: debug angle slider
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 
-MapPartsOcean* MapPartsOcean::fn_8049C8DC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
+MapPartsOcean* MapPartsOcean::fn_8049C8DC(atn::Task* parent, int type, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new ((MemoryTag)12, "", "", 0) MapPartsOcean(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsOcean(parent, type, csv);
     }
     return 0;
 }
 
-MapPartsOcean::MapPartsOcean(atn::Task* parent, void* arg, atn::CsvTab* csv) : MapPartsModel(parent, arg, csv) {
+MapPartsOcean::MapPartsOcean(atn::Task* parent, int type, atn::CsvTab* csv) : MapPartsModel(parent, type, csv) {
     mTime = 0.0f;
     m450 = 15.0f;
     mWave[0].mAmplitude = 12.0f;

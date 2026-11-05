@@ -4,14 +4,14 @@
 extern "C" char* strstr(const char*, const char*);
 extern "C" int strcmp(const char*, const char*);
 
-MapPartsColliTree* MapPartsColliTree::fn_80496420(atn::Task* parent, void* arg, atn::CsvTab* csv) {
+MapPartsColliTree* MapPartsColliTree::fn_80496420(atn::Task* parent, int type, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new ((MemoryTag)12, "", "", 0) MapPartsColliTree(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsColliTree(parent, type, csv);
     }
     return 0;
 }
 
-MapPartsColliTree::MapPartsColliTree(atn::Task* parent, void* arg, atn::CsvTab* csv) : MapPartsBase(parent, arg) {
+MapPartsColliTree::MapPartsColliTree(atn::Task* parent, int type, atn::CsvTab* csv) : MapPartsBase(parent, type) {
     const char* name = csv->fn_8005B9CC();
     mColli.fn_80058B78(name);
     if (strstr(name, "_bird.") != 0 || strcmp(csv->fn_8005B9CC(), "BIRDVIEW") == 0) {

@@ -8,6 +8,7 @@
 #include "game/GimmickCommon.h"
 #include "game/CharaStatus.h"
 #include <boost/bind.hpp>
+#include "game/MapTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -44,16 +45,9 @@ struct FrameTime_unk {
     float m3A4; // inferred: time of a frame
 };
 extern "C" FrameTime_unk* lbl_8087EFA8;
-// inferred: field (lbl_8087F430) and its map information (as in gmk/Cannonball.cpp)
-struct MapInfo_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: area
-    int m4C;
-    int m50;
-};
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 
 
 // inferred: node position (name invented, as in game/Em209BigGolem.cpp)
@@ -135,8 +129,8 @@ Em205Ogre::Em205Ogre(atn::Task* parent, EnemyInfo_unk* info)
     }
     m14B4.vf0C(path);
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapInfo_unk* map = fn_80373148(lbl_8087F430);
-        if (map->m48 == 2 && map->m4C == 10 && map->m50 == 2) {
+        MapTask* map = fn_80373148(lbl_8087F430);
+        if (map->mType == 2 && map->mId == 10 && map->mSubId == 2) {
             m1514.reset(new ((MemoryTag)3, "", "", 0) atn::EffFile());
             m1514->LoadRequest("/data/eff/gm001_000a02.eff");
         }

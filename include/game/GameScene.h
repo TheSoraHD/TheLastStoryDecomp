@@ -345,6 +345,8 @@ struct GameScenePair_unk {
     int m04;
 };
 
+class MapTask;
+
 // inferred from __vt__9GameScene (0x8078BC48): the scene of a map, read from the .gs files
 // (0x9B8 bytes)
 class GameScene : public atn::Task {
@@ -416,7 +418,7 @@ public:
 
     int m48;                            // inferred: loading step
     atn::LH_Binary m4C[3];              // inferred: the .gs files (main, _sub2, _sub3)
-    void* m64;                          // inferred: map data (fn_8049D704)
+    MapTask* m64;                       // inferred: map of the scene (GetMap in the RSO; MapTask::fn_8049D704)
     int m68;                            // "NpcNum"
     int m6C;                            // "EnemyNum"
     int m70;                            // "PlayerStartPoint"

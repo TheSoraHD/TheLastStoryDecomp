@@ -10,6 +10,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/tokenizer.hpp>
+#include "game/MapTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -18,7 +19,6 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC6B4(const char* s);   // inferred: string hash
 extern "C" GimmickCommon* fn_804093B4(atn::Task* parent, int id, int arg);
 extern "C" void fn_800D2338(atn::Task* task);              // inferred: deletes a task
-extern "C" int fn_8049D5DC(char* name, int a, int b, int c); // inferred: name of a map
 extern "C" int fn_8006AA20(const char* path);                // inferred: the file exists
 
 
@@ -217,7 +217,7 @@ void GimmickManager::fn_803EE560() {
 // file, as in game/GimmickCommon.cpp.
 static inline int __GetSePath_unk(char* path, int a, int b, int c) {
     char name[0x20];
-    if (fn_8049D5DC(name, a, b, c) != 0) {
+    if (MapTask::fn_8049D5DC(name, a, b, c) != 0) {
         sprintf(path, "/database/gimmick/%s_se.csv\0", name);
         return 1;
     }

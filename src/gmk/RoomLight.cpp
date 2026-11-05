@@ -27,9 +27,9 @@ typedef atn::Camera Camera_unk;
 
 // inferred: sets the light of a map part (callback of fn_80491528)
 void fn_8041FED8(MapArea* part, void* light) {
-    part->m074 = (CharaLightData_unk*)light;
-    part->mLightOn = light != 0 || part->mLightOn != 0;
-    part->mLightMask = ((RoomLightData_unk*)light)->m50;
+    part->mScene.m074 = (CharaLightData_unk*)light;
+    part->mScene.mLightOn = light != 0 || part->mScene.mLightOn != 0;
+    part->mScene.mLightMask = ((RoomLightData_unk*)light)->m50;
 }
 
 namespace gmk {
@@ -56,7 +56,7 @@ int RoomLight::vf0C() {
 void RoomLight::Start() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
     atn::RenderManager::instance_->fn_800C16B4()->SetLightMask_unk(mLight.m50);
-    MapManager::sInstance->fn_80491528(&fn_8041FED8, &mLight);
+    MapManager::instance_->fn_80491528(&fn_8041FED8, &mLight);
     if (m58 == 0) {
         mFrame = 0;
     } else {

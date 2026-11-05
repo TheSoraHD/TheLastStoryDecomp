@@ -20,7 +20,7 @@ public:
         atn::Vector3 mMax;
     };
 
-    MapPartsRain(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x8049CE40
+    MapPartsRain(atn::Task* parent, int type, atn::CsvTab* csv); // 0x8049CE40
     virtual ~MapPartsRain();
     virtual int vf0C();
     virtual void vf10();
@@ -28,8 +28,11 @@ public:
     virtual void vf1C(void* menu);
 
     // inferred: factory used by the map parts loader
-    static MapPartsRain* fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTab* csv);
+    static MapPartsRain* fn_8049CDBC(atn::Task* parent, int type, atn::CsvTab* csv);
     void fn_8049D1A4(MapPartsRain* a, MapPartsRain* b, float t);
+    // inferred: starts the rain when it is on (weak copy 0x804948D8, called by MapPartsArea fn_80494354;
+    // defined in game/MapPartsBase.cpp until that function is written)
+    void fn_804948D8();
 
     int mOn;          // 0x50
     atn::Rain mRain;  // 0x54

@@ -12,6 +12,7 @@
 #include "macros.h"
 #include "std/string_members.h"
 #include "std/vector_string.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -22,13 +23,6 @@ extern "C" const char* fn_8021823C(int id);           // inferred: motion name f
 extern "C" float fn_800DC288(const char* s);          // inferred: string to float
 extern "C" unsigned int fn_800DC6B4(const char* s);   // inferred: string hash
 extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point); // inferred: parses a map id
-// inferred: field (lbl_8087F430) and its map information
-struct MapInfo_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: map type
-    int m4C; // inferred: area
-    int m50; // inferred: room
-};
 struct Field_unk {
     unsigned char m000[0x96C];
     int m96C; // inferred: camera shake
@@ -37,7 +31,7 @@ struct Field_unk {
     float m978;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: accessor (weak copy 0x80121F00 kept from another file)
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
@@ -45,7 +39,7 @@ extern "C" inline Field_unk* fn_80121F00() {
 // inferred: accessors (weak copies, names keep the addresses; also used by gmk::Cannonball). The empty
 // asserts (debug build only) count against the inline budget of fn_803EF780.
 #define GSC_ASSERT_UNK(x) ((void)0)
-extern "C" inline int fn_803EFD9C(MapInfo_unk* info) {
+extern "C" inline int fn_803EFD9C(MapTask* info) {
     GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
     GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
     GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
@@ -76,13 +70,13 @@ extern "C" inline int fn_803EFD9C(MapInfo_unk* info) {
     GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
     GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
     GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0); GSC_ASSERT_UNK(info != 0);
-    return info->m48;
+    return info->mType;
 }
-extern "C" inline int fn_803EFDA4(MapInfo_unk* info) {
-    return info->m4C;
+extern "C" inline int fn_803EFDA4(MapTask* info) {
+    return info->mId;
 }
-extern "C" inline int fn_803EFDAC(MapInfo_unk* info) {
-    return info->m50;
+extern "C" inline int fn_803EFDAC(MapTask* info) {
+    return info->mSubId;
 }
 // inferred: effects
 struct EffectMgr_unk {
@@ -224,7 +218,7 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
             int point;
             if (fn_80216AFC(csv.fn_8005B9CC(), &type, &map, &point) && fn_80121F00() != 0 &&
                 fn_80373148(fn_80121F00()) != 0) {
-                MapInfo_unk* info = fn_80373148(fn_80121F00());
+                MapTask* info = fn_80373148(fn_80121F00());
                 if (type != fn_803EFD9C(info) || map != fn_803EFDA4(info) || point != fn_803EFDAC(info)) {
                     while (csv.fn_8005BBF8() != 0) {
                         const char* s = csv.fn_8005B9CC();

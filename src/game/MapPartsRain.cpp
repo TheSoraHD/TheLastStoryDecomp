@@ -13,9 +13,9 @@ inline T __Clamp_unk(T v, const T& lo, const T& hi) {
     return (v < lo) ? lo : ((v > hi) ? hi : v);
 }
 
-MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
+MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, int type, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new ((MemoryTag)12, "", "", 0) MapPartsRain(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsRain(parent, type, csv);
     }
     return 0;
 }
@@ -26,8 +26,8 @@ MapPartsRain* MapPartsRain::fn_8049CDBC(atn::Task* parent, void* arg, atn::CsvTa
 // arguments, struct assignment (reads box + 0xC but writes mMax through box too), field-wise
 // `box.mMin = a; box.mMax = b; mBox = box;` (same shape, 99.77%: the four addresses swap in pairs),
 // declaration order of a/b/box.
-MapPartsRain::MapPartsRain(atn::Task* parent, void* arg, atn::CsvTab* csv)
-    : MapPartsBase(parent, arg), mOn(0) {
+MapPartsRain::MapPartsRain(atn::Task* parent, int type, atn::CsvTab* csv)
+    : MapPartsBase(parent, type), mOn(0) {
     const char* field = csv->mField;
     do {
         if (strcmp(field, "ON") == 0) {

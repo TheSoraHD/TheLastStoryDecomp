@@ -9,6 +9,7 @@
 #include "game/HitInfo_unk.h"
 #include "game/PlayerTask.h"
 #include "gmk/Lemon.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -36,19 +37,13 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-// inferred: field (lbl_8087F430) and its map information
-struct MapInfo_unk {
-    unsigned char m00[0x4C];
-    int m4C; // inferred: area
-    int m50; // inferred: room
-};
 struct Field_unk {
     void fn_803750E4(int id);
     unsigned char m0000[0x54E4];
     int m54E4; // inferred: state (8-11 while an event runs)
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: accessors (weak copies elsewhere; names keep the addresses)
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
@@ -56,11 +51,11 @@ extern "C" inline Field_unk* fn_80121F00() {
 extern "C" inline int fn_803D6E24(Field_unk* field) {
     return field->m54E4;
 }
-extern "C" inline int fn_803EFDA4(MapInfo_unk* info) {
-    return info->m4C;
+extern "C" inline int fn_803EFDA4(MapTask* info) {
+    return info->mId;
 }
-extern "C" inline int fn_803EFDAC(MapInfo_unk* info) {
-    return info->m50;
+extern "C" inline int fn_803EFDAC(MapTask* info) {
+    return info->mSubId;
 }
 // inferred: arena (lbl_8087F610)
 struct CannonArena_unk;

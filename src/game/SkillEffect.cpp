@@ -176,7 +176,7 @@ void SkillEffect::fn_80599454(int pause) {
         case 8:
         case 9:
             if (efp != 0) {
-                MapColor_unk light = MapManager::sInstance->fn_80491D50(atn::Sphere(m0C->mPos, 10.0f));
+                MapColor_unk light = MapManager::instance_->fn_80491D50(atn::Sphere(m0C->mPos, 10.0f));
                 fn_80232B7C(this, m04->m04);
                 fn_8023A8B4(lbl_8087F3C0, efp, m0C->GetModel_unk(), 0, lbl_807C7030, lbl_807C7030, light, -1, -1, 1,
                             scale);
@@ -184,7 +184,7 @@ void SkillEffect::fn_80599454(int pause) {
             break;
         case 4:
             if (efp != 0) {
-                MapColor_unk light = MapManager::sInstance->fn_80491D50(atn::Sphere(m0C->mPos, 10.0f));
+                MapColor_unk light = MapManager::instance_->fn_80491D50(atn::Sphere(m0C->mPos, 10.0f));
                 fn_80232B7C(this, m04->m04);
                 fn_8023A8B4(lbl_8087F3C0, efp, m0C->GetModel_unk(), 0, lbl_807C7030, lbl_807C7030, light, -1, -1, 1,
                             scale);
@@ -197,7 +197,7 @@ void SkillEffect::fn_80599454(int pause) {
                 return;
             }
             if (efp != 0) {
-                MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(m10, 10.0f));
+                MapColor_unk light = MapManager::instance_->fn_80491DF8(atn::Sphere(m10, 10.0f));
                 fn_80232B7C(this, m04->m04);
                 fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, m10, m1C, light, -1, -1, 1, scale);
             }
@@ -350,7 +350,7 @@ void SkillEffect::fn_8059A0B4(atn::EffFile* eff) {
     lbl_8087F3C0->mB8 = 5;
     if (!fn_80239D58(lbl_8087F3C0, &m2C, 1)) {
         atn::Vector3 offset(0.0f, 5.0f, 0.0f);
-        MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(m2C.GetTrans_unk(), 2.0f));
+        MapColor_unk light = MapManager::instance_->fn_80491DF8(atn::Sphere(m2C.GetTrans_unk(), 2.0f));
         fn_80232B7C(&m2C, 1);
         fn_8023A680(lbl_8087F3C0, eff, -1, 5, (atn::Model*)&m2C, &offset, 0, &light, 0, -1, 1,
                     (1.0f + m5C) / 15.0f * m28);

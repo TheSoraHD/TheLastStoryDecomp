@@ -27,6 +27,7 @@ struct MapPartsGimmickLocArray4_unk {
 // offset accessors in game/MapPartsGimmickLoc.cpp).
 class MapPartsGimmickLoc : public MapPartsBase {
 public:
+    static MapPartsGimmickLoc* SetTask(atn::Task* parent, int type, atn::CsvTab& csv); // 0x80496EE8 (RSO name)
     void* fn_80498E7C(int index);
     void fn_80498EAC(const atn::Vector3& value);
     void fn_80498EC0(const atn::Vector3& value);

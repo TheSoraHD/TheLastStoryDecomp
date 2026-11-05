@@ -8,7 +8,7 @@ struct RouteTable_unk;
 namespace atn {
 class FadeCapture;
 }
-struct GameMap_unk;
+class MapTask;
 class GameScene;
 
 struct GameField_unk {
@@ -28,6 +28,6 @@ extern "C" void fn_80370094(GameField_unk* field, int state);           // infer
 extern "C" int fn_80370174(GameField_unk* field, int flag);             // inferred: flag value
 extern "C" void fn_80370320(GameField_unk* field, int flag, int value, int arg); // inferred: sets a flag
 extern "C" int fn_80370A78(GameField_unk* field, int index);            // inferred: work value
-extern "C" GameMap_unk* fn_80373148(GameField_unk* field);              // inferred: current map
+extern "C" MapTask* fn_80373148(GameField_unk* field);                  // inferred: current map (GameTask::GetCurrentMap in the RSO)
 
 #endif

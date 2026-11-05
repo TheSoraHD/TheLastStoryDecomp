@@ -34,9 +34,9 @@ typedef atn::Camera Camera_unk;
 // inferred: sets the light of a map part (callback of fn_80491528). It is at 0x804225E0, just
 // before the CharaLight split (the split will have to start there when the unit is linked).
 void fn_804225E0(MapArea* part, void* light) {
-    part->m074 = (CharaLightData_unk*)light;
-    part->mLightOn = light != 0 || part->mLightOn != 0;
-    part->mLightMask = -1;
+    part->mScene.m074 = (CharaLightData_unk*)light;
+    part->mScene.mLightOn = light != 0 || part->mScene.mLightOn != 0;
+    part->mScene.mLightMask = -1;
 }
 
 namespace gmk {
@@ -60,8 +60,8 @@ CharaLight::CharaLight(atn::Task* parent, GimmickDesc_unk* desc)
 
 CharaLight::~CharaLight() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
-    if (MapManager::sInstance != 0) {
-        MapManager::sInstance->fn_80491528(&fn_804225E0, 0);
+    if (MapManager::instance_ != 0) {
+        MapManager::instance_->fn_80491528(&fn_804225E0, 0);
     }
 }
 
@@ -77,7 +77,7 @@ void CharaLight::Start() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
     atn::Scene* target = atn::RenderManager::instance_->fn_800C16B4();
     target->SetLightMask_unk(-1);
-    MapManager::sInstance->fn_80491528(&fn_804225E0, &mLight);
+    MapManager::instance_->fn_80491528(&fn_804225E0, &mLight);
     switch (mDesc->m20) {
     case 0:
         mTarget = lbl_8087F8A0->mHead;
@@ -111,7 +111,7 @@ void CharaLight::vf10() {
     if (m54 == 0) {
         Start();
     }
-    MapManager::sInstance->fn_80491528(&fn_804225E0, &mLight);
+    MapManager::instance_->fn_80491528(&fn_804225E0, &mLight);
     m150 += 0.08726646f;
     m150 = atn::WrapAngle_unk(m150);
     if (m54 == 1) {

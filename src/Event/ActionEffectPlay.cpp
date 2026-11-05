@@ -47,8 +47,6 @@ struct Locator_unk {
     unsigned int mHidden : 1; // 0x88
     unsigned int m88_1 : 31;
 };
-struct GameMap_unk;
-extern "C" Locator_unk* fn_804A0614(GameMap_unk* map, const std::string& name); 
 namespace atn {
 
 struct Camera;
@@ -1643,7 +1641,7 @@ int ActionCameraChange::vf0C(Action* arg, int phase) {
 }
 
 void ActionColorMatrix::fn_80561B50(MapArea* model, void* arg) {
-    ColorMatrixParam_unk* dst = model->mColorMatrix.mSet != 0 ? &model->mColorMatrix.mValue : &lbl_8087EFA8->m324;
+    ColorMatrixParam_unk* dst = model->mScene.mColorMatrix.mSet != 0 ? &model->mScene.mColorMatrix.mValue : &lbl_8087EFA8->m324;
     *dst = *(ColorMatrixParam_unk*)arg;
 }
 
@@ -1705,7 +1703,7 @@ int ActionColorMatrix::vf08(Action* arg) {
     atn::Scene* target = atn::RenderManager::instance_->fn_800C16B4();
     ColorMatrixParam_unk* out = target->mColorMatrix.mSet != 0 ? &target->mColorMatrix.mValue : &lbl_8087EFA8->m324;
     *out = dst;
-    MapManager::sInstance->fn_80491528(boost::bind(&ActionColorMatrix::fn_80561B50, this, _1, _2), &dst);
+    MapManager::instance_->fn_80491528(boost::bind(&ActionColorMatrix::fn_80561B50, this, _1, _2), &dst);
     return 0;
 }
 
@@ -1747,11 +1745,11 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
     switch (phase) {
     case 0: {
         EventManager_unk* manager = arg->fn_805381C8();
-        GameMap_unk* map = lbl_8087F540->fn_80480438();
+        MapTask* map = lbl_8087F540->fn_80480438();
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {
-                Locator_unk* locator = fn_804A0614(map, entry->m08);
+                Locator_unk* locator = (Locator_unk*)map->fn_804A0614(entry->m08);
                 if (locator != 0) {
                     locator->mHidden = 1;
                 }
@@ -1762,11 +1760,11 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
     case 3:
     case 4: {
         EventManager_unk* manager = arg->fn_805381C8();
-        GameMap_unk* map = lbl_8087F540->fn_80480438();
+        MapTask* map = lbl_8087F540->fn_80480438();
         for (int i = 0; i < 12; i++) {
             AudioEntry_unk* entry = FindAudio_unk(manager, arg->GetParamAt_unk(i)->m04.i);
             if (entry != 0) {
-                Locator_unk* locator = fn_804A0614(map, entry->m08);
+                Locator_unk* locator = (Locator_unk*)map->fn_804A0614(entry->m08);
                 if (locator != 0) {
                     locator->mHidden = 0;
                 }
@@ -1779,14 +1777,14 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
 }
 
 void ActionMapReflect::fn_805628B8(MapArea* model, const void* arg) {
-    model->mReflectChara = ((Action*)arg)->GetParam_unk(0)->m04.i;
+    model->mScene.mReflectChara = ((Action*)arg)->GetParam_unk(0)->m04.i;
 }
 
 int ActionMapReflect::vf0C(Action* arg, int phase) {
     if (phase == 0) {
         atn::Scene* target = atn::RenderManager::instance_->fn_800C16B4();
         target->mReflectChara = arg->GetParam_unk(0)->m04.i;
-        MapManager::sInstance->fn_80491528(boost::bind(&ActionMapReflect::fn_805628B8, this, _1, _2), arg);
+        MapManager::instance_->fn_80491528(boost::bind(&ActionMapReflect::fn_805628B8, this, _1, _2), arg);
     }
     return 0;
 }

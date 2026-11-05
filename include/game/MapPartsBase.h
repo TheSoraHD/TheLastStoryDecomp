@@ -16,7 +16,7 @@ struct MapPartsTree_unk;
 
 class MapPartsBase : public atn::Task {
 public:
-    MapPartsBase(atn::Task* parent, void* arg); // 0x804963A4
+    MapPartsBase(atn::Task* parent, int type); // 0x804963A4
     virtual ~MapPartsBase() {}
     virtual void vf1C(void* menu); // 0x8049641C: inferred: adds debug menu entries
     virtual bool vf20(const atn::Vector3& pos);  // 0x8049639C
@@ -32,7 +32,8 @@ public:
     virtual void vf2C(unsigned int hash, int draw); // 0x80496394
     virtual int vf30();  // 0x8049638C
 
-    void* m48;
+    int mType;           // 0x48: inferred: type of the part (MapPartsFactory: 0 model, 2 colli tree, 3 efp,
+                         // 4 locators, 5 gimmick loc, 6 area file, 7 lens flare; the ocean is 0)
     MapPartsBase* mNext; // 0x4C: inferred from the list append at 0x804963F8
 };
 

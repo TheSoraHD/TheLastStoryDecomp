@@ -3,6 +3,7 @@
 #include "atn/Material_unk.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -30,13 +31,9 @@ struct PassPart_unk {
     int mNumObjects;            // 0x344
     PassObject_unk** mObjects;  // 0x348
 };
-struct PassGroup_unk {
-    unsigned char m00[0x70];
-    PassPart_unk* mParts; // 0x70
-};
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" PassGroup_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: sound of the board (the name is its own object, pointed to from .sdata2)
 static const char sSeName_unk[] = "SE_DG040_008";
@@ -101,7 +98,7 @@ int PassBoard::vf0C() {
     char* name;
     Pair_unk* pair;
     PassBoardNames_unk* names;
-    PassGroup_unk* group;
+    MapTask* group;
     PassPart_unk* part;
     int i;
     int j;
@@ -110,7 +107,7 @@ int PassBoard::vf0C() {
             names = &lbl_80753960[m4C - 1];
             group = fn_80373148(lbl_8087F430);
             if (group != 0) {
-                for (part = group->mParts; part != 0; part = part->mNext) {
+                for (part = (PassPart_unk*)group->mParts; part != 0; part = part->mNext) {
                     if (part->mType == 4) {
                         count = names->mCount;
                         name = names->mNames[0];

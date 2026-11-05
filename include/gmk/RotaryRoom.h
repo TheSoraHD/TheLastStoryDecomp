@@ -5,7 +5,7 @@
 #include "atn/ColliBase.h"
 #include "game/GimmickCommon.h"
 
-struct RotaryGroup_unk;
+class MapTask;
 
 namespace gmk {
 
@@ -55,7 +55,7 @@ public:
     void fn_80425498(); // not decompiled yet
     void fn_80425878(int on); // inferred: switches the parts of type 5
 
-    RotaryGroup_unk* mGroup;  // 0xF4
+    MapTask* mGroup;  // 0xF4
     atn::Vector3 mRot;        // 0xF8
     atn::Vector3 mRotOffset;  // 0x104
     int mFrames;              // 0x110: "rotOffsetFrame_"

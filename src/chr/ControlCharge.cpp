@@ -13,6 +13,7 @@
 #include "macros.h"
 #include <boost/bind.hpp>
 #include "game/Input_unk.h"
+#include "game/MapTask.h"
 
 // inferred: game settings (as in chr/ControlCdnStone.cpp)
 struct Settings_unk {
@@ -66,12 +67,6 @@ struct TacView_unk {
     TacCursor_unk m15D8;
 };
 extern "C" TacView_unk* lbl_8087F9F8;
-// inferred: field state (lbl_8087F430), only the members read here
-struct FieldMode_unk {
-    unsigned char m00[0x4C];
-    int m4C;
-    int m50;
-};
 struct Field_unk {
     unsigned char m0000[0x10D8];
     void* m10D8; // inferred: collision of the walls
@@ -79,7 +74,7 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
 extern "C" int fn_8036DAA8(Field_unk* field);
-extern "C" FieldMode_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7); // inferred: sweep test
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -554,7 +549,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
     if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
         arena = true;
     }
-    if (arena && fn_80373148(lbl_8087F430)->m4C == 1 && fn_80373148(lbl_8087F430)->m50 == 5) {
+    if (arena && fn_80373148(lbl_8087F430)->mId == 1 && fn_80373148(lbl_8087F430)->mSubId == 5) {
         CollResult_unk floor;
         atn::Vector3 top(target);
         atn::Vector3 bottom(target);

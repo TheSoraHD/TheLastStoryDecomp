@@ -1,16 +1,16 @@
 #include "game/MapManager.h"
+#include "game/MapPartsArea.h"
+#include "game/MapTask.h"
 #include "atn/Memory.h"
 #include "game/AreaEffConfig.h"
 #include "atn/RenderManager.h"
 
 
 
-// inferred: the atn::Scene part of a model (null-checked cast, 0x80491504)
-inline atn::Scene* ToScene_unk(MapArea* model) {
-    return model != 0 ? (atn::Scene*)((char*)model + 0x4C) : 0;
+// inferred: the scene of an area (null-checked, 0x80491504)
+inline atn::Scene* ToScene_unk(MapArea* area) {
+    return area != 0 ? &area->mScene : 0;
 }
-
-extern "C" MapArea* fn_804962B0(MapGroup_unk* group, const atn::Sphere* sphere); // inferred: model hit by the sphere
 
 extern "C" int fn_800709F4(void* bound, const atn::Sphere* sphere); // inferred: intersection test
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -18,7 +18,7 @@ extern "C" int lbl_8087F610; // inferred: debug flag
 // inferred: field data (lbl_8087F430) and its current map part
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapPart_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field); // inferred: GameTask::GetCurrentMap (RSO)
 
 // inferred: weak copy at 0x8049103C (takes the function by value, so it is never inlined)
 inline void atn::RenderManager::SetMapHit_unk(MapHitFunc_unk func, void* arg) {
@@ -44,22 +44,22 @@ inline void Erase_unk(atn::FixedArray_unk<T, N>& a, unsigned int i) {
 }
 
 
-MapManager* MapManager::sInstance;
+MapManager* MapManager::instance_;
 
-MapManager* MapManager::fn_80490EB8(atn::Task* parent) {
-    if (parent != 0 && sInstance == 0) {
-        sInstance = new ((MemoryTag)12, "", "", 0) MapManager(parent);
+MapManager* MapManager::SetTask(atn::Task* parent) {
+    if (parent != 0 && instance_ == 0) {
+        instance_ = new ((MemoryTag)12, "", "", 0) MapManager(parent);
     }
-    return sInstance;
+    return instance_;
 }
 
-// inferred: not inline; inlined into fn_80490EB8
+// inferred: not inline; inlined into SetTask
 MapManager::MapManager(atn::Task* parent) : atn::Task(parent), mType(0) {
     atn::RenderManager::instance_->SetMapHit_unk(&fn_804914BC, this);
 }
 
 MapManager::~MapManager() {
-    sInstance = 0;
+    instance_ = 0;
     atn::RenderManager::instance_->SetMapHit_unk(MapHitFunc_unk(), 0);
 }
 
@@ -67,22 +67,22 @@ int MapManager::vf0C() {
     return fn_800D3FA4();
 }
 
-// inferred: adds a map part
-void MapManager::fn_80491418(MapPart_unk* part) {
-    mParts.push_back(part);
+// inferred: adds a map
+void MapManager::fn_80491418(MapTask* map) {
+    mMaps.push_back(map);
 }
 
-// inferred: removes a map part
-void MapManager::fn_80491440(MapPart_unk* part) {
-    MapPart_unk** end = &mParts.mData[mParts.mSize];
-    MapPart_unk** it = mParts.mData;
-    while (it != end && *it != part) {
+// inferred: removes a map
+void MapManager::fn_80491440(MapTask* map) {
+    MapTask** end = &mMaps.mData[mMaps.mSize];
+    MapTask** it = mMaps.mData;
+    while (it != end && *it != map) {
         it++;
     }
     if (it == end) {
         return;
     }
-    Erase_unk(mParts, it - mParts.mData);
+    Erase_unk(mMaps, it - mMaps.mData);
 }
 
 // inferred: the camera callback (the argument is the manager)
@@ -90,120 +90,120 @@ static atn::Scene* fn_804914BC(atn::Sphere sphere, void* manager) {
     return ToScene_unk(((MapManager*)manager)->Find_unk(sphere));
 }
 
-// inferred: calls `func` on the models of the parts and of the groups
+// inferred: calls `func` on the areas of the maps and on the areas without a map
 void MapManager::fn_80491528(MapModelFunc_unk func, void* arg) {
     MapArea** model;
-    for (MapPart_unk** it = mParts.mData; it != &mParts.mData[mParts.mSize]; it++) {
-        MapPart_unk* part = *it;
-        if (mType == 0 && part->mType == 6) {
+    for (MapTask** it = mMaps.mData; it != &mMaps.mData[mMaps.mSize]; it++) {
+        MapTask* map = *it;
+        if (mType == 0 && map->mType == 6) {
             continue;
         }
-        if (mType != 0 && mType != part->mType) {
+        if (mType != 0 && mType != map->mType) {
             continue;
         }
-        if (part->mF8 != 0) {
+        if (map->mF8 != 0) {
             continue;
         }
-        if (lbl_8087F610 != 0 && part->mType == 0) {
+        if (lbl_8087F610 != 0 && map->mType == 0) {
             continue;
         }
-        MapGroup_unk* group = part->GetGroup_unk();
-        if (group != 0) {
-            for (model = group->mModels.begin(); model != group->mModels.end(); model++) {
+        MapPartsArea* area = map->GetArea_unk();
+        if (area != 0) {
+            for (model = area->mAreas.begin(); model != area->mAreas.end(); model++) {
                 func(*model, arg);
             }
         }
     }
-    for (unsigned int i = 0; i < mGroups.size(); i++) {
-        MapGroup_unk* group = mGroups[i];
-        if (group != 0) {
-            for (model = group->mModels.begin(); model != group->mModels.end(); model++) {
+    for (unsigned int i = 0; i < mAreas.size(); i++) {
+        MapPartsArea* area = mAreas[i];
+        if (area != 0) {
+            for (model = area->mAreas.begin(); model != area->mAreas.end(); model++) {
                 func(*model, arg);
             }
         }
     }
 }
 
-// inferred: model hit by a sphere
-// NONMATCHING: 97.6% - register allocation of the loops, and the original reloads m108 of the
-// field part inside GetGroup_unk
-MapArea* MapManager::fn_804918A4(atn::Sphere sphere) {
+// inferred: area hit by a sphere (FindArea in the RSO)
+// NONMATCHING: 97.6% - register allocation of the loops, and the original reloads mAreaIndex of the
+// current map inside GetArea_unk
+MapArea* MapManager::FindArea(atn::Sphere sphere) {
     if (mType != 0) {
-        MapPart_unk** end = &mParts.mData[mParts.mSize];
-        for (MapPart_unk** it = mParts.mData; it != end; it++) {
-            MapPart_unk* part = *it;
-            if (mType == part->mType) {
-                MapGroup_unk* group = part->GetGroup_unk();
-                if (group != 0) {
-                    return group->mModels[0];
+        MapTask** end = &mMaps.mData[mMaps.mSize];
+        for (MapTask** it = mMaps.mData; it != end; it++) {
+            MapTask* map = *it;
+            if (mType == map->mType) {
+                MapPartsArea* area = map->GetArea_unk();
+                if (area != 0) {
+                    return area->mAreas[0];
                 }
             }
         }
     } else {
-        for (MapPart_unk** it = mParts.mData; it != &mParts.mData[mParts.mSize]; it++) {
-            MapPart_unk* part = *it;
-            if (part->mType == 6) {
+        for (MapTask** it = mMaps.mData; it != &mMaps.mData[mMaps.mSize]; it++) {
+            MapTask* map = *it;
+            if (map->mType == 6) {
                 continue;
             }
-            if (part->mF8 != 0) {
+            if (map->mF8 != 0) {
                 continue;
             }
-            if (lbl_8087F610 != 0 && part->mType == 0) {
+            if (lbl_8087F610 != 0 && map->mType == 0) {
                 continue;
             }
-            if (fn_800709F4(part->mBound, &sphere) == 0) {
+            if (fn_800709F4(&map->mBox, &sphere) == 0) {
                 continue;
             }
-            MapGroup_unk* group = part->GetGroup_unk();
-            if (group != 0) {
-                MapArea* model = fn_804962B0(group, &sphere);
+            MapPartsArea* area = map->GetArea_unk();
+            if (area != 0) {
+                MapArea* model = area->fn_804962B0(&sphere);
                 if (model != 0) {
                     return model;
                 }
             }
         }
         if (lbl_8087F430 != 0) {
-            MapPart_unk* part = fn_80373148(lbl_8087F430);
-            if (part != 0 && part->m108 != 0) {
-                MapGroup_unk* group = part->GetGroup_unk();
-                if (group != 0 && group->mModels.size() != 0 && part->mF8 == 0) {
-                    return group->mModels[0];
+            MapTask* map = fn_80373148(lbl_8087F430);
+            if (map != 0 && map->mAreaIndex != 0) {
+                MapPartsArea* area = map->GetArea_unk();
+                if (area != 0 && area->mAreas.size() != 0 && map->mF8 == 0) {
+                    return area->mAreas[0];
                 }
-                MapPart_unk** end = &mParts.mData[mParts.mSize];
-                for (MapPart_unk** it = mParts.mData; it != end; it++) {
-                    MapPart_unk* p = *it;
-                    if (p->mType == 6) {
+                MapTask** end = &mMaps.mData[mMaps.mSize];
+                for (MapTask** it = mMaps.mData; it != end; it++) {
+                    MapTask* m = *it;
+                    if (m->mType == 6) {
                         continue;
                     }
-                    if (p->mF8 != 0) {
+                    if (m->mF8 != 0) {
                         continue;
                     }
-                    MapGroup_unk* g = p->GetGroup_unk();
-                    if (g != 0 && g->mModels.size() != 0) {
-                        return g->mModels[0];
+                    MapPartsArea* a = m->GetArea_unk();
+                    if (a != 0 && a->mAreas.size() != 0) {
+                        return a->mAreas[0];
                     }
                 }
             }
         }
     }
-    for (unsigned int i = 0; i < mGroups.size(); i++) {
-        MapGroup_unk* group = mGroups[i];
-        if (group != 0) {
-            MapArea* model = fn_804962B0(group, &sphere);
+    for (unsigned int i = 0; i < mAreas.size(); i++) {
+        MapPartsArea* area = mAreas[i];
+        if (area != 0) {
+            MapArea* model = area->fn_804962B0(&sphere);
             if (model != 0) {
                 return model;
             }
         }
     }
     float radiusSq = sphere.mRadius * sphere.mRadius;
-    for (unsigned int i = 0; i < mGroups.size(); i++) {
-        MapGroup_unk* group = mGroups[i];
-        if (group != 0) {
-            for (MapArea** model = group->mModels.begin(); model != group->mModels.end(); model++) {
-                for (unsigned int j = 0; j < (*model)->mSegmentNum; j++) {
-                    MapSegment_unk* seg = &(*model)->mSegments[j];
-                    float d0 = DistSq_unk(seg->mStart, sphere.mCenter);
-                    float d1 = DistSq_unk(seg->mEnd, sphere.mCenter);
+    for (unsigned int i = 0; i < mAreas.size(); i++) {
+        MapPartsArea* area = mAreas[i];
+        if (area != 0) {
+            for (MapArea** model = area->mAreas.begin(); model != area->mAreas.end(); model++) {
+                for (unsigned int j = 0; j < (*model)->mSegments.size(); j++) {
+                    atn::AABB_unk* seg = &(*model)->mSegments[j];
+                    float d0 = DistSq_unk(seg->mMin, sphere.mCenter);
+                    float d1 = DistSq_unk(seg->mMax, sphere.mCenter);
                     if (d0 < radiusSq && d1 < radiusSq) {
                         return *model;
                     }
@@ -218,9 +218,9 @@ MapArea* MapManager::fn_804918A4(atn::Sphere sphere) {
 // NONMATCHING: 71% - scheduling: the original loads the sphere before saving r31 (the implicit copy
 // of the sphere gives 78%, but the callback 0x804914BC needs the copy with z first)
 MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
-    MapArea* model = fn_804918A4(sphere);
-    if (model != 0 && model->mMaterial != 0) {
-        return *(const MapColor_unk*)((AreaEffConfig*)model->mMaterial)->fn_80043014(2, 0);
+    MapArea* model = FindArea(sphere);
+    if (model != 0 && model->mEffConfig != 0) {
+        return *(const MapColor_unk*)model->mEffConfig->fn_80043014(2, 0);
     }
     return MapColor_unk(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -228,9 +228,9 @@ MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
 // inferred: color 3 of the material of the model hit by a sphere
 // NONMATCHING: 71% - as fn_80491D50
 MapColor_unk MapManager::fn_80491DF8(atn::Sphere sphere) {
-    MapArea* model = fn_804918A4(sphere);
-    if (model != 0 && model->mMaterial != 0) {
-        return *(const MapColor_unk*)((AreaEffConfig*)model->mMaterial)->fn_80043014(3, 0);
+    MapArea* model = FindArea(sphere);
+    if (model != 0 && model->mEffConfig != 0) {
+        return *(const MapColor_unk*)model->mEffConfig->fn_80043014(3, 0);
     }
     return MapColor_unk(0.0f, 0.0f, 0.0f, 0.0f);
 }

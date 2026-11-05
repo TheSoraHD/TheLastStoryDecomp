@@ -23,15 +23,15 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int a
 extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int arg);
 extern "C" void fn_80232B7C(void* owner, int arg);
 
-MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab* csv) {
+MapPartsEfp* MapPartsEfp::fn_804965EC(atn::Task* parent, int type, atn::CsvTab* csv) {
     if (parent != 0) {
-        return new ((MemoryTag)12, "", "", 0) MapPartsEfp(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsEfp(parent, type, csv);
     }
     return 0;
 }
 
-MapPartsEfp::MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv)
-    : MapPartsBase(parent, arg), m5C(0), mMode(0), mRate(0), mDone(0) {
+MapPartsEfp::MapPartsEfp(atn::Task* parent, int type, atn::CsvTab* csv)
+    : MapPartsBase(parent, type), m5C(0), mMode(0), mRate(0), mDone(0) {
     mEfp.LoadRequest(csv->fn_8005B9CC());
     const char* mode = csv->fn_8005B9CC();
     if (strcmp(mode, "ONCE") == 0) {

@@ -1,4 +1,6 @@
 #include "game/MapPartsLocatorSet.h"
+#include "game/MapArea.h"
+#include "game/MapPartsArea.h"
 #include "atn/Loader_unk.h"
 #include "atn/Memory.h"
 #include "game/GimmickCommon.h"
@@ -17,21 +19,11 @@ extern "C" std::string fn_8006B174(const std::string& path); // inferred: file n
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
 std::string fn_8006B0C8(const std::string& path);            // inferred: directory of a path
 extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
-extern "C" void* fn_804962B0(void* tree, const atn::Sphere* sphere); // inferred: light of a place
 
 extern "C" void PSMTXMultVecArray(const Mtx m, const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTXMultVecArray
 
-namespace atn {
-// inferred: axis aligned box (see atn/Geometry_unk.cpp)
-struct AABB_unk {
-    AABB_unk() {}
-    AABB_unk(const Vector3& min, const Vector3& max) : mMin(min), mMax(max) {}
-    AABB_unk Merge_unk(const AABB_unk& o) const; // 0x80070C98: union of both boxes
-    Vector3 mMin;
-    Vector3 mMax;
-};
-} // namespace atn
+#include "atn/AABB_unk.h"
 
 // inferred: resource data of an instance (bounding box at 0x10)
 struct LocatorInstRes_unk {
@@ -103,17 +95,16 @@ struct BuildingFile_unk {
     char* mLocators;      // 0x28
 };
 
-// inferred: creator (declared extern "C" by game/MapPartsFactory.cpp)
-extern "C" MapPartsBase* fn_8049A018(atn::Task* parent, void* arg, atn::CsvTab* csv) {
+MapPartsLocatorSet* MapPartsLocatorSet::SetTask(atn::Task* parent, int type, atn::CsvTab& csv) {
     if (parent != 0) {
-        return new ((MemoryTag)12, "", "", 0) MapPartsLocatorSet(parent, arg, csv);
+        return new ((MemoryTag)12, "", "", 0) MapPartsLocatorSet(parent, type, &csv);
     }
     return 0;
 }
 
 // NONMATCHING: 99.91% - r27/r28 (length and string) swapped in the second merged-model block
-MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, void* arg, atn::CsvTab* csv)
-    : MapPartsBase(parent, arg), mHideY(0.0f), mTexName(""), mFlags(9), mModel(9), mLoaded(0), mLinked(0),
+MapPartsLocatorSet::MapPartsLocatorSet(atn::Task* parent, int type, atn::CsvTab* csv)
+    : MapPartsBase(parent, type), mHideY(0.0f), mTexName(""), mFlags(9), mModel(9), mLoaded(0), mLinked(0),
       mHide(0), mDraw(1), mHasModel(0), mHasMerged(0) {
     const char* path = csv->fn_8005B9CC();
     mLoader.vf0C(path);
@@ -342,15 +333,15 @@ void MapPartsLocatorSet::fn_8049B780(atn::Scene* scene) {
     }
 }
 
-void MapPartsLocatorSet::fn_8049B7CC(void* tree) {
+void MapPartsLocatorSet::fn_8049B7CC(MapPartsArea* areas) {
     for (unsigned int i = 0; i < (unsigned int)mInstances.mSize; i++) {
         const atn::Sphere& bound = mInstances.mData[i]->mInst.mBound;
         atn::Sphere sphere;
         sphere.mCenter = bound.mCenter;
         sphere.mRadius = bound.mRadius;
-        void* light = fn_804962B0(tree, &sphere);
-        if (light != 0) {
-            mInstances.mData[i]->mInst.m64 = (char*)light + 0x4C;
+        MapArea* area = areas->fn_804962B0(&sphere);
+        if (area != 0) {
+            mInstances.mData[i]->mInst.m64 = &area->mScene;
         } else {
             mInstances.mData[i]->mInst.m64 = atn::RenderManager::instance_->fn_800C16B4();
         }

@@ -8,6 +8,7 @@
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
 #include "atn/RenderManager.h"
+#include "game/MapTask.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -31,11 +32,7 @@ extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 // inferred: field (lbl_8087F430); class unknown
 struct WaitField_unk;
 extern "C" WaitField_unk* lbl_8087F430;
-struct WaitMapGroup_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: kind (1: the object is only updated near the camera)
-};
-extern "C" WaitMapGroup_unk* fn_80373148(WaitField_unk* field);
+extern "C" MapTask* fn_80373148(WaitField_unk* field);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -194,7 +191,7 @@ void WaitObject::vf10() {
     }
     atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
     float dist = PSVECSquareMag(&d);
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m48 == 1 &&
+    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mType == 1 &&
         dist > 360000.0f) {
         return;
     }

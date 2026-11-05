@@ -4,7 +4,7 @@
 #include "game/GimmickCommon.h"
 #include "atn/Array_unk.h"
 
-struct ArenaGroup_unk;
+class MapTask;
 
 namespace gmk {
 
@@ -37,7 +37,7 @@ public:
     void fn_8041E480(float t); // inferred: places the entries; not decompiled yet
     void fn_8041E7E4(int on);  // inferred: switches the parts of type 5
 
-    ArenaGroup_unk* mGroup; // 0xF4
+    MapTask* mGroup; // 0xF4
     atn::Vector3 mOffset;   // 0xF8
     float mTime;            // 0x104
     float mValue;           // 0x108

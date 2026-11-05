@@ -7,14 +7,14 @@
 
 class MapPartsEfp : public MapPartsBase {
 public:
-    MapPartsEfp(atn::Task* parent, void* arg, atn::CsvTab* csv); // 0x80496670
+    MapPartsEfp(atn::Task* parent, int type, atn::CsvTab* csv); // 0x80496670
     virtual ~MapPartsEfp();
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
 
     // inferred: factory used by the map parts loader
-    static MapPartsEfp* fn_804965EC(atn::Task* parent, void* arg, atn::CsvTab* csv);
+    static MapPartsEfp* fn_804965EC(atn::Task* parent, int type, atn::CsvTab* csv);
 
     atn::EfpFile mEfp; // 0x50
     int m5C;

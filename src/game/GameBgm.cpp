@@ -4,6 +4,7 @@
 #include "atn/SoundCore.h"
 #include "game/GameSoundControl.h"
 #include "atn/Memory.h"
+#include "game/MapTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 
@@ -24,12 +25,6 @@ struct GameBgmSettings_unk {
     int m15C; // inferred: alternative BGM set
 };
 extern "C" GameBgmSettings_unk* lbl_8087F0A8;
-// inferred: map information returned by fn_80373148
-struct GameBgmMapInfo_unk {
-    unsigned char m00[0x48];
-    int m48;
-    int m4C;
-};
 struct GameBgmTable_unk {
     unsigned char m00[0x140];
     int m140;
@@ -42,7 +37,7 @@ struct GameBgmField_unk {
     GameBgmTable_unk* m10D8;
 };
 extern "C" GameBgmField_unk* lbl_8087F430;
-extern "C" GameBgmMapInfo_unk* fn_80373148(GameBgmField_unk* field);
+extern "C" MapTask* fn_80373148(GameBgmField_unk* field);
 extern "C" int fn_80370174(GameBgmField_unk* field, int id);           // inferred: reads a field value
 extern "C" void fn_80370320(GameBgmField_unk* field, int id, int value, int arg); // inferred: writes it
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
@@ -100,7 +95,7 @@ static const char* fn_8037C71C(int id) {
             name = fn_80207EE8(0x193);
         }
         if (progress >= 600000) {
-            if (fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m48 == 1) {
+            if (fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mType == 1) {
                 if (id == 0x191 || id == 0x1F5) {
                     name = fn_80207EE8(0x194);
                 }
@@ -438,8 +433,8 @@ void GameBgm::fn_8037D684(int a, int b) {
         return;
     }
     if (m84 == 0 && mReq.mId > 0) {
-        GameBgmMapInfo_unk* info = fn_80373148(lbl_8087F430);
-        if ((a != info->m48 || b != info->m4C) && m84 == 0 && (mReq.mId == 0x191 || mReq.mId == 0x1F5)) {
+        MapTask* info = fn_80373148(lbl_8087F430);
+        if ((a != info->mType || b != info->mId) && m84 == 0 && (mReq.mId == 0x191 || mReq.mId == 0x1F5)) {
             fn_8037D4C0(0, 45, 1, 0, 1.0f);
         }
     }

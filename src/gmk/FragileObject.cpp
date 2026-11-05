@@ -7,6 +7,7 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -57,15 +58,9 @@ extern "C" void fn_800FAB80(BulletMgr_unk* mgr, int arg1, HitInfo_unk* bullet, i
                             float arg11);
 // inferred: map id test of the "IF" blocks (see game/GimmickStateCommand.cpp)
 extern "C" bool fn_80216AFC(const char* id, int* type, int* map, int* point);
-struct MapInfo_unk {
-    unsigned char m00[0x48];
-    int m48;
-    int m4C;
-    int m50;
-};
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 // debug menu (see gmk/Cannon.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -493,8 +488,8 @@ void FragileObject::vf24() {
             int point;
             if (fn_80216AFC(csv.fn_8005B9CC(), &type, &map, &point) && lbl_8087F430 != 0 &&
                 fn_80373148(lbl_8087F430) != 0) {
-                MapInfo_unk* info = fn_80373148(lbl_8087F430);
-                if (type != info->m48 || map != info->m4C || point != info->m50) {
+                MapTask* info = fn_80373148(lbl_8087F430);
+                if (type != info->mType || map != info->mId || point != info->mSubId) {
                     while (csv.fn_8005BBF8() != 0) {
                         const char* s = csv.fn_8005B9CC();
                         if (*s == ';') {

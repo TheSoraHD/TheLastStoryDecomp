@@ -37,7 +37,8 @@ extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
 extern "C" int fn_80049B2C(void* engine, unsigned int id);
 extern "C" void* lbl_8087F430;
-extern "C" void* fn_80373148(void* field);
+class MapTask;
+extern "C" MapTask* fn_80373148(void* field); // inferred: GameTask::GetCurrentMap (RSO)
 struct SongBattle_unk {
     unsigned char m00[0x70];
     int m70;

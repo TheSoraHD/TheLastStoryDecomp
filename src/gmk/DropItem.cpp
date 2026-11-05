@@ -10,6 +10,7 @@
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
 #include "atn/RenderManager.h"
+#include "game/MapTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -26,11 +27,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 
-// inferred: field (lbl_8087F430) and its map information
-struct DropMapInfo_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: map type
-};
 struct DropField_unk {
     unsigned char m0000[0x74];
     atn::Vector3 m74; // inferred: camera target
@@ -40,7 +36,7 @@ struct DropField_unk {
     int m54E4; // inferred: state (8 while an event runs)
 };
 extern "C" DropField_unk* lbl_8087F430;
-extern "C" DropMapInfo_unk* fn_80373148(DropField_unk* field);
+extern "C" MapTask* fn_80373148(DropField_unk* field);
 // inferred: effects
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -278,7 +274,7 @@ void DropItem::vf10() {
         int touch = 0;
         float nearDist = 70.0f;
         float rangeDist = 40.0f;
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m48 == 1) {
+        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mType == 1) {
             rangeDist /= 1.5f;
             nearDist *= 0.5f;
         }

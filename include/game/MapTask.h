@@ -1,55 +1,107 @@
 #ifndef GAME_MAPTASK_H
 #define GAME_MAPTASK_H
 
+#include "atn/AABB_unk.h"
+#include "atn/FixedArray.h"
+#include "atn/LH_Binary.h"
+#include "atn/LH_Xsca.h"
 #include "atn/Task.h"
-#include "atn/LoadHandle.h"
+#include "std/string.h"
 
-// inferred: object of the MapTask list at 0x70 (class unknown)
-struct MapObject_unk {
-    unsigned char m00[0x48];
-    int mType;           // 0x48
-    MapObject_unk* mNext; // 0x4C
-};
+class MapPartsArea;
+class MapPartsBase;
+namespace gs {
+struct CameraBox;
+}
 
-// inferred: group of models of a map task (game/MapManager.h)
-struct MapGroup_unk;
-
-// inferred from __vt__7MapTask (0x80790740); only the members used by TownTask are known
+// Map of the field (vtable 0x80790740, 0x11C bytes): the map parts of a map file (areas, models,
+// locators...), created by SetTask (fn_8049D68C) or fn_8049D704 and registered in MapManager.
+// Real name and accessors from the RSO (GetMapType/GetMapId/GetMapSubId__7MapTaskCFv,
+// SetTask__7MapTaskFPQ23atn4TaskPCc, GetMapNameFromId__7MapTaskFPciii, DWARF
+// atn::static_vector<P12MapPartsArea,8>). Returned by GameTask::GetCurrentMap (fn_80373148).
+// Member names invented unless noted.
 class MapTask : public atn::Task {
 public:
-    MapTask(atn::Task* parent); // 0x8049D974
+    MapTask(atn::Task* parent, int type, int id, int subId); // 0x8049D974
     virtual ~MapTask();         // 0x8049DDD8
     virtual int vf0C();         // 0x8049DEE4
     virtual void vf10();        // 0x8049EBAC
     virtual void vf14();        // 0x8049ED6C
 
-    // inferred: the loader at 0x58 is a concrete atn::LoadHandle subclass (type unknown)
-    atn::LoadHandle* GetLoader_unk() { return (atn::LoadHandle*)m58; }
-    // inferred: names invented
-    bool IsModelIndex_unk(int i) const { return i >= 0 && i < mA0; }
-    MapGroup_unk* GetModel_unk() {
-        if (mC4 != 0 && m108 != m10C) {
-            return mC4;
+    // inferred: name of the map file of an id (0x8049D52C; RSO name)
+    static int GetMapNameFromId(char* name, int type, int id, int subId);
+    // inferred: name of a map (0x8049D5DC, same code with other folders)
+    static int fn_8049D5DC(char* name, int type, int id, int subId);
+    // inferred: creates the map of a file (0x8049D68C; SetTask__7MapTaskFPQ23atn4TaskPCc in the RSO)
+    static MapTask* SetTask(atn::Task* parent, const char* path);
+    // inferred: creates the map of an id (0x8049D704)
+    static MapTask* fn_8049D704(atn::Task* parent, int type, int id, int subId);
+    void fn_804A04AC(int camera, int a, int b, gs::CameraBox* box); // inferred: sets the camera of the map
+    void fn_804A0580(int arg, const atn::Vector3* pos);           // inferred
+    void* fn_804A0614(const std::string& name);                    // inferred: locator of the gimmick parts
+    void fn_804A1C4C(); // inferred: refreshes the map after a load
+    void fn_804A1D2C(); // inferred: stores the state of the map
+
+    // RSO names. Their weak copies 0x803EFD9C, 0x803EFDA4 and 0x803EFDAC (game/GimmickStateCommand.cpp,
+    // called by gmk/Cannonball) are still extern "C" functions there: the one of GetMapType carries
+    // the empty asserts that put fn_803EF780 over the inlining budget (see docs/maparea-20261105.md)
+    int GetMapType() const { return mType; }
+    int GetMapId() const { return mId; }
+    int GetMapSubId() const { return mSubId; }
+    // inferred: weak copies 0x80339F7C and 0x80339F84 (game/EnemyQuarkSecond.cpp); names invented
+    int GetCamera_unk() { return mCamera; }
+    void SetDefaultCamera_unk(int camera) { mDefaultCamera = camera; }
+
+    // inferred: the loader at 0x58 (names invented)
+    atn::LoadHandle* GetLoader_unk() { return &mFile; }
+    bool IsAreaIndex_unk(int i) const { return i >= 0 && i < (int)mAreas.mSize; }
+    // inferred: current area list (the one replacing the current, else the current one)
+    MapPartsArea* GetArea_unk() {
+        if (mNextArea != 0 && mAreaIndex != m10C) {
+            return mNextArea;
         }
-        if (IsModelIndex_unk(m108)) {
-            return mA4[m108];
+        if (IsAreaIndex_unk(mAreaIndex)) {
+            return mAreas.mData[mAreaIndex];
         }
         return 0;
     }
 
-    unsigned char m48[0x58 - 0x48];
-    unsigned char m58[0x70 - 0x58];
-    MapObject_unk* m70; // inferred: first map object
-    unsigned char m74[0xA0 - 0x74];
-    int mA0;                  // inferred: number of loaded models
-    MapGroup_unk* mA4[8];  // inferred: loaded models
-    MapGroup_unk* mC4;     // inferred: model replacing the current one
-    unsigned char mC8[0xF8 - 0xC8];
-    int mF8;
-    unsigned char mFC[0x108 - 0xFC];
-    int m108; // inferred: current model index
+    int mType;                                // 0x48: GetMapType (0: field, 1: town, 6: ...)
+    int mId;                                  // 0x4C: GetMapId
+    int mSubId;                               // 0x50: GetMapSubId
+    void* m54;                                // 0x54: inferred: entry of the map id table (fn_8021771C)
+    atn::LH_Binary mFile;                     // 0x58: inferred: csv of the parts
+    atn::LH_Binary m60;                       // 0x60
+    atn::LH_Xsca m68;                         // 0x68
+    MapPartsBase* mParts;                     // 0x70: inferred: first part (list through MapPartsBase::mNext)
+    int m74;
+    float m78;
+    float m7C;
+    float m80;
+    float m84;
+    atn::AABB_unk mBox;                       // 0x88: inferred: bounds of the parts (drawn by vf14)
+    atn::FixedArray_unk<MapPartsArea*, 8> mAreas; // 0xA0: atn::static_vector<MapPartsArea*, 8> (DWARF)
+    MapPartsArea* mNextArea;                  // 0xC4: inferred: area list replacing the current one
+    int mC8;
+    int mCC;
+    unsigned char mTree[0x10];                // 0xD0: atn::AABBTree (class in src/atn/AABBTree.cpp)
+    int mCamera;                              // 0xE0: inferred: current camera (fn_804A04AC)
+    int mE4;
+    int mDefaultCamera;                       // 0xE8: inferred: default camera
+    int mEC;
+    float mF0;
+    int mF4;                                  // 0xF4: inferred: set by the gimmicks that load a map (OnOff...)
+    int mF8;                                  // 0xF8: inferred: nonzero when hidden (TownTask sets 1)
+    int mFC;
+    int m100;
+    int m104;                                 // 0x104: inferred: light mode (0-3, Event::Manager fn_80482ED8)
+    int mAreaIndex;                           // 0x108: inferred: current area list index
     int m10C;
-    unsigned char m110[0x11C - 0x110];
-};
+    float m110;
+    float m114;
+    int m118;
+// inferred: allocated with 0x120 bytes (fn_8049D704) while TownTask puts its first member at 0x11C (the
+// compiler reuses the tail padding): 8-byte aligned like MapPartsModel (probably through atn::Task)
+} __attribute__((aligned(8)));
 
 #endif

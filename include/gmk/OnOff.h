@@ -7,9 +7,8 @@
 #include "atn/ResLoader_unk.h"
 #include "game/GimmickCommon.h"
 
-// inferred: group of map parts returned by fn_8049D68C (see gmk/ArenaFloor.cpp)
-struct OnOffMap_unk;
 
+class MapTask;
 namespace gmk {
 
 // inferred: switchable object (messages 1 off, 2 on, 3 off with an effect): model "MODEL",
@@ -47,7 +46,7 @@ public:
     atn::EffFile mEff;        // 0x920: "EFF"
     atn::EfpFile mEfp;   // 0x92C: "EFP"
     atn::Matrix3x4 mMtx;       // 0x938: inferred: world matrix while on
-    OnOffMap_unk* mMap;        // 0x968: "MAP"
+    MapTask* mMap;        // 0x968: "MAP"
     int mOn;                   // 0x96C
     int mMotion;               // 0x970: "MOTION" id
     atn::Vector3 mBoxPos;      // 0x974: "COLLI_BOX" 1-3

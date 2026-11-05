@@ -65,6 +65,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
+#include "game/MapTask.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -383,21 +384,7 @@ extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...)
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" int fn_8021BE98(char* name, CharaStatusEntry_unk* entry);  // inferred: name of an entry
 
-// inferred: area at a position (returned by MapManager::fn_804918A4)
-struct MapArea_unk {
-    int m00;
-    char mName[1];
-};
-// inferred: map data returned by fn_80373148 and held by the map manager; m104 is passed to
-// CharaTask::fn_80147A18 (map brightness, fn_80145334)
-struct MapInfo_unk {
-    unsigned char m00[0x48];
-    int m48; // inferred: compared with 2 by CharaTask::fn_80176E30
-    int m4C; // inferred: compared with 13 by CharaTask::fn_80176E30
-    unsigned char m50[0x104 - 0x50];
-    int m104;
-};
-extern "C" MapInfo_unk* fn_80373148(Field_unk* field);
+extern "C" MapTask* fn_80373148(Field_unk* field);
 
 extern "C" void* lbl_8087F540;
 extern "C" int fn_80481654(void* obj);
@@ -4443,12 +4430,12 @@ void CharaTask::fn_80145334() {
             mMotion.fn_8009076C(inv.m);
         }
     }
-    MapInfo_unk* map = 0;
+    MapTask* map = 0;
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
         map = fn_80373148(lbl_8087F430);
     }
-    if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.mSize != 0) {
-        map = (MapInfo_unk*)MapManager::sInstance->mParts.mData[0];
+    if (map == 0 && MapManager::instance_ != 0 && MapManager::instance_->mMaps.mSize != 0) {
+        map = MapManager::instance_->mMaps.mData[0];
     }
     if (mFlagB25 && map != 0) {
         fn_80147A18(map->m104);
@@ -5479,8 +5466,8 @@ void CharaTask::fn_80149A30() {
         if (lbl_8087F0A8->m58 != 0 && dist < 62500.0f && screen.z > 0.0f && screen.z < 1.0f) {
             wchar_t text[256];
             char buf[256];
-            MapManager* map = MapManager::sInstance;
-            MapArea_unk* area = (MapArea_unk*)map->fn_804918A4(mMotion.fn_80094F98());
+            MapManager* map = MapManager::instance_;
+            MapArea* area = map->FindArea(mMotion.fn_80094F98());
             if (area != 0) {
                 sprintf(buf, "Area: %s\0", area->mName);
             } else {
@@ -11153,7 +11140,7 @@ void CharaTask::fn_80176E30() {
         scaleB = scaleA;
     }
     if (m50 == 0x189C1 && lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 &&
-        fn_80373148(lbl_8087F430)->m48 == 2 && fn_80373148(lbl_8087F430)->m4C == 13) {
+        fn_80373148(lbl_8087F430)->mType == 2 && fn_80373148(lbl_8087F430)->mId == 13) {
         scaleA *= 2.0f;
         scaleB *= 1.5f;
     }

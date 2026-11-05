@@ -45,9 +45,9 @@ static float sRate = 0.1f;
 
 // inferred: sets the light of a map part (callback of fn_80491528)
 void fn_8041CD24(MapArea* part, void* light) {
-    part->m074 = (CharaLightData_unk*)light;
-    part->mLightOn = light != 0 || part->mLightOn != 0;
-    part->mLightMask = -1;
+    part->mScene.m074 = (CharaLightData_unk*)light;
+    part->mScene.mLightOn = light != 0 || part->mScene.mLightOn != 0;
+    part->mScene.mLightMask = -1;
 }
 
 // inferred: random value in [0, 1] (name invented)
@@ -80,8 +80,8 @@ Fireworks::Fireworks(atn::Task* parent, int id, int arg)
 
 Fireworks::~Fireworks() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
-    if (MapManager::sInstance != 0) {
-        MapManager::sInstance->fn_80491528(&fn_8041CD24, 0);
+    if (MapManager::instance_ != 0) {
+        MapManager::instance_->fn_80491528(&fn_8041CD24, 0);
     }
 }
 
@@ -96,7 +96,7 @@ int Fireworks::vf0C() {
 void Fireworks::Start() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
     atn::RenderManager::instance_->fn_800C16B4()->SetLightMask_unk(-1);
-    MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
+    MapManager::instance_->fn_80491528(&fn_8041CD24, &mLight);
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);
 }
@@ -108,7 +108,7 @@ void Fireworks::vf10() {
     if (m54 == 0) {
         Start();
     }
-    MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
+    MapManager::instance_->fn_80491528(&fn_8041CD24, &mLight);
     float size = 0.0f;
     for (int i = mFlashes.mCount - 1; i >= 0; i--) {
         if (mFlashes.mData[(unsigned int)i].mDelay > 0) {

@@ -5,6 +5,7 @@
 #include "game/GameSaveLoadBackgroundCommon.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
+#include "game/MapTask.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -39,7 +40,6 @@ extern "C" void fn_800A4D00(SaveLoadMgr_unk* mgr, void* buf, int size, int offse
 extern "C" void fn_800A4E08(SaveLoadMgr_unk* mgr, void* work); // inferred: close
 extern "C" void* lbl_8087F518;
 extern "C" void fn_8046ECDC(void* obj, int arg);
-extern "C" void fn_8049D52C(char* out, int map, int arg1, int arg2); // inferred: map name
 // inferred: text (the float after the color is evaluated after it, see game/GameSaveTask.cpp)
 
 const char* const lbl_80885C78 = "savedata.dat"; // inferred: name of the save file
@@ -264,7 +264,7 @@ void GameSaveLoadCommon::fn_803B8B08(GameSaveSlot_unk* slots) {
         if (slots[i].fn_803BEAB4() == 0) {
             sprintf(text, "%02d  セーブされていません", i);
         } else {
-            fn_8049D52C(map, slots[i].m30, slots[i].m32, slots[i].m31);
+            MapTask::GetMapNameFromId(map, slots[i].m30, slots[i].m32, slots[i].m31);
             sprintf(text, "%02d  %d/%d/%d %d:%d:%d  Map %s", i, slots[i].m1C, slots[i].m18 + 1, slots[i].m14,
                     slots[i].m10, slots[i].m0C, slots[i].m08, map);
         }

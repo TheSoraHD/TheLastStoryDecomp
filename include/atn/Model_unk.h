@@ -333,7 +333,7 @@ struct Model : public ModelBase {
     // inferred: accessors called out of line from CharaTask (names keep the address)
     Node_unk* fn_80147A00();
     typedef atn::Sphere Sphere_unk;
-    Sphere_unk fn_80094F98(); // inferred: bounding sphere (passed to MapManager::fn_804918A4)
+    Sphere_unk fn_80094F98(); // inferred: bounding sphere (passed to MapManager::FindArea)
     AABB_unk fn_80095300();   // inferred: bounding box in world space
     float GetMotionFrame(int track) const; // 0x80139550
     void fn_80139F24(int value);

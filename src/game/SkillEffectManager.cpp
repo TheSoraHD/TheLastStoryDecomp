@@ -783,7 +783,7 @@ void SkillEffectManager::fn_8059D3B0(CharaTask* chara) {
                 bullet->m60 = 0;
                 bullet->m08 = chara;
                 float scale = bullet->fn_80599FB4(0);
-                MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
+                MapColor_unk light = MapManager::instance_->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
                 fn_80239DAC(lbl_8087F3C0, bullet, bullet->m04->m04, 1);
                 fn_80232B7C(0, 0);
                 fn_8023A8B4(lbl_8087F3C0, &m2900, 0, 0, bullet->m10, bullet->m1C, MapColor_unk(1.0f, 1.0f, 1.0f, 1.0f),
@@ -800,7 +800,7 @@ void SkillEffectManager::fn_8059D3B0(CharaTask* chara) {
             bullet->m60 = 0;
             bullet->m08 = chara;
             float scale = bullet->fn_80599FB4(0);
-            MapColor_unk light = MapManager::sInstance->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
+            MapColor_unk light = MapManager::instance_->fn_80491DF8(atn::Sphere(bullet->m10, 10.0f));
             fn_80239DAC(lbl_8087F3C0, bullet, bullet->m04->m04, 1);
             fn_80232B7C(0, 0);
             fn_8023A8B4(lbl_8087F3C0, &m2900, 0, 0, bullet->m10, bullet->m1C, MapColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1,

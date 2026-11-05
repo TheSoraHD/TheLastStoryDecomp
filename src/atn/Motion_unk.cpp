@@ -32,9 +32,10 @@ extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine 
 
 extern "C" void fn_80095CD0(atn::Model* model); // inferred: update
 
-// inferred: map model loaded from a csv list (0x22C bytes; created by fn_8009F788). Names invented.
-struct MapArea {
-    MapArea(const char* path) : m08(0), m0C(0), mModel(9), m228(0) {
+// inferred: map model loaded from a csv list (0x22C bytes; created by fn_8009F788). Names invented
+// (not the MapArea of game/MapArea.h).
+struct MapModelCache_unk {
+    MapModelCache_unk(const char* path) : m08(0), m0C(0), mModel(9), m228(0) {
         std::basic_string<char> name = fn_8006B174(std::basic_string<char>(path));
         mFile.vf0C(name.c_str());
         m224 = fn_800DC6B4(name.c_str());
@@ -49,26 +50,26 @@ struct MapArea {
     int m228;               // inferred: reference count
 };
 
-extern "C" void fn_800A005C(MapArea* model);
-extern "C" int fn_8009FFCC(MapArea* model);
+extern "C" void fn_800A005C(MapModelCache_unk* model);
+extern "C" int fn_8009FFCC(MapModelCache_unk* model);
 
 // inferred: all the map models
-static std::vector<MapArea*>& GetMapModels_unk() {
-    static std::vector<MapArea*> sModels;
+static std::vector<MapModelCache_unk*>& GetMapModels_unk() {
+    static std::vector<MapModelCache_unk*> sModels;
     return sModels;
 }
 
 // NONMATCHING: 99.82% - iterator register of the second loop, pool name of the vector allocation error
-extern "C" MapArea* fn_8009F788(const char* path) {
+extern "C" MapModelCache_unk* fn_8009F788(const char* path) {
     std::basic_string<char> name = fn_8006B174(std::basic_string<char>(path));
     unsigned int hash = fn_800DC6B4(name.c_str());
-    MapArea** it;
+    MapModelCache_unk** it;
     for (it = GetMapModels_unk().begin(); it != GetMapModels_unk().end(); it++) {
         if (*it != 0 && hash == (*it)->m224) {
             return *it;
         }
     }
-    MapArea* model = new ((MemoryTag)6, "", "", 0) MapArea(path);
+    MapModelCache_unk* model = new ((MemoryTag)6, "", "", 0) MapModelCache_unk(path);
     int found = 0;
     for (it = GetMapModels_unk().begin(); it != GetMapModels_unk().end(); it++) {
         if (*it == 0) {
@@ -85,8 +86,8 @@ extern "C" MapArea* fn_8009F788(const char* path) {
 
 // NONMATCHING: 98.95% - the model is reloaded after the delete test in the original
 extern "C" void fn_8009FE24() {
-    for (MapArea** it = GetMapModels_unk().begin(); it != GetMapModels_unk().end(); it++) {
-        MapArea* m = *it;
+    for (MapModelCache_unk** it = GetMapModels_unk().begin(); it != GetMapModels_unk().end(); it++) {
+        MapModelCache_unk* m = *it;
         if (m != 0 && m->m228 == 0) {
             delete m;
             *it = 0;
@@ -98,7 +99,7 @@ extern "C" void fn_8009FE24() {
     }
 }
 
-extern "C" int fn_8009FFCC(MapArea* model) {
+extern "C" int fn_8009FFCC(MapModelCache_unk* model) {
     if (model->m08 == 0) {
         if (model->mFile.fn_80473F50()) {
             return 1;
@@ -117,7 +118,7 @@ extern "C" int fn_8009FFCC(MapArea* model) {
 }
 
 // NONMATCHING: 84.11% - evaluation order of the sprintf arguments and register allocation
-extern "C" void fn_800A005C(MapArea* model) {
+extern "C" void fn_800A005C(MapModelCache_unk* model) {
     atn::CsvTab csv((const char*)model->mFile.fn_80470580(), model->mFile.fn_8047059C());
     csv.fn_8005BCE8(atn::lbl_8087D710);
     std::basic_string<char> folder = fn_8006B0C8(std::basic_string<char>(model->mFile.fn_80473F18()));

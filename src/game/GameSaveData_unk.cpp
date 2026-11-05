@@ -18,12 +18,11 @@
 #include "db/WeaponParam_unk.h"
 #include "db/EquipParam_unk.h"
 #include "db/ItemParam_unk.h"
+#include "game/MapTask.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" unsigned int fn_800DC500(const void* data, unsigned long len); // inferred: checksum
-extern "C" void fn_804A1C4C(GameMap_unk* map); // inferred: refreshes the map after a load
-extern "C" void fn_804A1D2C(GameMap_unk* map); // inferred: stores the state of the map
 extern "C" int lbl_8087DD64;                   // inferred: format of the loaded save data
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
@@ -529,7 +528,7 @@ void GameSaveData_unk::fn_803BDEE4() {
         GameBgm::sInstance->fn_8037D808();
     }
     if (lbl_8087F430 && fn_80373148(lbl_8087F430)) {
-        fn_804A1D2C(fn_80373148(lbl_8087F430));
+        fn_80373148(lbl_8087F430)->fn_804A1D2C();
     }
     if (lbl_8087F418) {
         lbl_8087F418->fn_803608A8();
@@ -627,7 +626,7 @@ void GameSaveData_unk::fn_803BE590() {
 void GameSaveData_unk::fn_803BE670() {
     mFlags.fn_803B9D78();
     if (lbl_8087F430 && fn_80373148(lbl_8087F430)) {
-        fn_804A1C4C(fn_80373148(lbl_8087F430));
+        fn_80373148(lbl_8087F430)->fn_804A1C4C();
     }
 }
 

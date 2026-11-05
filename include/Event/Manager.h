@@ -8,7 +8,7 @@
 #include "atn/Bgm.h"
 #include "std/vector.h"
 #include "game/IntVector_unk.h"
-#include "game/GameMap_unk.h"
+#include "game/MapTask.h"
 #include "std/string.h"
 #include "std/list.h"
 #include "atn/Sphere.h"
@@ -25,7 +25,6 @@
 class GameScene;
 class CharaTask;
 class NewStaffRoll;
-struct GameMap_unk;
 struct ColorMatrixParam_unk;
 namespace atn {
 class Scene;
@@ -49,7 +48,7 @@ struct QueuedSequence_unk {
 // inferred: lists of the manager: classes derived from std::vector (their destructors test the address
 // four times, as IntVector_unk). Names invented.
 struct SequenceList_unk : public std::vector<Sequence*> {};
-struct MapList_unk : public std::vector<GameMap_unk*> {};
+struct MapList_unk : public std::vector<MapTask*> {};
 struct CharaList_unk : public std::vector<CharaTask*> {};
 
 // inferred: fixed ring of N entries (count, entries, first); iterators hold the ring and an index.
@@ -126,7 +125,7 @@ struct SceneSetting_unk {
 // fn_804827D8 blends the scene towards one)
 struct SceneSettingEntry_unk {
     SceneSetting_unk mSetting;
-    int mId; // 0x190: inferred: id of the area (MapPartsAreaInit_unk::m24)
+    int mId; // 0x190: inferred: id of the area (MapArea::mHash)
 };
 
 // inferred: settings of the event at 0x1AB0 of the manager (0x120 bytes). Names invented.
@@ -211,7 +210,7 @@ public:
     void fn_80486DAC(int color); // inferred: "LS" color
     void fn_80486F50();
     void fn_804870F4();
-    void fn_80487064(int mode); // inferred: GameMap_unk::m104 of the current map
+    void fn_80487064(int mode); // inferred: MapTask::m104 of the current map
     // inferred: shows the gradation `index` (color, position and size, rotation, frame)
     void fn_8048F9B0(Cut* cut); // inferred: AutoLightFix of the current cut
     void fn_8048FC7C();         // inferred: undoes the AutoLightFix
@@ -223,7 +222,7 @@ public:
     void fn_80488534(Sequence* seq, int fade); // inferred: stops the music of the sequence
     void fn_8048871C(Sequence* seq, const char* name, int fade, int start); // inferred: starts the music of the sequence
     void fn_80488E00(Sequence* seq); // inferred: collects the voices of the sequence
-    GameMap_unk* fn_80480438(); // inferred: map of the event (its locators)
+    MapTask* fn_80480438(); // inferred: map of the event (its locators)
     int fn_804803A4(); // inferred: the maps and the characters of the event are loaded
     void fn_80480468(Sequence* seq, unsigned int flags); // inferred: map change of the sequence
     void fn_804805F0(Sequence* seq, unsigned int flags); // inferred: loads what the sequence needs
@@ -340,7 +339,7 @@ public:
     int m1D60;
     int m1D64;   // inferred: BGM playing when the settings were saved (fn_80482ED8)
     float m1D68; // inferred: its volume
-    int m1D6C;   // inferred: GameMap_unk::m104 of the current map
+    int m1D6C;   // inferred: MapTask::m104 of the current map
     ColorMatrixParam_unk m1D70; // inferred: color matrix of the event
     MotionBlurParam_unk m1DC0; // inferred: motion blur of the map (Event/ActionCameraMode blends from it)
     int m1DE4;

@@ -99,7 +99,7 @@ void RainDrops::vf20() {
             }
             mEfp[n].LoadRequest(csv.fn_8005B9CC());
         } else if (strcmp(field, "RAINDROPS") == 0) {
-            mRain[n] = MapPartsRain::fn_8049CDBC(this, (void*)8, &csv);
+            mRain[n] = MapPartsRain::fn_8049CDBC(this, 8, &csv);
             mRain[n]->fn_800D246C(1);
             if (mRain[n]->mOn != 0) {
                 mRain[n]->mRain.fn_800B2180();
