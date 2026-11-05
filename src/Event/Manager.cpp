@@ -10,6 +10,13 @@
 #include "game/GameConfig_unk.h"
 #include "Event/Behavior.h"
 #include "db/EventIdTable_unk.h"
+#include "atn/EffectManager.h"
+#include "game/SkillEffectManager.h"
+#include "game/GameVoice.h"
+#include "atn/SoundCore.h"
+#include "atn/SoundManager.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include "atn/RenderSetting_unk.h"
 #include "game/GameField_unk.h"
 #include "Event/Cut.h"
@@ -27,6 +34,10 @@ extern "C" void fn_8054F380();               // inferred: deletes the action pro
 extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen capture fade
 extern "C" void fn_800D2338(atn::Task* task);   // inferred: removes the task
 extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" void* lbl_8087F048;              // inferred: bullet manager
+extern "C" void fn_80370B78(GameField_unk* field, unsigned int color, int frames, int arg, float speed); // inferred: fade of the field
+extern "C" void fn_801011B8(void* bullets); // inferred: removes every bullet
+extern "C" atn::SoundEngine_unk* lbl_8087EE90; // inferred: sound engine
 // inferred: items of the debug menu (atn/MindowsCommon.h)
 extern "C" void fn_80087994(void* folder, const char* name, int* value, void* func, void* arg);
 extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step, void* func,
@@ -337,8 +348,7 @@ inline EventConfig_unk::EventConfig_unk()
       m30(1.0f), m34(0.5f), m38(1.0f), m3C(0.5f), m40(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)),
       m50(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m60(atn::Color(1.0f, 1.0f, 1.0f, 1.0f)), m70(0), m74(0),
       m78(0), m7C(0), m80(0), m84(0), m88(1), m8C(0), m90(0), m94(1), m98(200.0f), m9C(500.0f), mA0(30.0f),
-      mA4(10.0f), mA8(320), mAC(224), mB0(1.5f), mB4(1.5f), mB8(0), mBC(0), mC0(0), mC4(1.0f), mC8(0.0f),
-      mCC(0), mD0(0), mD4(0.02f), mD8(0.02f), mDC(0), mE0(0), mE4(1.0f, 1.0f, 1.0f, 1.0f),
+      mA4(10.0f), mA8(320), mAC(224), mB0(1.5f), mB4(1.5f), mDC(0), mE0(0), mE4(1.0f, 1.0f, 1.0f, 1.0f),
       mF4(0.0f, 0.0f, 0.0f), m100(0), m104(0), m108(1.0f), m10C(0.05f) {}
 
 // NONMATCHING: 91% - float constant registers and the stack slots of the atn::Color temporaries
@@ -350,7 +360,7 @@ Manager::Manager(atn::Task* parent)
       m1DD8(0), m1DDC(0.02f), m1DE0(0.02f), m1E74(0), m1E78(0), m1E88(0.0f),
       m1E8C(0.0f), m1E90(0), m1EA4(0), m1EA8(0), m1EAC(0), m1EB0(0), m1EB4(30.0f), m1F1C(0), m1F34(0),
       m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0), m1F74(0), m1F78(0),
-      m1F7C(0), m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m23B8(0), m23FC(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
+      m1F7C(0), m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
       m2418(1.0f), m2448(0) {
     fn_8054E574();
     fn_8010D98C();
@@ -433,9 +443,7 @@ Manager::Manager(atn::Task* parent)
     }
 }
 
-// NONMATCHING: 96.4% - the vectors at 0x64, 0x1A60, 0x1A70 and 0x1F10 have one more null test of
-// their address in the original (one more base class; adding it to every vector<T*> loses 30
-// functions elsewhere), and registers (original: this in r29, the index in r31)
+// NONMATCHING: 97.6% - registers only (original: this in r29, the index in r31)
 Manager::~Manager() {
     lbl_8087F540 = 0;
     for (int i = 0; i < (int)m23A0.size(); i++) {
@@ -510,13 +518,11 @@ int Manager::fn_8047E5DC(int id) {
 }
 
 int Manager::fn_8047E964(int id, int queue) {
-    // NONMATCHING: 97.6% - the original reads m23B8 again for the index (tried a ring struct with
-    // its own push, unsigned casts, a pointer to the entry)
-    if (queue != 0 && (unsigned int)m23B8 < 8) {
-        QueuedSequence_unk* entry = &m23BC[(m23FC + m23B8) & 7];
-        entry->mId = id;
-        entry->m04 = 0;
-        m23B8++;
+    if (queue != 0 && m23B8.size() < 8) {
+        QueuedSequence_unk& entry = m23B8.Next_unk();
+        entry.mId = id;
+        entry.m04 = 0;
+        m23B8.mCount++;
     } else {
         Sequence* seq = FindSequence_unk(id);
         if (seq == 0) {
@@ -524,6 +530,153 @@ int Manager::fn_8047E964(int id, int queue) {
         }
         seq->fn_8053F6EC();
     }
+    return 1;
+}
+
+// NONMATCHING: 98.8% - the original reloads the ring count in every test of the erase loop
+// inferred: starts the sequence `id` (the cut list and the queue are reset for the in-game kinds 1
+// and 3); names invented
+int Manager::fn_8047EA34(int id, int arg, int arg2) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 0;
+    }
+    if (seq->m50 == 1 || seq->m50 == 3) {
+        if (m70 != 0) {
+            return 0;
+        }
+        mB8.clear();
+        int first = 1;
+        mB8.push_back(first);
+        m70 = seq;
+        m1A38 = 0;
+        m1A3C = 0;
+        m1EA4 = 0;
+        m1EB0 = 0;
+        m1EA8 = 0;
+        if (seq->m50 == 1) {
+            if (lbl_8087F048 != 0) {
+                fn_801011B8(lbl_8087F048);
+            }
+            if (lbl_8087F9E8 != 0) {
+                lbl_8087F9E8->fn_8059C32C(0);
+            }
+            lbl_8087F3C0->fn_8023A60C(0);
+            lbl_8087F3C0->fn_8023A60C(3);
+            lbl_8087F3C0->fn_8023A60C(5);
+        }
+        Sequence* cur = FindSequence_unk(id);
+        if (cur != 0 && cur->m98_14 != 1 && (cur->m50 == 1 || cur->m50 == 3)) {
+            if (lbl_8087F0A8->mPreloadEventMA != 0) {
+                m1F38.mStr[0] = 0;
+                m1F5C = 0;
+                fn_8048871C(cur, 0, 0, 0);
+            }
+            lbl_8087F540->fn_80488E00(cur);
+            Manager* mgr = lbl_8087F540;
+            if (lbl_8087F0A8->mPreloadEventVoice != 0 && lbl_8087EE90 != 0 && lbl_8087EE90->m04 != 0 &&
+                (mgr->m70 == 0 || mgr->m70->m190 != 0x151E)) {
+                if (lbl_8087F498 != 0) {
+                    lbl_8087F498->fn_803EB4A8(0, 0);
+                }
+                mgr->m2378 = -1;
+                if (mgr->m1F74 != 0) {
+                    mgr->fn_80489A50(mgr->m1F78, 1);
+                }
+                mgr->m237C = 1;
+            }
+            cur->m98_14 = 1;
+        }
+        for (int i = 0; i < (int)seq->mB8.size(); i++) {
+            Cut* cut = seq->IsCutIndex_unk(i) ? seq->mB8[i].get() : 0;
+            if (seq->m98_8 == 1) {
+                cut->mSkip = 0;
+            } else if ((int)seq->m144.size() > 0) {
+                if (cut->mSkip != 0) {
+                    cut->mSkip = 2;
+                }
+            } else if ((unsigned int)(cut->mSkip - 1) <= 1) {
+                cut->mSkip = 3;
+            }
+            if ((id == 0x2391 || id == 0x23F3) && cut->mSkip != 0) {
+                cut->mSkip = 0;
+            }
+        }
+        if (m1A90 != 0) {
+            m1A90 = 0;
+        }
+    } else {
+        for (int i = 0; i < 16; i++) {
+            if (m74[i] == 0) {
+                m74[i] = seq;
+                break;
+            }
+        }
+    }
+    seq->fn_80541244(seq->fn_80541198(seq->FindCutByIndex_unk(seq->m94)));
+    seq->m1AC = arg2;
+    seq->fn_8054F9DC();
+    for (Ring_unk<QueuedSequence_unk, 8>::iterator it = m23B8.begin(); it != m23B8.end(); ++it) {
+        if (id == it->mId) {
+            m23B8.erase(it);
+            break;
+        }
+    }
+    return 1;
+}
+
+// inferred: stops the music of the event (inlined twice; name invented)
+inline void Manager::StopMusic_unk(Sequence* seq) {
+    if (m1E78 != 0 || m1F1C != 0) {
+        if (m1F1C & 0x200000) {
+            fn_80488534(seq, 60);
+        } else {
+            fn_80488534(seq, 15);
+        }
+    }
+    m1F20.fn_8004B1EC(60);
+    m1F20.mSound.Reset();
+}
+
+// NONMATCHING: 99.7% - registers of the m74 loop (index and pointer swapped)
+// inferred: stops the sequence `id`
+int Manager::fn_8047EFD8(int id, int arg) {
+    Sequence* seq = FindSequence_unk(id);
+    if (seq == 0) {
+        return 0;
+    }
+    if (seq->m50 == 1 || seq->m50 == 3) {
+        m70 = 0;
+        mB8.clear();
+        if (m70 == 0) {
+            if (arg == 0) {
+                StopMusic_unk(seq);
+            }
+            m2378 = -1;
+            if (lbl_8087F498 != 0) {
+                lbl_8087F498->fn_803EB4A8(0, 1);
+            }
+            m237C = 0;
+            m1F74 = 0;
+            m2378 = -1;
+        }
+    } else {
+        for (int i = 0; i < 16; i++) {
+            if (m74[i] == seq) {
+                m74[i] = 0;
+                break;
+            }
+        }
+    }
+    if (arg != 0) {
+        Sequence* other = FindSequence_unk(seq->m190);
+        if (other != 0 && (other->m50 == 1 || other->m50 == 3)) {
+            m2380 = seq->m190;
+        }
+    }
+    seq->fn_8054FB10(arg);
+    seq->vf10();
+    seq->fn_80540664(arg);
     return 1;
 }
 
@@ -580,6 +733,25 @@ int Manager::fn_8047F510(int id) {
     return seq->m98_8;
 }
 
+// inferred: stops the sequence kept in m2380 (fn_8047EFD8)
+// NONMATCHING: 98.4% - the original loads m2380 again for the search
+__declspec(noinline) int Manager::fn_8047F580() {
+    if (m2380 > 0) {
+        Sequence* seq = FindSequence_unk(m2380);
+        if (seq != 0) {
+            StopMusic_unk(seq);
+            seq->fn_8054FBC8();
+            seq->fn_805406A0();
+            if (seq == m70) {
+                m70 = 0;
+            }
+        }
+        m2380 = 0;
+        return 1;
+    }
+    return 0;
+}
+
 int Manager::fn_8047F6B0(int arg) {
     m1AA4 = arg;
     Step1AA0_unk();
@@ -593,6 +765,36 @@ void Manager::fn_8047F6E4() {
     Step1AA0_unk();
     if (m1AA0 == 3) {
         m1AAC = 0;
+    }
+}
+
+// inferred: steps the screen capture fade (states of m1AA0: 1 capture, 3 start, 4 wait for the end)
+void Manager::fn_8047F730() {
+    atn::FadeCapture* fade = lbl_8087F430 != 0 ? lbl_8087F430->m5624 : m1A9C;
+    if (m1AA0 == 1) {
+        fade->mWait = 0;
+        fade->mDelay = 0;
+        fade->mColor0 = 0xFFFFFFFF;
+        fade->mColor1 = 0xFFFFFF;
+        fade->m78 = 0x12;
+        fade->mDuration = m1AA4;
+        fade->mStep = 1;
+        fade->Capture();
+        m1AA0 = 2;
+    } else if (m1AA0 == 3) {
+        fade->MeltTask();
+        fade->mFrame = 0;
+        fade->mZ = -100.0f;
+        fade->mActive = 1;
+        m1AA0 = 4;
+    } else if (m1AA0 == 4) {
+        float frame = mB4;
+        fade->mStep = (int)(0.2f + frame);
+        if (fade->IsEnd()) {
+            fade->mStep = 1;
+            fade->mActive = 0;
+            m1AA0 = 0;
+        }
     }
 }
 
@@ -644,6 +846,94 @@ void Manager::fn_8047F984(float time) {
     lbl_8087EFA8->m3A4 = time;
 }
 
+
+// inferred: adds a cut change (cut `cut`; `now` applies it at once). Event 0x19D (the ending) with
+// m194 of the game settings set fades the field out instead. Names invented.
+void Manager::fn_8047F994(int cut, int now) {
+    if (cut == 0 && lbl_8087F0A8->m194 != 0 && m70 != 0 && m70->m190 == 0x19D) {
+        fn_80370B78(lbl_8087F430, 0xFFFFFFFF, 0, 0, 0.0f);
+        m70->fn_8053E8C8(11);
+    } else {
+        mB8.push_back(cut);
+        if (now != 0) {
+            fn_8047FCC0();
+        }
+    }
+}
+
+// inferred: stops a sound (callback of fn_8047FAD0)
+extern "C" void fn_8047FABC(atn::SoundCore& sound, int frames) {
+    sound.mHandle.Stop(frames);
+}
+
+// NONMATCHING: 97.7% - float registers and the stack slot of the motion blur temporary
+// inferred: end of an event: motion blur reset, normal speed, music and sounds stopped
+__declspec(noinline) void Manager::fn_8047FAD0() {
+    MotionBlurParam_unk blur;
+    blur.mEnabled = 1;
+    lbl_8087EFA8->m240 = blur;
+    fn_8047F984(m1A58);
+    mC4 = 1;
+    if (strlen(m1F38.c_str()) != 0) {
+        m1F20.fn_8004B1EC(30);
+        m1F20.mSound.Reset();
+        m1F34 = 0;
+    }
+    lbl_8087EFE8->fn_800D0DB0(boost::bind(&fn_8047FABC, _1, 10), 2);
+    if (lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EB4A8(1, 0);
+    }
+}
+
+// NONMATCHING: 97.7% - registers (command and sequence in r27/r29 swapped)
+// inferred: applies the pending cut changes of mB8 (0: next cut, 1: end of the fast forward, 2: skip
+// the sequence); names invented
+void Manager::fn_8047FCC0() {
+    while (mB8.size() != 0) {
+        int cmd = *mB8.begin();
+        mB8.erase(mB8.begin());
+        if (cmd == 2) {
+            fn_8047F91C();
+        } else if (cmd == 0) {
+            Sequence* seq = m70;
+            if (seq != 0 && seq->m50 == 1 && seq->m194 == 10) {
+                switch (seq->fn_80541210()->mSkip) {
+                case 1: {
+                    Sequence* cur = m70;
+                    if (cur != 0) {
+                        Cut* cut = cur->fn_80541210();
+                        if (cut != 0) {
+                            cur->fn_80541534(cur->fn_80541198(cut), cut->m2C);
+                        }
+                    }
+                    break;
+                }
+                case 2:
+                    fn_8047F91C();
+                    break;
+                case 3:
+                    fn_8047FAD0();
+                    break;
+                }
+                lbl_8087EFE8->fn_800CF680(3, 10, seq->fn_80541210()->mSkip == 3);
+            }
+        } else if (cmd == 1) {
+            if (mC4 != 0) {
+                lbl_8087EFA8->m240 = m1AB0.mB8;
+                fn_8047F984(1.0f);
+                mC4 = 0;
+                Sequence* seq = m70;
+                if (strlen(m1F38.c_str()) != 0) {
+                    if (seq == 0 || seq->m190 != 0x151B || seq->fn_80541210() == 0 ||
+                        (seq->fn_80541210()->mIndex != 7 && seq->fn_80541210()->mIndex != 8)) {
+                        fn_80488B5C(60);
+                    }
+                }
+            }
+        }
+    }
+}
+
 GameMap_unk* Manager::fn_80480438() {
     if (m1A60.size() != 0) {
         return m1A60[0];
@@ -656,7 +946,7 @@ GameMap_unk* Manager::fn_80480438() {
 
 void Manager::fn_804805B4() {
     m1A70.clear();
-    m23B8 = 0;
+    m23B8.clear();
     fn_8047F580();
 }
 

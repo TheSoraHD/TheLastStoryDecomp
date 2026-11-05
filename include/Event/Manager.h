@@ -5,6 +5,7 @@
 #include "Event/Path.h"
 #include "atn/Bgm.h"
 #include "std/vector.h"
+#include "game/IntVector_unk.h"
 #include "std/string.h"
 #include "std/list.h"
 #include "atn/Sphere.h"
@@ -35,6 +36,47 @@ struct QueuedSequence_unk {
     QueuedSequence_unk() : mId(0), m04(0) {}
     int mId;
     int m04;
+};
+
+// inferred: lists of the manager: classes derived from std::vector (their destructors test the address
+// four times, as IntVector_unk). Names invented.
+struct SequenceList_unk : public std::vector<Sequence*> {};
+struct MapList_unk : public std::vector<GameMap_unk*> {};
+struct CharaList_unk : public std::vector<CharaTask*> {};
+
+// inferred: fixed ring of N entries (count, entries, first); iterators hold the ring and an index.
+// Names invented.
+template <class T, int N>
+struct Ring_unk {
+    struct iterator {
+        iterator(Ring_unk* ring, unsigned int index) : mRing(ring), mIndex(index) {}
+        T& operator*() const { return mRing->mData[(mRing->mFirst + mIndex) & (N - 1)]; }
+        T* operator->() const { return &**this; }
+        iterator& operator++() {
+            mIndex++;
+            return *this;
+        }
+        bool operator!=(iterator o) const { return mIndex != o.mIndex; }
+        Ring_unk* mRing;
+        unsigned int mIndex;
+    };
+    Ring_unk() : mCount(0), mFirst(0) {}
+    unsigned int size() const { return mCount; }
+    iterator begin() { return iterator(this, 0); }
+    iterator end() { return iterator(this, size()); }
+    T& operator[](unsigned int i) { return mData[(mFirst + i) & (N - 1)]; }
+    void erase(iterator it) {
+        for (unsigned int i = it.mIndex; i < mCount - 1; i++) {
+            (*this)[i] = (*this)[i + 1];
+        }
+        mCount--;
+    }
+    void clear() { mCount = 0; }
+    T& Next_unk() { return mData[(mFirst + mCount) & (N - 1)]; } // inferred: entry after the last one
+
+    unsigned int mCount;
+    T mData[N];
+    unsigned int mFirst;
 };
 
 // inferred: 8-byte entry of the table at 0x1F80 of the manager (127 of them, cleared by the constructor)
@@ -109,15 +151,7 @@ struct EventConfig_unk {
     int mAC;
     float mB0;
     float mB4;
-    int mB8;
-    int mBC;
-    int mC0;
-    float mC4;
-    float mC8;
-    int mCC;
-    int mD0;
-    float mD4;
-    float mD8;
+    MotionBlurParam_unk mB8; // inferred: motion blur of the event (restored by fn_8047FCC0)
     int mDC;
     int mE0;
     atn::Color mE4;
@@ -153,9 +187,12 @@ public:
     // inferred: creates the character `id` of kind `kind` for the event (Event::Actor)
     CharaTask* fn_8047FF70(int kind, int id, float arg, const atn::Vector3& pos);
     void fn_8047E528();
-    void fn_8047F580();
+    int fn_8047F580();
+    inline void StopMusic_unk(Sequence* seq);
     void fn_8047F8B0();
-    void fn_8047F994(int a, int b);
+    void fn_8047F994(int cut, int now);
+    void fn_8047FAD0(); // inferred: end of an event
+    void fn_8047FCC0(); // inferred: applies the pending cut changes
     void fn_8048169C(int arg);
     void fn_804817D4();
     void fn_80482ED8();
@@ -175,6 +212,9 @@ public:
     void fn_80488050(Sequence* manager, Action* arg);
     void fn_80488A74(const char* name, int fade, float volume);
     void fn_80488D80(int fade);
+    void fn_80488534(Sequence* seq, int fade); // inferred: stops the music of the sequence
+    void fn_8048871C(Sequence* seq, int a, int b, int c); // inferred: prepares the multi audio of the sequence
+    void fn_80488E00(Sequence* seq);
     GameMap_unk* fn_80480438(); // inferred: map of the event (its locators)
     void fn_8048E9E0();
     void fn_80485028(int index, const atn::Vector3& pos, float radius, int color);
@@ -188,6 +228,7 @@ public:
     void fn_804881B8(Sequence* manager, const char* name, int fade, int stopBgm, int a, int b, int c, float volume, int d, int flags);
     void fn_8048E9A4(MovieState_unk* movie, int frames);
     void fn_8048EC7C();
+    void fn_80488B5C(int fade); // inferred: stops the multi audio
     void fn_80489A2C();
     int fn_8048B048(int id);                  // inferred: time curve by id
     int fn_8048B3B8(int id);                  // inferred: move curve by id
@@ -209,11 +250,12 @@ public:
     Sequence* FindSequence_unk(int id);
     void AddSequence_unk(Sequence* seq); // inferred: not in the DOL (see Event/Manager.cpp)
     int fn_8047E5DC(int id); // inferred: loads the sequence `id`
+    int fn_8047EA34(int id, int arg, int arg2); // inferred: starts the sequence `id`
     int fn_8047E964(int id, int queue); // inferred: starts (or queues) the sequence `id`
     int fn_8047F268(int id); // inferred: the sequence `id` is missing, not started or past state 5
     int fn_8047F2EC(int id); // inferred: the sequence `id` is playing (state 10)
     int fn_8047F364(int id); // inferred: the sequence `id` is missing, not started or ending
-    void fn_8047EFD8(int id, int arg);
+    int fn_8047EFD8(int id, int arg); // inferred: stops the sequence `id`
     void fn_8047F91C(); // inferred: skips the current sequence to its end
     void fn_804805B4();
     int fn_8047F420(int id); // inferred: the sequence `id` is missing or of kind 1
@@ -221,6 +263,7 @@ public:
     int fn_8047F510(int id); // inferred: the sequence `id` is missing or has m98_8
     int fn_8047F6B0(int arg);
     void fn_8047F6E4();
+    void fn_8047F730();
     void fn_8047F850(int a, int b, int c);
     void fn_8047F88C(int arg);
     void fn_8047F8A4(float value);
@@ -243,9 +286,9 @@ public:
     atn::Sphere m4C; // inferred: target of the check of type 1 (ActionCheck)
     float m5C; // inferred: debug menu "AcceptAnimeScale"
     float m60; // inferred: debug menu "AcceptAnimeSpeed"
-    std::vector<Sequence*> m64; // inferred: sequences of the manager
+    SequenceList_unk m64; // inferred: sequences of the manager
     Sequence* m70; // inferred: current sequence
-    int m74[16];
+    Sequence* m74[16]; // inferred: sequences of the other kinds being played
     float mB4; // inferred: time of a frame
     std::__list_owned_unk<int> mB8; // inferred: element type unknown (cleared when the cut changes)
     int mC4;   // inferred: the cameras are updated at once
@@ -260,9 +303,9 @@ public:
     int m1A54;
     float m1A58; // inferred: debug menu "FastForwardSpeed"
     ResHandle m1A5C; // inferred: debug menu folder "Event"
-    std::vector<GameMap_unk*> m1A60; // inferred: map of the event (first entry) when not empty
+    MapList_unk m1A60; // inferred: map of the event (first entry) when not empty
     GameScene* m1A6C; // inferred: scene of the event when there is no field
-    std::vector<CharaTask*> m1A70; // inferred: characters created for the event (fn_8047FF70)
+    CharaList_unk m1A70; // inferred: characters created for the event (fn_8047FF70)
     atn::D2A_Task* m1A7C; // inferred: "ui_c_black_mask.d2a" (frozen by fn_8048169C)
     atn::D2A_Task* m1A80; // inferred: "ui_event_start_flash.d2a" (frozen by fn_804817D4)
     float m1A84;
@@ -311,7 +354,7 @@ public:
     CharaLightData_unk m1EB8; // inferred: "/data/texture/gm044_000a.texture"
     int m1F08;
     int m1F0C; // inferred: cloud map shown by ActionCloudMap
-    std::vector<int> m1F10; // inferred: cleared by fn_80484FBC with the lights
+    IntVector_unk m1F10; // inferred: lights of the event (cleared by fn_80484FBC)
     int m1F1C;
     atn::Bgm m1F20; // inferred: music of the event
     int m1F34;      // inferred: the music is used
@@ -324,7 +367,7 @@ public:
     float m1F6C; // inferred: movie fade time
     int m1F70;
     int m1F74;
-    int m1F78;
+    Action* m1F78;
     int m1F7C;
     ManagerEntry_unk m1F80[127];
     int m2378;
@@ -339,9 +382,7 @@ public:
     atn::D2A_Task* m23AC; // inferred: "ev_gradation.d2a" (frozen by fn_8048F184 (0))
     atn::D2A_Task* m23B0; // inferred: "ev_gradation.d2a" (frozen by fn_8048F184 (1))
     int m23B4; // inferred: set when the check of type 1 succeeds
-    int m23B8; // inferred: number of queued sequences
-    QueuedSequence_unk m23BC[8]; // inferred: ring of sequences to start
-    int m23FC; // inferred: first entry of the ring
+    Ring_unk<QueuedSequence_unk, 8> m23B8; // inferred: sequences to start
     NewStaffRoll* m2400; // inferred: staff roll of the ending
     unsigned char mMoviePlaying : 1; // 0x2404
     unsigned char m2404_1 : 1;

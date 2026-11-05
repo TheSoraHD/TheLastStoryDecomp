@@ -229,7 +229,7 @@ public:
     int fn_80232BEC(unsigned int owner, int group, int count);
     int fn_80232D04(unsigned int owner, int group, int flag);
     void fn_80232E48();
-    void fn_80232ED4();
+    void fn_80232ED4(int layer); // inferred: the argument is read (r4)
     void fn_80232F84(int arg);
     int fn_80232FF4(unsigned int owner, int group, unsigned int flags);
     int fn_802330A4(unsigned int owner, int group, unsigned int flags);

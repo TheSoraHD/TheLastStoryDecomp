@@ -69,22 +69,6 @@ struct BloomParam_unk {
     int mScale[3];        // 0x74: *Scale 1-3
 };
 
-// inferred: motion blur parameters (names of the "MotionBlur" menu; Event::ActionCameraEffect copies
-// a whole one, 0x8055D0B8)
-struct MotionBlurParam_unk {
-    MotionBlurParam_unk()
-        : mEnabled(0), mDebug(0), mFrozen(0), mScale(1.0f), mShift(0.0f), mStartBlend(0), mEndBlend(0),
-          mStartBlendSpeed(0.02f), mEndBlendSpeed(0.02f) {}
-    int mEnabled;           // 0x00
-    int mDebug;             // 0x04
-    int mFrozen;            // 0x08
-    float mScale;           // 0x0C
-    float mShift;           // 0x10
-    int mStartBlend;        // 0x14
-    int mEndBlend;          // 0x18
-    float mStartBlendSpeed; // 0x1C
-    float mEndBlendSpeed;   // 0x20
-};
 
 // inferred: damage post effect parameters
 struct DamageParam_unk {
