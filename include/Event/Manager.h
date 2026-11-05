@@ -218,7 +218,7 @@ public:
     void fn_80484D40(atn::Vector2_unk scale, atn::Vector2_unk pos, float rate);
     void fn_80484E88();
     void fn_80484088(ColorMatrixParam_unk* param, float rate);
-    void fn_804881B8(Sequence* manager, const char* name, int fade, int stopBgm, int a, int b, int c, float volume, int d, int flags);
+    void fn_804881B8(Sequence* seq, const char* name, int fade, int stopBgm, int a, int b, int c, float volume, int d, int flags);
     void fn_8048E9A4(MovieState_unk* movie, int frames);
     void fn_8048EC7C();
     void fn_80488B5C(int fade); // inferred: stops the multi audio

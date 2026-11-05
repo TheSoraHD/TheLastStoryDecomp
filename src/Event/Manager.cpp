@@ -32,6 +32,9 @@
 #include "game/Inventory.h"
 #include "game/NpcManager.h"
 #include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/PlayerTask.h"
+#include "game/NpcTask.h"
 #include "game/FriendManager.h"
 #include "atn/FileList.h"
 #include "Event/Cut.h"
@@ -2028,6 +2031,93 @@ void Manager::fn_80488050(Sequence* seq, Action* action) {
         fn_804881B8(seq, data->m08.c_str(), fade, stopBgm, a, b, c, volume, 0, 0x200000);
     }
 }
+// inferred: actor of a character (kinds 1 and 7); name invented
+inline bool IsCharaActor_unk(const Actor& actor) {
+    return actor.m20 == 1 || actor.m20 == 7;
+}
+
+// NONMATCHING: 97.5% - the first actor loop reloads the size each iteration in the original; stack slot
+// of the iterator tag of the string assignment
+// inferred: starts the music `name` of the sequence; the flags (or those already set) say what is
+// done once: stop the BGM, the environment sounds, the characters of the sequence or their sounds
+void Manager::fn_804881B8(Sequence* seq, const char* name, int fade, int stopBgm, int a, int b, int c,
+                          float volume, int d, int flags) {
+    if ((m1F1C & 0x80000000) && m2380 > 0) {
+        Sequence* prev = FindSequence_unk(m2380);
+        if (prev != 0) {
+            if (m1F1C & 0x200000) {
+                fn_80488534(prev, 60);
+            } else {
+                fn_80488534(prev, 15);
+            }
+        }
+    }
+    flags |= m1F1C;
+    if (fade <= 0) {
+        fade = 60;
+    }
+    if (!(flags & 0x80000000)) {
+        m1E78 = 1;
+        m1E7C = name;
+        m1E8C = 0.0f;
+        m1E88 = 0.0f;
+        flags |= 0x80000000;
+    }
+    if (!(flags & 1) && stopBgm != 0) {
+        if (GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D3E8(1, 4, fade);
+        }
+        flags |= 1;
+    }
+    if (!(flags & 2) && a != 0) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_80360780(0, 4, fade);
+        }
+        flags |= 2;
+    }
+    if (!(flags & 4) && b != 0) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_803606CC(0, 4, fade);
+        }
+        flags |= 4;
+    }
+    if (!(flags & 8) && c != 0) {
+        bool ready = true;
+        for (int i = 0; i < (int)seq->m164.size() && ready; i++) {
+            if (seq->m164[i].m20 == 0) {
+                ready = false;
+            }
+        }
+        if (ready) {
+            for (int i = 0; i < (int)seq->m164.size(); i++) {
+                if (IsCharaActor_unk(seq->m164[i])) {
+                    seq->m164[i].fn_80012774(0);
+                }
+            }
+            if (ColliAttrManager::sInstance != 0) {
+                ColliAttrManager::sInstance->mEnabled = 0;
+            }
+            flags |= 8;
+        }
+    }
+    if (!(flags & 0x10) && d != 0) {
+        for (PlayerTask* p = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0; p != 0; p = p->mNext) {
+            p->m1220.m11 = 0;
+        }
+        for (EnemyTask* e = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; e != 0; e = e->mNext) {
+            e->m1220.m11 = 0;
+        }
+        for (NpcTask* n = NpcManager::sInstance != 0 ? NpcManager::sInstance->mHead : 0; n != 0; n = n->mNext) {
+            n->m1220.m11 = 0;
+        }
+        if (ColliAttrManager::sInstance != 0) {
+            ColliAttrManager::sInstance->mEnabled = 0;
+        }
+        flags |= 0x10;
+    }
+    m1F1C = flags;
+}
+
 
 
 
