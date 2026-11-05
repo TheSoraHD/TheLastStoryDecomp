@@ -76,6 +76,36 @@ extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+extern "C" void* fn_8008B964(); // inferred: returns lbl_8087EFB4 (camera)
+extern "C" Camera_unk* fn_800F7258(void* camera); // inferred: camera of the game
+extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
+extern "C" atn::Vector2_unk fn_800F84D8(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t);
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+extern "C" float fn_802A7964(float rad);
+extern "C" void* fn_802F0990();         // inferred: returns lbl_8087EFA8
+extern "C" float fn_802F0988(void* rs); // inferred: frame time (+0x3A4)
+extern "C" void* lbl_8087EF70;          // inferred: pad
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+// inferred: weak copies, as in Event/Path.cpp and game/GameUI.cpp
+inline void* GetPad_unk() {
+    return lbl_8087EF70;
+}
+inline atn::SoundManager* GetSoundMgr_unk() {
+    return lbl_8087EFE8;
+}
+inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
+    fn_801FECE0(&mData.m10, fn_800DC6B4(name), value);
+}
+inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, int index, float value) {
+    fn_801FED24(&mData.m10, fn_800DC6B4(name), index, value);
+}
+extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
+// inferred: inverse of a matrix (weak copy 0x80487BD0); name invented
+inline atn::Matrix3x4 Inverse_unk(const atn::Matrix3x4& m) {
+    atn::Matrix3x4 r(m);
+    PSMTXInverse(r.m, r.m);
+    return r;
+}
 // inferred: sets the layout value `name` (as atn::D2A_Task::SetLayoutValue_unk of game/GameUI.cpp, with
 // the layout taken first, as in Event/ActionEffectPlay.cpp)
 inline void SetLayoutValue_unk(void* layout, const char* name, int index, float value) {
@@ -1359,6 +1389,8 @@ void fn_80481B9C(MapArea* area, void* arg) {
 struct SceneApply_unk {
     // inferred: weak copy 0x80483E80 (called by fn_80487490)
     SceneApply_unk(EventConfig_unk* config) : mConfig(config), mIndex(0), mBlend(false) {}
+    // inferred: weak copy 0x80487BB4 (called by Manager::vf10)
+    SceneApply_unk(EventConfig_unk* config, float rate) : mConfig(config), mIndex(0), mBlend(true), mRate(rate) {}
     EventConfig_unk* mConfig;
     int mIndex;
     bool mBlend; // 0x08
@@ -1715,7 +1747,7 @@ void Manager::fn_804870F4() {
     }
 }
 // inferred: true when the tasks of the manager are loaded; then they are started, hidden
-int Manager::fn_80487184() {
+int Manager::vf0C() {
     if (lbl_8087F430 == 0 && m1A9C == 0) {
         m1A9C = atn::FadeCapture::Create(this, 10, -1, 0xFFFFFF, 0);
         m1A9C->fn_800D246C(1);
@@ -1781,6 +1813,135 @@ int Manager::fn_80487184() {
     m2438->FreezeTask();
     return 1;
 }
+// NONMATCHING: 99.4% - the original calls no constructor for the rotation matrix (Matrix3x4() is called
+// here, all the inlines being out of line: over the inlining budget)
+// inferred: update of the manager: light settings blend (m1AB0.m01), pending map change, the check
+// sphere (m1EA4), the queue of sequences, the movie fade and a BGM of event 0xCE7
+void Manager::vf10() {
+    if (m1AB0.m01 != 0) {
+        m1AB0.m04 -= 0.1f;
+        if (m1AB0.m04 <= 0.0f) {
+            m1BD0.fn_8047C88C(fn_800C16B4((Camera_unk*)fn_8008B964()));
+            SceneApply_unk apply(&m1AB0);
+            MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
+            m1AB0.m01 = 0;
+        } else {
+            m1BD0.fn_8047CB74(fn_800C16B4((Camera_unk*)fn_8008B964()), m1AB0.m04);
+            SceneApply_unk apply(&m1AB0, m1AB0.m04);
+            MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
+        }
+    }
+    if (m1DE8 != 0 && m1DE4 >= 0) {
+        if (m1DE4 == 0) {
+            m1DEC = m1DE8->GetState_unk().m02;
+            m1DF0 = m1DE8->GetState_unk().m00;
+            m1DF4 = m1DE8->GetState_unk().m03;
+            fn_804805F0(m1DE8, m1DF8);
+        }
+        m1DE4--;
+    }
+    if (m1EA4 != 0) {
+        m241C->MeltTask();
+        m2438->MeltTask();
+        m1EAC++;
+        atn::Vector2_unk stick(lbl_807C7028);
+        if (GetPad_unk() != 0) {
+            stick.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);
+            stick.y = fn_800A56A8(GetPad_unk(), 0, 1, 0);
+        }
+        if (m1EA8 != 0) {
+            m241C->SetLayoutValue_unk("colorR", 195.0f);
+            m241C->SetLayoutValue_unk("colorG", 65.0f);
+            m241C->SetLayoutValue_unk("colorB", 80.0f);
+            m241C->SetSpeed_unk(1.0f);
+            m242C = lbl_807C7028;
+        } else {
+            m241C->SetLayoutValue_unk("colorR", 104.0f);
+            m241C->SetLayoutValue_unk("colorG", 121.0f);
+            m241C->SetLayoutValue_unk("colorB", 166.0f);
+            m241C->SetSpeed_unk(-1.0f);
+            m242C = Scale_unk(stick, -6.0f);
+        }
+        m2424 = fn_800F84D8(m2424, m242C, 0.1f);
+        m241C->SetLayoutValue_unk("centerPos", 0, m2424.x);
+        m241C->SetLayoutValue_unk("centerPos", 1, m2424.y);
+        m2438->SetLayoutValue_unk("centerPos", 0, 320.0f + m2424.x);
+        m2438->SetLayoutValue_unk("centerPos", 1, 224.0f + m2424.y);
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        if (m1EAC >= 150) {
+            if (m1EA8 != 0) {
+                m2434 = MAX(0.0f, m2434 - 0.1f);
+            } else {
+                m2434 = MIN(1.0f, 0.1f + m2434);
+                Camera_unk* camera = fn_800F7258(fn_8008B964());
+                atn::Vector3 target = fn_80383728(camera);
+                dir = m1E94.mCenter - *camera->GetPosition_unk();
+                if (dir.IsZero_unk()) {
+                    dir.Set_unk(0.0f, 0.0f, 1.0f);
+                }
+                dir.Normalize_unk();
+                atn::Matrix3x4 rot;
+                rot.fn_8013A13C(target.ToRotation_unk().y);
+                dir = dir - target;
+                dir.fn_80011410(Inverse_unk(rot));
+                dir.z = 0.0f;
+                if (dir.IsZero_unk()) {
+                    dir.Set_unk(0.0f, 1.0f, 0.0f);
+                }
+                dir.Normalize_unk();
+                dir.Set_unk(-dir.x, 0.0f, dir.y);
+            }
+        } else {
+            m2434 = MAX(0.0f, m2434 - 0.1f);
+        }
+        m2438->SetLayoutValue_unk("arrowA", m2434);
+        m243C = atn::Lerp_unk(m243C, dir, 0.15f);
+        float angle = 0.0f;
+        if (!m243C.IsZero_unk()) {
+            angle = fn_802A7964(m243C.ToRotation_unk().y);
+        }
+        m241C->SetLayoutValue_unk("arrowRot", angle);
+        m2438->SetLayoutValue_unk("arrowRot", angle);
+        if (m1EB0 > 0) {
+            m1EB0++;
+            if (m1EB0 >= 3) {
+                m1EA4 = 0;
+            }
+        }
+    } else {
+        m241C->Rewind_unk();
+        m241C->FreezeTask();
+        m1EAC = 0;
+        m2424 = lbl_807C7028;
+        m242C = lbl_807C7028;
+        m2438->FreezeTask();
+        m2434 = 0.0f;
+        m243C = atn::Vector3(0.0f, 0.0f, 1.0f);
+    }
+    if (!m23B8.empty()) {
+        QueuedSequence_unk& entry = m23B8.front();
+        if (GetSoundMgr_unk() == 0 || GetSoundMgr_unk()->fn_800D089C(8, 0) <= 0) {
+            entry.m04++;
+        } else {
+            entry.m04 = 0;
+        }
+        if (entry.m04 > 10) {
+            fn_8047E964(entry.mId, 0);
+            m23B8.pop_front();
+        }
+    }
+    if (m1F6C > 0.0f) {
+        m1F6C -= fn_802F0988(fn_802F0990());
+        if (m1F6C <= 0.0f) {
+            m1F6C = 0.0f;
+        }
+    }
+    if (fn_80112F54() != 0 && fn_80112F54()->fn_8047F400() == 0 && fn_80112F54()->GetId_unk() == 0xCE7 &&
+        GameBgm::GetInstance_unk() != 0 && GameBgm::GetInstance_unk()->fn_8037D34C() == 0) {
+        GameBgm::GetInstance_unk()->fn_8037D3E8(1, 4, 0);
+    }
+}
+
 
 
 

@@ -75,6 +75,13 @@ struct Ring_unk {
     }
     void clear() { mCount = 0; }
     T& Next_unk() { return mData[(mFirst + mCount) & (N - 1)]; } // inferred: entry after the last one
+    // inferred: weak copies 0x80487C08 and 0x80487C1C (called by Manager::vf10)
+    bool empty() const { return mCount == 0; }
+    T& front() { return mData[mFirst]; }
+    void pop_front() {
+        mFirst = (mFirst + 1) & (N - 1);
+        mCount--;
+    }
 
     unsigned int mCount;
     T mData[N];
@@ -119,7 +126,8 @@ struct EventConfig_unk {
     EventConfig_unk();
     unsigned char m00; // inferred: the render settings below were saved (fn_80482ED8)
     unsigned char m01;
-    unsigned char m02[0x8 - 0x2];
+    unsigned char m02[0x4 - 0x2];
+    float m04; // inferred: blend time of the light settings (Manager::vf10)
     BloomParam_unk mBloom; // 0x08: inferred: bloom of the render settings (lbl_8087EFA8 + 0x54)
     int m88;   // inferred: depth of field of the render settings (lbl_8087EFA8 + 0xD4 .. 0xF8)
     int m8C;
@@ -190,7 +198,6 @@ public:
     void fn_80486DAC(int color); // inferred: "LS" color
     void fn_80486F50();
     void fn_804870F4();
-    int fn_80487184(); // inferred: the tasks of the manager are loaded
     void fn_80487064(int mode); // inferred: GameMap_unk::m104 of the current map
     void fn_8048EE78(int a, float r, float g, float b, float c, float d, int e, float f);
     void fn_80488050(Sequence* manager, Action* arg);
