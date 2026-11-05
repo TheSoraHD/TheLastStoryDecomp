@@ -1,6 +1,6 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-05, rama `maparea-20261105` sin mergear)
+## Estado actual (2026-11-05, `maparea-20261105` mergeada en `main`, 4935df0)
 
 - `maparea-20261105` (desde `main` ff386cd): **12703 / 18119** en `report.json` (lost 0, fuzzdrop 0, `main.dol: OK` en compilación limpia y en un
   clon limpio de la rama; labelcheck sin empeorar, rep100 idéntico, ordercheck/poolcheck/mnemcheck limpios).
