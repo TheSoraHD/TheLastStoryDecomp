@@ -15,8 +15,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
 
-extern "C" void* lbl_8087F540; // inferred: event manager (Event/Manager.cpp)
-extern "C" void fn_80480468(void* mgr, Event::Sequence* seq, void* arg);
+#include "Event/Manager.h"
 
 namespace Event {
 
@@ -80,7 +79,7 @@ void Sequence::fn_80576030(const char* path, void* arg) {
         fn_80576258();
     }
     if (lbl_8087F540 != 0) {
-        fn_80480468(lbl_8087F540, this, arg);
+        lbl_8087F540->fn_80480468(this, (unsigned int)arg);
     }
     m2A0 = (fn_8006B2D8(fn_8006B174(std::string(path))) + ".pk").c_str();
 }

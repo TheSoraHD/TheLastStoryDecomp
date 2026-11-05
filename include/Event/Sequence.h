@@ -153,7 +153,7 @@ struct EffectEntry24_unk {
 // inferred: one byte flags at 0x58 of the sequence (names invented)
 struct SequenceState_unk {
     SequenceState_unk() : m00(0), m02(0), m03(0) {}
-    short m00;
+    unsigned short m00;
     unsigned char m02;
     unsigned char m03;
 };
@@ -178,7 +178,8 @@ public:
     static Sequence* fn_8053E86C(atn::Task* parent); // inferred: creates a sequence
 
     void fn_8053E8C8(int state); // inferred: sets the state
-    int GetId_unk() { return m190; } // inferred: weak copy 0x8047E5D4 (Event/Manager.cpp); name invented
+    int GetId_unk() { return m190; }
+    SequenceState_unk GetState_unk() { return m58; } // inferred: weak copy 0x804805AC (Event/Manager.cpp) // inferred: weak copy 0x8047E5D4 (Event/Manager.cpp); name invented
     void fn_8053E8D0();
     void fn_8053ED4C();
     void fn_8053EF70();

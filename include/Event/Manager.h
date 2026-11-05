@@ -6,6 +6,7 @@
 #include "atn/Bgm.h"
 #include "std/vector.h"
 #include "game/IntVector_unk.h"
+#include "game/GameMap_unk.h"
 #include "std/string.h"
 #include "std/list.h"
 #include "atn/Sphere.h"
@@ -216,6 +217,8 @@ public:
     void fn_8048871C(Sequence* seq, int a, int b, int c); // inferred: prepares the multi audio of the sequence
     void fn_80488E00(Sequence* seq);
     GameMap_unk* fn_80480438(); // inferred: map of the event (its locators)
+    int fn_804803A4(); // inferred: the maps and the characters of the event are loaded
+    void fn_80480468(Sequence* seq, unsigned int flags); // inferred: map change of the sequence
     void fn_8048E9E0();
     void fn_80485028(int index, const atn::Vector3& pos, float radius, int color);
     void fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color);
@@ -333,7 +336,7 @@ public:
     float m1DDC;
     float m1DE0;
     int m1DE4;
-    int m1DE8;
+    Sequence* m1DE8;
     int m1DEC;
     int m1DF0;
     int m1DF4;

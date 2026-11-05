@@ -19,6 +19,8 @@
 #include <boost/function.hpp>
 #include "atn/RenderSetting_unk.h"
 #include "game/GameField_unk.h"
+#include "game/CharaTask.h"
+#include "game/GameScene.h"
 #include "Event/Cut.h"
 #include "Event/Section.h"
 #include "Event/Channel.h"
@@ -34,6 +36,7 @@ extern "C" void fn_8054F380();               // inferred: deletes the action pro
 extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen capture fade
 extern "C" void fn_800D2338(atn::Task* task);   // inferred: removes the task
 extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
 extern "C" void* lbl_8087F048;              // inferred: bullet manager
 extern "C" void fn_80370B78(GameField_unk* field, unsigned int color, int frames, int arg, float speed); // inferred: fade of the field
 extern "C" void fn_801011B8(void* bullets); // inferred: removes every bullet
@@ -934,6 +937,23 @@ void Manager::fn_8047FCC0() {
     }
 }
 
+int Manager::fn_804803A4() {
+    if (m1DE4 >= 0) {
+        return 0;
+    }
+    for (int i = 0; i < (int)m1A60.size(); i++) {
+        if (!m1A60[i]->IsFlag_unk(2)) {
+            return 0;
+        }
+    }
+    for (int i = 0; i < (int)m1A70.size(); i++) {
+        if (!m1A70[i]->IsFlag_unk(2)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 GameMap_unk* Manager::fn_80480438() {
     if (m1A60.size() != 0) {
         return m1A60[0];
@@ -944,10 +964,55 @@ GameMap_unk* Manager::fn_80480438() {
     return 0;
 }
 
+// inferred: the sequence changes the map: the characters (and, for another map, the maps and the
+// scene) of the event are removed
+void Manager::fn_80480468(Sequence* seq, unsigned int flags) {
+    int same = 0;
+    int sameMap = 0;
+    int area = m1DEC;
+    if (area == seq->GetState_unk().m02) {
+        if (m1DF0 == seq->GetState_unk().m00) {
+            sameMap = 1;
+        }
+    }
+    if (sameMap) {
+        if (m1DF4 == seq->GetState_unk().m03) {
+            same = 1;
+        }
+    }
+    if (same && area != 1) {
+        flags |= 0x10000000;
+    }
+    if (flags != 0) {
+        for (int i = 0; i < (int)m1A70.size(); i++) {
+            fn_800D2338(m1A70[i]);
+        }
+        m1A70.clear();
+        if (!(flags & 0x10000000)) {
+            if (m1A6C != 0) {
+                fn_800D2338(m1A6C);
+                m1A6C = 0;
+            }
+            for (int i = 0; i < (int)m1A60.size(); i++) {
+                fn_800D2338(m1A60[i]);
+            }
+            m1A60.clear();
+        }
+    }
+    m1DE4 = 2;
+    m1DE8 = seq;
+    m1DF8 = flags;
+}
+
 void Manager::fn_804805B4() {
     m1A70.clear();
     m23B8.clear();
     fn_8047F580();
+}
+
+// inferred: path of the map file of the area `area`, map `map` and part `part`
+std::string fn_804805CC(int area, int map, int part) {
+    return fn_800DC980("map\\tw%02d\\tw%02d_%02d_%02d.map", area, area, map, part);
 }
 
 int Manager::fn_80481654() {
