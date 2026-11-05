@@ -1,6 +1,7 @@
 // inferred: Event::PostSequence and Event::SequenceRoot share one TU (their RTTI names are
 // packed together in .rodata). SequenceRoot is declared first: vtables are emitted in reverse
 // declaration order.
+#include "db/MapIdTable_unk.h"
 #include "Event/SequenceRoot.h"
 #include "Event/PostSequence.h"
 #include "Event/Manager.h"
@@ -62,15 +63,9 @@ extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen 
 extern "C" void fn_800D2338(atn::Task* task);   // inferred: removes the task
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
-// inferred: area data of the maps (db; m68: light settings of the area)
-struct AreaData_unk {
-    unsigned char m00[0x68];
-    void* m68;
-};
-extern "C" AreaData_unk* fn_8021771C(int area, int map, int part);
 extern "C" char* fn_8006BA8C(const char* path, int* size, int arg);   // inferred: loads a file
 extern "C" int fn_8006AA20(const char* path);                        // inferred: the file exists
-extern "C" void fn_800C3094(void* light);
+extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group (atn/Se_unk.cpp)
 struct DialogTextMgr_unk;
 extern "C" DialogTextMgr_unk* lbl_8087F008;                     // inferred: text renderer (Event/Dialog.cpp)
 extern "C" void fn_800DAA3C(DialogTextMgr_unk* mgr, int arg);
@@ -1142,7 +1137,7 @@ void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
     int area = seq->GetState_unk().m02;
     int map = seq->GetState_unk().m00;
     int part = seq->GetState_unk().m03;
-    AreaData_unk* areaData = fn_8021771C(area, map, part);
+    MapId_unk* areaData = fn_8021771C(area, map, part);
     if ((flags & 0x10) && !(flags & 0x10000000) && areaData != 0) {
         char path[0x100];
         char name[0x100];

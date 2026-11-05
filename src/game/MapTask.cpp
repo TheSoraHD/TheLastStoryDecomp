@@ -3,6 +3,15 @@
 #include "game/MapInstance_unk.h"
 #include "game/MapPartsBase.h"
 #include "game/MapPartsLocatorSet.h"
+#include "game/MapManager.h"
+#include "atn/RenderManager.h"
+#include "atn/GraphicsDevice.h"
+#include "atn/LayerReflect.h"
+#include "atn/GXDecl.h"
+#include "db/MapIdTable_unk.h"
+#include "game/GimmickManager.h"
+#include "game/TownTask.h"
+#include "atn/Memory.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -56,17 +65,112 @@ int MapTask::fn_8049D5DC(char* name, int type, int id, int subId) {
     }
     return 1;
 }
-// NONMATCHING: stub - allocate and initialize a map task.
-MapTask* MapTask::SetTask(atn::Task* parent, const char* path) { return 0; }
-// NONMATCHING: stub - choose and allocate a map task subtype.
-MapTask* MapTask::fn_8049D704(atn::Task* parent, int type, int id, int subId) { return 0; }
-// NONMATCHING: stub - constructor from a map file (needs atn::AABBTree in a header, see MapTask.h).
-MapTask::MapTask(atn::Task* parent, const char* path) : atn::Task(parent) {}
+MapTask* MapTask::SetTask(atn::Task* parent, const char* path) {
+    if (parent != 0) {
+        return new ((MemoryTag)0xC, "", "", 0) MapTask(parent, path);
+    }
+    return 0;
+}
 
-// NONMATCHING: stub - constructor body and map resource initialization.
-MapTask::MapTask(atn::Task* parent, int type, int id, int subId) : atn::Task(parent) {}
-// NONMATCHING: stub - release map models, loaders and map-part entries.
-MapTask::~MapTask() {}
+// inferred: towns (type 1) are TownTask
+MapTask* MapTask::fn_8049D704(atn::Task* parent, int type, int id, int subId) {
+    if (parent != 0) {
+        if (type == 1) {
+            return new ((MemoryTag)0xC, "", "", 0) TownTask(parent, type, id, subId);
+        }
+        return new ((MemoryTag)0xC, "", "", 0) MapTask(parent, type, id, subId);
+    }
+    return 0;
+}
+MapTask::MapTask(atn::Task* parent, const char* path)
+    : atn::Task(parent), mType(0), mId(0), mSubId(0), m54(0), mParts(0), m74(0), m78(0.0f), m7C(0.0f), m80(0.0f),
+      m84(1.0f), mNextArea(0), mCC(0), mCamera(0), mE4(0), mDefaultCamera(0), mEC(0), mF0(0.0f), mF4(0), mF8(0),
+      m100(0), m104(0), mAreaIndex(0), m10C(0), m110(0.0f), m114(0.01f), m118(1) {
+    mBox.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
+    mBox.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);
+    if (MapManager::instance_ != 0) {
+        MapManager::instance_->fn_80491418(this);
+    }
+    mFile.vf0C(path);
+}
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (screen size)
+
+// inferred: path of the map file of an id (inlined in the constructor; name invented)
+static inline int GetMapPath_unk(char* path, int type, int id, int subId) {
+    char name[0x100];
+    if (MapTask::GetMapNameFromId(name, type, id, subId)) {
+        if (type == 1) {
+            sprintf(path, "/database/map/%s.twn", name);
+        } else {
+            sprintf(path, "/database/map/%s.map", name);
+        }
+        return 1;
+    }
+    return 0;
+}
+
+MapTask::MapTask(atn::Task* parent, int type, int id, int subId)
+    : atn::Task(parent), mType(type), mId(id), mSubId(subId), m54(0), mParts(0), m74(0), m78(0.0f), m7C(0.0f),
+      m80(0.0f), m84(1.0f), mNextArea(0), mCC(0), mCamera(0), mE4(0), mDefaultCamera(0), mEC(0), mF0(0.0f), mF4(0),
+      mF8(0), m100(0), m104(0), mAreaIndex(0), m10C(0), m110(0.0f), m114(0.01f), m118(1) {
+    mBox.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
+    mBox.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);
+    if (MapManager::instance_ != 0) {
+        MapManager::instance_->fn_80491418(this);
+    }
+    char path[0x100];
+    if (GetMapPath_unk(path, type, id, subId)) {
+        mFile.vf0C(path);
+    }
+    m54 = fn_8021771C(type, id, subId);
+    if (m54 != 0) {
+        char buf[0x100];
+        if (*m54->m5C != 0) {
+            sprintf(buf, "/database/camera/%s.csv", m54->m5C);
+            m60.vf0C(buf);
+        }
+        if (*m54->m60 != 0) {
+            sprintf(buf, "/camera/ambient/%s.xsca", m54->m60);
+            m68.vf0C(buf);
+        }
+        atn::Texture_unk* tex;
+        int texWidth;
+        int width = lbl_8087EEE0->mWidth / 2;
+        int height = lbl_8087EEE0->mHeight / 2;
+        if (m54->m58 > 0) {
+            width *= m54->m58;
+            height *= m54->m58;
+        }
+        if (type == 1) {
+            width = lbl_8087EEE0->mWidth / 4;
+            height = lbl_8087EEE0->mHeight / 4;
+        }
+        tex = &static_cast<atn::LayerReflect*>(atn::RenderManager::instance_->mLayers[4])->mTexture;
+        texWidth = GXGetTexObjWidth(&tex->mObj);
+        int texHeight = GXGetTexObjHeight(&tex->mObj);
+        if (texWidth != width || texHeight != height) {
+            tex->fn_800D5B58(width, height, 4, 0, "ReflectionTexture");
+            GXInitTexObjLOD(&tex->mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+        }
+    }
+    if (GimmickManager::instance_ != 0) {
+        GimmickManager::instance_->fn_803EE5AC(mType, mId, mSubId);
+    }
+    if (id == 0x30 || id == 0x36) {
+        m104 = 1;
+    }
+}
+extern "C" void fn_8009FE24(); // inferred: atn/Motion_unk.cpp
+MapTask::~MapTask() {
+    m74 = 0xDEADBEEF;
+    if (MapManager::instance_ != 0) {
+        MapManager::instance_->fn_80491440(this);
+    }
+    atn::RenderManager::instance_->fn_800BDB40(0);
+    fn_8009FE24();
+    m60.fn_80473F88();
+}
 // NONMATCHING: stub - update the map models and the current map selection.
 int MapTask::vf0C() { return 0; }
 // NONMATCHING: stub - load map resources.

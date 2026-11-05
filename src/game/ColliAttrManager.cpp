@@ -1,3 +1,4 @@
+#include "db/MapIdTable_unk.h"
 #include "game/ColliAttrManager.h"
 #include "atn/SoundManager.h"
 #include "atn/Memory.h"
@@ -18,14 +19,6 @@ struct ColliAttrData_unk {
 extern "C" ColliAttrData_unk* fn_8020B1E0(int id);
 extern "C" int fn_8020B208(int kind); // inferred: sound index of a kind
 extern "C" int fn_8020B27C(int kind); // inferred: effect index of a kind
-// inferred: attribute settings of a map (names invented)
-struct MapColliAttr_unk {
-    unsigned char m00[0x6C];
-    const char* mEfp; // 0x6C
-    unsigned char m70[0x74 - 0x70];
-    int mAttr[0x10];  // 0x74
-};
-extern "C" MapColliAttr_unk* fn_8021771C(int id, int arg1, int arg2);
 
 // inferred: result of the ray test fn_8004ED34 (as in game/ChaserNpc.cpp)
 struct CollResult_unk {
@@ -141,12 +134,12 @@ void ColliAttrManager::fn_80183D00(int id, int arg1, int arg2) {
         Release_unk();
         mEfp.Destroy();
         mEntries.Resize_unk(0x10, 0);
-        MapColliAttr_unk* attr = fn_8021771C(id, arg1, arg2);
+        MapId_unk* attr = fn_8021771C(id, arg1, arg2);
         if (attr != 0) {
             for (unsigned int i = 0; i < mEntries.mSize; i++) {
-                fn_80183FFC(i, attr->mAttr[i]);
+                fn_80183FFC(i, attr->m74[i]);
             }
-            attr = (MapColliAttr_unk*)attr->mEfp;
+            attr = (MapId_unk*)attr->m6C;
             if (strcmp("", (const char*)attr) != 0) {
                 mEfp.LoadRequest((const char*)attr);
             }

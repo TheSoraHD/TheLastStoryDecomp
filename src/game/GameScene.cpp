@@ -1,3 +1,4 @@
+#include "db/MapIdTable_unk.h"
 #include "game/GameScene.h"
 #include "game/GameVoice.h"
 extern "C" float lbl_80885CCC;
@@ -110,14 +111,6 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 
-// inferred: area data returned by fn_8021771C (only the members used here)
-struct AreaData_unk {
-    unsigned char m00[0x44];
-    int m44;
-    unsigned char m48[0x68 - 0x48];
-    const char* m68; // inferred: sound group of the area
-};
-extern "C" AreaData_unk* fn_8021771C(int area, int map, int sub);
 
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp); only the members used here
 struct Field_unk {
@@ -273,8 +266,8 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
         }
     }
     m144 = fn_8021771C(area, map, sub);
-    if (m144 != 0 && !fn_800C3118(((AreaData_unk*)m144)->m68)) {
-        fn_800C3094(((AreaData_unk*)m144)->m68);
+    if (m144 != 0 && !fn_800C3118(m144->m68)) {
+        fn_800C3094(m144->m68);
     }
     if (lbl_8087F498 != 0 && lbl_8087F610 == 0) {
         if (area == 1) {
@@ -301,8 +294,8 @@ GameScene::~GameScene() {
     }
     int stop = 1;
     if ((mFlags & 2) == 2 && m144 != 0 && lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
-        AreaData_unk* next = fn_8021771C(lbl_8087F430->m5514, lbl_8087F430->m5518, lbl_8087F430->m551C);
-        if (next != 0 && next->m44 != 1 && strcmp(((AreaData_unk*)m144)->m68, next->m68) == 0) {
+        MapId_unk* next = fn_8021771C(lbl_8087F430->m5514, lbl_8087F430->m5518, lbl_8087F430->m551C);
+        if (next != 0 && next->mType != 1 && strcmp(m144->m68, next->m68) == 0) {
             stop = 0;
         }
     }

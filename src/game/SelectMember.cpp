@@ -1,3 +1,4 @@
+#include "db/MapIdTable_unk.h"
 #include "game/SelectMember.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
@@ -67,11 +68,6 @@ struct SelectMemberAvail_unk {
 };
 extern "C" SelectMemberAvail_unk* fn_80217D9C(int progress);
 extern "C" unsigned char* fn_80216544(int type, int progress, int value);
-struct SelectMemberRule_unk {
-    unsigned char m00[0x54];
-    int m54; // inferred: number of members
-};
-extern "C" SelectMemberRule_unk* fn_8021771C(int a, int b, int c);
 // inferred: character manager (lbl_8087F8A0)
 extern "C" void* lbl_8087F8A0;
 struct SelectMemberChara_unk {
@@ -375,7 +371,7 @@ void SelectMember::fn_80572290() {
     }
     unsigned char* key = fn_80216544(mType, progress, value);
     if (key != 0) {
-        SelectMemberRule_unk* rule = fn_8021771C(key[0], key[1], key[2]);
+        MapId_unk* rule = fn_8021771C(key[0], key[1], key[2]);
         if (rule != 0) {
             mMax = rule->m54;
         }

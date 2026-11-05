@@ -7,9 +7,12 @@
 #include "atn/LH_Binary.h"
 #include "atn/LH_Xsca.h"
 #include "atn/Task.h"
+#include "game/ResHandle.h"
+#include "game/ResRef_unk.h"
 #include "std/string.h"
 
 class MapPartsArea;
+struct MapId_unk; // db/MapIdTable_unk.h
 class MapPartsBase;
 class MapInstance_unk;
 namespace gs {
@@ -77,12 +80,12 @@ public:
     int mType;                                // 0x48: GetMapType (0: field, 1: town, 6: ...)
     int mId;                                  // 0x4C: GetMapId
     int mSubId;                               // 0x50: GetMapSubId
-    void* m54;                                // 0x54: inferred: entry of the map id table (fn_8021771C)
+    MapId_unk* m54;                           // 0x54: inferred: entry of the map id table (fn_8021771C)
     atn::LH_Binary mFile;                     // 0x58: inferred: csv of the parts
     atn::LH_Binary m60;                       // 0x60
     atn::LH_Xsca m68;                         // 0x68
     MapPartsBase* mParts;                     // 0x70: inferred: first part (list through MapPartsBase::mNext)
-    int m74;
+    unsigned int m74;                         // 0x74: inferred: 0xDEADBEEF once destroyed
     float m78;
     float m7C;
     float m80;
@@ -90,7 +93,7 @@ public:
     atn::AABB_unk mBox;                       // 0x88: inferred: bounds of the parts (drawn by vf14)
     atn::FixedArray_unk<MapPartsArea*, 8> mAreas; // 0xA0: atn::static_vector<MapPartsArea*, 8> (DWARF)
     MapPartsArea* mNextArea;                  // 0xC4: inferred: area list replacing the current one
-    int mC8;
+    ResHandle mC8;                            // 0xC8: inferred: resource released by the destructor
     int mCC;
     atn::AABBTree mTree;                      // 0xD0
     int mCamera;                              // 0xE0: inferred: current camera (fn_804A04AC)
@@ -100,7 +103,7 @@ public:
     float mF0;
     int mF4;                                  // 0xF4: inferred: set by the gimmicks that load a map (OnOff...)
     int mF8;                                  // 0xF8: inferred: nonzero when hidden (TownTask sets 1)
-    int mFC;
+    ResRef_unk mFC;                           // 0xFC: inferred: archive reference (destructor)
     int m100;
     int m104;                                 // 0x104: inferred: light mode (0-3, Event::Manager fn_80482ED8)
     int mAreaIndex;                           // 0x108: inferred: current area list index

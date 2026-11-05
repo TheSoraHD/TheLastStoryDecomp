@@ -1,3 +1,4 @@
+#include "db/MapIdTable_unk.h"
 #include "atn/Csv.h"
 #include "atn/LH_Binary.h"
 #include "atn/Memory.h"
@@ -10,13 +11,6 @@ extern "C" std::string fn_8006B174(const std::string& s); // inferred: normalise
 // inferred: loads a resource synchronously (path relative to the data root)
 // fn_80473FCC is atn::LoadHandle::fn_80473FCC (atn/LoadHandle.h)
 
-// inferred: attributes of a map (fn_8021771C, db/MapIdTable_unk); mB4 has one bit per group of
-// motions available in the map
-struct MapAttr_unk {
-    unsigned char m00[0xB4];
-    unsigned int mFlags;
-};
-extern "C" MapAttr_unk* fn_8021771C(int map, int a, int b);
 
 // inferred: motion names: ids 0-569 (sNames) and 570- (sNames2), see fn_802180A8
 static const char* const sNames[570] = {
@@ -720,48 +714,48 @@ extern "C" void fn_80218268(int map, int a, int b) {
     for (int i = 0; i < 570; i++) {
         sEnabled[i] = true;
     }
-    MapAttr_unk* attr = fn_8021771C(map, a, b);
+    MapId_unk* attr = fn_8021771C(map, a, b);
     if (attr != 0) {
-        if ((attr->mFlags & 0x1) != 0x1) {
+        if ((attr->mCharas & 0x1) != 0x1) {
             Disable_unk(0x1F5, 0x1FF);
         }
-        if ((attr->mFlags & 0x2) != 0x2) {
+        if ((attr->mCharas & 0x2) != 0x2) {
             Disable_unk(0x237, 0x239);
         }
-        if ((attr->mFlags & 0x4) != 0x4) {
+        if ((attr->mCharas & 0x4) != 0x4) {
             Disable_unk(0x22F, 0x234);
         }
-        if ((attr->mFlags & 0x8) != 0x8) {
+        if ((attr->mCharas & 0x8) != 0x8) {
             Disable_unk(0x235, 0x236);
         }
-        if ((attr->mFlags & 0x10) != 0x10) {
+        if ((attr->mCharas & 0x10) != 0x10) {
             Disable_unk(0x202, 0x206);
         }
-        if ((attr->mFlags & 0x20) != 0x20) {
+        if ((attr->mCharas & 0x20) != 0x20) {
             Disable_unk(0x207, 0x209);
         }
-        if ((attr->mFlags & 0x40) != 0x40) {
+        if ((attr->mCharas & 0x40) != 0x40) {
             Disable_unk(0x218, 0x21B);
         }
-        if ((attr->mFlags & 0x80) != 0x80) {
+        if ((attr->mCharas & 0x80) != 0x80) {
             Disable_unk(0x21C, 0x21F);
         }
-        if ((attr->mFlags & 0x100) != 0x100) {
+        if ((attr->mCharas & 0x100) != 0x100) {
             Disable_unk(0x220, 0x221);
         }
-        if ((attr->mFlags & 0x200) != 0x200) {
+        if ((attr->mCharas & 0x200) != 0x200) {
             Disable_unk(0x225, 0x226);
         }
-        if ((attr->mFlags & 0x400) != 0x400) {
+        if ((attr->mCharas & 0x400) != 0x400) {
             Disable_unk(0x227, 0x229);
         }
-        if ((attr->mFlags & 0x800) != 0x800) {
+        if ((attr->mCharas & 0x800) != 0x800) {
             Disable_unk(0x210, 0x212);
         }
-        if ((attr->mFlags & 0x1000) != 0x1000) {
+        if ((attr->mCharas & 0x1000) != 0x1000) {
             Disable_unk(0x22A, 0x22E);
         }
-        if ((attr->mFlags & 0x2000) != 0x2000) {
+        if ((attr->mCharas & 0x2000) != 0x2000) {
             Disable_unk(0x215, 0x217);
         }
     }

@@ -2,6 +2,7 @@
 #define GAME_GAMESCENE_H
 
 #include "atn/Task.h"
+struct MapId_unk; // db/MapIdTable_unk.h
 #include "atn/LH_Binary.h"
 #include "atn/Array_unk.h"
 #include "math/Vec.h"
@@ -449,7 +450,7 @@ public:
     int m138;
     float m13C;
     gs::BgmBox* m140;                      // inferred: current BGM box
-    void* m144;                            // inferred: area data (fn_8021771C)
+    MapId_unk* m144;                       // inferred: entry of the map id table (fn_8021771C)
     atn::SimpleArray<gs::SceneGroup_unk> m148; // inferred: party groups
     atn::SimpleArray<gs::SceneGroup_unk> m150; // inferred: enemy groups
     atn::SimpleArray<gs::PointGroup<gs::MovePoint> > m158;
