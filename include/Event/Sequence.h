@@ -133,15 +133,81 @@ struct ScreenEffect_unk {
 };
 
 // inferred: two lists of an entry of the list at 0x184 (names invented)
+// inferred: the second vector of the curve (lengths of the segments); a derived class (its destructor
+// tests the address four times)
+struct FloatVector_unk : public std::vector<float> {};
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+
+// inferred: curve path of the sequence ("CURV"): cubic Bezier segments through mPoints (3n + 1 points),
+// their lengths and the total. The members are weak copies first emitted by Event/Manager.cpp
+// (0x8048A264-0x8048AF9C). Names invented.
 struct EffectLists_unk {
-    EffectLists_unk() { // inferred: built by the reader of "CURV" (Event/EventParser_unk)
+    EffectLists_unk() { Clear_unk(); } // inferred: built by the reader of "CURV" (Event/EventParser_unk)
+    // NONMATCHING: 59.09% - the original clears the points before loading the size of the lengths
+    void Clear_unk() {
+        mPoints.clear();
         m0C = 0.0f;
+        mLengths.clear();
         m1C = 0;
     }
-    std::vector<int> m00;
-    float m0C;
-    IntVector_unk m10; // inferred: one destructor level more than m00 (four address tests)
-    int m1C;
+    // inferred: the copy is in an inline helper over the inline budget: Set_unk keeps its tiny members
+    // (size, operator[]) and calls Clear_unk, the two resize and fn_8048A968 (docs/inlining.md, R5)
+    void Set_unk(const std::vector<atn::Vector3>& points) {
+        SEQ_ASSERT100_UNK;
+        Set_unk(points.size(), &points[0]);
+    }
+    void Set_unk(int n, const atn::Vector3* src) {
+        Clear_unk();
+        mPoints.resize(n);
+        for (int i = 0; i < n; i++) {
+            mPoints[i] = src[i];
+        }
+        if ((int)mPoints.size() < 4 ? false : (int)(mPoints.size() - 1) % 3 == 0) {
+            m0C = 0.0f;
+            m1C = (mPoints.size() - 1) / 3;
+            mLengths.resize(m1C);
+            for (int i = 0; i < m1C; i++) {
+                mLengths[i] = fn_8048A968(i);
+                m0C += mLengths[i];
+            }
+        }
+    }
+    atn::Vector3 GetPoint_unk(int i) const {
+        if (i >= 0 && i < (int)mPoints.size()) {
+            return mPoints[i];
+        }
+        return lbl_807C7030;
+    }
+    int GetCount_unk() const { return mPoints.size(); }
+    // inferred: point of a cubic Bezier segment (control points 3 * segment to 3 * segment + 3)
+    atn::Vector3 GetCurvePoint_unk(int segment, float t) const {
+        float u = 1.0f - t;
+        int i = segment * 3;
+        return mPoints[i] * u * u * u + mPoints[i + 1] * 3.0f * t * u * u + mPoints[i + 2] * 3.0f * t * t * u +
+               mPoints[i + 3] * t * t * t;
+    }
+    // inferred: length of a segment, sampled 64 times (weak copy 0x8048A968)
+    // NONMATCHING: 82.69% - the original frame is 0x20 bytes larger (one more copy of the points) and it keeps
+    // 1/64 and the int-to-float constant on the stack
+    float fn_8048A968(int segment) {
+        float length = 0.0f;
+        float t = 0.0f;
+        atn::Vector3 prev;
+        prev = GetCurvePoint_unk(segment, t);
+        for (int i = 0; i < 64; i++) {
+            t = (float)(i + 1) * 0.015625f;
+            atn::Vector3 p;
+            p = GetCurvePoint_unk(segment, t);
+            length += (p - prev).Length_unk();
+            prev = p;
+        }
+        return length;
+    }
+
+    std::vector<atn::Vector3> mPoints; // 0x00
+    float m0C;                         // inferred: total length
+    FloatVector_unk mLengths;          // 0x10: inferred: lengths of the segments
+    int m1C;                           // inferred: number of segments
 };
 
 // inferred: entry of the list at 0x184 of the sequence (0x24 bytes)

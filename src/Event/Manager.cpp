@@ -82,6 +82,7 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" atn::RenderView_unk* fn_8008B964(); // inferred: returns lbl_8087EFB4
+extern "C" Event::Manager* fn_8000DB1C();        // inferred: returns lbl_8087F540
 extern "C" void* fn_805381B8(void* action); // inferred: cut of the action (Event/Node.cpp)
 extern "C" void* fn_805381DC(void* action); // inferred: sequence of the action (Event/Node.cpp)
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);                         // inferred: sound id
@@ -2627,6 +2628,85 @@ void Manager::fn_80489C98() {
         }
     }
 }
+// inferred: integral of the curve between a and b (weak copy 0x8048A2BC); name invented
+inline float Integral_unk(atn::Curve* curve, float a, float b) {
+    atn::Curve* integral = curve->vf08();
+    float va = integral->vf10(a);
+    return integral->vf10(b) - va;
+}
+
+void Curve_unk::fn_80489D08(int type) {
+    if (m04 != 0) {
+        delete m04;
+        m04 = 0;
+    }
+    if (m08 != 0) {
+        delete m08;
+        m08 = 0;
+    }
+    if (m0C != 0) {
+        delete m0C;
+        m0C = 0;
+    }
+    switch (type) {
+    case 0:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.0f);
+        break;
+    case 1:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 0.0f);
+        break;
+    case 2:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 0.0f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(0.5f);
+        break;
+    case 3:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 3.1415927f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.5f);
+        break;
+    case 6:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 1.5707964f, 0.0f);
+        break;
+    case 5:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 1.5707964f, 1.5707964f);
+        break;
+    case 4:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, -1.5707964f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.0f);
+        break;
+    case 7:
+        m04 = new ((MemoryTag)1, "", "", 0) atn::SinusCurve(1.0f, 3.1415927f, 1.5707964f);
+        m08 = new ((MemoryTag)1, "", "", 0) atn::ConstantCurve(1.0f);
+        break;
+    default:
+        if (type >= 8) {
+            m0C = new ((MemoryTag)1, "", "", 0) EffectLists_unk;
+        }
+        break;
+    }
+    if (m04 != 0) {
+        if (m08 != 0) {
+            float a = Integral_unk(m04, 0.0f, 1.0f);
+            float b = Integral_unk(m08, 0.0f, 1.0f);
+            m04->vf14(1.0f / (a + b));
+            m08->vf14(1.0f / (a + b));
+        } else {
+            m04->vf14(1.0f / Integral_unk(m04, 0.0f, 1.0f));
+        }
+    } else if (m0C != 0 && fn_8000DB1C() != 0) {
+        Sequence* seq = fn_8000DB1C()->fn_80112F54();
+        if (seq != 0) {
+            EffectLists_unk* path = seq->fn_80543060(type - 8);
+            if (path != 0) {
+                std::vector<atn::Vector3> points;
+                for (int i = 0; i < path->GetCount_unk(); i++) {
+                    points.push_back(path->GetPoint_unk(i));
+                }
+                m0C->Set_unk(points);
+            }
+        }
+    }
+}
+
 
 
 

@@ -2,6 +2,7 @@
 #define EVENT_MANAGER_H
 
 #include "atn/Task.h"
+#include "atn/Curve.h"
 #include "atn/FixedArray.h"
 #include "Event/Path.h"
 #include "atn/Bgm.h"
@@ -32,6 +33,7 @@ namespace Event {
 
 class Action;
 class Sequence;
+struct EffectLists_unk;
 struct MovieState_unk;
 
 // inferred: entry of the queue of sequences to start (fn_8047E964)
@@ -151,12 +153,16 @@ struct EventConfig_unk {
     void* m11C; // inferred: light of the render scene (NewCampScene2_unk::m074, fn_80482ED8)
 };
 
-// inferred: curve of the manager (0x10 bytes; fn_8048B048, fn_8048B3B8). Names invented.
+// inferred: curve of the manager (0x10 bytes; created by fn_8048B048 and fn_8048B3B8): a curve and an
+// optional second one (types 0-7, normalised so that their integral over [0, 1] is 1) or a curve path of
+// the sequence (types 8+). POD (pushed with the POD path of push_back). Names invented.
 struct Curve_unk {
+    void fn_80489D08(int type); // inferred: sets the type
+
     int mId;
-    void* m04;
-    int m08;
-    int m0C;
+    atn::Curve* m04;
+    atn::Curve* m08;
+    EffectLists_unk* m0C;
 };
 
 

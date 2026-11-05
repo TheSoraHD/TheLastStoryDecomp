@@ -72,6 +72,15 @@ inline void __vec_storage_unk<float>::__shrink_unk(unsigned int newSize) {
     size -= n;
 }
 
+// inferred: no destroy loop either when a float vector is cleared (EffectLists_unk::Clear_unk, weak copy
+// 0x8048A290)
+template <>
+inline void __vec_storage_unk<float>::clear() {
+    unsigned int n = mSize;
+    unsigned int& size = mSize;
+    size -= n;
+}
+
 // inferred: storage allocation. Pointer, int and float elements share one allocation function in the
 // original (its "Memory allocation failure" literal is a single weak @STRING@ object, 0x80775A88,
 // referenced by 48 files); other elements use vector<T>::__allocate (one literal per type)
