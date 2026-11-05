@@ -2117,6 +2117,56 @@ void Manager::fn_804881B8(Sequence* seq, const char* name, int fade, int stopBgm
     }
     m1F1C = flags;
 }
+// inferred: undoes what fn_804881B8 did (flags m1F1C), except for the ending (event 0x19D) when
+// GameConfig_unk::m194 is set
+void Manager::fn_80488534(Sequence* seq, int fade) {
+    m1E78 = 0;
+    if (lbl_8087F0A8->m194 != 0 && seq->m190 == 0x19D) {
+        return;
+    }
+    int flags = m1F1C;
+    if (flags & 1) {
+        if (GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D3E8(0, 4, fade);
+        }
+    }
+    if (flags & 2) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_80360780(1, 4, fade);
+        }
+    }
+    if (flags & 4) {
+        if (lbl_8087F418 != 0) {
+            lbl_8087F418->fn_803606CC(1, 4, fade);
+        }
+    }
+    if (flags & 8) {
+        if (ColliAttrManager::sInstance != 0) {
+            ColliAttrManager::sInstance->mEnabled = 1;
+        }
+        for (int i = 0; i < (int)seq->m164.size(); i++) {
+            if (IsCharaActor_unk(seq->m164[i])) {
+                seq->m164[i].fn_80012774(1);
+            }
+        }
+    }
+    if (flags & 0x10) {
+        if (ColliAttrManager::sInstance != 0) {
+            ColliAttrManager::sInstance->mEnabled = 1;
+        }
+        for (PlayerTask* p = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0; p != 0; p = p->mNext) {
+            p->m1220.m11 = 1;
+        }
+        for (EnemyTask* e = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; e != 0; e = e->mNext) {
+            e->m1220.m11 = 1;
+        }
+        for (NpcTask* n = NpcManager::sInstance != 0 ? NpcManager::sInstance->mHead : 0; n != 0; n = n->mNext) {
+            n->m1220.m11 = 1;
+        }
+    }
+    m1F1C = 0;
+}
+
 
 
 
