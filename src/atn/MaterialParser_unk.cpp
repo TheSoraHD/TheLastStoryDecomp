@@ -50,7 +50,6 @@ extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path (atn/FileList)
 
 // inferred: loads the texture of `path` (atn/Texture_unk; the second one keeps the image)
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path);
 extern "C" void fn_800D594C(atn::Texture_unk* texture, const char* path);
 
 // inferred: keys of a material block
@@ -410,7 +409,7 @@ void TexStage_unk::fn_8007C018(const char* path, int keep) {
     if (keep != 0) {
         fn_800D594C(mTexture, path);
     } else {
-        fn_800D5908(mTexture, path);
+        mTexture->fn_800D5908(path);
     }
 }
 

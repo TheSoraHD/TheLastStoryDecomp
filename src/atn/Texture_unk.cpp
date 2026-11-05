@@ -10,7 +10,6 @@ extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short 
 
 // inferred: other units declare these as free functions taking the texture (Event/Dialog, game/StrapTask...)
 extern "C" void fn_800D58A4(atn::Texture_unk* tex);
-extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path);
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path);
 extern "C" int fn_800D5A3C(atn::Texture_unk* tex);
 
@@ -43,9 +42,9 @@ extern "C" void fn_800D58A4(atn::Texture_unk* tex) {
 }
 
 // inferred: starts loading `path`
-extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* path) {
-    tex->m20.vf0C(path);
-    tex->m2C = 0;
+void atn::Texture_unk::fn_800D5908(const char* path) {
+    m20.vf0C(path);
+    m2C = 0;
 }
 
 // inferred: loads `path` and waits for it

@@ -6,7 +6,6 @@
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned char SCGetLanguage();
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 extern "C" void fn_800D2338(atn::Task* task);                              // inferred: deletes a task
 
 // inferred: fn_800D59B8 is a member of the texture class, declared in include/game/GimmickCommon.h
@@ -66,7 +65,7 @@ StrapTask::StrapTask(atn::Task* parent) : atn::Task(parent), m48(1), m4C(0), m50
         } else {
             sprintf(path, "/strap/strap%c_xx.texture", 'A' + i);
         }
-        fn_800D5908(&m54[i], path);
+        m54[i].fn_800D5908(path);
     }
     HomeButtonMenu::sInstance->m88 = 0;
     HomeButtonMenu::sInstance->m90 = 0;

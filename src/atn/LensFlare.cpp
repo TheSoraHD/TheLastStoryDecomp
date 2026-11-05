@@ -20,7 +20,6 @@ union LensWGPipe_unk {
 #define GXWGFifo (*(volatile LensWGPipe_unk*)0xCC008000)
 
 // inferred: loads a texture by name (atn::Texture_unk member, automatic name)
-extern "C" void fn_800D5908(atn::Texture_unk* tex, const char* name);
 // inferred: nonzero while a texture is loading. The symbol is named after its first known user
 // (game/GimmickCommon.h); it is an atn::Texture_unk member.
 struct GimmickUvOwner_unk {
@@ -122,7 +121,7 @@ LensFlare::LensFlare(int arg, int count, const Vector3& pos, float size) : m04(a
     for (int i = 0; i < 6; i++) {
         char name[0x100];
         sprintf(name, "common/fx_lensflare%02d.texture", i + 1);
-        fn_800D5908(&m20[i], name);
+        m20[i].fn_800D5908(name);
     }
     mElems.Resize_unk(count);
     void* group = LensCreateGroup_unk(m140, lbl_8087EFA8->m4C, "LensFlare");

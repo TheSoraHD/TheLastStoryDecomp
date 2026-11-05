@@ -163,7 +163,6 @@ struct Input_unk {
     void fn_80122330(int reset);
 };
 
-extern "C" void fn_800D5908(atn::Texture_unk* texture, const char* path); // inferred: loads a texture
 
 // inferred: weak @STRING@ pool of LipSyncData_unk::Resize_unk (atn/LipSync_unk; symbols.txt names them
 // @STRING@Resize_unk__15LipSyncData_unkFUii and ...@0): to link, use the same inline/template
@@ -323,7 +322,7 @@ Dialog::Dialog(atn::Task* parent)
     }
     m10C = fn_801F3FF8(this, "/data/d2anime/ui_c_event_button.d2a", 0);
     m10C->fn_800D246C(1);
-    fn_800D5908(&m120, "/data/texture/ui_c_event_under_filter.texture");
+    m120.fn_800D5908("/data/texture/ui_c_event_under_filter.texture");
     m120.m2D = 0;
     m120.m2E = 0;
     delete[] m190.mKeys;

@@ -11,6 +11,7 @@ class Texture_unk {
 public:
     Texture_unk();  // 0x800D5738
     ~Texture_unk(); // 0x800D5808
+    void fn_800D5908(const char* path); // inferred: loads a texture file (m20.vf0C)
     int fn_800D5B58(int width, int height, int format, int lods, const char* name); // inferred: allocate (returns 1)
 
     GXTexObj mObj;              // 0x00
