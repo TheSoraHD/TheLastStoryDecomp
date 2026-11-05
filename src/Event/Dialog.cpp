@@ -1,4 +1,6 @@
-#include "MP/D2AMpMenu_unk.h"
+#include "atn/D2A_Task.h"
+#include "Event/Manager.h"
+#include "Event/Sequence.h"
 #include "game/GameVoice.h"
 #include "math/Vec.h"
 #include "atn/Memory.h"
@@ -16,7 +18,6 @@
 
 // Everything below is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
-typedef MP::MpD2A_unk DialogD2A_unk;
 
 namespace Event {
 class Dialog;
@@ -134,21 +135,11 @@ extern "C" float lbl_8087DBCC;
 extern "C" float lbl_8087DBD0;
 extern "C" float lbl_8087DBD4;
 
-// inferred: game manager (lbl_8087F540)
-struct DialogScene_unk {
-    unsigned char m000[0x194];
-    int m194;
-};
-struct DialogGame_unk {
-    unsigned char m0000[0x70];
-    DialogScene_unk* m70;
-    unsigned char m0074[0x2390 - 0x74];
-    int m2390;
-    unsigned char m2394[0x2448 - 0x2394];
-    int m2448;
-};
-extern "C" DialogGame_unk* lbl_8087F540;
-extern "C" void fn_80489C98(DialogGame_unk* game);
+// inferred: pad and font, as declared by the menus of MP/D2AMpMenu_unk.h
+extern "C" void* lbl_8087EF70;
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" void* lbl_8087EEC8;
+extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
@@ -548,11 +539,11 @@ void Dialog::fn_80229414() {
     if (fn_800A555C(lbl_8087EF70, 0, 4) != 0 || lbl_8087F540->m2448 != 0) {
         if (m110 == 1 && lbl_8087F008->mA4 <= -1) {
             if (fn_800DBCC8(lbl_8087F008) != 0) {
-                fn_80489C98(lbl_8087F540);
+                lbl_8087F540->fn_80489C98();
                 fn_800DBC1C(lbl_8087F008);
                 m110 = 3;
             } else {
-                fn_80489C98(lbl_8087F540);
+                lbl_8087F540->fn_80489C98();
                 fn_800DBC1C(lbl_8087F008);
                 m110 = 2;
                 m114 = 2;
@@ -573,7 +564,7 @@ void Dialog::fn_80229414() {
         }
     }
     if (m110 == 1 && lbl_8087F008->mA4 <= -1 && fn_800DBCC8(lbl_8087F008) != 0) {
-        fn_80489C98(lbl_8087F540);
+        lbl_8087F540->fn_80489C98();
         fn_800DBC1C(lbl_8087F008);
         m110 = 2;
         m114 = 2;

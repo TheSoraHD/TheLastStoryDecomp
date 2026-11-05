@@ -8,9 +8,7 @@
 #include "Event/Behavior.h"
 #include "Event/DialogHead.h"
 
-namespace MP {
-struct MpD2A_unk;
-}
+#include "atn/D2A_Task.h"
 
 // Everything here is inferred from Event::Dialog (0x802280B4..0x80229DF0); names are invented.
 
@@ -94,7 +92,7 @@ public:
     int m48; // inferred: number of balloons
     Head_unk mHeads[16];
     Slot_unk mSlots[4];
-    MP::MpD2A_unk* m10C; // inferred: ui_c_event_button.d2a
+    atn::D2A_Task* m10C; // inferred: ui_c_event_button.d2a
     int m110;            // inferred: state
     int m114;
     int m118; // inferred: saved camera mode
