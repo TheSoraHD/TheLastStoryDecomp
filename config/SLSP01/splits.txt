@@ -4105,9 +4105,20 @@ RVL_SDK/src/revolution/ipc/ipcMain.c:
 	.text       start:0x8061BCA0 end:0x8061BD88
 	.sbss       start:0x808800E8 end:0x80880100
 
+RVL_SDK/src/revolution/ipc/ipcclt.c:
+	.text       start:0x8061BD88 end:0x8061D7F0
+	.bss        start:0x807E7640 end:0x807E7780
+	.sdata      start:0x8087E8D0 end:0x8087E8D8
+	.sbss       start:0x80880100 end:0x80880110
+
 smg2/src/RVL_SDK/ipc/memory.c:
 	.text       start:0x8061D7F0 end:0x8061DD18
 	.bss        start:0x807E7780 end:0x807E7800
+
+RVL_SDK/src/revolution/ipc/ipcProfile.c:
+	.text       start:0x8061DD18 end:0x8061E130
+	.bss        start:0x807E7800 end:0x807EB280
+	.sbss       start:0x80880110 end:0x80880118
 
 smg2/src/RVL_SDK/nand/nand.c:
 	.text       start:0x8061E130 end:0x8061F7C0
