@@ -3143,8 +3143,26 @@ struct LightFixIntensity_unk {
     CutLightFlags_unk mFlags;
 };
 
-// inferred: AutoLightFix, direction of the light of a map area (callback)
-void fn_8048F1DC(MapArea* area, void* arg);
+// inferred: AutoLightFix, direction of the light of a map area (callback): between the view direction of
+// the camera and the light of the settings of the area
+// NONMATCHING: 99.11% - frame 0x10 larger: the inlined fn_8047C1D8 keeps the copy of the slerp in a slot of its
+// own (same residue as fn_8047C1D8)
+void fn_8048F1DC(MapArea* area, void* arg) {
+    LightFixDir_unk* fix = (LightFixDir_unk*)arg;
+    if (fix->mType != 1) {
+        return;
+    }
+    for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
+        if (area->m24 == fix->mConfig->m110[i].mId) {
+            atn::Vector3 dir;
+            dir = fix->mCamera->mTarget - fix->mCamera->mPos;
+            dir.Normalize_unk();
+            fn_800C2448(&area->GetScene_unk(), 0)
+                ->SetDir_unk(fn_8047C1D8(dir, *fix->mConfig->m110[i].mSetting.mLight.GetDir_unk(), fix->mRatio));
+            return;
+        }
+    }
+}
 
 // inferred: AutoLightFix, intensities of the light and of the ambient color of a map area (callback)
 void fn_8048F844(MapArea* area, void* arg) {
