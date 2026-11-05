@@ -66,7 +66,7 @@ public:
     virtual void vf24();
     virtual void Start();
     virtual atn::Model* vf38();
-    virtual void vf3C(void* lens);
+    virtual void vf3C(atn::Scene* scene);
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf44(GimmickHitMsg_unk* msg);
     virtual atn::ColliBase* vf50();

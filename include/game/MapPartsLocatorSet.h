@@ -26,7 +26,7 @@ public:
 
     void fn_8049B1F0();                 // inferred: creates the instances from the loaded file
     void fn_8049B72C(unsigned int flags); // inferred: sets the draw flags
-    void fn_8049B780(void* lens);       // inferred: sets the lens of the instances
+    void fn_8049B780(atn::Scene* scene); // inferred: sets the scene of the instances
     void fn_8049B7CC(void* tree);       // inferred: picks the light of each instance
 
     atn::LH_Binary mLoader;               // 0x50: the ".building" file

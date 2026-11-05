@@ -586,8 +586,8 @@ int OnOff::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) {
 
 void OnOff::vf4C(CharaTask* chara) {}
 
-void OnOff::vf3C(void* lens) {
-    mModel.m1DC = (atn::Scene*)lens;
+void OnOff::vf3C(atn::Scene* scene) {
+    mModel.m1DC = scene;
     mModel.mFlags |= 0x10000;
 }
 

@@ -28,7 +28,7 @@ public:
     virtual void vf20();
     virtual void Start();
     virtual atn::Model* vf38();
-    virtual void vf3C(void* lens); // 0x803F940C
+    virtual void vf3C(atn::Scene* scene); // 0x803F940C
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag);
     virtual void vf4C(CharaTask* chara);

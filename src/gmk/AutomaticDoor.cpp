@@ -645,8 +645,8 @@ int AutomaticDoor::vf64(int arg) {
     return 0;
 }
 
-void AutomaticDoor::vf3C(void* lens) {
-    mModel.m1DC = (atn::Scene*)lens;
+void AutomaticDoor::vf3C(atn::Scene* scene) {
+    mModel.m1DC = scene;
     mModel.mFlags |= 0x10000;
 }
 

@@ -35,7 +35,7 @@ public:
     virtual int vf0C();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf3C(void* lens);
+    virtual void vf3C(atn::Scene* scene);
     virtual int vf40(GimmickMsg_unk* msg);
 
     void fn_8043B9E0(); // inferred: builds the joints; not decompiled yet
