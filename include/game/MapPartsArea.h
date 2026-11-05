@@ -40,7 +40,7 @@ public:
 
     atn::LH_Binary mFile;            // 0x50: inferred: csv of the areas
     std::vector<MapArea*> mAreas;    // 0x58
-    int m64;
+    int m64;                         // 0x64: inferred: the areas were read (vf0C)
     unsigned int mHash;              // 0x68: inferred: hash of the file name
 // inferred: allocated with 0x70 bytes: 8-byte aligned like MapTask and MapPartsModel (probably through
 // atn::Task)

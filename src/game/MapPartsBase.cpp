@@ -6,6 +6,13 @@
 #include "atn/Memory.h"
 #include "atn/Rain.h"
 #include "atn/RenderManager.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/NpcManager.h"
+#include "game/NpcTask.h"
+#include "game/PlayerManager.h"
+#include "game/PlayerTask.h"
+#include "game/TownTask.h"
 #include "std/new.h"
 #include "std/vector.h"
 
@@ -15,22 +22,48 @@ extern "C" float fn_800DC288(const char* text);
 extern "C" void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv);
 
 MapPartsArea* MapPartsArea::SetTask(atn::Task* parent, int type, atn::CsvTab& csv) {
-    const char* path = csv.fn_8005B9CC();
-    if (parent == 0) {
-        return 0;
-    }
-    return new ((MemoryTag)12, "", "", 0) MapPartsArea(parent, type, path);
+    return fn_80491F94(parent, type, csv.fn_8005B9CC());
 }
 
 MapPartsArea* MapPartsArea::fn_80491F94(atn::Task* parent, int type, const char* path) {
-    if (parent == 0) {
-        return 0;
+    if (parent != 0) {
+        return new ((MemoryTag)12, "", "", 0) MapPartsArea(parent, type, path);
     }
-    return new ((MemoryTag)12, "", "", 0) MapPartsArea(parent, type, path);
+    return 0;
 }
 
-// NONMATCHING: 10.87% - cleanup of loaded actors and atn::Scene is not reconstructed yet.
-MapPartsArea::~MapPartsArea() {}
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+
+// inferred: names invented (same inline in game/CharaTask.cpp and game/ColliAttrManager.cpp)
+inline atn::Scene* CharaTask::GetLens_unk() {
+    return (mMotion.m1DC == 0) ? atn::RenderManager::instance_->mScene : mMotion.m1DC;
+}
+
+// inferred: the characters drawn with `scene` go back to the scene of the render manager
+template <class T>
+inline void ResetLens_unk(CharaManager<T>* manager, atn::Scene* scene) {
+    if (manager != 0) {
+        for (T* chara = manager->mHead; chara != 0; chara = chara->mNext) {
+            if (chara->GetLens_unk() == scene) {
+                chara->mMotion.m1DC = 0;
+            }
+        }
+    }
+}
+
+// NONMATCHING: 98.51% - registers: the original keeps this in r27, the delete flag in r28 and the area in r26
+// (here r26, r27 and r28)
+MapPartsArea::~MapPartsArea() {
+    for (unsigned int i = 0; i < mAreas.size(); i++) {
+        if (lbl_8087FA20 != 0) {
+            ResetLens_unk(lbl_8087F8A0, &mAreas[i]->mScene);
+            ResetLens_unk(EnemyManager::sInstance, &mAreas[i]->mScene);
+            ResetLens_unk(NpcManager::sInstance, &mAreas[i]->mScene);
+        }
+        MapArea* area = mAreas[i];
+        delete area;
+    }
+}
 
 // inferred: weak copy of atn::RenderManager::GetScene (RSO name); defined here (not inline) until
 // its caller fn_80494354 is written
@@ -38,8 +71,25 @@ atn::Scene* atn::RenderManager::GetScene() {
     return mScene;
 }
 
-// NONMATCHING: 2.59% - map loading and readiness checks are not reconstructed yet.
+// inferred: reads the areas once the csv is loaded, then waits for their scenes
+// NONMATCHING: 95.89% - the empty stub of fn_80494354 is inlined (the call goes away), and the loop
+// increments the offset before the index
 int MapPartsArea::vf0C() {
+    if (m64 != 0) {
+        int ready = 1;
+        for (unsigned int i = 0; i < mAreas.size(); i++) {
+            if (mAreas[i]->mScene.fn_800C2108() != 0) {
+                ready = 0;
+            }
+        }
+        if (ready != 0 && fn_800D3FA4() != 0) {
+            return 1;
+        }
+    } else if (mFile.fn_80473F50() == 0) {
+        fn_80494354();
+        mFile.fn_80473F88();
+        m64 = 1;
+    }
     return 0;
 }
 
@@ -128,7 +178,8 @@ bool MapPartsBase::vf20(const atn::Vector3&) {
 extern "C" void fn_804963F8(MapPartsBase* self, MapPartsBase* next);
 extern "C" void fn_80496414(MapPartsBase* self, MapPartsBase* next);
 
-MapPartsBase::MapPartsBase(atn::Task* parent, int type) : atn::Task(parent), mType(type), mNext(0) {}
+// inferred: not inlined into the creators of MapPartsArea (called with bl at 0x80491F08)
+__declspec(noinline) MapPartsBase::MapPartsBase(atn::Task* parent, int type) : atn::Task(parent), mType(type), mNext(0) {}
 
 extern "C" void fn_804963F8(MapPartsBase* self, MapPartsBase* next) {
     while (self->mNext != 0) {
