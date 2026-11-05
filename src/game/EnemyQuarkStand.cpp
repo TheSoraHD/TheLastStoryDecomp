@@ -22,6 +22,7 @@
 #include <boost/tokenizer.hpp>
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -196,12 +197,6 @@ struct QuarkStickControl_unk {
     unsigned char m00[0x24];
     boost::function<void()> m24;
 };
-// inferred: engine camera (lbl_8087EFB4) with the Camera_unk at +0x104 (as in gmk/AutomaticDoor.cpp)
-struct QuarkEngineCamera_unk {
-    unsigned char m000[0x104];
-    Camera_unk m104;
-};
-extern "C" QuarkEngineCamera_unk* lbl_8087EFB4;
 extern "C" void fn_80392D2C(Camera_unk* camera, const Camera_unk* from, float rate); // inferred: blends back
 extern "C" double tan(double x);
 extern "C" double atan(double x);
@@ -1822,7 +1817,7 @@ void EnemyQuarkStand::fn_8034DE90() {
         float fov = curve->fn_805BF204(mMotion.mTracks[0].m08, 0);
         camera.mFovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * fov)) / camera.mAspect);
         camera.fn_8004B378();
-        lbl_8087EFB4->m104 = camera;
+        lbl_8087EFB4->mCamera = camera;
         if (done != 0 || mMotion.mTracks[0].m08 >= curve->m14) {
             fn_80392D2C(&lbl_8087F430->m06C, &camera, 0.05f);
             m1714 = 0;

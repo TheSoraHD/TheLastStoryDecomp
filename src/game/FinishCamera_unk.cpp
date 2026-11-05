@@ -2,6 +2,7 @@
 #include "game/CharaTask.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/Lemon.h"
+#include "atn/RenderView_unk.h"
 
 // Everything below is inferred from the finishing camera (0x80378474..0x8037C71C); names are invented.
 
@@ -33,12 +34,6 @@ extern "C" int fn_8004ED34(void* world, CollResult_unk* result, const atn::Vecto
 extern "C" int fn_8004D388(void* world, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, int a, int b, float radius); // inferred: sphere test
 
-// inferred: global camera (lbl_8087EFB4) with its Camera_unk at 0x104
-struct FinishView_unk {
-    unsigned char m000[0x104];
-    Camera_unk mCamera;
-};
-extern "C" FinishView_unk* lbl_8087EFB4;
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
 // inferred: xsca camera curves (as in game/EnemyQuarkStand.cpp)

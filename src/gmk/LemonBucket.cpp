@@ -3,6 +3,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -32,12 +33,6 @@ struct Settings_unk {
     int m18;
 };
 extern "C" Settings_unk* lbl_8087F0A8;
-// inferred: camera (class unknown); names invented
-struct LemonCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" LemonCamera_unk* lbl_8087EFB4;
 // inferred: event state (class unknown): m48 nonzero while an event runs
 struct LemonEvent_unk {
     unsigned char m00[0x48];
@@ -64,7 +59,7 @@ static const char* const sSe[] = {"SE_EVCOM_013", "SE_DGCOM_010"};
 
 // inferred: squared distance of the camera (name invented)
 inline float CameraDistSq_unk(const atn::Vector3& pos) {
-    atn::Vector3 d = lbl_8087EFB4->mPos - pos;
+    atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - pos;
     return PSVECSquareMag(&d);
 }
 inline float Rand_unk() {

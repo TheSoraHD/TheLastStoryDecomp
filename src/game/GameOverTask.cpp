@@ -89,6 +89,7 @@ extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087F434;
 #include "atn/SequenceBoot_unk.h"
+#include "atn/RenderView_unk.h"
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 // inferred: field (lbl_8087F430); only the members used here
@@ -154,12 +155,6 @@ struct GameOverState_unk {
     GameOverLight_unk m374;
 };
 extern "C" GameOverState_unk* lbl_8087EFA8;
-// inferred: camera of the screen (lbl_8087EFB4)
-struct GameOverCamera_unk {
-    unsigned char m000[0x104];
-    Camera_unk mCamera; // 0x104
-};
-extern "C" GameOverCamera_unk* lbl_8087EFB4;
 
 // inferred: choices of each mode (ids of the actions) and texts (message ids)
 static const int sMsgTitle[4] = {0x2762, 0x2766, 0x2765, 0x2762};

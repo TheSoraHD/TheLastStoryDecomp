@@ -4,6 +4,7 @@
 #include "macros.h"
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
@@ -37,12 +38,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
-// inferred: camera (see game/CharaTask.cpp)
-struct CopyCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye; // 0x10C
-};
-extern "C" CopyCamera_unk* lbl_8087EFB4;
 // inferred: resource of the model (atn::Model::m16C); names invented
 struct CopyModelRes_unk {
     unsigned char m00[0x44];
@@ -171,7 +166,7 @@ void CopyRobotTask::vf10() {
         memcpy(mMotion.m21C.mData, m14B4->mMotion.m21C.mData,
                (*(CopyModelRes_unk**)((char*)&mMotion + 0x16C))->mNumNodes * sizeof(atn::Model::Node_unk));
         mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        fn_80148B38(LengthSq_unk(lbl_8087EFB4->mEye - mPos));
+        fn_80148B38(LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos));
         vf20();
         mColli.mFlags &= ~1;
         vf54();

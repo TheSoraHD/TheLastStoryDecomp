@@ -8,6 +8,7 @@
 #include "atn/SoundRef.h"
 #include "game/CharaStatus.h"
 #include "game/MenuCommonTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -36,12 +37,6 @@ struct NewCampCamp_unk {
     NewCampPartsBase* mCurrent; // 0x11F0: inferred: parts shown now
 };
 
-// inferred: camera (lbl_8087EFB4); m15C is the view matrix
-struct NewCampCamera_unk {
-    unsigned char m000[0x15C];
-    atn::Matrix3x4 mView; // 0x15C
-};
-extern "C" NewCampCamera_unk* lbl_8087EFB4;
 // inferred: d2anime manager of the menus; m1A8/m1AC: the current anime and layout
 struct NewCampD2AManager_unk {
     unsigned char m000[0x1A8];
@@ -281,7 +276,7 @@ void NewCampPartsBase::vf50(NewCampPartsEntry_unk* entry, atn::ModelBase* model,
             entry->GetInstance_unk()->fn_8009EE30(mtx);
         }
         if (entry->mModel != 0 && entry->GetInstance_unk() != 0 && model != 0) {
-            atn::Matrix3x4* view = &lbl_8087EFB4->mView;
+            atn::Matrix3x4* view = &lbl_8087EFB4->mCamera.mView;
             atn::Vector3 pos = GetModel_unk(entry->mModel)->mMtx.GetTrans_unk();
             PSMTXMultVec(entry->mModel->mMtx.m, &pos, &pos);
             PSMTXMultVec(view->m, &pos, &pos);

@@ -8,6 +8,7 @@
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
 #include "atn/Material_unk.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: event flags counted by fn_8031FE4C (lbl_80749898) and route places of the retreat
 // (lbl_807498A4)
@@ -309,12 +310,6 @@ struct GameState_unk {
     float m3A4; // inferred: time of a frame
 };
 extern "C" GameState_unk* lbl_8087EFA8;
-// inferred: camera (lbl_8087EFB4, see game/CharaTask.cpp); names invented
-struct Camera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye; // 0x10C
-};
-extern "C" Camera_unk* lbl_8087EFB4;
 
 // inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
 inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
@@ -698,7 +693,7 @@ void Em401_01_WhiteLeoPard::vf24() {
         walkSpeed = 0.0f;
         dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
     }
-    if (PSVECSquareMag(&(lbl_8087EFB4->mEye - mPos)) > 62500.0f) {
+    if (PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {

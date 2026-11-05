@@ -7,6 +7,7 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/ChaserGuard.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct ChaseEffectMgr_unk;
@@ -198,13 +199,6 @@ extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
 extern "C" double sin(double x);
-// inferred: camera (only the members used here)
-struct ChaseCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye;    // 0x10C
-    atn::Vector3 mTarget; // 0x118
-};
-extern "C" ChaseCamera_unk* lbl_8087EFB4;
 
 // inferred: rotate `m` around `axis` when the angle is not zero (the constant is compared first)
 inline void ChaseRotate_unk(Mtx m, char axis, float rad) {
@@ -289,7 +283,7 @@ void ChaseManager::vf10() {
             }
         }
         atn::Vector3 view;
-        view = lbl_8087EFB4->mTarget - lbl_8087EFB4->mEye;
+        view = lbl_8087EFB4->mCamera.mTarget - lbl_8087EFB4->mCamera.mPos;
         PSVECNormalize(&view, &view);
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 axis;

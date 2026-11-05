@@ -3,12 +3,7 @@
 
 #include "math/Vec.h"
 #include "atn/Sphere.h"
-
-// inferred: plane (normal, distance); names invented
-struct Plane_unk {
-    atn::Vector3 mNormal;
-    float mDist;
-};
+#include "atn/Plane_unk.h"
 
 // inferred: view frustum of the engine camera (0xF4 bytes at Camera_unk+0x100, atn/Frustum_unk.cpp).
 // Names invented.

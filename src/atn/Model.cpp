@@ -476,7 +476,7 @@ int ModelBase::fn_8008B140() {
                     busy = 1;
                 }
             }
-            if (busy || lbl_8087EFB4->m054 != 0) {
+            if (busy || lbl_8087EFB4->mPassHeads[1] != 0) {
                 return 1;
             }
             for (unsigned int i = 0; i < m1E4.mSize; i++) {

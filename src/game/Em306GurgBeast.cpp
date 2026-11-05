@@ -6,6 +6,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -93,12 +94,6 @@ extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
 inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
-// inferred: camera (lbl_8087EFB4); m134 is its rotation around y
-struct BeastCamera_unk {
-    unsigned char m000[0x134];
-    float m134;
-};
-extern "C" BeastCamera_unk* lbl_8087EFB4;
 // inferred: tutorial message request (as DropTutorial_unk of gmk/DropItem.cpp); only set while none is shown
 struct BeastTutorial_unk {
     int m00;
@@ -463,7 +458,7 @@ inline void Em306GurgBeast::RideMove_unk() {
     if (rate < 0.4f) {
         dir = mRot;
     } else {
-        float cam = lbl_8087EFB4->m134;
+        float cam = lbl_8087EFB4->mCamera.mRot.y;
         dir.fn_80139F60();
         dir.y = cam - dir.y;
     }

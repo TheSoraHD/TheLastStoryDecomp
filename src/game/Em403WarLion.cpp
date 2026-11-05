@@ -13,6 +13,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: circuit of the war lion around the arena: place id and two flags (names invented)
 struct WarLionPlace_unk {
@@ -68,12 +69,6 @@ extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Spher
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double sin(double x);
 extern "C" double cos(double x);
-// inferred: camera (lbl_8087EFB4, see game/CharaTask.cpp); names invented
-struct Camera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye; // 0x10C
-};
-extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
 // inferred: length of a motion, 30 frames when it is missing (as in game/CharaTask.cpp); name invented
 inline float GetMotionLength_unk(atn::Model* model, int id) {
@@ -721,7 +716,7 @@ void Em403WarLion::vf24() {
         walkSpeed = 0.0f;
         dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
     }
-    if (PSVECSquareMag(&(lbl_8087EFB4->mEye - mPos)) > 62500.0f) {
+    if (PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {

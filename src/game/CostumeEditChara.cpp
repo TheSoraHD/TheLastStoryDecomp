@@ -3,6 +3,7 @@
 #include "game/EquipItemData.h"
 #include "atn/Memory.h"
 #include <boost/function.hpp>
+#include "atn/RenderView_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
@@ -13,13 +14,7 @@ extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
 extern "C" void fn_80565F34(chr::CharaEquip_unk* equip); // inferred: draws the equipment
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b);
-// inferred: camera (lbl_8087EFB4)
-struct CostumeEditCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" CostumeEditCamera_unk* lbl_8087EFB4;
-extern "C" void fn_800BFAC8(atn::Vector3* out, CostumeEditCamera_unk* camera, const atn::Vector3* pos); // inferred: to screen
+extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* camera, const atn::Vector3* pos); // inferred: to screen
 // inferred: menu cursor (lbl_8087F580)
 struct CostumeEditCursor_unk {
     unsigned char m000[0x1EC];
@@ -136,7 +131,7 @@ int CostumeEditChara::vf0C() {
             __MtxCopy(motion->mMtx.m, mMtx.m);
             motion->m54 = __MaxScaleT_unk(mMtx);
             mChara->mMotion.fn_80097E80(1);
-            mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk())));
+            mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mMtx.GetTrans_unk())));
             mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             mChara->fn_80147A18(0);
             CharaTask* chara = mChara;
@@ -178,7 +173,7 @@ void CostumeEditChara::vf10() {
         motion->m50 = 0;
         mChara->mMotion.fn_80097E80(1);
         mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mPos - mMtx.GetTrans_unk())));
+        mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mMtx.GetTrans_unk())));
         if (mShadow.fn_8008B140() == 0) {
             __MtxCopy(mShadow.mMtx.m, mMtx.m);
             mShadow.m54 = __MaxScaleT_unk(mMtx);

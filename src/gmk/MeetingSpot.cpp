@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: route between two points (8 bytes; declared in game/CharaStatus.h)
 struct RoutePath_unk {
@@ -17,12 +18,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: link between two points
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-// inferred: camera (only the position)
-struct CameraPos_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" CameraPos_unk* lbl_8087EFB4;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: link between two route points (name invented)
@@ -86,7 +81,7 @@ void MeetingSpot::Start() {
 void MeetingSpot::vf10() {
     int cancel = vf60() == 0;
     if (!cancel) {
-        cancel = SqLength_unk(lbl_8087EFB4->mPos - m6C) > 250000.0f;
+        cancel = SqLength_unk(lbl_8087EFB4->mCamera.mPos - m6C) > 250000.0f;
     }
     if (!cancel && mDesc->m2C == 1 && mState < 7) {
         CharaTask* player = (CharaTask*)lbl_8087F8A0->mHead;

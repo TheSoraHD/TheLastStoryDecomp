@@ -7,6 +7,7 @@
 #include "game/ChaseManager.h"
 #include "std/vector.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -30,13 +31,6 @@ struct CrowdField_unk {
     int mMode;  // 0x54E4
 };
 extern "C" CrowdField_unk* lbl_8087F430;
-// inferred: camera (only the members used here)
-struct CrowdCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye; // 0x10C
-    atn::Vector3 mPos; // 0x118
-};
-extern "C" CrowdCamera_unk* lbl_8087EFB4;
 extern "C" int rand();
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -111,7 +105,7 @@ inline void CrowdManager::UpdateLimit_unk() {
 
 // inferred: unsigned index through SimpleArray::operator[](int) (the index is incremented before the offset)
 void CrowdManager::vf10() {
-    mCenter = lbl_8087EFB4->mPos;
+    mCenter = lbl_8087EFB4->mCamera.mTarget;
     UpdateLimit_unk();
     if (lbl_8087F430->mMode != 8) {
         if (mCount < mLimit) {
@@ -138,7 +132,7 @@ void CrowdManager::vf10() {
 }
 
 extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" void fn_800BFAC8(atn::Vector3* out, CrowdCamera_unk* camera, const atn::Vector3* pos); // inferred: to screen
+extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* camera, const atn::Vector3* pos); // inferred: to screen
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" int sprintf(char* dst, const char* format, ...);
 
@@ -182,7 +176,7 @@ void CrowdManager::vf14() {
             CrowdColor_unk color(1.0f, 0.0f, 0.0f, 1.0f);
             lbl_8087EEB0->fn_80062C8C(16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f, 5.0f, 10.0f);
         }
-        if (LengthSq_unk(lbl_8087EFB4->mEye - walker->mPos) < 1600.0f) {
+        if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - walker->mPos) < 1600.0f) {
             fn_800BFAC8(&screen, lbl_8087EFB4, &walker->mPos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 float y = screen.y;

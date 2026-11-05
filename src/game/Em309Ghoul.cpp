@@ -9,6 +9,7 @@
 #include "math/Vec.h"
 #include <string.h>
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -1095,12 +1096,6 @@ struct GhoulCollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, GhoulCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-// inferred: engine camera (lbl_8087EFB4) with the Camera_unk at +0x104 (as in game/EnemyQuarkStand.cpp)
-struct GhoulEngineCamera_unk {
-    unsigned char m000[0x104];
-    Camera_unk m104;
-};
-extern "C" GhoulEngineCamera_unk* lbl_8087EFB4;
 extern "C" double tan(double x);
 extern "C" double atan(double x);
 // inferred: xsca camera curves (as in game/EnemyQuarkStand.cpp)
@@ -1255,7 +1250,7 @@ void Em309Ghoul::vfEC() {
     PSMTXMultVec(rz, &up, &up);
     camera.mUp = up;
     camera.fn_8004B378();
-    lbl_8087EFB4->m104 = camera;
+    lbl_8087EFB4->mCamera = camera;
 }
 
 // inferred: rotates `m` around `axis` when the angle is not zero (as in fn_80302B84; name invented)

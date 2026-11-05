@@ -6,6 +6,7 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
@@ -24,12 +25,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" unsigned short fn_803CD958(void* entry, int point); // inferred: the two points are linked
-// inferred: camera (class unknown)
-struct AugurCamera_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mEye; // 0x10C
-};
-extern "C" AugurCamera_unk* lbl_8087EFB4;
 
 // inferred: names invented
 inline float LenSq_unk(atn::Vector3 v) {
@@ -151,7 +146,7 @@ void Augur::vf10() {
     if (m54 == 1) {
         return;
     }
-    if (LenSq_unk(lbl_8087EFB4->mEye - m6C) > 250000.0f && mState == 2) {
+    if (LenSq_unk(lbl_8087EFB4->mCamera.mPos - m6C) > 250000.0f && mState == 2) {
         return;
     }
     switch (mState) {

@@ -7,6 +7,7 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -27,12 +28,7 @@ extern "C" int atoi(const char* s);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
-// inferred: camera (lbl_8087EFB4) and field (lbl_8087F430); classes unknown
-struct WaitCamera_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" WaitCamera_unk* lbl_8087EFB4;
+// inferred: field (lbl_8087F430); class unknown
 struct WaitField_unk;
 extern "C" WaitField_unk* lbl_8087F430;
 struct WaitMapGroup_unk {
@@ -196,7 +192,7 @@ void WaitObject::vf10() {
     if (mDesc != 0 && mDesc->m7C == 0) {
         return;
     }
-    atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
+    atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - m6C;
     float dist = PSVECSquareMag(&d);
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m48 == 1 &&
         dist > 360000.0f) {

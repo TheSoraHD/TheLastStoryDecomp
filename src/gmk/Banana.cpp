@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -9,12 +10,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
-// inferred: camera (lbl_8087EFB4)
-struct Camera_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" Camera_unk* lbl_8087EFB4;
 // inferred: game settings
 struct Settings_unk {
     unsigned char m00[0x30];
@@ -90,7 +85,7 @@ void Banana::vf10() {
     if (m54 == 1 || mDesc->m7C == 0) {
         return;
     }
-    atn::Vector3 d(lbl_8087EFB4->mPos.x - m6C.x, lbl_8087EFB4->mPos.y - m6C.y, lbl_8087EFB4->mPos.z - m6C.z);
+    atn::Vector3 d(lbl_8087EFB4->mCamera.mPos.x - m6C.x, lbl_8087EFB4->mCamera.mPos.y - m6C.y, lbl_8087EFB4->mCamera.mPos.z - m6C.z);
     if (PSVECSquareMag(&d) > 250000.0f && m54 == 2) {
         return;
     }

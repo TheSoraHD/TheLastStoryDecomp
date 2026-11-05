@@ -9,6 +9,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -26,12 +27,6 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 
-// inferred: camera (lbl_8087EFB4)
-struct DropCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" DropCamera_unk* lbl_8087EFB4;
 // inferred: field (lbl_8087F430) and its map information
 struct DropMapInfo_unk {
     unsigned char m00[0x48];
@@ -288,7 +283,7 @@ void DropItem::vf10() {
             rangeDist /= 1.5f;
             nearDist *= 0.5f;
         }
-        atn::Vector3 d(m6C.x - lbl_8087EFB4->mPos.x, m6C.y - lbl_8087EFB4->mPos.y, m6C.z - lbl_8087EFB4->mPos.z);
+        atn::Vector3 d(m6C.x - lbl_8087EFB4->mCamera.mPos.x, m6C.y - lbl_8087EFB4->mCamera.mPos.y, m6C.z - lbl_8087EFB4->mCamera.mPos.z);
         float camDist = PSVECSquareMag(&d);
         bool event = false;
         if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {

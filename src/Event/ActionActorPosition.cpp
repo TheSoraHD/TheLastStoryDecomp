@@ -5,6 +5,7 @@
 #include "math/VecOps_unk.h"
 #include "math/DegToRad_unk.h"
 #include "std/ios_init.h"
+#include "atn/RenderView_unk.h"
 
 // Actor actions of the events: processors with vf08 (per frame) and vf0C (phase), as in
 // Event/ActionCameraMode. Class names from the RTTI; vtables in the order Material, Wind, Setting,
@@ -749,13 +750,7 @@ int ActionActorFacial::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-// inferred: the global camera (lbl_8087EFB4) seen through the point the eyes look at
-struct EyesCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 m10C; // inferred: eye position
-};
 
-extern "C" EyesCamera_unk* lbl_8087EFB4;
 extern "C" int rand();
 
 // NONMATCHING: 95.7% - volatile registers of the two inlined actor lookups and the parameter checks; the
@@ -768,7 +763,7 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     float weight = 1.0f;
     Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
     int node = arg->GetParam_unk(1)->m04.i;
-    atn::Vector3 cam = lbl_8087EFB4->m10C;
+    atn::Vector3 cam = lbl_8087EFB4->mCamera.mPos;
     float angle = arg->GetParam_unk(14)->m04.f;
     int fadeIn = arg->m18;
     int length = arg->m14 - arg->m10;

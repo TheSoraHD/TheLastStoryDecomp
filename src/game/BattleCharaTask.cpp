@@ -32,6 +32,7 @@
 #include "game/SkillEffectManager.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "atn/RenderView_unk.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -323,13 +324,6 @@ extern "C" int fn_8004ED34(void* colli, RayResult_unk* result, const atn::Vector
 extern "C" void* lbl_8087EE98;
 extern "C" void fn_801021B4(Effect_unk* mgr, RayObj_unk* obj, int a, int b); // inferred: cursor target
 atn::Vector3 fn_8017C9AC(CharaTask* chara); // inferred: position of the character's eyes
-// inferred: camera (lbl_8087EFB4); eye and target at 0x10C and 0x118 (View_unk in game/CharaTask.cpp)
-struct BattleCamera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye;    // 0x10C
-    atn::Vector3 mTarget; // 0x118
-};
-extern "C" BattleCamera_unk* lbl_8087EFB4;
 
 // inferred: record of the parameters of fn_80210220 (as Record80210220_unk in chr/ControlAttractHateCharge.cpp)
 struct ParamRecord_unk {
@@ -514,7 +508,7 @@ void BattleCharaTask::fn_800E2FE0() {
     } else if ((mFlags & 1) != 1 && !mFlag25) {
         fn_80145334();
     } else {
-        atn::Vector3 d = lbl_8087EFB4->mEye - mPos;
+        atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - mPos;
         fn_80148B38(PSVECSquareMag(&d));
     }
     if (mType == 2 && CanAct_unk() && (m54C & 0x2000) != 0x2000 && mC58.mC0 != 0) {
@@ -544,10 +538,10 @@ void BattleCharaTask::fn_800E3F5C() {
     BattleArea_unk* area = field->m10D8;
     int mode = field->m868;
     if (!(mode != 3 && mode != 4)) {
-        BattleCamera_unk* camera = lbl_8087EFB4;
+        atn::RenderView_unk* camera = lbl_8087EFB4;
         atn::Vector3 from = fn_8017C9AC(this);
         atn::Vector3 dir;
-        dir = camera->mTarget - camera->mEye;
+        dir = camera->mCamera.mTarget - camera->mCamera.mPos;
         dir.Normalize_unk();
         float range = 800.0f > mStatus.mParamB.m28 ? 800.0f : mStatus.mParamB.m28;
         atn::Vector3 start = from;

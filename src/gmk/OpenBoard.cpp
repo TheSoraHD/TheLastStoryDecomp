@@ -5,6 +5,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -22,12 +23,6 @@ struct Settings_unk {
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" void PSMTXInverse(const Mtx src, Mtx inv);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: camera (lbl_8087EFB4)
-struct BoardCamera_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" BoardCamera_unk* lbl_8087EFB4;
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -146,7 +141,7 @@ void OpenBoard::vf10() {
             }
         }
     } else {
-        atn::Vector3 pos = lbl_8087EFB4->mPos;
+        atn::Vector3 pos = lbl_8087EFB4->mCamera.mPos;
         PSMTXMultVec(inv.m, &pos, &pos);
         float z = (float)__fabs(pos.z);
         if (z < dist) {

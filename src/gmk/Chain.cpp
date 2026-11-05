@@ -3,6 +3,7 @@
 #include "game/CharaManager.h"
 #include "game/EnemyManager.h"
 #include "game/NpcManager.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -10,12 +11,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void C_QUATMtx(atn::Quaternion_unk* q, const Mtx m);
 extern "C" void C_QUATRotAxisRad(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
 extern "C" double acos(double x);
-// inferred: camera (only the position)
-struct CameraPos_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" CameraPos_unk* lbl_8087EFB4;
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: game settings
 struct Settings_unk {
@@ -92,7 +87,7 @@ int Chain::vf0C() {
 // NONMATCHING: 99.95% - only the place of 90000.0f in .sdata2 (fn_8043B9E0, not decompiled yet,
 // creates 1.4f before it).
 void Chain::vf10() {
-    if (SqLength_unk(lbl_8087EFB4->mPos - m6C) > 90000.0f) {
+    if (SqLength_unk(lbl_8087EFB4->mCamera.mPos - m6C) > 90000.0f) {
         return;
     }
     if (mTarget == 0) {

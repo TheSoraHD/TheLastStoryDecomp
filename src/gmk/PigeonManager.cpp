@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -21,12 +22,6 @@ extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
-// inferred: camera (only the position)
-struct PigeonCamera_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" PigeonCamera_unk* lbl_8087EFB4;
 // inferred: game state (lbl_8087EFA8, see game/CharaTask.cpp)
 struct PigeonGameState_unk {
     unsigned char m000[0x218];
@@ -143,7 +138,7 @@ void Pigeon_unk::fn_804048CC() {
     __SetTrans3_unk(mtx, mPos.x, mPos.y, mPos.z);
     m42C++;
     int update = 1;
-    atn::Vector3 d = lbl_8087EFB4->mPos - mPos;
+    atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - mPos;
     float distSq = PSVECSquareMag(&d);
     mModel.mFlags |= 0x40;
     if (distSq > lbl_8087EFA8->m21C * lbl_8087EFA8->m21C) {

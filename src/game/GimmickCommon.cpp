@@ -62,6 +62,7 @@
 #include "gmk/Bat.h"
 #include "gmk/RandomMerchant.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -77,13 +78,7 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Matrix3x4 lbl_807C7060;              // inferred: identity matrix
 
-// inferred: camera (lbl_8087EFB4) and its projection to the screen
-struct Camera_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" void fn_800BFAC8(atn::Vector3* out, Camera_unk* camera, const atn::Vector3* pos);
+extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* camera, const atn::Vector3* pos);
 // inferred: game settings (debug switches)
 struct Settings_unk {
     unsigned char m00[0x74];
@@ -526,7 +521,7 @@ void GimmickCommon::fn_803ED610(atn::Model* model) {
     if (m9C != 0) {
         model->fn_8008CD60();
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
-            atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
+            atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - m6C;
             if (PSVECSquareMag(&d) < 90000.0f) {
                 atn::Vector3 screen;
                 fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
@@ -547,7 +542,7 @@ void GimmickCommon::fn_803ED774(atn::Model* model) {
         model->fn_8008CD60();
         if (lbl_8087F0A8->mDrawGimmickState != 0) {
             atn::Vector3 screen;
-            atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
+            atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - m6C;
             if (PSVECSquareMag(&d) < 90000.0f) {
                 fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
                 if (0.0f < screen.z && screen.z < 1.0f) {
@@ -643,7 +638,7 @@ void GimmickCommon::fn_803EDB18(atn::Model* model) {
 
 void GimmickCommon::fn_803EDCF4() {
     atn::Vector3 screen;
-    atn::Vector3 d = lbl_8087EFB4->mPos - m6C;
+    atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - m6C;
     if (PSVECSquareMag(&d) < 90000.0f) {
         fn_800BFAC8(&screen, lbl_8087EFB4, &m6C);
         if (0.0f < screen.z && screen.z < 1.0f) {

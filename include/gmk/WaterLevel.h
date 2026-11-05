@@ -5,12 +5,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/Model_unk.h"
 #include "game/GimmickCommon.h"
-
-// inferred: plane (normal and distance)
-struct Plane_unk {
-    atn::Vector3 mNormal;
-    float mDist;
-};
+#include "atn/Plane_unk.h"
 
 namespace gmk {
 

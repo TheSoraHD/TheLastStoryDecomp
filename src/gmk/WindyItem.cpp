@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/GimmickManager.h"
+#include "atn/RenderView_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -167,12 +168,6 @@ extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // infe
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
 extern "C" const char* lbl_80754260[4]; // inferred: sound effects of the wind
-// inferred: camera (only the position)
-struct WindyCamera_unk {
-    unsigned char m00[0x10C];
-    atn::Vector3 mPos; // 0x10C
-};
-extern "C" WindyCamera_unk* lbl_8087EFB4;
 struct WindySphere_unk {
     atn::Vector3 mCenter;
     float mRadius;
@@ -198,7 +193,7 @@ void gmk::WindyItem::fn_804392C0() {
             sphere.mCenter = player->m614;
             sphere.mRadius = player->m620;
         } else {
-            sphere.mCenter = lbl_8087EFB4->mPos;
+            sphere.mCenter = lbl_8087EFB4->mCamera.mPos;
             sphere.mRadius = 5.0f;
         }
         atn::Vector3 pos = sphere.mCenter;

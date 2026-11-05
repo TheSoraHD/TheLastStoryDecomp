@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
+#include "atn/RenderView_unk.h"
 
 // inferred: node position (as in game/Em205Ogre.cpp; name invented)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -84,12 +85,6 @@ struct GameState_unk {
     float m3A4; // inferred: time of a frame
 };
 extern "C" GameState_unk* lbl_8087EFA8;
-// inferred: camera (lbl_8087EFB4, see game/CharaTask.cpp); names invented
-struct Camera_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye; // 0x10C
-};
-extern "C" Camera_unk* lbl_8087EFB4;
 
 // inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
 inline RoutePlace_unk* FindRoutePlace2_unk(RouteTable_unk* table, int id) {
@@ -207,7 +202,7 @@ void QuadrupedTask::vf10() {
         fn_80145334();
         return;
     }
-    atn::Vector3 d2 = lbl_8087EFB4->mEye - mPos;
+    atn::Vector3 d2 = lbl_8087EFB4->mCamera.mPos - mPos;
     fn_80148B38(PSVECSquareMag(&d2));
 }
 
@@ -662,7 +657,7 @@ void QuadrupedTask::vf24() {
         walkSpeed = 0.0f;
         dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
     }
-    if (PSVECSquareMag(&(lbl_8087EFB4->mEye - mPos)) > 62500.0f) {
+    if (PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {
