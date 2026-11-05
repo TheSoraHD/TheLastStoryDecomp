@@ -443,7 +443,7 @@ Manager::Manager(atn::Task* parent)
       m1A94(0), m1A98(0), m1A9C(0), m1DC0(),
       m1E74(0), m1E78(0), m1E88(0.0f),
       m1E8C(0.0f), m1E90(0), m1EA4(0), m1EA8(0), m1EAC(0), m1EB0(0), m1EB4(30.0f), m1F1C(0), m1F34(0),
-      m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0), m1F74(0),
+      m1F58(0), m1F5C(0), m1F60(0), m1F64(2), m1F68(0.0f), m1F6C(0.0f), m1F70(0),
       m237C(0), m2380(0), m2384(0), m2388(1), m238C(0), m2390(0), m2400(0), m240C(0), m2410(0.5f), m2414(1.0f),
       m2418(1.0f), m2448(0) {
     fn_8054E574();
@@ -664,7 +664,7 @@ int Manager::fn_8047EA34(int id, int arg, int arg2) {
                     lbl_8087F498->fn_803EB4A8(0, 0);
                 }
                 mgr->m2378 = -1;
-                if (mgr->m1F74 != 0) {
+                if (mgr->mVoices.size() != 0) {
                     mgr->fn_80489A50(mgr->mVoices[0].mAction, 1);
                 }
                 mgr->m237C = 1;
@@ -741,7 +741,7 @@ int Manager::fn_8047EFD8(int id, int arg) {
                 lbl_8087F498->fn_803EB4A8(0, 1);
             }
             m237C = 0;
-            m1F74 = 0;
+            mVoices.clear();
             m2378 = -1;
         }
     } else {
@@ -2384,19 +2384,19 @@ void Manager::fn_80489A50(Action* action, int keep) {
         int i = m2378;
         if (i >= 0 || m237C != 0) {
             i++;
-            if (i >= 0 && i < m1F74) {
+            if (i >= 0 && i < (int)mVoices.size()) {
                 next = mVoices[i].mAction;
             }
         }
     } else {
-        ManagerEntry_unk* voice = mVoices;
-        for (unsigned int j = 0; j < (unsigned int)m1F74; voice++, j++) {
+        ManagerEntry_unk* voice = mVoices.begin();
+        for (unsigned int j = 0; j < mVoices.size(); voice++, j++) {
             if (action == voice->mAction) {
                 if (keep == 0) {
                     m2378 = j;
                 }
                 int i = m2378 + 1;
-                if (i >= 0 && i < m1F74) {
+                if (i >= 0 && i < (int)mVoices.size()) {
                     next = mVoices[i].mAction;
                 }
                 break;

@@ -2,6 +2,7 @@
 #define EVENT_MANAGER_H
 
 #include "atn/Task.h"
+#include "atn/FixedArray.h"
 #include "Event/Path.h"
 #include "atn/Bgm.h"
 #include "std/vector.h"
@@ -88,12 +89,13 @@ struct Ring_unk {
     unsigned int mFirst;
 };
 
-// inferred: voice of the event (8 bytes; 128 of them at 0x1F78 of the manager, m1F74 used): the voice
-// action and an unknown word. Name invented.
+// inferred: voice of the event (8 bytes; up to 128 at 0x1F74 of the manager, fn_80488E00): the voice
+// action and its start frame. Name invented.
 struct ManagerEntry_unk {
-    ManagerEntry_unk() : mAction(0), m04(0) {}
+    ManagerEntry_unk() : mAction(0), mFrame(0) {}
+    ManagerEntry_unk(Action* action, int frame) : mAction(action), mFrame(frame) {}
     Action* mAction;
-    int m04;
+    int mFrame;
 };
 
 // inferred: light settings of a scene (0x190 bytes): copied into the scene (fn_8047C88C) or blended
@@ -361,8 +363,7 @@ public:
     float m1F68;
     float m1F6C; // inferred: movie fade time
     int m1F70;
-    int m1F74;
-    ManagerEntry_unk mVoices[128]; // 0x1F78: inferred: voices of the event (m1F74 used)
+    atn::FixedArray_unk<ManagerEntry_unk, 128> mVoices; // 0x1F74: inferred: voices of the event (sorted by frame)
     int m2378;
     int m237C;
     int m2380;
