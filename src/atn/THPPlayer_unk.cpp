@@ -40,9 +40,9 @@ void AIInitDMA(u32 start, u32 length);
 void AIStartDMA(void);
 u32 AIGetDMAStartAddr(void);
 u32 AIGetDSPSampleRate(void);
-BOOL fn_805E7480(void); // THPInit
-s32 fn_805E4090(void* file, void* tileY, void* tileU, void* tileV, void* work); // THPVideoDecode
-u32 fn_805E7520(s16* audioBuffer, u8* audioFrame, s32 flag);                  // THPAudioDecode
+BOOL THPInit(void);
+s32 THPVideoDecode(void* file, void* tileY, void* tileU, void* tileV, void* work);
+u32 THPAudioDecode(s16* audioBuffer, u8* audioFrame, s32 flag);
 void fn_805B4DF0(void);                          // THPGXRestore (atn/THPDraw_unk.cpp)
 void fn_805B4F08(void* rmode);                   // THPGXYuv2RgbSetup
 void fn_805B53CC(void* yData, void* uData, void* vData, short x, short y, short textureWidth,
@@ -166,7 +166,7 @@ BOOL fn_805B55A8(s32 audioSystem) {
 
     memset(&SimpleControl, 0, sizeof(THPSimple));
     SimpleControl.soundMode = 1;
-    if (!fn_805E7480()) {
+    if (!THPInit()) {
         return 0;
     }
     old = OSDisableInterrupts();
@@ -486,7 +486,7 @@ BOOL fn_805B602C(void) {
 
 // inferred: VideoDecode of the SDK sample
 static inline BOOL VideoDecode(u8* videoFrame) {
-    if (fn_805E4090(videoFrame, SimpleControl.textureSet.ytexture, SimpleControl.textureSet.utexture,
+    if (THPVideoDecode(videoFrame, SimpleControl.textureSet.ytexture, SimpleControl.textureSet.utexture,
                     SimpleControl.textureSet.vtexture, SimpleControl.thpWork) == 0) {
         SimpleControl.textureSet.frameNumber =
             SimpleControl.readBuffer[SimpleControl.nextDecodeIndex].frameNumber;
@@ -522,7 +522,7 @@ s32 fn_805B6120(s32 audioTrack) {
                         }
                         break;
                     case 1:
-                        sample = fn_805E7520(SimpleControl.audioBuffer[SimpleControl.audioDecodeIndex].buffer,
+                        sample = THPAudioDecode(SimpleControl.audioBuffer[SimpleControl.audioDecodeIndex].buffer,
                                              ptr + *compSizePtr * audioTrack, 0);
                         old = OSDisableInterrupts();
                         SimpleControl.audioBuffer[SimpleControl.audioDecodeIndex].validSample = sample;

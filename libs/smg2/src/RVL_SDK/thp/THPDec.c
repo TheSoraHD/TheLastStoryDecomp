@@ -1,6 +1,6 @@
 #include "revolution/thp.h"
 
-const char* __THPVersion = "<< RVL_SDK - THP \trelease build: Aug  8 2007 01:31:54 (0x4199_60831) >>";
+const char* __THPVersion = "<< RVL_SDK - THP \trelease build: Aug 23 2010 17:28:21 (0x4302_145) >>";
 
 static THPHuffmanTab* Ydchuff __attribute__((aligned(32)));
 static THPHuffmanTab* Udchuff __attribute__((aligned(32)));
