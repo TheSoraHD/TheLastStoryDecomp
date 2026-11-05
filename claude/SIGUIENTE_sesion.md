@@ -1,18 +1,22 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-05, rama `maptask-20261105` sin mergear, en curso)
+## Estado actual (2026-11-05, rama `maptask-20261105` cerrada, pendiente de revision y merge)
 
 - `maptask-20261105` (desde `main` 7a5c73f): **12710 / 18119** en `report.json` (lost 0, fuzzdrop 0, `main.dol: OK`;
-  labelcheck sin empeorar, rep100 identico, ordercheck/poolcheck/mnemcheck limpios). Notas en `docs/maptask-20261105.md`.
-  - MapTask 20/27 al 100%; escritas todas las demas (vf0C 97,4, fn_8049E480 98,6, fn_8049ED90 94,6, CreateParts 99,8,
+  labelcheck sin empeorar, rep100 identico, ordercheck/poolcheck/mnemcheck limpios; build limpio). Notas en
+  `docs/maptask-20261105.md`.
+  - MapTask 20/27 al 100%; escritas todas las demas (vf0C 97,4, fn_8049E480 98,6, fn_8049ED90 95,5, CreateParts 99,8,
     fn_804A06B4 99,9, fn_804A0BCC 99,8, fn_804A0F80 5% por presupuesto de inline).
   - `ResRef_unk` unificada en `include/atn/ResRef_unk.h` (4 bytes); accesores de MapTask con nombres del RSO en
     GimmickStateCommand/Cannonball; `GameCamera` (GameTask + 0x6C); `DofParam_unk`; `atn/Lerp_unk.h`.
+  - MapPartsArea: vf1C 99,90% (menu de depuracion), ParseScene escrita (34%, pool de cadenas en orden);
+    `Texture_unk::fn_800D5908` miembro; `atn/SceneAddLight_unk.h`; `CharaLightData_unk::mPos`.
 
 ## Propuestas
 
-1. MapPartsArea: ParseScene (7880 bytes) y vf1C (menu de depuracion): con ellas el pool `@stringBase0` queda en orden
-   (fn_80494354 94%, vf14 95,8%). ParseScene no llegara al 100% (`AddLight_unk`, crecimiento de `vector`).
+1. MapPartsArea: fn_80494354 (94,2%) y vf14 (95,8%) con el pool ya en orden; vf1C 99,90 (indice de los bucles
+   internos sumado desplazamiento+base); ParseScene por encima del presupuesto de inline.
+   Decidir si se aprueba `explicit_zero_data` para `lbl_8087E0D8` de MapTask (0 en `.sdata`).
 2. `atn::PostFxManager` y las clases PostFx* en cabeceras (definiciones duplicadas en atn/LinearAllocator.cpp y en
    cada PostFx*.cpp; vistas en Event/Dialog, atn/PostFx.h, LayerShadow, LayerPostFx, Layer2DBlur, game/main):
    desbloquea la ultima instruccion de MapTask::fn_8049ED90.

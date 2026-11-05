@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `maparea-20261105` (2026-11-05, mergeada en `main`): **12703 / 18119**, lost 0. Un solo tipo por objeto del mapa: `MapArea` (`include/game/MapArea.h`, `atn::Scene` miembro en 0x4C), `MapPartsArea` (`include/game/MapPartsArea.h`), `MapTask` (`include/game/MapTask.h`, constructores y destructor al 100%), `atn::AABBTree` (`include/atn/AABBTree.h`), `MapId_unk` (`include/db/MapIdTable_unk.h`); fuera `MapModelBase_unk`/`MapGroup_unk`/`MapPart_unk`/`GameMap_unk`. Notas: `docs/maparea-20261105.md`.
-- `scene-20261105` (mergeada): 12686, `NewCampScene2_unk` -> `atn::Scene` (`docs/scene-20261105.md`); `nw4r-20261105` 12684 (snd_StrmPlayer enlazada; `docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679.
-- `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
+- `maptask-20261105` (2026-11-05, rama sin mergear): **12710 / 18119**, lost 0. MapTask 20/27 al 100% (resto NONMATCHING con motivo; CreateParts 99,84%), `GameCamera` (`include/game/GameCamera.h`), `ResRef_unk` unica (`include/atn/ResRef_unk.h`), `GetMapType/GetMapId/GetMapSubId` de MapTask, `DofParam_unk`, `atn/Lerp_unk.h`, `atn/SceneColorMatrix_unk.h`, `atn/SceneAddLight_unk.h`, MapPartsArea vf1C 99,90%. Notas: `docs/maptask-20261105.md`.
+- `maparea-20261105` (mergeada): 12703, un solo tipo por objeto del mapa (`MapArea`, `MapPartsArea`, `MapTask`, `atn::AABBTree`, `MapId_unk`; `docs/maparea-20261105.md`); `scene-20261105` 12686 (`docs/scene-20261105.md`).
+- `nw4r-20261105` 12684 (snd_StrmPlayer enlazada; `docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679. `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).

@@ -404,3 +404,10 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Una funcion `inline` nueva en una cabecera muy incluida (p. ej. `RenderManager::GetScene`) renumera las `@N` de todas las unidades que la incluyen: `pdbatch.sh` de todas ellas en el mismo lote. (`maparea-20261105`)
 - El orden de los `#include` puede cambiar la asignacion de registros de otra funcion: incluir `<boost/scoped_ptr.hpp>` antes de LH_Model.h en Model_unk.h cambiaba GimmickCommon fn_803EDB18 (enlazada); poner los includes nuevos despues de los existentes. (`maparea-20261105`)
 - Constructor con varias variables vivas: el orden de declaracion decide la asignacion (r24 la primera); declarar antes el puntero/temporal que el original tiene en el registro mas bajo (MapTask 0x8049D974). (`maparea-20261105`)
+- `return;` tras una llamada en cola dentro de un bucle deja un `blr` de mas; `break` da el original (MapTask fn_804A0EFC).
+- Argumentos de una inline guardados antes en locales: el original los evalua antes de la comparacion inlineada; como argumentos directos MWCC los hunde en la rama (MapTask fn_804A1C4C).
+- `Vector3` temporal = 12 bytes de pila; local con nombre = 16 (MapTask CreateParts, `SetDir_unk(dir)`).
+- Una funcion que devuelve `float` (frsp antes del blr, p. ej. fn_800DC288): guardar en locales `float`; `double` anade frsp.
+- `obj->f(g())` carga `obj` antes de `g()` en un registro salvado; si el original lo recarga despues, `void* x = g(); obj->f(x);` (MapPartsArea vf1C).
+- Bucle sobre `vector<T*>` con indice `unsigned` frente a `int`: cambia el reparto de los registros salvados (vf1C 98,7 -> 99,9 con `int`).
+- Temporales de varias asignaciones `rs->X = T()`: su orden en la pila depende de que esten dentro de una inline (MapTask fn_8049ED90).
