@@ -204,7 +204,7 @@ public:
     void fn_80488A74(const char* name, int fade, float volume);
     void fn_80488D80(int fade);
     void fn_80488534(Sequence* seq, int fade); // inferred: stops the music of the sequence
-    void fn_8048871C(Sequence* seq, int a, int b, int c); // inferred: prepares the multi audio of the sequence
+    void fn_8048871C(Sequence* seq, const char* name, int fade, int start); // inferred: starts the music of the sequence
     void fn_80488E00(Sequence* seq);
     GameMap_unk* fn_80480438(); // inferred: map of the event (its locators)
     int fn_804803A4(); // inferred: the maps and the characters of the event are loaded

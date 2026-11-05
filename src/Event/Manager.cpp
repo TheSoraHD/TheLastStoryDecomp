@@ -82,6 +82,8 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void* fn_8008B964(); // inferred: returns lbl_8087EFB4 (camera)
+extern "C" void* fn_805381B8(void* action); // inferred: cut of the action (Event/Node.cpp)
+extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" Camera_unk* fn_800F7258(void* camera); // inferred: camera of the game
 extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
 extern "C" atn::Vector2_unk fn_800F84D8(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t);
@@ -2166,6 +2168,46 @@ void Manager::fn_80488534(Sequence* seq, int fade) {
     }
     m1F1C = 0;
 }
+// NONMATCHING: 98.6% - registers of the frame count and the cut, order of the sum of m1F58
+// inferred: starts the music `name` (null: the one of the multi audio action of the sequence, and its
+// stream if it starts within three frames)
+void Manager::fn_8048871C(Sequence* seq, const char* name, int fade, int start) {
+    if (name == 0) {
+        Action* action = fn_8047BFF4(seq);
+        if (action == 0) {
+            return;
+        }
+        int id = action->GetParam_unk(1)->m04.i;
+        StringData* data = seq->m114.Find_unk(id);
+        if (data == 0) {
+            return;
+        }
+        Cut* end = (Cut*)fn_805381B8(action);
+        int frames = 0;
+        Cut* cut = seq != 0 ? seq->FindCutByIndex_unk(seq->m94) : 0;
+        while (cut != 0 && cut != end) {
+            frames += fn_8047BBBC(seq, cut);
+            cut = fn_8047B768(seq, cut);
+        }
+        m1F58 = action->m10 + (m1F64 + frames);
+        if (m1F58 <= m1F64 + 3 && seq->m194 != 10) {
+            fn_80488050(seq, action);
+        }
+        name = data->m08.c_str();
+    }
+    if (m1F20.mSound.mPtr != 0) {
+        m1F20.fn_8004B1EC(fade);
+        m1F20.mSound.Reset();
+    }
+    fn_805A38F0(name, 4, 0);
+    lbl_8087EFE8->m34D0 = 4;
+    m1F20.m0C = 1;
+    m1F20.fn_8004AE84(name, start + m1F60);
+    lbl_8087EFE8->m34D0 = 0;
+    m1F34 = 1;
+    m1F38 = name;
+}
+
 
 
 
