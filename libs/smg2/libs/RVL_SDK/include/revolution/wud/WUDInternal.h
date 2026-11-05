@@ -22,6 +22,10 @@ extern "C" {
 
 #define WUD_DEV_NAME_IS_CNT_01(NAME)                                           \
     WUD_DEV_NAME_IS(NAME, "Nintendo RVL-CNT-01")
+
+// version 2010: balance board
+#define WUD_DEV_NAME_IS_WBC(NAME)                                              \
+    WUD_DEV_NAME_IS(NAME, "Nintendo RVL-WBC")
 // clang-format on
 
 typedef enum {
@@ -90,11 +94,15 @@ typedef enum {
 } WUDStackState;
 
 typedef enum {
+    // values of the version of 2010 (two new states: 1 and 3)
     WUD_STATE_INIT_START = 0,
-    WUD_STATE_INIT_WAIT_FOR_INITIALIZATION = 1,
-    WUD_STATE_INIT_GET_DEV_INFO = 2,
-    WUD_STATE_INIT_DONE = 3,
-    WUD_STATE_INIT_INITIALIZED = 4,
+    WUD_STATE_INIT_WAIT_FOR_DEVICE_UP = 1,
+    WUD_STATE_INIT_WAIT_FOR_INITIALIZATION = 2,
+    WUD_STATE_INIT_READ_NAND = 3,
+    WUD_STATE_INIT_GET_DEV_INFO = 4,
+    WUD_STATE_INIT_DONE = 5,
+    WUD_STATE_INIT_FLUSHED = 6,
+    WUD_STATE_INIT_INITIALIZED = 7,
     WUD_STATE_INIT_ERROR = 255,
 } WUDInitState;
 
@@ -194,8 +202,9 @@ typedef struct WUDCB {
     u16 bufferStatus0;  // at 0x744
     u16 bufferStatus1;  // at 0x746
 
-    s16 delayCnt;
-    s16 incomeCnt;
+    u8 initWaitCnt;  // at 0x748 (version 2010)
+    s8 delayCnt;     // at 0x749 (s16 at 0x748 before 2010)
+    s16 incomeCnt;   // at 0x74A
 } WUDCB;
 
 extern WUDCB _wcb;
