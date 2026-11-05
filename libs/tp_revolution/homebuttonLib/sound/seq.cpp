@@ -237,7 +237,7 @@ static void __HBMSEQHandleSynthEvent(HBMSYNSYNTH *synth, HBMSEQTRACK *track)
 	HBMSYNMidiInput(synth, ch);
 }
 
-static void __HBMSEQRunEvent(HBMSYNSYNTH *synth, HBMSEQTRACK *track)
+static inline void __HBMSEQRunEvent(HBMSYNSYNTH *synth, HBMSEQTRACK *track)
 {
 	u8 event;
 
