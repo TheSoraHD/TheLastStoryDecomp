@@ -5,7 +5,7 @@
 #include <string.h>
 
 const char* __EXIVersion =
-    "<< RVL_SDK - EXI \trelease build: Feb 27 2009 10:02:03 (0x4302_145) >>";
+    "<< RVL_SDK - EXI \trelease build: Aug 23 2010 17:30:08 (0x4302_145) >>";
 
 static EXIData Ecb[EXI_MAX_CHAN];
 static u32 IDSerialPort1;

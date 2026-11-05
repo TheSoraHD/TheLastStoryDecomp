@@ -3648,6 +3648,13 @@ tp_revolution/homebuttonLib/nw4hbm/ut/ut_TextWriterBase.cpp:
 	.data       start:0x8079A730 end:0x8079A738
 	.bss        start:0x807CA238 end:0x807CA268
 
+RVL_SDK/src/revolution/exi/EXIBios.c:
+	.text       start:0x805E7A90 end:0x805E9390
+	.data       start:0x8079BD10 end:0x8079BD58
+	.bss        start:0x807CAF50 end:0x807CB010
+	.sdata      start:0x8087E720 end:0x8087E728
+	.sbss       start:0x8087FB68 end:0x8087FB70
+
 RVL_SDK/src/revolution/exi/EXIUart.c:
 	.text       start:0x805E9390 end:0x805E96D0
 	.sbss       start:0x8087FB70 end:0x8087FB80
