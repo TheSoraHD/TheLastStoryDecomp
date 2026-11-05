@@ -3,7 +3,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/CharaTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -49,10 +49,6 @@ struct Lens_unk {
     float m15C;
     float m160;
 };
-struct CameraLens_unk {
-    unsigned char m000[0x2FC];
-    Lens_unk* m2FC;
-};
 namespace atn {
 struct Camera;
 }
@@ -68,7 +64,7 @@ inline atn::Vector3 NodePos_unk(MtxPtr mtx) {
 }
 
 inline Lens_unk* CharaTask::GetLens_unk() {
-    return (mMotion.m1DC == 0) ? ((CameraLens_unk*)lbl_8087EFB4)->m2FC : mMotion.m1DC;
+    return (mMotion.m1DC == 0) ? (Lens_unk*)atn::RenderManager::instance_->mScene /* pending: view of the scene */ : mMotion.m1DC;
 }
 
 struct Color4f_unk {
@@ -233,7 +229,7 @@ inline void ColliAttrManager::PlayEffect_unk(atn::EffFile* res, const atn::Vecto
 void ColliAttrManager::fn_80184188(int index, CharaTask* chara, int useNode, int node, const atn::Vector3* ofs) {
     atn::Vector3 pos;
     atn::Vector3 rot = chara->mRot;
-    atn::RenderView_unk* camera = lbl_8087EFB4;
+    atn::RenderManager* camera = atn::RenderManager::instance_;
     ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(chara->mMotion.fn_80094F98()); // pending: view of the scene
     unsigned int r = ToU8_unk(info->mColor[0]);
     unsigned int g = ToU8_unk(info->mColor[1]);

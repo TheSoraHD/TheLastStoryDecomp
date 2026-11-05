@@ -2,7 +2,7 @@
 #include "atn/PostFx.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -108,7 +108,7 @@ extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int
         GXSetTevDirect(i);
     }
     GXSetBlendMode(0, 4, 1, 3);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetTexCopySrc(0, 0, width, height);
     GXSetTexCopyDst(width, height, format, 0);
     GXCopyTex(dst, 0);
@@ -174,7 +174,7 @@ void PostFxBloom::vf10(void* camera) {
     GXSetTevOp(0, 3);
     GXSetTevOrder(0, 0, 0, 0xFF);
     fn_80075F58(lbl_8087EEE0, 0, 0, w2, h2);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetTexCopySrc(0, 0, w2, h2);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
@@ -189,7 +189,7 @@ void PostFxBloom::vf10(void* camera) {
     GXSetTevOp(0, 3);
     GXSetTevOrder(0, 0, 0, 0xFF);
     fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     for (int i = 0; i < 3; i++) {
         GXSetTevColorIn(0, 0xF, 8, 0xE, 0xF);
         GXSetTevColorOp(0, 0, lbl_8087EFA8->mBC[i], lbl_8087EFA8->mC8[i], 1, 0);
@@ -202,7 +202,7 @@ void PostFxBloom::vf10(void* camera) {
                          (unsigned char)(255.0f * c.a)};
         GXSetTevKColor(0, color);
         GXSetBlendMode(1, 2, 0, 3);
-        lbl_8087EFB4->fn_800BFB70();
+        atn::RenderManager::instance_->fn_800BFB70();
     }
     GXSetBlendMode(0, 1, 0, 3);
     GXSetTexCopySrc(0, 0, w, h);
@@ -226,7 +226,7 @@ void PostFxBloom::vf10(void* camera) {
     GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
     GXSetTevDirect(0);
     fn_80075F58(lbl_8087EEE0, 0, 0, w2, h2);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     fn_80075DEC(lbl_8087EEE0);
     // inferred: adds the bloom to the frame buffer
     GXSetBlendMode(1, 1, 1, 3);
@@ -234,7 +234,7 @@ void PostFxBloom::vf10(void* camera) {
     atn::Color color(intensity, intensity, intensity, 1.0f);
     fn_800763FC(lbl_8087EEE0, &m04, 0);
     for (int i = 1; i <= lbl_8087EFA8->m64; i++) {
-        lbl_8087EFB4->fn_800BFC18(color, 0.0f, 0.0f);
+        atn::RenderManager::instance_->fn_800BFC18(color, 0.0f, 0.0f);
     }
     GXSetBlendMode(0, 1, 0, 3);
     if (lbl_8087EFA8->m58 != 0) {

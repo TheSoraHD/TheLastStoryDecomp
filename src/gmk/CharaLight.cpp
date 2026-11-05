@@ -9,7 +9,7 @@
 #include "game/MapManager.h"
 #include "atn/LambdaPlaceholders_unk.h"
 #include "macros.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -59,7 +59,7 @@ CharaLight::CharaLight(atn::Task* parent, GimmickDesc_unk* desc)
 }
 
 CharaLight::~CharaLight() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
     if (MapManager::sInstance != 0) {
         MapManager::sInstance->fn_80491528(&fn_804225E0, 0);
     }
@@ -74,8 +74,8 @@ int CharaLight::vf0C() {
 }
 
 void CharaLight::Start() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&mLight);
-    NewCampScene2_unk* target = lbl_8087EFB4->fn_800C16B4();
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
+    NewCampScene2_unk* target = atn::RenderManager::instance_->fn_800C16B4();
     target->SetLightIndex_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_804225E0, &mLight);
     switch (mDesc->m20) {

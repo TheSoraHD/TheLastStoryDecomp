@@ -2,7 +2,7 @@
 // de color y desaturacion).
 #include "atn/PostFx.h"
 #include "math/Vec.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: 4-component vector copied with paired singles (name invented)
 struct ColorVec4_unk {
@@ -109,7 +109,7 @@ PostFxColorMatrix::PostFxColorMatrix() : mOwner(0), mTime(0.0f) {}
 // inferred: "1.0f - s" and "1.0f - k" written in the loops (hoisted by the compiler) and the gray vector built
 // from lum[i] directly give the FPR allocation and scheduling of the original
 void PostFxColorMatrix::fn_800AA8DC() {
-    ColorMatrixOwner_unk* owner = (ColorMatrixOwner_unk*)lbl_8087EFB4->fn_800C1424(); // pending: view of the scene
+    ColorMatrixOwner_unk* owner = (ColorMatrixOwner_unk*)atn::RenderManager::instance_->fn_800C1424(); // pending: view of the scene
     ColorMatrix_unk* src = owner->m260 != 0 ? &owner->m264 : &lbl_8087EFA8->m324;
     mTime += 0.05f;
     if (mTime >= 1.0f) {
@@ -170,13 +170,13 @@ static inline GXColor ToGXColorF_unk(const ColorF_unk& v) {
 // NONMATCHING: 97.12% - FPR allocation only (0.0f of the columns, copy of the column and clamp limits in other
 // registers); the clamps are expressions on the globals (the limit is loaded just before its comparison)
 void PostFxColorMatrix::vf10(void* camera) {
-    lbl_8087EFB4->fn_800C0508(1);
+    atn::RenderManager::instance_->fn_800C0508(1);
     GXInvalidateTexAll();
     GXSetNumTexGens(1);
     GXSetNumChans(0);
     GXSetNumTevStages(4);
     GXSetNumIndStages(0);
-    fn_800763FC(lbl_8087EEE0, (GXTexObj*)((char*)lbl_8087EFB4 + 0x74C), 0);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     // inferred: columns of the matrix (rgb rows transposed, alpha 0)
     ColorF_unk cols[4] = {
@@ -246,7 +246,7 @@ void PostFxColorMatrix::vf10(void* camera) {
     GXSetTevOrder(3, 0xFF, 0xFF, 0xFF);
     GXSetTevDirect(3);
     GXSetBlendMode(0, 4, 1, 3);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetTevSwapModeTable(0, 0, 1, 2, 3);
     GXSetTevSwapModeTable(1, 0, 1, 2, 3);
     GXSetTevSwapModeTable(2, 0, 1, 2, 3);

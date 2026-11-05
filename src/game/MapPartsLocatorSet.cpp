@@ -5,7 +5,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/function.hpp>
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -250,7 +250,7 @@ void MapPartsLocatorSet::vf14() {
             return;
         }
         int visible = 1;
-        if (lbl_8087FA20 != 0 && (lbl_8087FA20->m38 & 4) != 4 && !fn_800502A8(&lbl_8087EFB4->mCamera.mFrustum, &mBox.mMin)) {
+        if (lbl_8087FA20 != 0 && (lbl_8087FA20->m38 & 4) != 4 && !fn_800502A8(&atn::RenderManager::instance_->mCamera.mFrustum, &mBox.mMin)) {
             visible = 0;
         }
         if (visible && lbl_8087F0A8->mDrawMap != 0) {
@@ -352,7 +352,7 @@ void MapPartsLocatorSet::fn_8049B7CC(void* tree) {
         if (light != 0) {
             mInstances.mData[i]->mInst.m64 = (char*)light + 0x4C;
         } else {
-            mInstances.mData[i]->mInst.m64 = lbl_8087EFB4->fn_800C16B4();
+            mInstances.mData[i]->mInst.m64 = atn::RenderManager::instance_->fn_800C16B4();
         }
     }
 }

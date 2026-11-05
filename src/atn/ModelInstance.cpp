@@ -1,7 +1,7 @@
 #include "atn/Model_unk.h"
 #include "atn/Memory.h"
 #include "atn/Sphere.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/AABB_unk.h"
 
 extern "C" double fabs(double x);
@@ -63,7 +63,7 @@ struct InstCallback_unk {
 struct InstModel_unk {
     virtual ~InstModel_unk();
     virtual void vf0C();
-    virtual void vf10(atn::RenderView_unk* camera); // inferred: draw
+    virtual void vf10(atn::RenderManager* camera); // inferred: draw
 
     unsigned int mFlags; // 0x04
     unsigned char m08[0x38 - 0x08];
@@ -126,9 +126,9 @@ public:
     ModelInstance(InstData_unk* data);
     virtual ~ModelInstance();
     virtual int GetRenderType_unk() { return 1; }
-    virtual void vf10(RenderView_unk* view); // inferred: draw
+    virtual void vf10(RenderManager* view); // inferred: draw
     virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; }
-    virtual void vf18(RenderView_unk* view) {
+    virtual void vf18(RenderManager* view) {
         if (mData->mModel.mType == 8 && mVisible && lbl_8087EFA8->m1D0 != 0) {
             mVisible = view->fn_800C0A50(&mBox);
         }
@@ -144,16 +144,16 @@ public:
     static void fn_8009F448(ModelInstance* instance, InstModel_unk* model);
 
     // inferred: lens of the model and screen data of the instance (inline, name invented)
-    void DrawModel_unk(InstModel_unk* model, RenderView_unk* camera);
+    void DrawModel_unk(InstModel_unk* model, RenderManager* camera);
     void SetupLens_unk(InstModel_unk* model) {
         InstLens_unk* lens = model->mLens;
         void* screen = m64;
         if (lens == 0) {
-            lens = (InstLens_unk*)lbl_8087EFB4->mScene; // pending: view of the scene
+            lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
         }
         mLens = lens;
         if (screen == 0) {
-            screen = lbl_8087EFB4->fn_800C122C(SphereArg_unk(mSphere));
+            screen = atn::RenderManager::instance_->fn_800C122C(SphereArg_unk(mSphere));
             m64 = screen;
         }
         model->mLens = (InstLens_unk*)screen;
@@ -223,7 +223,7 @@ inline int HasShadow_unk(InstModel_unk* model) {
         InstLens_unk* lens = model->mLens;
         int enabled = true;
         if (lens == 0) {
-            lens = (InstLens_unk*)lbl_8087EFB4->mScene; // pending: view of the scene
+            lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
         }
         if (lens->m120 == 0 && (flags & 0x1000) != 0x1000) {
             enabled = false;
@@ -245,7 +245,7 @@ void ModelInstance::fn_8009E6EC(int arg) {
     int flags = mFlags;
     mData->mModel.mFlags |= flags;
     mVisible = 1;
-    if (fn_8004FF58(&lbl_8087EFB4->mCamera.mFrustum, sphere) == 0) {
+    if (fn_8004FF58(&atn::RenderManager::instance_->mCamera.mFrustum, sphere) == 0) {
         mVisible = 0;
     }
     mShadowVisible = 0;
@@ -253,13 +253,13 @@ void ModelInstance::fn_8009E6EC(int arg) {
     if (HasShadow_unk(&mData->mModel) && (mData->mModel.mFlags & 0x400) == 0x400) {
         InstLens_unk* lens = mData->mModel.mLens;
         if (lens == 0) {
-            lens = (InstLens_unk*)lbl_8087EFB4->mScene; // pending: view of the scene
+            lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
         }
         Vector3 center(sphere->mCenter);
         PSMTXMultVec(lens->m124.m, &center, &center);
         shadow.mCenter = center;
         shadow.mRadius = sphere->mRadius;
-        if (fn_8004FF58(&lbl_8087EFB4->mCamera.mFrustum, (Sphere*)&shadow) != 0) {
+        if (fn_8004FF58(&atn::RenderManager::instance_->mCamera.mFrustum, (Sphere*)&shadow) != 0) {
             mShadowVisible = 1;
         }
     }
@@ -267,43 +267,43 @@ void ModelInstance::fn_8009E6EC(int arg) {
     if (!mVisible && !mShadowVisible) {
         return;
     }
-    lbl_8087EFB4->fn_800BDB58(this, 0.0f, 2);
+    atn::RenderManager::instance_->AddRender(this, 2, 0.0f);
     if ((mData->mModel.mFlags & 4) == 4 && mVisible) {
-        lbl_8087EFB4->fn_800BDB58(this, mData->mModel.mDrawOrder, 3);
+        atn::RenderManager::instance_->AddRender(this, 3, mData->mModel.mDrawOrder);
     }
     if (HasShadow_unk(&mData->mModel)) {
         if ((mData->mModel.mFlags & 0x400) == 0x400) {
             if (mShadowVisible) {
                 InstLens_unk* lens = mData->mModel.mLens;
                 if (lens == 0) {
-                    lens = (InstLens_unk*)lbl_8087EFB4->mScene; // pending: view of the scene
+                    lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
                 }
                 InstPlane_unk* plane = (InstPlane_unk*)&lens->m154;
                 if (plane->Distance_unk(shadow.mCenter) < shadow.mRadius) {
 
-                    lbl_8087EFB4->fn_800BDB58(this, mData->mModel.mDrawOrder, 4);
+                    atn::RenderManager::instance_->AddRender(this, 4, mData->mModel.mDrawOrder);
                 }
             }
         } else if (mVisible) {
-            lbl_8087EFB4->fn_800BDB58(this, mData->mModel.mDrawOrder, 4);
+            atn::RenderManager::instance_->AddRender(this, 4, mData->mModel.mDrawOrder);
         }
     }
     if (mVisible) {
         if ((mData->mModel.mFlags & 0x10) == 0x10) {
-            lbl_8087EFB4->fn_800BDB58(this, mData->mModel.mDrawOrder, 8);
+            atn::RenderManager::instance_->AddRender(this, 8, mData->mModel.mDrawOrder);
         }
         if ((mData->mModel.mFlags & 0x20) == 0x20) {
-            lbl_8087EFB4->fn_800BDB58(this, mData->mModel.mDrawOrder, 6);
+            atn::RenderManager::instance_->AddRender(this, 6, mData->mModel.mDrawOrder);
         }
     }
     if ((mData->mModel.mFlags & 0x2000) == 0x2000) {
-        lbl_8087EFB4->fn_800BDB58(this, mData->mModel.mDrawOrder, 9);
+        atn::RenderManager::instance_->AddRender(this, 9, mData->mModel.mDrawOrder);
     }
     if ((mData->mModel.mFlags & 0x40000) == 0x40000) {
-        lbl_8087EFB4->m54960 = 1;
+        atn::RenderManager::instance_->m54960 = 1;
     }
     if (mFlag40) {
-        lbl_8087EFB4->fn_800BDB58(this, 0.0f, 0);
+        atn::RenderManager::instance_->AddRender(this, 0, 0.0f);
     }
 }
 
@@ -311,7 +311,7 @@ void ModelInstance::fn_8009EB20() {
     if (mData->mModel.mLodCount <= 1) {
         return;
     }
-    RenderView_unk* camera = lbl_8087EFB4;
+    RenderManager* camera = atn::RenderManager::instance_;
     Vector3* eye = &camera->mCamera.mPos;
     Vector3 d(mSphere.mCenter.x - eye->x, mSphere.mCenter.y - eye->y, mSphere.mCenter.z - eye->z);
     float dist = PSVECMag(&d) - mSphere.mRadius;
@@ -328,7 +328,7 @@ void ModelInstance::fn_8009EB20() {
 }
 
 // inferred: draws the shared model with this instance (inline, name invented)
-inline void ModelInstance::DrawModel_unk(InstModel_unk* model, RenderView_unk* camera) {
+inline void ModelInstance::DrawModel_unk(InstModel_unk* model, RenderManager* camera) {
     if (model->mType == 8) {
         int flags = mFlags;
         model->mFlags |= flags;
@@ -356,8 +356,8 @@ inline void ModelInstance::DrawModel_unk(InstModel_unk* model, RenderView_unk* c
 
 // NONMATCHING: 98.84% - r4/r5 for the two callbacks and the stack slots of the callback and lens
 // temporaries; the draw part is an inline (its camera parameter gives the saved registers)
-void ModelInstance::vf10(RenderView_unk* view) {
-    RenderView_unk* camera = view;
+void ModelInstance::vf10(RenderManager* view) {
+    RenderManager* camera = view;
     InstModel_unk* model = &mData->mModel;
     switch (camera->m2F8) {
     case 0:
@@ -447,9 +447,9 @@ void ModelInstance::fn_8009F448(ModelInstance* instance, InstModel_unk* model) {
 // NONMATCHING: 99.58% - r28/r29 swapped (node array and offset)
 void ModelInstance::fn_8009F4AC(InstModel_unk* model) {
     Matrix3x4 base(mMtx);
-    if ((mFlags & 0x400) == 0x400 && lbl_8087EFB4->m2F8 == 4) {
+    if ((mFlags & 0x400) == 0x400 && atn::RenderManager::instance_->m2F8 == 4) {
         Matrix3x4 m;
-        PSMTXConcat(((InstLens_unk*)lbl_8087EFB4->mScene)->m124.m, base.m, m.m);
+        PSMTXConcat(((InstLens_unk*)atn::RenderManager::instance_->mScene)->m124.m, base.m, m.m);
         base = m;
     }
     Matrix3x4* nodes = model->mNodeMtx;
@@ -465,7 +465,7 @@ void ModelInstance::fn_8009F4AC(InstModel_unk* model) {
         }
         nodes[i] = *src;
     }
-    fn_80091684(model, &lbl_8087EFB4->mCamera.mView, ((InstLod_unk*)((unsigned char*)model->mLods + model->mLod * 0x18))->mData);
+    fn_80091684(model, &atn::RenderManager::instance_->mCamera.mView, ((InstLod_unk*)((unsigned char*)model->mLods + model->mLod * 0x18))->mData);
     if (model == &mData->mModel && m7C != 0) {
         ((atn::Model*)model)->fn_800954DC(m7C, m74, m70);
     }

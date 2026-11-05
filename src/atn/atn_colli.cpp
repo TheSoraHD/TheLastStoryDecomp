@@ -4,6 +4,7 @@
 #include "atn/ColliBase.h"
 #include "atn/ColliData_unk.h"
 #include "atn/Camera_unk.h"
+#include "atn/RenderManager.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
 
@@ -61,12 +62,6 @@ extern "C" int fn_8005B05C(atn::ColliResult_unk* r, int max, const void* b, void
 // inferred: bounding sphere of a loaded collision object (LH_ColliObject)
 extern "C" atn::ColliSphereShape_unk* fn_80472C90(atn::LH_ColliObject* loader);
 
-// inferred: engine view (lbl_8087EFB4) with its frustum at 0x204
-struct ColliView_unk {
-    unsigned char m000[0x204];
-    Frustum_unk mFrustum; // 0x204
-};
-extern "C" ColliView_unk* lbl_8087EFB4;
 
 // inferred: write gather pipe of the GX FIFO (as in atn/LensFlare.cpp)
 union ColliWGPipe_unk {
@@ -565,7 +560,7 @@ int ColliTree::fn_80059240(int a, int b, int c) {
 
 // NONMATCHING: 99.78% - orden de los incrementos de tris e i al final del bucle
 int ColliTree::fn_80059264(int a, int b, int n, ColliTreeNode_unk* node, int c, int colored, int e) {
-    if (fn_800502A8(&lbl_8087EFB4->mFrustum, (const Vector3*)node->mBox) == 0) {
+    if (fn_800502A8(&atn::RenderManager::instance_->mCamera.mFrustum, (const Vector3*)node->mBox) == 0) {
         return n;
     }
     ColliTreeTriangle_unk** tris = node->mTriangles;

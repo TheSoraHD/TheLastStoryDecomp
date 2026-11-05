@@ -22,7 +22,7 @@
 #include <boost/tokenizer.hpp>
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -1817,7 +1817,7 @@ void EnemyQuarkStand::fn_8034DE90() {
         float fov = curve->fn_805BF204(mMotion.mTracks[0].m08, 0);
         camera.mFovy = 2.0f * (float)atan((float)tan(0.5f * (0.017453292f * fov)) / camera.mAspect);
         camera.fn_8004B378();
-        lbl_8087EFB4->mCamera = camera;
+        atn::RenderManager::instance_->mCamera = camera;
         if (done != 0 || mMotion.mTracks[0].m08 >= curve->m14) {
             fn_80392D2C(&lbl_8087F430->m06C, &camera, 0.05f);
             m1714 = 0;

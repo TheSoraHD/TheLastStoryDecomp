@@ -21,7 +21,7 @@
 #include "game/ColliAttrManager.h"
 #include "game/SongManager.h"
 #include "game/GameConfig_unk.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/Sphere.h"
 #include "Event/Dialog.h"
 #include "game/GameChoiceWindow.h"
@@ -647,11 +647,11 @@ int ActionCheck::vf08(Action* arg) {
         sphere.mCenter = arg->fn_805384CC(2);
         sphere.mRadius = arg->GetParam_unk(7)->m04.f;
         atn::Vector3 center;
-        fn_800BFAC8(&center, lbl_8087EFB4, &sphere.mCenter);
+        fn_800BFAC8(&center, atn::RenderManager::instance_, &sphere.mCenter);
         atn::Vector3 top;
-        fn_800BFAC8(&top, lbl_8087EFB4, &(sphere.mCenter + atn::Vector3(0.0f, sphere.mRadius, 0.0f)));
+        fn_800BFAC8(&top, atn::RenderManager::instance_, &(sphere.mCenter + atn::Vector3(0.0f, sphere.mRadius, 0.0f)));
         atn::Vector3 bottom;
-        fn_800BFAC8(&bottom, lbl_8087EFB4, &(sphere.mCenter + atn::Vector3(0.0f, -sphere.mRadius, 0.0f)));
+        fn_800BFAC8(&bottom, atn::RenderManager::instance_, &(sphere.mCenter + atn::Vector3(0.0f, -sphere.mRadius, 0.0f)));
         atn::Vector3 d1(center.x - top.x, center.y - top.y, 0.0f);
         float size = PSVECMag(&d1);
         atn::Vector3 d2 = center - bottom;
@@ -662,7 +662,7 @@ int ActionCheck::vf08(Action* arg) {
         lbl_8087F540->m1EA8 = 0;
         lbl_8087F540->fn_80481800(1);
         lbl_8087F540->m1E94 = sphere;
-        lbl_8087EFB4->m54964 = 1;
+        atn::RenderManager::instance_->m54964 = 1;
         atn::Vector3 eye;
         eye.Assign_unk(lbl_8087F540->mCameras[lbl_8087F540->m1A38].mPos);
         atn::Vector3 dir = lbl_8087F540->mCameras[lbl_8087F540->m1A38].mTarget - eye;
@@ -1705,7 +1705,7 @@ int ActionColorMatrix::vf08(Action* arg) {
         dst.mRows[i].z = dst.mRows[i].z * rate + src.mRows[i].z * inv;
         dst.mRows[i].w = dst.mRows[i].w * rate + src.mRows[i].w * inv;
     }
-    NewCampScene2_unk* target = lbl_8087EFB4->fn_800C16B4();
+    NewCampScene2_unk* target = atn::RenderManager::instance_->fn_800C16B4();
     ColorMatrixParam_unk* out = target->mUseColorMatrix != 0 ? &target->mColorMatrix : &lbl_8087EFA8->m324;
     *out = dst;
     MapManager::sInstance->fn_80491528(boost::bind(&ActionColorMatrix::fn_80561B50, this, _1, _2), &dst);
@@ -1787,7 +1787,7 @@ void ActionMapReflect::fn_805628B8(MapArea* model, const void* arg) {
 
 int ActionMapReflect::vf0C(Action* arg, int phase) {
     if (phase == 0) {
-        NewCampScene2_unk* target = lbl_8087EFB4->fn_800C16B4();
+        NewCampScene2_unk* target = atn::RenderManager::instance_->fn_800C16B4();
         target->m120 = arg->GetParam_unk(0)->m04.i;
         MapManager::sInstance->fn_80491528(boost::bind(&ActionMapReflect::fn_805628B8, this, _1, _2), arg);
     }

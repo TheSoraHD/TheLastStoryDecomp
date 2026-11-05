@@ -1,6 +1,6 @@
 #include "atn/Layer2DBlur.h"
 #include "atn/GXDecl.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" double sin(double x);
 extern "C" double cos(double x);
@@ -48,7 +48,7 @@ void Layer2DBlur::vf20() {
     int w = lbl_8087EEE0->mWidth;
     int h = lbl_8087EEE0->mHeight;
     GXPixModeSync();
-    lbl_8087EFB4->fn_800C0508(1);
+    atn::RenderManager::instance_->fn_800C0508(1);
     w /= 4;
     h /= 4;
     GXTexObj obj0;
@@ -67,9 +67,9 @@ void Layer2DBlur::vf20() {
     GXSetTevOrder(0, 0, 0, 0xFF);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTevDirect(0);
-    fn_800763FC(lbl_8087EEE0, &lbl_8087EFB4->m74C.mObj, 0);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
     fn_80075F58(lbl_8087EEE0, 0, 0, w * 2, h * 2);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetTexCopySrc(0, 0, w * 2, h * 2);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
@@ -89,7 +89,7 @@ void Layer2DBlur::vf20() {
     GXSetTevDirect(0);
     GXSetBlendMode(0, 1, 0, 3);
     fn_80075DEC(lbl_8087EEE0);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     Layer2D::vf20();
 }
 

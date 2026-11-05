@@ -1,5 +1,5 @@
 #include "game/ChaserNpc.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -61,7 +61,7 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-// inferred: debug drawing (lbl_8087EEB0) and camera (lbl_8087EFB4)
+// inferred: debug drawing (lbl_8087EEB0) and camera (atn::RenderManager::instance_)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
 
 // inferred: color as four floats (as in gmk/PlayEffect.cpp)
@@ -178,7 +178,7 @@ void ChaserNpc::fn_80180AE0() {
     }
     if (lbl_8087F0A8->m53C != 0) {
         atn::Vector3 screen;
-        fn_800BFAC8(&screen, lbl_8087EFB4, &(mPos + atn::Vector3(0.0f, 25.0f, 0.0f)));
+        fn_800BFAC8(&screen, atn::RenderManager::instance_, &(mPos + atn::Vector3(0.0f, 25.0f, 0.0f)));
         if (screen.z > 0.0f && screen.z < 1.0f) {
             char text[0x100];
             float y = screen.y - 12.0f;

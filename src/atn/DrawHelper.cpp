@@ -3,7 +3,7 @@
 #include "atn/Camera_unk.h"
 #include "atn/ColliBase.h"
 #include "atn/GXDecl.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/IRender.h"
 #include "atn/LoadHandle.h"
 #include "atn/Memory.h"
@@ -12,7 +12,7 @@
 #include <boost/scoped_array.hpp>
 
 // atn/DrawHelper: debug and 2D drawing helper (singleton lbl_8087EEB0). Every command is placed in the command buffer of the helper (DrawHelper::m04), with its vertices behind it, and
-// queued in the render system (lbl_8087EFB4) with the current blend mode (DrawHelper::mA0).
+// queued in the render system (atn::RenderManager::instance_) with the current blend mode (DrawHelper::mA0).
 
 struct MemoryMode_unk {
     MemoryMode_unk(int mode, unsigned long align);
@@ -97,7 +97,7 @@ extern "C" void fn_80076BE4(void* device, const void* format);
 extern "C" float fn_8006F17C(atn::Font_unk* font, wchar_t c, int bold, float size, int style);
 // inferred: draws a text with the font manager (atn/Font_unk.cpp, not matched there yet: the second
 // argument is the view in this call)
-extern "C" void fn_8006D7B0(atn::Font_unk* font, atn::RenderView_unk* view, float x, float y, float w, float h,
+extern "C" void fn_8006D7B0(atn::Font_unk* font, atn::RenderManager* view, float x, float y, float w, float h,
                             const wchar_t* text, unsigned int color, unsigned int flags, int style, float spacing,
                             unsigned int color2, float ox, float oy);
 
@@ -176,7 +176,7 @@ public:
 class DrawHelper::ComDrawLine : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawLine() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;                 // inferred: 0 for the blend modes 6, 8 and 0xD
     DrawVertex_unk* mVertex; // 0x08
@@ -190,7 +190,7 @@ public:
 class DrawHelper::ComDrawTexture : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawTexture() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;
     DrawTexVertex_unk* mVertex; // 0x08
@@ -203,7 +203,7 @@ public:
 class DrawHelper::ComDrawTextureAdd : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawTextureAdd() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;
     DrawTexVertex_unk* mVertex; // 0x08
@@ -217,7 +217,7 @@ public:
 class DrawHelper::ComDrawTextureMask : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawTextureMask() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;
     DrawMaskVertex_unk* mVertex; // 0x08
@@ -231,7 +231,7 @@ public:
 class DrawHelper::ComDrawFont : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawFont() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;
     int m08;
@@ -255,7 +255,7 @@ public:
 class DrawHelper::ComDrawFontSideFade : public DrawHelper::ComDrawFont {
 public:
     virtual ~ComDrawFontSideFade() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     float m74;
     float m78;
@@ -265,7 +265,7 @@ public:
 class DrawHelper::ComDrawColliObject : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawColliObject() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;
     int m08;
@@ -278,7 +278,7 @@ public:
 class DrawHelper::ComDrawColliTree : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawColliTree() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;
     int m08;
@@ -291,7 +291,7 @@ public:
 class DrawHelper::ComDrawWindow : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawWindow() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;                         // inferred: 0 for the blend modes 6, 8 and 0xD
     DrawMaskVertex_unk* mParts[8];   // 0x08: the 4 corners, then the 4 edges (4 vertices each)
@@ -305,7 +305,7 @@ public:
 class DrawHelper::ComDrawD3TextureMask : public DrawHelper::DrawCommand {
 public:
     virtual ~ComDrawD3TextureMask() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     int m04;
     DrawTexVertex_unk* mVertex; // 0x08
@@ -321,13 +321,13 @@ public:
 class DrawHelper::ComDrawTextureMono : public DrawHelper::ComDrawTexture {
 public:
     virtual ~ComDrawTextureMono() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 };
 
 class DrawHelper::ComDrawTextureMaskMono : public DrawHelper::ComDrawTextureMask {
 public:
     virtual ~ComDrawTextureMaskMono() {}
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 };
 
 // inferred: m * v by value (the copy of the result is kept on the stack)
@@ -415,7 +415,7 @@ void DrawHelper::fn_8005E000(unsigned int color, GXTexObj* tex, int mode, int ar
     } else {
         cmd->m11 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_8005E3E4(unsigned int color, void* tex, float x, float y, float z, float w, float h, float u0,
@@ -464,7 +464,7 @@ void DrawHelper::fn_8005E40C(unsigned int color, void* tex, int arg, int flags, 
         cmd->m11 = 1;
     }
     cmd->m14 = arg;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_8005E7F4(unsigned int color, void* texture0, void* texture1, float x, float y, float z, float w,
@@ -515,7 +515,7 @@ void DrawHelper::fn_8005E838(unsigned int color, void* texture0, void* texture1,
         cmd->m14 = 1;
     }
     cmd->m18 = mode;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_8005ED6C(unsigned int color, Texture_unk* tex, float z) {
@@ -586,7 +586,7 @@ void DrawHelper::fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, 
         cmd->m11 = 1;
     }
     cmd->m14 = arg;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 // NONMATCHING: 99.1% - register allocation of the texture checks
@@ -636,7 +636,7 @@ void DrawHelper::fn_8005F36C(unsigned int color, void* texture0, void* texture1,
         cmd->m14 = 1;
     }
     cmd->m18 = mode;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 // NONMATCHING: 99.1% - register allocation of the texture check
@@ -678,7 +678,7 @@ void DrawHelper::fn_8005F90C(unsigned int color, void* texture, float x, float y
     } else {
         cmd->m11 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 // NONMATCHING: 98.9% - register allocation of the texture checks
@@ -722,7 +722,7 @@ void DrawHelper::fn_8005FD80(unsigned int color, void* texture0, void* texture1,
     } else {
         cmd->m14 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 // NONMATCHING: 99.7% - r3/r4 swapped for the vertex and position addresses in the loop
@@ -768,7 +768,7 @@ void DrawHelper::fn_800602E8(unsigned int color, void* texture, int blend_, unsi
     } else {
         cmd->m11 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 // NONMATCHING: 98.8% - register allocation of the texture checks
@@ -817,7 +817,7 @@ void DrawHelper::fn_800607C0(unsigned int color, void* texture0, void* texture1,
     } else {
         cmd->m14 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_80060D58(float x, float y, float z, float w, float h, unsigned int color) {
@@ -856,7 +856,7 @@ void DrawHelper::fn_80060D58(float x, float y, float z, float w, float h, unsign
     } else {
         cmd->m18 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_800610A4(unsigned int color, float x, float y, float z, float w, float h) {
@@ -898,7 +898,7 @@ void DrawHelper::fn_800610A4(unsigned int color, float x, float y, float z, floa
     } else {
         cmd->m18 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_8006144C(float x0, float y0, float x1, float y1, unsigned int color, float z) {
@@ -931,7 +931,7 @@ void DrawHelper::fn_8006144C(float x0, float y0, float x1, float y1, unsigned in
     } else {
         cmd->m18 = 1;
     }
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_800616C0(float x, float y, float z, float w, float h, const char* text, unsigned int color, float f6,
@@ -992,7 +992,7 @@ void DrawHelper::fn_80061824(float x, float y, float z, float w, float h, float 
                              const wchar_t* text, unsigned int color, int a, int b, int c, int d,
                              unsigned int color2) {
     DRAW_FONT_BODY(ComDrawFont)
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int b, int c, int d, unsigned int color2,
@@ -1002,7 +1002,7 @@ void DrawHelper::fn_80061AE4(const wchar_t* text, unsigned int color, int a, int
     cmd->m70 = clipX;
     cmd->m74 = clipW;
     cmd->m78 = clipScale;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 // inferred: window frame of 9 parts drawn with a corner texture (tex0) masked by tex1: the 4 corners
@@ -1118,7 +1118,7 @@ void DrawHelper::fn_80061E2C(float x, float y, float z, float w, float h, unsign
         cmd->m30 = 0;
     }
     cmd->m34 = arg;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, mA0);
+    atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
 void DrawHelper::fn_80062908(ColliObject* colli, int a, int b, int c, int d, float z) {
@@ -1131,7 +1131,7 @@ void DrawHelper::fn_80062908(ColliObject* colli, int a, int b, int c, int d, flo
     cmd->m08 = a;
     cmd->m0C = b;
     cmd->m10 = c;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, z);
 }
 
 void DrawHelper::fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float z) {
@@ -1144,7 +1144,7 @@ void DrawHelper::fn_8006297C(ColliTree* colli, int a, int b, int c, int d, float
     cmd->m08 = a;
     cmd->m0C = b;
     cmd->m10 = c;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, z);
 }
 
 void DrawHelper::fn_800629F0(const Vector3& center, const Vector3& size, float z, unsigned int color,
@@ -1192,7 +1192,7 @@ void DrawHelper::fn_800629F0(const Vector3& center, const Vector3& size, float z
     cmd->mCount = 0x14;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, z);
 }
 
 void DrawHelper::fn_80062C8C(unsigned int segments, unsigned int color, float x, float y, float z, float a,
@@ -1227,7 +1227,7 @@ void DrawHelper::fn_80062C8C(unsigned int segments, unsigned int color, float x,
     cmd->mCount = (segments + 1) * 2;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
 void DrawHelper::fn_80062F7C(unsigned int segments, unsigned int color, float x, float y, float z, float a,
@@ -1265,7 +1265,7 @@ void DrawHelper::fn_80062F7C(unsigned int segments, unsigned int color, float x,
     cmd->mCount = 4;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
 void DrawHelper::fn_80063200(unsigned int segments, unsigned int color, float x, float y, float z, float a,
@@ -1295,7 +1295,7 @@ void DrawHelper::fn_80063200(unsigned int segments, unsigned int color, float x,
     cmd->mCount = segments + 1;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
 // NONMATCHING: 99.9% - operand order of the fnmsubs of the start angle (angle * 0.5f)
@@ -1331,7 +1331,7 @@ void DrawHelper::fn_80063484(unsigned int segments, unsigned int color, float x,
     cmd->mCount = segments + 2;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
 void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsigned int color) {
@@ -1353,7 +1353,7 @@ void DrawHelper::fn_80063764(const Vector3& a, const Vector3& b, float z, unsign
     cmd->mCount = 2;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, z);
 }
 
 // inferred: linear interpolation in the form of atn/Rain (local inline, name invented)
@@ -1381,7 +1381,7 @@ void DrawHelper::fn_800638B0(float a, float head, const Vector3& from, const Vec
     cmd->m10 = 1;
     cmd->mCount = 2;
     cmd->mVertex = v;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 
     cmd = m04.New_unk<ComDrawLine>();
     if (cmd == 0) {
@@ -1421,7 +1421,7 @@ void DrawHelper::fn_800638B0(float a, float head, const Vector3& from, const Vec
     cmd->mCount = 6;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
 // inferred: wire sphere (4 meridians around y, the arc down to the bottom, 4 meridians around x)
@@ -1484,7 +1484,7 @@ void DrawHelper::fn_80063D3C(const Vector3& pos, float radius, float a, unsigned
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
 // inferred: cross product returned by value (local inline, name invented)
@@ -1572,7 +1572,7 @@ void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned in
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, a, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
 // inferred: exact comparison of two points (local inline, name invented)
@@ -1625,7 +1625,7 @@ void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int co
     cmd->mCount = count;
     cmd->mVertex = v;
     cmd->m18 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, z);
 }
 
 // inferred: textured quad of 1x1 centered in the origin, scaled, rotated (z, y, x) and moved to 'pos'
@@ -1679,7 +1679,7 @@ void DrawHelper::fn_80064AC4(const Vector3& pos, const Vector3& rot, const Vecto
     cmd->m1C = b;
     cmd->mVertex = v;
     cmd->m20 = c;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, z);
 }
 
 void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int a, int b, float z) {
@@ -1701,7 +1701,7 @@ void DrawHelper::fn_80064F00(const DrawTexVertex_unk* src, int n, int prim, int 
     cmd->m1C = b;
     cmd->mVertex = v;
     cmd->m20 = 1;
-    lbl_8087EFB4->fn_800BDB58(cmd, z, 0xD);
+    atn::RenderManager::instance_->AddRender(cmd, 0xD, z);
 }
 
 // inferred: color 0xAARRGGBB to the GX order (RGBA)
@@ -1716,7 +1716,7 @@ inline void DrawSetZMode_unk(RenderState_unk* device, int write) {
     fn_80076760(device, 0xA, write);
 }
 
-void DrawHelper::ComDrawLine::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawLine::vf10(RenderManager* view) {
     GXSetNumChans(1);
     GXSetNumTexGens(0);
     GXSetNumTevStages(1);
@@ -1757,7 +1757,7 @@ void DrawHelper::ComDrawLine::vf10(RenderView_unk* view) {
     }
 }
 
-void DrawHelper::ComDrawTexture::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawTexture::vf10(RenderManager* view) {
     GXSetNumChans(1);
     GXSetNumTexGens(1);
     GXSetNumTevStages(1);
@@ -1804,7 +1804,7 @@ void DrawHelper::ComDrawTexture::vf10(RenderView_unk* view) {
     }
 }
 
-void DrawHelper::ComDrawTextureAdd::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawTextureAdd::vf10(RenderManager* view) {
     fn_800761A8(lbl_8087EEE0);
     GXSetNumChans(1);
     GXSetNumTexGens(1);
@@ -1868,7 +1868,7 @@ void DrawHelper::ComDrawTextureAdd::vf10(RenderView_unk* view) {
     GXSetBlendMode(m10 != 0, 4, 5, 0);
 }
 
-void DrawHelper::ComDrawTextureMask::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawTextureMask::vf10(RenderManager* view) {
     fn_800761A8(lbl_8087EEE0);
     GXSetNumChans(1);
     GXSetNumTexGens(2);
@@ -1965,7 +1965,7 @@ static inline GXColor DrawToGXColor_unk(const DrawColorF_unk& v) {
 // inferred: grey scale version of ComDrawTexture (color matrix with the luminance weights in the TEV)
 // NONMATCHING: 98.1% - same instructions; order of the stores of the matrix (by columns in the original) and
 // stack slot of lum
-void DrawHelper::ComDrawTextureMono::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawTextureMono::vf10(RenderManager* view) {
     float s = 1.0f;
     float lum[4] = {0.298912f, 0.586611f, 0.114478f, 0.0f};
     DrawColorF_unk mat[4] = {
@@ -2073,7 +2073,7 @@ void DrawHelper::ComDrawTextureMono::vf10(RenderView_unk* view) {
 // inferred: grey scale version of ComDrawTextureMask
 // NONMATCHING: 98.1% - same instructions; as in ComDrawTextureMono::vf10, order of the stores of the
 // matrix and stack slot of lum
-void DrawHelper::ComDrawTextureMaskMono::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawTextureMaskMono::vf10(RenderManager* view) {
     fn_800761A8(lbl_8087EEE0);
     float s = 1.0f;
     float lum[4] = {0.298912f, 0.586611f, 0.114478f, 0.0f};
@@ -2185,7 +2185,7 @@ void DrawHelper::ComDrawTextureMaskMono::vf10(RenderView_unk* view) {
     GXSetTevSwapMode(3, 0, 0);
 }
 
-void DrawHelper::ComDrawFont::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawFont::vf10(RenderManager* view) {
     RenderState_unk* device = lbl_8087EEE0;
     GXSetNumChans(1);
     GXSetNumTexGens(1);
@@ -2263,7 +2263,7 @@ struct DrawFadeText_unk {
 // drawn one character at a time
 // NONMATCHING: 92.3% - the original keeps the buffer base and an offset for the visible characters (ours
 // walks a pointer), so the registers differ
-void DrawHelper::ComDrawFontSideFade::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawFontSideFade::vf10(RenderManager* view) {
     int len = wcslen(mText);
     float fade = m74 * m78;
     Font_unk* font = lbl_8087EEC8;
@@ -2365,7 +2365,7 @@ inline GXColor DrawGXColor_unk(unsigned char r, unsigned char g, unsigned char b
     return c;
 }
 
-void DrawHelper::ComDrawColliObject::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawColliObject::vf10(RenderManager* view) {
     fn_80076760(lbl_8087EEE0, 6, 2);
     GXSetNumChans(1);
     GXSetNumTexGens(0);
@@ -2383,7 +2383,7 @@ void DrawHelper::ComDrawColliObject::vf10(RenderView_unk* view) {
     mColli->fn_800584B4(m0C, m10, -1);
 }
 
-void DrawHelper::ComDrawColliTree::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawColliTree::vf10(RenderManager* view) {
     fn_80076760(lbl_8087EEE0, 6, 2);
     GXSetNumChans(1);
     GXSetNumTexGens(0);
@@ -2403,7 +2403,7 @@ void DrawHelper::ComDrawColliTree::vf10(RenderView_unk* view) {
     mColli->fn_80059240(m0C, m10, -1);
 }
 
-void DrawHelper::ComDrawD3TextureMask::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawD3TextureMask::vf10(RenderManager* view) {
     RenderState_unk* device = lbl_8087EEE0;
     fn_80072914(device, 0);
     fn_80076760(device, 6, 0);
@@ -2467,7 +2467,7 @@ void DrawHelper::ComDrawD3TextureMask::vf10(RenderView_unk* view) {
     GXSetTevSwapMode(1, 0, 0);
 }
 
-void DrawHelper::ComDrawWindow::vf10(RenderView_unk* view) {
+void DrawHelper::ComDrawWindow::vf10(RenderManager* view) {
     fn_800761A8(lbl_8087EEE0);
     GXSetNumChans(1);
     GXSetNumTexGens(2);

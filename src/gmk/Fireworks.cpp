@@ -4,7 +4,7 @@
 #include "atn/SoundRef.h"
 #include <boost/function.hpp>
 #include "game/MapManager.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -79,7 +79,7 @@ Fireworks::Fireworks(atn::Task* parent, int id, int arg)
 }
 
 Fireworks::~Fireworks() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
     if (MapManager::sInstance != 0) {
         MapManager::sInstance->fn_80491528(&fn_8041CD24, 0);
     }
@@ -94,8 +94,8 @@ int Fireworks::vf0C() {
 }
 
 void Fireworks::Start() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&mLight);
-    lbl_8087EFB4->fn_800C16B4()->SetLightIndex_unk(-1);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLightIndex_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);

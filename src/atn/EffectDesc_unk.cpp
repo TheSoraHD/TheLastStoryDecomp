@@ -4,7 +4,7 @@
 #include "atn/Model_unk.h"
 #include "math/Vec.h"
 #include "atn/EffectSystem_unk.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // Sorted drawing of the effect primitives: polygon strips (items A, 0x70 bytes) and models (items B,
 // 0x5C bytes) are queued by the effect system while it updates, bucket-sorted by view depth and
@@ -242,13 +242,13 @@ extern "C" void fn_80076A28(EffectRender_unk* render, EffectBlend_unk* blend);
 struct EffectModelVt_unk {
     virtual ~EffectModelVt_unk();
     virtual void vf0C();
-    virtual void vf10(atn::RenderView_unk* camera);
+    virtual void vf10(atn::RenderManager* camera);
     virtual void vf14();
-    virtual void vf18(atn::RenderView_unk* camera);
+    virtual void vf18(atn::RenderManager* camera);
 };
 
 // inferred: name invented
-inline bool IsFar_unk(atn::RenderView_unk* camera) {
+inline bool IsFar_unk(atn::RenderManager* camera) {
     return camera->mCmds.mSize >= 0x1000;
 }
 
@@ -302,10 +302,10 @@ extern "C" void fn_80234CD8() {
         SortByDepth_unk((EffectModelItem_unk**)sBuckets, sModels, sModelCount, 0x400, sModelFar, sModelNear);
         fn_80071E04(lbl_8087EEE0);
         int restore = 0;
-        if (lbl_8087EFB4->m954 != 0 && !IsFar_unk(lbl_8087EFB4)) {
+        if (atn::RenderManager::instance_->m954 != 0 && !IsFar_unk(atn::RenderManager::instance_)) {
             restore = 1;
         }
-        lbl_8087EFB4->m954 = 0;
+        atn::RenderManager::instance_->m954 = 0;
         for (int i = 0x3FF; i >= 0; i--) {
             for (EffectModelItem_unk* item = (EffectModelItem_unk*)sBuckets[i]; item != 0; item = item->mNext) {
                 atn::Model* model = (atn::Model*)item->mModel;
@@ -346,18 +346,18 @@ extern "C" void fn_80234CD8() {
                     break;
                 }
                 fn_80094D88(model, blend, (flags >> 2) & 1, !((flags >> 4) & 1), (flags >> 7) & 1, (flags >> 3) & 1);
-                if (lbl_8087EFB4->m2F8 == 4) {
+                if (atn::RenderManager::instance_->m2F8 == 4) {
                     model->mFlags |= 0x1400;
                 } else {
                     model->mFlags &= ~0x400;
                     model->mFlags &= ~0x1000;
                 }
                 *(int*)&model->m1DC = item->m58;
-                ((EffectModelVt_unk*)model)->vf18(lbl_8087EFB4);
-                ((EffectModelVt_unk*)model)->vf10(lbl_8087EFB4);
+                ((EffectModelVt_unk*)model)->vf18(atn::RenderManager::instance_);
+                ((EffectModelVt_unk*)model)->vf10(atn::RenderManager::instance_);
             }
         }
-        lbl_8087EFB4->m954 = restore;
+        atn::RenderManager::instance_->m954 = restore;
     }
     if (sStripCount == 0) {
         return;
@@ -405,7 +405,7 @@ extern "C" void fn_80234CD8() {
     GXSetChanCtrl(4, 0, 0, 0, 0, 0, 2);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTexCoordGen2(1, 1, 4, 0x3C, 0, 0x7D);
-    atn::Matrix3x4 view = lbl_8087EFB4->mCamera.mView;
+    atn::Matrix3x4 view = atn::RenderManager::instance_->mCamera.mView;
     GXLoadPosMtxImm(view.m, 0);
     GXSetCurrentMtx(0);
     GXClearVtxDesc();
@@ -414,7 +414,7 @@ extern "C" void fn_80234CD8() {
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
     GXLightObj light;
-    fn_800C2448(lbl_8087EFB4->mScene, 0)->fn_80079994(&light, view.m);
+    fn_800C2448(atn::RenderManager::instance_->mScene, 0)->fn_80079994(&light, view.m);
     GXLoadLightObjImm(&light, 1);
     atn::Matrix3x4 inv = view;
     PSMTXInverse(inv.m, inv.m);
@@ -460,7 +460,7 @@ extern "C" void fn_80234CD8() {
                 if ((item->mFlags & 0x200000) == 0x200000 && item->m10 != 0) {
                     fn_800763C0(lbl_8087EEE0, 1, item->m10);
                 }
-                if (lbl_8087EFB4->m2F8 == 4) {
+                if (atn::RenderManager::instance_->m2F8 == 4) {
                     GXLoadPosMtxImm(item->mMtx.m, 0);
                 }
                 fn_80236938(item->mCount, item->mVerts, item->mColor, 0, 0);
@@ -481,7 +481,7 @@ extern "C" void fn_80234CD8() {
                 if ((item->mFlags & 0x200000) == 0x200000 && item->m10 != 0) {
                     fn_800763C0(lbl_8087EEE0, 1, item->m10);
                 }
-                if (lbl_8087EFB4->m2F8 == 4) {
+                if (atn::RenderManager::instance_->m2F8 == 4) {
                     GXLoadPosMtxImm(item->mMtx.m, 0);
                     atn::Matrix3x4 itemInv = item->mMtx;
                     PSMTXInverse(itemInv.m, itemInv.m);
@@ -493,9 +493,9 @@ extern "C" void fn_80234CD8() {
                             (forceCenter != 0 || useCenter != 0) ? &item->mCenter : 0, 1);
             }
             if ((item->mFlags & 0x10) == 0x10) {
-                lbl_8087EFB4->fn_800C06B0((const atn::FogSettings*)((char*)item->m6C + 0x3C));
+                atn::RenderManager::instance_->fn_800C06B0((const atn::FogSettings*)((char*)item->m6C + 0x3C));
             } else {
-                lbl_8087EFB4->fn_800C08B0();
+                atn::RenderManager::instance_->fn_800C08B0();
             }
         }
     }
@@ -550,7 +550,7 @@ extern "C" void fn_80236938(int count, EffectVertex_unk* verts, const float* col
                             int lit) {
     atn::Vector3 eye;
     if (lit != 0) {
-        eye = lbl_8087EFB4->mCamera.mPos;
+        eye = atn::RenderManager::instance_->mCamera.mPos;
     }
     GXSetChanMatColor(4, ToGXColor_unk(color));
     fn_800761A8(lbl_8087EEE0);

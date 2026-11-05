@@ -3,7 +3,7 @@
 
 #include "atn/GXDecl.h"
 
-// inferred: draw queue of atn::RenderView_unk (0x958 and 0x895C), filled by atn/ModelDraw_unk.cpp.
+// inferred: draw queue of atn::RenderManager (0x958 and 0x895C), filled by atn/ModelDraw_unk.cpp.
 // The constructor of DrawCmd_unk and DrawQueue_unk::push_back are defined in atn/ModelDraw_unk.cpp
 // (their only user). Names invented.
 

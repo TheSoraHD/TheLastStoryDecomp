@@ -4,7 +4,7 @@
 #include "math/Vec.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" char lbl_807C7030[];
 
@@ -417,7 +417,7 @@ void SoundManager::fn_800CECF0() {
             SoundCore& sound = mSounds[i];
             if (!sound.fn_800C8278() && (sound.m9C & 2) == 2) {
                 Vector3 screen;
-                fn_800BFAC8(&screen, lbl_8087EFB4, &sound.m08.mActor.mPosition);
+                fn_800BFAC8(&screen, atn::RenderManager::instance_, &sound.m08.mActor.mPosition);
                 if (screen.z >= 0.0f && 1.0f >= screen.z) {
                     unsigned int color = 0xFF00FFFF;
                     if (sound.mHandle.GetRemainingFadeFrames() > 0) {

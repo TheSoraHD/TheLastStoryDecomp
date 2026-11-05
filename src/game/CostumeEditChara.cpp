@@ -3,7 +3,7 @@
 #include "game/EquipItemData.h"
 #include "atn/Memory.h"
 #include <boost/function.hpp>
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
@@ -130,7 +130,7 @@ int CostumeEditChara::vf0C() {
             __MtxCopy(motion->mMtx.m, mMtx.m);
             motion->m54 = __MaxScaleT_unk(mMtx);
             mChara->mMotion.fn_80097E80(1);
-            mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mMtx.GetTrans_unk())));
+            mChara->fn_80148B38(PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - mMtx.GetTrans_unk())));
             mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
             mChara->fn_80147A18(0);
             CharaTask* chara = mChara;
@@ -172,7 +172,7 @@ void CostumeEditChara::vf10() {
         motion->m50 = 0;
         mChara->mMotion.fn_80097E80(1);
         mChara->mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        mChara->fn_80148B38(PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mMtx.GetTrans_unk())));
+        mChara->fn_80148B38(PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - mMtx.GetTrans_unk())));
         if (mShadow.fn_8008B140() == 0) {
             __MtxCopy(mShadow.mMtx.m, mMtx.m);
             mShadow.m54 = __MaxScaleT_unk(mMtx);
@@ -189,7 +189,7 @@ void CostumeEditChara::vf10() {
             mFaceIcon->m54 = -2.0f;
         }
         atn::Vector3 screen;
-        fn_800BFAC8(&screen, lbl_8087EFB4, &mPos);
+        fn_800BFAC8(&screen, atn::RenderManager::instance_, &mPos);
         screen.y = 220.0f;
         atn::Vector2_unk offset = lbl_8087F580->mOffset;
         atn::Vector2_unk size = lbl_8087F580->mSize;

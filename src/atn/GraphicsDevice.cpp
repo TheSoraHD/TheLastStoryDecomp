@@ -11,6 +11,7 @@
 #include "atn/Camera_unk.h"
 #include "atn/Shader_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderManager.h"
 
 extern "C" {
 
@@ -193,7 +194,8 @@ static unsigned int CountFrames_unk(FrameQueue_unk* queue) {
 
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
-// inferred: textures and matrices of the render system used by the effects of fn_80074EC8
+// inferred: textures and matrices of the shadow layer (layer 3 of atn::RenderManager, LayerShadow)
+// used by the effects of fn_80074EC8
 struct RenderTextures_unk {
     unsigned char m000[0x460];
     GXTexObj m460;           // 0x460: light map (fn_800748D8)
@@ -211,21 +213,6 @@ struct RenderScene_unk {
     float m240;
     RsColor_unk m244;        // 0x244: shadow color
 };
-// inferred: render system (atn/RenderSystem_unk.cpp, lbl_8087EFB4); only the fields used here
-struct RenderSystemView_unk {
-    unsigned char m000[0xC];
-    RenderTextures_unk* m00C;   // 0x00C
-    unsigned char m010[0x104 - 0x10];
-    Camera_unk mCamera;         // 0x104
-    int m2F8;
-    RenderScene_unk* mScene;    // 0x2FC
-    unsigned char m300[0x318 - 0x300];
-    Camera_unk mShadowCamera;   // 0x318: light camera of the shadow and light map
-    GXTexObj m50C;              // 0x50C: shadow map (fn_80073A6C)
-    unsigned char m52C[4];
-    GXTexObj m530;              // 0x530: light of the normals (fn_800742C8)
-};
-extern "C" RenderSystemView_unk* lbl_8087EFB4;
 
 // inferred: first object of .rodata; no reference left in the code
 extern const int lbl_807316B8[4] = {0xFF, 0, 0, 0};
@@ -1023,7 +1010,7 @@ extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_un
         coord = stats->mCoords0 + (stats->mCoords13 + stats->mCoords4++);
     }
     int postMtx = map * 3 + 0x40;
-    RenderSystemView_unk* view = lbl_8087EFB4;
+    atn::RenderManager* view = atn::RenderManager::instance_;
     GXSetTexCoordGen2(coord, 0, 0, 0, 0, postMtx);
     atn::Vector2_unk size(1.0f, 1.0f);
     atn::Vector2_unk pos(0.0f, 0.0f);
@@ -1195,9 +1182,9 @@ extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
     RsColor_unk shadowColor = rs->m104.mColor;
     GXColor color = ToGXColor_unk(shadowColor);
     int mode = rs->m104.mMode;
-    if (lbl_8087EFB4->mScene->m234 != 0) {
-        mode = lbl_8087EFB4->mScene->m23C;
-        color = ToGXColor_unk(lbl_8087EFB4->mScene->m244);
+    if (((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m234 != 0) {
+        mode = ((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m23C;
+        color = ToGXColor_unk(((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m244);
     }
     if (rs->m12C != 0) {
         GXColor red = {0xFF, 0x00, 0x00, 0xFF};
@@ -1206,9 +1193,9 @@ extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
     GXSetTevKColor(konst, color);
     GXSetTexCoordGen2(coord0, 0, 0, 0, 0, postMtx0);
     GXSetTexCoordGen2(coord1, 0, 0, 0, 0, postMtx1);
-    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m50C, map0);
-    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m00C->m480, map1);
-    RenderTextures_unk* textures = lbl_8087EFB4->m00C;
+    LoadTexObj_unk(lbl_8087EEE0, &atn::RenderManager::instance_->m50C, map0);
+    LoadTexObj_unk(lbl_8087EEE0, &((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */->m480, map1);
+    RenderTextures_unk* textures = ((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */;
     GXLoadTexMtxImm(textures->m4A0.m, postMtx0, 0);
     GXLoadTexMtxImm(textures->m4D0.m, postMtx1, 0);
     GXSetTevOrder(stage0, coord0, map0, 0xFF);
@@ -1306,9 +1293,9 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     RsColor_unk shadowColor = rs->m104.mColor;
     GXColor color = ToGXColor_unk(shadowColor);
     int mode = rs->m104.mMode;
-    if (lbl_8087EFB4->mScene->m234 != 0) {
-        mode = lbl_8087EFB4->mScene->m23C;
-        color = ToGXColor_unk(lbl_8087EFB4->mScene->m244);
+    if (((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m234 != 0) {
+        mode = ((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m23C;
+        color = ToGXColor_unk(((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m244);
     }
     if (lbl_8087EFA8->m12C != 0) {
         GXColor red = {0xFF, 0x00, 0x00, 0xFF};
@@ -1316,9 +1303,9 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     }
     GXSetTexCoordGen2(coord0, 0, 0, 0, 0, postMtx0);
     GXSetTexCoordGen2(coord1, 0, 1, 3, 0, postMtx1);
-    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m00C->m460, map0);
-    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m530, map1);
-    RenderSystemView_unk* view = lbl_8087EFB4;
+    LoadTexObj_unk(lbl_8087EEE0, &((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */->m460, map0);
+    LoadTexObj_unk(lbl_8087EEE0, &atn::RenderManager::instance_->m530, map1);
+    atn::RenderManager* view = atn::RenderManager::instance_;
     atn::Matrix3x4 proj;
     proj.SetIdentity();
     fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
@@ -1381,17 +1368,17 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     }
     int postMtx = map * 3 + 0x40;
     GXSetTexCoordGen2(coord, 0, 0, 0, 0, postMtx);
-    LoadTexObj_unk(lbl_8087EEE0, &lbl_8087EFB4->m00C->m460, map);
+    LoadTexObj_unk(lbl_8087EEE0, &((RenderTextures_unk*)atn::RenderManager::instance_->mLayers[3]) /* pending: view of LayerShadow */->m460, map);
     atn::Matrix3x4 proj;
     proj.SetIdentity();
-    RenderSystemView_unk* view = lbl_8087EFB4;
+    atn::RenderManager* view = atn::RenderManager::instance_;
     fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
                 view->mShadowCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(view->mShadowCamera.mView, view->mCamera.mInvView));
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     int mode = lbl_8087EFA8->m104.mMode;
-    if (lbl_8087EFB4->mScene->m234 != 0) {
-        mode = lbl_8087EFB4->mScene->m23C;
+    if (((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m234 != 0) {
+        mode = ((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m23C;
     }
     GXSetTevOrder(stage, coord, map, 0xFF);
     if (mode == 1) {
@@ -1435,7 +1422,7 @@ extern "C" void fn_80074B24(TevStats_unk* stats, atn::ShadowMap_unk* shadow, int
     fn_800763C0(lbl_8087EEE0, map, tex);
     atn::Matrix3x4 proj;
     proj.SetIdentity();
-    RenderSystemView_unk* view = lbl_8087EFB4;
+    atn::RenderManager* view = atn::RenderManager::instance_;
     fn_800D5E18(proj.m, shadow->mCamera.mTop, shadow->mCamera.mBottom, shadow->mCamera.mLeft,
                 shadow->mCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(shadow->mCamera.mView, view->mCamera.mInvView));
@@ -1820,7 +1807,7 @@ extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* li
     if (light == 0) {
         return;
     }
-    atn::Matrix3x4& view = lbl_8087EFB4->mCamera.mView;
+    atn::Matrix3x4& view = atn::RenderManager::instance_->mCamera.mView;
     if (index != 0) {
         GXLightObj obj;
         light->fn_80079994(&obj, view.m);

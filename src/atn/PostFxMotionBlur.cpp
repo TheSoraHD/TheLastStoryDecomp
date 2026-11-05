@@ -3,7 +3,7 @@
 #include "atn/PostFx.h"
 #include "atn/MemoryManager.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" double pow(double x, double y);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
@@ -26,11 +26,6 @@ struct MotionBlurParams_unk {
 };
 extern "C" MotionBlurParams_unk* lbl_8087EFA8;
 
-// inferred: frame buffer object (lbl_8087EFB4); only the member used here
-struct MotionBlurFrameBuffer_unk {
-    unsigned char m00[0x74C];
-    GXTexObj m74C; // 0x74C: inferred: color texture
-};
 
 
 
@@ -137,7 +132,7 @@ void PostFxMotionBlur::vf10(void* camera) {
             weights[i] *= inv2;
         }
     }
-    lbl_8087EFB4->fn_800C0508(1);
+    atn::RenderManager::instance_->fn_800C0508(1);
     int fullW = lbl_8087EEE0->mWidth;
     int fullH = lbl_8087EEE0->mHeight;
     int index = (mIndex + 1) % 4;
@@ -152,10 +147,10 @@ void PostFxMotionBlur::vf10(void* camera) {
     GXSetTevOrder(0, 0, 0, 0xFF);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTevDirect(0);
-    fn_800763FC(lbl_8087EEE0, &((MotionBlurFrameBuffer_unk*)lbl_8087EFB4)->m74C, 0);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
     GXSetBlendMode(0, 1, 0, 3);
     fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetTexCopySrc(0, 0, w, h);
     GXSetTexCopyDst(w, h, 4, 0);
     GXCopyTex(mImages[index], 1);
@@ -169,7 +164,7 @@ void PostFxMotionBlur::vf10(void* camera) {
     GXSetChanCtrl(4, 0, 1, 1, 0, 0, 2);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTevDirect(0);
-    fn_800763FC(lbl_8087EEE0, &((MotionBlurFrameBuffer_unk*)lbl_8087EFB4)->m74C, 0);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
     fn_80075DEC(lbl_8087EEE0);
     GXSetBlendMode(1, 4, 0, 3);
     atn::Color color;
@@ -177,14 +172,14 @@ void PostFxMotionBlur::vf10(void* camera) {
     color.g = weights[0];
     color.b = weights[0];
     color.a = 1.0f;
-    lbl_8087EFB4->fn_800BFC18(color, 0.0f, 0.0f);
+    atn::RenderManager::instance_->fn_800BFC18(color, 0.0f, 0.0f);
     GXSetBlendMode(1, 4, 1, 3);
     for (int i = 0; i < mCount; i++) {
         color.r = weights[i + 1];
         color.g = weights[i + 1];
         color.b = weights[i + 1];
         fn_800763FC(lbl_8087EEE0, &mTex[(mIndex - i + 4) % 4], 0);
-        lbl_8087EFB4->fn_800BFC18(color, 0.0f, 0.0f);
+        atn::RenderManager::instance_->fn_800BFC18(color, 0.0f, 0.0f);
     }
     if (lbl_8087EFA8->m244 != 0) {
         float x = 16.0f;

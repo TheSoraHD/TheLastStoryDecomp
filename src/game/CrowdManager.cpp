@@ -7,7 +7,7 @@
 #include "game/ChaseManager.h"
 #include "std/vector.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -105,7 +105,7 @@ inline void CrowdManager::UpdateLimit_unk() {
 
 // inferred: unsigned index through SimpleArray::operator[](int) (the index is incremented before the offset)
 void CrowdManager::vf10() {
-    mCenter = lbl_8087EFB4->mCamera.mTarget;
+    mCenter = atn::RenderManager::instance_->mCamera.mTarget;
     UpdateLimit_unk();
     if (lbl_8087F430->mMode != 8) {
         if (mCount < mLimit) {
@@ -175,8 +175,8 @@ void CrowdManager::vf14() {
             CrowdColor_unk color(1.0f, 0.0f, 0.0f, 1.0f);
             lbl_8087EEB0->fn_80062C8C(16, CrowdRGBA_unk(color), walker->mPos.x, walker->mPos.y, walker->mPos.z, 0.0f, 5.0f, 10.0f);
         }
-        if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - walker->mPos) < 1600.0f) {
-            fn_800BFAC8(&screen, lbl_8087EFB4, &walker->mPos);
+        if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - walker->mPos) < 1600.0f) {
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &walker->mPos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 float y = screen.y;
                 sprintf(text, "Point: %3d to %3d", walker->mPoint, walker->mDest);

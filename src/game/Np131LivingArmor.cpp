@@ -3,7 +3,7 @@
 #include "game/GimmickCommon.h"
 #include "std/vector.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int rand();
 extern "C" double cos(double x);
@@ -233,7 +233,7 @@ void Np131LivingArmor::vfC0(void* draw) {
         alpha *= 90.0f;
         atn::Vector3 pos = mPos + atn::Vector3(0.0f, 10.0f, 0.0f);
         atn::Vector3 screen;
-        fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+        fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
         if (0.0f < screen.z && screen.z < 1.0f) {
             int a = 0.999f + alpha;
             if (a < 0) {

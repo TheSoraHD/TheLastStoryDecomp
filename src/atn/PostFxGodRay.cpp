@@ -6,7 +6,7 @@
 #include "atn/Sphere.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" void GXSetIndTexOrder(int stage, int coord, int map);
 extern "C" void GXSetIndTexCoordScale(int stage, int scaleS, int scaleT);
@@ -62,18 +62,6 @@ struct GodRayOverride_unk {
     GodRayParams_unk m198;
 };
 
-// inferred: frame buffer object (lbl_8087EFB4); only the members used here
-struct GodRayFrameBuffer_unk {
-    unsigned char m000[0x10C];
-    atn::Vector3 mEye;    // 0x10C
-    atn::Vector3 mTarget; // 0x118
-    unsigned char m124[0x15C - 0x124];
-    atn::Matrix3x4 mView; // 0x15C
-    unsigned char m18C[0x74C - 0x18C];
-    GXTexObj m74C; // 0x74C: inferred: depth texture
-    unsigned char m76C[0x77C - 0x76C];
-    GXTexObj m77C; // 0x77C: inferred: color texture
-};
 
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, const float* weights,
@@ -207,7 +195,7 @@ extern "C" void fn_800AE568(GXTexObj* src, void* dst, int w, int h, int fmt, flo
     GXSetTevOrder(3, 0, 0, 0xFF);
     GXSetBlendMode(0, 4, 1, 3);
     fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetTexCopySrc(0, 0, w, h);
     GXSetTexCopyDst(w, h, fmt, 0);
     GXCopyTex(dst, 0);
@@ -286,14 +274,14 @@ int PostFxGodRay::fn_800AEF4C() {
 // NONMATCHING: 97.59% - stack slots of the case 0 temporaries and FPR of the screen size
 void PostFxGodRay::fn_800AEF68() {
     mParams = &lbl_8087EFA8->mGodRay;
-    GodRayOverride_unk* o = (GodRayOverride_unk*)lbl_8087EFB4->fn_800C1424(); // pending: view of the scene
+    GodRayOverride_unk* o = (GodRayOverride_unk*)atn::RenderManager::instance_->fn_800C1424(); // pending: view of the scene
     if (o->m194 != 0) {
         mParams = &o->m198;
     }
     float fw = lbl_8087EEE0->mWidth;
     float fh = lbl_8087EEE0->mHeight;
     GodRayParams_unk* p = mParams;
-    GodRayFrameBuffer_unk* fb;
+    atn::RenderManager* fb;
     switch (p->mType) {
     case 0: {
         Vector3 pos(p->mPos);
@@ -302,18 +290,18 @@ void PostFxGodRay::fn_800AEF68() {
             if (IsZero2_unk(dir)) {
                 dir = Vector3(0.0f, 1.0f, 0.0f);
             }
-            pos = ((GodRayFrameBuffer_unk*)lbl_8087EFB4)->mEye + dir.GetNormalize() * 800.0f;
+            pos = atn::RenderManager::instance_->mCamera.mPos + dir.GetNormalize() * 800.0f;
         }
         Sphere sph;
         sph.mCenter = pos;
         sph.mRadius = p->mRadius;
         Vector3 scr;
-        fn_800BFAC8(&scr, lbl_8087EFB4, &pos);
+        fn_800BFAC8(&scr, atn::RenderManager::instance_, &pos);
         mScreen = Vector2_unk(scr.x / fw, scr.y / fh);
-        fb = (GodRayFrameBuffer_unk*)lbl_8087EFB4;
-        Vector3 a = (pos - fb->mEye).GetNormalize();
-        fb = (GodRayFrameBuffer_unk*)lbl_8087EFB4;
-        Vector3 b = (fb->mTarget - fb->mEye).GetNormalize();
+        fb = atn::RenderManager::instance_;
+        Vector3 a = (pos - fb->mCamera.mPos).GetNormalize();
+        fb = atn::RenderManager::instance_;
+        Vector3 b = (fb->mCamera.mTarget - fb->mCamera.mPos).GetNormalize();
         Vector3 c = b.GetNormalize();
         float d = PSVECDotProduct(&a, &c);
         if (d < 0.01) {
@@ -341,7 +329,7 @@ void PostFxGodRay::fn_800AEF68() {
             dir = Vector3(0.0f, 1.0f, 0.0f);
         }
         dir.Normalize_unk();
-        Matrix3x4 m = ((GodRayFrameBuffer_unk*)lbl_8087EFB4)->mView.GetRotation_unk();
+        Matrix3x4 m = atn::RenderManager::instance_->mCamera.mView.GetRotation_unk();
         PSMTXInverse(m.m, m.m);
         PSMTXTranspose(m.m, m.m);
         Vector3 v(dir);
@@ -391,13 +379,13 @@ void PostFxGodRay::vf10(void* camera) {
     GXTexObj tmp;
     GXInitTexObj(&tmp, image1, w, h, fmt, 0, 0, 0);
     GXInitTexObjLOD(&tmp, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-    lbl_8087EFB4->fn_800C0508(1);
+    atn::RenderManager::instance_->fn_800C0508(1);
     if (p->mUseDepth) {
         GXSetNumTevStages(2);
         GXSetNumTexGens(3);
         GXSetNumChans(1);
         GXSetNumIndStages(1);
-        fn_800763FC(lbl_8087EEE0, &((GodRayFrameBuffer_unk*)lbl_8087EFB4)->m74C, 2);
+        fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 2);
         GXSetTexCoordGen2(2, 1, 4, 0x3C, 0, 0x7D);
     } else {
         GXSetNumTevStages(1);
@@ -407,7 +395,7 @@ void PostFxGodRay::vf10(void* camera) {
     }
     GXSetChanCtrl(4, 0, 1, 1, 0, 0, 2);
     fn_800763FC(lbl_8087EEE0, &mRamp.mObj, 0);
-    fn_800763FC(lbl_8087EEE0, &((GodRayFrameBuffer_unk*)lbl_8087EFB4)->m77C, 1);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m77C, 1);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTexCoordGen2(1, 1, 4, 0x3C, 0, 0x7D);
     GXSetIndTexOrder(0, 1, 1);
@@ -437,7 +425,7 @@ void PostFxGodRay::vf10(void* camera) {
     } else {
         fn_80075F58(lbl_8087EEE0, 0, 0, w, h);
     }
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     if (p->mShift > 0) {
         GXSetTexCopySrc(0, 0, w * 2, h * 2);
         GXSetTexCopyDst(w, h, copyFmt, 1);
@@ -502,13 +490,13 @@ void PostFxGodRay::vf10(void* camera) {
     GXSetTevDirect(1);
     GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
     GXSetTexCoordGen2(1, 1, 4, 0x3C, 0, 0x7D);
-    fn_800763FC(lbl_8087EEE0, &((GodRayFrameBuffer_unk*)lbl_8087EFB4)->m74C, 0);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
     fn_800763FC(lbl_8087EEE0, &m08, 1);
     GXSetBlendMode(0, 4, 1, 3);
     fn_80075F58(lbl_8087EEE0, 0, 0, fullW, fullH);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     if (lbl_8087EFA8->mGodRay.mDebug != 0) {
-        lbl_8087EEB0->fn_8005DF90(-1, &((GodRayFrameBuffer_unk*)lbl_8087EFB4)->m77C, 0, 16.0f, 16.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &atn::RenderManager::instance_->m77C, 0, 16.0f, 16.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m08, 0, 16.0f, 32.0f + (float)fullH / 3.0f, 0.0f, (float)fullW / 3.0f, (float)fullH / 3.0f);
     }
 }

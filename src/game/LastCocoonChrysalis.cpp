@@ -6,7 +6,7 @@
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -127,7 +127,7 @@ void LastCocoonChrysalis::vf10() {
         float size = 12.0f;
         float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
         atn::Vector3 screen;
-        fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+        fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
         if (screen.z > 0.0f && screen.z < 1.0f) {
             lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
         }

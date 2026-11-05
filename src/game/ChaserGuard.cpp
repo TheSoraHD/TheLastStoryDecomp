@@ -1,5 +1,5 @@
 #include "game/ChaserGuard.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/CharaManager.h"
@@ -102,7 +102,7 @@ struct CollResult_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
-// inferred: debug drawing (lbl_8087EEB0), font (lbl_8087EEC8) and camera (lbl_8087EFB4)
+// inferred: debug drawing (lbl_8087EEB0), font (lbl_8087EEC8) and camera (atn::RenderManager::instance_)
 extern "C" void* lbl_8087EEC8;
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg, int arg2, float volume); // inferred: plays a sound
@@ -297,7 +297,7 @@ void ChaserGuard::fn_8017D13C() {
         float rot = mRot.y + mLook.mRot.y;
         lbl_8087EEB0->fn_80063484(12, ToArgb_unk(color), mPos.x, 15.0f + mPos.y, mPos.z, rot, 0.0f, range, lbl_8087F0A8->mChase.m4E8);
         atn::Vector3 screen;
-        fn_800BFAC8(&screen, lbl_8087EFB4, &(mPos + atn::Vector3(0.0f, 25.0f, 0.0f)));
+        fn_800BFAC8(&screen, atn::RenderManager::instance_, &(mPos + atn::Vector3(0.0f, 25.0f, 0.0f)));
         if (screen.z > 0.0f && screen.z < 1.0f) {
             wchar_t text[0x100];
             fn_8006F2F0(lbl_8087EEC8, text, sStateNames_unk[m14B0], 0x100);

@@ -2,7 +2,7 @@
 #include "atn/PostFx.h"
 #include "atn/MemoryManager.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
                                            unsigned char mipmap, unsigned char maxLod);
@@ -34,16 +34,6 @@ struct DofParams_unk {
 };
 extern "C" DofParams_unk* lbl_8087EFA8;
 
-// inferred: frame buffer object (lbl_8087EFB4); only the members used here
-struct DofFrameBuffer_unk {
-    unsigned char m00[0x1CC];
-    float mNear; // 0x1CC
-    float mFar;  // 0x1D0
-    unsigned char m1D4[0x74C - 0x1D4];
-    GXTexObj m74C; // 0x74C: inferred: depth texture
-    unsigned char m76C[0x77C - 0x76C];
-    GXTexObj m77C; // 0x77C: inferred: color texture
-};
 
 extern "C" void fn_800C0D4C(void* image, int format, int width, int height); // inferred: converts to texture tiles
 extern "C" void fn_800A981C(GXTexObj* src, void* dst, int width, int height, int format, const float* weights,
@@ -90,7 +80,7 @@ void PostFxDof::vf10(void* camera) {
     GXInitTexObjLOD(&m28, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXPixModeSync();
     GXInvalidateTexAll();
-    lbl_8087EFB4->fn_800C0508(0);
+    atn::RenderManager::instance_->fn_800C0508(0);
     GXSetTexCopySrc(0, 0, fullW, fullH);
     GXSetTexCopyDst(w, h, 6, 1);
     GXCopyTex(image0, 1);
@@ -104,8 +94,8 @@ void PostFxDof::vf10(void* camera) {
     GXSetTexCoordGen2(1, 1, 4, 0x3C, 0, 0x7D);
     GXSetTexCoordGen2(2, 1, 4, 0x3C, 0, 0x7D);
     GXSetTexCoordGen2(3, 1, 4, 0x3C, 0, 0x7D);
-    fn_800763FC(lbl_8087EEE0, &((DofFrameBuffer_unk*)lbl_8087EFB4)->m74C, 0);
-    fn_800763FC(lbl_8087EEE0, &((DofFrameBuffer_unk*)lbl_8087EFB4)->m77C, 1);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m77C, 1);
     fn_800763FC(lbl_8087EEE0, &m08, 2);
     fn_800763FC(lbl_8087EEE0, &m48, 3);
     // inferred: stage 0 reads the depth, the indirect stage turns it into lookup table coordinates
@@ -146,9 +136,9 @@ void PostFxDof::vf10(void* camera) {
         GXSetTevColorIn(2, 0, 0xE, 2, 0xF);
     }
     fn_80075DEC(lbl_8087EEE0);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     if (lbl_8087EFA8->mD8 != 0) {
-        lbl_8087EEB0->fn_8005DF90(-1, &((DofFrameBuffer_unk*)lbl_8087EFB4)->m77C, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
+        lbl_8087EEB0->fn_8005DF90(-1, &atn::RenderManager::instance_->m77C, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m08, 0, 16.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
         lbl_8087EEB0->fn_8005DF90(-1, &m48, 0, 32.0f + fullW / 3.0f, 32.0f + fullH / 3.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
     }
@@ -157,9 +147,9 @@ void PostFxDof::vf10(void* camera) {
 // inferred: rebuilds the depth lookup table when the parameters change
 // NONMATCHING: 97.47% - FPR allocation of the near/far conversion at the start (~12 variants)
 void PostFxDof::fn_800ACCB8() {
-    DofFrameBuffer_unk* fb = (DofFrameBuffer_unk*)lbl_8087EFB4;
-    float n = fb->mNear;
-    float f = fb->mFar;
+    atn::RenderManager* fb = atn::RenderManager::instance_;
+    float n = fb->mCamera.mNear;
+    float f = fb->mCamera.mFar;
     float z0 = 1.0f - (f * n / lbl_8087EFA8->mE4 - n) / (f - n);
     float z1 = 1.0f - (f * n / lbl_8087EFA8->mE8 - n) / (f - n);
     float z2 = 1.0f - (f * n / lbl_8087EFA8->mEC - n) / (f - n);

@@ -2,7 +2,7 @@
 #include "game/CharaTask.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/Lemon.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // Everything below is inferred from the finishing camera (0x80378474..0x8037C71C); names are invented.
 
@@ -151,18 +151,18 @@ void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
             PSMTXRotRad(rot2, 'y', mRot.y);
             AddCurve_unk(eye, rot2, curve, 0.0f, 1, 2, 3);
         } else {
-            target = lbl_8087EFB4->mCamera.mTarget;
-            eye = lbl_8087EFB4->mCamera.mPos;
+            target = atn::RenderManager::instance_->mCamera.mTarget;
+            eye = atn::RenderManager::instance_->mCamera.mPos;
         }
         break;
     case 5:
-        target = lbl_8087EFB4->mCamera.mTarget;
-        eye = lbl_8087EFB4->mCamera.mPos;
+        target = atn::RenderManager::instance_->mCamera.mTarget;
+        eye = atn::RenderManager::instance_->mCamera.mPos;
         m394 = lbl_8087F0A8->m0D0 == 1;
         break;
     case 6:
-        target = lbl_8087EFB4->mCamera.mTarget;
-        eye = lbl_8087EFB4->mCamera.mPos;
+        target = atn::RenderManager::instance_->mCamera.mTarget;
+        eye = atn::RenderManager::instance_->mCamera.mPos;
         m394 = lbl_8087F0A8->m0D0 == 1;
         break;
     }

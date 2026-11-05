@@ -6,7 +6,7 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
@@ -146,7 +146,7 @@ void Augur::vf10() {
     if (m54 == 1) {
         return;
     }
-    if (LenSq_unk(lbl_8087EFB4->mCamera.mPos - m6C) > 250000.0f && mState == 2) {
+    if (LenSq_unk(atn::RenderManager::instance_->mCamera.mPos - m6C) > 250000.0f && mState == 2) {
         return;
     }
     switch (mState) {

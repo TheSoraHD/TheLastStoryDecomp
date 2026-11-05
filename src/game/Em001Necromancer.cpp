@@ -1,5 +1,5 @@
 #include "game/Em001Necromancer.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "chr/ControlChant.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -586,7 +586,7 @@ void Em001Necromancer::vf14() {
         atn::Vector3 pos(x, y, z);
         pos.y += 2.0f;
         atn::Vector3 screen;
-        fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+        fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
         if (0.0f <= screen.z && screen.z <= 1.0f) {
             m15BC->mFlags &= ~4;
             SetPaneValue_unk(GetSlash_unk(this)->mLayout, "base_point", 0, screen.x);

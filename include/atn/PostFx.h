@@ -2,7 +2,7 @@
 #define ATN_POSTFX_H
 
 #include "atn/GXDecl.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: render manager (lbl_8087EEE0; see atn/Layer2DBlur.cpp)
 struct PostFxRenderMgr_unk {

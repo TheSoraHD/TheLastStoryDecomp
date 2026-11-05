@@ -3,7 +3,7 @@
 #include "atn/Memory.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -130,7 +130,7 @@ void Chicken_unk::fn_8040B668() {
     __SetTrans3_unk(mtx, mPos.x, mPos.y, mPos.z);
     mModel.fn_80092A4C();
     int update = 1;
-    atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - mPos;
+    atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - mPos;
     float distSq = PSVECSquareMag(&d);
     if (distSq > lbl_8087EFA8->m21C * lbl_8087EFA8->m21C) {
         if (distSq > lbl_8087EFA8->m218 * lbl_8087EFA8->m218) {

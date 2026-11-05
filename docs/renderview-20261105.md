@@ -1,4 +1,11 @@
-# renderview-20261105: vistas de `lbl_8087EFB4` -> `atn::RenderView_unk`
+# renderview-20261105: vistas de `lbl_8087EFB4` -> `atn::RenderManager` (antes `atn::RenderView_unk`)
+
+**Nombre real:** el volcado de simbolos del RSO USA (`docs/lastworld_tools_symbols.txt` de
+Aelbannan/last-story-decomp, tabla de importaciones) da `atn::RenderManager` con `instance_`
+(lbl_8087EFB4), `AddRender(IRender*, int, float)` (0x800BDB58), `AddResolveTexture(Texture*, int)`
+(0x800C1660), `GetScreenPosition(const Vector3&) const` (0x800BFAC8), y en su dwarf `Order`,
+`GetScene`, `GetKeyLight`, `FrameCallbackEntry` y `static_vector<ResolveCommand, 8>`. La clase se ha
+renombrado (`include/atn/RenderManager.h`) y `lbl_8087EFB4` es ahora `atn::RenderManager::instance_`.
 
 Rama `renderview-20261105` desde `main` b07abc3 (12679 / 18119 en `report.json`). Referencias en
 `/home/claude/ref` (report.json, labelcheck 204 lineas, rep100 145).
@@ -50,6 +57,23 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 
 ## Decisiones tomadas sin el usuario
 
+- **`atn::RenderView_unk` renombrada a `atn::RenderManager`** (nombre del RSO) y `lbl_8087EFB4` a
+  `atn::RenderManager::instance_` (`instance___Q23atn13RenderManager` en symbols.txt). El prompt
+  hablaba de `RenderView_unk`; se ha preferido el nombre real. Revertirlo es un `sed` en los fuentes y en
+  symbols.txt (`Q23atn13RenderManager` -> `Q23atn14RenderView_unk`).
+- Metodos con nombre real: `AddRender` (los llamadores pasan ahora `(render, pass, order)`, el orden de la
+  firma del RSO; sin cambios de codigo), `AddResolveTexture`, `FrameCallbackEntry` (antes
+  `RenderCallback_unk`), `mResolveCount`/`mResolve[8]` (`ResolveCommand`). `GetScreenPosition` sigue como
+  `fn_800BFAC8` libre (ver Pendientes). `GetScene`, `GetKeyLight` y `Order` no se han asignado: no hay
+  pruebas de a que funcion corresponde cada una.
+- 0x80116BD4 se llamaba `__as__Q23atn6CameraFRCQ23atn6Camera`, pero escribe en 0x10C(r3): es
+  `RenderManager::SetCamera_unk(const Camera&)` (copia debil en Event/Path; Path, TutorialTask y
+  GameCamera_unk la llaman sobre `fn_8008B964()`). Renombrada.
+- 0x800F7258 (`addi r3, r3, 0x104`) es un accesor de la camara: `RenderManager::fn_800F7258()` (copia
+  debil en game/BattleTask). PlayerInput_unk y ControlMoveCursor lo definen inline (y `fn_8008B964`)
+  porque el original los llama fuera de linea y gastan presupuesto de inlining: sin ellos
+  `Input_unk::fn_80124BE4` se inlineaba y desaparecia.
+
 - `Plane_unk` estaba definida en `atn/Camera_unk.h` y en `gmk/WaterLevel.h`: movida a
   `include/atn/Plane_unk.h` (las dos la incluyen).
 - `RenderView_unk.h` incluye `std/string.h` (fn_800BD9C0 recibe un `std::string`), `boost/function.hpp`,
@@ -76,6 +100,15 @@ Del constructor 0x800BC874 (`include/atn/RenderView_unk.h`, comprobada con `offs
 - `fn_800C0A8C`/`fn_800C0A98` son las texturas de `mLayers[4]`/`[5]` (`LayerReflect::mTexture`, 0x5C).
 
 ## Pendientes
+
+- `GetScreenPosition` (0x800BFAC8) es en el original un miembro `const` que devuelve `Vector3` por valor
+  (el cuerpo compila igual con NRVO), pero 22 ficheros lo llaman con el resultado declarado antes
+  (`fn_800BFAC8(&screen, view, &pos)`); con `screen = instance_->GetScreenPosition(pos)` sale un
+  temporal y una copia (GimmickCommon 100 -> 88). Pasarlo a miembro exige mover cada declaracion a la
+  llamada y comprobar el marco de pila caso a caso.
+- `atn::Camera` tiene en el RSO `__ct__Q23atn6CameraFQ33atn6Camera8CAM_TYPEQ33atn6Camera14CAM_PROJECTION`
+  y metodos `SetPosition`, `GetTarget`, `CalcMatrix`... ; `atn::Frustum` es el nombre real de
+  `Frustum_unk`; `atn::Scene` el de `NewCampScene2_unk` (importa `__ct__Q23atn5SceneFv`).
 
 - Vistas de la escena (`NewCampScene2_unk`, que es `atn::Scene`) que siguen en sus unidades y se
   convierten con un cast marcado `// pending: view of the scene`: `RainOverride_unk`,

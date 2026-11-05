@@ -13,7 +13,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: circuit of the war lion around the arena: place id and two flags (names invented)
 struct WarLionPlace_unk {
@@ -716,7 +716,7 @@ void Em403WarLion::vf24() {
         walkSpeed = 0.0f;
         dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
     }
-    if (PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mPos)) > 62500.0f) {
+    if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {

@@ -4,8 +4,8 @@
 
 namespace atn {
 
-// inferred: render system passed to the draw virtuals (defined in atn/RenderView_unk.h)
-struct RenderView_unk;
+// inferred: render system passed to the draw virtuals (defined in atn/RenderManager.h)
+class RenderManager;
 
 // inferred: renderer interface (RTTI __RTTI__Q23atn7IRender; base of atn::ModelBase and Event::DialogHead).
 // Other files still keep local copies (atn/LensFlare.h, atn/PostFx.h, atn/VideoTHP.cpp, ...). The first
@@ -16,9 +16,9 @@ class IRender {
 public:
     virtual ~IRender() {}
     virtual int GetRenderType_unk();                          // 0x80046218
-    virtual void vf10(RenderView_unk* view) = 0;              // inferred: draw
+    virtual void vf10(RenderManager* view) = 0;              // inferred: draw
     virtual int vf14(void* arg1, void* arg2, void* frustum); // 0x80046200
-    virtual void vf18(RenderView_unk* view);                  // 0x80046214: inferred: second draw pass
+    virtual void vf18(RenderManager* view);                  // 0x80046214: inferred: second draw pass
     virtual void vf1C();                                      // 0x800461FC
 };
 

@@ -12,6 +12,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/MenuCommonTask.h"
+#include "atn/RenderManager.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -258,7 +259,6 @@ extern "C" inline atn::Vector3* fn_803727D4(CharaTask* chara) {
 extern "C" void fn_80372754(atn::Matrix3x4* m, atn::Vector3* scale); // inferred: scales the matrix
 extern "C" void fn_80316E38(atn::Model* model, const atn::Matrix3x4* m); // inferred: sets the model matrix
 extern "C" void fn_8037F688(Camera_unk* camera, float fovy);
-extern "C" Camera_unk* fn_8008B964();
 extern "C" void fn_80392A04(Camera_unk* a, Camera_unk* b);
 extern "C" void fn_8037529C(TutorialField_unk* field, int a, int color, int b, int c, int frames);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
@@ -319,7 +319,7 @@ void TutorialTask::vf10() {
             mCamera2.SetTarget_unk(target);
             fn_8037F688(&mCamera2, f);
             mCamera2.fn_8004B378();
-            *fn_8008B964() = mCamera2;
+            fn_8008B964()->SetCamera_unk(mCamera2);
             atn::Matrix3x4 trans = fn_800F80A8(&base);
             trans = MulMtx_unk(rot, trans);
             fn_80372754(&trans, fn_803727D4(mChara));

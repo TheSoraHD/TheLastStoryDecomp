@@ -4,7 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: route between two points (8 bytes; declared in game/CharaStatus.h)
 struct RoutePath_unk {
@@ -81,7 +81,7 @@ void MeetingSpot::Start() {
 void MeetingSpot::vf10() {
     int cancel = vf60() == 0;
     if (!cancel) {
-        cancel = SqLength_unk(lbl_8087EFB4->mCamera.mPos - m6C) > 250000.0f;
+        cancel = SqLength_unk(atn::RenderManager::instance_->mCamera.mPos - m6C) > 250000.0f;
     }
     if (!cancel && mDesc->m2C == 1 && mState < 7) {
         CharaTask* player = (CharaTask*)lbl_8087F8A0->mHead;

@@ -1,5 +1,5 @@
 #include "MP/D2AMpMenu_unk.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameVoice.h"
 #include "math/Vec.h"
 #include "atn/Model_unk.h"
@@ -374,7 +374,7 @@ void D2AMpMenuCockpit::fn_804B5B10() {
             }
             atn::Vector3 pos = GetMarkPos_unk(player->m00);
             atn::Vector3 screen;
-            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
             if (IsOnScreen_unk(screen)) {
                 m50[i]->SetColor_unk("col0002(1)", rank == 1 ? 0xFFE59E36 : 0xFF969696);
                 m50[i]->SetColor_unk("col0003(1)", rank == 1 ? 0xFFE59E36 : 0xFFCCCCCC);
@@ -392,7 +392,7 @@ void D2AMpMenuCockpit::fn_804B5B10() {
             if (info != 0 && player != 0 && team == player->mTeam) {
                 atn::Vector3 pos = GetMarkPos_unk(player->m00);
                 atn::Vector3 screen;
-                fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
                 if (IsOnScreen_unk(screen)) {
                     m70[i]->mFlags &= ~4;
                     SetPaneValue_unk(m70[i]->mLayout, "basePoint", 0, screen.x);

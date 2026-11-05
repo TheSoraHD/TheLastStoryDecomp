@@ -1,5 +1,5 @@
 #include "chr/ControlMoveCursor.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/Camera_unk.h"
 
 extern "C" double sqrt(double x);
@@ -15,11 +15,12 @@ extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferre
 inline void* GetPad_unk() {
     return lbl_8087EF70;
 }
-extern "C" inline void* fn_8008B964() {
-    return lbl_8087EFB4;
+// inferred: weak copies of another file (the original calls them out of line)
+extern "C" inline atn::RenderManager* fn_8008B964() {
+    return atn::RenderManager::instance_;
 }
-extern "C" inline void* fn_800F7258(void* camera) {
-    return (char*)camera + 0x104;
+inline atn::Camera* atn::RenderManager::fn_800F7258() {
+    return &mCamera;
 }
 // inferred: weak copy 0x801C1060 (name from symbols.txt)
 inline float Cos_unk(float x) {
@@ -92,7 +93,7 @@ void ControlMoveCursor::fn_801C346C(const CursorTarget_unk* target, float maxDis
     float len = stick.Length_unk();
     atn::Vector3 rot(*mChara->GetRot_unk());
     if (len >= 0.4f) {
-        float yaw = ((Camera_unk*)fn_800F7258(fn_8008B964()))->GetRot_unk()->y;
+        float yaw = fn_8008B964()->fn_800F7258()->GetRot_unk()->y;
         rot = stick.ToRotation_unk();
         rot.y = yaw - rot.y;
         float t = (len - 0.4f) / 0.6f;

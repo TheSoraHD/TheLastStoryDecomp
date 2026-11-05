@@ -4,7 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/GimmickManager.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -193,7 +193,7 @@ void gmk::WindyItem::fn_804392C0() {
             sphere.mCenter = player->m614;
             sphere.mRadius = player->m620;
         } else {
-            sphere.mCenter = lbl_8087EFB4->mCamera.mPos;
+            sphere.mCenter = atn::RenderManager::instance_->mCamera.mPos;
             sphere.mRadius = 5.0f;
         }
         atn::Vector3 pos = sphere.mCenter;

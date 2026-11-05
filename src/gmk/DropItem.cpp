@@ -9,7 +9,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -282,7 +282,7 @@ void DropItem::vf10() {
             rangeDist /= 1.5f;
             nearDist *= 0.5f;
         }
-        atn::Vector3 d(m6C.x - lbl_8087EFB4->mCamera.mPos.x, m6C.y - lbl_8087EFB4->mCamera.mPos.y, m6C.z - lbl_8087EFB4->mCamera.mPos.z);
+        atn::Vector3 d(m6C.x - atn::RenderManager::instance_->mCamera.mPos.x, m6C.y - atn::RenderManager::instance_->mCamera.mPos.y, m6C.z - atn::RenderManager::instance_->mCamera.mPos.z);
         float camDist = PSVECSquareMag(&d);
         bool event = false;
         if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
@@ -534,7 +534,7 @@ void DropItem::vf14() {
         fn_80444CF8(text, mItem, mCount, m17C);
     }
     atn::Vector3 screen;
-    fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+    fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
     if (!(0.0f <= screen.z && screen.z <= 1.0f)) {
         return;
     }

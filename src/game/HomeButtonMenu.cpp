@@ -3,7 +3,7 @@
 #include "atn/SoundManager.h"
 #include "game/HBMRso.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 namespace atn {
 
@@ -152,7 +152,7 @@ void HomeButtonMenu::fn_8044073C() {
                 break;
             }
         } else {
-            lbl_8087EFB4->fn_800BDB58(this, -100000.0f, 0x13);
+            atn::RenderManager::instance_->AddRender(this, 0x13, -100000.0f);
         }
     }
 }

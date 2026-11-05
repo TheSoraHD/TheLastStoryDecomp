@@ -54,9 +54,9 @@ class LensFlare : public IRender {
 public:
     LensFlare(int arg, int count, const atn::Vector3& pos, float size); // 0x80077160
     virtual ~LensFlare();
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
     virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; }
-    virtual void vf18(RenderView_unk* view) {}
+    virtual void vf18(RenderManager* view) {}
 
     int fn_800774D4(); // inferred: nonzero while loading
     void fn_80077534(); // inferred: per-frame update

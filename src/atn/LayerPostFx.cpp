@@ -1,7 +1,7 @@
 // The 8-byte float pair copies are psq_l/psq_st in the original: Vec2f copies through __Vec2Copy
 // (math/Vec.h, approved paired-single helper).
 #include "atn/LayerPostFx.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: unknown callees and globals (automatic names)
 struct RenderObj {
@@ -37,7 +37,7 @@ namespace atn {
 LayerPostFx::LayerPostFx() : IRenderLayer("PostFX") {}
 
 void LayerPostFx::vf14(void* arg) {
-    void* p = lbl_8087EFB4;
+    void* p = atn::RenderManager::instance_;
     for (RenderNode* node = (RenderNode*)arg; node != 0; node = node->mNext) {
         lbl_8087EF8C->fn_800A9788();
         node->mObj->vf10(p);
@@ -54,7 +54,7 @@ void LayerPostFx::vf1C() {
     lbl_8087EEE0->m58 = zero;
     fn_80071E04(lbl_8087EEE0);
     fn_80076174(lbl_8087EEE0, 0);
-    lbl_8087EFB4->fn_800C0590(0, 0x13);
+    atn::RenderManager::instance_->fn_800C0590(0, 0x13);
 }
 
 void LayerPostFx::vf20() {

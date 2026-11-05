@@ -4,17 +4,13 @@
 #include "atn/Sphere.h"
 #include "atn/AABB_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderManager.h"
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void PSMTX44Concat(const float a[4][4], const float b[4][4], float ab[4][4]); // inferred: PSMTX44Concat
 extern "C" void PSMTX44MultVecArray(const float m[4][4], const atn::Vector3* src, atn::Vector3* dst,
                             unsigned long n); // inferred: PSMTX44MultVecArray
 
-// inferred: plane (normal, distance); names invented
-struct Plane_unk {
-    atn::Vector3 mNormal;
-    float mDist;
-};
 
 // inferred: ray against box: true when the ray from `origin` along `dir` hits it (t is the
 // distance along dir)
@@ -76,19 +72,12 @@ extern "C" void fn_8006FE08(const atn::AABB_unk* box, unsigned int color) {
     lbl_8087EEB0->fn_800629F0(center, half, 0.0f, color, 0);
 }
 
-// inferred: camera (view matrix at 0x15C, projection at 0x18C); names invented
-struct GeoCamera_unk {
-    unsigned char m00[0x15C];
-    atn::Matrix3x4 mView;  // 0x15C
-    float mProj[4][4];     // 0x18C
-};
 // inferred: render state (viewport size at 0x3C/0x40, as in atn/LensFlare.cpp)
 struct GeoRenderState_unk {
     unsigned char m00[0x3C];
     int mWidth;  // 0x3C
     int mHeight; // 0x40
 };
-extern "C" GeoCamera_unk* lbl_8087EFB4;
 extern "C" GeoRenderState_unk* lbl_8087EEE0;
 
 // inferred: 4x4 matrix from a 3x4 one (the column 3 is cleared first, unlike the constructor of
@@ -141,11 +130,11 @@ inline atn::AABB_unk ProjectBox_unk(const float m[4][4], const atn::AABB_unk* bo
 
 // inferred: screen rectangle of the box (projects the 8 corners with the camera)
 extern "C" void fn_8006FEBC(atn::AABB_unk* screen, const atn::AABB_unk* box) {
-    GeoCamera_unk* cam = lbl_8087EFB4;
+    atn::RenderManager* cam = atn::RenderManager::instance_;
     atn::Matrix44_unk view;
-    ToMatrix44_unk(&view, cam->mView);
+    ToMatrix44_unk(&view, cam->mCamera.mView);
     float m[4][4];
-    PSMTX44Concat(cam->mProj, view.m, m);
+    PSMTX44Concat(cam->mCamera.mProj.m, view.m, m);
     atn::AABB_unk b = ProjectBox_unk(m, box);
     float hw = 0.5f * (float)lbl_8087EEE0->mWidth;
     float hh = 0.5f * (float)lbl_8087EEE0->mHeight;
@@ -161,7 +150,7 @@ extern "C" void fn_8006FEBC(atn::AABB_unk* screen, const atn::AABB_unk* box) {
 
 // inferred: as fn_8006FEBC with the combined matrix of the camera
 extern "C" void fn_800704DC(atn::AABB_unk* screen, const atn::AABB_unk* box) {
-    atn::AABB_unk b = ProjectBox_unk(lbl_8087EFB4->mProj, box);
+    atn::AABB_unk b = ProjectBox_unk(atn::RenderManager::instance_->mCamera.mProj.m, box);
     float hw = 0.5f * (float)lbl_8087EEE0->mWidth;
     float hh = 0.5f * (float)lbl_8087EEE0->mHeight;
     screen->mMax.x = b.mMax.x * hw + hw;

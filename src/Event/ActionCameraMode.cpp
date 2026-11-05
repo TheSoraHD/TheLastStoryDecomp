@@ -1,5 +1,5 @@
 #include "Event/Cut.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "Event/Manager.h"
 #include "Event/Behavior.h"
 #include "Event/Path.h"
@@ -29,7 +29,7 @@ namespace Event {
 } // namespace Event
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; namespace atn {
-struct RenderView_unk;
+class RenderManager;
 }
 // inferred: scene of the event (fn_80541210): its kind at 0x0C
 struct EventScene_unk {
@@ -255,7 +255,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             break;
         }
         case 2: {
-            NewCampScene2_unk* view = lbl_8087EFB4->fn_800C16B4();
+            NewCampScene2_unk* view = atn::RenderManager::instance_->fn_800C16B4();
             if (arg->GetParam_unk(1)->m04.i != 0) {
                 view->mFog.mMode = arg->GetParam_unk(2)->m04.i + 1;
                 view->mFog.mStart = arg->GetParam_unk(3)->m04.f;
@@ -322,7 +322,7 @@ int ActionCameraEffect::vf0C(Action* arg, int phase) {
             fade.z = arg->GetParam_unk(13)->m04.f;
             fade.w = arg->GetParam_unk(14)->m04.f;
             haze.mFade = fade;
-            lbl_8087EFB4->fn_800C16B4()->mHaze = haze;
+            atn::RenderManager::instance_->fn_800C16B4()->mHaze = haze;
             MapManager::sInstance->fn_80491528(boost::bind(&ActionCameraEffect::fn_8055BC5C, this, _1, _2), &haze);
             break;
         }

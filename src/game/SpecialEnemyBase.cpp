@@ -63,7 +63,7 @@
 #include "game/EnemyTrista.h"
 #include "game/LastCocoonChrysalis.h"
 #include "game/Np131LivingArmor.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -370,10 +370,10 @@ int SpecialEnemyBase::fn_805A4A54(SpecialAim_unk* aim) {
         PSMTXMultVec(m, &hi, &hi);
         atn::Vector3 screenLo;
         atn::Vector3 posLo = center + lo;
-        fn_800BFAC8(&screenLo, lbl_8087EFB4, &posLo);
+        fn_800BFAC8(&screenLo, atn::RenderManager::instance_, &posLo);
         atn::Vector3 screenHi;
         atn::Vector3 posHi = center + hi;
-        fn_800BFAC8(&screenHi, lbl_8087EFB4, &posHi);
+        fn_800BFAC8(&screenHi, atn::RenderManager::instance_, &posHi);
         SpecialRect_unk rect;
         rect.mHeight = 0.5f * atn::Abs_unk(screenLo.y - screenHi.y) + 12.0f;
         rect.mWidth = 0.5f * atn::Abs_unk(screenLo.x - screenHi.x) + 12.0f;

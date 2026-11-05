@@ -1,7 +1,7 @@
 #include "game/MapManager.h"
 #include "atn/Memory.h"
 #include "game/AreaEffConfig.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 
 
@@ -21,7 +21,7 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" MapPart_unk* fn_80373148(Field_unk* field);
 
 // inferred: weak copy at 0x8049103C (takes the function by value, so it is never inlined)
-inline void atn::RenderView_unk::SetMapHit_unk(MapHitFunc_unk func, void* arg) {
+inline void atn::RenderManager::SetMapHit_unk(MapHitFunc_unk func, void* arg) {
     mMapHit = func;
     mMapHitArg = arg;
 }
@@ -55,12 +55,12 @@ MapManager* MapManager::fn_80490EB8(atn::Task* parent) {
 
 // inferred: not inline; inlined into fn_80490EB8
 MapManager::MapManager(atn::Task* parent) : atn::Task(parent), mType(0) {
-    lbl_8087EFB4->SetMapHit_unk(&fn_804914BC, this);
+    atn::RenderManager::instance_->SetMapHit_unk(&fn_804914BC, this);
 }
 
 MapManager::~MapManager() {
     sInstance = 0;
-    lbl_8087EFB4->SetMapHit_unk(MapHitFunc_unk(), 0);
+    atn::RenderManager::instance_->SetMapHit_unk(MapHitFunc_unk(), 0);
 }
 
 int MapManager::vf0C() {

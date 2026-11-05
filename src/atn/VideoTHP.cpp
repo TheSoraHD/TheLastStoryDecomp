@@ -1,7 +1,7 @@
 #include "std/string.h"
 #include "atn/MemoryManager.h"
 #include "std/string_members.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/Layer3D.h"
 
 // inferred: THP player of the SDK sample library (automatic names)
@@ -200,7 +200,7 @@ void VideoTHP::vf24() {
 }
 
 void VideoTHP::vf28() {
-    lbl_8087EFB4->fn_800BDB58(this, m10, 0x12);
+    atn::RenderManager::instance_->AddRender(this, 0x12, m10);
 }
 
 // NONMATCHING: 99.28% - only volatile register choices differ (r8/r9 for the converted height,
@@ -277,7 +277,7 @@ void VideoTHP::vf10() {
     }
     m80 = fn_805B6474(rs, x, y, dw, dh);
     GXDrawDone();
-    lbl_8087EFB4->mLayers[18]->vf1C(); // inferred: layer "2D Object"
+    atn::RenderManager::instance_->mLayers[18]->vf1C(); // inferred: layer "2D Object"
 }
 
 void VideoTHP::vf18() {}

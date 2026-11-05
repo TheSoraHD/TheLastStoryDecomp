@@ -3,7 +3,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/function.hpp>
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -219,7 +219,7 @@ void MapPartsModel::vf10() {}
 void MapPartsModel::vf14() {
     if (mHasBox != 0) {
         atn::Sphere cam;
-        cam.mCenter = lbl_8087EFB4->mCamera.mTarget;
+        cam.mCenter = atn::RenderManager::instance_->mCamera.mTarget;
         cam.mRadius = 1.0f;
         if (fn_800709F4(&mBox, &cam.mCenter) == 0) {
             return;
@@ -227,7 +227,7 @@ void MapPartsModel::vf14() {
     }
     if (mCenterCamera != 0) {
         atn::Matrix3x4 mtx(*(atn::Matrix3x4*)mModel.mMtx.m);
-        const atn::Vector3& p = lbl_8087EFB4->mCamera.mTarget;
+        const atn::Vector3& p = atn::RenderManager::instance_->mCamera.mTarget;
         mtx.m[0][3] = p.x;
         mtx.m[1][3] = p.y;
         mtx.m[2][3] = p.z;

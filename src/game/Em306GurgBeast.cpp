@@ -6,7 +6,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -458,7 +458,7 @@ inline void Em306GurgBeast::RideMove_unk() {
     if (rate < 0.4f) {
         dir = mRot;
     } else {
-        float cam = lbl_8087EFB4->mCamera.mRot.y;
+        float cam = atn::RenderManager::instance_->mCamera.mRot.y;
         dir.fn_80139F60();
         dir.y = cam - dir.y;
     }

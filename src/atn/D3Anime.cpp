@@ -1,6 +1,7 @@
 #include "atn/D3Anime.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderManager.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -13,9 +14,6 @@ extern "C" atn::D2ATask_unk* fn_801F3FF8(atn::Task* parent, const char* path, in
 extern "C" void fn_801F4484(atn::D2ATask_unk* task);
 extern "C" void fn_801F465C(atn::D2ATask_unk* task, int arg);
 
-namespace atn {
-struct Frustum_unk;
-}
 
 // inferred: globals of unknown classes
 struct RenderState_unk {
@@ -23,28 +21,18 @@ struct RenderState_unk {
     int mWidth;  // 0x3C
     int mHeight; // 0x40
 };
-struct Camera_unk {
-    unsigned char m000[0x15C];
-    atn::Matrix3x4 m15C; // inferred: view matrix
-    unsigned char m18C[0x204 - 0x18C];
-    atn::Frustum_unk* GetFrustum_unk() { return (atn::Frustum_unk*)m204; }
-    unsigned char m204[1]; // inferred: frustum
-};
 extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" Camera_unk* lbl_8087EFB4;
+
+// inferred: frustum of the camera of the render manager and sphere test (inlined; names invented)
+inline Frustum_unk* GetFrustum_unk(atn::RenderManager* manager) {
+    return &manager->mCamera.mFrustum;
+}
+inline bool IsCulled_unk(Frustum_unk* frustum, const atn::Sphere& sphere) {
+    return fn_8004FF58(frustum, &sphere) == 0;
+}
 
 namespace atn {
 
-// inferred: bounding sphere (names invented)
-struct Sphere_unk {
-    Sphere_unk() {}
-    Vector3 mCenter;
-    float mRadius;
-};
-extern "C" int fn_8004FF58(Frustum_unk* frustum, const Sphere_unk* sphere); // inferred: sphere visibility test
-struct Frustum_unk {
-    bool IsCulled_unk(const Sphere_unk& sphere) { return fn_8004FF58(this, &sphere) == 0; }
-};
 
 D3Anime* D3Anime::Create(Task* parent, const char* name, int load) {
     if (parent != 0) {
@@ -120,11 +108,11 @@ void D3Anime::vf14() {
     }
     if (mVisible) {
         // inferred: the radius is a folded constant (sqrt(180000.0)), so it was written with literals
-        Sphere_unk sphere;
+        Sphere sphere;
         sphere.mCenter = mPos + Vector3(300.0f, 300.0f, 0.0f);
-        Frustum_unk* frustum = lbl_8087EFB4->GetFrustum_unk();
+        ::Frustum_unk* frustum = GetFrustum_unk(RenderManager::instance_);
         sphere.mRadius = sqrt(300.0f * 300.0f + 300.0f * 300.0f + 0.0f * 0.0f);
-        if (!frustum->IsCulled_unk(sphere)) {
+        if (!IsCulled_unk(frustum, sphere)) {
             Draw();
         }
     }
@@ -164,7 +152,7 @@ inline void Translate_unk(Matrix3x4& m, float x, float y, float z) {
 // NONMATCHING: 99.29% - only volatile register numbers differ (camera/render state pointers and the
 // int->float constants at the top, the renderer pointer and the matrix addresses at the end)
 void D3Anime::Draw() {
-    const Matrix3x4& camView = lbl_8087EFB4->m15C;
+    const Matrix3x4& camView = atn::RenderManager::instance_->mCamera.mView;
     int iw = lbl_8087EEE0->mWidth;
     int ih = lbl_8087EEE0->mHeight;
     Matrix3x4 savedView(lbl_8087EEB0->mD4);

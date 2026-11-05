@@ -3,6 +3,7 @@
 #include "atn/Memory.h"
 #include "math/Vec.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderManager.h"
 
 extern "C" int memcmp(const void* a, const void* b, unsigned long n);
 extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short height, unsigned int format,
@@ -27,15 +28,6 @@ struct RenderSettings_unk {
 };
 extern "C" RenderSettings_unk* lbl_8087EFA8;
 
-// inferred: camera; m204 is its view frustum
-struct Frustum_unk;
-struct OccCamera_unk {
-    unsigned char m000[0x204];
-    unsigned char m204[1];
-};
-extern "C" OccCamera_unk* lbl_8087EFB4;
-// inferred: frustum test of a box: 0 outside, 1 partially inside, 2 inside
-extern "C" int fn_800500FC(void* frustum, const void* box);
 
 // inferred: identity matrix (.bss)
 extern "C" Mtx lbl_807C7060;
@@ -235,7 +227,7 @@ void LayerOcclusionCPU::vf14(void* arg) {
             if (meshes != 0) {
                 fn_800B4694(model, meshes);
             } else if (tree != 0) {
-                fn_800B448C(tree, lbl_8087EFB4->m204, 0);
+                fn_800B448C(tree, &atn::RenderManager::instance_->mCamera.mFrustum, 0);
             }
             m2C = 1;
         }
@@ -301,7 +293,7 @@ void LayerOcclusionCPU::vf20() {
 
 void LayerOcclusionCPU::fn_800B448C(const OccTree_unk* tree, void* frustum, int index) {
     OccNode_unk* node = &tree->mNodes[index];
-    int result = fn_800500FC(frustum, node);
+    int result = fn_800500FC((const Frustum_unk*)frustum, (const atn::Vector3*)node);
     if (result == 2) {
         fn_800B47AC(this, &tree->mIndices[node->m20 * 3], node->m22 * 3, tree->m24 == -1 ? 4 : 1, tree->m24,
                     tree->m28, 0, 0);

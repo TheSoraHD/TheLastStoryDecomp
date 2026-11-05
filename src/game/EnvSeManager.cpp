@@ -1,5 +1,5 @@
 #include "game/EnvSeManager.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameVoice.h"
 #include "game/EnvSeBase.h"
 #include "game/GameConfig_unk.h"
@@ -151,7 +151,7 @@ void EnvSeManager::vf14() {
             lbl_8087EEB0->fn_800629F0(lbl_807C7030, area->mSize, 0.0f, current ? 0xFFFF80FF : 0xFF7F407F, &area->mMtx);
             atn::Vector3 screen;
             atn::Vector3 pos = area->mMtx.GetTrans_unk();
-            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
             if (0.0f < screen.z && screen.z < 1.0f) {
                 char text[0x100];
                 sprintf(text, "Area[%d] %s\0", area->mId, area->mData.mName);

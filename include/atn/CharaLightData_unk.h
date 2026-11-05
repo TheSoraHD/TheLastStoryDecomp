@@ -19,7 +19,7 @@ struct TextureArray_unk {
 };
 
 // inferred: light projected on the characters (0x50 bytes, class name unknown); also referenced
-// by the camera (lbl_8087EFB4) and the map parts
+// by the camera (atn::RenderManager::instance_) and the map parts
 struct CharaLightData_unk {
     CharaLightData_unk(); // 0x800C16C0
     CharaLightData_unk(const char* texture); // 0x800C1720: inferred: loads the texture

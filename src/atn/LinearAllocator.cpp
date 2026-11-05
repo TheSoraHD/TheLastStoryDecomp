@@ -2,7 +2,7 @@
 #include "atn/MemoryManager.h"
 #include "atn/Texture_unk.h"
 #include "atn/Memory.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // The real file defines atn::PostFxManager (RTTI name at 0x80732AC8), a task that owns the
 // post effects and a linear allocator for their temporary textures.
@@ -231,25 +231,25 @@ PostFxManager::~PostFxManager() {}
 void PostFxManager::fn_800A9558() {
     if (lbl_8087EFA8->mBloom != 0) {
         float alpha = lbl_8087EFA8->mBloomAlpha;
-        lbl_8087EFB4->fn_800BDB58(&mBloom, alpha, m778);
+        atn::RenderManager::instance_->AddRender(&mBloom, m778, alpha);
     }
     if (mGodRay.fn_800AEF4C() != 0) {
-        lbl_8087EFB4->fn_800BDB58(&mGodRay, 0.0f, 0xE);
+        atn::RenderManager::instance_->AddRender(&mGodRay, 0xE, 0.0f);
     }
     if (lbl_8087EFA8->mDof != 0) {
         float alpha = lbl_8087EFA8->mDofAlpha;
-        lbl_8087EFB4->fn_800BDB58(&mDof, alpha, 0xE);
+        atn::RenderManager::instance_->AddRender(&mDof, 0xE, alpha);
     }
-    lbl_8087EFB4->fn_800BDB58(&mMotionBlur, 0.0f, 0xE);
+    atn::RenderManager::instance_->AddRender(&mMotionBlur, 0xE, 0.0f);
     if (lbl_8087EFA8->mColorMatrix != 0) {
-        lbl_8087EFB4->fn_800BDB58(&mColorMatrix, (float)mColorMatrix.m48, m778);
+        atn::RenderManager::instance_->AddRender(&mColorMatrix, m778, (float)mColorMatrix.m48);
     }
-    lbl_8087EFB4->fn_800BDB58(&mGamma, lbl_8087EFA8->mGammaAlpha, 0xE);
+    atn::RenderManager::instance_->AddRender(&mGamma, 0xE, lbl_8087EFA8->mGammaAlpha);
     if (mRain.fn_800B0A48() != 0) {
-        lbl_8087EFB4->fn_800BDB58(&mRain, 0.0f, 0xE);
+        atn::RenderManager::instance_->AddRender(&mRain, 0xE, 0.0f);
     }
     if (lbl_8087EFA8->mDamage != 0) {
-        lbl_8087EFB4->fn_800BDB58(&mDamage, 0.0f, 0xE);
+        atn::RenderManager::instance_->AddRender(&mDamage, 0xE, 0.0f);
     }
     mAlloc.mUsed = 0;
 }

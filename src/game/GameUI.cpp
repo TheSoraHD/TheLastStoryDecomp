@@ -1,5 +1,5 @@
 #include "Event/Manager.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
 #include "game/GameScene.h"
@@ -745,7 +745,6 @@ struct GameUIAimControl_unk {
     CharaTask* m50;
 };
 extern "C" GameUIAimControl_unk* fn_80318F90(CharaTask* chara);
-extern "C" atn::RenderView_unk* fn_8008B964(); // inferred: returns lbl_8087EFB4
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" float lbl_8087DEE8;
 extern "C" float lbl_8087DEEC;
@@ -2529,7 +2528,7 @@ void GameUI::fn_803E41AC(CharaTask* chara) {
             atn::Vector3 pos = GetNodePos_unk(head);
             pos.y += 2.0f;
             atn::Vector3 screen;
-            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
             SetLayoutValue_unk(&m1104->mData.m10, "base_point", 0, screen.x);
             SetLayoutValue_unk(&m1104->mData.m10, "base_point", 1, screen.y);
             SetLayoutValue_unk(&m1108->mData.m10, "base_point", 0, screen.x);
@@ -2839,7 +2838,7 @@ void GameUI::fn_803E5C60(CharaTask* chara) {
     }
     atn::Vector3 pos = chara->vf58();
     atn::Vector3 screen;
-    fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+    fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
     if (0.0f < screen.z && screen.z < 1.0f) {
         atn::D2A_Task* task = m254C;
         task->SetNumber_unk("string0001(1)", fn_803CE854(chara->fn_8016DAB0()), 0);

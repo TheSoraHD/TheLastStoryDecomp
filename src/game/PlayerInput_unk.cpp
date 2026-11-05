@@ -1,5 +1,5 @@
 #include "game/Input_unk.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/SetConfig.h"
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
@@ -59,15 +59,15 @@ struct DialogConfig_unk {
 };
 
 extern "C" int fn_801237E0(SetConfig* config);
+// inferred: weak copies of another file (the original calls them out of line)
+extern "C" inline atn::RenderManager* fn_8008B964() {
+    return atn::RenderManager::instance_;
+}
+inline atn::Camera* atn::RenderManager::fn_800F7258() {
+    return &mCamera;
+}
 extern "C" DialogConfig_unk* fn_801237E8(SetConfig* config);
 
-// inferred: camera of the game (lbl_8087EFB4); weak copies of another file
-extern "C" inline void* fn_8008B964() {
-    return lbl_8087EFB4;
-}
-extern "C" inline Camera_unk* fn_800F7258(void* camera) {
-    return (Camera_unk*)((char*)camera + 0x104);
-}
 // inferred: weak copy of another file
 extern "C" inline Settings_unk* fn_800F52F8() {
     return lbl_8087F0A8;
@@ -199,10 +199,10 @@ void Input_unk::fn_80122330(int reset) {
         yaw *= 40.0f / fn_80122558(input)->m00;
     }
     if (fn_801248DC(0) < 0.4f) {
-        m0C = yaw + fn_800F7258(fn_8008B964())->GetRot_unk()->y;
+        m0C = yaw + fn_8008B964()->fn_800F7258()->GetRot_unk()->y;
         m10--;
     } else {
-        yaw += fn_800F7258(fn_8008B964())->GetRot_unk()->y;
+        yaw += fn_8008B964()->fn_800F7258()->GetRot_unk()->y;
         if (!(m10 > 0 && fn_80122560(atn::WrapAngle_unk(yaw - m0C)) > 0.7853982f)) {
             m0C = yaw;
             m10--;
@@ -656,7 +656,7 @@ int Input_unk::fn_80124B60() {
 }
 
 void Input_unk::fn_80124BE4() {
-    m0C = fn_800F7258(fn_8008B964())->GetRot_unk()->y;
+    m0C = fn_8008B964()->fn_800F7258()->GetRot_unk()->y;
     m10 = 0;
 }
 

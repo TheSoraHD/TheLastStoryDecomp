@@ -44,12 +44,12 @@ extern "C" void fn_804A893C(unsigned int* object, unsigned int flags) {
 void MiniMapTask::vf14() {}
 
 // NONMATCHING: 0.22% - target builds and submits minimap render data.
-void MiniMapTask::vf18(atn::RenderView_unk* view) {
+void MiniMapTask::vf18(atn::RenderManager* view) {
     (void)view;
 }
 
 // NONMATCHING: 0.33% - target updates the minimap render target.
-void MiniMapTask::vf10(atn::RenderView_unk* view) {
+void MiniMapTask::vf10(atn::RenderManager* view) {
     (void)view;
 }
 

@@ -4,7 +4,7 @@
 #include "macros.h"
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" CharaInfo_unk* fn_8020924C(int id);
 extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // inferred: adds an extension
@@ -166,7 +166,7 @@ void CopyRobotTask::vf10() {
         memcpy(mMotion.m21C.mData, m14B4->mMotion.m21C.mData,
                (*(CopyModelRes_unk**)((char*)&mMotion + 0x16C))->mNumNodes * sizeof(atn::Model::Node_unk));
         mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
-        fn_80148B38(LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos));
+        fn_80148B38(LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos));
         vf20();
         mColli.mFlags &= ~1;
         vf54();

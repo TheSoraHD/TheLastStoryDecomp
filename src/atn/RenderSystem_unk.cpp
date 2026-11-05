@@ -16,7 +16,7 @@
 #include <boost/function.hpp>
 #include <new>
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 
 struct MemoryMode_unk {
@@ -202,7 +202,7 @@ extern "C" void fn_800BC798();
 extern "C" int fn_800B5994(void* value, const void* bounds);
 extern "C" float fn_800B6218(void* value, const void* bounds);
 
-void atn::RenderView_unk::fn_800BC468(GXTexObj* tex) {
+void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
     // NONMATCHING: 80.88% - the reference unrolls the tiled gradient loop two pixels at a time.
     unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
     unsigned char* image;
@@ -232,7 +232,7 @@ void atn::RenderView_unk::fn_800BC468(GXTexObj* tex) {
     DCFlushRange(image, size);
 }
 
-void atn::RenderView_unk::fn_800BC618(GXTexObj* texture, int offset) {
+void atn::RenderManager::fn_800BC618(GXTexObj* texture, int offset) {
     // NONMATCHING: 97.92% - two clamp branches still differ.
     unsigned short* remap;
     unsigned int size;
@@ -280,8 +280,8 @@ extern "C" void fn_800BC798() {
         *(int*)((unsigned char*)lbl_8087EFA8 + 0x3AC) = 1;
     }
 
-    if (lbl_8087EFB4 == 0) {
-        lbl_8087EFB4 = new ((MemoryTag)6, "", "", 0) atn::RenderView_unk();
+    if (atn::RenderManager::instance_ == 0) {
+        atn::RenderManager::instance_ = new ((MemoryTag)6, "", "", 0) atn::RenderManager();
     }
 }
 
@@ -308,12 +308,12 @@ inline DrawCmd_unk::DrawCmd_unk() {
     m00 = 0;
 }
 
-atn::RenderView_unk::RenderView_unk()
+atn::RenderManager::RenderManager()
     : mQueueBuffer(0), mQueueCapacity(0), mQueueUsed(0), m0FC(0.0f), m100(0.0f), mCamera(0, 0), m2F8(-1),
       mMapHitArg(0), mShadowCamera(0, 0), m52C(0), m550(0), m554(0), m558(0, 0), m890(0), m894(0), m898(150.0f),
       m89C(500.0f), m8A0(0.5f), m8A4(0.5f), m8A8(0.5f), m8AC(1.0f),
       m8B0(boost::function<void(void*)>(), 0), m8C8(boost::function<void(void*)>(), 0),
-      m8E0(boost::function<void(void*)>(), 0), m8F8(boost::function<void(void*)>(), 0), m910(0), m54960(0),
+      m8E0(boost::function<void(void*)>(), 0), m8F8(boost::function<void(void*)>(), 0), mResolveCount(0), m54960(0),
       m54964(0) {
     // inferred: initialize render cameras, callbacks, the default scene, and its render layers.
     // NONMATCHING: render-state validation and additional menu fields remain incomplete;
@@ -405,9 +405,10 @@ atn::RenderView_unk::RenderView_unk()
     }
 }
 
-RenderCallback_unk::RenderCallback_unk(boost::function<void(void*)> func, int arg) : mFunc(func), mArg(arg) {}
+atn::RenderManager::FrameCallbackEntry::FrameCallbackEntry(boost::function<void(void*)> func, int arg)
+    : mFunc(func), mArg(arg) {}
 
-void atn::RenderView_unk::fn_800BD9C0(int queueCapacity, const std::string& name) {
+void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name) {
     // NONMATCHING: 93.59% - temporary texture setup still differs in register allocation.
     const char* file = "";
     {
@@ -440,7 +441,7 @@ void atn::RenderView_unk::fn_800BD9C0(int queueCapacity, const std::string& name
                     0.0f, 0, 0, 0);
 }
 
-void atn::RenderView_unk::fn_800BDB40(NewCampScene2_unk* scene) {
+void atn::RenderManager::fn_800BDB40(NewCampScene2_unk* scene) {
     mScene = scene;
     if (scene != 0) {
         return;
@@ -448,7 +449,7 @@ void atn::RenderView_unk::fn_800BDB40(NewCampScene2_unk* scene) {
     mScene = lbl_8087EFB8;
 }
 
-void atn::RenderView_unk::fn_800BDB58(atn::IRender* render, float order, int pass) {
+void atn::RenderManager::AddRender(atn::IRender* render, int pass, float order) {
     // NONMATCHING: 97.50% - the remaining differences are register allocation.
     unsigned char* system = (unsigned char*)this;
     RenderSystemPassTables_unk* passes = (RenderSystemPassTables_unk*)this;
@@ -477,7 +478,7 @@ void atn::RenderView_unk::fn_800BDB58(atn::IRender* render, float order, int pas
     ++passes->counts[pass];
 }
 
-void atn::RenderView_unk::fn_800BDBC8() {
+void atn::RenderManager::fn_800BDBC8() {
     // inferred: collect, sort, and relink the queued render entries for each of 20 passes.
     // poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
     // time, so its operands were not literals there (source form unknown).
@@ -615,7 +616,7 @@ void atn::RenderView_unk::fn_800BDBC8() {
 
     *(void**)(system + 0x2FC) = 0;
     *(void**)(system + 0x2FC) = (void*)lbl_8087EFB8;
-    RenderCallback_unk* beforeLayers = (RenderCallback_unk*)(system + 0x8B0);
+    atn::RenderManager::FrameCallbackEntry* beforeLayers = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8B0);
     if (*(void**)beforeLayers != 0) {
         beforeLayers->mFunc((void*)beforeLayers->mArg);
     }
@@ -720,7 +721,7 @@ void atn::RenderView_unk::fn_800BDBC8() {
     }
     LCDisable();
 
-    RenderCallback_unk* afterLayers = (RenderCallback_unk*)(system + 0x8C8);
+    atn::RenderManager::FrameCallbackEntry* afterLayers = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8C8);
     if (*(void**)afterLayers != 0) {
         afterLayers->mFunc((void*)afterLayers->mArg);
     }
@@ -730,12 +731,12 @@ void atn::RenderView_unk::fn_800BDBC8() {
     *(int*)((unsigned char*)lbl_8087EEB0 + 0xC) = 0;
     *(int*)(system + 0x910) = 0;
     *(int*)(system + 0x54960) = 0;
-    RenderCallback_unk* afterCleanup = (RenderCallback_unk*)(system + 0x8E0);
+    atn::RenderManager::FrameCallbackEntry* afterCleanup = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8E0);
     if (*(void**)afterCleanup != 0) {
         afterCleanup->mFunc((void*)afterCleanup->mArg);
     }
     fn_80071AFC(lbl_8087EEE0);
-    RenderCallback_unk* finalCallback = (RenderCallback_unk*)(system + 0x8F8);
+    atn::RenderManager::FrameCallbackEntry* finalCallback = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8F8);
     if (*(void**)finalCallback != 0) {
         finalCallback->mFunc((void*)finalCallback->mArg);
     }
@@ -1093,9 +1094,9 @@ extern "C" void fn_800BF9C4(void** first, void** second, void** third) {
     }
 }
 
-void atn::RenderView_unk::fn_800BFAC4() {}
+void atn::RenderManager::fn_800BFAC4() {}
 
-extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* view, const atn::Vector3* pos) {
+extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderManager* view, const atn::Vector3* pos) {
     float projection[7];
     projection[0] = 0.0f; // inferred: GX_PERSPECTIVE
     projection[1] = view->mCamera.mProj.m[0][0];
@@ -1109,7 +1110,7 @@ extern "C" void fn_800BFAC8(atn::Vector3* out, atn::RenderView_unk* view, const 
     GXProject(pos->x, pos->y, pos->z, view->mCamera.mView.m, projection, viewport, &out->x, &out->y, &out->z);
 }
 
-void atn::RenderView_unk::fn_800BFB70() {
+void atn::RenderManager::fn_800BFB70() {
     // inferred: full screen quad in white
     atn::Color color(1.0f, 1.0f, 1.0f, 1.0f);
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
@@ -1117,7 +1118,7 @@ void atn::RenderView_unk::fn_800BFB70() {
     fn_800BFCB4(color, color, color, color, width, height, 0.0f, 0.0f);
 }
 
-void atn::RenderView_unk::fn_800BFC18(atn::Color color, float a, float b) {
+void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
     // inferred: full screen quad of one color
     atn::Color c(color);
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
@@ -1125,7 +1126,7 @@ void atn::RenderView_unk::fn_800BFC18(atn::Color color, float a, float b) {
     fn_800BFCB4(c, c, c, c, width, height, a, b);
 }
 
-void atn::RenderView_unk::fn_800BFCB4(atn::Color color0, atn::Color color1, atn::Color color2,
+void atn::RenderManager::fn_800BFCB4(atn::Color color0, atn::Color color1, atn::Color color2,
                                       atn::Color color3, unsigned int width, unsigned int height, float a,
                                       float b) {
     const float* c0 = &color0.r;
@@ -1196,7 +1197,7 @@ void atn::RenderView_unk::fn_800BFCB4(atn::Color color0, atn::Color color1, atn:
     fn_80076A28(global, &previous);
 }
 
-void atn::RenderView_unk::fn_800C0508(int clear) {
+void atn::RenderManager::fn_800C0508(int clear) {
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
     GXSetTexCopySrc(0, 0, (unsigned short)width, (unsigned short)height);
@@ -1205,7 +1206,7 @@ void atn::RenderView_unk::fn_800C0508(int clear) {
     GXPixModeSync();
 }
 
-void atn::RenderView_unk::fn_800C0590(int clear, int format) {
+void atn::RenderManager::fn_800C0590(int clear, int format) {
     // NONMATCHING: texture object address is kept in a register instead of recalculated.
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
@@ -1226,7 +1227,7 @@ void atn::RenderView_unk::fn_800C0590(int clear, int format) {
     }
 }
 
-void atn::RenderView_unk::fn_800C06B0(const atn::FogSettings* fog) {
+void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     // NONMATCHING: 94.60% - conversion spill placement and early GX argument setup still differ.
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x2C) != 0) {
         if (*(int*)((unsigned char*)this + 0x890) != 0) {
@@ -1283,7 +1284,7 @@ void atn::RenderView_unk::fn_800C06B0(const atn::FogSettings* fog) {
              *(float*)(bytes + 0x1CC), *(float*)(bytes + 0x1D0));
 }
 
-void atn::RenderView_unk::fn_800C08B0() {
+void atn::RenderManager::fn_800C08B0() {
     // NONMATCHING: 90.00% - only the stack color-pointer setup remains out of order.
     if (*(int*)((unsigned char*)this + 0x890) != 0) {
         *(int*)((unsigned char*)this + 0x890) = 0;
@@ -1294,7 +1295,7 @@ void atn::RenderView_unk::fn_800C08B0() {
     }
 }
 
-atn::Matrix3x4 atn::RenderView_unk::fn_800C0900(int mode, int a, int b, int c) {
+atn::Matrix3x4 atn::RenderManager::fn_800C0900(int mode, int a, int b, int c) {
     atn::Matrix3x4 out;
     switch (mode) {
     case 1:
@@ -1320,7 +1321,7 @@ atn::Matrix3x4 atn::RenderView_unk::fn_800C0900(int mode, int a, int b, int c) {
     return out;
 }
 
-int atn::RenderView_unk::fn_800C0A50(const atn::AABB_unk* bounds) {
+int atn::RenderManager::fn_800C0A50(const atn::AABB_unk* bounds) {
     void* pass = *(void**)this;
     if (pass != 0) {
         return !fn_800B5994(pass, bounds);
@@ -1328,11 +1329,11 @@ int atn::RenderView_unk::fn_800C0A50(const atn::AABB_unk* bounds) {
     return 1;
 }
 
-atn::Texture_unk* atn::RenderView_unk::fn_800C0A8C() {
+atn::Texture_unk* atn::RenderManager::fn_800C0A8C() {
     return &static_cast<atn::LayerReflect*>(mLayers[4])->mTexture;
 }
 
-atn::Texture_unk* atn::RenderView_unk::fn_800C0A98() {
+atn::Texture_unk* atn::RenderManager::fn_800C0A98() {
     return &static_cast<atn::LayerReflect*>(mLayers[5])->mTexture;
 }
 
@@ -1549,7 +1550,7 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
 
 // inferred: atn::Scene is NewCampScene2_unk (MapArea has it as its base at 0x4C); the callback type
 // keeps the name of the DOL, so its result is converted here
-NewCampScene2_unk* atn::RenderView_unk::fn_800C122C(atn::Sphere sphere) {
+NewCampScene2_unk* atn::RenderManager::fn_800C122C(atn::Sphere sphere) {
     // inferred: run the configured sphere-to-scene callback and fall back to the stored scene.
     // NONMATCHING: 96.75% - callback invoker data label and aggregate load order differ.
     if (mMapHit) {
@@ -1561,7 +1562,7 @@ NewCampScene2_unk* atn::RenderView_unk::fn_800C122C(atn::Sphere sphere) {
     return mScene;
 }
 
-NewCampScene2_unk* atn::RenderView_unk::fn_800C1424() {
+NewCampScene2_unk* atn::RenderManager::fn_800C1424() {
     // inferred: build a unit sphere at the selected camera position and query the scene callback.
     // NONMATCHING: 95.92% - callback invoker data and temporary stack layout differ.
     const atn::Vector3& position = m54964 != 0 ? mCamera.mPos : mCamera.mTarget;
@@ -1578,7 +1579,7 @@ NewCampScene2_unk* atn::RenderView_unk::fn_800C1424() {
     return mScene;
 }
 
-void atn::RenderView_unk::fn_800C1660(atn::Texture_unk* tex, int format) {
+void atn::RenderManager::AddResolveTexture(atn::Texture_unk* tex, int format) {
     // inferred: preserve the by-value texture/format temporary before enqueueing the pair.
     struct TextureFormatPair {
         void* texture;
@@ -1596,7 +1597,7 @@ void atn::RenderView_unk::fn_800C1660(atn::Texture_unk* tex, int format) {
     ++*count;
 }
 
-float atn::RenderView_unk::fn_800C169C(const atn::AABB_unk* bounds) {
+float atn::RenderManager::fn_800C169C(const atn::AABB_unk* bounds) {
     void* pass = *(void**)this;
     if (pass != 0) {
         return fn_800B6218(pass, bounds);
@@ -1604,8 +1605,8 @@ float atn::RenderView_unk::fn_800C169C(const atn::AABB_unk* bounds) {
     return 0.0f;
 }
 
-NewCampScene2_unk* atn::RenderView_unk::fn_800C16B4() {
+NewCampScene2_unk* atn::RenderManager::fn_800C16B4() {
     return lbl_8087EFB8;
 }
 
-void atn::RenderView_unk::fn_800C16BC() {}
+void atn::RenderManager::fn_800C16BC() {}

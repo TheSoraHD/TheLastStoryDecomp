@@ -5,7 +5,7 @@
 #include "math/Vec.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int rand();
 extern "C" void PSMTXScale(float m[3][4], float x, float y, float z);
@@ -51,11 +51,6 @@ struct RainOverride_unk {
     RainHeatSet_unk m1F8;
 };
 
-// inferred: frame buffer object (lbl_8087EFB4); only the member used here
-struct RainFrameBuffer_unk {
-    unsigned char m00[0x74C];
-    GXTexObj m74C; // 0x74C: inferred: color texture
-};
 
 // inferred: render manager with its clear color (ARGB) at 0x48
 struct RainRenderMgr_unk {
@@ -195,7 +190,7 @@ void PostFxRain::fn_800B0A70() {
             int w = drop->mW;
             int h = drop->mH;
             fn_80075F58(lbl_8087EEE0, x, y, w, h);
-            lbl_8087EFB4->fn_800BFC18(atn::Color(1.0f, 1.0f, 1.0f, drop->mAlpha * m0C), 0.0f, 0.0f);
+            atn::RenderManager::instance_->fn_800BFC18(atn::Color(1.0f, 1.0f, 1.0f, drop->mAlpha * m0C), 0.0f, 0.0f);
         }
     }
     fn_80075DEC(lbl_8087EEE0);
@@ -256,7 +251,7 @@ void PostFxRain::fn_800B0CD4() {
     fn_80075F58(lbl_8087EEE0, m54->mX, m54->mY, m54->mW, m54->mH);
     int sh = lbl_8087EEE0->mHeight;
     int sw = lbl_8087EEE0->mWidth;
-    lbl_8087EFB4->fn_800BFCB4(c[0], c[1], c[2], c[3], sw, sh, 0.0f, 0.0f);
+    atn::RenderManager::instance_->fn_800BFCB4(c[0], c[1], c[2], c[3], sw, sh, 0.0f, 0.0f);
     fn_80075DEC(lbl_8087EEE0);
     GXSetBlendMode(0, 1, 0, 3);
 }
@@ -299,7 +294,7 @@ void PostFxRain::vf10(void* camera) {
     GXInitTexObjLOD(&m60, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     GXPixModeSync();
     GXSetCopyClear(RainGXColor_unk(0x7F, 0x7F, 0x7F, 0x7F), 0xFFFFFF);
-    lbl_8087EFB4->fn_800C0508(1);
+    atn::RenderManager::instance_->fn_800C0508(1);
     GXSetCopyClear(RainARGB_unk(((RainRenderMgr_unk*)lbl_8087EEE0)->mClearColor), 0xFFFFFF);
     fn_800B0CD4();
     fn_800B0A70();
@@ -327,7 +322,7 @@ void PostFxRain::vf10(void* camera) {
     GXLoadTexMtxImm(m.m, 0x1E, 1);
     GXSetIndTexOrder(0, 1, 1);
     GXSetIndTexCoordScale(0, 0, 0);
-    fn_800763FC(lbl_8087EEE0, &((RainFrameBuffer_unk*)lbl_8087EFB4)->m74C, 0);
+    fn_800763FC(lbl_8087EEE0, &atn::RenderManager::instance_->m74C.mObj, 0);
     fn_800763FC(lbl_8087EEE0, &m60, 1);
     GXSetTevIndWarp(0, 0, 1, 0, 1);
     float ind[2][3];
@@ -364,7 +359,7 @@ void PostFxRain::vf10(void* camera) {
     } while (again);
     GXSetIndTexMtx(1, ind, exp);
     fn_80075DEC(lbl_8087EEE0);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetBlendMode(0, 1, 0, 3);
     if (lbl_8087EFA8->m2AC.mDebug != 0 || lbl_8087EFA8->m2BC.mDebug != 0) {
         lbl_8087EEB0->fn_8005DF90(-1, &m60, 0, 16.0f, 16.0f, 0.0f, fullW / 3.0f, fullH / 3.0f);
@@ -386,7 +381,7 @@ inline float Rand_unk(float lo, float hi) {
 
 // inferred: update: follows the settings and moves the drops
 void PostFxRain::fn_800B1598() {
-    atn::RenderView_unk* fb = lbl_8087EFB4;
+    atn::RenderManager* fb = atn::RenderManager::instance_;
     m14 = &lbl_8087EFA8->m2AC;
     m54 = &lbl_8087EFA8->m2BC;
     RainOverride_unk* ovr = (RainOverride_unk*)fb->fn_800C1424(); // pending: view of the scene

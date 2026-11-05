@@ -1,5 +1,5 @@
 #include "game/EnvSeBase.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/SoundManager.h"
 #include "atn/Memory.h"
 #include "std/string.h"
@@ -181,7 +181,7 @@ void EnvSeBase::fn_80361100(EnvSeBase* self) {
 // not in the DOL); defined here for the order of the constants and literals.
 void EnvSeBase::DrawName_unk(const atn::Vector3& pos) {
     atn::Vector3 screen;
-    fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+    fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
     if (0.0f < screen.z && screen.z < 1.0f) {
         char text[0x100];
         sprintf(text, "%s[%d] %s\0", sTypeNames[mData->mType], m4C, mData->mName);

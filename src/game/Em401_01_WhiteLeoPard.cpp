@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
 #include "atn/Material_unk.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: event flags counted by fn_8031FE4C (lbl_80749898) and route places of the retreat
 // (lbl_807498A4)
@@ -693,7 +693,7 @@ void Em401_01_WhiteLeoPard::vf24() {
         walkSpeed = 0.0f;
         dashSpeed = 1.0f + 0.5f * (rate / dashMin - 1.0f);
     }
-    if (PSVECSquareMag(&(lbl_8087EFB4->mCamera.mPos - mPos)) > 62500.0f) {
+    if (PSVECSquareMag(&(atn::RenderManager::instance_->mCamera.mPos - mPos)) > 62500.0f) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {

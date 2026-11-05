@@ -9,7 +9,7 @@
 #include "math/Vec.h"
 #include <string.h>
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -1250,7 +1250,7 @@ void Em309Ghoul::vfEC() {
     PSMTXMultVec(rz, &up, &up);
     camera.mUp = up;
     camera.fn_8004B378();
-    lbl_8087EFB4->mCamera = camera;
+    atn::RenderManager::instance_->mCamera = camera;
 }
 
 // inferred: rotates `m` around `axis` when the angle is not zero (as in fn_80302B84; name invented)

@@ -1,6 +1,7 @@
 #include "atn/Layer3D.h"
 #include "math/Vec.h"
 #include "std/new.h"
+#include "atn/RenderManager.h"
 
 // inferred: globals of unknown classes (automatic names)
 struct RenderState_unk {
@@ -8,15 +9,7 @@ struct RenderState_unk {
     int mWidth;  // 0x3C
     int mHeight; // 0x40
 };
-struct Camera_unk {
-    unsigned char m000[0x18C];
-    unsigned char m18C[0x79C - 0x18C]; // inferred: camera
-    void* m79C;                        // inferred: copy texture buffer
-    unsigned char m7A0[0x954 - 0x7A0];
-    int m954;
-};
 extern "C" RenderState_unk* lbl_8087EEE0;
-extern "C" Camera_unk* lbl_8087EFB4;
 extern "C" unsigned char lbl_8087EFB0; // inferred: z pre-pass active
 
 extern "C" void fn_80071E04(RenderState_unk* rs);
@@ -33,7 +26,7 @@ extern "C" void GXCopyTex(void* dest, unsigned char clear);
 namespace atn {
 
 void Layer3D::vf14(void* arg) {
-    void* camera = lbl_8087EFB4;
+    void* camera = atn::RenderManager::instance_;
     for (RenderNode_unk* node = (RenderNode_unk*)arg; node != 0; node = node->mNext) {
         RenderObj_unk* obj = node->mObj;
         if (obj != 0) {
@@ -48,7 +41,7 @@ void Layer3D::vf14(void* arg) {
 }
 
 void Layer3D::vf18() {
-    void* camera = lbl_8087EFB4;
+    void* camera = atn::RenderManager::instance_;
     for (unsigned int i = 0; i < m18; i++) {
         m1C[i]->mObj->vf10(camera);
     }
@@ -57,22 +50,22 @@ void Layer3D::vf18() {
 void Layer3D::vf1C() {
     RenderState_unk* rs = lbl_8087EEE0;
     fn_80071E04(rs);
-    fn_80071D68(rs, lbl_8087EFB4->m18C);
+    fn_80071D68(rs, &atn::RenderManager::instance_->mCamera.mProj);
     fn_80076760(rs, 6, 0);
     fn_80076760(rs, 8, 1);
     fn_80076760(rs, 9, 2);
     fn_80076760(rs, 10, 1);
     fn_800761A8(rs);
-    lbl_8087EFB4->m954 = m14 & 1;
+    atn::RenderManager::instance_->m954 = m14 & 1;
     m18 = 0;
 }
 
 void Layer3D::vf20() {
-    lbl_8087EFB4->m954 = 0;
+    atn::RenderManager::instance_->m954 = 0;
 }
 
 void Layer2D::vf14(void* arg) {
-    void* camera = lbl_8087EFB4;
+    void* camera = atn::RenderManager::instance_;
     for (RenderNode_unk* node = (RenderNode_unk*)arg; node != 0; node = node->mNext) {
         node->mObj->vf10(camera);
     }
@@ -107,7 +100,7 @@ void Layer2D::vf1C() {
 void Layer2D::vf20() {}
 
 void LayerPrerender::vf14(void* arg) {
-    void* camera = lbl_8087EFB4;
+    void* camera = atn::RenderManager::instance_;
     for (RenderNode_unk* node = (RenderNode_unk*)arg; node != 0; node = node->mNext) {
         node->mObj->vf18(camera);
     }
@@ -137,7 +130,7 @@ void LayerZPrePass::vf20() {
 inline void CopyTex_unk(int w, int h) {
     GXSetTexCopySrc(0, 0, w, h);
     GXSetTexCopyDst(w, h, 0x13, 0);
-    GXCopyTex(lbl_8087EFB4->m79C, 1);
+    GXCopyTex(atn::RenderManager::instance_->m79C, 1);
 }
 
 void Layer2D3D::vf1C() {

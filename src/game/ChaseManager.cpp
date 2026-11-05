@@ -7,7 +7,7 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/ChaserGuard.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct ChaseEffectMgr_unk;
@@ -283,7 +283,7 @@ void ChaseManager::vf10() {
             }
         }
         atn::Vector3 view;
-        view = lbl_8087EFB4->mCamera.mTarget - lbl_8087EFB4->mCamera.mPos;
+        view = atn::RenderManager::instance_->mCamera.mTarget - atn::RenderManager::instance_->mCamera.mPos;
         PSVECNormalize(&view, &view);
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 axis;

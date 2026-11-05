@@ -19,8 +19,8 @@ public:
     virtual void vf14();
 
     virtual int GetRenderType_unk();
-    virtual void vf10(atn::RenderView_unk* view);
-    virtual void vf18(atn::RenderView_unk* view);
+    virtual void vf10(atn::RenderManager* view);
+    virtual void vf18(atn::RenderManager* view);
     virtual void vf1C();
 
     int m4C;                           // inferred: initialized to 1

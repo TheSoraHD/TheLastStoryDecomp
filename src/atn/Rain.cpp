@@ -1,7 +1,7 @@
 #include "atn/GXDecl.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int rand();
 
@@ -73,7 +73,7 @@ class IRender {
 public:
     virtual ~IRender() {}
     virtual int vf0C(); // 0x80046218
-    virtual void vf10(RenderView_unk* camera) = 0;
+    virtual void vf10(RenderManager* camera) = 0;
     virtual int vf14(void* arg1, void* arg2, void* frustum) = 0;
     virtual void vf18() = 0;
     virtual void vf1C(); // 0x800461FC
@@ -134,7 +134,7 @@ class Rain : public IRender {
 public:
     Rain();
     virtual ~Rain();
-    virtual void vf10(RenderView_unk* camera);
+    virtual void vf10(RenderManager* camera);
     virtual int vf14(void* arg1, void* arg2, void* frustum) { return fn_800502A8((const Frustum_unk*)frustum, &mAreaMin); }
     virtual void vf18() {}
 
@@ -204,12 +204,12 @@ Rain::Rain() {
 Rain::~Rain() {}
 
 void Rain::fn_800B1C1C() {
-    lbl_8087EFB4->fn_800BDB58(this, -1.0f, 8);
+    atn::RenderManager::instance_->AddRender(this, 8, -1.0f);
 }
 
-void fn_800B1C44(Rain* rain, RenderView_unk* camera);
+void fn_800B1C44(Rain* rain, RenderManager* camera);
 
-void Rain::vf10(RenderView_unk* camera) {
+void Rain::vf10(RenderManager* camera) {
     if (camera->m2F8 == 8) {
         fn_800B1C44(this, camera);
         return;
@@ -218,7 +218,7 @@ void Rain::vf10(RenderView_unk* camera) {
 
 // NONMATCHING: 99.79% - volatile registers of the two vertex loops differ (offset/FIFO address in
 // the first, vector/drop address in the second)
-void fn_800B1C44(Rain* rain, RenderView_unk* camera) {
+void fn_800B1C44(Rain* rain, RenderManager* camera) {
     if (rain->mCount <= 0) {
         return;
     }

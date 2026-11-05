@@ -1,7 +1,7 @@
 #include "gmk/WaterLevel.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -116,7 +116,7 @@ void WaterLevel::vf10() {
     UpdateBox_unk(this);
     mColli.mFlags |= 1;
     if (mReflect != 0 && mNode != -1) {
-        atn::RenderView_unk* camera = lbl_8087EFB4;
+        atn::RenderManager* camera = atn::RenderManager::instance_;
         ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mModel.fn_80094F98()); // pending: view of the scene
         if (info != 0) {
             Plane_unk plane = mPlane;

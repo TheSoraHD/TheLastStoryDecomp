@@ -14,7 +14,7 @@
 #include <boost/function.hpp>
 #include "sdk/OSFastCast.h" // OSInitFastCast (SDK header asm, approved 2026-10-21)
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" void OSInit();
 extern "C" void OSReport(const char* fmt, ...);
@@ -158,11 +158,11 @@ extern "C" void fn_80047DCC(void* obj);
 extern "C" void fn_80071D60(void* obj, int arg);
 
 // inferred: inline setters of the callbacks run around the frame (weak copies here)
-inline void atn::RenderView_unk::fn_80479EA0(boost::function<void(void*)> func, int arg) {
-    m8B0 = RenderCallback_unk(func, arg);
+inline void atn::RenderManager::fn_80479EA0(boost::function<void(void*)> func, int arg) {
+    m8B0 = FrameCallbackEntry(func, arg);
 }
-inline void atn::RenderView_unk::fn_8047A158(boost::function<void(void*)> func, int arg) {
-    m8C8 = RenderCallback_unk(func, arg);
+inline void atn::RenderManager::fn_8047A158(boost::function<void(void*)> func, int arg) {
+    m8C8 = FrameCallbackEntry(func, arg);
 }
 
 typedef atn::SimpleVector<boost::function<void()> > FrameCallbacks_unk;
@@ -195,15 +195,15 @@ int main() {
     fn_8047A4C8();
     int frame = 0;
     for (;;) {
-        lbl_8087EFB4->fn_80479EA0(fn_80479998, 0);
-        lbl_8087EFB4->fn_8047A158(fn_804799CC, 0);
+        atn::RenderManager::instance_->fn_80479EA0(fn_80479998, 0);
+        atn::RenderManager::instance_->fn_8047A158(fn_804799CC, 0);
         lbl_8087F534->fn_805A6BD4();
         lbl_8087F534->mTimer0.Start_unk();
         if (lbl_8087F540 != 0) {
             lbl_8087F540->m1EB4 = lbl_8087F534->fn_805A6D10();
         }
         fn_800A5554(lbl_8087EF70);
-        lbl_8087EFB4->fn_800BDBC8();
+        atn::RenderManager::instance_->fn_800BDBC8();
         lbl_8087F534->mTimer1.Start_unk();
         if (HomeButtonMenu::sInstance->m84 != 1) {
             fn_800D2494(lbl_8087F530);
@@ -217,7 +217,7 @@ int main() {
             fn_8004D258(lbl_8087EE98, 1, 0, lbl_8087F0A8->m10, -1, lbl_8087F0A8->m14);
         }
         lbl_8087EEB8->fn_80069E50(lbl_8087F0A8->m4C);
-        lbl_8087EFB4->fn_800BFAC4();
+        atn::RenderManager::instance_->fn_800BFAC4();
         lbl_8087F534->mTimer3.Start_unk();
         fn_80047DCC(lbl_8087EE90);
         lbl_8087EFE8->fn_800CE6E0();
@@ -298,7 +298,7 @@ void fn_8047A4C8() {
     OSReport("6\n");
     atn::PostFxManager::fn_800A8FF0(lbl_8087F530);
     OSReport("7\n");
-    lbl_8087EFB4->fn_800BD9C0(0x40000, std::string(""));
+    atn::RenderManager::instance_->fn_800BD9C0(0x40000, std::string(""));
     atn::DrawHelper::fn_8005DD60();
     lbl_8087EEB0->fn_8005DED8(0x40000, std::string("font"));
     fn_80239794(0x480, 0x200, 0x100, -1);

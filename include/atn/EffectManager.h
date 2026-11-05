@@ -1,7 +1,7 @@
 #ifndef ATN_EFFECTMANAGER_H
 #define ATN_EFFECTMANAGER_H
 
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 #include "atn/Task.h"
 #include "atn/Model_unk.h"
@@ -122,7 +122,7 @@ public:
     virtual ~EffectManager();
     virtual void vf10();
     virtual void vf14();
-    virtual void vf10(RenderView_unk* view);
+    virtual void vf10(RenderManager* view);
 
     static EffectManager* fn_80239798(Task* parent, int a, int b, int c, unsigned int max);
     void fn_80239C14();

@@ -7,7 +7,7 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -192,7 +192,7 @@ void WaitObject::vf10() {
     if (mDesc != 0 && mDesc->m7C == 0) {
         return;
     }
-    atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - m6C;
+    atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
     float dist = PSVECSquareMag(&d);
     if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->m48 == 1 &&
         dist > 360000.0f) {

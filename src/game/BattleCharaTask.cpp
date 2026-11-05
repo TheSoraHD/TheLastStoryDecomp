@@ -32,7 +32,7 @@
 #include "game/SkillEffectManager.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -508,7 +508,7 @@ void BattleCharaTask::fn_800E2FE0() {
     } else if ((mFlags & 1) != 1 && !mFlag25) {
         fn_80145334();
     } else {
-        atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - mPos;
+        atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - mPos;
         fn_80148B38(PSVECSquareMag(&d));
     }
     if (mType == 2 && CanAct_unk() && (m54C & 0x2000) != 0x2000 && mC58.mC0 != 0) {
@@ -538,7 +538,7 @@ void BattleCharaTask::fn_800E3F5C() {
     BattleArea_unk* area = field->m10D8;
     int mode = field->m868;
     if (!(mode != 3 && mode != 4)) {
-        atn::RenderView_unk* camera = lbl_8087EFB4;
+        atn::RenderManager* camera = atn::RenderManager::instance_;
         atn::Vector3 from = fn_8017C9AC(this);
         atn::Vector3 dir;
         dir = camera->mCamera.mTarget - camera->mCamera.mPos;

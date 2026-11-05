@@ -63,7 +63,7 @@
 #include "macros.h"
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -2588,7 +2588,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
         if (mFlag12) {
             check = 0;
         }
-        float dist = LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos);
+        float dist = LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos);
         if (dist > 202500.0f) {
             check = 0;
         } else if (dist > 40000.0f && (mId + m1390) % 2 != 0) {
@@ -3003,7 +3003,7 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
         vel.y = -6.0f;
     }
     bool updateRot = true;
-    if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos) < 202500.0f) {
+    if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos) < 202500.0f) {
         CollResult_unk result;
         atn::Vector3 start(pos);
         Sphere_unk sphere = fn_80176548(pos);
@@ -3370,7 +3370,7 @@ void CharaTask::fn_801426A4(void* target, float a, float b) {
     if (vel.y < -6.0f) {
         vel.y = -6.0f;
     }
-    if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos) < 202500.0f) {
+    if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos) < 202500.0f) {
         if (m610 > 4) {
             atn::Vector3 to(pos);
             atn::Vector3 from(pos);
@@ -3716,7 +3716,7 @@ void CharaTask::vf24() {
     if (IsPartyMember_unk() || lbl_8087FA20 != 0) {
         dist = lbl_8087EFA8->m21C;
     }
-    if (LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos) > dist * dist) {
+    if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos) > dist * dist) {
         mMotion.m34C = 1;
         mMotion.mTracks[0].m20 = 1.0f;
         if (blend < 0.5f) {
@@ -4307,7 +4307,7 @@ void CharaTask::fn_80145334() {
         nodeRot.fn_80139F60();
     }
     bool update = true;
-    float distSq = __LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos);
+    float distSq = __LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos);
     bool far = !mFlagB3 && (IsPartyMember_unk() || __IsPartless_unk(this) || __IsEventView_unk());
     if (lbl_8087F430 != 0 && lbl_8087F430->m56D4 == this) {
         far = false;
@@ -5196,7 +5196,7 @@ inline bool IsArenaWaiting_unk(Arena_unk* arena) {
 // Tried: bool/int/ternary forms of the tests, inline helpers, declaration orders.
 void CharaTask::fn_80149A30() {
     if (lbl_8087F0A8->m20 != 0 && (m54C & 8) != 8 && !mFlagB9) {
-        float dist = LengthSq_unk(lbl_8087EFB4->mCamera.mPos - mPos);
+        float dist = LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos);
         if (m55C != 8) {
             mMotion.mAC = 1.0f;
             if ((IsPartyMember_unk() || lbl_8087FA20 != 0) && dist > 360000.0f) {
@@ -5212,10 +5212,10 @@ void CharaTask::fn_80149A30() {
                     pos = mPos;
                 }
                 atn::Vector3 screen;
-                fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
                 float hdist = 0.0f;
                 if (!(screen.z < 0.0f)) {
-                    hdist = GetLengthXZSq_unk(lbl_8087EFB4->mCamera.mPos - pos);
+                    hdist = GetLengthXZSq_unk(atn::RenderManager::instance_->mCamera.mPos - pos);
                 }
 
                 if (mType == 0) {
@@ -5230,7 +5230,7 @@ void CharaTask::fn_80149A30() {
                         }
                     }
                     if (check) {
-                        atn::Vector3 cam = lbl_8087EFB4->mCamera.mPos;
+                        atn::Vector3 cam = atn::RenderManager::instance_->mCamera.mPos;
                         MtxPtr head = mMotion.GetNodeMtx_unk("head");
                         MtxPtr neck = mMotion.GetNodeMtx_unk("neck");
                         MtxPtr hips = mMotion.GetNodeMtx_unk("hips");
@@ -5269,7 +5269,7 @@ void CharaTask::fn_80149A30() {
                             }
                         }
                     }
-                } else if (mFlag22 != 1 && hdist < 25.0f && lbl_8087EFB4->mCamera.mPos.y - pos.y < 20.0f) {
+                } else if (mFlag22 != 1 && hdist < 25.0f && atn::RenderManager::instance_->mCamera.mPos.y - pos.y < 20.0f) {
                     return;
                 }
             }
@@ -5450,7 +5450,7 @@ void CharaTask::fn_80149A30() {
         }
 
         atn::Vector3 screen;
-        fn_800BFAC8(&screen, lbl_8087EFB4, &mPos);
+        fn_800BFAC8(&screen, atn::RenderManager::instance_, &mPos);
         float y = screen.y - 40.0f;
         if (lbl_8087F0A8->m34 != 0 && dist < 62500.0f) {
             lbl_8087EEB0->fn_80063D3C(m614, m620, 0.0f, 0xFFFFFF00);
@@ -5578,7 +5578,7 @@ void CharaTask::fn_80149A30() {
                 float size = 12.0f;
                 float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
                 atn::Vector3 screen;
-                fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
                 }
@@ -5588,7 +5588,7 @@ void CharaTask::fn_80149A30() {
                 float size = 12.0f;
                 float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
                 atn::Vector3 screen;
-                fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xD0AA88AA, 1, 1, 0, 0, 0xFF000000);
                 }
@@ -5598,7 +5598,7 @@ void CharaTask::fn_80149A30() {
                 float size = 12.0f;
                 float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
                 atn::Vector3 screen;
-                fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+                fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xC0AA88FF, 1, 1, 0, 0, 0xFF000000);
                 }
@@ -5634,7 +5634,7 @@ void CharaTask::fn_80149A30() {
             }
             float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
             atn::Vector3 screen;
-            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
             if (!(screen.z > 0.0f)) {
                 return;
             }
@@ -5656,7 +5656,7 @@ void CharaTask::fn_80149A30() {
             float size = 30.0f * (0.4f * m12C8 + 1.0f);
             float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
             atn::Vector3 screen;
-            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
             }
@@ -5666,7 +5666,7 @@ void CharaTask::fn_80149A30() {
             float size = 30.0f * (0.4f * m12C8 + 1.0f);
             float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
             atn::Vector3 screen;
-            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA0FFC040, 1, 1, 0, 0, 0xFF000000);
             }
@@ -5868,7 +5868,7 @@ inline CharaTask* NextChara_unk(CharaTask* chara) {
 
 // inferred: names invented
 inline Lens_unk* CharaTask::GetLens_unk() {
-    return (mMotion.m1DC == 0) ? (Lens_unk*)lbl_8087EFB4->mScene /* pending: view of the scene */ : mMotion.m1DC;
+    return (mMotion.m1DC == 0) ? (Lens_unk*)atn::RenderManager::instance_->mScene /* pending: view of the scene */ : mMotion.m1DC;
 }
 
 // inferred: matrix of the emote above the head: translation to the head then the rotation
@@ -6067,7 +6067,7 @@ void CharaTask::fn_8014C540() {
         }
     } else if (emote) {
         SetEmoteMtx_unk();
-        atn::RenderView_unk* camera = lbl_8087EFB4;
+        atn::RenderManager* camera = atn::RenderManager::instance_;
         ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mMotion.fn_80094F98()); // pending: view of the scene
         float color[4];
         color[0] = info->mColor[0];
@@ -12351,7 +12351,7 @@ atn::Vector3 fn_8017C9AC(CharaTask* chara) {
     if (lbl_8087F430 != 0) {
         view = &lbl_8087F430->m260;
     } else {
-        view = &lbl_8087EFB4->mCamera;
+        view = &atn::RenderManager::instance_->mCamera;
     }
     Segment_unk seg;
     atn::Vector3 dir;

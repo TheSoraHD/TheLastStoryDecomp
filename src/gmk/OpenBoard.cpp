@@ -5,7 +5,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -141,7 +141,7 @@ void OpenBoard::vf10() {
             }
         }
     } else {
-        atn::Vector3 pos = lbl_8087EFB4->mCamera.mPos;
+        atn::Vector3 pos = atn::RenderManager::instance_->mCamera.mPos;
         PSMTXMultVec(inv.m, &pos, &pos);
         float z = (float)__fabs(pos.z);
         if (z < dist) {

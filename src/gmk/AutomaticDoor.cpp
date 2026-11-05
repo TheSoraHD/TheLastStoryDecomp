@@ -3,7 +3,7 @@
 #include "atn/LoadHandle.h"
 #include "atn/Memory.h"
 #include <boost/scoped_ptr.hpp>
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -277,7 +277,7 @@ void AutomaticDoor::vf10() {
         }
     }
     if (mReflect != 0 && mReflectNode != -1) {
-        atn::RenderView_unk* camera = lbl_8087EFB4;
+        atn::RenderManager* camera = atn::RenderManager::instance_;
         ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mModel.fn_80094F98()); // pending: view of the scene
         if (info != 0 && lbl_8087DF50 != 0) {
             Plane_unk plane = mPlane;
@@ -313,7 +313,7 @@ void AutomaticDoor::fn_803F53E0() {
         float right = 1.0f;
         float top = right;
         atn::Vector3 dir;
-        dir = lbl_8087EFB4->mCamera.mTarget - lbl_8087EFB4->mCamera.mPos;
+        dir = atn::RenderManager::instance_->mCamera.mTarget - atn::RenderManager::instance_->mCamera.mPos;
         PSVECNormalize(&dir, &dir);
         atn::Vector3 pos;
         atn::Vector3 front(0.0f, 0.0f, 1.0f);
@@ -327,15 +327,15 @@ void AutomaticDoor::fn_803F53E0() {
             mModel.mFlags &= ~0x80000;
             return;
         }
-        atn::Vector3 eye(lbl_8087EFB4->mCamera.mPos);
+        atn::Vector3 eye(atn::RenderManager::instance_->mCamera.mPos);
         float t = (front.x * (pos.x - eye.x) + front.y * (pos.y - eye.y) + front.z * (pos.z - eye.z)) / d;
         atn::Vector3 hit = eye - dir * t;
         atn::Vector3 p0;
-        fn_800BFAC8(&p0, lbl_8087EFB4, &hit);
+        fn_800BFAC8(&p0, atn::RenderManager::instance_, &hit);
         atn::Vector3 up(0.0f, 1.0f, 0.0f);
         atn::Vector3 p1;
         atn::Vector3 top_pos = hit + up;
-        fn_800BFAC8(&p1, lbl_8087EFB4, &top_pos);
+        fn_800BFAC8(&p1, atn::RenderManager::instance_, &top_pos);
         if (p0.z < 0.0f || 1.0f < p0.z || p1.z < 0.0f || 1.0f < p1.z) {
             mModel.mFlags &= ~0x80000;
             return;

@@ -89,7 +89,7 @@ extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087F434;
 #include "atn/SequenceBoot_unk.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 // inferred: field (lbl_8087F430); only the members used here
@@ -594,7 +594,7 @@ void GameOverTask::vf10() {
 }
 
 // NONMATCHING: 84.74% - the camera position and target go through local copies in the original, and the
-// copy to lbl_8087EFB4 is scheduled differently
+// copy to atn::RenderManager::instance_ is scheduled differently
 void GameOverTask::vf14() {
     if (mState == 1) {
         SetRate_unk(mMenu->mLayout, "selectOn", 1.0f);
@@ -605,5 +605,5 @@ void GameOverTask::vf14() {
     mCamera.mTarget = atn::Vector3(0.0f, -99500.0f, 10.0f);
     mCamera.mFovy = 1.0471976f;
     mCamera.fn_8004B378();
-    lbl_8087EFB4->mCamera = mCamera;
+    atn::RenderManager::instance_->mCamera = mCamera;
 }

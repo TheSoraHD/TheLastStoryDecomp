@@ -3,7 +3,7 @@
 #include "game/CharaManager.h"
 #include "game/EnemyManager.h"
 #include "game/NpcManager.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -87,7 +87,7 @@ int Chain::vf0C() {
 // NONMATCHING: 99.95% - only the place of 90000.0f in .sdata2 (fn_8043B9E0, not decompiled yet,
 // creates 1.4f before it).
 void Chain::vf10() {
-    if (SqLength_unk(lbl_8087EFB4->mCamera.mPos - m6C) > 90000.0f) {
+    if (SqLength_unk(atn::RenderManager::instance_->mCamera.mPos - m6C) > 90000.0f) {
         return;
     }
     if (mTarget == 0) {

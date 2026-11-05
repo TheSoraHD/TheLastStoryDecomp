@@ -46,7 +46,7 @@
 #include "Event/Action.h"
 #include "Event/StringData.h"
 #include "Event/Label.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 
@@ -84,7 +84,6 @@ extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
-extern "C" atn::RenderView_unk* fn_8008B964(); // inferred: returns lbl_8087EFB4
 extern "C" Event::Manager* fn_8000DB1C();        // inferred: returns lbl_8087F540
 extern "C" void* fn_805381B8(void* action); // inferred: cut of the action (Event/Node.cpp)
 extern "C" void* fn_805381DC(void* action); // inferred: sequence of the action (Event/Node.cpp)
@@ -92,7 +91,6 @@ extern "C" int fn_800CB6F8(atn::SoundRef* sound);                         // inf
 extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* name); // inferred: id of a name
 extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
-extern "C" Camera_unk* fn_800F7258(atn::RenderView_unk* view); // inferred: camera of the render view (+0x104)
 extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
 extern "C" atn::Vector2_unk fn_800F84D8(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
@@ -1559,7 +1557,7 @@ void Manager::fn_80482ED8() {
         return;
     }
     RenderSetting_unk* rs = lbl_8087EFA8;
-    atn::RenderView_unk* view = lbl_8087EFB4;
+    atn::RenderManager* view = atn::RenderManager::instance_;
     if (rs != 0 && view != 0) {
         m1AB0.mBloom = rs->m054;
         m1AB0.m88 = rs->m0D4;
@@ -1581,7 +1579,7 @@ void Manager::fn_80482ED8() {
         m1BD0.Get_unk(view->fn_800C16B4());
         m1AB0.m110.clear();
         MapManager::sInstance->fn_80491528(fn_80481B9C, &m1AB0);
-        m1AB0.m11C = lbl_8087EFB4->fn_800C16B4()->m074;
+        m1AB0.m11C = atn::RenderManager::instance_->fn_800C16B4()->m074;
         GameMap_unk* map = GetCurrentMap_unk();
         if (map != 0) {
             m1D6C = map->m104;
@@ -1603,7 +1601,7 @@ void Manager::fn_80483714(int a, int b) {
     if (rs == 0) {
         return;
     }
-    atn::RenderView_unk* view = lbl_8087EFB4;
+    atn::RenderManager* view = atn::RenderManager::instance_;
     if (view == 0) {
         return;
     }
@@ -1638,7 +1636,7 @@ void Manager::fn_80483714(int a, int b) {
         fn_8047F984(1.0f);
         mC4 = 0;
     }
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(m1AB0.m11C);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(m1AB0.m11C);
     fn_800DAA3C(lbl_8087F008, 0);
     if (b == 0) {
         fn_80483E94(a);
@@ -1693,7 +1691,7 @@ void Manager::fn_80484088(ColorMatrixParam_unk* target, float rate) {
 // inferred: sets the direction and the color (0xAARRGGBB) of the first light of the render scene and
 // of the map areas
 void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
-    atn::Light* light = fn_800C2448(lbl_8087EFB4->fn_800C16B4(), 0);
+    atn::Light* light = fn_800C2448(atn::RenderManager::instance_->fn_800C16B4(), 0);
     unsigned int c = color;
     light->SetDir_unk(dir);
     light->SetColor(atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
@@ -1701,7 +1699,7 @@ void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
     MapManager::sInstance->fn_80491528(fn_80482D90, light);
 }
 // inferred: first light of the scene of the render view (weak copy 0x804848C4); name invented
-inline atn::Light* GetViewLight_unk(atn::RenderView_unk* view) {
+inline atn::Light* GetViewLight_unk(atn::RenderManager* view) {
     return fn_800C2448(view->mScene, 0);
 }
 
@@ -1713,7 +1711,7 @@ atn::Light Manager::fn_804848D0() {
     if (area != 0) {
         return *fn_800C2448(&area->GetScene_unk(), 0);
     }
-    return *GetViewLight_unk(lbl_8087EFB4);
+    return *GetViewLight_unk(atn::RenderManager::instance_);
 }
 
 // inferred: sets the ambient color (0xAARRGGBB) of the map areas
@@ -1726,8 +1724,8 @@ void Manager::fn_80484A78(int color) {
 
 // inferred: uses the light of the manager (m1EB8) for the render scene and the map areas
 void Manager::fn_80484BF4() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&m1EB8);
-    lbl_8087EFB4->fn_800C16B4()->SetLightIndex_unk(-1);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&m1EB8);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLightIndex_unk(-1);
     MapManager::sInstance->fn_80491528(fn_80482B24, &m1EB8);
 }
 // inferred: position, size and speed of the light of the manager
@@ -1768,7 +1766,7 @@ void Manager::fn_80484D64(atn::Vector2_unk scale, atn::Vector2_unk pos) {
 
 // inferred: removes the light of the manager from the render scene and from the map areas
 void Manager::fn_80484E88() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
     if (MapManager::sInstance != 0) {
         MapManager::sInstance->fn_80491528(fn_80482B24, 0);
     }
@@ -1839,7 +1837,7 @@ void Manager::fn_804862C4(const atn::Vector3& dir, int color) {
 // inferred: sets the color (0xAARRGGBB) and the blur of the god ray of the render scene and of the
 // map areas
 void Manager::fn_80486BEC(int color, float blur) {
-    GodRayParam_unk* godRay = lbl_8087EFB4->fn_800C16B4()->fn_8047C780();
+    GodRayParam_unk* godRay = atn::RenderManager::instance_->fn_800C16B4()->fn_8047C780();
     unsigned int c = color;
     godRay->mColor = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                                 (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
@@ -1850,7 +1848,7 @@ void Manager::fn_80486BEC(int color, float blur) {
 
 // inferred: sets the "LS" color (0xAARRGGBB) of the render scene and of the map areas
 void Manager::fn_80486DAC(int color) {
-    atn::Color* ls = &lbl_8087EFB4->fn_800C16B4()->GetLS_unk();
+    atn::Color* ls = &atn::RenderManager::instance_->fn_800C16B4()->GetLS_unk();
     unsigned int c = color;
     *ls = atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                      (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
@@ -2007,7 +2005,7 @@ void Manager::vf10() {
                 m2434 = MAX(0.0f, m2434 - 0.1f);
             } else {
                 m2434 = MIN(1.0f, 0.1f + m2434);
-                Camera_unk* camera = fn_800F7258(fn_8008B964());
+                Camera_unk* camera = fn_8008B964()->fn_800F7258();
                 atn::Vector3 target = fn_80383728(camera);
                 dir = m1E94.mCenter - *camera->GetPosition_unk();
                 if (dir.IsZero_unk()) {
@@ -3223,7 +3221,7 @@ void Manager::fn_8048FC7C() {
     switch (m240C) {
     case 1: {
         EventCamera_unk* camera = lbl_8087F540->GetCamera_unk();
-        GetViewLight_unk(lbl_8087EFB4)->SetDir_unk(*m1BD0.mLight.GetDir_unk());
+        GetViewLight_unk(atn::RenderManager::instance_)->SetDir_unk(*m1BD0.mLight.GetDir_unk());
         LightFixDir_unk fix(camera, &m1AB0, m240C, 0.0f);
         MapManager::sInstance->fn_80491528(fn_8048F1DC, &fix);
         break;

@@ -3,7 +3,7 @@
 #include "atn/Memory.h"
 #include <boost/function.hpp>
 #include "game/MapManager.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
@@ -43,7 +43,7 @@ GimmickCommon* RoomLight::fn_8041FF08(atn::Task* parent, int id, int arg) {
 }
 
 RoomLight::~RoomLight() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(0);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
 }
 
 int RoomLight::vf0C() {
@@ -55,8 +55,8 @@ int RoomLight::vf0C() {
 }
 
 void RoomLight::Start() {
-    lbl_8087EFB4->fn_800C16B4()->SetLight_unk(&mLight);
-    lbl_8087EFB4->fn_800C16B4()->SetLightIndex_unk(mLight.m50);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLightIndex_unk(mLight.m50);
     MapManager::sInstance->fn_80491528(&fn_8041FED8, &mLight);
     if (m58 == 0) {
         mFrame = 0;

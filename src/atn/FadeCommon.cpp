@@ -1,5 +1,5 @@
 #include "atn/FadeCommon.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
 
@@ -124,7 +124,7 @@ void FadeCapture::vf14() {
 }
 
 void FadeCapture::Capture() {
-    lbl_8087EFB4->fn_800C1660(&mTex, m78);
+    atn::RenderManager::instance_->AddResolveTexture(&mTex, m78);
     mCaptured = 1;
 }
 

@@ -1,6 +1,6 @@
 #include "math/Vec.h"
 #include "atn/Memory.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 
@@ -126,7 +126,7 @@ void AABBTree::vf18() {
     int* visible = mVisible.mData;
     if (lbl_8087EFA8->mCulling != 0) {
         memset(visible, 0, mVisible.mSize);
-        void* frustum = &lbl_8087EFB4->mCamera.mFrustum;
+        void* frustum = &atn::RenderManager::instance_->mCamera.mFrustum;
         mRoot.mNode->fn_80045C88(frustum, visible);
     } else {
         memset(visible, 1, mVisible.mSize);
@@ -144,7 +144,7 @@ void AABBTreeNode_unk::fn_80045C88(void* frustum, int* visible) {
     int vis = fn_800502A8((const Frustum_unk*)frustum, &mBounds.mMin);
     visible[mIndex] = vis;
     if (vis != 0) {
-        vis = lbl_8087EFB4->fn_800C0A50(&mBounds);
+        vis = atn::RenderManager::instance_->fn_800C0A50(&mBounds);
     }
     for (int i = 0; i < 4; i++) {
         if (mChildren[i] != 0 && vis != 0) {

@@ -86,9 +86,9 @@ struct ModelBase : public IRender {
     ModelBase(unsigned int flags = 9); // 0x8008A4E0
     virtual ~ModelBase();              // 0x8008A76C
     virtual int GetRenderType_unk();                 // 0x80099F68
-    virtual void vf10(RenderView_unk* view);         // 0x8008E304: inferred: draw
+    virtual void vf10(RenderManager* view);         // 0x8008E304: inferred: draw
     virtual int vf14(void* arg1, void* arg2, void* frustum); // 0x8008FA24
-    virtual void vf18(RenderView_unk* view);         // 0x8008D6C0
+    virtual void vf18(RenderManager* view);         // 0x8008D6C0
     virtual void vf1C();                             // 0x800902BC
     virtual int vf20();                              // 0x8008B96C: inferred: still loading
     virtual void vf24();                             // 0x8008B974

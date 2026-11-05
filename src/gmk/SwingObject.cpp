@@ -5,7 +5,7 @@
 #include "gmk/Lemon.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -236,7 +236,7 @@ inline void RotateAxis2_unk(atn::Matrix3x4* mtx, int axis, float angle) {
     *mtx = t;
 }
 inline float CameraDistSq_unk(const atn::Vector3& pos) {
-    atn::Vector3 d = lbl_8087EFB4->mCamera.mPos - pos;
+    atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - pos;
     return PSVECSquareMag(&d);
 }
 

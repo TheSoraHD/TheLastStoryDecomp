@@ -12,6 +12,7 @@
 #include "game/Input_unk.h"
 #include "std/string_members.h"
 #include "Event/Actor.h"
+#include "atn/RenderManager.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -106,8 +107,6 @@ extern "C" Settings_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8 (weak 
 extern "C" float fn_800F8524(const float* a, const float* b, float t);
 // inferred: rotation matrix from angles (x, y, z)
 extern "C" atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot);
-// inferred: current camera of the game
-extern "C" Camera_unk* fn_8008B964();
 
 // inferred: sound manager (lbl_8087EFE8); names invented
 struct SoundMgr_unk {
@@ -919,7 +918,7 @@ void EventCamera_unk::fn_801162A4(int arg) {
     }
     fn_8004B378();
     if (arg && !IsFlag1_unk()) {
-        *fn_8008B964() = *this;
+        fn_8008B964()->SetCamera_unk(*this);
         if (GetSoundMgr_unk()) {
             atn::Vector3 rot(*GetRot_unk());
             rot.y = atn::WrapAngle_unk(3.1415927f + rot.y);

@@ -1,5 +1,5 @@
 #include "atn/Color4f_unk.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameScene.h"
 #include "atn/DrawHelper.h"
 #include "game/Em206EggMonster.h"
@@ -1299,7 +1299,7 @@ struct EggRect_unk {
 // inferred: screen position of `pos` (name invented)
 inline atn::Vector3 ToScreen_unk(const atn::Vector3& pos) {
     atn::Vector3 r;
-    fn_800BFAC8(&r, lbl_8087EFB4, &pos);
+    fn_800BFAC8(&r, atn::RenderManager::instance_, &pos);
     return r;
 }
 

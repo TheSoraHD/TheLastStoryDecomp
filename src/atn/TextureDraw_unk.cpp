@@ -1,7 +1,7 @@
 // inferred: texture projection matrices (versions of the SDK C_MTXLight* functions and the texture
 // projection used by the engine passes). File name invented.
 #include "math/Vec.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/Sphere.h"
 #include "game/NewCampScene2_unk.h"
 #include <string.h>
@@ -146,7 +146,7 @@ inline void ClearTrans_unk(atn::Matrix3x4& m) {
 // through getters (arguments loaded right to left) and fn_800D5D00/fn_800D5E18 are not inlined.
 extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn::Sphere* bounds) {
     atn::Matrix3x4& m = *(atn::Matrix3x4*)out;
-    Camera_unk* cam = &lbl_8087EFB4->mCamera;
+    Camera_unk* cam = &atn::RenderManager::instance_->mCamera;
     Camera_unk* c;
     m.SetIdentity();
     switch (mode) {
@@ -157,7 +157,7 @@ extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn
         break;
     }
     case 2: {
-        atn::RenderView_unk* v = lbl_8087EFB4;
+        atn::RenderManager* v = atn::RenderManager::instance_;
         atn::Matrix3x4 bias;
         SetBias_unk(bias);
         atn::Matrix3x4 camView;
@@ -190,7 +190,7 @@ extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn
         bias.m[1][3] = 0.5f;
         bias.m[2][2] = 0.0f;
         bias.m[2][3] = 1.0f;
-        atn::RenderView_unk* v = lbl_8087EFB4;
+        atn::RenderManager* v = atn::RenderManager::instance_;
         atn::Matrix3x4 camView;
         CopyMtx_unk(v->mCamera.mView.m, camView.m);
         atn::Matrix3x4 camInv;
@@ -200,7 +200,7 @@ extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn
             dir.y = -1.0f;
         }
         atn::Vector3 eye;
-        eye = ViewDir_unk(lbl_8087EFB4->mCamera);
+        eye = ViewDir_unk(atn::RenderManager::instance_->mCamera);
         PSVECNormalize(&eye, &eye);
         atn::Vector3 sum = dir + eye;
         if (sum.x == 0.0f && sum.y == 0.0f && sum.z == 0.0f) {
@@ -242,7 +242,7 @@ extern "C" void fn_800D5F68(Mtx out, int mode, int camera, int unused, const atn
                 c->mRight = bounds->mCenter.x - 2.0f * bounds->mRadius;
                 c->fn_8004B378();
             } else {
-                NewCampScene2_unk* scene = lbl_8087EFB4->mScene;
+                NewCampScene2_unk* scene = atn::RenderManager::instance_->mScene;
                 if (camera < fn_800C2418(scene)) {
                     c = fn_800C2520(scene, camera);
                 }

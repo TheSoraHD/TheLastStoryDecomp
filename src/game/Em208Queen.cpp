@@ -1,5 +1,5 @@
 #include "game/Em208Queen.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "game/GimmickCommon.h"
@@ -449,7 +449,7 @@ void Em208Queen::vf14() {
             atn::Vector3 pos = GetNodePos_unk(head);
             pos.y += 2.0f;
             atn::Vector3 screen;
-            fn_800BFAC8(&screen, lbl_8087EFB4, &pos);
+            fn_800BFAC8(&screen, atn::RenderManager::instance_, &pos);
             SetPaneValue_unk(GetSlash_unk(this)->mLayout, "base_point", 0, screen.x);
             SetPaneValue_unk(GetSlash_unk(this)->mLayout, "base_point", 1, screen.y);
             const wchar_t* text = lbl_8087F1E4->Get_unk(0x2DB);

@@ -11,7 +11,7 @@
 #include "std/string.h"
 #include "atn/AABB_unk.h"
 #include "atn/PBone.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/RenderSetting_unk.h"
 #include "std/new.h"
 #include <boost/bind.hpp>
@@ -152,7 +152,7 @@ inline NodeWork_unk::NodeWork_unk() {
     memset(this, 0, sizeof(NodeWork_unk));
 }
 
-inline int RenderView_unk::GetPass_unk() const {
+inline int RenderManager::GetPass_unk() const {
     return m2F8;
 }
 
@@ -476,7 +476,7 @@ int ModelBase::fn_8008B140() {
                     busy = 1;
                 }
             }
-            if (busy || lbl_8087EFB4->mPassHeads[1] != 0) {
+            if (busy || atn::RenderManager::instance_->mPassHeads[1] != 0) {
                 return 1;
             }
             for (unsigned int i = 0; i < m1E4.mSize; i++) {
@@ -566,9 +566,9 @@ int ModelBase::fn_8008B140() {
 }
 } // namespace atn
 
-// inferred: the render system (lbl_8087EFB4); called out of line by GameUI and others
-extern "C" atn::RenderView_unk* fn_8008B964() {
-    return lbl_8087EFB4;
+// inferred: the render system (atn::RenderManager::instance_); called out of line by GameUI and others
+extern "C" atn::RenderManager* fn_8008B964() {
+    return atn::RenderManager::instance_;
 }
 
 namespace atn {
@@ -847,7 +847,7 @@ void ModelBase::fn_8008C950() {
     CalcMatrixStack(0, ModelNodeCallback_unk());
 }
 
-void ModelBase::vf18(RenderView_unk* view) {
+void ModelBase::vf18(RenderManager* view) {
     if (m20C_31_24 == 8) {
         fn_8008D78C();
         if (mFlag6_unk) {
@@ -1105,7 +1105,7 @@ void ModelBase::fn_80091684(const Mtx m, const int* remap) {
 
 // NONMATCHING: 99.6% - the store order of the copy into m60
 void ModelBase::fn_80091A90(const Mtx m) {
-    if (mFlag4_unk && mFlag5_unk && lbl_8087EFB4->m2F8 == 3) {
+    if (mFlag4_unk && mFlag5_unk && atn::RenderManager::instance_->m2F8 == 3) {
         fn_80091684(m, m1C4.m10.mData);
         return;
     }

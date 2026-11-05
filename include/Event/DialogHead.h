@@ -3,7 +3,7 @@
 
 #include "game/CharaTask.h"
 #include "game/CharaFaceControl.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/Camera_unk.h"
 #include "atn/Array_unk.h"
 #include "atn/LipSync_unk.h"
@@ -28,8 +28,8 @@ public:
     // IRender (the primary vtable lists these after the IRender part, in this order)
     virtual int GetRenderType_unk() { return mMotion.GetRenderType_unk(); }
     virtual void vf1C() { mMotion.vf1C(); }
-    virtual void vf18(atn::RenderView_unk* view);
-    virtual void vf10(atn::RenderView_unk* view);
+    virtual void vf18(atn::RenderManager* view);
+    virtual void vf10(atn::RenderManager* view);
 
     void fn_802254B0(float top, float bottom); // inferred: sets the camera used for the parts
     void fn_80225C80(int right);               // inferred: picks the side of the window

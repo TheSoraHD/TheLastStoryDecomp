@@ -6,7 +6,7 @@
 #include "atn/LH_Binary.h"
 #include "game/TownTpcLoader.h"
 #include "std/string_members.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/NewCampScene2_unk.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -94,7 +94,7 @@ int TownTask::vf0C() {
     if (MapTask::vf0C() != 0) {
         for (MapObject_unk* obj = m70; obj != 0; obj = obj->mNext) {
             if (obj->mType == 4) {
-                ((MapPartsLocatorSet*)obj)->fn_8049B780(lbl_8087EFB4->fn_800C16B4()); // inferred: type 4 is a locator set
+                ((MapPartsLocatorSet*)obj)->fn_8049B780(atn::RenderManager::instance_->fn_800C16B4()); // inferred: type 4 is a locator set
             }
         }
         return 1;
@@ -252,10 +252,10 @@ void TownTask::vf10() {
     m12C--;
     switch (m130) {
     case 0:
-        m168 = lbl_8087EFB4->mCamera.mTarget;
+        m168 = atn::RenderManager::instance_->mCamera.mTarget;
         break;
     case 1:
-        m168 = lbl_8087EFB4->mCamera.mPos;
+        m168 = atn::RenderManager::instance_->mCamera.mPos;
         break;
     }
     if (lbl_8087F430 != 0 && (lbl_8087F430->m868 == 3 || lbl_8087F430->m868 == 4)) {
@@ -317,8 +317,8 @@ void TownTask::vf10() {
             }
         }
     }
-    if (lbl_8087EFB4->mScene->m074 == 0 && lbl_8087EFB4->fn_800C16B4()->GetLight_unk() != 0) {
-        fn_800C18BC(lbl_8087EFB4->fn_800C16B4()->GetLight_unk());
+    if (atn::RenderManager::instance_->mScene->m074 == 0 && atn::RenderManager::instance_->fn_800C16B4()->GetLight_unk() != 0) {
+        fn_800C18BC(atn::RenderManager::instance_->fn_800C16B4()->GetLight_unk());
     }
 }
 

@@ -1,5 +1,5 @@
 #include "Event/DialogHead.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameConfig_unk.h"
 #include "game/EquipItemData.h"
 #include "atn/LipSync_unk.h"
@@ -240,13 +240,13 @@ void DialogHead::vf10() {
 }
 
 void DialogHead::vf14() {
-    lbl_8087EFB4->fn_800BDB58(this, 10.0f, 2);
-    lbl_8087EFB4->fn_800BDB58(this, 10.0f, 0x10);
+    atn::RenderManager::instance_->AddRender(this, 2, 10.0f);
+    atn::RenderManager::instance_->AddRender(this, 0x10, 10.0f);
 }
 
 // NONMATCHING: 98.2% - instruction order of the camera copies (copy constructor of `saved`) and the
 // registers of the equipment loop
-void DialogHead::vf18(atn::RenderView_unk* view) {
+void DialogHead::vf18(atn::RenderManager* view) {
     Camera_unk saved(view->mCamera);
     view->SetCamera_unk(m142C);
     GetModel_unk()->vf18(view);
@@ -270,7 +270,7 @@ void DialogHead::fn_80226B28(int dark, int right) {
 
 // NONMATCHING: 99.4% - registers of the four inlined GetSide_unk calls of the viewport and of the
 // camera copies
-void DialogHead::vf10(atn::RenderView_unk* view) {
+void DialogHead::vf10(atn::RenderManager* view) {
     m142C.fn_8004B378();
     fn_8007642C(lbl_8087EEE0, 0, 0);
     Camera_unk saved(view->mCamera);

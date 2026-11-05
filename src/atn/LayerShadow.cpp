@@ -3,7 +3,7 @@
 #include "math/Vec.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/DrawHelper.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 namespace atn {
 
@@ -280,7 +280,7 @@ Camera_unk LayerShadow::fn_800B7090(const AABB_unk& box, const Vector3& dir) {
     Vector3 center = (box.mMax + box.mMin) * 0.5f;
     float t = 0.0f;
     fn_8006FAB0(&box, &t, &center, &dir);
-    Camera_unk cam(lbl_8087EFB4->mCamera);
+    Camera_unk cam(atn::RenderManager::instance_->mCamera);
     cam.mProjType = 1;
     Vector3 eye = center + dir * (2.0f * t);
     Vector3 target(center);
@@ -313,12 +313,12 @@ Camera_unk LayerShadow::fn_800B7090(const AABB_unk& box, const Vector3& dir) {
 // helpers are called out of line (weak copies), while the original inlines all of them
 void LayerShadow::vf10(void* arg) {
     if (arg == 0) {
-        lbl_8087EFB4->fn_800BDB58(0, 0.0f, 3);
+        atn::RenderManager::instance_->AddRender(0, 3, 0.0f);
     }
-    mCamera = lbl_8087EFB4->mCamera;
+    mCamera = atn::RenderManager::instance_->mCamera;
     RenderSetting_unk* s = lbl_8087EFA8;
     Vector3 dir(-s->m104.mDir.x, -s->m104.mDir.y, -s->m104.mDir.z);
-    ShadowLight_unk* light = (ShadowLight_unk*)lbl_8087EFB4->fn_800C1424(); // pending: view of the scene
+    ShadowLight_unk* light = (ShadowLight_unk*)atn::RenderManager::instance_->fn_800C1424(); // pending: view of the scene
     if (light->m234 != 0) {
         dir = Vector3(-light->m254, -light->m258, -light->m25C);
     }
@@ -363,7 +363,7 @@ void LayerShadow::vf10(void* arg) {
     mBox.mMin -= m;
     mBox.mMax += m;
     mLightCamera = fn_800B7090(mBox, dir);
-    lbl_8087EFB4->mShadowCamera = mLightCamera;
+    atn::RenderManager::instance_->mShadowCamera = mLightCamera;
     if (lbl_8087EFA8->m12C != 0) {
         fn_8006FE08(&mBox, 0xFFFFFF00);
         lbl_8087EEB0->fn_80063764(mLightCamera.mPos, mLightCamera.mTarget, 0.0f, 0xFFFF0000);
@@ -414,9 +414,9 @@ void LayerShadow::vf1C() {
     mImage = lbl_8087EF8C->fn_800A96AC(w, h, 4);
     GXInitTexObj(&mTex, mImage, w, h, 4, 0, 0, 0);
     GXInitTexObjLOD(&mTex, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-    GXInitTexObj(&mDepthTex, lbl_8087EFB4->m79C, w, h, 3, 0, 0, 0);
+    GXInitTexObj(&mDepthTex, atn::RenderManager::instance_->m79C, w, h, 3, 0, 0, 0);
     GXInitTexObjLOD(&mDepthTex, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-    lbl_8087EFB4->mCamera = mLightCamera;
+    atn::RenderManager::instance_->mCamera = mLightCamera;
     ShadowRenderMgr_unk* rs = lbl_8087EEE0;
     fn_80071E04(rs);
     fn_80076760(rs, 6, 2);
@@ -441,7 +441,7 @@ void LayerShadow::vf20() {
     int w = s->m158;
     int h = s->m15C;
     if (s->m134 == 0) {
-        void* depth = lbl_8087EFB4->m79C;
+        void* depth = atn::RenderManager::instance_->m79C;
         GXSetTexCopySrc(0, 0, w, h);
         GXSetTexCopyDst(w, h, 0x13, 0);
         GXCopyTex(depth, 0);
@@ -453,7 +453,7 @@ void LayerShadow::vf20() {
     lbl_8087EFB0 = 0;
     fn_80075DEC(lbl_8087EEE0);
     GXSetColorUpdate(1);
-    lbl_8087EFB4->mCamera = mCamera;
+    atn::RenderManager::instance_->mCamera = mCamera;
     if (lbl_8087EFA8->m12C != 0) {
         ShadowRenderMgr_unk* rs = lbl_8087EEE0;
         int height = rs->mHeight;

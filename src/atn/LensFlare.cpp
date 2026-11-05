@@ -1,6 +1,6 @@
 #include "atn/LensFlare.h"
 #include "atn/GXDecl.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "atn/AABB_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -161,13 +161,13 @@ int LensFlare::fn_800774D4() {
 }
 
 void LensFlare::fn_80077534() {
-    lbl_8087EFB4->fn_800BDB58(this, 0.0f, 0xC);
+    atn::RenderManager::instance_->AddRender(this, 0xC, 0.0f);
 }
 
 // NONMATCHING: 90.2% - register allocation of the negated light direction and of the clamps,
 // and the order of the loads of the projected box
-void LensFlare::vf10(RenderView_unk* arg) {
-    RenderView_unk* camera = arg;
+void LensFlare::vf10(RenderManager* arg) {
+    RenderManager* camera = arg;
     camera->fn_800BDB40(0);
     if (m04 == 1) {
         LensLight_unk* light = fn_800C2448(camera->mScene, 0);
@@ -182,7 +182,7 @@ void LensFlare::vf10(RenderView_unk* arg) {
         atn::AABB_unk box;
         box.mMin = sphere.mCenter - Vector3(r, r, r);
         box.mMax = sphere.mCenter + Vector3(r, r, r);
-        float visible = lbl_8087EFB4->fn_800C169C(&box);
+        float visible = atn::RenderManager::instance_->fn_800C169C(&box);
         if (visible != 0.0f) {
             atn::AABB_unk screen;
             fn_8006FEBC(&screen, &box);

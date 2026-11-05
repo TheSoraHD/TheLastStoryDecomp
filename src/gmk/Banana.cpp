@@ -2,7 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -85,7 +85,7 @@ void Banana::vf10() {
     if (m54 == 1 || mDesc->m7C == 0) {
         return;
     }
-    atn::Vector3 d(lbl_8087EFB4->mCamera.mPos.x - m6C.x, lbl_8087EFB4->mCamera.mPos.y - m6C.y, lbl_8087EFB4->mCamera.mPos.z - m6C.z);
+    atn::Vector3 d(atn::RenderManager::instance_->mCamera.mPos.x - m6C.x, atn::RenderManager::instance_->mCamera.mPos.y - m6C.y, atn::RenderManager::instance_->mCamera.mPos.z - m6C.z);
     if (PSVECSquareMag(&d) > 250000.0f && m54 == 2) {
         return;
     }

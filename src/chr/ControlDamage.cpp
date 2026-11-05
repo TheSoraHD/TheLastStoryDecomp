@@ -1,7 +1,7 @@
 // Hit reactions: damage, guard, dodge, knockdown and getting up, revival, falling to death, guard
 // broken and the reaction of the enemies (ControlDamageLastOne).
 #include "chr/ControlDamage.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 #include "game/GameVoice.h"
 #include "chr/FuncPair_unk.h"
 #include "game/GimmickCommon.h"
@@ -67,13 +67,9 @@ struct Lens_unk {
     float m15C;
     float m160;
 };
-struct CameraLens_unk {
-    unsigned char m000[0x2FC];
-    Lens_unk* m2FC;
-};
 
 inline Lens_unk* CharaTask::GetLens_unk() {
-    return (mMotion.m1DC == 0) ? ((CameraLens_unk*)lbl_8087EFB4)->m2FC : mMotion.m1DC;
+    return (mMotion.m1DC == 0) ? (Lens_unk*)atn::RenderManager::instance_->mScene /* pending: view of the scene */ : mMotion.m1DC;
 }
 
 // inferred: inline in the original (weak copy 0x8013C3B4, defined out of line in game/CharaTask.cpp)

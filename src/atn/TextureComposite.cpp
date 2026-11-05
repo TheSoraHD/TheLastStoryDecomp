@@ -1,6 +1,6 @@
 #include "atn/Texture_unk.h"
 #include "std/vector.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // inferred: GX/OS functions not in atn/GXDecl.h (enums as int)
 extern "C" {
@@ -53,7 +53,7 @@ class IRender {
 public:
     virtual ~IRender() {}
     virtual int vf0C(); // 0x80046218
-    virtual void vf10(RenderView_unk* camera) = 0;
+    virtual void vf10(RenderManager* camera) = 0;
     virtual int vf14() = 0;
     virtual void vf18() = 0;
     virtual void vf1C(); // 0x800461FC
@@ -109,7 +109,7 @@ class TextureComposite : public IRender {
 public:
     TextureComposite();
     virtual ~TextureComposite();
-    virtual void vf10(RenderView_unk* camera);
+    virtual void vf10(RenderManager* camera);
     virtual int vf14() { return 1; }
     virtual void vf18() {}
 
@@ -130,7 +130,7 @@ void TextureComposite::Request_unk(Texture_unk* texture, int format) {
     m08 = format;
     m0C = texture;
     m04 = 0;
-    lbl_8087EFB4->fn_800BDB58(this, 0.0f, 1);
+    atn::RenderManager::instance_->AddRender(this, 1, 0.0f);
 }
 
 // inferred: not inline; every use is auto-inlined and the out-of-line copy is removed by the linker,
@@ -164,7 +164,7 @@ inline int GetMipCount_unk(Texture_unk* tex) {
 // NONMATCHING: 98.34% - the original loads the image pointer twice (test and variable), which
 // shifts some saved registers; tried other views of the texture (also relative to the LH_Texture
 // member, which splits the loads but adds an addi), accessor inlines, field types and statement orders
-void TextureComposite::vf10(RenderView_unk* camera) {
+void TextureComposite::vf10(RenderManager* camera) {
     fn_80071E04(lbl_8087EEE0);
     int format;
     Texture_unk* tex = m0C;
@@ -337,7 +337,7 @@ void TextureCompositeMaskIntensitySingle::vf0C() {
 
     GXSetZMode(0, 3, 0);
     GXSetBlendMode(1, 4, 5, 3);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
 }
 
 void TextureCompositeCopy::vf0C() {
@@ -362,7 +362,7 @@ void TextureCompositeCopy::vf0C() {
     GXSetTevDirect(0);
     GXSetZMode(0, 3, 0);
     GXSetBlendMode(0, 4, 5, 3);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
 }
 
 void TextureCompositeCopyAlpha::vf0C() {
@@ -384,7 +384,7 @@ void TextureCompositeCopyAlpha::vf0C() {
     GXSetTevDirect(0);
     GXSetZMode(0, 3, 0);
     GXSetBlendMode(0, 4, 5, 3);
-    lbl_8087EFB4->fn_800BFB70();
+    atn::RenderManager::instance_->fn_800BFB70();
     GXSetTevSwapModeTable(0, 0, 1, 2, 3);
 }
 

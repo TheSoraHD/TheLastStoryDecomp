@@ -5,7 +5,7 @@
 #include "math/VecOps_unk.h"
 #include "math/DegToRad_unk.h"
 #include "std/ios_init.h"
-#include "atn/RenderView_unk.h"
+#include "atn/RenderManager.h"
 
 // Actor actions of the events: processors with vf08 (per frame) and vf0C (phase), as in
 // Event/ActionCameraMode. Class names from the RTTI; vtables in the order Material, Wind, Setting,
@@ -763,7 +763,7 @@ void ActionActorEyes::fn_80553A74(Action* arg, float now) {
     float weight = 1.0f;
     Actor* target = manager->FindActor_unk(arg->GetParam_unk(0)->m04.i);
     int node = arg->GetParam_unk(1)->m04.i;
-    atn::Vector3 cam = lbl_8087EFB4->mCamera.mPos;
+    atn::Vector3 cam = atn::RenderManager::instance_->mCamera.mPos;
     float angle = arg->GetParam_unk(14)->m04.f;
     int fadeIn = arg->m18;
     int length = arg->m14 - arg->m10;
