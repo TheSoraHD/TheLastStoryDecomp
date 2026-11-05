@@ -23,4 +23,8 @@ struct RenderView_unk {
 
 } // namespace atn
 
+// inferred: the render system (created by atn/RenderSystem_unk.cpp; its camera at 0x104 is the camera of
+// the game, its scene at 0x2FC the scene drawn). One type for all the users.
+extern "C" atn::RenderView_unk* lbl_8087EFB4;
+
 #endif

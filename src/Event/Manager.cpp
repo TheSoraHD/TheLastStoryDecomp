@@ -73,7 +73,7 @@ extern "C" void fn_800C3094(void* light);
 struct DialogTextMgr_unk;
 extern "C" DialogTextMgr_unk* lbl_8087F008;                     // inferred: text renderer (Event/Dialog.cpp)
 extern "C" void fn_800DAA3C(DialogTextMgr_unk* mgr, int arg);
-extern "C" NewCampScene2_unk* fn_800C16B4(Camera_unk* camera); // inferred: scene of the render view
+extern "C" NewCampScene2_unk* fn_800C16B4(atn::RenderView_unk* view); // inferred: scene of the render view
 extern "C" void fn_8004895C(atn::SoundEngine_unk* sound);
 extern "C" void fn_80049654(atn::SoundEngine_unk* sound);
 extern "C" void fn_8004829C(atn::SoundEngine_unk* sound, const char** groups, int count);
@@ -81,14 +81,14 @@ extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
-extern "C" void* fn_8008B964(); // inferred: returns lbl_8087EFB4 (camera)
+extern "C" atn::RenderView_unk* fn_8008B964(); // inferred: returns lbl_8087EFB4
 extern "C" void* fn_805381B8(void* action); // inferred: cut of the action (Event/Node.cpp)
 extern "C" void* fn_805381DC(void* action); // inferred: sequence of the action (Event/Node.cpp)
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);                         // inferred: sound id
 extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* name); // inferred: id of a name
 extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
-extern "C" Camera_unk* fn_800F7258(void* camera); // inferred: camera of the game
+extern "C" Camera_unk* fn_800F7258(atn::RenderView_unk* view); // inferred: camera of the render view (+0x104)
 extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
 extern "C" atn::Vector2_unk fn_800F84D8(const atn::Vector2_unk& a, const atn::Vector2_unk& b, float t);
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
@@ -1516,7 +1516,7 @@ void Manager::fn_80482ED8() {
         return;
     }
     RenderSetting_unk* rs = lbl_8087EFA8;
-    Camera_unk* view = lbl_8087EFB4;
+    atn::RenderView_unk* view = lbl_8087EFB4;
     if (rs != 0 && view != 0) {
         m1AB0.mBloom = rs->m054;
         m1AB0.m88 = rs->m0D4;
@@ -1560,7 +1560,7 @@ void Manager::fn_80483714(int a, int b) {
     if (rs == 0) {
         return;
     }
-    Camera_unk* view = lbl_8087EFB4;
+    atn::RenderView_unk* view = lbl_8087EFB4;
     if (view == 0) {
         return;
     }
@@ -1657,6 +1657,22 @@ void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
                                (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24)));
     MapManager::sInstance->fn_80491528(fn_80482D90, light);
 }
+// inferred: first light of the scene of the render view (weak copy 0x804848C4); name invented
+inline atn::Light* GetViewLight_unk(atn::RenderView_unk* view) {
+    return fn_800C2448(view->mScene, 0);
+}
+
+// inferred: first light of the map area at the target of the current camera (else of the render scene)
+atn::Light Manager::fn_804848D0() {
+    GameMap_unk* map = lbl_8087F540->fn_80480438(); // inferred: unused (the call stays)
+    atn::Sphere sphere(lbl_8087F540->mCameras[lbl_8087F540->m1A38].mTarget, 30.0f);
+    MapArea* area = MapManager::sInstance->fn_804918A4(sphere);
+    if (area != 0) {
+        return *fn_800C2448(&area->GetScene_unk(), 0);
+    }
+    return *GetViewLight_unk(lbl_8087EFB4);
+}
+
 // inferred: sets the ambient color (0xAARRGGBB) of the map areas
 void Manager::fn_80484A78(int color) {
     unsigned int c = color;
@@ -1842,12 +1858,12 @@ void Manager::vf10() {
     if (m1AB0.m01 != 0) {
         m1AB0.m04 -= 0.1f;
         if (m1AB0.m04 <= 0.0f) {
-            m1BD0.fn_8047C88C(fn_800C16B4((Camera_unk*)fn_8008B964()));
+            m1BD0.fn_8047C88C(fn_800C16B4(fn_8008B964()));
             SceneApply_unk apply(&m1AB0);
             MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
             m1AB0.m01 = 0;
         } else {
-            m1BD0.fn_8047CB74(fn_800C16B4((Camera_unk*)fn_8008B964()), m1AB0.m04);
+            m1BD0.fn_8047CB74(fn_800C16B4(fn_8008B964()), m1AB0.m04);
             SceneApply_unk apply(&m1AB0, m1AB0.m04);
             MapManager::GetInstance_unk()->fn_80491528(fn_804827D8, &apply);
         }

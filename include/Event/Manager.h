@@ -195,6 +195,7 @@ public:
     // inferred: called by Event/ActionEffectPlay.cpp
     void fn_80486BEC(int color, float blur); // inferred: god ray color and blur
     void fn_804846FC(const atn::Vector3& dir, int color); // inferred: light of the scene and of the map areas
+    static atn::Light fn_804848D0(); // inferred: light of the map area at the camera target
     void fn_80484A78(int color); // inferred: ambient color of the map areas
     void fn_80486DAC(int color); // inferred: "LS" color
     void fn_80486F50();

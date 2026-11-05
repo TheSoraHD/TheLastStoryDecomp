@@ -1,6 +1,8 @@
 #ifndef ATN_EFFECTMANAGER_H
 #define ATN_EFFECTMANAGER_H
 
+#include "atn/RenderView_unk.h"
+
 #include "atn/Task.h"
 #include "atn/Model_unk.h"
 #include "atn/Memory.h"
@@ -16,8 +18,7 @@ typedef atn::Camera Camera_unk;
 namespace atn {
 struct Model;
 }
-extern "C" Camera_unk* lbl_8087EFB4;
-extern "C" void fn_800BDB58(Camera_unk* camera, void* render, float alpha, int layer); // inferred: queues a render
+extern "C" void fn_800BDB58(atn::RenderView_unk* view, void* render, float alpha, int layer); // inferred: queues a render
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" const char* fn_80473F18(void* name); // inferred: resource name
 
