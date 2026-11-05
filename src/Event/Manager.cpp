@@ -21,6 +21,16 @@
 #include "game/GameField_unk.h"
 #include "game/CharaTask.h"
 #include "game/GameScene.h"
+#include "game/GimmickManager.h"
+#include "game/MapManager.h"
+#include "game/ColliAttrManager.h"
+#include "game/GameBgm.h"
+#include "game/PlayerManager.h"
+#include "game/Inventory.h"
+#include "game/NpcManager.h"
+#include "game/EnemyManager.h"
+#include "game/FriendManager.h"
+#include "atn/FileList.h"
 #include "Event/Cut.h"
 #include "Event/Section.h"
 #include "Event/Channel.h"
@@ -37,6 +47,22 @@ extern "C" void fn_800D94F8(atn::Task* parent); // inferred: creates the screen 
 extern "C" void fn_800D2338(atn::Task* task);   // inferred: removes the task
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
+// inferred: area data of the maps (db; m68: light settings of the area)
+struct AreaData_unk {
+    unsigned char m00[0x68];
+    void* m68;
+};
+extern "C" AreaData_unk* fn_8021771C(int area, int map, int part);
+extern "C" void fn_8049D52C(char* name, int area, int map, int part); // inferred: name of the scene file
+extern "C" char* fn_8006BA8C(const char* path, int* size, int arg);   // inferred: loads a file
+extern "C" int fn_8006AA20(const char* path);                        // inferred: the file exists
+extern "C" GameMap_unk* fn_8049D68C(atn::Task* parent, const char* path); // inferred: creates a map
+extern "C" GameMap_unk* fn_8049D704(atn::Task* parent, int area, int map, int part);
+extern "C" void fn_800C3094(void* light);
+extern "C" void fn_8004895C(atn::SoundEngine_unk* sound);
+extern "C" void fn_80049654(atn::SoundEngine_unk* sound);
+extern "C" void fn_8004829C(atn::SoundEngine_unk* sound, const char** groups, int count);
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 extern "C" void* lbl_8087F048;              // inferred: bullet manager
 extern "C" void fn_80370B78(GameField_unk* field, unsigned int color, int frames, int arg, float speed); // inferred: fade of the field
 extern "C" void fn_801011B8(void* bullets); // inferred: removes every bullet
@@ -1013,6 +1039,145 @@ void Manager::fn_804805B4() {
 // inferred: path of the map file of the area `area`, map `map` and part `part`
 std::string fn_804805CC(int area, int map, int part) {
     return fn_800DC980("map\\tw%02d\\tw%02d_%02d_%02d.map", area, area, map, part);
+}
+
+// NONMATCHING: 96.2% - registers (map loop keeps base+offset, push_back of m1A60, string temps)
+// inferred: loads what the sequence needs (flags: 0x10 scene, 0x100 maps, 0x200 keep the maps, 0x2000
+// party, 0x1000 npcs/enemies/friends, 0x4000 only the characters the sequence uses, 0x10000000 same
+// map). Names invented.
+void Manager::fn_804805F0(Sequence* seq, unsigned int flags) {
+    int area = seq->GetState_unk().m02;
+    int map = seq->GetState_unk().m00;
+    int part = seq->GetState_unk().m03;
+    AreaData_unk* areaData = fn_8021771C(area, map, part);
+    if ((flags & 0x10) && !(flags & 0x10000000) && areaData != 0) {
+        char path[0x100];
+        char name[0x100];
+        fn_8049D52C(name, area, map, part);
+        sprintf(path, "/game_scene/%s.gs", name);
+        int size;
+        char* data = fn_8006BA8C(path, &size, 0);
+        m1A6C = GameScene::fn_803BEBAC(this, area, map, part);
+        m1A6C->FreezeTask();
+        m1A6C->fn_803C3894(data, size, 0);
+        atn::FileFreeBuffer(data, false);
+        if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
+            sprintf(path, "/game_scene/tw_subquest.gs");
+            if (fn_8006AA20(path) != 0) {
+                char* sub = fn_8006BA8C(path, &size, 0);
+                m1A6C->fn_803C3894(sub, size, 1);
+                atn::FileFreeBuffer(sub, false);
+            }
+            sprintf(path, "/game_scene/tw_hintnpc.gs");
+            if (fn_8006AA20(path) != 0) {
+                char* sub = fn_8006BA8C(path, &size, 0);
+                m1A6C->fn_803C3894(sub, size, 2);
+                atn::FileFreeBuffer(sub, false);
+            }
+        }
+        if (GimmickManager::instance_ == 0) {
+            GimmickManager::SetTask(this);
+        }
+        m1A6C->fn_803CA530();
+    }
+    if ((flags & 0x100) && !(flags & 0x10000000) && areaData != 0 && !(flags & 0x200)) {
+        atn::FixedArray_unk<MapPart_unk*, 64>& parts = MapManager::sInstance->mParts;
+        for (int i = 0; i < (int)parts.size(); i++) {
+            MapManager::sInstance->fn_80491440(parts[i]);
+        }
+        if (area == 1) {
+            std::string file = fn_800DC980("database\\map\\tw%02d_%02d.twn", map, part);
+            m1A60.push_back(fn_8049D68C(this, file.c_str()));
+            m1A60[0]->m48 = area;
+            m1A60[0]->m4C = map;
+            m1A60[0]->m50 = part;
+            for (int i = 0; i < (int)seq->m5C.size(); i++) {
+                file = fn_804805CC(map, seq->m5C[i * 2 + 1], seq->m5C[i * 2]);
+                m1A60.push_back(fn_8049D68C(this, file.c_str()));
+            }
+        } else {
+            m1A60.push_back(fn_8049D704(this, area, map, part));
+        }
+        if (lbl_8087EE90 != 0) {
+            fn_8004895C(lbl_8087EE90);
+            fn_80049654(lbl_8087EE90);
+            const char* groups[2] = {"GROUP_SYSTEM", "GROUP_PC001"};
+            fn_8004829C(lbl_8087EE90, groups, 2);
+        }
+        if (areaData != 0) {
+            fn_800C3094(areaData->m68);
+        }
+        if (ColliAttrManager::sInstance == 0) {
+            ColliAttrManager::fn_801839FC(this);
+        }
+        ColliAttrManager::sInstance->fn_80183D00(area, map, part);
+        if (GameBgm::sInstance == 0) {
+            GameBgm::fn_8037C8C4(this);
+        }
+        if (lbl_8087F498 == 0) {
+            GameVoice::fn_803E836C(this);
+        }
+    }
+    if (flags & 0x4000) {
+        if (lbl_8087F8A0 == 0) {
+            PlayerManager::fn_80549D8C(this);
+        }
+        if (Inventory::Order() == 0) {
+            Inventory::fn_80442F10();
+        }
+        lbl_8087F8A0->fn_80549F14(area);
+        fn_8047FF70(0, 1, 0.0f, lbl_807C7030);
+    }
+    if (flags & 0x1000) {
+        if (NpcManager::sInstance == 0) {
+            NpcManager::fn_805477C8(this);
+        }
+        if (EnemyManager::sInstance == 0) {
+            EnemyManager::fn_80334B38(this);
+        }
+        if (FriendManager::sInstance == 0) {
+            FriendManager::fn_80365464(this);
+        }
+        if (Inventory::Order() == 0) {
+            Inventory::fn_80442F10();
+        }
+        GameScene* scene = m1A6C;
+        if (scene != 0) {
+            if (flags & 0x2000) {
+                for (int i = 0; i < (int)scene->m80.size(); i++) {
+                    if (seq->fn_80541CFC(1, scene->m80[i].mId) != 0) {
+                        gs::NpcSetPoint& p = scene->m80[i];
+                        fn_8047FF70(1, p.m20, p.m14, p.mPos)->m58 = scene->m80[i].mId;
+                    }
+                }
+                for (int i = 0; i < (int)scene->m88.size(); i++) {
+                    if (seq->fn_80541CFC(2, scene->m88[i].mId) != 0) {
+                        gs::NpcSetPoint& p = scene->m88[i];
+                        fn_8047FF70(2, p.m20, p.m14, p.mPos)->m58 = scene->m88[i].mId;
+                    }
+                }
+                for (int i = 0; i < (int)scene->m90.size(); i++) {
+                    if (seq->fn_80541CFC(3, scene->m90[i].mId) != 0) {
+                        gs::NpcSetPoint& p = scene->m90[i];
+                        fn_8047FF70(3, p.m20, p.m14, p.mPos)->m58 = scene->m90[i].mId;
+                    }
+                }
+            } else {
+                for (int i = 0; i < (int)scene->m80.size(); i++) {
+                    gs::NpcSetPoint& p = scene->m80[i];
+                    fn_8047FF70(1, p.m20, p.m14, p.mPos)->m58 = scene->m80[i].mId;
+                }
+                for (int i = 0; i < (int)scene->m88.size(); i++) {
+                    gs::NpcSetPoint& p = scene->m88[i];
+                    fn_8047FF70(2, p.m20, p.m14, p.mPos)->m58 = scene->m88[i].mId;
+                }
+                for (int i = 0; i < (int)scene->m90.size(); i++) {
+                    gs::NpcSetPoint& p = scene->m90[i];
+                    fn_8047FF70(3, p.m20, p.m14, p.mPos)->m58 = scene->m90[i].mId;
+                }
+            }
+        }
+    }
 }
 
 int Manager::fn_80481654() {

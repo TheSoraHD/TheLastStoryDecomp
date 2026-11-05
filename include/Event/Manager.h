@@ -219,6 +219,7 @@ public:
     GameMap_unk* fn_80480438(); // inferred: map of the event (its locators)
     int fn_804803A4(); // inferred: the maps and the characters of the event are loaded
     void fn_80480468(Sequence* seq, unsigned int flags); // inferred: map change of the sequence
+    void fn_804805F0(Sequence* seq, unsigned int flags); // inferred: loads what the sequence needs
     void fn_8048E9E0();
     void fn_80485028(int index, const atn::Vector3& pos, float radius, int color);
     void fn_80485964(const atn::Vector3& pos, const atn::Vector3& dir, float a, float b, int color);
