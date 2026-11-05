@@ -2267,6 +2267,29 @@ void Manager::fn_80488B5C(int fade) {
         }
     }
 }
+// inferred: unmutes the stream of the music (fn_80488A74 mutes it while m1F64 frames pass)
+void Manager::fn_80488D6C() {
+    fn_800CB640(&m1F20.mSound, 0, 4, 0);
+}
+
+// inferred: stops the music of the event
+void Manager::fn_80488D80(int fade) {
+    m1F20.fn_8004B1EC(fade);
+    m1F20.mSound.Reset();
+}
+
+// NONMATCHING: 98.6% - float registers (m1F68 in f2, the frame time in f0)
+// inferred: counts down the mute time of the stream (m1F68)
+void Manager::fn_80488DB8() {
+    if (m1F68 > 0.0f) {
+        m1F68 -= lbl_8087EFA8->m3A4;
+        if (m1F68 <= 0.0f) {
+            m1F68 = 0.0f;
+            fn_80488D6C();
+        }
+    }
+}
+
 
 
 

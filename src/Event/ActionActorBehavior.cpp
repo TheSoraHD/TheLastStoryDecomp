@@ -25,7 +25,6 @@ ActionProcessor* sProcessors_unk[56];
 extern "C" void* lbl_8087F8B0;
 void operator delete(void* ptr);
 extern "C" void fn_80489A50(void* manager, int arg1, int arg2);
-extern "C" void fn_80488DB8(void* manager);
 extern "C" void fn_8048F9B0(void* manager, void* event);
 extern "C" void fn_80484FBC(void* manager);
 extern "C" void fn_804870F4(void* manager);
@@ -282,7 +281,7 @@ void Event::Sequence::fn_80550254() {
     if (mode == 1 || mode == 3) {
         ((Manager*)manager)->fn_80481A20();
         fn_80489A50(manager, 0, 0);
-        fn_80488DB8(manager);
+        ((Manager*)manager)->fn_80488DB8();
     }
 
     unsigned char* event = static_cast<unsigned char*>((void*)fn_80541210());

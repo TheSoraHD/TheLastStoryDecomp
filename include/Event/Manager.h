@@ -202,7 +202,8 @@ public:
     void fn_8048EE78(int a, float r, float g, float b, float c, float d, int e, float f);
     void fn_80488050(Sequence* seq, Action* action); // inferred: plays a stream of the sequence
     void fn_80488A74(const char* name, int fade, float volume);
-    void fn_80488D80(int fade);
+    void fn_80488D80(int fade); // inferred: stops the music of the event
+    void fn_80488DB8();
     void fn_80488534(Sequence* seq, int fade); // inferred: stops the music of the sequence
     void fn_8048871C(Sequence* seq, const char* name, int fade, int start); // inferred: starts the music of the sequence
     void fn_80488E00(Sequence* seq);
@@ -263,7 +264,7 @@ public:
     void fn_8047F88C(int arg);
     void fn_8047F8A4(float value);
     void fn_8047F984(float time);
-    void fn_80488D6C(); // inferred: sets the frame time (also in the game settings)
+    void fn_80488D6C(); // inferred: unmutes the stream of the music
     void fn_8047F8C0(int arg);
     int fn_80481654();   // inferred: the task m1A7C is not frozen (no event is running)
     int fn_80481668();   // inferred: nonzero while the song stops the characters
