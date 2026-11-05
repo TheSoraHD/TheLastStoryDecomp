@@ -8,8 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `renderview-20261105` (2026-11-05, mergeada en `main`): **12684 / 18119** en `report.json`, lost 0, sin bajadas. `lbl_8087EFB4` es `atn::RenderManager::instance_` (nombre del RSO; `include/atn/RenderManager.h`, disposicion completa) en todas las unidades; metodos de RenderSystem_unk como miembros (`AddRender`, `GetScreenPosition`...); `atn::Sphere` con copia implicita. Notas: `docs/renderview-20261105.md`.
-- `manager-20261104` (mergeada en `main`): 12679. Event/Manager 33 -> 131/185; `atn::Light`, `atn::Color` (`docs/manager-20261104.md`); `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
+- `nw4r-20261105` (2026-11-05, sin mergear): **12684 / 18119**, lost 0. `ss_nw4r` snd_StrmPlayer enlazada (NW4R 72/73; sobraba el relleno `float_order` de SS); `ncdsystem` `.bss align:32`. ut_TextWriterBase y Gecko_ExceptionPPC no enlazan por el ultimo objeto de `.sbss`/`extab` (reglas del enlazador en `docs/trucos-mwcc.md`). Notas: `docs/nw4r-20261105.md`.
+- `renderview-20261105` (mergeada en `main`): 12684. `lbl_8087EFB4` es `atn::RenderManager::instance_` (`docs/renderview-20261105.md`); `manager-20261104` 12679, Event/Manager 33 -> 131/185 (`docs/manager-20261104.md`).
+- `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).
