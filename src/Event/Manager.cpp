@@ -83,6 +83,9 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void* fn_8008B964(); // inferred: returns lbl_8087EFB4 (camera)
 extern "C" void* fn_805381B8(void* action); // inferred: cut of the action (Event/Node.cpp)
+extern "C" int fn_800CB6F8(atn::SoundRef* sound);                         // inferred: sound id
+extern "C" unsigned int fn_80049B74(atn::SoundEngine_unk* engine, const char* name); // inferred: id of a name
+extern "C" void fn_800CB640(atn::SoundRef* sound, int a, int b, int c);
 extern "C" int fn_805A38F0(const char* name, int a, int b); // inferred: the sound is ready
 extern "C" Camera_unk* fn_800F7258(void* camera); // inferred: camera of the game
 extern "C" atn::Vector3 fn_80383728(Camera_unk* camera); // inferred: position looked at by the camera
@@ -2168,6 +2171,18 @@ void Manager::fn_80488534(Sequence* seq, int fade) {
     }
     m1F1C = 0;
 }
+// inferred: frames from the current cut of the sequence to `end` (inlined in fn_8048871C and
+// fn_80488B5C); name invented
+inline int FramesTo_unk(Sequence* seq, Cut* end) {
+    int frames = 0;
+    Cut* cut = seq != 0 ? seq->FindCutByIndex_unk(seq->m94) : 0;
+    while (cut != 0 && cut != end) {
+        frames += fn_8047BBBC(seq, cut);
+        cut = fn_8047B768(seq, cut);
+    }
+    return frames;
+}
+
 // NONMATCHING: 98.6% - registers of the frame count and the cut, order of the sum of m1F58
 // inferred: starts the music `name` (null: the one of the multi audio action of the sequence, and its
 // stream if it starts within three frames)
@@ -2183,12 +2198,7 @@ void Manager::fn_8048871C(Sequence* seq, const char* name, int fade, int start) 
             return;
         }
         Cut* end = (Cut*)fn_805381B8(action);
-        int frames = 0;
-        Cut* cut = seq != 0 ? seq->FindCutByIndex_unk(seq->m94) : 0;
-        while (cut != 0 && cut != end) {
-            frames += fn_8047BBBC(seq, cut);
-            cut = fn_8047B768(seq, cut);
-        }
+        int frames = FramesTo_unk(seq, end);
         m1F58 = action->m10 + (m1F64 + frames);
         if (m1F58 <= m1F64 + 3 && seq->m194 != 10) {
             fn_80488050(seq, action);
@@ -2207,6 +2217,57 @@ void Manager::fn_8048871C(Sequence* seq, const char* name, int fade, int start) 
     m1F34 = 1;
     m1F38 = name;
 }
+// inferred: id of the sound (a call kept before the other operand); name invented
+inline unsigned int GetSoundId_unk(atn::SoundRef* sound) {
+    unsigned int id = fn_800CB6F8(sound);
+    return id;
+}
+
+// inferred: restarts the music of the multi audio action (if a stream is playing, it continues from
+// its position)
+void Manager::fn_80488A74(const char* name, int fade, float volume) {
+    atn::SoundEngine_unk* engine;
+    if (m1F20.mSound.mPtr == 0 || ((engine = lbl_8087EE90) != 0 && GetSoundId_unk(&m1F20.mSound) != fn_80049B74(engine, name))) {
+        fn_8048871C(m70, name, fade, 0);
+    }
+    m1F20.fn_8004B158(1.0f, 0);
+    if (m1F64 > 0) {
+        fn_800CB640(&m1F20.mSound, 1, 4, 0);
+        m1F68 = m1F64;
+    }
+    m1F5C = 0;
+}
+
+// NONMATCHING: 98.5% - registers of the frame count and the cut (as fn_8048871C)
+// inferred: starts the music of the multi audio again at the position of the next cut
+void Manager::fn_80488B5C(int fade) {
+    if (m70 != 0 && m70->fn_80541210() != 0) {
+        if (strlen(m1F38.c_str()) == 0) {
+            return;
+        }
+        Cut* cur = m70->fn_80541210();
+        if (cur == 0) {
+            return;
+        }
+        m1F5C = 0;
+        Cut* next = fn_8047B768(m70, cur);
+        if (next != 0 && m70->m198 > cur->m2C - 60) {
+            next = fn_8047B768(m70, next);
+            m1F5C = 1;
+        }
+        if (next == 0) {
+            return;
+        }
+        int frames = FramesTo_unk(m70, next);
+        int start = (int)(1000.0f * (frames - m1F58) / 30.0f);
+        fn_8048871C(m70, m1F38.c_str(), fade, m1F60 + MAX(start, 0));
+        if (start >= 0) {
+            m1F20.fn_8004B158(1.0f, fade);
+            fn_800CB640(&m1F20.mSound, 1, 4, 0);
+        }
+    }
+}
+
 
 
 
