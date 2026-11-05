@@ -393,3 +393,8 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Reserva de un buffer lineal seguida de `if (p == 0) return;` y asignaciones: sin `new (p) T(...)`, que anade una segunda comprobacion de nulo (RenderManager::AddRender). (`renderview-20261105`)
 - Funciones `extern "C" inline` definidas en un .cpp que el original llama fuera de linea (copias weak de otro fichero) gastan presupuesto de inlining: quitarlas puede hacer que otra funcion fuerte se inline y desaparezca (PlayerInput_unk fn_80124BE4). (`renderview-20261105`)
 
+- `@STRING@<inline mangled>` en `.sdata` (los `""` de `new (tag, "", "", 0)` dentro de una inline) dice que inline usaba el original: `@STRING@Resize_unk__Q23atn28SimpleArray<...>Fii` frente a una inline propia. (`scene-20261105`)
+- Bucle con `mulli` por elemento y recarga del puntero del array en cada vuelta: `T& t = a[i];` con `SimpleArray::operator[](unsigned)`; con `a.mData[i]` sale con puntero incrementado. (`scene-20261105`)
+- Conversion a una base en desplazamiento distinto de 0: con puntero mete prueba de nulo; con referencia (`Base& Get() { return *this; }`) no. (`scene-20261105`)
+- Constructor de un miembro con llamada (p. ej. `GetNormalize`) inlineado dentro de otra plantilla envoltorio (`Wrapper<T>{int; T}`): el `this` del miembro se queda en un GPR no volatil; el original lo direcciona desde el objeto exterior si el miembro va suelto (`atn::Scene` mShadow). (`scene-20261105`)
+- Al juntar dos funciones iguales en el fuente (`fn_800C289C` = comprobacion + `fn_800C2634(1)` inlineada + carga), los temporales de la inline anidada se colocan en la pila en el orden del original. (`scene-20261105`)
