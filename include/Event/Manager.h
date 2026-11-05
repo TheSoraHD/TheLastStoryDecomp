@@ -179,7 +179,7 @@ public:
     virtual void vf14();         // 0x80487FA0
     static Manager* fn_8047E4BC(atn::Task* parent); // inferred: creates the single instance
     // inferred: creates the character `id` of kind `kind` for the event (Event::Actor)
-    CharaTask* fn_8047FF70(int kind, int id, float arg, const atn::Vector3& pos);
+    CharaTask* fn_8047FF70(int kind, int id, float yaw, const atn::Vector3& pos);
     void fn_8047E528();
     int fn_8047F580();
     inline void StopMusic_unk(Sequence* seq);

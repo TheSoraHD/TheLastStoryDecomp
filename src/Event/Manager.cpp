@@ -1025,6 +1025,42 @@ void Manager::fn_8047FCC0() {
     }
 }
 
+// inferred: party members (ids 199900-199999: the member at that position of the order)
+extern "C" int fn_80219544(int member); // inferred: character id of a party member
+
+// inferred: character of the event: the leader of the party (kind 0) or a new NPC of type `kind`, placed at
+// `pos` facing `yaw`, and listed in m1A70
+CharaTask* Manager::fn_8047FF70(int kind, int id, float yaw, const atn::Vector3& pos) {
+    if (id >= 199900 && id <= 199999) {
+        id = fn_80219544(Inventory::Order()->mOrder[id % 100]);
+    }
+    CharaTask* chara;
+    if (kind == 0) {
+        chara = lbl_8087F8A0->m54;
+        if (m1A60.size() != 0) {
+            chara->fn_800D246C(0);
+        }
+    } else {
+        chara = NpcTask::fn_80547C28(NpcManager::sInstance, (void*)id);
+        chara->fn_8016DF3C(kind);
+        if (chara->m5C != 0) {
+            for (int i = 0; i < 4; i++) {
+                chara->fn_8014F2B4(chara->m5C->mD4[i], chara->m5C->mD8[i], -1);
+            }
+        }
+    }
+    if (chara == 0) {
+        return 0;
+    }
+    chara->mPos = pos;
+    chara->mRot = atn::Vector3(0.0f, yaw, 0.0f);
+    chara->mStatus.mParamB.m9C |= 1;
+    chara->fn_8016E970(9);
+    chara->mColli.mFlags |= 1;
+    m1A70.push_back(chara);
+    return chara;
+}
+
 int Manager::fn_804803A4() {
     if (m1DE4 >= 0) {
         return 0;
