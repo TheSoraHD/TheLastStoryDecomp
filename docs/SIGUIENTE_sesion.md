@@ -1,6 +1,6 @@
 # Siguiente sesion (cierre de `unidades-20261105`, 2026-11-05)
 
-Rama `unidades-20261105` (desde `main` f6a9f6e), **sin mergear**: 12710 -> **12766 / 18119** (lost 0, fuzzdrop 0,
+Rama `unidades-20261105` (desde `main` f6a9f6e), **mergeada en `main`** (bc4135b): 12710 -> **12766 / 18119** (lost 0, fuzzdrop 0,
 `main.dol: OK` en build limpio y en clon limpio, labelcheck 160 -> 149 lineas, rep100 145 -> 144). Notas:
 `docs/unidades-20261105.md`.
 

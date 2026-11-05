@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `unidades-20261105` (2026-11-05, sin mergear): **12766 / 18119**, lost 0. Unidades nuevas `chr/CharaEquip_unk` (20/26, `include/chr/CharaEquip_unk.h`) y `game/TeamAI_unk` (11/33, metodos en `include/game/TeamAIManager.h`); librerias `ipcclt.c` (19/21) e `ipcProfile.c` (5/6, version 2010). Notas: `docs/unidades-20261105.md`.
+- `unidades-20261105` (2026-11-05, mergeada en `main`): **12766 / 18119**, lost 0. Unidades nuevas `chr/CharaEquip_unk` (20/26, `include/chr/CharaEquip_unk.h`) y `game/TeamAI_unk` (11/33, metodos en `include/game/TeamAIManager.h`); librerias `ipcclt.c` (19/21) e `ipcProfile.c` (5/6, version 2010). Notas: `docs/unidades-20261105.md`.
 - `maptask-20261105` (mergeada): 12710, MapTask 20/27, `GameCamera`, `ResRef_unk` (`docs/maptask-20261105.md`); `maparea-20261105` 12703 (`docs/maparea-20261105.md`); `scene-20261105` 12686.
 - `nw4r-20261105` 12684 (snd_StrmPlayer enlazada; `docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679. `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
