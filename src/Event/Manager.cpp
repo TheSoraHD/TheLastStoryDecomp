@@ -2360,6 +2360,196 @@ void Manager::fn_80488DB8() {
         }
     }
 }
+// inferred: order of the voices (by start frame)
+struct VoiceLess_unk {
+    bool operator()(const ManagerEntry_unk& a, const ManagerEntry_unk& b) const { return a.mFrame < b.mFrame; }
+};
+
+template <class T>
+inline void Swap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
+template <class T>
+struct Ref_unk {
+    typedef T& type;
+};
+template <class T>
+struct Ref_unk<T&> {
+    typedef T& type;
+};
+
+// inferred: median of three of the quicksort below (MSL __sort; see game/CharaTask.cpp)
+template <class T, class Compare>
+void Median3_unk(T* a, T* b, T* c, Compare& comp) {
+    bool ca = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
+    if (ca && bc) {
+        return;
+    }
+    if (!ca && !bc) {
+        Swap_unk(*a, *b);
+    } else {
+        if (comp(*b, *a)) {
+            Swap_unk(*a, *b);
+        }
+        if (ca) {
+            Swap_unk(*b, *c);
+        } else {
+            Swap_unk(*a, *c);
+        }
+    }
+}
+
+template <class T, class Compare>
+inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* result = first;
+    if (first != last) {
+        for (T* it = first + 1; it != last; it++) {
+            if (comp(*it, *result)) {
+                result = it;
+            }
+        }
+    }
+    return result;
+}
+
+// NONMATCHING: 96.5% (both instantiations, as in atn/Loader.cpp)
+// inferred: MSL __sort (same reconstruction as atn/Loader.cpp and game/CharaTask.cpp): 0x80489280
+// (comparison by value) and 0x804895E4 (by reference, recursive part)
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp) {
+    typedef typename Ref_unk<Compare>::type CompareRef;
+    static int sOffset = -4; // inferred: lbl_8087E098 and lbl_8087E09C (one per instantiation)
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first != last) {
+                for (T* end = last - 1; first != end; first++) {
+                    T* min = MinElement_unk(first, last, comp);
+                    if (min != first) {
+                        Swap_unk(*min, *first);
+                    }
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* b = first + (n * 3 / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* j;
+        T* pivot = last - 1;
+        Median3_unk(a, b, pivot, comp);
+        T* i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            i++;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            Swap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                Swap_unk(*i, *j);
+                i++;
+            }
+        }
+        if (i == first) {
+            T* back = last - 1;
+            Swap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    i++;
+                }
+                if (i < back) {
+                    Swap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        i++;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    Swap_unk(*i, *j);
+                    i++;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            Sort_unk<T, CompareRef>(first, i, comp);
+            first = i;
+        } else {
+            Sort_unk<T, CompareRef>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+
+// NONMATCHING: 93.4% - one more saved register in the original (the action loop has a first test)
+// inferred: collects the voices of the sequence (audio channels of the sections of kind 1), from the
+// current cut, with their start frames; the same stream twice in a row is kept once in event 0xE19
+void Manager::fn_80488E00(Sequence* seq) {
+    mVoices.clear();
+    m2378 = -1;
+    Cut* cut = seq->FindCutByIndex_unk(seq->m94);
+    int frame = 0;
+    while (cut != 0) {
+        for (int i = 0; i < (int)cut->mSections.size(); i++) {
+            Section* section = cut->GetSection_unk(i);
+            if (section->m14 != 0 && section->m0C == 1) {
+                for (int j = 0; j < (int)section->mChannels.size(); j++) {
+                    Channel* channel = section->GetChannel_unk(j);
+                    if (channel->m10 != 0 && channel->m0C == 5) {
+                        for (int k = 0; k < (int)channel->mActions.size(); k++) {
+                            Action* action = channel->GetAction_unk(k);
+                            StringData* data = seq->m114.Find_unk(action->GetParam_unk(0)->m04.i);
+                            if (data != 0 && data->m08.size() != 0 &&
+                                (lbl_8087EE90 == 0 || fn_80049B74(lbl_8087EE90, data->m08.c_str()) != 0)) {
+                                if (mVoices.size() == 0 || seq->m190 != 0xE19 ||
+                                    !(seq->m114.Find_unk(mVoices[mVoices.size() - 1].mAction->GetParam_unk(0)->m04.i)->m08 ==
+                                      data->m08)) {
+                                    mVoices.push_back(ManagerEntry_unk(action, frame + action->m10));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        frame += cut->m2C;
+        cut = fn_8047B768(seq, cut);
+    }
+    Sort_unk(mVoices.begin(), mVoices.end(), VoiceLess_unk());
+    m2378 = -1;
+}
+
 // inferred: stops the voice of the event
 void Manager::fn_80489A2C() {
     m2378 = -1;

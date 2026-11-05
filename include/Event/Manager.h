@@ -210,7 +210,7 @@ public:
     void fn_80488DB8();
     void fn_80488534(Sequence* seq, int fade); // inferred: stops the music of the sequence
     void fn_8048871C(Sequence* seq, const char* name, int fade, int start); // inferred: starts the music of the sequence
-    void fn_80488E00(Sequence* seq);
+    void fn_80488E00(Sequence* seq); // inferred: collects the voices of the sequence
     GameMap_unk* fn_80480438(); // inferred: map of the event (its locators)
     int fn_804803A4(); // inferred: the maps and the characters of the event are loaded
     void fn_80480468(Sequence* seq, unsigned int flags); // inferred: map change of the sequence
