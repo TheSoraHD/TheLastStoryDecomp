@@ -21,9 +21,7 @@ struct CharaLightData_unk {
     float m1C;            // inferred: "ROT" (gmk::RoomLight)
     float m20;
     atn::Vector3 mDir;        // 0x24
-    float m30;
-    float m34;
-    float m38;
+    atn::Vector3 mPos;    // 0x30: inferred: "POSITION" (MapPartsArea::ParseScene)
     atn::SimpleArray<atn::Texture_unk> mTextures; // 0x3C: inferred: SimpleArray (the "" of its Resize_unk are
                                                   // @STRING@ of a Resize_unk in .sdata)
     int m44; // inferred: current texture

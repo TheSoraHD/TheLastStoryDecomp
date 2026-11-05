@@ -35,10 +35,12 @@ struct BloomParam_unk {
         mColor[0] = White_unk();
         mColor[1] = White_unk();
         mColor[2] = White_unk();
-        for (int i = 0; i < 3; i++) {
-            mBias[i] = 0;
-            mScale[i] = 0;
-        }
+        mBias[0] = 0;
+        mBias[1] = 0;
+        mBias[2] = 0;
+        mScale[0] = 0;
+        mScale[1] = 0;
+        mScale[2] = 0;
     }
     // inferred: white (returned by value: closer to the original than temporaries; name invented)
     static RsColor_unk White_unk() { return RsColor_unk(1.0f, 1.0f, 1.0f, 1.0f); }

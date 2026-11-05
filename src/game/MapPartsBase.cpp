@@ -21,6 +21,10 @@
 #include "std/string_members.h"
 #include "std/new.h"
 #include "std/vector.h"
+#include "atn/SceneAddLight_unk.h"
+#include "atn/Lerp_unk.h"
+#include "atn/Plane_unk.h"
+#include "atn/SceneColorMatrix_unk.h"
 
 // inferred: copies of inline functions of other classes that the original emits here (their caller,
 // fn_80494354, is not written yet: then they become the weak copies of inline functions again)
@@ -101,8 +105,215 @@ int MapPartsArea::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 0.05% - map area resource loading is not reconstructed yet.
-void MapPartsArea::ParseScene(atn::Scene* scene, atn::CsvTab& csv) {}
+extern "C" int fn_800DC12C(const char* text); // inferred: atoi
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extension of a path
+extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+
+// NONMATCHING: ParseScene is only written for the order of the string pool (vf1C and fn_80494354 come after
+// it): the inlined AddLight_unk (std::vector growth) does not match (known blocker)
+// inferred: reads one scene setting of an area (the key is the current field of the csv): ambient colour, floor
+// light (COVERAGEMAP), character light (CLOUDMAP), fog, lights, reflection, god ray, colour matrix, rain, haze
+// and shadow of the area (RSO name)
+void MapPartsArea::ParseScene(atn::Scene* scene, atn::CsvTab& csv) {
+    const char* key = csv.GetField_unk();
+    if (strcmp(key, "AMBIENT_COLOR") == 0) {
+        scene->mAmbient.r = fn_800DC288(csv.fn_8005B9CC());
+        scene->mAmbient.g = fn_800DC288(csv.fn_8005B9CC());
+        scene->mAmbient.b = fn_800DC288(csv.fn_8005B9CC());
+        scene->mAmbient.a = fn_800DC288(csv.fn_8005B9CC());
+    } else if (strcmp(key, "COVERAGEMAP") == 0) {
+        const char* value = csv.fn_8005B9CC();
+        atn::Vector2_unk pos;
+        atn::Vector2_unk size;
+        if (strcmp(value, "AREA") != 0) {
+            atn::Vector2_unk min;
+            atn::Vector2_unk max;
+            min.x = fn_800DC288(value);
+            min.y = fn_800DC288(csv.fn_8005B9CC());
+            max.x = fn_800DC288(csv.fn_8005B9CC());
+            max.y = fn_800DC288(csv.fn_8005B9CC());
+            pos = (min + max) * 0.5f;
+            size = max - min;
+        }
+        std::string path(csv.fn_8005B9CC());
+        if (fn_8006AC08(path) == "") {
+            path += ".texture";
+        }
+        scene->fn_800C2B24(&pos, &size, path.c_str());
+    } else if (strcmp(key, "CLOUDMAP") == 0) {
+        atn::Vector2_unk speed(0.5f, 0.5f);
+        atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+        const char* value = csv.fn_8005B9CC();
+        if (strcmp(value, "USEMAP") == 0) {
+            scene->SetLight_unk(atn::RenderManager::instance_->fn_800C16B4()->GetLight_unk());
+        } else if (strcmp(value, "DISABLE") != 0) {
+            scene->mLightOn = 1;
+            float width = fn_800DC288(value);
+            float height = fn_800DC288(csv.fn_8005B9CC());
+            char texture[0x100];
+            strcpy(texture, csv.fn_8005B9CC());
+            for (const char* option = csv.fn_8005B9CC(); strcmp(option, "") != 0; option = csv.fn_8005B9CC()) {
+                if (strcmp(option, "BACKGROUND") == 0) {
+                    scene->mLightMask = 2;
+                } else if (strcmp(option, "BACKGROUND_CHARACTER") == 0) {
+                    scene->mLightMask = 3;
+                } else if (strcmp(option, "CHARACTER") == 0) {
+                    scene->mLightMask = 1;
+                } else if (strcmp(option, "MUL") == 0) {
+                    scene->GetLight_unk()->m00 = 0;
+                } else if (strcmp(option, "MUL2") == 0) {
+                    scene->GetLight_unk()->m00 = 1;
+                } else if (strcmp(option, "MUL4") == 0) {
+                    scene->GetLight_unk()->m00 = 2;
+                } else if (strcmp(option, "ADD") == 0) {
+                    scene->GetLight_unk()->m00 = 3;
+                } else if (strcmp(option, "ADDBIAS") == 0) {
+                    scene->GetLight_unk()->m00 = 4;
+                } else if (strcmp(option, "SUB") == 0) {
+                    scene->GetLight_unk()->m00 = 5;
+                } else if (strcmp(option, "SUBBIAS") == 0) {
+                    scene->GetLight_unk()->m00 = 6;
+                } else if (strcmp(option, "DIRECTION") == 0) {
+                    float x = fn_800DC288(csv.fn_8005B9CC());
+                    float y = fn_800DC288(csv.fn_8005B9CC());
+                    float z = fn_800DC288(csv.fn_8005B9CC());
+                    atn::Vector3 dir(x, y, z);
+                    if (PSVECSquareMag(&dir) > 0.0001f) {
+                        scene->GetLight_unk()->mDir = atn::Vector3(x, y, z).GetNormalize();
+                    } else {
+                        scene->GetLight_unk()->mDir = atn::Vector3(0.0f, 0.0f, 0.0f);
+                    }
+                } else if (strcmp(option, "SPEED") == 0) {
+                    float x = fn_800DC288(csv.fn_8005B9CC());
+                    speed = atn::Vector2_unk(x, fn_800DC288(csv.fn_8005B9CC()));
+                } else if (strcmp(option, "ROT") == 0) {
+                    scene->GetLight_unk()->m1C = fn_800DC288(csv.fn_8005B9CC());
+                    scene->GetLight_unk()->m20 = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(option, "POSITION") == 0) {
+                    pos.x = fn_800DC288(csv.fn_8005B9CC());
+                    pos.y = fn_800DC288(csv.fn_8005B9CC());
+                    pos.z = fn_800DC288(csv.fn_8005B9CC());
+                } else if (strcmp(option, "ANIMATION") == 0) {
+                    int count = fn_800DC12C(csv.fn_8005B9CC());
+                    int frames = fn_800DC12C(csv.fn_8005B9CC());
+                    scene->fn_800C2634(count);
+                    scene->GetLight_unk()->m48 = frames;
+                    for (int i = 0; i < count; i++) {
+                        const char* path = csv.fn_8005B9CC();
+                        scene->GetLight_unk()->mTextures.mData[i].fn_800D5908(path);
+                    }
+                }
+            }
+            if (scene->GetLight_unk() != 0) {
+                if (scene->GetLight_unk()->mTextures.mSize == 0) {
+                    scene->fn_800C289C(texture);
+                }
+                scene->GetLight_unk()->m04 = atn::Vector2_unk(0.0f, 0.0f);
+                scene->GetLight_unk()->mSize = atn::Vector2_unk(width, height);
+                scene->GetLight_unk()->m14 = speed;
+                scene->GetLight_unk()->mPos = pos;
+            }
+        }
+    } else if (strcmp(key, "FOG") == 0) {
+        int on = strcmp(csv.fn_8005B9CC(), "ON") == 0;
+        if (on) {
+            int mode = fn_800DC12C(csv.fn_8005B9CC());
+            float start = fn_800DC288(csv.fn_8005B9CC());
+            float end = fn_800DC288(csv.fn_8005B9CC());
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            scene->mFog.mMode = mode;
+            scene->mFog.mStart = start;
+            scene->mFog.mEnd = end;
+            scene->mFog.mColor = atn::Color(r, g, b, 1.0f);
+        } else {
+            scene->mFog.mMode = 0;
+        }
+    } else if (strcmp(key, "LIGHT") == 0) {
+        const char* type = csv.fn_8005B9CC();
+        if (strcmp(type, "POINT") == 0) {
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            float a = fn_800DC288(csv.fn_8005B9CC());
+            float x = fn_800DC288(csv.fn_8005B9CC());
+            float y = fn_800DC288(csv.fn_8005B9CC());
+            float z = fn_800DC288(csv.fn_8005B9CC());
+            float radius = fn_800DC288(csv.fn_8005B9CC());
+            atn::Light light;
+            light.fn_800791B4(atn::Vector3(x, y, z), atn::Color(r, g, b, a), radius);
+            scene->AddLight_unk(light);
+        } else if (strcmp(type, "SPOT") == 0) {
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            float a = fn_800DC288(csv.fn_8005B9CC());
+            float x = fn_800DC288(csv.fn_8005B9CC());
+            float y = fn_800DC288(csv.fn_8005B9CC());
+            float z = fn_800DC288(csv.fn_8005B9CC());
+            float dx = fn_800DC288(csv.fn_8005B9CC());
+            float dy = fn_800DC288(csv.fn_8005B9CC());
+            float dz = fn_800DC288(csv.fn_8005B9CC());
+            float radius = fn_800DC288(csv.fn_8005B9CC());
+            float angle = fn_800DC288(csv.fn_8005B9CC());
+            atn::Light light;
+            light.fn_80079210(atn::Vector3(x, y, z), atn::Vector3(dx, dy, dz), atn::Color(r, g, b, a), radius, angle);
+            scene->AddLight_unk(light);
+        } else if (strcmp(type, "KEY") == 0) {
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            float a = fn_800DC288(csv.fn_8005B9CC());
+            float x = fn_800DC288(csv.fn_8005B9CC());
+            float y = fn_800DC288(csv.fn_8005B9CC());
+            float z = fn_800DC288(csv.fn_8005B9CC());
+            atn::Vector3 dir(x, y, z);
+            scene->GetLight(0)->SetDir_unk(dir);
+            scene->GetLight(0)->SetColor(atn::Color(r, g, b, a));
+        }
+    } else if (strcmp(key, "LIGHTSURROUND") == 0) {
+        scene->mLS.r = fn_800DC288(csv.fn_8005B9CC());
+        scene->mLS.g = fn_800DC288(csv.fn_8005B9CC());
+        scene->mLS.b = fn_800DC288(csv.fn_8005B9CC());
+        scene->mLS.a = fn_800DC288(csv.fn_8005B9CC());
+    } else if (strcmp(key, "REFLECT") == 0) {
+        scene->mReflectChara = 1;
+        float x = fn_800DC288(csv.fn_8005B9CC());
+        float y = fn_800DC288(csv.fn_8005B9CC());
+        float z = fn_800DC288(csv.fn_8005B9CC());
+        Plane_unk plane;
+        plane.mNormal = atn::Vector3(x, y, z);
+        plane.mDist = fn_800DC288(csv.fn_8005B9CC());
+        if (strcmp(csv.fn_8005B9CC(), "OFF") == 0) {
+            scene->mReflectChara = 0;
+        }
+        scene->fn_800C2C20(&plane);
+    } else if (strcmp(key, "GODRAY") == 0) {
+        GodRayParam_unk godRay;
+        godRay.fn_800BB6C0(&csv);
+        scene->mGodRay.Set_unk(godRay);
+    } else if (strcmp(key, "COLOR_MATRIX") == 0) {
+        ColorMatrixParam_unk matrix;
+        matrix.fn_800BBFE8(&csv);
+        scene->mColorMatrix.Set_unk(matrix);
+    } else if (strcmp(key, "RAIN") == 0) {
+        RainParam_unk rain;
+        rain.fn_800BB994(&csv);
+        scene->mRain.Set_unk(rain);
+    } else if (strcmp(key, "HAZE") == 0) {
+        HazeParam_unk haze;
+        haze.fn_800BBBB0(&csv);
+        scene->mHaze.Set_unk(haze);
+    } else if (strcmp(key, "SHADOW") == 0) {
+        ShadowParam_unk shadow;
+        shadow.fn_800BBD90(&csv);
+        scene->mShadowSet = 1;
+        scene->mShadow = shadow;
+    }
+}
 
 // inferred: reads the areas of the csv: the scene settings go to the current area (ParseScene), "AREA"
 // starts a new one with its first box and the fog, ambient color and key light of the current scene
@@ -189,8 +400,94 @@ inline void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv) {
     values[3] = fn_800DC288(csv->fn_8005B9CC());
 }
 
-// NONMATCHING: 0.22% - map debug menu entries are not reconstructed yet.
-void MapPartsArea::vf1C(void*) {}
+// inferred: debug menu items (atn/MindowsCommon.h; folders are void* as in the other users)
+extern "C" void* fn_8008937C(void* folder, const char* name);
+extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step, void* func,
+                            void* arg);
+extern "C" void fn_8008771C(void* folder, const char* name, float* value, float min, float max, float step,
+                            void* func, void* arg);
+extern "C" void fn_80087E9C(void* folder, const char* name, float* value, float min, float max, float step,
+                            void* func, void* arg); // inferred: x, y, z
+extern "C" int sprintf(char* buf, const char* format, ...);
+
+// inferred: debug menu of the areas: a folder per area with its scene settings, boxes and lights
+// NONMATCHING: 99.90% - mAreas[i] in the box/light loop conditions is added as offset+base (original base+offset).
+void MapPartsArea::vf1C(void* menu) {
+    for (int i = 0; i < mAreas.size(); i++) {
+        void* folder = fn_8008937C(menu, mAreas[i]->mName);
+        fn_8008771C(folder, "Ambient R", &mAreas[i]->mScene.mAmbient.r, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(folder, "Ambient G", &mAreas[i]->mScene.mAmbient.g, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(folder, "Ambient B", &mAreas[i]->mScene.mAmbient.b, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(folder, "LS R", &mAreas[i]->mScene.mLS.r, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(folder, "LS G", &mAreas[i]->mScene.mLS.g, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(folder, "LS B", &mAreas[i]->mScene.mLS.b, 0.0f, 1.0f, 0.01f, 0, 0);
+        void* fog = fn_8008937C(folder, "Fog");
+        fn_800874C8(fog, "Fog Mode", &mAreas[i]->mScene.mFog.mMode, 0, 6, 1, 0, 0);
+        fn_8008771C(fog, "Fog Start", &mAreas[i]->mScene.mFog.mStart, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(fog, "Fog End", &mAreas[i]->mScene.mFog.mEnd, 0.0f, 10000.0f, 1.0f, 0, 0);
+        fn_8008771C(fog, "Fog R", &mAreas[i]->mScene.mFog.mColor.r, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(fog, "Fog G", &mAreas[i]->mScene.mFog.mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
+        fn_8008771C(fog, "Fog B", &mAreas[i]->mScene.mFog.mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
+        if (mAreas[i]->mScene.mGodRay.mSet != 0) {
+            void* godRay = fn_8008937C(folder, "GodRay");
+            mAreas[i]->mScene.fn_8047C780()->fn_800BB4FC(godRay);
+        }
+        if (mAreas[i]->mScene.mColorMatrix.mSet != 0) {
+            void* matrix = fn_8008937C(folder, "ColorMatrix");
+            mAreas[i]->mScene.fn_8047C7DC()->fn_800BC194(matrix);
+        }
+        MapArea* area = mAreas[i];
+        if (area->mScene.mRain.mSet != 0) {
+            area->mScene.mRain.mValue.fn_800BB8D8(fn_8008937C(folder, "Rain"));
+        }
+        if (mAreas[i]->mRainPart != 0) {
+            mAreas[i]->mRainPart->vf1C(folder);
+        }
+        area = mAreas[i];
+        if (area->mScene.mHaze.mSet != 0) {
+            area->mScene.mHaze.mValue.fn_800BBA64(fn_8008937C(folder, "Haze"));
+        }
+        if (mAreas[i]->mScene.mShadowSet != 0) {
+            char name[0x100];
+            strcpy(name, "Shadows");
+            void* shadows = fn_8008937C(folder, name);
+            mAreas[i]->mScene.fn_8047C7D4()->fn_800BBEFC(shadows);
+        }
+        if (mAreas[i]->mScene.GetFloorLight_unk() != 0) {
+            CharaLightData_unk* floor = mAreas[i]->mScene.GetFloorLight_unk();
+            char name[0x100];
+            strcpy(name, "Coverage");
+            void* coverage = fn_8008937C(folder, name);
+            fn_8008771C(coverage, "Size X", &floor->mSize.x, 1.0f, 10000.0f, 1.0f, 0, 0);
+            fn_8008771C(coverage, "Size Y", &floor->mSize.y, 1.0f, 10000.0f, 1.0f, 0, 0);
+            fn_8008771C(coverage, "Center X", &floor->m04.x, -100000.0f, 100000.0f, 1.0f, 0, 0);
+            fn_8008771C(coverage, "Center Y", &floor->m04.y, -100000.0f, 100000.0f, 1.0f, 0, 0);
+        }
+        if (mAreas[i]->mScene.GetLight_unk() != 0 && mAreas[i]->mScene.m074 == 0) {
+            void* clouds = fn_8008937C(folder, "Clouds");
+            CharaLightData_unk* light = mAreas[i]->mScene.GetLight_unk();
+            fn_8008771C(clouds, "Size X", &light->mSize.x, 1.0f, 10000.0f, 1.0f, 0, 0);
+            fn_8008771C(clouds, "Size Y", &light->mSize.y, 1.0f, 10000.0f, 1.0f, 0, 0);
+            fn_8008771C(clouds, "Speed X", &light->m14.x, -10000.0f, 10000.0f, 1.0f, 0, 0);
+            fn_8008771C(clouds, "Speed  Y", &light->m14.y, -10000.0f, 10000.0f, 1.0f, 0, 0);
+            fn_80087E9C(clouds, "Direction", &light->mDir.x, -10000.0f, 10000.0f, 0.01f, 0, 0);
+            fn_800874C8(clouds, "BlendMode", &light->m00, 0, 6, 1, 0, 0);
+            fn_800874C8(clouds, "Frame Rate", &light->m48, 0, 1000, 1, 0, 0);
+        }
+        for (unsigned int j = 0; j < mAreas[i]->mSegments.size(); j++) {
+            atn::AABB_unk& box = mAreas[i]->mSegments[j];
+            fn_80087E9C(folder, "Box Min", &box.mMin.x, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+            fn_80087E9C(folder, "Box Max", &box.mMax.x, -1000000.0f, 1000000.0f, 1.0f, 0, 0);
+        }
+        for (int j = 0; j < mAreas[i]->mScene.fn_800C23E8(); j++) {
+            char name[0x100];
+            sprintf(name, "Light %d", j);
+            void* lightFolder = fn_8008937C(folder, name);
+            mAreas[i]->mScene.GetLight(j)->fn_80079BC8(lightFolder);
+        }
+        mAreas[i]->mScene.fn_800C2E30(folder);
+    }
+}
 
 // inferred: lights the characters with the light of each area
 void MapPartsArea::vf10() {
