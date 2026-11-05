@@ -398,3 +398,7 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Conversion a una base en desplazamiento distinto de 0: con puntero mete prueba de nulo; con referencia (`Base& Get() { return *this; }`) no. (`scene-20261105`)
 - Constructor de un miembro con llamada (p. ej. `GetNormalize`) inlineado dentro de otra plantilla envoltorio (`Wrapper<T>{int; T}`): el `this` del miembro se queda en un GPR no volatil; el original lo direcciona desde el objeto exterior si el miembro va suelto (`atn::Scene` mShadow). (`scene-20261105`)
 - Al juntar dos funciones iguales en el fuente (`fn_800C289C` = comprobacion + `fn_800C2634(1)` inlineada + carga), los temporales de la inline anidada se colocan en la pila en el orden del original. (`scene-20261105`)
+- Destructor de un miembro no virtual: `li r4,-1` sin prueba de nulo; el de una base: `addic.`/`cmpwi` + `li r4,0`. Sirve para saber si un subobjeto es miembro o base (`atn::Scene` en `MapArea`). (`maparea-20261105`)
+- `v[i]`/`v.size()` de `std::vector` frente a `mData[i]`/`mSize` directos puede cambiar la asignacion de registros (RotaryRoom): probar ambas. (`maparea-20261105`)
+- Indice de bucle `int` frente a `unsigned`: cambia el orden del incremento y la comparacion (MapPartsArea vf0C/vf10). (`maparea-20261105`)
+- Una funcion `inline` nueva en una cabecera muy incluida (p. ej. `RenderManager::GetScene`) renumera las `@N` de todas las unidades que la incluyen: `pdbatch.sh` de todas ellas en el mismo lote. (`maparea-20261105`)
