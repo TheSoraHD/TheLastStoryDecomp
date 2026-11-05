@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `scene-20261105` (2026-11-05, rama sin mergear): **12686 / 18119**, lost 0. `NewCampScene2_unk` -> `atn::Scene` (`include/atn/Scene.h`) con todas sus vistas unificadas; unidad `atn/CharaLightData_unk` -> `atn/Scene` (19/23). Notas: `docs/scene-20261105.md`.
+- `scene-20261105` (2026-11-05, mergeada en `main`): **12686 / 18119**, lost 0. `NewCampScene2_unk` -> `atn::Scene` (`include/atn/Scene.h`) con todas sus vistas unificadas; unidad `atn/CharaLightData_unk` -> `atn/Scene` (19/23). Notas: `docs/scene-20261105.md`.
 - `nw4r-20261105` (mergeada en `main`): 12684. `ss_nw4r` snd_StrmPlayer enlazada (NW4R 72/73); ut_TextWriterBase y Gecko_ExceptionPPC no enlazan por el ultimo objeto de `.sbss`/`extab` (`docs/nw4r-20261105.md`). `renderview-20261105` (mergeada): `lbl_8087EFB4` es `atn::RenderManager::instance_`; `manager-20261104` 12679, Event/Manager 33 -> 131/185.
 - `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
