@@ -17,6 +17,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "string.h"
+#include "chr/CharaEquip_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -31,7 +32,6 @@ extern "C" void fn_8046EED8(void* obj);
 extern "C" atn::SoundRef fn_80117228(int id);      // inferred: plays a system sound effect
 extern "C" void* lbl_8087F048;
 extern "C" void fn_8010C00C(void* mgr, CharaTask* chara);
-extern "C" void fn_805659B4(chr::CharaEquip_unk* equip);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
                             float max, float step);
@@ -116,7 +116,7 @@ static atn::Vector3 sNextPos = sCenter + atn::Vector3(700.0f, 0.0f, 100.0f);
 // it here, so the "" of new opens the string pool as in the original, and inlines it into its caller
 // (the linker drops the copy).
 chr::CharaEquip_unk* NewCharaEquip_unk(int slot, int item, int index, CharaTask* chara, void* data, int c) {
-    return new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, chara, (int)data, 0, c, 1, 0);
+    return new ((MemoryTag)6, "", "", 0) chr::CharaEquip_unk(slot, item, index, chara, (unsigned int*)data, 0, c, 1, 0);
 }
 
 // NONMATCHING: 96.1% - the original zeroes mAA0 in the body (its handle class has a destructor but no
@@ -220,7 +220,7 @@ void CosEditBase::vf10() {
                 if (mLoads[i].mType == 0) {
                     mLoads[i].mEquip->fn_80566010();
                     mLoads[i].mChara->fn_80150178(mLoads[i].mEquip->m000, mLoads[i].mEquip);
-                    fn_805659B4(mLoads[i].mEquip);
+                    mLoads[i].mEquip->fn_805659B4();
                     if (lbl_8087F048) {
                         mLoads[i].mChara->mStatus.fn_8013407C();
                         fn_8010C00C(lbl_8087F048, mLoads[i].mChara);
@@ -628,7 +628,7 @@ chr::CharaEquip_unk* CosEditBase::fn_801CE648(int slot) {
 }
 
 OptionParts_unk* CosEditBase::fn_801CE7E8(int slot) {
-    return fn_801CF334()->mChara->m680[slot]->m430;
+    return fn_801CF334()->mChara->m680[slot]->m430.get();
 }
 
 unsigned int* CosEditBase::fn_801CE87C(int slot) {

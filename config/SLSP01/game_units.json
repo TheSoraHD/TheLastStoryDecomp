@@ -3130,6 +3130,13 @@
   "matching": false
  },
  {
+  "name": "chr/CharaEquip_unk.cpp",
+  "classes": [
+   "chr::CharaEquip_unk"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/QuadrupedTask.cpp",
   "classes": [
    "QuadrupedTask"

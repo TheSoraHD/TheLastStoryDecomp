@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
+#include "chr/CharaEquip_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
@@ -11,7 +12,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" unsigned int fn_800119B8(); // inferred: number of equipment slots
-extern "C" void fn_80565F34(chr::CharaEquip_unk* equip); // inferred: draws the equipment
 extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value);
 extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b);
 // inferred: menu cursor (lbl_8087F580)
@@ -232,7 +232,7 @@ void CostumeEditChara::vf14() {
             chr::CharaEquip_unk** equips = mChara->m680;
             for (unsigned int i = 0; i < 8; i++) {
                 if (equips[i] != 0 && ((1u << i) & mChara->m6A0) == (1u << i)) {
-                    fn_80565F34(equips[i]);
+                    equips[i]->fn_80565F34();
                 }
             }
             for (unsigned int i = 0; i < 4; i++) {

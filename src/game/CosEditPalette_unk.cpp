@@ -13,6 +13,7 @@
 #include "db/EquipParam_unk.h"
 #include "db/OptionParts_unk.h"
 #include "macros.h"
+#include "chr/CharaEquip_unk.h"
 
 // Second file of CosEditProtector (game/CosEditProtector.cpp has the rest): the palette and part
 // pages of the costume menu.

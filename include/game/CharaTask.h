@@ -941,7 +941,7 @@ public:
     int fn_8017A450();
     void fn_8017A504();
     void fn_8017A5D8(int on);
-    void fn_8017AD44(atn::SimpleVector<int>* list, void* arg);
+    void fn_8017AD44(atn::SimpleVector<unsigned int>* list, void* arg);
     // inferred: name invented (m54C bit 2)
     bool IsHidden_unk() {
         if ((m54C & 4) == 4) {

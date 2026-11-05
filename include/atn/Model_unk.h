@@ -283,6 +283,8 @@ struct Model : public ModelBase {
     void fn_80094778(const char* name); // inferred: removes the node edit of `name`
     void fn_800973C0(CsvTab* csv); // inferred: adds a physics bone from a CSV line
     void fn_80095D44(int node, int parent);
+    // inferred: adds the hashes of the resources of the model to `list` (CharaTask::fn_8017AD44)
+    void fn_80096218(SimpleVector<unsigned int>* list, void* arg);
     void fn_80091CFC(const char* node);
     void fn_80099E9C(const char* node, const char* name, float value);
     void fn_80097510(); // inferred: resets the physics bones

@@ -20,6 +20,7 @@ struct OptionPalette_unk {
 extern "C" OptionPalette_unk* fn_8020BCEC(int index);
 // inferred: "option" row of database/cosedit/option/*.csv (0x44 bytes)
 struct OptionPart_unk {
+    ~OptionPart_unk() {} // inferred: weak copy 0x8056387C (chr/CharaEquip_unk.cpp)
     atn::FixedString_unk<0x20> mName;
     atn::FixedString_unk<0x20> mKey;
     int mLevel;
@@ -27,6 +28,7 @@ struct OptionPart_unk {
 
 // inferred: "color" row (0x54 bytes)
 struct OptionColor_unk {
+    ~OptionColor_unk() {} // inferred: weak copy 0x8056383C (chr/CharaEquip_unk.cpp)
     atn::FixedString_unk<0x20> mGroup; // inferred: texture group
     atn::FixedString_unk<0x20> mLayer;
     Color4f_unk mColor;
@@ -38,6 +40,7 @@ struct OptionColor_unk {
 
 // inferred: "hide"/"base_hide" row: list of option parts (0x64 bytes)
 struct OptionHide_unk {
+    ~OptionHide_unk() {} // inferred: weak copy 0x805637FC (chr/CharaEquip_unk.cpp)
     atn::FixedString_unk<0x20> mName;
     int mParts[0x10];
     int mCount;
