@@ -2,7 +2,7 @@
 #define GAME_GAMECONFIG_UNK_H
 
 #include "game/Input_unk.h"
-#include "game/NewCampScene2_unk.h"
+#include "atn/Scene.h"
 #include "math/Vec.h"
 #include "string.h"
 
@@ -146,7 +146,7 @@ struct DialogConfig_unk {
     DialogSide_unk mLeft;          // 0x000
     DialogSide_unk mRight;         // 0x038
     DialogSide_unk m070;
-    NewCampScene2_unk mScenes[2][2]; // 0x0A8: inferred: [dark][right] (Event::DialogHead::fn_80226B28)
+    atn::Scene mScenes[2][2]; // 0x0A8: inferred: [dark][right] (Event::DialogHead::fn_80226B28)
     int mUseWaitMotion;            // 0xB78
     int mUseLipSync;               // 0xB7C
 };

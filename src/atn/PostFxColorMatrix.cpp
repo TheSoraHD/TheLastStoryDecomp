@@ -3,35 +3,19 @@
 #include "atn/PostFx.h"
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
-// inferred: 4-component vector copied with paired singles (name invented)
-struct ColorVec4_unk {
-    ColorVec4_unk() {}
-    ColorVec4_unk(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
-    ColorVec4_unk(const ColorVec4_unk& v) { __Vec4Copy(&x, &v.x); }
-    ColorVec4_unk& operator=(const ColorVec4_unk& v) {
-        __Vec4Copy(&x, &v.x);
-        return *this;
-    }
-    ColorVec4_unk operator*(float f) const { return ColorVec4_unk(x * f, y * f, z * f, w * f); }
-    ColorVec4_unk operator+(const ColorVec4_unk& v) const { return ColorVec4_unk(x + v.x, y + v.y, z + v.z, w + v.w); }
-    float x, y, z, w;
-};
-
-// inferred: color matrix with its parameters (0x50 bytes, names invented)
-struct ColorMatrix_unk {
-    ColorMatrix_unk() : mEnable(0), m44(0), m48(0), m4C(1.0f) {
-        mRows[0] = ColorVec4_unk(1.0f, 0.0f, 0.0f, 0.0f);
-        mRows[1] = ColorVec4_unk(0.0f, 1.0f, 0.0f, 0.0f);
-        mRows[2] = ColorVec4_unk(0.0f, 0.0f, 1.0f, 0.0f);
-        mRows[3] = ColorVec4_unk(0.0f, 0.0f, 0.0f, 0.0f);
-    }
-    int mEnable;
-    ColorVec4_unk mRows[4];
-    int m44;
-    int m48;
-    float m4C;
-};
+// inferred: rows of the color matrix (atn::Vector4_unk); operators used by the blend (names invented)
+typedef atn::Vector4_unk ColorVec4_unk;
+namespace atn {
+inline Vector4_unk operator*(const Vector4_unk& v, float f) {
+    return Vector4_unk(v.x * f, v.y * f, v.z * f, v.w * f);
+}
+inline Vector4_unk operator+(const Vector4_unk& a, const Vector4_unk& v) {
+    return Vector4_unk(a.x + v.x, a.y + v.y, a.z + v.z, a.w + v.w);
+}
+} // namespace atn
+typedef ColorMatrixParam_unk ColorMatrix_unk;
 
 // inferred: render parameters (lbl_8087EFA8)
 struct ColorMatrixParams_unk {
@@ -46,12 +30,6 @@ struct ColorMatrixParams2_unk {
 };
 extern "C" ColorMatrixParams_unk* lbl_8087EFA8;
 
-// inferred: object with its own color matrix (returned by fn_800C1424)
-struct ColorMatrixOwner_unk {
-    unsigned char m000[0x260];
-    int m260;
-    ColorMatrix_unk m264;
-};
 
 // inferred: clamp limits (0.0f, 1.0f) of the time and of the four components, kept as globals in .sdata.
 // The original keeps the zeros in .sdata, which MWCC only does with explicit_zero_data (approved exception,
@@ -100,7 +78,7 @@ public:
     ColorMatrix_unk mCurrent; // 0x04
     ColorMatrix_unk mFrom;    // 0x54
     ColorMatrix_unk mTo;      // 0xA4
-    ColorMatrixOwner_unk* mOwner; // 0xF4
+    atn::Scene* mOwner;       // 0xF4: inferred: scene whose matrix is shown
     float mTime;              // 0xF8
 };
 
@@ -109,14 +87,14 @@ PostFxColorMatrix::PostFxColorMatrix() : mOwner(0), mTime(0.0f) {}
 // inferred: "1.0f - s" and "1.0f - k" written in the loops (hoisted by the compiler) and the gray vector built
 // from lum[i] directly give the FPR allocation and scheduling of the original
 void PostFxColorMatrix::fn_800AA8DC() {
-    ColorMatrixOwner_unk* owner = (ColorMatrixOwner_unk*)atn::RenderManager::instance_->fn_800C1424(); // pending: view of the scene
-    ColorMatrix_unk* src = owner->m260 != 0 ? &owner->m264 : &lbl_8087EFA8->m324;
+    atn::Scene* owner = atn::RenderManager::instance_->fn_800C1424();
+    ColorMatrix_unk* src = owner->mColorMatrix.mSet != 0 ? &owner->mColorMatrix.mValue : &lbl_8087EFA8->m324;
     mTime += 0.05f;
     if (mTime >= 1.0f) {
         mOwner = 0;
     }
     mTime = mTime < lbl_8087D828 ? lbl_8087D828 : (mTime > lbl_8087D82C ? lbl_8087D82C : mTime);
-    if (mOwner == 0 || lbl_8087EFA8->m324.mEnable == 0) {
+    if (mOwner == 0 || lbl_8087EFA8->m324.mEnabled == 0) {
         mTime = 0.0f;
         mOwner = owner;
         mCurrent = *src;

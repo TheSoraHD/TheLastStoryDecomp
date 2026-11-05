@@ -3695,10 +3695,10 @@
   "matching": false
  },
  {
-  "name": "atn/CharaLightData_unk.cpp",
+  "name": "atn/Scene.cpp",
   "classes": [
-   "CharaLightData_unk",
-   "NewCampScene2_unk"
+   "atn::Scene",
+   "CharaLightData_unk"
   ],
   "matching": false
  },

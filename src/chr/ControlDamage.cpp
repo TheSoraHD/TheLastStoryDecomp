@@ -2,6 +2,7 @@
 // broken and the reaction of the enemies (ControlDamageLastOne).
 #include "chr/ControlDamage.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 #include "game/GameVoice.h"
 #include "chr/FuncPair_unk.h"
 #include "game/GimmickCommon.h"
@@ -60,16 +61,9 @@ extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length (PSVECSquareMag)
 extern "C" double cos(double x);
 extern "C" int rand();
-// inferred: lens of a camera (as in game/CharaTask.cpp); names invented
-struct Lens_unk {
-    unsigned char m000[0x158];
-    float m158;
-    float m15C;
-    float m160;
-};
 
-inline Lens_unk* CharaTask::GetLens_unk() {
-    return (mMotion.m1DC == 0) ? (Lens_unk*)atn::RenderManager::instance_->mScene /* pending: view of the scene */ : mMotion.m1DC;
+inline atn::Scene* CharaTask::GetLens_unk() {
+    return (mMotion.m1DC == 0) ? atn::RenderManager::instance_->mScene : mMotion.m1DC;
 }
 
 // inferred: inline in the original (weak copy 0x8013C3B4, defined out of line in game/CharaTask.cpp)
@@ -427,7 +421,7 @@ int ControlKnockdown::vf0C() {
                 if ((attr >= 0x14 && attr <= 0x15) || (attr >= 0x1C && attr <= 0x1D)) {
                     atn::Vector3 pos = res.m10;
                     if (mChara->GetLens_unk()) {
-                        pos.y = -mChara->GetLens_unk()->m160 * mChara->GetLens_unk()->m158 + 0.01f;
+                        pos.y = -mChara->GetLens_unk()->mPlane.mDist * mChara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
                     }
                     fn_801070C8(lbl_8087F048, 0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
                                 Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);

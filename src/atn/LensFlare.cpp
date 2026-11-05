@@ -1,6 +1,8 @@
 #include "atn/LensFlare.h"
 #include "atn/GXDecl.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
+#include "atn/Light_unk.h"
 #include "atn/AABB_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -40,15 +42,7 @@ struct LensSettings_unk {
 };
 extern "C" LensSettings_unk* lbl_8087EFA8;
 
-// inferred: light of the scene (direction at 0x14)
-struct LensLight_unk {
-    unsigned char m00[0x14];
-    float mDirX;
-    float mDirY;
-    float mDirZ;
-};
 
-extern "C" LensLight_unk* fn_800C2448(void* lights, int index);
 
 extern "C" void fn_8006FEBC(atn::AABB_unk* screen, const atn::AABB_unk* box);     // inferred: projects a box
 
@@ -170,8 +164,8 @@ void LensFlare::vf10(RenderManager* arg) {
     RenderManager* camera = arg;
     camera->fn_800BDB40(0);
     if (m04 == 1) {
-        LensLight_unk* light = fn_800C2448(camera->mScene, 0);
-        Vector3 dir(-light->mDirX, -light->mDirY, -light->mDirZ);
+        atn::Light* light = camera->mScene->GetLight(0);
+        Vector3 dir(-light->mDir.x, -light->mDir.y, -light->mDir.z);
         mPos = camera->mCamera.mPos + dir * 800.0f;
     }
     atn::Sphere sphere;

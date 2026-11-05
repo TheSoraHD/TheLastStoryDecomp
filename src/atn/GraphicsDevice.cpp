@@ -12,6 +12,7 @@
 #include "atn/Shader_unk.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 extern "C" {
 
@@ -202,16 +203,6 @@ struct RenderTextures_unk {
     GXTexObj m480;           // 0x480: rim light (fn_80073A6C)
     atn::Matrix3x4 m4A0;     // 0x4A0: texture matrices of the rim light
     atn::Matrix3x4 m4D0;     // 0x4D0
-};
-// inferred: scene settings (NewCampScene2_unk of atn/CharaLightData_unk.cpp); only the shadow
-// override is used here
-struct RenderScene_unk {
-    unsigned char m000[0x234];
-    int m234;                // 0x234: overrides the shadow mode and color of RenderSetting_unk
-    int m238;
-    int m23C;                // 0x23C: shadow mode
-    float m240;
-    RsColor_unk m244;        // 0x244: shadow color
 };
 
 // inferred: first object of .rodata; no reference left in the code
@@ -1182,9 +1173,9 @@ extern "C" void fn_80073A6C(TevStats_unk* stats, int flags) {
     RsColor_unk shadowColor = rs->m104.mColor;
     GXColor color = ToGXColor_unk(shadowColor);
     int mode = rs->m104.mMode;
-    if (((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m234 != 0) {
-        mode = ((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m23C;
-        color = ToGXColor_unk(((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m244);
+    if (atn::RenderManager::instance_->mScene->mShadowSet != 0) {
+        mode = atn::RenderManager::instance_->mScene->mShadow.mMode;
+        color = ToGXColor_unk(atn::RenderManager::instance_->mScene->mShadow.mColor);
     }
     if (rs->m12C != 0) {
         GXColor red = {0xFF, 0x00, 0x00, 0xFF};
@@ -1293,9 +1284,9 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     RsColor_unk shadowColor = rs->m104.mColor;
     GXColor color = ToGXColor_unk(shadowColor);
     int mode = rs->m104.mMode;
-    if (((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m234 != 0) {
-        mode = ((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m23C;
-        color = ToGXColor_unk(((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m244);
+    if (atn::RenderManager::instance_->mScene->mShadowSet != 0) {
+        mode = atn::RenderManager::instance_->mScene->mShadow.mMode;
+        color = ToGXColor_unk(atn::RenderManager::instance_->mScene->mShadow.mColor);
     }
     if (lbl_8087EFA8->m12C != 0) {
         GXColor red = {0xFF, 0x00, 0x00, 0xFF};
@@ -1377,8 +1368,8 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(view->mShadowCamera.mView, view->mCamera.mInvView));
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     int mode = lbl_8087EFA8->m104.mMode;
-    if (((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m234 != 0) {
-        mode = ((RenderScene_unk*)atn::RenderManager::instance_->mScene)->m23C;
+    if (atn::RenderManager::instance_->mScene->mShadowSet != 0) {
+        mode = atn::RenderManager::instance_->mScene->mShadow.mMode;
     }
     GXSetTevOrder(stage, coord, map, 0xFF);
     if (mode == 1) {

@@ -35,7 +35,7 @@ struct MapPartsAreaInit_unk {
     int m40;
     int m44;
     int m48;
-    NewCampScene2_unk m4C;
+    atn::Scene m4C;
     unsigned char m300[8];
     int m308;
     int m30C;
@@ -68,7 +68,7 @@ extern "C" MapPartsArea* fn_80491EA0(atn::Task*, void*, atn::CsvTab*) { return 0
 // NONMATCHING: 2.37% - alternate map area allocation and loader setup are not reconstructed yet.
 extern "C" MapPartsArea* fn_80491F94(atn::Task*, void*, atn::CsvTab*) { return 0; }
 
-// NONMATCHING: 10.87% - cleanup of loaded actors and NewCampScene2_unk is not reconstructed yet.
+// NONMATCHING: 10.87% - cleanup of loaded actors and atn::Scene is not reconstructed yet.
 MapPartsArea::~MapPartsArea() {}
 
 extern "C" void* fn_804923AC(void* self) {

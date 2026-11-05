@@ -9,7 +9,7 @@
 #include "macros.h"
 #include "Event/Sequence.h"
 #include "atn/Light_unk.h"
-#include "game/NewCampScene2_unk.h"
+#include "atn/Scene.h"
 #include "game/GameConfig_unk.h"
 #include "Event/Behavior.h"
 #include "db/EventIdTable_unk.h"
@@ -399,15 +399,15 @@ inline T Lerp_unk(const T& a, const T& b, float t) {
 
 } // namespace atn
 
-inline ColorMatrixParam_unk* NewCampScene2_unk::fn_8047C7DC() {
-    return mUseColorMatrix != 0 ? &mColorMatrix : &lbl_8087EFA8->m324;
+inline ColorMatrixParam_unk* atn::Scene::fn_8047C7DC() {
+    return mColorMatrix.mSet != 0 ? &mColorMatrix.mValue : &lbl_8087EFA8->m324;
 }
 
 namespace Event {
 
-void SceneSetting_unk::fn_8047C88C(NewCampScene2_unk* scene) {
-    *scene->fn_8047C770() = mFog;
-    scene->GetAmbient_unk() = mAmbient;
+void SceneSetting_unk::fn_8047C88C(atn::Scene* scene) {
+    *scene->GetFog() = mFog;
+    scene->GetAmbientLight() = mAmbient;
     scene->GetLS_unk() = mLS;
     *scene->fn_8047C778() = m3C;
     *scene->fn_8047C780() = mGodRay;
@@ -415,12 +415,12 @@ void SceneSetting_unk::fn_8047C88C(NewCampScene2_unk* scene) {
     *scene->fn_8047C7DC() = mColorMatrix;
     *scene->fn_8047C848() = mHaze;
     scene->fn_8047CB6C(m148);
-    *fn_800C2448(scene, 0) = mLight;
+    *scene->GetLight(0) = mLight;
 }
 
-void SceneSetting_unk::fn_8047CB74(NewCampScene2_unk* scene, float t) {
-    *scene->fn_8047C770() = mFog;
-    scene->GetAmbient_unk() = atn::Lerp_unk(mAmbient, scene->GetAmbient_unk(), t);
+void SceneSetting_unk::fn_8047CB74(atn::Scene* scene, float t) {
+    *scene->GetFog() = mFog;
+    scene->GetAmbientLight() = atn::Lerp_unk(mAmbient, scene->GetAmbientLight(), t);
     scene->GetLS_unk() = atn::Lerp_unk(mLS, scene->GetLS_unk(), t);
     *scene->fn_8047C778() = atn::Lerp_unk(m3C, *scene->fn_8047C778(), t);
     scene->fn_8047C780()->mColor = atn::Lerp_unk(mGodRay.mColor, scene->fn_8047C780()->mColor, t);
@@ -432,8 +432,8 @@ void SceneSetting_unk::fn_8047CB74(NewCampScene2_unk* scene, float t) {
     }
     *scene->fn_8047C848() = mHaze;
     scene->fn_8047CB6C(m148);
-    fn_800C2448(scene, 0)->SetDir_unk(fn_8047C1D8(*mLight.GetDir_unk(), *fn_800C2448(scene, 0)->GetDir_unk(), t));
-    fn_800C2448(scene, 0)->SetColor(atn::Lerp_unk(*mLight.GetColor_unk(), *fn_800C2448(scene, 0)->GetColor_unk(), t));
+    scene->GetLight(0)->SetDir_unk(fn_8047C1D8(*mLight.GetDir_unk(), *scene->GetLight(0)->GetDir_unk(), t));
+    scene->GetLight(0)->SetColor(atn::Lerp_unk(*mLight.GetColor_unk(), *scene->GetLight(0)->GetColor_unk(), t));
 }
 
 inline EventConfig_unk::EventConfig_unk()
@@ -1411,17 +1411,17 @@ void Manager::fn_80481A20() {
     }
 }
 // inferred: inverse of fn_8047C88C; only inlined (fn_80481B9C), so the linker strips it
-void SceneSetting_unk::Get_unk(NewCampScene2_unk* scene) {
-    mFog = *scene->fn_8047C770();
-    mAmbient = scene->GetAmbient_unk();
+void SceneSetting_unk::Get_unk(atn::Scene* scene) {
+    mFog = *scene->GetFog();
+    mAmbient = scene->GetAmbientLight();
     mLS = scene->GetLS_unk();
     m3C = *scene->fn_8047C778();
     mGodRay = *scene->fn_8047C780();
     mShadow = *scene->fn_8047C7D4();
     mColorMatrix = *scene->fn_8047C7DC();
     mHaze = *scene->fn_8047C848();
-    m148 = scene->m120;
-    mLight = *fn_800C2448(scene, 0);
+    m148 = scene->mReflectChara;
+    mLight = *scene->GetLight(0);
 }
 
 // NONMATCHING: 58.4% - std::vector::push_back: the original takes another path for this element
@@ -1466,9 +1466,9 @@ void fn_804827D8(MapArea* area, void* arg) {
 }
 // inferred: sets the light of gmk::CharaLight on a map area (callback, as gmk fn_804225E0)
 void fn_80482B24(MapArea* part, void* light) {
-    part->m074 = light;
-    part->m070 = light != 0 || part->m070 != 0;
-    part->m0C8 = -1;
+    part->m074 = (CharaLightData_unk*)light;
+    part->mLightOn = light != 0 || part->mLightOn != 0;
+    part->mLightMask = -1;
 }
 // inferred: argument of fn_80482B54: color matrices of the steps, the next step, the matrix it blends
 // with and the rate. Names invented.
@@ -1495,8 +1495,7 @@ void fn_80482B54(MapArea* area, void* arg) {
             cm.mRows[i].z = t * cm.mRows[i].z + (1.0f - t) * target.mRows[i].z;
             cm.mRows[i].w = t * cm.mRows[i].w + (1.0f - t) * target.mRows[i].w;
         }
-        area->mUseColorMatrix = 1;
-        area->mColorMatrix = cm;
+        area->mColorMatrix.Set_unk(cm);
         blend->mIndex++;
     }
 }
@@ -1505,7 +1504,7 @@ void fn_80482B54(MapArea* area, void* arg) {
 // inferred: copies the direction and the color of a light to the first light of a map area (callback)
 void fn_80482D90(MapArea* area, void* arg) {
     atn::Light* src = (atn::Light*)arg;
-    atn::Light* dst = fn_800C2448(&area->GetScene_unk(), 0);
+    atn::Light* dst = area->GetScene_unk().GetLight(0);
     dst->SetDir_unk(*src->GetDir_unk());
     dst->SetColor(*src->GetColor_unk());
 }
@@ -1534,7 +1533,7 @@ void fn_80482E4C(MapArea* area, void* arg) {
 
 // inferred: sets the ambient color of a map area (callback)
 void fn_80482EB4(MapArea* area, void* arg) {
-    area->GetAmbient_unk() = *(atn::Color*)arg;
+    area->GetAmbientLight() = *(atn::Color*)arg;
 }
 // inferred: map of the field, else the first map part (inlined in fn_80482ED8, fn_80483714,
 // fn_80487064 and fn_804870F4); name invented
@@ -1691,7 +1690,7 @@ void Manager::fn_80484088(ColorMatrixParam_unk* target, float rate) {
 // inferred: sets the direction and the color (0xAARRGGBB) of the first light of the render scene and
 // of the map areas
 void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
-    atn::Light* light = fn_800C2448(atn::RenderManager::instance_->fn_800C16B4(), 0);
+    atn::Light* light = atn::RenderManager::instance_->fn_800C16B4()->GetLight(0);
     unsigned int c = color;
     light->SetDir_unk(dir);
     light->SetColor(atn::Color((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
@@ -1700,7 +1699,7 @@ void Manager::fn_804846FC(const atn::Vector3& dir, int color) {
 }
 // inferred: first light of the scene of the render view (weak copy 0x804848C4); name invented
 inline atn::Light* GetViewLight_unk(atn::RenderManager* view) {
-    return fn_800C2448(view->mScene, 0);
+    return view->mScene->GetLight(0);
 }
 
 // inferred: first light of the map area at the target of the current camera (else of the render scene)
@@ -1709,7 +1708,7 @@ atn::Light Manager::fn_804848D0() {
     atn::Sphere sphere(lbl_8087F540->mCameras[lbl_8087F540->m1A38].mTarget, 30.0f);
     MapArea* area = MapManager::sInstance->fn_804918A4(sphere);
     if (area != 0) {
-        return *fn_800C2448(&area->GetScene_unk(), 0);
+        return *area->GetScene_unk().GetLight(0);
     }
     return *GetViewLight_unk(atn::RenderManager::instance_);
 }
@@ -1725,7 +1724,7 @@ void Manager::fn_80484A78(int color) {
 // inferred: uses the light of the manager (m1EB8) for the render scene and the map areas
 void Manager::fn_80484BF4() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&m1EB8);
-    atn::RenderManager::instance_->fn_800C16B4()->SetLightIndex_unk(-1);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLightMask_unk(-1);
     MapManager::sInstance->fn_80491528(fn_80482B24, &m1EB8);
 }
 // inferred: position, size and speed of the light of the manager
@@ -3157,7 +3156,7 @@ void fn_8048F1DC(MapArea* area, void* arg) {
             atn::Vector3 dir;
             dir = fix->mCamera->mTarget - fix->mCamera->mPos;
             dir.Normalize_unk();
-            fn_800C2448(&area->GetScene_unk(), 0)
+            area->GetScene_unk().GetLight(0)
                 ->SetDir_unk(fn_8047C1D8(dir, *fix->mConfig->m110[i].mSetting.mLight.GetDir_unk(), fix->mRatio));
             return;
         }
@@ -3170,11 +3169,11 @@ void fn_8048F844(MapArea* area, void* arg) {
     for (unsigned int i = 0; i < fix->mConfig->m110.size(); i++) {
         if (area->m24 == fix->mConfig->m110[i].mId) {
             if (!fix->mFlags.m00 && !fix->mFlags.m01 && !fix->mFlags.m02) {
-                fn_800C2448(&area->GetScene_unk(), 0)
+                area->GetScene_unk().GetLight(0)
                     ->SetColor(*fix->mConfig->m110[i].mSetting.mLight.GetColor_unk() * fix->mKey);
             }
             if (!fix->mFlags.m03) {
-                area->GetAmbient_unk() = fix->mConfig->m110[i].mSetting.mAmbient * fix->mAmbient;
+                area->GetAmbientLight() = fix->mConfig->m110[i].mSetting.mAmbient * fix->mAmbient;
             }
             return;
         }
@@ -3208,7 +3207,7 @@ void Manager::fn_8048F9B0(Cut* cut) {
             GetViewLight_unk(fn_8008B964())->SetColor(*m1BD0.mLight.GetColor_unk() * m2414);
         }
         if (!flags.m03) {
-            fn_8008B964()->fn_800C16B4()->GetAmbient_unk() = m1BD0.mAmbient * m2418;
+            fn_8008B964()->fn_800C16B4()->GetAmbientLight() = m1BD0.mAmbient * m2418;
         }
         LightFixIntensity_unk fix(&m1AB0, m2414, m2418, flags);
         MapManager::GetInstance_unk()->fn_80491528(fn_8048F844, &fix);

@@ -92,7 +92,7 @@ DialogHead::DialogHead(atn::Task* parent, CharaTask* chara)
     m1624.m00 = 1;
     m1624.m04 = &lbl_8087EEB0->m70;
     memset(m1840, 0, sizeof(m1840));
-    mMotion.m1DC = (struct Lens_unk*)&lbl_8087F0A8->mDialog.mScenes[0][0];
+    mMotion.m1DC = &lbl_8087F0A8->mDialog.mScenes[0][0];
 }
 
 // NONMATCHING: 98.0% - the copy of the camera into m1624 takes other address registers (same
@@ -265,7 +265,7 @@ void DialogHead::vf18(atn::RenderManager* view) {
 }
 
 void DialogHead::fn_80226B28(int dark, int right) {
-    mMotion.m1DC = (struct Lens_unk*)&lbl_8087F0A8->mDialog.mScenes[dark][right];
+    mMotion.m1DC = &lbl_8087F0A8->mDialog.mScenes[dark][right];
 }
 
 // NONMATCHING: 99.4% - registers of the four inlined GetSide_unk calls of the viewport and of the

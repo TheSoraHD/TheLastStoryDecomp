@@ -18,6 +18,7 @@
 namespace atn {
 class LoadHandle;
 class LH_Motion;
+class Scene;
 struct MotionCmd_unk; // inferred: motion command entry of a motion slot (16 bytes)
 // inferred: per-node work entry of a model (18 bytes, cleared by its weak ctor 0x800979E8); name invented
 struct NodeWork_unk {
@@ -39,8 +40,6 @@ class CsvTab;
 // inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
 // and by the equipment at 0x80564108); defined where it is used
 struct ModelCamera_unk;
-// inferred: camera lens (defined in game/CharaTask.cpp)
-struct Lens_unk;
 
 // material of a model node (returned by atn::Model::fn_80092954; include/atn/Material_unk.h)
 struct Material_unk;
@@ -190,7 +189,7 @@ struct ModelBase : public IRender {
     MaterialSet_unk* m160; // inferred: owned
     ModelLod_unk mLods[4]; // 0x164: inferred: levels of detail; the first is the main model
     ModelLod_unk m1C4;     // inferred: shadow model
-    struct Lens_unk* m1DC; // inferred: own camera lens, else the global one (CharaTask::fn_8014C540)
+    atn::Scene* m1DC;      // inferred: own scene (lights, reflection plane), else the one of RenderManager
     int m1E0;
     SimpleVector<ModelComposite_unk*> m1E4; // inferred: composite textures
     int m1F0;

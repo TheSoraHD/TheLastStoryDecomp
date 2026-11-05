@@ -5,6 +5,7 @@
 #include "math/Vec.h"
 #include "atn/EffectSystem_unk.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 // Sorted drawing of the effect primitives: polygon strips (items A, 0x70 bytes) and models (items B,
 // 0x5C bytes) are queued by the effect system while it updates, bucket-sorted by view depth and
@@ -216,7 +217,6 @@ extern "C" void fn_80236938(int count, EffectVertex_unk* verts, const float* col
 extern "C" void fn_80071E04(EffectRender_unk* render);
 extern "C" void fn_80076760(EffectRender_unk* render, int state, int value);
 extern "C" void fn_800763C0(EffectRender_unk* render, int stage, void* texture);
-extern "C" Light_unk* fn_800C2448(void* lights, int index);
 // inferred: functions of the models (automatic names)
 extern "C" void fn_80094F14(atn::Model* model, float a, float b);
 extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
@@ -414,7 +414,7 @@ extern "C" void fn_80234CD8() {
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
     GXLightObj light;
-    fn_800C2448(atn::RenderManager::instance_->mScene, 0)->fn_80079994(&light, view.m);
+    atn::RenderManager::instance_->mScene->GetLight(0)->fn_80079994(&light, view.m);
     GXLoadLightObjImm(&light, 1);
     atn::Matrix3x4 inv = view;
     PSMTXInverse(inv.m, inv.m);

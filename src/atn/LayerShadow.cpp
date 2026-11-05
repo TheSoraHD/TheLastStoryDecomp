@@ -4,6 +4,7 @@
 #include "atn/RenderSetting_unk.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 namespace atn {
 
@@ -34,15 +35,6 @@ extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, i
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 
-// inferred: light settings returned by (direction at 0x254 when m234 is set)->fn_800C1424()
-struct ShadowLight_unk {
-    unsigned char m000[0x234];
-    int m234;
-    unsigned char m238[0x254 - 0x238];
-    float m254;
-    float m258;
-    float m25C;
-};
 
 // inferred: render manager (lbl_8087EEE0)
 struct ShadowRenderMgr_unk {
@@ -318,9 +310,9 @@ void LayerShadow::vf10(void* arg) {
     mCamera = atn::RenderManager::instance_->mCamera;
     RenderSetting_unk* s = lbl_8087EFA8;
     Vector3 dir(-s->m104.mDir.x, -s->m104.mDir.y, -s->m104.mDir.z);
-    ShadowLight_unk* light = (ShadowLight_unk*)atn::RenderManager::instance_->fn_800C1424(); // pending: view of the scene
-    if (light->m234 != 0) {
-        dir = Vector3(-light->m254, -light->m258, -light->m25C);
+    atn::Scene* light = atn::RenderManager::instance_->fn_800C1424();
+    if (light->mShadowSet != 0) {
+        dir = Vector3(-light->mShadow.mDir.x, -light->mShadow.mDir.y, -light->mShadow.mDir.z);
     }
     if (dir.IsZero_unk()) {
         dir = Vector3(1.0f, -1.0f, 1.0f).GetNormalize();

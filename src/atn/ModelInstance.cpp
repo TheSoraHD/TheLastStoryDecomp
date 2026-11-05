@@ -2,6 +2,7 @@
 #include "atn/Memory.h"
 #include "atn/Sphere.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 #include "atn/AABB_unk.h"
 
 extern "C" double fabs(double x);
@@ -10,14 +11,6 @@ namespace atn {
 class ModelInstance;
 }
 
-// inferred: camera lens (only what is used here; see game/CharaTask.cpp for other fields)
-struct InstLens_unk {
-    unsigned char m000[0x120];
-    int m120;          // inferred: shadow enabled
-    atn::Matrix3x4 m124; // inferred: shadow projection
-    atn::Vector3 m154; // inferred: shadow plane normal
-    float m160;        // inferred: shadow plane distance
-};
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: plane {normal, distance} (name invented)
@@ -78,7 +71,7 @@ struct InstModel_unk {
     unsigned char mB0[0x168 - 0xB0];
     InstLod_unk mLods[1]; // 0x168
     unsigned char m180[0x1DC - 0x180];
-    InstLens_unk* mLens; // 0x1DC
+    atn::Scene* mLens; // 0x1DC
     unsigned char m1E0[0x1F0 - 0x1E0];
     InstCallback_unk mCallback; // 0x1F0
     unsigned char m200[0x20C - 0x200];
@@ -139,17 +132,17 @@ public:
     // inferred: lens of the model and screen data of the instance (inline, name invented)
     void DrawModel_unk(InstModel_unk* model, RenderManager* camera);
     void SetupLens_unk(InstModel_unk* model) {
-        InstLens_unk* lens = model->mLens;
-        void* screen = m64;
+        atn::Scene* lens = model->mLens;
+        atn::Scene* screen = m64;
         if (lens == 0) {
-            lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
+            lens = atn::RenderManager::instance_->mScene;
         }
         mLens = lens;
         if (screen == 0) {
             screen = atn::RenderManager::instance_->fn_800C122C(mSphere);
             m64 = screen;
         }
-        model->mLens = (InstLens_unk*)screen;
+        model->mLens = screen;
     }
 
     InstData_unk* mData; // 0x04
@@ -157,8 +150,8 @@ public:
     atn::AABB_unk mBox;    // 0x18
     Matrix3x4 mMtx;      // 0x30
     int mLod;            // 0x60
-    void* m64;           // inferred: screen data
-    InstLens_unk* mLens; // 0x68
+    atn::Scene* m64;     // inferred: scene of the instance (RenderManager::fn_800C122C)
+    atn::Scene* mLens; // 0x68
     int mFlags;          // 0x6C: inferred: flags added to the model while drawn
     float m70;           // inferred: UV scroll speed
     Vector2_unk m74;     // inferred: UV scroll
@@ -213,12 +206,12 @@ inline int HasShadow_unk(InstModel_unk* model) {
         cast = false;
     }
     if (cast) {
-        InstLens_unk* lens = model->mLens;
+        atn::Scene* lens = model->mLens;
         int enabled = true;
         if (lens == 0) {
-            lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
+            lens = atn::RenderManager::instance_->mScene;
         }
-        if (lens->m120 == 0 && (flags & 0x1000) != 0x1000) {
+        if (lens->mReflectChara == 0 && (flags & 0x1000) != 0x1000) {
             enabled = false;
         }
         if (enabled) {
@@ -244,12 +237,12 @@ void ModelInstance::fn_8009E6EC(int arg) {
     mShadowVisible = 0;
     InstSphere2_unk shadow;
     if (HasShadow_unk(&mData->mModel) && (mData->mModel.mFlags & 0x400) == 0x400) {
-        InstLens_unk* lens = mData->mModel.mLens;
+        atn::Scene* lens = mData->mModel.mLens;
         if (lens == 0) {
-            lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
+            lens = atn::RenderManager::instance_->mScene;
         }
         Vector3 center(sphere->mCenter);
-        PSMTXMultVec(lens->m124.m, &center, &center);
+        PSMTXMultVec(lens->mReflect.m, &center, &center);
         shadow.mCenter = center;
         shadow.mRadius = sphere->mRadius;
         if (fn_8004FF58(&atn::RenderManager::instance_->mCamera.mFrustum, (Sphere*)&shadow) != 0) {
@@ -267,11 +260,11 @@ void ModelInstance::fn_8009E6EC(int arg) {
     if (HasShadow_unk(&mData->mModel)) {
         if ((mData->mModel.mFlags & 0x400) == 0x400) {
             if (mShadowVisible) {
-                InstLens_unk* lens = mData->mModel.mLens;
+                atn::Scene* lens = mData->mModel.mLens;
                 if (lens == 0) {
-                    lens = (InstLens_unk*)atn::RenderManager::instance_->mScene; // pending: view of the scene
+                    lens = atn::RenderManager::instance_->mScene;
                 }
-                InstPlane_unk* plane = (InstPlane_unk*)&lens->m154;
+                InstPlane_unk* plane = (InstPlane_unk*)&lens->mPlane;
                 if (plane->Distance_unk(shadow.mCenter) < shadow.mRadius) {
 
                     atn::RenderManager::instance_->AddRender(this, 4, mData->mModel.mDrawOrder);
@@ -442,7 +435,7 @@ void ModelInstance::fn_8009F4AC(InstModel_unk* model) {
     Matrix3x4 base(mMtx);
     if ((mFlags & 0x400) == 0x400 && atn::RenderManager::instance_->m2F8 == 4) {
         Matrix3x4 m;
-        PSMTXConcat(((InstLens_unk*)atn::RenderManager::instance_->mScene)->m124.m, base.m, m.m);
+        PSMTXConcat(atn::RenderManager::instance_->mScene->mReflect.m, base.m, m.m);
         base = m;
     }
     Matrix3x4* nodes = model->mNodeMtx;

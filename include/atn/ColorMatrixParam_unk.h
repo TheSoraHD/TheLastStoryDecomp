@@ -88,6 +88,18 @@ struct GodRayParam_unk {
     float mRadius;       // 0x44: Radius
 };
 
+// inferred: rain parameters
+struct RainParam_unk {
+    RainParam_unk() : mEnabled(0), mDebug(0), mWarp(1.0f), mRate(0.05f) {}
+    void fn_800BB8D8(void* menu);
+    void fn_800BB994(RsCsv_unk* csv);
+
+    int mEnabled; // 0x00
+    int mDebug;   // 0x04
+    float mWarp;  // 0x08
+    float mRate;  // 0x0C
+};
+
 // inferred: haze parameters
 struct HazeParam_unk {
     HazeParam_unk()

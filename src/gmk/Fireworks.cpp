@@ -45,9 +45,9 @@ static float sRate = 0.1f;
 
 // inferred: sets the light of a map part (callback of fn_80491528)
 void fn_8041CD24(MapArea* part, void* light) {
-    part->m074 = light;
-    part->m070 = light != 0 || part->m070 != 0;
-    part->m0C8 = -1;
+    part->m074 = (CharaLightData_unk*)light;
+    part->mLightOn = light != 0 || part->mLightOn != 0;
+    part->mLightMask = -1;
 }
 
 // inferred: random value in [0, 1] (name invented)
@@ -95,7 +95,7 @@ int Fireworks::vf0C() {
 
 void Fireworks::Start() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
-    atn::RenderManager::instance_->fn_800C16B4()->SetLightIndex_unk(-1);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLightMask_unk(-1);
     MapManager::sInstance->fn_80491528(&fn_8041CD24, &mLight);
     GimmickMsg_unk msg(m58 + 1);
     vf40(&msg);

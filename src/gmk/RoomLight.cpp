@@ -10,7 +10,6 @@ extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab C
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-extern "C" void fn_800C18BC(CharaLightData_unk* light); // inferred: updates the light
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -28,9 +27,9 @@ typedef atn::Camera Camera_unk;
 
 // inferred: sets the light of a map part (callback of fn_80491528)
 void fn_8041FED8(MapArea* part, void* light) {
-    part->m074 = light;
-    part->m070 = light != 0 || part->m070 != 0;
-    part->m0C8 = ((RoomLightData_unk*)light)->m50;
+    part->m074 = (CharaLightData_unk*)light;
+    part->mLightOn = light != 0 || part->mLightOn != 0;
+    part->mLightMask = ((RoomLightData_unk*)light)->m50;
 }
 
 namespace gmk {
@@ -56,7 +55,7 @@ int RoomLight::vf0C() {
 
 void RoomLight::Start() {
     atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(&mLight);
-    atn::RenderManager::instance_->fn_800C16B4()->SetLightIndex_unk(mLight.m50);
+    atn::RenderManager::instance_->fn_800C16B4()->SetLightMask_unk(mLight.m50);
     MapManager::sInstance->fn_80491528(&fn_8041FED8, &mLight);
     if (m58 == 0) {
         mFrame = 0;
@@ -94,7 +93,7 @@ void RoomLight::vf10() {
     mLight.m04.x = m6C.x;
     mLight.m04.y = m6C.z;
     mLight.mSize = Lerp2_unk(size, mMinSize, t);
-    fn_800C18BC(&mLight);
+    mLight.fn_800C18BC();
 }
 
 void RoomLight::vf14() {}

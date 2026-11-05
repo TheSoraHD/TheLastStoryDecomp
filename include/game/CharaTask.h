@@ -819,7 +819,7 @@ public:
     void fn_8014C228();
     void fn_8014C540(); // inferred: per-frame update (called by the derived classes)
     // inferred: inlined in fn_8014C540 (names invented)
-    struct Lens_unk* GetLens_unk();
+    atn::Scene* GetLens_unk(); // inferred: scene of the model (atn::Model::m1DC), else the one of RenderManager
     void SetEmoteMtx_unk();
     bool IsLedgeLocked_unk();
     HitInfo_unk* FindHitBullet_unk();

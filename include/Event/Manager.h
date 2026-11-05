@@ -27,7 +27,9 @@ class CharaTask;
 class NewStaffRoll;
 struct GameMap_unk;
 struct ColorMatrixParam_unk;
-struct NewCampScene2_unk;
+namespace atn {
+class Scene;
+}
 
 namespace Event {
 
@@ -104,9 +106,9 @@ struct ManagerEntry_unk {
 // inferred: light settings of a scene (0x190 bytes): copied into the scene (fn_8047C88C) or blended
 // with it (fn_8047CB74). Name invented.
 struct SceneSetting_unk {
-    void Get_unk(NewCampScene2_unk* scene);              // inferred: copies the settings of the scene (inlined in fn_80481B9C)
-    void fn_8047C88C(NewCampScene2_unk* scene);          // inferred: copies the settings into the scene
-    void fn_8047CB74(NewCampScene2_unk* scene, float t); // inferred: blends the scene towards the settings
+    void Get_unk(atn::Scene* scene);              // inferred: copies the settings of the scene (inlined in fn_80481B9C)
+    void fn_8047C88C(atn::Scene* scene);          // inferred: copies the settings into the scene
+    void fn_8047CB74(atn::Scene* scene, float t); // inferred: blends the scene towards the settings
 
     atn::FogSettings mFog;              // 0x000
     atn::Color mAmbient;                // 0x01C
@@ -151,7 +153,7 @@ struct EventConfig_unk {
     DamageEffectParam_unk mDC;     // inferred: damage effect of the render settings (+ 0x374)
     RainParam_unk m100;      // inferred: rain of the render settings (+ 0x2AC)
     std::vector<SceneSettingEntry_unk> m110; // inferred: light settings of the map
-    void* m11C; // inferred: light of the render scene (NewCampScene2_unk::m074, fn_80482ED8)
+    CharaLightData_unk* m11C; // inferred: light of the render scene (atn::Scene::m074, fn_80482ED8)
 };
 
 // inferred: curve of the manager (0x10 bytes; created by fn_8048B048 and fn_8048B3B8): a curve and an

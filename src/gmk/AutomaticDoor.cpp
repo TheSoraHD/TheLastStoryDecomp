@@ -4,6 +4,7 @@
 #include "atn/Memory.h"
 #include <boost/scoped_ptr.hpp>
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -52,12 +53,6 @@ struct ModelCamera_unk {
 inline void CreateCamera_unk(atn::Model* model) {
     model->m208.reset(new ((MemoryTag)6, "", "", 0) ModelCamera_unk());
 }
-// inferred: screen data of a sphere (result of fn_800C122C); names invented
-struct ScreenInfo_unk {
-    unsigned char m000[0x120];
-    int m120;
-};
-extern "C" void fn_800C2C20(ScreenInfo_unk* info, const Plane_unk* plane); // inferred: sets the reflection plane
 extern "C" int lbl_8087DF50; // inferred: reflections enabled
 // inferred: field and HUD (classes unknown)
 struct DoorField_unk {
@@ -278,7 +273,7 @@ void AutomaticDoor::vf10() {
     }
     if (mReflect != 0 && mReflectNode != -1) {
         atn::RenderManager* camera = atn::RenderManager::instance_;
-        ScreenInfo_unk* info = (ScreenInfo_unk*)camera->fn_800C122C(mModel.fn_80094F98()); // pending: view of the scene
+        atn::Scene* info = camera->fn_800C122C(mModel.fn_80094F98());
         if (info != 0 && lbl_8087DF50 != 0) {
             Plane_unk plane = mPlane;
             MtxPtr mtx = mModel.GetNodeMtx_unk(mReflectNode);
@@ -290,8 +285,8 @@ void AutomaticDoor::vf10() {
             SafeNormalize_unk(&plane.mNormal);
             atn::Vector3 trans = ((atn::Matrix3x4*)mtx)->GetTrans_unk();
             plane.mDist = -PSVECDotProduct(&plane.mNormal, &trans);
-            info->m120 = 1;
-            fn_800C2C20(info, &plane);
+            info->mReflectChara = 1;
+            info->fn_800C2C20(&plane);
         }
     }
 }
@@ -650,8 +645,8 @@ int AutomaticDoor::vf64(int arg) {
     return 0;
 }
 
-void AutomaticDoor::vf3C(void* lens) {
-    mModel.m1DC = (Lens_unk*)lens;
+void AutomaticDoor::vf3C(atn::Scene* scene) {
+    mModel.m1DC = scene;
     mModel.mFlags |= 0x10000;
 }
 
