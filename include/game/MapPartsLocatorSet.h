@@ -24,7 +24,7 @@ public:
     virtual void vf10();                            // 0x8049AA1C
     virtual void vf14();                            // 0x8049AAFC
     virtual bool vf20(const atn::Vector3& pos);     // 0x8049B980
-    virtual atn::AABB_unk vf24(MapPartsTree_unk* tree); // 0x8049AC18 (not decompiled)
+    virtual atn::AABB_unk vf24(atn::AABBTree* tree); // 0x8049AC18 (not decompiled)
     virtual void vf2C(unsigned int hash, int draw); // 0x8049B880
 
     void fn_8049B1F0();                 // inferred: creates the instances from the loaded file

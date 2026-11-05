@@ -11,6 +11,8 @@ struct AABB_unk {
     AABB_unk() {}
     AABB_unk(const Vector3& min, const Vector3& max) : mMin(min), mMax(max) {}
     AABB_unk Merge_unk(const AABB_unk& o) const; // 0x80070C98: union of both boxes
+    // inferred: name invented
+    Vector3 GetCenter_unk() const { return mMin + (mMax - mMin) * 0.5f; }
     Vector3 mMin;
     Vector3 mMax;
 };

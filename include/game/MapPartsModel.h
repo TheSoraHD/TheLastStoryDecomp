@@ -15,7 +15,7 @@ public:
     virtual void vf10();               // 0x8049C454
     virtual void vf14();               // 0x8049C458
     virtual bool vf20(const atn::Vector3& pos); // 0x8049C8A8
-    virtual atn::AABB_unk vf24(MapPartsTree_unk* tree); // 0x8049C688
+    virtual atn::AABB_unk vf24(atn::AABBTree* tree); // 0x8049C688
     virtual void vf28(atn::CsvTab* csv);     // 0x8049BB4C
     virtual void vf2C(unsigned int hash, int draw); // 0x8049C7AC
 

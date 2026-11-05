@@ -6,8 +6,9 @@
 #include "math/Vec.h"
 #include "atn/AABB_unk.h"
 
-// inferred: tree the map parts are registered in (atn/AABBTree.cpp); name invented
-struct MapPartsTree_unk;
+namespace atn {
+class AABBTree; // tree the map parts are registered in (atn/AABBTree.h)
+}
 
 class MapPartsBase : public atn::Task {
 public:
@@ -17,7 +18,7 @@ public:
     virtual bool vf20(const atn::Vector3& pos);  // 0x8049639C
     // inferred: bounding box; empty here (weak copy 0x8042488C, emitted by gmk/RotaryRoom; inlined
     // by MapPartsModel::vf24, whose temporaries are then laid out as in an inlined call)
-    virtual atn::AABB_unk vf24(MapPartsTree_unk* tree) {
+    virtual atn::AABB_unk vf24(atn::AABBTree* tree) {
         atn::AABB_unk box;
         box.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
         box.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);

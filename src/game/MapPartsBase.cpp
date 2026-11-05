@@ -229,7 +229,7 @@ void MapPartsArea::vf14() {
 }
 
 // inferred: bounding box of the boxes of the areas
-atn::AABB_unk MapPartsArea::vf24(MapPartsTree_unk* tree) {
+atn::AABB_unk MapPartsArea::vf24(atn::AABBTree* tree) {
     atn::AABB_unk box;
     box.mMin = atn::Vector3(1e16f, 1e16f, 1e16f);
     box.mMax = atn::Vector3(-1e16f, -1e16f, -1e16f);

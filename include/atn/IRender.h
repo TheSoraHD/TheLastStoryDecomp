@@ -10,16 +10,16 @@ class RenderManager;
 // inferred: renderer interface (RTTI __RTTI__Q23atn7IRender; base of atn::ModelBase and Event::DialogHead).
 // Other files still keep local copies (atn/LensFlare.h, atn/PostFx.h, atn/VideoTHP.cpp, ...). The first
 // virtual is named GetRenderType_unk instead of vf0C: Event::DialogHead overrides it apart from
-// atn::Task::vf0C, which has the same signature (the base symbol 0x80046218 keeps the name
-// vf0C__Q23atn7IRenderFv; no file that includes this header uses it).
+// atn::Task::vf0C, which has the same signature. The inline virtuals are emitted (weak) first in
+// atn/AABBTree.cpp (0x800461FC-0x8004621C).
 class IRender {
 public:
     virtual ~IRender() {}
-    virtual int GetRenderType_unk();                          // 0x80046218
-    virtual void vf10(RenderManager* view) = 0;              // inferred: draw
-    virtual int vf14(void* arg1, void* arg2, void* frustum); // 0x80046200
-    virtual void vf18(RenderManager* view);                  // 0x80046214: inferred: second draw pass
-    virtual void vf1C();                                      // 0x800461FC
+    virtual int GetRenderType_unk() { return 2; }                          // 0x80046218
+    virtual void vf10(RenderManager* view) = 0;                            // inferred: draw
+    virtual int vf14(void* arg1, void* arg2, void* frustum) { return 1; } // 0x80046200
+    virtual void vf18(RenderManager* view) {}                              // 0x80046214: inferred: second draw pass
+    virtual void vf1C() {}                                                 // 0x800461FC
 };
 
 } // namespace atn

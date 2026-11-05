@@ -4,6 +4,7 @@
 #include "std/string_members.h"
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
+#include "atn/AABBTree.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strstr(const char* s, const char* sub);
@@ -14,15 +15,6 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" int fn_800709F4(const atn::AABB_unk* box, const atn::Vector3* pos); // inferred: pos inside box
 
-// inferred: inserts a box into the map tree (atn/AABBTree.cpp)
-namespace atn {
-struct AABB_unk;
-// inferred: only the member used here (full class in src/atn/AABBTree.cpp)
-class AABBTree {
-public:
-    atn::Model::TreeEntry_unk fn_80045A24(const AABB_unk* box);
-};
-} // namespace atn
 
 // inferred: game settings
 struct Settings_unk {
@@ -252,15 +244,15 @@ void MapPartsModel::vf14() {
     }
 }
 
-atn::AABB_unk MapPartsModel::vf24(MapPartsTree_unk* tree) {
+atn::AABB_unk MapPartsModel::vf24(atn::AABBTree* tree) {
     atn::AABB_unk box;
     atn::Model::Res_unk* res = mModel.GetRes_unk();
     if (res != 0) {
         box.mMin = atn::Vector3(res->mMin);
         box.mMax = atn::Vector3(res->mMax);
         if (tree != 0) {
-            atn::Model::TreeEntry_unk e = atn::Model::TreeEntry_unk(((atn::AABBTree*)tree)->fn_80045A24((const atn::AABB_unk*)&box));
-            mModel.m200 = atn::Model::TreeEntry_unk(e);
+            atn::AABBTree::Handle e = atn::AABBTree::Handle(tree->fn_80045A24(&box));
+            mModel.m200 = atn::AABBTree::Handle(e);
         }
     } else {
         return MapPartsBase::vf24(tree);

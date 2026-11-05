@@ -5,27 +5,14 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 
-namespace atn {
-
-// inferred: renderer interface (see atn/VideoTHP.cpp, atn/TextureComposite.cpp)
-class IRender {
-public:
-    virtual ~IRender() {}
-    virtual int vf0C();                                   // 0x80046218
-    virtual void vf10(void* camera) = 0;
-    virtual int vf14(void* arg1, void* arg2, void* arg3); // 0x80046200
-    virtual void vf18();                                  // 0x80046214
-    virtual void vf1C();                                  // 0x800461FC
-};
-
-} // namespace atn
+#include "atn/IRender.h"
 
 // inferred: HOME button menu (0xD4 bytes), singleton (sInstance 0x8087F4E8)
 class HomeButtonMenu : public atn::IRender {
 public:
     HomeButtonMenu(void* arg);
     virtual ~HomeButtonMenu();
-    virtual void vf10(void* camera);
+    virtual void vf10(atn::RenderManager* view);
 
     static void fn_804405F8(void* arg); // inferred: creates the singleton
     void fn_8044073C();                // inferred: per-frame update
@@ -157,7 +144,7 @@ void HomeButtonMenu::fn_8044073C() {
     }
 }
 
-void HomeButtonMenu::vf10(void* camera) {
+void HomeButtonMenu::vf10(atn::RenderManager* view) {
     HBMRsoDraw();
 }
 

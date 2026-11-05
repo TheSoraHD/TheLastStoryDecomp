@@ -14,6 +14,7 @@
 #include "atn/ModelPose_unk.h"
 #include <boost/function.hpp>
 #include <boost/scoped_ptr.hpp>
+#include "atn/AABBTree.h"
 
 namespace atn {
 class LoadHandle;
@@ -34,7 +35,7 @@ struct MotionSlot_unk; // inferred: motion slot of a model (defined in atn/Model
 struct ModelComposite_unk; // inferred: composite texture of a model (defined in atn/Model.cpp)
 struct ModelCompositeTex_unk; // inferred: texture composite object (defined in atn/Model.cpp)
 struct Model;
-struct AABB_unk;
+// (AABB_unk in atn/AABB_unk.h)
 class CsvTab;
 }
 // inferred: camera object owned by a model (0x1FC bytes, created on load by CharaTask::fn_8013655C
@@ -131,12 +132,6 @@ struct ModelBase : public IRender {
         float m08;
         float m0C;
     };
-    // inferred: entry of the model in a map tree (set by MapPartsModel::vf24); names invented
-    struct TreeEntry_unk {
-        TreeEntry_unk() : mTree(0), mNode(0) {}
-        void* mTree;
-        void* mNode;
-    };
     // inferred: node edit (0x2C bytes; fn_80093F58/fn_80094778): the pose key of Event (same
     // SimpleVector<Event::PoseKey_unk> as CharaFaceControl, read with fn_80089EE4 from "NODE_EDIT" lines).
     // m00: node name hash, m04: flags (1 offset, 2 rotation, 4 scale), m08 offset, m14 rotation, m20 scale.
@@ -196,7 +191,7 @@ struct ModelBase : public IRender {
     int m1F4;
     int m1F8;
     int m1FC;
-    TreeEntry_unk m200;
+    AABBTree::Handle m200; // inferred: entry of the model in a map tree (set by MapPartsModel::vf24)
     boost::scoped_ptr<ModelCamera_unk> m208; // inferred
     int m20C_31_24 : 8; // inferred: load state (8 = ready)
     int m20C_23_16 : 8; // inferred: LOD counter (gmk::SwingObject::vf10 restores m50 from it)

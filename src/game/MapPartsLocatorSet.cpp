@@ -250,7 +250,7 @@ void MapPartsLocatorSet::vf14() {
 
 // NONMATCHING: 87.9% - the original reads the box of each instance twice (two copies of min and max,
 // z through frsp) and lays out the corner temporaries differently
-atn::AABB_unk MapPartsLocatorSet::vf24(MapPartsTree_unk* tree) {
+atn::AABB_unk MapPartsLocatorSet::vf24(atn::AABBTree* tree) {
     atn::AABB_unk box = MapPartsBase::vf24(tree);
     for (unsigned int i = 0; i < (unsigned int)mInstances.mSize; i++) {
         LocatorInstRes_unk* res = ((LocatorInstData_unk*)mInstances.mData[i]->mInst.mData)->m17C;

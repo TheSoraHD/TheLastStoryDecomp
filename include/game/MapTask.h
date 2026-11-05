@@ -2,6 +2,7 @@
 #define GAME_MAPTASK_H
 
 #include "atn/AABB_unk.h"
+#include "atn/AABBTree.h"
 #include "atn/FixedArray.h"
 #include "atn/LH_Binary.h"
 #include "atn/LH_Xsca.h"
@@ -91,7 +92,7 @@ public:
     MapPartsArea* mNextArea;                  // 0xC4: inferred: area list replacing the current one
     int mC8;
     int mCC;
-    unsigned char mTree[0x10];                // 0xD0: atn::AABBTree (class in src/atn/AABBTree.cpp)
+    atn::AABBTree mTree;                      // 0xD0
     int mCamera;                              // 0xE0: inferred: current camera (fn_804A04AC)
     int mE4;
     int mDefaultCamera;                       // 0xE8: inferred: default camera
