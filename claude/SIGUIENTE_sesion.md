@@ -2,7 +2,8 @@
 
 ## Estado actual (2026-11-05, rama `maparea-20261105` sin mergear)
 
-- `maparea-20261105` (desde `main` ff386cd): **12697 / 18119** en `report.json` (lost 0, fuzzdrop 0, `main.dol: OK`).
+- `maparea-20261105` (desde `main` ff386cd): **12698 / 18119** en `report.json` (lost 0, fuzzdrop 0, `main.dol: OK` en compilación limpia y en un
+  clon limpio de la rama; labelcheck sin empeorar, rep100 idéntico, ordercheck/poolcheck/mnemcheck limpios).
   Notas en `docs/maparea-20261105.md`.
   - Tipos únicos en cabeceras: `MapArea` (`include/game/MapArea.h`, 0x314, `atn::Scene` como **miembro** en 0x4C),
     `MapPartsArea` (`include/game/MapPartsArea.h`, 0x70, `vector<MapArea*>` en 0x58), `MapTask` completa
@@ -23,8 +24,9 @@
 
 1. **`atn::AABBTree` en una cabecera** (con `IRender` de atn/IRender.h, propuesta 5): desbloquea constructores y
    destructor de MapTask (0x8049D7E4, 0x8049D974, 0x8049DDD8), `SetTask` y `fn_8049D704`.
-2. **MapPartsBase**: ParseScene (7880 bytes), fn_80494354 y vf1C; con las tres el pool `@stringBase0` queda en orden
-   y vf0C (95,9%) deja de inlinear el stub. Los push_back siguen en el bloqueo del crecimiento de `vector`.
+2. **MapPartsBase**: ParseScene (7880 bytes, estructura ya analizada en las notas) y vf1C; con ellas el pool
+   `@stringBase0` queda en orden y fn_80494354 (94%) puede subir. ParseScene en sí no llegará al 100%
+   (`AddLight_unk` inlinea el crecimiento de `vector`). `fn_800DC288` devuelve `double`, no `float`.
 3. Enlazar `atn/Scene` (19/23): constructor 90%, `fn_800C2C20` 67% / `fn_800C2EE0` 72%, `fn_800C258C` 99,5%.
 4. `atn::ModelInstance` definida en cuatro sitios (Lemon.h, NewCampPartsBase.h, MapLift.cpp, ModelInstance.cpp) e
    `InstModel_unk`: unificar (desbloquea las vistas de partes).
