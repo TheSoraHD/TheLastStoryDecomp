@@ -1376,6 +1376,83 @@ void fn_804827D8(MapArea* area, void* arg) {
         }
     }
 }
+// inferred: sets the light of gmk::CharaLight on a map area (callback, as gmk fn_804225E0)
+void fn_80482B24(MapArea* part, void* light) {
+    part->m074 = light;
+    part->m070 = light != 0 || part->m070 != 0;
+    part->m0C8 = -1;
+}
+// inferred: argument of fn_80482B54: color matrices of the steps, the next step, the matrix it blends
+// with and the rate. Names invented.
+struct ColorMatrixBlend_unk {
+    std::vector<ColorMatrixParam_unk> mList;
+    int mIndex;                   // 0x0C
+    ColorMatrixParam_unk mTarget; // 0x10
+    float mRate;                  // 0x60
+};
+
+// NONMATCHING: 97.1% - float registers of the blend (1 - t in f10, not f6)
+// inferred: blends the next color matrix with the target and gives it to a map area (callback)
+void fn_80482B54(MapArea* area, void* arg) {
+    ColorMatrixBlend_unk* blend = (ColorMatrixBlend_unk*)arg;
+    if (blend->mIndex < (int)blend->mList.size()) {
+        ColorMatrixParam_unk cm = blend->mList[blend->mIndex];
+        ColorMatrixParam_unk target = blend->mTarget;
+        float t = blend->mRate;
+        for (int i = 0; i < 4; i++) {
+            cm.mRows[i].x = t * cm.mRows[i].x + (1.0f - t) * target.mRows[i].x;
+            cm.mRows[i].y = t * cm.mRows[i].y + (1.0f - t) * target.mRows[i].y;
+            cm.mRows[i].z = t * cm.mRows[i].z + (1.0f - t) * target.mRows[i].z;
+            cm.mRows[i].w = t * cm.mRows[i].w + (1.0f - t) * target.mRows[i].w;
+        }
+        area->mUseColorMatrix = 1;
+        area->mColorMatrix = cm;
+        blend->mIndex++;
+    }
+}
+
+
+// inferred: copies the direction and the color of a light to the first light of a map area (callback)
+void fn_80482D90(MapArea* area, void* arg) {
+    atn::Light* src = (atn::Light*)arg;
+    atn::Light* dst = fn_800C2448(&area->GetScene_unk(), 0);
+    dst->SetDir_unk(*src->GetDir_unk());
+    dst->SetColor(*src->GetColor_unk());
+}
+
+// inferred: copies the color and the blur of a god ray to a map area (callback)
+void fn_80482DF4(MapArea* area, void* arg) {
+    GodRayParam_unk* src = (GodRayParam_unk*)arg;
+    area->fn_8047C780()->mColor = src->mColor;
+    area->fn_8047C780()->mBlurHeight = src->mBlurHeight;
+    area->fn_8047C780()->mBlurWidth = src->mBlurWidth;
+}
+
+// inferred: sets the "LS" color of a map area (callback)
+void fn_80482E28(MapArea* area, void* arg) {
+    area->GetLS_unk() = *(atn::Color*)arg;
+}
+
+// inferred: argument of fn_80482E4C: the event settings and the next entry. Names invented.
+struct SceneIter_unk {
+    EventConfig_unk* mConfig;
+    int mIndex;
+};
+
+// inferred: sets the "LS" color of the next light setting to a map area (callback)
+void fn_80482E4C(MapArea* area, void* arg) {
+    SceneIter_unk* it = (SceneIter_unk*)arg;
+    if (it->mIndex < (int)it->mConfig->m110.size()) {
+        area->GetLS_unk() = atn::Color(it->mConfig->m110[it->mIndex].mSetting.mLS);
+        it->mIndex++;
+    }
+}
+
+// inferred: sets the ambient color of a map area (callback)
+void fn_80482EB4(MapArea* area, void* arg) {
+    area->GetAmbient_unk() = *(atn::Color*)arg;
+}
+
 
 // inferred: removes the lights of the event
 void Manager::fn_80484FBC() {
