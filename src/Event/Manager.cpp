@@ -1703,6 +1703,15 @@ void Manager::fn_80484E88() {
         MapManager::sInstance->fn_80491528(fn_80482B24, 0);
     }
 }
+
+// inferred: removes the lights of the event
+void Manager::fn_80484FBC() {
+    int n = lbl_8087EEF8->mCount;
+    for (int i = 0; i < n; i++) {
+        lbl_8087EEF8->fn_8007A154(0);
+    }
+    m1F10.clear();
+}
 // inferred: sets the color (0xAARRGGBB) and the blur of the god ray of the render scene and of the
 // map areas
 void Manager::fn_80486BEC(int color, float blur) {
@@ -1955,14 +1964,6 @@ void Manager::vf10() {
 
 
 
-// inferred: removes the lights of the event
-void Manager::fn_80484FBC() {
-    int n = lbl_8087EEF8->mCount;
-    for (int i = 0; i < n; i++) {
-        lbl_8087EEF8->fn_8007A154(0);
-    }
-    m1F10.clear();
-}
 
 void Manager::fn_8048F184(int index) {
     if ((unsigned int)index > 1) {
