@@ -15,6 +15,7 @@
 #include "sdk/OSFastCast.h" // OSInitFastCast (SDK header asm, approved 2026-10-21)
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "atn/ResRef_unk.h"
 
 extern "C" void OSInit();
 extern "C" void OSReport(const char* fmt, ...);
@@ -110,14 +111,6 @@ struct MainSound_unk {
 };
 extern "C" MainSound_unk* lbl_8087F018;
 
-// inferred: reference to a resource of the load manager (one word here; see game/CampSaveLoad.h)
-struct ResRef_unk {
-    ResRef_unk() : mRes(0) {}
-    ~ResRef_unk() { fn_80470528(); }
-    void fn_8047043C(const char* name, int a, int b); // inferred: loads `name`
-    void fn_80470528();                               // inferred: drops the reference
-    void* mRes;
-};
 
 namespace atn {
 class PostFxManager {

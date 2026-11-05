@@ -7,18 +7,8 @@
 #include "atn/Array_unk.h"
 #include "std/string.h"
 #include "game/GameSaveTask.h"
+#include "atn/ResRef_unk.h"
 
-// inferred: reference to a shared resource of the load manager (functions 0x80470364/0x80470528);
-// same layout as in atn/LH_MotionSet.cpp
-struct ResRef_unk {
-    ResRef_unk() : mRes(0), m04(0) {}
-    ~ResRef_unk() { fn_80470528(); }
-    void fn_80470364(const char* name, int a, int b, int c); // inferred: starts loading `name`
-    void fn_80470528();                                      // inferred: drops the reference
-
-    void* mRes;
-    void* m04;
-};
 
 // inferred: entry of CampSaveLoad::mEntries, one row of the list read by fn_8011B8D4 (0x18 bytes;
 // weak constructor 0x8011BBBC and destructor 0x80117E88); names invented
@@ -137,7 +127,8 @@ public:
     int m174;
     atn::Task* m178;            // 0x178: inferred: message window
     atn::Texture_unk mTextures[17]; // 0x17C
-    ResRef_unk m4AC;
+    ResRef_unk m4AC;            // 0x4AC: inferred: "/preload/saveload.pk"
+    int m4B0;                   // inferred: set once the archive is in use (was ResRef_unk::m04)
     int m4B4;
     atn::LH_Binary m4B8;
     atn::SimpleArray<CampSaveLoadEntry_unk> mEntries; // 0x4C0

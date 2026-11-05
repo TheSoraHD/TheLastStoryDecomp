@@ -5,6 +5,7 @@
 #include "atn/LoadManager.h"
 #include "atn/LH_Binary.h"
 #include <string.h>
+#include "atn/ResRef_unk.h"
 
 namespace atn {
 
@@ -63,16 +64,6 @@ struct PfsHandle_unk : public LoadHandle {
 
 } // namespace atn
 
-// inferred: reference to an archive (see game/CampSaveLoad.h)
-struct ResRef_unk {
-    void fn_80470364(const char* name, int a, int b, int c);
-    void fn_8047043C(const char* name, int a, int b);
-    void fn_80470528();
-    int fn_8047054C();
-
-    atn::PfsArchive_unk* mRes;
-    void* m04;
-};
 
 extern "C" atn::PfsArchive_unk* fn_8046EF08(atn::Loader* mgr, const char* name, const char* index,
                                             int flags); // inferred: opens an archive

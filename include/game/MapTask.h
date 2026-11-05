@@ -8,7 +8,7 @@
 #include "atn/LH_Xsca.h"
 #include "atn/Task.h"
 #include "game/ResHandle.h"
-#include "game/ResRef_unk.h"
+#include "atn/ResRef_unk.h"
 #include "std/string.h"
 
 class MapPartsArea;

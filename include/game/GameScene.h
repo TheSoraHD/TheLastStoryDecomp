@@ -16,7 +16,7 @@ class Model;
 }
 class CharaTask;
 
-#include "game/ResRef_unk.h"
+#include "atn/ResRef_unk.h"
 
 // inferred: run-length encoded array of u16 (see game/U16Table_unk.cpp)
 struct U16Table_unk;
