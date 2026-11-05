@@ -60,9 +60,9 @@ static float sRate = 0.1f;
 
 // inferred: sets the light of a map part (callback of fn_80491528)
 void fn_8041CD24(MapArea* part, void* light) {
-    part->mC0 = light;
-    part->mBC = light != 0 || part->mBC != 0;
-    part->m114 = -1;
+    part->m074 = light;
+    part->m070 = light != 0 || part->m070 != 0;
+    part->m0C8 = -1;
 }
 
 // inferred: random value in [0, 1] (name invented)

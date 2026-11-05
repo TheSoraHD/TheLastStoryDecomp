@@ -1327,6 +1327,55 @@ void Manager::fn_80481A20() {
         }
     }
 }
+// inferred: inverse of fn_8047C88C; only inlined (fn_80481B9C), so the linker strips it
+void SceneSetting_unk::Get_unk(NewCampScene2_unk* scene) {
+    mFog = *scene->fn_8047C770();
+    mAmbient = scene->GetAmbient_unk();
+    mLS = scene->GetLS_unk();
+    m3C = *scene->fn_8047C778();
+    mGodRay = *scene->fn_8047C780();
+    mShadow = *scene->fn_8047C7D4();
+    mColorMatrix = *scene->fn_8047C7DC();
+    mHaze = *scene->fn_8047C848();
+    m148 = scene->m120;
+    mLight = *fn_800C2448(scene, 0);
+}
+
+// NONMATCHING: 58.4% - std::vector::push_back: the original takes another path for this element
+// (in-place copy when size < cap, else the length check fn_8049003C, which returns 0, and the
+// reallocation fn_80490098; copies through fn_80482400), not the one of include/std/vector.h
+// inferred: adds the light settings of a map area to the event settings (callback, see 0x804834E4)
+void fn_80481B9C(MapArea* area, void* arg) {
+    EventConfig_unk* config = (EventConfig_unk*)arg;
+    SceneSettingEntry_unk entry;
+    entry.mSetting.Get_unk(&area->GetScene_unk());
+    entry.mId = area->m24;
+    config->m110.push_back(entry);
+}
+
+// inferred: argument of fn_804827D8 (built by fn_80483E80 and fn_80487BB4). Names invented.
+struct SceneApply_unk {
+    EventConfig_unk* mConfig;
+    int m04;
+    bool mBlend; // 0x08
+    float mRate; // 0x0C
+};
+
+// inferred: applies (or blends) the light settings of the event to a map area (callback, 0x80487500)
+void fn_804827D8(MapArea* area, void* arg) {
+    SceneApply_unk* apply = (SceneApply_unk*)arg;
+    EventConfig_unk* config = apply->mConfig;
+    for (unsigned int i = 0; i < config->m110.size(); i++) {
+        if (area->m24 == config->m110[i].mId) {
+            if (apply->mBlend) {
+                config->m110[i].mSetting.fn_8047CB74(&area->GetScene_unk(), apply->mRate);
+            } else {
+                config->m110[i].mSetting.fn_8047C88C(&area->GetScene_unk());
+            }
+            return;
+        }
+    }
+}
 
 // inferred: removes the lights of the event
 void Manager::fn_80484FBC() {

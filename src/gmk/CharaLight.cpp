@@ -48,9 +48,9 @@ extern "C" LightTarget_unk* fn_800C16B4(Camera_unk* camera);
 // inferred: sets the light of a map part (callback of fn_80491528). It is at 0x804225E0, just
 // before the CharaLight split (the split will have to start there when the unit is linked).
 void fn_804225E0(MapArea* part, void* light) {
-    part->mC0 = light;
-    part->mBC = light != 0 || part->mBC != 0;
-    part->m114 = -1;
+    part->m074 = light;
+    part->m070 = light != 0 || part->m070 != 0;
+    part->m0C8 = -1;
 }
 
 namespace gmk {

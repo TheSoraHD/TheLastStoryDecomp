@@ -1680,7 +1680,7 @@ int ActionCameraChange::vf0C(Action* arg, int phase) {
 }
 
 void ActionColorMatrix::fn_80561B50(MapArea* model, void* arg) {
-    ColorMatrixParam_unk* dst = model->m2AC != 0 ? &model->m2B0 : &lbl_8087EFA8->m324;
+    ColorMatrixParam_unk* dst = model->mUseColorMatrix != 0 ? &model->mColorMatrix : &lbl_8087EFA8->m324;
     *dst = *(ColorMatrixParam_unk*)arg;
 }
 
@@ -1816,7 +1816,7 @@ int ActionLocatorHide::vf0C(Action* arg, int phase) {
 }
 
 void ActionMapReflect::fn_805628B8(MapArea* model, const void* arg) {
-    model->m16C = ((Action*)arg)->GetParam_unk(0)->m04.i;
+    model->m120 = ((Action*)arg)->GetParam_unk(0)->m04.i;
 }
 
 int ActionMapReflect::vf0C(Action* arg, int phase) {

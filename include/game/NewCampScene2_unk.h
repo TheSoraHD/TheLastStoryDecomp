@@ -30,8 +30,13 @@ struct NewCampScene2_unk {
     atn::Color m02C;                // 0x02C
     atn::FogSettings mFog;          // 0x03C
     std::vector<Light_unk> mLights; // 0x058
-    unsigned char m064[0x120 - 0x064];
-    int m120;                       // 0x120
+    unsigned char m064[0x070 - 0x064];
+    int m070;                       // 0x070: inferred: a light of gmk::CharaLight/RoomLight is set (MapArea)
+    void* m074;                     // 0x074: inferred: light of gmk::CharaLight/RoomLight (MapArea)
+    unsigned char m078[0x0C8 - 0x078];
+    int m0C8;                       // 0x0C8: inferred: set by gmk::RoomLight (-1: none)
+    unsigned char m0CC[0x120 - 0x0CC];
+    int m120;                       // 0x120: inferred: reflection mode (Event::ActionMapReflect)
     unsigned char m124[0x198 - 0x124];
     GodRayParam_unk mGodRay;        // 0x198
     unsigned char m1E0[0x1F8 - 0x1E0];

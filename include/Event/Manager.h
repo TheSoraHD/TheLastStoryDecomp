@@ -90,6 +90,7 @@ struct ManagerEntry_unk {
 // inferred: light settings of a scene (0x190 bytes): copied into the scene (fn_8047C88C) or blended
 // with it (fn_8047CB74). Name invented.
 struct SceneSetting_unk {
+    void Get_unk(NewCampScene2_unk* scene);              // inferred: copies the settings of the scene (inlined in fn_80481B9C)
     void fn_8047C88C(NewCampScene2_unk* scene);          // inferred: copies the settings into the scene
     void fn_8047CB74(NewCampScene2_unk* scene, float t); // inferred: blends the scene towards the settings
 
@@ -105,10 +106,11 @@ struct SceneSetting_unk {
     atn::Light mLight;                  // 0x14C
 };
 
-// inferred: light settings with their id (0x194 bytes; fn_804827D8 blends the scene towards one)
+// inferred: light settings with their id (0x194 bytes; fn_80481B9C adds one per area of the map,
+// fn_804827D8 blends the scene towards one)
 struct SceneSettingEntry_unk {
-    int mId;
-    SceneSetting_unk mSetting; // 0x04
+    SceneSetting_unk mSetting;
+    int mId; // 0x190: inferred: id of the area (MapPartsAreaInit_unk::m24)
 };
 
 // inferred: settings of the event at 0x1AB0 of the manager (0x120 bytes). Names invented.

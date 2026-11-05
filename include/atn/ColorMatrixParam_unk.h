@@ -39,6 +39,8 @@ namespace atn {
 // fog of a scene (real name from the RSO: __as__Q23atn11FogSettingsFRCQ23atn11FogSettings, weak copy
 // 0x8047C850); member names invented
 struct FogSettings {
+    // inferred: defaults of the fog of a scene setting (Event::Manager fn_80481B9C)
+    FogSettings() : mMode(0), mStart(150.0f), mEnd(500.0f), mColor(0.5f, 0.5f, 0.5f, 1.0f) {}
     int mMode;    // 0x00
     float mStart; // 0x04
     float mEnd;   // 0x08

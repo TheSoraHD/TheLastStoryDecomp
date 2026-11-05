@@ -207,19 +207,19 @@ int ActionCameraSetting::vf08(Action* arg) {
 void ActionCameraEffect::fn_8055BB08(MapArea* area, const void* data) {
     Action* arg = (Action*)data;
     if (arg->GetParam_unk(1)->m04.i != 0) {
-        area->m88 = arg->GetParam_unk(2)->m04.i + 1;
-        area->m8C = arg->GetParam_unk(3)->m04.f;
-        area->m90 = arg->GetParam_unk(4)->m04.f;
+        area->mFog.mMode = arg->GetParam_unk(2)->m04.i + 1;
+        area->mFog.mStart = arg->GetParam_unk(3)->m04.f;
+        area->mFog.mEnd = arg->GetParam_unk(4)->m04.f;
         unsigned int c = arg->GetParam_unk(5)->m04.i;
-        area->m94 = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
+        area->mFog.mColor = atn::Color4f_unk((1.0f / 255.0f) * ((c >> 16) & 0xFF), (1.0f / 255.0f) * ((c >> 8) & 0xFF),
                                    (1.0f / 255.0f) * (c & 0xFF), (1.0f / 255.0f) * (c >> 24));
     } else {
-        area->m88 = 0;
+        area->mFog.mMode = 0;
     }
 }
 
 void ActionCameraEffect::fn_8055BC5C(MapArea* area, void* arg) {
-    area->m244 = *(HazeParam_unk*)arg;
+    area->mHaze = *(HazeParam_unk*)arg;
 }
 
 // inferred: phase 0 sets the effect of type param 0 (1 bloom, 2 fog, 3 wait, 4 damage, 5 rain, 6 haze,
