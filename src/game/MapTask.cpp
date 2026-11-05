@@ -60,8 +60,8 @@ int MapTask::fn_8049D5DC(char* name, int type, int id, int subId) {
 MapTask* MapTask::SetTask(atn::Task* parent, const char* path) { return 0; }
 // NONMATCHING: stub - choose and allocate a map task subtype.
 MapTask* MapTask::fn_8049D704(atn::Task* parent, int type, int id, int subId) { return 0; }
-// NONMATCHING: stub - initialize a MapTask with a loader argument.
-extern "C" void fn_8049D7E4() {}
+// NONMATCHING: stub - constructor from a map file (needs atn::AABBTree in a header, see MapTask.h).
+MapTask::MapTask(atn::Task* parent, const char* path) : atn::Task(parent) {}
 
 // NONMATCHING: stub - constructor body and map resource initialization.
 MapTask::MapTask(atn::Task* parent, int type, int id, int subId) : atn::Task(parent) {}
@@ -133,12 +133,31 @@ void MapTask::fn_804A0E90(unsigned int hash, int draw) {
         part->vf2C(hash, draw);
     }
 }
-// NONMATCHING: stub - update map resource loading.
-extern "C" void fn_804A0EFC() {}
-// NONMATCHING: stub - reset map transition state.
-extern "C" void fn_804A0F58() {}
-// NONMATCHING: stub - transition between map models.
-extern "C" void fn_804A0F80() {}
+// inferred: switches to the area list `area` (no blend)
+// NONMATCHING: the empty stub of fn_804A0F80 is inlined (the original ends with a tail call)
+void MapTask::fn_804A0EFC(MapPartsArea* area) {
+    for (int i = 0; i < mAreas.mSize; i++) {
+        if (mAreas.mData[i] == area) {
+            fn_804A0F58(i, 1.0f, 0.0f);
+            return;
+        }
+    }
+}
+
+// inferred: switches to the area list `index` with a blend (t, speed)
+// NONMATCHING: the empty stub of fn_804A0F80 is inlined (the original ends with a tail call)
+void MapTask::fn_804A0F58(int index, float t, float speed) {
+    if (index < (int)mAreas.mSize) {
+        m10C = mAreaIndex;
+        mAreaIndex = index;
+        m110 = t;
+        m114 = speed;
+        fn_804A0F80();
+    }
+}
+
+// NONMATCHING: stub - transition between the area lists.
+void MapTask::fn_804A0F80() {}
 // NONMATCHING: stub - refreshes the map after a load.
 void MapTask::fn_804A1C4C() {}
 // NONMATCHING: stub - stores the state of the map.

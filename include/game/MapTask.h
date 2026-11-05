@@ -23,6 +23,7 @@ struct CameraBox;
 // Member names invented unless noted.
 class MapTask : public atn::Task {
 public:
+    MapTask(atn::Task* parent, const char* path);             // 0x8049D7E4
     MapTask(atn::Task* parent, int type, int id, int subId); // 0x8049D974
     virtual ~MapTask();         // 0x8049DDD8
     virtual int vf0C();         // 0x8049DEE4
@@ -42,6 +43,9 @@ public:
     MapInstance_unk* fn_804A0614(const std::string& name);         // inferred: instance of the locator sets
     void fn_804A0E18(const char* name, int draw);   // inferred: MapPartsBase::vf2C on all the parts
     void fn_804A0E90(unsigned int hash, int draw);  // inferred: MapPartsBase::vf2C on all the parts
+    void fn_804A0EFC(MapPartsArea* area);                // inferred: switches to an area list
+    void fn_804A0F58(int index, float t, float speed);    // inferred: switches to an area list with a blend
+    void fn_804A0F80();                                  // inferred: transition between the area lists
     void fn_804A1C4C(); // inferred: refreshes the map after a load
     void fn_804A1D2C(); // inferred: stores the state of the map
 
