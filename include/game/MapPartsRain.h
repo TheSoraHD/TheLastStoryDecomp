@@ -30,9 +30,12 @@ public:
     // inferred: factory used by the map parts loader
     static MapPartsRain* fn_8049CDBC(atn::Task* parent, int type, atn::CsvTab* csv);
     void fn_8049D1A4(MapPartsRain* a, MapPartsRain* b, float t);
-    // inferred: starts the rain when it is on (weak copy 0x804948D8, called by MapPartsArea fn_80494354;
-    // defined in game/MapPartsBase.cpp until that function is written)
-    void fn_804948D8();
+    // inferred: starts the rain when it is on (weak copy 0x804948D8, game/MapPartsBase.cpp)
+    void fn_804948D8() {
+        if (mOn != 0) {
+            mRain.fn_800B2180();
+        }
+    }
 
     int mOn;          // 0x50
     atn::Rain mRain;  // 0x54

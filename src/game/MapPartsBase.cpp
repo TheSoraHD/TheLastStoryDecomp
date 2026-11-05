@@ -15,13 +15,25 @@
 #include "game/TownTask.h"
 #include "game/GameConfig_unk.h"
 #include "atn/DrawHelper.h"
+#include "atn/Light_unk.h"
+#include "game/AreaEffConfig.h"
+#include "std/string.h"
+#include "std/string_members.h"
 #include "std/new.h"
 #include "std/vector.h"
 
 // inferred: copies of inline functions of other classes that the original emits here (their caller,
 // fn_80494354, is not written yet: then they become the weak copies of inline functions again)
 extern "C" float fn_800DC288(const char* text);
-extern "C" void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
+extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
+extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
+inline void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv);
+namespace Event {
+// inferred: key light of the render manager (weak copy 0x804848C4 in Event/Manager.cpp; GetKeyLight in the RSO?)
+atn::Light* GetViewLight_unk(atn::RenderManager* view);
+}
 
 MapPartsArea* MapPartsArea::SetTask(atn::Task* parent, int type, atn::CsvTab& csv) {
     return fn_80491F94(parent, type, csv.fn_8005B9CC());
@@ -69,19 +81,11 @@ MapPartsArea::~MapPartsArea() {
     }
 }
 
-// inferred: weak copy of atn::RenderManager::GetScene (RSO name); defined here (not inline) until
-// its caller fn_80494354 is written
-atn::Scene* atn::RenderManager::GetScene() {
-    return mScene;
-}
-
 // inferred: reads the areas once the csv is loaded, then waits for their scenes
-// NONMATCHING: 95.89% - the empty stub of fn_80494354 is inlined (the call goes away), and the loop
-// increments the offset before the index
 int MapPartsArea::vf0C() {
     if (m64 != 0) {
         int ready = 1;
-        for (unsigned int i = 0; i < mAreas.size(); i++) {
+        for (int i = 0; i < mAreas.size(); i++) {
             if (mAreas[i]->mScene.fn_800C2108() != 0) {
                 ready = 0;
             }
@@ -100,55 +104,89 @@ int MapPartsArea::vf0C() {
 // NONMATCHING: 0.05% - map area resource loading is not reconstructed yet.
 void MapPartsArea::ParseScene(atn::Scene* scene, atn::CsvTab& csv) {}
 
-// NONMATCHING: 0.28% - map area CSV parsing and resource setup are not reconstructed yet.
-void MapPartsArea::fn_80494354() {}
-
-// inferred: weak copy (starts the rain when it is on); defined here until fn_80494354 is written
-void MapPartsRain::fn_804948D8() {
-    if (mOn != 0) {
-        mRain.fn_800B2180();
-    }
+// inferred: reads the areas of the csv: the scene settings go to the current area (ParseScene), "AREA"
+// starts a new one with its first box and the fog, ambient color and key light of the current scene
+// NONMATCHING: 94.02% - the original keeps the current area in r28 (stored to the stack for push_back and
+// reloaded after it; here the new area is read back from the stack), other registers, and the offsets of
+// the keys in the string pool (ParseScene and vf1C, which come first and last in the pool, are not written)
+void MapPartsArea::fn_80494354() {
+    atn::CsvTab csv(mFile.fn_80470580(), mFile.fn_8047059C());
+    MapArea* area = 0;
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "AMBIENT_COLOR") == 0 || strcmp(key, "COVERAGEMAP") == 0 || strcmp(key, "CLOUDMAP") == 0 ||
+            strcmp(key, "FOG") == 0 || strcmp(key, "RAIN") == 0 || strcmp(key, "HAZE") == 0 ||
+            strcmp(key, "LIGHT") == 0 || strcmp(key, "LIGHTSURROUND") == 0 || strcmp(key, "GODRAY") == 0 ||
+            strcmp(key, "COLOR_MATRIX") == 0 || strcmp(key, "SHADOW") == 0 || strcmp(key, "REFLECT") == 0) {
+            ParseScene(&area->mScene, csv);
+        } else if (strcmp(key, "AREA") == 0) {
+            MapArea* newArea = new ((MemoryTag)12, "", "", 0) MapArea;
+            strncpy(newArea->mName, csv.fn_8005B9CC(), 0x20);
+            newArea->mName[0x1F] = 0;
+            newArea->mHash = fn_800DC6B4(newArea->mName);
+            atn::AABB_unk box;
+            box.mMin.x = fn_800DC288(csv.fn_8005B9CC());
+            box.mMin.y = fn_800DC288(csv.fn_8005B9CC());
+            box.mMin.z = fn_800DC288(csv.fn_8005B9CC());
+            box.mMax.x = fn_800DC288(csv.fn_8005B9CC());
+            box.mMax.y = fn_800DC288(csv.fn_8005B9CC());
+            box.mMax.z = fn_800DC288(csv.fn_8005B9CC());
+            newArea->mSegments.push_back(box);
+            *newArea->mScene.GetFog() = *fn_8008B964()->GetScene()->GetFog();
+            newArea->mScene.GetAmbientLight() = fn_8008B964()->GetScene()->GetAmbientLight();
+            newArea->mScene.AddLight_unk(*Event::GetViewLight_unk(fn_8008B964()));
+            newArea->mEffConfig = 0;
+            newArea->mRainPart = 0;
+            mAreas.push_back(newArea);
+            area = newArea;
+        } else if (strcmp(key, "AREA_BOX") == 0) {
+            atn::AABB_unk box;
+            box.mMin.x = fn_800DC288(csv.fn_8005B9CC());
+            box.mMin.y = fn_800DC288(csv.fn_8005B9CC());
+            box.mMin.z = fn_800DC288(csv.fn_8005B9CC());
+            box.mMax.x = fn_800DC288(csv.fn_8005B9CC());
+            box.mMax.y = fn_800DC288(csv.fn_8005B9CC());
+            box.mMax.z = fn_800DC288(csv.fn_8005B9CC());
+            area->mSegments.push_back(box);
+        } else if (strcmp(key, "AREA_CYLINDER") == 0) {
+            MapPartsAreaParam_unk cylinder;
+            cylinder.mPos.x = fn_800DC288(csv.fn_8005B9CC());
+            cylinder.mPos.y = fn_800DC288(csv.fn_8005B9CC());
+            cylinder.mPos.z = fn_800DC288(csv.fn_8005B9CC());
+            cylinder.m10 = fn_800DC288(csv.fn_8005B9CC());
+            cylinder.mC = fn_800DC288(csv.fn_8005B9CC());
+            area->mParams.push_back(cylinder);
+        } else if (strcmp(key, "EFF_CONFIG") == 0) {
+            if (area != 0) {
+                area->mEffConfig = AreaEffConfig::fn_80041A80(this, csv.fn_8005B9CC());
+            }
+        } else if (strcmp(key, "SET_AREA") == 0) {
+            if (area != 0) {
+                area->mPaths.push_back(fn_8006B2D8(fn_8006B174(std::string(csv.fn_8005B9CC()))));
+            }
+        } else if (strcmp(key, "RAINDROPS") == 0) {
+            if (area != 0) {
+                area->mRainPart = MapPartsRain::fn_8049CDBC(this, 8, &csv);
+                area->mRainPart->fn_804948D8();
+                area->mRainPart->fn_800D246C(1);
+            }
+        } else if (strcmp(key, "MODEL") != 0 && strcmp(key, "MODEL_MAT_COLOR") == 0) {
+            if (area != 0) {
+                MapArea::MatColorInfo info;
+                info.mHash = fn_800DC6B4(fn_8006B2D8(fn_8006B174(std::string(csv.fn_8005B9CC()))).c_str());
+                fn_804948F0(&info.mColor.r, &csv);
+                area->mMatColors.push_back(info);
+            }
+        }
+    } while (csv.fn_8005BBF8());
 }
 
 // inferred: reads a color (four values) from the csv
-extern "C" void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv) {
+inline void fn_804948F0(float* values, atn::CsvBase<char, 9, 13, 34>* csv) {
     values[0] = fn_800DC288(csv->fn_8005B9CC());
     values[1] = fn_800DC288(csv->fn_8005B9CC());
     values[2] = fn_800DC288(csv->fn_8005B9CC());
     values[3] = fn_800DC288(csv->fn_8005B9CC());
-}
-
-// inferred: the implicit constructor (weak copy); defined here until fn_80494354 is written
-MapArea::MapArea() {}
-
-// The four functions below are the push_back of the vectors of MapArea and MapPartsArea (weak copies
-// of std::vector<T>::push_back called by fn_80494354); written as functions until fn_80494354 is.
-// NONMATCHING: 92.69% - the in-place copy matches; the vector reallocation path differs from the
-// original's hand-inlined 24-byte element growth sequence.
-extern "C" void fn_804949D4(std::vector<atn::AABB_unk>* values, const atn::AABB_unk* value) {
-    values->push_back(*value);
-}
-
-// NONMATCHING: 96.56% - the allocator slow path matches, but MWCC loads size/capacity in the
-// opposite register order in the fast path (same standalone std::vector pointer specialization).
-extern "C" void fn_80494D78(std::vector<MapArea*>* values, MapArea* const* value) {
-    values->push_back(*value);
-}
-
-// inferred: weak copy; defined here until fn_80494354 is written
-MapPartsAreaParam_unk::MapPartsAreaParam_unk() {}
-
-// NONMATCHING: 92.69% - the in-place 0x14-byte record copy matches; the vector reallocation path differs.
-extern "C" void fn_80495070(std::vector<MapPartsAreaParam_unk>* values, const MapPartsAreaParam_unk* value) {
-    values->push_back(*value);
-}
-
-// inferred: weak copy; defined here until fn_80494354 is written
-MapArea::MatColorInfo::MatColorInfo() {}
-
-// NONMATCHING: 92.90% - the in-place field copy matches; the vector reallocation path differs.
-extern "C" void fn_80495418(std::vector<MapArea::MatColorInfo>* values, const MapArea::MatColorInfo* value) {
-    values->push_back(*value);
 }
 
 // NONMATCHING: 0.22% - map debug menu entries are not reconstructed yet.

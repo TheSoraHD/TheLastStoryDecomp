@@ -14,7 +14,7 @@ class MapPartsRain;
 // inferred: record of the vector at MapArea 0x34 (0x14 bytes, read from five csv values by
 // MapPartsBase fn_80494354); name invented
 struct MapPartsAreaParam_unk {
-    MapPartsAreaParam_unk(); // 0x8049506C (weak; empty, defined in game/MapPartsBase.cpp)
+    MapPartsAreaParam_unk() {} // inferred: weak copy 0x8049506C
 
     atn::Vector3 mPos;
     float mC;
@@ -30,14 +30,12 @@ struct MapArea {
     // inferred: color of a material of the area (0x14 bytes; hash of the material name and color
     // read from the csv, MapPartsBase fn_80494354); the name is in the DWARF of the RSO
     struct MatColorInfo {
-        MatColorInfo(); // 0x80495414 (weak; empty, defined in game/MapPartsBase.cpp)
+        MatColorInfo() {} // inferred: weak copy 0x80495414
         MatColorInfo(const MatColorInfo& other) : mHash(other.mHash), mColor(other.mColor) {}
 
         unsigned int mHash;
         atn::Color mColor;
     };
-
-    MapArea(); // 0x80494964 (the implicit constructor, weak; defined in game/MapPartsBase.cpp)
 
     // inferred: the scene of the area (Event::Manager fn_80481B9C copies its light settings); name invented
     atn::Scene& GetScene_unk() { return mScene; }

@@ -92,8 +92,7 @@ public:
     // fn_8008B964(); name invented
     void SetCamera_unk(const Camera& camera) { mCamera = camera; }
     Camera* fn_800F7258(); // inferred: camera (weak copy 0x800F7258, game/BattleTask)
-    // RSO name; weak copy 0x804923AC (defined in game/MapPartsBase.cpp until its caller is written)
-    Scene* GetScene();
+    Scene* GetScene() { return mScene; } // RSO name; weak copy 0x804923AC (game/MapPartsBase.cpp)
 
     IRenderLayer* mLayers[0x14];   // 0x000: inferred: render layers (0: occlusion, 3: shadow, 4: reflection,
                                    // 6: 3D object, 14/17: post effects, 18: 2D object...)
