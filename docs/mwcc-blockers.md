@@ -110,3 +110,11 @@ Tres funciones de MSL mutuamente recursivas e inline (ctor → `tie()->flush()` 
 
 Con `IsPlayer` const (nombre del RSO) MWCC vuelve a cargar `mType` para el `?:` en vez de reutilizar el valor del `!= 2` anterior (el original hace `cntlzw` sobre él, como da una inline no const: 99,15% frente a 98,96%). Probado (2026-10-29): variable local para el puntero, `int`/`bool` intermedios, cast a `const CharaTask*`, `mType == 0` directo y cinco cuerpos de `IsPlayer` (con `GetType_unk() const`, referencia, `!mType`...): ninguno lo arregla.
 
+
+## `IpcReplyHandler` (ipcclt.c, 0x8061BDC0)
+
+El original compila `switch (req->base.fd)` (casos 3, 6, 7) como arbol (`cmpwi 6; beq; bge; cmpwi 3`); `Wii/1.0-1.3` dan cadena lineal. Probado (2026-11-05): casos vacios extra, `default`, casts a enum/u32/u8; los `GC/3.0a*` dan el arbol pero cambian la programacion de las inline de `__ios_Ipc1` en las funciones sincronas.
+
+## `TeamAI_unk::fn_805AE864` y sus copias inline (0x805AE864)
+
+Indice/personaje en r28/r27 en vez de r27/r28 y los dos `Vector3` (dir, back) intercambiados en la pila. Probado: declarar `back` primero, temporal `&Vector3(...)`, variables fuera del bucle.
