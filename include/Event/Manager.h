@@ -189,7 +189,8 @@ public:
     void fn_80484A78(int color); // inferred: ambient color of the map areas
     void fn_80486DAC(int color); // inferred: "LS" color
     void fn_80486F50();
-    void fn_80487064(int on);
+    void fn_804870F4();
+    void fn_80487064(int mode); // inferred: GameMap_unk::m104 of the current map
     void fn_8048EE78(int a, float r, float g, float b, float c, float d, int e, float f);
     void fn_80488050(Sequence* manager, Action* arg);
     void fn_80488A74(const char* name, int fade, float volume);

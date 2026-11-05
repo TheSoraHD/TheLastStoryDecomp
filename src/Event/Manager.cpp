@@ -1452,6 +1452,19 @@ void fn_80482E4C(MapArea* area, void* arg) {
 void fn_80482EB4(MapArea* area, void* arg) {
     area->GetAmbient_unk() = *(atn::Color*)arg;
 }
+// inferred: map of the field, else the first map part (inlined in fn_80482ED8, fn_80483714,
+// fn_80487064 and fn_804870F4); name invented
+inline GameMap_unk* GetCurrentMap_unk() {
+    GameMap_unk* map = 0;
+    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
+        map = fn_80373148(lbl_8087F430);
+    }
+    if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.size() != 0) {
+        map = (GameMap_unk*)MapManager::sInstance->mParts[0]; // inferred: the same map task
+    }
+    return map;
+}
+
 // NONMATCHING: 97.8% - scheduling of the default damage constants and registers of m110.clear()
 // inferred: saves the render settings, the light settings of the scene and of the map areas, the
 // map and the BGM before an event (once: m1AB0.m00)
@@ -1483,13 +1496,7 @@ void Manager::fn_80482ED8() {
         m1AB0.m110.clear();
         MapManager::sInstance->fn_80491528(fn_80481B9C, &m1AB0);
         m1AB0.m11C = fn_800C16B4(lbl_8087EFB4)->m074;
-        GameMap_unk* map = 0;
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-            map = fn_80373148(lbl_8087F430);
-        }
-        if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.size() != 0) {
-            map = (GameMap_unk*)MapManager::sInstance->mParts[0]; // inferred: the same map task
-        }
+        GameMap_unk* map = GetCurrentMap_unk();
         if (map != 0) {
             m1D6C = map->m104;
         }
@@ -1537,13 +1544,7 @@ void Manager::fn_80483714(int a, int b) {
     m1BD0.fn_8047C88C(fn_800C16B4(view));
     SceneApply_unk apply(&m1AB0);
     MapManager::sInstance->fn_80491528(fn_804827D8, &apply);
-    GameMap_unk* map = 0;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        map = fn_80373148(lbl_8087F430);
-    }
-    if (map == 0 && MapManager::sInstance != 0 && MapManager::sInstance->mParts.size() != 0) {
-        map = (GameMap_unk*)MapManager::sInstance->mParts[0]; // inferred: the same map task
-    }
+    GameMap_unk* map = GetCurrentMap_unk();
     if (map != 0) {
         map->m104 = m1D6C;
     }
@@ -1696,6 +1697,24 @@ void Manager::fn_80486F50() {
     SceneApply_unk apply(&m1AB0);
     MapManager::sInstance->fn_80491528(fn_80482E4C, &apply);
 }
+// inferred: sets GameMap_unk::m104 (0-3) of the current map
+void Manager::fn_80487064(int mode) {
+    if (mode >= 0 && mode <= 3) {
+        GameMap_unk* map = GetCurrentMap_unk();
+        if (map != 0) {
+            map->m104 = mode;
+        }
+    }
+}
+
+// inferred: restores GameMap_unk::m104 of the current map (saved by fn_80482ED8)
+void Manager::fn_804870F4() {
+    GameMap_unk* map = GetCurrentMap_unk();
+    if (map != 0) {
+        map->m104 = m1D6C;
+    }
+}
+
 
 
 
