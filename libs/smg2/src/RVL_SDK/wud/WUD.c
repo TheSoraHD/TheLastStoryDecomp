@@ -25,6 +25,7 @@ void WUDStoredLinkKeyCallback(void* p1);
 void WUDPowerManagerCallback(BD_ADDR addr, tBTM_PM_STATUS status, UINT16 value, UINT8 hciStatus);
 
 static void InitCore(void);
+void fn_80673070(WUDDevInfo* pInfo);
 static WUDInitState fn_80670C70(void);
 void WUDiResetAuthFailCount(void);
 
@@ -45,6 +46,19 @@ static u8 _scFlush;  // version 2010: defined here
 static s32 _wudFlag;
 static s32 _nandStep;
 static u8 _nandBusy;
+static u32 _wbcSeed;
+
+// inferred: balance board record of the version of 2010 (0x84 bytes, checksum at the end; 32-byte
+// aligned: _dev_handle_to_bda follows it at +0xA0)
+#define WUD_WBC_SC_INDEX 14
+typedef struct WUDWbcInfo {
+    BD_ADDR addr;      // at 0x0
+    LINK_KEY linkKey;  // at 0x6
+    u8 name[64];       // at 0x16
+    u8 UNK_0x56[0x2A];
+    u32 checksum;      // at 0x80
+} ATTRIBUTE_ALIGN(32) WUDWbcInfo;
+static WUDWbcInfo _wbcInfo;
 
 BD_ADDR_PTR _dev_handle_to_bda[WUD_MAX_DEV_ENTRY];
 u16 _dev_handle_queue_size[WUD_MAX_DEV_ENTRY];
@@ -619,10 +633,84 @@ static u8 write_ram_params[] = {
     // data (24 zeroes)
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+// inferred: new step of the version of 2010
 
+// inferred: getter of _wudFlag (version 2010; RPHealth.dat / balance board handling)
 
+// version 2010: balance board data saved with the standard devices
 
+// inferred: NAND callbacks of the RPHealth.dat read (version 2010)
 
+// NEW_80670C70: version 2010, sin escribir
+static WUDInitState fn_80670C70(void) { return WUD_STATE_INIT_GET_DEV_INFO; }
+
+// inferred: new in the version of 2010 (moves the balance board entry of the standard list to the
+// last connected position)
+
+// inferred: helpers of the version of 2010 (used by WUDHidHost.c)
+
+static inline void WUDiSetWbcInfo(u8* addr, u8* linkKey, u8* name) {
+    u16* ptr;
+    u32 sum;
+    u32 hi;
+    u16 lo;
+    int i;
+
+    if (addr != NULL) {
+        memcpy(_wbcInfo.addr, addr, BD_ADDR_LEN);
+    }
+
+    if (linkKey != NULL) {
+        memcpy(_wbcInfo.linkKey, linkKey, LINK_KEY_LEN);
+    }
+
+    if (name != NULL) {
+        memcpy(_wbcInfo.name, name, sizeof(_wbcInfo.name));
+    }
+
+    hi = _wbcSeed >> 16;
+    lo = _wbcSeed;
+    ptr = (u16*)&_wbcInfo;
+
+    for (i = 0; i < 64; i++) {
+        hi += ptr[i];
+        lo += (u16)~ptr[i];
+    }
+
+    sum = (hi << 16) | lo;
+    memcpy(&_wbcInfo.checksum, &sum, sizeof(sum));
+}
+
+static WUDInitState WUDiWaitDeviceUp(void) {
+    WUDInitState nextState = WUD_STATE_INIT_WAIT_FOR_DEVICE_UP;
+
+    _wcb.initWaitCnt--;
+
+    if (BTA_DmIsDeviceUp()) {
+        nextState = WUD_STATE_INIT_WAIT_FOR_INITIALIZATION;
+    }
+
+    return nextState;
+}
+
+s32 fn_8066E8F0(void) {
+    return _wudFlag;
+}
+
+void* App_MEMalloc(u32 size) {
+    DEBUGPrint("App_MEMalloc\n");
+    return _wcb.allocFunc(size);
+}
+
+u8 App_MEMfree(void* ptr) {
+    WUDCB* p_wcb = &_wcb;
+    u8 ret;
+
+    WUD_DEBUGPrint("App_MEMfree\n");
+    ret = p_wcb->freeFunc(ptr);
+
+    return ret;
+}
 
 static void ReverseAddr(BD_ADDR_PTR pDst, BD_ADDR src) {
     BOOL enabled;
@@ -637,41 +725,54 @@ static void ReverseAddr(BD_ADDR_PTR pDst, BD_ADDR src) {
     OSRestoreInterrupts(enabled);
 }
 
-static void ClearDiscoverResult(void) {
-    _discNumResps = 0;
-    memset(&_discResp, 0, sizeof(WUDDiscResp));
+static void SyncFlushCallback(u32 status) {
+    WUDCB* p = &_wcb;
+
+    DEBUGPrint("SyncFlushCallback() : %d, Sync: %d\n", status, _wcb.syncState);
+
+    if (p->syncState == WUD_STATE_SYNC_START) {
+        return;
+    }
+
+    if (status == SC_STATUS_OK) {
+        p->syncState = WUD_STATE_SYNC_COMPLETE;
+    } else {
+        p->syncState = WUD_STATE_SYNC_ERROR;
+    }
 }
 
-static u8 WUDiWaitForIncomingConnection() {
-    u8 next = 24;
+static u8 WUDiIsSyncDisabled(void) {
+    WUDCB* p = &_wcb;
+    int i;
+    WUDDevInfo* pInfo;
 
-    if ((WUDiGetLinkNum() == 4) && (WUDiGetConnNumber() == 4)) {
-        next = 14;
+    WUDSetVisibility(FALSE, FALSE);
+
+    if (p->syncLoopNum == 0) {
+        return WUD_STATE_SYNC_DONE;
     }
 
-    if (--_wcb.incomeCnt < 0) {
-        next = 1;
+    if (WUDiGetLinkNum() == WUD_MAX_CHANNELS && WUDiGetConnNumber() == WUD_MAX_CHANNELS) {
+        return WUD_STATE_SYNC_DONE;
     }
 
-    return next;
-}
+    if (p->syncSkipChecks) {
+        for (i = 0; i < WUD_MAX_DEV_ENTRY; i++) {
+            pInfo = WUDiGetDevInfoIndex(i);
 
-static u8 WUDiDelaySearch() {
-    WUDCB* p_wcb = &_wcb;
-
-    if (p_wcb->syncLoopNum == 0) {
-        return 14;
+            if (pInfo->status == 9) {
+                WUDSetSniffMode(pInfo->devAddr, 0);
+                return WUD_STATE_SYNC_PREPARE_SEARCH;
+            }
+        }
     }
 
-    if ((WUDiGetLinkNum() == 4) && (WUDiGetConnNumber() == 4)) {
-        return 14;
+    if (p->syncLoopNum > 0) {
+        p->syncLoopNum--;
     }
 
-    if (--p_wcb->delayCnt < 0) {
-        return 2;
-    }
-
-    return 29;
+    p->delayCnt = 50;
+    return WUD_STATE_SYNC_WAIT_FOR_START_SEARCH;
 }
 
 static u8 WUDiStartSearch(void) {
@@ -794,6 +895,50 @@ static u8 WUDiUnknownDevice(void) {
     return WUD_STATE_SYNC_TRY_CONNECT;
 }
 
+static u8 WUDiTryConnecting(void) {
+    BOOL enabled;
+    WUDDevInfoList* pList;
+    WUDDevInfo* pInfo;
+    WUDDevInfo* pCur;
+    WUDSyncState nextState = WUD_STATE_SYNC_ERROR;
+
+    if (WUD_DEV_NAME_IS_CNT(_discResp.devName)) {
+        _work.status = 2;
+        BTA_HhOpen(_work.devAddr, BTA_HH_PROTO_RPT_MODE, BTA_SEC_AUTHENTICATE);
+        nextState = WUD_STATE_SYNC_6;
+    }
+
+    if (_wudFlag != 0 && WUD_DEV_NAME_IS_WBC(_discResp.devName)) {
+        pInfo = NULL;
+        enabled = OSDisableInterrupts();
+
+        for (pList = _wcb.stdListHead; pList != NULL; pList = pList->next) {
+            pCur = pList->devInfo;
+            if (WUD_DEV_NAME_IS_WBC(pCur->conf.devName)) {
+                pInfo = pCur;
+            }
+        }
+
+        OSRestoreInterrupts(enabled);
+
+        if (pInfo != NULL) {
+            if (pInfo->status > 1) {
+                return nextState;
+            }
+
+            if (memcmp(_discResp.devAddr, pInfo->devAddr, BD_ADDR_LEN)) {
+                WUDiMoveBottomStdDevInfoPtr(pInfo);
+                WUDiRemoveDevice(pInfo->devAddr);
+            }
+        }
+
+        _work.status = 2;
+        BTA_HhOpen(_work.devAddr, BTA_HH_PROTO_RPT_MODE, BTA_SEC_AUTHENTICATE);
+        nextState = WUD_STATE_SYNC_6;
+    }
+
+    return nextState;
+}
 
 static int WUDiSetPinCode(BD_ADDR addr) {
     BD_ADDR pin;
@@ -822,45 +967,32 @@ static BOOL WUDiIsFinishScCmd(void) {
     return SCCheckStatus() != SC_STATUS_BUSY ? TRUE : FALSE;
 }
 
-static void WUDiSaveFlush(void) {
-    WUDCB* p = &_wcb;
-    BOOL enabled;
-
-    enabled = OSDisableInterrupts();
-    p->syncState = WUD_STATE_SYNC_13;
-    OSRestoreInterrupts(enabled);
-
-    SCFlushAsync(SyncFlushCallback);
-}
-
-static u8 WUDiVirginSimpleSync(void) {
-    WUDDevInfo* pInfo;
-
-    if (WUDiGetDevSmpNumber() == WUD_MAX_DEV_ENTRY_FOR_SMP) {
-        pInfo = WUDiGetRemoveSmpDevice();
-        WUDiRemoveDevice(pInfo->devAddr);
-    }
-
-    pInfo = WUDiGetNewDevInfo();
-    if (pInfo == NULL) {
-        return WUD_STATE_SYNC_ERROR;
-    }
-    if (pInfo->status != 0) {
-        return WUD_STATE_SYNC_ERROR;
-    }
-    memcpy(pInfo, &_work, sizeof(WUDDevInfo));
-
-    WUDiRegisterDevice(pInfo->devAddr);
-    WUDiMoveTopSmpDevInfoPtr(pInfo);
-
-    _dev_handle_to_bda[pInfo->devHandle] = pInfo->devAddr;
-
-    return WUD_STATE_SYNC_COMPLETE;
-}
-
+// NONMATCHING: the original unrolls the loop of the inlined WUDiGetNewDevInfo (10 entries)
 static u8 WUDiVirginStandardSync(void) {
     WUDCB* p = &_wcb;
     WUDDevInfo* pInfo;
+
+    if (_wudFlag != 0 && WUD_DEV_NAME_IS_CNT(_work.conf.devName)) {
+        BOOL enabled;
+        WUDDevInfoList* pList;
+        WUDDevInfo* pWbc = NULL;
+
+        enabled = OSDisableInterrupts();
+
+        for (pList = p->stdListHead; pList != NULL; pList = pList->next) {
+            if (WUD_DEV_NAME_IS_WBC(pList->devInfo->conf.devName)) {
+                pWbc = pList->devInfo;
+            }
+        }
+
+        OSRestoreInterrupts(enabled);
+
+        if (pWbc != NULL && WUDiGetDevNumber() == WUD_MAX_DEV_ENTRY_FOR_STD) {
+            pInfo = p->stdListTail->prev->devInfo;
+            WUDiMoveBottomStdDevInfoPtr(pInfo);
+            WUDiRemoveDevice(pInfo->devAddr);
+        }
+    }
 
     if (WUDiGetDevNumber() == WUD_MAX_DEV_ENTRY_FOR_STD) {
         pInfo = WUDiGetRemoveStdDevice();
@@ -878,6 +1010,17 @@ static u8 WUDiVirginStandardSync(void) {
 
     WUDiRegisterDevice(pInfo->devAddr);
     WUDiMoveTopStdDevInfoPtr(pInfo);
+
+    if (_wudFlag != 0 && WUD_DEV_NAME_IS_WBC(pInfo->conf.devName)) {
+        fn_80673070(pInfo);
+
+        memset(&_scArray.info[WUD_WBC_SC_INDEX], 0, sizeof(SCBtDeviceInfoSingle));
+        memcpy(_scArray.info[WUD_WBC_SC_INDEX].bd_addr, pInfo->devAddr, BD_ADDR_LEN);
+        memcpy(_scArray.info[WUD_WBC_SC_INDEX].bd_name, pInfo->conf.devName, 64);
+        memcpy(_scArray.info[WUD_WBC_SC_INDEX].bd_name + 20, pInfo->linkKey, LINK_KEY_LEN);
+
+        WUDiSetWbcInfo(pInfo->devAddr, pInfo->linkKey, (u8*)pInfo->conf.devName);
+    }
 
     _dev_handle_to_bda[pInfo->devHandle] = pInfo->devAddr;
 
@@ -993,376 +1136,6 @@ static u8 WUDiSyncError(void) {
     return _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? WUD_STATE_SYNC_DONE : WUD_STATE_SYNC_PREPARE_SEARCH;
 }
 
-static WUDDeleteState WUDiDisallowIncoming(void) {
-    BTA_DmSetVisibility(FALSE, FALSE);
-    return WUD_STATE_DELETE_DISCONNECT_ALL;
-}
-
-static void WUDiCleanUp() {
-    WUDCB* p_wcb = &_wcb;
-
-    BOOL result = FALSE;
-
-    if (SCCheckStatus() == SC_STATUS_BUSY) {
-        return;
-    }
-
-    memset(&_scArray, 0, sizeof(_scArray));
-    memset(&_spArray, 0, sizeof(_spArray));
-
-    result |= SCSetBtDeviceInfoArray(&_scArray);
-    result |= SCSetBtCmpDevInfoArray(&_spArray);
-
-    if (result) {
-        p_wcb->deleteState = 6;
-        SCFlushAsync(DeleteFlushCallback);
-    } else {
-        p_wcb->deleteState = 8;
-    }
-    return;
-}
-
-static WUDDeleteState WUDiDeleteAllComplete(void) {
-    WUDCB* p = &_wcb;
-
-    WUDSetVisibility(FALSE, WUDGetConnectable());
-
-    OSCancelAlarm(&p->alarm);
-    p->deleteState = WUD_STATE_DELETE_START;
-
-    if (p->clearDevCB != NULL) {
-        p->clearDevCB(WUD_RESULT_DELETE_COMPLETE);
-    }
-
-    return WUD_STATE_DELETE_START;
-}
-
-static WUDStackState WUDiCheckRegisteredDeviceInfo(void) {
-    WUDCB* p = &_wcb;
-
-    // Set by BTA_HH_ENABLE_EVT
-    if (p->hhFlags == 1) {
-        p->linkKeyState = WUD_STATE_LINK_KEY_READING;
-        BTM_ReadStoredLinkKey(NULL, WUDStoredLinkKeyCallback);
-    }
-
-    return WUD_STATE_STACK_CHECK_DEVICE_INFO;
-}
-
-static WUDStackState WUDiStackSetupComplete(void) {
-    WUDCB* p = &_wcb;
-
-    if (p->linkKeyState == WUD_STATE_LINK_KEY_START) {
-        OSCancelAlarm(&p->alarm);
-        WUDiGetFirmwareVersion();
-        return WUD_STATE_STACK_INITIALIZED;
-    }
-
-    return WUD_STATE_STACK_CHECK_DEVICE_INFO;
-}
-
-// inferred: new step of the version of 2010
-static WUDInitState WUDiWaitDeviceUp(void) {
-    WUDInitState nextState = WUD_STATE_INIT_WAIT_FOR_DEVICE_UP;
-
-    _wcb.initWaitCnt--;
-
-    if (BTA_DmIsDeviceUp()) {
-        nextState = WUD_STATE_INIT_WAIT_FOR_INITIALIZATION;
-    }
-
-    return nextState;
-}
-
-static WUDInitState WUDiWaitSCSetup(void) {
-    s32 diff = 0;
-    WUDInitState nextState = WUD_STATE_INIT_WAIT_FOR_INITIALIZATION;
-    s64 time = __OSGetSystemTime();
-
-    diff = 500 - OSTicksToMilliseconds(OS_TICKS_DELTA(time, __OSStartTime));
-
-    if (diff < 0 && SCCheckStatus() != SC_STATUS_BUSY) {
-        InitCore();
-        nextState = WUD_STATE_INIT_GET_DEV_INFO;
-
-        if (_wudFlag != 0 && SCGetProductGameRegion() == 0 /* JP */) {
-            _nandBusy = FALSE;
-            nextState = WUD_STATE_INIT_READ_NAND;
-            _nandStep = 0;
-        }
-    }
-
-    return nextState;
-}
-
-static BOOL WUDiIsDeviceExisted(u8* bd_addr) {
-    int i;
-
-    for (i = 0; i < _scArray.num; i++) {
-        if (!memcmp(_scArray.info[i].bd_addr, bd_addr, BD_ADDR_LEN)) {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-static WUDInitState WUDiInitComplete(void) {
-    WUDCB* p = &_wcb;
-
-    OSCancelAlarm(&p->alarm);
-    p->libStatus = WUD_LIB_STATUS_1;
-
-    BTA_EnableBluetooth(WUDSecurityCallback);
-    return WUD_STATE_INIT_INITIALIZED;
-}
-
-static void WUDiContMapTableFlush() {
-    BOOL result = _readNand;
-
-    if (SCCheckStatus() != SC_STATUS_BUSY) {
-        result &= SCSetBtDeviceInfoArray(&_scArray);
-        result &= SCSetBtCmpDevInfoArray(&_spArray);
-        if (result) {
-            _wcb.shutdownState = 2;
-            SCFlushAsync(ShutFlushCallback);
-        } else {
-            _wcb.shutdownState = 3;
-        }
-    }
-}
-
-static void WUDiFinishShutdown() {
-    OSCancelAlarm(&_wcb.alarm);
-    BTA_DisableBluetooth();
-}
-
-static BOOL StartSyncStandard(BOOL fast) {
-    WUD_DEBUGPrint("WUDStartSyncDevice()\n");
-
-    return StartSyncDevice(0, 3, 0, fast);
-}
-
-static BOOL StartSyncSimple(BOOL syncSkipChecks) {
-    return StartSyncDevice(WUD_SYNC_TYPE_SIMPLE, -1, syncSkipChecks, TRUE);
-}
-
-static BOOL StopSync(void) {
-    WUDCB* p;
-    BOOL success;
-    BOOL enabled;
-
-    p = &_wcb;
-    success = FALSE;
-    enabled = OSDisableInterrupts();
-
-    if (p->libStatus == WUD_LIB_STATUS_3) {
-        if (p->syncLoopNum != 0) {
-            if (p->syncState == WUD_STATE_SYNC_WAIT_FOR_SEARCH_RESULT) {
-                BTA_DmSearchCancel();
-            }
-
-            p->syncLoopNum = 0;
-        }
-
-        success = TRUE;
-    }
-
-    OSRestoreInterrupts(enabled);
-    return success;
-}
-
-
-static void WUDiWritePatch(void) {
-    u8 buf[WUD_PATCH_BUFFER_SIZE];
-    u8 length;
-    int i;
-
-    length = MIN(size - offset, WUD_PATCH_BUFFER_SIZE - sizeof(u32));
-
-    for (i = 0; i < (s32)sizeof(u32); i++) {
-        buf[i] = (addr + offset) >> i * 8;
-    }
-
-    for (i = 0; i < (s32)length; i++) {
-        buf[(s32)sizeof(u32) + i] = patch_binary[sizeof(size) + sizeof(offset) + offset + i];
-    }
-
-    offset += length;
-    BTM_VendorSpecificCommand(BT_VSC_NINTENDO_WRITE_PATCH, (s32)sizeof(u32) + length, buf, write_patch_cb);
-}
-
-static void WUDiInstallPatch(void) {
-    u8 buf[WUD_PATCH_BUFFER_SIZE];
-    u8 num;
-
-    num = MIN(patch_num - install_num, WUD_MAX_PATCHES);
-    buf[offsetof(WUDPatchList, num)] = num;
-
-    memcpy(&buf[offsetof(WUDPatchList, cmds)], patch_install.cmds[install_num].data, num * sizeof(WUDPatchCmd));
-
-    install_num += num;
-    BTM_VendorSpecificCommand(BT_VSC_NINTENDO_INSTALL_PATCH, sizeof(num) + num * sizeof(WUDPatchCmd), buf, install_patch_cb);
-}
-
-static void WUDiAppendRuntimePatch(void) {
-    int i;
-
-    DEBUGPrint("WUDiAppendRuntimePatch()\n");
-
-    size = 0;
-    addr = 0;
-
-    for (i = 0; i < (int)sizeof(u32); i++) {
-        addr <<= 8;
-        addr += patch_binary[3 - i];
-
-        size <<= 8;
-        size += patch_binary[7 - i];
-    }
-
-    WUDiRemovePatch();
-}
-
-void WUDiGetFirmwareVersion(void) {
-    tBTM_VERSION_INFO version;
-    BTM_ReadLocalVersion(&version);
-
-    DEBUGPrint("hci_version   : %02x\n", version.hci_version);
-    DEBUGPrint("hci_revision  : %04x\n", version.hci_revision);
-
-    DEBUGPrint("lmp_version   : %02x\n", version.lmp_version);
-    DEBUGPrint("lmp_subversion: %04x\n", version.lmp_subversion);
-
-    DEBUGPrint("manufacturer  : %04x\n", version.manufacturer);
-
-    DEBUGPrint(" ==> 2045 firmware ver.002.003.014.%d\n", version.hci_revision & 0xFFF);
-
-    if ((version.hci_revision & 0xFFF) == 167) {
-        WUDiAppendRuntimePatch();
-    } else {
-        WUDiInitSub();
-    }
-}
-
-// inferred: getter of _wudFlag (version 2010; RPHealth.dat / balance board handling)
-s32 fn_8066E8F0(void) {
-    return _wudFlag;
-}
-
-void* App_MEMalloc(u32 size) {
-    DEBUGPrint("App_MEMalloc\n");
-    return _wcb.allocFunc(size);
-}
-
-u8 App_MEMfree(void* ptr) {
-    WUDCB* p_wcb = &_wcb;
-    u8 ret;
-
-    WUD_DEBUGPrint("App_MEMfree\n");
-    ret = p_wcb->freeFunc(ptr);
-
-    return ret;
-}
-
-static void SyncFlushCallback(u32 status) {
-    WUDCB* p = &_wcb;
-
-    DEBUGPrint("SyncFlushCallback() : %d, Sync: %d\n", status, _wcb.syncState);
-
-    if (p->syncState == WUD_STATE_SYNC_START) {
-        return;
-    }
-
-    if (status == SC_STATUS_OK) {
-        p->syncState = WUD_STATE_SYNC_COMPLETE;
-    } else {
-        p->syncState = WUD_STATE_SYNC_ERROR;
-    }
-}
-
-static u8 WUDiIsSyncDisabled(void) {
-    WUDCB* p = &_wcb;
-    int i;
-    WUDDevInfo* pInfo;
-
-    WUDSetVisibility(FALSE, FALSE);
-
-    if (p->syncLoopNum == 0) {
-        return WUD_STATE_SYNC_DONE;
-    }
-
-    if (WUDiGetLinkNum() == WUD_MAX_CHANNELS && WUDiGetConnNumber() == WUD_MAX_CHANNELS) {
-        return WUD_STATE_SYNC_DONE;
-    }
-
-    if (p->syncSkipChecks) {
-        for (i = 0; i < WUD_MAX_DEV_ENTRY; i++) {
-            pInfo = WUDiGetDevInfoIndex(i);
-
-            if (pInfo->status == 9) {
-                WUDSetSniffMode(pInfo->devAddr, 0);
-                return WUD_STATE_SYNC_PREPARE_SEARCH;
-            }
-        }
-    }
-
-    if (p->syncLoopNum > 0) {
-        p->syncLoopNum--;
-    }
-
-    p->delayCnt = 50;
-    return WUD_STATE_SYNC_WAIT_FOR_START_SEARCH;
-}
-
-static u8 WUDiTryConnecting(void) {
-    BOOL enabled;
-    WUDDevInfoList* pList;
-    WUDDevInfo* pInfo;
-    WUDDevInfo* pCur;
-    WUDSyncState nextState = WUD_STATE_SYNC_ERROR;
-
-    if (WUD_DEV_NAME_IS_CNT(_discResp.devName)) {
-        _work.status = 2;
-        BTA_HhOpen(_work.devAddr, BTA_HH_PROTO_RPT_MODE, BTA_SEC_AUTHENTICATE);
-        nextState = WUD_STATE_SYNC_6;
-    }
-
-    if (_wudFlag != 0 && WUD_DEV_NAME_IS_WBC(_discResp.devName)) {
-        pInfo = NULL;
-        enabled = OSDisableInterrupts();
-
-        for (pList = _wcb.stdListHead; pList != NULL; pList = pList->next) {
-            pCur = pList->devInfo;
-            if (WUD_DEV_NAME_IS_WBC(pCur->conf.devName)) {
-                pInfo = pCur;
-            }
-        }
-
-        OSRestoreInterrupts(enabled);
-
-        if (pInfo != NULL) {
-            if (pInfo->status > 1) {
-                return nextState;
-            }
-
-            if (memcmp(_discResp.devAddr, pInfo->devAddr, BD_ADDR_LEN)) {
-                WUDiMoveBottomStdDevInfoPtr(pInfo);
-                WUDiRemoveDevice(pInfo->devAddr);
-            }
-        }
-
-        _work.status = 2;
-        BTA_HhOpen(_work.devAddr, BTA_HH_PROTO_RPT_MODE, BTA_SEC_AUTHENTICATE);
-        nextState = WUD_STATE_SYNC_6;
-    }
-
-    return nextState;
-}
-
-// NEW_8066EC40: version 2010, sin escribir
-void fn_8066EC40(void) {}
-
 static u8 WUDiSaveDeviceToNand(void) {
     WUDSyncState nextState = WUD_STATE_SYNC_COMPLETE;
     u8 i;
@@ -1393,7 +1166,42 @@ static u8 WUDiSaveDeviceToNand(void) {
     return nextState;
 }
 
-// inferred: NAND callbacks of the RPHealth.dat read (version 2010)
+static void WUDiSaveFlush(void) {
+    WUDCB* p = &_wcb;
+    BOOL enabled;
+
+    enabled = OSDisableInterrupts();
+    p->syncState = WUD_STATE_SYNC_13;
+    OSRestoreInterrupts(enabled);
+
+    SCFlushAsync(SyncFlushCallback);
+}
+
+static u8 WUDiVirginSimpleSync(void) {
+    WUDDevInfo* pInfo;
+
+    if (WUDiGetDevSmpNumber() == WUD_MAX_DEV_ENTRY_FOR_SMP) {
+        pInfo = WUDiGetRemoveSmpDevice();
+        WUDiRemoveDevice(pInfo->devAddr);
+    }
+
+    pInfo = WUDiGetNewDevInfo();
+    if (pInfo == NULL) {
+        return WUD_STATE_SYNC_ERROR;
+    }
+    if (pInfo->status != 0) {
+        return WUD_STATE_SYNC_ERROR;
+    }
+    memcpy(pInfo, &_work, sizeof(WUDDevInfo));
+
+    WUDiRegisterDevice(pInfo->devAddr);
+    WUDiMoveTopSmpDevInfoPtr(pInfo);
+
+    _dev_handle_to_bda[pInfo->devHandle] = pInfo->devAddr;
+
+    return WUD_STATE_SYNC_COMPLETE;
+}
+
 static void fn_8066F150(s32 result, NANDCommandBlock* block) {
 #pragma unused(block)
     if (_wcb.syncState != 0) {
@@ -1613,6 +1421,11 @@ static void SyncHandler0(OSAlarm* pAlarm, OSContext* pContext) {
     OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)SyncHandler, (u32)__WUDHandlerStack + sizeof(__WUDHandlerStack));
 }
 
+static WUDDeleteState WUDiDisallowIncoming(void) {
+    BTA_DmSetVisibility(FALSE, FALSE);
+    return WUD_STATE_DELETE_DISCONNECT_ALL;
+}
+
 static void DeleteFlushCallback(u32 status) {
     WUDCB* p = &_wcb;
 
@@ -1681,6 +1494,45 @@ static WUDDeleteState WUDiDeleteDevice(void) {
     return WUD_STATE_DELETE_CLEANUP_SETTING;
 }
 
+static void WUDiCleanUp() {
+    WUDCB* p_wcb = &_wcb;
+
+    BOOL result = FALSE;
+
+    if (SCCheckStatus() == SC_STATUS_BUSY) {
+        return;
+    }
+
+    memset(&_scArray, 0, sizeof(_scArray));
+    memset(&_spArray, 0, sizeof(_spArray));
+
+    result |= SCSetBtDeviceInfoArray(&_scArray);
+    result |= SCSetBtCmpDevInfoArray(&_spArray);
+
+    if (result) {
+        p_wcb->deleteState = 6;
+        SCFlushAsync(DeleteFlushCallback);
+    } else {
+        p_wcb->deleteState = 8;
+    }
+    return;
+}
+
+static WUDDeleteState WUDiDeleteAllComplete(void) {
+    WUDCB* p = &_wcb;
+
+    WUDSetVisibility(FALSE, WUDGetConnectable());
+
+    OSCancelAlarm(&p->alarm);
+    p->deleteState = WUD_STATE_DELETE_START;
+
+    if (p->clearDevCB != NULL) {
+        p->clearDevCB(WUD_RESULT_DELETE_COMPLETE);
+    }
+
+    return WUD_STATE_DELETE_START;
+}
+
 static void DeleteAllHandler(void) {
     WUDCB* p = &_wcb;
 
@@ -1722,6 +1574,18 @@ static void DeleteAllHandler0(OSAlarm* pAlarm, OSContext* pContext) {
     OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)DeleteAllHandler, (u32)__WUDHandlerStack + sizeof(__WUDHandlerStack));
 }
 
+static WUDStackState WUDiCheckRegisteredDeviceInfo(void) {
+    WUDCB* p = &_wcb;
+
+    // Set by BTA_HH_ENABLE_EVT
+    if (p->hhFlags == 1) {
+        p->linkKeyState = WUD_STATE_LINK_KEY_READING;
+        BTM_ReadStoredLinkKey(NULL, WUDStoredLinkKeyCallback);
+    }
+
+    return WUD_STATE_STACK_CHECK_DEVICE_INFO;
+}
+
 static WUDStackState WUDiClearUnregisteredDevice(void) {
     WUDCB* p = &_wcb;
     WUDDevInfo* pInfo;
@@ -1753,6 +1617,18 @@ static WUDStackState WUDiClearUnregisteredDevice(void) {
     return WUD_STATE_STACK_CHECK_DEVICE_INFO;
 }
 
+static WUDStackState WUDiStackSetupComplete(void) {
+    WUDCB* p = &_wcb;
+
+    if (p->linkKeyState == WUD_STATE_LINK_KEY_START) {
+        OSCancelAlarm(&p->alarm);
+        WUDiGetFirmwareVersion();
+        return WUD_STATE_STACK_INITIALIZED;
+    }
+
+    return WUD_STATE_STACK_CHECK_DEVICE_INFO;
+}
+
 static void EnableStackHandler(void) {
     WUDCB* p = &_wcb;
 
@@ -1778,12 +1654,82 @@ static void EnableStackHandler0(OSAlarm* pAlarm, OSContext* pContext) {
     OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)EnableStackHandler, (u32)__WUDHandlerStack + sizeof(__WUDHandlerStack));
 }
 
+static WUDInitState WUDiWaitSCSetup(void) {
+    s32 diff = 0;
+    WUDInitState nextState = WUD_STATE_INIT_WAIT_FOR_INITIALIZATION;
+    s64 time = __OSGetSystemTime();
+
+    diff = 500 - OSTicksToMilliseconds(OS_TICKS_DELTA(time, __OSStartTime));
+
+    if (diff < 0 && SCCheckStatus() != SC_STATUS_BUSY) {
+        InitCore();
+        nextState = WUD_STATE_INIT_GET_DEV_INFO;
+
+        if (_wudFlag != 0 && SCGetProductGameRegion() == 0 /* JP */) {
+            _nandBusy = FALSE;
+            nextState = WUD_STATE_INIT_READ_NAND;
+            _nandStep = 0;
+        }
+    }
+
+    return nextState;
+}
+
+static BOOL WUDiIsDeviceExisted(u8* bd_addr) {
+    int i;
+
+    for (i = 0; i < _scArray.num; i++) {
+        if (!memcmp(_scArray.info[i].bd_addr, bd_addr, BD_ADDR_LEN)) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 static void InitFlushCallback(u32 result) {
     WUDCB* p_wcb = &_wcb;
 
     WUD_DEBUGPrint("InitFlushCallback() : %d, Init: %d\n", result, p_wcb->initState);
 
     p_wcb->initState = WUD_STATE_INIT_FLUSHED;
+}
+
+static void ClearDiscoverResult(void) {
+    _discNumResps = 0;
+    memset(&_discResp, 0, sizeof(WUDDiscResp));
+}
+
+static u8 WUDiWaitForIncomingConnection() {
+    u8 next = 24;
+
+    if ((WUDiGetLinkNum() == 4) && (WUDiGetConnNumber() == 4)) {
+        next = 14;
+    }
+
+    if (--_wcb.incomeCnt < 0) {
+        next = 1;
+    }
+
+    return next;
+}
+
+static u8 WUDiDelaySearch() {
+    WUDCB* p_wcb = &_wcb;
+
+    if (p_wcb->syncLoopNum == 0) {
+        return 14;
+    }
+
+    if ((WUDiGetLinkNum() == 4) && (WUDiGetConnNumber() == 4)) {
+        return 14;
+    }
+
+    if (--p_wcb->delayCnt < 0) {
+        return 2;
+    }
+
+    return 29;
 }
 
 static u8 WUDiGetRegisteredDevice() {
@@ -1902,6 +1848,16 @@ static u8 WUDiGetRegisteredDevice() {
     return 4;
 }
 
+static WUDInitState WUDiInitComplete(void) {
+    WUDCB* p = &_wcb;
+
+    OSCancelAlarm(&p->alarm);
+    p->libStatus = WUD_LIB_STATUS_1;
+
+    BTA_EnableBluetooth(WUDSecurityCallback);
+    return WUD_STATE_INIT_INITIALIZED;
+}
+
 static void fn_80670BD0(s32 result, NANDCommandBlock* block) {
 #pragma unused(block)
     _nandBusy = FALSE;
@@ -1931,9 +1887,6 @@ static void fn_80670C50(s32 result, NANDCommandBlock* block) {
     _nandBusy = FALSE;
     _nandStep++;
 }
-
-// NEW_80670C70: version 2010, sin escribir
-static WUDInitState fn_80670C70(void) { return WUD_STATE_INIT_GET_DEV_INFO; }
 
 static void InitHandler(void) {
     WUDCB* p = &_wcb;
@@ -1968,6 +1921,26 @@ static void InitHandler(void) {
 
 static void InitHandler0(OSAlarm* pAlarm, OSContext* pContext) {
     OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)InitHandler, (u32)__WUDHandlerStack + sizeof(__WUDHandlerStack));
+}
+
+static void WUDiContMapTableFlush() {
+    BOOL result = _readNand;
+
+    if (SCCheckStatus() != SC_STATUS_BUSY) {
+        result &= SCSetBtDeviceInfoArray(&_scArray);
+        result &= SCSetBtCmpDevInfoArray(&_spArray);
+        if (result) {
+            _wcb.shutdownState = 2;
+            SCFlushAsync(ShutFlushCallback);
+        } else {
+            _wcb.shutdownState = 3;
+        }
+    }
+}
+
+static void WUDiFinishShutdown() {
+    OSCancelAlarm(&_wcb.alarm);
+    BTA_DisableBluetooth();
 }
 
 static void ShutFlushCallback(u32 result) {
@@ -2263,8 +2236,18 @@ static BOOL StartSyncDevice(u8 syncType, s8 syncLoopNum, u8 target, BOOL fast) {
     return success;
 }
 
+static BOOL StartSyncStandard(BOOL fast) {
+    WUD_DEBUGPrint("WUDStartSyncDevice()\n");
+
+    return StartSyncDevice(0, 3, 0, fast);
+}
+
 BOOL WUDStartSyncDevice() {
     return StartSyncStandard(FALSE);
+}
+
+static BOOL StartSyncSimple(BOOL syncSkipChecks) {
+    return StartSyncDevice(WUD_SYNC_TYPE_SIMPLE, -1, syncSkipChecks, TRUE);
 }
 
 BOOL WUDStartFastSyncSimple(void) {
@@ -2316,6 +2299,31 @@ BOOL WUDStartSyncSpDevice(u8 type) {
     }
 
     return busy;
+}
+
+static BOOL StopSync(void) {
+    WUDCB* p;
+    BOOL success;
+    BOOL enabled;
+
+    p = &_wcb;
+    success = FALSE;
+    enabled = OSDisableInterrupts();
+
+    if (p->libStatus == WUD_LIB_STATUS_3) {
+        if (p->syncLoopNum != 0) {
+            if (p->syncState == WUD_STATE_SYNC_WAIT_FOR_SEARCH_RESULT) {
+                BTA_DmSearchCancel();
+            }
+
+            p->syncLoopNum = 0;
+        }
+
+        success = TRUE;
+    }
+
+    OSRestoreInterrupts(enabled);
+    return success;
 }
 
 BOOL WUDCancelSyncDevice() {
@@ -2482,6 +2490,59 @@ static void install_patch_cb(tBTM_VSC_CMPL* p1) {
     }
 }
 
+static void WUDiInstallPatch(void) {
+    u8 buf[WUD_PATCH_BUFFER_SIZE];
+    u8 num;
+
+    num = MIN(patch_num - install_num, WUD_MAX_PATCHES);
+    buf[offsetof(WUDPatchList, num)] = num;
+
+    memcpy(&buf[offsetof(WUDPatchList, cmds)], patch_install.cmds[install_num].data, num * sizeof(WUDPatchCmd));
+
+    install_num += num;
+    BTM_VendorSpecificCommand(BT_VSC_NINTENDO_INSTALL_PATCH, sizeof(num) + num * sizeof(WUDPatchCmd), buf, install_patch_cb);
+}
+
+static void WUDiAppendRuntimePatch(void) {
+    int i;
+
+    DEBUGPrint("WUDiAppendRuntimePatch()\n");
+
+    size = 0;
+    addr = 0;
+
+    for (i = 0; i < (int)sizeof(u32); i++) {
+        addr <<= 8;
+        addr += patch_binary[3 - i];
+
+        size <<= 8;
+        size += patch_binary[7 - i];
+    }
+
+    WUDiRemovePatch();
+}
+
+void WUDiGetFirmwareVersion(void) {
+    tBTM_VERSION_INFO version;
+    BTM_ReadLocalVersion(&version);
+
+    DEBUGPrint("hci_version   : %02x\n", version.hci_version);
+    DEBUGPrint("hci_revision  : %04x\n", version.hci_revision);
+
+    DEBUGPrint("lmp_version   : %02x\n", version.lmp_version);
+    DEBUGPrint("lmp_subversion: %04x\n", version.lmp_subversion);
+
+    DEBUGPrint("manufacturer  : %04x\n", version.manufacturer);
+
+    DEBUGPrint(" ==> 2045 firmware ver.002.003.014.%d\n", version.hci_revision & 0xFFF);
+
+    if ((version.hci_revision & 0xFFF) == 167) {
+        WUDiAppendRuntimePatch();
+    } else {
+        WUDiInitSub();
+    }
+}
+
 static void write_patch_cb(tBTM_VSC_CMPL* p1) {
     if (p1 != NULL) {
         if (size == (u32)offset) {
@@ -2494,6 +2555,25 @@ static void write_patch_cb(tBTM_VSC_CMPL* p1) {
     } else {
         reset_again();
     }
+}
+
+static void WUDiWritePatch(void) {
+    u8 buf[WUD_PATCH_BUFFER_SIZE];
+    u8 length;
+    int i;
+
+    length = MIN(size - offset, WUD_PATCH_BUFFER_SIZE - sizeof(u32));
+
+    for (i = 0; i < (s32)sizeof(u32); i++) {
+        buf[i] = (addr + offset) >> i * 8;
+    }
+
+    for (i = 0; i < (s32)length; i++) {
+        buf[(s32)sizeof(u32) + i] = patch_binary[sizeof(size) + sizeof(offset) + offset + i];
+    }
+
+    offset += length;
+    BTM_VendorSpecificCommand(BT_VSC_NINTENDO_WRITE_PATCH, (s32)sizeof(u32) + length, buf, write_patch_cb);
 }
 
 static void remove_patch_cb(tBTM_VSC_CMPL* p1) {
@@ -2746,7 +2826,7 @@ WUDDevInfo* WUDiGetDevInfoIndex(int idx) {
     return pInfo;
 }
 
-WUDDevInfo* WUDiGetNewDevInfo(void) {
+inline WUDDevInfo* WUDiGetNewDevInfo(void) {
     WUDCB* p = &_wcb;
     WUDDevInfo* pInfo;
     BOOL enabled;
@@ -3105,8 +3185,65 @@ void WUDiMoveTopOfDisconnectedStdDevice(WUDDevInfo* pInfo) {
     OSRestoreInterrupts(enabled);
 }
 
-// NEW_80673070: version 2010, sin escribir
-void fn_80673070(void) {}
+void fn_80673070(WUDDevInfo* pInfo) {
+    WUDCB* p = &_wcb;
+    int i;
+    BOOL enabled;
+    WUDDevInfoList* pIt;
+
+    enabled = OSDisableInterrupts();
+
+    for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++) {
+        if (WUD_BDCMP(p->stdList[i].devInfo->devAddr, pInfo->devAddr) != 0) {
+            continue;
+        }
+
+        for (pIt = p->stdListHead; pIt; pIt = pIt->next) {
+            if (WUD_BDCMP(pIt->devInfo->devAddr, pInfo->devAddr) == 0) {
+                continue;
+            }
+
+            if (pIt->devInfo->status != 0 && pIt != p->stdListTail) {
+                continue;
+            }
+
+            if (WUD_BDCMP(p->stdListHead->devInfo->devAddr, p->stdList[i].devInfo->devAddr) == 0) {
+                if (pIt == p->stdListHead->next)
+                    break;
+
+                p->stdListHead = p->stdList[i].next;
+            } else {
+                p->stdList[i].prev->next = p->stdList[i].next;
+            }
+
+            p->stdList[i].next->prev = p->stdList[i].prev;
+
+            if (pIt == p->stdListTail && pIt->devInfo->status != 0) {
+                p->stdList[i].prev = pIt;
+                p->stdList[i].next = NULL;
+
+                pIt->next = &p->stdList[i];
+                p->stdListTail = &p->stdList[i];
+            } else if (pIt != p->stdListHead) {
+                p->stdList[i].prev = pIt->prev;
+                p->stdList[i].next = pIt;
+
+                pIt->prev->next = &p->stdList[i];
+                pIt->prev = &p->stdList[i];
+            } else {
+                p->stdList[i].prev = pIt;
+                p->stdList[i].next = pIt->next;
+
+                pIt->next->prev = &p->stdList[i];
+                pIt->next = &p->stdList[i];
+            }
+
+            break;
+        }
+    }
+
+    OSRestoreInterrupts(enabled);
+}
 
 BOOL WUDIsBusy(void) {
     WUDCB* p = &_wcb;
@@ -3703,7 +3840,6 @@ WUDDevInfo* WUDiGetRemoveWbcDevice() {
     return p_info;
 }
 
-// inferred: helpers of the version of 2010 (used by WUDHidHost.c)
 WUDDevInfo* fn_80673E10(void) {
     return &_work;
 }
