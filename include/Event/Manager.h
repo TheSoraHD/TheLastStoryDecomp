@@ -223,7 +223,8 @@ public:
     void fn_8048E9A4(MovieState_unk* movie, int frames);
     void fn_8048EC7C();
     void fn_80488B5C(int fade); // inferred: stops the multi audio
-    void fn_80489A2C();
+    void fn_80489A2C(); // inferred: stops the voice of the event
+    void fn_80489C98(); // inferred: skips to the end of the cut
     int fn_8048B048(int id);                  // inferred: time curve by id
     int fn_8048B3B8(int id);                  // inferred: move curve by id
     float fn_8048BCA4(int curve, float t);    // inferred: value of a time curve

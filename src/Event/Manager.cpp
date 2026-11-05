@@ -2289,6 +2289,27 @@ void Manager::fn_80488DB8() {
         }
     }
 }
+// inferred: stops the voice of the event
+void Manager::fn_80489A2C() {
+    m2378 = -1;
+    if (lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EB4A8(0, 1);
+    }
+}
+
+// NONMATCHING: 98.6% - registers of the sequence and the cut swapped
+// inferred: skips to the end of the current cut
+void Manager::fn_80489C98() {
+    m2390 = 1;
+    Sequence* seq = m70;
+    if (seq != 0) {
+        Cut* cut = seq->fn_80541210();
+        if (cut != 0) {
+            seq->fn_80541534(seq->fn_80541198(cut), cut->m2C);
+        }
+    }
+}
+
 
 
 
