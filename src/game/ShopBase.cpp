@@ -6,6 +6,7 @@
 #include "game/MenuCommonTask.h"
 #include "game/MarketTask.h"
 #include "math/Vec.h"
+#include "std/new.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
@@ -129,6 +130,17 @@ extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: message text
 extern "C" unsigned long strlen(const char* s);
 extern "C" ShopWeapon_unk* fn_80206C50(int id);
 extern "C" void fn_8044D6AC(Inventory* party, int money); // inferred: pays money
+extern "C" int fn_80211648(ShopItem_unk* item); // inferred: nonzero if the item can be sold
+extern "C" int fn_8021150C(int code);           // inferred: index of an item code in the bag
+extern "C" int fn_8011728C(int kind, ShopItem_unk* item); // inferred: the shop of kind `kind` deals the item
+extern "C" int fn_8044D560(Inventory* party);           // inferred: number of items to identify
+extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
+// inferred: comparison of the sorted list (empty object passed by value)
+struct ShopEntryLess_unk {
+    unsigned char m00;
+};
+// inferred: std::sort of the list (template code of this file, 0x80582598-0x80584750; not reconstructed)
+extern "C" void fn_80582598(ShopEntry5C_unk* first, ShopEntry5C_unk* last, ShopEntryLess_unk comp);
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
@@ -138,6 +150,8 @@ extern "C" void fn_80087994(void* folder, const char* name, int* value, void* fu
 extern "C" void fn_800874C8(void* folder, const char* name, int* value, int min, int max, int step, void* func,
                             void* arg);
 
+// NONMATCHING: 97.11% - registers of the arguments and the this+0x20000 base: the original recomputes it
+// (addis) after the array loops, here it is kept from the loop end
 ShopBase::ShopBase(atn::Task* parent, int kind, int a, int b)
     : atn::Task(parent), mParent(parent), mKind(kind), m50(a), m54(b), mTitle(0), mName(0), m6C(0), m78(0),
       m7C(-1), m84(0), m8C(0), mDC(0), mE0(0), mState(0), mEC(0), mF0(0), mF8(0), m32FC(0), m25B14(0),
@@ -722,6 +736,61 @@ void ShopBase::fn_80581964(int show, int message, int arg) {
     }
 }
 
+// NONMATCHING: id/item registers of the second loop swapped (the first one is fixed by declaring item first)
+void ShopBase::fn_80581FD8() {
+    ShopEntry5C_unk entry;
+    float b = mKind == 4 ? 2.0f : 1.0f;
+    float c = mKind == 4 ? 1.2f : 1.0f;
+    m32FC = 0;
+    for (int i = 0; i < 0x600; i++) {
+        Inventory::Item_unk* bag = Inventory::instance_->fn_80444804(i);
+        if (bag != 0) {
+            ShopItem_unk* item;
+            int id = bag->mCode;
+            item = fn_80211480(id);
+            if (item != 0 && fn_8011728C(m25B00, item) && bag->mCount > 0) {
+                entry.m00 = id;
+                entry.m48 = 1;
+                entry.m4C = -1;
+                entry.m04 = fn_80584DD8(fn_80211480(entry.m00), 1, 1.0f, b, c);
+                entry.m50 = fn_80211648(item);
+                entry.m54 = (int)item;
+                entry.m58 = fn_8021150C(entry.m00);
+                new (&mEntries5C[m32FC]) ShopEntry5C_unk(entry);
+                m32FC++;
+            }
+        }
+    }
+    int num = fn_8044D560(Inventory::instance_);
+    for (int i = 0; i < num; i++) {
+        int id = fn_8044D500(Inventory::instance_, i);
+        ShopItem_unk* item = fn_80211480(id);
+        if (item != 0 && fn_8011728C(m25B00, item)) {
+            entry.m00 = id;
+            entry.m48 = 0;
+            entry.m4C = i;
+            entry.m04 = fn_80584DD8(fn_80211480(entry.m00), 0, 1.0f, 1.0f, 1.0f);
+            entry.m50 = 1;
+            entry.m54 = (int)item;
+            entry.m58 = fn_8021150C(entry.m00);
+            new (&mEntries5C[m32FC]) ShopEntry5C_unk(entry);
+            m32FC++;
+        }
+    }
+    ShopEntryLess_unk less;
+    less.m00 = 0;
+    fn_80582598(&mEntries5C[0], &mEntries5C[m32FC], less);
+    mScroll.mCount = m32FC;
+    if (mScroll.mCursor >= mScroll.mCount) {
+        int last = mScroll.mCount - 1;
+        mScroll.mCursor = last < 0 ? 0 : last;
+    }
+    int top = mScroll.mCount - mScroll.mPage;
+    if (mScroll.mTop >= top) {
+        mScroll.mTop = top < 0 ? 0 : top;
+    }
+}
+
 void ShopBase::fn_805846C0(ShopD2A_unk* anime, ShopLayout_unk* layout, int cursor, int top, int arg) {
     char name[0x40];
     sprintf(name, "list_cursor%d", cursor - top + 1);
@@ -789,6 +858,7 @@ int ShopBase::fn_805848E0(ShopEntry64_unk* entry) {
     return num < money ? num : money;
 }
 
+// NONMATCHING: push_back growth residue (stack slots of the two growth temporaries, docs/msl_cpp.md)
 void ShopBase::fn_805849E8(ShopEntry64_unk* entry, int num) {
     int price = entry->m04 * num;
     Inventory::instance_->mDB0C = 0;
