@@ -15,6 +15,7 @@ extern "C" void fn_804EA6B0(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA810(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
 extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
+extern "C" int fn_804EAA50(MpMsgSession_unk* s); // inferred: nonzero for the host of the room
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
@@ -232,7 +233,21 @@ void D2AMpMenu::fn_804B0A78() {
 }
 
 // inferred: input of the game selection (state 2)
-// NONMATCHING: stack slots of the two sound temporaries swapped (0x8/0xC; as D2AMpMenuFriend::fn_804B7224)
+// inferred: moves the cursor and reads the decide/cancel keys (0: none, 1: decide, 2: cancel)
+static inline int Decide_unk(int* cursor, int count) {
+    void* pad = lbl_8087EF70;
+    int decide = 0;
+    fn_804A436C(cursor, count, count, 1, 3);
+    if (fn_800A555C(pad, 0, 4) != 0) {
+        fn_80117228(1);
+        decide = 1;
+    } else if (fn_800A555C(pad, 0, 5) != 0) {
+        fn_80117228(2);
+        decide = 2;
+    }
+    return decide;
+}
+
 void D2AMpMenu::fn_804B12F8() {
     if (m299C.m00 != 0) {
         if (m299C.m04 == m299C.m08) {
@@ -251,16 +266,7 @@ void D2AMpMenu::fn_804B12F8() {
         }
     }
     if (lbl_8087F628->mC1F4 == 1) {
-        int decide = 0;
-        void* pad = lbl_8087EF70;
-        fn_804A436C(&mE4, 5, 5, 1, 3);
-        if (fn_800A555C(pad, 0, 4) != 0) {
-            fn_80117228(1);
-            decide = 1;
-        } else if (fn_800A555C(pad, 0, 5) != 0) {
-            fn_80117228(2);
-            decide = 2;
-        }
+        int decide = Decide_unk(&mE4, 5);
         if (decide == 1) {
             if (mE4 == 0) {
                 fn_804AF520(7);
@@ -276,6 +282,43 @@ void D2AMpMenu::fn_804B12F8() {
         } else if (decide == 2) {
             fn_804AF520(3);
         }
+    }
+}
+
+// inferred: sends the room settings
+static inline void SendRoomInfo_unk() {
+    if (lbl_8087F628 != 0) {
+        MpRoomInfo_unk* info = &lbl_8087F628->mC1;
+        if (info != 0) {
+            info->mHost = fn_804EAA50(lbl_8087F610);
+            info->mMode = lbl_8087F610->m540;
+            memcpy(&lbl_8087F628->mC1, info, sizeof(MpRoomInfo_unk));
+        }
+    }
+}
+
+void D2AMpMenu::fn_804B274C() {
+    int decide = Decide_unk(&mE4, 3);
+    if (decide == 1) {
+        int next = 12;
+        if (fn_804EAA50(lbl_8087F610) == 1) {
+            next = 11;
+        }
+        if (mE4 == 0) {
+            mC4 = 3;
+            lbl_8087F610->m540 = 0;
+            SendRoomInfo_unk();
+            fn_804AF520(next);
+        } else if (mE4 == 1) {
+            mC4 = 2;
+            lbl_8087F610->m540 = 2;
+            SendRoomInfo_unk();
+            fn_804AF520(next);
+        } else if (mE4 == 2) {
+            fn_804AF520(9);
+        }
+    } else if (decide == 2) {
+        fn_804AF520(9);
     }
 }
 

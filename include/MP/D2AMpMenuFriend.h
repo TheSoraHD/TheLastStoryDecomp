@@ -42,8 +42,16 @@ extern "C" int fn_8050EF14(MpFriendList_unk* list, int id, int arg); // inferred
 extern "C" std::basic_string<wchar_t> fn_8050F470(unsigned long long code); // inferred: code as text
 
 // inferred: multiplayer data (lbl_8087F628); only the members used here
+// inferred: room settings sent to the other players (4 bytes at lbl_8087F628 + 0xC1)
+struct MpRoomInfo_unk {
+    unsigned char mHost; // inferred: fn_804EAA50
+    unsigned char mMode; // inferred: game mode (lbl_8087F610 + 0x540)
+    unsigned char m2[2];
+};
 struct MpData_unk {
-    unsigned char m000[0xC8];
+    unsigned char m000[0xC1];
+    MpRoomInfo_unk mC1;
+    unsigned char mC5[0xC8 - 0xC5];
     int mC8; // inferred: number of friends
     unsigned char mCC[0x430 - 0xCC];
     MpFriendList_unk m430;
