@@ -116,7 +116,7 @@ void WUDiRegisterDevice(BD_ADDR addr);
 void WUDiRemoveDevice(BD_ADDR addr);
 
 WUDDevInfo* WUDiGetDevInfo(BD_ADDR addr);
-WUDDevInfo* WUDiGetDevInfoIndex(int idx);
+WUDDevInfo* WUDiGetDevInfoIndex(u32 idx);
 WUDDevInfo* WUDiGetNewDevInfo(void);
 void WUDiRemoveDevInfo(BD_ADDR addr);
 void WUDiClearDevice(void);

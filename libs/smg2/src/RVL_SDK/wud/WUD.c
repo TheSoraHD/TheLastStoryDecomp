@@ -2809,14 +2809,14 @@ WUDDevInfo* WUDiGetDevInfo(BD_ADDR addr) {
     return pInfo;
 }
 
-WUDDevInfo* WUDiGetDevInfoIndex(int idx) {
+WUDDevInfo* WUDiGetDevInfoIndex(u32 idx) {
     WUDCB* p = &_wcb;
     WUDDevInfo* pInfo;
     BOOL enabled;
 
     enabled = OSDisableInterrupts();
 
-    if (0 <= idx && idx < WUD_MAX_DEV_ENTRY_FOR_STD) {
+    if (idx <= WUD_MAX_DEV_ENTRY_FOR_STD - 1) {
         pInfo = &p->stdDevs[idx];
     } else {
         pInfo = &p->smpDevs[idx - WUD_MAX_DEV_ENTRY_FOR_STD];
