@@ -1,4 +1,5 @@
 #include <homebuttonLib.h>
+#include <revolution/hbm/HBMApi.h>
 #include <HBMRes.h>
 
 #include <nw4hbm/lyt.h>
@@ -2315,7 +2316,7 @@ void HomeButton::startTrigEvent(const char* pName) {
                 if (mpHBInfo->messageFlag & (btnNo + 1)) {
                     for (len = 0;; len++) {
                         // U+FF1F FULLWIDTH QUESTION MARK
-                        if (mpText[mpHBInfo->region][btnNo + 2][len] == L'？') {
+                        if (mpText[mpHBInfo->region][btnNo + 2][len] == L'\xFF1F') {
                             break;
                         }
 

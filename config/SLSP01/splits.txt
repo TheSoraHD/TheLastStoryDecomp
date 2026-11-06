@@ -3540,7 +3540,7 @@ RVL_SDK/src/revolution/hbm/HBMRemoteSpk.cpp:
 	.data       start:0x80797D08 end:0x80797D38
 	.bss        start:0x807CA128 end:0x807CA130
 
-auto_03_805C3120_text.cpp:
+RVL_SDK/src/revolution/hbm/HBMBase.cpp:
 	.text       start:0x805C3120 end:0x805CC8E0 align:16
 
 tp_revolution/homebuttonLib/nw4hbm/lyt/lyt_animation.cpp:
