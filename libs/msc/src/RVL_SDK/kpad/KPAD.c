@@ -49,24 +49,25 @@ static u8 kp_initialized = 0;
 KPADInsideStatus inside_kpads[4] = { 0 };
 static Vec2 Vec2_0 = { 0.0f, 0.0f };
 static Mtx kp_fs_rot = { 0 };
+// TLS (2010): balance board state (.sbss/.bss in this order); kp_wbc_unk_* names invented
+static f32 kp_wbc_unk_b0 = 0.0f;
+static f64 kp_wbc_unk_b8 = 0.0;
+static f64 kp_wbc_unk_c0 = 0.0;
 static f64 kp_wbc_tgc_weight = 0.0;
-static f64 kp_wbc_filtered[4] = { 0.0, 0.0, 0.0, 0.0 }; // TLS (2010): before kp_wbc_average
+static f64 kp_wbc_filtered[4] = { 0.0, 0.0, 0.0, 0.0 };
 static f64 kp_wbc_average[4] = { 0.0, 0.0, 0.0, 0.0 };
+f64 kp_wbc_unk_bss[3] = { 0.0, 0.0, 0.0 }; // inferred: 0x18 bytes of .bss not referenced in the .dol (global so that MWCC emits it)
 static u16 kp_wbc_count = 0;
+static u8 kp_wbc_unk_d2 = 0;
+static s8 kp_wbc_state = 0;
 static u8 kp_wbc_status = 0;
-static s8 kp_wbc_enabled = 0; // TLS (2010): s8
+static u8 kp_wbc_unk_d5 = 0;
+static s16 kp_wbc_unk_d6 = 0;
+static s8 kp_wbc_err = 0;
+static s8 kp_wbc_enabled = 0;
 static u8 kp_wbc_busy = 0;
-static u8 kp_wbc_wait_count = 200; // TLS (2010): 200
 static f32 kp_wbc_ave_count = 400.0f;
-// inferred: TLS (2010) balance board state (.sbss 0x808801D2-0x808801D8), names invented
-static u8 kp_wbc_unk_d2;
-static s8 kp_wbc_state;
-static u8 kp_wbc_unk_d5;
-static s16 kp_wbc_unk_d6;
-static s8 kp_wbc_err;
-static f32 kp_wbc_unk_b0;
-static f64 kp_wbc_unk_b8;
-static f64 kp_wbc_unk_c0;
+static u8 kp_wbc_wait_count = 200;
 static u8 kp_wbc_unk_tbl[] = { 2, 2, 3, 5, 5, 5 };
 static f32 kp_fs_revise_deg = 24.0f;
 

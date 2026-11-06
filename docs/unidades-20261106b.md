@@ -27,6 +27,9 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
   inventados (`kp_wbc_state`, `kp_wbc_err`, `kp_wbc_unk_d2/d5/d6/b0/b8/c0`, `kp_wbc_unk_tbl`); `kp_wbc_enabled` y
   `kp_wbc_state` son `s8`. Prototipos de `KPADMpls_unk.c` (`fn_8065AA50`, `fn_8065AA80`, `fn_8065AEB0`) declarados
   en `KPAD.c` con los tipos que usa `KPADiRead` (el fuente de Mpls aun los declara con `s32`).
+- KPAD: `f64 kp_wbc_unk_bss[3]` global (0x18 bytes de `.bss` tras `kp_wbc_average` sin referencias en el `.dol`;
+  global para que MWCC lo emita). Estaticos WBC con inicializador `= 0` y en el orden del `.sbss` original (MWCC
+  pone primero, en orden de declaracion, los inicializados y despues, al reves, los que no lo estan).
 - `WPAD.c` (KEY): los seis stubs `fn_8065CED0`..`fn_8065CF20` eran los `WBC*` debiles del SDK (mismo orden y valores
   de retorno): quitados los `fn_` y los `WBC*` debiles de KEY ocupan su sitio (simbolos renombrados). KPAD los llama.
 
@@ -42,9 +45,12 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 
 ## Pendientes
 
-- KPAD: `fn_80657230` (61%): el original copia el `KPADMPStatus` (0x3C) en pares de 8 bytes (`lwz 4`/`lwz 0`), MWCC
-  lo copia palabra a palabra con struct, `memcpy` o por miembros; sin esta funcion la unidad no se puede enlazar.
-  Despues: datos (`.sdata`/`.sbss`/`.bss` reordenados en 2010) para `matching: true`.
+- KPAD (33/33, datos ya en el orden de 2010): probado `matching: true`: el enlazador quita las constantes sin uso
+  (200.0f de `KPADSetBtnRepeat`, estaticas de `get_kobj`) y `.data/.bss/.sdata/.sbss` cuadran; **solo** falla el
+  orden de tres entradas de `.sdata2` (0x80888920): el original tiene `1/200` y `1/100` antes del `{1,1,1}` de
+  `KPADiSamplingCallback`, como si una funcion anterior quitada por el enlazador (entre `KPADInitEx` y
+  `KPADiSamplingCallback`) las usara primero. MWCC ordena el pool por primer uso al generar codigo (probado con un
+  fichero suelto: una inline no cambia el orden). No he inventado esa funcion: queda `matching: false`.
 - `KPADMpls_unk.c` (6/40): libreria Motion Plus de 2010 entera (~10 KB, area de trabajo de 0xDB0 por mando); sin
   fuente de referencia: aplazada. `fn_8065B7F0` es un lerp de `KPADMPDir` + `fn_8065AFB0`; los tres por eje usan
   0x108/0x120/0x138/0x154 + 8 por eje y 0xD80/0xDA4 (+8/+4).
