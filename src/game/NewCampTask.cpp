@@ -10,6 +10,9 @@
 #include "game/CosEditProtector.h"
 #include "game/NewCampPartsHint.h"
 #include "game/NewCampPartsGmk.h"
+#include "game/MapTask.h"
+#include "game/MapPartsArea.h"
+#include "game/MapArea.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
@@ -199,4 +202,26 @@ void NewCampTask::fn_80530D88(int set, atn::ModelBase* model) {
     if (0 <= set && set < 3) {
         ((atn::Model*)model)->fn_8008C828(0);
     }
+}
+
+// NONMATCHING: 97% - the original copies the alpha of the fog color again as a word after the assignment
+void NewCampTask::fn_80530DB4() {
+    m1354 = 0;
+    m1358 = 0;
+    mGmk->fn_80513020(0, m464);
+    mTop->vf44();
+    mStatus->vf44();
+    mMapSelect->vf44();
+    mItem->vf44();
+    mOption->vf44();
+    mProtector->vf44();
+    mHint->vf44();
+    mTop->vf48();
+    mStatus->vf48();
+    mMapSelect->vf48();
+    mItem->vf48();
+    mOption->vf48();
+    mProtector->vf48();
+    mHint->vf48();
+    m460->GetArea_unk()->mAreas[0]->mScene.mFog.mColor = atn::Color(0.68235296f, 0.7254902f, 0.76862746f, 1.0f);
 }

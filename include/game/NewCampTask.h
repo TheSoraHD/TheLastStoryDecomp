@@ -13,6 +13,7 @@ struct ModelBase;
 } // namespace atn
 
 class NewCampPartsBase;
+class MapTask;
 class NewCampPartsTop;
 class NewCampPartsStatus;
 class NewCampPartsMapSelect;
@@ -37,6 +38,7 @@ public:
     void fn_8052CA6C();
     void fn_8052DEEC(int state); // inferred: changes the parts of the camp (m464)
     void fn_80530174();
+    void fn_80530DB4(); // inferred: refreshes the parts
     void UpdateCamera_unk();          // inferred: resets the camera and goes to the top parts
     void fn_8053032C(atn::Vector3 pos, atn::Vector3 rot); // inferred: starts a camera path
     NewCampPair_unk& fn_80530384(int id);
@@ -54,7 +56,7 @@ public:
     void* m454; // inferred: camera animation (xsca) of the current parts
     float m458;
     float m45C;
-    unsigned char m460[0x464 - 0x460];
+    MapTask* m460; // inferred: map of the camp (ui_campmenu.map)
     int m464; // inferred: state (parts shown)
     unsigned char m468[0x11D0 - 0x468];
     NewCampPartsTop* mTop;             // 0x11D0
@@ -87,7 +89,10 @@ public:
     unsigned char m1308[0x133C - 0x1308];
     int m133C; // inferred: the map select is open
     atn::SoundRef m1340;
-    unsigned char m1344[0x1368 - 0x1344];
+    unsigned char m1344[0x1354 - 0x1344];
+    int m1354;
+    int m1358;
+    unsigned char m135C[0x1368 - 0x135C];
     float m1368;
     int m136C;          // inferred: the camera offset m1370 is used (4:3 screen)
     atn::Vector3 m1370; // inferred: "CameraOfs(Aspect4:3)"
