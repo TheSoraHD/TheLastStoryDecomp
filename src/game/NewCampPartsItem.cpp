@@ -166,6 +166,29 @@ inline void NewCampPartsItem::SetState_unk(int state) {
     }
 }
 
+void NewCampPartsItem::fn_8051B364(const NewCampItemEntry_unk& entry, int* cursor, int* top) {
+    int offset = *cursor - *top;
+    for (int i = 0; i < (int)mList.size(); i++) {
+        NewCampItemEntry_unk& e = mList[i];
+        if (e.mId == entry.mId && e.m08 == entry.m08 && e.m0C == entry.m0C) {
+            *cursor = i;
+            int t = i - offset;
+            *top = t > 0 ? t : 0;
+            if (mList.size() < 10) {
+                *top = 0;
+            }
+        }
+    }
+    int count = mList.size();
+    if (*cursor >= count) {
+        int c = count - 1;
+        *cursor = c < 0 ? 0 : c;
+    }
+    if (count >= 10 && count - 1 <= *top + 9) {
+        *top = count - 10;
+    }
+}
+
 void NewCampPartsItem::fn_8051B43C() {
     void* pad = lbl_8087EF70;
     int prev = mE0;
