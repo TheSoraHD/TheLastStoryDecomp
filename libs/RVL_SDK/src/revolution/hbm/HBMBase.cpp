@@ -146,6 +146,7 @@ static const AnmControllerTable scGroupAnmTable[] = {HBM_GROUP_ANIM_TABLE};
 
 HomeButton* HomeButton::spHomeButtonObj = NULL;
 OSMutex HomeButton::sMutex;
+WPADInfo HomeButton::sWpadInfo[WPAD_MAX_CONTROLLERS];
 
 const int HomeButton::scReConnectTime = 3600;
 const int HomeButton::scReConnectTime2 = 3570;
@@ -760,7 +761,7 @@ void HomeButton::init_battery(const HBMControllerData* pController) {
             mpGroupAnmController[idx]->start();
 
             mControllerFlag[i] = true;
-            getController(i)->getInfoAsync(&mWpadInfo[i]);
+            getController(i)->getInfoAsync(&sWpadInfo[i]);
         } else {
             if (!mpHBInfo->cursor) {
                 mpCursorLayout[i]
@@ -1389,7 +1390,7 @@ void HomeButton::calc_letter() {
 
 void HomeButton::calc_battery(int chan) {
     for (int i = 0; i < res::eBatteryPane_Max; i++) {
-        if (i < mWpadInfo[chan].battery) {
+        if (i < sWpadInfo[chan].battery) {
             mpLayout->GetRootPane()
                 ->FindPaneByName(scBatteryPaneName[chan][i], true)
                 ->SetVisible(true);
@@ -1400,7 +1401,7 @@ void HomeButton::calc_battery(int chan) {
         }
     }
 
-    if (mWpadInfo[chan].battery < 2) {
+    if (sWpadInfo[chan].battery < 2) {
         int idx = findGroupAnimator(chan + res::eGrPane_plyr_00,
                                     res::eGrAnim_btry_red);
 
@@ -1587,7 +1588,7 @@ void HomeButton::update(const HBMControllerData* pController) {
             if (!mControllerFlag[i]) {
                 mControllerFlag[i] = true;
 
-                getController(i)->getInfoAsync(&mWpadInfo[i]);
+                getController(i)->getInfoAsync(&sWpadInfo[i]);
 
                 idx = findGroupAnimator(i + res::eGrPane_plyr_00,
                                         res::eGrAnim_btry_wht);
@@ -1640,7 +1641,7 @@ void HomeButton::update(const HBMControllerData* pController) {
                 }
 
                 if (mGetPadInfoTime > scGetPadInfoTime) {
-                    getController(i)->getInfoAsync(&mWpadInfo[i]);
+                    getController(i)->getInfoAsync(&sWpadInfo[i]);
                 }
 
                 update_controller(i);

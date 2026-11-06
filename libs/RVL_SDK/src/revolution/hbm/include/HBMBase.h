@@ -211,10 +211,12 @@ public:
 private:
     static HomeButton* spHomeButtonObj;
     static OSMutex sMutex;
+    static WPADInfo sWpadInfo[WPAD_MAX_CONTROLLERS]; // inferred: in .bss in the version of 2010 (was mWpadInfo)
 
     // TODO(kiwi) Document states
     eSeq mSequence;                                            // at 0x0
     const HBMDataInfo* mpHBInfo;                               // at 0x4
+    int UNK_0x08;                                              // inferred: version of 2010
     int mButtonNum;                                            // at 0x8
     int mAnmNum;                                               // at 0xC
     int mState;                                                // at 0x10
@@ -230,6 +232,7 @@ private:
     int mGetPadInfoTime;                                       // at 0x78
     bool mControllerFlag[WPAD_MAX_CONTROLLERS];                // at 0x7C
     int mVolumeNum;                                            // at 0x80
+    int UNK_0x88;                                              // inferred: version of 2010
     bool mVibFlag;                                             // at 0x84
     bool mControlFlag;                                         // at 0x85
     bool mLetterFlag;                                          // at 0x86
@@ -237,6 +240,7 @@ private:
     bool mReassignedFlag;                                      // at 0x88
     bool mSimpleSyncFlag;                                      // at 0x89
     bool mEndSimpleSyncFlag;                                   // at 0x8A
+    bool UNK_0x93;                                             // inferred: version of 2010
     bool mInitFlag;                                            // at 0x8B
     bool mForceSttInitProcFlag;                                // at 0x8C
     bool mForceSttFadeInProcFlag;                              // at 0x8D
@@ -249,9 +253,7 @@ private:
     char* mpLayoutName;                                        // at 0xA8
     char* mpAnmName;                                           // at 0xAC
     HBMSelectBtnNum mSelectBtnNum;                             // at 0xB0
-    u8 unkB4[8];
-    wchar_t* mpText[7][6];                                     // at 0xBC
-    WPADInfo mWpadInfo[WPAD_MAX_CONTROLLERS];                  // at 0x15C
+    wchar_t* mpText[10][6];                                    // at 0xBC (version of 2010: 10 rows, no mWpadInfo)
     WPADSyncDeviceCallback mSimpleSyncCallback;                // at 0x1BC
     f32 mOnPaneVibFrame[WPAD_MAX_CONTROLLERS];                 // at 0x1C0
     f32 mOnPaneVibWaitFrame[WPAD_MAX_CONTROLLERS];             // at 0x1D0
