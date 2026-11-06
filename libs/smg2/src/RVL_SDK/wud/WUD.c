@@ -675,7 +675,7 @@ static u32 WUDiCalcWbcCrc1(void* data, u32 length) {
 
     for (i = 0; i < num; i++, ptr++) {
         hi += *ptr;
-        lo += (u16)~*ptr;
+        lo += ~*ptr;
     }
 
     return (u16)hi << 16 | lo;
@@ -690,7 +690,7 @@ static u32 WUDiCalcWbcCrc(void* data, u32 length, u32 crc) {
 
     for (i = 0; i < num; i++, ptr++) {
         hi += *ptr;
-        lo += (u16)~*ptr;
+        lo += ~*ptr;
     }
 
     return (u16)hi << 16 | lo;
@@ -2064,7 +2064,8 @@ static void fn_80670C50(u32 result) {
 #define WUD_RP_HEALTH_SIZE 0x4B000
 #define WUD_RP_HEALTH_WBC_OFFSET 0x4AF18
 
-// NONMATCHING: 57% - the original switch on _nandStep is a compare tree (ours a linear chain)
+// NONMATCHING: 71% - the original switch on _nandStep is a compare tree (ours a linear chain) and the
+// RPHealth checksum loop is unrolled x4 (ours x8)
 static WUDInitState fn_80670C70(void) {
     const char* path = WUD_RP_HEALTH_PATH;
     const char* titleID = "RFNJ";
