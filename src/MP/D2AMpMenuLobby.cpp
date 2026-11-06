@@ -3,11 +3,17 @@
 #include "MP/D2AMpMenuLobby.h"
 #include "MP/D2AMpMenuSetRule.h"
 #include "atn/FadeCommon.h"
+#include "MP/D2ACommonDialog.h"
+#include "game/MenuCommonTask.h"
 
 // inferred: player information returned by fn_804EB870 (local player); only the member used here
 struct MpLobbyPlayerInfo_unk {
     unsigned char m00[0xB0];
     int mB0;
+    unsigned char mB4[0xD0 - 0xB4];
+    unsigned int mD0_hi : 6;
+    unsigned int mD0_6 : 4;   // inferred: face
+    unsigned int mD0_lo : 22;
 };
 // inferred: one player of the session (0xD5C bytes)
 struct MpLobbyMember_unk {
@@ -15,7 +21,9 @@ struct MpLobbyMember_unk {
     unsigned char mCC;        // inferred: aid
     unsigned char mCD[0xD0 - 0xCD];
     unsigned int mD0_31 : 1;  // inferred: valid
-    unsigned int mD0_lo : 31;
+    unsigned int mD0_1 : 19;
+    unsigned int mD0_20 : 2;  // inferred: zero while still loading
+    unsigned int mD0_lo : 10;
     unsigned char mD4[0xD5C - 0xD4];
 };
 // inferred: multiplayer session manager (lbl_8087F610, a task); only what the lobby uses here
@@ -30,7 +38,9 @@ struct MpLobbySession_unk : public atn::Task {
         }
         return 0;
     }
-    unsigned char m048[0x5E4 - 0x48];
+    unsigned char m048[0x55C - 0x48];
+    int m55C;
+    unsigned char m560[0x5E4 - 0x560];
     MpLobbyMember_unk* m5E4; // inferred: players
     int m5E8;                // inferred: number of players
 };
@@ -42,7 +52,9 @@ struct MpLobbyData_unk {
     unsigned int m1F8_hi : 12;
     unsigned int m1F8_12 : 1; // inferred: nonzero when playing alone
     unsigned int m1F8_lo : 19;
-    unsigned char m1FC[0xC215 - 0x1FC];
+    unsigned char m1FC[0x25C - 0x1FC];
+    int m25C;                 // inferred: 1 while the face can be changed
+    unsigned char m260[0xC215 - 0x260];
     unsigned char mC215;      // inferred: nonzero for a friend room
 };
 extern "C" MpLobbyData_unk* lbl_8087F628;
@@ -52,6 +64,14 @@ extern "C" int fn_806A8E70();
 struct MpLobbyAids_unk {
     unsigned char* mAids;
 };
+extern "C" int fn_804EB1AC(MpLobbySession_unk* s); // inferred: nonzero for the host
+extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
+extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face); // inferred: sets the face (host)
+extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg); // inferred: requests the face
+extern "C" int fn_804F5E38(MpLobbySession_unk* s, unsigned char id);  // inferred: state of a request
+extern "C" int* fn_804F5B08(MpLobbySession_unk* s, unsigned char id); // inferred: result of a request
+extern "C" void fn_804F5C9C(MpLobbySession_unk* s, unsigned char id); // inferred: frees a request
+extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" int fn_8050BA68(MpLobbyAids_unk* aids); // inferred: number of aids
 
 namespace MP {
@@ -188,5 +208,105 @@ int D2AMpMenuLobby::vf0C() {
 void D2AMpMenuLobby::vf1C() {}
 
 void D2AMpMenuLobby::vf20() {}
+
+void D2AMpMenuLobby::fn_804C0548() {
+    void* pad = lbl_8087EF70;
+    MpLobbyPlayerInfo_unk* player = fn_804EB870(lbl_8087F610);
+    int face = player->mD0_6;
+    if (mE64 == -1) {
+        if (lbl_8087F628->m25C == 1 && fn_800A55AC(pad, 0, 6) != 0) {
+            if (--face < 0) {
+                face += 3;
+            }
+            player = fn_804EB870(lbl_8087F610);
+            if (fn_804EB1AC(lbl_8087F610) == 1) {
+                fn_804DD9CC(lbl_8087F610, player, face);
+            } else {
+                int id;
+                if (fn_804FAB40(lbl_8087F610, face, player, &id, 1) == 1) {
+                    mE64 = id;
+                }
+            }
+        }
+    } else {
+        int state = fn_804F5E38(lbl_8087F610, mE64);
+        if (state == -2) {
+            mE64 = -1;
+        } else if (state == -1) {
+            fn_804F5C9C(lbl_8087F610, mE64);
+            mE64 = -1;
+        } else if (state == 1) {
+            int* result = fn_804F5B08(lbl_8087F610, mE64);
+            if (result != 0) {
+                player->mD0_6 = *result;
+            }
+            fn_804F5C9C(lbl_8087F610, mE64);
+            mE64 = -1;
+        }
+    }
+}
+
+void D2AMpMenuLobby::fn_804C0EA4() {
+    fn_804C0A40();
+    fn_804C1634();
+    m64->mFlags &= ~4;
+    m5C->mFlags &= ~4;
+    int chara = mE6C;
+    if (chara > 21) {
+        chara -= 2;
+    } else if (chara > 11) {
+        chara -= 1;
+    }
+    if (D2ACommonDialog::sInstance->m4C == 0) {
+        if (chara >= 0) {
+            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(chara + 0xB3), 0);
+        } else {
+            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xC9), 0);
+        }
+    }
+}
+
+void D2AMpMenuLobby::fn_804C2260(int v) { mDCC = v; }
+
+void D2AMpMenuLobby::fn_804C28A0(int count) {
+    if (mD88 == 7) {
+        int start = mDB4;
+        do {
+            mDB4 = (mDB4 + 1) % count;
+        } while (mE14[mDB4] == 0 && start != mDB4);
+        if (mE54 <= mDCC) {
+            mDB4 = lbl_8087F610->m55C;
+            fn_804C2994(mDD4[mDB4]);
+            mDA4 = 1;
+            mD90 = 9;
+            fn_80117228(1);
+            fn_804BC628(8);
+        } else {
+            mDCC++;
+            fn_80117228(3);
+        }
+    }
+}
+
+// NONMATCHING: same volatile registers of the member search as vf0C (aid r3/r4)
+int D2AMpMenuLobby::fn_804C2C14() {
+    if (fn_804EB1AC(lbl_8087F610) != 0) {
+        return 0;
+    }
+    for (int i = 0; i < GetHostCount_unk(); i++) {
+        MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(GetAid_unk(i));
+        if (member != 0 && member->mD0_31 == 1 && member->mD0_20 == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void D2AMpMenuLobby::fn_804C2F98() { fn_800D2338(this); }
+
+bool D2AMpMenuLobby::fn_804C2F9C() {
+    int state = mD88;
+    return state == 7 || state == 8 || state == 10;
+}
 
 } // namespace MP

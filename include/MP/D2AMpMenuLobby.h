@@ -46,7 +46,16 @@ public:
     virtual void vf20();
 
     void fn_804BC628(int state); // inferred: changes the state
+    void fn_804C0548(); // inferred: changes the face
+    void fn_804C0A40();
+    void fn_804C0EA4(); // inferred: refreshes the help text
+    void fn_804C1634();
+    void fn_804C2260(int v);
+    void fn_804C28A0(int count); // inferred: selects the next entry
+    void fn_804C2994(int id); // inferred: setter of mDCC (called from atn/PacketPack)
     int fn_804C2C14(); // inferred: nonzero while busy
+    void fn_804C2F98(); // inferred: removes the menu task
+    bool fn_804C2F9C(); // inferred: true in states 7, 8 and 10
 
     void Add_unk(MpD2A_unk* task) {
         if (mTasks.size() < 0x40) {
@@ -97,7 +106,9 @@ public:
     int mDBC[4];
     int mDCC;
     int mDD0;
-    unsigned char mDD4[0xE58 - 0xDD4];
+    int mDD4[16];
+    int mE14[16];             // inferred: nonzero for a selectable entry
+    int mE54;
     int mE58;
     int mE5C;
     int mE60;
