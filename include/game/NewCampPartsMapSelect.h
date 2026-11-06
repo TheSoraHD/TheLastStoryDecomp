@@ -86,7 +86,7 @@ public:
     virtual int vf4C();                                            // 0x8051C750
 
     void fn_80520634(); // inferred: reads map_param.csv
-    void fn_805201EC(int* point);
+    int fn_805201EC(int* point); // inferred: route of the current map (start of the cursor)
     void fn_80521908(int reset); // inferred: places the background boards
     void fn_8051FB7C(int state); // inferred: changes the state of the cursor (m1998)
     void fn_80521A00(int dir);
@@ -110,6 +110,21 @@ public:
         for (unsigned int i = 0; i < mRoutes.mSize; i++) {
             if (id == mRoutes.mData[i].mId) {
                 return &mRoutes.mData[i];
+            }
+        }
+        return 0;
+    }
+    // inferred: route whose point has the town block (a, b) in its list (names invented)
+    MapSelectRoute_unk* FindBlockRoute_unk(int a, int b) {
+        for (unsigned int i = 0; i < mRoutes.mSize; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (mRoutes.mData[i].m00 == 0 || mRoutes.mData[i].m00->m6C[j].mA < 0 ||
+                    mRoutes.mData[i].m00->m6C[j].mB < 0) {
+                    break;
+                }
+                if (a == mRoutes.mData[i].m00->m6C[j].mA && b == mRoutes.mData[i].m00->m6C[j].mB) {
+                    return &mRoutes.mData[i];
+                }
             }
         }
         return 0;

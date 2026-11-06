@@ -12,6 +12,8 @@
 #include "game/GameScene.h"
 #include "game/MapTask.h"
 #include "game/TacView.h"
+#include "game/TownTask.h"
+#include "game/PlayerManager.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -157,6 +159,17 @@ extern "C" MapSelectRouteData_unk* fn_80216544(int id, int chapter, int flag);
 extern "C" const char* fn_80216700(int id, int chapter, int flag); // inferred: state of the route
 extern "C" int fn_80375184(GameField_unk* field);
 extern "C" int fn_80370174(GameField_unk* field, int flag); // inferred: flag value
+extern "C" PlayerManager* lbl_8087F8A0;
+// inferred: the camp maps of Lazulis (the map select opens there with route 201); name invented
+static inline int IsCastleCamp_unk(int type, int id) {
+    int ret;
+    if (type == 2 && (id == 15 || id == 55)) {
+        ret = 1;
+    } else {
+        ret = 0;
+    }
+    return ret;
+}
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -605,6 +618,60 @@ void NewCampPartsMapSelect::fn_80520098() {
     if (lbl_8087F430->GetScene_unk() != 0) {
         lbl_8087F430->GetScene_unk()->FreezeTask();
     }
+}
+
+int NewCampPartsMapSelect::fn_805201EC(int* point) {
+    MapTask* map = fn_80373148(lbl_8087F430);
+    int type = map->GetMapType();
+    int id = map->GetMapId();
+    int subId = map->GetMapSubId();
+    *point = 205;
+    FindRouteIndex_unk(205);
+    if (IsCastleCamp_unk(type, id)) {
+        if (FindRoute_unk(201) != 0) {
+            *point = 201;
+        }
+    } else if (type == 2 && id == 9) {
+        if (FindRoute_unk(203) != 0) {
+            *point = 203;
+        }
+    } else if (type == 2 && id == 25) {
+        if (FindRoute_unk(310) != 0) {
+            *point = 310;
+        }
+    } else if (type == 2 && id == 67) {
+        if (FindRoute_unk(314) != 0) {
+            *point = 314;
+        }
+    } else if (type == 2 && id == 27) {
+        if (FindRoute_unk(403) != 0) {
+            *point = 403;
+        }
+    } else if (type == 2 && id == 3) {
+        if (FindRoute_unk(208) != 0) {
+            *point = 208;
+        }
+    } else if (type == 1 && lbl_8087FA20 != 0) {
+        atn::Vector3 pos = lbl_8087F8A0->mHead->mPos;
+        int x = 0;
+        int z = 0;
+        lbl_8087FA20->fn_805B8110(&pos, &x, &z);
+        MapSelectRoute_unk* found = FindBlockRoute_unk(x, z);
+        if (found != 0) {
+            *point = found->mId;
+        }
+    } else {
+        for (unsigned int i = 0; i < mRoutes.mSize; i++) {
+            if (type == mRoutes.mData[i].mMapType && id == mRoutes.mData[i].mMapId) {
+                *point = mRoutes.mData[i].mId;
+                FindRoute_unk(*point);
+                if (subId == mRoutes.mData[i].mMapSubId) {
+                    break;
+                }
+            }
+        }
+    }
+    return 1;
 }
 
 // NONMATCHING: 97.8% - same code, other registers (the original gives r31-r25 to the variables of the route block and
