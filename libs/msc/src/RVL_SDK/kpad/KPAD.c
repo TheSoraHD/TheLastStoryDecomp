@@ -250,7 +250,9 @@ void calc_button_repeat(KPADInsideStatus* kp, u32 dev_type, u32 count)
         }
     }
 
-    if (dev_type == WPAD_DEV_CLASSIC || dev_type == WPAD_DEV_TRAIN || dev_type == WPAD_DEV_GUITAR)
+    // TLS (2010): devices 16-19 and 7 also report classic-style buttons
+    if (dev_type == WPAD_DEV_TRAIN || dev_type == WPAD_DEV_GUITAR || dev_type == WPAD_DEV_DRUM || dev_type == 19
+        || dev_type == WPAD_DEV_CLASSIC || dev_type == 7)
     {
         if (ep->cl.trig != 0 || ep->cl.release != 0)
         {
@@ -290,7 +292,7 @@ void read_kpad_button(KPADInsideStatus* kp, u32 dev_type, u32 count, u32 core, u
     u32 old_fg, change_fg;
     old_fg = sp->hold & KPAD_BUTTON_MASK;
     sp->hold = core & (KPAD_BUTTON_MASK & ~(WPAD_BUTTON_FS_Z | WPAD_BUTTON_FS_C));
-    if (dev_type == WPAD_DEV_FREESTYLE)
+    if (dev_type == WPAD_DEV_FREESTYLE || dev_type == 6) // TLS (2010): also device 6
     {
         sp->hold |= (kp->exResetReq ? 0 : fs) & (WPAD_BUTTON_FS_Z | WPAD_BUTTON_FS_C);
     }
@@ -298,7 +300,8 @@ void read_kpad_button(KPADInsideStatus* kp, u32 dev_type, u32 count, u32 core, u
     sp->trig = change_fg & sp->hold;
     sp->release = change_fg & old_fg;
 
-    if (dev_type == WPAD_DEV_CLASSIC || dev_type == WPAD_DEV_TRAIN || dev_type == WPAD_DEV_GUITAR)
+    if (dev_type == WPAD_DEV_TRAIN || dev_type == WPAD_DEV_GUITAR || dev_type == WPAD_DEV_DRUM || dev_type == 19
+        || dev_type == WPAD_DEV_CLASSIC || dev_type == 7)
     {
         cl = kp->exResetReq ? 0 : cl;
         old_fg = ep->cl.hold & KPAD_BUTTON_MASK;
@@ -992,6 +995,7 @@ void calc_dpd_variable(KPADInsideStatus* kp, s8 valid_fg_next)
 
     pos.x = -kp->accXY_nrm_hori.y * vec.x + kp->accXY_nrm_hori.x * vec.y;
     pos.y = -kp->accXY_nrm_hori.x * vec.x - kp->accXY_nrm_hori.y * vec.y;
+    kp->unk_tls_0x5D8 = pos; // TLS (2010)
     if (sp->dpd_valid_fg == 0)
     {
         sp->pos = pos;
@@ -1150,7 +1154,9 @@ void read_kpad_dpd(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
     KPADObject* op1;
     s8 valid_fg_next;
 
-    if (uwp->fmt == WPAD_FMT_CORE_BTN_ACC_DPD || uwp->fmt == WPAD_FMT_FS_BTN_ACC_DPD || uwp->fmt == WPAD_FMT_CLASSIC_BTN_ACC_DPD || (uwp->fmt == WPAD_FMT_GUITAR && kp->dpdStatus))
+    // TLS (2010): formats 15, 17 and 16 (later SDK devices) also carry DPD data when it is enabled
+    if (uwp->fmt == WPAD_FMT_CORE_BTN_ACC_DPD || uwp->fmt == WPAD_FMT_FS_BTN_ACC_DPD || uwp->fmt == WPAD_FMT_CLASSIC_BTN_ACC_DPD || (uwp->fmt == WPAD_FMT_GUITAR && kp->dpdStatus)
+        || (uwp->fmt == 15 && kp->dpdStatus) || (uwp->fmt == 17 && kp->dpdStatus) || (uwp->fmt == 16 && kp->dpdStatus))
     {
         get_kobj(kp, &uwp->u.core.obj[WPAD_MAX_DPD_OBJECTS - 1]);
     }
