@@ -12,8 +12,11 @@ public:
     virtual void vf3C(HitInfo_unk* hit);                         // 0x80460A94
     virtual atn::Vector3 vf64(int center);                       // 0x80460EF0
     virtual float vf90();                                        // 0x80468D40
+    virtual int vfE4();                                          // 0x80468D18
 
-    unsigned char m14B0[0x14C4 - 0x14B0];
+    unsigned char m14B0[0x14BC - 0x14B0];
+    int m14BC;
+    unsigned char m14C0[0x14C4 - 0x14C0];
     int m14C4; // inferred: state (7: no hit reaction)
     unsigned char m14C8[0x18F8 - 0x14C8];
 };

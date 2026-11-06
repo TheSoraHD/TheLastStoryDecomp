@@ -21,6 +21,14 @@ atn::Vector3 LastCocoonQuadruped::vf64(int center) {
     return result;
 }
 
+int LastCocoonQuadruped::vfE4() {
+    int ret = 0;
+    if (m58C == 16 && m14BC == 1) {
+        ret = 1;
+    }
+    return ret;
+}
+
 float LastCocoonQuadruped::vf90() {
     return 3.0f;
 }
