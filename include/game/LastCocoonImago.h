@@ -1,15 +1,37 @@
 #ifndef GAME_LASTCOCOONIMAGO_H
 #define GAME_LASTCOCOONIMAGO_H
 
+#include "atn/LH_Binary.h"
+#include "atn/EfpHandle_unk.h"
+#include "atn/ColliBase.h"
 #include "game/EnemyTask.h"
+#include "game/ResHandle.h"
 
-// inferred from __vt__15LastCocoonImago (0x8078F7F0); the enemy factory (fn_805A5374) allocates 0x1990 bytes.
-// Only the constructor is declared until the unit is decompiled.
+// inferred from __vt__15LastCocoonImago (0x8078F800): imago form of the last cocoon; the enemy factory
+// (fn_805A5374) allocates 0x1990 bytes. Members keep their offsets (names unknown).
 class LastCocoonImago : public EnemyTask {
 public:
     LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info); // 0x80458270
+    virtual ~LastCocoonImago();                              // 0x8045F9A0
+    virtual void vf38(int enable);                           // 0x8045D1EC
+    virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
 
-    unsigned char m14B0[0x1990 - 0x14B0]; // inferred: members not decompiled yet
+    atn::LH_Binary m14B0; // inferred: parameter file
+    unsigned char m14B8[0x14F0 - 0x14B8];
+    atn::EfpFile m14F0;
+    unsigned char m14FC[0x1500 - 0x14FC];
+    atn::ColliCapsule mCapsules[11]; // 0x1500: inferred: hit capsules (bit 0 of mFlags enables them)
+    int m18C8;                       // inferred: sphere (m624) used as the center
+    unsigned char m18CC[0x18D0 - 0x18CC];
+    int m18D0;
+    unsigned char m18D4[0x18FC - 0x18D4];
+    atn::ColliSphere m18FC; // inferred: a sphere (0x4C bytes; its destructor is inlined)
+    unsigned char m1948[0x1964 - 0x1948];
+    atn::LH_Binary m1964;
+    atn::EfpFile m196C;
+    unsigned char m1978[0x1980 - 0x1978];
+    ResHandle m1980; // inferred: debug menu group
+    unsigned char m1984[0x1990 - 0x1984];
 };
 
 #endif
