@@ -3,17 +3,48 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "game/MenuCommonTask.h"
 #include "MP/D2ACommonDialog.h"
+#include "game/CharaTask.h"
+#include "game/Input_unk.h"
+#include "MP/MpMessage_unk.h"
+#include "MP/D2AMpMenuMessageList.h"
 
 // inferred: friend list (lbl_8087F628 + 0x430, as in MP/D2AMpMenuFriend.cpp)
 struct MpMsgFriendList_unk;
 extern "C" void fn_8050EAE8(MpMsgFriendList_unk* list);
 extern "C" void fn_804F7EF0(MpMsgFriendList_unk* list, int size); // inferred: saves
 
-// inferred: multiplayer data (lbl_8087F628); only the member used here
+// inferred: one entry of the lobby message list (category, index), as in MP/D2AMpMenuMessageList.cpp
+struct MpMsgRef_unk {
+    short mCategory;
+    short mIndex;
+};
+// inferred: multiplayer data (lbl_8087F628); only the members used here
 struct MpMsgData_unk {
     unsigned char m000[0x430];
-    unsigned char m430[0x9F0]; // inferred: friend list
+    unsigned char m430[0xC38 - 0x430]; // inferred: friend list (saved with the next 0x9F0 bytes)
+    MpMsgRef_unk mMessages[40];         // 0xC38
+    unsigned char mCD8;
+    unsigned char mCD9;
+    unsigned char mCDA;
+    unsigned char mCDB;
+    unsigned char mCDC;
 };
+extern "C" CharaInfo_unk* fn_8020924C(int id);
+
+// inferred: multiplayer session manager (lbl_8087F610), as in MP/D2AMpMenuMessageList.cpp
+struct MpMsgSession_unk {
+    unsigned char m0000[0x2A50];
+    MpMessageTable_unk m2A50;
+};
+extern "C" MpMsgSession_unk* lbl_8087F610;
+// inferred: game settings (lbl_8087F0A8): input at 0x48C
+struct MpMsgSettings_unk {
+    unsigned char m000[0x48C];
+    unsigned char mPad[1]; // 0x48C
+};
+extern "C" MpMsgSettings_unk* lbl_8087F0A8;
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
+extern "C" atn::SoundRef fn_800C32E0(unsigned int id, int arg2, int arg3, float volume);
 extern "C" MpMsgData_unk* lbl_8087F628;
 
 namespace MP {
@@ -33,6 +64,9 @@ public:
 
     void fn_804C8D80(int state); // inferred: changes the state
     void fn_804C9360();          // inferred: hides the windows of the previous state
+    int fn_804C9C88(int a, int b); // inferred: moves the cursor (1 = decided, 2 = cancelled)
+    void fn_804C9EF8();
+    void fn_804CA250();
     void fn_804CAAE8();          // inferred: draws the message list
     void fn_804CAD90();
     void fn_804CC618();          // inferred: reads the current messages
@@ -235,5 +269,277 @@ void D2AMpMenuSetMessage::fn_804C8D80(int state) {
 void D2AMpMenuSetMessage::vf1C() {}
 
 void D2AMpMenuSetMessage::vf20() {}
+
+void D2AMpMenuSetMessage::fn_804C9360() {
+    switch (mDC) {
+    case 2:
+        if (mD8 != 7 && mD8 != 3) {
+            Stop_unk(m4C);
+        }
+        m160 = mE4;
+        break;
+    case 3:
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        break;
+    case 4:
+        if (mD8 != 5) {
+            Stop_unk(m50);
+            for (int i = 0; i < 3; i++) {
+                Stop_unk(m58[i]);
+            }
+            for (int i = 0; i < 24; i++) {
+                Stop_unk(m74[i]);
+            }
+            for (int i = 0; i < 2; i++) {
+                Stop_unk(m64[i]);
+                Stop_unk(m6C[i]);
+            }
+        }
+        if (m164 != mE4 && mD8 == 5) {
+            m168 = 0;
+            m16C = 0;
+            mEC = 0;
+        }
+        m164 = mE4;
+        break;
+    case 5:
+        if (mD8 == 5) {
+            for (int i = 0; i < 3; i++) {
+                Stop_unk(m58[i]);
+            }
+        }
+        if (m168 != mE4 && mD8 == 6) {
+            m16C = 0;
+            mEC = 0;
+        }
+        m168 = mE4;
+        break;
+    case 6:
+        m16C = mE4;
+        Stop_unk(m54);
+        Stop_unk(mD4);
+        SetTaskText_unk(m50, "string0037(1)", L"");
+        SetPaneText_unk(m50->mLayout, "string0038(1)", L"");
+        SetPaneText_unk(m50->mLayout, "string0039(1)", L"");
+        SetPaneText_unk(m50->mLayout, "string0035(1)", L"");
+        SetPaneText_unk(m50->mLayout, "string0029(1)", L"");
+        break;
+    }
+}
+
+// inferred: default message list of the lobby (ten indices of category 20)
+struct MpMsgIds_unk {
+    int mIds[10];
+};
+static const MpMsgIds_unk sDefaultIds0 = {{0, 14, 15, 12, 17, 24, 29, 27, 16, 23}};
+static const MpMsgIds_unk sDefaultIds1 = {{24, 25, 26, 27, 28, 30, 41, 42, 16, 23}};
+
+// inferred: character ids of the names (0 = message table)
+static const int sCharaIds[22] = {
+    1, 100101, 100201, 100301, 100401, 100501, 100601, 100701, 100801, 100901, 101001,
+    200561, 200562, 300501, 101101, 201004, -1, -1, -1, -1, -1, -1,
+};
+
+// inferred: name of a character for the lobby messages
+static const wchar_t* GetCharaName_unk(int idx) {
+    if (idx < 0 || (unsigned int)idx >= 22) {
+        return 0;
+    }
+    if (sCharaIds[idx] > 0) {
+        CharaInfo_unk* info = fn_8020924C(sCharaIds[idx]);
+        if (info != 0) {
+            return info->m04;
+        }
+    } else if (lbl_8087F86C != 0) {
+        return lbl_8087F86C->Get_unk(idx + 0x2E);
+    }
+    return 0;
+}
+
+// inferred: name of a message for the lobby
+static const wchar_t* GetMsgName_unk(int idx) {
+    return lbl_8087F86C->Get_unk(idx + 0x45);
+}
+
+// NONMATCHING: 99.75% - case 5: the text goes to r31 and the layout to r29 (r29/r30 in the original)
+void D2AMpMenuSetMessage::vf10() {
+    if (mE0 != 0) {
+        mE0 = 0;
+        return;
+    }
+    switch (mD8) {
+    case 1:
+        if (m48->mFrame >= 10.0f) {
+            fn_804C8D80(2);
+        }
+        break;
+    case 2:
+        fn_804C9EF8();
+        break;
+    case 3:
+        if (D2ACommonDialog::sInstance->m4C != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C()) {
+                MpMsgIds_unk ids1;
+                MpMsgIds_unk ids0 = sDefaultIds0;
+                MpMsgData_unk* data = lbl_8087F628;
+                for (int i = 0; i < 10; i++) {
+                    data->mMessages[i].mCategory = 20;
+                    data->mMessages[i].mIndex = ids0.mIds[i];
+                }
+                ids1 = sDefaultIds1;
+                for (int i = 0; i < 10; i++) {
+                    data->mMessages[i + 10].mCategory = 20;
+                    data->mMessages[i + 10].mIndex = ids1.mIds[i];
+                }
+                for (int i = 20; i < 40; i++) {
+                    data->mMessages[i].mCategory = -1;
+                    data->mMessages[i].mIndex = 0;
+                }
+                data->mCD8 = 0;
+                data->mCDA = 1;
+                data->mCD9 = 2;
+                data->mCDB = 8;
+                data->mCDC = 9;
+                fn_804C8D80(2);
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC()) {
+                fn_804C8D80(2);
+            }
+        }
+        break;
+    case 4:
+        fn_804CAAE8();
+        if (!(m50->mFrame < 10.0f)) {
+            int ret = fn_804C9C88(3, 8);
+            if (ret == 1) {
+                if (mE4 <= 21) {
+                    fn_804C8D80(5);
+                    const wchar_t* text = GetCharaName_unk(m164);
+                    SetPaneText_unk(m6C[0]->mLayout, "string0029(1)", text);
+                }
+            } else if (ret == 2) {
+                fn_804C8D80(1);
+            }
+        }
+        break;
+    case 5: {
+        fn_804CAAE8();
+        int ret = fn_804C9C88(3, 8);
+        if (ret == 1) {
+            if (mE4 < 20 && m110[mE4] != 0) {
+                fn_804C8D80(6);
+                const wchar_t* text = GetMsgName_unk(m168);
+                SetPaneText_unk(m6C[1]->mLayout, "string0029(1)", text);
+            }
+        } else if (ret == 2) {
+            fn_804C8D80(4);
+        }
+        break;
+    }
+    case 6:
+        fn_804CA250();
+        break;
+    case 7:
+        if (m4C->mFrame <= 0.0f) {
+            fn_804C8D80(8);
+        }
+        break;
+    }
+}
+
+int D2AMpMenuSetMessage::fn_804C9C88(int rows, int cols) {
+    void* pad = lbl_8087EF70;
+    int result = 0;
+    int cursor = mE4;
+    if (cols != 0) {
+        if (fn_800A55AC(pad, 0, 0x1A) != 0 || fn_800A55AC(pad, 0, 0) != 0) {
+            if (mE4 % cols - 1 >= 0) {
+                mE4--;
+            } else {
+                mE4 = cols + mE4 - 1;
+            }
+        } else if (fn_800A55AC(pad, 0, 0x19) != 0 || fn_800A55AC(pad, 0, 1) != 0) {
+            if (mE4 % cols + 1 < cols) {
+                mE4++;
+            } else {
+                mE4 = mE4 - cols + 1;
+            }
+        }
+    }
+    if (rows > 1) {
+        if (fn_800A55AC(pad, 0, 0x17) != 0 || fn_800A55AC(pad, 0, 2) != 0) {
+            mE4 -= cols;
+            if (mE4 < 0) {
+                mE4 += rows * cols;
+            }
+        } else if (fn_800A55AC(pad, 0, 0x18) != 0 || fn_800A55AC(pad, 0, 3) != 0) {
+            int count = rows * cols;
+            mE4 += cols;
+            if (mE4 >= count) {
+                mE4 -= count;
+            }
+        }
+    }
+    if (mE4 != cursor) {
+        fn_80117228(3);
+        m170 = 0.0f;
+    }
+    if (fn_800A555C(pad, 0, 4) != 0) {
+        if (mD8 != 6 || mE8 != 0) {
+            fn_80117228(1);
+            result = 1;
+        }
+    } else if (fn_800A555C(pad, 0, 5) != 0) {
+        fn_80117228(2);
+        result = 2;
+    }
+    return result;
+}
+
+void D2AMpMenuSetMessage::fn_804C9EF8() {
+    unsigned int id;
+    int ret = fn_804C9C88(1, 10);
+    int page = D2AMpMenuMessageList::sPage;
+    int next = page;
+    if (ret == 1) {
+        fn_804C8D80(4);
+    } else if (ret == 2) {
+        fn_804C8D80(7);
+    } else if (fn_800A555C(lbl_8087EF70, 0, 0xC) != 0) {
+        fn_80117228(1);
+        fn_804C8D80(3);
+    } else if (fn_800A555C(lbl_8087EF70, 0, 2) != 0 || fn_800A555C(lbl_8087EF70, 0, 0x17) != 0) {
+        next = page - 1;
+        if (next < 0) {
+            next += 4;
+        }
+        D2AMpMenuMessageList::sPage = next;
+        fn_80117228(3);
+    } else if (fn_800A555C(lbl_8087EF70, 0, 3) != 0 || fn_800A555C(lbl_8087EF70, 0, 0x18) != 0) {
+        next = page + 1;
+        if (next >= 4) {
+            next -= 4;
+        }
+        D2AMpMenuMessageList::sPage = next;
+        fn_80117228(3);
+    }
+    if (next != page) {
+        m170 = 0.0f;
+    }
+    if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0x34) != 0) {
+        MpMsgRef_unk* ref = &lbl_8087F628->mMessages[mE4 + D2AMpMenuMessageList::sPage * 10];
+        MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(ref->mCategory, ref->mIndex);
+        if (msg != 0) {
+            id = *(unsigned int*)msg->m00;
+            fn_800CB5C8(&m174, 0, 0);
+            if (id != 0) {
+                m174 = fn_800C32E0(id, 0, -1, 1.0f);
+            }
+        }
+    }
+}
+
+
+
 
 } // namespace MP

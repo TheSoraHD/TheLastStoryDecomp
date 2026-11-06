@@ -3,22 +3,8 @@
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
 
-// inferred: one message of the multiplayer message table (0x1C bytes)
-struct MpMessage_unk {
-    unsigned char m00[0x18];
-    const wchar_t* mText; // 0x18
-};
-// inferred: categories of the message table (0xC bytes each)
-struct MpMessageCategory_unk {
-    unsigned int mCount;
-    int m04;
-    MpMessage_unk* mData;
-};
-// inferred: message table of the session (lbl_8087F610 + 0x2A50); names invented
-struct MpMessageTable_unk {
-    MpMessage_unk* fn_804C54FC(int category, int index);
-    MpMessageCategory_unk mCategories[21];
-};
+#include "MP/MpMessage_unk.h"
+#include "MP/D2AMpMenuMessageList.h"
 
 // inferred: multiplayer session manager (lbl_8087F610); only the members used here
 struct MpSession_unk {
@@ -80,55 +66,6 @@ inline int IsTriggered_unk(int button) {
 
 namespace MP {
 
-// inferred from __vt__Q22MP20D2AMpMenuMessageList (0x80790DB8): list of the fixed chat messages
-class D2AMpMenuMessageList : public atn::Task {
-public:
-    static D2AMpMenuMessageList* fn_804C2FF8(atn::Task* parent); // inferred: creates the instance
-    D2AMpMenuMessageList(atn::Task* parent);
-    virtual ~D2AMpMenuMessageList();
-    virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf1C();
-    virtual void vf20();
-
-    void SetTexts_unk();
-    void fn_804C35F0(int state);  // inferred: changes the state
-    void fn_804C38C0(int show);   // inferred: shows the button marks
-    int fn_804C4150(int count);   // inferred: list input
-    void fn_804C4530();           // inferred: update of the open state
-    void fn_804C50C0();           // inferred: draw of the list
-    void fn_804C5638();           // inferred: closes the task
-
-    void Add_unk(MpD2A_unk* task) {
-        if (mTasks.size() < 0x10) {
-            mTasks.push_back(task);
-        }
-    }
-    void SetAll_unk(int arg) {
-        for (MpD2A_unk** it = &mTasks[0]; it != &mTasks[mTasks.size()]; it++) {
-            if (*it != 0) {
-                (*it)->fn_800D246C(arg);
-            }
-        }
-    }
-
-    MpD2A_unk* m48; // inferred: online_message_base2.d2a
-    MpD2A_unk* m4C; // inferred: camp_cursor.d2a
-    atn::FixedArray_unk<MpD2A_unk*, 0x10> mTasks; // 0x50
-    int m94;        // inferred: state
-    int m98;        // inferred: previous state
-    int m9C;
-    int mA0;
-    int mA4;
-    int mA8;
-    int mAC;        // inferred: cursor
-    float mB0;      // inferred: scroll timer of the selected message
-    int mB4;
-
-    static D2AMpMenuMessageList* sInstance;
-    static int sPage;
-};
 
 // NONMATCHING (__sinit): the store is scheduled before the reload of the return address in the original
 static unsigned int sCustomData = fn_800DC6B4("CustomData");
@@ -422,30 +359,6 @@ void D2AMpMenuMessageList::fn_804C50C0() {
     }
 }
 } // namespace MP
-
-// NONMATCHING: the original inlines its own recursive call once
-MpMessage_unk* MpMessageTable_unk::fn_804C54FC(int category, int index) {
-    if (category < 0 || category > 21) {
-        return 0;
-    }
-    if (category < 21) {
-        if (index < 0 || mCategories[category].mCount <= (unsigned int)index) {
-            return 0;
-        }
-        return &mCategories[category].mData[index];
-    }
-    if (index < 0) {
-        return 0;
-    }
-    int i;
-    for (i = 0; i < 20 && mCategories[i].mCount <= (unsigned int)index; i++) {
-        index -= mCategories[i].mCount;
-    }
-    if (i >= 20) {
-        return 0;
-    }
-    return fn_804C54FC(i, index);
-}
 
 namespace MP {
 
