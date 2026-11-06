@@ -1,8 +1,13 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-06, `unidades-20261106b` mergeada en `main`)
+## Estado actual (2026-11-06, `main` f92ee8d)
 
-- Rama `unidades-20261106b` (desde `main` c6fdafc, 13524): report **13619 / 18117** (lost 0, fuzzdrop 0,
+- Prompt de la siguiente sesión: `claude/prompt-hermanas.md` (proyecto): unidades hermanas, patrones repetidos,
+  menús MP; secuencial y con ahorro de tokens. Herramientas nuevas: `tools/decomp/mkref.sh` (referencia) y
+  `tools/decomp/precommit.sh [--pd] <unidades>` (todas las comprobaciones, `PRECOMMIT OK/FAIL`); `try.sh` ya
+  encuentra los compiladores en la nube.
+
+- `unidades-20261106b` (mergeada; desde c6fdafc, 13524): report **13619 / 18117** (lost 0, fuzzdrop 0,
   `main.dol: OK` en build limpio y en clon limpio, 652 unidades enlazadas). Notas y decisiones:
   `docs/unidades-20261106b.md`.
   - KPAD 2010: `KPAD.c` 33/33 (no enlaza: solo el orden de tres entradas de `.sdata2`), `KPADMpls_unk.c` 10/16 y
@@ -19,21 +24,16 @@
 - Fuentes externas: Swiftshine/key (CC0), mscharged-decomp (CC0), wii-ipl (CC0), pokemon-rumble-decomp (MIT).
   `robojumper/sdk_2009-12-11` (sin licencia) y `mkwcat/nsmbw-project` (MPL 2.0): sin usar, decide el usuario.
 
-## Propuestas
+## Propuestas (por rendimiento esperado; detalle en `claude/prompt-hermanas.md`)
 
-1. Menús MP: unificar las vistas de `lbl_8087F628` (`MpData_unk`, `MpMsgData_unk`, `MpLobbyData_unk`,
-   `atn::net::Manager`) y de `lbl_8087F610` en una cabecera; es requisito de `D2AMpMenu::fn_804AF520` (5456 B) y
-   esa función desbloquea el pool `@stringBase0` del resto de D2AMpMenu. En Lobby, `fn_804BC628` (5000 B) hace lo
-   mismo para su pool (y usa el `@wstringBase0` de `.data` 0x80790D74).
-2. Bloqueo de la búsqueda por aid (`docs/mwcc-blockers.md`): Lobby `vf0C`, `fn_804C2C14`, `fn_804BE610`,
-   `fn_804BEDB8`, `fn_804C23E4`, FriendRoom `vf0C`. Pista: en `fn_804C23E4` el aid entra con `clrlwi` (parámetro de
-   8 bits de la búsqueda real).
-3. Registros texto/layout en `SetPaneText_unk` (SetMessage, Result, Cockpit, SetRule, MessageList `fn_804C38C0`):
-   probar formas nuevas (no repetir las anotadas en cada `NONMATCHING`).
-4. KPAD: `matching: true` solo depende del orden `.sdata2` (1/200 y 1/100 antes de `{1,1,1}`); `KPADMpls_unk.c`
-   `fn_80659DF0` (2752 B).
-5. `dwc_match` (96/101); NewCampPartsItem (resto) y unidades del juego sin ninguna función al 100% (NewCampTask, TacView, ShopBase,
-   LastCocoon*, AiTarget, ReplayBuffer, Event/DebugInfo_unk). TeamAI_unk solo con idea nueva.
+1. Unidades nuevas con una hermana ya hecha: `NewCampPartsMapSelect` (base `NewCampPartsBase`), `LastCocoonEgg/
+   Imago/Quadruped` (hermana `LastCocoonChrysalis`), `CosEditProtector` (`CosEditBase`), `ShopBase`/`ShopUpGrade`
+   (`ShopBuySell`, `ShopColor`, `ShopIdentify`). Fábrica, ctor (fija los pools), dtor y virtuales pequeños primero.
+2. Patrones repetidos: agrupar los `NONMATCHING` por motivo y buscar un arreglo común (como `Decide_unk`).
+3. Menús MP: unificar las vistas de `lbl_8087F628`/`lbl_8087F610` en una cabecera; luego `D2AMpMenu::fn_804AF520`
+   (5456 B) y Lobby `fn_804BC628` (5000 B), que desbloquean los pools de unas 45 funciones.
+4. Solo con idea nueva: búsqueda por aid (Lobby/FriendRoom; pista: `clrlwi` del aid en `fn_804C23E4`), registros
+   texto/layout de `SetPaneText_unk`, KPAD `.sdata2`, `KPADMpls_unk` `fn_80659DF0`, `dwc_match`, TeamAI.
 
 ## Bloqueos conocidos (no repetir sin idea nueva)
 
