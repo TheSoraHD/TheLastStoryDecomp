@@ -75,6 +75,7 @@ extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 extern "C" void fn_801FEDBC(void* layout, unsigned int hash, int index, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound
@@ -107,6 +108,10 @@ inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text)
 inline void SetTaskText_unk(MpD2A_unk* task, const char* name, const wchar_t* text) {
     void* layout = task->mLayout;
     fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+// inferred: sets a float of a pane (alpha in MP/Popup.cpp, height of the scroll bar)
+inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 // inferred: starts playing an anime at `speed`
 inline void Play_unk(MpD2A_unk* task, int repeat, float speed) {

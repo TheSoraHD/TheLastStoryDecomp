@@ -3,7 +3,12 @@
 
 // inferred: one message of the multiplayer message table (0x1C bytes)
 struct MpMessage_unk {
-    unsigned char m00[0x18];
+    unsigned int mVoice;  // inferred: sound id played when it is selected (0 = none)
+    unsigned int m04;     // inferred: bits 8+: categories of the lobby list where the message appears
+    unsigned int m08;     // inferred: top byte: character of the message (19 = generic, 20+ = cannot be chosen)
+    int m0C;
+    int m10;              // inferred: character id of the speaker (0 = none)
+    int m14;
     const wchar_t* mText; // 0x18
 };
 // inferred: categories of the message table (0xC bytes each)
@@ -38,6 +43,20 @@ struct MpMessageTable_unk {
             return fn_804C54FC(i, index);
         }
         return 0;
+    }
+    // inferred: number of messages of `category` (21 = every category)
+    int GetCount_unk(int category) {
+        if (category < 0 || 21 < category) {
+            return 0;
+        }
+        if (category < 21) {
+            return mCategories[category].mCount;
+        }
+        int count = 0;
+        for (int i = 0; i < 20; i++) {
+            count += mCategories[i].mCount;
+        }
+        return count;
     }
     MpMessageCategory_unk mCategories[21];
 };
