@@ -254,6 +254,10 @@ void WPADiRadioSensitivity(s32 chan) {
     u32 packet = 2;
     u16 rs;
 
+    if (_senseCnt != 10) {
+        return;
+    }
+
     rs = (u16)(p_wpd->radioSense * (10 - 1));
     rs += (u16)((p_wpd->packetCnt * 100) / packet);
     rs /= 10;
@@ -321,11 +325,14 @@ static u8 IsAnalogChanged(s32 curr, s32 prev, s32 threshold) {
 
 // inferred: size of the status structure for a data format (version 2010)
 u32 fn_8065D3E0(u32 fmt) {
+    u32 size;
+
     switch (fmt) {
     case 3:
     case 4:
     case 5:
-        return 50;
+        size = 50;
+        break;
     case 6:
     case 7:
     case 8:
@@ -333,24 +340,35 @@ u32 fn_8065D3E0(u32 fmt) {
     case 15:
     case 17:
     case 18:
-        return 54;
+        size = 54;
+        break;
     case 19:
-        return 64;
+        size = 64;
+        break;
     case 10:
-        return 46;
+        size = 46;
+        break;
     case 20:
-        return 50;
+        size = 50;
+        break;
     case 12:
-        return 52;
+        size = 52;
+        break;
     case 13:
-        return 70;
+        size = 70;
+        break;
     case 9:
-        return 90;
+        size = 90;
+        break;
     case 16:
-        return 62;
+        size = 62;
+        break;
     default:
-        return 42;
+        size = 42;
+        break;
     }
+
+    return size;
 }
 
 BOOL IsControllerDataChanged(WPADControlBlock* p_wpd, void* p_curr, void* p_prev) {
@@ -1826,48 +1844,22 @@ BOOL WPADSaveConfig(WPADFlushCallback callback) {
 #pragma pop
 
 void WPADRead(s32 chan, void* status) {
-    WPADControlBlock* p_wpd;
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     void* p_data;
     BOOL enable;
+    u32 size;
     u8 index;
 
     enable = OSDisableInterrupts();
-    p_wpd = _wpdcb[chan];
 
     index = (u8)((p_wpd->rxBufIndex) ? 0 : 1);
     p_data = (void*)(p_wpd->rxBuf + index * WPAD_RX_DATASIZE);
 
-    switch (((WPADStatus*)p_data)->err) {
-    case WPAD_ERR_NONE:
-        if (WPADiIsCoreFormat(p_wpd->dataFormat)) {
-            memcpy(status, p_data, sizeof(WPADStatus));
-        } else if (WPADiIsFsFormat(p_wpd->dataFormat)) {
-            memcpy(status, p_data, sizeof(WPADFSStatus));
-        } else if (WPADiIsClFormat(p_wpd->dataFormat)) {
-            memcpy(status, p_data, sizeof(WPADCLStatus));
-        } else {
-            memcpy(status, p_data, sizeof(WPADStatusEx));
-        }
-        break;
-
-    case WPAD_ERR_BUSY:
-    case WPAD_ERR_CORRUPTED:
-        memcpy(status, p_data, sizeof(WPADStatus));
-        break;
-    default:
-        if (WPADiIsCoreFormat(p_wpd->dataFormat)) {
-            memset(status, 0, sizeof(WPADStatus));
-        } else if (WPADiIsFsFormat(p_wpd->dataFormat)) {
-            memset(status, 0, sizeof(WPADFSStatus));
-        } else if (WPADiIsClFormat(p_wpd->dataFormat)) {
-            memset(status, 0, sizeof(WPADCLStatus));
-        } else {
-            memset(status, 0, sizeof(WPADStatusEx));
-        }
-
-        ((WPADStatus*)status)->err = ((WPADStatus*)p_data)->err;
-        break;
+    size = fn_8065D3E0(p_wpd->dataFormat);
+    if (((WPADStatus*)p_data)->err != WPAD_ERR_NONE) {
+        size = sizeof(WPADStatus);
     }
+    memcpy(status, p_data, size);
 
     OSRestoreInterrupts(enable);
 }
@@ -1876,24 +1868,15 @@ void WPADSetAutoSamplingBuf(s32 chan, void* buf, u32 length) {
     WPADControlBlock* p_wpd;
     BOOL enable;
     s8 err;
-    int size;
+    u32 size;
     int i;
 
     DEBUGPrint("WPADSetAutoSamplingBuf()\n");
 
-    enable = OSDisableInterrupts();
     p_wpd = _wpdcb[chan];
+    enable = OSDisableInterrupts();
     err = (s8)((p_wpd->status == WPAD_ERR_NO_CONTROLLER) ? WPAD_ERR_NO_CONTROLLER : WPAD_ERR_INVALID);
-
-    if (WPADiIsCoreFormat(p_wpd->dataFormat)) {
-        size = sizeof(WPADStatus);
-    } else if (WPADiIsFsFormat(p_wpd->dataFormat)) {
-        size = sizeof(WPADFSStatus);
-    } else if (WPADiIsClFormat(p_wpd->dataFormat)) {
-        size = sizeof(WPADCLStatus);
-    } else {
-        size = sizeof(WPADStatusEx);
-    }
+    size = fn_8065D3E0(p_wpd->dataFormat);
 
     if (buf) {
         memset(buf, 0, size * length);
@@ -1927,7 +1910,16 @@ void WPADiExcludeButton(s32 chan) {
         p_wp->button &= ~WPAD_BUTTON_DOWN;
     }
 
-    if (WPADiIsClFormat(p_wpd->dataFormat)) {
+    if (WPADiIsClFormat(p_wpd->dataFormat) || p_wpd->dataFormat == 11 || p_wpd->dataFormat == 15 || p_wpd->dataFormat == 17) {
+        p_cp = (WPADCLStatus*)p_data;
+        if ((p_cp->clButton & WPAD_CLB_HCURSOR_MASK) == WPAD_CLB_HCURSOR_MASK) {
+            p_cp->clButton &= ~WPAD_CL_BUTTON_RIGHT;
+        }
+        if ((p_cp->clButton & WPAD_CLB_VCURSOR_MASK) == WPAD_CLB_VCURSOR_MASK) {
+            p_cp->clButton &= ~WPAD_CL_BUTTON_DOWN;
+        }
+    }
+    if (p_wpd->dataFormat == 10) {
         p_cp = (WPADCLStatus*)p_data;
         if ((p_cp->clButton & WPAD_CLB_HCURSOR_MASK) == WPAD_CLB_HCURSOR_MASK) {
             p_cp->clButton &= ~WPAD_CL_BUTTON_RIGHT;
@@ -1946,10 +1938,14 @@ void WPADiCopyOut(s32 chan) {
     void* p_data;
     u8 index;
     u32 size;
+    u32 len;
+    void* p_stat;
 
     enable = OSDisableInterrupts();
     index = (u8)((p_wpd->rxBufIndex) ? 0 : 1);
     p_data = (void*)(p_wpd->rxBuf + index * WPAD_RX_DATASIZE);
+    size = fn_8065D3E0(p_wpd->dataFormat);
+    len = size;
 
     if (p_wpd->samplingBufs_ptr) {
         p_wpd->bufLatestIndex++;
@@ -1957,27 +1953,11 @@ void WPADiCopyOut(s32 chan) {
             p_wpd->bufLatestIndex = 0;
         }
 
-        if (WPADiIsCoreFormat(p_wpd->dataFormat)) {
-            WPADStatus* p_stat;
-            p_stat = (WPADStatus*)p_wpd->samplingBufs_ptr + p_wpd->bufLatestIndex;
-            size = sizeof(WPADStatus);
-            memcpy(p_stat, p_data, size);
-        } else if (WPADiIsFsFormat(p_wpd->dataFormat)) {
-            WPADFSStatus* p_stat;
-            p_stat = (WPADFSStatus*)p_wpd->samplingBufs_ptr + p_wpd->bufLatestIndex;
-            size = (((WPADStatus*)p_data)->err == WPAD_ERR_NONE) ? sizeof(WPADFSStatus) : sizeof(WPADStatus);
-            memcpy(p_stat, p_data, size);
-        } else if (WPADiIsClFormat(p_wpd->dataFormat)) {
-            WPADCLStatus* p_stat;
-            p_stat = (WPADCLStatus*)p_wpd->samplingBufs_ptr + p_wpd->bufLatestIndex;
-            size = (((WPADStatus*)p_data)->err == WPAD_ERR_NONE) ? sizeof(WPADCLStatus) : sizeof(WPADStatus);
-            memcpy(p_stat, p_data, size);
-        } else {
-            WPADStatusEx* p_stat;
-            p_stat = (WPADStatusEx*)p_wpd->samplingBufs_ptr + p_wpd->bufLatestIndex;
-            size = (((WPADStatus*)p_data)->err == WPAD_ERR_NONE) ? sizeof(WPADStatusEx) : sizeof(WPADStatus);
-            memcpy(p_stat, p_data, size);
+        p_stat = (u8*)p_wpd->samplingBufs_ptr + p_wpd->bufLatestIndex * size;
+        if (((WPADStatus*)p_data)->err != WPAD_ERR_NONE) {
+            len = sizeof(WPADStatus);
         }
+        memcpy(p_stat, p_data, len);
     }
     if (p_wpd->sampleCallback) {
         p_wpd->sampleCallback(chan);
