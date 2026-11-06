@@ -46,6 +46,9 @@ public:
     virtual void vf20();
 
     void fn_804BC628(int state); // inferred: changes the state
+    void fn_804BD9B8(); // inferred: enters the state of mD8C
+    int fn_804BE330(int count); // inferred: cursor and decide/cancel keys
+    void fn_804BF550();
     void fn_804C0548(); // inferred: changes the face
     void fn_804C0A40();
     void fn_804C0EA4(); // inferred: refreshes the help text

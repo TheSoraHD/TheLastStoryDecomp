@@ -5,6 +5,9 @@
 #include "atn/FadeCommon.h"
 #include "MP/D2ACommonDialog.h"
 #include "game/MenuCommonTask.h"
+#include "game/GameConfig_unk.h"
+#include "MP/D2AMpMenuMessageList.h"
+#include "MP/D2AMpMenu.h"
 
 // inferred: player information returned by fn_804EB870 (local player); only the member used here
 struct MpLobbyPlayerInfo_unk {
@@ -38,7 +41,9 @@ struct MpLobbySession_unk : public atn::Task {
         }
         return 0;
     }
-    unsigned char m048[0x55C - 0x48];
+    unsigned char m048[0x508 - 0x48];
+    short m508;               // inferred: time left (-1: none)
+    unsigned char m50A[0x55C - 0x50A];
     int m55C;
     unsigned char m560[0x5E4 - 0x560];
     MpLobbyMember_unk* m5E4; // inferred: players
@@ -71,6 +76,8 @@ extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlay
 extern "C" int fn_804F5E38(MpLobbySession_unk* s, unsigned char id);  // inferred: state of a request
 extern "C" int* fn_804F5B08(MpLobbySession_unk* s, unsigned char id); // inferred: result of a request
 extern "C" void fn_804F5C9C(MpLobbySession_unk* s, unsigned char id); // inferred: frees a request
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" int fn_8050BA68(MpLobbyAids_unk* aids); // inferred: number of aids
 
@@ -208,6 +215,90 @@ int D2AMpMenuLobby::vf0C() {
 void D2AMpMenuLobby::vf1C() {}
 
 void D2AMpMenuLobby::vf20() {}
+
+void D2AMpMenuLobby::fn_804BD9B8() {
+    int mode = D2AMpMenu::sInstance->mC4;
+    switch (mD8C) {
+    case 2:
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        break;
+    case 3:
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        break;
+    case 4:
+        Stop_unk(m5C);
+        break;
+    case 5:
+        vf1C();
+        fn_804BF550();
+        Play_unk(m4C, 0, 1.0f);
+        Play_unk(m50, 0, 1.0f);
+        if (mode == 2) {
+            Play_unk(m54, 0, 1.0f);
+        } else {
+            Play_unk(m58, 0, 1.0f);
+        }
+        Play_unk(m64, 0, 1.0f);
+        for (int i = 0; i < 6; i++) {
+            if (mPlayers[i].m18 != 0) {
+                Play_unk(mPlayers[i].mTasks[2], 0, 1.0f);
+                Stop_unk(mPlayers[i].mTasks[3]);
+                Stop_unk(mPlayers[i].mTasks[4]);
+            }
+        }
+        for (int i = 0; i < 6; i++) {
+            if (mPlayers[i].m20 > 0) {
+                if (mPlayers[i].m28 == 0) {
+                    Play_unk(mPlayers[i].mTasks[3], 0, 1.0f);
+                } else {
+                    Play_unk(mPlayers[i].mTasks[4], 0, 1.0f);
+                }
+            }
+        }
+        break;
+    case 10:
+        m68->mFlags |= 4;
+        Stop_unk(m68);
+        Stop_unk(m5C);
+        break;
+    case 7:
+        if (D2AMpMenuMessageList::sInstance != 0 && (unsigned int)D2AMpMenuMessageList::sInstance->m94 <= 2) {
+            D2AMpMenuMessageList::sInstance->fn_804C35F0(3);
+        }
+        mDCC = 30;
+        break;
+    }
+}
+
+int D2AMpMenuLobby::fn_804BE330(int count) {
+    void* pad = lbl_8087EF70;
+    int decide = 0;
+    if (mD88 == 7) {
+        fn_804A436C(&mDB4, count, count, 1, 3);
+    }
+    if (fn_800A555C(pad, 0, 4) != 0) {
+        fn_80117228(1);
+        decide = 1;
+    } else if (fn_800A555C(pad, 0, 5) != 0) {
+        fn_80117228(2);
+        decide = 2;
+    }
+    if (decide == 0 && D2AMpMenuMessageList::sInstance != 0) {
+        short time = lbl_8087F610->m508;
+        if (time == -1 || time > 90) {
+            if (D2ACommonDialog::sInstance->m4C == 0 || D2ACommonDialog::sInstance->fn_804AC734() != 0) {
+                if (lbl_8087F0A8->mInput.fn_801231D0(0x34) != 0 && (mD88 == 4 || mD88 == 6)) {
+                    fn_80117228(10);
+                    D2AMpMenuMessageList::sInstance->fn_804C35F0(1);
+                    D2AMpMenuMessageList::sInstance->fn_804C38C0(0);
+                }
+            }
+        }
+    }
+    return decide;
+}
 
 void D2AMpMenuLobby::fn_804C0548() {
     void* pad = lbl_8087EF70;
