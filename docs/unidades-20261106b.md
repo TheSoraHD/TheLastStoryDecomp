@@ -17,7 +17,7 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 
 | Unidad | Funciones | Notas |
 |---|---|---|
-| `msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c` (nueva, matching false) | 2/6 | rutinas de vectores/rotacion de Motion Plus (`fn_8065AED0`, `fn_8065AF20` movidas de KPADMpls; `fn_8065AFB0` 90%, `fn_8065B320`, `fn_8065B630`, `fn_8065B7F0` escritas, NONMATCHING) |
+| `msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c` (nueva, matching false) | 4/6 | rutinas de vectores/rotacion de Motion Plus (`fn_8065AED0`, `fn_8065AF20` movidas de KPADMpls; `fn_8065B630` (producto de rotaciones) y `fn_8065B7F0` (interpolacion) nuevas; `fn_8065AFB0` 90%, `fn_8065B320` 53%) |
 | `msc/src/RVL_SDK/kpad/KPAD.c` (matching false) | 22 -> 33/33 | `KPADInsideStatus` 2010 completo (puntero 0x17C, ticks y Motion Plus 0x660-0x688); `reset_kpad(chan)`, `KPADInitEx`, `KPADiConnectCallback`, `KPADiRead`, `KPADiSamplingCallback`, `read_kpad_ext`, `read_kpad_acc`, callbacks WBC y `fn_80658300` (Motion Plus) desde el asm. Falta `fn_80657230` (61%) |
 
 ## Decisiones tomadas sin el usuario

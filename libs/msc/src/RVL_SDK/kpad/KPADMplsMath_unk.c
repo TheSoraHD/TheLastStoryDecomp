@@ -92,7 +92,8 @@ void fn_8065AFB0(KPADMPDir* dir, f32 limit)
 
 // inferred: rotation that takes the direction `a` to `b` (both normalized), as the rows a, n, a x n mapped
 // to b, n, b x n (n = normalized a x b)
-// NONMATCHING: 51% - operation order of the nine sums not found
+// NONMATCHING: 53% - the products of a x b are reused for the a*b terms (const a, b), but the original keeps
+// one FPR less and does not schedule the first loads into the prologue
 void fn_8065B320(KPADMPDir* out, const Vec* a, const Vec* b)
 {
     Vec n;
@@ -120,49 +121,42 @@ void fn_8065B320(KPADMPDir* out, const Vec* a, const Vec* b)
     bn.x = b->y * n.z - b->z * n.y;
     bn.y = b->z * n.x - b->x * n.z;
     bn.z = b->x * n.y - b->y * n.x;
-    out->X.x = a->x * b->x + n.x * n.x + an.x * bn.x;
-    out->X.y = a->x * b->y + n.x * n.y + an.x * bn.y;
-    out->X.z = a->x * b->z + n.x * n.z + an.x * bn.z;
-    out->Y.x = a->y * b->x + n.y * n.x + an.y * bn.x;
-    out->Y.y = a->y * b->y + n.y * n.y + an.y * bn.y;
-    out->Y.z = a->y * b->z + n.y * n.z + an.y * bn.z;
-    out->Z.x = a->z * b->x + n.z * n.x + an.z * bn.x;
-    out->Z.y = a->z * b->y + n.z * n.y + an.z * bn.y;
-    out->Z.z = a->z * b->z + n.z * n.z + an.z * bn.z;
+    out->X.x = n.x * n.x + bn.x * an.x + b->x * a->x;
+    out->X.y = n.y * n.x + bn.y * an.x + b->y * a->x;
+    out->X.z = n.z * n.x + bn.z * an.x + b->z * a->x;
+    out->Y.x = n.x * n.y + bn.x * an.y + b->x * a->y;
+    out->Y.y = n.y * n.y + bn.y * an.y + b->y * a->y;
+    out->Y.z = n.z * n.y + bn.z * an.y + b->z * a->y;
+    out->Z.x = n.x * n.z + bn.x * an.z + b->x * a->z;
+    out->Z.y = n.y * n.z + bn.y * an.z + b->y * a->z;
+    out->Z.z = n.z * n.z + bn.z * an.z + b->z * a->z;
 }
 
 // inferred: out = b * a (rows of b combined with the axes of a)
-// NONMATCHING: 25% - the original loads after every store (no alias assumption); MWCC -O4,p hoists all
-// the loads here (also with Vec members, flat floats or Wii/1.1-1.7)
-void fn_8065B630(const KPADMPDir* a, const KPADMPDir* b, KPADMPDir* out)
+void fn_8065B630(KPADMPDir* a, KPADMPDir* b, KPADMPDir* out)
 {
-    const f32(*ma)[3] = (const f32(*)[3])a;
-    const f32(*mb)[3] = (const f32(*)[3])b;
-    f32(*mo)[3] = (f32(*)[3])out;
-    int i;
-    int j;
-
-    for (i = 0; i < 3; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            mo[i][j] = mb[i][0] * ma[0][j] + mb[i][1] * ma[1][j] + mb[i][2] * ma[2][j];
-        }
-    }
+    out->X.x = b->X.x * a->X.x + b->X.y * a->Y.x + b->X.z * a->Z.x;
+    out->X.y = b->X.x * a->X.y + b->X.y * a->Y.y + b->X.z * a->Z.y;
+    out->X.z = b->X.x * a->X.z + b->X.y * a->Y.z + b->X.z * a->Z.z;
+    out->Y.x = b->Y.x * a->X.x + b->Y.y * a->Y.x + b->Y.z * a->Z.x;
+    out->Y.y = b->Y.x * a->X.y + b->Y.y * a->Y.y + b->Y.z * a->Z.y;
+    out->Y.z = b->Y.x * a->X.z + b->Y.y * a->Y.z + b->Y.z * a->Z.z;
+    out->Z.x = b->Z.x * a->X.x + b->Z.y * a->Y.x + b->Z.z * a->Z.x;
+    out->Z.y = b->Z.x * a->X.y + b->Z.y * a->Y.y + b->Z.z * a->Z.y;
+    out->Z.z = b->Z.x * a->X.z + b->Z.y * a->Y.z + b->Z.z * a->Z.z;
 }
 
 // inferred: interpolates two attitudes (t from a to b) and makes the result orthonormal
-// NONMATCHING: 26% - same as fn_8065B630: the original does not move the loads above the stores
-void fn_8065B7F0(const KPADMPDir* a, const KPADMPDir* b, KPADMPDir* out, f32 t)
+void fn_8065B7F0(KPADMPDir* a, KPADMPDir* b, KPADMPDir* out, f32 t)
 {
-    const f32* pa = (const f32*)a;
-    const f32* pb = (const f32*)b;
-    f32* po = (f32*)out;
-    int i;
-
-    for (i = 0; i < 9; i++)
-    {
-        po[i] = pa[i] + t * (pb[i] - pa[i]);
-    }
+    out->X.x = a->X.x + t * (b->X.x - a->X.x);
+    out->X.y = a->X.y + t * (b->X.y - a->X.y);
+    out->X.z = a->X.z + t * (b->X.z - a->X.z);
+    out->Y.x = a->Y.x + t * (b->Y.x - a->Y.x);
+    out->Y.y = a->Y.y + t * (b->Y.y - a->Y.y);
+    out->Y.z = a->Y.z + t * (b->Y.z - a->Y.z);
+    out->Z.x = a->Z.x + t * (b->Z.x - a->Z.x);
+    out->Z.y = a->Z.y + t * (b->Z.y - a->Z.y);
+    out->Z.z = a->Z.z + t * (b->Z.z - a->Z.z);
     fn_8065AFB0(out, 2.999f);
 }
