@@ -66,6 +66,7 @@ private:
         BlackFader(int maxFrame) {
             init(maxFrame);
             setColor(0, 0, 0);
+            UNK_0xC = 1;
         }
 
         int getFrame() const {
@@ -280,7 +281,7 @@ private:
     int UNK_0x5B8;                                         // inferred: version of 2010
     int iReConnectTime;                                    // at 0x5BC
     int iReConnectTime2;                                   // at 0x5C0
-    u16 UNK_0x5C4[4];                                      // inferred: version of 2010 (application volumes?)
+    u16 mAppVolume[4];                                     // at 0x5C4 (version of 2010; was nw4hbm::snd::AUX_BUS_NUM)
     //nw4hbm::snd::SoundArchivePlayer* mpSoundArchivePlayer; // at 0x5D0
     //nw4hbm::snd::DvdSoundArchive* mpDvdSoundArchive;       // at 0x5D4
     //nw4hbm::snd::MemorySoundArchive* mpMemorySoundArchive; // at 0x5D8

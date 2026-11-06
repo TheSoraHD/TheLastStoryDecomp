@@ -44,6 +44,7 @@ namespace homebutton {
 
 // Prototypes
 static void SimpleSyncCallback(s32 result, s32 num);
+static void drawBlackPlate(f32 left, f32 top, f32 right, f32 bottom, GXColor clr);
 
 struct AnmControllerTable {
     int pane; // at 0x0
@@ -143,8 +144,51 @@ const char* HomeButton::scBatteryPaneName //
 };
 #undef X
 
+static void initgx() {
+    Mtx view_mtx;
+
+    GXSetCullMode(GX_CULL_NONE);
+    PSMTXIdentity(view_mtx);
+    GXLoadPosMtxImm(view_mtx, GX_PNMTX0);
+    GXSetCurrentMtx(GX_PNMTX0);
+
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_CLR_RGB, GX_F32, 0);
+
+    GXSetNumChans(1);
+    GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL,
+                  GX_DF_NONE, GX_AF_NONE);
+    GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL,
+                  GX_DF_NONE, GX_AF_NONE);
+
+    GXSetNumTexGens(0);
+
+    GXSetNumTevStages(1);
+    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
+                  GX_COLOR_NULL);
+    GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_C0);
+    GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+                    GX_TRUE, GX_TEVPREV);
+    GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_A0);
+    GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
+                    GX_TRUE, GX_TEVPREV);
+
+    GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+    GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_NOOP);
+    GXSetAlphaUpdate(GX_FALSE);
+    GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+    GXSetDispCopyGamma(0);
+
+    GXSetNumIndStages(0);
+    GXSetTevSwapModeTable(GX_TEV_SWAP0, GX_CH_RED, GX_CH_GREEN, GX_CH_BLUE,
+                          GX_CH_ALPHA);
+    GXSetTevSwapMode(GX_TEVSTAGE0, GX_TEV_SWAP0, GX_TEV_SWAP0);
+
+}
+
 HomeButton::HomeButton(const HBMDataInfo* pDataInfo)
-    : mpHBInfo(pDataInfo), mpLayout(NULL), mpPaneManager(NULL), mFader(30) {
+    : mpHBInfo(pDataInfo), UNK_0x08(0), mpLayout(NULL), mpPaneManager(NULL), mFader(30), UNK_0x5B8(1) {
 
     mState = 2;
     mSelectBtnNum = HBM_SELECT_NULL;
@@ -159,6 +203,7 @@ HomeButton::HomeButton(const HBMDataInfo* pDataInfo)
     mBar1AnmRevHold = 0;
     mAdjustFlag = false;
     mReassignedFlag = false;
+    mEndInitSoundFlag = false;
 
     for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
         OSCreateAlarm(&mAlarm[i]);
@@ -622,15 +667,14 @@ void HomeButton::init_vib() {
     }
 }
 
-/*
 void HomeButton::init_sound() {
     if (mpHBInfo->sound_callback != NULL) {
         mpHBInfo->sound_callback(HBM_SOUND_INIT, 0);
     }
 
-    mAppVolume[nw4hbm::snd::AUX_A] = AXGetAuxAReturnVolume();
-    mAppVolume[nw4hbm::snd::AUX_B] = AXGetAuxBReturnVolume();
-    mAppVolume[nw4hbm::snd::AUX_C] = AXGetAuxCReturnVolume();
+    mAppVolume[0] = AXGetAuxAReturnVolume();
+    mAppVolume[1] = AXGetAuxBReturnVolume();
+    mAppVolume[2] = AXGetAuxCReturnVolume();
 
     AXFXGetHooks(&mAxFxAlloc, &mAxFxFree);
     AXGetAuxACallback(&mAuxCallback, &mpAuxContext);
@@ -654,9 +698,9 @@ void HomeButton::init_sound() {
         mpHBInfo->sound_callback(HBM_SOUND_POST_INIT, 0);
     }
 
+    SetSoundMode(SCGetSoundMode());
     mEndInitSoundFlag = true;
 }
-*/
 
 void HomeButton::init_battery(const HBMControllerData* pController) {
     int idx;
@@ -696,7 +740,6 @@ void HomeButton::init_battery(const HBMControllerData* pController) {
     mGetPadInfoTime = 0;
 }
 
-/*
 void HomeButton::calc(const HBMControllerData* pController) {
     int i;
 
@@ -1112,24 +1155,16 @@ void HomeButton::calc(const HBMControllerData* pController) {
         mState = 18;
 
         if (mSelectBtnNum != HBM_SELECT_BTN3) {
-            if (mpSoundArchivePlayer != NULL) {
-                nw4hbm::ut::detail::AutoLock<OSMutex> lock(sMutex);
-
-                for (int i = 0; i < mpSoundArchivePlayer->GetSoundPlayerCount();
-                     i++) {
-
-                    mpSoundArchivePlayer->GetSoundPlayer(i).StopAllSound(0);
-                }
-            }
+            StopAllSeq();
 
             if (mEndInitSoundFlag) {
                 AXFXReverbHiShutdown(&mAxFxReverb);
                 AXRegisterAuxACallback(mAuxCallback, mpAuxContext);
                 AXFXSetHooks(mAxFxAlloc, mAxFxFree);
 
-                AXSetAuxAReturnVolume(mAppVolume[nw4hbm::snd::AUX_A]);
-                AXSetAuxBReturnVolume(mAppVolume[nw4hbm::snd::AUX_B]);
-                AXSetAuxCReturnVolume(mAppVolume[nw4hbm::snd::AUX_C]);
+                AXSetAuxAReturnVolume(mAppVolume[0]);
+                AXSetAuxBReturnVolume(mAppVolume[1]);
+                AXSetAuxCReturnVolume(mAppVolume[2]);
             }
         }
 
@@ -1257,7 +1292,6 @@ void HomeButton::calc(const HBMControllerData* pController) {
         mForcusSEWaitTime++;
     }
 }
-*/
 
 void HomeButton::calc_fadeoutAnm() {
     mpLayout->GetRootPane()
@@ -1335,6 +1369,21 @@ void HomeButton::calc_battery(int chan) {
 }
 
 void HomeButton::draw() {
+    GXColor fogClr = {0, 0, 0, 255};
+    GXSetFog(GX_FOG_NONE, fogClr, 0.0f, 0.0f, 0.0f, 0.0f);
+    GXSetTexCoordScaleManually(GX_TEXCOORD0, GX_FALSE, 0, 0);
+    GXSetTexCoordCylWrap(GX_TEXCOORD0, GX_FALSE, GX_FALSE);
+    GXSetTexCoordScaleManually(GX_TEXCOORD1, GX_FALSE, 0, 0);
+    GXSetTexCoordCylWrap(GX_TEXCOORD1, GX_FALSE, GX_FALSE);
+
+    // inferred: black bars above and below the 4:3 area (version of 2010)
+    initgx();
+    GXColor barClr = {0, 0, 0, 255};
+    drawBlackPlate(-500.0f, 228.0f, 500.0f, 500.0f, barClr);
+    GXColor barClr2 = {0, 0, 0, 255};
+    drawBlackPlate(-500.0f, -500.0f, 500.0f, -228.0f, barClr2);
+    initgx();
+
     mpLayout->Draw(mDrawInfo);
 
     if (!mpHBInfo->cursor) {
@@ -2732,8 +2781,8 @@ void HomeButton::setForcusSE() {
 void HomeButton::setAdjustFlag(int flag) {
     nw4hbm::math::VEC2 scale;
 
+    mDrawInfo.SetLocationAdjust(flag);
     mAdjustFlag = static_cast<bool>(flag);
-    mDrawInfo.SetLocationAdjust(mAdjustFlag);
 
     if (mAdjustFlag) {
         scale = nw4hbm::math::VEC2(mpHBInfo->adjust.x, mpHBInfo->adjust.y);
@@ -2754,8 +2803,6 @@ void HomeButton::setAdjustFlag(int flag) {
             }
         }
     }
-
-    GXSetCullMode(GX_CULL_NONE);
 }
 
 void HomeButton::setVolume(int vol) {
@@ -2916,48 +2963,6 @@ bool HomeButton::BlackFader::isDone() {
     return false;
 }
 
-static void initgx() {
-    Mtx view_mtx;
-
-    PSMTXIdentity(view_mtx);
-    GXLoadPosMtxImm(view_mtx, GX_PNMTX0);
-    GXSetCurrentMtx(GX_PNMTX0);
-
-    GXClearVtxDesc();
-    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_CLR_RGB, GX_F32, 0);
-
-    GXSetNumChans(1);
-    GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL,
-                  GX_DF_NONE, GX_AF_NONE);
-    GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL,
-                  GX_DF_NONE, GX_AF_NONE);
-
-    GXSetNumTexGens(0);
-
-    GXSetNumTevStages(1);
-    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL,
-                  GX_COLOR_NULL);
-    GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_C0);
-    GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-                    GX_TRUE, GX_TEVPREV);
-    GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_A0);
-    GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1,
-                    GX_TRUE, GX_TEVPREV);
-
-    GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
-    GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_NOOP);
-    GXSetAlphaUpdate(GX_FALSE);
-    GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
-    GXSetDispCopyGamma(0);
-
-    GXSetNumIndStages(0);
-    GXSetTevSwapModeTable(GX_TEV_SWAP0, GX_CH_RED, GX_CH_GREEN, GX_CH_BLUE,
-                          GX_CH_ALPHA);
-    GXSetTevSwapMode(GX_TEVSTAGE0, GX_TEV_SWAP0, GX_TEV_SWAP0);
-
-    GXSetCullMode(GX_CULL_NONE);
-}
 
 static void drawBlackPlate(f32 left, f32 top, f32 right, f32 bottom,
                            GXColor clr) {
@@ -2977,7 +2982,7 @@ void HomeButton::BlackFader::draw() {
     u8 alpha = frame_ * 255 / maxFrame_;
 
     initgx();
-    GXColor clr = {red_, green_, blue_, alpha};
+    GXColor clr = UNK_0xC ? (GXColor){red_, green_, blue_, alpha} : (GXColor){0, 0, 0, alpha};
     drawBlackPlate(-1000.0f, -1000.0f, 1000.0f, 1000.0f, clr);
 }
 
@@ -3000,15 +3005,9 @@ void HomeButton::play_sound(int id) {
         ret = mpHBInfo->sound_callback(HBM_SOUND_PLAY, id);
     }
 
-    /*
-    if (ret != 0 || mpSoundArchivePlayer == NULL || mpSoundHandle == NULL) {
-        return;
+    if (ret == 0) {
+        PlaySeq(id);
     }
-
-    nw4hbm::ut::detail::AutoLock<OSMutex> lock(sMutex);
-    mpSoundHandle->DetachSound();
-    mpSoundArchivePlayer->StartSound(mpSoundHandle, id);
-    */
 }
 
 void HomeButton::fadeout_sound(f32 gain) {
@@ -3020,15 +3019,7 @@ void HomeButton::fadeout_sound(f32 gain) {
         AXSetAuxAReturnVolume(gain * AX_MAX_VOLUME);
     }
 
-    /*
-    if (mpSoundArchivePlayer != NULL) {
-        nw4hbm::ut::detail::AutoLock<OSMutex> lock(sMutex);
-
-        for (int i = 0; i < mpSoundArchivePlayer->GetSoundPlayerCount(); i++) {
-            mpSoundArchivePlayer->GetSoundPlayer(i).SetVolume(gain);
-        }
-    }
-    */
+    SetVolumeAllSeq(gain);
 }
 
 } // namespace homebutton
