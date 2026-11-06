@@ -212,25 +212,25 @@ s32 NCDGetWirelessMacAddress(u8* mac) {
     return result;
 }
 
-// NONMATCHING: 99.0% - r4/r5 swapped inside the unrolled loop (config base vs flags byte); tried
-// entry pointer/flags locals, declaration orders, bitfields, while/continue forms, NcdConfig direct.
+// mscharged-decomp (CC0) ncdsystem.c: flags byte in a local and an unsigned counter
 s32 NCDiGetEnabledConfigList(u32* wired, u32* wireless, u32* wirelessAoss) {
     s32 result;
     u32 wiredList = 0;
     u32 wirelessList = 0;
     u32 aossList = 0;
-    NCDiConfig* config;
-    int i;
-    NCDiConfigEntry* entry;
+    u8 flags;
+    u32 i;
 
     fn_806984C0();
     result = fn_8069832C("NCDiGetEnabledConfigList", NULL, 3);
     if (result == 0) {
-        config = NcdConfig;
         for (i = 0; i < 3; i++) {
-            entry = &config->entries[i];
-            if (entry->flags & 0x80) {
-                if (entry->flags & 1) {
+            NCDiConfigEntry* entry = &NcdConfig->entries[i];
+
+            flags = entry->flags;
+
+            if (flags & 0x80) {
+                if (flags & 1) {
                     wiredList |= 1 << i;
                 } else {
                     if (entry->wireless[2] != 1) {
