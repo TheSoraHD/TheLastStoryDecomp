@@ -4075,8 +4075,12 @@ RVL_SDK/src/revolution/axfx/AXFXDelayExp.c:
 	.text       start:0x8060BFB0 end:0x8060CA80 align:16
 	.sdata2     start:0x80888608 end:0x80888620
 
-auto_03_8060CA80_text.cpp:
-	.text       start:0x8060CA80 end:0x80610490 align:16
+RVL_SDK/src/revolution/axfx/AXFXDelayExpDpl2.c:
+	.text       start:0x8060CA80 end:0x8060D350 align:16
+	.sdata2     start:0x80888620 end:0x80888638
+
+auto_03_8060D350_text.cpp:
+	.text       start:0x8060D350 end:0x80610490 align:16
 
 RVL_SDK/src/revolution/axfx/AXFXLfoTable.c:
 	.text       start:0x80610490 end:0x806104A0
