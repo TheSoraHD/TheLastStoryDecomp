@@ -84,7 +84,7 @@ typedef void (*SBConnectToServerCallback)(ServerBrowser sb,
                                           void* instance);
 
 // Maximum length for the SQL filter string
-#define MAX_FILTER_LEN 256
+#define MAX_FILTER_LEN 511 // TLS (2010): 256 in R4QK01
 
 // Version defines for query protocol
 #define QVERSION_GOA 0

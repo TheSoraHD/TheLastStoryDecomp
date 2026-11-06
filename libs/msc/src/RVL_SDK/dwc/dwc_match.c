@@ -428,12 +428,12 @@ static void DWCi_SetGroupID(u32 groupID)
 
 static int DWCi_GetDefaultMatchFilter(char* filter, int profileID, u8 numEntry, u8 matchType, u8 hostState)
 {
-    char hostStateFilter[256];
+    char hostStateFilter[MAX_FILTER_LEN];
     if (hostState == 3)
         snprintf(hostStateFilter, sizeof(hostStateFilter), "(%s = %u or %s = %u)", "dwc_hoststate", 0, "dwc_hoststate", 2);
     else
         snprintf(hostStateFilter, sizeof(hostStateFilter), "%s = %u", DWC_QR2_HOST_STATE_KEY_STR, hostState);
-    snprintf(filter, 256,
+    snprintf(filter, MAX_FILTER_LEN,
         "%s = %d and %s != %u and maxplayers = %d and numplayers < %d and %s = %d and %s = %u and %s",
         "dwc_mver", DWC_MATCHING_VERSION, "dwc_pid", profileID, numEntry, numEntry, "dwc_mtype", matchType,
         "dwc_suspend", 0, hostStateFilter);
@@ -1447,7 +1447,7 @@ void DWCi_ConnectToAnybodyAsync(int topology, u8 numEntry, const char* addFilter
     DWCEvalPlayerCallback evalCallback, void* evalParam,
     DWCReservationCallback reservationCallback, const void* reservationData, void* reservationParam)
 {
-    char filter[256];
+    char filter[MAX_FILTER_LEN];
     unsigned long addFilterLenMax;
     if (stpAddFilter)
     {
@@ -1456,7 +1456,7 @@ void DWCi_ConnectToAnybodyAsync(int topology, u8 numEntry, const char* addFilter
     }
     if (addFilter)
     {
-        addFilterLenMax = 256 - DWCi_GetDefaultMatchFilter(filter, -1, 32, 3, 3) - strlen(" and ()");
+        addFilterLenMax = MAX_FILTER_LEN - DWCi_GetDefaultMatchFilter(filter, -1, 32, 3, 3) - strlen(" and ()");
         stpAddFilter = DWC_Alloc(DWC_ALLOCTYPE_BASE, addFilterLenMax);
         if (!stpAddFilter)
         {
