@@ -5,6 +5,9 @@
 extern "C" {
 #endif
 
+#define OSRoundUp32B(x) (((u32)(x) + 31) & ~31)
+#define OSRoundDown32B(x) (((u32)(x)) & ~31)
+
 static inline void* OSPhysicalToCached(u32 ofs) {
     return (void*)(ofs + 0x80000000);
 }

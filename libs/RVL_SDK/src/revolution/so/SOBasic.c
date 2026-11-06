@@ -1,645 +1,745 @@
-// Source: doldecomp/mkw (CC0 1.0), lib/rvl/so/soCommon.c (commit
-// 8b9b5ee653da28663e498039e52f5d19f929a011), adapted to this repo's headers.
-// The Last Story links a newer SO build (Jun 9 2009); SOInit is not in the MKW source and was
-// written from the target assembly.
-// inferred: file name SOBasic.c (see split notes); MKW calls this file soCommon.c.
-#include <revolution/OS.h>
-#include <revolution/IPC.h>
-#include <revolution/NWC24.h>
+// Source: mscharged-decomp (CC0), src/RVL_SDK/so/soBasic.c (VERSION_R4QK01 branch: SO build of Jun 9 2009)
 #include <revolution/SO.h>
-#include <revolution/version.h>
 
-#include <stdbool.h>
+#include <revolution/IPC.h>
+#include <revolution/net/NETMem.h>
 
-#define __OSBusClock OS_BUS_CLOCK_SPEED
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
-// inferred: RevoEX SO library configuration passed to SOInit
-typedef struct SOLibraryConfig {
-  SO_AllocFunc alloc; // 0x00
-  SO_FreeFunc free;   // 0x04
-} SOLibraryConfig;
+const char* __SOCKET_VERSION =
+    "<< RVL_SDK - SOCKET \trelease build: Jun  9 2009 12:00:01 (0x4199_60831) >>";
 
-void* NETMemSet(void* dst, int c, u32 n);
+static BOOL socketRegistered = FALSE;
+enum { SO_MAX_RECV_SIZE = 32768 };
 
-RVL_LIB_VERSION(SO, "Jun  9 2009", "12:00:00", "0x4199_60831");
+enum
+{
+    NET_SO_ACCEPT = 1,
+    NET_SO_BIND = 2,
+    NET_SO_CLOSE = 3,
+    NET_SO_CONNECT = 4,
+    NET_SO_FCNTL = 5,
+    NET_SO_GETSOCKNAME = 7,
+    NET_SO_LISTEN = 10,
+    NET_SO_POLL = 11,
+    NET_SO_RECVFROM = 12,
+    NET_SO_SENDTO = 13,
+    NET_SO_SHUTDOWN = 14,
+    NET_SO_INETATON = 21,
+};
 
-u8 soState = 0;
-SOSysWork soWork;
-s32 soError = 0;
-// inferred: registration flag tested and set with bit operations
-static u32 soRegistered = 0;
-int soBufAddrCheck = true;
-static char NET_RM_SOCK[] = "/dev/net/ip/top";
+typedef struct NETSoSocketAddr
+{
+    int s;
+    BOOL hasAddr;
+    u8 addr[28];
+} NETSoSocketAddr;
 
-s32 NCDGetLinkStatus(void);
-s32 NWC24iStartupSocket(s32*);
-s32 NWC24iCleanupSocket(s32*);
-s32 NWC24iLockSocket();
-s32 NWC24iUnlockSocket();
+typedef struct NETSoSendToArgs
+{
+    int s;
+    int flags;
+    BOOL hasAddr;
+    u8 addr[28];
+} NETSoSendToArgs;
 
-int SOInit(const SOLibraryConfig* config) {
-  int result = SO_SUCCESS;
-  int enabled = OSDisableInterrupts();
+static char addressBuffer[40];
 
-  if (!(soRegistered & 1)) {
-    OSRegisterVersion(__SOVersion);
-    soRegistered |= 1;
-  }
+static int RecvFrom(const char* funcName, int s, void* buf, int len, int flags,
+    void* sockFrom);
+static int SendTo(const char* funcName, int s, const void* buf, int len,
+    int flags, const void* sockTo);
 
-  switch (soState) {
-  case SO_INTERNAL_STATE_READY:
-  case SO_INTERNAL_STATE_ACTIVE:
-    result = SO_EALREADY;
-    break;
-  case SO_INTERNAL_STATE_TERMINATED:
-  default:
-    if (config == NULL || config->alloc == NULL || config->free == NULL) {
-      result = SO_EINVAL;
-      break;
-    }
-    NETMemSet(&soWork, 0, sizeof(soWork));
-    soWork.allocFunc = config->alloc;
-    soWork.freeFunc = config->free;
-    soWork.allocCount = 0;
-    soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
-    soWork.rmFd = -1;
-    soWork._unk10 = (u32)SOiAlloc(0x0b, 0x460);
-    if (soWork._unk10 == 0)
-      result = SO_ENOMEM;
-    if (soWork._unk10 != 0)
-      soState = SO_INTERNAL_STATE_READY;
-    break;
-  }
-
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-  OSRestoreInterrupts(enabled);
-  return result;
+static inline void* CopyBuffer(void* dst, const void* src, u32 size)
+{
+    return NETMemCpy(dst, src, size);
 }
 
-int SOFinish(void) {
-  int result = 0;
-  int enabled = OSDisableInterrupts();
+int SOSocket2(int pf, int type, int protocol)
+{
+    int result;
+    s32 rmId;
 
-  switch (soState) {
-  case SO_INTERNAL_STATE_TERMINATED:
-    result = SO_EALREADY;
-    break;
-  case SO_INTERNAL_STATE_READY:
-    if (soWork.rmState > SO_INTERNAL_RM_STATE_CLOSED) {
-      result = SO_EBUSY;
-      break;
-    } else if (soWork.allocCount > 1) {
-      result = SO_EAGAIN;
-      break;
-    }
-    soState = SO_INTERNAL_STATE_TERMINATED;
-    if (soWork._unk10 != 0 && soWork.freeFunc) {
-      soWork.allocCount--;
-      soWork.freeFunc(0x0b, (void*)soWork._unk10, 0x460);
-    }
-    break;
-  case SO_INTERNAL_STATE_ACTIVE:
-    result = SO_EINPROGRESS;
-    break;
-  }
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-  OSRestoreInterrupts(enabled);
-  return result;
-}
-
-int SOStartup(void) { return SOStartupEx(0xea60); }
-
-inline int SO_Startup_ErrWtf(s32 errNwc24, s32 exErr) {
-  s32 result = -0x1c;
-  switch (errNwc24) {
-  case 0:
-    result = 0;
-    break;
-  case -0x16:
-  case -0xd:
-    result = -0x30;
-    break;
-  case -0x21:
-  case -2:
-    result = exErr;
-    break;
-  case -1:
-    result = -0x80000000;
-    break;
-  case -0x1d:
-    result = -0x1a;
-    break;
-  }
-  return result;
-}
-
-int SOStartupEx(int timeout) {
-  int result;
-  int enabled;
-  s32 exErr;
-  s64 limitTime;
-  s32 linkupRetryCount;
-
-  limitTime = 0;
-  if (timeout != 0)
-    limitTime = __OSGetSystemTime() + ((timeout) * ((__OSBusClock / 4) / 1000));
-
-  linkupRetryCount = 4;
-
-begin_startup:
-  result = SO_SUCCESS;
-
-  enabled = OSDisableInterrupts();
-
-  switch (soState) {
-  case SO_INTERNAL_STATE_TERMINATED:
-  default:
-    result = SO_ENETRESET;
-    break;
-  case SO_INTERNAL_STATE_ACTIVE:
-    result = SO_EALREADY;
-    break;
-  case SO_INTERNAL_STATE_READY:
-    if (soWork.rmState > SO_INTERNAL_RM_STATE_CLOSED) {
-      result = SO_EBUSY;
-      break;
-    } else if (!OSGetCurrentThread()) {
-      result = SO_EFATAL;
-      break;
-    } else {
-      int resultNCD;
-
-      soWork.rmState = SO_INTERNAL_RM_STATE_WORKING;
-      (void)OSRestoreInterrupts(enabled);
-
-      while (true) {
-        resultNCD = NCDGetLinkStatus();
-        if (resultNCD != NCD_RESULT_INPROGRESS &&
-            resultNCD != NCD_LINKSTATUS_WORKING)
-          break;
-        OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
-        if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
-          if (resultNCD == NCD_LINKSTATUS_WORKING)
-            result = SO_ERR_LINK_UP_TIMEOUT;
-          else
-            result = SO_EFATAL;
-          goto change_state;
+    if ((result = SOiPrepare(0, &rmId)) == SO_SUCCESS)
+    {
+        if (pf == SO_PF_INET6)
+        {
+            result = SO_EAFNOSUPPORT;
         }
-      }
-      if (resultNCD < NCD_RESULT_SUCCESS) {
-        result = SO_EFATAL;
-        goto change_state;
-      } else if (resultNCD == NCD_LINKSTATUS_NONE) {
-        result = SO_ENOENT;
-        goto change_state;
-      }
-
-      // 0x801ec334
-      while (true) {
-        soWork.rmFd = IOS_Open(NET_RM_SOCK, 0);
-        if (soWork.rmFd != -6)
-          break;
-        OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
-        if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
-          result = SO_EFATAL;
-          goto change_state;
-        }
-      };
-
-      if (soWork.rmFd < 0) {
-        result = SO_EFATAL;
-        goto change_state;
-      } else {
-        s32 errNwc24;
-
-        result = SO_SUCCESS;
-        exErr = SO_SUCCESS;
-
-        // PAL: 0x801ec3c0
-        while (true) {
-          errNwc24 = NWC24iStartupSocket(&exErr);
-          if (errNwc24 != NWC24_ERR_INPROGRESS)
-            break;
-          OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
-          if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
-            result = SO_EFATAL;
-            break;
-          }
-        }
-        // PAL: 0x801ec41c
-        if (result == SO_SUCCESS)
-          result = SO_Startup_ErrWtf(errNwc24, exErr);
-        // PAL: 0x801ec470
-        if (result != SO_SUCCESS) {
-          // PAL: 0x801ec478
-          if (IOS_Close(soWork.rmFd) < 0) {
-            result = SO_EFATAL;
-            goto change_state;
-          } else {
-            soWork.rmFd = -1;
-          }
-        }
-      }
-
-      // PAL: 0x801ec494
-    change_state:
-      enabled = OSDisableInterrupts();
-      if (result == SO_SUCCESS) {
-        soState = SO_INTERNAL_STATE_ACTIVE;
-        soWork.rmState = SO_INTERNAL_RM_STATE_OPENED;
-      } else {
-        soState = 1;
-        if (result != SO_EFATAL)
-          soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
-      }
-    }
-    break;
-  }
-
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-
-  // PAL: 0x801ec4e4
-  (void)OSRestoreInterrupts(enabled);
-
-  if (result == 0) {
-    s64 dhcpTimeOutTicks;
-
-    if (limitTime != 0) {
-      dhcpTimeOutTicks = limitTime - __OSGetSystemTime();
-    } else {
-      dhcpTimeOutTicks = 0;
-    }
-    if (limitTime != 0 && dhcpTimeOutTicks <= 0) {
-      result = -76;
-    } else {
-      result = SOiWaitForDHCPEx(
-          (int)((dhcpTimeOutTicks) / ((__OSBusClock / 4) / 1000)));
-    }
-
-    if (result != 0) {
-      (void)SOCleanup();
-    }
-  }
-
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-
-  if (result == -112) {
-    linkupRetryCount--;
-    if (linkupRetryCount >= 0) {
-      goto begin_startup;
-    }
-  }
-
-  return result;
-}
-
-int SOCleanup(void) {
-  int result = SO_SUCCESS;
-  int enabled = OSDisableInterrupts();
-  s32 exErr = SO_SUCCESS;
-  int errNwc24;
-
-  switch (soState) {
-  case SO_INTERNAL_STATE_TERMINATED:
-  default:
-    result = SO_ENETRESET;
-    break;
-  case SO_INTERNAL_STATE_READY:
-    result = SO_EALREADY;
-    break;
-  case SO_INTERNAL_STATE_ACTIVE:
-    if (soWork.rmState < SO_INTERNAL_RM_STATE_OPENED) {
-      result = SO_EBUSY;
-      break;
-    } else if (!OSGetCurrentThread()) {
-      result = SO_EFATAL;
-      break;
-    } else {
-      soWork.rmState = SO_INTERNAL_RM_STATE_WORKING;
-      (void)OSRestoreInterrupts(enabled);
-
-      errNwc24 = NWC24iCleanupSocket(&exErr);
-      result = SO_Startup_ErrWtf(errNwc24, exErr);
-      if (result != SO_SUCCESS) {
-      } else {
-        if (IOS_Close(soWork.rmFd) < 0)
-          result = SO_EFATAL;
         else
-          soWork.rmFd = -1;
-      }
-
-      enabled = OSDisableInterrupts();
-      if (result == SO_SUCCESS) {
-        soState = SO_INTERNAL_STATE_READY;
-        soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
-      } else {
-        if (result != SO_EFATAL) {
-          soState = SO_INTERNAL_STATE_ACTIVE;
-          soWork.rmState = SO_INTERNAL_RM_STATE_OPENED;
+        {
+            NETSoSocket* soc = (NETSoSocket*)SOiAlloc(0xc, 0x20);
+            if (soc == NULL)
+            {
+                result = SO_ENOMEM;
+            }
+            else
+            {
+                soc->af = pf;
+                soc->type = type;
+                soc->protocol = protocol;
+                result = (int)IOS_Ioctl(rmId, NET_SO_SOCKET, (void*)soc, sizeof(NETSoSocket), NULL, 0);
+                SOiFree(0xc, soc, 0x20);
+            }
         }
-      }
+        result = SOiConclude(0, result);
     }
-    break;
-  }
-
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-
-  OSRestoreInterrupts(enabled);
-  return result;
+    return result;
 }
 
-SOSysWork* SOiGetSysWork(void) { return &soWork; }
-
-int SOiIsBufferAddrCheck(void) { return soBufAddrCheck; }
-
-int SOiIsInitialized(void) {
-  int result = false;
-  int enabled = OSDisableInterrupts();
-  switch (soState) {
-  case SO_INTERNAL_STATE_READY:
-  case SO_INTERNAL_STATE_ACTIVE:
-    result = true;
-    break;
-  }
-  OSRestoreInterrupts(enabled);
-  return result;
-}
-
-void* SOiAlloc(u32 name, s32 size) {
-  if (size > 0 && soWork.allocFunc) {
-    void* ptr = soWork.allocFunc(name, size);
-    if (ptr) {
-      soWork.allocCount++;
-      if (SOiIsBufferAddrCheck() && !(((u32)ptr & 0x1fffffff) >= 0x10000000 &&
-                                      ((u32)ptr & 0x1fffffff) < 0x18000000)) {
-        SOiFree(name, ptr, size);
-        ptr = NULL;
-      }
+int SOSocket(int pf, int type, int protocol)
+{
+    if (!socketRegistered)
+    {
+        OSRegisterVersion(__SOCKET_VERSION);
+        socketRegistered = TRUE;
     }
-    return ptr;
-  }
-  return NULL;
+    return SOSocket2(pf, type, protocol);
 }
 
-void SOiFree(u32 name, void* ptr, s32 size) {
-  if ((ptr != NULL) && (soWork.freeFunc != NULL)) {
-    soWork.allocCount--;
-    soWork.freeFunc(name, ptr, size);
-  }
-}
+int SOClose(int s)
+{
+    int result;
+    s32 rmId;
 
-int SOiPrepare(const char* /* funcName */, s32* pRmId) {
-  int result = SO_SUCCESS;
-  int enabled = OSDisableInterrupts();
-
-  switch (soState) {
-  case SO_INTERNAL_STATE_TERMINATED:
-    result = SO_ENETRESET;
-    break;
-  case SO_INTERNAL_STATE_READY:
-  default:
-    result = SO_EINVAL;
-    break;
-  case SO_INTERNAL_STATE_ACTIVE:
-    if (soWork.rmState < SO_INTERNAL_RM_STATE_OPENED) {
-      result = SO_EBUSY;
-      break;
-    } else if (!OSGetCurrentThread()) {
-      result = SO_EFATAL;
-      break;
-    }
-    *pRmId = soWork.rmFd;
-    break;
-  }
-
-  if (result != SO_SUCCESS) {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-  (void)OSRestoreInterrupts(enabled);
-  return result;
-}
-
-int SOiConclude(const char* /* funcName */, int result) {
-  int enabled = OSDisableInterrupts();
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-  (void)OSRestoreInterrupts(enabled);
-  return result;
-}
-
-int SOiPrepareTempRm(const char* funcName, s32* pRmId, int* pIsTempRm) {
-  int result = SO_SUCCESS;
-  int enabled = OSDisableInterrupts();
-  int errNwc24;
-
-  switch (soState) {
-  case SO_INTERNAL_STATE_TERMINATED:
-    result = SO_ENETRESET;
-    break;
-  case SO_INTERNAL_STATE_READY:
-  default:
-    if (soWork.rmState > SO_INTERNAL_RM_STATE_CLOSED) {
-      result = SO_EBUSY;
-      break;
-    } else if (!OSGetCurrentThread()) {
-      result = SO_EFATAL;
-      break;
-    }
-    soWork.rmState = SO_INTERNAL_RM_STATE_WORKING;
-    (void)OSRestoreInterrupts(enabled);
-    soWork.rmFd = IOS_Open(NET_RM_SOCK, 0);
-    if (soWork.rmFd < 0) {
-      enabled = OSDisableInterrupts();
-      if (soWork.rmFd == -6) {
-        result = SO_EINPROGRESS;
-        soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
-      } else {
-        result = SO_EFATAL;
-      }
-    } else {
-      *pRmId = soWork.rmFd;
-      if ((errNwc24 = NWC24iLockSocket()) == NWC24_OK) {
-        s32 errNcd = NCDGetLinkStatus();
-        switch (errNcd) {
-        case 3:
-        case 4:
-        case 5:
-          result = (int)IOS_Ioctl(soWork.rmFd, 0x1f, NULL, 0, NULL, 0);
-          if (result == SO_SUCCESS) {
-            *pIsTempRm = true;
-          } else {
-            result = SOiConcludeTempRm(funcName, result, true);
-          }
-          break;
-        case -8:
-          result = SOiConcludeTempRm(funcName, SO_EINPROGRESS, true);
-          break;
-        case -1:
-        case -2:
-          result = SOiConcludeTempRm(funcName, SO_EFATAL, true);
-          break;
-        default:
-          result = SOiConcludeTempRm(funcName, SO_ENOLINK, true);
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        int* args = SOiAlloc(12, 32);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
         }
-        enabled = OSDisableInterrupts();
-      } else {
-        switch (errNwc24) {
-        case NWC24_ERR_INPROGRESS:
-          result = SO_EINPROGRESS;
-          break;
-        case NWC24_ERR_FAILED:
-          result = SO_ENETRESET;
-          break;
-        case NWC24_ERR_DONE:
-          result = SO_ENOLINK;
-          break;
-        case NWC24_ERR_MUTEX:
-        case NWC24_ERR_FATAL:
-        default:
-          result = SO_EFATAL;
-          break;
+        else
+        {
+            args[0] = s;
+            result = IOS_Ioctl(rmId, NET_SO_CLOSE, args, 4, NULL, 0);
+            SOiFree(12, args, 32);
         }
-        if (IOS_Close(soWork.rmFd) < 0) {
-          result = SO_EFATAL;
-        }
-        enabled = OSDisableInterrupts();
-        if (result != SO_EFATAL) {
-          soWork.rmFd = -1;
-          soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
-        }
-      }
+        result = SOiConclude(NULL, result);
     }
-    break;
-  case SO_INTERNAL_STATE_ACTIVE:
-    if (soWork.rmState < SO_INTERNAL_RM_STATE_OPENED) {
-      result = SO_EBUSY;
-      break;
-    } else if (!OSGetCurrentThread()) {
-      result = SO_EFATAL;
-      break;
-    }
-    *pIsTempRm = false;
-    *pRmId = soWork.rmFd;
-    break;
-  }
-
-  if (result != SO_SUCCESS) {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-  (void)OSRestoreInterrupts(enabled);
-  return result;
+    return result;
 }
 
-int SOiConcludeTempRm(const char* /* funcName */, int result, int isTempRm) {
-  int enabled;
+int SOListen(int s, int backlog)
+{
+    int result;
+    s32 rmId;
 
-  if (isTempRm == true) {
-    switch (NWC24iUnlockSocket()) {
-    case NWC24_OK:
-      break;
-    case NWC24_ERR_INPROGRESS:
-      result = SO_EINPROGRESS;
-      break;
-    case NWC24_ERR_FATAL:
-    default:
-      result = SO_EFATAL;
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        int* args = SOiAlloc(12, 32);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+        }
+        else
+        {
+            args[0] = s;
+            args[1] = backlog;
+            result = IOS_Ioctl(rmId, NET_SO_LISTEN, args, 8, NULL, 0);
+            SOiFree(12, args, 32);
+        }
+        result = SOiConclude(NULL, result);
     }
-    if (IOS_Close(soWork.rmFd) < 0) {
-      result = SO_EFATAL;
-    }
-    enabled = OSDisableInterrupts();
-    if (result != SO_EFATAL) {
-      soWork.rmFd = -1;
-      soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
-    }
-  } else {
-    enabled = OSDisableInterrupts();
-  }
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-  (void)OSRestoreInterrupts(enabled);
-  return result;
+    return result;
 }
 
-int SOiWaitForDHCPEx(int timeout) {
-  int result = SO_SUCCESS;
-  int gioResult;
-  int ifError;
-  int ifErrorSize;
-  s64 limitTime;
+int SOAccept(int s, void* sockAddr)
+{
+    int bufferSize;
+    int result;
+    s32 rmId;
+    int* args;
+    SOSockAddr* addrBuffer;
+    SOSockAddr* addr = sockAddr;
 
-  limitTime = 0;
-  if (timeout != 0)
-    limitTime = __OSGetSystemTime() + ((timeout) * ((__OSBusClock / 4) / 1000));
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        if (addr != NULL && (sizeof(SOSockAddr) < addr->len || addr->len < sizeof(SOSockAddr)))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
 
-  while (true) {
-    OSSleepTicks((((s64)10) * ((__OSBusClock / 4) / 1000)));
+        bufferSize = ROUND_UP((addr == NULL ? 4 : addr->len + 32), 32);
+        args = SOiAlloc(12, bufferSize);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+            goto conclude;
+        }
 
-    ifErrorSize = sizeof(ifError);
-    gioResult = SOGetInterfaceOpt(NULL, 0xfffe, 0x1003, &ifError, &ifErrorSize);
-    if (gioResult != SO_SUCCESS) {
-      result = gioResult;
-      break;
+        args[0] = s;
+        addrBuffer = (SOSockAddr*)((u8*)args + 32);
+        if (addr == NULL)
+        {
+            result = IOS_Ioctl(rmId, NET_SO_ACCEPT, args, 4, NULL, 0);
+        }
+        else
+        {
+            memcpy(addrBuffer, addr, addr->len);
+            result = IOS_Ioctl(rmId, NET_SO_ACCEPT, args, 4, addrBuffer, addr->len);
+            if (result >= 0)
+            {
+                memcpy(addr, addrBuffer, addrBuffer->len);
+            }
+        }
+        SOiFree(12, args, bufferSize);
+
+    conclude:
+        result = SOiConclude(NULL, result);
     }
-    if (gioResult == SO_SUCCESS && ifError != SO_SUCCESS) {
-      result = ifError;
-      break;
-    }
-    if (SOGetHostID() != 0)
-      break;
-    if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
-      result = SO_ETIMEDOUT;
-      break;
-    }
-  }
+    return result;
+}
 
-  return result;
+int SOBind(int s, const void* sockAddr)
+{
+    const SOSockAddr* addr = sockAddr;
+    int result;
+    s32 rmId;
+
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        NETSoSocketAddr* args;
+
+        if (addr == NULL || sizeof(SOSockAddr) < addr->len || addr->len < sizeof(SOSockAddr))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+
+        args = SOiAlloc(12, 64);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+            goto conclude;
+        }
+
+        args->s = s;
+        args->hasAddr = TRUE;
+        CopyBuffer(args->addr, addr, addr->len);
+        result = IOS_Ioctl(rmId, NET_SO_BIND, args, 36, NULL, 0);
+        SOiFree(12, args, 64);
+
+    conclude:
+        result = SOiConclude(NULL, result);
+    }
+    return result;
+}
+
+int SOConnect(int s, const void* sockAddr)
+{
+    const SOSockAddr* addr = sockAddr;
+    int result;
+    s32 rmId;
+
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        NETSoSocketAddr* args;
+
+        if (addr == NULL || sizeof(SOSockAddr) < addr->len || addr->len < sizeof(SOSockAddr))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+
+        args = SOiAlloc(12, 64);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+            goto conclude;
+        }
+
+        args->s = s;
+        args->hasAddr = TRUE;
+        CopyBuffer(args->addr, addr, addr->len);
+        result = IOS_Ioctl(rmId, NET_SO_CONNECT, args, 36, NULL, 0);
+        SOiFree(12, args, 64);
+
+    conclude:
+        result = SOiConclude(NULL, result);
+    }
+    return result;
+}
+
+int SOGetSockName(int s, void* sockAddr)
+{
+    int bufferSize;
+    int result;
+    s32 rmId;
+    int* args;
+    SOSockAddr* addrBuffer;
+    SOSockAddr* addr = sockAddr;
+
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        if (addr == NULL || sizeof(SOSockAddr) < addr->len || addr->len < sizeof(SOSockAddr))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+
+        bufferSize = ROUND_UP(addr->len + 32, 32);
+        args = SOiAlloc(12, bufferSize);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+            goto conclude;
+        }
+
+        args[0] = s;
+        addrBuffer = (SOSockAddr*)((u8*)args + 32);
+        CopyBuffer((u8*)args + 32, addr, addr->len);
+        result = IOS_Ioctl(rmId, NET_SO_GETSOCKNAME, args, 4, addrBuffer, addr->len);
+        if (result >= 0)
+        {
+            CopyBuffer(addr, addrBuffer, addrBuffer->len);
+        }
+        SOiFree(12, args, bufferSize);
+
+    conclude:
+        result = SOiConclude(NULL, result);
+    }
+    return result;
+}
+
+int SORecvFrom(int s, void* buf, int len, int flags, void* sockFrom)
+{
+    return RecvFrom(NULL, s, buf, len, flags, sockFrom);
+}
+
+int SORecv(int s, void* buf, int len, int flags)
+{
+    return RecvFrom(NULL, s, buf, len, flags, NULL);
+}
+
+int SOSendTo(int s, const void* buf, int len, int flags,
+    const void* sockTo)
+{
+    return SendTo(NULL, s, buf, len, flags, sockTo);
+}
+
+int SOSend(int s, const void* buf, int len, int flags)
+{
+    return SendTo(NULL, s, buf, len, flags, NULL);
+}
+
+int SOFcntl(int s, int cmd, ...)
+{
+    va_list marker;
+    int arg;
+    int result;
+    s32 rmId;
+
+    va_start(marker, cmd);
+    arg = va_arg(marker, int);
+    va_end(marker);
+
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        int* args = SOiAlloc(12, 32);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+        }
+        else
+        {
+            args[0] = s;
+            args[1] = cmd;
+            args[2] = arg;
+            result = IOS_Ioctl(rmId, NET_SO_FCNTL, args, 12, NULL, 0);
+            SOiFree(12, args, 32);
+        }
+        result = SOiConclude(NULL, result);
+    }
+    return result;
+}
+
+int SOShutdown(int s, int how)
+{
+    int result;
+    s32 rmId;
+
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        int* args = SOiAlloc(12, 32);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+        }
+        else
+        {
+            args[0] = s;
+            args[1] = how;
+            result = IOS_Ioctl(rmId, NET_SO_SHUTDOWN, args, 8, NULL, 0);
+            SOiFree(12, args, 32);
+        }
+        result = SOiConclude(NULL, result);
+    }
+    return result;
+}
+
+int SOPoll(SOPollFD fds[], unsigned nfds, OSTime timeout)
+{
+    int bufferSize;
+    int fdsSize;
+    int result;
+    s32 rmId;
+    OSTime* args;
+    SOPollFD* fdBuffer;
+
+    result = SOiPrepare(NULL, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        if (fds == NULL)
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+
+        fdsSize = nfds * sizeof(SOPollFD);
+        bufferSize = ROUND_UP(fdsSize + 32, 32);
+        args = SOiAlloc(12, bufferSize);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+            goto conclude;
+        }
+
+        fdBuffer = (SOPollFD*)((u8*)args + 32);
+        if (timeout <= -1)
+        {
+            CopyBuffer(args, &timeout, sizeof(timeout));
+        }
+        else
+        {
+            *args = OS_TICKS_TO_MSEC(timeout);
+        }
+        CopyBuffer(fdBuffer, fds, fdsSize);
+        result = IOS_Ioctl(rmId, NET_SO_POLL, args, 8, fdBuffer, fdsSize);
+        if (result >= 0)
+        {
+            CopyBuffer(fds, fdBuffer, fdsSize);
+        }
+        SOiFree(12, args, bufferSize);
+
+    conclude:
+        result = SOiConclude(NULL, result);
+    }
+    return result;
+}
+
+int SOInetAtoN(const char* cp, SOInAddr* inp)
+{
+    int bufferSize;
+    int result;
+    s32 rmId;
+    int isTempRm;
+    u8* args;
+    char* stringBuffer;
+
+    result = SOiPrepareTempRm(NULL, &rmId, &isTempRm);
+    if (result == SO_SUCCESS)
+    {
+        if (cp == NULL)
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+
+        bufferSize = ROUND_UP(strlen(cp) + 33, 32);
+        args = SOiAlloc(12, bufferSize);
+        if (args == NULL)
+        {
+            result = SO_ENOMEM;
+            goto conclude;
+        }
+
+        stringBuffer = (char*)args + 32;
+        if (cp != NULL)
+        {
+            strcpy(stringBuffer, cp);
+        }
+        result = IOS_Ioctl(rmId, NET_SO_INETATON, stringBuffer, strlen(cp), args, sizeof(SOInAddr));
+        if (result >= 0 && inp != NULL)
+        {
+            CopyBuffer(inp, args, sizeof(SOInAddr));
+        }
+        SOiFree(12, args, bufferSize);
+
+    conclude:
+        result = SOiConcludeTempRm(NULL, result, isTempRm);
+    }
+    return result;
+}
+
+char* SOInetNtoA(SOInAddr in)
+{
+    u8* addr = (u8*)&in;
+    sprintf(addressBuffer, "%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
+    return addressBuffer;
+}
+
+u32 SONtoHl(u32 netlong)
+{
+    return netlong;
+}
+
+u16 SONtoHs(u16 netshort)
+{
+    return netshort;
+}
+
+u32 SOHtoNl(u32 hostlong)
+{
+    return hostlong;
+}
+
+u16 SOHtoNs(u16 hostshort)
+{
+    return hostshort;
+}
+
+static int RecvFrom(const char* funcName, int s, void* buf, int len, int flags,
+    void* sockFrom)
+{
+    BOOL canUseBuffer;
+    BOOL valid;
+    BOOL direct;
+    SOSockAddr* from = sockFrom;
+    void* dataBuffer;
+    int bufferSize;
+    IPCIOVector* vectors;
+    int* args;
+    int result;
+    SOSockAddr* addrBuffer;
+    s32 rmId;
+
+    if (len > SO_MAX_RECV_SIZE)
+    {
+        len = SO_MAX_RECV_SIZE;
+    }
+
+    result = SOiPrepare(funcName, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        if (from != NULL && (sizeof(SOSockAddr) < from->len || from->len < sizeof(SOSockAddr)))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+        if (len < 0 || (len > 0 && buf == NULL))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+
+        direct = TRUE;
+        if (len != 0)
+        {
+            BOOL aligned = (canUseBuffer = FALSE);
+            if ((u32)buf % 32 == 0 && len % 32 == 0)
+            {
+                aligned = TRUE;
+            }
+            if (aligned)
+            {
+                valid = TRUE;
+                if (SOiIsBufferAddrCheck())
+                {
+                    BOOL inRange = ((u32)buf & 0x1fffffff) >= 0x10000000 && ((u32)buf & 0x1fffffff) < 0x18000000;
+                    if (!inRange)
+                    {
+                        valid = FALSE;
+                    }
+                }
+                if (valid)
+                {
+                    canUseBuffer = TRUE;
+                }
+            }
+            if (!canUseBuffer)
+            {
+                direct = FALSE;
+            }
+        }
+
+        bufferSize = ROUND_UP((from == NULL ? 0 : from->len) + 64, 32);
+        vectors = SOiAlloc(12, bufferSize);
+        if (direct == FALSE)
+        {
+            dataBuffer = SOiAlloc(13, ROUND_UP(len, 32));
+        }
+        else
+        {
+            dataBuffer = buf;
+        }
+
+        if (vectors == NULL || dataBuffer == NULL)
+        {
+            result = SO_ENOMEM;
+            goto freeBuffers;
+        }
+
+        args = (int*)((u8*)vectors + 32);
+        addrBuffer = (SOSockAddr*)((u8*)args + 32);
+        args[0] = s;
+        args[1] = flags;
+        vectors[0].base = args;
+        vectors[0].length = 8;
+        vectors[1].base = dataBuffer;
+        vectors[1].length = len;
+        if (from == NULL)
+        {
+            vectors[2].base = NULL;
+            vectors[2].length = 0;
+            result = IOS_Ioctlv(rmId, NET_SO_RECVFROM, 1, 2, vectors);
+        }
+        else
+        {
+            CopyBuffer(addrBuffer, from, from->len);
+            vectors[2].base = addrBuffer;
+            vectors[2].length = from->len;
+            result = IOS_Ioctlv(rmId, NET_SO_RECVFROM, 1, 2, vectors);
+            if (result >= 0)
+            {
+                CopyBuffer(from, addrBuffer, from->len > addrBuffer->len ? addrBuffer->len : from->len);
+            }
+        }
+        if (result >= 0 && !direct)
+        {
+            CopyBuffer(buf, dataBuffer, len);
+        }
+
+    freeBuffers:
+        if (!direct)
+        {
+            SOiFree(13, dataBuffer, ROUND_UP(len, 32));
+        }
+        SOiFree(12, vectors, bufferSize);
+
+    conclude:
+        result = SOiConclude(funcName, result);
+    }
+    return result;
+}
+
+static int SendTo(const char* funcName, int s, const void* buf, int len,
+    int flags, const void* sockTo)
+{
+    BOOL canUseBuffer;
+    BOOL direct;
+    const SOSockAddr* to = sockTo;
+    int result;
+    s32 rmId;
+    BOOL valid;
+
+    result = SOiPrepare(funcName, &rmId);
+    if (result == SO_SUCCESS)
+    {
+        void* dataBuffer;
+        IPCIOVector* vectors;
+        NETSoSendToArgs* args;
+
+        if (to != NULL && (sizeof(SOSockAddr) < to->len || to->len < sizeof(SOSockAddr)))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+        if (len < 0 || (len > 0 && buf == NULL))
+        {
+            result = SO_EINVAL;
+            goto conclude;
+        }
+
+        direct = TRUE;
+        if (len != 0)
+        {
+            BOOL aligned = (canUseBuffer = FALSE);
+            if ((u32)buf % 32 == 0 && len % 32 == 0)
+            {
+                aligned = TRUE;
+            }
+            if (aligned)
+            {
+                valid = TRUE;
+                if (SOiIsBufferAddrCheck())
+                {
+                    BOOL inRange = ((u32)buf & 0x1fffffff) >= 0x10000000 && ((u32)buf & 0x1fffffff) < 0x18000000;
+                    if (!inRange)
+                    {
+                        valid = FALSE;
+                    }
+                }
+                if (valid)
+                {
+                    canUseBuffer = TRUE;
+                }
+            }
+            if (!canUseBuffer)
+            {
+                direct = FALSE;
+            }
+        }
+
+        vectors = SOiAlloc(12, 96);
+        if (direct == FALSE)
+        {
+            dataBuffer = SOiAlloc(14, ROUND_UP(len, 32));
+        }
+        else
+        {
+            dataBuffer = (void*)buf;
+        }
+
+        if (vectors == NULL || dataBuffer == NULL)
+        {
+            result = SO_ENOMEM;
+            goto freeBuffers;
+        }
+
+        args = (NETSoSendToArgs*)((u8*)vectors + 32);
+        args->s = s;
+        args->flags = flags;
+        if (to == NULL)
+        {
+            args->hasAddr = FALSE;
+        }
+        else
+        {
+            args->hasAddr = TRUE;
+            CopyBuffer(args->addr, to, to->len);
+        }
+        if (!direct)
+        {
+            CopyBuffer(dataBuffer, buf, len);
+        }
+
+        vectors[0].base = dataBuffer;
+        vectors[0].length = len;
+        vectors[1].base = args;
+        vectors[1].length = 40;
+        result = IOS_Ioctlv(rmId, NET_SO_SENDTO, 2, 0, vectors);
+
+    freeBuffers:
+        if (!direct)
+        {
+            SOiFree(14, dataBuffer, ROUND_UP(len, 32));
+        }
+        SOiFree(12, vectors, 96);
+
+    conclude:
+        result = SOiConclude(funcName, result);
+    }
+    return result;
 }

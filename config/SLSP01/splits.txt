@@ -5184,12 +5184,25 @@ RVL_SDK/src/revolution/nwc24/NWC24System.c:
 	.sdata      start:0x8087EDD8 end:0x8087EDE0
 	.sbss       start:0x80880428 end:0x80880438
 
-RVL_SDK/src/revolution/so/SOBasic.c:
+RVL_SDK/src/revolution/so/SOCommon.c:
 	.text       start:0x806A2790 end:0x806A37F4
 	.data       start:0x807BCA68 end:0x807BCC48
 	.bss        start:0x808340E0 end:0x808340F8
 	.sdata      start:0x8087EDE0 end:0x8087EDE8
 	.sbss       start:0x80880438 end:0x80880448
+
+RVL_SDK/src/revolution/so/SOBasic.c:
+	.text       start:0x806A37F4 end:0x806A475C
+	.data       start:0x807BCC48 end:0x807BCCA0
+	.bss        start:0x808340F8 end:0x80834120
+	.sdata      start:0x8087EDE8 end:0x8087EDF0
+	.sbss       start:0x80880448 end:0x80880450
+
+RVL_SDK/src/revolution/so/SOInformation.c:
+	.text       start:0x806A475C end:0x806A4C5C
+
+RVL_SDK/src/revolution/so/SOOption.c:
+	.text       start:0x806A4C5C end:0x806A4F3C
 
 RVL_SDK/src/revolution/ssl/ssl.c:
 	.text       start:0x806A4F3C end:0x806A5C88
