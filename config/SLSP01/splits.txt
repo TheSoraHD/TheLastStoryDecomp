@@ -4630,7 +4630,7 @@ key/src/revolution/WPAD/lint.c:
 	.text       start:0x8066E080 end:0x8066E8F0 align:16
 
 smg2/src/RVL_SDK/wud/WUD.c:
-	.text       start:0x8066E8F0 end:0x80673FD0
+	.text       start:0x8066E8F0 end:0x80673FD0 align:16
 	.data       start:0x807BA8B8 end:0x807BAC00
 	.bss        start:0x8082DE00 end:0x8082FFA8
 	.sdata      start:0x8087EBD0 end:0x8087EBE0

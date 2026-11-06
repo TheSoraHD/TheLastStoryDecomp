@@ -18446,7 +18446,7 @@
    "-ipa file"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "smg2/src/RVL_SDK/wpad/WPAD.c",

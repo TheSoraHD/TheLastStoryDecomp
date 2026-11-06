@@ -166,15 +166,17 @@ void LINTSub(ULONG *dst, const ULONG *lhs, const ULONG *rhs)
 }
 
 // TODO on release
-void LINTMul(ULONG *dst, const ULONG *lhs, const ULONG *rhs)
+// inferred: 2010 SDK version (TLS): non-const operands, unsigned counters and
+// "num +=" accumulation (loop unrolled by 8 at 8066E5C0)
+void LINTMul(ULONG *dst, ULONG *lhs, ULONG *rhs)
 {
-	int i, j;
+	ULONG i, j;
 
-	const ULONG lhsSize = lhs[0];
-	const ULONG rhsSize = rhs[0];
+	ULONG lhsSize = lhs[0];
+	ULONG rhsSize = rhs[0];
 
-	const ULONG *lhsData = lhs + 1;
-	const ULONG *rhsData = rhs + 1;
+	ULONG *lhsData = lhs + 1;
+	ULONG *rhsData = rhs + 1;
 	ULONG *dstData = dst + 1;
 
 	ULLONG num = 0;
@@ -193,12 +195,10 @@ void LINTMul(ULONG *dst, const ULONG *lhs, const ULONG *rhs)
 
 		for (j = 0; j < lhsSize; j++)
 		{
-			num = (ULLONG)lhsData[j] * rhsData[i] + num
-			    + dstData[i + j];
+			num += dstData[i + j] + (ULLONG)lhsData[j] * rhsData[i];
 
 			dstData[i + j] = num & ULONG_MAX;
-			num = ((num >> ULLONG_ULONG_BIT_DIFF) & ULONG_MAX)
-			    % (1ull << ULLONG_ULONG_BIT_DIFF);
+			num = (ULONG)((num >> ULLONG_ULONG_BIT_DIFF) & ULONG_MAX);
 		}
 
 		dstData[i + j] = num;
