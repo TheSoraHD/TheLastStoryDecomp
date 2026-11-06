@@ -18,8 +18,25 @@ struct QuadField_unk {
     int m970;
     float m974;
     float m978;
+    unsigned char m97C[0x10D8 - 0x97C];
+    RouteTable_unk* m10D8;
 };
 extern "C" QuadField_unk* lbl_8087F430;
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+
+// inferred: angle used by fn_80460B48 (50 degrees; initialized in the __sinit; name invented)
+static float sAngle_unk = atn::DegToRad_unk(50.0f);
+
+// inferred: places the quadruped walks around (ids 601-610; names invented)
+struct QuadPlace_unk {
+    int mId;
+    int m04;
+    int m08;
+};
+static const QuadPlace_unk sQuadPlaces[10] = {
+    {601, 1, 0}, {606, 0, 1}, {602, 1, 0}, {607, 0, 1}, {603, 1, 0},
+    {608, 0, 1}, {604, 1, 0}, {609, 0, 1}, {605, 1, 0}, {610, 0, 1},
+};
 extern "C" void fn_80370AE4(QuadField_unk* field, int index, int value); // inferred: sets an event flag
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -35,6 +52,7 @@ extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
                             const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
                             float scale);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: plays an effect on the model with the default color and scale (as in game/LastCocoonEgg.cpp)
 static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
@@ -212,6 +230,17 @@ void LastCocoonQuadruped::fn_80466974() {
     }
 }
 
+// NONMATCHING: 91.7% - "SE_EM206_001" is at @stringBase0+0xC9 (needs the earlier strings of the ctor)
+void LastCocoonQuadruped::fn_80466A04() {
+    SetMode_unk(6);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+    m17A8.mFlags |= 1;
+    fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
+}
+
 void LastCocoonQuadruped::fn_80466AE4() {
     SetMode_unk(7);
     mMotion.m34C = 1;
@@ -230,6 +259,41 @@ void LastCocoonQuadruped::fn_80466B8C() {
     PlayEfp_unk(&m1790, &mMotion);
 }
 
+// inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
+// (as in game/Em208Queen.cpp)
+inline RoutePlace_unk* FindQuadPlace_unk(int id) {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
+        RoutePlace_unk* places = table->mPlaces;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
+atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
+    atn::Vector3 pos = lbl_807C7030;
+    int nextId = 0;
+    for (int i = 0; i < 10; i++) {
+        if (id == sQuadPlaces[i].mId) {
+            if (i == 9) {
+                nextId = 601;
+            } else {
+                nextId = sQuadPlaces[i + 1].mId;
+            }
+        }
+    }
+    RoutePlace_unk* place = FindQuadPlace_unk(nextId);
+    if (place != 0) {
+        pos = place->mPos;
+    }
+    if (next != 0) {
+        *next = nextId;
+    }
+    return pos;
+}
+
 int LastCocoonQuadruped::vfE4() {
     int ret = 0;
     if (m58C == 16 && m14BC == 1) {
@@ -241,3 +305,5 @@ int LastCocoonQuadruped::vfE4() {
 float LastCocoonQuadruped::vf90() {
     return 3.0f;
 }
+
+LastCocoonQuadruped::~LastCocoonQuadruped() {}
