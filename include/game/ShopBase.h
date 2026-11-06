@@ -4,6 +4,9 @@
 #include "atn/Task.h"
 #include "atn/LH_Binary.h"
 #include "std/vector.h"
+#include "atn/ResRef_unk.h"
+#include "game/ResHandle.h"
+#include <string.h>
 
 // inferred: d2anime task (made by fn_801F3FF8); only the members used by the shops
 struct ShopD2A_unk : public atn::Task {
@@ -36,6 +39,15 @@ struct ShopLayout_unk : public atn::Task {
 // inferred: entry of the first list of the shop (0x64 bytes, 128 entries; cleared by the constructor
 // 0x8057F280); names invented
 struct ShopEntry64_unk {
+    ShopEntry64_unk() : m00(0), m04(0) {
+        memset(m08, 0, sizeof(m08));
+        m48 = 1.0f;
+        m4C = 0;
+        m50 = 100;
+        m54 = 1;
+        m5C = 0;
+        m60 = 1;
+    }
     int m00;           // inferred: item id
     int m04;           // inferred: price
     wchar_t m08[0x20]; // inferred: name override
@@ -49,6 +61,7 @@ struct ShopEntry64_unk {
 };
 // inferred: entry of the second list of the shop (0x5C bytes, 1536 entries); names invented
 struct ShopEntry5C_unk {
+    ShopEntry5C_unk() : m00(0), m04(0) { memset(m08, 0, sizeof(m08)); }
     int m00; // inferred: item id
     int m04;
     char m08[0x40];
@@ -59,8 +72,15 @@ struct ShopEntry5C_unk {
     int m58;
 };
 
+// inferred: record of a purchase (fn_805849E8 pushes {id, m5C} of the entry); names invented
+struct ShopBought_unk {
+    int mId;
+    int m04;
+};
+
 // inferred: list cursor of the shop (0x25B04); names invented
 struct ShopScroll_unk {
+    ShopScroll_unk() : mCursor(0), mCount(0), mTop(0), mPage(0) {}
     int mCursor; // 0x00
     int mCount;  // 0x04
     int mTop;    // 0x08
@@ -83,6 +103,37 @@ public:
     virtual void vf38(const char* data, int size); // 0x80581A54: inferred: reads the shop table
     virtual int vf3C();                // 0x80580578
     virtual void vf40();               // 0x80584FD0
+
+    int fn_8057F880();  // inferred: nonzero while loading
+    void fn_8057F8F8();
+    void fn_8057FB20();
+    void fn_8058036C();
+    void fn_80581674();
+    void fn_8057FF38();
+    void fn_805800FC();
+    void fn_80580264();
+    void fn_80580580();
+    void fn_80580690();
+    void fn_805807A4();
+    void fn_80580B50();
+    void fn_80580DE0();
+    void fn_80581008(int id);
+    void fn_805811DC(int id);
+    void fn_80581570(int id, int arg);
+    void fn_80581660(int index);
+    void fn_8058181C(int a, int error, int b); // inferred: shows a message
+    void fn_80581964(int a, int message, int b); // inferred: opens a confirmation window
+    void fn_80581FD8();
+    void fn_805846C0(ShopD2A_unk* anime, ShopLayout_unk* layout, int cursor, int top, int arg);
+    void fn_80584750(ShopD2A_unk* anime, int top, int count, int page);
+    void fn_805847EC(int arg);
+    void fn_80584808(int arg);
+    int fn_8058482C(ShopEntry64_unk* entry); // inferred: checks the entry, returns an error code
+    int fn_805848E0(ShopEntry64_unk* entry);
+    void fn_805849E8(ShopEntry64_unk* entry, int num);
+    void fn_80584D78(ShopEntry5C_unk* entry, int arg);
+    int fn_80584DD8(void* item, int num, float a, float b, float c); // inferred: sell price
+    int fn_80584F44(void* item, float rate); // inferred: price of an item
 
     atn::Task* mParent;     // 0x48
     int mKind;              // 0x4C
@@ -130,11 +181,11 @@ public:
     int m25B24;
     int m25B28;
     ShopD2A_unk* m25B2C;
-    std::vector<int> m25B30;
+    std::vector<ShopBought_unk> m25B30; // inferred: items bought (fn_805849E8)
     int m25B3C;
     int m25B40;
-    unsigned char m25B44[4]; // inferred: ResRef_unk-like reference (dtor 0x80470528)
-    void* m25B48;            // inferred: debug menu group
+    ResRef_unk m25B44; // inferred: "/preload/shop.pk"
+    ResHandle m25B48;  // inferred: debug menu group "ShopParam"
     int m25B4C;
     int m25B50;
     int m25B54;
@@ -145,35 +196,7 @@ public:
 };
 
 // inferred: members of ShopBase (0x8057F280-0x80584FE4) still called by their automatic names
-extern "C" int fn_8057F880(ShopBase* self);  // inferred: nonzero while loading
-extern "C" void fn_8057F8F8(ShopBase* self);
-extern "C" void fn_8057FB20(ShopBase* self);
-extern "C" void fn_80580264(ShopBase* self);
-extern "C" void fn_80580DE0(ShopBase* self);
 extern "C" void fn_80580D80(ShopD2A_unk* anime);
 extern "C" void fn_80580DB0(atn::Task* anime);
-extern "C" void fn_8058181C(ShopBase* self, int a, int error, int b); // inferred: shows a message
-extern "C" void fn_80581FD8(ShopBase* self);
-extern "C" void fn_80584750(ShopBase* self, ShopD2A_unk* anime, int top, int count, int page);
-extern "C" void fn_805847EC(ShopBase* self, int arg);
-extern "C" void fn_80584808(ShopBase* self, int arg);
-extern "C" void fn_80584D78(ShopBase* self, ShopEntry5C_unk* entry, int arg);
-extern "C" void fn_8057FF38(ShopBase* self);
-extern "C" void fn_80580B50(ShopBase* self);
-extern "C" void fn_80581660(ShopBase* self, int index);
-extern "C" int fn_8058482C(ShopBase* self, ShopEntry64_unk* entry); // inferred: checks the entry, returns an error code
-extern "C" int fn_805848E0(ShopBase* self, ShopEntry64_unk* entry);
-extern "C" void fn_805849E8(ShopBase* self, ShopEntry64_unk* entry, int num);
-extern "C" void fn_805800FC(ShopBase* self);
-extern "C" void fn_80580580(ShopBase* self);
-extern "C" void fn_80580690(ShopBase* self);
-extern "C" void fn_805807A4(ShopBase* self);
-extern "C" void fn_80581008(ShopBase* self, int id);
-extern "C" void fn_805811DC(ShopBase* self, int id);
-extern "C" void fn_80581570(ShopBase* self, int id, int arg);
-extern "C" void fn_80581964(ShopBase* self, int a, int message, int b); // inferred: opens a confirmation window
-extern "C" void fn_805846C0(ShopBase* self, ShopD2A_unk* anime, ShopLayout_unk* layout, int cursor, int top, int arg);
-extern "C" int fn_80584F44(ShopBase* self, void* item, float rate); // inferred: price of an item
-extern "C" int fn_80584DD8(ShopBase* self, void* item, int num, float a, float b, float c); // inferred: sell price
 
 #endif
