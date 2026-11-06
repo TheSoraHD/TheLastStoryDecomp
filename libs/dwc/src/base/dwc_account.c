@@ -178,17 +178,29 @@ void fn_806CF2A0(DWCFriendData* frienddata, BOOL set) {
     DWCi_Acc_SetFlags(&frienddata->flags, flags);
 }
 
-static inline u32 DWCi_Acc_SwapU32(u32 x) {
-    x = ((x >> 8) & 0x00FF00FF) | ((x << 8) & 0xFF00FF00);
-    return (x >> 16) | (x << 16);
+// Source of the byte swap helpers: mscharged-decomp (CC0) dwc_nonport.h
+static inline u32 DWCi_HtoLEl(u32 data) {
+    u32 tmp;
+    tmp = ((data >> 8) & 0x00ff00ff) | ((data << 8) & 0xff00ff00);
+    return (tmp >> 16) | (tmp << 16);
+}
+
+static inline void DWCi_Np_ToLE(const void* srcp, void* dstp, u32 size) {
+    u32 i;
+
+    for (i = 0; i < size / 4; i++) {
+        ((u32*)dstp)[i] = DWCi_HtoLEl(((u32*)srcp)[i]);
+    }
 }
 
 // inferred: friend key = (hash of the profile id and the game code) << 32 | profile id
 static inline u64 DWCi_Acc_CreateFriendKey(int gs_profile_id, u32 gamecode, int method) {
-    u32 buf[2];
+    u32 code[2];
     int hash;
-    buf[0] = DWCi_Acc_SwapU32((u32)gs_profile_id);
-    buf[1] = DWCi_Acc_SwapU32(gamecode);
+    u32 buf[2];
+    code[0] = (u32)gs_profile_id;
+    code[1] = gamecode;
+    DWCi_Np_ToLE(code, buf, sizeof(code));
     switch (method) {
     case 0: {
         MATHCRC8Table table;
@@ -214,8 +226,6 @@ static inline BOOL DWCi_Acc_CheckFriendKey(u64 friendKey, u32 gamecode, int meth
     return friendKey == DWCi_Acc_CreateFriendKey(gs_profile_id, gamecode, method);
 }
 
-// NONMATCHING: ~75% - register allocation of the two byte swaps differs (same instructions);
-// tried: separate MD5 helper, u64/struct buffers, swap forms and statement orders
 BOOL DWC_CheckFriendKey(const DWCUserData* userdata, u64 friendKey) {
     return DWCi_Acc_CheckFriendKey(friendKey, userdata->gamecode, 1);
 }
@@ -254,7 +264,7 @@ static inline u32 DWCi_Acc_GetCrc32(const DWCAccUserData* userdata) {
     int i;
     fn_806A24DC(&table, 0xEDB88320);
     for (i = 0; i < 16; i++) {
-        buf[i] = DWCi_Acc_SwapU32(((const u32*)userdata)[i]);
+        buf[i] = DWCi_HtoLEl(((const u32*)userdata)[i]);
     }
     return fn_806A264C(&table, buf, 0x3C);
 }
@@ -276,7 +286,7 @@ void DWCi_Acc_CreateUserData(DWCAccUserData* userdata, u32 gamecode) {
     DWCi_Acc_SetFlag_DataType((DWCAccFlag*)&userdata->authentic, DWC_FRIENDDATA_NODATA);
     fn_806A24DC(&table, 0xEDB88320);
     for (i = 0; i < 16; i++) {
-        buf[i] = DWCi_Acc_SwapU32(((const u32*)userdata)[i]);
+        buf[i] = DWCi_HtoLEl(((const u32*)userdata)[i]);
     }
     userdata->crc32 = fn_806A264C(&table, buf, 0x3C);
     userdata->flag |= 1;
@@ -360,7 +370,7 @@ void fn_806CFEB0(DWCUserData* userdata) {
     userdata->flag &= ~1;
     fn_806A24DC(&table, 0xEDB88320);
     for (i = 0; i < 16; i++) {
-        buf[i] = DWCi_Acc_SwapU32(((const u32*)userdata)[i]);
+        buf[i] = DWCi_HtoLEl(((const u32*)userdata)[i]);
     }
     userdata->crc32 = fn_806A264C(&table, buf, 0x3C);
 }
@@ -374,20 +384,25 @@ u64 fn_806D0030(const DWCFriendData* frienddata) {
     return 0;
 }
 
-// NONMATCHING: ~75% - the target keeps the game code in a register across the loop but swaps it
-// inside; here it is either reloaded each iteration or the swap is hoisted
+// mscharged-decomp (CC0) DWC_Acc_FriendKeyToGsProfileId, VERSION_R4QK01 branch
+static inline int DWCi_Acc_FriendKeyToGsProfileId(u64 friendkey, u32 gamecode) {
+    int i;
+
+    for (i = 0; i < 2; ++i) {
+        if (DWCi_Acc_CheckFriendKey(friendkey, gamecode, i)) {
+            return (int)(friendkey & 0xffffffff);
+        }
+    }
+
+    return 0;
+}
+
 int DWC_GetGsProfileId(const DWCUserData* userdata, const DWCFriendData* frienddata) {
     switch (DWCi_Acc_GetFlag_DataType(&frienddata->flags)) {
     case DWC_FRIENDDATA_FRIEND_KEY: {
         u64 friendKey = ((u64)frienddata->friend_key.friendkey_hi32 << 32) |
                         frienddata->friend_key.friendkey_lo32;
-        int i;
-        for (i = 0; i < 2; i++) {
-            if (DWCi_Acc_CheckFriendKey(friendKey, userdata->gamecode, i)) {
-                return (int)(friendKey & 0xFFFFFFFF);
-            }
-        }
-        return 0;
+        return DWCi_Acc_FriendKeyToGsProfileId(friendKey, userdata->gamecode);
     }
     case DWC_FRIENDDATA_GS_PROFILE_ID:
         return frienddata->gs_profile_id.id;
@@ -398,7 +413,6 @@ int DWC_GetGsProfileId(const DWCUserData* userdata, const DWCFriendData* friendd
     }
 }
 
-// NONMATCHING: ~70% - same byte swap register allocation difference as DWC_CheckFriendKey
 u64 DWC_CreateFriendKey(const DWCUserData* userdata) {
     u64 friendKey = 0;
     if (userdata->gs_profile_id != 0) {
