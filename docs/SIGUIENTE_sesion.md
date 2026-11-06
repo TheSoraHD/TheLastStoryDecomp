@@ -2,11 +2,17 @@
 
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-07, rama `hermanas-20261106` 1ab7f98, sin mergear)
+## Siguiente sesión: `claude/prompt-maraton.md` (proyecto)
+
+- Más de 10 h, secuencial. Prioridad 1: las unidades sin ninguna función (≈1213 funciones: `GameEventScript_cont`,
+  `BattleTask`, `GameTask`, `ShopUpGrade`, `DebugInfo_unk`, `CosEditItemList_unk`, `TacView`, `AiTarget`,
+  `GameCamera_unk`…); prioridad 2: funciones de ≤ 0x100 B de unidades empezadas (`atn/PacketPack` 255).
+
+## Estado actual (2026-11-07, `main` 44a077a: `hermanas-20261106` mergeada)
 
 - `hermanas-20261106` (desde `main` 1bd7fca, 13619): report **13737 / 18117** (lost 0; `main.dol: OK` en build
   limpio y en clon limpio; 652 unidades enlazadas; sin cambios de splits). Notas, decisiones y pendientes:
-  `docs/hermanas-20261106.md`. Pendiente de revisión y merge por el usuario.
+  `docs/hermanas-20261106.md`. Mergeada en `main` (44a077a).
   - Unidades nuevas: `ShopBase` 33/48, `CosEditProtector` 18/25, `NewCampPartsMapSelect` 11/26, `NewCampTask` 7/64,
     `LastCocoonQuadruped` 24/54, `LastCocoonImago` 14/36, `LastCocoonEgg` 11/42.
   - Siguiente paso con más rendimiento: escribir los ctor de `LastCocoonQuadruped`/`Imago` (aunque queden
