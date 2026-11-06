@@ -5,6 +5,7 @@
 #include "atn/LH_Binary.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/ResLoader_unk.h"
+#include "atn/FixedArray.h"
 #include <string.h>
 
 // inferred: pair of ids initialized to -1 (8 bytes); names invented
@@ -32,11 +33,13 @@ struct MapSelectPoint_unk {
         m24 = 0;
         m28 = 0.0f;
     }
-    unsigned char m00[0x10];
+    int m00;  // inferred: id (500 and over: battle points)
+    int m04;
+    unsigned char m08[0x10 - 0x08];
     int m10;
-    int m14;
-    int m18;
-    int m1C;
+    int m14;  // inferred: number of the board model
+    NewCampPartsEntry_unk* m18;
+    int m1C; // inferred: cleared by vf1C (with m20, m24)
     int m20;
     int m24;
     float m28;
@@ -63,9 +66,22 @@ public:
     static NewCampPartsMapSelect* fn_8051B920(atn::Task* parent); // inferred: creates the parts
     NewCampPartsMapSelect(atn::Task* parent);                      // 0x8051B984
     virtual ~NewCampPartsMapSelect();                              // 0x8051C2A8
+    virtual void vf1C(NewCampScene_unk* scene);                    // 0x8051CA74
     virtual void vf40(void* menu);                                 // 0x8051C3DC
     virtual void vf44();                                           // 0x80521C9C
     virtual void vf48();                                           // 0x80521D44
+    virtual int vf4C();                                            // 0x8051C750
+
+    void fn_80520634(); // inferred: reads map_param.csv
+    // inferred: frees the files of the points (destructor and vf1C)
+    void FreeFiles_unk() {
+        if (m198C != 0) {
+            delete[] m198C;
+            delete[] m1990;
+            m198C = 0;
+            m1990 = 0;
+        }
+    }
 
     unsigned char mD4;
     unsigned char mD5;
@@ -88,8 +104,8 @@ public:
     int m190C;                           // inferred: number of entries of m1910
     ArrayPtr_unk<NewCampPartsEntry_unk> m1910;
     unsigned char m1914[0x198C - 0x1914];
-    unsigned char* m198C;
-    unsigned char* m1990;
+    NewCampPartsFile_unk* m198C;         // inferred: files of the points (m4C)
+    char (*m1990)[0x20];                 // inferred: their names (two per point: model, anime)
     atn::Task* mUiCursor;                // 0x1994: ui_cursor.d2a
     int m1998;
     int m199C;
@@ -102,7 +118,7 @@ public:
     float m19BC;
     float m19C0;
     atn::LH_Binary mParam;               // 0x19C4: map_param.csv
-    int m19CC;
+    int m19CC;                           // inferred: number of points read
     MapSelectPoint_unk mPoints[64];      // 0x19D0
     int m3ED0;
     int m3ED4;
@@ -110,8 +126,7 @@ public:
     MapSelectRoute_unk mRoutes[63];      // 0x3EF0
     MapSelectFlags_unk m45D4;
     int m46D4;
-    int m46D8;
-    unsigned char m46DC[0x47DC - 0x46DC];
+    atn::FixedArray_unk<int, 64> m46D8;  // inferred: values m04 of the points
     atn::EfpFile m47DC;                  // menu_map00.efp
     atn::EfpFile m47E8;                  // be010_004.efp
     atn::EffFile m47F4;                  // be010_009.eff
