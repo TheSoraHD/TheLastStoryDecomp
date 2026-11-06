@@ -256,8 +256,11 @@ void D2AMpMenuFriend::UpdateScrollBar_unk() {
     SetPaneValue3_unk(layout, "s_hightMax", 197.0f);
 }
 
-// NONMATCHING: 98.71% - decide/pad registers and the stack slots of the sound temporaries and of the
-// inlined UpdateScrollBar_unk (as D2AMpMenuFriendRoom::fn_804BA970)
+// inferred: no free slot in the friend list
+static inline bool IsListFull_unk() {
+    return fn_8050F404(&lbl_8087F628->m430) == -1;
+}
+
 void D2AMpMenuFriend::fn_804B79F4() {
     if (m31C > 0) {
         m31C--;
@@ -274,28 +277,16 @@ void D2AMpMenuFriend::fn_804B79F4() {
         return;
     }
     fn_804B9694();
-    int decide = 0;
-    void* pad;
     int cursor = m2E0;
     int top = m2C8;
-    {
-        pad = GetPad_unk();
-        fn_804A436C(&m2E0, 0, 0, 1, 3);
-        if (fn_800A555C(pad, 0, 4) != 0) {
-            fn_80117228(1);
-            decide = 1;
-        } else if (fn_800A555C(pad, 0, 5) != 0) {
-            fn_80117228(2);
-            decide = 2;
-        }
-    }
-    pad = GetPad_unk();
+    int decide = Decide_unk(&m2E0, 0);
+    void* pad = GetPad_unk();
     if (fn_800A55AC(pad, 0, 0x1A) != 0 || fn_800A55AC(pad, 0, 0) != 0) {
-        int t = m2C8;
-        if (--m2E0, t != 0) {
+        m2E0--;
+        if (m2C8 != 0) {
             if (m2E0 < 1) {
                 m2E0 = 1;
-                m2C8 = t - 1;
+                m2C8--;
                 fn_804B9014();
             }
         } else if (m2E0 < 0) {
@@ -341,7 +332,7 @@ void D2AMpMenuFriend::fn_804B79F4() {
                     n = t + 10;
                 }
                 m2C8 = n;
-                if (n != t) {
+                if ((int)n != t) {
                     int c = m2E0 + 10 - (n - t);
                     m2E0 = c < 10 ? c : 10;
                 } else {
@@ -360,7 +351,7 @@ void D2AMpMenuFriend::fn_804B79F4() {
                 D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 1);
                 D2ACommonDialog::sInstance->fn_804ACD10();
                 D2ACommonDialog::sInstance->fn_804AD1EC(lbl_8087F86C->Get_unk(0xF6));
-            } else if (fn_8050F404(&lbl_8087F628->m430) == -1) {
+            } else if (IsListFull_unk()) {
                 D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 1);
                 D2ACommonDialog::sInstance->fn_804ACD10();
                 D2ACommonDialog::sInstance->fn_804AD1EC(lbl_8087F86C->Get_unk(0xEA));
@@ -375,7 +366,17 @@ void D2AMpMenuFriend::fn_804B79F4() {
         fn_80117228(1);
         fn_804B6F08(3);
     }
-    UpdateScrollBar_unk();
+    // inferred: same as UpdateScrollBar_unk written out (with a reference to the rect, the stack slots of the original)
+    MpRect_unk rect;
+    const MpRect_unk& pos = GetPaneRect_unk(m250, "sb_null_0001");
+    rect.x = pos.x;
+    rect.y = pos.y;
+    rect.w = pos.w;
+    rect.z = pos.z;
+    rect.h = 1.0f;
+    fn_801F4728(m2B8, "basePos", &rect);
+    void* layout = m2B8->mLayout;
+    SetPaneValue3_unk(layout, "s_hightMax", 197.0f);
 }
 
 // NONMATCHING: 99.89% - inlined vector<int>::push_back (as fn_804B6F08)
