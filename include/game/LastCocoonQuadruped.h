@@ -41,6 +41,7 @@ public:
     void fn_804617A4(); // inferred: chooses the target of the mode
     void fn_80461838();
     void fn_804635B4();
+    void fn_804638A4(); // inferred: turns to m14B8, then the bullet 0x5B4 at frames 19-26
     void fn_80463C58(); // inferred: mode 9 at frame 5: lands on the ground under m14D4
     void fn_80463DCC(); // inferred: end of the motion: back to mode 0 (states 1, 7) or mode 7
     void fn_80466370(); // inferred: mode 15: jump with the bullet 0x5B5 at frames 20-24

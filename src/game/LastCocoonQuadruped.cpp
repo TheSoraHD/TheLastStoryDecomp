@@ -104,6 +104,21 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in game/BattleCharaTask.cpp)
 
+struct HitResult_unk;
+extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
+                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
+// inferred: as in game/Em206EggMonster.cpp (name invented)
+inline float WrapDeg_unk(float deg) {
+    float d = fmod(deg, 360.0);
+    if (d > 180.0f) {
+        d -= 360.0f;
+    }
+    if (d < -180.0f) {
+        d += 360.0f;
+    }
+    return d;
+}
+
 // inferred: places the quadruped walks around (ids 601-610; names invented)
 struct QuadPlace_unk {
     int mId;
@@ -334,6 +349,29 @@ void LastCocoonQuadruped::fn_804635B4() {
         fn_80170A20(m1554, 0, -1.0f);
     }
     fn_80461838();
+}
+
+void LastCocoonQuadruped::fn_804638A4() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80466974();
+    } else {
+        if (mMotion.mTracks[0].m08 < 20.0f) {
+            CharaTask* target = m14B8;
+            atn::Vector3 d0 = target->mPos - mPos;
+            atn::Vector3 rot = d0.GetNormalize().ToRotation_unk();
+            float d = WrapDeg_unk(57.295776f * (rot.y - mRot.y));
+            if ((float)__fabs(d) > atn::DegToRad_unk(2.0f)) {
+                d = d / (float)__fabs(d) * atn::DegToRad_unk(2.0f);
+            }
+            mRot.y += d;
+        }
+        float f = mMotion.mTracks[0].m08;
+        if (f >= 19.0f && f <= 26.0f) {
+            fn_80144710();
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B4), m590, 30, -1, 0.0f);
+        }
+    }
 }
 
 void LastCocoonQuadruped::fn_80463C58() {
