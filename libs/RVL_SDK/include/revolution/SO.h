@@ -41,18 +41,7 @@ enum {
 enum { SO_ERR_LINK_UP_TIMEOUT = -121 };
 
 
-// Careful. These are mostly wrong.
-enum {
-  NCD_LINKSTATUS_WORKING = 1,
-  NCD_LINKSTATUS_NONE = 2,          // ?
-  NCD_LINKSTATUS_WIRED = 3,         // ?
-  NCD_LINKSTATUS_WIRELESS_DOWN = 4, // ?
-  NCD_LINKSTATUS_WIRELESS_UP = 5,   // ?
-  NCD_RESULT_SUCCESS = 0,           // ?
-  NCD_RESULT_FAILURE = -6,          // ?
-  NCD_RESULT_FATAL_ERROR = -3,      // ?
-  NCD_RESULT_INPROGRESS = -8
-};
+#include <revolution/NCD.h> // NCD_LINKSTATUS_*, NCD_RESULT_*
 
 enum {
   NET_SO_SOCKET = 0xf,
@@ -63,6 +52,8 @@ enum {
 };
 
 #define SO_SOL_SOCKET 0xffff
+#define SO_SO_SNDBUF 0x1001 // mscharged-decomp revolution/so
+#define SO_SO_RCVBUF 0x1002
 #define SO_SOL_IP 0
 #define SO_SOL_ICMP 1
 #define SO_SOL_TCP 6
