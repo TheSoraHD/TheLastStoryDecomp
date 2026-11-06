@@ -1,4 +1,5 @@
 #include "MP/D2AMpMenu_unk.h"
+#include "MP/D2AMpMenu.h"
 #include "atn/RenderManager.h"
 #include "game/GameVoice.h"
 #include "math/Vec.h"
@@ -80,12 +81,6 @@ struct MpPlayerInfos_unk {
 };
 extern "C" MpPlayerInfos_unk* lbl_8087F628;
 
-// inferred: main multiplayer menu (lbl_8087F59C); only the member used here
-struct MpMenu_unk {
-    unsigned char m00[0xC4];
-    int mC4;
-};
-extern "C" MpMenu_unk* lbl_8087F59C;
 
 // inferred: render manager (see game/MenuCommonTask.cpp)
 struct MpRender_unk {
@@ -285,7 +280,7 @@ void D2AMpMenuCockpit::fn_804B5360() {
 }
 
 void D2AMpMenuCockpit::UpdatePointPos_unk() {
-    if (lbl_8087F59C->mC4 != 1) {
+    if (D2AMpMenu::sInstance->mC4 != 1) {
         SetPaneValue_unk(m4C->mLayout, "pos0005", 0, 800.0f);
         SetPaneValue_unk(m4C->mLayout, "pos0036", 0, 800.0f);
         SetPaneValue_unk(m4C->mLayout, "pos0037", 0, 800.0f);

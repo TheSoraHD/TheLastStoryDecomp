@@ -1,4 +1,5 @@
 #include "MP/D2AMpMenu_unk.h"
+#include "MP/D2AMpMenu.h"
 #include "game/Inventory.h"
 #include "atn/DrawHelper.h"
 
@@ -121,25 +122,6 @@ struct MpField_unk {
 extern "C" MpField_unk* lbl_8087F430;
 extern "C" void fn_803729B4(MpField_unk* field, MpCharaTask_unk* chara);
 
-// inferred: main multiplayer menu (lbl_8087F59C); only the members used here
-struct MpMenu_unk {
-    unsigned char m0000[0x299C];
-    int m299C;
-    int m29A0;
-    int m29A4;
-    int m29A8;
-};
-extern "C" MpMenu_unk* lbl_8087F59C;
-
-// inferred: rank display (lbl_8087F5A0)
-struct MpRankIcon_unk;
-extern "C" MpRankIcon_unk* lbl_8087F5A0;
-extern "C" void fn_804B4678(MpRankIcon_unk* icon, int a, float f, int b);
-extern "C" void fn_804B4700(MpRankIcon_unk* icon, int a);
-extern "C" void fn_804B4770(MpRankIcon_unk* icon, int a);
-extern "C" void fn_804B47E0(MpRankIcon_unk* icon, int value, int index);
-extern "C" void fn_804B49C0(MpRankIcon_unk* icon, MP::MpRect_unk rect, int index);
-extern "C" void fn_804B49E0(MpRankIcon_unk* icon, int value, int index);
 
 // inferred: camp message table (lbl_8087F1E4, see game/MenuCommonTask.cpp)
 struct MpCampMsgTable_unk {
@@ -233,8 +215,8 @@ public:
     static D2AMpMenuResult* sInstance;
 };
 
-// NONMATCHING (__sinit): the store is scheduled before the reload of the return address in the original
-static unsigned int sCustomData = fn_800DC6B4("CustomData");
+// inferred: const (the store of the __sinit is scheduled after the reload of the return address)
+static const unsigned int sCustomData = fn_800DC6B4("CustomData");
 D2AMpMenuResult* D2AMpMenuResult::sInstance;
 
 inline void Show_unk(MpD2A_unk* task) {
@@ -290,11 +272,11 @@ D2AMpMenuResult::D2AMpMenuResult(atn::Task* parent)
         Add_unk(mA0[i]);
     }
     SetAll_unk(1);
-    fn_804B4770(lbl_8087F5A0, -1);
+    D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
 }
 
 D2AMpMenuResult::~D2AMpMenuResult() {
-    fn_804B4770(lbl_8087F5A0, -1);
+    D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
     mTasks.clear();
     if (sInstance != 0) {
         sInstance = 0;
@@ -351,8 +333,8 @@ void D2AMpMenuResult::fn_804C5E9C(int state) {
         case 5:
         case 6:
             vf1C();
-            fn_804B4678(lbl_8087F5A0, 0, 1.0f, 0);
-            fn_804B4700(lbl_8087F5A0, 0);
+            D2AMpMenuRankMark::sInstance->fn_804B4678(0, 1.0f, 0);
+            D2AMpMenuRankMark::sInstance->fn_804B4700(0);
             if (lbl_8087F610->m540 != 2) {
                 Play_unk(m50, 0, 1.0f);
                 fn_804C7D7C();
@@ -386,7 +368,7 @@ void D2AMpMenuResult::fn_804C5E9C(int state) {
         }
         case 8:
             Play_unk(mC8, 0, 1.0f);
-            fn_804B4700(lbl_8087F5A0, 0);
+            D2AMpMenuRankMark::sInstance->fn_804B4700(0);
             fn_800C31F4("SE_UI001_017", 0, -1, 1.0f);
             m1A4 = 150;
             break;
@@ -444,7 +426,7 @@ void D2AMpMenuResult::fn_804C66D0() {
         for (int i = 0; i < 3; i++) {
             Stop_unk(m5C[i]);
         }
-        fn_804B4770(lbl_8087F5A0, -1);
+        D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
         break;
     case 5:
     case 6:
@@ -452,10 +434,10 @@ void D2AMpMenuResult::fn_804C66D0() {
         for (int i = 0; i < 8; i++) {
             Stop_unk(m80[i]);
         }
-        fn_804B4770(lbl_8087F5A0, -1);
+        D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
         break;
     case 8:
-        fn_804B4770(lbl_8087F5A0, -1);
+        D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
     case 10:
         Play_unk(mC0, 0, -1.0f);
         break;
@@ -542,13 +524,13 @@ void D2AMpMenuResult::vf10() {
         break;
     case 10:
         fn_804C5E9C(11);
-        lbl_8087F59C->m299C = 2;
-        lbl_8087F59C->m29A4 = 14;
-        lbl_8087F59C->m29A0 = 0;
-        lbl_8087F59C->m29A8 = 0;
+        D2AMpMenu::sInstance->m299C.m00 = 2;
+        D2AMpMenu::sInstance->m299C.m08 = 14;
+        D2AMpMenu::sInstance->m299C.m04 = 0;
+        D2AMpMenu::sInstance->m299C.m0C = 0;
         break;
     case 11:
-        if (mC0->mFrame == 0.0f && lbl_8087F59C->m29A0 == lbl_8087F59C->m29A4) {
+        if (mC0->mFrame == 0.0f && D2AMpMenu::sInstance->m299C.m04 == D2AMpMenu::sInstance->m299C.m08) {
             fn_804C5E9C(12);
         }
         break;
@@ -573,7 +555,7 @@ void D2AMpMenuResult::vf14() {
         break;
     case 4:
         Show_unk(m5C[0]);
-        fn_804B4700(lbl_8087F5A0, 0);
+        D2AMpMenuRankMark::sInstance->fn_804B4700(0);
         if (m104 == 0) {
             Show_unk(mC0);
         }
@@ -581,7 +563,7 @@ void D2AMpMenuResult::vf14() {
         break;
     case 5: {
         Show_unk(m5C[0]);
-        fn_804B4700(lbl_8087F5A0, 0);
+        D2AMpMenuRankMark::sInstance->fn_804B4700(0);
         if (m104 == 0) {
             Show_unk(mC0);
         }
@@ -616,7 +598,7 @@ void D2AMpMenuResult::vf14() {
     }
     case 6:
         Show_unk(m5C[0]);
-        fn_804B4700(lbl_8087F5A0, 0);
+        D2AMpMenuRankMark::sInstance->fn_804B4700(0);
         if (m104 == 0) {
             Show_unk(mC0);
         }
@@ -658,8 +640,8 @@ void D2AMpMenuResult::fn_804C7408() {
     if (mE4 == 8) {
         rect = GetPaneRect_unk(mC8, "rank_null");
         rect.z = -20.0f;
-        fn_804B49C0(lbl_8087F5A0, rect, 0);
-        fn_804B49E0(lbl_8087F5A0, lbl_8087F610->m2B80.m6B00, 0);
+        D2AMpMenuRankMark::sInstance->fn_804B49C0(rect, 0);
+        D2AMpMenuRankMark::sInstance->fn_804B49E0(lbl_8087F610->m2B80.m6B00, 0);
         return;
     }
     if (lbl_8087F610->m540 != 2) {
@@ -670,8 +652,8 @@ void D2AMpMenuResult::fn_804C7408() {
     fn_801F4728(m5C[0], "pos0001(1)(1)(1)", &rect);
     rect = GetPaneRect_unk(m5C[0], "rank_null");
     rect.z = -1.0f;
-    fn_804B49C0(lbl_8087F5A0, rect, 0);
-    fn_804B49E0(lbl_8087F5A0, mCC[0], 0);
+    D2AMpMenuRankMark::sInstance->fn_804B49C0(rect, 0);
+    D2AMpMenuRankMark::sInstance->fn_804B49E0(mCC[0], 0);
     rect = GetPaneRect_unk(m5C[0], "lv_b10(1)");
     if (rect.h != 0.0f) {
         rect.w *= mD8[0];
@@ -744,7 +726,7 @@ void D2AMpMenuResult::fn_804C76EC() {
         fn_800DD3FC(text, L"%d", exp);
         SetPaneText_unk(m5C[n]->mLayout, "string0020(1)", fn_804EB480(lbl_8087F610, player) != 0 ? L"" : text);
         int prev = exp - gain;
-        fn_804B47E0(lbl_8087F5A0, prev, n);
+        D2AMpMenuRankMark::sInstance->fn_804B47E0(prev, n);
         mCC[n] = prev;
         if (lbl_8087F610->m610.GetNext_unk(prev) > 0) {
             int base = fn_805075C4(&lbl_8087F610->m610, prev)->m04;
@@ -764,7 +746,7 @@ void D2AMpMenuResult::fn_804C76EC() {
 void D2AMpMenuResult::fn_804C7C34(int value) {
     char name[0x40] = {0};
     wchar_t text[0x100] = {0};
-    fn_804B47E0(lbl_8087F5A0, value, 0);
+    D2AMpMenuRankMark::sInstance->fn_804B47E0(value, 0);
     MpCampMsgTable_unk* table = lbl_8087F1E4;
     MpSession_unk* session = lbl_8087F610;
     const wchar_t* format = table->Get_unk(0x37B);
