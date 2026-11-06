@@ -1757,11 +1757,10 @@ void HomeButton::update_controller(int id) {
                               pController->release, pController);
 
         // Were they testing prototype controllers?
-        if (((pController->trig & (PAD_BUTTON_START << 16)) |
-             (pController->trig & WPAD_BUTTON_HOME)) &&
-            isActive()) {
+        if ((pController->trig & WPAD_BUTTON_HOME) && isActive()) {
 
             if (mSequence == eSeq_Control) {
+                mpLayout->GetRootPane()->FindPaneByName("bar_00", true)->SetVisible(true);
                 mpPaneManager->update(id, 0.0f, -180.0f, 0, 0, 0, NULL);
 
                 mpPairGroupAnmController[res::ePairAnm_hmMenu_bar_psh]->start();
@@ -1803,8 +1802,7 @@ void HomeButton::update_controller(int id) {
         } else if (mSequence == eSeq_Control && isActive()) {
 
             // Were they testing prototype controllers?
-            if ((pController->trig & WPAD_BUTTON_MINUS) ||
-                (pController->trig & (PAD_BUTTON_LEFT << 16))) {
+            if (pController->trig & WPAD_BUTTON_MINUS) {
 
                 if (mVolumeNum > 0) {
                     mVolumeNum--;
@@ -1828,8 +1826,7 @@ void HomeButton::update_controller(int id) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     } else {
                         play_sound(HBM_SE_VOLUME_MINUS);
@@ -1838,8 +1835,7 @@ void HomeButton::update_controller(int id) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     }
 
@@ -1847,8 +1843,7 @@ void HomeButton::update_controller(int id) {
                     play_sound(HBM_SE_NOTHING_DONE);
                 }
 
-            } else if ((pController->trig & WPAD_BUTTON_PLUS) ||
-                       (pController->trig & (PAD_BUTTON_RIGHT << 16))) {
+            } else if (pController->trig & WPAD_BUTTON_PLUS) {
 
                 if (mVolumeNum < HBM_MAX_VOLUME) {
                     idx = findGroupAnimator(mVolumeNum + res::eGrPane_vol_00,
@@ -1872,8 +1867,7 @@ void HomeButton::update_controller(int id) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     } else {
                         play_sound(HBM_SE_VOLUME_PLUS);
@@ -1882,8 +1876,7 @@ void HomeButton::update_controller(int id) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     }
 
