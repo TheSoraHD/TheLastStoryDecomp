@@ -854,13 +854,14 @@ static u8 WUDiWaitForSearchResult(void) {
 static u8 WUDiNextStepBySearchResult() {
     u8 next = 1;
 
+    // inferred: version of 2010 (Swiftshine/key __wudSyncCheckSearchResult)
     if (_discNumResps) {
-        if (_normalTarget == 0) {
-            if (!memcmp(_discResp.devName, "Nintendo RVL-CNT", 16)
+        if (WUD_DEV_NAME_IS_CNT(_discResp.devName)) {
+            next = 5;
+        }
 
-            ) {
-                next = 5;
-            }
+        if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_WBC(_discResp.devName)) {
+            next = 5;
         }
 
         if (_discRssi < _wcb.syncRssi) {
@@ -1065,7 +1066,7 @@ static u8 WUDiVirginStandardSync(void) {
         WUDiSetWbcInfo(pInfo->devAddr, pInfo->linkKey, (u8*)pInfo->conf.devName);
     }
 
-    _dev_handle_to_bda[pInfo->devHandle] = pInfo->devAddr;
+    WUDiSetDevAddrForHandle(pInfo->devHandle, pInfo->devAddr);
 
     return WUD_STATE_SYNC_STORED_LINK_KEY_TO_EEPROM;
 }
@@ -1247,7 +1248,7 @@ static u8 WUDiVirginSimpleSync(void) {
     WUDiRegisterDevice(pInfo->devAddr);
     WUDiMoveTopSmpDevInfoPtr(pInfo);
 
-    _dev_handle_to_bda[pInfo->devHandle] = pInfo->devAddr;
+    WUDiSetDevAddrForHandle(pInfo->devHandle, pInfo->devAddr);
 
     return WUD_STATE_SYNC_COMPLETE;
 }
@@ -1683,6 +1684,27 @@ static void DeleteAllHandler(void) {
 
     case WUD_STATE_DELETE_DONE: {
         p->deleteState = WUDiDeleteAllComplete();
+        break;
+    }
+
+    // inferred: version of 2010, update of the Wii Fit save data (Swiftshine/key)
+    case 0x64: {
+        WUDiOpenWiiFitFile();
+        break;
+    }
+
+    case 0x65: {
+        WUDiSeekWiiFitFile();
+        break;
+    }
+
+    case 0x66: {
+        WUDiUpdateWiiFitFile();
+        break;
+    }
+
+    case 0x67: {
+        WUDiCloseWiiFit();
         break;
     }
 
@@ -3072,14 +3094,15 @@ WUDDevInfo* WUDiGetDevInfo(BD_ADDR addr) {
     return pInfo;
 }
 
-WUDDevInfo* WUDiGetDevInfoIndex(u32 idx) {
+// inferred: int index compared unsigned in the release build (Swiftshine/key __wudGetDevInfoByIndex)
+WUDDevInfo* WUDiGetDevInfoIndex(int idx) {
     WUDCB* p = &_wcb;
     WUDDevInfo* pInfo;
     BOOL enabled;
 
     enabled = OSDisableInterrupts();
 
-    if (idx <= WUD_MAX_DEV_ENTRY_FOR_STD - 1) {
+    if (0 <= (u32)idx && (u32)idx <= WUD_MAX_DEV_ENTRY_FOR_STD - 1) {
         pInfo = &p->stdDevs[idx];
     } else {
         pInfo = &p->smpDevs[idx - WUD_MAX_DEV_ENTRY_FOR_STD];
