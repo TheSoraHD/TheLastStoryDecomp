@@ -388,7 +388,10 @@ typedef struct WPADControlBlock {
     u8 extEnc;
     u8 pwrSave;
     u8 padding2;
-    u8 UNK_0xB88[0x1E];
+    u8 UNK_0xB88; // inferred: copy of devType taken at connection (version 2010)
+    u8 UNK_0xB89[0x13];
+    WPADCallback UNK_0xB9C; // inferred: memory-access callback (_wmb[chan].callback in older versions)
+    u8 UNK_0xBA0[0x6];
     u8 dpdBusy; // inferred: set while the DPD is being enabled (0xBA6, version 2010)
     u8 UNK_0xBA7;
     u8 UNK_0xBA8[0x6];
@@ -471,7 +474,8 @@ BOOL WPADiSendSetPort(WPADCmdQueue*, u8, WPADCallback);
 BOOL WPADiSendDPDCSB(WPADCmdQueue*, BOOL, WPADCallback);
 BOOL WPADiSendGetContStat(WPADCmdQueue*, WPADInfo*, WPADCallback);
 
-s32 WPADiRetrieveChannel(u8);
+struct WUDDevInfo;
+s32 WPADiRetrieveChannel(struct WUDDevInfo*); // inferred: takes the device info in the version of 2010
 s32 WPADiSendData(s32, WPADCommand);
 
 BOOL WPADiGetCommand(WPADCmdQueue*, WPADCommand*);
