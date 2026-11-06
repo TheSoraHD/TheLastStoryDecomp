@@ -47,11 +47,11 @@ typedef struct AXFX_CHORUS_EXP {
     f32 sendGain;                // at 0x9C
 } AXFX_CHORUS_EXP;
 
-u32 AXFXChorusExpGetMemSize(const AXFX_CHORUS_EXP* fx);
+u32 AXFXChorusExpGetMemSize(AXFX_CHORUS_EXP* fx);
 BOOL AXFXChorusExpInit(AXFX_CHORUS_EXP* fx);
 void AXFXChorusExpShutdown(AXFX_CHORUS_EXP* fx);
 BOOL AXFXChorusExpSettings(AXFX_CHORUS_EXP* fx);
-void AXFXChorusExpCallback(struct AXFX_BUFFERUPDATE* update, AXFX_CHORUS_EXP* fx);
+void AXFXChorusExpCallback(struct AXFX_BUS* bus, AXFX_CHORUS_EXP* fx);
 
 #ifdef __cplusplus
 }
