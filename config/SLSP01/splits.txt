@@ -5239,6 +5239,64 @@ RVL_SDK/src/revolution/ssl/ssl.c:
 RVL_SDK/src/revolution/ssl/ssl_mutex.c:
 	.text       start:0x806A5C88 end:0x806A5C94
 
+msc/src/RVL_SDK/vf/pf_clib.c:
+	.text       start:0x806A5C94 end:0x806A5DA0
+
+msc/src/RVL_SDK/vf/pf_code.c:
+	.text       start:0x806A5DA0 end:0x806A5DC0
+
+msc/src/RVL_SDK/vf/pdm_dskmng.c:
+	.text       start:0x806A5DC0 end:0x806A5EF0
+	.bss        start:0x80837140 end:0x80837D10
+
+msc/src/RVL_SDK/vf/pf_fatfs.c:
+	.text       start:0x806A5EF0 end:0x806A5F00
+
+msc/src/RVL_SDK/vf/pf_volume.c:
+	.text       start:0x806A5F00 end:0x806A6090
+	.bss        start:0x80837D10 end:0x8085FA60
+
+msc/src/RVL_SDK/vf/pf_cp932.c:
+	.text       start:0x806A6090 end:0x806A6590
+	.rodata     start:0x80767388 end:0x8076B600
+
+msc/src/RVL_SDK/vf/pf_api_util.c:
+	.text       start:0x806A6590 end:0x806A65A0
+
+msc/src/RVL_SDK/vf/pf_init_prfile2.c:
+	.text       start:0x806A65A0 end:0x806A65E0
+
+msc/src/RVL_SDK/vf/pf_filelock.c:
+	.text       start:0x806A65E0 end:0x806A65F0
+
+msc/src/RVL_SDK/vf/pf_system.c:
+	.text       start:0x806A65F0 end:0x806A6600
+	.sbss       start:0x80880458 end:0x80880460
+
+msc/src/RVL_SDK/vf/d_vf.c:
+	.text       start:0x806A6600 end:0x806A6760
+	.bss        start:0x8085FA60 end:0x8085FA78
+	.sbss       start:0x80880460 end:0x80880468
+
+msc/src/RVL_SDK/vf/d_vf_sys.c:
+	.text       start:0x806A6760 end:0x806A6A90
+	.bss        start:0x8085FA78 end:0x8085FAE0
+	.sbss       start:0x80880468 end:0x80880480
+
+msc/src/RVL_SDK/vf/nand_drv.c:
+	.sbss       start:0x80880480 end:0x80880488
+
+msc/src/RVL_SDK/vf/d_hash.c:
+	.text       start:0x806A6A90 end:0x806A6BA0
+	.bss        start:0x8085FAE0 end:0x8085FD10
+
+msc/src/RVL_SDK/vf/d_common.c:
+	.text       start:0x806A6BA0 end:0x806A6C90
+	.bss        start:0x8085FD10 end:0x8085FF18
+
+msc/src/RVL_SDK/vf/sd_drv.c:
+	.text       start:0x806A6C90 end:0x806A6CA0
+
 dwc/src/base/dwc_base64.c:
 	.text       start:0x806A6CA0 end:0x806A7020
 	.data       start:0x807BCCF8 end:0x807BCD40
