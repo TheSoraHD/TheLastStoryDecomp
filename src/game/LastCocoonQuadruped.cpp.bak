@@ -1,4 +1,8 @@
 #include "game/LastCocoonQuadruped.h"
+#include "atn/RenderManager.h"
+#include "chr/ControlBase.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -23,6 +27,7 @@ struct QuadField_unk {
 };
 extern "C" QuadField_unk* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: nodes of the hit spheres (fn_80461398)
 static const char* const sSphereNodes_unk[3] = {"head", "waist", "spine"};
@@ -33,7 +38,7 @@ struct QuadCapsule_unk {
     const char* mTo;
     float mRadius;
 };
-static const QuadCapsule_unk sCapsules_unk[5] = {
+static const QuadCapsule_unk sQuadCapsules_unk[5] = {
     {"neck", "ef_eye", 8.0f},
     {"rightleg", "rightfoot", 8.0f},
     {"leftleg", "leftfoot", 8.0f},
@@ -43,6 +48,57 @@ static const QuadCapsule_unk sCapsules_unk[5] = {
 
 // inferred: angle used by fn_80460B48 (50 degrees; initialized in the __sinit; name invented)
 static float sAngle_unk = atn::DegToRad_unk(50.0f);
+
+// inferred: game state (as in game/CharaTask.cpp); names invented
+struct QuadGameState_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+};
+extern "C" QuadGameState_unk* lbl_8087EFA8;
+extern "C" float fn_800A08D4(atn::LoadHandle* motion); // inferred: length of the motion data
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+
+// inferred: as in game/CharaTask.cpp (names invented)
+inline float GetMotionLength_unk(atn::Model* model, int id) {
+    atn::LoadHandle* motion = model->fn_80097D40(id);
+    float length = motion != 0 ? fn_800A08D4(motion) : 30.0f;
+    if (length == 0.0f) {
+        length = 1.0f;
+    }
+    return length;
+}
+inline float Clamp01_unk(float x) {
+    if (x < 0.0f) {
+        x = 0.0f;
+    } else if (x > 1.0f) {
+        x = 1.0f;
+    }
+    return x;
+}
+inline float LengthSq_unk(const atn::Vector3& v) {
+    return PSVECSquareMag(&v);
+}
+
+// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
+struct QuadDamage_unk {
+    QuadDamage_unk(int damage) : m08(0), m0C(0), m10(0), m14(-1) {
+        m1C = 0;
+        m18 = -1;
+        m04 = damage;
+        m00 = 1;
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    unsigned int m1C : 4;
+    unsigned int m1C_rest : 28;
+};
+extern "C" void fn_80108C10(Effect_unk* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
+                            CharaTask* to, int b, int c);
 
 // inferred: places the quadruped walks around (ids 601-610; names invented)
 struct QuadPlace_unk {
@@ -142,25 +198,73 @@ inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const at
     c.m54 = r;
 }
 
-void LastCocoonQuadruped::vf20() {
-    m614 = mPos + m5A4;
-    m620 = 1.5f * m5B0;
-    m614.y += m620;
-    float radius = m5B0;
-    atn::Vector3 a = m614;
-    atn::Vector3 b = a;
-    b.y += MAX(m5B4 - 2.0f * radius, 1.0f);
-    SetCapsule_unk(mColli, a, b, radius);
-    for (int i = 0; i < 5; i++) {
-        float r = sCapsules_unk[i].mRadius;
-        a = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sCapsules_unk[i].mFrom))->GetTrans_unk();
-        b = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sCapsules_unk[i].mTo))->GetTrans_unk();
-        SetCapsule_unk(mCapsules[i], a, b, r);
+// NONMATCHING: 99.5% - the frame time (dt) is in f28 here, f29 in the original. Tried: local
+// declaration orders, a copy of dt after the motion lengths, separate weights.
+// inferred: walk motions blended by speed (simplified CharaTask::vf24)
+void LastCocoonQuadruped::vf24() {
+    if (mFlag6) {
+        return;
     }
-    a = mPos;
-    b = a;
-    b.y += 100.0f;
-    SetCapsule_unk(m17A8, a, b, 50.0f);
+    if (m55C == 6 && mControl && mControl->vf3C() == 0) {
+        return;
+    }
+    if (m55C == 9 || mFlag2) {
+        return;
+    }
+    if (m55C == 2 && mC58.mMode >= 20 && mC58.mMode <= 22 && !mC58.mDone_unk) {
+        return;
+    }
+    float dt = lbl_8087EFA8->m3A4;
+    float walk = GetMotionLength_unk(&mMotion, m484[1]);
+    float run = GetMotionLength_unk(&mMotion, m484[3]);
+    float hi;
+    float rate = m570 / dt;
+    float lo = m500;
+    hi = m508;
+    float blend;
+    float walkSpeed;
+    float runSpeed;
+    if (rate < lo) {
+        blend = rate / lo;
+        walkSpeed = 1.0f;
+        runSpeed = 0.0f;
+    } else if (rate < hi) {
+        blend = 1.0f;
+        runSpeed = 0.0f;
+        walkSpeed = blend + (rate - lo) / (hi - lo);
+    } else {
+        blend = 2.0f;
+        walkSpeed = 0.0f;
+        runSpeed = 0.1f * (rate / hi - 1.0f) + 1.0f;
+    }
+    if (LengthSq_unk(atn::RenderManager::instance_->mCamera.mPos - mPos) > 62500.0f) {
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        if (blend < 0.5f) {
+            mMotion.fn_80097C08(0, m484[0], 1, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = 1.0f;
+        } else if (blend < 1.5f) {
+            mMotion.fn_80097C08(0, m484[1], 1, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = walkSpeed;
+        } else {
+            mMotion.fn_80097C08(0, m484[3], 1, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = runSpeed;
+        }
+    } else {
+        mMotion.m34C = 3;
+        float w = Clamp01_unk(1.0f - blend);
+        mMotion.fn_80097C08(0, m484[0], 1, 0, 1, 0.0f, 0.1f);
+        mMotion.mTracks[0].m20 = w;
+        mMotion.mTracks[0].m0C = 1.0f;
+        w = Clamp01_unk(1.0f - (float)__fabs(1.0f - blend));
+        mMotion.fn_80097C08(1, m484[1], 1, 0, 1, 0.0f, 0.1f);
+        mMotion.mTracks[1].m0C = walkSpeed;
+        mMotion.mTracks[1].m20 = w;
+        w = Clamp01_unk(blend - 1.0f);
+        mMotion.fn_80097C08(2, m484[3], 1, 0, 1, 0.0f, 0.1f);
+        mMotion.mTracks[2].m0C = runSpeed;
+        mMotion.mTracks[2].m20 = w;
+    }
 }
 
 void LastCocoonQuadruped::fn_80461398() {
@@ -176,6 +280,27 @@ void LastCocoonQuadruped::fn_80461398() {
             }
         }
     }
+}
+
+void LastCocoonQuadruped::vf20() {
+    m620 = 1.5f * m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    float radius = m5B0;
+    atn::Vector3 a = m614;
+    atn::Vector3 b = a;
+    b.y += MAX(m5B4 - 2.0f * radius, 1.0f);
+    SetCapsule_unk(mColli, a, b, radius);
+    for (int i = 0; i < 5; i++) {
+        float r = sQuadCapsules_unk[i].mRadius;
+        a = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sQuadCapsules_unk[i].mFrom))->GetTrans_unk();
+        b = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sQuadCapsules_unk[i].mTo))->GetTrans_unk();
+        SetCapsule_unk(mCapsules[i], a, b, r);
+    }
+    a = mPos;
+    b = a;
+    b.y += 100.0f;
+    SetCapsule_unk(m17A8, a, b, 50.0f);
 }
 
 void LastCocoonQuadruped::fn_804617A4() {
@@ -234,6 +359,33 @@ void LastCocoonQuadruped::fn_80463DCC() {
         } else {
             fn_80466AE4();
         }
+    }
+}
+
+// NONMATCHING: 99.8% - the bitfield word of the damage record is loaded into r7 (r3 in the original),
+// as in Em204Mulue::fn_802A91D0
+void LastCocoonQuadruped::fn_80465294() {
+    if (m1574 == 0 || m1574->m560 != 0x6E) {
+        SetMode_unk(14);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
+        if (m1574 != 0) {
+            m1574->fn_8015B238();
+            m1574 = 0;
+        }
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+    } else if (m14C0 % 30 == 0) {
+        float drain = 50.0f;
+        QuadDamage_unk damage((int)drain);
+        m1574->mStatus.fn_8012DF7C(damage.m04, 0, 0);
+        fn_80108C10(lbl_8087F048, &damage, m1574->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), this, m1574, 0, 0);
+        damage.m04 /= -1;
+        atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
+        pos += atn::Vector3(0.0f, 15.0f, 0.0f);
+        mStatus.fn_8012DF7C(damage.m04, 0, 0);
+        fn_80108C10(lbl_8087F048, &damage, pos, this, this, 0, 0);
     }
 }
 
@@ -330,6 +482,70 @@ inline RoutePlace_unk* FindQuadPlace_unk(int id) {
         }
     }
     return 0;
+}
+
+void LastCocoonQuadruped::fn_804678F4() {
+    SetMode_unk(12);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.1f);
+    m155C = m1554->mPos;
+    m1568 = m155C - mPos;
+    m1568.y = 0.0f;
+    m1568 *= 0.033333335f;
+    mRot = m1568.GetNormalize().ToRotation_unk();
+}
+
+void LastCocoonQuadruped::fn_80467C18(CharaTask* target, const atn::Vector3& pos) {
+    SetMode_unk(15);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
+    m15AC = target;
+    m15B0 = pos;
+    m15BC = (m15B0 - mPos) * 0.2f;
+    m15BC.y = 4.6666665f;
+    mRot = m15BC.GetNormalize().ToRotation_unk();
+}
+
+// NONMATCHING: 99.8% - the two compares with the table are emitted as cmpw arg, entry (entry, arg in
+// the original). Tried: both operand orders, != with continue, a reference to the entry, locals.
+atn::Vector3 LastCocoonQuadruped::fn_804687B0(int* id, int kind8, int kind4) {
+    atn::Vector3 result = lbl_807C7030;
+    atn::Vector3 center = lbl_807C7030;
+    center.x = 0.0f;
+    center.y = 0.0f;
+    center.z = 0.0f;
+    int count = 0;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        if (p->IsActive_unk() || p->mType == 0) {
+            count++;
+            center += p->mPos;
+        }
+    }
+    float inv = 1.0f / count;
+    center *= inv;
+    float maxDist = 0.0f;
+    int found = 0;
+    for (int i = 0; i < 10; i++) {
+        if (kind8 == sQuadPlaces[i].m08 && kind4 == sQuadPlaces[i].m04) {
+            RoutePlace_unk* place = FindQuadPlace_unk(sQuadPlaces[i].mId);
+            if (place != 0) {
+                float dist = LengthSq_unk(place->mPos - center);
+                if (dist > maxDist) {
+                    maxDist = dist;
+                    result = place->mPos;
+                    found = place->mId;
+                }
+            }
+        }
+    }
+    if (id != 0) {
+        *id = found;
+    }
+    return result;
 }
 
 atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
