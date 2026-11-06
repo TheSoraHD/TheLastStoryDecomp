@@ -4601,6 +4601,14 @@ smg2/src/RVL_SDK/tpl/TPL.c:
 	.data       start:0x807B8930 end:0x807B895C
 	.sdata      start:0x8087EB18 end:0x8087EB20
 
+msc/src/RVL_SDK/kpad/KPAD.c:
+	.text       start:0x80653EE0 end:0x8065B8E0
+	.data       start:0x807B895C end:0x807B8A98
+	.bss        start:0x80828318 end:0x80829DC0
+	.sdata      start:0x8087EB20 end:0x8087EBA8
+	.sbss       start:0x80880190 end:0x808801F0
+	.sdata2     start:0x80888898 end:0x808889D0
+
 RVL_SDK/src/revolution/usb/usb.c:
 	.text       start:0x8065B8E0 end:0x8065CE2C
 	.data       start:0x807B8A98 end:0x807B92C8

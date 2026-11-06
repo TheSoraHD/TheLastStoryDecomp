@@ -12,9 +12,9 @@ extern "C" double fabs(double x);
 // inferred: RVL SDK (KPAD/WPAD) functions, names unknown
 extern "C" void fn_8065F530(void* (*alloc)(unsigned int), int (*free)(void*)); // inferred: WPADRegisterAllocator
 extern "C" void fn_80657AF0();                                                 // inferred: KPADInit
-extern "C" void fn_80658170(int chan, void (*cb)(int, int));                   // inferred: KPADSetConnectCallback
-extern "C" void fn_80658220(int chan);                                         // inferred: KPADDisableDPD
-extern "C" void fn_80658240(int chan);                                         // inferred: KPADEnableDPD
+extern "C" void KPADSetConnectCallback(int chan, void (*cb)(int, int));                   // inferred: KPADSetConnectCallback
+extern "C" void KPADDisableDPD(int chan);                                         // inferred: KPADDisableDPD
+extern "C" void KPADEnableDPD(int chan);                                         // inferred: KPADEnableDPD
 extern "C" void fn_806540A0(int chan);
 extern "C" int fn_806572D0(int chan, KPADStatus_unk* samples, int count);     // inferred: KPADRead
 extern "C" void WPADSetAutoSleepTime(unsigned char minute);
@@ -80,8 +80,8 @@ WPad_unk::WPad_unk() {
     fn_8065F530(fn_800DDAC4, fn_800DDB14);
     fn_80657AF0();
     for (int j = 0; j < 4; j++) {
-        fn_80658170(j, fn_800DDA34);
-        fn_80658220(j);
+        KPADSetConnectCallback(j, fn_800DDA34);
+        KPADDisableDPD(j);
     }
     WPADSetAutoSleepTime(mSensitivity);
     memset(mFlags, 0, sizeof(mFlags));
@@ -408,11 +408,11 @@ void fn_800DF0F0(WPad_unk* wpad, int enable) {
     wpad->mPointerEnabled = enable;
     if (enable != 0) {
         for (int i = 0; i < 4; i++) {
-            fn_80658240(i);
+            KPADEnableDPD(i);
         }
     } else {
         for (int i = 0; i < 4; i++) {
-            fn_80658220(i);
+            KPADDisableDPD(i);
         }
     }
 }
