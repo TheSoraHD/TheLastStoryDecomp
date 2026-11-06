@@ -47,6 +47,8 @@ struct MpData_unk {
     int mC8; // inferred: number of friends
     unsigned char mCC[0x430 - 0xCC];
     MpFriendList_unk m430;
+    unsigned char mE38[0xC1F4 - 0xE38];
+    int mC1F4; // inferred: 1 when connected (as MP/D2AMpMenuFriendRoom.cpp)
 };
 extern "C" MpData_unk* lbl_8087F628;
 

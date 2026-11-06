@@ -17,6 +17,7 @@ extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
 extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
+extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
 // inferred: software keyboard (lbl_8087F860, MP::SoftKeyboard); only the members used here
 struct MpMenuKeyboard_unk : public atn::Task {
     unsigned char m048[0xFC - 0x48];
@@ -227,6 +228,54 @@ void D2AMpMenu::fn_804B0A78() {
         MenuCommonTask::sInstance->fn_800D246C(0);
         MenuCommonTask::sInstance->fn_804A2F98();
         break;
+    }
+}
+
+// inferred: input of the game selection (state 2)
+// NONMATCHING: stack slots of the two sound temporaries swapped (0x8/0xC; as D2AMpMenuFriend::fn_804B7224)
+void D2AMpMenu::fn_804B12F8() {
+    if (m299C.m00 != 0) {
+        if (m299C.m04 == m299C.m08) {
+            m299C.Clear();
+        }
+        return;
+    }
+    if (D2ACommonDialog::sInstance->m4C != 0) {
+        if (D2ACommonDialog::sInstance->fn_804AC734()) {
+            D2ACommonDialog::sInstance->fn_804ACAF8();
+            D2ACommonDialog::sInstance->fn_804ACDBC();
+            Play_unk(m48, 0, 1.0f);
+            Play_unk(m4C, 0, 1.0f);
+        } else {
+            return;
+        }
+    }
+    if (lbl_8087F628->mC1F4 == 1) {
+        int decide = 0;
+        void* pad = lbl_8087EF70;
+        fn_804A436C(&mE4, 5, 5, 1, 3);
+        if (fn_800A555C(pad, 0, 4) != 0) {
+            fn_80117228(1);
+            decide = 1;
+        } else if (fn_800A555C(pad, 0, 5) != 0) {
+            fn_80117228(2);
+            decide = 2;
+        }
+        if (decide == 1) {
+            if (mE4 == 0) {
+                fn_804AF520(7);
+            } else if (mE4 == 1) {
+                fn_804AF520(4);
+            } else if (mE4 == 2) {
+                fn_804AF520(5);
+            } else if (mE4 == 3) {
+                fn_804AF520(6);
+            } else if (mE4 == 4) {
+                fn_804AF520(3);
+            }
+        } else if (decide == 2) {
+            fn_804AF520(3);
+        }
     }
 }
 
