@@ -155,12 +155,6 @@ void LastCocoonEgg::fn_80455E20() {
     mC58.mC4 = target;
 }
 
-void LastCocoonEgg::fn_8045617C() {
-    if (m55C != 6) {
-        fn_8016E970(3);
-    }
-}
-
 // inferred: the shield breaks (as vf40 without the popup text)
 // NONMATCHING: 80% - float registers and the order of the copies of the collision center
 void LastCocoonEgg::fn_804560A4() {
@@ -174,6 +168,12 @@ void LastCocoonEgg::fn_804560A4() {
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = radius;
+}
+
+void LastCocoonEgg::fn_8045617C() {
+    if (m55C != 6) {
+        fn_8016E970(3);
+    }
 }
 
 void LastCocoonEgg::fn_80456194() {
