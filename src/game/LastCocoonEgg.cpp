@@ -22,7 +22,10 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087F8A8;               // inferred: popup text manager
+extern "C" void* lbl_8087F8A8;
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)               // inferred: popup text manager
 extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
                             int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 // inferred: camera shake request of the field (lbl_8087F430); as in gmk/ShakeCamera.cpp
@@ -125,6 +128,13 @@ atn::Vector3 LastCocoonEgg::vf64(int center) {
     return result;
 }
 
+// NONMATCHING: 98% - the original stores the second zero vector first (as in vf40)
+void LastCocoonEgg::fn_80455D80() {
+    fn_80232B7C(this, 1000);
+    PlayEfp_unk(&m1928, &mMotion);
+    m1920 = 1;
+}
+
 void LastCocoonEgg::fn_80455E20() {
     float best = 0.0f;
     CharaTask* target = 0;
@@ -145,16 +155,35 @@ void LastCocoonEgg::fn_80455E20() {
     mC58.mC4 = target;
 }
 
-// NONMATCHING: 98% - the original stores the second zero vector first (as in vf40)
-void LastCocoonEgg::fn_80455D80() {
-    fn_80232B7C(this, 1000);
-    PlayEfp_unk(&m1928, &mMotion);
-    m1920 = 1;
-}
-
 void LastCocoonEgg::fn_8045617C() {
     if (m55C != 6) {
         fn_8016E970(3);
+    }
+}
+
+// inferred: the shield breaks (as vf40 without the popup text)
+void LastCocoonEgg::fn_80456194() {
+    if (m14BC == 0) {
+        if (m14C0 > 20) {
+            m14C0 = 0;
+            m14BC = 1;
+            m1968 = m14B8->mPos;
+            m1974 = m14B8->mRot;
+            m1974.z = 0.0f;
+            m1974.x = 0.0f;
+            fn_8023A8B4(lbl_8087F3C0, &m195C, 0, 0, m1968, m1974, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1,
+                        1.0f);
+        }
+    } else if (m14C0 > 15) {
+        Effect_unk* mgr = lbl_8087F048;
+        fn_800FAB80(mgr, this, fn_80219E6C(0x5AA), m590, &m1968, &m1974, 0, 30, -1, -1, 0.0f, 1.0f);
+        m14BC = 0;
+        m14C0 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
+        m2558 = 0;
+        m14CC = 1;
     }
 }
 
@@ -183,7 +212,6 @@ void LastCocoonEgg::fn_80456F04() {
     m2558 = 1;
 }
 
-// inferred: the shield breaks (as vf40 without the popup text)
 void LastCocoonEgg::fn_80456F94() {
     m14BC = 0;
     m14C0 = 0;

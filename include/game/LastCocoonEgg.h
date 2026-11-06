@@ -44,7 +44,8 @@ public:
     virtual void vf40(HitInfo_unk* hit);                   // 0x804549F8
     virtual atn::Vector3 vf64(int center);                 // 0x80454D08
     void fn_80455D80();
-    void fn_80455E20(); // inferred: targets the farthest attacker (or the leader) // inferred: plays the effect m1928 (m1920 = 1)
+    void fn_80455E20(); // inferred: targets the farthest attacker (or the leader)
+    void fn_80456194(); // inferred: aims and fires the bullet 0x5AA at the target // inferred: plays the effect m1928 (m1920 = 1)
     void fn_8045617C();
     void fn_80456DB8();
     void fn_80456F04();
@@ -54,7 +55,8 @@ public:
     CharaTask* m14B8;     // inferred: target
     int m14BC;
     int m14C0;
-    unsigned char m14C4[0x14D0 - 0x14C4];
+    unsigned char m14C4[0x14CC - 0x14C4];
+    int m14CC;
     float m14D0;
     float m14D4;
     unsigned char m14D8[0x14EC - 0x14D8];
@@ -68,7 +70,9 @@ public:
     int m194C;
     atn::EfpFile m1950;
     atn::EfpFile m195C;
-    unsigned char m1968[0x1980 - 0x1968];
+    atn::Vector3 m1968; // inferred: position of the shot
+    atn::Vector3 m1974; // inferred: direction of the shot
+
     int m1980;          // inferred: the shield is broken
     int m1984;
     atn::EfpFile m1988;
