@@ -105,7 +105,6 @@ WUDHidConnCallback WUDSetHidConnCallback(WUDHidConnCallback pCallback);
 void WUDSetVisibility(u8 disc, u8 conn);
 u8 WUDGetConnectable(void);
 
-void WUDiGetFirmwareVersion(void);
 void WUDiInitSub(void);
 
 void WUDiEnableStack(void);

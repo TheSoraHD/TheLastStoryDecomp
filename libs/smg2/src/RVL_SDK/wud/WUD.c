@@ -16,6 +16,9 @@
 
 #define BT_VSC_NINTENDO_INSTALL_PATCH 0xFC4F
 #define BT_VSC_NINTENDO_WRITE_PATCH 0xFC4C
+#define BT_VSC_NINTENDO_SUPER_PEEK_POKE 0xFC0A  // inferred: version of 2010 (Swiftshine/key)
+
+extern BOOL __OSInIPL;
 
 void WUDSecurityCallback(tBTA_DM_SEC_EVT event, tBTA_DM_SEC* pData);
 void WUDSearchCallback(tBTA_DM_SEARCH_EVT event, tBTA_DM_SEARCH* pData);
@@ -30,6 +33,7 @@ static WUDInitState fn_80670C70(void);
 void WUDiResetAuthFailCount(void);
 
 static void WUDiRemovePatch(void);
+static void WUDiSuperPeekPokeCallback(tBTM_VSC_CMPL* p1);
 static void WUDiWritePatch(void);
 static void WUDiInstallPatch(void);
 
@@ -61,6 +65,9 @@ typedef struct WUDWbcInfo {
 static WUDWbcInfo _wbcInfo;
 
 BD_ADDR_PTR _dev_handle_to_bda[WUD_MAX_DEV_ENTRY];
+// inferred: version of 2010, Wii Fit save data (RPHealth.dat) access (Swiftshine/key)
+static NANDFileInfo _nandFileInfo;
+static NANDCommandBlock _nandBlock;
 u16 _dev_handle_queue_size[WUD_MAX_DEV_ENTRY];
 u16 _dev_handle_notack_num[WUD_MAX_DEV_ENTRY];
 
@@ -232,7 +239,7 @@ static u8 WUDiUnknownDevice(void);
 static u8 WUDiTryConnecting(void);
 static int WUDiSetPinCode(BD_ADDR addr);
 static BOOL WUDiIsFinishLinkKeyCmd(void);
-static BOOL WUDiIsFinishScCmd(void);
+static BOOL WUDiIsBusyScCmd(void);
 static u8 WUDiSaveDeviceToNand(void);
 static void WUDiSaveFlush(void);
 static u8 WUDiVirginSimpleSync(void);
@@ -281,6 +288,7 @@ static void WUDiWritePatch(void);
 static void install_patch_cb(tBTM_VSC_CMPL* p1);
 static void WUDiInstallPatch(void);
 static void WUDiAppendRuntimePatch(void);
+static void WUDiGetFirmwareVersion(void);
 static void CleanupCallback(tBTA_STATUS status);
 
 
@@ -453,6 +461,10 @@ extern u32 __ntd_get_allocated_mem_size(void);
 
 
 
+
+// inferred: version of 2010, sent before the runtime patch when running from the system menu
+// (Swiftshine/key _wudSuperPeekPokeCmd)
+static u8 super_peek_poke[] = {0x05, 0x00, 0x9a, 0x0e, 0x00, 0x01, 0x00, 0x00, 0x00};
 
 // clang-format off
 static u8 patch_binary[] = {
@@ -963,8 +975,9 @@ static BOOL WUDiIsFinishLinkKeyCmd(void) {
     return _wcb.linkKeyState == WUD_STATE_LINK_KEY_START ? TRUE : FALSE;
 }
 
-static BOOL WUDiIsFinishScCmd(void) {
-    return SCCheckStatus() != SC_STATUS_BUSY ? TRUE : FALSE;
+// inferred: version of 2010 tests for busy (Swiftshine/key __wudIsBusyScCmd)
+static BOOL WUDiIsBusyScCmd(void) {
+    return SCCheckStatus() == SC_STATUS_BUSY;
 }
 
 // NONMATCHING: the original unrolls the loop of the inlined WUDiGetNewDevInfo (10 entries)
@@ -1136,12 +1149,13 @@ static u8 WUDiSyncError(void) {
     return _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? WUD_STATE_SYNC_DONE : WUD_STATE_SYNC_PREPARE_SEARCH;
 }
 
+// inferred: version of 2010 (Swiftshine/key __wudSyncStoredDevInfoToNand): asks to open the Wii
+// Fit data after storing a balance board on a Japanese console
 static u8 WUDiSaveDeviceToNand(void) {
-    WUDSyncState nextState = WUD_STATE_SYNC_COMPLETE;
-    u8 i;
     WUDDevInfoList* pIt;
+    u8 i;
 
-    if (!WUDiIsFinishScCmd()) {
+    if (WUDiIsBusyScCmd()) {
         return WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND;
     }
 
@@ -1149,21 +1163,27 @@ static u8 WUDiSaveDeviceToNand(void) {
 
     _scArray.num = WUDiGetDevNumber();
 
-    for (pIt = _wcb.stdListHead, i = 0; pIt != NULL; i++, pIt = pIt->next) {
+    pIt = _wcb.stdListHead;
+    i = 0;
+    while (pIt != NULL) {
         WUD_BDCPY(_scArray.info[i].bd_addr, pIt->devInfo->devAddr);
-
         memcpy(&_scArray.info[i].bd_name, &pIt->devInfo->conf, sizeof(SCDevInfo));
-    }
 
-    DEBUGPrint("%d devices is stored into SC.\n", i);
+        i++;
+        pIt = pIt->next;
+    }
 
     if (!SCSetBtDeviceInfoArray(&_scArray)) {
-        nextState = WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND;
-    } else {
-        nextState = WUD_STATE_SYNC_SC_FLUSH;
+        return WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND;
     }
 
-    return nextState;
+    i = WUD_STATE_SYNC_SC_FLUSH;
+
+    if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_WBC(_work.conf.devName) && SCGetProductGameRegion() == 0 /* JP */) {
+        i = 100;  // inferred: Wii Fit open state (see fn_8066F150)
+    }
+
+    return i;
 }
 
 static void WUDiSaveFlush(void) {
@@ -1253,6 +1273,42 @@ static void fn_8066F2B0(s32 result, NANDCommandBlock* block) {
     }
 
     _nandBusy = FALSE;
+}
+
+static inline void WUDiOpenWiiFitFile(void) {
+    if (_nandBusy) {
+        return;
+    }
+
+    _nandBusy = TRUE;
+    NANDOpenAsync("/title/00010004/52464e4a/data/RPHealth.dat", &_nandFileInfo, NAND_ACCESS_WRITE, fn_8066F150, &_nandBlock);
+}
+
+static inline void WUDiSeekWiiFitFile(void) {
+    if (_nandBusy) {
+        return;
+    }
+
+    _nandBusy = TRUE;
+    NANDSeekAsync(&_nandFileInfo, 0x4AF18, 0 /* NAND_SEEK_SET */, fn_8066F1C0, &_nandBlock);
+}
+
+static inline void WUDiUpdateWiiFitFile(void) {
+    if (_nandBusy) {
+        return;
+    }
+
+    _nandBusy = TRUE;
+    NANDWriteAsync(&_nandFileInfo, &_wbcInfo, 0x84, fn_8066F240, &_nandBlock);
+}
+
+static inline void WUDiCloseWiiFit(void) {
+    if (_nandBusy) {
+        return;
+    }
+
+    _nandBusy = TRUE;
+    NANDCloseAsync(&_nandFileInfo, fn_8066F2B0, &_nandBlock);
 }
 
 static u8 WUDiSyncDone(void) {
@@ -1399,6 +1455,27 @@ static void SyncHandler(void) {
 
     case WUD_STATE_SYNC_WAIT_FOR_INCOMING: {
         p->syncState = WUDiWaitForIncomingConnection();
+        break;
+    }
+
+    // inferred: version of 2010, update of the Wii Fit save data (Swiftshine/key)
+    case 0x64: {
+        WUDiOpenWiiFitFile();
+        break;
+    }
+
+    case 0x65: {
+        WUDiSeekWiiFitFile();
+        break;
+    }
+
+    case 0x66: {
+        WUDiUpdateWiiFitFile();
+        break;
+    }
+
+    case 0x67: {
+        WUDiCloseWiiFit();
         break;
     }
 
@@ -2506,7 +2583,6 @@ static void WUDiInstallPatch(void) {
 static void WUDiAppendRuntimePatch(void) {
     int i;
 
-    DEBUGPrint("WUDiAppendRuntimePatch()\n");
 
     size = 0;
     addr = 0;
@@ -2519,10 +2595,15 @@ static void WUDiAppendRuntimePatch(void) {
         size += patch_binary[7 - i];
     }
 
-    WUDiRemovePatch();
+    if (__OSInIPL) {
+        BTM_VendorSpecificCommand(BT_VSC_NINTENDO_SUPER_PEEK_POKE, sizeof(super_peek_poke), super_peek_poke, WUDiSuperPeekPokeCallback);
+    } else {
+        WUDiRemovePatch();
+    }
 }
 
-void WUDiGetFirmwareVersion(void) {
+// inferred: static in the version of 2010 (inlined into EnableStackHandler)
+static void WUDiGetFirmwareVersion(void) {
     tBTM_VERSION_INFO version;
     BTM_ReadLocalVersion(&version);
 
@@ -2587,6 +2668,12 @@ static void remove_patch_cb(tBTM_VSC_CMPL* p1) {
 
 static void WUDiRemovePatch(void) {
     BTM_VendorSpecificCommand(BT_VSC_NINTENDO_INSTALL_PATCH, sizeof(remove_patch), remove_patch, remove_patch_cb);
+}
+
+// inferred: version of 2010 (Swiftshine/key __wudSuperPeekPokeCallback)
+static void WUDiSuperPeekPokeCallback(tBTM_VSC_CMPL* p1) {
+#pragma unused(p1)
+    WUDiRemovePatch();
 }
 
 void WUDiInitSub() {
