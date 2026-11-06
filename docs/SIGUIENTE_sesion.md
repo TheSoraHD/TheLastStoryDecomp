@@ -51,6 +51,5 @@
 - No partir los símbolos `@wstringBase0`: dtk falla con "Non-terminated UTF-16 string".
 - Tras borrar `build/SLSP01/obj` hay que borrar también `build/SLSP01/config.json`.
 - `configure.py` sin flags intenta descargar los compiladores: usar la línea de `docs/entorno-nube.md`.
-- `odiff2.py` no recompila: compilar la unidad (o `fnstat.py`) antes. `tools/decomp/try.sh` busca los compiladores
-  en `../compilers`: en la nube están en `/home/claude/tls-build/build/compilers` (ajustar la ruta).
+- `odiff2.py` no recompila: compilar la unidad (o `fnstat.py`) antes.
 - Al renombrar un `fn_` en symbols.txt, renombrarlo también en **todos** los fuentes, o el enlace falla.
