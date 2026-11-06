@@ -24,6 +24,12 @@ struct QuadField_unk {
 extern "C" QuadField_unk* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
+// inferred: nodes of the hit spheres (fn_80461398)
+static const char* const sSphereNodes_unk[3] = {"head", "waist", "spine"};
+
+// inferred: angle used by fn_80460B48 (50 degrees; initialized in the __sinit; name invented)
+static float sAngle_unk = atn::DegToRad_unk(50.0f);
+
 // inferred: places the quadruped walks around (ids 601-610; names invented)
 struct QuadPlace_unk {
     int mId;
@@ -113,6 +119,25 @@ atn::Vector3 LastCocoonQuadruped::vf64(int center) {
     atn::Vector3 result = mPos;
     result = m624.mData[0].m04.mCenter;
     return result;
+}
+
+void LastCocoonQuadruped::fn_80461398() {
+    if (m624.mSize != 0) {
+        for (int i = 0; i < 3; i++) {
+            MtxPtr mtx = mMotion.GetNodeMtx_unk(sSphereNodes_unk[i]);
+            atn::Vector3 pos;
+            pos.x = mtx[0][3];
+            pos.y = mtx[1][3];
+            pos.z = mtx[2][3];
+            m624.mData[i].m04.mCenter = pos;
+            if (i == 1) {
+                m624.mData[i].m04.mRadius = 10.0f;
+            } else if (i == 2) {
+                m624.mData[i].m04.mCenter = (m624.mData[0].m04.mCenter + m624.mData[1].m04.mCenter) * 0.5f;
+                m624.mData[i].m04.mRadius = 17.0f;
+            }
+        }
+    }
 }
 
 void LastCocoonQuadruped::fn_804617A4() {
@@ -234,7 +259,7 @@ void LastCocoonQuadruped::fn_80466A04() {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
-    m17B0 |= 1;
+    m17A8.mFlags |= 1;
     fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
 }
 
@@ -256,29 +281,9 @@ void LastCocoonQuadruped::fn_80466B8C() {
     PlayEfp_unk(&m1790, &mMotion);
 }
 
-int LastCocoonQuadruped::vfE4() {
-    int ret = 0;
-    if (m58C == 16 && m14BC == 1) {
-        ret = 1;
-    }
-    return ret;
-}
-
-float LastCocoonQuadruped::vf90() {
-    return 3.0f;
-}
-
-// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in game/Em208Queen.cpp)
-inline RoutePlace_unk* FindQuadPlace_unk(RouteTable_unk* table, int id) {
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
-        if (id == places[i].mId) {
-            return &places[i];
-        }
-    }
-    return 0;
-}
-inline RoutePlace_unk* FindQuadPlace2_unk(int id) {
+// inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
+// (as in game/Em208Queen.cpp)
+inline RoutePlace_unk* FindQuadPlace_unk(int id) {
     RouteTable_unk* table = lbl_8087F430->m10D8;
     for (unsigned int i = 0; i < table->mNumPlaces; i++) {
         RoutePlace_unk* places = table->mPlaces;
@@ -301,7 +306,7 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
             }
         }
     }
-    RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(nextId);
+    RoutePlace_unk* place = FindQuadPlace_unk(nextId);
     if (place != 0) {
         pos = place->mPos;
     }
@@ -310,3 +315,17 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
     }
     return pos;
 }
+
+int LastCocoonQuadruped::vfE4() {
+    int ret = 0;
+    if (m58C == 16 && m14BC == 1) {
+        ret = 1;
+    }
+    return ret;
+}
+
+float LastCocoonQuadruped::vf90() {
+    return 3.0f;
+}
+
+LastCocoonQuadruped::~LastCocoonQuadruped() {}

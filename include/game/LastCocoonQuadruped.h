@@ -34,6 +34,7 @@ public:
     virtual float vf90();                                        // 0x80468D40
     virtual int vfE4();                                          // 0x80468D18
     void fn_804654F0(); // inferred: back to mode 0 at the end of the motion
+    void fn_80461398(); // inferred: places the hit spheres on the head, waist and spine
     void fn_804617A4(); // inferred: chooses the target of the mode
     void fn_80461838();
     void fn_804635B4();

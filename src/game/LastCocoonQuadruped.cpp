@@ -24,6 +24,9 @@ struct QuadField_unk {
 extern "C" QuadField_unk* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
+// inferred: nodes of the hit spheres (fn_80461398)
+static const char* const sSphereNodes_unk[3] = {"head", "waist", "spine"};
+
 // inferred: angle used by fn_80460B48 (50 degrees; initialized in the __sinit; name invented)
 static float sAngle_unk = atn::DegToRad_unk(50.0f);
 
@@ -116,6 +119,21 @@ atn::Vector3 LastCocoonQuadruped::vf64(int center) {
     atn::Vector3 result = mPos;
     result = m624.mData[0].m04.mCenter;
     return result;
+}
+
+void LastCocoonQuadruped::fn_80461398() {
+    if (m624.mSize != 0) {
+        for (int i = 0; i < 3; i++) {
+            MtxPtr mtx = mMotion.GetNodeMtx_unk(sSphereNodes_unk[i]);
+            m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)mtx)->GetTrans_unk();
+            if (i == 1) {
+                m624.mData[i].m04.mRadius = 10.0f;
+            } else if (i == 2) {
+                m624.mData[i].m04.mCenter = (m624.mData[0].m04.mCenter + m624.mData[1].m04.mCenter) * 0.5f;
+                m624.mData[i].m04.mRadius = 17.0f;
+            }
+        }
+    }
 }
 
 void LastCocoonQuadruped::fn_804617A4() {
