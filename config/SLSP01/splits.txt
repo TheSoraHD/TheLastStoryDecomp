@@ -5095,6 +5095,11 @@ RVL_SDK/src/revolution/nhttp/NHTTP_os_RVL.c:
 	.data       start:0x807BC4C0 end:0x807BC500
 	.sdata      start:0x8087ED50 end:0x8087ED58
 
+RVL_SDK/src/revolution/nhttp/NHTTP_stdlib_RVL.c:
+	.text       start:0x8069C7B0 end:0x8069D124
+	.rodata     start:0x80767278 end:0x807672A0
+	.data       start:0x807BC510 end:0x807BC558
+
 RVL_SDK/src/revolution/nhttp/d_nhttp.c:
 	.text       start:0x8069FFF8 end:0x806A0B48
 	.data       start:0x807BC628 end:0x807BC920
