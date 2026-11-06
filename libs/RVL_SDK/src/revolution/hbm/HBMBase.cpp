@@ -675,7 +675,7 @@ void HomeButton::init() {
     calc(NULL);
 
     mFader.init(30.0f / getInstance()->getHBMDataInfo()->frameDelta);
-    mFader.UNK_0xC = 1; // inferred: version of 2010
+    mFader.setFadeColorEnable(true); // inferred: version of 2010
 }
 
 void HomeButton::init_msg() {
@@ -821,7 +821,6 @@ void HomeButton::init_battery(const HBMControllerData* pController) {
     mGetPadInfoTime = 0;
 }
 
-// NONMATCHING: 86% - faltan cambios de 2010 (SimpleSync, bar_00/0x8E)
 void HomeButton::calc(const HBMControllerData* pController) {
     int i;
 
@@ -973,7 +972,7 @@ void HomeButton::calc(const HBMControllerData* pController) {
         mState = 5;
         mMsgCount = 0;
         mSoundRetryCnt = 0;
-        mSimpleSyncCallback = WPADSetSimpleSyncCallback(&SimpleSyncCallback);
+        WPADSetSimpleSyncCallback(&SimpleSyncCallback);  // inferred: 2010 saves the old callback in state 0
         mEndSimpleSyncFlag = false;
         mForthConnectFlag = false;
 
@@ -1379,7 +1378,7 @@ void HomeButton::calc(const HBMControllerData* pController) {
 
             mState = 17;
 
-            VISetBlack(TRUE);
+            VISetBlack(iVISetBlackFlag || !mFader.getFadeColorEnable());  // inferred: version of 2010
             VIFlush();
 
             fadeout_sound(0.0f);
@@ -1414,7 +1413,9 @@ void HomeButton::calc(const HBMControllerData* pController) {
         mBar1AnmRev = 0;
     }
 
-    if (pController != NULL) {
+    mFader.calc();  // inferred: version of 2010 updates the fader here
+
+    if (pController != NULL && mBatteryCheck) {  // inferred: version of 2010
         update(pController);
     }
 
@@ -2703,13 +2704,13 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
 
                 if (mSelectBtnNum == HBM_SELECT_BTN1) {
                     play_sound(HBM_SE_GOTO_MENU);
-                    mFader.UNK_0xC = 0; // inferred: version of 2010
+                    mFader.setFadeColorEnable(false); // inferred: version of 2010
                 } else if (mSelectBtnNum == HBM_SELECT_BTN2) {
                     play_sound(HBM_SE_RESET_APP);
-                    mFader.UNK_0xC = 1;
+                    mFader.setFadeColorEnable(true);
                 } else if (mSelectBtnNum == HBM_SELECT_BTN4) {
                     play_sound(HBM_SE_RESET_APP);
-                    mFader.UNK_0xC = 0;
+                    mFader.setFadeColorEnable(false);
                 }
 
                 break;
@@ -3119,7 +3120,7 @@ void HomeButton::BlackFader::draw() {
     u8 alpha = frame_ * 255 / maxFrame_;
 
     initgx();
-    GXColor clr = UNK_0xC ? (GXColor){red_, green_, blue_, alpha} : (GXColor){0, 0, 0, alpha};
+    GXColor clr = flag ? (GXColor){red_, green_, blue_, alpha} : (GXColor){0, 0, 0, alpha};
     drawBlackPlate(-1000.0f, -1000.0f, 1000.0f, 1000.0f, clr);
 }
 

@@ -66,7 +66,7 @@ private:
         BlackFader(int maxFrame) {
             init(maxFrame);
             setColor(0, 0, 0);
-            UNK_0xC = 1;
+            flag = true;
         }
 
         int getFrame() const {
@@ -74,6 +74,12 @@ private:
         }
         int getMaxFrame() const {
             return maxFrame_;
+        }
+        int getFadeColorEnable() const {
+            return flag;
+        }
+        void setFadeColorEnable(bool a) {
+            flag = a;
         }
 
         void setColor(u8 r, u8 g, u8 b) {
@@ -96,7 +102,7 @@ private:
         int frame_;    // at 0x0
         int maxFrame_; // at 0x4
         int state_;    // at 0x8
-        u8 UNK_0xC;    // inferred: version of 2010
+        bool flag;     // version of 2010 (name from Swiftshine/key)
         u8 red_;       // at 0xD
         u8 green_;     // at 0xE
         u8 blue_;      // at 0xF
