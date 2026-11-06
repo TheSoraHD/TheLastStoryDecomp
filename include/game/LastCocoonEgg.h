@@ -43,14 +43,15 @@ public:
     virtual void vf3C(HitInfo_unk* hit);                   // 0x804549E8
     virtual void vf40(HitInfo_unk* hit);                   // 0x804549F8
     virtual atn::Vector3 vf64(int center);                 // 0x80454D08
-    void fn_80455D80(); // inferred: plays the effect m1928 (m1920 = 1)
+    void fn_80455D80();
+    void fn_80455E20(); // inferred: targets the farthest attacker (or the leader) // inferred: plays the effect m1928 (m1920 = 1)
     void fn_8045617C();
     void fn_80456DB8();
     void fn_80456F04();
     void fn_80456F94(); // inferred: the shield breaks
 
     atn::LH_Binary m14B0; // inferred: parameter file
-    unsigned char m14B8[0x14BC - 0x14B8];
+    CharaTask* m14B8;     // inferred: target
     int m14BC;
     int m14C0;
     unsigned char m14C4[0x14D0 - 0x14C4];

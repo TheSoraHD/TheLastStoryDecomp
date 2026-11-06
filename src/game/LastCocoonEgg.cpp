@@ -1,4 +1,6 @@
 #include "game/LastCocoonEgg.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -19,6 +21,7 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F8A8;               // inferred: popup text manager
 extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
                             int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
@@ -120,6 +123,26 @@ atn::Vector3 LastCocoonEgg::vf64(int center) {
         result = m624.mData[0].m04.mCenter;
     }
     return result;
+}
+
+void LastCocoonEgg::fn_80455E20() {
+    float best = 0.0f;
+    CharaTask* target = 0;
+    mC58.mC8 = (int)mC58.mC4;
+    for (unsigned int i = 0; i < m19A0.size(); i++) {
+        atn::Vector3 d = m19A0[i].m00->mPos - mPos;
+        float dist = PSVECSquareMag(&d);
+        if (dist > best && !m19A0[i].m00->mStatus.IsState_unk(0x20000)) {
+            best = dist;
+            target = m19A0[i].m00;
+        }
+    }
+    if (target == 0) {
+        target = lbl_8087F8A0->mHead;
+    }
+    m1454 = 0;
+    m14B8 = target;
+    mC58.mC4 = target;
 }
 
 // NONMATCHING: 98% - the original stores the second zero vector first (as in vf40)
