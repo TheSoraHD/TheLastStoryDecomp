@@ -5106,6 +5106,18 @@ RVL_SDK/src/revolution/nhttp/NHTTP_os_RVL.c:
 	.data       start:0x807BC4C0 end:0x807BC500
 	.sdata      start:0x8087ED50 end:0x8087ED58
 
+RVL_SDK/src/revolution/nhttp/NHTTP_recvbuf.c:
+	.text       start:0x8069ABDC end:0x8069B278
+
+RVL_SDK/src/revolution/nhttp/NHTTP_request.c:
+	.text       start:0x8069B278 end:0x8069BCB4
+	.rodata     start:0x80767260 end:0x80767278
+	.data       start:0x807BC500 end:0x807BC510
+	.sdata      start:0x8087ED58 end:0x8087ED60
+
+RVL_SDK/src/revolution/nhttp/NHTTP_response.c:
+	.text       start:0x8069BCB4 end:0x8069BEB4
+
 RVL_SDK/src/revolution/nhttp/NHTTP_stdlib_RVL.c:
 	.text       start:0x8069C7B0 end:0x8069D124
 	.rodata     start:0x80767278 end:0x807672A0
