@@ -2183,6 +2183,7 @@ BOOL WPADIsDpdEnabled(s32 chan) {
 static void __dpdCb(s32 chan, s32 result) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
     p_wpd->dpdFormat = p_wpd->dpdCommand;
+    p_wpd->dpdBusy = 0;
     p_wpd->infos.dpd = (p_wpd->dpdCommand == 0) ? FALSE : TRUE;
 }
 
@@ -2252,6 +2253,7 @@ s32 WPADControlDpd(s32 chan, u32 command, WPADCallback callback) {
 
             if (__CanPushCmdQueue(&p_wpd->cmdq, 8)) {
                 p_wpd->dpdCommand = (u8)command;
+                p_wpd->dpdBusy = 1;
 
                 WPADiSendEnableDPD(&p_wpd->cmdq, TRUE, NULL);
                 WPADiSendDPDCSB(&p_wpd->cmdq, TRUE, NULL);
