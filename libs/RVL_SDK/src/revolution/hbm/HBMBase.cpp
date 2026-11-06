@@ -2413,6 +2413,10 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
             case res::eFuncTouchPane_B_bar_10:
             case res::eFuncTouchPane_cntrl_00: {
                 if (mSequence == eSeq_Control) {
+                    mpLayout->GetRootPane()
+                        ->FindPaneByName("bar_00", true)
+                        ->SetVisible(true);
+
                     mpPairGroupAnmController[res::ePairAnm_hmMenu_bar_psh]
                         ->start();
 
@@ -2468,8 +2472,7 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     } else {
                         play_sound(HBM_SE_VOLUME_MINUS);
@@ -2478,8 +2481,7 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     }
 
@@ -2513,8 +2515,7 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     } else {
                         play_sound(HBM_SE_VOLUME_PLUS);
@@ -2523,8 +2524,7 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
                             getController(i)->setSpeakerVol(
                                 mVolumeNum / static_cast<f32>(HBM_MAX_VOLUME));
 
-                            //getController(i)->playSound(mpSoundArchivePlayer,
-                            //                            HBM_SPK_SE_CONNECT1);
+                            getController(i)->playSound(1); // inferred: speaker sound 1 (version of 2010)
                         }
                     }
 
@@ -2644,8 +2644,13 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
 
                 if (mSelectBtnNum == HBM_SELECT_BTN1) {
                     play_sound(HBM_SE_GOTO_MENU);
+                    mFader.UNK_0xC = 0; // inferred: version of 2010
                 } else if (mSelectBtnNum == HBM_SELECT_BTN2) {
                     play_sound(HBM_SE_RESET_APP);
+                    mFader.UNK_0xC = 1;
+                } else if (mSelectBtnNum == HBM_SELECT_BTN4) {
+                    play_sound(HBM_SE_RESET_APP);
+                    mFader.UNK_0xC = 0;
                 }
 
                 break;
