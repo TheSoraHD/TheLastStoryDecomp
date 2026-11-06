@@ -16,6 +16,8 @@ struct MapSelectPair_unk {
 };
 
 
+class SelectMember;
+
 // inferred: point of the map read from map_param.csv (0x94 bytes, 64 of them at 0x19D0); names invented
 struct MapSelectPoint_unk {
     MapSelectPoint_unk() { Clear_unk(); }
@@ -81,6 +83,7 @@ public:
     virtual void vf1C(NewCampScene_unk* scene);                    // 0x8051CA74
     virtual void vf20();                                           // 0x8051EC50
     virtual void vf24();                                           // 0x8051EF20
+    virtual void vf2C();                                           // 0x8051F7D0
     virtual void vf30();                                           // 0x8051FF5C
     virtual void vf40(void* menu);                                 // 0x8051C3DC
     virtual void vf44();                                           // 0x80521C9C
@@ -93,6 +96,7 @@ public:
     void fn_8051FB7C(int state); // inferred: changes the state of the cursor (m1998)
     void fn_80521A00(int dir);
     void fn_80520098();
+    void Answer_unk();
     int fn_80521010(); // inferred: places the marks of the routes; returns 0 when ready
     void fn_80520B04();
     void fn_8051FD20(); // inferred: input of the cursor state
@@ -166,7 +170,7 @@ public:
     unsigned char m18FC[0x1900 - 0x18FC];
     float m1900;
     atn::Task* mMapName;                 // 0x1904: map_name.d2a
-    atn::Task* m1908;                    // inferred: deleted by the destructor (fn_800D2338)
+    SelectMember* m1908;                 // inferred: member select of the route (deleted by the destructor)
     int m190C;                           // inferred: number of entries of m1910
     ArrayPtr_unk<NewCampPartsEntry_unk> m1910;
     MapSelectBack_unk m1914[6];

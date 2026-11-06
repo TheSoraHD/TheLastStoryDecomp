@@ -14,6 +14,7 @@
 #include "game/TacView.h"
 #include "game/TownTask.h"
 #include "atn/Csv.h"
+#include "atn/FadeCommon.h"
 #include "game/PlayerManager.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
@@ -184,6 +185,7 @@ static inline int FindArea_unk(const char* name) {
     }
     return -1;
 }
+extern "C" void fn_80530CD0(atn::Task* camp, int a);
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -324,9 +326,6 @@ void NewCampPartsMapSelect::vf40(void* menu) {
     fn_80087E9C(group, "BasePos", &mC8, 0, 0, -1000000.0f, 1000000.0f, 1.0f);
 }
 
-// NONMATCHING: 95% - the original keeps i * 0x94 and i * 0x40 + 0x20 as induction variables
-// NONMATCHING: the route search of the camp is kept (dead) in the original; the anime of the thumbnail is
-// reloaded after sprintf there
 inline void NewCampPartsMapSelect::SetCursorPoint_unk(MapSelectPoint_unk* point) {
     if (point != 0) {
         m480C = point->m18->mMtx.GetTrans_unk();
@@ -338,6 +337,7 @@ inline void NewCampPartsMapSelect::SetCursorPoint_unk(MapSelectPoint_unk* point)
     }
 }
 
+// NONMATCHING: 95% - the original keeps i * 0x94 and i * 0x40 + 0x20 as induction variables
 int NewCampPartsMapSelect::vf4C() {
     if (mParam.fn_80473F50()) {
         return 1;
@@ -451,6 +451,8 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
     vf3C(0);
 }
 
+// NONMATCHING: 89% - the route search of the camp is kept (dead) in the original; the anime of the thumbnail is
+// reloaded after sprintf there
 void NewCampPartsMapSelect::vf20() {
     if (m96) {
         for (int i = 0; i < m4C; i++) {
@@ -500,6 +502,96 @@ void NewCampPartsMapSelect::vf24() {
     for (int i = 0; i < m4C; i++) {
         mPoints.mData[i].m28 = 0.0f;
         SetEntryScale_unk(&m50[i], 0.0f);
+    }
+}
+
+// inferred: answer of the dialog of fn_8051FB7C (state 2); name invented
+inline void NewCampPartsMapSelect::Answer_unk() {
+    if (MenuCommonTask::sInstance->m68 == 0) {
+        fn_80117228(1);
+        fn_8051FB7C(3);
+    } else {
+        fn_80117228(2);
+        fn_8051FB7C(m199C);
+    }
+}
+
+// NONMATCHING: 95.8% - scheduling of the inlined SetCursorPoint_unk (same as vf30)
+void NewCampPartsMapSelect::vf2C() {
+    if (fn_80521010()) {
+        return;
+    }
+    if (mD5) {
+        fn_80520098();
+        return;
+    }
+    switch (m1998) {
+    case 4:
+        if (m19B8 >= 1.0f) {
+            fn_8051FB7C(0);
+        }
+        break;
+    case 5:
+        if (m19B8 <= 0.0f) {
+            switch (m19A8) {
+            case 0:
+                if (m19B0 == 1) {
+                    m19A4 = 501;
+                } else {
+                    m19A4 = 503;
+                }
+                break;
+            case 1:
+                m19A4 = 500;
+                break;
+            case 2:
+                m19A4 = 502;
+                break;
+            }
+            m19A8 = m19B0;
+            SetCursorPoint_unk(FindPoint_unk(m19A4));
+            fn_8051FB7C(4);
+        }
+        break;
+    case 0:
+        fn_8051FD20();
+        break;
+    case 1:
+        if (m1908 == 0) {
+            fn_8051FB7C(0);
+        } else if (m1908->mState == 1) {
+            if (m1908->mDecided) {
+                fn_8051FB7C(2);
+            } else {
+                fn_8051FB7C(0);
+            }
+            if (m1908 != 0) {
+                fn_800D2338(m1908);
+                m1908 = 0;
+            }
+        }
+        break;
+    case 2:
+        Answer_unk();
+        break;
+    case 3:
+        m19C0 += 1.0f;
+        if (15.0f <= m19C0 && m19C0 < 16.0f) {
+            fn_80530CD0(m48, 15);
+        } else if (30.0f <= m19C0 && lbl_8087F430 != 0) {
+            lbl_8087F430->m5624->m78 = 0x12;
+            lbl_8087F430->m5624->Capture();
+            mD5 = 1;
+        }
+        break;
+    }
+    mD7 = 1;
+    if (fn_800A555C(lbl_8087EF70, 0, 6)) {
+        fn_80117228(0x21);
+        mDC++;
+        if (mDC > 1) {
+            mDC = 0;
+        }
     }
 }
 
@@ -597,6 +689,7 @@ void NewCampPartsMapSelect::fn_8051FD20() {
     }
 }
 
+// NONMATCHING: 95% - volatile registers of the inlined point search (index/pointer/id)
 void NewCampPartsMapSelect::vf30() {
     int id = m19A0;
     m19A4 = id;
@@ -609,7 +702,6 @@ void NewCampPartsMapSelect::vf30() {
     mDC = 1;
 }
 
-// NONMATCHING: volatile registers of the inlined point search (index/pointer/id)
 void NewCampPartsMapSelect::fn_80520098() {
     if (lbl_8087F430 == 0) {
         return;
@@ -932,6 +1024,7 @@ void NewCampPartsMapSelect::vf44() {
     }
 }
 
+// NONMATCHING: 99.8% - only the offset of its string in @stringBase0 (strings of vf10/vf14 not written yet)
 void NewCampPartsMapSelect::vf48() {
     float frame = 0.0f;
     for (int i = 0; i < m4C; i++) {
