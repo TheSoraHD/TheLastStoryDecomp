@@ -1,4 +1,4 @@
-Inicio: 2026-11-06 11:36 CET (cierre minimo 2026-11-06 17:36)
+Inicio: 2026-11-06 11:36 CET (cierre minimo 2026-11-06 17:36). Fin: 2026-11-06 17:36 CET
 
 # unidades-20261106b: librerias 2010 y unidades que faltan (sesion larga autonoma, tercera)
 
