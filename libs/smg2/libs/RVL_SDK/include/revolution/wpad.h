@@ -315,6 +315,17 @@ typedef struct WPADExtConfig {
     };
 } WPADExtConfig;
 
+// inferred: blocks of the version of 2010 reset by __ClearControlBlock (first word set to 1)
+typedef struct WPADBlk48_unk {
+    u32 m00;
+    u8 m04[0x44];
+} WPADBlk48_unk;
+
+typedef struct WPADBlk108_unk {
+    u32 m00;
+    u8 m04[0x104];
+} WPADBlk108_unk;
+
 typedef struct WPADControlBlock {
     WPADMEMGameInfo gameInfo;
     s32 gameInfoErr[2];
@@ -356,16 +367,38 @@ typedef struct WPADControlBlock {
     BOOL setup;
     BOOL oldFw;
     OSThreadQueue threadq;
-    u8 UNK_0x934[0x1B4]; // inferred: new fields of the version of 2010
+    // inferred: fields of the version of 2010 (Motion Plus and balance board support), named by offset
+    u8 UNK_0x930[4];
+    u8 UNK_0x934;
+    u8 UNK_0x935;
+    u8 UNK_0x936;
+    u8 UNK_0x937;
+    u8 UNK_0x938;
+    u8 UNK_0x939;
+    u8 UNK_0x93A;
+    u8 UNK_0x93B[3];
+    u8 UNK_0x93E;
+    u8 UNK_0x93F;
+    u8 UNK_0x940[2];
+    u16 UNK_0x942;
+    s8 UNK_0x944;
+    u8 UNK_0x945;
+    u8 UNK_0x946;
+    s8 UNK_0x947;
+    u32 UNK_0x948;
+    WPADBlk48_unk UNK_0x94C;
+    WPADBlk48_unk UNK_0x994;
+    WPADBlk108_unk UNK_0x9DC;
+    u32 UNK_0xAE4;
     OSTime lastUpdateTime;
     u16 diffCountDpd;
-    u16 hystCountDpd;
     u16 diffCountAcc;
-    u16 hystCountAcc;
     u16 diffCountfsAcc;
+    u16 diffCountMpls_unk; // inferred: version 2010
+    u16 hystCountDpd;
+    u16 hystCountAcc;
     u16 hystCountfsAcc;
-    u16 UNK_0xAFC; // inferred: version 2010
-    u16 UNK_0xAFE; // inferred: version 2010
+    u16 hystCountMpls_unk; // inferred: version 2010
     OSTime cmdTimer;
     u8 cmdTimeoutAction;
     u8 isSetStickOrigin;
@@ -387,18 +420,28 @@ typedef struct WPADControlBlock {
     u8 infoLocked;
     u8 extEnc;
     u8 pwrSave;
-    u8 padding2;
+    u8 UNK_0xB87; // inferred: set to 4 at reset (version 2010)
     u8 UNK_0xB88; // inferred: copy of devType taken at connection (version 2010)
-    u8 UNK_0xB89[0x13];
+    u8 UNK_0xB89;
+    u16 UNK_0xB8A;
+    u8 UNK_0xB8C[0x10];
     WPADCallback UNK_0xB9C; // inferred: memory-access callback (_wmb[chan].callback in older versions)
-    u8 UNK_0xBA0[0x6];
-    u8 dpdBusy; // inferred: set while the DPD is being enabled (0xBA6, version 2010)
+    u32 UNK_0xBA0;
+    u8 UNK_0xBA4[2];
+    u8 dpdBusy; // inferred: set while the DPD is being enabled (version 2010)
     u8 UNK_0xBA7;
-    u8 UNK_0xBA8[0x6];
+    u8 UNK_0xBA8[5];
+    u8 UNK_0xBAD;
     u8 UNK_0xBAE;
-    u8 UNK_0xBAF[0xF];
+    u8 UNK_0xBAF[9];
+    u8 UNK_0xBB8;
+    s8 UNK_0xBB9;
+    u8 UNK_0xBBA;
+    u8 UNK_0xBBB;
+    u8 UNK_0xBBC[2];
     s8 UNK_0xBBE;
-    u8 UNK_0xBBF[0x9]; // inferred: new fields of the version of 2010
+    u8 UNK_0xBBF;
+    u8 UNK_0xBC0[0x20];
 } WPADControlBlock;
 
 typedef struct WPADMEMControlBlock {

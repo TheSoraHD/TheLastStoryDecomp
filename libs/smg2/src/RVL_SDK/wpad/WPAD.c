@@ -34,7 +34,8 @@ DVDDiskID _diskId;
 // inferred: WUD helper of the version of 2010 (stores or clears the address of a registered device)
 void fn_80673E20(int index, u8* addr);
 BOOL fn_80673EA0(int index, u8* addr);
-s32 fn_8066E8F0(void); // inferred: WUD flag of the version of 2010 (balance board allowed) // inferred: WUD helper, TRUE if the address is the registered one
+s32 fn_8066E8F0(void);
+void fn_8066DF70(s32 chan); // inferred: resets the memory-access block of a channel (WPADMem, version 2010) // inferred: WUD flag of the version of 2010 (balance board allowed) // inferred: WUD helper, TRUE if the address is the registered one
 
 static u8 _scSetting;
 static vu8 _shutdown;
@@ -1049,8 +1050,6 @@ void WPADiManageHandler0(OSAlarm* alarm, OSContext* context) {
 static void __ClearControlBlock(s32 chan) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
 
-    p_wpd->rxBufIndex = 0;
-
     p_wpd->infoBuf = NULL;
     p_wpd->motor = FALSE;
 
@@ -1077,6 +1076,8 @@ static void __ClearControlBlock(s32 chan) {
     p_wpd->hystCountAcc = 0;
     p_wpd->diffCountfsAcc = 0;
     p_wpd->hystCountfsAcc = 0;
+    p_wpd->diffCountMpls_unk = 0;
+    p_wpd->hystCountMpls_unk = 0;
 
     p_wpd->lastUpdateTime = __OSGetSystemTime();
     p_wpd->cmdTimer = __OSGetSystemTime();
@@ -1106,17 +1107,26 @@ static void __ClearControlBlock(s32 chan) {
     p_wpd->infoCallback = NULL;
 
     p_wpd->pwrSave = 0;
+    p_wpd->UNK_0xB87 = 4;
+    p_wpd->UNK_0xB88 = WPAD_DEV_NOT_FOUND;
+    p_wpd->UNK_0xB89 = 0;
+    p_wpd->UNK_0xB8A = 0;
+    p_wpd->UNK_0xBA7 = 0;
 
     memset(&p_wpd->infos, 0, sizeof(WPADInfo));
     memset(p_wpd->readBuf, 0, sizeof(p_wpd->readBuf));
-    memset(p_wpd->rxBuf, 0, WPAD_RX_DATASIZE * 2);
-    memset(p_wpd->prBuf, 0, WPAD_RX_DATASIZE);
     memset(&p_wpd->conf, 0, sizeof(WPADConfig));
     memset(&p_wpd->extConf, 0, sizeof(WPADExtConfig));
     memset(&p_wpd->key, 0, sizeof(p_wpd->key));
     memset(&p_wpd->ft, 0, sizeof(p_wpd->ft));
     memset(&p_wpd->sb, 0, sizeof(p_wpd->sb));
     memset(&p_wpd->gameInfo, 0, sizeof(WPADMEMGameInfo));
+
+    p_wpd->rxBufIndex = 0;
+    memset(p_wpd->rxBuf, 0, WPAD_RX_DATASIZE * 2);
+    ((WPADStatus*)p_wpd->rxBuf)->err = WPAD_ERR_NO_CONTROLLER;
+    ((WPADStatus*)(p_wpd->rxBuf + WPAD_RX_DATASIZE))->err = WPAD_ERR_NO_CONTROLLER;
+    memcpy(p_wpd->prBuf, p_wpd->rxBuf, WPAD_RX_DATASIZE);
 
     p_wpd->gameInfoErr[0] = WPAD_ERR_NO_CONTROLLER;
     p_wpd->gameInfoErr[1] = WPAD_ERR_NO_CONTROLLER;
@@ -1127,14 +1137,42 @@ static void __ClearControlBlock(s32 chan) {
     WPADiClearQueue(&p_wpd->cmdq);
     WPADiClearQueue(&p_wpd->extq);
 
-    _wmb[chan].used = FALSE;
-    _wmb[chan].p_buf = NULL;
-    _wmb[chan].len = 0;
-    _wmb[chan].addr = 0;
-    _wmb[chan].callback = NULL;
+    p_wpd->UNK_0x93A = 0;
+    p_wpd->UNK_0x934 = 0;
+    p_wpd->UNK_0x935 = 0;
+    p_wpd->UNK_0x936 = 0;
+    p_wpd->UNK_0x938 = 0;
+    p_wpd->UNK_0x937 = 3;
+    p_wpd->UNK_0x939 = 5;
+    p_wpd->UNK_0xBA0 = 0;
+    p_wpd->UNK_0xBAD = 0;
+    p_wpd->UNK_0x944 = -1;
+    p_wpd->UNK_0x945 = 0;
+    p_wpd->UNK_0x947 = -1;
+    p_wpd->UNK_0x946 = 0;
+    p_wpd->UNK_0x942 = 3000;
+    p_wpd->UNK_0x93F = 2;
+    p_wpd->UNK_0x93E = 0;
+    p_wpd->UNK_0x948 = 0;
+    memset(&p_wpd->UNK_0x94C, 0, sizeof(WPADBlk48_unk));
+    memset(&p_wpd->UNK_0x994, 0, sizeof(WPADBlk48_unk));
+    memset(&p_wpd->UNK_0x9DC, 0, sizeof(WPADBlk108_unk));
+    p_wpd->UNK_0x9DC.m00 = 1;
+    p_wpd->UNK_0x994.m00 = 1;
+    p_wpd->UNK_0x94C.m00 = 1;
+
+    p_wpd->UNK_0xBB8 = 0;
+    p_wpd->UNK_0xBB9 = -1;
+    p_wpd->UNK_0xBBB = WPAD_DEV_NOT_FOUND;
+    p_wpd->UNK_0xBBA = 0;
+    memset(p_wpd->UNK_0xBC0, 0, sizeof(p_wpd->UNK_0xBC0));
+
+    fn_8066DF70(chan);
+    p_wpd->UNK_0xAE4 = 0;
 
     _extCnt[chan] = 0;
     _rumbleCnt[chan] = 0;
+    p_wpd->UNK_0xBBE = -1;
 }
 
 BOOL __SetSensorBarPower(BOOL flag) {
