@@ -92,6 +92,8 @@ python3 tools/decomp/ordercheck.py <unidad> [-v]               # orden del fuent
 python3 tools/decomp/reorder.py <unidad> [--dry]               # reescribe el .cpp en orden del .dol (luego cmp.py)
 python3 tools/decomp/autoscan.py --min 0x100 [--unit X] [--data]      # tramos auto_ (borrar antes build/SLSP01/asm)
 tools/decomp/try.sh test.cpp                                   # compila un fichero suelto con flags del juego
+tools/decomp/mkref.sh                                          # referencia en $REF (report, labelcheck, rep100) tras build limpio
+tools/decomp/precommit.sh [--pd] <unidades...>                 # todas las comprobaciones antes de un commit: PRECOMMIT OK/FAIL
 ```
 
 ## Flujo por unidad/función

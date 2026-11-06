@@ -60,3 +60,9 @@ Sin argumentos recorren todas las unidades del juego sin enlazar que tienen fuen
 - `tomember.py <func> <ficheros...>`: convierte llamadas `func(obj, ...)` de una `extern "C"` con `self` en llamadas a método y quita la declaración (revisar el diff).
 - `noinl.sh <unidad> <Clase::metodo>`: prueba `__declspec(noinline)` en esa definición y muestra el cambio de `fnstat`.
 - `scanlib.py`: funciones comunes.
+
+## mkref.sh / precommit.sh (2026-11-06)
+
+- `mkref.sh`: tras un build limpio de `main`, guarda en `$REF` (por defecto `/home/claude/ref`) `report.json`, la lista de unidades con `.o` y split, su `labelcheck` y `rep100`.
+- `precommit.sh [--pd] <unidades...>`: `pd.sh`/`pdbatch.sh` opcional, `ninja` (`main.dol: OK`), regress, fuzzdrop, ordercheck, mnemcheck y poolcheck de las unidades, y labelcheck (solo cuenta si una unidad tiene mas etiquetas sin emparejar que en la referencia) + rep100 frente a `$REF`. Ultima linea `PRECOMMIT OK` o `PRECOMMIT FAIL: <motivos>`.
+- `try.sh` busca los compiladores en `$COMPILERS`, `build/compilers`, `../compilers` o `/home/claude/tls-build/build/compilers`.
