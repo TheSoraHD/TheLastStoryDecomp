@@ -35,7 +35,8 @@ DVDDiskID _diskId;
 void fn_80673E20(int index, u8* addr);
 BOOL fn_80673EA0(int index, u8* addr);
 s32 fn_8066E8F0(void);
-void fn_8066DF70(s32 chan); // inferred: resets the memory-access block of a channel (WPADMem, version 2010) // inferred: WUD flag of the version of 2010 (balance board allowed) // inferred: WUD helper, TRUE if the address is the registered one
+void fn_8066DF70(s32 chan);
+s32 fn_8066DFA0(s32 chan, void* buf, u16 len, u8 regHi, u8 regLo, WPADCallback callback); // inferred: writes an extension register (WPADMem, version 2010) // inferred: resets the memory-access block of a channel (WPADMem, version 2010) // inferred: WUD flag of the version of 2010 (balance board allowed) // inferred: WUD helper, TRUE if the address is the registered one
 
 static u8 _scSetting;
 static vu8 _shutdown;
@@ -2467,6 +2468,68 @@ static void __SendData(s32 chan, WPADCommand cmd) {
     }
 
     BTA_HhSendData((u8)handle, p_buf);
+}
+
+// inferred: name from later SDKs (balance board power control, version 2010)
+s32 WPADControlBLC(s32 chan, u8 command, WPADCallback callback) {
+    WPADControlBlock* p_wpd = _wpdcb[chan];
+    BOOL enable;
+    s32 status;
+    BOOL setup;
+    u8 data[7];
+
+    enable = OSDisableInterrupts();
+    status = p_wpd->status;
+    setup = p_wpd->setup;
+    OSRestoreInterrupts(enable);
+
+    if (status != WPAD_ERR_NO_CONTROLLER) {
+        if (!setup || !fn_8066E8F0()) {
+            status = WPAD_ERR_BUSY;
+        } else {
+            data[0] = data[1] = data[2] = 0xAA;
+            data[3] = 0x55;
+            data[4] = data[5] = data[6] = command;
+
+            enable = OSDisableInterrupts();
+            switch (command) {
+            case 0xAA:
+                if (__CanPushCmdQueue(&p_wpd->cmdq, 4)) {
+                    fn_8066DFA0(chan, data, 7, 0xA4, 0xF1, NULL);
+                    fn_8066DFA0(chan, data, 1, 0xA4, 0xF1, NULL);
+                    fn_8066DFA0(chan, data, 1, 0xA4, 0xF1, NULL);
+                    fn_8066DFA0(chan, data, 1, 0xA4, 0xF1, callback);
+                    OSRestoreInterrupts(enable);
+                    return WPAD_ERR_NONE;
+                }
+                status = WPAD_ERR_BUSY;
+                break;
+            case 0x55:
+                status = fn_8066DFA0(chan, data, 7, 0xA4, 0xF1, callback);
+                if (status == WPAD_ERR_NONE) {
+                    OSRestoreInterrupts(enable);
+                    return WPAD_ERR_NONE;
+                }
+                break;
+            case 0x00:
+                status = fn_8066DFA0(chan, data, 1, 0xA4, 0xF1, callback);
+                if (status == WPAD_ERR_NONE) {
+                    OSRestoreInterrupts(enable);
+                    return WPAD_ERR_NONE;
+                }
+                break;
+            default:
+                status = WPAD_ERR_BUSY;
+                break;
+            }
+            OSRestoreInterrupts(enable);
+        }
+    }
+
+    if (callback) {
+        callback(chan, status);
+    }
+    return status;
 }
 
 // inferred: version 2010, called from KPAD; returns devMode for the Motion Plus device types (5..7, 0xFA)
