@@ -73,22 +73,22 @@ static u8 _discNumResps;
 static s8 _discRssi;
 static u8 _normalTarget;
 static u8 _scFlush;
-static u32 size = 0;
-static s32 offset = 0;
-static u32 addr = 0;
-static u8 patch_num = 0;
-static u8 install_num = 0;
+static u32 size;
+static s32 offset;
+static u32 addr;
+static u8 patch_num;
+static u8 install_num;
 static u8 _nandBusy;
 static s32 _nandStep;
 static u32 _wbcSeed;
 static s32 _wudFlag;
 static void (*_initWBC)(void);  // inferred: balance board library hook (KEY _initWBC, weak there)
 static u8* _nandBufPtr;         // inferred: work area for RPHealth.dat (KEY _wudNandBufPtr)
-static u8 __bte_trace_level = 0;
-static u8 remove_patch[] = {0x00};
-static volatile BOOL _abortSync = FALSE;
-static BOOL _readNand = FALSE;
-static BOOL _initialized = FALSE;
+static u8 __bte_trace_level;
+static u8 remove_patch;
+static volatile BOOL _abortSync;
+static BOOL _readNand;
+static BOOL _initialized;
 
 
 
@@ -2843,7 +2843,7 @@ static void remove_patch_cb(tBTM_VSC_CMPL* p1) {
 }
 
 static void WUDiRemovePatch(void) {
-    BTM_VendorSpecificCommand(BT_VSC_NINTENDO_INSTALL_PATCH, sizeof(remove_patch), remove_patch, remove_patch_cb);
+    BTM_VendorSpecificCommand(BT_VSC_NINTENDO_INSTALL_PATCH, sizeof(remove_patch), &remove_patch, remove_patch_cb);
 }
 
 // inferred: version of 2010 (Swiftshine/key __wudSuperPeekPokeCallback)
@@ -3800,7 +3800,7 @@ void WUDVendorSpecificCallback(UINT8 len, UINT8* pData) {
         DEBUGPrint("VSE:- WATCH_DOG_RESET  HW error = %d\n", pData[1]);
 
         // clang-format off
-#line 4346
+#line 5387  // version of 2010
         OS_ERROR("MODULE FATAL ERROR\n");
         // clang-format on
         break;
@@ -3928,7 +3928,7 @@ void WUDStoredLinkKeyCallback(void* p1) {
 
     default: {
         // clang-format off
-#line 4498
+#line 5544  // version of 2010
         OS_ERROR("Unknown event\n");
         // clang-format on
     }
