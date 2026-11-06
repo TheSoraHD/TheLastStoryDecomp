@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `unidades-20261106b` (2026-11-06, mergeada en `main`): **13619 / 18117**, lost 0, 652 enlazados. KPAD 2010 33/33 (no enlaza: orden de `.sdata2`), `KPADMpls_unk` 10/16 + `KPADMplsMath_unk` 4/6; menus MP: `D2AMpMenuSetMessage` 20/26 (nueva), `D2AMpMenu` 20/41 (nueva, con `D2AMpMenuRankMark`), `D2AMpMenuLobby` 15/39 (nueva), `game/NewCampPartsItem` 15/41 (nueva), MessageList/Result `__sinit`; cabeceras `include/MP/D2AMpMenu*.h`. Notas: `docs/unidades-20261106b.md`.
-- `unidades-20261106` (mergeada): 13524, SDK 2010 desde fuentes CC0 (WPAD, AXFX, NHTTP, SO, VF, DWC, HBM, WUD, CX); `docs/unidades-20261106.md`. `unidades-20261105` 12766 (`docs/unidades-20261105.md`); `maptask-20261105` 12710; `maparea-20261105` 12703; `scene-20261105` 12686.
-- `nw4r-20261105` 12684 (snd_StrmPlayer enlazada; `docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679. `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
+- `hermanas-20261106` (2026-11-07, rama sin mergear): **13737 / 18117**, lost 0, 652 enlazados. Unidades nuevas con hermana: `ShopBase` 33/48, `CosEditProtector` 18/25, `NewCampPartsMapSelect` 11/26, `NewCampTask` 7/64 (cabecera nueva, métodos como miembros), `LastCocoonQuadruped` 24/54, `LastCocoonImago` 14/36, `LastCocoonEgg` 11/42. Notas: `docs/hermanas-20261106.md`.
+- `unidades-20261106b` (mergeada): 13619, KPAD 2010, menus MP (`D2AMpMenu*`), `NewCampPartsItem`; `docs/unidades-20261106b.md`. `unidades-20261106` 13524 (SDK 2010 CC0; `docs/unidades-20261106.md`); `unidades-20261105` 12766.
+- `maptask-20261105` 12710; `maparea-20261105` 12703; `scene-20261105` 12686; `nw4r-20261105` 12684 (`docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679; `event100-20261104` 12577; `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
 - `auto-20261101d`: 11636, asserts vacios para el presupuesto de inlining, `db/SkillParam_unk` enlazada (`docs/auto-20261101d.md`); `auto-20261101c` (11574), `auto-20261101b` (11569), `auto-20261101` (11463), `auto-20261031c` (11284: NW4R snd/ut, MSL, MetroTRK, bte).
