@@ -1,6 +1,6 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-06, cierre de `unidades-20261106b`, sin mergear)
+## Estado actual (2026-11-06, `unidades-20261106b` mergeada en `main`)
 
 - Rama `unidades-20261106b` (desde `main` c6fdafc, 13524): report **13619 / 18117** (lost 0, fuzzdrop 0,
   `main.dol: OK` en build limpio y en clon limpio, 652 unidades enlazadas). Notas y decisiones:
