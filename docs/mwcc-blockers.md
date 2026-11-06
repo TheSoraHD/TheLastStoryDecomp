@@ -172,3 +172,10 @@ jugador r4, desplazamiento r5. Probado sin cambio: aid `unsigned char`/`int` en 
 sesion de parametro, sesion en variable local, `ret`/`break` en vez de `return`, indexado directo `m5E4[j].mCC`, aid
 en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el original convierte el aid con
 `clrlwi r4, r0, 24` antes del bucle (parametro de 8 bits en la busqueda real).
+
+## hermanas-20261106
+
+- Orden de los registros de un bloque grande de un bucle (NewCampPartsMapSelect `fn_80520B04`, 97,8%: el original da r31-r25 a las variables de la ruta y r24-r20 a capitulo, flag, i, id y this). Probado: otros ordenes de declaracion, inline para el cuerpo, `GetMapType()`.
+- `b fn; blr` en una funcion con `if (x < 0 || x >= 3)` (NewCampTask `fn_80530D88`): MWCC junta las dos comparaciones en `cmplwi`; el original las deja separadas con `blt; blr`. Probado: `switch` 0-2, `if` anidados, `return`s separados.
+- La copia de las dos medidas de un `EffectLists_unk::Clear_unk` (carga ambos tamanos antes de poner a cero), igual que en `Event::EffectLists_unk` (NewCampTask `fn_8053032C`).
+- Pool de cadenas: funciones al 99% (MapSelect `20634`, vf48; Item `B164`, vf48) solo esperan a que se escriban las funciones anteriores que crean sus literales.
