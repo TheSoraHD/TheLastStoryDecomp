@@ -123,16 +123,16 @@ int getsockname(SOCKET sock, SOCKADDR* addr, int* len);
 SOHostEnt* gethostbyname(const char* name);
 
 /* SO byte order functions (SONtoHl, SONtoHs, SOHtoNl, SOHtoNs) */
-u32 fn_806A4260(u32 netlong);
-u16 fn_806A4264(u16 netshort);
-u32 fn_806A426C(u32 hostlong);
-u16 fn_806A4270(u16 hostshort);
-#define htonl(l) fn_806A426C((u32)l)
-#define ntohl(l) fn_806A4260((u32)l)
-#define htons(s) fn_806A4270((u16)s)
-#define ntohs(s) fn_806A4264((u16)s)
-char* fn_806A420C(SOInAddr in); /* SOInetNtoA */
-#define inet_ntoa(n) fn_806A420C(n)
+u32 SONtoHl(u32 netlong);
+u16 SONtoHs(u16 netshort);
+u32 SOHtoNl(u32 hostlong);
+u16 SOHtoNs(u16 hostshort);
+#define htonl(l) SOHtoNl((u32)l)
+#define ntohl(l) SONtoHl((u32)l)
+#define htons(s) SOHtoNs((u16)s)
+#define ntohs(s) SONtoHs((u16)s)
+char* SOInetNtoA(SOInAddr in); /* SOInetNtoA */
+#define inet_ntoa(n) SOInetNtoA(n)
 unsigned long inet_addr(const char* name);
 
 int GOAGetLastError(SOCKET sock);

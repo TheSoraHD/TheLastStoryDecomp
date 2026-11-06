@@ -383,8 +383,8 @@ ServerBrowser ServerBrowserNewA(const char* queryForGamename, const char* queryF
                           const char* queryFromKey, int queryFromVersion, int maxConcurrentUpdates,
                           int queryVersion, int lanBrowse, void* callback, void* instance); // ServerBrowserNew
 void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
-u16 fn_806A4270(u16 x);                                 // SOHtoNs
-char* fn_806A420C(SOInAddr in);                         // SOInetNtoA
+u16 SOHtoNs(u16 x);
+char* SOInetNtoA(SOInAddr in);
 void qr2_parse_queryA(qr2_t qrec, u8* query, int len, SOSockAddrIn* sender); // qr2_parse_query
 extern u8 NNMagicData[];                               // NNMagicData
 void NNProcessData(u8* data, int len, SOSockAddrIn* sender); // NNProcessData
@@ -404,7 +404,7 @@ void fn_806CE700(u8 aid);
 BOOL gt2Accept(GT2Connection connection, void* callbacks);
 void gt2Reject(GT2Connection connection, const char* message, int len);
 void gt2SetConnectionData(GT2Connection connection, void* data);
-u16 fn_806A4264(u16 x);                              // SONtoHs
+u16 SONtoHs(u16 x);
 GT2Result gt2Connect(GT2Socket socket, GT2Connection* connection, const char* remoteAddress,
                       const char* message, int len, int timeout, void* callbacks, int blocking); // gt2Connect
 u16 gt2GetRemotePort(GT2Connection connection);
@@ -426,7 +426,7 @@ int gpSendBuddyMessageA(GPConnection* connection, int profileID, const char* mes
 const char* gt2AddressToString(u32 ip, int unk1, int unk2);
 int ServerBrowserSendMessageToServerA(ServerBrowser sb, const char* ip, u16 port, const void* data, int len); // ServerBrowserSendMessageToServer
 u32 ServerBrowserGetMyPublicIPAddr(ServerBrowser sb);                   // ServerBrowserGetMyPublicIPAddr
-u32 fn_806A4260(u32 x);                              // SONtoHl
+u32 SONtoHl(u32 x);
 int ServerBrowserSendNatNegotiateCookieToServerA(ServerBrowser sb, const char* ip, u16 port, int cookie); // ServerBrowserSendNatNegotiateCookieToServer
 int NNBeginNegotiationWithSocket(int socket, int cookie, int clientindex, void* progresscallback,
                 void* completedcallback, void* userdata); // NNBeginNegotiationWithSocket
@@ -1516,7 +1516,7 @@ int fn_806B8430(GT2Socket socket, u32 ip, u16 port, u8* message, int len) {
     memset(&addr, 0, sizeof(addr));
     addr.family = 2;
     addr.addr = ip;
-    addr.port = fn_806A4270(port);
+    addr.port = SOHtoNs(port);
     c = message[0];
     if ((c == 0xFE && message[1] == 0xFD) || c == '\\') {
         DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "GT2 Unrecognized : Received QR2 data.\n");
@@ -1577,11 +1577,11 @@ void fn_806B85B0(GT2Socket socket, GT2Connection connection, u32 ip, u16 port, i
         return;
     }
     cnt = stpMatchCnt;
-    if (ip != cnt->tempNewNodeInfo.nnIP || fn_806A4264(port) != cnt->tempNewNodeInfo.nnPort) {
+    if (ip != cnt->tempNewNodeInfo.nnIP || SONtoHs(port) != cnt->tempNewNodeInfo.nnPort) {
         if (profileID == stpMatchCnt->tempNewNodeInfo.profileID) {
             DWC_Printf(DWC_REPORTFLAG_WARNING, "gt2Connect() came before NN complete.\n");
             stpMatchCnt->tempNewNodeInfo.nnIP = ip;
-            stpMatchCnt->tempNewNodeInfo.nnPort = fn_806A4264(port);
+            stpMatchCnt->tempNewNodeInfo.nnPort = SONtoHs(port);
         } else {
             gt2Reject(connection, "Unknown connect attempt", -1);
             DWC_Printf(DWC_REPORTFLAG_WARNING, "gt2Reject was called : Unknown connect attempt from %s\n",
@@ -2321,7 +2321,7 @@ int fn_806BC4C0(int isChild, int cookie, DWCNodeInfo* node) {
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Server[%u] is behind NAT.\n", node->profileID);
                 doNN = TRUE;
             }
-        } else if (DWCi_IsPrivateAddress(fn_806A4260(SOGetHostID()))) {
+        } else if (DWCi_IsPrivateAddress(SONtoHl(SOGetHostID()))) {
             DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Server[%u] is not behind NAT. But I'm behind NAT.\n",
                        node->profileID);
             doNN = TRUE;
@@ -2789,7 +2789,7 @@ BOOL fn_806BCD40(u8 command, int profileID, u32 ip, u16 port, const u32* data, i
         }
         stpMatchCnt->resend.command = 0xFF;
         addr.addr = nnIP;
-        addr.port = fn_806A4270(nnPort);
+        addr.port = SOHtoNs(nnPort);
         stpMatchCnt->nnData.isChild = 1;
         cnt = stpMatchCnt;
         fn_806CA040(0, gt2GetSocketSOCKET(*cnt->pGt2Socket), &addr, &cnt->nnData);
@@ -2873,7 +2873,7 @@ BOOL fn_806BCD40(u8 command, int profileID, u32 ip, u16 port, const u32* data, i
         newNode->unk17 = (u8)DWCi_SwapU32(data[7]);
         memcpy(&newNode->unk28, &data[8], sizeof(newNode->unk28));
         addr.addr = newNode->ip;
-        DWC_Printf(DWC_REPORTFLAG_DEBUG, "Client IP:%s, port:%d\n", fn_806A420C(addr), newNode->port);
+        DWC_Printf(DWC_REPORTFLAG_DEBUG, "Client IP:%s, port:%d\n", SOInetNtoA(addr), newNode->port);
         fn_806CCB70(DWC_MATCH_STATE_CL_NN);
         stpMatchCnt->unk770 = 0;
         stpMatchCnt->unk760 = 0;
@@ -4626,7 +4626,7 @@ void DWCi_SBCallback(ServerBrowser sb, int reason, SBServer server, void* instan
             SOInAddr addr;
             int pid;
             addr.addr = cnt->tempNewNodeInfo.ip;
-            DWC_Printf(DWC_REPORTFLAG_DEBUG, "searchIP: %s, searchPort: %d\n", fn_806A420C(addr),
+            DWC_Printf(DWC_REPORTFLAG_DEBUG, "searchIP: %s, searchPort: %d\n", SOInetNtoA(addr),
                        cnt->tempNewNodeInfo.port);
             while (ServerBrowserCount(sb)) {
                 server = ServerBrowserGetServer(sb, 0);
@@ -4961,7 +4961,7 @@ void fn_806C97A0(int error, char* errmsg, void* userdata) {
 
 // @806C9810
 void fn_806C9810(unsigned int ip, unsigned short port, void* userdata) {
-    DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Got my query IP %s & port %d.\n", fn_806A420C(*(SOInAddr*)&ip), port);
+    DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Got my query IP %s & port %d.\n", SOInetNtoA(*(SOInAddr*)&ip), port);
     stpMatchCnt->qr2IP = ip;
     stpMatchCnt->qr2Port = port;
 }
@@ -5131,12 +5131,12 @@ void fn_806CA040(int result, int socket, void* remoteaddr, void* userdata) {
     if (result == 0) {
         if (addr) {
             DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "NN, remote address : %s\n",
-                       gt2AddressToString(addr->addr, fn_806A4264(addr->port), 0));
+                       gt2AddressToString(addr->addr, SONtoHs(addr->port), 0));
         }
         if (nnData->isChild) {
             GT2Result gtResult;
             stpMatchCnt->tempNewNodeInfo.nnIP = addr->addr;
-            stpMatchCnt->tempNewNodeInfo.nnPort = fn_806A4264(addr->port);
+            stpMatchCnt->tempNewNodeInfo.nnPort = SONtoHs(addr->port);
             DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "NN child finished Nat Negotiation.\n");
             stpMatchCnt->unk720 = 0;
             stpMatchCnt->unk724 = 0;
@@ -5178,7 +5178,7 @@ void fn_806CA040(int result, int socket, void* remoteaddr, void* userdata) {
             DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "NN parent finished Nat Negotiation.\n");
             if (addr) {
                 stpMatchCnt->tempNewNodeInfo.nnIP = addr->addr;
-                stpMatchCnt->tempNewNodeInfo.nnPort = fn_806A4264(addr->port);
+                stpMatchCnt->tempNewNodeInfo.nnPort = SONtoHs(addr->port);
             }
             stpMatchCnt->unk730 = DWCi_Np_GetTick();
             fn_806CCB70(DWC_MATCH_STATE_CL_GT2);

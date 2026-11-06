@@ -5090,6 +5090,17 @@ RVL_SDK/src/revolution/net/NETAES.c:
 	.data       start:0x807BC318 end:0x807BC3E0
 	.sdata2     start:0x80889000 end:0x80889008
 
+RVL_SDK/src/revolution/nhttp/NHTTP_bgnend.c:
+	.text       start:0x8069A0D0 end:0x8069A438
+	.data       start:0x807BC3E0 end:0x807BC468
+
+RVL_SDK/src/revolution/nhttp/NHTTP_control.c:
+	.text       start:0x8069A438 end:0x8069A768
+	.data       start:0x807BC468 end:0x807BC4C0
+
+RVL_SDK/src/revolution/nhttp/NHTTP_list.c:
+	.text       start:0x8069A768 end:0x8069A9B8
+
 RVL_SDK/src/revolution/nhttp/NHTTP_os_RVL.c:
 	.text       start:0x8069A9B8 end:0x8069ABDC
 	.data       start:0x807BC4C0 end:0x807BC500

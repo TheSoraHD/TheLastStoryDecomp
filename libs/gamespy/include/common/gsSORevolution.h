@@ -1,32 +1,10 @@
 // Revolution SO entry points used by the GameSpy SDK.
-// The SO functions below are not named in symbols.txt yet; the macros map the SDK names to
-// their addresses so that calls link and compare correctly.
+// inferred: SO API order in the SO library (sizes and call signatures match); named in symbols.txt.
 #ifndef __GSSOREVOLUTION_H__
 #define __GSSOREVOLUTION_H__
 
 #include <revolution/SO.h>
 
-// inferred: SO API order in the SO library (sizes and call signatures match)
-#define SOSocket fn_806A38C8
-#define SOClose fn_806A39B8
-#define SOBind fn_806A3A5C
-#define SOConnect fn_806A3B44
-#define SOGetSockName fn_806A3C2C
-#define SORecvFrom fn_806A3D28
-#define SORecv fn_806A3D50
-#define SOSendTo fn_806A3D74
-#define SOSend fn_806A3D9C
-#define SOFcntl fn_806A3DC0
-#define SOShutdown fn_806A3EF0
-#define SOPoll fn_806A3FA4
-#define SOInetAtoN fn_806A4100
-#define SOInetNtoA fn_806A420C
-#define SONtoHl fn_806A4260
-#define SONtoHs fn_806A4264
-#define SOHtoNl fn_806A426C
-#define SOHtoNs fn_806A4270
-#define SOGetHostByName fn_806A47D4
-#define SOSetSockOpt fn_806A4C5C
 
 int SOSocket(int pf, int type, int protocol);
 int SOClose(int s);
