@@ -1,8 +1,8 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-06, rama `unidades-20261106` sin mergear: la revisa el usuario)
+## Estado actual (2026-11-06, `unidades-20261106` mergeada en `main` fb7f7d0)
 
-- `unidades-20261106` (desde `main` 9206c64, 12766): report **13524 / 18117** (lost 0, `main.dol: OK`, 652 de
+- `main` (desde 9206c64, 12766): report **13524 / 18117** (lost 0, `main.dol: OK`, 652 de
   1304 unidades enlazadas; fuzzdrop solo lista dos símbolos `pad_03_*` de relleno que desaparecen al enlazar).
   Notas, decisiones a revisar, splits, renombrados y cambios de `libs/`: `docs/unidades-20261106.md`.
   - Enlazadas nuevas: `btm_inq.c`, `EXIBios.c` (`-O3`), 9 de `homebuttonLib/sound`, `THPDec.c`, `THPAudio.c`,
