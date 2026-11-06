@@ -15,6 +15,8 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 
 atn::Vector3 LastCocoonImago::vf64(int center) {
     atn::Vector3 result = mPos;
@@ -68,6 +70,26 @@ void LastCocoonImago::vf38(int enable) {
             mCapsules[i].mFlags &= ~1;
         }
     }
+}
+
+void LastCocoonImago::fn_8045ECC4() {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = 12;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x31, 0, 0, 1, 0.0f, 0.1f);
+    m574 = lbl_807C7030;
+    GimmickMsg_unk msg;
+    msg.mType = 5;
+    m18F8->vf40(&msg);
 }
 
 // inferred: frames 80-105 of the motion of state 11
