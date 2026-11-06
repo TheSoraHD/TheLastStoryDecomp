@@ -202,46 +202,65 @@ static void DWCi_EncSessionCompletedCallback(const char* buf, int buflen, GHTTPR
     }
 }
 
-// NONMATCHING: ~78% - unrolled copy loop of data uses a strength-reduced pointer and the xor
-// operands are swapped; tried several index forms and xor expressions
-static DWCiEncResult DWCi_EncSessionEncode(char* out, const u8* header, int headerLen,
-                                           const u8* data, int dataLen) {
-    int bufLen;
-    int len;
+// inferred: helpers and loop forms of mscharged-decomp DWCi_EncSessionEncrypt (CC0)
+static u32 DWCi_EncB64Size(u32 len) {
+    u32 i;
+
+    i = (len % 3 != 0) ? 1 : 0;
+    return ((len / 3) + i) * 4;
+}
+
+static u32 DWCi_EncB64BufSize(u32 len) {
+    return DWCi_EncB64Size(len) + 1;
+}
+
+static void DWCi_EncRandInit(u32 seed) {
+    sEncSeed = seed | (seed << 16);
+}
+
+static u8 DWCi_EncRand(void) {
+    sEncSeed = (sEncSession.randMul * sEncSeed + sEncSession.randAdd) % sEncSession.randMod;
+    return (sEncSeed >> 16) & 0xFF;
+}
+
+static DWCiEncResult DWCi_EncSessionEncode(char* out, const u8* header, u32 headerLen,
+                                           const u8* data, u32 dataLen) {
     u8* buf;
-    u32 sum;
+    u32 sum = 0;
     int i;
 
-    len = dataLen + headerLen;
-    bufLen = len + 4;
-    sum = 0;
-    buf = DWC_Alloc(DWC_ALLOCTYPE_ENC, bufLen);
+    buf = DWC_Alloc(DWC_ALLOCTYPE_ENC, dataLen + headerLen + 4);
     if (buf == NULL) {
         return DWCi_ENC_RESULT_OUT_OF_MEMORY;
     }
-    for (i = 0; i < headerLen; i++) {
-        buf[4 + i] = header[i];
+
+    for (i = 0; i < (int)headerLen; i++) {
+        buf[i + 4] = header[i];
     }
-    for (i = 0; i < dataLen; i++) {
-        buf[4 + headerLen + i] = data[i];
+
+    for (i = 0; i < (int)dataLen; i++) {
+        buf[i + headerLen + 4] = data[i];
     }
-    for (i = 0; i < len; i++) {
-        sum += buf[4 + i];
+
+    for (i = 0; i < (int)(dataLen + headerLen); i++) {
+        sum += buf[i + 4];
     }
-    sEncSeed = sum | (sum << 16);
-    for (i = 0; i < len; i++) {
-        sEncSeed = (sEncSession.randAdd + sEncSession.randMul * sEncSeed) % sEncSession.randMod;
-        buf[4 + i] ^= (sEncSeed & 0xFF0000) >> 16;
+
+    DWCi_EncRandInit(sum);
+    for (i = 0; i < (int)(dataLen + headerLen); i++) {
+        buf[i + 4] ^= DWCi_EncRand();
     }
+
     sum ^= sEncSession.checkXor;
-    buf[0] = (u8)(sum >> 24);
-    buf[1] = (u8)(sum >> 16);
-    buf[2] = (u8)(sum >> 8);
-    buf[3] = (u8)sum;
-    B64Encode((const char*)buf, out, len + 4, 2);
+    buf[0] = sum >> 24;
+    buf[1] = sum >> 16;
+    buf[2] = sum >> 8;
+    buf[3] = sum;
+
+    B64Encode((const char*)buf, out, dataLen + headerLen + 4, 2);
     DWC_Free(DWC_ALLOCTYPE_ENC, buf, 0);
-    // inferred: the quotient is taken from bufLen and the remainder from len + 4
-    out[((u32)bufLen / 3 + (((u32)(len + 4) % 3) ? 1 : 0)) * 4] = '\0';
+    out[DWCi_EncB64BufSize(dataLen + headerLen + 4) - 1] = '\0';
+
     return DWCi_ENC_RESULT_SUCCESS;
 }
 
