@@ -28,6 +28,18 @@ atn::Vector3 LastCocoonImago::vf64(int center) {
     return result;
 }
 
+inline void LastCocoonImago::SetMode_unk(int mode) {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    vf48();
+    fn_80178A6C();
+    fn_8015495C(0, 1, 1, 1);
+    fn_8016DA4C();
+    m58C = mode;
+    fn_8016E970(3);
+}
+
 // inferred: name of the character, unless the current target is its sphere
 int LastCocoonImago::vfB8(wchar_t* name) {
     if (lbl_8087F048 != 0 && lbl_8087F048->m3E2E8 != &m18FC && m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
@@ -72,16 +84,25 @@ void LastCocoonImago::vf38(int enable) {
     }
 }
 
+void LastCocoonImago::fn_8045EB60() {
+    int fromHang = m58C == 14;
+    SetMode_unk(2);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.fn_80097C08(0, fromHang ? 0x31 : 0x37, 0, 0, 1, 0.0f, 0.025f);
+    mMotion.mTracks[0].m0C = 0.5f;
+    if (fromHang) {
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.mTracks[0].m08 = 200.0f;
+        GimmickMsg_unk msg;
+        msg.mType = 5;
+        m18F8->vf40(&msg);
+    }
+    m574 = lbl_807C7030;
+}
+
 void LastCocoonImago::fn_8045ECC4() {
-    m14BC = 0;
-    m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
-    vf48();
-    fn_80178A6C();
-    fn_8015495C(0, 1, 1, 1);
-    fn_8016DA4C();
-    m58C = 12;
-    fn_8016E970(3);
+    SetMode_unk(12);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;

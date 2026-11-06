@@ -19,7 +19,10 @@ public:
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
     virtual float vf90();                                    // 0x8045F998
     virtual int vfB8(wchar_t* name);                         // 0x80459F24
+    void fn_8045EB60(); // inferred: mode 2 (motion 0x37, or 0x31 from frame 200 after mode 14)
     void fn_8045ECC4(); // inferred: mode 12 (motion 0x31), stops and sends message 5 to m18F8
+    // inferred: starts a mode (names invented)
+    void SetMode_unk(int mode);
     // inferred: position of the "neck" node (0x8045F914; the literal is in the .data pool of the
     // inline member, as in Em203GreaterDaemonRed)
     virtual atn::Vector3 GetTacViewPosition() const {
