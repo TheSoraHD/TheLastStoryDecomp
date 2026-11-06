@@ -5184,6 +5184,9 @@ RVL_SDK/src/revolution/nwc24/NWC24System.c:
 	.sdata      start:0x8087EDD8 end:0x8087EDE0
 	.sbss       start:0x80880428 end:0x80880438
 
+RVL_SDK/src/revolution/math/crc_unk.c:
+	.text       start:0x806A243C end:0x806A2790
+
 RVL_SDK/src/revolution/so/SOCommon.c:
 	.text       start:0x806A2790 end:0x806A37F4
 	.data       start:0x807BCA68 end:0x807BCC48

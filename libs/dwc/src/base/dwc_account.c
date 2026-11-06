@@ -11,18 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 
-// inferred: MATH CRC functions of the SDK (MATH_CRC8InitTable, MATH_CRC32InitTableRev,
-// MATH_CalcCRC8, MATH_CalcCRC32 in NitroSDK naming)
-typedef struct MATHCRC8Table {
-    u8 table[256];
-} MATHCRC8Table;
-typedef struct MATHCRC32Table {
-    u32 table[256];
-} MATHCRC32Table;
-void fn_806A243C(MATHCRC8Table* table, u8 poly);
-void fn_806A24DC(MATHCRC32Table* table, u32 poly);
-u8 fn_806A257C(const MATHCRC8Table* table, const void* data, u32 dataLength);
-u32 fn_806A264C(const MATHCRC32Table* table, const void* data, u32 dataLength);
+#include <nitro/math/crc.h>
 // inferred: message digest (SHA-1/MD5 style) of a buffer
 void fn_806AB8B0(u8* digest, const void* data, u32 dataLength);
 // inferred: DWCi_Auth_GetConsoleUserId (dwc_auth_interface.c)
@@ -204,8 +193,8 @@ static inline u64 DWCi_Acc_CreateFriendKey(int gs_profile_id, u32 gamecode, int 
     switch (method) {
     case 0: {
         MATHCRC8Table table;
-        fn_806A243C(&table, 7);
-        hash = fn_806A257C(&table, buf, sizeof(buf)) & 0x7F;
+        MATHi_CRC8InitTable(&table, 7);
+        hash = MATH_CalcCRC8(&table, buf, sizeof(buf)) & 0x7F;
         break;
     }
     case 1: {
@@ -262,11 +251,11 @@ static inline u32 DWCi_Acc_GetCrc32(const DWCAccUserData* userdata) {
     MATHCRC32Table table;
     u32 buf[16];
     int i;
-    fn_806A24DC(&table, 0xEDB88320);
+    MATHi_CRC32InitTableRev(&table, 0xEDB88320);
     for (i = 0; i < 16; i++) {
         buf[i] = DWCi_HtoLEl(((const u32*)userdata)[i]);
     }
-    return fn_806A264C(&table, buf, 0x3C);
+    return MATH_CalcCRC32(&table, buf, 0x3C);
 }
 
 static inline void DWCi_Acc_UpdateCrc32(DWCAccUserData* userdata) {
@@ -284,11 +273,11 @@ void DWCi_Acc_CreateUserData(DWCAccUserData* userdata, u32 gamecode) {
     userdata->gamecode = gamecode;
     DWCi_Acc_CreateTempLoginIdInline(&userdata->pseudo);
     DWCi_Acc_SetFlag_DataType((DWCAccFlag*)&userdata->authentic, DWC_FRIENDDATA_NODATA);
-    fn_806A24DC(&table, 0xEDB88320);
+    MATHi_CRC32InitTableRev(&table, 0xEDB88320);
     for (i = 0; i < 16; i++) {
         buf[i] = DWCi_HtoLEl(((const u32*)userdata)[i]);
     }
-    userdata->crc32 = fn_806A264C(&table, buf, 0x3C);
+    userdata->crc32 = MATH_CalcCRC32(&table, buf, 0x3C);
     userdata->flag |= 1;
 }
 
@@ -368,11 +357,11 @@ void fn_806CFEB0(DWCUserData* userdata) {
     u32 buf[16];
     int i;
     userdata->flag &= ~1;
-    fn_806A24DC(&table, 0xEDB88320);
+    MATHi_CRC32InitTableRev(&table, 0xEDB88320);
     for (i = 0; i < 16; i++) {
         buf[i] = DWCi_HtoLEl(((const u32*)userdata)[i]);
     }
-    userdata->crc32 = fn_806A264C(&table, buf, 0x3C);
+    userdata->crc32 = MATH_CalcCRC32(&table, buf, 0x3C);
 }
 
 
