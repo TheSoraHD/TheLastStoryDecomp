@@ -17,7 +17,8 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 
 | Unidad | Funciones | Notas |
 |---|---|---|
-| `msc/src/RVL_SDK/kpad/KPAD.c` (matching false) | 22 -> 32/33 | `KPADInsideStatus` 2010 completo (puntero 0x17C, ticks y Motion Plus 0x660-0x688); `reset_kpad(chan)`, `KPADInitEx`, `KPADiConnectCallback`, `KPADiRead`, `KPADiSamplingCallback`, `read_kpad_ext`, `read_kpad_acc`, callbacks WBC y `fn_80658300` (Motion Plus) desde el asm. Falta `fn_80657230` (61%) |
+| `msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c` (nueva, matching false) | 2/6 | rutinas de vectores/rotacion de Motion Plus (`fn_8065AED0`, `fn_8065AF20` movidas de KPADMpls; `fn_8065AFB0` 90%, `fn_8065B320`, `fn_8065B630`, `fn_8065B7F0` escritas, NONMATCHING) |
+| `msc/src/RVL_SDK/kpad/KPAD.c` (matching false) | 22 -> 33/33 | `KPADInsideStatus` 2010 completo (puntero 0x17C, ticks y Motion Plus 0x660-0x688); `reset_kpad(chan)`, `KPADInitEx`, `KPADiConnectCallback`, `KPADiRead`, `KPADiSamplingCallback`, `read_kpad_ext`, `read_kpad_acc`, callbacks WBC y `fn_80658300` (Motion Plus) desde el asm. Falta `fn_80657230` (61%) |
 
 ## Decisiones tomadas sin el usuario
 
@@ -36,6 +37,12 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 ## Decisiones a revisar
 
 ## Cambios de splits
+
+- `msc/src/RVL_SDK/kpad/KPADMpls_unk.c` se parte en dos: `KPADMpls_unk.c` `.text` 0x80658DB0-0x8065AED0, `.data`
+  0x807B8A28-0x807B8A70, `.sbss` 0x808801E8-F0, `.sdata2` 0x80888938-0x808889C0; y `KPADMplsMath_unk.c` (nueva)
+  `.text` 0x8065AED0-0x8065B8E0, `.data` 0x807B8A70-0x807B8A98 (rotacion identidad), `.sdata2` 0x808889C0-0x808889D0.
+  Prueba: las funciones desde 0x8065AED0 usan otro pool (`@1502` 0.5f, `@1503` 0.0f, `@1508` 1.0f repetidos tras el
+  0.0f/1.0f de KPADMpls) y numeros `@N` bajos (fichero pequeno). Build limpio `main.dol: OK`.
 
 ## Renombrados en symbols.txt
 

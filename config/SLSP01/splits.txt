@@ -4610,10 +4610,15 @@ msc/src/RVL_SDK/kpad/KPAD.c:
 	.sdata2     start:0x80888898 end:0x80888938
 
 msc/src/RVL_SDK/kpad/KPADMpls_unk.c:
-	.text       start:0x80658DB0 end:0x8065B8E0
-	.data       start:0x807B8A28 end:0x807B8A98
+	.text       start:0x80658DB0 end:0x8065AED0
+	.data       start:0x807B8A28 end:0x807B8A70
 	.sbss       start:0x808801E8 end:0x808801F0
-	.sdata2     start:0x80888938 end:0x808889D0
+	.sdata2     start:0x80888938 end:0x808889C0
+
+msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c:
+	.text       start:0x8065AED0 end:0x8065B8E0
+	.data       start:0x807B8A70 end:0x807B8A98
+	.sdata2     start:0x808889C0 end:0x808889D0
 
 RVL_SDK/src/revolution/usb/usb.c:
 	.text       start:0x8065B8E0 end:0x8065CE2C

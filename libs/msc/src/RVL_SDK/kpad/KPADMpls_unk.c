@@ -51,25 +51,3 @@ void fn_8065AEB0(s32 value)
         return;
     kp_mpls_work_unk->m004 = value;
 }
-
-s32 fn_8065AED0(f32 x)
-{
-    if (x < 0.0f)
-        return (s32)(x - 0.5f);
-    return (s32)(0.5f + x);
-}
-
-// inferred: normalizes a vector in place and returns its previous length
-f32 fn_8065AF20(Vec* v)
-{
-    f32 len = sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
-
-    if (len != 0.0f)
-    {
-        f32 inv = 1.0f / len;
-        v->x *= inv;
-        v->y *= inv;
-        v->z *= inv;
-    }
-    return len;
-}

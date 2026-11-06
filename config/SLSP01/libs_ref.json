@@ -68,6 +68,40 @@
   "matching": false
  },
  {
+  "name": "msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c",
+  "mw_version": "Wii/1.0",
+  "cflags": [
+   "-nodefaults",
+   "-proc gekko",
+   "-align powerpc",
+   "-enum int",
+   "-fp hardware",
+   "-Cpp_exceptions off",
+   "-O4,p",
+   "-pragma \"cats off\"",
+   "-pragma \"warn_notinlined off\"",
+   "-maxerrors 1",
+   "-nosyspath",
+   "-RTTI off",
+   "-fp_contract on",
+   "-str reuse",
+   "-enc SJIS",
+   "-i libs/msc/include",
+   "-i libs/msc/libs/Runtime/include",
+   "-i libs/msc/libs/MSL_C/include",
+   "-i libs/msc/libs/RVL_SDK/include",
+   "-i libs/msc/libs/MetroTRK/include",
+   "-DBUILD_VERSION=4",
+   "-DVERSION_R4QK01",
+   "-inline auto",
+   "-ipa file",
+   "-fp_contract off",
+   "-func_align 16"
+  ],
+  "category": "sdk",
+  "matching": false
+ },
+ {
   "name": "RVL_SDK/src/revolution/os/__start.c",
   "mw_version": "Wii/1.1",
   "cflags": [
