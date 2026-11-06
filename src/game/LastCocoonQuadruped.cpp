@@ -37,8 +37,10 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, 
 extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: plays an effect on the model with the default color and scale (as in game/LastCocoonEgg.cpp)
 static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    rot.Set_unk(0.0f, 0.0f, 0.0f);
+    pos.Set_unk(0.0f, 0.0f, 0.0f);
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
@@ -116,7 +118,6 @@ void LastCocoonQuadruped::fn_80466AE4() {
     mMotion.fn_80097C08(0, 0x156, 0, 0, 1, 0.0f, 0.1f);
 }
 
-// NONMATCHING: 98% - the original stores the second zero vector first (as LastCocoonEgg fn_80455D80)
 void LastCocoonQuadruped::fn_80466B8C() {
     SetMode_unk(8);
     mMotion.m34C = 1;

@@ -63,14 +63,41 @@ static inline void PlayEfp2_unk(atn::EfpFile* efp, void* model, const atn::Vecto
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    rot.Set_unk(0.0f, 0.0f, 0.0f);
+    pos.Set_unk(0.0f, 0.0f, 0.0f);
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+// inferred: same, other layout of the locals (names invented)
+static inline void PlayEfp3_unk(atn::EfpFile* efp, void* model) {
+    Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
+    rot.Set_unk(0.0f, 0.0f, 0.0f);
+    pos.Set_unk(0.0f, 0.0f, 0.0f);
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+static inline void PlayEfp4_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    rot.Set_unk(0.0f, 0.0f, 0.0f);
+    pos.Set_unk(0.0f, 0.0f, 0.0f);
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 // inferred: the hit is guarded (no damage, reaction 1)
 static inline void Guard_unk(HitMsg_unk* msg) {
@@ -80,7 +107,6 @@ static inline void Guard_unk(HitMsg_unk* msg) {
     msg->m94 |= 8;
 }
 
-// NONMATCHING: 97% - stack slots and store order of the zero vectors and the color of the two effects
 void LastCocoonEgg::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (m1980 != 0) {
@@ -100,7 +126,7 @@ void LastCocoonEgg::vf40(HitInfo_unk* hit) {
         fn_8016E970(3);
         fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
         fn_80232B7C(0, 0);
-        PlayEfp_unk(&m1940, &mMotion);
+        PlayEfp4_unk(lbl_8087F3C0, &m1940, &mMotion);
         m2558 = 3;
         m1980 = 1;
         m255C = 0.3f;
@@ -113,7 +139,7 @@ void LastCocoonEgg::vf40(HitInfo_unk* hit) {
         fn_8054D794(lbl_8087F8A8, 0, L"Shield Break!!", &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
     } else {
         fn_80232B7C(0, 0);
-        PlayEfp_unk(&m1934, &mMotion);
+        PlayEfp3_unk(&m1934, &mMotion);
         Guard_unk(msg);
     }
 }
@@ -128,7 +154,6 @@ atn::Vector3 LastCocoonEgg::vf64(int center) {
     return result;
 }
 
-// NONMATCHING: 98% - the original stores the second zero vector first (as in vf40)
 void LastCocoonEgg::fn_80455D80() {
     fn_80232B7C(this, 1000);
     PlayEfp_unk(&m1928, &mMotion);
