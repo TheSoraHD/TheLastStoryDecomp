@@ -33,9 +33,9 @@ extern "C" void DCZeroRange(void* addr, unsigned long size);
 struct Decoder_unk {
     unsigned char m00[0x18];
 };
-extern "C" void fn_806254D0(const void* src, void* dst);
-extern "C" void fn_806250D0(Decoder_unk* decoder, void* dst);
-extern "C" void fn_80625110(Decoder_unk* decoder, const void* src);
+extern "C" void CXUncompressAny(const void* src, void* dst);
+extern "C" void CXInitUncompContextLZ(Decoder_unk* decoder, void* dst);
+extern "C" void CXReadUncompLZ(Decoder_unk* decoder, const void* src);
 
 namespace atn {
 
@@ -215,9 +215,9 @@ extern "C" void fn_8046BBF0(Reader_unk* reader, ReadSlot_unk* slot) {
         if (req->mPackedSize != 0) {
             if (slot->mResult != -3) {
                 if (slot->mLength >= req->mPackedSize && req->mDone == 0) {
-                    fn_806254D0(src, req->mBuffer);
+                    CXUncompressAny(src, req->mBuffer);
                 } else {
-                    fn_80625110(&req->mDecoder, src);
+                    CXReadUncompLZ(&req->mDecoder, src);
                 }
             }
             unsigned int n = slot->mLength;
@@ -344,7 +344,7 @@ extern "C" void fn_8046C2D4(Loader* mgr, PfsArchive_unk* archive, LoadCore* core
     }
     void* src = archive->fn_8046FD2C(index);
     if (packed != 0) {
-        fn_806254D0(src, buf);
+        CXUncompressAny(src, buf);
         DCFlushRangeNoSync(buf, alloc);
     } else if (archive->m70 == 0) {
         memcpy(buf, src, size);
@@ -467,7 +467,7 @@ int Loader::fn_8046C3FC(LoadCore* core) {
     core->m54 = req->mBuffer;
     core->m50 = (void*)size;
     if (req->mPackedSize != 0) {
-        fn_806250D0(&req->mDecoder, req->mBuffer);
+        CXInitUncompContextLZ(&req->mDecoder, req->mBuffer);
     }
     Reader_unk* reader = Reader_unk::Get_unk();
     if (reader->mActive < 2) {

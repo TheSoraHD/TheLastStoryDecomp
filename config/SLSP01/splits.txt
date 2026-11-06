@@ -4294,6 +4294,12 @@ smg2/src/RVL_SDK/sc/scapi_prdinfo.c:
 	.sdata      start:0x8087EA48 end:0x8087EA70
 	.sbss       start:0x80880150 end:0x80880158
 
+RVL_SDK/src/revolution/cx/CXStreamingUncompression.c:
+	.text       start:0x806250C4 end:0x806254D0
+
+RVL_SDK/src/revolution/cx/CXUncompression.c:
+	.text       start:0x806254D0 end:0x80625910
+
 RVL_SDK/src/revolution/wenc/wenc.c:
 	.text       start:0x80625910 end:0x80625BF0
 	.rodata     start:0x80764C00 end:0x80764C40
