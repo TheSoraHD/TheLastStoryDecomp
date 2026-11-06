@@ -4,6 +4,7 @@
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
 #include "atn/SoundRef.h"
+#include "atn/Lerp_unk.h"
 #include "game/MenuCommonTask.h"
 #include "game/GameConfig_unk.h"
 
@@ -26,7 +27,17 @@ struct NewCampItemData_unk {
 extern "C" NewCampItemData_unk* fn_80211480(int id); // inferred: item data
 // inferred: creates a d2anime task (atn/D2A_Task.h declares it with the D2A_Task type; not included: its
 // D2A_Data.h gives a warning)
-extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
+extern "C" NewCampItemD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" void fn_801F6E78(atn::Task* task, const char* name, const void* pos);
+extern "C" void fn_801F6C80(atn::Task* task, const char* name, float value); // inferred: sets a value
+extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
+extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801F4728(atn::Task* task, const char* name, const NewCampPartsPoint_unk* rect); // inferred: sets a rect
+extern "C" float fn_804A4264(MenuCommonTask* menu); // inferred: position of the help window
 
 static const NewCampPartsFile_unk sFiles[12] = {
     {"shop_board01_0001", "item_logo.d2a", 0},
@@ -43,6 +54,34 @@ static const NewCampPartsFile_unk sFiles[12] = {
     {"shop_board04_1007", "item_menu_all.d2a", 0},
 };
 static const char* const sBoard = "item_board";
+// inferred: offset of the list in the camp state 8 (constructed by __sinit 0x8051B900)
+static atn::Vector3 sOffset(0.0f, 340.0f, 0.0f);
+
+// inferred: camp task (the parent m48); only the members used here
+struct NewCampItemCamp_unk {
+    unsigned char m0000[0x464];
+    int m464;                  // inferred: state of the camp
+    unsigned char m0468[0x11F8 - 0x468];
+    int m11F8;
+};
+
+inline NewCampItemD2A_unk* GetD2A_unk(atn::D3Anime* anime) {
+    return (NewCampItemD2A_unk*)anime->GetTask();
+}
+inline NewCampPartsPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
+    return fn_801F4E8C(layout, fn_800DC6B4(name));
+}
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+// inferred: sets the text of a pane of a task (the layout is taken inside)
+inline void SetTaskText_unk(NewCampItemD2A_unk* task, const char* name, const wchar_t* text) {
+    void* layout = task->mLayout;
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
 
 NewCampPartsItem* NewCampPartsItem::fn_805169F8(atn::Task* parent) {
     if (parent != 0) {
@@ -99,6 +138,104 @@ void NewCampPartsItem::vf1C(NewCampScene_unk* scene) {
 
 void NewCampPartsItem::vf10() {
     vf20();
+}
+
+void NewCampPartsItem::vf14() {
+    int show = 0;
+    if (fn_8050FD20() && ((NewCampItemCamp_unk*)m48)->m11F8 != 1) {
+        show = 1;
+    }
+    vf3C(show);
+    NewCampItemCamp_unk* camp = (NewCampItemCamp_unk*)m48;
+    atn::Vector3 target = camp->m464 == 8 ? sOffset : lbl_807C7030;
+    mMove = atn::Lerp_unk<atn::Vector3>(mMove, target, 0.2f);
+    for (int i = 0; i < m4C; i++) {
+        NewCampPartsEntry_unk* entry = &m50[i];
+        vf60(entry, 0, 7, 0.0f);
+        if (GetModel_unk(entry->mModel) != 0) {
+            atn::Matrix3x4 mtx = GetModel_unk(entry->mModel)->mMtx;
+            atn::Vector3 pos = mtx.GetTrans_unk() + mMove;
+            mtx.m[0][3] = pos.x;
+            mtx.m[1][3] = pos.y;
+            mtx.m[2][3] = pos.z;
+            GetModel_unk(entry->mModel)->fn_8009EE30(mtx);
+        }
+        vf58(entry, "reference");
+        vf54(entry, "reference");
+        vf5C(entry);
+    }
+    char name[0x40];
+    NewCampPartsPoint_unk pos;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.m08 = 0.0f;
+    pos.m0C = 0.0f;
+    pos.m10 = 0.0f;
+    NewCampPartsEntry_unk* cat = &m50[mE0 + 5];
+    for (int i = 0; i < 7; i++) {
+        int index = i + 5;
+        NewCampPartsEntry_unk* entries = m50.mData;
+        if (entries[index].mAnime->GetTask() != 0) {
+            if (mE0 == i) {
+                GetD2A_unk(entries[index].mAnime)->mFrame = 11.0f;
+                if (show) {
+                    int mode = m7C != 0;
+                    sprintf(name, "cursor_point");
+                    pos = GetPanePos_unk(cat->mAnime->GetTask(), name);
+                    fn_805118B4(cat->mAnime->GetTask(), 0, cat, pos, mode);
+                }
+            } else {
+                GetD2A_unk(entries[index].mAnime)->mFrame = 10.0f;
+            }
+        }
+    }
+    fn_80511258(&m50[1], mBase, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+    fn_80511258(&m50[1], mNoItem, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+    fn_805112A8(&m50[1], mScroll, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+    if (mBase->GetTask() != 0) {
+        for (int i = 0; i < 10; i++) {
+            if (mItems[i]->GetTask() != 0) {
+                sprintf(name, "item_list%d", i + 1);
+                pos = GetPanePos_unk(mBase->GetTask(), name);
+                fn_801F6E78(mItems[i]->GetTask(), "base_point", &pos);
+                fn_805112A8(&m50[1], mItems[i], atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
+                            "reference");
+            }
+        }
+        if (m7C == 1) {
+            int index = mE4 - mE8;
+            sprintf(name, "item_cursor%d", index + 1);
+            pos = GetPanePos_unk(mBase->GetTask(), name);
+            fn_805119C8(mItems[index]->GetTask(), 0, &m50[1], pos, 0);
+        }
+        if (mScroll->GetTask() != 0) {
+            sprintf(name, "scroll_point");
+            pos = GetPanePos_unk(mBase->GetTask(), name);
+            fn_801F6E78(mScroll->GetTask(), "basePos", &pos);
+            fn_801F6C80(mScroll->GetTask(), "s_hightMax", 245.0f);
+            fn_804A4930(mScroll->GetTask(), mE8, mList.size(), 10);
+        }
+    }
+    if (mSort != 0) {
+        mSort->FreezeTask();
+        if (m7C == 1 && fn_804A4264(MenuCommonTask::sInstance) >= -5.0f) {
+            mSort->MeltTask();
+            pos.x = 515.0f;
+            pos.y = 360.0f;
+            pos.m0C = 1.0f;
+            pos.m08 = 1.0f;
+            fn_801F4728(mSort, "basePos", &pos);
+            SetTaskText_unk(mSort, "sortMainName", fn_80116FC0(0, 0x196));
+            SetTaskText_unk(mSort, "sortSubName", fn_80116FC0(0, 0x197));
+            if (mEC == 0) {
+                SetPaneFloat_unk(mSort->mLayout, "sortID", 1.0f);
+                SetPaneFloat_unk(mSort->mLayout, "sortSub", 0.0f);
+            } else if (mEC == 1) {
+                SetPaneFloat_unk(mSort->mLayout, "sortID", 0.0f);
+                SetPaneFloat_unk(mSort->mLayout, "sortSub", 1.0f);
+            }
+        }
+    }
 }
 
 void NewCampPartsItem::vf24() {

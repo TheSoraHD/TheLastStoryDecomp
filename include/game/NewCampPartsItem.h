@@ -21,6 +21,13 @@ struct NewCampItemEntry_unk {
 };
 
 
+// inferred: d2anime task of camp_sort.d2a (made by fn_801F3FF8); only the members used here
+struct NewCampItemD2A_unk : public atn::Task {
+    unsigned char m48[0x58 - 0x48];
+    unsigned char mLayout[0x100 - 0x58]; // 0x58: inferred: layout
+    float mFrame;                        // 0x100
+};
+
 // inferred from __vt__16NewCampPartsItem (0x80793450): item list of the camp
 class NewCampPartsItem : public NewCampPartsBase {
 public:
@@ -50,7 +57,7 @@ public:
     int mE4;
     int mE8;
     int mEC;
-    atn::Task* mSort;                 // 0xF0: inferred: camp_sort.d2a
+    NewCampItemD2A_unk* mSort;        // 0xF0: inferred: camp_sort.d2a
     atn::D3AnimeInstance* mItems[10]; // 0xF4
     atn::D3Anime* mBase;              // 0x11C
     atn::D3Anime* mNoItem;            // 0x120
