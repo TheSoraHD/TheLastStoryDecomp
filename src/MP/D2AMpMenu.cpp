@@ -2,22 +2,29 @@
 // the rank mark task. Only part of the functions are reconstructed so far.
 #include "MP/D2AMpMenu.h"
 #include "MP/D2AMpMenuFriendRoom.h"
+#include "MP/D2AMpMenuFriend.h"
+#include "MP/D2ACommonDialog.h"
+#include "MP/D2AMpMenuSetMessage.h"
 #include "game/MenuCommonTask.h"
 
-// inferred: multiplayer session manager (lbl_8087F610); only the member used here
-struct MpMenuSession_unk {
-    unsigned char m000[0x540];
-    int m540; // inferred: game mode
-};
-extern "C" MpMenuSession_unk* lbl_8087F610;
 // inferred: setters of the session rules (the last argument: 1 = default)
-extern "C" void fn_804EA75C(MpMenuSession_unk* s, int value, int b);
-extern "C" void fn_804EA534(MpMenuSession_unk* s, int value, int b);
-extern "C" void fn_804EAA68(MpMenuSession_unk* s, int value);
-extern "C" void fn_804EA6B0(MpMenuSession_unk* s, int value, int b);
-extern "C" void fn_804EA810(MpMenuSession_unk* s, int value, int b);
-extern "C" void fn_804EA608(MpMenuSession_unk* s, int time, int b);
+extern "C" void fn_804EA75C(MpMsgSession_unk* s, int value, int b);
+extern "C" void fn_804EA534(MpMsgSession_unk* s, int value, int b);
+extern "C" void fn_804EAA68(MpMsgSession_unk* s, int value);
+extern "C" void fn_804EA6B0(MpMsgSession_unk* s, int value, int b);
+extern "C" void fn_804EA810(MpMsgSession_unk* s, int value, int b);
+extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
 extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
+extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
+extern "C" void fn_804E4E74(MpMsgSession_unk* s);
+// inferred: software keyboard (lbl_8087F860, MP::SoftKeyboard); only the members used here
+struct MpMenuKeyboard_unk : public atn::Task {
+    unsigned char m048[0xFC - 0x48];
+    wchar_t mFC[0x10];  // inferred: text entered
+    unsigned char m11C[0x25B8 - 0x11C];
+    int m25B8;          // inferred: nonzero when the text was decided
+};
+extern "C" MpMenuKeyboard_unk* lbl_8087F860;
 
 namespace MP {
 
@@ -141,6 +148,87 @@ int D2AMpMenu::vf0C() {
 void D2AMpMenu::vf1C() {}
 
 void D2AMpMenu::vf20() {}
+
+// inferred: closes the windows of the previous state
+// NONMATCHING: 99.86% - case 5: the name gets r31 (r29 in the original, as if `this` were still live)
+void D2AMpMenu::fn_804B0A78() {
+    switch (mC0) {
+    case 3:
+    case 8:
+        if (lbl_8087F610->m4FC != 43 && lbl_8087F610->m4FC != -1) {
+            D2ACommonDialog::sInstance->fn_804ACAF8();
+            D2ACommonDialog::sInstance->fn_804ACDBC();
+        }
+        D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
+        break;
+    case 17:
+        Stop_unk(mB8);
+        break;
+    case 9:
+        if (mBC != 8) {
+            Stop_unk(m50);
+            Stop_unk(m54);
+            for (int i = 0; i < sizeof(m58) / sizeof(m58[0]); i++) {
+                Stop_unk(m58[i]);
+            }
+            D2AMpMenuRankMark::sInstance->fn_804B4770(0);
+        }
+        mC8 = 0;
+        break;
+    case 12:
+        Play_unk(mB8, 1, 1.0f);
+        Play_unk(m74, 0, -1.0f);
+        break;
+    case 4:
+        if (D2AMpMenuSetMessage::sInstance != 0) {
+            fn_800D2338(D2AMpMenuSetMessage::sInstance);
+        }
+        break;
+    case 5:
+        if (lbl_8087F860 != 0) {
+            if (lbl_8087F860->m25B8 != 0) {
+                lbl_8087F628->m430.SetOwnName_unk(lbl_8087F860->mFC);
+
+            }
+            fn_800D2338(lbl_8087F860);
+        }
+        break;
+    case 7:
+        mB8->fn_800D246C(1);
+        mDC = 1;
+        break;
+    case 10:
+        Stop_unk(m68);
+        Stop_unk(m6C);
+        for (int i = 0; i < sizeof(m58) / sizeof(m58[0]); i++) {
+            Stop_unk(m58[i]);
+        }
+        break;
+    case 6:
+        fn_800D2338(D2AMpMenuFriend::sInstance);
+        Stop_unk(m70);
+        break;
+    case 18:
+        if (mBC != 17) {
+            Stop_unk(m80);
+            Stop_unk(m84);
+            Stop_unk(mB4);
+            Stop_unk(m88);
+            Stop_unk(m70);
+        }
+        for (int i = 0; i < 10; i++) {
+            Stop_unk(m8C[i]);
+        }
+        mDC = 0;
+        fn_804E4E74(lbl_8087F610);
+        break;
+    case 16:
+        MenuCommonTask::fn_804A29C4(this);
+        MenuCommonTask::sInstance->fn_800D246C(0);
+        MenuCommonTask::sInstance->fn_804A2F98();
+        break;
+    }
+}
 
 // inferred: sets the default rules of a game mode
 void D2AMpMenu::fn_804B4150(int state) {
