@@ -35,8 +35,9 @@ public:
     SoundRef();                          // 0x800CB360
     SoundRef(const SoundRef& other);     // 0x800CB36C
     ~SoundRef();                         // 0x800CB3A0
-    SoundRef& operator=(SoundObject* p); // 0x800CB404
-    SoundRef& operator=(const SoundRef& other); // 0x800CB440
+    // inferred: both return void (r3 is reused as a scratch register before blr)
+    void operator=(SoundObject* p); // 0x800CB404
+    void operator=(const SoundRef& other); // 0x800CB440
     void Reset();                        // 0x800CB480
 
     SoundObject* mPtr;

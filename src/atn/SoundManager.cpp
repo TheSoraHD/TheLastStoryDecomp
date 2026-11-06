@@ -40,24 +40,20 @@ SoundRef::~SoundRef() {
     Reset();
 }
 
-// NONMATCHING: 99.33% - difiere la asignacion de registros del contador de referencias.
-SoundRef& SoundRef::operator=(SoundObject* p) {
+void SoundRef::operator=(SoundObject* p) {
     Reset();
     mPtr = p;
     if (mPtr != 0) {
         ++mPtr->mRefCount;
     }
-    return *this;
 }
 
-// NONMATCHING: 97.81% - Reset() inline asigna registros distintos.
-SoundRef& SoundRef::operator=(const SoundRef& other) {
+void SoundRef::operator=(const SoundRef& other) {
     Reset();
     mPtr = other.mPtr;
     if (mPtr != 0) {
         ++mPtr->mRefCount;
     }
-    return *this;
 }
 
 void SoundRef::Reset() {
