@@ -18,7 +18,9 @@ struct MapSelectPair_unk {
 
 // inferred: point of the map read from map_param.csv (0x94 bytes, 64 of them at 0x19D0); names invented
 struct MapSelectPoint_unk {
-    MapSelectPoint_unk() {
+    MapSelectPoint_unk() { Clear_unk(); }
+    // inferred: also called for each row of map_param.csv (fn_80520634); name invented
+    void Clear_unk() {
         m10 = -1;
         m14 = 0;
         m18 = 0;
@@ -30,8 +32,8 @@ struct MapSelectPoint_unk {
     int m00;  // inferred: id (500 and over: battle points)
     int m04;
     int m08;  // inferred: battle point when positive (fn_80521010)
-    int m0C;
-    int m10;
+    int m0C;  // inferred: kind of the point (2: compared by fn_80520B04)
+    int m10;  // inferred: area ("MAIN", "VOLNO", "GURG"; -1 for none)
     int m14;  // inferred: number of the board model
     NewCampPartsEntry_unk* m18;
     NewCampPartsEntry_unk* m1C; // inferred: battle mark (mBattles), cleared by vf1C (with m20, m24)
@@ -130,9 +132,9 @@ public:
         return 0;
     }
     MapSelectPoint_unk* FindPoint_unk(int id) {
-        for (unsigned int i = 0; i < m19CC; i++) {
-            if (id == mPoints[i].m00) {
-                return &mPoints[i];
+        for (unsigned int i = 0; i < mPoints.mSize; i++) {
+            if (id == mPoints.mData[i].m00) {
+                return &mPoints.mData[i];
             }
         }
         return 0;
@@ -183,8 +185,7 @@ public:
     float m19BC;
     float m19C0;
     atn::LH_Binary mParam;               // 0x19C4: map_param.csv
-    int m19CC;                           // inferred: number of points read
-    MapSelectPoint_unk mPoints[64];      // 0x19D0
+    atn::FixedArray_unk<MapSelectPoint_unk, 64> mPoints; // 0x19CC: inferred: points read from map_param.csv
     atn::FixedArray_unk<MapSelectRoute_unk, 64> mRoutes; // 0x3ED0: inferred: routes (push_back/erase in fn_80520B04)
     MapSelectFlags_unk m45D4;
     int m46D4;

@@ -13,6 +13,7 @@
 #include "game/MapTask.h"
 #include "game/TacView.h"
 #include "game/TownTask.h"
+#include "atn/Csv.h"
 #include "game/PlayerManager.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
@@ -170,6 +171,19 @@ static inline int IsCastleCamp_unk(int type, int id) {
     }
     return ret;
 }
+extern "C" int fn_800DC12C(const char* s); // inferred: atoi
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" unsigned long strlen(const char* s);
+// inferred: areas of the points in map_param.csv (names invented)
+static const char* const sAreas[3] = {"MAIN", "VOLNO", "GURG"};
+static inline int FindArea_unk(const char* name) {
+    for (int i = 0; i < 3; i++) {
+        if (strcmp(sAreas[i], name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -216,7 +230,7 @@ NewCampPartsMapSelect* NewCampPartsMapSelect::fn_8051B920(atn::Task* parent) {
 NewCampPartsMapSelect::NewCampPartsMapSelect(atn::Task* parent)
     : NewCampPartsBase(parent), mD4(0), mD5(0), mD6(0), mD7(0), mD8(0), mDC(1), m198C(0), m1990(0),
       m1998(4), m199C(4), m19A0(-1), m19A4(-1), m19A8(0), m19B4(0), m19B8(0.0f), m19BC(6.0f), m19C0(0.0f),
-      m19CC(0), m46D4(0), m4800(sOffset), m4818(4.0f), m481C(20.0f),
+      m46D4(0), m4800(sOffset), m4818(4.0f), m481C(20.0f),
       m4820(0.2f), m4824(0.12f), m487C(0.0f), m4880(2500.0f), m4884(0.0f), m48A8(0), m48AC(-200.0f),
       m48B0(-150.0f), m48B4(170.0f), m48B8(180.0f) {
     m1910.Reset_unk(0);
@@ -331,7 +345,7 @@ int NewCampPartsMapSelect::vf4C() {
     if (mD4 == 0) {
         fn_80520634();
         mD4 = 1;
-        m4C = m19CC;
+        m4C = mPoints.mSize;
         if (m4C > 0) {
             m50.Reset_unk(new ((MemoryTag)1, "", "", 0) NewCampPartsEntry_unk[m4C]);
             m198C = new ((MemoryTag)1, "", "", 0) NewCampPartsFile_unk[m4C];
@@ -342,12 +356,12 @@ int NewCampPartsMapSelect::vf4C() {
         for (int i = 0; i < m4C; i++) {
             m198C[i].mModel = m1990[i * 2];
             m198C[i].mAnime = m1990[i * 2 + 1];
-            if (mPoints[i].m10 >= 0) {
-                if (mPoints[i].m00 < 500) {
-                    sprintf(m1990[i * 2], "map_board01_%04d", mPoints[i].m14);
+            if (mPoints.mData[i].m10 >= 0) {
+                if (mPoints.mData[i].m00 < 500) {
+                    sprintf(m1990[i * 2], "map_board01_%04d", mPoints.mData[i].m14);
                     sprintf(m1990[i * 2 + 1], "map_board01.d2a");
                 } else {
-                    sprintf(m1990[i * 2], "map_be010_001_%04d", mPoints[i].m14);
+                    sprintf(m1990[i * 2], "map_be010_001_%04d", mPoints.mData[i].m14);
                     sprintf(m1990[i * 2 + 1], "");
                 }
                 m198C[i].m08 = 0;
@@ -358,9 +372,9 @@ int NewCampPartsMapSelect::vf4C() {
                 } else {
                     m50[i].mAnime = 0;
                 }
-                mPoints[i].m18 = &m50[i];
-                if (mPoints[i].m04 > 0) {
-                    m46D8.push_back(mPoints[i].m04);
+                mPoints.mData[i].m18 = &m50[i];
+                if (mPoints.mData[i].m04 > 0) {
+                    m46D8.push_back(mPoints.mData[i].m04);
                 }
             }
         }
@@ -392,8 +406,8 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
     }
     {
         unsigned int i = 0;
-        MapSelectPoint_unk* point = mPoints;
-        for (; i < m19CC; i++, point++) {
+        MapSelectPoint_unk* point = mPoints.mData;
+        for (; i < mPoints.mSize; i++, point++) {
             point->m1C = 0;
         }
     }
@@ -405,8 +419,8 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
     }
     {
         unsigned int i = 0;
-        MapSelectPoint_unk* point = mPoints;
-        for (; i < m19CC; i++, point++) {
+        MapSelectPoint_unk* point = mPoints.mData;
+        for (; i < mPoints.mSize; i++, point++) {
             point->m20 = 0;
         }
     }
@@ -418,8 +432,8 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
     }
     {
         unsigned int i = 0;
-        MapSelectPoint_unk* point = mPoints;
-        for (; i < m19CC; i++, point++) {
+        MapSelectPoint_unk* point = mPoints.mData;
+        for (; i < mPoints.mSize; i++, point++) {
             point->m24 = 0;
         }
     }
@@ -442,7 +456,7 @@ void NewCampPartsMapSelect::vf20() {
         for (int i = 0; i < m4C; i++) {
             fn_805113E8(m50[i].mAnime, 1, 1, 0.0f, 1.0f);
             if (m50[i].mAnime != 0 && m50[i].mAnime->GetTask() != 0) {
-                SetTexture_unk(m50[i].mAnime, "thumbnail", mPoints[i].mThumbnail);
+                SetTexture_unk(m50[i].mAnime, "thumbnail", mPoints.mData[i].mThumbnail);
             }
         }
         if (((NewCampMapCamp_unk*)m48)->mParts != this) {
@@ -484,7 +498,7 @@ void NewCampPartsMapSelect::vf24() {
     m19B0 = 0;
     m19C0 = 0.0f;
     for (int i = 0; i < m4C; i++) {
-        mPoints[i].m28 = 0.0f;
+        mPoints.mData[i].m28 = 0.0f;
         SetEntryScale_unk(&m50[i], 0.0f);
     }
 }
@@ -672,6 +686,41 @@ int NewCampPartsMapSelect::fn_805201EC(int* point) {
         }
     }
     return 1;
+}
+
+// NONMATCHING: 99% - only the offsets of ";" and "%s" in @stringBase0 (the strings of vf10/vf14, not written
+// yet, go before them)
+void NewCampPartsMapSelect::fn_80520634() {
+    atn::Csv csv;
+    MapSelectPoint_unk point;
+    csv.SetData((const char*)mParam.fn_80470580(), mParam.fn_8047059C());
+    do {
+        point.Clear_unk();
+        if (strncmp(csv.fn_8005B9CC(), ";", 1) == 0) {
+            continue;
+        }
+        point.m00 = fn_800DC12C(csv.fn_8005B9CC());
+        csv.fn_8005B9CC();
+        csv.fn_8005B9CC();
+        point.m08 = fn_800DC12C(csv.fn_8005B9CC());
+        point.m0C = fn_800DC12C(csv.fn_8005B9CC());
+        csv.fn_8005B9CC();
+        point.m04 = fn_800DC12C(csv.fn_8005B9CC());
+        point.m10 = FindArea_unk(csv.fn_8005B9CC());
+        point.m14 = fn_800DC12C(csv.fn_8005B9CC());
+        sprintf(point.mThumbnail, "%s", csv.fn_8005B9CC());
+        std::string text;
+        for (int i = 0; i < 5; i++) {
+            text.clear();
+            text = csv.fn_8005B9CC();
+            if (text.size() >= 3) {
+                point.m6C[i].mA = fn_800DC12C(text.c_str());
+                point.m6C[i].mB = fn_800DC12C(text.c_str() + 2);
+            }
+        }
+        mPoints.push_back(point);
+    } while (csv.fn_8005BBF8());
+    mParam.fn_80473F88();
 }
 
 // NONMATCHING: 97.8% - same code, other registers (the original gives r31-r25 to the variables of the route block and
