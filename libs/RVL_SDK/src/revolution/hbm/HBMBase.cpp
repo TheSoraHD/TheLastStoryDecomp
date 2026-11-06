@@ -307,6 +307,7 @@ void HomeButton::create() {
     mInitFlag = false;
     mForceSttInitProcFlag = false;
     mForceSttFadeInProcFlag = false;
+    mSimpleSyncCallback = NULL;
 
     set_config();
     set_text();
@@ -458,15 +459,6 @@ void HomeButton::create() {
     }
 
     mpPaneManager->createLayoutScene(*mpLayout);
-    mpPaneManager->setAllComponentTriggerTarget(false);
-
-    for (i = 0; i < mButtonNum; i++) {
-        nw4hbm::lyt::Pane* pTouchPane =
-            mpLayout->GetRootPane()->FindPaneByName(scBtnName[i], true);
-
-        mpPaneManager->getPaneComponentByPane(pTouchPane)
-            ->setTriggerTarget(true);
-    }
 
     if (void* pMem = HBMAllocMem(sizeof(RemoteSpk))) {
         mpRemoteSpk = new (pMem) RemoteSpk(mpHBInfo->spkSeBuf);
@@ -1562,10 +1554,14 @@ void HomeButton::update(const HBMControllerData* pController) {
 #define IsValidDevType_(x)                                                     \
     ((x)->use_devtype == WPAD_DEV_CLASSIC ||                                   \
      (x)->kpad->dev_type == WPAD_DEV_CLASSIC)
+// inferred: version of 2010 (classic controller, also behind a Motion Plus)
+#define IsClassic_(x)                                                          \
+    (((x)->use_devtype == WPAD_DEV_CLASSIC &&                                  \
+      (x)->kpad->dev_type == WPAD_DEV_CLASSIC) ||                              \
+     ((x)->use_devtype == 7 && (x)->kpad->dev_type == 7))
+#define IsValidErr_(x) ((x) == WPAD_ERR_OK || (x) == -7)
 
     int i, idx;
-
-    mFader.calc();
 
     for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
         if (pController->wiiCon[i].kpad != NULL) {
@@ -1579,14 +1575,10 @@ void HomeButton::update(const HBMControllerData* pController) {
                         / getInstance()->getHBMDataInfo()->frameDelta + 0.5f)) {
                     // clang-format on
 
-                    if (pController->wiiCon[i].kpad->wpad_err == WPAD_ERR_OK) {
+                    if (IsValidErr_(pController->wiiCon[i].kpad->wpad_err)) {
                         bool pointerEnableFlag;
 
-                        if (pController->wiiCon[i].use_devtype !=
-                                WPAD_DEV_CLASSIC &&
-                            pController->wiiCon[i].kpad->dev_type !=
-                                WPAD_DEV_CLASSIC) {
-
+                        if (!IsClassic_(&pController->wiiCon[i])) {
                             if (pController->wiiCon[i].kpad->dpd_valid_fg > 0) {
                                 pointerEnableFlag = true;
                             } else {
@@ -1609,8 +1601,7 @@ void HomeButton::update(const HBMControllerData* pController) {
                     mPadDrawTime[i]++;
                 }
 
-                if (pController->wiiCon[i].use_devtype != WPAD_DEV_CLASSIC &&
-                    pController->wiiCon[i].kpad->dev_type != WPAD_DEV_CLASSIC) {
+                if (!IsClassic_(&pController->wiiCon[i])) {
 
                     if (pController->wiiCon[i].kpad->dpd_valid_fg <= 0) {
                         s32 result;
@@ -1637,6 +1628,7 @@ void HomeButton::update(const HBMControllerData* pController) {
             }
 
             if (!mControllerFlag[i]) {
+                UNK_0x88 = i;
                 mControllerFlag[i] = true;
 
                 getController(i)->getInfoAsync(&sWpadInfo[i]);
@@ -1666,11 +1658,10 @@ void HomeButton::update(const HBMControllerData* pController) {
                 setSpeakerAlarm(i, 400);
             }
 
-            if (pController->wiiCon[i].kpad->wpad_err == WPAD_ERR_OK) {
+            if (IsValidErr_(pController->wiiCon[i].kpad->wpad_err)) {
                 nw4hbm::math::VEC3 vec;
 
-                if (pController->wiiCon[i].use_devtype == WPAD_DEV_CLASSIC &&
-                    pController->wiiCon[i].kpad->dev_type == WPAD_DEV_CLASSIC) {
+                if (IsClassic_(&pController->wiiCon[i])) {
                     vec = nw4hbm::math::VEC3(0.0f, 0.0f, 15.0f);
                 } else {
                     Vec2 v = pController->wiiCon[i].kpad->horizon;
