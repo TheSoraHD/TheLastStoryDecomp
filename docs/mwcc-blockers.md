@@ -130,3 +130,34 @@ Solo registros (r28/r30 en ProcessMatchCommand, base de `.data` en r31/r30 en Ca
 ## WUD `fn_80670C70` (0x80670C70)
 
 El `switch (_nandStep)` de 6 casos es un arbol en el original (cadena en Wii/1.0-1.3 y 0x4201_127; GC/3.0a5.2 baja otras funciones) y el bucle de suma de RPHealth.dat se desenrolla x4 (nuestro x8). Probado: casos 6/0xFF explicitos, indexado `ptr[i]`.
+
+## Argumentos `float` cargados antes de la rama de un argumento condicional (MP)
+
+`fn_8006EF48(lbl_8087EEC8, fn_800A4450(pane, 0, 0).data(), 16.0f, 0.0f, 1, 1)`: el original carga el `16.0f` (y la
+fuente) antes de la rama de `data()`; nosotros despues. Igual en `D2AMpMenuMessageList::fn_804C50C0` con los floats de
+`fn_80061AE4` (`pos.x - off`, `17.0f`, `-100.0f`) frente a la rama de `msg->mText ? ... : lbl_808813D0`. Afecta a
+`D2AMpMenuSetRule::vf0C`, `D2AMpMenuFriendRoom`, `D2AMpMenu::vf0C` y `fn_804AF520`. Probado (`unidades-20261106b`):
+`std::wstring` con nombre, `c_str()`, variable `float size`, inline con la cadena/el puntero/el pane, accesor inline
+`GetText_unk`, wrapper con el texto como ultimo parametro, y los compiladores Wii 1.0/1.1/1.3/1.5/1.6/1.7/0x4201_127 y
+GC 2.6/3.0a5.2 en un fichero suelto (todos ponen la rama primero).
+
+## Pares texto/layout en r28-r31 cruzados (MP)
+
+`SetPaneText_unk(task->mLayout, name, text)` con el texto en un registro y `task + 0x58` en otro: en muchas funciones
+de los menus MP los dos registros salen cruzados (SetRule `fn_804CECEC`, Result, Cockpit, CommonDialog, SetMessage
+`fn_804CB2F0`/`fn_804CC618`/`fn_804CC7A4`/`fn_804CCB54`/`vf10`). `SetTaskText_unk` (layout antes del hash) arregla
+unos casos (SetMessage `fn_804C9360`, `fn_804C8D80`) y no otros; una inline miembro para el bucle o el texto arregla
+otros (`CountMessages_unk`, `HasMessage_unk`, `PlayVoice_unk`). Sin regla general.
+
+## KPAD 2010 `.sdata2` (`unidades-20261106b`)
+
+`KPAD.c` 33/33 enlaza salvo el orden de tres entradas de `.sdata2` (0x80888920): `1/200` y `1/100` van antes del
+`{1,1,1}` de `KPADiSamplingCallback`, como si una funcion quitada por el enlazador entre `KPADInitEx` y
+`KPADiSamplingCallback` las usara primero. No se ha inventado esa funcion.
+
+## Varias vistas de `lbl_8087F628` (`unidades-20261106b`)
+
+`include/MP/D2AMpMenuFriend.h` (`MpData_unk` + `MpFriendList_unk` parcial), `D2AMpMenuSetMessage.cpp`
+(`MpMsgData_unk`), `D2AMpMenuMessageList.cpp` (`MpData_unk` local) e `include/atn/net/Manager.h` (`atn::net::Manager`
+con el `MpFriendList_unk` completo de `atn/NetFriend_unk.cpp`) no se pueden incluir juntos: `D2AMpMenu::fn_804AF520`
+llama a `fn_80509AF8` de `atn::net::Manager` y usa la lista de amigos de la vista de Friend. Hay que unificarlas.
