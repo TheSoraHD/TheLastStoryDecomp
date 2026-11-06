@@ -4,7 +4,16 @@
 #include "revolution/wud.h"
 #include <cstring>
 
-#define DEBUGPrint WUD_DEBUGPrint
+// Version of August 2010: no debug messages, and the device tables of WUD.c are accessed through
+// the new functions of WUD.c.
+#define DEBUGPrint(...) ((void)0)
+
+s32 fn_8066E8F0(void);
+WUDDevInfo* fn_80673E10(void);
+void fn_80673F50(UINT8 handle, BD_ADDR_PTR addr);
+BD_ADDR_PTR fn_80673F70(UINT8 handle);
+void fn_80673F90(UINT8 handle, u16 size);
+void fn_80673FB0(UINT8 handle, u16 num);
 
 // TODO(kiwi) Is this from BTA?
 #define WUD_HH_CUSTOM_EVT 15
@@ -51,7 +60,7 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
                    pConn->bda[4], pConn->bda[5]);
 
         if (pConn->status == BTA_HH_OK) {
-            pInfo = &_work;
+            pInfo = fn_80673E10();
 
             if (WUD_BDCMP(pInfo->devAddr, pConn->bda) != 0) {
                 pInfo = WUDiGetDevInfo(pConn->bda);
@@ -75,16 +84,16 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
             pInfo = WUDiGetDevInfo(pConn->bda);
             if (pInfo == NULL) {
-                pInfo = &_work;
+                pInfo = fn_80673E10();
             }
 
-            _dev_handle_to_bda[pConn->handle] = pInfo->devAddr;
-            _dev_handle_queue_size[pConn->handle] = 0;
-            _dev_handle_notack_num[pConn->handle] = 0;
+            fn_80673F50(pConn->handle, pInfo->devAddr);
+            fn_80673F90(pConn->handle, 0);
+            fn_80673FB0(pConn->handle, 0);
 
             if (pInfo->sync_type == 3 || pInfo->sync_type == 1) {
                 WUDiMoveTopSmpDevInfoPtr(pInfo);
-            } else {
+            } else if (!fn_8066E8F0() || (fn_8066E8F0() && WUD_DEV_NAME_IS_CNT(pInfo->conf.devName))) {
                 WUDiMoveTopStdDevInfoPtr(pInfo);
             }
 
@@ -97,8 +106,10 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
             DEBUGPrint("error code: %d\n", pConn->status);
 
             if (p->syncState != 0) {
-                if (!memcmp(pConn->bda, _work.devAddr, 6)) {
-                    if (_work.status == 2) {
+                pInfo = fn_80673E10();
+
+                if (!memcmp(pConn->bda, pInfo->devAddr, 6)) {
+                    if (pInfo->status == 2) {
                         if (WUDiGetDevInfo(pConn->bda) && pConn->status == 12) {
                             WUDiRemoveDevice(pConn->bda);
                             p->linkedNum--;
@@ -135,18 +146,18 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
         DEBUGPrint("device handle : %d   status = %d\n", pCbData->handle, pCbData->status);
 
-        pInfo = WUDiGetDevInfo(_dev_handle_to_bda[pCbData->handle]);
+        pInfo = WUDiGetDevInfo(fn_80673F70(pCbData->handle));
         if (pInfo != NULL) {
             if (pInfo->sync_type == 3 || pInfo->sync_type == 1) {
                 WUDiMoveTopOfDisconnectedSmpDevice(pInfo);
-            } else {
+            } else if (!fn_8066E8F0() || (fn_8066E8F0() && WUD_DEV_NAME_IS_CNT(pInfo->conf.devName))) {
                 WUDiMoveTopOfDisconnectedStdDevice(pInfo);
             }
         }
 
-        _dev_handle_to_bda[pCbData->handle] = NULL;
-        _dev_handle_queue_size[pCbData->handle] = 0;
-        _dev_handle_notack_num[pCbData->handle] = 0;
+        fn_80673F50(pCbData->handle, NULL);
+        fn_80673F90(pCbData->handle, 0);
+        fn_80673FB0(pCbData->handle, 0);
 
         if (p->hidConnCB != NULL) {
             p->hidConnCB(pInfo, FALSE);
@@ -200,9 +211,9 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
         pInfo = WUDiGetDevInfo(pConn->bda);
         pInfo->devHandle = pConn->handle;
-        _dev_handle_to_bda[pConn->handle] = pInfo->devAddr;
-        _dev_handle_queue_size[pConn->handle] = 0;
-        _dev_handle_notack_num[pConn->handle] = 0;
+        fn_80673F50(pConn->handle, pInfo->devAddr);
+        fn_80673F90(pConn->handle, 0);
+        fn_80673FB0(pConn->handle, 0);
         break;
     }
 
@@ -238,9 +249,8 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
         for (i = 0; i < pEvt15->linkedNum; i++) {
             if (pEvt15->devices[i].handle < WUD_MAX_DEV_ENTRY) {
-                _dev_handle_queue_size[pEvt15->devices[i].handle] = pEvt15->devices[i].queueSize;
-
-                _dev_handle_notack_num[pEvt15->devices[i].handle] = pEvt15->devices[i].notAckNum;
+                fn_80673F90(pEvt15->devices[i].handle, pEvt15->devices[i].queueSize);
+                fn_80673FB0(pEvt15->devices[i].handle, pEvt15->devices[i].notAckNum);
             }
         }
 
