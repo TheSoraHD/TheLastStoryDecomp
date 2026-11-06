@@ -4093,8 +4093,9 @@ RVL_SDK/src/revolution/axfx/AXFXChorusExp.c:
 	.text       start:0x8060EDF0 end:0x8060F910 align:16
 	.sdata2     start:0x808886B8 end:0x808886E8
 
-auto_03_8060F910_text.cpp:
+RVL_SDK/src/revolution/axfx/AXFXChorusExpDpl2.c:
 	.text       start:0x8060F910 end:0x80610490 align:16
+	.sdata2     start:0x808886E8 end:0x80888718
 
 RVL_SDK/src/revolution/axfx/AXFXLfoTable.c:
 	.text       start:0x80610490 end:0x806104A0
