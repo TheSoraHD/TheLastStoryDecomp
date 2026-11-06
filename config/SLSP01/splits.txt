@@ -3532,6 +3532,8 @@ RVL_SDK/src/revolution/hbm/HBMGUIManager.cpp:
 
 RVL_SDK/src/revolution/hbm/HBMController.cpp:
 	.text       start:0x805C1BC0 end:0x805C2800
+	.rodata     start:0x80764150 end:0x80764160
+	.bss        start:0x807C9F88 end:0x807CA128
 
 RVL_SDK/src/revolution/hbm/HBMRemoteSpk.cpp:
 	.text       start:0x805C2800 end:0x805C3120

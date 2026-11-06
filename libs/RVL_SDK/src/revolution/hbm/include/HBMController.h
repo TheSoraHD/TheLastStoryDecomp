@@ -68,7 +68,7 @@ public:
 
     void initSound();
     void updateSound();
-    //void playSound(nw4hbm::snd::SoundArchivePlayer* pPlayer, int id);
+    void playSound(int id); // version 2010
 
     void soundOn();
     void soundOff(int msec);
@@ -90,6 +90,7 @@ private:
     static OSAlarm sAlarm[WPAD_MAX_CONTROLLERS];
     static OSAlarm sAlarmSoundOff[WPAD_MAX_CONTROLLERS];
     static Controller* sThis[WPAD_MAX_CONTROLLERS];
+    static bool sGettingInfo[WPAD_MAX_CONTROLLERS]; // inferred: new in 2010 (set while WPADGetInfoAsync runs)
 
     HBController mHBController;                  // at 0x0
     //nw4hbm::snd::SoundHandle mSoundHandle;       // at 0x4
