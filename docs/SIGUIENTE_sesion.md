@@ -1,52 +1,52 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-06, `unidades-20261106` mergeada en `main` fb7f7d0)
+## Estado actual (2026-11-06, cierre de `unidades-20261106b`, sin mergear)
 
-- `main` (desde 9206c64, 12766): report **13524 / 18117** (lost 0, `main.dol: OK`, 652 de
-  1304 unidades enlazadas; fuzzdrop solo lista dos símbolos `pad_03_*` de relleno que desaparecen al enlazar).
-  Notas, decisiones a revisar, splits, renombrados y cambios de `libs/`: `docs/unidades-20261106.md`.
-  - Enlazadas nuevas: `btm_inq.c`, `EXIBios.c` (`-O3`), 9 de `homebuttonLib/sound`, `THPDec.c`, `THPAudio.c`,
-    `WUDHidHost.c`, `HBMController.cpp`, `HBMRemoteSpk.cpp`, `HBMCommon.cpp`, `HBMAxSound.cpp`, **AXFX completo**,
-    **NHTTP completo**, SO (`SOBasic`, `SOInformation`, `SOOption`), MATH CRC, `ncdsystem.c`, `NETMD5.c`,
-    `nw4r db_console`, de Swiftshine/key (CC0) **`WPAD.c` 2010 (98/98)**, `WPADEncrypt.c`, `WPADMem.c`, `lint.c`;
-    de mscharged (CC0) `dwc_nonport.c`, `dwci_np_math.c`, `dwc_common.c`, **VF (16 ficheros)**; `dwci_encsession.c`;
-    `CXStreamingUncompression.c` (desde el asm).
-  - Sin enlazar: `bd.c`, `WPADHIDParser.c` (32/33), `WUD.c` 2010 (77/85), `HBMBase.cpp` (33/34: `draw`),
-    `db_assert.cpp` (4/5, `VPanic` con asm), `CXUncompression.c` (3/4), **`dwc_match` (96/101, fuente R4QK01 de
-    mscharged + cambios de 2010)**, **KPAD 2010** (`KPAD.c` 22/63 y `KPADMpls_unk.c` 6/40, structs rellenados).
-- Fuentes externas útiles: Swiftshine/key (CC0, Kirby Epic Yarn, SDK de dic. 2009), mscharged-decomp (CC0: NHTTP,
-  SO, DWC/VF/KPAD R4QK01 de mayo-junio de 2009), wii-ipl (CC0), pokemon-rumble-decomp (MIT).
-  `robojumper/sdk_2009-12-11` no tiene licencia y `mkwcat/nsmbw-project` es MPL 2.0: sin usar, decide el usuario.
+- Rama `unidades-20261106b` (desde `main` c6fdafc, 13524): report **13604 / 18117** (lost 0, fuzzdrop 0,
+  `main.dol: OK` en build limpio y en clon limpio, 652 unidades enlazadas). Notas y decisiones:
+  `docs/unidades-20261106b.md`.
+  - KPAD 2010: `KPAD.c` 33/33 (no enlaza: solo el orden de tres entradas de `.sdata2`), `KPADMpls_unk.c` 10/16 y
+    `KPADMplsMath_unk.c` (unidad nueva partiendo KPADMpls) 4/6. Los `WBC*` débiles de KEY ocupan el sitio de los
+    stubs `fn_8065CED0..CF20`.
+  - Menús MP: `D2AMpMenuSetMessage` 20/26 (las 26 escritas), `D2AMpMenu` 20/41, `D2AMpMenuLobby` 15/39 (nueva;
+    split FriendRoom/Lobby corregido), FriendRoom 10/13, Friend 16/21, MessageList 9/16, Result 13/20. Clases en
+    `include/MP/D2AMpMenu*.h`; `Decide_unk` (cursor + decidir/cancelar) en `include/MP/D2AMpMenu_unk.h`.
+- `main` (fb7f7d0): 13524. Sin enlazar: `bd.c`, `WPADHIDParser.c` (32/33), `WUD.c` (77/85), `HBMBase.cpp` (33/34),
+  `db_assert.cpp` (4/5), `CXUncompression.c` (3/4), `dwc_match` (96/101).
+- Fuentes externas: Swiftshine/key (CC0), mscharged-decomp (CC0), wii-ipl (CC0), pokemon-rumble-decomp (MIT).
+  `robojumper/sdk_2009-12-11` (sin licencia) y `mkwcat/nsmbw-project` (MPL 2.0): sin usar, decide el usuario.
 
 ## Propuestas
 
-1. KPAD 2010: arreglar el final de `KPADInsideStatus` (`accScaleReset` en 0x67E, campos nuevos 0x676-0x680,
-   callback en 0x680) y portar `KPADInitEx`, `KPADiConnectCallback`, `KPADiRead`, `read_kpad_ext`,
-   `read_kpad_acc`, `KPADiSamplingCallback`, callbacks de la balance board (sus `kp_wbc_*` cambian de sitio) y
-   el resto de Motion Plus (`KPADMpls_unk.c`: los tres `fn_80659B20/C10/D00` por eje son iguales).
-2. `dwc_match` (96/101): quedan 4 de registros (ver `mwcc-blockers.md`); para enlazar, quitar
-   `DWC_IsValidCancelMatching`/`DWC_RegisterMatchStatus` (deadstrip) y cuadrar `.data`.
-3. Mismo método (compilar el `.o` externo, emparejar por tamaño con `difflib`, renombrar, cambios 2010) para
-   lo que quede con fuente en mscharged/KEY.
-4. WUD.c 2010 (77/85), `WPADHIDParser::__parse_dpd_data` (98%), `HBMBase::draw` (98,8%), `CXUncompressAny` (84%).
-5. Unidades del juego sin fuente con funciones pequeñas (NewCampTask, TacView, ShopBase, LastCocoonEgg...):
-   empezar el fuente como `game/GameEventScript.cpp`.
-6. TeamAI_unk (`std::multimap` y `Move_unk<P>`, ya con nombre en symbols).
+1. Menús MP: unificar las vistas de `lbl_8087F628` (`MpData_unk`, `MpMsgData_unk`, `MpLobbyData_unk`,
+   `atn::net::Manager`) y de `lbl_8087F610` en una cabecera; es requisito de `D2AMpMenu::fn_804AF520` (5456 B) y
+   esa función desbloquea el pool `@stringBase0` del resto de D2AMpMenu. En Lobby, `fn_804BC628` (5000 B) hace lo
+   mismo para su pool (y usa el `@wstringBase0` de `.data` 0x80790D74).
+2. Bloqueo de la búsqueda por aid (`docs/mwcc-blockers.md`): Lobby `vf0C`, `fn_804C2C14`, `fn_804BE610`,
+   `fn_804BEDB8`, `fn_804C23E4`, FriendRoom `vf0C`. Pista: en `fn_804C23E4` el aid entra con `clrlwi` (parámetro de
+   8 bits de la búsqueda real).
+3. Registros texto/layout en `SetPaneText_unk` (SetMessage, Result, Cockpit, SetRule, MessageList `fn_804C38C0`):
+   probar formas nuevas (no repetir las anotadas en cada `NONMATCHING`).
+4. KPAD: `matching: true` solo depende del orden `.sdata2` (1/200 y 1/100 antes de `{1,1,1}`); `KPADMpls_unk.c`
+   `fn_80659DF0` (2752 B).
+5. `dwc_match` (96/101); unidades del juego sin ninguna función al 100% (NewCampTask, TacView, ShopBase,
+   LastCocoon*, AiTarget, ReplayBuffer, Event/DebugInfo_unk). TeamAI_unk solo con idea nueva.
 
 ## Bloqueos conocidos (no repetir sin idea nueva)
 
+- `16.0f`/`21.0f` de `fn_8006EF48` cargados antes de la rama de `data()` (D2AMpMenu `vf0C`, SetRule `vf0C`,
+  FriendRoom `vf0C`, MessageList `fn_804C50C0`): igual con todos los compiladores.
 - `push_back<boost::shared_ptr>` y el crecimiento de `vector` no trivial.
 - MapManager fn_80491D50/DF8; matriz de reflejo de `atn::Scene`; MapTask::fn_804A0F80 (presupuesto de inline).
 - `IpcReplyHandler`: `switch` en árbol en el original.
 - `pdbatch.sh` renombra `lbl_8087D6E8/EC`, `lbl_80756700`, `lbl_8087EE78`, a veces `0x8087DB00/04`, `__vt__` sobre
-  cadenas: devolverlos a mano. `.sdata2` ambiguas: `tools/decomp/sdata2pair.py <unidad>`.
-- `oursyms.py` (scratch) aborta si fuera a poner nombres `__vt__`/`__RTTI__`: las vtables débiles chocan con las
-  unidades enlazadas.
+  cadenas: devolverlos a mano. `.sdata2` ambiguas: `tools/decomp/sdata2pair.py <unidad>`. dtk vuelve a poner
+  `jumptable_` sobre un `lbl_`: renombrar la tabla al `@N` del compilador.
+- Tras cambiar una cabecera compartida de los menús MP, `pdbatch.sh` de todas las unidades `MP/D2AMpMenu*` y
+  `MP/D2ACommonDialog` (labelcheck lo detecta).
+- No partir los símbolos `@wstringBase0`: dtk falla con "Non-terminated UTF-16 string".
 - Tras borrar `build/SLSP01/obj` hay que borrar también `build/SLSP01/config.json`.
 - `configure.py` sin flags intenta descargar los compiladores: usar la línea de `docs/entorno-nube.md`.
-- `odiff2.py` no recompila: compilar la unidad (o `fnstat.py`) antes.
-- HBMBase: objdiff da 99,8% en los `lfs` contra `lbl_80764198` aunque el pool sea idéntico.
-- Unidad enlazada seguida de asm: poner `align:16` en el `.text` de la siguiente (se pierde el relleno). Para
-  la `.bss`, `align:` en splits no vale: la alineación sale del `.o`.
-- Al renombrar un `fn_` en symbols.txt, renombrarlo también en **todos** los fuentes (incluidos `src/` del juego),
-  o el enlace falla (`main.elf`).
+- `odiff2.py` no recompila: compilar la unidad (o `fnstat.py`) antes. `tools/decomp/try.sh` busca los compiladores
+  en `../compilers`: en la nube están en `/home/claude/tls-build/build/compilers` (ajustar la ruta).
+- Al renombrar un `fn_` en symbols.txt, renombrarlo también en **todos** los fuentes, o el enlace falla.

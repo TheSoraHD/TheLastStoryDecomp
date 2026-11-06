@@ -123,6 +123,12 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
   `KPADMpls_unk.c` reescrito y `KPADMplsMath_unk.c` nuevo (desde el asm). `libs/key` (CC0): `WPAD.c` sin los stubs
   `fn_8065CED0..CF20`. Ninguna fuente externa nueva copiada.
 
+## Cierre
+
+- Build limpio (`rm -rf build/SLSP01`): `main.dol: OK`, 13604 / 18117, 652 enlazadas; regress lost 0, fuzzdrop 0,
+  labelcheck y rep100 iguales que la referencia, ordercheck 0 fuera de orden y mnemcheck limpio en lo tocado.
+  poolcheck: solo el aviso conocido de `KPAD.o` (constantes de `.sdata2` que el enlazador quita; unidad sin enlazar).
+
 ## Hallazgos
 
 - Ver `docs/trucos-mwcc.md` (lineas marcadas `unidades-20261106b`).
