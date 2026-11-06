@@ -136,7 +136,7 @@ struct DropOptions_unk {
 };
 extern "C" DropOptions_unk* lbl_8087F0A8;
 // inferred: global object at lbl_8087F628 (as in gmk/Item.cpp)
-extern "C" unsigned char fn_806B0E30();
+extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
 struct DropState_unk {
     unsigned char m000[0x1F8];
@@ -148,7 +148,7 @@ struct DropState_unk {
 
     unsigned char Get1_unk() {
         if (mC215 == 0) {
-            return mDisabled ? 0 : fn_806B0E30();
+            return mDisabled ? 0 : DWC_GetMyAID();
         } else {
             return mDisabled ? 0 : fn_806A8E40();
         }

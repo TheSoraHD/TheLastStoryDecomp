@@ -143,7 +143,7 @@ BOOL fn_806AE910(void) {
     return FALSE;
 }
 
-void fn_806AEB10(DWCError error, int errorCode);
+void DWCi_StopLogin(DWCError error, int errorCode);
 
 void fn_806AE960(void) {
     if (stpLoginCnt == NULL || DWCi_IsError()) {
@@ -163,7 +163,7 @@ void fn_806AE960(void) {
         if (stpLoginCnt->connectFlag) {
             s64 now = OSGetTime();
             if (OS_TICKS_TO_MSEC(now - stpLoginCnt->connectTime) > 60000) {
-                fn_806AEB10(DWC_ERROR_NETWORK, -61070);
+                DWCi_StopLogin(DWC_ERROR_NETWORK, -61070);
                 stpLoginCnt->connectFlag = FALSE;
             }
         }
@@ -174,7 +174,7 @@ void fn_806AE960(void) {
     }
 }
 
-DWCUserData* fn_806AEAF0(void) {
+DWCUserData* DWCi_GetUserData(void) {
     if (stpLoginCnt != NULL) {
         return stpLoginCnt->userdata;
     }
@@ -190,7 +190,7 @@ static inline void DWCi_CloseLogin(void) {
     stpLoginCnt->connectFlag = FALSE;
 }
 
-void fn_806AEB10(DWCError error, int errorCode) {
+void DWCi_StopLogin(DWCError error, int errorCode) {
     if (stpLoginCnt == NULL || error == DWC_ERROR_NONE) {
         return;
     }
@@ -235,7 +235,7 @@ GPResult fn_806AEBF0(GPResult result) {
         errorCode = -20;
         break;
     }
-    fn_806AEB10(error, errorCode - 61000);
+    DWCi_StopLogin(error, errorCode - 61000);
     return result;
 }
 
@@ -278,7 +278,7 @@ void fn_806AED20(GPConnection* connection, GPConnectResponseArg* arg, void* para
                 DWC_Printf(DWC_REPORTFLAG_LOGIN, "  gs profile id is invalid.\n");
                 DWC_Printf(DWC_REPORTFLAG_LOGIN, "  You can't use copied userdata.\n");
                 DWC_Printf(DWC_REPORTFLAG_LOGIN, "  Please find DWC_AllowMovedUserData().\n");
-                fn_806AEB10(DWC_ERROR_NETWORK, -60000);
+                DWCi_StopLogin(DWC_ERROR_NETWORK, -60000);
             }
         } else if (stpLoginCnt->state == DWC_LOGIN_STATE_GPGETINFO) {
             if (fn_806AEBF0(gpGetInfo(connection, arg->profile, 0, 0, (GPCallback)fn_806AF3F0,
@@ -368,9 +368,9 @@ void fn_806AF170(void) {
         errorCode = DWCi_Auth_GetErrorCode();
         DWC_Printf(DWC_REPORTFLAG_LOGIN, " *** Auth Error [%d]\n", errorCode);
         if (errorCode <= -29000) {
-            fn_806AEB10(DWC_ERROR_FATAL, errorCode);
+            DWCi_StopLogin(DWC_ERROR_FATAL, errorCode);
         } else {
-            fn_806AEB10(DWC_ERROR_AUTH_ANY, errorCode);
+            DWCi_StopLogin(DWC_ERROR_AUTH_ANY, errorCode);
         }
     }
 }

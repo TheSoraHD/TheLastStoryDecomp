@@ -109,7 +109,7 @@ extern "C" int fn_806B0410(int count, int arg1, void* cb0, void* p0, void* cb1, 
 extern "C" int fn_806B05B0(int count, int index, void* cb0, void* p0, void* cb1, void* p1, void* cb2,
                            const char* name, void* p3);
 extern "C" void fn_806B0950(void (*cb)(), void* param);
-extern "C" void fn_806B0980();
+extern "C" void DWC_CloseAllConnectionsHard();
 extern "C" void fn_806B0CF0(unsigned char value);
 extern "C" int fn_806B0EB0(unsigned char** aids);
 extern "C" int fn_806B1170(unsigned char aid);
@@ -519,7 +519,7 @@ int Manager::fn_80509CAC() {
             fn_8050A634(0);
         }
         if (mC215 == 0) {
-            fn_806B0980();
+            DWC_CloseAllConnectionsHard();
         }
         mFlags.mB6 = 0;
         mState = 8;
@@ -1575,7 +1575,7 @@ void NetThread_unk::fn_8050CF90() {
 inline void Manager::Cleanup_unk() {
     if (mFlags.mB6 == 1) {
         if (mC215 == 0) {
-            fn_806B0980();
+            DWC_CloseAllConnectionsHard();
         }
         mFlags.mB6 = 0;
     }

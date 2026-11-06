@@ -27,14 +27,14 @@ int gt2GetOutgoingBufferFreeSpace(GT2Connection connection);
 
 // inferred: DWC matching functions (other units); names from older DWC builds where known
 void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
-u8 fn_806B0E30(void);                                // DWC_GetMyAID
+u8 DWC_GetMyAID(void);                                // DWC_GetMyAID
 int fn_806B0EB0(u8** aidList);                       // DWC_GetAIDList
 BOOL fn_806B1170(u8 aid);                            // DWC_IsValidAID
-BOOL fn_806B12F0(void);                              // inferred: TRUE on the match server
-GT2Connection fn_806B14D0(u8 aid);                   // DWCi_GetGT2Connection
+BOOL DWC_IsServerMyself(void);                              // inferred: TRUE on the match server
+GT2Connection DWCi_GetGT2Connection(u8 aid);                   // DWCi_GetGT2Connection
 u8 fn_806B1570(GT2Connection connection);            // DWCi_GetConnectionAID
 BOOL fn_806B1730(u8 aid);                            // inferred: aid has a GT2 connection
-void fn_806B1A00(u8 aid);                            // inferred: closes the connection to aid
+void DWCi_CloseConnectionHard(u8 aid);                            // inferred: closes the connection to aid
 u8 fn_806B30A0(void);                                // inferred: aid of the server, 0xFF if none
 void DWCi_ProcessMatchSynPacket(u8 aid, u16 type, const u8* message); // inferred: system message handler
 void DWCi_HandleGT2UnreliableMatchCommandMessage(const u8* message, u32 size);       // inferred: unreliable match command

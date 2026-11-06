@@ -5367,7 +5367,7 @@ dwc/src/base/dwc_main.c:
 	.data       start:0x807BDCD0 end:0x807BE9D0
 	.bss        start:0x8085FF98 end:0x80860140
 
-dwc/src/base/dwc_match.c:
+msc/src/RVL_SDK/dwc/dwc_match.c:
 	.text       start:0x806B3160 end:0x806CD540
 	.rodata     start:0x8076B620 end:0x8076B638
 	.data       start:0x807BE9D0 end:0x807C1750

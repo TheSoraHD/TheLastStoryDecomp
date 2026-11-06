@@ -9,7 +9,7 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: global object at lbl_8087F628 (class unknown); the two tests are inline accessors
-extern "C" unsigned char fn_806B0E30();
+extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
 extern "C" unsigned char fn_806B1250();
 struct ItemState_unk {
@@ -23,7 +23,7 @@ struct ItemState_unk {
     // inferred: names invented
     unsigned char Get1_unk() {
         if (mC215 == 0) {
-            return mDisabled ? 0 : fn_806B0E30();
+            return mDisabled ? 0 : DWC_GetMyAID();
         } else {
             return mDisabled ? 0 : fn_806A8E40();
         }

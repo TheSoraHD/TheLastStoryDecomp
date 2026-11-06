@@ -10,7 +10,7 @@ extern "C" void* fn_800838B8(atn::MemoryManager* mgr, unsigned long size, unsign
                              const char* file, const char* func, int line);
 
 // inferred: global network state (class unknown, see gmk/Item.cpp)
-extern "C" unsigned char fn_806B0E30();
+extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
 struct NetState_unk {
     unsigned char m000[0x1F8];
@@ -23,7 +23,7 @@ struct NetState_unk {
     // inferred: own aid
     unsigned char GetMyAid_unk() {
         if (mC215 == 0) {
-            return mDisabled ? 0 : fn_806B0E30();
+            return mDisabled ? 0 : DWC_GetMyAID();
         } else {
             return mDisabled ? 0 : fn_806A8E40();
         }

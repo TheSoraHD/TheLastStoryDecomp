@@ -49,7 +49,7 @@ struct MpData_unk {
     unsigned char mC215;
 };
 extern "C" MpData_unk* lbl_8087F628;
-extern "C" int fn_806B0DE0();
+extern "C" int DWC_GetNumConnectionHost();
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" int fn_806A8E70();
 
@@ -332,7 +332,7 @@ void D2AMpMenuMessageList::fn_804C4530() {
     if (data != 0) {
         int count;
         if (data->mC215 == 0) {
-            count = data->m1F8_11 ? 1 : fn_806B0DE0();
+            count = data->m1F8_11 ? 1 : DWC_GetNumConnectionHost();
         } else {
             count = data->m1F8_11 ? 1 : fn_806A8E70();
         }

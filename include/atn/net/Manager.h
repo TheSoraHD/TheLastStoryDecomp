@@ -13,7 +13,7 @@
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
-extern "C" unsigned char fn_806B0E30(); // inferred: own aid (DWC)
+extern "C" unsigned char DWC_GetMyAID(); // inferred: own aid (DWC)
 extern "C" int fn_806A8E40();           // inferred: own aid (local play)
 extern "C" int fn_806B1250();           // inferred: aid of the server (DWC)
 
@@ -248,7 +248,7 @@ public:
     // inferred: own aid
     unsigned char GetMyAid_unk() {
         if (mC215 == 0) {
-            return mFlags.mB12 ? 0 : fn_806B0E30();
+            return mFlags.mB12 ? 0 : DWC_GetMyAID();
         } else {
             return mFlags.mB12 ? 0 : fn_806A8E40();
         }

@@ -135,7 +135,7 @@ void SetPersistDataValuesA(int localid, int profileid, int type, int index, char
 int PersistThink(void);
 
 // inferred: dwc_login entry points
-const DWCUserData* fn_806AEAF0(void); // DWCi_GetUserData
+const DWCUserData* DWCi_GetUserData(void); // DWCi_GetUserData
 BOOL fn_806AF670(void);               // DWCi_CheckLogin
 
 // inferred: dwc_account friend data accessors (by their use here)
@@ -268,8 +268,8 @@ BOOL DWC_CanChangeFriendList(void) {
 void DWC_DeleteBuddyFriendData(DWCFriendData* friendData) {
     int profileID;
 
-    if (stpFriendCnt != NULL && fn_806AF670() && fn_806AEAF0() != NULL &&
-        (profileID = DWC_GetGsProfileId(fn_806AEAF0(), friendData)) != 0 && profileID != -1 &&
+    if (stpFriendCnt != NULL && fn_806AF670() && DWCi_GetUserData() != NULL &&
+        (profileID = DWC_GetGsProfileId(DWCi_GetUserData(), friendData)) != 0 && profileID != -1 &&
         gpIsBuddy(stpFriendCnt->pGpObj, profileID)) {
         gpDeleteBuddy(stpFriendCnt->pGpObj, profileID);
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "DWC_DeleteBuddyFriendData : Deleted buddy.\n");
@@ -442,7 +442,7 @@ void DWCi_FriendProcess(void) {
         for (i = 0; i < stpFriendCnt->friendListLen; i++) {
             if (DWC_GetFriendDataType(&stpFriendCnt->friendList[i]) == DWC_FRIENDDATA_GS_PROFILE_ID) {
                 stpFriendCnt->reverseBuddyList[j] =
-                    DWC_GetGsProfileId(fn_806AEAF0(), &stpFriendCnt->friendList[i]);
+                    DWC_GetGsProfileId(DWCi_GetUserData(), &stpFriendCnt->friendList[i]);
                 j++;
             }
         }
@@ -568,7 +568,7 @@ int DWCi_GetProfileIDFromList(int index) {
     if (stpFriendCnt->friendList == NULL) {
         return 0;
     }
-    profileID = DWC_GetGsProfileId(fn_806AEAF0(), &stpFriendCnt->friendList[index]);
+    profileID = DWC_GetGsProfileId(DWCi_GetUserData(), &stpFriendCnt->friendList[index]);
     if (!(profileID != 0 && profileID != -1)) {
         return 0;
     }
@@ -682,8 +682,8 @@ static void DWCi_UpdateFriendReq(DWCFriendData friendList[], int friendListLen) 
                 DWCi_SendBuddyRequest(profileID);
                 fn_806CF2A0(&friendList[stpFriendCnt->buddyUpdateIdx], 1);
             }
-        } else if (DWC_GetGsProfileId(fn_806AEAF0(), &friendList[stpFriendCnt->buddyUpdateIdx]) == -1) {
-            DWC_LoginIdToUserName(fn_806AEAF0(), &friendList[stpFriendCnt->buddyUpdateIdx], loginIdStr);
+        } else if (DWC_GetGsProfileId(DWCi_GetUserData(), &friendList[stpFriendCnt->buddyUpdateIdx]) == -1) {
+            DWC_LoginIdToUserName(DWCi_GetUserData(), &friendList[stpFriendCnt->buddyUpdateIdx], loginIdStr);
             gpProfileSearchA(stpFriendCnt->pGpObj, NULL, NULL, NULL, NULL, loginIdStr, 0,
                         GP_NON_BLOCKING, (GPCallback)DWCi_GPProfileSearchCallback,
                         (void*)stpFriendCnt->buddyUpdateIdx);
@@ -786,7 +786,7 @@ static BOOL DWCi_GetFriendBuddyStatus(const DWCFriendData* friendData, GPBuddySt
         return FALSE;
     }
 
-    profileID = DWC_GetGsProfileId(fn_806AEAF0(), friendData);
+    profileID = DWC_GetGsProfileId(DWCi_GetUserData(), friendData);
     if (profileID > 0) {
         gpResult = gpGetBuddyIndex(stpFriendCnt->pGpObj, profileID, &buddyIdx);
         if (gpResult != GP_NO_ERROR) {
@@ -952,7 +952,7 @@ static void DWCi_GPGetInfoCallback_RecvBuddyRequest(GPConnection* connection,
 
     for (i = 0; i < stpFriendCnt->friendListLen; i++) {
         if (DWC_GetFriendDataType(&stpFriendCnt->friendList[i]) == DWC_FRIENDDATA_LOGIN_ID) {
-            DWC_LoginIdToUserName(fn_806AEAF0(), &stpFriendCnt->friendList[i], loginIdStr);
+            DWC_LoginIdToUserName(DWCi_GetUserData(), &stpFriendCnt->friendList[i], loginIdStr);
             if (strcmp(loginIdStr, arg->lastname) == 0) {
                 if (fn_806CF0E0(&stpFriendCnt->friendList[i])) {
                     alreadyBuddy = TRUE;
@@ -965,10 +965,10 @@ static void DWCi_GPGetInfoCallback_RecvBuddyRequest(GPConnection* connection,
             }
         } else if (DWC_GetFriendDataType(&stpFriendCnt->friendList[i]) == DWC_FRIENDDATA_GS_PROFILE_ID ||
                    DWC_GetFriendDataType(&stpFriendCnt->friendList[i]) == DWC_FRIENDDATA_FRIEND_KEY) {
-            code = *(u32*)((u8*)fn_806AEAF0() + 0x24); // inferred: gamecode in DWCUserData
+            code = *(u32*)((u8*)DWCi_GetUserData() + 0x24); // inferred: gamecode in DWCUserData
             snprintf(gamecode, sizeof(gamecode), "%c%c%c%c", (u8)(code >> 24), (u8)(code >> 16),
                      (u8)(code >> 8), (u8)code);
-            if (arg->profile == DWC_GetGsProfileId(fn_806AEAF0(), &stpFriendCnt->friendList[i]) &&
+            if (arg->profile == DWC_GetGsProfileId(DWCi_GetUserData(), &stpFriendCnt->friendList[i]) &&
                 memcmp(gamecode, &arg->lastname[9], 4) == 0) {
                 if (fn_806CF0E0(&stpFriendCnt->friendList[i])) {
                     alreadyBuddy = TRUE;
@@ -1019,7 +1019,7 @@ static void DWCi_GPGetInfoCallback_RecvAuthMessage(GPConnection* connection,
 
     for (i = 0; i < stpFriendCnt->friendListLen; i++) {
         if (DWC_GetFriendDataType(&stpFriendCnt->friendList[i]) == DWC_FRIENDDATA_LOGIN_ID) {
-            DWC_LoginIdToUserName(fn_806AEAF0(), &stpFriendCnt->friendList[i], loginIdStr);
+            DWC_LoginIdToUserName(DWCi_GetUserData(), &stpFriendCnt->friendList[i], loginIdStr);
             if (strcmp(loginIdStr, arg->lastname) == 0) {
                 fn_806D02E0(&stpFriendCnt->friendList[i], arg->profile);
                 DWCi_SetBuddyFriendData(&stpFriendCnt->friendList[i]);
@@ -1029,7 +1029,7 @@ static void DWCi_GPGetInfoCallback_RecvAuthMessage(GPConnection* connection,
             }
         } else if (DWC_GetFriendDataType(&stpFriendCnt->friendList[i]) == DWC_FRIENDDATA_GS_PROFILE_ID ||
                    DWC_GetFriendDataType(&stpFriendCnt->friendList[i]) == DWC_FRIENDDATA_FRIEND_KEY) {
-            if (arg->profile == DWC_GetGsProfileId(fn_806AEAF0(), &stpFriendCnt->friendList[i])) {
+            if (arg->profile == DWC_GetGsProfileId(DWCi_GetUserData(), &stpFriendCnt->friendList[i])) {
                 if (DWC_IsBuddyFriendData(&stpFriendCnt->friendList[i]) == TRUE) {
                     DWC_Printf(DWC_REPORTFLAG_UPDATE_SV, "This profile is already my friend[%d].\n",
                                i);
@@ -1161,7 +1161,7 @@ static void DWCi_GPGetReverseBuddiesListCallback(GPConnection* connection,
 
         for (j = 0; j < arg->numOfProfiles; j++) {
             if (arg->profiles[j].profile ==
-                DWC_GetGsProfileId(fn_806AEAF0(), &stpFriendCnt->friendList[i])) {
+                DWC_GetGsProfileId(DWCi_GetUserData(), &stpFriendCnt->friendList[i])) {
                 if (fn_806CF190(&stpFriendCnt->friendList[i]) == 0) {
                     stpFriendCnt->friendListChanged = TRUE;
                     fn_806CF200(&stpFriendCnt->friendList[i], 1);

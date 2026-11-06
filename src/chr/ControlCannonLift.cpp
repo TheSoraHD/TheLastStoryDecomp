@@ -28,7 +28,7 @@ extern "C" ArenaSlot_unk* fn_804F5B08(Arena_unk* arena, unsigned char id);
 extern "C" void fn_804F5C9C(Arena_unk* arena, unsigned char id);
 
 // inferred: global object at lbl_8087F628 (class unknown); same accessor as in gmk/Item.cpp
-extern "C" unsigned char fn_806B0E30();
+extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
 struct ItemState_unk {
     unsigned char m000[0x1F8];
@@ -41,7 +41,7 @@ struct ItemState_unk {
     // inferred: name invented
     unsigned char Get1_unk() {
         if (mC215 == 0) {
-            return mDisabled ? 0 : fn_806B0E30();
+            return mDisabled ? 0 : DWC_GetMyAID();
         } else {
             return mDisabled ? 0 : fn_806A8E40();
         }

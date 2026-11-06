@@ -29,14 +29,14 @@ int gt2GetOutgoingBufferFreeSpace(GT2Connection connection);
 
 // inferred: DWC matching functions (other units); names from older DWC builds where known
 void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
-u8 fn_806B0E30(void);                                // DWC_GetMyAID
+u8 DWC_GetMyAID(void);                                // DWC_GetMyAID
 int fn_806B0EB0(u8** aidList);                       // DWC_GetAIDList
 BOOL fn_806B1170(u8 aid);                            // DWC_IsValidAID
-BOOL fn_806B12F0(void);                              // inferred: TRUE on the match server
-GT2Connection fn_806B14D0(u8 aid);                   // DWCi_GetGT2Connection
+BOOL DWC_IsServerMyself(void);                              // inferred: TRUE on the match server
+GT2Connection DWCi_GetGT2Connection(u8 aid);                   // DWCi_GetGT2Connection
 u8 fn_806B1570(GT2Connection connection);            // DWCi_GetConnectionAID
 BOOL fn_806B1730(u8 aid);                            // inferred: aid has a GT2 connection
-void fn_806B1A00(u8 aid);                            // inferred: closes the connection to aid
+void DWCi_CloseConnectionHard(u8 aid);                            // inferred: closes the connection to aid
 u8 fn_806B30A0(void);                                // inferred: aid of the server, 0xFF if none
 void DWCi_ProcessMatchSynPacket(u8 aid, u16 type, const u8* message); // inferred: system message handler
 void DWCi_HandleGT2UnreliableMatchCommandMessage(const u8* message, u32 size);       // inferred: unreliable match command
@@ -135,7 +135,7 @@ static inline void DWCi_SendReliableData(GT2Connection connection, const void* d
 
 // inferred: free space of the GT2 outgoing buffer, minus a reserve
 static inline int DWCi_GetOutgoingFreeSpace(u8 aid) {
-    int freeSpace = gt2GetOutgoingBufferFreeSpace(fn_806B14D0(aid)) - 519;
+    int freeSpace = gt2GetOutgoingBufferFreeSpace(DWCi_GetGT2Connection(aid)) - 519;
     return freeSpace > 0 ? freeSpace : 0;
 }
 
@@ -180,7 +180,7 @@ BOOL fn_806CD880(u8 aid, u32 type) {
 
     if (stpTransInfo->connections[aid].sendState == DWC_SEND_STATE_BUSY) {
         DWC_Printf(DWC_REPORTFLAG_SEND_INFO, "+++ Cannot send to %d from %d (busy)\n", aid,
-                   fn_806B0E30());
+                   DWC_GetMyAID());
         return FALSE;
     }
 
@@ -188,7 +188,7 @@ BOOL fn_806CD880(u8 aid, u32 type) {
     if (freeSpace < DWCi_GetHeaderSize(type)) {
         DWC_Printf(DWC_REPORTFLAG_SEND_INFO,
                    "+++ Cannot send to %d from %d (outgoing buffer is not enough) %d < %d\n",
-                   aid, fn_806B0E30(), freeSpace, DWCi_GetHeaderSize(type));
+                   aid, DWC_GetMyAID(), freeSpace, DWCi_GetHeaderSize(type));
         return FALSE;
     }
 
@@ -217,7 +217,7 @@ BOOL DWCi_SendReliable(u32 type, u8 aid, const void* buffer, int size) {
     strncpy(header.magic, "DT", 2);
     header.type = SWAP16(type);
     header.size = SWAP32(size);
-    DWCi_SendReliableData(fn_806B14D0(aid), &header, sizeof(header));
+    DWCi_SendReliableData(DWCi_GetGT2Connection(aid), &header, sizeof(header));
 
     if (size > stpTransInfo->sendSplitMax) {
         size = stpTransInfo->sendSplitMax;
@@ -227,7 +227,7 @@ BOOL DWCi_SendReliable(u32 type, u8 aid, const void* buffer, int size) {
         return TRUE;
     }
 
-    DWCi_SendReliableData(fn_806B14D0(aid), buffer, size);
+    DWCi_SendReliableData(DWCi_GetGT2Connection(aid), buffer, size);
 
     connection->sendingSize += size;
     if (connection->sendingSize == connection->requestSendSize) {
@@ -245,7 +245,7 @@ BOOL DWCi_SendReliable(u32 type, u8 aid, const void* buffer, int size) {
     return TRUE;
 }
 
-void fn_806CE750(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay);
+void DWCi_SendUnreliable(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay);
 
 BOOL DWC_SendUnreliable(u8 aid, const void* buffer, int size) {
     if (DWCi_IsError()) {
@@ -263,7 +263,7 @@ BOOL DWC_SendUnreliable(u8 aid, const void* buffer, int size) {
         return FALSE;
     }
 
-    fn_806CE750(fn_806B0E30(), aid, buffer, size, TRUE);
+    DWCi_SendUnreliable(DWC_GetMyAID(), aid, buffer, size, TRUE);
 
     if (stpTransInfo->sendCallback != NULL) {
         stpTransInfo->sendCallback(size, aid, stpTransInfo->sendParam);
@@ -295,8 +295,8 @@ BOOL DWC_Ping(u8 aid) {
         return FALSE;
     }
 
-    connection = fn_806B14D0(aid);
-    if (aid == fn_806B0E30() || connection == NULL || gt2GetConnectionState(connection) != 1) {
+    connection = DWCi_GetGT2Connection(aid);
+    if (aid == DWC_GetMyAID() || connection == NULL || gt2GetConnectionState(connection) != 1) {
         DWC_Printf(DWC_REPORTFLAG_SEND_INFO, "DWC_Ping:not connected yet:%d\n", aid);
         return FALSE;
     }
@@ -375,7 +375,7 @@ void DWCi_InitTransport(DWCTransportInfo* info) {
     fn_806CD540();
 }
 
-void fn_806CE700(u8 aid);
+void DWCi_ResetLastSomeDataRecvTimeByAid(u8 aid);
 void DWCs_HandleReliableMessage(GT2Connection connection, const u8* message, int len);
 void DWCs_HandleUnreliableMessage(GT2Connection connection, const u8* message, int len);
 
@@ -392,8 +392,8 @@ void DWCi_RecvCallback(GT2Connection connection, const u8* message, int len, GT2
     }
 
     aid = fn_806B1570(connection);
-    if (aid < DWC_MAX_CONNECTIONS && aid != fn_806B0E30()) {
-        fn_806CE700(aid);
+    if (aid < DWC_MAX_CONNECTIONS && aid != DWC_GetMyAID()) {
+        DWCi_ResetLastSomeDataRecvTimeByAid(aid);
     }
 
     if (reliable) {
@@ -458,7 +458,7 @@ static inline void DWCi_SendSplitData(u8 aid, DWCTransportConnection* connection
         return;
     }
 
-    DWCi_SendReliableData(fn_806B14D0(aid), connection->sendBuffer + connection->sendingSize,
+    DWCi_SendReliableData(DWCi_GetGT2Connection(aid), connection->sendBuffer + connection->sendingSize,
                           sendSize);
 
     connection->sendingSize += sendSize;
@@ -494,10 +494,10 @@ void DWCi_TransportProcess(void) {
     now = OSGetTime();
     timeout = DWCi_GetConnectionTimeout();
 
-    if (fn_806B12F0() || (DWCi_IsServerChanging() && DWCi_IsBackupMine())) {
+    if (DWC_IsServerMyself() || (DWCi_IsServerChanging() && DWCi_IsBackupMine())) {
         for (i = 0; i < numAid; i++) {
             u8 aid = aidList[i];
-            if (aid != fn_806B0E30()) {
+            if (aid != DWC_GetMyAID()) {
                 s64 lastTick = stpTransInfo->connections[aid].lastRecvTick;
                 u32 time = OS_TICKS_TO_MSEC(now - lastTick);
                 if (time > timeout) {
@@ -505,14 +505,14 @@ void DWCi_TransportProcess(void) {
                                "shutdown client: DWCi_TransportProcess:timeout aid=%d,time=%d[ms],"
                                "timeout time=%d[ms]\n",
                                aid, time, lastTick);
-                    fn_806B1A00(aid);
+                    DWCi_CloseConnectionHard(aid);
                     DWCi_SendServerPolling(1);
                 }
             }
         }
     } else {
         u8 serverAid = fn_806B30A0();
-        if (serverAid != 0xFF && serverAid != fn_806B0E30()) {
+        if (serverAid != 0xFF && serverAid != DWC_GetMyAID()) {
             s64 lastTick = stpTransInfo->connections[serverAid].lastRecvTick;
             u32 time = OS_TICKS_TO_MSEC(now - lastTick);
             if (time > timeout) {
@@ -520,7 +520,7 @@ void DWCi_TransportProcess(void) {
                            "shutdown server: DWCi_TransportProcess:timeout aid=%d,time=%d[ms],"
                            "timeout time=%d[ms]\n",
                            serverAid, time, lastTick);
-                fn_806B1A00(serverAid);
+                DWCi_CloseConnectionHard(serverAid);
             }
         }
     }
@@ -535,7 +535,7 @@ void DWCi_TransportProcess(void) {
             DWCi_CheckRecvTimeout(aid, tick, &stpTransInfo->connections[aid]);
         }
 
-        if (aid != fn_806B0E30()) {
+        if (aid != DWC_GetMyAID()) {
             DWCi_SendSplitData(aid, &stpTransInfo->connections[aid]);
         }
     }
@@ -563,26 +563,26 @@ void DWCi_ShutdownTransport(void) {
 }
 
 // inferred: refreshes the keep-alive time of aid; real name unknown
-void fn_806CE700(u8 aid) {
+void DWCi_ResetLastSomeDataRecvTimeByAid(u8 aid) {
     stpTransInfo->connections[aid].lastRecvTick = OSGetTime();
 }
 
-void fn_806CE750(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay) {
+void DWCi_SendUnreliable(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay) {
     GT2Connection connection;
     DWCConnectionInfo* server;
     BOOL forward = FALSE;
 
-    connection = fn_806B14D0(dstAid);
+    connection = DWCi_GetGT2Connection(dstAid);
     if (connection == NULL) {
-        if (!fn_806B12F0()) {
+        if (!DWC_IsServerMyself()) {
             server = DWCi_GetNodeByIndex(0);
-            connection = fn_806B14D0(server->aid);
+            connection = DWCi_GetGT2Connection(server->aid);
             if (connection == NULL) {
                 DWC_Printf(DWC_REPORTFLAG_SEND_INFO,
                            "+++ drop relay unreliable data. (aid %d->%d)\n", srcAid, dstAid);
                 DWC_Printf(DWC_REPORTFLAG_SEND_INFO,
                            "+++ sv gt2Connection is NULL.(sv aid:%d myaid:%d)\n", server->aid,
-                           fn_806B0E30());
+                           DWC_GetMyAID());
                 return;
             }
 
@@ -717,8 +717,8 @@ void DWCs_HandleUnreliableMessage(GT2Connection connection, const u8* message, i
         u32 aidBitmap = SWAP32(((DWCRelayHeader*)message)->aidBitmap);
         aid = ((DWCRelayHeader*)message)->aid;
 
-        if (!fn_806B12F0()) {
-            if (aidBitmap & (1 << fn_806B0E30())) {
+        if (!DWC_IsServerMyself()) {
+            if (aidBitmap & (1 << DWC_GetMyAID())) {
                 forMe = TRUE;
             } else {
                 return;
@@ -729,10 +729,10 @@ void DWCs_HandleUnreliableMessage(GT2Connection connection, const u8* message, i
                        "+++ fwd received unreliable. sent(aid %d->%08x)\n", aid, aidBitmap);
             for (i = 0; i < DWC_MAX_CONNECTIONS; i++) {
                 if (aidBitmap & (1 << (u8)i)) {
-                    if ((u8)i == fn_806B0E30()) {
+                    if ((u8)i == DWC_GetMyAID()) {
                         forMe = TRUE;
                     } else {
-                        fn_806CE750(aid, i, message, len, FALSE);
+                        DWCi_SendUnreliable(aid, i, message, len, FALSE);
                     }
                 }
             }
