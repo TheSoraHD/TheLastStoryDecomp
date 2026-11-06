@@ -16,6 +16,17 @@
 
 #include <cstring>
 
+// inferred: sound part of the Home Button menu (HBMAxSound, still in asm; version of 2010)
+namespace homebutton {
+void PlaySeq(int num);
+void InitAxSound(const void* soundData, void* mem, u32 memSize);
+void ShutdownAxSound();
+void AxSoundMain();
+void StopAllSeq();
+void SetVolumeAllSeq(f32 gain);
+void SetSoundMode(u32 mode);
+} // namespace homebutton
+
 // inferred: defined in HBMCommon.cpp (version of 2010)
 void* HBMAllocMem(u32 size);
 void HBMFreeMem(void* pBlock);
@@ -1862,9 +1873,9 @@ void HomeButton::updateTrigPane() {
     }
 }
 
-void HomeButton::startPointEvent(const char* pName, void* pData) {
+void HomeButton::startPointEvent(const nw4hbm::lyt::Pane* pPane, void* pData) {
     int idx;
-    int btnNo = getPaneNo(pName);
+    int btnNo = getPaneNo(pPane);
     HBController* pController = static_cast<HBController*>(pData);
     bool onFlag = false;
 
@@ -2048,9 +2059,9 @@ void HomeButton::startPointEvent(const char* pName, void* pData) {
     }
 }
 
-void HomeButton::startLeftEvent(const char* pName) {
+void HomeButton::startLeftEvent(const nw4hbm::lyt::Pane* pPane) {
     int idx;
-    int btnNo = getPaneNo(pName);
+    int btnNo = getPaneNo(pPane);
 
     if (0 < mPaneCounter[btnNo]) {
         if (btnNo == mButtonNum + res::eFuncTouchPane_B_bar_10 ||
@@ -2187,11 +2198,11 @@ void HomeButton::startLeftEvent(const char* pName) {
     }
 }
 
-void HomeButton::startTrigEvent(const char* pName) {
+void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
     int idx;
     int btnNo;
 
-    btnNo = getPaneNo(pName);
+    btnNo = getPaneNo(pPane);
 
     if (isActive() && btnNo != -1) {
         if (mSequence == eSeq_Normal && btnNo < mButtonNum) {
@@ -2658,7 +2669,8 @@ bool HomeButton::isDownBarActive() {
     return flag;
 }
 
-int HomeButton::getPaneNo(const char* pName) {
+int HomeButton::getPaneNo(const nw4hbm::lyt::Pane* pPane) {
+    const char* pName = pPane->GetName();
     int ret = -1;
 
     for (int i = 0; i < mButtonNum; i++) {
@@ -2773,26 +2785,24 @@ void HomeButtonEventHandler::onEvent(u32 id, u32 event, void* pData) {
         static_cast<gui::PaneComponent*>(mpManager->getComponent(id));
 
     const nw4hbm::lyt::Pane* pPane = pComponent->getPane();
-    const char* pPaneName = pPane->GetName();
 
     HomeButton* pHBObj = getHomeButton();
     HBController* pController = static_cast<HBController*>(pData);
 
     switch (event) {
     case gui::HBM_EVENT_ON_POINT: {
-        pHBObj->startPointEvent(pPaneName, pData);
+        pHBObj->startPointEvent(pPane, pData);
         break;
     }
 
     case gui::HBM_EVENT_OFF_POINT: {
-        pHBObj->startLeftEvent(pPaneName);
+        pHBObj->startLeftEvent(pPane);
         break;
     }
 
     case gui::HBM_EVENT_TRIG: {
-        if ((pController->trig & WPAD_BUTTON_A) ||
-            (pController->trig & (PAD_BUTTON_A << 16))) {
-            pHBObj->startTrigEvent(pPaneName);
+        if (pController->trig & WPAD_BUTTON_A) {
+            pHBObj->startTrigEvent(pPane);
         }
 
         break;
@@ -2977,12 +2987,7 @@ const int HomeButton::scSoundThreadPrio = 4;
 const int HomeButton::scDvdThreadPrio = 3;
 
 void HomeButton::update_sound() {
-    /*
-    if (mpSoundArchivePlayer != NULL) {
-        nw4hbm::ut::detail::AutoLock<OSMutex> lock(sMutex);
-        mpSoundArchivePlayer->Update();
-    }
-    */
+    AxSoundMain();
 
     for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++)
         mpController[i]->updateSound();

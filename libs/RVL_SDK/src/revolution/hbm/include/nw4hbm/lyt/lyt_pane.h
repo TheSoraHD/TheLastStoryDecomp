@@ -276,19 +276,14 @@ protected:
     math::MTX34 mMtx;    // at 0x54
     math::MTX34 mGlbMtx; // at 0x84
     
-    const ExtUserDataList* mpExtUserDataList; //at 0xB4
-
-    u8 mAlpha;        // at 0xB8
-    u8 mGlbAlpha;     // at 0xB9
-    u8 mBasePosition; // at 0xBA
-    u8 unkBB[0xCF - 0xBB];
-    u8 mFlag;         // at 0xBB
-
-    char mName[NW4R_LYT_RES_NAME_LEN + 1];          // at 0xBC
-    char mUserData[NW4R_LYT_PANE_USERDATA_LEN + 1]; // at 0xCD
-
-    bool mbUserAllocated; // at 0xD6
-    u8 mPadding;          // at 0xD7
+    // inferred: layout of the HBM library of 2010 (same as the linked tp_revolution lyt_pane.cpp)
+    char mName[NW4R_LYT_RES_NAME_LEN];          // at 0xB4
+    char mUserData[NW4R_LYT_PANE_USERDATA_LEN]; // at 0xC4
+    u8 mBasePosition;                           // at 0xCC
+    u8 mAlpha;                                  // at 0xCD
+    u8 mGlbAlpha;                               // at 0xCE
+    u8 mFlag;                                   // at 0xCF
+    bool mbUserAllocated;                       // at 0xD0
 
 protected:
     void InsertChild(PaneList::Iterator next, Pane* pChild);
