@@ -161,3 +161,14 @@ otros (`CountMessages_unk`, `HasMessage_unk`, `PlayVoice_unk`). Sin regla genera
 (`MpMsgData_unk`), `D2AMpMenuMessageList.cpp` (`MpData_unk` local) e `include/atn/net/Manager.h` (`atn::net::Manager`
 con el `MpFriendList_unk` completo de `atn/NetFriend_unk.cpp`) no se pueden incluir juntos: `D2AMpMenu::fn_804AF520`
 llama a `fn_80509AF8` de `atn::net::Manager` y usa la lista de amigos de la vista de Friend. Hay que unificarlas.
+
+## Busqueda de jugador por aid en los menus MP (`unidades-20261106b`)
+
+`D2AMpMenuLobby::vf0C` (99,35%) y `fn_804C2C14` (99,15%), y la misma busqueda inlineada en `fn_804BE610`,
+`fn_804C23E4` y `D2AMpMenuFriendRoom vf0C`: bucle sobre `lbl_8087F610->m5E4[j]` (0xD5C bytes) comparando el aid con
+`mCC`. El original deja el aid en r4, el desplazamiento en r3 y el jugador en r5 (sesion en r6); MWCC nos da aid r3,
+jugador r4, desplazamiento r5. Probado sin cambio: aid `unsigned char`/`int` en la busqueda y en `GetAid_unk`,
+`GetAid_unk` con variable de resultado, como miembro de `MpLobbyData_unk`, busqueda como funcion libre con la
+sesion de parametro, sesion en variable local, `ret`/`break` en vez de `return`, indexado directo `m5E4[j].mCC`, aid
+en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el original convierte el aid con
+`clrlwi r4, r0, 24` antes del bucle (parametro de 8 bits en la busqueda real).
