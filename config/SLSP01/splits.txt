@@ -5129,6 +5129,12 @@ RVL_SDK/src/revolution/nhttp/d_nhttp.c:
 	.sdata      start:0x8087EDC0 end:0x8087EDD0
 	.sbss       start:0x808803E8 end:0x808803F0
 
+RVL_SDK/src/revolution/nhttp/d_nhttp_common.c:
+	.text       start:0x806A0B48 end:0x806A12E8
+	.data       start:0x807BC920 end:0x807BC960
+	.bss        start:0x80833140 end:0x80833E20
+	.sbss       start:0x808803F0 end:0x808803F8
+
 RVL_SDK/src/revolution/nwc24/NWC24Config.c:
 	.text       start:0x806A12E8 end:0x806A1450
 	.sbss       start:0x808803F8 end:0x80880400
