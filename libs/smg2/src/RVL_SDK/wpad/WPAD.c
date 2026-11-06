@@ -1227,6 +1227,15 @@ s32 WPADGetStatus() {
     return WUDGetStatus();
 }
 
+u8 WPADGetRadioSensitivity(s32 chan) {
+    WPADControlBlock* p_wpd = _wpdcb[chan];
+    u8 sense;
+    BOOL enable = OSDisableInterrupts();
+    sense = p_wpd->radioSense;
+    OSRestoreInterrupts(enable);
+    return sense;
+}
+
 u8 WPADGetSensorBarPosition() {
     BOOL enable;
     u8 pos;
@@ -1393,17 +1402,14 @@ static void WPADiConnCallback(WUDDevInfo* info, u8 open) {
 
 static void WPADiRecvCallback(u8 dev_handle, u8* p_rpt, u16) {
     u8 chan;
-    s32 err;
+
+    if (dev_handle > 16) {
+        return;
+    }
 
     chan = (u8)_dev_handle_index[dev_handle];
-
-    if ((chan >= 0) && (chan <= WPAD_MAX_CONTROLLERS)) {
-        err = WPADiHIDParser(chan, p_rpt);
-        if (err) {
-            DEBUGPrint("HID Parser reports: %d\n", err);
-        }
-    } else {
-        DEBUGPrint("WPADiRecvCallback(): Unknown channel %d\n", chan);
+    if (chan < WPAD_MAX_CONTROLLERS) {
+        WPADiHIDParser(chan, p_rpt);
     }
 }
 
@@ -1521,8 +1527,8 @@ WPADExtensionCallback WPADSetExtensionCallback(s32 chan, WPADExtensionCallback c
 
     DEBUGPrint("WPADSetExtensionCallback()\n");
 
-    enable = OSDisableInterrupts();
     p_wpd = _wpdcb[chan];
+    enable = OSDisableInterrupts();
     prev = p_wpd->extensionCallback;
     p_wpd->extensionCallback = callback;
     OSRestoreInterrupts(enable);
@@ -1531,10 +1537,9 @@ WPADExtensionCallback WPADSetExtensionCallback(s32 chan, WPADExtensionCallback c
 }
 
 u32 WPADGetDataFormat(s32 chan) {
-    WPADControlBlock* p_wpd;
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     u32 fmt;
     BOOL enable = OSDisableInterrupts();
-    p_wpd = _wpdcb[chan];
     fmt = p_wpd->dataFormat;
     OSRestoreInterrupts(enable);
     return fmt;
@@ -1554,23 +1559,24 @@ s32 WPADSetDataFormat(s32 chan, u32 fmt) {
     prevFmt = p_wpd->dataFormat;
     OSRestoreInterrupts(enable);
 
-    if (ret != WPAD_ERR_NO_CONTROLLER) {
-        if (!setup) {
-            ret = WPAD_ERR_BUSY;
-        } else if (prevFmt != fmt) {
-            busy = WPADiSendSetReportType(&p_wpd->cmdq, fmt, p_wpd->pwrSave, NULL);
-            if (!busy) {
-                ret = WPAD_ERR_BUSY;
-            } else {
-                enable = OSDisableInterrupts();
-                p_wpd->dataFormat = fmt;
-                OSRestoreInterrupts(enable);
-                ret = WPAD_ERR_NONE;
-            }
-        } else {
-            ret = WPAD_ERR_NONE;
-        }
+    if (ret == WPAD_ERR_NO_CONTROLLER) {
+        return WPAD_ERR_NO_CONTROLLER;
     }
+    if (!setup) {
+        return WPAD_ERR_BUSY;
+    }
+    if (prevFmt == fmt) {
+        return WPAD_ERR_NONE;
+    }
+    busy = WPADiSendSetReportType(&p_wpd->cmdq, fmt, p_wpd->pwrSave, NULL);
+    if (busy) {
+        enable = OSDisableInterrupts();
+        p_wpd->dataFormat = fmt;
+        p_wpd->UNK_0xBA7 = 0;
+        OSRestoreInterrupts(enable);
+        return WPAD_ERR_NONE;
+    }
+    ret = WPAD_ERR_BUSY;
     return ret;
 }
 
@@ -2166,7 +2172,11 @@ s32 WPADSendStreamData(s32 chan, void* p_buf, u16 len) {
 }
 
 u8 WPADGetDpdSensitivity() {
-    return _dpdSensitivity;
+    u8 sense;
+    BOOL enable = OSDisableInterrupts();
+    sense = _dpdSensitivity;
+    OSRestoreInterrupts(enable);
+    return sense;
 }
 
 BOOL WPADIsDpdEnabled(s32 chan) {
@@ -2371,6 +2381,19 @@ static void __SendData(s32 chan, WPADCommand cmd) {
     }
 
     BTA_HhSendData((u8)handle, p_buf);
+}
+
+// inferred: version 2010, called from KPAD; returns devMode for the Motion Plus device types (5..7, 0xFA)
+u8 fn_80664950(s32 chan) {
+    u8 mode = 0;
+    WPADControlBlock* p_wpd = _wpdcb[chan];
+    BOOL enable = OSDisableInterrupts();
+    u8 type = p_wpd->devType;
+    if ((u8)(type + 0xFB) <= 2 || type == 0xFA) {
+        mode = p_wpd->devMode;
+    }
+    OSRestoreInterrupts(enable);
+    return mode;
 }
 
 BOOL WPADiSendSetReportType(WPADCmdQueue* queue, u32 fmt, BOOL powerSave, WPADCallback callback) {

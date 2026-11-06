@@ -390,7 +390,8 @@ typedef struct WPADControlBlock {
     u8 padding2;
     u8 UNK_0xB88[0x1E];
     u8 dpdBusy; // inferred: set while the DPD is being enabled (0xBA6, version 2010)
-    u8 UNK_0xBA7[0x7];
+    u8 UNK_0xBA7;
+    u8 UNK_0xBA8[0x6];
     u8 UNK_0xBAE;
     u8 UNK_0xBAF[0x19]; // inferred: new fields of the version of 2010
 } WPADControlBlock;
