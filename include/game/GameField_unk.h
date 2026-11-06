@@ -21,7 +21,9 @@ struct GameField_unk {
     int m10D0;                  // inferred: state saved with the flags
     unsigned char m10D4[0x10D8 - 0x10D4];
     RouteTable_unk* m10D8;      // inferred: route tables of the map
-    unsigned char m10DC[0x5624 - 0x10DC];
+    unsigned char m10DC[0x54E4 - 0x10DC];
+    int m54E4;                  // inferred: state of the field (8-11 while an event runs)
+    unsigned char m54E8[0x5624 - 0x54E8];
     atn::FadeCapture* m5624;    // inferred: screen capture fade of the field (Event::Manager::fn_8047F730)
     unsigned char m5628[0x563C - 0x5628];
     int m563C;                  // inferred: reason of the next map change (0x12: map select of the camp)

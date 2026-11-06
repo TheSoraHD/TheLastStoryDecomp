@@ -42,12 +42,14 @@ struct MapSelectPoint_unk {
     MapSelectPair_unk m6C[5];
 };
 
-// inferred: route of the map (0x1C bytes, at 0x3EF0); names invented
+// inferred: route of the map (0x1C bytes, at 0x3ED4); names invented
 struct MapSelectRoute_unk {
     MapSelectRoute_unk() : m00(0) {}
-    int m00;
+    MapSelectRoute_unk(MapSelectPoint_unk* point, int id, int state, int mapType, int mapId, int mapSubId, int entry)
+        : m00(point), mId(id), m08(state), mMapType(mapType), mMapId(mapId), mMapSubId(mapSubId), mEntry(entry) {}
+    MapSelectPoint_unk* m00; // inferred: point of the route
     int mId; // 0x04: inferred: compared with the camp id (m48->m4C)
-    int m08;
+    int m08;       // inferred: state (0: closed, 1: open, 2: new)
     int mMapType;  // 0x0C: inferred: destination map (arguments of fn_8036F268)
     int mMapId;    // 0x10
     int mMapSubId; // 0x14
@@ -97,17 +99,17 @@ public:
     void SetCursorPoint_unk(MapSelectPoint_unk* point);
     // inferred: index of the route of the camp `id` (-1: none)
     int FindRouteIndex_unk(int id) {
-        for (unsigned int i = 0; i < m3ED0; i++) {
-            if (id == mRoutes[i].mId) {
+        for (unsigned int i = 0; i < mRoutes.mSize; i++) {
+            if (id == mRoutes.mData[i].mId) {
                 return i;
             }
         }
         return -1;
     }
     MapSelectRoute_unk* FindRoute_unk(int id) {
-        for (unsigned int i = 0; i < m3ED0; i++) {
-            if (id == mRoutes[i].mId) {
-                return &mRoutes[i];
+        for (unsigned int i = 0; i < mRoutes.mSize; i++) {
+            if (id == mRoutes.mData[i].mId) {
+                return &mRoutes.mData[i];
             }
         }
         return 0;
@@ -168,8 +170,7 @@ public:
     atn::LH_Binary mParam;               // 0x19C4: map_param.csv
     int m19CC;                           // inferred: number of points read
     MapSelectPoint_unk mPoints[64];      // 0x19D0
-    unsigned int m3ED0;                  // inferred: number of routes
-    MapSelectRoute_unk mRoutes[64];      // 0x3ED4
+    atn::FixedArray_unk<MapSelectRoute_unk, 64> mRoutes; // 0x3ED0: inferred: routes (push_back/erase in fn_80520B04)
     MapSelectFlags_unk m45D4;
     int m46D4;
     atn::FixedArray_unk<int, 64> m46D8;  // inferred: values m04 of the points

@@ -52,6 +52,8 @@ struct NewCampMapCamp_unk {
     int mId; // 0x4C: inferred: current camp
     unsigned char m0050[0x11F0 - 0x50];
     NewCampPartsBase* mParts; // 0x11F0: inferred: current parts
+    unsigned char m11F4[0x1350 - 0x11F4];
+    int m1350; // inferred: all the routes are shown (debug)
 };
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -142,6 +144,19 @@ inline void SetEntryScale_unk(NewCampPartsEntry_unk* entry, float scale) {
         GetModel_unk(entry->mModel)->fn_8009EE30(mtx);
     }
 }
+// inferred: route data of the map table (fn_80216544); names invented
+struct MapSelectRouteData_unk {
+    unsigned char mMapType;
+    unsigned char mMapId;
+    unsigned char mMapSubId;
+    int mEntry;
+};
+extern "C" int fn_80216988();                // inferred: number of routes of the table
+extern "C" int fn_80216954(int index);       // inferred: id of a route
+extern "C" MapSelectRouteData_unk* fn_80216544(int id, int chapter, int flag);
+extern "C" const char* fn_80216700(int id, int chapter, int flag); // inferred: state of the route
+extern "C" int fn_80375184(GameField_unk* field);
+extern "C" int fn_80370174(GameField_unk* field, int flag); // inferred: flag value
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -188,7 +203,7 @@ NewCampPartsMapSelect* NewCampPartsMapSelect::fn_8051B920(atn::Task* parent) {
 NewCampPartsMapSelect::NewCampPartsMapSelect(atn::Task* parent)
     : NewCampPartsBase(parent), mD4(0), mD5(0), mD6(0), mD7(0), mD8(0), mDC(1), m198C(0), m1990(0),
       m1998(4), m199C(4), m19A0(-1), m19A4(-1), m19A8(0), m19B4(0), m19B8(0.0f), m19BC(6.0f), m19C0(0.0f),
-      m19CC(0), m3ED0(0), m46D4(0), m4800(sOffset), m4818(4.0f), m481C(20.0f),
+      m19CC(0), m46D4(0), m4800(sOffset), m4818(4.0f), m481C(20.0f),
       m4820(0.2f), m4824(0.12f), m487C(0.0f), m4880(2500.0f), m4884(0.0f), m48A8(0), m48AC(-200.0f),
       m48B0(-150.0f), m48B4(170.0f), m48B8(180.0f) {
     m1910.Reset_unk(0);
@@ -250,7 +265,7 @@ NewCampPartsMapSelect::~NewCampPartsMapSelect() {
         fn_800D2338(m1908);
         m1908 = 0;
     }
-    m3ED0 = 0;
+    mRoutes.clear();
     m46D8.clear();
 }
 
@@ -592,20 +607,128 @@ void NewCampPartsMapSelect::fn_80520098() {
     }
 }
 
+// NONMATCHING: 97.8% - same code, other registers (the original gives r31-r25 to the variables of the route block and
+// r24-r20 to chapter, flag, i, id and this); tried other declaration orders and an inline helper
+void NewCampPartsMapSelect::fn_80520B04() {
+    mRoutes.clear();
+    int chapter = 0;
+    int flag = 0;
+    if (lbl_8087F430 != 0) {
+        chapter = lbl_8087F430->m10D0;
+        flag = fn_80370174(lbl_8087F430, 0x63);
+    }
+    for (int i = 0; i < fn_80216988(); i++) {
+        int id = fn_80216954(i);
+        MapSelectRouteData_unk* data = fn_80216544(id, chapter, flag);
+        const char* text = fn_80216700(id, chapter, flag);
+        if (id > 0 && data != 0 && text != 0) {
+            int state = *text;
+            if (state != 0 && id < 500) {
+                MapSelectPoint_unk* point = FindPoint_unk(id);
+                if (state == 2 && lbl_8087F430 != 0) {
+                    if (fn_80375184(lbl_8087F430) != 0 || lbl_8087F430->m54E4 == 3 ||
+                        fn_80370174(lbl_8087F430, 0x394) != 0 || fn_80370174(lbl_8087F430, 0x62) != 0) {
+                        state = 1;
+                    }
+                }
+                int open = 1;
+                int mapType = data->mMapType;
+                int mapId = data->mMapId;
+                int mapSubId = data->mMapSubId;
+                int entry = data->mEntry;
+                if (((NewCampMapCamp_unk*)m48)->m1350 == 0 && lbl_8087F430 != 0 && point != 0 && point->m04 > 0 &&
+                    fn_80370174(lbl_8087F430, point->m04) == 0) {
+                    open = 0;
+                }
+                if (point == 0 || point->m18 == 0) {
+                    open = 0;
+                }
+                if (open) {
+                    new (&mRoutes.mData[mRoutes.mSize])
+                        MapSelectRoute_unk(point, id, state, mapType, mapId, mapSubId, entry);
+                    mRoutes.mSize++;
+                }
+            }
+        }
+    }
+    MapTask* map = fn_80373148(lbl_8087F430);
+    int type = map->mType;
+    int mapId = map->mId;
+    int special;
+    if (type == 2 && (mapId == 15 || mapId == 55)) {
+        special = 1;
+    } else {
+        special = 0;
+    }
+    int start = 201;
+    fn_805201EC(&start);
+    MapSelectPoint_unk* cur = FindPoint_unk(start);
+    MapSelectRoute_unk* route = mRoutes.begin();
+    for (unsigned int i = 0; i < mRoutes.mSize; i++, route++) {
+        int state = route->m08;
+        MapSelectPoint_unk* point = route->m00;
+        if ((state == 1 || state == 2) && lbl_8087F430 != 0) {
+            if (special) {
+                route->m08 = 1;
+                if (point == 0 || point->m0C == 2) {
+                    route->m08 = 0;
+                }
+            }
+            if (cur != 0) {
+                switch (cur->m0C) {
+                case 0:
+                case 3:
+                    route->m08 = 1;
+                    if (point == 0 || point->m0C == 2) {
+                        route->m08 = 0;
+                    }
+                    break;
+                case 1:
+                case 4:
+                    if (point == 0 || point->m0C == 2) {
+                        route->m08 = 0;
+                    }
+                    break;
+                case 2:
+                    if (point == 0 || point->m0C != 2) {
+                        route->m08 = 0;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < 5; i++) {
+        int id = 500 + i;
+        MapSelectPoint_unk* point = FindPoint_unk(id);
+        if (sRouteEffects[i].mMin <= chapter && sRouteEffects[i].mMax > chapter) {
+            new (&mRoutes.mData[mRoutes.mSize]) MapSelectRoute_unk(point, id, 2, chapter, chapter, chapter, chapter);
+            mRoutes.mSize++;
+        }
+    }
+    for (MapSelectRoute_unk* it = mRoutes.begin(); it != mRoutes.end();) {
+        if (it->m08 == 0) {
+            mRoutes.erase(it);
+        } else {
+            it++;
+        }
+    }
+}
+
 int NewCampPartsMapSelect::fn_80521010() {
     int ret = 1;
     if (mD8 == 1) {
         fn_80520B04();
         memset(m45D4.m00, 0, sizeof(m45D4.m00));
         m46D4 = 0;
-        MapSelectRoute_unk* route = mRoutes;
-        for (unsigned int i = 0; i < m3ED0; i++, route++) {
+        MapSelectRoute_unk* route = mRoutes.begin();
+        for (unsigned int i = 0; i < mRoutes.mSize; i++, route++) {
             m45D4.m00[m46D4] = route->mId;
             m46D4++;
         }
-        for (unsigned int i = 0; i < m3ED0; i++) {
-            MapSelectRoute_unk* route = &mRoutes[i];
-            MapSelectPoint_unk* point = FindPoint_unk(mRoutes[i].mId);
+        for (unsigned int i = 0; i < mRoutes.mSize; i++) {
+            MapSelectRoute_unk* route = &mRoutes.mData[i];
+            MapSelectPoint_unk* point = FindPoint_unk(mRoutes.mData[i].mId);
             if (point != 0) {
                 if (route->m08 == 2) {
                     if (point->m08 > 0) {
