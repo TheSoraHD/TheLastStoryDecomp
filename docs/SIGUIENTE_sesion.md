@@ -2,7 +2,7 @@
 
 ## Estado actual (2026-11-06, cierre de `unidades-20261106b`, sin mergear)
 
-- Rama `unidades-20261106b` (desde `main` c6fdafc, 13524): report **13617 / 18117** (lost 0, fuzzdrop 0,
+- Rama `unidades-20261106b` (desde `main` c6fdafc, 13524): report **13619 / 18117** (lost 0, fuzzdrop 0,
   `main.dol: OK` en build limpio y en clon limpio, 652 unidades enlazadas). Notas y decisiones:
   `docs/unidades-20261106b.md`.
   - KPAD 2010: `KPAD.c` 33/33 (no enlaza: solo el orden de tres entradas de `.sdata2`), `KPADMpls_unk.c` 10/16 y
@@ -11,8 +11,9 @@
   - Menús MP: `D2AMpMenuSetMessage` 20/26 (las 26 escritas), `D2AMpMenu` 20/41, `D2AMpMenuLobby` 15/39 (nueva;
     split FriendRoom/Lobby corregido), FriendRoom 10/13, Friend 16/21, MessageList 9/16, Result 13/20. Clases en
     `include/MP/D2AMpMenu*.h`; `Decide_unk` (cursor + decidir/cancelar) en `include/MP/D2AMpMenu_unk.h`.
-  - `game/NewCampPartsItem.cpp` nueva: 13/41 (como `NewCampPartsHint`); siguen `vf14` (2132 B, primera con
-    cadenas: desbloquea los pools), `vf20`, `fn_80517B3C` (lectura de la lista) y el `std::sort` de la lista.
+  - `game/NewCampPartsItem.cpp` nueva: 15/41 (como `NewCampPartsHint`); `vf20` 99,23% y `vf3C` 96,9% por
+    registros; siguen `fn_80517B3C` (lectura de la lista; fija el `@wstringBase0` de `.data`), `fn_8051B164` y
+    el `std::sort` de la lista.
 - `main` (fb7f7d0): 13524. Sin enlazar: `bd.c`, `WPADHIDParser.c` (32/33), `WUD.c` (77/85), `HBMBase.cpp` (33/34),
   `db_assert.cpp` (4/5), `CXUncompression.c` (3/4), `dwc_match` (96/101).
 - Fuentes externas: Swiftshine/key (CC0), mscharged-decomp (CC0), wii-ipl (CC0), pokemon-rumble-decomp (MIT).
@@ -45,7 +46,8 @@
   cadenas: devolverlos a mano. `.sdata2` ambiguas: `tools/decomp/sdata2pair.py <unidad>`. dtk vuelve a poner
   `jumptable_` sobre un `lbl_`: renombrar la tabla al `@N` del compilador.
 - Tras cambiar una cabecera compartida de los menús MP, `pdbatch.sh` de todas las unidades `MP/D2AMpMenu*` y
-  `MP/D2ACommonDialog` (labelcheck lo detecta).
+  `MP/D2ACommonDialog` (labelcheck lo detecta). Tras añadir una función con constantes `.sdata2`, `pd.sh` de la
+  unidad antes del commit (rep100 lo detecta).
 - No partir los símbolos `@wstringBase0`: dtk falla con "Non-terminated UTF-16 string".
 - Tras borrar `build/SLSP01/obj` hay que borrar también `build/SLSP01/config.json`.
 - `configure.py` sin flags intenta descargar los compiladores: usar la línea de `docs/entorno-nube.md`.
