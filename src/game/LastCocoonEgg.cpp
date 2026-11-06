@@ -38,6 +38,7 @@ struct EggField_unk {
     }
 };
 extern "C" EggField_unk* lbl_8087F430;
+extern "C" void fn_80370AE4(EggField_unk* field, int index, int value); // inferred: sets an event flag
 
 LastCocoonEgg::~LastCocoonEgg() {}
 
@@ -90,10 +91,7 @@ void LastCocoonEgg::vf40(HitInfo_unk* hit) {
         m255C = 0.3f;
         m14D0 = 4.0f;
         m14D4 = 0.05f;
-        m2548 = m2548 % 2;
-        m254C = 0x58;
-        m2550 = 2.0f;
-        m2554 = 2.0f;
+        m2548.Shake_unk(0x58, 2.0f, 2.0f);
         lbl_8087F430->Shake_unk(60, 1.5f, 1.5f);
         atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
@@ -113,4 +111,42 @@ atn::Vector3 LastCocoonEgg::vf64(int center) {
         result = m624.mData[0].m04.mCenter;
     }
     return result;
+}
+
+// NONMATCHING: 98% - the original stores the second zero vector first (as in vf40)
+void LastCocoonEgg::fn_80455D80() {
+    fn_80232B7C(this, 1000);
+    PlayEfp_unk(&m1928, &mMotion);
+    m1920 = 1;
+}
+
+void LastCocoonEgg::fn_8045617C() {
+    if (m55C != 6) {
+        fn_8016E970(3);
+    }
+}
+
+void LastCocoonEgg::fn_80456DB8() {
+    if (m14BC == 0) {
+        if (m14C0 > 90) {
+            m14C0 = 0;
+            m14BC = 1;
+            m2558 = 2;
+            m255C = 0.05f;
+        }
+    } else if (m14BC == 1) {
+        if (m14C0 > 60) {
+            fn_80370AE4(lbl_8087F430, 0x5A, 1);
+        }
+    }
+}
+
+void LastCocoonEgg::fn_80456F04() {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 7;
+    fn_8016E970(3);
+    m2548.Shake_unk(50, 1.5f * m14D0, 1.5f * m14D0);
+    m2558 = 1;
 }

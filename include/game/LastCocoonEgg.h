@@ -19,6 +19,21 @@ struct LastCocoonEggPart_unk {
     unsigned char m10[0x18 - 0x10];
 };
 
+// inferred: shake of the egg (same fields and update as the camera shake of the field, 0x96C); names
+// invented
+struct LastCocoonEggShake_unk {
+    void Shake_unk(int frames, float x, float y) {
+        m00 = m00 % 2;
+        mFrames = frames;
+        mX = x;
+        mY = y;
+    }
+    int m00;
+    int mFrames;
+    float mX;
+    float mY;
+};
+
 // inferred from __vt__13LastCocoonEgg (0x8078F630): egg form of the last cocoon; the enemy factory
 // (fn_805A5374) allocates 0x2A50 bytes. Members keep their offsets (names unknown).
 class LastCocoonEgg : public EnemyTask {
@@ -28,6 +43,10 @@ public:
     virtual void vf3C(HitInfo_unk* hit);                   // 0x804549E8
     virtual void vf40(HitInfo_unk* hit);                   // 0x804549F8
     virtual atn::Vector3 vf64(int center);                 // 0x80454D08
+    void fn_80455D80(); // inferred: plays the effect m1928 (m1920 = 1)
+    void fn_8045617C();
+    void fn_80456DB8();
+    void fn_80456F04();
 
     atn::LH_Binary m14B0; // inferred: parameter file
     unsigned char m14B8[0x14BC - 0x14B8];
@@ -38,7 +57,8 @@ public:
     float m14D4;
     unsigned char m14D8[0x14EC - 0x14D8];
     atn::Model m14EC;
-    unsigned char m18BC[0x1924 - 0x18BC];
+    unsigned char m18BC[0x1920 - 0x18BC];
+    int m1920;
     int m1924;          // inferred: shield points (vf40)
     atn::EfpFile m1928;
     atn::EfpFile m1934; // inferred: hit effect while the shield holds
@@ -56,10 +76,7 @@ public:
     atn::EfpFile m252C;
     atn::EfpFile m2538;
     unsigned char m2544[0x2548 - 0x2544];
-    int m2548;
-    int m254C;
-    float m2550;
-    float m2554;
+    LastCocoonEggShake_unk m2548;
     int m2558;
     float m255C;
     unsigned char m2560[0x2A40 - 0x2560];
