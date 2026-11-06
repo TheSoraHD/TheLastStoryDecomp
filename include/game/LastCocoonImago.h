@@ -17,6 +17,7 @@ public:
     virtual void vf38(int enable);                           // 0x8045D1EC
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
     virtual float vf90();                                    // 0x8045F998
+    virtual int vfB8(wchar_t* name);                         // 0x80459F24
     // inferred: position of the "neck" node (0x8045F914; the literal is in the .data pool of the
     // inline member, as in Em203GreaterDaemonRed)
     virtual atn::Vector3 GetTacViewPosition() const {

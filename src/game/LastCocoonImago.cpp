@@ -1,5 +1,20 @@
 #include "game/LastCocoonImago.h"
 #include "chr/ControlBase.h"
+#include "game/GameMessageList.h"
+
+// inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
+struct Effect_unk {
+    unsigned char m00000[0x3E2E8];
+    void* m3E2E8; // inferred: sphere of the current target (compared with m18FC)
+};
+extern "C" Effect_unk* lbl_8087F048;
+// inferred: field (lbl_8087F430); only the member used here
+struct Field_unk {
+    unsigned char m0000[0x54F4];
+    unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
+};
+extern "C" Field_unk* lbl_8087F430;
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 
 atn::Vector3 LastCocoonImago::vf64(int center) {
     atn::Vector3 result = mPos;
@@ -9,6 +24,18 @@ atn::Vector3 LastCocoonImago::vf64(int center) {
         result = m624.mData[m18C8].m04.mCenter;
     }
     return result;
+}
+
+// inferred: name of the character, unless the current target is its sphere
+int LastCocoonImago::vfB8(wchar_t* name) {
+    if (lbl_8087F048 != 0 && lbl_8087F048->m3E2E8 != &m18FC && m5C != 0 && m5C->mC4 > 0 && lbl_8087F430 != 0) {
+        GameMessage* entry = ((GameMessageList*)lbl_8087F430->m54F4)->fn_803B3B38(m5C->mC4);
+        if (entry != 0) {
+            wcscpy(name, entry->mText);
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void LastCocoonImago::vf24() {
