@@ -185,6 +185,12 @@ BOOL OnShutdown(BOOL final, u32 event) {
     return ret;
 }
 
+// inferred: callback of WPADGetInfo (version 2010)
+static void fn_8065D0E0(s32 chan, s32 result) {
+    _infRes[chan] = (s8)result;
+    OSWakeupThread(&_wpdcb[chan]->threadq);
+}
+
 s32 WPADiGetStatus(s32 chan) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL enable;
@@ -308,6 +314,40 @@ static u8 IsButtonChanged(u16 curr, u16 prev) {
 static u8 IsAnalogChanged(s32 curr, s32 prev, s32 threshold) {
     s32 diff = ((curr - prev) < 0) ? prev - curr : curr - prev;
     return (u8)((diff > threshold) ? 1 : 0);
+}
+
+// inferred: size of the status structure for a data format (version 2010)
+u32 fn_8065D3E0(u32 fmt) {
+    switch (fmt) {
+    case 3:
+    case 4:
+    case 5:
+        return 50;
+    case 6:
+    case 7:
+    case 8:
+    case 11:
+    case 15:
+    case 17:
+    case 18:
+        return 54;
+    case 19:
+        return 64;
+    case 10:
+        return 46;
+    case 20:
+        return 50;
+    case 12:
+        return 52;
+    case 13:
+        return 70;
+    case 9:
+        return 90;
+    case 16:
+        return 62;
+    default:
+        return 42;
+    }
 }
 
 BOOL IsControllerDataChanged(WPADControlBlock* p_wpd, void* p_curr, void* p_prev) {
@@ -544,42 +584,38 @@ void WPADRecalibrate(s32 chan) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL enable = OSDisableInterrupts();
     p_wpd->isSetStickOrigin = 0;
+    p_wpd->recalibrateCount = 0;
     OSRestoreInterrupts(enable);
 }
 
-void CheckButtonCombination(s32 chan) {
+// NONMATCHING: 99.2% - register allocation (chan*4 in r3 instead of r6)
+void CheckButtonCombination(s32 chan, WPADCLStatus* cp) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
-    WPADCLStatus* cp;
-    BOOL enable;
-    u8 index;
-    s8 cnt = -1;
+    u8 cnt = 0;
+    u16 clButton = 0;
 
-    enable = OSDisableInterrupts();
-    index = (u8)((p_wpd->rxBufIndex) ? 0 : 1);
-    cp = (WPADCLStatus*)(p_wpd->rxBuf + index * WPAD_RX_DATASIZE);
+    if (cp->err != WPAD_ERR_NONE && cp->err != WPAD_ERR_CORRUPTED) {
+        return;
+    }
 
-    if (WPADiIsFsFormat(p_wpd->dataFormat)) {
-        if (cp->button == 0x1C10) {
+    if (cp->button == 0x1C10) {
+        if ((p_wpd->dataFormat >= WPAD_FMT_FREESTYLE && p_wpd->dataFormat <= WPAD_FMT_CLASSIC_ACC_DPD) || p_wpd->dataFormat == 16) {
             cnt = 1;
         }
     }
-    if (WPADiIsClFormat(p_wpd->dataFormat)) {
-        if (cp->button == 0x1C10) {
-            cnt = 1;
-        }
-        if (cp->err != WPAD_ERR_NONE) {
-            cnt = 0;
-        } else if (cp->clButton == 0x1450) {
+    if (p_wpd->devType == WPAD_DEV_CLASSIC) {
+        clButton = cp->clButton;
+    }
+    if (p_wpd->devType == 7) {
+        clButton = cp->clButton;
+    }
+    if (clButton == 0x1450) {
+        if (WPADiIsClFormat(p_wpd->dataFormat) || p_wpd->dataFormat == 16) {
             cnt = 1;
         }
     }
-    if (cnt < 0) {
-        p_wpd->recalibrateCount = 0;
-    } else {
-        p_wpd->recalibrateCount += cnt;
-    }
-    OSRestoreInterrupts(enable);
 
+    p_wpd->recalibrateCount += cnt;
     if (p_wpd->recalibrateCount > 600) {
         WPADRecalibrate(chan);
     }
@@ -593,42 +629,38 @@ static void __SetScreenSaverFlag(BOOL flag) {
 
 void WPADiCheckContInputs(s32 chan) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
-    BOOL diff = FALSE;
+    BOOL diff;
     BOOL enable;
     BOOL screen = FALSE;
     void* p_data;
     u8 index;
 
-    if (p_wpd->status == WPAD_ERR_NO_CONTROLLER) {
+    if (_checkCnt != 5) {
         return;
     }
 
     enable = OSDisableInterrupts();
     index = (u8)((p_wpd->rxBufIndex) ? 0 : 1);
     p_data = (void*)(p_wpd->rxBuf + index * WPAD_RX_DATASIZE);
-    diff = IsControllerDataChanged(p_wpd, p_data, p_wpd->prBuf);
-
-    if (diff) {
-        memcpy(p_wpd->prBuf, p_data, WPAD_RX_DATASIZE);
-    }
-    if (((WPADStatus*)p_wpd->prBuf)->err != WPAD_ERR_NONE) {
-        memset(p_wpd->prBuf, 0, WPAD_RX_DATASIZE);
-    }
-
     OSRestoreInterrupts(enable);
-    CheckButtonCombination(chan);
+
+    diff = IsControllerDataChanged(p_wpd, p_data, p_wpd->prBuf);
+    CheckButtonCombination(chan, (WPADCLStatus*)p_data);
 
     if (diff) {
         screen = TRUE;
         p_wpd->lastUpdateTime = __OSGetSystemTime();
-    } else {
-        if (_sleepTime > 0) {
-            int sec = (int)OSTicksToSeconds(__OSGetSystemTime() - p_wpd->lastUpdateTime);
+        memcpy(p_wpd->prBuf, p_data, WPAD_RX_DATASIZE);
+    } else if (_sleepTime) {
+        int sec = (int)OSTicksToSeconds(__OSGetSystemTime() - p_wpd->lastUpdateTime);
 
-            if (sec > 60 * _sleepTime) {
-                WPADiDisconnect(chan, TRUE);
-            }
+        if (sec > 60 * _sleepTime) {
+            WPADiDisconnect(chan, FALSE);
         }
+    }
+
+    if (((WPADStatus*)p_wpd->prBuf)->err != WPAD_ERR_NONE && ((WPADStatus*)p_wpd->prBuf)->err != WPAD_ERR_CORRUPTED) {
+        memcpy(p_wpd->prBuf, p_data, WPAD_RX_DATASIZE);
     }
 
     __SetScreenSaverFlag(screen);
@@ -1578,6 +1610,16 @@ s32 WPADSetDataFormat(s32 chan, u32 fmt) {
     }
     ret = WPAD_ERR_BUSY;
     return ret;
+}
+
+// inferred: name from later SDKs; synchronous WPADGetInfoAsync (version 2010)
+s32 WPADGetInfo(s32 chan, WPADInfo* info) {
+    s32 result = WPADGetInfoAsync(chan, info, fn_8065D0E0);
+    if (result == WPAD_ERR_BUSY) {
+        return result;
+    }
+    OSSleepThread(&_wpdcb[chan]->threadq);
+    return _infRes[chan];
 }
 
 void __infoCallback(s32 chan, s32 result) {

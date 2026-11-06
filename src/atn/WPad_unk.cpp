@@ -20,7 +20,7 @@ extern "C" int fn_806572D0(int chan, KPADStatus_unk* samples, int count);     //
 extern "C" void WPADSetAutoSleepTime(unsigned char minute);
 extern "C" void WPADResetAutoSleepTimeCount(int chan);
 extern "C" void WPADDisconnect(int chan);
-extern "C" int fn_80661010(int chan, void* info);                             // inferred: WPADGetInfo
+extern "C" int WPADGetInfo(int chan, void* info);
 extern "C" void WPADControlMotor(int chan, unsigned int command);
 
 // inferred: engine heap
@@ -439,7 +439,7 @@ int fn_800DF1D0(WPad_unk* wpad) {
         return 4;
     }
     unsigned char info[0x18];
-    if (fn_80661010(0, info) == 0) {
+    if (WPADGetInfo(0, info) == 0) {
         return info[0x14];
     }
     return 4;
