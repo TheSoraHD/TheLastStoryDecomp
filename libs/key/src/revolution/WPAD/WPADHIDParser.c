@@ -302,6 +302,7 @@ static void __wpadGetMpConfig(WPADChannel chan, byte_t *config,
 static void __wpadGetExtConfig(WPADChannel chan, WPADResult result);
 static void __wpadGetExtConfig2(WPADChannel chan, WPADResult result);
 static BOOL __wpadIsExtEncryptMain(u8 type);
+BOOL fn_8065CEC0(void); // inferred: WPADIsEnabled* of the 2010 extension (WPAD.c)
 static void __wpadGetExtType(WPADChannel chan, WPADResult result);
 static void __wpadGetExtType2(WPADChannel chan, WPADResult result);
 static void __wpadGetGameInfo(WPADChannel chan, WPADResult result, u8);
@@ -914,6 +915,11 @@ static void __wpadGetExtConfig(WPADChannel chan, WPADResult result)
 		if (p_wpd->wmReadLength == 1)
 			return;
 	}
+	else if (p_wpd->devType == WPAD_DEV_VSM) // inferred: 2010 SDK (80669440)
+	{
+		if (p_wpd->wmReadLength != 32)
+			return;
+	}
 
 	if (p_wpd->extensionCB)
 		(*p_wpd->extensionCB)(chan, p_wpd->devType);
@@ -1035,6 +1041,11 @@ static void __wpadGetExtType(WPADChannel chan, WPADResult result)
 			case 17:
 				_wpadDevType[chan] =
 					WPADIsEnabledTKO() ? WPAD_DEV_TAIKO : WPAD_DEV_251;
+				break;
+
+			case 18: // inferred: extension added in the 2010 SDK (device type 0x1d)
+				_wpadDevType[chan] =
+					fn_8065CEC0() ? 29 : WPAD_DEV_251;
 				break;
 
 			case 3:
@@ -1414,6 +1425,7 @@ static void __wpadCheckDataFormat(u8 chan, u8 rep_id, void *data)
 		&& (p_wpd->dataFormat == WPAD_FMT_FS_BTN_ACC
 		|| p_wpd->dataFormat == WPAD_FMT_CLASSIC_BTN_ACC
 		|| p_wpd->dataFormat == WPAD_FMT_VSM
+		|| p_wpd->dataFormat == 20 /* inferred: TLS 2010 SDK has a format 20 (cmplwi 0x14 @ 80669FD8) */
 		|| p_wpd->dataFormat == WPAD_FMT_BULK))
 	|| (rep_id == RPTID_DATA_BTN_ACC_DPD10_EXT9
 		&& (p_wpd->dataFormat == WPAD_FMT_FS_BTN_ACC_DPD
@@ -1733,6 +1745,8 @@ static void __a1_22_ack(u8 chan, byte_t *hidReport, void *rxBuffer)
 	OSRestoreInterrupts(intrStatus);
 }
 
+// NONMATCHING: 98% - regalloc in the rolag loop: the original keeps &status[0]->obj[i]
+// in r22 across sin/cos for the x store (obj pointer variants tried: 97.6-98.4%)
 static void __parse_dpd_data(WPADChannel chan, WPADStatus **status,
                              u8 dpdFormat, byte_t *data, u8 length)
 {
@@ -2086,6 +2100,34 @@ static void __parse_tr_data(WPADChannel chan __attribute__((unused)),
 	trStatus[0]->brake = data[2];
 	trStatus[0]->mascon = data[3];
 	trStatus[0]->trButton = MAKE_TR_BUTTON(data[6], data[7]);
+}
+
+// inferred: extension added in the 2010 SDK (device type 29, see __wpadGetExtType);
+// layout deduced from the stores in __parse_ext_data (8066C6E8)
+typedef struct WPADUnk29Status
+{
+	WPADButton	button;						// size 0x02, offset 0x00
+	s16			accX;						// size 0x02, offset 0x02
+	s16			accY;						// size 0x02, offset 0x04
+	s16			accZ;						// size 0x02, offset 0x06
+	DPDObject	obj[WPAD_MAX_DPD_OBJECTS];	// size 0x20, offset 0x08
+	u8			dev;						// size 0x01, offset 0x28
+	s8			err;						// size 0x01, offset 0x29
+
+	s16			at_0x2a;	// size 0x02, offset 0x2a
+	s16			at_0x2c;	// size 0x02, offset 0x2c
+	s16			at_0x2e;	// size 0x02, offset 0x2e
+} WPADUnk29Status;
+
+static void __parse_unk29_data(WPADChannel chan __attribute__((unused)),
+                               WPADUnk29Status **status,
+                               u8 format __attribute__((unused)), byte_t *data,
+                               u8 length __attribute__((unused)))
+{
+	status[0]->at_0x2a = (u16)(((u16)data[2] & 0x0f) << 8) | (s16)(data[0] & 0xff);
+	status[0]->at_0x2c = (u16)(((u16)data[2] & 0xf0) << 4) | (s16)(data[1] & 0xff);
+	status[0]->at_0x2e = (u16)(((u16)data[5] & 0x0c) << 6) | (s16)(data[3] & 0xff);
+	status[0]->button |= (~data[5] & 0x03) << 13;
 }
 
 static void __parse_bl_data(WPADChannel chan, WPADBLStatus **blStatus,
@@ -2570,6 +2612,12 @@ static void __parse_ext_data(WPADChannel chan, void *parseBuf,
 		{
 			__parse_tr_data(chan, (WPADTRStatus **)&parseBuf, p_wpd->devMode,
 			                p_wpd->extDataBuf, p_wpd->extDataLength);
+		}
+		else if (p_wpd->devType == 29)
+		{
+			__parse_unk29_data(chan, (WPADUnk29Status **)&parseBuf,
+			                   p_wpd->devMode, p_wpd->extDataBuf,
+			                   p_wpd->extDataLength);
 		}
 		else if (p_wpd->devType == WPAD_DEV_BALANCE_CHECKER)
 		{

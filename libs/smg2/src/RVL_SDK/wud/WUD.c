@@ -693,7 +693,7 @@ static WUDInitState WUDiWaitDeviceUp(void) {
     return nextState;
 }
 
-s32 fn_8066E8F0(void) {
+s32 WUDIsLinkedWBC(void) {
     return _wudFlag;
 }
 

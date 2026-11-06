@@ -8,7 +8,7 @@
 // the new functions of WUD.c.
 #define DEBUGPrint(...) ((void)0)
 
-s32 fn_8066E8F0(void);
+s32 WUDIsLinkedWBC(void);
 WUDDevInfo* fn_80673E10(void);
 void fn_80673F50(UINT8 handle, BD_ADDR_PTR addr);
 BD_ADDR_PTR fn_80673F70(UINT8 handle);
@@ -93,7 +93,7 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
             if (pInfo->sync_type == 3 || pInfo->sync_type == 1) {
                 WUDiMoveTopSmpDevInfoPtr(pInfo);
-            } else if (!fn_8066E8F0() || (fn_8066E8F0() && WUD_DEV_NAME_IS_CNT(pInfo->conf.devName))) {
+            } else if (!WUDIsLinkedWBC() || (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_CNT(pInfo->conf.devName))) {
                 WUDiMoveTopStdDevInfoPtr(pInfo);
             }
 
@@ -150,7 +150,7 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
         if (pInfo != NULL) {
             if (pInfo->sync_type == 3 || pInfo->sync_type == 1) {
                 WUDiMoveTopOfDisconnectedSmpDevice(pInfo);
-            } else if (!fn_8066E8F0() || (fn_8066E8F0() && WUD_DEV_NAME_IS_CNT(pInfo->conf.devName))) {
+            } else if (!WUDIsLinkedWBC() || (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_CNT(pInfo->conf.devName))) {
                 WUDiMoveTopOfDisconnectedStdDevice(pInfo);
             }
         }

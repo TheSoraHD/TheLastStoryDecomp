@@ -34,7 +34,7 @@ DVDDiskID _diskId;
 // inferred: WUD helper of the version of 2010 (stores or clears the address of a registered device)
 void fn_80673E20(int index, u8* addr);
 BOOL fn_80673EA0(int index, u8* addr);
-s32 fn_8066E8F0(void);
+s32 WUDIsLinkedWBC(void);
 void WPADiClearMemBlock(s32 chan);
 s32 WPADWriteExtReg(s32 chan, void* buf, u16 len, u8 regHi, u8 regLo, WPADCallback callback); // inferred: writes an extension register (WPADMem, version 2010) // inferred: resets the memory-access block of a channel (WPADMem, version 2010) // inferred: WUD flag of the version of 2010 (balance board allowed) // inferred: WUD helper, TRUE if the address is the registered one
 
@@ -118,13 +118,13 @@ u8 noFree(void* ptr) {
 }
 
 // inferred: default stubs of the optional modules (version 2010), called from KPAD and WPADHIDParser
-u32 fn_8065CE50(void) { return _wpadModVar0; }
-u32 fn_8065CE60(void) { return _wpadModVar1; }
-u32 fn_8065CE70(void) { return _wpadModVar2; }
-u32 fn_8065CE80(void) { return _wpadModVar3; }
-u32 fn_8065CE90(void) { return _wpadModVar4; }
-u32 fn_8065CEA0(void) { return _wpadModVar5; }
-u32 fn_8065CEB0(void) { return _wpadModVar6; }
+u32 WPADIsEnabledVSM(void) { return _wpadModVar0; }
+u32 WPADIsEnabledTRN(void) { return _wpadModVar1; }
+u32 WPADIsEnabledGTR(void) { return _wpadModVar2; }
+u32 WPADIsEnabledDRM(void) { return _wpadModVar3; }
+u32 WPADIsEnabledTKO(void) { return _wpadModVar4; }
+u32 WPADIsEnabledTBL(void) { return _wpadModVar5; }
+u32 WPADIsEnabledBLK(void) { return _wpadModVar6; }
 u32 fn_8065CEC0(void) { return _wpadModVar7; }
 s32 fn_8065CED0(void) { return 0; }
 s32 fn_8065CEE0(void) { return 0; }
@@ -1459,7 +1459,7 @@ static void WPADiConnCallback(WUDDevInfo* info, u8 open) {
         if (!memcmp(info->conf.devName, "Nintendo RVL-CNT", 16)) {
             p_wpd->devType = WPAD_DEV_CORE;
             p_wpd->dataFormat = WPAD_FMT_CORE;
-        } else if (!memcmp(info->conf.devName, "Nintendo RVL-WBC", 16) && fn_8066E8F0()) {
+        } else if (!memcmp(info->conf.devName, "Nintendo RVL-WBC", 16) && WUDIsLinkedWBC()) {
             p_wpd->devType = 3; // inferred: balance board
             p_wpd->dataFormat = 12;
         } else {
@@ -2484,7 +2484,7 @@ s32 WPADControlBLC(s32 chan, u8 command, WPADCallback callback) {
     OSRestoreInterrupts(enable);
 
     if (status != WPAD_ERR_NO_CONTROLLER) {
-        if (!setup || !fn_8066E8F0()) {
+        if (!setup || !WUDIsLinkedWBC()) {
             status = WPAD_ERR_BUSY;
         } else {
             data[0] = data[1] = data[2] = 0xAA;
