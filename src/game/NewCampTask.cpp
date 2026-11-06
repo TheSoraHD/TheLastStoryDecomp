@@ -1,0 +1,84 @@
+#include "game/NewCampTask.h"
+#include "atn/FadeCommon.h"
+#include "atn/Model_unk.h"
+#include "atn/SoundRef.h"
+
+extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
+// inferred: field (lbl_8087F430); only the members used here
+struct NewCampField_unk {
+    unsigned char m0000[0x563C];
+    int m563C; // inferred: reason of the next map change
+};
+extern "C" NewCampField_unk* lbl_8087F430;
+extern "C" void fn_8037529C(NewCampField_unk* field, int a, unsigned int mask, int b, int c, int d);
+
+static NewCampPair_unk sNullPair; // inferred: returned by fn_80530384 for a missing id
+
+void NewCampTask::fn_8052C9C4() {
+    if (m133C == 0) {
+        if (lbl_8087F430 != 0) {
+            lbl_8087F430->m563C = 0x12;
+        }
+        m133C = 1;
+        fn_80117228(0x20);
+    } else {
+        fn_8052CA6C();
+        m133C = 0;
+        if (lbl_8087F430 != 0) {
+            fn_8037529C(lbl_8087F430, -1, 0xFFFFFF, 0, 0, 10);
+        }
+    }
+    m5C = 0;
+}
+
+// NONMATCHING: 90% - the original loads both vector sizes before clearing them (same as
+// Event::EffectLists_unk::Clear_unk)
+void NewCampTask::fn_8053032C(atn::Vector3 pos, atn::Vector3 rot) {
+    m12AC = 0;
+    m12B0.Clear_unk();
+    m12D4 = pos;
+    m12E0 = rot;
+}
+
+NewCampPair_unk& NewCampTask::fn_80530384(int id) {
+    for (unsigned int i = 0; i < m1224.size(); i++) {
+        if (id == m1224.mData[i].mId) {
+            return m1224.mData[i];
+        }
+    }
+    return sNullPair;
+}
+
+void NewCampTask::fn_80530CD0(int duration) {
+    m64->mFrame = 0;
+    m64->mDelay = 0;
+    m64->mDuration = duration;
+    m64->mWait = 999999;
+    m64->mColor0 = 0;
+    m64->mColor1 = 0xFF000000;
+    m64->mZ = -100000.0f;
+    m64->mActive = 1;
+    m68 = 1;
+}
+
+void NewCampTask::fn_80530D30(int duration) {
+    m64->mFrame = 0;
+    m64->mDelay = 0;
+    m64->mDuration = duration;
+    m64->mWait = 0;
+    m64->mColor0 = 0xFF000000;
+    m64->mColor1 = 0;
+    m64->mZ = -100000.0f;
+    m64->mActive = 1;
+    m68 = 0;
+}
+
+// NONMATCHING: 80% - the original keeps a dead blr after the tail call
+void NewCampTask::fn_80530D88(int set, atn::ModelBase* model) {
+    if (model == 0) {
+        return;
+    }
+    if (0 <= set && set < 3) {
+        ((atn::Model*)model)->fn_8008C828(0);
+    }
+}

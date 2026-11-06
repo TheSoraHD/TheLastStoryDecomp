@@ -1,4 +1,5 @@
 #include "game/NewCampPartsMapSelect.h"
+#include "game/NewCampTask.h"
 #include "atn/Memory.h"
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
@@ -20,7 +21,6 @@
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
-extern "C" void fn_80530D88(atn::Task* camp, int a, atn::ModelBase* model);
 // inferred: d2anime task of a D3Anime (as NewCampHintD2A_unk in game/NewCampPartsHint.cpp)
 struct NewCampMapD2A_unk : public atn::Task {
     unsigned char m48[0x58 - 0x48];
@@ -113,13 +113,9 @@ extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, i
                             int c); // inferred: changes the map
 extern "C" void fn_8036FB4C(GameField_unk* field, int entry); // inferred: moves to an entry of the current map
 extern "C" void fn_803743AC(GameField_unk* field);
-extern "C" void fn_80530D30(atn::Task* camp, int a);
 extern "C" void fn_8052DEEC(atn::Task* camp, int id); // inferred: changes the parts of the camp
 extern "C" void fn_80530174(atn::Task* camp);
-extern "C" void fn_8052CA6C(atn::Task* camp);
 extern "C" void fn_805AA734(TacView* view); // inferred: closes the tactical view
-extern "C" void fn_8052C9C4(atn::Task* camp);
-extern "C" void fn_8053032C(atn::Task* camp, atn::Vector3 pos, atn::Vector3 rot);
 extern "C" int fn_8037587C(GameField_unk* field, int type, int id, int subId); // inferred: the map was visited
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
@@ -185,7 +181,6 @@ static inline int FindArea_unk(const char* name) {
     }
     return -1;
 }
-extern "C" void fn_80530CD0(atn::Task* camp, int a);
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -577,7 +572,7 @@ void NewCampPartsMapSelect::vf2C() {
     case 3:
         m19C0 += 1.0f;
         if (15.0f <= m19C0 && m19C0 < 16.0f) {
-            fn_80530CD0(m48, 15);
+            ((NewCampTask*)m48)->fn_80530CD0(15);
         } else if (30.0f <= m19C0 && lbl_8087F430 != 0) {
             lbl_8087F430->m5624->m78 = 0x12;
             lbl_8087F430->m5624->Capture();
@@ -647,10 +642,10 @@ void NewCampPartsMapSelect::fn_8051FD20() {
     if (fn_800A555C(pad, 0, 5)) {
         if (((NewCampMapCamp_unk*)m48)->mState == 2) {
             fn_80530174(m48);
-            fn_8052C9C4(m48);
+            ((NewCampTask*)m48)->fn_8052C9C4();
         } else {
             fn_8052DEEC(m48, 0);
-            fn_8053032C(m48, lbl_807C7030, lbl_807C7030);
+            ((NewCampTask*)m48)->fn_8053032C(lbl_807C7030, lbl_807C7030);
             fn_80117228(8);
             mDC = 0;
             fn_8051FB7C(5);
@@ -706,11 +701,11 @@ void NewCampPartsMapSelect::fn_80520098() {
     if (lbl_8087F430 == 0) {
         return;
     }
-    fn_80530D30(m48, 0);
+    ((NewCampTask*)m48)->fn_80530D30(0);
     fn_8052DEEC(m48, 0);
     MapSelectRoute_unk* route = FindRoute_unk(m19A4);
     fn_80530174(m48);
-    fn_8052CA6C(m48);
+    ((NewCampTask*)m48)->fn_8052CA6C();
     lbl_8087F430->m563C = 0x12;
     if (fn_80373148(lbl_8087F430)->mType == 1 && route->mMapType == 1) {
         fn_8036FB4C(lbl_8087F430, route->mEntry);
@@ -1019,7 +1014,7 @@ void NewCampPartsMapSelect::fn_80521A00(int dir) {
 void NewCampPartsMapSelect::vf44() {
     for (int i = 0; i < m4C; i++) {
         if (GetModelData_unk(m50[i].mModel) != 0) {
-            fn_80530D88(m48, 0, GetModelData_unk(m50[i].mModel));
+            ((NewCampTask*)m48)->fn_80530D88(0, GetModelData_unk(m50[i].mModel));
         }
     }
 }

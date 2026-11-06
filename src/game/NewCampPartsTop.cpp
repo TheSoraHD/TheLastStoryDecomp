@@ -1,4 +1,5 @@
 #include "game/NewCampPartsTop.h"
+#include "game/NewCampTask.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/Inventory.h"
@@ -130,8 +131,6 @@ struct NewCampTopMsg_unk {
 extern "C" NewCampTopMsg_unk* lbl_8087F1E4;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void fn_8052CA6C(atn::Task* camp);
-extern "C" void fn_8052C9C4(atn::Task* camp);
 extern "C" void fn_8052DEEC(atn::Task* camp, int id);
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087DCC8;
@@ -350,7 +349,7 @@ void NewCampPartsTop::vf2C() {
             switch (actions[mCursor]) {
             case 0:
             case 1:
-                fn_8052CA6C(m48);
+                ((NewCampTask*)m48)->fn_8052CA6C();
                 fn_80370F8C(lbl_8087F430, 0, lbl_8087F460, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     lbl_8087F430->m10D8->mFlags |= 4;
@@ -361,7 +360,7 @@ void NewCampPartsTop::vf2C() {
                 sSequenceBoot_unk->SetNext_unk("Title");
                 break;
             case 3:
-                fn_8052CA6C(m48);
+                ((NewCampTask*)m48)->fn_8052CA6C();
                 fn_80370320(lbl_8087F430, 0x1B, 1, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     ((GameScene*)lbl_8087F430->m10D8)->fn_803CCC70(999999);
@@ -561,7 +560,7 @@ void NewCampPartsTop::vf2C() {
             }
             fn_80117228(6);
         } else if (fn_800A555C(pad, 0, 5)) {
-            fn_8052C9C4(m48);
+            ((NewCampTask*)m48)->fn_8052C9C4();
         }
     }
 }
