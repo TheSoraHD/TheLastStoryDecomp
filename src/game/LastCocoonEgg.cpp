@@ -47,6 +47,15 @@ void LastCocoonEgg::vf3C(HitInfo_unk* hit) {
 }
 
 // inferred: plays an effect on the model with the default color and scale (name invented)
+// inferred: same with the vectors passed by the caller (names invented)
+static inline void PlayEfp2_unk(atn::EfpFile* efp, void* model, const atn::Vector3& pos, const atn::Vector3& rot) {
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
 static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
     atn::Vector3 pos(0.0f, 0.0f, 0.0f);
     atn::Vector3 rot(0.0f, 0.0f, 0.0f);
@@ -149,4 +158,23 @@ void LastCocoonEgg::fn_80456F04() {
     fn_8016E970(3);
     m2548.Shake_unk(50, 1.5f * m14D0, 1.5f * m14D0);
     m2558 = 1;
+}
+
+// inferred: the shield breaks (as vf40 without the popup text)
+void LastCocoonEgg::fn_80456F94() {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 8;
+    fn_8016E970(3);
+    fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+    fn_80232B7C(0, 0);
+    PlayEfp2_unk(&m1940, &mMotion, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(0.0f, 0.0f, 0.0f));
+    m1980 = 1;
+    m2558 = 3;
+    m255C = 0.3f;
+    m14D0 = 4.0f;
+    m14D4 = 0.05f;
+    m2548.Shake_unk(0x58, 2.0f, 2.0f);
+    lbl_8087F430->Shake_unk(60, 1.5f, 1.5f);
 }

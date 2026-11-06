@@ -47,6 +47,7 @@ public:
     void fn_8045617C();
     void fn_80456DB8();
     void fn_80456F04();
+    void fn_80456F94(); // inferred: the shield breaks
 
     atn::LH_Binary m14B0; // inferred: parameter file
     unsigned char m14B8[0x14BC - 0x14B8];
