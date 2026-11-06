@@ -3,8 +3,27 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
+#include "atn/SoundRef.h"
+#include "game/MenuCommonTask.h"
+#include "game/GameConfig_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" void* lbl_8087EF70;                                // inferred: pad
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
+extern "C" atn::SoundRef fn_80117228(int id);                // inferred: plays a system sound effect
+extern "C" void fn_8052DEEC(atn::Task* camp, int id);        // inferred: changes the parts of the camp
+extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
+extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: message text
+extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
+extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id);   // inferred: shows the item
+extern "C" GameConfig_unk* lbl_8087F0A8;
+// inferred: item data returned by fn_80211480 (only the members used here)
+struct NewCampItemData_unk {
+    unsigned char m00[0x0C];
+    const wchar_t* mHelp; // 0x0C
+};
+extern "C" NewCampItemData_unk* fn_80211480(int id); // inferred: item data
 // inferred: creates a d2anime task (atn/D2A_Task.h declares it with the D2A_Task type; not included: its
 // D2A_Data.h gives a warning)
 extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
@@ -137,4 +156,81 @@ void NewCampPartsItem::vf30() {
     mE8 = 0;
     fn_80517B3C();
     fn_8051B164();
+}
+
+// inferred: changes the state (the list is drawn again in state 0); name invented
+inline void NewCampPartsItem::SetState_unk(int state) {
+    m7C = state;
+    if (m7C == 0) {
+        fn_8051B164();
+    }
+}
+
+void NewCampPartsItem::fn_8051B43C() {
+    void* pad = lbl_8087EF70;
+    int prev = mE0;
+    fn_804A436C(&mE0, 7, 7, 1, 4);
+    if (prev != mE0) {
+        mE8 = 0;
+        mE4 = 0;
+        fn_80517B3C();
+        fn_8051B164();
+    }
+    if (fn_800A555C(pad, 0, 4) != 0) {
+        if (mList.size() != 0) {
+            SetState_unk(1);
+            fn_80117228(1);
+        }
+    } else if (fn_800A555C(pad, 0, 5) != 0) {
+        fn_8052DEEC(m48, 0);
+        fn_80117228(8);
+    }
+}
+
+// inferred: help text and item view of an entry; name invented
+static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
+    if (entry->m08 != 0) {
+        NewCampItemData_unk* data = fn_80211480(entry->mId);
+        if (data != 0) {
+            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+        }
+    } else {
+        MenuCommonTask* menu = MenuCommonTask::sInstance;
+        fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+    }
+    if (lbl_8087F0A8->mShowReleadBar2 != 0) {
+        fn_804A7DD4(MenuCommonTask::sInstance, entry->mId);
+    }
+}
+
+void NewCampPartsItem::fn_8051B544() {
+    void* pad = lbl_8087EF70;
+    int prev = mE4;
+    if (mList.size() != 0) {
+        fn_804A4494(&mE4, &mE8, mList.size(), 10, 1, 3);
+        if (prev != mE4) {
+            fn_8051B164();
+        }
+    }
+    if (fn_800A555C(pad, 0, 5) != 0) {
+        SetState_unk(0);
+        fn_80117228(2);
+    } else if (fn_800A555C(pad, 0, 12) != 0) {
+        fn_80117228(18);
+        mEC = 0;
+        NewCampItemEntry_unk entry = mList[mE4];
+        fn_80517B3C();
+        fn_8051B364(entry, &mE4, &mE8);
+        fn_8051B164();
+    } else if (fn_800A555C(pad, 0, 13) != 0) {
+        fn_80117228(18);
+        mEC = 1;
+        NewCampItemEntry_unk entry = mList[mE4];
+        fn_80517B3C();
+        fn_8051B364(entry, &mE4, &mE8);
+        fn_8051B164();
+    }
+    if (mE4 < (int)mList.size()) {
+        ShowHelp_unk(&mList[mE4]);
+    }
 }

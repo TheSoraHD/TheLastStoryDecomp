@@ -11,7 +11,13 @@ class D3AnimeInstance;
 
 // inferred: entry of the item list (0x18 bytes: fn_8051B164 indexes it with mulli 0x18); names invented
 struct NewCampItemEntry_unk {
-    int m00[6];
+    int mId;              // 0x00: inferred: item id (fn_80211480)
+    unsigned short m04;   // 0x04 (the swap of std::sort copies it with lhz)
+    unsigned short m06;
+    int m08;              // inferred: nonzero for an item with data
+    int m0C;
+    int m10;
+    int m14;
 };
 
 
@@ -36,6 +42,8 @@ public:
     void fn_8051B164();         // inferred: draws the list
     void fn_8051B43C();         // inferred: input (state 0)
     void fn_8051B544();         // inferred: input (state 1)
+    void SetState_unk(int state);
+    void fn_8051B364(const NewCampItemEntry_unk& entry, int* cursor, int* top); // inferred: finds the entry again after sorting
 
     std::vector<NewCampItemEntry_unk> mList; // 0xD4
     int mE0;
