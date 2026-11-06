@@ -5766,6 +5766,19 @@ ss_nw4r/src/snd/snd_WsdPlayer.cpp:
 ss_nw4r/src/snd/snd_adpcm.cpp:
 	.text       start:0x80722F50 end:0x80722FDC
 
+nw4r/src/db/db_console.cpp:
+	.text       start:0x80722FE0 end:0x807230C0 align:16
+
+auto_03_807230C0_text.cpp:
+	.text       start:0x807230C0 end:0x80724BE0 align:16
+
+nw4r/src/db/db_assert.cpp:
+	.text       start:0x80724BE0 end:0x80725050 align:16
+	.data       start:0x807C6510 end:0x807C6590
+	.bss        start:0x8087D648 end:0x8087D678
+	.sdata      start:0x8087EE38 end:0x8087EE40
+	.sbss       start:0x80880530 end:0x80880540
+
 ss_nw4r/src/ut/ut_list.cpp:
 	.text       start:0x80725050 end:0x80725170
 

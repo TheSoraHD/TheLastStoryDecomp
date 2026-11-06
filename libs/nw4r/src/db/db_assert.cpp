@@ -62,6 +62,8 @@ namespace nw4r
             }
         }
 
+        // NONMATCHING: 63% - the 2010 version prints the stack with Assertion_Printf_ and reads the caller's
+        // stack pointer (lwz r29, 0(r1)), which needs inline asm (not allowed); the unit is not linked
         DECL_WEAK void VPanic(const char* file, int line, const char* fmt, std::va_list vlist, bool halt) {
             register u32 stackPointer;
 
