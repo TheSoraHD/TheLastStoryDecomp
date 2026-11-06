@@ -100,6 +100,10 @@ struct QuadDamage_unk {
 extern "C" void fn_80108C10(Effect_unk* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
                             CharaTask* to, int b, int c);
 
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in game/BattleCharaTask.cpp)
+
 // inferred: places the quadruped walks around (ids 601-610; names invented)
 struct QuadPlace_unk {
     int mId;
@@ -198,6 +202,64 @@ inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const at
     c.m54 = r;
 }
 
+void LastCocoonQuadruped::fn_80461398() {
+    if (m624.mSize != 0) {
+        for (int i = 0; i < 3; i++) {
+            MtxPtr mtx = mMotion.GetNodeMtx_unk(sSphereNodes_unk[i]);
+            m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)mtx)->GetTrans_unk();
+            if (i == 1) {
+                m624.mData[i].m04.mRadius = 10.0f;
+            } else if (i == 2) {
+                m624.mData[i].m04.mCenter = (m624.mData[0].m04.mCenter + m624.mData[1].m04.mCenter) * 0.5f;
+                m624.mData[i].m04.mRadius = 17.0f;
+            }
+        }
+    }
+}
+
+void LastCocoonQuadruped::vf20() {
+    m620 = 1.5f * m5B0;
+    m614 = mPos + m5A4;
+    m614.y += m620;
+    float radius = m5B0;
+    atn::Vector3 a = m614;
+    atn::Vector3 b = a;
+    b.y += MAX(m5B4 - 2.0f * radius, 1.0f);
+    SetCapsule_unk(mColli, a, b, radius);
+    for (int i = 0; i < 5; i++) {
+        float r = sQuadCapsules_unk[i].mRadius;
+        a = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sQuadCapsules_unk[i].mFrom))->GetTrans_unk();
+        b = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sQuadCapsules_unk[i].mTo))->GetTrans_unk();
+        SetCapsule_unk(mCapsules[i], a, b, r);
+    }
+    a = mPos;
+    b = a;
+    b.y += 100.0f;
+    SetCapsule_unk(m17A8, a, b, 50.0f);
+}
+
+void LastCocoonQuadruped::fn_804617A4() {
+    if (m58C >= 11 && m58C <= 12) {
+        mC58.mC8 = (int)mC58.mC4;
+        m1454 = 0;
+        m14B8 = m1554;
+        mC58.mC4 = m1554;
+    } else if (m58C == 13) {
+        mC58.mC8 = (int)mC58.mC4;
+        m1454 = 0;
+        m14B8 = m1574;
+        mC58.mC4 = m1574;
+    } else if (m58C == 17) {
+        mC58.mC8 = (int)mC58.mC4;
+        m1454 = 0;
+        m14B8 = m15C8;
+        mC58.mC4 = m15C8;
+    } else {
+        m1454 = 1;
+        m14B8 = mC58.mC4;
+    }
+}
+
 // NONMATCHING: 99.5% - the frame time (dt) is in f28 here, f29 in the original. Tried: local
 // declaration orders, a copy of dt after the motion lengths, separate weights.
 // inferred: walk motions blended by speed (simplified CharaTask::vf24)
@@ -264,64 +326,6 @@ void LastCocoonQuadruped::vf24() {
         mMotion.fn_80097C08(2, m484[3], 1, 0, 1, 0.0f, 0.1f);
         mMotion.mTracks[2].m0C = runSpeed;
         mMotion.mTracks[2].m20 = w;
-    }
-}
-
-void LastCocoonQuadruped::fn_80461398() {
-    if (m624.mSize != 0) {
-        for (int i = 0; i < 3; i++) {
-            MtxPtr mtx = mMotion.GetNodeMtx_unk(sSphereNodes_unk[i]);
-            m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)mtx)->GetTrans_unk();
-            if (i == 1) {
-                m624.mData[i].m04.mRadius = 10.0f;
-            } else if (i == 2) {
-                m624.mData[i].m04.mCenter = (m624.mData[0].m04.mCenter + m624.mData[1].m04.mCenter) * 0.5f;
-                m624.mData[i].m04.mRadius = 17.0f;
-            }
-        }
-    }
-}
-
-void LastCocoonQuadruped::vf20() {
-    m620 = 1.5f * m5B0;
-    m614 = mPos + m5A4;
-    m614.y += m620;
-    float radius = m5B0;
-    atn::Vector3 a = m614;
-    atn::Vector3 b = a;
-    b.y += MAX(m5B4 - 2.0f * radius, 1.0f);
-    SetCapsule_unk(mColli, a, b, radius);
-    for (int i = 0; i < 5; i++) {
-        float r = sQuadCapsules_unk[i].mRadius;
-        a = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sQuadCapsules_unk[i].mFrom))->GetTrans_unk();
-        b = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sQuadCapsules_unk[i].mTo))->GetTrans_unk();
-        SetCapsule_unk(mCapsules[i], a, b, r);
-    }
-    a = mPos;
-    b = a;
-    b.y += 100.0f;
-    SetCapsule_unk(m17A8, a, b, 50.0f);
-}
-
-void LastCocoonQuadruped::fn_804617A4() {
-    if (m58C >= 11 && m58C <= 12) {
-        mC58.mC8 = (int)mC58.mC4;
-        m1454 = 0;
-        m14B8 = m1554;
-        mC58.mC4 = m1554;
-    } else if (m58C == 13) {
-        mC58.mC8 = (int)mC58.mC4;
-        m1454 = 0;
-        m14B8 = m1574;
-        mC58.mC4 = m1574;
-    } else if (m58C == 17) {
-        mC58.mC8 = (int)mC58.mC4;
-        m1454 = 0;
-        m14B8 = m15C8;
-        mC58.mC4 = m15C8;
-    } else {
-        m1454 = 1;
-        m14B8 = mC58.mC4;
     }
 }
 
@@ -393,6 +397,26 @@ void LastCocoonQuadruped::fn_804654F0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         fn_80466974();
+    }
+}
+
+void LastCocoonQuadruped::fn_80466370() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80466974();
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (f <= 20.0f) {
+            mPos += m15BC;
+        } else if (20.0f < f && f < 24.0f && m14BC == 0) {
+            HitInfo_unk* skill = fn_80219E6C(0x5B5);
+            fn_800FAB80(lbl_8087F048, this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            m14BC = 1;
+        }
+        atn::Vector3 dir = m15BC;
+        dir.y = 0.0f;
+        dir.Normalize_unk();
+        mRot = dir.ToRotation_unk();
     }
 }
 
@@ -497,6 +521,9 @@ void LastCocoonQuadruped::fn_804678F4() {
     mRot = m1568.GetNormalize().ToRotation_unk();
 }
 
+// NONMATCHING: 86% - the store of m15AC is scheduled after the step (one more saved register) and the
+// subtractions are in another order. Tried: m15B0/m15AC order, pos instead of m15B0, a named
+// difference, the scalar on the left.
 void LastCocoonQuadruped::fn_80467C18(CharaTask* target, const atn::Vector3& pos) {
     SetMode_unk(15);
     mMotion.m34C = 1;
@@ -507,7 +534,10 @@ void LastCocoonQuadruped::fn_80467C18(CharaTask* target, const atn::Vector3& pos
     m15B0 = pos;
     m15BC = (m15B0 - mPos) * 0.2f;
     m15BC.y = 4.6666665f;
-    mRot = m15BC.GetNormalize().ToRotation_unk();
+    atn::Vector3 dir = m15BC;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    mRot = dir.ToRotation_unk();
 }
 
 // NONMATCHING: 99.8% - the two compares with the table are emitted as cmpw arg, entry (entry, arg in

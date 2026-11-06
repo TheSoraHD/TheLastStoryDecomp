@@ -43,6 +43,7 @@ public:
     void fn_804635B4();
     void fn_80463C58(); // inferred: mode 9 at frame 5: lands on the ground under m14D4
     void fn_80463DCC(); // inferred: end of the motion: back to mode 0 (states 1, 7) or mode 7
+    void fn_80466370(); // inferred: mode 15: jump with the bullet 0x5B5 at frames 20-24
     void fn_804666D8(); // inferred: mode with the moving effect (frames 10-80)
     void fn_804678F4(); // inferred: mode 12: moves towards m1554 in 30 frames
     void fn_80467C18(CharaTask* target, const atn::Vector3& pos); // inferred: mode 15: jumps to pos

@@ -100,6 +100,10 @@ struct QuadDamage_unk {
 extern "C" void fn_80108C10(Effect_unk* effect, QuadDamage_unk* damage, const atn::Vector3& pos, CharaTask* from,
                             CharaTask* to, int b, int c);
 
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in game/BattleCharaTask.cpp)
+
 // inferred: places the quadruped walks around (ids 601-610; names invented)
 struct QuadPlace_unk {
     int mId;
@@ -396,6 +400,27 @@ void LastCocoonQuadruped::fn_804654F0() {
     }
 }
 
+void LastCocoonQuadruped::fn_80466370() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        fn_80466974();
+    } else {
+        float f = mMotion.mTracks[0].m08;
+        if (f <= 20.0f) {
+            mPos += m15BC;
+        } else if (20.0f < f && f < 24.0f && m14BC == 0) {
+            HitInfo_unk* skill = fn_80219E6C(0x5B5);
+            Effect_unk* mgr = lbl_8087F048;
+            fn_800FAB80(mgr, this, skill, m590, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            m14BC = 1;
+        }
+        atn::Vector3 dir = m15BC;
+        dir.y = 0.0f;
+        dir.Normalize_unk();
+        mRot = dir.ToRotation_unk();
+    }
+}
+
 void LastCocoonQuadruped::fn_804666D8() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
@@ -497,7 +522,9 @@ void LastCocoonQuadruped::fn_804678F4() {
     mRot = m1568.GetNormalize().ToRotation_unk();
 }
 
-// NONMATCHING: 87% - stack slots of the temporaries and the store of m15AC is scheduled later
+// NONMATCHING: 86% - the store of m15AC is scheduled after the step (one more saved register) and the
+// subtractions are in another order. Tried: m15B0/m15AC order, pos instead of m15B0, a named
+// difference, the scalar on the left.
 void LastCocoonQuadruped::fn_80467C18(CharaTask* target, const atn::Vector3& pos) {
     SetMode_unk(15);
     mMotion.m34C = 1;
@@ -508,7 +535,10 @@ void LastCocoonQuadruped::fn_80467C18(CharaTask* target, const atn::Vector3& pos
     m15B0 = pos;
     m15BC = (m15B0 - mPos) * 0.2f;
     m15BC.y = 4.6666665f;
-    mRot = m15BC.GetNormalize().ToRotation_unk();
+    atn::Vector3 dir = m15BC;
+    dir.y = 0.0f;
+    dir.Normalize_unk();
+    mRot = dir.ToRotation_unk();
 }
 
 // NONMATCHING: 99.8% - the two compares with the table are emitted as cmpw arg, entry (entry, arg in
