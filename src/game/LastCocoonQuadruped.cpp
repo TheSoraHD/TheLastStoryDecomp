@@ -81,6 +81,35 @@ atn::Vector3 LastCocoonQuadruped::vf64(int center) {
     return result;
 }
 
+void LastCocoonQuadruped::fn_804617A4() {
+    if (m58C >= 11 && m58C <= 12) {
+        mC58.mC8 = (int)mC58.mC4;
+        m1454 = 0;
+        m14B8 = m1554;
+        mC58.mC4 = m1554;
+    } else if (m58C == 13) {
+        mC58.mC8 = (int)mC58.mC4;
+        m1454 = 0;
+        m14B8 = m1574;
+        mC58.mC4 = m1574;
+    } else if (m58C == 17) {
+        mC58.mC8 = (int)mC58.mC4;
+        m1454 = 0;
+        m14B8 = m15C8;
+        mC58.mC4 = m15C8;
+    } else {
+        m1454 = 1;
+        m14B8 = mC58.mC4;
+    }
+}
+
+void LastCocoonQuadruped::fn_804635B4() {
+    if (m14C4 == 4 && (m55C < 6 || m55C > 7)) {
+        fn_80170A20(m1554, 0, -1.0f);
+    }
+    fn_80461838();
+}
+
 void LastCocoonQuadruped::fn_804654F0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
