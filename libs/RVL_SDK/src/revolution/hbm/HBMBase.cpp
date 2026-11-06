@@ -184,7 +184,7 @@ static void initgx() {
 }
 
 HomeButton::HomeButton(const HBMDataInfo* pDataInfo)
-    : mpHBInfo(pDataInfo), UNK_0x08(0), mpLayout(NULL), mpPaneManager(NULL), mFader(30), UNK_0x5B8(1) {
+    : mpHBInfo(pDataInfo), UNK_0x08(0), mpLayout(NULL), mpPaneManager(NULL), mFader(30), iVISetBlackFlag(1) {
 
     mState = 2;
     mSelectBtnNum = HBM_SELECT_NULL;
@@ -568,7 +568,7 @@ void HomeButton::init() {
     }
 
     mInitFlag = true;
-    UNK_0x5CA = 1;
+    mBatteryCheck = 1;
     WPADStopSimpleSync();
 
     mForceSttInitProcFlag = false;
@@ -868,6 +868,12 @@ void HomeButton::calc(const HBMControllerData* pController) {
 
     switch (mState) {
     case 0: {
+        // inferred: version of 2010 keeps the application callback only when it is not ours
+        WPADSyncDeviceCallback simpleSyncCallback = WPADSetSimpleSyncCallback(&SimpleSyncCallback);
+        if (simpleSyncCallback != &SimpleSyncCallback) {
+            mSimpleSyncCallback = simpleSyncCallback;
+        }
+
         if (mpHBInfo->backFlag) {
             mSelectAnmNum = findGroupAnimator(res::eGrPane_hmMenuBck_strt,
                                               res::eGrAnim_hmMenu_strt);
@@ -915,8 +921,8 @@ void HomeButton::calc(const HBMControllerData* pController) {
         break;
     }
 
+    // inferred: the version of 2010 does nothing in state 2 (no letter icon, Swiftshine/key)
     case 2: {
-        calc_letter();
         break;
     }
 
@@ -969,6 +975,7 @@ void HomeButton::calc(const HBMControllerData* pController) {
         mSoundRetryCnt = 0;
         mSimpleSyncCallback = WPADSetSimpleSyncCallback(&SimpleSyncCallback);
         mEndSimpleSyncFlag = false;
+        mForthConnectFlag = false;
 
         for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
             getController(i)->setEnableRumble(true);
@@ -999,10 +1006,22 @@ void HomeButton::calc(const HBMControllerData* pController) {
             mpPairGroupAnmController[res::ePairAnm_12btn_on]->start();
         }
 
-        if (mControllerFlag[WPAD_CHAN3]) {
+        // inferred: version of 2010 waits for four controllers and plays the sound on the last
+        // connected one (Swiftshine/key)
+        for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+            if (!mControllerFlag[i]) {
+                break;
+            }
+        }
+
+        if (i >= WPAD_MAX_CONTROLLERS) {
+            mForthConnectFlag = true;
+        }
+
+        if (mForthConnectFlag) {
             if (mState != 6) {
-                if (getController(WPAD_CHAN3)
-                        ->isPlayingSoundId(HBM_SE_SELECT)) {
+                if (!getController(mConnectNum)->isPlayReady() ||
+                    getController(mConnectNum)->isPlayingSoundId(HBM_SE_SELECT)) {
 
                     mState = 6;
                     mMsgCount = iReConnectTime2;
@@ -1022,6 +1041,12 @@ void HomeButton::calc(const HBMControllerData* pController) {
             }
 
             mState = 7;
+
+            if (!WPADStopSimpleSync()) {
+                setSimpleSyncAlarm(eSyncType_Stop);
+            }
+
+            mEndSimpleSyncFlag = true;
         } else {
             if (++mMsgCount <= iReConnectTime) {
                 break;
@@ -1127,6 +1152,9 @@ void HomeButton::calc(const HBMControllerData* pController) {
 
             mState = 2;
         } else if (mSequence == eSeq_Control) {
+            // inferred: version of 2010 hides the upper bar (Swiftshine/key)
+            mpLayout->GetRootPane()->FindPaneByName("bar_00", true)->SetVisible(false);
+
             mSelectAnmNum = res::ePairAnm_cntrl_wndw_opn;
             mpPairGroupAnmController[mSelectAnmNum]->start();
 
@@ -1220,7 +1248,15 @@ void HomeButton::calc(const HBMControllerData* pController) {
     }
 
     case 16: {
-        GroupAnmController* pAnim = mpGroupAnmController[mSelectAnmNum];
+        GroupAnmController* pAnim;
+
+        // inferred: version of 2010 (Swiftshine/key); the other sequences only exist in the
+        // NAND applications
+        mBatteryCheck = false;
+
+        if (mSequence <= eSeq_Cmn) {
+            pAnim = mpGroupAnmController[mSelectAnmNum];
+        }
 
         if (!pAnim->isPlaying()) {
             mState = 17;
@@ -1248,13 +1284,19 @@ void HomeButton::calc(const HBMControllerData* pController) {
                 AXSetAuxBReturnVolume(mAppVolume[1]);
                 AXSetAuxCReturnVolume(mAppVolume[2]);
             }
+
+            mEndInitSoundFlag = false;  // inferred: version of 2010 (Swiftshine/key)
         }
 
         setVolume(mVolumeNum);
         WPADSaveConfig(NULL);
 
+        // inferred: version of 2010 also clears the speaker and stops the motors
+        mpRemoteSpk->ClearPcm();
         mpRemoteSpk->Stop();
+
         for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+            mpController[i]->stopMotor();
             mpController[i]->clearCallback();
         }
 
@@ -1263,6 +1305,21 @@ void HomeButton::calc(const HBMControllerData* pController) {
             mpHBInfo->sound_callback(HBM_SOUND_STOP, 0);
         }
 
+        // inferred: version of 2010 stops the battery animations (Swiftshine/key)
+        for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+            int anm_no;
+
+            anm_no = findGroupAnimator(i + res::eGrPane_plyr_00, 17);
+            mpGroupAnmController[anm_no]->stop();
+
+            anm_no = findGroupAnimator(i + res::eGrPane_plyr_00, 18);
+            mpGroupAnmController[anm_no]->stop();
+
+            anm_no = findGroupAnimator(i + res::eGrPane_plyr_00, 15);
+            mpGroupAnmController[anm_no]->stop();
+        }
+
+        WPADSetSimpleSyncCallback(mSimpleSyncCallback);  // inferred: version of 2010
         mInitFlag = false;
 
         break;
@@ -1630,7 +1687,7 @@ void HomeButton::update(const HBMControllerData* pController) {
             }
 
             if (!mControllerFlag[i]) {
-                UNK_0x88 = i;
+                mConnectNum = i;
                 mControllerFlag[i] = true;
 
                 getController(i)->getInfoAsync(&sWpadInfo[i]);

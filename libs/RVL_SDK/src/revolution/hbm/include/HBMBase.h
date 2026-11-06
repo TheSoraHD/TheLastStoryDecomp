@@ -234,7 +234,7 @@ private:
     int mGetPadInfoTime;                                       // at 0x78
     bool mControllerFlag[WPAD_MAX_CONTROLLERS];                // at 0x7C
     int mVolumeNum;                                            // at 0x80
-    int UNK_0x88;                                              // inferred: version of 2010
+    int mConnectNum;                                           // version of 2010 (name from Swiftshine/key)
     bool mVibFlag;                                             // at 0x84
     bool mControlFlag;                                         // at 0x85
     bool mLetterFlag;                                          // at 0x86
@@ -242,7 +242,7 @@ private:
     bool mReassignedFlag;                                      // at 0x88
     bool mSimpleSyncFlag;                                      // at 0x89
     bool mEndSimpleSyncFlag;                                   // at 0x8A
-    bool UNK_0x93;                                             // inferred: version of 2010
+    bool mForthConnectFlag;                                    // version of 2010 (name from Swiftshine/key)
     bool mInitFlag;                                            // at 0x8B
     bool mForceSttInitProcFlag;                                // at 0x8C
     bool mForceSttFadeInProcFlag;                              // at 0x8D
@@ -278,11 +278,11 @@ private:
     OSAlarm mAlarm[WPAD_MAX_CONTROLLERS];                  // at 0x418
     OSAlarm mSpeakerAlarm[WPAD_MAX_CONTROLLERS];           // at 0x4D8
     OSAlarm mSimpleSyncAlarm;                              // at 0x598
-    int UNK_0x5B8;                                         // inferred: version of 2010
+    int iVISetBlackFlag;                                         // inferred: version of 2010
     int iReConnectTime;                                    // at 0x5BC
     int iReConnectTime2;                                   // at 0x5C0
     u16 mAppVolume[3];                                     // at 0x5C4 (version of 2010; was nw4hbm::snd::AUX_BUS_NUM)
-    u16 UNK_0x5CA;                                         // inferred: set to 1 by init (version of 2010)
+    u16 mBatteryCheck;                                         // inferred: set to 1 by init (version of 2010)
     //nw4hbm::snd::SoundArchivePlayer* mpSoundArchivePlayer; // at 0x5D0
     //nw4hbm::snd::DvdSoundArchive* mpDvdSoundArchive;       // at 0x5D4
     //nw4hbm::snd::MemorySoundArchive* mpMemorySoundArchive; // at 0x5D8
