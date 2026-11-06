@@ -17,6 +17,15 @@ public:
     virtual void vf38(int enable);                           // 0x8045D1EC
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
     virtual float vf90();                                    // 0x8045F998
+    // inferred: position of the "neck" node (0x8045F914; the literal is in the .data pool of the
+    // inline member, as in Em203GreaterDaemonRed)
+    virtual atn::Vector3 GetTacViewPosition() const {
+        MtxPtr m = mMotion.GetNodeMtx_unk("neck");
+        float z = m[2][3];
+        float y = m[1][3];
+        float x = m[0][3];
+        return atn::Vector3(x, y, z);
+    }
     virtual float vfD4();                                    // 0x8045F990
     virtual float vfDC();                                    // 0x8045F90C
     virtual int vfE4();                                      // 0x8045F6A0
