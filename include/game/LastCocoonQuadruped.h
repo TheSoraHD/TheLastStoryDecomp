@@ -13,12 +13,19 @@ public:
     virtual atn::Vector3 vf64(int center);                       // 0x80460EF0
     virtual float vf90();                                        // 0x80468D40
     virtual int vfE4();                                          // 0x80468D18
+    void fn_80466868(); // inferred: end of the motion of mode 6 (shake at frame 3)
+    void fn_80466974(); // inferred: back to mode 0
+    void fn_80466AE4(); // inferred: mode 7 (motion 0x156)
+    // inferred: starts a mode (names invented)
+    void SetMode_unk(int mode);
 
     unsigned char m14B0[0x14BC - 0x14B0];
     int m14BC;
-    unsigned char m14C0[0x14C4 - 0x14C0];
+    int m14C0; // inferred: frame counter of the mode
     int m14C4; // inferred: state (7: no hit reaction)
-    unsigned char m14C8[0x18F8 - 0x14C8];
+    unsigned char m14C8[0x1800 - 0x14C8];
+    int m1800; // inferred: an effect is attached to the motion
+    unsigned char m1804[0x18F8 - 0x1804];
 };
 
 #endif
