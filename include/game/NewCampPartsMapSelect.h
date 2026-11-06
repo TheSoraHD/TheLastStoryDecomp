@@ -79,7 +79,8 @@ public:
     void fn_80520634(); // inferred: reads map_param.csv
     void fn_805201EC(int* point);
     void fn_80521908(int reset); // inferred: places the background boards
-    void fn_8051FB7C(int count);
+    void fn_8051FB7C(int state); // inferred: changes the state of the cursor (m1998)
+    void fn_80521A00(int dir);
     // inferred: moves the camera to `point` (inlined in vf20 and vf30)
     void SetCursorPoint_unk(MapSelectPoint_unk* point);
     // inferred: index of the route of the camp `id` (-1: none)

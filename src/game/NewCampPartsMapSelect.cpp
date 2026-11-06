@@ -4,6 +4,10 @@
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
 #include "atn/D2A_Task.h"
+#include "atn/SoundRef.h"
+#include "atn/SoundManager.h"
+#include "game/SelectMember.h"
+#include "game/MenuCommonTask.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -44,6 +48,11 @@ struct NewCampMapCamp_unk {
     unsigned char m0050[0x11F0 - 0x50];
     NewCampPartsBase* mParts; // 0x11F0: inferred: current parts
 };
+extern "C" void* lbl_8087F3C0;                                          // inferred: effect manager
+extern "C" void fn_80239DAC(void* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
+extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: plays a system sound effect
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -340,10 +349,57 @@ void NewCampPartsMapSelect::vf20() {
     }
 }
 
+void NewCampPartsMapSelect::fn_8051FB7C(int state) {
+    m199C = m1998;
+    m1998 = state;
+    switch (state) {
+    case 4:
+        fn_80521908(1);
+        break;
+    case 5:
+        fn_80521908(0);
+        fn_80239DAC(lbl_8087F3C0, this, 1, 0);
+        break;
+    case 0:
+        fn_80521A00(m19A8);
+        break;
+    case 1: {
+        if (m1908 != 0) {
+            fn_800D2338(m1908);
+            m1908 = 0;
+        }
+        MapSelectRoute_unk* route = FindRoute_unk(m19A4);
+        if (route != 0) {
+            m1908 = SelectMember::fn_8057162C(this, route->mId, 0);
+        } else {
+            fn_8051FB7C(0);
+        }
+        break;
+    }
+    case 2:
+        fn_804A62C8(MenuCommonTask::sInstance, 0, 1);
+        break;
+    case 3: {
+        mDC = 2;
+        m19C0 = 0.0f;
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->m34C8 = 0;
+        }
+        atn::SoundRef sound = fn_80117228(7);
+        fn_800CB5B4(&sound, 0x37, 0.0f);
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->m34C8 = 1;
+        }
+        break;
+    }
+    }
+}
+
 // NONMATCHING: volatile registers of the inlined point search (index/pointer/id)
 void NewCampPartsMapSelect::vf30() {
-    m19A4 = m19A0;
-    SetCursorPoint_unk(FindPoint_unk(m19A0));
+    int id = m19A0;
+    m19A4 = id;
+    SetCursorPoint_unk(FindPoint_unk(id));
     mD5 = 0;
     m1998 = 4;
     fn_8051FB7C(4);
