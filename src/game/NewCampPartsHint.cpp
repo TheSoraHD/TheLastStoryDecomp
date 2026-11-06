@@ -1,4 +1,5 @@
 #include "game/NewCampPartsHint.h"
+#include "game/NewCampTask.h"
 #include "game/TutorialTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -28,7 +29,6 @@ extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg)
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
 extern "C" void* lbl_8087EF70;
-extern "C" void fn_8052DEEC(atn::Task* camp, int id); // inferred: changes the parts of the camp
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 
 extern "C" NewCampPartsPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
@@ -474,7 +474,7 @@ void NewCampPartsHint::fn_80516004() {
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 5)) {
         fn_80117228(8);
-        fn_8052DEEC(m48, 0);
+        ((NewCampTask*)m48)->fn_8052DEEC(0);
         m58 = -1.0f;
     } else if (fn_800A555C(pad, 0, 4)) {
         if (mList.size() == 0) {

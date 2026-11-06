@@ -1,4 +1,5 @@
 #include "game/NewCampPartsItem.h"
+#include "game/NewCampTask.h"
 #include "atn/Memory.h"
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
@@ -14,7 +15,6 @@ extern "C" void* lbl_8087EF70;                                // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void fn_804A436C(int* cursor, int count, int wrap, int step, int arg); // inferred: moves a cursor
 extern "C" atn::SoundRef fn_80117228(int id);                // inferred: plays a system sound effect
-extern "C" void fn_8052DEEC(atn::Task* camp, int id);        // inferred: changes the parts of the camp
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: message text
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
@@ -502,7 +502,7 @@ void NewCampPartsItem::fn_8051B43C() {
             fn_80117228(1);
         }
     } else if (fn_800A555C(pad, 0, 5) != 0) {
-        fn_8052DEEC(m48, 0);
+        ((NewCampTask*)m48)->fn_8052DEEC(0);
         fn_80117228(8);
     }
 }

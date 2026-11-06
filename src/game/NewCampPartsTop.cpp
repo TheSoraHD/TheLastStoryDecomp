@@ -131,7 +131,6 @@ struct NewCampTopMsg_unk {
 extern "C" NewCampTopMsg_unk* lbl_8087F1E4;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
-extern "C" void fn_8052DEEC(atn::Task* camp, int id);
 extern "C" int lbl_8087DCCC;
 extern "C" int lbl_8087DCC8;
 extern "C" int lbl_8087F434;
@@ -521,33 +520,33 @@ void NewCampPartsTop::vf2C() {
         if (fn_800A555C(pad, 0, 4)) {
             switch (mList[m80]->mId) {
             case 4:
-                fn_8052DEEC(m48, 4);
+                ((NewCampTask*)m48)->fn_8052DEEC(4);
                 break;
             case 0:
-                fn_8052DEEC(m48, 5);
+                ((NewCampTask*)m48)->fn_8052DEEC(5);
                 if (lbl_8087EFE8 != 0) {
                     lbl_8087EFE8->fn_800CFBA0(1, 1, 0x20, 30);
                     lbl_8087EFE8->fn_800CFBA0(2, 1, 0x20, 15);
                 }
                 break;
             case 1:
-                fn_8052DEEC(m48, 7);
+                ((NewCampTask*)m48)->fn_8052DEEC(7);
                 if (lbl_8087EFE8 != 0) {
                     lbl_8087EFE8->fn_800CFBA0(1, 1, 0x20, 30);
                     lbl_8087EFE8->fn_800CFBA0(2, 1, 0x20, 15);
                 }
                 break;
             case 2:
-                fn_8052DEEC(m48, 2);
+                ((NewCampTask*)m48)->fn_8052DEEC(2);
                 break;
             case 3:
-                fn_8052DEEC(m48, 1);
+                ((NewCampTask*)m48)->fn_8052DEEC(1);
                 break;
             case 6:
-                fn_8052DEEC(m48, 6);
+                ((NewCampTask*)m48)->fn_8052DEEC(6);
                 break;
             case 5:
-                fn_8052DEEC(m48, 8);
+                ((NewCampTask*)m48)->fn_8052DEEC(8);
                 break;
             case 7:
                 m7C = 1;

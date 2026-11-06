@@ -3,6 +3,7 @@
 #include "atn/Model_unk.h"
 #include "atn/SoundRef.h"
 
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 // inferred: field (lbl_8087F430); only the members used here
 struct NewCampField_unk {
@@ -29,6 +30,28 @@ void NewCampTask::fn_8052C9C4() {
         }
     }
     m5C = 0;
+}
+
+// NONMATCHING: 96% - order of the store of m11F8 and float registers of the camera sums
+void NewCampTask::fn_80530174() {
+    m11FC = atn::Vector3(40.0f, 0.0f, 210.0f);
+    m1208 = atn::Vector3(40.0f, 0.0f, -20.0f);
+    m1214 = 0.9599311f;
+    m11F8 = 0;
+    m458 = 0.0f;
+    m45C = m1368;
+    m121C = 0;
+    m1220 = 0;
+    m11F0 = 0;
+    m12EC = lbl_807C7030;
+    m12F8 = lbl_807C7030;
+    m12D4 = lbl_807C7030;
+    m12E0 = lbl_807C7030;
+    atn::Vector3 offset = m136C ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f);
+    mCamera.SetPosition(m11FC + offset);
+    mCamera.SetTarget_unk(m1208 + offset);
+    mCamera.mFovy = m1214;
+    fn_8052DEEC(0);
 }
 
 // NONMATCHING: 90% - the original loads both vector sizes before clearing them (same as

@@ -113,8 +113,6 @@ extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, i
                             int c); // inferred: changes the map
 extern "C" void fn_8036FB4C(GameField_unk* field, int entry); // inferred: moves to an entry of the current map
 extern "C" void fn_803743AC(GameField_unk* field);
-extern "C" void fn_8052DEEC(atn::Task* camp, int id); // inferred: changes the parts of the camp
-extern "C" void fn_80530174(atn::Task* camp);
 extern "C" void fn_805AA734(TacView* view); // inferred: closes the tactical view
 extern "C" int fn_8037587C(GameField_unk* field, int type, int id, int subId); // inferred: the map was visited
 extern "C" void* lbl_8087EF70;
@@ -641,10 +639,10 @@ void NewCampPartsMapSelect::fn_8051FD20() {
     fn_805212BC();
     if (fn_800A555C(pad, 0, 5)) {
         if (((NewCampMapCamp_unk*)m48)->mState == 2) {
-            fn_80530174(m48);
+            ((NewCampTask*)m48)->fn_80530174();
             ((NewCampTask*)m48)->fn_8052C9C4();
         } else {
-            fn_8052DEEC(m48, 0);
+            ((NewCampTask*)m48)->fn_8052DEEC(0);
             ((NewCampTask*)m48)->fn_8053032C(lbl_807C7030, lbl_807C7030);
             fn_80117228(8);
             mDC = 0;
@@ -702,9 +700,9 @@ void NewCampPartsMapSelect::fn_80520098() {
         return;
     }
     ((NewCampTask*)m48)->fn_80530D30(0);
-    fn_8052DEEC(m48, 0);
+    ((NewCampTask*)m48)->fn_8052DEEC(0);
     MapSelectRoute_unk* route = FindRoute_unk(m19A4);
-    fn_80530174(m48);
+    ((NewCampTask*)m48)->fn_80530174();
     ((NewCampTask*)m48)->fn_8052CA6C();
     lbl_8087F430->m563C = 0x12;
     if (fn_80373148(lbl_8087F430)->mType == 1 && route->mMapType == 1) {

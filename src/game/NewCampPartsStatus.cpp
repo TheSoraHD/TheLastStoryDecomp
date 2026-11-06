@@ -1,4 +1,5 @@
 #include "game/NewCampPartsStatus.h"
+#include "game/NewCampTask.h"
 #include "game/TutorialTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -28,7 +29,6 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A58D0(void* pad, int port);
-extern "C" void fn_8052DEEC(atn::Task* camp, int id); // inferred: changes the parts of the camp
 extern "C" unsigned int fn_80372574(GameUICounter_unk* list); // inferred: size of a fixed list
 
 // inferred: d2anime task of the D3Anime objects and of "status_select"; only the members used here
@@ -727,7 +727,7 @@ void NewCampPartsStatus::fn_805289A8() {
     fn_80528694();
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 5)) {
-        fn_8052DEEC(m48, 0);
+        ((NewCampTask*)m48)->fn_8052DEEC(0);
         fn_80117228(8);
     } else if (fn_800A555C(pad, 0, 4)) {
         if (mSets[mPage].mSkills.mSize == 0) {
