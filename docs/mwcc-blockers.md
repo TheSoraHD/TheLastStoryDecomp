@@ -118,3 +118,15 @@ El original compila `switch (req->base.fd)` (casos 3, 6, 7) como arbol (`cmpwi 6
 ## `TeamAI_unk::fn_805AE864` y sus copias inline (0x805AE864)
 
 Indice/personaje en r28/r27 en vez de r27/r28 y los dos `Vector3` (dir, back) intercambiados en la pila. Probado: declarar `back` primero, temporal `&Vector3(...)`, variables fuera del bucle.
+
+## `CXUncompressAny` (CXUncompression.c, 0x806254D0)
+
+El original coloca el `CXUncompressRL` inline detras de las tres llamadas de cola, con un `b` de trampolin desde el `beq` del caso 0x30 y un `nop` de alineacion del bucle. Probado (2026-11-06): `switch` y cadena de `if`, `break`/`return` por caso, RL definida antes/despues de `Any`, `inline`/`static inline`, `default: break`, `case RL: break;` con la llamada tras el `switch` (queda a 2 instrucciones: falta el trampolin), compiladores Wii/1.0-1.3.
+
+## `dwc_match` (mscharged R4QK01 + 2010): `DWCi_MatchProcess`, `DWCi_ProcessMatchCommand`, `DWCi_CancelMatchingProcess`, `DWCi_CloseUnacknowledgedClients`
+
+Solo registros (r28/r30 en ProcessMatchCommand, base de `.data` en r31/r30 en CancelMatchingProcess, contadores en CloseUnacknowledgedClients). Probado: cinco ordenes de declaracion en CloseUnacknowledgedClients.
+
+## WUD `fn_80670C70` (0x80670C70)
+
+El `switch (_nandStep)` de 6 casos es un arbol en el original (cadena en Wii/1.0-1.3 y 0x4201_127; GC/3.0a5.2 baja otras funciones) y el bucle de suma de RPHealth.dat se desenrolla x4 (nuestro x8). Probado: casos 6/0xFF explicitos, indexado `ptr[i]`.

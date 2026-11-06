@@ -415,3 +415,10 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `static` de fichero en `.bss`/`.sbss` van por una sola base y su orden es el del **primer uso** en el fichero, no el de la declaracion; una funcion sin uso (el enlazador la quita) que las nombre fija el orden (ipcProfile).
 - Funcion inline con cuerpo en la clase + envoltorio fuerte: reproduce "inlineada en una funcion anterior y emitida tambien" (CharaEquip fn_805659B4).
 - `if (scoped_ptr)` sobre `boost::scoped_ptr` crea una constante de puntero a miembro en `.data` por uso (`&this_type::get`) y `get()` debil al final (CharaEquip).
+- Funcion que reutiliza r3 como temporal antes del `blr` no devuelve nada: `operator=` que el original declara `void` (SoundRef 0x800CB404/440; con `SoundRef&` y `return *this` sale r5).
+- `static` de `.bss` con inicializador `= 0`/`= NULL` se emiten en el orden de declaracion (sin inicializar, en el del primer uso): sirve para fijar el orden de la base comun (dwc_match, dwci_encsession).
+- La `.bss` de un `.o` conserva la alineacion de un objeto que el enlazador quita (deadstrip): `__declspec(align(32))` en el primero que sobrevive (VF `l_Mutex`); `align:` en splits no vale para unidades compiladas.
+- `u16 lo; lo += ~*p;` trunca en cada vuelta (`add`+`clrlwi`) y desenrolla x4; `lo += (u16)~*p` acumula sin truncar y desenrolla x8 (WUD fn_80670C70).
+- `a == 16 || a == 17 || a == 18 || a == 19 || a == 2 || a == 7` sale como `subi 0x10`/`cmplwi 3`/`ble` y luego `2` y `7`: el rango primero hay que escribirlo primero (KPAD calc_button_repeat).
+- Version posterior de un SDK con fuente de una anterior: rellenar los structs con campos `unk_` hasta los offsets de la nueva (KPADStatus +0x40, KPADInsideStatus 0x688) basta para las funciones que no cambiaron de tamano.
+- Unir un fuente externo a una unidad: compilar su `.o` aparte, emparejar funciones por tamano en orden (`difflib.SequenceMatcher` sobre las listas de tamanos) y renombrar en symbols antes de cambiar la unidad (dwc_match 59 -> 96, KPAD).
