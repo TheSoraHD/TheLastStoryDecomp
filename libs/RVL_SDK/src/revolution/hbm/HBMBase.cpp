@@ -821,6 +821,7 @@ void HomeButton::init_battery(const HBMControllerData* pController) {
     mGetPadInfoTime = 0;
 }
 
+// NONMATCHING: 86% - faltan cambios de 2010 (SimpleSync, bar_00/0x8E)
 void HomeButton::calc(const HBMControllerData* pController) {
     int i;
 
@@ -1449,6 +1450,7 @@ void HomeButton::calc_battery(int chan) {
     getController(chan)->clrBatteryFlag();
 }
 
+// NONMATCHING: 97.99% - la carga del color de la niebla se programa despues de los fmr
 void HomeButton::draw() {
     GXColor fogClr = {0, 0, 0, 255};
     GXSetFog(GX_FOG_NONE, fogClr, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -2796,6 +2798,7 @@ bool HomeButton::isDownBarActive() {
     return flag;
 }
 
+// NONMATCHING: 99.2% - regalloc r28/r29
 int HomeButton::getPaneNo(const nw4hbm::lyt::Pane* pPane) {
     const char* pName = pPane->GetName();
     int ret = -1;
@@ -2856,6 +2859,7 @@ void HomeButton::setForcusSE() {
     mForcusSEWaitTime = 0;
 }
 
+// NONMATCHING: 99.66% - regalloc
 void HomeButton::setAdjustFlag(int flag) {
     nw4hbm::math::VEC2 scale;
 
