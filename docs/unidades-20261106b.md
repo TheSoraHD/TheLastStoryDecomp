@@ -18,6 +18,7 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 | Unidad | Funciones | Notas |
 |---|---|---|
 | `msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c` (nueva, matching false) | 4/6 | rutinas de vectores/rotacion de Motion Plus (`fn_8065AED0`, `fn_8065AF20` movidas de KPADMpls; `fn_8065B630` (producto de rotaciones) y `fn_8065B7F0` (interpolacion) nuevas; `fn_8065AFB0` 90%, `fn_8065B320` 53%) |
+| `msc/src/RVL_SDK/kpad/KPADMpls_unk.c` (matching false) | 4 -> 10/16 | area de trabajo de Motion Plus por canal (0xDB0) reconstruida; `fn_80658DF0`, `fn_80659070`, `fn_80659220`, `fn_80659B20/C10/D00` (por eje), mas `fn_8065AA80` 99,8%, `fn_8065A8B0` 98%, `fn_806594D0` 96%; falta `fn_80659DF0` (2752 B) |
 | `msc/src/RVL_SDK/kpad/KPAD.c` (matching false) | 22 -> 33/33 | `KPADInsideStatus` 2010 completo (puntero 0x17C, ticks y Motion Plus 0x660-0x688); `reset_kpad(chan)`, `KPADInitEx`, `KPADiConnectCallback`, `KPADiRead`, `KPADiSamplingCallback`, `read_kpad_ext`, `read_kpad_acc`, callbacks WBC y `fn_80658300` (Motion Plus) desde el asm. Falta `fn_80657230` (61%) |
 
 ## Decisiones tomadas sin el usuario
@@ -31,6 +32,10 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 - KPAD: `f64 kp_wbc_unk_bss[3]` global (0x18 bytes de `.bss` tras `kp_wbc_average` sin referencias en el `.dol`;
   global para que MWCC lo emita). Estaticos WBC con inicializador `= 0` y en el orden del `.sbss` original (MWCC
   pone primero, en orden de declaracion, los inicializados y despues, al reves, los que no lo estan).
+- KPADMpls: estructuras inventadas `KPADMplsChan_unk` (0xDB0 por canal tras una cabecera de 8 bytes: `m000` y la
+  callback), `KPADMplsCalib_unk` (= `WPADMplsCalibration` de KEY), `KPADMplsRaw_unk` (bytes 0x36-0x3D del estado WPAD
+  de 2010), tablas `kp_mpls_unk_tbl_a/b`; `__declspec(noinline)` en `fn_80658F50` (el original la llama con `bl`
+  desde `fn_806594D0`).
 - `WPAD.c` (KEY): los seis stubs `fn_8065CED0`..`fn_8065CF20` eran los `WBC*` debiles del SDK (mismo orden y valores
   de retorno): quitados los `fn_` y los `WBC*` debiles de KEY ocupan su sitio (simbolos renombrados). KPAD los llama.
 
