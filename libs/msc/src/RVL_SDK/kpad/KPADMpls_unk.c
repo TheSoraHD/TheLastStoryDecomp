@@ -27,7 +27,8 @@ WPADResult WPADiControlMpls(WPADChannel chan, u8 command, WPADCallback callback)
 typedef struct KPADMplsChan_unk
 {
     KPADMPStatus status;      // 0x000: copied to KPADStatus.mpls
-    f32 m03C[6];              // 0x03C
+    Vec last;                 // 0x03C: speed of the previous sample
+    Vec speedDelta;           // 0x048
     f32 scale[3];             // 0x054: degrees per count of each axis
     KPADMPDir prevDir;        // 0x060
     Vec base[3];              // 0x084: inferred: reference axes for the direction revision
@@ -40,23 +41,23 @@ typedef struct KPADMplsChan_unk
     u8 m0BA;                  // 0x0BA
     u8 m0BB;                  // 0x0BB
     u8 mode;                  // 0x0BC: 0 Motion Plus, 1 with extension, 2 none
-    u8 m0BD;                  // 0x0BD
-    u8 m0BE;                  // 0x0BE
+    u8 zeroPlayEnabled;       // 0x0BD
+    u8 zeroDriftUpdate;       // 0x0BE
     u8 dirReviseEnabled;      // 0x0BF
     u8 accReviseEnabled;      // 0x0C0
     u8 dpdReviseEnabled;      // 0x0C1
     s8 ctrlResult;            // 0x0C2: 1 ok, -1 error
     u8 m0C3;                  // 0x0C3
     f32 m0C4;                 // 0x0C4
-    f32 m0C8;                 // 0x0C8
-    f32 m0CC;                 // 0x0CC
-    s32 m0D0;                 // 0x0D0
-    f32 m0D4;                 // 0x0D4
+    f32 zeroPlay;             // 0x0C8
+    f32 zeroDriftRange;       // 0x0CC
+    s32 zeroDriftCount;       // 0x0D0
+    f32 zeroDriftPower;       // 0x0D4
     f32 dirReviseRate;        // 0x0D8
     f32 accRevisePower;       // 0x0DC
     f32 accReviseRange;       // 0x0E0
     f32 m0E4;                 // 0x0E4
-    f32 m0E8;                 // 0x0E8
+    f32 zeroPlayResult;       // 0x0E8
     f32 m0EC;                 // 0x0EC
     f32 dirReviseResult;      // 0x0F0
     f32 accReviseResult;      // 0x0F4
@@ -66,8 +67,7 @@ typedef struct KPADMplsChan_unk
     f32 sensorHeight;         // 0x104
     f64 countScale[2][3];     // 0x108: high and low speed
     KPADMplsCalib_unk calib[2]; // 0x138
-    f32 m170;                 // 0x170
-    u8 pad_0x174[0x8];        // 0x174
+    f32 zero[3];              // 0x170: zero drift of each axis (counts)
     s32 histIdx;              // 0x17C
     s32 hist[3][256];         // 0x180
     f64 acc[3];               // 0xD80
@@ -88,14 +88,27 @@ typedef struct KPADMplsRaw_unk
     s16 roll;  // 0x3C
 } KPADMplsRaw_unk;
 
+// inferred: raw speeds when the Motion Plus has no own calibration (mode 2)
+typedef struct KPADMplsRaw2_unk
+{
+    u8 pad_0x0[0x2A];
+    s16 vy; // 0x2A
+    s16 vz; // 0x2C
+    s16 vx; // 0x2E
+} KPADMplsRaw2_unk;
+
 typedef struct KPADMplsWork_unk
 {
-    u32 m000;                                         // 0x000
+    f32 decay;                                        // 0x000
     void (*callback)(KPADChannel chan, KPADMPStatus mp); // 0x004
     KPADMplsChan_unk ch[WPAD_MAX_CONTROLLERS];        // 0x008
 } KPADMplsWork_unk;
 
 static KPADMplsWork_unk* kp_mpls_work_unk;
+
+// inferred: counts per revolution (360 degrees) and full scale of each axis, per mode
+s32 kp_mpls_unk_tbl_a[3][3] = { { 1600, 1600, 1600 }, { 1600, 1600, 1600 }, { 1600, 1600, 1600 } };
+s32 kp_mpls_unk_tbl_b[3][3] = { { 0x7FFFFF, 0x7FFFFF, 0x7FFFFF }, { 0x7FFFFF, 0x7FFFFF, 0x7FFFFF }, { 0x7FFFFF, 0x7FFFFF, 0x7FFFFF } };
 
 // inferred: Motion Plus control result
 void fn_80658DB0(KPADChannel chan, BOOL flag)
@@ -169,7 +182,6 @@ BOOL fn_80658F30(void)
 }
 
 // TLS (2010): functions written further down or in KPADMplsMath_unk.c
-void fn_80659DF0(KPADChannel chan, s32 idx, s32 count);
 void fn_8065A8B0(KPADChannel chan);
 void fn_8065AFB0(KPADMPDir* dir, f32 limit);
 f32 fn_8065AF20(Vec* v);
@@ -323,6 +335,7 @@ f32 fn_80659220(KPADChannel chan, KPADMPDir* dir, Vec* acc)
 
 // inferred: turns the attitude towards the one given by the pointer (DPD) position and horizon; returns the
 // largest change of an axis
+// NONMATCHING: 96% - 0x10 bytes more of stack (MWCC keeps a temporary for the copies of the Z axis)
 f32 fn_806594D0(KPADChannel chan, KPADMPDir* dir, KPADStatus* sp)
 {
     KPADMplsChan_unk* c = &kp_mpls_work_unk->ch[chan];
@@ -541,6 +554,310 @@ s32 fn_80659D00(KPADMplsChan_unk* c, KPADUnifiedWpadStatus* uwp)
     return (s32)(0.5 + a);
 }
 
+// inferred: integrates the Motion Plus samples of this read (zero-drift detection with a history of the
+// last samples of each axis)
+// NONMATCHING: 96.4% - (1) the original computes the end index of the history loop before the start index
+// (subf before subi); (2) the status passed by value to the callback is copied member by member (Vec, Vec,
+// KPADMPDir) in the original, as one block here (a member-wise local copy changes the register allocation)
+void fn_80659DF0(KPADChannel chan, s32 idx, s32 count)
+{
+    s32 cntX;
+    s32 cntY;
+    s32 thX;
+    s32 thY;
+    s32 minX;
+    s32 thZ;
+    s32 rangeX;
+    s32 rangeY;
+    s32 rangeZ;
+    s32 n;
+    u8 update;
+    s32 v;
+    KPADMplsChan_unk* c;
+    KPADUnifiedWpadStatus* uwp;
+    s32 cntZ;
+    s32 minY;
+    s32 minZ;
+    Vec old;
+    s32 i;
+    s32 d;
+    s32 h;
+    s32 lo, hi;
+    s32 j, end;
+    f32 range;
+    f32 power;
+    f32 r;
+    f32 a;
+
+    c = &kp_mpls_work_unk->ch[chan];
+    if (count > 0 && kp_mpls_work_unk != NULL)
+    {
+    if (c->resetReq)
+    {
+        range = c->m0C4;
+        update = TRUE;
+        n = (s32)(1500.0f * range);
+        power = 0.9f;
+    }
+    else
+    {
+        update = kp_mpls_work_unk->ch[chan].zeroDriftUpdate;
+        range = kp_mpls_work_unk->ch[chan].zeroDriftRange;
+        n = kp_mpls_work_unk->ch[chan].zeroDriftCount;
+        power = kp_mpls_work_unk->ch[chan].zeroDriftPower;
+    }
+    thX = kp_mpls_unk_tbl_b[c->mode][0];
+    thY = kp_mpls_unk_tbl_b[c->mode][1];
+    thZ = kp_mpls_unk_tbl_b[c->mode][2];
+    minX = -thX;
+    minY = -thY;
+    minZ = -thZ;
+    rangeX = fn_8065AED0(range / c->scale[0]);
+    rangeY = fn_8065AED0(range / c->scale[1]);
+    rangeZ = fn_8065AED0(range / c->scale[2]);
+    if (rangeX == 0)
+        rangeX++;
+    if (rangeY == 0)
+        rangeY++;
+    if (rangeZ == 0)
+        rangeZ++;
+    c->m0BB = 0;
+    c->m0BA = 0;
+    c->m0B9 = 0;
+    c->zeroPlayResult = 1.0f;
+    c->m0EC = 1.0f;
+    do
+    {
+        i = idx - count - 1;
+        if (i < 0)
+            i += KPAD_MAX_SAMPLES + c->exBufLen;
+        uwp = i >= KPAD_MAX_SAMPLES ? &c->exRingBuf[i - KPAD_MAX_SAMPLES] : &c->uniRingBuf[i];
+        old = c->last;
+        c->last = c->status.mpls;
+        if (uwp->u.core.err != WPAD_ERR_OK)
+        {
+            c->speedDelta.x *= kp_mpls_work_unk->decay;
+            c->status.mpls.x += c->speedDelta.x;
+            c->speedDelta.y *= kp_mpls_work_unk->decay;
+            c->status.mpls.y += c->speedDelta.y;
+            c->speedDelta.z *= kp_mpls_work_unk->decay;
+            c->status.mpls.z += c->speedDelta.z;
+            c->zeroPlayResult = 0.0f;
+            c->m0EC = 0.0f;
+        }
+        else
+        {
+        c->histIdx = (u8)(c->histIdx + 1);
+        if (c->mode < 2)
+            v = fn_80659B20(c, uwp);
+        else
+            v = ((KPADMplsRaw2_unk*)&uwp->u)->vx;
+        c->hist[0][c->histIdx] = v;
+        cntX = 1;
+        d = v - fn_8065AED0(c->zero[0]);
+        if (d <= minX || d >= thX)
+        {
+            c->speedDelta.x *= kp_mpls_work_unk->decay;
+            c->status.mpls.x += c->speedDelta.x;
+            c->m0B9++;
+            c->zeroPlayResult = 0.0f;
+        }
+        else
+        {
+            c->status.mpls.x = v;
+            lo = v - rangeX;
+            hi = v + rangeX;
+            end = (u8)(c->histIdx - n);
+            j = (u8)(c->histIdx - 1);
+            do
+            {
+                h = c->hist[0][j];
+                if (h < lo || h > hi)
+                    break;
+                j = (u8)(j - 1);
+                v += h;
+                cntX++;
+            } while (j != end);
+            r = (f32)(cntX - 1) / (f32)(n - 1);
+            r *= r;
+            r *= r;
+            r *= r;
+            r *= r;
+            r *= r;
+            c->status.mpls.x += r * ((f32)v / (f32)cntX - c->status.mpls.x);
+            if (update)
+                c->zero[0] += r * power * (c->status.mpls.x - c->zero[0]);
+            c->status.mpls.x = c->scale[0] * (c->status.mpls.x - c->zero[0]);
+            if (c->zeroPlayEnabled)
+            {
+                if (c->status.mpls.x >= -c->zeroPlay && c->status.mpls.x <= c->zeroPlay)
+                {
+                    a = c->status.mpls.x;
+                    if (a < 0.0)
+                        a = -a;
+                    a = 1.0f - a / c->zeroPlay;
+                    if (a < c->zeroPlayResult)
+                        c->zeroPlayResult = a;
+                    c->status.mpls.x = 0.0f;
+                }
+                else
+                {
+                    c->zeroPlayResult = 0.0f;
+                }
+            }
+            if (c->mode == 1)
+                c->speedDelta.x = 0.5f * (c->status.mpls.x - old.x);
+            else
+                c->speedDelta.x = c->status.mpls.x - c->last.x;
+        }
+        if (c->mode < 2)
+            v = fn_80659C10(c, uwp);
+        else
+            v = -((KPADMplsRaw2_unk*)&uwp->u)->vy;
+        c->hist[1][c->histIdx] = v;
+        cntY = 1;
+        d = v - fn_8065AED0(c->zero[1]);
+        if (d <= minY || d >= thY)
+        {
+            c->speedDelta.y *= kp_mpls_work_unk->decay;
+            c->status.mpls.y += c->speedDelta.y;
+            c->m0BA++;
+            c->zeroPlayResult = 0.0f;
+        }
+        else
+        {
+            c->status.mpls.y = v;
+            lo = v - rangeY;
+            hi = v + rangeY;
+            end = (u8)(c->histIdx - n);
+            j = (u8)(c->histIdx - 1);
+            do
+            {
+                h = c->hist[1][j];
+                if (h < lo || h > hi)
+                    break;
+                j = (u8)(j - 1);
+                v += h;
+                cntY++;
+            } while (j != end);
+            r = (f32)(cntY - 1) / (f32)(n - 1);
+            r *= r;
+            r *= r;
+            r *= r;
+            r *= r;
+            r *= r;
+            c->status.mpls.y += r * ((f32)v / (f32)cntY - c->status.mpls.y);
+            if (update)
+                c->zero[1] += r * power * (c->status.mpls.y - c->zero[1]);
+            c->status.mpls.y = c->scale[1] * (c->status.mpls.y - c->zero[1]);
+            if (c->zeroPlayEnabled)
+            {
+                if (c->status.mpls.y >= -c->zeroPlay && c->status.mpls.y <= c->zeroPlay)
+                {
+                    a = c->status.mpls.y;
+                    if (a < 0.0)
+                        a = -a;
+                    a = 1.0f - a / c->zeroPlay;
+                    if (a < c->zeroPlayResult)
+                        c->zeroPlayResult = a;
+                    c->status.mpls.y = 0.0f;
+                }
+                else
+                {
+                    c->zeroPlayResult = 0.0f;
+                }
+            }
+            if (c->mode == 1)
+                c->speedDelta.y = 0.5f * (c->status.mpls.y - old.y);
+            else
+                c->speedDelta.y = c->status.mpls.y - c->last.y;
+        }
+        if (c->mode < 2)
+            v = fn_80659D00(c, uwp);
+        else
+            v = ((KPADMplsRaw2_unk*)&uwp->u)->vz;
+        c->hist[2][c->histIdx] = v;
+        cntZ = 1;
+        d = v - fn_8065AED0(c->zero[2]);
+        if (d <= minZ || d >= thZ)
+        {
+            c->speedDelta.z *= kp_mpls_work_unk->decay;
+            c->status.mpls.z += c->speedDelta.z;
+            c->m0BB++;
+            c->zeroPlayResult = 0.0f;
+        }
+        else
+        {
+            c->status.mpls.z = v;
+            lo = v - rangeZ;
+            hi = v + rangeZ;
+            end = (u8)(c->histIdx - n);
+            j = (u8)(c->histIdx - 1);
+            do
+            {
+                h = c->hist[2][j];
+                if (h < lo || h > hi)
+                    break;
+                j = (u8)(j - 1);
+                v += h;
+                cntZ++;
+            } while (j != end);
+            r = (f32)(cntZ - 1) / (f32)(n - 1);
+            r *= r;
+            r *= r;
+            r *= r;
+            r *= r;
+            r *= r;
+            c->status.mpls.z += r * ((f32)v / (f32)cntZ - c->status.mpls.z);
+            if (update)
+                c->zero[2] += r * power * (c->status.mpls.z - c->zero[2]);
+            c->status.mpls.z = c->scale[2] * (c->status.mpls.z - c->zero[2]);
+            if (c->zeroPlayEnabled)
+            {
+                if (c->status.mpls.z >= -c->zeroPlay && c->status.mpls.z <= c->zeroPlay)
+                {
+                    a = c->status.mpls.z;
+                    if (a < 0.0)
+                        a = -a;
+                    a = 1.0f - a / c->zeroPlay;
+                    if (a < c->zeroPlayResult)
+                        c->zeroPlayResult = a;
+                    c->status.mpls.z = 0.0f;
+                }
+                else
+                {
+                    c->zeroPlayResult = 0.0f;
+                }
+            }
+            if (c->mode == 1)
+                c->speedDelta.z = 0.5f * (c->status.mpls.z - old.z);
+            else
+                c->speedDelta.z = c->status.mpls.z - c->last.z;
+        }
+        if (cntX < cntY)
+        {
+            if (cntX < cntZ)
+                cntZ = cntX;
+        }
+        else if (cntY < cntZ)
+        {
+            cntZ = cntY;
+        }
+        r = (f32)(cntZ - 1) / (f32)(n - 1);
+        if (r < c->m0EC)
+            c->m0EC = r;
+        }
+        c->status.angle.x += c->interval * c->status.mpls.x;
+        c->status.angle.y += c->interval * c->status.mpls.y;
+        c->status.angle.z += c->interval * c->status.mpls.z;
+        fn_80659860(c);
+        if (kp_mpls_work_unk->callback)
+            kp_mpls_work_unk->callback(chan, c->status);
+    } while (--count != 0);
+    kp_mpls_work_unk->callback = NULL;
+    }
+}
+
 // inferred: counts per degree of each axis from the WPAD calibration (high and low speed)
 // NONMATCHING: 97% - the original keeps the 0.0f of the checks in f4 for the final m0EC = 0.0f
 void fn_8065A8B0(KPADChannel chan)
@@ -584,9 +901,6 @@ void fn_8065AA50(KPADChannel chan, KPADUnifiedWpadStatus* uniRingBuf, KPADUnifie
     c->exBufLen = exBufLen;
 }
 
-// inferred: counts per revolution (360 degrees) and full scale of each axis, per mode
-s32 kp_mpls_unk_tbl_a[3][3] = { { 1600, 1600, 1600 }, { 1600, 1600, 1600 }, { 1600, 1600, 1600 } };
-s32 kp_mpls_unk_tbl_b[3][3] = { { 0x7FFFFF, 0x7FFFFF, 0x7FFFFF }, { 0x7FFFFF, 0x7FFFFF, 0x7FFFFF }, { 0x7FFFFF, 0x7FFFFF, 0x7FFFFF } };
 
 static void set_mode(KPADChannel chan, s32 mode)
 {
@@ -622,6 +936,7 @@ static f32 revise_dir(KPADChannel chan)
 }
 
 // inferred: Motion Plus update of one read (called from KPADiRead)
+// NONMATCHING: 99.8% - only the order of the parameter copies in the prologue (mr r28, r7 first)
 void fn_8065AA80(KPADChannel chan, KPADMPStatus* mp, s32 idx, s32 count, KPADStatus* sp, f64 interval)
 {
     KPADMplsChan_unk* c = &kp_mpls_work_unk->ch[chan];
