@@ -2,6 +2,7 @@
 // first functions are reconstructed so far.
 #include "MP/D2AMpMenu_unk.h"
 #include "game/MenuCommonTask.h"
+#include "MP/D2ACommonDialog.h"
 
 // inferred: friend list (lbl_8087F628 + 0x430, as in MP/D2AMpMenuFriend.cpp)
 struct MpMsgFriendList_unk;
@@ -31,7 +32,12 @@ public:
     virtual void vf20();
 
     void fn_804C8D80(int state); // inferred: changes the state
+    void fn_804C9360();          // inferred: hides the windows of the previous state
+    void fn_804CAAE8();          // inferred: draws the message list
+    void fn_804CAD90();
     void fn_804CC618();          // inferred: reads the current messages
+    void fn_804CC7A4();
+    void fn_804CCB54();
 
     void Add_unk(MpD2A_unk* task) {
         if (m178.size() < 37) {
@@ -144,6 +150,86 @@ int D2AMpMenuSetMessage::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// NONMATCHING: 98.4% - r28/r29 swapped between the anime and the array pointer in the Play_unk loops of
+// states 4 and 5 (tried a shared loop index)
+void D2AMpMenuSetMessage::fn_804C8D80(int state) {
+    if (mD8 != state && state >= 0) {
+        mDC = mD8;
+        mD8 = state;
+        fn_804C9360();
+        switch (mD8) {
+        case 1:
+            vf1C();
+            Play_unk(m4C, 0, 1.0f);
+            Play_unk(m48, 0, 1.0f);
+            SetTaskText_unk(m50, "string0037(1)", L"");
+            SetPaneText_unk(m50->mLayout, "string0038(1)", L"");
+            SetPaneText_unk(m50->mLayout, "string0039(1)", L"");
+            SetPaneText_unk(m50->mLayout, "string0035(1)", L"");
+            SetPaneText_unk(m50->mLayout, "string0029(1)", L"");
+            mE4 = 0;
+            break;
+        case 2:
+            mE4 = m160;
+            m170 = 0.0f;
+            break;
+        case 3:
+            D2ACommonDialog::sInstance->fn_804AC96C(0, 1.0f, 1, 0);
+            D2ACommonDialog::sInstance->fn_804ACD10();
+            D2ACommonDialog::sInstance->fn_804AD000(lbl_8087F86C->Get_unk(248), 0);
+            break;
+        case 4:
+            fn_804CC618();
+            fn_804CAAE8();
+            mE4 = m164;
+            Play_unk(m50, 0, 1.0f);
+            for (int i = 0; i < 3; i++) {
+                Play_unk(m58[i], 0, 1.0f);
+            }
+            for (int i = 0; i < 2; i++) {
+                Play_unk(m64[i], 0, 1.0f);
+                Play_unk(m6C[i], 0, 1.0f);
+            }
+            for (int i = 0; i < 24; i++) {
+                Play_unk(m74[i], 0, 1.0f);
+            }
+            break;
+        case 5:
+            fn_804CC7A4();
+            fn_804CAAE8();
+            mE4 = m168;
+            Play_unk(m50, 0, 1.0f);
+            for (int i = 0; i < 3; i++) {
+                Play_unk(m58[i], 0, 1.0f);
+            }
+            for (int i = 0; i < 2; i++) {
+                Play_unk(m64[i], 0, 1.0f);
+                Play_unk(m6C[i], 0, 1.0f);
+            }
+            for (int i = 0; i < 24; i++) {
+                Play_unk(m74[i], 0, 1.0f);
+            }
+            break;
+        case 6:
+            mE4 = m16C;
+            m170 = 0.0f;
+            fn_804CCB54();
+            fn_804CAD90();
+            Play_unk(m54, 0, 1.0f);
+            Play_unk(mD4, 0, 1.0f);
+            break;
+        case 7:
+            vf20();
+            Play_unk(m4C, 0, -1.0f);
+            Play_unk(m48, 0, -1.0f);
+            for (int i = 0; i < 10; i++) {
+                Play_unk(m74[i], 0, -1.0f);
+            }
+            break;
+        }
+    }
 }
 
 void D2AMpMenuSetMessage::vf1C() {}
