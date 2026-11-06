@@ -105,7 +105,7 @@ BOOL WPADiSendWriteData(WPADCmdQueue* queue, void* p_buf, u16 len, u32 addr, WPA
 BOOL WPADiSendReadData(WPADCmdQueue* queue, void* p_buf, u16 len, u32 addr, WPADCallback callback);
 void WPADiClearQueue(WPADCmdQueue* queue);
 s8 __GetCmdNumber(WPADCmdQueue* queue);
-BOOL __CanPushCmdQueue(WPADCmdQueue* queue, s8 cmd_num);
+BOOL WPADiIsAvailableCmdQueue(WPADCmdQueue* queue, s8 cmd_num);
 
 void* noAlloc(u32 size) {
     DEBUGPrint("No Alloc: Nothing to do!!!\n");
@@ -2071,7 +2071,7 @@ s32 WPADControlSpeaker(s32 chan, u32 command, WPADCallback callback) {
                 result = WPAD_ERR_NONE;
             } else {
                 enable = OSDisableInterrupts();
-                if (__CanPushCmdQueue(&p_wpd->cmdq, 5)) {
+                if (WPADiIsAvailableCmdQueue(&p_wpd->cmdq, 5)) {
                     WPADiSendMuteSpeaker(&p_wpd->cmdq, TRUE, NULL);
                     WPADiSendWriteDataCmd(&p_wpd->cmdq, SPK_DERESET, SPK_RST_REG, NULL);
                     WPADiSendWriteDataCmd(&p_wpd->cmdq, SPK_CLK_OFF, SPK_CLK_REG, NULL);
@@ -2089,7 +2089,7 @@ s32 WPADControlSpeaker(s32 chan, u32 command, WPADCallback callback) {
             case 1:
             case 5:
                 enable = OSDisableInterrupts();
-                if (__CanPushCmdQueue(&p_wpd->cmdq, 7)) {
+                if (WPADiIsAvailableCmdQueue(&p_wpd->cmdq, 7)) {
                     WPADiSendEnableSpeaker(&p_wpd->cmdq, TRUE, NULL);
                     WPADiSendMuteSpeaker(&p_wpd->cmdq, TRUE, NULL);
                     WPADiSendWriteDataCmd(&p_wpd->cmdq, SPK_CLK_ON, SPK_CLK_REG, NULL);
@@ -2330,7 +2330,7 @@ s32 WPADControlDpd(s32 chan, u32 command, WPADCallback callback) {
             } else {
                 enable = OSDisableInterrupts();
 
-                if (__CanPushCmdQueue(&p_wpd->cmdq, 3)) {
+                if (WPADiIsAvailableCmdQueue(&p_wpd->cmdq, 3)) {
                     p_wpd->dpdCommand = (u8)command;
 
                     WPADiSendEnableDPD(&p_wpd->cmdq, FALSE, NULL);
@@ -2348,7 +2348,7 @@ s32 WPADControlDpd(s32 chan, u32 command, WPADCallback callback) {
         } else if (command != lastCmd) {
             enable = OSDisableInterrupts();
 
-            if (__CanPushCmdQueue(&p_wpd->cmdq, 8)) {
+            if (WPADiIsAvailableCmdQueue(&p_wpd->cmdq, 8)) {
                 p_wpd->dpdCommand = (u8)command;
                 p_wpd->dpdBusy = 1;
 
@@ -2494,7 +2494,7 @@ s32 WPADControlBLC(s32 chan, u8 command, WPADCallback callback) {
             enable = OSDisableInterrupts();
             switch (command) {
             case 0xAA:
-                if (__CanPushCmdQueue(&p_wpd->cmdq, 4)) {
+                if (WPADiIsAvailableCmdQueue(&p_wpd->cmdq, 4)) {
                     WPADWriteExtReg(chan, data, 7, 0xA4, 0xF1, NULL);
                     WPADWriteExtReg(chan, data, 1, 0xA4, 0xF1, NULL);
                     WPADWriteExtReg(chan, data, 1, 0xA4, 0xF1, NULL);
@@ -2760,7 +2760,7 @@ s8 __GetCmdNumber(WPADCmdQueue* queue) {
     return num;
 }
 
-BOOL __CanPushCmdQueue(WPADCmdQueue* queue, s8 cmd_num) {
+BOOL WPADiIsAvailableCmdQueue(WPADCmdQueue* queue, s8 cmd_num) {
     s8 curr = __GetCmdNumber(queue);
 
     if (curr + cmd_num <= queue->cmdlen - 1) {
