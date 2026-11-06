@@ -17,6 +17,16 @@ typedef struct AXFX_BUFFERUPDATE {
     s32* surround; // at 0x8
 } AXFX_BUFFERUPDATE;
 
+#define AXFX_STEREO_CHANNEL_MAX 3
+#define AXFX_DPL2_CHANNEL_MAX 4
+
+typedef struct AXFX_BUS_DPL2 {
+    s32* L;  // at 0x0
+    s32* R;  // at 0x4
+    s32* Ls; // at 0x8
+    s32* Rs; // at 0xC
+} AXFX_BUS_DPL2;
+
 typedef struct AXFX_BUFFERUPDATE_DPL2 {
     s32* left;           // at 0x0
     s32* right;          // at 0x4

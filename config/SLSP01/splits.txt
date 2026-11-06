@@ -4071,6 +4071,21 @@ smg2/src/RVL_SDK/axfx/AXFXReverbHiExp.c:
 	.data       start:0x807AF660 end:0x807AF800
 	.sdata2     start:0x808885C8 end:0x80888608
 
+RVL_SDK/src/revolution/axfx/AXFXDelayExp.c:
+	.text       start:0x8060BFB0 end:0x8060CA80 align:16
+	.sdata2     start:0x80888608 end:0x80888620
+
+auto_03_8060CA80_text.cpp:
+	.text       start:0x8060CA80 end:0x80610490 align:16
+
+RVL_SDK/src/revolution/axfx/AXFXLfoTable.c:
+	.text       start:0x80610490 end:0x806104A0
+	.data       start:0x807AF920 end:0x807AFB20
+
+RVL_SDK/src/revolution/axfx/AXFXSrcCoef.c:
+	.text       start:0x806104A0 end:0x806104C0
+	.data       start:0x807AFB20 end:0x807B0320
+
 RVL_SDK/src/revolution/axfx/AXFXHooks.c:
 	.text       start:0x806104C0 end:0x80610510
 	.sdata      start:0x8087E858 end:0x8087E860
