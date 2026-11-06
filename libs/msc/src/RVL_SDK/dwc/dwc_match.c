@@ -108,7 +108,7 @@ static int IsPrivateAddr(u32 addr_in_netorder);
 static NegotiateError DWCi_DoNatNegotiationAsync(DWCNNInfo* nnInfo);
 static NegotiateError DWCi_HandleNNError(NegotiateError error);
 static NegotiateResult DWCi_HandleNNResult(NegotiateResult result);
-static BOOL DWCi_ProcessNNFailure(BOOL ignoreError);
+static BOOL DWCi_ProcessNNFailure(BOOL ignoreError, struct sockaddr_in* remoteaddr);
 static DWCNodeInfo* DWCi_GetPendingNode(void);
 static void DWCi_AbortMeshNegotiation(void);
 static int DWCi_MakeReservationCommand(u32* data);
@@ -747,7 +747,7 @@ static NegotiateResult DWCi_HandleNNResult(NegotiateResult result)
     return result;
 }
 
-static BOOL DWCi_ProcessNNFailure(BOOL ignoreError)
+static BOOL DWCi_ProcessNNFailure(BOOL ignoreError, struct sockaddr_in* remoteaddr)
 {
     if (ignoreError)
     {
@@ -766,9 +766,14 @@ static BOOL DWCi_ProcessNNFailure(BOOL ignoreError)
         || (DWCi_GetMatchCnt()->nnFailureCount
             >= DWC_MATCH_NN_FAILURE_MAX))
     {
+        // TLS (2010): the server browser is not freed while called back from the NN library
+        if (remoteaddr)
+            s_sbCallbackLevel++;
         DWCi_StopMatching(DWC_ERROR_NETWORK,
             DWC_ECODE_SEQ_MATCH + DWC_ECODE_GS_NN
                 + DWC_ECODE_TYPE_MUCH_FAILURE);
+        if (remoteaddr)
+            s_sbCallbackLevel--;
         return FALSE;
     }
 
@@ -5639,7 +5644,7 @@ void DWCi_NNCompletedCallback(NegotiateResult result, SOCKET gamesocket,
             DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "NN, remote address : %s\n",
                 gt2AddressToString(remoteaddr->sin_addr.addr,
                     SO_NtoHs(remoteaddr->sin_port), NULL));
-        nnInfo->cookie = 0;
+        // TLS (2010): the cookie is no longer cleared here
         if (nnInfo->isQR2)
         {
             DWCi_GetMatchCnt()->serverNode.connectionIP = remoteaddr->sin_addr.addr;
@@ -5716,7 +5721,7 @@ void DWCi_NNCompletedCallback(NegotiateResult result, SOCKET gamesocket,
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Abort NN.\n");
                 NNCancel(DWCi_GetMatchCnt()->nnInfo.cookie); // TLS (2010)
                 nnInfo->cookie = 0;
-                if (!DWCi_ProcessNNFailure(FALSE))
+                if (!DWCi_ProcessNNFailure(FALSE, remoteaddr))
                     return;
                 if (!DWCi_CancelPreConnectedClientProcess(DWCi_GetMatchCnt()->serverNode.profileID))
                     return;
@@ -5744,10 +5749,10 @@ void DWCi_NNCompletedCallback(NegotiateResult result, SOCKET gamesocket,
                 if (DWCi_GetMatchCnt()->qr2MatchType == DWC_MATCH_TYPE_SC_CL
                     || DWCi_GetMatchCnt()->qr2MatchType == DWC_MATCH_TYPE_SC_SV)
                 {
-                    if (!DWCi_ProcessNNFailure(TRUE))
+                    if (!DWCi_ProcessNNFailure(TRUE, remoteaddr))
                         return;
                 }
-                else if (!DWCi_ProcessNNFailure(FALSE))
+                else if (!DWCi_ProcessNNFailure(FALSE, remoteaddr))
                 {
                     return;
                 }
