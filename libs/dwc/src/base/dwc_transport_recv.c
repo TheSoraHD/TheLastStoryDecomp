@@ -36,18 +36,18 @@ u8 fn_806B1570(GT2Connection connection);            // DWCi_GetConnectionAID
 BOOL fn_806B1730(u8 aid);                            // inferred: aid has a GT2 connection
 void fn_806B1A00(u8 aid);                            // inferred: closes the connection to aid
 u8 fn_806B30A0(void);                                // inferred: aid of the server, 0xFF if none
-void fn_806B97B0(u8 aid, u16 type, const u8* message); // inferred: system message handler
-void fn_806C9CE0(const u8* message, u32 size);       // inferred: unreliable match command
-BOOL fn_806CB4C0(void);
-void fn_806CB8F0(int reason);
-BOOL fn_806CCB40(void);
-int fn_806CCCB0(void);                               // inferred: number of hosts
+void DWCi_ProcessMatchSynPacket(u8 aid, u16 type, const u8* message); // inferred: system message handler
+void DWCi_HandleGT2UnreliableMatchCommandMessage(const u8* message, u32 size);       // inferred: unreliable match command
+BOOL DWCi_IsBackupMine(void);
+void DWCi_SendServerPolling(int reason);
+BOOL DWCi_IsServerChanging(void);
+int DWCi_GetNodeCount(void);                               // inferred: number of hosts
 // inferred: connection info of the server (only the aid at 0x16 is read here)
 typedef struct DWCConnectionInfo {
     u8 pad[0x16];
     u8 aid; // 0x16
 } DWCConnectionInfo;
-DWCConnectionInfo* fn_806CCED0(int index);
+DWCConnectionInfo* DWCi_GetNodeByIndex(int index);
 
 #define DWC_ERROR_NETWORK ((DWCError)6) // inferred: NitroDWC value
 

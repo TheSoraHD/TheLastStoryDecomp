@@ -38,18 +38,18 @@ u8 fn_806B1570(GT2Connection connection);            // DWCi_GetConnectionAID
 BOOL fn_806B1730(u8 aid);                            // inferred: aid has a GT2 connection
 void fn_806B1A00(u8 aid);                            // inferred: closes the connection to aid
 u8 fn_806B30A0(void);                                // inferred: aid of the server, 0xFF if none
-void fn_806B97B0(u8 aid, u16 type, const u8* message); // inferred: system message handler
-void fn_806C9CE0(const u8* message, u32 size);       // inferred: unreliable match command
-BOOL fn_806CB4C0(void);
-void fn_806CB8F0(int reason);
-BOOL fn_806CCB40(void);
-int fn_806CCCB0(void);                               // inferred: number of hosts
+void DWCi_ProcessMatchSynPacket(u8 aid, u16 type, const u8* message); // inferred: system message handler
+void DWCi_HandleGT2UnreliableMatchCommandMessage(const u8* message, u32 size);       // inferred: unreliable match command
+BOOL DWCi_IsBackupMine(void);
+void DWCi_SendServerPolling(int reason);
+BOOL DWCi_IsServerChanging(void);
+int DWCi_GetNodeCount(void);                               // inferred: number of hosts
 // inferred: connection info of the server (only the aid at 0x16 is read here)
 typedef struct DWCConnectionInfo {
     u8 pad[0x16];
     u8 aid; // 0x16
 } DWCConnectionInfo;
-DWCConnectionInfo* fn_806CCED0(int index);
+DWCConnectionInfo* DWCi_GetNodeByIndex(int index);
 
 #define DWC_ERROR_NETWORK ((DWCError)6) // inferred: NitroDWC value
 
@@ -147,7 +147,7 @@ static inline int DWCi_GetHeaderSize(int type) {
     case 3:
         return 0xC;
     case 4: {
-        int n = fn_806CCCB0() - 1;
+        int n = DWCi_GetNodeCount() - 1;
         if (n == 0) {
             return 0x10;
         }
@@ -494,7 +494,7 @@ void DWCi_TransportProcess(void) {
     now = OSGetTime();
     timeout = DWCi_GetConnectionTimeout();
 
-    if (fn_806B12F0() || (fn_806CCB40() && fn_806CB4C0())) {
+    if (fn_806B12F0() || (DWCi_IsServerChanging() && DWCi_IsBackupMine())) {
         for (i = 0; i < numAid; i++) {
             u8 aid = aidList[i];
             if (aid != fn_806B0E30()) {
@@ -506,7 +506,7 @@ void DWCi_TransportProcess(void) {
                                "timeout time=%d[ms]\n",
                                aid, time, lastTick);
                     fn_806B1A00(aid);
-                    fn_806CB8F0(1);
+                    DWCi_SendServerPolling(1);
                 }
             }
         }
@@ -575,7 +575,7 @@ void fn_806CE750(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay) 
     connection = fn_806B14D0(dstAid);
     if (connection == NULL) {
         if (!fn_806B12F0()) {
-            server = fn_806CCED0(0);
+            server = DWCi_GetNodeByIndex(0);
             connection = fn_806B14D0(server->aid);
             if (connection == NULL) {
                 DWC_Printf(DWC_REPORTFLAG_SEND_INFO,
@@ -665,7 +665,7 @@ void DWCs_HandleReliableMessage(GT2Connection connection, const u8* message, int
         case 2:
         case 3:
         case 4:
-            fn_806B97B0(aid, conn->lastRecvType, message);
+            DWCi_ProcessMatchSynPacket(aid, conn->lastRecvType, message);
             break;
         }
         break;
@@ -705,7 +705,7 @@ void DWCs_HandleUnreliableMessage(GT2Connection connection, const u8* message, i
 
     if ((u32)len >= DWC_MATCH_COMMAND_HEADER_SIZE &&
         strncmp((const char*)message, "\xBBI\xCCM", 4) == 0) {
-        fn_806C9CE0(message, len);
+        DWCi_HandleGT2UnreliableMatchCommandMessage(message, len);
         return;
     }
 

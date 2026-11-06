@@ -154,7 +154,7 @@ void DWC_LoginIdToUserName(const DWCUserData* userdata, const DWCFriendData* fri
 
 // inferred: other DWC helpers
 int DWC_GetCommonValueString(const char* key, char* value, const char* string, char separator); // DWC_GetCommonValueString
-BOOL fn_806CD3E0(const GPBuddyStatus* status); // dwc_match
+BOOL DWCi_IsBuddyMatchLocked(const GPBuddyStatus* status); // dwc_match
 
 static DWCFriendControl* stpFriendCnt;
 static int stPersState;     // inferred: 2 once logged in to the storage server
@@ -224,7 +224,7 @@ u8 DWC_GetFriendStatusSC(const DWCFriendData* friendData, u8* maxEntry, u8* numE
         }
 
         ret = (u8)status.status;
-        if (fn_806CD3E0(&status)) {
+        if (DWCi_IsBuddyMatchLocked(&status)) {
             ret = DWC_STATUS_PLAYING;
         }
         return ret;

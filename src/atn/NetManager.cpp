@@ -113,11 +113,11 @@ extern "C" void fn_806B0980();
 extern "C" void fn_806B0CF0(unsigned char value);
 extern "C" int fn_806B0EB0(unsigned char** aids);
 extern "C" int fn_806B1170(unsigned char aid);
-extern "C" void fn_806B3220(int arg, const char* key, int* value);
-extern "C" void fn_806B3680(int arg, const char* key, const char* value);
+extern "C" void DWC_AddMatchKeyInt(int arg, const char* key, int* value);
+extern "C" void DWC_AddMatchKeyString(int arg, const char* key, const char* value);
 extern "C" int fn_806B3C20();
-extern "C" int fn_806B3C40(int open, void (*cb)(int result, int open, void* param), void* param);
-extern "C" int fn_806B3CC0();
+extern "C" int DWC_RequestSuspendMatchAsync(int open, void (*cb)(int result, int open, void* param), void* param);
+extern "C" int DWCi_IsMatchingSuspended();
 extern "C" void fn_806CE060(unsigned long value);
 extern "C" int SCCheckPCMessageRestriction();
 
@@ -146,7 +146,7 @@ extern "C" atn::net::PacketPack* lbl_8087F62C;
 // atn/PacketPack.cpp: lbl_80791B00, lbl_8087E160)
 inline void __SetDebugKey_unk() {
     static int sValue = 1;
-    fn_806B3220(0, "lw_debug", &sValue);
+    DWC_AddMatchKeyInt(0, "lw_debug", &sValue);
 }
 // inferred: filter of the debug key (literal in .data, lbl_80793108)
 inline void __SetDebugFilter_unk(char* dst) {
@@ -598,12 +598,12 @@ int Manager::fn_8050A100() {
         char buf[0x80];
         buf[0] = 0;
         if (key->mType == 1) {
-            fn_806B3680(0, key->mKey.c_str(), key->mString.c_str());
+            DWC_AddMatchKeyString(0, key->mKey.c_str(), key->mString.c_str());
             if ((key->mFlags & 1) != 1) {
                 sprintf(buf, "%s = %s\0", key->mKey.c_str(), key->mString.c_str());
             }
         } else if (key->mType == 2) {
-            fn_806B3220(0, key->mKey.c_str(), &key->mInt);
+            DWC_AddMatchKeyInt(0, key->mKey.c_str(), &key->mInt);
             if ((key->mFlags & 1) != 1) {
                 sprintf(buf, "%s = %d\0", key->mKey.c_str(), key->mInt);
             }
@@ -669,7 +669,7 @@ int Manager::fn_8050A4E0(int send) {
 
 // 0x8050A5EC
 void Manager::fn_8050A5EC() {
-    if (fn_806B3CC0() == 0) {
+    if (DWCi_IsMatchingSuspended() == 0) {
         mFlags.mB8 = 0;
         mFlags.mB10 = 0;
         mFlags.mB9 = 1;
@@ -681,13 +681,13 @@ int Manager::fn_8050A634(int open) {
     if (!mFlags.mB9) {
         return 0;
     }
-    if (fn_806B3CC0() == open && mFlags.mB8 == (open != 0)) {
+    if (DWCi_IsMatchingSuspended() == open && mFlags.mB8 == (open != 0)) {
         return 0;
     }
     mFlags.mB8 = (open != 0);
     mFlags.mB9 = 0;
     if (mC215 == 0) {
-        int result = fn_806B3C40(open, fn_8050B1A8, 0);
+        int result = DWC_RequestSuspendMatchAsync(open, fn_8050B1A8, 0);
         fn_8050B1A8(open, 0, 0);
         if (result == 0) {
             mFlags.mB9 = 1;

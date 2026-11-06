@@ -124,39 +124,39 @@ typedef struct DWCNodeInfo {
 void DWCi_MatchInit(void* matchcnt, GPConnection* pGpObj, GT2Socket* pGt2Socket,
                  GT2ConnectionCallbacks* gt2Callbacks, const char* gameName,
                  const char* secretKey, DWCFriendData* friendList, int friendListLen);
-BOOL fn_806B3160(void);
-void fn_806B42B0(int a0, u8 numEntry, int a2, void* matchedCallback, void* matchedParam, int a5,
+BOOL DWC_CancelMatching(void);
+void DWCi_ConnectToAnybodyAsync(int a0, u8 numEntry, int a2, void* matchedCallback, void* matchedParam, int a5,
                  int a6, int a7, int a8, int a9, int a10, int a11);
-void fn_806B4940(int a0, u8 maxEntry, void* matchedCallback, void* matchedParam, int a4, int a5,
+void DWCi_SetupGameServer(int a0, u8 maxEntry, void* matchedCallback, void* matchedParam, int a4, int a5,
                  int a6, int a7, int a8);
-void fn_806B4D20(int a0, int profileID, void* matchedCallback, void* matchedParam, int a4, int a5,
+void DWCi_ConnectToGameServerAsync(int a0, int profileID, void* matchedCallback, void* matchedParam, int a4, int a5,
                  int a6, int a7, int a8);
-void fn_806B5860(int a0);
-void fn_806B8430(void); // inferred: GT2 unrecognized message callback
-void fn_806B85B0(void); // inferred: GT2 connect attempt callback
-void fn_806B8D60(void); // inferred: GT2 connected callback
-void fn_806B9410(GPConnection* connection, GPProfile profile, const char* command);
-void fn_806B9500(DWCError error, int errorCode); // DWCi_StopMatching
-void fn_806B9740(void);
-BOOL fn_806BAE10(DWCError error, int errorCode, int profileID);
-void fn_806BB3F0(int profileID);
-GPResult fn_806BB440(int status);
-void fn_806BB5E0(void);
-BOOL fn_806BB6A0(void);
-void fn_806BBCA0(void);
-BOOL fn_806CB4C0(void);
-void fn_806CCB70(int state);
-BOOL fn_806CCC70(void);
-void fn_806CCC90(void);
-int fn_806CCCB0(void); // inferred: number of hosts
-void fn_806CCCC0(u8 aid);
-DWCNodeInfo* fn_806CCEA0(void);
-DWCNodeInfo* fn_806CCED0(int index);
-DWCNodeInfo* fn_806CCF00(int profileID);
-DWCNodeInfo* fn_806CCF50(u8 aid);
-int fn_806CD150(void);
-BOOL fn_806CD3C0(void);
-BOOL fn_806CD3E0(GPBuddyStatus* status);
+void DWCi_MatchProcess(int a0);
+void DWCi_GT2UnrecognizedMessageCallback(void); // inferred: GT2 unrecognized message callback
+void DWCi_GT2ConnectAttemptCallback(void); // inferred: GT2 connect attempt callback
+void DWCi_GT2ConnectedCallback(void); // inferred: GT2 connected callback
+void DWCi_MatchGPRecvBuddyMsgCallback(GPConnection* connection, GPProfile profile, const char* command);
+void DWCi_StopMatching(DWCError error, int errorCode); // DWCi_StopMatching
+void DWCi_ClearQR2Key(void);
+BOOL DWCi_ProcessMatchClosing(DWCError error, int errorCode, int profileID);
+void DWCi_ProcessMatchSCClosing(int profileID);
+GPResult DWCi_GPSetServerStatus(int status);
+void DWCi_ShutdownMatch(void);
+BOOL DWCi_IsShutdownMatch(void);
+void DWCi_CloseMatching(void);
+BOOL DWCi_IsBackupMine(void);
+void DWCi_SetMatchStatus(int state);
+BOOL DWCi_IsServerMigrationEnabled(void);
+void DWCi_ClearNodeList(void);
+int DWCi_GetNodeCount(void); // inferred: number of hosts
+void DWCi_RemoveNodeByAID(u8 aid);
+DWCNodeInfo* DWCi_GetFirstNode(void);
+DWCNodeInfo* DWCi_GetNodeByIndex(int index);
+DWCNodeInfo* DWCi_GetNodeByProfileID(int profileID);
+DWCNodeInfo* DWCi_GetNodeByAID(u8 aid);
+int DWCi_StopMeshConnection(void);
+BOOL DWCi_UsesExplicitClientLinks(void);
+BOOL DWCi_IsBuddyMatchLocked(GPBuddyStatus* status);
 void fn_806CD4E0(void);
 
 // inferred: transport callbacks (dwc_transport.c)
@@ -325,7 +325,7 @@ void fn_806AF6A0(DWCUserData* userdata, int productID, const char* secretKey, in
     DWC_ClearError();
 
     stpDwcCnt->gt2Socket = NULL;
-    stpDwcCnt->gt2Callbacks.connected = fn_806B8D60;
+    stpDwcCnt->gt2Callbacks.connected = DWCi_GT2ConnectedCallback;
     stpDwcCnt->gt2Callbacks.received = fn_806B25F0;
     stpDwcCnt->gt2Callbacks.closed = fn_806B2FC0;
     stpDwcCnt->gt2Callbacks.ping = fn_806B2FD0;
@@ -399,7 +399,7 @@ void fn_806AF910(void) {
 
     fn_806AEBB0();
     DWCi_ShutdownFriend();
-    fn_806BB5E0();
+    DWCi_ShutdownMatch();
     DWCi_ShutdownTransport();
 
     if (stpDwcCnt->gt2Socket != NULL) {
@@ -464,19 +464,19 @@ void fn_806AFAA0(void) {
         break;
     case DWC_STATE_ONLINE:
         DWCi_FriendProcess();
-        fn_806B5860(0);
+        DWCi_MatchProcess(0);
         break;
     case DWC_STATE_MATCHING:
-        fn_806B5860(1);
+        DWCi_MatchProcess(1);
         DWCi_FriendProcess();
         break;
     case DWC_STATE_CONNECTED:
         DWCi_TransportProcess();
         DWCi_FriendProcess();
         if (stpDwcCnt->matchcnt.qr2MatchType == 2 || stpDwcCnt->matchcnt.qr2MatchType == 3) {
-            fn_806B5860(1);
+            DWCi_MatchProcess(1);
         } else if (stpDwcCnt->gt2Socket != NULL) {
-            fn_806B5860(0);
+            DWCi_MatchProcess(0);
         }
         break;
     }
@@ -622,7 +622,7 @@ BOOL fn_806B0260(int a0, u8 numEntry, int a2, DWCMatchedCallback matchedCallback
     DWCi_SetState(DWC_STATE_MATCHING);
     stpDwcCnt->matchcnt.qr2NNFailed = 0;
     stpDwcCnt->matchcnt.unk8C8 = 0;
-    fn_806B42B0(a0, (u8)(numEntry - 1), a2, fn_806B1CF0, NULL, a5, a6, a7, a8, a9, a10,
+    DWCi_ConnectToAnybodyAsync(a0, (u8)(numEntry - 1), a2, fn_806B1CF0, NULL, a5, a6, a7, a8, a9, a10,
                 a11);
     return TRUE;
 }
@@ -649,7 +649,7 @@ BOOL fn_806B0410(int a0, u8 maxEntry, DWCMatchedCallback matchedCallback, void* 
     DWCi_SetState(DWC_STATE_MATCHING);
     stpDwcCnt->matchcnt.qr2NNFailed = 2;
     stpDwcCnt->matchcnt.unk8C8 = 0;
-    fn_806B4940(a0, (u8)(maxEntry - 1), fn_806B1CF0, NULL, a4, a5, a6, a7, a8);
+    DWCi_SetupGameServer(a0, (u8)(maxEntry - 1), fn_806B1CF0, NULL, a4, a5, a6, a7, a8);
     return TRUE;
 }
 
@@ -691,7 +691,7 @@ BOOL fn_806B05B0(int a0, int serverIndex, DWCMatchedCallback matchedCallback, vo
     }
 
     value[0] = '0';
-    if (fn_806CD3E0(&status)) {
+    if (DWCi_IsBuddyMatchLocked(&status)) {
         DWC_Printf(DWC_REPORTFLAG_ERROR, "pid %d is locked.\n", serverIndex);
         error = 24;
         goto fail;
@@ -709,7 +709,7 @@ BOOL fn_806B05B0(int a0, int serverIndex, DWCMatchedCallback matchedCallback, vo
 
     stpDwcCnt->matchcnt.qr2NNFailed = 3;
     stpDwcCnt->matchcnt.unk8C8 = 0;
-    fn_806B4D20(a0, serverIndex, fn_806B1CF0, NULL, a4, a5, a6, a7, a8);
+    DWCi_ConnectToGameServerAsync(a0, serverIndex, fn_806B1CF0, NULL, a4, a5, a6, a7, a8);
     return TRUE;
 
 fail:
@@ -717,7 +717,7 @@ fail:
     stpDwcCnt->matchedCallback(error, FALSE, TRUE, FALSE, 0, stpDwcCnt->matchedParam);
     if (stpDwcCnt != NULL && stpDwcCnt->state == DWC_STATE_MATCHING) {
         DWCi_SetState(DWC_STATE_ONLINE);
-        fn_806BB440(1);
+        DWCi_GPSetServerStatus(1);
     }
     return TRUE;
 }
@@ -747,7 +747,7 @@ int fn_806B0980(void) {
 
     DWC_Printf(DWC_REPORTFLAG_DEBUG, "!!DWC_CloseAllConnectionsHard() was called!!\n");
     stpDwcCnt->matchcnt.unk8E5 = 1;
-    if (fn_806B3160()) {
+    if (DWC_CancelMatching()) {
         return 1;
     }
     if (stpDwcCnt == NULL || DWCi_IsError() ||
@@ -764,37 +764,37 @@ int fn_806B0980(void) {
     }
 
     if (!found) {
-        fn_806CCCB0();
+        DWCi_GetNodeCount();
         DWC_Printf(DWC_REPORTFLAG_TRANSPORT, "Closed 0 connection.\n");
-        fn_806BB440(1);
+        DWCi_GPSetServerStatus(1);
         fn_806CD4E0();
         DWCi_SetState(DWC_STATE_ONLINE);
-        fn_806B9740();
-        fn_806CCC90();
-        fn_806CCB70(0);
-        fn_806BBCA0();
+        DWCi_ClearQR2Key();
+        DWCi_ClearNodeList();
+        DWCi_SetMatchStatus(0);
+        DWCi_CloseMatching();
         return 1;
     }
 
     stpDwcCnt->closing = TRUE;
     gt2CloseAllConnectionsHard(stpDwcCnt->gt2Socket);
-    while (fn_806CCCB0() > 1) {
-        for (i = 0; i < fn_806CCCB0(); i++) {
-            node = fn_806CCED0(i);
+    while (DWCi_GetNodeCount() > 1) {
+        for (i = 0; i < DWCi_GetNodeCount(); i++) {
+            node = DWCi_GetNodeByIndex(i);
             if (node->profileID != stpDwcCnt->profileID) {
                 fn_806B2600(NULL, 0, TRUE, node->aid);
             }
         }
     }
     stpDwcCnt->closing = FALSE;
-    fn_806CCC90();
-    fn_806CCB70(0);
-    fn_806BBCA0();
+    DWCi_ClearNodeList();
+    DWCi_SetMatchStatus(0);
+    DWCi_CloseMatching();
 
     if (fn_806B1230() != DWC_STATE_ONLINE) {
         fn_806CD4E0();
         DWCi_SetState(DWC_STATE_ONLINE);
-        fn_806B9740();
+        DWCi_ClearQR2Key();
     }
     return 0;
 }
@@ -816,7 +816,7 @@ int fn_806B0DE0(void) {
     if (stpDwcCnt == NULL || !DWCi_IsMatchAvailable()) {
         return 0;
     }
-    return fn_806CCCB0();
+    return DWCi_GetNodeCount();
 }
 
 // DWC_GetMyAID
@@ -826,7 +826,7 @@ u8 fn_806B0E30(void) {
     if (stpDwcCnt == NULL || !DWCi_IsMatchAvailable()) {
         return 0xFF;
     }
-    node = fn_806CCF00(stpDwcCnt->profileID);
+    node = DWCi_GetNodeByProfileID(stpDwcCnt->profileID);
     if (node == NULL) {
         return 0xFF;
     }
@@ -841,11 +841,11 @@ int fn_806B0EB0(u8** aidList) {
         return 0;
     }
     memset(stAidList, 0, sizeof(stAidList));
-    for (i = 0; i < fn_806CCCB0(); i++) {
-        stAidList[i] = fn_806CCED0(i)->aid;
+    for (i = 0; i < DWCi_GetNodeCount(); i++) {
+        stAidList[i] = DWCi_GetNodeByIndex(i)->aid;
     }
     *aidList = stAidList;
-    return fn_806CCCB0();
+    return DWCi_GetNodeCount();
 }
 
 static inline u32 DWCi_AIDListToBitmap(const u8* aidList, int num) {
@@ -878,7 +878,7 @@ BOOL fn_806B1170(u8 aid) {
     if (aid == fn_806B0E30()) {
         return FALSE;
     }
-    return fn_806CCF50(aid) != NULL;
+    return DWCi_GetNodeByAID(aid) != NULL;
 }
 
 // DWC_GetState
@@ -898,7 +898,7 @@ u8 fn_806B1250(void) {
         !stpDwcCnt->matchcnt.unk00D || !stpDwcCnt->matchcnt.qr2IsReserved) {
         return 0xFF;
     }
-    node = fn_806CCED0(0);
+    node = DWCi_GetNodeByIndex(0);
     if (node == NULL) {
         DWC_Printf(DWC_REPORTFLAG_WARNING, "*** DWC_GetServerAID first node is NULL!!! ***\n");
         return 0xFF;
@@ -935,8 +935,8 @@ GT2Result fn_806B13C0(void) {
     if (fn_806B1910(result)) {
         return result;
     }
-    gt2Listen(stpDwcCnt->gt2Socket, fn_806B85B0);
-    gt2SetUnrecognizedMessageCallback(stpDwcCnt->gt2Socket, fn_806B8430);
+    gt2Listen(stpDwcCnt->gt2Socket, DWCi_GT2ConnectAttemptCallback);
+    gt2SetUnrecognizedMessageCallback(stpDwcCnt->gt2Socket, DWCi_GT2UnrecognizedMessageCallback);
     return result;
 }
 
@@ -1069,7 +1069,7 @@ GPResult fn_806B17B0(GPResult result) {
         break;
     case DWC_STATE_MATCHING:
         errorCode += -81000;
-        fn_806B9500(error, errorCode);
+        DWCi_StopMatching(error, errorCode);
         break;
     default:
         errorCode += -91000;
@@ -1137,7 +1137,7 @@ int fn_806B1A00(u8 aid) {
 
     connection = fn_806B14D0(aid);
     if (connection == NULL) {
-        node = fn_806CCF50(aid);
+        node = DWCi_GetNodeByAID(aid);
         if (node == NULL) {
             DWC_Printf(DWC_REPORTFLAG_DEBUG, "No connection!\n");
             return -2;
@@ -1183,7 +1183,7 @@ static void fn_806B1CF0(DWCError error, BOOL cancel, BOOL self, BOOL isServer, i
     if (error == DWC_ERROR_NONE && cancel) {
         if (stpDwcCnt->matchcnt.state == 0) {
             DWCi_SetState(DWC_STATE_ONLINE);
-            fn_806B9740();
+            DWCi_ClearQR2Key();
         }
     } else if (error == DWC_ERROR_NONE) {
         DWCi_SetState(DWC_STATE_CONNECTED);
@@ -1334,7 +1334,7 @@ static void fn_806B2470(GPConnection* connection, GPRecvBuddyMessageArg* arg,
             (stpDwcCnt->state == DWC_STATE_CONNECTED &&
              (stpDwcCnt->matchcnt.qr2MatchType == 2 || stpDwcCnt->matchcnt.qr2MatchType == 3))) {
             message += strlen("MAT");
-            fn_806B9410(connection, arg->profile, message);
+            DWCi_MatchGPRecvBuddyMsgCallback(connection, arg->profile, message);
         } else {
             DWC_Printf(DWC_REPORTFLAG_DEBUG, "Ignore delayed GP matching command.\n");
         }
@@ -1348,8 +1348,8 @@ static void fn_806B25F0(GT2Connection connection, const u8* message, int len,
 }
 
 static inline void DWCi_DeleteNodeInfo(u8 aid) {
-    if (fn_806CCF50(aid) != NULL) {
-        fn_806CCCC0(aid);
+    if (DWCi_GetNodeByAID(aid) != NULL) {
+        DWCi_RemoveNodeByAID(aid);
     }
 }
 
@@ -1365,7 +1365,7 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
     DWCConnectionInfo* info;
     DWCNodeInfo* node;
 
-    if (fn_806BB6A0()) {
+    if (DWCi_IsShutdownMatch()) {
         DWC_Printf(DWC_REPORTFLAG_WARNING,
                    "Called DWC_ShutdownFriendsMatch() with unexpected status.\n");
         return;
@@ -1400,28 +1400,28 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
             aid = info->aid;
         }
 
-        valid = fn_806CCF50((u8)aid) != NULL;
+        valid = DWCi_GetNodeByAID((u8)aid) != NULL;
         if (!pseudo) {
             DWCi_ClearTransConnection((u8)aid);
         }
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "aid = %d (validity %d).\n", (u8)aid, valid);
 
-        if (fn_806CCEA0() != NULL && (u8)aid == fn_806CCEA0()->aid) {
+        if (DWCi_GetFirstNode() != NULL && (u8)aid == DWCi_GetFirstNode()->aid) {
             isServer = TRUE;
             DWC_Printf(DWC_REPORTFLAG_DEBUG, "**** SC server was dead....****\n");
         }
 
-        node = fn_806CCF50((u8)aid);
+        node = DWCi_GetNodeByAID((u8)aid);
         if (node == NULL) {
             profileID = 0;
         } else {
             profileID = node->profileID;
-            fn_806CCCC0((u8)aid);
+            DWCi_RemoveNodeByAID((u8)aid);
         }
 
         stpDwcCnt->matchcnt.aidBitmap &= ~(1 << (u8)aid);
         if (stpDwcCnt->matchcnt.unk04C && isServer) {
-            if (!fn_806CB4C0()) {
+            if (!DWCi_IsBackupMine()) {
                 stpDwcCnt->matchcnt.unk048 = 1;
             }
         }
@@ -1446,10 +1446,10 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
         stpDwcCnt->matchcnt.unk8F4 = 0;
     }
 
-    if (fn_806CB4C0()) {
+    if (DWCi_IsBackupMine()) {
         stpDwcCnt->matchcnt.serverDownBase = 0;
-        for (i = 0; i < fn_806CCCB0();) {
-            node = fn_806CCED0(i);
+        for (i = 0; i < DWCi_GetNodeCount();) {
+            node = DWCi_GetNodeByIndex(i);
             if (node->profileID != stpDwcCnt->matchcnt.unk7A8 && fn_806B14D0(node->aid) == NULL) {
                 if (stpDwcCnt->closedCallback != NULL) {
                     stpDwcCnt->closedCallback(error, reason == 0 ? TRUE : FALSE, isServer, node->aid,
@@ -1458,7 +1458,7 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
                 }
                 DWCi_DeleteNodeInfo(node->aid);
             } else {
-                stpDwcCnt->matchcnt.serverDownBase |= 1 << fn_806CCED0(i)->aid;
+                stpDwcCnt->matchcnt.serverDownBase |= 1 << DWCi_GetNodeByIndex(i)->aid;
                 i++;
             }
         }
@@ -1468,7 +1468,7 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
 
     if (reason != 0 && fn_806B12F0() == TRUE) {
         stpDwcCnt->matchcnt.unk8D0 = 0;
-        if (fn_806CD3C0() && stpDwcCnt->matchcnt.state == 16 &&
+        if (DWCi_UsesExplicitClientLinks() && stpDwcCnt->matchcnt.state == 16 &&
             stpDwcCnt->matchcnt.unk808 == 8) {
             stpDwcCnt->matchcnt.unk898 = 0;
         }
@@ -1476,14 +1476,14 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
 
     if (!stpDwcCnt->closing && stpDwcCnt->state == DWC_STATE_CONNECTED && !valid) {
         if (stpDwcCnt->matchcnt.qr2MatchType == 2 && error == DWC_ERROR_NONE) {
-            fn_806BB440(-1);
-            fn_806BB3F0(profileID);
+            DWCi_GPSetServerStatus(-1);
+            DWCi_ProcessMatchSCClosing(profileID);
         }
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "Closing process by matching SC.\n");
         return;
     }
 
-    if (fn_806BAE10(error, errorCode, profileID)) {
+    if (DWCi_ProcessMatchClosing(error, errorCode, profileID)) {
         DWC_Printf(DWC_REPORTFLAG_DEBUG, "Closing process by matching.\n");
         return;
     }
@@ -1495,12 +1495,12 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
 
     if (stpDwcCnt->matchcnt.qr2MatchType == 2) {
         if (!stpDwcCnt->closing) {
-            fn_806BB440(-1);
-        } else if (fn_806CCCB0() == 1) {
-            fn_806BB440(1);
+            DWCi_GPSetServerStatus(-1);
+        } else if (DWCi_GetNodeCount() == 1) {
+            DWCi_GPSetServerStatus(1);
         }
-    } else if (fn_806CCCB0() == 1) {
-        fn_806BB440(1);
+    } else if (DWCi_GetNodeCount() == 1) {
+        DWCi_GPSetServerStatus(1);
     }
 
     DWC_Printf(DWC_REPORTFLAG_DEBUG, "[**node info]\n");
@@ -1530,24 +1530,24 @@ void fn_806B2600(GT2Connection connection, GT2CloseReason reason, BOOL pseudo,
         return;
     }
 
-    if (fn_806CD150() == 1) {
-        fn_806CCB70(1);
+    if (DWCi_StopMeshConnection() == 1) {
+        DWCi_SetMatchStatus(1);
     }
 
-    if (fn_806CCCB0() == 1) {
+    if (DWCi_GetNodeCount() == 1) {
         if (stpDwcCnt->closing) {
             fn_806CD4E0();
             DWCi_SetState(DWC_STATE_ONLINE);
-            fn_806B9740();
+            DWCi_ClearQR2Key();
             stpDwcCnt->matchcnt.qr2IsReserved = 0;
         } else {
-            fn_806CCB70(11);
+            DWCi_SetMatchStatus(11);
         }
-    } else if (stpDwcCnt->matchcnt.qr2MatchType == 3 && isServer && fn_806CCCB0() >= 1) {
-        if (fn_806CCCB0() == 1 && fn_806CCC70()) {
-            fn_806CCB70(11);
+    } else if (stpDwcCnt->matchcnt.qr2MatchType == 3 && isServer && DWCi_GetNodeCount() >= 1) {
+        if (DWCi_GetNodeCount() == 1 && DWCi_IsServerMigrationEnabled()) {
+            DWCi_SetMatchStatus(11);
         } else {
-            fn_806CCB70(9);
+            DWCi_SetMatchStatus(9);
         }
     }
 }
@@ -1575,7 +1575,7 @@ static void fn_806B3030(GT2Socket socket) {
 u8 fn_806B30A0(void) {
     u8 aid = fn_806B1250();
     if (aid == 0xFF) {
-        DWCNodeInfo* node = fn_806CCED0(0);
+        DWCNodeInfo* node = DWCi_GetNodeByIndex(0);
         if (node != NULL) {
             aid = node->aid;
         }

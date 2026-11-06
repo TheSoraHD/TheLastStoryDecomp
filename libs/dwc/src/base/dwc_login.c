@@ -57,10 +57,10 @@ u64 DWCi_Np_GetConsoleId(void);
 const char* DWCi_Np_GetConsoleName(void);
 const char* DWCi_Np_GetAppGameName(void);
 // inferred: friend manager / match callbacks started after the login
-GPResult fn_806BB440(int status);
+GPResult DWCi_GPSetServerStatus(int status);
 BOOL fn_806B13C0(void);
-void fn_806CD450(int profile);
-void fn_806CD460(void);
+void DWCi_SetMatchProfileID(int profile);
+void DWCi_RegisterMatchQR2Keys(void);
 
 typedef void (*DWCLoginCallback)(DWCError error, int profileID, void* param);
 
@@ -264,13 +264,13 @@ void fn_806AED20(GPConnection* connection, GPConnectResponseArg* arg, void* para
             if (stpLoginCnt->userdata->gs_profile_id == arg->profile) {
                 DWC_Printf(DWC_REPORTFLAG_LOGIN, "  gs profile id is valid.\n");
                 stpLoginCnt->state = DWC_LOGIN_STATE_CONNECTED;
-                if (fn_806AEBF0(fn_806BB440(1))) {
+                if (fn_806AEBF0(DWCi_GPSetServerStatus(1))) {
                     return;
                 }
                 stpLoginCnt->callback(DWC_ERROR_NONE, arg->profile, stpLoginCnt->param);
                 if (fn_806B13C0() == FALSE) {
-                    fn_806CD450(arg->profile);
-                    fn_806CD460();
+                    DWCi_SetMatchProfileID(arg->profile);
+                    DWCi_RegisterMatchQR2Keys();
                     return;
                 }
                 return;
