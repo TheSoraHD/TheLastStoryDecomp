@@ -2,6 +2,7 @@
 #define GAME_LASTCOCOONQUADRUPED_H
 
 #include "game/EnemyTask.h"
+#include "atn/EfpHandle_unk.h"
 
 // inferred from __vt__19LastCocoonQuadruped (0x8078FBC0): quadruped form of the last cocoon; the enemy
 // factory (fn_805A5374) allocates 0x18F8 bytes. Members keep their offsets (names unknown).
@@ -13,9 +14,11 @@ public:
     virtual atn::Vector3 vf64(int center);                       // 0x80460EF0
     virtual float vf90();                                        // 0x80468D40
     virtual int vfE4();                                          // 0x80468D18
+    void fn_804654F0(); // inferred: back to mode 0 at the end of the motion
     void fn_80466868(); // inferred: end of the motion of mode 6 (shake at frame 3)
     void fn_80466974(); // inferred: back to mode 0
     void fn_80466AE4(); // inferred: mode 7 (motion 0x156)
+    void fn_80466B8C(); // inferred: mode 8 (motion 0x13F and the effect m1790)
     // inferred: starts a mode (names invented)
     void SetMode_unk(int mode);
 
@@ -23,7 +26,9 @@ public:
     int m14BC;
     int m14C0; // inferred: frame counter of the mode
     int m14C4; // inferred: state (7: no hit reaction)
-    unsigned char m14C8[0x1800 - 0x14C8];
+    unsigned char m14C8[0x1790 - 0x14C8];
+    atn::EfpFile m1790;
+    unsigned char m179C[0x1800 - 0x179C];
     int m1800; // inferred: an effect is attached to the motion
     unsigned char m1804[0x18F8 - 0x1804];
 };
