@@ -3540,8 +3540,11 @@ RVL_SDK/src/revolution/hbm/HBMRemoteSpk.cpp:
 	.data       start:0x80797D08 end:0x80797D38
 	.bss        start:0x807CA128 end:0x807CA130
 
-auto_03_805C3120_text.cpp:
+tp_revolution/homebuttonLib/HBMAxSound.cpp:
 	.text       start:0x805C3120 end:0x805C3C50 align:16
+	.rodata     start:0x80764160 end:0x80764198
+	.data       start:0x80797D38 end:0x80798088
+	.bss        start:0x807CA130 end:0x807CA138
 
 RVL_SDK/src/revolution/hbm/HBMCommon.cpp:
 	.text       start:0x805C3C50 end:0x805C3FE0
