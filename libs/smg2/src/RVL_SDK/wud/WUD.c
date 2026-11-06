@@ -3844,7 +3844,7 @@ WUDDevInfo* fn_80673E10(void) {
     return &_work;
 }
 
-void fn_80673E20(int index, BD_ADDR_PTR addr) {
+void WUDSetDeviceHistory(int index, BD_ADDR_PTR addr) {
     if (addr == NULL) {
         memset(&_scArray.info[index + 10], 0, sizeof(SCBtDeviceInfoSingle));
     } else {
@@ -3854,7 +3854,7 @@ void fn_80673E20(int index, BD_ADDR_PTR addr) {
     _scFlush = TRUE;
 }
 
-BOOL fn_80673EA0(int index, BD_ADDR_PTR addr) {
+BOOL WUDIsLatestDevice(int index, BD_ADDR_PTR addr) {
     if (addr == NULL) {
         return FALSE;
     }
@@ -3862,7 +3862,7 @@ BOOL fn_80673EA0(int index, BD_ADDR_PTR addr) {
     return memcmp(_scArray.info[index + 10].bd_addr, addr, BD_ADDR_LEN) == 0;
 }
 
-void fn_80673F00(void) {
+void WUDUpdateSCSetting(void) {
     if (_scFlush) {
         if (SCSetBtDeviceInfoArray(&_scArray)) {
             SCFlushAsync(NULL);

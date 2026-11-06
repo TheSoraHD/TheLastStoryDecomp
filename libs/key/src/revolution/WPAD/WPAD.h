@@ -124,6 +124,7 @@ enum WPADDeviceType_et
 	WPAD_DEV_BULK_6				= 26,
 	WPAD_DEV_BULK_7				= 27,
 	WPAD_DEV_BULK_8				= 28,
+	WPAD_DEV_UNK29				= 29,	// inferred: 2010 SDK (TLS), see __wpadGetExtType
 
 	WPAD_DEV_MPLS_PT_UNKNOWN	= 250,
 
@@ -163,6 +164,7 @@ enum WPADDataFormat_et
 	WPAD_FMT_TAIKO					= 17,	/* name known from asserts */
 	WPAD_FMT_TURNTABLE				= 18,	/* name known from asserts */
 	WPAD_FMT_BULK					= 19,	/* name known from asserts */
+	WPAD_FMT_UNK20					= 20,	// inferred: 2010 SDK (TLS), see __wpadFmt2Size
 };
 
 typedef s32 WPADDeviceMode;
@@ -572,6 +574,24 @@ typedef struct WPADVSStatus
 	// 1 byte padding (alignment? probably)
 } WPADVSStatus; // size 0x46 (see __wpadFmt2Size)
 
+// inferred: 2010 SDK (TLS) extension of device type 29 / format 20; layout from the
+// stores in __parse_ext_data (8066C6E8) and the size in __wpadFmt2Size (8065D424)
+typedef struct WPADUnk29Status
+{
+	WPADButton	button;						// size 0x02, offset 0x00
+	s16			accX;						// size 0x02, offset 0x02
+	s16			accY;						// size 0x02, offset 0x04
+	s16			accZ;						// size 0x02, offset 0x06
+	DPDObject	obj[WPAD_MAX_DPD_OBJECTS];	// size 0x20, offset 0x08
+	u8			dev;						// size 0x01, offset 0x28
+	s8			err;						// size 0x01, offset 0x29
+
+	u16			at_0x2a;	// size 0x02, offset 0x2a
+	u16			at_0x2c;	// size 0x02, offset 0x2c
+	u16			at_0x2e;	// size 0x02, offset 0x2e
+	u16			at_0x30;	// size 0x02, offset 0x30
+} WPADUnk29Status; // size 0x32
+
 typedef struct WPADAccGravityUnit
 {
 	// probably maybe
@@ -591,6 +611,7 @@ BOOL WPADIsEnabledDRM(void);
 BOOL WPADIsEnabledTKO(void);
 BOOL WPADIsEnabledTBL(void);
 BOOL WPADIsEnabledBLK(void);
+BOOL fn_8065CEC0(void); // inferred: 2010 SDK, WPADIsEnabled* of WPAD_DEV_UNK29
 
 // Likely overridden by a WBC-specific library
 __attribute__((weak)) WPADResult WBCSetupCalibration(void);

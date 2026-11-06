@@ -302,7 +302,6 @@ static void __wpadGetMpConfig(WPADChannel chan, byte_t *config,
 static void __wpadGetExtConfig(WPADChannel chan, WPADResult result);
 static void __wpadGetExtConfig2(WPADChannel chan, WPADResult result);
 static BOOL __wpadIsExtEncryptMain(u8 type);
-BOOL fn_8065CEC0(void); // inferred: WPADIsEnabled* of the 2010 extension (WPAD.c)
 static void __wpadGetExtType(WPADChannel chan, WPADResult result);
 static void __wpadGetExtType2(WPADChannel chan, WPADResult result);
 static void __wpadGetGameInfo(WPADChannel chan, WPADResult result, u8);
@@ -1045,7 +1044,7 @@ static void __wpadGetExtType(WPADChannel chan, WPADResult result)
 
 			case 18: // inferred: extension added in the 2010 SDK (device type 0x1d)
 				_wpadDevType[chan] =
-					fn_8065CEC0() ? 29 : WPAD_DEV_251;
+					fn_8065CEC0() ? WPAD_DEV_UNK29 : WPAD_DEV_251;
 				break;
 
 			case 3:
@@ -1425,7 +1424,7 @@ static void __wpadCheckDataFormat(u8 chan, u8 rep_id, void *data)
 		&& (p_wpd->dataFormat == WPAD_FMT_FS_BTN_ACC
 		|| p_wpd->dataFormat == WPAD_FMT_CLASSIC_BTN_ACC
 		|| p_wpd->dataFormat == WPAD_FMT_VSM
-		|| p_wpd->dataFormat == 20 /* inferred: TLS 2010 SDK has a format 20 (cmplwi 0x14 @ 80669FD8) */
+		|| p_wpd->dataFormat == WPAD_FMT_UNK20
 		|| p_wpd->dataFormat == WPAD_FMT_BULK))
 	|| (rep_id == RPTID_DATA_BTN_ACC_DPD10_EXT9
 		&& (p_wpd->dataFormat == WPAD_FMT_FS_BTN_ACC_DPD
@@ -2102,23 +2101,6 @@ static void __parse_tr_data(WPADChannel chan __attribute__((unused)),
 	trStatus[0]->trButton = MAKE_TR_BUTTON(data[6], data[7]);
 }
 
-// inferred: extension added in the 2010 SDK (device type 29, see __wpadGetExtType);
-// layout deduced from the stores in __parse_ext_data (8066C6E8)
-typedef struct WPADUnk29Status
-{
-	WPADButton	button;						// size 0x02, offset 0x00
-	s16			accX;						// size 0x02, offset 0x02
-	s16			accY;						// size 0x02, offset 0x04
-	s16			accZ;						// size 0x02, offset 0x06
-	DPDObject	obj[WPAD_MAX_DPD_OBJECTS];	// size 0x20, offset 0x08
-	u8			dev;						// size 0x01, offset 0x28
-	s8			err;						// size 0x01, offset 0x29
-
-	s16			at_0x2a;	// size 0x02, offset 0x2a
-	s16			at_0x2c;	// size 0x02, offset 0x2c
-	s16			at_0x2e;	// size 0x02, offset 0x2e
-} WPADUnk29Status;
-
 static void __parse_unk29_data(WPADChannel chan __attribute__((unused)),
                                WPADUnk29Status **status,
                                u8 format __attribute__((unused)), byte_t *data,
@@ -2613,7 +2595,7 @@ static void __parse_ext_data(WPADChannel chan, void *parseBuf,
 			__parse_tr_data(chan, (WPADTRStatus **)&parseBuf, p_wpd->devMode,
 			                p_wpd->extDataBuf, p_wpd->extDataLength);
 		}
-		else if (p_wpd->devType == 29)
+		else if (p_wpd->devType == WPAD_DEV_UNK29)
 		{
 			__parse_unk29_data(chan, (WPADUnk29Status **)&parseBuf,
 			                   p_wpd->devMode, p_wpd->extDataBuf,

@@ -55,10 +55,10 @@ void SCGetBtDeviceInfoArray(SCBtDeviceInfoArray* info);
 void SCSetBtDeviceInfoArray(const SCBtDeviceInfoArray* info);
 u32 SCGetBtDpdSensibility(void);
 u8 SCGetWpadMotorMode(void);
-void SCSetWpadMotorMode(u8 mode);
+BOOL SCSetWpadMotorMode(u8 mode);
 u8 SCGetWpadSensorBarPosition(void);
 u8 SCGetWpadSpeakerVolume(void);
-void SCSetWpadSpeakerVolume(u8 vol);
+BOOL SCSetWpadSpeakerVolume(u8 vol);
 
 #ifdef __cplusplus
 }
