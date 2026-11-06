@@ -133,64 +133,49 @@ s32 fn_8065CF10(void) { return -1; }
 s32 fn_8065CF20(void) { return -1; }
 
 BOOL OnShutdown(BOOL final, u32 event) {
-#pragma unused(event)
-
     s32 status;
-    BOOL ret;
+    BOOL shutdown;
 
-    ret = FALSE;
     status = WUDGetStatus();
 
-    if (final == FALSE) {
-        if (status == 3) {
-            if (WUDIsBusy()) {
-                WUDCancelSyncDevice();
-                ret = FALSE;
-            } else {
-                switch (event) {
-                case 0:
-                    DEBUGPrint("Deregister allocators because of fatal error.\n");
-                    WPADRegisterAllocator(noAlloc, noFree);
-
-                case 2:
-                case 3:
-                    __WPADShutdown();
-                    ret = FALSE;
-                    break;
-                case 5:
-                    if (__OSIsReturnToIdle) {
-                        __WPADShutdown();
-                    } else {
-                        __WPADReconnect(TRUE);
-                    }
-                    ret = FALSE;
-                    break;
-                case 1:
-                case 4:
-                    __WPADReconnect(TRUE);
-                    ret = FALSE;
-                    break;
-                case 6:
-                    __WPADReconnect(TRUE);
-                    ret = FALSE;
-                    break;
-                default:
-                    break;
-                }
-            }
-        } else if (status == 5) {
-            WPADStopSimpleSync();
-            ret = FALSE;
-        } else if ((status == 4) || (1 == status) || (2 == status)) {
-            ret = FALSE;
-        } else if (status == 0) {
-            ret = TRUE;
-        }
-    } else {
-        ret = TRUE;
+    if (final || status == 0) {
+        return TRUE;
     }
 
-    return ret;
+    if (status == 4 || status == 1 || status == 2) {
+        return FALSE;
+    }
+
+    if (WUDIsBusy()) {
+        WUDCancelSyncDevice();
+        return FALSE;
+    }
+
+    switch (event) {
+    case 0:
+        DEBUGPrint("Deregister allocators because of fatal error.\n");
+        WPADRegisterAllocator(noAlloc, noFree);
+    case 2:
+    case 3:
+        shutdown = TRUE;
+        break;
+    case 1:
+    case 4:
+    case 6:
+        shutdown = FALSE;
+        break;
+    case 5:
+        shutdown = __OSIsReturnToIdle ? TRUE : FALSE;
+        break;
+    }
+
+    if (shutdown) {
+        __WPADShutdown();
+    } else {
+        __WPADReconnect(TRUE);
+    }
+
+    return FALSE;
 }
 
 // inferred: callback of WPADGetInfo (version 2010)
@@ -212,46 +197,81 @@ s32 WPADiGetStatus(s32 chan) {
 }
 
 s32 WPADiSendData(s32 chan, WPADCommand cmd) {
-    WPADControlBlock* p_wpd = _wpdcb[chan];
-    s32 status;
     BOOL enable;
-    BOOL getStat;
-    int t;
+    BOOL motor;
+    BT_HDR* p_buf;
+    u8* ptr;
+    s8 handle;
+    s32 status;
+    WPADControlBlock* p_wpd = _wpdcb[chan];
+    u8 rep_id = (u8)cmd.command;
+    u8* p_data = cmd.data;
+    u16 len = cmd.len;
 
-    status = WPADiGetStatus(chan);
-
-    if (status == WPAD_ERR_NONE) {
-        enable = OSDisableInterrupts();
-        getStat = p_wpd->getStatFlag;
+    enable = OSDisableInterrupts();
+    handle = p_wpd->dev_handle;
+    status = p_wpd->status;
+    if (handle < 0) {
         OSRestoreInterrupts(enable);
+        return WPAD_ERR_INVALID;
+    }
+    p_wpd->status = WPAD_ERR_BUSY;
+    motor = p_wpd->motor & _rumble;
 
-        if (getStat) {
-            status = WPAD_ERR_BUSY;
-        } else {
-            __SendData(chan, cmd);
+    if (rep_id == WPAD_HIDREP_VIBRATOR) {
+        p_wpd->status = status;
+    } else if (rep_id == WPAD_HIDREP_STRM) {
+        p_wpd->status = status;
+        p_wpd->audioFrames--;
+    } else {
+        switch (rep_id) {
+        case WPAD_HIDREP_WRDATA:
+            break;
+
+        case WPAD_HIDREP_RDDATA:
+            p_wpd->readError = 0;
+            p_wpd->readBaseAddr = cmd.readAddr;
+            p_wpd->readLength = cmd.readLen;
+            p_wpd->readBufPtr = cmd.readBuf;
+            break;
+
+        case WPAD_HIDREP_GETSTAT:
+            p_wpd->status = status;
+            p_wpd->infoBuf = cmd.info;
+            p_wpd->getStatFlag = 1;
+            break;
+
+        default:
+            p_data[0] |= 2;
+            break;
         }
-    } else if (status != WPAD_ERR_BUSY) {
-        if (status == WPAD_ERR_TRANSFER) {
-            enable = OSDisableInterrupts();
-            p_wpd->status = WPAD_ERR_NONE;
-            OSRestoreInterrupts(enable);
-        }
+
+        p_wpd->resultCallback = cmd.callback;
+        p_wpd->cmdId = rep_id;
+        p_wpd->cmdTimer = OSSecondsToTicks(2) + __OSGetSystemTime();
+        p_wpd->cmdTimeoutAction = 0;
+    }
+    OSRestoreInterrupts(enable);
+
+    DEBUGPrint("handle = %d, repid = %02x\n", handle, rep_id);
+
+    p_buf = GKI_getbuf((u8)(10 + len + sizeof(BT_HDR)));
+    p_buf->len = (u8)(len + 1);
+    p_buf->offset = 10;
+    ptr = (u8*)(p_buf + 1) + p_buf->offset;
+
+    ptr[0] = rep_id;
+
+    memcpy(ptr + 1, p_data, len);
+
+    if (motor) {
+        ptr[1] |= 1;
+    } else {
+        ptr[1] &= ~1;
     }
 
-    if (status == WPAD_ERR_BUSY) {
-        t = (int)OSTicksToSeconds(__OSGetSystemTime() - p_wpd->cmdTimer);
-        if (t > 1 && _sleepTime > 0) {
-            if (p_wpd->cmdTimeoutAction == 0) {
-                p_wpd->cmdTimer = __OSGetSystemTime();
-                WPADiDisconnect(chan, FALSE);
-            } else {
-                enable = OSDisableInterrupts();
-                p_wpd->status = WPAD_ERR_TRANSFER;
-                OSRestoreInterrupts(enable);
-            }
-        }
-    }
-    return status;
+    BTA_HhSendData((u8)handle, p_buf);
+    return WPAD_ERR_NONE;
 }
 
 void WPADiRadioSensitivity(s32 chan) {
@@ -2559,8 +2579,8 @@ void __WPADShutdown() {
     _shutdown = 1;
     WUDSetVisibility(0, 0);
 
-    for (i = 10; i < 14; i++) {
-        memset(&_scArray.info[i], 0, sizeof(SCBtDeviceInfoSingle));
+    for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+        fn_80673E20(i, NULL);
     }
 
     WPADiShutdown(FALSE);
