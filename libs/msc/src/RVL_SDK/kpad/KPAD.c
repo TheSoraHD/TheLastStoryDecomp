@@ -1666,15 +1666,15 @@ void read_kpad_ext(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
     }
 }
 
-// TLS (2010): Motion Plus result callback (registered from KPADiRead); fills the read buffers backwards
-// NONMATCHING: 61% - the original copies the 0x3C bytes in 8-byte pairs (lwz 4/lwz 0), MWCC here copies word by word
-static void fn_80657230(KPADChannel chan, const KPADMPStatus* mp)
+// TLS (2010): Motion Plus result callback (registered from KPADiRead); fills the read buffers backwards.
+// The status is passed by value (the 0x3C-byte copy from a parameter is done in 8-byte pairs).
+static void fn_80657230(KPADChannel chan, KPADMPStatus mp)
 {
     KPADInsideStatus* kp = &inside_kpads[chan];
     if (kp->mplsBuf)
     {
         kp->mplsBuf--;
-        kp->mplsBuf->mpls = *mp;
+        kp->mplsBuf->mpls = mp;
     }
 }
 
@@ -1695,7 +1695,7 @@ WPADResult WPADiControlMpls(WPADChannel chan, u8 command, WPADCallback callback)
 // TLS (2010): Motion Plus part of KPAD (KPADMpls_unk.c)
 BOOL fn_80658F30(void);
 void fn_8065AA50(KPADChannel chan, KPADUnifiedWpadStatus* uniRingBuf, KPADUnifiedWpadStatus* exRingBuf, u32 exBufLen);
-void fn_8065AEB0(void (*callback)(KPADChannel chan, const KPADMPStatus* mp));
+void fn_8065AEB0(void (*callback)(KPADChannel chan, KPADMPStatus mp));
 void fn_8065AA80(KPADChannel chan, KPADMPStatus* mp, s32 idx, s32 count, KPADStatus* sp, f64 interval);
 
 // TLS (2010): classic-style buttons of the later devices (6 and 7 when their extension is active)
