@@ -5,6 +5,7 @@
 #include "game/Inventory.h"
 #include "game/MenuCommonTask.h"
 #include "game/MarketTask.h"
+#include "atn/Csv.h"
 #include "math/Vec.h"
 #include "std/new.h"
 
@@ -21,8 +22,9 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" void fn_804A436C(int* cursor, int count, int page, int step, int arg); // inferred: moves a cursor
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
-extern "C" void* lbl_8087F430;           // inferred: field
-extern "C" void fn_8036E89C(void* field); // inferred: called when a shop closes
+struct ShopField_unk;
+extern "C" ShopField_unk* lbl_8087F430;           // inferred: field
+extern "C" void fn_8036E89C(ShopField_unk* field); // inferred: called when a shop closes
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" int fn_804444E8(Inventory* inv, int id);           // inferred: number of items
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
@@ -109,20 +111,42 @@ struct ShopItem_unk {
 };
 extern "C" ShopItem_unk* fn_80211480(int id);
 // inferred: weapon data (fn_80206C50)
+// inferred: skill slot of a weapon or an armour (0x14 bytes)
+struct ShopSkill_unk {
+    unsigned char m00[0x14];
+};
+// inferred: parameters shared by weapons and armours (the first four floats)
+struct ShopParams_unk {
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+};
 struct ShopWeapon_unk {
-    unsigned char m00[0x88];
+    ShopParams_unk mParams; // 0x00
+    unsigned char m10[0x88 - 0x10];
     const wchar_t* mHelp; // 0x88
     unsigned char m8C[0xB8 - 0x8C];
     int mKind; // 0xB8
-    unsigned char mBC[0x124 - 0xBC];
+    unsigned char mBC[0xC4 - 0xBC];
+    ShopSkill_unk mSkills[2]; // 0xC4
+    unsigned char mEC[0x124 - 0xEC];
     int mPrice; // 0x124
 };
 extern "C" int fn_80206B9C(int id); // inferred: nonzero for a weapon
 // inferred: armour data (fn_8020EFEC)
 struct ShopArmor_unk {
-    unsigned char m00[0x84];
+    ShopParams_unk mParams; // 0x00
+    unsigned char m10[0x7C - 0x10];
+    int m7C;
+    unsigned char m80[0x84 - 0x80];
     const wchar_t* mHelp; // 0x84
+    unsigned char m88[0xE4 - 0x88];
+    ShopSkill_unk mSkills[2]; // 0xE4
 };
+extern "C" int fn_8020EF4C(ShopArmor_unk* armor); // inferred: the armour has a bonus part
+extern "C" ShopParams_unk* fn_8020ED84(int slot, int item); // inferred: armour data
+extern "C" int fn_8021C6A4(wchar_t* out, const ShopSkill_unk* skill); // inferred: name of a skill
 extern "C" int fn_8020EF04(int id); // inferred: nonzero for an armour
 extern "C" ShopArmor_unk* fn_8020EFEC(int id);
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id); // inferred: help text
@@ -141,6 +165,19 @@ struct ShopEntryLess_unk {
 };
 // inferred: std::sort of the list (template code of this file, 0x80582598-0x80584750; not reconstructed)
 extern "C" void fn_80582598(ShopEntry5C_unk* first, ShopEntry5C_unk* last, ShopEntryLess_unk comp);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" int atoi(const char* s);
+extern "C" int fn_800DC12C(const char* s);    // inferred: string to int (item codes too)
+extern "C" double fn_800DC288(const char* s); // inferred: string to float
+extern "C" void* lbl_8087EEC8;                // inferred: font
+extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
+// inferred: field (lbl_8087F430): chapter at 0x10D0
+struct ShopField_unk {
+    unsigned char m0000[0x10D0];
+    int mChapter; // 0x10D0
+};
+extern "C" int fn_80370174(ShopField_unk* field, int index); // inferred: event flag
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
@@ -606,6 +643,13 @@ void ShopBase::fn_80580DE0() {
     }
 }
 
+// inferred: parameter rows of the skill window: message ids and the parameter shown in each row
+static const struct {
+    int mMessages[5];
+    int mWeapon[3];
+    int mArmor[3];
+} sParamRows = {{0x191, 0x192, 0x195, 0x194, 0x193}, {0, 4, 2}, {1, 3, 2}};
+
 void ShopBase::fn_80581008(int id) {
     if (MarketTask::sInstance->fn_804A24C4(id)) {
         m90->MeltTask();
@@ -630,6 +674,76 @@ void ShopBase::fn_80581008(int id) {
         }
         ((atn::D2A_Task*)m90)->SetNumber_unk("average", average, 0);
         ((atn::D2A_Task*)m90)->SetNumber_unk("profit", profit, 0);
+    }
+}
+
+// NONMATCHING: the original loads the address of sParamRows at the entry (kept in r31 for the whole
+// function); every register after it is shifted
+void ShopBase::fn_805811DC(int id) {
+    if (fn_80211480(id) == 0) {
+        return;
+    }
+    if (fn_8020EFEC(id) == 0 && fn_80206C50(id) == 0) {
+        return;
+    }
+    m94->MeltTask();
+    ShopPoint_unk pos;
+    for (int i = 0; i < 2; i++) {
+        char name[0x40];
+        sprintf(name, "skill_point%d", i + 1);
+        pos = GetPanePos_unk(m94, name);
+        fn_801F6E78(m98[i], "basePos", &pos);
+    }
+    ShopArmor_unk* armor = fn_8020EFEC(id);
+    ShopWeapon_unk* weapon = fn_80206C50(id);
+    for (int i = 0; i < 2; i++) {
+        const ShopSkill_unk* skill = 0;
+        if (armor != 0) {
+            skill = &armor->mSkills[i];
+        } else if (weapon != 0) {
+            skill = &weapon->mSkills[i];
+        }
+        wchar_t text[0x100];
+        if (skill != 0 && fn_8021C6A4(text, skill)) {
+            m98[i]->MeltTask();
+            fn_801F837C(m98[i], "skillName", text);
+        }
+    }
+    ShopParams_unk* params;
+    ShopParams_unk* bonus = 0;
+    int isWeapon;
+    if (armor != 0) {
+        params = &armor->mParams;
+        if (fn_8020EF4C(armor)) {
+            bonus = fn_8020ED84(1, armor->m7C);
+        }
+        isWeapon = 0;
+    } else {
+        params = &weapon->mParams;
+        isWeapon = 1;
+    }
+    int values[5];
+    memset(values, 0, sizeof(values));
+    if (params != 0) {
+        values[0] = params->m00;
+        values[1] = params->m08;
+        values[2] = 0;
+        values[3] = params->m0C;
+        values[4] = params->m04;
+    }
+    if (bonus != 0) {
+        values[0] += (int)bonus->m00;
+        values[1] += (int)bonus->m08;
+        values[3] += (int)bonus->m0C;
+        values[4] += (int)bonus->m04;
+    }
+    for (int i = 0; i < 3; i++) {
+        int row = isWeapon ? sParamRows.mWeapon[i] : sParamRows.mArmor[i];
+        char name[0x40];
+        sprintf(name, "param%02d", i);
+        SetPaneText_unk(m94->mLayout, name, fn_80116FC0(0, sParamRows.mMessages[row]));
+        sprintf(name, "param%02d_before", i);
+        ((atn::D2A_Task*)m94)->SetNumber_unk(name, values[row], 0);
     }
 }
 
@@ -737,6 +851,85 @@ void ShopBase::fn_80581964(int show, int message, int arg) {
 }
 
 // NONMATCHING: id/item registers of the second loop swapped (the first one is fixed by declaring item first)
+// inferred: price of `num` items at the rate `rate` (inlined in vf38)
+inline int GetPrice_unk(ShopItem_unk* item, int num, float rate) {
+    if (item == 0) {
+        return 0;
+    }
+    if (item->mKind == 9 && MarketTask::sInstance != 0) {
+        return rate * (num * MarketTask::sInstance->fn_804A251C(item->mCountId));
+    }
+    return rate * (item->mPrice * num);
+}
+
+// NONMATCHING: the original stores the double returned by fn_800DC288 (stfs f1) and compares the rounded
+// copy; here the rounded copy is stored
+void ShopBase::vf38(const char* data, int size) {
+    atn::Csv csv;
+    ShopEntry64_unk entry;
+    if (MarketTask::sInstance != 0) {
+        MarketTask::sInstance->fn_804A26DC();
+    }
+    mF8 = 0;
+    int chapter = 0;
+    if (lbl_8087F430 != 0) {
+        chapter = lbl_8087F430->mChapter;
+    }
+    if (m25B4C == 0) {
+        m25B4C = chapter;
+    }
+    csv.SetData(data, size);
+    do {
+        const char* token = csv.fn_8005B9CC();
+        if (strncmp(token, ";", 1) == 0) {
+        } else if (strcmp(token, "shopTitle") == 0) {
+            mTitle = atoi(csv.fn_8005B9CC());
+        } else if (strcmp(token, "shopName") == 0) {
+            mName = atoi(csv.fn_8005B9CC());
+        } else if (*token == 0) {
+            entry.Reset_unk();
+            entry.m00 = fn_800DC12C(csv.fn_8005B9CC());
+            ShopItem_unk* item = fn_80211480(entry.m00);
+            if (item == 0 || !fn_8011728C(m25B00, item)) {
+                continue;
+            }
+            entry.m48 = fn_800DC288(csv.fn_8005B9CC());
+            if (entry.m48 <= 0.0f) {
+                entry.m48 = 1.0f;
+            }
+            int from = fn_800DC12C(csv.fn_8005B9CC());
+            int fromFlag = fn_800DC12C(csv.fn_8005B9CC());
+            if (from != 0 && m25B4C < from && m25B54 == 0) {
+                continue;
+            }
+            if (fromFlag != 0 && !fn_80370174(lbl_8087F430, fromFlag) && m25B58 == 0) {
+                continue;
+            }
+            int to = fn_800DC12C(csv.fn_8005B9CC());
+            int toFlag = fn_800DC12C(csv.fn_8005B9CC());
+            if (to != 0 && m25B4C >= to && m25B54 == 0 && (toFlag == 0 || fn_80370174(lbl_8087F430, toFlag)) &&
+                m25B58 == 0) {
+                continue;
+            }
+            entry.m54 = fn_800DC12C(csv.fn_8005B9CC()) == 0;
+            entry.m58 = fn_800DC12C(csv.fn_8005B9CC());
+            if (entry.m58 <= 0) {
+                entry.m58 = 1;
+            }
+            void* font = lbl_8087EEC8;
+            fn_8006F2F0(font, entry.m08, csv.fn_8005B9CC(), 0x20);
+            int price = fn_800DC12C(csv.fn_8005B9CC());
+            if (price > 0) {
+                entry.m04 = entry.m48 * (price * entry.m58);
+            } else {
+                entry.m04 = GetPrice_unk(item, entry.m58, entry.m48);
+            }
+            new (&mEntries64[mF8]) ShopEntry64_unk(entry);
+            mF8++;
+        }
+    } while (csv.fn_8005BBF8());
+}
+
 void ShopBase::fn_80581FD8() {
     ShopEntry5C_unk entry;
     float b = mKind == 4 ? 2.0f : 1.0f;

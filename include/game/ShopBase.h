@@ -41,6 +41,10 @@ struct ShopLayout_unk : public atn::Task {
 struct ShopEntry64_unk {
     ShopEntry64_unk() : m00(0), m04(0) {
         memset(m08, 0, sizeof(m08));
+        Reset_unk();
+    }
+    // inferred: also done for every line of the shop table (vf38)
+    void Reset_unk() {
         m48 = 1.0f;
         m4C = 0;
         m50 = 100;
