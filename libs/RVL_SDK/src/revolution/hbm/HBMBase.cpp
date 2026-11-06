@@ -2798,10 +2798,9 @@ bool HomeButton::isDownBarActive() {
     return flag;
 }
 
-// NONMATCHING: 99.2% - regalloc r28/r29
 int HomeButton::getPaneNo(const nw4hbm::lyt::Pane* pPane) {
-    const char* pName = pPane->GetName();
     int ret = -1;
+    const char* pName = pPane->GetName();
 
     for (int i = 0; i < mButtonNum; i++) {
         if (std::strcmp(pName, getPaneName(i)) == 0) {
@@ -2859,12 +2858,11 @@ void HomeButton::setForcusSE() {
     mForcusSEWaitTime = 0;
 }
 
-// NONMATCHING: 99.66% - regalloc
 void HomeButton::setAdjustFlag(int flag) {
     nw4hbm::math::VEC2 scale;
 
-    mDrawInfo.SetLocationAdjust(flag);
     mAdjustFlag = static_cast<bool>(flag);
+    mDrawInfo.SetLocationAdjust(mAdjustFlag);
 
     if (mAdjustFlag) {
         scale = nw4hbm::math::VEC2(mpHBInfo->adjust.x, mpHBInfo->adjust.y);
