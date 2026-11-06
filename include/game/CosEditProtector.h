@@ -3,6 +3,7 @@
 
 #include "game/CosEditBase.h"
 #include "atn/FixedArray.h"
+#include "std/vector.h"
 
 class CharaStatus;
 namespace atn {
@@ -11,6 +12,7 @@ struct D2ATask_unk;
 
 // inferred: cell of the palette and part grids (0x10 bytes); names invented
 struct CosEditCell_unk {
+    CosEditCell_unk() : mIcon(0), mFrame(0), mId(0), mEnabled(0) {}
     atn::D3AnimeInstance* mIcon;  // 0x00
     atn::D3AnimeInstance* mFrame; // 0x04
     int mId;                      // 0x08: inferred: palette or part id
@@ -35,6 +37,8 @@ struct CosEditSet_unk {
 // names invented.
 class CosEditProtector : public CosEditBase {
 public:
+    static CosEditProtector* fn_801CFD68(atn::Task* parent); // inferred: creates the menu
+    CosEditProtector(atn::Task* parent); // 0x801CFDCC
     virtual ~CosEditProtector(); // 0x801D09C0
     virtual void vf1C(NewCampScene_unk* scene); // 0x801D0C10
     virtual void vf24();         // 0x801D1324
@@ -46,6 +50,10 @@ public:
     virtual int vf4C();          // 0x801D0B3C
     virtual void vf64();         // 0x801D19F0
     virtual void vf6C();         // 0x801D52F8
+    virtual void vf74(int a, int b); // 0x801D5410
+
+    int fn_801D0BAC(); // inferred: busy (loading, or state 13)
+    int fn_801D5420(int a, int b); // inferred: (called by game/CosEditItemList_unk.cpp)
 
     void fn_801D3DF4();                                         // game/CosEditProtector.cpp
     void fn_801D4E74(int member, atn::D2ATask_unk* task, int mode); // game/CosEditProtector.cpp
@@ -88,18 +96,46 @@ public:
         return 0;
     }
 
-    unsigned char mACC[0xB94 - 0xACC];
+    atn::D3Anime* mSelect;        // 0xACC: equip_select.d2a
+    atn::D3Anime* mListParts;     // 0xAD0: protector_list_parts.d2a
+    atn::D3Anime* mListBase;      // 0xAD4: protector_list_base.d2a
+    atn::D3Anime* mColorSelect;   // 0xAD8: equip_color_select.d2a
+    atn::D3Anime* mColorPalette;  // 0xADC: equip_color_palette.d2a
+    atn::D3Anime* mEffectPalette; // 0xAE0: equip_effect_palette.d2a
+    atn::D3Anime* mStatusUp[5];   // 0xAE4: weapon_status_up_loop.d2a
+    atn::D3Anime* mStatusDown[5]; // 0xAF8: weapon_status_down_loop.d2a
+    atn::D3Anime* mEquipStatus;   // 0xB0C: equip_status.d2a
+    atn::D3Anime* mCampStatus;    // 0xB10: camp_status.d2a
+    int mB14;
+    atn::D3Anime* mSortBase;      // 0xB18: camp_sort.d2a
+    atn::D2ATask_unk* mCharaSelect;  // 0xB1C: camp_chara_select.d2a
+    atn::D2ATask_unk* mCharaSelect2; // 0xB20: camp_chara_select2.d2a
+    atn::D3Anime* mBest;          // 0xB24: equip_best.d2a
+    float mB28;
+    atn::D2ATask_unk* mBestTask;  // 0xB2C: equip_best.d2a
+    atn::D2ATask_unk* mNaked;     // 0xB30: equip_naked.d2a
+    std::vector<int> mB34[2];
+    std::vector<int> mB4C;
+    std::vector<int> mB58;
+    unsigned char mB64[0xB7C - 0xB64];
+    int mB7C;
+    int mB80;
+    atn::D2ATask_unk* mSort;      // 0xB84: camp_sort.d2a
+    atn::Task* mB88;              // inferred: deleted by vf28 (fn_800D2338)
+    unsigned char mB8C[0xB90 - 0xB8C];
+    atn::D3Anime* mIconCursor;                // 0xB90: equip_color_icon_cursor.d2a
     atn::D3AnimeInstance* mPalettes[9];       // 0xB94: inferred: palette marks (the last one is the cursor)
-    unsigned char mBB8[0xCF8 - 0xBB8];
+    atn::D3AnimeInstance* mBB8[10][8];        // 0xBB8: equip_color_icon.d2a
     CosEditCell_unk mColorCells[8][8];        // 0xCF8
     CosEditCell_unk mPartCells[8][4];         // 0x10F8
     atn::D3AnimeInstance* mColorMarks[32];    // 0x12F8: inferred: mark of the colour in use
     atn::D3AnimeInstance* m1378;              // 0x1378: inferred: lock mark
     atn::FixedArray_unk<CosEditPart_unk, 128> mPartLists[2]; // 0x137C
-    unsigned char m1B84[0x1B90 - 0x1B84];
+    atn::Vector3 m1B84;
     int m1B90; // 0x1B90: inferred: a confirmation dialog is open
     int m1B94; // inferred: a message must be shown
-    unsigned char m1B98[0x1BA0 - 0x1B98];
+    int m1B98;
+    int m1B9C;
     int m1BA0; // inferred: cursor of the top page
     int m1BA4; // inferred: cursor of the costume sets
     int m1BA8; // inferred: cursor of the saved sets
@@ -107,12 +143,20 @@ public:
     int m1BB0; // inferred: 1: saved sets, 0: built-in sets
     int m1BB4; // inferred: cursor of the part options
     int m1BB8; // inferred: cursor of the colour slot
-    unsigned char m1BBC[0x1BC0 - 0x1BBC];
+    int m1BBC;
     int m1BC0; // inferred: weapons shown (0..3)
-    unsigned char m1BC4[0x1BD0 - 0x1BC4];
+    unsigned char m1BC4[0x1BC8 - 0x1BC4];
+    int m1BC8;
+    int m1BCC;
     int mSetCount;                // 0x1BD0: inferred: saved costume sets
-    CosEditSet_unk mSets[26];     // 0x1BD4
-    unsigned char m1CA4[0x1CA8 - 0x1CA4];
+    CosEditSet_unk mSets[7];      // 0x1BD4
+    atn::FixedArray_unk<CosEditSet_unk, 4> m1C0C;
+    atn::FixedArray_unk<CosEditSet_unk, 4> m1C30;
+    atn::FixedArray_unk<CosEditSet_unk, 4> m1C54;
+    std::vector<int> m1C78;
+    std::vector<int> m1C84;
+    std::vector<int> m1C90;
+    std::vector<int> m1C9C;
 };
 
 #endif
