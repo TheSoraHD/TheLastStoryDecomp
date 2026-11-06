@@ -219,6 +219,71 @@ HomeButton::HomeButton(const HBMDataInfo* pDataInfo)
     */
 }
 
+HomeButton::~HomeButton() {
+    int i;
+
+    mpResAccessor->~ArcResourceAccessor();
+    HBMFreeMem(mpResAccessor);
+
+    mpLayout->~Layout();
+    HBMFreeMem(mpLayout);
+
+    if (!mpHBInfo->cursor) {
+        for (i = 0; i < res::eCursorLyt_Max; i++) {
+            mpCursorLayout[i]->~Layout();
+            HBMFreeMem(mpCursorLayout[i]);
+        }
+    }
+
+    for (i = 0; i < mAnmNum; i++) {
+        mpAnmController[i]->~GroupAnmController();
+        HBMFreeMem(mpAnmController[i]);
+    }
+
+    for (i = 0; i < res::ePairAnm_Max; i++) {
+        mpPairGroupAnmController[i]->~GroupAnmController();
+        HBMFreeMem(mpPairGroupAnmController[i]);
+    }
+
+    for (i = 0; i < res::eGrAnimator_Max; i++) {
+        mpGroupAnmController[i]->~GroupAnmController();
+        HBMFreeMem(mpGroupAnmController[i]);
+    }
+
+    mpHomeButtonEventHandler->HomeButtonEventHandler::~HomeButtonEventHandler();
+    HBMFreeMem(mpHomeButtonEventHandler);
+
+    mpPaneManager->~PaneManager();
+    HBMFreeMem(mpPaneManager);
+
+    for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+        if (mInitFlag) {
+            mpController[i]->clearCallback();
+        }
+
+        mpController[i]->~Controller();
+        HBMFreeMem(mpController[i]);
+    }
+
+    mpRemoteSpk->~RemoteSpk();
+    HBMFreeMem(mpRemoteSpk);
+    mpRemoteSpk = NULL;
+
+    if (mInitFlag) {
+        WPADSetSimpleSyncCallback(mSimpleSyncCallback);
+    }
+
+    HBMFreeMem(mpLayoutName);
+    HBMFreeMem(mpAnmName);
+
+    for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+        OSCancelAlarm(&mAlarm[i]);
+        OSCancelAlarm(&mSpeakerAlarm[i]);
+    }
+
+    OSCancelAlarm(&mSimpleSyncAlarm);
+}
+
 void HomeButton::createInstance(const HBMDataInfo* pDataInfo) {
     if (void* pMem = HBMAllocMem(sizeof(HomeButton))) {
         spHomeButtonObj = new (pMem) HomeButton(pDataInfo);
