@@ -14,6 +14,10 @@
 #include "game/MapTask.h"
 #include "game/MapPartsArea.h"
 #include "game/MapArea.h"
+#include "game/MenuCommonTask.h"
+#include "game/GameConfig_unk.h"
+#include "game/SetConfig.h"
+#include "atn/SoundManager.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
@@ -36,6 +40,10 @@ struct Xsca_unk {
 };
 extern "C" void fn_8037529C(Field_unk* field, int a, unsigned int mask, int b, int c, int d);
 
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+extern "C" GameConfig_unk* lbl_8087F0A8;
+
 static NewCampPair_unk sNullPair; // inferred: returned by fn_80530384 for a missing id
 
 // inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
@@ -43,6 +51,79 @@ static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y
     atn::Vector3 pos;
     ((Xsca_unk*)parts->m5C.fn_804786F8())->fn_805BDCBC(0)->fn_805BF410(0.0f, &pos.x, x, y, z);
     return pos;
+}
+
+void NewCampTask::vf10() {
+    if (m133C != 0) {
+        fn_8052C9C4();
+        return;
+    }
+    if ((float)__fabs(fn_800A56A8(lbl_8087EF70, 0, 4, 0)) > 2.0f && m1308 == 0) {
+        SetConfig::sInstance->mCampVariation = 1;
+        m1308 = 15;
+    }
+    if (m1308 > 0) {
+        m1308--;
+    }
+    if (m1360 != 0) {
+        fn_80530DB4();
+        m1360 = 0;
+    }
+    fn_8052D468();
+    int idle = 1;
+    MenuCommonTask* menu = MenuCommonTask::sInstance;
+    if (menu != 0 && (menu->m4C != 0 || menu->m54 != 0 || menu->m64 != 0)) {
+        idle = 0;
+    }
+    if (idle && m11F8 == 0) {
+        if (m464 != 0) {
+            ((NewCampPartsBase*)mTop)->vf3C(0);
+        }
+        switch (m464) {
+        case 0:
+            ((NewCampPartsBase*)mTop)->vf2C();
+            if (m1304 == 0 && m11F4 != 0 && m11F4 != (NewCampPartsBase*)mTop) {
+                m11F4->vf3C(0);
+            }
+            m1304 = 1;
+            break;
+        case 1:
+            ((NewCampPartsBase*)mStatus)->vf2C();
+            break;
+        case 2:
+            ((NewCampPartsBase*)mMapSelect)->vf2C();
+            break;
+        case 4:
+            ((NewCampPartsBase*)mItem)->vf2C();
+            break;
+        case 5:
+        case 7:
+            ((NewCampPartsBase*)mProtector)->vf2C();
+            break;
+        case 6:
+            ((NewCampPartsBase*)mOption)->vf2C();
+            break;
+        case 8:
+            ((NewCampPartsBase*)mHint)->vf2C();
+            break;
+        }
+    }
+    if (lbl_8087F0A8->mInput.fn_801231D0(0x10) && m11F0->vf38() && !mProtector->fn_801D0BAC() &&
+        !mTop->fn_805294E4() && mMapSelect->m1998 != 3 && mStatus->mTutorial == 0 && mHint->mTutorial == 0) {
+        fn_80530174();
+        fn_8052C9C4();
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->fn_800CFBA0(1, 0, 0x20, 30);
+            lbl_8087EFE8->fn_800CFBA0(2, 0, 0x20, 15);
+        }
+    }
+    if (lbl_8087F3C0 != 0) {
+        lbl_8087F3C0->fn_8023A614(6);
+    }
+    if (m1358 != m1354) {
+        mGmk->fn_80513020(m1354, m464);
+    }
+    m1358 = m1354;
 }
 
 void NewCampTask::vf14() {

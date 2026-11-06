@@ -43,6 +43,7 @@ public:
     void fn_8052DEEC(int state); // inferred: changes the parts of the camp (m464)
     void fn_80530174();
     void fn_80530DB4(); // inferred: refreshes the parts
+    void fn_8052D468();
     void UpdateCamera_unk();          // inferred: resets the camera and goes to the top parts
     void fn_8053032C(atn::Vector3 pos, atn::Vector3 rot); // inferred: starts a camera path
     NewCampPair_unk& fn_80530384(int id);
@@ -90,13 +91,16 @@ public:
     atn::Vector3 m12EC;
     atn::Vector3 m12F8;
     int m1304;
-    unsigned char m1308[0x133C - 0x1308];
+    int m1308; // inferred: delay before the variation of the camp can change again
+    unsigned char m130C[0x133C - 0x130C];
     int m133C; // inferred: the map select is open
     atn::SoundRef m1340;
     unsigned char m1344[0x1354 - 0x1344];
     int m1354;
     int m1358;
-    unsigned char m135C[0x1368 - 0x135C];
+    unsigned char m135C[0x1360 - 0x135C];
+    int m1360; // inferred: the parts must be refreshed (fn_80530DB4)
+    unsigned char m1364[0x1368 - 0x1364];
     float m1368;
     int m136C;          // inferred: the camera offset m1370 is used (4:3 screen)
     atn::Vector3 m1370; // inferred: "CameraOfs(Aspect4:3)"
