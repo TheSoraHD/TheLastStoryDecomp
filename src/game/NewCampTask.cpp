@@ -2,16 +2,35 @@
 #include "atn/FadeCommon.h"
 #include "atn/Model_unk.h"
 #include "atn/SoundRef.h"
+#include "game/NewCampPartsTop.h"
+#include "game/NewCampPartsStatus.h"
+#include "game/NewCampPartsMapSelect.h"
+#include "game/NewCampPartsItem.h"
+#include "game/NewCampPartsOption.h"
+#include "game/CosEditProtector.h"
+#include "game/NewCampPartsHint.h"
+#include "game/NewCampPartsGmk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 // inferred: field (lbl_8087F430); only the members used here
-struct NewCampField_unk {
+struct Field_unk {
+    void fn_803750E4(int id); // inferred: (as in gmk/RandomMerchant.cpp)
     unsigned char m0000[0x563C];
     int m563C; // inferred: reason of the next map change
 };
-extern "C" NewCampField_unk* lbl_8087F430;
-extern "C" void fn_8037529C(NewCampField_unk* field, int a, unsigned int mask, int b, int c, int d);
+extern "C" Field_unk* lbl_8087F430;
+extern "C" void* lbl_8087FA20; // inferred: town task
+// inferred: xsca camera curves (as in game/Em309Ghoul.cpp)
+struct XsfCurveSet_unk {
+    void fn_805BF410(float time, float* out, int x, int y, int z);
+    unsigned char m00[0x14];
+    float mLength; // 0x14
+};
+struct Xsca_unk {
+    XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
+};
+extern "C" void fn_8037529C(Field_unk* field, int a, unsigned int mask, int b, int c, int d);
 
 static NewCampPair_unk sNullPair; // inferred: returned by fn_80530384 for a missing id
 
@@ -30,6 +49,82 @@ void NewCampTask::fn_8052C9C4() {
         }
     }
     m5C = 0;
+}
+
+// inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
+static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y, int z) {
+    atn::Vector3 pos;
+    ((Xsca_unk*)parts->m5C.fn_804786F8())->fn_805BDCBC(0)->fn_805BF410(0.0f, &pos.x, x, y, z);
+    return pos;
+}
+
+void NewCampTask::fn_8052DEEC(int state) {
+    int prev = m464;
+    int top = 0;
+    m11F4 = m11F0;
+    m464 = state;
+    switch (state) {
+    case 0:
+        m11F0 = (NewCampPartsBase*)mTop;
+        top = 1;
+        break;
+    case 1:
+        lbl_8087F430->fn_803750E4(0x146);
+        m11F0 = (NewCampPartsBase*)mStatus;
+        break;
+    case 2:
+        lbl_8087F430->fn_803750E4(0xEC);
+        if (lbl_8087FA20 != 0) {
+            lbl_8087F430->fn_803750E4(0x1BA);
+        }
+        m11F0 = (NewCampPartsBase*)mMapSelect;
+        break;
+    case 4:
+        m11F0 = (NewCampPartsBase*)mItem;
+        break;
+    case 5:
+        m11F0 = (NewCampPartsBase*)mProtector;
+        mProtector->m1E0 = 0;
+        break;
+    case 7:
+        m11F0 = (NewCampPartsBase*)mProtector;
+        mProtector->m1E0 = 1;
+        break;
+    case 6:
+        m11F0 = (NewCampPartsBase*)mOption;
+        break;
+    case 8:
+        m11F0 = (NewCampPartsBase*)mHint;
+        break;
+    }
+    m11F0->vf30();
+    if (m464 != 6 && m464 != 1) {
+        m11F0->vf3C(1);
+    }
+    if (prev == 0 && m464 != 0) {
+        m1340 = fn_80117228(7);
+    }
+    if (top) {
+        if (m11F4 != 0) {
+            m11F8 = 1;
+            m454 = m11F4->m5C.fn_804786F8();
+            m458 = ((Xsca_unk*)m11F4->m5C.fn_804786F8())->fn_805BDCBC(0)->mLength;
+            m45C = -m1368;
+        } else {
+            m11F8 = 0;
+            m11FC = GetCurvePos_unk((NewCampPartsBase*)mStatus, 1, 2, 3);
+            m1208 = GetCurvePos_unk((NewCampPartsBase*)mStatus, 7, 8, 9);
+        }
+    } else {
+        m11F8 = 1;
+        m454 = m11F0->m5C.fn_804786F8();
+        m458 = 0.0f;
+        m45C = m1368;
+    }
+    if (m5C != 0) {
+        mGmk->fn_80512C90(m464);
+    }
+    m1304 = 0;
 }
 
 // NONMATCHING: 96% - order of the store of m11F8 and float registers of the camera sums

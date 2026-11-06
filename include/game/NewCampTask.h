@@ -12,6 +12,17 @@ class FadeColor;
 struct ModelBase;
 } // namespace atn
 
+class NewCampPartsBase;
+class NewCampPartsTop;
+class NewCampPartsStatus;
+class NewCampPartsMapSelect;
+class NewCampPartsItem;
+class NewCampPartsOption;
+class CosEditProtector;
+class NewCampPartsHint;
+class NewCampPartsGmk;
+#include "atn/SoundRef.h"
+
 // inferred: (id, value) pair of the camp (0x8 bytes, fn_80530384); names invented
 struct NewCampPair_unk {
     int mId;
@@ -39,14 +50,23 @@ public:
     atn::FadeColor* m64; // inferred: fade of the camp (FadeColor::Create in the constructor)
     int m68;             // inferred: faded out
     atn::Camera mCamera; // 0x6C
-    unsigned char m260[0x458 - 0x260];
+    unsigned char m260[0x454 - 0x260];
+    void* m454; // inferred: camera animation (xsca) of the current parts
     float m458;
     float m45C;
     unsigned char m460[0x464 - 0x460];
     int m464; // inferred: state (parts shown)
-    unsigned char m468[0x11F0 - 0x468];
-    atn::Task* m11F0; // inferred: current parts
-    unsigned char m11F4[0x11F8 - 0x11F4];
+    unsigned char m468[0x11D0 - 0x468];
+    NewCampPartsTop* mTop;             // 0x11D0
+    NewCampPartsStatus* mStatus;       // 0x11D4
+    NewCampPartsMapSelect* mMapSelect; // 0x11D8
+    NewCampPartsItem* mItem;           // 0x11DC
+    NewCampPartsOption* mOption;       // 0x11E0
+    CosEditProtector* mProtector;      // 0x11E4
+    NewCampPartsHint* mHint;           // 0x11E8
+    NewCampPartsGmk* mGmk;             // 0x11EC
+    NewCampPartsBase* m11F0;           // inferred: current parts
+    NewCampPartsBase* m11F4;           // inferred: previous parts
     int m11F8;
     atn::Vector3 m11FC; // inferred: camera position (40, 0, 210)
     atn::Vector3 m1208; // inferred: camera target (40, 0, -20)
@@ -63,9 +83,11 @@ public:
     atn::Vector3 m12E0;
     atn::Vector3 m12EC;
     atn::Vector3 m12F8;
-    unsigned char m1304[0x133C - 0x1304];
+    int m1304;
+    unsigned char m1308[0x133C - 0x1308];
     int m133C; // inferred: the map select is open
-    unsigned char m1340[0x1368 - 0x1340];
+    atn::SoundRef m1340;
+    unsigned char m1344[0x1368 - 0x1344];
     float m1368;
     int m136C;          // inferred: the camera offset m1370 is used (4:3 screen)
     atn::Vector3 m1370; // inferred: "CameraOfs(Aspect4:3)"

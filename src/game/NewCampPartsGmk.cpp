@@ -1,4 +1,4 @@
-#include "game/NewCampPartsBase.h"
+#include "game/NewCampPartsGmk.h"
 #include "atn/EfpHandle_unk.h"
 #include "math/Vec.h"
 #include "atn/LH_Scene.h"
@@ -43,23 +43,6 @@ struct Render_unk {
 };
 extern "C" Render_unk* lbl_8087EFA8;
 
-
-// inferred: one gimmick of the camp (0x40 bytes)
-struct NewCampGmkInfo_unk {
-    NewCampGmkInfo_unk() {
-        m00 = 0;
-        mModel = 0;
-        m3C = 0;
-        mMtx.SetIdentity();
-        m04 = 0;
-    }
-
-    int m00;
-    short m04;
-    NewCampPartsModel_unk* mModel; // 0x08
-    atn::Matrix3x4 mMtx;      // 0x0C
-    unsigned char m3C;
-};
 
 // inferred: model names searched in the "menu_back" nodes (0x8075B32C)
 struct NewCampGmkName_unk {
@@ -275,24 +258,6 @@ static Color4f_unk sColors2[8] = {
     Color4f_unk(0.7019608f, 0.81960785f, 0.6745098f, 1.0f),
 };
 
-class NewCampPartsGmk : public NewCampPartsBase {
-public:
-    NewCampPartsGmk(atn::Task* parent);
-    static NewCampPartsGmk* fn_805128C0(atn::Task* parent);
-    virtual ~NewCampPartsGmk();
-    virtual void vf10();
-    virtual void vf14();
-    virtual void vf1C(NewCampScene_unk* scene);
-    virtual void vf24();
-    virtual void vf28();
-    virtual int vf4C();
-    void SetModel_unk(NewCampPartsModel_unk* model, int i);
-    void fn_80512C90(int i);
-    void fn_80513020(int color, int i);
-
-    ArrayPtr_unk<NewCampGmkInfo_unk> mInfo; // 0xD4
-    atn::EfpFile mEfp[8];             // 0xD8
-};
 
 NewCampPartsGmk* NewCampPartsGmk::fn_805128C0(atn::Task* parent) {
     if (parent != 0) {
