@@ -87,10 +87,10 @@ extern "C"
         s16 valid_objs;
         u8 bufIdx;
         u8 bufCount;
+        KPADStatus* mplsBuf; // inferred: TLS (2010), filled backwards with the 0x3C-byte Motion Plus data
         KPADUnifiedWpadStatus uniRingBuf[16];
         KPADUnifiedWpadStatus* exRingBuf;
         u32 exBufLen;
-        u32 unk_tls_0x5A4; // inferred: TLS (2010), not used by the matched functions
         f32 sec_length;
         Vec2 sec_nrm;
         f32 sec_dist;
@@ -142,8 +142,22 @@ extern "C"
         s32 dist_play_mode;
         s32 acc_play_mode;
         u32 lastDeviceType;
+        // inferred: TLS (2010) fields up to 0x688 (names invented from their use)
+        u32 tickHist[3];
+        u32 prevTick;
+        u32 curTick;
+        u8 cntHist[2];
+        u8 unk_0x676;
+        u8 unk_0x677;
+        u8 unk_0x678;
+        u8 unk_0x679;
+        u8 unk_0x67a;
+        u8 unk_0x67b;
+        u8 unk_0x67c;
+        u8 unk_0x67d;
         u8 accScaleReset;
-        u8 unk_tls_end[0x24 - 3]; // inferred: TLS (2010) KPADInsideStatus is 0x688 bytes
+        WPADCallback mplsCallback;
+        u32 unk_0x684;
     } KPADInsideStatus;
 
     void KPADInitEx(KPADUnifiedWpadStatus* buffer, u32 length);

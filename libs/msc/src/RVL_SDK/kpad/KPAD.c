@@ -50,16 +50,22 @@ KPADInsideStatus inside_kpads[4] = { 0 };
 static Vec2 Vec2_0 = { 0.0f, 0.0f };
 static Mtx kp_fs_rot = { 0 };
 static f64 kp_wbc_tgc_weight = 0.0;
+static f64 kp_wbc_filtered[4] = { 0.0, 0.0, 0.0, 0.0 }; // TLS (2010): before kp_wbc_average
 static f64 kp_wbc_average[4] = { 0.0, 0.0, 0.0, 0.0 };
-static f64 kp_wbc_filtered[4] = { 0.0, 0.0, 0.0, 0.0 };
 static u16 kp_wbc_count = 0;
 static u8 kp_wbc_status = 0;
 static u8 kp_wbc_tgc_ongoing = 0;
 static u8 kp_wbc_calibrated = 0;
-static u8 kp_wbc_enabled = 0;
+static s8 kp_wbc_enabled = 0; // TLS (2010): s8
 static u8 kp_wbc_busy = 0;
 static u8 kp_wbc_wait_count = 50;
 static f32 kp_wbc_ave_count = 400.0f;
+// inferred: TLS (2010) balance board state (.sbss 0x808801D2-0x808801D8), names invented
+static u8 kp_wbc_unk_d2;
+static u8 kp_wbc_state;
+static u8 kp_wbc_unk_d5;
+static s16 kp_wbc_unk_d6;
+static s8 kp_wbc_err;
 static f32 kp_fs_revise_deg = 24.0f;
 
 void KPADSetBtnRepeat(KPADChannel chan, f32 delay_sec, f32 pulse_sec)
@@ -136,8 +142,10 @@ static void calc_dpd2pos_scale(KPADInsideStatus* kp)
     kp->dpd2pos_scale = scale / ((sx < sy) ? sx : sy);
 }
 
-void reset_kpad(KPADInsideStatus* kp)
+// TLS (2010): takes the channel instead of the status pointer
+void reset_kpad(KPADChannel chan)
 {
+    KPADInsideStatus* kp = &inside_kpads[chan];
     KPADObject* op;
     KPADStatus* sp = &kp->status;
     KPADEXStatus* ep = &kp->status.ex_status;
@@ -1510,6 +1518,17 @@ void read_kpad_ext(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
     }
 }
 
+// TLS (2010): Motion Plus result callback (registered from KPADiRead); fills the read buffers backwards
+void fn_80657230(KPADChannel chan, const KPADMPStatus* mp)
+{
+    KPADInsideStatus* kp = &inside_kpads[chan];
+    if (kp->mplsBuf)
+    {
+        kp->mplsBuf--;
+        kp->mplsBuf->mpls = *mp;
+    }
+}
+
 static void KPADiSamplingCallback(s32 chan);
 static void KPADiConnectCallback(WPADChannel chan, WPADResult result);
 static void KPADiControlDpdCallback(WPADChannel chan, WPADResult result);
@@ -1583,7 +1602,7 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
     kp->readLocked = TRUE;
     if (WPADProbe(chan, NULL) == WPAD_ERR_NO_CONTROLLER)
     {
-        reset_kpad(kp);
+        reset_kpad(chan);
         if (kp->dpd_ctrl_callback && kp->dpdPreCallbackDone && !kp->dpdPostCallbackDone)
         {
             KPADiControlDpdCallback(chan, WPAD_ERR_OK);
@@ -1597,7 +1616,7 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
     if (kp->resetReq)
     {
         kp->status.wpad_err = WPAD_ERR_INVALID;
-        reset_kpad(kp);
+        reset_kpad(chan);
     }
     saved = *samplingBufs;
     if (kp->bufCount > 1 && samplingBufs && length)
@@ -1854,11 +1873,13 @@ void KPADInitEx(KPADUnifiedWpadStatus* buffer, u32 length)
     s32 i;
     KPADInsideStatus* kp;
     u32 idx;
+    BOOL enabled;
     if (kp_initialized)
     {
         return;
     }
     WPADInit();
+    enabled = OSDisableInterrupts(); // TLS (2010)
     memset(inside_kpads, 0, sizeof(inside_kpads));
     kp_err_dist_max = 1.0f + (f32)WPADGetDpdSensitivity();
     i = 0;
@@ -1867,11 +1888,19 @@ void KPADInitEx(KPADUnifiedWpadStatus* buffer, u32 length)
         kp = &inside_kpads[i];
         kp->appConnectCallback = WPADSetConnectCallback(i, KPADiConnectCallback);
         kp->appSamplingCallback = WPADSetSamplingCallback(i, KPADiSamplingCallback);
+        // TLS (2010)
         kp->dpdStatus = FALSE;
-        kp_wbc_calibrated = kp_wbc_enabled = kp_wbc_busy = FALSE;
-        reset_kpad_wbc();
         kp->dpdEnabled = TRUE;
-        kp->dpdCmd = WPADGetDpdFormat(i);
+        kp->dpdCmd = 0;
+        kp->dpdPreCallbackDone = FALSE;
+        kp->dpdPostCallbackDone = TRUE;
+        kp->unk_0x679 = 0;
+        kp->unk_0x676 = 0;
+        kp->unk_0x67a = 0;
+        kp->unk_0x67d = 3;
+        kp->unk_0x677 = kp->unk_0x678 = WPADiGetMplsStatus(i);
+        kp->unk_0x67b = 0;
+        kp->unk_0x67c = 1;
         kp->status.dev_type = WPAD_DEV_NOT_FOUND;
         kp->status.data_format = WPAD_FMT_CORE_BTN;
         kp->dist_org = idist_org;
@@ -1907,6 +1936,17 @@ void KPADInitEx(KPADUnifiedWpadStatus* buffer, u32 length)
             kp->exRingBuf[idx].u.core.err = WPAD_ERR_NO_CONTROLLER;
         }
     } while (++i < WPAD_MAX_CONTROLLERS);
+    // TLS (2010): balance board state, once for all channels
+    kp_wbc_enabled = kp_wbc_busy = FALSE;
+    kp_wbc_count = 0;
+    for (i = 0; i < 4; ++i)
+    {
+        kp_wbc_average[i] = 0.0;
+    }
+    kp_wbc_err = -2;
+    kp_wbc_unk_d6 = 0;
+    kp_wbc_unk_d5 = 1;
+    kp_wbc_state = 0;
     WPADSetCallbackByKPAD(TRUE);
     KPADReset();
     kp_fs_rot[0][0] = 1.0f;
@@ -1922,6 +1962,7 @@ void KPADInitEx(KPADUnifiedWpadStatus* buffer, u32 length)
     kp_fs_rot[2][2] = (f32)cos(MTXDegToRad(kp_fs_revise_deg));
     kp_fs_rot[2][3] = 0.0f;
     kp_initialized = TRUE;
+    OSRestoreInterrupts(enabled);
     OSRegisterVersion(__KPADVersion);
 }
 
@@ -1953,11 +1994,26 @@ static void KPADiConnectCallback(WPADChannel chan, WPADResult result)
         WPADSetCallbackByKPAD(TRUE);
         kp->dpdStatus = FALSE;
         kp->dpdCmd = 0;
+        kp->dpdIssued = FALSE; // TLS (2010)
         if (chan == WPAD_CHAN3)
         {
-            kp_wbc_calibrated = kp_wbc_enabled = kp_wbc_busy = FALSE;
-            reset_kpad_wbc();
+            // TLS (2010)
+            kp_wbc_enabled = kp_wbc_busy = FALSE;
+            if ((s32)kp_wbc_state != 4)
+            {
+                kp_wbc_state = 0;
+            }
+            kp_wbc_unk_d5 = 0;
+            kp_wbc_err = -2;
+            kp->status.ex_status.bl.weight_err = -2;
         }
+        // TLS (2010): Motion Plus state
+        kp->unk_0x67a = 0;
+        kp->unk_0x67d = 1;
+        kp->unk_0x678 = kp->unk_0x679;
+        kp->unk_0x677 = 0;
+        kp->unk_0x67b = 0;
+        kp->unk_0x67c = 1;
     }
     else
     {
@@ -1968,6 +2024,19 @@ static void KPADiConnectCallback(WPADChannel chan, WPADResult result)
         for (idx = 0; idx < kp->exBufLen; ++idx)
         {
             kp->exRingBuf[idx].u.core.err = WPAD_ERR_NO_CONTROLLER;
+        }
+        // TLS (2010)
+        if (kp->dpd_ctrl_callback && !kp->dpdPostCallbackDone)
+        {
+            kp->dpdPostCallbackDone = TRUE;
+            kp->dpd_ctrl_callback(chan, 1);
+            kp->dpdPreCallbackDone = FALSE;
+        }
+        kp->dpdStatus = WPADIsDpdEnabled(chan);
+        kp->dpdIssued = FALSE;
+        if (!kp->unk_0x67c && kp->mplsCallback)
+        {
+            kp->mplsCallback(chan, 1);
         }
     }
     if (kp->appConnectCallback)
@@ -1989,12 +2058,19 @@ WPADConnectCallback* KPADSetConnectCallback(KPADChannel chan, WPADConnectCallbac
 static void KPADiControlWbcCallback(WPADChannel chan, WPADResult result)
 {
     kp_wbc_enabled = result == WPAD_ERR_OK;
+    kp_wbc_unk_d2 = FALSE; // TLS (2010)
     kp_wbc_busy = FALSE;
 }
 
+// TLS (2010)
 static void KPADiUpdateTempWbcCallback(WPADChannel chan, WPADResult result)
 {
-    kp_wbc_status = result == WPAD_ERR_OK;
+    if (result == WPAD_ERR_OK)
+    {
+        kp_wbc_state = 2;
+        kp_wbc_status = 100;
+        kp_wbc_count = 0;
+    }
     kp_wbc_busy = FALSE;
 }
 
@@ -2022,6 +2098,42 @@ static void KPADiControlDpdCallback(WPADChannel chan, WPADResult result)
     }
     kp->dpdStatus = WPADIsDpdEnabled(chan);
     kp->dpdIssued = FALSE;
+}
+
+// TLS (2010): Motion Plus mode change result
+void fn_80658300(WPADChannel chan, WPADResult result)
+{
+    KPADInsideStatus* kp = &inside_kpads[chan];
+    s32 err;
+    kp->unk_0x67a = 0;
+    kp->unk_0x67d = 1;
+    if (result == WPAD_ERR_OK)
+    {
+        kp->unk_0x677 = kp->unk_0x676;
+        return;
+    }
+    if ((result == -4 || result == -3) && !kp->unk_0x67c && kp->unk_0x676 && kp->unk_0x676 == kp->unk_0x678)
+    {
+        switch (kp->unk_0x676)
+        {
+        case 5:
+            err = -2;
+            break;
+        case 7:
+            err = -3;
+            break;
+        default:
+            err = -1;
+            break;
+        }
+        kp->unk_0x67c = 0;
+        if (kp->mplsCallback)
+        {
+            kp->mplsCallback(chan, err);
+        }
+        kp->unk_0x67b = 1;
+    }
+    kp->unk_0x677 = 0;
 }
 
 static void KPADiSamplingCallback(s32 chan)

@@ -40,6 +40,19 @@ typedef union KPADEXStatus {
 #endif
 } KPADEXStatus;
 
+// inferred: TLS (2010) Motion Plus status (0x3C bytes, copied as a block into KPADStatus at 0xB0)
+typedef struct KPADMPDir {
+    Vec X; // at 0x0
+    Vec Y; // at 0xC
+    Vec Z; // at 0x18
+} KPADMPDir;
+
+typedef struct KPADMPStatus {
+    Vec mpls;      // at 0x0
+    Vec angle;     // at 0xC
+    KPADMPDir dir; // at 0x18
+} KPADMPStatus;
+
 typedef struct KPADStatus {
     u32 hold;               // at 0x0
     u32 trig;               // at 0x4
@@ -62,7 +75,8 @@ typedef struct KPADStatus {
     s8 dpd_valid_fg;        // at 0x5E
     u8 data_format;         // at 0x5F
     KPADEXStatus ex_status; // at 0x60
-    u8 unk_0xB0[0x40];      // at 0xB0 inferred: TLS (2010) KPADStatus is 0xF0 bytes
+    KPADMPStatus mpls;      // at 0xB0 inferred: TLS (2010)
+    u8 unk_0xEC[4];         // at 0xEC inferred: TLS (2010) KPADStatus is 0xF0 bytes
 } KPADStatus;
 
 void KPADSetBtnRepeat(s32 chan, f32, f32);
