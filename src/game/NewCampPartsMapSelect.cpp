@@ -3,6 +3,7 @@
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "std/string_members.h"
+#include "atn/D2A_Task.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -34,11 +35,19 @@ extern "C" void fn_80088724(void* group, const char* name, void* value, int arg3
 extern "C" void fn_80088AF4(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
                             float step); // colour
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: camp task (the parent m48); only the members used here
+struct NewCampMapCamp_unk {
+    unsigned char m0000[0x4C];
+    int mId; // 0x4C: inferred: current camp
+    unsigned char m0050[0x11F0 - 0x50];
+    NewCampPartsBase* mParts; // 0x11F0: inferred: current parts
+};
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
 extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int a, int b, float c, float d);
-extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
 
 static const NewCampPartsFile_unk sFiles[6] = {
     {"map_back01_0001", "", 0}, {"map_back02_0001", "", 0}, {"map_back03_0001", "", 0},
@@ -52,6 +61,15 @@ static const char* const sBattle = "map_board01_select_battle.d2a";
 static const char* const sGo = "map_board01_select_go.d2a";
 // inferred: offset of the board (constructed by __sinit 0x80521DF8)
 static atn::Vector3 sOffset(-1820.0f, 0.0f, -1432.0f);
+
+// inferred: sets the texture `name` on the pane `pane` of the task of `anime` (vf20)
+static inline void SetTexture_unk(atn::D3Anime* anime, const char* pane, const char* name) {
+    if (strncmp(name, "", 1) != 0) {
+        char path[0x80];
+        sprintf(path, "data/texture/%s.texture", name);
+        ((atn::D2A_Task*)anime->GetTask())->fn_801F4D80(pane, (int)path);
+    }
+}
 
 // inferred: clears the model of an entry (vf1C)
 inline void ResetEntry_unk(NewCampPartsEntry_unk& entry) {
@@ -72,7 +90,7 @@ NewCampPartsMapSelect* NewCampPartsMapSelect::fn_8051B920(atn::Task* parent) {
 NewCampPartsMapSelect::NewCampPartsMapSelect(atn::Task* parent)
     : NewCampPartsBase(parent), mD4(0), mD5(0), mD6(0), mD7(0), mD8(0), mDC(1), m198C(0), m1990(0),
       m1998(4), m199C(4), m19A0(-1), m19A4(-1), m19A8(0), m19B4(0), m19B8(0.0f), m19BC(6.0f), m19C0(0.0f),
-      m19CC(0), m3ED0(0), m3ED4(0), m46D4(0), m4800(sOffset), m4818(4.0f), m481C(20.0f),
+      m19CC(0), m3ED0(0), m46D4(0), m4800(sOffset), m4818(4.0f), m481C(20.0f),
       m4820(0.2f), m4824(0.12f), m487C(0.0f), m4880(2500.0f), m4884(0.0f), m48A8(0), m48AC(-200.0f),
       m48B0(-150.0f), m48B4(170.0f), m48B8(180.0f) {
     m1910.Reset_unk(0);
@@ -167,6 +185,19 @@ void NewCampPartsMapSelect::vf40(void* menu) {
 }
 
 // NONMATCHING: 95% - the original keeps i * 0x94 and i * 0x40 + 0x20 as induction variables
+// NONMATCHING: the route search of the camp is kept (dead) in the original; the anime of the thumbnail is
+// reloaded after sprintf there
+inline void NewCampPartsMapSelect::SetCursorPoint_unk(MapSelectPoint_unk* point) {
+    if (point != 0) {
+        m480C = point->m18->mMtx.GetTrans_unk();
+        m480C -= m4800;
+        m19A8 = point->m10;
+        m19B0 = point->m10;
+    } else {
+        m480C = lbl_807C7030;
+    }
+}
+
 int NewCampPartsMapSelect::vf4C() {
     if (mParam.fn_80473F50()) {
         return 1;
@@ -278,6 +309,77 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
     fn_805115D0(mMapName, 1, 0, 0.0f, 1.0f);
     FreeFiles_unk();
     vf3C(0);
+}
+
+void NewCampPartsMapSelect::vf20() {
+    if (m96) {
+        for (int i = 0; i < m4C; i++) {
+            fn_805113E8(m50[i].mAnime, 1, 1, 0.0f, 1.0f);
+            if (m50[i].mAnime != 0 && m50[i].mAnime->GetTask() != 0) {
+                SetTexture_unk(m50[i].mAnime, "thumbnail", mPoints[i].mThumbnail);
+            }
+        }
+        if (((NewCampMapCamp_unk*)m48)->mParts != this) {
+            vf3C(0);
+        }
+        vf48();
+        m96 = 0;
+        m1998 = 4;
+        m199C = 4;
+        fn_805201EC(&m19A4);
+        m19A8 = 0;
+        m19B0 = 0;
+        int id = ((NewCampMapCamp_unk*)m48)->mId;
+        if (FindRouteIndex_unk(id) > 0) {
+            FindRoute_unk(id);
+        }
+        m19A0 = m19A4;
+        SetCursorPoint_unk(FindPoint_unk(m19A0));
+        m19B4 = 0;
+        fn_80521908(1);
+    }
+}
+
+// NONMATCHING: volatile registers of the inlined point search (index/pointer/id)
+void NewCampPartsMapSelect::vf30() {
+    m19A4 = m19A0;
+    SetCursorPoint_unk(FindPoint_unk(m19A0));
+    mD5 = 0;
+    m1998 = 4;
+    fn_8051FB7C(4);
+    m80 = 0;
+    m19C0 = 0.0f;
+    mDC = 1;
+}
+
+// NONMATCHING: float registers of the negated offset
+void NewCampPartsMapSelect::fn_80521908(int reset) {
+    if (reset) {
+        m19B8 = 0.0f;
+    }
+    int dir = 0;
+    for (int i = 0; i < m190C; i++) {
+        switch (m19A8) {
+        case 0:
+            dir = 1;
+            break;
+        case 1:
+            dir = -1;
+            break;
+        case 2:
+            dir = -1;
+            break;
+        }
+        if (dir < 0) {
+            m1914[i].mPos = atn::Vector3(-m487C, -m4880, -m4884);
+        } else {
+            m1914[i].mPos = *(atn::Vector3*)&m487C;
+        }
+        if (reset) {
+            m1914[i].mFrame = 0.0f;
+            m1914[i].m10 = 0;
+        }
+    }
 }
 
 void NewCampPartsMapSelect::vf44() {
