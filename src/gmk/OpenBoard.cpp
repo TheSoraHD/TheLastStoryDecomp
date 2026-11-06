@@ -38,8 +38,10 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 // inferred: plays an effect on a model (names invented)
 // inferred: plays an effect on a model (the vectors and the color are locals; names invented)
 inline void PlayEfp3_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    rot.Set_unk(0.0f, 0.0f, 0.0f);
+    pos.Set_unk(0.0f, 0.0f, 0.0f);
     Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
     fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
@@ -107,9 +109,9 @@ void OpenBoard::Start() {
 }
 
 // inferred: opens the board (motion frame) by the distance of the nearest player in front of it
-// NONMATCHING: 94.7% - (1) the bounding box: the original copies res->mMin/mMax straight into the
+// NONMATCHING: 94.8% - (1) the bounding box: the original copies res->mMin/mMax straight into the
 // box and into the by-value arguments (here three more instructions through the stack); (2) float
-// registers of the interpolation (m56C) and the order of the zero stores of the effect vectors.
+// registers of the interpolation (m56C).
 // Tried: box by reference/by value/assignments/Assign_unk/component constructors, min/max locals,
 // a GetBox helper, operand orders of the half width, frame/length/rate locals, the effect call
 // with temporaries/locals/helpers, Start_unk by value/by reference, Interp_unk forms.
