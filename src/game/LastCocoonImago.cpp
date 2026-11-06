@@ -16,6 +16,8 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
+extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 
 atn::Vector3 LastCocoonImago::vf64(int center) {
@@ -81,6 +83,28 @@ void LastCocoonImago::vf38(int enable) {
         } else {
             mCapsules[i].mFlags &= ~1;
         }
+    }
+}
+
+void LastCocoonImago::fn_8045D224() {
+    if (m18F8->m54 == 5 && m18F8->vf38() != 0) {
+        // inferred: the model is read again before each access (a local per access keeps the constants
+        // out of the saved registers)
+        atn::Model* model = m18F8->vf38();
+        model->mTracks[0].m0C = 1.0f;
+        model = m18F8->vf38();
+        if (model->mTracks[0].m08 < 201.0f) {
+            model = m18F8->vf38();
+            model->mTracks[0].m08 = 201.0f;
+        }
+    }
+    if (m14C0 == 120) {
+        LastCocoonImago::vf38(0);
+        if (fn_80370A78(lbl_8087F430, 0xCD) == 0) {
+            fn_80370AE4(lbl_8087F430, 0xCD, 1);
+        }
+    } else {
+        mMotion.fn_80097D7C(0);
     }
 }
 
