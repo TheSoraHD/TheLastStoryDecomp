@@ -8983,7 +8983,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "sdk",
-  "matching": false
+  "matching": true
  },
  {
   "name": "dwc/src/prof/dwc_prof.c",

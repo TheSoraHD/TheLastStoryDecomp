@@ -43,7 +43,7 @@ typedef struct DWCiEncSession {
 } DWCiEncSession;
 
 static DWCiEncSession sEncSession = {DWCi_ENC_STATE_NOT_INITIALIZED};
-static const char* sEncServerUrl;
+static const char* sEncServerUrl = NULL;
 static u32 sEncSeed;
 
 static BOOL DWCi_EncSessionSetParam(const char* gameName, const char* secretKey, u32 randMul,
@@ -408,8 +408,8 @@ DWCiEncResult DWCi_EncSessionGetAsyncEx(const char* url, int pid, const void* da
     }
 
     len = strlen(sEncServerUrl) + strlen(sEncSession.gameName) + strlen(url) + strlen("?pid=") +
-          snprintf(pidstr, sizeof(pidstr), "%d", pid) + strlen("&hash=") + strlen("&data=") +
-          DWCi_ENC_B64_LEN(size + 12) + DWCi_ENC_HASH_LEN + 1;
+          snprintf(pidstr, sizeof(pidstr), "%d", pid) + strlen("&hash=") + DWCi_ENC_HASH_LEN +
+          strlen("&data=") + DWCi_EncB64Size(size + 12) + 1;
     sEncSession.url = DWC_Alloc(DWC_ALLOCTYPE_ENC, len);
     if (sEncSession.url == NULL) {
         return DWCi_ENC_RESULT_OUT_OF_MEMORY;
