@@ -2934,20 +2934,20 @@ MP/D2AMpMenuFriend.cpp:
 	.sdata2     start:0x808873A8 end:0x808873D0
 
 MP/D2AMpMenuFriendRoom.cpp:
-	.text       start:0x804B9D44 end:0x804BBB60
+	.text       start:0x804B9D44 end:0x804BBBA0
 	.rodata     start:0x80758600 end:0x80758848
 	.data       start:0x80790C08 end:0x80790C48
 	.sdata      start:0x8087E108 end:0x8087E118
 	.sbss       start:0x8087F5B8 end:0x8087F5C0
-	.sdata2     start:0x808873D0 end:0x808873FC
+	.sdata2     start:0x808873D0 end:0x808873F8
 
 MP/D2AMpMenuLobby.cpp:
-	.text       start:0x804BBB60 end:0x804C2FF8
+	.text       start:0x804BBBA0 end:0x804C2FF8
 	.ctors      start:0x8072D390 end:0x8072D394
 	.rodata     start:0x80758848 end:0x80758D30
 	.data       start:0x80790C48 end:0x80790DB8
 	.sbss       start:0x8087F5C0 end:0x8087F5D0
-	.sdata2     start:0x808873FC end:0x80887470
+	.sdata2     start:0x808873F8 end:0x80887470
 
 MP/D2AMpMenuMessageList.cpp:
 	.text       start:0x804C2FF8 end:0x804C566C

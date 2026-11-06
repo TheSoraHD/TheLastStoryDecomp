@@ -3,6 +3,7 @@
 #include "game/MenuCommonTask.h"
 #include "std/vector.h"
 #include "MP/D2AMpMenuFriendRoom.h"
+#include "MP/D2AMpMenuLobby.h"
 #include "MP/D2AMpMenu.h"
 
 // inferred: multiplayer session manager (lbl_8087F610); only the members used here
@@ -46,7 +47,6 @@ struct MpData_unk {
 extern "C" MpData_unk* lbl_8087F628;
 
 
-extern "C" void fn_804BBBA0(atn::Task* parent, int a, int b); // inferred: creates the lobby
 extern "C" void fn_804C2FF8(atn::Task* parent);               // inferred: creates the message list
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
@@ -145,7 +145,7 @@ void D2AMpMenuFriendRoom::fn_804BA350(int state) {
             Stop_unk(m78);
             break;
         case 7:
-            fn_804BBBA0(this, 1, lbl_8087F610->m544);
+            D2AMpMenuLobby::fn_804BBBA0(this, 1, lbl_8087F610->m544);
             fn_804C2FF8(this);
             Stop_unk(m78);
             break;
@@ -476,6 +476,15 @@ void D2AMpMenuFriendRoom::fn_804BB2CC(int refresh) {
             m50[i]->mFrame = 0.0f;
         }
     }
+}
+
+// inferred: hides the room list and goes to state 10 (called by atn/PacketPack 0x804D2960); the first
+// function of the .text range that was given to MP/D2AMpMenuLobby
+void D2AMpMenuFriendRoom::fn_804BBB60() {
+    for (unsigned int i = 0; i < mTasks.size(); i++) {
+        mTasks[i]->mFlags |= 4;
+    }
+    m88 = 10;
 }
 
 } // namespace MP

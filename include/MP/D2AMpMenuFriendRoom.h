@@ -26,6 +26,7 @@ public:
     void fn_804BA970();          // inferred: input of the list
     void fn_804BB10C();          // inferred: draw of the list
     void fn_804BB2CC(int refresh); // inferred: rebuilds the list
+    void fn_804BBB60();            // inferred: hides the list (state 10)
 
     // inferred: helpers of fn_804BA350 (the registers of their loops differ when written inline)
     void CloseList_unk() {

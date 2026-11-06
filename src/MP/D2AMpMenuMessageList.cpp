@@ -5,6 +5,7 @@
 
 #include "MP/MpMessage_unk.h"
 #include "MP/D2AMpMenuMessageList.h"
+#include "MP/D2AMpMenuLobby.h"
 
 // inferred: multiplayer session manager (lbl_8087F610); only the members used here
 struct MpSession_unk {
@@ -44,13 +45,6 @@ extern "C" int DWC_GetNumConnectionHost();
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" int fn_806A8E70();
 
-// inferred: lobby (lbl_8087F5C4)
-struct MpLobby_unk {
-    unsigned char m000[0xD98];
-    int mD98;
-};
-extern "C" MpLobby_unk* lbl_8087F5C4;
-extern "C" int fn_804C2C14(MpLobby_unk* lobby);
 
 // inferred: game settings (lbl_8087F0A8): help/button display at 0x48C
 struct MpSettings_unk {
@@ -203,16 +197,16 @@ void D2AMpMenuMessageList::vf10() {
     }
     switch (m94) {
     case 1:
-        if (lbl_8087F5C4 != 0 && fn_804C2C14(lbl_8087F5C4) == 0) {
-            lbl_8087F5C4->mD98 = 1;
+        if (D2AMpMenuLobby::sInstance != 0 && D2AMpMenuLobby::sInstance->fn_804C2C14() == 0) {
+            D2AMpMenuLobby::sInstance->mD98 = 1;
         }
         if (m48->mFrame >= 10.0f) {
             fn_804C35F0(2);
         }
         break;
     case 2:
-        if (lbl_8087F5C4 != 0 && fn_804C2C14(lbl_8087F5C4) == 0) {
-            lbl_8087F5C4->mD98 = 1;
+        if (D2AMpMenuLobby::sInstance != 0 && D2AMpMenuLobby::sInstance->fn_804C2C14() == 0) {
+            D2AMpMenuLobby::sInstance->mD98 = 1;
         }
         fn_804C4530();
         break;
