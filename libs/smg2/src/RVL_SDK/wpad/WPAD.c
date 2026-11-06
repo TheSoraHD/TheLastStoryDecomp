@@ -2537,6 +2537,37 @@ BOOL WPADiSendSetReportType(WPADCmdQueue* queue, u32 fmt, BOOL powerSave, WPADCa
     case WPAD_FMT_CORE_ACC_DPD_FULL:
         cmd.data[1] = 0x3e;
         break;
+    // inferred: formats of the version of 2010
+    case 10:
+        cmd.data[1] = 0x32;
+        break;
+    case 11:
+        cmd.data[1] = 0x37;
+        break;
+    case 15:
+        cmd.data[1] = 0x37;
+        break;
+    case 18:
+        cmd.data[1] = 0x37;
+        break;
+    case 19:
+        cmd.data[1] = 0x35;
+        break;
+    case 20:
+        cmd.data[1] = 0x35;
+        break;
+    case 12:
+        cmd.data[1] = 0x34;
+        break;
+    case 13:
+        cmd.data[1] = 0x35;
+        break;
+    case 17:
+        cmd.data[1] = 0x37;
+        break;
+    case 16:
+        cmd.data[1] = 0x37;
+        break;
     }
 
     return WPADiPushCommand(queue, cmd);
