@@ -44,13 +44,7 @@ SCBtDeviceInfoArray _scArray;
 SCBtCmpDevInfoArray _spArray;
 u8 __WUDHandlerStack[0x1000] ATTRIBUTE_ALIGN(32);
 
-static u8 _scFlush;  // version 2010: defined here
 
-// inferred: new variables of the version of 2010
-static s32 _wudFlag;
-static s32 _nandStep;
-static u8 _nandBusy;
-static u32 _wbcSeed;
 
 // inferred: balance board record of the version of 2010 (0x84 bytes, checksum at the end; 32-byte
 // aligned: _dev_handle_to_bda follows it at +0xA0)
@@ -71,14 +65,29 @@ static NANDCommandBlock _nandBlock;
 u16 _dev_handle_queue_size[WUD_MAX_DEV_ENTRY];
 u16 _dev_handle_notack_num[WUD_MAX_DEV_ENTRY];
 
+// inferred: .sbss of the version of 2010, in the declaration order of Swiftshine/key
 static u8 _discNumResps;
 static s8 _discRssi;
-
-static BOOL _initialized = FALSE;
-static u8 __bte_trace_level = 0;
 static u8 _normalTarget;
-static BOOL _readNand = FALSE;
+static u8 _scFlush;
+static u32 size = 0;
+static s32 offset = 0;
+static u32 addr = 0;
+static u8 patch_num = 0;
+static u8 install_num = 0;
+static u8 _nandBusy;
+static s32 _nandStep;
+static u32 _wbcSeed;
+static s32 _wudFlag;
+static void (*_initWBC)(void);  // inferred: balance board library hook (KEY _initWBC, weak there)
+static u8* _nandBufPtr;         // inferred: work area for RPHealth.dat (KEY _wudNandBufPtr)
+static u8 __bte_trace_level = 0;
+static u8 remove_patch[] = {0x00};
 static volatile BOOL _abortSync = FALSE;
+static BOOL _readNand = FALSE;
+static BOOL _initialized = FALSE;
+
+
 
 // clang-format off
 static u8 descriptor[] = {
@@ -535,14 +544,8 @@ static WUDPatchList patch_install = {
 };
 // clang-format on
 
-static u8 remove_patch[] = {0x00};
 
-static u8 install_num = 0;
-static u8 patch_num = 0;
 
-static u32 addr = 0;
-static s32 offset = 0;
-static u32 size = 0;
 
 
 
@@ -653,13 +656,27 @@ static u8 write_ram_params[] = {
 
 // inferred: NAND callbacks of the RPHealth.dat read (version 2010)
 
-// NEW_80670C70: version 2010, sin escribir
-static WUDInitState fn_80670C70(void) { return WUD_STATE_INIT_GET_DEV_INFO; }
 
 // inferred: new in the version of 2010 (moves the balance board entry of the standard list to the
 // last connected position)
 
 // inferred: helpers of the version of 2010 (used by WUDHidHost.c)
+
+// inferred: Swiftshine/key __wudCalcWiiFitCrc1
+static u32 WUDiCalcWbcCrc1(void* data, u32 length) {
+    u16* ptr = (u16*)data;
+    u32 hi = 0;
+    u16 lo = 0;
+    u32 i;
+    u32 num = length / sizeof(u16);
+
+    for (i = 0; i < num; i++, ptr++) {
+        hi += *ptr;
+        lo += (u16)~*ptr;
+    }
+
+    return (u16)hi << 16 | lo;
+}
 
 static u32 WUDiCalcWbcCrc(void* data, u32 length, u32 crc) {
     u16* ptr = (u16*)data;
@@ -1553,6 +1570,8 @@ static WUDDeleteState WUDiTerminateDevice(void) {
     return WUD_STATE_DELETE_CLEANUP_DATABASE;
 }
 
+// NONMATCHING: 64% - loop addressing of stdDevs/smpDevs and the inlined WUDiSetWbcInfo (the original
+// keeps a dead memcpy for the NULL arguments)
 static WUDDeleteState WUDiDeleteDevice(void) {
     int i;
     WUDCB* p = &_wcb;
@@ -1832,6 +1851,7 @@ static u8 WUDiDelaySearch() {
     return 29;
 }
 
+// NONMATCHING: 96.7% - register allocation around the inlined WUDiGetNewDevInfo
 static u8 WUDiGetRegisteredDevice() {
     int i;
     int j;
@@ -2006,11 +2026,107 @@ static void fn_80670BD0(s32 result, NANDCommandBlock* block) {
     }
 }
 
-static void fn_80670C50(s32 result, NANDCommandBlock* block) {
+// inferred: SC flush callback (KEY __wudNandFlushCallback)
+static void fn_80670C50(u32 result) {
 #pragma unused(result)
-#pragma unused(block)
     _nandBusy = FALSE;
     _nandStep++;
+}
+
+// inferred: version of 2010, reads the balance board pairing kept in the Wii Fit save data on
+// Japanese consoles (Swiftshine/key __wudGetDevInfoFromWiiFit)
+#define WUD_RP_HEALTH_PATH "/title/00010004/52464e4a/data/RPHealth.dat"
+#define WUD_RP_HEALTH_SIZE 0x4B000
+#define WUD_RP_HEALTH_WBC_OFFSET 0x4AF18
+
+// NONMATCHING: 57% - the original switch on _nandStep is a compare tree (ours a linear chain)
+static WUDInitState fn_80670C70(void) {
+    const char* path = WUD_RP_HEALTH_PATH;
+    const char* titleID = "RFNJ";
+    u8 zero[16] = {0};
+    WUDInitState nextState = WUD_STATE_INIT_READ_NAND;
+    u32 dataCrc;
+    u32 calcCrc;
+
+    if (_nandBusy) {
+        return nextState;
+    }
+
+    if (_nandBufPtr == NULL || ((u32)_nandBufPtr & 0x1F) != 0) {
+        OSPanic("WUD.c", 2745, "Error: the workarea for synchronizing WBC pairing information is not allocated.\n");
+    }
+
+    switch (_nandStep) {
+    case 0:
+        _nandStep = NANDInit() == NAND_RESULT_OK ? 1 : 0xFF;
+        break;
+
+    case 1:
+        if (SCGetProductGameRegion() == 0 /* JP */) {
+            _nandBusy = TRUE;
+            _wbcSeed = 0;
+            NANDOpenAsync(path, &_nandFileInfo, NAND_ACCESS_READ, fn_80670BD0, &_nandBlock);
+        } else {
+            _nandStep = 6;
+        }
+        break;
+
+    case 2:
+        _nandBusy = TRUE;
+        NANDSeekAsync(&_nandFileInfo, 0, 0 /* NAND_SEEK_SET */, fn_80670BD0, &_nandBlock);
+        break;
+
+    case 3:
+        _nandBusy = TRUE;
+        NANDReadAsync(&_nandFileInfo, _nandBufPtr, WUD_RP_HEALTH_SIZE, fn_80670BD0, &_nandBlock);
+        break;
+
+    case 4:
+        memcpy(&_wbcInfo, _nandBufPtr + WUD_RP_HEALTH_WBC_OFFSET, 0x80);
+        memcpy(&dataCrc, _nandBufPtr + WUD_RP_HEALTH_WBC_OFFSET + 0x80, sizeof(dataCrc));
+
+        _wbcSeed = WUDiCalcWbcCrc1(_nandBufPtr, WUD_RP_HEALTH_WBC_OFFSET);
+        calcCrc = WUDiCalcWbcCrc(_nandBufPtr + WUD_RP_HEALTH_WBC_OFFSET, 0x80, _wbcSeed);
+        if (dataCrc != calcCrc) {
+            _nandStep = 5;
+            break;
+        }
+
+        if (memcmp(_wbcInfo.addr, zero, BD_ADDR_LEN) == 0) {
+            _nandStep = 5;
+            break;
+        }
+
+        if (memcmp(OSGetAppGamename(), titleID, 4) != 0 && memcmp(_wbcInfo.linkKey, zero, LINK_KEY_LEN) == 0) {
+            _nandStep = 5;
+            break;
+        }
+
+        memset(_nandBufPtr, 0, WUD_RP_HEALTH_SIZE);
+
+        memset(&_scArray, 0, sizeof(_scArray));
+        SCGetBtDeviceInfoArray(&_scArray);
+
+        memcpy(_scArray.info[WUD_WBC_SC_INDEX].bd_addr, _wbcInfo.addr, BD_ADDR_LEN);
+        memcpy(_scArray.info[WUD_WBC_SC_INDEX].bd_name, _wbcInfo.name, 64);
+        memcpy(_scArray.info[WUD_WBC_SC_INDEX].bd_name + 20, _wbcInfo.linkKey, LINK_KEY_LEN);
+        SCSetBtDeviceInfoArray(&_scArray);
+
+        _nandBusy = TRUE;
+        SCFlushAsync(fn_80670C50);
+        break;
+
+    case 5:
+        _nandBusy = TRUE;
+        NANDCloseAsync(&_nandFileInfo, fn_80670BD0, &_nandBlock);
+        break;
+
+    default:
+        nextState = WUD_STATE_INIT_GET_DEV_INFO;
+        break;
+    }
+
+    return nextState;
 }
 
 static void InitHandler(void) {
