@@ -29,13 +29,14 @@ struct MapSelectPoint_unk {
     }
     int m00;  // inferred: id (500 and over: battle points)
     int m04;
-    unsigned char m08[0x10 - 0x08];
+    int m08;  // inferred: battle point when positive (fn_80521010)
+    int m0C;
     int m10;
     int m14;  // inferred: number of the board model
     NewCampPartsEntry_unk* m18;
-    int m1C; // inferred: cleared by vf1C (with m20, m24)
-    int m20;
-    int m24;
+    NewCampPartsEntry_unk* m1C; // inferred: battle mark (mBattles), cleared by vf1C (with m20, m24)
+    NewCampPartsEntry_unk* m20; // inferred: "go" mark (mGoes)
+    NewCampPartsEntry_unk* m24; // inferred: cursor (mCursors)
     float m28;
     char mThumbnail[0x6C - 0x2C]; // 0x2C: inferred: texture of the thumbnail
     MapSelectPair_unk m6C[5];
@@ -57,7 +58,7 @@ struct MapSelectRoute_unk {
 // inferred: 0x100 bytes cleared by the constructor (at 0x45D4); names invented
 struct MapSelectFlags_unk {
     MapSelectFlags_unk() { memset(m00, 0, sizeof(m00)); }
-    unsigned char m00[0x100];
+    int m00[0x40]; // inferred: ids of the routes (count at m46D4)
 };
 
 // inferred: offset of a background board (0x14 bytes, one per entry of m1910); names invented
@@ -88,6 +89,8 @@ public:
     void fn_8051FB7C(int state); // inferred: changes the state of the cursor (m1998)
     void fn_80521A00(int dir);
     void fn_80520098();
+    int fn_80521010(); // inferred: places the marks of the routes; returns 0 when ready
+    void fn_80520B04();
     void fn_8051FD20(); // inferred: input of the cursor state
     void fn_805212BC(); // inferred: goes to the map of the selected route
     // inferred: moves the camera to `point` (inlined in vf20 and vf30)

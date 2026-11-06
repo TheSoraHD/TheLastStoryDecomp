@@ -77,6 +77,19 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 static inline void PlayEfp_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
     fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, rot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
 }
+// inferred: takes a free mark of `entries` for the entry of `point` (names invented)
+inline void UseMark_unk(NewCampPartsEntry_unk* entries, NewCampPartsEntry_unk*& mark, MapSelectPoint_unk* point) {
+    for (int i = 0; i < 32; i++) {
+        NewCampPartsEntry_unk* entry = &entries[i];
+        if (!entry->m3C) {
+            mark = entry;
+            entry->mModel = point->m18->mModel;
+            entry->mMtx = point->m18->mMtx;
+            entry->m3C = 1;
+            return;
+        }
+    }
+}
 // inferred: route effects shown between two areas (fn_80520B04, fn_80521A00): the area of the cursor and
 // the chapters (GameField_unk::m10D0) in which the route is open; point 500 + index; names invented
 struct MapSelectRouteEffect_unk {
@@ -577,6 +590,42 @@ void NewCampPartsMapSelect::fn_80520098() {
     if (lbl_8087F430->GetScene_unk() != 0) {
         lbl_8087F430->GetScene_unk()->FreezeTask();
     }
+}
+
+int NewCampPartsMapSelect::fn_80521010() {
+    int ret = 1;
+    if (mD8 == 1) {
+        fn_80520B04();
+        memset(m45D4.m00, 0, sizeof(m45D4.m00));
+        m46D4 = 0;
+        MapSelectRoute_unk* route = mRoutes;
+        for (unsigned int i = 0; i < m3ED0; i++, route++) {
+            m45D4.m00[m46D4] = route->mId;
+            m46D4++;
+        }
+        for (unsigned int i = 0; i < m3ED0; i++) {
+            MapSelectRoute_unk* route = &mRoutes[i];
+            MapSelectPoint_unk* point = FindPoint_unk(mRoutes[i].mId);
+            if (point != 0) {
+                if (route->m08 == 2) {
+                    if (point->m08 > 0) {
+                        UseMark_unk(mBattles, point->m1C, point);
+                    } else if (route->mId < 500) {
+                        UseMark_unk(mGoes, point->m20, point);
+                    }
+                } else {
+                    UseMark_unk(mCursors, point->m24, point);
+                }
+            }
+        }
+        m84 = m46D4;
+        m19A4 = -1;
+        mD8 = 2;
+        ret = 0;
+    } else if (mD8 == 2) {
+        ret = 0;
+    }
+    return ret;
 }
 
 // NONMATCHING: float registers of the negated offset
