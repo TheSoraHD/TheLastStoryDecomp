@@ -4605,10 +4605,29 @@ smg2/src/RVL_SDK/wpad/WPAD.c:
 	.text       start:0x8065CE30 end:0x80666860
 	.rodata     start:0x80765148 end:0x80765188
 	.data       start:0x807B92C8 end:0x807B9528
-	.bss        start:0x80829DC0 end:0x8082DE00
+	.bss        start:0x80829DC0 end:0x8082DDA0
 	.sdata      start:0x8087EBB8 end:0x8087EBD0
 	.sbss       start:0x80880200 end:0x80880280
 	.sdata2     start:0x808889D0 end:0x808889D8
+
+key/src/revolution/WPAD/WPADHIDParser.c:
+	.text       start:0x80667E40 end:0x8066D0B0
+	.rodata     start:0x80765188 end:0x807651B8
+	.data       start:0x807B9558 end:0x807B9658
+	.bss        start:0x8082DDA0 end:0x8082DE00
+	.sbss       start:0x80880280 end:0x80880298
+	.sdata2     start:0x808889D8 end:0x80888A50
+
+key/src/revolution/WPAD/WPADEncrypt.c:
+	.text       start:0x8066D0B0 end:0x8066DF70
+	.data       start:0x807B9658 end:0x807BA8B8
+	.sbss       start:0x80880298 end:0x808802A0
+
+key/src/revolution/WPAD/WPADMem.c:
+	.text       start:0x8066DF70 end:0x8066E080
+
+key/src/revolution/WPAD/lint.c:
+	.text       start:0x8066E080 end:0x8066E8F0 align:16
 
 smg2/src/RVL_SDK/wud/WUD.c:
 	.text       start:0x8066E8F0 end:0x80673FD0

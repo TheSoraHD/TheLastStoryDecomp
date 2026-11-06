@@ -17,3 +17,8 @@ files differ; only units listed in `config/SLSP01/libs_ref.json` are built.
   doldecomp/mkw (CC0 1.0), `lib/dwc/common/`, same commit, updated to the Aug 2010 DWC build.
 - Compilers: the RevoEX libraries carry `0x4199_60831` (= `GC/3.0a5.2`, mwcceppc 4.1 build 60831);
   DWC carries `0x4302_172` (= `Wii/1.3`, 4.3 build 172).
+- `key/`: from [Swiftshine/key](https://github.com/Swiftshine/key) (Kirby's Epic Yarn decompilation, CC0 1.0),
+  commit `7f2a9ab9ad66d8e2f6eac52acc2c01dff0bd03a2`: the headers of `src/revolution`, `src/PowerPC_EABI_Support`,
+  `src/types.h`, `macros.h`, `compiler_macros.h`, and `src/revolution/WPAD/WPADHIDParser.c`, `WPADEncrypt.c`,
+  `WPADMem.c`, `lint.c` (Revolution SDK of December 2009). `tp_revolution/homebuttonLib/HBMAxSound.cpp` comes from
+  the same repository (`src/hbm/homebutton/HBMAxSound.cpp`), adapted to the zeldaret/tp sound headers.

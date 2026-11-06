@@ -283,6 +283,7 @@ typedef struct WPADConfig {
     WPADAcc acc_1g;
     u8 motor;
     u8 volume;
+    u8 __pad0[2]; // inferred: size 0x30 (WPADDevConfig of Swiftshine/key)
 } WPADConfig;
 
 typedef struct WPADStick {
@@ -531,7 +532,7 @@ void WPADSetAutoSamplingBuf(s32, void*, u32);
 #define WPADStopMotor(chan) WPADControlMotor((chan), WPAD_MOTOR_STOP)
 
 extern WPADMEMControlBlock _wmb[WPAD_MAX_CONTROLLERS];
-extern WPADControlBlock* _wpdcb[WPAD_MAX_CONTROLLERS];
+extern WPADControlBlock* __rvl_p_wpadcb[WPAD_MAX_CONTROLLERS];
 
 #ifdef __cplusplus
 }
