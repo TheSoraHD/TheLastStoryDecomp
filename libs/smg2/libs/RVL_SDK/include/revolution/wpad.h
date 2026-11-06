@@ -393,7 +393,9 @@ typedef struct WPADControlBlock {
     u8 UNK_0xBA7;
     u8 UNK_0xBA8[0x6];
     u8 UNK_0xBAE;
-    u8 UNK_0xBAF[0x19]; // inferred: new fields of the version of 2010
+    u8 UNK_0xBAF[0xF];
+    s8 UNK_0xBBE;
+    u8 UNK_0xBBF[0x9]; // inferred: new fields of the version of 2010
 } WPADControlBlock;
 
 typedef struct WPADMEMControlBlock {

@@ -31,6 +31,9 @@ OSAlarm _managerAlarm;
 
 DVDDiskID _diskId;
 
+// inferred: WUD helper of the version of 2010 (stores or clears the address of a registered device)
+void fn_80673E20(int index, u8* addr);
+
 static u8 _scSetting;
 static vu8 _shutdown;
 static s8 _afhChannel;
@@ -1281,10 +1284,6 @@ u8 WPADGetSensorBarPosition() {
 static void setupCallback(s32 chan, s32 result) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
 
-    if (result == WPAD_ERR_NO_CONTROLLER) {
-        return;
-    }
-
     if (result == WPAD_ERR_NONE) {
         p_wpd->setup = TRUE;
 
@@ -1301,10 +1300,23 @@ static void abortConnCallback(s32 chan, s32 result) {
 
     if (result != WPAD_ERR_NONE) {
         WPADiClearQueue(&p_wpd->cmdq);
+        WPADiDisconnect(chan, FALSE);
+    }
+}
 
-        if (result != WPAD_ERR_NO_CONTROLLER) {
-            WPADiDisconnect(chan, FALSE);
-        }
+// inferred: version 2010; result callback that drops the controller depending on a byte read from it
+static void fn_8065F7A0(s32 chan, s32 result) {
+    WPADControlBlock* p_wpd = _wpdcb[chan];
+
+    if (result == WPAD_ERR_NONE && p_wpd->readBuf[0xF] == 5) {
+        p_wpd->UNK_0xBBE = (s8)p_wpd->readBuf[0xA];
+    } else if (result == WPAD_ERR_TRANSFER) {
+        p_wpd->UNK_0xBBE = 0;
+    }
+
+    if (p_wpd->UNK_0xBBE != 0 && p_wpd->UNK_0xBBE != 1) {
+        WPADiClearQueue(&p_wpd->cmdq);
+        WPADiDisconnect(chan, FALSE);
     }
 }
 
@@ -1325,7 +1337,7 @@ static void firmwareCheckCallback(s32 chan, s32 result) {
     OSRestoreInterrupts(enable);
     size = (u16)((result == WPAD_ERR_NONE) ? 20 : 42);
     addr = (u32)((result == WPAD_ERR_NONE) ? 0x176c : 0);
-    port = (u8)(0x01 << chan);
+    port = (u8)((p_wpd->devType == 3) ? 0x01 : (0x01 << chan)); // inferred: 3 = balance board (version 2010)
 
     DEBUGPrint(" ==>this error means that the firmware is for NDEV %s\n", (p_wpd->oldFw) ? "2.0" : "2.1 or later");
     WPADiSendSetReportType(&p_wpd->cmdq, WPAD_FMT_CORE, p_wpd->pwrSave, abortConnCallback);
@@ -1333,6 +1345,8 @@ static void firmwareCheckCallback(s32 chan, s32 result) {
     WPADiSendSetPort(&p_wpd->cmdq, port, abortConnCallback);
     WPADiSendReadData(&p_wpd->cmdq, p_wpd->readBuf, sizeof(WPADMEMGameInfo), 0x2A, abortConnCallback);
     WPADiSendReadData(&p_wpd->cmdq, p_wpd->readBuf, sizeof(WPADMEMGameInfo), 0x2A + sizeof(WPADMEMGameInfo), abortConnCallback);
+    WPADiSendWriteDataCmd(&p_wpd->cmdq, 0xAA, 0x04A400F0, NULL);
+    WPADiSendReadData(&p_wpd->cmdq, p_wpd->readBuf, 0x10, 0x04A600F0, fn_8065F7A0);
     WPADiSendReadData(&p_wpd->cmdq, p_wpd->readBuf, size, addr, setupCallback);
     WPADiSendGetContStat(&p_wpd->cmdq, NULL, NULL);
 }
@@ -1477,9 +1491,10 @@ static void CloseCallback(s32 chan, s32 result) {
 }
 
 void WPADDisconnect(s32 chan) {
-    WPADControlBlock* p_wpd = _wpdcb[chan];
-    memset(&_scArray.info[chan + 10], 0, sizeof(SCBtDeviceInfoSingle));
-    _scFlush = 1;
+    if (WPADiGetStatus(chan) == WPAD_ERR_NO_CONTROLLER) {
+        return;
+    }
+    fn_80673E20(chan, NULL);
     WPADiDisconnect(chan, TRUE);
 }
 
