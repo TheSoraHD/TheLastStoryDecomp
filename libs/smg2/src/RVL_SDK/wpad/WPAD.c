@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <mem.h>
 
-static const char* __WPADVersion = "<< RVL_SDK - WPAD \trelease build: Dec 11 2007 01:35:07 (0x4199_60831) >>";
+static const char* __WPADVersion = "<< RVL_SDK - WPAD \trelease build: Aug 23 2010 19:49:06 (0x4302_145) >>";
 
 extern volatile BOOL __OSIsReturnToIdle;
 
@@ -46,6 +46,26 @@ static u8 _rumbleCnt[WPAD_MAX_CONTROLLERS] = {0, 0, 0, 0};
 static s8 _infRes[4];
 
 static BOOL _initialized;
+static BOOL _callbackByKPAD; // inferred: flag read by WPADIsUsedCallbackByKPAD (version 2010)
+
+// inferred: optional-module hooks of the version of 2010 (never written in this binary)
+typedef void (*WPADiHookFunc)(void);
+WPADiHookFunc _wpadInitHook0;
+WPADiHookFunc _wpadInitHook1;
+WPADiHookFunc _wpadInitHook2;
+WPADiHookFunc _wpadInitHook3;
+WPADiHookFunc _wpadInitHook4;
+WPADiHookFunc _wpadInitHook5;
+WPADiHookFunc _wpadInitHook6;
+WPADiHookFunc _wpadInitHook7;
+u32 _wpadModVar0;
+u32 _wpadModVar1;
+u32 _wpadModVar2;
+u32 _wpadModVar3;
+u32 _wpadModVar4;
+u32 _wpadModVar5;
+u32 _wpadModVar6;
+u32 _wpadModVar7;
 static BOOL _startup = FALSE;
 static int _recFlag = -1;
 static int _recCnt = 0;
@@ -87,6 +107,22 @@ u8 noFree(void* ptr) {
     DEBUGPrint("No Free: Nothing to do!!!\n");
     return 0;
 }
+
+// inferred: default stubs of the optional modules (version 2010), called from KPAD and WPADHIDParser
+u32 fn_8065CE50(void) { return _wpadModVar0; }
+u32 fn_8065CE60(void) { return _wpadModVar1; }
+u32 fn_8065CE70(void) { return _wpadModVar2; }
+u32 fn_8065CE80(void) { return _wpadModVar3; }
+u32 fn_8065CE90(void) { return _wpadModVar4; }
+u32 fn_8065CEA0(void) { return _wpadModVar5; }
+u32 fn_8065CEB0(void) { return _wpadModVar6; }
+u32 fn_8065CEC0(void) { return _wpadModVar7; }
+s32 fn_8065CED0(void) { return 0; }
+s32 fn_8065CEE0(void) { return 0; }
+s32 fn_8065CEF0(void) { return 0; }
+s32 fn_8065CF00(void) { return -1; }
+s32 fn_8065CF10(void) { return -1; }
+s32 fn_8065CF20(void) { return -1; }
 
 BOOL OnShutdown(BOOL final, u32 event) {
 #pragma unused(event)
@@ -1109,6 +1145,7 @@ void WPADiInitSub() {
         _wpdcb[chan]->connectCallback = NULL;
         __ClearControlBlock(chan);
         OSInitThreadQueue(&_wpd[chan].threadq);
+        _wpdcb[chan]->UNK_0xBAE = 0;
 
         _extCnt[chan] = 0;
         _rumbleCnt[chan] = 0;
@@ -1125,11 +1162,19 @@ void WPADiInitSub() {
     _checkCnt = 0;
     _afhCnt = 0;
     _shutdown = 0;
-    _scFlush = 0;
     _scSetting = 1;
     _afhChannel = -1;
+    _callbackByKPAD = FALSE;
 
     OSRegisterVersion(__WPADVersion);
+    if (_wpadInitHook0) { _wpadInitHook0(); }
+    if (_wpadInitHook1) { _wpadInitHook1(); }
+    if (_wpadInitHook2) { _wpadInitHook2(); }
+    if (_wpadInitHook3) { _wpadInitHook3(); }
+    if (_wpadInitHook4) { _wpadInitHook4(); }
+    if (_wpadInitHook5) { _wpadInitHook5(); }
+    if (_wpadInitHook6) { _wpadInitHook6(); }
+    if (_wpadInitHook7) { _wpadInitHook7(); }
     OSCreateAlarm(&_managerAlarm);
     OSSetPeriodicAlarm(&_managerAlarm, OSGetTime(), OSMillisecondsToTicks(1), WPADiManageHandler0);
 }
@@ -1406,6 +1451,14 @@ void WPADSetAutoSleepTime(u8 minute) {
     OSRestoreInterrupts(enable);
 }
 
+// inferred: name from later SDKs; resets the auto-sleep timer (version 2010)
+void WPADResetAutoSleepTimeCount(s32 chan) {
+    WPADControlBlock* p_wpd = _wpdcb[chan];
+    BOOL enable = OSDisableInterrupts();
+    p_wpd->lastUpdateTime = __OSGetSystemTime();
+    OSRestoreInterrupts(enable);
+}
+
 s32 WPADProbe(s32 chan, u32* type) {
     WPADControlBlock* p_wpd = _wpdcb[chan];
     s32 status;
@@ -1430,10 +1483,13 @@ WPADSamplingCallback WPADSetSamplingCallback(s32 chan, WPADSamplingCallback call
     WPADSamplingCallback prev;
     BOOL enable;
 
-    DEBUGPrint("WPADSetSamplingCallback()\n");
+    p_wpd = _wpdcb[chan];
+    if (_callbackByKPAD) {
+        OSReport("WARNING: Overwritten the callback needed by KPAD.\n");
+        OSReport("         Please call KPADSetSamplingCallback instead of WPADSetSamplingCallback.\n");
+    }
 
     enable = OSDisableInterrupts();
-    p_wpd = _wpdcb[chan];
     prev = p_wpd->sampleCallback;
     p_wpd->sampleCallback = callback;
     OSRestoreInterrupts(enable);
@@ -1445,10 +1501,13 @@ WPADConnectCallback WPADSetConnectCallback(s32 chan, WPADConnectCallback callbac
     WPADConnectCallback prev;
     BOOL enable;
 
-    DEBUGPrint("WPADSetConnectCallback()\n");
+    p_wpd = _wpdcb[chan];
+    if (_callbackByKPAD) {
+        OSReport("WARNING: Overwritten the callback needed by KPAD.\n");
+        OSReport("         Please call KPADSetConnectCallback instead of WPADSetConnectCallback.\n");
+    }
 
     enable = OSDisableInterrupts();
-    p_wpd = _wpdcb[chan];
     prev = p_wpd->connectCallback;
     p_wpd->connectCallback = callback;
     OSRestoreInterrupts(enable);
@@ -2476,4 +2535,12 @@ void WPADiClearQueue(WPADCmdQueue* queue) {
     memset(queue->cmd, 0, queue->cmdlen * sizeof(WPADCommand));
 
     OSRestoreInterrupts(enable);
+}
+
+BOOL WPADIsUsedCallbackByKPAD(void) {
+    return _callbackByKPAD;
+}
+
+void WPADSetCallbackByKPAD(BOOL used) {
+    _callbackByKPAD = used;
 }

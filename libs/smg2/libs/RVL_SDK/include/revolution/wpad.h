@@ -364,6 +364,8 @@ typedef struct WPADControlBlock {
     u16 hystCountAcc;
     u16 diffCountfsAcc;
     u16 hystCountfsAcc;
+    u16 UNK_0xAFC; // inferred: version 2010
+    u16 UNK_0xAFE; // inferred: version 2010
     OSTime cmdTimer;
     u8 cmdTimeoutAction;
     u8 isSetStickOrigin;
@@ -386,7 +388,9 @@ typedef struct WPADControlBlock {
     u8 extEnc;
     u8 pwrSave;
     u8 padding2;
-    u8 UNK_0xB88[0x28]; // inferred: new fields of the version of 2010
+    u8 UNK_0xB88[0x26];
+    u8 UNK_0xBAE;
+    u8 UNK_0xBAF[0x19]; // inferred: new fields of the version of 2010
 } WPADControlBlock;
 
 typedef struct WPADMEMControlBlock {
