@@ -1,6 +1,7 @@
 #include "game/LastCocoonImago.h"
 #include "chr/ControlBase.h"
 #include "game/GameMessageList.h"
+#include "game/GimmickManager.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -19,6 +20,7 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
+extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliCapsuleShape_unk* c); // inferred: hit test
 
 atn::Vector3 LastCocoonImago::vf64(int center) {
     atn::Vector3 result = mPos;
@@ -135,6 +137,44 @@ void LastCocoonImago::fn_8045ECC4() {
     GimmickMsg_unk msg;
     msg.mType = 5;
     m18F8->vf40(&msg);
+}
+
+// inferred: the sphere of a ColliSphere read as one shape (name invented)
+inline const atn::ColliSphereShape_unk& GetShape_unk(const atn::ColliSphere& c) {
+    return *(const atn::ColliSphereShape_unk*)&c.mSphere;
+}
+// inferred: the segment and radius of a capsule (m3C-m57) read as one shape (name invented)
+inline const atn::ColliCapsuleShape_unk& GetShape_unk(const atn::ColliCapsule& c) {
+    return *(const atn::ColliCapsuleShape_unk*)&c.m3C;
+}
+
+void LastCocoonImago::fn_8045F4CC() {
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+        if (g->m50 == 1 && g->vf5C() != 0) {
+            atn::ColliSphere* colli = (atn::ColliSphere*)g->vf50();
+            if (colli != 0) {
+                atn::ColliSphereShape_unk s = GetShape_unk(*colli);
+                int hit = 0;
+                atn::ColliCapsuleShape_unk c = GetShape_unk(mColli);
+                if (fn_80051B14(&s, &c)) {
+                    hit = 1;
+                }
+                c = GetShape_unk(mCapsules[6]);
+                if (fn_80051B14(&s, &c)) {
+                    hit = 1;
+                }
+                c = GetShape_unk(mCapsules[8]);
+                if (fn_80051B14(&s, &c)) {
+                    hit = 1;
+                }
+                if (hit) {
+                    GimmickMsg_unk msg;
+                    msg.mType = 4;
+                    g->vf40(&msg);
+                }
+            }
+        }
+    }
 }
 
 // inferred: frames 80-105 of the motion of state 11
