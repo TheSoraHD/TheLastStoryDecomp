@@ -661,35 +661,45 @@ static WUDInitState fn_80670C70(void) { return WUD_STATE_INIT_GET_DEV_INFO; }
 
 // inferred: helpers of the version of 2010 (used by WUDHidHost.c)
 
-static inline void WUDiSetWbcInfo(u8* addr, u8* linkKey, u8* name) {
-    u16* ptr;
+static u32 WUDiCalcWbcCrc(void* data, u32 length, u32 crc) {
+    u16* ptr = (u16*)data;
+    u32 hi = (u16)(crc >> 16);
+    u16 lo = (u16)crc;
+    u32 i;
+    u32 num = length / sizeof(u16);
+
+    for (i = 0; i < num; i++, ptr++) {
+        hi += *ptr;
+        lo += (u16)~*ptr;
+    }
+
+    return (u16)hi << 16 | lo;
+}
+
+// inferred: layout of Swiftshine/key __wudPrepareWBCDevInfo
+static void WUDiSetWbcInfo(u8* addr, u8* linkKey, u8* name) {
+    u8 offset = 0;
     u32 sum;
-    u32 hi;
-    u16 lo;
-    int i;
 
     if (addr != NULL) {
-        memcpy(_wbcInfo.addr, addr, BD_ADDR_LEN);
+        memcpy((void*)((u32)&_wbcInfo + offset), addr, BD_ADDR_LEN);
     }
+
+    offset += BD_ADDR_LEN;
 
     if (linkKey != NULL) {
-        memcpy(_wbcInfo.linkKey, linkKey, LINK_KEY_LEN);
+        memcpy((void*)((u32)&_wbcInfo + offset), linkKey, LINK_KEY_LEN);
     }
+
+    offset += LINK_KEY_LEN;
 
     if (name != NULL) {
-        memcpy(_wbcInfo.name, name, sizeof(_wbcInfo.name));
+        memcpy((void*)((u32)&_wbcInfo + offset), name, 64);
     }
 
-    hi = _wbcSeed >> 16;
-    lo = _wbcSeed;
-    ptr = (u16*)&_wbcInfo;
+    offset += 64;
 
-    for (i = 0; i < 64; i++) {
-        hi += ptr[i];
-        lo += (u16)~ptr[i];
-    }
-
-    sum = (hi << 16) | lo;
+    sum = WUDiCalcWbcCrc(&_wbcInfo, 128, _wbcSeed);
     memcpy(&_wbcInfo.checksum, &sum, sizeof(sum));
 }
 
@@ -1568,7 +1578,20 @@ static WUDDeleteState WUDiDeleteDevice(void) {
         }
     }
 
-    return WUD_STATE_DELETE_CLEANUP_SETTING;
+    // inferred: version of 2010, clears the balance board link key in the Wii Fit save data on
+    // Japanese consoles (Swiftshine/key __wudDeleteCleanupDatabase)
+    if (WUDIsLinkedWBC()) {
+        if (SCGetProductGameRegion() == 0 /* JP */) {
+            LINK_KEY linkKey = {0};
+            WUDiSetWbcInfo(NULL, linkKey, NULL);
+
+            return 0x64;
+        } else {
+            return WUD_STATE_DELETE_CLEANUP_SETTING;
+        }
+    } else {
+        return WUD_STATE_DELETE_CLEANUP_SETTING;
+    }
 }
 
 static void WUDiCleanUp() {
@@ -1871,6 +1894,31 @@ static u8 WUDiGetRegisteredDevice() {
 
         scNum++;
         num--;
+    }
+
+    // inferred: version of 2010, restores the balance board stored in the extra entry
+    // (Swiftshine/key __wudInitDevInfo)
+    if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_WBC(_scArray.info[WUD_WBC_SC_INDEX].bd_name)) {
+        p_info = WUDiGetNewDevInfo();
+        if (p_info == NULL) {
+            p_info = WUDiGetDevInfoIndex(9);
+            scNum--;
+        }
+
+        memcpy(p_info->devAddr, _scArray.info[WUD_WBC_SC_INDEX].bd_addr, BD_ADDR_LEN);
+        memcpy(p_info->conf.devName, _scArray.info[WUD_WBC_SC_INDEX].bd_name, 19);
+        memcpy(p_info->linkKey, _scArray.info[WUD_WBC_SC_INDEX].bd_name + 20, LINK_KEY_LEN);
+        p_info->status = 1;
+        p_info->sync_type = 0;
+        p_info->subclass = 2;
+        p_info->hhAttrMask = (BTA_HH_BATTERY_POWER | BTA_HH_REMOTE_WAKE | BTA_HH_SUP_TOUT_AVLBL | BTA_HH_SEC_REQUIRED | BTA_HH_RECONN_INIT);
+        p_info->appID = 3;
+        p_info->UNK_0x5C = 3;
+
+        memset(&_scArray.info[scNum], 0, sizeof(SCBtDeviceInfoSingle));
+        memcpy(_scArray.info[scNum].bd_addr, _scArray.info[WUD_WBC_SC_INDEX].bd_addr, BD_ADDR_LEN);
+        memcpy(_scArray.info[scNum].bd_name, _scArray.info[WUD_WBC_SC_INDEX].bd_name, 19);
+        scNum++;
     }
 
     _scArray.num = scNum;
