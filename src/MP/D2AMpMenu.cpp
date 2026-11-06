@@ -17,6 +17,7 @@ extern "C" void fn_804EAA68(MpMenuSession_unk* s, int value);
 extern "C" void fn_804EA6B0(MpMenuSession_unk* s, int value, int b);
 extern "C" void fn_804EA810(MpMenuSession_unk* s, int value, int b);
 extern "C" void fn_804EA608(MpMenuSession_unk* s, int time, int b);
+extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
 
 namespace MP {
 
@@ -116,6 +117,25 @@ D2AMpMenu::~D2AMpMenu() {
     if (sInstance != 0) {
         sInstance = 0;
     }
+}
+
+// NONMATCHING: the original loads the 16.0f of fn_8006EF48 before the data() branch (as D2AMpMenuSetRule::vf0C)
+int D2AMpMenu::vf0C() {
+    if (fn_800D3FA4() != 0) {
+        SetAll_unk(0);
+        mD0 = 1;
+        fn_804AF520(1);
+        SetPaneValue_unk(m70->mLayout, "pos0007", 4, -110.0f);
+        SetPaneValue_unk(m70->mLayout, "pos0017", 4, -110.0f);
+        void* pane = fn_801FEC74(m70->mLayout, "string0007(1)");
+        if (pane != 0) {
+            fn_8006EF48(lbl_8087EEC8, fn_800A4450(pane, 0, 0).data(), 16.0f, 0.0f, 1, 1);
+        }
+        fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
+        D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
+        return 1;
+    }
+    return 0;
 }
 
 void D2AMpMenu::vf1C() {}

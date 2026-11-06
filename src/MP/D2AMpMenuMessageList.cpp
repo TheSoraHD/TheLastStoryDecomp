@@ -23,14 +23,19 @@ struct MpMessageRef_unk {
     short mCategory;
     short mIndex;
 };
+// inferred: lobby settings saved at lbl_8087F628 + 0xC20 (message list at 0x18)
+struct MpMessageSave_unk {
+    unsigned char m00[0x18];
+    MpMessageRef_unk mMessages[40]; // 0x18 (0xC38)
+};
 // inferred: multiplayer data (lbl_8087F628); only the members used here
 struct MpData_unk {
     unsigned char m0000[0x1F8];
     unsigned int m1F8_hi : 11;
     unsigned int m1F8_11 : 1;
     unsigned int m1F8_lo : 20;
-    unsigned char m1FC[0xC38 - 0x1FC];
-    MpMessageRef_unk mMessages[40]; // 0xC38
+    unsigned char m1FC[0xC20 - 0x1FC];
+    MpMessageSave_unk mC20;
     unsigned char mCD8[0xC215 - 0xCD8];
     unsigned char mC215;
 };
@@ -311,7 +316,8 @@ void D2AMpMenuMessageList::vf14() {
     }
 }
 
-// NONMATCHING: not checked in detail (text drawing with scrolling)
+// NONMATCHING: 93.8% - the original evaluates the float arguments of fn_80061AE4 (pos.x - off, 17.0f,
+// -100.0f) before the branch of the text argument; the float registers of scale/width differ
 void D2AMpMenuMessageList::fn_804C50C0() {
     float scale = 0.05f;
     float speed = 1.5f;
@@ -335,13 +341,13 @@ void D2AMpMenuMessageList::fn_804C50C0() {
     } else {
         scroll = (mB0 - 50.0f) * speed;
     }
-    MpMessageRef_unk* refs = lbl_8087F628->mMessages;
+    MpMessageSave_unk* save = &lbl_8087F628->mC20;
     for (int i = 0; i < 10; i++) {
         sprintf(name, "message_list%02d", i + 1);
         MpRect_unk pos = GetPaneRect_unk(m48, name);
         pos.x += 4.0f;
         pos.y += 6.0f;
-        MpMessageRef_unk* ref = &refs[i + sPage * 10];
+        MpMessageRef_unk* ref = &save->mMessages[i + sPage * 10];
         MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(ref->mCategory, ref->mIndex);
         if (msg != 0) {
             const wchar_t* text = msg->mText != 0 ? msg->mText : lbl_808813D0;
