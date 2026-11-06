@@ -15,7 +15,7 @@ extern "C" void KPADInit();                                                 // i
 extern "C" void KPADSetConnectCallback(int chan, void (*cb)(int, int));                   // inferred: KPADSetConnectCallback
 extern "C" void KPADDisableDPD(int chan);                                         // inferred: KPADDisableDPD
 extern "C" void KPADEnableDPD(int chan);                                         // inferred: KPADEnableDPD
-extern "C" void fn_806540A0(int chan);
+extern "C" void KPADEnableAimingMode(int chan);
 extern "C" int KPADRead(int chan, KPADStatus_unk* samples, int count);     // inferred: KPADRead
 extern "C" void WPADSetAutoSleepTime(unsigned char minute);
 extern "C" void WPADResetAutoSleepTimeCount(int chan);
@@ -69,7 +69,7 @@ int fn_800DDB14(void* ptr) {
 
 } // extern "C"
 
-// NONMATCHING: 99% - the counter of the fn_806540A0 loop is r31 in the original (r30 here); tried shared
+// NONMATCHING: 99% - the counter of the KPADEnableAimingMode loop is r31 in the original (r30 here); tried shared
 // counters, pointer loops and declaration orders.
 WPad_unk::WPad_unk() {
     mRepeatDelay = 15;
@@ -102,7 +102,7 @@ WPad_unk::WPad_unk() {
     memset(m40E0, 0, sizeof(m40E0));
     memset(mStatus, 0, sizeof(mStatus));
     for (int k = 0; k < 4; k++) {
-        fn_806540A0(k);
+        KPADEnableAimingMode(k);
     }
     KPADStatus_unk* p = mStatus[0];
     for (int i = 0; i < 4; i++, p += 16) {
