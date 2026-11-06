@@ -29,6 +29,7 @@ public:
     LastCocoonQuadruped(atn::Task* parent, EnemyInfo_unk* info); // 0x8045FAB0
     virtual ~LastCocoonQuadruped();                              // 0x80468D48
     virtual void vf14();                                         // 0x80460A90
+    virtual void vf20();                                         // 0x80461520
     virtual void vf3C(HitInfo_unk* hit);                         // 0x80460A94
     virtual atn::Vector3 vf64(int center);                       // 0x80460EF0
     virtual float vf90();                                        // 0x80468D40
@@ -70,8 +71,7 @@ public:
     atn::ColliCapsule mCapsules[5]; // 0x15D8
     atn::EfpFile m1790;
     atn::EfpFile m179C;
-    atn::ColliSphere m17A8; // inferred: enabled (bit 0 of mFlags) when mode 6 starts
-    unsigned char m17F4[0x1800 - 0x17F4];
+    atn::ColliCapsule m17A8; // inferred: enabled (bit 0 of mFlags) when mode 6 starts
     int m1800; // inferred: an effect is attached to the motion
     unsigned char m1804[0x1824 - 0x1804];
     atn::EffFile m1824;

@@ -27,6 +27,20 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: nodes of the hit spheres (fn_80461398)
 static const char* const sSphereNodes_unk[3] = {"head", "waist", "spine"};
 
+// inferred: hit capsules of the legs and the neck: two nodes and a radius (vf20; names invented)
+struct QuadCapsule_unk {
+    const char* mFrom;
+    const char* mTo;
+    float mRadius;
+};
+static const QuadCapsule_unk sCapsules_unk[5] = {
+    {"neck", "ef_eye", 8.0f},
+    {"rightleg", "rightfoot", 8.0f},
+    {"leftleg", "leftfoot", 8.0f},
+    {"rightmiddle1", "rightforearm", 8.0f},
+    {"lefthand", "leftforearm", 8.0f},
+};
+
 // inferred: angle used by fn_80460B48 (50 degrees; initialized in the __sinit; name invented)
 static float sAngle_unk = atn::DegToRad_unk(50.0f);
 
@@ -121,15 +135,39 @@ atn::Vector3 LastCocoonQuadruped::vf64(int center) {
     return result;
 }
 
+// inferred: sets the segment and the radius of a capsule (name invented)
+inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
+void LastCocoonQuadruped::vf20() {
+    m614 = mPos + m5A4;
+    m620 = 1.5f * m5B0;
+    m614.y += m620;
+    float radius = m5B0;
+    atn::Vector3 a = m614;
+    atn::Vector3 b = a;
+    b.y += MAX(m5B4 - 2.0f * radius, 1.0f);
+    SetCapsule_unk(mColli, a, b, radius);
+    for (int i = 0; i < 5; i++) {
+        float r = sCapsules_unk[i].mRadius;
+        a = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sCapsules_unk[i].mFrom))->GetTrans_unk();
+        b = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sCapsules_unk[i].mTo))->GetTrans_unk();
+        SetCapsule_unk(mCapsules[i], a, b, r);
+    }
+    a = mPos;
+    b = a;
+    b.y += 100.0f;
+    SetCapsule_unk(m17A8, a, b, 50.0f);
+}
+
 void LastCocoonQuadruped::fn_80461398() {
     if (m624.mSize != 0) {
         for (int i = 0; i < 3; i++) {
             MtxPtr mtx = mMotion.GetNodeMtx_unk(sSphereNodes_unk[i]);
-            atn::Vector3 pos;
-            pos.x = mtx[0][3];
-            pos.y = mtx[1][3];
-            pos.z = mtx[2][3];
-            m624.mData[i].m04.mCenter = pos;
+            m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)mtx)->GetTrans_unk();
             if (i == 1) {
                 m624.mData[i].m04.mRadius = 10.0f;
             } else if (i == 2) {
