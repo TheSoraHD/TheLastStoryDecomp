@@ -15,6 +15,10 @@ public:
     virtual ~LastCocoonImago();                              // 0x8045F9A0
     virtual void vf38(int enable);                           // 0x8045D1EC
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
+    virtual float vf90();                                    // 0x8045F998
+    virtual float vfD4();                                    // 0x8045F990
+    virtual float vfDC();                                    // 0x8045F90C
+    virtual int vfE4();                                      // 0x8045F6A0
 
     atn::LH_Binary m14B0; // inferred: parameter file
     unsigned char m14B8[0x14F0 - 0x14B8];

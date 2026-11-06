@@ -20,4 +20,27 @@ void LastCocoonImago::vf38(int enable) {
     }
 }
 
+// inferred: frames 80-105 of the motion of state 11
+int LastCocoonImago::vfE4() {
+    if (m58C == 11) {
+        float frame = mMotion.mTracks[0].m08;
+        if (80.0f <= frame && frame <= 105.0f) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+float LastCocoonImago::vfDC() {
+    return 0.7f;
+}
+
+float LastCocoonImago::vfD4() {
+    return 2.2f;
+}
+
+float LastCocoonImago::vf90() {
+    return 5.0f;
+}
+
 LastCocoonImago::~LastCocoonImago() {}
