@@ -45,7 +45,8 @@ public:
     virtual atn::Vector3 vf64(int center);                 // 0x80454D08
     void fn_80455D80();
     void fn_80455E20(); // inferred: targets the farthest attacker (or the leader)
-    void fn_80456194(); // inferred: aims and fires the bullet 0x5AA at the target // inferred: plays the effect m1928 (m1920 = 1)
+    void fn_80456194();
+    void fn_804560A4(); // inferred: collision capsule scaled by m14D0 // inferred: aims and fires the bullet 0x5AA at the target // inferred: plays the effect m1928 (m1920 = 1)
     void fn_8045617C();
     void fn_80456DB8();
     void fn_80456F04();
