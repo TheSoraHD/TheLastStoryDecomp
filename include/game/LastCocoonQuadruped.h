@@ -32,12 +32,14 @@ public:
     virtual void vf20();                                         // 0x80461520
     virtual void vf24();                                         // 0x804628B4
     virtual void vf3C(HitInfo_unk* hit);                         // 0x80460A94
+    virtual void vf50();                                         // 0x80460F18
+    virtual void vf54(); // 0x80461398: inferred: places the hit spheres on the head, waist and spine
     virtual atn::Vector3 vf64(int center);                       // 0x80460EF0
     virtual float vf90();                                        // 0x80468D40
     virtual int vfE4();                                          // 0x80468D18
     void fn_80465294(); // inferred: mode 13: drains the hp of m1574 every 30 frames
     void fn_804654F0(); // inferred: back to mode 0 at the end of the motion
-    void fn_80461398(); // inferred: places the hit spheres on the head, waist and spine
+
     void fn_804617A4(); // inferred: chooses the target of the mode
     void fn_80461838();
     void fn_804635B4();

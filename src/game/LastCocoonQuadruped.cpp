@@ -29,7 +29,7 @@ extern "C" QuadField_unk* lbl_8087F430;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
-// inferred: nodes of the hit spheres (fn_80461398)
+// inferred: nodes of the hit spheres (vf50, vf54)
 static const char* const sSphereNodes_unk[3] = {"head", "waist", "spine"};
 
 // inferred: hit capsules of the legs and the neck: two nodes and a radius (vf20; names invented)
@@ -217,7 +217,18 @@ inline void SetCapsule_unk(atn::ColliCapsule& c, const atn::Vector3& a, const at
     c.m54 = r;
 }
 
-void LastCocoonQuadruped::fn_80461398() {
+// inferred: hit spheres on the head, waist and spine
+void LastCocoonQuadruped::vf50() {
+    Item14_unk item;
+    item.m04.mRadius = 1.5f * m5B0;
+    for (int i = 0; i < 3; i++) {
+        item.m04.mCenter = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sSphereNodes_unk[i]))->GetTrans_unk();
+        m624.push_back(item);
+    }
+    mFlagB29 = 0;
+}
+
+void LastCocoonQuadruped::vf54() {
     if (m624.mSize != 0) {
         for (int i = 0; i < 3; i++) {
             MtxPtr mtx = mMotion.GetNodeMtx_unk(sSphereNodes_unk[i]);
