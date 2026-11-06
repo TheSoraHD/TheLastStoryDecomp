@@ -56,7 +56,16 @@ public:
     int fn_801D5420(int a, int b); // inferred: (called by game/CosEditItemList_unk.cpp)
 
     void fn_801D3DF4();                                         // game/CosEditProtector.cpp
+    void fn_801D463C(atn::D3Anime** out, CosEditList_unk* lists, int state, int a, int b);
     void fn_801D4E74(int member, atn::D2ATask_unk* task, int mode); // game/CosEditProtector.cpp
+
+    // game/CosEditItemList_unk.cpp (0x801D80A0)
+    void fn_801DD26C(int member);
+    void fn_801E07A4(int member, int list);
+    void fn_801E6714();
+    void fn_801E6B10();
+    void fn_801E6EF0(int member, int list, int* cursor, int* top, int a);
+    void fn_801E6FC8(int member, int list, int* cursor, int* top, int a);
 
     // game/CosEditPalette_unk.cpp
     void fn_801D54C0(); // inferred: state 0: top page
@@ -122,7 +131,7 @@ public:
     int mB80;
     atn::D2ATask_unk* mSort;      // 0xB84: camp_sort.d2a
     atn::Task* mB88;              // inferred: deleted by vf28 (fn_800D2338)
-    unsigned char mB8C[0xB90 - 0xB8C];
+    int mB8C;
     atn::D3Anime* mIconCursor;                // 0xB90: equip_color_icon_cursor.d2a
     atn::D3AnimeInstance* mPalettes[9];       // 0xB94: inferred: palette marks (the last one is the cursor)
     atn::D3AnimeInstance* mBB8[10][8];        // 0xBB8: equip_color_icon.d2a

@@ -19,6 +19,21 @@ extern "C" int fn_8020BDE0(int index);         // inferred: palette id of a colo
 extern "C" int fn_8020BE10(int index);         // inferred: part id of a part cell
 extern "C" void fn_800D2338(atn::Task* task);  // inferred: deletes a task
 extern "C" atn::Vector3 lbl_807C7030;          // inferred: zero vector
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value); // inferred: sets a value
+inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+// inferred: d2anime task seen through its layout
+struct CosEditTaskLayout_unk : public atn::Task {
+    unsigned char m48[0x58 - 0x48];
+    unsigned char mLayout[4]; // 0x58
+};
+// inferred: sets a value of the layout of a task (the layout address is taken after the hash)
+inline void SetTaskFloat_unk(void* task, const char* name, float value) {
+    fn_801FECE0(((CosEditTaskLayout_unk*)task)->mLayout, fn_800DC6B4(name), value);
+}
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: layout anime
 // inferred: d2anime task seen through its frame and speed (as ShopD2A_unk in game/ShopBase.h)
 struct CosEditD2A_unk : public atn::Task {
@@ -463,6 +478,122 @@ void CosEditProtector::vf30() {
         vf34(4);
     }
     mF8 = 0.0f;
+}
+
+void CosEditProtector::vf48() {
+    float value = 0.0f;
+    for (int i = 0; i < m4C; i++) {
+        NewCampPartsEntry_unk* entry = &m50[i];
+        if (entry->m04 == 1) {
+            atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
+            if (anime != 0 && anime->GetTask() != 0) {
+                fn_801F6C80((atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask(), "frameOn", value);
+            }
+        } else {
+            atn::D3Anime* anime = entry->mAnime;
+            if (anime != 0 && anime->GetTask() != 0) {
+                SetTaskFloat_unk(m50[i].mAnime->GetTask(), "frameOn", value);
+            }
+        }
+    }
+    if (mSelect != 0 && mSelect->GetTask() != 0) {
+        SetTaskFloat_unk(mSelect->GetTask(), "frameOn", value);
+    }
+    if (mListParts != 0 && mListParts->GetTask() != 0) {
+        SetTaskFloat_unk(mListParts->GetTask(), "frameOn", value);
+    }
+    if (mListBase != 0 && mListBase->GetTask() != 0) {
+        SetTaskFloat_unk(mListBase->GetTask(), "frameOn", value);
+    }
+    if (mColorSelect != 0 && mColorSelect->GetTask() != 0) {
+        SetTaskFloat_unk(mColorSelect->GetTask(), "frameOn", value);
+    }
+    if (mColorPalette != 0 && mColorPalette->GetTask() != 0) {
+        SetTaskFloat_unk(mColorPalette->GetTask(), "frameOn", value);
+    }
+    if (mEffectPalette != 0 && mEffectPalette->GetTask() != 0) {
+        SetTaskFloat_unk(mEffectPalette->GetTask(), "frameOn", value);
+    }
+    if (mEquipStatus != 0 && mEquipStatus->GetTask() != 0) {
+        SetTaskFloat_unk(mEquipStatus->GetTask(), "frameOn", value);
+    }
+    for (int i = 0; i < 3; i++) {
+        if (mLists[i].mBase != 0 && mLists[i].mBase->GetTask() != 0) {
+        SetTaskFloat_unk(mLists[i].mBase->GetTask(), "frameOn", value);
+    }
+    }
+    if (mBest != 0 && mBest->GetTask() != 0) {
+        SetTaskFloat_unk(mBest->GetTask(), "frameOn", value);
+    }
+    if (mNaked != 0) {
+        SetTaskFloat_unk(mNaked, "frameOn", value);
+    }
+}
+
+void CosEditProtector::fn_801D463C(atn::D3Anime** out, CosEditList_unk* lists, int state, int a, int b) {
+    switch (state) {
+    case 5:
+        lists[1].m40 = b;
+        lists[1].m3C = a;
+        mB8C = a;
+        break;
+    case 6:
+        lists[2].m3C = a;
+        lists[2].m40 = b;
+        break;
+    case 7:
+        *out = mColorPalette;
+        mColorPalette->mVisible = 1;
+        mB8C = a;
+        break;
+    case 8:
+        *out = mEffectPalette;
+        mEffectPalette->mVisible = 1;
+        mB8C = a;
+        break;
+    case 4:
+        *out = mColorSelect;
+        mColorSelect->mVisible = 1;
+        mB8C = a;
+        break;
+    default:
+        *out = mColorSelect;
+        mColorSelect->mVisible = 1;
+        break;
+    }
+}
+
+void CosEditProtector::vf6C() {
+    switch (m7C) {
+    case 2:
+        fn_801DD26C(fn_801CF334()->mFace);
+        fn_801E6EF0(fn_801CF334()->mFace, m1E4, &m80, &m88, 1);
+        fn_801E6714();
+        break;
+    case 3:
+        fn_801E07A4(fn_801CF334()->mFace, m1E4);
+        fn_801E6FC8(fn_801CF334()->mFace, m1E4, &m80, &m88, 1);
+        fn_801E6B10();
+        break;
+    case 5:
+        fn_801D70EC(mColorPalette);
+        break;
+    case 6:
+    case 7:
+        fn_801D6F84();
+        break;
+    case 10:
+        fn_801D6AB0();
+        fn_801D6C1C(m1BB4);
+        m1BB4 = m80;
+        break;
+    case 8:
+        fn_801D70EC(mColorPalette);
+        break;
+    case 9:
+        fn_801D7354(mEffectPalette);
+        break;
+    }
 }
 
 void CosEditProtector::vf74(int a, int b) {
