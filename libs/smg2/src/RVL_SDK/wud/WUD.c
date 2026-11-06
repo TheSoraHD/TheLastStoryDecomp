@@ -2633,8 +2633,9 @@ BOOL WUDSetDisableChannel(s8 afhChannel) {
 
     DEBUGPrint("WUDSetDisableChannel()\n");
 
-    if (afhChannel < 0 || 13 < afhChannel) {
-        return FALSE;
+    // inferred: release build of 2010 compares the channel unsigned (Swiftshine/key)
+    if ((u8)afhChannel < 0 || 13 < (u8)afhChannel) {
+        return success;
     }
 
     enabled = OSDisableInterrupts();
@@ -2731,15 +2732,12 @@ void reset_again(void) {
     BTM_DeviceReset(reset_again_cb);
 }
 
+// inferred: condition of the version of 2010 (Swiftshine/key __wudInstallPatchCallback)
 static void install_patch_cb(tBTM_VSC_CMPL* p1) {
-    if (p1 != NULL) {
-        if (patch_num == install_num) {
-            reset_again();
-        } else {
-            WUDiInstallPatch();
-        }
-    } else {
+    if ((patch_num == install_num && p1 != NULL) || p1 == NULL) {
         reset_again();
+    } else {
+        WUDiInstallPatch();
     }
 }
 
@@ -2834,11 +2832,11 @@ static void WUDiWritePatch(void) {
 }
 
 static void remove_patch_cb(tBTM_VSC_CMPL* p1) {
-    if (p1 == NULL) {
-        reset_again();
-    } else {
+    if (p1 != NULL) {
         offset = 0;
         WUDiWritePatch();
+    } else {
+        reset_again();
     }
 }
 
@@ -2988,7 +2986,8 @@ void WUDiRegisterDevice(BD_ADDR addr) {
     status = BTA_DmAddDevice(pInfo->devAddr, pInfo->linkKey, 0, FALSE);
     DEBUGPrint("BTA_DmAddDevice(): %d\n", status);
 
-    if (WUD_DEV_NAME_IS_CNT(pInfo->conf.devName)) {
+    // inferred: version of 2010 also registers a linked balance board (Swiftshine/key)
+    if (WUD_DEV_NAME_IS_CNT(pInfo->conf.devName) || (WUD_DEV_NAME_IS_WBC(pInfo->conf.devName) && WUDIsLinkedWBC())) {
         tBTA_HH_DEV_DESCR desc;
         desc.dl_len = sizeof(descriptor);
         desc.dsc_list = descriptor;
@@ -3022,7 +3021,8 @@ void WUDiRemoveDevice(BD_ADDR addr) {
 
         DEBUGPrint("remove device info from database.\n");
 
-        if (WUD_DEV_NAME_IS_CNT(pInfo->conf.devName)) {
+        // inferred: version of 2010 (Swiftshine/key)
+        if (WUD_DEV_NAME_IS_CNT(pInfo->conf.devName) || (WUD_DEV_NAME_IS_WBC(pInfo->conf.devName) && WUDIsLinkedWBC())) {
             DEBUGPrint("BTA_HhRemoveDev()\n");
             DEBUGPrint(" handle : %d\n", pInfo->devHandle);
             BTA_HhRemoveDev(pInfo->devHandle);
@@ -3281,7 +3281,7 @@ void WUDiMoveTopOfDisconnectedSmpDevice(WUDDevInfo* pInfo) {
                 continue;
             }
 
-            if (pIt->devInfo->status > 1) {
+            if (pIt->devInfo->status != 1 && pIt->devInfo->status != 0) {  // inferred: form of Swiftshine/key
                 continue;
             }
 
@@ -3412,7 +3412,8 @@ void WUDiMoveTopOfDisconnectedStdDevice(WUDDevInfo* pInfo) {
                 continue;
             }
 
-            if (pIt->devInfo->status > 1) {
+            // inferred: version of 2010 also moves a linked balance board (Swiftshine/key)
+            if (pIt->devInfo->status != 1 && pIt->devInfo->status != 0 && (WUD_DEV_NAME_IS_CNT(pIt->devInfo->conf.devName) || !WUDIsLinkedWBC())) {
                 continue;
             }
 
