@@ -208,8 +208,6 @@ void D2AMpMenuFriendRoom::UpdateScrollBar_unk() {
     SetPaneValue3_unk(layout, "s_hightMax", 197.0f);
 }
 
-// NONMATCHING: 99.62% - cursor/top/decide/pad registers and the stack slots of the sound
-// temporaries and of the inlined UpdateScrollBar_unk
 void D2AMpMenuFriendRoom::fn_804BA970() {
     if (m108 > 0) {
         m108--;
@@ -227,25 +225,14 @@ void D2AMpMenuFriendRoom::fn_804BA970() {
     }
     int cursor = mAC;
     int top = m94;
-    int decide = 0;
-    {
-        void* pad = GetPad_unk();
-        fn_804A436C(&mAC, 0, 0, 1, 3);
-        if (fn_800A555C(pad, 0, 4) != 0) {
-            fn_80117228(1);
-            decide = 1;
-        } else if (fn_800A555C(pad, 0, 5) != 0) {
-            fn_80117228(2);
-            decide = 2;
-        }
-    }
+    int decide = Decide_unk(&mAC, 0);
     void* pad = GetPad_unk();
     if (fn_800A55AC(pad, 0, 0x1A) != 0 || fn_800A55AC(pad, 0, 0) != 0) {
-        int t = m94;
-        if (--mAC, t != 0) {
+        mAC--;
+        if (m94 != 0) {
             if (mAC < 1) {
                 mAC = 1;
-                m94 = t - 1;
+                m94--;
                 fn_804BB2CC(0);
             }
         } else if (mAC < 0) {
@@ -335,7 +322,17 @@ void D2AMpMenuFriendRoom::fn_804BA970() {
         fn_804BA350(4);
         fn_804DC450(lbl_8087F610, 0);
     }
-    UpdateScrollBar_unk();
+    // inferred: same as UpdateScrollBar_unk written out (with a reference to the rect, the stack slots of the original)
+    MpRect_unk rect;
+    const MpRect_unk& pos = GetPaneRect_unk(m4C, "sb_null_0001");
+    rect.x = pos.x;
+    rect.y = pos.y;
+    rect.w = pos.w;
+    rect.z = pos.z;
+    rect.h = 1.0f;
+    fn_801F4728(m80, "basePos", &rect);
+    void* layout = m80->mLayout;
+    SetPaneValue3_unk(layout, "s_hightMax", 197.0f);
 }
 
 void D2AMpMenuFriendRoom::vf14() {

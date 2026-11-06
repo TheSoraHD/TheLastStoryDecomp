@@ -83,6 +83,7 @@ extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
+extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
 extern "C" MP::MpMsgTable_unk* lbl_8087F86C;
 // inferred: text of a pane (returned by value) and its width with the font lbl_8087EEC8
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
@@ -113,6 +114,22 @@ inline void SetTaskText_unk(MpD2A_unk* task, const char* name, const wchar_t* te
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
+// inferred: moves the cursor and reads the decide/cancel keys (0: none, 1: decide, 2: cancel); as a function
+// the two sound temporaries get the stack slots of the original
+inline int Decide_unk(int* cursor, int count) {
+    void* pad = lbl_8087EF70;
+    int decide = 0;
+    fn_804A436C(cursor, count, count, 1, 3);
+    if (fn_800A555C(pad, 0, 4) != 0) {
+        fn_80117228(1);
+        decide = 1;
+    } else if (fn_800A555C(pad, 0, 5) != 0) {
+        fn_80117228(2);
+        decide = 2;
+    }
+    return decide;
+}
+
 // inferred: starts playing an anime at `speed`
 inline void Play_unk(MpD2A_unk* task, int repeat, float speed) {
     if (task != 0) {

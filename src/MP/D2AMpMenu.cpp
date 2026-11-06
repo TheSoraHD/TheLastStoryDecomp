@@ -233,21 +233,6 @@ void D2AMpMenu::fn_804B0A78() {
 }
 
 // inferred: input of the game selection (state 2)
-// inferred: moves the cursor and reads the decide/cancel keys (0: none, 1: decide, 2: cancel)
-static inline int Decide_unk(int* cursor, int count) {
-    void* pad = lbl_8087EF70;
-    int decide = 0;
-    fn_804A436C(cursor, count, count, 1, 3);
-    if (fn_800A555C(pad, 0, 4) != 0) {
-        fn_80117228(1);
-        decide = 1;
-    } else if (fn_800A555C(pad, 0, 5) != 0) {
-        fn_80117228(2);
-        decide = 2;
-    }
-    return decide;
-}
-
 void D2AMpMenu::fn_804B12F8() {
     if (m299C.m00 != 0) {
         if (m299C.m04 == m299C.m08) {
