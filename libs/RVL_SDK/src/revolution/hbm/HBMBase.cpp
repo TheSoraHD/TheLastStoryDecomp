@@ -83,13 +83,9 @@ const char* HomeButton::scCursorPaneName = HBM_CURSOR_PANE_NAME;
 const char* HomeButton::scCursorRotPaneName = HBM_CURSOR_ROT_PANE_NAME;
 const char* HomeButton::scCursorSRotPaneName = HBM_CURSOR_SROT_PANE_NAME;
 
-#define X(Y) #Y,
-const char* HomeButton::scBtnName[res::eBtn_Max] = {HBM_BTN_PANE_LIST};
-#undef X
-
-#define X(Y) #Y,
-const char* HomeButton::scTxtName[res::eTxt_Max] = {HBM_TXT_PANE_LIST};
-#undef X
+// inferred: the version of 2010 has no B_btnL_11/T_btnL_11 (the last entry is NULL)
+const char* HomeButton::scBtnName[res::eBtn_Max] = {"B_btnL_00", "B_btnL_01", "B_btnL_10"};
+const char* HomeButton::scTxtName[res::eTxt_Max] = {"T_btnL_00", "T_btnL_01", "T_btnL_10"};
 
 #define X(Y) #Y,
 const char* HomeButton::scGrName[res::eGroup_Max] = {HBM_GROUP_LIST};
@@ -283,12 +279,16 @@ void HomeButton::create() {
 
     nw4hbm::lyt::Pane* pRootPane = mpLayout->GetRootPane();
 
+    // inferred: version of 2010 (wide screen backgrounds and bars)
     NW4R_UT_LINKLIST_FOREACH(it, pRootPane->GetChildList(), {
-        if (std::strcmp(it->GetName(), "back_01") == 0) {
-            it->SetScale(nw4hbm::math::VEC2(1.2f, 1.2f));
-            break;
+        if (std::strcmp(it->GetName(), "back_00") == 0 || std::strcmp(it->GetName(), "back_01") == 0 ||
+            std::strcmp(it->GetName(), "back_02") == 0) {
+            it->SetScale(nw4hbm::math::VEC2(1.5f, 1.5f));
         }
     })
+
+    mpLayout->GetRootPane()->FindPaneByName("bar_line_00", true)->SetScale(nw4hbm::math::VEC2(1.5f, 1.0f));
+    mpLayout->GetRootPane()->FindPaneByName("bar_line_10", true)->SetScale(nw4hbm::math::VEC2(1.5f, 1.0f));
 
     for (i = 0; i < mAnmNum; i++) {
         std::strcpy(anmNameBuf, mpAnmName);
@@ -511,6 +511,8 @@ void HomeButton::init() {
     }
 
     mInitFlag = true;
+    UNK_0x5CA = 1;
+    WPADStopSimpleSync();
 
     mForceSttInitProcFlag = false;
     mForceSttFadeInProcFlag = false;
@@ -523,7 +525,14 @@ void HomeButton::init() {
     iReConnectTime2 =
         scReConnectTime2 / getInstance()->getHBMDataInfo()->frameDelta;
 
-    if (mSelectBtnNum != HBM_SELECT_BTN3) {
+    if (mEndInitSoundFlag) {
+        AXFXReverbHiShutdown(&mAxFxReverb);
+        AXRegisterAuxACallback(mAuxCallback, mpAuxContext);
+        AXFXSetHooks(mAxFxAlloc, mAxFxFree);
+
+        AXSetAuxAReturnVolume(mAppVolume[0]);
+        AXSetAuxBReturnVolume(mAppVolume[1]);
+        AXSetAuxCReturnVolume(mAppVolume[2]);
         mEndInitSoundFlag = false;
     }
 
@@ -536,19 +545,28 @@ void HomeButton::init() {
     mReassignedFlag = false;
 
     mpPaneManager->init();
+    mpPaneManager->setAllComponentTriggerTarget(false);
+
+    for (i = 0; i < mButtonNum; i++) {
+        mpPaneManager->getPaneComponentByPane(mpLayout->GetRootPane()->FindPaneByName(scBtnName[i], true))
+            ->setTriggerTarget(true);
+    }
+
     updateTrigPane();
 
     nw4hbm::ut::Rect layoutRect = mpLayout->GetLayoutRect();
     mDrawInfo.SetViewRect(layoutRect);
     mpLayout->CalculateMtx(mDrawInfo);
 
+    nw4hbm::math::VEC2 cursorPos(-1000.0f, -1000.0f);
     for (i = 0; i < res::eCursorLyt_Max; i++) {
         mpCursorLayout[i]->CalculateMtx(mDrawInfo);
+        mpCursorLayout[i]->GetRootPane()->FindPaneByName(scCursorPaneName, true)->SetTranslate(cursorPos);
     }
 
     reset_guiManager(-1);
 
-    for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+    for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
         mPadDrawTime[i] = 0;
 
         mpController[i]->setInValidPos();
@@ -565,6 +583,11 @@ void HomeButton::init() {
     mpLayout->GetRootPane()
         ->FindPaneByName(scFuncPaneName[res::eFuncPane_let_icn_00], true)
         ->SetVisible(false);
+
+    // inferred: version of 2010
+    mpLayout->GetRootPane()->FindPaneByName("N_cntrl_01", true)->SetVisible(true);
+    mpLayout->GetRootPane()->FindPaneByName("bar_00", true)->SetVisible(true);
+    mpLayout->GetRootPane()->FindPaneByName("bar_10", true)->SetVisible(true);
 
     for (i = res::eFuncTouchPane_B_optnBtn_00;
          i < res::eFuncTouchPane_B_optnBtn_20 + 1; i++) {
@@ -595,6 +618,7 @@ void HomeButton::init() {
     calc(NULL);
 
     mFader.init(30.0f / getInstance()->getHBMDataInfo()->frameDelta);
+    mFader.UNK_0xC = 1; // inferred: version of 2010
 }
 
 void HomeButton::init_msg() {

@@ -92,7 +92,7 @@ private:
             state_ = 1;
         }
 
-    private:
+    public:
         int frame_;    // at 0x0
         int maxFrame_; // at 0x4
         int state_;    // at 0x8
@@ -281,7 +281,8 @@ private:
     int UNK_0x5B8;                                         // inferred: version of 2010
     int iReConnectTime;                                    // at 0x5BC
     int iReConnectTime2;                                   // at 0x5C0
-    u16 mAppVolume[4];                                     // at 0x5C4 (version of 2010; was nw4hbm::snd::AUX_BUS_NUM)
+    u16 mAppVolume[3];                                     // at 0x5C4 (version of 2010; was nw4hbm::snd::AUX_BUS_NUM)
+    u16 UNK_0x5CA;                                         // inferred: set to 1 by init (version of 2010)
     //nw4hbm::snd::SoundArchivePlayer* mpSoundArchivePlayer; // at 0x5D0
     //nw4hbm::snd::DvdSoundArchive* mpDvdSoundArchive;       // at 0x5D4
     //nw4hbm::snd::MemorySoundArchive* mpMemorySoundArchive; // at 0x5D8
