@@ -38,6 +38,11 @@ extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801F4728(atn::Task* task, const char* name, const NewCampPartsPoint_unk* rect); // inferred: sets a rect
 extern "C" float fn_804A4264(MenuCommonTask* menu); // inferred: position of the help window
+// inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
+extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
+extern "C" void fn_805114D4(atn::D3AnimeInstance* anime, int a, int b, float c, float d);
+extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
+extern "C" const wchar_t* fn_8011745C(int category); // inferred: name of a sort category
 
 static const NewCampPartsFile_unk sFiles[12] = {
     {"shop_board01_0001", "item_logo.d2a", 0},
@@ -236,6 +241,64 @@ void NewCampPartsItem::vf14() {
             }
         }
     }
+}
+
+// NONMATCHING: loop registers (offset/pointer r28 instead of r25, the category index r26 instead of r24);
+// tried one shared counter (better) and a separate one for the categories
+void NewCampPartsItem::vf20() {
+    if (!m96) {
+        return;
+    }
+    int ready = 1;
+    int i;
+    for (i = 0; i < m4C; i++) {
+        if (m50[i].mAnime != 0 && m50[i].mAnime->mState == 1) {
+            ready = 0;
+            break;
+        }
+    }
+    if (mBase->mState == 1) {
+        ready = 0;
+    }
+    if (mNoItem->mState == 1) {
+        ready = 0;
+    }
+    for (i = 0; i < 10; i++) {
+        if (mItems[i]->mState == 1) {
+            ready = 0;
+        }
+    }
+    if (!ready) {
+        return;
+    }
+    for (i = 0; i < m4C; i++) {
+        fn_805113E8(m50[i].mAnime, 1, 0, 0.0f, 1.0f);
+    }
+    fn_805113E8(mBase, 1, 0, 0.0f, 1.0f);
+    fn_805113E8(mNoItem, 0, 0, 0.0f, 1.0f);
+    for (i = 0; i < 10; i++) {
+        fn_805114D4(mItems[i], 0, 0, 0.0f, 1.0f);
+    }
+    fn_805114D4(mScroll, 1, 0, 0.0f, 1.0f);
+    fn_805115D0(mSort, 1, 0, 0.0f, 1.0f);
+    for (i = 0; i < 7; i++) {
+        int index = i + 5;
+        NewCampPartsEntry_unk* entries = m50.mData;
+        if (entries[index].mAnime->GetTask() != 0) {
+            const wchar_t* text = fn_8011745C(i);
+            SetPaneText_unk(GetD2A_unk(entries[index].mAnime)->mLayout, "name", text);
+            GetD2A_unk(entries[index].mAnime)->mSpeed = 0.0f;
+            GetD2A_unk(entries[index].mAnime)->mFrame = 10.0f;
+        }
+    }
+    if (mNoItem->GetTask() != 0) {
+        const wchar_t* text = fn_80116FC0(0, 0x2741);
+        SetPaneText_unk(GetD2A_unk(mNoItem)->mLayout, "message", text);
+    }
+    fn_80517B3C();
+    fn_8051B164();
+    vf48();
+    m96 = 0;
 }
 
 void NewCampPartsItem::vf24() {

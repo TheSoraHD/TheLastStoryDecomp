@@ -26,6 +26,7 @@ struct NewCampItemD2A_unk : public atn::Task {
     unsigned char m48[0x58 - 0x48];
     unsigned char mLayout[0x100 - 0x58]; // 0x58: inferred: layout
     float mFrame;                        // 0x100
+    float mSpeed;                        // 0x104
 };
 
 // inferred from __vt__16NewCampPartsItem (0x80793450): item list of the camp
