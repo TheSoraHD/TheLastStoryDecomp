@@ -1,38 +1,37 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-06 08:30, rama `unidades-20261106` EN CURSO, sesión autónoma de 12 h)
+## Estado actual (2026-11-06, rama `unidades-20261106` sin mergear: la revisa el usuario)
 
-- `unidades-20261106` (desde `main` 9206c64, 12766): report **13489 / 18117** a las 08:30 (lost 0, `main.dol: OK`;
-  fuzzdrop solo lista dos símbolos `pad_03_*` de relleno que desaparecen al enlazar). Notas en
-  `docs/unidades-20261106.md`. Punto de control 5 subido.
+- `unidades-20261106` (desde `main` 9206c64, 12766): report **13524 / 18117** (lost 0, `main.dol: OK`, 652 de
+  1304 unidades enlazadas; fuzzdrop solo lista dos símbolos `pad_03_*` de relleno que desaparecen al enlazar).
+  Notas, decisiones a revisar, splits, renombrados y cambios de `libs/`: `docs/unidades-20261106.md`.
   - Enlazadas nuevas: `btm_inq.c`, `EXIBios.c` (`-O3`), 9 de `homebuttonLib/sound`, `THPDec.c`, `THPAudio.c`,
     `WUDHidHost.c`, `HBMController.cpp`, `HBMRemoteSpk.cpp`, `HBMCommon.cpp`, `HBMAxSound.cpp`, **AXFX completo**,
     **NHTTP completo**, SO (`SOBasic`, `SOInformation`, `SOOption`), MATH CRC, `ncdsystem.c`, `NETMD5.c`,
     `nw4r db_console`, de Swiftshine/key (CC0) **`WPAD.c` 2010 (98/98)**, `WPADEncrypt.c`, `WPADMem.c`, `lint.c`;
-    de mscharged (CC0) `dwc_nonport.c`, `dwci_np_math.c`, `dwc_common.c` y **VF (16 ficheros, 25 funciones)**;
-    `CXStreamingUncompression.c` (escrita desde el asm).
-  - Sin enlazar: `bd.c`, `WPADHIDParser.c` (32/33), `WUD.c` 2010 (77/85), `HBMBase.cpp` 2010 (33/34: `draw`),
-    `db_assert.cpp` (4/5, `VPanic` necesita asm), `CXUncompression.c` (3/4), **`dwc_match` (92/101, ahora con el
-    fuente R4QK01 de mscharged + cambios de 2010)**.
-- Fuentes externas útiles: Swiftshine/key (CC0, Kirby Epic Yarn, SDK de dic. 2009: WPAD/WUD/HBM casi iguales a
-  TLS), mscharged-decomp (CC0: NHTTP, SO, DWC R4QK01 de mayo de 2009, VF, KPAD 2009), wii-ipl (CC0),
-  pokemon-rumble-decomp (MIT). Buscar con `gh search code "<función>"`. `robojumper/sdk_2009-12-11` no tiene
-  licencia: no usado.
+    de mscharged (CC0) `dwc_nonport.c`, `dwci_np_math.c`, `dwc_common.c`, **VF (16 ficheros)**; `dwci_encsession.c`;
+    `CXStreamingUncompression.c` (desde el asm).
+  - Sin enlazar: `bd.c`, `WPADHIDParser.c` (32/33), `WUD.c` 2010 (77/85), `HBMBase.cpp` (33/34: `draw`),
+    `db_assert.cpp` (4/5, `VPanic` con asm), `CXUncompression.c` (3/4), **`dwc_match` (96/101, fuente R4QK01 de
+    mscharged + cambios de 2010)**, **KPAD 2010** (`KPAD.c` 22/63 y `KPADMpls_unk.c` 6/40, structs rellenados).
+- Fuentes externas útiles: Swiftshine/key (CC0, Kirby Epic Yarn, SDK de dic. 2009), mscharged-decomp (CC0: NHTTP,
+  SO, DWC/VF/KPAD R4QK01 de mayo-junio de 2009), wii-ipl (CC0), pokemon-rumble-decomp (MIT).
+  `robojumper/sdk_2009-12-11` no tiene licencia y `mkwcat/nsmbw-project` es MPL 2.0: sin usar, decide el usuario.
 
 ## Propuestas
 
-1. `dwc_match` (92/101): quedan `DWCi_ConnectToAnybodyAsync`, `DWCi_MatchProcess`, `DWCi_CloseMatching`?,
-   `DWCi_SBUpdateAsync`, `DWCi_ProcessMatchCommand` (99,99), `DWCi_CancelMatchingProcess`,
-   `DWCi_CloseUnacknowledgedClients`, `DWCi_NNCompletedCallback`: comparar con el asm (cambios de 2010 pequeños,
-   como los ya hechos). Para enlazar: quitar `DWC_IsValidCancelMatching`/`DWC_RegisterMatchStatus` (deadstrip) y
-   cuadrar `.data`.
-2. Otros DWC con fuente R4QK01 en mscharged: `dwc_transport.c` (23/24), `dwc_main.c`, `dwc_init.c`,
-   `dwc_auth_interface.c`: probar el mismo método (compilar el `.o` de MSC, emparejar por tamaño con
-   `difflib`, renombrar en symbols y aplicar los cambios de 2010).
-3. WUD.c 2010 (77/85): `VirginStandardSync`, `SyncHandler`, `DeleteDevice`, `fn_80670C70` (switch en árbol).
-4. KPAD 2010 (0x80653EE0, 30 KB, 55 funciones): base posible el `KPAD.c` R4QK01 de mscharged.
-5. `CXUncompressAny` (84%): colocación del `CXUncompressRL` inline.
-6. TeamAI_unk (`std::multimap` y `Move_unk<P>`); unidades sin funciones al 100%.
+1. KPAD 2010: arreglar el final de `KPADInsideStatus` (`accScaleReset` en 0x67E, campos nuevos 0x676-0x680,
+   callback en 0x680) y portar `KPADInitEx`, `KPADiConnectCallback`, `KPADiRead`, `read_kpad_ext`,
+   `read_kpad_acc`, `KPADiSamplingCallback`, callbacks de la balance board (sus `kp_wbc_*` cambian de sitio) y
+   el resto de Motion Plus (`KPADMpls_unk.c`: los tres `fn_80659B20/C10/D00` por eje son iguales).
+2. `dwc_match` (96/101): quedan 4 de registros (ver `mwcc-blockers.md`); para enlazar, quitar
+   `DWC_IsValidCancelMatching`/`DWC_RegisterMatchStatus` (deadstrip) y cuadrar `.data`.
+3. Mismo método (compilar el `.o` externo, emparejar por tamaño con `difflib`, renombrar, cambios 2010) para
+   lo que quede con fuente en mscharged/KEY.
+4. WUD.c 2010 (77/85), `WPADHIDParser::__parse_dpd_data` (98%), `HBMBase::draw` (98,8%), `CXUncompressAny` (84%).
+5. Unidades del juego sin fuente con funciones pequeñas (NewCampTask, TacView, ShopBase, LastCocoonEgg...):
+   empezar el fuente como `game/GameEventScript.cpp`.
+6. TeamAI_unk (`std::multimap` y `Move_unk<P>`, ya con nombre en symbols).
 
 ## Bloqueos conocidos (no repetir sin idea nueva)
 
