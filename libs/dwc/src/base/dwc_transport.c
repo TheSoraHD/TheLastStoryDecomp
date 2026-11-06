@@ -28,7 +28,7 @@ int gt2GetIncomingBufferFreeSpace(GT2Connection connection);
 int gt2GetOutgoingBufferFreeSpace(GT2Connection connection);
 
 // inferred: DWC matching functions (other units); names from older DWC builds where known
-void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
+void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
 u8 fn_806B0E30(void);                                // DWC_GetMyAID
 int fn_806B0EB0(u8** aidList);                       // DWC_GetAIDList
 BOOL fn_806B1170(u8 aid);                            // DWC_IsValidAID
@@ -605,7 +605,7 @@ void fn_806CE750(u8 srcAid, u8 dstAid, const void* buffer, int size, int relay) 
         strncpy(header->magic, "F\xFCW", 3);
         header->aid = srcAid;
         header->aidBitmap = SWAP32(1 << dstAid);
-        fn_806A9CA0(header + 1, buffer, size);
+        DWCi_Np_CPUCopyFast(header + 1, buffer, size);
         gt2Send(connection, header, size + sizeof(DWCRelayHeader), FALSE);
         if (header != NULL) {
             DWC_Free(DWC_ALLOCTYPE_BASE, header, 0);
@@ -625,7 +625,7 @@ void DWCs_RecvDataHeader(u8 aid, const u8* message, u32 len);
 static inline u16 DWCi_GetHeaderType(const u8* message) {
     DWCTransportHeader header;
 
-    fn_806A9CA0(&header, message, sizeof(header));
+    DWCi_Np_CPUCopyFast(&header, message, sizeof(header));
     if (memcmp(header.magic, "DT", 2) == 0) {
         return SWAP16(header.type);
     }
@@ -779,7 +779,7 @@ void DWCs_RecvDataHeader(u8 aid, const u8* message, u32 len) {
             return;
         }
 
-        fn_806A9CA0(&header, message, sizeof(header));
+        DWCi_Np_CPUCopyFast(&header, message, sizeof(header));
         header.size = SWAP32(header.size);
         header.type = SWAP16(header.type);
 

@@ -30,7 +30,7 @@ const char* OSGetAppGamename(void);  // inferred: game code string (HTTP_X_GAMEC
 s32 NETGetWirelessMacAddress(u8* macAddress);
 const char* SCGetProductCode_unk(void);  // inferred: console serial number prefix
 BOOL SCGetProductSN_unk(u32* serial);  // inferred: console serial number
-s64 fn_806AA690(void);          // inferred: console friend code
+s64 DWCi_Np_GetConsoleId(void);          // inferred: console friend code
 char* strtok(char* str, const char* delim);  // strtok
 
 // inferred: results of the nas request (DWC "auth" results)
@@ -706,7 +706,7 @@ void DWCi_Auth_SendRequest(int action, const wchar_t* ingamesn, const char* gsbr
         DWC_AUTH_ADD_POST("csnum", buf, strlen(buf));
     }
 
-    sprintf(buf, "%016lld", fn_806AA690());
+    sprintf(buf, "%016lld", DWCi_Np_GetConsoleId());
     DWC_Printf(DWC_REPORTFLAG_AUTH, " cfc = %s\n", buf);
     DWC_AUTH_ADD_POST("cfc", buf, strlen(buf));
 

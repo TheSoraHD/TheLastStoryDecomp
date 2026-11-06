@@ -4,7 +4,7 @@
 #include <string.h>
 
 // inferred: memory copy helper of the DWC utilities (dst, src, size); no source yet
-void fn_806A9CA0(void* dst, const void* src, u32 size);
+void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 size);
 
 static const char* sBase64Table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-";
 
@@ -34,7 +34,7 @@ int DWC_Base64Encode(const char* src, u32 srcLen, char* dst, u32 dstLen) {
         n = (rest < 3) ? rest : 3;
 
         memset(buf, 0, 3);
-        fn_806A9CA0(buf, p, n);
+        DWCi_Np_CPUCopyFast(buf, p, n);
 
         out[0] = sBase64Table[buf[0] >> 2];
         if (chars >= 2) {

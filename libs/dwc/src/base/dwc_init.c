@@ -15,7 +15,7 @@ void* gethostbyname(const char* name);
 // inferred: DWCi_CfReset (MKW name)
 void fn_806CF030(void);
 // inferred: reads the console friend code (DWCi_Np_GetConsoleId in MKW)
-void fn_806AA690(void);
+void DWCi_Np_GetConsoleId(void);
 
 // inferred: gcd_gamename (GameSpy) and the stats server host name buffer
 extern char gcd_gamename[];
@@ -49,7 +49,7 @@ int DWC_Init(DWCAuthServer authServer, const char* gameName, u32 gameCode, DWCAl
     }
 
     dwci_initialized = TRUE;
-    fn_806AA690();
+    DWCi_Np_GetConsoleId();
 
     return 0;
 }

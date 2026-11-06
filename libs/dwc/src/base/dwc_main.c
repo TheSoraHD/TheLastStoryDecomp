@@ -87,10 +87,10 @@ void CloseStatsConnection(void);
 unsigned long strtoul(const char* str, char** end, int base);
 
 // inferred: DWC utility functions (other units)
-void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
-int fn_806ABA10(const char* key, char* value, const char* string, char separator); // DWC_GetCommonValueString
-u32 fn_806ABB70(u32 max);                              // DWCi_GetMathRand32
-u32 fn_806ABCC0(const u16* string);                    // wcslen
+void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
+int DWC_GetCommonValueString(const char* key, char* value, const char* string, char separator); // DWC_GetCommonValueString
+u32 DWCi_GetMathRand32(u32 max);                              // DWCi_GetMathRand32
+u32 DWCi_WStrLen(const u16* string);                    // wcslen
 
 typedef void (*DWCLoginCallback)(DWCError error, int profileID, void* param);
 typedef void (*DWCMatchedCallback)(DWCError error, BOOL cancel, BOOL self, BOOL isServer,
@@ -360,7 +360,7 @@ void fn_806AF6A0(DWCUserData* userdata, int productID, const char* secretKey, in
     DWCi_InitTransport(&stpDwcCnt->transinfo);
 
     len = strlen(secretKey) < 256 ? strlen(secretKey) : 255;
-    fn_806A9CA0(gcd_secret_key, secretKey, len);
+    DWCi_Np_CPUCopyFast(gcd_secret_key, secretKey, len);
     gcd_secret_key[len] = '\0';
 }
 
@@ -511,8 +511,8 @@ BOOL fn_806AFDB0(const u16* ingamesn, const char* reserved, DWCLoginCallback cal
         len = 0;
     } else {
         memset(stpDwcCnt->playerName, 0, sizeof(stpDwcCnt->playerName));
-        len = fn_806ABCC0(ingamesn) <= 25 ? fn_806ABCC0(ingamesn) : 25;
-        fn_806A9CA0(stpDwcCnt->playerName, ingamesn, len * 2);
+        len = DWCi_WStrLen(ingamesn) <= 25 ? DWCi_WStrLen(ingamesn) : 25;
+        DWCi_Np_CPUCopyFast(stpDwcCnt->playerName, ingamesn, len * 2);
     }
     stpDwcCnt->playerName[len] = 0;
 
@@ -697,9 +697,9 @@ BOOL fn_806B05B0(int a0, int serverIndex, DWCMatchedCallback matchedCallback, vo
         goto fail;
     }
 
-    fn_806ABA10("SCM", value, status.statusString, '/');
+    DWC_GetCommonValueString("SCM", value, status.statusString, '/');
     maxEntry = (u8)strtoul(value, NULL, 10);
-    fn_806ABA10("SCN", value, status.statusString, '/');
+    DWC_GetCommonValueString("SCN", value, status.statusString, '/');
     numEntry = (u8)strtoul(value, NULL, 10);
     if (numEntry == maxEntry) {
         DWC_Printf(DWC_REPORTFLAG_ERROR, "pid %d is fully occupied.\n", serverIndex);
@@ -927,7 +927,7 @@ GT2Result fn_806B13C0(void) {
         return 0;
     }
 
-    port = (u16)(fn_806ABB70(0x4000) + 0xC000);
+    port = (u16)(DWCi_GetMathRand32(0x4000) + 0xC000);
     DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "--- Private port = %d ---\n", port);
     result = gt2CreateSocket(&stpDwcCnt->gt2Socket, gt2AddressToString(0, port, NULL),
                          stpDwcCnt->gt2SendBufSize, stpDwcCnt->gt2RecvBufSize,

@@ -19,7 +19,7 @@ extern "C" int DWC_IsValidFriendData(void* friendData);
 extern "C" int DWC_GetGsProfileId(void* userData, void* friendData);
 extern "C" int fn_806CF0E0(void* friendData);
 extern "C" unsigned long long fn_806D0030(void* friendData); // inferred: friend key of the data
-extern "C" unsigned char fn_806ABCF0(void* friendData, void* status); // inferred: online state
+extern "C" unsigned char DWC_GetFriendStatus(void* friendData, void* status); // inferred: online state
 extern "C" int fn_806CF160(void* friendData);
 
 #define OS_TIMER_CLOCK_UNK (*(unsigned long*)0x800000F8 / 4)
@@ -358,7 +358,7 @@ extern "C" const wchar_t* fn_8050F2F0(MpFriendList_unk* list, DWCFriendData_unk*
     if (data == 0) {
         return 0;
     }
-    unsigned char s = fn_806ABCF0(data, status);
+    unsigned char s = DWC_GetFriendStatus(data, status);
     if (state != 0) {
         *state = s;
     }
@@ -476,7 +476,7 @@ extern "C" unsigned long long fn_8050F764(MpFriendList_unk* list, int id) {
 
 // inferred: state of a friend (0 offline, 1 online, 2 playing, 3 matching, -1 other)
 extern "C" int fn_8050F7D8(MpFriendList_unk* list, int id) {
-    switch (fn_806ABCF0(&list->mFriends[id], 0)) {
+    switch (DWC_GetFriendStatus(&list->mFriends[id], 0)) {
     case 0:
         return 0;
     case 1:

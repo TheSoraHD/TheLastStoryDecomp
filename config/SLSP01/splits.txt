@@ -5274,8 +5274,21 @@ dwc/src/base/dwc_lanmatch.c:
 	.data       start:0x807BD140 end:0x807BD1F0
 	.bss        start:0x8085FF40 end:0x8085FF50
 
+msc/src/RVL_SDK/dwc/dwc_nonport.c:
+	.text       start:0x806A9C94 end:0x806AA7E0
+	.data       start:0x807BD1F0 end:0x807BD280
+	.bss        start:0x8085FF50 end:0x8085FF60
+
+msc/src/RVL_SDK/dwc/dwci_np_math.c:
+	.text       start:0x806AA7E0 end:0x806AB920
+
+msc/src/RVL_SDK/dwc/dwc_common.c:
+	.text       start:0x806AB920 end:0x806ABCF0
+	.data       start:0x807BD280 end:0x807BD290
+	.bss        start:0x8085FF60 end:0x8085FF78
+
 dwc/src/base/dwc_friend.c:
-	.text       start:0x806ABD00 end:0x806AE750
+	.text       start:0x806ABCF0 end:0x806AE750 align:16
 	.data       start:0x807BD290 end:0x807BD858
 	.bss        start:0x8085FF78 end:0x8085FF90
 

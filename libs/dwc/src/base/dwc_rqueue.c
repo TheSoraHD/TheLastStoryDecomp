@@ -26,7 +26,7 @@ int gt2GetIncomingBufferFreeSpace(GT2Connection connection);
 int gt2GetOutgoingBufferFreeSpace(GT2Connection connection);
 
 // inferred: DWC matching functions (other units); names from older DWC builds where known
-void fn_806A9CA0(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
+void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 size); // DWCi_Np_CPUCopy
 u8 fn_806B0E30(void);                                // DWC_GetMyAID
 int fn_806B0EB0(u8** aidList);                       // DWC_GetAIDList
 BOOL fn_806B1170(u8 aid);                            // DWC_IsValidAID
@@ -206,7 +206,7 @@ BOOL fn_806CD740(GT2Connection connection, const void* data, int size) {
     (*pEntry)->connection = connection;
     (*pEntry)->size = size;
     (*pEntry)->next = NULL;
-    fn_806A9CA0((*pEntry)->data, data, size);
+    DWCi_Np_CPUCopyFast((*pEntry)->data, data, size);
     sReliableQueue.totalSize += size;
     return TRUE;
 }

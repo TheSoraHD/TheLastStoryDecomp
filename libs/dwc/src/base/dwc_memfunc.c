@@ -5,7 +5,7 @@
 #include <dwc/dwc_report.h>
 
 // inferred: memory copy helper of the DWC utilities (dst, src, size); no source yet
-void fn_806A9CA0(void* dst, const void* src, u32 size);
+void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 size);
 
 static DWCAllocEx s_alloc;
 static DWCFreeEx s_free;
@@ -63,7 +63,7 @@ void* DWC_ReallocEx(DWCAllocType name, void* ptr, u32 oldSize, u32 newSize, int 
 
     if (ptr != NULL) {
         allocSize = DWCi_GetAllocateHeader(ptr)->size;
-        fn_806A9CA0(newPtr, ptr, allocSize > newSize ? newSize : allocSize);
+        DWCi_Np_CPUCopyFast(newPtr, ptr, allocSize > newSize ? newSize : allocSize);
         DWC_Free(name, ptr, allocSize);
     }
 

@@ -14,7 +14,7 @@
 // inferred: GameSpy B64Encode (gsPlatformUtil.c)
 void B64Encode(const char* input, char* output, int inlen, int encodingType);
 // inferred: SHA-1 digest of len bytes (20-byte result)
-void fn_806AA7E0(u8* digest, const void* data, int len);
+void MATH_CalcSHA1(u8* digest, const void* data, int len);
 
 #define DWCi_ENC_HASH_LEN 40  // inferred: hex SHA-1 length
 #define DWCi_ENC_B64_LEN(n) ((((u32)(n) / 3) + (((u32)(n) % 3) ? 1 : 0)) * 4)
@@ -104,7 +104,7 @@ static BOOL DWCi_EncSessionCheckResponse(const char* buf, int len) {
     memcpy(tmp, sEncSession.secretKey, 20);
     B64Encode(buf, (char*)tmp + 20, size, 2);
     memcpy(tmp + DWCi_ENC_B64_LEN(size) + 20, sEncSession.secretKey, 20);
-    fn_806AA7E0(digest, tmp, DWCi_ENC_B64_LEN(size) + 40);
+    MATH_CalcSHA1(digest, tmp, DWCi_ENC_B64_LEN(size) + 40);
     DWC_Free(DWC_ALLOCTYPE_ENC, tmp, 0);
     for (i = 0; i < 20; i++) {
         hash[i * 2] = hex[digest[i] >> 4];
@@ -141,7 +141,7 @@ static void DWCi_EncSessionCompletedCallback(const char* buf, int buflen, GHTTPR
                 digest = (u8*)sEncSession.hash + 20;
                 memcpy(data, sEncSession.secretKey, 20);
                 memcpy(data + 20, buf, 32);
-                fn_806AA7E0(digest, data, sizeof(data));
+                MATH_CalcSHA1(digest, data, sizeof(data));
                 for (i = 0; i < 20; i++) {
                     sEncSession.hash[i * 2] = hex[digest[i] >> 4];
                     sEncSession.hash[i * 2 + 1] = hex[digest[i] & 0xF];

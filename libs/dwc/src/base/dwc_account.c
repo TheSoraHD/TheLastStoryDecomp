@@ -13,7 +13,7 @@
 
 #include <nitro/math/crc.h>
 // inferred: message digest (SHA-1/MD5 style) of a buffer
-void fn_806AB8B0(u8* digest, const void* data, u32 dataLength);
+void MATH_CalcMD5(u8* digest, const void* data, u32 dataLength);
 // inferred: DWCi_Auth_GetConsoleUserId (dwc_auth_interface.c)
 u64 DWCi_Auth_GetConsoleUserId(void);
 
@@ -199,7 +199,7 @@ static inline u64 DWCi_Acc_CreateFriendKey(int gs_profile_id, u32 gamecode, int 
     }
     case 1: {
         u8 digest[16];
-        fn_806AB8B0(digest, buf, sizeof(buf));
+        MATH_CalcMD5(digest, buf, sizeof(buf));
         hash = digest[0] >> 1;
         break;
     }

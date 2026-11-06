@@ -153,7 +153,7 @@ void fn_806D02E0(DWCFriendData* friendData, int profileID);
 void DWC_LoginIdToUserName(const DWCUserData* userdata, const DWCFriendData* friendData, char* loginIdStr);
 
 // inferred: other DWC helpers
-int fn_806ABA10(const char* key, char* value, const char* string, char separator); // DWC_GetCommonValueString
+int DWC_GetCommonValueString(const char* key, char* value, const char* string, char separator); // DWC_GetCommonValueString
 BOOL fn_806CD3E0(const GPBuddyStatus* status); // dwc_match
 
 static DWCFriendControl* stpFriendCnt;
@@ -182,6 +182,13 @@ static void DWCi_GPGetReverseBuddiesListCallback(GPConnection* connection,
                                                  void* param);
 
 u8 DWC_GetFriendStatusSC(const DWCFriendData* friendData, u8* maxEntry, u8* numEntry,
+                         char* statusString);
+
+u8 DWC_GetFriendStatus(const DWCFriendData* friendData, char* statusString) {
+    return DWC_GetFriendStatusSC(friendData, NULL, NULL, statusString);
+}
+
+u8 DWC_GetFriendStatusSC(const DWCFriendData* friendData, u8* maxEntry, u8* numEntry,
                          char* statusString) {
     char valueStr[4];
     GPBuddyStatus status;
@@ -190,14 +197,14 @@ u8 DWC_GetFriendStatusSC(const DWCFriendData* friendData, u8* maxEntry, u8* numE
     if (DWCi_GetFriendBuddyStatus(friendData, &status)) {
         if (status.status == DWC_STATUS_MATCH_SC_SV) {
             if (maxEntry != NULL) {
-                if (fn_806ABA10("SCM", valueStr, status.statusString, '/') > 0) {
+                if (DWC_GetCommonValueString("SCM", valueStr, status.statusString, '/') > 0) {
                     *maxEntry = (u8)strtoul(valueStr, NULL, 10);
                 } else {
                     *maxEntry = 0;
                 }
             }
             if (numEntry != NULL) {
-                if (fn_806ABA10("SCN", valueStr, status.statusString, '/') > 0) {
+                if (DWC_GetCommonValueString("SCN", valueStr, status.statusString, '/') > 0) {
                     *numEntry = (u8)strtoul(valueStr, NULL, 10);
                 } else {
                     *numEntry = 0;

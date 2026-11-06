@@ -53,9 +53,9 @@ u64 DWCi_Auth_GetConsoleUserId(void);
 BOOL fn_806D1690(void);
 
 // inferred: console id / name helpers (dwc_init.c area)
-u64 fn_806AA690(void);
-const char* fn_806AA7C0(void);
-const char* fn_806AA7D0(void);
+u64 DWCi_Np_GetConsoleId(void);
+const char* DWCi_Np_GetConsoleName(void);
+const char* DWCi_Np_GetAppGameName(void);
 // inferred: friend manager / match callbacks started after the login
 GPResult fn_806BB440(int status);
 BOOL fn_806B13C0(void);
@@ -247,7 +247,7 @@ void fn_806AED20(GPConnection* connection, GPConnectResponseArg* arg, void* para
                arg->result);
     stpLoginCnt->connectFlag = FALSE;
 
-    snprintf(consoleId, 31, "%s:%016llu", fn_806AA7C0(), fn_806AA690());
+    snprintf(consoleId, 31, "%s:%016llu", DWCi_Np_GetConsoleName(), DWCi_Np_GetConsoleId());
     if (fn_806AEBF0(gpSetInfosA(connection, 0x704, consoleId))) {
         return;
     }
@@ -255,7 +255,7 @@ void fn_806AED20(GPConnection* connection, GPConnectResponseArg* arg, void* para
     if (fn_806AEBF0(gpSetInfosA(connection, 0x717, userid))) {
         return;
     }
-    if (fn_806AEBF0(gpSetInfosA(connection, 0x708, fn_806AA7D0()))) {
+    if (fn_806AEBF0(gpSetInfosA(connection, 0x708, DWCi_Np_GetAppGameName()))) {
         return;
     }
 
