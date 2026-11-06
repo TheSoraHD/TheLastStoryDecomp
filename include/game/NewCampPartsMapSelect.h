@@ -75,6 +75,7 @@ public:
     virtual ~NewCampPartsMapSelect();                              // 0x8051C2A8
     virtual void vf1C(NewCampScene_unk* scene);                    // 0x8051CA74
     virtual void vf20();                                           // 0x8051EC50
+    virtual void vf24();                                           // 0x8051EF20
     virtual void vf30();                                           // 0x8051FF5C
     virtual void vf40(void* menu);                                 // 0x8051C3DC
     virtual void vf44();                                           // 0x80521C9C

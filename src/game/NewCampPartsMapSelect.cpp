@@ -53,8 +53,40 @@ struct NewCampMapCamp_unk {
     unsigned char m0050[0x11F0 - 0x50];
     NewCampPartsBase* mParts; // 0x11F0: inferred: current parts
 };
-extern "C" void* lbl_8087F3C0;                                          // inferred: effect manager
-extern "C" void fn_80239DAC(void* mgr, void* owner, int id, int arg); // inferred: stops an effect
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct EffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+    int mBC;
+};
+struct Color4f_unk {
+    Color4f_unk() {}
+    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
+                            int arg8, int arg9, float scale);
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale);
+extern "C" void fn_80232B7C(void* owner, int arg);
+// inferred: plays an effect with the default color and scale (name invented)
+static inline void PlayEfp_unk(atn::EfpFile* efp, const atn::Vector3& pos, const atn::Vector3& rot) {
+    fn_8023A8B4(lbl_8087F3C0, efp, 0, 0, pos, rot, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+}
+// inferred: route effects shown between two areas (fn_80520B04, fn_80521A00): the area of the cursor and
+// the chapters (GameField_unk::m10D0) in which the route is open; point 500 + index; names invented
+struct MapSelectRouteEffect_unk {
+    int mArea;
+    int mMin;
+    int mMax;
+};
+static const MapSelectRouteEffect_unk sRouteEffects[5] = {
+    {0, 201000, 999999}, {1, 201000, 999999}, {0, 408000, 999999}, {2, 408000, 999999}, {1, 204000, 999999},
+};
 extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: plays a system sound effect
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
@@ -72,6 +104,31 @@ extern "C" void fn_8053032C(atn::Task* camp, atn::Vector3 pos, atn::Vector3 rot)
 extern "C" int fn_8037587C(GameField_unk* field, int type, int id, int subId); // inferred: the map was visited
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
+// inferred: mtx = mtx * scale(s) (same helper as game/Arms.cpp; name invented)
+inline void Scale_unk(atn::Matrix3x4& mtx, const atn::Vector3& s) {
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 m;
+    PSMTXScale(m.m, s.x, s.y, s.z);
+    PSMTXConcat(mtx.m, m.m, t.m);
+    mtx = t;
+}
+// inferred: scales the model of an entry keeping its position (name invented)
+inline void SetEntryScale_unk(NewCampPartsEntry_unk* entry, float scale) {
+    if (entry != 0 && GetModel_unk(entry->mModel) != 0) {
+        atn::Matrix3x4 mtx(GetModel_unk(entry->mModel)->mMtx);
+        atn::Vector3 pos = mtx.GetTrans_unk();
+        mtx.m[0][3] = 0.0f;
+        mtx.m[1][3] = 0.0f;
+        mtx.m[2][3] = 0.0f;
+        Scale_unk(mtx, atn::Vector3(scale, scale, scale));
+        mtx.m[0][3] = pos.x;
+        mtx.m[1][3] = pos.y;
+        mtx.m[2][3] = pos.z;
+        GetModel_unk(entry->mModel)->fn_8009EE30(mtx);
+    }
+}
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -368,6 +425,29 @@ void NewCampPartsMapSelect::vf20() {
     }
 }
 
+void NewCampPartsMapSelect::vf24() {
+    mD8 = 1;
+    m19B4 = 0;
+    fn_80521908(1);
+    fn_80239DAC(lbl_8087F3C0, this, 1, 0);
+    if (m1908 != 0) {
+        fn_800D2338(m1908);
+        m1908 = 0;
+    }
+    vf3C(0);
+    m96 = 1;
+    mD6 = 0;
+    mD7 = 0;
+    mDC = 0;
+    m19A8 = 0;
+    m19B0 = 0;
+    m19C0 = 0.0f;
+    for (int i = 0; i < m4C; i++) {
+        mPoints[i].m28 = 0.0f;
+        SetEntryScale_unk(&m50[i], 0.0f);
+    }
+}
+
 void NewCampPartsMapSelect::fn_8051FB7C(int state) {
     m199C = m1998;
     m1998 = state;
@@ -525,6 +605,33 @@ void NewCampPartsMapSelect::fn_80521908(int reset) {
         if (reset) {
             m1914[i].mFrame = 0.0f;
             m1914[i].m10 = 0;
+        }
+    }
+}
+
+// NONMATCHING: 98% - the addresses of rot and of the temporary vector take r29/r30 the other way round
+void NewCampPartsMapSelect::fn_80521A00(int dir) {
+    fn_80239DAC(lbl_8087F3C0, this, 1, 0);
+    int chapter = lbl_8087F430->m10D0;
+    for (int i = 0; i < 5; i++) {
+        if (sRouteEffects[i].mMin <= chapter && sRouteEffects[i].mMax > chapter && m19A8 == sRouteEffects[i].mArea) {
+            MapSelectPoint_unk* point = FindPoint_unk(500 + i);
+            if (point != 0 && point->m18 != 0) {
+                lbl_8087F3C0->mBC = 1;
+                lbl_8087F3C0->mB8 = 6;
+                fn_80232B7C(this, 1);
+                atn::Vector3 rot = m4828[i];
+                atn::Vector3 pos = GetModel_unk(point->m18->mModel)->mMtx.GetTrans_unk();
+                if (i == 4) {
+                    fn_8023A680(lbl_8087F3C0, &m47F4, -1, 0, 0, &pos, &rot, 0, 0, -1, 1, 2.5f);
+                } else {
+                    PlayEfp_unk(&m47DC, pos, rot);
+                    rot = atn::Vector3(0.0f, 3.1415927f, 0.0f);
+                    PlayEfp_unk(&m47E8, pos, rot);
+                }
+                lbl_8087F3C0->mB8 = 0;
+                lbl_8087F3C0->mBC = 0;
+            }
         }
     }
 }
