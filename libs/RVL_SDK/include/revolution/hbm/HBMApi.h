@@ -17,10 +17,12 @@ void HBMUpdateSound();
 
 HBMSelectBtnNum HBMCalc(const HBMControllerData* pController);
 void HBMDraw();
+HBMSelectBtnNum HBMGetSelectBtnNum();
 
 void HBMSetAdjustFlag(BOOL flag);
 void HBMStartBlackOut();
 void HBMSetBlackOutColor(u8 r, u8 g, u8 b);
+BOOL HBMIsReassignedControllers();
 
 #ifdef __cplusplus
 }

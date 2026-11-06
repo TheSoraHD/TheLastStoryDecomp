@@ -16,109 +16,12 @@
 
 #include <cstring>
 
-/******************************************************************************
- *
- * API
- *
- ******************************************************************************/
-
-RVL_LIB_VERSION(HBM, "May  7 2007", "18:28:39", "0x4199_60726");
-
-enum HBMAllocatorType {
-    HBM_ALLOCATOR_APPLI,
-    HBM_ALLOCATOR_LOCAL,
-    HBM_ALLOCATOR_NW4R,
-};
-
-static MEMAllocator sAllocator;
-static MEMAllocator* spAllocator = &sAllocator;
+// inferred: defined in HBMCommon.cpp (version of 2010)
+void* HBMAllocMem(u32 size);
+void HBMFreeMem(void* pBlock);
+extern MEMAllocator* spAllocator;
 
 DECOMP_FORCEACTIVE(HBMBase_cpp, (GXColor){0, 0, 0, 255});
-
-void* HBMAllocMem(u32 size) {
-    return MEMAllocFromAllocator(spAllocator, size);
-}
-
-void HBMFreeMem(void* pBlock) {
-    MEMFreeToAllocator(spAllocator, pBlock);
-}
-
-static HBMAllocatorType getAllocatorType(const HBMDataInfo* pDataInfo) {
-    if (pDataInfo->pAllocator != NULL) {
-        return HBM_ALLOCATOR_APPLI;
-    }
-
-    if (pDataInfo->mem != NULL) {
-        return HBM_ALLOCATOR_LOCAL;
-    }
-
-    return HBM_ALLOCATOR_NW4R;
-}
-
-void HBMCreate(const HBMDataInfo* pDataInfo) {
-    MEMiHeapHead* hExpHeap;
-
-    if (getAllocatorType(pDataInfo) == HBM_ALLOCATOR_LOCAL) {
-        hExpHeap = MEMCreateExpHeap(pDataInfo->mem, pDataInfo->memSize);
-        MEMInitAllocatorForExpHeap(&sAllocator, hExpHeap, 32);
-        spAllocator = &sAllocator;
-    }
-
-    switch (getAllocatorType(pDataInfo)) {
-    case HBM_ALLOCATOR_APPLI: {
-        nw4hbm::lyt::Layout::SetAllocator(pDataInfo->pAllocator);
-        spAllocator = pDataInfo->pAllocator;
-        break;
-    }
-
-    case HBM_ALLOCATOR_LOCAL: {
-        nw4hbm::lyt::Layout::SetAllocator(spAllocator);
-        break;
-    }
-
-    case HBM_ALLOCATOR_NW4R: {
-        spAllocator = nw4hbm::lyt::Layout::GetAllocator();
-        break;
-    }
-    }
-
-    homebutton::HomeButton::createInstance(pDataInfo);
-    homebutton::HomeButton::getInstance()->create();
-}
-
-void HBMInit() {
-    OSRegisterVersion(__HBMVersion);
-    homebutton::HomeButton::getInstance()->init();
-}
-
-HBMSelectBtnNum HBMCalc(const HBMControllerData* pController) {
-    homebutton::HomeButton::getInstance()->calc(pController);
-    return homebutton::HomeButton::getInstance()->getSelectBtnNum();
-}
-
-void HBMDraw() {
-    homebutton::HomeButton::getInstance()->draw();
-}
-
-HBMSelectBtnNum HBMGetSelectBtnNum() {
-    return homebutton::HomeButton::getInstance()->getSelectBtnNum();
-}
-
-void HBMSetAdjustFlag(BOOL flag) {
-    homebutton::HomeButton::getInstance()->setAdjustFlag(flag);
-}
-
-void HBMStartBlackOut() {
-    homebutton::HomeButton::getInstance()->startBlackOut();
-}
-
-void HBMSetBlackOutColor(u8 r, u8 g, u8 b) {
-    homebutton::HomeButton::getInstance()->setBlackOutColor(r, g, b);
-}
-
-BOOL HBMIsReassignedControllers() {
-    return homebutton::HomeButton::getInstance()->getReassignedFlag();
-}
 
 /******************************************************************************
  *
@@ -1444,8 +1347,7 @@ static void SpeakerCallback(OSAlarm* pAlarm, OSContext* /* pContext */) {
 
         pHBObj->setSpeakerAlarm(chan, 50);
     } else {
-        //pHBObj->getController(chan)->playSound(pHBObj->getSoundArchivePlayer(),
-        //                                       id);
+        pHBObj->getController(chan)->playSound(id);
     }
 }
 

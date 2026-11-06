@@ -24,11 +24,11 @@ extern "C" void HBMCreateSound(void* soundData, void* memBuf, unsigned long size
 extern "C" void HBMDelete();
 extern "C" void HBMDeleteSound();
 extern "C" void HBMInit();
-extern "C" void fn_805C3ED0(int flag);                                        // HBMSetAdjustFlag
-extern "C" void fn_805C3FB0();                                                // HBMUpdateSound
+extern "C" void HBMSetAdjustFlag(int flag);
+extern "C" void HBMUpdateSound();
 extern "C" int HBMCalc(HBMControllerData* con);
-extern "C" int fn_805C3EA0();                                                 // inferred: selected button
-extern "C" void fn_805C3E70();                                                // HBMDraw
+extern "C" int HBMGetSelectBtnNum();
+extern "C" void HBMDraw();
 extern "C" int WPADProbe(int chan, unsigned long* type);
 
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
@@ -196,7 +196,7 @@ void HBMRsoDelete(HBMDataInfo& info, unsigned char*& soundData, unsigned char*& 
 // inferred: opens the menu
 void HBMRsoInit(HBMControllerData& con) {
     HBMInit();
-    fn_805C3ED0(1);
+    HBMSetAdjustFlag(1);
     for (int i = 0; i < 4; i++) {
         con.wiiCon[i].posX = 0.0f;
         con.wiiCon[i].posY = 0.0f;
@@ -213,7 +213,7 @@ inline float Clamp1_unk(float x) {
 // NONMATCHING: 99.8% - the original loads the stick x/y into f0/f1 (here f1/f0) and swaps the loop
 // counter/offset registers (r28/r29); tried declaration orders and a single expression.
 int HBMRsoCalc(HBMControllerData& con) {
-    fn_805C3FB0();
+    HBMUpdateSound();
     HBMKPadData* pad = con.wiiCon;
     int offset = 0;
     for (int i = 0; i < 4; i++, pad++, offset += 0xF00) {
@@ -246,7 +246,7 @@ int HBMRsoCalc(HBMControllerData& con) {
     }
     int result;
     if (HBMCalc(&con) >= 0) {
-        result = fn_805C3EA0();
+        result = HBMGetSelectBtnNum();
     } else {
         result = -1;
     }
@@ -269,7 +269,7 @@ void HBMRsoDraw() {
         C_MTXOrtho(proj.m, 228.0f * scale, 228.0f * -scale, 416.0f * -scale, 416.0f * scale, 0.0f, 500.0f);
     }
     fn_80071D74(rs, proj.m);
-    fn_805C3E70();
+    HBMDraw();
     fn_80071E04(rs);
     {
         atn::Matrix44_unk ortho;
