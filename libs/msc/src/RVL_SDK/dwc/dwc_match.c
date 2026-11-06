@@ -1487,7 +1487,10 @@ void DWCi_ConnectToAnybodyAsync(int topology, u8 numEntry, const char* addFilter
             return;
     DWCi_GPSetServerStatus(DWC_STATUS_MATCH_ANYBODY);
     if (!DWCi_GetMatchCnt()->qr2Obj)
-        DWCi_QR2Startup(DWCi_GetMatchCnt()->profileID);
+    {
+        if (DWCi_QR2Startup(DWCi_GetMatchCnt()->profileID))
+            return; // TLS (2010)
+    }
     else
         qr2_send_statechanged(DWCi_GetMatchCnt()->qr2Obj);
     if (DWCi_HandleSBError(DWCi_SBUpdateAsync(DWCi_GetMatchCnt()->profileID)))
@@ -2792,7 +2795,9 @@ SBError DWCi_SBUpdateAsync(int profileID)
     for (i = 0; i < DWC_MATCH_DNS_ERROR_RETRY_MAX; i++)
     {
         sbError = ServerBrowserLimitUpdate(DWCi_GetMatchCnt()->sbObj, async,
-            SBFalse, basicFields, numBasicFields, filter, DWC_SB_UPDATE_MAX_SERVERS);
+            SBFalse, basicFields, numBasicFields, filter,
+            // TLS (2010): only one server when searching for its own group
+            DWCi_GetMatchCnt()->state == DWC_MATCH_STATE_SEARCH_OWN ? 1 : DWC_SB_UPDATE_MAX_SERVERS);
         if (!sbError || sbError != sbe_dnserror)
             break;
         DWC_Printf(DWC_REPORTFLAG_SB_UPDATE, "Retry\n");
@@ -5709,6 +5714,7 @@ void DWCi_NNCompletedCallback(NegotiateResult result, SOCKET gamesocket,
                 || (nnResult == nr_inittimeout && nnInfo->retryCount >= DWC_MAX_MATCH_NN_RETRY))
             {
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Abort NN.\n");
+                NNCancel(DWCi_GetMatchCnt()->nnInfo.cookie); // TLS (2010)
                 nnInfo->cookie = 0;
                 if (!DWCi_ProcessNNFailure(FALSE))
                     return;
@@ -5733,6 +5739,7 @@ void DWCi_NNCompletedCallback(NegotiateResult result, SOCKET gamesocket,
                     && DWCi_GetMatchCnt()->nnRecvCount >= DWC_MAX_MATCH_NN_RETRY))
             {
                 DWC_Printf(DWC_REPORTFLAG_MATCH_NN, "Abort NN.\n");
+                NNCancel(DWCi_GetMatchCnt()->nnInfo.cookie); // TLS (2010)
                 nnInfo->cookie = 0;
                 if (DWCi_GetMatchCnt()->qr2MatchType == DWC_MATCH_TYPE_SC_CL
                     || DWCi_GetMatchCnt()->qr2MatchType == DWC_MATCH_TYPE_SC_SV)
