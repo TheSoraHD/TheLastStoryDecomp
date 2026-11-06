@@ -18,6 +18,8 @@ public:
     void fn_804617A4(); // inferred: chooses the target of the mode
     void fn_80461838();
     void fn_804635B4();
+    void fn_80463C58(); // inferred: mode 9 at frame 5: lands on the ground under m14D4
+    void fn_80463DCC(); // inferred: end of the motion: back to mode 0 (states 1, 7) or mode 7
     void fn_80466868(); // inferred: end of the motion of mode 6 (shake at frame 3)
     void fn_80466974(); // inferred: back to mode 0
     void fn_80466AE4(); // inferred: mode 7 (motion 0x156)
@@ -30,7 +32,10 @@ public:
     int m14BC;
     int m14C0; // inferred: frame counter of the mode
     int m14C4; // inferred: state (7: no hit reaction)
-    unsigned char m14C8[0x1554 - 0x14C8];
+    unsigned char m14C8[0x14D4 - 0x14C8];
+    atn::Vector3 m14D4; // inferred: position to land on
+    atn::Vector3 m14E0; // inferred: rotation after landing
+    unsigned char m14EC[0x1554 - 0x14EC];
     CharaTask* m1554; // inferred: target of modes 11 and 12
     unsigned char m1558[0x1574 - 0x1558];
     CharaTask* m1574; // inferred: target of mode 13

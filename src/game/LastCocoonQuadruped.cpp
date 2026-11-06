@@ -49,6 +49,24 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void* lbl_8087EE98; // inferred: collision manager
+// inferred: result of the ray test (as in game/Em309Ghoul.cpp)
+struct QuadCollResult_unk {
+    QuadCollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    unsigned char m00[0x04];
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10; // inferred: position after the sweep
+    unsigned char m1C[0x34 - 0x1C];
+    void* m34;
+    void* m38;
+    unsigned int m3C;
+    int m40;
+    atn::Vector3 m44;
+};
+extern "C" int fn_8004ED34(void* colli, QuadCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+
 inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
@@ -108,6 +126,36 @@ void LastCocoonQuadruped::fn_804635B4() {
         fn_80170A20(m1554, 0, -1.0f);
     }
     fn_80461838();
+}
+
+void LastCocoonQuadruped::fn_80463C58() {
+    if (mMotion.mTracks[0].m08 >= 5.0f) {
+        SetMode_unk(9);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x140, 0, 0, 1, 1.0f, 0.1f);
+        QuadCollResult_unk res;
+        mPos = m14D4;
+        atn::Vector3 offset(0.0f, -1000.0f, 0.0f);
+        atn::Vector3 to = offset + m14D4;
+        if (fn_8004ED34(lbl_8087EE98, &res, &m14D4, &to, 0x20000000, &mColli, 0) != 0) {
+            mPos = res.m10;
+        }
+        mRot = m14E0;
+        fn_80239DAC(lbl_8087F3C0, this, 0x65, 1);
+    }
+}
+
+void LastCocoonQuadruped::fn_80463DCC() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        if (m14C4 == 1 || m14C4 == 7) {
+            fn_80466974();
+        } else {
+            fn_80466AE4();
+        }
+    }
 }
 
 void LastCocoonQuadruped::fn_804654F0() {
