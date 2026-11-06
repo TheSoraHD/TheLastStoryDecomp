@@ -311,6 +311,7 @@ typedef struct WPADExtConfig {
     union {
         WPADFsConfig fs;
         WPADClConfig cl;
+        u32 UNK_2010[0x5C / 4]; // inferred: version 2010 (larger, 4-byte aligned extension config)
     };
 } WPADExtConfig;
 
@@ -355,6 +356,7 @@ typedef struct WPADControlBlock {
     BOOL setup;
     BOOL oldFw;
     OSThreadQueue threadq;
+    u8 UNK_0x934[0x1B4]; // inferred: new fields of the version of 2010
     OSTime lastUpdateTime;
     u16 diffCountDpd;
     u16 hystCountDpd;
@@ -384,6 +386,7 @@ typedef struct WPADControlBlock {
     u8 extEnc;
     u8 pwrSave;
     u8 padding2;
+    u8 UNK_0xB88[0x28]; // inferred: new fields of the version of 2010
 } WPADControlBlock;
 
 typedef struct WPADMEMControlBlock {

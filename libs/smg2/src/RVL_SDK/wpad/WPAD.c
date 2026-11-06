@@ -62,7 +62,7 @@ static u16 __WPAD_dpd_diff_count_threshold = WPAD_DEFAULT_DPD_DIFF_COUNT_THRESHO
 static u16 __WPAD_acc_hyst_count_threshold = WPAD_DEFAULT_ACC_HYST_COUNT_THRESHOLD;
 static u16 __WPAD_dpd_hyst_count_threshold = WPAD_DEFAULT_DPD_HYST_COUNT_THRESHOLD;
 
-extern void DEBUGPrint(const char*, ...);
+#define DEBUGPrint(...) ((void)0)
 
 static void __ClearControlBlock(s32 chan);
 static void setupCallback(s32 chan, s32 result);
