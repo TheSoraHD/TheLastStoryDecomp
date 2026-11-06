@@ -10,7 +10,7 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 
 | Que | Antes | Despues |
 |---|---|---|
-| Funciones al 100% (report) | 13524 | 13614 |
+| Funciones al 100% (report) | 13524 | 13617 |
 | Ficheros enlazados | 652 / 1304 | 652 / 1304 |
 
 ### Unidades y funciones nuevas
@@ -21,7 +21,7 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 | `msc/src/RVL_SDK/kpad/KPADMpls_unk.c` (matching false) | 4 -> 10/16 | area de trabajo de Motion Plus por canal (0xDB0) reconstruida; `fn_80658DF0`, `fn_80659070`, `fn_80659220`, `fn_80659B20/C10/D00` (por eje), mas `fn_8065AA80` 99,8%, `fn_8065A8B0` 98%, `fn_806594D0` 96%; falta `fn_80659DF0` (2752 B) |
 | `MP/D2AMpMenuSetMessage.cpp` (nueva, matching false) | 0 -> 20/26 | las 26 escritas; NONMATCHING por registros: `fn_804C8D80` 98,4%, `vf10` 99,75%, `fn_804CB2F0` 99,93%, `fn_804CC618` 99,4%, `fn_804CC7A4` 99,85%, `fn_804CCB54` 99,87% |
 | `MP/D2AMpMenu.cpp` (nueva, matching false) | 0 -> 20/41 | `fn_804B274C` y `fn_804B12F8` (con `Decide_unk`), fabrica, ctor de `RANKING_DATA`, dtors, `vf1C`, `vf20`, `fn_804B4150`, `D2AMpMenuRankMark` (dtor, `vf0C`, `fn_804B4678/4700/4770`) y los 6 virtuales de las listas de ranking; ctor 99,2%, `fn_804B0A78` 99,95%, `fn_804B12F8` 99,97%; `fn_804B49C0` y `__sinit` solo por desplazamientos del pool de cadenas (faltan funciones) |
-| `game/NewCampPartsItem.cpp` (nueva, matching false) | 0 -> 10/41 | fabrica, ctor, dtor, `vf4C`, `vf1C`, `vf10`, `vf24`, `vf28`, `vf2C`, `vf30` (como `NewCampPartsHint`); `vf3C` 96,9% (registros del bucle) |
+| `game/NewCampPartsItem.cpp` (nueva, matching false) | 0 -> 13/41 | fabrica, ctor, dtor, `vf4C`, `vf1C`, `vf10`, `vf24`, `vf28`, `vf2C`, `vf30` (como `NewCampPartsHint`), entrada `fn_8051B43C`/`fn_8051B544` y `fn_8051B364` (recoloca el cursor tras ordenar); `vf3C` 96,9% (registros del bucle). Las demas usan el `@stringBase0` o el `@wstringBase0` de `.data` 0x807934F4 (`L"%s"`, `L""`, `L"--"`, `L"1"`) despues de `vf14`/`fn_80517B3C`, o son la instanciacion de `std::sort` sobre la lista (0x80518FB4-0x80519418 operadores del iterador y 0x80519418-0x8051AD54 el algoritmo) |
 | `MP/D2AMpMenuLobby.cpp` (nueva, matching false) | 0 -> 15/39 | fabrica, ctor, ctor/dtor de `Player_unk`, dtor, `vf1C`, `vf20`, `fn_804BD9B8` (entrada en el estado `mD8C`), `fn_804BE330` (cursor y teclas), `fn_804C0548` (cambio de cara), `fn_804C0EA4`, `fn_804C2260`, `fn_804C28A0`, `fn_804C2F98`, `fn_804C2F9C`; `vf0C` 99,35% y `fn_804C2C14` 99,15% (bloqueo de la busqueda por aid, `docs/mwcc-blockers.md`) |
 | `MP/D2AMpMenuFriendRoom.cpp` (matching false) | 8 -> 10/13 | `fn_804BBB60` (estaba en el split de Lobby) y `fn_804BA970` (99,62% -> 100% con `Decide_unk` y el rect por referencia) |
 | `MP/D2AMpMenuFriend.cpp` (matching false) | 15 -> 16/21 | `fn_804B79F4` (98,71% -> 100%, mismos arreglos e `IsListFull_unk`) |
@@ -83,7 +83,7 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
   `UpdateScrollBar_unk` los huecos de pila salen al reves); `MpData_unk` gana `MpRoomInfo_unk mC1` (4 bytes enviados
   al cambiar el tipo de sala).
 - NewCampPartsItem: clase en `include/game/NewCampPartsItem.h` (0x138) con la lista `std::vector<NewCampItemEntry_unk>`
-  (0x18 bytes por entrada, campos sin nombre; el dtor prueba `this` tres veces: vector directo, no derivado) en 0xD4;
+  (0x18 bytes por entrada: `mId`, dos `u16`, `m08`..`m14`; `SetState_unk` y `ShowHelp_unk` inline; el dtor prueba `this` tres veces: vector directo, no derivado) en 0xD4;
   `sFiles` (local) y `sBoard` como en Hint; `fn_801F3FF8` declarado aqui con `atn::Task*` (incluir `atn/D2A_Task.h`
   da un aviso de `D2A_Data.h`). El `__sinit` (Vector3 de `.bss` 0x807C90F0) queda sin escribir.
 - SetRule: `GetMaxLives_unk` y `ReadTime_unk` declaradas en `include/MP/D2AMpMenuSetRule.h` (definidas `inline` en el
@@ -132,7 +132,7 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 
 ## Cierre
 
-- Build limpio (`rm -rf build/SLSP01`, repetido tras NewCampPartsItem): `main.dol: OK`, 13614 / 18117, 652 enlazadas; regress lost 0, fuzzdrop 0,
+- Build limpio (`rm -rf build/SLSP01`, repetido tras NewCampPartsItem 10/41): `main.dol: OK`, 13614 / 18117 (despues, 13617 con build incremental, `check.sh`, `lc.sh`), 652 enlazadas; regress lost 0, fuzzdrop 0,
   labelcheck y rep100 iguales que la referencia, ordercheck 0 fuera de orden y mnemcheck limpio en lo tocado.
   poolcheck: solo el aviso conocido de `KPAD.o` (constantes de `.sdata2` que el enlazador quita; unidad sin enlazar).
 

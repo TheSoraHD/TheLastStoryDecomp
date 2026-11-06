@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `unidades-20261106b` (2026-11-06, sin mergear): **13614 / 18117**, lost 0, 652 enlazados. KPAD 2010 33/33 (no enlaza: orden de `.sdata2`), `KPADMpls_unk` 10/16 + `KPADMplsMath_unk` 4/6; menus MP: `D2AMpMenuSetMessage` 20/26 (nueva), `D2AMpMenu` 20/41 (nueva, con `D2AMpMenuRankMark`), `D2AMpMenuLobby` 15/39 (nueva), `game/NewCampPartsItem` 10/41 (nueva), MessageList/Result `__sinit`; cabeceras `include/MP/D2AMpMenu*.h`. Notas: `docs/unidades-20261106b.md`.
+- `unidades-20261106b` (2026-11-06, sin mergear): **13617 / 18117**, lost 0, 652 enlazados. KPAD 2010 33/33 (no enlaza: orden de `.sdata2`), `KPADMpls_unk` 10/16 + `KPADMplsMath_unk` 4/6; menus MP: `D2AMpMenuSetMessage` 20/26 (nueva), `D2AMpMenu` 20/41 (nueva, con `D2AMpMenuRankMark`), `D2AMpMenuLobby` 15/39 (nueva), `game/NewCampPartsItem` 13/41 (nueva), MessageList/Result `__sinit`; cabeceras `include/MP/D2AMpMenu*.h`. Notas: `docs/unidades-20261106b.md`.
 - `unidades-20261106` (mergeada): 13524, SDK 2010 desde fuentes CC0 (WPAD, AXFX, NHTTP, SO, VF, DWC, HBM, WUD, CX); `docs/unidades-20261106.md`. `unidades-20261105` 12766 (`docs/unidades-20261105.md`); `maptask-20261105` 12710; `maparea-20261105` 12703; `scene-20261105` 12686.
 - `nw4r-20261105` 12684 (snd_StrmPlayer enlazada; `docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679. `event100-20261104` 12577 (`docs/event100-20261104.md`); `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
