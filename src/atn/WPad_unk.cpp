@@ -17,7 +17,7 @@ extern "C" void fn_80658220(int chan);                                         /
 extern "C" void fn_80658240(int chan);                                         // inferred: KPADEnableDPD
 extern "C" void fn_806540A0(int chan);
 extern "C" int fn_806572D0(int chan, KPADStatus_unk* samples, int count);     // inferred: KPADRead
-extern "C" void fn_80660C50(unsigned char sensitivity);                       // inferred: WPADSetDpdSensitivity
+extern "C" void WPADSetAutoSleepTime(unsigned char minute);
 extern "C" void fn_80660C90(int chan);
 extern "C" void WPADDisconnect(int chan);
 extern "C" int fn_80661010(int chan, void* info);                             // inferred: WPADGetInfo
@@ -83,7 +83,7 @@ WPad_unk::WPad_unk() {
         fn_80658170(j, fn_800DDA34);
         fn_80658220(j);
     }
-    fn_80660C50(mSensitivity);
+    WPADSetAutoSleepTime(mSensitivity);
     memset(mFlags, 0, sizeof(mFlags));
     memset(mHold, 0, sizeof(mHold));
     memset(mTrig, 0, sizeof(mTrig));
@@ -429,7 +429,7 @@ void fn_800DF16C(WPad_unk* wpad, int sensitivity) {
         for (int i = 0; i < 4; i++) {
             fn_80660C90(i);
         }
-        fn_80660C50(wpad->mSensitivity);
+        WPADSetAutoSleepTime(wpad->mSensitivity);
     }
 }
 
