@@ -309,37 +309,7 @@ BOOL fn_8065CEC0(void)
 	return _enabledUNK29;
 }
 
-// inferred: 2010 SDK stubs called from KPAD (purpose unknown)
-s32 fn_8065CED0(void)
-{
-	return 0;
-}
-
-s32 fn_8065CEE0(void)
-{
-	return 0;
-}
-
-s32 fn_8065CEF0(void)
-{
-	return 0;
-}
-
-s32 fn_8065CF00(void)
-{
-	return -1;
-}
-
-s32 fn_8065CF10(void)
-{
-	return -1;
-}
-
-s32 fn_8065CF20(void)
-{
-	return -1;
-}
-
+// TLS (2010): the weak WBC stubs below are the ones KPAD calls (0x8065CED0-0x8065CF20)
 __attribute__((weak)) WPADResult WBCSetupCalibration(void)
 {
 	return WPAD_ESUCCESS;

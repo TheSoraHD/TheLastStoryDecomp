@@ -54,18 +54,20 @@ static f64 kp_wbc_filtered[4] = { 0.0, 0.0, 0.0, 0.0 }; // TLS (2010): before kp
 static f64 kp_wbc_average[4] = { 0.0, 0.0, 0.0, 0.0 };
 static u16 kp_wbc_count = 0;
 static u8 kp_wbc_status = 0;
-static u8 kp_wbc_tgc_ongoing = 0;
-static u8 kp_wbc_calibrated = 0;
 static s8 kp_wbc_enabled = 0; // TLS (2010): s8
 static u8 kp_wbc_busy = 0;
-static u8 kp_wbc_wait_count = 50;
+static u8 kp_wbc_wait_count = 200; // TLS (2010): 200
 static f32 kp_wbc_ave_count = 400.0f;
 // inferred: TLS (2010) balance board state (.sbss 0x808801D2-0x808801D8), names invented
 static u8 kp_wbc_unk_d2;
-static u8 kp_wbc_state;
+static s8 kp_wbc_state;
 static u8 kp_wbc_unk_d5;
 static s16 kp_wbc_unk_d6;
 static s8 kp_wbc_err;
+static f32 kp_wbc_unk_b0;
+static f64 kp_wbc_unk_b8;
+static f64 kp_wbc_unk_c0;
+static u8 kp_wbc_unk_tbl[] = { 2, 2, 3, 5, 5, 5 };
 static f32 kp_fs_revise_deg = 24.0f;
 
 void KPADSetBtnRepeat(KPADChannel chan, f32 delay_sec, f32 pulse_sec)
@@ -508,6 +510,11 @@ void read_kpad_acc(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
     case WPAD_FMT_CLASSIC_BTN_ACC:
     case WPAD_FMT_CLASSIC_BTN_ACC_DPD:
     case WPAD_FMT_GUITAR:
+    case 15: // TLS (2010): later SDK formats
+    case 16:
+    case 17:
+    case 19:
+    case 20:
         break;
 
     default:
@@ -531,31 +538,40 @@ void read_kpad_acc(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
     sp->acc_speed = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
     calc_acc_horizon(kp);
     calc_acc_vertical(kp);
-    if (uwp->u.fs.err != WPAD_ERR_OK || uwp->u.fs.dev != WPAD_DEV_FREESTYLE || (uwp->fmt != WPAD_FMT_FS_BTN_ACC && uwp->fmt != WPAD_FMT_FS_BTN_ACC_DPD))
+    // TLS (2010): device 6 with format 16 also carries the extension accelerometer
+    if ((uwp->u.fs.err == WPAD_ERR_OK && uwp->u.fs.dev == WPAD_DEV_FREESTYLE && (uwp->fmt == WPAD_FMT_FS_BTN_ACC || uwp->fmt == WPAD_FMT_FS_BTN_ACC_DPD)) ||
+        (uwp->u.fs.dev == 6 && uwp->fmt == 16 && (uwp->u.unk_tls[0x36] & 0x40)))
     {
-        return;
+        if (uwp->u.fs.dev == WPAD_DEV_FREESTYLE)
+        {
+            fsrc.x = clamp_acc((f32)(s32)-uwp->u.fs.fsAccX * kp->fs_acc_scale_x, kp_fs_acc_max);
+            fsrc.y = clamp_acc((f32)(s32)-uwp->u.fs.fsAccZ * kp->fs_acc_scale_z, kp_fs_acc_max);
+            fsrc.z = clamp_acc((f32)(s32)uwp->u.fs.fsAccY * kp->fs_acc_scale_y, kp_fs_acc_max);
+        }
+        else
+        {
+            fsrc.x = clamp_acc((f32)(s32)-uwp->u.fs.fsAccX * kp->fs_acc_scale_x, kp_fs_acc_max);
+            fsrc.y = clamp_acc((f32)(s32)-uwp->u.fs.fsAccZ * kp->fs_acc_scale_z, kp_fs_acc_max);
+            fsrc.z = clamp_acc((f32)(s32)uwp->u.fs.fsAccY * kp->fs_acc_scale_y, kp_fs_acc_max);
+        }
+
+        if (kp->fsAccRevise)
+        {
+            PSMTXMultVec(kp_fs_rot, &fsrc, &fsrc);
+        }
+
+        vec = sp->ex_status.fs.acc;
+
+        calc_acc(kp, &sp->ex_status.fs.acc.x, fsrc.x);
+        calc_acc(kp, &sp->ex_status.fs.acc.y, fsrc.y);
+        calc_acc(kp, &sp->ex_status.fs.acc.z, fsrc.z);
+        sp->ex_status.fs.acc_value = sqrt(sp->ex_status.fs.acc.x * sp->ex_status.fs.acc.x + sp->ex_status.fs.acc.y * sp->ex_status.fs.acc.y + sp->ex_status.fs.acc.z * sp->ex_status.fs.acc.z);
+
+        vec.x -= sp->ex_status.fs.acc.x;
+        vec.y -= sp->ex_status.fs.acc.y;
+        vec.z -= sp->ex_status.fs.acc.z;
+        sp->ex_status.fs.acc_speed = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
     }
-
-    fsrc.x = clamp_acc((f32)(s32)-uwp->u.fs.fsAccX * kp->fs_acc_scale_x, kp_fs_acc_max);
-    fsrc.y = clamp_acc((f32)(s32)-uwp->u.fs.fsAccZ * kp->fs_acc_scale_z, kp_fs_acc_max);
-    fsrc.z = clamp_acc((f32)(s32)uwp->u.fs.fsAccY * kp->fs_acc_scale_y, kp_fs_acc_max);
-
-    if (kp->fsAccRevise)
-    {
-        PSMTXMultVec(kp_fs_rot, &fsrc, &fsrc);
-    }
-
-    vec = sp->ex_status.fs.acc;
-
-    calc_acc(kp, &sp->ex_status.fs.acc.x, fsrc.x);
-    calc_acc(kp, &sp->ex_status.fs.acc.y, fsrc.y);
-    calc_acc(kp, &sp->ex_status.fs.acc.z, fsrc.z);
-    sp->ex_status.fs.acc_value = sqrt(sp->ex_status.fs.acc.x * sp->ex_status.fs.acc.x + sp->ex_status.fs.acc.y * sp->ex_status.fs.acc.y + sp->ex_status.fs.acc.z * sp->ex_status.fs.acc.z);
-
-    vec.x -= sp->ex_status.fs.acc.x;
-    vec.y -= sp->ex_status.fs.acc.y;
-    vec.z -= sp->ex_status.fs.acc.z;
-    sp->ex_status.fs.acc_speed = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 }
 
 static f32 calc_horizon(KPADInsideStatus* kp, Vec2* p1, Vec2* p2, Vec2* hori)
@@ -1369,18 +1385,6 @@ void clamp_stick_cross(Vec2* stick, s32 sx, s32 sy, s32 min, s32 max)
     }
 }
 
-static void reset_kpad_wbc(void)
-{
-    int i;
-    kp_wbc_status = 0;
-    kp_wbc_count = 0;
-    kp_wbc_tgc_ongoing = FALSE;
-    for (i = 0; i < 4; ++i)
-    {
-        kp_wbc_filtered[i] = kp_wbc_average[i] = 0.0;
-    }
-}
-
 void read_kpad_ext(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
 {
     KPADEXStatus* ep = &kp->status.ex_status;
@@ -1422,7 +1426,7 @@ void read_kpad_ext(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
         clamp_trigger(&ep->cl.ltrigger, uwp->u.cl.clTriggerL, kp_cl_trigger_min, kp_cl_trigger_max);
         clamp_trigger(&ep->cl.rtrigger, uwp->u.cl.clTriggerR, kp_cl_trigger_min, kp_cl_trigger_max);
     }
-    else if (uwp->u.cl.dev == WPAD_DEV_GUITAR && uwp->fmt == WPAD_FMT_GUITAR)
+    else if ((uwp->u.cl.dev == WPAD_DEV_GUITAR && uwp->fmt == WPAD_FMT_GUITAR) || (uwp->u.cl.dev == 18 && uwp->fmt == 15)) // TLS (2010): also device 18
     {
         if (kp->exResetReq)
         {
@@ -1461,65 +1465,210 @@ void read_kpad_ext(KPADInsideStatus* kp, KPADUnifiedWpadStatus* uwp)
         clamp_trigger(&ep->cl.ltrigger, uwp->u.tr.brake, kp_tr_trigger_min, kp_tr_trigger_max);
         clamp_trigger(&ep->cl.rtrigger, uwp->u.tr.mascon, kp_tr_trigger_min, kp_tr_trigger_max);
     }
-    else if (uwp->u.bl.dev == WPAD_DEV_BALANCE_CHECKER && uwp->fmt == WPAD_FMT_BALANCE_CHECKER)
+    else if (uwp->u.cl.dev == 19 && uwp->fmt == 17) // TLS (2010): device 19 (sticks read as four axes)
     {
-        int i;
         if (kp->exResetReq)
         {
             kp->exResetReq = FALSE;
-            reset_kpad_wbc();
+
+            ep->cl.lstick = Vec2_0;
+            ep->cl.rstick = Vec2_0;
+            ep->cl.ltrigger = ep->cl.rtrigger = 0.0f;
+            ep->cl.hold = ep->cl.trig = ep->cl.release = 0x00000000;
+            kp->btn_cl_repeat_time = 0;
+            kp->btn_cl_repeat_next = kp->btn_repeat_delay;
         }
+
+        clamp_trigger(&ep->cl.lstick.x, uwp->u.cl.clLStickX, kp_guitar_stick_min, kp_guitar_stick_max);
+        clamp_trigger(&ep->cl.lstick.y, uwp->u.cl.clLStickY, kp_guitar_stick_min, kp_guitar_stick_max);
+        clamp_trigger(&ep->cl.rstick.x, uwp->u.cl.clRStickX, kp_guitar_stick_min, kp_guitar_stick_max);
+        clamp_trigger(&ep->cl.rstick.y, uwp->u.cl.clRStickY, kp_guitar_stick_min, kp_guitar_stick_max);
+        clamp_trigger(&ep->cl.ltrigger, uwp->u.cl.clTriggerL, kp_tr_trigger_min, kp_tr_trigger_max);
+        clamp_trigger(&ep->cl.rtrigger, uwp->u.cl.clTriggerR, kp_tr_trigger_min, kp_tr_trigger_max);
+    }
+    else if (uwp->u.bl.dev == WPAD_DEV_BALANCE_CHECKER && uwp->fmt == WPAD_FMT_BALANCE_CHECKER)
+    {
+        // TLS (2010): new weight tracking
+        f64 total;
+        f64 diff;
+        int i;
+        ep->bl.weight_err = WBCRead(&uwp->u.bl, ep->bl.weight, 4);
         if (WBCGetBatteryLevel(uwp->u.bl.battery) == 0)
         {
             ep->bl.weight_err = -1;
-            return;
         }
-        if (kp_wbc_status < 3)
+        else if (kp_wbc_enabled < 0)
+        {
+            ep->bl.weight_err = -6;
+        }
+        else if (kp_wbc_state == 0)
+        {
+            ep->bl.weight_err = -7;
+        }
+        else if (kp_wbc_state <= 3)
+        {
+            if (ep->bl.weight_err == 1)
+            {
+                kp_wbc_state = -1;
+                kp_wbc_unk_d5 = 0;
+            }
+            if (kp_wbc_state < 0)
+            {
+                ep->bl.weight_err = -4;
+            }
+            else
+            {
+                ep->bl.weight_err = -8;
+            }
+        }
+        else if (ep->bl.weight_err == -2)
         {
             ep->bl.weight_err = -2;
-            return;
         }
-        if (uwp->u.bl.temp == 127 || uwp->u.bl.temp == -128)
+        else if (ep->bl.weight_err >= 0)
         {
-            ep->bl.weight_err = -3;
-            return;
-        }
-        ep->bl.weight_err = WBCRead(&uwp->u.bl, ep->bl.weight, 4);
-        if (ep->bl.weight_err >= 0)
-        {
+            total = ep->bl.weight[0] + ep->bl.weight[1] + ep->bl.weight[2] + ep->bl.weight[3];
             for (i = 0; i < 4; ++i)
             {
                 kp_wbc_filtered[i] = (kp_wbc_ave_count * kp_wbc_filtered[i] + ep->bl.weight[i]) / (kp_wbc_ave_count + 1.0f);
+                ep->bl.weight_ave[i] = kp_wbc_filtered[i];
             }
-            if (kp_wbc_tgc_ongoing)
+            if (total > 150.0)
             {
-                ++kp_wbc_count;
-                for (i = 0; i < 4; ++i)
+                ep->bl.weight_err = -5;
+            }
+            else if (kp_wbc_unk_d5)
+            {
+                kp_wbc_unk_b0 = 0.2f * kp_wbc_unk_tbl[(u8)(s32)(total / 34.0)];
+                kp_wbc_unk_d6++;
+                if (kp_wbc_unk_d6 > 2000)
                 {
-                    kp_wbc_average[i] = ((kp_wbc_count - 1) * kp_wbc_average[i] + ep->bl.weight[i]) / kp_wbc_count;
+                    kp_wbc_err = kp_wbc_unk_d5 == 1 ? -3 : -1;
+                    kp_wbc_unk_d5 = 0;
                 }
-                if (kp_wbc_count == kp_wbc_ave_count)
+                else if (total < 2.0)
                 {
-                    kp_wbc_tgc_ongoing = FALSE;
-                    ep->bl.weight_err = WBCGetTGCWeight(kp_wbc_average[0] + kp_wbc_average[1] + kp_wbc_average[2] + kp_wbc_average[3], &kp_wbc_tgc_weight, &uwp->u.bl);
-                    if (kp_wbc_tgc_weight < -0.5)
+                    kp_wbc_unk_d5 = 1;
+                }
+                if (kp_wbc_unk_d5 == 1)
+                {
+                    kp_wbc_err = 1;
+                    if (total >= 2.0)
                     {
-                        ep->bl.weight_err = -4;
+                        kp_wbc_unk_d5 = 2;
+                        kp_wbc_count = 0;
+                        kp_wbc_unk_c0 = kp_wbc_unk_b8 = total;
+                    }
+                }
+                else if (kp_wbc_unk_d5 == 2)
+                {
+                    kp_wbc_err = 1;
+                    kp_wbc_unk_b8 = total - kp_wbc_unk_c0;
+                    if (kp_wbc_unk_b8 < 0.0)
+                    {
+                        kp_wbc_unk_b8 *= -1.0;
+                    }
+                    if (kp_wbc_unk_b8 < kp_wbc_unk_b0)
+                    {
+                        kp_wbc_count++;
+                    }
+                    else
+                    {
+                        kp_wbc_count = 0;
+                        kp_wbc_unk_c0 = kp_wbc_unk_c0 + 0.5 * (total - kp_wbc_unk_c0);
+                    }
+                    if (kp_wbc_count > 100)
+                    {
+                        kp_wbc_unk_d5 = 3;
+                        kp_wbc_count = 1;
+                        for (i = 0; i < 4; ++i)
+                        {
+                            kp_wbc_average[i] = ep->bl.weight[i];
+                        }
+                        kp_wbc_unk_c0 = kp_wbc_unk_b8 = total;
+                    }
+                }
+                else if (kp_wbc_unk_d5 == 3)
+                {
+                    kp_wbc_err = -4;
+                    diff = total - (kp_wbc_average[0] + kp_wbc_average[1] + kp_wbc_average[2] + kp_wbc_average[3]);
+                    if (diff < 0.0)
+                    {
+                        diff *= -1.0;
+                    }
+                    if (diff <= kp_wbc_unk_b0)
+                    {
+                        ++kp_wbc_count;
+                        for (i = 0; i < 4; ++i)
+                        {
+                            kp_wbc_average[i] = ((kp_wbc_count - 1) * kp_wbc_average[i] + ep->bl.weight[i]) / kp_wbc_count;
+                        }
+                        total = ep->bl.weight[0] + ep->bl.weight[1] + ep->bl.weight[2] + ep->bl.weight[3];
+                        if (kp_wbc_unk_c0 > total)
+                        {
+                            kp_wbc_unk_c0 = total;
+                        }
+                        if (kp_wbc_unk_b8 < total)
+                        {
+                            kp_wbc_unk_b8 = total;
+                        }
+                        if (kp_wbc_count == kp_wbc_ave_count)
+                        {
+                            kp_wbc_err = 0;
+                            WBCGetTGCWeight(kp_wbc_average[0] + kp_wbc_average[1] + kp_wbc_average[2] + kp_wbc_average[3], &kp_wbc_tgc_weight, &uwp->u.bl);
+                            kp_wbc_unk_d5 = 0;
+                        }
                     }
                 }
             }
         }
-        for (i = 0; i < 4; ++i)
-        {
-            ep->bl.weight_ave[i] = kp_wbc_filtered[i];
-        }
         ep->bl.tgc_weight = kp_wbc_tgc_weight;
-        ep->bl.tgc_weight_err = kp_wbc_tgc_ongoing;
+        ep->bl.tgc_weight_err = kp_wbc_err;
+    }
+    else if ((uwp->u.cl.dev == 5 || uwp->u.cl.dev == 6 || uwp->u.cl.dev == 7 || uwp->u.cl.dev == 250) && uwp->fmt == 16)
+    {
+        // TLS (2010): Motion Plus with an extension in pass-through mode
+        if (kp->exResetReq)
+        {
+            kp->exResetReq = FALSE;
+            if (uwp->u.cl.dev == 6 && (uwp->u.unk_tls[0x36] & 0x40))
+            {
+                ep->fs.stick = Vec2_0;
+                ep->fs.acc.x = ep->fs.acc.z = 0.0f;
+                ep->fs.acc.y = -1.0f;
+                ep->fs.acc_value = 1.0f;
+                ep->fs.acc_speed = 0.0f;
+            }
+            if (uwp->u.cl.dev == 7 && (uwp->u.unk_tls[0x36] & 0x40))
+            {
+                ep->cl.lstick = Vec2_0;
+                ep->cl.rstick = Vec2_0;
+                ep->cl.ltrigger = ep->cl.rtrigger = 0.0f;
+                ep->cl.hold = ep->cl.trig = ep->cl.release = 0x00000000;
+                kp->btn_cl_repeat_time = 0;
+                kp->btn_cl_repeat_next = kp->btn_repeat_delay;
+            }
+        }
+        if ((uwp->u.unk_tls[0x36] & 0x01) && (uwp->u.unk_tls[0x36] & 0x40))
+        {
+            if (uwp->u.cl.dev == 6)
+            {
+                clampStickFuncp(&ep->fs.stick, uwp->u.fs.fsStickX, uwp->u.fs.fsStickY, kp_fs_fstick_min, kp_fs_fstick_max);
+            }
+            else if (uwp->u.cl.dev == 7)
+            {
+                clampStickFuncp(&ep->cl.lstick, uwp->u.cl.clLStickX, uwp->u.cl.clLStickY, kp_cl_stick_min, kp_cl_stick_max);
+                clampStickFuncp(&ep->cl.rstick, uwp->u.cl.clRStickX, uwp->u.cl.clRStickY, kp_cl_stick_min, kp_cl_stick_max);
+                clamp_trigger(&ep->cl.ltrigger, uwp->u.cl.clTriggerL, kp_cl_trigger_min, kp_cl_trigger_max);
+                clamp_trigger(&ep->cl.rtrigger, uwp->u.cl.clTriggerR, kp_cl_trigger_min, kp_cl_trigger_max);
+            }
+        }
     }
 }
 
 // TLS (2010): Motion Plus result callback (registered from KPADiRead); fills the read buffers backwards
-void fn_80657230(KPADChannel chan, const KPADMPStatus* mp)
+// NONMATCHING: 61% - the original copies the 0x3C bytes in 8-byte pairs (lwz 4/lwz 0), MWCC here copies word by word
+static void fn_80657230(KPADChannel chan, const KPADMPStatus* mp)
 {
     KPADInsideStatus* kp = &inside_kpads[chan];
     if (kp->mplsBuf)
@@ -1532,41 +1681,25 @@ void fn_80657230(KPADChannel chan, const KPADMPStatus* mp)
 static void KPADiSamplingCallback(s32 chan);
 static void KPADiConnectCallback(WPADChannel chan, WPADResult result);
 static void KPADiControlDpdCallback(WPADChannel chan, WPADResult result);
+static void fn_80658300(WPADChannel chan, WPADResult result);
 
 s32 KPADRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length)
 {
     return KPADiRead(chan, samplingBufs, length, NULL, FALSE);
 }
 
-static KPADUnifiedWpadStatus* get_wpad_sample(KPADInsideStatus* kp, s32 idx)
-{
-    return idx >= KPAD_MAX_SAMPLES ? &kp->exRingBuf[idx - KPAD_MAX_SAMPLES] : &kp->uniRingBuf[idx];
-}
+// TLS (2010): WPAD Motion Plus control (key/src/revolution/WPAD.h)
+u8 WPADiGetMplsStatus(WPADChannel chan);
+WPADResult WPADiControlMpls(WPADChannel chan, u8 command, WPADCallback callback);
 
-static inline void copy_wpad_samples(KPADInsideStatus* kp, KPADTmpStatus* samples, u32 length)
-{
-    KPADTmpStatus* tp;
-    KPADUnifiedWpadStatus* uwp;
-    s32 idx;
-    s32 copy_ct = length;
-    tp = samples + length;
-    idx = kp->bufIdx - length;
-    if (--idx < 0)
-    {
-        idx += KPAD_MAX_SAMPLES + kp->exBufLen;
-    }
-    do
-    {
-        uwp = get_wpad_sample(kp, idx);
-        --tp;
-        tp->w = *uwp;
-        ++idx;
-        if (idx >= KPAD_MAX_SAMPLES + kp->exBufLen)
-        {
-            idx = 0;
-        }
-    } while (--copy_ct > 0);
-}
+// TLS (2010): Motion Plus part of KPAD (KPADMpls_unk.c)
+BOOL fn_80658F30(void);
+void fn_8065AA50(KPADChannel chan, KPADUnifiedWpadStatus* uniRingBuf, KPADUnifiedWpadStatus* exRingBuf, u32 exBufLen);
+void fn_8065AEB0(void (*callback)(KPADChannel chan, const KPADMPStatus* mp));
+void fn_8065AA80(KPADChannel chan, KPADMPStatus* mp, s32 idx, s32 count, KPADStatus* sp, f64 interval);
+
+// TLS (2010): classic-style buttons of the later devices (6 and 7 when their extension is active)
+#define KPAD_DEV_EX_ACTIVE(uwp) (((uwp)->u.unk_tls[0x36] & 0x40) && ((uwp)->u.unk_tls[0x36] & 0x01))
 
 s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* result, BOOL preserve)
 {
@@ -1575,13 +1708,16 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
     KPADTmpStatus* first;
     KPADUnifiedWpadStatus* uwp;
     KPADStatus saved;
+    KPADStatus tmp;
     s32 error = 0;
-    s32 return_ct = 0;
     s32 idx;
+    s32 return_ct = 0;
     s32 copy_ct;
-    u32 bufCount;
     BOOL enabled;
     u32 core, fs, cl, dev;
+    u32 tick;
+    f64 sec;
+    f64 interval;
     if (!kp_initialized)
     {
         error = -5;
@@ -1607,6 +1743,11 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
         {
             KPADiControlDpdCallback(chan, WPAD_ERR_OK);
         }
+        // TLS (2010)
+        if (kp->mplsCallback && kp->unk_0x67b && !kp->unk_0x67c)
+        {
+            fn_80658300(chan, WPAD_ERR_OK);
+        }
         kp->readLocked = FALSE;
         OSRestoreInterrupts(enabled);
         error = -2;
@@ -1619,60 +1760,51 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
         reset_kpad(chan);
     }
     saved = *samplingBufs;
-    if (kp->bufCount > 1 && samplingBufs && length)
+    if (kp->bufCount && samplingBufs && length)
     {
-        BOOL corrupted;
-        BOOL deviceChanged;
         enabled = OSDisableInterrupts();
-        bufCount = kp->bufCount;
-        if (bufCount > length)
+        copy_ct = kp->bufCount;
+        if (copy_ct > length)
         {
-            bufCount = length;
+            copy_ct = length;
         }
-        copy_ct = bufCount;
-        corrupted = FALSE;
-        deviceChanged = FALSE;
-        idx = kp->bufIdx;
-        if (--idx < 0)
+        kp->bufCount = 0;
+        // TLS (2010): sampling interval over the last three reads
+        tick = kp->tickHist[0];
+        kp->tickHist[0] = kp->tickHist[1];
+        kp->tickHist[1] = kp->tickHist[2];
+        kp->tickHist[2] = kp->prevTick;
+        sec = (s64)((kp->prevTick + 0x100000000LL - tick) & 0xFFFFFFFFLL) / (f64)OS_TIME_SPEED;
+        if (sec > 0.3)
+        {
+            sec = 0.3;
+        }
+        {
+            u32 c0 = kp->cntHist[0];
+            u32 c1 = kp->cntHist[1];
+            tick = copy_ct + c0;
+            kp->cntHist[0] = c1;
+            kp->cntHist[1] = copy_ct;
+            interval = sec / (c1 + tick);
+        }
+        return_ct = copy_ct;
+        tp = (KPADTmpStatus*)samplingBufs + copy_ct;
+        idx = kp->bufIdx - copy_ct;
+        if (idx < 0)
         {
             idx += KPAD_MAX_SAMPLES + kp->exBufLen;
         }
-        uwp = get_wpad_sample(kp, idx);
         do
         {
-            if (corrupted)
+            uwp = idx >= KPAD_MAX_SAMPLES ? &kp->exRingBuf[idx - KPAD_MAX_SAMPLES] : &kp->uniRingBuf[idx];
+            --tp;
+            tp->w = *uwp;
+            ++idx;
+            if (idx >= KPAD_MAX_SAMPLES + kp->exBufLen)
             {
-                if (uwp->u.core.err == WPAD_ERR_OK)
-                {
-                    uwp->u.core.err = WPAD_ERR_CORRUPTED;
-                    corrupted = FALSE;
-                }
-                else if (uwp->u.core.err == WPAD_ERR_BUSY)
-                {
-                    corrupted = FALSE;
-                }
+                idx = 0;
             }
-            else if (uwp->u.core.err == WPAD_ERR_CORRUPTED)
-            {
-                corrupted = TRUE;
-            }
-            if (kp->status.dev_type != uwp->u.core.dev)
-            {
-                deviceChanged = TRUE;
-            }
-            if (deviceChanged)
-            {
-                uwp->u.core.err = WPAD_ERR_INVALID;
-            }
-            if (--idx < 0)
-            {
-                idx += KPAD_MAX_SAMPLES + kp->exBufLen;
-            }
-            uwp = get_wpad_sample(kp, idx);
         } while (--copy_ct > 0);
-        kp->bufCount = 1;
-        return_ct = bufCount > 1 ? bufCount - 1 : 1;
-        copy_wpad_samples(kp, (KPADTmpStatus*)samplingBufs, return_ct);
         OSRestoreInterrupts(enabled);
         copy_ct = return_ct;
         tp = (KPADTmpStatus*)samplingBufs + copy_ct;
@@ -1700,7 +1832,17 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
                         fs = uwp->u.fs.button;
                         cl = 0;
                     }
-                    else if (dev == WPAD_DEV_CLASSIC || dev == WPAD_DEV_TRAIN || dev == WPAD_DEV_GUITAR)
+                    else if (dev == WPAD_DEV_CLASSIC || (dev >= WPAD_DEV_TRAIN && dev <= 19))
+                    {
+                        fs = 0;
+                        cl = uwp->u.cl.clButton;
+                    }
+                    else if (dev == 6 && KPAD_DEV_EX_ACTIVE(uwp))
+                    {
+                        fs = uwp->u.fs.button;
+                        cl = 0;
+                    }
+                    else if (dev == 7 && KPAD_DEV_EX_ACTIVE(uwp))
                     {
                         fs = 0;
                         cl = uwp->u.cl.clButton;
@@ -1709,10 +1851,7 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
                     {
                         fs = cl = 0;
                     }
-                    core = uwp->u.core.button & 0x9F1F;
-                    break;
                 case WPAD_ERR_CORRUPTED:
-                    fs = cl = 0;
                 case WPAD_ERR_BUSY:
                     core = uwp->u.core.button & 0x9F1F;
                     break;
@@ -1771,7 +1910,17 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
                         fs = uwp->u.fs.button;
                         cl = 0;
                     }
-                    else if (dev == WPAD_DEV_CLASSIC || dev == WPAD_DEV_TRAIN || dev == WPAD_DEV_GUITAR)
+                    else if (dev == WPAD_DEV_CLASSIC || (dev >= WPAD_DEV_TRAIN && dev <= 19))
+                    {
+                        fs = 0;
+                        cl = uwp->u.cl.clButton;
+                    }
+                    else if (dev == 6 && KPAD_DEV_EX_ACTIVE(uwp))
+                    {
+                        fs = uwp->u.fs.button;
+                        cl = 0;
+                    }
+                    else if (dev == 7 && KPAD_DEV_EX_ACTIVE(uwp))
                     {
                         fs = 0;
                         cl = uwp->u.cl.clButton;
@@ -1826,6 +1975,19 @@ s32 KPADiRead(KPADChannel chan, KPADStatus samplingBufs[], u32 length, s32* resu
                 }
                 tp->k = kp->status;
             } while (--copy_ct > 0);
+        }
+        // TLS (2010): Motion Plus
+        if (fn_80658F30())
+        {
+            kp->mplsBuf = &first->k;
+            tmp.acc = kp->hard_acc;
+            tmp.pos = kp->unk_tls_0x5D8;
+            tmp.horizon = kp->obj_horizon;
+            tmp.dpd_valid_fg = kp->status.dpd_valid_fg;
+            fn_8065AA50(chan, kp->uniRingBuf, kp->exRingBuf, kp->exBufLen);
+            fn_8065AEB0(fn_80657230);
+            fn_8065AA80(chan, &kp->status.mpls, idx, return_ct, &tmp, interval);
+            *samplingBufs = kp->status;
         }
     }
     kp->readLocked = FALSE;
@@ -2101,7 +2263,7 @@ static void KPADiControlDpdCallback(WPADChannel chan, WPADResult result)
 }
 
 // TLS (2010): Motion Plus mode change result
-void fn_80658300(WPADChannel chan, WPADResult result)
+static void fn_80658300(WPADChannel chan, WPADResult result)
 {
     KPADInsideStatus* kp = &inside_kpads[chan];
     s32 err;
@@ -2143,13 +2305,16 @@ static void KPADiSamplingCallback(s32 chan)
     u32 idx;
     u32 type;
     u32 curDpd;
+    u8 mpls;
+    s32 err;
     WPADAccGravityUnit unit = { 1, 1, 1 };
+    // TLS (2010): 11 device classes
     static struct
     {
         u8 dpd;
         u8 fmt;
     } table[] = {
-        { 0, WPAD_FMT_CORE_BTN_ACC }, { 3, WPAD_FMT_CORE_BTN_ACC_DPD }, { 0, WPAD_FMT_FS_BTN_ACC }, { 1, WPAD_FMT_FS_BTN_ACC_DPD }, { 0, WPAD_FMT_CLASSIC_BTN_ACC }, { 1, WPAD_FMT_CLASSIC_BTN_ACC_DPD }, { 0, WPAD_FMT_GUITAR }, { 1, WPAD_FMT_GUITAR }, { 0, WPAD_FMT_BALANCE_CHECKER }, { 0, WPAD_FMT_BALANCE_CHECKER }, { 0, WPAD_FMT_TRAIN }, { 0, WPAD_FMT_TRAIN }
+        { 0, WPAD_FMT_CORE_BTN_ACC }, { 3, WPAD_FMT_CORE_BTN_ACC_DPD }, { 0, WPAD_FMT_FS_BTN_ACC }, { 1, WPAD_FMT_FS_BTN_ACC_DPD }, { 0, WPAD_FMT_CLASSIC_BTN_ACC }, { 1, WPAD_FMT_CLASSIC_BTN_ACC_DPD }, { 0, WPAD_FMT_GUITAR }, { 1, WPAD_FMT_GUITAR }, { 0, 15 }, { 1, 15 }, { 0, WPAD_FMT_BALANCE_CHECKER }, { 0, WPAD_FMT_BALANCE_CHECKER }, { 0, WPAD_FMT_TRAIN }, { 0, WPAD_FMT_TRAIN }, { 0, 17 }, { 1, 17 }, { 0, 16 }, { 1, 16 }, { 0, 19 }, { 0, 19 }, { 0, 20 }, { 0, 20 }
     };
     if (WPADProbe(chan, (WPADDeviceType*)&type) == WPAD_ERR_NO_CONTROLLER)
     {
@@ -2175,6 +2340,9 @@ static void KPADiSamplingCallback(s32 chan)
     {
         ++kp->bufCount;
     }
+    // TLS (2010)
+    kp->prevTick = kp->curTick;
+    kp->curTick = OSGetTick();
     if (type != kp->lastDeviceType && type == WPAD_DEV_FREESTYLE)
     {
         kp->accScaleReset = TRUE;
@@ -2187,6 +2355,7 @@ static void KPADiSamplingCallback(s32 chan)
             kp->acc_scale_x = 1.0f / unit.x;
             kp->acc_scale_y = 1.0f / unit.y;
             kp->acc_scale_z = 1.0f / unit.z;
+            kp->accScaleReset = FALSE; // TLS (2010): only once the core unit is known
         }
         else
         {
@@ -2207,7 +2376,6 @@ static void KPADiSamplingCallback(s32 chan)
             kp->fs_acc_scale_y = 1.0f / 200;
             kp->fs_acc_scale_z = 1.0f / 200;
         }
-        kp->accScaleReset = FALSE;
     }
     if (kp->aimReq)
     {
@@ -2226,8 +2394,8 @@ static void KPADiSamplingCallback(s32 chan)
     switch (type)
     {
     case WPAD_DEV_CORE:
-    case WPAD_DEV_FUTURE:
-    case WPAD_DEV_NOT_SUPPORTED:
+    case 251:
+    case 252:
     case WPAD_DEV_UNKNOWN:
         idx = 0;
         break;
@@ -2240,11 +2408,36 @@ static void KPADiSamplingCallback(s32 chan)
     case WPAD_DEV_GUITAR:
         idx = 6;
         break;
-    case WPAD_DEV_BALANCE_CHECKER:
+    case 18:
         idx = 8;
         break;
-    case WPAD_DEV_TRAIN:
+    case WPAD_DEV_BALANCE_CHECKER:
         idx = 10;
+        break;
+    case WPAD_DEV_TRAIN:
+        idx = 12;
+        break;
+    case 19:
+        idx = 14;
+        break;
+    case 5:
+    case 6:
+    case 7:
+    case 250:
+        idx = 16;
+        break;
+    case 21:
+    case 22:
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+        idx = 18;
+        break;
+    case 29:
+        idx = 20;
         break;
     default:
         goto finish;
@@ -2275,58 +2468,39 @@ static void KPADiSamplingCallback(s32 chan)
     {
         WPADSetDataFormat(chan, table[idx].fmt);
     }
-    if (type == WPAD_DEV_BALANCE_CHECKER)
+    // TLS (2010): balance board calibration state machine
+    if (type == WPAD_DEV_BALANCE_CHECKER && !kp_wbc_busy)
     {
-        if (!kp_wbc_busy && !kp_wbc_enabled)
+        if (kp_wbc_enabled > 2)
         {
-            if (WPADControlBLC(chan, 0xAA, KPADiControlWbcCallback) == WPAD_ERR_OK)
+            if (kp_wbc_state == 1)
             {
-                kp_wbc_busy = TRUE;
-            }
-            goto finish;
-        }
-        if (kp_wbc_enabled && !kp_wbc_calibrated)
-        {
-            if (!kp_wbc_busy)
-            {
-                if (WBCSetupCalibration() == WPAD_ERR_OK)
-                {
-                    kp_wbc_busy = TRUE;
-                }
-            }
-            else
-            {
-                kp_wbc_calibrated = WBCGetCalibrationStatus();
-                kp_wbc_busy = !kp_wbc_calibrated;
-            }
-            goto finish;
-        }
-        if (!kp_wbc_busy && kp_wbc_calibrated && kp_wbc_status < 3)
-        {
-            switch (kp_wbc_status)
-            {
-            case 0:
                 if (WPADControlBLC(chan, 0, KPADiUpdateTempWbcCallback) == WPAD_ERR_OK)
                 {
                     kp_wbc_busy = TRUE;
                 }
-                break;
-            case 1:
-                if (uwp->u.bl.temp == 127 || uwp->u.bl.temp == -128)
+            }
+            else if (kp_wbc_state == 2)
+            {
+                if (kp_wbc_status == 0)
                 {
-                    reset_kpad_wbc();
-                }
-                else
-                {
-                    ++kp_wbc_count;
-                    if (kp_wbc_count > kp_wbc_wait_count)
+                    if (uwp->u.bl.temp == 127 || uwp->u.bl.temp == -128)
                     {
-                        kp_wbc_status = 2;
+                        kp_wbc_state = 1;
+                    }
+                    else
+                    {
+                        kp_wbc_state = 3;
                         kp_wbc_count = 0;
                     }
                 }
-                break;
-            case 2:
+                else
+                {
+                    kp_wbc_status--;
+                }
+            }
+            else if (kp_wbc_state == 3)
+            {
                 if (uwp->u.bl.err == WPAD_ERR_OK)
                 {
                     int i;
@@ -2335,20 +2509,142 @@ static void KPADiSamplingCallback(s32 chan)
                     {
                         kp_wbc_average[i] = ((kp_wbc_count - 1) * kp_wbc_average[i] + uwp->u.bl.press[i]) / kp_wbc_count;
                     }
-                    if (kp_wbc_count > kp_wbc_ave_count)
+                    if (kp_wbc_count == kp_wbc_ave_count)
                     {
-                        kp_wbc_status = 3;
+                        kp_wbc_state = 4;
+                        kp_wbc_count = 0;
+                        WBCRead(&uwp->u.bl, kp_wbc_filtered, 4);
                         WBCSetZEROPoint(kp_wbc_average, 4);
                     }
                 }
-                break;
+            }
+        }
+        else if (kp_wbc_enabled == 0)
+        {
+            if (WPADControlBLC(chan, 0xAA, KPADiControlWbcCallback) == WPAD_ERR_OK)
+            {
+                kp_wbc_busy = TRUE;
+            }
+        }
+        else if (kp_wbc_enabled == 1)
+        {
+            if (kp_wbc_unk_d2 < 3)
+            {
+                if (WBCSetupCalibration() == 1)
+                {
+                    kp_wbc_enabled = 2;
+                    kp_wbc_status = 0;
+                }
+                else
+                {
+                    kp_wbc_unk_d2++;
+                }
+            }
+            else
+            {
+                kp_wbc_enabled = -1;
+            }
+        }
+        else if (kp_wbc_enabled == 2)
+        {
+            if (WBCGetCalibrationStatus())
+            {
+                kp_wbc_enabled = 3;
+                kp_wbc_unk_d2 = 0;
+            }
+            else if (++kp_wbc_status > kp_wbc_wait_count)
+            {
+                kp_wbc_enabled = 1;
+                kp_wbc_unk_d2++;
             }
         }
     }
+    // TLS (2010): Motion Plus mode
+    mpls = WPADiGetMplsStatus(chan);
+    if (kp->unk_0x67a)
+    {
+        goto finish;
+    }
+    if (kp->unk_0x67b && mpls == kp->unk_0x677 && mpls == kp->unk_0x678)
+    {
+        if (kp->unk_0x678 == kp->unk_0x679)
+        {
+            kp->unk_0x67b = 0;
+            if (kp->mplsCallback)
+            {
+                kp->mplsCallback(chan, 1);
+            }
+            kp->unk_0x67c = 1;
+        }
+        else
+        {
+            kp->unk_0x678 = kp->unk_0x679;
+        }
+    }
+    else
+    {
+        if (kp->unk_0x67d)
+        {
+            kp->unk_0x67d--;
+            goto finish;
+        }
+        kp->unk_0x676 = kp->unk_0x678;
+        if (mpls && mpls != kp->unk_0x676)
+        {
+            kp->unk_0x676 = 0;
+        }
+        if (mpls != kp->unk_0x676)
+        {
+            if (!kp->unk_0x67b)
+            {
+                kp->unk_0x677 = 0;
+            }
+            kp->unk_0x67a = 1;
+            if (!kp->unk_0x67b)
+            {
+                kp->unk_0x67b = 1;
+                if (kp->mplsCallback)
+                {
+                    if (mpls || !kp->unk_0x678 || ((kp->lastDeviceType < 5 || kp->lastDeviceType > 7) && kp->lastDeviceType != 250))
+                    {
+                        err = 0;
+                    }
+                    else if (kp->unk_0x678 == 5)
+                    {
+                        err = -2;
+                    }
+                    else if (kp->unk_0x678 == 7)
+                    {
+                        err = -3;
+                    }
+                    else
+                    {
+                        err = -1;
+                    }
+                    kp->mplsCallback(chan, err);
+                    if (err < 0 && !kp->unk_0x679)
+                    {
+                        kp->unk_0x678 = kp->unk_0x679;
+                        kp->unk_0x676 = kp->unk_0x679;
+                    }
+                }
+                kp->unk_0x67c = 0;
+            }
+            WPADiControlMpls(chan, kp->unk_0x676, fn_80658300);
+        }
+        else
+        {
+            kp->unk_0x678 = kp->unk_0x679;
+        }
+    }
+    if (!mpls && !kp->unk_0x679)
+    {
+        kp->unk_0x678 = kp->unk_0x679;
+    }
 finish:
+    kp->lastDeviceType = type;
     if (kp->appSamplingCallback)
     {
         kp->appSamplingCallback(chan);
     }
 }
-
