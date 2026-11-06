@@ -50,6 +50,7 @@ struct MpMsgSettings_unk {
     unsigned char mPad[1]; // 0x48C
 };
 extern "C" MpMsgSettings_unk* lbl_8087F0A8;
+extern "C" MP::MpMsgTable_unk* lbl_8087F1E4; // inferred: camp message table (same layout as lbl_8087F86C)
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
 extern "C" atn::SoundRef fn_800C32E0(unsigned int id, int arg2, int arg3, float volume);
 extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
@@ -103,18 +104,6 @@ public:
             }
         }
     }
-    // inferred: name of the character that says a message (0 = none)
-    static const wchar_t* GetSpeaker_unk(int category, int index) {
-        if (category < 0) {
-            return 0;
-        }
-        MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(category, index);
-        if (msg == 0 || msg->m10 == 0) {
-            return 0;
-        }
-        CharaInfo_unk* info = fn_8020924C(msg->m10);
-        return info != 0 ? info->m04 : L"";
-    }
     // inferred: whether a message of `category` belongs to the lobby list `list`
     static int HasMessage_unk(int category, int list) {
         int found = 0;
@@ -127,6 +116,20 @@ public:
             }
         }
         return found;
+    }
+    // inferred: number of messages of a category
+    static int GetMsgCount_unk(int category) {
+        return lbl_8087F610->m2A50.GetCount_unk(category);
+    }
+    // inferred: counts the messages of the current category in the current list
+    void CountMessages_unk(unsigned int count) {
+        mE8 = 0;
+        for (unsigned int i = 0; i < count; i++) {
+            MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(m164, i);
+            if (msg != 0 && ((msg->m04 >> 8) & (1 << m168)) != 0) {
+                mE8++;
+            }
+        }
     }
     void Add_unk(MpD2A_unk* task) {
         if (m178.size() < 37) {
@@ -170,6 +173,27 @@ public:
     static D2AMpMenuSetMessage* sInstance; // lbl_8087F5EC
 };
 
+// inferred: name of the character that says a message (0 = none)
+static const wchar_t* GetSpeaker_unk(int category, int index) {
+    if (category < 0) {
+        return 0;
+    }
+    MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(category, index);
+    if (msg == 0 || msg->m10 == 0) {
+        return 0;
+    }
+    CharaInfo_unk* info = fn_8020924C(msg->m10);
+    return info != 0 ? info->m04 : L"";
+}
+// inferred: name of the character that says a message (0 = none)
+static const wchar_t* GetMsgSpeaker_unk(MpMessage_unk* msg) {
+    if (msg == 0 || msg->m10 == 0) {
+        return 0;
+    }
+    CharaInfo_unk* info = fn_8020924C(msg->m10);
+    return info != 0 ? info->m04 : L"";
+}
+static const unsigned int sCustomData = fn_800DC6B4("CustomData");
 D2AMpMenuSetMessage* D2AMpMenuSetMessage::sInstance;
 
 D2AMpMenuSetMessage* D2AMpMenuSetMessage::fn_804C8778(atn::Task* parent) {
@@ -412,8 +436,20 @@ static const wchar_t* GetCharaName_unk(int idx) {
     return 0;
 }
 
+// inferred: name shown with a message (the speaker, or the character of the message)
+static const wchar_t* GetMsgName_unk(MpMessage_unk* msg) {
+    if (GetMsgSpeaker_unk(msg) == 0) {
+        int kind = msg->m08 >> 24;
+        if (kind == 19) {
+            return lbl_8087F86C->Get_unk(0x44);
+        }
+        return GetCharaName_unk(kind);
+    }
+    return GetMsgSpeaker_unk(msg);
+}
+
 // inferred: name of a message for the lobby
-static const wchar_t* GetMsgName_unk(int idx) {
+static const wchar_t* GetListName_unk(int idx) {
     return lbl_8087F86C->Get_unk(idx + 0x45);
 }
 
@@ -483,7 +519,7 @@ void D2AMpMenuSetMessage::vf10() {
         if (ret == 1) {
             if (mE4 < 20 && m110[mE4] != 0) {
                 fn_804C8D80(6);
-                const wchar_t* text = GetMsgName_unk(m168);
+                const wchar_t* text = GetListName_unk(m168);
                 SetPaneText_unk(m6C[1]->mLayout, "string0029(1)", text);
             }
         } else if (ret == 2) {
@@ -1027,6 +1063,88 @@ void D2AMpMenuSetMessage::fn_804CC7A4() {
         }
     }
     SetTaskText_unk(m6C[1], "string0029(1)", L"");
+}
+
+// inferred: fills the message list of the current category and list
+// NONMATCHING: 99.87% - r29/r31 swapped in the third loop (this + 4n and L"") and r22/r23 for the last text
+void D2AMpMenuSetMessage::fn_804CCB54() {
+    unsigned int index;
+    unsigned int n = 0;
+    wchar_t unused[0x20] = {0};
+    GetCharaName_unk(m164);
+    unsigned int count = GetMsgCount_unk(m164);
+    CountMessages_unk(count);
+    index = 0;
+    unsigned int i = 0;
+    for (unsigned int j = 0; j < count; j++) {
+        if (i >= mEC) {
+            break;
+        }
+        MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(m164, index);
+        index++;
+        if (msg != 0 && ((msg->m04 >> 8) & (1 << m168)) != 0) {
+            i++;
+        }
+    }
+    for (; index < count; index++) {
+        MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(m164, index);
+        if (msg != 0 && ((msg->m04 >> 8) & (1 << m168)) != 0 && (int)n < 8) {
+            mF0[n] = index;
+            SetPaneText_unk(m74[n]->mLayout, "string0029(1)", L"");
+            n++;
+        }
+    }
+    for (; n < 8; n++) {
+        mF0[n] = -1;
+        SetPaneText_unk(m74[n]->mLayout, "string0029(1)", L"");
+    }
+    m50->SetNumber_unk("string0037(1)", mE8, 0);
+    m50->SetNumber_unk("string0038(1)", mE8 == 0 ? 0 : mEC + mE4 + 1, 0);
+    SetPaneText_unk(m50->mLayout, "string0039(1)", L"/");
+    SetPaneText_unk(m50->mLayout, "string0035(1)", L"$B-");
+    SetTaskText_unk(m50, "string0029(1)", lbl_8087F1E4->Get_unk(0x1B3));
+}
+
+void D2AMpMenuSetMessage::fn_804CD2F8(int move) {
+    if (move == 0) {
+        return;
+    }
+    int last = move > 0 ? mF0[7] : mF0[0];
+    int count = GetMsgCount_unk(m164);
+    wchar_t text[0x100] = {0};
+    if (move > 0) {
+        for (int k = 0; k < move; k++) {
+            for (int i = 0; i < 7; i++) {
+                mF0[i] = mF0[i + 1];
+            }
+            mF0[7] = -1;
+            for (int index = last + 1; index < count; index++) {
+                MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(m164, index);
+                if (msg != 0 && ((msg->m04 >> 8) & (1 << m168)) != 0) {
+                    GetMsgName_unk(msg);
+                    mF0[7] = index;
+                    last = index;
+                    break;
+                }
+            }
+        }
+    } else {
+        for (int k = -move; k > 0; k--) {
+            for (int i = 7; i > 0; i--) {
+                mF0[i] = mF0[i - 1];
+            }
+            mF0[0] = -1;
+            for (int index = last - 1; index >= 0; index--) {
+                MpMessage_unk* msg = lbl_8087F610->m2A50.fn_804C54FC(m164, index);
+                if (msg != 0 && ((msg->m04 >> 8) & (1 << m168)) != 0) {
+                    GetMsgName_unk(msg);
+                    mF0[0] = index;
+                    last = index;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 

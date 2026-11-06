@@ -67,8 +67,8 @@ inline int IsTriggered_unk(int button) {
 namespace MP {
 
 
-// NONMATCHING (__sinit): the store is scheduled before the reload of the return address in the original
-static unsigned int sCustomData = fn_800DC6B4("CustomData");
+// inferred: const (the store of the __sinit is scheduled after the reload of the return address)
+static const unsigned int sCustomData = fn_800DC6B4("CustomData");
 D2AMpMenuMessageList* D2AMpMenuMessageList::sInstance;
 int D2AMpMenuMessageList::sPage;
 
