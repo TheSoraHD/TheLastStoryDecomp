@@ -4084,8 +4084,13 @@ RVL_SDK/src/revolution/axfx/AXFXReverbStdExp.c:
 	.data       start:0x807AF800 end:0x807AF890
 	.sdata2     start:0x80888638 end:0x80888678
 
-auto_03_8060E080_text.cpp:
-	.text       start:0x8060E080 end:0x80610490 align:16
+RVL_SDK/src/revolution/axfx/AXFXReverbStdExpDpl2.c:
+	.text       start:0x8060E080 end:0x8060EDF0 align:16
+	.data       start:0x807AF890 end:0x807AF920
+	.sdata2     start:0x80888678 end:0x808886B8
+
+auto_03_8060EDF0_text.cpp:
+	.text       start:0x8060EDF0 end:0x80610490 align:16
 
 RVL_SDK/src/revolution/axfx/AXFXLfoTable.c:
 	.text       start:0x80610490 end:0x806104A0
