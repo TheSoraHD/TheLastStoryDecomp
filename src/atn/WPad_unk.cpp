@@ -11,12 +11,12 @@ extern "C" double fabs(double x);
 
 // inferred: RVL SDK (KPAD/WPAD) functions, names unknown
 extern "C" void fn_8065F530(void* (*alloc)(unsigned int), int (*free)(void*)); // inferred: WPADRegisterAllocator
-extern "C" void fn_80657AF0();                                                 // inferred: KPADInit
+extern "C" void KPADInit();                                                 // inferred: KPADInit
 extern "C" void KPADSetConnectCallback(int chan, void (*cb)(int, int));                   // inferred: KPADSetConnectCallback
 extern "C" void KPADDisableDPD(int chan);                                         // inferred: KPADDisableDPD
 extern "C" void KPADEnableDPD(int chan);                                         // inferred: KPADEnableDPD
 extern "C" void fn_806540A0(int chan);
-extern "C" int fn_806572D0(int chan, KPADStatus_unk* samples, int count);     // inferred: KPADRead
+extern "C" int KPADRead(int chan, KPADStatus_unk* samples, int count);     // inferred: KPADRead
 extern "C" void WPADSetAutoSleepTime(unsigned char minute);
 extern "C" void WPADResetAutoSleepTimeCount(int chan);
 extern "C" void WPADDisconnect(int chan);
@@ -78,7 +78,7 @@ WPad_unk::WPad_unk() {
     m40BC = 0;
     mSensitivity = 5;
     fn_8065F530(fn_800DDAC4, fn_800DDB14);
-    fn_80657AF0();
+    KPADInit();
     for (int j = 0; j < 4; j++) {
         KPADSetConnectCallback(j, fn_800DDA34);
         KPADDisableDPD(j);
@@ -106,7 +106,7 @@ WPad_unk::WPad_unk() {
     }
     KPADStatus_unk* p = mStatus[0];
     for (int i = 0; i < 4; i++, p += 16) {
-        fn_806572D0(i, p, 16);
+        KPADRead(i, p, 16);
     }
 }
 
@@ -129,7 +129,7 @@ extern "C" void fn_800DDD18(WPad_unk* wpad) {
     memset(wpad->mRepeat, 0, sizeof(wpad->mRepeat));
     memcpy(wpad->mPrevAnalog, wpad->mAnalog, sizeof(wpad->mAnalog));
     for (int i = 0; i < 4; i++) {
-        fn_806572D0(i, wpad->mStatus[i], 16);
+        KPADRead(i, wpad->mStatus[i], 16);
     }
     for (int port = 0; port < 4; port++) {
         KPADStatus_unk* status = wpad->mStatus[port];
