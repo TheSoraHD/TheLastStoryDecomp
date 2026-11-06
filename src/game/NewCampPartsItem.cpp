@@ -7,6 +7,7 @@
 #include "atn/Lerp_unk.h"
 #include "game/MenuCommonTask.h"
 #include "game/GameConfig_unk.h"
+#include "game/Inventory.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70;                                // inferred: pad
@@ -21,10 +22,13 @@ extern "C" void fn_804A7DD4(MenuCommonTask* menu, int id);   // inferred: shows 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: item data returned by fn_80211480 (only the members used here)
 struct NewCampItemData_unk {
-    unsigned char m00[0x0C];
+    unsigned char m00[0x04];
+    int mCountId;         // 0x04: inferred: id counted by fn_804444E8
+    const wchar_t* mName; // 0x08
     const wchar_t* mHelp; // 0x0C
 };
 extern "C" NewCampItemData_unk* fn_80211480(int id); // inferred: item data
+extern "C" bool fn_8021175C(NewCampItemData_unk* item); // inferred: the item has no count (key items)
 // inferred: creates a d2anime task (atn/D2A_Task.h declares it with the D2A_Task type; not included: its
 // D2A_Data.h gives a warning)
 extern "C" NewCampItemD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
@@ -366,6 +370,99 @@ inline void NewCampPartsItem::SetState_unk(int state) {
     }
 }
 
+// inferred: help text and item view of an entry; name invented
+static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
+    if (entry->m08 != 0) {
+        NewCampItemData_unk* data = fn_80211480(entry->mId);
+        if (data != 0) {
+            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
+        }
+    } else {
+        MenuCommonTask* menu = MenuCommonTask::sInstance;
+        fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+    }
+    if (lbl_8087F0A8->mShowReleadBar2 != 0) {
+        fn_804A7DD4(MenuCommonTask::sInstance, entry->mId);
+    }
+}
+
+// inferred: icon and weapon data (as in game/ShopIdentify.cpp)
+struct NewCampItemUV_unk {
+    NewCampItemUV_unk() {}
+    NewCampItemUV_unk(const NewCampItemUV_unk& o) {
+        __Vec4Copy(&u0, &o.u0);
+    }
+    float u0, v0, u1, v1;
+};
+extern "C" int fn_804444E8(Inventory* party, int id); // inferred: number of items
+extern "C" int fn_80444BE8(Inventory* party, NewCampItemData_unk* item);
+extern "C" int fn_80444C48(Inventory* party);
+extern "C" NewCampItemUV_unk fn_80444C50(Inventory* party, int icon);
+extern "C" void fn_801F7590(atn::Task* layout, const char* name, NewCampItemUV_unk uv);
+extern "C" void fn_801F837C(atn::Task* layout, const char* name, const wchar_t* text);
+extern "C" void fn_801F8598(atn::Task* layout, const char* name, int value, int digits);
+struct NewCampWeapon_unk {
+    unsigned char m00[0xB8];
+    int mKind; // 0xB8
+};
+extern "C" NewCampWeapon_unk* fn_80206C50(int code);
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+struct NewCampMsgPair_unk {
+    int m00;
+    const wchar_t* mText;
+};
+struct NewCampMsg_unk {
+    const wchar_t* GetPair_unk(int id) {
+        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
+    }
+    NewCampMsgPair_unk mPairs[1];
+};
+extern "C" NewCampMsg_unk* lbl_8087F1E4;
+
+// NONMATCHING: 98% - L"--" is the first wide literal here (L"%s" of fn_80517B3C, not written yet, goes before
+// it in the original), so the pool address takes one more register; same offsets of @stringBase0
+void NewCampPartsItem::fn_8051B164() {
+    for (int i = 0; i < 10; i++) {
+        atn::Task* task = mItems[i]->GetTask();
+        if (task == 0) {
+            continue;
+        }
+        int shown = 0;
+        int index = mE8 + i;
+        if (index < (int)mList.size()) {
+            NewCampItemEntry_unk* entry = &mList[index];
+            NewCampItemData_unk* item = fn_80211480(entry->mId);
+            if (item != 0) {
+                int icon;
+                if (entry->m08 != 0) {
+                    if (fn_8021175C(item)) {
+                        fn_801F837C(task, "num", L"--");
+                    } else {
+                        fn_801F8598(task, "num", fn_804444E8(Inventory::instance_, item->mCountId), 0);
+                    }
+                    fn_801F837C(task, "item", item->mName);
+                    icon = fn_80444BE8(Inventory::instance_, item);
+                    NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);
+                } else {
+                    NewCampWeapon_unk* weapon = fn_80206C50(item->mCountId);
+                    fn_801F837C(task, "num", L"1");
+                    fn_801F837C(task, "item", lbl_8087F1E4->GetPair_unk(weapon->mKind + 0xEB));
+                    icon = fn_80444C48(Inventory::instance_);
+                }
+                NewCampItemUV_unk uv = fn_80444C50(Inventory::instance_, icon);
+                fn_801F7590(task, "iconUv", uv);
+                shown = 1;
+            }
+        }
+        mItems[i]->mVisible = shown;
+    }
+    if (mList.size() != 0) {
+        mNoItem->mVisible = 0;
+    } else {
+        mNoItem->mVisible = 1;
+    }
+}
+
 void NewCampPartsItem::fn_8051B364(const NewCampItemEntry_unk& entry, int* cursor, int* top) {
     int offset = *cursor - *top;
     for (int i = 0; i < (int)mList.size(); i++) {
@@ -410,22 +507,6 @@ void NewCampPartsItem::fn_8051B43C() {
     }
 }
 
-// inferred: help text and item view of an entry; name invented
-static inline void ShowHelp_unk(NewCampItemEntry_unk* entry) {
-    if (entry->m08 != 0) {
-        NewCampItemData_unk* data = fn_80211480(entry->mId);
-        if (data != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, data->mHelp, 0);
-        }
-    } else {
-        MenuCommonTask* menu = MenuCommonTask::sInstance;
-        fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
-    }
-    if (lbl_8087F0A8->mShowReleadBar2 != 0) {
-        fn_804A7DD4(MenuCommonTask::sInstance, entry->mId);
-    }
-}
-
 void NewCampPartsItem::fn_8051B544() {
     void* pad = lbl_8087EF70;
     int prev = mE4;
@@ -455,5 +536,33 @@ void NewCampPartsItem::fn_8051B544() {
     }
     if (mE4 < (int)mList.size()) {
         ShowHelp_unk(&mList[mE4]);
+    }
+}
+
+// inferred: sets a value of the layout of a task (the layout address is taken after the hash; as in
+// game/CosEditProtector.cpp)
+inline void SetTaskFloat_unk(void* task, const char* name, float value) {
+    fn_801FECE0(((NewCampItemD2A_unk*)task)->mLayout, fn_800DC6B4(name), value);
+}
+
+// NONMATCHING: 99% - only the offset of "frameOn" in @stringBase0 (strings of fn_80517B3C before it)
+void NewCampPartsItem::vf48() {
+    float value = 0.0f;
+    for (int i = 0; i < m4C; i++) {
+        NewCampPartsEntry_unk* entry = &m50[i];
+        if (entry->m04 == 1) {
+            atn::D3AnimeInstance* anime = (atn::D3AnimeInstance*)entry->mAnime;
+            if (anime != 0 && anime->GetTask() != 0) {
+                fn_801F6C80((atn::Task*)((atn::D3AnimeInstance*)m50[i].mAnime)->GetTask(), "frameOn", value);
+            }
+        } else {
+            atn::D3Anime* anime = entry->mAnime;
+            if (anime != 0 && anime->GetTask() != 0) {
+                SetTaskFloat_unk(m50[i].mAnime->GetTask(), "frameOn", value);
+            }
+        }
+    }
+    if (mBase->GetTask() != 0) {
+        SetTaskFloat_unk(mBase->GetTask(), "frameOn", value);
     }
 }
