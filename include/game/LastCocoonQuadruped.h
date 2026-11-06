@@ -20,6 +20,7 @@ public:
     void fn_804635B4();
     void fn_80463C58(); // inferred: mode 9 at frame 5: lands on the ground under m14D4
     void fn_80463DCC(); // inferred: end of the motion: back to mode 0 (states 1, 7) or mode 7
+    void fn_804666D8(); // inferred: mode with the moving effect (frames 10-80)
     void fn_80466868(); // inferred: end of the motion of mode 6 (shake at frame 3)
     void fn_80466974(); // inferred: back to mode 0
     void fn_80466AE4(); // inferred: mode 7 (motion 0x156)
@@ -39,7 +40,8 @@ public:
     CharaTask* m1554; // inferred: target of modes 11 and 12
     unsigned char m1558[0x1574 - 0x1558];
     CharaTask* m1574; // inferred: target of mode 13
-    unsigned char m1578[0x15C8 - 0x1578];
+    unsigned char m1578[0x15BC - 0x1578];
+    atn::Vector3 m15BC; // inferred: step added to the position (frames 10-55 of fn_804666D8)
     CharaTask* m15C8; // inferred: target of mode 17
     unsigned char m15CC[0x1790 - 0x15CC];
     atn::EfpFile m1790;
