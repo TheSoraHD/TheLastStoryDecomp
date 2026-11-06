@@ -10,7 +10,7 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 
 | Que | Antes | Despues |
 |---|---|---|
-| Funciones al 100% (report) | 13524 | 13553 (punto de control 13:35) |
+| Funciones al 100% (report) | 13524 | 13584 (14:47; ver el cierre) |
 | Ficheros enlazados | 652 / 1304 | |
 
 ### Unidades y funciones nuevas
@@ -19,8 +19,10 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 |---|---|---|
 | `msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c` (nueva, matching false) | 4/6 | rutinas de vectores/rotacion de Motion Plus (`fn_8065AED0`, `fn_8065AF20` movidas de KPADMpls; `fn_8065B630` (producto de rotaciones) y `fn_8065B7F0` (interpolacion) nuevas; `fn_8065AFB0` 90%, `fn_8065B320` 53%) |
 | `msc/src/RVL_SDK/kpad/KPADMpls_unk.c` (matching false) | 4 -> 10/16 | area de trabajo de Motion Plus por canal (0xDB0) reconstruida; `fn_80658DF0`, `fn_80659070`, `fn_80659220`, `fn_80659B20/C10/D00` (por eje), mas `fn_8065AA80` 99,8%, `fn_8065A8B0` 98%, `fn_806594D0` 96%; falta `fn_80659DF0` (2752 B) |
-| `MP/D2AMpMenuSetMessage.cpp` (nueva, matching false) | 0 -> 10/26 | fabrica, ctor, dtor, `vf0C`, `vf1C`, `vf20`, `fn_804C9360` (oculta las ventanas del estado anterior), `fn_804C9C88` (cursor en rejilla), `fn_804C9EF8` (pagina de mensajes y voz); `fn_804C8D80` 98,4% y `vf10` 99,75% NONMATCHING |
-| `MP/D2AMpMenuMessageList.cpp` (matching false) | 7 -> 8/16 | `MpMessageTable_unk::fn_804C54FC` al 100% (inline en cabecera, ver decisiones) |
+| `MP/D2AMpMenuSetMessage.cpp` (nueva, matching false) | 0 -> 20/26 | las 26 escritas; NONMATCHING por registros: `fn_804C8D80` 98,4%, `vf10` 99,75%, `fn_804CB2F0` 99,93%, `fn_804CC618` 99,4%, `fn_804CC7A4` 99,85%, `fn_804CCB54` 99,87% |
+| `MP/D2AMpMenu.cpp` (nueva, matching false) | 0 -> 18/41 | fabrica, ctor de `RANKING_DATA`, dtors, `vf1C`, `vf20`, `fn_804B4150`, `D2AMpMenuRankMark` (dtor, `vf0C`, `fn_804B4678/4700/4770`) y los 6 virtuales de las listas de ranking; ctor 99,2%, `fn_804B0A78` 99,95%, `fn_804B12F8` 99,97%; `fn_804B49C0` y `__sinit` solo por desplazamientos del pool de cadenas (faltan funciones) |
+| `MP/D2AMpMenuMessageList.cpp` (matching false) | 7 -> 9/16 | `MpMessageTable_unk::fn_804C54FC` (inline en cabecera) y `__sinit` (`const sCustomData`); `fn_804C50C0` 92 -> 93,8% |
+| `MP/D2AMpMenuResult.cpp` (matching false) | 12 -> 13/20 | `__sinit` (`const sCustomData`) |
 | `msc/src/RVL_SDK/kpad/KPAD.c` (matching false) | 22 -> 33/33 | `KPADInsideStatus` 2010 completo (puntero 0x17C, ticks y Motion Plus 0x660-0x688); `reset_kpad(chan)`, `KPADInitEx`, `KPADiConnectCallback`, `KPADiRead`, `KPADiSamplingCallback`, `read_kpad_ext`, `read_kpad_acc`, callbacks WBC y `fn_80658300` (Motion Plus) desde el asm. Falta `fn_80657230` (61%) |
 
 ## Decisiones tomadas sin el usuario
@@ -51,7 +53,23 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
   nombres; `GetCharaName_unk` estatica). `MpMsgData_unk`/`MpMsgSession_unk`/`MpMsgSettings_unk` son vistas parciales
   de `lbl_8087F628`/`lbl_8087F610`/`lbl_8087F0A8` como las de MessageList (no hay cabecera comun aun).
 
+- Cabeceras nuevas con clases que estaban en su `.cpp`: `include/MP/D2AMpMenu.h` (`D2AMpMenu`, sus listas de
+  ranking y `D2AMpMenuRankMark`), `D2AMpMenuFriend.h`, `D2AMpMenuFriendRoom.h`, `D2AMpMenuMessageList.h`,
+  `D2AMpMenuSetMessage.h`, `MpMessage_unk.h`. Cockpit, SetRule, Result y FriendRoom usan `MP::D2AMpMenu::sInstance` y
+  `D2AMpMenuRankMark` en vez de `lbl_8087F59C`/`lbl_8087F5A0` (simbolos renombrados; re-emparejados con pdbatch).
+- `D2AMpMenuRankMark::D2AMpMenuRankMark` es una funcion normal detras del ctor del menu: MWCC la auto-inlinea y el
+  enlazador quita la copia (`ordercheck` la da como extra). `RANKING_DATA::Clear` es inline de la clase (su `L""` va
+  a `@STRING@Clear...`, como en el original).
+- `MpMessage_unk` gana `mVoice` (0x00), `m04` (bits de las listas), `m08` (byte alto: personaje) y `m10` (hablante).
+- SetMessage: la vista de `lbl_8087F610` (`MpMsgSession_unk`, en `D2AMpMenuSetMessage.h`) incluye `m4FC`/`m540` para
+  que D2AMpMenu use el mismo tipo; `lbl_8087F860` (teclado) y `lbl_8087F1E4` siguen como vistas parciales.
+- Jumptable de `D2AMpMenu::fn_804B0A78` renombrada `@3209` (antes `jumptable_8079098C`) para que objdiff la empareje.
+
 ## Decisiones a revisar
+
+- `lbl_8087F628` sigue con varias vistas parciales (`MpData_unk` de `D2AMpMenuFriend.h`, `MpMsgData_unk`,
+  `atn::net::Manager` en `include/atn/net/Manager.h`, cada una con su `MpFriendList_unk`): no se pueden incluir juntas.
+  Unificarlas (una sola clase `atn::net::Manager`) es requisito para seguir con `D2AMpMenu::fn_804AF520`.
 
 ## Cambios de splits
 
@@ -63,11 +81,35 @@ con `.o` y split (164 lineas) y `rep100` (145 lineas, total 144).
 
 ## Renombrados en symbols.txt
 
+- KPAD/KPADMpls/KPADMplsMath: `fn_`/`lbl_` de las funciones y datos escritos (nombres del SDK donde existen,
+  `fn_XXXXXXXX` con su firma en C si no); los seis `fn_8065CED0..CF20` de WPAD pasan a `WBCSetupCalibration` ...
+  `WBCGetTGCWeight` (los debiles de KEY).
+- MP: todas las funciones escritas de `D2AMpMenuSetMessage` (`vf10`, `vf14`, `fn_804C9C88__...Fii`, ...),
+  `D2AMpMenu` (`fn_804AE820__...`, `__ct__/__dt__` del menu, de `RANKING_DATA` y de `D2AMpMenuRankMark`, `Get`/
+  `GetCount` de las tres listas, `__sinit_\D2AMpMenu_cpp`), datos `sInstance__Q22MP9D2AMpMenu` (0x8087F59C),
+  `sInstance__Q22MP17D2AMpMenuRankMark` (0x8087F5A0), `sTablePath__Q22MP17D2AMpMenuRankMark` (0x8087E0F0),
+  `sCustomData` (0x8087F598 y 0x8087F5E8, locales), `__sinit_\D2AMpMenuSetMessage_cpp`; `@3209` (jumptable).
+- Re-emparejados `@N` (pd/pdbatch) de SetMessage, MessageList, D2AMpMenu, Friend, FriendRoom, Cockpit, SetRule y
+  Result tras los cambios de cabeceras.
+
 ## Cambios en libs/
+
+- `libs/msc` (CC0, mscharged): `KPAD.c`, `KPAD.h`, `KPADPriv.h` actualizados a la version 2010 del juego;
+  `KPADMpls_unk.c` reescrito y `KPADMplsMath_unk.c` nuevo (desde el asm). `libs/key` (CC0): `WPAD.c` sin los stubs
+  `fn_8065CED0..CF20`. Ninguna fuente externa nueva copiada.
 
 ## Hallazgos
 
+- Ver `docs/trucos-mwcc.md` (lineas marcadas `unidades-20261106b`).
+
 ## Pendientes
+
+- `MP/D2AMpMenu.cpp`: 23 funciones sin escribir; la siguiente es `fn_804AF520` (cambio de estado, 5456 B, 23 casos;
+  usa SoftKeyboard, `atn::net::Manager`, D2AMpMenuFriend/FriendRoom/Lobby/MessageList y las cadenas 0x2ec-0x3bc del
+  pool: sin ella las funciones posteriores no pueden cuadrar sus desplazamientos de `@stringBase0`). Bloqueo comun:
+  el `16.0f`/`21.0f` de `fn_8006EF48` que el original carga antes de la rama de `data()` (vf0C, AF520, SetRule vf0C,
+  FriendRoom; en `fn_804C50C0` de MessageList igual con los floats de `fn_80061AE4`): probados temporal con nombre,
+  `c_str()`, variable `size`, inline con la cadena o el puntero, compiladores Wii 1.0-1.7/GC 3.0a5.2 (todos iguales).
 
 - `MP/D2AMpMenuSetMessage.cpp`: faltan `fn_804CA250` (2200 B) y las de 0x804CAAE8 en adelante (15 funciones);
   `vf10` 99,75% (caso 5: texto en r31 y layout en r29; el original r29/r30) y `fn_804C8D80` 98,4%.
