@@ -10,10 +10,10 @@
 
 s32 WUDIsLinkedWBC(void);
 WUDDevInfo* fn_80673E10(void);
-void fn_80673F50(UINT8 handle, BD_ADDR_PTR addr);
-BD_ADDR_PTR fn_80673F70(UINT8 handle);
-void fn_80673F90(UINT8 handle, u16 size);
-void fn_80673FB0(UINT8 handle, u16 num);
+void WUDiSetDevAddrForHandle(UINT8 handle, BD_ADDR_PTR addr);
+BD_ADDR_PTR WUDiGetDevAddrForHandle(UINT8 handle);
+void WUDiSetQueueSizeForHandle(UINT8 handle, u16 size);
+void WUDiSetNotAckNumForHandle(UINT8 handle, u16 num);
 
 // TODO(kiwi) Is this from BTA?
 #define WUD_HH_CUSTOM_EVT 15
@@ -87,9 +87,9 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
                 pInfo = fn_80673E10();
             }
 
-            fn_80673F50(pConn->handle, pInfo->devAddr);
-            fn_80673F90(pConn->handle, 0);
-            fn_80673FB0(pConn->handle, 0);
+            WUDiSetDevAddrForHandle(pConn->handle, pInfo->devAddr);
+            WUDiSetQueueSizeForHandle(pConn->handle, 0);
+            WUDiSetNotAckNumForHandle(pConn->handle, 0);
 
             if (pInfo->sync_type == 3 || pInfo->sync_type == 1) {
                 WUDiMoveTopSmpDevInfoPtr(pInfo);
@@ -146,7 +146,7 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
         DEBUGPrint("device handle : %d   status = %d\n", pCbData->handle, pCbData->status);
 
-        pInfo = WUDiGetDevInfo(fn_80673F70(pCbData->handle));
+        pInfo = WUDiGetDevInfo(WUDiGetDevAddrForHandle(pCbData->handle));
         if (pInfo != NULL) {
             if (pInfo->sync_type == 3 || pInfo->sync_type == 1) {
                 WUDiMoveTopOfDisconnectedSmpDevice(pInfo);
@@ -155,9 +155,9 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
             }
         }
 
-        fn_80673F50(pCbData->handle, NULL);
-        fn_80673F90(pCbData->handle, 0);
-        fn_80673FB0(pCbData->handle, 0);
+        WUDiSetDevAddrForHandle(pCbData->handle, NULL);
+        WUDiSetQueueSizeForHandle(pCbData->handle, 0);
+        WUDiSetNotAckNumForHandle(pCbData->handle, 0);
 
         if (p->hidConnCB != NULL) {
             p->hidConnCB(pInfo, FALSE);
@@ -211,9 +211,9 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
         pInfo = WUDiGetDevInfo(pConn->bda);
         pInfo->devHandle = pConn->handle;
-        fn_80673F50(pConn->handle, pInfo->devAddr);
-        fn_80673F90(pConn->handle, 0);
-        fn_80673FB0(pConn->handle, 0);
+        WUDiSetDevAddrForHandle(pConn->handle, pInfo->devAddr);
+        WUDiSetQueueSizeForHandle(pConn->handle, 0);
+        WUDiSetNotAckNumForHandle(pConn->handle, 0);
         break;
     }
 
@@ -249,8 +249,8 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
         for (i = 0; i < pEvt15->linkedNum; i++) {
             if (pEvt15->devices[i].handle < WUD_MAX_DEV_ENTRY) {
-                fn_80673F90(pEvt15->devices[i].handle, pEvt15->devices[i].queueSize);
-                fn_80673FB0(pEvt15->devices[i].handle, pEvt15->devices[i].notAckNum);
+                WUDiSetQueueSizeForHandle(pEvt15->devices[i].handle, pEvt15->devices[i].queueSize);
+                WUDiSetNotAckNumForHandle(pEvt15->devices[i].handle, pEvt15->devices[i].notAckNum);
             }
         }
 

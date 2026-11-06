@@ -28,6 +28,9 @@ void WUDStoredLinkKeyCallback(void* p1);
 void WUDPowerManagerCallback(BD_ADDR addr, tBTM_PM_STATUS status, UINT16 value, UINT8 hciStatus);
 
 static void InitCore(void);
+void WUDiSetDevAddrForHandle(UINT8 handle, BD_ADDR_PTR addr);
+void WUDiSetQueueSizeForHandle(UINT8 handle, u16 size);
+void WUDiSetNotAckNumForHandle(UINT8 handle, u16 num);
 void fn_80673070(WUDDevInfo* pInfo);
 static WUDInitState fn_80670C70(void);
 void WUDiResetAuthFailCount(void);
@@ -2223,9 +2226,9 @@ static void InitCore(void) {
     DEBUGPrint("InitCore\n");
 
     for (i = 0; i < WUD_MAX_DEV_ENTRY; i++) {
-        _dev_handle_to_bda[i] = NULL;
-        _dev_handle_queue_size[i] = 0;
-        _dev_handle_notack_num[i] = 0;
+        WUDiSetDevAddrForHandle(i, NULL);
+        WUDiSetQueueSizeForHandle(i, 0);
+        WUDiSetNotAckNumForHandle(i, 0);
     }
 
     p->smpListTail = &p->smpList[WUD_MAX_DEV_ENTRY_FOR_SMP - 1];
@@ -2296,14 +2299,23 @@ BOOL WUDInit(void) {
     p->hidConnCB = NULL;
     p->hidRecvCB = NULL;
 
-    p->initState = WUD_STATE_INIT_WAIT_FOR_INITIALIZATION;
+    // inferred: version of 2010 waits for the device first and runs the balance board hook
+    // (Swiftshine/key WUDInit)
+    p->initState = WUD_STATE_INIT_WAIT_FOR_DEVICE_UP;
+    p->initWaitCnt = 20;
 
     SCInit();
+
+    if (_wudFlag && _initWBC) {
+        (*_initWBC)();
+    }
 
     OSCreateAlarm(&p->alarm);
     OSSetPeriodicAlarm(&p->alarm, OSGetTime(), OSMillisecondsToTicks(10), InitHandler0);
 
     _initialized = TRUE;
+    _scFlush = FALSE;
+
     return TRUE;
 }
 
@@ -4122,18 +4134,19 @@ void WUDUpdateSCSetting(void) {
     }
 }
 
-void fn_80673F50(UINT8 handle, BD_ADDR_PTR addr) {
+void WUDiSetDevAddrForHandle(UINT8 handle, BD_ADDR_PTR addr) {
     _dev_handle_to_bda[handle] = addr;
 }
 
-BD_ADDR_PTR fn_80673F70(UINT8 handle) {
+BD_ADDR_PTR WUDiGetDevAddrForHandle(UINT8 handle) {
     return _dev_handle_to_bda[handle];
 }
 
-void fn_80673F90(UINT8 handle, u16 size) {
+void WUDiSetQueueSizeForHandle(UINT8 handle, u16 size) {
     _dev_handle_queue_size[handle] = size;
 }
 
-void fn_80673FB0(UINT8 handle, u16 num) {
+void WUDiSetNotAckNumForHandle(UINT8 handle, u16 num) {
     _dev_handle_notack_num[handle] = num;
 }
+
