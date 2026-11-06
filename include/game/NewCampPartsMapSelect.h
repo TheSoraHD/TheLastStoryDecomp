@@ -46,7 +46,12 @@ struct MapSelectRoute_unk {
     MapSelectRoute_unk() : m00(0) {}
     int m00;
     int mId; // 0x04: inferred: compared with the camp id (m48->m4C)
-    unsigned char m08[0x1C - 0x08];
+    int m08;
+    int mMapType;  // 0x0C: inferred: destination map (arguments of fn_8036F268)
+    int mMapId;    // 0x10
+    int mMapSubId; // 0x14
+    int mEntry;    // 0x18
+
 };
 
 // inferred: 0x100 bytes cleared by the constructor (at 0x45D4); names invented
@@ -81,6 +86,9 @@ public:
     void fn_80521908(int reset); // inferred: places the background boards
     void fn_8051FB7C(int state); // inferred: changes the state of the cursor (m1998)
     void fn_80521A00(int dir);
+    void fn_80520098();
+    void fn_8051FD20(); // inferred: input of the cursor state
+    void fn_805212BC(); // inferred: goes to the map of the selected route
     // inferred: moves the camera to `point` (inlined in vf20 and vf30)
     void SetCursorPoint_unk(MapSelectPoint_unk* point);
     // inferred: index of the route of the camp `id` (-1: none)

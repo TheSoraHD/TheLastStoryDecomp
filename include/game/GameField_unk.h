@@ -23,6 +23,8 @@ struct GameField_unk {
     RouteTable_unk* m10D8;      // inferred: route tables of the map
     unsigned char m10DC[0x5624 - 0x10DC];
     atn::FadeCapture* m5624;    // inferred: screen capture fade of the field (Event::Manager::fn_8047F730)
+    unsigned char m5628[0x563C - 0x5628];
+    int m563C;                  // inferred: reason of the next map change (0x12: map select of the camp)
     // inferred: the route tables are the scene of the field (RouteTable_unk is a partial view of
     // GameScene; Event/Sequence calls GameScene methods on it). Name invented.
     GameScene* GetScene_unk() const { return (GameScene*)m10D8; }

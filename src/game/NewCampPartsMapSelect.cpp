@@ -8,6 +8,10 @@
 #include "atn/SoundManager.h"
 #include "game/SelectMember.h"
 #include "game/MenuCommonTask.h"
+#include "game/GameField_unk.h"
+#include "game/GameScene.h"
+#include "game/MapTask.h"
+#include "game/TacView.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -43,7 +47,8 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: camp task (the parent m48); only the members used here
 struct NewCampMapCamp_unk {
-    unsigned char m0000[0x4C];
+    unsigned char m0000[0x48];
+    int mState; // 0x48: inferred: state of the camp (2: map select opened from the field)
     int mId; // 0x4C: inferred: current camp
     unsigned char m0050[0x11F0 - 0x50];
     NewCampPartsBase* mParts; // 0x11F0: inferred: current parts
@@ -53,6 +58,20 @@ extern "C" void fn_80239DAC(void* mgr, void* owner, int id, int arg); // inferre
 extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: plays a system sound effect
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
+extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
+                            int c); // inferred: changes the map
+extern "C" void fn_8036FB4C(GameField_unk* field, int entry); // inferred: moves to an entry of the current map
+extern "C" void fn_803743AC(GameField_unk* field);
+extern "C" void fn_80530D30(atn::Task* camp, int a);
+extern "C" void fn_8052DEEC(atn::Task* camp, int id); // inferred: changes the parts of the camp
+extern "C" void fn_80530174(atn::Task* camp);
+extern "C" void fn_8052CA6C(atn::Task* camp);
+extern "C" void fn_805AA734(TacView* view); // inferred: closes the tactical view
+extern "C" void fn_8052C9C4(atn::Task* camp);
+extern "C" void fn_8053032C(atn::Task* camp, atn::Vector3 pos, atn::Vector3 rot);
+extern "C" int fn_8037587C(GameField_unk* field, int type, int id, int subId); // inferred: the map was visited
+extern "C" void* lbl_8087EF70;
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_805115D0(atn::Task* task, int a, int b, float c, float d);
 extern "C" void fn_805113E8(atn::D3Anime* anime, int a, int b, float c, float d);
@@ -395,7 +414,54 @@ void NewCampPartsMapSelect::fn_8051FB7C(int state) {
     }
 }
 
-// NONMATCHING: volatile registers of the inlined point search (index/pointer/id)
+void NewCampPartsMapSelect::fn_8051FD20() {
+    void* pad = lbl_8087EF70;
+    fn_805212BC();
+    if (fn_800A555C(pad, 0, 5)) {
+        if (((NewCampMapCamp_unk*)m48)->mState == 2) {
+            fn_80530174(m48);
+            fn_8052C9C4(m48);
+        } else {
+            fn_8052DEEC(m48, 0);
+            fn_8053032C(m48, lbl_807C7030, lbl_807C7030);
+            fn_80117228(8);
+            mDC = 0;
+            fn_8051FB7C(5);
+        }
+    } else if (fn_800A555C(pad, 0, 4)) {
+        MapSelectRoute_unk* route = FindRoute_unk(m19A4);
+        if (route != 0 && route->m08 == 2) {
+            if (route->mId < 500) {
+                if (fn_8037587C(lbl_8087F430, route->mMapType, route->mMapId, route->mMapSubId)) {
+                    fn_8051FB7C(1);
+                } else {
+                    fn_8051FB7C(2);
+                }
+            } else {
+                switch (route->mId - 500) { // inferred: special routes 500-503
+                case 0:
+                    m19B0 = 1;
+                    break;
+                case 1:
+                    m19B0 = 0;
+                    break;
+                case 2:
+                    m19B0 = 2;
+                    break;
+                case 3:
+                    m19B0 = 0;
+                    break;
+                }
+                fn_8051FB7C(5);
+                fn_80117228(9);
+            }
+            fn_80117228(1);
+        } else {
+            fn_80117228(11);
+        }
+    }
+}
+
 void NewCampPartsMapSelect::vf30() {
     int id = m19A0;
     m19A4 = id;
@@ -406,6 +472,31 @@ void NewCampPartsMapSelect::vf30() {
     m80 = 0;
     m19C0 = 0.0f;
     mDC = 1;
+}
+
+// NONMATCHING: volatile registers of the inlined point search (index/pointer/id)
+void NewCampPartsMapSelect::fn_80520098() {
+    if (lbl_8087F430 == 0) {
+        return;
+    }
+    fn_80530D30(m48, 0);
+    fn_8052DEEC(m48, 0);
+    MapSelectRoute_unk* route = FindRoute_unk(m19A4);
+    fn_80530174(m48);
+    fn_8052CA6C(m48);
+    lbl_8087F430->m563C = 0x12;
+    if (fn_80373148(lbl_8087F430)->mType == 1 && route->mMapType == 1) {
+        fn_8036FB4C(lbl_8087F430, route->mEntry);
+        return;
+    }
+    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+        fn_805AA734(lbl_8087F9F8);
+        fn_803743AC(lbl_8087F430);
+    }
+    fn_8036F268(lbl_8087F430, route->mMapType, route->mMapId, route->mMapSubId, route->mEntry, 1, 0, 0x12, 1);
+    if (lbl_8087F430->GetScene_unk() != 0) {
+        lbl_8087F430->GetScene_unk()->FreezeTask();
+    }
 }
 
 // NONMATCHING: float registers of the negated offset
