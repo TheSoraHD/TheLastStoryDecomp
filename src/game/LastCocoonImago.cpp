@@ -1,4 +1,5 @@
 #include "game/LastCocoonImago.h"
+#include "chr/ControlBase.h"
 
 atn::Vector3 LastCocoonImago::vf64(int center) {
     atn::Vector3 result = mPos;
@@ -8,6 +9,28 @@ atn::Vector3 LastCocoonImago::vf64(int center) {
         result = m624.mData[m18C8].m04.mCenter;
     }
     return result;
+}
+
+void LastCocoonImago::vf24() {
+    if (m55C == 6 && mControl && !mControl->vf3C()) {
+        return;
+    }
+    if (m197C) {
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x3B, 1, 0, 1, 0.0f, 0.025f);
+    } else if (m14C8 != 0) {
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x14, 1, 0, 1, 0.0f, 0.025f);
+    } else {
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.025f);
+    }
 }
 
 void LastCocoonImago::vf38(int enable) {

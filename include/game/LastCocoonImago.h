@@ -13,6 +13,7 @@ class LastCocoonImago : public EnemyTask {
 public:
     LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info); // 0x80458270
     virtual ~LastCocoonImago();                              // 0x8045F9A0
+    virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
     virtual float vf90();                                    // 0x8045F998
@@ -21,7 +22,9 @@ public:
     virtual int vfE4();                                      // 0x8045F6A0
 
     atn::LH_Binary m14B0; // inferred: parameter file
-    unsigned char m14B8[0x14F0 - 0x14B8];
+    unsigned char m14B8[0x14C8 - 0x14B8];
+    int m14C8;
+    unsigned char m14CC[0x14F0 - 0x14CC];
     atn::EfpFile m14F0;
     unsigned char m14FC[0x1500 - 0x14FC];
     atn::ColliCapsule mCapsules[11]; // 0x1500: inferred: hit capsules (bit 0 of mFlags enables them)
@@ -33,7 +36,9 @@ public:
     unsigned char m1948[0x1964 - 0x1948];
     atn::LH_Binary m1964;
     atn::EfpFile m196C;
-    unsigned char m1978[0x1980 - 0x1978];
+    unsigned char m1978[0x197C - 0x1978];
+    unsigned char m197C;
+    unsigned char m197D[0x1980 - 0x197D];
     ResHandle m1980; // inferred: debug menu group
     unsigned char m1984[0x1990 - 0x1984];
 };
