@@ -34,6 +34,10 @@ struct NewCampPair_unk {
 // bytes, fn_8052A888). Members keep their offsets (names unknown).
 class NewCampTask : public atn::Task {
 public:
+    virtual ~NewCampTask(); // 0x8052B010
+    virtual int vf0C();     // 0x8052B18C
+    virtual void vf10();    // 0x8052BCFC
+    virtual void vf14();    // 0x8052C0F0
     void fn_8052C9C4(); // inferred: opens/closes the map select of the field (toggled by m133C)
     void fn_8052CA6C();
     void fn_8052DEEC(int state); // inferred: changes the parts of the camp (m464)

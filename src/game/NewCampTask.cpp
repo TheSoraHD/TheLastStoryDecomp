@@ -2,6 +2,7 @@
 #include "atn/FadeCommon.h"
 #include "atn/Model_unk.h"
 #include "atn/SoundRef.h"
+#include "atn/EffectManager.h"
 #include "game/NewCampPartsTop.h"
 #include "game/NewCampPartsStatus.h"
 #include "game/NewCampPartsMapSelect.h"
@@ -37,6 +38,19 @@ extern "C" void fn_8037529C(Field_unk* field, int a, unsigned int mask, int b, i
 
 static NewCampPair_unk sNullPair; // inferred: returned by fn_80530384 for a missing id
 
+// inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
+static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y, int z) {
+    atn::Vector3 pos;
+    ((Xsca_unk*)parts->m5C.fn_804786F8())->fn_805BDCBC(0)->fn_805BF410(0.0f, &pos.x, x, y, z);
+    return pos;
+}
+
+void NewCampTask::vf14() {
+    if (lbl_8087F3C0 != 0) {
+        lbl_8087F3C0->fn_8023A664((void*)1);
+    }
+}
+
 void NewCampTask::fn_8052C9C4() {
     if (m133C == 0) {
         if (lbl_8087F430 != 0) {
@@ -52,13 +66,6 @@ void NewCampTask::fn_8052C9C4() {
         }
     }
     m5C = 0;
-}
-
-// inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
-static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y, int z) {
-    atn::Vector3 pos;
-    ((Xsca_unk*)parts->m5C.fn_804786F8())->fn_805BDCBC(0)->fn_805BF410(0.0f, &pos.x, x, y, z);
-    return pos;
 }
 
 void NewCampTask::fn_8052DEEC(int state) {
