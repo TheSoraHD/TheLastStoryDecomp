@@ -100,8 +100,10 @@ inline void WaitObject::PlayEfp_unk() {
     lbl_8087F3C0->mB8 = 1;
     atn::EfpFile* efp = &mEfp[m54];
     atn::Model* model = &mModel;
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    rot.Set_unk(0.0f, 0.0f, 0.0f);
+    pos.Set_unk(0.0f, 0.0f, 0.0f);
     Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
     lbl_8087F3C0->mB8 = 0;
@@ -417,8 +419,7 @@ int WaitObject::InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger) {
 
 // inferred: switches the state: effect and motion of the state, collision of the state, timers of
 // the type 1 triggers (mValue frames plus a random part)
-// NONMATCHING: 99.2% - order of the stores of the two zero vectors of the effect (as
-// gmk::OpenBoard::vf10) and the load of the blend of the state before the motion id
+// NONMATCHING: 99.6% - the load of the blend of the state before the motion id
 int WaitObject::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
