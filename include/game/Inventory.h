@@ -101,7 +101,8 @@ public:
     Equip_unk mEquipSetB[7];                        // 0xD940 (at most 7: the list below starts at 0xDB2C)
     atn::LH_Binary mLoader;                         // 0xDB00
     int mLoaded;                                    // 0xDB08: inferred: mLoader done (fn_8044386C)
-    unsigned char mDB0C[0xDB14 - 0xDB0C];
+    int mDB0C;                                      // inferred: cleared by the shops around AddItem (0x805849E8)
+    unsigned char mDB10[0xDB14 - 0xDB10];
     int mDB14;                                      // inferred: read by fn_8044909C
     unsigned char mDB18[0xDB24 - 0xDB18];
     int mDB24;                                      // inferred: read by fn_8044909C

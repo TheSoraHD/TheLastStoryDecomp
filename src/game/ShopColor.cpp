@@ -119,8 +119,8 @@ ShopColor::~ShopColor() {
 }
 
 int ShopColor::vf0C() {
-    if (fn_800D3FA4() && !fn_8057F880(this)) {
-        fn_8057F8F8(this);
+    if (fn_800D3FA4() && !fn_8057F880()) {
+        fn_8057F8F8();
         vf38((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
         fn_804A39EC(mTop, 1, 0, 0.0f, 1.0f);
         mTop->mFlags |= 4;
@@ -180,11 +180,11 @@ void ShopColor::vf10() {
     } else {
         mInfo->mSpeed = -1.0f;
     }
-    fn_80580264(this);
+    fn_80580264();
 }
 
 void ShopColor::vf14() {
-    fn_80580DE0(this);
+    fn_80580DE0();
     mTop->mFlags |= 4;
     fn_80580D80(mContent);
     mListBase->mFlags |= 4;
@@ -283,7 +283,7 @@ void ShopColor::vf1C(int state) {
     switch (state) {
     case 1:
         m25B40 = 0;
-        fn_8057FB20(this);
+        fn_8057FB20();
         break;
     case 4:
         mScroll.mCursor = mTopCursor;
@@ -303,8 +303,8 @@ void ShopColor::vf1C(int state) {
 
 void ShopColor::vf20(int result) {
     if (result == 5) {
-        fn_80584D78(this, &mEntries5C[mDC], m25B24);
-        fn_80581FD8(this);
+        fn_80584D78(&mEntries5C[mDC], m25B24);
+        fn_80581FD8();
         fn_80117228(25);
         vf1C(5);
     } else {
@@ -314,7 +314,7 @@ void ShopColor::vf20(int result) {
 }
 
 void ShopColor::fn_80587D10() {
-    fn_805847EC(this, 1);
+    fn_805847EC(1);
     mTopCursor = mScroll.mCursor;
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 4)) {
@@ -335,7 +335,7 @@ void ShopColor::fn_80587D10() {
 }
 
 void ShopColor::fn_80587E3C() {
-    fn_80584808(this, 1);
+    fn_80584808(1);
     mCursor = mScroll.mCursor;
     mScrollTop = mScroll.mTop;
     void* pad = lbl_8087EF70;
@@ -353,7 +353,7 @@ void ShopColor::fn_80587E3C() {
             vf1C(8);
         } else {
             fn_80117228(11);
-            fn_8058181C(this, 1, error, 0);
+            fn_8058181C(1, error, 0);
             vf1C(2);
         }
     } else if (fn_800A555C(pad, 0, 5)) {
@@ -387,7 +387,7 @@ void ShopColor::fn_805880F0() {
     void* party = Inventory::instance_;
     mListBase->mFlags &= ~4;
     SetPaneFloat_unk(mListBase->mLayout, "ofsOn", 1.0f);
-    fn_80584750(this, mListBase, mScroll.mTop, mColors.size(), 10);
+    fn_80584750(mListBase, mScroll.mTop, mColors.size(), 10);
     ShopPoint_unk pos;
     mContent->mFlags &= ~4;
     for (int i = 0; i < 10; i++) {

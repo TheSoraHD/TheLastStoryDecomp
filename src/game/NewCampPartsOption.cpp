@@ -1,4 +1,5 @@
 #include "game/NewCampPartsOption.h"
+#include "game/NewCampTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/D3Anime.h"
@@ -29,7 +30,6 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" int fn_800A55AC(void* pad, int port, int button); // inferred: button repeated
 extern "C" int fn_800A58D0(void* pad, int port);             // inferred: classic controller connected
-extern "C" void fn_8052DEEC(atn::Task* camp, int id); // inferred: changes the parts of the camp
 extern "C" void* lbl_8087EEC8;                        // inferred: font
 extern "C" void fn_8006F5E8(void* font, std::string* dst, const wchar_t* src);
 extern "C" void PSMTXConcat(const float a[3][4], const float b[3][4], float ab[3][4]);
@@ -1110,7 +1110,7 @@ void NewCampPartsOption::fn_80525800() {
         }
     }
     if (fn_800A555C(pad, 0, 5) != 0) {
-        fn_8052DEEC(m48, 0);
+        ((NewCampTask*)m48)->fn_8052DEEC(0);
         fn_80117228(8);
         m58 = -1.0f;
     } else if (fn_800A555C(pad, 0, 4) != 0) {

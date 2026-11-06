@@ -1,6 +1,18 @@
 # Siguiente sesión: propuestas de trabajo
 
-## Estado actual (2026-11-06, `main` f92ee8d)
+# Siguiente sesión: propuestas de trabajo
+
+## Estado actual (2026-11-07, rama `hermanas-20261106` 1ab7f98, sin mergear)
+
+- `hermanas-20261106` (desde `main` 1bd7fca, 13619): report **13737 / 18117** (lost 0; `main.dol: OK` en build
+  limpio y en clon limpio; 652 unidades enlazadas; sin cambios de splits). Notas, decisiones y pendientes:
+  `docs/hermanas-20261106.md`. Pendiente de revisión y merge por el usuario.
+  - Unidades nuevas: `ShopBase` 33/48, `CosEditProtector` 18/25, `NewCampPartsMapSelect` 11/26, `NewCampTask` 7/64,
+    `LastCocoonQuadruped` 24/54, `LastCocoonImago` 14/36, `LastCocoonEgg` 11/42.
+  - Siguiente paso con más rendimiento: escribir los ctor de `LastCocoonQuadruped`/`Imago` (aunque queden
+    `NONMATCHING`, como Chrysalis) para fijar `@stringBase0`: desbloquea varias funciones con sonidos y nodos.
+
+## Estado anterior (2026-11-06, `main` f92ee8d)
 
 - Prompt de la siguiente sesión: `claude/prompt-hermanas.md` (proyecto): unidades hermanas, patrones repetidos,
   menús MP; secuencial y con ahorro de tokens. Herramientas nuevas: `tools/decomp/mkref.sh` (referencia) y

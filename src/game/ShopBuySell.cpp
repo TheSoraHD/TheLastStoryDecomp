@@ -218,8 +218,8 @@ ShopBuySell::~ShopBuySell() {
 }
 
 int ShopBuySell::vf0C() {
-    if (fn_800D3FA4() && !fn_8057F880(this)) {
-        fn_8057F8F8(this);
+    if (fn_800D3FA4() && !fn_8057F880()) {
+        fn_8057F8F8();
         vf38((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
         fn_804A39EC(mTop, 1, 0, 0.0f, 1.0f);
         mTop->mFlags |= 4;
@@ -277,20 +277,20 @@ void ShopBuySell::vf10() {
         fn_80585E80();
         break;
     case 5:
-        fn_8057FF38(this);
+        fn_8057FF38();
         break;
     case 8:
         fn_80585FD4();
         break;
     case 6:
-        fn_805800FC(this);
+        fn_805800FC();
         break;
     }
-    fn_80580264(this);
+    fn_80580264();
 }
 
 void ShopBuySell::vf14() {
-    fn_80580DE0(this);
+    fn_80580DE0();
     mTop->mFlags |= 4;
     fn_80580D80(mStatusBase);
     for (int i = 0; i < 7; i++) {
@@ -316,17 +316,17 @@ void ShopBuySell::vf14() {
         if (mF8 != 0 && mCursor < mF8) {
             ShopEntry64_unk* entry = &mEntries64[mCursor];
             fn_80586620(entry->m00);
-            fn_80581008(this, entry->m00);
-            fn_80581570(this, entry->m00, entry->m54);
+            fn_80581008(entry->m00);
+            fn_80581570(entry->m00, entry->m54);
         }
         if (mF8 == 0) {
             mD8->mFlags &= ~4;
         } else {
-            fn_805846C0(this, mA8, mAC[mCursor - mScrollTop], mCursor, mScrollTop, 0);
+            fn_805846C0(mA8, mAC[mCursor - mScrollTop], mCursor, mScrollTop, 0);
         }
         break;
     case 5:
-        fn_80580580(this);
+        fn_80580580();
         break;
     case 2:
     case 3:
@@ -337,13 +337,13 @@ void ShopBuySell::vf14() {
         if (mF8 != 0 && mCursor < mF8) {
             ShopEntry64_unk* entry = &mEntries64[mCursor];
             fn_80586620(entry->m00);
-            fn_80581570(this, entry->m00, entry->m54);
+            fn_80581570(entry->m00, entry->m54);
         }
-        fn_805846C0(this, mA8, mAC[mCursor - mScrollTop], mCursor, mScrollTop, 1);
-        fn_80581660(this, mCursor - mScrollTop);
+        fn_805846C0(mA8, mAC[mCursor - mScrollTop], mCursor, mScrollTop, 1);
+        fn_80581660(mCursor - mScrollTop);
         break;
     case 6:
-        fn_80580690(this);
+        fn_80580690();
         break;
     }
 }
@@ -355,7 +355,7 @@ void ShopBuySell::vf1C(int state) {
     switch (state) {
     case 1:
         m25B40 = 0;
-        fn_8057FB20(this);
+        fn_8057FB20();
         break;
     case 4:
         mScroll.mCursor = mTopCursor;
@@ -386,7 +386,7 @@ void ShopBuySell::vf1C(int state) {
         }
         if (mF8 == 0) {
             fn_80117228(11);
-            fn_8058181C(this, 1, 9, 0);
+            fn_8058181C(1, 9, 0);
             mState = 4;
             vf1C(2);
         }
@@ -395,7 +395,7 @@ void ShopBuySell::vf1C(int state) {
         mScroll.mCursor = mDC;
         mScroll.mTop = mE0;
         mScroll.mPage = 10;
-        fn_80581FD8(this);
+        fn_80581FD8();
         if (mPrevState == 4) {
             mScroll.mCursor = 0;
             mScroll.mTop = 0;
@@ -404,7 +404,7 @@ void ShopBuySell::vf1C(int state) {
         }
         if (m32FC == 0) {
             fn_80117228(11);
-            fn_8058181C(this, 1, 10, 0);
+            fn_8058181C(1, 10, 0);
             mState = 4;
             vf1C(2);
         }
@@ -412,7 +412,7 @@ void ShopBuySell::vf1C(int state) {
     case 8:
         m25B40 = 0;
         m25B24 = 1;
-        m25B28 = fn_805848E0(this, &mEntries64[mCursor]);
+        m25B28 = fn_805848E0(&mEntries64[mCursor]);
         m25B2C->mFrame = 0.0f;
         break;
     case 6:
@@ -430,8 +430,8 @@ void ShopBuySell::vf1C(int state) {
 
 void ShopBuySell::vf20(int result) {
     if (result == 5) {
-        fn_80584D78(this, &mEntries5C[mDC], m25B24);
-        fn_80581FD8(this);
+        fn_80584D78(&mEntries5C[mDC], m25B24);
+        fn_80581FD8();
         fn_80117228(25);
         vf1C(5);
     } else {
@@ -440,7 +440,7 @@ void ShopBuySell::vf20(int result) {
 }
 
 void ShopBuySell::fn_80585D08() {
-    fn_805847EC(this, 1);
+    fn_805847EC(1);
     mTopCursor = mScroll.mCursor;
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 4)) {
@@ -469,18 +469,18 @@ void ShopBuySell::fn_80585D08() {
 }
 
 void ShopBuySell::fn_80585E80() {
-    fn_80584808(this, 1);
+    fn_80584808(1);
     mCursor = mScroll.mCursor;
     mScrollTop = mScroll.mTop;
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 4)) {
-        int error = fn_8058482C(this, &mEntries64[mCursor]);
+        int error = fn_8058482C(&mEntries64[mCursor]);
         if (error == 0) {
             fn_80117228(1);
             vf1C(8);
         } else {
             fn_80117228(11);
-            fn_8058181C(this, 1, error, 0);
+            fn_8058181C(1, error, 0);
             vf1C(2);
         }
     } else if (fn_800A555C(pad, 0, 5)) {
@@ -490,10 +490,10 @@ void ShopBuySell::fn_80585E80() {
 }
 
 void ShopBuySell::fn_80585FD4() {
-    fn_80580B50(this);
+    fn_80580B50();
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 4)) {
-        fn_805849E8(this, &mEntries64[mCursor], m25B24);
+        fn_805849E8(&mEntries64[mCursor], m25B24);
         vf38((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
         fn_80117228(25);
         vf1C(7);
@@ -511,19 +511,19 @@ void ShopBuySell::fn_805860F0() {
         if (mF8 != 0 && mCursor < mF8) {
             ShopEntry64_unk* entry = &mEntries64[mCursor];
             fn_80586620(entry->m00);
-            fn_80581008(this, entry->m00);
+            fn_80581008(entry->m00);
         }
     } else if (mPrevState == 5) {
-        fn_805807A4(this);
+        fn_805807A4();
     } else if (mPrevState == 6) {
-        fn_805807A4(this);
+        fn_805807A4();
         if (m32FC != 0 && mDC < m32FC) {
             ShopEntry5C_unk* entry = &mEntries5C[mDC];
-            fn_80581008(this, entry->m00);
-            fn_805811DC(this, entry->m00);
-            fn_80581570(this, entry->m00, entry->m48);
+            fn_80581008(entry->m00);
+            fn_805811DC(entry->m00);
+            fn_80581570(entry->m00, entry->m48);
         }
-        fn_805846C0(this, mA8, mAC[mDC - mE0], mDC, mE0, 1);
+        fn_805846C0(mA8, mAC[mDC - mE0], mDC, mE0, 1);
     }
 }
 
@@ -537,7 +537,7 @@ void ShopBuySell::fn_8058621C() {
     if (mCursor < mF8) {
         ((atn::D2A_Task*)mD4)->SetNumber_unk("itemNum", fn_80444564(party, mEntries64[mCursor].m00), 0);
     }
-    fn_80584750(this, mA8, mScroll.mTop, mF8, 10);
+    fn_80584750(mA8, mScroll.mTop, mF8, 10);
     ShopPoint_unk pos;
     for (int i = 0; i < 10; i++) {
         char name[0x40];

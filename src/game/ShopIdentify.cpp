@@ -177,14 +177,14 @@ inline void ShopIdentify::ReadItems_unk() {
         entry.mIndex = i;
         entry.mItem = fn_8044D500(party, i);
         entry.mDone = 0;
-        entry.mPrice = fn_80584F44(this, fn_80211480(entry.mItem), 1.0f);
+        entry.mPrice = fn_80584F44(fn_80211480(entry.mItem), 1.0f);
         Insert_unk(mItems, mItems.begin(), entry);
     }
 }
 
 int ShopIdentify::vf0C() {
-    if (fn_800D3FA4() && !fn_8057F880(this)) {
-        fn_8057F8F8(this);
+    if (fn_800D3FA4() && !fn_8057F880()) {
+        fn_8057F8F8();
         vf38((const char*)mFile.fn_80470580(), mFile.fn_8047059C());
         ReadItems_unk();
         fn_804A39EC(mTop, 1, 0, 0.0f, 1.0f);
@@ -230,17 +230,17 @@ void ShopIdentify::vf10() {
         fn_805897D4();
         break;
     case 5:
-        fn_8057FF38(this);
+        fn_8057FF38();
         break;
     case 6:
-        fn_805800FC(this);
+        fn_805800FC();
         break;
     }
-    fn_80580264(this);
+    fn_80580264();
 }
 
 void ShopIdentify::vf14() {
-    fn_80580DE0(this);
+    fn_80580DE0();
     mTop->mFlags |= 4;
     fn_80580D80(mContent);
     mListBase->mFlags |= 4;
@@ -280,10 +280,10 @@ void ShopIdentify::vf14() {
         fn_80589958();
         break;
     case 5:
-        fn_80580580(this);
+        fn_80580580();
         break;
     case 6:
-        fn_80580690(this);
+        fn_80580690();
         break;
     }
 }
@@ -295,7 +295,7 @@ void ShopIdentify::vf1C(int state) {
     switch (state) {
     case 1:
         m25B40 = 0;
-        fn_8057FB20(this);
+        fn_8057FB20();
         break;
     case 4:
         mScroll.mCursor = mTopCursor;
@@ -312,7 +312,7 @@ void ShopIdentify::vf1C(int state) {
         }
         if (mItems.size() == 0) {
             fn_80117228(11);
-            fn_8058181C(this, 1, 11, 0);
+            fn_8058181C(1, 11, 0);
             mState = 4;
             vf1C(2);
         } else {
@@ -326,7 +326,7 @@ void ShopIdentify::vf1C(int state) {
         mScroll.mCursor = mDC;
         mScroll.mTop = mE0;
         mScroll.mPage = 10;
-        fn_80581FD8(this);
+        fn_80581FD8();
         if (mPrevState == 4) {
             mScroll.mCursor = 0;
             mScroll.mTop = 0;
@@ -335,7 +335,7 @@ void ShopIdentify::vf1C(int state) {
         }
         if (m32FC == 0) {
             fn_80117228(11);
-            fn_8058181C(this, 1, 10, 0);
+            fn_8058181C(1, 10, 0);
             mState = 4;
             vf1C(2);
         }
@@ -367,8 +367,8 @@ void ShopIdentify::vf20(int result) {
         vf1C(8);
         fn_8044D6AC(Inventory::instance_, entry->mPrice);
     } else if (result == 5) {
-        fn_80584D78(this, &mEntries5C[mDC], m25B24);
-        fn_80581FD8(this);
+        fn_80584D78(&mEntries5C[mDC], m25B24);
+        fn_80581FD8();
         fn_80117228(25);
         vf1C(5);
     } else if (result == 4) {
@@ -390,7 +390,7 @@ void ShopIdentify::vf24(int message) {
 
 int ShopIdentify::fn_805892CC(int* cursor, int remove) {
     ShopIdentifyEntry_unk* entry = &mItems[*cursor];
-    int money = fn_80584DD8(this, fn_80211480(entry->mItem), 1, 1.0f, 1.0f, 1.0f);
+    int money = fn_80584DD8(fn_80211480(entry->mItem), 1, 1.0f, 1.0f, 1.0f);
     if (remove) {
         fn_8044441C(Inventory::instance_, entry->mItem, 1);
     }
@@ -418,7 +418,7 @@ int ShopIdentify::fn_805892CC(int* cursor, int remove) {
 }
 
 void ShopIdentify::fn_8058944C() {
-    fn_805847EC(this, 1);
+    fn_805847EC(1);
     mTopCursor = mScroll.mCursor;
     void* pad = lbl_8087EF70;
     if (fn_800A555C(pad, 0, 4)) {
@@ -443,7 +443,7 @@ void ShopIdentify::fn_8058944C() {
 }
 
 void ShopIdentify::fn_805895B4() {
-    fn_80584808(this, 1);
+    fn_80584808(1);
     mCursor = mScroll.mCursor;
     mScrollTop = mScroll.mTop;
     void* pad = lbl_8087EF70;
@@ -465,15 +465,15 @@ void ShopIdentify::fn_805895B4() {
         }
         if (error == 0) {
             fn_80117228(1);
-            fn_80581964(this, 1, 3, 0);
+            fn_80581964(1, 3, 0);
             vf1C(3);
         } else if (error == 6) {
             fn_80117228(1);
-            fn_80581964(this, 1, 4, 0);
+            fn_80581964(1, 4, 0);
             vf1C(3);
         } else {
             fn_80117228(11);
-            fn_8058181C(this, 1, error, 0);
+            fn_8058181C(1, error, 0);
             vf1C(2);
         }
     } else if (fn_800A555C(pad, 0, 5)) {
@@ -499,7 +499,7 @@ void ShopIdentify::fn_805897D4() {
             fn_8044D56C(Inventory::instance_, items[cursor].mIndex);
             fn_80117228(1);
             if (num >= 10) {
-                fn_8058181C(this, 1, 17, 0);
+                fn_8058181C(1, 17, 0);
                 vf1C(2);
             } else {
                 vf1C(7);
@@ -512,16 +512,16 @@ void ShopIdentify::fn_80589958() {
     if (mPrevState == 4) {
         mTop->mFlags &= ~4;
     } else if (mPrevState == 5) {
-        fn_805807A4(this);
+        fn_805807A4();
     } else if (mPrevState == 6) {
-        fn_805807A4(this);
+        fn_805807A4();
         if (m32FC != 0 && mDC < m32FC) {
             ShopEntry5C_unk* entry = &mEntries5C[mDC];
-            fn_80581008(this, entry->m00);
-            fn_805811DC(this, entry->m00);
-            fn_80581570(this, entry->m00, entry->m48);
+            fn_80581008(entry->m00);
+            fn_805811DC(entry->m00);
+            fn_80581570(entry->m00, entry->m48);
         }
-        fn_805846C0(this, mA8, mAC[mDC - mE0], mDC, mE0, 1);
+        fn_805846C0(mA8, mAC[mDC - mE0], mDC, mE0, 1);
     } else if (mPrevState == 7 || mPrevState == 8) {
         fn_80589AF4();
         if (mCursor < (int)mItems.size()) {
@@ -536,7 +536,7 @@ void ShopIdentify::fn_80589958() {
 
 void ShopIdentify::fn_80589AF4() {
     mListBase->mFlags &= ~4;
-    fn_80584750(this, mListBase, mScroll.mTop, mItems.size(), 10);
+    fn_80584750(mListBase, mScroll.mTop, mItems.size(), 10);
     ShopPoint_unk pos;
     for (int i = 0; i < 10; i++) {
         char name[0x40];
@@ -589,7 +589,7 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
         SetPaneFloat_unk(mContent->mLayout, "showSell", 0.0f);
     } else {
         SetPaneFloat_unk(mContent->mLayout, "showSell", 1.0f);
-        ((atn::D2A_Task*)mContent)->SetNumber_unk("price", fn_80584DD8(this, item, 1, 1.0f, 1.0f, 1.0f), 0);
+        ((atn::D2A_Task*)mContent)->SetNumber_unk("price", fn_80584DD8(item, 1, 1.0f, 1.0f, 1.0f), 0);
     }
     float width;
     {
@@ -642,7 +642,7 @@ void ShopIdentify::fn_8058A0F0(ShopIdentifyEntry_unk* entry) {
 
 void ShopIdentify::vf40() {
     if (mState == 5) {
-        fn_80581FD8(this);
+        fn_80581FD8();
     }
 }
 

@@ -1,4 +1,5 @@
 #include "game/NewCampPartsBase.h"
+#include "game/NewCampTask.h"
 #include "atn/Memory.h"
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskInstanceC.h"
@@ -22,7 +23,6 @@ extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigne
                            float frame); // inferred: pose of the node `hash` at `frame`
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a layout value
 extern "C" int fn_8021946C(int chara, int a, int b);
-extern "C" void fn_80530D88(atn::Task* camp, int a, atn::ModelBase* model);
 // debug menu (see game/CosEditBase.cpp)
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_80087E9C(void* group, const char* name, atn::Vector3* value, int arg3, int arg4, float min,
@@ -608,7 +608,7 @@ void fn_8051170C() {
 void NewCampPartsBase::vf44() {
     for (int i = 0; i < m4C; i++) {
         if (GetModelData_unk(m50[i].mModel) != 0) {
-            fn_80530D88(m48, 0, GetModelData_unk(m50[i].mModel));
+            ((NewCampTask*)m48)->fn_80530D88(0, GetModelData_unk(m50[i].mModel));
         }
     }
 }
