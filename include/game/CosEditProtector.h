@@ -60,6 +60,12 @@ public:
     void fn_801D4E74(int member, atn::D2ATask_unk* task, int mode); // game/CosEditProtector.cpp
 
     // game/CosEditItemList_unk.cpp (0x801D80A0)
+    void fn_801D80BC(); // inferred: state 0
+    void fn_801D8560(); // inferred: state 2
+    void fn_801D8CC4(); // inferred: state 3
+    void fn_801D924C(); // inferred: state 11
+    void fn_801D9388(); // inferred: state 12
+    void fn_801D94D0(); // inferred: state 13
     void fn_801DD26C(int member);
     void fn_801E07A4(int member, int list);
     void fn_801E6714();

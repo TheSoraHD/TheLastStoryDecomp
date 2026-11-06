@@ -3,6 +3,9 @@
 #include "game/CharaTask.h"
 #include "game/Inventory.h"
 #include "game/MenuCommonTask.h"
+#include "game/CharaStatus.h"
+#include "db/EquipParam_unk.h"
+#include "math/Vec.h"
 #include "atn/D3Anime.h"
 #include "atn/D3AnimeInstance.h"
 #include "atn/D2A_Task.h"
@@ -11,15 +14,57 @@
 
 // First file of CosEditProtector (game/CosEditPalette_unk.cpp has the palette and part pages).
 extern "C" int sprintf(char* s, const char* format, ...);
-struct CosEditField_unk;
-extern "C" CosEditField_unk* lbl_8087F430; // inferred: field
-extern "C" int fn_80370174(CosEditField_unk* field, int id); // inferred: event flag
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+struct Field_unk;
+extern "C" Field_unk* lbl_8087F430; // inferred: field
+extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
+extern "C" void fn_80370320(Field_unk* field, int id, int a, int b); // inferred: sets an event flag
+extern "C" void fn_8052DEEC(atn::Task* camp, int id); // inferred: changes the parts of the camp
+extern "C" int fn_80117214(int index); // inferred: palette slot of a colour index
+extern "C" int fn_8020BE40(int id);    // inferred: cell of a palette colour
+extern "C" int fn_8020BF20(int mark);  // inferred: cell of a colour mark
+// inferred: item data (fn_80211480)
+struct CosEditItemData_unk {
+    unsigned char m00[0x08];
+    const wchar_t* mName; // 0x08
+};
+extern "C" CosEditItemData_unk* fn_80211480(int id);
+extern "C" int fn_80206BE4(void* item);                   // inferred: item id
+extern "C" int fn_8020EF80(EquipParamEntry_unk* entry);    // inferred: item id of an equipment entry
+extern "C" int fn_80444B64(Inventory* inv, int id);       // inferred: icon of an item
+extern "C" int fn_80444BE8(Inventory* inv, CosEditItemData_unk* item);
+extern "C" int fn_80444C48(Inventory* inv);
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+// inferred: wide literals of this file kept in .sdata (L"", L"???", four U+2015 bars), as in
+// game/ShopIdentify.cpp
+extern "C" const wchar_t lbl_8087DA58[12];
+// inferred: texture rectangle (as ShopUV_unk in game/ShopIdentify.cpp)
+struct CosEditUV_unk {
+    CosEditUV_unk() {}
+    CosEditUV_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
+    CosEditUV_unk(const CosEditUV_unk& o) { __Vec4Copy(&u0, &o.u0); }
+    CosEditUV_unk& operator=(const CosEditUV_unk& o) {
+        __Vec4Copy(&u0, &o.u0);
+        return *this;
+    }
+    float u0, v0, u1, v1;
+};
+extern "C" CosEditUV_unk fn_80444C50(Inventory* inv, int icon);
+inline void SetUV_unk(atn::D2A_Task* task, const char* name, CosEditUV_unk uv) {
+    task->SetParam2_unk(name, &uv.u0);
+}
 extern "C" const char* fn_8020BD78(int index); // inferred: name of a colour
 extern "C" int fn_8020BDE0(int index);         // inferred: palette id of a colour cell
 extern "C" int fn_8020BE10(int index);         // inferred: part id of a part cell
 extern "C" void fn_800D2338(atn::Task* task);  // inferred: deletes a task
 extern "C" atn::Vector3 lbl_807C7030;          // inferred: zero vector
-extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void* lbl_8087EF70;                                // inferred: pad
+extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
+extern "C" int fn_800A58D0(void* pad, int port);              // inferred: second stick available
+extern "C" atn::SoundRef fn_80117228(int id);                 // inferred: plays a system sound effect
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value); // inferred: sets a value
 inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
@@ -47,7 +92,8 @@ struct CosEditLayout_unk : public atn::Task {
     unsigned char m4E;
 };
 // inferred: field (lbl_8087F430): chapter at 0x10D0
-struct CosEditField_unk {
+struct Field_unk {
+    void fn_803750E4(int id); // inferred: (as in gmk/RandomMerchant.cpp)
     unsigned char m0000[0x10D0];
     int mChapter; // 0x10D0
 };
@@ -127,6 +173,7 @@ CosEditProtector* CosEditProtector::fn_801CFD68(atn::Task* parent) {
     return 0;
 }
 
+// NONMATCHING: 97% - register allocation of the creation loops (this in r29 in the original)
 CosEditProtector::CosEditProtector(atn::Task* parent)
     : CosEditBase(parent), mB7C(0), mB80(0), mB88(0), m1B84(0.0f, 0.0f, 0.0f), m1B90(0), m1B94(0), m1B98(0), m1B9C(0), m1BA0(0), m1BA4(0), m1BA8(0), m1BAC(0), m1BB0(0),
       m1BB4(0), m1BB8(0), m1BBC(0), m1BC0(0), m1BC8(-1), m1BCC(0), mSetCount(0) {
@@ -447,6 +494,8 @@ void CosEditProtector::vf24() {
     m1C54.clear();
 }
 
+// NONMATCHING: 93% - the copy of the zero vector takes the destination before the source (blocker of
+// docs/trucos-mwcc.md: Vector3 operator= register crossing)
 void CosEditProtector::vf28() {
     atn::Vector3* pos = &m1B84;
     *pos = lbl_807C7030;
@@ -560,6 +609,263 @@ void CosEditProtector::fn_801D463C(atn::D3Anime** out, CosEditList_unk* lists, i
         *out = mColorSelect;
         mColorSelect->mVisible = 1;
         break;
+    }
+}
+
+void CosEditProtector::vf2C() {
+    if (mLoadCount == 0 && mA88 <= 0 && !fn_801CE4CC()) {
+        void* pad = lbl_8087EF70;
+        if (m1F0 == 0 && mF4 == 0 && mFC == 0 && mF0 == 0) {
+            int dir = 0;
+            if (m7C == 0 || m7C == 4) {
+                if (fn_800A555C(pad, 0, 2) || fn_800A555C(pad, 0, 23) || fn_800A555C(pad, 0, 10)) {
+                    dir = -1;
+                } else if (fn_800A555C(pad, 0, 3) || fn_800A555C(pad, 0, 24) || fn_800A555C(pad, 0, 11)) {
+                    dir = 1;
+                } else if (fn_800A555C(pad, 0, 6)) {
+                    dir = 1;
+                }
+            } else if (m7C != 13) {
+                if (fn_800A58D0(pad, 0)) {
+                    if (fn_800A555C(pad, 0, 10)) {
+                        dir = -1;
+                    } else if (fn_800A555C(pad, 0, 11)) {
+                        dir = 1;
+                    }
+                } else if (fn_800A555C(pad, 0, 6)) {
+                    dir = 1;
+                }
+            }
+            if (dir != 0) {
+                CosEditMember_unk* member = fn_801CDD9C(dir);
+                if (member != 0 && member->mId != mChara[0]->mFace) {
+                    fn_801CDE14(member, dir);
+                    fn_80117228(10);
+                }
+            }
+        }
+        if (mF4 == 0) {
+            switch (m7C) {
+            case 0:
+                fn_801D80BC();
+                break;
+            case 2:
+                fn_801D8560();
+                break;
+            case 3:
+                fn_801D8CC4();
+                break;
+            case 4:
+                fn_801D54C0();
+                break;
+            case 5:
+                fn_801D59A8();
+                break;
+            case 6:
+                fn_801D5AB0();
+                break;
+            case 7:
+                fn_801D5F04();
+                break;
+            case 10:
+                fn_801D6560();
+                break;
+            case 8:
+                fn_801D6188();
+                break;
+            case 9:
+                fn_801D6390();
+                break;
+            case 11:
+                fn_801D924C();
+                break;
+            case 12:
+                fn_801D9388();
+                break;
+            case 13:
+                fn_801D94D0();
+                break;
+            case 14:
+                fn_801D6754();
+                break;
+            }
+        }
+    }
+}
+
+// NONMATCHING: case 8 stores mFC before computing the cell (scheduling of the % / / pair)
+void CosEditProtector::vf34(int state) {
+    int prev = m7C;
+    m7C = state;
+    switch (state) {
+    case 1:
+        fn_801CE5B0(0, 0);
+        mFC = 1;
+        fn_8052DEEC(m48, 0);
+        fn_80117228(8);
+        m58 = -1.0f;
+        break;
+    case 0:
+        fn_801CE5B0(0, 1);
+        mFC = 0;
+        m80 = m1B98;
+        m84 = 5;
+        m88 = 0;
+        m8C = 5;
+        break;
+    case 2:
+        fn_801CE5B0(2, 1);
+        mFC = 0;
+        fn_801DD26C(fn_801CF334()->mFace);
+        fn_801E6EF0(fn_801CF334()->mFace, m1E4, &m80, &m88, 1);
+        fn_801E6714();
+        break;
+    case 3:
+        fn_801CE5B0(3, 1);
+        mFC = 0;
+        fn_801E07A4(fn_801CF334()->mFace, m1E4);
+        fn_801E6FC8(fn_801CF334()->mFace, m1E4, &m80, &m88, 1);
+        fn_801E6B10();
+        break;
+    case 4:
+        if (!fn_80370174(lbl_8087F430, 0xE8)) {
+            fn_80370320(lbl_8087F430, 0xE8, 1, 0);
+        }
+        fn_801CE5B0(4, (prev == 0 || prev == 1) ? 0 : 1);
+        mFC = 0;
+        m80 = m1BA0;
+        m84 = 13;
+        m88 = 0;
+        m8C = 13;
+        break;
+    case 5:
+        fn_801CE5B0(7, 1);
+        mFC = 0;
+        m80 = m1BB8;
+        m84 = 8;
+        m88 = 0;
+        m8C = 8;
+        fn_801D70EC(mColorPalette);
+        break;
+    case 6:
+    case 7:
+        fn_801CE5B0(5, 1);
+        mFC = 0;
+        m1B90 = 0;
+        m1B94 = 0;
+        m88 = 0;
+        if (m7C == 6) {
+            m80 = m1BB0 == 1 ? m1BA8 : m1BA4;
+        } else {
+            m80 = m1BAC;
+        }
+        m1BB0 = 0;
+        fn_801D6F84();
+        break;
+    case 10:
+        if (lbl_8087F430 != 0) {
+            lbl_8087F430->fn_803750E4(0xE7);
+        }
+        fn_801CE5B0(6, 1);
+        mFC = 0;
+        m1BB4 = 0;
+        m88 = 0;
+        fn_801D6AB0();
+        fn_801D6C1C(m1BB4);
+        m80 = m1BB4;
+        break;
+    case 8: {
+        fn_801CE5B0(7, 1);
+        int member = fn_801CF334()->mFace;
+        int* ids = (int*)&Inventory::instance_->mEquipShown[member];
+        int cell = fn_8020BE40(ids[fn_80117214(m1BB8)]);
+        mFC = 1;
+        m1F8 = cell % 8;
+        m1FC = cell / 8;
+        m88 = 0;
+        fn_801D70EC(mColorPalette);
+        break;
+    }
+    case 9: {
+        fn_801CE5B0(8, 1);
+        mFC = 1;
+        m88 = 0;
+        CharaStatus* status;
+        if (fn_801CF334()->mChara != 0) {
+            status = fn_801CF334()->mChara->GetStatus_unk();
+        } else {
+            status = Inventory::instance_->GetPlayerStatusInfo(fn_801CF334()->mFace);
+        }
+        int cell = fn_8020BF20(status->m231 - 1);
+        m200 = cell % 8;
+        m204 = cell / 8;
+        fn_801D7354(mEffectPalette);
+        break;
+    }
+    case 11:
+        m80 = m1BBC;
+        m84 = 2;
+        m88 = 0;
+        mFC = 1;
+        break;
+    case 12:
+    case 13:
+        m1BC8 = -1;
+        m1BCC = 0;
+        break;
+    case 14:
+        m1BC0 = 0;
+        m80 = 0;
+        m84 = 4;
+        m88 = 0;
+        mFC = 1;
+        break;
+    }
+}
+
+// NONMATCHING: registers of member/item swapped; the original takes the address of the bars literal once
+void CosEditProtector::fn_801D4E74(int member, atn::D2ATask_unk* task, int mode) {
+    if (task != 0) {
+        CosEditUV_unk uv;
+        std::basic_string<wchar_t> name;
+        if ((unsigned int)mode <= 1) {
+            void* item = fn_801CFA5C(member, mode);
+            if (item != 0) {
+                CosEditItemData_unk* data = fn_80211480(fn_80206BE4(item));
+                uv = fn_80444C50(Inventory::instance_, fn_80444BE8(Inventory::instance_, data));
+                if (data != 0) {
+                    name = data->mName;
+                }
+            } else {
+                fn_80444C48(Inventory::instance_);
+                uv = CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f);
+                name = lbl_8087DA58 + 5;
+            }
+        } else if ((unsigned int)(mode - 2) <= 1) {
+            int slot = mode - 2;
+            EquipParamEntry_unk* entry = (EquipParamEntry_unk*)fn_801CFAA8(member, slot);
+            if (slot == 1 && fn_8020EF4C((EquipParamEntry_unk*)fn_801CFAA8(member, 0))) {
+                entry = (EquipParamEntry_unk*)fn_801CFAA8(member, 0);
+            }
+            int id = fn_8020EF80(entry);
+            CosEditItemData_unk* data = fn_80211480(id);
+            uv = fn_80444C50(Inventory::instance_, fn_80444B64(Inventory::instance_, id));
+            if (data != 0) {
+                name = data->mName;
+            }
+        } else if (mode < 0) {
+            uv = CosEditUV_unk(0.0f, 0.0f, 0.0f, 0.0f);
+            name = lbl_8087DA58 + 5;
+        } else {
+            int id = fn_8020EF80((EquipParamEntry_unk*)fn_801CFAA8(member, 2));
+            CosEditItemData_unk* data = fn_80211480(id);
+            uv = fn_80444C50(Inventory::instance_, fn_80444B64(Inventory::instance_, id));
+            if (data != 0) {
+                name = data->mName;
+            }
+        }
+        SetPaneText_unk(((CosEditTaskLayout_unk*)task)->mLayout, "item01", name.data());
+        SetUV_unk((atn::D2A_Task*)task, "iconUv01", uv);
     }
 }
 
