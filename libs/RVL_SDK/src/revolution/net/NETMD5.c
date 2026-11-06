@@ -30,11 +30,6 @@ static u32 NETMD5Index[48] = {
     0, 7, 14, 5, 12, 3, 10, 1, 8, 15, 6, 13, 4, 11, 2, 9,
 };
 
-#define F(x, y, z) (((x) & (y)) | (~(x) & (z)))
-#define G(x, y, z) (((x) & (z)) | ((y) & ~(z)))
-#define H(x, y, z) ((x) ^ (y) ^ (z))
-#define I(x, y, z) ((y) ^ ((x) | ~(z)))
-
 // inferred: little-endian word load
 static inline u32 NETiLoadLE32(const void* p) {
     return __lwbrx((void*)p, 0);
@@ -42,8 +37,6 @@ static inline u32 NETiLoadLE32(const void* p) {
 
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 
-#define STEP(f, a, b, c, d, x, t, s) \
-    (a) = (b) + ROTATE_LEFT((a) + f((b), (c), (d)) + ((x) + (t)), (s))
 
 void NETMD5Init(NETMD5Context* context) {
     context->state[0] = 0x67452301;
@@ -121,94 +114,61 @@ void NETMD5GetDigest(NETMD5Context* context, void* digest) {
     memset(context, 0, sizeof(NETMD5Context));
 }
 
-// NONMATCHING: 72.7% - same operations; register allocation differs (the target keeps the
-// round 1 word pointer in r4 and a..d in r0/r5/r6/r7). Tried declaration orders, pointer types,
-// association of the step sum and loop forms.
+// mscharged-decomp (CC0) md5.c ProcessBlock: one inline function per round
+static inline u32 CalcRound1(u32 a, u32 b, u32 c, u32 d, u32* xp, u32 s, u32 t) {
+    return b + ROTATE_LEFT(a + ((b & c) | (~b & d)) + NETiLoadLE32(xp) + t, s);
+}
+
+static inline u32 CalcRound2(u32 a, u32 b, u32 c, u32 d, u32* xp, u32 s, u32 t) {
+    return b + ROTATE_LEFT(a + ((b & d) | (c & ~d)) + NETiLoadLE32(xp) + t, s);
+}
+
+static inline u32 CalcRound3(u32 a, u32 b, u32 c, u32 d, u32* xp, u32 s, u32 t) {
+    return b + ROTATE_LEFT(a + (b ^ c ^ d) + NETiLoadLE32(xp) + t, s);
+}
+
+static inline u32 CalcRound4(u32 a, u32 b, u32 c, u32 d, u32* xp, u32 s, u32 t) {
+    return b + ROTATE_LEFT(a + (c ^ (b | ~d)) + NETiLoadLE32(xp) + t, s);
+}
+
 static void fn_80699148(NETMD5Context* context) {
-    const u8* x = context->buffer;
+    u32* kp;
     u32 a = context->state[0];
     u32 b = context->state[1];
     u32 c = context->state[2];
     u32 d = context->state[3];
-    const void* p = x;
-    const u32* t = NETMD5T;
-    const u32* k;
-    int i;
+    u32* x = (u32*)context->buffer;
+    u32* xp = x;
+    u32* tp = NETMD5T;
+    int j;
 
-    for (i = 0; i < 4; i++) {
-        STEP(F, a, b, c, d, NETiLoadLE32(p), t[0], 7);
-        p = (const u8*)p + 4;
-        STEP(F, d, a, b, c, NETiLoadLE32(p), t[1], 12);
-        p = (const u8*)p + 4;
-        STEP(F, c, d, a, b, NETiLoadLE32(p), t[2], 17);
-        p = (const u8*)p + 4;
-        STEP(F, b, c, d, a, NETiLoadLE32(p), t[3], 22);
-        p = (const u8*)p + 4;
-        t += 4;
+    for (j = 0; j < 4; j++) {
+        a = CalcRound1(a, b, c, d, xp++, 7, *tp++);
+        d = CalcRound1(d, a, b, c, xp++, 12, *tp++);
+        c = CalcRound1(c, d, a, b, xp++, 17, *tp++);
+        b = CalcRound1(b, c, d, a, xp++, 22, *tp++);
     }
 
-    k = NETMD5Index;
-    for (i = 0; i < 4; i++) {
-        {
-            const void* q = x + k[0] * 4;
-            STEP(G, a, b, c, d, NETiLoadLE32(q), t[0], 5);
-        }
-        {
-            const void* q = x + k[1] * 4;
-            STEP(G, d, a, b, c, NETiLoadLE32(q), t[1], 9);
-        }
-        {
-            const void* q = x + k[2] * 4;
-            STEP(G, c, d, a, b, NETiLoadLE32(q), t[2], 14);
-        }
-        {
-            const void* q = x + k[3] * 4;
-            STEP(G, b, c, d, a, NETiLoadLE32(q), t[3], 20);
-        }
-        t += 4;
-        k += 4;
+    kp = NETMD5Index;
+    for (j = 0; j < 4; j++) {
+        a = CalcRound2(a, b, c, d, &x[*kp++], 5, *tp++);
+        d = CalcRound2(d, a, b, c, &x[*kp++], 9, *tp++);
+        c = CalcRound2(c, d, a, b, &x[*kp++], 14, *tp++);
+        b = CalcRound2(b, c, d, a, &x[*kp++], 20, *tp++);
     }
 
-    for (i = 0; i < 4; i++) {
-        {
-            const void* q = x + k[0] * 4;
-            STEP(H, a, b, c, d, NETiLoadLE32(q), t[0], 4);
-        }
-        {
-            const void* q = x + k[1] * 4;
-            STEP(H, d, a, b, c, NETiLoadLE32(q), t[1], 11);
-        }
-        {
-            const void* q = x + k[2] * 4;
-            STEP(H, c, d, a, b, NETiLoadLE32(q), t[2], 16);
-        }
-        {
-            const void* q = x + k[3] * 4;
-            STEP(H, b, c, d, a, NETiLoadLE32(q), t[3], 23);
-        }
-        t += 4;
-        k += 4;
+    for (j = 0; j < 4; j++) {
+        a = CalcRound3(a, b, c, d, &x[*kp++], 4, *tp++);
+        d = CalcRound3(d, a, b, c, &x[*kp++], 11, *tp++);
+        c = CalcRound3(c, d, a, b, &x[*kp++], 16, *tp++);
+        b = CalcRound3(b, c, d, a, &x[*kp++], 23, *tp++);
     }
 
-    for (i = 0; i < 4; i++) {
-        {
-            const void* q = x + k[0] * 4;
-            STEP(I, a, b, c, d, NETiLoadLE32(q), t[0], 6);
-        }
-        {
-            const void* q = x + k[1] * 4;
-            STEP(I, d, a, b, c, NETiLoadLE32(q), t[1], 10);
-        }
-        {
-            const void* q = x + k[2] * 4;
-            STEP(I, c, d, a, b, NETiLoadLE32(q), t[2], 15);
-        }
-        {
-            const void* q = x + k[3] * 4;
-            STEP(I, b, c, d, a, NETiLoadLE32(q), t[3], 21);
-        }
-        t += 4;
-        k += 4;
+    for (j = 0; j < 4; j++) {
+        a = CalcRound4(a, b, c, d, &x[*kp++], 6, *tp++);
+        d = CalcRound4(d, a, b, c, &x[*kp++], 10, *tp++);
+        c = CalcRound4(c, d, a, b, &x[*kp++], 15, *tp++);
+        b = CalcRound4(b, c, d, a, &x[*kp++], 21, *tp++);
     }
 
     context->state[0] += a;
