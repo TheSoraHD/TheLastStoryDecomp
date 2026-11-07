@@ -18,12 +18,14 @@
 #include "game/GimmickManager.h"
 #include "game/MapTask.h"
 #include "game/PlayerTask.h"
+#include "game/SkillEffectManager.h"
 #include "game/TeamAIManager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // AddBool
 extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int func,
                             int arg); // AddInt
+extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the skill is offensive (as in AI/AiCommon_unk.cpp)
 extern "C" void fn_8001C1B4(); // inferred: AI/AI_archer_attack01.cpp (empty)
 extern "C" void fn_8001C1B8();
 
@@ -154,6 +156,29 @@ void AIManager::fn_80017EB0(CharaTask* chara, int gimmick, int arg) {
     chara->mC58.mD0 = FindGimmick_unk(gimmick, arg);
 }
 
+// inferred: nearest effect that can reach `chara` (position and radius)
+int AIManager::fn_80018240(CharaTask* chara, atn::Vector3* pos, float* radius) {
+    float best = 1.0e16f;
+    SkillEffect* found = 0;
+    for (unsigned int i = 0; i < 32; i++) {
+        SkillEffect* e = lbl_8087F9E8->GetBullet_unk(i);
+        if (e != 0 && e->IsActive_unk() && e->fn_80599C90(chara) && fn_8021A984(e->m04)) {
+            atn::Vector3 d = chara->mPos - e->m10;
+            float dist = d.LengthSq_unk();
+            if (dist < best) {
+                best = dist;
+                found = e;
+            }
+        }
+    }
+    if (found != 0) {
+        *pos = found->m10;
+        *radius = found->m5C * found->m28;
+        return 1;
+    }
+    return 0;
+}
+
 AiTarget* AIManager::fn_80018394(CharaTask* chara) {
     for (AiTarget* p = mE0.begin(); p != mE0.end(); p++) {
         if (p->m08 == 0 && p->m0C == chara) {
@@ -161,6 +186,17 @@ AiTarget* AIManager::fn_80018394(CharaTask* chara) {
         }
     }
     return 0;
+}
+
+// inferred: redirects `chara` to `target` for `frames` frames (AttackTargetFrame without them)
+void AIManager::fn_800183E0(CharaTask* chara, CharaTask* target, HitInfo_unk* hit, int frames) {
+    AiTarget t;
+    t.m08 = 0;
+    t.m0C = target;
+    t.m04 = chara;
+    t.m28 = hit;
+    t.m30 = frames > 0 ? frames : m7D0;
+    fn_800184F4(&t);
 }
 
 void AIManager::fn_800184F4(const AiTarget* target) {
@@ -175,6 +211,17 @@ AiTarget* AIManager::fn_800185B4(CharaTask* chara, HitInfo_unk* hit) {
         }
     }
     return 0;
+}
+
+// inferred: no effect of an enemy touches `chara`
+int AIManager::fn_80018BAC(CharaTask* chara) {
+    for (unsigned int i = 0; i < 32; i++) {
+        SkillEffect* e = lbl_8087F9E8->GetBullet_unk(i);
+        if (e != 0 && e->IsActive_unk() && fn_8021A984(e->m04) && e->fn_80599D60(chara, 1)) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 namespace std {

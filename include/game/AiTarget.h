@@ -59,11 +59,14 @@ public:
     int fn_8001794C(CharaTask* chara);
     void fn_80017E90(CharaTask* chara, CharaTask* target); // inferred: adds hate (BattleTask::fn_80102A40)
     void fn_80017EB0(CharaTask* chara, int gimmick, int arg); // inferred: makes a character use a gimmick
+    int fn_80018240(CharaTask* chara, atn::Vector3* pos, float* radius);
     AiTarget* fn_80018394(CharaTask* chara);
+    void fn_800183E0(CharaTask* chara, CharaTask* target, HitInfo_unk* hit, int frames);
     void fn_800184F4(const AiTarget* target);
     void fn_80018608(CharaTask* chara, HitInfo_unk* hit);
     AiTarget* fn_800185B4(CharaTask* chara, HitInfo_unk* hit); // inferred: redirection of `chara`
     void fn_80018834();
+    int fn_80018BAC(CharaTask* chara);
 
     int m48;
     int m4C;

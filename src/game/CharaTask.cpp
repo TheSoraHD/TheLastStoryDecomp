@@ -1129,7 +1129,7 @@ float atn::Model::GetMotionFrame(int track) const {
     return mTracks[track].m08;
 }
 
-void* fn_80139EF4();
+AIManager* fn_80139EF4();
 Effect_unk* fn_8013A194();
 extern "C" Field_unk* fn_80121F00();
 extern "C" Settings_unk* fn_800F52F8();
@@ -1217,9 +1217,9 @@ void CharaTask::fn_80139560() {
             fn_8017B434();
         } else if (!mC58.m11C.fn_8011D1FC() || mC58.m11C.fn_8011D21C()) {
             if (mC58.m00 == 0) {
-                ((AIManager*)fn_80139EF4())->fn_80017064(this);
+                fn_80139EF4()->fn_80017064(this);
             }
-            ((AIManager*)fn_80139EF4())->fn_80017064(this);
+            fn_80139EF4()->fn_80017064(this);
             fn_8013A4E8(&a, &rot, &b);
         }
     } else if (state == 7) {
@@ -1341,7 +1341,7 @@ int CharaTask::fn_80139EE8() {
     return (m54C >> 6) & 1;
 }
 
-void* fn_80139EF4() {
+AIManager* fn_80139EF4() {
     return lbl_8087EE68;
 }
 
@@ -1420,8 +1420,6 @@ void CharaTask::fn_8013A258() {
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 extern "C" float fn_80122560(float x); // inferred: fabs (weak copy of another helper)
 extern "C" int fn_8003F440(CharaTask* chara, SkillRef_unk* data);
-extern "C" int fn_80018BAC(void* routes, CharaTask* chara);
-extern "C" int fn_80018240(void* routes, CharaTask* chara, atn::Vector3* pos, float* radius);
 extern "C" int fn_80018078(void* routes, CharaTask* chara);
 extern "C" int fn_80017F18(void* routes, CharaTask* chara, atn::Vector3* pos);
 
@@ -1776,7 +1774,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
             }
             mC58.mDest = *mC58.mCC->fn_8013C38C();
         } else if (mC58.mMode == 15) {
-            if (fn_80018BAC(fn_80139EF4(), this)) {
+            if (fn_80139EF4()->fn_80018BAC(this)) {
                 mC58.mStep = -1;
             }
         }
@@ -1906,7 +1904,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
         if (mC58.mStep == 0) {
             atn::Vector3 pos;
             float radius;
-            if (fn_80018240(fn_80139EF4(), this, &pos, &radius)) {
+            if (fn_80139EF4()->fn_80018240(this, &pos, &radius)) {
                 mC58.mStep = 1;
                 route->fn_80128A30(&pos, &mPos, 8, 0.0f);
                 route->mRadius = 0.75f * radius;
@@ -7945,8 +7943,8 @@ inline bool CharaTask::IsRes1_unk() {
     if (mType != 3 || m68[1] == 0) {
         return false;
     }
-    void* manager = fn_80139EF4();
-    return (manager != 0 ? ((AIManager*)manager)->fn_800185B4(this, 0) : 0) != 0;
+    AIManager* manager = fn_80139EF4();
+    return (manager != 0 ? manager->fn_800185B4(this, 0) : 0) != 0;
 }
 
 // inferred: picks the current resource

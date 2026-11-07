@@ -1,6 +1,7 @@
 // inferred file name (splits-auto): AI helpers of the scripts of AI/AI_archer_attack01.cpp. They
 // work on the current character (lbl_8087EE60) and on lists of 16 characters.
 #include "game/CharaTask.h"
+#include "game/AiTarget.h"
 #include "game/GameScene.h"
 #include "game/NpcManager.h"
 #include "game/CharaManager.h"
@@ -21,8 +22,6 @@ struct AiList_unk {
 };
 extern "C" CharaTask* lbl_8087EE60;
 extern "C" AiList_unk* lbl_8087EE64;
-// inferred: AI helper object (type unknown)
-extern "C" void* lbl_8087EE68;
 extern "C" int fn_800197A4(void* ai, atn::Vector3* out, int* count, CharaTask* chara, const atn::Vector3* dir,
                            int arg, float angle);
 extern "C" int fn_80018C80(void* ai, int arg, float angle);
@@ -590,7 +589,6 @@ extern "C" int fn_8001BEE0(CharaTask* chara) {
 }
 
 extern "C" int fn_80018078(void* routes, CharaTask* chara);
-extern "C" int fn_80018BAC(void* routes, CharaTask* chara);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 
@@ -604,7 +602,7 @@ extern "C" int fn_8001BF4C(CharaTask* chara) {
 }
 
 extern "C" int fn_8001BF58(CharaTask* chara) {
-    return fn_80018BAC(lbl_8087EE68, chara);
+    return lbl_8087EE68->fn_80018BAC(chara);
 }
 
 extern "C" SkillEffectManager* lbl_8087F9E8;

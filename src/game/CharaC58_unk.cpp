@@ -1,14 +1,11 @@
 #include "game/CharaTask.h"
+#include "game/AiTarget.h"
 #include "game/CharaManager.h"
 #include "game/GimmickCommon.h"
 
 extern "C" int rand();
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: AI helper object (lbl_8087EE68, see AI/AiCommon_unk.cpp); type unknown
-extern "C" void* lbl_8087EE68;
-extern "C" int fn_80018BAC(void* ai, CharaTask* chara);
-extern "C" int fn_80018240(void* ai, CharaTask* chara, atn::Vector3* pos, float* radius);
 // inferred: collision world and its ray test (as in gmk/Cannonball.cpp)
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -120,7 +117,7 @@ static inline bool IsOnLedge_unk(CharaTask* chara) {
 
 void CharaC58_unk::fn_8011C074(CharaTask* chara, int mode) {
     fn_8011C044(mode);
-    if (mMode == 4 || (mMode == 0 && fn_80018BAC(lbl_8087EE68, chara) == 0)) {
+    if (mMode == 4 || (mMode == 0 && lbl_8087EE68->fn_80018BAC(chara) == 0)) {
         chara->mFlag5 = 1;
         chara->mFC0 = mC4;
     } else {
@@ -256,7 +253,7 @@ void CharaC58_unk::fn_8011C850(CharaTask* chara) {
     fn_8011C074(chara, 15);
     atn::Vector3 pos;
     float radius;
-    if (fn_80018240(lbl_8087EE68, chara, &pos, &radius)) {
+    if (lbl_8087EE68->fn_80018240(chara, &pos, &radius)) {
         mDest = pos;
         mRadius = 0.75f * radius;
     } else {
