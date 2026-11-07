@@ -353,6 +353,14 @@ void GameTask::fn_8037529C(unsigned int color0, unsigned int color1, int delay, 
     m5624->mActive = 1;
 }
 
+int GameTask::fn_803754C4() {
+    atn::Task* task = m567C;
+    if (task != 0 && !task->IsFlag_unk(4)) {
+        return 1;
+    }
+    return 0;
+}
+
 // NONMATCHING: 93% - the null scene path joins the null map return directly
 int GameTask::fn_80376150() {
     MapTask* map = GetCurrentMap();
@@ -378,8 +386,16 @@ int GameTask::fn_803761AC() {
     return m10FC == 0;
 }
 
+int GameTask::fn_803761BC() {
+    return m10F8 == 0;
+}
+
 int GameTask::fn_803761CC() {
     return m1110 == 0;
+}
+
+int GameTask::fn_803761DC() {
+    return m10EC;
 }
 
 void GameTask::fn_803761E4(int visible) {

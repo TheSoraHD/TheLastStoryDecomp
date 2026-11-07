@@ -90,6 +90,9 @@ public:
     int fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int point); // inferred: hide link ahead of `chara`
     int fn_8036DB24(Ledge_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir); // inferred: next hide link
     int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara);
+    int fn_803754C4(); // inferred: the task at 0x567C exists and is not stopped
+    int fn_803761BC(); // inferred: debug field
+    int fn_803761DC(); // inferred: a mode compared with 1, 2 and 3
     GimmickCommon* fn_8036E098(); // inferred: save point in front of the leader
     void fn_8036FB4C(int entry);        // inferred: moves to an entry of the current map // inferred: hide link held by `chara`
     void fn_80373118(); // inferred: one more frame of delay for the fades // inferred: nonzero on some fields
@@ -122,9 +125,11 @@ public:
     GameScene* m10D8;        // inferred: scene of the field
     unsigned char m10DC[0x10E0 - 0x10DC];
     GameLeader_unk* m10E0;
-    unsigned char m10E4[0x10F4 - 0x10E4];
+    unsigned char m10E4[0x10EC - 0x10E4];
+    int m10EC; // inferred: a mode (compared with 1, 2 and 3 by CharaTask and ControlPushedDown)
+    unsigned char m10F0[0x10F4 - 0x10F0];
     int m10F4;
-    unsigned char m10F8[0x10FC - 0x10F8];
+    int m10F8; // inferred: zero on the debug fields (fn_803761BC)
     int m10FC;
     unsigned char m1100[0x1110 - 0x1100];
     int m1110;
@@ -159,7 +164,9 @@ public:
     int m5644; // inferred: id passed to fn_8021CF08
     unsigned char m5648[0x566C - 0x5648];
     int m566C;
-    unsigned char m5670[0x5684 - 0x5670];
+    unsigned char m5670[0x567C - 0x5670];
+    atn::Task* m567C; // inferred: task of the field (fn_803754C4)
+    unsigned char m5680[0x5684 - 0x5680];
     int m5684;
     int m5688;
     int m568C;

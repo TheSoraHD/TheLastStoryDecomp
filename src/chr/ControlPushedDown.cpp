@@ -23,7 +23,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 
 // inferred: field (lbl_8087F430, as in game/CharaTask.cpp)
 struct Field_unk {
-    int fn_803761DC(); // inferred: a mode compared with 1, 2 and 3
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                    // inferred: event flag
@@ -168,7 +167,7 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
             ChaserNpc::fn_8018059C()->m14B0 == 5) {
             CharaTask* speaker = lbl_8087F498->fn_803EAC20();
             if (speaker == 0 || (speaker != mChara && (unsigned int)speaker->m7C != (unsigned int)mChara->m7C)) {
-                int mode = lbl_8087F430 != 0 ? lbl_8087F430->fn_803761DC() : 0;
+                int mode = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_803761DC() : 0;
                 if (mode == 1) {
                     lbl_8087F498->fn_803EAA7C(mChara, 1, 10.0f);
                 } else if (mode == 2) {
@@ -200,7 +199,7 @@ int ControlPushedDown::vf0C() {
     case 0: {
         float frame = motion->mTracks[0].m08;
         if (frame >= motion->fn_80097D7C(0) || (m30 != 0 && motion->mTracks[0].m08 >= 30.0f)) {
-            int mode = lbl_8087F430 != 0 ? lbl_8087F430->fn_803761DC() : 0;
+            int mode = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->fn_803761DC() : 0;
             if (!CanComplain_unk(mChara)) {
                 mode = 0;
             }

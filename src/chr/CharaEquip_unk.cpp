@@ -1,6 +1,7 @@
 // chr/CharaEquip_unk.cpp: equipment of a character (model of the item, its option parts and the
 // effect it plays). File name invented from the class (chr::CharaEquip_unk, CharaTask::m680[]).
 #include "chr/CharaEquip_unk.h"
+#include "game/GameTask.h"
 #include "game/CharaTask.h"
 #include "game/GameConfig_unk.h"
 #include "game/Inventory.h"
@@ -563,7 +564,7 @@ void CharaEquip_unk::fn_805660DC() {
         fn_80566398(1);
         return;
     }
-    if (lbl_8087F430 == 0 || !lbl_8087F430->fn_803754C4()) {
+    if (lbl_8087F430 == 0 || !((GameTask*)lbl_8087F430)->fn_803754C4()) {
         if (lbl_8087F3C0 == 0) {
             return;
         }
@@ -583,7 +584,7 @@ void CharaEquip_unk::fn_805660DC() {
             } else {
                 mark = Inventory::instance_->mPlayers[member].m231 - 1;
             }
-            if (lbl_8087F430 != 0 && lbl_8087F430->fn_803754C4()) {
+            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803754C4()) {
                 lbl_8087F3C0->mSystem.m70 = 1;
                 lbl_8087F3C0->mSystem.mLayer = 6;
             } else {
@@ -595,7 +596,7 @@ void CharaEquip_unk::fn_805660DC() {
             if (lbl_8087F048 != 0) {
                 PlayEffect_unk(&lbl_8087F048->mMarkEfp[mark], m40C->GetModel_unk());
             }
-            if (lbl_8087F430 != 0 && lbl_8087F430->fn_803754C4()) {
+            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803754C4()) {
                 lbl_8087F3C0->mSystem.mLayer = 0;
                 lbl_8087F3C0->mSystem.m70 = 0;
             } else {

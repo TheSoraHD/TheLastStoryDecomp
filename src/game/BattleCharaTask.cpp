@@ -64,7 +64,6 @@ struct BattleArea_unk {
 };
 struct Field_unk {
     void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
-    int fn_803761BC();
     unsigned char m0000[0x6C];
     CameraSub_unk m006C; // inferred: also the object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
     int m868; // inferred: mode (3 and 4: battle, as in game/CharaTask.cpp)
@@ -2430,7 +2429,7 @@ int BattleCharaTask::fn_800EE180() {
     if ((mStatus.m0C & 0x2000) == 0x2000) {
         return 0;
     }
-    if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761BC() == 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761BC() == 0) {
         return 0;
     }
     return 1;

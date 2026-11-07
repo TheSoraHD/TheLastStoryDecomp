@@ -129,7 +129,6 @@ struct Field_unk {
     unsigned char m5668[0x5694 - 0x5668];
     int m5694; // inferred: night
 
-    int fn_803761BC(); // inferred: debug field
 };
 extern "C" Field_unk* lbl_8087F430;
 
@@ -587,7 +586,7 @@ void GameScene::fn_803C0F48(int warp) {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->m5664 = 1;
         int on = 0;
-        if (lbl_8087F430->fn_803761BC() && ((GameTask*)lbl_8087F430)->fn_80375184()) {
+        if (((GameTask*)lbl_8087F430)->fn_803761BC() && ((GameTask*)lbl_8087F430)->fn_80375184()) {
             on = 1;
         }
         ((GameTask*)lbl_8087F430)->fn_80376194(on);

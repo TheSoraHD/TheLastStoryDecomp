@@ -156,8 +156,6 @@ extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, 
 // inferred: field data (lbl_8087F430); m10D8 holds the route tables (see RouteWalker_unk.cpp)
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
-    int fn_803761BC();
-    int fn_803761DC(); // inferred: a mode compared with 1 and 2 by CharaTask::fn_8013CB68
     void fn_803750E4(int id); // inferred: called with 0xB5 when a knocked-down character had mFlag28
 
     unsigned char m00[0x48];
@@ -2724,8 +2722,8 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
                 }
                 if (push && IsPlayer()) {
                     if (IsPushingChara_unk(other) && !(m55C == 7 && ((unsigned int)mRoute.m48 & 0x80) == 0x80) &&
-                        (lbl_8087F430 == 0 || lbl_8087F430->fn_803761DC() < 2)) {
-                        if (lbl_8087F430 != 0 && lbl_8087F430->fn_803761DC() == 1) {
+                        (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_803761DC() < 2)) {
+                        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761DC() == 1) {
                             atn::Vector3 dir;
                             dir = other->mPos - oldPos;
                             dir.Normalize_unk();
@@ -8665,7 +8663,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
             target = mC58.mC4;
         }
     }
-    bool debug = IsDebugField_unk(this) && lbl_8087F430->fn_803761BC() != 0; // inferred: unused
+    bool debug = IsDebugField_unk(this) && ((GameTask*)lbl_8087F430)->fn_803761BC() != 0; // inferred: unused
     mFB8 = 0.0f;
     m63C = m638;
     m638 = hit;
@@ -8706,7 +8704,7 @@ extern "C" int fn_80219558(int id);
 void CharaTask::fn_80160170(HitInfo_unk* hit, CharaTask* target) {
     if (fn_80160324()) {
         bool debug = false;
-        if (IsDebugField_unk(this) && lbl_8087F430->fn_803761BC() != 0) {
+        if (IsDebugField_unk(this) && ((GameTask*)lbl_8087F430)->fn_803761BC() != 0) {
             debug = true;
         }
         if (debug) {
@@ -10646,7 +10644,7 @@ void CharaTask::fn_80175B18(float distSq) {
         if (d < 4900.0f && d > 0.1f) {
             PSVECNormalize(&dir, &dir);
             if (PSVECDotProduct(&dir, &fn_8014052C()) > -0.5f) {
-                int mode = lbl_8087F430->fn_803761DC();
+                int mode = ((GameTask*)lbl_8087F430)->fn_803761DC();
                 if (IsPartyIndex_unk(fn_80219558(m50))) {
                     mode = 2;
                 }
