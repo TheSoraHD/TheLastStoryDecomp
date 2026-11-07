@@ -5929,8 +5929,10 @@ ss_nw4r/src/snd/snd_adpcm.cpp:
 nw4r/src/db/db_console.cpp:
 	.text       start:0x80722FE0 end:0x807230C0 align:16
 
-auto_03_807230C0_text.cpp:
+nw4r/src/db/db_DbgPrintBase.cpp:
 	.text       start:0x807230C0 end:0x80724BE0 align:16
+	.sbss       start:0x80880520 end:0x80880530
+	.sdata2     start:0x80889338 end:0x80889350
 
 nw4r/src/db/db_assert.cpp:
 	.text       start:0x80724BE0 end:0x80725050 align:16
