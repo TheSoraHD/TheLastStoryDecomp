@@ -13,8 +13,19 @@ struct DebugInfoColumn_unk {
     int m10;
 };
 
+// inferred: column definition of a table of the debug display (0x10 bytes, tables at 0x807835F0;
+// the first three words are zero in the data). Names invented.
+struct DebugInfoColumnDef_unk {
+    int m00;
+    int m04;
+    int m08;
+    float mWidth; // inferred: 50, 60, 220, 100...
+};
+
 // inferred: table of the debug display (0x18 bytes). Names invented.
 struct DebugInfoTable_unk {
+    DebugInfoTable_unk() : m00(0), m04(0), m14(0) {}
+    void fn_80220168(const DebugInfoColumnDef_unk* defs, int count, int rows); // inferred: sets the columns
     int m00;
     int m04;
     std::vector<DebugInfoColumn_unk> mColumns; // 0x08
@@ -27,7 +38,10 @@ struct DebugInfo_unk {
     DebugInfo_unk();
     void fn_80221F54(int page); // inferred: draws the page `page` of the debug information (Manager::vf14)
     int mPage;                  // 0x00: inferred: page shown last
-    unsigned char m04[0x14 - 0x04];
+    float m04;                  // inferred: position of the display (30, 30)
+    float m08;
+    float m0C;                  // inferred: height of a row (14)
+    int m10;
     DebugInfoTable_unk m14;
     DebugInfoTable_unk m2C;
     DebugInfoTable_unk m44;
