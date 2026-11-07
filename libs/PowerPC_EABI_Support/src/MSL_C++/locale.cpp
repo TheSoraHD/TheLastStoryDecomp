@@ -245,4 +245,12 @@ const wchar_t* ctype<wchar_t>::do_narrow(const wchar_t* low, const wchar_t* high
     return high;
 }
 
+// inferred: the facet ids (0x808803C0-0x808803CC, .sbss); their (empty) initialization sets the guards
+// 0x808803D0-0x808803D3 in __sinit_locale_cpp
+size_t locale::id::__id_count_;
+locale::id ctype<char>::id;
+locale::id ctype<wchar_t>::id;
+locale::id codecvt<char, char, int>::id;
+locale::id codecvt<wchar_t, char, int>::id;
+
 } // namespace std

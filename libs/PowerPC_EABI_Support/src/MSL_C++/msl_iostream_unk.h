@@ -313,6 +313,7 @@ public:
 
     class id {
     public:
+        id() {}
         size_t get() {
             if (id_ == 0) {
                 id_ = ++__id_count_;
