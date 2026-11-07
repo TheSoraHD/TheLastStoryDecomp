@@ -236,3 +236,21 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
    `ordercheck.py`, `pd.sh` y datos (`classic_`/`global_`/mutex: renombrar a `@GUARD@`/`@LOCAL@` como los ids).
 4. iostream: `Init`/`wios_base_Init_unk`, constructores de streams y de `console_outputbuf`, `sentry`, `flush`,
    0x8068E270, y las pequenas que el original emite fuera de linea (`__nw__FUlPv`, `setf`, `tie`, `pubsetbuf`...).
+
+# Sesion 4 (2026-11-07, rama `msl-iostream-20261107b`)
+
+## Resultado
+
+- Inicio: 106/170, `report.json` 14146, `main.dol: OK` (build limpio de `main` be459fe).
+
+## Cambios de splits/flags
+
+## Decisiones tomadas sin el usuario
+
+- Rama `msl-iostream-20261107b`: `msl-iostream-20261107` ya existe en el remoto (sesion 3, mergeada) y es el mismo dia.
+- Referencia (`mkref.sh` -> `/home/claude/ref`) sacada del build limpio del propio arbol recien creado desde
+  `origin/main` (identico a `main`), sin `git worktree` aparte: ahorra un build de ~3 min.
+
+## Hallazgos
+
+## Pendientes

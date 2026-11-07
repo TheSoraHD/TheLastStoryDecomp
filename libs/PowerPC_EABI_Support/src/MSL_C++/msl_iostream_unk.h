@@ -271,6 +271,7 @@ struct char_traits<char> {
     typedef char char_type;
     typedef int int_type;
     static int_type eof() { return -1; }
+    static bool eq(char_type a, char_type b) { return a == b; }
     static char_type* copy(char_type* s1, const char_type* s2, size_t n) { return (char_type*)memcpy(s1, s2, n); }
     static bool eq_int_type(int_type a, int_type b) { return a == b; }
     static int_type not_eof(int_type c) { return eq_int_type(c, eof()) ? ~eof() : c; }
@@ -283,6 +284,7 @@ struct char_traits<wchar_t> {
     typedef wchar_t char_type;
     typedef unsigned short int_type;
     static int_type eof() { return 0xFFFF; }
+    static bool eq(char_type a, char_type b) { return a == b; }
     static char_type* copy(char_type* s1, const char_type* s2, size_t n) { return wmemcpy(s1, s2, n); }
     static bool eq_int_type(int_type a, int_type b) { return a == b; }
     static int_type not_eof(int_type c) { return eq_int_type(c, eof()) ? ~eof() : c; }
@@ -426,7 +428,27 @@ template <class T, class Traits = char_traits<T>, class Alloc = allocator<T> >
 class basic_string {
 public:
     typedef unsigned long size_type;
+    typedef T* iterator;
+    static const size_type npos = (size_type)-1;
+    enum { __min_cap = (12 - 1) / sizeof(T) };
 
+    basic_string() { __zero(); }
+    // inferred: inlined in the num_put helper 0x80693AB8 (a short string is copied word by word)
+    basic_string(const basic_string& str) {
+        if (!str.is_long()) {
+            mRaw = str.mRaw;
+        } else {
+            __zero();
+            reserve(str.mLong.mSize);
+            do_replace(0, 0, str.mLong.mData, str.mLong.mData + str.mLong.mSize, random_access_iterator_tag());
+        }
+    }
+    // inferred: inlined in 0x80693AB8 with pos 0 (both min of n and the size are kept)
+    basic_string(const basic_string& str, size_type pos, size_type n) {
+        __zero();
+        reserve(std::min(n, str.size() - pos));
+        insert(0, str, pos, n);
+    }
     basic_string(const T* s) {
         __zero();
         size_type n = strlen(s);
@@ -440,7 +462,82 @@ public:
     }
     void reserve(size_type res_arg);
     basic_string& do_replace(size_type pos, size_type n1, const T* j1, const T* j2, random_access_iterator_tag tag);
+    basic_string& replace(size_type pos, size_type n1, size_type n2, T c);
     bool is_long() const { return *(const unsigned long*)this >> 31; }
+    size_type size() const { return !is_long() ? (mShort.mSize & 0x7F) : mLong.mSize; }
+    const T* data() const { return !is_long() ? (const T*)this + 1 : mLong.mData; }
+    iterator begin() { return !is_long() ? (T*)this + 1 : mLong.mData; }
+    iterator end() {
+        T* d;
+        size_type sz;
+        if (!is_long()) {
+            d = mShort.mData;
+            sz = mShort.mSize & 0x7F;
+        } else {
+            d = mLong.mData;
+            sz = mLong.mSize;
+        }
+        return d + sz;
+    }
+    T& operator[](size_type i) { return (!is_long() ? (T*)this + 1 : mLong.mData)[i]; }
+    const T& operator[](size_type i) const { return (!is_long() ? (const T*)this + 1 : mLong.mData)[i]; }
+    // inferred: the digits of 0x80693884 are added with +=; one more inline level than push_back puts the
+    // character below the iterator tags on the stack, as in the original
+    basic_string& insert(size_type pos, const T* s, size_type n) {
+        return do_replace(pos, 0, s, s + n, random_access_iterator_tag());
+    }
+    basic_string& insert(size_type pos1, const basic_string& str, size_type pos2, size_type n) {
+        const T* d;
+        size_type sz;
+        if (!str.is_long()) {
+            d = str.mShort.mData;
+            sz = str.mShort.mSize & 0x7F;
+        } else {
+            d = str.mLong.mData;
+            sz = str.mLong.mSize;
+        }
+        n = std::min(n, sz - pos2);
+        return do_replace(pos1, 0, d + pos2, d + pos2 + n, random_access_iterator_tag());
+    }
+    void push_back(T c) { insert(size(), &c, 1); }
+    basic_string& operator+=(T c) {
+        push_back(c);
+        return *this;
+    }
+    iterator insert(iterator p, T c) {
+        size_type pos = p - begin();
+        do_replace(pos, 0, &c, &c + 1, random_access_iterator_tag());
+        return begin() + pos;
+    }
+    void resize(size_type n, T c) {
+        size_type sz = size();
+        if (n > sz) {
+            replace(sz, 0, n - sz, c);
+        } else {
+            replace(n, sz - n, 0, c);
+        }
+    }
+    void resize(size_type n) { resize(n, T()); }
+    size_type find_first_not_of(T c, size_type pos = 0) const {
+        const T* d;
+        size_type sz;
+        if (!is_long()) {
+            d = mShort.mData;
+            sz = mShort.mSize & 0x7F;
+        } else {
+            d = mLong.mData;
+            sz = mLong.mSize;
+        }
+        if (pos < sz) {
+            const T* e = d + sz;
+            for (const T* p = d + pos; p < e; ++p) {
+                if (!Traits::eq(*p, c)) {
+                    return p - d;
+                }
+            }
+        }
+        return npos;
+    }
     void __zero() {
         unsigned long (&a)[3] = mRaw.mWords;
         for (unsigned int i = 0; i < 3; i++) {
@@ -456,9 +553,14 @@ public:
     struct Raw {
         unsigned long mWords[3];
     };
+    struct Short {
+        unsigned char mSize;
+        T mData[__min_cap];
+    };
     union {
         Raw mRaw;
         Long mLong;
+        Short mShort;
     };
 };
 
