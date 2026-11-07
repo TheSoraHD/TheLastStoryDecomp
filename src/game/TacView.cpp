@@ -4,9 +4,17 @@
 #include "game/CharaTask.h"
 #include "game/SkillEffectManager.h"
 #include "atn/SoundRef.h"
+#include "atn/Memory.h"
 
 // inferred: plays the sound `id` of the view (0x805A70D4, not decompiled: its name table is in .rodata)
 atn::SoundRef fn_805A70D4(int id, float volume);
+
+TacView* TacView::fn_805A70F0(atn::Task* parent) {
+    if (lbl_8087F9F8 == 0) {
+        lbl_8087F9F8 = new ((MemoryTag)3, "", "", 0) TacView(parent);
+    }
+    return lbl_8087F9F8;
+}
 
 int TacView::fn_805AA390(CharaTask* chara) {
     int id = chara->fn_8017AC08();

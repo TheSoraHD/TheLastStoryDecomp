@@ -2,6 +2,7 @@
 #define GAME_TACVIEW_H
 
 #include "atn/FixedArray.h"
+#include "atn/Task.h"
 #include "math/Vec.h"
 
 class SkillEffect;
@@ -33,8 +34,10 @@ struct TacViewSel_unk {
 // inferred: tactical view of the battle (game/TacView.cpp, 0x805A6D20-0x805AE26C; instance lbl_8087F9F8).
 // Only the members used by the decompiled units are declared; other files still use partial views
 // (TacView_unk in game/CharaTask.cpp, chr/ControlCharge.cpp, game/PlayerInput_unk.cpp).
-class TacView {
+class TacView : public atn::Task {
 public:
+    TacView(atn::Task* parent); // 0x805A7158
+    static TacView* fn_805A70F0(atn::Task* parent); // inferred: creates the singleton
     // inferred: end of the effect of a skill started by the player: clears the flag 0x10000 of its
     // user (CharaTask::m12A8) and calls CharaTask::fn_80178864 (0x805AA4C8; bound by
     // BattleCharaTask::fn_800E2FE0)
@@ -59,7 +62,6 @@ public:
     int GetOpen_unk() const { return mA70; }
     int* GetCursor_unk() { return &m15D8; }
 
-    unsigned char m00[0x48 - 0x00];
     int m48;              // inferred: state (GameUI::fn_803DCA84 compares it with 0 and 2)
     CharaTask* m4C;       // inferred: character under the cursor
     unsigned char m50[0xA70 - 0x50];
