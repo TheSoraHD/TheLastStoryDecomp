@@ -100,6 +100,7 @@ public:
     void fn_800FDF14(BattleCalcParam_unk* param);
     void fn_80100BC0();          // inferred: stops the effects (fn_801055A8 and effect group 5)
     void fn_801055A8(int arg);
+    void fn_80105DCC(CharaTask* chara, atn::Model* model, int level); // inferred: charge effect of the level
     Bullet* fn_801010A0();       // inferred: free bullet
     HomingBullet* fn_801010E8(); // inferred: free homing bullet
     void fn_80101138();

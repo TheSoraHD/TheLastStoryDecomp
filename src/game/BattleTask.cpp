@@ -352,6 +352,16 @@ void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
     }
 }
 
+// NONMATCHING: 90% - the original loads the effect manager before the clamp of the level
+void BattleTask::fn_80105DCC(CharaTask* chara, atn::Model* model, int level) {
+    fn_80232B7C((unsigned int)chara, 4);
+    if (fn_80219558(chara->m50) == 2) {
+        PlayEfp_unk(&mEfp38AF4[5], model);
+    } else {
+        PlayEfp_unk(&mEfp38AF4[2] + MIN((unsigned int)MAX(level, 0), 3u), model);
+    }
+}
+
 void BattleTask::fn_80105F3C(void* owner) {
     fn_80239DAC(lbl_8087F3C0, (unsigned int)owner, 4, 1);
 }

@@ -309,7 +309,6 @@ struct ParamRecord_unk {
     int m48;
     int m4C;
 };
-extern "C" void fn_80105DCC(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* motion, int arg); // inferred
 // inferred: skill effect manager (lbl_8087F9E8, as in gmk/HealPoint.cpp)
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                     const atn::Vector3* pos, const atn::Vector3* rot,
@@ -357,7 +356,7 @@ void BattleCharaTask::fn_800E2FE0() {
                     if (lbl_8087F048 != 0) {
                         ((BattleTask*)lbl_8087F048)->fn_8010AB94();
                     }
-                    fn_80105DCC(lbl_8087F048, this, &mMotion, 1);
+                    ((BattleTask*)lbl_8087F048)->fn_80105DCC(this, &mMotion, 1);
                     m1470 = 0;
                 }
                 break;
