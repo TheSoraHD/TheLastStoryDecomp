@@ -33,6 +33,7 @@
 #include <exception>
 
 extern "C" BattleTask* lbl_8087F048;
+
 namespace std {
 
 // inferred: MSL <typeinfo>; std::bad_cast derives from std::exception
@@ -132,6 +133,22 @@ void GameEventScript::fn_803957F0(int id) {
             return;
         }
     }
+}
+
+// inferred: `event` is the address of the event record (fn_8039CC24); m04/m08: range of the field value m10D0
+struct ScriptEventRange_unk {
+    bool IsAlways_unk() const { return mMin == 0 && mMax == 0; }
+    bool Contains_unk(int value) const { return value >= mMin && value <= mMax; }
+    int m00;
+    int mMin;
+    int mMax;
+};
+
+// NONMATCHING: 98% - registers of the field value and of the minimum swapped
+int GameEventScript::fn_80398530(int event) {
+    const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
+    int value = ((GameTask*)lbl_8087F430)->m10D0;
+    return e->IsAlways_unk() || e->Contains_unk(value);
 }
 
 void GameEventScript::fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {

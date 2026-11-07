@@ -108,7 +108,9 @@ public:
     int m1070;
     unsigned char m1074[0x10C8 - 0x1074];
     float m10C8;
-    unsigned char m10CC[0x10D8 - 0x10CC];
+    unsigned char m10CC[0x10D0 - 0x10CC];
+    int m10D0; // inferred: value compared with the ranges of the script events (GameEventScript::fn_80398530)
+    unsigned char m10D4[0x10D8 - 0x10D4];
     GameScene* m10D8;        // inferred: scene of the field
     unsigned char m10DC[0x10E0 - 0x10DC];
     GameLeader_unk* m10E0;
