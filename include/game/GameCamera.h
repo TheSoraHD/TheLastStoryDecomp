@@ -79,7 +79,9 @@ public:
     int m860;
     unsigned char m864[0x880 - 0x864];
     int m880;
-    unsigned char m884[0x8EC - 0x884];
+    unsigned char m884[0x8E4 - 0x884];
+    int m8E4; // inferred: cleared by GameTask::vf10 when the tactical view closes
+    int m8E8; // inferred: cleared by GameTask::vf10 at the end of a map change
     int m8EC;
     int m8F0;
     void* m8F4;            // 0x8F4: inferred: ambient animation of the map (MapTask::m68, LH_Xsca)

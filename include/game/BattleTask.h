@@ -219,7 +219,9 @@ public:
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
     atn::EfpFile mEfp363C0[46];  // 0x363C0: inferred: battle effects (EFP files)
-    unsigned char m365E8[0x389F4 - 0x365E8];
+    unsigned char m365E8[0x367B0 - 0x365E8];
+    int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change
+    unsigned char m367B4[0x389F4 - 0x367B4];
     int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
     unsigned char m389F8[0x38A04 - 0x389F8];
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]

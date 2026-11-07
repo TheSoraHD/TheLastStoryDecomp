@@ -23,6 +23,7 @@ struct GameTaskData_unk;
 namespace atn {
 class FadeCommon;
 class FadeCapture;
+class FadeColor;
 }
 
 class GamePauseTask;
@@ -35,17 +36,22 @@ struct ReplayRecorder_unk;
 // inferred: binary table of the field at GameTask + 0x550C (0x50 bytes; built inline by the GameTask
 // constructor, its data is given back to the loader by the destructor). Names invented.
 struct GameTaskTable_unk {
-    atn::LH_Binary mFile;
-    unsigned char m08[0x14 - 0x08];
+    atn::LH_Binary mFile; // inferred: file list of the next map (flist)
+    int mType;            // 0x08: inferred: next map
+    int mId;
+    int mSub;
     int m14;
-    unsigned char m18[0x28 - 0x18];
-    GameTaskTable_unk() : m14(0), m28(0), m2C(0), m30(0), m34(0) {}
-    int m28;
-    int m2C;
-    int m30;
+    int mPrevType;        // 0x18: inferred: map being left
+    int mPrevId;
+    int mPrevSub;
+    int m24;
+    GameTaskTable_unk() : m14(0), mScene(0), mState(0), m30(0), m34(0) {}
+    GameScene* mScene;    // 0x28: inferred: scene of the next map
+    int mState;           // 0x2C: inferred: state of the map change (GameTask::vf10)
+    int m30;              // inferred: save data to restore
     int m34;
-    atn::SimpleVector<int> m38;
-    atn::SimpleVector<int> m44;
+    atn::SimpleVector<unsigned int> m38; // inferred: resource hashes of the characters kept
+    atn::SimpleVector<unsigned int> m44; // inferred: cache entries of the characters kept
 };
 
 // inferred from __vt__8GameTask (0x8078A3D0): the field task (lbl_8087F430). Other units still use
@@ -134,6 +140,17 @@ public:
     void fn_8037624C(int value);
     void fn_803766E4();
     inline int IsDungeonCleared_unk(int type, int id, int sub);
+    inline void SetDungeonLevel_unk(int type, int id, int sub);
+    int fn_8036FD4C();
+    void fn_80370CD0();
+    int fn_8036E170();
+    void fn_8036E494();
+    void fn_8036CFA4();
+    void fn_8036CC90();
+    void fn_80373AE8();
+    void fn_803737C0();
+    void fn_803727DC();
+    void fn_80376568();
     void fn_80367A40(int arg);
     void fn_8036CA60(int arg);
 
@@ -172,7 +189,7 @@ public:
     unsigned char m559C[0x55A4 - 0x559C];
     int m55A4;
     atn::SoundRef m55A8;
-    unsigned char m55AC[0x55B0 - 0x55AC];
+    int m55AC;
     int m55B0;
     int m55B4;
     int m55B8;
@@ -216,16 +233,8 @@ public:
     int m569C;
     int m56A0;
     int m56A4;
-    int m56A8;
-    int m56AC;
-    int m56B0;
-    float m56B4;
-    float m56B8;
-    int m56BC;
-    int m56C0;
-    float m56C4;
-    float m56C8;
-    unsigned char m56CC[0x56D0 - 0x56CC];
+    MotionBlurParam_unk m56A8; // inferred: motion blur saved while the blur effect runs (vf10)
+    float m56CC;
     int m56D0;
     CharaTask* m56D4;
     CharaTask* m56D8;
@@ -242,7 +251,7 @@ public:
     SelectMember* m5750;
     int m5754;
     int m5758;
-    int m575C;
+    atn::FadeColor* m575C; // inferred: fade of the time limit (vf10)
     int m5760; // inferred: counter of the frames waited (fn_80373118)
     int m5764;
     int m5768;

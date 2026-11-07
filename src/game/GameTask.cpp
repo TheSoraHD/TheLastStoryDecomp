@@ -45,6 +45,12 @@
 #include "atn/SoundManager.h"
 #include "game/MenuCommonTask.h"
 #include "game/ResHandle.h"
+#include "atn/LoadManager.h"
+#include "game/NpcTask.h"
+#include "game/SkillEffectManager.h"
+#include "game/LogMessageTask.h"
+#include "atn/RenderSetting_unk.h"
+#include "atn/Keyboard.h"
 #include "atn/D2A_Task.h"
 #include "atn/DrawHelper.h"
 #include "atn/MemoryManager.h"
@@ -172,6 +178,14 @@ public:
     void fn_800AFEBC(int div);
 };
 } // namespace atn
+namespace atn {
+// inferred: cached composed texture (atn/CompositeIntensityTintMulti.cpp)
+struct CompositeCacheEntry_unk {
+    void fn_800D8448(); // inferred: add a reference
+    void fn_800D8458(); // inferred: release
+};
+} // namespace atn
+
 // inferred: view of the post effect manager lbl_8087EF8C (motion blur at 0x118)
 struct PostFxMgrView_unk {
     unsigned char m000[0x118];
@@ -198,6 +212,13 @@ struct SysInput_unk {
     unsigned char m0000[0x40E0];
     int m40E0;
 };
+// inferred: pad input of the settings (as in game/CharaStatus.cpp)
+struct Input_unk {
+    int fn_801231D0(int button); // inferred: pressed
+    int fn_80123C7C(int button); // inferred: held
+    int fn_801240B4(int button);
+};
+
 // inferred: per-difficulty factors (as in game/CharaStatus.cpp)
 struct StatusRate_unk {
     float m00;
@@ -210,7 +231,9 @@ struct StatusRate_unk {
     int m1C;
 };
 struct MpSettings_unk {
-    unsigned char m000[0x7C];
+    unsigned char m000[0x28];
+    int m028; // inferred: map file lists are used (GameTask::vf10)
+    unsigned char m02C[0x7C - 0x2C];
     int m07C;
     unsigned char m080[0xD4 - 0x80];
     int mD4; // inferred: index into mD8 (difficulty?)
@@ -219,7 +242,9 @@ struct MpSettings_unk {
     int m184; // inferred: debug text of the field (GameTask::vf14)
     unsigned char m188[0x194 - 0x188];
     int m194;
-    unsigned char m198[0x5A0 - 0x198];
+    unsigned char m198[0x48C - 0x198];
+    Input_unk mInput; // 0x48C
+    unsigned char m48D[0x5A0 - 0x48D];
     int m5A0;
 };
 extern "C" GameFlow_unk* lbl_8087F420;
@@ -228,9 +253,15 @@ extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single 
 extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" atn::SoundManager* lbl_8087EFE8;
 extern "C" void* lbl_8087EE90; // inferred: sound engine
-extern "C" void* lbl_8087F048; // inferred: the battle task
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle task
 extern "C" int fn_80219558(int id);
-extern "C" void* lbl_8087F8A8;
+// inferred: popup messages of the field (lbl_8087F8A8; code in game/PopupTask.cpp)
+class PopupTask : public atn::Task {
+public:
+    void fn_8054E51C();
+    void fn_8054AF08();
+};
+extern "C" PopupTask* lbl_8087F8A8;
 extern "C" MpSettings_unk* lbl_8087F0A8;
 extern "C" SysInput_unk* lbl_8087F018;
 extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: pending save data
@@ -251,6 +282,7 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 extern "C" void fn_80370094(GameTask* task, int chapter);
 extern "C" int fn_8037587C(GameTask* task, int type, int id, int sub);
+extern "C" int fn_803754F0(GameTask* task);
 extern "C" void fn_80376324(GameTask* task, int id);
 extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
@@ -261,6 +293,36 @@ extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
 extern "C" void fn_8056F2F8(GameTaskData_unk* obj, int value);
 extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
 extern "C" atn::Task* lbl_8087FA20;
+extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
+extern "C" void fn_805AA734(TacView* tac);
+extern "C" void fn_803743AC(GameTask* task);
+extern "C" void fn_800F3D28(BattleTask* battle);
+extern "C" void fn_800F3170(BattleTask* battle);
+extern "C" int fn_800F3490(BattleTask* battle);
+extern "C" void fn_800EFA18(int type, int map);
+extern "C" void fn_8056C3D8(GameTaskData_unk* obj);
+extern "C" void fn_80390A88(GameCamera* camera);
+extern "C" void fn_8038F52C(GameCamera* camera);
+extern "C" void fn_8037F744(GameCamera* camera);
+extern "C" int fn_800A555C(void* obj, int a, int b);
+extern "C" void* lbl_8087EF70;
+extern "C" void fn_804A5E40(MenuCommonTask* menu, int kind, atn::Vector3* pos, int arg);
+extern "C" atn::Vector3 lbl_807C7030;
+extern "C" void fn_800D2494(atn::Task* task); // inferred: runs one update of the task
+extern "C" atn::Task* lbl_8087F440;
+extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings (atn::RenderConfig)
+extern "C" double floor(double x);
+extern "C" double fmod(double x, double y);
+extern "C" float PSVECMag(const atn::Vector3* v);
+// inferred: object at 0x258 of lbl_8087FA20 (switch at 0x160C toggled with a button)
+struct TacSwitch_unk {
+    unsigned char m0000[0x160C];
+    int m160C;
+};
+struct TaskWithTac_unk {
+    unsigned char m000[0x258];
+    TacSwitch_unk* m258;
+};
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
 extern "C" float fn_8006EF48(atn::Font_unk* font, const wchar_t* text, float size, float f2, int a, int b);
@@ -271,8 +333,6 @@ extern "C" int fn_80370A78(GameTask* task, unsigned int index);             // i
 extern "C" void fn_80370AE4(GameTask* task, unsigned int index, int value); // inferred: SetLocalFlag
 extern "C" int lbl_8087F438; // inferred: the loading time is being measured
 extern "C" HeapInfo_unk* lbl_8087F534;
-extern "C" void* lbl_8087F518; // inferred: the loader
-extern "C" void fn_8046ECDC(void* loader, int arg);
 extern "C" atn::Font_unk* lbl_8087EEC8;
 extern "C" void fn_8006D0C8(atn::Font_unk* font, int town);
 extern "C" int fn_8006D3F8(atn::Font_unk* font);
@@ -402,8 +462,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
       m5628(new ((MemoryTag)1, "", "", 0) GameSaveParty_unk), m5638(1), m563C(-1), m5640(0), m5644(0), m5648(0),
       m564C(0), m5650(0), m5654(0), m5658(0.0f), m565C(0), m5660(0), m5664(1), m5668(0), m566C(0), m5670(0),
       m5674(1), m567C(0), m5680(0), m5684(0), m5688(-1), m568C(-1), m5694(0), m5698(0), m569C(0), m56A0(0),
-      m56A4(0), m56A8(0), m56AC(0), m56B0(0), m56B4(1.0f), m56B8(0.0f), m56BC(0), m56C0(0), m56C4(0.02f),
-      m56C8(0.02f), m56D0(0), m56D4(0), m56D8(0), m56E4(0), m56E8(-1), m56EC(0), m56F0(0),
+      m56A4(0), m56D0(0), m56D4(0), m56D8(0), m56E4(0), m56E8(-1), m56EC(0), m56F0(0),
       m5744(0), m5748(0), m574C(0), m5750(0), m5754(0), m5758(0), m575C(0), m5760(0),
       m5764(0) {
     if (lbl_8087F420 != 0) {
@@ -816,6 +875,904 @@ int GameTask::fn_8036823C() {
     return 0;
 }
 
+// inferred: comparison of the cache entries (the instantiation 0x8036B44C is emitted here)
+struct LessCache_unk {
+    bool operator()(unsigned int a, unsigned int b) const { return a < b; }
+};
+// inferred: comparison of the sorted resource hashes (atn/Model.cpp instantiates Sort_unk<unsigned int,
+// LessU_unk> at 0x8009246C)
+struct LessU_unk {
+    bool operator()(unsigned int a, unsigned int b) const { return a < b; }
+};
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp);
+
+// inferred: removes the repeated values of a sorted vector (std::unique and erase, inlined)
+static inline void Unique_unk(atn::SimpleVector<unsigned int>& v) {
+    unsigned int* first = v.mData;
+    unsigned int* last = v.mData + v.mSize;
+    unsigned int* it = first;
+    if (it != last) {
+        unsigned int* next = it + 1;
+        for (; next != last; it = next, next++) {
+            if (*it == *next) {
+                goto found;
+            }
+        }
+    }
+    it = last;
+found:
+    if (it != last) {
+        for (unsigned int* p = it + 2; p != last; p++) {
+            if (*it != *p) {
+                *++it = *p;
+            }
+        }
+        it++;
+    }
+    if (it != v.mData + v.mSize) {
+        int index = it - v.mData;
+        int count = (v.mData + v.mSize) - it;
+        for (unsigned int i = index; i < v.mSize - count; i++) {
+            v.mData[i] = v.mData[i + count];
+        }
+        v.mSize = v.mSize - count;
+    }
+}
+
+// inferred: the map change keeps the characters of the field (same map kind)
+static inline int IsSameField_unk(const GameTaskTable_unk& table) {
+    if (table.mId == 0x44 && table.mSub == 1) {
+        return 1;
+    }
+    if (table.mId == 7 && table.mSub == 1) {
+        return 1;
+    }
+    if (table.mType != table.mPrevType) {
+        return 0;
+    }
+    if (table.mId == 15 || table.mId == 55) {
+        return 0;
+    }
+    return 1;
+}
+
+// inferred: sets the global flag 281 to the level of the dungeon of the map (from the leader)
+inline void GameTask::SetDungeonLevel_unk(int type, int id, int sub) {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    if (leader != 0) {
+        MapId_unk* map = fn_8021771C(type, id, sub);
+        int level = leader->mStatus.mParamB.m78;
+        ChapterEntry_unk* chapter = fn_802085E0(type, id);
+        if (chapter != 0 && map != 0) {
+            mGlobalFlags[281] = map->mC0 + (int)(level * map->mC4) - chapter->m54;
+        }
+    }
+}
+
+// inferred: places the second party member next to `pos` (on the nearest move point)
+static inline void PlaceSecondMember_unk(GameScene* scene, PlayerTask* second, const atn::Vector3& pos, float rot) {
+    atn::Vector3 offset(-5.0f, 0.0f, -5.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot);
+    PSMTXMultVec(m, &offset, &offset);
+    atn::Vector3 target(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+    int index = scene->fn_803C1560(&target, 0x80000000, 0, 0, 1, -1.0f);
+    if (index != 0) {
+        gs::MovePoint* point = &scene->m98.mData[index - 1];
+        second->mPos = point->mPos;
+        second->mRot = atn::Vector3(0.0f, rot, 0.0f);
+        second->fn_8016EB48(0, 0, 0);
+    }
+}
+
+// inferred: warp point `id` of the scene
+static inline gs::WarpPoint* FindWarpPoint_unk(GameScene* scene, int id) {
+    for (unsigned int i = 0; i < scene->m78.size(); i++) {
+        if (id == scene->m78.mData[i].mId) {
+            return &scene->m78.mData[i];
+        }
+    }
+    return 0;
+}
+
+// inferred: milliseconds since the start (OSTicksToMilliseconds(OSGetTime()))
+static inline long long GetTimeMs_unk() {
+    return OSGetTime() / ((*(unsigned int*)0x800000F8 / 4) / 1000);
+}
+
+// NONMATCHING: written for the order of the string pool (the map change states come first); not compared yet
+void GameTask::vf10() {
+    m5744++;
+    m5744 = m5744 < 107999970 ? m5744 : 107999970;
+    if (m5748 != 0) {
+        m5748--;
+    }
+    mGlobalFlags[3280] = m5744 / 30 / 60;
+    if (m550C.mState != 0) {
+        switch (m550C.mState) {
+        case 1: {
+            if (m5624->mActive == 0) {
+                m5624->mActive = 1;
+            }
+            lbl_8087F534->mTimer4.Start_unk();
+            char name[0x100];
+            char path[0x100];
+            MapTask::GetMapNameFromId(name, m550C.mType, m550C.mId, m550C.mSub);
+            sprintf(path, "flist/%s.flist", name);
+            if (IsSameField_unk(m550C) && m550C.m30 == 0 && m5764 < 20 && lbl_8087F0A8->m028 != 0 &&
+                fn_8006AA20(path)) {
+                m5764++;
+                m550C.mFile.vf0C(path);
+                m550C.mState = 2;
+                MapId_unk* map = fn_8021771C(m550C.mType, m550C.mId, m550C.mSub);
+                if (map != 0 && map->mMembers != 0) {
+                    for (int i = 0; map->mMembers[i] >= 0; i++) {
+                        int chara = map->mMembers[i];
+                        if (chara >= 199900 && chara <= 199999) {
+                            chara = fn_80219544(Inventory::instance_->mOrder[chara % 100]);
+                        }
+                        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                            if (chara == p->m50) {
+                                p->fn_8017AD44(&m550C.m38, &m550C.m44);
+                            }
+                        }
+                        for (NpcTask* p = NpcManager::sInstance->mHead; p != 0; p = p->mNext) {
+                            if (chara == p->m50) {
+                                p->fn_8017AD44(&m550C.m38, &m550C.m44);
+                            }
+                        }
+                        for (EnemyTask* p = EnemyManager::sInstance->mHead; p != 0; p = p->mNext) {
+                            if (chara == p->m50) {
+                                p->fn_8017AD44(&m550C.m38, &m550C.m44);
+                            }
+                        }
+                    }
+                    Sort_unk(m550C.m38.mData, m550C.m38.mData + m550C.m38.mSize, LessU_unk());
+                    Unique_unk(m550C.m38);
+                    LessCache_unk less;
+                    Sort_unk<unsigned int, LessCache_unk&>(m550C.m44.mData, m550C.m44.mData + m550C.m44.mSize, less);
+                    Unique_unk(m550C.m44);
+                    if (m550C.m38.mSize != 0) {
+                        lbl_8087F518->fn_8046F8B8(m550C.m38.mData, m550C.m38.mSize);
+                    }
+                    for (unsigned int i = 0; i < m550C.m44.mSize; i++) {
+                        ((atn::CompositeCacheEntry_unk*)m550C.m44.mData[i])->fn_800D8448();
+                    }
+                }
+            } else {
+                m5764 = 0;
+                m550C.mState = 3;
+            }
+            if (GameBgm::sInstance != 0 && m10D8->m64 != 0) {
+                GameBgm::sInstance->fn_8037D684(m550C.mType, m550C.mId);
+            }
+            if (lbl_8087F418 != 0) {
+                lbl_8087F418->fn_8035E858();
+            }
+            break;
+        }
+        case 2:
+            if (!m550C.mFile.fn_80473F50()) {
+                void* data = m550C.mFile.fn_80470580();
+                unsigned int size = m550C.mFile.fn_8047059C();
+                if (data != 0) {
+                    lbl_8087F518->fn_8046F8B8((unsigned int*)data, size / 4);
+                }
+                m550C.mState = 3;
+            }
+            break;
+        case 3: {
+            if (GameBgm::sInstance != 0) {
+                int state = GameBgm::sInstance->mState;
+                int playing = 0;
+                if (state >= 3 && state <= 5) {
+                    playing = 1;
+                }
+                if (playing && !GameBgm::sInstance->fn_8037D34C()) {
+                    break;
+                }
+            }
+            if (m54E4 == 14) {
+                fn_805AA734(lbl_8087F9F8);
+                fn_803743AC(lbl_8087F430);
+                mCamera.m8E4 = 0;
+                mCamera.fn_80389838(0);
+            }
+            ((atn::Task*)lbl_8087F048)->fn_800D246C(1);
+            lbl_8087EE68->FreezeTask();
+            lbl_8087EE68->fn_80017060();
+            MapManager::instance_->FreezeTask();
+            lbl_8087F8A0->fn_8054A09C(lbl_8087F8A0->m54, 0);
+            lbl_8087F8A0->mHead->fn_800EBA5C();
+            fn_80218268(m550C.mType, m550C.mId, m550C.mSub);
+            if (m550C.mType != m550C.mPrevType) {
+                fn_8006D0C8(lbl_8087EEC8, m550C.mType == 1);
+            }
+            lbl_8087F3C0->fn_8023A5A8(1);
+            lbl_8087F3C0->fn_800D246C(1);
+            lbl_8087F8A0->fn_800D246C(1);
+            EnemyManager::sInstance->fn_800D246C(1);
+            NpcManager::sInstance->fn_800D246C(1);
+            lbl_8087F9E8->fn_8059C32C(1);
+            lbl_8087F9E8->FreezeTask();
+            fn_800F3D28(lbl_8087F048);
+            BattleResult::sInstance->fn_800F13B0();
+            lbl_8087F8A8->fn_8054E51C();
+            LogMessageTask::sInstance->mEntries.mSize = 0;
+            if (m550C.m30 != 0) {
+                lbl_8087F8A0->DeleteAll_unk();
+                NpcManager::sInstance->fn_80547A20();
+            } else {
+                lbl_8087F8A0->fn_8054A398();
+                if (!fn_8036562C(m550C.mType, m550C.mId, m550C.mSub, m10D0)) {
+                    NpcManager::sInstance->fn_80547A20();
+                }
+            }
+            EnemyManager::sInstance->DeleteAll_unk();
+            NpcManager::sInstance->fn_80547A84();
+            m10D8->fn_803CCD98();
+            if (lbl_8087F540 != 0) {
+                lbl_8087F540->fn_8047E528();
+                lbl_8087F540->fn_80483714(0, 0);
+                lbl_8087F540->fn_804805B4();
+            }
+            BattleResult::sInstance->fn_800F1378();
+            mCamera.fn_803933A4();
+            if (lbl_8087F098 != 0) {
+                lbl_8087F098->fn_80183774(0);
+                lbl_8087F098->fn_80182890();
+            }
+            m5660 = 0;
+            fn_800D2338(m10D8);
+            m10D8 = 0;
+            m5594 = 0;
+            m55A4 = 0;
+            if (m5590 != 0) {
+                delete m5590;
+                m5590 = 0;
+                lbl_8087F3C0->mSystem.mListener = 0;
+            }
+            m56D0 = 0;
+            m56D4 = 0;
+            m56D8 = 0;
+            if (fn_8036555C(m550C.mType, m550C.mId, m550C.mSub)) {
+                fn_800F3170(lbl_8087F048);
+                lbl_8087F8A8->fn_8054AF08();
+                lbl_8087F490->fn_803D11B4();
+            }
+            lbl_8087F490->fn_803E454C();
+            lbl_8087F490->fn_800D246C(1);
+            if (CrossbowMenuTask::sInstance != 0) {
+                CrossbowMenuTask::sInstance->fn_801E97DC();
+            }
+            lbl_8087EFA8->m3A4 = 1.0f;
+            lbl_8087EFA8->m240.mEnabled = 0;
+            if (m550C.mType == 2 && m550C.mId == 9) {
+                m10D4 = fn_80208634(m550C.mType, m550C.mId, m550C.mSub);
+            } else {
+                m10D4 = fn_802085E0(m550C.mType, m550C.mId);
+            }
+            m550C.mState = 4;
+            if (m54E4 == 6) {
+                m54E4 = 0;
+            }
+            break;
+        }
+        case 4:
+            if (lbl_8087EE90 != 0) {
+                int before = fn_803CE160(m550C.mPrevType, m550C.mPrevId, m550C.mPrevSub);
+                int after = fn_803CE160(m550C.mType, m550C.mId, m550C.mSub);
+                if (before != after) {
+                    if (after != 0) {
+                        void* sound = lbl_8087EE90;
+                        fn_80047B54(sound, fn_803CE154());
+                    } else {
+                        void* sound = lbl_8087EE90;
+                        fn_80047B54(sound, fn_803CE148());
+                    }
+                }
+            }
+            if (m550C.m30 != 0) {
+                ((GameSaveData_unk*)m550C.m30)->fn_803BE590();
+            }
+            lbl_8087F3C0->fn_8023A678(m550C.mType == 1 ? 0x80 : 0x120);
+            if (fn_8036562C(m550C.mType, m550C.mId, m550C.mSub, m10D0) &&
+                (m550C.m30 != 0 || !fn_8036562C(m550C.mPrevType, m550C.mPrevId, m550C.mPrevSub, m10D0))) {
+                m5690.fn_80470364("preload/change_dg_cache.pk", 0, 0, 1);
+            } else if (m550C.mType != 1 && m550C.mPrevType == 1) {
+                m5690.fn_80470364("preload/change_dg.pk", 0, 0, 1);
+            } else if (!fn_8036555C(m550C.mType, m550C.mId, m550C.mSub) &&
+                       fn_8036555C(m550C.mPrevType, m550C.mPrevId, m550C.mPrevSub)) {
+                m5690.fn_80470364("preload/change_dg.pk", 0, 0, 1);
+            }
+            if (lbl_8087F8A0->mHead != 0) {
+                int type = m550C.mType;
+                if (m550C.mId == 0x44 && m550C.mSub == 1) {
+                    type = 1;
+                }
+                lbl_8087F8A0->mHead->fn_800EBD00(type, m550C.mPrevType);
+            } else {
+                lbl_8087F8A0->fn_80549F14(m550C.mType);
+            }
+            if (fn_8036562C(m550C.mType, m550C.mId, m550C.mSub, m10D0)) {
+                NpcManager::sInstance->fn_80547980();
+            }
+            if (lbl_8087F418 != 0) {
+                lbl_8087F418->fn_8036097C(m550C.mType, m550C.mId, m550C.mSub, m550C.m14, m550C.m30);
+            }
+            m550C.mState = 5;
+            break;
+        case 5:
+            if (m5624->mFrame >= m5624->mDelay + m5624->mDuration ||
+                (m54F0 == 1 && m5620->mFrame >= m5620->mDelay + m5620->mDuration)) {
+                if (lbl_8087F418 == 0 || !lbl_8087F418->fn_80360A2C()) {
+                    if (lbl_8087F8A0->mHead->IsFlag_unk(2) && !lbl_8087F8A0->mHead->fn_800EBE84() &&
+                        !NpcManager::sInstance->fn_80547B54()) {
+                        if (IsDungeonCleared_unk(m550C.mType, m550C.mId, m550C.mSub)) {
+                            SetDungeonLevel_unk(m550C.mType, m550C.mId, m550C.mSub);
+                        }
+                        m550C.mState = 6;
+                    }
+                }
+                fn_8046ECDC(lbl_8087F518, 1);
+            }
+            break;
+        case 6:
+            ((PostFxMgrView_unk*)lbl_8087EF8C)
+                ->mMotionBlur.fn_800AFEBC(IsSpecialField_unk(m550C.mType, m550C.mId, m550C.mSub) ? 4 : 2);
+            fn_800EFA18(m550C.mType, m550C.mId);
+            if (!fn_8036555C(m550C.mType, m550C.mId, m550C.mSub)) {
+                fn_800F2C9C(lbl_8087F048);
+                fn_8054A9A8(lbl_8087F8A8);
+                fn_803D0B20(lbl_8087F490);
+            }
+            m550C.mState = 7;
+            fn_8046ECDC(lbl_8087F518, 1);
+            break;
+        case 7:
+            fn_8046ECDC(lbl_8087F518, 1);
+            if (!fn_800F3490(lbl_8087F048) && !lbl_8087F490->fn_803D1574() && lbl_8087F8A8->fn_800D3FA4()) {
+                m5690.fn_80470528();
+                m550C.mState = 8;
+            }
+            break;
+        case 8: {
+            fn_8046ECDC(lbl_8087F518, 1);
+            if (m550C.m30 != 0) {
+                int cleared = IsDungeonCleared_unk(mOption.mType, mOption.mMap, mOption.mSub);
+                m5694 = cleared;
+                m5698 = cleared;
+            }
+            m550C.mScene = GameScene::fn_803BEBAC(this, m550C.mType, m550C.mId, m550C.mSub);
+            if (m550C.m30 != 0) {
+                m550C.mScene->m9B0 = (GameSceneSave_unk*)m550C.m30;
+            }
+            m550C.mScene->fn_800D246C(1);
+            m550C.mState = 9;
+            m10D8 = m550C.mScene;
+            break;
+        }
+        case 9: {
+            if (fn_8036FD4C()) {
+                break;
+            }
+            if (lbl_8087F8A0->mHead->fn_800EBE84()) {
+                break;
+            }
+            ((atn::Task*)lbl_8087F048)->fn_800D246C(0);
+            lbl_8087EE68->MeltTask();
+            MapManager::instance_->MeltTask();
+            lbl_8087F9E8->MeltTask();
+            lbl_8087F3C0->fn_800D246C(0);
+            lbl_8087F8A0->fn_800D246C(0);
+            EnemyManager::sInstance->fn_800D246C(0);
+            NpcManager::sInstance->fn_800D246C(0);
+            m10D8 = m550C.mScene;
+            if (m550C.m30 != 0) {
+                ((GameSaveData_unk*)m550C.m30)->fn_803BE670();
+            } else {
+                memset(mLocalFlags, 0, sizeof(mLocalFlags));
+                memset(&mGlobalFlags[2200], 0, 0x100 * sizeof(int));
+                memset(&mGlobalFlags[2500], 0, 0x100 * sizeof(int));
+            }
+            fn_8036CA60(m550C.m14);
+            if (m550C.m30 != 0) {
+                ((GameSaveData_unk*)m550C.m30)->fn_803BE6B8();
+                mCamera.fn_8037EF30(1, 1, -1.0f);
+                m5748 = 5;
+            }
+            fn_80367A40(0);
+            fn_803D164C(lbl_8087F490);
+            fn_803D2194(lbl_8087F490);
+            lbl_8087F490->fn_803E32EC();
+            lbl_8087F490->fn_800D246C(0);
+            if (m574C > 0) {
+                mGlobalFlags[212] = 1;
+                mGlobalFlags[282] = m574C;
+            }
+            m574C = 0;
+            Inventory::instance_->fn_8044D028();
+            if (m550C.m30 == 0 && lbl_8087FA20 != 0 && m10D0 >= 600000) {
+                PlayerTask* second = lbl_8087F8A0->fn_8054A33C(1);
+                PlayerTask* leader = lbl_8087F8A0->mHead;
+                atn::Vector3 rot = leader->mRot;
+                atn::Vector3 pos = leader->mPos;
+                if (second != 0) {
+                    atn::Vector3 d(second->mPos.x - pos.x, second->mPos.y - pos.y, second->mPos.z - pos.z);
+                    if (PSVECMag(&d) > 20.0f) {
+                        PlaceSecondMember_unk(m10D8, second, pos, rot.y);
+                    }
+                }
+            }
+            if (IsDungeonCleared_unk(m550C.mType, m550C.mId, m550C.mSub)) {
+                SetDungeonLevel_unk(m550C.mType, m550C.mId, m550C.mSub);
+            }
+            mCamera.fn_80389838(mCamera.m804);
+            mCamera.m8E8 = 0;
+            lbl_8087F8A0->mHead->m54C &= ~0x10;
+            lbl_8087F048->m367B0 = m5618;
+            m550C.mScene = 0;
+            m550C.mState = 0;
+            m550C.m30 = 0;
+            m550C.m14 = 0;
+            m550C.m34 = 0;
+            if (lbl_8087F460 != 0) {
+                delete lbl_8087F460;
+                lbl_8087F460 = 0;
+            }
+            m5624->mFrame = 0;
+            m5624->mWait = 0;
+            m5624->mDelay = 2;
+            m5624->mColor0 = 0xFF000000;
+            m5624->mColor1 = 0;
+            if (m54F0 == 1) {
+                fn_80370BD0(30, 2, 0.00001f);
+            }
+            m5760 = 4;
+            m5638 = 1;
+            fn_80370320(12, m5670, 0);
+            m5630 = 1;
+            if (m5668 != 0 && lbl_8087FA20 != 0 && m10D8 != 0 && m10D0 >= 600000) {
+                PlayerTask* second = lbl_8087F8A0->fn_8054A33C(1);
+                if (second != 0) {
+                    gs::WarpPoint* warp = FindWarpPoint_unk(m10D8, 9020);
+                    if (warp != 0) {
+                        second->mPos = warp->mPos;
+                        second->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
+                        second->fn_8016EB48(0, 0, 0);
+                    }
+                }
+            }
+            m5668 = 0;
+            if (fn_803754F0(this) && fn_80370174(this, 0x1C0) == 0) {
+                fn_80370320(0x1C0, 1, 0);
+            }
+            m54EC = 0;
+            if (m550C.m38.mSize != 0) {
+                lbl_8087F518->fn_8046F96C(m550C.m38.mData, m550C.m38.mSize);
+            }
+            for (unsigned int i = 0; i < m550C.m44.mSize; i++) {
+                ((atn::CompositeCacheEntry_unk*)m550C.m44.mData[i])->fn_800D8458();
+            }
+            m550C.m38.clear();
+            m550C.m44.clear();
+            void* data = m550C.mFile.fn_80470580();
+            unsigned int size = m550C.mFile.fn_8047059C();
+            if (data != 0) {
+                lbl_8087F518->fn_8046F96C((unsigned int*)data, size / 4);
+                m550C.mFile.fn_80473F88();
+            }
+            if (GameBgm::sInstance != 0) {
+                int left = GameBgm::sInstance->m84 != 0 ? GameBgm::sInstance->mNext.mId : GameBgm::sInstance->mReq.mId;
+                if (left > 0 && GameBgm::sInstance->fn_8037D34C()) {
+                    GameBgm::sInstance->fn_8037D3E8(0, 0x10, 0x2D);
+                }
+            }
+            HomeButtonMenu::sInstance->m88 = 1;
+            lbl_8087F534->mTimer4.Stop_unk();
+            break;
+        }
+        }
+        return;
+    }
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    if (m54E4 == 0 && (leader->HasC48_unk() || leader->mFlag6)) {
+        atn::RenderManager::instance_->m54964 = 1;
+    } else {
+        atn::RenderManager::instance_->m54964 = 0;
+    }
+    if (m5674 == 0 && !lbl_8087F0A8->mInput.fn_801240B4(9)) {
+        m5674 = 1;
+    }
+    if (m566C != 0) {
+        m566C = 0;
+        fn_80370CD0();
+        return;
+    }
+    if (lbl_8087F0A8->m194 != 0) {
+        if (m54E4 == 8) {
+            m5744--;
+        }
+        if (m5744 >= 21600) {
+            if (m54E4 == 6) {
+                if (m575C != 0) {
+                    fn_800D2338(m575C);
+                    m575C = 0;
+                }
+            } else if (m575C == 0) {
+                if (m54E4 != 8 || lbl_8087F540->m70 == 0) {
+                    m575C = atn::FadeColor::Create(this, 60, 0, 0xFF000000);
+                    m575C->mZ = -10000000.0f;
+                    m575C->mWait = 100000;
+                    m575C->mActive = 1;
+                    if (lbl_8087EFE8 != 0) {
+                        lbl_8087EFE8->fn_800D0240(0, 0.0f, 60);
+                        lbl_8087EFE8->fn_800D0240(1, 0.0f, 60);
+                        lbl_8087EFE8->fn_800D0240(2, 0.0f, 60);
+                    }
+                }
+            } else if (m575C->mFrame >= m575C->mDuration) {
+                int type = m10D8->m64->mType;
+                if (type != 3 && type != 4) {
+                    m5624->m78 = 0x12;
+                    m5624->Capture();
+                    m566C = 1;
+                }
+                if (m56EC != 0) {
+                    m56EC->FreezeTask();
+                }
+                if (m56F0 != 0) {
+                    m56F0->FreezeTask();
+                }
+                if (MenuCommonTask::sInstance != 0) {
+                    MenuCommonTask::sInstance->fn_804A2FBC();
+                }
+                lbl_8087F3C0->fn_800D246C(0);
+                lbl_8087F540->FreezeTask();
+                if (m567C != 0) {
+                    m567C->FreezeTask();
+                }
+                if (lbl_8087EFE8 != 0) {
+                    lbl_8087EFE8->fn_800CF45C(0, 0);
+                    lbl_8087EFE8->fn_800D0240(0, 1.0f, 0);
+                    lbl_8087EFE8->fn_800D0240(1, 1.0f, 0);
+                    lbl_8087EFE8->fn_800D0240(2, 1.0f, 0);
+                }
+                if (lbl_8087F418 != 0) {
+                    lbl_8087F418->fn_803606CC(0, 1, 0);
+                    lbl_8087F418->fn_80360780(0, 1, 0);
+                }
+            }
+        }
+    }
+    int capture = m5684;
+    m5760--;
+    if (capture != 0) {
+        if (fn_8036E170()) {
+            fn_8036E494();
+        }
+        m5684 = 0;
+    }
+    switch (m54E4) {
+    case 0: {
+        if (lbl_8087F490->mD8C == 1 && lbl_8087F0A8->mInput.fn_801231D0(0)) {
+            if (m56F4.mCount != 0) {
+                fn_80376324(this, m56F4.Front_unk());
+                m56F4.Pop_unk();
+            }
+            lbl_8087F490->fn_803E4478();
+            break;
+        }
+        if (lbl_8087F490->mD8C != 1 && m56F4.mCount != 0) {
+            m56F4.mCount = 0;
+        }
+        lbl_8087F8A0->mHead->fn_800E3F5C();
+        if (m56A4 > 0) {
+            if (m569C > 0) {
+                if (--m569C <= 0) {
+                    MotionBlurParam_unk blur = lbl_8087EFA8->m240;
+                    m56A8 = blur;
+                    blur.mEnabled = 1;
+                    lbl_8087EFA8->m240 = blur;
+                    m56CC = lbl_8087EFA8->m3A4;
+                    lbl_8087EFA8->m3A4 = 0.2f;
+                }
+            } else if (--m56A4 <= 0) {
+                lbl_8087EFA8->m240 = m56A8;
+                lbl_8087EFA8->m3A4 = m56CC;
+            }
+        }
+        int value = mGlobalFlags[1];
+        if (value >= 10) {
+            mGlobalFlags[2] = value / 10;
+        } else if (value <= -10) {
+            mGlobalFlags[2] = -1;
+        } else {
+            mGlobalFlags[2] = 0;
+        }
+        if (m5590 != 0) {
+            fn_8056C3D8(m5590);
+        }
+        if (m5620->mActive == 0) {
+            m54F0 = 0;
+        }
+        if (mCamera.m7FC == 1) {
+            fn_8036CFA4();
+        } else {
+            lbl_8087F490->fn_803E32EC();
+            PlayerTask* player = lbl_8087F8A0->mHead;
+            if (player->m648 != 0) {
+                if (lbl_8087F0A8->mInput.fn_801231D0(0xB) && m5590 != 0 && fn_80570A4C(m5590) && m5594 != 0 &&
+                    m55A4 > 0) {
+                    fn_803731E8();
+                } else {
+                    if (mCamera.m7FC == 6 && mCamera.m7FC == mCamera.m800 && lbl_8087F9F8->mA70 == 0) {
+                        fn_80390A88(&mCamera);
+                    }
+                    fn_8036CC90();
+                }
+            } else {
+                if (player->m55C == 5) {
+                    fn_8038F52C(&mCamera);
+                    fn_8037F744(&mCamera);
+                } else {
+                    fn_8036CC90();
+                }
+                if (lbl_8087FA20 != 0 && lbl_8087F0A8->mInput.fn_801231D0(0x2D) && m56F0 == 0) {
+                    TacSwitch_unk* tac = ((TaskWithTac_unk*)lbl_8087FA20)->m258;
+                    tac->m160C = tac->m160C == 0;
+                }
+            }
+        }
+        mFinish.fn_803792F0();
+        break;
+    }
+    case 1:
+        if (m5620->mActive == 0) {
+            m54F0 = 0;
+        }
+        break;
+    case 5:
+        if (m5750->mState == 1) {
+            int value = m5750->mDecided;
+            fn_8036EE0C();
+            if (m5754 == 1) {
+                fn_80370320(m5758, value, 0);
+            } else {
+                fn_80370AE4(this, m5758, value);
+            }
+            if (m5750 != 0) {
+                fn_800D2338(m5750);
+                m5750 = 0;
+            }
+        }
+        break;
+    case 6:
+        if (lbl_8087F440 != 0 && !lbl_8087F440->IsFlag_unk(2) && m5624 != 0 && m5624->mActive != 0 &&
+            m5624->mFrame <= 1) {
+            m5624->mFrame = 0;
+            m5624->mDelay = 2;
+        }
+        break;
+    case 7:
+        fn_80373AE8();
+        if (mFinish.m394 != 0) {
+            m10D8->m64->fn_804A0580(0, &lbl_8087F8A0->mHead->mPos);
+        } else {
+            m10D8->m64->fn_804A0580(1, &lbl_8087F8A0->mHead->mPos);
+        }
+        if (m5598 == 0 && m55AC == 1) {
+            fn_8037F744(&mCamera);
+            int replay = 0;
+            if (lbl_8087F490 != 0) {
+                GameUIElem1C_unk mode;
+                mode.m00 = 6;
+                mode.m04 = 13;
+                lbl_8087F490->m764 = mode;
+            }
+            if (fn_800A555C(lbl_8087EF70, 0, 4)) {
+                replay = 1;
+            }
+            if (replay) {
+                fn_803737C0();
+            }
+            m55A4--;
+        }
+        break;
+    case 14:
+        if (mCamera.m7FC == mCamera.m800) {
+            lbl_8087EFA8->m240.mEnabled = 0;
+        }
+        lbl_8087F3C0->fn_8023A614(5);
+        lbl_8087F3C0->fn_8023A614(7);
+        mFinish.fn_803792F0();
+        m10D8->m64->fn_804A0580(0, &lbl_8087F8A0->mHead->mPos);
+        if (lbl_8087F9F8->mA70 == 0) {
+            fn_803743AC(this);
+        }
+        break;
+    case 8: {
+        if (!lbl_8087F540->GetCamera_unk()->fn_80116E7C()) {
+            fn_8036CFA4();
+        }
+        SetConfig* config = SetConfig::sInstance;
+        if (lbl_8087F540->m70 != 0 && lbl_8087F540->m70->m194 == 10) {
+            m5650++;
+        }
+        if ((m5650 > 90 || config->mEventSkipType == 2) && lbl_8087F540->m70 != 0 &&
+            !(lbl_8087F0A8->m194 != 0 && lbl_8087F540->m70->m190 == 0x19D)) {
+            int kind = lbl_8087F540->m70->fn_80541210()->mSkip;
+            if (kind == 1 || kind == 2) {
+                if (m5654 > 0) {
+                    m5654--;
+                    atn::Vector3 pos = lbl_807C7030;
+                    fn_804A5E40(MenuCommonTask::sInstance, 7, &pos, 0);
+                    if (lbl_8087F0A8->mInput.fn_801231D0(0x28)) {
+                        lbl_8087F540->fn_8047F994(0, 0);
+                    }
+                } else if (lbl_8087F0A8->mInput.fn_801231D0(0x27)) {
+                    m5654 = 120;
+                }
+            } else if (kind == 3) {
+                atn::Keyboard* keyboard = atn::Keyboard::instance_;
+                if (m565C != 0 || lbl_8087F0A8->mInput.fn_801231D0(0x27)) {
+                    lbl_8087F540->fn_8047F994(0, 0);
+                    m565C = 0;
+                } else if (lbl_8087F0A8->mInput.fn_80123C7C(0x27)) {
+                    lbl_8087F540->fn_8047F994(1, 0);
+                } else if (keyboard != 0 && keyboard->Press((atn::Keyboard::Port)0, 0xF1B1)) {
+                    lbl_8087F540->fn_8047F91C();
+                }
+            } else {
+                m565C = 0;
+            }
+        } else if (lbl_8087F0A8->mInput.fn_801231D0(0x27)) {
+            m565C = 1;
+        } else if (lbl_8087F0A8->mInput.fn_80123C7C(0x27)) {
+            m565C = 0;
+        }
+        if (lbl_8087F540 == 0) {
+            break;
+        }
+        if (lbl_8087F540->m2388 != 0 && lbl_8087EFA8->m414 == 0 && lbl_8087F540->m70 != 0 &&
+            lbl_8087F540->m70->m194 == 10) {
+            if (m5768 == 0) {
+                m5768 = 1;
+                long long start = GetTimeMs_unk();
+                m5774 = (int)start;
+                m5770 = (int)(start >> 32);
+            }
+            long long now = GetTimeMs_unk();
+            int elapsed = (int)now - m5774;
+            m5774 = (int)now;
+            m5770 = (int)(now >> 32);
+            m5658 += elapsed / 1000.0f - 1.0f / 30.0f;
+            if (lbl_8087F540->m1E78 != 0) {
+                lbl_8087F540->m1E88 += 1.0f;
+            }
+            if (m5658 >= 1.0f / 30.0f) {
+                int frames = (int)floor(30.0f * m5658);
+                mFlags |= 0x10;
+                int flag = mFlags & 1;
+                fn_800D246C(0);
+                for (int i = frames; i > 0; i--) {
+                    fn_800D2494(this);
+                    lbl_8087F3C0->fn_8023AE34(0, 0, -1);
+                    lbl_8087F3C0->fn_80239C14();
+                }
+                mFlags &= ~0x10;
+                fn_800D246C(flag);
+                m5658 -= 1.0f / 30.0f * frames;
+                if (lbl_8087F540->m1E78 != 0) {
+                    for (int i = 0; i < frames; i++) {
+                        lbl_8087F540->m1E88 += 1.0f;
+                    }
+                }
+            }
+        }
+        if (lbl_8087F540->m1E78 != 0) {
+            lbl_8087F540->m1E8C += 1.0f;
+        }
+        break;
+    }
+    case 9:
+        m10D8->m64->fn_804A0580(1, &lbl_8087F8A0->mHead->mPos);
+        mFinish.fn_803792F0();
+        if (mFinish.m00 == 0) {
+            fn_803727DC();
+        }
+        break;
+    case 10:
+    case 11:
+        m10D8->m64->fn_804A0580(1, &lbl_8087F8A0->mHead->mPos);
+        mFinish.fn_803792F0();
+        if (mFinish.m358 > 150 && m54E4 == 10) {
+            m54E4 = 11;
+            MotionBlurParam_unk blur = lbl_8087EFA8->m240;
+            blur.mEnabled = 0;
+            lbl_8087EFA8->m240 = blur;
+        }
+        break;
+    case 12:
+        fn_8037F744(&mCamera);
+        if (m5620->mActive == 0) {
+            m54F0 = 0;
+        }
+        break;
+    case 13: {
+        TutorialTask* tutorial = m56EC;
+        if (tutorial->IsFlag_unk(2) && tutorial->mState == 0) {
+            tutorial->fn_805BA354(&lbl_8087F430->mCamera.m1F4);
+            if (MenuCommonTask::sInstance != 0) {
+                MenuCommonTask::sInstance->fn_804A2F98();
+            }
+        } else if (tutorial->mState == 4) {
+            if (MenuCommonTask::sInstance != 0) {
+                MenuCommonTask::sInstance->fn_804A2FBC();
+            }
+            fn_80376568();
+        }
+        break;
+    }
+    }
+    if (lbl_8087F0A8->mInput.fn_801231D0(0x10) && fn_8036E170()) {
+        m5624->m78 = 0x12;
+        m5624->Capture();
+        m5684 = 1;
+        m5688 = -1;
+        m568C = -1;
+    }
+    if (lbl_8087EFE8 != 0 && m54E4 == 0) {
+        atn::Vector3 pos = lbl_8087F8A0->mHead->mPos;
+        pos.y += 1.0f;
+        atn::Vector3 rot = mCamera.mRot;
+        float angle = fmod(3.1415927f + rot.y, 6.2831854820251465);
+        if (angle > 3.1415927f) {
+            angle -= 6.2831855f;
+        }
+        if (angle < -3.1415927f) {
+            angle += 6.2831855f;
+        }
+        rot.y = angle;
+        lbl_8087EFE8->mListener.fn_800C7F08(pos, rot);
+    }
+    if (m564C > 0 && --m564C <= 0 && lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
+        lbl_8087F8A0->mHead->m54C &= ~0x10;
+    }
+    if (lbl_8087F8A0 != 0) {
+        int count = 0;
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            if (!p->IsFlag_unk(4) && (p->m54C & 0x2000) != 0x2000 && p->m5C->m122 == 2) {
+                count++;
+            }
+        }
+        if (mGlobalFlags[134] != count) {
+            fn_80370320(0x86, count, 0);
+        }
+    }
+    if (m54E8 != m54E4) {
+        m54E8 = m54E4;
+        m54EC = 0;
+    } else {
+        m54EC++;
+    }
+    if (m56F0 != 0) {
+        if (m56F0->GetFlag1_unk() == 1) {
+            if (!lbl_8087F540->fn_80481668()) {
+                m56F0->fn_800D246C(0);
+            }
+        } else if (m56F0->mState == 4) {
+            fn_800D2338(m56F0);
+            m56F0 = 0;
+        }
+    } else if (m571C.mCount != 0 && m54E4 != 8 && m54E4 != 13) {
+        int id = m571C.Front_unk();
+        m571C.Pop_unk();
+        fn_80376324(this, id);
+    }
+}
+
 // inferred: sound names of the field (lbl_8074DA10; replay icons use 5 and 6)
 static const char* const sFieldSounds_unk[] = {
     "SE_UI001_002", "SE_UI001_007", "SE_UI001_016", "SE_UICOM_003", "SE_UICOM_001", "SE_UI001_012", "SE_UI001_013",
@@ -919,8 +1876,8 @@ void GameTask::vf14() {
         lbl_8087EEB0->mA0 = 0x12;
     }
     m5620->FreezeTask();
-    if (m550C.m2C != 0) {
-        if (m550C.m2C == 1) {
+    if (m550C.mState != 0) {
+        if (m550C.mState == 1) {
             m5624->Capture();
         }
         m5620->MeltTask();
