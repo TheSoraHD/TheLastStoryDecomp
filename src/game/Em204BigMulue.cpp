@@ -1168,7 +1168,6 @@ void Em204BigMulue::fn_802B1744(int motion, int loop, float speed, float blend) 
 }
 
 
-// NONMATCHING: 99.41% - f7/f8 of the zero constant and of the speed
 void Em204BigMulue::fn_802B17AC(float dist, float frames, float speed) {
     if ((float)__fabs(frames) < 1.1920929e-7f) {
         frames = mMotion.fn_80097D7C(0);
@@ -1176,7 +1175,8 @@ void Em204BigMulue::fn_802B17AC(float dist, float frames, float speed) {
     if ((float)__fabs(speed) < 1.1920929e-7f) {
         speed = mMotion.mTracks[0].m0C;
     }
-    atn::Vector3 v(0.0f, 0.0f, speed * (dist / frames));
+    float step = speed * (dist / frames);
+    atn::Vector3 v(0.0f, 0.0f, step);
     atn::Matrix3x4 m;
     BigMulueRotZYX_unk(m, mRot);
     PSMTXMultVec(m.m, &v, &v);
