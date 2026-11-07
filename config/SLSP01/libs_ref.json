@@ -4470,7 +4470,7 @@
    "-enum min"
   ],
   "category": "mw",
-  "matching": false
+  "matching": true
  },
  {
   "name": "PowerPC_EABI_Support/src/Runtime/NMWException.cp",
