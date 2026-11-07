@@ -69,3 +69,45 @@ usar).
 2. Recuperar las 3 perdidas antes de mergear (lost 0).
 3. Init por encima del presupuesto de IPA; `init` (`srwi`).
 4. Dividir `release()` a su TU si hace falta, datos (`pd.sh`) y `matching: true` al final.
+
+# Sesión 2 (2026-11-07, tarde)
+
+## Resultado (en curso)
+
+- Ver la cifra al final de la sesión (se actualiza en cada punto de control).
+
+## Cambios de splits
+
+- La unidad se parte en **tres TU**: `iostream.cpp` (.text 0x8068B39C-0x80691E50), `locale.cpp` (0x80691E50-0x806952C4,
+  con el `.ctors`/`__sinit`) y `shared_ptr_unk.cpp` (`release()`, 0x806952C4-0x8069533C). Pruebas: dos pools de
+  cadenas (`@stringBase0` 0x8076645C tras los nombres RTTI de iostream; segundo pool 0x80766688 con "vector length
+  error", "C", "*", tras los nombres RTTI de locale/facets); `release()` va detrás del `__sinit`; el original llama a
+  `locale::__global` y a los constructores de los facets desde iostream (no los inlinea aunque sean candidatos únicos).
+  Límites de datos por referencias: `.sdata` 0x8087EC80 (tablas de `ctype<wchar_t>`), `.sbss` 0x80880390
+  (`locale::id::__id_count_`), `.data` 0x807BBDE0 (vtable del deleter de `__locale_imp`), `.bss` 0x80832C38 (cadenas de
+  registro de `classic_`/`global_`), extab/extabindex por las entradas de las funciones.
+- `libs_ref.json`: dos entradas nuevas con los mismos flags que `iostream.cpp`.
+- Fuente: las clases comunes pasan a `libs/PowerPC_EABI_Support/src/MSL_C++/msl_iostream_unk.h` (nombre inventado).
+
+## Decisiones tomadas sin el usuario
+
+- `ctype<char>::do_toupper/do_tolower(char*, const char*)` **sin `const`**: es lo único (de ~15 variantes: const_cast,
+  mutable, tipos de la tabla, bases, referencias, flags) que hace que MWCC recargue la tabla en cada vuelta como el
+  original. Queda al 98% solo por un `nop` de alineación del bucle (depende de la posición en el objeto).
+- `-opt nostrength`: se mantiene. Sin él, `~__locale_imp` y `Init` mejoran pero `~ios_base` baja a 67% (y no hay forma
+  de fuente que lo evite, 8 variantes). Con la TU partida, `locale.cpp` podría llevar otros flags: pendiente probar.
+- `Metrowerks::recursive_mutex` (nombre inferido): el lock de las tablas de locale tiene su propio destructor
+  (0x80691EE4, distinto de `scoped_lock<mutex>` 0x8068BA80).
+- `~__locale_imp() throw()` y `__global() throw()`: tienen manejador `__unexpected`; con `throw()` el destructor deja de
+  inlinearse en `dispose` como en el original.
+
+## Hallazgos
+
+- `scoped_lock` con destructor no vacío (`if (locked_) m_.unlock();`, `unlock` vacío): así el lock vive en la pila y
+  tiene acción de limpieza en extab (como el original), y `Init` deja de inlinearlo.
+- Un `delete p` de un tipo incompleto en el punto de instanciación (constructor de `locale` dentro de la clase) no
+  llama al destructor: el constructor que crea el `shared_ptr<__locale_imp>` va fuera de la clase, tras `__locale_imp`.
+- MWCC emite las virtuales inline de un facet (do_out/do_unshift/do_in) tras la primera función que las llama por la
+  vtable (`flush_put`), aunque la vtable esté en otra TU.
+- La alineación de bucles (`nop`) depende del offset en el objeto: funciones al 98% por un `nop` se arreglan solas
+  cuando todo lo anterior tiene el tamaño correcto.
