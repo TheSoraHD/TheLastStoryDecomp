@@ -116,6 +116,12 @@ u32 FrameHeap::GetFreeSize() const {
     return ut::RoundDown(freeSize - BLOCK_BUFFER_SIZE, HEAP_ALIGN);
 }
 
+// inferred: 0x8070DC10, after GetCurrentLevel in The Last Story (not in the SS/Xenoblade versions); called by
+// the SoundHeap inline of atn::AudioDevice under the heap mutex
+u32 FrameHeap::GetSize_unk() const {
+    return MEMGetHeapTotalSize(mHandle);
+}
+
 bool FrameHeap::NewSection() {
     void* pSection = MEMAllocFromFrmHeap(mHandle, sizeof(Section));
     if (pSection == NULL) {

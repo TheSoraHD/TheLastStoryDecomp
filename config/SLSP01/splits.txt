@@ -5706,7 +5706,7 @@ ss_nw4r/src/snd/snd_ExternalSoundPlayer.cpp:
 	.text       start:0x8070CEB0 end:0x8070D360
 
 nw4r/src/snd/snd_FrameHeap.cpp:
-	.text       start:0x8070D360 end:0x8070DC0C
+	.text       start:0x8070D360 end:0x8070DC20
 
 ss_nw4r/src/snd/snd_FxChorus.cpp:
 	.text       start:0x8070DC20 end:0x8070E190
