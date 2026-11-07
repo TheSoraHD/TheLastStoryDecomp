@@ -2,6 +2,7 @@
 // boost::bad_lexical_cast and the weak copies of std::bad_cast and the MSL string streams).
 // The former GameEventScript_cont/_cont2 and std/bad_cast/_what splits are merged here.
 #include "atn/SoundManager.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/SoundRef.h"
 #include "game/GameEventScript.h"
@@ -31,6 +32,7 @@
 
 #include <exception>
 
+extern "C" BattleTask* lbl_8087F048;
 namespace std {
 
 // inferred: MSL <typeinfo>; std::bad_cast derives from std::exception
@@ -488,6 +490,16 @@ void GameEventScript::fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk*
     GameTextMessageWindow* window = lbl_8087F490->m2640;
     result.mNext = NextCmd_unk(cmd);
     result.mWait = window->mState != 0;
+}
+
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: writes a message of the scene to the battle log
+void GameEventScript::fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(static_cast<const ScriptArgs_unk*>(cmd)->m0C);
+    if (msg != 0) {
+        lbl_8087F048->fn_80109828(msg->mText);
+    }
+    result.SetNext_unk(cmd);
 }
 
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
