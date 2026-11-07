@@ -34,6 +34,7 @@ inline Metrowerks::recursive_mutex& __locale_mutex_unk() {
     return __locale_mutex_get_unk();
 }
 
+// NONMATCHING: 94% - the original strength-reduces the facet loop (offset + counter); -opt nostrength keeps i*4
 __locale_imp::~__locale_imp() throw() {
     Metrowerks::scoped_lock<Metrowerks::recursive_mutex> lock(__locale_mutex_unk());
     for (size_t i = 0, n = facets_.size(); i < n; ++i) {
@@ -52,6 +53,7 @@ inline const locale& locale::classic() {
 }
 
 // inferred: guard 0x808803A5, object 0x808803A8
+// NONMATCHING: 80% - classic_ construction and the "C" literal pool (see docs/msl-iostream-20261107.md)
 locale& locale::__global() throw() {
     static locale global_(classic());
     return global_;
@@ -75,6 +77,7 @@ char ctype<char>::do_toupper(char c) const {
     return upper_[(unsigned char)c];
 }
 
+// NONMATCHING: 98% - only a loop alignment nop (depends on the offset in the object)
 const char* ctype<char>::do_toupper(char* low, const char* high) {
     for (; low < high; ++low) {
         *low = ctype<char>::do_toupper(*low);
@@ -86,6 +89,7 @@ char ctype<char>::do_tolower(char c) const {
     return lower_[(unsigned char)c];
 }
 
+// NONMATCHING: 98% - only a loop alignment nop (depends on the offset in the object)
 const char* ctype<char>::do_tolower(char* low, const char* high) {
     for (; low < high; ++low) {
         *low = ctype<char>::do_tolower(*low);
@@ -146,6 +150,71 @@ int codecvt<wchar_t, char, int>::do_length(int& state, const char* from, const c
 
 int codecvt<char, char, int>::do_length(int& state, const char* from, const char* end, size_t max) const {
     return min((int)(end - from), (int)max);
+}
+
+char ctype<wchar_t>::do_narrow(wchar_t c, char dfault) const {
+    if (c > 0xFF) {
+        return dfault;
+    }
+    return (char)c;
+}
+
+// NONMATCHING: 92.5% - the original recomputes the table end after the search
+const wchar_t* ctype<wchar_t>::do_is(const wchar_t* low, const wchar_t* high, mask* vec) const {
+    for (; low < high; ++low, ++vec) {
+        *vec = table_.find(*low);
+    }
+    return high;
+}
+
+// NONMATCHING: 88% - the original recomputes the table end after the search
+const wchar_t* ctype<wchar_t>::do_scan_is(mask m, const wchar_t* low, const wchar_t* high) const {
+    for (; low < high; ++low) {
+        if (table_.find(*low) & m) {
+            break;
+        }
+    }
+    return low;
+}
+
+// NONMATCHING: 88% - the original recomputes the table end after the search
+const wchar_t* ctype<wchar_t>::do_scan_not(mask m, const wchar_t* low, const wchar_t* high) const {
+    for (; low < high; ++low) {
+        if (!(table_.find(*low) & m)) {
+            break;
+        }
+    }
+    return low;
+}
+
+// NONMATCHING: 89.6% - the original recomputes the table end after the search
+const wchar_t* ctype<wchar_t>::do_toupper(wchar_t* low, const wchar_t* high) const {
+    for (; low < high; ++low) {
+        *low = upper_.find(*low);
+    }
+    return high;
+}
+
+// NONMATCHING: 89.6% - the original recomputes the table end after the search
+const wchar_t* ctype<wchar_t>::do_tolower(wchar_t* low, const wchar_t* high) const {
+    for (; low < high; ++low) {
+        *low = lower_.find(*low);
+    }
+    return high;
+}
+
+const char* ctype<wchar_t>::do_widen(const char* low, const char* high, wchar_t* to) const {
+    for (; low < high; ++low, ++to) {
+        *to = ctype<wchar_t>::do_widen(*low);
+    }
+    return high;
+}
+
+const wchar_t* ctype<wchar_t>::do_narrow(const wchar_t* low, const wchar_t* high, char dfault, char* to) const {
+    while (low < high) {
+        *to++ = do_narrow(*low++, dfault);
+    }
+    return high;
 }
 
 } // namespace std

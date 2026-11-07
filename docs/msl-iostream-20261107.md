@@ -74,6 +74,8 @@ usar).
 
 ## Resultado (en curso)
 
+- **Cierre: 95/170** al 100% (14135 en `report.json`), lost 1, build limpio `main.dol: OK`, poolcheck/mnemcheck sin
+  avisos en las tres unidades. Sin enlazar (`matching: false`).
 - Punto de control 1: **92/170** al 100% (de 43), `regress.py` lost 1 (`do_toupper` 98% por un `nop` de alineación),
   `main.dol: OK`. Las tres unidades siguen con `matching: false`.
 - Hechos: codecvt (todos), `bufferedbuf` (setbuf, sync, flush_put, empty_get, fill_get, underflow, overflow,
@@ -131,3 +133,27 @@ usar).
   `default_delete<Facet>` temporal, `// inferred`); y relee `loc.imp_` en cada acceso (sin local).
 - Registros: varias funciones al 99,x% solo por la asignación de registros (versiones `wchar_t` del
   `__init_areas_unk`, `__get_char_unk`, `sync`/`pbackfail` de `console_inputbuf`); no se insistió (regla 8).
+
+## Pendientes (sesion 2)
+
+1. `ctype<char>::do_toupper/do_tolower` rango (lost 1): 98% solo por el `nop` de alineacion; se arreglara cuando el
+   objeto tenga los tamanos correctos antes de la funcion (o cuando enlace). No mergear hasta lost 0.
+2. `ios_base::Init`/`wios_base_Init_unk`: el original no inlinea nada (presupuesto de IPA superado); el nuestro lo
+   inlinea todo menos el constructor de `console_inputbuf` (no es `inline` y es grande). Probado: marcarlo `inline`
+   hace que se inlinee tambien. Falta que los candidatos (constructores de los streams y de `console_outputbuf`)
+   cuesten lo del original.
+3. `ctype<wchar_t>`: tablas de rangos `__range_map_unk<T>` (vector de {lo, hi, mul, add}, busqueda binaria por `hi`).
+   Las variantes de rango estan al 88-92%: el original vuelve a calcular `end()` tras la busqueda. Faltan el
+   constructor (0x80692C3C, inserta rangos con `insert(lo, hi, vlo, vhi)` = 0x806945A4 (mascara) / 0x806943B8
+   (wchar_t), que a su vez usan 0x80694790/0x80694C38) y los destructores (0x80692EFC/0x80692F78/0x80692FF4); las
+   virtuales de un caracter (0x806940A8, 0x80694188, 0x80694254) estan escritas inline y saldran con la vtable.
+4. `__locale_imp::~__locale_imp` (94%): el original reduce el bucle (offset + contador); con `-opt nostrength` no.
+   `~ios_base` necesita `nostrength`. Ahora que estan en TU distintas, probar `locale.cpp` sin `nostrength`.
+5. `locale::__global` (80%): el literal "C" esta en el pool de la TU (no en un `@STRING@` de una inline): revisar si
+   `classic()` es una funcion no inline (quizas eliminada por el enlazador) o si el codigo esta en `__global`.
+6. `__locale_imp::replace` (0x614), `basic_ostream<wchar_t>::flush` (0x8068E3FC) y su `sentry` (0x8069194C, dtor
+   0x80691AC0) con try/catch, constructores de streams (0x8068E554, 0x8068E6E8, 0x8068E878), `console_outputbuf`
+   (0x8068C4B8/0x8068C72C), 0x8068E270, 0x80693884/0x806939C8/0x80693AB8 (`__num2dec`/basic_string),
+   `logic_error`/`length_error` (0x80694320, 0x80694328, 0x8069519C), `__sinit` (guardas de los `locale::id`).
+7. Registros: varias funciones al 99,x% (ver comentarios `NONMATCHING`).
+8. Orden: `ordercheck.py` no se ha pasado (las unidades no enlazan aun); escribir en orden del `.dol` al final.

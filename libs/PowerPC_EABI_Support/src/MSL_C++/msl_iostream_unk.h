@@ -475,6 +475,8 @@ template <class T>
 class vector : public __vec_imp_unk<T> {
 public:
     size_t size() const { return this->size_; }
+    const T* begin() const { return this->data_; }
+    const T* end() const { return this->data_ + this->size_; }
     T& operator[](size_t i) { return this->data_[i]; }
 };
 
@@ -547,6 +549,44 @@ protected:
     bool del_;                    // 0x14
 };
 
+// inferred: a table of character ranges [lo, hi], each mapped linearly to c * mul + add (sorted by hi)
+template <class T>
+struct __range_map_unk {
+    struct entry {
+        wchar_t lo_;
+        wchar_t hi_;
+        T mul_;
+        T add_;
+    };
+
+    static const entry* __lower_bound_unk(const entry* first, const entry* last, const wchar_t& c) {
+        int n = last - first;
+        while (n > 0) {
+            int half = n / 2;
+            const entry* mid = first + half;
+            if (mid->hi_ < c) {
+                first = mid + 1;
+                n -= half + 1;
+            } else {
+                n = half;
+            }
+        }
+        return first;
+    }
+    T find(const wchar_t& c) const {
+        const entry* first = __lower_bound_unk(table_.begin(), table_.end(), c);
+        bool miss = first == table_.end() || !__contains_unk(*first, c);
+        if (miss) {
+            return 0;
+        }
+        return c * first->mul_ + first->add_;
+    }
+    void insert(const wchar_t& lo, const wchar_t& hi, const T& vlo, const T& vhi);
+    static bool __contains_unk(const entry& e, const wchar_t& c) { return !(c < e.lo_) && !(e.hi_ < c); }
+
+    vector<entry> table_;
+};
+
 template <>
 class ctype<wchar_t> : public locale::facet, public ctype_base {
 public:
@@ -557,20 +597,22 @@ public:
 
 protected:
     virtual ~ctype();
-    virtual bool do_is(mask m, wchar_t c) const;
+    virtual bool do_is(mask m, wchar_t c) const { return (table_.find(c) & m) != 0; }
     virtual const wchar_t* do_is(const wchar_t* low, const wchar_t* high, mask* vec) const;
     virtual const wchar_t* do_scan_is(mask m, const wchar_t* low, const wchar_t* high) const;
     virtual const wchar_t* do_scan_not(mask m, const wchar_t* low, const wchar_t* high) const;
-    virtual wchar_t do_toupper(wchar_t c) const;
+    virtual wchar_t do_toupper(wchar_t c) const { return upper_.find(c); }
     virtual const wchar_t* do_toupper(wchar_t* low, const wchar_t* high) const;
-    virtual wchar_t do_tolower(wchar_t c) const;
+    virtual wchar_t do_tolower(wchar_t c) const { return lower_.find(c); }
     virtual const wchar_t* do_tolower(wchar_t* low, const wchar_t* high) const;
     virtual wchar_t do_widen(char c) const { return c; }
     virtual const char* do_widen(const char* low, const char* high, wchar_t* to) const;
     virtual char do_narrow(wchar_t c, char dfault) const;
     virtual const wchar_t* do_narrow(const wchar_t* low, const wchar_t* high, char dfault, char* to) const;
 
-    char tables_unk_[0x2C]; // inferred: 0x08..0x34 (filled by the constructor, 0x80692C3C)
+    __range_map_unk<mask> table_;    // 0x08
+    __range_map_unk<wchar_t> lower_; // 0x14
+    __range_map_unk<wchar_t> upper_; // 0x20
 };
 
 template <class I, class E, class S>
@@ -1061,6 +1103,7 @@ protected:
 template <class C, class T>
 std::size_t bufferedbuf<C, T>::__min_size_unk = 16;
 
+// NONMATCHING: wchar_t 99.8% - registers of the area setup (char 100%)
 template <class C, class T>
 typename bufferedbuf<C, T>::base* bufferedbuf<C, T>::setbuf(C* s, std::streamsize n) {
     bool had_put = this->pptr_ != 0;
@@ -1097,6 +1140,7 @@ typename bufferedbuf<C, T>::base* bufferedbuf<C, T>::setbuf(C* s, std::streamsiz
     return this;
 }
 
+// NONMATCHING: wchar_t 99.8% - registers of the area setup (char 100%)
 template <class C, class T>
 int bufferedbuf<C, T>::flush_put() {
     if (always_noconv_) {
@@ -1163,6 +1207,7 @@ int bufferedbuf<C, T>::flush_put() {
 
 // inferred: before the get area is dropped, the unread characters are converted again to know how many
 // external characters to seek back
+// NONMATCHING: 99.9% (char and wchar_t) - register of the last egptr_ store
 template <class C, class T>
 int bufferedbuf<C, T>::empty_get() {
     if (encoding_ < 0 && this->gptr_ < this->egptr_) {
@@ -1219,6 +1264,7 @@ int bufferedbuf<C, T>::empty_get() {
     return 0;
 }
 
+// NONMATCHING: 99.8% (char and wchar_t) - registers of egptr_ = gptr_ + r
 template <class C, class T>
 std::streamsize bufferedbuf<C, T>::fill_get() {
     std::streamsize n = this->gptr_ - this->eback_;
@@ -1298,6 +1344,7 @@ typename bufferedbuf<C, T>::int_type bufferedbuf<C, T>::underflow() {
     return T::to_int_type(*this->gptr_);
 }
 
+// NONMATCHING: wchar_t 99.6% - registers of the area setup (char 100%)
 template <class C, class T>
 typename bufferedbuf<C, T>::int_type bufferedbuf<C, T>::overflow(int_type c) {
     if (!m4C_) {
@@ -1366,6 +1413,7 @@ std::fpos<std::mbstate_t> bufferedbuf<C, T>::seekpos(std::fpos<std::mbstate_t> s
     return sp;
 }
 
+// NONMATCHING: 98.3% - stack offsets of the inlined runtime_error and use_facet temporaries
 template <class C, class T>
 void bufferedbuf<C, T>::imbue(const std::locale& loc) {
     if (this->sync() < 0) {
@@ -1424,6 +1472,7 @@ std::streamsize bufferedbuf<C, T>::showmanyc() {
     return this->egptr_ - this->gptr_;
 }
 
+// NONMATCHING: 97% - stack offsets of the inlined runtime_error temporaries
 template <class C, class T>
 console_inputbuf<C, T>::console_inputbuf(_FILE* file)
     : file_(file), state_(0), buffered_(false), has_saved_(false), can_putback_(false) {
@@ -1439,6 +1488,7 @@ console_inputbuf<C, T>::console_inputbuf(_FILE* file)
     }
 }
 
+// NONMATCHING: 97% - stack offsets of the inlined runtime_error temporaries
 template <class C, class T>
 void console_inputbuf<C, T>::imbue(const std::locale& loc) {
     if (sync() < 0) {
@@ -1464,6 +1514,7 @@ std::basic_streambuf<C, T>* console_inputbuf<C, T>::setbuf(C* s, std::streamsize
     return this;
 }
 
+// NONMATCHING: 99.6% - registers of the unget loop
 template <class C, class T>
 int console_inputbuf<C, T>::sync() {
     if (buffered_) {
@@ -1516,6 +1567,7 @@ typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::uflow() {
     return c;
 }
 
+// NONMATCHING: 99.5% - registers of the unget loop
 template <class C, class T>
 typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::pbackfail(int_type c) {
     if (buffered_) {
@@ -1550,6 +1602,7 @@ typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::pbackfail(int_
 
 // inferred: reads one character (converting as many bytes as needed); if consume is false the bytes are
 // pushed back into the FILE
+// NONMATCHING: 98.4% - register allocation (this/consume/buffers)
 template <class C, class T>
 typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::__get_char_unk(bool consume) {
     C ch;
