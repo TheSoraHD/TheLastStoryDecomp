@@ -93,6 +93,20 @@ int GameTask::fn_8036DAA8(CharaTask* chara) {
     return 1;
 }
 
+int GameTask::fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara) {
+    GameScene* scene = m10D8;
+    if (scene == 0) {
+        return 0;
+    }
+    GameSceneRoute_unk route;
+    if (scene->fn_803CB618(&route, chara)) {
+        *index = route.mFromIndex;
+        *pos = route.mFrom;
+        return 1;
+    }
+    return 0;
+}
+
 void GameTask::fn_8036E430(int a, int b) {
     m5624->m78 = 0x12;
     m5624->Capture();
@@ -212,6 +226,12 @@ void GameTask::fn_8037177C() {
     m5768 = 0;
     m5774 = 0;
     m5770 = 0;
+}
+
+void GameTask::fn_80373118() {
+    m5624->mDelay++;
+    m5620->mDelay++;
+    m5760++;
 }
 
 void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {

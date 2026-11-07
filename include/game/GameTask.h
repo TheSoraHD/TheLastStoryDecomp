@@ -82,7 +82,9 @@ public:
     void fn_803761E4(int visible);
     int fn_803761EC();
     void fn_803761F4(int value);
-    int fn_8036823C(); // inferred: nonzero on some fields
+    int fn_8036823C();
+    int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara); // inferred: hide link held by `chara`
+    void fn_80373118(); // inferred: one more frame of delay for the fades // inferred: nonzero on some fields
     struct StrategyAiEntry_unk* fn_80375254(); // inferred: AI strategy row of the field (default id 0)
     void fn_8037529C(unsigned int color0, unsigned int color1, int delay, int wait, int duration); // inferred: starts the capture fade
     int fn_803761FC();
@@ -161,7 +163,9 @@ public:
     SelectMember* m5750;
     int m5754;
     int m5758;
-    unsigned char m575C[0x5768 - 0x575C];
+    unsigned char m575C[0x5760 - 0x575C];
+    int m5760; // inferred: counter of the frames waited (fn_80373118)
+    unsigned char m5764[0x5768 - 0x5764];
     int m5768;
     unsigned char m576C[0x5770 - 0x576C];
     int m5770;
