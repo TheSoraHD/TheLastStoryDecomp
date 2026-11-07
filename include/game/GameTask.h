@@ -194,7 +194,7 @@ public:
     int m55B4;
     int m55B8;
     int m55BC;
-    unsigned char m55C0[0x55C4 - 0x55C0];
+    float m55C0; // inferred: frame speed saved by fn_80373FC4
     ColorMatrixParam_unk m55C4;
     int m5614;
     int m5618;

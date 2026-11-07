@@ -66,6 +66,7 @@
 #include "db/ChapterList_unk.h"
 #include "atn/Font_unk.h"
 #include "atn/FixedArray.h"
+#include "game/Input_unk.h"
 #include "std/vector.h"
 // inferred: post effect manager (atn/PostFx.h, which redefines atn::IRender here)
 extern "C" void* lbl_8087EF8C;
@@ -208,12 +209,6 @@ struct SysInput_unk {
     unsigned char m0000[0x40E0];
     int m40E0;
 };
-// inferred: pad input of the settings (as in game/CharaStatus.cpp)
-struct Input_unk {
-    int fn_801231D0(int button); // inferred: pressed
-    int fn_80123C7C(int button); // inferred: held
-    int fn_801240B4(int button);
-};
 
 // inferred: per-difficulty factors (as in game/CharaStatus.cpp)
 struct StatusRate_unk {
@@ -240,7 +235,7 @@ struct MpSettings_unk {
     int m194;
     unsigned char m198[0x48C - 0x198];
     Input_unk mInput; // 0x48C
-    unsigned char m48D[0x5A0 - 0x48D];
+    unsigned char m4DC[0x5A0 - 0x4DC];
     int m5A0;
 };
 extern "C" GameFlow_unk* lbl_8087F420;
@@ -1805,7 +1800,8 @@ static inline bool IsIconEnd_unk(atn::Task* task) {
 }
 
 inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
-    fn_801FECE0(&mData.m10, fn_800DC6B4(name), value);
+    atn::D2A_Layout_unk* layout = &mData.m10;
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 
 // inferred: used memory of a heap in MB
@@ -2874,6 +2870,9 @@ extern "C" void fn_803729B4(GameTask* task, CharaTask* chara) {
     fn_804DA3F4(fn_800F7F90());
 }
 
+// inferred: the original emits this copy (and its "vector length error") right after fn_803729B4
+template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
+
 void GameTask::fn_80373118() {
     m5624->mDelay++;
     m5620->mDelay++;
@@ -2902,6 +2901,137 @@ void GameTask::fn_80373F78() {
     if (m5590 != 0 && fn_80570A4C(m5590) != 0) {
         fn_803731E8();
     }
+}
+
+extern "C" void fn_80450B28();         // inferred: freezes the item slot animations
+extern "C" void fn_802328DC(int frame); // inferred: effect system frame
+
+// inferred: opens the tactical view (field state 14): freezes the field and keeps the render settings
+extern "C" void fn_80373FC4(GameTask* task) {
+    task->m54E4 = 14;
+    task->m55B8 = 2;
+    task->mFinish.m394 = 1;
+    task->mFinish.fn_80378CAC();
+    ((atn::Task*)lbl_8087F048)->fn_800D246C(1);
+    lbl_8087F8A8->FreezeTask();
+    lbl_8087F8A0->fn_800D246C(1);
+    EnemyManager::sInstance->fn_800D246C(1);
+    NpcManager::sInstance->fn_800D246C(1);
+    lbl_8087EE68->FreezeTask();
+    task->m10D8->fn_800D246C(1);
+    GimmickManager::instance_->fn_800D246C(1);
+    fn_80450B28();
+    GameTimer::sInstance->FreezeTask();
+    GameUI* ui = lbl_8087F490;
+    ui->mB08[0]->FreezeTask();
+    ui->mB08[1]->FreezeTask();
+    ui->mB08[2]->FreezeTask();
+    ui->mB08[3]->FreezeTask();
+    ui->mB20[1]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[1])->mFrame = 0.0f;
+    ui->mB20[2]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[2])->mFrame = 0.0f;
+    ui->mB20[3]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[3])->mFrame = 0.0f;
+    ui->mB20[4]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[4])->mFrame = 0.0f;
+    ui->mB20[5]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[5])->mFrame = 0.0f;
+    lbl_8087F3C0->fn_800D246C(1);
+    lbl_8087F3C0->fn_8023A60C(5);
+    MenuCommonTask::sInstance->fn_804A2F98();
+    lbl_8087EFE8->fn_800CFA28(1, 1, 2, 10);
+    if (GameBgm::sInstance != 0) {
+        float volume = GameBgm::sInstance->mReq.mVolume;
+        GameBgm::sInstance->fn_8037D49C(0.5f * volume, 10);
+    }
+    lbl_8087EFA8->m240.mEnabled = 1;
+    ColorMatrixParam_unk cm(*lbl_8087EFA8->GetColorMatrix_unk());
+    task->m55C4 = cm;
+    float speed = lbl_8087EFA8->m3A4;
+    task->m55C0 = speed;
+    lbl_8087EFA8->m3A4 = 1.0f;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Vector3 pos = leader->mPos;
+    atn::Vector3 rot = lbl_8087F8A0->mHead->mRot;
+    task->mCamera.m8E4 = 1;
+    task->mCamera.fn_80389838(6);
+    task->mCamera.fn_803903E0(&pos, -rot.y, 1);
+    fn_802328DC(60);
+    lbl_8087F9E8->fn_8059D178();
+    fn_802328DC(0);
+    lbl_8087F3C0->mPaused = 0;
+    lbl_8087F3C0->fn_800D246C(1);
+    if (task->mFinish.m394 != 0) {
+        lbl_8087F9F8->fn_805AA4E4();
+    }
+    fn_800C31F4("SE_UICOM_022", 0, -1, 1.0f);
+    lbl_8087F490->m263C->FreezeTask();
+    lbl_8087F490->m2640->FreezeTask();
+    lbl_8087EFE8->fn_800CFBA0(8, 1, 2, 15);
+}
+
+extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
+
+// inferred: closes the tactical view: resumes the field and restores the render settings
+extern "C" void fn_803743AC(GameTask* task) {
+    task->m54E4 = 0;
+    task->mFinish.fn_80378CCC();
+    task->m55B8 = 0;
+    task->m55BC = 0;
+    ((atn::Task*)lbl_8087F048)->fn_800D246C(0);
+    lbl_8087F8A8->MeltTask();
+    lbl_8087F8A0->fn_800D246C(0);
+    EnemyManager::sInstance->fn_800D246C(0);
+    NpcManager::sInstance->fn_800D246C(0);
+    lbl_8087EE68->MeltTask();
+    task->m10D8->fn_800D246C(0);
+    GimmickManager::instance_->fn_800D246C(0);
+    fn_80450B44();
+    GameTimer::sInstance->MeltTask();
+    GameUI* ui = lbl_8087F490;
+    ui->mB08[0]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[0])->mFrame = 0.0f;
+    ui->mB08[1]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[1])->mFrame = 0.0f;
+    ui->mB08[2]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[2])->mFrame = 0.0f;
+    ui->mB08[3]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[3])->mFrame = 0.0f;
+    ui->mB08[4]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[4])->mFrame = 0.0f;
+    ui->mB08[5]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[5])->mFrame = 0.0f;
+    ((atn::D2A_Task*)ui->mB08[5])->SetLayoutValue_unk("iconOn", 1.0f);
+    ui->mB20[0]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[0])->mFrame = 0.0f;
+    ui->mB20[1]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[1])->mFrame = 0.0f;
+    ui->mB20[2]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[2])->mFrame = 0.0f;
+    ui->mB20[3]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[3])->mFrame = 0.0f;
+    ui->mB20[4]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[4])->mFrame = 0.0f;
+    ui->mB20[5]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[5])->mFrame = 0.0f;
+    lbl_8087F490->fn_803E4950();
+    lbl_8087F3C0->fn_800D246C(0);
+    lbl_8087EFE8->fn_800CFA28(1, 0, 2, 30);
+    if (GameBgm::sInstance != 0) {
+        GameBgm::sInstance->fn_8037D49C(GameBgm::sInstance->mE0, 30);
+    }
+    lbl_8087F9E8->fn_8059D268(1);
+    MenuCommonTask::sInstance->fn_804A2FBC();
+    lbl_8087F048->fn_801058F8();
+    lbl_8087EFA8->SetMotionBlur_unk(0);
+    lbl_8087EFA8->SetColorMatrix(task->m55C4);
+    lbl_8087EFA8->m3A4 = task->m55C0;
+    lbl_8087F490->m263C->MeltTask();
+    lbl_8087F490->m2640->MeltTask();
+    lbl_8087EFE8->fn_800CFBA0(8, 0, 2, 15);
+    lbl_8087F0A8->mInput.fn_80124BE4();
+    lbl_8087F0A8->mInput.m14[7] = 1; // inferred: locks action 7
 }
 
 int GameTask::fn_80375184() {
