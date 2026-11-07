@@ -5988,3 +5988,12 @@ ss_nw4r/src/ut/ut_TextWriterBase.cpp:
 	.sdata      start:0x8087EE40 end:0x8087EE48
 	.sbss       start:0x80880578 end:0x8088058C
 	.sdata2     start:0x80889378 end:0x8088938C
+
+ss_nw4r/src/math/math_triangular.cpp:
+	.text       start:0x8072D210 end:0x8072D280
+	.rodata     start:0x8076F488 end:0x80770498
+	.sdata2     start:0x80889390 end:0x80889394
+
+ss_nw4r/src/math/math_types.cpp:
+	.text       start:0x8072D280 end:0x8072D2A0
+	.sdata2     start:0x80889398 end:0x8088939C
