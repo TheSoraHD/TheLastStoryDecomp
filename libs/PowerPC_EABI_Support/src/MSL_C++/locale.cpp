@@ -108,6 +108,33 @@ const char* ctype<char>::do_narrow(const char* low, const char* high, char dfaul
     return high;
 }
 
+// inferred: the classification and case tables of the "C" locale as ranges (constants in .sdata 0x8087EC80)
+ctype<wchar_t>::ctype(size_t refs) : locale::facet(refs) {
+    __range_map_unk<mask>::insert(table_, L'\x00', L'\x08', cntrl);
+    __range_map_unk<mask>::insert(table_, L'\t', mask(space | cntrl | blank));
+    __range_map_unk<mask>::insert(table_, L'\n', L'\r', mask(space | cntrl));
+    __range_map_unk<mask>::insert(table_, L'\x0E', L'\x1F', cntrl);
+    __range_map_unk<mask>::insert(table_, L' ', mask(space | print | blank));
+    __range_map_unk<mask>::insert(table_, L'!', L'/', mask(punct | print | graph));
+    __range_map_unk<mask>::insert(table_, L'0', L'9', mask(xdigit | print | graph | digit));
+    __range_map_unk<mask>::insert(table_, L':', L'@', mask(punct | print | graph));
+    __range_map_unk<mask>::insert(table_, L'A', L'F', mask(xdigit | upper | print | graph | alpha));
+    __range_map_unk<mask>::insert(table_, L'G', L'Z', mask(upper | print | graph | alpha));
+    __range_map_unk<mask>::insert(table_, L'[', L'`', mask(punct | print | graph));
+    __range_map_unk<mask>::insert(table_, L'a', L'f', mask(xdigit | lower | print | graph | alpha));
+    __range_map_unk<mask>::insert(table_, L'g', L'z', mask(lower | print | graph | alpha));
+    __range_map_unk<mask>::insert(table_, L'{', L'~', mask(punct | print | graph));
+    __range_map_unk<mask>::insert(table_, L'\x7F', cntrl);
+    __range_map_unk<wchar_t>::insert(lower_, numeric_limits<wchar_t>::min(), numeric_limits<wchar_t>::max(), numeric_limits<wchar_t>::min(),
+                  numeric_limits<wchar_t>::max());
+    __range_map_unk<wchar_t>::insert(lower_, L'A', L'Z', L'a', L'z');
+    __range_map_unk<wchar_t>::insert(upper_, numeric_limits<wchar_t>::min(), numeric_limits<wchar_t>::max(), numeric_limits<wchar_t>::min(),
+                  numeric_limits<wchar_t>::max());
+    __range_map_unk<wchar_t>::insert(upper_, L'a', L'z', L'A', L'Z');
+}
+
+ctype<wchar_t>::~ctype() {}
+
 codecvt<char, char, int>::codecvt(size_t refs) : locale::facet(refs) {}
 
 codecvt<wchar_t, char, int>::codecvt(size_t refs) : locale::facet(refs) {}
@@ -163,7 +190,7 @@ char ctype<wchar_t>::do_narrow(wchar_t c, char dfault) const {
 // NONMATCHING: 92.5% - the original recomputes the table end after the search
 const wchar_t* ctype<wchar_t>::do_is(const wchar_t* low, const wchar_t* high, mask* vec) const {
     for (; low < high; ++low, ++vec) {
-        *vec = table_.find(*low);
+        *vec = __range_map_unk<mask>::find(table_, *low);
     }
     return high;
 }
@@ -171,7 +198,7 @@ const wchar_t* ctype<wchar_t>::do_is(const wchar_t* low, const wchar_t* high, ma
 // NONMATCHING: 88% - the original recomputes the table end after the search
 const wchar_t* ctype<wchar_t>::do_scan_is(mask m, const wchar_t* low, const wchar_t* high) const {
     for (; low < high; ++low) {
-        if (table_.find(*low) & m) {
+        if (__range_map_unk<mask>::find(table_, *low) & m) {
             break;
         }
     }
@@ -181,7 +208,7 @@ const wchar_t* ctype<wchar_t>::do_scan_is(mask m, const wchar_t* low, const wcha
 // NONMATCHING: 88% - the original recomputes the table end after the search
 const wchar_t* ctype<wchar_t>::do_scan_not(mask m, const wchar_t* low, const wchar_t* high) const {
     for (; low < high; ++low) {
-        if (!(table_.find(*low) & m)) {
+        if (!(__range_map_unk<mask>::find(table_, *low) & m)) {
             break;
         }
     }
@@ -191,7 +218,7 @@ const wchar_t* ctype<wchar_t>::do_scan_not(mask m, const wchar_t* low, const wch
 // NONMATCHING: 89.6% - the original recomputes the table end after the search
 const wchar_t* ctype<wchar_t>::do_toupper(wchar_t* low, const wchar_t* high) const {
     for (; low < high; ++low) {
-        *low = upper_.find(*low);
+        *low = __range_map_unk<wchar_t>::find(upper_, *low);
     }
     return high;
 }
@@ -199,7 +226,7 @@ const wchar_t* ctype<wchar_t>::do_toupper(wchar_t* low, const wchar_t* high) con
 // NONMATCHING: 89.6% - the original recomputes the table end after the search
 const wchar_t* ctype<wchar_t>::do_tolower(wchar_t* low, const wchar_t* high) const {
     for (; low < high; ++low) {
-        *low = lower_.find(*low);
+        *low = __range_map_unk<wchar_t>::find(lower_, *low);
     }
     return high;
 }

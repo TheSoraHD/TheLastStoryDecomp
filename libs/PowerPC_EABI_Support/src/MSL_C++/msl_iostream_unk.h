@@ -149,6 +149,24 @@ private:
     tr1::shared_ptr<char> what_;
 };
 
+// inferred: vtables 0x807BBF38 (logic_error) and 0x807BBF10 (length_error); what() 0x80694320 is shared
+class logic_error : public exception {
+public:
+    explicit logic_error(const char* what_arg)
+        : what_(new char[strlen(what_arg) + 1], std::detail::default_delete<char[]>()) {
+        strcpy(what_.get(), what_arg);
+    }
+    virtual const char* what() const { return what_.get(); }
+
+private:
+    tr1::shared_ptr<char> what_;
+};
+
+class length_error : public logic_error {
+public:
+    explicit length_error(const char* what_arg) : logic_error(what_arg) {}
+};
+
 typedef unsigned long size_t;
 typedef long streamsize;
 typedef long long streamoff;
@@ -447,8 +465,7 @@ typedef basic_string<char> string;
 // inferred: the MSL vector (data, size, capacity); its destructor is inlined through four levels
 template <class T>
 struct __vec_storage_unk {
-    __vec_storage_unk() : data_(0), size_(0), cap_(0) {}
-    ~__vec_storage_unk() {
+    ~__vec_storage_unk() throw() {
         if (data_ != 0) {
             clear();
             ::operator delete(data_);
@@ -473,13 +490,104 @@ template <class T>
 struct __vec_imp_unk : public __vec_base_unk<T> {};
 
 template <class T>
+inline const T& __vec_max_unk(const T& a, const T& b) {
+    return (a < b) ? b : a;
+}
+
+template <class T>
 class vector : public __vec_imp_unk<T> {
 public:
+    vector() {
+        this->data_ = 0;
+        this->size_ = 0;
+        this->cap_ = 0;
+    }
     size_t size() const { return this->size_; }
+    T* begin() { return this->data_; }
+    T* end() { return this->data_ + this->size_; }
     const T* begin() const { return this->data_; }
     const T* end() const { return this->data_ + this->size_; }
     T& operator[](size_t i) { return this->data_[i]; }
+    size_t max_size() const { return size_t(-1) / sizeof(T); }
+
+    // inferred: insertion of one POD element (0x80694790, 0x80694C38); the out-of-line helper takes an
+    // empty tag by value (its byte is cleared on the stack before each call)
+    T* insert(T* pos, const T& x) { return __insert_one_unk(pos, x, __vec_pod_tag_unk()); }
+
+private:
+    struct __vec_pod_tag_unk {};
+    T* __insert_one_unk(T* pos, const T& x, __vec_pod_tag_unk);
+    size_t __grow_cap_unk(size_t n);
+    // inferred: length check and growth; insert computes it once and drops the result
+    size_t __recommend_unk(size_t n);
+    static T* __copy_unk(const T* first, const T* last, T* dst) {
+        size_t n = last - first;
+        memmove(dst, first, n * sizeof(T));
+        return dst + n;
+    }
+    static T* __move_backward_unk(const T* first, const T* last, T* dlast) {
+        size_t n = last - first;
+        T* d = dlast - n;
+        memmove(d, first, n * sizeof(T));
+        return d;
+    }
 };
+
+template <class T>
+T* vector<T>::__insert_one_unk(T* pos, const T& x, __vec_pod_tag_unk) {
+    if (this->size_ >= this->cap_) {
+        __recommend_unk(1);
+    } else {
+        T* last = this->data_ + this->size_;
+        const T* px = &x;
+        if (pos <= px && px < last) {
+            ++px;
+        }
+        ++this->size_;
+        __move_backward_unk(pos, last, last + 1);
+        *pos = *px;
+        return pos;
+    }
+    T* old = this->data_;
+    size_t idx = pos - old;
+    size_t cap = __grow_cap_unk(1);
+    T* p = (T*)::operator new(cap * sizeof(T));
+    this->cap_ = cap;
+    this->data_ = p;
+    p[idx] = x;
+    if (old != 0) {
+        T* d = __copy_unk(old, old + idx, this->data_);
+        __copy_unk(old + idx, old + this->size_, d + 1);
+        ::operator delete(old);
+    }
+    ++this->size_;
+    return this->data_ + idx;
+}
+
+template <class T>
+size_t vector<T>::__recommend_unk(size_t n) {
+    size_t cap = this->cap_;
+    if (max_size() - cap < n) {
+        throw length_error("vector length error");
+    }
+    if (cap < max_size() / 3) {
+        cap += __vec_max_unk(size_t((cap + 1) * 3 / 5), n);
+    } else if (cap < max_size() / 3 * 2) {
+        cap += __vec_max_unk(size_t((cap + 1) / 2), n);
+    } else {
+        cap = max_size();
+    }
+    return cap;
+}
+
+template <class T>
+size_t vector<T>::__grow_cap_unk(size_t n) {
+    size_t cap = __recommend_unk(n);
+    if (cap > max_size()) {
+        throw length_error("vector length error");
+    }
+    return cap;
+}
 
 // inferred: the facet table of a locale (vector of facet pointers at 0x00, the name at 0x0C)
 struct __locale_imp {
@@ -520,6 +628,20 @@ namespace std {
 class ctype_base {
 public:
     typedef unsigned short mask;
+    // inferred: values from the tables of the ctype<wchar_t> constructor (0x80692C3C)
+    enum {
+        alpha = 0x0001,
+        blank = 0x0002,
+        cntrl = 0x0004,
+        digit = 0x0008,
+        graph = 0x0010,
+        lower = 0x0020,
+        print = 0x0040,
+        punct = 0x0080,
+        space = 0x0100,
+        upper = 0x0200,
+        xdigit = 0x0400
+    };
 };
 
 template <class C>
@@ -550,15 +672,32 @@ protected:
     bool del_;                    // 0x14
 };
 
+// inferred: only what the ctype<wchar_t> constructor uses (min/max are calls: their results go to the stack)
+template <class T>
+class numeric_limits;
+
+template <>
+class numeric_limits<wchar_t> {
+public:
+    static wchar_t min() throw() { return 0; }
+    static wchar_t max() throw() { return 0xFFFF; }
+};
+
 // inferred: a table of character ranges [lo, hi], each mapped linearly to c * mul + add (sorted by hi)
 template <class T>
+struct __range_entry_unk {
+    wchar_t lo_;
+    wchar_t hi_;
+    T mul_;
+    T add_;
+};
+
+// inferred: helpers over a vector of ranges (the facet members are plain vectors: the constructor's cleanup
+// calls the vector destructors 0x80692EFC/0x80692F78 directly)
+template <class T>
 struct __range_map_unk {
-    struct entry {
-        wchar_t lo_;
-        wchar_t hi_;
-        T mul_;
-        T add_;
-    };
+    typedef __range_entry_unk<T> entry;
+    typedef vector<entry> table;
 
     static const entry* __lower_bound_unk(const entry* first, const entry* last, const wchar_t& c) {
         int n = last - first;
@@ -574,19 +713,53 @@ struct __range_map_unk {
         }
         return first;
     }
-    T find(const wchar_t& c) const {
-        const entry* first = __lower_bound_unk(table_.begin(), table_.end(), c);
-        bool miss = first == table_.end() || !__contains_unk(*first, c);
+    static T find(const table& t, const wchar_t& c) {
+        const entry* first = __lower_bound_unk(t.begin(), t.end(), c);
+        bool miss = first == t.end() || !__contains_unk(*first, c);
         if (miss) {
             return 0;
         }
         return c * first->mul_ + first->add_;
     }
-    void insert(const wchar_t& lo, const wchar_t& hi, const T& vlo, const T& vhi);
+    static void insert(table& t, const wchar_t& lo, const wchar_t& hi, const T& vlo, const T& vhi);
+    static void insert(table& t, const wchar_t& lo, const wchar_t& hi, const T& v) { insert(t, lo, hi, v, v); }
+    static void insert(table& t, const wchar_t& c, const T& v) { insert(t, c, c, v, v); }
     static bool __contains_unk(const entry& e, const wchar_t& c) { return !(c < e.lo_) && !(e.hi_ < c); }
-
-    vector<entry> table_;
 };
+
+template <class T>
+void __range_map_unk<T>::insert(table& t, const wchar_t& lo, const wchar_t& hi, const T& vlo, const T& vhi) {
+    entry e;
+    e.lo_ = lo;
+    e.hi_ = hi;
+    T mul;
+    if (lo == hi) {
+        mul = 0;
+    } else {
+        mul = (vhi - vlo) / (hi - lo);
+    }
+    e.mul_ = mul;
+    e.add_ = vlo - mul * lo;
+    entry* i = (entry*)__lower_bound_unk(t.begin(), t.end(), e.lo_);
+    if (i == t.end() || e.hi_ < i->lo_) {
+        t.insert(i, e);
+        return;
+    }
+    entry old = *i;
+    size_t idx = i - t.begin();
+    if (old.lo_ < e.lo_) {
+        i->hi_ = e.lo_ - 1;
+        ++i;
+        ++idx;
+        t.insert(i, e);
+    } else {
+        *i = e;
+    }
+    if (e.hi_ < old.hi_) {
+        old.lo_ = e.hi_ + 1;
+        t.insert(t.begin() + idx + 1, old);
+    }
+}
 
 template <>
 class ctype<wchar_t> : public locale::facet, public ctype_base {
@@ -598,22 +771,22 @@ public:
 
 protected:
     virtual ~ctype();
-    virtual bool do_is(mask m, wchar_t c) const { return (table_.find(c) & m) != 0; }
+    virtual bool do_is(mask m, wchar_t c) const { return (__range_map_unk<mask>::find(table_, c) & m) != 0; }
     virtual const wchar_t* do_is(const wchar_t* low, const wchar_t* high, mask* vec) const;
     virtual const wchar_t* do_scan_is(mask m, const wchar_t* low, const wchar_t* high) const;
     virtual const wchar_t* do_scan_not(mask m, const wchar_t* low, const wchar_t* high) const;
-    virtual wchar_t do_toupper(wchar_t c) const { return upper_.find(c); }
+    virtual wchar_t do_toupper(wchar_t c) const { return __range_map_unk<wchar_t>::find(upper_, c); }
     virtual const wchar_t* do_toupper(wchar_t* low, const wchar_t* high) const;
-    virtual wchar_t do_tolower(wchar_t c) const { return lower_.find(c); }
+    virtual wchar_t do_tolower(wchar_t c) const { return __range_map_unk<wchar_t>::find(lower_, c); }
     virtual const wchar_t* do_tolower(wchar_t* low, const wchar_t* high) const;
     virtual wchar_t do_widen(char c) const { return c; }
     virtual const char* do_widen(const char* low, const char* high, wchar_t* to) const;
     virtual char do_narrow(wchar_t c, char dfault) const;
     virtual const wchar_t* do_narrow(const wchar_t* low, const wchar_t* high, char dfault, char* to) const;
 
-    __range_map_unk<mask> table_;    // 0x08
-    __range_map_unk<wchar_t> lower_; // 0x14
-    __range_map_unk<wchar_t> upper_; // 0x20
+    vector<__range_entry_unk<mask> > table_;    // 0x08
+    vector<__range_entry_unk<wchar_t> > lower_; // 0x14
+    vector<__range_entry_unk<wchar_t> > upper_; // 0x20
 };
 
 template <class I, class E, class S>
