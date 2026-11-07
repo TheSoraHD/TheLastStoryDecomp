@@ -12,6 +12,7 @@
 #include "std/string_members.h"
 #include "std/vector.h"
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -92,7 +93,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
                             float b); // inferred: fires a homing bullet
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: moves a bullet with the character
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)

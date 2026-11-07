@@ -19,6 +19,7 @@
 #include <boost/tokenizer.hpp>
 #include "atn/DrawHelper.h"
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 extern "C" double sqrt(double x);
 extern "C" int strcmp(const char* a, const char* b);
@@ -248,7 +249,6 @@ struct BattleSlots_unk {
     float m128[1];
 };
 extern "C" BattleSlots_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
-extern "C" int fn_80108378(BattleSlots_unk* slots, CharaTask* chara);
 // inferred: effect manager (atn::EffectManager, global instance at 0x8087F3C0)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -1295,7 +1295,7 @@ void EnemyQuarkSecond::fn_803449AC() {
         CharaTask* c = lbl_8087F8A0->mHead;
         if (!c->mFlag28) {
             for (; c != 0; c = fn_802A4094(c)) {
-                int i = fn_80108378(slots, c);
+                int i = ((BattleTask*)slots)->fn_80108378(c);
                 if (c == m14C4) {
                     slots->m128[i] = 100.0f;
                 } else {
@@ -1306,7 +1306,7 @@ void EnemyQuarkSecond::fn_803449AC() {
         }
     }
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = fn_802A4094(c)) {
-        slots->m128[fn_80108378(slots, c)] = 1.0f;
+        slots->m128[((BattleTask*)slots)->fn_80108378(c)] = 1.0f;
     }
 }
 

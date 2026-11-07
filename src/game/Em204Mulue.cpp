@@ -11,6 +11,7 @@
 #include "macros.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -31,7 +32,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em302Kraken.cpp)
@@ -289,7 +289,7 @@ inline void Em204Mulue::ShowMessage_unk(int id) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 // inferred: turn toward `target` (frames and direction)
 inline void Em204Mulue::SetTurn_unk(atn::Vector3 target) {
@@ -1015,10 +1015,10 @@ void Em204Mulue::fn_802A8BBC() {
             memset(text, 0, sizeof(text));
             if (lbl_8087F8A0->mHead->m560 == 17) {
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE5), *(const wchar_t**)((char*)m60 + 4));
-                fn_80109828(lbl_8087F048, text);
+                ((BattleTask*)lbl_8087F048)->fn_80109828(text);
             } else {
                 fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xE7), *(const wchar_t**)((char*)m60 + 4));
-                fn_80109828(lbl_8087F048, text);
+                ((BattleTask*)lbl_8087F048)->fn_80109828(text);
             }
         } else {
             SetState_unk(20);

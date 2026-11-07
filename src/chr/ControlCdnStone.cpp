@@ -26,7 +26,6 @@ extern "C" void fn_80101524(Effect_unk* mgr, const atn::Vector3* pos, const atn:
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_801076D0(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: paralysis effect
 extern "C" void fn_801028E4(Effect_unk* mgr, int a, CharaTask* chara, int b);
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a message
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
 // inferred: message table (lbl_8087F1E4); mDC is the betrayal message
@@ -238,7 +237,7 @@ ControlCdnBetray::ControlCdnBetray(Chara_unk* chara, int a, int b) : ControlBase
     wchar_t text[64];
     CharaInfo_unk* info = mChara->m60;
     fn_800DD3FC(text, lbl_8087F1E4->mDC != 0 ? lbl_8087F1E4->mDC : lbl_808813D0, info->m04);
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     Motion_unk* motion = &mChara->mMotion;
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;

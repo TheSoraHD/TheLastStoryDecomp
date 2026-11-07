@@ -11,6 +11,7 @@
 #include "std/new.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -36,7 +37,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model);
 extern "C" float fn_8010CB2C(Effect_unk* mgr, CharaTask* chara, float rate); // inferred: chant speed
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
@@ -972,7 +972,7 @@ void Em001Necromancer::fn_80247258() {
         CharaInfo_unk* info = first->m60;
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x93), *(const wchar_t**)((char*)m60 + 4),
                     *(const wchar_t**)((char*)info + 4));
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     }
 }
 

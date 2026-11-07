@@ -5,6 +5,7 @@
 #include "game/HitInfo_unk.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -47,7 +48,6 @@ extern "C" void fn_80570A74(void* obj, atn::EfpFile* efp);
 
 struct ArmsEffectMgr_unk;
 extern "C" ArmsEffectMgr_unk* lbl_8087F048; // inferred: effect manager of the characters
-extern "C" int fn_8010D770(ArmsEffectMgr_unk* mgr, HitInfo_unk* hit);
 
 
 Arms::Arms(int kind, int id, int arg0C, CharaTask* chara, int arg5)
@@ -319,7 +319,7 @@ int Arms::fn_80044FBC(ArmsCond_unk* cond, int a, int b, unsigned int flags, Char
     if (user == 0 || chara == 0) {
         return 0;
     }
-    int effect = lbl_8087F048 != 0 ? fn_8010D770(lbl_8087F048, hit) : 0;
+    int effect = lbl_8087F048 != 0 ? ((BattleTask*)lbl_8087F048)->fn_8010D770(hit) : 0;
     int state = user->m55C;
     int sub = user->m560;
     switch (cond->m08) {

@@ -11,6 +11,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -115,7 +116,6 @@ inline void PlayEffectInline_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Mod
 extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a5, int a6, int a7, float scale);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text);     // inferred: shows a battle message
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: message table (lbl_8087F1E4); name invented (as in game/CharaTask.cpp)
@@ -731,7 +731,7 @@ void Em202ForestSpider::vf110() {
             memset(text, 0, sizeof(text));
             const wchar_t* name = m18EC->m60->m04;
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB5), name);
-            fn_80109828(lbl_8087F048, text);
+            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
             fn_80370AE4(lbl_8087F430, 0x6E, m18EC->mType == 0 ? 10 : m18EC->m58);
             vf148();
             return;
@@ -842,7 +842,7 @@ void Em202ForestSpider::vf118() {
         memset(text, 0, sizeof(text));
         const wchar_t* name = m18EC->m60->m04;
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB7), name);
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         m14E0 = 600;
         m1908.push_back(m18EC);
         m18EC->fn_801765D8();
@@ -1256,7 +1256,7 @@ void Em202ForestSpider::fn_80277DC4() {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB9), m60->m04);
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     }
 }
 

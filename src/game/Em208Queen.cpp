@@ -27,7 +27,6 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model);
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in game/Em305Vampire.cpp)
@@ -169,7 +168,7 @@ inline RoutePlace_unk* FindRoutePlace3_unk(int id) {
 // inferred: shows the battle message `id` with the name of the queen (as in game/Em309Ghoul.cpp)
 inline void ShowMessage_unk(Em208Queen* queen, wchar_t* text, int id) {
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)queen->m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 // inferred: as AngleDiffDeg_unk of game/Em201ZanGurg.cpp
 inline float AngleDiffDeg_unk(float a, float b) {

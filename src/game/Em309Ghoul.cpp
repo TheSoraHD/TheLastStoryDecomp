@@ -10,6 +10,7 @@
 #include <string.h>
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "game/BattleTask.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -19,7 +20,6 @@ extern "C" double sqrt(double x);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -70,7 +70,6 @@ struct GhoulWeights_unk {
     float mWeight[4];
 };
 extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
-extern "C" int fn_80108378(GhoulWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk {
     RouteTable_unk* fn_8013C504(); // inferred: returns m10D8
@@ -278,7 +277,7 @@ inline void Em309Ghoul::StartAttack_unk() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x143), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 // inferred: back to the idle state 0 (name invented)
@@ -635,7 +634,7 @@ void Em309Ghoul::fn_802FF6C4() {
     }
     GhoulWeights_unk* w = fn_80103F60(lbl_8087F048, this);
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
-        int i = fn_80108378(w, p);
+        int i = ((BattleTask*)w)->fn_80108378(p);
         if (i >= 0) {
             if (m1524 >= m16F8) {
                 w->mWeight[i] = p == leader ? 1.0f : 0.0f;
@@ -851,7 +850,7 @@ void Em309Ghoul::fn_80300654() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x141), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 void Em309Ghoul::fn_8030073C() {
@@ -884,7 +883,7 @@ void Em309Ghoul::fn_803009F4() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x145), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 void Em309Ghoul::fn_80300AD8() {
@@ -933,7 +932,7 @@ void Em309Ghoul::fn_80300AD8() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x147), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     if (mFlag22) {
         fn_80370AE4(lbl_8087F430, 0xA7, 1);
     }
@@ -1031,9 +1030,9 @@ void Em309Ghoul::fn_803010BC() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x149), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14B), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     if (mFlag22) {
         fn_80370AE4(lbl_8087F430, 0xA8, 1);
     }
@@ -1284,7 +1283,7 @@ void Em309Ghoul::fn_80301DDC() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14D), *(const wchar_t**)((char*)m60 + 4));
-            fn_80109828(lbl_8087F048, text);
+            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         }
         if (mMotion.mTracks[0].m00 == 0x145) {
             float frame = mMotion.mTracks[0].m08;

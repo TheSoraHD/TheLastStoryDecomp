@@ -114,7 +114,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
@@ -231,7 +230,6 @@ struct BattleSlots_unk {
     float m128[1];
 };
 extern "C" BattleSlots_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
-extern "C" int fn_80108378(BattleSlots_unk* slots, CharaTask* chara);
 
 // inferred: float color converted from/to GXColor (as in game/GimmickCommon.cpp); names invented
 struct ShadeColor_unk {
@@ -283,7 +281,7 @@ inline void Em301LShade::ShowMessage_unk(int id) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(id), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 inline bool Em301LShade::IsMotionEnd_unk() {
@@ -780,7 +778,7 @@ void Em301LShade::vf10() {
     fn_80145334();
     BattleSlots_unk* slots = fn_80103F60(lbl_8087F048, this);
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
-        int i = fn_80108378(slots, c);
+        int i = ((BattleTask*)slots)->fn_80108378(c);
         if (c->fn_8016E484() == 0) {
             slots->m128[i] = 0.0f;
         } else {
@@ -1276,7 +1274,7 @@ void Em301LShade::fn_802D4378() {
     if (m14E8 == 65) {
         fn_800FAB80(lbl_8087F048, this, skill, m590, &m153C, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x115), *(const wchar_t**)((char*)m60 + 4));
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         fn_800C344C("SE_EM301_002", &m153C, 0, -1, 1.0f);
     }
 }
@@ -1684,7 +1682,7 @@ void Em301LShade::fn_802D67F8(int index) {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x127), *(const wchar_t**)((char*)m60 + 4));
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     }
 }
 

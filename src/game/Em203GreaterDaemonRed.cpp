@@ -9,6 +9,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -89,7 +90,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
                             float b); // inferred: fires a homing bullet
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f); // inferred: moves a bullet with the character
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)
@@ -994,7 +994,7 @@ void Em203GreaterDaemonRed::fn_80297114() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD5), *(const wchar_t**)((char*)m60 + 4));
-            fn_80109828(lbl_8087F048, text);
+            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
             atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("chin"));
             atn::Vector3 dir = m14B0->mPos - pos;
             PSVECNormalize(&dir, &dir);
@@ -1067,7 +1067,7 @@ void Em203GreaterDaemonRed::fn_80297474() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xD9), *(const wchar_t**)((char*)m60 + 4));
-            fn_80109828(lbl_8087F048, text);
+            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
             fn_80239DAC(lbl_8087F3C0, this, 1002, 1);
             fn_80232B7C(this, 1002);
             atn::Vector3 pos(0.0f, 0.0f, 0.0f);

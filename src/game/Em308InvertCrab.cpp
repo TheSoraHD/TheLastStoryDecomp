@@ -6,6 +6,7 @@
 #include "std/string_members.h"
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -130,7 +131,6 @@ struct CrabWeights_unk {
     float mWeight[72]; // inferred: cleared in a loop of 72 (unrolled 8 x 9)
 };
 extern "C" CrabWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
-extern "C" int fn_80108378(CrabWeights_unk* w, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -1164,7 +1164,7 @@ int Em308InvertCrab::fn_802F62A0(CharaTask* target, int next) {
     m1588 = target;
     CrabWeights_unk* w = fn_80103F60(lbl_8087F048, this);
     if (w != 0) {
-        int i = fn_80108378(w, target);
+        int i = ((BattleTask*)w)->fn_80108378(target);
         for (int j = 0; j < 72; j++) {
             if (j != i) {
                 w->mWeight[j] = 0.0f;

@@ -35,6 +35,7 @@
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
 #include "chr/CharaEquip_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
@@ -100,7 +101,6 @@ struct Color4f_unk {
 extern "C" void fn_80107168(Effect_unk* mgr, int id, int a, int b, atn::Model* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, const Color4f_unk* color, float scale); // inferred: effect of a skill
 extern "C" void fn_80107208(Effect_unk* mgr, int id, const atn::Vector3* pos, float scale);
-extern "C" void fn_8010AB94(Effect_unk* mgr); // inferred: starts the combined attack effect
 extern "C" void* fn_80210220(int id); // inferred: record of the parameters (result unused here)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: state checks of CharaTask written with a result flag (the original materializes each bool);
@@ -186,7 +186,6 @@ extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn:
                             int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
-extern "C" void fn_80108A54(Effect_unk* mgr, CharaTask* chara); // inferred: lock-on cursor
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int atoi(const char* s);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -373,7 +372,7 @@ void BattleCharaTask::fn_800E2FE0() {
                     mFlagC27 = 1;
                     m1430 = config->mCoolDownFrame;
                     if (lbl_8087F048 != 0) {
-                        fn_8010AB94(lbl_8087F048);
+                        ((BattleTask*)lbl_8087F048)->fn_8010AB94();
                     }
                     fn_80105DCC(lbl_8087F048, this, &mMotion, 1);
                     m1470 = 0;
@@ -591,7 +590,6 @@ struct HitResult_unk {
 };
 extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
                            int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
-extern "C" float fn_8010CA34(Effect_unk* effect); // inferred: speed rate of the attacks
 
 // inferred: frame of the attack motions where the hit starts (name invented)
 inline float HitFrame_unk(int motion) {
@@ -674,7 +672,7 @@ void BattleCharaTask::fn_800E589C() {
                 if (m560 == 4 && config->mAttackEndWait != 0 && mMotion.mTracks[0].m08 >= frame) {
                     float speed = 4.0f / m638->m68;
                     if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
-                        speed *= fn_8010CA34(lbl_8087F048);
+                        speed *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
                     }
                     mMotion.mTracks[0].m0C = speed;
                 }
@@ -737,7 +735,7 @@ void BattleCharaTask::fn_800E589C() {
             float rest = mMotion.fn_80097D7C(0) - frame;
             float speed = rest / (rest + config->mAttackGuardWait);
             if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
-                speed *= fn_8010CA34(lbl_8087F048);
+                speed *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
             }
             mMotion.mTracks[0].m0C = speed;
         }
@@ -958,7 +956,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                         fn_8016DC14(mFC0, 0);
                     }
                 } else {
-                    fn_80108A54(lbl_8087F048, this);
+                    ((BattleTask*)lbl_8087F048)->fn_80108A54(this);
                 }
                 mFlag5 = 1;
                 if (fn_800E70EC(0, a, b)) {
@@ -1208,7 +1206,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field) {
         if (mFlag31) {
             mFC0 = 0;
         } else if (!lbl_8087F0A8->mInput.fn_801231D0(0x1E)) {
-            fn_80108A54(lbl_8087F048, this);
+            ((BattleTask*)lbl_8087F048)->fn_80108A54(this);
         }
         mFlag4 = 1;
         if (!lbl_8087F0A8->mInput.fn_801240B4(7)) {
@@ -1420,7 +1418,7 @@ void BattleCharaTask::fn_800E7F04() {
                 m14A8 |= 0x8000000;
                 m1430 = config->mCoolDownFrame;
             }
-            fn_8010AB94(lbl_8087F048);
+            ((BattleTask*)lbl_8087F048)->fn_8010AB94();
         }
     }
     if (m1430 > 0) {
@@ -2016,7 +2014,7 @@ void BattleCharaTask::fn_800E9ED8() {
             float rest = mMotion.fn_80097D7C(0) - frame;
             float speed = rest / (rest + config->mAttackGuardWait);
             if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
-                speed *= fn_8010CA34(lbl_8087F048);
+                speed *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
             }
             mMotion.mTracks[0].m0C = speed;
         }

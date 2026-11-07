@@ -13,6 +13,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -34,7 +35,6 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
@@ -1135,7 +1135,7 @@ void Em302KrakenMp::fn_802E1414() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 // inferred: starts state 10

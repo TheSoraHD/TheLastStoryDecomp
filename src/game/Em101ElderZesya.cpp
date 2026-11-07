@@ -12,6 +12,7 @@
 #include "game/Em101LittleZesya.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -233,7 +234,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
 
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -930,7 +930,7 @@ void Em101ElderZesya::fn_80258574() {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x9F), *(const wchar_t**)((char*)m60 + 4));
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         fn_802598DC();
         fn_8016D74C(m1510, 0, &m1694);
         ElderOrder_unk order;

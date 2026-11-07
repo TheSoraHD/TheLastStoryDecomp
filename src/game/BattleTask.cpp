@@ -4,6 +4,14 @@
 #include "atn/EffectManager.h"
 #include "atn/EffectSystem_unk.h"
 #include "math/Vec.h"
+#include "game/CharaTask.h"
+#include "game/GameConfig_unk.h"
+#include "game/HitInfo_unk.h"
+#include "game/LogMessageTask.h"
+#include "macros.h"
+
+extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
@@ -163,6 +171,12 @@ void BattleTask::fn_80107BE8(void* owner, atn::Model* model) {
     lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
+void BattleTask::fn_80107CA8(void* owner, int flag) {
+    lbl_8087F3C0->mSystem.mLayer = 2;
+    fn_80239DAC(lbl_8087F3C0, (unsigned int)owner, 27, flag);
+    lbl_8087F3C0->mSystem.mLayer = 0;
+}
+
 void BattleTask::fn_80107CEC(void* owner, atn::Model* model, float scale) {
     fn_80232B7C((unsigned int)owner, 28);
     EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -203,4 +217,85 @@ void BattleTask::fn_80107FD8(void* owner, atn::Model* model) {
 
 void BattleTask::fn_80108080(void* owner) {
     fn_80239DAC(lbl_8087F3C0, (unsigned int)owner, 32, 1);
+}
+
+int BattleTask::fn_80108378(CharaTask* chara) {
+    BattleTask* battle = lbl_8087F048;
+    if (battle != 0) {
+        if (chara == 0) {
+            return -1;
+        }
+        for (int i = 0; i < battle->mCharaCount; i++) {
+            if (battle->mCharas[i].mChara == chara) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    return -1;
+}
+
+void BattleTask::fn_80108A54(CharaTask* chara) {
+    fn_80108A5C(chara, &chara->mRot);
+}
+
+// NONMATCHING: 93% - the original tests the log instance with bne over a blr
+void BattleTask::fn_80109828(const wchar_t* text) {
+    if (lbl_8087F0A8->m06C > 0) {
+        if (LogMessageTask::sInstance == 0) {
+            return;
+        }
+        if (text != 0) {
+            LogMessageTask::sInstance->fn_8047961C(text, -0x3301, 0, 0);
+        }
+    }
+}
+
+// NONMATCHING: 98% - f2/f3 swapped (increment/result)
+void BattleTask::fn_8010AB34() {
+    float add = m38A28;
+    m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
+}
+
+// NONMATCHING: 98% - f2/f3 swapped, as fn_8010AB34
+void BattleTask::fn_8010AB94() {
+    float add = m38A2C;
+    m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
+}
+
+float BattleTask::fn_8010CA24() {
+    return 2.4f;
+}
+
+float BattleTask::fn_8010CA2C() {
+    return 0.15f;
+}
+
+float BattleTask::fn_8010CA34() {
+    return 1.5f;
+}
+
+float BattleTask::fn_8010CCD0() {
+    return 0.75f;
+}
+
+int BattleTask::fn_8010D770(HitInfo_unk* hit) {
+    if (hit != 0) {
+        int id = hit->m04;
+        if (id == 0xCC || id == 0xD1 || id == 0xD5 || id == 0x5BC || id == 0x658) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int BattleTask::fn_8010D7B4(HitInfo_unk* hit) {
+    if (hit == 0) {
+        return 0;
+    }
+    int id = hit->m04;
+    if (id == 0x136 || id == 0x139 || id == 0x13C || id == 0x146 || id == 0x15A || id == 0x232C) {
+        return 1;
+    }
+    return 0;
 }

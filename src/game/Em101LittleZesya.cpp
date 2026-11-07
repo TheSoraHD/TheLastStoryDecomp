@@ -9,6 +9,7 @@
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 // inferred: empty release assert (the original functions are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -61,7 +62,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
                             int c, float f);
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
@@ -733,7 +733,7 @@ void Em101LittleZesya::fn_8025F07C() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xA9), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     atn::Vector3 dir;
     atn::Vector3 rot = (mPos - m1590).ToRotationZ_unk();
     dir.x = 0.0f;
@@ -782,7 +782,7 @@ void Em101LittleZesya::fn_8025F45C() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xAB), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     if (m15BC != 0) {
         m1590 = m14C4.mData[Nearest_unk(m15A8.m08)];
     } else {

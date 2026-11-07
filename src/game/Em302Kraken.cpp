@@ -26,7 +26,6 @@ extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em309Ghoul.cpp)
@@ -1007,7 +1006,7 @@ void Em302Kraken::fn_802DAA38() {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12D), *(const wchar_t**)((char*)m60 + 4));
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     }
     if (m14C4 > 20 && m14C4 <= 90) {
         float t = (m14C4 - 20) / 70.0f;
@@ -1050,7 +1049,7 @@ void Em302Kraken::fn_802DAA38() {
             wchar_t text[256];
             memset(text, 0, sizeof(text));
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x12F), *(const wchar_t**)((char*)m60 + 4));
-            fn_80109828(lbl_8087F048, text);
+            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         }
         Reset_unk();
     }
@@ -1289,7 +1288,7 @@ void Em302Kraken::fn_802DC014() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x135), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 // inferred: starts state 11 (anger): effects, sound and the camp message
@@ -1312,7 +1311,7 @@ void Em302Kraken::fn_802DC1C0() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x137), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 // inferred: starts state 12 (dives): asks the pillar of the current appear point to sink
@@ -1488,7 +1487,7 @@ void Em302Kraken::fn_802DCA34(int state, int count) {
             targets[i]->fn_80166760();
         }
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x139), *(const wchar_t**)((char*)m60 + 4));
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         break;
     case 0:
         for (unsigned int i = 0; i < targets.size(); i++) {
@@ -1496,7 +1495,7 @@ void Em302Kraken::fn_802DCA34(int state, int count) {
             targets[i]->fn_80167F1C();
         }
         fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13B), *(const wchar_t**)((char*)m60 + 4));
-        fn_80109828(lbl_8087F048, text);
+        ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         break;
     case 3:
         for (unsigned int i = 0; i < targets.size(); i++) {
@@ -1559,7 +1558,7 @@ void Em302Kraken::fn_802DD1B4(int level) {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13D), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 void Em302Kraken::fn_802DDA90() {
@@ -1581,7 +1580,7 @@ void Em302Kraken::fn_802DDA90() {
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x13F), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 void Em302Kraken::fn_802DDBB0() {

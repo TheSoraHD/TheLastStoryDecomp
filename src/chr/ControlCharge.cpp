@@ -42,7 +42,6 @@ inline bool IsArenaMode_unk(int mode) {
 struct Effect_unk {
 };
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" float fn_8010CA24(Effect_unk* mgr); // inferred: charge speed rate
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
 // inferred: cursor shown by the tactical view (lbl_8087F9F8 + 0x15D8); names invented
@@ -236,7 +235,7 @@ int ControlCharge::vf0C() {
     bonus += rate * mChara->mStatus.fn_80134168(0x2B, -1) / 100.0f;
     rate += bonus;
     if (((unsigned int)mChara->mStatus.m14 & 0x2000) == 0x2000) {
-        rate *= fn_8010CA24(lbl_8087F048);
+        rate *= ((BattleTask*)lbl_8087F048)->fn_8010CA24();
     }
     m2C += rate * lbl_8087EFA8->m3A4;
     if (mChara->mType == 0) {

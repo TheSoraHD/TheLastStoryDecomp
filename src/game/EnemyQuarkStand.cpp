@@ -24,6 +24,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -191,7 +192,6 @@ struct QuarkWeights_unk {
     float mWeight[4];
 };
 extern "C" QuarkWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
-extern "C" int fn_80108378(QuarkWeights_unk* w, CharaTask* chara); // inferred: index of `chara`
 // inferred: the stuck control keeps the action to run at its end (boost::function at +0x24; name
 // invented)
 struct QuarkStickControl_unk {
@@ -2577,7 +2577,7 @@ void EnemyQuarkStand::fn_8035359C() {
     QuarkWeights_unk* w = fn_80103F60(lbl_8087F048, this);
     if (m17E4 != 0) {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = fn_80108378(w, p);
+            int i = ((BattleTask*)w)->fn_80108378(p);
             if (p == m17E4) {
                 w->mWeight[i] = 100.0f;
             } else {
@@ -2586,7 +2586,7 @@ void EnemyQuarkStand::fn_8035359C() {
         }
     } else {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
-            int i = fn_80108378(w, p);
+            int i = ((BattleTask*)w)->fn_80108378(p);
             w->mWeight[i] = 1.0f;
         }
     }

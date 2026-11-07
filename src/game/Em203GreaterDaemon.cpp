@@ -8,6 +8,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "atn/DrawHelper.h"
+#include "game/BattleTask.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -245,7 +246,6 @@ struct HomingParam_unk;
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
-extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a battle message
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/Em101ElderZesya.cpp)
@@ -1177,7 +1177,7 @@ void Em203GreaterDaemon::fn_8028C834() {
         if (mMotion.mTracks[0].m08 >= 31.0f) {
             wchar_t text[256];
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xBD), *(const wchar_t**)((char*)m60 + 4));
-            fn_80109828(lbl_8087F048, text);
+            ((BattleTask*)lbl_8087F048)->fn_80109828(text);
             atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("chin"))->GetTrans_unk();
             atn::Vector3 dir = m14B0->mPos - pos;
             dir.GetNormalize(); // inferred: the result is not used (the original fires along dir)
@@ -1781,7 +1781,7 @@ void Em203GreaterDaemon::fn_8028FB30() {
     PlayMotion_unk(0x13F, 0, 0, 1.0f);
     wchar_t text[256];
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xCD), *(const wchar_t**)((char*)m60 + 4));
-    fn_80109828(lbl_8087F048, text);
+    ((BattleTask*)lbl_8087F048)->fn_80109828(text);
 }
 
 // inferred: starts state 13 (dives to the centre of the arena)

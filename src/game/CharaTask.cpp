@@ -5806,7 +5806,6 @@ struct EffectMgr_unk {
 };
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8010C00C(Effect_unk* mgr, CharaTask* chara);
-extern "C" void fn_80107CA8(Effect_unk* effect, CharaTask* chara, int arg);
 extern "C" void fn_800FC410(Effect_unk* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
                             int frames);
 extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
@@ -6068,7 +6067,7 @@ void CharaTask::fn_8014C540() {
         if (mFlagB18) {
             if (!mStatus.IsState_unk(0x100000) || hide) {
                 mFlagB18 = 0;
-                fn_80107CA8(lbl_8087F048, this, 1);
+                ((BattleTask*)lbl_8087F048)->fn_80107CA8(this, 1);
             }
         } else if (mStatus.IsState_unk(0x100000) && !hide) {
             mFlagB18 = 1;
@@ -9683,7 +9682,7 @@ inline void CharaTask::SetPartsVisible_unk(int show) {
         }
         if (mFlagB18) {
             mFlagB18 = 0;
-            fn_80107CA8(lbl_8087F048, this, 0);
+            ((BattleTask*)lbl_8087F048)->fn_80107CA8(this, 0);
         }
     }
 }
@@ -9717,7 +9716,7 @@ void CharaTask::fn_8016E71C(int show, int arg) {
         fn_8016E800(0);
         if (mFlagB18) {
             mFlagB18 = 0;
-            fn_80107CA8(lbl_8087F048, this, 0);
+            ((BattleTask*)lbl_8087F048)->fn_80107CA8(this, 0);
         }
     }
 }
@@ -9731,7 +9730,6 @@ void CharaTask::fn_8016E800(int arg) {
     }
 }
 
-extern "C" float fn_8010CA34(Effect_unk* effect);
 
 float CharaTask::fn_8016E864() {
     float rate = 1.0f;
@@ -9743,7 +9741,7 @@ float CharaTask::fn_8016E864() {
     }
     rate *= mStatus.fn_8012DB04();
     if (((unsigned int)mStatus.m14 & 0x2000) == 0x2000) {
-        rate *= fn_8010CA34(lbl_8087F048);
+        rate *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
     }
     return rate;
 }

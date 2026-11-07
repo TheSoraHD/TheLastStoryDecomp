@@ -7,6 +7,7 @@
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -160,7 +161,6 @@ struct DoppelAi_unk {
     float m128[1];
 };
 extern "C" DoppelAi_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
-extern "C" int fn_80108378(DoppelAi_unk* ai, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: game settings (lbl_8087F0A8, class unknown); m80 is the attack setup id
 struct Settings_unk {
     unsigned char m00[0x80];
@@ -714,7 +714,7 @@ void Em005DoppelGanger::vf10() {
     DoppelAi_unk* ai = fn_80103F60(lbl_8087F048, this);
     if (ai != 0) {
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
-            int index = fn_80108378(ai, p);
+            int index = ((BattleTask*)ai)->fn_80108378(p);
             if (index >= 0) {
                 if (m14BC == 0) {
                     ai->m128[index] = p == m1504 ? 1.0f : 0.0f;

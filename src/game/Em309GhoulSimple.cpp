@@ -8,6 +8,7 @@
 #include "game/PlayerTask.h"
 #include "std/new.h"
 #include "math/Vec.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
@@ -75,7 +76,6 @@ struct GhoulWeights_unk {
     float mWeight[4];
 };
 extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
-extern "C" int fn_80108378(GhoulWeights_unk* w, CharaTask* chara); // inferred: index of `chara`
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {
@@ -255,7 +255,7 @@ void Em309GhoulSimple::vf10() {
     if (m1570 != 0) {
         GhoulWeights_unk* w = fn_80103F60(lbl_8087F048, this);
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
-            int i = fn_80108378(w, p);
+            int i = ((BattleTask*)w)->fn_80108378(p);
             w->mWeight[i] = p->mType == 0 ? 1.0f : 0.3f;
         }
     }

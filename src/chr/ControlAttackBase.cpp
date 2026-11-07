@@ -7,6 +7,7 @@
 #include "atn/SoundRef.h"
 #include "atn/LoadHandle.h"
 #include "macros.h"
+#include "game/BattleTask.h"
 
 extern "C" int rand();
 extern "C" double cos(double x);
@@ -21,7 +22,6 @@ extern "C" chr::AttackTable_unk* fn_802097C4(const char* path);
 // inferred: effect manager (lbl_8087F048, see game/CharaTask.cpp)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" float fn_8010CA34(Effect_unk* effect);
 extern "C" void fn_80106878(Effect_unk* effect, CharaTask* chara); // inferred: attack started
 
 // inferred: multiplayer session (lbl_8087F610, see MP/CharaListeners_unk.cpp)
@@ -240,7 +240,7 @@ float ControlAttackBase::vf60() {
     }
     rate *= status->fn_8012DB04();
     if (((unsigned int)mChara->mStatus.m14 & 0x2000) == 0x2000) {
-        rate *= fn_8010CA34(lbl_8087F048);
+        rate *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
     }
     if (SetConfig::sInstance->mAttackType != 0 && lbl_8087F610 != 0) {
         rate *= 0.85f;
@@ -508,7 +508,7 @@ ControlAttackSetup::ControlAttackSetup(Chara_unk* chara, int wait) : ControlBase
     }
     rate *= status->fn_8012DB04();
     if (((unsigned int)mChara->mStatus.m14 & 0x2000) == 0x2000) {
-        rate *= fn_8010CA34(lbl_8087F048);
+        rate *= ((BattleTask*)lbl_8087F048)->fn_8010CA34();
     }
     motion->m34C = 1;
     motion->mTracks[0].m20 = 1.0f;

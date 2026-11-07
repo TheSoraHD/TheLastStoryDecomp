@@ -771,7 +771,6 @@ extern "C" FrameTime_unk* lbl_8087EFA8;
 extern "C" atn::Task* lbl_8087F9E8;
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 extern "C" void fn_800FDE60(Effect_unk* effect, int id, CharaTask* chara, atn::Vector3* dir);
-extern "C" float fn_8010CCD0(Effect_unk* effect);
 extern "C" void fn_80108C10(Effect_unk* effect, StatusDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 
@@ -824,7 +823,7 @@ void CharaStatus::fn_8012E540() {
                     ok = false;
                 }
                 if (ok) {
-                    float rate = lbl_8087F048 != 0 ? fn_8010CCD0(lbl_8087F048) : 1.0f;
+                    float rate = lbl_8087F048 != 0 ? ((BattleTask*)lbl_8087F048)->fn_8010CCD0() : 1.0f;
                     if (fn_80134134(5) != 0) {
                         rate *= 1.0f + SumRefs_unk(mRefs, 5) / 100.0f;
                     }

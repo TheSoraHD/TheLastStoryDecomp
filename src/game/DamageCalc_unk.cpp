@@ -8,6 +8,7 @@
 #include "macros.h"
 #include "string.h"
 #include <boost/function.hpp>
+#include "game/BattleTask.h"
 
 // Everything below is inferred from the damage computation (0x8003EA3C..0x80041A80); names invented.
 
@@ -32,7 +33,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_800FB1BC(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3& pos, int status); // inferred: status effect
-extern "C" float fn_8010CA2C(Effect_unk* mgr);
 extern "C" int fn_8010CD3C(Effect_unk* mgr, int kind, CharaTask* chara, CharaTask* target);
 extern "C" void fn_801092C8(Effect_unk* mgr, int id, CharaTask* chara, int a, int b);
 
@@ -858,7 +858,7 @@ int fn_800413EC(int kind, CharaTask* chara, CharaTask* target) {
     float rate = 0.1f * (chara->mStatus.mParamB.m78 - target->mStatus.fn_80133BD8(0));
     float chance = MIN(0.5f, MAX(0.0f, rate));
     if (kind == 0 && ((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
-        chance += fn_8010CA2C(lbl_8087F048);
+        chance += ((BattleTask*)lbl_8087F048)->fn_8010CA2C();
     }
     if (kind == 1 && lbl_8087F0A8->mCounterBonus == 0) {
         chance = 0.0f;
@@ -939,7 +939,7 @@ int fn_800417E8(int kind, CharaTask* chara, CharaTask* target) {
             chance = 0.3f * MIN(count, 2);
         }
         if (chara->mType == 3 && ((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
-            chance += fn_8010CA2C(lbl_8087F048);
+            chance += ((BattleTask*)lbl_8087F048)->fn_8010CA2C();
         }
     }
     if (kind == 1) {

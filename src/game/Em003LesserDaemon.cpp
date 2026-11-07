@@ -11,6 +11,7 @@
 #include "std/string_members.h"
 #include "macros.h"
 #include "atn/Material_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -93,7 +94,6 @@ struct DaemonAi_unk {
     float m128[1];
 };
 extern "C" DaemonAi_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
-extern "C" int fn_80108378(DaemonAi_unk* ai, CharaTask* chara); // inferred: index of `chara`, < 0 if missing
 // inferred: arena/UI (lbl_8087F490); fn_803E6850 shows a counter (as in game/Em305VampireMp.cpp)
 extern "C" GameUI* lbl_8087F490;
 extern "C" double fmod(double x, double y);
@@ -477,7 +477,7 @@ inline void ClearHate_unk(CharaTask* self) {
     DaemonAi_unk* ai = fn_80103F60(lbl_8087F048, self);
     if (ai != 0) {
         for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
-            int index = fn_80108378(ai, e);
+            int index = ((BattleTask*)ai)->fn_80108378(e);
             if (index >= 0) {
                 ai->m128[index] = 0.0f;
             }
