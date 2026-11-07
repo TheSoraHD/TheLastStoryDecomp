@@ -1943,35 +1943,8 @@
   "name": "game/GameEventScript.cpp",
   "classes": [
    "GameEventScript",
-   "boost::bad_lexical_cast"
-  ],
-  "matching": false
- },
- {
-  "name": "std/bad_cast.cpp",
-  "classes": [
+   "boost::bad_lexical_cast",
    "std::bad_cast"
-  ],
-  "matching": false
- },
- {
-  "name": "game/GameEventScript_cont.cpp",
-  "classes": [
-   "GameEventScript"
-  ],
-  "matching": false
- },
- {
-  "name": "std/bad_cast_what.cpp",
-  "classes": [
-   "std::bad_cast"
-  ],
-  "matching": false
- },
- {
-  "name": "game/GameEventScript_cont2.cpp",
-  "classes": [
-   "GameEventScript"
   ],
   "matching": false
  },

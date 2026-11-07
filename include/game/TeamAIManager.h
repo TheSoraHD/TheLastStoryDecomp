@@ -5,6 +5,7 @@
 #include "atn/Array_unk.h"
 #include "atn/LH_Binary.h"
 #include "game/ResHandle.h"
+#include "game/EventScriptCmd_unk.h"
 #include "math/Vec.h"
 
 // inferred: team data (probably the TeamEntry_unk given to fn_805AE26C; names invented)
@@ -246,9 +247,8 @@ struct TeamAI_unk : public TeamNode_unk {
     int m378; // inferred: changed flag
 };
 
-// inferred: script message received by the manager (names invented)
-struct TeamMsgIn_unk {
-    unsigned char m00[0x08];
+// inferred: event script command received by the manager (names invented)
+struct TeamMsgIn_unk : public ScriptCmd_unk {
     int mType; // 0x08: team type
     int mId;   // 0x0C: team id
     int m10;
