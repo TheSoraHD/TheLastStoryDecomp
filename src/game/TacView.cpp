@@ -222,3 +222,35 @@ void TacView::fn_805AE034(TacViewTarget_unk* target) {
         m15F0.mTarget = 0;
     }
 }
+
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" void* memset(void* dst, int c, unsigned long n);
+
+atn::Vector3 TacViewChara_unk::fn_805AE138() const {
+    if (mType == 0) {
+        return mChara->fn_801781B0();
+    }
+    if (mType == 1) {
+        return mObj->m10;
+    }
+    return lbl_807C7030;
+}
+
+void TacViewChara_unk::fn_805AE188() {
+    mType = 0;
+    mChara = 0;
+    mObj = (AiTargetObj_unk*)1; // inferred: the original stores 1 here
+    m0C = 0;
+    m10 = 0;
+    m14 = 0;
+    m18.fn_8003E918();
+    m4C = -1;
+    memset(m54, 0, sizeof(m54));
+    for (int i = 0; i < 4; i++) {
+        m64[i] = -1;
+        m74[i] = -1;
+        m50[i] = 1;
+        m84[i] = -1;
+    }
+    m94 = 0;
+}

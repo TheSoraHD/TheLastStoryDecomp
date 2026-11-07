@@ -3,6 +3,7 @@
 
 #include "atn/FixedArray.h"
 #include "atn/Task.h"
+#include "game/AiTarget.h"
 #include "math/Vec.h"
 
 class SkillEffect;
@@ -16,6 +17,27 @@ struct TacViewEntry_unk {
     CharaTask* mChara;
     HitInfo_unk* mHit;
     unsigned int mState; // inferred: 0, 1 active; bit 1: finished
+};
+
+// inferred: character entry of TacView (0x98 bytes; TacView + 0x54 and the 16 entries at 0xF0). Names invented.
+struct TacViewChara_unk {
+    atn::Vector3 fn_805AE138() const; // inferred: position of the entry
+    void fn_805AE188();               // inferred: reset
+
+    int mType;                // inferred: 0 character, 1 object
+    CharaTask* mChara;
+    AiTargetObj_unk* mObj;
+    int m0C;
+    int m10;
+    int m14;
+    AiTarget m18;
+    int m4C;
+    unsigned char m50[4];
+    unsigned char m54[0x10];
+    int m64[4];
+    int m74[4];
+    int m84[4];
+    int m94;
 };
 
 // inferred: object aimed at by the cursor of TacView (names invented); m08 is a character
