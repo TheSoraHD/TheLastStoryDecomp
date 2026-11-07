@@ -3,11 +3,11 @@
 
 #include "atn/Task.h"
 #include "atn/EfpHandle_unk.h"
+#include "atn/EffectSystem_unk.h"
 #include "game/BattleCalc_unk.h"
 #include "game/HomingBullet.h"
 
 class CharaTask;
-struct EffectColor_unk;
 struct ColorF_unk;
 struct HitInfo_unk;
 struct RayObj_unk;
@@ -107,6 +107,8 @@ public:
                      const atn::Vector3* rot, const EffectColor_unk* color, float scale);
     void fn_80107168(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
                      const atn::Vector3* rot, const EffectColor_unk* color, float scale);
+    // inferred: chant effect (CharaTask::fn_80145334): shown at pos (restarted when `changed`)
+    void fn_8010743C(const atn::Vector3* pos, int changed, float f);
     void fn_80105DCC(CharaTask* chara, atn::Model* model, int level); // inferred: charge effect of the level
     Bullet* fn_801010A0();       // inferred: free bullet
     HomingBullet* fn_801010E8(); // inferred: free homing bullet
@@ -237,10 +239,7 @@ public:
     unsigned char m3E2F4[0x3E2FC - 0x3E2F4];
     float m3E2FC; // inferred: alpha of the chant effect
     int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
-    float m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
-    float m3E308;
-    float m3E30C;
-    float m3E310;
+    EffectColor_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
     unsigned char m3E314[0x3E3B0 - 0x3E314]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
 };
 

@@ -479,6 +479,21 @@ void BattleTask::fn_80107380(CharaTask* chara) {
     }
 }
 
+void BattleTask::fn_8010743C(const atn::Vector3* pos, int changed, float f) {
+    m3E300 = 1;
+    lbl_8087F3C0->mSystem.mReplaying = 1;
+    if (changed != 0) {
+        fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
+    }
+    if (changed != 0 || !fn_80239D58(lbl_8087F3C0, &m389F4, 0)) {
+        EffectColor_unk color = m3E304;
+        color.a = m3E2FC;
+        fn_80232B7C((unsigned int)&m389F4, 0);
+        fn_8023A680(lbl_8087F3C0, (EffectRes_unk*)&m389F4, -1, 6, (int)pos, 0, 0, &color, 0, -1, 1, f / 15.0f);
+    }
+    lbl_8087F3C0->mSystem.mReplaying = 0;
+}
+
 void BattleTask::fn_80107574() {
     m3E300 = 2;
 }
@@ -489,9 +504,9 @@ void BattleTask::fn_80107584() {
     case 1: {
         m3E2FC = MIN(1.0f, m3E2FC + 0.1f);
         EffectColor_unk color;
-        color.r = m3E304;
-        color.g = m3E308;
-        color.b = m3E30C;
+        color.r = m3E304.r;
+        color.g = m3E304.g;
+        color.b = m3E304.b;
         color.a = m3E2FC;
         lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
         break;
@@ -499,9 +514,9 @@ void BattleTask::fn_80107584() {
     case 2: {
         m3E2FC = MAX(0.0f, m3E2FC - 0.1f);
         EffectColor_unk color;
-        color.r = m3E304;
-        color.g = m3E308;
-        color.b = m3E30C;
+        color.r = m3E304.r;
+        color.g = m3E304.g;
+        color.b = m3E304.b;
         color.a = m3E2FC;
         lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
         if (m3E2FC < 0.001f) {

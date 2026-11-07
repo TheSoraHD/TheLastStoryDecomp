@@ -198,8 +198,6 @@ struct Effect_unk {
     void fn_8013A19C(int value);
     atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
     CharaTask* fn_8010C948(CharaTask* chara);   // inferred: a target for the character
-    // inferred: chant effect (fn_80145334): shown at pos, hidden by BattleTask::fn_80107574
-    void fn_8010743C(const atn::Vector3* pos, int changed, float f);
 
     unsigned char m00[0xCBF0];
     EffectCharaSlot_unk mCBF0[0x48]; // inferred: characters known to the effect manager (fn_80176E30)
@@ -4453,7 +4451,7 @@ void CharaTask::fn_80145334() {
             case 0x1D:
                 if (mControl && !mControl->vf58()) {
                     __SetFloat4_unk(lbl_8087F048->m3E304, 1.0f, 1.0f, 1.0f, 1.0f);
-                    lbl_8087F048->fn_8010743C(&mF6C, m638 != m63C, mF78);
+                    ((BattleTask*)lbl_8087F048)->fn_8010743C(&mF6C, m638 != m63C, mF78);
                     chant = true;
                 }
                 break;
@@ -4464,7 +4462,7 @@ void CharaTask::fn_80145334() {
             case 0x21:
                 __SetFloat4_unk(lbl_8087F048->m3E304, 1.0f, 1.0f, 1.0f, 1.0f);
             case 0xF:
-                lbl_8087F048->fn_8010743C(&mF6C, m638 != m63C, mF78);
+                ((BattleTask*)lbl_8087F048)->fn_8010743C(&mF6C, m638 != m63C, mF78);
                 chant = true;
                 break;
             }

@@ -9,11 +9,6 @@
 extern "C" int rand();
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// inferred: color of an effect (as in atn/EffectManager.cpp)
-struct EffectColor_unk {
-    EffectColor_unk() {}
-    float r, g, b, a;
-};
 namespace atn {
 // inferred: effect manager (atn/EffectManager.cpp); only the member called here is declared
 class EffectManager {
