@@ -155,6 +155,13 @@ typedef int mbstate_t;
 
 void operator delete(void* p) throw();
 inline void* operator new(std::size_t, void* p) throw() { return p; }
+
+namespace std {
+template <class T>
+inline const T& max(const T& a, const T& b) {
+    return a < b ? b : a;
+}
+} // namespace std
 inline void operator delete(void*, void*) throw() {}
 
 struct _FILE {
@@ -223,6 +230,10 @@ struct char_traits<char> {
     typedef char char_type;
     typedef int int_type;
     static int_type eof() { return -1; }
+    static bool eq_int_type(int_type a, int_type b) { return a == b; }
+    static int_type not_eof(int_type c) { return eq_int_type(c, eof()) ? ~eof() : c; }
+    static char_type to_char_type(int_type c) { return (char_type)c; }
+    static int_type to_int_type(char_type c) { return (unsigned char)c; }
 };
 
 template <>
@@ -230,6 +241,10 @@ struct char_traits<wchar_t> {
     typedef wchar_t char_type;
     typedef unsigned short int_type;
     static int_type eof() { return 0xFFFF; }
+    static bool eq_int_type(int_type a, int_type b) { return a == b; }
+    static int_type not_eof(int_type c) { return eq_int_type(c, eof()) ? ~eof() : c; }
+    static char_type to_char_type(int_type c) { return (char_type)c; }
+    static int_type to_int_type(char_type c) { return (int_type)c; }
 };
 
 struct __locale_imp;
@@ -546,6 +561,20 @@ template <>
 class codecvt<char, char, int> : public locale::facet, public codecvt_base {
 public:
     explicit codecvt(size_t refs = 0);
+    result out(int& state, const char* from, const char* from_end, const char*& from_next, char* to, char* to_end,
+               char*& to_next) const {
+        return do_out(state, from, from_end, from_next, to, to_end, to_next);
+    }
+    result in(int& state, const char* from, const char* from_end, const char*& from_next, char* to, char* to_end,
+              char*& to_next) const {
+        return do_in(state, from, from_end, from_next, to, to_end, to_next);
+    }
+    result unshift(int& state, char* to, char* to_end, char*& to_next) const {
+        return do_unshift(state, to, to_end, to_next);
+    }
+    int length(int& state, const char* from, const char* end, size_t max) const {
+        return do_length(state, from, end, max);
+    }
     bool always_noconv() const throw() { return do_always_noconv(); }
     int encoding() const throw() { return do_encoding(); }
     int max_length() const throw() { return do_max_length(); }
@@ -580,6 +609,20 @@ template <>
 class codecvt<wchar_t, char, int> : public locale::facet, public codecvt_base {
 public:
     explicit codecvt(size_t refs = 0);
+    result out(int& state, const wchar_t* from, const wchar_t* from_end, const wchar_t*& from_next, char* to, char* to_end,
+               char*& to_next) const {
+        return do_out(state, from, from_end, from_next, to, to_end, to_next);
+    }
+    result in(int& state, const char* from, const char* from_end, const char*& from_next, wchar_t* to, wchar_t* to_end,
+              wchar_t*& to_next) const {
+        return do_in(state, from, from_end, from_next, to, to_end, to_next);
+    }
+    result unshift(int& state, char* to, char* to_end, char*& to_next) const {
+        return do_unshift(state, to, to_end, to_next);
+    }
+    int length(int& state, const char* from, const char* end, size_t max) const {
+        return do_length(state, from, end, max);
+    }
     bool always_noconv() const throw() { return do_always_noconv(); }
     int encoding() const throw() { return do_encoding(); }
     int max_length() const throw() { return do_max_length(); }
@@ -614,6 +657,16 @@ public:
 
 protected:
     basic_streambuf() : eback_(0), gptr_(0), egptr_(0), pbase_(0), pptr_(0), epptr_(0) {}
+
+    void setg(char_type* gbeg, char_type* gnext, char_type* gend) {
+        eback_ = gbeg;
+        gptr_ = gnext;
+        egptr_ = gend;
+    }
+    void setp(char_type* pbeg, char_type* pend) {
+        pbase_ = pptr_ = pbeg;
+        epptr_ = pend;
+    }
 
     virtual void imbue(const locale& loc);
     virtual basic_streambuf* setbuf(char_type* s, streamsize n);
@@ -752,16 +805,10 @@ public:
     typedef std::codecvt<C, char, std::mbstate_t> cvt;
 
     bufferedbuf()
-        : m24_(0), buffer_(0), m38_(0), m48_(false), m4A_(false), owns_buffer_(false), m4C_(false) {
-        this->eback_ = 0;
-        this->gptr_ = 0;
-        this->egptr_ = 0;
-        this->pptr_ = 0;
-        this->pbase_ = 0;
-        this->epptr_ = 0;
-        m34_ = 0;
-        m30_ = 0;
-        m2C_ = 0;
+        : buf_size_(0), buffer_(0), state_(0), unshift_(false), buffered_(false), owns_buffer_(false), m4C_(false) {
+        this->setg(0, 0, 0);
+        this->setp(0, 0);
+        ext_beg_ = ext_next_ = ext_end_ = 0;
         a_codecvt_ = &std::use_facet<cvt>(this->getloc());
         always_noconv_ = a_codecvt_->always_noconv();
         encoding_ = a_codecvt_->encoding();
@@ -791,19 +838,51 @@ protected:
     int flush_put();
     int empty_get();
     int fill_get();
+    // inferred: sets up the get and put areas over the buffer (inlined in setbuf)
+    void __init_areas_unk() {
+        C* p = buffer_;
+        this->setg(0, 0, 0);
+        C* b = p;
+        if (!always_noconv_) {
+            b = p + 1;
+            if (max_length_ > (int)sizeof(C)) {
+                b += buf_size_ - buf_size_ * sizeof(C) / max_length_;
+            }
+        }
+        if (buffered_) {
+            this->setp(b, p + buf_size_ - 1);
+        } else {
+            this->setp(b, b);
+        }
+        ext_beg_ = ext_next_ = (char*)buffer_;
+        ext_end_ = (char*)(buffer_ + buf_size_);
+    }
+    // inferred: writes [ext_beg_, ext_next_) to the device
+    int __write_ext_unk() {
+        while (ext_beg_ < ext_next_) {
+            std::streamsize n = write(ext_beg_, ext_next_ - ext_beg_);
+            if (n <= 0) {
+                return -1;
+            }
+            ext_beg_ += n;
+        }
+        return 0;
+    }
 
-    int m24_;              // 0x24
+    static std::size_t __min_size_unk;
+
+    std::size_t buf_size_; // 0x24
     C* buffer_;            // 0x28
-    int m2C_;              // 0x2C
-    int m30_;              // 0x30
-    int m34_;              // 0x34
-    int m38_;              // 0x38
+    char* ext_beg_;        // 0x2C: converted characters not written yet
+    char* ext_next_;       // 0x30
+    char* ext_end_;        // 0x34
+    std::mbstate_t state_; // 0x38
     int max_length_;       // 0x3C
     int encoding_;         // 0x40
     const cvt* a_codecvt_; // 0x44
-    bool m48_;             // 0x48
+    bool unshift_;         // 0x48: the encoding has a state (encoding() < 0)
     bool always_noconv_;   // 0x49
-    bool m4A_;             // 0x4A
+    bool buffered_;        // 0x4A
     bool owns_buffer_;     // 0x4B
     bool m4C_;             // 0x4C
 };
@@ -852,6 +931,140 @@ protected:
     bool m37_;             // 0x37
     bool m38_;             // 0x38
 };
+
+// inferred: 16 (0x8087EC24 char, 0x8087EC20 wchar_t)
+template <class C, class T>
+std::size_t bufferedbuf<C, T>::__min_size_unk = 16;
+
+template <class C, class T>
+typename bufferedbuf<C, T>::base* bufferedbuf<C, T>::setbuf(C* s, std::streamsize n) {
+    bool had_put = this->pptr_ != 0;
+    if (this->sync() < 0) {
+        return 0;
+    }
+    this->setg(0, 0, 0);
+    this->setp(0, 0);
+    ext_beg_ = ext_next_ = ext_end_ = 0;
+    if (s == 0) {
+        if (owns_buffer_) {
+            delete[] buffer_;
+        }
+        buffer_ = 0;
+        buf_size_ = std::max(std::max(2 * max_length_ / sizeof(C), (std::size_t)n), __min_size_unk);
+        buffer_ = new C[buf_size_];
+        owns_buffer_ = true;
+        buffered_ = n != 0;
+    } else {
+        if (n < 2 * max_length_ / (std::streamsize)sizeof(C)) {
+            return 0;
+        }
+        if (owns_buffer_) {
+            delete[] buffer_;
+        }
+        buffer_ = s;
+        buf_size_ = n;
+        owns_buffer_ = false;
+        buffered_ = true;
+    }
+    if (buffered_ && had_put) {
+        __init_areas_unk();
+    }
+    return this;
+}
+
+template <class C, class T>
+int bufferedbuf<C, T>::flush_put() {
+    if (always_noconv_) {
+        ext_next_ = (char*)this->pptr_;
+        if (__write_ext_unk() == -1) {
+            return -1;
+        }
+    } else {
+        const C* from_next;
+        for (const C* from = this->pbase_; from < this->pptr_; from = from_next) {
+            switch (a_codecvt_->out(state_, from, this->pptr_, from_next, ext_beg_, (char*)(this->pptr_ - 1), ext_next_)) {
+            case std::codecvt_base::error:
+                return -1;
+            case std::codecvt_base::noconv:
+                ext_beg_ = (char*)from;
+                ext_next_ = (char*)this->pptr_;
+                from_next = this->pptr_;
+            case std::codecvt_base::ok:
+                if (unshift_ && ext_next_ < ext_end_) {
+                    switch (a_codecvt_->unshift(state_, ext_next_, ext_end_, ext_next_)) {
+                    case std::codecvt_base::error:
+                        return -1;
+                    case std::codecvt_base::noconv:
+                    case std::codecvt_base::ok:
+                        unshift_ = false;
+                        break;
+                    }
+                }
+            case std::codecvt_base::partial:
+                if (__write_ext_unk() == -1) {
+                    return -1;
+                }
+                ext_beg_ = ext_next_ = (char*)buffer_;
+                break;
+            }
+        }
+        if (unshift_) {
+            std::codecvt_base::result r;
+            do {
+                r = a_codecvt_->unshift(state_, ext_beg_, ext_end_, ext_next_);
+                switch (r) {
+                case std::codecvt_base::error:
+                    return -1;
+                case std::codecvt_base::ok:
+                case std::codecvt_base::partial:
+                    if (__write_ext_unk() == -1) {
+                        return -1;
+                    }
+                    break;
+                }
+            } while (r == std::codecvt_base::partial);
+            unshift_ = false;
+        }
+    }
+    if (buffered_) {
+        __init_areas_unk();
+    } else {
+        this->setg(0, 0, 0);
+        this->setp(0, 0);
+        ext_beg_ = ext_next_ = ext_end_ = 0;
+    }
+    return 0;
+}
+
+template <class C, class T>
+int bufferedbuf<C, T>::sync() {
+    if (this->pptr_ != 0) {
+        unshift_ = encoding_ < 0;
+        if (flush_put() < 0) {
+            return -1;
+        }
+    } else if (this->gptr_ != 0) {
+        if (empty_get() < 0) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+template <class C, class T>
+typename bufferedbuf<C, T>::int_type bufferedbuf<C, T>::pbackfail(int_type c) {
+    if (!m4C_) {
+        return T::eof();
+    }
+    if (this->gptr_ <= this->eback_) {
+        return T::eof();
+    }
+    --this->gptr_;
+    if (!T::eq_int_type(c, T::eof())) {
+        *this->gptr_ = T::to_char_type(c);
+    }
+    return T::not_eof(c);
+}
 
 template <class C, class T>
 std::streamsize bufferedbuf<C, T>::showmanyc() {
