@@ -33,6 +33,8 @@ public:
     int fn_805ADCC0(CharaTask* chara, HitInfo_unk* hit, int active);
     HitInfo_unk* fn_805ADD3C(CharaTask* chara); // inferred: hit of the active entry of the character
     void fn_805ADD80(CharaTask* chara, HitInfo_unk* hit); // inferred: marks the entries as finished
+    void fn_805ADDD4(CharaTask* chara); // inferred: passes the hits of the active entries on, then clears the states
+    void fn_805ADF50(CharaTask* chara); // inferred: removes the entries of the character (all with null)
 
     // inferred: state 0 (inlined by GameUI::fn_803DCA84); name invented
     bool IsIdle_unk() const { return m48 == 0; }

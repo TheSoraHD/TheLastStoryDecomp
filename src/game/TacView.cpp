@@ -71,3 +71,52 @@ void TacView::fn_805ADD80(CharaTask* chara, HitInfo_unk* hit) {
         }
     }
 }
+
+// NONMATCHING: 99% - registers of the entry pointer and of the inner pointer swapped
+void TacView::fn_805ADDD4(CharaTask* chara) {
+    TacViewEntry_unk* entry = mEntries.begin();
+    for (unsigned int i = 0; i < mEntries.size(); entry++, i++) {
+        if (chara == 0 || entry->mChara == chara) {
+            if ((entry->mState & 1) == 1) {
+                TacViewEntry_unk* other = mEntries.begin();
+                for (unsigned int j = 0; j < mEntries.size(); j++, other++) {
+                    if (other->mChara == entry->mChara && other->mState == 0) {
+                        other->mHit = entry->mHit;
+                        entry->mState |= 4;
+                        break;
+                    }
+                }
+            } else if ((entry->mState & 2) == 2) {
+                entry->mState |= 4;
+            }
+        }
+    }
+    for (TacViewEntry_unk* p = mEntries.begin(); p != mEntries.end();) {
+        if ((p->mState & 4) == 4) {
+            mEntries.erase(p);
+        } else {
+            p++;
+        }
+    }
+    for (TacViewEntry_unk* p = mEntries.begin(); p != mEntries.end(); p++) {
+        if (p->mState != 0) {
+            p->mState = 0;
+        }
+    }
+}
+
+void TacView::fn_805ADF50(CharaTask* chara) {
+    TacViewEntry_unk* entry = mEntries.begin();
+    for (unsigned int i = 0; i < mEntries.size(); entry++, i++) {
+        if ((chara == 0 || entry->mChara == chara) && entry->mState != 0) {
+            entry->mState |= 4;
+        }
+    }
+    for (TacViewEntry_unk* p = mEntries.begin(); p != mEntries.end();) {
+        if ((p->mState & 4) == 4) {
+            mEntries.erase(p);
+        } else {
+            p++;
+        }
+    }
+}
