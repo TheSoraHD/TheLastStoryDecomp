@@ -46,7 +46,6 @@ extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motio
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
 extern "C" void fn_80107168(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
-extern "C" void fn_80107208(Effect_unk* effect, int id, const atn::Vector3* pos, float scale);
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
@@ -696,7 +695,7 @@ int ControlMagic::vf0C() {
                 if (hit->mB0) {
                     fn_80107168(lbl_8087F048, hit->mB0, 0, 0, &player->mMotion, &chr::lbl_807C7030,
                                 &chr::lbl_807C7030, Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                    fn_80107208(lbl_8087F048, hit->mB0, &mChara->mPos, 1.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_80107208(hit->mB0, &mChara->mPos, 1.0f);
                 }
                 player->mStatus.m08 = player->mStatus.mParamB.m88;
             } else {
@@ -725,7 +724,7 @@ int ControlMagic::vf0C() {
                 if (hit->mB0) {
                     fn_801070C8(lbl_8087F048, hit->mB0, 0, 0, 0, &mChara->mPos, &mChara->mRot,
                                 Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                    fn_80107208(lbl_8087F048, hit->mB0, &mChara->mPos, 1.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_80107208(hit->mB0, &mChara->mPos, 1.0f);
                 }
             }
             if ((mChara->mType == 0 || mChara->mType == 3) && fn_8021A984(hit) &&

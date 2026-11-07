@@ -24,7 +24,6 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_80101524(Effect_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int id, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_801076D0(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: paralysis effect
 extern "C" void fn_801028E4(Effect_unk* mgr, int a, CharaTask* chara, int b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
@@ -189,7 +188,7 @@ ControlCdnParalyzed::ControlCdnParalyzed(Chara_unk* chara) : ControlBase(chara) 
     motion->mTracks[0].m20 = 1.0f;
     motion->fn_80097C08(0, 0x1DC, 1, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
-    fn_801076D0(lbl_8087F048, motion, motion);
+    ((BattleTask*)lbl_8087F048)->fn_801076D0(motion, motion);
 }
 
 int ControlCdnParalyzed::vf0C() {

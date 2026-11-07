@@ -100,7 +100,6 @@ struct Color4f_unk {
 };
 extern "C" void fn_80107168(Effect_unk* mgr, int id, int a, int b, atn::Model* model, const atn::Vector3* pos,
                             const atn::Vector3* rot, const Color4f_unk* color, float scale); // inferred: effect of a skill
-extern "C" void fn_80107208(Effect_unk* mgr, int id, const atn::Vector3* pos, float scale);
 extern "C" void* fn_80210220(int id); // inferred: record of the parameters (result unused here)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: state checks of CharaTask written with a result flag (the original materializes each bool);
@@ -1351,7 +1350,7 @@ void BattleCharaTask::fn_800E7F04() {
                 Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
                 fn_80107168(lbl_8087F048, skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
                             &color, 1.0f);
-                fn_80107208(lbl_8087F048, skill->m04, &m1428->mPos, 1.0f);
+                ((BattleTask*)lbl_8087F048)->fn_80107208(skill->m04, &m1428->mPos, 1.0f);
                 HitInfo_unk* sub = skill->m6C > 0 ? fn_80219E6C(skill->m6C) : 0;
                 if (sub != 0) {
                     FixedArray_unk<CharaTask*, 32> targets;

@@ -10,6 +10,7 @@
 #include "game/EnemyManager.h"
 #include "game/CharaManager.h"
 #include <boost/function.hpp>
+#include "game/BattleTask.h"
 
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -34,7 +35,6 @@ struct Color4f_unk {
 struct Motion_unk;
 extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, Motion_unk* motion, const atn::Vector3* pos,
                             const atn::Vector3* rot, const Color4f_unk* color, float scale);
-extern "C" void fn_80107208(Effect_unk* effect, int id, const atn::Vector3* pos, float scale);
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
@@ -394,7 +394,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
             if (heals[i].first != 0 && user != 0) {
                 fn_801070C8(lbl_8087F048, heals[i].first->mB0, 0, 0, 0, &user->mPos, &user->mRot,
                             &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                fn_80107208(lbl_8087F048, heals[i].first->mB0, &user->mPos, 1.0f);
+                ((BattleTask*)lbl_8087F048)->fn_80107208(heals[i].first->mB0, &user->mPos, 1.0f);
             }
         }
         if (lbl_8087F490 != 0) {

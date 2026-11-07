@@ -12,6 +12,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/bind.hpp>
+#include "game/BattleTask.h"
 
 // inferred: arena mode object (lbl_8087F610, as in chr/ControlCharge.cpp)
 struct Arena_unk {
@@ -45,7 +46,6 @@ struct Color4f_unk {
 };
 extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
-extern "C" void fn_80107208(Effect_unk* effect, int id, const atn::Vector3* pos, float scale);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void* lbl_8087EE98; // inferred: collision world
 // inferred: collision world (out-of-line copy 0x801404F8 in game/CharaTask.cpp)
@@ -425,7 +425,7 @@ int ControlKnockdown::vf0C() {
                     }
                     fn_801070C8(lbl_8087F048, 0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
                                 Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
-                    fn_80107208(lbl_8087F048, 0x7D7, &res.m10, 1.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_80107208(0x7D7, &res.m10, 1.0f);
                 }
             }
         }

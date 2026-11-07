@@ -9279,13 +9279,11 @@ void CharaTask::fn_80168EA0() {
     }
 }
 
-extern "C" void fn_80107DA4(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion, float f,
-                            const atn::Vector3& v);
 
 void CharaTask::fn_80168EC0() {
     Effect_unk* effect = lbl_8087F048;
     if (effect != 0) {
-        fn_80107DA4(effect, &mMotion, &mMotion, vf90(), vf94());
+        ((BattleTask*)effect)->fn_80107DA4(&mMotion, &mMotion, vf90(), vf94());
     }
 }
 

@@ -68,7 +68,9 @@ public:
     void fn_80106680(void* owner, atn::Model* model);
     void fn_80106728(int arg, atn::Model* model); // inferred: called when a part is destroyed
     void fn_801067D0(CharaTask* chara, atn::Model* model);
+    void fn_80107208(int id, const atn::Vector3* pos, float scale); // inferred: sound of the battle effect table
     void fn_80107574(); // inferred: hides the chant effect
+    void fn_801076D0(void* owner, atn::Model* model); // inferred: paralysis effect
     void fn_80107798(void* owner, int flag);
     void fn_801077A8(void* owner, atn::Model* model);
     void fn_80107850(void* owner);
@@ -85,6 +87,7 @@ public:
     void fn_80107CA8(void* owner, int flag);
     void fn_80107CEC(void* owner, atn::Model* model, float scale);
     void fn_80107D94(void* owner);
+    void fn_80107DA4(void* owner, atn::Model* model, float scale, const atn::Vector3& pos);
     void fn_80107E58(void* owner);
     void fn_80107E68(void* owner, atn::Model* model);
     void fn_80107F10(void* owner);
@@ -121,8 +124,8 @@ public:
     float m38A2C;
     unsigned char m38A30[0x38A48 - 0x38A30];
     float m38A48; // inferred: gauge gained by a magic
-    unsigned char m38A4C[0x38BC0 - 0x38A4C];
-    atn::EfpFile mEfp38BC0[15];  // 0x38BC0: inferred: status effects (EFP files)
+    unsigned char m38A4C[0x38BB4 - 0x38A4C];
+    atn::EfpFile mEfp38BB4[16];  // 0x38BB4: inferred: status effects (EFP files)
     unsigned char m38C74[0x3E2E0 - 0x38C74];
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor
