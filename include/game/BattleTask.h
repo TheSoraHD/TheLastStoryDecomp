@@ -109,6 +109,7 @@ public:
                      const atn::Vector3* rot, const EffectColor_unk* color, float scale);
     // inferred: chant effect (CharaTask::fn_80145334): shown at pos (restarted when `changed`)
     void fn_8010743C(const atn::Vector3* pos, int changed, float f);
+    CharaTask* fn_8010C948(CharaTask* chara); // inferred: the character `chara` hates most
     void fn_80105DCC(CharaTask* chara, atn::Model* model, int level); // inferred: charge effect of the level
     Bullet* fn_801010A0();       // inferred: free bullet
     HomingBullet* fn_801010E8(); // inferred: free homing bullet
@@ -230,7 +231,8 @@ public:
     BattleSel_unk m38C90; // inferred: selection (copied to m38CB8 by fn_8010ABF4)
     unsigned char m38CA4[0x38CB8 - 0x38CA4];
     BattleSel_unk m38CB8;
-    unsigned char m38CCC[0x3E2E0 - 0x38CCC];
+    unsigned char m38CCC[0x391E0 - 0x38CCC];
+    int m391E0[0x48][0x48]; // inferred: hate of each character toward each other (fn_8010C948)
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor
     RayObj_unk* m3E2E8; // inferred: cursor target

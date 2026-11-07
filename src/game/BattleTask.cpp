@@ -839,6 +839,26 @@ int BattleTask::fn_8010B180(CharaTask* a, CharaTask* b) {
     return 1;
 }
 
+CharaTask* BattleTask::fn_8010C948(CharaTask* chara) {
+    int i = FindChara_unk(chara);
+    if (i < 0) {
+        return 0;
+    }
+    int best = 0;
+    int found = -1;
+    int* row = m391E0[i];
+    for (int j = 0; j < mCharaCount; j++) {
+        if (best < row[j]) {
+            best = row[j];
+            found = j;
+        }
+    }
+    if (found < 0 || mCharaCount <= found) {
+        return 0;
+    }
+    return mCharas[found].mChara;
+}
+
 float BattleTask::fn_8010CA24() {
     return 2.4f;
 }

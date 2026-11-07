@@ -197,7 +197,6 @@ struct EffectCharaSlot_unk {
 struct Effect_unk {
     void fn_8013A19C(int value);
     atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
-    CharaTask* fn_8010C948(CharaTask* chara);   // inferred: a target for the character
 
     unsigned char m00[0xCBF0];
     EffectCharaSlot_unk mCBF0[0x48]; // inferred: characters known to the effect manager (fn_80176E30)
@@ -1952,7 +1951,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
         break;
     case 17:
         mC58.mDest = mPos;
-        mC58.mCC = mC58.m10C = fn_8013A194()->fn_8010C948(this);
+        mC58.mCC = mC58.m10C = ((BattleTask*)fn_8013A194())->fn_8010C948(this);
         if (mC58.m110 != 0 && mC58.m110->fn_8013C514()) {
             mC58.mDest = *mC58.m110->fn_8013C53C();
             mC58.mRadius = 0.9f * mC58.m110->fn_8013C544();
