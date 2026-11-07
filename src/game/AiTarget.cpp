@@ -12,6 +12,9 @@
 #include "game/CharaTask.h"
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
+#include "game/FriendManager.h"
+#include "game/NpcManager.h"
+#include "game/NpcTask.h"
 #include "game/GameScene.h"
 #include "game/GameTask.h"
 #include "game/GimmickCommon.h"
@@ -30,6 +33,17 @@ extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the skill is offensive (as in AI/AiCommon_unk.cpp)
 extern "C" void fn_8001C1B4(); // inferred: AI/AI_archer_attack01.cpp (empty)
 extern "C" void fn_8001C1B8();
+extern "C" void fn_8001C1BC();
+extern "C" int rand();
+
+// inferred: link of the friend list (CharaTask + 0x14AC, as in game/Em301LShade.cpp)
+struct CharaListNode_unk {
+    unsigned char m0000[0x14AC];
+    CharaTask* mNext;
+};
+inline CharaTask* NextChara_unk(CharaTask* chara) {
+    return ((CharaListNode_unk*)chara)->mNext;
+}
 
 // inferred: render parameters (as FrameTime_unk in game/GimmickStateCommand.cpp)
 struct FrameTime_unk {
@@ -88,6 +102,52 @@ void AIManager::vf10() {
     mDC = 300;
     m90 = (m90 + 1) % 4;
     fn_80018834();
+}
+
+// inferred: places every character at a random point of its route group, runs their AI once
+void AIManager::fn_80016888() {
+    lbl_8087FA00->Rebuild_unk();
+    m98 = 1;
+    fn_80017064(lbl_8087F8A0->mHead);
+    for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
+        if (!c->mC58.mHeld_unk) {
+            fn_80016A94(c, boost::function<void()>());
+        }
+        fn_80017064(c);
+        c->mC58.m08 = c->mC58.m0C.mDestPoint;
+    }
+    for (NpcTask* n = NpcManager::sInstance->mHead; n != 0; n = n->mNext) {
+        fn_80017064(n);
+        n->mC58.m08 = n->mC58.m0C.mDestPoint;
+    }
+    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+        if (!e->mC58.mHeld_unk) {
+            fn_80016A94(e, boost::function<void()>());
+        }
+        fn_80017064(e);
+        e->mC58.m08 = e->mC58.m0C.mDestPoint;
+    }
+    fn_8001C1BC();
+    fn_800D246C(0);
+    m8C = EnemyManager::sInstance->mHead;
+    m80 = FriendManager::sInstance->fn_8036554C();
+    m7C = lbl_8087F8A0->mHead;
+    m84 = NpcManager::sInstance->mHead;
+    while (m84 != 0 && m84->m1428 != 0) {
+        m84 = m84->mNext;
+    }
+}
+
+// NONMATCHING: 99.4% - stack slots of the local position and of the returned temporary swapped
+// inferred: puts `chara` at a random point of its route group, facing a random direction
+void AIManager::fn_80016A94(CharaTask* chara, boost::function<void()> callback) {
+    int point = fn_80016C10(chara->mC58.mB4, callback);
+    atn::Vector3 pos;
+    pos = lbl_8087F430->m10D8->fn_803C11A4(point);
+    atn::Vector3 rot = chara->mRot;
+    rot.y = 6.2831855f * ((rand() % 1001) / 1000.0f) - 3.1415927f;
+    chara->mPos = pos;
+    chara->mRot = rot;
 }
 
 void AIManager::fn_80016FB4() {

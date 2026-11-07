@@ -1,6 +1,7 @@
 #ifndef GAME_AITARGET_H
 #define GAME_AITARGET_H
 
+#include <boost/function.hpp>
 #include "atn/FixedArray.h"
 #include "atn/LH_Binary.h"
 #include "atn/Task.h"
@@ -9,6 +10,9 @@
 #include "std/vector.h"
 
 class CharaTask;
+class EnemyTask;
+class NpcTask;
+class PlayerTask;
 struct HitInfo_unk;
 
 // inferred: object with a position at +0x10 aimed at by AiTarget type 2 (class unknown)
@@ -52,6 +56,9 @@ public:
 
     static AIManager* fn_800144FC(atn::Task* parent); // inferred: creates the singleton
 
+    void fn_80016888();
+    void fn_80016A94(CharaTask* chara, boost::function<void()> callback);
+    int fn_80016C10(int group, boost::function<void()> callback); // inferred: random point of a route group
     void fn_80016FB4(); // inferred: clears the targets and the target counters of the characters
     void fn_80017060();
     int fn_80017064(CharaTask* chara); // inferred: runs the AI of a character m98 times
@@ -79,11 +86,11 @@ public:
     atn::LH_Binary m64;
     std::vector<int> m6C; // inferred: element type unknown (no destructor)
     int m78;
-    int m7C;
-    int m80;
-    int m84;
+    PlayerTask* m7C; // inferred: iterators of the character lists (fn_80016888)
+    CharaTask* m80;
+    NpcTask* m84;
     int m88;
-    int m8C;
+    EnemyTask* m8C;
     int m90;
     float m94;
     int m98;
