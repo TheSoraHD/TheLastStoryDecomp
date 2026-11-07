@@ -103,11 +103,6 @@ const char* ctype<char>::do_narrow(const char* low, const char* high, char dfaul
     return high;
 }
 
-template <class T>
-inline const T& min(const T& a, const T& b) {
-    return b < a ? b : a;
-}
-
 codecvt<char, char, int>::codecvt(size_t refs) : locale::facet(refs) {}
 
 codecvt<wchar_t, char, int>::codecvt(size_t refs) : locale::facet(refs) {}

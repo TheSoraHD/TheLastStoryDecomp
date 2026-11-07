@@ -13,6 +13,7 @@ unsigned long strlen(const char* s);
 char* strcpy(char* dst, const char* src);
 int strcmp(const char* a, const char* b);
 void free(void* p);
+void* memmove(void* dst, const void* src, unsigned long n);
 int atexit(void (*func)(void));
 }
 
@@ -161,8 +162,17 @@ template <class T>
 inline const T& max(const T& a, const T& b) {
     return a < b ? b : a;
 }
+template <class T>
+inline const T& min(const T& a, const T& b) {
+    return b < a ? b : a;
+}
 } // namespace std
 inline void operator delete(void*, void*) throw() {}
+
+// the whence values of the C library (stdio.h)
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
 
 struct _FILE {
     unsigned char m00[0x50];
@@ -217,6 +227,7 @@ template <class stateT>
 class fpos {
 public:
     fpos(streamoff off) : off_(off), st_() {}
+    operator streamoff() const { return off_; }
 
     streamoff off_;
     stateT st_;
@@ -833,11 +844,11 @@ protected:
     virtual int_type overflow(int_type c);
     virtual std::streamsize write(const char* s, std::streamsize n) = 0;
     virtual std::streamsize read(char* s, std::streamsize n) = 0;
-    virtual std::fpos<std::mbstate_t> seek(std::streamoff off, std::ios_base::seekdir way) = 0;
+    virtual std::streamoff seek(std::streamoff off, int whence) = 0;
 
     int flush_put();
     int empty_get();
-    int fill_get();
+    std::streamsize fill_get();
     // inferred: sets up the get and put areas over the buffer (inlined in setbuf)
     void __init_areas_unk() {
         C* p = buffer_;
@@ -857,6 +868,8 @@ protected:
         ext_beg_ = ext_next_ = (char*)buffer_;
         ext_end_ = (char*)(buffer_ + buf_size_);
     }
+    // inferred: external bytes per character
+    int __ext_width_unk() const { return encoding_ <= 0 ? 1 : (encoding_ > (int)sizeof(C) ? (int)sizeof(C) : encoding_); }
     // inferred: writes [ext_beg_, ext_next_) to the device
     int __write_ext_unk() {
         while (ext_beg_ < ext_next_) {
@@ -885,6 +898,7 @@ protected:
     bool buffered_;        // 0x4A
     bool owns_buffer_;     // 0x4B
     bool m4C_;             // 0x4C
+    bool text_mode_unk_;   // 0x4D: inferred: counts '\n' as two characters when seeking back
 };
 
 template <class C, class T = std::char_traits<C> >
@@ -897,9 +911,8 @@ protected:
     virtual int sync();
     virtual std::streamsize write(const char* s, std::streamsize n) { return fwrite(s, 1, n, file_); }
     virtual std::streamsize read(char* s, std::streamsize n) { return -1; }
-    virtual std::fpos<std::mbstate_t> seek(std::streamoff off, std::ios_base::seekdir way) { return -1; }
+    virtual std::streamoff seek(std::streamoff off, int whence) { return -1; }
 
-    bool m4D_;     // 0x4D
     _FILE* file_; // 0x50
 };
 
@@ -1036,6 +1049,217 @@ int bufferedbuf<C, T>::flush_put() {
     return 0;
 }
 
+// inferred: before the get area is dropped, the unread characters are converted again to know how many
+// external characters to seek back
+template <class C, class T>
+int bufferedbuf<C, T>::empty_get() {
+    if (encoding_ < 0 && this->gptr_ < this->egptr_) {
+        return -1;
+    }
+    int off = ext_end_ - ext_next_;
+    char* end = (char*)(buffer_ + buf_size_);
+    ext_next_ = ext_end_ = end;
+    C* e = this->egptr_;
+    C* g = this->gptr_;
+    if (g < e) {
+        if (encoding_ == 0) {
+            const C* from_next = (C*)end - (e - g);
+            char* to_end = (char*)from_next;
+            memmove((void*)from_next, g, (e - g) * sizeof(C));
+            char* to_next;
+            std::codecvt_base::result r;
+            do {
+                r = a_codecvt_->out(state_, from_next, (C*)end, from_next, (char*)g, to_end, to_next);
+                switch (r) {
+                case std::codecvt_base::error:
+                    return -1;
+                case std::codecvt_base::noconv:
+                    off += ((const C*)end - from_next) * sizeof(C);
+                    break;
+                case std::codecvt_base::partial:
+                    if (to_next == (char*)g) {
+                        return -1;
+                    }
+                    to_end = (char*)from_next;
+                case std::codecvt_base::ok:
+                    off += to_next - (char*)g;
+                    break;
+                }
+            } while (r == std::codecvt_base::partial);
+        } else {
+            off += encoding_ * (e - g);
+        }
+    }
+    if (off > 0) {
+        if (text_mode_unk_) {
+            for (C* p = this->gptr_; p < this->egptr_; ++p) {
+                if (*p == C('\n')) {
+                    ++off;
+                }
+            }
+        }
+        off = seek(-off, SEEK_CUR);
+    }
+    if (off < 0) {
+        return -1;
+    }
+    this->egptr_ = this->gptr_;
+    return 0;
+}
+
+template <class C, class T>
+std::streamsize bufferedbuf<C, T>::fill_get() {
+    std::streamsize n = this->gptr_ - this->eback_;
+    if (n > 4) {
+        n = 4;
+        memmove(this->eback_, this->gptr_ - 4, 4 * sizeof(C));
+        this->egptr_ = this->gptr_ = this->eback_ + 4;
+    }
+    if (always_noconv_) {
+        std::streamsize r = read((char*)this->gptr_, (buf_size_ - n) * sizeof(C));
+        if (r <= 0) {
+            return r;
+        }
+        int odd = r % (int)sizeof(C);
+        if (odd != 0) {
+            if (seek(-odd, SEEK_CUR) < 0) {
+                return -1;
+            }
+            r -= odd;
+        }
+        this->egptr_ = this->gptr_ + r / sizeof(C);
+    } else {
+        ext_beg_ = (char*)(buffer_ + buf_size_) - __ext_width_unk() * (buf_size_ - (this->gptr_ - this->eback_) - 1);
+        std::size_t k = 0;
+        if (ext_next_ < ext_end_) {
+            k = ext_end_ - ext_next_;
+            memmove(ext_beg_, ext_next_, k);
+        }
+        ext_next_ = ext_beg_ + k;
+        ext_end_ = (char*)(buffer_ + buf_size_);
+        std::streamsize r = read(ext_next_, ext_end_ - ext_next_);
+        ext_end_ = ext_next_;
+        ext_next_ = ext_beg_;
+        if (r <= 0) {
+            return r;
+        }
+        ext_end_ += r;
+        C* to_next;
+        const char* from_next;
+        std::codecvt_base::result res = a_codecvt_->in(state_, ext_beg_, ext_end_, from_next, this->gptr_,
+                                                       buffer_ + buf_size_ - 1, to_next);
+        ext_next_ = (char*)from_next;
+        switch (res) {
+        case std::codecvt_base::error:
+            return -1;
+        case std::codecvt_base::noconv:
+            memmove(this->gptr_, ext_beg_, ext_end_ - ext_beg_);
+            ext_next_ = ext_end_;
+            to_next = this->gptr_ + (ext_end_ - ext_beg_) / sizeof(C);
+        case std::codecvt_base::ok:
+        case std::codecvt_base::partial:
+            this->egptr_ = to_next;
+            break;
+        }
+    }
+    return this->egptr_ - this->gptr_;
+}
+
+template <class C, class T>
+typename bufferedbuf<C, T>::int_type bufferedbuf<C, T>::underflow() {
+    if (!m4C_) {
+        return T::eof();
+    }
+    if (this->pptr_ != 0) {
+        unshift_ = encoding_ < 0;
+        if (flush_put() < 0) {
+            return T::eof();
+        }
+        this->setp(0, 0);
+    }
+    if (this->gptr_ == 0) {
+        C* p = buffer_;
+        this->setp(0, 0);
+        this->setg(p, p, p);
+        ext_beg_ = ext_next_ = ext_end_ = (char*)(p + buf_size_);
+        if (!always_noconv_) {
+            ext_beg_ -= (buf_size_ - 1) * __ext_width_unk();
+        }
+    }
+    if (this->gptr_ >= this->egptr_ && fill_get() <= 0) {
+        return T::eof();
+    }
+    return T::to_int_type(*this->gptr_);
+}
+
+template <class C, class T>
+typename bufferedbuf<C, T>::int_type bufferedbuf<C, T>::overflow(int_type c) {
+    if (!m4C_) {
+        return T::eof();
+    }
+    if (this->gptr_ != 0) {
+        if (empty_get() < 0) {
+            return T::eof();
+        }
+        this->setg(0, 0, 0);
+    }
+    if (this->pptr_ == 0) {
+        __init_areas_unk();
+    }
+    if (!T::eq_int_type(c, T::eof())) {
+        *this->pptr_ = T::to_char_type(c);
+        ++this->pptr_;
+    }
+    if (flush_put() < 0) {
+        return T::eof();
+    }
+    return T::not_eof(c);
+}
+
+template <class C, class T>
+std::fpos<std::mbstate_t> bufferedbuf<C, T>::seekoff(std::streamoff off, std::ios_base::seekdir way,
+                                                     std::ios_base::openmode which) {
+    if (!m4C_ || (which & (std::ios_base::in | std::ios_base::out)) == 0 || off != 0 && encoding_ <= 0) {
+        return -1;
+    }
+    if (this->sync() < 0) {
+        return -1;
+    }
+    int whence;
+    switch (way) {
+    case std::ios_base::beg:
+        whence = SEEK_SET;
+        break;
+    case std::ios_base::cur:
+        whence = SEEK_CUR;
+        break;
+    case std::ios_base::end:
+        whence = SEEK_END;
+        break;
+    default:
+        return -1;
+    }
+    std::streamoff pos = seek(off * (encoding_ > 0 ? encoding_ : 0), whence);
+    if (pos < 0) {
+        return -1;
+    }
+    return pos;
+}
+
+template <class C, class T>
+std::fpos<std::mbstate_t> bufferedbuf<C, T>::seekpos(std::fpos<std::mbstate_t> sp, std::ios_base::openmode which) {
+    if (!m4C_ || (which & (std::ios_base::in | std::ios_base::out)) == 0) {
+        return -1;
+    }
+    if (this->sync() < 0) {
+        return -1;
+    }
+    if (seek(sp, SEEK_SET) < 0) {
+        return -1;
+    }
+    return sp;
+}
+
 template <class C, class T>
 int bufferedbuf<C, T>::sync() {
     if (this->pptr_ != 0) {
@@ -1087,7 +1311,7 @@ console_inputbuf<C, T>::console_inputbuf(_FILE* file) : file_(file), m28_(0), m3
 
 template <class C, class T>
 console_outputbuf<C, T>::console_outputbuf(_FILE* file) : file_(file) {
-    this->m4D_ = false;
+    this->text_mode_unk_ = false;
     this->m4C_ = true;
 }
 
