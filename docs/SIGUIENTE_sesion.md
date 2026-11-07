@@ -4,7 +4,16 @@ Rama `nw4rmath-20261107` (**sin mergear**, la revisa el usuario): **14053 / 1811
 lost 0, **656 enlazadas**, NW4R 77/78, build limpio y clon limpio `main.dol: OK`. Notas: `docs/nw4rmath-20261107.md`
 (incluye la lista de tramos `auto_` que quedan).
 
-## A revisar antes de mergear
+## EN CURSO: MSL C++ (rama `msl-iostream-20261107`, WIP, sin enlazar)
+
+- Unidad nueva `PowerPC_EABI_Support/src/MSL_C++/iostream.cpp` = todo 0x8068B39C-0x8069533C (una sola TU con
+  `__sinit` al final), extab/extabindex/datos; absorbe las 11 `auto_03_806*` (quitadas de `configure.py`). Escrita
+  desde el asm. **43/170 al 100%**, lost 3 (do_unshift<wchar_t>, ctype<char>::do_toupper rango, dispose del
+  deleter de `__locale_imp`). Flags: Wii/1.1, `-Cpp_exceptions on -O4,p -opt nostrength -inline on -ipa file`.
+- Seguir con `docs/msl-iostream-20261107.md` (layouts, hallazgos de `shared_ptr` y del presupuesto de IPA, lista
+  de pendientes). No mergear hasta lost 0.
+
+## A revisar antes de mergear (`nw4rmath-20261107`)
 
 1. Excepciones de asm nuevas en la regla 2: NW4R math (`SinCosFIdx`, `MTX34Zero`) y el `lwz 0(r1)` de `VPanic`.
 2. `DbgPrintBase<T>::Append` con `__declspec(noinline)` (funcion debil de plantilla).
