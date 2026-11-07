@@ -248,6 +248,10 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
   `wios_base_Init_unk::~wios_base_Init_unk` (0x8068C240).
   Escritas sin llegar: `__decimal_unk::__round_unk` (0x80693AB8, 97,9%), `basic_ostream<wchar_t>::flush`
   (0x8068E3FC, 99,9%), `sentry::sentry` (0x8069194C, 97,2%).
+- **Cierre: 111/170** (`report.json` 14151), build limpio `main.dol: OK`, `regress.py` lost 0, `fuzzdrop.py` sin
+  bajadas, `rep100.py` 144 (igual que `main`), `poolcheck.py`/`mnemcheck.py` sin avisos. `iostream.cpp` y
+  `locale.cpp` siguen con `matching: false` (no tienen todas sus funciones al 100%; el orden de funciones y datos
+  queda para cuando lo esten).
 
 ## Cambios de splits/flags
 

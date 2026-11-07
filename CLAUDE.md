@@ -8,7 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `msl-iostream-20261107` (2026-11-07, **mergeada en `main`** con `nw4rmath-20261107`): **14146 / 18116**, lost 0. MSL C++ partida en `iostream.cpp`/`locale.cpp`/`shared_ptr_unk.cpp` (106/170; `shared_ptr_unk.cpp` enlazada, las otras dos no). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`. Notas: `docs/msl-iostream-20261107.md`; siguiente paso: `docs/SIGUIENTE_sesion.md`.
+- `msl-iostream-20261107b` (2026-11-07, sesion 4, **sin mergear**): **14151 / 18116**, lost 0. MSL C++ 106 -> 111/170 (`num_put` de `double`, `sentry`/`flush` de `wostream`, destructores de `Init`). `Init` sigue inlineandolo todo (falta coste de candidatos). Notas: `docs/msl-iostream-20261107.md` (sesion 4).
+- `msl-iostream-20261107` (mergeada en `main`): 14146, MSL C++ 106/170 (`shared_ptr_unk.cpp` enlazada). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`.
 - `nw4rmath-20261107` (mergeada en `main`): 14053, NW4R 77/78 (falta `ut_TextWriterBase`): `db_DbgPrintBase`, math (`SinCosFIdx`, `MTX34Zero`, asm aprobado), `db_assert` (`VPanic`), `FrameHeap::GetSize_unk`; `docs/nw4rmath-20261107.md`.
 - `maraton-20261107` (mergeada en `main`): 13987, `BattleTask` 94/212, `GameTask` 42/133, `AiTarget` 31/44, `TacView` 14/46, `GameEventScript` 61/224; `docs/maraton-20261107.md`.
 - `hermanas-20261106` (mergeada): 13737, `ShopBase`, `CosEditProtector`, `NewCampTask`, `LastCocoon*`; `docs/hermanas-20261106.md`. `unidades-20261106b` 13619 (KPAD 2010, menus MP); `unidades-20261106` 13524 (SDK 2010 CC0); `unidades-20261105` 12766.
