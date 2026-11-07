@@ -74,7 +74,6 @@ class MenuSaveTask {
 public:
     static MenuSaveTask* sInstance;
 };
-extern "C" void fn_80375194(GameField_unk* field, int a, int b, float c);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: UI sound names (SE_UICOM_001...)
 
 inline CharaTask* GameEventScript::GetChara_unk(int kind, int id) const {
@@ -519,7 +518,7 @@ void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     if (lbl_8087F430 != 0) {
-        fn_80375194(lbl_8087F430, args->m1C, args->m14, *(float*)&args->m18);
+        ((GameTask*)lbl_8087F430)->fn_80375194(args->m1C, args->m14, *(float*)&args->m18);
     }
     result.SetNext_unk(cmd);
 }

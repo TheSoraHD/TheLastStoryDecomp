@@ -90,6 +90,7 @@ public:
     int fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int point); // inferred: hide link ahead of `chara`
     int fn_8036DB24(Ledge_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir); // inferred: next hide link
     int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara);
+    void fn_80375194(int id, int kind, float rot); // inferred: sets m5644/m5640 and moves the party to the leader
     int fn_803754C4(); // inferred: the task at 0x567C exists and is not stopped
     int fn_803761BC(); // inferred: debug field
     int fn_803761DC(); // inferred: a mode compared with 1, 2 and 3

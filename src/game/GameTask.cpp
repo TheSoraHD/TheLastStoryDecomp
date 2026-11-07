@@ -333,6 +333,17 @@ int GameTask::fn_80375184() {
     return m5638 == 0;
 }
 
+void GameTask::fn_80375194(int id, int kind, float rot) {
+    m5644 = id;
+    m5640 = kind;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    for (PlayerTask* player = leader; player != 0; player = player->mNext) {
+        if (!player->IsFlag_unk(4) && !player->IsFlag54C_unk(0x2000) && player->mC54 != 0) {
+            player->fn_801546F4(m5640, leader->mPos, rot);
+        }
+    }
+}
+
 StrategyAiEntry_unk* GameTask::fn_80375254() {
     StrategyAiEntry_unk* entry = fn_8021CF08(m5644, m5640);
     if (entry == 0) {
