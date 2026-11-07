@@ -429,6 +429,24 @@ void BattleTask::fn_801067D0(CharaTask* chara, atn::Model* model) {
     PlayEfp_unk(&mEfp363C0[45], model);
 }
 
+void BattleTask::fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
+                             const atn::Vector3* rot, const EffectColor_unk* color, float scale) {
+    atn::EfpFile* efp = fn_800EFBC4(id);
+    if (efp != 0) {
+        fn_80232B7C(owner, group);
+        fn_8023A8B4(lbl_8087F3C0, efp, model, 0, *pos, *rot, *color, -1, -1, 1, scale);
+    }
+}
+
+void BattleTask::fn_80107168(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
+                             const atn::Vector3* rot, const EffectColor_unk* color, float scale) {
+    atn::EfpFile* efp = fn_800EFDA0(id);
+    if (efp != 0) {
+        fn_80232B7C(owner, group);
+        fn_8023A8B4(lbl_8087F3C0, efp, model, 0, *pos, *rot, *color, -1, -1, 1, scale);
+    }
+}
+
 void BattleTask::fn_80107208(int id, const atn::Vector3* pos, float scale) {
     const char* name = fn_800EFE3C(id);
     if (name != 0) {

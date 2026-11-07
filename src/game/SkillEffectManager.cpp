@@ -1,4 +1,5 @@
 #include "game/GameUI.h"
+#include "atn/EffectSystem_unk.h"
 #include "game/GameTask.h"
 #include "game/SkillEffectManager.h"
 #include "atn/FixedArray.h"
@@ -27,14 +28,8 @@ extern "C" void fn_800FBA30(Effect_unk* mgr, CharaTask* chara, CharaTask* user, 
                             const atn::Vector3* pos, const atn::Vector3* rot);
 extern "C" void fn_800FB1BC(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b);
-struct Color4f_unk {
-    Color4f_unk() {}
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
+typedef EffectColor_unk Color4f_unk;
 struct Motion_unk;
-extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, Motion_unk* motion, const atn::Vector3* pos,
-                            const atn::Vector3* rot, const Color4f_unk* color, float scale);
 
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
@@ -392,7 +387,7 @@ void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const 
             Effect_unk* mgr = lbl_8087F048;
             fn_800FB4B0(mgr, heals[i].second, heals[i].first, fn_800F8548(mgr), pos, 1, 30, -1, 0);
             if (heals[i].first != 0 && user != 0) {
-                fn_801070C8(lbl_8087F048, heals[i].first->mB0, 0, 0, 0, &user->mPos, &user->mRot,
+                ((BattleTask*)lbl_8087F048)->fn_801070C8(heals[i].first->mB0, 0, 0, 0, &user->mPos, &user->mRot,
                             &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
                 ((BattleTask*)lbl_8087F048)->fn_80107208(heals[i].first->mB0, &user->mPos, 1.0f);
             }

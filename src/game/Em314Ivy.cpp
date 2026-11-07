@@ -1,4 +1,6 @@
 #include "game/Em314Ivy.h"
+#include "atn/EffectSystem_unk.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/Inventory.h"
@@ -23,13 +25,8 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" void fn_80107168(Effect_unk* effect, int id, int a, int b, int c, const atn::Vector3* pos,
-                            const atn::Vector3* dir, const struct IvyColor_unk* color, float scale); // inferred: plays an effect
 // inferred: color as four floats (name invented)
-struct IvyColor_unk {
-    IvyColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
+typedef EffectColor_unk IvyColor_unk;
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -348,7 +345,7 @@ void Em314Ivy::fn_803132D0() {
             fn_8044D6AC(Inventory::instance_, money);
             for (int i = 0; i < 5; i++) {
                 Effect_unk* effect = lbl_8087F048;
-                fn_80107168(effect, 0x232D, 0, 0, 0, &m14E4->fn_801781B0(), &chr::lbl_807C7030,
+                ((BattleTask*)effect)->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(), &chr::lbl_807C7030,
                             &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
             }
             fn_801092C8(lbl_8087F048, 4, 0, money, 0);

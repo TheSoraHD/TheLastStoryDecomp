@@ -1,6 +1,7 @@
 // Hit reactions: damage, guard, dodge, knockdown and getting up, revival, falling to death, guard
 // broken and the reaction of the enemies (ControlDamageLastOne).
 #include "chr/ControlDamage.h"
+#include "atn/EffectSystem_unk.h"
 #include "game/GameTask.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
@@ -39,12 +40,7 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_8010A308(Effect_unk* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
 // inferred: RGBA colour (names invented)
-struct Color4f_unk {
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
-extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
-                            const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
+typedef EffectColor_unk Color4f_unk;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void* lbl_8087EE98; // inferred: collision world
 // inferred: collision world (out-of-line copy 0x801404F8 in game/CharaTask.cpp)
@@ -422,8 +418,8 @@ int ControlKnockdown::vf0C() {
                     if (mChara->GetLens_unk()) {
                         pos.y = -mChara->GetLens_unk()->mPlane.mDist * mChara->GetLens_unk()->mPlane.mNormal.y + 0.01f;
                     }
-                    fn_801070C8(lbl_8087F048, 0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
-                                Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+                    ((BattleTask*)lbl_8087F048)->fn_801070C8(0x7D7, 0, 0, 0, &res.m10, &mChara->mRot,
+                                &Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
                     ((BattleTask*)lbl_8087F048)->fn_80107208(0x7D7, &res.m10, 1.0f);
                 }
             }

@@ -1,4 +1,5 @@
 #include "chr/ControlAttractHateCharge.h"
+#include "atn/EffectSystem_unk.h"
 #include "game/AiTarget.h"
 #include "game/GameVoice.h"
 #include "atn/SoundRef.h"
@@ -15,12 +16,7 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: RGBA colour (names invented)
-struct Color4f_unk {
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
-extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
-                            const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk* color, float scale);
+typedef EffectColor_unk Color4f_unk;
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
                             int a, int time, int b, int c);
@@ -149,7 +145,7 @@ ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
         HitInfo_unk* hit = fn_80219E6C(mSkill);
         if (lbl_8087F048 != 0) {
             Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-            fn_801070C8(lbl_8087F048, hit->mB0, 0, 0, &mChara->mMotion, &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
+            ((BattleTask*)lbl_8087F048)->fn_801070C8(hit->mB0, 0, 0, &mChara->mMotion, &lbl_807C7030, &lbl_807C7030, &color, 1.0f);
         }
     }
     if (mChara->m7C != 0 && ((VoiceEntry_unk*)mChara->m7C)->fn_8021FD7C(0x24) != 0) {

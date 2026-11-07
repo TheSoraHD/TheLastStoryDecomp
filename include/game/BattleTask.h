@@ -102,6 +102,11 @@ public:
     void fn_800FDF14(BattleCalcParam_unk* param);
     void fn_80100BC0();          // inferred: stops the effects (fn_801055A8 and effect group 5)
     void fn_801055A8(int arg);
+    // inferred: plays the battle effect `id` (fn_800EFBC4) / skill effect (fn_800EFDA0) after stopping the group
+    void fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
+                     const atn::Vector3* rot, const EffectColor_unk* color, float scale);
+    void fn_80107168(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
+                     const atn::Vector3* rot, const EffectColor_unk* color, float scale);
     void fn_80105DCC(CharaTask* chara, atn::Model* model, int level); // inferred: charge effect of the level
     Bullet* fn_801010A0();       // inferred: free bullet
     HomingBullet* fn_801010E8(); // inferred: free homing bullet

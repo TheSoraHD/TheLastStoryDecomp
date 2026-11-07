@@ -1,4 +1,5 @@
 #include "Event/Manager.h"
+#include "atn/EffectSystem_unk.h"
 #include "game/GameCamera.h"
 #include "game/AiTarget.h"
 #include "game/GameTask.h"
@@ -94,12 +95,7 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data
                             const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
                             float b); // inferred: fires a bullet (as in game/Em003LesserDaemon.cpp)
 // inferred: colour as four floats (as in game/CharaTask.cpp)
-struct Color4f_unk {
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
-extern "C" void fn_80107168(Effect_unk* mgr, int id, int a, int b, atn::Model* model, const atn::Vector3* pos,
-                            const atn::Vector3* rot, const Color4f_unk* color, float scale); // inferred: effect of a skill
+typedef EffectColor_unk Color4f_unk;
 extern "C" void* fn_80210220(int id); // inferred: record of the parameters (result unused here)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: state checks of CharaTask written with a result flag (the original materializes each bool);
@@ -1337,7 +1333,7 @@ void BattleCharaTask::fn_800E7F04() {
                 Effect_unk* mgr = lbl_8087F048;
                 fn_800FAB80(mgr, this, skill, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
                 Color4f_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-                fn_80107168(lbl_8087F048, skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
+                ((BattleTask*)lbl_8087F048)->fn_80107168(skill->m04, 0, 0, m1428->GetModel_unk(), &lbl_807C7030, &lbl_807C7030,
                             &color, 1.0f);
                 ((BattleTask*)lbl_8087F048)->fn_80107208(skill->m04, &m1428->mPos, 1.0f);
                 HitInfo_unk* sub = skill->m6C > 0 ? fn_80219E6C(skill->m6C) : 0;
