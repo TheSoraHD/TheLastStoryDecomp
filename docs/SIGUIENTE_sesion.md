@@ -12,8 +12,8 @@ lost 0, **656 enlazadas**, NW4R 77/78, build limpio y clon limpio `main.dol: OK`
 
 ## Siguiente objetivo propuesto
 
-- **MSL C++**: es todo el codigo que queda en tramos `auto_` (~158 funciones en 0x8068B47C-0x80695270 + copias
-  debiles en 0x80006720-0x80007B94 + sus datos de `.rodata`/`.data`/`.sdata`/`.sbss` tras MSL C). Ver
+- **MSL C++**: es todo el codigo que queda en tramos `auto_` (~158 funciones en 0x8068B47C-0x80695270 + sus tablas
+  `extab`/`extabindex` (0x80006720-0x80007B94, 0x80007C60-0x800080F8) + sus datos de `.rodata`/`.data`/`.sdata`/`.sbss` tras MSL C). Ver
   `docs/msl_cpp.md`.
 - `ut_TextWriterBase`: los 2 bytes de `.sbss` son del propio objeto (descartados el corte de math y objetos
   posteriores); unica unidad NW4R sin enlazar.
