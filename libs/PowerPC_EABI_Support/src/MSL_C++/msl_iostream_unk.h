@@ -384,22 +384,22 @@ public:
     }
     locale getloc() const;
     unsigned short flags() const { return flags_; }
-    iostate rdstate() const { return (iostate)state_; }
-    iostate exceptions() const { return (iostate)exceptions_; }
+    iostate rdstate() const { return state_; }
+    iostate exceptions() const { return exceptions_; }
     bool good() const { return state_ == 0; }
     bool fail() const { return (state_ & (badbit | failbit)) != 0; }
     void clear(iostate state = goodbit) {
         state_ = state;
         if (rdbuf_ == 0) {
-            state_ |= badbit;
+            state_ = (iostate)(state_ | badbit);
         }
-        if (state_ & exceptions_) {
+        if (exceptions_ & state_) {
             throw_failure("ios_base failure in clear");
         }
     }
     void setstate(iostate state) { clear((iostate)(rdstate() | state)); }
     // inferred: sets a state bit without the exception check (used by the catch blocks of the sentry and flush)
-    void __setstate_nothrow_unk(iostate state) { state_ |= state; }
+    void __setstate_nothrow_unk(iostate state) { state_ = (iostate)(state_ | state); }
 
 protected:
     ios_base() {}
@@ -428,8 +428,8 @@ protected:
     streamsize precision_;        // 0x28
     streamsize width_;            // 0x2C
     unsigned short flags_;        // 0x30
-    unsigned char state_;         // 0x32
-    unsigned char exceptions_;    // 0x33
+    iostate state_;               // 0x32 (one byte with -enum min)
+    iostate exceptions_;          // 0x33
 };
 
 
@@ -1965,7 +1965,7 @@ console_inputbuf<C, T>::console_inputbuf(_FILE* file)
     }
     std::locale loc = this->getloc();
     __set_cvt_unk(loc);
-    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != 1) {
+    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != sizeof(C)) {
         throw std::runtime_error("console_inputbuf: bad encoding");
     }
 }
@@ -1977,7 +1977,7 @@ void console_inputbuf<C, T>::imbue(const std::locale& loc) {
         throw std::runtime_error("console_inputbuf::imbue failed");
     }
     __set_cvt_unk(loc);
-    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != 1) {
+    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != sizeof(C)) {
         throw std::runtime_error("console_inputbuf: bad encoding");
     }
 }
