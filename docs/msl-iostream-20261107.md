@@ -98,6 +98,9 @@ usar).
 
 ## Decisiones tomadas sin el usuario
 
+**Aprobadas por el usuario el 2026-11-07** (particion en tres TU y sus nombres, `-enum min`, `do_toupper/do_tolower`
+de rango sin `const`, temporal de `use_facet`).
+
 - `-enum min` para las tres unidades (ver Hallazgos).
 - Campos y nombres inventados de los buffers (`buf_size_`, `ext_beg_/ext_next_/ext_end_`, `__init_areas_unk`,
   `__get_char_unk`, `__unget_unk`, `__min_size_unk` = 16, `__min_len_unk` = 1...), todos con `// inferred`.
@@ -157,3 +160,5 @@ usar).
    `logic_error`/`length_error` (0x80694320, 0x80694328, 0x8069519C), `__sinit` (guardas de los `locale::id`).
 7. Registros: varias funciones al 99,x% (ver comentarios `NONMATCHING`).
 8. Orden: `ordercheck.py` no se ha pasado (las unidades no enlazan aun); escribir en orden del `.dol` al final.
+
+Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
