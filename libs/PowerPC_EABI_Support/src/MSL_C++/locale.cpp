@@ -34,7 +34,7 @@ inline Metrowerks::recursive_mutex& __locale_mutex_unk() {
     return __locale_mutex_get_unk();
 }
 
-// NONMATCHING: 94% - the original strength-reduces the facet loop (offset + counter); -opt nostrength keeps i*4
+// NONMATCHING: 99.98% - stack slots of the two inlined placement news of the locale mutex are swapped
 __locale_imp::~__locale_imp() throw() {
     Metrowerks::scoped_lock<Metrowerks::recursive_mutex> lock(__locale_mutex_unk());
     size_t n = facets_.size();
@@ -46,6 +46,24 @@ __locale_imp::~__locale_imp() throw() {
     }
 }
 
+// NONMATCHING: 91% - the original has eight one-byte temporaries (stb 0) in the inlined resize (unknown origin)
+void __locale_imp::replace(locale::facet* f, size_t id) {
+    ++f->refs_;
+    if (id >= facets_.size()) {
+        try {
+            facets_.resize(id + 1);
+        } catch (...) {
+            delete f->__release_unk();
+            throw;
+        }
+    }
+    locale::facet*& p = facets_[id];
+    if (p != 0) {
+        delete p->__release_unk();
+    }
+    p = f;
+}
+
 // inferred: the classic locale, built once under the locale mutex (guard 0x808803B0, object 0x808803B8)
 const locale& locale::classic() {
     Metrowerks::scoped_lock<Metrowerks::recursive_mutex> lock(__locale_mutex_unk());
@@ -54,7 +72,7 @@ const locale& locale::classic() {
 }
 
 // inferred: guard 0x808803A5, object 0x808803A8
-// NONMATCHING: 80% - classic_ construction and the "C" literal pool (see docs/msl-iostream-20261107.md)
+// NONMATCHING: 85% - the temporary shared_ptr of classic_ stays in memory (the original keeps it in registers)
 locale& locale::__global() throw() {
     static locale global_(classic());
     return global_;
@@ -78,7 +96,6 @@ char ctype<char>::do_toupper(char c) const {
     return upper_[(unsigned char)c];
 }
 
-// NONMATCHING: 98% - only a loop alignment nop (depends on the offset in the object)
 const char* ctype<char>::do_toupper(char* low, const char* high) {
     for (; low < high; ++low) {
         *low = ctype<char>::do_toupper(*low);
@@ -90,7 +107,6 @@ char ctype<char>::do_tolower(char c) const {
     return lower_[(unsigned char)c];
 }
 
-// NONMATCHING: 98% - only a loop alignment nop (depends on the offset in the object)
 const char* ctype<char>::do_tolower(char* low, const char* high) {
     for (; low < high; ++low) {
         *low = ctype<char>::do_tolower(*low);

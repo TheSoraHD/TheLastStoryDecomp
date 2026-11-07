@@ -15,6 +15,7 @@ int strcmp(const char* a, const char* b);
 void free(void* p);
 void* memmove(void* dst, const void* src, unsigned long n);
 void* memcpy(void* dst, const void* src, unsigned long n);
+void* memset(void* dst, int c, unsigned long n);
 wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 int atexit(void (*func)(void));
 }
@@ -490,6 +491,42 @@ struct __vec_base_unk : public __vec_storage_unk<T> {};
 template <class T>
 struct __vec_imp_unk : public __vec_base_unk<T> {};
 
+// inferred: temporary buffer of the reallocation of resize ({data, size, capacity, &capacity of the vector,
+// first element}); its fields are cleared through a word pointer and it is freed by the storage destructor
+template <class T>
+struct __vec_split_unk : public __vec_storage_unk<T> {
+    __vec_split_unk(void* alloc) {
+        unsigned long* w = (unsigned long*)this;
+        w[0] = 0;
+        w[1] = 0;
+        w[2] = 0;
+        alloc_ = alloc;
+        start_ = 0;
+    }
+    T* begin() { return this->data_ + start_; }
+    void __append_zero_unk(size_t n) {
+        memset(begin() + this->size_, 0, n * sizeof(T));
+        this->size_ += n;
+    }
+    void __push_front_unk(T* first, T* last) {
+        size_t n = ((char*)last - (char*)first) / (int)sizeof(T);
+        start_ -= n;
+        memcpy(this->data_ + start_, first, n * sizeof(T));
+        memset(first, 0, n * sizeof(T));
+        this->size_ += n;
+    }
+
+    void* alloc_;
+    size_t start_;
+};
+
+template <class T>
+inline void __vec_swap_unk(T& a, T& b) {
+    T t = a;
+    a = b;
+    b = t;
+}
+
 template <class T>
 inline const T& __vec_max_unk(const T& a, const T& b) {
     return (a < b) ? b : a;
@@ -514,11 +551,57 @@ public:
     // inferred: insertion of one POD element (0x80694790, 0x80694C38); the out-of-line helper takes an
     // empty tag by value (its byte is cleared on the stack before each call)
     T* insert(T* pos, const T& x) { return __insert_one_unk(pos, x, __vec_pod_tag_unk()); }
+    // inferred: inlined in __locale_imp::replace (pointer elements, new ones are null)
+    void resize(size_t n) {
+        if (n > this->size_) {
+            __append_unk(n - this->size_);
+        } else if (n < this->size_) {
+            size_t k = this->size_ - n;
+            size_t& size = this->size_;
+            size -= k;
+        }
+    }
 
 private:
     struct __vec_pod_tag_unk {};
     T* __insert_one_unk(T* pos, const T& x, __vec_pod_tag_unk);
     size_t __grow_cap_unk(size_t n);
+    void __check_grow_unk(size_t n);
+    // inferred: growth without the length check (resize computes it and drops the result)
+    size_t __recommend_cap_unk(size_t n) {
+        size_t cap = this->cap_;
+        if (cap < max_size() / 3) {
+            cap += __vec_max_unk(size_t((cap + 1) * 3 / 5), n);
+        } else if (cap < max_size() / 3 * 2) {
+            cap += __vec_max_unk(size_t((cap + 1) / 2), n);
+        } else {
+            cap = max_size();
+        }
+        return cap;
+    }
+    void __append_unk(size_t n) {
+        if (n > this->cap_ || this->size_ > this->cap_ - n) {
+            __check_grow_unk(this->size_ + n - this->cap_);
+            __recommend_cap_unk(this->size_ + n - this->cap_);
+        } else {
+            memset(this->data_ + this->size_, 0, n * sizeof(T));
+            this->size_ += n;
+            return;
+        }
+        {
+            __vec_split_unk<T> buf(&this->cap_);
+            size_t cap = __grow_cap_unk(this->size_ + n - this->cap_);
+            buf.data_ = (T*)::operator new(cap * sizeof(T));
+            buf.cap_ = cap;
+            buf.start_ = this->size_;
+            buf.__append_zero_unk(n);
+            buf.__push_front_unk(this->data_, this->data_ + this->size_);
+            this->size_ = 0;
+            __vec_swap_unk(this->cap_, buf.cap_);
+            __vec_swap_unk(this->data_, buf.data_);
+            __vec_swap_unk(this->size_, buf.size_);
+        }
+    }
     // inferred: length check and growth; insert computes it once and drops the result
     size_t __recommend_unk(size_t n);
     static T* __copy_unk(const T* first, const T* last, T* dst) {
@@ -534,6 +617,7 @@ private:
     }
 };
 
+// NONMATCHING: 93% - stack slots of the length (max by reference) and of the throw temporaries
 template <class T>
 T* vector<T>::__insert_one_unk(T* pos, const T& x, __vec_pod_tag_unk) {
     if (this->size_ >= this->cap_) {
@@ -579,6 +663,13 @@ size_t vector<T>::__recommend_unk(size_t n) {
         cap = max_size();
     }
     return cap;
+}
+
+template <class T>
+void vector<T>::__check_grow_unk(size_t n) {
+    if (n > max_size() - this->cap_) {
+        throw length_error("vector length error");
+    }
 }
 
 template <class T>
@@ -733,6 +824,7 @@ struct __range_map_unk {
     static bool __contains_unk(const entry& e, const wchar_t& c) { return !(c < e.lo_) && !(e.hi_ < c); }
 };
 
+// NONMATCHING: 76% - the original reloads the table end after the search (as find), and the entry copies
 template <class T>
 void __range_map_unk<T>::insert(table& t, const wchar_t& lo, const wchar_t& hi, const T& vlo, const T& vhi) {
     entry e;
