@@ -243,6 +243,28 @@ void GameTask::fn_8036FB4C(int entry) {
     HomeButtonMenu::sInstance->m88 = 0;
 }
 
+void GameTask::fn_8036FC58() {
+    m54E4 = 0;
+    m10D8->m134->fn_800D246C(0);
+    lbl_8087F8A0->fn_800D246C(0);
+    EnemyManager::sInstance->fn_800D246C(0);
+    NpcManager::sInstance->fn_800D246C(0);
+    lbl_8087EE68->fn_800D246C(0);
+    lbl_8087F3C0->fn_800D246C(0);
+    m5624->mFrame = 0;
+    m5624->mWait = 0;
+    m5624->mColor0 = 0xFF000000;
+    m5624->mColor1 = 0;
+    m5624->m78 = 0x12;
+    m5624->mDuration = 30;
+    if (m563C >= 0) {
+        m5624->mActive = 1;
+        m563C = -1;
+    }
+    mCamera.fn_803933A4();
+    HomeButtonMenu::sInstance->m88 = 1;
+}
+
 void GameTask::fn_80370B78(unsigned int color, int frames, int arg, float speed) {
     m54F0 = 1;
     m5620->mFrame = 1;

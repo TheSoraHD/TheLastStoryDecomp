@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "math/Vec.h"
+#include "game/GameCamera.h"
 
 class GameScene;
 struct Ledge_unk;
@@ -95,7 +96,8 @@ public:
     int fn_803761BC(); // inferred: debug field
     int fn_803761DC(); // inferred: a mode compared with 1, 2 and 3
     GimmickCommon* fn_8036E098(); // inferred: save point in front of the leader
-    void fn_8036FB4C(int entry);        // inferred: moves to an entry of the current map // inferred: hide link held by `chara`
+    void fn_8036FB4C(int entry);        // inferred: moves to an entry of the current map
+    void fn_8036FC58();                 // inferred: back from the map move (undoes fn_8036FB4C) // inferred: hide link held by `chara`
     void fn_80373118(); // inferred: one more frame of delay for the fades // inferred: nonzero on some fields
     struct StrategyAiEntry_unk* fn_80375254(); // inferred: AI strategy row of the field (default id 0)
     void fn_8037529C(unsigned int color0, unsigned int color1, int delay, int wait, int duration); // inferred: starts the capture fade
@@ -109,7 +111,9 @@ public:
     int m48; // inferred: kind of field (1, or 2 with m4C 0x44 and m50 1: fn_8036823C)
     int m4C;
     int m50;
-    unsigned char m54[0xD18 - 0x54];
+    unsigned char m54[0x6C - 0x54];
+    GameCamera mCamera; // 0x6C
+
     int mD18;
     int mD1C;
     unsigned char mD20[0xF28 - 0xD20];
