@@ -16,6 +16,19 @@ struct TacViewEntry_unk {
     unsigned int mState; // inferred: 0, 1 active; bit 1: finished
 };
 
+// inferred: object aimed at by the cursor of TacView (names invented); m08 is a character
+struct TacViewTarget_unk {
+    int m00;
+    int m04;
+    CharaTask* m08;
+};
+// inferred: cursor state of TacView (1 on a target, 2 none; names invented)
+struct TacViewSel_unk {
+    int mState;
+    int m04;
+    TacViewTarget_unk* mTarget;
+};
+
 // inferred: tactical view of the battle (game/TacView.cpp, 0x805A6D20-0x805AE26C; instance lbl_8087F9F8).
 // Only the members used by the decompiled units are declared; other files still use partial views
 // (TacView_unk in game/CharaTask.cpp, chr/ControlCharge.cpp, game/PlayerInput_unk.cpp).
@@ -33,7 +46,8 @@ public:
     int fn_805ADCC0(CharaTask* chara, HitInfo_unk* hit, int active);
     HitInfo_unk* fn_805ADD3C(CharaTask* chara); // inferred: hit of the active entry of the character
     void fn_805ADD80(CharaTask* chara, HitInfo_unk* hit); // inferred: marks the entries as finished
-    void fn_805ADDD4(CharaTask* chara); // inferred: passes the hits of the active entries on, then clears the states
+    void fn_805ADDD4(CharaTask* chara);
+    void fn_805AE034(TacViewTarget_unk* target); // inferred: moves the cursor to `target` (sound when it changes) // inferred: passes the hits of the active entries on, then clears the states
     void fn_805ADF50(CharaTask* chara); // inferred: removes the entries of the character (all with null)
 
     // inferred: state 0 (inlined by GameUI::fn_803DCA84); name invented
@@ -51,7 +65,8 @@ public:
     int m1594;
     unsigned char m1598[0x15D8 - 0x1598];
     int m15D8;            // inferred: cursor shown by the view (chr/ControlCharge.cpp)
-    unsigned char m15DC[0x15FC - 0x15DC];
+    unsigned char m15DC[0x15F0 - 0x15DC];
+    TacViewSel_unk m15F0; // inferred: target under the cursor (fn_805AE034)
     atn::FixedArray_unk<TacViewEntry_unk, 16> mEntries; // 0x15FC
     unsigned char m16C0[0x16C8 - 0x16C0];
 };

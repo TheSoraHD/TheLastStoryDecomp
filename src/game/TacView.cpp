@@ -3,6 +3,10 @@
 #include "game/TacView.h"
 #include "game/CharaTask.h"
 #include "game/SkillEffectManager.h"
+#include "atn/SoundRef.h"
+
+// inferred: plays the sound `id` of the view (0x805A70D4, not decompiled: its name table is in .rodata)
+atn::SoundRef fn_805A70D4(int id, float volume);
 
 void TacView::fn_805AA4C8(SkillEffect* effect) {
     CharaTask* user = effect->m0C;
@@ -118,5 +122,27 @@ void TacView::fn_805ADF50(CharaTask* chara) {
         } else {
             p++;
         }
+    }
+}
+
+void TacView::fn_805AE034(TacViewTarget_unk* target) {
+    if (target != 0) {
+        TacViewSel_unk old = m15F0;
+        if (old.mState == 2 || (old.mState == 1 && old.mTarget != target)) {
+            if (target->m08->mType == 2) {
+                fn_805A70D4(8, 1.0f);
+            } else {
+                fn_805A70D4(7, 1.0f);
+            }
+        }
+        m15F0.mState = 1;
+        m15F0.mTarget = target;
+    } else {
+        if (m15F0.mState != 2) {
+            fn_805A70D4(9, 1.0f);
+        }
+        m15F0.mState = 2;
+        m15F0.m04 = 0;
+        m15F0.mTarget = 0;
     }
 }
