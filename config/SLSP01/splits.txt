@@ -4999,15 +4999,30 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common/extras.c:
 	.text       start:0x8068B104 end:0x8068B39C
 
 PowerPC_EABI_Support/src/MSL_C++/iostream.cpp:
-	extab       start:0x80006720 end:0x80007B94
-	extabindex  start:0x80007C60 end:0x800080F8
-	.text       start:0x8068B39C end:0x8069533C
+	extab       start:0x80006720 end:0x80007684
+	extabindex  start:0x80007C60 end:0x80007F9C
+	.text       start:0x8068B39C end:0x80691E50
+	.rodata     start:0x807661C0 end:0x80766538
+	.data       start:0x807BBB08 end:0x807BBDE0
+	.bss        start:0x808327C0 end:0x80832C38
+	.sdata      start:0x8087EC18 end:0x8087EC80
+	.sbss       start:0x80880378 end:0x80880390
+
+PowerPC_EABI_Support/src/MSL_C++/locale.cpp:
+	extab       start:0x80007684 end:0x80007B8C
+	extabindex  start:0x80007F9C end:0x800080EC
+	.text       start:0x80691E50 end:0x806952C4
 	.ctors      start:0x8072D400 end:0x8072D404
-	.rodata     start:0x807661C0 end:0x80766768
-	.data       start:0x807BBB08 end:0x807BBF58
-	.bss        start:0x808327C0 end:0x80832C50
-	.sdata      start:0x8087EC18 end:0x8087ED20
-	.sbss       start:0x80880378 end:0x808803D8
+	.rodata     start:0x80766538 end:0x80766768
+	.data       start:0x807BBDE0 end:0x807BBF58
+	.bss        start:0x80832C38 end:0x80832C50
+	.sdata      start:0x8087EC80 end:0x8087ED20
+	.sbss       start:0x80880390 end:0x808803D8
+
+PowerPC_EABI_Support/src/MSL_C++/shared_ptr_unk.cpp:
+	extab       start:0x80007B8C end:0x80007B94
+	extabindex  start:0x800080EC end:0x800080F8
+	.text       start:0x806952C4 end:0x8069533C
 
 PowerPC_EABI_Support/src/MetroTRK/__exception.s:
 	.init       start:0x800043C4 end:0x800062F8
