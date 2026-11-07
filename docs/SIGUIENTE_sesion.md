@@ -1,18 +1,18 @@
-# Siguiente sesion (tras el merge de `msl-iostream-20261107b` en `main`)
+# Siguiente sesion (tras `msl-iostream-20261107c`, sin mergear)
 
-`main` (2026-11-07, merge de `msl-iostream-20261107b`): **14151 / 18116**, lost 0, `main.dol: OK`. Prompt listo en
-el proyecto: `claude/prompt-msl-iostream-5.md` (rama nueva desde `main`).
+Rama `msl-iostream-20261107c` (sobre `main` c918eb8): **14152 / 18116**, lost 0, `main.dol: OK`. Pendiente de
+revisar y mergear. Prompt listo en el proyecto: `claude/prompt-msl-iostream-6.md`.
 
-## MSL C++ (111/170)
+## MSL C++ (112/170)
 
 - `PowerPC_EABI_Support/src/MSL_C++/`: `iostream.cpp` y `locale.cpp` sin enlazar, `shared_ptr_unk.cpp` enlazada.
-- Detalle en `docs/msl-iostream-20261107.md`, "Sesion 4" (decisiones, hallazgos, pendientes).
-- La pieza grande es `ios_base::Init`/`wios_base_Init_unk`: el original no inlinea nada (presupuesto R3); al
-  nuestro le faltan ~75 sentencias de coste de candidatos (20-40 si el constructor de `console_inputbuf` fuera
-  `inline`). Si se resuelve, salen ~19 funciones (constructores de streams y de `console_outputbuf`, destructores
-  de `wostream`/`wios`/`wistream`, 0x8068E270, `__nw__FUlPv`, `setf`, `tie`, `pubsetbuf`...).
-- Despues: `sentry`/`flush` (operandos del `and.` de `clear()`), `__round_unk` (registro), residuos de `locale.cpp`,
-  y el orden de `.rodata`/`.bss` y de las funciones para enlazar.
+- Detalle en `docs/msl-iostream-20261107.md`, "Sesion 5" (cambios, hallazgos, pendientes).
+- `ios_base::Init`/`wios_base_Init_unk` (desbloquean ~19 funciones): el original no inlinea nada (presupuesto R3).
+  El constructor de `console_inputbuf` (plantilla no `inline`) esta a ~2 sentencias de ser candidato auto-inline;
+  aun siendolo faltan ~22 sentencias de coste. Las copias fuera de linea de los constructores de streams y de
+  `console_outputbuf` ya son identicas al original.
+- Despues: `sentry`/`flush` (solo el orden de operandos del `and.`), `__round_unk`, `throw_failure` (cadena de
+  tipo en objeto propio), residuos de `locale.cpp`, y el orden de `.rodata`/`.bss`/funciones para enlazar.
 
 ## Otros (de `maraton-20261107`, siguen vigentes)
 

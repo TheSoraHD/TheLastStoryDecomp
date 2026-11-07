@@ -310,3 +310,77 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
    (`state & exceptions` con `exceptions` cargado primero) y el `setstate` inlineado recarga el estado; ~12
    variantes probadas.
 3. `__round_unk` (97,9%): registro del resultado de `__round_dir_unk` inlineado (r3 frente a r4).
+
+# Sesion 5 (2026-11-07, rama `msl-iostream-20261107c`)
+
+## Resultado
+
+- Inicio: 111/170, `report.json` 14151 (build limpio de `main` c918eb8, `main.dol: OK`).
+- **Cierre: 112/170** (`report.json` 14152), build limpio `main.dol: OK`, `regress.py` lost 0, `fuzzdrop.py` sin
+  bajadas, `rep100.py` 144 (igual que `main`), `poolcheck.py`/`mnemcheck.py` sin avisos.
+  Nueva: `ios_base::init` (0x8068B610). Suben sin llegar: `sentry::sentry` de `wostream` 97,2 -> 99,8%,
+  `flush` 99,86 -> 99,88%, `console_inputbuf` constructor 97,2 -> 98,8% e `imbue` 97,3 -> 99,2%,
+  `bufferedbuf::imbue` 98,4/98,5 -> 99,4/99,5%.
+
+## Cambios
+
+- Solo fuente (`msl_iostream_unk.h`, `iostream.cpp`); sin cambios de `splits.txt`, `symbols.txt`, flags ni
+  `libs_ref.json`.
+- `basic_ios::widen` (`init` hace `fill_ = widen(' ')`: el `stb` va despues de destruir el `locale` temporal).
+- `use_facet`: el puntero del facet en una variable (`f = facets_[i]` en la condicion) y el alta del facet nuevo
+  con `__locale_imp::__install_unk<Facet>(f)` (inline sobre `replace(f, Facet::id.get())`: el puntero de
+  `__locale_imp` se carga antes que el id); `__shared_ptr_base::operator->`.
+- `bufferedbuf::__set_cvt_unk(loc)` y `console_inputbuf::__set_cvt_unk(loc)` (facet `codecvt` y sus
+  propiedades) compartidas por constructor e `imbue`: invierte el orden de los huecos de `__unexpected`, como el
+  original. En el constructor de `bufferedbuf` se llama con `this->getloc()` (el temporal muere antes de
+  `setbuf(0, 0)`).
+- Comprobacion de codificacion de `console_inputbuf`: `encoding_ != sizeof(C)` (el original compara con 2 en
+  `wchar_t` y con `cmplwi`).
+- `ios_base::state_`/`exceptions_` son `iostate` (un byte con `-enum min`): `init` al 100%
+  (`state_ = sb ? goodbit : badbit`, `srwi` sin `extrwi`) y `clear()` carga primero `exceptions_`
+  (`if (exceptions_ & state_)`).
+- Con estos cambios las copias fuera de linea (sonda `tc.sh 80`) de los constructores de `basic_ostream`,
+  `basic_istream` y `console_outputbuf` son identicas al original.
+
+## Decisiones tomadas sin el usuario
+
+- Rama `msl-iostream-20261107c` desde `main` c918eb8 (la `b` ya estaba mergeada; `20261107` y `20261107b` existen
+  en el remoto).
+- Referencia (`mkref.sh`) del build limpio de `main` en el arbol recien clonado (sin worktree aparte).
+- Nombres inventados `__install_unk`, `__set_cvt_unk` (x2), con `// inferred:`.
+- Commit intermedio solo de fuzzy (2a0f9ee) porque deja las copias fuera de linea identicas y es la base del
+  trabajo de `Init`; no baja nada.
+- El constructor de `console_inputbuf` se queda sin `inline` (con `inline` desaparece su copia fuera de linea y
+  bajaria el fuzzy mientras `Init` siga inlineando).
+
+## Hallazgos
+
+- `ios_base::Init`: el umbral del candidato artificial (`tc.sh`) baja de 71 a 67-68 con los cambios de arriba;
+  con el constructor de `console_inputbuf` `inline`, 22-25. La posicion del candidato (principio o final de
+  `Init`) no cambia el umbral; `((void)0)` en `basic_ios::init` tampoco; un nivel mas de inline sin sentencias
+  (`__throw_unk<E>(msg)`) tampoco. `-inline on,deferred|auto|smart|level=N` no cambian nada.
+- **El constructor de `console_inputbuf` (plantilla no `inline`) queda a ~2 sentencias del limite de
+  auto-inline**: quitando dos inicializadores de miembro pasa a candidato (y entonces `Init` sigue necesitando
+  ~22 sentencias mas). En el original las funciones grandes que llama `Init` (constructores de `console_*buf` y de
+  streams) se emiten con las instanciaciones de plantillas, despues de `~wios_base_Init_unk`; las pequenas
+  (`__nw__FUlPv`, `__dl__FPvPv`, `setf`, `scoped_lock`, destructores de `console_*buf`, `tie`, `pubsetbuf`)
+  justo despues de `Init`, en un orden que no es el de llamada.
+- En los `throw runtime_error(...)` de `console_inputbuf`/`bufferedbuf` el original guarda el literal en un
+  registro y escribe los miembros del objeto por desplazamiento de pila; las dos `default_delete` vacias van al
+  reves que en el nuestro. Un nivel de inline mas (`__throw_unk<E>(msg)`) arregla el orden de los dos huecos pero
+  no el resto ni el coste; no se ha dejado. Pasar el `hold` de `__shared_ptr_base` a `shared_ptr` (como en
+  `include/std/stdexcept.h`) empeora todo.
+- `throw_failure`: la cadena de tipo `"!std::exception!!std::ios_base::failure!!"` va en un objeto propio tras el
+  nombre RTTI `"std::ios_base::failure"` (0x807661C0/0x807661D8); `__throw_unk<failure>` no lo cambia. Es del
+  orden de `.rodata`, que tampoco coincide en los nombres RTTI (`@1649`... frente a 0x80766208...).
+- `__round_unk`: `return find_first_not_of(...) != npos;` en `__round_dir_unk` reproduce la forma `subfic/or/srwi`
+  del original dentro de `__round_unk`, pero baja la copia fuera de linea a 92,5%: descartado.
+
+## Pendientes
+
+1. `Init`/`wios_base_Init_unk`: hacer candidato natural el constructor de `console_inputbuf` (~2 sentencias de
+   sobra) y encontrar las ~22 restantes. Tope de variantes de esta sesion agotado (~15).
+2. `sentry`/`flush` de `wostream`: solo queda el orden de operandos del `and.` (carga `exceptions_` primero pero
+   `and. r0, state, exc`); ~20 formas probadas entre sesiones.
+3. `__round_unk` (registro del resultado de `__round_dir_unk`), `throw_failure` (cadena en objeto propio),
+   residuos de `locale.cpp`.
