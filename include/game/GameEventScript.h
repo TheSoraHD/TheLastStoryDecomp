@@ -35,6 +35,9 @@ public:
         return (ScriptCmd_unk*)((char*)cmd + lbl_8074ED24[cmd->mCmd]);
     }
     int fn_8039BF04(int a, int b, int c, int d, int e);
+    // inferred: character named by a script command (kind 0: leader or party member 1, 1: NPC, 2: enemy,
+    // 3: party member); defined in game/GameEventScript.cpp
+    inline CharaTask* GetChara_unk(int kind, int id) const;
     // inferred: label command (type 9, flag bit 0 clear) with the given id, null if missing
     ScriptCmd_unk* FindLabel_unk(int id) {
         ScriptData_unk* data = m94;
@@ -69,6 +72,7 @@ public:
     void fn_803A0C48(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A0CAC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A0D10(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A2378(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A362C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
@@ -107,7 +111,9 @@ public:
     int mB8; // inferred: step of the running command
     int mBC;
     int mC0; // inferred: frame counter of the running command
-    unsigned char mC4[0xE8 - 0xC4];
+    unsigned char mC4[0xDC - 0xC4];
+    int mDC; // inferred: kind 0 of GetChara_unk is the leader
+    unsigned char mE0[0xE8 - 0xE0];
     int mE8; // inferred: an event of the event manager is running
     int mEC;
 };

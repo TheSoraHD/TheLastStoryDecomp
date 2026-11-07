@@ -15,6 +15,11 @@
 #include "game/GameScene.h"
 #include "game/PlayerManager.h"
 #include "game/TeamAIManager.h"
+#include "game/NpcManager.h"
+#include "game/EnemyManager.h"
+#include "game/NpcTask.h"
+#include "game/EnemyTask.h"
+#include "game/PlayerTask.h"
 
 #include <exception>
 
@@ -41,6 +46,8 @@ public:
 } // namespace boost
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+class TownTask;
+extern "C" TownTask* lbl_8087FA20;
 extern "C" const char* const lbl_8074EF78[];
 extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
@@ -49,6 +56,28 @@ extern "C" void fn_803712BC(GameField_unk* field);
 extern "C" void fn_80374964(GameField_unk* field, int arg);
 extern "C" void fn_80375194(GameField_unk* field, int a, int b, float c);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: UI sound names (SE_UICOM_001...)
+
+inline CharaTask* GameEventScript::GetChara_unk(int kind, int id) const {
+    CharaTask* chara = 0;
+    switch (kind) {
+    case 0:
+        chara = mDC != 0 ? lbl_8087F8A0->mHead : lbl_8087F8A0->FindByChara_unk(1);
+        break;
+    case 1:
+        chara = NpcManager::sInstance->Find_unk(id);
+        if (lbl_8087FA20 != 0 && chara != 0 && chara->IsFlag_unk(1)) {
+            chara = 0;
+        }
+        break;
+    case 2:
+        chara = EnemyManager::sInstance->Find_unk(id);
+        break;
+    case 3:
+        chara = lbl_8087F8A0->Find_unk(id);
+        break;
+    }
+    return chara;
+}
 
 // inferred: plays a sound with the sound category of the event scripts (5); called from the
 // script commands
@@ -171,6 +200,17 @@ void GameEventScript::fn_803A0CAC(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 void GameEventScript::fn_803A0D10(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     lbl_8087FA00->OnChara_unk(static_cast<TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 95% - the original loads the character kind before saving r30/r31 (as fn_803AB144)
+void GameEventScript::fn_803A2378(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    int wait = 0;
+    if (chara != 0 && chara->m55C == 6 && chara->m560 == 0x27) {
+        wait = 1;
+    }
+    result.SetNext_unk(cmd, wait);
 }
 
 void GameEventScript::fn_803A362C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
