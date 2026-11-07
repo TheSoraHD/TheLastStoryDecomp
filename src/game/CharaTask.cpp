@@ -8905,7 +8905,6 @@ void CharaTask::fn_801647BC() {
     }
 }
 
-extern "C" void fn_8010337C(Effect_unk* effect, int arg, CharaTask* chara);
 
 void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
     mFC8.x = shade.m00;
@@ -8920,7 +8919,7 @@ void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
     mStatus.m20 = mFC8.x;
     mStatus.m24 = mFC8.x;
     if (lbl_8087F048 != 0) {
-        fn_8010337C(lbl_8087F048, 0, this);
+        ((BattleTask*)lbl_8087F048)->fn_8010337C(0, this);
     }
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && fn_80370174(lbl_8087F430, 0xD6) == 1) {
         Player_unk* player = (lbl_8087F8A0 != 0) ? (Player_unk*)lbl_8087F8A0->mHead : 0;

@@ -178,6 +178,40 @@ int BattleTask::fn_80102890(CharaTask* chara) {
     return -1;
 }
 
+void BattleTask::fn_8010337C(CharaTask* chara, CharaTask* other) {
+    int a = FindChara_unk(chara);
+    int b = FindChara_unk(other);
+    if (b < 0) {
+        return;
+    }
+    if (a >= 0) {
+        mCharas[a].m6E4[b] = 0.0f;
+    } else {
+        for (int i = 0; i < mCharaCount; i++) {
+            mCharas[i].m6E4[b] = 0.0f;
+        }
+    }
+}
+
+// NONMATCHING: 99.3% - registers of the entry pointer and of the flags of the inlined CanAct_unk swapped
+void BattleTask::fn_80103E60(CharaTask* target) {
+    if (target == 0) {
+        return;
+    }
+    CharaTask* c;
+    BattleChara_unk* p;
+    int count = 0;
+    p = mCharas;
+    for (int i = 0; i < mCharaCount; i++, p++) {
+        c = p->mChara;
+        if (c != 0 && c->CanAct_unk() && (c->m54C & 0x2000) != 0x2000 && (c->mType == 0 || c->mC58.m00 != 0) &&
+            c->mC58.mC4 == target) {
+            count++;
+        }
+    }
+    target->m102C = count;
+}
+
 BattleChara_unk* BattleTask::fn_80103F60(CharaTask* chara) {
     int i = FindChara_unk(chara);
     if (i >= 0) {
