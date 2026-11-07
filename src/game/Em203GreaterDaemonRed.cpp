@@ -74,7 +74,6 @@ extern "C" inline Field_unk* fn_80121F00() {
 }
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -1519,7 +1518,7 @@ void Em203GreaterDaemonRed::fn_8029A0A8() {
         }
     }
     lbl_8087EFA8->m3A4 = speed;
-    fn_80370320(lbl_8087F430, 0x38D, 0, 0);
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x38D, 0, 0);
 }
 
 int Em203GreaterDaemonRed::vf68(CharaTask* attacker) {
@@ -1535,7 +1534,7 @@ void Em203GreaterDaemonRed::vf6C(int kind, CharaTask* other) {
         m58C = 23;
         ResetState_unk();
         fn_8016E970(3);
-        fn_80370320(lbl_8087F430, 0x38D, 0, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x38D, 0, 0);
     }
 }
 

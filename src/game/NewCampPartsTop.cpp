@@ -1,4 +1,5 @@
 #include "game/NewCampPartsTop.h"
+#include "game/GameTask.h"
 #include "game/NewCampTask.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
@@ -81,7 +82,6 @@ struct NewCampTopField_unk {
 extern "C" NewCampTopField_unk* lbl_8087F430;
 extern "C" int fn_803754F0(NewCampTopField_unk* field);
 extern "C" int fn_80370174(NewCampTopField_unk* field, int id); // inferred: event flag
-extern "C" void fn_80370320(NewCampTopField_unk* field, int id, int value, int arg);
 extern "C" void fn_80370F8C(NewCampTopField_unk* field, int a, MP::SaveData_unk* data, int b);
 extern "C" void fn_803743AC(NewCampTopField_unk* field);
 extern "C" MP::SaveData_unk* lbl_8087F460;
@@ -360,7 +360,7 @@ void NewCampPartsTop::vf2C() {
                 break;
             case 3:
                 ((NewCampTask*)m48)->fn_8052CA6C();
-                fn_80370320(lbl_8087F430, 0x1B, 1, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(0x1B, 1, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     ((GameScene*)lbl_8087F430->m10D8)->fn_803CCC70(999999);
                 }

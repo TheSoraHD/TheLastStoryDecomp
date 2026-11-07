@@ -112,7 +112,6 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
 }
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
 extern "C" void fn_80376254(Field_unk* field, int a, int b); // inferred: counts a field event
@@ -428,7 +427,7 @@ inline void Em309Ghoul::Die_unk(int motion, int flag) {
     mMotion.fn_80097C08(0, motion, 0, 0, 1, 0.0f, 0.1f);
     m1684 = flag;
     m1688 = 0.0f;
-    fn_80370320(lbl_8087F430, 0xD0, 1, 0);
+    ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 1, 0);
 }
 
 // NONMATCHING: 99.87% - stack layout of the direction temporaries and of the rotation matrices (~6 variants)
@@ -1157,7 +1156,7 @@ void Em309Ghoul::vfEC() {
                 fn_8016E4C4(0);
             }
         } else {
-            fn_80370320(lbl_8087F430, 0xD0, 0, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 0, 0);
             lbl_8087EFA8->mTimeScale = 1.0f;
             mFlag15 = 1;
             fn_801765D8();

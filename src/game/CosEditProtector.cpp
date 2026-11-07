@@ -1,4 +1,5 @@
 #include "game/CosEditProtector.h"
+#include "game/GameTask.h"
 #include "game/NewCampTask.h"
 #include "game/CostumeEditChara.h"
 #include "game/CharaTask.h"
@@ -19,7 +20,6 @@ extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430; // inferred: field
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
-extern "C" void fn_80370320(Field_unk* field, int id, int a, int b); // inferred: sets an event flag
 extern "C" int fn_80117214(int index); // inferred: palette slot of a colour index
 extern "C" int fn_8020BE40(int id);    // inferred: cell of a palette colour
 extern "C" int fn_8020BF20(int mark);  // inferred: cell of a colour mark
@@ -729,7 +729,7 @@ void CosEditProtector::vf34(int state) {
         break;
     case 4:
         if (!fn_80370174(lbl_8087F430, 0xE8)) {
-            fn_80370320(lbl_8087F430, 0xE8, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0xE8, 1, 0);
         }
         fn_801CE5B0(4, (prev == 0 || prev == 1) ? 0 : 1);
         mFC = 0;

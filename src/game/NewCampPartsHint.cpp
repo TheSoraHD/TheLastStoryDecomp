@@ -1,4 +1,5 @@
 #include "game/NewCampPartsHint.h"
+#include "game/GameTask.h"
 #include "game/NewCampTask.h"
 #include "game/TutorialTask.h"
 #include "atn/Memory.h"
@@ -60,7 +61,6 @@ struct NewCampHintCamp_unk {
 struct NewCampHintField_unk;
 extern "C" NewCampHintField_unk* lbl_8087F430;
 extern "C" int fn_80370174(NewCampHintField_unk* field, int id); // inferred: event flag
-extern "C" void fn_803766E4(NewCampHintField_unk* field);
 extern "C" void fn_80376324(NewCampHintField_unk* field, int id);
 extern "C" int fn_8021F094();                      // inferred: number of tutorials
 extern "C" NewCampTutorial_unk* fn_8021F0D4(int index); // inferred: tutorial entry
@@ -381,7 +381,7 @@ void NewCampPartsHint::vf28() {
     }
     mWait = 0;
     if (m128 != 0) {
-        fn_803766E4(lbl_8087F430);
+        ((GameTask*)lbl_8087F430)->fn_803766E4();
     }
     m128 = 0;
     m96 = 0;
@@ -449,7 +449,7 @@ void NewCampPartsHint::fn_80515F28(int mode) {
             if (tutorial->mSeen != 0) {
                 m128 = 1;
                 if (lbl_8087F430 != 0) {
-                    fn_803766E4(lbl_8087F430);
+                    ((GameTask*)lbl_8087F430)->fn_803766E4();
                     fn_80376324(lbl_8087F430, mList[mCursor]->mFlag);
                 }
                 fn_80515F28(1);

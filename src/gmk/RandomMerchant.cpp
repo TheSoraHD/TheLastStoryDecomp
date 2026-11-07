@@ -1,4 +1,5 @@
 #include "gmk/RandomMerchant.h"
+#include "game/GameTask.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
 #include "game/Inventory.h"
@@ -37,7 +38,6 @@ struct Field_unk {
     int m54E4; // inferred: nonzero while the field is paused
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 extern "C" void* fn_8021DE88(void* lottery);                              // inferred: next lot (null when none is left)
 extern "C" int fn_8021DECC(void* lot, int* item, int* num, int* price);  // inferred: item of the lot
 // inferred: item definition (class unknown)
@@ -489,7 +489,7 @@ void RandomMerchant::vf4C(CharaTask* chara) {
             if (mLimit >= 0) {
                 PlayMotion_unk(1);
                 if (lbl_8087F430 != 0) {
-                    fn_80370320(lbl_8087F430, mEntries[mCur].mEvent1, 1, 0);
+                    ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
                 }
                 if (mSound.mPtr != 0) {
                     fn_800CB5C8(&mSound, 15, 0);
@@ -499,7 +499,7 @@ void RandomMerchant::vf4C(CharaTask* chara) {
             } else {
                 PlayMotion_unk(2);
                 if (lbl_8087F430 != 0) {
-                    fn_80370320(lbl_8087F430, mEntries[mCur].mEvent2, 1, 0);
+                    ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
                 }
                 if (mSound.mPtr != 0) {
                     fn_800CB5C8(&mSound, 15, 0);
@@ -509,20 +509,20 @@ void RandomMerchant::vf4C(CharaTask* chara) {
             }
         } else if (mState == 3) {
             if (lbl_8087F430 != 0) {
-                fn_80370320(lbl_8087F430, mEntries[mCur].mEvent1, 1, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
             }
         } else if (mState == 4) {
             if (lbl_8087F430 != 0) {
-                fn_80370320(lbl_8087F430, mEntries[mCur].mEvent2, 1, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
             }
         }
     } else if (mState == 3) {
         if (lbl_8087F430 != 0) {
-            fn_80370320(lbl_8087F430, mEntries[mCur].mEvent1, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent1, 1, 0);
         }
     } else if (mState == 4) {
         if (lbl_8087F430 != 0) {
-            fn_80370320(lbl_8087F430, mEntries[mCur].mEvent2, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(mEntries[mCur].mEvent2, 1, 0);
         }
     }
 }

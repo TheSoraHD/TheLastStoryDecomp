@@ -39,7 +39,6 @@ struct GameBgmField_unk {
 };
 extern "C" GameBgmField_unk* lbl_8087F430;
 extern "C" int fn_80370174(GameBgmField_unk* field, int id);           // inferred: reads a field value
-extern "C" void fn_80370320(GameBgmField_unk* field, int id, int value, int arg); // inferred: writes it
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
 extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
@@ -466,6 +465,6 @@ void GameBgm::fn_8037D808() {
             volume = mReq.mVolume;
         }
     }
-    fn_80370320(lbl_8087F430, 0x38F, id, 0);
-    fn_80370320(lbl_8087F430, 0x390, (int)(100.0f * volume), 0);
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x38F, id, 0);
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x390, (int)(100.0f * volume), 0);
 }

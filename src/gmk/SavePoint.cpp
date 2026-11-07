@@ -42,7 +42,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" GimmickCommon* fn_8036E098(Field_unk* field);  // inferred: nearest save point
 extern "C" int fn_80370174(Field_unk* field, int id);     // inferred: field flag
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg3); // inferred: sets a field flag
 // inferred: global objects (classes unknown)
 struct SaveEvent_unk {
     unsigned char m00[0x48];
@@ -334,7 +333,7 @@ int SavePoint::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) 
     }
     if (LenSq_unk(m6C - *pos) < 64.0f) {
         if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x92) == 0) {
-            fn_80370320(lbl_8087F430, 0x92, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x92, 1, 0);
         }
         return 1;
     }

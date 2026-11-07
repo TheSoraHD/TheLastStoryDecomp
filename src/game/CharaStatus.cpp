@@ -1757,7 +1757,6 @@ struct StatusItem_unk {
     float mB8;
 };
 extern "C" int fn_8021AF50(int stat);
-extern "C" void fn_80370320(StatusField_unk* field, int id, int value, int arg);
 
 // NONMATCHING: 98.9% - only the load of item->mB8 is scheduled after the register saves (the original
 // loads it right after saving f30); same as fn_80133BD8.
@@ -1825,7 +1824,7 @@ void CharaStatus::fn_801342D0(StatusItem_unk* item, int stat) {
         if (lbl_8087F430 != 0) {
             int n = (int)value;
             n += fn_80370174(lbl_8087F430, 218);
-            fn_80370320(lbl_8087F430, 218, MIN(n, 990), 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(218, MIN(n, 990), 0);
             msg = 0x1F;
         }
         break;

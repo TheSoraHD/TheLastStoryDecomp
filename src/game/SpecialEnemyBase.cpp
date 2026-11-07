@@ -1,4 +1,5 @@
 #include "game/GameUI.h"
+#include "game/GameTask.h"
 #include "game/SpecialEnemyBase.h"
 #include "atn/Csv.h"
 #include "atn/ColliBase.h"
@@ -99,7 +100,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" int fn_80370174(Field_unk* field, int index);
-extern "C" void fn_80370320(Field_unk* field, int index, int value, int arg);
 namespace atn {
 struct Camera;
 }
@@ -338,7 +338,7 @@ void SpecialEnemyBase::fn_805A4A1C(SpecialFlag_unk* flag, int value) {
         if (flag->mGlobal == 0) {
             fn_80370AE4(lbl_8087F430, flag->mIndex, value);
         } else if (flag->mGlobal == 1) {
-            fn_80370320(lbl_8087F430, flag->mIndex, value, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(flag->mIndex, value, 0);
         }
     }
 }

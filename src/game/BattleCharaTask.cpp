@@ -154,7 +154,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
 extern "C" void fn_8037EF30(void* obj, int a, int b, float f);
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 // inferred: target found by fn_800E7214 with its position (only the character is filled here)
 struct BattleTarget_unk {
     BattleTarget_unk() : mChara(0), m04(0), m08(0), mPos(0.0f, 0.0f, 0.0f) {}
@@ -1118,7 +1117,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
     } else if ((lbl_8087F0A8->mInput.fn_801240B4(7) || mFlagB16) && (!mFlag31 || !mFlag30) && !mFlagB9) {
         fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
         if (fn_80370174(lbl_8087F430, 0xEF) == 0 && fn_80370174(lbl_8087F430, 0xEE) == 1) {
-            fn_80370320(lbl_8087F430, 0xEF, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0xEF, 1, 0);
         }
         if (mFC0 == 0) {
             if (mFC4 != 0) {
@@ -1208,7 +1207,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field) {
         } else if (lbl_8087F0A8->mInput.fn_801240B4(7)) {
             fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
             if (fn_80370174(lbl_8087F430, 0xEF) == 0 && fn_80370174(lbl_8087F430, 0xEE) == 1) {
-                fn_80370320(lbl_8087F430, 0xEF, 1, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(0xEF, 1, 0);
             }
             if (mFC0 == 0) {
                 Effect_unk* mgr = lbl_8087F048;

@@ -48,7 +48,6 @@ struct GimmickUvOwner_unk {
 struct LibraryField_unk;
 extern "C" LibraryField_unk* lbl_8087F430;
 extern "C" int fn_80370174(LibraryField_unk* field, int id);
-extern "C" void fn_80370320(LibraryField_unk* field, int id, int value, int arg3);
 
 
 // inferred: parameters of the text (debug menu "Library")
@@ -239,7 +238,7 @@ void LibraryTask::vf1C(int state) {
             }
             mBook = new ((MemoryTag)1, "", "", 0) BookTask(this, book->mName, book->mTitle);
             if (fn_80370174(lbl_8087F430, book->mId) == 1) {
-                fn_80370320(lbl_8087F430, book->mId, 2, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(book->mId, 2, 0);
             }
         } else {
             vf1C(2);
@@ -310,7 +309,7 @@ void LibraryTask::fn_80469D60(const void* data, unsigned int size, int unlock) {
             if (unlock == 0) {
                 continue;
             }
-            fn_80370320(lbl_8087F430, book.mId, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(book.mId, 1, 0);
         }
         void* font = lbl_8087EEC8;
         fn_8006F420(font, book.mName, csv.fn_8005B9CC(), 0x10);

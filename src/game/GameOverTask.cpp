@@ -2,6 +2,7 @@
 // (__vt__12GameOverTask). File boundaries in docs/splits-auto-C.md (group 2).
 
 #include "atn/Camera_unk.h"
+#include "game/GameTask.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/FadeCommon.h"
 #include "atn/FixedArray.h"
@@ -100,7 +101,6 @@ struct GameOverField_unk {
 extern "C" GameOverField_unk* lbl_8087F430;
 extern "C" int fn_803754F0(GameOverField_unk* field);
 extern "C" int fn_80370174(GameOverField_unk* field, int id); // inferred: event flag
-extern "C" void fn_80370320(GameOverField_unk* field, int id, int value, int arg);
 extern "C" void fn_80370F8C(GameOverField_unk* field, int a, MP::SaveData_unk* data, int b);
 // inferred: options (lbl_8087F0A8)
 struct GameOverOptions_unk {
@@ -399,7 +399,7 @@ void GameOverTask::vf10() {
             break;
         case 4:
             if (lbl_8087F430 != 0) {
-                fn_80370320(lbl_8087F430, 0x1B, 1, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(0x1B, 1, 0);
                 fn_80370F8C(lbl_8087F430, 0, 0, 1);
             }
             break;

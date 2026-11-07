@@ -77,7 +77,6 @@ extern "C" inline Field_unk* fn_80121F00() {
 }
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown

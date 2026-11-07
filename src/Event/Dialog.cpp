@@ -1,4 +1,5 @@
 #include "atn/D2A_Task.h"
+#include "game/GameTask.h"
 #include "Event/Manager.h"
 #include "Event/Sequence.h"
 #include "game/GameVoice.h"
@@ -91,7 +92,6 @@ struct DialogField_unk {
 };
 extern "C" DialogField_unk* lbl_8087F430;
 extern "C" int fn_80370174(DialogField_unk* field, int arg);
-extern "C" void fn_80370320(DialogField_unk* field, int a, int b, int c);
 
 // inferred: post effects (lbl_8087EF8C)
 struct DialogPostFx_unk {
@@ -476,7 +476,7 @@ void Dialog::fn_80228FD8() {
     }
     if (lbl_8087F430 != 0) {
         m118 = fn_80370174(lbl_8087F430, 3);
-        fn_80370320(lbl_8087F430, 3, 1, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(3, 1, 0);
         CameraSub_unk* camera = &lbl_8087F430->m6C;
         if (camera->m7FC != 0) {
             camera->fn_80389838(0);
@@ -505,7 +505,7 @@ int Dialog::fn_802291BC() {
 void Dialog::fn_80229240() {
     lbl_8087EF8C->m778 = 14;
     if (lbl_8087F430 != 0) {
-        fn_80370320(lbl_8087F430, 3, m118, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(3, m118, 0);
     }
     m150 = -1;
     fn_802292AC(1);

@@ -130,7 +130,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00(); // inferred: field accessor
-extern "C" void fn_80370320(Field_unk* field, int id, int a, int b); // inferred: event flag of the area
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
@@ -310,8 +309,8 @@ EnemyQuarkStand::EnemyQuarkStand(atn::Task* parent, EnemyInfo_unk* info)
     m17F4->fn_800D246C(1);
     m17F8 = fn_801F3FF8(this, "/data/d2anime/ui_direction_r.d2a", 0);
     m17F8->fn_800D246C(1);
-    fn_80370320(fn_80121F00(), 0x65, 1, 0);
-    fn_80370320(fn_80121F00(), 0x68, 1, 0);
+    ((GameTask*)fn_80121F00())->fn_80370320(0x65, 1, 0);
+    ((GameTask*)fn_80121F00())->fn_80370320(0x68, 1, 0);
     fn_80338CDC(&mColli, 0);
     m160C.Set_unk(0.0f, 0.0f, 0.0f);
     mFlagB11 = 1;
@@ -700,7 +699,7 @@ void EnemyQuarkStand::vf40(HitInfo_unk* hit) {
             if (fn_80370A78(lbl_8087F430, 0xC9) == 0) {
                 fn_80370AE4(lbl_8087F430, 0xC9, 1);
             }
-            fn_80370320(lbl_8087F430, 0x389, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
             m14A8 &= ~0x04000000;
             fn_800C31F4("SE_DG040_109", 0, -1, 1.0f);
         } else if (msg->mData->m04 == 0x1791) {
@@ -2321,7 +2320,7 @@ void EnemyQuarkStand::fn_803520D8() {
     if (fn_80370A78(lbl_8087F430, 0xC9) == 0) {
         fn_80370AE4(lbl_8087F430, 0xC9, 1);
     }
-    fn_80370320(lbl_8087F430, 0x389, 1, 0);
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
     m14A8 &= ~0x4000000;
     fn_800C31F4("SE_DG040_109", 0, -1, 1.0f);
 }

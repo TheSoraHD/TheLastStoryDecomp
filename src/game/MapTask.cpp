@@ -1,4 +1,5 @@
 #include "game/MapTask.h"
+#include "game/GameTask.h"
 #include "game/GameConfig_unk.h"
 #include "game/MapInstance_unk.h"
 #include "game/MapPartsBase.h"
@@ -907,8 +908,8 @@ void MapTask::fn_804A1C4C() {
 void MapTask::fn_804A1D2C() {
     if (lbl_8087F430 != 0) {
         unsigned int blend = ((unsigned int)(m110 * 10000.0f) << 16) | (int)(m114 * 10000.0f);
-        fn_80370320(lbl_8087F430, 0x387, mAreaIndex, 0);
-        fn_80370320(lbl_8087F430, 0x388, blend, 0);
-        fn_80370320(lbl_8087F430, 0x38B, atn::RenderManager::instance_->mLayers[4]->m04, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x387, mAreaIndex, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x388, blend, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x38B, atn::RenderManager::instance_->mLayers[4]->m04, 0);
     }
 }

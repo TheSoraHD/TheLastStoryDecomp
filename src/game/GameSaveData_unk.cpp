@@ -124,12 +124,12 @@ void GameSaveFlags_unk::fn_803B9C98() {
     GameField_unk* field = lbl_8087F430;
     if (field) {
         fn_80370094(field, mState);
-        fn_80370320(field, 0x11B, 0, 1);
+        ((GameTask*)field)->fn_80370320(0x11B, 0, 1);
         for (int i = 0; i < 0x1000; i++) {
             if (i == 0x1E) {
-                fn_80370320(field, i, 1, 1);
+                ((GameTask*)field)->fn_80370320(i, 1, 1);
             } else {
-                fn_80370320(field, i, mFlags[i], 1);
+                ((GameTask*)field)->fn_80370320(i, mFlags[i], 1);
             }
         }
         if (mFlags[0x11B] > 0) {

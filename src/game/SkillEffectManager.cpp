@@ -1,4 +1,5 @@
 #include "game/GameUI.h"
+#include "game/GameTask.h"
 #include "game/SkillEffectManager.h"
 #include "atn/FixedArray.h"
 #include "atn/Memory.h"
@@ -17,7 +18,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F610;                     // inferred: arena mode (see game/CharaTask.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048; // inferred: effect manager of the characters
 extern "C" int fn_800F8548(Effect_unk* mgr);
@@ -292,7 +292,7 @@ void SkillEffectManager::vf10() {
                 }
             }
         }
-        fn_80370320(lbl_8087F430, 199, count, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(199, count, 0);
     }
 }
 

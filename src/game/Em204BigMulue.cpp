@@ -1,4 +1,5 @@
 #include "game/Em204Mulue.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/ColliBase.h"
 #include "game/CharaManager.h"
@@ -62,7 +63,6 @@ extern "C" GameUI* lbl_8087F490;
 extern "C" bool fn_80051A88(const CharaTask::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 // inferred: debug drawing (lbl_8087EEB0)
 // inferred: ray tests (as in game/Em208Queen.cpp and gmk/Brazier.cpp)
 struct BigMulueColl_unk {
@@ -299,7 +299,7 @@ void Em204BigMulue::vf10() {
         for (unsigned int i = 0; i < m1558.size(); i++) {
             m1564[i].mFlags |= 1;
         }
-        fn_80370320(lbl_8087F430, 0x68, 1, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x68, 1, 0);
     }
     if (!mFlag2 || !CanAct_unk()) {
         if (CanAct_unk() && m58C != 6 && !vfF8()) {

@@ -208,7 +208,6 @@ struct Effect_unk {
 extern "C" Effect_unk* lbl_8087F048;
 
 extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" void fn_800FD658(Effect_unk* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
@@ -7698,7 +7697,7 @@ void CharaTask::fn_80153698(const Ledge_unk* ledge, int keep) {
         }
     }
     if (mType == 0 && fn_80370174(lbl_8087F430, 0xED) == 0 && fn_80370174(lbl_8087F430, 0xEA) == 1) {
-        fn_80370320(lbl_8087F430, 0xED, 1, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0xED, 1, 0);
     }
 }
 
@@ -8918,9 +8917,9 @@ void CharaTask::fn_801647BC() {
     fn_80178208(control);
     if (lbl_8087F430 != 0) {
         if (fn_80370174(lbl_8087F430, 0x135) == 0) {
-            fn_80370320(lbl_8087F430, 0x135, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x135, 1, 0);
         } else if (fn_80370174(lbl_8087F430, 0x136) == 0) {
-            fn_80370320(lbl_8087F430, 0x136, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x136, 1, 0);
         }
     }
 }

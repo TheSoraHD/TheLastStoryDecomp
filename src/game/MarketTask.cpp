@@ -1,4 +1,5 @@
 #include "game/MarketTask.h"
+#include "game/GameTask.h"
 #include "atn/Memory.h"
 #include "game/Input_unk.h"
 #include "game/TownTask.h"
@@ -40,7 +41,6 @@ struct Field_unk : public atn::Task {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                   // inferred: event flag
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 extern "C" void* lbl_8087F0A8;
 
 MarketTask* MarketTask::sInstance;
@@ -83,7 +83,7 @@ int MarketTask::vf0C() {
             int levels = fn_802179B4();
             int base = rand() % levels * 58;
             int offset = rand() % 58;
-            fn_80370320(lbl_8087F430, item->mFlag, offset + base, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag, offset + base, 1);
             item++;
         }
     }
@@ -118,7 +118,7 @@ void MarketTask::fn_804A233C() {
                 int levels = fn_802179B4();
                 value = rand() % levels * 58;
             }
-            fn_80370320(lbl_8087F430, item->mFlag, value, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag, value, 0);
             item++;
         }
     }
@@ -201,10 +201,10 @@ void MarketTask::fn_804A2800(int id, int num) {
             int total = fn_80370174(lbl_8087F430, item->mFlag2);
             int price = fn_804A251C(id);
             total += price * num;
-            fn_80370320(lbl_8087F430, item->mFlag2, total, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag2, total, 0);
             int count = fn_80370174(lbl_8087F430, item->mFlag3);
             count += num;
-            fn_80370320(lbl_8087F430, item->mFlag3, count, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag3, count, 0);
         }
     }
 }
@@ -213,8 +213,8 @@ void MarketTask::fn_804A28F8(int id) {
     if (__GetItem_unk(id) != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            fn_80370320(lbl_8087F430, item->mFlag2, 0, 0);
-            fn_80370320(lbl_8087F430, item->mFlag3, 0, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag2, 0, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag3, 0, 0);
         }
     }
 }

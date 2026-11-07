@@ -25,6 +25,30 @@ struct GameLeader_unk {
 // partial views of it (GameField_unk, Field_unk...). Method names invented unless noted.
 class GameTask : public atn::Task {
 public:
+    // inferred: start options of the game task (0x24 bytes; names invented)
+    struct Option {
+        Option(int type, int map, int sub, int pos, int m10_, int m14_, void (*callback)(void*)) {
+            mType = type;
+            mMap = map;
+            mSub = sub;
+            mPos = pos;
+            m10 = m10_;
+            m14 = m14_;
+            m18 = 0;
+            m1C = 0;
+            mCallback = callback;
+        }
+        int mType;
+        int mMap;
+        int mSub;
+        int mPos;
+        int m10;
+        int m14;
+        int m18;
+        int m1C;
+        void (*mCallback)(void*);
+    };
+
     void fn_8036E430(int a, int b);
     void fn_8036E92C(int arg);          // inferred: opens the save menu
     void fn_8036E964();                 // inferred: closes the save menu
@@ -32,10 +56,12 @@ public:
     void fn_8036EA04();                 // inferred: opens the library
     void fn_8036EA3C();                 // inferred: leaves the library
     void fn_8036EA6C(int menu);
+    void fn_8036E89C();                 // inferred: closes the shops
     int fn_8036DAA8(CharaTask* chara); // inferred: the special skill is allowed here
     void fn_8036EE0C();
     int fn_80370C2C();                  // inferred: the fade is finished
     void fn_80370C6C();
+    void fn_80370320(int flag, int value, int arg); // inferred: sets a field flag
     void fn_80370B78(unsigned int color, int frames, int arg, float speed); // inferred: fade out
     void fn_80370BD0(int frames, int arg, float speed);                     // inferred: fade in
     void fn_80371320(PlayerTask* player); // inferred: new leader
@@ -61,6 +87,7 @@ public:
     int fn_80376224();        // inferred: nonzero in the second state (night?)
     int fn_80376238();
     void fn_8037624C(int value);
+    void fn_803766E4();
 
     unsigned char m48[0xD18 - 0x48];
     int mD18;
@@ -117,7 +144,11 @@ public:
     unsigned char m5690[0x56D4 - 0x5690];
     CharaTask* m56D4;
     CharaTask* m56D8;
-    unsigned char m56DC[0x5750 - 0x56DC];
+    unsigned char m56DC[0x56F0 - 0x56DC];
+    atn::Task* m56F0;
+    unsigned char m56F4[0x571C - 0x56F4];
+    int m571C;
+    unsigned char m5720[0x5750 - 0x5720];
     SelectMember* m5750;
     int m5754;
     int m5758;

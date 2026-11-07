@@ -1,4 +1,5 @@
 #include "game/Em303KrakenFoot.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -28,7 +29,6 @@ extern "C" double cos(double x);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);       // inferred: sets a counter flag
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -665,7 +665,7 @@ inline void SetFlag_unk(FootFlag_unk* flag, int value) {
     if (flag->mGlobal == 0) {
         fn_80370AE4(lbl_8087F430, flag->mIndex, value);
     } else if (flag->mGlobal == 1) {
-        fn_80370320(lbl_8087F430, flag->mIndex, value, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(flag->mIndex, value, 0);
     }
 }
 

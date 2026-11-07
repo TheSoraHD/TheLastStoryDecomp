@@ -19,7 +19,6 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameTask* lbl_8087F430;
-extern "C" void fn_80370320(GameTask* field, int flag, int value, int arg); // inferred: sets a field flag
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
 extern "C" const char* fn_800EFE3C(int id);   // inferred: sound of row `id`
@@ -100,9 +99,9 @@ void BattleTask::fn_80105510(int value) {
         return;
     }
     if (m363BC == 9999) {
-        fn_80370320(lbl_8087F430, 10, 1, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(10, 1, 0);
     } else {
-        fn_80370320(lbl_8087F430, 10, 0, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(10, 0, 0);
     }
 }
 

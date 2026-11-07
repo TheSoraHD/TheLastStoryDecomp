@@ -1,4 +1,5 @@
 #include "game/ShopBase.h"
+#include "game/GameTask.h"
 #include "game/GameUI.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -24,7 +25,6 @@ extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float fram
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
 struct ShopField_unk;
 extern "C" ShopField_unk* lbl_8087F430;           // inferred: field
-extern "C" void fn_8036E89C(ShopField_unk* field); // inferred: called when a shop closes
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" int fn_804444E8(Inventory* inv, int id);           // inferred: number of items
 extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
@@ -325,7 +325,7 @@ void ShopBase::vf2C() {
             lbl_8087F490->fn_803E63D0();
         }
         if (lbl_8087F430 != 0) {
-            fn_8036E89C(lbl_8087F430);
+            ((GameTask*)lbl_8087F430)->fn_8036E89C();
         }
     }
 }

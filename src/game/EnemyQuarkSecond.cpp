@@ -57,7 +57,6 @@ extern "C" inline Field_unk* fn_80121F00() {
 }
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" void fn_80370320(Field_unk* field, int index, int value, int arg); // inferred: sets a global flag
 // inferred: route tables of the field, null without a field (name invented)
 inline RouteTable_unk* GetRouteTable_unk() {
     return fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
@@ -104,8 +103,8 @@ EnemyQuarkSecond::EnemyQuarkSecond(atn::Task* parent, EnemyInfo_unk* info)
     m1680.LoadRequest("ef_bu047b.efp");
     m168C.LoadRequest("ef_bu047c.efp");
     m1698.LoadRequest("ef_bs079b.efp");
-    fn_80370320(fn_80121F00(), 0x65, 1, 0);
-    fn_80370320(fn_80121F00(), 0x68, 1, 0);
+    ((GameTask*)fn_80121F00())->fn_80370320(0x65, 1, 0);
+    ((GameTask*)fn_80121F00())->fn_80370320(0x68, 1, 0);
     fn_80338CDC(&mColli, 0);
     m1598.Set_unk(0.0f, 0.0f, 0.0f);
     mFlagB11 = 1;
@@ -477,7 +476,7 @@ void EnemyQuarkSecond::vf10() {
             fn_800F7FA8(fn_800F7FA0(), &m1610, 0);
             fn_80276AE4(fn_800F7FA0(), &m1610, &mMotion, atn::Vector3(0.0f, 0.0f, 0.0f),
                         atn::Vector3(0.0f, 0.0f, 0.0f), -1, -1, 1, 4.0f);
-            fn_80370320(fn_80121F00(), 0x38C, 1, 0);
+            ((GameTask*)fn_80121F00())->fn_80370320(0x38C, 1, 0);
             m14C4->GetStatus_unk()->fn_8012D180();
             m14C4->GetStatus_unk()->m228 = 1.0f;
             m14C4->GetModel_unk()->fn_8009373C("op_eyepatch", 0);

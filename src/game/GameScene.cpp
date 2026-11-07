@@ -51,7 +51,6 @@ extern "C" int fn_80370174(Field_unk* field, int index); // inferred: reads a va
 extern "C" int fn_80370A78(Field_unk* field, int index); // inferred: reads a flag of the field
 extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
 extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gmk/WindyItem.cpp)
-extern "C" void fn_80370320(Field_unk* field, int index, int value, int arg3); // inferred: writes a value of the field
 extern "C" gmk::TreasureBox::Data_unk* fn_8021ECD0(int id); // inferred: treasure data
 extern "C" int fn_80051CD8(const atn::ColliSphereShape_unk* sphere, const atn::ColliBoxShape_unk* box); // inferred: sphere in box
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
@@ -1854,10 +1853,10 @@ void GameScene::fn_803CA604() {
                 maps >>= 4;
             }
             if (reset) {
-                fn_80370320(lbl_8087F430, 0x392, (fn_80370174(lbl_8087F430, 0x392) << 4) | (map & 0xF), 1);
+                ((GameTask*)lbl_8087F430)->fn_80370320(0x392, (fn_80370174(lbl_8087F430, 0x392) << 4) | (map & 0xF), 1);
             }
         } else {
-            fn_80370320(lbl_8087F430, 0x392, 0, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x392, 0, 1);
         }
     }
     int n = 0;
@@ -1905,7 +1904,7 @@ void GameScene::fn_803CA604() {
         box.mSize = size;
         box.m40 = 0;
         if (type % 1000 == 1 && reset && data != 0 && lbl_8087F430 != 0) {
-            fn_80370320(lbl_8087F430, data->mFlag, 0, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370320(data->mFlag, 0, 1);
         }
     }
 }

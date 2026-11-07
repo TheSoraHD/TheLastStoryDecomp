@@ -2,6 +2,7 @@
 // template; the real file is the one that registers BootTask/Title/Multiplayer/GameLoad/Game/Strap in the
 // SequenceHolder tables, created from `main`, plus the debug map tables).
 #include "atn/SequenceControl.h"
+#include "game/GameTask.h"
 #include "atn/SequenceHolder.h"
 #include "game/StrapTask.h"
 #include "atn/SequenceBoot_unk.h"
@@ -16,34 +17,7 @@ using atn::SequenceControl;
 Task* fn_8010EB58(Task* const parent);
 
 // inferred: field object passed to the debug map callbacks
-extern "C" void fn_80370320(void* field, int id, int value, int arg3); // inferred: sets a field flag
 
-class GameTask {
-public:
-    // inferred: start options of the game task (0x24 bytes; names invented)
-    struct Option {
-        Option(int type, int map, int sub, int pos, int m10_, int m14_, void (*callback)(void*)) {
-            mType = type;
-            mMap = map;
-            mSub = sub;
-            mPos = pos;
-            m10 = m10_;
-            m14 = m14_;
-            m18 = 0;
-            m1C = 0;
-            mCallback = callback;
-        }
-        int mType;
-        int mMap;
-        int mSub;
-        int mPos;
-        int m10;
-        int m14;
-        int m18;
-        int m1C;
-        void (*mCallback)(void*);
-    };
-};
 
 Task* fn_80365708(Task* parent, const GameTask::Option& option); // inferred: GameTask creator
 
@@ -92,9 +66,9 @@ struct DebugMap_unk {
 
 // inferred: debug start callback of "Noon Town"
 static void fn_8057285C(void* field) {
-    fn_80370320(field, 0x14, 0x64, 0);
-    fn_80370320(field, 0x72B, 0x64, 0);
-    fn_80370320(field, 0x71E, 1, 0);
+    ((GameTask*)field)->fn_80370320(0x14, 0x64, 0);
+    ((GameTask*)field)->fn_80370320(0x72B, 0x64, 0);
+    ((GameTask*)field)->fn_80370320(0x71E, 1, 0);
 }
 
 SequenceBoot_unk* sSequenceBoot_unk;

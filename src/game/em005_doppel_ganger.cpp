@@ -1,4 +1,5 @@
 #include "game/Em005DoppelGanger.h"
+#include "game/GameTask.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "game/EnemyManager.h"
@@ -148,7 +149,6 @@ inline void ClearDoppel_unk(Em005DoppelGanger* self) {
 }
 
 // inferred: field events and the doppelganger helpers called by vf10 (classes unknown)
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg3); // inferred: sets a field flag
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill (game/BattleEfp_unk.cpp)
@@ -375,7 +375,7 @@ public:
 void Em005DoppelGanger::vf10() {
     if (m151C != 0) {
         m151C = 0;
-        fn_80370320(lbl_8087F430, 0xD9, 3, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0xD9, 3, 0);
         switch (fn_80219558(m1504->m50)) {
         case 0:
         case 2:
@@ -445,7 +445,7 @@ void Em005DoppelGanger::vf10() {
         lbl_8087F9E8->fn_8059C98C(m14FC); // inferred: frees the character
     }
     if (m14BC == 0) {
-        fn_80370320(lbl_8087F430, 0x389, 1, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
         if (m14FC != 0) {
             m14FC->fn_80179AD0(0x20, 1);
             m14FC->fn_80179AD0(0x10, 1);
@@ -500,7 +500,7 @@ void Em005DoppelGanger::vf10() {
         }
     } else if (m14BC == 1) {
         fn_80239DAC(lbl_8087F3C0, &m1530, 0, 0);
-        fn_80370320(lbl_8087F430, 0x389, 0, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 0, 0);
         CopyRobotTask* robot = m14FC;
         m1540 = 0;
         if (robot != 0 && IsShown_unk(robot)) {
@@ -516,7 +516,7 @@ void Em005DoppelGanger::vf10() {
             fn_8016E4C4(IsHiddenPhase_unk());
         }
     } else if (m14BC == 2) {
-        fn_80370320(lbl_8087F430, 0x38A, 1, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x38A, 1, 0);
         CopyRobotTask* robot = m14FC;
         if (robot != 0) {
             if (m1520 < m1524) {

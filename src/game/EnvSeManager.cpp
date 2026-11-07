@@ -58,7 +58,6 @@ struct EnvSeField_unk;
 extern "C" EnvSeField_unk* lbl_8087F430;
 extern "C" int fn_80370174(EnvSeField_unk* field, int id);
 extern "C" int fn_80370A78(EnvSeField_unk* field, int id);
-extern "C" void fn_80370320(EnvSeField_unk* field, int event, int arg2, int arg3);
 
 // inferred: game settings (fn_800F52F8 returns lbl_8087F0A8; weak copy of another file)
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -720,7 +719,7 @@ void EnvSeManager::fn_803608A8() {
                 }
             }
         }
-        fn_80370320(lbl_8087F430, 0x393, id, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x393, id, 0);
     }
 }
 

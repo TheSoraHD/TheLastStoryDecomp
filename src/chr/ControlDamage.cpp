@@ -1,6 +1,7 @@
 // Hit reactions: damage, guard, dodge, knockdown and getting up, revival, falling to death, guard
 // broken and the reaction of the enemies (ControlDamageLastOne).
 #include "chr/ControlDamage.h"
+#include "game/GameTask.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
 #include "game/GameVoice.h"
@@ -33,7 +34,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
-extern "C" void fn_80370320(Field_unk* field, int id, int arg2, int arg3); // inferred: starts an event
 // inferred: effect manager of the characters (lbl_8087F048)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -295,7 +295,7 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
         if (mChara->mStatus.IsState_unk(0x20)) {
             lbl_8087F498->fn_803EA77C(chara, 0xA, 0, 1.0f, 10.0f);
             if (mChara->mType == 0 && lbl_8087F430 && !fn_80370174(lbl_8087F430, 0xB6)) {
-                fn_80370320(lbl_8087F430, 0xB6, 1, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(0xB6, 1, 0);
             }
         } else if (rand() % 2 == 0) {
             lbl_8087F498->fn_803EA77C(chara, 8, 0, 1.0f, 10.0f);

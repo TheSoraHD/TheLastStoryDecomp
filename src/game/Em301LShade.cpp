@@ -76,7 +76,6 @@ extern "C" void fn_80108C10(Effect_unk* effect, ShadeDamage_unk* damage, const a
 struct EffectMgr_unk;
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 // inferred: copy of the event camera (as CameraMgr_unk::SetParam_unk of chr/ControlBreakOpen.cpp: the two
 // vectors through a Vector3 pointer); name invented
 inline void SetCamera_unk(Field_unk* field, const ShadeCamera_unk& c) {
@@ -1429,7 +1428,7 @@ void Em301LShade::vfEC() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         mFlag25 = 1;
         mColli.mFlags &= ~1;
-        fn_80370320(lbl_8087F430, 0xD0, 0, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 0, 0);
         fn_800EE360();
         mFlag15 = 1;
         fn_801765D8();
@@ -1529,7 +1528,7 @@ void Em301LShade::fn_802D57B8() {
     blur.m00 = 1;
     game->m240 = blur;
     lbl_8087EFA8->m3A4 = 0.5f;
-    fn_80370320(lbl_8087F430, 0xD0, 1, 0);
+    ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 1, 0);
     dir.Set_unk(c.mPos.x - mPos.x, 0.0f, c.mPos.z - mPos.z);
     atn::Vector3 rot = dir.ToRotationZ_unk();
     mRot.y = rot.y;

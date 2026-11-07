@@ -102,7 +102,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
-extern "C" void fn_80370320(Field_unk* field, int id, int arg2, int arg3); // inferred: starts an event
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 struct TacView_unk;
 extern "C" TacView_unk* lbl_8087F9F8;
@@ -572,7 +571,7 @@ int ControlMagic::vf0C() {
         m1D = true;
         if (hit->m04 == 0x6C2) {
             if (fn_80370174(lbl_8087F430, 0x38D) > 0) {
-                fn_80370320(lbl_8087F430, 0x38E, 1, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370320(0x38E, 1, 0);
                 mChara->mStatus.m228 = 0.0f;
             }
             if (lbl_8087EE68 && fn_800185B4(lbl_8087EE68, mChara, hit)) {

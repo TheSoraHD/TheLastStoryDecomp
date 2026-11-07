@@ -1,4 +1,5 @@
 #include "chr/ControlInteractionBase.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/CharaTask.h"
 
@@ -16,7 +17,6 @@ extern "C" void fn_8010A308(void* obj, atn::Vector3* from, atn::Vector3* to, flo
 // inferred: field object (lbl_8087F430) and its counters (same calls as in gmk/AttractHatePoint.cpp)
 extern "C" void* lbl_8087F430;
 extern "C" int fn_80370174(void* field, int id);
-extern "C" void fn_80370320(void* field, int id, int value, int arg);
 
 // inferred: flag test through an accessor (the flag word is loaded again before it is changed);
 // name invented (same as in gmk/ReinforcePoint.cpp)
@@ -143,8 +143,7 @@ ControlBumpHead::ControlBumpHead(Chara_unk* chara, const atn::Vector3& a, const 
     }
     if (mChara->mType == 0 && lbl_8087F430 != 0) {
         // inferred: counts the bumps (flag 0xF8, at most 999)
-        fn_80370320(lbl_8087F430, 0xF8,
-                    fn_80370174(lbl_8087F430, 0xF8) + 1 < 999 ? fn_80370174(lbl_8087F430, 0xF8) + 1 : 999, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0xF8, fn_80370174(lbl_8087F430, 0xF8) + 1 < 999 ? fn_80370174(lbl_8087F430, 0xF8) + 1 : 999, 0);
     }
 }
 

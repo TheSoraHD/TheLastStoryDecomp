@@ -1,4 +1,5 @@
 #include "game/SkillEffectManager.h"
+#include "game/GameTask.h"
 #include "game/Em201ZanGurgFinal.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
@@ -52,7 +53,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00();
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
-extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -796,7 +796,7 @@ void Em201ZanGurgFinal::vf10() {
             fn_80265804(&mStatus, 0.0f);
         }
     }
-    fn_80370320(fn_80121F00(), 0x396, 0, 0);
+    ((GameTask*)fn_80121F00())->fn_80370320(0x396, 0, 0);
     if (m1630 != 0) {
         fn_8026DB8C();
     }
@@ -1132,11 +1132,11 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
         mStatus.m04 = 1.0f;
         if (m14C0 == 0) {
             m1544 = 1;
-            fn_80370320(fn_80121F00(), 0x395, 1, 0);
+            ((GameTask*)fn_80121F00())->fn_80370320(0x395, 1, 0);
         } else {
             fn_800F7FA8(fn_800F7FA0(), this, 101);
-            fn_80370320(fn_80121F00(), 0x395, 0, 0);
-            fn_80370320(fn_80121F00(), 0x396, 0, 0);
+            ((GameTask*)fn_80121F00())->fn_80370320(0x395, 0, 0);
+            ((GameTask*)fn_80121F00())->fn_80370320(0x396, 0, 0);
             if (fn_80370A78(fn_80121F00(), 0xEA) == 0) {
                 fn_80370AE4(fn_80121F00(), 0xEA, 1);
                 if (fn_8000D9E8()->GetHead_unk() != 0 && *fn_80266FB4(fn_80266FA4(this), 0) == m1628 &&
@@ -2634,7 +2634,7 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
                     lbl_8087F490->fn_803E3384();
                 }
                 if (m163C == 0) {
-                    fn_80370320(lbl_8087F430, 0x396, 1, 0);
+                    ((GameTask*)lbl_8087F430)->fn_80370320(0x396, 1, 0);
                 }
             }
         }
@@ -2645,13 +2645,13 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
     }
     case 3: {
         if (m163C == 0) {
-            fn_80370320(lbl_8087F430, 0x396, 1, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x396, 1, 0);
         }
         PlayerTask* leader = lbl_8087F8A0->mHead;
         if (leader->m55C == 6 && (leader->m560 == 0x17 || leader->m560 == 0x63)) {
             TakeShield_unk(this, leader);
             fn_8026D0F8(1);
-            fn_80370320(lbl_8087F430, 0x396, 0, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370320(0x396, 0, 0);
             m1644 = 0;
         }
         break;

@@ -1,4 +1,5 @@
 #include "chr/ControlPushedDown.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "chr/ControlChaseCaught.h"
 #include "game/CharaManager.h"
@@ -26,7 +27,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                    // inferred: event flag
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 
 // inferred: frame parameters (lbl_8087EFA8, as in gmk/ArenaFloor.cpp)
 struct Params_unk {
@@ -184,7 +184,7 @@ ControlPushedDown::ControlPushedDown(Chara_unk* chara, const atn::Vector3& dir, 
     if (mChara->IsPartyMember_unk() && lbl_8087F430 != 0) {
         // inferred: counts the pushes (flag 0xAB, at most 999)
         int count = fn_80370174(lbl_8087F430, 0xAB);
-        fn_80370320(lbl_8087F430, 0xAB, count + 1 < 999 ? count + 1 : 999, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0xAB, count + 1 < 999 ? count + 1 : 999, 0);
     }
 }
 

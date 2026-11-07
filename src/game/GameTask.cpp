@@ -5,10 +5,15 @@
 #include "game/LibraryTask.h"
 #include "game/MapTask.h"
 #include "game/SelectMember.h"
+#include "game/ShopBuySell.h"
+#include "game/ShopColor.h"
+#include "game/ShopIdentify.h"
 #include "atn/FadeCommon.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" int fn_80570A4C(GameTaskData_unk* obj);
+extern "C" GameTask* lbl_8087F430;
+extern "C" atn::Task* lbl_8087F9E0; // inferred: upgrade shop (ShopUpGrade)
 
 inline MapTask* GameTask::GetCurrentMap() {
     MapTask* map = 0;
@@ -42,6 +47,25 @@ void GameTask::fn_8036E430(int a, int b) {
     m5684 = 1;
     m5688 = a;
     m568C = b;
+}
+
+void GameTask::fn_8036E89C() {
+    if (lbl_8087F430 != 0) {
+        lbl_8087F430->fn_80370320(0x394, 0, 0);
+    }
+    fn_8036EE0C();
+    if (ShopBuySell::sInstance != 0) {
+        fn_800D2338(ShopBuySell::sInstance);
+    }
+    if (lbl_8087F9E0 != 0) {
+        fn_800D2338(lbl_8087F9E0);
+    }
+    if (ShopColor::sInstance != 0) {
+        fn_800D2338(ShopColor::sInstance);
+    }
+    if (ShopIdentify::sInstance != 0) {
+        fn_800D2338(ShopIdentify::sInstance);
+    }
 }
 
 void GameTask::fn_8036E92C(int arg) {
@@ -219,3 +243,52 @@ int GameTask::fn_80376238() {
 void GameTask::fn_8037624C(int value) {
     m1194 = value;
 }
+
+void GameTask::fn_803766E4() {
+    if (m56F0 != 0) {
+        fn_800D2338(m56F0);
+        m56F0 = 0;
+    }
+    m571C = 0;
+}
+
+// inferred: 0xC-byte entry of sGameTaskStatic_unk (constructor inlined in __sinit)
+struct GameTaskStaticEntry_unk {
+    int m00;
+    int m04;
+    int m08;
+};
+
+// inferred: static object of this file (.bss 0x807C8458, 0x98 bytes). The constructor is __sinit_\GameTask_cpp
+// (NONMATCHING: 93% - the original computes the end of m44 before its start, r6/r7 swapped)
+struct GameTaskStatic_unk {
+    GameTaskStatic_unk()
+        : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(0), m1C(0), m20(0), m24(0), m28(0), m2C(0),
+          m30(0), m34(0), m38(-1), m3C(0), m40(0) {
+        for (GameTaskStaticEntry_unk* p = m44; p < m44 + 7; p++) {
+            p->m00 = -1;
+            p->m04 = 0;
+            p->m08 = 0;
+        }
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+    int m28;
+    int m2C;
+    int m30;
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    GameTaskStaticEntry_unk m44[7];
+};
+
+GameTaskStatic_unk sGameTaskStatic_unk;

@@ -2,6 +2,7 @@
 // File name invented. The members of a team are characters: TeamChara_unk is the view of
 // include/game/TeamAIManager.h, used here as a CharaTask.
 #include "game/TeamAIManager.h"
+#include "game/GameTask.h"
 #include "game/CharaTask.h"
 #include "game/GameField_unk.h"
 #include "game/AiTarget.h"
@@ -449,7 +450,7 @@ void TeamAI_unk::fn_805B1A9C(TeamVarOp_unk* op) {
         fn_80370AE4(lbl_8087F430, op->mVar, a);
         break;
     case 1:
-        fn_80370320(lbl_8087F430, op->mVar, a, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(op->mVar, a, 0);
         break;
     }
 }
@@ -589,7 +590,7 @@ void TeamAI_unk::fn_805B228C(TeamGetParam_unk* order) {
         fn_80370AE4(lbl_8087F430, order->mVar, value);
         break;
     case 1:
-        fn_80370320(lbl_8087F430, order->mVar, value, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(order->mVar, value, 0);
         break;
     }
 }

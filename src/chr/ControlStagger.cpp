@@ -1,4 +1,5 @@
 #include "chr/ControlStagger.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "macros.h"
 
@@ -22,7 +23,6 @@ extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vecto
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                    // inferred: event flag
-extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 
 namespace chr {
 
@@ -189,7 +189,7 @@ ControlSlip::ControlSlip(Chara_unk* chara, int stop) : ControlBase(chara), mStop
         lbl_8087F498->fn_803EA77C(mChara, 0x12, 0x2D, 1.0f, 10.0f);
     }
     if (mChara->mType == 0 && lbl_8087F430 != 0) {
-        fn_80370320(lbl_8087F430, 0xF9, MIN(fn_80370174(lbl_8087F430, 0xF9) + 1, 999), 0);
+        ((GameTask*)lbl_8087F430)->fn_80370320(0xF9, MIN(fn_80370174(lbl_8087F430, 0xF9) + 1, 999), 0);
     }
     if (mStop) {
         Chara_unk* c = mChara;
