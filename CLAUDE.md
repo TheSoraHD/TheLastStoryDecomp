@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `hermanas-20261106` (2026-11-07, mergeada en `main`): **13737 / 18117**, lost 0, 652 enlazados. Unidades nuevas con hermana: `ShopBase` 33/48, `CosEditProtector` 18/25, `NewCampPartsMapSelect` 11/26, `NewCampTask` 7/64 (cabecera nueva, métodos como miembros), `LastCocoonQuadruped` 24/54, `LastCocoonImago` 14/36, `LastCocoonEgg` 11/42. Notas: `docs/hermanas-20261106.md`.
-- `unidades-20261106b` (mergeada): 13619, KPAD 2010, menus MP (`D2AMpMenu*`), `NewCampPartsItem`; `docs/unidades-20261106b.md`. `unidades-20261106` 13524 (SDK 2010 CC0; `docs/unidades-20261106.md`); `unidades-20261105` 12766.
+- `maraton-20261107` (2026-11-07, rama sin mergear): **13977 / 18117**, lost 0, 652 enlazados. Fuentes nuevas: `BattleTask` 92/212, `GameTask` 42/133, `AiTarget` 31/44 (absorbe `std/runtime_error`), `TacView` 13/46, `GameCamera_unk` 10/90, `Event/DebugInfo_unk` 1/58; `GameEventScript` 3 -> 61/224 (fusionada con `_cont`, `_cont2`, `std/bad_cast*`). Metodos de GameTask/BattleTask como miembros (llamadores convertidos). Notas: `docs/maraton-20261107.md`.
+- `hermanas-20261106` (mergeada): 13737, `ShopBase`, `CosEditProtector`, `NewCampTask`, `LastCocoon*`; `docs/hermanas-20261106.md`. `unidades-20261106b` 13619 (KPAD 2010, menus MP); `unidades-20261106` 13524 (SDK 2010 CC0); `unidades-20261105` 12766.
 - `maptask-20261105` 12710; `maparea-20261105` 12703; `scene-20261105` 12686; `nw4r-20261105` 12684 (`docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679; `event100-20261104` 12577; `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
 - `model-20261102` (mergeada): 11876 / 18308. `atn/Model` 33 -> 98/155 (`docs/model-20261102.md`); `auto-20261102b` (11811), `auto-20261102` (11764).
