@@ -2502,6 +2502,43 @@ void GameTask::fn_80370C6C() {
     }
 }
 
+// inferred: route data of the map table (as in game/NewCampPartsMapSelect.cpp)
+struct MapRouteData_unk {
+    unsigned char mMapType;
+    unsigned char mMapId;
+    unsigned char mMapSubId;
+    int mEntry;
+};
+extern "C" MapRouteData_unk* fn_80216544(int id, int chapter, int flag);
+extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, int b, int reason,
+                            int arg9); // inferred: changes the map
+
+// inferred: goes back to the map of the chapter (called by game/GameEventScript)
+extern "C" void fn_80371164(GameTask* task) {
+    int route;
+    if (201000 <= task->m10D0 && task->m10D0 < 205000) {
+        route = 0x193;
+    } else if (205000 <= task->m10D0 && task->m10D0 < 301000) {
+        route = 0x198;
+    } else {
+        route = 0xC9;
+    }
+    int special = 0;
+    if (task->GetCurrentMap() != 0) {
+        int type = task->GetCurrentMap()->mType;
+        int id = task->GetCurrentMap()->mId;
+        if (type == 2 && (id == 0x16 || id == 0x14)) {
+            route = 0x138;
+            special = 1;
+        }
+    }
+    MapRouteData_unk* data = fn_80216544(route, task->m10D0, lbl_8087F430->mGlobalFlags[99]);
+    if (data != 0) {
+        task->m5668 = 1;
+        fn_8036F268(task, data->mMapType, data->mMapId, data->mMapSubId, special ? 200 : data->mEntry, 1, 0, 0x12, 0);
+    }
+}
+
 extern "C" void fn_803712BC(GameTask* task) {
     atn::FadeColor* fade = atn::FadeColor::Create((atn::Task*)task->m20, 5, 0xFF000000, 0xFF000000);
     fade->mActive = 1;
@@ -2518,6 +2555,38 @@ void GameTask::fn_80371320(PlayerTask* player) {
 
 void BattleTask::fn_80371664() {
     mCBAC = 0;
+}
+
+extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
+extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
+extern "C" int VISetTimeToDimming(int type);
+
+// inferred: ends the event of the field (field state 0; called by game/GameEventScript)
+extern "C" void fn_80371674(GameTask* task) {
+    task->m54E4 = 0;
+    if (lbl_8087FA20 != 0 && ((TaskWithTac_unk*)lbl_8087FA20)->m258 != 0) {
+        ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->MeltTask();
+    }
+    if (task->m5590 != 0) {
+        fn_80570A14(task->m5590, 0);
+        fn_80570A40(task->m5590, 0);
+    }
+    task->m5650 = 0;
+    task->m5654 = 0;
+    MenuCommonTask::sInstance->fn_804A2FBC();
+    task->mCamera.m900 = task->mCamera.m900 % 2;
+    task->mCamera.m904 = 0;
+    task->mCamera.m908 = 0.0f;
+    task->mCamera.m90C = 0.0f;
+    task->m5674 = 0;
+    lbl_8087F9E8->MeltTask();
+    fn_80450B44();
+    if (lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EB4A8(0, 0);
+    }
+    HomeButtonMenu::sInstance->m88 = 1;
+    fn_800A5B30(lbl_8087EF70, 5);
+    VISetTimeToDimming(0);
 }
 
 void GameTask::fn_8037177C() {
@@ -3062,7 +3131,6 @@ extern "C" void fn_80373FC4(GameTask* task) {
     lbl_8087EFE8->fn_800CFBA0(8, 1, 2, 15);
 }
 
-extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
 
 // inferred: closes the tactical view: resumes the field and restores the render settings
 extern "C" void fn_803743AC(GameTask* task) {
@@ -3364,6 +3432,22 @@ void GameTask::fn_8037624C(int value) {
     mGlobalFlags[44] = value;
 }
 
+// inferred: starts the blur effect of the field (vf10 counts it down); called by game/Em309Ghoul
+// NONMATCHING: 97.4% - r4/r8 swapped (render settings pointer and the copied blur)
+extern "C" void fn_80376254(GameTask* task, int delay, int frames) {
+    task->m569C = delay;
+    task->m56A4 = frames;
+    if (delay <= 0) {
+        MotionBlurParam_unk blur = lbl_8087EFA8->m240;
+        task->m56A8 = blur;
+        blur.mEnabled = 1;
+        lbl_8087EFA8->m240 = blur;
+        float speed = lbl_8087EFA8->m3A4;
+        task->m56CC = speed;
+        lbl_8087EFA8->m3A4 = 0.2f;
+    }
+}
+
 // inferred: shows the help `id` (queued while another help is shown)
 // NONMATCHING: 99% - the original reloads the queue count after loading its head
 extern "C" void fn_80376324(GameTask* task, int id) {
@@ -3419,6 +3503,25 @@ void GameTask::fn_803766E4() {
         m56F0 = 0;
     }
     m571C.mCount = 0;
+}
+
+// inferred: auto save of the field into the copy it started from (called by GameEventScript and
+// gmk::AttractHatePoint); counts the saves in global flag 0x8E
+extern "C" void fn_80376730(GameTask* task) {
+    if (lbl_8087F0A8->m194 == 0 && task->m5694 == 0 && task->m5748 == 0) {
+        MP::SaveWork_unk* work = task->m562C.mPtr;
+        if (work != 0 && task->m5634->m154 == 0) {
+            ((GameSaveData_unk*)work->mData)->fn_803BDEE4();
+            SaveTime_unk time;
+            fn_8004B20C(&time);
+            ((GameSaveSlot_unk*)work)->fn_803BE8C0((GameSaveData_unk*)work->mData, &time);
+            if (task->m5630 != 0) {
+                task->m5630 = 0;
+            }
+            task->m5634->fn_803B8E60(task->m562C.mPtr, 0, 1);
+            task->fn_80370320(0x8E, task->mGlobalFlags[0x8E] + 1, 0);
+        }
+    }
 }
 
 // inferred: dungeon tables (.rodata 0x8074DA2C-0x8074DBC0), defined after their users
