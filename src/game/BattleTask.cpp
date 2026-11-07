@@ -127,6 +127,16 @@ void Bullet::vf18() {
     m04 &= ~0x10000;
 }
 
+int BattleTask::fn_80101340(CharaTask* chara) {
+    int count = 0;
+    for (int i = 0; i < 256; i++) {
+        if (mBullets[i].HasFlag_unk(0x10000) && mBullets[i].HasFlag_unk(0x20000) && mBullets[i].m9C == chara) {
+            count++;
+        }
+    }
+    return count;
+}
+
 void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
     m3E2E8 = obj;
     m3E2E0 = 0;
@@ -139,6 +149,13 @@ void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
         } else if ((obj->m08 & 8) == 8) {
             m3E2E4 = obj->m0C;
         }
+    }
+}
+
+void BattleTask::fn_801027A4(CharaTask* chara) {
+    if (FindChara_unk(chara) < 0) {
+        mCharas[mCharaCount].mChara = chara;
+        mCharaCount++;
     }
 }
 

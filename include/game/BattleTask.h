@@ -92,12 +92,14 @@ public:
     void fn_801055A8(int arg);
     Bullet* fn_801010A0();       // inferred: free bullet
     HomingBullet* fn_801010E8(); // inferred: free homing bullet
-    void fn_80101138();          // inferred: vf14(0) on the active bullets
+    void fn_80101138();
+    int fn_80101340(CharaTask* chara); // inferred: bullets following `chara`          // inferred: vf14(0) on the active bullets
     void fn_801011B8();          // inferred: removes the active bullets
     void fn_8010129C();          // inferred: vf18 on every bullet
     int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
     void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
     void fn_80102824(CharaTask* chara, PlayerTask* leader);
+    void fn_801027A4(CharaTask* chara); // inferred: adds the character to mCharas
     int fn_80102890(CharaTask* chara); // inferred: index of the character in mCharas
     void fn_80102A40(CharaTask* chara, CharaTask* target, int a, int b); // inferred: attack order (hate)
     void fn_80103600(CharaTask* chara);

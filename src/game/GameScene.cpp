@@ -1,4 +1,5 @@
 #include "db/MapIdTable_unk.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
 #include "game/GameVoice.h"
@@ -74,7 +75,6 @@ extern "C" void fn_800C317C();
 extern "C" void fn_800C31EC();
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_8036FE74(void* field, atn::Vector3* pos, atn::Vector3* rot); // inferred: start of the player
-extern "C" void fn_801027A4(void* bullets, void* chara);
 extern "C" void fn_803EC374(atn::Task* parent, gs::Gimmick* gimmick); // inferred: creates a gimmick of the scene
 extern "C" GimmickCommon* fn_803EC16C(atn::Task* parent, int item, int index); // inferred: creates a gimmick
 extern "C" void fn_8047E5DC(void* mgr, int id);
@@ -354,7 +354,7 @@ int GameScene::vf0C() {
                 lbl_8087FA20->fn_805B7B04(pos);
             }
             if (lbl_8087F048 != 0) {
-                fn_801027A4(lbl_8087F048, lbl_8087F8A0->mHead);
+                ((BattleTask*)lbl_8087F048)->fn_801027A4(lbl_8087F8A0->mHead);
             }
             CrowdManager::fn_801EA4B0(this, (CrowdDesc_unk*)&mD4, m68);
             if (lbl_8087FA20 == 0) {
@@ -491,7 +491,7 @@ atn::Task* GameScene::fn_803C0938(unsigned int index) {
     player->m58 = m90[index].mId;
     player->mC58.mHeld_unk = 1;
     if (lbl_8087F048 != 0) {
-        fn_801027A4(lbl_8087F048, player);
+        ((BattleTask*)lbl_8087F048)->fn_801027A4(player);
     }
     player->vf30(lbl_8087F8A0->m5C);
     if (m90[index].m28 > 0) {
@@ -528,7 +528,7 @@ atn::Task* GameScene::fn_803C0C2C(unsigned int index) {
     }
     enemy->mC58.mHeld_unk = 1;
     if (lbl_8087F048 != 0) {
-        fn_801027A4(lbl_8087F048, enemy);
+        ((BattleTask*)lbl_8087F048)->fn_801027A4(enemy);
     }
     if (lbl_8087F0A8->m07C != 0) {
         enemy->vf30(EnemyManager::sInstance->m58);
