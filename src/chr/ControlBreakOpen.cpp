@@ -1,4 +1,5 @@
 #include "chr/ControlBreakOpen.h"
+#include "game/GameCamera.h"
 #include "game/Input_unk.h"
 
 // inferred: camera settings block copied into the camera manager (class names unknown)
@@ -12,7 +13,6 @@ struct CameraParam_unk {
     int mFlag;
 };
 struct CameraSub_unk {
-    void fn_80389838(int mode);
 };
 struct CameraMgr_unk {
     void SetParam_unk(const CameraParam_unk& param) {
@@ -53,7 +53,7 @@ ControlBreakOpen::ControlBreakOpen(Chara_unk* chara, BreakTarget_unk* target)
     motion->fn_80097C08(0, 0x237, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     lbl_8087F430->SetParam_unk(CameraParam_unk(-20.0f, 3.0f, -15.0f, 0.0f, 10.0f, 5.0f, 0.7853982f, 1));
-    lbl_8087F430->m06C.fn_80389838(0x12);
+    ((GameCamera*)&lbl_8087F430->m06C)->fn_80389838(0x12);
 }
 
 int ControlBreakOpen::vf0C() {

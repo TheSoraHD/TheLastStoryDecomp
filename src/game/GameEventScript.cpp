@@ -2,6 +2,7 @@
 // boost::bad_lexical_cast and the weak copies of std::bad_cast and the MSL string streams).
 // The former GameEventScript_cont/_cont2 and std/bad_cast/_what splits are merged here.
 #include "atn/SoundManager.h"
+#include "game/GameCamera.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/SoundRef.h"
@@ -65,7 +66,6 @@ extern "C" void fn_803712BC(GameField_unk* field);
 extern "C" void fn_80374964(GameField_unk* field, int arg);
 extern "C" void fn_80376730(GameField_unk* field); // inferred: autosave
 extern "C" void fn_80370094(GameField_unk* field, int state); // inferred: sets m10D0
-extern "C" void fn_8037EF30(void* camera, int a, int b, float f);
 extern "C" int lbl_8087D990; // inferred: last save slot (-1: none)
 extern "C" int fn_804444E8(Inventory* inv, int id); // inferred: number of items
 
@@ -585,7 +585,7 @@ void GameEventScript::fn_803A6F68(ScriptResult_unk& result, const ScriptCmd_unk*
 
 void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        fn_8037EF30(&lbl_8087F430->mCamera, static_cast<const ScriptArgs_unk*>(cmd)->m08, 1, -1.0f);
+        lbl_8087F430->mCamera.fn_8037EF30(static_cast<const ScriptArgs_unk*>(cmd)->m08, 1, -1.0f);
     }
     result.SetNext_unk(cmd);
 }

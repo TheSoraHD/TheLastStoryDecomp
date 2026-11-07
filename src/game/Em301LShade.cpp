@@ -1,4 +1,5 @@
 #include "game/Em301LShade.h"
+#include "game/GameCamera.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
@@ -35,7 +36,6 @@ struct ShadeCamera_unk {
 };
 // inferred: camera mode switch of the field (same name as in chr/ControlBreakOpen.cpp)
 struct CameraSub_unk {
-    void fn_80389838(int mode);
 };
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
@@ -1433,7 +1433,7 @@ void Em301LShade::vfEC() {
         mFlag15 = 1;
         fn_801765D8();
         CameraSub_unk* sub = &lbl_8087F430->m06C;
-        sub->fn_80389838(*(int*)((char*)sub + 0x804));
+        ((GameCamera*)sub)->fn_80389838(((GameCamera*)sub)->m804);
         ShadeGame_unk* game = lbl_8087EFA8;
         ShadeBlur_unk blur;
         blur.m04 = game->m240.m04;
@@ -1514,7 +1514,7 @@ void Em301LShade::fn_802D57B8() {
     c.mFov = 0.9599311f;
     c.mFlag = 0;
     SetCamera_unk(lbl_8087F430, c);
-    lbl_8087F430->m06C.fn_80389838(0x13);
+    ((GameCamera*)&lbl_8087F430->m06C)->fn_80389838(0x13);
     ShadeGame_unk* game = lbl_8087EFA8;
     ShadeBlur_unk blur;
     blur.m04 = game->m240.m04;

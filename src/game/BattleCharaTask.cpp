@@ -1,4 +1,5 @@
 #include "Event/Manager.h"
+#include "game/GameCamera.h"
 #include "game/AiTarget.h"
 #include "game/GameTask.h"
 #include "game/BattleCharaTask.h"
@@ -43,7 +44,6 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 // inferred: field (lbl_8087F430); only its address is used here
 // inferred: camera of the field (lbl_8087F430 + 0x6C, as in game/FinishCamera_unk.cpp)
 struct CameraSub_unk {
-    void fn_80389838(int arg);
     unsigned char m000[0x08];
     atn::Vector3 m08; // inferred: eye (field + 0x74)
     atn::Vector3 m14; // inferred: target point (field + 0x80)
@@ -154,7 +154,6 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* target); // inferred: kind of attack
-extern "C" void fn_8037EF30(void* obj, int a, int b, float f);
 // inferred: target found by fn_800E7214 with its position (only the character is filled here)
 struct BattleTarget_unk {
     BattleTarget_unk() : mChara(0), m04(0), m08(0), mPos(0.0f, 0.0f, 0.0f) {}
@@ -919,7 +918,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                 attack = 0;
                 mFlag5 = 0;
                 if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
-                    fn_8037EF30(camera, 0, 1, -1.0f);
+                    ((GameCamera*)camera)->fn_8037EF30(0, 1, -1.0f);
                 }
             } else if (mFlag5) {
                 if (lbl_8087F0A8->mInput.fn_801231D0(0x16)) {
@@ -1102,7 +1101,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
     void* obj = &field->m006C;
     int ret = 1;
     if (config->mInput.fn_801231D0(0x11)) {
-        fn_8037EF30(obj, 0, 1, -1.0f);
+        ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
         mFC0 = 0;
     }
     if (lbl_8087F0A8->mInput.fn_801240B4(0x12) && !mFlagB9) {
@@ -1154,7 +1153,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field) {
         mFlag5 = 0;
         mFlag4 = 0;
         if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
-            fn_8037EF30(obj, 0, 1, -1.0f);
+            ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
         }
     } else if (mFlag31) {
         mFC0 = 0;
@@ -1197,7 +1196,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field) {
         mFC0 = 0;
         mFlag4 = 0;
         if (lbl_8087F0A8->mInput.fn_801231D0(0x11)) {
-            fn_8037EF30(obj, 0, 1, -1.0f);
+            ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
             mFC0 = 0;
         } else if (lbl_8087F0A8->mInput.fn_801240B4(7)) {
             fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
@@ -1210,7 +1209,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field) {
                 mFC0 = fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
             mFlag4 = 1;
-            fn_8037EF30(obj, 0, 1, -1.0f);
+            ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
         } else if (lbl_8087F0A8->mInput.fn_801240B4(0x12)) {
             fn_80155DAC(1);
         }
@@ -1684,7 +1683,7 @@ void BattleCharaTask::fn_800E9110() {
         pos = mPos + front * 0.1f;
     }
     if (mFlag6) {
-        lbl_8087F430->m006C.fn_80389838(3);
+        ((GameCamera*)&lbl_8087F430->m006C)->fn_80389838(3);
     }
     fn_8015F568(pos, 0, hit);
     mFC0 = 0;

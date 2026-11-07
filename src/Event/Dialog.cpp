@@ -1,4 +1,5 @@
 #include "atn/D2A_Task.h"
+#include "game/GameCamera.h"
 #include "game/GameTask.h"
 #include "Event/Manager.h"
 #include "Event/Sequence.h"
@@ -79,7 +80,6 @@ extern "C" const wchar_t lbl_8087DBD8[2]; // inferred: one space (another unit's
 // inferred: field (lbl_8087F430)
 // inferred: camera (CameraSub_unk at lbl_8087F430 + 0x6C)
 struct CameraSub_unk {
-    void fn_80389838(int arg);
     unsigned char m000[0x7FC];
     int m7FC;
 };
@@ -479,7 +479,7 @@ void Dialog::fn_80228FD8() {
         ((GameTask*)lbl_8087F430)->fn_80370320(3, 1, 0);
         CameraSub_unk* camera = &lbl_8087F430->m6C;
         if (camera->m7FC != 0) {
-            camera->fn_80389838(0);
+            ((GameCamera*)camera)->fn_80389838(0);
         }
     }
     fn_800DAA3C(lbl_8087F008, 0);

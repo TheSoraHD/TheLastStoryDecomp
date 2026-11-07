@@ -1,4 +1,5 @@
 #include "game/FinishCamera_unk.h"
+#include "game/GameCamera.h"
 #include "game/CharaTask.h"
 #include "game/GameConfig_unk.h"
 #include "gmk/Lemon.h"
@@ -46,7 +47,6 @@ struct Xsca_unk {
 };
 // inferred: camera of the field (lbl_8087F430 + 0x6C)
 struct CameraSub_unk {
-    void fn_80389838(int arg);
 };
 extern "C" void fn_80392C94(CameraSub_unk* camera, void* state); // inferred: saves the camera state
 extern "C" void fn_80392CE0(CameraSub_unk* camera, void* state); // inferred: restores the camera state
@@ -178,7 +178,7 @@ void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
     m364 = 0;
     if (m394 != 0) {
         fn_80392C94(m368, m36C);
-        m368->fn_80389838(6);
+        ((GameCamera*)m368)->fn_80389838(6);
         fn_803903E0(m368, &target, 3.1415927f, 1);
     }
     m398 = 0;

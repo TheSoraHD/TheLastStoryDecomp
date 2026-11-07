@@ -1,4 +1,5 @@
 #include "atn/Color4f_unk.h"
+#include "game/GameCamera.h"
 #include "atn/RenderManager.h"
 #include "game/GameScene.h"
 #include "atn/DrawHelper.h"
@@ -115,8 +116,6 @@ struct EggFieldCam_unk {
     float m90C;
     EggLook_unk m910;     // field + 0x97C
 };
-extern "C" void fn_8037F6D8(EggFieldCam_unk* cam, const atn::Vector3* pos); // inferred: starts looking at pos
-extern "C" void fn_8037F724(EggFieldCam_unk* cam, const atn::Vector3* pos); // inferred: keeps looking at pos
 // inferred: field (lbl_8087F430); only the members used here (names invented)
 struct Field_unk {
     unsigned char m0000[0x6C];
@@ -1348,7 +1347,7 @@ void Em206EggMonster::fn_802C5F5C() {
                 m15CC = 45;
                 EggFieldCam_unk* cam = &lbl_8087F430->mCamera;
                 atn::Vector3 neck = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-                fn_8037F6D8(cam, &neck);
+                ((GameCamera*)cam)->fn_8037F6D8(&neck);
                 fn_800C31F4("SE_UICOM_011", 1.0f, 0, -1);
             }
             if (hit == 0 && dist < 800.0f) {
@@ -1364,7 +1363,7 @@ void Em206EggMonster::fn_802C5F5C() {
             cam->m838 = 0;
         } else {
             atn::Vector3 neck = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
-            fn_8037F724(cam, &neck);
+            ((GameCamera*)cam)->fn_8037F724(&neck);
         }
     }
 }

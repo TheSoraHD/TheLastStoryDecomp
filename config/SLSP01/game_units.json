@@ -3816,5 +3816,12 @@
    "TexUv_unk"
   ],
   "matching": false
+ },
+ {
+  "name": "game/GameCamera_unk.cpp",
+  "classes": [
+   "GameCamera"
+  ],
+  "matching": false
  }
 ]

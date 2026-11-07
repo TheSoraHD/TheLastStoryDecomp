@@ -1,4 +1,5 @@
 #include "game/Em306GurgBeast.h"
+#include "game/GameCamera.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
@@ -86,7 +87,6 @@ extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button);           // inferred: button triggered
 extern "C" int fn_800A55D4(void* pad, int port, int button);           // inferred: button held
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg);  // inferred: stick axis
-extern "C" void fn_8037EF30(void* obj, int a, int b, float f);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030;                // inferred: zero vector
 // inferred: name invented (as in game/CharaTask.cpp)
@@ -618,7 +618,7 @@ void Em306GurgBeast::vf104() {
             fn_802F1320(1);
         } else if (fn_800A555C(lbl_8087EF70, 0, 9) != 0) {
             if (lbl_8087F430 != 0) {
-                fn_8037EF30(lbl_8087F430->m006C, 0, 0, -1.0f);
+                ((GameCamera*)lbl_8087F430->m006C)->fn_8037EF30(0, 0, -1.0f);
             }
         } else if (fn_800A55D4(lbl_8087EF70, 0, 4) != 0) {
             m154C = 1;
