@@ -10,17 +10,7 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 
 extern "C" void* fn_8006BA8C(const char* path, unsigned int* size, int flag); // inferred: loads a file
 
-// inferred: one row of /boot/skill_param.csv (0xD0 bytes); the constructor (0x80219EC4) is not
-// inline
-struct SkillParam_unk : public BulletParam_unk {
-    SkillParam_unk();
-
-    int mBC;
-    int mC0; // inferred: chant time (HitInfo_unk::mC0)
-    int mC4; // inferred: from a field with a two letter prefix, -1 if it is empty
-    int mC8;
-    int mCC;
-};
+#include "db/SkillParam_unk.h"
 
 static const char sTextFileNameStr[] = "/boot/skill_param_text_xx.u16";
 static const char* const sTextFileName = sTextFileNameStr; // inferred: .rodata array + .sdata2 pointer

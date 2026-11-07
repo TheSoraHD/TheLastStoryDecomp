@@ -5,6 +5,7 @@
 #include "game/SkillEffectManager.h"
 #include "atn/SoundRef.h"
 #include "atn/Memory.h"
+#include "db/SkillParam_unk.h"
 
 // inferred: plays the sound `id` of the view (0x805A70D4, not decompiled: its name table is in .rodata)
 atn::SoundRef fn_805A70D4(int id, float volume);
@@ -254,3 +255,6 @@ void TacViewChara_unk::fn_805AE188() {
     }
     m94 = 0;
 }
+
+// inferred: skills shown by the view (filled by the constructor; 0x807C95B0)
+static SkillParam_unk sSkillParams_unk[6];
