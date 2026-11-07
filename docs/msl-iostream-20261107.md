@@ -74,7 +74,12 @@ usar).
 
 ## Resultado (en curso)
 
-- Ver la cifra al final de la sesión (se actualiza en cada punto de control).
+- Punto de control 1: **92/170** al 100% (de 43), `regress.py` lost 1 (`do_toupper` 98% por un `nop` de alineación),
+  `main.dol: OK`. Las tres unidades siguen con `matching: false`.
+- Hechos: codecvt (todos), `bufferedbuf` (setbuf, sync, flush_put, empty_get, fill_get, underflow, overflow,
+  pbackfail, seekoff, seekpos, showmanyc; imbue al 98%), `console_inputbuf` (setbuf, showmanyc, underflow, uflow;
+  sync/pbackfail/imbue/`__get_char_unk` al 97-99,6%), `console_outputbuf::sync`/`seek`, `basic_streambuf<wchar_t>`
+  (xsgetn, uflow, xsputn), `release`, deleter/hold de `__locale_imp`, dtor de `vector<facet*>`.
 
 ## Cambios de splits
 
@@ -90,6 +95,12 @@ usar).
 - Fuente: las clases comunes pasan a `libs/PowerPC_EABI_Support/src/MSL_C++/msl_iostream_unk.h` (nombre inventado).
 
 ## Decisiones tomadas sin el usuario
+
+- `-enum min` para las tres unidades (ver Hallazgos).
+- Campos y nombres inventados de los buffers (`buf_size_`, `ext_beg_/ext_next_/ext_end_`, `__init_areas_unk`,
+  `__get_char_unk`, `__unget_unk`, `__min_size_unk` = 16, `__min_len_unk` = 1...), todos con `// inferred`.
+- `_FILE` local con `buffer_ptr`/`buffer_len` en 0x24/0x28 copiados de `MSL_C/MSL_Common/file_struc.h` (no se
+  incluye: su `types.h` declara `operator new` sin `throw()` y choca) y la macro `getc` de MSL C.
 
 - `ctype<char>::do_toupper/do_tolower(char*, const char*)` **sin `const`**: es lo único (de ~15 variantes: const_cast,
   mutable, tipos de la tabla, bases, referencias, flags) que hace que MWCC recargue la tabla en cada vuelta como el
@@ -111,3 +122,12 @@ usar).
   vtable (`flush_put`), aunque la vtable esté en otra TU.
 - La alineación de bucles (`nop`) depende del offset en el objeto: funciones al 98% por un `nop` se arreglan solas
   cuando todo lo anterior tiene el tamaño correcto.
+- `-enum min` en las tres unidades MSL C++: los `codecvt_base::result` se comparan como byte (`clrlwi r0,r3,24`).
+  Sin bajadas en el resto.
+- `seekdir` vale 1/2/4 (beg/cur/end) y `seek()` del dispositivo recibe el `whence` de C (SEEK_SET/CUR/END = 0/1/2):
+  `seekoff` hace la traducción con un `switch`.
+- `empty_get` reconvierte con `out()` (no `in()`) los caracteres no leídos para saber cuántos bytes retroceder.
+- `use_facet`: cada copia inlineada empieza limpiando un byte de un objeto vacío en la pila (puesto como
+  `default_delete<Facet>` temporal, `// inferred`); y relee `loc.imp_` en cada acceso (sin local).
+- Registros: varias funciones al 99,x% solo por la asignación de registros (versiones `wchar_t` del
+  `__init_areas_unk`, `__get_char_unk`, `sync`/`pbackfail` de `console_inputbuf`); no se insistió (regla 8).
