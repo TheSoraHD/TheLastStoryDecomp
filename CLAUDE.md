@@ -8,7 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `msl-iostream-20261107c`/`d` (2026-11-07, sesiones 5-6, **mergeadas en `main`**): **14152 / 18116**, lost 0. MSL C++ 111 -> 112/170 (`ios_base::init`; `state_`/`exceptions_` como `iostate`, `widen`/`use_facet`/codecvt como el original); sesion 6 solo mediciones (coste de `Init`: faltan ~57 sentencias pequenas; orden del pool y de emision). Notas: `docs/msl-iostream-20261107.md` (sesiones 5 y 6).
+- `gametask-20261107` (2026-11-07, sin mergear): **14167 / 18116**, lost 0. `game/GameTask` 42 -> 57/133: pool `@stringBase0` igual al original hasta 0x1AF escribiendo ctor, `vf0C`, `vf10`, `vf14` y SetGlobalFlag en orden; GetGlobalFlag/GetLocalFlag/SetLocalFlag al 100%. Notas: `docs/gametask-20261107.md`.
+- `msl-iostream-20261107c`/`d` (mergeadas en `main`): 14152, MSL C++ 112/170; `docs/msl-iostream-20261107.md` (sesiones 5 y 6).
 - `msl-iostream-20261107b` (sesion 4, mergeada en `main`): 14151, MSL C++ 106 -> 111/170 (`num_put` de `double`, `sentry`/`flush` de `wostream`, destructores de `Init`).
 - `msl-iostream-20261107` (mergeada en `main`): 14146, MSL C++ 106/170 (`shared_ptr_unk.cpp` enlazada). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`.
 - `nw4rmath-20261107` (mergeada en `main`): 14053, NW4R 77/78 (falta `ut_TextWriterBase`): `db_DbgPrintBase`, math (`SinCosFIdx`, `MTX34Zero`, asm aprobado), `db_assert` (`VPanic`), `FrameHeap::GetSize_unk`; `docs/nw4rmath-20261107.md`.

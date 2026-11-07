@@ -1,26 +1,27 @@
-# Siguiente sesion (tras `msl-iostream-20261107c`, sin mergear)
+# Siguiente sesion (tras `gametask-20261107`, sin mergear)
 
-Rama `msl-iostream-20261107c` (sobre `main` c918eb8): **14152 / 18116**, lost 0, `main.dol: OK`. Pendiente de
-revisar y mergear. Prompt listo en el proyecto: `claude/prompt-msl-iostream-6.md`.
+Rama `gametask-20261107` (sobre `main` d7b2562): **14167 / 18116**, lost 0, `main.dol: OK`. Pendiente de revisar y
+mergear. Notas: `docs/gametask-20261107.md`.
 
-## MSL C++ (112/170)
+## GameTask (57/133)
 
-- `PowerPC_EABI_Support/src/MSL_C++/`: `iostream.cpp` y `locale.cpp` sin enlazar, `shared_ptr_unk.cpp` enlazada.
-- Detalle en `docs/msl-iostream-20261107.md`, "Sesion 5" (cambios, hallazgos, pendientes).
-- `ios_base::Init`/`wios_base_Init_unk` (desbloquean ~19 funciones): el original no inlinea nada (presupuesto R3).
-  El constructor de `console_inputbuf` (plantilla no `inline`) esta a ~2 sentencias de ser candidato auto-inline;
-  aun siendolo faltan ~22 sentencias de coste. Las copias fuera de linea de los constructores de streams y de
-  `console_outputbuf` ya son identicas al original.
-- Despues: `sentry`/`flush` (solo el orden de operandos del `and.`), `__round_unk`, `throw_failure` (cadena de
-  tipo en objeto propio), residuos de `locale.cpp`, y el orden de `.rodata`/`.bss`/funciones para enlazar.
+- Pool `@stringBase0` ordenado hasta 0x1AF; accesores de flags (`fn_80370174`, `fn_80370A78`, `fn_80370AE4`) al
+  100%. Ya cuadran las funciones con esas cadenas (`dg`, `GetGlobalFlag`...).
+- Siguiente en el pool: `fn_803712BC` (`Title`), una instanciacion de `vector` (`"vector length error"`) antes de
+  `fn_80373FC4` (`SE_UICOM_022`). Despues, `fn_803737C0`/`fn_803743AC` (`iconOn`).
+- `fn_803729B4` (1,7 KB) rechaza todos sus inline (R3): al escribirlo aparecen ~10 copias debiles pequenas
+  (`fn_80373084`..`fn_80373108`, `GetCurrentMap`, `fn_80372574`, `fn_803727D4`, `fn_8036E428`, `fn_8036EE04`,
+  los de `RenderConfig` tras el dtor). Ojo con el orden: cada copia va detras de la primera funcion que la usa.
+- Casi iguales: ctor 99,96%, `vf0C` 99%, `fn_80376324` 99%, `fn_80375D0C` 99,85%, `fn_80370C2C` 98,9%.
+- Tras `precommit.sh --pd`: devolver `lbl_8087D6E8`/`lbl_8087D6EC` en `symbols.txt` (ver notas).
 
 ## Otros (de `maraton-20261107`, siguen vigentes)
 
 1. Unificar vistas con las clases reales: `Ledge_unk` = `GameSceneRoute_unk`; `Field_unk`/`GameField_unk`/
-   `DiveField_unk` = `GameTask`; las vistas de `lbl_8087EFA8`. Hacerlo en un lote y un solo `pdbatch.sh`.
-2. GameTask 0x8036555C-0x8036823C (primeras funciones, con cadenas): desbloquea el `@stringBase0` de los getters
-   de flags (`fn_80370174`, `fn_80370A78`, `fn_80370AE4`, usados por ~50 unidades).
-3. Constructores de `TacView` (0x805A7158) y `BattleTask` (0x800F1430): traen sus copias debiles.
-4. `GameCamera_unk` 11/90 y `Event/DebugInfo_unk` 1/58: muchas funciones pequenas pendientes.
-5. `ut_TextWriterBase`: unica unidad NW4R sin enlazar (los 2 bytes de `.sbss` son del propio objeto).
+   `DiveField_unk` = `GameTask` (ahora con cabecera completa); los `extern "C"` de flags (`fn_80370174`...)
+   pasarian a metodos. Hacerlo en un lote y un solo `pdbatch.sh`.
+2. Constructores de `TacView` (0x805A7158) y `BattleTask` (0x800F1430): traen sus copias debiles.
+3. `GameCamera_unk` 11/90 y `Event/DebugInfo_unk` 1/58: muchas funciones pequenas pendientes.
+4. `ut_TextWriterBase`: unica unidad NW4R sin enlazar.
+5. MSL C++ en rendimientos decrecientes (`docs/msl-iostream-20261107.md`).
 6. Bloqueos conocidos en `docs/mwcc-blockers.md`: no repetir.

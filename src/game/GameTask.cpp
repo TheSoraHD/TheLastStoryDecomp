@@ -1,5 +1,5 @@
-// game/GameTask.cpp (0x8036555C-0x80376B68): the field task (GameTask). Only accessors are
-// reconstructed so far.
+// game/GameTask.cpp (0x8036555C-0x80376B68): the field task (GameTask). The functions that use the string
+// pool are written in order up to 0x80370AE4 (fn_80370A78); the rest are accessors and dungeon helpers.
 #include "game/GameTask.h"
 #include "db/StrategyAiTable_unk.h"
 #include "game/GameScene.h"
