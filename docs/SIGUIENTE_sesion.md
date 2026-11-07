@@ -1,6 +1,6 @@
 # Siguiente sesion (tras `maraton-20261107`)
 
-Rama `maraton-20261107` (sin mergear; revisar y mergear en `main`): 13979 / 18117, lost 0, 652 enlazadas,
+Rama `maraton-20261107` (sin mergear; revisar y mergear en `main`): 13982 / 18117, lost 0, 652 enlazadas,
 build limpio `main.dol: OK`. Notas completas: `docs/maraton-20261107.md`.
 
 ## Revisar antes de mergear
