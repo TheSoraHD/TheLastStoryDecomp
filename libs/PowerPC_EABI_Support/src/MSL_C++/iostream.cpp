@@ -349,10 +349,10 @@ public:
 
 protected:
     virtual ~ctype();
-    virtual char do_toupper(char c) const { return upper_[(unsigned char)c]; }
-    virtual const char* do_toupper(char* low, const char* high) const;
-    virtual char do_tolower(char c) const { return lower_[(unsigned char)c]; }
-    virtual const char* do_tolower(char* low, const char* high) const;
+    virtual char do_toupper(char c) const;
+    virtual const char* do_toupper(char* low, const char* high);
+    virtual char do_tolower(char c) const;
+    virtual const char* do_tolower(char* low, const char* high);
     virtual char do_widen(char c) const { return c; }
     virtual const char* do_widen(const char* low, const char* high, char* to) const;
     virtual char do_narrow(char c, char dfault) const { return c; }
@@ -401,7 +401,7 @@ public:
 template <>
 class codecvt<char, char, int> : public locale::facet, public codecvt_base {
 public:
-    explicit codecvt(size_t refs = 0) : locale::facet(refs) {}
+    explicit codecvt(size_t refs = 0);
     bool always_noconv() const throw() { return do_always_noconv(); }
     int encoding() const throw() { return do_encoding(); }
     int max_length() const throw() { return do_max_length(); }
@@ -417,7 +417,11 @@ protected:
         return noconv;
     }
     virtual result do_in(int& state, const char* from, const char* from_end, const char*& from_next, char* to,
-                         char* to_end, char*& to_next) const;
+                         char* to_end, char*& to_next) const {
+        from_next = from;
+        to_next = to;
+        return noconv;
+    }
     virtual result do_unshift(int& state, char* to, char* to_end, char*& to_next) const {
         to_next = to;
         return noconv;
@@ -431,7 +435,7 @@ protected:
 template <>
 class codecvt<wchar_t, char, int> : public locale::facet, public codecvt_base {
 public:
-    explicit codecvt(size_t refs = 0) : locale::facet(refs) {}
+    explicit codecvt(size_t refs = 0);
     bool always_noconv() const throw() { return do_always_noconv(); }
     int encoding() const throw() { return do_encoding(); }
     int max_length() const throw() { return do_max_length(); }
@@ -911,14 +915,22 @@ ctype<char>::~ctype() {
     }
 }
 
-const char* ctype<char>::do_toupper(char* low, const char* high) const {
+char ctype<char>::do_toupper(char c) const {
+    return upper_[(unsigned char)c];
+}
+
+const char* ctype<char>::do_toupper(char* low, const char* high) {
     for (; low < high; ++low) {
         *low = ctype<char>::do_toupper(*low);
     }
     return high;
 }
 
-const char* ctype<char>::do_tolower(char* low, const char* high) const {
+char ctype<char>::do_tolower(char c) const {
+    return lower_[(unsigned char)c];
+}
+
+const char* ctype<char>::do_tolower(char* low, const char* high) {
     for (; low < high; ++low) {
         *low = ctype<char>::do_tolower(*low);
     }
@@ -933,6 +945,56 @@ const char* ctype<char>::do_widen(const char* low, const char* high, char* to) c
 const char* ctype<char>::do_narrow(const char* low, const char* high, char dfault, char* to) const {
     memcpy(to, low, high - low);
     return high;
+}
+
+template <class T>
+inline const T& min(const T& a, const T& b) {
+    return b < a ? b : a;
+}
+
+codecvt<char, char, int>::codecvt(size_t refs) : locale::facet(refs) {}
+
+codecvt<wchar_t, char, int>::codecvt(size_t refs) : locale::facet(refs) {}
+
+// inferred: the wide characters are written as their two bytes, high byte first
+codecvt_base::result codecvt<wchar_t, char, int>::do_out(int& state, const wchar_t* from, const wchar_t* from_end,
+                                                         const wchar_t*& from_next, char* to, char* to_end,
+                                                         char*& to_next) const {
+    from_next = from;
+    to_next = to;
+    for (; from_next < from_end && to_next < to_end - 1; ++from_next, to_next += 2) {
+        const char* p = (const char*)from_next;
+        to_next[0] = p[0];
+        to_next[1] = p[1];
+    }
+    if (from_next < from_end) {
+        return partial;
+    }
+    return ok;
+}
+
+codecvt_base::result codecvt<wchar_t, char, int>::do_in(int& state, const char* from, const char* from_end,
+                                                        const char*& from_next, wchar_t* to, wchar_t* to_end,
+                                                        wchar_t*& to_next) const {
+    from_next = from;
+    to_next = to;
+    for (; from_next < from_end - 1 && to_next < to_end; from_next += 2, ++to_next) {
+        char* p = (char*)to_next;
+        p[0] = from_next[0];
+        p[1] = from_next[1];
+    }
+    if (from_next < from_end) {
+        return partial;
+    }
+    return ok;
+}
+
+int codecvt<wchar_t, char, int>::do_length(int& state, const char* from, const char* end, size_t max) const {
+    return 2 * min((int)((size_t)(end - from) / 2), (int)max);
+}
+
+int codecvt<char, char, int>::do_length(int& state, const char* from, const char* end, size_t max) const {
+    return min((int)(end - from), (int)max);
 }
 
 } // namespace std
