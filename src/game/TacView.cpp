@@ -8,6 +8,59 @@
 // inferred: plays the sound `id` of the view (0x805A70D4, not decompiled: its name table is in .rodata)
 atn::SoundRef fn_805A70D4(int id, float volume);
 
+int TacView::fn_805AA390(CharaTask* chara) {
+    int id = chara->fn_8017AC08();
+    switch (fn_80219558(chara->m50)) {
+    case 1:
+    case 5:
+    case 9:
+    case 10:
+        if (id == 0x238F) {
+            return 2;
+        }
+        if (id == 0x27E5 || id == 0x27E6) {
+            return 3;
+        }
+        return 1;
+    case 2:
+    case 3:
+        if (id == 0x2392) {
+            return 2;
+        }
+        if (id == 0x27E5 || id == 0x27E6) {
+            return 3;
+        }
+        return 1;
+    case 4:
+        if (id == 0x2390) {
+            return 2;
+        }
+        if (id == 0x27E5 || id == 0x27E6) {
+            return 3;
+        }
+        return 1;
+    case 6:
+        if (id == 0x2329) {
+            return 2;
+        }
+        if (id == 0x27E5 || id == 0x27E6) {
+            return 3;
+        }
+        return 1;
+    case 11:
+        return 1;
+    case 14:
+        if (id == 0x238E) {
+            return 2;
+        }
+        if (id == 0x27E5 || id == 0x27E6) {
+            return 3;
+        }
+        return 1;
+    }
+    return 1;
+}
+
 void TacView::fn_805AA4C8(SkillEffect* effect) {
     CharaTask* user = effect->m0C;
     user->mFlagB16 = 0;
