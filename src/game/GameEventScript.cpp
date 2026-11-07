@@ -124,6 +124,29 @@ boost::bad_lexical_cast::~bad_lexical_cast() {}
 extern "C" const char lbl_8078B34C[];
 extern "C" const char lbl_8078B394[];
 
+// inferred: `event` is the address of the event record (fn_8039CC24); m04/m08: range of the field value m10D0
+struct ScriptEventRange_unk {
+    bool IsAlways_unk() const { return mMin == 0 && mMax == 0; }
+    bool Contains_unk(int value) const { return value >= mMin && value <= mMax; }
+    int m00;
+    int mMin;
+    int mMax;
+};
+
+int GameEventScript::vf0C() {
+    for (int i = 0; i < 3; i++) {
+        if (m48[i].fn_80473F50()) {
+            return 0;
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        if (m48[i].fn_80470580()) {
+            fn_8039BDB4(i, m48[i].fn_80470580(), m48[i].fn_8047059C());
+        }
+    }
+    return 1;
+}
+
 // NONMATCHING: 98.4% - registers of the scene and of the entry offset swapped
 void GameEventScript::fn_803957F0(int id) {
     GameScene* scene = mScene;
@@ -134,15 +157,6 @@ void GameEventScript::fn_803957F0(int id) {
         }
     }
 }
-
-// inferred: `event` is the address of the event record (fn_8039CC24); m04/m08: range of the field value m10D0
-struct ScriptEventRange_unk {
-    bool IsAlways_unk() const { return mMin == 0 && mMax == 0; }
-    bool Contains_unk(int value) const { return value >= mMin && value <= mMax; }
-    int m00;
-    int mMin;
-    int mMax;
-};
 
 // NONMATCHING: 98% - registers of the field value and of the minimum swapped
 int GameEventScript::fn_80398530(int event) {

@@ -2,6 +2,7 @@
 #define GAME_GAMEEVENTSCRIPT_H
 
 #include "atn/Array_unk.h"
+#include "atn/LH_Binary.h"
 #include "atn/Task.h"
 #include "game/EventScriptCmd_unk.h"
 
@@ -40,6 +41,10 @@ struct ScriptNpcFlag_unk {
 
 class GameEventScript : public atn::Task {
 public:
+    virtual ~GameEventScript(); // 0x80394320
+    virtual int vf0C();         // 0x80394BA4: inferred: waits for the three script files
+    // inferred: compiles a script file `index` (data, size)
+    void fn_8039BDB4(int index, const void* data, int size);
     int fn_80398530(int event);          // inferred: the event is done
     int fn_80398590(int event, int arg); // inferred: the event can start
     int fn_8039CC24(int id);             // inferred: event with the given id
@@ -151,7 +156,8 @@ public:
     void fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AB368(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
 
-    unsigned char m48[0x64 - 0x48];
+    atn::LH_Binary m48[3]; // inferred: script files
+    int m60;
     int m64[7];                 // inferred: base address of the events of each block of 10000 ids
     ScriptEventNode_unk* m80;   // inferred: root of the tree of events by id (end node at &m80)
     int m84;
