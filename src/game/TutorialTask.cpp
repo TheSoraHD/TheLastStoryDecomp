@@ -1,4 +1,5 @@
 #include "game/TutorialTask.h"
+#include "game/GameTask.h"
 #include "atn/Memory.h"
 #include "atn/Csv.h"
 #include "atn/D2A_Task.h"
@@ -260,7 +261,6 @@ extern "C" void fn_80372754(atn::Matrix3x4* m, atn::Vector3* scale); // inferred
 extern "C" void fn_80316E38(atn::Model* model, const atn::Matrix3x4* m); // inferred: sets the model matrix
 extern "C" void fn_8037F688(Camera_unk* camera, float fovy);
 extern "C" void fn_80392A04(Camera_unk* a, Camera_unk* b);
-extern "C" void fn_8037529C(TutorialField_unk* field, int a, int color, int b, int c, int frames);
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r,
                             float t);
@@ -433,7 +433,7 @@ void TutorialTask::vf10() {
         if (m5B8 != 0) {
             m5B8->vf0C(-1, 0xFFFFFF, 0, 0, 15);
         } else {
-            fn_8037529C(fn_80121F00(), -1, 0xFFFFFF, 0, 0, 15);
+            ((GameTask*)fn_80121F00())->fn_8037529C(-1, 0xFFFFFF, 0, 0, 15);
         }
         fn_805BBD7C();
         return;

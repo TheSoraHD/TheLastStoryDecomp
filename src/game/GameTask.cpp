@@ -1,6 +1,7 @@
 // game/GameTask.cpp (0x8036555C-0x80376B68): the field task (GameTask). Only accessors are
 // reconstructed so far.
 #include "game/GameTask.h"
+#include "db/StrategyAiTable_unk.h"
 #include "game/GameScene.h"
 #include "game/LibraryTask.h"
 #include "game/MapTask.h"
@@ -29,6 +30,57 @@ public:
     static MenuSaveTask* fn_8011770C(atn::Task* parent);
     static MenuSaveTask* sInstance;
 };
+
+// inferred: 0xC-byte entry of sGameTaskStatic_unk (constructor inlined in __sinit)
+struct GameTaskStaticEntry_unk {
+    int m00;
+    int m04;
+    int m08;
+};
+
+// inferred: static object of this file (.bss 0x807C8458, 0x98 bytes). The constructor is __sinit_\GameTask_cpp
+// (NONMATCHING: 93% - the original computes the end of m44 before its start, r6/r7 swapped)
+struct GameTaskStatic_unk {
+    GameTaskStatic_unk()
+        : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(0), m1C(0), m20(0), m24(0), m28(0), m2C(0),
+          m30(0), m34(0), m38(-1), m3C(0), m40(0) {
+        for (GameTaskStaticEntry_unk* p = m44; p < m44 + 7; p++) {
+            p->m00 = -1;
+            p->m04 = 0;
+            p->m08 = 0;
+        }
+    }
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    int m1C;
+    int m20;
+    int m24;
+    int m28;
+    int m2C;
+    int m30;
+    int m34;
+    int m38;
+    int m3C;
+    int m40;
+    GameTaskStaticEntry_unk m44[7];
+};
+
+GameTaskStatic_unk sGameTaskStatic_unk;
+
+int GameTask::fn_8036823C() {
+    if (m48 == 1) {
+        return 1;
+    }
+    if (m48 == 2 && m4C == 0x44 && m50 == 1) {
+        return 1;
+    }
+    return 0;
+}
 
 int GameTask::fn_8036DAA8(CharaTask* chara) {
     if (m56D8 != 0 || m56D4 != 0 || mD18 != 0) {
@@ -183,6 +235,26 @@ int GameTask::fn_80375184() {
     return m5638 == 0;
 }
 
+StrategyAiEntry_unk* GameTask::fn_80375254() {
+    StrategyAiEntry_unk* entry = fn_8021CF08(m5644, m5640);
+    if (entry == 0) {
+        entry = fn_8021CF08(0, m5640);
+    }
+    return entry;
+}
+
+void GameTask::fn_8037529C(unsigned int color0, unsigned int color1, int delay, int wait, int duration) {
+    m5624->mFrame = 0;
+    m5624->mColor0 = color0;
+    m5624->mColor1 = color1;
+    m5624->mDelay = delay;
+    m5624->mWait = wait;
+    m5624->mDuration = duration;
+    m5624->mStep = 1;
+    m5624->mZ = -100.0f;
+    m5624->mActive = 1;
+}
+
 // NONMATCHING: 93% - the null scene path joins the null map return directly
 int GameTask::fn_80376150() {
     MapTask* map = GetCurrentMap();
@@ -251,44 +323,3 @@ void GameTask::fn_803766E4() {
     }
     m571C = 0;
 }
-
-// inferred: 0xC-byte entry of sGameTaskStatic_unk (constructor inlined in __sinit)
-struct GameTaskStaticEntry_unk {
-    int m00;
-    int m04;
-    int m08;
-};
-
-// inferred: static object of this file (.bss 0x807C8458, 0x98 bytes). The constructor is __sinit_\GameTask_cpp
-// (NONMATCHING: 93% - the original computes the end of m44 before its start, r6/r7 swapped)
-struct GameTaskStatic_unk {
-    GameTaskStatic_unk()
-        : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(0), m1C(0), m20(0), m24(0), m28(0), m2C(0),
-          m30(0), m34(0), m38(-1), m3C(0), m40(0) {
-        for (GameTaskStaticEntry_unk* p = m44; p < m44 + 7; p++) {
-            p->m00 = -1;
-            p->m04 = 0;
-            p->m08 = 0;
-        }
-    }
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    int m1C;
-    int m20;
-    int m24;
-    int m28;
-    int m2C;
-    int m30;
-    int m34;
-    int m38;
-    int m3C;
-    int m40;
-    GameTaskStaticEntry_unk m44[7];
-};
-
-GameTaskStatic_unk sGameTaskStatic_unk;

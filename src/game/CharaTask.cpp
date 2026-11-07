@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "db/StrategyAiTable_unk.h"
 #include "game/AiTarget.h"
 #include "game/TacView.h"
 #include "game/GameTask.h"
@@ -295,7 +296,6 @@ static const ModelName_unk sModelNames_unk[] = {
 
 extern "C" void* lbl_8087EEB8; // inferred: debug message output
 extern "C" char lbl_807C7B28[32];
-extern "C" int fn_8036823C(Field_unk* field);
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int rand();
@@ -313,7 +313,7 @@ extern "C" void fn_8006AD24(std::string& path, const std::string& ext); // infer
 
 // inferred: nonzero in town fields (name invented)
 inline bool IsTownField_unk() {
-    if (lbl_8087F430 != 0 && fn_8036823C(lbl_8087F430) != 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_8036823C() != 0) {
         return true;
     }
     return lbl_8087FA20 != 0;
@@ -7880,12 +7880,6 @@ void CharaTask::fn_80154654(int type, int arg) {
 }
 
 extern "C" int fn_80208748(const char* name);
-// inferred: table returned by fn_80375254 (one value per kind of fn_8015487C)
-struct FieldRes_unk {
-    unsigned char m00[0x08];
-    int m08[7];
-};
-extern "C" FieldRes_unk* fn_80375254(Field_unk* field);
 
 void CharaTask::fn_801546F4(int arg, atn::Vector3 pos, float rot) {
     int kind = fn_8015487C();
@@ -7898,7 +7892,7 @@ void CharaTask::fn_801546F4(int arg, atn::Vector3 pos, float rot) {
         if (type == 0 && id / 10000 == 8) {
             return;
         }
-        FieldRes_unk* res = fn_80375254(lbl_8087F430);
+        StrategyAiEntry_unk* res = ((GameTask*)lbl_8087F430)->fn_80375254();
         if (res != 0) {
             fn_80154654(mC50, res->m08[kind]);
         }

@@ -82,6 +82,9 @@ public:
     void fn_803761E4(int visible);
     int fn_803761EC();
     void fn_803761F4(int value);
+    int fn_8036823C(); // inferred: nonzero on some fields
+    struct StrategyAiEntry_unk* fn_80375254(); // inferred: AI strategy row of the field (default id 0)
+    void fn_8037529C(unsigned int color0, unsigned int color1, int delay, int wait, int duration); // inferred: starts the capture fade
     int fn_803761FC();
     int fn_80376210();
     int fn_80376224();        // inferred: nonzero in the second state (night?)
@@ -89,7 +92,10 @@ public:
     void fn_8037624C(int value);
     void fn_803766E4();
 
-    unsigned char m48[0xD18 - 0x48];
+    int m48; // inferred: kind of field (1, or 2 with m4C 0x44 and m50 1: fn_8036823C)
+    int m4C;
+    int m50;
+    unsigned char m54[0xD18 - 0x54];
     int mD18;
     int mD1C;
     unsigned char mD20[0xF28 - 0xD20];
@@ -135,7 +141,10 @@ public:
     atn::FadeCapture* m5624; // inferred: screen capture fade of the field
     unsigned char m5628[0x5638 - 0x5628];
     int m5638;
-    unsigned char m563C[0x566C - 0x563C];
+    int m563C;
+    int m5640; // inferred: kind passed to fn_8021CF08 (fn_80375254)
+    int m5644; // inferred: id passed to fn_8021CF08
+    unsigned char m5648[0x566C - 0x5648];
     int m566C;
     unsigned char m5670[0x5684 - 0x5670];
     int m5684;

@@ -1,6 +1,7 @@
 #include "atn/Array_unk.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
+#include "db/StrategyAiTable_unk.h"
 
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -11,12 +12,6 @@ extern "C" Unk_8087F518* lbl_8087F518;
 extern "C" void* fn_8046DC5C(Unk_8087F518* mgr, const char* path, unsigned long* size, int align);
 extern "C" void fn_8046DD20(Unk_8087F518* mgr, void* data);
 
-// inferred: one row of /boot/strategy_ai_table.csv (0x20 bytes, no constructor)
-struct StrategyAiEntry_unk {
-    int mId;
-    int mKind; // inferred: index in sKinds (2 if not found)
-    int m08[6];
-};
 
 static const char sFileNameStr[] = "/boot/strategy_ai_table.csv";
 static const char* const sKinds[] = {"ATTACK", "GUARD", 0};

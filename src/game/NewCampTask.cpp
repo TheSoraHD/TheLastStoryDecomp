@@ -1,4 +1,5 @@
 #include "game/NewCampTask.h"
+#include "game/GameTask.h"
 #include "atn/FadeCommon.h"
 #include "atn/Model_unk.h"
 #include "atn/SoundRef.h"
@@ -38,7 +39,6 @@ struct XsfCurveSet_unk {
 struct Xsca_unk {
     XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
 };
-extern "C" void fn_8037529C(Field_unk* field, int a, unsigned int mask, int b, int c, int d);
 
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
@@ -143,7 +143,7 @@ void NewCampTask::fn_8052C9C4() {
         fn_8052CA6C();
         m133C = 0;
         if (lbl_8087F430 != 0) {
-            fn_8037529C(lbl_8087F430, -1, 0xFFFFFF, 0, 0, 10);
+            ((GameTask*)lbl_8087F430)->fn_8037529C(-1, 0xFFFFFF, 0, 0, 10);
         }
     }
     m5C = 0;
