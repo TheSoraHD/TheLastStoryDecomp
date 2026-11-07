@@ -242,15 +242,67 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
 ## Resultado
 
 - Inicio: 106/170, `report.json` 14146, `main.dol: OK` (build limpio de `main` be459fe).
+- Punto de control 1: **111/170** (`report.json` 14151), lost 0, sin bajadas de fuzzy, `main.dol: OK`.
+  Nuevas: `__decimal_unk::__decimal_unk(double)` (0x80693884), `__decimal_unk::__round_dir_unk` (0x806939C8),
+  `basic_ostream<wchar_t>::sentry::~sentry` (0x80691AC0), `ios_base::Init::~Init` (0x8068BC30),
+  `wios_base_Init_unk::~wios_base_Init_unk` (0x8068C240).
+  Escritas sin llegar: `__decimal_unk::__round_unk` (0x80693AB8, 97,9%), `basic_ostream<wchar_t>::flush`
+  (0x8068E3FC, 99,9%), `sentry::sentry` (0x8069194C, 97,2%).
 
 ## Cambios de splits/flags
+
+- `symbols.txt` (renombrados): `fn_80693884/806939C8/80693AB8` -> miembros de `std::__decimal_unk`; `fn_8068E3FC`,
+  `fn_8069194C`, `dtor_80691AC0` -> `flush`/`sentry` de `basic_ostream<wchar_t>`; `lbl_80779AB8` ->
+  `@STRING@clear__Q23std8ios_baseFQ33std8ios_base7iostate` (literal de `ios_base::clear`, objeto debil que el
+  enlazador deja en `.data` de `atn/WordWrap_unk`); datos de la inicializacion de streams (`init_cnt_` x2, guarda,
+  objeto y bandera del mutex, guardas y `@LOCAL@` de `fin`/`fout`/`ferr` x2).
+- `symbols.txt` (no es solo renombrado): `lbl_808327C0` (0x2B0) partido en los ocho almacenes de streams
+  (`__cin_storage__3std` ... `__wcerr_storage__3std`, `scope:local`) y `lbl_80832A10` (0x60, el resto).
+- Sin cambios de flags ni de `splits.txt`.
 
 ## Decisiones tomadas sin el usuario
 
 - Rama `msl-iostream-20261107b`: `msl-iostream-20261107` ya existe en el remoto (sesion 3, mergeada) y es el mismo dia.
 - Referencia (`mkref.sh` -> `/home/claude/ref`) sacada del build limpio del propio arbol recien creado desde
   `origin/main` (identico a `main`), sin `git worktree` aparte: ahorra un build de ~3 min.
+- `num_put` de `double`: struct `__decimal_unk` (string de digitos 0-9, exponente, clase) con constructor desde
+  `double` y dos miembros (`__round_dir_unk`, `__round_unk`); nombres inventados. `decimal`/`decform`/
+  `__num2dec`/`__fpclassifyd` declarados en `locale.cpp` (las cabeceras de MSL C traen `types.h`, cuyo
+  `operator new` de colocacion choca con el de `msl_iostream_unk.h`).
+- `basic_string` (cabecera MSL): constructor por defecto/copia/subcadena, `size`, `data`, `begin`/`end`,
+  `operator[]`, `insert(pos, s, n)`, `insert(pos1, str, pos2, n)`, `push_back`, `operator+=`, `resize`,
+  `find_first_not_of`, `replace(pos, n1, n2, c)` (fuera de linea). `end()` y `find_first_not_of` leen datos y
+  tamano en una sola rama (`!is_long()`), como el original.
+- `ios_base::throw_failure` con `__declspec(noinline)` (permitido por la regla 2: funcion fuerte que el original
+  llama con `bl` y MWCC inlinearia en `sentry`/`flush`).
+- `ios_base`: `clear`/`setstate` inline en la clase (su literal va a `@STRING@clear...`), `good`, `fail`,
+  `rdstate`, `exceptions`, `flags`, `__setstate_nothrow_unk` (inventado: los `catch` ponen el bit sin comprobar
+  excepciones). `basic_ios::rdbuf()`/`tie()`, `basic_streambuf::pubsync`.
+- `basic_istream`: `gcount_` declarado antes del destructor virtual (el original tiene el puntero de vtable en
+  0x08 y `gcount_` en 0x04).
+- `__ios_mutex_ready_unk` definido despues de la inline del mutex (orden de `.sbss` del original).
 
 ## Hallazgos
 
+- Un constructor se reconoce porque devuelve `this` (`mr r3, rN` en todas las salidas); una funcion que devuelve
+  un objeto por valor no lo hace.
+- `push_back(c)` escrito como `operator+=` -> `push_back` -> `insert(pos, &c, 1)`: el caracter queda por debajo de
+  las etiquetas de iterador en la pila (cada nivel de inline invierte el orden de los huecos).
+- `ios_base::Init`: con un candidato artificial de >= 75 sentencias (coste tras su propio inline: un envoltorio de
+  1 linea sobre 80 sentencias tambien vale) al final, nuestro `Init` deja de inlinear y la secuencia de llamadas
+  es exactamente la del original. El constructor de `console_inputbuf` no es candidato (no es `inline` y es
+  grande); con el `inline`, faltan solo 20-40 sentencias. `-inline on,noauto` o `-ipa function` no dan el
+  original (inlinean `tie`/`setf`/`pubsetbuf`). Los constructores de streams fuera de linea (sonda) son casi
+  identicos a los del original: la diferencia de coste no esta en ellos.
+- MWCC coloca el puntero de vtable donde se declara la primera funcion virtual: miembros declarados antes quedan
+  delante (`basic_istream::gcount_`).
+
 ## Pendientes
+
+1. `Init`/`wios_base_Init_unk` (ver Hallazgos): desbloquea ~19 funciones (constructores de streams y de
+   `console_outputbuf`, destructores de `wostream`/`wios`/`wistream`, 0x8068E270, `__nw__FUlPv`, `setf`, `tie`,
+   `pubsetbuf`...).
+2. `sentry::sentry` (97,2%) y `flush` (99,9%): el `and.` de `clear()` tiene los operandos al reves
+   (`state & exceptions` con `exceptions` cargado primero) y el `setstate` inlineado recarga el estado; ~12
+   variantes probadas.
+3. `__round_unk` (97,9%): registro del resultado de `__round_dir_unk` inlineado (r3 frente a r4).
