@@ -226,7 +226,9 @@ struct MpSettings_unk {
     int m028; // inferred: map file lists are used (GameTask::vf10)
     unsigned char m02C[0x7C - 0x2C];
     int m07C;
-    unsigned char m080[0xD4 - 0x80];
+    unsigned char m080[0x90 - 0x80];
+    int m090; // inferred: battle flag checked when the replay ends (GameTask::fn_803737C0)
+    unsigned char m094[0xD4 - 0x94];
     int mD4; // inferred: index into mD8 (difficulty?)
     StatusRate_unk mD8[4];
     unsigned char m158[0x184 - 0x158];
@@ -2447,11 +2449,11 @@ void GameTask::fn_80370BD0(int frames, int arg, float speed) {
     m5620->mActive = 1;
 }
 
-// NONMATCHING: 99% - r4/r5 swapped in the compare
+// NONMATCHING: 99% - r4/r5 swapped in the compare (also tried mDelay + mDuration, locals, no local fade)
 int GameTask::fn_80370C2C() {
     atn::FadeCommon* fade = m5620;
     if (fade->mActive != 0) {
-        return fade->mFrame < fade->mDuration + fade->mDelay;
+        return fade->mFrame < fade->mDelay + fade->mDuration;
     }
     return 1;
 }
@@ -2674,7 +2676,7 @@ inline BattleTask* fn_8013A194() {
 inline void* fn_801404F8() {
     return lbl_8087EE98;
 }
-inline MpArena_unk* fn_800F7F90() {
+extern "C" inline MpArena_unk* fn_800F7F90() {
     return (MpArena_unk*)lbl_8087F610;
 }
 
@@ -2895,6 +2897,64 @@ void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {
         mFinish.mTarget = *pos;
         m5614 = m5598;
     }
+}
+
+// inferred: ends the replay (field state 0): resumes the field and restores the render settings
+void GameTask::fn_803737C0() {
+    m54E4 = 0;
+    m5598 = 60;
+    m5594 = 0;
+    m55B0 = 0;
+    m55B4 = 0;
+    mFinish.fn_80378CCC();
+    ((atn::Task*)lbl_8087F048)->MeltTask();
+    lbl_8087F8A0->MeltTask();
+    EnemyManager::sInstance->MeltTask();
+    NpcManager::sInstance->MeltTask();
+    FriendManager::sInstance->MeltTask();
+    lbl_8087EE68->MeltTask();
+    m10D8->fn_800D246C(0);
+    GimmickManager::instance_->fn_803EE560();
+    GameTimer::sInstance->MeltTask();
+    GameUI* ui = lbl_8087F490;
+    ui->mB08[0]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[0])->mFrame = 0.0f;
+    ui->mB08[1]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[1])->mFrame = 0.0f;
+    ui->mB08[2]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[2])->mFrame = 0.0f;
+    ui->mB08[3]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[3])->mFrame = 0.0f;
+    ui->mB08[4]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[4])->mFrame = 0.0f;
+    ui->mB08[5]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[5])->mFrame = 0.0f;
+    ((atn::D2A_Task*)ui->mB08[5])->SetLayoutValue_unk("iconOn", 1.0f);
+    ui->mB20[0]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[0])->mFrame = 0.0f;
+    ui->mB20[1]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[1])->mFrame = 0.0f;
+    ui->mB20[2]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[2])->mFrame = 0.0f;
+    ui->mB20[3]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[3])->mFrame = 0.0f;
+    ui->mB20[4]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[4])->mFrame = 0.0f;
+    ui->mB20[5]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB20[5])->mFrame = 0.0f;
+    lbl_8087F490->fn_803E4950();
+    lbl_8087F3C0->fn_800D246C(0);
+    lbl_8087EFE8->fn_800CFA28(1, 0, 2, 30);
+    if (GameBgm::sInstance != 0) {
+        GameBgm::sInstance->fn_8037D49C(GameBgm::sInstance->mE0, 30);
+    }
+    fn_80570A14(m5590, 0);
+    lbl_8087F9E8->fn_8059D268(1);
+    if (lbl_8087F0A8->m090 != 0) {
+        lbl_8087F048->fn_8010AB34();
+    }
+    lbl_8087EFA8->SetColorMatrix(m55C4);
+    lbl_8087EFA8->m3A4 = m55C0;
 }
 
 void GameTask::fn_80373F78() {
