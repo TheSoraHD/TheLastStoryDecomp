@@ -21,6 +21,7 @@
 #include "game/MapTask.h"
 #include "game/GimmickManager.h"
 #include "game/GimmickCommon.h"
+#include "game/Inventory.h"
 #include "game/GameTask.h"
 #include "game/NpcManager.h"
 #include "game/EnemyManager.h"
@@ -65,6 +66,7 @@ extern "C" void fn_80376730(GameField_unk* field); // inferred: autosave
 extern "C" void fn_80370094(GameField_unk* field, int state); // inferred: sets m10D0
 extern "C" void fn_8037EF30(void* camera, int a, int b, float f);
 extern "C" int lbl_8087D990; // inferred: last save slot (-1: none)
+extern "C" int fn_804444E8(Inventory* inv, int id); // inferred: number of items
 
 // inferred: save menu (game/CampSaveLoad.cpp)
 class MenuSaveTask {
@@ -175,6 +177,49 @@ void GameEventScript::fn_8039DA00(ScriptResult_unk& result, const ScriptCmd_unk*
 
 void GameEventScript::fn_8039DA10(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
+}
+
+// inferred: shows a message of the scene in the message window and waits
+// inferred: shows a message of the scene in the message window (bit 0 of m0C: do not wait)
+void GameEventScript::fn_8039DA38(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(args->m08);
+    GameMessageWindow* window = lbl_8087F490->m263C;
+    if (msg != 0) {
+        if (window->IsShown_unk()) {
+            window->fn_803B5830(msg, 0);
+        } else {
+            window->fn_803B5774(msg, 0);
+        }
+        mB4 = 0;
+        if (((unsigned int)args->m0C & 1) != 1) {
+            mA8 = 1;
+            leader->fn_8016E970(5);
+            result.mWait = 1;
+        } else {
+            result.mWait = 1;
+        }
+    } else {
+        result.mWait = 0;
+    }
+    result.mNext = NextCmd_unk(cmd);
+}
+
+void GameEventScript::fn_8039E280(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    GameMessageWindow* window = lbl_8087F490->m263C;
+    GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(static_cast<const ScriptArgs_unk*>(cmd)->m08);
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    if (msg != 0) {
+        window->fn_803B58D8(msg);
+        leader->fn_8016E970(5);
+        mB4 = 0;
+        mA8 = 1;
+        result.mWait = 1;
+    } else {
+        result.mWait = 0;
+    }
+    result.mNext = NextCmd_unk(cmd);
 }
 
 void GameEventScript::fn_8039E80C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -379,6 +424,15 @@ void GameEventScript::fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk*
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     if (lbl_8087F430 != 0) {
         fn_80375194(lbl_8087F430, args->m1C, args->m14, *(float*)&args->m18);
+    }
+    result.SetNext_unk(cmd);
+}
+
+void GameEventScript::fn_803A4474(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    if (args->m0C == 0) {
+        int count = fn_804444E8(Inventory::instance_, args->m08);
+        fn_8039BF04(args->m10, args->m14, 0, 0, count);
     }
     result.SetNext_unk(cmd);
 }

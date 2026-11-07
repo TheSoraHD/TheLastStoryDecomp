@@ -65,6 +65,8 @@ public:
     void fn_8039D9B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039DA00(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039DA10(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039DA38(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039E280(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E80C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_8039E9C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -92,6 +94,7 @@ public:
     void fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A4474(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -129,7 +132,9 @@ public:
     int m8C; // inferred: a script is running
     int m90;
     ScriptData_unk* m94; // inferred: compiled script of the running event
-    unsigned char m98[0xB4 - 0x98];
+    unsigned char m98[0xA8 - 0x98];
+    int mA8; // inferred: a message window is open
+    unsigned char mAC[0xB4 - 0xAC];
     int mB4;
     int mB8; // inferred: step of the running command
     int mBC;
