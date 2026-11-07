@@ -258,7 +258,6 @@ extern "C" float fn_8023329C(int curve, int emitter, const EffectAnimData_unk* d
 
 // inferred: vector parameter of an emitter (curves 12-14 when animated), with its ratios and
 // the per-slot offset or scale
-// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
 extern "C" void fn_80233348(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
     EffectAnimData_unk* data = inst->mData;
     EffectParam_unk* param = inst->mParam;
@@ -273,7 +272,8 @@ extern "C" void fn_80233348(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
     }
     if (param->m70 == 2) {
         float x = out->x;
-        if (x != 0.0f) {
+        float zero = 0.0f;
+        if (x != zero) {
             slot->m13C = out->y / x;
             slot->m140 = out->z / out->x;
         } else {
@@ -297,7 +297,6 @@ extern "C" void fn_80233348(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
 
 // inferred: vector parameter of an emitter (curves 15-17 when animated), with its ratios and
 // the per-slot offset or scale
-// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
 extern "C" void fn_802334E0(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
     EffectAnimData_unk* data = inst->mData;
     EffectParam_unk* param = inst->mParam;
@@ -312,7 +311,8 @@ extern "C" void fn_802334E0(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
     }
     if (param->m78 == 2) {
         float x = out->x;
-        if (x != 0.0f) {
+        float zero = 0.0f;
+        if (x != zero) {
             slot->m144 = out->y / x;
             slot->m148 = out->z / out->x;
         } else {
@@ -336,7 +336,6 @@ extern "C" void fn_802334E0(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
 
 // inferred: vector parameter of an emitter (curves 0-2 when animated), with its ratios and
 // the per-slot offset or scale
-// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
 extern "C" void fn_80233678(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
     EffectAnimData_unk* data = inst->mData;
     EffectParam_unk* param = inst->mParam;
@@ -351,7 +350,8 @@ extern "C" void fn_80233678(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
     }
     if (param->m80 == 2) {
         float x = out->x;
-        if (x != 0.0f) {
+        float zero = 0.0f;
+        if (x != zero) {
             slot->m14C = out->y / x;
             slot->m150 = out->z / out->x;
         } else {
@@ -375,7 +375,6 @@ extern "C" void fn_80233678(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
 
 // inferred: vector parameter of an emitter (curves 19-21 when animated), with its ratios and
 // the per-slot offset or scale
-// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
 extern "C" void fn_80233810(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
     EffectAnimData_unk* data = inst->mData;
     EffectParam_unk* param = inst->mParam;
@@ -390,7 +389,8 @@ extern "C" void fn_80233810(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
     }
     if (param->mA0 == 2) {
         float x = out->x;
-        if (x != 0.0f) {
+        float zero = 0.0f;
+        if (x != zero) {
             slot->m16C = out->y / x;
             slot->m170 = out->z / out->x;
         } else {
@@ -414,7 +414,6 @@ extern "C" void fn_80233810(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
 
 // inferred: vector parameter of an emitter (curves 7-9 when animated), with its ratios and
 // the per-slot offset or scale
-// NONMATCHING: 99.9% - operand order of the fcmpu against 0.0f
 extern "C" void fn_802339A8(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
     EffectAnimData_unk* data = inst->mData;
     EffectParam_unk* param = inst->mParam;
@@ -429,7 +428,8 @@ extern "C" void fn_802339A8(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
     }
     if (param->m88 == 2) {
         float x = out->x;
-        if (x != 0.0f) {
+        float zero = 0.0f;
+        if (x != zero) {
             slot->m154 = out->y / x;
             slot->m158 = out->z / out->x;
         } else {
