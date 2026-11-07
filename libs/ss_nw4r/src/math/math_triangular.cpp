@@ -1,5 +1,5 @@
 // nw4r::math (NW4R). Source: revvmp/pokemon-rumble-decomp src/nw4r/math/math_triangular.cpp (MIT), only what
-// The Last Story links; the rest was removed by the linker. Inline asm is Nintendo's (pending approval, rule 2).
+// The Last Story links; the rest was removed by the linker. Inline asm is Nintendo's (approved exception of rule 2, 2026-11-07).
 #include "nw4r/math/types.h"
 
 namespace nw4r {

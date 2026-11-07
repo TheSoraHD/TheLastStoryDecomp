@@ -8,8 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `msl-iostream-20261107` (2026-11-07, WIP sin mergear, desde `nw4rmath-20261107`): **14146 / 18116**, lost 0, MSL C++ 106/170 (sesion 3), `shared_ptr_unk.cpp` enlazada; `iostream.cpp` y `locale.cpp` sin enlazar. Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`. Notas: `docs/msl-iostream-20261107.md` ("Sesion 3").
-- `nw4rmath-20261107` (2026-11-07, sin mergear): **14053 / 18116**, lost 0, 656 enlazados, NW4R 77/78 (falta `ut_TextWriterBase`): `db_DbgPrintBase` (62/62), math (`SinCosFIdx`, `MTX34Zero`, asm aprobado), `db_assert` (`VPanic`, asm aprobado), `FrameHeap::GetSize_unk`. En `auto_` solo queda código MSL C++. Notas: `docs/nw4rmath-20261107.md`.
+- `msl-iostream-20261107` (2026-11-07, **mergeada en `main`** con `nw4rmath-20261107`): **14146 / 18116**, lost 0. MSL C++ partida en `iostream.cpp`/`locale.cpp`/`shared_ptr_unk.cpp` (106/170; `shared_ptr_unk.cpp` enlazada, las otras dos no). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`. Notas: `docs/msl-iostream-20261107.md`; siguiente paso: `docs/SIGUIENTE_sesion.md`.
+- `nw4rmath-20261107` (mergeada en `main`): 14053, NW4R 77/78 (falta `ut_TextWriterBase`): `db_DbgPrintBase`, math (`SinCosFIdx`, `MTX34Zero`, asm aprobado), `db_assert` (`VPanic`), `FrameHeap::GetSize_unk`; `docs/nw4rmath-20261107.md`.
 - `maraton-20261107` (mergeada en `main`): 13987, `BattleTask` 94/212, `GameTask` 42/133, `AiTarget` 31/44, `TacView` 14/46, `GameEventScript` 61/224; `docs/maraton-20261107.md`.
 - `hermanas-20261106` (mergeada): 13737, `ShopBase`, `CosEditProtector`, `NewCampTask`, `LastCocoon*`; `docs/hermanas-20261106.md`. `unidades-20261106b` 13619 (KPAD 2010, menus MP); `unidades-20261106` 13524 (SDK 2010 CC0); `unidades-20261105` 12766.
 - `maptask-20261105` 12710; `maparea-20261105` 12703; `scene-20261105` 12686; `nw4r-20261105` 12684 (`docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679; `event100-20261104` 12577; `nuevas-20261103` 12564.
