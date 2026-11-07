@@ -14,6 +14,7 @@
 #include "game/PlayerManager.h"
 #include "game/PlayerTask.h"
 #include "game/GameTask.h"
+#include "game/MapTask.h"
 #include "game/GameScene.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
@@ -769,6 +770,34 @@ void BattleChara_unk::fn_8010895C(int id, int all) {
 
 void BattleTask::fn_80108A54(CharaTask* chara) {
     fn_80108A5C(chara, &chara->mRot);
+}
+
+// NONMATCHING: 99.5% - the config pointer is allocated below the parameters in the original
+void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
+    CharaTask* target = chara->mFC0;
+    GameConfig_unk* config = lbl_8087F0A8;
+    if (target != 0) {
+        if (!target->CanAct_unk()) {
+            target = 0;
+        } else {
+            atn::Vector3 d = target->mPos - chara->mPos;
+            if (d.LengthSq_unk() > config->mLockOnReleaseLen * config->mLockOnReleaseLen &&
+                !(target->m55C == 6 && target->m560 == 30)) {
+                target = 0;
+            }
+        }
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mId == 0x3F &&
+        lbl_8087F430->GetCurrentMap()->mSubId == 2) {
+        target = 0;
+    }
+    if (target == 0) {
+        CharaTask* found = fn_800FFE68(chara, dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
+        if (found != 0) {
+            target = found;
+        }
+    }
+    chara->mFC0 = target;
 }
 
 // NONMATCHING: 93% - the original tests the log instance with bne over a blr

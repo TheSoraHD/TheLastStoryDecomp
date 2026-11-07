@@ -188,7 +188,10 @@ public:
     void fn_80108080(void* owner);
     int fn_80108378(CharaTask* chara); // inferred: index of the character in mCharas of the instance, -1 if missing
     void fn_80108A54(CharaTask* chara);
-    void fn_80108A5C(CharaTask* chara, void* arg);
+    // inferred: keeps the lock-on target of `chara` (CharaTask::mFC0) or picks a new one
+    void fn_80108A5C(CharaTask* chara, const atn::Vector3* dir);
+    // inferred: nearest target of `chara` in the cone `theta` around `dir` within `range`
+    CharaTask* fn_800FFE68(CharaTask* chara, const atn::Vector3* dir, int a, int b, float range, float theta);
     void fn_80109828(const wchar_t* text); // inferred: debug log message
     void fn_8010AB34();
     void fn_8010AB94();

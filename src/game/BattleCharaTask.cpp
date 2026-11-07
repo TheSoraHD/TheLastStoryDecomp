@@ -138,8 +138,6 @@ static inline atn::Vector3 FrontDir_unk(const atn::Vector3& rot) {
 }
 extern "C" void fn_8010220C(Effect_unk* mgr, int arg);
 // inferred: target in front of the character within radius/theta
-extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::Vector3* dir, int a, int b,
-                                  float radius, float theta);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: target searches of the effect manager (in front / around)
 extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
@@ -665,7 +663,7 @@ void BattleCharaTask::fn_800E589C() {
                             mFlagC30 = 1;
                             Effect_unk* mgr = lbl_8087F048;
                             atn::Vector3 dir = fn_80178018();
-                            CharaTask* chara = fn_800FFE68(mgr, this, &dir, 0, 0, config->mBtnAtkCorrectRadius,
+                            CharaTask* chara = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius,
                                                            0.5f * config->mBtnAtkCorrectTheta);
                             if (chara != 0) {
                                 target.mChara = chara;
@@ -926,7 +924,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
                     if (mFC4 != 0) {
                         Effect_unk* mgr = lbl_8087F048;
                         atn::Vector3 dir = fn_80178018();
-                        fn_8016DC14(fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta), 0);
+                        fn_8016DC14(((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta), 0);
                         mFC0 = mFC4;
                     } else {
                         fn_8016DC14(mFC0, 0);
@@ -1044,7 +1042,7 @@ int BattleCharaTask::fn_800E70EC(int a, int b, int c) {
                 Effect_unk* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
                 CharaTask* target =
-                    fn_800FFE68(mgr, this, &dir, 0, 0, config->mBtnAtkCorrectRadius, config->mBtnAtkCorrectTheta);
+                    ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 0, config->mBtnAtkCorrectRadius, config->mBtnAtkCorrectTheta);
                 if (target != 0) {
                     fn_800E8688(0xC8, 1, target, &target->mPos, 0, 0);
                 } else {
@@ -1115,7 +1113,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
             } else {
                 Effect_unk* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
-                mFC0 = fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
+                mFC0 = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
         }
         mFlag5 = 1;
@@ -1202,7 +1200,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field) {
             if (mFC0 == 0) {
                 Effect_unk* mgr = lbl_8087F048;
                 atn::Vector3 dir = fn_80178018();
-                mFC0 = fn_800FFE68(mgr, this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
+                mFC0 = ((BattleTask*)mgr)->fn_800FFE68(this, &dir, 0, 1, config->mLockOnLen, config->mLockOnTheta);
             }
             mFlag4 = 1;
             ((GameCamera*)obj)->fn_8037EF30(0, 1, -1.0f);
