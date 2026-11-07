@@ -40,6 +40,7 @@
 #include "game/GameTimer.h"
 #include "game/GameSoundControl.h"
 #include "game/TacView.h"
+#include "atn/SequenceBoot_unk.h"
 #include "game/MarketTask.h"
 #include "db/MotionCommandCommon.h"
 #include "atn/SoundManager.h"
@@ -64,6 +65,8 @@
 #include "db/MapIdTable_unk.h"
 #include "db/ChapterList_unk.h"
 #include "atn/Font_unk.h"
+#include "atn/FixedArray.h"
+#include "std/vector.h"
 // inferred: post effect manager (atn/PostFx.h, which redefines atn::IRender here)
 extern "C" void* lbl_8087EF8C;
 
@@ -72,13 +75,6 @@ extern "C" int fn_80570A4C(GameTaskData_unk* obj);
 extern "C" GameTask* lbl_8087F430;
 extern "C" atn::Task* lbl_8087F9E0; // inferred: upgrade shop (ShopUpGrade)
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
-
-inline MapTask* GameTask::GetCurrentMap() {
-    if (m10D8 != 0) {
-        return m10D8->m64;
-    }
-    return 0;
-}
 
 // inferred: save menu (game/CampSaveLoad.cpp)
 class MenuSaveTask {
@@ -2477,6 +2473,14 @@ void GameTask::fn_80370C6C() {
     }
 }
 
+extern "C" void fn_803712BC(GameTask* task) {
+    atn::FadeColor* fade = atn::FadeColor::Create((atn::Task*)task->m20, 5, 0xFF000000, 0xFF000000);
+    fade->mActive = 1;
+    fade->mDeleteAtEnd = 1;
+    sSequenceBoot_unk->SetNext_unk("Title");
+    fn_800D2338(task);
+}
+
 void GameTask::fn_80371320(PlayerTask* player) {
     if (m10E0 != 0) {
         m10E0->mLeader = player;
@@ -2493,10 +2497,394 @@ void GameTask::fn_8037177C() {
     m5770 = 0;
 }
 
+// inferred: empty release asserts (rule of the autoinline threshold, as GHOUL_ASSERT_UNK in game/Em309Ghoul.cpp)
+#define GT_ASSERT_UNK(x) ((void)0)
+
+// inferred: multiplayer session (lbl_8087F610; layout from MP/D2AMpMenuResult.cpp); names invented
+struct MpMember_unk {
+    EnemyTask* mChara; // inferred: character of the member
+    unsigned char m04[0xD5C - 4];
+};
+struct MpRoom_unk {
+    unsigned char m00[8];
+    atn::FixedArray_unk<MpMember_unk, 4> mMembers; // 0x08
+};
+struct MpArena_unk {
+    unsigned char m0000[0x2B80];
+    MpRoom_unk mRoom; // 0x2B80
+    MpRoom_unk* GetRoom_unk() {
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0); GT_ASSERT_UNK(this != 0);
+        return &mRoom;
+    }
+};
+extern "C" void fn_804DA3F4(MpArena_unk* arena); // inferred: ends the session battle
+extern "C" SkillEffectManager* lbl_8087F9E8;
+// inferred: global accessors (weak copies of other files, called out of line by fn_803729B4)
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
+    return lbl_8087F3C0;
+}
+extern "C" inline SkillEffectManager* fn_80356FFC() {
+    return lbl_8087F9E8;
+}
+extern "C" inline RenderSetting_unk* fn_802F0990() {
+    return lbl_8087EFA8;
+}
+extern "C" inline int fn_80267B20(CharaTask* chara) {
+    return chara->m55C;
+}
+struct AimControl_unk {
+    virtual void vf08();
+    virtual void vf0C();
+    virtual void vf10();
+    virtual void vf14();
+    virtual void vf18();
+    virtual void vf1C();
+    virtual void vf20();
+    virtual void vf24();
+    virtual void vf28();
+    virtual void vf2C();
+    virtual void vf30();
+    virtual void vf34();
+    virtual void vf38();
+    virtual void vf3C();
+    virtual void vf40();
+    virtual void vf44();
+    virtual void vf48();
+    virtual void vf4C();
+    virtual void vf50();
+    virtual void vf54();
+    virtual void vf58();
+    virtual void vf5C(); // inferred: stops aiming
+};
+extern "C" inline AimControl_unk* fn_80318F90(CharaTask* chara) {
+    return (AimControl_unk*)chara->mControl.get();
+}
+extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg);
+// inferred: rotation matrix z, y, x (weak copy, as in game/Em203GreaterDaemon.cpp)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+// inferred: translation matrix (weak copy 0x800F80A8 of game/BattleTask.cpp, as in game/TutorialTask.cpp)
+extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, pos->x, pos->y, pos->z);
+    return m;
+}
+inline float MtxColumn_unk(const atn::Matrix3x4& m, int i) {
+    atn::Vector3 v(m.m[0][i], m.m[1][i], m.m[2][i]);
+    return PSVECMag(&v);
+}
+inline float Max3_unk(const atn::Vector3& v) {
+    float yz = v.y > v.z ? v.y : v.z;
+    return v.x > yz ? v.x : (v.y > v.z ? v.y : v.z);
+}
+// inferred: world matrix of a model and its largest scale axis (weak copy 0x80316E38, as in
+// game/Em316LaserSphere.cpp)
+extern "C" inline void fn_80316E38(atn::Model* model, const atn::Matrix3x4* mtx) {
+    __MtxCopy(model->mMtx.m, mtx->m);
+    float sz = MtxColumn_unk(*mtx, 2);
+    float sy = MtxColumn_unk(*mtx, 1);
+    float sx = MtxColumn_unk(*mtx, 0);
+    atn::Vector3 s(sx, sy, sz);
+    model->m54 = Max3_unk(s);
+}
+inline BattleTask* fn_8013A194() {
+    return lbl_8087F048;
+}
+inline void* fn_801404F8() {
+    return lbl_8087EE98;
+}
+inline MpArena_unk* fn_800F7F90() {
+    return (MpArena_unk*)lbl_8087F610;
+}
+
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+
+// inferred: *this = *this * rot_y * rot_x * rot_z (weak copy; name invented)
+inline void RotateYXZ_unk(atn::Matrix3x4& mtx, const atn::Vector3& rot) {
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 m;
+    Mtx rz;
+    Mtx tz;
+    Mtx rx;
+    Mtx tx;
+    Mtx ry;
+    Mtx ty;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    if (0.0f != rot.y) {
+        PSMTXRotRad(ry, 'y', rot.y);
+        PSMTXConcat(p->m, ry, ty);
+        __MtxCopy(p->m, ty);
+    }
+    if (0.0f != rot.x) {
+        PSMTXRotRad(rx, 'x', rot.x);
+        PSMTXConcat(p->m, rx, tx);
+        __MtxCopy(p->m, tx);
+    }
+    if (0.0f != rot.z) {
+        PSMTXRotRad(rz, 'z', rot.z);
+        PSMTXConcat(p->m, rz, tz);
+        __MtxCopy(p->m, tz);
+    }
+    PSMTXConcat(mtx.m, p->m, t.m);
+    mtx = t;
+}
+
+// inferred: *this = *this * scale(s) (weak copy, called by game/TutorialTask; name invented)
+inline void Scale_unk(atn::Matrix3x4& mtx, const atn::Vector3& s) {
+    atn::Matrix3x4 t;
+    atn::Matrix3x4 sm;
+    PSMTXScale(sm.m, s.x, s.y, s.z);
+    PSMTXConcat(mtx.m, sm.m, t.m);
+    mtx = t;
+}
+
+inline void atn::EffectManager::SetPaused_unk(int paused) {
+    mPaused = paused;
+}
+inline CharaLook_unk* CharaTask::GetLook_unk() {
+    return &mLook;
+}
+inline atn::Vector3* CharaTask::GetScale_unk() {
+    return &m540;
+}
+inline void CharaTask::SetPosition_unk(const atn::Vector3& pos) {
+    mPos = pos;
+}
+inline GameMessageWindow* GameUI::GetMessageWindow_unk() {
+    return m263C;
+}
+inline GameTextMessageWindow* GameUI::GetTextWindow_unk() {
+    return m2640;
+}
+inline void RenderSetting_unk::SetColorMatrix(const ColorMatrixParam_unk& p) {
+    m324 = p;
+}
+inline DamageEffectParam_unk* RenderSetting_unk::GetDamage_unk() {
+    return &m374;
+}
+inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
+    m374 = p;
+}
+inline void RenderSetting_unk::SetMotionBlur_unk(int enabled) {
+    m240.mEnabled = enabled;
+}
+inline void RenderSetting_unk::SetFrameSpeed_unk(float speed) {
+    m3A4 = speed;
+}
+inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
+    return &m324;
+}
+
+// NONMATCHING: draft - victory pose of the multiplayer battle (places the members around the leader and
+// starts the finish camera); every inline is called out of line in the original (R3)
+extern "C" void fn_803729B4(GameTask* task, CharaTask* chara) {
+    if (chara == 0) {
+        return;
+    }
+    fn_8013A194()->fn_801011B8();
+    fn_80356FFC()->fn_8059C32C(0);
+    fn_800F7FA0()->fn_800D246C(1);
+    fn_800F7FA0()->SetPaused_unk(1);
+    fn_800F7FA0()->fn_8023A60C(0);
+    fn_800F7FA0()->fn_8023A60C(2);
+    fn_800F7FA0()->fn_8023A60C(3);
+    fn_800F7FA0()->fn_8023A60C(5);
+    // inferred: m10D8 is read as the route table here (as in gmk/BulletPoint.cpp)
+    RoutePlace_unk* place = ((RouteTable_unk*)task->m10D8)->FindPlace_unk(99991);
+    atn::Vector3 base(*(place != 0 ? &place->mPos : chara->fn_8013C38C()));
+    atn::Vector3 rot;
+    if (place != 0) {
+        rot.Set_unk(0.0f, place->m14, 0.0f);
+    } else {
+        rot = *chara->GetRot_unk();
+        for (int i = 0; i < 4; i++) {
+            atn::Vector3 from(base);
+            from.y += 5.0f;
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            atn::Matrix3x4 m;
+            m.fn_8013A13C(rot.y);
+            dir.fn_80011410(m);
+            atn::Vector3 to = from + dir * 20.0f;
+            if (fn_8004ED34(fn_801404F8(), 0, &from, &to, 0x80000008, 0, 0) == 0) {
+                break;
+            }
+            rot.y = atn::WrapAngle_unk(1.5707964f + rot.y);
+        }
+    }
+    std::vector<EnemyTask*> list;
+    MpRoom_unk* room = fn_800F7F90()->GetRoom_unk();
+    atn::FixedArray_unk<MpMember_unk, 4>& members = room->mMembers;
+    for (unsigned int i = 0; i < members.size(); i++) {
+        if (members[i].mChara != 0) {
+            list.push_back(members[i].mChara);
+        }
+    }
+    task->mFinish.fn_803786F0();
+    for (unsigned int i = 0; i < list.size(); i++) {
+        CharaTask* c = (CharaTask*)list[i];
+        c->GetStatus_unk()->fn_8012D8B8();
+        c->fn_80178A6C();
+        if (c->fn_8013C3A8()) {
+            c->fn_801539E0();
+        }
+        if (c->fn_801479D8()) {
+            c->fn_80155DAC(0);
+        }
+        if (fn_80267B20(c) == 6 && fn_80318F90(c) != 0) {
+            fn_80318F90(c)->vf5C();
+        }
+        c->GetLook_unk()->fn_80129A48(1.0f);
+        c->GetLook_unk()->fn_80129A6C();
+        c->fn_801750FC();
+        c->fn_8014DEE4(0, 0, 0);
+        if (i == 0) {
+            c->GetModel_unk()->fn_80097C08(0, 0x177, 0, 1, 1, 1.0f, 0.1f);
+        } else {
+            int motion = c->fn_801370B8(0);
+            c->GetModel_unk()->fn_80097C08(0, motion, 0, 1, 1, 1.0f, 0.1f);
+        }
+        c->GetModel_unk()->fn_80139F24(1);
+        c->GetModel_unk()->fn_8013C554(0, 1.0f);
+        c->GetModel_unk()->SetMotionSpeed(0, 1.0f);
+        atn::Vector3 off;
+        if (i == 0) {
+            off.Set_unk(0.0f, 0.0f, 0.0f);
+        } else if ((i & 1) == 1) {
+            off.Set_unk(8.0f * (float)((i - 1) >> 1) + 10.0f, 0.0f, i > 2 ? -14.0f : -8.0f);
+        } else if ((i & 1) == 0) {
+            off.Set_unk(-10.0f - 8.0f * (float)((i - 1) >> 1), 0.0f, i > 2 ? -14.0f : -8.0f);
+        }
+        atn::Vector3 pos = base + off.Transform_unk(fn_800109E0(rot));
+        atn::Matrix3x4 mtx = fn_800F80A8(&pos);
+        RotateYXZ_unk(mtx, rot);
+        Scale_unk(mtx, *c->GetScale_unk());
+        fn_80316E38(c->GetModel_unk(), &mtx);
+        c->GetModel_unk()->fn_80097E80(1);
+        c->GetModel_unk()->CalcMatrixStack(atn::ModelNodeCallback_unk(0));
+        c->fn_80148B38(10.0f);
+        c->GetModel_unk()->SetMotionFrame(0, 0.0f);
+        c->FreezeTask();
+        c->SetPosition_unk(pos);
+        c->SetRot_unk(rot);
+        task->mFinish.fn_8037865C(c, base, rot, 0);
+    }
+    task->mFinish.fn_8037C690((Xsca_unk*)task->m56DC.fn_804786F8(), 0);
+    task->mFinish.fn_80378610(6, chara, atn::Vector3(0.0f, 0.0f, 0.0f));
+    task->mFinish.fn_803786FC(0);
+    task->mFinish.fn_803792F0();
+    task->m54E4 = 10;
+    GameUI::Get_unk()->GetMessageWindow_unk()->fn_803B57B0(1);
+    GameUI::Get_unk()->GetTextWindow_unk()->fn_803B6C88(1);
+    fn_8013A194()->fn_80371664();
+    ((PopupTask*)fn_8036635C())->fn_8054E51C();
+    fn_802F0990()->SetMotionBlur_unk(0);
+    ColorMatrixParam_unk cm(*fn_802F0990()->GetColorMatrix_unk());
+    cm.mMono = 0;
+    fn_802F0990()->SetColorMatrix(cm);
+    fn_802F0990()->SetFrameSpeed_unk(1.0f);
+    DamageEffectParam_unk damage(*fn_802F0990()->GetDamage_unk());
+    damage.mEnabled = 0;
+    fn_802F0990()->SetDamage_unk(damage);
+    fn_804DA3F4(fn_800F7F90());
+}
+
 void GameTask::fn_80373118() {
     m5624->mDelay++;
     m5620->mDelay++;
     m5760++;
+}
+
+MapTask* GameTask::GetCurrentMap() {
+    if (m10D8 != 0) {
+        return m10D8->m64;
+    }
+    return 0;
 }
 
 void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {

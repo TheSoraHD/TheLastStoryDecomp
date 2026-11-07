@@ -1351,6 +1351,11 @@ public:
     int m1418;
     float m141C;
     float m1420;
+    // inferred: weak copies of game/GameTask.cpp (0x80373094, 0x803727D4, 0x8036B438); names invented. Declared
+    // last: a new member declaration earlier in the class renumbers the @N of every unit
+    CharaLook_unk* GetLook_unk();
+    atn::Vector3* GetScale_unk();
+    void SetPosition_unk(const atn::Vector3& pos);
 };
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 inline atn::Vector3 CharaTask::vf94() {

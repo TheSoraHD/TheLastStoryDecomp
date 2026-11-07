@@ -107,7 +107,7 @@ public:
     void fn_80373F78();
     // RSO name; inline (weak copy 0x80373148). Defined in game/EnemyQuarkSecond.cpp, the only unit known
     // to inline it (a body here would need GameScene.h in every user of this header).
-    inline MapTask* GetCurrentMap();
+    MapTask* GetCurrentMap();
     int fn_80375184();        // inferred: saving is allowed
     int fn_80376150();
     void fn_80376194(int on);
