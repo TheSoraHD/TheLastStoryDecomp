@@ -165,7 +165,6 @@ struct BattleTarget_unk {
     atn::Vector3 mPos;
 };
 extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg); // inferred: skill of the slot `arg`
-extern "C" int fn_8036DAA8(Field_unk* field, CharaTask* chara); // inferred: the special skill is allowed here
 extern "C" void* lbl_8087EE68; // inferred: party manager (as in game/CharaTask.cpp)
 // inferred: result of fn_800185B4 (as in game/CharaTask.cpp)
 struct MagicTarget_unk;
@@ -406,7 +405,7 @@ void BattleCharaTask::fn_800E2FE0() {
                 }
                 break;
             case 10:
-                if (fn_8036DAA8(lbl_8087F430, this)) {
+                if (((GameTask*)lbl_8087F430)->fn_8036DAA8(this)) {
                     HitInfo_unk* skill = fn_80219344(this, 5);
                     m63C = m638;
                     m638 = skill;
@@ -415,7 +414,7 @@ void BattleCharaTask::fn_800E2FE0() {
                 }
                 break;
             case 11:
-                if (fn_8036DAA8(lbl_8087F430, this)) {
+                if (((GameTask*)lbl_8087F430)->fn_8036DAA8(this)) {
                     HitInfo_unk* skill = fn_80219344(this, 5);
                     m63C = m638;
                     m638 = skill;
@@ -1279,7 +1278,7 @@ void BattleCharaTask::fn_800E7BB0() {
         switch (skill) {
         case 0x1774:
         case 0x1775:
-            if (lbl_8087F430 != 0 && fn_8036DAA8(lbl_8087F430, this)) {
+            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_8036DAA8(this)) {
                 fn_80178208(new ((MemoryTag)0, "", "", 0) chr::ControlOverdrive(this, skill));
             }
             break;

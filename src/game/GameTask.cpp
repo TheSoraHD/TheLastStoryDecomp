@@ -25,6 +25,17 @@ public:
     static MenuSaveTask* sInstance;
 };
 
+int GameTask::fn_8036DAA8(CharaTask* chara) {
+    if (m56D8 != 0 || m56D4 != 0 || mD18 != 0) {
+        return 0;
+    }
+    if (m54E4 != 0) {
+        return 0;
+    }
+    m56D8 = chara;
+    return 1;
+}
+
 void GameTask::fn_8036E430(int a, int b) {
     m5624->m78 = 0x12;
     m5624->Capture();
@@ -64,6 +75,31 @@ void GameTask::fn_8036EA3C() {
     }
 }
 
+void GameTask::fn_80370B78(unsigned int color, int frames, int arg, float speed) {
+    m54F0 = 1;
+    m5620->mFrame = 1;
+    m5620->mColor0 = color & 0xFFFFFF;
+    m5620->mColor1 = color;
+    m5620->mDelay = arg;
+    m5620->mWait = 999999999;
+    m5620->mDuration = frames;
+    m5620->mZ = speed;
+    m5620->mActive = 1;
+}
+
+void GameTask::fn_80370BD0(int frames, int arg, float speed) {
+    unsigned int color = m5620->mColor1;
+    m54F0 = 2;
+    m5620->mFrame = 1;
+    m5620->mColor0 = color;
+    m5620->mColor1 = color & 0xFFFFFF;
+    m5620->mDelay = arg;
+    m5620->mWait = 0;
+    m5620->mDuration = frames;
+    m5620->mZ = speed;
+    m5620->mActive = 1;
+}
+
 // NONMATCHING: 99% - r4/r5 swapped in the compare
 int GameTask::fn_80370C2C() {
     atn::FadeCommon* fade = m5620;
@@ -100,6 +136,17 @@ void GameTask::fn_8037177C() {
     m5768 = 0;
     m5774 = 0;
     m5770 = 0;
+}
+
+void GameTask::fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id) {
+    if (m56D4 != 0 && m56D4 == owner) {
+        if (id != 0) {
+            m1070 = (int)m10C8 - 30;
+        }
+    } else if (m5594 != 0 && mD1C == 0 && mF28 == owner) {
+        m1014 = *pos;
+        m5614 = m5598;
+    }
 }
 
 void GameTask::fn_80373F78() {

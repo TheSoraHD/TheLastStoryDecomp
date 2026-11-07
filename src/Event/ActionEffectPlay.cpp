@@ -1,4 +1,5 @@
 #include "Event/Behavior.h"
+#include "game/GameTask.h"
 #include "Event/Manager.h"
 #include "Event/MovieState_unk.h"
 #include "game/NewStaffRoll.h"
@@ -133,7 +134,6 @@ extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
 struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
 extern "C" GameVars_unk* lbl_8087F430;
-extern "C" void fn_80370B78(GameVars_unk* game, int color, int frames, int arg, float speed); // inferred: fade
 extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred: value of a variable
 extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
 
@@ -1337,7 +1337,7 @@ int ActionMoviePlay::vf0C(Action* arg, int phase) {
         }
         lbl_8087F540->fn_8048EC7C();
         if (lbl_8087F0A8->m194 != 0 && manager->m190 == 0x19D) {
-            fn_80370B78(lbl_8087F430, -1, 0, 0, 1.0f);
+            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 0, 0, 1.0f);
             manager->fn_8053E8C8(11);
         } else {
             manager->fn_8053E8C8(13);

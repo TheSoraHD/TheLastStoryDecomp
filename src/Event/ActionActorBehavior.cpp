@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/GameTask.h"
 #include "Event/Cut.h"
 #include "Event/Section.h"
 #include "Event/Channel.h"
@@ -31,7 +32,6 @@ extern "C" void fn_804870F4(void* manager);
 extern "C" void fn_80486F50(void* manager);
 extern "C" void fn_8048F184(void* manager, int arg);
 extern "C" void fn_8048FC7C(void* manager);
-extern "C" void fn_80370B78(void* object, int arg1, float arg2, int arg3, int arg4);
 extern "C" void* lbl_8087F0A8;
 extern "C" void* lbl_8087F430;
 
@@ -390,7 +390,7 @@ void Event::Sequence::fn_80550254() {
             }
         } else if (lbl_8087F0A8 != 0 && *reinterpret_cast<int*>(static_cast<unsigned char*>(lbl_8087F0A8) + 0x194) != 0 &&
                    *reinterpret_cast<int*>(object + 0x190) == 0x19D) {
-            fn_80370B78(lbl_8087F430, -1, lbl_80887E20, 0, 0);
+            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, lbl_80887E20, 0, 0);
             fn_8053E8C8(11);
         } else {
             fn_8053E8C8(13);

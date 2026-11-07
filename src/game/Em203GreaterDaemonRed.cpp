@@ -75,7 +75,6 @@ extern "C" inline Field_unk* fn_80121F00() {
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
-extern "C" void fn_80370B78(Field_unk* field, int arg1, int arg2, int arg3, float f); // inferred: fade
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -1497,7 +1496,7 @@ void Em203GreaterDaemonRed::fn_8029A0A8() {
             fn_80370AE4(lbl_8087F430, 0x15, 1);
             m14B4++;
         } else if (21.0f <= frame && frame <= 22.0f) {
-            fn_80370B78(lbl_8087F430, -1, 10, 0, -5.0f);
+            ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 10, 0, -5.0f);
             speed = 0.75f;
         } else if (frame < 15.0f) {
             atn::Vector3 d(m1638->mPos.x - mPos.x, 0.0f, m1638->mPos.z - mPos.z);

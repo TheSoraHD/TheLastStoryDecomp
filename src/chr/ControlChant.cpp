@@ -125,7 +125,6 @@ extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
 extern "C" int fn_8021A918(HitInfo_unk* hit);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
-extern "C" int fn_8036DAA8(Field_unk* field);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" float PSVECMag(const atn::Vector3* v);
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
@@ -439,7 +438,7 @@ int ControlChant::vf0C() {
         m44 = false;
         done = 1;
     }
-    if (done && m44 && (mChara->m638->mAC & 0x40000) == 0x40000 && !fn_8036DAA8(lbl_8087F430)) {
+    if (done && m44 && (mChara->m638->mAC & 0x40000) == 0x40000 && !((GameTask*)lbl_8087F430)->fn_8036DAA8(mChara)) {
         done = 0;
     }
     return done;

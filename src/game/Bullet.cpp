@@ -1,6 +1,7 @@
 // inferred file name: from the RTTI of Bullet (vtable 0x80779F10); the file starts with the boot
 // sequence task (BootTask, RTTI 0x80779F08).
 #include "game/Bullet.h"
+#include "game/GameTask.h"
 #include "game/BootTask.h"
 #include "game/CharaTask.h"
 #include "game/SetConfig.h"
@@ -116,7 +117,6 @@ extern "C" void fn_800FB1BC(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* d
                             const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
 extern "C" int fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* data, int id, const atn::Vector3* pos,
                            const atn::Vector3* rot, int a, int b, float c, float d, int e, int f); // inferred: hit effect
-extern "C" void fn_80373164(HomingField_unk* field, CharaTask* owner, const atn::Vector3* pos, int id); // inferred
 extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* center, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg, HitInfo_unk* data, float radius); // inferred: sphere sweep
 
@@ -436,7 +436,7 @@ void Bullet::vf10() {
                 } else {
                     id = fn_800FAB80(lbl_8087F048, m88, m68, m7C, &pos, &rot, 0, 30, m5C, m74, -1, -1);
                 }
-                fn_80373164(lbl_8087F430, m88, &pos, id);
+                ((GameTask*)lbl_8087F430)->fn_80373164(m88, &pos, id);
             }
             vf0C(1, 0);
         }

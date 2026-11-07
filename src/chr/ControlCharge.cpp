@@ -69,7 +69,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
-extern "C" int fn_8036DAA8(Field_unk* field);
 extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7); // inferred: sweep test
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -347,7 +346,7 @@ int ControlCharge::vf0C() {
     if (done && m30) {
         HitInfo_unk* hit = mChara->m638;
         if ((hit->m04 == 0x1788 || hit->m04 == 0x1791) && (hit->mAC & 0x40000) == 0x40000 &&
-            fn_8036DAA8(lbl_8087F430) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_8036DAA8(mChara) == 0) {
             done = 0;
         }
     }

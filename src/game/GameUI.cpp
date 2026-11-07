@@ -48,8 +48,6 @@ struct GameUIField_unk {
     atn::Task* m10D8;
 };
 extern "C" GameUIField_unk* lbl_8087F430;
-extern "C" void fn_80370BD0(GameUIField_unk* field, int frames, int arg, float speed);
-extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int frames, int arg, float speed);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" void fn_800D58A4(atn::Texture_unk* tex); // inferred: releases a render texture
 extern "C" void fn_803CFC78(GameUI* ui);   // inferred: creates the parts of the HUD
@@ -2989,7 +2987,7 @@ void GameUI::fn_803E656C() {
     m262C.m08->mFrame = 0.0f;
     m262C.m0C = 1;
     if (lbl_8087F430 != 0) {
-        fn_80370BD0(lbl_8087F430, 30, 0, 1e-5f);
+        ((GameTask*)lbl_8087F430)->fn_80370BD0(30, 0, 1e-5f);
     }
 }
 
@@ -3006,7 +3004,7 @@ void GameUI::fn_803E65F8() {
     m262C.m04->mSpeed = -1.0f;
     m262C.m0C = 3;
     if (lbl_8087F430 != 0) {
-        fn_80370B78(lbl_8087F430, 0xFF000000, 30, 0, 1e-4f);
+        ((GameTask*)lbl_8087F430)->fn_80370B78(0xFF000000, 30, 0, 1e-4f);
     }
 }
 

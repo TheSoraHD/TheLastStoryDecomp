@@ -2,10 +2,12 @@
 #define GAME_GAMETASK_H
 
 #include "atn/Task.h"
+#include "math/Vec.h"
 
 class GameScene;
 class MapTask;
 class PlayerTask;
+class CharaTask;
 class SelectMember;
 struct GameTaskData_unk;
 namespace atn {
@@ -30,13 +32,17 @@ public:
     void fn_8036EA04();                 // inferred: opens the library
     void fn_8036EA3C();                 // inferred: leaves the library
     void fn_8036EA6C(int menu);
+    int fn_8036DAA8(CharaTask* chara); // inferred: the special skill is allowed here
     void fn_8036EE0C();
     int fn_80370C2C();                  // inferred: the fade is finished
     void fn_80370C6C();
+    void fn_80370B78(unsigned int color, int frames, int arg, float speed); // inferred: fade out
+    void fn_80370BD0(int frames, int arg, float speed);                     // inferred: fade in
     void fn_80371320(PlayerTask* player); // inferred: new leader
     void fn_80371664();
     void fn_8037177C();
     void fn_803731E8();
+    void fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id);
     void fn_80373F78();
     // RSO name; inline (weak copy 0x80373148). Defined in game/EnemyQuarkSecond.cpp, the only unit known
     // to inline it (a body here would need GameScene.h in every user of this header).
@@ -56,7 +62,18 @@ public:
     int fn_80376238();
     void fn_8037624C(int value);
 
-    unsigned char m48[0x10D8 - 0x48];
+    unsigned char m48[0xD18 - 0x48];
+    int mD18;
+    int mD1C;
+    unsigned char mD20[0xF28 - 0xD20];
+    CharaTask* mF28;
+    unsigned char mF2C[0x1014 - 0xF2C];
+    atn::Vector3 m1014;
+    unsigned char m1020[0x1070 - 0x1020];
+    int m1070;
+    unsigned char m1074[0x10C8 - 0x1074];
+    float m10C8;
+    unsigned char m10CC[0x10D8 - 0x10CC];
     GameScene* m10D8;        // inferred: scene of the field
     unsigned char m10DC[0x10E0 - 0x10DC];
     GameLeader_unk* m10E0;
@@ -76,9 +93,17 @@ public:
     int m1180;
     unsigned char m1184[0x1194 - 0x1184];
     int m1194;
-    unsigned char m1198[0x5590 - 0x1198];
+    unsigned char m1198[0x54E4 - 0x1198];
+    int m54E4;                  // inferred: state of the field (8-11 while an event runs)
+    unsigned char m54E8[0x54F0 - 0x54E8];
+    int m54F0;                  // inferred: fade direction (1 out, 2 in)
+    unsigned char m54F4[0x5590 - 0x54F4];
     GameTaskData_unk* m5590;
-    unsigned char m5594[0x5620 - 0x5594];
+    int m5594;
+    int m5598;
+    unsigned char m559C[0x5614 - 0x559C];
+    int m5614;
+    unsigned char m5618[0x5620 - 0x5618];
     atn::FadeCommon* m5620;  // inferred: fade of the field
     atn::FadeCapture* m5624; // inferred: screen capture fade of the field
     unsigned char m5628[0x5638 - 0x5628];
@@ -89,7 +114,10 @@ public:
     int m5684;
     int m5688;
     int m568C;
-    unsigned char m5690[0x5750 - 0x5690];
+    unsigned char m5690[0x56D4 - 0x5690];
+    CharaTask* m56D4;
+    CharaTask* m56D8;
+    unsigned char m56DC[0x5750 - 0x56DC];
     SelectMember* m5750;
     int m5754;
     int m5758;

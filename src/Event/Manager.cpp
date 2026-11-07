@@ -123,7 +123,6 @@ inline void SetLayoutValue_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 extern "C" void* lbl_8087F048;              // inferred: bullet manager
-extern "C" void fn_80370B78(GameField_unk* field, unsigned int color, int frames, int arg, float speed); // inferred: fade of the field
 extern "C" void fn_801011B8(void* bullets); // inferred: removes every bullet
 extern "C" atn::SoundEngine_unk* lbl_8087EE90; // inferred: sound engine
 // inferred: items of the debug menu (atn/MindowsCommon.h)
@@ -903,7 +902,7 @@ void Manager::fn_8047F984(float time) {
 // m194 of the game settings set fades the field out instead. Names invented.
 void Manager::fn_8047F994(int cut, int now) {
     if (cut == 0 && lbl_8087F0A8->m194 != 0 && m70 != 0 && m70->m190 == 0x19D) {
-        fn_80370B78(lbl_8087F430, 0xFFFFFFFF, 0, 0, 0.0f);
+        ((GameTask*)lbl_8087F430)->fn_80370B78(0xFFFFFFFF, 0, 0, 0.0f);
         m70->fn_8053E8C8(11);
     } else {
         mB8.push_back(cut);
