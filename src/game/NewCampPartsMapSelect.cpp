@@ -112,7 +112,6 @@ extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: pla
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
 extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int c); // inferred: changes the map
-extern "C" void fn_8036FB4C(GameField_unk* field, int entry); // inferred: moves to an entry of the current map
 extern "C" void fn_803743AC(GameField_unk* field);
 extern "C" void fn_805AA734(TacView* view); // inferred: closes the tactical view
 extern "C" int fn_8037587C(GameField_unk* field, int type, int id, int subId); // inferred: the map was visited
@@ -706,7 +705,7 @@ void NewCampPartsMapSelect::fn_80520098() {
     ((NewCampTask*)m48)->fn_8052CA6C();
     lbl_8087F430->m563C = 0x12;
     if (((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1 && route->mMapType == 1) {
-        fn_8036FB4C(lbl_8087F430, route->mEntry);
+        ((GameTask*)lbl_8087F430)->fn_8036FB4C(route->mEntry);
         return;
     }
     if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {

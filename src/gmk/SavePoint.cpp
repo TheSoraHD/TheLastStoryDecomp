@@ -40,7 +40,6 @@ struct Field_unk {
     int m5694;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" GimmickCommon* fn_8036E098(Field_unk* field);  // inferred: nearest save point
 extern "C" int fn_80370174(Field_unk* field, int id);     // inferred: field flag
 // inferred: global objects (classes unknown)
 struct SaveEvent_unk {
@@ -205,7 +204,7 @@ void SavePoint::vf10() {
                     vf40(&msg);
                 }
             }
-            if (dist2 < 400.0f && lbl_8087F430 != 0 && fn_8036E098(lbl_8087F430) == this) {
+            if (dist2 < 400.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_8036E098() == this) {
                 if (mSePlayed == 0) {
                     mSePlayed = 1;
                     fn_800C31F4("SE_UICOM_024", 0, -1, 1.0f);

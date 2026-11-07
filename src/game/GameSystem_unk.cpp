@@ -5,17 +5,7 @@
 #include "atn/SequenceControl.h"
 #include "atn/Memory.h"
 
-// inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here
-class HomeButtonMenu {
-public:
-    unsigned char m00[0x84];
-    int m84; // inferred: state (0 closed, 1 open, 2 leaving the game)
-    int m88; // inferred: menu allowed
-    int m8C;
-    int m90; // inferred: show the icon when the menu is not allowed
-
-    static HomeButtonMenu* sInstance;
-};
+#include "game/HomeButtonMenu.h"
 
 extern "C" void OSSetResetCallback(void (*callback)());
 extern "C" void OSSetPowerCallback(void (*callback)());

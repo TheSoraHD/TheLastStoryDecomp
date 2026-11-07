@@ -6,6 +6,7 @@
 
 class GameScene;
 struct Ledge_unk;
+class GimmickCommon;
 class MapTask;
 class PlayerTask;
 class CharaTask;
@@ -88,7 +89,9 @@ public:
     void fn_803748E0(int arg); // inferred: ends the grapple camera
     int fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int point); // inferred: hide link ahead of `chara`
     int fn_8036DB24(Ledge_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir); // inferred: next hide link
-    int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara); // inferred: hide link held by `chara`
+    int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara);
+    GimmickCommon* fn_8036E098(); // inferred: save point in front of the leader
+    void fn_8036FB4C(int entry);        // inferred: moves to an entry of the current map // inferred: hide link held by `chara`
     void fn_80373118(); // inferred: one more frame of delay for the fades // inferred: nonzero on some fields
     struct StrategyAiEntry_unk* fn_80375254(); // inferred: AI strategy row of the field (default id 0)
     void fn_8037529C(unsigned int color0, unsigned int color1, int delay, int wait, int duration); // inferred: starts the capture fade
@@ -128,7 +131,8 @@ public:
     unsigned char m1114[0x1118 - 0x1114];
     int m1118;
     int m111C;
-    unsigned char m1120[0x1164 - 0x1120];
+    unsigned char m1120[0x1160 - 0x1120];
+    int m1160; // inferred: 1 while the save points can be used from any side (fn_8036E098)
     int m1164;
     unsigned char m1168[0x117C - 0x1168];
     int m117C;
@@ -162,7 +166,10 @@ public:
     unsigned char m5690[0x56D4 - 0x5690];
     CharaTask* m56D4;
     CharaTask* m56D8;
-    unsigned char m56DC[0x56F0 - 0x56DC];
+    unsigned char m56DC[0x56E4 - 0x56DC];
+    int m56E4;
+    int m56E8; // inferred: entry of the map to move to (fn_8036FB4C)
+    unsigned char m56EC[0x56F0 - 0x56EC];
     atn::Task* m56F0;
     unsigned char m56F4[0x571C - 0x56F4];
     int m571C;

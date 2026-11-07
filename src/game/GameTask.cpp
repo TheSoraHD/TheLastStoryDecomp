@@ -11,11 +11,23 @@
 #include "game/ShopColor.h"
 #include "game/ShopIdentify.h"
 #include "atn/FadeCommon.h"
+#include "atn/EffectManager.h"
+#include "game/AiTarget.h"
+#include "game/EnemyManager.h"
+#include "game/GameEventScript.h"
+#include "game/GameUI.h"
+#include "game/GimmickCommon.h"
+#include "game/GimmickManager.h"
+#include "game/HomeButtonMenu.h"
+#include "game/NpcManager.h"
+#include "game/PlayerManager.h"
+#include "game/PlayerTask.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" int fn_80570A4C(GameTaskData_unk* obj);
 extern "C" GameTask* lbl_8087F430;
 extern "C" atn::Task* lbl_8087F9E0; // inferred: upgrade shop (ShopUpGrade)
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 
 inline MapTask* GameTask::GetCurrentMap() {
     MapTask* map = 0;
@@ -130,6 +142,25 @@ int GameTask::fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara) {
     return 0;
 }
 
+// NONMATCHING: same instructions; the original loads m1160 before the two floats of `dir` (tried
+// the declaration orders, assignments, bool, ?:, the dir built by members)
+GimmickCommon* GameTask::fn_8036E098() {
+    PlayerTask* leader;
+    int any;
+    any = m1160 == 1;
+    leader = lbl_8087F8A0->mHead;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', leader->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+        if (g->mE8 == 6 && g->vf48(&leader->mPos, &dir, any)) {
+            return g;
+        }
+    }
+    return 0;
+}
+
 void GameTask::fn_8036E430(int a, int b) {
     m5624->m78 = 0x12;
     m5624->Capture();
@@ -186,6 +217,30 @@ void GameTask::fn_8036EA3C() {
     if (LibraryTask::sInstance != 0) {
         fn_800D2338(LibraryTask::sInstance);
     }
+}
+
+void GameTask::fn_8036FB4C(int entry) {
+    m54E4 = 12;
+    m10D8->m134->fn_800D246C(1);
+    lbl_8087F8A0->fn_800D246C(1);
+    EnemyManager::sInstance->fn_800D246C(1);
+    NpcManager::sInstance->fn_800D246C(1);
+    lbl_8087EE68->fn_800D246C(1);
+    lbl_8087F3C0->fn_800D246C(1);
+    m56E4 = 0;
+    m5624->mFrame = 0;
+    m5624->mWait = 9999999;
+    m5624->mColor0 = 0xFFFFFFFF;
+    m5624->mColor1 = 0xFF000000;
+    m5624->m78 = 0x12;
+    m5624->mDuration = 30;
+    if (m563C >= 0) {
+        m5624->mActive = 1;
+        m563C = -1;
+    }
+    lbl_8087F490->fn_803E4510();
+    m56E8 = entry;
+    HomeButtonMenu::sInstance->m88 = 0;
 }
 
 void GameTask::fn_80370B78(unsigned int color, int frames, int arg, float speed) {
