@@ -1,28 +1,22 @@
 # Siguiente sesion (tras `nw4rmath-20261107`)
 
-Rama `nw4rmath-20261107` (**sin mergear**, la revisa el usuario): **14049 / 18117** (13987 en `main` b0bb426, +62),
-lost 0, **653 enlazadas**, NW4R 74/76, build limpio y clon limpio `main.dol: OK`. Notas: `docs/nw4rmath-20261107.md`.
+Rama `nw4rmath-20261107` (**sin mergear**, la revisa el usuario): **14053 / 18116** (13987 en `main` b0bb426, +66),
+lost 0, **656 enlazadas**, NW4R 77/78, build limpio y clon limpio `main.dol: OK`. Notas: `docs/nw4rmath-20261107.md`
+(incluye la lista de tramos `auto_` que quedan).
 
-## Decisiones del usuario pendientes
+## A revisar antes de mergear
 
-1. **Asm de NW4R math** (`SinCosFIdx` 0x8072D210, `MTX34Zero` 0x8072D280): es el asm inline paired-single de
-   Nintendo (Rumble MIT); la forma C++ no se acerca. Con el asm: 100% y las dos unidades enlazan. Si se aprueba
-   como excepcion de la regla 2: `git apply docs/nw4rmath-20261107-asm.patch`, configure, ninja (+2 funciones,
-   +2 unidades NW4R; anadir la excepcion a la regla 2 de `CLAUDE.md`).
-2. `DbgPrintBase<T>::Append` con `__declspec(noinline)` en la definicion de la plantilla (forma aceptada, pero en
-   una funcion debil).
+1. Excepciones de asm nuevas en la regla 2: NW4R math (`SinCosFIdx`, `MTX34Zero`) y el `lwz 0(r1)` de `VPanic`.
+2. `DbgPrintBase<T>::Append` con `__declspec(noinline)` (funcion debil de plantilla).
+3. `FrameHeap::GetSize_unk` (0x8070DC10): nombre inventado, no esta en las versiones publicas.
 
-## Hecho en la rama
+## Siguiente objetivo propuesto
 
-- `nw4r/src/db/db_DbgPrintBase.cpp` enlazada (62/62) desde `auto_03_807230C0_text` (no era assert/consola).
-- `fn_8072D210` -> `nw4r::math::SinCosFIdx`; llamadores (`CharaTask`, `CharaFaceControl`, `Event/Manager`,
-  `atn/Model`, `atn/Motion_unk`) con `nw4r::math::SinCosRad` de `include/nw4r/math/triangular.h`.
-- TextWriterBase: el corte de math no cambia el `.sbss` 0x172A/0x172C (probado enlazando math): los 2 bytes son del
-  propio objeto TextWriterBase.
-
-## NW4R que no enlaza
-
-- `db_assert` (asm de `VPanic`, no aprobado), `ut_TextWriterBase` (`.sbss` 0x12 frente a 0x14), math (asm).
+- **MSL C++**: es todo el codigo que queda en tramos `auto_` (~158 funciones en 0x8068B47C-0x80695270 + copias
+  debiles en 0x80006720-0x80007B94 + sus datos de `.rodata`/`.data`/`.sdata`/`.sbss` tras MSL C). Ver
+  `docs/msl_cpp.md`.
+- `ut_TextWriterBase`: los 2 bytes de `.sbss` son del propio objeto (descartados el corte de math y objetos
+  posteriores); unica unidad NW4R sin enlazar.
 
 ## De la sesion anterior (`maraton-20261107`, sigue vigente)
 
