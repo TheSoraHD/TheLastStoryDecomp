@@ -629,7 +629,7 @@ class ctype_base {
 public:
     typedef unsigned short mask;
     // inferred: values from the tables of the ctype<wchar_t> constructor (0x80692C3C)
-    enum {
+    enum __mask_unk {
         alpha = 0x0001,
         blank = 0x0002,
         cntrl = 0x0004,
@@ -643,6 +643,11 @@ public:
         xdigit = 0x0400
     };
 };
+
+// inferred: the combined masks of the ctype<wchar_t> tables are built at run time (stack temporaries)
+inline ctype_base::__mask_unk operator|(ctype_base::__mask_unk a, ctype_base::__mask_unk b) {
+    return ctype_base::__mask_unk((int)a | (int)b);
+}
 
 template <class C>
 class ctype;
@@ -733,15 +738,16 @@ void __range_map_unk<T>::insert(table& t, const wchar_t& lo, const wchar_t& hi, 
     e.lo_ = lo;
     e.hi_ = hi;
     T mul;
-    if (lo == hi) {
-        mul = 0;
-    } else {
+    if (lo != hi) {
         mul = (vhi - vlo) / (hi - lo);
+    } else {
+        mul = 0;
     }
     e.mul_ = mul;
     e.add_ = vlo - mul * lo;
     entry* i = (entry*)__lower_bound_unk(t.begin(), t.end(), e.lo_);
-    if (i == t.end() || e.hi_ < i->lo_) {
+    bool miss = i == t.end() || e.hi_ < i->lo_;
+    if (miss) {
         t.insert(i, e);
         return;
     }
