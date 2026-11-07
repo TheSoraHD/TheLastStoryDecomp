@@ -2169,6 +2169,47 @@ extern "C" void fn_8036E624(GameTask* task) {
     lbl_8087F3C0->mSystem.mReplaying = 0;
 }
 
+extern "C" void fn_8058ABF4(atn::Task* parent, int a, int b, int kind); // inferred: creates the upgrade shop
+
+// inferred: opens a shop of the field (called by game/GameEventScript)
+extern "C" void fn_8036E6D4(GameTask* task, int type, int sub, int arg) {
+    if (lbl_8087F430 != 0) {
+        lbl_8087F430->fn_80370320(0x394, 1, 0);
+    }
+    task->fn_8036EA6C(3);
+    switch (type) {
+    case 0:
+        ShopBuySell::fn_80584FE4(task, type, sub, arg);
+        break;
+    case 1:
+        ShopBuySell::fn_80584FE4(task, type, sub, arg);
+        break;
+    case 4:
+        ShopBuySell::fn_80584FE4(task, 4, sub, arg);
+        break;
+    case 2:
+        if (sub == 0) {
+            ShopIdentify::fn_80588684(task, sub, arg);
+        } else if (sub == 1) {
+            fn_8058ABF4(task, sub, arg, 0);
+        } else if (sub == 2) {
+            ShopColor::fn_80586DB0(task, sub, arg);
+        } else if (sub == 3) {
+            fn_8058ABF4(task, sub, arg, 1);
+        } else if (sub == 4) {
+            fn_8058ABF4(task, sub, arg, 2);
+        } else if (sub == 5) {
+            fn_8058ABF4(task, sub, arg, 3);
+        } else {
+            ShopIdentify::fn_80588684(task, sub, arg);
+        }
+        break;
+    }
+    if (lbl_8087F540->fn_80481654()) {
+        lbl_8087F540->fn_8048169C(1);
+    }
+}
+
 void GameTask::fn_8036E89C() {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->fn_80370320(0x394, 0, 0);
@@ -2266,6 +2307,45 @@ void GameTask::fn_8036FC58() {
 }
 
 // inferred: sets the chapter (m10D0), warning on a rollback or a chapter out of range
+// inferred: nonzero while the field is not ready to change the map
+int GameTask::fn_8036FD4C() {
+    int busy = 0;
+    if (!m550C.mScene->IsFlag_unk(2)) {
+        busy = 1;
+    }
+    if (!lbl_8087F8A0->fn_800D3FA4()) {
+        busy = 1;
+    }
+    if (!EnemyManager::sInstance->fn_800D3FA4()) {
+        busy = 1;
+    }
+    if (!NpcManager::sInstance->fn_800D3FA4()) {
+        busy = 1;
+    }
+    if (fn_800F3490(lbl_8087F048)) {
+        busy = 1;
+    }
+    if (lbl_8087F490->fn_803D1574()) {
+        busy = 1;
+    }
+    if (!lbl_8087F8A8->fn_800D3FA4()) {
+        busy = 1;
+    }
+    if (!BattleResult::sInstance->fn_800D3FA4()) {
+        busy = 1;
+    }
+    if (fn_8006D3F8(lbl_8087EEC8)) {
+        busy = 1;
+    }
+    atn::FadeCapture* fade = m5624;
+    if (fade->mFrame < fade->mDelay + fade->mDuration) {
+        busy = 1;
+    } else if (busy) {
+        fn_8046ECDC(lbl_8087F518, 1);
+    }
+    return busy;
+}
+
 extern "C" void fn_80370094(GameTask* task, int chapter) {
     if (lbl_8087EEB8 != 0) {
         char buf[0x100];
@@ -3193,6 +3273,38 @@ extern "C" void fn_803743AC(GameTask* task) {
     lbl_8087F0A8->mInput.m14[7] = 1; // inferred: locks action 7
 }
 
+// inferred: starts the grapple camera, toward the route place `id` when there is one
+// NONMATCHING: 99.5% - registers of the inlined FindPlace_unk loop (index and table swapped; tried if/else, a helper)
+void GameTask::fn_80374710(int id) {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    mCamera.fn_80389838(6);
+    atn::Vector3 pos = leader->mPos;
+    float angle = -leader->mRot.y;
+    if (id > 0) {
+        // inferred: m10D8 is read as the route table here (as in gmk/BulletPoint.cpp)
+        RouteTable_unk* table = (RouteTable_unk*)m10D8;
+        RoutePlace_unk* place = table != 0 ? table->FindPlace_unk(id) : 0;
+        if (place != 0) {
+            pos = place->mPos;
+            angle = -place->m14;
+        }
+        mCamera.m8E4 = 0;
+    } else {
+        mCamera.m8E4 = 1;
+    }
+    mCamera.fn_803903E0(&pos, angle, 1);
+    mCamera.m8E8 = 0;
+    if (GetCurrentMap() != 0 && GetCurrentMap()->mType == 2 && GetCurrentMap()->mId == 0xB &&
+        GetCurrentMap()->mSubId == 2 && id == 6003) {
+        mCamera.m8E8 = 1;
+    }
+    leader->m54C |= 0x10;
+    lbl_8087F048->m367B0 = m561C;
+    if (GameSoundControl::sInstance != 0) {
+        GameSoundControl::sInstance->fn_803CDAE4();
+    }
+}
+
 void GameTask::fn_803748E0(int arg) {
     mCamera.fn_80389838(mCamera.m804);
     mCamera.m8E8 = 0;
@@ -3494,6 +3606,43 @@ extern "C" void fn_80376324(GameTask* task, int id) {
         if (id == 0xA7 && fn_80370174(task, 0x13F) == 0) {
             task->fn_80370320(0x13F, 1, 0);
         }
+    }
+}
+
+// inferred: ends the tutorial of the field and shows the next waiting one
+void GameTask::fn_80376568() {
+    if (m5590 != 0) {
+        fn_80570A14(m5590, 0);
+        fn_80570A40(m5590, 0);
+    }
+    fn_8056BD34(m558C.mPtr);
+    lbl_8087F8A0->fn_800D246C(0);
+    FriendManager::sInstance->fn_800D246C(0);
+    EnemyManager::sInstance->fn_800D246C(0);
+    m10D8->fn_800D246C(0);
+    lbl_8087F3C0->fn_800D246C(0);
+    lbl_8087F490->m263C->MeltTask();
+    lbl_8087F490->m2640->MeltTask();
+    if (lbl_8087EFE8 != 0) {
+        lbl_8087EFE8->fn_800CFBA0(8, 0, 2, 15);
+    }
+    m54E4 = 0;
+    fn_800D2338(m56EC);
+    m56EC = 0;
+    atn::Keyboard* keyboard = atn::Keyboard::instance_;
+    if (keyboard != 0) {
+        int pressed = 0;
+        // inferred: the original passes the keyboard itself as the key state (mKeyState[-2])
+        if (keyboard->mD90 != 0 && keyboard->CheckKeyState(keyboard->mKeyState[-2], 0xF1B1) != 0) {
+            pressed = 1;
+        }
+        if (pressed) {
+            m56F4.mCount = 0;
+        }
+    }
+    if (m56F4.mCount != 0) {
+        fn_80376324(this, m56F4.Front_unk());
+        m56F4.Pop_unk();
     }
 }
 
