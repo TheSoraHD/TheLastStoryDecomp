@@ -474,3 +474,6 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
 2. Orden de emision entre clases (`console_outputbuf` -> `console_inputbuf` -> `bufferedbuf`) y sacar la cadena
    de tipo de `failure` del pool: con eso el pool queda como el original y suben constructores e `imbue`.
 3. `sentry`/`flush` (`and.`), `__round_unk`, `sync`/`pbackfail`: sin cambios (topes alcanzados en sesiones previas).
+4. Orden de `.data`: nuestras vtables de `bufferedbuf<w>`/`<c>` salen las primeras del objeto (antes que las de
+   `ios_base` y `failure`, que ademas van al reves); en el original van detras de `console_outputbuf` de cada tipo.
+   Algo genera esas vtables antes de tiempo (candidato: el constructor de `bufferedbuf` definido en la clase).
