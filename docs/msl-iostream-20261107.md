@@ -408,3 +408,69 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
   `++i, ++p` sube `pbackfail` a 99,58% pero baja `sync` a 99,43%; no se ha dejado.
 - Pendiente concreto: con el constructor candidato faltan ~23 unidades de coste (algo mas de una construccion de
   `ostream`) con el mismo codigo generado.
+
+# Sesion 6 (2026-11-07, rama `msl-iostream-20261107d`)
+
+## Resultado
+
+- Inicio y cierre: **112/170** (`report.json` 14152, lost 0), sin cambios de fuente. Solo notas y herramientas
+  nuevas de medida (en `/home/claude/scratch/msl`, fuera del repo). Ninguna variante subio una funcion sin bajar
+  otras.
+
+## Cambios
+
+- Ninguno en fuente, `splits.txt`, `symbols.txt`, flags ni `libs_ref.json`. Solo estas notas, `CLAUDE.md`
+  (Estado), `docs/historial.md` y `docs/trucos-mwcc.md`.
+
+## Decisiones tomadas sin el usuario
+
+- Rama `msl-iostream-20261107d` desde `msl-iostream-20261107c` (no estaba mergeada en `main`).
+- No se deja en la rama ningun cambio de orden de declaraciones (ver Hallazgos, orden de emision): no sube nada
+  y la unidad aun no es enlazable; queda descrito para la fase de orden.
+
+## Hallazgos
+
+- **Sonda de coste con sentencias pequenas** (`STMT='p[%d] = k;'` en `tc.sh`): umbral 166 (rama) y 57 con el
+  constructor de `console_inputbuf` candidato (`v1`); en `wios_base_Init_unk` 167 y 58. Faltan las mismas ~57
+  sentencias pequenas (~80 asignaciones simples) en las dos `Init`: lo que falta es comun a char y wchar_t.
+- Con `-ipa file` y la sonda, el `Init` propio (K grande) es identico al original salvo la llamada del candidato
+  (`cmpfn.py`): el problema es solo el presupuesto.
+- Que **no** cuesta nada: llamadas a `inline` vacias o con argumentos, objetos locales con ctor/dtor vacios,
+  `throw()` en funciones que no pueden lanzar, sentencias `p[0];`, `if (0) {...}`. Que cuesta poco: `(void)0`
+  (x10 = 2 unidades), un `try/catch` (1). Las llamadas `inline` no anaden coste propio (20 llamadas = 20
+  sentencias directas).
+- Multiplicidad dentro de un `Init` (una asignacion simple anadida ~0,7 unidades por expansion): `id::get` 14,
+  `use_facet` 7, `__install_unk` 7, destructor de `__shared_ptr_base` 7, `widen` 4, constructor de
+  `basic_streambuf` 3, constructor de `bufferedbuf` 2. Un `throw()` en el destructor de `__shared_ptr_base`
+  cuesta 7 unidades (pero genera codigo).
+- Reescrituras neutras para el codigo que suben coste: `id::get` con `++__id_count_; id_ = __id_count_;` (+7, todas
+  las funciones igual); `__install_unk` con `size_t i = Facet::id.get(); replace(f, i);` (+3);
+  `++cntrl_->use_count_` como `use_count_ = use_count_ + 1` (+4). Lejos de las ~57; la forma clasica de
+  `use_facet` (`f = 0; if (i < size()) f = facets_[i]; if (f == 0)`) da +7 pero baja `imbue`/constructores.
+- **Pool `@stringBase0` de `iostream.cpp`**: el original empieza por el literal del constructor de
+  `console_inputbuf` (offset 0) y no lleva la cadena de tipo de `failure`; el nuestro la lleva en 0 y el literal
+  queda en +0x2A (`addi r27, r4, 0x2a` frente a `lis/addi r27`). Quitando el `throw` de `throw_failure` (solo
+  prueba) los constructores de `console_inputbuf` suben de 98,76 a 99,36%. Lo que queda en ellos: orden de los dos
+  huecos de `default_delete` (0x14/0x18 al reves) y los miembros del `runtime_error` por `r28` en vez de por
+  `r31`. En `throw_failure` el mismo patron ya sale con un hueco y por desplazamiento de `r1`.
+- Mover el `hold` a `shared_ptr` (como `include/std/stdexcept.h`) o pasar el deleter por valor a la base empeora
+  `throw_failure`, constructores, `imbue`, `replace` y `__insert_one_unk` (confirmado).
+- Definir `failure::what()` fuera de la clase antes de `throw_failure` no saca su cadena de tipo del pool.
+- **Orden de emision** (causa del orden del pool: los literales siguen el orden de emision): el original emite los
+  virtuales de cada clase en el orden `showmanyc, underflow, uflow, pbackfail, setbuf, sync, imbue,
+  __get_char_unk` (`console_inputbuf`) y `showmanyc, underflow, pbackfail, overflow, seekoff, seekpos, imbue,
+  fill_get` (`bufferedbuf`), y las clases como `console_outputbuf`, `console_inputbuf`, `bufferedbuf` (w antes que
+  c). En el nuestro el orden dentro de la clase sigue el **orden de declaracion de los virtuales en la clase**
+  (reordenar las declaraciones de los `override` lo deja como el original; no cambia la vtable), no el orden de
+  las definiciones; el orden entre clases sale `bufferedbuf`, `console_inputbuf`, `console_outputbuf` y no cambia
+  sacando los virtuales de `console_outputbuf` de la clase. Sacar el constructor de `bufferedbuf` de la clase lo
+  deja fuera de linea (no sirve).
+
+## Pendientes
+
+1. `Init`: siguen faltando ~57 sentencias pequenas (comunes a char y wchar_t). Lo medido apunta a algo
+   estructural (no a retoques); candidatos sin probar: `runtime_error`/`shared_ptr` reales de MSL (que tambien
+   explicarian los huecos de pila de `console_inputbuf`), y un `use_facet` con mas contenido que no genere codigo.
+2. Orden de emision entre clases (`console_outputbuf` -> `console_inputbuf` -> `bufferedbuf`) y sacar la cadena
+   de tipo de `failure` del pool: con eso el pool queda como el original y suben constructores e `imbue`.
+3. `sentry`/`flush` (`and.`), `__round_unk`, `sync`/`pbackfail`: sin cambios (topes alcanzados en sesiones previas).
