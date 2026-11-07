@@ -3823,5 +3823,12 @@
    "GameCamera"
   ],
   "matching": false
+ },
+ {
+  "name": "Event/DebugInfo_unk.cpp",
+  "classes": [
+   "Event::DebugInfo_unk"
+  ],
+  "matching": false
  }
 ]

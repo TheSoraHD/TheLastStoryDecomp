@@ -25,12 +25,14 @@ struct DebugInfoTable_unk {
 // Names invented.
 struct DebugInfo_unk {
     DebugInfo_unk();
-    void fn_80221F54(int arg); // inferred: draws the debug information (Manager::vf14)
-    unsigned char m00[0x14];
+    void fn_80221F54(int page); // inferred: draws the page `page` of the debug information (Manager::vf14)
+    int mPage;                  // 0x00: inferred: page shown last
+    unsigned char m04[0x14 - 0x04];
     DebugInfoTable_unk m14;
     DebugInfoTable_unk m2C;
     DebugInfoTable_unk m44;
-    unsigned char m5C[0x78 - 0x5C];
+    void (*mPages[6])(DebugInfo_unk* info); // 0x5C: inferred: draw function of each page (set by the constructor)
+    int m74;
 };
 
 } // namespace Event
