@@ -1,6 +1,6 @@
 # Siguiente sesion (tras `maraton-20261107`)
 
-Rama `maraton-20261107` (sin mergear; revisar y mergear en `main`): 13977 / 18117, lost 0, 652 enlazadas,
+Rama `maraton-20261107` (sin mergear; revisar y mergear en `main`): 13979 / 18117, lost 0, 652 enlazadas,
 build limpio `main.dol: OK`. Notas completas: `docs/maraton-20261107.md`.
 
 ## Revisar antes de mergear
@@ -20,8 +20,8 @@ build limpio `main.dol: OK`. Notas completas: `docs/maraton-20261107.md`.
 2. GameTask 0x8036555C-0x8036823C (primeras funciones, con cadenas): desbloquea el `@stringBase0` de los getters
    de flags (`fn_80370174`, `fn_80370A78`, `fn_80370AE4`, usados por ~50 unidades).
 3. Constructores de `TacView` (0x805A7158) y `BattleTask` (0x800F1430): traen sus copias debiles.
-4. `GameCamera_unk` 10/90 y `Event/DebugInfo_unk` 1/58: muchas funciones pequenas pendientes.
-5. Bloqueos conocidos en `docs/mwcc-blockers.md` (familia r0/rX de GameEventScript): no repetir.
+4. `GameCamera_unk` 11/90 y `Event/DebugInfo_unk` 1/58: muchas funciones pequenas pendientes.
+5. Bloqueos conocidos (DebugInfo_unk ctor, GameCamera::fn_80389678 y la familia r0/rX) en `docs/mwcc-blockers.md` : no repetir.
 
 ## Procedimiento que funciono
 
