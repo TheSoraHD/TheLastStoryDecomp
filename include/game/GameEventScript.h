@@ -58,6 +58,8 @@ public:
     // inferred: script commands (member function pointers of the command table in .data);
     // the (start, step) pairs reset the step counter mB8 and run the first step
     void fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039D1E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039D3E0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039D930(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039D99C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039D9B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -71,6 +73,7 @@ public:
     void fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039F878(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A03A0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A03C8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A04C0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A0520(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A0AB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -117,6 +120,7 @@ public:
     void fn_803AB144(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB1F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AB26C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AB368(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
 
@@ -130,7 +134,9 @@ public:
     int mB8; // inferred: step of the running command
     int mBC;
     int mC0; // inferred: frame counter of the running command
-    unsigned char mC4[0xDC - 0xC4];
+    unsigned char mC4[0xD0 - 0xC4];
+    int mD0;
+    unsigned char mD4[0xDC - 0xD4];
     int mDC; // inferred: kind 0 of GetChara_unk is the leader
     unsigned char mE0[0xE8 - 0xE0];
     int mE8; // inferred: an event of the event manager is running

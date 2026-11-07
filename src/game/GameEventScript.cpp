@@ -19,6 +19,8 @@
 #include "game/GameBgm.h"
 #include "game/CrowdManager.h"
 #include "game/MapTask.h"
+#include "game/GimmickManager.h"
+#include "game/GimmickCommon.h"
 #include "game/GameTask.h"
 #include "game/NpcManager.h"
 #include "game/EnemyManager.h"
@@ -62,6 +64,13 @@ extern "C" void fn_80374964(GameField_unk* field, int arg);
 extern "C" void fn_80376730(GameField_unk* field); // inferred: autosave
 extern "C" void fn_80370094(GameField_unk* field, int state); // inferred: sets m10D0
 extern "C" void fn_8037EF30(void* camera, int a, int b, float f);
+extern "C" int lbl_8087D990; // inferred: last save slot (-1: none)
+
+// inferred: save menu (game/CampSaveLoad.cpp)
+class MenuSaveTask {
+public:
+    static MenuSaveTask* sInstance;
+};
 extern "C" void fn_80375194(GameField_unk* field, int a, int b, float c);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: UI sound names (SE_UICOM_001...)
 
@@ -112,6 +121,35 @@ boost::bad_lexical_cast::~bad_lexical_cast() {}
 void GameEventScript::fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     fn_8039BF04(args->m08, args->m0C, args->m18, args->m10, args->m14);
+    result.SetNext_unk(cmd);
+}
+
+void GameEventScript::fn_8039D1E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    mB4 = 0;
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    if (static_cast<const ScriptArgs_unk*>(cmd)->m08 == 0 && mD0 != 0) {
+        leader->fn_8016E970(0);
+    }
+    result.SetNext_unk(cmd, 1);
+}
+
+// inferred: fades the screen (0, 2: out; 1, 3: in)
+void GameEventScript::fn_8039D3E0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    switch (args->m08) {
+    case 0:
+        ((GameTask*)lbl_8087F430)->fn_80370B78(args->m0C, args->m10, 0, -9.0f);
+        break;
+    case 2:
+        ((GameTask*)lbl_8087F430)->fn_80370B78(args->m0C, args->m10, 0, -1.0f);
+        break;
+    case 1:
+        ((GameTask*)lbl_8087F430)->fn_80370BD0(args->m10, 0, -9.0f);
+        break;
+    case 3:
+        ((GameTask*)lbl_8087F430)->fn_80370BD0(args->m10, 0, -1.0f);
+        break;
+    }
     result.SetNext_unk(cmd);
 }
 
@@ -179,6 +217,30 @@ void GameEventScript::fn_8039F878(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 void GameEventScript::fn_803A03A0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    result.SetNext_unk(cmd);
+}
+
+// inferred: runs an event with a value of a gimmick (state or vf64)
+void GameEventScript::fn_803A03C8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
+        if (args->m08 == gimmick->mId && args->m0C == gimmick->m4C) {
+            int mode = args->m10;
+            int value = 0;
+            switch (mode) {
+            case 0:
+                value = gimmick->m54;
+                break;
+            case 1:
+            case 2:
+            case 3:
+                value = gimmick->vf64(mode - 1);
+                break;
+            }
+            fn_8039BF04(args->m14, args->m18, 0, 0, value);
+            break;
+        }
+    }
     result.SetNext_unk(cmd);
 }
 
@@ -519,6 +581,22 @@ void GameEventScript::fn_803AB1F4(ScriptResult_unk& result, const ScriptCmd_unk*
     ((GameTask*)lbl_8087F430)->fn_80370320(0x391, static_cast<const ScriptArgs_unk*>(cmd)->m14, 0);
     ((GameTask*)lbl_8087F430)->fn_8036E92C(1);
     result.SetNext_unk(cmd, 1);
+}
+
+// inferred: runs the save event (unless the save menu is open)
+void GameEventScript::fn_803AB26C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    int wait = 1;
+    if (MenuSaveTask::sInstance == 0) {
+        if (lbl_8087D990 >= 0) {
+            fn_8039BF04(args->m0C, args->m10, 0, 0, 1);
+        } else {
+            fn_8039BF04(args->m0C, args->m10, 0, 0, 0);
+        }
+        ((GameTask*)lbl_8087F430)->fn_80370320(0x391, 0, 0);
+        wait = 0;
+    }
+    result.SetNext_unk(cmd, wait);
 }
 
 void GameEventScript::fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
