@@ -1,4 +1,5 @@
 #include "game/Em209SmallGolem.h"
+#include "game/BattleTask.h"
 #include "math/Vec.h"
 #include "game/GameUI.h"
 #include "chr/Motion_unk.h"
@@ -686,7 +687,6 @@ void Em209SmallGolem::fn_802CF3AC() {
     }
 }
 
-extern "C" void fn_801028E4(Effect_unk* mgr, int a, CharaTask* chara, int b); // inferred: revives the character
 
 // inferred: turns back from stone (or to the color of a friend) and revives
 void Em209SmallGolem::fn_802CF728() {
@@ -703,7 +703,7 @@ void Em209SmallGolem::fn_802CF728() {
     }
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
-        fn_801028E4(lbl_8087F048, 0, this, 0);
+        ((BattleTask*)lbl_8087F048)->fn_801028E4(0, this, 0);
         fn_8015495C(0, 1, 1, 1);
         mC58.mC4 = 0;
         if (own) {

@@ -18,6 +18,7 @@
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" void* fn_80210220(int id); // inferred: record of an attract-hate parameter (as in game/CharaTask.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
@@ -178,6 +179,33 @@ int BattleTask::fn_80102890(CharaTask* chara) {
     return -1;
 }
 
+void BattleTask::fn_801028E4(CharaTask* chara, CharaTask* other, int value) {
+    int a = FindChara_unk(chara);
+    int b = FindChara_unk(other);
+    if (b < 0) {
+        return;
+    }
+    if (a >= 0) {
+        mCharas[a].m08[b] = value;
+    } else {
+        for (int i = 0; i < 0x48; i++) {
+            mCharas[i].m08[b] = value;
+        }
+    }
+}
+
+void BattleTask::fn_801031D0(CharaTask* chara, CharaTask* other, int all) {
+    fn_80210220(lbl_8087F0A8->mParamIndex);
+    int a = FindChara_unk(chara);
+    int b = FindChara_unk(other);
+    if (b >= 0 && a >= 0) {
+        BattleChara_unk* entry = &mCharas[a];
+        if (entry->mChara != 0 && entry->mChara->CanAct_unk()) {
+            entry->fn_8010895C(b, all);
+        }
+    }
+}
+
 void BattleTask::fn_8010337C(CharaTask* chara, CharaTask* other) {
     int a = FindChara_unk(chara);
     int b = FindChara_unk(other);
@@ -191,6 +219,37 @@ void BattleTask::fn_8010337C(CharaTask* chara, CharaTask* other) {
             mCharas[i].m6E4[b] = 0.0f;
         }
     }
+}
+
+// NONMATCHING: 99.5% - registers of the index of `other` and of the count base swapped
+int BattleTask::fn_80103484(CharaTask* chara, CharaTask* other) {
+    int b;
+    int a = FindChara_unk(chara);
+    b = FindChara_unk(other);
+    if (b < 0) {
+        return -1;
+    }
+    if (a >= 0) {
+        BattleChara_unk* entry = &mCharas[a];
+        if ((entry->mChara->mFlags & 1) == 1) {
+            return -1;
+        }
+        return entry->fn_801083D8(b);
+    }
+    BattleChara_unk* entry = mCharas;
+    int sum = 0;
+    int count = 0;
+    for (int i = 0; i < mCharaCount; i++) {
+        if ((entry->mChara->mFlags & 1) != 1) {
+            sum += entry->fn_801083D8(b);
+            count++;
+        }
+        entry++;
+    }
+    if (count > 0) {
+        return sum / count;
+    }
+    return -1;
 }
 
 // NONMATCHING: 99.3% - registers of the entry pointer and of the flags of the inlined CanAct_unk swapped

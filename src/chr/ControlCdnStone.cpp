@@ -24,7 +24,6 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_80101524(Effect_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int id, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_801028E4(Effect_unk* mgr, int a, CharaTask* chara, int b);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
 // inferred: message table (lbl_8087F1E4); mDC is the betrayal message
@@ -248,7 +247,7 @@ ControlCdnBetray::ControlCdnBetray(Chara_unk* chara, int a, int b) : ControlBase
         ((BattleTask*)lbl_8087F048)->fn_801077A8(motion, motion);
     }
     fn_800C344C("SE_BTCOM_075", &mChara->mPos, 0, -1, 1.0f);
-    fn_801028E4(lbl_8087F048, 0, mChara, 0);
+    ((BattleTask*)lbl_8087F048)->fn_801028E4(0, mChara, 0);
 }
 
 int ControlCdnBetray::vf0C() {

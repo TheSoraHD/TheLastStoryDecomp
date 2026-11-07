@@ -122,7 +122,6 @@ extern "C" void* lbl_8087F9E8;
 extern "C" SkillEffect* fn_8059B66C(void* mgr, HitInfo_unk* skill, CharaTask* user, CharaTask* target,
                                    const atn::Vector3* pos, const atn::Vector3* rot,
                                    boost::function<void(SkillEffect*)> callback, float rate);
-extern "C" void fn_801031D0(Effect_unk* mgr, CharaTask* chara, CharaTask* other, int arg);
 // inferred: field (lbl_8087F430): route tables at 0x10D8 (as in game/Em306GurgBeast.cpp)
 struct Field_unk {
     unsigned char m0000[0x10D8];
@@ -355,7 +354,7 @@ void Em208Queen::vf10() {
         case 10:
             if (m14BC >= 120) {
                 if (m14D0 != 0 && m14D0->mType != 2) {
-                    fn_801031D0(lbl_8087F048, this, m14D0, 1);
+                    ((BattleTask*)lbl_8087F048)->fn_801031D0(this, m14D0, 1);
                     int motion = m14D0->mMotion.mTracks[0].m00;
                     if (motion != 0x220 && motion != 0x221) {
                         SetState_unk(13);
@@ -981,7 +980,7 @@ void Em208Queen::fn_802CB8A0() {
                 memset(text, 0, sizeof(text));
                 ShowMessage_unk(this, text, 0xFF);
                 for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
-                    fn_801031D0(lbl_8087F048, this, p, 1);
+                    ((BattleTask*)lbl_8087F048)->fn_801031D0(this, p, 1);
                 }
             }
             switch (m1518) {

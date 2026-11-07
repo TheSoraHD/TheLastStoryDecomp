@@ -147,7 +147,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 struct Effect_unk;
-extern "C" void fn_801028E4(Effect_unk* mgr, CharaTask* chara, CharaTask* enemy, int arg); // inferred: hate
 // inferred: result of fn_8003EA3C (as DamageResult_unk in game/Em002Skelton.cpp); names invented
 struct ElderDamage_unk {
     ElderDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -596,9 +595,9 @@ void Em101ElderZesya::vf10() {
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             AiTarget* r = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(p, 0) : 0;
             if (r != 0 && r->m08 == 0 && r->m0C == this) {
-                fn_801028E4(lbl_8087F048, p, this, 0x30D40);
+                ((BattleTask*)lbl_8087F048)->fn_801028E4(p, this, 0x30D40);
             } else {
-                fn_801028E4(lbl_8087F048, p, (CharaTask*)m16A0, 0x30D40);
+                ((BattleTask*)lbl_8087F048)->fn_801028E4(p, (CharaTask*)m16A0, 0x30D40);
             }
         }
         int wait = m14D4;

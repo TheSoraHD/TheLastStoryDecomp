@@ -40,6 +40,7 @@ struct BattleChara_unk {
     void fn_801088B8(int id, int value); // inferred: adds a hate entry (at most 10 per id; drops the oldest)
     void fn_8010895C(int id, int all);   // inferred: removes the entries of an id and compacts the list
     void fn_801081D8();                  // inferred: resets the entry
+    int fn_801083D8(int id);             // inferred: hate value toward the entry `id`
 
     CharaTask* mChara;
     int m04;
@@ -108,9 +109,12 @@ public:
     int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
     void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
     void fn_80102824(CharaTask* chara, PlayerTask* leader);
-    void fn_8010337C(CharaTask* chara, CharaTask* other); // inferred: clears m6E4 of `other`
+    void fn_801031D0(CharaTask* chara, CharaTask* other, int all); // inferred: removes the hate entries of `other`
+    void fn_8010337C(CharaTask* chara, CharaTask* other);
+    int fn_80103484(CharaTask* chara, CharaTask* other); // inferred: hate toward `other` (average without `chara`) // inferred: clears m6E4 of `other`
     void fn_80103E60(CharaTask* target); // inferred: counts the characters aiming at `target`
-    void fn_801027A4(CharaTask* chara); // inferred: adds the character to mCharas
+    void fn_801027A4(CharaTask* chara);
+    void fn_801028E4(CharaTask* chara, CharaTask* other, int value); // inferred: sets m08 of `other` (hate) // inferred: adds the character to mCharas
     int fn_80102890(CharaTask* chara); // inferred: index of the character in mCharas
     void fn_80102A40(CharaTask* chara, CharaTask* target, int a, int b); // inferred: attack order (hate)
     void fn_80103600(CharaTask* chara);

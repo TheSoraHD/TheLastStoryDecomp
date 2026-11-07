@@ -27,7 +27,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
-extern "C" void fn_801028E4(Effect_unk* mgr, int arg, CharaTask* chara, int arg2);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" float fn_80011220(float x);       // inferred: fabs (weak copy of another file)
@@ -310,7 +309,7 @@ void Em306GurgBeast::vf10() {
                 m14E8->mMotion.mTracks[0].m0C = 1.0f;
                 m14E8->mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
                 m14E8 = 0;
-                fn_801028E4(lbl_8087F048, 0, this, 0);
+                ((BattleTask*)lbl_8087F048)->fn_801028E4(0, this, 0);
                 fn_8015495C(0, 1, 1, 1);
                 mC58.mC4 = 0;
                 mF18 = mF14;
@@ -672,7 +671,7 @@ void Em306GurgBeast::vf104() {
                 m14E8->m574 = dir;
                 m14E8->fn_8015E7A0(dir, -1, 0);
                 m14E8 = 0;
-                fn_801028E4(lbl_8087F048, 0, this, 0);
+                ((BattleTask*)lbl_8087F048)->fn_801028E4(0, this, 0);
                 fn_8015495C(0, 1, 1, 1);
                 mC58.mC4 = 0;
                 mF18 = mF14;
