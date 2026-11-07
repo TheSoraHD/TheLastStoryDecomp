@@ -3114,7 +3114,6 @@ void CharaTask::fn_80140588(void* target, float a, float b) {
 
 // inferred: wall finder for ledges (field lbl_8087F430); fills `ledge` with the next ledge reached
 // along `dir` from the links `a` and `b` (name unknown)
-extern "C" int fn_8036DB24(Field_unk* field, Ledge_unk* ledge, CharaTask* chara, int a, int b, const atn::Vector3* dir);
 
 // inferred: direction of the yaw `angle` (name invented)
 inline atn::Vector3 DirY_unk(float angle) {
@@ -3168,7 +3167,7 @@ void CharaTask::fn_80141674(void* target, float a, float b) {
         if (LengthSq_unk(d) < LengthSq_unk(d + move)) {
             Ledge_unk ledge;
             move = *end - pos;
-            if (fn_8036DB24(lbl_8087F430, &ledge, this, linkA, linkB, &move)) {
+            if (((GameTask*)lbl_8087F430)->fn_8036DB24(&ledge, this, linkA, linkB, &move)) {
                 ReleaseLedge_unk();
                 fn_80153698(&ledge, 1);
             }

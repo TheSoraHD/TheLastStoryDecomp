@@ -3,6 +3,7 @@
 #include "game/GameTask.h"
 #include "db/StrategyAiTable_unk.h"
 #include "game/GameScene.h"
+#include "game/CharaTask.h"
 #include "game/LibraryTask.h"
 #include "game/MapTask.h"
 #include "game/SelectMember.h"
@@ -91,6 +92,28 @@ int GameTask::fn_8036DAA8(CharaTask* chara) {
     }
     m56D8 = chara;
     return 1;
+}
+
+// inferred: Ledge_unk (CharaTask.h) and GameSceneRoute_unk (GameScene.h) have the same 0x40-byte layout;
+// unifying them renumbers the @N labels of ~50 units (pending)
+int GameTask::fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int point) {
+    GameScene* scene = m10D8;
+    if (scene == 0) {
+        return 0;
+    }
+    if (chara->IsOnLedge_unk()) {
+        return 0;
+    }
+    return scene->fn_803CB044((GameSceneRoute_unk*)route, chara, check, point);
+}
+
+// inferred: `dir` is passed on in r8 but not used
+int GameTask::fn_8036DB24(Ledge_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir) {
+    GameScene* scene = m10D8;
+    if (scene != 0) {
+        return scene->fn_803CB474((GameSceneRoute_unk*)route, chara, point, exclude);
+    }
+    return 0;
 }
 
 int GameTask::fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara) {

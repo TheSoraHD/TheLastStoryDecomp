@@ -27,7 +27,6 @@ extern "C" unsigned int fn_800DC500(const void* data, unsigned long len); // inf
 extern "C" int lbl_8087DD64;                   // inferred: format of the loaded save data
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
-extern "C" int fn_8036DAF4(GameField_unk* field, Ledge_unk* ledge, CharaTask* chara, int arg, int link); // inferred: finds a ledge
 extern "C" int fn_8021150C(int code);                     // inferred: index of an item code in the bag
 extern "C" int fn_80206BE4(WeaponParamEntry_unk* weapon);  // inferred: item code of a weapon
 extern "C" int fn_8020EF80(EquipParamEntry_unk* equip);    // inferred: item code of a protector
@@ -340,7 +339,7 @@ void GameSaveEnemies_unk::fn_803BB0E0() {
             if ((entry->mFlags & 4) == 4) {
                 enemy->fn_80145334();
                 Ledge_unk ledge;
-                if (fn_8036DAF4(lbl_8087F430, &ledge, enemy, 1, 0)) {
+                if (((GameTask*)lbl_8087F430)->fn_8036DAF4(&ledge, enemy, 1, 0)) {
                     enemy->fn_80153698(&ledge, 0);
                 }
             }

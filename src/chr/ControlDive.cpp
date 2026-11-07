@@ -1,4 +1,5 @@
 #include "chr/ControlDive.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "chr/ControlCharge.h"
@@ -18,7 +19,6 @@ struct DiveField_unk {
 extern "C" DiveField_unk* lbl_8087F430;
 // inferred: nearest route point (stored in RouteWalker_unk::mDestPoint)
 // inferred: finds the ledge of route link `link` near `chara`
-extern "C" int fn_8036DAF4(DiveField_unk* field, Ledge_unk* ledge, CharaTask* chara, int arg, int link);
 
 // inferred: camera/character manager (lbl_8087F048, class unknown)
 extern "C" void* lbl_8087F048;
@@ -135,7 +135,7 @@ int ControlSwatTurn::vf0C() {
         speed *= 0.7f;
     }
     Ledge_unk ledge;
-    if (len < 5.0f && fn_8036DAF4(lbl_8087F430, &ledge, mChara, 0, m14) != 0) {
+    if (len < 5.0f && ((GameTask*)lbl_8087F430)->fn_8036DAF4(&ledge, mChara, 0, m14) != 0) {
         mChara->fn_80153698(&ledge, 0);
         ret = 1;
     } else if (++m18 > 60) {
