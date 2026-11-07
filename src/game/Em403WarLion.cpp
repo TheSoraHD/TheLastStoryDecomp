@@ -212,7 +212,6 @@ struct AllyAi_unk {
     unsigned char m000[0x128];
     float m128[1];
 };
-extern "C" AllyAi_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
 
 // inferred: singleton accessor (weak copy, also called by game/GameUI.cpp)
 extern "C" inline FriendManager* fn_80323C2C() {
@@ -360,7 +359,7 @@ void Em403WarLion::vf10() {
         }
     }
     for (CharaTask* c = fn_80323C2C()->fn_8036554C(); c != 0; c = fn_802A4094(c)) {
-        AllyAi_unk* ai = fn_80103F60(fn_8013A194(), c);
+        AllyAi_unk* ai = (AllyAi_unk*)((BattleTask*)fn_8013A194())->fn_80103F60(c);
         if (ai != 0) {
             int i = ((BattleTask*)ai)->fn_80108378(this);
             if (i >= 0) {

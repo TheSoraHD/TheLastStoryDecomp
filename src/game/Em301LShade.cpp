@@ -229,7 +229,6 @@ struct BattleSlots_unk {
     unsigned char m000[0x128];
     float m128[1];
 };
-extern "C" BattleSlots_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
 
 // inferred: float color converted from/to GXColor (as in game/GimmickCommon.cpp); names invented
 struct ShadeColor_unk {
@@ -776,7 +775,7 @@ void Em301LShade::vf10() {
     }
     fn_8014C540();
     fn_80145334();
-    BattleSlots_unk* slots = fn_80103F60(lbl_8087F048, this);
+    BattleSlots_unk* slots = (BattleSlots_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
     for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
         int i = ((BattleTask*)slots)->fn_80108378(c);
         if (c->fn_8016E484() == 0) {

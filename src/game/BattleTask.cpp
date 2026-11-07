@@ -9,9 +9,11 @@
 #include "game/HitInfo_unk.h"
 #include "game/LogMessageTask.h"
 #include "macros.h"
+#include "game/PlayerManager.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" PlayerManager* lbl_8087F8A0;
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
@@ -34,6 +36,40 @@ inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model) {
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+int BattleTask::fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta) {
+    return 0;
+}
+
+void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
+    m3E2E8 = obj;
+    m3E2E0 = 0;
+    m3E2E4 = 0;
+    m3E2EC = b;
+    m3E2F0 = a;
+    if (obj != 0) {
+        if ((obj->m08 & 2) == 2) {
+            m3E2E0 = (int)obj->m0C;
+        } else if ((obj->m08 & 8) == 8) {
+            m3E2E4 = obj->m0C;
+        }
+    }
+}
+
+void BattleTask::fn_80102824(CharaTask* chara, PlayerTask* leader) {
+    int i = FindChara_unk(chara);
+    if (i >= 0) {
+        mCharas[i].mChara = (CharaTask*)leader;
+    }
+}
+
+BattleChara_unk* BattleTask::fn_80103F60(CharaTask* chara) {
+    int i = FindChara_unk(chara);
+    if (i >= 0) {
+        return &mCharas[i];
+    }
+    return 0;
 }
 
 void BattleTask::fn_80105950(void* owner, atn::Model* model) {
@@ -277,6 +313,18 @@ float BattleTask::fn_8010CA34() {
 
 float BattleTask::fn_8010CCD0() {
     return 0.75f;
+}
+
+float BattleTask::fn_8010CCD8(CharaTask* chara) {
+    if (chara == 0 || chara->mType == 2) {
+        return 0.0f;
+    }
+    float gain = 2.0f * m38A48;
+    CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (leader != 0 && leader->mFlag28) {
+        gain *= 1.5f;
+    }
+    return gain;
 }
 
 int BattleTask::fn_8010D770(HitInfo_unk* hit) {

@@ -75,7 +75,6 @@ struct GhoulWeights_unk {
     unsigned char m00[0x128];
     float mWeight[4];
 };
-extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 
 inline GhoulStr_unk& GhoulStr_unk::operator=(const char* str) {
     if (str != mStr) {
@@ -253,7 +252,7 @@ void Em309GhoulSimple::vf10() {
         mRot = rot;
     }
     if (m1570 != 0) {
-        GhoulWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+        GhoulWeights_unk* w = (GhoulWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             int i = ((BattleTask*)w)->fn_80108378(p);
             w->mWeight[i] = p->mType == 0 ? 1.0f : 0.3f;

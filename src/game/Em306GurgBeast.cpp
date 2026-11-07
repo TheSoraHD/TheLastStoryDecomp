@@ -7,6 +7,7 @@
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "atn/RenderManager.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -27,7 +28,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double cos(double x);
 extern "C" void fn_801028E4(Effect_unk* mgr, int arg, CharaTask* chara, int arg2);
-extern "C" void fn_80102824(Effect_unk* mgr, CharaTask* chara, PlayerTask* leader);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" float fn_80011220(float x);       // inferred: fabs (weak copy of another file)
@@ -638,7 +638,7 @@ void Em306GurgBeast::vf104() {
             if (m152C != 0) {
                 PlayerTask* head;
                 if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
-                    fn_80102824(lbl_8087F048, this, head);
+                    ((BattleTask*)lbl_8087F048)->fn_80102824(this, head);
                 }
                 m152C->fn_8016E970(1);
                 m152C->fn_801446F0();
@@ -1011,7 +1011,7 @@ void Em306GurgBeast::fn_802F1320(int restart) {
     }
     PlayerTask* head;
     if (lbl_8087F048 != 0 && lbl_8087F8A0 != 0 && (head = lbl_8087F8A0->mHead) != 0) {
-        fn_80102824(lbl_8087F048, this, head);
+        ((BattleTask*)lbl_8087F048)->fn_80102824(this, head);
     }
     if ((m152C->mStatus.m0C & 0x20) != 0x20) {
         m152C->fn_8016E970(1);

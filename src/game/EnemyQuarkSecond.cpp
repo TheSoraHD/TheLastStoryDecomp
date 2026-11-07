@@ -248,7 +248,6 @@ struct BattleSlots_unk {
     unsigned char m000[0x128];
     float m128[1];
 };
-extern "C" BattleSlots_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
 // inferred: effect manager (atn::EffectManager, global instance at 0x8087F3C0)
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -1290,7 +1289,7 @@ void EnemyQuarkSecond::fn_80344780() {
 }
 
 void EnemyQuarkSecond::fn_803449AC() {
-    BattleSlots_unk* slots = fn_80103F60(lbl_8087F048, this);
+    BattleSlots_unk* slots = (BattleSlots_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
     if (m14C8 != 0) {
         CharaTask* c = lbl_8087F8A0->mHead;
         if (!c->mFlag28) {

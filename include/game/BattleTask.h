@@ -8,9 +8,21 @@ class CharaTask;
 struct EffectColor_unk;
 struct ColorF_unk;
 struct HitInfo_unk;
+struct RayObj_unk;
+class PlayerTask;
+namespace atn {
+struct Vector3;
+}
 namespace atn {
 struct Model;
 }
+
+// inferred: object hit by the cursor ray (as game/BattleCharaTask.cpp)
+struct RayObj_unk {
+    unsigned char m00[0x08];
+    unsigned int m08; // inferred: flags (2: the object is a character, 8: another object)
+    CharaTask* m0C;
+};
 
 // inferred: 0x934-byte entry of BattleTask::mCharas (only the character is known)
 struct BattleChara_unk {
@@ -23,8 +35,24 @@ struct BattleChara_unk {
 // Effect_unk name until the views are unified. Method names invented.
 class BattleTask : public atn::Task {
 public:
+    // inferred: index of the character in mCharas, -1 if missing (inlined)
+    int FindChara_unk(CharaTask* chara) {
+        if (chara == 0) {
+            return -1;
+        }
+        for (int i = 0; i < mCharaCount; i++) {
+            if (mCharas[i].mChara == chara) {
+                return i;
+            }
+        }
+        return -1;
+    }
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
+    int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
+    void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
+    void fn_80102824(CharaTask* chara, PlayerTask* leader);
+    BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
     void fn_80105950(void* owner, atn::Model* model);
     void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
     void fn_80105A08(void* owner, atn::Model* model);
@@ -74,6 +102,7 @@ public:
     float fn_8010CA2C();
     float fn_8010CA34();
     float fn_8010CCD0();
+    float fn_8010CCD8(CharaTask* chara); // inferred: gauge gained by the magic
     int fn_8010D770(HitInfo_unk* hit);
     int fn_8010D7B4(HitInfo_unk* hit);
 
@@ -90,9 +119,17 @@ public:
     unsigned char m38A10[0x38A28 - 0x38A10];
     float m38A28; // inferred: gauge increments
     float m38A2C;
-    unsigned char m38A30[0x38BC0 - 0x38A30];
+    unsigned char m38A30[0x38A48 - 0x38A30];
+    float m38A48; // inferred: gauge gained by a magic
+    unsigned char m38A4C[0x38BC0 - 0x38A4C];
     atn::EfpFile mEfp38BC0[15];  // 0x38BC0: inferred: status effects (EFP files)
-    unsigned char m38C74[0x3E300 - 0x38C74];
+    unsigned char m38C74[0x3E2E0 - 0x38C74];
+    int m3E2E0; // inferred: character under the cursor
+    CharaTask* m3E2E4; // inferred: object under the cursor
+    RayObj_unk* m3E2E8; // inferred: cursor target
+    int m3E2EC;
+    int m3E2F0;
+    unsigned char m3E2F4[0x3E300 - 0x3E2F4];
     int m3E300; // inferred: state of the chant effect (2: hidden)
 };
 

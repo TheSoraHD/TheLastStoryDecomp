@@ -94,7 +94,6 @@ struct ElderWeights_unk {
     unsigned char m00[0x128];
     float mWeight[4];
 };
-extern "C" ElderWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 // inferred: current control while casting (as in game/Em101ElderZesya.cpp)
 struct ControlMagic_unk {
     unsigned char m00[0x1D];
@@ -393,7 +392,7 @@ void Em101ElderZesyaSecond::vf10() {
     fn_80145334();
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         if (p->mType != 0 && p->CanAct_unk()) {
-            ElderWeights_unk* w = fn_80103F60(lbl_8087F048, p);
+            ElderWeights_unk* w = (ElderWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(p);
             if (w != 0) {
                 int i = ((BattleTask*)w)->fn_80108378(this);
                 if (i >= 0) {

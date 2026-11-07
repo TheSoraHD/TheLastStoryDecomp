@@ -160,7 +160,6 @@ struct DoppelAi_unk {
     unsigned char m000[0x128];
     float m128[1];
 };
-extern "C" DoppelAi_unk* fn_80103F60(Effect_unk* mgr, CharaTask* chara);
 // inferred: game settings (lbl_8087F0A8, class unknown); m80 is the attack setup id
 struct Settings_unk {
     unsigned char m00[0x80];
@@ -711,7 +710,7 @@ void Em005DoppelGanger::vf10() {
             mColli.m54 = robot->mColli.m54;
         }
     }
-    DoppelAi_unk* ai = fn_80103F60(lbl_8087F048, this);
+    DoppelAi_unk* ai = (DoppelAi_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
     if (ai != 0) {
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
             int index = ((BattleTask*)ai)->fn_80108378(p);

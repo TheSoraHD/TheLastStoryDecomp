@@ -56,7 +56,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             int arg5, int arg6, int arg7, int arg8);
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" float fn_8010CCD8(Effect_unk* effect, CharaTask* chara); // inferred: gauge gained by the magic
 // inferred: result of a damage computation (names invented, as in game/EnemyTasha.cpp)
 struct MagicDamage_unk {
     MagicDamage_unk() : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(-1), m1C_28(0) {}
@@ -769,7 +768,7 @@ int ControlMagic::vf0C() {
         }
         if ((fn_8021A8D0(hit) || fn_8021A918(hit)) && lbl_8087F048) {
             CharaTask* chara = mChara;
-            chara->mStatus.fn_8012F034(fn_8010CCD8(lbl_8087F048, chara));
+            chara->mStatus.fn_8012F034(((BattleTask*)lbl_8087F048)->fn_8010CCD8(chara));
         }
         if ((hit->mAC & 0x40000) == 0x40000) {
             mChara->mStatus.m228 = 0.0f;

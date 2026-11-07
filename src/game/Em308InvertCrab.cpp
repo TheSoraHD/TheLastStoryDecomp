@@ -130,7 +130,6 @@ struct CrabWeights_unk {
     unsigned char m00[0x128];
     float mWeight[72]; // inferred: cleared in a loop of 72 (unrolled 8 x 9)
 };
-extern "C" CrabWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 // inferred: debug drawing (lbl_8087EEB0, as in gmk/Brazier.cpp)
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -846,7 +845,7 @@ void Em308InvertCrab::fn_802F42CC() {
             fn_802F693C((CharaTask*)m1580);
             break;
         }
-        CrabWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+        CrabWeights_unk* w = (CrabWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
         for (int j = 0; j < 72; j++) {
             w->mWeight[j] = 1.0f;
         }
@@ -1162,7 +1161,7 @@ int Em308InvertCrab::fn_802F62A0(CharaTask* target, int next) {
     m1534 = 0;
     m1530 = next;
     m1588 = target;
-    CrabWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+    CrabWeights_unk* w = (CrabWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
     if (w != 0) {
         int i = ((BattleTask*)w)->fn_80108378(target);
         for (int j = 0; j < 72; j++) {

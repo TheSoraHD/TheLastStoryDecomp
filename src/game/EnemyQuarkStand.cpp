@@ -191,7 +191,6 @@ struct QuarkWeights_unk {
     unsigned char m00[0x128];
     float mWeight[4];
 };
-extern "C" QuarkWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 // inferred: the stuck control keeps the action to run at its end (boost::function at +0x24; name
 // invented)
 struct QuarkStickControl_unk {
@@ -2574,7 +2573,7 @@ void EnemyQuarkStand::fn_8035359C() {
             m17E4 = 0;
         }
     }
-    QuarkWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+    QuarkWeights_unk* w = (QuarkWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
     if (m17E4 != 0) {
         for (CharaTask* p = lbl_8087F8A0->mHead; p != 0; p = ((PlayerTask*)p)->mNext) {
             int i = ((BattleTask*)w)->fn_80108378(p);

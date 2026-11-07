@@ -69,7 +69,6 @@ struct GhoulWeights_unk {
     unsigned char m00[0x128];
     float mWeight[4];
 };
-extern "C" GhoulWeights_unk* fn_80103F60(Effect_unk* mgr, CharaTask* owner);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78
 struct Field_unk {
     RouteTable_unk* fn_8013C504(); // inferred: returns m10D8
@@ -632,7 +631,7 @@ void Em309Ghoul::fn_802FF6C4() {
         m1454 = 1;
         m14EC = mC58.mC4;
     }
-    GhoulWeights_unk* w = fn_80103F60(lbl_8087F048, this);
+    GhoulWeights_unk* w = (GhoulWeights_unk*)((BattleTask*)lbl_8087F048)->fn_80103F60(this);
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         int i = ((BattleTask*)w)->fn_80108378(p);
         if (i >= 0) {

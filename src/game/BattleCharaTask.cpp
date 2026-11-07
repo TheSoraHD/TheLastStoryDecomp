@@ -150,8 +150,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 // inferred: target searches of the effect manager (in front / around)
 extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
                            float theta);
-extern "C" int fn_80100BB8(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
-                           float theta);
 extern "C" double cos(double x);
 extern "C" double sin(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -297,11 +295,6 @@ int BattleCharaTask::vf0C() {
 }
 
 // inferred: ray result (0x50 bytes, as CollResult_unk in game/CharaTask.cpp)
-struct RayObj_unk {
-    unsigned char m00[0x08];
-    unsigned int m08; // inferred: flags (2: the object is a character)
-    CharaTask* m0C;
-};
 struct RayResult_unk {
     RayResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
     unsigned char m00[0x04];
@@ -317,7 +310,6 @@ struct RayResult_unk {
 extern "C" int fn_8004ED34(void* colli, RayResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" void* lbl_8087EE98;
-extern "C" void fn_801021B4(Effect_unk* mgr, RayObj_unk* obj, int a, int b); // inferred: cursor target
 atn::Vector3 fn_8017C9AC(CharaTask* chara); // inferred: position of the character's eyes
 
 // inferred: record of the parameters of fn_80210220 (as Record80210220_unk in chr/ControlAttractHateCharge.cpp)
@@ -568,7 +560,7 @@ void BattleCharaTask::fn_800E3F5C() {
         }
         obj = result.m38;
     }
-    fn_801021B4(lbl_8087F048, obj, enemy, b);
+    ((BattleTask*)lbl_8087F048)->fn_801021B4(obj, enemy, b);
 }
 
 void BattleCharaTask::vf14() {
@@ -1109,7 +1101,7 @@ int BattleCharaTask::fn_800E7214(CharaTask** out, int keep) {
                 return 1;
             }
         }
-        if (fn_80100BB8(lbl_8087F048, out, this, &dir, config->m248, config->m24C)) {
+        if (((BattleTask*)lbl_8087F048)->fn_80100BB8(out, this, &dir, config->m248, config->m24C)) {
             return 1;
         }
     }
