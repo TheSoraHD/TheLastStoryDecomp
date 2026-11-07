@@ -9,6 +9,17 @@
 class CharaTask;
 struct ItemParamEntry_unk;
 
+// inferred: character and status saved when a finishing skill starts (GameTask::fn_80370320); names invented
+struct InventoryFinish_unk {
+    CharaTask* mChara;
+    CharaStatusData_unk mData; // 0x04: copy of CharaStatus::m1A8
+    int m80;
+    int m84;
+    int m88;
+    int m8C;
+    int m90; // inferred: status bit of the skill
+};
+
 // Name from the RSO (Inventory::GetPlayerStatusInfo(int), AddItem, AddMoney, Order...; static
 // instance_ = 0x8087F4F0, Order() = 0x801D80B4). The code is game/ItemManager_unk.cpp (between
 // HomingBullet and LastCocoonChrysalis in the alphabetical order of the game files, i.e.
@@ -108,7 +119,7 @@ public:
     int mDB24;                                      // inferred: read by fn_8044909C
     unsigned char mDB28[0xDB2C - 0xDB28];
     atn::FixedArray_unk<int, 0x100> mIdentify;      // 0xDB2C: inferred: items to identify (game/ShopIdentify)
-    unsigned char mDF30[0xDFC4 - 0xDF30];           // (size from fn_80442F10)
+    InventoryFinish_unk mDF30;                      // (size from fn_80442F10)
 
     static Inventory* instance_;
 };

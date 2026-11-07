@@ -27,6 +27,7 @@ class GameCamera : public atn::Camera {
 public:
     GameCamera(); // 0x8037D8B8
     ~GameCamera(); // 0x8037DC68
+    void fn_8039328C(); // inferred: end of the frame of the camera (called by GameTask::vf14)
     void fn_8037DD00(); // inferred: resets the camera (also called by the constructor)
     // inferred: reads the camera csv of the map (data and size of MapTask::m60) for a camera and a sub camera
     void fn_8037E12C(void* data, int size, int camera, int sub);

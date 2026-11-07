@@ -45,6 +45,11 @@
 #include "atn/SoundManager.h"
 #include "game/MenuCommonTask.h"
 #include "game/ResHandle.h"
+#include "atn/D2A_Task.h"
+#include "atn/DrawHelper.h"
+#include "atn/MemoryManager.h"
+#include "Event/Sequence.h"
+#include "Event/Cut.h"
 #include "game/TutorialTask.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameSaveBanner.h"
@@ -210,7 +215,9 @@ struct MpSettings_unk {
     unsigned char m080[0xD4 - 0x80];
     int mD4; // inferred: index into mD8 (difficulty?)
     StatusRate_unk mD8[4];
-    unsigned char m158[0x194 - 0x158];
+    unsigned char m158[0x184 - 0x158];
+    int m184; // inferred: debug text of the field (GameTask::vf14)
+    unsigned char m188[0x194 - 0x188];
     int m194;
     unsigned char m198[0x5A0 - 0x198];
     int m5A0;
@@ -222,6 +229,7 @@ extern "C" atn::EffectManager* lbl_8087F3C0;
 extern "C" atn::SoundManager* lbl_8087EFE8;
 extern "C" void* lbl_8087EE90; // inferred: sound engine
 extern "C" void* lbl_8087F048; // inferred: the battle task
+extern "C" int fn_80219558(int id);
 extern "C" void* lbl_8087F8A8;
 extern "C" MpSettings_unk* lbl_8087F0A8;
 extern "C" SysInput_unk* lbl_8087F018;
@@ -243,8 +251,21 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 extern "C" void fn_80370094(GameTask* task, int chapter);
 extern "C" int fn_8037587C(GameTask* task, int type, int id, int sub);
+extern "C" void fn_80376324(GameTask* task, int id);
+extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
 extern "C" void fn_80570A14(GameTaskData_unk* obj, int value);
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
+extern "C" void fn_803D83A8(GameUI* ui);
+extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
+extern "C" void fn_8056F2F8(GameTaskData_unk* obj, int value);
+extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
+extern "C" atn::Task* lbl_8087FA20;
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
+extern "C" float fn_8006EF48(atn::Font_unk* font, const wchar_t* text, float size, float f2, int a, int b);
+extern "C" void fn_8006F2F0(atn::Font_unk* font, wchar_t* dst, const char* src, int size); // inferred: to wide text
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" int fn_80370174(GameTask* task, unsigned int index);             // inferred: GetGlobalFlag
 extern "C" int fn_80370A78(GameTask* task, unsigned int index);             // inferred: GetLocalFlag
 extern "C" void fn_80370AE4(GameTask* task, unsigned int index, int value); // inferred: SetLocalFlag
@@ -382,7 +403,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
       m564C(0), m5650(0), m5654(0), m5658(0.0f), m565C(0), m5660(0), m5664(1), m5668(0), m566C(0), m5670(0),
       m5674(1), m567C(0), m5680(0), m5684(0), m5688(-1), m568C(-1), m5694(0), m5698(0), m569C(0), m56A0(0),
       m56A4(0), m56A8(0), m56AC(0), m56B0(0), m56B4(1.0f), m56B8(0.0f), m56BC(0), m56C0(0), m56C4(0.02f),
-      m56C8(0.02f), m56D0(0), m56D4(0), m56D8(0), m56E4(0), m56E8(-1), m56EC(0), m56F0(0), m56F4(0), m5718(0),
+      m56C8(0.02f), m56D0(0), m56D4(0), m56D8(0), m56E4(0), m56E8(-1), m56EC(0), m56F0(0),
       m5744(0), m5748(0), m574C(0), m5750(0), m5754(0), m5758(0), m575C(0), m5760(0),
       m5764(0) {
     if (lbl_8087F420 != 0) {
@@ -795,6 +816,303 @@ int GameTask::fn_8036823C() {
     return 0;
 }
 
+// inferred: sound names of the field (lbl_8074DA10; replay icons use 5 and 6)
+static const char* const sFieldSounds_unk[] = {
+    "SE_UI001_002", "SE_UI001_007", "SE_UI001_016", "SE_UICOM_003", "SE_UICOM_001", "SE_UI001_012", "SE_UI001_013",
+};
+
+// inferred: one line of the debug text, right aligned at x 590
+static inline void DrawDebugLine_unk(const wchar_t* text, float y, float size, float z) {
+    float width = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+    lbl_8087EEB0->fn_80061824(590.0f - width, y, z, size, size, 0.0f, 0.0f, 0.0f, text, 0xFFFFFFFF, 1, 1, 0, 0,
+                              0xFF000000);
+}
+
+// inferred: hides the replay icons of the HUD and rewinds the first four
+static inline void HideReplayIcons_unk(GameUI* ui) {
+    ui->mB08[0]->FreezeTask();
+    ui->mB08[1]->FreezeTask();
+    ui->mB08[2]->FreezeTask();
+    ui->mB08[3]->FreezeTask();
+    ui->mB08[4]->FreezeTask();
+    ui->mB08[5]->FreezeTask();
+    ui->mB20[0]->FreezeTask();
+    ((atn::D2A_Task*)ui->mB08[0])->Rewind_unk();
+    ((atn::D2A_Task*)ui->mB08[1])->Rewind_unk();
+    ((atn::D2A_Task*)ui->mB08[2])->Rewind_unk();
+    ((atn::D2A_Task*)ui->mB08[3])->Rewind_unk();
+}
+
+static inline bool IsIconHidden_unk(atn::Task* task) {
+    return task->IsFlag_unk(4);
+}
+
+static inline bool IsIconEnd_unk(atn::Task* task) {
+    return ((atn::D2A_Task*)task)->IsEnd_unk();
+}
+
+inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
+    fn_801FECE0(&mData.m10, fn_800DC6B4(name), value);
+}
+
+// inferred: used memory of a heap in MB
+static inline float GetHeapUsed_unk(atn::DLAllocator* heap) {
+    return (unsigned int)((int)heap->vf14() - (int)heap->vf18() + 4) / 1048576.0f;
+}
+
+static inline float GetHeapFree_unk(atn::DLAllocator* heap) {
+    return (unsigned int)heap->fn_80084F84() / 1048576.0f;
+}
+
+// NONMATCHING: written for the order of the string pool; not compared yet
+void GameTask::vf14() {
+    if (lbl_8087F0A8->m184 != 0) {
+        lbl_8087EEB0->mA0 = 0x13;
+        float y = 45.0f;
+        wchar_t name[0x100];
+        wchar_t text[0x100];
+        if (GetCurrentMap() != 0 && GetCurrentMap()->m54 != 0) {
+            MapId_unk* id = GetCurrentMap()->m54;
+            fn_8006F2F0(lbl_8087EEC8, name, id->mId, 0x100);
+            fn_800DD3FC(text, L"%s %s", name, id->mName);
+            DrawDebugLine_unk(text, y, 14.0f, 0.0f);
+            y += 15.0f;
+            fn_800DD3FC(text, L"Chapter: %d", m10D0);
+            DrawDebugLine_unk(text, y, 14.0f, 0.0f);
+            y += 15.0f;
+            atn::Vector3 pos = lbl_8087F8A0->mHead->mPos;
+            fn_800DD3FC(text, L"Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
+            DrawDebugLine_unk(text, y, 14.0f, 0.0f);
+            y += 15.0f;
+            if (m54E4 == 8 && lbl_8087F540->m70 != 0) {
+                Event::Sequence* sequence = lbl_8087F540->m70;
+                fn_8006F2F0(lbl_8087EEC8, name, sequence->mName.c_str(), 0x100);
+                if (sequence->fn_80541210() != 0) {
+                    fn_800DD3FC(text, L"Event: %s  cut %d", name, sequence->fn_80541210()->mIndex);
+                } else {
+                    fn_800DD3FC(text, L"Event: %s", name);
+                }
+                DrawDebugLine_unk(text, y, 14.0f, 0.0f);
+                y += 15.0f;
+            }
+            if (lbl_8087F0A8->m194 != 0) {
+                unsigned int seconds = m5744 / 30;
+                fn_800DD3FC(text, L"PlayTime: %02d:%02d", seconds / 60, seconds % 60);
+                DrawDebugLine_unk(text, y, 14.0f, 0.0f);
+                y += 15.0f;
+            }
+        }
+        float used1 = GetHeapUsed_unk(&atn::MemoryManager::Instance()->mMem1);
+        float used2 = GetHeapUsed_unk(&atn::MemoryManager::Instance()->mMem2);
+        float usedDbg = GetHeapUsed_unk(&atn::MemoryManager::Instance()->mOverflow);
+        float free1 = GetHeapFree_unk(&atn::MemoryManager::Instance()->mMem1);
+        float free2 = GetHeapFree_unk(&atn::MemoryManager::Instance()->mMem2);
+        float freeDbg = GetHeapFree_unk(&atn::MemoryManager::Instance()->mOverflow);
+        char buf[0x100];
+        sprintf(buf, "MEM1+2: %8.4f / %8.4f", free1 + free2, used1 + used2);
+        fn_8006F2F0(lbl_8087EEC8, text, buf, 0x100);
+        DrawDebugLine_unk(text, y, 12.0f, -1000000.0f);
+        y += 13.0f;
+        sprintf(buf, "MEMDBG: %8.4f / %8.4f", freeDbg, usedDbg);
+        fn_8006F2F0(lbl_8087EEC8, text, buf, 0x100);
+        DrawDebugLine_unk(text, y, 12.0f, -1000000.0f);
+        lbl_8087EEB0->mA0 = 0x12;
+    }
+    m5620->FreezeTask();
+    if (m550C.m2C != 0) {
+        if (m550C.m2C == 1) {
+            m5624->Capture();
+        }
+        m5620->MeltTask();
+        return;
+    }
+    if (m563C >= 0) {
+        m5624->m78 = m563C;
+        m5624->Capture();
+        m563C = -1;
+    }
+    if (CrossbowMenuTask::sInstance->IsFlag_unk(4)) {
+        CrossbowMenuTask::sInstance->fn_801E9EA4();
+    }
+    CrossbowMenuTask::sInstance->FreezeTask();
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    if (m54E4 == 0 && mCamera.m7FC != 6 && mCamera.m7FC != 5) {
+        if ((leader->m648 != 0 && leader->m648->m04 == 1) ||
+            (leader->mFlag6 && (leader->m50 == 700022 || leader->m50 == 700023))) {
+            CrossbowMenuTask::sInstance->MeltTask();
+        }
+    }
+    lbl_8087F490->fn_803D2A6C();
+    fn_803D83A8(lbl_8087F490);
+    int showIcons = 0;
+    int tacView = 0;
+    int swing = SetConfig::sInstance->mSwingReplay;
+    switch (m54E4) {
+    case 0: {
+        if (mCamera.m7FC == 3 || mCamera.m7FC == 4) {
+            lbl_8087F8A0->mHead->fn_800E426C();
+        }
+        if (m56D4 != 0) {
+            m56D4->fn_80149A30();
+        }
+        m5620->MeltTask();
+        int mode = mCamera.m7FC;
+        if (mode == 6 && mode == mCamera.m800) {
+            showIcons = 1;
+        } else if (mode == 7) {
+            showIcons = 1;
+            tacView = 1;
+        } else if (mode == 5) {
+            PlayerTask* player = lbl_8087F8A0->mHead;
+            if (lbl_8087F610 != 0 && player != 0 && player->m55C == 6 && player->m560 == 13) {
+                showIcons = 1;
+                tacView = 1;
+            }
+        }
+        if (m5590 == 0) {
+            break;
+        }
+        GameUI* ui = lbl_8087F490;
+        if ((m5594 != 0 && m55A4 > 0) || m55B8 > 0) {
+            if ((!swing && IsIconHidden_unk(ui->mB08[0]) && IsIconHidden_unk(ui->mB08[1])) ||
+                (swing && IsIconHidden_unk(ui->mB08[2]) && IsIconHidden_unk(ui->mB08[3]))) {
+                fn_800C31F4(sFieldSounds_unk[5], 0, -1, 1.0f);
+                if (swing) {
+                    ui->mB08[2]->MeltTask();
+                } else {
+                    ui->mB08[0]->MeltTask();
+                }
+            } else if ((!swing && !IsIconHidden_unk(ui->mB08[0]) && IsIconHidden_unk(ui->mB08[1])) ||
+                       (swing && !IsIconHidden_unk(ui->mB08[2]) && IsIconHidden_unk(ui->mB08[3]))) {
+                if (swing) {
+                    ui->mB08[3]->FreezeTask();
+                    if (IsIconEnd_unk(ui->mB08[2])) {
+                        ui->mB08[3]->MeltTask();
+                    }
+                } else {
+                    ui->mB08[1]->FreezeTask();
+                    if (IsIconEnd_unk(ui->mB08[0])) {
+                        ui->mB08[1]->MeltTask();
+                    }
+                }
+            } else if ((!swing && !IsIconHidden_unk(ui->mB08[1])) || (swing && !IsIconHidden_unk(ui->mB08[3]))) {
+                if (swing) {
+                    ui->mB08[2]->FreezeTask();
+                } else {
+                    ui->mB08[0]->FreezeTask();
+                }
+            }
+        } else {
+            if (!((!swing && IsIconHidden_unk(ui->mB08[0]) && IsIconHidden_unk(ui->mB08[1])) ||
+                  (swing && IsIconHidden_unk(ui->mB08[2]) && IsIconHidden_unk(ui->mB08[3])))) {
+                fn_800C31F4(sFieldSounds_unk[6], 0, -1, 1.0f);
+            }
+            HideReplayIcons_unk(ui);
+        }
+        break;
+    }
+    case 1:
+        m5620->MeltTask();
+        break;
+    case 3:
+        m5620->MeltTask();
+        break;
+    case 7: {
+        GameUI* ui = lbl_8087F490;
+        if (!IsIconHidden_unk(ui->mB20[0]) && IsIconHidden_unk(ui->mB08[5]) && IsIconEnd_unk(ui->mB20[0])) {
+            ui->mB20[0]->FreezeTask();
+            ui->mB08[5]->MeltTask();
+        }
+        if (!IsIconHidden_unk(ui->mB08[4]) && IsIconEnd_unk(ui->mB08[4])) {
+            ui->mB08[4]->FreezeTask();
+        }
+        fn_8056F2F8(m5590, -m5598);
+        if (mFinish.m394 != 0 && m5598 == 0) {
+            ((atn::D2A_Task*)ui->mB08[5])->SetLayoutValue_unk("iconOn", 0.0f);
+            showIcons = 1;
+        }
+        break;
+    }
+    case 14: {
+        GameUI* ui = lbl_8087F490;
+        if (!IsIconHidden_unk(ui->mB20[0]) && IsIconHidden_unk(ui->mB08[5]) && IsIconEnd_unk(ui->mB20[0])) {
+            ui->mB20[0]->FreezeTask();
+            ui->mB08[5]->MeltTask();
+        }
+        if (!IsIconHidden_unk(ui->mB08[4]) && IsIconEnd_unk(ui->mB08[4])) {
+            ui->mB08[4]->FreezeTask();
+        }
+        if (mFinish.m394 != 0) {
+            ((atn::D2A_Task*)ui->mB08[5])->SetLayoutValue_unk("iconOn", 0.0f);
+            showIcons = 1;
+            if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 == 0) {
+                tacView = 1;
+            }
+        }
+        break;
+    }
+    case 8:
+        m5620->MeltTask();
+        if (m5590 != 0) {
+            HideReplayIcons_unk(lbl_8087F490);
+        }
+        break;
+    case 9:
+    case 10:
+    case 11:
+        mFinish.fn_8037C69C();
+        if (m5590 != 0) {
+            HideReplayIcons_unk(lbl_8087F490);
+        }
+        break;
+    case 12:
+        fn_8046ECDC(lbl_8087F518, 1);
+        m5620->MeltTask();
+        if (m56E4 == 0) {
+            GameScene* scene = m10D8;
+            PlayerTask* player = lbl_8087F8A0->mHead;
+            gs::WarpPoint* warp = 0;
+            for (unsigned int i = 0; i < scene->m78.size(); i++) {
+                if (m56E8 == scene->m78.mData[i].mId) {
+                    warp = &scene->m78.mData[i];
+                    break;
+                }
+            }
+            if (warp != 0) {
+                player->mPos = warp->mPos;
+                player->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
+                player->fn_8016EB48(0, 0, 0);
+                mCamera.fn_8037EF30(1, 1, -1.0f);
+                if (m10D0 >= 600000) {
+                    PlayerTask* second = lbl_8087F8A0->fn_8054A33C(1);
+                    if (second != 0) {
+                        atn::Vector3 offset(-5.0f, 0.0f, -5.0f);
+                        Mtx m;
+                        PSMTXRotRad(m, 'y', warp->m14);
+                        PSMTXMultVec(m, &offset, &offset);
+                        atn::Vector3 target(warp->mPos.x + offset.x, warp->mPos.y + offset.y, warp->mPos.z + offset.z);
+                        int index = m10D8->fn_803C1560(&target, 0x80000000, 0, 0, 1, -1.0f);
+                        if (index != 0) {
+                            gs::MovePoint* point = &m10D8->m98.mData[index - 1];
+                            second->mPos = point->mPos;
+                            second->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
+                            second->fn_8016EB48(0, 0, 0);
+                        }
+                    }
+                }
+            }
+        } else if (m56E4 > 5) {
+            if (lbl_8087FA20 == 0 || lbl_8087FA20->fn_800D3FA4()) {
+                fn_8036FC58();
+            }
+        }
+        m56E4++;
+        break;
+    }
+    fn_803DAB4C(lbl_8087F490, showIcons, tacView);
+    mCamera.fn_8039328C();
+}
+
 int GameTask::fn_8036DAA8(CharaTask* chara) {
     if (m56D8 != 0 || m56D4 != 0 || mFinish.m00 != 0) {
         return 0;
@@ -993,6 +1311,138 @@ extern "C" int fn_80370174(GameTask* task, unsigned int index) {
         return 0;
     }
     return task->mGlobalFlags[index];
+}
+
+// inferred: sets or clears status bit `bit` of the party member `chara` in the inventory and on the character
+// NONMATCHING: 75% - the range test of the member and the register order of the bit math
+extern "C" void fn_803701E0(CharaTask* chara, int bit, int on) {
+    if (chara != 0) {
+        int member = fn_80219558(chara->m50);
+        if (member >= 0 && member < 7) {
+            CharaStatusData_unk* data = &Inventory::instance_->mPlayers[member].m1A8;
+            if (on) {
+                data->mBits[bit / 32] |= 1 << (bit % 32);
+                if (lbl_8087F048 != 0) {
+                    fn_801092C8(lbl_8087F048, 0x14, chara, bit, 0);
+                }
+            } else {
+                data->mBits[bit / 32] &= ~(1 << (bit % 32));
+            }
+            if (chara != 0) {
+                unsigned int mask = 1 << (bit % 32);
+                if ((data->mBits[bit / 32] & mask) == mask) {
+                    chara->mStatus.m1A8.mBits[bit / 32] |= mask;
+                } else {
+                    chara->mStatus.m1A8.mBits[bit / 32] &= ~mask;
+                }
+            }
+        }
+    }
+}
+
+// inferred: saves the status of `chara` and starts the finishing skill `id` (inlined three times)
+inline void GameTask::StartFinish_unk(CharaTask* chara, int id) {
+    Inventory* inventory = Inventory::instance_;
+    inventory->mDF30.mChara = chara;
+    inventory->mDF30.mData = chara->mStatus.m1A8;
+    inventory->mDF30.mData.m08 = 0.0f;
+    inventory->mDF30.m8C = 0;
+    inventory->mDF30.m80 = 0;
+    inventory->mDF30.m88 = 0;
+    Inventory::instance_->mDF30.m90 = id;
+    fn_80371790();
+    fn_80374D64();
+}
+
+// inferred: SetGlobalFlag (arg: do not run the side effects of the flag)
+// NONMATCHING: the copy of CharaStatusData_unk and the GameUI calls (the original passes the id too)
+void GameTask::fn_80370320(int index, int value, int arg) {
+    if ((unsigned int)index > 0xFFF) {
+        if (lbl_8087EEB8 != 0) {
+            char buf[0x100];
+            sprintf(buf, "SetGlobalFlag:Index Out Of Bounds! %d", index);
+            lbl_8087EEB8->fn_800697D8(buf);
+        }
+        return;
+    }
+    if (index == 0) {
+        return;
+    }
+    if (mGlobalFlags[283] > 0 &&
+        (index == 0x88 || index == 0x11E || index == 0x11F || index == 6 || index == 0xD0 || index == 5)) {
+        return;
+    }
+    if (lbl_8087F0A8->m194 != 0 && (index == 0x11F || index == 6)) {
+        return;
+    }
+    int old = mGlobalFlags[index];
+    mGlobalFlags[index] = value;
+    if (m10D8 != 0 && m10D8->m134 != 0) {
+        fn_803AB96C(m10D8->m134, 1, index, old, value);
+    }
+    if (arg != 0) {
+        return;
+    }
+    if (old != value && Inventory::instance_ != 0 && lbl_8087F8A0 != 0) {
+        CharaTask* chara = lbl_8087F8A0->m54;
+        if (index == 5) {
+            fn_803701E0(chara, 10, value == 0);
+            fn_803701E0(chara, 13, value == 0);
+        }
+        if (index == 0x88) {
+            fn_803701E0(chara, 9, value == 0);
+            if (chara != 0 && (chara->mStatus.m1A8.mBits[0] & 0x200) == 0x200) {
+                StartFinish_unk(chara, 9);
+            }
+        }
+        if (index == 0x11E) {
+            fn_803701E0(chara, 0x3D, value == 0);
+            if (chara != 0 && (chara->mStatus.m1A8.mBits[1] & 0x20000000) == 0x20000000) {
+                StartFinish_unk(chara, 0x3D);
+            }
+        }
+        if (index == 0x11F) {
+            fn_803701E0(chara, 2, value == 0);
+            if (chara != 0 && (chara->mStatus.m1A8.mBits[0] & 4) == 4) {
+                StartFinish_unk(chara, 2);
+            }
+        }
+    }
+    if ((index >= 0x8C && index <= 0x15E) || (index >= 0x1AE && index <= 0x1E0)) {
+        if (old != value && value != 0) {
+            TutorialData_unk* data = fn_8021F09C(index);
+            if (data != 0 && (SetConfig::sInstance->mShowTutorial != 0 || index == 0x1B3) &&
+                (mGlobalFlags[283] == 0 || (unsigned int)(index - 0x1B8) <= 1)) {
+                if (data->m04 != 0) {
+                    fn_80376324(this, index);
+                } else {
+                    if ((unsigned int)m56F4.mCount < 8) {
+                        m56F4.Push_unk(index);
+                    }
+                    lbl_8087F490->fn_803E43B8(1);
+                }
+            }
+        }
+    }
+    if (index == 0xAC && value != 0) {
+        lbl_8087F490->fn_803E4434(1);
+    }
+    if (index == 0x6D && value != 0) {
+        CrossbowMenuTask::sInstance->fn_801E97DC();
+    }
+    if (index == 0x25 && value == 0 && old != 0) {
+        PlayerTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (leader != 0) {
+            mGlobalFlags[index] = old;
+            if (leader->HasC48_unk()) {
+                leader->fn_80154344();
+            }
+            if (leader->mFlag6) {
+                leader->fn_80155DAC(0);
+            }
+            mGlobalFlags[index] = value;
+        }
+    }
 }
 
 extern "C" int fn_80370A78(GameTask* task, unsigned int index) {

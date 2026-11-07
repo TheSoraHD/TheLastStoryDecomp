@@ -88,7 +88,10 @@ public:
     void fn_8036EE0C();
     int fn_80370C2C();                  // inferred: the fade is finished
     void fn_80370C6C();
-    void fn_80370320(int flag, int value, int arg); // inferred: sets a field flag
+    void fn_80370320(int flag, int value, int arg); // inferred: SetGlobalFlag
+    inline void StartFinish_unk(CharaTask* chara, int id);
+    void fn_80371790();
+    void fn_80374D64();
     void fn_80370B78(unsigned int color, int frames, int arg, float speed); // inferred: fade out
     void fn_80370BD0(int frames, int arg, float speed);                     // inferred: fade in
     void fn_80371320(PlayerTask* player); // inferred: new leader
@@ -166,7 +169,8 @@ public:
     GameTaskData_unk* m5590;
     int m5594;
     int m5598;
-    unsigned char m559C[0x55A8 - 0x559C];
+    unsigned char m559C[0x55A4 - 0x559C];
+    int m55A4;
     atn::SoundRef m55A8;
     unsigned char m55AC[0x55B0 - 0x55AC];
     int m55B0;
@@ -230,11 +234,9 @@ public:
     int m56E8; // inferred: entry of the map to move to (fn_8036FB4C)
     TutorialTask* m56EC;
     TutorialPopup* m56F0;
-    int m56F4;
-    unsigned char m56F8[0x5718 - 0x56F8];
-    int m5718;
+    MP::Queue_unk<int, 8> m56F4; // inferred: tutorial ids waiting for the UI (fn_80370320)
     MP::Queue_unk<int, 8> m571C; // inferred: help ids shown after the current one (fn_80376324)
-    int m5744;
+    unsigned int m5744; // inferred: play time in frames (30 per second, vf14)
     int m5748;
     int m574C;
     SelectMember* m5750;
