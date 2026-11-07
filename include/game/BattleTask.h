@@ -82,6 +82,8 @@ struct BattleSel_unk {
 
 class BattleTask : public atn::Task {
 public:
+    BattleTask(atn::Task* parent); // 0x800F1430
+    static BattleTask* fn_800F13BC(atn::Task* parent); // inferred: creates the singleton
     // inferred: index of the character in mCharas, -1 if missing (inlined)
     int FindChara_unk(CharaTask* chara) {
         if (chara == 0) {
@@ -234,6 +236,7 @@ public:
     float m3E308;
     float m3E30C;
     float m3E310;
+    unsigned char m3E314[0x3E3B0 - 0x3E314]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
 };
 
 #endif

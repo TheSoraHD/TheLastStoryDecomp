@@ -53,6 +53,13 @@ inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
+    if (parent != 0 && lbl_8087F048 == 0) {
+        lbl_8087F048 = new ((MemoryTag)1, "", "", 0) BattleTask(parent);
+    }
+    return lbl_8087F048;
+}
+
 void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
     fn_800E2A24(&m38A5C);
     m38A5C.m00 = effect;
