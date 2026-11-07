@@ -1,6 +1,7 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
 #include "chr/ControlChant.h"
+#include "game/TacView.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/GameUI.h"
@@ -103,10 +104,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
-struct TacView_unk;
-extern "C" TacView_unk* lbl_8087F9F8;
-extern "C" int fn_805ADCC0(TacView_unk* manager, CharaTask* chara, HitInfo_unk* hit, int arg);
-extern "C" void fn_805ADD80(TacView_unk* manager, CharaTask* chara, HitInfo_unk* hit);
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" void* lbl_8087EE68;
 extern "C" void* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
@@ -278,11 +275,11 @@ int ControlChant::vf0C() {
     Motion_unk* model = &mChara->mMotion;
     float rate = fn_8010CB2C(lbl_8087F048, mChara, m40);
     HitInfo_unk* hit;
-    if (lbl_8087F9F8 && fn_805ADCC0(lbl_8087F9F8, mChara, mChara->m638, 0)) {
+    if (lbl_8087F9F8 && ((TacView*)lbl_8087F9F8)->fn_805ADCC0(mChara, mChara->m638, 0)) {
         if ((mChara->m638->mAC & 0x40000) != 0x40000) {
             m2C = m38 - 90.0f > m2C ? m38 - 90.0f : m2C;
         }
-        fn_805ADD80(lbl_8087F9F8, mChara, mChara->m638);
+        ((TacView*)lbl_8087F9F8)->fn_805ADD80(mChara, mChara->m638);
     }
     if (mChara->mType == 0) {
         HitInfo_unk* bullet = m3C;

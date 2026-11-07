@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/TacView.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/Arms.h"
@@ -8590,14 +8591,6 @@ void CharaTask::fn_8015EFAC(int arg) {
 }
 
 // inferred: tactics manager (TacView); names invented
-struct TacView_unk {
-    unsigned char m00[0xA70];
-    int mA70; // inferred: nonzero while the view is active (CharaTask::fn_8016DAB0)
-};
-extern "C" TacView_unk* lbl_8087F9F8;
-extern "C" int fn_805ADCC0(TacView_unk* manager, CharaTask* chara, HitInfo_unk* hit, int arg);
-extern "C" void fn_805ADD80(TacView_unk* manager, CharaTask* chara, HitInfo_unk* hit);
-extern "C" HitInfo_unk* fn_805ADD3C(TacView_unk* manager, CharaTask* chara);
 
 // inferred: helpers inlined in fn_8015F568 (names invented)
 inline atn::Vector3 GetDir_unk(const float& yaw) {
@@ -8704,11 +8697,11 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
             mFBC = 30.0f;
         }
     }
-    if (lbl_8087F9F8 != 0 && fn_805ADCC0(lbl_8087F9F8, this, m638, 0) != 0) {
+    if (lbl_8087F9F8 != 0 && ((TacView*)lbl_8087F9F8)->fn_805ADCC0(this, m638, 0) != 0) {
         if ((m638->mAC & 0x40000) != 0x40000) {
             mFBC = 90.0f;
         }
-        fn_805ADD80(lbl_8087F9F8, this, m638);
+        ((TacView*)lbl_8087F9F8)->fn_805ADD80(this, m638);
     }
     mF60 = mPos;
     mF7C = target;
@@ -9561,13 +9554,13 @@ int CharaTask::fn_8016DAB0() {
     if (fn_80160324() && m638 != 0) {
         result = MAX((int)(mFBC - mFB8), 0);
         if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-            if (fn_805ADCC0(lbl_8087F9F8, this, m638, 1) && (m638->mAC & 0x40000) != 0x40000) {
+            if (((TacView*)lbl_8087F9F8)->fn_805ADCC0(this, m638, 1) && (m638->mAC & 0x40000) != 0x40000) {
                 result = MIN(89, result);
             }
             result = result / 30 * 30 + 15;
         }
     } else if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-        HitInfo_unk* hit = fn_805ADD3C(lbl_8087F9F8, this);
+        HitInfo_unk* hit = ((TacView*)lbl_8087F9F8)->fn_805ADD3C(this);
         if (hit != 0) {
             result = 75;
             if ((hit->mAC & 0x40000) == 0x40000) {
