@@ -143,7 +143,6 @@ extern "C" void fn_8010220C(Effect_unk* mgr, int arg);
 // inferred: target in front of the character within radius/theta
 extern "C" CharaTask* fn_800FFE68(Effect_unk* mgr, CharaTask* chara, const atn::Vector3* dir, int a, int b,
                                   float radius, float theta);
-extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model); // inferred: death effect of a model
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: target searches of the effect manager (in front / around)
 extern "C" int fn_801004FC(Effect_unk* mgr, CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range,
@@ -2110,7 +2109,7 @@ void BattleCharaTask::fn_800EAECC() {
                 fn_800EB7A0();
             } else if (m1434 == 15) {
                 if (m146C != 0x2C) {
-                    fn_80105BD8(lbl_8087F048, &mMotion);
+                    ((BattleTask*)lbl_8087F048)->fn_80105BD8(&mMotion);
                     fn_800C344C(sBattleSe_unk[2], &mPos, 0, -1, 1.0f);
                 }
                 vf9C(1);

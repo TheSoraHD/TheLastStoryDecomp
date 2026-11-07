@@ -135,7 +135,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80232B7C(void* owner, int arg); // inferred: owner of the next effects
 
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_80103600(Effect_unk* mgr, CharaTask* chara);
 extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -1190,7 +1189,7 @@ int Em301LShade::fn_802D404C() {
         for (CharaTask* c = lbl_8087F8A0->mHead; c != 0; c = NextChara_unk(c)) {
             c->mC58.mC4 = 0;
             c->mC58.mC8 = 0;
-            fn_80103600(lbl_8087F048, c);
+            ((BattleTask*)lbl_8087F048)->fn_80103600(c);
             if (fn_8021A888(c->m638)) {
                 c->fn_80160170(c->m638, c->mC58.mC4);
             }

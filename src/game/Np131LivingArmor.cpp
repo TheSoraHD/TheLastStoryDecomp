@@ -1,4 +1,5 @@
 #include "game/Np131LivingArmor.h"
+#include "game/BattleTask.h"
 #include "game/GameUI.h"
 #include "game/GimmickCommon.h"
 #include "std/vector.h"
@@ -36,7 +37,6 @@ extern "C" int fn_800F8548(BulletMgr_unk* mgr); // inferred: new bullet id
 extern "C" void fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id,
                             const atn::Vector3* pos, const atn::Vector3* rot, int arg6, int arg7, int arg8,
                             int arg9, float arg10, float arg11);
-extern "C" void fn_80105BD8(BulletMgr_unk* mgr, atn::Model* model);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
@@ -183,7 +183,7 @@ void Np131LivingArmor::vf10() {
             fn_80145334();
             fn_8014C540();
         } else {
-            fn_80105BD8(lbl_8087F048, &mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80105BD8(&mMotion);
             GimmickCommon* stand = PickArmorStand_unk();
             fn_8016E4C4(0);
             m14DC = stand;

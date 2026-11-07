@@ -59,13 +59,18 @@ public:
     int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
     void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
     void fn_80102824(CharaTask* chara, PlayerTask* leader);
+    void fn_80103600(CharaTask* chara);
     BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
+    void fn_80103FD4();
+    void fn_80105510(int value); // inferred: sets m363BC (clamped; 9999 sets the field flag 10)
+    void fn_801058F8(); // inferred: updates every player
     void fn_80105950(void* owner, atn::Model* model);
     void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
     void fn_80105A08(void* owner, atn::Model* model);
     void fn_80105AB0(void* owner, atn::Model* model, const EffectColor_unk& color);
     void fn_80105B3C(CharaTask* chara);
     void fn_80105B4C(void* owner, atn::Model* model, const EffectColor_unk* color);
+    void fn_80105BD8(atn::Model* model);
     void fn_80105C9C(CharaTask* chara, atn::Model* model);
     void fn_80105F3C(void* owner);
     void fn_80105F4C(CharaTask* chara, atn::Model* model);
@@ -117,6 +122,7 @@ public:
     float fn_8010CA24();
     float fn_8010CA2C();
     float fn_8010CA34();
+    float fn_8010CA3C(CharaTask* chara, float rate);
     float fn_8010CCD0();
     float fn_8010CCD8(CharaTask* chara); // inferred: gauge gained by the magic
     int fn_8010D770(HitInfo_unk* hit);
@@ -128,7 +134,8 @@ public:
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
     unsigned char m36290[0x363B0 - 0x36290];
     int mCharaCount;               // 0x363B0
-    unsigned char m363B4[0x363C0 - 0x363B4];
+    unsigned char m363B4[0x363BC - 0x363B4];
+    int m363BC;
     atn::EfpFile mEfp363C0[46];  // 0x363C0: inferred: battle effects (EFP files)
     unsigned char m365E8[0x38A04 - 0x365E8];
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]

@@ -2263,7 +2263,6 @@ struct CollResult_unk {
 };
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to, unsigned int mask,
                            void* ignore, int arg7); // inferred: ray test
-extern "C" float fn_8010CA3C(Effect_unk* mgr, CharaTask* chara, float rate);
 
 // inferred: name invented
 inline bool CharaTask::IsLanded_unk(const CollResult_unk& result) {
@@ -2292,7 +2291,7 @@ void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
     atn::Vector3 oldPos(mPos);
     atn::Vector3 oldRot(mRot);
     if (lbl_8087F048 != 0 && !mFlag31) {
-        b = fn_8010CA3C(lbl_8087F048, this, b);
+        b = ((BattleTask*)lbl_8087F048)->fn_8010CA3C(this, b);
     }
     b *= m568;
     if (mStatus.IsState_unk(0x40)) {

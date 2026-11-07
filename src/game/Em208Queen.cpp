@@ -26,7 +26,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void* memset(void* dst, int c, unsigned long n);
-extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in game/Em305Vampire.cpp)
@@ -851,7 +850,7 @@ void Em208Queen::fn_802CAFB8() {
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             mStatus.fn_8012DF7C(damage.m04, 0, 0);
             fn_80108C10(lbl_8087F048, &damage, pos, this, m14D0, 0, 0);
-            fn_80105BD8(lbl_8087F048, &m14D0->mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80105BD8(&m14D0->mMotion);
             m14D0->vf9C(1);
             m14D0->vf44();
             m14D0->mFlag15 = 1;

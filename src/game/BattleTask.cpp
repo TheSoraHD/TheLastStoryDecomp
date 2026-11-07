@@ -11,6 +11,7 @@
 #include "game/LogMessageTask.h"
 #include "macros.h"
 #include "game/PlayerManager.h"
+#include "game/PlayerTask.h"
 #include "game/GameTask.h"
 #include "game/GameScene.h"
 
@@ -18,6 +19,7 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameTask* lbl_8087F430;
+extern "C" void fn_80370320(GameTask* field, int flag, int value, int arg); // inferred: sets a field flag
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
 extern "C" const char* fn_800EFE3C(int id);   // inferred: sound of row `id`
@@ -82,6 +84,35 @@ BattleChara_unk* BattleTask::fn_80103F60(CharaTask* chara) {
     return 0;
 }
 
+void BattleTask::fn_80105510(int value) {
+    if (value > 300) {
+        if (m363BC < value) {
+            m363BC = 9999;
+        } else {
+            m363BC = 300;
+        }
+    } else if (value < 20) {
+        m363BC = 20;
+    } else {
+        m363BC = value;
+    }
+    if (lbl_8087F430 == 0) {
+        return;
+    }
+    if (m363BC == 9999) {
+        fn_80370320(lbl_8087F430, 10, 1, 0);
+    } else {
+        fn_80370320(lbl_8087F430, 10, 0, 0);
+    }
+}
+
+void BattleTask::fn_801058F8() {
+    fn_80103FD4();
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        fn_80103600(player);
+    }
+}
+
 void BattleTask::fn_80105950(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 0);
     PlayEfp_unk(&mEfp363C0[0], model);
@@ -108,6 +139,13 @@ void BattleTask::fn_80105B3C(CharaTask* chara) {
 void BattleTask::fn_80105B4C(void* owner, atn::Model* model, const EffectColor_unk* color) {
     fn_80232B7C((unsigned int)owner, 0);
     fn_8023A8B4(lbl_8087F3C0, &mEfp363C0[3], model, 0, lbl_807C7030, lbl_807C7030, *color, -1, -1, 1, 1.0f);
+}
+
+void BattleTask::fn_80105BD8(atn::Model* model) {
+    lbl_8087F3C0->mSystem.m78 = 1;
+    fn_80232B7C(0, 0);
+    PlayEfp_unk(&mEfp363C0[25], model);
+    lbl_8087F3C0->mSystem.m78 = 0;
 }
 
 void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
@@ -414,6 +452,23 @@ float BattleTask::fn_8010CA2C() {
 
 float BattleTask::fn_8010CA34() {
     return 1.5f;
+}
+
+float BattleTask::fn_8010CA3C(CharaTask* chara, float rate) {
+    rate += chara->mStatus.fn_80134168(27, -1) / 100.0f;
+    if (chara->mStatus.fn_80134134(46) != 0) {
+        rate *= 0.7f;
+    }
+    if (((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
+        rate *= 1.5f;
+        if (chara->mType == 2 && chara->mFlag5) {
+            rate *= 1.5f;
+        }
+    }
+    if (chara->mType == 0) {
+        rate = MIN(2.2f, rate);
+    }
+    return rate;
 }
 
 float BattleTask::fn_8010CCD0() {

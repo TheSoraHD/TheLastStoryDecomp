@@ -22,7 +22,6 @@ extern "C" int fn_8036DAF4(DiveField_unk* field, Ledge_unk* ledge, CharaTask* ch
 
 // inferred: camera/character manager (lbl_8087F048, class unknown)
 extern "C" void* lbl_8087F048;
-extern "C" float fn_8010CA3C(void* obj, float f);
 
 
 // inferred: game state (lbl_8087EFA8): m3A4 is the time scale
@@ -95,7 +94,7 @@ ControlDive::ControlDive(Chara_unk* chara, const atn::Vector3& dir) : ControlBas
 int ControlDive::vf0C() {
     int ret = 0;
     Motion_unk* motion = &mChara->mMotion;
-    float speed = fn_8010CA3C(lbl_8087F048, 1.5f);
+    float speed = ((BattleTask*)lbl_8087F048)->fn_8010CA3C(mChara, 1.5f);
     motion->mTracks[0].m0C = speed / 1.5f;
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0) - 5.0f) {

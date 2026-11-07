@@ -35,7 +35,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80105BD8(Effect_unk* mgr, atn::Model* model);
 extern "C" float fn_8010CB2C(Effect_unk* mgr, CharaTask* chara, float rate); // inferred: chant speed
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -486,7 +485,7 @@ void Em001Necromancer::vf10() {
                 mColli.mFlags &= ~1;
                 if (m1434 > 0) {
                     if (--m1434 == 40) {
-                        fn_80105BD8(lbl_8087F048, &mMotion);
+                        ((BattleTask*)lbl_8087F048)->fn_80105BD8(&mMotion);
                     }
                 } else {
                     vf44();
