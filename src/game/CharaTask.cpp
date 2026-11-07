@@ -7557,7 +7557,6 @@ void CharaTask::vf44() {
     mFlagB10 = 1;
 }
 
-extern "C" void fn_80107380(Effect_unk* effect, CharaTask* chara);
 
 // NONMATCHING: ~57% - the inlined fn_8016E970 is one inline level short (see fn_80178208), and in
 // the camera state copy the original computes the address of the last 16-byte block (addi r9)
@@ -8927,7 +8926,6 @@ void CharaTask::fn_801647BC() {
     }
 }
 
-extern "C" void fn_80105F4C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_8010337C(Effect_unk* effect, int arg, CharaTask* chara);
 
 void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
@@ -8939,7 +8937,7 @@ void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
     mFD8 = (lbl_8087F430 != 0) ? lbl_8087F430->m5744 : 0;
     mFlag28 = 1;
     mFlag27 = 0;
-    fn_80105F4C(lbl_8087F048, this, &mMotion);
+    ((BattleTask*)lbl_8087F048)->fn_80105F4C(this, &mMotion);
     mStatus.m20 = mFC8.x;
     mStatus.m24 = mFC8.x;
     if (lbl_8087F048 != 0) {
@@ -8982,7 +8980,6 @@ void CharaTask::fn_80164D24() {
     }
 }
 
-extern "C" void fn_8010608C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 
 // inferred: ends the shade started by fn_80164B00 (`arg`: with effect and sound)
 void CharaTask::fn_80164DCC(int arg) {
@@ -9005,7 +9002,7 @@ void CharaTask::fn_80164DCC(int arg) {
     ((BattleTask*)lbl_8087F048)->fn_8010607C(this);
     ((BattleTask*)lbl_8087F048)->fn_80105F3C(this);
     if (arg != 0) {
-        fn_8010608C(lbl_8087F048, this, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_8010608C(this, &mMotion);
         fn_800C344C(sSoundNames_unk[2], &mPos, 0, -1, 1.0f);
     }
     ((BattleTask*)lbl_8087F048)->fn_8010652C(this);
@@ -9224,19 +9221,18 @@ void CharaTask::fn_801684A0() {
     fn_80178208(control);
 }
 
-extern "C" void fn_80107274(Effect_unk* effect, CharaTask* chara);
 
 void CharaTask::fn_80168788() {
     if (lbl_8087F048 != 0) {
         ((BattleTask*)lbl_8087F048)->fn_80107B30(&mMotion, &mMotion);
-        fn_80107274(lbl_8087F048, this);
+        ((BattleTask*)lbl_8087F048)->fn_80107274(this);
     }
 }
 
 void CharaTask::fn_801687D8() {
     if (lbl_8087F048 != 0) {
         ((BattleTask*)lbl_8087F048)->fn_80107BD8(&mMotion);
-        fn_80107380(lbl_8087F048, this);
+        ((BattleTask*)lbl_8087F048)->fn_80107380(this);
     }
 }
 

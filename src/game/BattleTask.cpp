@@ -11,14 +11,18 @@
 #include "game/LogMessageTask.h"
 #include "macros.h"
 #include "game/PlayerManager.h"
+#include "game/GameTask.h"
+#include "game/GameScene.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" GameTask* lbl_8087F430;
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
 extern "C" const char* fn_800EFE3C(int id);   // inferred: sound of row `id`
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" int fn_80219558(int id); // inferred: party member kind of a character id
 extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -106,12 +110,39 @@ void BattleTask::fn_80105B4C(void* owner, atn::Model* model, const EffectColor_u
     fn_8023A8B4(lbl_8087F3C0, &mEfp363C0[3], model, 0, lbl_807C7030, lbl_807C7030, *color, -1, -1, 1, 1.0f);
 }
 
+void BattleTask::fn_80105C9C(CharaTask* chara, atn::Model* model) {
+    fn_80232B7C((unsigned int)chara, 3);
+    if (fn_80219558(chara->m50) == 2) {
+        PlayEfp_unk(&mEfp38AF4[1], model);
+    } else {
+        PlayEfp_unk(&mEfp38AF4[0], model);
+    }
+}
+
 void BattleTask::fn_80105F3C(void* owner) {
     fn_80239DAC(lbl_8087F3C0, (unsigned int)owner, 4, 1);
 }
 
+void BattleTask::fn_80105F4C(CharaTask* chara, atn::Model* model) {
+    fn_80232B7C((unsigned int)chara, 3);
+    if (fn_80219558(chara->m50) == 2) {
+        PlayEfp_unk(&mEfp38AF4[7], model);
+    } else {
+        PlayEfp_unk(&mEfp38AF4[6], model);
+    }
+}
+
 void BattleTask::fn_8010607C(void* owner) {
     fn_80239DAC(lbl_8087F3C0, (unsigned int)owner, 3, 1);
+}
+
+void BattleTask::fn_8010608C(CharaTask* chara, atn::Model* model) {
+    fn_80232B7C((unsigned int)chara, 3);
+    if (fn_80219558(chara->m50) == 2) {
+        PlayEfp_unk(&mEfp38AF4[9], model);
+    } else {
+        PlayEfp_unk(&mEfp38AF4[8], model);
+    }
 }
 
 void BattleTask::fn_8010652C(void* owner) {
@@ -120,7 +151,7 @@ void BattleTask::fn_8010652C(void* owner) {
 
 void BattleTask::fn_8010653C(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 6);
-    PlayEfp_unk(&mEfp38BB4[13], model);
+    PlayEfp_unk(&mEfp38AF4[29], model);
 }
 
 void BattleTask::fn_801065E4(void* owner) {
@@ -129,13 +160,13 @@ void BattleTask::fn_801065E4(void* owner) {
 
 void BattleTask::fn_801065F4(CharaTask* chara, atn::Model* model, const ColorF_unk* color) {
     fn_80232B7C((unsigned int)chara, 7);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38BB4[14], model, 0, lbl_807C7030, lbl_807C7030, *(const EffectColor_unk*)color,
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[30], model, 0, lbl_807C7030, lbl_807C7030, *(const EffectColor_unk*)color,
                 -1, -1, 1, 1.0f);
 }
 
 void BattleTask::fn_80106680(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 8);
-    PlayEfp_unk(&mEfp38BB4[15], model);
+    PlayEfp_unk(&mEfp38AF4[31], model);
 }
 
 void BattleTask::fn_80106728(int arg, atn::Model* model) {
@@ -155,6 +186,31 @@ void BattleTask::fn_80107208(int id, const atn::Vector3* pos, float scale) {
     }
 }
 
+int BattleTask::fn_80107274(CharaTask* chara) {
+    for (int i = 0; i < 8; i++) {
+        if (mSlots[i].mUsed != 0 && mSlots[i].mChara == chara) {
+            return 0;
+        }
+    }
+    for (int i = 0; i < 8; i++) {
+        if (mSlots[i].mUsed == 0) {
+            mSlots[i].mUsed = 1;
+            mSlots[i].mChara = chara;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void BattleTask::fn_80107380(CharaTask* chara) {
+    for (int i = 0; i < 8; i++) {
+        if (mSlots[i].mUsed != 0 && mSlots[i].mChara == chara) {
+            mSlots[i].mUsed = 0;
+            mSlots[i].mChara = 0;
+        }
+    }
+}
+
 void BattleTask::fn_80107574() {
     m3E300 = 2;
 }
@@ -162,7 +218,7 @@ void BattleTask::fn_80107574() {
 void BattleTask::fn_801076D0(void* owner, atn::Model* model) {
     if (fn_80239D58(lbl_8087F3C0, owner, 20) == 0) {
         fn_80232B7C((unsigned int)owner, 20);
-        PlayEfp_unk(&mEfp38BB4[0], model);
+        PlayEfp_unk(&mEfp38AF4[16], model);
     }
 }
 
@@ -172,7 +228,7 @@ void BattleTask::fn_80107798(void* owner, int flag) {
 
 void BattleTask::fn_801077A8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 21);
-    PlayEfp_unk(&mEfp38BB4[1], model);
+    PlayEfp_unk(&mEfp38AF4[17], model);
 }
 
 void BattleTask::fn_80107850(void* owner) {
@@ -181,12 +237,12 @@ void BattleTask::fn_80107850(void* owner) {
 
 void BattleTask::fn_80107860(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 22);
-    PlayEfp_unk(&mEfp38BB4[3], model);
+    PlayEfp_unk(&mEfp38AF4[19], model);
 }
 
 void BattleTask::fn_80107908(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 23);
-    PlayEfp_unk(&mEfp38BB4[4], model);
+    PlayEfp_unk(&mEfp38AF4[20], model);
 }
 
 void BattleTask::fn_801079B0(void* owner) {
@@ -195,7 +251,7 @@ void BattleTask::fn_801079B0(void* owner) {
 
 void BattleTask::fn_801079C0(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 24);
-    PlayEfp_unk(&mEfp38BB4[6], model);
+    PlayEfp_unk(&mEfp38AF4[22], model);
 }
 
 void BattleTask::fn_80107A68(void* owner) {
@@ -204,7 +260,7 @@ void BattleTask::fn_80107A68(void* owner) {
 
 void BattleTask::fn_80107A78(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 25);
-    PlayEfp_unk(&mEfp38BB4[2], model);
+    PlayEfp_unk(&mEfp38AF4[18], model);
 }
 
 void BattleTask::fn_80107B20(void* owner) {
@@ -213,7 +269,7 @@ void BattleTask::fn_80107B20(void* owner) {
 
 void BattleTask::fn_80107B30(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 26);
-    PlayEfp_unk(&mEfp38BB4[7], model);
+    PlayEfp_unk(&mEfp38AF4[23], model);
 }
 
 void BattleTask::fn_80107BD8(void* owner) {
@@ -223,7 +279,7 @@ void BattleTask::fn_80107BD8(void* owner) {
 void BattleTask::fn_80107BE8(void* owner, atn::Model* model) {
     lbl_8087F3C0->mSystem.mLayer = 2;
     fn_80232B7C((unsigned int)owner, 27);
-    PlayEfp_unk(&mEfp38BB4[8], model);
+    PlayEfp_unk(&mEfp38AF4[24], model);
     lbl_8087F3C0->mSystem.mLayer = 0;
 }
 
@@ -236,7 +292,7 @@ void BattleTask::fn_80107CA8(void* owner, int flag) {
 void BattleTask::fn_80107CEC(void* owner, atn::Model* model, float scale) {
     fn_80232B7C((unsigned int)owner, 28);
     EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38BB4[9], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[25], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107D94(void* owner) {
@@ -250,7 +306,7 @@ void BattleTask::fn_80107DA4(void* owner, atn::Model* model, float scale, const 
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38BB4[10], model, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[26], model, 0, pos, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107E58(void* owner) {
@@ -259,7 +315,7 @@ void BattleTask::fn_80107E58(void* owner) {
 
 void BattleTask::fn_80107E68(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 30);
-    PlayEfp_unk(&mEfp38BB4[5], model);
+    PlayEfp_unk(&mEfp38AF4[21], model);
 }
 
 void BattleTask::fn_80107F10(void* owner) {
@@ -269,7 +325,7 @@ void BattleTask::fn_80107F10(void* owner) {
 void BattleTask::fn_80107F20(void* owner, atn::Model* model, float scale) {
     fn_80232B7C((unsigned int)owner, 31);
     EffectColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    fn_8023A8B4(lbl_8087F3C0, &mEfp38BB4[11], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
+    fn_8023A8B4(lbl_8087F3C0, &mEfp38AF4[27], model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, scale);
 }
 
 void BattleTask::fn_80107FC8(void* owner) {
@@ -278,7 +334,7 @@ void BattleTask::fn_80107FC8(void* owner) {
 
 void BattleTask::fn_80107FD8(void* owner, atn::Model* model) {
     fn_80232B7C((unsigned int)owner, 32);
-    PlayEfp_unk(&mEfp38BB4[12], model);
+    PlayEfp_unk(&mEfp38AF4[28], model);
 }
 
 void BattleTask::fn_80108080(void* owner) {
@@ -327,6 +383,25 @@ void BattleTask::fn_8010AB34() {
 void BattleTask::fn_8010AB94() {
     float add = m38A2C;
     m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
+}
+
+int BattleTask::fn_8010B180(CharaTask* a, CharaTask* b) {
+    if (a == 0 || b == 0 || lbl_8087F430->fn_80376210() == 0) {
+        return 1;
+    }
+    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (scene == 0) {
+        return 1;
+    }
+    int areaA = a->mC58.mB4;
+    int areaB = b->mC58.mB4;
+    if (areaA > 0 && areaB > 0 && areaA != areaB) {
+        gs::AiArea* area = scene->fn_803C1884(areaA);
+        if (area != 0 && area->m28 >= 0 && area->m28 != areaB) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 float BattleTask::fn_8010CA24() {

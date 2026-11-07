@@ -13,7 +13,6 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-extern "C" void fn_80105C9C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_80105DCC(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion, int arg);
 extern "C" void fn_80102A40(Effect_unk* effect, int arg, CharaTask* chara, int a, int b);
 // inferred: RGBA colour (names invented)
@@ -82,7 +81,7 @@ ControlAttractHateCharge::ControlAttractHateCharge(Chara_unk* chara) : ControlBa
     mTime = motion->fn_80097D7C(0);
     fn_800C344C(sSe[0], &mChara->mPos, 0, -1, 1.0f);
     mChara->fn_801446F0();
-    fn_80105C9C(lbl_8087F048, mChara, motion);
+    ((BattleTask*)lbl_8087F048)->fn_80105C9C(mChara, motion);
     fn_80105DCC(lbl_8087F048, mChara, motion, 1);
 }
 

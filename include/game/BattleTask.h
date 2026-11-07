@@ -24,6 +24,13 @@ struct RayObj_unk {
     CharaTask* m0C;
 };
 
+// inferred: 0x21C-byte entry of BattleTask::mSlots (only the flag and the character are known)
+struct BattleSlot_unk {
+    int mUsed;
+    unsigned char m04[0x218 - 0x4];
+    CharaTask* mChara;
+};
+
 // inferred: 0x934-byte entry of BattleTask::mCharas (only the character is known)
 struct BattleChara_unk {
     CharaTask* mChara;
@@ -59,8 +66,11 @@ public:
     void fn_80105AB0(void* owner, atn::Model* model, const EffectColor_unk& color);
     void fn_80105B3C(CharaTask* chara);
     void fn_80105B4C(void* owner, atn::Model* model, const EffectColor_unk* color);
+    void fn_80105C9C(CharaTask* chara, atn::Model* model);
     void fn_80105F3C(void* owner);
+    void fn_80105F4C(CharaTask* chara, atn::Model* model);
     void fn_8010607C(void* owner);
+    void fn_8010608C(CharaTask* chara, atn::Model* model);
     void fn_8010652C(void* owner);
     void fn_8010653C(void* owner, atn::Model* model);
     void fn_801065E4(void* owner);
@@ -69,6 +79,8 @@ public:
     void fn_80106728(int arg, atn::Model* model); // inferred: called when a part is destroyed
     void fn_801067D0(CharaTask* chara, atn::Model* model);
     void fn_80107208(int id, const atn::Vector3* pos, float scale); // inferred: sound of the battle effect table
+    int fn_80107274(CharaTask* chara);  // inferred: adds the character to mSlots (0: already there or full)
+    void fn_80107380(CharaTask* chara); // inferred: removes the character from mSlots
     void fn_80107574(); // inferred: hides the chant effect
     void fn_801076D0(void* owner, atn::Model* model); // inferred: paralysis effect
     void fn_80107798(void* owner, int flag);
@@ -101,6 +113,7 @@ public:
     void fn_80109828(const wchar_t* text); // inferred: debug log message
     void fn_8010AB34();
     void fn_8010AB94();
+    int fn_8010B180(CharaTask* a, CharaTask* b); // inferred: the two characters can reach each other (AI areas)
     float fn_8010CA24();
     float fn_8010CA2C();
     float fn_8010CA34();
@@ -109,7 +122,9 @@ public:
     int fn_8010D770(HitInfo_unk* hit);
     int fn_8010D7B4(HitInfo_unk* hit);
 
-    unsigned char m48[0xCBF0 - 0x48];
+    unsigned char m48[0xBA50 - 0x48];
+    BattleSlot_unk mSlots[8];      // 0xBA50: inferred: characters with an active battle effect
+    unsigned char mCB30[0xCBF0 - 0xCB30];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
     unsigned char m36290[0x363B0 - 0x36290];
     int mCharaCount;               // 0x363B0
@@ -124,8 +139,8 @@ public:
     float m38A2C;
     unsigned char m38A30[0x38A48 - 0x38A30];
     float m38A48; // inferred: gauge gained by a magic
-    unsigned char m38A4C[0x38BB4 - 0x38A4C];
-    atn::EfpFile mEfp38BB4[16];  // 0x38BB4: inferred: status effects (EFP files)
+    unsigned char m38A4C[0x38AF4 - 0x38A4C];
+    atn::EfpFile mEfp38AF4[32];  // 0x38AF4: inferred: status and magic effects (EFP files)
     unsigned char m38C74[0x3E2E0 - 0x38C74];
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor
