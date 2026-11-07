@@ -45,7 +45,6 @@ extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, Hit
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
-extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
 struct EffectMgr_unk {
@@ -1172,7 +1171,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
                 atn::Model* cm = &c->mMotion;
                 atn::Vector3 pos = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
                 atn::Vector3 to = (pos - hips).GetNormalize();
-                Bullet* bullet = fn_801010A0(lbl_8087F048);
+                Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
                 if (bullet == 0) {
                     return;
                 }
@@ -1186,7 +1185,7 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
         }
     } else {
         for (int i = 0; i < m1678->m48; i++) {
-            Bullet* bullet = fn_801010A0(lbl_8087F048);
+            Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
             if (bullet == 0) {
                 return;
             }

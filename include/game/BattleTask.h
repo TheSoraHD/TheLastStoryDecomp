@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "atn/EfpHandle_unk.h"
+#include "game/HomingBullet.h"
 
 class CharaTask;
 struct EffectColor_unk;
@@ -84,6 +85,11 @@ public:
     }
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
+    Bullet* fn_801010A0();       // inferred: free bullet
+    HomingBullet* fn_801010E8(); // inferred: free homing bullet
+    void fn_80101138();          // inferred: vf14(0) on the active bullets
+    void fn_801011B8();          // inferred: removes the active bullets
+    void fn_8010129C();          // inferred: vf18 on every bullet
     int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
     void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
     void fn_80102824(CharaTask* chara, PlayerTask* leader);
@@ -158,7 +164,9 @@ public:
     int fn_8010D770(HitInfo_unk* hit);
     int fn_8010D7B4(HitInfo_unk* hit);
 
-    unsigned char m48[0xBA50 - 0x48];
+    unsigned char m48[0x150 - 0x48];
+    Bullet mBullets[256];         // 0x150: inferred: bullet pool
+    HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
     BattleSlot_unk mSlots[8];      // 0xBA50: inferred: characters with an active battle effect
     unsigned char mCB30[0xCBF0 - 0xCB30];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)

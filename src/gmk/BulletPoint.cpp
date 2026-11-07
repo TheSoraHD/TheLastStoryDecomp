@@ -1,4 +1,5 @@
 #include "gmk/BulletPoint.h"
+#include "game/BattleTask.h"
 #include "atn/Memory.h"
 #include "game/Bullet.h"
 #include "game/CharaManager.h"
@@ -25,7 +26,6 @@ extern "C" BulletSettings_unk* lbl_8087F0A8;
 // inferred: bullet pool (class unknown)
 struct BulletPool_unk;
 extern "C" BulletPool_unk* lbl_8087F048;
-extern "C" Bullet* fn_801010A0(BulletPool_unk* pool); // inferred: a free bullet
 extern "C" HitInfo_unk* fn_80219E6C(int id);          // inferred: bullet data by id
 extern "C" int fn_800EFD04(int id);                   // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
@@ -117,7 +117,7 @@ void BulletPoint::vf10() {
         return;
     }
     mTimer = 0;
-    Bullet* bullet = fn_801010A0(lbl_8087F048);
+    Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
     if (bullet == 0) {
         return;
     }

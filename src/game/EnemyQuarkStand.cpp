@@ -159,7 +159,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data
                             const atn::Vector3* dir, HomingParam_unk* param, int flags, int arg, float f1,
                             float f2); // inferred: fires a homing bullet
 Effect_unk* fn_8013A194(); // inferred: bullet manager (returns lbl_8087F048)
-extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 extern "C" float fn_8010B250(Effect_unk* mgr, int kind, int arg); // inferred: scale of the bullet
 extern "C" int fn_800EFD04(int id); // inferred: effect resources of a bullet
 extern "C" int fn_800EFDA0(int id);
@@ -1146,7 +1145,7 @@ void EnemyQuarkStand::fn_80348FF4() {
             atn::Vector3 pos(0.0f, 0.0f, 20.0f);
             pos.fn_80011410(*(atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"));
             fn_803489F4(pos);
-            Bullet* bullet = fn_801010A0(fn_8013A194());
+            Bullet* bullet = ((BattleTask*)fn_8013A194())->fn_801010A0();
             if (bullet != 0) {
                 QuarkBulletShot_unk shot;
                 shot.m00 = fn_8010B250(fn_8013A194(), m152C->m3C, 0);

@@ -1,4 +1,5 @@
 #include "game/Em204Mulue.h"
+#include "game/BattleTask.h"
 #include "atn/Material_unk.h"
 #include "atn/Csv.h"
 #include "atn/ColliBase.h"
@@ -34,7 +35,6 @@ extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* data
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
-extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0 (two flags at 0xC4/0xC8 are
 // set around the spin effect, as in game/Em209SmallGolem.cpp)
 struct EffectMgr_unk {
@@ -913,7 +913,7 @@ void Em204MulueMp::fn_802B55B0(int aimed, int arg) {
             if (player != 0 && player->mD0_hi == 1 && player->m00 != 0) {
                 atn::Vector3 pos = GetNodePos_unk(player->m00->mMotion.GetNodeMtx_unk("hips"));
                 atn::Vector3 to = (pos - hips).GetNormalize();
-                Bullet* bullet = fn_801010A0(lbl_8087F048);
+                Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
                 if (bullet == 0) {
                     return;
                 }

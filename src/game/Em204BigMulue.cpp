@@ -1,4 +1,5 @@
 #include "game/Em204Mulue.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/ColliBase.h"
@@ -34,7 +35,6 @@ Effect_unk* fn_8013A194(); // inferred: effect/bullet manager (weak copy of anot
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet
-extern "C" Bullet* fn_801010A0(Effect_unk* mgr); // inferred: a free bullet
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
@@ -1232,7 +1232,7 @@ void Em204BigMulue::fn_802B1B50(int fire) {
         if (c->CanAct_unk()) {
             atn::Model* cm = &c->mMotion;
             atn::Vector3 to = GetNodePos_unk(cm->GetNodeMtx_unk("hips"));
-            Bullet* bullet = fn_801010A0(lbl_8087F048);
+            Bullet* bullet = ((BattleTask*)lbl_8087F048)->fn_801010A0();
             if (bullet != 0) {
                 atn::Model* model = &mMotion;
                 atn::Vector3 hips = GetNodePos_unk(model->GetNodeMtx_unk("hips"));

@@ -56,6 +56,59 @@ int BattleTask::fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector
     return 0;
 }
 
+Bullet* BattleTask::fn_801010A0() {
+    for (int i = 0; i < 256; i++) {
+        if (!mBullets[i].HasFlag_unk(0x10000)) {
+            return &mBullets[i];
+        }
+    }
+    return 0;
+}
+
+HomingBullet* BattleTask::fn_801010E8() {
+    for (int i = 0; i < 32; i++) {
+        if (!mHomings[i].HasFlag_unk(0x10000)) {
+            return &mHomings[i];
+        }
+    }
+    return 0;
+}
+
+void BattleTask::fn_80101138() {
+    for (unsigned int i = 0; i < 256; i++) {
+        if (mBullets[i].HasFlag_unk(0x10000)) {
+            mBullets[i].vf14(0);
+        }
+    }
+}
+
+void BattleTask::fn_801011B8() {
+    for (unsigned int i = 0; i < 256; i++) {
+        if (mBullets[i].HasFlag_unk(0x10000)) {
+            mBullets[i].vf0C(0, 1);
+        }
+    }
+    for (unsigned int i = 0; i < 32; i++) {
+        if (mHomings[i].HasFlag_unk(0x10000)) {
+            mHomings[i].vf0C(0, 1);
+        }
+    }
+}
+
+void BattleTask::fn_8010129C() {
+    for (unsigned int i = 0; i < 256; i++) {
+        mBullets[i].vf18();
+    }
+    for (unsigned int i = 0; i < 32; i++) {
+        mHomings[i].vf18();
+    }
+}
+
+// inferred: defined in this file (follows fn_8010129C, which calls it on every bullet)
+void Bullet::vf18() {
+    m04 &= ~0x10000;
+}
+
 void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
     m3E2E8 = obj;
     m3E2E0 = 0;

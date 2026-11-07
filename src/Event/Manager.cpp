@@ -2,6 +2,7 @@
 // packed together in .rodata). SequenceRoot is declared first: vtables are emitted in reverse
 // declaration order.
 #include "db/MapIdTable_unk.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "Event/SequenceRoot.h"
 #include "Event/PostSequence.h"
@@ -123,7 +124,6 @@ inline void SetLayoutValue_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 extern "C" void* lbl_8087F048;              // inferred: bullet manager
-extern "C" void fn_801011B8(void* bullets); // inferred: removes every bullet
 extern "C" atn::SoundEngine_unk* lbl_8087EE90; // inferred: sound engine
 // inferred: items of the debug menu (atn/MindowsCommon.h)
 extern "C" void fn_80087994(void* folder, const char* name, int* value, void* func, void* arg);
@@ -607,7 +607,7 @@ int Manager::fn_8047EA34(int id, int arg, int arg2) {
         m1EA8 = 0;
         if (seq->m50 == 1) {
             if (lbl_8087F048 != 0) {
-                fn_801011B8(lbl_8087F048);
+                ((BattleTask*)lbl_8087F048)->fn_801011B8();
             }
             if (lbl_8087F9E8 != 0) {
                 lbl_8087F9E8->fn_8059C32C(0);
