@@ -175,11 +175,20 @@ inline void operator delete(void*, void*) throw() {}
 #define SEEK_SET 0
 #define SEEK_CUR 1
 #define SEEK_END 2
+// the MSL C getc macro (stdio.h)
+#define getc(file) ((file)->buffer_len-- ? (int)*(file)->buffer_ptr++ : __get_char(file))
 
+// the MSL C FILE (see PowerPC_EABI_Support/MSL_C/MSL_Common/file_struc.h; not included: its types.h
+// declares operator new without an exception specification)
 struct _FILE {
-    unsigned char m00[0x50];
+    unsigned char m00[0x24];
+    unsigned char* buffer_ptr; // 0x24
+    unsigned long buffer_len;  // 0x28
+    unsigned char m2C[0x24];
 };
 extern "C" {
+int __get_char(_FILE* file);
+int ungetc(int c, _FILE* file);
 extern _FILE __files[];
 int fflush(_FILE* file);
 std::size_t fwrite(const void* p, std::size_t size, std::size_t n, _FILE* file);
@@ -1007,15 +1016,45 @@ protected:
     virtual int_type uflow();
     virtual int_type pbackfail(int_type c);
 
-    _FILE* file_;          // 0x24
-    int m28_;              // 0x28
-    const cvt* a_codecvt_; // 0x2C
-    int encoding_;         // 0x30
-    bool m34_;             // 0x34
-    bool always_noconv_;   // 0x35
-    bool m36_;             // 0x36
-    bool m37_;             // 0x37
-    bool m38_;             // 0x38
+    // inferred: converts the external characters back and pushes them back into the FILE
+    int __unget_unk(C ch) {
+        C c = ch;
+        char* to_next;
+        const C* from_next;
+        char buf[12];
+        std::size_t n;
+        switch (a_codecvt_->out(state_, &c, &c + 1, from_next, buf, buf + 12, to_next)) {
+        case std::codecvt_base::partial:
+        case std::codecvt_base::error:
+            return -1;
+        case std::codecvt_base::noconv:
+            n = sizeof(C);
+            memcpy(buf, &c, n);
+            break;
+        case std::codecvt_base::ok:
+            n = to_next - buf;
+            break;
+        }
+        char* p = buf;
+        for (std::size_t i = 0; i < n; ++p, ++i) {
+            if (ungetc(*p, file_) == -1) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+    int_type __get_char_unk(bool consume);
+    static int __min_len_unk;
+
+    _FILE* file_;           // 0x24
+    std::mbstate_t state_;  // 0x28
+    const cvt* a_codecvt_;  // 0x2C
+    int encoding_;          // 0x30
+    C saved_;               // 0x34
+    bool always_noconv_;    // 0x35
+    bool buffered_;         // 0x36
+    bool has_saved_;        // 0x37
+    bool can_putback_;      // 0x38
 };
 
 // inferred: 16 (0x8087EC24 char, 0x8087EC20 wchar_t)
@@ -1386,7 +1425,8 @@ std::streamsize bufferedbuf<C, T>::showmanyc() {
 }
 
 template <class C, class T>
-console_inputbuf<C, T>::console_inputbuf(_FILE* file) : file_(file), m28_(0), m36_(false), m37_(false), m38_(false) {
+console_inputbuf<C, T>::console_inputbuf(_FILE* file)
+    : file_(file), state_(0), buffered_(false), has_saved_(false), can_putback_(false) {
     if (file_ == 0) {
         throw std::runtime_error("console_inputbuf constructor given null FILE*");
     }
@@ -1398,6 +1438,181 @@ console_inputbuf<C, T>::console_inputbuf(_FILE* file) : file_(file), m28_(0), m3
         throw std::runtime_error("console_inputbuf: bad encoding");
     }
 }
+
+template <class C, class T>
+void console_inputbuf<C, T>::imbue(const std::locale& loc) {
+    if (sync() < 0) {
+        throw std::runtime_error("console_inputbuf::imbue failed");
+    }
+    a_codecvt_ = &std::use_facet<cvt>(loc);
+    always_noconv_ = a_codecvt_->always_noconv();
+    encoding_ = a_codecvt_->encoding();
+    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != 1) {
+        throw std::runtime_error("console_inputbuf: bad encoding");
+    }
+}
+
+template <class C, class T>
+std::basic_streambuf<C, T>* console_inputbuf<C, T>::setbuf(C* s, std::streamsize n) {
+    if (sync() < 0) {
+        return 0;
+    }
+    buffered_ = s != 0 || n != 0;
+    if (!buffered_) {
+        can_putback_ = false;
+    }
+    return this;
+}
+
+template <class C, class T>
+int console_inputbuf<C, T>::sync() {
+    if (buffered_) {
+        if (has_saved_) {
+            if (__unget_unk(saved_) < 0) {
+                return -1;
+            }
+        }
+        has_saved_ = false;
+    }
+    return 0;
+}
+
+template <class C, class T>
+std::streamsize console_inputbuf<C, T>::showmanyc() {
+    std::streamsize n = has_saved_;
+    if (encoding_ > 0) {
+        n += (int)file_->buffer_len / encoding_;
+    }
+    return n;
+}
+
+template <class C, class T>
+typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::underflow() {
+    if (has_saved_) {
+        return T::to_int_type(saved_);
+    }
+    int_type c = __get_char_unk(buffered_);
+    bool save = buffered_ && !T::eq_int_type(c, T::eof());
+    if (save) {
+        saved_ = T::to_char_type(c);
+        has_saved_ = true;
+        can_putback_ = true;
+    }
+    return c;
+}
+
+template <class C, class T>
+typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::uflow() {
+    if (has_saved_) {
+        has_saved_ = false;
+        return T::to_int_type(saved_);
+    }
+    int_type c = __get_char_unk(true);
+    bool save = buffered_ && !T::eq_int_type(c, T::eof());
+    if (save) {
+        saved_ = T::to_char_type(c);
+        can_putback_ = true;
+    }
+    return c;
+}
+
+template <class C, class T>
+typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::pbackfail(int_type c) {
+    if (buffered_) {
+        if (has_saved_) {
+            if (T::eq_int_type(c, T::eof())) {
+                return c;
+            }
+            if (__unget_unk(saved_) < 0) {
+                return T::eof();
+            }
+            saved_ = T::to_char_type(c);
+            can_putback_ = true;
+        } else {
+            if (!T::eq_int_type(c, T::eof())) {
+                saved_ = T::to_char_type(c);
+                can_putback_ = true;
+            } else if (!can_putback_) {
+                return T::eof();
+            }
+            has_saved_ = true;
+        }
+    } else {
+        if (T::eq_int_type(c, T::eof())) {
+            return c;
+        }
+        if (__unget_unk(T::to_char_type(c)) < 0) {
+            return T::eof();
+        }
+    }
+    return T::not_eof(c);
+}
+
+// inferred: reads one character (converting as many bytes as needed); if consume is false the bytes are
+// pushed back into the FILE
+template <class C, class T>
+typename console_inputbuf<C, T>::int_type console_inputbuf<C, T>::__get_char_unk(bool consume) {
+    C ch;
+    const char* from_next;
+    C* to_next;
+    char buf[12];
+    int len = std::max(__min_len_unk, encoding_);
+    char* p = buf;
+    for (int i = 0; i < len; ++i) {
+        int c = getc(file_);
+        if (c == -1) {
+            return T::eof();
+        }
+        *p++ = c;
+    }
+    if (always_noconv_) {
+        ch = *(C*)buf;
+    } else {
+        int used = 0;
+        char* from_end = buf + len;
+        char* q = buf + len;
+        std::codecvt_base::result r;
+        do {
+            r = a_codecvt_->in(state_, buf + used, from_end, from_next, &ch, &ch + 1, to_next);
+            switch (r) {
+            case std::codecvt_base::error:
+                return T::eof();
+            case std::codecvt_base::partial: {
+                used = from_next - buf;
+                if (len == 12) {
+                    return T::eof();
+                }
+                int c = getc(file_);
+                if (c == -1) {
+                    return T::eof();
+                }
+                *q = c;
+                ++from_end;
+                ++len;
+                ++q;
+                break;
+            }
+            case std::codecvt_base::noconv:
+                ch = *(C*)buf;
+                break;
+            }
+        } while (r == std::codecvt_base::partial);
+    }
+    if (!consume) {
+        char* e = buf + len;
+        while (len > 0) {
+            --len;
+            if (ungetc(*--e, file_) == -1) {
+                return T::eof();
+            }
+        }
+    }
+    return T::to_int_type(ch);
+}
+
+// inferred: 1 (0x8087EC7C char, 0x8087EC78 wchar_t)
+template <class C, class T>
+int console_inputbuf<C, T>::__min_len_unk = 1;
 
 template <class C, class T>
 console_outputbuf<C, T>::console_outputbuf(_FILE* file) : file_(file) {
