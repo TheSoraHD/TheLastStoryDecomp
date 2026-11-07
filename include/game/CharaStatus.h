@@ -83,7 +83,8 @@ struct RouteTable_unk {
 
     unsigned char m00[0x38];
     unsigned int m38; // inferred: flags (bit 1 tested by CharaTask::fn_801765D8)
-    unsigned char m3C[0x74 - 0x3C];
+    unsigned char m3C[0x70 - 0x3C];
+    int m70; // inferred: id of the default place (GameTask fn_8036FE74)
     int mNumPoints;          // 0x74
     unsigned int mNumPlaces; // 0x78
     RoutePlace_unk* mPlaces; // 0x7C

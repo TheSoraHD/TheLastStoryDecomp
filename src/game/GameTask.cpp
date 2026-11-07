@@ -227,7 +227,8 @@ struct MpSettings_unk {
     int m07C;
     unsigned char m080[0x90 - 0x80];
     int m090; // inferred: battle flag checked when the replay ends (GameTask::fn_803737C0)
-    unsigned char m094[0xD4 - 0x94];
+    unsigned char m094[0xD0 - 0x94];
+    int mD0; // inferred: 1 while the battle is replayed (GameTask::fn_803727DC)
     int mD4; // inferred: index into mD8 (difficulty?)
     StatusRate_unk mD8[4];
     unsigned char m158[0x184 - 0x158];
@@ -2346,6 +2347,56 @@ int GameTask::fn_8036FD4C() {
     return busy;
 }
 
+// inferred: position of the party in the save data (names invented)
+struct SavePosition_unk {
+    unsigned char m0000[0x4F64];
+    atn::Vector3 mPos; // 0x4F64
+    atn::Vector3 mRot; // 0x4F70
+};
+
+// inferred: start position of the party: from the save data, else from the route place of the entry
+// (called by game/GameScene)
+// NONMATCHING: 98.2% - registers of the inlined FindPlace_unk loops (as fn_80374710)
+extern "C" void fn_8036FE74(GameTask* task, atn::Vector3* pos, atn::Vector3* rot) {
+    *pos = lbl_807C7030;
+    *rot = lbl_807C7030;
+    if (task->m550C.m30 != 0) {
+        SavePosition_unk* save = (SavePosition_unk*)task->m550C.m30;
+        *pos = save->mPos;
+        *rot = save->mRot;
+        return;
+    }
+    if (task->m550C.mScene != 0) {
+        RouteTable_unk* table = (RouteTable_unk*)task->m550C.mScene;
+        RoutePlace_unk* place = table->FindPlace_unk(task->m550C.m14);
+        if (place == 0) {
+            place = table->FindPlace_unk(table->m70);
+        }
+        if (place != 0) {
+            *pos = place->mPos;
+            rot->y = place->m14;
+        }
+        return;
+    }
+    if (task->mOption.m1C != 0) {
+        SavePosition_unk* save = (SavePosition_unk*)task->mOption.m1C;
+        *pos = save->mPos;
+        *rot = save->mRot;
+        return;
+    }
+    if (task->m10D8 != 0) {
+        RouteTable_unk* table = (RouteTable_unk*)task->m10D8;
+        RoutePlace_unk* place = table->FindPlace_unk(task->mOption.m10);
+        if (place == 0) {
+            place = table->FindPlace_unk(table->m70);
+        }
+        if (place != 0) {
+            *pos = place->mPos;
+            rot->y = place->m14;
+        }
+    }
+}
+
 extern "C" void fn_80370094(GameTask* task, int chapter) {
     if (lbl_8087EEB8 != 0) {
         char buf[0x100];
@@ -2582,6 +2633,44 @@ void GameTask::fn_80370C6C() {
     }
 }
 
+extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, void* save,
+                            int reason, int arg9); // inferred: changes the map (save: data to restore)
+
+// inferred: leaves the game over screen: continues from `save` (or from the copy the field started from), or
+// stays on the map when `stay` is set (called by game/GameOverTask and game/NewCampPartsTop)
+extern "C" void fn_80370F8C(GameTask* task, int count, void* save, int stay) {
+    if (count != 0) {
+        task->m574C = task->mGlobalFlags[282] + 1;
+    }
+    if (lbl_8087FA20 != 0 && ((TaskWithTac_unk*)lbl_8087FA20)->m258 != 0) {
+        ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->MeltTask();
+    }
+    lbl_8087F490->MeltTask();
+    ((atn::Task*)lbl_8087F048)->MeltTask();
+    lbl_8087EE68->MeltTask();
+    lbl_8087F8A0->fn_800D246C(1);
+    EnemyManager::sInstance->fn_800D246C(1);
+    NpcManager::sInstance->fn_800D246C(1);
+    lbl_8087F9E8->MeltTask();
+    lbl_8087F490->m263C->fn_803B57B0(1);
+    lbl_8087F490->m2640->fn_803B6C88(1);
+    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+        fn_805AA734(lbl_8087F9F8);
+        fn_803743AC(lbl_8087F430);
+    }
+    lbl_8087F540->MeltTask();
+    GameBgm::sInstance->fn_8037D4C0(0, 60, 1, 0, 1.0f);
+    if (stay == 0) {
+        if (save != 0) {
+            fn_8036F268(lbl_8087F430, 0, 0, 0, 0, 1, save, 0x12, 0);
+        } else {
+            fn_8036F268(lbl_8087F430, 0, 0, 0, 0, 1, task->m562C.mPtr->mData, 0x12, 0);
+        }
+    } else if (task->m10D8 != 0) {
+        task->m10D8->MeltTask();
+    }
+}
+
 // inferred: route data of the map table (as in game/NewCampPartsMapSelect.cpp)
 struct MapRouteData_unk {
     unsigned char mMapType;
@@ -2590,8 +2679,6 @@ struct MapRouteData_unk {
     int mEntry;
 };
 extern "C" MapRouteData_unk* fn_80216544(int id, int chapter, int flag);
-extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, int b, int reason,
-                            int arg9); // inferred: changes the map
 
 // inferred: goes back to the map of the chapter (called by game/GameEventScript)
 extern "C" void fn_80371164(GameTask* task) {
@@ -2673,6 +2760,42 @@ void GameTask::fn_8037177C() {
     m5768 = 0;
     m5774 = 0;
     m5770 = 0;
+}
+
+void GameTask::fn_803727DC() {
+    m54E4 = 0;
+    if (m5590 != 0) {
+        fn_80570A14(m5590, 0);
+        fn_80570A40(m5590, 0);
+    }
+    if (lbl_8087F0A8->mD0 != 1) {
+        fn_8056BD34(m558C.mPtr);
+    }
+    MotionBlurParam_unk blur = lbl_8087EFA8->m240;
+    blur.mEnabled = 0;
+    lbl_8087EFA8->m240 = blur;
+    if (lbl_8087F0A8->mD0 == 1) {
+        lbl_8087F8A0->fn_800D246C(0);
+    } else {
+        lbl_8087F8A0->MeltTask();
+    }
+    FriendManager::sInstance->fn_800D246C(0);
+    EnemyManager::sInstance->MeltTask();
+    m10D8->fn_800D246C(0);
+    MenuCommonTask::sInstance->fn_804A2FBC();
+    Inventory::instance_->fn_8044D028();
+    if (Inventory::instance_->mDF30.mChara != 0) {
+        Inventory::instance_->mDF30.mChara = 0;
+        Inventory::instance_->mDF30.m90 = 0;
+    }
+    if (lbl_8087F490->mD8C == 1 && mGlobalFlags[207] != 0) {
+        fn_8037F744(&mCamera);
+        if (m56F4.mCount != 0) {
+            fn_80376324(this, m56F4.Front_unk());
+            m56F4.Pop_unk();
+        }
+        lbl_8087F490->fn_803E4478();
+    }
 }
 
 // inferred: empty release asserts (rule of the autoinline threshold, as GHOUL_ASSERT_UNK in game/Em309Ghoul.cpp)
