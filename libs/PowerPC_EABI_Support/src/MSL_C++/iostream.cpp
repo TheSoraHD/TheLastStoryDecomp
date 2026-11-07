@@ -24,7 +24,7 @@ ios_base::~ios_base() {
 void ios_base::init(void* sb) {
     rdbuf_ = sb;
     exceptions_ = goodbit;
-    state_ = (unsigned char)(int)(sb == 0);
+    state_ = sb ? goodbit : badbit;
     flags_ = skipws | dec;
     width_ = 0;
     precision_ = 6;

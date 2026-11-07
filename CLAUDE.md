@@ -8,6 +8,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
+- `msl-iostream-20261107c` (2026-11-07, sesion 5, **sin mergear**): **14152 / 18116**, lost 0. MSL C++ 111 -> 112/170 (`ios_base::init`; `state_`/`exceptions_` como `iostate`, `widen`/`use_facet`/codecvt como el original). `Init` sigue inlineando: al constructor de `console_inputbuf` le sobran ~2 sentencias para ser candidato auto-inline y faltan ~22 mas. Notas: `docs/msl-iostream-20261107.md` (sesion 5).
+- `msl-iostream-20261107c`/`d` (2026-11-07, sesiones 5-6, **sin mergear**, `d` sobre `c`): **14152**, lost 0. MSL C++ 112/170 (`ios_base::init`); sesion 6 solo mediciones (coste de `Init`, orden del pool y de emision). Notas: `docs/msl-iostream-20261107.md` (sesiones 5 y 6).
 - `msl-iostream-20261107b` (2026-11-07, sesion 4, **mergeada en `main`**): **14151 / 18116**, lost 0. MSL C++ 106 -> 111/170 (`num_put` de `double`, `sentry`/`flush` de `wostream`, destructores de `Init`). `Init` sigue inlineandolo todo (falta coste de candidatos). Notas: `docs/msl-iostream-20261107.md` (sesion 4).
 - `msl-iostream-20261107` (mergeada en `main`): 14146, MSL C++ 106/170 (`shared_ptr_unk.cpp` enlazada). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`.
 - `nw4rmath-20261107` (mergeada en `main`): 14053, NW4R 77/78 (falta `ut_TextWriterBase`): `db_DbgPrintBase`, math (`SinCosFIdx`, `MTX34Zero`, asm aprobado), `db_assert` (`VPanic`), `FrameHeap::GetSize_unk`; `docs/nw4rmath-20261107.md`.

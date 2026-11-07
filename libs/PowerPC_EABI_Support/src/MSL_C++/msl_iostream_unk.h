@@ -123,6 +123,8 @@ public:
         }
     }
 
+    T* operator->() const { return ptr_; }
+
     T* ptr_;
     detail::shared_ptr_deleter_common* cntrl_;
 };
@@ -382,22 +384,22 @@ public:
     }
     locale getloc() const;
     unsigned short flags() const { return flags_; }
-    iostate rdstate() const { return (iostate)state_; }
-    iostate exceptions() const { return (iostate)exceptions_; }
+    iostate rdstate() const { return state_; }
+    iostate exceptions() const { return exceptions_; }
     bool good() const { return state_ == 0; }
     bool fail() const { return (state_ & (badbit | failbit)) != 0; }
     void clear(iostate state = goodbit) {
         state_ = state;
         if (rdbuf_ == 0) {
-            state_ |= badbit;
+            state_ = (iostate)(state_ | badbit);
         }
-        if (state_ & exceptions_) {
+        if (exceptions_ & state_) {
             throw_failure("ios_base failure in clear");
         }
     }
     void setstate(iostate state) { clear((iostate)(rdstate() | state)); }
     // inferred: sets a state bit without the exception check (used by the catch blocks of the sentry and flush)
-    void __setstate_nothrow_unk(iostate state) { state_ |= state; }
+    void __setstate_nothrow_unk(iostate state) { state_ = (iostate)(state_ | state); }
 
 protected:
     ios_base() {}
@@ -426,8 +428,8 @@ protected:
     streamsize precision_;        // 0x28
     streamsize width_;            // 0x2C
     unsigned short flags_;        // 0x30
-    unsigned char state_;         // 0x32
-    unsigned char exceptions_;    // 0x33
+    iostate state_;               // 0x32 (one byte with -enum min)
+    iostate exceptions_;          // 0x33
 };
 
 
@@ -805,6 +807,11 @@ struct __locale_imp {
     explicit __locale_imp(const char* name) : name_(name) {}
     ~__locale_imp() throw();
     void replace(locale::facet* f, size_t id);
+    // inferred: installs a new facet in the slot of its id (an inline level above replace)
+    template <class Facet>
+    void __install_unk(Facet* f) {
+        replace(f, Facet::id.get());
+    }
 
     vector<locale::facet*> facets_; // 0x00
     string name_;                   // 0x0C
@@ -818,11 +825,13 @@ inline const Facet& use_facet(const locale& loc) {
     // inferred: an empty object is built first (its byte is cleared at the start of every inlined copy)
     detail::default_delete<Facet> d = detail::default_delete<Facet>();
     size_t i = Facet::id.get();
-    if (i >= loc.imp_.ptr_->facets_.size() || loc.imp_.ptr_->facets_[i] == 0) {
-        Facet* f = new Facet;
-        loc.imp_.ptr_->replace(f, Facet::id.get());
+    const locale::facet* f;
+    if (i >= loc.imp_->facets_.size() || (f = loc.imp_->facets_[i]) == 0) {
+        Facet* nf = new Facet;
+        loc.imp_->__install_unk(nf);
+        f = loc.imp_->facets_[i];
     }
-    return *(const Facet*)loc.imp_.ptr_->facets_[i];
+    return *(const Facet*)f;
 }
 
 } // namespace std
@@ -1267,8 +1276,13 @@ protected:
     void init(basic_streambuf<C, T>* sb) {
         ios_base::init(sb);
         tie_ = 0;
-        fill_ = use_facet<ctype<C> >(getloc()).widen(' ');
+        fill_ = widen(' ');
     }
+
+public:
+    char_type widen(char c) const { return use_facet<ctype<C> >(getloc()).widen(c); }
+
+protected:
 
     basic_ostream<C, T>* tie_; // 0x34
     char_type fill_;           // 0x38
@@ -1391,10 +1405,7 @@ public:
         this->setg(0, 0, 0);
         this->setp(0, 0);
         ext_beg_ = ext_next_ = ext_end_ = 0;
-        a_codecvt_ = &std::use_facet<cvt>(this->getloc());
-        always_noconv_ = a_codecvt_->always_noconv();
-        encoding_ = a_codecvt_->encoding();
-        max_length_ = a_codecvt_->max_length();
+        __set_cvt_unk(this->getloc());
         this->setbuf(0, 0);
     }
     virtual ~bufferedbuf() {
@@ -1420,6 +1431,13 @@ protected:
     int flush_put();
     int empty_get();
     std::streamsize fill_get();
+    // inferred: caches the codecvt facet of loc and its properties (inlined in the constructor and imbue)
+    void __set_cvt_unk(const std::locale& loc) {
+        a_codecvt_ = &std::use_facet<cvt>(loc);
+        always_noconv_ = a_codecvt_->always_noconv();
+        encoding_ = a_codecvt_->encoding();
+        max_length_ = a_codecvt_->max_length();
+    }
     // inferred: sets up the get and put areas over the buffer (inlined in setbuf)
     void __init_areas_unk() {
         C* p = buffer_;
@@ -1549,6 +1567,12 @@ protected:
         return 0;
     }
     int_type __get_char_unk(bool consume);
+    // inferred: caches the codecvt facet of loc and its properties (inlined in the constructor and imbue)
+    void __set_cvt_unk(const std::locale& loc) {
+        a_codecvt_ = &std::use_facet<cvt>(loc);
+        always_noconv_ = a_codecvt_->always_noconv();
+        encoding_ = a_codecvt_->encoding();
+    }
     static int __min_len_unk;
 
     _FILE* file_;           // 0x24
@@ -1882,10 +1906,7 @@ void bufferedbuf<C, T>::imbue(const std::locale& loc) {
     if (this->sync() < 0) {
         throw std::runtime_error("bufferedbuf::imbue failed");
     }
-    a_codecvt_ = &std::use_facet<cvt>(loc);
-    always_noconv_ = a_codecvt_->always_noconv();
-    encoding_ = a_codecvt_->encoding();
-    max_length_ = a_codecvt_->max_length();
+    __set_cvt_unk(loc);
     if (max_length_ <= 0 || max_length_ > buf_size_ / 2) {
         if (max_length_ > 0 && owns_buffer_) {
             this->setbuf(0, buffered_);
@@ -1943,10 +1964,8 @@ console_inputbuf<C, T>::console_inputbuf(_FILE* file)
         throw std::runtime_error("console_inputbuf constructor given null FILE*");
     }
     std::locale loc = this->getloc();
-    a_codecvt_ = &std::use_facet<cvt>(loc);
-    always_noconv_ = a_codecvt_->always_noconv();
-    encoding_ = a_codecvt_->encoding();
-    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != 1) {
+    __set_cvt_unk(loc);
+    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != sizeof(C)) {
         throw std::runtime_error("console_inputbuf: bad encoding");
     }
 }
@@ -1957,10 +1976,8 @@ void console_inputbuf<C, T>::imbue(const std::locale& loc) {
     if (sync() < 0) {
         throw std::runtime_error("console_inputbuf::imbue failed");
     }
-    a_codecvt_ = &std::use_facet<cvt>(loc);
-    always_noconv_ = a_codecvt_->always_noconv();
-    encoding_ = a_codecvt_->encoding();
-    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != 1) {
+    __set_cvt_unk(loc);
+    if ((unsigned int)encoding_ > 12 || always_noconv_ && encoding_ != sizeof(C)) {
         throw std::runtime_error("console_inputbuf: bad encoding");
     }
 }
