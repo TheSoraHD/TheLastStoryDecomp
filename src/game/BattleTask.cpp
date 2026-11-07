@@ -378,6 +378,18 @@ void BattleTask::fn_80108080(void* owner) {
     fn_80239DAC(lbl_8087F3C0, (unsigned int)owner, 32, 1);
 }
 
+BattleChara_unk::~BattleChara_unk() {
+    if (mHateValues != 0) {
+        delete[] mHateValues;
+        mHateValues = 0;
+    }
+    if (mHateIds != 0) {
+        delete[] mHateIds;
+        mHateIds = 0;
+    }
+    mHateCount = 0;
+}
+
 int BattleTask::fn_80108378(CharaTask* chara) {
     BattleTask* battle = lbl_8087F048;
     if (battle != 0) {
@@ -392,6 +404,49 @@ int BattleTask::fn_80108378(CharaTask* chara) {
         return -1;
     }
     return -1;
+}
+
+void BattleChara_unk::fn_801088B8(int id, int value) {
+    int n = 0;
+    for (int i = 0; i < mHateCount; i++) {
+        if (id == mHateIds[i]) {
+            n++;
+        }
+    }
+    if (n >= 10) {
+        return;
+    }
+    for (int i = 0; i < mHateCount - 1; i++) {
+        mHateIds[i] = mHateIds[i + 1];
+        mHateValues[i] = mHateValues[i + 1];
+    }
+    mHateIds[mHateCount - 1] = id;
+    mHateValues[mHateCount - 1] = value;
+}
+
+void BattleChara_unk::fn_8010895C(int id, int all) {
+    for (int i = 0; i < mHateCount; i++) {
+        if (id == mHateIds[i]) {
+            mHateIds[i] = -1;
+            mHateValues[i] = 0;
+            if (all == 0) {
+                break;
+            }
+        }
+    }
+    int skip = 1;
+    for (int i = 0; i < mHateCount; i++) {
+        int hateId = mHateIds[i];
+        if (hateId >= 0 && mHateValues[i] > 0) {
+            skip = 0;
+        }
+        if (skip == 0 && (hateId < 0 || mHateValues[i] == 0)) {
+            for (int j = i + 1; j < mHateCount; j++) {
+                mHateIds[j - 1] = mHateIds[j];
+                mHateValues[j - 1] = mHateValues[j];
+            }
+        }
+    }
 }
 
 void BattleTask::fn_80108A54(CharaTask* chara) {

@@ -31,10 +31,18 @@ struct BattleSlot_unk {
     CharaTask* mChara;
 };
 
-// inferred: 0x934-byte entry of BattleTask::mCharas (only the character is known)
+// inferred: 0x934-byte entry of BattleTask::mCharas (constructor 0x80108090, built by __construct_array)
 struct BattleChara_unk {
+    ~BattleChara_unk(); // 0x80108150
+    void fn_801088B8(int id, int value); // inferred: adds a hate entry (at most 10 per id; drops the oldest)
+    void fn_8010895C(int id, int all);   // inferred: removes the entries of an id and compacts the list
+
     CharaTask* mChara;
-    unsigned char m04[0x934 - 0x4];
+    unsigned char m04[0x6D0 - 0x4];
+    short* mHateValues; // 0x6D0: inferred
+    short* mHateIds;    // 0x6D4: inferred
+    int mHateCount;     // 0x6D8: inferred: size of both arrays (10, or 5 in multiplayer)
+    unsigned char m6DC[0x934 - 0x6DC];
 };
 
 // inferred from __vt__10BattleTask (0x80779DA0): battle manager (lbl_8087F048). Other units still use
