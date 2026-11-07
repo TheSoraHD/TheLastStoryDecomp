@@ -8,6 +8,9 @@
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
 #include "Event/Manager.h"
+#include "atn/Layer3D.h"
+#include "atn/RenderManager.h"
+#include "atn/SceneColorMatrix_unk.h"
 #include "game/GameScene.h"
 #include "game/PlayerManager.h"
 #include "game/TeamAIManager.h"
@@ -44,6 +47,10 @@ extern "C" void fn_80370C6C(GameField_unk* field);
 extern "C" void fn_80371164(GameField_unk* field);
 extern "C" void fn_803712BC(GameField_unk* field);
 extern "C" void fn_80374964(GameField_unk* field, int arg);
+extern "C" void fn_80375194(GameField_unk* field, int a, int b, float c);
+extern "C" void fn_8036E430(GameField_unk* field, int a, int b);
+extern "C" void fn_8036E994(GameField_unk* field, int a, int b, int c);
+extern "C" void fn_80373F78(GameField_unk* field);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: UI sound names (SE_UICOM_001...)
 
 // inferred: plays a sound with the sound category of the event scripts (5); called from the
@@ -195,6 +202,14 @@ void GameEventScript::fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd, wait);
 }
 
+void GameEventScript::fn_803A4400(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    if (lbl_8087F430 != 0) {
+        fn_80375194(lbl_8087F430, args->m1C, args->m14, *(float*)&args->m18);
+    }
+    result.SetNext_unk(cmd);
+}
+
 // NONMATCHING: 77% - register allocation; the original loads m08 before the first store
 void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
@@ -215,6 +230,38 @@ void GameEventScript::fn_803A59D4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.mWait = window->mState != 0;
 }
 
+// NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
+void GameEventScript::fn_803A5F14(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    atn::IRenderLayer* layer = 0;
+    switch (args->m08) {
+    case 0:
+        layer = atn::RenderManager::instance_->mLayers[4];
+        break;
+    case 1:
+        layer = atn::RenderManager::instance_->mLayers[3];
+        lbl_8087EFA8->m104.mEnabled = args->m0C;
+        break;
+    }
+    if (layer != 0) {
+        layer->m04 = args->m0C;
+    }
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
+void GameEventScript::fn_803A5F88(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (leader != 0) {
+        if (static_cast<ScriptArgs_unk*>(cmd)->m08 == 0) {
+            leader->m54C |= 0x10;
+        } else {
+            leader->m54C &= ~0x10;
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero)
 void GameEventScript::fn_803A61CC(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
@@ -229,6 +276,14 @@ void GameEventScript::fn_803A61F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 void GameEventScript::fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 98% - registers r0/r4 swapped (type/zero), as fn_803A61CC
+void GameEventScript::fn_803A83FC(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    if (lbl_8087F430 != 0) {
+        fn_80373F78(lbl_8087F430);
+    }
     result.SetNext_unk(cmd);
 }
 
@@ -266,6 +321,27 @@ void GameEventScript::fn_803A98C4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 // inferred: waits while the field is in state 5
+void GameEventScript::fn_803AAA74(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    if (lbl_8087F430 != 0) {
+        fn_8036E430(lbl_8087F430, 2, static_cast<ScriptArgs_unk*>(cmd)->m08);
+    }
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 72% - the original loads the arguments before saving r30/r31
+void GameEventScript::fn_803AAD58(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    lbl_8087F490->fn_803E44C4((args->m0C & 1) ^ 1, args->m08, 45);
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 92% - the original loads m10 through the saved copy of cmd first (as fn_8039D178)
+void GameEventScript::fn_803AB144(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    fn_8036E994(lbl_8087F430, args->m08, args->m0C, args->m10);
+    result.SetNext_unk(cmd, 1);
+}
+
 void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     int wait = 1;
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 5) {

@@ -72,11 +72,15 @@ public:
     void fn_803A362C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A4400(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A59D4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A5F14(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A5F88(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A61CC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A61F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A83FC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A8464(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A8470(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A90E8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
@@ -86,6 +90,9 @@ public:
     void fn_803A956C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A98C4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A98EC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803AAA74(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803AAD58(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803AB144(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB328(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB368(ScriptResult_unk& result, ScriptCmd_unk* cmd);
