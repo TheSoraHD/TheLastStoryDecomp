@@ -10,6 +10,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "game/BattleTask.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
@@ -47,7 +48,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion); // inferred: as in game/CharaTask.cpp
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -899,7 +899,7 @@ void Em206CocoonMp::fn_802C0058() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         mStatus.fn_8013322C(0x4000);
-        fn_80107A68(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
         if (m14F4 > 1200) {
             SetState_unk(16);
             mMotion.m34C = 1;

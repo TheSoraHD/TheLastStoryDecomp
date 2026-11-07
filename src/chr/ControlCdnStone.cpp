@@ -6,6 +6,7 @@
 #include "atn/SoundRef.h"
 #include <boost/bind.hpp>
 #include "game/TownTask.h"
+#include "game/BattleTask.h"
 
 // inferred: game settings (the pad state is at 0x48C)
 struct Input_unk {
@@ -21,20 +22,11 @@ extern "C" Settings_unk* lbl_8087F0A8;
 
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_80107860(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: stone break effect
 extern "C" void fn_80101524(Effect_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int id, int arg);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void fn_801076D0(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: paralysis effect
-extern "C" void fn_80107798(Effect_unk* mgr, atn::Model* model, int arg);           // inferred: stops it
-extern "C" void fn_80107850(Effect_unk* mgr, atn::Model* model);                    // inferred: stops the betrayal effect
-extern "C" void fn_80107A78(Effect_unk* mgr, atn::Model* model, atn::Model* model2);
-extern "C" void fn_801077A8(Effect_unk* mgr, atn::Model* model, atn::Model* model2);
 extern "C" void fn_801028E4(Effect_unk* mgr, int a, CharaTask* chara, int b);
 extern "C" void fn_80109828(Effect_unk* mgr, const wchar_t* text); // inferred: shows a message
-extern "C" void fn_80107FD8(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: sleep effect
-extern "C" void fn_80108080(Effect_unk* mgr, atn::Model* model);                    // inferred: stops it
-extern "C" void fn_801079C0(Effect_unk* mgr, atn::Model* model, atn::Model* model2); // inferred: dizzy effect
-extern "C" void fn_80107A68(Effect_unk* mgr, atn::Model* model);                    // inferred: stops it
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...); // inferred: swprintf
 // inferred: message table (lbl_8087F1E4); mDC is the betrayal message
@@ -113,7 +105,7 @@ int ControlCdnStone::vf0C() {
                 PSMTXRotRad(mtx, 'y', 3.1415927f);
                 PSMTXMultVec(mtx, &m14, &m14);
                 m14.y = 6.0f;
-                fn_80107860(lbl_8087F048, motion, motion);
+                ((BattleTask*)lbl_8087F048)->fn_80107860(motion, motion);
             }
         }
         if (m14.y > 0.0f) {
@@ -208,7 +200,7 @@ int ControlCdnParalyzed::vf0C() {
 void ControlCdnParalyzed::vf1C() {
     if (mChara != 0 && lbl_8087F048 != 0) {
         mChara->mStatus.fn_8013322C(0x80);
-        fn_80107798(lbl_8087F048, &mChara->mMotion, 1);
+        ((BattleTask*)lbl_8087F048)->fn_80107798(&mChara->mMotion, 1);
     }
 }
 
@@ -221,7 +213,7 @@ ControlCdnRestoreParalyzed::ControlCdnRestoreParalyzed(Chara_unk* chara) : Contr
     chara->m58C = 0;
     mChara->m560 = 0x33;
     mChara->mStatus.fn_8013322C(0x80);
-    fn_80107798(lbl_8087F048, &mChara->mMotion, 1);
+    ((BattleTask*)lbl_8087F048)->fn_80107798(&mChara->mMotion, 1);
     fn_800C344C("SE_BTCOM_074", &mChara->mPos, 0, -1, 1.0f);
 }
 
@@ -253,9 +245,9 @@ ControlCdnBetray::ControlCdnBetray(Chara_unk* chara, int a, int b) : ControlBase
     motion->fn_80097C08(0, m0C != 0 ? 0x72 : 0x40, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     if (m0C != 0) {
-        fn_80107A78(lbl_8087F048, motion, motion);
+        ((BattleTask*)lbl_8087F048)->fn_80107A78(motion, motion);
     } else {
-        fn_801077A8(lbl_8087F048, motion, motion);
+        ((BattleTask*)lbl_8087F048)->fn_801077A8(motion, motion);
     }
     fn_800C344C("SE_BTCOM_075", &mChara->mPos, 0, -1, 1.0f);
     fn_801028E4(lbl_8087F048, 0, mChara, 0);
@@ -268,7 +260,7 @@ int ControlCdnBetray::vf0C() {
             return 1;
         }
     } else if ((mChara->mStatus.m0C & 0x100) != 0x100) {
-        fn_80107850(lbl_8087F048, motion);
+        ((BattleTask*)lbl_8087F048)->fn_80107850(motion);
         return 1;
     }
     float frame = motion->mTracks[0].m08;
@@ -328,14 +320,14 @@ ControlCdnSleep::ControlCdnSleep(Chara_unk* chara) : ControlBase(chara), m08(0),
     motion->fn_80097C08(0, 7, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     if (lbl_8087F048 != 0) {
-        fn_80107FD8(lbl_8087F048, motion, motion);
+        ((BattleTask*)lbl_8087F048)->fn_80107FD8(motion, motion);
     }
 }
 
 ControlCdnSleep::~ControlCdnSleep() {
     mChara->mStatus.fn_8013322C(0x10);
     if (lbl_8087F048 != 0) {
-        fn_80108080(lbl_8087F048, &mChara->mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80108080(&mChara->mMotion);
     }
 }
 
@@ -359,7 +351,7 @@ ControlCdnRestoreSleep::ControlCdnRestoreSleep(Chara_unk* chara) : ControlBase(c
     motion->fn_80097C08(0, 8, 0, 0, 1, 0.0f, 0.1f);
     motion->mTracks[0].m0C = 1.0f;
     if (lbl_8087F048 != 0) {
-        fn_80108080(lbl_8087F048, motion);
+        ((BattleTask*)lbl_8087F048)->fn_80108080(motion);
     }
 }
 
@@ -407,7 +399,7 @@ ControlCdnPiyo::ControlCdnPiyo(Chara_unk* chara, const atn::Vector3& dir, int ti
     }
     mChara->fn_801446F0();
     if (lbl_8087F048 != 0) {
-        fn_801079C0(lbl_8087F048, motion, motion);
+        ((BattleTask*)lbl_8087F048)->fn_801079C0(motion, motion);
     }
 }
 
@@ -415,7 +407,7 @@ ControlCdnPiyo::~ControlCdnPiyo() {
     mChara->mStatus.fn_8013322C(0x4000);
     Motion_unk* motion = &mChara->mMotion;
     if (lbl_8087F048 != 0) {
-        fn_80107A68(lbl_8087F048, motion);
+        ((BattleTask*)lbl_8087F048)->fn_80107A68(motion);
     }
 }
 

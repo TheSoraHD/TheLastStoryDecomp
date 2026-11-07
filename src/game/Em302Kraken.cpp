@@ -12,6 +12,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/BattleTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -109,8 +110,6 @@ struct KrakenDamage_unk {
 };
 extern "C" void fn_80108C10(Effect_unk* effect, KrakenDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
-extern "C" void fn_80107850(Effect_unk* effect, atn::Model* model);
-extern "C" void fn_801077A8(Effect_unk* effect, atn::Model* model, atn::Model* model2); // inferred: same model twice
 extern "C" int rand();
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
@@ -1036,7 +1035,7 @@ void Em302Kraken::fn_802DAA38() {
             total -= (int)(m1514 * chara->mStatus.m04) + 1;
             chara->mStatus.fn_8012DF7C(hp + 1, 0, 0);
             fn_80108C10(lbl_8087F048, &damage, chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f), (int)this, chara, 0, 0);
-            fn_80107850(lbl_8087F048, &chara->mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80107850(&chara->mMotion);
             atn::Vector3 rot = chara->mRot.ToRotation_unk();
             atn::Vector3 dir = rot * -1.0f;
             dir.Normalize_unk();
@@ -1539,8 +1538,8 @@ void Em302Kraken::fn_802DD1B4(int level) {
         }
         EnemyTask* e = enemies[i];
         RoutePlace_unk* place = places[i];
-        fn_80107850(lbl_8087F048, &e->mMotion);
-        fn_801077A8(lbl_8087F048, &e->mMotion, &e->mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107850(&e->mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_801077A8(&e->mMotion, &e->mMotion);
         fn_80232B7C(e, 1000);
         PlayEffect_unk(&m14EC, (atn::Model*)&e->mMotion);
         e->mFlag15 = 0;

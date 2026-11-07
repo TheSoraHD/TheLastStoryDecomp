@@ -14,6 +14,7 @@
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "game/BattleTask.h"
 
 // inferred: circuit of the war lion around the arena: place id and two flags (names invented)
 struct WarLionPlace_unk {
@@ -31,8 +32,6 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 // inferred: settings (lbl_8087F0A8) and debug drawing (lbl_8087EEB0), as in game/CopyRobotTask.cpp
 struct Settings_unk {
     unsigned char m00[0x30];
@@ -470,8 +469,8 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
             mMotion.mTracks[0].m0C = 0.2f;
             mMotion.fn_80097C08(0, 0x2E, 0, 0, 1, 0.0f, 0.1f);
             m15F4 = 0;
-            fn_80107A68(lbl_8087F048, &mMotion);
-            fn_801079C0(lbl_8087F048, &mMotion, &mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
             fn_80370AE4(lbl_8087F430, 0x5B, 1);
         }
     }
@@ -1536,7 +1535,7 @@ void Em403WarLion::fn_80329D7C() {
         m14CC = 0;
         m15DC = 1;
         m15F0 = 0;
-        fn_80107A68(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
         SetState_unk(6);
     }
 }

@@ -4,6 +4,7 @@
 #include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
 #include "game/Input_unk.h"
+#include "game/BattleTask.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -22,8 +23,6 @@ extern "C" int fn_8036DAF4(DiveField_unk* field, Ledge_unk* ledge, CharaTask* ch
 // inferred: camera/character manager (lbl_8087F048, class unknown)
 extern "C" void* lbl_8087F048;
 extern "C" float fn_8010CA3C(void* obj, float f);
-extern "C" void fn_801065E4(void* obj, CharaTask* chara);
-extern "C" void fn_8010653C(void* obj, CharaTask* chara, void* motion);
 
 
 // inferred: game state (lbl_8087EFA8): m3A4 is the time scale
@@ -298,7 +297,7 @@ int ControlBackStep::vf0C() {
 
 void ControlBackStep::vf1C() {
     if (lbl_8087F048 != 0) {
-        fn_801065E4(lbl_8087F048, mChara);
+        ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
     }
     mChara->mPos = m08;
 }
@@ -312,7 +311,7 @@ ControlWarp::ControlWarp(Chara_unk* chara, const atn::Vector3& pos, const atn::V
     }
     PlayDiveMotion_unk(m, 0x1EA, 1.0f);
     if (lbl_8087F048 != 0) {
-        fn_8010653C(lbl_8087F048, mChara, &mChara->mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_8010653C(mChara, &mChara->mMotion);
     }
 }
 
@@ -338,7 +337,7 @@ int ControlWarp::vf0C() {
                 mChara->mC58.m0C.mDestPoint = FindRoutePoint_unk(lbl_8087F430->m10D8, chara);
             }
             if (lbl_8087F048 != 0) {
-                fn_801065E4(lbl_8087F048, mChara);
+                ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
             }
             ret = 1;
         }
@@ -350,7 +349,7 @@ int ControlWarp::vf0C() {
 
 void ControlWarp::vf1C() {
     if (lbl_8087F048 != 0) {
-        fn_801065E4(lbl_8087F048, mChara);
+        ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
     }
 }
 

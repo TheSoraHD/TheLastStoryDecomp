@@ -12,6 +12,8 @@
 #include "atn/Memory.h"
 #include <boost/bind.hpp>
 #include "game/Input_unk.h"
+#include "game/BattleTask.h"
+#include "atn/EffectSystem_unk.h"
 
 // inferred: game settings (lbl_8087F0A8, as in chr/ControlCharge.cpp); names invented
 struct Settings_unk {
@@ -33,18 +35,13 @@ struct GameState_unk {
     float m3A4; // inferred: time of a frame
 };
 extern "C" GameState_unk* lbl_8087EFA8;
-// inferred: RGBA colour (names invented)
-struct Color4f_unk {
-    Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
+// inferred: RGBA colour of the effects
+typedef EffectColor_unk Color4f_unk;
 // inferred: effect manager of the characters (lbl_8087F048)
 struct Effect_unk {
     void fn_80105B3C(CharaTask* chara); // inferred: effect of the special cast motion
 };
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_80105AB0(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* model, const Color4f_unk& color);
-extern "C" void fn_80105B4C(Effect_unk* mgr, CharaTask* chara, chr::Motion_unk* model, const Color4f_unk* color);
 extern "C" float fn_8010CB2C(Effect_unk* mgr, CharaTask* chara, float rate); // inferred: chant speed
 extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
@@ -252,7 +249,7 @@ ControlChant::ControlChant(Chara_unk* chara, CharaTask* target, const atn::Vecto
     model->mTracks[0].m0C = 1.0f;
     m3C = mChara->m638;
     if (lbl_8087F048) {
-        fn_80105AB0(lbl_8087F048, mChara, model, ElementColor_unk(mChara));
+        ((BattleTask*)lbl_8087F048)->fn_80105AB0(mChara, model, ElementColor_unk(mChara));
     }
     m30 = fn_800C344C(sChantSe, &mChara->mPos, 0, -1, 1.0f);
     m08 = pos;
@@ -431,7 +428,7 @@ int ControlChant::vf0C() {
         if (mChara->mType == 0) {
             color.a = 0.3f;
         }
-        fn_80105B4C(lbl_8087F048, mChara, model, &color);
+        ((BattleTask*)lbl_8087F048)->fn_80105B4C(mChara, model, &color);
     }
     if (mChara->mType == 3 && hit && m34 && !m34->CanAct_unk() && mChara->mC58.mC4 &&
         !mChara->fn_8016F3D0(m34, 1)) {

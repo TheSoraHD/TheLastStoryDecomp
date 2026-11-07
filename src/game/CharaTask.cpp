@@ -68,6 +68,7 @@
 #include "game/MapTask.h"
 #include "game/TownTask.h"
 #include "chr/CharaEquip_unk.h"
+#include "game/BattleTask.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -5803,8 +5804,6 @@ void CharaTask::fn_8014C228() {
 }
 
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
-extern "C" void fn_80107850(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_80107B20(Effect_unk* effect, chr::Motion_unk* motion);
 // inferred: effect manager (see gmk/PlayEffect.cpp); mB8 is set to 2 while CharaTask::vf98 starts its effect
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -5813,7 +5812,6 @@ struct EffectMgr_unk {
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_8010C00C(Effect_unk* mgr, CharaTask* chara);
 extern "C" void fn_80107CA8(Effect_unk* effect, CharaTask* chara, int arg);
-extern "C" void fn_80107BE8(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_800FC410(Effect_unk* effect, CharaTask* chara, CharaTask* target, int arg, HitInfo_unk* hit, int id,
                             int frames);
 extern "C" bool fn_80051A88(const atn::Model::Sphere_unk* sphere, const atn::Vector3* point); // inferred: point in sphere
@@ -5998,13 +5996,13 @@ void CharaTask::fn_8014C540() {
                 if (mStatus.IsState_unk(0x100)) {
                     mStatus.fn_8013322C(0x100);
                     mStatus.fn_8013322C(0x100);
-                    fn_80107850(lbl_8087F048, &mMotion);
+                    ((BattleTask*)lbl_8087F048)->fn_80107850(&mMotion);
                     Recover_unk(this);
                 }
                 if (mStatus.IsState_unk(0x10000)) {
                     mStatus.fn_8013322C(0x10000);
                     mStatus.fn_8013322C(0x10000);
-                    fn_80107B20(lbl_8087F048, &mMotion);
+                    ((BattleTask*)lbl_8087F048)->fn_80107B20(&mMotion);
                     Recover_unk(this);
                 }
             }
@@ -6079,7 +6077,7 @@ void CharaTask::fn_8014C540() {
             }
         } else if (mStatus.IsState_unk(0x100000) && !hide) {
             mFlagB18 = 1;
-            fn_80107BE8(lbl_8087F048, this, &mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80107BE8(this, &mMotion);
         }
     }
     if (mType == 0 && FindHitBullet_unk() != 0) {
@@ -7567,16 +7565,7 @@ void CharaTask::vf44() {
     mFlagB10 = 1;
 }
 
-extern "C" void fn_80107798(Effect_unk* effect, chr::Motion_unk* motion, int arg);
-extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_80107E58(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_80107FC8(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_80108080(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_801079B0(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_80107F10(Effect_unk* effect, chr::Motion_unk* motion);
-extern "C" void fn_80107BD8(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80107380(Effect_unk* effect, CharaTask* chara);
-extern "C" void fn_80107D94(Effect_unk* effect, chr::Motion_unk* motion);
 
 // NONMATCHING: ~57% - the inlined fn_8016E970 is one inline level short (see fn_80178208), and in
 // the camera state copy the original computes the address of the last 16-byte block (addi r9)
@@ -7584,13 +7573,13 @@ extern "C" void fn_80107D94(Effect_unk* effect, chr::Motion_unk* motion);
 // the blocks, assignments in the body.
 void CharaTask::vf48() {
     if (lbl_8087F048 != 0) {
-        fn_80107850(lbl_8087F048, &mMotion);
-        fn_80107798(lbl_8087F048, &mMotion, 1);
-        fn_80107A68(lbl_8087F048, &mMotion);
-        fn_80107B20(lbl_8087F048, &mMotion);
-        fn_80107E58(lbl_8087F048, &mMotion);
-        fn_80107FC8(lbl_8087F048, &mMotion);
-        fn_80108080(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107850(&mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107798(&mMotion, 1);
+        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107B20(&mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107E58(&mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107FC8(&mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80108080(&mMotion);
     }
     fn_80168048();
     fn_80168190();
@@ -9001,10 +8990,7 @@ void CharaTask::fn_80164D24() {
     }
 }
 
-extern "C" void fn_8010607C(Effect_unk* effect, CharaTask* chara);
-extern "C" void fn_80105F3C(Effect_unk* effect, CharaTask* chara);
 extern "C" void fn_8010608C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
-extern "C" void fn_8010652C(Effect_unk* effect, CharaTask* chara);
 
 // inferred: ends the shade started by fn_80164B00 (`arg`: with effect and sound)
 void CharaTask::fn_80164DCC(int arg) {
@@ -9024,13 +9010,13 @@ void CharaTask::fn_80164DCC(int arg) {
     mFC8.z = 0.0f;
     mFD4 = 0.0f;
     m1028 = 1;
-    fn_8010607C(lbl_8087F048, this);
-    fn_80105F3C(lbl_8087F048, this);
+    ((BattleTask*)lbl_8087F048)->fn_8010607C(this);
+    ((BattleTask*)lbl_8087F048)->fn_80105F3C(this);
     if (arg != 0) {
         fn_8010608C(lbl_8087F048, this, &mMotion);
         fn_800C344C(sSoundNames_unk[2], &mPos, 0, -1, 1.0f);
     }
-    fn_8010652C(lbl_8087F048, this);
+    ((BattleTask*)lbl_8087F048)->fn_8010652C(this);
 }
 
 // inferred: returns a record whose m4C is compared with the shade timer (unknown type)
@@ -9165,7 +9151,7 @@ void CharaTask::fn_80166D3C(int a) {
 // inferred: recovers from status 0x100 (the shared part is Recover_unk, also inlined in fn_80175B18)
 void CharaTask::fn_80167038() {
     mStatus.fn_8013322C(0x100);
-    fn_80107850(lbl_8087F048, &mMotion);
+    ((BattleTask*)lbl_8087F048)->fn_80107850(&mMotion);
     Recover_unk(this);
 }
 
@@ -9177,7 +9163,7 @@ void CharaTask::fn_80167344(int a) {
 // inferred: recovers from status 0x10000
 void CharaTask::fn_80167640() {
     mStatus.fn_8013322C(0x10000);
-    fn_80107B20(lbl_8087F048, &mMotion);
+    ((BattleTask*)lbl_8087F048)->fn_80107B20(&mMotion);
     Recover_unk(this);
 }
 
@@ -9191,12 +9177,11 @@ void CharaTask::fn_80167C34() {
     fn_80178208(control);
 }
 
-extern "C" void fn_80107908(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 
 // inferred: saves the camera mode (mFlag19) and switches the camera to mode 1
 void CharaTask::fn_80167F1C() {
     if (lbl_8087F048 != 0) {
-        fn_80107908(lbl_8087F048, &mMotion, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107908(&mMotion, &mMotion);
     }
     if (mType == 0) {
         mFlag20 = 1;
@@ -9215,7 +9200,7 @@ void CharaTask::fn_80167F1C() {
 // local, explicit operator= and copy constructor in CameraState_unk.
 void CharaTask::fn_80168048() {
     if (lbl_8087F048 != 0) {
-        fn_801079B0(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_801079B0(&mMotion);
     }
     if (mFlag20 && mType == 0) {
         mFlag20 = 0;
@@ -9224,17 +9209,16 @@ void CharaTask::fn_80168048() {
     }
 }
 
-extern "C" void fn_80107E68(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 
 void CharaTask::fn_80168170() {
     if (lbl_8087F048 != 0) {
-        fn_80107E68(lbl_8087F048, &mMotion, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107E68(&mMotion, &mMotion);
     }
 }
 
 void CharaTask::fn_80168190() {
     if (lbl_8087F048 != 0) {
-        fn_80107F10(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107F10(&mMotion);
     }
 }
 
@@ -9248,19 +9232,18 @@ void CharaTask::fn_801684A0() {
     fn_80178208(control);
 }
 
-extern "C" void fn_80107B30(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 extern "C" void fn_80107274(Effect_unk* effect, CharaTask* chara);
 
 void CharaTask::fn_80168788() {
     if (lbl_8087F048 != 0) {
-        fn_80107B30(lbl_8087F048, &mMotion, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107B30(&mMotion, &mMotion);
         fn_80107274(lbl_8087F048, this);
     }
 }
 
 void CharaTask::fn_801687D8() {
     if (lbl_8087F048 != 0) {
-        fn_80107BD8(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107BD8(&mMotion);
         fn_80107380(lbl_8087F048, this);
     }
 }
@@ -9275,32 +9258,30 @@ void CharaTask::fn_80168B1C() {
     fn_80178208(control);
 }
 
-extern "C" void fn_80107CEC(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion, float f);
 
 void CharaTask::fn_80168E04() {
     Effect_unk* effect = lbl_8087F048;
     if (effect != 0) {
-        fn_80107CEC(effect, &mMotion, &mMotion, vf90());
+        ((BattleTask*)effect)->fn_80107CEC(&mMotion, &mMotion, vf90());
     }
 }
 
 void CharaTask::fn_80168E60() {
     if (lbl_8087F048 != 0) {
-        fn_80107D94(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107D94(&mMotion);
     }
 }
 
-extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
 
 void CharaTask::fn_80168E80() {
     if (lbl_8087F048 != 0) {
-        fn_801079C0(lbl_8087F048, &mMotion, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
     }
 }
 
 void CharaTask::fn_80168EA0() {
     if (lbl_8087F048 != 0) {
-        fn_80107A68(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
     }
 }
 
@@ -9316,7 +9297,7 @@ void CharaTask::fn_80168EC0() {
 
 void CharaTask::fn_80168F3C() {
     if (lbl_8087F048 != 0) {
-        fn_80107E58(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107E58(&mMotion);
     }
 }
 
@@ -11976,10 +11957,9 @@ float CharaTask::fn_8017AC24() {
     return 1.0f;
 }
 
-extern "C" void fn_80106680(Effect_unk* effect, CharaTask* chara, atn::Model* model);
 
 void CharaTask::fn_8017AC2C() {
-    fn_80106680(lbl_8087F048, this, &mMotion);
+    ((BattleTask*)lbl_8087F048)->fn_80106680(this, &mMotion);
 }
 
 void CharaTask::fn_8017AC3C(int value) {

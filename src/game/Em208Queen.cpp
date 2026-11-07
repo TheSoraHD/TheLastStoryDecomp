@@ -9,6 +9,7 @@
 #include "atn/ColliBase.h"
 #include "macros.h"
 #include "atn/DrawHelper.h"
+#include "game/BattleTask.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -20,8 +21,6 @@ extern "C" atn::Vector3 lbl_807C7030;              // inferred: zero vector
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
-extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double acos(double x);
@@ -948,7 +947,7 @@ void Em208Queen::fn_802CB74C() {
         if (m14BC >= 180) {
             m14B8 = 2;
             PlayMotion_unk(0x14C);
-            fn_80107A68(lbl_8087F048, &mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
         }
     } else if (m14B8 == 2) {
         float frame = mMotion.mTracks[0].m08;
@@ -1084,7 +1083,7 @@ void Em208Queen::fn_802CC39C() {
         }
         m14D0 = 0;
     }
-    fn_801079C0(lbl_8087F048, &mMotion, &mMotion);
+    ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
 }
 
 inline int Em208Queen::CollectPoints_unk(int* ids) {

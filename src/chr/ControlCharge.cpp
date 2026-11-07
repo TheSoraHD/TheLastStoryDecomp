@@ -14,6 +14,7 @@
 #include <boost/bind.hpp>
 #include "game/Input_unk.h"
 #include "game/MapTask.h"
+#include "game/BattleTask.h"
 
 // inferred: game settings (as in chr/ControlCdnStone.cpp)
 struct Settings_unk {
@@ -42,11 +43,7 @@ struct Effect_unk {
     void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
 };
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_80105950(Effect_unk* mgr, CharaTask* chara, atn::Model* model); // inferred: charge effect
-extern "C" void fn_80105A08(Effect_unk* mgr, CharaTask* chara, atn::Model* model); // inferred: charge complete
 extern "C" float fn_8010CA24(Effect_unk* mgr); // inferred: charge speed rate
-extern "C" void fn_8010653C(Effect_unk* mgr, CharaTask* chara, atn::Model* model); // inferred: jump effect
-extern "C" void fn_801065E4(Effect_unk* mgr, CharaTask* chara);                    // inferred: stops it
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
 // inferred: cursor shown by the tactical view (lbl_8087F9F8 + 0x15D8); names invented
@@ -175,7 +172,7 @@ ControlCharge::ControlCharge(Chara_unk* chara, int a, const atn::Vector3* target
         mChara->fn_801539E0();
     }
     if (lbl_8087F048 != 0 && mChara->m648 != 0) {
-        fn_80105950(lbl_8087F048, mChara, &mChara->mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80105950(mChara, &mChara->mMotion);
     }
     m40 = mChara->m638;
     HitInfo_unk* hit;
@@ -262,7 +259,7 @@ int ControlCharge::vf0C() {
             m34 = 1;
             if (lbl_8087F048 != 0) {
                 lbl_8087F048->fn_801059F8(mChara);
-                fn_80105A08(lbl_8087F048, mChara, &mChara->mMotion);
+                ((BattleTask*)lbl_8087F048)->fn_80105A08(mChara, &mChara->mMotion);
             }
         }
         atn::Vector3 pos(mChara->mPos);
@@ -649,7 +646,7 @@ ControlHighJumpAttack::ControlHighJumpAttack(Chara_unk* chara, const atn::Vector
         mChara->mRot = atn::Vector3(0.0f, d.ToRotation_unk().y, 0.0f);
     }
     if (lbl_8087F048 != 0) {
-        fn_8010653C(lbl_8087F048, mChara, &mChara->mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_8010653C(mChara, &mChara->mMotion);
     }
     if (lbl_8087F498 != 0) {
         lbl_8087F498->fn_803EA77C(mChara, 0x20, 0, 1.0f, 10.0f);
@@ -707,7 +704,7 @@ int ControlHighJumpAttack::vf0C() {
     float frame = motion->mTracks[0].m08;
     if (frame >= motion->fn_80097D7C(0)) {
         if (lbl_8087F048 != 0) {
-            fn_801065E4(lbl_8087F048, mChara);
+            ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
         }
         CharaTask* chara = mChara;
         if (chara->mType == 2 || chara->mType == 3) {
@@ -721,7 +718,7 @@ int ControlHighJumpAttack::vf0C() {
 
 void ControlHighJumpAttack::vf1C() {
     if (lbl_8087F048 != 0) {
-        fn_801065E4(lbl_8087F048, mChara);
+        ((BattleTask*)lbl_8087F048)->fn_801065E4(mChara);
     }
 }
 

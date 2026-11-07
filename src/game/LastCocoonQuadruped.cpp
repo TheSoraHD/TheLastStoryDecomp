@@ -3,12 +3,11 @@
 #include "chr/ControlBase.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/BattleTask.h"
 
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" void fn_801079C0(Effect_unk* effect, atn::Model* model, chr::Motion_unk* motion);
-extern "C" void fn_80107A68(Effect_unk* effect, chr::Motion_unk* motion); // inferred: as in game/CharaTask.cpp
 // inferred: field (lbl_8087F430): camera shake and event flags (as in gmk/ShakeCamera.cpp)
 struct QuadField_unk {
     void Shake_unk(int frame, float x, float y) {
@@ -478,13 +477,13 @@ void LastCocoonQuadruped::fn_804666D8() {
         float f = mMotion.mTracks[0].m08;
         if (f > 80.0f) {
             if (m1800 != 0) {
-                fn_80107A68(lbl_8087F048, &mMotion);
+                ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
                 m1800 = 0;
             }
             mMotion.mTracks[0].m0C = 1.0f;
         } else if (f > 60.0f) {
             if (m1800 == 0) {
-                fn_801079C0(lbl_8087F048, &mMotion, &mMotion);
+                ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
                 m1800 = 1;
             }
             mMotion.mTracks[0].m0C = 0.075f;
@@ -502,7 +501,7 @@ void LastCocoonQuadruped::fn_80466868() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         SetMode_unk(0);
         if (m1800 != 0) {
-            fn_80107A68(lbl_8087F048, &mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
             m1800 = 0;
         }
     }
@@ -511,7 +510,7 @@ void LastCocoonQuadruped::fn_80466868() {
 void LastCocoonQuadruped::fn_80466974() {
     SetMode_unk(0);
     if (m1800 != 0) {
-        fn_80107A68(lbl_8087F048, &mMotion);
+        ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
         m1800 = 0;
     }
 }

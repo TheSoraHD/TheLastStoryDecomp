@@ -7,6 +7,7 @@
 #include "game/HitInfo_unk.h"
 #include "macros.h"
 #include "chr/CharaEquip_unk.h"
+#include "game/BattleTask.h"
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8 (class unknown)
 struct Input_unk {
@@ -87,7 +88,6 @@ extern "C" int fn_8021A8D0(HitInfo_unk* hit);
 extern "C" int fn_80375184(StatusField_unk* field);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_8010652C(Effect_unk* effect, chr::Chara_unk* chara);
 extern "C" void fn_801061BC(Effect_unk* effect, chr::Chara_unk* chara, void* model, int level);
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" float fn_80040588(void* obj, CharaStatus* status, int arg);
@@ -772,7 +772,6 @@ extern "C" atn::Task* lbl_8087F9E8;
 extern "C" int fn_8021A960(HitInfo_unk* hit);
 extern "C" void fn_800FDE60(Effect_unk* effect, int id, CharaTask* chara, atn::Vector3* dir);
 extern "C" float fn_8010CCD0(Effect_unk* effect);
-extern "C" void fn_80107FC8(Effect_unk* effect, chr::Motion_unk* motion);
 extern "C" void fn_80108C10(Effect_unk* effect, StatusDamage_unk* damage, const atn::Vector3& pos, int a, CharaTask* chara,
                             int b, int c);
 
@@ -882,7 +881,7 @@ void CharaStatus::fn_8012E540() {
                     mChara->fn_80168F94();
                 } else if (bit == (bit & 0x2000000)) {
                     if (lbl_8087F048 != 0) {
-                        fn_80107FC8(lbl_8087F048, &mChara->mMotion);
+                        ((BattleTask*)lbl_8087F048)->fn_80107FC8(&mChara->mMotion);
                     }
                 }
             }
@@ -980,7 +979,7 @@ void CharaStatus::fn_8012F188(float amount) {
     m42C = MIN(MAX(m42C + amount * rate, 0.0f), max - 0.1f);
     int after = fn_8012F3D8();
     if (before < after && after > 1 && lbl_8087F048 != 0) {
-        fn_8010652C(lbl_8087F048, mChara);
+        ((BattleTask*)lbl_8087F048)->fn_8010652C(mChara);
         fn_801061BC(lbl_8087F048, mChara, &mChara->mMotion, after - 1);
     }
 }
@@ -1001,8 +1000,6 @@ int CharaStatus::fn_8012F3D8() {
     return 3;
 }
 
-extern "C" void fn_801067D0(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
-extern "C" void fn_80107F20(Effect_unk* effect, chr::Motion_unk* a, chr::Motion_unk* b);
 extern "C" void fn_80101524(Effect_unk* effect, const atn::Vector3* pos, const atn::Vector3* rot, unsigned int old,
                             unsigned int now);
 extern "C" void fn_80108F38(Effect_unk* effect, const atn::Vector3& pos, int status);
@@ -1286,7 +1283,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
         mChara->fn_80168F3C();
     } else if ((old & 0x80000) != 0x80000 && (m0C & 0x80000) == 0x80000) {
         if ((immune & 0x80000) == 0) {
-            fn_801067D0(lbl_8087F048, mChara, &mChara->mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_801067D0(mChara, &mChara->mMotion);
             fn_80133130(0x80000, power > 0 ? power : 600, both);
             mChara->fn_80168EC0();
             if (both) {
@@ -1302,7 +1299,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
     if ((old & 0x40000) == 0x40000 && (m0C & 0x40000) != 0x40000) {
     } else if ((old & 0x40000) != 0x40000 && (m0C & 0x40000) == 0x40000) {
         if ((immune & 0x40000) == 0) {
-            fn_801067D0(lbl_8087F048, mChara, &mChara->mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_801067D0(mChara, &mChara->mMotion);
             if (effect) {
                 Effect_unk* fx = lbl_8087F048;
                 fn_80108F38(fx, mChara->fn_801781B0(), 0x40000);
@@ -1360,7 +1357,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
     }
     if ((old & 0x2000000) == 0x2000000 && (m0C & 0x2000000) != 0x2000000) {
         if (lbl_8087F048 != 0) {
-            fn_80107FC8(lbl_8087F048, &mChara->mMotion);
+            ((BattleTask*)lbl_8087F048)->fn_80107FC8(&mChara->mMotion);
         }
     } else if ((old & 0x2000000) != 0x2000000 && (m0C & 0x2000000) == 0x2000000) {
         if ((immune & 0x2000000) == 0) {
@@ -1368,8 +1365,7 @@ int CharaStatus::fn_8012F440(int flags, int power, int remove, int damage, int s
             if (fx != 0) {
                 CharaTask* chara = mChara;
                 chr::Motion_unk* motion = &chara->mMotion;
-                chara->vf90();
-                fn_80107F20(fx, motion, motion);
+                ((BattleTask*)fx)->fn_80107F20(motion, motion, chara->vf90());
             }
             fn_80133130(0x2000000, power > 0 ? power : 240, both);
             if (effect) {

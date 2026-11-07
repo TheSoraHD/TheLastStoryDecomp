@@ -3,6 +3,7 @@
 #include "atn/SoundRef.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
+#include "game/BattleTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
@@ -14,8 +15,6 @@ extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_80105C9C(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion);
 extern "C" void fn_80105DCC(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion, int arg);
-extern "C" void fn_8010607C(Effect_unk* effect, CharaTask* chara);
-extern "C" void fn_80105F3C(Effect_unk* effect, CharaTask* chara);
 extern "C" void fn_80102A40(Effect_unk* effect, int arg, CharaTask* chara, int a, int b);
 // inferred: RGBA colour (names invented)
 struct Color4f_unk {
@@ -134,8 +133,8 @@ int ControlAttractHateCharge::vf0C() {
 }
 
 void ControlAttractHateCharge::vf1C() {
-    fn_8010607C(lbl_8087F048, mChara);
-    fn_80105F3C(lbl_8087F048, mChara);
+    ((BattleTask*)lbl_8087F048)->fn_8010607C(mChara);
+    ((BattleTask*)lbl_8087F048)->fn_80105F3C(mChara);
 }
 
 ControlOverdrive::ControlOverdrive(Chara_unk* chara, int skill)
