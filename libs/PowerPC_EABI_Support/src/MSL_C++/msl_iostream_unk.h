@@ -456,6 +456,7 @@ struct __vec_storage_unk {
     }
     void clear() {
         size_t n = size_;
+        allocator<T> a = allocator<T>();
         size_t& size = size_;
         size -= n;
     }

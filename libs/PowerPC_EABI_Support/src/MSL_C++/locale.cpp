@@ -37,7 +37,8 @@ inline Metrowerks::recursive_mutex& __locale_mutex_unk() {
 // NONMATCHING: 94% - the original strength-reduces the facet loop (offset + counter); -opt nostrength keeps i*4
 __locale_imp::~__locale_imp() throw() {
     Metrowerks::scoped_lock<Metrowerks::recursive_mutex> lock(__locale_mutex_unk());
-    for (size_t i = 0, n = facets_.size(); i < n; ++i) {
+    size_t n = facets_.size();
+    for (size_t i = 0; i < n; ++i) {
         locale::facet* f = facets_[i];
         if (f != 0) {
             delete f->__release_unk();
@@ -46,7 +47,7 @@ __locale_imp::~__locale_imp() throw() {
 }
 
 // inferred: the classic locale, built once under the locale mutex (guard 0x808803B0, object 0x808803B8)
-inline const locale& locale::classic() {
+const locale& locale::classic() {
     Metrowerks::scoped_lock<Metrowerks::recursive_mutex> lock(__locale_mutex_unk());
     static locale classic_(new __locale_imp("C"));
     return classic_;
