@@ -70,6 +70,15 @@ struct BattleChara_unk {
 // inferred from __vt__10BattleTask (0x80779DA0): battle manager (lbl_8087F048). Other units still use
 // partial views of it named Effect_unk (CharaTask, CharaStatus, AI...); the methods those call keep the
 // Effect_unk name until the views are unified. Method names invented.
+// inferred: 0x14-byte record copied member by member (fn_8010ABF4); names invented
+struct BattleSel_unk {
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    unsigned char m10;
+};
+
 class BattleTask : public atn::Task {
 public:
     // inferred: index of the character in mCharas, -1 if missing (inlined)
@@ -107,6 +116,10 @@ public:
     void fn_80103600(CharaTask* chara);
     BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
     void fn_80103FD4();
+    void fn_8010ABF4();
+    void fn_8010AC60(); // inferred: clears the selection and the gimmicks of the characters
+    void fn_8010ACCC();
+    void fn_8010AEF4();
     void fn_80105510(int value); // inferred: sets m363BC (clamped; 9999 sets the field flag 10)
     void fn_801058F8(); // inferred: updates every player
     void fn_80105950(void* owner, atn::Model* model);
@@ -199,7 +212,11 @@ public:
     unsigned char m38A4C[0x38A5C - 0x38A4C];
     BattleCalcParam_unk m38A5C; // inferred: parameters of the current attack
     atn::EfpFile mEfp38AF4[32];  // 0x38AF4: inferred: status and magic effects (EFP files)
-    unsigned char m38C74[0x3E2E0 - 0x38C74];
+    unsigned char m38C74[0x38C90 - 0x38C74];
+    BattleSel_unk m38C90; // inferred: selection (copied to m38CB8 by fn_8010ABF4)
+    unsigned char m38CA4[0x38CB8 - 0x38CA4];
+    BattleSel_unk m38CB8;
+    unsigned char m38CCC[0x3E2E0 - 0x38CCC];
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor
     RayObj_unk* m3E2E8; // inferred: cursor target

@@ -686,6 +686,31 @@ void BattleTask::fn_8010AB94() {
     m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
 }
 
+void BattleTask::fn_8010ABF4() {
+    m38A04 = 0.0f;
+    fn_8010ACCC();
+    m38CB8 = m38C90;
+    fn_8010AEF4();
+}
+
+void BattleTask::fn_8010AC60() {
+    m38CB8.m00 = 0;
+    m38CB8.m04 = 0;
+    m38CB8.m08 = 0;
+    m38CB8.m0C = 0;
+    m38CB8.m10 = 0;
+    BattleChara_unk* p = mCharas;
+    for (int i = 0; i < mCharaCount; i++) {
+        CharaTask* c = p->mChara;
+        if (c != 0 && c->mC58.mD0 != 0) {
+            c->mC58.mD0 = 0;
+        }
+        p->m92E = 0;
+        p++;
+    }
+    fn_80105510(40);
+}
+
 int BattleTask::fn_8010B180(CharaTask* a, CharaTask* b) {
     if (a == 0 || b == 0 || lbl_8087F430->fn_80376210() == 0) {
         return 1;
