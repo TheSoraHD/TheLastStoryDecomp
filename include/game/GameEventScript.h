@@ -63,6 +63,7 @@ public:
     void fn_8039E9C4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_8039E9D4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_8039EA50(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_8039F7D8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A03A0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A04C0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A0AB8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
@@ -72,18 +73,25 @@ public:
     void fn_803A0C48(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A0CAC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A0D10(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A2154(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A2378(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A362C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A3BF4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A3CA8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A4400(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A59D4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A5A10(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A5F14(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A5F88(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A61CC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A61F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A66B0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A7BB0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A83FC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A8464(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A8470(ScriptResult_unk& result, ScriptCmd_unk* cmd);
@@ -98,6 +106,7 @@ public:
     void fn_803AAD58(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB144(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803AB1F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB328(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803AB368(ScriptResult_unk& result, ScriptCmd_unk* cmd);
 
@@ -116,6 +125,7 @@ public:
     unsigned char mE0[0xE8 - 0xE0];
     int mE8; // inferred: an event of the event manager is running
     int mEC;
+    int mF0;
 };
 
 #endif

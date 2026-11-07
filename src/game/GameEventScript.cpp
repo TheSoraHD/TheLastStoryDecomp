@@ -15,6 +15,11 @@
 #include "game/GameScene.h"
 #include "game/PlayerManager.h"
 #include "game/TeamAIManager.h"
+#include "game/SetConfig.h"
+#include "game/GameBgm.h"
+#include "game/CrowdManager.h"
+#include "game/MapTask.h"
+#include "game/GameTask.h"
 #include "game/NpcManager.h"
 #include "game/EnemyManager.h"
 #include "game/NpcTask.h"
@@ -54,6 +59,9 @@ extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, i
 extern "C" void fn_80371164(GameField_unk* field);
 extern "C" void fn_803712BC(GameField_unk* field);
 extern "C" void fn_80374964(GameField_unk* field, int arg);
+extern "C" void fn_80376730(GameField_unk* field); // inferred: autosave
+extern "C" void fn_80370094(GameField_unk* field, int state); // inferred: sets m10D0
+extern "C" void fn_8037EF30(void* camera, int a, int b, float f);
 extern "C" void fn_80375194(GameField_unk* field, int a, int b, float c);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: UI sound names (SE_UICOM_001...)
 
@@ -158,6 +166,15 @@ void GameEventScript::fn_8039EA50(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
+// NONMATCHING: 95% - argument loaded after the prologue saves (see fn_803AB144)
+void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    fn_80370094(lbl_8087F430, static_cast<ScriptArgs_unk*>(cmd)->m08);
+    mF0 = 1;
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x63, 0, 0);
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x11D, 0, 0);
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803A03A0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
@@ -202,6 +219,21 @@ void GameEventScript::fn_803A0D10(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
+// inferred: requests a BGM (unless the same one is already requested)
+// NONMATCHING: 96% - load order of m10
+void GameEventScript::fn_803A2154(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
+    GameBgm* bgm = GameBgm::sInstance;
+    if (bgm != 0) {
+        if (args->m08 > 0 || (bgm->m84 != 0 ? bgm->mNext.mId : bgm->mReq.mId) != 0x67) {
+            if (((GameTask*)lbl_8087F430)->fn_803761FC() == 0) {
+                GameBgm::sInstance->fn_8037D4C0(args->m08, *(int*)&args->m10, 1, 0, args->m0C);
+            }
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // NONMATCHING: 95% - the original loads the character kind before saving r30/r31 (as fn_803AB144)
 void GameEventScript::fn_803A2378(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
@@ -239,6 +271,25 @@ void GameEventScript::fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd, wait);
 }
 
+// inferred: autosave point (when autosave is enabled)
+// inferred: sets the camera of the current map
+void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    MapTask* map = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->GetCurrentMap() : 0;
+    if (map != 0) {
+        map->fn_804A04AC(args->m08, args->m0C != 0 ? 10 : 0, -1, 0);
+        map->mDefaultCamera = args->m08;
+    }
+    result.SetNext_unk(cmd);
+}
+
+void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    if (lbl_8087F430 != 0 && SetConfig::sInstance->mAutoSave != 0) {
+        fn_80376730(lbl_8087F430);
+    }
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803A4400(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
     if (lbl_8087F430 != 0) {
@@ -261,6 +312,17 @@ void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 // inferred: waits while the message window is open
+// inferred: waits 30 frames, then sets the battle mode of a team
+void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    int wait = 1;
+    if (++mB4 >= 30) {
+        ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+        lbl_8087FA00->Find_unk(args->m08, args->m0C)->SetBattleMode_unk(1);
+        wait = 0;
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
 void GameEventScript::fn_803A59D4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     GameTextMessageWindow* window = lbl_8087F490->m2640;
     result.mNext = NextCmd_unk(cmd);
@@ -312,7 +374,29 @@ void GameEventScript::fn_803A61F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
+// inferred: enables or disables the crowd of NPCs
+// NONMATCHING: 96% - argument loaded before the instance (prologue)
+void GameEventScript::fn_803A66B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    int enable = static_cast<ScriptArgs_unk*>(cmd)->m10;
+    if (CrowdManager::sInstance != 0) {
+        if (enable != 0) {
+            CrowdManager::sInstance->MeltTask();
+        } else {
+            CrowdManager::sInstance->FreezeTask();
+        }
+        CrowdManager::sInstance->fn_801EB8C0(enable);
+    }
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    result.SetNext_unk(cmd);
+}
+
+void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    if (lbl_8087F430 != 0) {
+        fn_8037EF30(&lbl_8087F430->mCamera, static_cast<ScriptArgs_unk*>(cmd)->m08, 1, -1.0f);
+    }
     result.SetNext_unk(cmd);
 }
 
@@ -385,6 +469,14 @@ void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
         wait = 0;
     }
     result.SetNext_unk(cmd, wait);
+}
+
+// inferred: opens the save menu
+// NONMATCHING: 93% - argument loaded before the prologue saves
+void GameEventScript::fn_803AB1F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x391, static_cast<ScriptArgs_unk*>(cmd)->m14, 0);
+    ((GameTask*)lbl_8087F430)->fn_8036E92C(1);
+    result.SetNext_unk(cmd, 1);
 }
 
 void GameEventScript::fn_803AB328(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
