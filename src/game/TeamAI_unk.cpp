@@ -15,7 +15,6 @@ extern "C" void fn_80370AE4(GameField_unk* field, int index, int value); // infe
 
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048; // inferred: battle task
-extern "C" void fn_800FDE60(BulletMgr_unk* mgr, int arg, CharaTask* chara, const atn::Vector3* dir);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 // inferred: debug message list (as in gmk/RandomMerchant.cpp)
 struct DebugMessages_unk {
@@ -129,7 +128,7 @@ void TeamAI_unk::fn_805AE864(int ratio) {
             PSMTXRotRad(m, 'y', chara->mRot.y);
             PSMTXMultVec(m, &dir, &dir);
             atn::Vector3 back(-dir.x, -dir.y, -dir.z);
-            fn_800FDE60(lbl_8087F048, 0, chara, &back);
+            ((BattleTask*)lbl_8087F048)->fn_800FDE60(0, chara, back);
         }
     }
 }

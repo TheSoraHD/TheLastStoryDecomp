@@ -52,8 +52,26 @@ inline void PlayEfp_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
 }
 
+void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
+    fn_800E2A24(&m38A5C);
+    m38A5C.m00 = effect;
+    m38A5C.m04 = chara;
+    m38A5C.m08 = fn_80219E6C(10000);
+    m38A5C.m44 = 3;
+    m38A5C.m28 = dir;
+    m38A5C.m48 = 0;
+    m38A5C.m4C = 0;
+    m38A5C.m0C |= 0x10000;
+    fn_800FDF14(&m38A5C);
+}
+
 int BattleTask::fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta) {
     return 0;
+}
+
+void BattleTask::fn_80100BC0() {
+    fn_801055A8(0);
+    lbl_8087F3C0->fn_8023A614(5);
 }
 
 Bullet* BattleTask::fn_801010A0() {
@@ -129,6 +147,18 @@ void BattleTask::fn_80102824(CharaTask* chara, PlayerTask* leader) {
     if (i >= 0) {
         mCharas[i].mChara = (CharaTask*)leader;
     }
+}
+
+int BattleTask::fn_80102890(CharaTask* chara) {
+    if (chara == 0) {
+        return -1;
+    }
+    for (int i = 0; i < mCharaCount; i++) {
+        if (mCharas[i].mChara == chara) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 BattleChara_unk* BattleTask::fn_80103F60(CharaTask* chara) {

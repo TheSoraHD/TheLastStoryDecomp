@@ -1,11 +1,11 @@
 // inferred file name (splits-auto): helpers of atn/PacketPack (MP::ManagerMP) for the character
 // of a remote player; the class name is invented.
 #include "game/CharaTask.h"
+#include "game/BattleTask.h"
 
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048; // inferred: bullet manager (see gmk/Coffin.cpp)
 // inferred: effect/bullet of `chara` along `dir` (also called by chr::ControlDamage, CharaStatus)
-extern "C" void fn_800FDE60(BulletMgr_unk* mgr, int arg, CharaTask* chara, const atn::Vector3* dir);
 
 // inferred: multiplayer session manager (lbl_8087F610, see MP/D2AMpMenuCockpit.cpp)
 struct MpSession_unk {
@@ -38,7 +38,7 @@ void MpCharaRef_unk::fn_805010C0() {
         fn_8014F8F4()->mEnabled = 0;
         if (lbl_8087F048 != 0) {
             atn::Vector3 dir(0.0f, 1.0f, 0.0f);
-            fn_800FDE60(lbl_8087F048, 0, mChara, &dir);
+            ((BattleTask*)lbl_8087F048)->fn_800FDE60(0, mChara, dir);
         }
         fn_8014F8F4()->mEnabled = 1;
     }

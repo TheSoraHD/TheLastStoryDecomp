@@ -37,7 +37,6 @@ extern "C" int fn_80370174(Field_unk* field, int id);                     // inf
 // inferred: effect manager of the characters (lbl_8087F048)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" void fn_800FDE60(Effect_unk* mgr, int arg, CharaTask* chara, const atn::Vector3& dir);
 extern "C" void fn_8010A308(Effect_unk* mgr, const atn::Vector3* from, const atn::Vector3* to, float radius);
 // inferred: RGBA colour (names invented)
 struct Color4f_unk {
@@ -625,7 +624,7 @@ int ControlFallDead::vf0C() {
         m0C--;
         if (landed || m0C <= 0) {
             if (lbl_8087F048) {
-                fn_800FDE60(lbl_8087F048, 0, mChara, atn::Vector3(0.0f, -1.0f, 0.0f));
+                ((BattleTask*)lbl_8087F048)->fn_800FDE60(0, mChara, atn::Vector3(0.0f, -1.0f, 0.0f));
             }
             model->fn_80097C08(0, 0x1D6, 0, 0, 1, 0.0f, 0.1f);
             model->mTracks[0].m0C = 1.0f;

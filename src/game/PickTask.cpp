@@ -1,4 +1,5 @@
 #include "game/PickTask.h"
+#include "game/BattleTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "game/CharaManager.h"
@@ -28,7 +29,6 @@ struct PickBattle_unk {
     int mCount; // 0x363B0
 };
 extern "C" PickBattle_unk* lbl_8087F048;
-extern "C" int fn_80102890(PickBattle_unk* mgr, CharaTask* chara); // inferred: slot index of a character
 
 // inferred: area of the map (0x30 bytes)
 struct PickArea_unk {
@@ -143,7 +143,7 @@ void PickTask::vf10() {
     if (player == 0) {
         return;
     }
-    int playerIndex = fn_80102890(lbl_8087F048, player);
+    int playerIndex = ((BattleTask*)lbl_8087F048)->fn_80102890(player);
     if (playerIndex < 0) {
         return;
     }

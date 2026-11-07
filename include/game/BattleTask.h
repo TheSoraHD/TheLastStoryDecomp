@@ -3,6 +3,7 @@
 
 #include "atn/Task.h"
 #include "atn/EfpHandle_unk.h"
+#include "game/BattleCalc_unk.h"
 #include "game/HomingBullet.h"
 
 class CharaTask;
@@ -85,6 +86,10 @@ public:
     }
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
+    void fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
+    void fn_800FDF14(BattleCalcParam_unk* param);
+    void fn_80100BC0();          // inferred: stops the effects (fn_801055A8 and effect group 5)
+    void fn_801055A8(int arg);
     Bullet* fn_801010A0();       // inferred: free bullet
     HomingBullet* fn_801010E8(); // inferred: free homing bullet
     void fn_80101138();          // inferred: vf14(0) on the active bullets
@@ -93,6 +98,7 @@ public:
     int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
     void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
     void fn_80102824(CharaTask* chara, PlayerTask* leader);
+    int fn_80102890(CharaTask* chara); // inferred: index of the character in mCharas
     void fn_80102A40(CharaTask* chara, CharaTask* target, int a, int b); // inferred: attack order (hate)
     void fn_80103600(CharaTask* chara);
     BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
@@ -186,7 +192,8 @@ public:
     float m38A2C;
     unsigned char m38A30[0x38A48 - 0x38A30];
     float m38A48; // inferred: gauge gained by a magic
-    unsigned char m38A4C[0x38AF4 - 0x38A4C];
+    unsigned char m38A4C[0x38A5C - 0x38A4C];
+    BattleCalcParam_unk m38A5C; // inferred: parameters of the current attack
     atn::EfpFile mEfp38AF4[32];  // 0x38AF4: inferred: status and magic effects (EFP files)
     unsigned char m38C74[0x3E2E0 - 0x38C74];
     int m3E2E0; // inferred: character under the cursor
