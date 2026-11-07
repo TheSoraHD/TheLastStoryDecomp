@@ -12,17 +12,34 @@ void TacView::fn_805AA4C8(SkillEffect* effect) {
 
 void TacView::fn_805ADC00() {
     m1594 = 0;
-    mEntryCount = 0;
+    mEntries.clear();
 }
 
 void TacView::fn_805ADC10() {
     m1594 = 0;
-    mEntryCount = 0;
+    mEntries.clear();
+}
+
+void TacView::fn_805ADC20(CharaTask* chara, HitInfo_unk* hit) {
+    if (chara == 0 || hit == 0) {
+        return;
+    }
+    TacViewEntry_unk* entry = mEntries.begin();
+    for (unsigned int i = 0; i < mEntries.size(); i++, entry++) {
+        if (entry->mChara == chara && entry->mState != 0) {
+            entry->mHit = hit;
+            if ((entry->mState & 2) == 2) {
+                entry->mState = (entry->mState | 1) & ~2;
+            }
+            return;
+        }
+    }
+    mEntries.push_back(TacViewEntry_unk(chara, hit, 1));
 }
 
 int TacView::fn_805ADCC0(CharaTask* chara, HitInfo_unk* hit, int active) {
-    TacViewEntry_unk* entry = mEntries;
-    for (unsigned int i = 0; i < mEntryCount; i++, entry++) {
+    TacViewEntry_unk* entry = mEntries.begin();
+    for (unsigned int i = 0; i < mEntries.size(); i++, entry++) {
         if (entry->mChara == chara && (hit == 0 || entry->mHit == hit)) {
             if (active != 0 && entry->mState <= 1) {
                 return 1;
@@ -36,8 +53,8 @@ int TacView::fn_805ADCC0(CharaTask* chara, HitInfo_unk* hit, int active) {
 }
 
 HitInfo_unk* TacView::fn_805ADD3C(CharaTask* chara) {
-    TacViewEntry_unk* entry = mEntries;
-    for (unsigned int i = 0; i < mEntryCount; i++, entry++) {
+    TacViewEntry_unk* entry = mEntries.begin();
+    for (unsigned int i = 0; i < mEntries.size(); i++, entry++) {
         if (entry->mChara == chara && entry->mState <= 1) {
             return entry->mHit;
         }
@@ -47,8 +64,8 @@ HitInfo_unk* TacView::fn_805ADD3C(CharaTask* chara) {
 
 // NONMATCHING: 91% - the original builds the 2 with ori from the zeroed index register
 void TacView::fn_805ADD80(CharaTask* chara, HitInfo_unk* hit) {
-    for (unsigned int i = 0; i < mEntryCount; i++) {
-        TacViewEntry_unk& entry = mEntries[i];
+    for (unsigned int i = 0; i < mEntries.size(); i++) {
+        TacViewEntry_unk& entry = mEntries.mData[i];
         if (entry.mChara == chara && entry.mHit == hit && (entry.mState & 2) != 2) {
             entry.mState = 2;
         }

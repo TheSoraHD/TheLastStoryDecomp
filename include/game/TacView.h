@@ -1,12 +1,16 @@
 #ifndef GAME_TACVIEW_H
 #define GAME_TACVIEW_H
 
+#include "atn/FixedArray.h"
+
 class SkillEffect;
 class CharaTask;
 struct HitInfo_unk;
 
 // inferred: 0xC-byte entry of TacView::mEntries (names invented)
 struct TacViewEntry_unk {
+    TacViewEntry_unk() {}
+    TacViewEntry_unk(CharaTask* chara, HitInfo_unk* hit, unsigned int state) : mChara(chara), mHit(hit), mState(state) {}
     CharaTask* mChara;
     HitInfo_unk* mHit;
     unsigned int mState; // inferred: 0, 1 active; bit 1: finished
@@ -25,6 +29,7 @@ public:
     void fn_805ADC00();
     void fn_805ADC10();
     // inferred: an entry for the character (and hit, if given) exists; `active` selects the state
+    void fn_805ADC20(CharaTask* chara, HitInfo_unk* hit); // inferred: adds (or restarts) the entry of the character
     int fn_805ADCC0(CharaTask* chara, HitInfo_unk* hit, int active);
     HitInfo_unk* fn_805ADD3C(CharaTask* chara); // inferred: hit of the active entry of the character
     void fn_805ADD80(CharaTask* chara, HitInfo_unk* hit); // inferred: marks the entries as finished
@@ -45,8 +50,7 @@ public:
     unsigned char m1598[0x15D8 - 0x1598];
     int m15D8;            // inferred: cursor shown by the view (chr/ControlCharge.cpp)
     unsigned char m15DC[0x15FC - 0x15DC];
-    unsigned int mEntryCount;       // 0x15FC
-    TacViewEntry_unk mEntries[16];  // 0x1600
+    atn::FixedArray_unk<TacViewEntry_unk, 16> mEntries; // 0x15FC
     unsigned char m16C0[0x16C8 - 0x16C0];
 };
 
