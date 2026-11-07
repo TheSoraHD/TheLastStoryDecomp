@@ -34,19 +34,11 @@ AI/AiUtil_unk.cpp:
 	.sdata2     start:0x808806A0 end:0x808806B8
 
 game/AiTarget.cpp:
-	.text       start:0x800144FC end:0x8001A268
-	.rodata     start:0x8072FA00 end:0x8072FCAC
-	.data       start:0x80775AE0 end:0x80775B30
+	.text       start:0x800144FC end:0x8001A444
+	.rodata     start:0x8072FA00 end:0x8072FF50
+	.data       start:0x80775AE0 end:0x80775BE8
 	.bss        start:0x807C66C0 end:0x807C68C0
 	.sdata2     start:0x808806B8 end:0x80880760
-
-std/runtime_error.cpp:
-	.text       start:0x8001A268 end:0x8001A444
-	.rodata     start:0x8072FCAC end:0x8072FD8C
-	.data       start:0x80775B30 end:0x80775BE8
-
-game/AiTarget_rodata.cpp:
-	.rodata     start:0x8072FD8C end:0x8072FF50 align:4
 
 AI/AiCommon_unk.cpp:
 	.text       start:0x8001A444 end:0x8001C088

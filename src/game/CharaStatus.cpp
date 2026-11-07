@@ -1,4 +1,5 @@
 #include "game/CharaStatus.h"
+#include "game/AiTarget.h"
 #include "game/GameTask.h"
 #include "game/Inventory.h"
 #include "atn/Model_unk.h"
@@ -102,9 +103,6 @@ extern "C" int fn_80219558(int kind);
 extern "C" EquipSet_unk* fn_80219160(int kind, int level);
 extern "C" int fn_8021AF98(int slot);
 extern "C" int fn_8021AFF4(int slot);
-struct Inventory2_unk;
-extern "C" Inventory2_unk* lbl_8087EE68;
-extern "C" int fn_800185B4(Inventory2_unk* inventory, CharaTask* chara, int item);
 
 // inferred: name invented
 inline int SumRefs_unk(FixedArray_unk<CharaStatusRef_unk, 8>& refs, int id) {
@@ -479,7 +477,7 @@ void CharaStatus::fn_8012D180() {
         if (lbl_8087EE68 != 0 && items[i] != 0) {
             ok = true;
         }
-        owned[i] = ok ? fn_800185B4(lbl_8087EE68, mChara, items[i]) : 0;
+        owned[i] = ok ? (int)lbl_8087EE68->fn_800185B4(mChara, (HitInfo_unk*)items[i]) : 0;
     }
     for (int i = 0; i < 4; i++) {
         m2D0[i] = CharaStatusPair_unk(0);

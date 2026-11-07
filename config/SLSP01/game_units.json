@@ -38,7 +38,9 @@
   "name": "game/AiTarget.cpp",
   "classes": [
    "AIManager",
-   "AiTarget"
+   "AiTarget",
+   "boost::bad_function_call",
+   "std::runtime_error"
   ],
   "matching": false
  },
@@ -46,14 +48,6 @@
   "name": "game/SongManager.cpp",
   "classes": [
    "SongManager"
-  ],
-  "matching": false
- },
- {
-  "name": "std/runtime_error.cpp",
-  "classes": [
-   "boost::bad_function_call",
-   "std::runtime_error"
   ],
   "matching": false
  },

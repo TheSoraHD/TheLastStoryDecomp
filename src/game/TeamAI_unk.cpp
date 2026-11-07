@@ -2,6 +2,7 @@
 // File name invented. The members of a team are characters: TeamChara_unk is the view of
 // include/game/TeamAIManager.h, used here as a CharaTask.
 #include "game/TeamAIManager.h"
+#include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
 #include "game/GameField_unk.h"
@@ -15,7 +16,6 @@ extern "C" void fn_80370AE4(GameField_unk* field, int index, int value); // infe
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048; // inferred: battle task
 extern "C" void fn_800FDE60(BulletMgr_unk* mgr, int arg, CharaTask* chara, const atn::Vector3* dir);
-extern "C" void fn_80102A40(BulletMgr_unk* mgr, CharaTask* chara, CharaTask* target, int a, int b); // inferred: attack
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 // inferred: debug message list (as in gmk/RandomMerchant.cpp)
 struct DebugMessages_unk {
@@ -499,7 +499,7 @@ void TeamAI_unk::fn_805B1E5C(TeamAttack_unk* order) {
         for (int i = 0; i < mNumMembers; i++) {
             CharaTask* chara = Chara_unk(mMembers[i]);
             if (chara->CanAct_unk() || order->mMode == 0) {
-                fn_80102A40(lbl_8087F048, chara, order->mTarget, 100000, -1);
+                ((BattleTask*)lbl_8087F048)->fn_80102A40(chara, order->mTarget, 100000, -1);
             }
         }
         break;
@@ -519,7 +519,7 @@ void TeamAI_unk::fn_805B1E5C(TeamAttack_unk* order) {
             }
         }
         }
-        fn_80102A40(lbl_8087F048, nearest, order->mTarget, 100000, -1);
+        ((BattleTask*)lbl_8087F048)->fn_80102A40(nearest, order->mTarget, 100000, -1);
         break;
     }
     }

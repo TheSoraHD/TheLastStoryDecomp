@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/AiTarget.h"
 #include "game/TacView.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -213,7 +214,6 @@ extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" void fn_800FD658(Effect_unk* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
 // inferred: globals returned by accessors that are called out of line
-extern "C" void* lbl_8087EE68;
 extern "C" void* lbl_8087EE98;
 
 // inferred: names of some status effects. The table itself is not in the DOL (unused, so the
@@ -1134,7 +1134,6 @@ Effect_unk* fn_8013A194();
 extern "C" Field_unk* fn_80121F00();
 extern "C" Settings_unk* fn_800F52F8();
 extern "C" void* fn_800F7F90();
-extern "C" void fn_80017064(void* routes, CharaTask* chara);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
@@ -1218,9 +1217,9 @@ void CharaTask::fn_80139560() {
             fn_8017B434();
         } else if (!mC58.m11C.fn_8011D1FC() || mC58.m11C.fn_8011D21C()) {
             if (mC58.m00 == 0) {
-                fn_80017064(fn_80139EF4(), this);
+                ((AIManager*)fn_80139EF4())->fn_80017064(this);
             }
-            fn_80017064(fn_80139EF4(), this);
+            ((AIManager*)fn_80139EF4())->fn_80017064(this);
             fn_8013A4E8(&a, &rot, &b);
         }
     } else if (state == 7) {
@@ -7940,13 +7939,6 @@ void CharaTask::fn_8015495C(int arg, int ledge, int flag, int effect) {
     Reset_unk(arg, ledge, flag, effect);
 }
 
-// inferred: result of fn_800185B4 (lbl_8087EE68 = party manager?): the character a magic is redirected to
-struct MagicTarget_unk {
-    unsigned char m00[0x08];
-    int m08;
-    CharaTask* m0C;
-};
-extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
 
 // inferred: name invented
 inline bool CharaTask::IsRes1_unk() {
@@ -7954,7 +7946,7 @@ inline bool CharaTask::IsRes1_unk() {
         return false;
     }
     void* manager = fn_80139EF4();
-    return (manager != 0 ? fn_800185B4(manager, this, 0) : 0) != 0;
+    return (manager != 0 ? ((AIManager*)manager)->fn_800185B4(this, 0) : 0) != 0;
 }
 
 // inferred: picks the current resource
@@ -8676,7 +8668,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
     if (hit == 0) {
         return;
     }
-    MagicTarget_unk* redirect = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+    AiTarget* redirect = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(this, hit) : 0;
     if (redirect != 0 && redirect->m08 == 0 && redirect->m0C != 0) {
         if ((redirect->m0C->m54C & 0x2000) != 0x2000 && redirect->m0C->CanAct_unk() &&
             (mStatus.m0C & 0x100) != 0x100 && (mStatus.m0C & 0x10000) != 0x10000) {
@@ -8732,7 +8724,7 @@ void CharaTask::fn_80160170(HitInfo_unk* hit, CharaTask* target) {
             debug = true;
         }
         if (debug) {
-            MagicTarget_unk* redirect = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+            AiTarget* redirect = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(this, hit) : 0;
             bool redirected = fn_80219558(m50) == 4 && redirect != 0; // inferred: unused
         }
         m63C = m638;
@@ -9952,7 +9944,7 @@ void CharaTask::fn_80171420(CharaTask* target, int arg, float radius) {
 void CharaTask::fn_801718F8() {
     Reset_unk(0, 1, 1, 1);
     mC58.fn_8011C044(0);
-    fn_80017064(lbl_8087EE68, this);
+    lbl_8087EE68->fn_80017064(this);
     fn_8016E970(7);
     if (m1208 != 0) {
         fn_801750FC();
@@ -9970,7 +9962,7 @@ void CharaTask::fn_80171DB0() {
     }
     Reset_unk(0, 0, 1, 1);
     mC58.fn_8011C044(0);
-    fn_80017064(lbl_8087EE68, this);
+    lbl_8087EE68->fn_80017064(this);
     RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table != 0) {
         fn_803AB37C(table->m134, this);
@@ -12090,7 +12082,7 @@ void CharaTask::fn_8017B434() {
         if (mRoute.fn_801255C8()) {
             Reset_unk(0, 1, 1, 1);
             mC58.fn_8011C044(0);
-            fn_80017064(lbl_8087EE68, this);
+            lbl_8087EE68->fn_80017064(this);
             fn_8016E970(7);
             if (m1208 != 0) {
                 fn_801750FC();

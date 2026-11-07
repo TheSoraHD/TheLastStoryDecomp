@@ -1,4 +1,5 @@
 #include "Event/Manager.h"
+#include "game/AiTarget.h"
 #include "game/GameTask.h"
 #include "game/BattleCharaTask.h"
 #include "game/GameVoice.h"
@@ -162,12 +163,7 @@ struct BattleTarget_unk {
     int m08;
     atn::Vector3 mPos;
 };
-extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg); // inferred: skill of the slot `arg`
-extern "C" void* lbl_8087EE68; // inferred: party manager (as in game/CharaTask.cpp)
-// inferred: result of fn_800185B4 (as in game/CharaTask.cpp)
-struct MagicTarget_unk;
-extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
-extern "C" int fn_803754F0(Field_unk* field); // inferred: an event scene is running
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg); extern "C" int fn_803754F0(Field_unk* field); // inferred: an event scene is running
 extern "C" int fn_80375D0C(Field_unk* field);  // inferred: level cap of the field
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
@@ -1257,7 +1253,7 @@ void BattleCharaTask::fn_800E7BB0() {
         if ((unsigned int)(skill - 0x1774) <= 1) {
             if (mType == 0 || (mC58.mC0 > 0 && mC58.mC4 != 0)) {
                 HitInfo_unk* hit = fn_80219E6C(skill);
-                MagicTarget_unk* target = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+                AiTarget* target = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(this, hit) : 0;
                 if (lbl_8087F0A8->mAutoTensionSkillFriend != 0 || target != 0) {
                     ok = 1;
                 }
@@ -1265,7 +1261,7 @@ void BattleCharaTask::fn_800E7BB0() {
         } else {
             if (mType == 0 || (mC58.mC0 > 0 && mC58.mC4 != 0)) {
                 HitInfo_unk* hit = fn_80219E6C(skill);
-                MagicTarget_unk* target = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, this, hit) : 0;
+                AiTarget* target = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(this, hit) : 0;
                 if (lbl_8087F0A8->mAutoTensionSkillFriend != 0 || target != 0) {
                     ok = 1;
                 }

@@ -1,4 +1,5 @@
 #include "game/CrowdManager.h"
+#include "game/AiTarget.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "game/CrowdSimulation.h"
@@ -35,8 +36,6 @@ extern "C" int rand();
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int flags, void* colli, int arg);
-extern "C" void* lbl_8087EE68; // inferred: route manager
-extern "C" void fn_80017064(void* routes, CharaTask* chara);
 
 // inferred: min/max macros (the second operand of the max is evaluated twice in the target)
 #define CROWD_MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -264,7 +263,7 @@ void CrowdManager::fn_801EB188() {
             }
         }
         npc->mPos = pos;
-        fn_80017064(lbl_8087EE68, npc);
+        lbl_8087EE68->fn_80017064(npc);
         npc->mC58.m08 = npc->mC58.m0C.mDestPoint;
         npc->fn_8016E970(2);
         npc->m54C |= 0x20;

@@ -1,4 +1,5 @@
 #include "chr/ControlAttractHateCharge.h"
+#include "game/AiTarget.h"
 #include "game/GameVoice.h"
 #include "atn/SoundRef.h"
 #include "game/GimmickCommon.h"
@@ -14,7 +15,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_80105DCC(Effect_unk* effect, CharaTask* chara, chr::Motion_unk* motion, int arg);
-extern "C" void fn_80102A40(Effect_unk* effect, int arg, CharaTask* chara, int a, int b);
 // inferred: RGBA colour (names invented)
 struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
@@ -32,9 +32,6 @@ struct VoiceEntry_unk {
     const char* fn_8021FD7C(int kind) const;
 };
 // inferred: party manager (as in game/CharaTask.cpp)
-extern "C" void* lbl_8087EE68;
-extern "C" void* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
-extern "C" void fn_80018608(void* manager, CharaTask* chara, HitInfo_unk* hit);
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
 
 // inferred: game settings (lbl_8087F0A8, as in game/CharaTask.cpp); names invented
@@ -103,7 +100,7 @@ int ControlAttractHateCharge::vf0C() {
                 shade.m0C = settings->m254;
                 mChara->fn_80164B00(shade);
             }
-            fn_80102A40(lbl_8087F048, 0, mChara, rec->m28, rec->m2C);
+            ((BattleTask*)lbl_8087F048)->fn_80102A40(0, mChara, rec->m28, rec->m2C);
             for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                 switch (g->m50) {
                 case 0x2B: {
@@ -190,8 +187,8 @@ int ControlOverdrive::vf0C() {
         Effect_unk* mgr = lbl_8087F048;
         fn_800FB4B0(mgr, mChara, hit, fn_800F8548(mgr), &mChara->mPos, 0, 30, -1, 0);
         mChara->mStatus.m228 = 0.0f;
-        if (lbl_8087EE68 != 0 && fn_800185B4(lbl_8087EE68, mChara, hit)) {
-            fn_80018608(lbl_8087EE68, mChara, hit);
+        if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
+            lbl_8087EE68->fn_80018608(mChara, hit);
         }
         if (lbl_8087F0A8->m304 != 0) {
             Effect_unk* mgr2 = lbl_8087F048;

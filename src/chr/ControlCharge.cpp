@@ -2,6 +2,7 @@
 // its subclasses ControlChargeAttack, ControlHighJumpAttack, ControlQuarkSeirenAttack;
 // ControlZanTackle).
 #include "chr/ControlCharge.h"
+#include "game/AiTarget.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
@@ -90,15 +91,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10, float arg11);
 extern "C" void fn_800FB4B0(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             int arg5, int arg6, int arg7, int arg8);
-// inferred: result of fn_800185B4 (as in game/CharaTask.cpp)
-struct MagicTarget_unk {
-    unsigned char m00[0x08];
-    int m08;
-    CharaTask* m0C;
-};
-extern "C" void* lbl_8087EE68;
-extern "C" void fn_80018608(void* manager, CharaTask* chara, HitInfo_unk* hit);
-extern "C" MagicTarget_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
 // inferred: game state (lbl_8087EFA8, as in game/CharaTask.cpp); names invented
 struct GameState_unk {
     unsigned char m000[0x3A4];
@@ -322,7 +314,7 @@ int ControlCharge::vf0C() {
             m28 = hit->m58;
             if (m38 == 0) {
                 if (hit->m04 == 0x1788 || hit->m04 == 0x1791) {
-                    MagicTarget_unk* redirect = fn_800185B4(lbl_8087EE68, mChara, hit);
+                    AiTarget* redirect = lbl_8087EE68->fn_800185B4(mChara, hit);
                     if (redirect != 0 && redirect->m08 == 0 && redirect->m0C != 0) {
                         CharaTask* other = redirect->m0C;
                         if (other->CanAct_unk()) {
@@ -681,8 +673,8 @@ int ControlHighJumpAttack::vf0C() {
             fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
             if ((hit->mAC & 0x40000) == 0x40000) {
                 mChara->mStatus.m228 = 0.0f;
-                if (lbl_8087EE68 != 0 && fn_800185B4(lbl_8087EE68, mChara, hit) != 0) {
-                    fn_80018608(lbl_8087EE68, mChara, hit);
+                if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit) != 0) {
+                    lbl_8087EE68->fn_80018608(mChara, hit);
                 }
             }
             if (mChara->mType == 0 && lbl_8087F610 != 0) {
@@ -792,8 +784,8 @@ int ControlQuarkSeirenAttack::vf0C() {
         fn_800FAB80(fx, mChara, hit, fn_800F8548(fx), &at, &chara->mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         if ((hit->mAC & 0x40000) == 0x40000) {
             mChara->mStatus.m228 = 0.0f;
-            if (lbl_8087EE68 != 0 && fn_800185B4(lbl_8087EE68, mChara, hit) != 0) {
-                fn_80018608(lbl_8087EE68, mChara, hit);
+            if (lbl_8087EE68 != 0 && lbl_8087EE68->fn_800185B4(mChara, hit) != 0) {
+                lbl_8087EE68->fn_80018608(mChara, hit);
             }
         }
     }

@@ -1,4 +1,5 @@
 #include "game/Em101ElderZesya.h"
+#include "game/AiTarget.h"
 #include "chr/ControlChant.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -145,14 +146,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
-// inferred: target redirection of the party (lbl_8087EE68, as MagicTarget_unk in game/CharaTask.cpp)
-struct ElderRedirect_unk {
-    unsigned char m00[0x08];
-    int m08;
-    CharaTask* m0C;
-};
-extern "C" void* lbl_8087EE68;
-extern "C" ElderRedirect_unk* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
 struct Effect_unk;
 extern "C" void fn_801028E4(Effect_unk* mgr, CharaTask* chara, CharaTask* enemy, int arg); // inferred: hate
 // inferred: result of fn_8003EA3C (as DamageResult_unk in game/Em002Skelton.cpp); names invented
@@ -601,7 +594,7 @@ void Em101ElderZesya::vf10() {
     }
     if (mC58.mC0 != 0 && mC58.mC4 != 0) {
         for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
-            ElderRedirect_unk* r = lbl_8087EE68 != 0 ? fn_800185B4(lbl_8087EE68, p, 0) : 0;
+            AiTarget* r = lbl_8087EE68 != 0 ? lbl_8087EE68->fn_800185B4(p, 0) : 0;
             if (r != 0 && r->m08 == 0 && r->m0C == this) {
                 fn_801028E4(lbl_8087F048, p, this, 0x30D40);
             } else {

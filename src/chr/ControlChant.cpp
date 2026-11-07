@@ -1,6 +1,7 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
 #include "chr/ControlChant.h"
+#include "game/AiTarget.h"
 #include "game/TacView.h"
 #include "game/GameTask.h"
 #include "game/GameVoice.h"
@@ -105,9 +106,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 // inferred: party manager (as in game/CharaTask.cpp)
-extern "C" void* lbl_8087EE68;
-extern "C" void* fn_800185B4(void* manager, CharaTask* chara, HitInfo_unk* hit);
-extern "C" void fn_80018608(void* manager, CharaTask* chara, HitInfo_unk* hit);
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -571,8 +569,8 @@ int ControlMagic::vf0C() {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0x38E, 1, 0);
                 mChara->mStatus.m228 = 0.0f;
             }
-            if (lbl_8087EE68 && fn_800185B4(lbl_8087EE68, mChara, hit)) {
-                fn_80018608(lbl_8087EE68, mChara, hit);
+            if (lbl_8087EE68 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
+                lbl_8087EE68->fn_80018608(mChara, hit);
             }
             return 1;
         }
@@ -765,8 +763,8 @@ int ControlMagic::vf0C() {
         }
         if ((hit->mAC & 0x40000) == 0x40000) {
             mChara->mStatus.m228 = 0.0f;
-            if (lbl_8087EE68 && fn_800185B4(lbl_8087EE68, mChara, hit)) {
-                fn_80018608(lbl_8087EE68, mChara, hit);
+            if (lbl_8087EE68 && lbl_8087EE68->fn_800185B4(mChara, hit)) {
+                lbl_8087EE68->fn_80018608(mChara, hit);
             }
         }
         mChara->mFlagB10 = 0;
