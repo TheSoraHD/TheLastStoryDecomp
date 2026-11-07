@@ -381,6 +381,23 @@ public:
         return old;
     }
     locale getloc() const;
+    unsigned short flags() const { return flags_; }
+    iostate rdstate() const { return (iostate)state_; }
+    iostate exceptions() const { return (iostate)exceptions_; }
+    bool good() const { return state_ == 0; }
+    bool fail() const { return (state_ & (badbit | failbit)) != 0; }
+    void clear(iostate state = goodbit) {
+        state_ = state;
+        if (rdbuf_ == 0) {
+            state_ |= badbit;
+        }
+        if (state_ & exceptions_) {
+            throw_failure("ios_base failure in clear");
+        }
+    }
+    void setstate(iostate state) { clear((iostate)(rdstate() | state)); }
+    // inferred: sets a state bit without the exception check (used by the catch blocks of the sentry and flush)
+    void __setstate_nothrow_unk(iostate state) { state_ |= state; }
 
 protected:
     ios_base() {}
@@ -1095,6 +1112,7 @@ public:
     virtual ~basic_streambuf() {}
     locale getloc() const { return loc_; }
     basic_streambuf* pubsetbuf(char_type* s, streamsize n) { return setbuf(s, n); }
+    int pubsync() { return sync(); }
     int_type sbumpc() { return gptr_ < egptr_ ? T::to_int_type(*gptr_++) : uflow(); }
     int_type sputc(char_type c) {
         if (pptr_ < epptr_) {
@@ -1236,6 +1254,8 @@ public:
     typedef C char_type;
 
     virtual ~basic_ios() {}
+    basic_streambuf<C, T>* rdbuf() const { return (basic_streambuf<C, T>*)rdbuf_; }
+    basic_ostream<C, T>* tie() const { return tie_; }
     basic_ostream<C, T>* tie(basic_ostream<C, T>* tiestr) {
         basic_ostream<C, T>* old = tie_;
         tie_ = tiestr;
@@ -1267,10 +1287,78 @@ protected:
 template <class C, class T = char_traits<C> >
 class basic_ostream : virtual public basic_ios<C, T> {
 public:
+    // inferred: two flags and the stream (0x8069194C, wchar_t); the flag at 0x01 is set by flush so that the
+    // destructor does not flush again
+    class sentry {
+    public:
+        explicit sentry(basic_ostream& os);
+        ~sentry() {
+            if (!os_.fail() && (os_.flags() & ios_base::unitbuf) && !flushing_) {
+                os_.flush();
+            }
+        }
+        operator bool() const { return ok_; }
+
+        bool ok_;
+        bool flushing_;
+        basic_ostream& os_;
+    };
+
     explicit basic_ostream(basic_streambuf<C, T>* sb);
     virtual ~basic_ostream() {}
     basic_ostream& flush();
 };
+
+// NONMATCHING: 97.2% (wchar_t) - the inlined setstate reloads the state that the good() test already loaded,
+// and the operands of the and of clear() are swapped (state & exceptions with exceptions loaded first)
+template <class C, class T>
+basic_ostream<C, T>::sentry::sentry(basic_ostream& os) : ok_(false), flushing_(false), os_(os) {
+    try {
+        if (os_.good()) {
+            if (os_.tie()) {
+                os_.tie()->flush();
+            }
+            if (os_.good()) {
+                ok_ = true;
+            } else {
+                os_.setstate(ios_base::failbit);
+            }
+        } else {
+            os_.setstate(ios_base::failbit);
+        }
+    } catch (...) {
+        if ((os_.rdstate() & ios_base::failbit) == 0) {
+            os_.__setstate_nothrow_unk(ios_base::badbit);
+        }
+        if (os_.exceptions() & os_.rdstate()) {
+            throw;
+        }
+    }
+}
+
+// NONMATCHING: 99.9% (wchar_t) - operands of the and of the inlined clear() swapped
+template <class C, class T>
+basic_ostream<C, T>& basic_ostream<C, T>::flush() {
+    sentry s(*this);
+    s.flushing_ = true;
+    if (this->rdbuf()) {
+        bool failed = false;
+        try {
+            if (this->rdbuf()->pubsync() == -1) {
+                failed = true;
+            }
+        } catch (...) {
+            this->__setstate_nothrow_unk(ios_base::badbit);
+            if (this->exceptions() & ios_base::badbit) {
+                throw;
+            }
+        }
+        if (failed) {
+            this->setstate(ios_base::badbit);
+        }
+    }
+    return *this;
+}
 
 template <class C, class T>
 basic_istream<C, T>::basic_istream(basic_streambuf<C, T>* sb) : gcount_(0) {

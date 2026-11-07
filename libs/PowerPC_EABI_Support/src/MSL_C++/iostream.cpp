@@ -5,7 +5,8 @@
 
 namespace std {
 
-void ios_base::throw_failure(const char* msg) {
+// inferred: called with bl by the sentry and flush (0x8069194C, 0x8068E3FC); MWCC would inline it there
+__declspec(noinline) void ios_base::throw_failure(const char* msg) {
     throw failure(msg);
 }
 
