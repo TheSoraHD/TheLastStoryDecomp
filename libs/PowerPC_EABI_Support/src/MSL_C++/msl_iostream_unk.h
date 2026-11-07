@@ -14,6 +14,8 @@ char* strcpy(char* dst, const char* src);
 int strcmp(const char* a, const char* b);
 void free(void* p);
 void* memmove(void* dst, const void* src, unsigned long n);
+void* memcpy(void* dst, const void* src, unsigned long n);
+wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
 int atexit(void (*func)(void));
 }
 
@@ -241,6 +243,7 @@ struct char_traits<char> {
     typedef char char_type;
     typedef int int_type;
     static int_type eof() { return -1; }
+    static char_type* copy(char_type* s1, const char_type* s2, size_t n) { return (char_type*)memcpy(s1, s2, n); }
     static bool eq_int_type(int_type a, int_type b) { return a == b; }
     static int_type not_eof(int_type c) { return eq_int_type(c, eof()) ? ~eof() : c; }
     static char_type to_char_type(int_type c) { return (char_type)c; }
@@ -252,6 +255,7 @@ struct char_traits<wchar_t> {
     typedef wchar_t char_type;
     typedef unsigned short int_type;
     static int_type eof() { return 0xFFFF; }
+    static char_type* copy(char_type* s1, const char_type* s2, size_t n) { return wmemcpy(s1, s2, n); }
     static bool eq_int_type(int_type a, int_type b) { return a == b; }
     static int_type not_eof(int_type c) { return eq_int_type(c, eof()) ? ~eof() : c; }
     static char_type to_char_type(int_type c) { return (char_type)c; }
@@ -480,13 +484,14 @@ inline locale::locale(__locale_imp* imp)
 
 template <class Facet>
 inline const Facet& use_facet(const locale& loc) {
+    // inferred: an empty object is built first (its byte is cleared at the start of every inlined copy)
+    detail::default_delete<Facet> d = detail::default_delete<Facet>();
     size_t i = Facet::id.get();
-    __locale_imp* imp = loc.imp_.ptr_;
-    if (i >= imp->facets_.size() || imp->facets_[i] == 0) {
+    if (i >= loc.imp_.ptr_->facets_.size() || loc.imp_.ptr_->facets_[i] == 0) {
         Facet* f = new Facet;
-        imp->replace(f, Facet::id.get());
+        loc.imp_.ptr_->replace(f, Facet::id.get());
     }
-    return *(const Facet*)imp->facets_[i];
+    return *(const Facet*)loc.imp_.ptr_->facets_[i];
 }
 
 } // namespace std
@@ -496,7 +501,6 @@ extern "C" {
 extern const unsigned short lbl_80765338[];
 extern const char lbl_80765538[];
 extern const char lbl_80765638[];
-void* memcpy(void* dst, const void* src, std::size_t n);
 }
 
 namespace std {
@@ -665,6 +669,16 @@ public:
     virtual ~basic_streambuf() {}
     locale getloc() const { return loc_; }
     basic_streambuf* pubsetbuf(char_type* s, streamsize n) { return setbuf(s, n); }
+    int_type sbumpc() { return gptr_ < egptr_ ? T::to_int_type(*gptr_++) : uflow(); }
+    int_type sputc(char_type c) {
+        if (pptr_ < epptr_) {
+            char_type* p = pptr_;
+            *p = c;
+            pptr_ = p + 1;
+            return T::to_int_type(*p);
+        }
+        return overflow(T::to_int_type(c));
+    }
 
 protected:
     basic_streambuf() : eback_(0), gptr_(0), egptr_(0), pbase_(0), pptr_(0), epptr_(0) {}
@@ -717,6 +731,49 @@ fpos<mbstate_t> basic_streambuf<C, T>::seekoff(streamoff off, ios_base::seekdir 
 template <class C, class T>
 fpos<mbstate_t> basic_streambuf<C, T>::seekpos(fpos<mbstate_t> sp, ios_base::openmode which) {
     return -1;
+}
+
+template <class C, class T>
+streamsize basic_streambuf<C, T>::xsgetn(char_type* s, streamsize n) {
+    streamsize num = std::min(n, streamsize(egptr_ - gptr_));
+    if (num > 0) {
+        T::copy(s, gptr_, num);
+        s += num;
+        gptr_ += num;
+        n -= num;
+    }
+    for (; n > 0; ++num, ++s, --n) {
+        int_type c = sbumpc();
+        if (T::eq_int_type(c, T::eof())) {
+            break;
+        }
+        *s = T::to_char_type(c);
+    }
+    return num;
+}
+
+template <class C, class T>
+typename basic_streambuf<C, T>::int_type basic_streambuf<C, T>::uflow() {
+    return T::eq_int_type(underflow(), T::eof()) ? T::eof() : T::to_int_type(*gptr_++);
+}
+
+template <class C, class T>
+streamsize basic_streambuf<C, T>::xsputn(const char_type* s, streamsize n) {
+    streamsize num = std::min(n, streamsize(epptr_ - pptr_));
+    if (num > 0) {
+        T::copy(pptr_, s, num);
+        s += num;
+        pptr_ += num;
+        n -= num;
+    }
+    while (n > 0) {
+        if (T::eq_int_type(sputc(*s++), T::eof())) {
+            break;
+        }
+        ++num;
+        --n;
+    }
+    return num;
 }
 
 template <class C, class T>
@@ -868,6 +925,16 @@ protected:
         ext_beg_ = ext_next_ = (char*)buffer_;
         ext_end_ = (char*)(buffer_ + buf_size_);
     }
+    // inferred: sets up an empty get area (inlined in underflow and imbue)
+    void __init_get_unk() {
+        C* p = buffer_;
+        this->setp(0, 0);
+        this->setg(p, p, p);
+        ext_beg_ = ext_next_ = ext_end_ = (char*)(p + buf_size_);
+        if (!always_noconv_) {
+            ext_beg_ -= (buf_size_ - 1) * __ext_width_unk();
+        }
+    }
     // inferred: external bytes per character
     int __ext_width_unk() const { return encoding_ <= 0 ? 1 : (encoding_ > (int)sizeof(C) ? (int)sizeof(C) : encoding_); }
     // inferred: writes [ext_beg_, ext_next_) to the device
@@ -908,7 +975,13 @@ public:
     virtual ~console_outputbuf() {}
 
 protected:
-    virtual int sync();
+    virtual int sync() {
+        int r = bufferedbuf<C, T>::sync();
+        if (r >= 0) {
+            r = fflush(file_);
+        }
+        return r;
+    }
     virtual std::streamsize write(const char* s, std::streamsize n) { return fwrite(s, 1, n, file_); }
     virtual std::streamsize read(char* s, std::streamsize n) { return -1; }
     virtual std::streamoff seek(std::streamoff off, int whence) { return -1; }
@@ -1178,13 +1251,7 @@ typename bufferedbuf<C, T>::int_type bufferedbuf<C, T>::underflow() {
         this->setp(0, 0);
     }
     if (this->gptr_ == 0) {
-        C* p = buffer_;
-        this->setp(0, 0);
-        this->setg(p, p, p);
-        ext_beg_ = ext_next_ = ext_end_ = (char*)(p + buf_size_);
-        if (!always_noconv_) {
-            ext_beg_ -= (buf_size_ - 1) * __ext_width_unk();
-        }
+        __init_get_unk();
     }
     if (this->gptr_ >= this->egptr_ && fill_get() <= 0) {
         return T::eof();
@@ -1258,6 +1325,29 @@ std::fpos<std::mbstate_t> bufferedbuf<C, T>::seekpos(std::fpos<std::mbstate_t> s
         return -1;
     }
     return sp;
+}
+
+template <class C, class T>
+void bufferedbuf<C, T>::imbue(const std::locale& loc) {
+    if (this->sync() < 0) {
+        throw std::runtime_error("bufferedbuf::imbue failed");
+    }
+    a_codecvt_ = &std::use_facet<cvt>(loc);
+    always_noconv_ = a_codecvt_->always_noconv();
+    encoding_ = a_codecvt_->encoding();
+    max_length_ = a_codecvt_->max_length();
+    if (max_length_ <= 0 || max_length_ > buf_size_ / 2) {
+        if (max_length_ > 0 && owns_buffer_) {
+            this->setbuf(0, buffered_);
+        } else {
+            throw std::runtime_error("codecvt facet max_length is out of range");
+        }
+    }
+    if (this->pptr_ != 0) {
+        __init_areas_unk();
+    } else if (this->gptr_ != 0) {
+        __init_get_unk();
+    }
 }
 
 template <class C, class T>
