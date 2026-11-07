@@ -340,25 +340,7 @@ config.libs.append({
 })
 
 
-config.libs.append({
-    "lib": "game_nodefer",
-    "mw_version": "Wii/1.3",
-    "cflags": cflags_game_nodefer,
-    "progress_category": "game",
-    "objects": [
-        Object(Matching, "auto_03_8068B60C_text.cpp"),
-        Object(Matching, "auto_03_8068D7AC_text.cpp"),
-        Object(Matching, "auto_03_8068DCF0_text.cpp"),
-        Object(Matching, "auto_03_80690D60_text.cpp"),
-        Object(Matching, "auto_03_80691B44_text.cpp"),
-        Object(Matching, "auto_03_80691B48_text.cpp"),
-        Object(Matching, "auto_03_80691C90_text.cpp"),
-        Object(Matching, "auto_03_80691CFC_text.cpp"),
-        Object(Matching, "auto_03_80692BFC_text.cpp"),
-        Object(Matching, "auto_03_806929FC_text.cpp"),
-        Object(Matching, "auto_03_8069512C_text.cpp"),
-    ],
-})
+# game_nodefer: its auto_03_806* units are now part of PowerPC_EABI_Support/src/MSL_C++/iostream.cpp
 
 
 # Reference library units (SDK, NW4R, MSL, Runtime, MetroTRK, NdevExi2A).

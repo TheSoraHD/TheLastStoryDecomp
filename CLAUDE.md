@@ -8,7 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `maraton-20261107` (2026-11-07, mergeada en `main`): **13987 / 18117**, lost 0, 652 enlazados. Fuentes nuevas: `BattleTask` 94/212, `GameTask` 42/133, `AiTarget` 31/44 (absorbe `std/runtime_error`), `TacView` 14/46, `GameCamera_unk` 11/90, `Event/DebugInfo_unk` 1/58; `GameEventScript` 3 -> 61/224 (fusionada con `_cont`, `_cont2`, `std/bad_cast*`); `atn/EffectSystem_unk` +5. Metodos de GameTask/BattleTask como miembros (llamadores convertidos). Notas: `docs/maraton-20261107.md`.
+- `msl-iostream-20261107` (2026-11-07, **mergeada en `main`** con `nw4rmath-20261107`): **14146 / 18116**, lost 0. MSL C++ partida en `iostream.cpp`/`locale.cpp`/`shared_ptr_unk.cpp` (106/170; `shared_ptr_unk.cpp` enlazada, las otras dos no). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`. Notas: `docs/msl-iostream-20261107.md`; siguiente paso: `docs/SIGUIENTE_sesion.md`.
+- `nw4rmath-20261107` (mergeada en `main`): 14053, NW4R 77/78 (falta `ut_TextWriterBase`): `db_DbgPrintBase`, math (`SinCosFIdx`, `MTX34Zero`, asm aprobado), `db_assert` (`VPanic`), `FrameHeap::GetSize_unk`; `docs/nw4rmath-20261107.md`.
+- `maraton-20261107` (mergeada en `main`): 13987, `BattleTask` 94/212, `GameTask` 42/133, `AiTarget` 31/44, `TacView` 14/46, `GameEventScript` 61/224; `docs/maraton-20261107.md`.
 - `hermanas-20261106` (mergeada): 13737, `ShopBase`, `CosEditProtector`, `NewCampTask`, `LastCocoon*`; `docs/hermanas-20261106.md`. `unidades-20261106b` 13619 (KPAD 2010, menus MP); `unidades-20261106` 13524 (SDK 2010 CC0); `unidades-20261105` 12766.
 - `maptask-20261105` 12710; `maparea-20261105` 12703; `scene-20261105` 12686; `nw4r-20261105` 12684 (`docs/nw4r-20261105.md`); `renderview-20261105`: `lbl_8087EFB4` = `atn::RenderManager::instance_`; `manager-20261104` 12679; `event100-20261104` 12577; `nuevas-20261103` 12564.
 - `integ-20261103` (mergeada en `main`): 12248 / 18119, integra `claude-20261102` (12200) y `codex-20261102` (11922); `docs/integ-20261103.md`.
@@ -42,6 +44,8 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - asm de MetroTRK `targsupp.c`: cuatro stubs `asm` con `nofralloc` y `twi 31, r0, 0; blr` (el original es un `.s`), aprobado 2026-11-01;
    - MetroTRK `__exception.s` (`gTRKInterruptVectorTable`, `.init` 0x800043C4-0x800062F8): fichero `.s` ensamblado con el `as` de binutils (el original es un `.s`), aprobado 2026-11-03;
    - asm paired-single de `atn/Model` `fn_80099F74` y `fn_8009A018` (skinning en la cache bloqueada, `nofralloc`), aprobado en `prompt-model` 2026-11-02;
+   - asm inline paired-single de Nintendo en NW4R math (`ss_nw4r/src/math`: `SinCosFIdx`, `MTX34Zero`; fuente publica de NW4R), aprobado 2026-11-07;
+   - `lwz` del puntero de pila (`0(r1)`) en `nw4r::db::VPanic` (`nw4r/src/db/db_assert.cpp`), aprobado 2026-11-07;
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
    - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
 3. Avisar y explicar antes de tocar `splits.txt`, `symbols.txt` (salvo renombrados), `configure.py`, `config.yml` o flags.

@@ -1,4 +1,3 @@
-#pragma ipa file // TODO: REMOVE AFTER REFACTOR
 
 #include <nw4r/db/db_assert.h>
 #include <nw4r/db/db_console.h>
@@ -40,7 +39,7 @@ namespace nw4r
             return result;
         }
 
-        static void ShowStack_(u32 sp) DECOMP_DONT_INLINE
+        static void ShowStack_(u32 sp)
         {
             Assertion_Printf_("-------------------------------- TRACE\n");
             Assertion_Printf_("Address:   BackChain   LR save\n");
@@ -62,8 +61,8 @@ namespace nw4r
             }
         }
 
-        // NONMATCHING: 63% - the 2010 version prints the stack with Assertion_Printf_ and reads the caller's
-        // stack pointer (lwz r29, 0(r1)), which needs inline asm (not allowed); the unit is not linked
+        // The 2010 version prints the stack with Assertion_Printf_ (ShowStack_ inlined) and reads the caller's
+        // stack pointer (lwz r29, 0(r1)) with inline asm: rule 2 exception approved 2026-11-07
         DECL_WEAK void VPanic(const char* file, int line, const char* fmt, std::va_list vlist, bool halt) {
             register u32 stackPointer;
 

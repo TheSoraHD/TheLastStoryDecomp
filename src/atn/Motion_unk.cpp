@@ -15,6 +15,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "std/vector.h"
+#include "nw4r/math/triangular.h"
 
 extern "C" {
 unsigned long strlen(const char* s);
@@ -28,7 +29,6 @@ extern "C" double fn_800DC288(const char* s);        // inferred: atof
 extern "C" std::basic_string<char> fn_8006B174(const std::basic_string<char>& path);
 std::basic_string<char> fn_8006B0C8(const std::basic_string<char>& path);
 
-extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
 
 extern "C" void fn_80095CD0(atn::Model* model); // inferred: update
 
@@ -247,11 +247,6 @@ extern "C" void fn_800A05FC(atn::LH_Motion* motion, MotionPose_unk* pose, int in
     fn_800A0610(motion, pose, ((MotionData_unk*)motion->m08)->m18[index], keys, frame);
 }
 
-// inferred: radians to the units of fn_8072D210 (as in game/CharaTask.cpp)
-static inline float ToAngleUnits_unk(float rad) {
-    return 40.743664f * rad;
-}
-
 // inferred: quaternion from euler angles (inline copy of atn::Quaternion_unk::fn_801498F0)
 static inline atn::Quaternion_unk EulerToQuat_unk(const atn::Vector3& rot) {
     atn::Quaternion_unk q;
@@ -260,9 +255,9 @@ static inline atn::Quaternion_unk EulerToQuat_unk(const atn::Vector3& rot) {
     float rz = rot.z;
     float cx, cy, cz;
     float sx, sy, sz;
-    fn_8072D210(ToAngleUnits_unk(rx / 2.0f), &sx, &cx);
-    fn_8072D210(ToAngleUnits_unk(ry / 2.0f), &sy, &cy);
-    fn_8072D210(ToAngleUnits_unk(rz / 2.0f), &sz, &cz);
+    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
+    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
+    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
     float cycz = cy * cz;
     float sysz = sy * sz;
     q.w = cx * cycz + sx * sysz;

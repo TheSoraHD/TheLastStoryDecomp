@@ -1,32 +1,21 @@
-# Siguiente sesion (tras `maraton-20261107`)
+# Siguiente sesion (tras el merge de `nw4rmath-20261107` y `msl-iostream-20261107` en `main`)
 
-Rama `maraton-20261107` (mergeada en `main` por avance rapido, f0fdfc6): 13987 / 18117, lost 0, 652 enlazadas,
-build limpio `main.dol: OK`. Notas completas: `docs/maraton-20261107.md`.
+`main` (2026-11-07): **14146 / 18116**, lost 0, build limpio `main.dol: OK`. Prompt listo en el proyecto:
+`claude/prompt-msl-iostream-4.md` (crear la rama nueva desde `main`, ya no hace falta `msl-iostream-20261107`).
 
-## Revisar antes de mergear
+## MSL C++ (106/170)
 
-- Cambios de splits: `game/GameEventScript.cpp` absorbe `std/bad_cast`, `_cont`, `std/bad_cast_what`, `_cont2`;
-  `game/AiTarget.cpp` absorbe `std/runtime_error` y `game/AiTarget_rodata`. Fuentes nuevas en `game_units.json`:
-  `game/GameCamera_unk.cpp`, `Event/DebugInfo_unk.cpp`.
-- Llamadores convertidos a miembros con casts desde sus vistas: `((GameTask*)lbl_8087F430)->fn_X(...)`,
-  `((BattleTask*)lbl_8087F048)->fn_X(...)`.
-- `AiTarget.cpp` conserva `fn_runtime_error_unk` ("extra" en ordercheck).
-- `jumptable_80797680` -> `@6578` (TacView): fragil, cambia al editar TacView.cpp.
+- `PowerPC_EABI_Support/src/MSL_C++/`: `iostream.cpp` (0x8068B39C-0x80691E50), `locale.cpp` (0x80691E50-0x806952C4)
+  y `shared_ptr_unk.cpp` (enlazada). Cabecera comun `msl_iostream_unk.h`.
+- Pendientes (detalle en `docs/msl-iostream-20261107.md`, "Sesion 3"): `num_put` de `double` (3 funciones),
+  `Init`/`wios_base_Init_unk` (presupuesto R3), `flush`/`sentry`, rangos de `ctype<wchar_t>` (recarga de `end()`),
+  `replace` (8 temporales `stb 0`), `__global`, `__insert_one_unk`; despues orden y enlace de las dos TU.
 
-## Siguientes objetivos
+## Otros (de `maraton-20261107`, siguen vigentes)
 
 1. Unificar vistas con las clases reales: `Ledge_unk` = `GameSceneRoute_unk`; `Field_unk`/`GameField_unk`/
-   `DiveField_unk` = `GameTask`; las vistas de `lbl_8087EFA8`. Hacerlo en un lote y un solo `pdbatch.sh`.
-2. GameTask 0x8036555C-0x8036823C (primeras funciones, con cadenas): desbloquea el `@stringBase0` de los getters
-   de flags (`fn_80370174`, `fn_80370A78`, `fn_80370AE4`, usados por ~50 unidades).
-3. Constructores de `TacView` (0x805A7158) y `BattleTask` (0x800F1430): traen sus copias debiles.
-4. `GameCamera_unk` 11/90 y `Event/DebugInfo_unk` 1/58: muchas funciones pequenas pendientes.
-5. Trucos baratos sobre NONMATCHING de floats: el `0.0f` de una comparacion en un local (`float zero = 0.0f;`) y
-   el producto en un local antes de construir un `Vector3` (+6 en minutos; ver `trucos-mwcc.md`).
-6. Bloqueos conocidos (DebugInfo_unk ctor, GameCamera::fn_80389678 y la familia r0/rX) en `docs/mwcc-blockers.md` : no repetir.
-
-## Procedimiento que funciono
-
-- Tras tocar `GameTask.h`/`BattleTask.h`: `ninja`, `labelcheck.py $(cat $REF/units.txt)` contra
-  `$REF/labelcheck.txt`, `pdbatch.sh` con esas unidades + `game/AiTarget game/BattleTask`, `tools/decomp/fixpd.sh` (etiquetas
-  `lbl_8087D6E8/EC`, `lbl_80775AA4` que pd renombra mal), y `precommit.sh` sin `--pd`.
+   `DiveField_unk` = `GameTask`; las vistas de `lbl_8087EFA8`.
+2. GameTask 0x8036555C-0x8036823C (primeras funciones, con cadenas).
+3. Constructores de `TacView` (0x805A7158) y `BattleTask` (0x800F1430).
+4. `GameCamera_unk` 11/90 y `Event/DebugInfo_unk` 1/58.
+5. `ut_TextWriterBase`: unica unidad NW4R sin enlazar.

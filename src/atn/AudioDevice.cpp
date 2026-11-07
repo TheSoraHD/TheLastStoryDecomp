@@ -288,7 +288,6 @@ struct DVDFileInfo_unk {
 extern "C" void OSLockMutex(OSMutex_unk* mutex);
 extern "C" void OSUnlockMutex(OSMutex_unk* mutex);
 
-extern "C" unsigned long fn_8070DC10(void* frameHeap); // inferred: FrameHeap::GetFreeSize
 
 // inferred: nw4r::ut::AutoMutexLock
 struct AutoMutexLock_unk {
@@ -346,6 +345,7 @@ namespace detail {
 class FrameHeap {
 public:
     int GetCurrentLevel() const;
+    unsigned long GetSize_unk() const; // inferred: MEMGetHeapTotalSize (libs/nw4r snd_FrameHeap.cpp)
     unsigned char m00[0x10];
 };
 struct FxReverbStdParam;
@@ -487,7 +487,7 @@ public:
     }
     unsigned long GetFreeSize() {
         AutoMutexLock_unk lock(mMutex);
-        return fn_8070DC10(&mFrameHeap);
+        return mFrameHeap.GetSize_unk();
     }
     bool IsValid() { return *(void**)&mFrameHeap != 0; }
 

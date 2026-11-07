@@ -57,6 +57,7 @@ struct MEMiHeapHead* MEMDestroyExpHeap(struct MEMiHeapHead* heap);
 void* MEMAllocFromExpHeapEx(struct MEMiHeapHead* heap, u32 size, s32 align);
 u32 MEMResizeForMBlockExpHeap(struct MEMiHeapHead* heap, void* memBlock, u32 size);
 void MEMFreeToExpHeap(struct MEMiHeapHead* heap, void* memBlock);
+u16 MEMSetGroupIDForExpHeap(struct MEMiHeapHead* heap, u16 groupID);
 u32 MEMGetAllocatableSizeForExpHeapEx(struct MEMiHeapHead* heap, s32 align);
 u32 MEMAdjustExpHeap(struct MEMiHeapHead* heap);
 

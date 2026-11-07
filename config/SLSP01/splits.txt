@@ -4998,38 +4998,31 @@ PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.
 PowerPC_EABI_Support/src/MSL_C/MSL_Common/extras.c:
 	.text       start:0x8068B104 end:0x8068B39C
 
-auto_03_8068B60C_text.cpp:
-	.text       start:0x8068B60C end:0x8068B610
+PowerPC_EABI_Support/src/MSL_C++/iostream.cpp:
+	extab       start:0x80006720 end:0x80007684
+	extabindex  start:0x80007C60 end:0x80007F9C
+	.text       start:0x8068B39C end:0x80691E50
+	.rodata     start:0x807661C0 end:0x80766538
+	.data       start:0x807BBB08 end:0x807BBDE0
+	.bss        start:0x808327C0 end:0x80832C38
+	.sdata      start:0x8087EC18 end:0x8087EC80
+	.sbss       start:0x80880378 end:0x80880390
 
-auto_03_8068D7AC_text.cpp:
-	.text       start:0x8068D7AC end:0x8068D7B8
+PowerPC_EABI_Support/src/MSL_C++/locale.cpp:
+	extab       start:0x80007684 end:0x80007B8C
+	extabindex  start:0x80007F9C end:0x800080EC
+	.text       start:0x80691E50 end:0x806952C4
+	.ctors      start:0x8072D400 end:0x8072D404
+	.rodata     start:0x80766538 end:0x80766768
+	.data       start:0x807BBDE0 end:0x807BBF58
+	.bss        start:0x80832C38 end:0x80832C50
+	.sdata      start:0x8087EC80 end:0x8087ED20
+	.sbss       start:0x80880390 end:0x808803D8
 
-auto_03_8068DCF0_text.cpp:
-	.text       start:0x8068DCF0 end:0x8068DCF8
-
-auto_03_80690D60_text.cpp:
-	.text       start:0x80690D60 end:0x80690D70
-
-auto_03_80691B44_text.cpp:
-	.text       start:0x80691B44 end:0x80691B48
-
-auto_03_80691B48_text.cpp:
-	.text       start:0x80691B48 end:0x80691B80
-
-auto_03_80691C90_text.cpp:
-	.text       start:0x80691C90 end:0x80691C9C
-
-auto_03_80691CFC_text.cpp:
-	.text       start:0x80691CFC end:0x80691D08
-
-auto_03_806929FC_text.cpp:
-	.text       start:0x806929FC end:0x80692ADC
-
-auto_03_80692BFC_text.cpp:
-	.text       start:0x80692BFC end:0x80692C04
-
-auto_03_8069512C_text.cpp:
-	.text       start:0x8069512C end:0x80695138
+PowerPC_EABI_Support/src/MSL_C++/shared_ptr_unk.cpp:
+	extab       start:0x80007B8C end:0x80007B94
+	extabindex  start:0x800080EC end:0x800080F8
+	.text       start:0x806952C4 end:0x8069533C
 
 PowerPC_EABI_Support/src/MetroTRK/__exception.s:
 	.init       start:0x800043C4 end:0x800062F8
@@ -5706,7 +5699,7 @@ ss_nw4r/src/snd/snd_ExternalSoundPlayer.cpp:
 	.text       start:0x8070CEB0 end:0x8070D360
 
 nw4r/src/snd/snd_FrameHeap.cpp:
-	.text       start:0x8070D360 end:0x8070DC0C
+	.text       start:0x8070D360 end:0x8070DC20
 
 ss_nw4r/src/snd/snd_FxChorus.cpp:
 	.text       start:0x8070DC20 end:0x8070E190
@@ -5929,8 +5922,10 @@ ss_nw4r/src/snd/snd_adpcm.cpp:
 nw4r/src/db/db_console.cpp:
 	.text       start:0x80722FE0 end:0x807230C0 align:16
 
-auto_03_807230C0_text.cpp:
+nw4r/src/db/db_DbgPrintBase.cpp:
 	.text       start:0x807230C0 end:0x80724BE0 align:16
+	.sbss       start:0x80880520 end:0x80880530
+	.sdata2     start:0x80889338 end:0x80889350
 
 nw4r/src/db/db_assert.cpp:
 	.text       start:0x80724BE0 end:0x80725050 align:16
@@ -5986,3 +5981,12 @@ ss_nw4r/src/ut/ut_TextWriterBase.cpp:
 	.sdata      start:0x8087EE40 end:0x8087EE48
 	.sbss       start:0x80880578 end:0x8088058C
 	.sdata2     start:0x80889378 end:0x8088938C
+
+ss_nw4r/src/math/math_triangular.cpp:
+	.text       start:0x8072D210 end:0x8072D280
+	.rodata     start:0x8076F488 end:0x80770498
+	.sdata2     start:0x80889390 end:0x80889394
+
+ss_nw4r/src/math/math_types.cpp:
+	.text       start:0x8072D280 end:0x8072D2A0
+	.sdata2     start:0x80889398 end:0x8088939C

@@ -73,6 +73,7 @@
 #include "game/TownTask.h"
 #include "chr/CharaEquip_unk.h"
 #include "game/BattleTask.h"
+#include "nw4r/math/triangular.h"
 
 // inferred: block of the game settings read by fn_8013A4E8 (names invented)
 struct Block454_unk {
@@ -5039,12 +5040,6 @@ atn::Quaternion_unk atn::Quaternion_unk::fn_801498D8() const {
     return r;
 }
 
-extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
-
-// inferred: radians to the units of fn_8072D210 (name invented)
-inline float ToAngleUnits_unk(float rad) {
-    return 40.743664f * rad;
-}
 
 atn::Quaternion_unk atn::Quaternion_unk::fn_801498F0(const Vector3& rot) {
     Quaternion_unk q;
@@ -5053,9 +5048,9 @@ atn::Quaternion_unk atn::Quaternion_unk::fn_801498F0(const Vector3& rot) {
     float rz = rot.z;
     float cx, cy, cz;
     float sx, sy, sz;
-    fn_8072D210(ToAngleUnits_unk(rx / 2.0f), &sx, &cx);
-    fn_8072D210(ToAngleUnits_unk(ry / 2.0f), &sy, &cy);
-    fn_8072D210(ToAngleUnits_unk(rz / 2.0f), &sz, &cz);
+    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
+    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
+    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
     float cycz = cy * cz;
     float sysz = sy * sz;
     q.w = cx * cycz + sx * sysz;

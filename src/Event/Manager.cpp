@@ -52,6 +52,7 @@
 #include "atn/RenderManager.h"
 #include "atn/SceneColorMatrix_unk.h"
 #include "atn/Lerp_unk.h"
+#include "nw4r/math/triangular.h"
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 
@@ -318,7 +319,6 @@ Action* fn_8047BFF4(Sequence* seq) {
 } // namespace Event
 
 extern "C" void C_QUATSlerp(const atn::Quaternion_unk* p, const atn::Quaternion_unk* q, atn::Quaternion_unk* r, float t);
-extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
 extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
 
 // inferred: euler angles to a quaternion (inlined here; same code as
@@ -330,9 +330,9 @@ static inline atn::Quaternion_unk EulerToQuat_unk(const atn::Vector3& rot) {
     float rz = rot.z;
     float cx, cy, cz;
     float sx, sy, sz;
-    fn_8072D210(40.743664f * (rx / 2.0f), &sx, &cx);
-    fn_8072D210(40.743664f * (ry / 2.0f), &sy, &cy);
-    fn_8072D210(40.743664f * (rz / 2.0f), &sz, &cz);
+    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
+    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
+    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
     float cycz = cy * cz;
     float sysz = sy * sz;
     q.w = cx * cycz + sx * sysz;

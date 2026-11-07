@@ -28,6 +28,7 @@ public:
 
     int GetCurrentLevel() const;
     u32 GetFreeSize() const;
+    u32 GetSize_unk() const; // inferred: MEMGetHeapTotalSize of the frame heap (0x8070DC10, name invented)
 
     bool IsValid() const {
         return mHandle != NULL;
