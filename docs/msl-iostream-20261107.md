@@ -162,3 +162,67 @@ de rango sin `const`, temporal de `use_facet`).
 8. Orden: `ordercheck.py` no se ha pasado (las unidades no enlazan aun); escribir en orden del `.dol` al final.
 
 Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
+
+# Sesion 3 (2026-11-07, tarde)
+
+## Resultado
+
+- Punto de control 1: **106/170** (de 95), `regress.py` contra `main` **lost 0** (la unica bajada de fuzzy es
+  `pad_03_8070DC0C`, del tramo de `nw4rmath`), `main.dol: OK`. Sin enlazar (`matching: false`).
+- Nuevas al 100%: `ctype<char>::do_toupper/do_tolower` de rango (lost recuperado), destructores de `ctype<wchar_t>`
+  y de sus dos `vector` de rangos, constructor de `ctype<wchar_t>`, `logic_error::what`, `~logic_error`,
+  `~length_error`, `__sinit_\locale_cpp`. `~__locale_imp` 94 -> 99,98%.
+
+## Cambios de splits/flags
+
+- `libs_ref.json` (las tres unidades): **`-func_align 4` detras de `-O4,p`** (el `,p` de `-O4,p` vuelve a poner la
+  alineacion de funciones a 16 aunque `-func_align 4` vaya antes; con 16 MWCC mete `nop` de alineacion de bucles y
+  todas las funciones quedaban en multiplos de 16). Arregla los `nop` de `do_toupper/do_tolower`.
+- `libs_ref.json`: **`-RTTI on`** en las tres (las vtables del original apuntan a `__RTTI__...` y los nombres de tipo
+  estan en `.rodata` de cada TU, no en el pool de cadenas). Ningun porcentaje cambia.
+- `libs_ref.json`: **`locale.cpp` sin `-opt nostrength`** (pendiente 4): `~__locale_imp` sube; nada baja.
+  `iostream.cpp` lo sigue necesitando (`~ios_base`).
+- `symbols.txt` (renombrados): constructor/destructor de `ctype<wchar_t>`, `vector` de rangos, `insert` de rangos,
+  `__insert_one_unk`, `logic_error`, `length_error`, `__sinit_\locale_cpp`, ids y guardas de los facets
+  (`id__Q23std8ctype<c>` 0x808803C0 ... `@GUARD@id__...` 0x808803D0...), `__id_count___Q33std6locale2id`,
+  `__dt__...scoped_lock<recursive_mutex>` (0x80691EE4).
+
+## Decisiones tomadas sin el usuario
+
+- Los tres cambios de flags de arriba (`-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`).
+- `ctype<wchar_t>`: los miembros son `vector<__range_entry_unk<T> >` y `__range_map_unk<T>` solo tiene funciones
+  estaticas (`find`, `insert`): el EH del constructor original llama directamente a los destructores de `vector`.
+- `ctype_base` con `enum __mask_unk` y un `operator|` inline (inferido): las mascaras compuestas del constructor van a
+  temporales de pila (resultado de una llamada) y las simples a constantes de `.sdata`, como en el original.
+- `numeric_limits<wchar_t>` minimo (`min`/`max` como llamadas: sus resultados van a la pila).
+- `vector`: el constructor por defecto pone los campos a 0 (las bases sin constructor); `clear()` con un
+  `allocator<T>` temporal (el `stb 0` del original); `insert` -> `__insert_one_unk(pos, x, tag)` con un tag vacio por
+  valor; `__recommend_unk` (comprobacion de longitud + crecimiento, resultado descartado) y `__grow_cap_unk`
+  fuera de la clase para que "vector length error" vaya al pool del fichero.
+- `classic()` deja de ser `inline` (el literal "C" va al pool de la TU, no a un `@STRING@`).
+- `locale::id` con constructor vacio: asi las cuatro ids tienen guarda y `__sinit` como el original.
+
+## Hallazgos
+
+- `-O4,p` despues de `-func_align 4` deja las funciones alineadas a 16 (ver arriba): mirar el orden de los flags
+  si un `.o` tiene huecos entre funciones o `nop` de alineacion de bucles que el original no tiene.
+- Las funciones de mas en nuestro `.o` (destructores de las bases de `vector`) solo tienen entrada en extabindex:
+  el enlazador las elimina si nadie las referencia.
+- El pool de cadenas de `locale.cpp` sigue el orden del fuente: "vector length error" (de `replace`), cadenas de
+  `basic_string` (out_of_range), "C" (`classic`), "*".
+- 0x80693884/0x806939C8/0x80693AB8 son de `num_put` para `double` (`__num2dec`, comparacion, formateo a
+  `basic_string`): las llama el `num_put` inlineado en `atn/EffectManager` (0x80241700).
+- `Init`: el original llama hasta a `operator new(size_t, void*)`, `tie`, `setf` y `pubsetbuf` (presupuesto R3
+  superado); el nuestro lo inlinea todo. Falta saber que candidato cuesta mas en el original.
+
+## Pendientes
+
+1. `ctype<wchar_t>` de rango (88-92%) y las de un caracter (80%), `__range_map_unk::insert` (76%): el original
+   recarga `size_`/`data_` tras la busqueda binaria (CSE roto); ~15 formas probadas (const/no const, mutable,
+   iteradores struct, busqueda por referencia, `end()` por accesor de referencia, otros compiladores Wii/GC).
+2. `__insert_one_unk` (90,5%): huecos de pila de `n` y de los temporales de `max`, y registros del pool (se arreglara
+   en parte con el orden del pool).
+3. `__locale_imp::replace` (resize de `vector<facet*>` + try/catch), `__global` (84%: el `shared_ptr` temporal va en
+   memoria), funciones de `num_put` (3).
+4. iostream: `Init`/`wios_base_Init_unk`, constructores de streams y de `console_outputbuf`, `sentry`, `flush`,
+   0x8068E270, y las pequenas que el original emite fuera de linea (`__nw__FUlPv`, `setf`, `tie`, `pubsetbuf`...).
