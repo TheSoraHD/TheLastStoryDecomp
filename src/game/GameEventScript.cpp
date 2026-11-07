@@ -109,39 +109,37 @@ std::bad_cast::~bad_cast() {}
 
 boost::bad_lexical_cast::~bad_lexical_cast() {}
 
-// NONMATCHING: 92% - the original loads m18 before the other arguments
-void GameEventScript::fn_8039D178(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     fn_8039BF04(args->m08, args->m0C, args->m18, args->m10, args->m14);
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 75% - argument load order
-void GameEventScript::fn_8039D930(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_8039D930(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     fn_8036F268(lbl_8087F430, args->m08, args->m0C, args->m10, args->m14, args->m18, 0, 0x12, 0);
     result = ScriptResult_unk(0, 1);
 }
 
-void GameEventScript::fn_8039D99C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039D99C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 1);
 }
 
-void GameEventScript::fn_8039D9B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039D9B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     ((GameTask*)lbl_8087F430)->fn_80370C6C();
     lbl_8087F8A0->mHead->fn_8016E970(0);
     result = ScriptResult_unk(0, 1);
 }
 
-void GameEventScript::fn_8039DA00(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039DA00(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 0);
 }
 
-void GameEventScript::fn_8039DA10(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039DA10(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_8039E80C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039E80C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
 
@@ -150,79 +148,78 @@ void GameEventScript::fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.mWait = 0;
 }
 
-void GameEventScript::fn_8039E9C4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039E9C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 0);
 }
 
-void GameEventScript::fn_8039E9D4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039E9D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087F8A0->mHead->mFlagB2 = 1;
     lbl_8087F8A0->mHead->fn_80155DAC(1);
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_8039EA50(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_8039EA50(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087F8A0->mHead->mFlagB2 = 0;
     lbl_8087F8A0->mHead->fn_80155DAC(0);
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 95% - argument loaded after the prologue saves (see fn_803AB144)
-void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    fn_80370094(lbl_8087F430, static_cast<ScriptArgs_unk*>(cmd)->m08);
+void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    fn_80370094(lbl_8087F430, static_cast<const ScriptArgs_unk*>(cmd)->m08);
     mF0 = 1;
     ((GameTask*)lbl_8087F430)->fn_80370320(0x63, 0, 0);
     ((GameTask*)lbl_8087F430)->fn_80370320(0x11D, 0, 0);
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A03A0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A03A0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A04C0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A04C0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     mScene->fn_803CAABC();
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A0AB8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    lbl_8087FA00->OnTarget_unk(static_cast<TeamMsgIn_unk*>(cmd));
+void GameEventScript::fn_803A0AB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    lbl_8087FA00->OnTarget_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A0B1C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    lbl_8087FA00->OnTarget2_unk(static_cast<TeamMsgIn_unk*>(cmd));
+void GameEventScript::fn_803A0B1C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    lbl_8087FA00->OnTarget2_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A0B80(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    lbl_8087FA00->OnParent_unk(static_cast<TeamMsgIn_unk*>(cmd));
+void GameEventScript::fn_803A0B80(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    lbl_8087FA00->OnParent_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A0BE4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    lbl_8087FA00->OnMembers_unk(static_cast<TeamMsgIn_unk*>(cmd));
+void GameEventScript::fn_803A0BE4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    lbl_8087FA00->OnMembers_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A0C48(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    lbl_8087FA00->OnMsg20_unk(static_cast<TeamMsgIn_unk*>(cmd));
+void GameEventScript::fn_803A0C48(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    lbl_8087FA00->OnMsg20_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A0CAC(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    lbl_8087FA00->OnMsg21_unk(static_cast<TeamMsgIn_unk*>(cmd));
+void GameEventScript::fn_803A0CAC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    lbl_8087FA00->OnMsg21_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A0D10(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    lbl_8087FA00->OnChara_unk(static_cast<TeamMsgIn_unk*>(cmd));
+void GameEventScript::fn_803A0D10(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    lbl_8087FA00->OnChara_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
 }
 
 // inferred: requests a BGM (unless the same one is already requested)
 // NONMATCHING: 96% - load order of m10
-void GameEventScript::fn_803A2154(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
+void GameEventScript::fn_803A2154(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgsF_unk* args = static_cast<const ScriptArgsF_unk*>(cmd);
     GameBgm* bgm = GameBgm::sInstance;
     if (bgm != 0) {
         if (args->m08 > 0 || (bgm->m84 != 0 ? bgm->mNext.mId : bgm->mReq.mId) != 0x67) {
@@ -234,9 +231,9 @@ void GameEventScript::fn_803A2154(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 95% - the original loads the character kind before saving r30/r31 (as fn_803AB144)
-void GameEventScript::fn_803A2378(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+// NONMATCHING: 97% - the wait flag is stored before the table lookup
+void GameEventScript::fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     CharaTask* chara = GetChara_unk(args->m08, args->m0C);
     int wait = 0;
     if (chara != 0 && chara->m55C == 6 && chara->m560 == 0x27) {
@@ -245,7 +242,7 @@ void GameEventScript::fn_803A2378(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd, wait);
 }
 
-void GameEventScript::fn_803A362C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A362C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
 
@@ -273,8 +270,8 @@ void GameEventScript::fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 
 // inferred: autosave point (when autosave is enabled)
 // inferred: sets the camera of the current map
-void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     MapTask* map = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->GetCurrentMap() : 0;
     if (map != 0) {
         map->fn_804A04AC(args->m08, args->m0C != 0 ? 10 : 0, -1, 0);
@@ -283,15 +280,15 @@ void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0 && SetConfig::sInstance->mAutoSave != 0) {
         fn_80376730(lbl_8087F430);
     }
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A4400(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     if (lbl_8087F430 != 0) {
         fn_80375194(lbl_8087F430, args->m1C, args->m14, *(float*)&args->m18);
     }
@@ -323,15 +320,15 @@ void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd, wait);
 }
 
-void GameEventScript::fn_803A59D4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     GameTextMessageWindow* window = lbl_8087F490->m2640;
     result.mNext = NextCmd_unk(cmd);
     result.mWait = window->mState != 0;
 }
 
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
-void GameEventScript::fn_803A5F14(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A5F14(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     atn::IRenderLayer* layer = 0;
     switch (args->m08) {
     case 0:
@@ -349,10 +346,10 @@ void GameEventScript::fn_803A5F14(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
-void GameEventScript::fn_803A5F88(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A5F88(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
     if (leader != 0) {
-        if (static_cast<ScriptArgs_unk*>(cmd)->m08 == 0) {
+        if (static_cast<const ScriptArgs_unk*>(cmd)->m08 == 0) {
             leader->m54C |= 0x10;
         } else {
             leader->m54C &= ~0x10;
@@ -362,22 +359,22 @@ void GameEventScript::fn_803A5F88(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero)
-void GameEventScript::fn_803A61CC(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A61CC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
 
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
-void GameEventScript::fn_803A61F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A61F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        lbl_8087F430->m5664 = static_cast<ScriptArgs_unk*>(cmd)->m08;
+        lbl_8087F430->m5664 = static_cast<const ScriptArgs_unk*>(cmd)->m08;
     }
     result.SetNext_unk(cmd);
 }
 
 // inferred: enables or disables the crowd of NPCs
-// NONMATCHING: 96% - argument loaded before the instance (prologue)
-void GameEventScript::fn_803A66B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    int enable = static_cast<ScriptArgs_unk*>(cmd)->m10;
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    int enable = static_cast<const ScriptArgs_unk*>(cmd)->m10;
     if (CrowdManager::sInstance != 0) {
         if (enable != 0) {
             CrowdManager::sInstance->MeltTask();
@@ -389,51 +386,51 @@ void GameEventScript::fn_803A66B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A6F68(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        fn_8037EF30(&lbl_8087F430->mCamera, static_cast<ScriptArgs_unk*>(cmd)->m08, 1, -1.0f);
+        fn_8037EF30(&lbl_8087F430->mCamera, static_cast<const ScriptArgs_unk*>(cmd)->m08, 1, -1.0f);
     }
     result.SetNext_unk(cmd);
 }
 
 // NONMATCHING: 98% - registers r0/r4 swapped (type/zero), as fn_803A61CC
-void GameEventScript::fn_803A83FC(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A83FC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
         ((GameTask*)lbl_8087F430)->fn_80373F78();
     }
     result.SetNext_unk(cmd);
 }
 
-void GameEventScript::fn_803A8464(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A8464(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     mB8 = 0;
     fn_803A8470(result, cmd);
 }
 
-void GameEventScript::fn_803A90E8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A90E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     fn_803712BC(lbl_8087F430);
     lbl_8087F8A0->mHead->fn_8016E970(0);
     result = ScriptResult_unk(0, 1);
 }
 
-void GameEventScript::fn_803A9138(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A9138(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     mB8 = 0;
     mC0 = 60;
     fn_803A914C(result, cmd);
 }
 
-void GameEventScript::fn_803A9558(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A9558(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     mB8 = 0;
     mC0 = 60;
     fn_803A956C(result, cmd);
 }
 
-// NONMATCHING: 80% - the original stores mB8 before the flag test (rlwinm after the store)
-void GameEventScript::fn_803A98C4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    unsigned int flags = static_cast<ScriptArgs_unk*>(cmd)->m14;
+// NONMATCHING: 98% - registers r0/r6 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803A98C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    unsigned int flags = static_cast<const ScriptArgs_unk*>(cmd)->m14;
     mB8 = 0;
     int n = 25;
     if ((flags & 4) == 4) n = 45;
@@ -442,23 +439,22 @@ void GameEventScript::fn_803A98C4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 // inferred: waits while the field is in state 5
-void GameEventScript::fn_803AAA74(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_8036E430(2, static_cast<ScriptArgs_unk*>(cmd)->m08);
+        ((GameTask*)lbl_8087F430)->fn_8036E430(2, static_cast<const ScriptArgs_unk*>(cmd)->m08);
     }
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 72% - the original loads the arguments before saving r30/r31
-void GameEventScript::fn_803AAD58(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803AAD58(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     lbl_8087F490->fn_803E44C4((args->m0C & 1) ^ 1, args->m08, 45);
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 92% - the original loads m10 through the saved copy of cmd first (as fn_8039D178)
-void GameEventScript::fn_803AB144(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803AB144(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     ((GameTask*)lbl_8087F430)->fn_8036E994(args->m08, args->m0C, args->m10);
     result.SetNext_unk(cmd, 1);
 }
@@ -472,20 +468,20 @@ void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 // inferred: opens the save menu
-// NONMATCHING: 93% - argument loaded before the prologue saves
-void GameEventScript::fn_803AB1F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x391, static_cast<ScriptArgs_unk*>(cmd)->m14, 0);
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803AB1F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    ((GameTask*)lbl_8087F430)->fn_80370320(0x391, static_cast<const ScriptArgs_unk*>(cmd)->m14, 0);
     ((GameTask*)lbl_8087F430)->fn_8036E92C(1);
     result.SetNext_unk(cmd, 1);
 }
 
-void GameEventScript::fn_803AB328(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     fn_80371164(lbl_8087F430);
     result.mWait = 1;
     result.mNext = 0;
 }
 
-void GameEventScript::fn_803AB368(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803AB368(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 1);
 }
 

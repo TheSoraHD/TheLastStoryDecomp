@@ -40,10 +40,10 @@ struct ScriptResult_unk {
     ScriptResult_unk(ScriptCmd_unk* next, int wait) : mNext(next), mWait(wait) {}
     ScriptResult_unk(const ScriptResult_unk& r) : mNext(r.mNext), mWait(r.mWait) {}
     // inferred: goes on with the command after `cmd` without waiting
-    void SetNext_unk(ScriptCmd_unk* cmd, int wait = 0) {
+    void SetNext_unk(const ScriptCmd_unk* cmd, int wait = 0) {
         int& size = lbl_8074ED24[cmd->mCmd];
         mWait = wait;
-        mNext = (ScriptCmd_unk*)((char*)cmd + size);
+        mNext = (ScriptCmd_unk*)((const char*)cmd + size);
     }
     ScriptCmd_unk* mNext;
     int mWait;

@@ -34,6 +34,9 @@ public:
     ScriptCmd_unk* NextCmd_unk(ScriptCmd_unk* cmd) {
         return (ScriptCmd_unk*)((char*)cmd + lbl_8074ED24[cmd->mCmd]);
     }
+    ScriptCmd_unk* NextCmd_unk(const ScriptCmd_unk* cmd) {
+        return (ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]);
+    }
     int fn_8039BF04(int a, int b, int c, int d, int e);
     // inferred: character named by a script command (kind 0: leader or party member 1, 1: NPC, 2: enemy,
     // 3: party member); defined in game/GameEventScript.cpp
@@ -52,63 +55,63 @@ public:
     }
     // inferred: script commands (member function pointers of the command table in .data);
     // the (start, step) pairs reset the step counter mB8 and run the first step
-    void fn_8039D178(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039D930(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039D99C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039D9B0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039DA00(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039DA10(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039E80C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039D930(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039D99C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039D9B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039DA00(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039DA10(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039E80C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039E9C4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039E9D4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039EA50(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_8039F7D8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A03A0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A04C0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A0AB8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A0B1C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A0B80(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A0BE4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A0C48(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A0CAC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A0D10(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A2154(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A2378(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A362C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_8039E9C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039E9D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039EA50(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A03A0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A04C0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0AB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0B1C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0B80(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0BE4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0C48(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0CAC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0D10(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A2154(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A362C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A3BF4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A3CA8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A4400(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A59D4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A5A10(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A5F14(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A5F88(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A61CC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A61F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A66B0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A7BB0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A83FC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A8464(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A8470(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A90E8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A9138(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A914C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A9558(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A956C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A98C4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803A98EC(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803AAA74(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803AAD58(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803AB144(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5F14(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5F88(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A61CC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A61F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A6F68(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7BB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A83FC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A8464(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A8470(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A90E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A9138(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A914C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A9558(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A98C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A98EC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AAD58(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AB144(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803AB1F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803AB328(ScriptResult_unk& result, ScriptCmd_unk* cmd);
-    void fn_803AB368(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803AB1F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AB368(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
 
     unsigned char m48[0x88 - 0x48];
     GameScene* mScene; // 0x88: inferred: scene that owns the script (GameScene::m134)
