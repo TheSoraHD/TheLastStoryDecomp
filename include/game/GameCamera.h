@@ -21,7 +21,11 @@ public:
     void* m8F4;            // 0x8F4: inferred: ambient animation of the map (MapTask::m68, LH_Xsca)
     int m8F8;
     float m8FC;            // 0x8FC: inferred: scale of the ambient animation (MapId_unk::m64)
-    unsigned char m900[0xC20 - 0x900];
+    int m900;              // inferred: set from the event scripts (fn_803A450C keeps its parity)
+    int m904;
+    float m908;
+    float m90C;
+    unsigned char m910[0xC20 - 0x910];
     gs::CameraBox* mC20;   // 0xC20: inferred: camera box (MapTask::fn_804A04AC)
     unsigned char mC24[0xCAC - 0xC24];
 };

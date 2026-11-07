@@ -5,6 +5,9 @@
 #include "atn/SoundRef.h"
 #include "game/GameEventScript.h"
 #include "game/GameField_unk.h"
+#include "game/GameChoiceWindow.h"
+#include "game/GameUI.h"
+#include "Event/Manager.h"
 #include "game/GameScene.h"
 #include "game/PlayerManager.h"
 #include "game/TeamAIManager.h"
@@ -38,6 +41,9 @@ extern "C" const char* const lbl_8074EF78[];
 extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
 extern "C" void fn_80370C6C(GameField_unk* field);
+extern "C" void fn_80371164(GameField_unk* field);
+extern "C" void fn_803712BC(GameField_unk* field);
+extern "C" void fn_80374964(GameField_unk* field, int arg);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: UI sound names (SE_UICOM_001...)
 
 // inferred: plays a sound with the sound category of the event scripts (5); called from the
@@ -98,8 +104,25 @@ void GameEventScript::fn_8039E80C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
+void GameEventScript::fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    result.mNext = FindLabel_unk(static_cast<ScriptArgs_unk*>(cmd)->m08);
+    result.mWait = 0;
+}
+
 void GameEventScript::fn_8039E9C4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 0);
+}
+
+void GameEventScript::fn_8039E9D4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    lbl_8087F8A0->mHead->mFlagB2 = 1;
+    lbl_8087F8A0->mHead->fn_80155DAC(1);
+    result.SetNext_unk(cmd);
+}
+
+void GameEventScript::fn_8039EA50(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    lbl_8087F8A0->mHead->mFlagB2 = 0;
+    lbl_8087F8A0->mHead->fn_80155DAC(0);
+    result.SetNext_unk(cmd);
 }
 
 void GameEventScript::fn_803A03A0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
@@ -150,8 +173,58 @@ void GameEventScript::fn_803A362C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd);
 }
 
+void GameEventScript::fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    int wait = 0;
+    if (lbl_8087F430 != 0) {
+        fn_80374964(lbl_8087F430, args->m08);
+        if (args->m08 == 3) {
+            wait = 1;
+        }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
+// inferred: waits while the field is in an event state (9, 10, 13)
+void GameEventScript::fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    int wait = 0;
+    if (lbl_8087F430 != 0 &&
+        (lbl_8087F430->m54E4 == 9 || lbl_8087F430->m54E4 == 10 || lbl_8087F430->m54E4 == 13)) {
+        wait = 1;
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
+// NONMATCHING: 77% - register allocation; the original loads m08 before the first store
+void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
+    ScriptCmd_unk* next = NextCmd_unk(cmd);
+    GameCamera& camera = lbl_8087F430->mCamera;
+    camera.m900 = camera.m900 % 2;
+    camera.m904 = args->m08;
+    camera.m908 = args->m0C;
+    camera.m90C = args->m10;
+    result.mNext = next;
+    result.mWait = 0;
+}
+
+// inferred: waits while the message window is open
+void GameEventScript::fn_803A59D4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    GameTextMessageWindow* window = lbl_8087F490->m2640;
+    result.mNext = NextCmd_unk(cmd);
+    result.mWait = window->mState != 0;
+}
+
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero)
 void GameEventScript::fn_803A61CC(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 98% - registers r0/r6 swapped (type/zero), as fn_803A61CC
+void GameEventScript::fn_803A61F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    if (lbl_8087F430 != 0) {
+        lbl_8087F430->m5664 = static_cast<ScriptArgs_unk*>(cmd)->m08;
+    }
     result.SetNext_unk(cmd);
 }
 
@@ -162,6 +235,12 @@ void GameEventScript::fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 void GameEventScript::fn_803A8464(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     mB8 = 0;
     fn_803A8470(result, cmd);
+}
+
+void GameEventScript::fn_803A90E8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    fn_803712BC(lbl_8087F430);
+    lbl_8087F8A0->mHead->fn_8016E970(0);
+    result = ScriptResult_unk(0, 1);
 }
 
 void GameEventScript::fn_803A9138(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
@@ -186,8 +265,32 @@ void GameEventScript::fn_803A98C4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     fn_803A98EC(result, cmd);
 }
 
+// inferred: waits while the field is in state 5
+void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    int wait = 1;
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 5) {
+        wait = 0;
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
+void GameEventScript::fn_803AB328(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    fn_80371164(lbl_8087F430);
+    result.mWait = 1;
+    result.mNext = 0;
+}
+
 void GameEventScript::fn_803AB368(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 1);
+}
+
+// inferred: ends the event started by the script on the event manager
+void GameEventScript::fn_803ACD08() {
+    if (mE8 > 0) {
+        lbl_8087F540->fn_8047F580();
+        mE8 = 0;
+        mEC = 0;
+    }
 }
 
 extern "C" const char lbl_8078B34C[];
