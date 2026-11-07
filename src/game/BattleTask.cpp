@@ -19,6 +19,7 @@ extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameTask* lbl_8087F430;
+extern "C" int rand();
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
 extern "C" const char* fn_800EFE3C(int id);   // inferred: sound of row `id`
@@ -388,6 +389,30 @@ BattleChara_unk::~BattleChara_unk() {
         mHateIds = 0;
     }
     mHateCount = 0;
+}
+
+void BattleChara_unk::fn_801081D8() {
+    for (int i = 0; i < 72; i++) {
+        m08[i] = 0;
+        m128[i] = 1.0f;
+        m48C[i] = 0;
+        m5AC[i] = 0;
+        m36C[i] = 0;
+        m24C[i] = 0.0f;
+        m80C[i] = 0;
+        m6E4[i] = 0.0f;
+    }
+    for (int i = 0; i < mHateCount; i++) {
+        mHateValues[i] = 0;
+        mHateIds[i] = -1;
+    }
+    m6CC = (int)(70.0f * (rand() / 32767.0f));
+    m6DC = 0;
+    m6E0 = 0;
+    m804 = 0;
+    m808 = 0;
+    m92F = 0;
+    m930 = 0;
 }
 
 int BattleTask::fn_80108378(CharaTask* chara) {
