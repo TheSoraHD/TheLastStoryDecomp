@@ -1276,12 +1276,12 @@ protected:
 
 template <class C, class T = char_traits<C> >
 class basic_istream : virtual public basic_ios<C, T> {
+    // inferred: declared before the first virtual function (0x04, vtable pointer at 0x08: ~Init 0x8068BC30)
+    streamsize gcount_;
+
 public:
     explicit basic_istream(basic_streambuf<C, T>* sb);
     virtual ~basic_istream() {}
-
-protected:
-    streamsize gcount_;
 };
 
 template <class C, class T = char_traits<C> >
