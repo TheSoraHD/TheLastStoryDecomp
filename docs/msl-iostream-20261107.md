@@ -167,6 +167,11 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
 
 ## Resultado
 
+- **Cierre: 106/170** (14146 en `report.json`), lost 0, build limpio `main.dol: OK`, poolcheck/mnemcheck sin avisos.
+  **`shared_ptr_unk.cpp` enlazada** (`matching: true`, nuestro `.o` en el enlace, `main.dol: OK`).
+  `iostream.cpp` y `locale.cpp` siguen con `matching: false`.
+- `__locale_imp::replace` escrito (91%): con el, el pool de cadenas de `locale.cpp` queda en el orden del original
+  ("vector length error" primero) y `__insert_one_unk` sube a 93%.
 - Punto de control 1: **106/170** (de 95), `regress.py` contra `main` **lost 0** (la unica bajada de fuzzy es
   `pad_03_8070DC0C`, del tramo de `nw4rmath`), `main.dol: OK`. Sin enlazar (`matching: false`).
 - Nuevas al 100%: `ctype<char>::do_toupper/do_tolower` de rango (lost recuperado), destructores de `ctype<wchar_t>`
@@ -222,7 +227,12 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
    iteradores struct, busqueda por referencia, `end()` por accesor de referencia, otros compiladores Wii/GC).
 2. `__insert_one_unk` (90,5%): huecos de pila de `n` y de los temporales de `max`, y registros del pool (se arreglara
    en parte con el orden del pool).
-3. `__locale_imp::replace` (resize de `vector<facet*>` + try/catch), `__global` (84%: el `shared_ptr` temporal va en
-   memoria), funciones de `num_put` (3).
+3. `__locale_imp::replace` (91%): el original tiene ocho temporales de un byte (`stb 0`) en el `resize` inlineado
+   (al empezar `__append_unk`, en la comprobacion de longitud, tras el `new`, al principio y al final de
+   `__push_front_unk`, antes de la ultima comprobacion de `__grow_cap_unk` y en el recorte); origen desconocido
+   (quizas un `allocator` o un tag por valor de la implementacion de MSL). `__global` (85%: el `shared_ptr`
+   temporal de `classic_` va en memoria). Funciones de `num_put` (3, sin escribir).
+5. `locale.cpp` no enlaza aun: faltan `num_put` (3), las de rango y `replace`/`__global` al 100%; despues
+   `ordercheck.py`, `pd.sh` y datos (`classic_`/`global_`/mutex: renombrar a `@GUARD@`/`@LOCAL@` como los ids).
 4. iostream: `Init`/`wios_base_Init_unk`, constructores de streams y de `console_outputbuf`, `sentry`, `flush`,
    0x8068E270, y las pequenas que el original emite fuera de linea (`__nw__FUlPv`, `setf`, `tie`, `pubsetbuf`...).
