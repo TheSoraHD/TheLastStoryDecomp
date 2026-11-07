@@ -588,7 +588,6 @@ extern "C" int fn_8001BEE0(CharaTask* chara) {
     return rate;
 }
 
-extern "C" int fn_80018078(void* routes, CharaTask* chara);
 extern "C" int fn_8021A984(HitInfo_unk* hit);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 
@@ -598,7 +597,7 @@ extern "C" int fn_8001BF44(CharaTask*, CharaTask*) {
 }
 
 extern "C" int fn_8001BF4C(CharaTask* chara) {
-    return fn_80018078(lbl_8087EE68, chara);
+    return lbl_8087EE68->fn_80018078(chara);
 }
 
 extern "C" int fn_8001BF58(CharaTask* chara) {

@@ -156,6 +156,76 @@ void AIManager::fn_80017EB0(CharaTask* chara, int gimmick, int arg) {
     chara->mC58.mD0 = FindGimmick_unk(gimmick, arg);
 }
 
+// inferred: nearest AI area of the group of `chara` (its position raised by the half height)
+int AIManager::fn_80017F18(CharaTask* chara, atn::Vector3* pos) {
+    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (scene != 0) {
+        float best = 1.0e16f;
+        int found = -1;
+        for (unsigned int i = 0; i < scene->mF4.size(); i++) {
+            gs::AiArea& area = scene->mF4[i];
+            if (area.m2C != 0 && area.m24 == chara->mC58.mB8) {
+                atn::Vector3 d = area.mPos - chara->mPos;
+                float dist = d.LengthSq_unk();
+                if (best > dist) {
+                    best = dist;
+                    found = i;
+                }
+            }
+        }
+        if (found >= 0) {
+            gs::AiArea& area = scene->mF4[found];
+            *pos = area.mPos + atn::Vector3(0.0f, area.mSize.y, 0.0f);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// inferred: segment and oriented box tested by fn_80051E90 (atn/ColliTest_unk; box as in gmk/RandomItem.cpp)
+struct ColliSegment_unk {
+    atn::Vector3 mFrom;
+    atn::Vector3 mTo;
+};
+struct ColliBox_unk {
+    atn::Vector3 mSize; // inferred: half size
+    atn::Matrix3x4 mMtx;
+};
+extern "C" int fn_80051E90(const ColliSegment_unk* seg, const ColliBox_unk* box); // inferred: segment hits box
+
+// NONMATCHING: 99.7% - r3/r5 swapped for the addresses of the first sum and seg.mFrom
+// inferred: zero when a vertical segment through `chara` crosses an AI area of its group
+int AIManager::fn_80018078(CharaTask* chara) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    int ret = 0;
+    if (scene != 0 && chara->mC58.mB8 > 0) {
+        ColliSegment_unk seg;
+        seg.mFrom = chara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f);
+        seg.mTo = chara->mPos + atn::Vector3(0.0f, -20.0f, 0.0f);
+        for (unsigned int i = 0; i < scene->mF4.size(); i++) {
+            gs::AiArea& area = scene->mF4[i];
+            if (area.m2C != 0 && area.m24 == chara->mC58.mB8) {
+                ColliBox_unk box;
+                box.mSize = area.mSize;
+                Mtx r;
+                PSMTXRotRad(r, 'y', area.m14);
+                box.mMtx = *(atn::Matrix3x4*)r;
+                ret = 1;
+                atn::Vector3 pos = area.mPos;
+                pos.y += area.mSize.y;
+                box.mMtx.m[0][3] = pos.x;
+                box.mMtx.m[1][3] = pos.y;
+                box.mMtx.m[2][3] = pos.z;
+                if (fn_80051E90(&seg, &box) != 0) {
+                    ret = 0;
+                    break;
+                }
+            }
+        }
+    }
+    return ret;
+}
+
 // inferred: nearest effect that can reach `chara` (position and radius)
 int AIManager::fn_80018240(CharaTask* chara, atn::Vector3* pos, float* radius) {
     float best = 1.0e16f;

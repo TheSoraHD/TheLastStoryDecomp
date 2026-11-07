@@ -1420,8 +1420,6 @@ void CharaTask::fn_8013A258() {
 extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
 extern "C" float fn_80122560(float x); // inferred: fabs (weak copy of another helper)
 extern "C" int fn_8003F440(CharaTask* chara, SkillRef_unk* data);
-extern "C" int fn_80018078(void* routes, CharaTask* chara);
-extern "C" int fn_80017F18(void* routes, CharaTask* chara, atn::Vector3* pos);
 
 // inferred: moves the character for its current mode (mC58.mMode); called by fn_80139560 with the
 // speed, direction and rate passed to vf34.
@@ -1931,7 +1929,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
     case 16:
         if (mC58.mStep == 0) {
             atn::Vector3 pos;
-            if (fn_80017F18(fn_80139EF4(), this, &pos)) {
+            if (fn_80139EF4()->fn_80017F18(this, &pos)) {
                 mC58.mStep = 1;
                 route->fn_80128A30(&pos, &mPos, 8, 0.0f);
                 route->mRadius = 20.0f;
@@ -1948,7 +1946,7 @@ inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
                 dir.Normalize_unk();
                 *rot = dir.ToRotation_unk();
             }
-            if (route->fn_8013C3F4() || (mC58.m04 % 15 == 0 && !fn_80018078(fn_80139EF4(), this))) {
+            if (route->fn_8013C3F4() || (mC58.m04 % 15 == 0 && !fn_80139EF4()->fn_80018078(this))) {
                 mC58.mStep = 2;
                 mC58.mDone_unk = 1;
             }

@@ -1221,9 +1221,9 @@ void GameScene::fn_803C3894(const char* text, int length, int file) {
                     fn_803C3724(&mF4[i], csv);
                     mF4[i].m14 = fn_800DC288(csv.fn_8005B9CC());
                     csv.fn_8005B9CC();
-                    mF4[i].m18 = fn_800DC288(csv.fn_8005B9CC());
-                    mF4[i].m1C = fn_800DC288(csv.fn_8005B9CC());
-                    mF4[i].m20 = fn_800DC288(csv.fn_8005B9CC());
+                    mF4[i].mSize.x = fn_800DC288(csv.fn_8005B9CC());
+                    mF4[i].mSize.y = fn_800DC288(csv.fn_8005B9CC());
+                    mF4[i].mSize.z = fn_800DC288(csv.fn_8005B9CC());
                     mF4[i].m24 = atoi(csv.fn_8005B9CC());
                     mF4[i].m28 = atoi(csv.fn_8005B9CC());
                     mF4[i].m2C = atoi(csv.fn_8005B9CC()) == 1;

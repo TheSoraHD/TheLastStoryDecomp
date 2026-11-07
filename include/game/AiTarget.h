@@ -59,6 +59,8 @@ public:
     int fn_8001794C(CharaTask* chara);
     void fn_80017E90(CharaTask* chara, CharaTask* target); // inferred: adds hate (BattleTask::fn_80102A40)
     void fn_80017EB0(CharaTask* chara, int gimmick, int arg); // inferred: makes a character use a gimmick
+    int fn_80017F18(CharaTask* chara, atn::Vector3* pos);
+    int fn_80018078(CharaTask* chara);
     int fn_80018240(CharaTask* chara, atn::Vector3* pos, float* radius);
     AiTarget* fn_80018394(CharaTask* chara);
     void fn_800183E0(CharaTask* chara, CharaTask* target, HitInfo_unk* hit, int frames);

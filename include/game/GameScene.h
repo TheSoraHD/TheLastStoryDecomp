@@ -193,10 +193,8 @@ struct EventSphere : public PointBase_unk {
 struct AiArea : public PointBase_unk {
     AiArea() {}
     int mIndex;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
+    float m14;          // inferred: rotation around y (AIManager::fn_80018078)
+    atn::Vector3 mSize; // inferred: half size of its box (copied as a vector by AIManager::fn_80018078)
     int m24;
     int m28;
     int m2C;
