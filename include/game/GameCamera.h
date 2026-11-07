@@ -2,6 +2,7 @@
 #define GAME_GAMECAMERA_H
 
 #include "math/Vec.h"
+#include "atn/Camera_unk.h"
 
 namespace gs {
 struct CameraBox;
@@ -22,7 +23,7 @@ struct GameCameraState_unk {
 // game/GameCamera_unk.cpp). Real name from the RSO (__ct__10GameCameraFv, Update__10GameCameraFPC9CharaTask,
 // StartRollBack__10GameCameraFiif...); the constructor 0x8037D8B8 builds two atn::Camera at 0x00 and 0x1F4.
 // Size inferred from the next member of GameTask (FinishCamera_unk at 0xD18). Member names invented.
-class GameCamera {
+class GameCamera : public atn::Camera {
 public:
     GameCamera(); // 0x8037D8B8
     void fn_8037DD00(); // inferred: resets the camera (also called by the constructor)
@@ -47,13 +48,15 @@ public:
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
     void fn_803933A4(); // inferred: reset of the event state
 
-    unsigned char m000[0x14];
-    atn::Vector3 m014;     // inferred: position of the camera at 0x00
-    unsigned char m020[0x50 - 0x20];
-    float m050;
-    unsigned char m054[0x46C - 0x54];
+    atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
+    unsigned char m3E8[0x46C - 0x3E8];
     int m46C;
-    unsigned char m470[0x7F4 - 0x470];
+    unsigned char m470[0x4FC - 0x470];
+    atn::Vector3 m4FC;     // inferred: position of the fixed mode (relative to the character when m518 is set)
+    atn::Vector3 m508;     // inferred: target of the fixed mode
+    float m514;            // inferred: fovy of the fixed mode
+    int m518;              // inferred: m4FC/m508 follow the character
+    unsigned char m51C[0x7F4 - 0x51C];
     int m7F4;
     unsigned char m7F8[0x7FC - 0x7F8];
     int m7FC;              // inferred: sub mode (fn_80389838)

@@ -16,8 +16,8 @@ void GameCamera::fn_8037F690(const atn::Vector3* pos) {
     m840 = *pos;
     m838 = 1;
     m83C = 0;
-    m84C = m014;
-    m85C = m050;
+    m84C = mTarget;
+    m85C = mFovy;
     m860 = 0;
 }
 
@@ -26,8 +26,8 @@ void GameCamera::fn_8037F6D8(const atn::Vector3* pos) {
     m858 = 1;
     m838 = 1;
     m83C = 0;
-    m84C = m014;
-    m85C = m050;
+    m84C = mTarget;
+    m85C = mFovy;
     m860 = 0;
 }
 
