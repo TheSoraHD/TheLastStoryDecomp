@@ -83,6 +83,8 @@ public:
     int fn_803761EC();
     void fn_803761F4(int value);
     int fn_8036823C();
+    void fn_80374710(int arg); // inferred: starts the battle camera (camera mode 6)
+    void fn_803748E0(int arg); // inferred: ends the grapple camera
     int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara); // inferred: hide link held by `chara`
     void fn_80373118(); // inferred: one more frame of delay for the fades // inferred: nonzero on some fields
     struct StrategyAiEntry_unk* fn_80375254(); // inferred: AI strategy row of the field (default id 0)

@@ -557,7 +557,6 @@ void BattleCharaTask::fn_800E426C() {
     fn_8010220C(lbl_8087F048, 0);
 }
 
-extern "C" void fn_803748E0(Field_unk* field, int arg); // inferred: ends the grapple camera
 // inferred: one hit of fn_800F8C6C (names invented)
 struct HitResult_unk {
     CharaTask* mChara;
@@ -611,7 +610,7 @@ void BattleCharaTask::fn_800E589C() {
         }
         fn_80139560();
         if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
-            fn_803748E0(lbl_8087F430, 1);
+            ((GameTask*)lbl_8087F430)->fn_803748E0(1);
             lbl_8087F430->m94C = 1;
         }
         break;
@@ -1935,7 +1934,7 @@ void BattleCharaTask::fn_800E9ED8() {
                 }
                 fn_80139560();
                 if (grappled && (m55C != 6 || m560 != 28) && lbl_8087F430 != 0 && lbl_8087F430->m868 == 6) {
-                    fn_803748E0(lbl_8087F430, 1);
+                    ((GameTask*)lbl_8087F430)->fn_803748E0(1);
                     lbl_8087F430->m94C = 1;
                 }
             } else {

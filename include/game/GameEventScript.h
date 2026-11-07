@@ -120,6 +120,7 @@ public:
     void fn_803A4474(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
+    void fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A5F14(ScriptResult_unk& result, const ScriptCmd_unk* cmd);

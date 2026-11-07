@@ -2,9 +2,9 @@
 // boost::bad_lexical_cast and the weak copies of std::bad_cast and the MSL string streams).
 // The former GameEventScript_cont/_cont2 and std/bad_cast/_what splits are merged here.
 #include "atn/SoundManager.h"
+#include "game/TacView.h"
 #include "game/GameCamera.h"
 #include "game/BattleTask.h"
-#include "game/GameTask.h"
 #include "atn/SoundRef.h"
 #include "game/GameEventScript.h"
 #include "game/GameField_unk.h"
@@ -459,6 +459,26 @@ void GameEventScript::fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     if (lbl_8087F430 != 0 &&
         (lbl_8087F430->m54E4 == 9 || lbl_8087F430->m54E4 == 10 || lbl_8087F430->m54E4 == 13)) {
         wait = 1;
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
+// inferred: battle camera on (m08 0: mode m0C) or off (1, 2: also opens the tactical view)
+void GameEventScript::fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    int wait = 0;
+    if (lbl_8087F430 != 0) {
+        if (args->m08 == 0) {
+            if (lbl_8087F430->mCamera.m7FC == 6) {
+                ((GameTask*)lbl_8087F430)->fn_803748E0(1);
+            }
+            ((GameTask*)lbl_8087F430)->fn_80374710(args->m0C);
+        } else if (lbl_8087F430->mCamera.m7FC == 6) {
+            if (args->m08 == 2) {
+                lbl_8087F9F8->fn_805AA4E4();
+            }
+            wait = 1;
+        }
     }
     result.SetNext_unk(cmd, wait);
 }
