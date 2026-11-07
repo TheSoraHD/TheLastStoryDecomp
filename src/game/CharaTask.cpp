@@ -3939,7 +3939,6 @@ extern "C" int fn_80418318(); // inferred: id of the water (ground follow) used 
 extern "C" atn::Vector3 fn_804188A0(int id, const Segment_unk* seg);
 extern "C" void fn_8009757C(atn::Model* model);
 extern "C" int fn_802185FC(const char* name);
-extern "C" int fn_80376150(Field_unk* field);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
 // inferred: WrapAngle_unk with the period as a float constant (the pool of this file holds
@@ -4481,7 +4480,7 @@ void CharaTask::fn_80145334() {
         }
         mFlagB24 = chant;
         if (lbl_8087F430 != 0 && fn_80219558(m50) == 0) {
-            if (fn_80376150(lbl_8087F430)) {
+            if (((GameTask*)lbl_8087F430)->fn_80376150()) {
                 if (!mFlag17) {
                     vf98();
                     mFlag17 = 1;
@@ -10845,7 +10844,7 @@ void CharaTask::vf98() {
         show = true;
     }
     if (mType == 0 && lbl_8087F430 != 0 && fn_80219558(m50) == 0) {
-        show = show && fn_80376150(lbl_8087F430);
+        show = show && ((GameTask*)lbl_8087F430)->fn_80376150();
     }
     if (m50 == 700023) {
         show = show && mFlag5;

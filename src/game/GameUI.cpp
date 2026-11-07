@@ -48,7 +48,6 @@ struct GameUIField_unk {
     atn::Task* m10D8;
 };
 extern "C" GameUIField_unk* lbl_8087F430;
-extern "C" int fn_80370C2C(GameUIField_unk* field);
 extern "C" void fn_80370BD0(GameUIField_unk* field, int frames, int arg, float speed);
 extern "C" void fn_80370B78(GameUIField_unk* field, unsigned int color, int frames, int arg, float speed);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
@@ -2961,7 +2960,7 @@ bool GameUI::fn_803E644C() {
     if (m262C.m08 != 0 && (m262C.m08->mFlags & 2) != 2) {
         return true;
     }
-    if (!fn_80370C2C(lbl_8087F430)) {
+    if (!((GameTask*)lbl_8087F430)->fn_80370C2C()) {
         return true;
     }
     return false;

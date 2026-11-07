@@ -1,4 +1,5 @@
 #include "game/LibraryTask.h"
+#include "game/GameTask.h"
 #include "atn/Keyboard.h"
 #include "atn/LoadHandle.h"
 #include "atn/Csv.h"
@@ -48,7 +49,6 @@ struct LibraryField_unk;
 extern "C" LibraryField_unk* lbl_8087F430;
 extern "C" int fn_80370174(LibraryField_unk* field, int id);
 extern "C" void fn_80370320(LibraryField_unk* field, int id, int value, int arg3);
-extern "C" void fn_8036EA3C(LibraryField_unk* field); // inferred: leaves the library
 
 
 // inferred: parameters of the text (debug menu "Library")
@@ -227,7 +227,7 @@ void LibraryTask::vf1C(int state) {
     switch (state) {
     case 1:
         if (lbl_8087F430 != 0) {
-            fn_8036EA3C(lbl_8087F430);
+            ((GameTask*)lbl_8087F430)->fn_8036EA3C();
         }
         break;
     case 3:

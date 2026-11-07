@@ -2,6 +2,7 @@
 // boost::bad_lexical_cast and the weak copies of std::bad_cast and the MSL string streams).
 // The former GameEventScript_cont/_cont2 and std/bad_cast/_what splits are merged here.
 #include "atn/SoundManager.h"
+#include "game/GameTask.h"
 #include "atn/SoundRef.h"
 #include "game/GameEventScript.h"
 #include "game/GameField_unk.h"
@@ -43,14 +44,10 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" const char* const lbl_8074EF78[];
 extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
-extern "C" void fn_80370C6C(GameField_unk* field);
 extern "C" void fn_80371164(GameField_unk* field);
 extern "C" void fn_803712BC(GameField_unk* field);
 extern "C" void fn_80374964(GameField_unk* field, int arg);
 extern "C" void fn_80375194(GameField_unk* field, int a, int b, float c);
-extern "C" void fn_8036E430(GameField_unk* field, int a, int b);
-extern "C" void fn_8036E994(GameField_unk* field, int a, int b, int c);
-extern "C" void fn_80373F78(GameField_unk* field);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: UI sound names (SE_UICOM_001...)
 
 // inferred: plays a sound with the sound category of the event scripts (5); called from the
@@ -94,7 +91,7 @@ void GameEventScript::fn_8039D99C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 void GameEventScript::fn_8039D9B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
-    fn_80370C6C(lbl_8087F430);
+    ((GameTask*)lbl_8087F430)->fn_80370C6C();
     lbl_8087F8A0->mHead->fn_8016E970(0);
     result = ScriptResult_unk(0, 1);
 }
@@ -282,7 +279,7 @@ void GameEventScript::fn_803A6F68(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 // NONMATCHING: 98% - registers r0/r4 swapped (type/zero), as fn_803A61CC
 void GameEventScript::fn_803A83FC(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        fn_80373F78(lbl_8087F430);
+        ((GameTask*)lbl_8087F430)->fn_80373F78();
     }
     result.SetNext_unk(cmd);
 }
@@ -323,7 +320,7 @@ void GameEventScript::fn_803A98C4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 // inferred: waits while the field is in state 5
 void GameEventScript::fn_803AAA74(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        fn_8036E430(lbl_8087F430, 2, static_cast<ScriptArgs_unk*>(cmd)->m08);
+        ((GameTask*)lbl_8087F430)->fn_8036E430(2, static_cast<ScriptArgs_unk*>(cmd)->m08);
     }
     result.SetNext_unk(cmd);
 }
@@ -338,7 +335,7 @@ void GameEventScript::fn_803AAD58(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 // NONMATCHING: 92% - the original loads m10 through the saved copy of cmd first (as fn_8039D178)
 void GameEventScript::fn_803AB144(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
-    fn_8036E994(lbl_8087F430, args->m08, args->m0C, args->m10);
+    ((GameTask*)lbl_8087F430)->fn_8036E994(args->m08, args->m0C, args->m10);
     result.SetNext_unk(cmd, 1);
 }
 

@@ -1,4 +1,5 @@
 #include "game/Em202ForestSpider.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
 #include "game/CharaStatus.h"
@@ -98,7 +99,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" void fn_80370C6C(Field_unk* field);
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
                             int d, int e, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
@@ -1063,7 +1063,7 @@ void Em202ForestSpider::vf14C() {
     m18EC->fn_8015C3A8((int)this);
     fn_80370AE4(lbl_8087F430, 0x79, m18EC->mType == 0 ? 10 : m18EC->m58);
     if (m18EC->mType == 0) {
-        fn_80370C6C(lbl_8087F430);
+        ((GameTask*)lbl_8087F430)->fn_80370C6C();
     }
 }
 

@@ -1,4 +1,5 @@
 #include "game/CampSaveLoad.h"
+#include "game/GameTask.h"
 #include "macros.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -48,7 +49,6 @@ inline bool IsRepeated_unk(int button) {
 // inferred: plays a system sound effect
 extern "C" atn::SoundRef fn_80117228(int id);
 // inferred: creates a message window task
-extern "C" void fn_8036E964(Field_unk* field);
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -225,7 +225,7 @@ void CampSaveLoad::fn_80119030(int state, int arg) {
     case 7:
         vf20();
         if (mMode == 0 && lbl_8087F430 != 0 && m4B0 == 0) {
-            fn_8036E964(lbl_8087F430);
+            ((GameTask*)lbl_8087F430)->fn_8036E964();
         }
         break;
     case 6:
