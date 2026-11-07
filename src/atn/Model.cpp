@@ -15,6 +15,7 @@
 #include "atn/RenderSetting_unk.h"
 #include "std/new.h"
 #include <boost/bind.hpp>
+#include "nw4r/math/triangular.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
@@ -81,7 +82,6 @@ extern "C" unsigned long LCLoadData(void* dst, void* src, unsigned long size);
 extern "C" void LCQueueWait(unsigned long len);
 extern "C" void fn_80099F74(const SkinWeight2_unk* w, const atn::Matrix3x4* mats, atn::Matrix3x4* out, int n);
 extern "C" void fn_8009A018(const SkinWeight3_unk* w, const atn::Matrix3x4* mats, atn::Matrix3x4* out, int n);
-extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
 extern "C" void fn_800A05FC(atn::LH_Motion* motion, MotionPose_unk* pose, int key, atn::NodeWork_unk* work, float frame); // inferred: samples a motion key
 extern "C" void fn_80098948(MotionPose_unk* out, unsigned int n, const MotionPose_unk* a, const MotionPose_unk* b, float t);
 extern "C" void DCZeroRange(void* addr, unsigned long size);
@@ -136,9 +136,9 @@ inline Quaternion_unk EulerToQuat_unk(const Vector3& rot) {
     float rz = rot.z;
     float cx, cy, cz;
     float sx, sy, sz;
-    fn_8072D210(40.743664f * (rx / 2.0f), &sx, &cx);
-    fn_8072D210(40.743664f * (ry / 2.0f), &sy, &cy);
-    fn_8072D210(40.743664f * (rz / 2.0f), &sz, &cz);
+    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
+    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
+    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
     float cycz = cy * cz;
     float sysz = sy * sz;
     q.w = cx * cycz + sx * sysz;

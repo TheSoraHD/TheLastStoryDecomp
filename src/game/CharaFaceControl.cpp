@@ -6,12 +6,12 @@
 #include "atn/Model_unk.h"
 #include "std/vector.h"
 #include <boost/bind.hpp>
+#include "nw4r/math/triangular.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" float fn_800DC288(const char* s);        // inferred: string to float
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" int fn_802180A8(const char* name);       // inferred: motion id from its name
-extern "C" void fn_8072D210(float angle, float* s, float* c); // inferred: sine and cosine (256 units a turn)
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
 // inferred: reads a node edit from a "NODE_EDIT" line (as in game/EquipItemData.cpp)
 extern "C" void fn_80089EE4(Event::PoseKey_unk* edit, atn::CsvTab* csv);
@@ -63,9 +63,9 @@ static inline atn::Quaternion_unk ToQuat_unk(const atn::Vector3& rot) {
     float rz = rot.z;
     float cx, cy, cz;
     float sx, sy, sz;
-    fn_8072D210(40.743664f * (rx / 2.0f), &sx, &cx);
-    fn_8072D210(40.743664f * (ry / 2.0f), &sy, &cy);
-    fn_8072D210(40.743664f * (rz / 2.0f), &sz, &cz);
+    nw4r::math::SinCosRad(&sx, &cx, rx / 2.0f);
+    nw4r::math::SinCosRad(&sy, &cy, ry / 2.0f);
+    nw4r::math::SinCosRad(&sz, &cz, rz / 2.0f);
     float cycz = cy * cz;
     float sysz = sy * sz;
     q.w = cx * cycz + sx * sysz;

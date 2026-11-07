@@ -4,7 +4,7 @@
 //
 // Pendiente (no escritas): fn_8009A5CC (0x7D8, llamada por ModelPose_unk::fn_8009A584) y
 // fn_8009ADA4 (0xB94, llamada por atn::PBoneBasic::vf10): recorren los nodos con un
-// boost::function<> local y punteros a miembro, convierten angulos de Euler con fn_8072D210
+// boost::function<> local y punteros a miembro, convierten angulos de Euler con nw4r::math::SinCosFIdx
 // (seno/coseno de tabla, escala 128/pi y medio angulo) y concatenan matrices con PSMTXConcat.
 
 // inferred: empty callback (the target of the pointer-to-member constants of this file)
