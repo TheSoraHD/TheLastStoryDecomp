@@ -1,8 +1,7 @@
-# Siguiente sesion (tras `msl-iostream-20261107b`, sesion 4 de MSL C++, sin mergear)
+# Siguiente sesion (tras el merge de `msl-iostream-20261107b` en `main`)
 
-Rama `msl-iostream-20261107b` (desde `main` be459fe): **14151 / 18116**, lost 0, `main.dol: OK`. Pendiente de
-revision y merge por el usuario. Prompt listo en el proyecto: `claude/prompt-msl-iostream-5.md` (rama nueva desde
-`msl-iostream-20261107b` si no se ha mergeado, o desde `main` si ya lo esta).
+`main` (2026-11-07, merge de `msl-iostream-20261107b`): **14151 / 18116**, lost 0, `main.dol: OK`. Prompt listo en
+el proyecto: `claude/prompt-msl-iostream-5.md` (rama nueva desde `main`).
 
 ## MSL C++ (111/170)
 
