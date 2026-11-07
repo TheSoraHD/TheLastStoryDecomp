@@ -8,7 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `gametask-20261107` (2026-11-07, sin mergear): **14167 / 18116**, lost 0. `game/GameTask` 42 -> 57/133: pool `@stringBase0` igual al original hasta 0x1AF escribiendo ctor, `vf0C`, `vf10`, `vf14` y SetGlobalFlag en orden; GetGlobalFlag/GetLocalFlag/SetLocalFlag al 100%. Notas: `docs/gametask-20261107.md`.
+- `gametask-20261107` (2026-11-07, mergeada en `main`): **14167 / 18116**, lost 0. `game/GameTask` 42 -> 57/133: pool `@stringBase0` igual al original hasta 0x1AF escribiendo ctor, `vf0C`, `vf10`, `vf14` y SetGlobalFlag en orden; GetGlobalFlag/GetLocalFlag/SetLocalFlag al 100%. Notas: `docs/gametask-20261107.md`.
 - `msl-iostream-20261107c`/`d` (mergeadas en `main`): 14152, MSL C++ 112/170; `docs/msl-iostream-20261107.md` (sesiones 5 y 6).
 - `msl-iostream-20261107b` (sesion 4, mergeada en `main`): 14151, MSL C++ 106 -> 111/170 (`num_put` de `double`, `sentry`/`flush` de `wostream`, destructores de `Init`).
 - `msl-iostream-20261107` (mergeada en `main`): 14146, MSL C++ 106/170 (`shared_ptr_unk.cpp` enlazada). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`.

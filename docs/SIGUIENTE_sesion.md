@@ -1,7 +1,7 @@
-# Siguiente sesion (tras `gametask-20261107`, sin mergear)
+# Siguiente sesion (tras `gametask-20261107`, mergeada en `main`)
 
-Rama `gametask-20261107` (sobre `main` d7b2562): **14167 / 18116**, lost 0, `main.dol: OK`. Pendiente de revisar y
-mergear. Notas: `docs/gametask-20261107.md`.
+`main` 339e680 (merge de `gametask-20261107`): **14167 / 18116**, lost 0, `main.dol: OK`. Crear rama nueva desde
+`main`. Notas: `docs/gametask-20261107.md`.
 
 ## GameTask (57/133)
 
