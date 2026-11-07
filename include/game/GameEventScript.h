@@ -18,6 +18,14 @@ struct ScriptData_unk {
 
 // inferred from __vt__15GameEventScript: event script of a scene (created by fn_80393610 for
 // GameScene::m134); only the members used by game/GameScene.cpp, method names invented
+// inferred: node of the tree of events (std::map<int, int> laid out by hand; names invented)
+struct ScriptEventNode_unk {
+    ScriptEventNode_unk* mLeft;
+    ScriptEventNode_unk* mRight;
+    unsigned int mParent;
+    int mKey;
+    int mValue;
+};
 // inferred: 0x40-byte record of GameEventScript::m100 (names invented)
 struct ScriptEntry40_unk {
     int mId;
@@ -142,7 +150,10 @@ public:
     void fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AB368(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
 
-    unsigned char m48[0x88 - 0x48];
+    unsigned char m48[0x64 - 0x48];
+    int m64[7];                 // inferred: base address of the events of each block of 10000 ids
+    ScriptEventNode_unk* m80;   // inferred: root of the tree of events by id (end node at &m80)
+    int m84;
     GameScene* mScene; // 0x88: inferred: scene that owns the script (GameScene::m134)
     int m8C; // inferred: a script is running
     int m90;

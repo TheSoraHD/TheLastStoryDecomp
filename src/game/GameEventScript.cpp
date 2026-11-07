@@ -151,6 +151,27 @@ int GameEventScript::fn_80398530(int event) {
     return e->IsAlways_unk() || e->Contains_unk(value);
 }
 
+// NONMATCHING: 97.8% - the original loads the value of the node before the block address
+int GameEventScript::fn_8039CC24(int id) {
+    ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m80;
+    ScriptEventNode_unk* node = m80;
+    while (node != 0) {
+        if (!(node->mKey < id)) {
+            found = node;
+            node = node->mLeft;
+        } else {
+            node = node->mRight;
+        }
+    }
+    if (found == (ScriptEventNode_unk*)&m80 || id < found->mKey) {
+        found = (ScriptEventNode_unk*)&m80;
+    }
+    if (found != (ScriptEventNode_unk*)&m80) {
+        return m64[id / 10000] + found->mValue;
+    }
+    return 0;
+}
+
 void GameEventScript::fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     fn_8039BF04(args->m08, args->m0C, args->m18, args->m10, args->m14);
