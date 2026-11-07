@@ -39,7 +39,6 @@ extern "C" GameState_unk* lbl_8087EFA8;
 typedef EffectColor_unk Color4f_unk;
 // inferred: effect manager of the characters (lbl_8087F048)
 struct Effect_unk {
-    void fn_80105B3C(CharaTask* chara); // inferred: effect of the special cast motion
 };
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" float fn_8010CB2C(Effect_unk* mgr, CharaTask* chara, float rate); // inferred: chant speed
@@ -481,7 +480,7 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
             case 6:
                 model->fn_80097C08(0, 0x17A, 0, 0, 1, 0.0f, 0.1f);
                 model->mTracks[0].m0C = 1.2f;
-                lbl_8087F048->fn_80105B3C(mChara);
+                ((BattleTask*)lbl_8087F048)->fn_80105B3C(mChara);
                 m1F = true;
                 if (hit->mB0) {
                     fn_801070C8(lbl_8087F048, hit->mB0, 0, 0, &mChara->mMotion, &chr::lbl_807C7030, &chr::lbl_807C7030,
@@ -494,7 +493,7 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
             case 10:
                 model->fn_80097C08(0, 0x17B, 0, 0, 1, 0.0f, 0.1f);
                 if (lbl_8087F048) {
-                    lbl_8087F048->fn_80105B3C(mChara);
+                    ((BattleTask*)lbl_8087F048)->fn_80105B3C(mChara);
                 }
                 m1F = true;
                 if (hit->mB0) {

@@ -40,7 +40,6 @@ inline bool IsArenaMode_unk(int mode) {
 
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 struct Effect_unk {
-    void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
 };
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" float fn_8010CA24(Effect_unk* mgr); // inferred: charge speed rate
@@ -258,7 +257,7 @@ int ControlCharge::vf0C() {
         if (m34 == 0 && m2C >= base->mC0) {
             m34 = 1;
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_801059F8(mChara);
+                ((BattleTask*)lbl_8087F048)->fn_801059F8(mChara);
                 ((BattleTask*)lbl_8087F048)->fn_80105A08(mChara, &mChara->mMotion);
             }
         }
@@ -287,7 +286,7 @@ int ControlCharge::vf0C() {
             if (m3C == 0 && !IsCursorPlayer_unk(this)) {
                 if (m2C >= hit->mC0) {
                     if (m2C < base->mC0) {
-                        lbl_8087F048->fn_801059F8(mChara);
+                        ((BattleTask*)lbl_8087F048)->fn_801059F8(mChara);
                     }
                     m30 = 1;
                 } else {
@@ -339,7 +338,7 @@ int ControlCharge::vf0C() {
                 }
             }
             if (m2C >= hit->mC0) {
-                lbl_8087F048->fn_801059F8(mChara);
+                ((BattleTask*)lbl_8087F048)->fn_801059F8(mChara);
                 m30 = 1;
                 done = 1;
             }

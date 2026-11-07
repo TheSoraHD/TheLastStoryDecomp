@@ -192,15 +192,10 @@ struct EffectCharaSlot_unk {
 // inferred: effect manager (lbl_8087F048, as in CharaStatus.cpp)
 struct Effect_unk {
     void fn_8013A19C(int value);
-    void fn_801065F4(CharaTask* chara, atn::Model* model, const struct ColorF_unk* color); // inferred: tints the model
-    void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
-    void fn_80105B3C(CharaTask* chara);
     atn::Vector3 fn_80109950(CharaTask* chara); // inferred: a position for the character
     CharaTask* fn_8010C948(CharaTask* chara);   // inferred: a target for the character
-    // inferred: chant effect (fn_80145334): shown at pos, hidden by fn_80107574
+    // inferred: chant effect (fn_80145334): shown at pos, hidden by BattleTask::fn_80107574
     void fn_8010743C(const atn::Vector3* pos, int changed, float f);
-    void fn_80107574();
-    void fn_80106728(int arg, atn::Model* model); // inferred: called when a part is destroyed
 
     unsigned char m00[0xCBF0];
     EffectCharaSlot_unk mCBF0[0x48]; // inferred: characters known to the effect manager (fn_80176E30)
@@ -4483,7 +4478,7 @@ void CharaTask::fn_80145334() {
             }
         }
         if (!chant && lbl_8087F048 != 0) {
-            lbl_8087F048->fn_80107574();
+            ((BattleTask*)lbl_8087F048)->fn_80107574();
         }
         mFlagB24 = chant;
         if (lbl_8087F430 != 0 && fn_80219558(m50) == 0) {
@@ -4559,7 +4554,7 @@ void CharaTask::fn_80145334() {
                 fn_8014F8F4()->fn_8014F860(9, this, 0);
             }
             if (lbl_8087F048 != 0) {
-                lbl_8087F048->fn_80106728(0, &mMotion);
+                ((BattleTask*)lbl_8087F048)->fn_80106728(0, &mMotion);
             }
             fn_800C31F4(sSoundNames_unk[7], 0, -1, 1.0f);
         }
@@ -7530,8 +7525,8 @@ inline void CharaTask::Unlink_unk() {
 
 inline void CharaTask::ClearEffect_unk() {
     if (lbl_8087F048 != 0) {
-        lbl_8087F048->fn_801059F8(this);
-        lbl_8087F048->fn_80105B3C(this);
+        ((BattleTask*)lbl_8087F048)->fn_801059F8(this);
+        ((BattleTask*)lbl_8087F048)->fn_80105B3C(this);
     }
     mFlagB8 = 0;
     mFB8 = 0.0f;
@@ -8783,8 +8778,8 @@ bool CharaTask::fn_80160324() {
 void CharaTask::fn_8016034C() {
     Effect_unk* effect = lbl_8087F048;
     if (effect != 0) {
-        effect->fn_801059F8(this);
-        lbl_8087F048->fn_80105B3C(this);
+        ((BattleTask*)effect)->fn_801059F8(this);
+        ((BattleTask*)lbl_8087F048)->fn_80105B3C(this);
     }
     mFlagB8 = 0;
     mFB8 = 0.0f;
@@ -11860,7 +11855,7 @@ void CharaTask::fn_8017A5D8(int on) {
             } else {
                 color = ColorF_unk(lbl_8087F0A8->m368);
             }
-            lbl_8087F048->fn_801065F4(this, &mMotion, &color);
+            ((BattleTask*)lbl_8087F048)->fn_801065F4(this, &mMotion, &color);
         }
         if (m1388 <= 0 && mFlag22 != 1) {
             m1388 = 450;

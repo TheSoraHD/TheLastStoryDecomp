@@ -6,6 +6,7 @@
 
 class CharaTask;
 struct EffectColor_unk;
+struct ColorF_unk;
 namespace atn {
 struct Model;
 }
@@ -18,16 +19,21 @@ public:
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
     void fn_80105950(void* owner, atn::Model* model);
+    void fn_801059F8(CharaTask* chara); // inferred: called when a magic ends
     void fn_80105A08(void* owner, atn::Model* model);
     void fn_80105AB0(void* owner, atn::Model* model, const EffectColor_unk& color);
+    void fn_80105B3C(CharaTask* chara);
     void fn_80105B4C(void* owner, atn::Model* model, const EffectColor_unk* color);
     void fn_80105F3C(void* owner);
     void fn_8010607C(void* owner);
     void fn_8010652C(void* owner);
     void fn_8010653C(void* owner, atn::Model* model);
     void fn_801065E4(void* owner);
+    void fn_801065F4(CharaTask* chara, atn::Model* model, const ColorF_unk* color); // inferred: tints the model
     void fn_80106680(void* owner, atn::Model* model);
+    void fn_80106728(int arg, atn::Model* model); // inferred: called when a part is destroyed
     void fn_801067D0(CharaTask* chara, atn::Model* model);
+    void fn_80107574(); // inferred: hides the chant effect
     void fn_80107798(void* owner, int flag);
     void fn_801077A8(void* owner, atn::Model* model);
     void fn_80107850(void* owner);
@@ -55,6 +61,8 @@ public:
     atn::EfpFile mEfp363C0[46];  // 0x363C0: inferred: battle effects (EFP files)
     unsigned char m365E8[0x38BC0 - 0x365E8];
     atn::EfpFile mEfp38BC0[15];  // 0x38BC0: inferred: status effects (EFP files)
+    unsigned char m38C74[0x3E300 - 0x38C74];
+    int m3E300; // inferred: state of the chant effect (2: hidden)
 };
 
 #endif
