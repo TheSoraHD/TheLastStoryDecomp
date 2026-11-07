@@ -45,6 +45,8 @@
 #include "atn/SoundManager.h"
 #include "game/MenuCommonTask.h"
 #include "game/ResHandle.h"
+#include "game/TutorialTask.h"
+#include "game/GameChoiceWindow.h"
 #include "game/GameSaveBanner.h"
 #include "game/HeapInfo_unk.h"
 #include "game/EnemyTask.h"
@@ -61,11 +63,10 @@ extern "C" atn::Task* lbl_8087F9E0; // inferred: upgrade shop (ShopUpGrade)
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 
 inline MapTask* GameTask::GetCurrentMap() {
-    MapTask* map = 0;
     if (m10D8 != 0) {
-        map = m10D8->m64;
+        return m10D8->m64;
     }
-    return map;
+    return 0;
 }
 
 // inferred: save menu (game/CampSaveLoad.cpp)
@@ -114,6 +115,7 @@ GameTaskStatic_unk sGameTaskStatic_unk;
 struct ReplayRecorder_unk {
     ReplayRecorder_unk();
     ~ReplayRecorder_unk();
+    void fn_8056B3D4(); // inferred: 0x8056B3D4
     unsigned char m000[0x494];
 };
 
@@ -191,13 +193,27 @@ struct SysInput_unk {
     unsigned char m0000[0x40E0];
     int m40E0;
 };
+// inferred: per-difficulty factors (as in game/CharaStatus.cpp)
+struct StatusRate_unk {
+    float m00;
+    int m04;
+    float m08;
+    int m0C;
+    float m10;
+    int m14;
+    float m18;
+    int m1C;
+};
 struct MpSettings_unk {
     unsigned char m000[0x7C];
     int m07C;
     unsigned char m080[0xD4 - 0x80];
-    int mD4;
-    unsigned char m0D8[0x194 - 0xD8];
+    int mD4; // inferred: index into mD8 (difficulty?)
+    StatusRate_unk mD8[4];
+    unsigned char m158[0x194 - 0x158];
     int m194;
+    unsigned char m198[0x5A0 - 0x198];
+    int m5A0;
 };
 extern "C" GameFlow_unk* lbl_8087F420;
 extern "C" Collision_unk* lbl_8087EE98;
@@ -225,6 +241,10 @@ extern "C" void fn_803D0B20(void* obj);
 extern "C" atn::Task* fn_8052A888(atn::Task* parent);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
+extern "C" void fn_80370094(GameTask* task, int chapter);
+extern "C" int fn_8037587C(GameTask* task, int type, int id, int sub);
+extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
+extern "C" void fn_80570A14(GameTaskData_unk* obj, int value);
 extern "C" int fn_80370174(GameTask* task, unsigned int index);             // inferred: GetGlobalFlag
 extern "C" int fn_80370A78(GameTask* task, unsigned int index);             // inferred: GetLocalFlag
 extern "C" void fn_80370AE4(GameTask* task, unsigned int index, int value); // inferred: SetLocalFlag
@@ -288,7 +308,7 @@ extern "C" __declspec(noinline) int fn_8036555C(int type, int map, int sub) {
     return 0;
 }
 
-extern "C" int fn_8036562C(int type, int map, int sub, int chapter) {
+extern "C" __declspec(noinline) int fn_8036562C(int type, int map, int sub, int chapter) {
     if (type == 1) {
         return 1;
     }
@@ -363,7 +383,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
       m5674(1), m567C(0), m5680(0), m5684(0), m5688(-1), m568C(-1), m5694(0), m5698(0), m569C(0), m56A0(0),
       m56A4(0), m56A8(0), m56AC(0), m56B0(0), m56B4(1.0f), m56B8(0.0f), m56BC(0), m56C0(0), m56C4(0.02f),
       m56C8(0.02f), m56D0(0), m56D4(0), m56D8(0), m56E4(0), m56E8(-1), m56EC(0), m56F0(0), m56F4(0), m5718(0),
-      m571C(0), m5740(0), m5744(0), m5748(0), m574C(0), m5750(0), m5754(0), m5758(0), m575C(0), m5760(0),
+      m5744(0), m5748(0), m574C(0), m5750(0), m5754(0), m5758(0), m575C(0), m5760(0),
       m5764(0) {
     if (lbl_8087F420 != 0) {
         lbl_8087F420->SetLoading_unk(1);
@@ -475,21 +495,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
     m5620->mColor1 = 0xFF000000;
     m5620->mZ = 0.0f;
     m5620->mActive = 1;
-    int chapter = mOption.mPos;
-    if (lbl_8087EEB8 != 0) {
-        char buf[0x100];
-        if (m10D0 > chapter) {
-            memset(buf, 0, sizeof(buf));
-            sprintf(buf, "[WARNING] rollback chapter %d -> %d\n", m10D0, chapter);
-            lbl_8087EEB8->fn_800697D8(buf);
-        }
-        if (m10D0 < 0 || 999999 < m10D0) {
-            memset(buf, 0, sizeof(buf));
-            sprintf(buf, "[WARNING] chapter is out of range %d\n", chapter);
-            lbl_8087EEB8->fn_800697D8(buf);
-        }
-    }
-    m10D0 = chapter;
+    fn_80370094(this, mOption.mPos);
     mGlobalFlags[0] = 1;
     mGlobalFlags[44] = 1;
     lbl_8087F0A8->mD4 = 1;
@@ -540,12 +546,10 @@ static inline int GetDungeonId_unk(const char* id) {
 }
 
 // inferred: dungeons with a clear condition (lbl_8074DAF8)
-static const int sDungeonIds_unk[] = {
-    400, 800, 902, 912, 1000, 7100, 4800, 600, 1700, 1800, 1900, 1100, 700, 300, 2000,
-    2200, 2300, 905, 915, 3200, 6300, 2500, 2600, 906, 916, 4200, 6700, 100, -1, 0,
-};
+extern const int sDungeonIds_unk[];
 
-static inline int IsDungeonListed_unk(int dungeon) {
+static inline int IsDungeonListed_unk(const char* id) {
+    int dungeon = GetDungeonId_unk(id);
     for (const int* p = sDungeonIds_unk; *p > 0; p++) {
         if (dungeon == *p) {
             return 1;
@@ -560,13 +564,10 @@ struct DungeonFlag_unk {
     int mFlag;
     int mValue;
 };
-static const DungeonFlag_unk sDungeonFlags_unk[] = {
-    {902, 15, 100}, {912, 15, 100}, {1000, 16, 100}, {7100, 16, 100}, {1700, 17, 100}, {1800, 18, 100},
-    {1100, 19, 100}, {700, 20, 100}, {300, 21, 100}, {2300, 22, 100}, {905, 23, 100}, {915, 23, 100},
-    {906, 24, 100}, {916, 24, 100}, {4200, 25, 100}, {100, 26, 100}, {-1, -1, -1},
-};
+extern const DungeonFlag_unk sDungeonFlags_unk[];
 
-static inline const DungeonFlag_unk* FindDungeonFlag_unk(int dungeon) {
+static inline const DungeonFlag_unk* FindDungeonFlag_unk(const char* id) {
+    int dungeon = GetDungeonId_unk(id);
     for (int i = 0; sDungeonFlags_unk[i].mDungeon > 0; i++) {
         if (dungeon == sDungeonFlags_unk[i].mDungeon) {
             return &sDungeonFlags_unk[i];
@@ -575,12 +576,12 @@ static inline const DungeonFlag_unk* FindDungeonFlag_unk(int dungeon) {
     return 0;
 }
 
-// inferred: the dungeon of the field is already cleared (inlined twice in vf0C)
-inline int GameTask::IsDungeonCleared_unk() {
+// inferred: the dungeon of a map is already cleared (inlined twice in vf0C and in fn_803754F0)
+inline int GameTask::IsDungeonCleared_unk(int type, int id, int sub) {
     int cleared = 0;
-    MapId_unk* map = fn_8021771C(mOption.mType, mOption.mMap, mOption.mSub);
-    if (map != 0 && map->mType == 2 && IsDungeonListed_unk(GetDungeonId_unk(map->mId))) {
-        const DungeonFlag_unk* flag = FindDungeonFlag_unk(GetDungeonId_unk(map->mId));
+    MapId_unk* map = fn_8021771C(type, id, sub);
+    if (map != 0 && map->mType == 2 && IsDungeonListed_unk((map->mId))) {
+        const DungeonFlag_unk* flag = FindDungeonFlag_unk((map->mId));
         if (flag == 0) {
             ChapterEntry_unk* chapter = fn_802085E0(2, map->mMap);
             if (chapter != 0 && chapter->mNext != 0) {
@@ -600,15 +601,7 @@ int GameTask::vf0C() {
     }
     fn_8046ECDC(lbl_8087F518, 1);
     if (m10DC == 0) {
-        if (!fn_800D3FA4()) {
-            return 0;
-        }
-        if (Inventory::instance_->fn_8044386C()) {
-            return 0;
-        }
-        if (GameSaveBanner::sInstance != 0) {
-            return 0;
-        }
+        if (fn_800D3FA4() && !Inventory::instance_->fn_8044386C() && GameSaveBanner::sInstance == 0) {
         m10DC++;
         if (mOption.m1C != 0) {
             ((GameSaveData_unk*)mOption.m1C)->fn_803BE590();
@@ -650,8 +643,9 @@ int GameTask::vf0C() {
             }
         }
         if (sGameTaskStatic_unk.m00 != 0) {
-            m5694 = sGameTaskStatic_unk.m30;
-            m5698 = sGameTaskStatic_unk.m30;
+            int value = sGameTaskStatic_unk.m30;
+            m5694 = value;
+            m5698 = value;
             GameTaskStaticEntry_unk* entry = sGameTaskStatic_unk.mEntries;
             for (int i = 0; i < 8; i++, entry++) {
                 if (entry->m00 != -1) {
@@ -665,7 +659,7 @@ int GameTask::vf0C() {
         } else if (m5694 != 0) {
             m5698 = m5694;
         } else {
-            int cleared = IsDungeonCleared_unk();
+            int cleared = IsDungeonCleared_unk(mOption.mType, mOption.mMap, mOption.mSub);
             m5694 = cleared;
             m5698 = cleared;
         }
@@ -678,15 +672,12 @@ int GameTask::vf0C() {
         if (lbl_8087F418 != 0) {
             lbl_8087F418->fn_8036097C(mOption.mType, mOption.mMap, mOption.mSub, mOption.m10, mOption.m1C);
         }
-        return 0;
-    }
-    if (m10DC == 1) {
+        }
+    } else if (m10DC == 1) {
         if (lbl_8087F418 == 0 || !lbl_8087F418->fn_80360A2C()) {
             m10DC++;
         }
-        return 0;
-    }
-    if (m10DC == 2) {
+    } else if (m10DC == 2) {
         if (lbl_8087F8A0->mHead->IsFlag_unk(2) && !NpcManager::sInstance->fn_80547B54()) {
             m5690.fn_80470528();
             m10DC++;
@@ -696,8 +687,7 @@ int GameTask::vf0C() {
             }
             m10D8->fn_800D246C(1);
         }
-        return 0;
-    }
+    } else {
     int ready = 1;
     if (m56DC.fn_80473F50()) {
         ready = 0;
@@ -723,9 +713,7 @@ int GameTask::vf0C() {
     if (fn_8006D3F8(lbl_8087EEC8)) {
         ready = 0;
     }
-    if (!ready) {
-        return 0;
-    }
+    if (ready) {
     lbl_8087F8A0->fn_800D246C(0);
     EnemyManager::sInstance->fn_800D246C(0);
     NpcManager::sInstance->fn_800D246C(0);
@@ -750,7 +738,7 @@ int GameTask::vf0C() {
         PlayerManager* players = lbl_8087F8A0;
         players->FindByChara_unk(1)->vf30(players->m5C);
     }
-    if (mOption.m1C == 0 && m10D0 >= 100000 && m10D0 < 403000) {
+    if (mOption.m1C == 0 && m10D0 >= 100000 && 403000 > m10D0) {
         fn_80370320(0x11F, 1, 0);
     }
     fn_803D164C(lbl_8087F490);
@@ -773,7 +761,7 @@ int GameTask::vf0C() {
     if (lbl_8087F610 == 0) {
         HomeButtonMenu::sInstance->m88 = 1;
     }
-    if (IsDungeonCleared_unk()) {
+    if (IsDungeonCleared_unk(mOption.mType, mOption.mMap, mOption.mSub)) {
         PlayerTask* leader = lbl_8087F8A0->mHead;
         if (leader != 0) {
             MapId_unk* map = fn_8021771C(mOption.mType, mOption.mMap, mOption.mSub);
@@ -792,6 +780,9 @@ int GameTask::vf0C() {
     }
     lbl_8087DD64 = 15;
     return 1;
+    }
+    }
+    return 0;
 }
 
 int GameTask::fn_8036823C() {
@@ -974,6 +965,24 @@ void GameTask::fn_8036FC58() {
     HomeButtonMenu::sInstance->m88 = 1;
 }
 
+// inferred: sets the chapter (m10D0), warning on a rollback or a chapter out of range
+extern "C" void fn_80370094(GameTask* task, int chapter) {
+    if (lbl_8087EEB8 != 0) {
+        char buf[0x100];
+        if (task->m10D0 > chapter) {
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "[WARNING] rollback chapter %d -> %d\n", task->m10D0, chapter);
+            lbl_8087EEB8->fn_800697D8(buf);
+        }
+        if (task->m10D0 < 0 || 999999 < task->m10D0) {
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "[WARNING] chapter is out of range %d\n", chapter);
+            lbl_8087EEB8->fn_800697D8(buf);
+        }
+    }
+    task->m10D0 = chapter;
+}
+
 extern "C" int fn_80370174(GameTask* task, unsigned int index) {
     if (index > 0xFFF) {
         if (lbl_8087EEB8 != 0) {
@@ -1135,6 +1144,26 @@ void GameTask::fn_8037529C(unsigned int color0, unsigned int color1, int delay, 
     m5624->mActive = 1;
 }
 
+// inferred: the dungeon of a map id is cleared (1 for other maps)
+extern "C" int fn_803752F4(GameTask* task, const char* id) {
+    if (id == 0 || strlen(id) < 5) {
+        return 1;
+    }
+    if (strncmp(id, "dg", 2) == 0) {
+        int map = atoi(id + 2);
+        const DungeonFlag_unk* flag = FindDungeonFlag_unk((id));
+        if (flag == 0) {
+            ChapterEntry_unk* chapter = fn_802085E0(2, map);
+            if (chapter != 0 && chapter->mNext != 0) {
+                return task->m10D0 >= chapter->mNext->m04;
+            }
+        } else {
+            return fn_80370174(task, flag->mFlag) >= flag->mValue;
+        }
+    }
+    return 1;
+}
+
 int GameTask::fn_803754C4() {
     atn::Task* task = m567C;
     if (task != 0 && !task->IsFlag_unk(4)) {
@@ -1143,10 +1172,107 @@ int GameTask::fn_803754C4() {
     return 0;
 }
 
-// NONMATCHING: 93% - the null scene path joins the null map return directly
+// inferred: dungeons that do not count (lbl_8074DB70)
+extern const int sDungeonExcluded_unk[];
+
+static inline int IsDungeonExcluded_unk(const char* id) {
+    int dungeon = GetDungeonId_unk(id);
+    for (const int* p = sDungeonExcluded_unk; *p > 0; p++) {
+        if (dungeon == *p) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// inferred: the current map is a cleared dungeon (not the one of type 2, map 9)
+// NONMATCHING: 95% - the address of the dungeon tables is kept in r30 (the original reloads it at each use)
+extern "C" int fn_803754F0(GameTask* task) {
+    if (task->m5694 != 0 && task->GetCurrentMap() != 0) {
+        int type = task->GetCurrentMap()->mType;
+        int id = task->GetCurrentMap()->mId;
+        int sub = task->GetCurrentMap()->mSubId;
+        if (fn_8037587C(task, type, id, sub)) {
+            if (type == 2 && id == 9) {
+                return 0;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// inferred: the map is a cleared dungeon that counts (the map was visited)
+extern "C" int fn_8037587C(GameTask* task, int type, int id, int sub) {
+    int cleared = 0;
+    MapId_unk* map = fn_8021771C(type, id, sub);
+    if (map != 0 && map->mType == 2) {
+        cleared = task->IsDungeonCleared_unk(type, id, sub);
+        if (cleared) {
+            cleared = !IsDungeonExcluded_unk((map->mId));
+        }
+    }
+    return cleared;
+}
+
+// inferred: global flag holding the level of some dungeons (lbl_8074DB88)
+struct DungeonLevel_unk {
+    int mDungeon;
+    int mFlag;
+};
+extern const DungeonLevel_unk sDungeonLevels_unk[];
+
+static inline int GetDungeonLevelFlag_unk(int dungeon) {
+    for (int i = 0; sDungeonLevels_unk[i].mDungeon > 0; i++) {
+        if (dungeon == sDungeonLevels_unk[i].mDungeon) {
+            return sDungeonLevels_unk[i].mFlag;
+        }
+    }
+    return -1;
+}
+
+// inferred: level of the dungeon of the field (0 outside dungeons)
+extern "C" int fn_80375B78(GameTask* task, int arg) {
+    int level = 0;
+    MapId_unk* map = fn_8021771C(task->mOption.mType, task->mOption.mMap, task->mOption.mSub);
+    if (map != 0 && map->mType == 2) {
+        int flag = GetDungeonLevelFlag_unk(GetDungeonId_unk(map->mId));
+        if (flag > 0) {
+            level = fn_80370174(task, flag);
+        } else if (task->mGlobalFlags[281] > 0) {
+            level = task->mGlobalFlags[281];
+        } else if (arg != 0) {
+            level = map->mBC;
+        }
+        if (lbl_8087F0A8->m5A0 == 1 && arg != 0) {
+            level -= task->mGlobalFlags[282];
+        }
+    }
+    return level;
+}
+
+// inferred: level cap of the field (chapter level scaled by the difficulty, plus the dungeon bonus)
+// NONMATCHING: 99.7% - the map type and id of the inlined fn_803754F0 get r28/r29 swapped
+extern "C" int fn_80375D0C(GameTask* task) {
+    int cap = 0;
+    ChapterEntry_unk* chapter = lbl_8087F430->m10D4;
+    if (fn_803754F0(task)) {
+        chapter = fn_80208694(lbl_8087F430->m10D0);
+    }
+    if (chapter != 0) {
+        cap = (int)((float)chapter->m54 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
+        cap += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+    }
+    MapId_unk* map = fn_8021771C(task->mOption.mType, task->mOption.mMap, task->mOption.mSub);
+    if (map != 0 && map->mType == 2) {
+        cap += map->mBC;
+    }
+    return cap;
+}
+
 int GameTask::fn_80376150() {
-    MapTask* map = GetCurrentMap();
-    if (map == 0) {
+    MapTask* map;
+    if (m10D8 == 0 || (map = m10D8->m64) == 0) {
         return 0;
     }
     int ret = 0;
@@ -1212,10 +1338,77 @@ void GameTask::fn_8037624C(int value) {
     mGlobalFlags[44] = value;
 }
 
+// inferred: shows the help `id` (queued while another help is shown)
+// NONMATCHING: 99% - the original reloads the queue count after loading its head
+extern "C" void fn_80376324(GameTask* task, int id) {
+    TutorialData_unk* data = fn_8021F09C(id);
+    if (data == 0) {
+        return;
+    }
+    if (data->m04 != 0) {
+        if (task->m56F0 != 0 || task->m56EC != 0) {
+            if ((unsigned int)task->m571C.mCount < 8) {
+                task->m571C.Push_unk(id);
+            }
+        } else {
+            task->m56F0 = TutorialPopup::fn_805BC6C8(task, id, lbl_8087F8A0->mHead);
+            if (id == 0x8E && fn_80370174(task, id) > 1) {
+                task->m56F0->mSpeed = 1.5f;
+            }
+            if (lbl_8087F540->fn_80481668()) {
+                task->m56F0->fn_800D246C(1);
+            }
+        }
+    } else {
+        if (task->m56F0 != 0) {
+            fn_800D2338(task->m56F0);
+            task->m56F0 = 0;
+            task->m571C.mCount = 0;
+        }
+        if (task->m5590 != 0) {
+            fn_80570A14(task->m5590, 1);
+        }
+        task->m558C.mPtr->fn_8056B3D4();
+        lbl_8087F8A0->fn_800D246C(1);
+        FriendManager::sInstance->fn_800D246C(1);
+        EnemyManager::sInstance->fn_800D246C(1);
+        task->m10D8->fn_800D246C(1);
+        lbl_8087F3C0->fn_800D246C(1);
+        lbl_8087F490->m263C->FreezeTask();
+        lbl_8087F490->m2640->FreezeTask();
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->fn_800CFBA0(8, 1, 2, 15);
+        }
+        task->m54E4 = 13;
+        task->m56EC = TutorialTask::fn_805B9F50(task, id, lbl_8087F8A0->mHead);
+        if (id == 0xA7 && fn_80370174(task, 0x13F) == 0) {
+            task->fn_80370320(0x13F, 1, 0);
+        }
+    }
+}
+
 void GameTask::fn_803766E4() {
     if (m56F0 != 0) {
         fn_800D2338(m56F0);
         m56F0 = 0;
     }
-    m571C = 0;
+    m571C.mCount = 0;
 }
+
+// inferred: dungeon tables (.rodata 0x8074DA2C-0x8074DBC0), defined after their users
+const DungeonFlag_unk sDungeonFlags_unk[] = {
+    {902, 15, 100}, {912, 15, 100}, {1000, 16, 100}, {7100, 16, 100}, {1700, 17, 100}, {1800, 18, 100},
+    {1100, 19, 100}, {700, 20, 100}, {300, 21, 100}, {2300, 22, 100}, {905, 23, 100}, {915, 23, 100},
+    {906, 24, 100}, {916, 24, 100}, {4200, 25, 100}, {100, 26, 100}, {-1, -1, -1},
+};
+
+const int sDungeonIds_unk[] = {
+    400, 800, 902, 912, 1000, 7100, 4800, 600, 1700, 1800, 1900, 1100, 700, 300, 2000,
+    2200, 2300, 905, 915, 3200, 6300, 2500, 2600, 906, 916, 4200, 6700, 100, -1, 0,
+};
+
+const int sDungeonExcluded_unk[] = {800, 4800, 600, 300, 3200, -1};
+
+const DungeonLevel_unk sDungeonLevels_unk[] = {
+    {902, 203}, {912, 203}, {905, 204}, {915, 204}, {906, 205}, {916, 205}, {-1, -1},
+};

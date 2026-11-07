@@ -20,5 +20,6 @@ struct ChapterEntry_unk {
 // inferred: chapter of a map (db/ChapterList_unk.cpp)
 extern "C" ChapterEntry_unk* fn_802085E0(int type, int map);
 extern "C" ChapterEntry_unk* fn_80208634(int type, int map, int point);
+extern "C" ChapterEntry_unk* fn_80208694(int value); // inferred: chapter of a chapter value
 
 #endif

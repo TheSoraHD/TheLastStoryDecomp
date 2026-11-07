@@ -26,6 +26,8 @@ class FadeCapture;
 }
 
 class GamePauseTask;
+class TutorialTask;
+class TutorialPopup;
 class GameSaveBackground;
 struct GameSaveParty_unk;
 struct ReplayRecorder_unk;
@@ -128,7 +130,7 @@ public:
     int fn_80376238();
     void fn_8037624C(int value);
     void fn_803766E4();
-    inline int IsDungeonCleared_unk();
+    inline int IsDungeonCleared_unk(int type, int id, int sub);
     void fn_80367A40(int arg);
     void fn_8036CA60(int arg);
 
@@ -226,14 +228,12 @@ public:
     atn::LH_Xsca m56DC; // inferred: battle camera animation
     int m56E4;
     int m56E8; // inferred: entry of the map to move to (fn_8036FB4C)
-    int m56EC;
-    atn::Task* m56F0;
+    TutorialTask* m56EC;
+    TutorialPopup* m56F0;
     int m56F4;
     unsigned char m56F8[0x5718 - 0x56F8];
     int m5718;
-    int m571C;
-    unsigned char m5720[0x5740 - 0x5720];
-    int m5740;
+    MP::Queue_unk<int, 8> m571C; // inferred: help ids shown after the current one (fn_80376324)
     int m5744;
     int m5748;
     int m574C;
