@@ -1,6 +1,7 @@
 // game/BattleTask.cpp (0x800F13BC-0x8010D98C): battle manager (BattleTask, HomingBullet). Only the
 // effect start/stop functions are reconstructed so far.
 #include "game/BattleTask.h"
+#include "atn/Memory.h"
 #include "atn/EffectManager.h"
 #include "atn/EffectSystem_unk.h"
 #include "math/Vec.h"
@@ -20,6 +21,7 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
+extern "C" void* lbl_8087F610; // inferred: multiplayer manager (null in single player)
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
 extern "C" const char* fn_800EFE3C(int id);   // inferred: sound of row `id`
@@ -253,6 +255,37 @@ void BattleTask::fn_80107574() {
     m3E300 = 2;
 }
 
+void BattleTask::fn_80107584() {
+    lbl_8087F3C0->mSystem.mReplaying = 1;
+    switch (m3E300) {
+    case 1: {
+        m3E2FC = MIN(1.0f, m3E2FC + 0.1f);
+        EffectColor_unk color;
+        color.r = m3E304;
+        color.g = m3E308;
+        color.b = m3E30C;
+        color.a = m3E2FC;
+        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
+        break;
+    }
+    case 2: {
+        m3E2FC = MAX(0.0f, m3E2FC - 0.1f);
+        EffectColor_unk color;
+        color.r = m3E304;
+        color.g = m3E308;
+        color.b = m3E30C;
+        color.a = m3E2FC;
+        lbl_8087F3C0->fn_8023A184((unsigned int)&m389F4, 0, &color);
+        if (m3E2FC < 0.001f) {
+            fn_80239DAC(lbl_8087F3C0, (unsigned int)&m389F4, 0, 0);
+            m3E300 = 0;
+        }
+        break;
+    }
+    }
+    lbl_8087F3C0->mSystem.mReplaying = 0;
+}
+
 void BattleTask::fn_801076D0(void* owner, atn::Model* model) {
     if (fn_80239D58(lbl_8087F3C0, owner, 20) == 0) {
         fn_80232B7C((unsigned int)owner, 20);
@@ -377,6 +410,23 @@ void BattleTask::fn_80107FD8(void* owner, atn::Model* model) {
 
 void BattleTask::fn_80108080(void* owner) {
     fn_80239DAC(lbl_8087F3C0, (unsigned int)owner, 32, 1);
+}
+
+// NONMATCHING: 99% - the "" literals of the allocations are in the string pool of the file (not complete yet)
+BattleChara_unk::BattleChara_unk() : mHateValues(0), mHateIds(0), mHateCount(0) {
+    int count = 10;
+    if (lbl_8087F610 == 0) {
+        count = 5;
+    }
+    mHateCount = count;
+    mHateValues = new ((MemoryTag)3, "", "", 0) short[mHateCount];
+    mHateIds = new ((MemoryTag)3, "", "", 0) short[mHateCount];
+    mChara = 0;
+    m92D = 0;
+    m248 = 1.0f;
+    m92E = 0;
+    m92F = 0;
+    fn_801081D8();
 }
 
 BattleChara_unk::~BattleChara_unk() {

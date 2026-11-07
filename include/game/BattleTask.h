@@ -33,6 +33,7 @@ struct BattleSlot_unk {
 
 // inferred: 0x934-byte entry of BattleTask::mCharas (constructor 0x80108090, built by __construct_array)
 struct BattleChara_unk {
+    BattleChara_unk();  // 0x80108090
     ~BattleChara_unk(); // 0x80108150
     void fn_801088B8(int id, int value); // inferred: adds a hate entry (at most 10 per id; drops the oldest)
     void fn_8010895C(int id, int all);   // inferred: removes the entries of an id and compacts the list
@@ -114,6 +115,7 @@ public:
     int fn_80107274(CharaTask* chara);  // inferred: adds the character to mSlots (0: already there or full)
     void fn_80107380(CharaTask* chara); // inferred: removes the character from mSlots
     void fn_80107574(); // inferred: hides the chant effect
+    void fn_80107584(); // inferred: updates the chant effect (fades it in or out)
     void fn_801076D0(void* owner, atn::Model* model); // inferred: paralysis effect
     void fn_80107798(void* owner, int flag);
     void fn_801077A8(void* owner, atn::Model* model);
@@ -164,7 +166,9 @@ public:
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
     atn::EfpFile mEfp363C0[46];  // 0x363C0: inferred: battle effects (EFP files)
-    unsigned char m365E8[0x38A04 - 0x365E8];
+    unsigned char m365E8[0x389F4 - 0x365E8];
+    int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
+    unsigned char m389F8[0x38A04 - 0x389F8];
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
     float m38A08;
     float m38A0C; // inferred: gauge maximum
@@ -181,8 +185,13 @@ public:
     RayObj_unk* m3E2E8; // inferred: cursor target
     int m3E2EC;
     int m3E2F0;
-    unsigned char m3E2F4[0x3E300 - 0x3E2F4];
-    int m3E300; // inferred: state of the chant effect (2: hidden)
+    unsigned char m3E2F4[0x3E2FC - 0x3E2F4];
+    float m3E2FC; // inferred: alpha of the chant effect
+    int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
+    float m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
+    float m3E308;
+    float m3E30C;
+    float m3E310;
 };
 
 #endif
