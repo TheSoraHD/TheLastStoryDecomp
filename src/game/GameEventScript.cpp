@@ -172,12 +172,24 @@ void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+void GameEventScript::fn_8039F878(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    fn_8039F9A4(GetChara_unk(args->m08, args->m0C), args);
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803A03A0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result.SetNext_unk(cmd);
 }
 
 void GameEventScript::fn_803A04C0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     mScene->fn_803CAABC();
+    result.SetNext_unk(cmd);
+}
+
+void GameEventScript::fn_803A0520(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    fn_8039FBFC(GetChara_unk(args->m08, args->m0C), args);
     result.SetNext_unk(cmd);
 }
 
@@ -240,6 +252,20 @@ void GameEventScript::fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk*
         wait = 1;
     }
     result.SetNext_unk(cmd, wait);
+}
+
+// NONMATCHING: 87% - the original keeps the character and the value in r5/r4 across fn_8014C468
+void GameEventScript::fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        int value = args->m10;
+        if (value == 0) {
+            chara->fn_8014C468();
+        }
+        chara->fn_8014C0B4(0, value + 0xD5);
+    }
+    result.SetNext_unk(cmd);
 }
 
 void GameEventScript::fn_803A362C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -439,6 +465,26 @@ void GameEventScript::fn_803A98C4(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: waits while the field is in state 5
+void GameEventScript::fn_803AA82C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        chara->mFlagB20 = 1;
+        chara->mMotion.fn_8008B978(0);
+    }
+    result.SetNext_unk(cmd);
+}
+
+void GameEventScript::fn_803AA954(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        chara->mFlagB22 = 1;
+        chara->mFlagB20 = 0;
+    }
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
         ((GameTask*)lbl_8087F430)->fn_8036E430(2, static_cast<const ScriptArgs_unk*>(cmd)->m08);

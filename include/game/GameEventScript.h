@@ -38,6 +38,8 @@ public:
         return (ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]);
     }
     int fn_8039BF04(int a, int b, int c, int d, int e);
+    void fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args);
+    void fn_8039FBFC(CharaTask* chara, const ScriptArgs_unk* args);
     // inferred: character named by a script command (kind 0: leader or party member 1, 1: NPC, 2: enemy,
     // 3: party member); defined in game/GameEventScript.cpp
     inline CharaTask* GetChara_unk(int kind, int id) const;
@@ -67,8 +69,10 @@ public:
     void fn_8039E9D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039EA50(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039F878(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A03A0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A04C0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0520(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A0AB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A0B1C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A0B80(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -78,6 +82,7 @@ public:
     void fn_803A0D10(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A2154(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A362C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
@@ -105,6 +110,8 @@ public:
     void fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A98C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A98EC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AA82C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AA954(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AAD58(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AB144(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
