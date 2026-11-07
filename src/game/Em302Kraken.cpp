@@ -1,4 +1,5 @@
 #include "game/Em302Kraken.h"
+#include "game/GameTask.h"
 #include "chr/ControlStickByQuark.h"
 #include <boost/bind.hpp>
 #include "atn/Csv.h"
@@ -73,7 +74,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
 struct KrakenColl_unk {
     KrakenColl_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -1382,7 +1382,7 @@ void Em302Kraken::fn_802DC618() {
     fn_800CB5C8(&m1588, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
-    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
     KrakenBlur_unk blur;

@@ -20,6 +20,15 @@
 #include "atn/DrawHelper.h"
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
+#include "game/GameScene.h"
+
+inline MapTask* GameTask::GetCurrentMap() {
+    if (m10D8 != 0) {
+        return m10D8->m64;
+    }
+    return 0;
+}
 
 extern "C" double sqrt(double x);
 extern "C" int strcmp(const char* a, const char* b);
@@ -338,10 +347,6 @@ struct FieldMap_unk {
     unsigned char m0000[0x10D8];
     MapHolder_unk* m10D8;
 };
-extern "C" inline MapTask* fn_80373148(Field_unk* field) {
-    MapHolder_unk* h = ((FieldMap_unk*)field)->m10D8;
-    return h != 0 ? h->m64 : 0;
-}
 extern "C" void fn_80354110(EnemyTask* enemy); // inferred: EnemyQuarkStand member of another queue
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, const atn::Vector3* to,
@@ -572,7 +577,7 @@ void EnemyQuarkSecond::vf10() {
             free = 0;
         }
         fn_80339F74(this, free);
-        MapTask* map = fn_80373148(fn_80121F00());
+        MapTask* map = ((GameTask*)fn_80121F00())->GetCurrentMap();
         if (mPos.y - fn_8000D9E8()->GetHead_unk()->fn_8013C38C()->y > 20.0f) {
             kind = 3;
         } else {

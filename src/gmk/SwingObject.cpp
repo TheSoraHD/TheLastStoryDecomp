@@ -1,4 +1,5 @@
 #include "gmk/SwingObject.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/LH_Binary.h"
 #include "atn/Memory.h"
@@ -50,7 +51,6 @@ struct Settings_unk {
 };
 extern "C" Settings_unk* lbl_8087F0A8;
 extern "C" void* lbl_8087F430; // inferred: field
-extern "C" int fn_80376224(void* field); // inferred: nonzero in the second state (night?)
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: node chunk passed to the node callback (only the hash is read)
 
@@ -414,7 +414,7 @@ void SwingObject::vf6C(void* menu) {
 
 void SwingObject::fn_803FFC50() {
     if ((m58 & 1) == 1 && lbl_8087F430 != 0) {
-        if (fn_80376224(lbl_8087F430) == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80376224() == 0) {
             m54 = 1;
         } else {
             m54 = 2;

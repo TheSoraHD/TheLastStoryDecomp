@@ -1,4 +1,5 @@
 #include "chr/ControlWallUp.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "chr/ControlCharge.h"
 #include "game/CharaTask.h"
@@ -13,7 +14,6 @@ extern "C" HitInfo_unk* fn_80219E6C(int id);           // inferred: bullet/skill
 
 extern "C" void* lbl_8087F430;
 extern "C" int fn_80370174(void* field, int id);
-extern "C" MapTask* fn_80373148(void* field);
 
 // inferred: arena mode object (lbl_8087F610)
 extern "C" void* lbl_8087F610;
@@ -183,14 +183,14 @@ int ControlWallUp::vf0C() {
         }
     }
     if (ret != 0 && m4C && m50 == 0) {
-        if (lbl_8087F610 == 0 && fn_80373148(lbl_8087F430)->mId == 40 && fn_80373148(lbl_8087F430)->mSubId == 8) {
+        if (lbl_8087F610 == 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 40 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 8) {
             m08.y = m48;
             m14.y = m48;
         }
         atn::Vector3 pos = m14;
         pos.y = m14.y;
         ControlChargeAttackBase::fn_801A4E08(mChara, pos, m08);
-        if (lbl_8087F610 == 0 && fn_80373148(lbl_8087F430)->mId == 40 && fn_80373148(lbl_8087F430)->mSubId == 8) {
+        if (lbl_8087F610 == 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 40 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 8) {
             WallCollResult_unk result;
             atn::Vector3 top = m08;
             atn::Vector3 bottom = m08;

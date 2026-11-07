@@ -1,4 +1,5 @@
 #include "Event/Manager.h"
+#include "game/GameTask.h"
 #include "atn/RenderManager.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
@@ -667,7 +668,6 @@ struct Field_unk : public atn::Task {
 extern "C" Field_unk* fn_80121F00();                               // inferred: returns lbl_8087F430
 extern "C" GameUIPlayerInput_unk* fn_80122550(Field_unk* field);   // inferred: field + 0x6C
 extern "C" int fn_80370174(Field_unk* field, int flag);            // inferred: value of a game flag
-extern "C" int fn_803761A4(Field_unk* field);                      // inferred: always 1
 extern "C" int fn_80244CA0(atn::Task* table);                      // inferred: (flags >> 1) & 1
 
 // inferred: multiplayer session (lbl_8087F610)
@@ -1145,7 +1145,7 @@ void GameUI::fn_803D2A6C() {
                 // inferred: markers over the other characters near the leader
                 if (leader->fn_8013C3A8() && fn_8038B648(leader) == 0 && !leader->fn_80139ED0() &&
                     leader->fn_8013C458() != 0 && !leader->fn_8013C458()->fn_8013C43C() &&
-                    fn_803761A4(fn_80121F00())) {
+                    ((GameTask*)fn_80121F00())->fn_803761A4()) {
                     for (unsigned int i = 0; i < fn_80372574(&m85C); i++) {
                         if (m85C[i] != m764.m0C) {
                             MtxPtr mtx = m85C[i]->GetModel_unk()->GetNodeMtx_unk("head");

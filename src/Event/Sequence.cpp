@@ -2,6 +2,7 @@
 // of an event. One TU with the inline virtuals of Event::StringData/DummyData (0x805430E8) and the
 // template instances emitted after them (vector growth, DataList_unk::SetOwner_unk...).
 #include "Event/Sequence.h"
+#include "game/GameTask.h"
 #include "Event/Cut.h"
 #include "Event/Action.h"
 #include "Event/Manager.h"
@@ -269,10 +270,10 @@ void Sequence::fn_8053E8D0() {
         if (m280 != 0) {
             m280->fn_80228FD8();
         }
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && lbl_8087F8A0 != 0) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && lbl_8087F8A0 != 0) {
             PlayerTask* leader = lbl_8087F8A0->mHead;
             if (leader != 0) {
-                fn_80373148(lbl_8087F430)->fn_804A0580(1, &leader->mPos);
+                ((GameTask*)lbl_8087F430)->GetCurrentMap()->fn_804A0580(1, &leader->mPos);
             }
         }
     }

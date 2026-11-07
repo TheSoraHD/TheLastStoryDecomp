@@ -1,4 +1,5 @@
 #include "gmk/MapLift.h"
+#include "game/GameTask.h"
 #include "atn/LoadHandle.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -43,7 +44,6 @@ struct LiftMapPart_unk {
 };
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: places the gimmicks of a part (pointers in gmk/ArenaFloor.cpp; references here, the
 // offset is a temporary)
 
@@ -115,7 +115,7 @@ bool MapLift::HasLocator_unk(const char* name) {
 static inline MapTask* GetMapGroup_unk() {
     MapTask* group = 0;
     if (lbl_8087F430 != 0) {
-        group = fn_80373148(lbl_8087F430);
+        group = ((GameTask*)lbl_8087F430)->GetCurrentMap();
     }
     return group;
 }

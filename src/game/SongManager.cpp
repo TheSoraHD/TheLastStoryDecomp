@@ -1,4 +1,5 @@
 #include "game/EnvSeManager.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "atn/Task.h"
 #include "atn/SoundCore.h"
@@ -38,7 +39,6 @@ extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred
 extern "C" int fn_80049B2C(void* engine, unsigned int id);
 extern "C" void* lbl_8087F430;
 class MapTask;
-extern "C" MapTask* fn_80373148(void* field); // inferred: GameTask::GetCurrentMap (RSO)
 struct SongBattle_unk {
     unsigned char m00[0x70];
     int m70;
@@ -266,7 +266,7 @@ extern "C" int fn_805A38F0(const char* name, int type, int arg) {
     if (lbl_8087EE90 == 0 || lbl_8087EFE8 == 0) {
         return 1;
     }
-    if (!(lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) && !(lbl_8087F540 != 0 && lbl_8087F540->m70 != 0)) {
+    if (!(lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) && !(lbl_8087F540 != 0 && lbl_8087F540->m70 != 0)) {
         return 1;
     }
     unsigned int id = fn_80049B74(lbl_8087EE90, name);

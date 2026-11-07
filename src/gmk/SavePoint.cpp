@@ -1,4 +1,5 @@
 #include "gmk/SavePoint.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -39,7 +40,6 @@ struct Field_unk {
     int m5694;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80375184(Field_unk* field);             // inferred: saving is allowed
 extern "C" GimmickCommon* fn_8036E098(Field_unk* field);  // inferred: nearest save point
 extern "C" void fn_8036E92C(Field_unk* field, int arg);   // inferred: opens the save menu
 extern "C" int fn_80370174(Field_unk* field, int id);     // inferred: field flag
@@ -172,7 +172,7 @@ void SavePoint::vf10() {
         mShown = shown;
     }
     if ((unsigned int)m54 <= 2 && lbl_8087F430 != 0 && mShown != 0) {
-        if (fn_80375184(lbl_8087F430) != 0 || lbl_8087F430->m5694 != 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80375184() != 0 || lbl_8087F430->m5694 != 0) {
             if (vf60() != 0) {
                 GimmickMsg_unk msg(0);
                 vf40(&msg);
@@ -188,7 +188,7 @@ void SavePoint::vf10() {
     if (player != 0) {
         float dist = LenSq_unk(player->mPos - m6C);
         if (m54 == 0) {
-            if (dist < 64.0f && lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0) {
+            if (dist < 64.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0) {
                 lbl_8087F430->fn_803750E4(0x145);
             }
         } else if (m54 >= 1) {

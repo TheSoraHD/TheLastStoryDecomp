@@ -1,4 +1,5 @@
 #include "gmk/WaitObject.h"
+#include "game/GameTask.h"
 #include "atn/Memory.h"
 #include "atn/Csv.h"
 #include "game/CharaTask.h"
@@ -32,7 +33,6 @@ extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 // inferred: field (lbl_8087F430); class unknown
 struct WaitField_unk;
 extern "C" WaitField_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(WaitField_unk* field);
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -193,7 +193,7 @@ void WaitObject::vf10() {
     }
     atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - m6C;
     float dist = PSVECSquareMag(&d);
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mType == 1 &&
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1 &&
         dist > 360000.0f) {
         return;
     }

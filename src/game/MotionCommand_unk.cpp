@@ -1,4 +1,5 @@
 #include "game/CharaTask.h"
+#include "game/GameTask.h"
 #include "atn/SoundManager.h"
 #include "game/MotionCmdData_unk.h"
 #include "game/ColliAttrManager.h"
@@ -67,7 +68,6 @@ struct Field_unk {
     float m978;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field);
 
 // inferred: names of the command types and the areas (rodata tables 0x807370E8 and 0x80737118)
 static const char* const sTypeNames[8] = {"EFF_ATR", "EFF", "EFP", "EFP_LOOP", "SE_ATR", "SE", "SE_LOOP", "SHAKE"};
@@ -318,8 +318,8 @@ int MotionCommand_unk::fn_8012133C(atn::MotionCommandData* data, int* found) {
     }
     int area = 0;
     int ruins = 0;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapTask* info = fn_80373148(lbl_8087F430);
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
         switch (info->mType) {
         case 1:
             area = 1;

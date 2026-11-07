@@ -1,4 +1,5 @@
 #include "Event/Manager.h"
+#include "game/GameTask.h"
 #include "game/BattleCharaTask.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
@@ -80,9 +81,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
-extern "C" int fn_80375184(Field_unk* field);
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
-extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -802,7 +801,6 @@ void BattleCharaTask::fn_800E610C() {
 extern "C" int fn_8021921C(CharaTask* chara, int slot); // inferred: magic of the slot (db/PlayerParam_unk.cpp)
 extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
 extern "C" int fn_8021AF98(int id); // inferred: skill id of a skill growth entry (db/SkillGrowth_unk)
-extern "C" int fn_803761AC(Field_unk* field);
 
 // inferred: control with a timer (ids 10 and 12 of m560; class unknown, names invented)
 class ControlTimer_unk : public chr::ControlBase {
@@ -824,7 +822,7 @@ inline float HpRate_unk(CharaTask* c) {
 void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
     GameConfig_unk* config = lbl_8087F0A8;
     int attack = 1;
-    if (lbl_8087F610 == 0 && fn_80375184(lbl_8087F430) && atn::Abs_unk(HpRate_unk(this) - 1.0f) < 1.1920929e-7f &&
+    if (lbl_8087F610 == 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && atn::Abs_unk(HpRate_unk(this) - 1.0f) < 1.1920929e-7f &&
         fn_80370174(lbl_8087F430, 0x88) == 0 && lbl_8087F0A8->mInput.fn_801231D0(0x31)) {
         int cursor = 0;
         if (m55C == 1) {
@@ -985,12 +983,12 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
         if (mFlag31) {
             wait = 12;
         }
-        if (lbl_8087F0A8->mInput.fn_801240B4(9) && fn_803761AC(field) && fn_8016DCD4() && !mStatus.fn_80134134(0x2E) &&
+        if (lbl_8087F0A8->mInput.fn_801240B4(9) && ((GameTask*)field)->fn_803761AC() && fn_8016DCD4() && !mStatus.fn_80134134(0x2E) &&
             field->m5674 != 0) {
             if (mFB8 >= wait) {
                 switch (fn_80219558(m50)) {
                 case 0:
-                    if (fn_80219344(this, 1) != 0 && fn_80375184(field) && HpRate_unk(this) >= 0.25f &&
+                    if (fn_80219344(this, 1) != 0 && ((GameTask*)field)->fn_80375184() && HpRate_unk(this) >= 0.25f &&
                         (mStatus.m0C & 4) != 4) {
                         if (lbl_8087F610 == 0) {
                             fn_8016D74C(fn_80219344(this, 1), 0, 0);
@@ -1438,7 +1436,7 @@ void BattleCharaTask::vf44() {
         m1434 = 30;
     }
     if (lbl_8087F430 != 0) {
-        fn_80375184(lbl_8087F430);
+        ((GameTask*)lbl_8087F430)->fn_80375184();
     }
     m1470 = 0;
 }
@@ -2695,8 +2693,8 @@ int BattleCharaTask::fn_800EE794(SkillEffect* effect) {
 }
 
 int BattleCharaTask::fn_800EEFDC() {
-    if (m50 == 0x189C1 && lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapTask* info = fn_80373148(lbl_8087F430);
+    if (m50 == 0x189C1 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
         if (info->mType == 2 && info->mId == 0xD) {
             return 0;
         }

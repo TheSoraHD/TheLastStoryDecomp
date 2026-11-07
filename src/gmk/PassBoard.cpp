@@ -1,4 +1,5 @@
 #include "gmk/PassBoard.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
 #include "atn/Memory.h"
@@ -21,7 +22,6 @@ struct PassBoardNames_unk {
 extern "C" PassBoardNames_unk lbl_80753960[];
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 // inferred: sound of the board (the name is its own object, pointed to from .sdata2)
 static const char sSeName_unk[] = "SE_DG040_008";
@@ -93,7 +93,7 @@ int PassBoard::vf0C() {
     if (fn_803EC91C() == 0) {
         if (lbl_8087F430 != 0) {
             names = &lbl_80753960[m4C - 1];
-            group = fn_80373148(lbl_8087F430);
+            group = ((GameTask*)lbl_8087F430)->GetCurrentMap();
             if (group != 0) {
                 for (part = group->mParts; part != 0; part = part->mNext) {
                     if (part->mType == 4) {

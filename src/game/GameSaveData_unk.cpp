@@ -1,6 +1,7 @@
 // game/GameSaveData_unk.cpp (0x803B9804-0x803BEBAC): collection and restoration of the save data
 // (GameSaveData_unk, the 0x134A8-byte game state) and of the header of a save slot (GameSaveSlot_unk).
 #include "game/GameSaveData.h"
+#include "game/GameTask.h"
 #include "game/GameSaveLoadBackgroundCommon.h"
 #include "game/GameField_unk.h"
 #include "game/GameConfig_unk.h"
@@ -527,8 +528,8 @@ void GameSaveData_unk::fn_803BDEE4() {
     if (GameBgm::sInstance) {
         GameBgm::sInstance->fn_8037D808();
     }
-    if (lbl_8087F430 && fn_80373148(lbl_8087F430)) {
-        fn_80373148(lbl_8087F430)->fn_804A1D2C();
+    if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->GetCurrentMap()) {
+        ((GameTask*)lbl_8087F430)->GetCurrentMap()->fn_804A1D2C();
     }
     if (lbl_8087F418) {
         lbl_8087F418->fn_803608A8();
@@ -625,8 +626,8 @@ void GameSaveData_unk::fn_803BE590() {
 
 void GameSaveData_unk::fn_803BE670() {
     mFlags.fn_803B9D78();
-    if (lbl_8087F430 && fn_80373148(lbl_8087F430)) {
-        fn_80373148(lbl_8087F430)->fn_804A1C4C();
+    if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->GetCurrentMap()) {
+        ((GameTask*)lbl_8087F430)->GetCurrentMap()->fn_804A1C4C();
     }
 }
 

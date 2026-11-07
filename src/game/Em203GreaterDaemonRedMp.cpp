@@ -1,4 +1,5 @@
 #include "game/Em203GreaterDaemonRedMp.h"
+#include "game/GameTask.h"
 #include "game/GameScene.h"
 #include "atn/Csv.h"
 #include "atn/SoundRef.h"
@@ -74,7 +75,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
-extern "C" MapTask* fn_80373148(Field_unk* field); // inferred: map of the field
 extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
@@ -499,7 +499,7 @@ void Em203GreaterDaemonRedMp::vf10() {
     fn_8014C540();
     fn_80145334();
     vf11C();
-    MapTask* map = lbl_8087F430 != 0 ? fn_80373148(lbl_8087F430) : 0;
+    MapTask* map = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->GetCurrentMap() : 0;
     if (map != 0 && m1644 == 0) {
         int kind;
         if (atn::Abs_unk(m14D4->mPos.y - mPos.y) < 20.0f) {

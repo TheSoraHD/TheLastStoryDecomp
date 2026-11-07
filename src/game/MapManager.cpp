@@ -1,4 +1,5 @@
 #include "game/MapManager.h"
+#include "game/GameTask.h"
 #include "game/MapPartsArea.h"
 #include "game/MapTask.h"
 #include "atn/Memory.h"
@@ -18,7 +19,6 @@ extern "C" int lbl_8087F610; // inferred: debug flag
 // inferred: field data (lbl_8087F430) and its current map part
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field); // inferred: GameTask::GetCurrentMap (RSO)
 
 // inferred: weak copy at 0x8049103C (takes the function by value, so it is never inlined)
 inline void atn::RenderManager::SetMapHit_unk(MapHitFunc_unk func, void* arg) {
@@ -163,7 +163,7 @@ MapArea* MapManager::FindArea(atn::Sphere sphere) {
             }
         }
         if (lbl_8087F430 != 0) {
-            MapTask* map = fn_80373148(lbl_8087F430);
+            MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
             if (map != 0 && map->mAreaIndex != 0) {
                 MapPartsArea* area = map->GetArea_unk();
                 if (area != 0 && area->mAreas.size() != 0 && map->mF8 == 0) {

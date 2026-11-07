@@ -1,4 +1,5 @@
 #include "game/Em205Ogre.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/SkillEffectManager.h"
@@ -47,7 +48,6 @@ struct FrameTime_unk {
 extern "C" FrameTime_unk* lbl_8087EFA8;
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field);
 
 
 // inferred: node position (name invented, as in game/Em209BigGolem.cpp)
@@ -128,8 +128,8 @@ Em205Ogre::Em205Ogre(atn::Task* parent, EnemyInfo_unk* info)
         sprintf(path, "/database/chara/special/db_em205_00_00.csv\0");
     }
     m14B4.vf0C(path);
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapTask* map = fn_80373148(lbl_8087F430);
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
         if (map->mType == 2 && map->mId == 10 && map->mSubId == 2) {
             m1514.reset(new ((MemoryTag)3, "", "", 0) atn::EffFile());
             m1514->LoadRequest("/data/eff/gm001_000a02.eff");

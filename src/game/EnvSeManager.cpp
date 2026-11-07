@@ -1,4 +1,5 @@
 #include "game/EnvSeManager.h"
+#include "game/GameTask.h"
 #include "atn/RenderManager.h"
 #include "game/GameVoice.h"
 #include "game/EnvSeBase.h"
@@ -58,7 +59,6 @@ extern "C" EnvSeField_unk* lbl_8087F430;
 extern "C" int fn_80370174(EnvSeField_unk* field, int id);
 extern "C" int fn_80370A78(EnvSeField_unk* field, int id);
 extern "C" void fn_80370320(EnvSeField_unk* field, int event, int arg2, int arg3);
-extern "C" MapTask* fn_80373148(EnvSeField_unk* field);
 
 // inferred: game settings (fn_800F52F8 returns lbl_8087F0A8; weak copy of another file)
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -641,8 +641,8 @@ void EnvSeManager::fn_80360574(int id) {
 void EnvSeManager::fn_803605EC(int fade, float volume) {
     atn::SoundCategory_unk* scope = lbl_8087EFE8->fn_800CFDC8(2);
     m188 = scope != 0 ? scope->mVolume : 0.0f;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapTask* group = fn_80373148(lbl_8087F430);
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        MapTask* group = ((GameTask*)lbl_8087F430)->GetCurrentMap();
         if (group->mType == 2 && group->mId == 40 && 9 <= group->mSubId && group->mSubId <= 12) {
             volume = 1.0f;
         }

@@ -1,6 +1,7 @@
 // game/ItemManager_unk.cpp (0x80442F10-0x8044D710): code of Inventory (the RSO names the class;
 // the file name is unknown). Only the short functions at the end of the file are written so far.
 #include "game/Inventory.h"
+#include "game/GameTask.h"
 #include "game/CharaTask.h"
 #include "game/MarketTask.h"
 #include "db/ItemParam_unk.h"
@@ -335,7 +336,6 @@ int Inventory::fn_80448F9C(int code) {
 }
 
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: party
-extern "C" int fn_80375184(InventoryField_unk* field); // inferred: saving is allowed
 
 // inferred: rewards of a defeated enemy (outputs added to m6014/m6018); name invented
 extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
@@ -382,7 +382,7 @@ void Inventory::fn_804490E0(ItemParamEntry_unk* item, int member) {
         CharaStatus* status = chara != 0 ? chara->GetStatus_unk() : &mPlayers[member];
         status->fn_801342D0((StatusItem_unk*)item, stat);
         status->fn_8012B988();
-        if (lbl_8087F430 == 0 || fn_80375184(lbl_8087F430) == 0) {
+        if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80375184() == 0) {
             status->fn_8012D8B8();
         }
     }

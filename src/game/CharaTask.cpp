@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/Arms.h"
 #include "game/GameScene.h"
@@ -206,7 +207,6 @@ struct Effect_unk {
 };
 extern "C" Effect_unk* lbl_8087F048;
 
-extern "C" int fn_80375184(Field_unk* field);
 extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
 extern "C" void fn_80370320(Field_unk* field, int id, int value, int arg); // inferred: sets an event flag
 extern "C" int fn_800F8548(Effect_unk* mgr);
@@ -380,7 +380,6 @@ extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...)
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" int fn_8021BE98(char* name, CharaStatusEntry_unk* entry);  // inferred: name of an entry
 
-extern "C" MapTask* fn_80373148(Field_unk* field);
 
 extern "C" void* lbl_8087F540;
 extern "C" int fn_80481654(void* obj);
@@ -4426,8 +4425,8 @@ void CharaTask::fn_80145334() {
         }
     }
     MapTask* map = 0;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        map = fn_80373148(lbl_8087F430);
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
     }
     if (map == 0 && MapManager::instance_ != 0 && MapManager::instance_->mMaps.mSize != 0) {
         map = MapManager::instance_->mMaps.mData[0];
@@ -8947,7 +8946,7 @@ void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
     if (lbl_8087F048 != 0) {
         fn_8010337C(lbl_8087F048, 0, this);
     }
-    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) == 0 && fn_80370174(lbl_8087F430, 0xD6) == 1) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && fn_80370174(lbl_8087F430, 0xD6) == 1) {
         Player_unk* player = (lbl_8087F8A0 != 0) ? (Player_unk*)lbl_8087F8A0->mHead : 0;
         for (; player != 0; player = player->mNext) {
             if (player->CanAct_unk() && (player->m54C & 0x2000) != 0x2000) {
@@ -10247,7 +10246,7 @@ int CharaTask::fn_80172EFC(atn::Vector3* pos, atn::Vector3* move) {
     if (ok && (!CanReactB_unk(this) || m1208 != 0 || m139C != 0)) {
         ok = false;
     }
-    if (ok && (lbl_8087F430 == 0 || fn_80375184(lbl_8087F430) == 0)) {
+    if (ok && (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80375184() == 0)) {
         ok = false;
     }
     atn::Vector3 dir(move->x, 0.0f, move->z);
@@ -11108,8 +11107,8 @@ void CharaTask::fn_80176E30() {
         scaleA = 1.75f;
         scaleB = scaleA;
     }
-    if (m50 == 0x189C1 && lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 &&
-        fn_80373148(lbl_8087F430)->mType == 2 && fn_80373148(lbl_8087F430)->mId == 13) {
+    if (m50 == 0x189C1 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 &&
+        ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 2 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 13) {
         scaleA *= 2.0f;
         scaleB *= 1.5f;
     }
@@ -11159,7 +11158,7 @@ void CharaTask::fn_80176E30() {
     if (count >= m125C.mCount) {
         if (!mFlag10) {
             mFlag10 = 1;
-            if (mType == 0 && lbl_8087F430 != 0 && fn_80375184(lbl_8087F430)) {
+            if (mType == 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
                 fn_801092C8(lbl_8087F048, 5, this, 0, 0);
             }
             m12A0 = mType == 2 ? 60 : 30;
@@ -11718,11 +11717,10 @@ void CharaTask::fn_80179F98(int value) {
     m1380 = 90;
 }
 
-extern "C" int fn_803761A4(Field_unk* field);
 
 // inferred: whether the character can use its weapon now
 bool CharaTask::fn_80179FA8() {
-    if (lbl_8087F430 == 0 || !fn_803761A4(lbl_8087F430)) {
+    if (lbl_8087F430 == 0 || !((GameTask*)lbl_8087F430)->fn_803761A4()) {
         return false;
     }
     if (!CanReact_unk()) {

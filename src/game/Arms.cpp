@@ -1,4 +1,5 @@
 #include "game/Arms.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
@@ -43,7 +44,6 @@ struct Field_unk {
     void* m5590;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed
 extern "C" void fn_80570A74(void* obj, atn::EfpFile* efp);
 
 struct ArmsEffectMgr_unk;
@@ -524,7 +524,7 @@ int Arms::fn_80045510(ArmsCond_unk* cond, CharaTask* chara) {
         }
         break;
     case 22:
-        if (lbl_8087F430 == 0 || fn_80375184(lbl_8087F430)) {
+        if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80375184()) {
             return 1;
         }
         break;

@@ -1,4 +1,5 @@
 #include "game/Em309Ghoul.h"
+#include "game/GameTask.h"
 #include "atn/Keyboard.h"
 #include "atn/Camera_unk.h"
 #include "atn/Csv.h"
@@ -111,7 +112,6 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
 }
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
-extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" void fn_80370320(Field_unk* field, int event, int arg2, int arg3); // inferred: starts an event
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
@@ -597,7 +597,7 @@ void Em309Ghoul::vf44() {
     mFC0 = 0;
     m1434 = 80;
     m15B0 = 30;
-    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
 }

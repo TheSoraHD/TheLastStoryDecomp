@@ -1,4 +1,5 @@
 #include "game/Em301LShade.h"
+#include "game/GameTask.h"
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
 #include "atn/Memory.h"
@@ -53,7 +54,6 @@ struct Field_unk {
 struct Effect_unk;
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
-extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 // inferred: damage record sent to the effect manager (layout of game/CharaStatus.cpp)
 struct ShadeDamage_unk {
     ShadeDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -140,7 +140,6 @@ extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
@@ -591,7 +590,7 @@ void Em301LShade::vf10() {
         }
     }
     if (m14D4 != 0 && m1620 != 0) {
-        MapTask* map = fn_80373148(lbl_8087F430);
+        MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
         if (map != 0) {
             int kind = m14E0 != 3;
             if (kind != map->mCamera) {
@@ -826,7 +825,7 @@ void Em301LShade::vf3C(HitInfo_unk* hit) {
     int ok = 0;
     if (m15E8 > 0) {
         ok = 1;
-        if (fn_80373148(lbl_8087F430)->mId == 3 && msg->mData->m01 == 0 &&
+        if (((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 3 && msg->mData->m01 == 0 &&
             fn_80370A78(lbl_8087F430, 0x6E) == 0) {
             fn_80370AE4(lbl_8087F430, 0x6E, 1);
         }
@@ -1503,7 +1502,7 @@ void Em301LShade::fn_802D57B8() {
         EffectMgr_unk* mgr = lbl_8087F3C0;
         fn_8023A8B4(mgr, &m1608, (atn::Model*)&mMotion, 0, pos, lbl_807C7030, color, -1, -1, 1, 1.0f);
     }
-    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
     fn_800EB7A0();

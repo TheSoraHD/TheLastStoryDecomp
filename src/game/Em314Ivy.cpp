@@ -1,4 +1,5 @@
 #include "game/Em314Ivy.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
@@ -32,7 +33,6 @@ struct IvyColor_unk {
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the ivy
@@ -180,7 +180,7 @@ void Em314Ivy::vfFC() {
 // the inlined push_back (r29/r30, r6/r7); ~8 variants (target local, inverted test, element pointer)
 void Em314Ivy::vf104() {
     m14C0++;
-    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) == 0 && (m58C == 8 || m58C == 10) &&
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && (m58C == 8 || m58C == 10) &&
         (m137C & 0x400) == 0x400) {
         m15A8 = 1;
     }

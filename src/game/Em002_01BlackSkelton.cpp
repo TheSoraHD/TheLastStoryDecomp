@@ -1,4 +1,5 @@
 #include "game/Em002_01BlackSkelton.h"
+#include "game/GameTask.h"
 #include "chr/ControlBase.h"
 #include "game/FriendManager.h"
 #include "game/GimmickCommon.h"
@@ -12,7 +13,6 @@ struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
-extern "C" int fn_80375184(Field_unk* field);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -407,7 +407,7 @@ void Em002_01BlackSkelton::fn_80248A4C(int arg) {
     fn_8016DA4C();
     mFC0 = 0;
     m1434 = 30;
-    if (arg && lbl_8087F430 != 0 && fn_80375184(lbl_8087F430)) {
+    if (arg && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
     if (mF54 != 0) {

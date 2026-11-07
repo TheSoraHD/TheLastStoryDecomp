@@ -1,4 +1,5 @@
 #include "game/PlayerManager.h"
+#include "game/GameTask.h"
 #include "atn/Memory.h"
 
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the singleton
@@ -28,8 +29,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 class MapTask;
-extern "C" MapTask* fn_80373148(Field_unk* field); // inferred: GameTask::GetCurrentMap (RSO); the result is unused
-extern "C" void fn_80371320(Field_unk* field, PlayerTask* player); // inferred: new leader
 
 // inferred: list of objects of 0x37C bytes updated when the leader changes (lbl_8087FA00)
 struct LeaderListener_unk {
@@ -92,7 +91,7 @@ void PlayerManager::fn_80549F14(int mode) {
 }
 
 void PlayerManager::vf1C() {
-    fn_80373148(lbl_8087F430);
+    ((GameTask*)lbl_8087F430)->GetCurrentMap();
     for (PlayerTask* player = mHead; player != 0; player = player->mNext) {
         if (mHead == player) {
             player->fn_8016DF3C(0);
@@ -115,7 +114,7 @@ void PlayerManager::fn_8054A09C(PlayerTask* player, int swap) {
             player->fn_80176ACC();
         }
         if (lbl_8087F430 != 0) {
-            fn_80371320(lbl_8087F430, player);
+            ((GameTask*)lbl_8087F430)->fn_80371320(player);
         }
         if (swap != 0) {
             int tmp = mHead->m58;

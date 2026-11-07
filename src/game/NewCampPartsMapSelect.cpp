@@ -1,4 +1,5 @@
 #include "game/NewCampPartsMapSelect.h"
+#include "game/GameTask.h"
 #include "game/NewCampTask.h"
 #include "atn/Memory.h"
 #include "atn/D3Anime.h"
@@ -153,7 +154,6 @@ extern "C" int fn_80216988();                // inferred: number of routes of th
 extern "C" int fn_80216954(int index);       // inferred: id of a route
 extern "C" MapSelectRouteData_unk* fn_80216544(int id, int chapter, int flag);
 extern "C" const char* fn_80216700(int id, int chapter, int flag); // inferred: state of the route
-extern "C" int fn_80375184(GameField_unk* field);
 extern "C" int fn_80370174(GameField_unk* field, int flag); // inferred: flag value
 extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: the camp maps of Lazulis (the map select opens there with route 201); name invented
@@ -705,7 +705,7 @@ void NewCampPartsMapSelect::fn_80520098() {
     ((NewCampTask*)m48)->fn_80530174();
     ((NewCampTask*)m48)->fn_8052CA6C();
     lbl_8087F430->m563C = 0x12;
-    if (fn_80373148(lbl_8087F430)->mType == 1 && route->mMapType == 1) {
+    if (((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1 && route->mMapType == 1) {
         fn_8036FB4C(lbl_8087F430, route->mEntry);
         return;
     }
@@ -720,7 +720,7 @@ void NewCampPartsMapSelect::fn_80520098() {
 }
 
 int NewCampPartsMapSelect::fn_805201EC(int* point) {
-    MapTask* map = fn_80373148(lbl_8087F430);
+    MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
     int type = map->GetMapType();
     int id = map->GetMapId();
     int subId = map->GetMapSubId();
@@ -827,7 +827,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
             if (state != 0 && id < 500) {
                 MapSelectPoint_unk* point = FindPoint_unk(id);
                 if (state == 2 && lbl_8087F430 != 0) {
-                    if (fn_80375184(lbl_8087F430) != 0 || lbl_8087F430->m54E4 == 3 ||
+                    if (((GameTask*)lbl_8087F430)->fn_80375184() != 0 || lbl_8087F430->m54E4 == 3 ||
                         fn_80370174(lbl_8087F430, 0x394) != 0 || fn_80370174(lbl_8087F430, 0x62) != 0) {
                         state = 1;
                     }
@@ -852,7 +852,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
             }
         }
     }
-    MapTask* map = fn_80373148(lbl_8087F430);
+    MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
     int type = map->mType;
     int mapId = map->mId;
     int special;

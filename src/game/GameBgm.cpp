@@ -1,4 +1,5 @@
 #include "game/EnvSeManager.h"
+#include "game/GameTask.h"
 #include "game/GameBgm.h"
 #include "atn/SoundManager.h"
 #include "atn/SoundCore.h"
@@ -37,7 +38,6 @@ struct GameBgmField_unk {
     GameBgmTable_unk* m10D8;
 };
 extern "C" GameBgmField_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(GameBgmField_unk* field);
 extern "C" int fn_80370174(GameBgmField_unk* field, int id);           // inferred: reads a field value
 extern "C" void fn_80370320(GameBgmField_unk* field, int id, int value, int arg); // inferred: writes it
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
@@ -95,7 +95,7 @@ static const char* fn_8037C71C(int id) {
             name = fn_80207EE8(0x193);
         }
         if (progress >= 600000) {
-            if (fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mType == 1) {
+            if (((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1) {
                 if (id == 0x191 || id == 0x1F5) {
                     name = fn_80207EE8(0x194);
                 }
@@ -429,11 +429,11 @@ int GameBgm::fn_8037D4C0(int id, int fade, int b, int c, float volume) {
 }
 
 void GameBgm::fn_8037D684(int a, int b) {
-    if (lbl_8087F430 == 0 || fn_80373148(lbl_8087F430) == 0) {
+    if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->GetCurrentMap() == 0) {
         return;
     }
     if (m84 == 0 && mReq.mId > 0) {
-        MapTask* info = fn_80373148(lbl_8087F430);
+        MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
         if ((a != info->mType || b != info->mId) && m84 == 0 && (mReq.mId == 0x191 || mReq.mId == 0x1F5)) {
             fn_8037D4C0(0, 45, 1, 0, 1.0f);
         }

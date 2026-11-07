@@ -2,6 +2,7 @@
 // its subclasses ControlChargeAttack, ControlHighJumpAttack, ControlQuarkSeirenAttack;
 // ControlZanTackle).
 #include "chr/ControlCharge.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "chr/ControlDive.h"
@@ -69,7 +70,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
 extern "C" int fn_8036DAA8(Field_unk* field);
-extern "C" MapTask* fn_80373148(Field_unk* field);
 extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7); // inferred: sweep test
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -544,7 +544,7 @@ void ControlChargeAttackBase::fn_801A4E08(Chara_unk* chara, const atn::Vector3& 
     if (lbl_8087F610 != 0 && IsArenaMode_unk(lbl_8087F610->m540)) {
         arena = true;
     }
-    if (arena && fn_80373148(lbl_8087F430)->mId == 1 && fn_80373148(lbl_8087F430)->mSubId == 5) {
+    if (arena && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 1 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 5) {
         CollResult_unk floor;
         atn::Vector3 top(target);
         atn::Vector3 bottom(target);

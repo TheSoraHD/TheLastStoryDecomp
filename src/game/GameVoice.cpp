@@ -1,4 +1,5 @@
 #include "game/GameVoice.h"
+#include "game/GameTask.h"
 #include "game/CharaTask.h"
 #include "atn/SoundCore.h"
 #include "atn/SoundManager.h"
@@ -51,7 +52,6 @@ struct GameVoiceField_unk {
     int m5538;         // inferred: nonzero mutes the voices
 };
 extern "C" GameVoiceField_unk* lbl_8087F430;
-extern "C" int fn_803761CC(GameVoiceField_unk* field); // inferred: the voices are enabled
 // inferred: the battle (lbl_8087F540); only the pause flag
 struct GameVoiceBattle_unk {
     unsigned char m00[0x70];
@@ -395,7 +395,7 @@ atn::SoundRef GameVoice::fn_803E9B7C(unsigned int id, int offset, int steal, flo
 
 // NONMATCHING: 95% - branch shape of the battle check (bne + b), registers of the party loop
 void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time) {
-    if (lbl_8087F430 != 0 && fn_803761CC(lbl_8087F430) == 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761CC() == 0) {
         return;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {

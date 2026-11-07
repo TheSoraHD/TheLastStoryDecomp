@@ -1,4 +1,5 @@
 #include "chr/ControlCannonLift.h"
+#include "game/GameTask.h"
 #include "game/CharaTask.h"
 #include "game/GimmickCommon.h"
 #include "game/EnemyManager.h"
@@ -58,7 +59,6 @@ extern "C" Unk_8087F0A8* lbl_8087F0A8;
 
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field);
 
 // inferred: the boss of the cannon battle (enemy id 4, chr Em208Queen); m1544 is set when a shot
 // reaches it
@@ -269,8 +269,8 @@ int ControlCannonThrow::vf0C() {
     Motion_unk* motion = &mChara->mMotion;
     if (motion->mTracks[0].m08 >= 10.0f && mChara->m1208 != 0) {
         Queen_unk* queen;
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mId == 11 &&
-            fn_80373148(lbl_8087F430)->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
+            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen)) {
             Mtx mtx;
             PSMTXRotRad(mtx, 'y', queen->mRot.y);
@@ -303,8 +303,8 @@ int ControlCannonThrow::vf0C() {
         }
     }
     Queen_unk* queen2;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mId == 11 &&
-            fn_80373148(lbl_8087F430)->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
+            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
         fn_802CCA0C(queen2)) {
         Mtx mtx;
         PSMTXRotRad(mtx, 'y', queen2->mRot.y);
@@ -337,8 +337,8 @@ int ControlCannonTarget::vf0C() {
         int found = 0;
         CursorTarget_unk target;
         Queen_unk* queen;
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mId == 11 &&
-            fn_80373148(lbl_8087F430)->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
+            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen)) {
             target.mPos = queen->mPos;
             target.mRadius = m28;
@@ -351,8 +351,8 @@ int ControlCannonTarget::vf0C() {
             fn_801C3458(0, 30.0f, 450.0f, 6.2831855f);
         }
         Queen_unk* queen2;
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mId == 11 &&
-            fn_80373148(lbl_8087F430)->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 11 &&
+            ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId == 3 && (queen2 = (Queen_unk*)EnemyManager::sInstance->Find_unk(4)) != 0 &&
             fn_802CCA0C(queen2)) {
             Mtx mtx;
             PSMTXRotRad(mtx, 'y', queen2->mRot.y);

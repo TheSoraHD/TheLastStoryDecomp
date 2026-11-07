@@ -1,4 +1,5 @@
 #include "game/Em302KrakenMp.h"
+#include "game/GameTask.h"
 #include "atn/Memory.h"
 #include "chr/ControlWallUp.h"
 #include <boost/bind.hpp>
@@ -84,7 +85,6 @@ inline void ClearModelFlag_unk(atn::Model* model, unsigned int flag) {
 }
 
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
-extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed (as in game/Arms.cpp)
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 // inferred: ray test against the map (as in gmk/MotionObject.cpp); layout of gmk/Lemon.h
 struct KrakenMpColl_unk {
@@ -1187,7 +1187,7 @@ void Em302KrakenMp::fn_802E177C() {
     fn_800CB5C8(&m1560, 0, 0);
     fn_80239DAC(lbl_8087F3C0, this, 100, 1);
     fn_80239DAC(lbl_8087F3C0, this, 101, 1);
-    if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) != 0 && mType == 2) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0 && mType == 2) {
         fn_801092C8(lbl_8087F048, 6, this, 0, 0);
     }
     fn_800C31F4("SE_EM302_020", 0, -1, 1.0f);

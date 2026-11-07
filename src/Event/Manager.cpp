@@ -2,6 +2,7 @@
 // packed together in .rodata). SequenceRoot is declared first: vtables are emitted in reverse
 // declaration order.
 #include "db/MapIdTable_unk.h"
+#include "game/GameTask.h"
 #include "Event/SequenceRoot.h"
 #include "Event/PostSequence.h"
 #include "Event/Manager.h"
@@ -1043,7 +1044,7 @@ MapTask* Manager::fn_80480438() {
         return m1A60[0];
     }
     if (lbl_8087F430 != 0) {
-        return fn_80373148(lbl_8087F430);
+        return ((GameTask*)lbl_8087F430)->GetCurrentMap();
     }
     return 0;
 }
@@ -1501,8 +1502,8 @@ void fn_80482EB4(MapArea* area, void* arg) {
 // fn_80487064 and fn_804870F4); name invented
 inline MapTask* GetCurrentMap_unk() {
     MapTask* map = 0;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        map = fn_80373148(lbl_8087F430);
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
     }
     if (map == 0 && MapManager::instance_ != 0 && MapManager::instance_->mMaps.size() != 0) {
         map = MapManager::instance_->mMaps[0];
@@ -2955,9 +2956,9 @@ void Manager::fn_8048E9E0() {
         m1F70->m08 = 3;
     }
     mMoviePlaying = 1;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        m2404_1 = fn_80373148(lbl_8087F430)->IsFrozen_unk();
-        fn_80373148(lbl_8087F430)->FreezeTask();
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        m2404_1 = ((GameTask*)lbl_8087F430)->GetCurrentMap()->IsFrozen_unk();
+        ((GameTask*)lbl_8087F430)->GetCurrentMap()->FreezeTask();
     }
     if (lbl_8087F8A0 != 0) {
         m2404_2 = lbl_8087F8A0->IsFrozen_unk();
@@ -3010,8 +3011,8 @@ void Manager::fn_8048EC7C() {
         m1F70 = 0;
     }
     mMoviePlaying = 0;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        fn_80373148(lbl_8087F430)->SetFrozen_unk(m2404_1);
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        ((GameTask*)lbl_8087F430)->GetCurrentMap()->SetFrozen_unk(m2404_1);
     }
     if (lbl_8087F8A0 != 0) {
         lbl_8087F8A0->SetFrozen_unk(m2404_2);

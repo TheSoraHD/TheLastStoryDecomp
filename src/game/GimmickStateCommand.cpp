@@ -4,6 +4,7 @@
 // GimmickStateCommand.
 
 #include "game/GimmickCommon.h"
+#include "game/GameTask.h"
 #include "atn/SoundManager.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/Memory.h"
@@ -31,7 +32,6 @@ struct Field_unk {
     float m978;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: accessor (weak copy 0x80121F00 kept from another file)
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
@@ -175,8 +175,8 @@ void GimmickCommonB0_unk::fn_803EF780(void* data, int size) {
             int map;
             int point;
             if (fn_80216AFC(csv.fn_8005B9CC(), &type, &map, &point) && fn_80121F00() != 0 &&
-                fn_80373148(fn_80121F00()) != 0) {
-                MapTask* info = fn_80373148(fn_80121F00());
+                ((GameTask*)fn_80121F00())->GetCurrentMap() != 0) {
+                MapTask* info = ((GameTask*)fn_80121F00())->GetCurrentMap();
                 if (type != info->GetMapType() || map != info->GetMapId() || point != info->GetMapSubId()) {
                     while (csv.fn_8005BBF8() != 0) {
                         const char* s = csv.fn_8005B9CC();

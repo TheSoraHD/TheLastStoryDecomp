@@ -1,4 +1,5 @@
 #include "game/GameSoundControl.h"
+#include "game/GameTask.h"
 #include "game/GameBgm.h"
 #include "atn/Memory.h"
 #include "atn/FixedArray.h"
@@ -40,9 +41,6 @@ struct Field_unk {
     FieldStream_unk* m5624;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_803761FC(Field_unk* field);
-extern "C" MapTask* fn_80373148(Field_unk* field);
-extern "C" int fn_80375184(Field_unk* field);
 // inferred: battle state kept by the effect manager (lbl_8087F048); names invented
 struct BattleState_unk {
     unsigned char m00000[0x38C90];
@@ -94,7 +92,7 @@ GameSoundControl::~GameSoundControl() {
 }
 
 void GameSoundControl::fn_803CDAE4() {
-    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && GameBgm::sInstance != 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761FC() && GameBgm::sInstance != 0) {
         int state = GameBgm::sInstance->m84 != 0 ? GameBgm::sInstance->mNext.mId : GameBgm::sInstance->mReq.mId;
         if (state <= 0 || state == 0x67) {
             GameBgm::sInstance->fn_8037D4C0(0x65, 0, 1, 0, 1.0f);
@@ -105,7 +103,7 @@ void GameSoundControl::fn_803CDAE4() {
 void GameSoundControl::fn_803CDB64() {}
 
 void GameSoundControl::fn_803CDB68() {
-    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && GameBgm::sInstance != 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761FC() && GameBgm::sInstance != 0) {
         BattleState_unk* state = lbl_8087F048;
         if (state->m38CA0 == 0) {
             if (state->m38C9C >= 3) {
@@ -124,7 +122,7 @@ void GameSoundControl::fn_803CDB68() {
 }
 
 void GameSoundControl::fn_803CDC48() {
-    if (lbl_8087F430 != 0 && fn_803761FC(lbl_8087F430) && GameBgm::sInstance != 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761FC() && GameBgm::sInstance != 0) {
         GameBgm::sInstance->fn_8037D4C0(0x67, 0, 1, 0, 1.0f);
     }
 }
@@ -135,8 +133,8 @@ void GameSoundControl::fn_803CDC48() {
 void GameSoundControl::vf10() {
     fn_803CDF84();
     int boss = 0;
-    if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-        MapTask* info = fn_80373148(lbl_8087F430);
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+        MapTask* info = ((GameTask*)lbl_8087F430)->GetCurrentMap();
         if (info->mType == 2 && info->mId == 0x36 && info->mSubId == 1) {
             boss = 1;
         }
@@ -206,7 +204,7 @@ void GameSoundControl::fn_803CDF84() {
     if (lbl_8087F430 == 0 || GameBgm::sInstance == 0 || !Has8087F418_unk()) {
         return;
     }
-    if (fn_80375184(lbl_8087F430) && fn_803761FC(lbl_8087F430) && lbl_8087F048 != 0) {
+    if (((GameTask*)lbl_8087F430)->fn_80375184() && ((GameTask*)lbl_8087F430)->fn_803761FC() && lbl_8087F048 != 0) {
         BattleState_unk* state = lbl_8087F048;
         if (state->m38CCC != state->m38CD0) {
             switch (state->m38CCC) {
@@ -294,10 +292,10 @@ struct MpManager_unk {
 extern "C" int fn_803CE160(int area, int room, int sub) {
     int ret = 0;
     if (area <= 0 || room <= 0) {
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-            area = fn_80373148(lbl_8087F430)->mType;
-            room = fn_80373148(lbl_8087F430)->mId;
-            sub = fn_80373148(lbl_8087F430)->mSubId;
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+            area = ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType;
+            room = ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId;
+            sub = ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId;
         } else if (lbl_8087F540 != 0) {
             MpRoom_unk* r = ((MpManager_unk*)lbl_8087F540)->m70;
             if (r != 0) {
@@ -329,10 +327,10 @@ extern "C" int fn_803CE160(int area, int room, int sub) {
 extern "C" int fn_803CE278(int area, int room, int sub) {
     int ret = 1;
     if (area <= 0 || room <= 0) {
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0) {
-            area = fn_80373148(lbl_8087F430)->mType;
-            room = fn_80373148(lbl_8087F430)->mId;
-            sub = fn_80373148(lbl_8087F430)->mSubId;
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
+            area = ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType;
+            room = ((GameTask*)lbl_8087F430)->GetCurrentMap()->mId;
+            sub = ((GameTask*)lbl_8087F430)->GetCurrentMap()->mSubId;
         } else if (lbl_8087F540 != 0) {
             MpRoom_unk* r = ((MpManager_unk*)lbl_8087F540)->m70;
             if (r != 0) {

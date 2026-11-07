@@ -1,4 +1,5 @@
 #include "db/MapIdTable_unk.h"
+#include "game/GameTask.h"
 #include "game/GameScene.h"
 #include "game/GameVoice.h"
 extern "C" float lbl_80885CCC;
@@ -46,7 +47,6 @@ extern "C" void fn_80016888(void* arg);
 extern "C" void* lbl_8087EE68;
 extern "C" void fn_80394C68(GameEventScript* script); // inferred
 struct Field_unk;
-extern "C" int fn_80375184(Field_unk* field);
 extern "C" int fn_80370174(Field_unk* field, int index); // inferred: reads a value of the field
 extern "C" int fn_80370A78(Field_unk* field, int index); // inferred: reads a flag of the field
 extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
@@ -54,7 +54,6 @@ extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gm
 extern "C" void fn_80370320(Field_unk* field, int index, int value, int arg3); // inferred: writes a value of the field
 extern "C" gmk::TreasureBox::Data_unk* fn_8021ECD0(int id); // inferred: treasure data
 extern "C" int fn_80051CD8(const atn::ColliSphereShape_unk* sphere, const atn::ColliBoxShape_unk* box); // inferred: sphere in box
-extern "C" void fn_80376194(Field_unk* field, int on);
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 extern "C" unsigned int fn_800E0AA8(const IntVector_unk* v); // inferred: size (weak copy)
 extern "C" void fn_803CCF64(U16Table_unk* table, const unsigned short* values, unsigned int count);
@@ -589,10 +588,10 @@ void GameScene::fn_803C0F48(int warp) {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->m5664 = 1;
         int on = 0;
-        if (lbl_8087F430->fn_803761BC() && fn_80375184(lbl_8087F430)) {
+        if (lbl_8087F430->fn_803761BC() && ((GameTask*)lbl_8087F430)->fn_80375184()) {
             on = 1;
         }
-        fn_80376194(lbl_8087F430, on);
+        ((GameTask*)lbl_8087F430)->fn_80376194(on);
     }
     fn_803CAABC();
 }

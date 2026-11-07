@@ -1,6 +1,7 @@
 // Chant of a magic (ControlChant), casting it (ControlMagic) and the end of the cast
 // (ControlMagicEnd).
 #include "chr/ControlChant.h"
+#include "game/GameTask.h"
 #include "game/GameVoice.h"
 #include "game/GameUI.h"
 #include "game/HitInfo_unk.h"
@@ -102,8 +103,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
 extern "C" void fn_80370320(Field_unk* field, int id, int arg2, int arg3); // inferred: starts an event
-extern "C" int fn_803761AC(Field_unk* field);
-extern "C" int fn_80375184(Field_unk* field); // inferred: saving is allowed
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 struct TacView_unk;
 extern "C" TacView_unk* lbl_8087F9F8;
@@ -733,7 +732,7 @@ int ControlMagic::vf0C() {
             }
             break;
         }
-        if (lbl_8087F430 && fn_803761AC(lbl_8087F430) && fn_80219344(lbl_8087F8A0->fn_8054A33C(0), 1) && mChara &&
+        if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_803761AC() && fn_80219344(lbl_8087F8A0->fn_8054A33C(0), 1) && mChara &&
             (mChara->mType == 0 || mChara->mType == 3)) {
             switch (fn_80219558(mChara->m50)) {
             case 1:
@@ -755,7 +754,7 @@ int ControlMagic::vf0C() {
                 break;
             }
         }
-        if (lbl_8087F430 && fn_80375184(lbl_8087F430)) {
+        if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->fn_80375184()) {
             if (mChara->mType == 2) {
                 fn_801092C8(lbl_8087F048, 0xC, mChara, hit->m04, 0);
             } else {

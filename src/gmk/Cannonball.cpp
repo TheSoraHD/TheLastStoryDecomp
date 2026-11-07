@@ -1,4 +1,5 @@
 #include "gmk/Cannonball.h"
+#include "game/GameTask.h"
 #include "atn/ColliBase.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -43,7 +44,6 @@ struct Field_unk {
     int m54E4; // inferred: state (8-11 while an event runs)
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(Field_unk* field);
 // inferred: accessors (weak copies elsewhere; names keep the addresses)
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
@@ -376,8 +376,8 @@ void Cannonball::vf10() {
         } else if (mTimer < 150) {
             SetSound_unk(mSound, fn_800C344C(sSe[1], &m6C, 0, -1, 1.0f));
         }
-        if (fn_80121F00() != 0 && fn_80373148(fn_80121F00()) != 0 &&
-            fn_80373148(fn_80121F00())->GetMapId() == 11 && fn_80373148(fn_80121F00())->GetMapSubId() == 3 &&
+        if (fn_80121F00() != 0 && ((GameTask*)fn_80121F00())->GetCurrentMap() != 0 &&
+            ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapId() == 11 && ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapSubId() == 3 &&
             m54 == 2 && mTimer <= 180) {
             mTimer = 180;
         }
@@ -528,8 +528,8 @@ int Cannonball::vf40(GimmickMsg_unk* msg) {
         break;
     case 2: {
         int skip = 0;
-        if (fn_80121F00() != 0 && fn_80373148(fn_80121F00()) != 0 &&
-            fn_80373148(fn_80121F00())->GetMapId() == 11 && fn_80373148(fn_80121F00())->GetMapSubId() == 3) {
+        if (fn_80121F00() != 0 && ((GameTask*)fn_80121F00())->GetCurrentMap() != 0 &&
+            ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapId() == 11 && ((GameTask*)fn_80121F00())->GetCurrentMap()->GetMapSubId() == 3) {
             skip = 1;
         }
         mTimer = mExplodeTime;

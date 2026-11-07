@@ -1,4 +1,5 @@
 #include "game/CharaStatus.h"
+#include "game/GameTask.h"
 #include "game/Inventory.h"
 #include "atn/Model_unk.h"
 #include "chr/ControlBase.h"
@@ -85,7 +86,6 @@ struct Arena_unk {
 extern "C" Arena_unk* lbl_8087F610;
 extern "C" int fn_80370174(StatusField_unk* field, int id);
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
-extern "C" int fn_80375184(StatusField_unk* field);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_801061BC(Effect_unk* effect, chr::Chara_unk* chara, void* model, int level);
@@ -680,7 +680,7 @@ void CharaStatus::fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit) 
         }
     }
     int result = fn_8012F440(flags, power, kind2, damage, bit8, bit9, noBit21);
-    if (result != 0 && mChara != 0 && lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) && lbl_8087F048 != 0) {
+    if (result != 0 && mChara != 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && lbl_8087F048 != 0) {
         if (result > 0) {
             if (mChara->mType == 2) {
                 fn_801092C8(lbl_8087F048, 8, mChara, 0, 0);
@@ -954,7 +954,7 @@ void CharaStatus::fn_8012F034(float amount) {
 // (ours reuses the first test) and passes the new gauge value to the second one from a register
 // (frsp) instead of reloading m42C. Tried: a HasGauge_unk helper, the body in an inline helper.
 void CharaStatus::fn_8012F188(float amount) {
-    if (lbl_8087F430 != 0 && !fn_80375184(lbl_8087F430)) {
+    if (lbl_8087F430 != 0 && !((GameTask*)lbl_8087F430)->fn_80375184()) {
         return;
     }
     if (mChara == 0 || !mChara->mFlag28) {

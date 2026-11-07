@@ -2,6 +2,7 @@
 // its creator 0x804093B4 (see docs/splits-auto-C.md, group 5)
 
 #include "gmk/DropItem.h"
+#include "game/GameTask.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -36,7 +37,6 @@ struct DropField_unk {
     int m54E4; // inferred: state (8 while an event runs)
 };
 extern "C" DropField_unk* lbl_8087F430;
-extern "C" MapTask* fn_80373148(DropField_unk* field);
 // inferred: effects
 struct EffectMgr_unk {
     unsigned char m00[0xB8];
@@ -274,7 +274,7 @@ void DropItem::vf10() {
         int touch = 0;
         float nearDist = 70.0f;
         float rangeDist = 40.0f;
-        if (lbl_8087F430 != 0 && fn_80373148(lbl_8087F430) != 0 && fn_80373148(lbl_8087F430)->mType == 1) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1) {
             rangeDist /= 1.5f;
             nearDist *= 0.5f;
         }

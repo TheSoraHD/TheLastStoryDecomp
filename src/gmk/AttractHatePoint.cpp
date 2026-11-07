@@ -1,4 +1,5 @@
 #include "game/SetConfig.h"
+#include "game/GameTask.h"
 #include "atn/SoundManager.h"
 #include "gmk/AttractHatePoint.h"
 #include "atn/Csv.h"
@@ -47,7 +48,6 @@ struct HateField_unk {
 extern "C" HateField_unk* lbl_8087F430;
 extern "C" int fn_80370174(HateField_unk* field, int id);
 extern "C" void fn_80370320(HateField_unk* field, int id, int arg2, int arg3);
-extern "C" int fn_80375184(HateField_unk* field);
 extern "C" void fn_80376730(HateField_unk* field);
 // inferred: request of the battle object (class unknown)
 struct HateBattle_unk {
@@ -204,7 +204,7 @@ int AttractHatePoint::vf40(GimmickMsg_unk* msg) {
         break;
     case 3:
         if (mInRange != 0) {
-            if (lbl_8087F430 != 0 && fn_80375184(lbl_8087F430) == 0 && SetConfig::sInstance->mAutoSave != 0) {
+            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && SetConfig::sInstance->mAutoSave != 0) {
                 fn_80376730(lbl_8087F430);
             }
             m54 = msg->mType;
