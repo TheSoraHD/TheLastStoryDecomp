@@ -136,7 +136,7 @@ public:
     void fn_8023A60C(int layer);
     void fn_8023A614(int arg);
     void fn_8023A664(void* arg);
-    void fn_8023A678();
+    void fn_8023A678(unsigned int max); // inferred: the argument goes to EffectSystem_unk::fn_8022BEAC (GameTask passes 0x80 or 0x120)
     void fn_8023AE34(unsigned int owner, int group, int arg);
     static void fn_8023B71C(EffectManager* mgr, int handle);
     int fn_8023B724(EffectEvent_unk* event);

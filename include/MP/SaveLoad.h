@@ -8,12 +8,16 @@
 class GameLoadBackground;
 class GameSaveBackground;
 
+extern "C" void* memset(void* dst, int c, unsigned long n);
+
 namespace MP {
 
 // inferred: owning pointers with inline destructors (null-checked as members at 0x80502400)
 template <class T>
 struct Ptr_unk {
     Ptr_unk() : mPtr(0) {}
+    // inferred: owner of a new object (GameTask + 0x558C, 0x803658B8)
+    Ptr_unk(T* p) : mPtr(p) {}
     ~Ptr_unk() { delete mPtr; }
     void reset(T* p) {
         T* old = mPtr;
@@ -68,7 +72,9 @@ struct Queue_unk {
 // inferred: zero-filled work buffer of 0x13560 bytes: a 0xB8-byte header (same size as lbl_807C8508)
 // followed by a copy of the 0x134A8-byte save data (fn_8050272C)
 struct SaveWork_unk {
-    SaveWork_unk();
+    SaveWork_unk() {
+        memset(this, 0, sizeof(*this));
+    }
     unsigned char m00000[4];
     int m04;
     unsigned char m00008[0xB0];

@@ -84,6 +84,7 @@ class BattleTask : public atn::Task {
 public:
     BattleTask(atn::Task* parent); // 0x800F1430
     static BattleTask* fn_800F13BC(atn::Task* parent); // inferred: creates the singleton
+    void fn_80371664(); // inferred: defined in game/GameTask.cpp (0x80371664, clears mCBAC)
     // inferred: index of the character in mCharas, -1 if missing (inlined)
     int FindChara_unk(CharaTask* chara) {
         if (chara == 0) {
@@ -209,7 +210,9 @@ public:
     Bullet mBullets[256];         // 0x150: inferred: bullet pool
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
     BattleSlot_unk mSlots[8];      // 0xBA50: inferred: characters with an active battle effect
-    unsigned char mCB30[0xCBF0 - 0xCB30];
+    unsigned char mCB30[0xCBAC - 0xCB30];
+    int mCBAC;
+    unsigned char mCBB0[0xCBF0 - 0xCBB0];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
     unsigned char m36290[0x363B0 - 0x36290];
     int mCharaCount;               // 0x363B0

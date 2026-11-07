@@ -20,10 +20,6 @@ extern "C" void fn_803BEA7C(MP::SaveWork_unk* work);
 
 namespace MP {
 
-inline SaveWork_unk::SaveWork_unk() {
-    memset(this, 0, sizeof(*this));
-}
-
 SaveLoad* SaveLoad::fn_805020FC(atn::Task* parent) {
     return new ((MemoryTag)1, "", "", 0) SaveLoad(parent);
 }
