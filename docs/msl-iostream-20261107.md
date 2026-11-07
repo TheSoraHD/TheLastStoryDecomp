@@ -384,3 +384,27 @@ Siguiente sesion: prompt `claude/prompt-msl-iostream-3.md` del proyecto.
    `and. r0, state, exc`); ~20 formas probadas entre sesiones.
 3. `__round_unk` (registro del resultado de `__round_dir_unk`), `throw_failure` (cadena en objeto propio),
    residuos de `locale.cpp`.
+
+## Sesion 5, segunda parte (insistiendo en `Init`)
+
+- **El limite de auto-inline mira el tamano propio de la funcion antes de inlinear** (sacar codigo a una inline
+  la vuelve candidata), y el presupuesto de `Init` mira el total: **anadir sentencias propias a `Init` baja el
+  umbral** (20 sentencias propias: de 67 a 41-55), al reves de lo que dice R3 en `docs/inlining.md`.
+- Constructor de `console_inputbuf` candidato de forma natural: `: file_(file), state_(0) {` y en el cuerpo
+  `can_putback_ = has_saved_ = buffered_ = false;` (orden de los `stb` 0x36/0x37/0x38 como el original). La copia
+  fuera de linea (sonda) queda con el marco del original (0xD0, `stmw r27`) y el literal del primer `throw` en
+  registro; solo difieren el registro del literal frente a `this` del `runtime_error`, el direccionamiento de sus
+  miembros y huecos de pila. **No esta en la rama**: siendo candidato desaparece su copia y bajaria el fuzzy
+  mientras `Init` siga inlineando (parche en las notas: dos lineas del constructor).
+- Con ese constructor el umbral es K=23. Costes medidos (K): una construccion de `ostream` ~15, `setf` ~1,
+  `tie` ~1, `pubsetbuf` ~0. No cambian el coste: `__throw_unk<E>(msg)`, `setg`/`setp` en el constructor de
+  `basic_streambuf` (ademas empeora el codigo), mover definiciones de plantillas detras de `Init`, la posicion del
+  candidato, `-inline deferred`; `-ipa function`/`off` inlinean las pequenas y llaman a las grandes.
+- Sacar la comprobacion de codificacion a `__set_cvt_unk` no vale: el literal iria a `@STRING@__set_cvt_unk...` y en
+  el original esta en `@stringBase0` (la usa la funcion misma).
+- `and.` de `clear()`: probadas ademas `exceptions() & state_`, `rdstate() & exceptions_`, casts, mascaras y
+  `exceptions_` como `unsigned char`; ninguna da `and. r0, state, exc` con `exceptions_` cargado primero.
+- `console_inputbuf::sync`/`pbackfail` (registros de `p` y la cuenta en el bucle de `__unget_unk`):
+  `++i, ++p` sube `pbackfail` a 99,58% pero baja `sync` a 99,43%; no se ha dejado.
+- Pendiente concreto: con el constructor candidato faltan ~23 unidades de coste (algo mas de una construccion de
+  `ostream`) con el mismo codigo generado.
