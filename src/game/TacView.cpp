@@ -14,6 +14,21 @@ void TacView::fn_805AA4C8(SkillEffect* effect) {
     user->fn_80178864(effect->m04, user);
 }
 
+void TacView::fn_805AA82C(atn::Vector3* pos) {
+    atn::Vector3 d = m159C - *pos;
+    d.y = 0.0f;
+    if (d.LengthSq_unk() > 4.0f) {
+        d *= 0.3f;
+        if (d.LengthSq_unk() < 4.0f) {
+            d.Normalize_unk();
+            d *= 2.0f;
+        }
+    } else {
+        m15A8--;
+    }
+    *pos += d;
+}
+
 void TacView::fn_805ADC00() {
     m1594 = 0;
     mEntries.clear();

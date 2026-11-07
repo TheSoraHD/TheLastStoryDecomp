@@ -2,6 +2,7 @@
 #define GAME_TACVIEW_H
 
 #include "atn/FixedArray.h"
+#include "math/Vec.h"
 
 class SkillEffect;
 class CharaTask;
@@ -39,6 +40,7 @@ public:
     // BattleCharaTask::fn_800E2FE0)
     void fn_805AA014(CharaTask* chara, int type); // inferred: type 6 when a redirection ends (AIManager)
     void fn_805AA4C8(SkillEffect* effect);
+    void fn_805AA82C(atn::Vector3* pos); // inferred: moves `pos` toward m159C
     void fn_805ADC00();
     void fn_805ADC10();
     // inferred: an entry for the character (and hit, if given) exists; `active` selects the state
@@ -63,7 +65,10 @@ public:
     int mA70;             // inferred: nonzero while the view is open
     unsigned char mA74[0x1594 - 0xA74];
     int m1594;
-    unsigned char m1598[0x15D8 - 0x1598];
+    unsigned char m1598[0x159C - 0x1598];
+    atn::Vector3 m159C; // inferred: point the view moves to (fn_805AA82C)
+    int m15A8;          // inferred: frames left to move
+    unsigned char m15AC[0x15D8 - 0x15AC];
     int m15D8;            // inferred: cursor shown by the view (chr/ControlCharge.cpp)
     unsigned char m15DC[0x15F0 - 0x15DC];
     TacViewSel_unk m15F0; // inferred: target under the cursor (fn_805AE034)
