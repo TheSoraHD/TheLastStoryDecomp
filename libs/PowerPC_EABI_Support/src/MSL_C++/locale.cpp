@@ -3,6 +3,35 @@
 // sets the guards of the facet ids).
 #include "msl_iostream_unk.h"
 
+// inferred: fpclassify and the decimal conversion of MSL C (math.h and ansi_fp.h; both headers pull types.h,
+// whose placement new clashes with the one of msl_iostream_unk.h)
+#define FP_NAN 1
+#define FP_INFINITE 2
+#define fpclassify(x) __fpclassifyd((double)(x))
+
+extern "C" {
+int __fpclassifyd(double);
+
+typedef struct decimal {
+    char sign;
+    char unk1;
+    short exp;
+    struct {
+        unsigned char length;
+        unsigned char text[36];
+        unsigned char unk41;
+    } sig;
+} decimal;
+
+typedef struct decform {
+    char style;
+    char unk1;
+    short digits;
+} decform;
+
+void __num2dec(const decform*, double, decimal*);
+}
+
 namespace std {
 
 // inferred: the mutex of the locale tables, built on first use and dropped at exit (pointer 0x808803A0,
@@ -186,6 +215,101 @@ codecvt_base::result codecvt<wchar_t, char, int>::do_in(int& state, const char* 
         return partial;
     }
     return ok;
+}
+
+// inferred: the decimal digits of a double for num_put (built by 0x80693884, rounded by 0x80693AB8; both are
+// called from the num_put inlined in atn/EffectManager 0x80241700): the digits as values 0-9, the exponent of
+// the first digit and the class of the number (0 finite, 1 NaN, 2 infinite)
+struct __decimal_unk {
+    __decimal_unk(double x);
+    int __round_dir_unk(size_t n) const;
+    string __round_unk(int n, long& exp) const;
+
+    string digits;
+    short exp;
+    short cls;
+};
+
+__decimal_unk::__decimal_unk(double x) : exp(0), cls(0) {
+    if (fpclassify(x) == FP_INFINITE) {
+        cls = 2;
+        return;
+    }
+    if (fpclassify(x) == FP_NAN) {
+        cls = 1;
+        return;
+    }
+    decform f;
+    f.style = 0;
+    f.digits = 32;
+    decimal dec;
+    __num2dec(&f, x, &dec);
+    digits.reserve(dec.sig.length);
+    for (unsigned int i = 0; i < dec.sig.length; i++) {
+        digits += dec.sig.text[i] - '0';
+    }
+    exp = dec.exp + dec.sig.length - 1;
+}
+
+// inferred: rounding direction of the digits cut at n: 1 up, -1 down, 0 exactly half
+int __decimal_unk::__round_dir_unk(size_t n) const {
+    if (n >= digits.size()) {
+        return -1;
+    }
+    char d = digits[n];
+    if (d > 5) {
+        return 1;
+    }
+    if (d < 5) {
+        return -1;
+    }
+    if (digits.find_first_not_of(0, n + 1) == string::npos) {
+        return 0;
+    }
+    return 1;
+}
+
+// inferred: the first n digits rounded half to even, as characters; a carry out of the first digit adds one
+// to the exponent
+// NONMATCHING: 97.9% - the result of the inlined __round_dir_unk lives in r3 (r4 in the original), which moves
+// the registers of the carry loop
+string __decimal_unk::__round_unk(int n, long& exp) const {
+    if (n <= 0) {
+        return string();
+    }
+    string r(digits, 0, n);
+    exp = this->exp;
+    if (n < digits.size()) {
+        int dir = __round_dir_unk(n);
+        if (dir >= 0) {
+            string::iterator p = r.end() - 1;
+            bool up = dir == 1;
+            if (dir == 0) {
+                up = *p % 2 != 0;
+            }
+            if (up) {
+                while (true) {
+                    if (*p < 9) {
+                        ++*p;
+                        break;
+                    }
+                    *p = 0;
+                    if (p == r.begin()) {
+                        r.insert(r.begin(), 1);
+                        r.resize(r.size() - 1);
+                        ++exp;
+                        break;
+                    }
+                    --p;
+                }
+            }
+        }
+    }
+    string::iterator e = r.end();
+    for (string::iterator i = r.begin(); i < e; ++i) {
+        *i += '0';
+    }
+    return r;
 }
 
 int codecvt<wchar_t, char, int>::do_length(int& state, const char* from, const char* end, size_t max) const {

@@ -5,7 +5,8 @@
 
 namespace std {
 
-void ios_base::throw_failure(const char* msg) {
+// inferred: called with bl by the sentry and flush (0x8069194C, 0x8068E3FC); MWCC would inline it there
+__declspec(noinline) void ios_base::throw_failure(const char* msg) {
     throw failure(msg);
 }
 
@@ -80,13 +81,14 @@ private:
 
 int wios_base_Init_unk::init_cnt_;
 
-// inferred: the mutex of the stream initialization, built once (guard 0x80880380, flag 0x80880385)
-static bool __ios_mutex_ready_unk;
-
+// inferred: the mutex of the stream initialization, built once (guard 0x80880380, object 0x80880384, flag
+// 0x80880385: the flag is defined after the inline function)
 inline Metrowerks::mutex& __ios_mutex_unk() {
     static Metrowerks::mutex m;
     return m;
 }
+
+static bool __ios_mutex_ready_unk;
 
 static Metrowerks::mutex& __get_ios_mutex_unk() {
     if (!__ios_mutex_ready_unk) {
