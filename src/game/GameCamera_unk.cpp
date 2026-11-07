@@ -36,6 +36,12 @@ void GameCamera::fn_8037F724(const atn::Vector3* pos) {
     m860 = 0;
 }
 
+void GameCamera::fn_803897EC(const CharaTask* chara) {
+    m8F0 = chara->mMotion.mTracks[0].m08 < 67.0f;
+    fn_8037F9AC(chara);
+    m8F0 = 0;
+}
+
 void GameCamera::fn_80389838(int mode) {
     if (m7FC == mode) {
         return;

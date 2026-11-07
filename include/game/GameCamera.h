@@ -35,6 +35,8 @@ public:
     void fn_8037F690(const atn::Vector3* pos); // inferred: looks at `pos` from the current position
     void fn_8037F6D8(const atn::Vector3* pos); // inferred: same, with m858 set
     void fn_8037F724(const atn::Vector3* pos); // inferred: moves the target only
+    void fn_8037F9AC(const CharaTask* chara); // inferred: update of the default mode (table 0x8074E114)
+    void fn_803897EC(const CharaTask* chara); // inferred: default mode with m8F0 set before frame 67 of the motion
     void fn_80389838(int mode); // inferred: sets the sub mode (previous one kept in m800)
     void fn_80382A1C(const CharaTask* chara);
     void fn_8038A1B8(const CharaTask* chara); // inferred: forced update of the current mode
