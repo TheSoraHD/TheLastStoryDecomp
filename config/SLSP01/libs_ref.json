@@ -17577,7 +17577,7 @@
    "-i libs/RVL_SDK/include/"
   ],
   "category": "nw4r",
-  "matching": false
+  "matching": true
  },
  {
   "name": "ss_nw4r/src/ut/ut_list.cpp",

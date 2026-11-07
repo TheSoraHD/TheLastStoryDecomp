@@ -44,6 +44,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
    - MetroTRK `__exception.s` (`gTRKInterruptVectorTable`, `.init` 0x800043C4-0x800062F8): fichero `.s` ensamblado con el `as` de binutils (el original es un `.s`), aprobado 2026-11-03;
    - asm paired-single de `atn/Model` `fn_80099F74` y `fn_8009A018` (skinning en la cache bloqueada, `nofralloc`), aprobado en `prompt-model` 2026-11-02;
    - asm inline paired-single de Nintendo en NW4R math (`ss_nw4r/src/math`: `SinCosFIdx`, `MTX34Zero`; fuente publica de NW4R), aprobado 2026-11-07;
+   - `lwz` del puntero de pila (`0(r1)`) en `nw4r::db::VPanic` (`nw4r/src/db/db_assert.cpp`), aprobado 2026-11-07;
    - `#pragma ppc_iro_level 0` en `nw4r::snd::detail::AxManager::Init`; `-opt nostrength` solo en `dwc/src/base/dwc_base64.c`.
    - Aceptados (no son pragma): `__declspec(noinline) inline` (`MP/CryptMP`), `__declspec(noinline)` sin `inline` en funciones fuertes que el original llama con `bl` y MWCC inlinearía (AI_archer_attack01, 2026-10-29) y asserts vacíos `((void)0)` para el umbral de autoinline. `dont_inline`/`inline_depth`/`auto_inline` no sirven con `-ipa file`.
 3. Avisar y explicar antes de tocar `splits.txt`, `symbols.txt` (salvo renombrados), `configure.py`, `config.yml` o flags.
