@@ -1,4 +1,5 @@
 #include "game/TownTpcLoader.h"
+#include "game/GameEventScript.h"
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "atn/Memory.h"
@@ -46,7 +47,6 @@ struct Target_unk {
 
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Target_unk* lbl_8087F490;
-extern "C" void fn_803957F0(void* obj, void* arg);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 
 struct Chara_unk : public atn::Task {
@@ -106,7 +106,7 @@ void TownTpcLoader::fn_805B9D58() {
     CharaList_unk* list = lbl_8087F430->m10D8;
     for (int i = 0; i < mCharas.size(); i++) {
         ((GameScene*)list)->fn_803CC774(mCharas[i]);
-        fn_803957F0(list->m134, ((Chara_unk*)mCharas[i])->m58);
+        ((GameEventScript*)list->m134)->fn_803957F0((int)((Chara_unk*)mCharas[i])->m58);
         ((GameScene*)list)->fn_803CC718(mCharas[i], 0);
         if (lbl_8087F498 != 0) {
             lbl_8087F498->fn_803EAC3C((CharaTask*)mCharas[i]);

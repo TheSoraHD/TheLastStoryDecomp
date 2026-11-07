@@ -1,6 +1,7 @@
 #ifndef GAME_GAMEEVENTSCRIPT_H
 #define GAME_GAMEEVENTSCRIPT_H
 
+#include "atn/Array_unk.h"
 #include "atn/Task.h"
 #include "game/EventScriptCmd_unk.h"
 
@@ -17,6 +18,18 @@ struct ScriptData_unk {
 
 // inferred from __vt__15GameEventScript: event script of a scene (created by fn_80393610 for
 // GameScene::m134); only the members used by game/GameScene.cpp, method names invented
+// inferred: 0x40-byte record of GameEventScript::m100 (names invented)
+struct ScriptEntry40_unk {
+    int mId;
+    unsigned char m04[0x40 - 0x04];
+};
+// inferred: 0xC-byte record of GameEventScript::m118 (names invented)
+struct ScriptNpcFlag_unk {
+    int m00;
+    unsigned int mFlags;
+    int m08;
+};
+
 class GameEventScript : public atn::Task {
 public:
     int fn_80398530(int event);          // inferred: the event is done
@@ -38,6 +51,8 @@ public:
         return (ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]);
     }
     int fn_8039BF04(int a, int b, int c, int d, int e);
+    void fn_803957F0(int id); // inferred: clears the flag 2 of the NPC set point `id`
+    ScriptEntry40_unk* fn_803A2DD8(int id);
     void fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args);
     void fn_8039FBFC(CharaTask* chara, const ScriptArgs_unk* args);
     // inferred: character named by a script command (kind 0: leader or party member 1, 1: NPC, 2: enemy,
@@ -147,6 +162,11 @@ public:
     int mE8; // inferred: an event of the event manager is running
     int mEC;
     int mF0;
+    int mF4;
+    int mF8;
+    atn::SimpleArray<ScriptEntry40_unk> mFC; // inferred: records looked up by id (fn_803A2DD8)
+    unsigned char m104[0x118 - 0x104];
+    ScriptNpcFlag_unk* m118; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
 };
 
 #endif

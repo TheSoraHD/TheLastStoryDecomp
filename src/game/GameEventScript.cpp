@@ -39,7 +39,6 @@ public:
     virtual ~bad_cast();
     virtual const char* what() const;
 };
-
 } // namespace std
 
 namespace boost {
@@ -50,7 +49,6 @@ public:
     virtual ~bad_lexical_cast();
     virtual const char* what() const;
 };
-
 } // namespace boost
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
@@ -119,6 +117,20 @@ extern "C" atn::SoundRef fn_803935FC(int index, float volume) {
 std::bad_cast::~bad_cast() {}
 
 boost::bad_lexical_cast::~bad_lexical_cast() {}
+
+extern "C" const char lbl_8078B34C[];
+extern "C" const char lbl_8078B394[];
+
+// NONMATCHING: 98.4% - registers of the scene and of the entry offset swapped
+void GameEventScript::fn_803957F0(int id) {
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->m80.size(); i++) {
+        if (id == scene->m80[i].mId) {
+            m118[i].mFlags &= ~2;
+            return;
+        }
+    }
+}
 
 void GameEventScript::fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -359,6 +371,16 @@ void GameEventScript::fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk*
         wait = 1;
     }
     result.SetNext_unk(cmd, wait);
+}
+
+// NONMATCHING: 97.8% - registers of the index and of the entry offset swapped
+ScriptEntry40_unk* GameEventScript::fn_803A2DD8(int id) {
+    for (unsigned int i = 0; i < mFC.size(); i++) {
+        if (id == mFC[i].mId) {
+            return &mFC[i];
+        }
+    }
+    return 0;
 }
 
 // NONMATCHING: 87% - the original keeps the character and the value in r5/r4 across fn_8014C468
@@ -671,9 +693,6 @@ void GameEventScript::fn_803ACD08() {
         mEC = 0;
     }
 }
-
-extern "C" const char lbl_8078B34C[];
-extern "C" const char lbl_8078B394[];
 
 const char* boost::bad_lexical_cast::what() const { return lbl_8078B34C; }
 
