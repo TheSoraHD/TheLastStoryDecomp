@@ -812,16 +812,18 @@ void BattleTask::fn_80109828(const wchar_t* text) {
     }
 }
 
-// NONMATCHING: 98% - f2/f3 swapped (increment/result)
+// inferred: the 0.0f bound goes through a variable (MAX evaluates it twice); with the literal f2/f3 come out swapped
 void BattleTask::fn_8010AB34() {
     float add = m38A28;
-    m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
+    float zero;
+    m38A04 = MAX(zero = 0.0f, MIN(m38A04 + add, m38A0C));
 }
 
-// NONMATCHING: 98% - f2/f3 swapped, as fn_8010AB34
+// inferred: as fn_8010AB34
 void BattleTask::fn_8010AB94() {
     float add = m38A2C;
-    m38A04 = MAX(0.0f, MIN(m38A04 + add, m38A0C));
+    float zero;
+    m38A04 = MAX(zero = 0.0f, MIN(m38A04 + add, m38A0C));
 }
 
 void BattleTask::fn_8010ABF4() {
