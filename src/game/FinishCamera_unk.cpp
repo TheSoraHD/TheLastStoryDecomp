@@ -45,12 +45,6 @@ struct XsfCurveSet_unk {
 struct Xsca_unk {
     XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
 };
-// inferred: camera of the field (lbl_8087F430 + 0x6C)
-struct CameraSub_unk {
-};
-extern "C" void fn_80392C94(CameraSub_unk* camera, void* state); // inferred: saves the camera state
-extern "C" void fn_80392CE0(CameraSub_unk* camera, void* state); // inferred: restores the camera state
-extern "C" void fn_803903E0(CameraSub_unk* camera, const atn::Vector3* target, float angle, int arg);
 
 // inferred: adds the rotated value of a curve to `pos` (name invented)
 inline void AddCurve_unk(atn::Vector3& pos, Mtx rot, XsfCurveSet_unk* curve, float time, int x, int y, int z) {
@@ -177,9 +171,9 @@ void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
     m358 = 0;
     m364 = 0;
     if (m394 != 0) {
-        fn_80392C94(m368, m36C);
-        ((GameCamera*)m368)->fn_80389838(6);
-        fn_803903E0(m368, &target, 3.1415927f, 1);
+        m368->fn_80392C94(&m36C);
+        m368->fn_80389838(6);
+        m368->fn_803903E0(&target, 3.1415927f, 1);
     }
     m398 = 0;
     m3A0 = 1.0f;
@@ -190,7 +184,7 @@ void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
 
 void FinishCamera_unk::fn_80378CAC() {
     if (m394 != 0) {
-        fn_80392C94(m368, m36C);
+        m368->fn_80392C94(&m36C);
     }
 }
 
@@ -201,7 +195,7 @@ void FinishCamera_unk::fn_80378CCC() {
     m3AC = 0.0f;
     m3B0 = 0.0f;
     if (m394 != 0) {
-        fn_80392CE0(m368, m36C);
+        m368->fn_80392CE0(&m36C);
         m394 = 0;
     }
 }

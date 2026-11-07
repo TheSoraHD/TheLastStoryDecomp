@@ -52,3 +52,57 @@ void GameCamera::fn_80389838(int mode) {
     mA0C[4] = 0.0f;
     lbl_8087F0A8->mInput.m10 = 3;
 }
+
+void GameCamera::fn_8038A1B8(const CharaTask* chara) {
+    m8EC = 1;
+    m800 = m7FC;
+    m834 = 0;
+    m7F4 = 0;
+    fn_80382A1C(chara);
+}
+
+void GameCamera::fn_8038A1D8() {
+    if (m800 == 9) {
+        m8EC = 1;
+    }
+    m800 = m7FC;
+    m834 = 0;
+}
+
+void GameCamera::fn_80390374() {
+    fn_80389838(m804);
+}
+
+// NONMATCHING: 43% - the original loads every member before the first store
+void GameCamera::fn_80392C94(GameCameraState_unk* state) {
+    state->m0C = m80C;
+    state->mMode = m7FC;
+    state->mPrevMode = m800;
+    state->m08 = m808;
+    state->m18 = m818;
+    state->m24 = m830;
+}
+
+void GameCamera::fn_80392CE0(const GameCameraState_unk* state) {
+    m80C = state->m0C;
+    m7FC = state->mMode;
+    m800 = state->mPrevMode;
+    m808 = state->m08;
+    m818 = state->m18;
+    m830 = state->m24;
+}
+
+void GameCamera::fn_803933A4() {
+    m834 = 0;
+    m910 = 0;
+    m914 = 0;
+    m858 = 0;
+    m838 = 0;
+    m46C = 0;
+    m900 = m900 % 2;
+    m904 = 0;
+    m908 = 0.0f;
+    m90C = 0.0f;
+    mC20 = 0;
+    mC84 = 0;
+}

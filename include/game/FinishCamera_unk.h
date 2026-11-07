@@ -2,13 +2,13 @@
 #define GAME_FINISHCAMERA_UNK_H
 
 #include "atn/Camera_unk.h"
+#include "game/GameCamera.h"
 #include "game/CharaStatus.h"
 #include "game/ResHandle.h"
 #include "math/Vec.h"
 
 class CharaTask;
 struct Xsca_unk;
-struct CameraSub_unk;
 
 // inferred: character shown by the finishing camera (0x20 bytes; names invented)
 struct FinishCameraEntry_unk {
@@ -65,8 +65,8 @@ public:
     Xsca_unk* m35C;
     int m360;
     int m364;
-    CameraSub_unk* m368;
-    unsigned char m36C[0x394 - 0x36C]; // inferred: camera state saved by fn_80392C94
+    GameCamera* m368;
+    GameCameraState_unk m36C; // inferred: camera state saved by GameCamera::fn_80392C94
     int m394;                 // inferred: the field camera is taken over
     int m398;
     unsigned char m39C[0x3A0 - 0x39C];
