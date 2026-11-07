@@ -138,7 +138,7 @@ struct GameTaskData_unk {
 class GamePauseTask : public atn::Task {
 public:
     GamePauseTask(atn::Task* parent, GameTask* game, GameCamera* camera)
-        : atn::Task(parent), mGame(game), mCamera(camera), mLeader(0), m54(0), m58(0), m5C(0) {}
+        : atn::Task(parent), mGame(game), mCamera(camera), mLeader(0), m54(0), m58(0) {}
     static GamePauseTask* Create_unk(atn::Task* parent, GameTask* game, GameCamera* camera) {
         GamePauseTask* task;
         if (parent != 0) {
@@ -156,8 +156,7 @@ public:
     PlayerTask* mLeader; // 0x50: inferred: leader of the party (GameTask::fn_80371320)
     int m54;
     int m58;
-    void* m5C;
-    unsigned char m60[0x70 - 0x60];
+    boost::function<void(int)> m5C; // inferred: called with the frames left (vf10)
     ResHandle m70;
     int m74;
 };
@@ -604,6 +603,8 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
 extern "C" void* fn_8036635C() {
     return lbl_8087F8A8;
 }
+
+GameMessage::~GameMessage() {}
 
 // inferred: dungeon number of a map id ("dg01_00" -> 100; "dg09_xx01" adds the sub dungeon)
 static inline int GetDungeonId_unk(const char* id) {
@@ -2138,6 +2139,36 @@ void GameTask::fn_8036E430(int a, int b) {
     m568C = b;
 }
 
+extern "C" void fn_80570A40(GameTaskData_unk* obj, int value);
+extern "C" void fn_8056BD34(ReplayRecorder_unk* recorder); // inferred: stops the recording
+// inferred: sound engine of lbl_8087EE90 (as EnvSeEngine_unk of game/EnvSeManager.cpp)
+struct SoundEngineReverb_unk {
+    unsigned char m000[0x8C0];
+    int m8C0; // inferred: reverb of the field
+};
+extern "C" void fn_8004A1D4(void* engine, int reverb); // inferred: sets the reverb
+extern "C" void fn_803CE070(GameSoundControl* control);
+
+// inferred: leaves the field for the camp (called by game/NewCampTask)
+extern "C" void fn_8036E624(GameTask* task) {
+    if (task->m5590 != 0) {
+        fn_80570A14(task->m5590, 0);
+        fn_80570A40(task->m5590, 0);
+    }
+    fn_8056BD34(task->m558C.mPtr);
+    task->fn_8036EE0C();
+    if (task->m567C != 0) {
+        task->m567C->FreezeTask();
+    }
+    lbl_8087EFE8->mFx2dEnabled = 0;
+    fn_8004A1D4(lbl_8087EE90, ((SoundEngineReverb_unk*)lbl_8087EE90)->m8C0);
+    EnvSeManager* envSe = lbl_8087F418;
+    envSe->m70 = envSe->m6C;
+    envSe->m6C = 1;
+    fn_803CE070(GameSoundControl::sInstance);
+    lbl_8087F3C0->mSystem.mReplaying = 0;
+}
+
 void GameTask::fn_8036E89C() {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->fn_80370320(0x394, 0, 0);
@@ -3094,6 +3125,16 @@ extern "C" void fn_803743AC(GameTask* task) {
     lbl_8087F0A8->mInput.m14[7] = 1; // inferred: locks action 7
 }
 
+void GameTask::fn_803748E0(int arg) {
+    mCamera.fn_80389838(mCamera.m804);
+    mCamera.m8E8 = 0;
+    lbl_8087F8A0->mHead->m54C &= ~0x10;
+    lbl_8087F048->m367B0 = m5618;
+    if (arg != 0 && GameSoundControl::sInstance != 0) {
+        GameSoundControl::sInstance->fn_803CDB64();
+    }
+}
+
 int GameTask::fn_80375184() {
     return m5638 == 0;
 }
@@ -3397,3 +3438,25 @@ const int sDungeonExcluded_unk[] = {800, 4800, 600, 300, 3200, -1};
 const DungeonLevel_unk sDungeonLevels_unk[] = {
     {902, 203}, {912, 203}, {905, 204}, {915, 204}, {906, 205}, {916, 205}, {-1, -1},
 };
+
+// inferred: counts down the pause of the field (m58 frames before it stops, m54 frames of pause)
+void GamePauseTask::vf10() {
+    if (m58 > 0) {
+        if (--m58 == 0) {
+            mGame->fn_800D246C(1);
+            lbl_8087F3C0->fn_800D246C(1);
+        }
+    }
+    if (m54 > 0) {
+        m54--;
+        if (m5C) {
+            m5C(m54);
+        }
+        if (m54 == 0) {
+            mGame->fn_800D246C(0);
+            lbl_8087F3C0->fn_800D246C(0);
+        }
+    }
+}
+
+GamePauseTask::~GamePauseTask() {}
