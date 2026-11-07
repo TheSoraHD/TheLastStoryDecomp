@@ -218,7 +218,7 @@ public:
           m4C(0), m50(0), m54(0), m58(0), m5C(0), m60(0), mFlags(0), m68(0), mLayer(0), m70(0), mUpdating(0),
           m78(0), m7C(0), mListener(0), mReplaying(0) {}
     void fn_8022B850(int a, int b, int c); // inferred: init
-    void fn_8022BEAC();
+    void fn_8022BEAC(unsigned int max);
     void fn_8022C2A0();                    // inferred: release
     void fn_8022C3F0();                    // inferred: update
     void* fn_8022FAC4(void* res, int a, int b, int c, const atn::Vector3* pos, const atn::Vector3* rot,

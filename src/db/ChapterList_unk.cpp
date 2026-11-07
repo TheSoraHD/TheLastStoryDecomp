@@ -1,4 +1,5 @@
 #include "db/EventIdTable_unk.h"
+#include "db/ChapterList_unk.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 
@@ -68,21 +69,6 @@ public:
     static void fn_8020C028(); // inferred: creates the singleton
 };
 
-// inferred: one row of /boot/chapter_list.csv (0x64 bytes); the rows are linked in order
-struct ChapterEntry_unk {
-    ChapterEntry_unk() : m04(0), mType(-1), mMap(0), mPoint(0), m54(0), m58(0), mPrev(0), mNext(0) {}
-
-    int m00;
-    int m04;
-    int mType;  // inferred: from the map id prefix ("tw" 1, "dg" 2, otherwise 7)
-    int mMap;   // inferred: number after the prefix
-    int mPoint; // inferred: second number of a "dg" id
-    char mName[0x40];
-    int m54;
-    int m58;
-    ChapterEntry_unk* mPrev;
-    ChapterEntry_unk* mNext;
-};
 
 static const char sFileNameStr[] = "/boot/chapter_list.csv";
 static const char* const sFileName = sFileNameStr; // inferred: .rodata array + .sdata2 pointer

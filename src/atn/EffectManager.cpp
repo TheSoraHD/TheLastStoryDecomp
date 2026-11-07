@@ -250,8 +250,8 @@ void EffectManager::fn_8023A664(void* arg) {
     vf14();
 }
 
-void EffectManager::fn_8023A678() {
-    mSystem.fn_8022BEAC();
+void EffectManager::fn_8023A678(unsigned int max) {
+    mSystem.fn_8022BEAC(max);
 }
 
 } // namespace atn

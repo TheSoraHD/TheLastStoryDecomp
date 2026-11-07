@@ -26,6 +26,8 @@ struct GameCameraState_unk {
 class GameCamera : public atn::Camera {
 public:
     GameCamera(); // 0x8037D8B8
+    ~GameCamera(); // 0x8037DC68
+    void fn_8039328C(); // inferred: end of the frame of the camera (called by GameTask::vf14)
     void fn_8037DD00(); // inferred: resets the camera (also called by the constructor)
     // inferred: reads the camera csv of the map (data and size of MapTask::m60) for a camera and a sub camera
     void fn_8037E12C(void* data, int size, int camera, int sub);
@@ -77,7 +79,9 @@ public:
     int m860;
     unsigned char m864[0x880 - 0x864];
     int m880;
-    unsigned char m884[0x8EC - 0x884];
+    unsigned char m884[0x8E4 - 0x884];
+    int m8E4; // inferred: cleared by GameTask::vf10 when the tactical view closes
+    int m8E8; // inferred: cleared by GameTask::vf10 at the end of a map change
     int m8EC;
     int m8F0;
     void* m8F4;            // 0x8F4: inferred: ambient animation of the map (MapTask::m68, LH_Xsca)

@@ -84,6 +84,7 @@ class BattleTask : public atn::Task {
 public:
     BattleTask(atn::Task* parent); // 0x800F1430
     static BattleTask* fn_800F13BC(atn::Task* parent); // inferred: creates the singleton
+    void fn_80371664(); // inferred: defined in game/GameTask.cpp (0x80371664, clears mCBAC)
     // inferred: index of the character in mCharas, -1 if missing (inlined)
     int FindChara_unk(CharaTask* chara) {
         if (chara == 0) {
@@ -209,14 +210,18 @@ public:
     Bullet mBullets[256];         // 0x150: inferred: bullet pool
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
     BattleSlot_unk mSlots[8];      // 0xBA50: inferred: characters with an active battle effect
-    unsigned char mCB30[0xCBF0 - 0xCB30];
+    unsigned char mCB30[0xCBAC - 0xCB30];
+    int mCBAC;
+    unsigned char mCBB0[0xCBF0 - 0xCBB0];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
     unsigned char m36290[0x363B0 - 0x36290];
     int mCharaCount;               // 0x363B0
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
     atn::EfpFile mEfp363C0[46];  // 0x363C0: inferred: battle effects (EFP files)
-    unsigned char m365E8[0x389F4 - 0x365E8];
+    unsigned char m365E8[0x367B0 - 0x365E8];
+    int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change
+    unsigned char m367B4[0x389F4 - 0x367B4];
     int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
     unsigned char m389F8[0x38A04 - 0x389F8];
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]

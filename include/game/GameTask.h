@@ -4,6 +4,13 @@
 #include "atn/Task.h"
 #include "math/Vec.h"
 #include "game/GameCamera.h"
+#include "game/FinishCamera_unk.h"
+#include "game/GameMessageList.h"
+#include "atn/SoundRef.h"
+#include "atn/ResRef_unk.h"
+#include "atn/LH_Xsca.h"
+#include "atn/ColorMatrixParam_unk.h"
+#include "MP/SaveLoad.h"
 
 class GameScene;
 struct Ledge_unk;
@@ -16,12 +23,35 @@ struct GameTaskData_unk;
 namespace atn {
 class FadeCommon;
 class FadeCapture;
+class FadeColor;
 }
 
-// inferred: object with the leader of the party at 0x50 (GameTask::m10E0)
-struct GameLeader_unk {
-    unsigned char m00[0x50];
-    PlayerTask* mLeader;
+class GamePauseTask;
+class TutorialTask;
+class TutorialPopup;
+class GameSaveBackground;
+struct GameSaveParty_unk;
+struct ReplayRecorder_unk;
+
+// inferred: binary table of the field at GameTask + 0x550C (0x50 bytes; built inline by the GameTask
+// constructor, its data is given back to the loader by the destructor). Names invented.
+struct GameTaskTable_unk {
+    atn::LH_Binary mFile; // inferred: file list of the next map (flist)
+    int mType;            // 0x08: inferred: next map
+    int mId;
+    int mSub;
+    int m14;
+    int mPrevType;        // 0x18: inferred: map being left
+    int mPrevId;
+    int mPrevSub;
+    int m24;
+    GameTaskTable_unk() : m14(0), mScene(0), mState(0), m30(0), m34(0) {}
+    GameScene* mScene;    // 0x28: inferred: scene of the next map
+    int mState;           // 0x2C: inferred: state of the map change (GameTask::vf10)
+    int m30;              // inferred: save data to restore
+    int m34;
+    atn::SimpleVector<unsigned int> m38; // inferred: resource hashes of the characters kept
+    atn::SimpleVector<unsigned int> m44; // inferred: cache entries of the characters kept
 };
 
 // inferred from __vt__8GameTask (0x8078A3D0): the field task (lbl_8087F430). Other units still use
@@ -64,11 +94,13 @@ public:
     void fn_8036EE0C();
     int fn_80370C2C();                  // inferred: the fade is finished
     void fn_80370C6C();
-    void fn_80370320(int flag, int value, int arg); // inferred: sets a field flag
+    void fn_80370320(int flag, int value, int arg); // inferred: SetGlobalFlag
+    inline void StartFinish_unk(CharaTask* chara, int id);
+    void fn_80371790();
+    void fn_80374D64();
     void fn_80370B78(unsigned int color, int frames, int arg, float speed); // inferred: fade out
     void fn_80370BD0(int frames, int arg, float speed);                     // inferred: fade in
     void fn_80371320(PlayerTask* player); // inferred: new leader
-    void fn_80371664();
     void fn_8037177C();
     void fn_803731E8();
     void fn_80373164(CharaTask* owner, const atn::Vector3* pos, int id);
@@ -107,97 +139,125 @@ public:
     int fn_80376238();
     void fn_8037624C(int value);
     void fn_803766E4();
+    inline int IsDungeonCleared_unk(int type, int id, int sub);
+    inline void SetDungeonLevel_unk(int type, int id, int sub);
+    int fn_8036FD4C();
+    void fn_80370CD0();
+    int fn_8036E170();
+    void fn_8036E494();
+    void fn_8036CFA4();
+    void fn_8036CC90();
+    void fn_80373AE8();
+    void fn_803737C0();
+    void fn_803727DC();
+    void fn_80376568();
+    void fn_80367A40(int arg);
+    void fn_8036CA60(int arg);
 
-    int m48; // inferred: kind of field (1, or 2 with m4C 0x44 and m50 1: fn_8036823C)
-    int m4C;
-    int m50;
-    unsigned char m54[0x6C - 0x54];
+    GameTask(atn::Task* parent, const Option& option); // 0x803658B8
+    virtual ~GameTask();  // 0x80366454
+    virtual int vf0C();   // 0x80366E54
+    virtual void vf10();  // 0x80368280
+    virtual void vf14();  // 0x8036B7F4
+
+    Option mOption;     // 0x48: inferred: mType 1, or 2 with mMap 0x44 and mSub 1 (fn_8036823C)
     GameCamera mCamera; // 0x6C
-
-    int mD18;
-    int mD1C;
-    unsigned char mD20[0xF28 - 0xD20];
-    CharaTask* mF28;
-    unsigned char mF2C[0x1014 - 0xF2C];
-    atn::Vector3 m1014;
-    unsigned char m1020[0x1070 - 0x1020];
-    int m1070;
-    unsigned char m1074[0x10C8 - 0x1074];
-    float m10C8;
-    unsigned char m10CC[0x10D0 - 0x10CC];
+    FinishCamera_unk mFinish; // 0xD18
     int m10D0; // inferred: value compared with the ranges of the script events (GameEventScript::fn_80398530)
-    unsigned char m10D4[0x10D8 - 0x10D4];
+    struct ChapterEntry_unk* m10D4; // inferred: chapter of the field (fn_80208634/fn_802085E0)
     GameScene* m10D8;        // inferred: scene of the field
-    unsigned char m10DC[0x10E0 - 0x10DC];
-    GameLeader_unk* m10E0;
-    unsigned char m10E4[0x10EC - 0x10E4];
-    int m10EC; // inferred: a mode (compared with 1, 2 and 3 by CharaTask and ControlPushedDown)
-    unsigned char m10F0[0x10F4 - 0x10F0];
-    int m10F4;
-    int m10F8; // inferred: zero on the debug fields (fn_803761BC)
-    int m10FC;
-    unsigned char m1100[0x1110 - 0x1100];
-    int m1110;
-    unsigned char m1114[0x1118 - 0x1114];
-    int m1118;
-    int m111C;
-    unsigned char m1120[0x1160 - 0x1120];
-    int m1160; // inferred: 1 while the save points can be used from any side (fn_8036E098)
-    int m1164;
-    unsigned char m1168[0x117C - 0x1168];
-    int m117C;
-    int m1180;
-    unsigned char m1184[0x1194 - 0x1184];
-    int m1194;
-    unsigned char m1198[0x54E4 - 0x1198];
+    int m10DC;
+    GamePauseTask* m10E0;
+    int mGlobalFlags[0x1000]; // 0x10E4: inferred: "GetGlobalFlag" (fn_80370174)
+    int mLocalFlags[0x100];   // 0x50E4: inferred: "GetLocalFlag" (fn_80370A78)
     int m54E4;                  // inferred: state of the field (8-11 while an event runs)
-    unsigned char m54E8[0x54F0 - 0x54E8];
+    int m54E8;
+    int m54EC;
     int m54F0;                  // inferred: fade direction (1 out, 2 in)
-    unsigned char m54F4[0x5590 - 0x54F4];
+    GameMessageList mMessages;  // 0x54F4: inferred: system messages
+    GameTaskTable_unk m550C;
+    int m555C;
+    int m5560;
+    int m5564;
+    int m5568;
+    unsigned char m556C;
+    unsigned char m556D[0x558C - 0x556D];
+    MP::Ptr_unk<ReplayRecorder_unk> m558C;
     GameTaskData_unk* m5590;
     int m5594;
     int m5598;
-    unsigned char m559C[0x5614 - 0x559C];
+    unsigned char m559C[0x55A4 - 0x559C];
+    int m55A4;
+    atn::SoundRef m55A8;
+    int m55AC;
+    int m55B0;
+    int m55B4;
+    int m55B8;
+    int m55BC;
+    unsigned char m55C0[0x55C4 - 0x55C0];
+    ColorMatrixParam_unk m55C4;
     int m5614;
-    unsigned char m5618[0x5620 - 0x5618];
+    int m5618;
+    int m561C;
     atn::FadeCommon* m5620;  // inferred: fade of the field
     atn::FadeCapture* m5624; // inferred: screen capture fade of the field
-    unsigned char m5628[0x5638 - 0x5628];
+    GameSaveParty_unk* m5628;
+    MP::Ptr_unk<MP::SaveWork_unk> m562C; // inferred: copy of the save data the field starts from
+    int m5630;
+    GameSaveBackground* m5634;
     int m5638;
     int m563C;
     int m5640; // inferred: kind passed to fn_8021CF08 (fn_80375254)
     int m5644; // inferred: id passed to fn_8021CF08
-    unsigned char m5648[0x566C - 0x5648];
+    int m5648;
+    int m564C;
+    int m5650;
+    int m5654;
+    float m5658;
+    int m565C;
+    int m5660;
+    int m5664;
+    int m5668;
     int m566C;
-    unsigned char m5670[0x567C - 0x5670];
+    int m5670;
+    int m5674;
+    unsigned char m5678[0x567C - 0x5678];
     atn::Task* m567C; // inferred: task of the field (fn_803754C4)
-    unsigned char m5680[0x5684 - 0x5680];
+    int m5680;
     int m5684;
     int m5688;
     int m568C;
-    unsigned char m5690[0x56D4 - 0x5690];
+    ResRef_unk m5690; // inferred: "preload/game_start_dg.pk"
+    int m5694;
+    int m5698;
+    int m569C;
+    int m56A0;
+    int m56A4;
+    MotionBlurParam_unk m56A8; // inferred: motion blur saved while the blur effect runs (vf10)
+    float m56CC;
+    int m56D0;
     CharaTask* m56D4;
     CharaTask* m56D8;
-    unsigned char m56DC[0x56E4 - 0x56DC];
+    atn::LH_Xsca m56DC; // inferred: battle camera animation
     int m56E4;
     int m56E8; // inferred: entry of the map to move to (fn_8036FB4C)
-    unsigned char m56EC[0x56F0 - 0x56EC];
-    atn::Task* m56F0;
-    unsigned char m56F4[0x571C - 0x56F4];
-    int m571C;
-    unsigned char m5720[0x5750 - 0x5720];
+    TutorialTask* m56EC;
+    TutorialPopup* m56F0;
+    MP::Queue_unk<int, 8> m56F4; // inferred: tutorial ids waiting for the UI (fn_80370320)
+    MP::Queue_unk<int, 8> m571C; // inferred: help ids shown after the current one (fn_80376324)
+    unsigned int m5744; // inferred: play time in frames (30 per second, vf14)
+    int m5748;
+    int m574C;
     SelectMember* m5750;
     int m5754;
     int m5758;
-    unsigned char m575C[0x5760 - 0x575C];
+    atn::FadeColor* m575C; // inferred: fade of the time limit (vf10)
     int m5760; // inferred: counter of the frames waited (fn_80373118)
-    unsigned char m5764[0x5768 - 0x5764];
+    int m5764;
     int m5768;
     unsigned char m576C[0x5770 - 0x576C];
     int m5770;
     int m5774;
-    unsigned char m5778[0xCBAC - 0x5778];
-    int mCBAC;
 };
 
 #endif
