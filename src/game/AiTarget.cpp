@@ -19,12 +19,14 @@
 #include "game/MapTask.h"
 #include "game/PlayerTask.h"
 #include "game/SkillEffectManager.h"
+#include "game/TacView.h"
 #include "game/TeamAIManager.h"
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void fn_80087994(void* menu, const char* name, int* flag, int arg3, int arg4); // AddBool
 extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int func,
                             int arg); // AddInt
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet data by id
 extern "C" int fn_8021A984(HitInfo_unk* hit); // inferred: the skill is offensive (as in AI/AiCommon_unk.cpp)
 extern "C" void fn_8001C1B4(); // inferred: AI/AI_archer_attack01.cpp (empty)
 extern "C" void fn_8001C1B8();
@@ -281,6 +283,81 @@ AiTarget* AIManager::fn_800185B4(CharaTask* chara, HitInfo_unk* hit) {
         }
     }
     return 0;
+}
+
+// inferred: ends the redirections of `chara` (all of them, or those of `hit` or of its charged bullet)
+void AIManager::fn_80018608(CharaTask* chara, HitInfo_unk* hit) {
+    for (AiTarget* p = m48C.begin(); p != m48C.end();) {
+        if (p->m04 == chara) {
+            if (hit == 0) {
+                if (lbl_8087F9F8 != 0) {
+                    lbl_8087F9F8->fn_805AA014(p->m04, 6);
+                }
+                m48C.erase(p);
+            } else {
+                HitInfo_unk* charged = hit->mC8 > 0 ? fn_80219E6C(hit->mC8) : 0;
+                if (p->m28 == hit || (charged != 0 && p->m28 == charged)) {
+                    if (lbl_8087F9F8 != 0) {
+                        lbl_8087F9F8->fn_805AA014(p->m04, 6);
+                    }
+                    m48C.erase(p);
+                } else {
+                    p++;
+                }
+            }
+        } else {
+            p++;
+        }
+    }
+}
+
+// inferred: per-frame update of the targets (vf10)
+void AIManager::fn_80018834() {
+    for (AiTarget* p = mE0.begin(); p != mE0.end();) {
+        bool remove = false;
+        if (p->m08 == 0 && p->m0C != 0 && !p->m0C->CanAct_unk()) {
+            remove = true;
+        }
+        if (p->m30 >= 0 && --p->m30 == 0) {
+            remove = true;
+        }
+        if (remove) {
+            mE0.erase(p);
+        } else {
+            p++;
+        }
+    }
+    if (m424.m08 != 4 && m424.m30 >= 0 && --m424.m30 < 0) {
+        m424.fn_8003E918();
+    }
+    if (m458.m08 != 4) {
+        SkillEffect* effect = (SkillEffect*)m458.m0C; // inferred: a healing magic
+        for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+            player->fn_800EE794(effect);
+        }
+        m458.fn_8003E918();
+    }
+    for (AiTarget* p = m48C.begin(); p != m48C.end();) {
+        bool remove = false;
+        if (p->m04 != 0 && (p->m04->mFlags & 4) == 4) {
+            remove = true;
+        }
+        if (p->m30 >= 0 && --p->m30 == 0) {
+            remove = true;
+        }
+        if (remove) {
+            if (p->m04 != 0) {
+                if (lbl_8087F9F8 != 0) {
+                    lbl_8087F9F8->fn_805AA014(p->m04, 6);
+                }
+                m48C.erase(p);
+            } else {
+                p++;
+            }
+        } else {
+            p++;
+        }
+    }
 }
 
 // inferred: no effect of an enemy touches `chara`

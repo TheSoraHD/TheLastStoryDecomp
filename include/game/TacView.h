@@ -20,6 +20,7 @@ public:
     // inferred: end of the effect of a skill started by the player: clears the flag 0x10000 of its
     // user (CharaTask::m12A8) and calls CharaTask::fn_80178864 (0x805AA4C8; bound by
     // BattleCharaTask::fn_800E2FE0)
+    void fn_805AA014(CharaTask* chara, int type); // inferred: type 6 when a redirection ends (AIManager)
     void fn_805AA4C8(SkillEffect* effect);
     void fn_805ADC00();
     void fn_805ADC10();
