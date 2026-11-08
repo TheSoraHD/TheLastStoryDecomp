@@ -51,10 +51,8 @@ atn::SoundRef fn_805A70D4(int id, float volume) {
 // inferred: skills shown by the view (filled by the constructor; 0x807C95B0)
 static SkillParam_unk sSkillParams_unk[6];
 
-// inferred: layout anime task (as game/CosEditProtector.cpp)
-extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path);
-// inferred: d2anime task (atn/D2A_Task.h declares it with atn::D2A_Task*)
-extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
+// inferred: layout anime task (declared with other return types by game/CosEditProtector.cpp and others)
+extern "C" atn::D2A_TaskInstanceBase<32, 8>* fn_801F64D0(atn::Task* parent, const char* path);
 
 // inferred: message table (lbl_8087F1E4) as the view reads it: {id, text} entries (8 bytes each)
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -90,10 +88,10 @@ TacView::TacView(atn::Task* parent)
     (mLayouts.mSelect = fn_801F3FF8(this, "/data/d2anime/ui_command_select.d2a", 0))->fn_800D246C(1);
     (mLayouts.mHpFlash = fn_801F3FF8(this, "/data/d2anime/ui_command_hp_flash.d2a", 0))->fn_800D246C(1);
     (mLayouts.mFace = fn_801F3FF8(this, "/data/d2anime/ui_command_face.d2a", 0))->fn_800D246C(1);
-    (mLayouts.mUp = fn_801F64D0(this, "/data/d2anime/ui_select_4_u.d2a"))->fn_800D246C(1);
-    (mLayouts.mDown = fn_801F64D0(this, "/data/d2anime/ui_select_4_d.d2a"))->fn_800D246C(1);
-    (mLayouts.mLeft = fn_801F64D0(this, "/data/d2anime/ui_select_4_l.d2a"))->fn_800D246C(1);
-    (mLayouts.mRight = fn_801F64D0(this, "/data/d2anime/ui_select_4_r.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[0] = fn_801F64D0(this, "/data/d2anime/ui_select_4_u.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[3] = fn_801F64D0(this, "/data/d2anime/ui_select_4_d.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[1] = fn_801F64D0(this, "/data/d2anime/ui_select_4_l.d2a"))->fn_800D246C(1);
+    (mLayouts.mDirs[2] = fn_801F64D0(this, "/data/d2anime/ui_select_4_r.d2a"))->fn_800D246C(1);
     for (int i = 0; i < 6; i++) {
         sSkillParams_unk[i].mId = sIds[i];
         sSkillParams_unk[i].m64 = 0;
@@ -113,6 +111,32 @@ TacView::TacView(atn::Task* parent)
 TacView::~TacView() {
     lbl_8087F9F8 = 0;
 }
+
+int TacView::vf0C() {
+    if (fn_800D3FA4()) {
+        mLayouts.mSelect->fn_800D246C(0);
+        mLayouts.mSelect->mRepeat = 0;
+        mLayouts.mSelect->mSpeed = 0.0f;
+        mLayouts.mSelect->FreezeTask();
+        mLayouts.mHpFlash->fn_800D246C(0);
+        mLayouts.mHpFlash->FreezeTask();
+        mLayouts.mFace->fn_800D246C(0);
+        mLayouts.mFace->mRepeat = 0;
+        mLayouts.mFace->mSpeed = 1.0f;
+        mLayouts.mFace->FreezeTask();
+        for (int i = 0; i < 4; i++) {
+            mLayouts.mDirs[i]->fn_800D246C(0);
+            mLayouts.mDirs[i]->Rewind_unk();
+            mLayouts.mDirs[i]->SetLoop_unk(0);
+            mLayouts.mDirs[i]->SetSpeed_unk(0.0f);
+            mLayouts.mDirs[i]->FreezeTask();
+        }
+        return 1;
+    }
+    return 0;
+}
+
+void TacView::vf14() {}
 
 int TacView::fn_805AA390(CharaTask* chara) {
     int id = chara->fn_8017AC08();

@@ -6,6 +6,8 @@
 #include "game/AiTarget.h"
 #include "math/Vec.h"
 #include "atn/SoundRef.h"
+#include "atn/D2A_Task.h"
+#include "atn/D2A_TaskInstance.h"
 #include <string.h>
 
 class SkillEffect;
@@ -80,13 +82,11 @@ struct TacViewSlot_unk {
 // inferred: layout tasks of the view (TacView + 0x15B0, cleared by its constructor); names invented
 struct TacViewLayouts_unk {
     TacViewLayouts_unk() { memset(this, 0, sizeof(TacViewLayouts_unk)); }
-    atn::Task* mSelect;   // ui_command_select.d2a
-    atn::Task* mFace;     // ui_command_face.d2a
-    atn::Task* mHpFlash;  // ui_command_hp_flash.d2a
-    atn::Task* mUp;       // ui_select_4_u.d2a
-    atn::Task* mLeft;     // ui_select_4_l.d2a
-    atn::Task* mRight;    // ui_select_4_r.d2a
-    atn::Task* mDown;     // ui_select_4_d.d2a
+    atn::D2A_Task* mSelect;  // ui_command_select.d2a
+    atn::D2A_Task* mFace;    // ui_command_face.d2a
+    atn::D2A_Task* mHpFlash; // ui_command_hp_flash.d2a
+    // inferred: ui_select_4_u/l/r/d.d2a (layout anime tasks made by fn_801F64D0)
+    atn::D2A_TaskInstanceBase<32, 8>* mDirs[4];
     atn::Task* m1C;
     atn::Task* m20;
 };
@@ -98,6 +98,9 @@ class TacView : public atn::Task {
 public:
     TacView(atn::Task* parent); // 0x805A7158
     virtual ~TacView();         // 0x805A764C
+    virtual int vf0C();         // 0x805A76E0
+    virtual void vf10();        // 0x805A781C
+    virtual void vf14();        // 0x805A96D0
     static TacView* fn_805A70F0(atn::Task* parent); // inferred: creates the singleton
     // inferred: end of the effect of a skill started by the player: clears the flag 0x10000 of its
     // user (CharaTask::m12A8) and calls CharaTask::fn_80178864 (0x805AA4C8; bound by
