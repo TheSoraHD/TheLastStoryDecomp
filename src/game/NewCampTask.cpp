@@ -438,6 +438,112 @@ void NewCampTask::fn_8052C9C4() {
     m5C = 0;
 }
 
+// ---- fn_8052D468: camera of the camp (over the inlining budget: the accessors are weak copies) ----
+extern "C" atn::Vector3 fn_80383728(const atn::Camera* camera); // inferred: direction the camera looks at
+extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
+extern "C" int fn_800CB58C(atn::SoundRef* sound);                     // inferred: the sound is playing
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
+void* GetPad_unk();
+// inferred: end of the lerp of the camera path (passed by address to fn_800F8524); name invented
+static float sCamPathEnd_unk = 1.0f;
+// inferred: motion blur of the render settings (+0x240)
+extern "C" inline MotionBlurParam_unk* fn_8052D3C8(RenderSetting_unk* settings) {
+    return &settings->m240;
+}
+extern "C" inline void fn_8052D3D0(RenderSetting_unk* settings, const MotionBlurParam_unk& blur) {
+    settings->m240 = blur;
+}
+// inferred: offsets of the camera of the parts (m64: 4:3 screen, m70: 16:9)
+extern "C" inline atn::Vector3 fn_8052DEA4(NewCampPartsBase* parts) {
+    return parts->m64;
+}
+extern "C" inline atn::Vector3 fn_8052DEB8(NewCampPartsBase* parts) {
+    return parts->m70;
+}
+extern "C" inline float fn_8052DECC(XsfCurveSet_unk* curves) {
+    return curves->mLength;
+}
+extern "C" inline bool fn_8052DED4(NewCampTask* task) {
+    return task->m11F8 != 1;
+}
+
+// inferred: camera of the camp: the camera of the parts (curves of the xsca, path m12B0 or free camera m121C)
+// plus the offset of the parts; the second camera (m558 of the render manager) looks between both
+void NewCampTask::fn_8052D468() {
+    atn::Camera camera(m260);
+    atn::Vector3 dir = fn_80383728(&m260);
+    atn::Vector3 target = fn_80383728(&mCamera);
+    target = target + dir;
+    target.Normalize_unk();
+    target = target + dir;
+    target.Normalize_unk();
+    target += *camera.GetPosition_unk();
+    camera.SetTarget_unk(target);
+    camera.fn_8004B378();
+    fn_8052C6CC(fn_8008B964(), &camera);
+    MotionBlurParam_unk blur(*fn_8052D3C8(fn_802F0990()));
+    blur.mEnabled = 0;
+    fn_8052D3D0(fn_802F0990(), blur);
+    atn::Vector3 ofs(m136C != 0 ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f));
+    GetPad_unk();
+    if (m121C != 0) {
+        mCamera.fn_8004BF64(3.0f, 3.0f);
+        m11FC = *mCamera.GetPosition_unk();
+        m1208 = *mCamera.GetTarget_unk();
+    } else {
+        if (m12AC == 1) {
+            m12D0 = fn_800F8524(&m12D0, &sCamPathEnd_unk, 0.3f);
+            m12EC = m12B0.GetPos_unk(m12D0);
+            m12F8 = m12B0.GetPos_unk(m12D0);
+        } else {
+            m12EC = atn::Lerp_unk(m12EC, m12D4, 0.3f);
+            m12F8 = atn::Lerp_unk(m12F8, m12E0, 0.3f);
+        }
+        if (m11F8 == 0) {
+            atn::Vector3 parts((m136C != 0 && m11F0 != 0) ? fn_8052DEA4(m11F0) : lbl_807C7030);
+            parts += (m136C == 0 && m11F0 != 0) ? fn_8052DEB8(m11F0) : lbl_807C7030;
+            mCamera.SetPosition(m11FC + m12EC + ofs + parts);
+            mCamera.SetTarget_unk(m1208 + m12F8 + ofs + parts);
+        } else if (m11F8 == 1 && m454 != 0) {
+            m458 += m45C;
+            XsfCurveSet_unk* curves = ((Xsca_unk*)m454)->fn_805BDCBC(0);
+            m11FC = fn_8052C688(curves, m458);
+            m1208 = fn_8052C6A4(curves, m458);
+            atn::Vector3 cur((m136C != 0 && m11F0 != 0) ? fn_8052DEA4(m11F0) : lbl_807C7030);
+            atn::Vector3 prev((m136C != 0 && m11F4 != 0) ? fn_8052DEA4(m11F4) : lbl_807C7030);
+            cur += (m136C == 0 && m11F0 != 0) ? fn_8052DEB8(m11F0) : lbl_807C7030;
+            prev += (m136C == 0 && m11F4 != 0) ? fn_8052DEB8(m11F4) : lbl_807C7030;
+            atn::Vector3 parts = atn::Lerp_unk(prev, cur, m458 / fn_8052DECC(curves));
+            mCamera.SetPosition(m11FC + m12EC + ofs + parts);
+            mCamera.SetTarget_unk(m1208 + m12F8 + ofs + parts);
+            if (m458 > fn_8052DECC(curves) || m458 < 0.0f) {
+                m11F8 = 0;
+            }
+            bool moving = false;
+            if (m45C > 0.0f) {
+                if (m458 < fn_8052DECC(curves) - 5.0f) {
+                    moving = true;
+                }
+            } else if (m45C < 0.0f) {
+                if (m458 > 5.0f) {
+                    moving = true;
+                }
+            }
+            if (moving) {
+                MotionBlurParam_unk blur2(*fn_8052D3C8(fn_802F0990()));
+                blur2.mEnabled = 0;
+                fn_8052D3D0(fn_802F0990(), blur2);
+            }
+        }
+    }
+    if (fn_800CB58C(&m1340) != 0 && fn_8052DED4(this)) {
+        fn_800CB5C8(&m1340, 20, 0);
+    }
+    fn_8037F688(&mCamera, m1214);
+    mCamera.fn_8004B378();
+    fn_8008B964()->SetCamera_unk(mCamera);
+}
+
 void NewCampTask::fn_8052DEEC(int state) {
     int prev = m464;
     int top = 0;

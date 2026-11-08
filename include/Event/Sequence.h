@@ -188,6 +188,8 @@ struct EffectLists_unk {
                mPoints[i + 3] * t * t * t;
     }
     // inferred: point at `x` in [0, 1] of the whole path (by length)
+    // NONMATCHING: 71.47% (weak copy 0x8052DAD8 in game/NewCampTask.cpp) - the original frame is 0x20 bytes
+    // larger (as fn_8048A968) and the registers of the Bezier terms differ
     atn::Vector3 GetPos_unk(float x) const {
         if (x <= 0.0f) {
             return mPoints[0];
