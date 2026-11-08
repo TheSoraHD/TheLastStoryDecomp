@@ -232,7 +232,7 @@ int PBoneBasic::vf1C(PBoneModel_unk* model, CsvBase<char, 9, 13, 34>* csv) {
     return 1;
 }
 
-void PBoneBasic::vf28(const Vector3& force) {}
+void PBoneBasic::vf28(Vector3& force) {}
 
 void PBoneBasic::vf18() {
     if (m68 == 0) {

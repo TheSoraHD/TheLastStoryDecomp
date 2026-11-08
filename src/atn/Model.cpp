@@ -1967,7 +1967,7 @@ void Model::fn_8009757C() {
     m3BC--;
 }
 
-void Model::fn_80097750(const atn::Vector3& dir, float a, float b, int c) {
+void Model::fn_80097750(atn::Vector3& dir, float a, float b, int c) {
     atn::Vector3 n(dir);
     n.Normalize_unk();
     m3A8 = n;

@@ -239,7 +239,7 @@ struct Model : public ModelBase {
     void fn_80094F14(float u, float v);            // inferred: UV translation of every material
     Material_unk* fn_80094B6C(const char* name);   // inferred: material by name (second copy)
     void fn_8008C828(MaterialSet_unk* list);       // inferred: sets the materials in use
-    void fn_80097750(const atn::Vector3& dir, float a, float b, int c); // inferred: direction parameters
+    void fn_80097750(atn::Vector3& dir, float a, float b, int c); // inferred: direction parameters
     void fn_8008C850(MaterialSet_unk* list);       // inferred: flags from the materials
     void fn_80094D88(int arg, int flag, int a, int b, int c); // inferred: material mode of every material
     void fn_80094BD8(int mode); // inferred: blend mode of every material
