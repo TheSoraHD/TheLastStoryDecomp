@@ -3990,6 +3990,122 @@ void GameTask::fn_803748E0(int arg) {
     }
 }
 
+// inferred: skill parameters of a player (as in db/PlayerParam_unk.cpp)
+struct PlayerSkills_unk {
+    signed char mPlayer;
+    signed char mLevel;
+    bool mSkills[0x80];    // inferred: skill growth ids learnt
+    signed char mSlots[6]; // inferred: skill growth id of each slot
+};
+extern "C" PlayerSkills_unk* fn_80219074(PlayerTask* player);
+
+// inferred: sets the global flags of the skills learnt by the party (tutorials of the skills)
+void GameTask::fn_80374D64() {
+    if (lbl_8087F0A8->m194 != 0) {
+        return;
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        PlayerSkills_unk* skills = fn_80219074(player);
+        if (skills == 0) {
+            continue;
+        }
+        int member = fn_80219558(player->m50);
+        for (int i = 0; i < 0x80; i++) {
+            if (!skills->mSkills[i] || !player->mStatus.fn_801346C8(i, 0)) {
+                continue;
+            }
+            switch (i) {
+            case 9:
+                if (mGlobalFlags[0xA3] == 0) {
+                    fn_80370320(0xA3, 1, 0);
+                }
+                break;
+            case 15:
+                if (mGlobalFlags[0xA4] == 0) {
+                    fn_80370320(0xA4, 1, 0);
+                }
+                break;
+            case 2:
+                if (mGlobalFlags[0xBE] == 0) {
+                    fn_80370320(0xBE, 1, 0);
+                }
+                break;
+            case 16:
+                if (mGlobalFlags[0xE1] == 0) {
+                    fn_80370320(0xE1, 1, 0);
+                }
+                break;
+            case 14:
+                if (mGlobalFlags[0x9D] == 0) {
+                    fn_80370320(0x9D, 1, 0);
+                }
+                break;
+            case 7:
+                if (mGlobalFlags[0xDD] == 0) {
+                    fn_80370320(0xDD, 1, 0);
+                }
+                break;
+            case 46:
+                if (mGlobalFlags[0xDE] == 0) {
+                    fn_80370320(0xDE, 1, 0);
+                }
+                break;
+            case 34:
+                if (mGlobalFlags[0xE2] == 0) {
+                    fn_80370320(0xE2, 1, 0);
+                }
+                break;
+            case 19:
+                if (mGlobalFlags[0x12C] == 0) {
+                    fn_80370320(0x12C, 1, 0);
+                }
+                break;
+            case 26:
+                if (member == 5) {
+                    if (mGlobalFlags[0x12D] == 0) {
+                        fn_80370320(0x12D, 1, 0);
+                    }
+                    break;
+                }
+            default:
+                if (i == 0x39) {
+                    if (mGlobalFlags[0x12E] == 0) {
+                        fn_80370320(0x12E, 1, 0);
+                    }
+                } else if (i == 0x17) {
+                    if (mGlobalFlags[0x12F] == 0) {
+                        fn_80370320(0x12F, 1, 0);
+                    }
+                } else if (i == 0x32) {
+                    if (mGlobalFlags[0x130] == 0) {
+                        fn_80370320(0x130, 1, 0);
+                    }
+                } else if (i == 0x1A && member == 1) {
+                    if (mGlobalFlags[0x131] == 0) {
+                        fn_80370320(0x131, 1, 0);
+                    }
+                } else if (!(i != 0x3E && i != 0x3F)) {
+                    if (mGlobalFlags[0x14E] == 0) {
+                        fn_80370320(0x14E, 1, 0);
+                    }
+                }
+                break;
+            }
+        }
+        if (skills->mSlots[5] > 0) {
+            if (player->mType == 0) {
+                if (mGlobalFlags[0xA7] == 0) {
+                    fn_80370320(0xA7, 1, 0);
+                }
+            } else {
+                if (mGlobalFlags[0xE3] == 0) {
+                    fn_80370320(0xE3, 1, 0);
+                }
+            }
+        }
+    }
+}
+
 int GameTask::fn_80375184() {
     return m5638 == 0;
 }
