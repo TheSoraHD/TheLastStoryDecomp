@@ -572,3 +572,15 @@ void EffectSystem_unk::fn_80234958(void* effect, int fade) {
         }
     }
 }
+
+// inferred: work buffer of fn_8022D078 (0x30 bytes of floats) and the descriptor passed to fn_8022C9C8
+// by fn_8022DA70 and fn_80231754 (count 5, the buffer and two zero words); names invented
+struct EffectWork_unk {
+    EffectWork_unk(int num, float* data) : mNum(num), mData(data), m08(0), m0C(0) {}
+    int mNum;
+    float* mData;
+    int m08;
+    int m0C;
+};
+static float sEffectWorkBuf_unk[12];
+static EffectWork_unk sEffectWork_unk(5, sEffectWorkBuf_unk);
