@@ -747,16 +747,20 @@ void BattleCharaTask::fn_800E589C() {
     }
 }
 
-// NONMATCHING: 99.96% - stack slots of the second and third rotation matrices swapped (~8 forms)
+// inferred: rotates v around the y axis by the angle a
+static inline void RotateY_unk(atn::Vector3& v, float a) {
+    Mtx m;
+    PSMTXRotRad(m, 'y', a);
+    PSMTXMultVec(m, &v, &v);
+}
+
 void BattleCharaTask::fn_800E610C() {
     atn::Vector3 input(0.0f, 0.0f, 1.0f);
     Mtx m;
     PSMTXRotRad(m, 'y', fn_80178018().y);
     PSMTXMultVec(m, &input, &input);
     atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    Mtx m2;
-    PSMTXRotRad(m2, 'y', mRot.y);
-    PSMTXMultVec(m2, &front, &front);
+    RotateY_unk(front, mRot.y);
     if (PSVECDotProduct(&front, &input) < (float)cos(0.5235987901687622) || !fn_8016AFE8(front)) {
         int mode = lbl_8087F0A8->mSurroundMode;
         if (!mFlag10 || mode != 1) {

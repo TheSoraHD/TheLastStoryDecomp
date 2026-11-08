@@ -906,13 +906,12 @@ extern "C" inline float WarLionStripped1_unk(float y) {
     return -100.0f * y;
 }
 
-// NONMATCHING: 99.87% - orden de cuatro stfs del item en la pila
 // inferred: two collision spheres, the body and the tail (own version of CharaTask::vf50)
 void Em403WarLion::vf50() {
     Item14_unk item;
+    item.m04.mRadius = 5.0f;
     item.m04.mCenter = mPos + m5A4;
     item.m04.mCenter.y += 5.0f;
-    item.m04.mRadius = 5.0f;
     m624.push_back(item);
     item.m04.mRadius = 5.0f;
     item.m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tale"));

@@ -1029,7 +1029,6 @@ atn::Vector3 Em206EggMonster::vf64(int center) {
     return result;
 }
 
-// NONMATCHING: 99.98% - stack slots of the GetNormalize temporary and of the normalized copy swapped
 void Em206EggMonster::fn_802C3EDC() {
     if (m55C == 7) {
         if (m1594 != 2 && mC58.mC4 != (CharaTask*)mC58.mC8) {
@@ -1057,9 +1056,7 @@ void Em206EggMonster::fn_802C3EDC() {
         atn::Vector3 d = t->mPos - mPos;
         atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         atn::WrapAngle_unk(rot.y - mRot.y);
-        atn::Vector3 m = d;
-        PSVECNormalize(&m, &m);
-        PSVECMag(&m);
+        d.GetNormalize().Length_unk();
         int limit;
         if (m1594 == 1) {
             limit = 300;

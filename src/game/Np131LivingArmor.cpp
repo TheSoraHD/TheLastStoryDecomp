@@ -311,7 +311,6 @@ void Np131LivingArmor::vf40(HitInfo_unk* hit) {
     BattleCharaTask::vf40(hit);
 }
 
-// NONMATCHING: 99.9% - the stores of `dir` are scheduled z, x, y in the original (y, x, z here)
 void Np131LivingArmor::fn_80547468() {
     float best = 1e16f;
     CharaTask* player = lbl_8087F8A0->mHead;
@@ -327,7 +326,8 @@ void Np131LivingArmor::fn_80547468() {
     }
     if (found != 0) {
         int usable = 0;
-        atn::Vector3 dir(found->m6C.x - player->mPos.x, 0.0f, found->m6C.z - player->mPos.z);
+        atn::Vector3 dir = found->m6C - player->mPos;
+        dir.y = 0.0f;
         if (best < 30.0f) {
             atn::Vector3 front(0.0f, 0.0f, 1.0f);
             Mtx m;
