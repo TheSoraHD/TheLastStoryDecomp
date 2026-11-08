@@ -78,7 +78,7 @@ public:
     void fn_8059AFD8(); // inferred: starts loading the effect files
     void fn_8059B0F0(); // inferred: releases the effect files
     int fn_8059B1B4();  // inferred: nonzero while loading
-    void fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const atn::Vector3* pos, const atn::Vector3* rot);
+    void fn_8059B8A8(const HitInfo_unk* skill, CharaTask* user, const atn::Vector3* pos, const atn::Vector3* rot);
     void fn_8059C084(CharaTask* chara); // inferred: hits `chara` with the effects that touch it
     void fn_8059C2A8(CharaTask* target, HitInfo_unk* hit); // inferred: stops the effects on target (of `hit`)
     void fn_8059C32C(int clear); // inferred: stops every effect (and drops its callback)

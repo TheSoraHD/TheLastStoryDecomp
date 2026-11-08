@@ -220,8 +220,7 @@ extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigne
 
 // inferred: the original calls it out of line from fn_800A09D0; the empty release asserts keep it
 // over the autoinline threshold
-// NONMATCHING: 97.25% - volatile register allocation (data/count/offset)
-extern "C" int fn_800A05AC(atn::LH_Motion* motion, unsigned int hash, int start) {
+extern "C" int fn_800A05AC(const atn::LH_Motion* motion, unsigned int hash, int start) {
     ((void)0);
     ((void)0);
     ((void)0);
@@ -310,15 +309,14 @@ MotionPose_unk::MotionPose_unk() {
 }
 
 // inferred: nonzero while one of the effects or efp files is loading
-// NONMATCHING: 99.02% - order of the two loop increments (as atn/LightUtil_unk)
 int atn::MotionCommandData::fn_800A091C() {
     for (unsigned int i = 0; i < mEffects.mSize; i++) {
-        if (mEffects.mData[i].IsLoading()) {
+        if (mEffects[i].IsLoading()) {
             return 1;
         }
     }
     for (unsigned int i = 0; i < mEfps.mSize; i++) {
-        if (mEfps.mData[i].IsLoading()) {
+        if (mEfps[i].IsLoading()) {
             return 1;
         }
     }

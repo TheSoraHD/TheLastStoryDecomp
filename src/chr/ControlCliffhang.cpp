@@ -194,8 +194,7 @@ int ControlCliffhang::vf0C() {
     return m0C != 0;
 }
 
-// NONMATCHING: 98.5% - the original loads m94 before saving r31 (prologue scheduling).
-boost::function<void()> ControlCliffhang::vf10() {
+boost::function<void()> ControlCliffhang::vf10() const {
     if (m94 != 0) {
         return boost::bind(&CharaTask::vf8C, (CharaTask*)mChara, lbl_807C7030);
     }
@@ -416,7 +415,7 @@ int ControlCliffhang::fn_801AC14C() {
     return ret;
 }
 
-atn::Vector3 ControlCliffhang::vf14() {
+atn::Vector3 ControlCliffhang::vf14() const {
     Motion_unk* motion = &mChara->mMotion;
     int id = motion->mTracks[0].m00;
     if (id == 0x59 || id == 0x206) {

@@ -1,6 +1,7 @@
 #include "game/LastCocoonEgg.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
+#include "game/GameTask.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -44,7 +45,6 @@ struct EggField_unk {
     }
 };
 extern "C" EggField_unk* lbl_8087F430;
-extern "C" void fn_80370AE4(EggField_unk* field, int index, int value); // inferred: sets an event flag
 
 LastCocoonEgg::~LastCocoonEgg() {}
 
@@ -236,7 +236,7 @@ void LastCocoonEgg::fn_80456DB8() {
         }
     } else if (m14BC == 1) {
         if (m14C0 > 60) {
-            fn_80370AE4(lbl_8087F430, 0x5A, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5A, 1);
         }
     }
 }

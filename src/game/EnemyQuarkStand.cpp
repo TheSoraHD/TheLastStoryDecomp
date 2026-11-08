@@ -130,8 +130,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00(); // inferred: field accessor
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 // inferred: effect manager (lbl_8087F3C0) and its methods (as in game/EnemyTasha.cpp)
 struct EffectMgr_unk {
@@ -483,7 +481,7 @@ void EnemyQuarkStand::vf10() {
         mC58.mC4 = leader;
     }
     fn_80352EA4();
-    if (fn_80370A78(fn_80121F00(), 0x8C) != 0) {
+    if (((GameTask*)fn_80121F00())->fn_80370A78(0x8C) != 0) {
         if (m58C == 15) {
             fn_8016E970(3);
             fn_803524AC(0x3E, 1, 1.0f);
@@ -502,7 +500,7 @@ void EnemyQuarkStand::vf10() {
                 }
             }
         }
-        fn_80370AE4(fn_80121F00(), 0x8C, 0);
+        ((GameTask*)fn_80121F00())->fn_80370AE4(0x8C, 0);
     }
     if (fn_8029F3AC(&mStatus) < 0.5f) {
         m15CC = 2;
@@ -695,8 +693,8 @@ void EnemyQuarkStand::vf40(HitInfo_unk* hit) {
             m58C = 16;
             QuarkPlayMotion_unk(&mMotion, 0x38, 0, 0, 0.25f);
             m14BC = 1;
-            if (fn_80370A78(lbl_8087F430, 0xC9) == 0) {
-                fn_80370AE4(lbl_8087F430, 0xC9, 1);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xC9, 1);
             }
             ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
             m14A8 &= ~0x04000000;
@@ -1820,8 +1818,8 @@ void EnemyQuarkStand::fn_8034DE90() {
     mRot = m16F8;
     if (m16F4 == 2) {
         mMotion.mTracks[0].m0C = ((CharaTask*)m16F0)->mMotion.mTracks[0].m0C;
-        if (mMotion.mTracks[0].m08 >= 87.0f && fn_80370A78(lbl_8087F430, 0x88) == 0) {
-            fn_80370AE4(lbl_8087F430, 0x88, 1);
+        if (mMotion.mTracks[0].m08 >= 87.0f && ((GameTask*)lbl_8087F430)->fn_80370A78(0x88) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x88, 1);
         }
     }
     float frame;
@@ -1953,7 +1951,7 @@ void EnemyQuarkStand::fn_8034ECE8() {
                 if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(0) != 0) {
                     leader->SetHit_unk(m1550);
                     leader->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForQuarkStand(leader, this, 2));
-                    fn_80370AE4(lbl_8087F430, 0x6F, 1);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6F, 1);
                     fn_80351AB8(leader, 2);
                     if (lbl_8087F490 != 0) {
                         lbl_8087F490->fn_803E3384();
@@ -2316,8 +2314,8 @@ void EnemyQuarkStand::fn_803520D8() {
     m58C = 16;
     QuarkPlayMotion_unk(&mMotion, 0x38, 0, 0, 0.25f);
     m14BC = 1;
-    if (fn_80370A78(lbl_8087F430, 0xC9) == 0) {
-        fn_80370AE4(lbl_8087F430, 0xC9, 1);
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 0) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xC9, 1);
     }
     ((GameTask*)lbl_8087F430)->fn_80370320(0x389, 1, 0);
     m14A8 &= ~0x4000000;
@@ -2498,7 +2496,7 @@ int EnemyQuarkStand::vfB0(atn::Vector3* out) {
 // (chr::ControlThrustForQuarkStand); the return is a boost::function of fn_80178208
 boost::function<void()> EnemyQuarkStand::vfB4(CharaTask* chara) {
     if (m14BC == 1) {
-        fn_80370AE4(lbl_8087F430, 0x6F, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6F, 1);
         fn_80351AB8(chara, 2);
         chara->SetHit_unk(m1550);
         if (lbl_8087EFE8 != 0) {
@@ -2671,16 +2669,20 @@ atn::Vector3 EnemyQuarkStand::vfD0(float angle) {
 }
 
 
-// NONMATCHING: 99.53% - stack slots of the front direction and of the scaled temporary swapped; ~8 forms
+// inferred: front direction of a rotation (inline)
+inline atn::Vector3 QuarkFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    PSMTXRotRad(r, 'y', rot.y);
+    PSMTXMultVec(r, &v, &v);
+    return v;
+}
+
 atn::Vector3 EnemyQuarkStand::vfD8(CharaTask* target) {
     MtxPtr m = mMotion.GetNodeMtx_unk("head");
     atn::Vector3 pos = GetTransOf_unk(m);
     pos.y += 5.0f;
-    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-    Mtx r;
-    PSMTXRotRad(r, 'y', mRot.y);
-    PSMTXMultVec(r, &dir, &dir);
-    pos += dir * 5.0f;
+    pos += QuarkFront_unk(mRot) * 5.0f;
     return pos;
 }
 

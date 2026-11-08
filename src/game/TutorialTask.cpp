@@ -14,6 +14,7 @@
 #include "std/string_members.h"
 #include "game/MenuCommonTask.h"
 #include "atn/RenderManager.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -198,9 +199,7 @@ extern "C" TutorialField_unk* lbl_8087F430;
 extern "C" inline TutorialField_unk* fn_80121F00() {
     return lbl_8087F430;
 }
-struct TutorialScene_unk;
-extern "C" TutorialScene_unk* fn_802F0990();                // inferred: returns lbl_8087EFA8
-extern "C" void fn_80366DF8(TutorialScene_unk* scene, int show); // inferred: shows the HUD
+extern "C" RenderSetting_unk* fn_802F0990(); // inferred: returns lbl_8087EFA8 (render settings)
 // inferred: fade object of the tutorial (m5B8)
 struct TutorialFade_unk {
     virtual void vf08(int mode);
@@ -254,10 +253,11 @@ inline atn::Matrix3x4 MulMtx_unk(const atn::Matrix3x4& a, const atn::Matrix3x4& 
     PSMTXConcat(b.m, a.m, m.m);
     return m;
 }
-extern "C" inline atn::Vector3* fn_803727D4(CharaTask* chara) {
-    return &chara->m540;
+// inferred: weak copy 0x803727D4 of game/GameTask.cpp
+inline atn::Vector3* CharaTask::GetScale_unk() {
+    return &m540;
 }
-extern "C" void fn_80372754(atn::Matrix3x4* m, atn::Vector3* scale); // inferred: scales the matrix
+void Scale_unk(atn::Matrix3x4& mtx, const atn::Vector3& s); // inferred: scales the matrix (game/GameTask.cpp)
 extern "C" void fn_80316E38(atn::Model* model, const atn::Matrix3x4* m); // inferred: sets the model matrix
 extern "C" void fn_8037F688(Camera_unk* camera, float fovy);
 extern "C" void fn_80392A04(Camera_unk* a, Camera_unk* b);
@@ -287,7 +287,7 @@ void TutorialTask::vf10() {
     switch (mState) {
     case 1:
         if (HasMotion_unk(&page->mMotion.mLoader) && mChara != 0) {
-            fn_80366DF8(fn_802F0990(), 1);
+            fn_802F0990()->SetMotionBlur_unk(1);
             m84 += 1.0f;
             float rate = 1.0f < m84 / 15.0f ? 1.0f : m84 / 15.0f;
             atn::Vector3 pos(page->mPos);
@@ -322,7 +322,7 @@ void TutorialTask::vf10() {
             fn_8008B964()->SetCamera_unk(mCamera2);
             atn::Matrix3x4 trans = fn_800F80A8(&base);
             trans = MulMtx_unk(rot, trans);
-            fn_80372754(&trans, fn_803727D4(mChara));
+            Scale_unk(trans, *mChara->GetScale_unk());
             fn_80316E38(mChara->GetModel_unk(), &trans);
             mChara->GetModel_unk()->fn_80097C08(0, mPage + 0xEA, 1, 0, 1, 0.0f, 0.1f);
             mChara->GetModel_unk()->SetMotionFrame(0, page->mFrame);
@@ -415,7 +415,7 @@ void TutorialTask::vf10() {
                     }
                 }
                 if (next) {
-                    fn_80366DF8(fn_802F0990(), 0);
+                    fn_802F0990()->SetMotionBlur_unk(0);
                     if (m5B8 != 0) {
                         m5B8->vf08(0x12);
                     } else {

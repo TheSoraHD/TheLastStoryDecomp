@@ -5,6 +5,7 @@
 #include "std/vector.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "game/GameTask.h"
 
 extern "C" int rand();
 extern "C" double cos(double x);
@@ -35,8 +36,6 @@ extern "C" void fn_800FAB80(BulletMgr_unk* mgr, CharaTask* owner, HitInfo_unk* b
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 // inferred: game settings
 struct Settings_unk {
     unsigned char m00[0x34];
@@ -197,8 +196,8 @@ void Np131LivingArmor::vf10() {
             mC58.mC0 = 1;
             m14B4 = 0;
             m14F0 = 0;
-            if (fn_80370A78(lbl_8087F430, 250) == 0) {
-                fn_80370AE4(lbl_8087F430, 250, m58);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(250) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(250, m58);
             }
         }
         m54C &= ~0x2000;
@@ -312,7 +311,6 @@ void Np131LivingArmor::vf40(HitInfo_unk* hit) {
     BattleCharaTask::vf40(hit);
 }
 
-// NONMATCHING: 99.9% - the stores of `dir` are scheduled z, x, y in the original (y, x, z here)
 void Np131LivingArmor::fn_80547468() {
     float best = 1e16f;
     CharaTask* player = lbl_8087F8A0->mHead;
@@ -328,7 +326,8 @@ void Np131LivingArmor::fn_80547468() {
     }
     if (found != 0) {
         int usable = 0;
-        atn::Vector3 dir(found->m6C.x - player->mPos.x, 0.0f, found->m6C.z - player->mPos.z);
+        atn::Vector3 dir = found->m6C - player->mPos;
+        dir.y = 0.0f;
         if (best < 30.0f) {
             atn::Vector3 front(0.0f, 0.0f, 1.0f);
             Mtx m;

@@ -7,6 +7,7 @@
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -108,8 +109,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 // inferred: word at 0x1C of the running control (class unknown)
 struct Control1C_unk {
     unsigned char m00[0x1C];
@@ -310,12 +309,12 @@ inline void Em101LittleZesyaSecond::Slash_unk() {
 void Em101LittleZesyaSecond::vf10() {
     m14B8 = mC58.mC4;
     m14BC++;
-    if (fn_80370A78(lbl_8087F430, 0xFA) == 1) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFA) == 1) {
         ReleaseCamera_unk();
         ResetAction_unk();
         m58C = 0;
         fn_8016E970(3);
-        fn_80370AE4(lbl_8087F430, 0xFA, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFA, 0);
     }
     if (mC58.mC0 == 0 || m14B8 == 0) {
         if (m58C == 2) {
@@ -393,7 +392,7 @@ void Em101LittleZesyaSecond::vf10() {
                 fn_8016E970(3);
                 m14BC = m14D4;
                 Field_unk* field = lbl_8087F430;
-                fn_80370AE4(field, 0xF1, fn_80370A78(field, 0xF1) + 1);
+                ((GameTask*)field)->fn_80370AE4(0xF1, ((GameTask*)field)->fn_80370A78(0xF1) + 1);
             }
             break;
         case 10: {
@@ -407,7 +406,7 @@ void Em101LittleZesyaSecond::vf10() {
                     m58C = 0;
                     fn_8016E970(3);
                     Field_unk* field = lbl_8087F430;
-                    fn_80370AE4(field, 0xF1, fn_80370A78(field, 0xF1) + 1);
+                    ((GameTask*)field)->fn_80370AE4(0xF1, ((GameTask*)field)->fn_80370A78(0xF1) + 1);
                 }
             }
             m1544 = mMotion.mTracks[0].m08;
@@ -624,7 +623,7 @@ void Em101LittleZesyaSecond::fn_80261948() {
             ((Control1C_unk*)mControl.get())->m1C = 1;
             m58C = 1;
             Field_unk* field = lbl_8087F430;
-            fn_80370AE4(field, 0xF1, fn_80370A78(field, 0xF0) + 1);
+            ((GameTask*)field)->fn_80370AE4(0xF1, ((GameTask*)field)->fn_80370A78(0xF0) + 1);
         }
         break;
     case 7:

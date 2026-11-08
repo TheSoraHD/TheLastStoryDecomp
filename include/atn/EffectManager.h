@@ -134,6 +134,7 @@ public:
     void fn_8023A340(EffectRes_unk* res);
     void fn_8023A5A8(int clear);
     void fn_8023A60C(int layer);
+    inline void SetPaused_unk(int paused); // inferred: weak copy 0x80373084 (game/GameTask.cpp); name invented
     void fn_8023A614(int arg);
     void fn_8023A664(void* arg);
     void fn_8023A678(unsigned int max); // inferred: the argument goes to EffectSystem_unk::fn_8022BEAC (GameTask passes 0x80 or 0x120)

@@ -611,8 +611,6 @@ void DropItem::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 99.93% - the temporaries of the ground ray test are above the position of the item
-// animation in the original (here the position is a named local, above them)
 int DropItem::vf40(GimmickMsg_unk* msg) {
     if (msg == 0) {
         return 0;
@@ -675,9 +673,8 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
         }
         if (m180 != 0) {
             atn::Vector3 hit;
-            atn::Vector3 to = m6C + atn::Vector3(0.0f, -200.0f, 0.0f);
-            atn::Vector3 from = m6C + atn::Vector3(0.0f, 10.0f, 0.0f);
-            if (fn_8004ECC0(lbl_8087EE98, &hit, from, to, 0x80000000, 0, 0) != 0) {
+            if (fn_8004ECC0(lbl_8087EE98, &hit, m6C + atn::Vector3(0.0f, 10.0f, 0.0f),
+                            m6C + atn::Vector3(0.0f, -200.0f, 0.0f), 0x80000000, 0, 0) != 0) {
                 m6C = hit;
                 m6C.y += 0.5f;
             }
@@ -699,8 +696,8 @@ int DropItem::vf40(GimmickMsg_unk* msg) {
             m54 = msg->mType;
             m29C = 0xFF;
             mAlpha = 0.0f;
-            const atn::Vector3& pos = m6C + m184;
-            mSlot.fn_8044E418(&pos, 25, 25, mData, mCount, m17C, m154);
+            // inferred: address of a temporary (accepted by MWCC); a named local changes the stack slots
+            mSlot.fn_8044E418(&(m6C + m184), 25, 25, mData, mCount, m17C, m154);
             if (fn_80239D58(lbl_8087F3C0, this, 0) == 0) {
                 lbl_8087F3C0->mB8 = 1;
                 fn_80232B7C(this, 0);

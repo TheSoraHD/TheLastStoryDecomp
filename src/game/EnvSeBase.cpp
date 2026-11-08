@@ -7,6 +7,7 @@
 #include "std/vector.h"
 #include <boost/tokenizer.hpp>
 #include "atn/DrawHelper.h"
+#include "game/GameTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int atoi(const char* s);
@@ -23,8 +24,6 @@ struct EnvSeField_unk {
     int m54E4; // inferred: mode (0 and 8 allow the environment sounds)
 };
 extern "C" EnvSeField_unk* lbl_8087F430;
-extern "C" int fn_80370174(EnvSeField_unk* field, int id);
-extern "C" int fn_80370A78(EnvSeField_unk* field, int id);
 struct EnvSeMute_unk {
     unsigned char m00[0x70];
     int m70;
@@ -126,9 +125,9 @@ void EnvSeBase::fn_80360EA4() {
         if (mActive != 0 && mData->m44 != 0 && lbl_8087F430 != 0) {
             int value;
             if (mData->m48 == 1) {
-                value = fn_80370174(lbl_8087F430, mData->m4C);
+                value = ((GameTask*)lbl_8087F430)->fn_80370174(mData->m4C);
             } else {
-                value = fn_80370A78(lbl_8087F430, mData->m4C);
+                value = ((GameTask*)lbl_8087F430)->fn_80370A78(mData->m4C);
             }
             if (value == mData->m50) {
                 mActive = 1;

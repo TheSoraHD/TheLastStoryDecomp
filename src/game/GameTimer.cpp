@@ -4,7 +4,6 @@
 
 // inferred: timer display object and its setters (class unknown)
 extern "C" void* lbl_8087F430;
-extern "C" int fn_80370174(void* obj, int id);                         // inferred: reads a game variable
 
 GameTimer* GameTimer::fn_803CE4B0(atn::Task* parent) {
     if (parent != 0 && sInstance == 0) {
@@ -78,8 +77,8 @@ void GameTimer::fn_803CE738(int n) {
 void GameTimer::fn_803CE768() {
     if (lbl_8087F430 != 0) {
         mValue = ((GameTask*)lbl_8087F430)->fn_803761EC();
-        mLimit = fn_80370174(lbl_8087F430, 0x385);
-        unsigned int flags = fn_80370174(lbl_8087F430, 0x386);
+        mLimit = ((GameTask*)lbl_8087F430)->fn_80370174(0x385);
+        unsigned int flags = ((GameTask*)lbl_8087F430)->fn_80370174(0x386);
         mState = flags >> 16;
         mCountDown = (flags & 0xFFFF) != 0;
     }

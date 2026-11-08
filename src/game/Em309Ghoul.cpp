@@ -110,11 +110,8 @@ extern "C" double sqrt(double x);
 extern "C" inline float fn_801C3910(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
 }
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
-extern "C" void fn_80376254(Field_unk* field, int a, int b); // inferred: counts a field event
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double fmod(double x, double y);
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
@@ -430,7 +427,24 @@ inline void Em309Ghoul::Die_unk(int motion, int flag) {
     ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 1, 0);
 }
 
-// NONMATCHING: 99.87% - stack layout of the direction temporaries and of the rotation matrices (~6 variants)
+// inferred: effect `efp` on the model at its origin (as in Em202ForestSpider)
+inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: hits: the head spear (0x134) or a hit while weak (m40 == 1 outside state 10) knock the ghoul back
 // and start the rolling state 10 away from the attacker (bent towards the home place); other hits only do
 // damage while the ghoul is under the coffin (state 12)
@@ -439,11 +453,11 @@ void Em309Ghoul::vf3C(HitInfo_unk* hit) {
     int weak = *(int*)&msg->m3C[4]; // inferred: HitMsg_unk+0x40 (as in game/Em205Ogre.cpp)
     if ((weak == 1 && m58C != 10) || msg->mData->m04 == 0x134) {
         if (weak == 1) {
-            fn_80376254(lbl_8087F430, 3, 5);
+            ((GameTask*)lbl_8087F430)->fn_80376254(3, 5);
         }
         msg->m0C |= 0x800;
         if (msg->mData->m04 == 0x134) {
-            fn_80370AE4(lbl_8087F430, 6, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(6, 1);
         }
         int state = m58C;
         if (state == 1 || (state == 6 && m14F0 == 1) || state == 7 || state == 8 || state == 10 || state == 12) {
@@ -482,20 +496,7 @@ void Em309Ghoul::vf3C(HitInfo_unk* hit) {
             m15CC.y = a;
             fn_80300AD8();
         }
-        Color4f_unk color;
-        atn::Vector3 rot;
-        atn::Vector3 pos;
-        rot.x = 0.0f;
-        rot.y = 0.0f;
-        rot.z = 0.0f;
-        pos.x = 0.0f;
-        pos.y = 0.0f;
-        pos.z = 0.0f;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1594, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, &m1594, &mMotion);
         m14F8 = 1;
         return;
     }
@@ -557,22 +558,20 @@ void Em309Ghoul::vf50() {
     mFlagB29 = 0;
 }
 
-// NONMATCHING: 99.57% - r6/r7 of the sum temporaries and the place of the "spine1" address load (scheduled
-// before the first copy in the original); 6 variants (named temporaries, helpers, node pointer apart)
 void Em309Ghoul::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = 10.0f;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
-        m624.mData[1].m04.mRadius = m16EC;
-        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-        m624.mData[1].m04.mCenter.y += m16F0;
-        m624.mData[2].m04.mRadius = 0.7f * m16EC;
-        m624.mData[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-        m624.mData[2].m04.mCenter.y += 0.5f * m16F0;
+        m624[0].m04.mRadius = 10.0f;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
+        m624[1].m04.mRadius = m16EC;
+        m624[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        m624[1].m04.mCenter.y += m16F0;
+        m624[2].m04.mRadius = 0.7f * m16EC;
+        m624[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        m624[2].m04.mCenter.y += 0.5f * m16F0;
     }
     if (m1690 != 0) {
-        lbl_8087EEB0->fn_80063D3C(m624.mData[1].m04.mCenter, 20.0f, 1000.0f, 0xFFFF00FF);
+        lbl_8087EEB0->fn_80063D3C(m624[1].m04.mCenter, 20.0f, 1000.0f, 0xFFFF00FF);
     }
 }
 
@@ -580,7 +579,7 @@ atn::Vector3 Em309Ghoul::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
         result = mPos;
-    } else if (fn_80370A78(lbl_8087F430, 0xA1) == 0) {
+    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xA1) == 0) {
         result = mPos;
     } else {
         result = m624.mData[1].m04.mCenter;
@@ -926,13 +925,13 @@ void Em309Ghoul::fn_80300AD8() {
     PSMTXMultVec(m.m, &m15D8, &m15D8);
     mRot = m15CC;
     m15C8 = 1;
-    fn_80370AE4(lbl_8087F430, 0xA4, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA4, 1);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x147), *(const wchar_t**)((char*)m60 + 4));
     ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     if (mFlag22) {
-        fn_80370AE4(lbl_8087F430, 0xA7, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA7, 1);
     }
     fn_80232B7C(this, 400);
     Color4f_unk color;
@@ -994,8 +993,8 @@ void Em309Ghoul::fn_80300DF4() {
     m15CC = mRot;
     m15C8 = 0;
     m15C4 = 0;
-    fn_80370AE4(lbl_8087F430, 0xA4, 1);
-    fn_80370AE4(lbl_8087F430, 0xA5, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA4, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA5, 1);
     fn_80232B7C(this, 400);
     Color4f_unk color;
     atn::Vector3 rot;
@@ -1032,7 +1031,7 @@ void Em309Ghoul::fn_803010BC() {
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14B), *(const wchar_t**)((char*)m60 + 4));
     ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     if (mFlag22) {
-        fn_80370AE4(lbl_8087F430, 0xA8, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA8, 1);
     }
 }
 
@@ -1047,7 +1046,7 @@ void Em309Ghoul::fn_80301200() {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
-    fn_80370AE4(lbl_8087F430, 0xA3, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA3, 1);
 }
 
 // inferred: plays effect `efp` on `model` with default placement (name invented)
@@ -1751,7 +1750,7 @@ void Em309Ghoul::fn_80302F94() {
         fn_80239DAC(lbl_8087F3C0, this, 400, 1);
         fn_80232B7C(this, 0x130);
         GhoulEffect_unk(&m1564, m1614->vf38());
-        fn_80370AE4(lbl_8087F430, 0xA4, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA4, 0);
     }
 }
 
@@ -1866,7 +1865,7 @@ void Em309Ghoul::fn_803041C8() {
                 mRot.x = 0.0f;
                 fn_80301200();
                 fn_80239DAC(fn_800F7FA0(), this, 400, 1);
-                fn_80370AE4(fn_80121F00(), 0xA4, 0);
+                ((GameTask*)fn_80121F00())->fn_80370AE4(0xA4, 0);
             }
         } else if (m1624 == 1) {
             atn::Vector3 d = m1608 - mPos;
@@ -1931,7 +1930,7 @@ void Em309Ghoul::fn_80304718() {
             fn_8017A300(m166C);
             fn_80300DF4();
             fn_80239DAC(lbl_8087F3C0, this, 0x131, 1);
-            fn_80370AE4(lbl_8087F430, 0xA2, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA2, 1);
             m14F4 = 0;
         }
     } else if (m14F0 == 1) {

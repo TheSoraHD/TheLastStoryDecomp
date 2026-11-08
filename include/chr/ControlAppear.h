@@ -12,7 +12,7 @@ class ControlAppear : public ControlBase {
 public:
     ControlAppear(Chara_unk* chara, const atn::Vector3& start, const atn::Vector3& offset); // 0x801880D0
     virtual int vf0C();                     // 0x801881C4
-    virtual boost::function<void()> vf10(); // 0x801883E8
+    virtual boost::function<void()> vf10() const; // 0x801883E8
     virtual void vf1C();                    // 0x80188BC4
     virtual void vf40();                    // 0x801882EC
 
@@ -25,14 +25,14 @@ class ControlAppearEnd : public ControlBase {
 public:
     ControlAppearEnd(Chara_unk* chara, int motion, float blend); // 0x80188BD8
     virtual int vf0C();                     // 0x80188C70
-    virtual boost::function<void()> vf10(); // 0x80188D3C
+    virtual boost::function<void()> vf10() const; // 0x80188D3C
 };
 
 class ControlAppearSkelton : public ControlBase {
 public:
     ControlAppearSkelton(Chara_unk* chara, const atn::Vector3& pos); // 0x8018906C
     virtual int vf0C();                     // 0x8018910C
-    virtual boost::function<void()> vf10(); // 0x801891FC
+    virtual boost::function<void()> vf10() const; // 0x801891FC
     virtual void vf1C();                    // 0x801893F4
 
     int mState; // 0x08

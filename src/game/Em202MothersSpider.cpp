@@ -5,6 +5,7 @@
 #include "game/EnemyManager.h"
 #include "game/PlayerManager.h"
 #include "math/Vec.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -59,8 +60,6 @@ struct Color4f_unk {
 extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 
 // inferred: effect `efp` on a model with no offset (name invented, as in game/Em202ForestSpider.cpp)
 static inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
@@ -572,20 +571,20 @@ void Em202MothersSpider::vf14C() {
     int id;
     if (m18EC->mType == 0) {
         id = -1;
-        if (fn_80370A78(lbl_8087F430, 0xE6) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xE6, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
         } else {
-            fn_80370AE4(lbl_8087F430, 0xEA, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEA, 1);
         }
     } else {
         id = m18EC->m58;
-        if (fn_80370A78(lbl_8087F430, 0xE7) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xE7, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE7) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE7, 1);
         } else {
-            fn_80370AE4(lbl_8087F430, 0xEB, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEB, 1);
         }
     }
-    fn_80370AE4(lbl_8087F430, 0x79, id);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x79, id);
 }
 
 void Em202MothersSpider::vf118() {
@@ -691,11 +690,11 @@ void Em202MothersSpider::vf184() {
                     m1908[i]->fn_8016EB48(0, 0, 0);
                     m1908[i]->fn_8015E7A0(fwd * 25.0f, -1, 0);
                     if (m1908[i]->mType == 0) {
-                        if (fn_80370A78(lbl_8087F430, 0xE8) == 0) {
-                            fn_80370AE4(lbl_8087F430, 0xE8, 1);
+                        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE8) == 0) {
+                            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE8, 1);
                         }
-                    } else if (fn_80370A78(lbl_8087F430, 0xE9) == 0) {
-                        fn_80370AE4(lbl_8087F430, 0xE9, 1);
+                    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE9) == 0) {
+                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE9, 1);
                     }
                 }
                 m1908.clear();

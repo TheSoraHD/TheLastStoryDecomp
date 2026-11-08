@@ -2,6 +2,7 @@
 #include "MP/D2AMpMenu.h"
 #include "game/Inventory.h"
 #include "atn/DrawHelper.h"
+#include "game/GameTask.h"
 
 // inferred: character task of a multiplayer player; only the flags used here
 struct MpCharaTask_unk : public atn::Task {
@@ -120,7 +121,6 @@ struct MpField_unk {
     int m54E4;
 };
 extern "C" MpField_unk* lbl_8087F430;
-extern "C" void fn_803729B4(MpField_unk* field, MpCharaTask_unk* chara);
 
 
 // inferred: camp message table (lbl_8087F1E4, see game/MenuCommonTask.cpp)
@@ -324,7 +324,7 @@ void D2AMpMenuResult::fn_804C5E9C(int state) {
                 MpCharaTask_unk* chara = fn_804EB870(lbl_8087F610)->m00;
                 chara->m54C |= 0x10;
                 chara->fn_800D246C(1);
-                fn_803729B4(lbl_8087F430, chara);
+                ((GameTask*)lbl_8087F430)->fn_803729B4((CharaTask*)chara);
                 m19C = 1;
             }
             D2AMpMenuCockpit::sInstance->fn_804B50C0(3);

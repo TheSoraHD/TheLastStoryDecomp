@@ -38,7 +38,6 @@ struct GameBgmField_unk {
     GameBgmTable_unk* m10D8;
 };
 extern "C" GameBgmField_unk* lbl_8087F430;
-extern "C" int fn_80370174(GameBgmField_unk* field, int id);           // inferred: reads a field value
 // inferred: sound engine (lbl_8087EE90) and sound configuration (lbl_8087EFE8)
 extern "C" void* lbl_8087EE90;
 extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
@@ -345,7 +344,7 @@ static inline bool __IsPlaying_unk(atn::Bgm* bgm) {
 }
 
 // NONMATCHING: 89.7% - the original loads mCur before saving the registers.
-int GameBgm::fn_8037D34C() {
+int GameBgm::fn_8037D34C() const {
     if (mCur != 0 && fn_800CB58C(&mCur->mSound) != 0 && fn_800CB4C4(&mCur->mSound) != 0) {
         return 1;
     }
@@ -443,8 +442,8 @@ void GameBgm::fn_8037D758() {
     if (lbl_8087F430 == 0 || lbl_8087F430->m10D8 == 0) {
         return;
     }
-    int id = fn_80370174(lbl_8087F430, 0x38F);
-    float volume = fn_80370174(lbl_8087F430, 0x390) / 100.0f;
+    int id = ((GameTask*)lbl_8087F430)->fn_80370174(0x38F);
+    float volume = ((GameTask*)lbl_8087F430)->fn_80370174(0x390) / 100.0f;
     if (id > 0) {
         fn_8037D4C0(id, 60, 1, 0, volume);
     }

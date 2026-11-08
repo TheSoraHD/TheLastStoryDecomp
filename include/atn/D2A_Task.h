@@ -17,7 +17,7 @@ public:
     virtual void vf14(); // inferred: draw
 
     void ApplyFrame();                             // 0x801F45F4
-    void SetParam1_unk(const char* name, const float* v);     // 0x801F4818
+    void SetParam1_unk(const char* name, float* v);     // 0x801F4818
     void SetParam2_unk(const char* name, const float* v);     // 0x801F48C8
     void SetColor_unk(const char* name, unsigned int color);  // 0x801F4998
     void SetColor_unk(const char* name, float r, float g, float b); // 0x801F4AA0

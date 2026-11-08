@@ -12,7 +12,7 @@ class ControlCaught : public ControlBase {
 public:
     ControlCaught(Chara_unk* chara, int arg, int count, int motion, int releaseMotion); // 0x801A2290
     virtual int vf0C();                     // 0x801A2414
-    virtual boost::function<void()> vf10(); // 0x801A24E4
+    virtual boost::function<void()> vf10() const; // 0x801A24E4
     virtual void vf1C();                    // 0x801A24E0
 
     int m08;            // 0x08: also stored in Chara_unk::mF1C

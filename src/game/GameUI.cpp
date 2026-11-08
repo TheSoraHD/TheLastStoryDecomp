@@ -35,6 +35,7 @@ struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/FriendManager.h"
 #include "game/BattleCharaTask.h"
 #include "std/vector.h"
+#include "atn/RenderSetting_unk.h"
 extern "C" int sprintf(char* s, const char* format, ...);
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -623,22 +624,10 @@ struct GameUITrack_unk {
     GameUITrackKey_unk mKeys[1];
 };
 
-// inferred: scene lighting set by the HUD while the player is in danger (0x24 bytes, game/GameTask.cpp
-// copies it at +0x374 of the scene, 0x80366DAC); weak constructor 0x803D6E3C
-struct GameUIFog_unk {
-    GameUIFog_unk() : m00(0), m04(0), mColor(1.0f, 1.0f, 1.0f, 1.0f), m18(0.0f), m1C(0.0f), m20(0.0f) {}
-    int m00;
-    int m04;
-    atn::Color4f_unk mColor;
-    float m18;
-    float m1C;
-    float m20;
-};
-struct GameUIScene_unk;
-extern "C" GameUIScene_unk* fn_802F0990();                // inferred: returns lbl_8087EFA8
-extern "C" float fn_802F0988(GameUIScene_unk* scene);     // inferred: frame time (+0x3A4)
-extern "C" void fn_80366DAC(GameUIScene_unk* scene, GameUIFog_unk fog);
-extern "C" GameUIFog_unk* fn_80366DA4(GameUIScene_unk* scene);
+// inferred: the render settings (lbl_8087EFA8): the HUD sets the damage effect (scene colour) while the player is
+// in danger (RenderSetting_unk::SetDamage_unk, weak copies in game/GameTask.cpp)
+extern "C" RenderSetting_unk* fn_802F0990();                // inferred: returns lbl_8087EFA8
+extern "C" float fn_802F0988(RenderSetting_unk* settings);  // inferred: frame time (+0x3A4)
 
 // inferred: field (lbl_8087F430); fn_80121F00 returns it
 struct GameUIRoute_unk {
@@ -664,7 +653,6 @@ struct Field_unk : public atn::Task {
 };
 extern "C" Field_unk* fn_80121F00();                               // inferred: returns lbl_8087F430
 extern "C" GameUIPlayerInput_unk* fn_80122550(Field_unk* field);   // inferred: field + 0x6C
-extern "C" int fn_80370174(Field_unk* field, int flag);            // inferred: value of a game flag
 extern "C" int fn_80244CA0(atn::Task* table);                      // inferred: (flags >> 1) & 1
 
 // inferred: multiplayer session (lbl_8087F610)
@@ -954,14 +942,14 @@ void GameUI::fn_803D2A6C() {
             ((GameUICounter_unk*)&m8D0)->fn_803CF734();
         } else if (eventShown || fn_80121F00()->GetState_unk() == 0) {
             // inferred: scene colour while the leader is weak
-            if (fn_80370174(fn_80121F00(), 0x2B) == 1) {
-                GameUIFog_unk fog;
-                fog.m00 = 1;
-                fog.m18 = 1.0f;
+            if (((GameTask*)fn_80121F00())->fn_80370174(0x2B) == 1) {
+                DamageEffectParam_unk fog;
+                fog.mEnabled = 1;
+                fog.mAngle = 1.0f;
                 fog.mColor.Set_unk(0.2f, 0.13f, 0.08f, 1.0f);
-                fog.m20 = -0.2f;
-                fog.m1C = 0.0f;
-                fn_80366DAC(fn_802F0990(), fog);
+                fog.mZoom = -0.2f;
+                fog.mScale = 0.0f;
+                fn_802F0990()->SetDamage_unk(fog);
             } else if (!fn_80121F00()->GetFlag1_unk()) {
                 float rate = leader->GetStatus_unk()->m04 / (float)leader->GetStatus_unk()->mParamB.m84;
                 if (fn_80267B20(leader) == 6 && fn_80267B28(leader) == 0x1C) {
@@ -976,18 +964,18 @@ void GameUI::fn_803D2A6C() {
                     m4C += step;
                 }
                 m4C = 1.0f < (-1.0f > m4C ? -1.0f : m4C) ? 1.0f : (-1.0f > m4C ? -1.0f : m4C);
-                GameUIFog_unk fog = *fn_80366DA4(fn_802F0990());
-                fog.m00 = !(m4C < -0.8f);
+                DamageEffectParam_unk fog = *fn_802F0990()->GetDamage_unk();
+                fog.mEnabled = !(m4C < -0.8f);
                 m48 += fn_802F0988(fn_802F0990());
                 if (m48 >= 60.0f) {
                     m48 -= 60.0f;
                 }
                 float wave = SinF_unk(6.2831855f * (m48 / 60.0f));
-                fog.m18 = atn::DegToRad_unk(0.05f * wave + 1.6f);
+                fog.mAngle = atn::DegToRad_unk(0.05f * wave + 1.6f);
                 fog.mColor.Set_unk(0.0f, 0.3f, 0.3f, 1.0f);
-                fog.m1C = 0.0f;
-                fog.m20 = 0.05f * wave + m4C;
-                fn_80366DAC(fn_802F0990(), fog);
+                fog.mScale = 0.0f;
+                fog.mZoom = 0.05f * wave + m4C;
+                fn_802F0990()->SetDamage_unk(fog);
             }
 
             // inferred: characters near the leader (the nearest one gets the stick arrow)
@@ -1394,10 +1382,10 @@ void GameUI::fn_803D2A6C() {
                         }
                         if (!show && static_cast<BattleCharaTask*>(c)->m146C == 5 && fn_80121F00() != 0) {
                             if (fn_8000D9F8(c) == 0x49A85 &&
-                                (fn_80370174(fn_80121F00(), 0x4BA) == 30 || fn_80370174(fn_80121F00(), 0x4C2) == 14)) {
+                                (((GameTask*)fn_80121F00())->fn_80370174(0x4BA) == 30 || ((GameTask*)fn_80121F00())->fn_80370174(0x4C2) == 14)) {
                                 show = true;
                             }
-                            if (fn_80370174(fn_80121F00(), 0x4BA) == 31 || fn_80370174(fn_80121F00(), 0x4C2) == 15) {
+                            if (((GameTask*)fn_80121F00())->fn_80370174(0x4BA) == 31 || ((GameTask*)fn_80121F00())->fn_80370174(0x4C2) == 15) {
                                 show = true;
                             }
                         }
@@ -2100,7 +2088,7 @@ void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
     pos.y += 6.0f;
     int kind = chara->m5C->m122;
     TacView* tac = lbl_8087F9F8;
-    if (tac != 0 && tac->mA70 != 0 && tac->m48 != 2 && tac->IsIdle_unk() && tac->m4C == chara &&
+    if (tac != 0 && tac->mA70 != 0 && tac->m48.mState != 2 && tac->IsIdle_unk() && tac->m48.m04 == chara &&
         tac->m15D8 == 0) {
         selected = true;
     }

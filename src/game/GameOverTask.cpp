@@ -99,9 +99,6 @@ struct GameOverField_unk {
     atn::Task* m20;
 };
 extern "C" GameOverField_unk* lbl_8087F430;
-extern "C" int fn_803754F0(GameOverField_unk* field);
-extern "C" int fn_80370174(GameOverField_unk* field, int id); // inferred: event flag
-extern "C" void fn_80370F8C(GameOverField_unk* field, int a, MP::SaveData_unk* data, int b);
 // inferred: options (lbl_8087F0A8)
 struct GameOverOptions_unk {
     unsigned char m000[0x194];
@@ -321,7 +318,7 @@ int GameOverTask::vf0C() {
 
 // inferred: the event flag is set (name invented)
 inline bool IsFlagSet_unk(GameOverField_unk* field, int id) {
-    return fn_80370174(field, id) == 1;
+    return ((GameTask*)field)->fn_80370174(id) == 1;
 }
 
 void GameOverTask::fn_80377298() {
@@ -329,7 +326,7 @@ void GameOverTask::fn_80377298() {
     mChoices.mSize = 0;
     GameOverField_unk* field = lbl_8087F430;
     if (field != 0 && lbl_8087DCCC != 0) {
-        if (field != 0 && fn_803754F0(lbl_8087F430) != 0) {
+        if (field != 0 && ((GameTask*)lbl_8087F430)->fn_803754F0() != 0) {
             mMode = 5;
             mChoices.push_back((opts = sOptArena)[0]);
             mChoices.push_back(opts[1]);
@@ -342,7 +339,7 @@ void GameOverTask::fn_80377298() {
             if (IsFlagSet_unk(lbl_8087F430, 0xD4)) {
                 mSelect = 3;
             }
-        } else if (fn_80370174(lbl_8087F430, 0x122) == 0) {
+        } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x122) == 0) {
             mMode = 0;
             mChoices.push_back((opts = sOpt)[0]);
             mChoices.push_back(opts[1]);
@@ -352,7 +349,7 @@ void GameOverTask::fn_80377298() {
             mChoices.push_back((opts = sOptRetry)[0]);
             mChoices.push_back(opts[1]);
         }
-    } else if (fn_80370174(field, 0x122) == 0) {
+    } else if (((GameTask*)field)->fn_80370174(0x122) == 0) {
         mMode = 2;
         mChoices.push_back((opts = sOptTitle)[0]);
         mChoices.push_back(opts[1]);
@@ -385,7 +382,7 @@ void GameOverTask::vf10() {
         case 0:
         case 1:
             if (lbl_8087F430 != 0) {
-                fn_80370F8C(lbl_8087F430, 0, lbl_8087F460, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, lbl_8087F460, 0);
             }
             break;
         case 2:
@@ -394,13 +391,13 @@ void GameOverTask::vf10() {
             break;
         case 3:
             if (lbl_8087F430 != 0) {
-                fn_80370F8C(lbl_8087F430, 1, lbl_8087F460, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370F8C(1, lbl_8087F460, 0);
             }
             break;
         case 4:
             if (lbl_8087F430 != 0) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0x1B, 1, 0);
-                fn_80370F8C(lbl_8087F430, 0, 0, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, 0, 1);
             }
             break;
         }

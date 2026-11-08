@@ -16,7 +16,8 @@
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
 #include "atn/EfpHandle_unk.h"
-#include "game/GameField_unk.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -564,7 +565,7 @@ void CharaEquip_unk::fn_805660DC() {
         fn_80566398(1);
         return;
     }
-    if (lbl_8087F430 == 0 || !((GameTask*)lbl_8087F430)->fn_803754C4()) {
+    if (lbl_8087F430 == 0 || !lbl_8087F430->fn_803754C4()) {
         if (lbl_8087F3C0 == 0) {
             return;
         }
@@ -584,7 +585,7 @@ void CharaEquip_unk::fn_805660DC() {
             } else {
                 mark = Inventory::instance_->mPlayers[member].m231 - 1;
             }
-            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803754C4()) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_803754C4()) {
                 lbl_8087F3C0->mSystem.m70 = 1;
                 lbl_8087F3C0->mSystem.mLayer = 6;
             } else {
@@ -596,7 +597,7 @@ void CharaEquip_unk::fn_805660DC() {
             if (lbl_8087F048 != 0) {
                 PlayEffect_unk(&lbl_8087F048->mMarkEfp[mark], m40C->GetModel_unk());
             }
-            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803754C4()) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->fn_803754C4()) {
                 lbl_8087F3C0->mSystem.mLayer = 0;
                 lbl_8087F3C0->mSystem.m70 = 0;
             } else {

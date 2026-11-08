@@ -11,6 +11,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -29,8 +30,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -263,7 +262,7 @@ void Em101ElderZesyaSecond::vf10() {
     if (m58C != 10 && m58C != 11) {
         m1504 += CountNear_unk(m14BC);
     }
-    if (m15D8 > 2 || fn_80370A78(lbl_8087F430, 0xE8) == 1) {
+    if (m15D8 > 2 || ((GameTask*)lbl_8087F430)->fn_80370A78(0xE8) == 1) {
         m14DC = 1;
     }
     if (mC58.mC0 == 0 || m14D0 == 0) {
@@ -332,8 +331,8 @@ void Em101ElderZesyaSecond::vf10() {
                 lbl_8087F3C0->mB8 = 0;
                 fn_800C344C(sSounds_unk[0], &mPos, 0, -1, 1.0f);
                 int flag = m15D4 == 0 ? 0xE9 : 0xEA;
-                if (fn_80370A78(lbl_8087F430, flag) == 0) {
-                    fn_80370AE4(lbl_8087F430, flag, 1);
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
                 }
                 wchar_t text[256];
                 memset(text, 0, sizeof(text));
@@ -353,8 +352,8 @@ void Em101ElderZesyaSecond::vf10() {
         default:
             if (m55C == 6) {
                 if (m560 == 30 && mControl && ((ControlMagic_unk*)mControl.get())->m1D != 0) {
-                    if (fn_80370A78(lbl_8087F430, 0xEC) == 0) {
-                        fn_80370AE4(lbl_8087F430, 0xEC, 1);
+                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEC) == 0) {
+                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEC, 1);
                     }
                 }
             } else {
@@ -436,8 +435,8 @@ void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit) {
             }
             if (ok != 0) {
                 if (m15D0 != 0) {
-                    if (fn_80370A78(lbl_8087F430, 0xE6) == 0) {
-                        fn_80370AE4(lbl_8087F430, 0xE6, 1);
+                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
+                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
                     }
                     m15D0 = 0;
                 }
@@ -446,7 +445,7 @@ void Em101ElderZesyaSecond::vf3C(HitInfo_unk* hit) {
             }
         }
         if (m15CC != 0) {
-            fn_80370AE4(lbl_8087F430, 0xE7, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE7, 1);
             m15CC = 0;
         }
         msg->m64 = 1;
@@ -490,7 +489,7 @@ void Em101ElderZesyaSecond::vf40(HitInfo_unk* hit) {
         }
     }
     if (mStatus.IsState_unk(0x20)) {
-        if (fn_80370A78(lbl_8087F430, 0x26) > 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x26) > 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
             vf48();
             fn_80178A6C();
             fn_8015495C(0, 1, 1, 1);

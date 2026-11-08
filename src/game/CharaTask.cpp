@@ -157,7 +157,6 @@ extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, 
 // inferred: field data (lbl_8087F430); m10D8 holds the route tables (see RouteWalker_unk.cpp)
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
-    void fn_803750E4(int id); // inferred: called with 0xB5 when a knocked-down character had mFlag28
 
     unsigned char m00[0x48];
     int m48; // inferred: field kind (1, or 2 with a sub kind in m4C)
@@ -206,7 +205,6 @@ struct Effect_unk {
 };
 extern "C" Effect_unk* lbl_8087F048;
 
-extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" void fn_800FD658(Effect_unk* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
@@ -1179,9 +1177,9 @@ void CharaTask::fn_80139560() {
                 b = 1.0f;
             } else if (fn_80139EBC()) {
                 b = 1.0f;
-            } else if (fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 1) {
+            } else if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 1) {
                 b = 0.4f;
-            } else if (fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 2) {
+            } else if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 2) {
                 b = 0.5f;
             } else {
                 if (!fn_80139ED0() && !fn_80139EDC()) {
@@ -1192,7 +1190,7 @@ void CharaTask::fn_80139560() {
                 } else {
                     b = 0.8f;
                 }
-                if (fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 3) {
+                if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 3) {
                     b *= 0.75f;
                 }
             }
@@ -1231,7 +1229,7 @@ void CharaTask::fn_80139560() {
             } else {
                 rot = mRot;
             }
-            if (IsPlayer() && fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 1) {
+            if (IsPlayer() && fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 1) {
                 b = 0.4f;
             }
             if (mC58.m11C.fn_8013A144()) {
@@ -1419,14 +1417,10 @@ extern "C" int fn_8003F440(CharaTask* chara, SkillRef_unk* data);
 
 // inferred: moves the character for its current mode (mC58.mMode); called by fn_80139560 with the
 // speed, direction and rate passed to vf34.
-// NONMATCHING: 98.5% - the two node names ("righthand", "head") go to an @STRING@ pool instead of
-// @stringBase0 because the function is inline; the Matrix3x4 of mode 10 calls its empty constructor
-// (and gets f30 instead of f31); the 0.0f argument of fn_80097C08 is loaded later. The original is
-// probably not inline (its literals are in the file pool), but only as an inline candidate does it
-// make fn_80139560 reject its helpers as the original does (with a non-inline definition this
-// function is at 99.0% and fn_80139560 inlines everything). Tried: non-inline, static, accessors
-// as inline functions, small auto-inline stubs of the other callees of fn_80139560.
-inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
+// NONMATCHING: 99.6% - the Matrix3x4 of mode 10 calls its empty constructor (and gets f30 instead of f31);
+// the 0.0f argument of fn_80097C08 is loaded later. Not inline: the original is a global function with
+// its literals in the file pool, and fn_80139560 still matches.
+int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
     RouteWalker_unk* route = &mC58.m0C;
     if (mC58.m2B4 > 0) {
         mC58.m2B4--;
@@ -2320,7 +2314,7 @@ void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
                         table->GetLink_unk(mC3C)->m3C = 0;
                     }
                     if (HasRideParts_unk()) {
-                        if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+                        if (((GameTask*)lbl_8087F430)->fn_80370174(0x25) >= 1) {
                             fn_8014EEC4(0);
                         } else if (m674 >= 0) {
                             fn_8014DEE4(0, 0, 0);
@@ -2667,8 +2661,8 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
         if (hitResult != 0 && (result.m3C & 2) == 2) {
             other = result.m38->m0C;
             if (IsPlayer() && m648 != 0 && mC58.mC0 == 0 && lbl_8087F430 != 0 && other->mType == 3 &&
-                fn_80370174(lbl_8087F430, 1000) >= 0x30) {
-                lbl_8087F430->fn_803750E4(0x132);
+                ((GameTask*)lbl_8087F430)->fn_80370174(1000) >= 0x30) {
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x132);
             }
             if ((mType == 0 || mType == 2) && m648 == 0) {
                 push = 1;
@@ -3164,7 +3158,7 @@ void CharaTask::fn_80141674(void* target, float a, float b) {
     if (end != 0) {
         atn::Vector3 d(pos - *end);
         if (LengthSq_unk(d) < LengthSq_unk(d + move)) {
-            Ledge_unk ledge;
+            GameSceneRoute_unk ledge;
             move = *end - pos;
             if (((GameTask*)lbl_8087F430)->fn_8036DB24(&ledge, this, linkA, linkB, &move)) {
                 ReleaseLedge_unk();
@@ -4740,11 +4734,11 @@ int CharaTask::fn_80148334() {
     return mFlag2;
 }
 
-// NONMATCHING: 94% (objdiff 99.9%) - only symbol names differ: the Item14_unk constructor is
-// fn_80148990 in the target, and the "" of SimpleVector::reserve are lbl_8087D9E4/lbl_8087D9E0.
 void CharaTask::vf50() {
     m624.clear();
     m624.reserve(1, 3);
+    // inferred: name of the list for the debug output (unused in release; its literal stays in the pool)
+    const char* name = "DamageSphereList";
     Item14_unk item;
     item.m04.mRadius = m5B0;
     item.m04.mCenter = mPos + m5A4;
@@ -4757,22 +4751,19 @@ void CharaTask::vf50() {
     mFlagB29 = 1;
 }
 
-// NONMATCHING: 96% - the original reloads m624.mData before the vector copy (writing
-// m624.mData[0] twice instead swaps r4/r5). Tried: a local item pointer, operand orders.
 void CharaTask::vf54() {
     if (m624.mSize != 0) {
-        Item14_unk* item = m624.mData;
-        item->m04.mRadius = m5B0;
-        item->m04.mCenter = mPos + m5A4;
+        m624[0].m04.mRadius = m5B0;
+        m624[0].m04.mCenter = mPos + m5A4;
         if (mStatus.mParamB.fn_801404E0(0x40)) {
-            m624.mData[0].m04.mCenter.y -= m624.mData[0].m04.mRadius;
+            m624[0].m04.mCenter.y -= m624[0].m04.mRadius;
         } else {
-            m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
+            m624[0].m04.mCenter.y += m624[0].m04.mRadius;
         }
         if (m55C == 6 && m560 == 36) {
             MtxPtr hips = mMotion.GetNodeMtx_unk("hips");
             if (hips != 0) {
-                m624.mData[0].m04.mCenter = GetNodePos_unk(hips);
+                m624[0].m04.mCenter = GetNodePos_unk(hips);
             }
         }
     }
@@ -4786,8 +4777,6 @@ CharaTask::Item14_unk* CharaTask::fn_80148B0C(int index) {
 }
 
 
-// NONMATCHING: 96% - the instructions are the same; only the offsets in @stringBase0 differ
-// (the strings of the functions before this one are not all defined yet).
 void CharaTask::fn_80148B38(float distSq) {
     if (m648 != 0) {
         if (m648->m04 == 1) {
@@ -5242,7 +5231,7 @@ void CharaTask::fn_80149A30() {
         if (lbl_8087F430 != 0 && lbl_8087FA20 == 0) {
             int visible = 1;
             if (lbl_8087F430 != 0) {
-                switch (fn_80370174(lbl_8087F430, 217)) {
+                switch (((GameTask*)lbl_8087F430)->fn_80370174(217)) {
                 case 1: {
                     visible = 1;
                     bool b = true;
@@ -6424,12 +6413,10 @@ void CharaTask::fn_8014F2B4(int a, int b, int index) {
     }
 }
 
-// NONMATCHING: 90.1% - the original keeps the index in r31 and recomputes &mData[i] for the
-// erase ((i * 4) / 4); ours keeps the element address (lwzu) from the delete.
 void CharaTask::fn_8014F4FC(int a, int b) {
     for (unsigned int i = 0; i < mParts.mCount; i++) {
         if (a == mParts.mData[i]->m04 && b == mParts.mData[i]->m08) {
-            delete mParts.mData[i];
+            delete mParts[i];
             mParts.erase(&mParts.mData[i]);
             return;
         }
@@ -6896,7 +6883,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
     if (fn_8017B16C() && m55C == 6 && (m560 == 29 || m560 == 31) && m674 >= 0) {
         fn_8014DEE4(0, 0, 0);
     }
-    if (fn_80370174(fn_80121F00(), 0x67) && IsPlayer() && !mStatus.fn_80139F4C()) {
+    if (((GameTask*)fn_80121F00())->fn_80370174(0x67) && IsPlayer() && !mStatus.fn_80139F4C()) {
         CollResult_unk result;
         atn::Vector3 from = mPos + atn::Vector3(0.0f, 5.0f, 0.0f);
         atn::Vector3 to = (mPos + atn::Vector3(0.0f, 5.0f, 0.0f)) + dir * 8.0f;
@@ -7236,10 +7223,10 @@ void CharaTask::fn_80151448(HitMsg_unk* msg) {
         } else {
             msg->m74 = 0;
         }
-        if (fn_80370174(lbl_8087F430, 0x548) == 1 && mType != 0 && msg->mData->m04 != 0xD0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x548) == 1 && mType != 0 && msg->mData->m04 != 0xD0) {
             flags |= 0x2008;
             msg->mAttacker->vf7C(1);
-        } else if (fn_80370174(lbl_8087F430, 0x28) == 0 && msg->mAttacker != 0 &&
+        } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x28) == 0 && msg->mAttacker != 0 &&
                    ((unsigned int)msg->mAttacker->mStatus.mParamB.m9C & 4) != 4) {
             bool guard = false;
             if ((flags & 8) == 8 && mFlag5 && !mFlag31 && !msg->mFlag31) {
@@ -7315,7 +7302,7 @@ void CharaTask::fn_80151448(HitMsg_unk* msg) {
         param.m14 = mFlag22;
         if (lbl_8087F430 != 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 && msg->mData != 0 &&
             msg->mData->m04 == 0x133) {
-            param.m0C = fn_80370174(lbl_8087F430, 0xDA);
+            param.m0C = ((GameTask*)lbl_8087F430)->fn_80370174(0xDA);
         }
         if (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80134134(0x43) != 0) {
             param.m10 = 100.0f / (100.0f + msg->mAttacker->mStatus.fn_80134168(0x43, -1));
@@ -7477,7 +7464,7 @@ inline bool CharaTask::IsPartsMode_unk() {
 
 inline void CharaTask::ResetParts_unk() {
     if (IsPartsMode_unk()) {
-        if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x25) >= 1) {
             fn_8014EEC4(0);
         } else if (m674 >= 0) {
             fn_8014DEE4(0, 0, 0);
@@ -7641,17 +7628,17 @@ bool CharaTask::fn_801533C8(int id, HitInfo_unk* hit) {
 // keeps the ledge in r30 and this in r29, ours the other way round). Tried a free function, other
 // statement orders, the direction computed in place or through helpers.
 // inferred: grabs a ledge
-void CharaTask::fn_80153698(const Ledge_unk* ledge, int keep) {
+void CharaTask::fn_80153698(const GameSceneRoute_unk* ledge, int keep) {
     mFlag31 = 1;
     mC48 = 0;
     mC14 = ledge->GetDir_unk();
-    mFlag30 = ledge->m34 != 0;
-    mC20 = ledge->m18;
-    mC2C = ledge->m24;
-    mC44 = ledge->m30;
-    mC40 = ledge->m34;
-    mC38 = ledge->m38;
-    mC3C = ledge->m3C;
+    mFlag30 = ledge->mType != 0;
+    mC20 = ledge->mFrom;
+    mC2C = ledge->mTo;
+    mC44 = ledge->mFlags;
+    mC40 = ledge->mType;
+    mC38 = ledge->mFromIndex;
+    mC3C = ledge->mToIndex;
     mFlag14 = 1;
     Segment_unk seg(mC20, mC2C);
     atn::Vector3 pos;
@@ -7681,7 +7668,7 @@ void CharaTask::fn_80153698(const Ledge_unk* ledge, int keep) {
             fn_80164DCC(1);
         }
     }
-    if (mType == 0 && fn_80370174(lbl_8087F430, 0xED) == 0 && fn_80370174(lbl_8087F430, 0xEA) == 1) {
+    if (mType == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xED) == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xEA) == 1) {
         ((GameTask*)lbl_8087F430)->fn_80370320(0xED, 1, 0);
     }
 }
@@ -7769,8 +7756,8 @@ int CharaTask::fn_80153FD8(int kind) {
     }
     if (mC48 != 0) {
         if (IsPartsMode_unk()) {
-            if (m674 >= 0 || fn_80370174(lbl_8087F430, 0x25) == 1 ||
-                (fn_80370174(lbl_8087F430, 0x25) == 2 && fn_8013539C())) {
+            if (m674 >= 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 1 ||
+                (((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 2 && fn_8013539C())) {
                 fn_8014DEE4(1, 0, 0);
             }
         }
@@ -8031,8 +8018,8 @@ void CharaTask::fn_80155DAC(int arg) {
             mMotion.mTracks[0].m08 = 34.0f;
         } else {
             if (IsPartsMode_unk()) {
-                if (m674 >= 0 || fn_80370174(lbl_8087F430, 0x25) == 1 ||
-                    (fn_80370174(lbl_8087F430, 0x25) == 2 && fn_8013539C())) {
+                if (m674 >= 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 1 ||
+                    (((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 2 && fn_8013539C())) {
                     fn_8014DEE4(1, 0, 0);
                     fn_800C344C(sSoundNames_unk[4], &mPos, 0, -1, 1.0f);
                 }
@@ -8496,7 +8483,7 @@ void CharaTask::fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2) {
     fn_80178208(control);
     m638 = 0;
     if (mFlag28 && lbl_8087F430 != 0) {
-        lbl_8087F430->fn_803750E4(0xB5);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0xB5);
     }
     fn_80164DCC(1);
     if (m1208 != 0) {
@@ -8628,7 +8615,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
             table->GetLink_unk(mC3C)->m3C = 0;
         }
         if (fn_8017B16C()) {
-            if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x25) >= 1) {
                 if (m648 != 0) {
                     fn_80044E0C(m648, 1);
                 }
@@ -8880,9 +8867,9 @@ void CharaTask::fn_801647BC() {
     chr::ControlAttractHateCharge* control = new ((MemoryTag)0, "", "", 0) chr::ControlAttractHateCharge(this);
     fn_80178208(control);
     if (lbl_8087F430 != 0) {
-        if (fn_80370174(lbl_8087F430, 0x135) == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x135) == 0) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0x135, 1, 0);
-        } else if (fn_80370174(lbl_8087F430, 0x136) == 0) {
+        } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x136) == 0) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0x136, 1, 0);
         }
     }
@@ -8904,7 +8891,7 @@ void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
     if (lbl_8087F048 != 0) {
         ((BattleTask*)lbl_8087F048)->fn_8010337C(0, this);
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && fn_80370174(lbl_8087F430, 0xD6) == 1) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xD6) == 1) {
         Player_unk* player = (lbl_8087F8A0 != 0) ? (Player_unk*)lbl_8087F8A0->mHead : 0;
         for (; player != 0; player = player->mNext) {
             if (player->CanAct_unk() && (player->m54C & 0x2000) != 0x2000) {
@@ -10218,7 +10205,7 @@ int CharaTask::fn_80172EFC(atn::Vector3* pos, atn::Vector3* move) {
     }
     int limit = 12;
     if (lbl_8087F430 != 0) {
-        int flag = fn_80370174(lbl_8087F430, 0x120);
+        int flag = ((GameTask*)lbl_8087F430)->fn_80370174(0x120);
         if (flag == 1) {
             limit = 4;
         } else if (flag == 2) {
@@ -10329,7 +10316,7 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
     if (m55C == 6 || m55C == 8) {
         return 0;
     }
-    if (lbl_8087F430 != 0 && (fn_80370174(lbl_8087F430, 0x1F) > 0 || fn_80370174(lbl_8087F430, 0xD2) > 0)) {
+    if (lbl_8087F430 != 0 && (((GameTask*)lbl_8087F430)->fn_80370174(0x1F) > 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0xD2) > 0)) {
         return 0;
     }
     atn::Vector3 dir(move->x, 0.0f, move->z);
@@ -10790,10 +10777,24 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
-// NONMATCHING: ~75% (28/113 lines, 2 of them the ptmf .data noise) - the three argument temporaries
-// (pos, rot, color) get their stack slots in the opposite order (target: pos lowest); tried named locals
-// assigned field by field (then the ptmf temporaries move), temporaries, an inline accessor for the
-// m121C test.
+// inferred: effect `efp` on the model at its origin
+inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: starts the effect m121C on the model (mFlag18 is set while it is shown)
 void CharaTask::vf98() {
     bool show = false;
@@ -10809,8 +10810,7 @@ void CharaTask::vf98() {
     if (show) {
         fn_80232B7C(m121C.get(), 0);
         lbl_8087F3C0->mB8 = 2;
-        fn_8023A8B4(lbl_8087F3C0, m121C.get(), &mMotion, 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                    atn::Vector3(0.0f, 0.0f, 0.0f), Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, m121C.get(), &mMotion);
         lbl_8087F3C0->mB8 = 0;
         mFlag18 = 1;
     }
@@ -11514,7 +11514,7 @@ unsigned int CharaTask::fn_80179730(HitInfo_unk* hit, int flag) {
     if ((hit->mAC & 0x100000) == 0x100000) {
         flags |= 0x100;
         flags &= ~0x1C;
-        lbl_8087F430->fn_803750E4(0xE9);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0xE9);
     }
     if ((hit->mAC & 0x400000) == 0x400000 && hit->m98 == 0) {
         flags |= 0x800;

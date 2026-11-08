@@ -177,7 +177,6 @@ struct ShopField_unk {
     unsigned char m0000[0x10D0];
     int mChapter; // 0x10D0
 };
-extern "C" int fn_80370174(ShopField_unk* field, int index); // inferred: event flag
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
 extern "C" int fn_80444BE8(Inventory* party, ShopItem_unk* item);
 extern "C" int fn_80444C48(Inventory* party);
@@ -902,12 +901,12 @@ void ShopBase::vf38(const char* data, int size) {
             if (from != 0 && m25B4C < from && m25B54 == 0) {
                 continue;
             }
-            if (fromFlag != 0 && !fn_80370174(lbl_8087F430, fromFlag) && m25B58 == 0) {
+            if (fromFlag != 0 && !((GameTask*)lbl_8087F430)->fn_80370174(fromFlag) && m25B58 == 0) {
                 continue;
             }
             int to = fn_800DC12C(csv.fn_8005B9CC());
             int toFlag = fn_800DC12C(csv.fn_8005B9CC());
-            if (to != 0 && m25B4C >= to && m25B54 == 0 && (toFlag == 0 || fn_80370174(lbl_8087F430, toFlag)) &&
+            if (to != 0 && m25B4C >= to && m25B54 == 0 && (toFlag == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(toFlag)) &&
                 m25B58 == 0) {
                 continue;
             }

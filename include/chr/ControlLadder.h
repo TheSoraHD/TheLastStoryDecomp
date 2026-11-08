@@ -13,7 +13,7 @@ class ControlLadder : public ControlBase {
 public:
     ControlLadder(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b); // 0x801B9A54
     virtual int vf0C();                                                            // 0x801B9DE4
-    virtual atn::Vector3 vf14();                                                   // 0x801BAC74
+    virtual atn::Vector3 vf14() const;                                                   // 0x801BAC74
     virtual void vf40();                                                           // 0x801BB138
     atn::Vector3 mStart; // 0x08: inferred: foot of the ladder
     atn::Vector3 mEnd;   // 0x14: inferred: other end

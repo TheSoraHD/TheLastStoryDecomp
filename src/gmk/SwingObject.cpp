@@ -267,8 +267,7 @@ GimmickCommon* SwingObject::fn_803FE390(atn::Task* parent, int id, int arg) {
     return 0;
 }
 
-// NONMATCHING: 94.04% - .sdata2 constant order and float load scheduling
-GimmickCommon* SwingObject::fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc) {
+GimmickCommon* SwingObject::fn_803FE570(atn::Task* parent, const GimmickDesc_unk* desc) {
     if (parent != 0) {
         SwingObject* obj = new ((MemoryTag)12, "", "", 0) SwingObject(parent, desc->mId, desc->mArg);
         if (obj != 0) {

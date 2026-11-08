@@ -20,7 +20,7 @@ class ControlDraggedStart : public ControlBase {
 public:
     ControlDraggedStart(Chara_unk* chara, int target); // 0x801B2984
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
 };
 
 // inferred: being dragged (motion 0x21B); never finishes by itself

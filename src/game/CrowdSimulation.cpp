@@ -94,7 +94,6 @@ int CrowdSimulation::vf0C() {
     return fn_800D3FA4();
 }
 
-// NONMATCHING: f5/f6 swap between the z difference and the radius
 void CrowdSimulation::vf10() {
     RouteTable_unk* table = lbl_8087F430->m10D8;
     if ((table->m38 & 2) == 2) {
@@ -115,7 +114,8 @@ void CrowdSimulation::vf10() {
                         }
                     } else {
                         RoutePoint_unk* next = &table->mPoints[dest - 1];
-                        float limit = next->mRadius * next->mRadius;
+                        float radius = next->mRadius;
+                        float limit = radius * next->mRadius;
                         if (LengthSq_unk(walker->mNext - walker->mPos) < limit) {
                             walker->mPoint = fn_803CD958(
                                 (RoutePath_unk*)((char*)table->mPaths + (walker->mPoint - 1) * 8), walker->mDest - 1);

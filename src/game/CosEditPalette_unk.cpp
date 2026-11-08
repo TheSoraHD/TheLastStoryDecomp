@@ -32,7 +32,6 @@ extern "C" const wchar_t lbl_808813D0[2];                          // inferred: 
 extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" void fn_804A4494(int* cursor, int* top, int count, int page, int a, int b); // inferred: moves a list cursor
 extern "C" void* lbl_8087F430; // inferred: field
-extern "C" int fn_80370174(void* field, int id);
 extern "C" int fn_80219558(int id); // inferred: party member of a character id
 extern "C" int fn_8020EF80(EquipParamEntry_unk* entry); // inferred: item id of an equipment entry
 extern "C" int fn_80444A50(Inventory* inv, int kind);   // inferred: item of a kind
@@ -147,7 +146,7 @@ void CosEditProtector::fn_801D54C0() {
                 fn_80117228(0xB);
                 return;
             }
-            if (!fn_80370174(lbl_8087F430, 0x147)) {
+            if (!((GameTask*)lbl_8087F430)->fn_80370174(0x147)) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0x147, 1, 0);
             }
             if (GetDyeCount_unk(0) > 0 || GetDyeCount_unk(1) > 0) {

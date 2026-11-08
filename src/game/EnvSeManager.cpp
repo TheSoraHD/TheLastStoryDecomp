@@ -56,8 +56,6 @@ extern "C" bool fn_80215084(LoadingEnvSe_unk* entry, char* buf);
 // inferred: field and its event flags (lbl_8087F430)
 struct EnvSeField_unk;
 extern "C" EnvSeField_unk* lbl_8087F430;
-extern "C" int fn_80370174(EnvSeField_unk* field, int id);
-extern "C" int fn_80370A78(EnvSeField_unk* field, int id);
 
 // inferred: game settings (fn_800F52F8 returns lbl_8087F0A8; weak copy of another file)
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -223,9 +221,9 @@ void EnvSeManager::fn_8035EA2C() {
             if (area->mData.m44 != 0 && lbl_8087F430 != 0) {
                 int value;
                 if (area->mData.m48 == 1) {
-                    value = fn_80370174(lbl_8087F430, area->mData.m4C);
+                    value = ((GameTask*)lbl_8087F430)->fn_80370174(area->mData.m4C);
                 } else {
-                    value = fn_80370A78(lbl_8087F430, area->mData.m4C);
+                    value = ((GameTask*)lbl_8087F430)->fn_80370A78(area->mData.m4C);
                 }
                 if (value == area->mData.m50) {
                     area->m5C = 1;
@@ -703,7 +701,6 @@ void EnvSeManager::fn_80360848(int on, unsigned int bits, int fade) {
 
 void EnvSeManager::fn_803608A4() {}
 
-// NONMATCHING: 98.9% - registers of the search loop (record pointer and offset)
 void EnvSeManager::fn_803608A8() {
     if (lbl_8087F430 != 0) {
         int id = 0;
@@ -712,7 +709,7 @@ void EnvSeManager::fn_803608A8() {
         }
         if (id == 0) {
             for (unsigned int i = 0; i < (unsigned int)mRecords.mSize; i++) {
-                EnvSeRecord_unk* r = &mRecords.mData[i];
+                EnvSeRecord_unk* r = &mRecords[i];
                 if (r->mData.mType == 4 && r->mSound.mPtr != 0 && r->mTask != 0 && r->mTask->m58 != 0) {
                     id = fn_800CB6F8(&r->mSound);
                     break;
@@ -730,7 +727,7 @@ void EnvSeManager::fn_8036097C(int a, int b, int c, int d, int useFlag) {
         }
         m1A0 = 0;
         if (useFlag != 0) {
-            m1A0 = fn_80214F38(fn_80370174(lbl_8087F430, 0x393));
+            m1A0 = fn_80214F38(((GameTask*)lbl_8087F430)->fn_80370174(0x393));
         } else {
             m1A0 = fn_80214ED4(a, b, c, d);
         }

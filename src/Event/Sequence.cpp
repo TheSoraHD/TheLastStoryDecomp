@@ -11,7 +11,6 @@
 #include "atn/Memory.h"
 #include "atn/RenderSetting_unk.h"
 #include "db/EventIdTable_unk.h"
-#include "game/GameField_unk.h"
 #include "game/GameScene.h"
 #include "game/PlayerManager.h"
 #include "game/EnemyManager.h"
@@ -29,6 +28,8 @@
 #include "game/SetConfig.h"
 #include "game/GameVoice.h"
 #include "game/MapTask.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* memset(void* dst, int c, unsigned long n);
@@ -190,7 +191,7 @@ void Sequence::fn_8053E8C8(int state) {
 
 // inferred: scene of the current map (the field's, or the event manager's without a field)
 static inline GameScene* GetScene_unk() {
-    return lbl_8087F430 != 0 ? lbl_8087F430->GetScene_unk() : (lbl_8087F540->m1A6C != 0 ? lbl_8087F540->m1A6C : 0);
+    return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : (lbl_8087F540->m1A6C != 0 ? lbl_8087F540->m1A6C : 0);
 }
 
 // inferred: start of the event: stops the characters and the managers the event hides
@@ -209,7 +210,7 @@ void Sequence::fn_8053E8D0() {
                 if (scene != 0) {
                     for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
                         if (!enemy->IsFlag_unk(4)) {
-                            lbl_8087F430->GetScene_unk()->fn_803CCC84(2, enemy->m58);
+                            lbl_8087F430->m10D8->fn_803CCC84(2, enemy->m58);
                             enemy->fn_8016E4C4(0);
                         }
                     }
@@ -270,10 +271,10 @@ void Sequence::fn_8053E8D0() {
         if (m280 != 0) {
             m280->fn_80228FD8();
         }
-        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0 && lbl_8087F8A0 != 0) {
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F8A0 != 0) {
             PlayerTask* leader = lbl_8087F8A0->mHead;
             if (leader != 0) {
-                ((GameTask*)lbl_8087F430)->GetCurrentMap()->fn_804A0580(1, &leader->mPos);
+                lbl_8087F430->GetCurrentMap()->fn_804A0580(1, &leader->mPos);
             }
         }
     }
@@ -993,13 +994,14 @@ void Sequence::fn_80541588(const wchar_t* text, float x, float y, int show, int 
 }
 
 // inferred: event position to world
-atn::Vector3 Sequence::fn_80541BD8(const atn::Vector3& pos) {
+atn::Vector3 Sequence::fn_80541BD8(const atn::Vector3& pos) const {
     atn::Vector3 v = pos;
     v.x -= m9C.x;
     v.y -= m9C.y;
     v.z -= m9C.z;
+    float yaw = mB4;
     Mtx m;
-    PSMTXRotRad(m, 'y', mB4);
+    PSMTXRotRad(m, 'y', yaw);
     PSMTXMultVec(m, &v, &v);
     v.x += mA8.x;
     v.y += mA8.y;
@@ -1008,7 +1010,7 @@ atn::Vector3 Sequence::fn_80541BD8(const atn::Vector3& pos) {
 }
 
 // inferred: rotates `v` by the yaw of the event
-atn::Vector3 Sequence::fn_80541C94(const atn::Vector3& v) {
+atn::Vector3 Sequence::fn_80541C94(const atn::Vector3& v) const {
     float yaw = mB4;
     atn::Vector3 r = v;
     Mtx m;

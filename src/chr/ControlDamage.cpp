@@ -31,10 +31,8 @@ struct GameState_unk {
 extern "C" GameState_unk* lbl_8087EFA8;
 // inferred: field object (class unknown, as in gmk/LottaSummon.cpp)
 struct Field_unk {
-    void fn_803750E4(int id);
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
 // inferred: effect manager of the characters (lbl_8087F048)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -289,7 +287,7 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
     if (lbl_8087F498 && !mChara->mFlag2) {
         if (mChara->mStatus.IsState_unk(0x20)) {
             lbl_8087F498->fn_803EA77C(chara, 0xA, 0, 1.0f, 10.0f);
-            if (mChara->mType == 0 && lbl_8087F430 && !fn_80370174(lbl_8087F430, 0xB6)) {
+            if (mChara->mType == 0 && lbl_8087F430 && !((GameTask*)lbl_8087F430)->fn_80370174(0xB6)) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0xB6, 1, 0);
             }
         } else if (rand() % 2 == 0) {
@@ -449,7 +447,7 @@ bool ControlKnockdown::fn_801AE41C() {
     return false;
 }
 
-boost::function<void()> ControlKnockdown::vf10() {
+boost::function<void()> ControlKnockdown::vf10() const {
     if (m24) {
         return m24;
     }
@@ -508,9 +506,9 @@ int ControlRevival::vf0C() {
     return done;
 }
 
-// NONMATCHING: 98.4% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10)
+// NONMATCHING: 99.82% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10)
 // and mChara of the second bind after its ptmf.
-boost::function<void()> ControlRevival::vf10() {
+boost::function<void()> ControlRevival::vf10() const {
     CharaTask* chara = mChara;
     if (chara->mType != 0 && chara->m564 != 7) {
         return DoubleFunction(boost::bind(&CharaTask::fn_8016EB48, chara, false, false, false),
@@ -551,8 +549,7 @@ int ControlRevivalSkelton::vf0C() {
     return done;
 }
 
-// NONMATCHING: 94.1% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10).
-boost::function<void()> ControlRevivalSkelton::vf10() {
+boost::function<void()> ControlRevivalSkelton::vf10() const {
     return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
 }
 
@@ -685,7 +682,6 @@ ControlGuarded::ControlGuarded(Chara_unk* chara, int a) : ControlBase(chara), m0
     }
 }
 
-// NONMATCHING: 99.8% - stack slots of the three temporaries of the push (front, negated, scaled).
 int ControlGuarded::vf0C() {
     Motion_unk* model = &mChara->mMotion;
     int done = 0;
@@ -694,7 +690,8 @@ int ControlGuarded::vf0C() {
         done = 1;
     }
     if (m08 == 0 && model->mTracks[0].m08 < 25.0f) {
-        mChara->m6B8 = -FrontDir_unk(mChara->mRot) * 0.33f;
+        atn::Vector3 dir = -FrontDir_unk(mChara->mRot);
+        mChara->m6B8 = dir * 0.33f;
     }
     mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, mChara->m568);
     return done;
@@ -713,7 +710,7 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
     m14 = (-n).ToRotation_unk();
     mChara->fn_8016DA4C();
     if (mChara->mFlag28 && lbl_8087F430) {
-        lbl_8087F430->fn_803750E4(0xB5);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0xB5);
     }
     mChara->fn_80164DCC(1);
     if (mChara->mFlag31) {
@@ -787,7 +784,7 @@ int ControlDamageLastOne::vf0C() {
 }
 
 // NONMATCHING: 80.0% - the original schedules the loads of m20 and mChara into the prologue.
-bool ControlDamageLastOne::fn_801B0260() {
+bool ControlDamageLastOne::fn_801B0260() const {
     Motion_unk* model = &mChara->mMotion;
     if (m20 == 10 || m20 == 12) {
         bool result = false;
@@ -803,8 +800,7 @@ bool ControlDamageLastOne::fn_801B0260() {
     return frame >= model->fn_80097D7C(0);
 }
 
-// NONMATCHING: 94.0% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10).
-boost::function<void()> ControlDamageLastOne::vf10() {
+boost::function<void()> ControlDamageLastOne::vf10() const {
     return boost::bind(&CharaTask::fn_8015ECC4, (CharaTask*)mChara);
 }
 

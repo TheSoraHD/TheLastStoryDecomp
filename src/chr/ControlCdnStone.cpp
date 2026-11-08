@@ -147,9 +147,9 @@ inline ControlCdnRestoreStone::ControlCdnRestoreStone(Chara_unk* chara) : Contro
     }
 }
 
-// NONMATCHING: 97.9% - the original loads mChara before saving r31 (prologue scheduling) and keeps
+// NONMATCHING: 99.95% - the original loads mChara before saving r31 (prologue scheduling) and keeps
 // it in r8 for the sound position.
-boost::function<void()> ControlCdnStone::vf10() {
+boost::function<void()> ControlCdnStone::vf10() const {
     if (mChara != 0 && (mChara->mStatus.m0C & 0x20) == 0x20) {
         mChara->vf44();
         atn::Vector3 dir(0.0f, 0.0f, -0.01f);
@@ -201,7 +201,7 @@ void ControlCdnParalyzed::vf1C() {
     }
 }
 
-boost::function<void()> ControlCdnParalyzed::vf10() {
+boost::function<void()> ControlCdnParalyzed::vf10() const {
     ControlCdnRestoreParalyzed* next = new ((MemoryTag)0, "", "", 0) ControlCdnRestoreParalyzed(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -276,8 +276,7 @@ int ControlCdnBetray::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.0% - the original loads mChara before saving r31 (prologue scheduling).
-boost::function<void()> ControlCdnBetray::vf10() {
+boost::function<void()> ControlCdnBetray::vf10() const {
     if (mChara->mType == 0) {
         return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, 2);
     }
@@ -332,8 +331,8 @@ int ControlCdnSleep::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.8% - r29/r30 swapped for the functor allocated by boost::function.
-boost::function<void()> ControlCdnSleep::vf10() {
+// NONMATCHING: 99.75% - r29/r30 swapped for the functor allocated by boost::function.
+boost::function<void()> ControlCdnSleep::vf10() const {
     ControlCdnRestoreSleep* next = new ((MemoryTag)0, "", "", 0) ControlCdnRestoreSleep(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -358,7 +357,7 @@ int ControlCdnRestoreSleep::vf0C() {
     return frame >= motion->fn_80097D7C(0);
 }
 
-boost::function<void()> ControlCdnRestoreSleep::vf10() {
+boost::function<void()> ControlCdnRestoreSleep::vf10() const {
     if (mChara->m564 == 7) {
         return ControlBase::vf10();
     }
@@ -446,9 +445,7 @@ int ControlCdnPiyo::vf0C() {
     return done;
 }
 
-// NONMATCHING: 94.0% - the original loads mChara before saving r31 (prologue scheduling, as in
-// chr/ControlCliffhang.cpp vf10).
-boost::function<void()> ControlCdnPiyo::vf10() {
+boost::function<void()> ControlCdnPiyo::vf10() const {
     return boost::bind(&CharaTask::fn_801684A0, (CharaTask*)mChara);
 }
 
@@ -473,7 +470,7 @@ int ControlCdnRestorePiyo::vf0C() {
     return done;
 }
 
-boost::function<void()> ControlCdnRestorePiyo::vf10() {
+boost::function<void()> ControlCdnRestorePiyo::vf10() const {
     if (mChara->m564 == 7) {
         return ControlBase::vf10();
     }
@@ -536,8 +533,7 @@ int ControlCdnPsycho::vf0C() {
     return done;
 }
 
-// NONMATCHING: 94.0% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10).
-boost::function<void()> ControlCdnPsycho::vf10() {
+boost::function<void()> ControlCdnPsycho::vf10() const {
     return boost::bind(&CharaTask::fn_80168B1C, (CharaTask*)mChara);
 }
 
@@ -551,7 +547,7 @@ int ControlCdnRestorePsycho::vf0C() {
     return 1;
 }
 
-boost::function<void()> ControlCdnRestorePsycho::vf10() {
+boost::function<void()> ControlCdnRestorePsycho::vf10() const {
     if (mChara->m564 == 7) {
         return ControlBase::vf10();
     }

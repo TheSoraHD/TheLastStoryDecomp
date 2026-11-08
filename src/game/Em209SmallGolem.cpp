@@ -10,6 +10,7 @@
 #include "game/Input_unk.h"
 #include "atn/DrawHelper.h"
 #include "atn/Lerp_unk.h"
+#include "game/GameTask.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -51,7 +52,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 // inferred: field (lbl_8087F430) and its event counters (as in gmk/Coffin.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index); // inferred: reads a counter
 // inferred: player manager (lbl_8087F8A0; first character at 0x48, as in game/CharaTask.cpp)
 struct PlayerManager_unk {
     unsigned char m00[0x48];
@@ -293,11 +293,11 @@ inline void Em209SmallGolem::StartRevive_unk(CharaTask* by) {
 // loads of the skill call; 12 variants (helpers, temporaries, named colors, reversed arguments)
 void Em209SmallGolem::vf10() {
     m14B8 = mC58.mC4;
-    if ((mStatus.m0C & 0x20) == 0x20 && m1548 != 0 && m58C == 2 && fn_80370A78(lbl_8087F430, 0xC9) == 1) {
+    if ((mStatus.m0C & 0x20) == 0x20 && m1548 != 0 && m58C == 2 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
         CharaTask* player = lbl_8087F8A0->mHead;
         atn::Vector3 d = mPos - player->mPos;
         float dist = PSVECMag(&d);
-        if (m1549 != 0 && fn_80370A78(lbl_8087F430, 0xC8) == 1) {
+        if (m1549 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xC8) == 1) {
             StartRevive_unk(0);
         } else if (dist < 50.0f && player->fn_8016DDB0(0) && player->m55C != 6) {
             GameUI* ui = lbl_8087F490;
@@ -498,8 +498,24 @@ void Em209SmallGolem::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 92.73% - stack slots of pos/rot/color and of the safe-bool temporary of m121C: same open case
-// as CharaTask::vf98 (temporaries in the arguments give the opposite order; named locals move the ptmf)
+// inferred: effect `efp` on the model at its origin (as in Em202ForestSpider)
+inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: starts the effect m121C on the model and m1534 on the part in hand (CharaTask::vf98 starts only
 // the first one)
 void Em209SmallGolem::vf98() {
@@ -509,39 +525,13 @@ void Em209SmallGolem::vf98() {
     if (m121C) {
         fn_80232B7C(m121C.get(), 0);
         lbl_8087F3C0->mB8 = 2;
-        atn::Vector3 pos;
-        atn::Vector3 rot;
-        Color4f_unk color;
-        pos.x = 0.0f;
-        pos.y = 0.0f;
-        pos.z = 0.0f;
-        rot.x = 0.0f;
-        rot.y = 0.0f;
-        rot.z = 0.0f;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, m121C.get(), &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, m121C.get(), &mMotion);
         lbl_8087F3C0->mB8 = 0;
     }
     if (m648 != 0) {
         fn_80232B7C(&m1534, 0);
         lbl_8087F3C0->mB8 = 2;
-        atn::Vector3 pos;
-        atn::Vector3 rot;
-        Color4f_unk color;
-        pos.x = 0.0f;
-        pos.y = 0.0f;
-        pos.z = 0.0f;
-        rot.x = 0.0f;
-        rot.y = 0.0f;
-        rot.z = 0.0f;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1534, (atn::Model*)m648->m010, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, &m1534, (atn::Model*)m648->m010);
         lbl_8087F3C0->mB8 = 0;
     }
     mFlag18 = 1;
@@ -569,12 +559,11 @@ void Em209SmallGolem::vf50() {
     mFlagB29 = 1;
 }
 
-// NONMATCHING: 98.87% - r4/r5 of the copy of the center (temporary of mPos + m5A4, __VecCopy family)
 void Em209SmallGolem::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = m5B0;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
+        m624[0].m04.mRadius = m5B0;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
     }
 }
 

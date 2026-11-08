@@ -5,6 +5,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -39,7 +40,6 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 // inferred: field (lbl_8087F430); fn_80370AE4 sets an event flag
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 
 // inferred: four floats passed to the material edit (as in game/CharaTask.cpp); name invented
 struct Color4_unk {
@@ -480,7 +480,7 @@ void Em201ZanGurg::fn_80264C88() {
         m59F = 0;
     } else if (atn::Abs_unk(mMotion.mTracks[0].m08 - 10.0f) < 1.1920929e-7f) {
         if (++m16D0 > 2) {
-            fn_80370AE4(lbl_8087F430, 0x66, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x66, 1);
         }
     }
 }

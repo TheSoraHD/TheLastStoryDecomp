@@ -14,7 +14,7 @@ class ControlChaseCaught : public ControlBase {
 public:
     ControlChaseCaught(Chara_unk* chara, CharaTask* catcher, int presses, int time); // 0x801A77BC
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     CharaTask* m08; // inferred: the character that catches
     int m0C;        // inferred: presses of button 0x22 needed to escape (player)
     int m10;        // inferred: time held
@@ -25,7 +25,7 @@ class ControlChaseHeld : public ControlBase {
 public:
     ControlChaseHeld(Chara_unk* chara, CharaTask* catcher, int presses, int time); // 0x801A7DC8
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     CharaTask* m08;
     int m0C;
     int m10;
@@ -39,7 +39,7 @@ class ControlChaseRelease : public ControlBase {
 public:
     ControlChaseRelease(Chara_unk* chara);
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
 };
 
 // inferred: catches m08 (control id 0x69)
@@ -47,7 +47,7 @@ class ControlChaseCatch : public ControlBase {
 public:
     ControlChaseCatch(Chara_unk* chara, CharaTask* target); // 0x801A9A94
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     CharaTask* m08;
 };
 
@@ -56,7 +56,7 @@ class ControlChaseHold : public ControlBase {
 public:
     ControlChaseHold(Chara_unk* chara, CharaTask* target);
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     CharaTask* m08;
 };
 
@@ -65,7 +65,7 @@ class ControlChaseReleased : public ControlBase {
 public:
     ControlChaseReleased(Chara_unk* chara, CharaTask* target);
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     CharaTask* m08;
 };
 
@@ -74,7 +74,7 @@ class ControlChaseAssist : public ControlBase {
 public:
     ControlChaseAssist(Chara_unk* chara); // 0x801A880C
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     bool m08; // inferred: arrived
     int m0C;  // inferred: frames
 };

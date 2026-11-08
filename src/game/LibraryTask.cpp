@@ -47,7 +47,6 @@ struct GimmickUvOwner_unk {
 // inferred: event flags of the field
 struct LibraryField_unk;
 extern "C" LibraryField_unk* lbl_8087F430;
-extern "C" int fn_80370174(LibraryField_unk* field, int id);
 
 
 // inferred: parameters of the text (debug menu "Library")
@@ -237,7 +236,7 @@ void LibraryTask::vf1C(int state) {
                 mBook = 0;
             }
             mBook = new ((MemoryTag)1, "", "", 0) BookTask(this, book->mName, book->mTitle);
-            if (fn_80370174(lbl_8087F430, book->mId) == 1) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(book->mId, 2, 0);
             }
         } else {
@@ -305,7 +304,7 @@ void LibraryTask::fn_80469D60(const void* data, unsigned int size, int unlock) {
         }
         LibraryBook_unk book;
         book.mId = fn_800DC1DC(field);
-        if (book.mId != 0 && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, book.mId) == 0) {
+        if (book.mId != 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book.mId) == 0) {
             if (unlock == 0) {
                 continue;
             }
@@ -330,7 +329,7 @@ void LibraryTask::fn_8046A20C() {
         int index = i + mTop;
         if (index < (int)mBooks.size()) {
             LibraryBook_unk* book = &mBooks[index];
-            isNew = book->mId > 0 && fn_80370174(lbl_8087F430, book->mId) == 1;
+            isNew = book->mId > 0 && ((GameTask*)lbl_8087F430)->fn_80370174(book->mId) == 1;
             fn_801F837C(m58[i], "bookName", book->mTitle);
             fn_801F6C80(m58[i], "newIcon", isNew ? 1.0f : 0.0f);
             m58[i]->mFlags &= ~4;

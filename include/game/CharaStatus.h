@@ -83,7 +83,8 @@ struct RouteTable_unk {
 
     unsigned char m00[0x38];
     unsigned int m38; // inferred: flags (bit 1 tested by CharaTask::fn_801765D8)
-    unsigned char m3C[0x74 - 0x3C];
+    unsigned char m3C[0x70 - 0x3C];
+    int m70; // inferred: id of the default place (GameTask fn_8036FE74)
     int mNumPoints;          // 0x74
     unsigned int mNumPlaces; // 0x78
     RoutePlace_unk* mPlaces; // 0x7C
@@ -454,8 +455,8 @@ public:
     void fn_8012DF7C(int damage, unsigned int flags, HitInfo_unk* hit);
     int fn_8012F440(int flags, int power, int remove, int damage, int strong, int both, int effect);
     void ApplyRates_unk(HitInfo_unk* hit);
-    void fn_801342D0(struct StatusItem_unk* item, int stat);
-    int fn_80133BD8(int force); // inferred: level of the character
+    void fn_801342D0(const struct StatusItem_unk* item, int stat);
+    int fn_80133BD8(int force) const; // inferred: level of the character
     void ClearBit_unk(int bit);
     int fn_8012E534();
     int fn_80139F4C(); // inferred: accessor called out of line from CharaTask

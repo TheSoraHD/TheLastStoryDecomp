@@ -190,7 +190,7 @@ int ControlMountle::vf0C() {
 
 void ControlMountle::vf60() {}
 
-atn::Vector3 ControlMountle::vf14() {
+atn::Vector3 ControlMountle::vf14() const {
     Chara_unk* c = mChara;
     atn::Vector3 pos = c->mPos;
     float frame = c->mMotion.mTracks[0].m08;
@@ -308,7 +308,7 @@ int ControlGuardMountle::vf0C() {
     return 1;
 }
 
-atn::Vector3 ControlGuardMountle::vf14() {
+atn::Vector3 ControlGuardMountle::vf14() const {
     Chara_unk* c = mChara;
     atn::Vector3 pos = c->mPos;
     float frame = c->mMotion.mTracks[0].m08;
@@ -398,7 +398,7 @@ int ControlWallMountle::vf0C() {
     return frame >= m->fn_80097D7C(0) - 3.0f;
 }
 
-atn::Vector3 ControlWallMountle::vf14() {
+atn::Vector3 ControlWallMountle::vf14() const {
     return mChara->mPos;
 }
 
@@ -500,11 +500,11 @@ bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     return ret;
 }
 
-// NONMATCHING: 99.8% - f3/f4 swapped in the load of the motion speed and the time scale (same
-// as ControlWallMountle::vf0C).
 int ControlJump::vf0C() {
     Motion_unk* m = &mChara->mMotion;
-    m34 += m->mTracks[0].m0C * lbl_8087EFA8->m3A4;
+    float rate = m->mTracks[0].m0C;
+    float speed = lbl_8087EFA8->m3A4;
+    m34 += speed * rate;
     if (m30) {
         float a = MIN(1.0f, MAX(0.0f, (m34 - 25.0f) / 8.0f));
         float b = MIN(1.0f, m34 / 25.0f);
@@ -533,11 +533,11 @@ int ControlJump::vf0C() {
     return frame > m->fn_80097D7C(0) - 8.0f;
 }
 
-atn::Vector3 ControlJump::vf14() {
+atn::Vector3 ControlJump::vf14() const {
     return mChara->mPos;
 }
 
-boost::function<void()> ControlJump::vf10() {
+boost::function<void()> ControlJump::vf10() const {
     if (m31) {
         if (mChara->mPos.y >= 90.0f) {
             return boost::bind(&CharaTask::fn_801591E8, (CharaTask*)mChara, Front_unk(mChara->mRot));

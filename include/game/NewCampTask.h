@@ -30,6 +30,15 @@ struct NewCampPair_unk {
     int m04;
 };
 
+// inferred: what the camp opens with (GameTask::fn_8036E494; -1: none); names invented
+struct NewCampOpen_unk {
+    int mMenu;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+};
+
 // inferred from __vt__11NewCampTask (0x80793808): camp menu task, parent of the NewCampParts* (0x1380
 // bytes, fn_8052A888). Members keep their offsets (names unknown).
 class NewCampTask : public atn::Task {
@@ -38,6 +47,7 @@ public:
     virtual int vf0C();     // 0x8052B18C
     virtual void vf10();    // 0x8052BCFC
     virtual void vf14();    // 0x8052C0F0
+    void fn_8052C108(NewCampOpen_unk* open); // inferred: opens the camp
     void fn_8052C9C4(); // inferred: opens/closes the map select of the field (toggled by m133C)
     void fn_8052CA6C();
     void fn_8052DEEC(int state); // inferred: changes the parts of the camp (m464)

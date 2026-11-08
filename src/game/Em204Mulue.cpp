@@ -12,6 +12,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -111,8 +112,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 // inferred: damage record sent to the effect manager (as in game/Em302Kraken.cpp)
 struct MulueDamage_unk {
     MulueDamage_unk() : m04(0), m08(0), m0C(0), m10(0), m14(-1) {
@@ -281,7 +280,7 @@ inline void Em204Mulue::StartThrust_unk() {
     PlayMotion_unk(0x3D, 0, 0.0f);
     mMotion.mTracks[0].m0C = 0.0f;
     if (m1854 != 0) {
-        fn_80370AE4(lbl_8087F430, m1684, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1684, 1);
     }
 }
 inline void Em204Mulue::ShowMessage_unk(int id) {
@@ -795,8 +794,8 @@ void Em204Mulue::fn_802A74A4() {
     float angle = fn_802A7910(fn_802A7964(rot.y - mRot.y));
     PlayerTask* player = lbl_8087F8A0->mHead;
     if (m15E4 >= 60 && (player->fn_801789D8(0x9C, 0) || player->fn_801789D8(0xA0, 0))) {
-        if (fn_80370A78(lbl_8087F430, 0xDC) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xDC, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xDC) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xDC, 1);
         }
         m14F4 = 6;
         m15E4 = 0;
@@ -881,13 +880,12 @@ void Em204Mulue::fn_802A7970() {
     }
 }
 
-// NONMATCHING: 98.93% - r3/r4 of the copy of the center (__VecCopy of a temporary, docs/mwcc-blockers.md)
 void Em204Mulue::vf54() {
     if (m624.mSize != 0) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-        m624.mData[0].m04.mRadius = 1.5f * m5B0;
-        m624.mData[0].m04.mCenter = pos + m5A4;
-        m624.mData[0].m04.mCenter.y = mPos.y + m624.mData[0].m04.mRadius;
+        m624[0].m04.mRadius = 1.5f * m5B0;
+        m624[0].m04.mCenter = pos + m5A4;
+        m624[0].m04.mCenter.y = mPos.y + m624[0].m04.mRadius;
     }
 }
 
@@ -1290,8 +1288,8 @@ void Em204Mulue::fn_802AA534() {
                 PlayMotion_unk(0x141, 0, 1.0f);
                 PlayerTask* player = lbl_8087F8A0->mHead;
                 if (player->fn_801789D8(0x9C, 0) || player->fn_801789D8(0xA0, 0)) {
-                    if (fn_80370A78(lbl_8087F430, 0xDC) == 0) {
-                        fn_80370AE4(lbl_8087F430, 0xDC, 1);
+                    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xDC) == 0) {
+                        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xDC, 1);
                     }
                 }
                 return;
@@ -1501,15 +1499,15 @@ void Em204Mulue::fn_802AB97C() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x35, 0, 0, 1, 0.0f, 0.03f);
     m14B8 = 0;
-    fn_80370AE4(lbl_8087F430, 0x50, 2);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x50, 2);
     fn_80232B7C(0, 0);
     PlayEffect_unk(&m152C, &mMotion);
     ShowMessage_unk(0xED);
     if (m1854 != 0) {
-        fn_80370AE4(lbl_8087F430, m1680, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1680, 1);
     }
-    if (m1688 != 0 && fn_80370A78(lbl_8087F430, m1688) == 0) {
-        fn_80370AE4(lbl_8087F430, m1688, 1);
+    if (m1688 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m1688) == 0) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(m1688, 1);
     }
     if (m1644 != 0) {
         m1644->fn_8015AC48(-1);

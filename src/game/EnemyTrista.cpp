@@ -3,6 +3,7 @@
 #include "chr/ControlBase.h"
 #include "game/CharaManager.h"
 #include "math/Vec.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -134,8 +135,6 @@ struct Field_unk {
     FieldLook_unk m97C;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 
 static const char* const sSounds[] = {"SE_BTCOM_026", "SE_BTCOM_040"};
 static const char* const sEffect0 = "/effect/ef_sp007a.efp";
@@ -205,8 +204,7 @@ int ControlShingan::vf0C() {
 
 } // namespace
 
-// NONMATCHING: 98.6% - the original loads info->m20 before saving the registers
-EnemyTrista::EnemyTrista(atn::Task* parent, EnemyInfo_unk* info)
+EnemyTrista::EnemyTrista(atn::Task* parent, const EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14D0(-1), m14D4(-1), m14D8(0), m14DC(0),
       m14E0(0), m14E4(0.0f), m14E8(0), m14EC(0), m14F0(0), m14F4(0), m15A4(120), m15A8(30), m15AC(9.0f),
       m15B0(300) {
@@ -318,8 +316,8 @@ inline void EnemyTrista::StartEvent_unk() {
     unsigned int i = 0;
     TristaEvent_unk* e = m1540.mData;
     for (; i < m1540.mCount; i++) {
-        if (fn_80370A78(lbl_8087F430, e->m00) == 0) {
-            fn_80370AE4(lbl_8087F430, e->m00, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m00) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(e->m00, 1);
             m14D0 = i;
             break;
         }
@@ -339,8 +337,8 @@ void EnemyTrista::vf10() {
         }
         if (m14D0 >= 0) {
             TristaEvent_unk* e = &m1540.mData[m14D0];
-            if (fn_80370A78(lbl_8087F430, e->m00) != 1) {
-                if (fn_80370A78(lbl_8087F430, e->m04) == 0) {
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m00) != 1) {
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m04) == 0) {
                     m14D4 = m14D0;
                     if (m14D4 >= 1) {
                         m14C0 = 1;
@@ -507,7 +505,7 @@ void EnemyTrista::fn_8035C8CC() {
                 m58C = 10;
                 m14B8 = 0;
                 fn_80178208(new ((MemoryTag)0, "", "", 0) ControlShingan(this, 900000));
-                fn_80370AE4(lbl_8087F430, 0x67, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x67, 1);
             } else {
                 bool jump;
                 if (mC58.mC4 == 0) {
@@ -745,7 +743,7 @@ void EnemyTrista::vf3C(HitInfo_unk* hit) {
         }
     } else if (m14E0 != 0) {
         if (HasHit_unk(m151C, msg->mData)) {
-            fn_80370AE4(lbl_8087F430, 0x6D, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6D, 1);
             if (fn_8035D4E0(msg)) {
                 m58C = 9;
                 m14B8 = 0;
@@ -759,7 +757,7 @@ void EnemyTrista::vf3C(HitInfo_unk* hit) {
         } else {
             m151C.PushBack_unk(msg->mData);
             fn_8035DC58(0, 0.0f);
-            fn_80370AE4(lbl_8087F430, 0x76, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x76, 1);
             msg->m50 |= 8;
             m14DC = 1;
         }
@@ -804,7 +802,7 @@ int EnemyTrista::fn_8035DA94() {
     float ratio = mStatus.m04 / mStatus.mParamB.m84;
     TristaEvent_unk* e = m1540.mData;
     for (unsigned int i = 0; i < m1540.mCount; i++) {
-        if (fn_80370A78(lbl_8087F430, e->m00) == 0 && ratio <= e->m08) {
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(e->m00) == 0 && ratio <= e->m08) {
             return 1;
         }
         e++;

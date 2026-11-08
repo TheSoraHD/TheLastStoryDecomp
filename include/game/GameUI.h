@@ -296,6 +296,9 @@ public:
     // defines them. game/SkillEffectManager calls the weak copy (out of its inline budget), so the
     // bodies are not in this header.
     static GameUI* Get_unk();
+    // inferred: weak copies of game/GameTask.cpp (0x8036E428, 0x8036EE04); names invented
+    inline GameMessageWindow* GetMessageWindow_unk();
+    inline GameTextMessageWindow* GetTextWindow_unk();
     void Remove_unk(CharaTask* chara);
 
     void fn_803CF740();

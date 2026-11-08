@@ -31,7 +31,6 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 
 // inferred: field object (class unknown)
 struct Field_unk {
-    void fn_803750E4(int id);
     unsigned char m00[0x74];
     atn::Vector3 m74; // inferred: camera position
     unsigned char m80[0x54E4 - 0x80];
@@ -40,7 +39,6 @@ struct Field_unk {
     int m5694;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);     // inferred: field flag
 // inferred: global objects (classes unknown)
 struct SaveEvent_unk {
     unsigned char m00[0x48];
@@ -186,7 +184,7 @@ void SavePoint::vf10() {
         float dist = LenSq_unk(player->mPos - m6C);
         if (m54 == 0) {
             if (dist < 64.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0) {
-                lbl_8087F430->fn_803750E4(0x145);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x145);
             }
         } else if (m54 >= 1) {
             float dist2 = LenSq_unk(player->mPos - m6C);
@@ -331,7 +329,7 @@ int SavePoint::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) 
         return 0;
     }
     if (LenSq_unk(m6C - *pos) < 64.0f) {
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x92) == 0) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x92) == 0) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0x92, 1, 0);
         }
         return 1;

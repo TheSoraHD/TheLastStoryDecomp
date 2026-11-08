@@ -29,7 +29,6 @@ extern "C" char lbl_8087DFD0[4];
 extern "C" char lbl_8087DFD4[4];
 // inferred: field object (class unknown)
 struct Field_unk {
-    void fn_803750E4(int id);
     unsigned char m00[0x10D0];
     void* m10D0; // inferred: item lottery of the merchants
     void* m10D4;
@@ -319,7 +318,7 @@ void RandomMerchant::vf10() {
             m3074 = msg->m0C;
             lbl_8087F490->fn_803E3BE8(&m3068, m309C, 7.5f);
             if (lbl_8087F430 != 0) {
-                lbl_8087F430->fn_803750E4(0xDC);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0xDC);
             }
             m54 = 1;
             mState = 2;

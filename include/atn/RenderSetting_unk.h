@@ -96,6 +96,14 @@ struct DofParam_unk {
 class RenderSetting_unk {
 public:
     RenderSetting_unk();
+    // inferred: weak copies of game/GameTask.cpp (0x80366D40-0x80366E08, 0x80373100); names invented except
+    // SetColorMatrix (RSO)
+    inline void SetColorMatrix(const ColorMatrixParam_unk& p);
+    inline DamageEffectParam_unk* GetDamage_unk();
+    inline void SetDamage_unk(DamageEffectParam_unk p);
+    inline void SetMotionBlur_unk(int enabled);
+    inline void SetFrameSpeed_unk(float speed);
+    inline ColorMatrixParam_unk* GetColorMatrix_unk();
     // inferred: default post effects (inlined in MapTask::fn_8049ED90: its temporaries are laid out as
     // in an inlined call; name invented)
     void ResetPostFx_unk() {

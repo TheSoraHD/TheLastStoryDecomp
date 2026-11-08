@@ -21,7 +21,7 @@ class ControlStickByQuark : public ControlBase {
 public:
     ControlStickByQuark(Chara_unk* chara, int quark); // 0x80192908
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     void fn_80192FB4(); // inferred: stuck on the right arm (called by EnemyQuarkStand)
 
@@ -59,7 +59,7 @@ class ControlThrustForKraken : public ControlBase {
 public:
     ControlThrustForKraken(Chara_unk* chara, int kraken, atn::Vector3 target); // 0x80194550
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
     atn::Vector3 mTarget; // 0x08
     atn::Vector3 mFrom;   // 0x14: inferred: the kraken
     atn::Vector3 mDest;   // 0x20
@@ -89,7 +89,7 @@ class ControlThrustForGhoul : public ControlBase {
 public:
     ControlThrustForGhoul(Chara_unk* chara, Chara_unk* other, const char* name); // 0x801957F0
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
     virtual void vf1C();
     virtual void vf40();
     virtual int vf54() { return m38; }
@@ -141,7 +141,7 @@ public:
 class ControlMatHoldGuard : public ControlBase {
 public:
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     MtxPtr mHolder; // 0x08: inferred: node matrix of the mat
     int mCount;     // 0x0C: inferred: swings left
@@ -159,7 +159,7 @@ class ControlMatHold : public ControlBase {
 public:
     ControlMatHold(Chara_unk* chara, int mtx); // 0x801978C0
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     int mMtx;   // 0x08: inferred: node matrix of the mat (copied to CharaTask::mF1C)
     int mCount; // 0x0C: inferred: swings left
@@ -181,7 +181,7 @@ class ControlThrown : public ControlBase {
 public:
     ControlThrown(Chara_unk* chara, const atn::Vector3& target, int frames); // 0x80198C08
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
     atn::Vector3 mTarget; // 0x08
     atn::Vector3 mVel;    // 0x14
     int mFrames;          // 0x20
@@ -195,7 +195,7 @@ public:
     ControlThrownAway(Chara_unk* chara, int mtx, int frames); // 0x80199348
     virtual ~ControlThrownAway();
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
     int mMtx;    // 0x08: inferred: matrix the character follows
     int mFrames; // 0x0C
 };
@@ -204,8 +204,8 @@ class ControlThrownAvoid : public ControlBase {
 public:
     ControlThrownAvoid(Chara_unk* chara, int mtx, const atn::Vector3& dir); // 0x80199788
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
-    virtual atn::Vector3 vf14();
+    virtual boost::function<void()> vf10() const;
+    virtual atn::Vector3 vf14() const;
     int mMtx;          // 0x08
     atn::Vector3 mDir; // 0x0C
 };
@@ -224,7 +224,7 @@ class ControlThrownSkelton : public ControlBase {
 public:
     ControlThrownSkelton(Chara_unk* chara, const atn::Vector3& target, HitInfo_unk* data); // 0x8019A580
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     HitInfo_unk* mHit;    // 0x08
     atn::Vector3 mTarget; // 0x0C
     atn::Vector3 mDir;    // 0x18
@@ -234,7 +234,7 @@ class ControlThrownBreakSkelton : public ControlBase {
 public:
     ControlThrownBreakSkelton(Chara_unk* chara); // 0x8019AFE8
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     unsigned char m08[0x20 - 0x08];
 };
 
@@ -243,7 +243,7 @@ public:
     ControlThreadCatch(Chara_unk* chara, int a, int b); // 0x8019B29C
     virtual ~ControlThreadCatch();
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     int m08;
     CharaTask* mOther;    // 0x0C
@@ -273,7 +273,7 @@ class ControlBoundShade : public ControlBase {
 public:
     ControlBoundShade(Chara_unk* chara, int time, int b, int count); // 0x8019BFF0
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     int mState; // 0x08
     int mTime;  // 0x0C
     int mTimer; // 0x10
@@ -285,7 +285,7 @@ public:
 class ControlThrownSimple : public ControlBase {
 public:
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 mTarget; // 0x08
     atn::Vector3 mVel;    // 0x14
@@ -298,7 +298,7 @@ class ControlAbsorbedHP : public ControlBase {
 public:
     ControlAbsorbedHP(Chara_unk* chara, CharaTask* other, HitInfo_unk* hit); // 0x8019DA50
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
 
     atn::Vector3 mTarget; // 0x08: inferred: in front of `other`
     int mCount;           // 0x14: inferred: shakes left to break free
@@ -318,8 +318,8 @@ class ControlCliffhangZanGurg : public ControlBase {
 public:
     ControlCliffhangZanGurg(Chara_unk* chara, atn::Vector3 a, atn::Vector3 b, atn::Vector3 c); // 0x8019E4F4
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
-    virtual int vf30() { return mCount; }
+    virtual atn::Vector3 vf14() const;
+    virtual int vf30() const { return mCount; }
 
     int mState;           // 0x08
     int mCount;           // 0x0C: inferred: button presses while hanging
@@ -334,7 +334,7 @@ class ControlEndCliffhangZanGurg : public ControlBase {
 public:
     ControlEndCliffhangZanGurg(Chara_unk* chara, atn::Vector3 target); // 0x8019EB7C
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 mTarget; // 0x08
     atn::Vector3 mOffset; // 0x14: inferred: start position relative to mTarget
@@ -345,8 +345,8 @@ class ControlStickZanGurgStand : public ControlBase {
 public:
     ControlStickZanGurgStand(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir); // 0x8019F0A8
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
-    virtual atn::Vector3 vf14();
+    virtual boost::function<void()> vf10() const;
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 mPos; // 0x08
     atn::Vector3 mDir; // 0x14
@@ -357,8 +357,8 @@ class ControlStickZanGurgCliff : public ControlBase {
 public:
     ControlStickZanGurgCliff(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir); // 0x8019F8E8
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
-    virtual atn::Vector3 vf14();
+    virtual boost::function<void()> vf10() const;
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 mPos; // 0x08
     atn::Vector3 mDir; // 0x14

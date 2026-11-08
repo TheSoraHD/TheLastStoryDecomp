@@ -87,7 +87,6 @@ extern "C" NewCampStatusHelp_unk* fn_8021F09C(int id);
 // inferred: field (lbl_8087F430)
 struct NewCampStatusField_unk;
 extern "C" NewCampStatusField_unk* lbl_8087F430;
-extern "C" void fn_80376324(NewCampStatusField_unk* field, int id);
 
 // inferred: characters (fn_8000D9E8 returns the manager lbl_8087F8A0)
 extern "C" void* fn_8000D9E8();
@@ -709,7 +708,7 @@ void NewCampPartsStatus::fn_805288BC(int state) {
             if (help->mSeen != 0) {
                 if (lbl_8087F430 != 0) {
                     ((GameTask*)lbl_8087F430)->fn_803766E4();
-                    fn_80376324(lbl_8087F430, help->mFlag);
+                    ((GameTask*)lbl_8087F430)->fn_80376324(help->mFlag);
                 }
                 fn_805288BC(1);
             } else {

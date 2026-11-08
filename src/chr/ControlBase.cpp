@@ -12,7 +12,7 @@ inline atn::Vector3 RotY_unk(Mtx m, const atn::Vector3& v) {
 
 namespace chr {
 
-atn::Vector3 ControlBase::vf14() {
+atn::Vector3 ControlBase::vf14() const {
     return mChara->mPos;
 }
 
@@ -20,7 +20,7 @@ atn::Vector3 ControlBase::vf14() {
 // puts the z block lowest). Two nested inlines (matrix builder + Rotate_unk as in
 // game/CharaTask.cpp fn_801496A8) give the right slots but swap r30/r31 (95.3%).
 // inferred: facing direction of the character (z axis rotated by mRot)
-atn::Vector3 ControlBase::vf18() {
+atn::Vector3 ControlBase::vf18() const {
     atn::Matrix3x4 m;
     atn::Matrix3x4* p = &m;
     Chara_unk* chara = mChara;
@@ -49,9 +49,7 @@ atn::Vector3 ControlBase::vf18() {
     return RotY_unk(p->m, atn::Vector3(0.0f, 0.0f, 1.0f));
 }
 
-// NONMATCHING: 95.8% - the original loads mChara before saving r31 (prologue scheduling, as in
-// chr/ControlCliffhang.cpp vf10); labels are those of chr/ControlCdnStone (weak copies).
-boost::function<void()> ControlBase::vf10() {
+boost::function<void()> ControlBase::vf10() const {
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
 

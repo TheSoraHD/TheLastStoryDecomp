@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
-- `gametask-20261107` (2026-11-07, mergeada en `main`): **14167 / 18116**, lost 0. `game/GameTask` 42 -> 57/133: pool `@stringBase0` igual al original hasta 0x1AF escribiendo ctor, `vf0C`, `vf10`, `vf14` y SetGlobalFlag en orden; GetGlobalFlag/GetLocalFlag/SetLocalFlag al 100%. Notas: `docs/gametask-20261107.md`.
-- `msl-iostream-20261107c`/`d` (mergeadas en `main`): 14152, MSL C++ 112/170; `docs/msl-iostream-20261107.md` (sesiones 5 y 6).
-- `msl-iostream-20261107b` (sesion 4, mergeada en `main`): 14151, MSL C++ 106 -> 111/170 (`num_put` de `double`, `sentry`/`flush` de `wostream`, destructores de `Init`).
+- `s12h-20261107` (2026-11-08, sin mergear): **14351 / 18116** en `report.json` (14348 en `objdiff diff`: 3 al 99,8-99,9%), lost 0. GameTask 57 -> 104/133, TacView 14 -> 27/46, CharaTask +11; trucos: `operator[]` en vez de `.mData[i]`, `const` de nivel superior en parametros por valor, locales con nombre e inlines que mueven temporales (`EffOrigin_unk`). Unificacion de vistas parcial. Notas: `docs/s12h-20261107.md`.
+- `gametask-20261107` (mergeada en `main`): 14167, GameTask 42 -> 57/133 (pool `@stringBase0` hasta 0x1AF); `docs/gametask-20261107.md`.
+- `msl-iostream-20261107b`/`c`/`d` (mergeadas en `main`): 14151 -> 14152, MSL C++ 106 -> 112/170; `docs/msl-iostream-20261107.md`.
 - `msl-iostream-20261107` (mergeada en `main`): 14146, MSL C++ 106/170 (`shared_ptr_unk.cpp` enlazada). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`.
 - `nw4rmath-20261107` (mergeada en `main`): 14053, NW4R 77/78 (falta `ut_TextWriterBase`): `db_DbgPrintBase`, math (`SinCosFIdx`, `MTX34Zero`, asm aprobado), `db_assert` (`VPanic`), `FrameHeap::GetSize_unk`; `docs/nw4rmath-20261107.md`.
 - `maraton-20261107` (mergeada en `main`): 13987, `BattleTask` 94/212, `GameTask` 42/133, `AiTarget` 31/44, `TacView` 14/46, `GameEventScript` 61/224; `docs/maraton-20261107.md`.

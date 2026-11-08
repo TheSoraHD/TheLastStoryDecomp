@@ -189,3 +189,15 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - `Event::DebugInfo_unk` ctor 0x80221E08 (90%, `maraton-20261107`): el original guarda -1 en r31, 0 en r30 y la tabla de columnas en r29 (nosotros al reves); probado array estatico/global, puntero local, array decaido.
 - `GameCamera::fn_80389678` (`maraton-20261107`): MWCC inlinea `atn::RenderManager::SetCamera_unk` (copia de 0x1F4 bytes) donde el original llama a la copia debil, y reparte los floats en f9-f13; retirada.
 - GameEventScript fn_803A61F4 (familia r0/rX, `maraton-20261107`): escribiendo el `SetNext_unk` a mano (`result.mWait = 0; result.mNext = (ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]);`, sin la referencia `int& size`) los registros salen como el original y solo queda el `lis` de la tabla despues del `li 0` (4 lineas); probado tabla en local, puntero a la entrada, indice en local, `next` precalculado.
+- (`s12h-20261107`) Siguen sin resolver tras ~10-15 variantes cada una: `GameTask::fn_80376254` (r4/r8 de la copia
+  de `MotionBlurParam_unk`), `fn_80374710` (registros del bucle de `FindPlace_unk`, tambien cambiando la cabecera),
+  `fn_8036CA60` (r3/r4 de `lbl_8087F418` y del mapa), `fn_80376324` (el original relee `mCount` de la cola),
+  `CharaTask::fn_8016DAB0` (orden fb8/fbc y hueco del segundo `fctiwz` de MAX), `BattleTask::fn_80109828`
+  (`bne` sobre `blr`; ni `if` anidados ni inline), `NewCampPartsOption::vf2C` (huecos de los `SoundRef` del
+  modo 8: invertir el `if` acierta los huecos pero cambia el orden de los bloques), `Em308ParmCrab::fn_802FBA30`/
+  InvertCrab (huecos de `dir` y del temporal de `ToRotation_unk`, 30 formas), `Event::EventCamera_unk::fn_80115704`
+  (registro del segundo `fabs`), `ControlWallMountle::vf0C` (22 lineas con `rate`/`speed`/`st`),
+  `fn_8017C9AC` de CharaTask (solo r6/r7 de la copia del segmento tras pasar el segmento y el empuje a inlines).
+- (`s12h-20261107`) `TacView` (copias debiles `fn_805A96C0`, `fn_805ABD6C`...) y
+  `GameTask::fn_80372574`: funciones de 8-124 bytes que son copias debiles detras de su primer usuario grande
+  (`fn_80371790`, `vf10` de TacView...); no se pueden colocar sin escribir antes ese usuario.

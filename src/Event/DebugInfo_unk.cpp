@@ -16,9 +16,13 @@ void fn_80224184(DebugInfo_unk* info);
 void fn_80224638(DebugInfo_unk* info);
 
 // inferred: columns of the three tables (6, 6 and 10 columns)
-static DebugInfoColumnDef_unk sColumns_unk[22] = {
+static DebugInfoColumnDef_unk sColumns0_unk[6] = {
     {0, 0, 0, 50.0f}, {0, 0, 0, 60.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 60.0f}, {0, 0, 0, 220.0f}, {0, 0, 0, 100.0f},
+};
+static DebugInfoColumnDef_unk sColumns1_unk[6] = {
     {0, 0, 0, 70.0f}, {0, 0, 0, 60.0f}, {0, 0, 0, 180.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 80.0f}, {0, 0, 0, 100.0f},
+};
+static DebugInfoColumnDef_unk sColumns2_unk[10] = {
     {0, 0, 0, 80.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 40.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f},
     {0, 0, 0, 40.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 40.0f},
 };
@@ -26,9 +30,9 @@ static DebugInfoColumnDef_unk sColumns_unk[22] = {
 // NONMATCHING: 90% - same instructions; the original keeps -1 in r31, 0 in r30 and the column table in r29
 // (ours: table r31, -1 r30, 0 r29). Tried the table as a static/global array, a local pointer, decayed array.
 DebugInfo_unk::DebugInfo_unk() : mPage(0), m04(30.0f), m08(30.0f), m0C(14.0f), m10(-1), m74(0) {
-    m14.fn_80220168(&sColumns_unk[0], 6, 25);
-    m2C.fn_80220168(&sColumns_unk[6], 6, 25);
-    m44.fn_80220168(&sColumns_unk[12], 10, 25);
+    m14.fn_80220168(sColumns0_unk, 6, 25);
+    m2C.fn_80220168(sColumns1_unk, 6, 25);
+    m44.fn_80220168(sColumns2_unk, 10, 25);
     m10 = -1;
     m74 = 0;
     mPages[0] = fn_80221FA4;

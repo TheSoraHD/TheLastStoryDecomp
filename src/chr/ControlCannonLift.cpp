@@ -223,9 +223,9 @@ int ControlCannonLift::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 98.9% - register allocation of the inlined ControlCannonTarget constructor (the
+// NONMATCHING: 98.92% - register allocation of the inlined ControlCannonTarget constructor (the
 // new object is in r28, ours r31) and the r3/r4 swap of the __VecCopy of m08.
-boost::function<void()> ControlCannonLift::vf10() {
+boost::function<void()> ControlCannonLift::vf10() const {
     if (m0C) {
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara,
                            new ((MemoryTag)1, "", "", 0) ControlCannonTarget(mChara));
@@ -376,7 +376,7 @@ int ControlCannonTarget::vf0C() {
     return ret;
 }
 
-boost::function<void()> ControlCannonTarget::vf10() {
+boost::function<void()> ControlCannonTarget::vf10() const {
     if (m2C != 0) {
         return boost::bind(&CharaTask::fn_8017518C, (CharaTask*)mChara);
     }

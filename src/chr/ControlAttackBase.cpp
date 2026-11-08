@@ -187,7 +187,7 @@ int ControlAttackBase::vf28() {
 }
 
 // NONMATCHING: 98.0% - table and chara in r5/r4 instead of r4/r5.
-int ControlAttackBase::vf30() {
+int ControlAttackBase::vf30() const {
     Chara_unk* chara = mChara;
     if (mTable != 0) {
         float frame = chara->mMotion.mTracks[0].m08;
@@ -516,9 +516,9 @@ ControlAttackSetup::ControlAttackSetup(Chara_unk* chara, int wait) : ControlBase
     motion->fn_80097C08(0, 0x173, 0, 0, 1, 0.0f, 0.1f);
 }
 
-// NONMATCHING: 99.4% - FPRs of mWait and the time scale swapped.
 int ControlAttackSetup::vf0C() {
-    mWait = mWait - lbl_8087EFA8->m3A4;
+    float speed = lbl_8087EFA8->m3A4;
+    mWait = mWait - speed;
     Chara_unk* chara = mChara;
     Motion_unk* motion = &chara->mMotion;
     float frame = chara->mMotion.mTracks[0].m08;
@@ -605,7 +605,7 @@ int ControlJumpAttack::vf0C() {
     return 0;
 }
 
-atn::Vector3 ControlJumpAttack::vf14() {
+atn::Vector3 ControlJumpAttack::vf14() const {
     Chara_unk* chara = mChara;
     atn::Vector3 r = chara->mPos;
     float frame = chara->mMotion.mTracks[0].m08;
@@ -666,7 +666,7 @@ int ControlJumpAttack2::vf0C() {
     return 0;
 }
 
-atn::Vector3 ControlJumpAttack2::vf14() {
+atn::Vector3 ControlJumpAttack2::vf14() const {
     Chara_unk* chara = mChara;
     atn::Vector3 r = chara->mPos;
     float frame = chara->mMotion.mTracks[0].m08;

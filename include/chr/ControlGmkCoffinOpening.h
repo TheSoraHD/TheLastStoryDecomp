@@ -37,7 +37,7 @@ class ControlGmkTrapBat : public ControlBase {
 public:
     ControlGmkTrapBat(Chara_unk* chara, float damage); // 0x801B46E8
     virtual int vf0C();                                // 0x801B4788
-    virtual boost::function<void()> vf10();            // 0x801B47EC
+    virtual boost::function<void()> vf10() const;            // 0x801B47EC
 
     float mDamage; // 0x08
 };

@@ -5,6 +5,7 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -26,8 +27,6 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: field counters (lbl_8087F430)
 struct CoffinField_unk;
 extern "C" CoffinField_unk* lbl_8087F430;
-extern "C" int fn_80370A78(CoffinField_unk* field, int index);             // inferred: reads a counter
-extern "C" void fn_80370AE4(CoffinField_unk* field, int index, int value); // inferred: sets a counter
 extern "C" int fn_80219558(int id); // inferred: party member kind of a character id (negative for enemies)
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: bullets
@@ -210,9 +209,9 @@ void Coffin::vf10() {
     }
     switch (m54) {
     case 3: {
-        int n = fn_80370A78(lbl_8087F430, 3);
+        int n = ((GameTask*)lbl_8087F430)->fn_80370A78(3);
         if (--mCount < 0) {
-            fn_80370AE4(lbl_8087F430, 3, n + 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(3, n + 1);
             GimmickMsg_unk msg(4);
             vf40(&msg);
         }
@@ -396,7 +395,7 @@ void Coffin::fn_80412968() {
     if (counter < 0) {
         return;
     }
-    int id = fn_80370A78(lbl_8087F430, counter);
+    int id = ((GameTask*)lbl_8087F430)->fn_80370A78(counter);
     int kind = fn_80219558(id);
     if (kind < 0) {
         mChara = EnemyManager::sInstance->Find_unk(id);
@@ -404,7 +403,7 @@ void Coffin::fn_80412968() {
             mKind = 0;
         } else {
             mKind = 1;
-            fn_80370AE4(lbl_8087F430, 0x6F, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6F, 1);
         }
     } else {
         mChara = lbl_8087F8A0->FindByChara_unk(id);
@@ -412,16 +411,16 @@ void Coffin::fn_80412968() {
             mKind = 2;
             switch (kind) {
             case 2:
-                fn_80370AE4(lbl_8087F430, 0x1E, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x1E, 0);
                 break;
             case 6:
-                fn_80370AE4(lbl_8087F430, 0x1F, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x1F, 0);
                 break;
             case 4:
-                fn_80370AE4(lbl_8087F430, 0x20, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x20, 0);
                 break;
             case 11:
-                fn_80370AE4(lbl_8087F430, 0x21, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x21, 0);
                 break;
             }
         } else {

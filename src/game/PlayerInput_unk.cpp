@@ -5,6 +5,7 @@
 #include "game/CharaTask.h"
 #include "atn/Camera_unk.h"
 #include "string.h"
+#include "game/GameTask.h"
 
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
@@ -22,7 +23,6 @@ struct Field_unk {
     int m54E4; // inferred: nonzero while a menu of the field is open
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id); // inferred: field flag
 // inferred: tactics view (lbl_8087F9F8, as in game/CharaTask.cpp)
 struct TacView_unk {
     unsigned char m000[0xA70];
@@ -134,7 +134,7 @@ extern "C" ControlConfig_unk* fn_80122280(SetConfig* config) {
 // inferred: field flag 0xD0 not set
 extern "C" int fn_80122288() {
     int result = 1;
-    if (fn_80121F00() && fn_80370174(fn_80121F00(), 0xD0)) {
+    if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(0xD0)) {
         result = 0;
     }
     return result;
@@ -637,7 +637,7 @@ int Input_unk::fn_8012476C(int action) {
 }
 
 // NONMATCHING: 95.7% - scheduling of the stores of the stick vector and of the result
-float Input_unk::fn_801248DC(atn::Vector3* dir) {
+float Input_unk::fn_801248DC(atn::Vector3* dir) const {
     atn::Vector3 v;
     v.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);
     v.y = 0.0f;

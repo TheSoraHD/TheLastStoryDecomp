@@ -90,7 +90,6 @@ void EnemySeaLizerd::fn_80354910() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 99.9% - r28/r29 swapped between the bullet manager and the bullet data
 void EnemySeaLizerd::vf10() {
     if (mFlag2) {
         fn_800E2FE0();
@@ -113,8 +112,8 @@ void EnemySeaLizerd::vf10() {
             m6B8.z = 0.0f;
             fn_80161570(0x140, 0, 0, -1.0f, -1.0f);
             HitInfo_unk* bullet = fn_80219E6C(m14F0);
-            atn::Vector3 pos(mPos);
             BulletMgr_unk* mgr = lbl_8087F048;
+            atn::Vector3 pos(mPos);
             pos.y += 5.0f;
             fn_800FAB80(mgr, this, bullet, fn_800F8548(mgr), &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
         }

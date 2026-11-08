@@ -8,6 +8,7 @@
 #include "game/SetConfig.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/GameTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -77,7 +78,6 @@ struct NewCampOptionCamp_unk {
 // inferred: field (lbl_8087F430); only the member used here
 class Field_unk {
 public:
-    void fn_803750E4(int id); // inferred: sets an event flag
 };
 extern "C" Field_unk* lbl_8087F430;
 
@@ -1225,7 +1225,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
         }
         fn_805251CC();
         if (mE8 == 1 && mE4 == 1 && item->mValue == 1) {
-            lbl_8087F430->fn_803750E4(0x155);
+            ((GameTask*)lbl_8087F430)->fn_803750E4(0x155);
         }
     }
     if (fn_800A555C(pad, 0, 5) != 0) {

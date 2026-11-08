@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -128,7 +129,6 @@ static const QuadPlace_unk sQuadPlaces[10] = {
     {601, 1, 0}, {606, 0, 1}, {602, 1, 0}, {607, 0, 1}, {603, 1, 0},
     {608, 0, 1}, {604, 1, 0}, {609, 0, 1}, {605, 1, 0}, {610, 0, 1},
 };
-extern "C" void fn_80370AE4(QuadField_unk* field, int index, int value); // inferred: sets an event flag
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -182,7 +182,7 @@ inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14C0 = 0;
     m590 = fn_800F8548(lbl_8087F048);
     if (lbl_8087F430 != 0) {
-        fn_80370AE4(lbl_8087F430, 0x8C, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
     }
     m58C = mode;
     fn_8016E970(3);

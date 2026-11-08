@@ -5,6 +5,7 @@
 #include "game/EnemyManager.h"
 #include "game/NpcManager.h"
 #include "game/ResHandle.h"
+#include "game/GameTask.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
@@ -13,7 +14,6 @@ extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3,
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void* lbl_8087F430;
-extern "C" void fn_80370AE4(void* field, int index, int value); // inferred: sets a counter
 
 namespace gmk {
 
@@ -130,7 +130,7 @@ int TodomeCountUp::vf40(GimmickMsg_unk* msg) {
             fn_800C344C(mNames[mCount].mName, (char*)msg->m10 + 0x528, 0, -1, 1.0f);
             mCount++;
             if (lbl_8087F430 != 0 && m104 > 0) {
-                fn_80370AE4(lbl_8087F430, m104, mCount);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(m104, mCount);
             }
         }
         break;

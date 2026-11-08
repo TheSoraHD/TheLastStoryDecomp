@@ -112,8 +112,6 @@ extern "C" void fn_80108C10(Effect_unk* effect, KrakenDamage_unk* damage, const 
 extern "C" int rand();
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, atn::Vector3* pos, int c, int d, const float* color,
                             float scale, int e, int f, int g);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -585,7 +583,7 @@ void Em302Kraken::vf10() {
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
-                fn_80370AE4(lbl_8087F430, 0x5B, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
             } else if (frame < 20) {
                 // inferred: an unused value (the original converts the frame to float here and pools
                 // 15.0f right after 0.1f, as in Em302KrakenMp::vf104)
@@ -924,7 +922,7 @@ void Em302Kraken::fn_802DA174() {
                 PlayEffectC_unk(&m160C, (atn::Model*)&mMotion);
                 fn_800C31F4("SE_SP016_001", 0, -1, 1.0f);
             } else {
-                fn_80370AE4(lbl_8087F430, 0xCC, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCC, 1);
                 fn_802DC1C0();
             }
         }
@@ -1114,7 +1112,7 @@ void Em302Kraken::fn_802DB534() {
     if (frame >= mMotion.fn_80097D7C(0) && m14C4 > 180) {
         Reset_unk();
         m1658 = 45;
-        fn_80370AE4(lbl_8087F430, 0xC9, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xC9, 1);
     }
     if (m14C4 == 20) {
         KrakenShake_unk* shake = Shake_unk();
@@ -1129,8 +1127,8 @@ void Em302Kraken::fn_802DB534() {
                 m15D8 = 300;
             }
         }
-        if (fn_80370A78(lbl_8087F430, 0xCC) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xCC, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCC) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCC, 1);
         }
     }
     if (m14C4 - 100U <= 14) {
@@ -1216,7 +1214,7 @@ void Em302Kraken::fn_802DBA3C() {
 // inferred: state 15 (anger)
 void Em302Kraken::fn_802DBC68() {
     if (m14C4 == 50) {
-        fn_80370AE4(lbl_8087F430, 0x5C, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5C, 1);
         fn_800C344C("SE_EM302_019", &m614, 0, -1, 1.0f);
     }
     if (mMotion.mTracks[0].m00 == 0x14D) {

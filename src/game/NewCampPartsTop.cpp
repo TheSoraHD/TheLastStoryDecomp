@@ -1,5 +1,6 @@
 #include "game/NewCampPartsTop.h"
 #include "game/GameTask.h"
+#include "game/TacView.h"
 #include "game/NewCampTask.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
@@ -80,10 +81,6 @@ struct NewCampTopField_unk {
     unsigned int m5744; // inferred: play time in frames
 };
 extern "C" NewCampTopField_unk* lbl_8087F430;
-extern "C" int fn_803754F0(NewCampTopField_unk* field);
-extern "C" int fn_80370174(NewCampTopField_unk* field, int id); // inferred: event flag
-extern "C" void fn_80370F8C(NewCampTopField_unk* field, int a, MP::SaveData_unk* data, int b);
-extern "C" void fn_803743AC(NewCampTopField_unk* field);
 extern "C" MP::SaveData_unk* lbl_8087F460;
 extern "C" int fn_803BE854(MP::SaveData_unk* data);
 extern "C" atn::Task* lbl_8087F8A0;
@@ -95,12 +92,6 @@ class NpcManager {
 public:
     static atn::Task* sInstance;
 };
-struct NewCampTopMap_unk {
-    unsigned char m000[0xA70];
-    int mA70;
-};
-extern "C" NewCampTopMap_unk* lbl_8087F9F8;
-extern "C" void fn_805AA734(NewCampTopMap_unk* p);
 class GameBgm {
 public:
     int fn_8037D4C0(int id, int fade, int b, int c, float volume); // inferred: requests a BGM
@@ -280,13 +271,13 @@ void NewCampPartsTop::vf14() {
         fn_801FEE08(task->mLayout, fn_800DC6B4("playTime(1)"), time);
         task->SetNumber_unk("price(1)", Inventory::instance_->mMoney, 0);
     }
-    if (fn_803754F0(lbl_8087F430)) {
+    if (((GameTask*)lbl_8087F430)->fn_803754F0()) {
         SetPaneText_unk(mInfoAnime->mLayout, "select00_text", fn_80116FC0(0, 0x2767));
         SetPaneFloat_unk(mInfoAnime->mLayout, "enableLoad", mCanLoad != 0 ? 1.0f : 0.5f);
         SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 1.0f);
     } else {
         SetPaneText_unk(mInfoAnime->mLayout, "select00_text", fn_80116FC0(0, 0x2764));
-        if (fn_80370174(lbl_8087F430, 0x394)) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
             SetPaneFloat_unk(mInfoAnime->mLayout, "enableLoad", 0.5f);
             SetPaneFloat_unk(mInfoAnime->mLayout, "enableCheckPoint", 0.5f);
         } else {
@@ -342,14 +333,14 @@ void NewCampPartsTop::vf2C() {
     if (mSave == 0 || !mSave->IsFlag_unk(2)) {
         return;
     }
-    const int* actions = fn_803754F0(lbl_8087F430) ? sActionsB : sActions;
+    const int* actions = ((GameTask*)lbl_8087F430)->fn_803754F0() ? sActionsB : sActions;
     if (m7C == 4) {
         if (++mTimer > 60) {
             switch (actions[mCursor]) {
             case 0:
             case 1:
                 ((NewCampTask*)m48)->fn_8052CA6C();
-                fn_80370F8C(lbl_8087F430, 0, lbl_8087F460, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370F8C(0, lbl_8087F460, 0);
                 if (lbl_8087F430->m10D8 != 0) {
                     lbl_8087F430->m10D8->mFlags |= 4;
                 }
@@ -370,8 +361,8 @@ void NewCampPartsTop::vf2C() {
                 EnemyManager::sInstance->fn_800D246C(1);
                 NpcManager::sInstance->fn_800D246C(1);
                 if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-                    fn_805AA734(lbl_8087F9F8);
-                    fn_803743AC(lbl_8087F430);
+                    lbl_8087F9F8->fn_805AA734();
+                    ((GameTask*)lbl_8087F430)->fn_803743AC();
                 }
                 if (GameBgm::sInstance != 0) {
                     GameBgm::sInstance->fn_8037D4C0(0, 90, 1, 0, 1.0f);
@@ -466,7 +457,7 @@ void NewCampPartsTop::vf2C() {
         if (fn_800A555C(pad, 0, 4)) {
             switch (actions[mCursor]) {
             case 0:
-                if (fn_80370174(lbl_8087F430, 0x394)) {
+                if (((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
                     fn_80117228(11);
                     return;
                 }
@@ -479,7 +470,7 @@ void NewCampPartsTop::vf2C() {
                 }
                 break;
             case 1:
-                if (mCanLoad == 0 || fn_80370174(lbl_8087F430, 0x394)) {
+                if (mCanLoad == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x394)) {
                     fn_80117228(11);
                     return;
                 }

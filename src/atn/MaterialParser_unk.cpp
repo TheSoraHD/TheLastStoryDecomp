@@ -1150,7 +1150,7 @@ int Material_unk::fn_800804D0(int id) {
 }
 
 // NONMATCHING: 98.5% - r6/r7 swapped (stage base and offset)
-TexStage_unk* Material_unk::fn_80080528(int id) {
+TexStage_unk* Material_unk::fn_80080528(int id) const {
     for (int i = 0; i < m4A; i++) {
         int stageId = m0C[i].mId;
         if (stageId == id) {

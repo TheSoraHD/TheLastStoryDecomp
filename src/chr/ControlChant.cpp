@@ -98,12 +98,10 @@ extern "C" unsigned long strlen(const char* s);
 extern "C" int rand();
 // inferred: field object (class unknown, as in gmk/LottaSummon.cpp)
 struct Field_unk {
-    void fn_803750E4(int id);
     unsigned char m0000[0x10D0];
     int m10D0; // inferred: play time
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
@@ -438,8 +436,7 @@ int ControlChant::vf0C() {
     return done;
 }
 
-// NONMATCHING: 96.7% - the original schedules the load of m44 and mChara into the prologue.
-boost::function<void()> ControlChant::vf10() {
+boost::function<void()> ControlChant::vf10() const {
     if (m44) {
         return boost::bind(&CharaTask::fn_801603CC, (CharaTask*)mChara, m47, m48);
     }
@@ -565,7 +562,7 @@ int ControlMagic::vf0C() {
         mChara->fn_8016DA4C();
         m1D = true;
         if (hit->m04 == 0x6C2) {
-            if (fn_80370174(lbl_8087F430, 0x38D) > 0) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x38D) > 0) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0x38E, 1, 0);
                 mChara->mStatus.m228 = 0.0f;
             }
@@ -720,8 +717,8 @@ int ControlMagic::vf0C() {
                 }
             }
             if ((mChara->mType == 0 || mChara->mType == 3) && fn_8021A984(hit) &&
-                fn_80370174(lbl_8087F430, 0x442) >= 7) {
-                lbl_8087F430->fn_803750E4(0x9C);
+                ((GameTask*)lbl_8087F430)->fn_80370174(0x442) >= 7) {
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x9C);
             }
             break;
         }
@@ -732,17 +729,17 @@ int ControlMagic::vf0C() {
             case 9:
             case 10:
                 if (fn_8021A888(hit)) {
-                    lbl_8087F430->fn_803750E4(0xE0);
+                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xE0);
                 }
                 break;
             case 6:
                 if (fn_8021A888(hit)) {
-                    lbl_8087F430->fn_803750E4(0xF5);
+                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xF5);
                 }
                 break;
             case 4:
                 if (fn_8021A888(hit) && lbl_8087F430 && lbl_8087F430->m10D0 >= 0x31CE0) {
-                    lbl_8087F430->fn_803750E4(0x1C2);
+                    ((GameTask*)lbl_8087F430)->fn_803750E4(0x1C2);
                 }
                 break;
             }
@@ -790,7 +787,7 @@ int ControlMagic::vf0C() {
     return result;
 }
 
-boost::function<void()> ControlMagic::vf10() {
+boost::function<void()> ControlMagic::vf10() const {
     if (m1C) {
         ControlMagicEnd* next = new ((MemoryTag)1, "", "", 0) ControlMagicEnd(mChara);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
@@ -825,7 +822,7 @@ int ControlMagic::vf50() {
 }
 
 // NONMATCHING: 81.5% - the original loads mChara before 20.0f and m08 after the copy of the position.
-atn::Vector3 ControlMagic::vf18() {
+atn::Vector3 ControlMagic::vf18() const {
     atn::Vector3 from = mChara->mPos;
     from.y += 20.0f;
     atn::Vector3 dir = m08 - from;

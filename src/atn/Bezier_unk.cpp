@@ -438,7 +438,6 @@ extern "C" float fn_80508818(EngineBezier_unk* bezier, float time) {
     return t * (t * (t * bezier->mPolyY[3] + bezier->mPolyY[2]) + bezier->mPolyY[1]) + bezier->mPolyY[0];
 }
 
-// NONMATCHING: 99.4% - x[0] and x[1] are loaded in the other order
 // inferred: engineHermiteCreate
 extern "C" void fn_80508908(EngineHermite_unk* hermite, float* x, float* y) {
     float dx, dy, tan_x, m1, m2, length, d1, d2;
@@ -447,8 +446,8 @@ extern "C" void fn_80508908(EngineHermite_unk* hermite, float* x, float* y) {
     }
     hermite->mX1 = x[0];
     m1 = m2 = kMaxTan;
-    tan_x = x[1] - x[0];
     dx = x[3] - x[0];
+    tan_x = x[1] - x[0];
     dy = y[3] - y[0];
     if (tan_x != 0.0) {
         m1 = (y[1] - y[0]) / tan_x;

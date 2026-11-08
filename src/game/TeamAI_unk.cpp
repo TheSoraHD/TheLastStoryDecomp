@@ -5,13 +5,13 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/CharaTask.h"
-#include "game/GameField_unk.h"
 #include "game/AiTarget.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" int rand();
-extern "C" void fn_80370AE4(GameField_unk* field, int index, int value); // inferred: sets a work value
 
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048; // inferred: battle task
@@ -377,10 +377,10 @@ void TeamAI_unk::fn_805B1A9C(TeamVarOp_unk* op) {
     int a;
     switch (op->mDst) {
     case 0:
-        a = fn_80370A78(lbl_8087F430, op->mVar);
+        a = lbl_8087F430->fn_80370A78(op->mVar);
         break;
     case 1:
-        a = fn_80370174(lbl_8087F430, op->mVar);
+        a = lbl_8087F430->fn_80370174(op->mVar);
         break;
     default:
         return;
@@ -391,10 +391,10 @@ void TeamAI_unk::fn_805B1A9C(TeamVarOp_unk* op) {
         b = op->mValue;
         break;
     case 1:
-        b = fn_80370A78(lbl_8087F430, op->mValue);
+        b = lbl_8087F430->fn_80370A78(op->mValue);
         break;
     case 2:
-        b = fn_80370174(lbl_8087F430, op->mValue);
+        b = lbl_8087F430->fn_80370174(op->mValue);
         break;
     case 3:
         rand(); // inferred: a random source left unfinished
@@ -446,10 +446,10 @@ void TeamAI_unk::fn_805B1A9C(TeamVarOp_unk* op) {
     }
     switch (op->mDst) {
     case 0:
-        fn_80370AE4(lbl_8087F430, op->mVar, a);
+        lbl_8087F430->fn_80370AE4(op->mVar, a);
         break;
     case 1:
-        ((GameTask*)lbl_8087F430)->fn_80370320(op->mVar, a, 0);
+        lbl_8087F430->fn_80370320(op->mVar, a, 0);
         break;
     }
 }
@@ -533,10 +533,10 @@ void TeamAI_unk::fn_805B2028(TeamSetParam_unk* order) {
         value = order->mValue;
         break;
     case 1:
-        value = fn_80370A78(lbl_8087F430, order->mValue);
+        value = lbl_8087F430->fn_80370A78(order->mValue);
         break;
     case 2:
-        value = fn_80370174(lbl_8087F430, order->mValue);
+        value = lbl_8087F430->fn_80370174(order->mValue);
         break;
     case 3:
         rand(); // inferred: a random source left unfinished
@@ -586,10 +586,10 @@ void TeamAI_unk::fn_805B228C(TeamGetParam_unk* order) {
     }
     switch (order->mDst) {
     case 0:
-        fn_80370AE4(lbl_8087F430, order->mVar, value);
+        lbl_8087F430->fn_80370AE4(order->mVar, value);
         break;
     case 1:
-        ((GameTask*)lbl_8087F430)->fn_80370320(order->mVar, value, 0);
+        lbl_8087F430->fn_80370320(order->mVar, value, 0);
         break;
     }
 }

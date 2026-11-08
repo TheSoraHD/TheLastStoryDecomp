@@ -79,9 +79,9 @@ void ControlRideBeast::vf1C() {
     mChara->mF1C = 0;
 }
 
-// NONMATCHING: 96.4% (only scheduling) - the original loads mRider at the very start and reads it
+// NONMATCHING: 99.92% (only scheduling) - the original loads mRider at the very start and reads it
 // after the ControlBase part of the inlined ControlRide constructor is stored.
-boost::function<void()> ControlRideBeast::vf10() {
+boost::function<void()> ControlRideBeast::vf10() const {
     if (mRider != 0 && mRider->mC58.mC0 == 0) {
         return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
     }

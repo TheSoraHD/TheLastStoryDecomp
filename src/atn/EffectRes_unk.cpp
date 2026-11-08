@@ -203,7 +203,6 @@ extern "C" float fn_80237CF0(int channel, int def, EffectRes_unk* res, int scale
 }
 
 // inferred: position, alpha and color of a particle definition at `time`; 0 outside its frames
-// NONMATCHING: 99.94% - the alpha lerp loads its two keys in the other order
 extern "C" int fn_80237DA8(EffectRes_unk* res, EffectDef_unk* def, atn::Vector3* pos, float* alpha,
                            EffectColor_unk* color, float time) {
     float start = def->mStart;
@@ -231,7 +230,9 @@ extern "C" int fn_80237DA8(EffectRes_unk* res, EffectDef_unk* def, atn::Vector3*
         pos->z = fn_80237CF0(2, index, res, 0, t, 0.0f);
     }
     if ((res->mDefFlags[index] & 2) != 2) {
-        *alpha = def->mAlpha0 + t * (def->mAlpha1 - def->mAlpha0);
+        float a0 = def->mAlpha0;
+        float a1 = def->mAlpha1;
+        *alpha = a0 + t * (a1 - a0);
     } else {
         *alpha = fn_80237CF0(3, index, res, 0, t, 0.0f);
     }

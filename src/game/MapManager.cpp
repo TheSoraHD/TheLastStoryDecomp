@@ -215,9 +215,7 @@ MapArea* MapManager::FindArea(atn::Sphere sphere) {
 }
 
 // inferred: color 2 of the material of the model hit by a sphere
-// NONMATCHING: 71% - scheduling: the original loads the sphere before saving r31 (the implicit copy
-// of the sphere gives 78%, but the callback 0x804914BC needs the copy with z first)
-MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
+MapColor_unk MapManager::fn_80491D50(const atn::Sphere sphere) {
     MapArea* model = FindArea(sphere);
     if (model != 0 && model->mEffConfig != 0) {
         return *(const MapColor_unk*)model->mEffConfig->fn_80043014(2, 0);
@@ -226,8 +224,7 @@ MapColor_unk MapManager::fn_80491D50(atn::Sphere sphere) {
 }
 
 // inferred: color 3 of the material of the model hit by a sphere
-// NONMATCHING: 71% - as fn_80491D50
-MapColor_unk MapManager::fn_80491DF8(atn::Sphere sphere) {
+MapColor_unk MapManager::fn_80491DF8(const atn::Sphere sphere) {
     MapArea* model = FindArea(sphere);
     if (model != 0 && model->mEffConfig != 0) {
         return *(const MapColor_unk*)model->mEffConfig->fn_80043014(3, 0);

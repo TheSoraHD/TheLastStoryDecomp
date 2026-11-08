@@ -138,8 +138,6 @@ extern "C" int fn_8021A888(HitInfo_unk* hit);
 extern "C" SkillEffectManager* lbl_8087F9E8;
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11);
@@ -824,8 +822,8 @@ void Em301LShade::vf3C(HitInfo_unk* hit) {
     if (m15E8 > 0) {
         ok = 1;
         if (((GameTask*)lbl_8087F430)->GetCurrentMap()->mId == 3 && msg->mData->m01 == 0 &&
-            fn_80370A78(lbl_8087F430, 0x6E) == 0) {
-            fn_80370AE4(lbl_8087F430, 0x6E, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370A78(0x6E) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6E, 1);
         }
     }
     if (ok == 0) {
@@ -942,7 +940,7 @@ inline void StartAbsorbAttack_unk(Em301LShade* e) {
     e->mMotion.mTracks[0].m20 = 1.0f;
     e->mMotion.mTracks[0].m0C = 1.0f;
     e->mMotion.fn_80097C08(0, 0x33, 1, 0, 1, 0.0f, 0.1f);
-    fn_80370AE4(lbl_8087F430, 0x32, 3);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 3);
 }
 
 // inferred: starts state 12 (hides) with the hide kind m1510 (names invented)
@@ -1173,7 +1171,7 @@ int Em301LShade::fn_802D3C74() {
                 mMotion.mTracks[0].m20 = 1.0f;
                 mMotion.mTracks[0].m0C = 1.0f;
                 mMotion.fn_80097C08(0, 0x142, 0, 0, 1, 0.0f, 0.1f);
-                fn_80370AE4(lbl_8087F430, 0x32, 2);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 2);
                 m1538 = 1;
             }
             m14FC++;
@@ -1343,9 +1341,9 @@ void Em301LShade::fn_802D4628() {
             fn_805A4A1C((SpecialFlag_unk*)&m1698, 1);
         }
         if (m1538 != 0) {
-            fn_80370AE4(lbl_8087F430, 0x32, 2);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 2);
         } else {
-            fn_80370AE4(lbl_8087F430, 0x32, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x32, 1);
         }
     }
 }

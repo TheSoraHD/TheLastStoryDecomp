@@ -9,6 +9,7 @@
 #include "game/EnemyManager.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
+#include "game/GameTask.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -297,7 +298,6 @@ extern "C" QuarkGame_unk* lbl_8087EFA8;
 struct EffectMgr_unk;
 extern "C" EffectMgr_unk* lbl_8087F3C0;
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 
 // inferred: hit parameters (lbl_807C6B90, as in game/Em302KrakenMp.cpp); only the default is used
 struct HitParam_unk {
@@ -626,7 +626,7 @@ void EnemyQuarkFirst::vf104() {
         break;
     case 2:
         if (mFlag31) {
-            fn_80370AE4(lbl_8087F430, 0xCF, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCF, 1);
             fn_801765D8();
         }
         vf108();

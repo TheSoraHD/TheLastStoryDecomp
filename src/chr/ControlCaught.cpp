@@ -84,7 +84,7 @@ int ControlCaught::vf0C() {
 
 void ControlCaught::vf1C() {}
 
-boost::function<void()> ControlCaught::vf10() {
+boost::function<void()> ControlCaught::vf10() const {
     if (mCount <= 0) {
         ControlRelease* next = new ((MemoryTag)0, "", "", 0) ControlRelease(mChara, mReleaseMotion);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);

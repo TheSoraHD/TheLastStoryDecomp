@@ -402,9 +402,9 @@ inline void atn::Matrix3x4::Translate_unk(const Vector3& v) {
     BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
     BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
     BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0); BULLET_ASSERT_UNK(this != 0);
+    Mtx r;
     Mtx t;
     PSMTXTrans(t, v.x, v.y, v.z);
-    Mtx r;
     PSMTXConcat(m, t, r);
     __MtxCopy(m, r);
 }

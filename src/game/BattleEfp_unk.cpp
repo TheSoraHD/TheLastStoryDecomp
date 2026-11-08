@@ -4,72 +4,14 @@
 #include "atn/EfpHandle_unk.h"
 #include "atn/LH_Xsca.h"
 #include "atn/ResLoader_unk.h"
+#include "game/BattleEfp_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* dst, const char* fmt, ...);
 
-// inferred: row of the battle effect table (atn/CsvBase_char_124_13_34.cpp); names invented
-struct BattleEfpData_unk {
-    int mId;
-    char mEfp1[0x20];  // 0x04
-    char mEfp2[0x20];  // 0x24
-    char mRes[0x20];   // 0x44
-    char mEfp3[0x20];  // 0x64
-    char m84[0x20];
-    char mA4[0x20];
-    char mC4[0x20];
-    char mXsca1[0x20]; // 0xE4: camera animation (without path)
-    char mXsca2[0x20]; // 0x104
-    int m124;          // inferred: always loaded (mode 1)
-};
 extern "C" unsigned int fn_80207C00();                               // inferred: number of rows
 extern "C" BattleEfpData_unk* fn_80207C08(unsigned int index);       // inferred: row `index`
 extern "C" int fn_80207C34(BattleEfpData_unk* data, int level);     // inferred: row used at `level`
-
-// inferred: loaded resources of one row (0x48 bytes)
-struct BattleEfpEntry_unk {
-    BattleEfpEntry_unk() : mData(0), mLoaded(0) {}
-
-    // inferred: nonzero while one of the resources is loading
-    bool IsLoading_unk() {
-        if (m04.IsLoading()) {
-            return true;
-        }
-        if (m10.IsLoading()) {
-            return true;
-        }
-        if (m1C.IsLoading()) {
-            return true;
-        }
-        if (m28.IsLoading()) {
-            return true;
-        }
-        if (m34.fn_80473F50()) {
-            return true;
-        }
-        return m3C.fn_80473F50();
-    }
-    void Unload_unk() {
-        if (mLoaded != 0) {
-            mLoaded = 0;
-            m04.Destroy();
-            m10.Destroy();
-            m1C.Destroy();
-            m28.Destroy();
-            m34.fn_80473F88();
-            m3C.fn_80473F88();
-        }
-    }
-
-    BattleEfpData_unk* mData;
-    atn::EfpFile m04;
-    atn::EfpFile m10;
-    atn::EffFile m1C;
-    atn::EfpFile m28;
-    atn::LH_Xsca m34;
-    atn::LH_Xsca m3C;
-    int mLoaded; // 0x44
-};
 
 int lbl_8087D968 = 2;                 // inferred: load mode (1: flagged rows, 2: rows of the level)
 BattleEfpEntry_unk* lbl_8087F030;     // inferred: entries

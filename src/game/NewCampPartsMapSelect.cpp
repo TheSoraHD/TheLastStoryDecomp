@@ -10,7 +10,6 @@
 #include "atn/SoundManager.h"
 #include "game/SelectMember.h"
 #include "game/MenuCommonTask.h"
-#include "game/GameField_unk.h"
 #include "game/GameScene.h"
 #include "game/MapTask.h"
 #include "game/TacView.h"
@@ -18,6 +17,8 @@
 #include "atn/Csv.h"
 #include "atn/FadeCommon.h"
 #include "game/PlayerManager.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -98,7 +99,7 @@ inline void UseMark_unk(NewCampPartsEntry_unk* entries, NewCampPartsEntry_unk*& 
     }
 }
 // inferred: route effects shown between two areas (fn_80520B04, fn_80521A00): the area of the cursor and
-// the chapters (GameField_unk::m10D0) in which the route is open; point 500 + index; names invented
+// the chapters (GameTask::m10D0) in which the route is open; point 500 + index; names invented
 struct MapSelectRouteEffect_unk {
     int mArea;
     int mMin;
@@ -110,11 +111,8 @@ static const MapSelectRouteEffect_unk sRouteEffects[5] = {
 extern "C" void fn_804A62C8(MenuCommonTask* menu, int type, int noCancel); // inferred: opens a dialog
 extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: plays a system sound effect
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
-extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
+extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int c); // inferred: changes the map
-extern "C" void fn_803743AC(GameField_unk* field);
-extern "C" void fn_805AA734(TacView* view); // inferred: closes the tactical view
-extern "C" int fn_8037587C(GameField_unk* field, int type, int id, int subId); // inferred: the map was visited
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -153,7 +151,6 @@ extern "C" int fn_80216988();                // inferred: number of routes of th
 extern "C" int fn_80216954(int index);       // inferred: id of a route
 extern "C" MapSelectRouteData_unk* fn_80216544(int id, int chapter, int flag);
 extern "C" const char* fn_80216700(int id, int chapter, int flag); // inferred: state of the route
-extern "C" int fn_80370174(GameField_unk* field, int flag); // inferred: flag value
 extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: the camp maps of Lazulis (the map select opens there with route 201); name invented
 static inline int IsCastleCamp_unk(int type, int id) {
@@ -651,7 +648,7 @@ void NewCampPartsMapSelect::fn_8051FD20() {
         MapSelectRoute_unk* route = FindRoute_unk(m19A4);
         if (route != 0 && route->m08 == 2) {
             if (route->mId < 500) {
-                if (fn_8037587C(lbl_8087F430, route->mMapType, route->mMapId, route->mMapSubId)) {
+                if (lbl_8087F430->fn_8037587C(route->mMapType, route->mMapId, route->mMapSubId)) {
                     fn_8051FB7C(1);
                 } else {
                     fn_8051FB7C(2);
@@ -704,22 +701,22 @@ void NewCampPartsMapSelect::fn_80520098() {
     ((NewCampTask*)m48)->fn_80530174();
     ((NewCampTask*)m48)->fn_8052CA6C();
     lbl_8087F430->m563C = 0x12;
-    if (((GameTask*)lbl_8087F430)->GetCurrentMap()->mType == 1 && route->mMapType == 1) {
-        ((GameTask*)lbl_8087F430)->fn_8036FB4C(route->mEntry);
+    if (lbl_8087F430->GetCurrentMap()->mType == 1 && route->mMapType == 1) {
+        lbl_8087F430->fn_8036FB4C(route->mEntry);
         return;
     }
     if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-        fn_805AA734(lbl_8087F9F8);
-        fn_803743AC(lbl_8087F430);
+        lbl_8087F9F8->fn_805AA734();
+        lbl_8087F430->fn_803743AC();
     }
     fn_8036F268(lbl_8087F430, route->mMapType, route->mMapId, route->mMapSubId, route->mEntry, 1, 0, 0x12, 1);
-    if (lbl_8087F430->GetScene_unk() != 0) {
-        lbl_8087F430->GetScene_unk()->FreezeTask();
+    if (lbl_8087F430->m10D8 != 0) {
+        lbl_8087F430->m10D8->FreezeTask();
     }
 }
 
 int NewCampPartsMapSelect::fn_805201EC(int* point) {
-    MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    MapTask* map = lbl_8087F430->GetCurrentMap();
     int type = map->GetMapType();
     int id = map->GetMapId();
     int subId = map->GetMapSubId();
@@ -815,7 +812,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
     int flag = 0;
     if (lbl_8087F430 != 0) {
         chapter = lbl_8087F430->m10D0;
-        flag = fn_80370174(lbl_8087F430, 0x63);
+        flag = lbl_8087F430->fn_80370174(0x63);
     }
     for (int i = 0; i < fn_80216988(); i++) {
         int id = fn_80216954(i);
@@ -826,8 +823,8 @@ void NewCampPartsMapSelect::fn_80520B04() {
             if (state != 0 && id < 500) {
                 MapSelectPoint_unk* point = FindPoint_unk(id);
                 if (state == 2 && lbl_8087F430 != 0) {
-                    if (((GameTask*)lbl_8087F430)->fn_80375184() != 0 || lbl_8087F430->m54E4 == 3 ||
-                        fn_80370174(lbl_8087F430, 0x394) != 0 || fn_80370174(lbl_8087F430, 0x62) != 0) {
+                    if (lbl_8087F430->fn_80375184() != 0 || lbl_8087F430->m54E4 == 3 ||
+                        lbl_8087F430->fn_80370174(0x394) != 0 || lbl_8087F430->fn_80370174(0x62) != 0) {
                         state = 1;
                     }
                 }
@@ -837,7 +834,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
                 int mapSubId = data->mMapSubId;
                 int entry = data->mEntry;
                 if (((NewCampMapCamp_unk*)m48)->m1350 == 0 && lbl_8087F430 != 0 && point != 0 && point->m04 > 0 &&
-                    fn_80370174(lbl_8087F430, point->m04) == 0) {
+                    lbl_8087F430->fn_80370174(point->m04) == 0) {
                     open = 0;
                 }
                 if (point == 0 || point->m18 == 0) {
@@ -851,7 +848,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
             }
         }
     }
-    MapTask* map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    MapTask* map = lbl_8087F430->GetCurrentMap();
     int type = map->mType;
     int mapId = map->mId;
     int special;

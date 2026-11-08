@@ -17,6 +17,7 @@ class Model;
 class CharaTask;
 
 #include "atn/ResRef_unk.h"
+#include "game/GameSceneRoute_unk.h"
 
 // inferred: run-length encoded array of u16 (see game/U16Table_unk.cpp)
 struct U16Table_unk;
@@ -326,17 +327,6 @@ struct GameSceneSave_unk {
     unsigned char m04[4];
 };
 
-// inferred: hide route filled by GameScene::fn_803CAED0 (0x40 bytes; names invented)
-struct GameSceneRoute_unk {
-    atn::Vector3 mDir;   // 0x00
-    atn::Vector3 mSide;  // 0x0C
-    atn::Vector3 mFrom;  // 0x18
-    atn::Vector3 mTo;    // 0x24
-    unsigned int mFlags; // 0x30: inferred: 1 start on, 2 end on, 4 wide
-    int mType;       // 0x34
-    int mFromIndex;  // 0x38
-    int mToIndex;    // 0x3C
-};
 
 // inferred: pair queued by GameScene::fn_803CCC84 (names invented)
 struct GameScenePair_unk {
@@ -392,7 +382,7 @@ public:
     int fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check, int point); // inferred: nearest hide link ahead
     int fn_803CB474(GameSceneRoute_unk* out, CharaTask* chara, int point, int exclude); // inferred: next hide link
     int fn_803CB618(GameSceneRoute_unk* out, CharaTask* chara); // inferred: link from the held point
-    void fn_803CB820();
+    int fn_803CB820();
     int fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
     int fn_803CC1A4(const atn::Vector3* pos, float radius, float cosMin, const atn::Vector3* dir); // inferred: a wall link is near
     int fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
@@ -402,8 +392,8 @@ public:
     void fn_803CC718(atn::Task* chara, int value);
     atn::Vector3 fn_803CC754(unsigned int index); // inferred: position of a NPC set point
     void fn_803CC774(atn::Task* chara);
-    int fn_803CC77C(); // inferred: number of things left
-    int fn_803CC900(); // inferred: number of entries
+    int fn_803CC77C() const; // inferred: number of things left
+    int fn_803CC900() const; // inferred: number of entries
     int fn_803CCA34(CharaTask* chara);
     int fn_803CCA4C(CharaTask* chara);
     int fn_803CCA64(CharaTask* chara, int arg, float range);

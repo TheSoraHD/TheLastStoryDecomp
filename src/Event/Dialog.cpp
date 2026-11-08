@@ -91,7 +91,6 @@ struct DialogField_unk {
     CameraSub_unk m6C;
 };
 extern "C" DialogField_unk* lbl_8087F430;
-extern "C" int fn_80370174(DialogField_unk* field, int arg);
 
 // inferred: post effects (lbl_8087EF8C)
 struct DialogPostFx_unk {
@@ -475,7 +474,7 @@ void Dialog::fn_80228FD8() {
         }
     }
     if (lbl_8087F430 != 0) {
-        m118 = fn_80370174(lbl_8087F430, 3);
+        m118 = ((GameTask*)lbl_8087F430)->fn_80370174(3);
         ((GameTask*)lbl_8087F430)->fn_80370320(3, 1, 0);
         CameraSub_unk* camera = &lbl_8087F430->m6C;
         if (camera->m7FC != 0) {

@@ -66,7 +66,7 @@ class ControlDiveIntoWater : public ControlInteractionBase {
 public:
     ControlDiveIntoWater(Chara_unk* chara, const atn::Vector3& a, const atn::Vector3& b); // 0x801B9128
     virtual int vf0C();          // 0x801B9598
-    virtual atn::Vector3 vf14(); // 0x801B9814
+    virtual atn::Vector3 vf14() const; // 0x801B9814
     // inferred: position of the first node found among neck, spine1, hips and reference (or the
     // character position); defined in the .cpp and inlined in the constructor and vf0C; name invented
     void GetBodyPos_unk(atn::Vector3& out);

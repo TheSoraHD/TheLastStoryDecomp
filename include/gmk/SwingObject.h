@@ -63,7 +63,7 @@ public:
         m54 = 0;
     }
     static GimmickCommon* fn_803FE390(atn::Task* parent, int id, int arg);           // inferred: factory
-    static GimmickCommon* fn_803FE570(atn::Task* parent, GimmickDesc_unk* desc);    // inferred: factory
+    static GimmickCommon* fn_803FE570(atn::Task* parent, const GimmickDesc_unk* desc);    // inferred: factory
     virtual ~SwingObject();
     virtual int vf0C();
     virtual void vf10();

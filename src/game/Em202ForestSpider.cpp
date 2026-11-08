@@ -97,8 +97,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3* pos, int arg);
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b, const atn::Matrix3x4* mtx, int c,
                             int d, int e, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
@@ -527,9 +525,9 @@ void Em202ForestSpider::vf7C(int arg) {
 
 void Em202ForestSpider::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = 1.5f * m5B0;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += 0.5f * m624.mData[0].m04.mRadius;
+        m624[0].m04.mRadius = 1.5f * m5B0;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += 0.5f * m624[0].m04.mRadius;
     }
 }
 
@@ -732,7 +730,7 @@ void Em202ForestSpider::vf110() {
             const wchar_t* name = m18EC->m60->m04;
             fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB5), name);
             ((BattleTask*)lbl_8087F048)->fn_80109828(text);
-            fn_80370AE4(lbl_8087F430, 0x6E, m18EC->mType == 0 ? 10 : m18EC->m58);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6E, m18EC->mType == 0 ? 10 : m18EC->m58);
             vf148();
             return;
         }
@@ -1061,7 +1059,7 @@ void Em202ForestSpider::vf14C() {
     r2.z = 0.0f;
     m18EC->mRot = r2;
     m18EC->fn_8015C3A8((int)this);
-    fn_80370AE4(lbl_8087F430, 0x79, m18EC->mType == 0 ? 10 : m18EC->m58);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x79, m18EC->mType == 0 ? 10 : m18EC->m58);
     if (m18EC->mType == 0) {
         ((GameTask*)lbl_8087F430)->fn_80370C6C();
     }
@@ -1133,18 +1131,11 @@ void Em202ForestSpider::vf160() {
     }
 }
 
-void Em202ForestSpider::vf16C() {
-    fn_8027688C();
-    m58C = 18;
-    fn_8016E970(3);
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.mTracks[0].m0C = 0.0f;
-    mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
-    fn_80232B7C(this, 200);
-    Color4f_unk color;
-    atn::Vector3 rot;
+// inferred: effect `efp` on the model at its origin (as PlayEffectM_unk of game/em005_doppel_ganger.cpp)
+inline void PlayEffectOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -1155,7 +1146,19 @@ void Em202ForestSpider::vf16C() {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &m192C, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+void Em202ForestSpider::vf16C() {
+    fn_8027688C();
+    m58C = 18;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 0.0f;
+    mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
+    fn_80232B7C(this, 200);
+    PlayEffectOrigin_unk(lbl_8087F3C0, &m192C, &mMotion);
     Effect_unk* mgr = lbl_8087F048;
     atn::Vector3 p = fn_801781B0();
     fn_80108F38(mgr, &p, 0x80);
@@ -1381,8 +1384,8 @@ void Em202ForestSpider::fn_802790A0(int index) {
     fn_80239DAC(lbl_8087F3C0, t, 103, 0);
     if (t->m04 != 0) {
         if (t->m88 != 0) {
-            if (t->m88 == lbl_8087F8A0->mHead && fn_80370A78(lbl_8087F430, 0x73) == 0) {
-                fn_80370AE4(lbl_8087F430, 0x73, 1);
+            if (t->m88 == lbl_8087F8A0->mHead && ((GameTask*)lbl_8087F430)->fn_80370A78(0x73) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x73, 1);
             }
             if (t->m88->m55C == 6 && t->m88->m560 - 0x74U <= 1) {
                 t->m88->fn_8015C6A0();

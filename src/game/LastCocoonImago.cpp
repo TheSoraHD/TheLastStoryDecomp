@@ -2,6 +2,7 @@
 #include "chr/ControlBase.h"
 #include "game/GameMessageList.h"
 #include "game/GimmickManager.h"
+#include "game/GameTask.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -17,8 +18,6 @@ struct Field_unk {
 extern "C" Field_unk* lbl_8087F430;
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliCapsuleShape_unk* c); // inferred: hit test
 
@@ -102,8 +101,8 @@ void LastCocoonImago::fn_8045D224() {
     }
     if (m14C0 == 120) {
         LastCocoonImago::vf38(0);
-        if (fn_80370A78(lbl_8087F430, 0xCD) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xCD, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xCD) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCD, 1);
         }
     } else {
         mMotion.fn_80097D7C(0);

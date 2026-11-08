@@ -27,7 +27,7 @@ public:
 
     static GameBgm* fn_8037C8C4(atn::Task* parent); // inferred: creates the singleton
     void fn_8037D274(atn::Bgm* bgm, const char* name); // inferred: starts `name` on `bgm`
-    int fn_8037D34C();                                 // inferred: a BGM is playing
+    int fn_8037D34C() const;                                 // inferred: a BGM is playing
     void fn_8037D3E8(int a, int b, int c);
     void fn_8037D49C(float volume, int frames);        // inferred: changes the volume
     int fn_8037D4C0(int id, int fade, int b, int c, float volume); // inferred: requests a BGM

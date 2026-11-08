@@ -6,6 +6,7 @@
 #include "gmk/Lemon.h"
 #include "chr/ControlBase.h"
 #include "std/string_members.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -213,8 +214,6 @@ struct Field_unk;
 extern "C" inline Field_unk* fn_80121F00() {
     return (Field_unk*)lbl_8087F430;
 }
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 // inferred: input state of the field (0x80122550) with a byte flag at 0x910 and a value at 0x834 (weak
 // copies 0x8026616C/0x80266174 of game/Em201ZanGurgFinal.cpp); names invented
 struct PlayerInput_unk {
@@ -294,8 +293,8 @@ void EnemyJill::vf10() {
         }
         if (m1570 >= 0) {
             JillEvent_unk* e = fn_8032ECA8(&m14EC, m1570);
-            if (fn_80370A78(fn_80121F00(), e->m00) != 1) {
-                if (fn_80370A78(fn_80121F00(), e->m04) == 1) {
+            if (((GameTask*)fn_80121F00())->fn_80370A78(e->m00) != 1) {
+                if (((GameTask*)fn_80121F00())->fn_80370A78(e->m04) == 1) {
                     m1574 = e->m0C;
                     fn_803333BC();
                     m1598 = 1;
@@ -663,7 +662,7 @@ int EnemyJill::fn_8032FBF4() {
     }
     float ratio = mStatus.m04 / (float)mStatus.mParamB.m84;
     for (int i = m14EC.mCount - 1; i >= 0; i--) {
-        if (fn_80370A78(fn_80121F00(), m14EC.mData[i].m00) == 0 && ratio <= m14EC.mData[i].m08) {
+        if (((GameTask*)fn_80121F00())->fn_80370A78(m14EC.mData[i].m00) == 0 && ratio <= m14EC.mData[i].m08) {
             return 1;
         }
     }
@@ -675,8 +674,8 @@ extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // infer
 void EnemyJill::fn_8032FD30() {
     JillEvent_unk* e = m14EC.mData;
     for (unsigned int i = 0; i < m14EC.mCount; i++) {
-        if (fn_80370A78(fn_80121F00(), e->m00) == 0) {
-            fn_80370AE4(fn_80121F00(), e->m00, 1);
+        if (((GameTask*)fn_80121F00())->fn_80370A78(e->m00) == 0) {
+            ((GameTask*)fn_80121F00())->fn_80370AE4(e->m00, 1);
             m1570 = i;
             fn_800CB5C8(&m15B0, 20, 0);
             m15B4.mCount = 0;

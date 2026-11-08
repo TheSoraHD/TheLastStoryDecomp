@@ -9,6 +9,7 @@
 #include "std/string_members.h"
 #include "atn/DrawHelper.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -137,8 +138,6 @@ struct FrameTime_unk {
     float m3A4; // inferred: time of a frame
 };
 extern "C" FrameTime_unk* lbl_8087EFA8;
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 // inferred: skill effect manager (class unknown, as in gmk/HealPoint.cpp)
 class SkillEffect;
 extern "C" void* lbl_8087F9E8;
@@ -680,8 +679,8 @@ void Em203GreaterDaemon::vf3C(HitInfo_unk* hit) {
             fn_80239DAC(lbl_8087F3C0, this, -2, 1);
             mStatus.fn_80133130(4, 600, 0);
             m14C0 = 3;
-            if (fn_80370A78(lbl_8087F430, 0xE6) == 0) {
-                fn_80370AE4(lbl_8087F430, 0xE6, 1);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
             }
         }
     }
@@ -1060,7 +1059,7 @@ void Em203GreaterDaemon::fn_8028B47C() {
             }
             if (m1628 == 0) {
                 state = 1;
-                if (fn_80370A78(fn_80121F00(), 0x9B) == 0) {
+                if (((GameTask*)fn_80121F00())->fn_80370A78(0x9B) == 0) {
                     state = 2;
                 }
             }
@@ -1129,8 +1128,8 @@ void Em203GreaterDaemon::fn_8028BFE0() {
         RouteTable_unk* table = lbl_8087F430->m10D8;
         if (m150C == ((GameScene*)table)->fn_803C1560(&m1530->mPos, fn_80179D44(), 0, 2, 1, -1.0f) && m1514 > m1518) {
             if (m14C8 != 0) {
-                if (fn_80370A78(lbl_8087F430, 0x14) == 0) {
-                    fn_80370AE4(lbl_8087F430, 0x14, 1);
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(0x14) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x14, 1);
                 }
             } else {
                 PlayMotion_unk(0x144, 0, 0, 1.0f);
@@ -1222,8 +1221,8 @@ void Em203GreaterDaemon::fn_8028CB38() {
             m14B8 = 0;
             m1550 = fn_800F8548(fn_8013A194());
             m1554 = fn_800F8548(fn_8013A194());
-            if (fn_80370A78(fn_80121F00(), 0x96) == 0) {
-                fn_80370AE4(fn_80121F00(), 0x96, 1);
+            if (((GameTask*)fn_80121F00())->fn_80370A78(0x96) == 0) {
+                ((GameTask*)fn_80121F00())->fn_80370AE4(0x96, 1);
             }
             m1558 = fn_801C3910(*m14B0->fn_8013C38C() - mPos);
             fn_800F7FA8(fn_800F7FA0(), this, 1000);
@@ -1289,8 +1288,8 @@ void Em203GreaterDaemon::fn_8028CFE0() {
         return;
     }
     if (mMotion.mTracks[0].m08 >= 10.0f && mMotion.mTracks[0].m08 < 11.0f) {
-        if (fn_80370A78(lbl_8087F430, 0x97) == 0) {
-            fn_80370AE4(lbl_8087F430, 0x97, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x97) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x97, 1);
         }
     }
     if (mMotion.mTracks[0].m08 >= 32.0f && mMotion.mTracks[0].m08 < 33.0f) {
@@ -1429,8 +1428,8 @@ void Em203GreaterDaemon::fn_8028DF34() {
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 41.0f && m14DC != 0 && mMotion.mTracks[0].m08 >= 40.0f) {
         ShakeCamera_unk(10, 1.0f, 2.0f);
-        if (fn_80370A78(lbl_8087F430, 0xA0) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xA0, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xA0) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA0, 1);
         }
     }
     if (m14DC != 0 && mMotion.mTracks[0].m08 < 44.0f) {

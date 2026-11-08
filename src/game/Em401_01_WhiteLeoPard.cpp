@@ -9,6 +9,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/Material_unk.h"
 #include "atn/RenderManager.h"
+#include "game/GameTask.h"
 
 // inferred: event flags counted by fn_8031FE4C (lbl_80749898) and route places of the retreat
 // (lbl_807498A4)
@@ -55,8 +56,6 @@ struct Field_unk {
     RouteTable_unk* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -137,7 +136,7 @@ void Em401_01_WhiteLeoPard::vf10() {
         lbl_8087F430->m8A0 = 0;
     }
     if (lbl_8087F8A0->mHead->mFlag28 && m156C == 0) {
-        fn_80370AE4(lbl_8087F430, 0x3C, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0x3C, 1);
     }
     atn::Vector3 pos(mPos);
     m156C = LeaderFlag_unk();
@@ -198,7 +197,7 @@ void Em401_01_WhiteLeoPard::vf14() {
 // inferred: picks the target: the leader when it has mFlag28, else (field flag 0x3D set) a player held by
 // a control 0x1D-0x1F
 void Em401_01_WhiteLeoPard::fn_8031FAA4() {
-    if (fn_80370A78(lbl_8087F430, 0x3D) == 0) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
         if (lbl_8087F8A0->mHead->mFlag28) {
             mC58.mC8 = (int)mC58.mC4;
             m1454 = 0;
@@ -242,14 +241,14 @@ void Em401_01_WhiteLeoPard::vf3C(HitInfo_unk* hit) {
                 msg->m90 = 1;
                 return;
             }
-            if (m58C == 1 && fn_80370A78(lbl_8087F430, 0x3D) == 1) {
+            if (m58C == 1 && ((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 1) {
                 msg->m10 *= 0.0f;
             } else {
                 msg->m10 *= 0.7f;
                 msg->m50 |= 0x90;
             }
         }
-        fn_80370A78(lbl_8087F430, 0x3D);
+        ((GameTask*)lbl_8087F430)->fn_80370A78(0x3D);
     }
     fn_80151448(msg);
     fn_8031FD34(msg);
@@ -369,10 +368,10 @@ void Em401_01_WhiteLeoPard::fn_8031FE4C() {
         if (lbl_8087F048 != 0 && fn_80158CA4() && m594 != 0) {
             fn_80144710();
             HitInfo_unk* hit = fn_80219E6C(0x687);
-            if (fn_80370A78(lbl_8087F430, 0x3D) == 0) {
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
                 int left = 3;
                 for (int i = 0; i < 3; i++) {
-                    if (fn_80370A78(lbl_8087F430, lbl_80749898[i]) >= 200) {
+                    if (((GameTask*)lbl_8087F430)->fn_80370A78(lbl_80749898[i]) >= 200) {
                         left--;
                     }
                 }
@@ -431,7 +430,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
         if (FindRoutePlace2_unk(table, m1568) == 0) {
             mRoute.fn_8012539C();
             fn_80170A20(mC58.mC4, 0, -1.0f);
-        } else if (fn_80370A78(lbl_8087F430, 0x3D) != 0) {
+        } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) != 0) {
             mRoute.fn_8012539C();
             fn_8017039C(m1568, 0);
         }
@@ -449,7 +448,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
                 rot = mRot;
             }
         }
-        if (fn_80370A78(lbl_8087F430, 0x3D) == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) == 0) {
             rate *= 0.7f;
             if (dist < m1524 && m1560 > m15A0) {
                 fn_800EB270(200);
@@ -866,16 +865,15 @@ void Em401_01_WhiteLeoPard::vf50() {
     mFlagB29 = 0;
 }
 
-// NONMATCHING: 99.64% - r6/r7 of the copy of the first center (__VecCopy family); ~3 variants
 // inferred: places the two damage spheres on the body and on the "tale" node (update of m624)
 void Em401_01_WhiteLeoPard::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = 5.0f;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
-        m624.mData[1].m04.mRadius = 5.0f;
-        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tale"));
-        m624.mData[1].m04.mCenter.y -= 5.0f;
+        m624[0].m04.mRadius = 5.0f;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
+        m624[1].m04.mRadius = 5.0f;
+        m624[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tale"));
+        m624[1].m04.mCenter.y -= 5.0f;
     }
 }
 

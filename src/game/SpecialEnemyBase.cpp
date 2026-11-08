@@ -97,9 +97,6 @@ struct Field_unk {
     int m868;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
-extern "C" int fn_80370174(Field_unk* field, int index);
 namespace atn {
 struct Camera;
 }
@@ -324,10 +321,10 @@ void SpecialEnemyBase::fn_805A4980(SpecialFlag_unk* flag, atn::Csv* csv) {
 int SpecialEnemyBase::fn_805A49E4(SpecialFlag_unk* flag) {
     if (lbl_8087F430 != 0) {
         if (flag->mGlobal == 0) {
-            return fn_80370A78(lbl_8087F430, flag->mIndex);
+            return ((GameTask*)lbl_8087F430)->fn_80370A78(flag->mIndex);
         }
         if (flag->mGlobal == 1) {
-            return fn_80370174(lbl_8087F430, flag->mIndex);
+            return ((GameTask*)lbl_8087F430)->fn_80370174(flag->mIndex);
         }
     }
     return -1;
@@ -336,7 +333,7 @@ int SpecialEnemyBase::fn_805A49E4(SpecialFlag_unk* flag) {
 void SpecialEnemyBase::fn_805A4A1C(SpecialFlag_unk* flag, int value) {
     if (lbl_8087F430 != 0) {
         if (flag->mGlobal == 0) {
-            fn_80370AE4(lbl_8087F430, flag->mIndex, value);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(flag->mIndex, value);
         } else if (flag->mGlobal == 1) {
             ((GameTask*)lbl_8087F430)->fn_80370320(flag->mIndex, value, 0);
         }

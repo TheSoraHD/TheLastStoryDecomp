@@ -15,10 +15,10 @@ public:
 
     static GameSoundControl* fn_803CD9A8(atn::Task* parent); // inferred: creates the singleton
     // inferred: play a BGM according to the battle state (called from the field code)
-    static void fn_803CDAE4();
-    static void fn_803CDB64();
-    static void fn_803CDB68();
-    static void fn_803CDC48();
+    void fn_803CDAE4(); // inferred: called on sInstance (GameTask::fn_80374710)
+    void fn_803CDB64(); // inferred: called on sInstance (GameTask::fn_803748E0)
+    void fn_803CDB68(); // inferred: called on sInstance (GameTask fn_80374964)
+    void fn_803CDC48(); // inferred: called on sInstance (GameTask fn_80374964)
     static void fn_803CDF84();
 
     ResHandle m48;

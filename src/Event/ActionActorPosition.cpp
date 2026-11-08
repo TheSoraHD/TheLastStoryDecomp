@@ -71,7 +71,7 @@ inline void Actor::SetRot_unk(const atn::Vector3& v) {
 }
 // NONMATCHING: weak copy 0x80551E3C 60% - the original stores z before the paired single (tried
 // Assign_unk, a temporary and a by-value parameter)
-inline void Actor::SetTarget_unk(const atn::Vector3& v) {
+inline void Actor::SetTarget_unk(atn::Vector3& v) {
     mD0 = v;
 }
 inline int Actor::GetState_unk() const {

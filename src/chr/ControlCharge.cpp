@@ -69,7 +69,6 @@ struct Field_unk {
     void* m10D8; // inferred: collision of the walls
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
 extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7); // inferred: sweep test
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -297,7 +296,7 @@ int ControlCharge::vf0C() {
                 cursor.m14 = false;
                 lbl_8087F9F8->m15D8 = cursor;
             }
-            fn_80373FC4(lbl_8087F430);
+            ((GameTask*)lbl_8087F430)->fn_80373FC4();
             done = 1;
         }
         mChara->mF6C = m08;
@@ -345,10 +344,10 @@ int ControlCharge::vf0C() {
     return done;
 }
 
-// NONMATCHING: 99.1% - registers of the inlined ControlChargeAttack constructor and stack slots of
+// NONMATCHING: 99.07% - registers of the inlined ControlChargeAttack constructor and stack slots of
 // its two distance temporaries.
 // inferred: starts the attack that follows the charge
-boost::function<void()> ControlCharge::vf10() {
+boost::function<void()> ControlCharge::vf10() const {
     if (m30 != 0) {
         HitInfo_unk* hit = mChara->m638;
         if (hit->m01 == 1) {
@@ -394,7 +393,7 @@ ControlChargeAttackBase::ControlChargeAttackBase(Chara_unk* chara, const atn::Ve
 }
 
 // NONMATCHING: 60% - the original stores x/y (psq_st) before z.
-atn::Vector3 ControlChargeAttackBase::vf18() {
+atn::Vector3 ControlChargeAttackBase::vf18() const {
     return m08;
 }
 
@@ -804,7 +803,7 @@ int ControlQuarkSeirenAttack::vf0C() {
 void ControlQuarkSeirenAttack::vf1C() {}
 
 // inferred: steps back to the start point when the attack hit near the target point
-boost::function<void()> ControlQuarkSeirenAttack::vf10() {
+boost::function<void()> ControlQuarkSeirenAttack::vf10() const {
     if (m28 != 0) {
         atn::Vector3 d = mChara->mPos - m08;
         if (PSVECSquareMag(&d) < 900.0f) {

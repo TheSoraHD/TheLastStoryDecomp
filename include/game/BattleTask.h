@@ -250,7 +250,9 @@ public:
     float m3E2FC; // inferred: alpha of the chant effect
     int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
     EffectColor_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
-    unsigned char m3E314[0x3E3B0 - 0x3E314]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
+    unsigned char m3E314[0x3E398 - 0x3E314];
+    CharaTask* m3E398; // inferred: user of the bullet being made (set around fn_800FAB80 by fn_800FBA30)
+    unsigned char m3E39C[0x3E3B0 - 0x3E39C]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
 };
 
 #endif

@@ -14,7 +14,6 @@
 #include "game/TownTask.h"
 #include "atn/Memory.h"
 #include "atn/RenderSetting_unk.h"
-#include "game/GameField_unk.h"
 #include "game/MapArea.h"
 #include "game/MapPartsArea.h"
 #include "game/MapPartsRain.h"
@@ -25,6 +24,8 @@
 #include "game/MapPartsFactory.h"
 #include "atn/Plane_unk.h"
 #include "atn/Lerp_unk.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
@@ -895,12 +896,12 @@ void MapTask::fn_804A0F80() {
 // inferred: restores the area list, its blend and the reflection from the game flags (after a load)
 void MapTask::fn_804A1C4C() {
     if (lbl_8087F430 != 0) {
-        int index = fn_80370174(lbl_8087F430, 0x387);
-        int blend = fn_80370174(lbl_8087F430, 0x388);
+        int index = lbl_8087F430->fn_80370174(0x387);
+        int blend = lbl_8087F430->fn_80370174(0x388);
         float t = ((blend >> 16) & 0xFFFF) / 10000.0f;
         float speed = (blend & 0xFFFF) / 10000.0f;
         fn_804A0F58(index, t, speed);
-        atn::RenderManager::instance_->mLayers[4]->m04 = fn_80370174(lbl_8087F430, 0x38B);
+        atn::RenderManager::instance_->mLayers[4]->m04 = lbl_8087F430->fn_80370174(0x38B);
     }
 }
 
@@ -908,8 +909,8 @@ void MapTask::fn_804A1C4C() {
 void MapTask::fn_804A1D2C() {
     if (lbl_8087F430 != 0) {
         unsigned int blend = ((unsigned int)(m110 * 10000.0f) << 16) | (int)(m114 * 10000.0f);
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x387, mAreaIndex, 0);
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x388, blend, 0);
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x38B, atn::RenderManager::instance_->mLayers[4]->m04, 0);
+        lbl_8087F430->fn_80370320(0x387, mAreaIndex, 0);
+        lbl_8087F430->fn_80370320(0x388, blend, 0);
+        lbl_8087F430->fn_80370320(0x38B, atn::RenderManager::instance_->mLayers[4]->m04, 0);
     }
 }

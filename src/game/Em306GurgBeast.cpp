@@ -67,8 +67,6 @@ extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, Hit
                             int c, float f); // inferred: attack hit
 // inferred: weak copies emitted after vf108 (fn_802F0964 is also called by game/Em312DarkServant.cpp,
 // fn_802F0998 by gmk/Cannonball.cpp and gmk/FlamingArrow.cpp)
-// NONMATCHING (fn_802F0998): 56% - the original loads settings->mFps before the lis of the int->float constant
-// (scheduling of the prologue; 6 forms)
 extern "C" inline void fn_802F0964(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, int time, int c,
                                    float f) {
     fn_800F8C6C(mgr, 0, 0, owner, bullet, id, time, c, f);
@@ -79,7 +77,7 @@ extern "C" inline float fn_802F0988(BeastParams_unk* params) {
 extern "C" inline BeastParams_unk* fn_802F0990() {
     return lbl_8087EFA8;
 }
-extern "C" inline float fn_802F0998(BeastSettings_unk* settings) {
+extern "C" inline float fn_802F0998(const BeastSettings_unk* settings) {
     return -98.1f / (float)(settings->mFps * settings->mFps);
 }
 

@@ -135,7 +135,7 @@ struct Actor : public CommonData {
     inline atn::Vector3 GetTarget_unk() const;
     inline atn::Vector3 GetRot_unk() const;
     inline void SetRot_unk(const atn::Vector3& v);
-    inline void SetTarget_unk(const atn::Vector3& v);
+    inline void SetTarget_unk(atn::Vector3& v);
     inline int GetState_unk() const;
     inline atn::Vector3 GetPathPos_unk(float t);
     inline void TurnTo_unk(const atn::Vector3& dir);

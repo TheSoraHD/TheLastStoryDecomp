@@ -105,13 +105,12 @@ struct GameChoiceField_unk {
     void* m10D8; // inferred: the scene (game/GameScene)
 };
 extern "C" GameChoiceField_unk* lbl_8087F430;
-extern "C" int fn_80370174(GameChoiceField_unk* field, int index); // inferred: reads an event counter
 
-GameMessage* GameMessageList::fn_803B3B38(int id) {
+GameMessage* GameMessageList::fn_803B3B38(int id) const {
     if (lbl_8087F430 != 0) {
         const GameMessageAlias_unk* alias = sAliases_unk;
         for (unsigned int i = 0; i < 6; i++, alias++) {
-            if (alias->mId == id && fn_80370174(lbl_8087F430, alias->mCounter) == 1) {
+            if (alias->mId == id && ((GameTask*)lbl_8087F430)->fn_80370174(alias->mCounter) == 1) {
                 id = alias->mAlias;
                 break;
             }
@@ -497,7 +496,6 @@ void GameTextMessageWindow::fn_803B6970(GameMessage* msg, int arg, float time) {
 }
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int arg); // inferred: stops the sound
-extern "C" void fn_80370AE4(GameChoiceField_unk* field, int index, int value); // inferred: sets an event counter
 
 void GameTextMessageWindow::fn_803B6C88(int enabled) {
     if (enabled == 0) {
@@ -538,7 +536,7 @@ void GameTextMessageWindow::fn_803B78E8() {
         m71 = 0;
         if (lbl_8087F430 != 0) {
             if (m74 == 0) {
-                fn_80370AE4(lbl_8087F430, m78, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(m78, 1);
             } else if (m74 == 1) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(m78, 1, 0);
             }

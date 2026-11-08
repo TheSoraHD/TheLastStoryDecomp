@@ -10,6 +10,7 @@
 #include "macros.h"
 #include "atn/DrawHelper.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -31,7 +32,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
                             float arg11); // inferred: fires a bullet (as in game/Em305Vampire.cpp)
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 struct Field_unk;
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 // inferred: damage description shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp)
 // (fields as DamageResult_unk of game/Em002Skelton.cpp)
 struct QueenDamage_unk {
@@ -665,7 +665,7 @@ void Em208Queen::fn_802C9BF8() {
             SetState_unk(9);
             PlayMotion_unk(0x145);
             FaceTarget_unk();
-            fn_80370AE4(lbl_8087F430, 0x5D, 2);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
         }
     }
 }
@@ -994,7 +994,7 @@ void Em208Queen::fn_802CB8A0() {
                 SetState_unk(9);
                 PlayMotion_unk(0x145);
                 FaceTarget_unk();
-                fn_80370AE4(lbl_8087F430, 0x5D, 2);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
                 return;
             case 8:
                 SetState_unk(8);

@@ -6,6 +6,7 @@
 #include "atn/Keyboard.h"
 #include "game/CharaTask.h"
 #include "atn/RenderSetting_unk.h"
+#include "game/GameTask.h"
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" long long OSGetTime();
@@ -231,11 +232,10 @@ extern "C" void fn_804D0090(PPFlags_unk* obj, int on) {
     }
 }
 
-extern "C" void fn_80370AE4(PPField_unk* field, int index, int value); // inferred: sets a counter
 
 extern "C" void fn_804D00B8(int index, int value) {
     if (lbl_8087F430 != 0) {
-        fn_80370AE4(lbl_8087F430, index, value);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(index, value);
     }
 }
 

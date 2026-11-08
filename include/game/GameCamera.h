@@ -3,6 +3,7 @@
 
 #include "math/Vec.h"
 #include "atn/Camera_unk.h"
+#include "atn/RenderSetting_unk.h"
 
 namespace gs {
 struct CameraBox;
@@ -43,22 +44,65 @@ public:
     void fn_80389838(int mode); // inferred: sets the sub mode (previous one kept in m800)
     void fn_80382A1C(const CharaTask* chara);
     void fn_8038A1B8(const CharaTask* chara); // inferred: forced update of the current mode
-    void fn_8038A1D8();
+    void fn_8038A1D8(const CharaTask* chara); // inferred: the character is not used (mode table entry)
     void fn_80390374(); // inferred: goes back to the mode m804
     void fn_803903E0(const atn::Vector3* target, float angle, int arg); // inferred: turns toward `target`
-    void fn_80392C94(GameCameraState_unk* state); // inferred: saves the mode
+    void fn_80392C94(GameCameraState_unk* state) const; // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
     void fn_803933A4(); // inferred: reset of the event state
+    void fn_8037F744(); // inferred: update of the camera mode (tables 0x8074E018 and 0x8074E114)
+    void fn_803918EC(); // inferred: corrections of the camera (not written)
+    void fn_803920C8();
+    void fn_80392510();
+    void fn_80392FE8();
+    void fn_803928C0(); // inferred: adds the offsets m93C/m948/m954 to the render camera
+    // inferred: end of the update: copies the camera to m1F4, applies the selected corrections and gives
+    // m1F4 to the render manager
+    void fn_80392964(int a, int b, int c, int d);
+    // inferred: functions of the mode tables of fn_8037F744 (start and update of each mode; not written)
+    void fn_803830A8(const CharaTask* chara);
+    void fn_8038378C(const CharaTask* chara);
+    void fn_80384188(const CharaTask* chara);
+    void fn_80385B48(const CharaTask* chara);
+    void fn_80387548(const CharaTask* chara);
+    void fn_80387910(const CharaTask* chara);
+    void fn_803884B8(const CharaTask* chara);
+    void fn_80388A88(const CharaTask* chara);
+    void fn_80388C44(const CharaTask* chara);
+    void fn_80389060(const CharaTask* chara);
+    void fn_80389210(const CharaTask* chara);
+    void fn_803893A0(const CharaTask* chara);
+    void fn_8038952C(const CharaTask* chara);
+    void fn_80389678(const CharaTask* chara);
+    void fn_80389A00(const CharaTask* chara);
+    void fn_8038A200(const CharaTask* chara);
+    void fn_8038A5F0(const CharaTask* chara);
+    void fn_8038B148(const CharaTask* chara);
+    void fn_8038B650(const CharaTask* chara);
+    void fn_8038BD78(const CharaTask* chara);
+    void fn_8038C070(const CharaTask* chara);
+    void fn_8038C5B0(const CharaTask* chara);
+    void fn_8038C928(const CharaTask* chara);
+    void fn_8038CD94(const CharaTask* chara);
+    void fn_8038D1C0(const CharaTask* chara);
+    void fn_8038D4D4(const CharaTask* chara);
+    void fn_8038D854(const CharaTask* chara);
+    void fn_8038DBE4(const CharaTask* chara);
+    void fn_8038DDE0(const CharaTask* chara);
+    void fn_8038DF5C(const CharaTask* chara);
 
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     unsigned char m3E8[0x46C - 0x3E8];
     int m46C;
-    unsigned char m470[0x4FC - 0x470];
+    unsigned char m470[0x4B8 - 0x470];
+    float m4B8; // inferred: set from the replay rewind (GameTask::fn_80373AE8)
+    unsigned char m4BC[0x4FC - 0x4BC];
     atn::Vector3 m4FC;     // inferred: position of the fixed mode (relative to the character when m518 is set)
     atn::Vector3 m508;     // inferred: target of the fixed mode
     float m514;            // inferred: fovy of the fixed mode
     int m518;              // inferred: m4FC/m508 follow the character
-    unsigned char m51C[0x7F4 - 0x51C];
+    unsigned char m51C[0x7F0 - 0x51C];
+    int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
     unsigned char m7F8[0x7FC - 0x7F8];
     int m7FC;              // inferred: sub mode (fn_80389838)
@@ -79,7 +123,11 @@ public:
     int m860;
     unsigned char m864[0x880 - 0x864];
     int m880;
-    unsigned char m884[0x8E4 - 0x884];
+    unsigned char m884[0x8A4 - 0x884];
+    atn::Vector3 m8A4; // inferred: point the tactical view starts from (TacView::fn_805AA4E4)
+    unsigned char m8B0[0x8D4 - 0x8B0];
+    int m8D4; // inferred: set at the end of the replay rewind (GameTask::fn_80373AE8)
+    unsigned char m8D8[0x8E4 - 0x8D8];
     int m8E4; // inferred: cleared by GameTask::vf10 when the tactical view closes
     int m8E8; // inferred: cleared by GameTask::vf10 at the end of a map change
     int m8EC;
@@ -94,12 +142,27 @@ public:
     unsigned char m910;
     unsigned char m911[0x914 - 0x911];
     int m914;
-    unsigned char m918[0xA0C - 0x918];
+    int m918; // inferred: maximum of m914
+    unsigned char m91C[0x93C - 0x91C];
+    atn::Vector3 m93C; // inferred: offset of the position of the render camera (fn_803928C0)
+    atn::Vector3 m948; // inferred: offset of the target
+    float m954;        // inferred: offset of the fovy
+    unsigned char m958[0xA0C - 0x958];
     float mA0C[5];
-    unsigned char mA20[0xC20 - 0xA20];
+    unsigned char mA20[0xA28 - 0xA20];
+    atn::Vector3 mA28;     // inferred: position the render camera is blended from (fn_80392FE8)
+    atn::Vector3 mA34;     // inferred: target of the blend
+    atn::Vector3 mA40;     // inferred: up vector of the blend
+    unsigned char mA4C[0xA70 - 0xA4C];
+    float mA70;            // inferred: fovy of the blend
+    unsigned char mA74[0xC14 - 0xA74];
+    float mC14;            // inferred: blend weight, decreased by mC18 every frame
+    float mC18;
+    unsigned char mC1C[0xC20 - 0xC1C];
     gs::CameraBox* mC20;   // 0xC20: inferred: camera box (MapTask::fn_804A04AC)
-    unsigned char mC24[0xC84 - 0xC24];
-    int mC84;
+    DofParam_unk mC24;     // inferred: depth of field saved while the camera box sets its own (fn_80389884)
+    DofParam_unk mC54;     // inferred: depth of field of the camera box
+    int mC84;              // inferred: mC54 is applied
     unsigned char mC88[0xCAC - 0xC88];
 };
 

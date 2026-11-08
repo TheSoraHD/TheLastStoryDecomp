@@ -11,12 +11,12 @@ class ControlChargeAttackBase : public ControlBase {
 public:
     ControlChargeAttackBase(Chara_unk* chara, const atn::Vector3& target, float speed, int adjust); // 0x801A4B00
     virtual ~ControlChargeAttackBase();
-    virtual atn::Vector3 vf18();
+    virtual atn::Vector3 vf18() const;
     virtual int vf24();
     virtual int vf28();
     virtual int vf44() { return vf24(); }
     virtual int vf48() { return 0x23; }
-    virtual atn::Vector3 vf4C() { return m08; } // NONMATCHING: 60% - z stored first (as vf18)
+    virtual atn::Vector3 vf4C() const { return m08; } // NONMATCHING: 60% - z stored first (as vf18)
     virtual int vf54() { return m28; }
     // inferred: moves `target` to a reachable point in front of `from` (ray tests); 0x801A4E08
     static void fn_801A4E08(Chara_unk* chara, const atn::Vector3& from, atn::Vector3& target);
@@ -50,7 +50,7 @@ class ControlQuarkSeirenAttack : public ControlChargeAttackBase {
 public:
     ControlQuarkSeirenAttack(Chara_unk* chara, const atn::Vector3& target, float speed, int adjust);
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     float m2C;
 };
@@ -71,7 +71,7 @@ class ControlCharge : public ControlMoveCursor {
 public:
     ControlCharge(Chara_unk* chara, int a, const atn::Vector3* target, int c); // 0x801A2CEC
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     inline void AimAt_unk(HitInfo_unk* hit, CharaTask* target);
 
     float m28;         // inferred: range of the attack (HitInfo_unk::m58)

@@ -324,23 +324,22 @@ struct ModelComposite_unk {
     CompositeCacheHandle_unk m14;
 };
 
-// NONMATCHING: 97.9% - registers of the composite loop (the zero stored to m10 is a copy of the counter)
 void ModelBase::fn_8008AA90() {
     m20C_31_24 = 0;
     for (unsigned int i = 0; i < m144.size(); i++) {
-        m144.mData[i]->m00--;
+        m144[i]->m00--;
     }
     for (unsigned int i = 0; i < m13C.size(); i++) {
-        delete m13C.mData[i]->mLODs.mData[0].mShader;
-        delete m13C.mData[i];
+        delete m13C[i]->mLODs[0].mShader;
+        delete m13C[i];
     }
     for (unsigned int i = 0; i < m1E4.mSize; i++) {
-        if (m1E4.mData[i]->m10 != 0) {
-            delete m1E4.mData[i]->m10;
-            m1E4.mData[i]->m10 = 0;
+        if (m1E4[i]->m10 != 0) {
+            delete m1E4[i]->m10;
+            m1E4[i]->m10 = 0;
         }
-        m1E4.mData[i]->m14.Release_unk();
-        delete m1E4.mData[i];
+        m1E4[i]->m14.Release_unk();
+        delete m1E4[i];
     }
     if (m15C != 0) {
         delete m15C;
@@ -1844,13 +1843,12 @@ void ModelBase::fn_80095750(const char* name, ModelCompositeTex_unk* tex) {
     m1E4.push_back(e);
 }
 
-// NONMATCHING: 97.9% - registers (this/name in r27/r28 in the original)
 Texture_unk* ModelBase::fn_80095B08(const std::string& name) {
     if (m1E4.mSize != 0) {
         unsigned int hash = fn_800DC6B4(name.c_str());
         for (unsigned int i = 0; i < m1E4.mSize; i++) {
-            if (hash == m1E4.mData[i]->m0C && name == m1E4.mData[i]->mName) {
-                return m1E4.mData[i]->m14.fn_800D8808();
+            if (hash == m1E4[i]->m0C && name == m1E4[i]->mName) {
+                return m1E4[i]->m14.fn_800D8808();
             }
         }
     }
@@ -1967,7 +1965,7 @@ void Model::fn_8009757C() {
     m3BC--;
 }
 
-void Model::fn_80097750(const atn::Vector3& dir, float a, float b, int c) {
+void Model::fn_80097750(atn::Vector3& dir, float a, float b, int c) {
     atn::Vector3 n(dir);
     n.Normalize_unk();
     m3A8 = n;
@@ -2019,7 +2017,7 @@ void Model::fn_80097A9C(int motion, const LH_Motion* src) {
 int Model::fn_80097B34() {
     int n = 0;
     for (int i = 0; i < (int)m224.mSize; i++) {
-        if (m224.mData[i].GetMotion_unk().m08 != 0) {
+        if (m224[i].GetMotion_unk().m08 != 0) {
             n++;
         }
     }
@@ -2029,7 +2027,7 @@ int Model::fn_80097B34() {
 int Model::vf20() {
     int busy = 0;
     for (int i = 0; i < (int)m224.mSize; i++) {
-        if (m224.mData[i].GetMotion_unk().fn_800A0448()) {
+        if (m224[i].GetMotion_unk().fn_800A0448()) {
             busy = 1;
         }
     }

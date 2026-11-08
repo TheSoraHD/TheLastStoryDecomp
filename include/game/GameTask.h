@@ -13,7 +13,7 @@
 #include "MP/SaveLoad.h"
 
 class GameScene;
-struct Ledge_unk;
+struct GameSceneRoute_unk;
 class GimmickCommon;
 class MapTask;
 class PlayerTask;
@@ -55,7 +55,7 @@ struct GameTaskTable_unk {
 };
 
 // inferred from __vt__8GameTask (0x8078A3D0): the field task (lbl_8087F430). Other units still use
-// partial views of it (GameField_unk, Field_unk...). Method names invented unless noted.
+// partial views of it (Field_unk...). Method names invented unless noted.
 class GameTask : public atn::Task {
 public:
     // inferred: start options of the game task (0x24 bytes; names invented)
@@ -107,7 +107,7 @@ public:
     void fn_80373F78();
     // RSO name; inline (weak copy 0x80373148). Defined in game/EnemyQuarkSecond.cpp, the only unit known
     // to inline it (a body here would need GameScene.h in every user of this header).
-    inline MapTask* GetCurrentMap();
+    MapTask* GetCurrentMap();
     int fn_80375184();        // inferred: saving is allowed
     int fn_80376150();
     void fn_80376194(int on);
@@ -120,14 +120,14 @@ public:
     int fn_8036823C();
     void fn_80374710(int arg); // inferred: starts the battle camera (camera mode 6)
     void fn_803748E0(int arg); // inferred: ends the grapple camera
-    int fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int point); // inferred: hide link ahead of `chara`
-    int fn_8036DB24(Ledge_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir); // inferred: next hide link
+    int fn_8036DAF4(GameSceneRoute_unk* route, CharaTask* chara, int check, int point); // inferred: hide link ahead of `chara`
+    int fn_8036DB24(GameSceneRoute_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir); // inferred: next hide link
     int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara);
     void fn_80375194(int id, int kind, float rot); // inferred: sets m5644/m5640 and moves the party to the leader
     int fn_803754C4(); // inferred: the task at 0x567C exists and is not stopped
     int fn_803761BC(); // inferred: debug field
     int fn_803761DC(); // inferred: a mode compared with 1, 2 and 3
-    GimmickCommon* fn_8036E098(); // inferred: save point in front of the leader
+    GimmickCommon* fn_8036E098() const; // inferred: save point in front of the leader
     void fn_8036FB4C(int entry);        // inferred: moves to an entry of the current map
     void fn_8036FC58();                 // inferred: back from the map move (undoes fn_8036FB4C) // inferred: hide link held by `chara`
     void fn_80373118(); // inferred: one more frame of delay for the fades // inferred: nonzero on some fields
@@ -146,11 +146,35 @@ public:
     int fn_8036E170();
     void fn_8036E494();
     void fn_8036CFA4();
+    void fn_8036D2D0(); // inferred: starts and ends the finish camera of the special attacks
     void fn_8036CC90();
     void fn_80373AE8();
     void fn_803737C0();
     void fn_803727DC();
     void fn_80376568();
+    // inferred: former extern "C" functions of game/GameTask.cpp (block 2 of s12h-20261107)
+    void fn_80370094(int chapter);
+    int fn_80370174(unsigned int index);
+    int fn_80370A78(unsigned int index);
+    void fn_80370AE4(unsigned int index, int value);
+    void fn_80370F8C(int count, void* save, int stay);
+    void fn_80371164();
+    void fn_803712BC();
+    void fn_80371334();
+    void fn_80371674();
+    void fn_803729B4(CharaTask* chara);
+    void fn_80373FC4();
+    void fn_803743AC();
+    void fn_80374964(int kind);
+    int fn_803752F4(const char* id);
+    int fn_803754F0();
+    int fn_8037587C(int type, int id, int sub);
+    int fn_80375B78(int arg);
+    int fn_80375D0C();
+    void fn_80376254(int delay, int frames);
+    void fn_80376324(int id);
+    void fn_80376730();
+    void fn_803750E4(int id); // inferred: sets a global flag once
     void fn_80367A40(int arg);
     void fn_8036CA60(int arg);
 
@@ -186,7 +210,8 @@ public:
     GameTaskData_unk* m5590;
     int m5594;
     int m5598;
-    unsigned char m559C[0x55A4 - 0x559C];
+    int m559C; // inferred: frames of the replay rewind (fn_80373AE8)
+    int m55A0;
     int m55A4;
     atn::SoundRef m55A8;
     int m55AC;
@@ -194,7 +219,7 @@ public:
     int m55B4;
     int m55B8;
     int m55BC;
-    unsigned char m55C0[0x55C4 - 0x55C0];
+    float m55C0; // inferred: frame speed saved by fn_80373FC4
     ColorMatrixParam_unk m55C4;
     int m5614;
     int m5618;

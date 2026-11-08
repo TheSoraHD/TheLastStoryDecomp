@@ -7,7 +7,6 @@
 #include "game/BattleTask.h"
 #include "atn/SoundRef.h"
 #include "game/GameEventScript.h"
-#include "game/GameField_unk.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
 #include "Event/Manager.h"
@@ -32,6 +31,8 @@
 #include "game/PlayerTask.h"
 
 #include <exception>
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" BattleTask* lbl_8087F048;
 
@@ -59,13 +60,8 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 class TownTask;
 extern "C" TownTask* lbl_8087FA20;
 extern "C" const char* const lbl_8074EF78[];
-extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
+extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
-extern "C" void fn_80371164(GameField_unk* field);
-extern "C" void fn_803712BC(GameField_unk* field);
-extern "C" void fn_80374964(GameField_unk* field, int arg);
-extern "C" void fn_80376730(GameField_unk* field); // inferred: autosave
-extern "C" void fn_80370094(GameField_unk* field, int state); // inferred: sets m10D0
 extern "C" int lbl_8087D990; // inferred: last save slot (-1: none)
 extern "C" int fn_804444E8(Inventory* inv, int id); // inferred: number of items
 
@@ -160,7 +156,7 @@ void GameEventScript::fn_803957F0(int id) {
 // NONMATCHING: 98% - registers of the field value and of the minimum swapped
 int GameEventScript::fn_80398530(int event) {
     const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
-    int value = ((GameTask*)lbl_8087F430)->m10D0;
+    int value = lbl_8087F430->m10D0;
     return e->IsAlways_unk() || e->Contains_unk(value);
 }
 
@@ -205,16 +201,16 @@ void GameEventScript::fn_8039D3E0(ScriptResult_unk& result, const ScriptCmd_unk*
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     switch (args->m08) {
     case 0:
-        ((GameTask*)lbl_8087F430)->fn_80370B78(args->m0C, args->m10, 0, -9.0f);
+        lbl_8087F430->fn_80370B78(args->m0C, args->m10, 0, -9.0f);
         break;
     case 2:
-        ((GameTask*)lbl_8087F430)->fn_80370B78(args->m0C, args->m10, 0, -1.0f);
+        lbl_8087F430->fn_80370B78(args->m0C, args->m10, 0, -1.0f);
         break;
     case 1:
-        ((GameTask*)lbl_8087F430)->fn_80370BD0(args->m10, 0, -9.0f);
+        lbl_8087F430->fn_80370BD0(args->m10, 0, -9.0f);
         break;
     case 3:
-        ((GameTask*)lbl_8087F430)->fn_80370BD0(args->m10, 0, -1.0f);
+        lbl_8087F430->fn_80370BD0(args->m10, 0, -1.0f);
         break;
     }
     result.SetNext_unk(cmd);
@@ -231,7 +227,7 @@ void GameEventScript::fn_8039D99C(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 void GameEventScript::fn_8039D9B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    ((GameTask*)lbl_8087F430)->fn_80370C6C();
+    lbl_8087F430->fn_80370C6C();
     lbl_8087F8A0->mHead->fn_8016E970(0);
     result = ScriptResult_unk(0, 1);
 }
@@ -313,10 +309,10 @@ void GameEventScript::fn_8039EA50(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    fn_80370094(lbl_8087F430, static_cast<const ScriptArgs_unk*>(cmd)->m08);
+    lbl_8087F430->fn_80370094(static_cast<const ScriptArgs_unk*>(cmd)->m08);
     mF0 = 1;
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x63, 0, 0);
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x11D, 0, 0);
+    lbl_8087F430->fn_80370320(0x63, 0, 0);
+    lbl_8087F430->fn_80370320(0x11D, 0, 0);
     result.SetNext_unk(cmd);
 }
 
@@ -407,7 +403,7 @@ void GameEventScript::fn_803A2154(ScriptResult_unk& result, const ScriptCmd_unk*
     GameBgm* bgm = GameBgm::sInstance;
     if (bgm != 0) {
         if (args->m08 > 0 || (bgm->m84 != 0 ? bgm->mNext.mId : bgm->mReq.mId) != 0x67) {
-            if (((GameTask*)lbl_8087F430)->fn_803761FC() == 0) {
+            if (lbl_8087F430->fn_803761FC() == 0) {
                 GameBgm::sInstance->fn_8037D4C0(args->m08, *(int*)&args->m10, 1, 0, args->m0C);
             }
         }
@@ -458,7 +454,7 @@ void GameEventScript::fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
     int wait = 0;
     if (lbl_8087F430 != 0) {
-        fn_80374964(lbl_8087F430, args->m08);
+        lbl_8087F430->fn_80374964(args->m08);
         if (args->m08 == 3) {
             wait = 1;
         }
@@ -483,9 +479,9 @@ void GameEventScript::fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     if (lbl_8087F430 != 0) {
         if (args->m08 == 0) {
             if (lbl_8087F430->mCamera.m7FC == 6) {
-                ((GameTask*)lbl_8087F430)->fn_803748E0(1);
+                lbl_8087F430->fn_803748E0(1);
             }
-            ((GameTask*)lbl_8087F430)->fn_80374710(args->m0C);
+            lbl_8087F430->fn_80374710(args->m0C);
         } else if (lbl_8087F430->mCamera.m7FC == 6) {
             if (args->m08 == 2) {
                 lbl_8087F9F8->fn_805AA4E4();
@@ -500,7 +496,7 @@ void GameEventScript::fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 // inferred: sets the camera of the current map
 void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
-    MapTask* map = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->GetCurrentMap() : 0;
+    MapTask* map = lbl_8087F430 != 0 ? lbl_8087F430->GetCurrentMap() : 0;
     if (map != 0) {
         map->fn_804A04AC(args->m08, args->m0C != 0 ? 10 : 0, -1, 0);
         map->mDefaultCamera = args->m08;
@@ -510,7 +506,7 @@ void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk*
 
 void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0 && SetConfig::sInstance->mAutoSave != 0) {
-        fn_80376730(lbl_8087F430);
+        lbl_8087F430->fn_80376730();
     }
     result.SetNext_unk(cmd);
 }
@@ -518,7 +514,7 @@ void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80375194(args->m1C, args->m14, *(float*)&args->m18);
+        lbl_8087F430->fn_80375194(args->m1C, args->m14, *(float*)&args->m18);
     }
     result.SetNext_unk(cmd);
 }
@@ -647,7 +643,7 @@ void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, const ScriptCmd_unk*
 // NONMATCHING: 98% - registers r0/r4 swapped (type/zero), as fn_803A61CC
 void GameEventScript::fn_803A83FC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_80373F78();
+        lbl_8087F430->fn_80373F78();
     }
     result.SetNext_unk(cmd);
 }
@@ -658,7 +654,7 @@ void GameEventScript::fn_803A8464(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 void GameEventScript::fn_803A90E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    fn_803712BC(lbl_8087F430);
+    lbl_8087F430->fn_803712BC();
     lbl_8087F8A0->mHead->fn_8016E970(0);
     result = ScriptResult_unk(0, 1);
 }
@@ -708,7 +704,7 @@ void GameEventScript::fn_803AA954(ScriptResult_unk& result, const ScriptCmd_unk*
 
 void GameEventScript::fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
-        ((GameTask*)lbl_8087F430)->fn_8036E430(2, static_cast<const ScriptArgs_unk*>(cmd)->m08);
+        lbl_8087F430->fn_8036E430(2, static_cast<const ScriptArgs_unk*>(cmd)->m08);
     }
     result.SetNext_unk(cmd);
 }
@@ -722,7 +718,7 @@ void GameEventScript::fn_803AAD58(ScriptResult_unk& result, const ScriptCmd_unk*
 // NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803AB144(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
-    ((GameTask*)lbl_8087F430)->fn_8036E994(args->m08, args->m0C, args->m10);
+    lbl_8087F430->fn_8036E994(args->m08, args->m0C, args->m10);
     result.SetNext_unk(cmd, 1);
 }
 
@@ -737,8 +733,8 @@ void GameEventScript::fn_803AB1B0(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 // inferred: opens the save menu
 // NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803AB1F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    ((GameTask*)lbl_8087F430)->fn_80370320(0x391, static_cast<const ScriptArgs_unk*>(cmd)->m14, 0);
-    ((GameTask*)lbl_8087F430)->fn_8036E92C(1);
+    lbl_8087F430->fn_80370320(0x391, static_cast<const ScriptArgs_unk*>(cmd)->m14, 0);
+    lbl_8087F430->fn_8036E92C(1);
     result.SetNext_unk(cmd, 1);
 }
 
@@ -752,14 +748,14 @@ void GameEventScript::fn_803AB26C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
         } else {
             fn_8039BF04(args->m0C, args->m10, 0, 0, 0);
         }
-        ((GameTask*)lbl_8087F430)->fn_80370320(0x391, 0, 0);
+        lbl_8087F430->fn_80370320(0x391, 0, 0);
         wait = 0;
     }
     result.SetNext_unk(cmd, wait);
 }
 
 void GameEventScript::fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    fn_80371164(lbl_8087F430);
+    lbl_8087F430->fn_80371164();
     result.mWait = 1;
     result.mNext = 0;
 }

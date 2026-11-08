@@ -16,7 +16,9 @@
 #include "game/EnemyTask.h"
 #include "game/GimmickManager.h"
 #include "game/GameScene.h"
-#include "game/GameField_unk.h"
+#include "game/GameTask.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" int sprintf(char* s, const char* format, ...);
@@ -260,7 +262,7 @@ extern "C" CharaTask* fn_8000DA00(int type, int point) {
 
 // inferred: character id of the set point `point` of the scene (-1 if missing)
 extern "C" int fn_8000DAF0(int type, int point) {
-    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->GetScene_unk() : fn_8000DB1C()->m1A6C;
+    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : fn_8000DB1C()->m1A6C;
     return scene->fn_803CC5E4(type, point);
 }
 

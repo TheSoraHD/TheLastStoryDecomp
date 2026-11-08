@@ -23,7 +23,7 @@ public:
     virtual int vf1C(PBoneModel_unk* model, CsvBase<char, 9, 13, 34>* csv) = 0;
     virtual void vf20(int enable) = 0;
     virtual int vf24() = 0;
-    virtual void vf28(const Vector3& force) = 0;
+    virtual void vf28(Vector3& force) = 0;
     virtual void vf2C(void* menu) = 0;
     virtual const char* vf30() = 0;
     virtual void vf34() = 0;
@@ -40,7 +40,7 @@ public:
     virtual int vf1C(PBoneModel_unk* model, CsvBase<char, 9, 13, 34>* csv); // inferred: load
     virtual void vf20(int enable) { m04 = enable; }
     virtual int vf24() { return m04; }
-    virtual void vf28(const Vector3& force);
+    virtual void vf28(Vector3& force);
     virtual void vf2C(void* menu); // inferred: debug menu
     virtual const char* vf30() { return mName.data(); }
     virtual void vf34(); // inferred: physics step
@@ -71,9 +71,8 @@ class PBoneOutForce : public PBoneBasic {
 public:
     PBoneOutForce();
     virtual ~PBoneOutForce();
-    // NONMATCHING: 75.0% - the original stores z before x and y (psq_l, lfs, stfs, psq_st); the
-    // Vector3 copy of math/Vec.h stores x and y first
-    virtual void vf28(const Vector3& force) {
+    // inferred: non-const reference (a copy from a const vector would store x and y first)
+    virtual void vf28(Vector3& force) {
         if (m04 != 0) {
             m2C = force;
         }

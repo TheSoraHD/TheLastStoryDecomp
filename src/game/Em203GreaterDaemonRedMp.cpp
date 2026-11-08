@@ -75,8 +75,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -181,7 +179,7 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
 }
 
 // inferred: hit points ratio (weak copy 0x8029F3AC, also called by game/EnemyQuarkSecond.cpp)
-extern "C" inline float fn_8029F3AC(CharaStatus* status) {
+extern "C" inline float fn_8029F3AC(const CharaStatus* status) {
     if (status->mParamB.m84 > 0) {
         return status->m04 / status->mParamB.m84;
     }
@@ -450,8 +448,8 @@ void Em203GreaterDaemonRedMp::vf10() {
     }
     if (m1650 != 0) {
         m1654--;
-        if (fn_80370A78(lbl_8087F430, 100) == 0) {
-            fn_80370AE4(lbl_8087F430, 100, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(100) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(100, 1);
         }
     }
     if (m58C == 2) {

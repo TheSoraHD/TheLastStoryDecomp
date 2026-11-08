@@ -75,7 +75,7 @@ public:
     virtual int vf0C();          // 0x805B721C
     virtual void vf10();         // 0x805B7398
     virtual void vf14();         // 0x805B7B20
-    void fn_805B7B04(const atn::Vector3& pos); // inferred: sets the position
+    void fn_805B7B04(atn::Vector3& pos); // inferred: sets the position
     void fn_805B7B24();
     void fn_805B8DB4(int arg);
     void fn_805B8110(const atn::Vector3* pos, int* x, int* z); // inferred: block of a position, clamped

@@ -13,7 +13,7 @@ class ControlCdnStone : public ControlBase {
 public:
     ControlCdnStone(Chara_unk* chara, int a); // 0x8018EEC4 (first function of this unit)
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
 
     atn::Vector3 m08; // inferred: shake offset applied to the character (mF88)
     atn::Vector3 m14; // inferred: shake direction; its y (always 0 in the direction) is the shake timer
@@ -33,7 +33,7 @@ class ControlCdnParalyzed : public ControlBase {
 public:
     ControlCdnParalyzed(Chara_unk* chara); // 0x8018F970
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     int m08;
 };
@@ -48,7 +48,7 @@ class ControlCdnBetray : public ControlBase {
 public:
     ControlCdnBetray(Chara_unk* chara, int a, int b); // 0x8018FF6C
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     int m08; // inferred: side the character switches to (CharaTask::mF14)
     int m0C; // inferred: nonzero selects control 0x35 instead of 0x34
@@ -59,7 +59,7 @@ public:
     ControlCdnSleep(Chara_unk* chara); // 0x801908F0
     virtual ~ControlCdnSleep();
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     int m08;
     int m0C;
 };
@@ -68,7 +68,7 @@ class ControlCdnRestoreSleep : public ControlBase {
 public:
     ControlCdnRestoreSleep(Chara_unk* chara); // 0x80190E80
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
 };
 
 class ControlCdnPiyo : public ControlBase {
@@ -76,7 +76,7 @@ public:
     ControlCdnPiyo(Chara_unk* chara, const atn::Vector3& dir, int time, int flag); // 0x80191170
     virtual ~ControlCdnPiyo();
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     int m08;          // inferred: phase (0 = falling, 1 = dizzy)
     float m0C;        // inferred: time left
     int m10;          // inferred: nonzero for the long version (other motion, slower push)
@@ -88,7 +88,7 @@ class ControlCdnRestorePiyo : public ControlBase {
 public:
     ControlCdnRestorePiyo(Chara_unk* chara); // 0x80191A44
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
 };
 
 class ControlCdnPsycho : public ControlBase {
@@ -96,7 +96,7 @@ public:
     ControlCdnPsycho(Chara_unk* chara, int flag); // 0x80191D30
     virtual ~ControlCdnPsycho();
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     int m08;   // inferred: phase (the constructor starts it at 1)
     float m0C; // inferred: time left
     int m10;
@@ -106,7 +106,7 @@ class ControlCdnRestorePsycho : public ControlBase {
 public:
     ControlCdnRestorePsycho(Chara_unk* chara); // 0x80192130
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
 };
 
 } // namespace chr

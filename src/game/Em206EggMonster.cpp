@@ -12,6 +12,7 @@
 #include "macros.h"
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
+#include "game/GameTask.h"
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
 struct EggLook_unk {
@@ -138,8 +139,6 @@ struct GameSetting_unk {
     int m194;
 };
 extern "C" GameSetting_unk* lbl_8087F0A8;
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" chr::CharaData_unk* fn_8020A81C(const char* name);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: name table of the field (lbl_8087F430 + 0x54F4) (as in game/CharaTask.cpp)
@@ -319,7 +318,7 @@ Em206EggMonster::Em206EggMonster(atn::Task* parent, void* data)
     m15BC = 0;
     m15C0 = 0;
     m15C4 = 0;
-    fn_80370AE4(lbl_8087F430, 0xFF, 0);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFF, 0);
     m568 = 0.15f;
     m1704 = m5C;
     m1708 = fn_8020A81C("em_dg004Boss_B");
@@ -467,8 +466,8 @@ void Em206EggMonster::vf10() {
                 fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
             } else if (mMotion.mTracks[0].m08 >= 55.1f && mMotion.mTracks[0].m08 <= 56.0f) {
                 fn_802C653C();
-                if (fn_80370A78(lbl_8087F430, 0xF8) == 0) {
-                    fn_80370AE4(lbl_8087F430, 0xF8, 1);
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(0xF8) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xF8, 1);
                 }
                 Effect_unk* mgr = lbl_8087F048;
                 HitInfo_unk* data = fn_80219E6C(0x57C);
@@ -549,11 +548,11 @@ void Em206EggMonster::vf10() {
         }
     }
     if (((CharaTask*)lbl_8087F8A0->mHead)->mFlag28) {
-        if (fn_80370A78(lbl_8087F430, 0xFD) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xFD, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFD) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFD, 1);
         }
-    } else if (fn_80370A78(lbl_8087F430, 0xFD) != 0) {
-        fn_80370AE4(lbl_8087F430, 0xFD, 0);
+    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFD) != 0) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFD, 0);
     }
     if (turn != 0) {
         float radius = 20.0f;
@@ -584,7 +583,7 @@ void Em206EggMonster::vf10() {
         m16BC = 0;
         fn_80239DAC(lbl_8087F3C0, this, 200, 0);
         m1594 = 2;
-        fn_80370AE4(lbl_8087F430, 0xFA, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFA, 1);
         m58C = 0;
     }
 }
@@ -686,7 +685,7 @@ void Em206EggMonster::vf3C(HitInfo_unk* hit) {
     msg->m10 *= 0.0f;
     if (msg->mData->m01 == 1 && *(int*)&msg->m3C[4] == 1 && msg->mData->m04 != 0x4E88) {
         fn_8017A300(m1708);
-        if (fn_80370A78(lbl_8087F430, 0xFC) == 0 && m15F4 == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFC) == 0 && m15F4 == 0) {
             msg->m0C |= 0x200000;
             m15F8++;
             float hp = mStatus.m04;
@@ -702,9 +701,9 @@ void Em206EggMonster::vf3C(HitInfo_unk* hit) {
                 m15B4 = 1;
                 m15F4 = 1;
                 if (m15B0 != 0) {
-                    fn_80370AE4(lbl_8087F430, 0xFC, 1);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 1);
                 } else {
-                    fn_80370AE4(lbl_8087F430, 0xFC, 3);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 3);
                 }
                 m1594 = 1;
                 m16BC = 1;
@@ -748,7 +747,7 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
         fn_802C4B70();
         return;
     }
-    if (fn_80370A78(lbl_8087F430, 0xFC) == 0) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFC) == 0) {
         float hp = mStatus.m04;
         float ratio = hp / mStatus.mParamB.m84;
         if (ratio < 0.5f && lbl_8087F430->m5694 == 0) {
@@ -760,9 +759,9 @@ void Em206EggMonster::vf40(HitInfo_unk* hit) {
             mMotion.mTracks[0].m0C = 1.0f;
             mMotion.fn_80097C08(0, 0x33, 0, 0, 1, 0.0f, 0.025f);
             if (m15B0 != 0) {
-                fn_80370AE4(lbl_8087F430, 0xFC, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 1);
             } else {
-                fn_80370AE4(lbl_8087F430, 0xFC, 3);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFC, 3);
             }
             m1594 = 1;
             m16BC = 1;
@@ -1022,7 +1021,7 @@ atn::Vector3 Em206EggMonster::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
         result = mPos;
-    } else if (fn_80370A78(lbl_8087F430, 0xF5) == 0) {
+    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xF5) == 0) {
         result = mPos;
     } else {
         result = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
@@ -1030,7 +1029,6 @@ atn::Vector3 Em206EggMonster::vf64(int center) {
     return result;
 }
 
-// NONMATCHING: 99.98% - stack slots of the GetNormalize temporary and of the normalized copy swapped
 void Em206EggMonster::fn_802C3EDC() {
     if (m55C == 7) {
         if (m1594 != 2 && mC58.mC4 != (CharaTask*)mC58.mC8) {
@@ -1058,9 +1056,7 @@ void Em206EggMonster::fn_802C3EDC() {
         atn::Vector3 d = t->mPos - mPos;
         atn::Vector3 rot = d.GetNormalize().ToRotation_unk();
         atn::WrapAngle_unk(rot.y - mRot.y);
-        atn::Vector3 m = d;
-        PSVECNormalize(&m, &m);
-        PSVECMag(&m);
+        d.GetNormalize().Length_unk();
         int limit;
         if (m1594 == 1) {
             limit = 300;
@@ -1154,7 +1150,7 @@ void Em206EggMonster::vfEC() {
             m164C.mFlags &= ~1;
             mFlag15 = 1;
             fn_801765D8();
-            fn_80370AE4(lbl_8087F430, 0xF9, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xF9, 1);
             field->mCamera.m834 = 0;
             field->mCamera.m46C.mMode = 0;
             field->mCamera.m910.m00 = 0;
@@ -1268,19 +1264,18 @@ void Em206EggMonster::vf50() {
     mFlagB29 = 0;
 }
 
-// NONMATCHING: 96% - registers of the Vector3 copies (docs/mwcc-blockers.md, 3); pool offsets wait for vf50
 void Em206EggMonster::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
-        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
-        m624.mData[1].m04.mCenter.y -= 3.0f;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
+        m624[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+        m624[1].m04.mCenter.y -= 3.0f;
         atn::Vector3 ofs(0.0f, 0.0f, 7.0f);
         atn::Matrix3x4 m;
         m.fn_8013A13C(mRot.y);
         PSMTXMultVec(m.m, &ofs, &ofs);
-        m624.mData[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
-        m624.mData[2].m04.mCenter += ofs;
+        m624[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
+        m624[2].m04.mCenter += ofs;
     }
 }
 
@@ -1306,7 +1301,7 @@ inline atn::Vector3 ToScreen_unk(const atn::Vector3& pos) {
 // inferred: aim of the crossbow at the egg (as SpecialEnemyBase::fn_805A4A54): marks it on the HUD and,
 // when it is hit, makes the camera look at the neck for 45 frames
 void Em206EggMonster::fn_802C5F5C() {
-    if (fn_80370A78(lbl_8087F430, 0xFF) == 0 && m15B0 == 0) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFF) == 0 && m15B0 == 0) {
         Field_unk* field = lbl_8087F430;
         CharaTask::Sphere_unk sphere = m624.mData[1].m04;
         int prev = field->mCamera.m800;
@@ -1343,7 +1338,7 @@ void Em206EggMonster::fn_802C5F5C() {
             if (fn_80051B70(&eye, &aim.mCenter) != 0 && fn_803ABE54(&eye, &aim.mCenter, aim.mRadius) != 0) {
                 hit = 1;
                 lbl_8087F490->fn_803E6ADC(sphere.mCenter + lo, sphere.mCenter + hi);
-                fn_80370AE4(lbl_8087F430, 0xFF, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFF, 1);
                 m15CC = 45;
                 EggFieldCam_unk* cam = &lbl_8087F430->mCamera;
                 atn::Vector3 neck = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
@@ -1369,7 +1364,7 @@ void Em206EggMonster::fn_802C5F5C() {
 }
 
 int Em206EggMonster::vfF4() {
-    if (lbl_8087F430 != 0 && fn_80370A78(lbl_8087F430, 0xFF) == 0 && m15B0 == 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xFF) == 0 && m15B0 == 0) {
         return 1;
     }
     return 0;
