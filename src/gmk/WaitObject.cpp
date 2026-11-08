@@ -381,8 +381,6 @@ void WaitObject::vf20() {
     } while (csv.fn_8005BBF8() != 0);
 }
 
-// NONMATCHING: 98.5% (each instance) - stack slots of front/dir/d and the float registers of the
-// angle, radius, value and distance
 template <class T>
 int WaitObject::InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger) {
     if (manager == 0) {
@@ -390,22 +388,25 @@ int WaitObject::InArea_unk(CharaManager<T>* manager, WaitTrigger_unk* trigger) {
     }
     atn::Matrix3x4 rot;
     atn::Vector3 dir;
-    PSMTXRotRad(rot.m, 'y', m78.y);
-    atn::Vector3 front(0.0f, 0.0f, 1.0f);
-    dir = front;
+    float ry = m78.y;
+    PSMTXRotRad(rot.m, 'y', ry);
+    dir = atn::Vector3(0.0f, 0.0f, 1.0f);
     PSMTXMultVec(rot.m, &dir, &dir);
     WaitArea_unk* area = (WaitArea_unk*)trigger->m08;
-    float angle = area->mAngle * 0.017453292f;
+    float deg = area->mAngle;
     float radius = area->mRadius;
     float value = area->mValue;
+    float angle = 0.017453292f * deg;
     if (angle <= 0.0f) {
         angle = 3.1415927f;
     }
-    for (T* chara = manager->mHead; chara != 0; chara = chara->mNext) {
+    T* chara = manager->mHead;
+    float zero = 0.0f;
+    for (; chara != 0; chara = chara->mNext) {
         if (chara->CanAct_unk()) {
             atn::Vector3 d = m6C - chara->mPos;
             float dist = PSVECSquareMag(&d);
-            if (dist > 0.0f) {
+            if (dist > zero) {
                 PSVECNormalize(&d, &d);
             }
             if (dist < radius * radius && PSVECDotProduct(&dir, &d) >= (float)cos(angle) &&
