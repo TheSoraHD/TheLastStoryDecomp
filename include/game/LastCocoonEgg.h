@@ -8,6 +8,7 @@
 #include "game/EnemyTask.h"
 #include "game/ResHandle.h"
 #include "std/vector.h"
+#include "atn/RenderSetting_unk.h"
 
 // inferred: attacker record of the egg (0x18 bytes): the hits whose attacker (HitMsg_unk::mAttacker) matches are
 // counted in m0C (LastCocoonEgg::vf40); names invented
@@ -19,9 +20,25 @@ struct LastCocoonEggPart_unk {
     unsigned char m10[0x18 - 0x10];
 };
 
+// inferred: 0x5C-byte record of the egg (32 at 0x19AC; the constructor, weak copy 0x804533A8, only clears the
+// first word); names invented
+struct LastCocoonEggSeg_unk {
+    LastCocoonEggSeg_unk() : m00(0) {}
+    int m00;
+    unsigned char m04[0x5C - 0x04];
+};
+
+// inferred: post effect settings of the egg (bloom and color matrix of the render settings; constructor
+// 0x804533E4); name invented
+struct LastCocoonEggPostFx_unk {
+    BloomParam_unk mBloom;              // 0x00
+    ColorMatrixParam_unk mColorMatrix;  // 0x80
+};
+
 // inferred: shake of the egg (same fields and update as the camera shake of the field, 0x96C); names
 // invented
 struct LastCocoonEggShake_unk {
+    LastCocoonEggShake_unk() : m00(0), mFrames(0), mX(0.0f), mY(0.0f) {} // inferred: weak copy 0x804533B4
     // inferred: counts the frames of the shake (weak copy 0x80454538)
     void fn_80454538() {
         if (m00 < mFrames) {
@@ -76,20 +93,25 @@ public:
     CharaTask* m14B8;     // inferred: target
     int m14BC;
     int m14C0;
-    unsigned char m14C4[0x14CC - 0x14C4];
+    int m14C4;
+    int m14C8;
     int m14CC;
     float m14D0;
     float m14D4;
-    unsigned char m14D8[0x14E0 - 0x14D8];
+    float m14D8;
+    float m14DC;
     int m14E0;
     int m14E4; // inferred: debug action (vf10 runs fn_804576D4/fn_80457C48/fn_80457E98)
     int m14E8; // inferred: frame counter
     atn::Model m14EC;
-    unsigned char m18BC[0x1908 - 0x18BC];
+    atn::Matrix3x4 m18BC;
+    atn::Vector3 m18EC;
+    atn::Vector3 m18F8;
+    int m1904;
     CharaTask* m1908; // inferred: character caught by the egg (released by fn_80457C48)
     CharaTask* m190C; // inferred: last attacker that came near (vf10)
     int m1910;        // inferred: frames before m190C is forgotten
-    unsigned char m1914[0x1920 - 0x1914];
+    atn::Vector3 m1914;
     int m1920;
     int m1924;          // inferred: shield points (vf40)
     atn::EfpFile m1928;
@@ -106,17 +128,20 @@ public:
     atn::EfpFile m1988;
     atn::EffFile m1994;
     std::vector<LastCocoonEggPart_unk> m19A0;
-    unsigned char m19AC[0x252C - 0x19AC];
+    LastCocoonEggSeg_unk m19AC[32];
     atn::EfpFile m252C;
     atn::EfpFile m2538;
     unsigned char m2544[0x2548 - 0x2544];
     LastCocoonEggShake_unk m2548;
     int m2558;
     float m255C;
-    unsigned char m2560[0x2A40 - 0x2560];
+    LastCocoonEggPostFx_unk m2560;
+    LastCocoonEggPostFx_unk m2630;
+    LastCocoonEggPostFx_unk m2700[4];
     ResHandle m2A40; // inferred: debug menu group
     int m2A44; // inferred: debug keys enabled
-    unsigned char m2A48[0x2A50 - 0x2A48];
+    float m2A48;
+    int m2A4C;
 };
 
 #endif
