@@ -7,10 +7,12 @@
 #include "game/PlayerTask.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
+extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 void GameCamera::fn_8037EF30(int a, int b, float f) {
     fn_8037EF48(lbl_8087F8A0->mHead, a, b, f);
@@ -223,6 +225,23 @@ void GameCamera::fn_80392FE8() {
         m1F4.mUp = up;
         m1F4.mFovy = fovy;
         mC14 -= mC18;
+    }
+}
+
+// inferred: debug display of the camera (position, target and the point of the tactical view)
+// NONMATCHING: only the offsets of the two formats in the file pool differ (0x1F0/0x20D in the original:
+// the strings of the mode functions before them are not written yet)
+void GameCamera::fn_8039328C() {
+    if (m7F0 != 0) {
+        char buf[256];
+        atn::DrawHelper* draw = lbl_8087EEB0;
+        sprintf(buf, "pos    (%4.2f, %4.2f, %4.2f)", mPos.x, mPos.y, mPos.z);
+        draw->fn_800616C0(40.0f, 20.0f, 0.0f, 16.0f, 16.0f, buf, 0xFFFFFFFF, 0.0f, 0, 0, 0);
+        sprintf(buf, "target (%4.2f, %4.2f, %4.2f)", mTarget.x, mTarget.y, mTarget.z);
+        draw->fn_800616C0(40.0f, 36.0f, 0.0f, 16.0f, 16.0f, buf, 0xFFFFFFFF, 0.0f, 0, 0, 0);
+        if (m7FC == 6) {
+            draw->fn_80063D3C(m8A4, lbl_8087F0A8->m08C, 0.0f, 0xFFFFFF00);
+        }
     }
 }
 

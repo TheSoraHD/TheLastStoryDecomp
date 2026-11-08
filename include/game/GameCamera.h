@@ -101,7 +101,8 @@ public:
     atn::Vector3 m508;     // inferred: target of the fixed mode
     float m514;            // inferred: fovy of the fixed mode
     int m518;              // inferred: m4FC/m508 follow the character
-    unsigned char m51C[0x7F4 - 0x51C];
+    unsigned char m51C[0x7F0 - 0x51C];
+    int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
     unsigned char m7F8[0x7FC - 0x7F8];
     int m7FC;              // inferred: sub mode (fn_80389838)
