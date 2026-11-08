@@ -1090,7 +1090,6 @@ extern "C" void fn_80047DCC(AudioDevice* audio) {
 }
 
 
-// NONMATCHING: 99.98% - orden de operandos de un add (m2FC + info[5])
 // inferred: loads the banks `names` into the queue heap
 extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int n) {
     if (audio->m2F8 == 0) {
@@ -1101,7 +1100,8 @@ extern "C" int fn_8004829C(AudioDevice* audio, const char** names, unsigned int 
                 unsigned int info[6];
                 audio->mArchive.detail_ReadGroupInfo(audio->GetSoundId_unk(name) - 1, reinterpret_cast<nw4r::snd::SoundArchive::GroupInfo*>(info));
                 audio->m2FC += info[3];
-                audio->m2FC = info[5] + audio->m2FC + 0x100;
+                audio->m2FC += info[5];
+                audio->m2FC += 0x100;
             }
         }
         audio->m2F8 = AudioAlloc_unk(audio->m2FC);

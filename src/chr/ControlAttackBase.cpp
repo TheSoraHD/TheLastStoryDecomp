@@ -516,9 +516,9 @@ ControlAttackSetup::ControlAttackSetup(Chara_unk* chara, int wait) : ControlBase
     motion->fn_80097C08(0, 0x173, 0, 0, 1, 0.0f, 0.1f);
 }
 
-// NONMATCHING: 99.4% - FPRs of mWait and the time scale swapped.
 int ControlAttackSetup::vf0C() {
-    mWait = mWait - lbl_8087EFA8->m3A4;
+    float speed = lbl_8087EFA8->m3A4;
+    mWait = mWait - speed;
     Chara_unk* chara = mChara;
     Motion_unk* motion = &chara->mMotion;
     float frame = chara->mMotion.mTracks[0].m08;

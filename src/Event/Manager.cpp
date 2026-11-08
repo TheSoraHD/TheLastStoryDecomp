@@ -2352,11 +2352,11 @@ void Manager::fn_80488D80(int fade) {
     m1F20.mSound.Reset();
 }
 
-// NONMATCHING: 98.6% - float registers (m1F68 in f2, the frame time in f0)
 // inferred: counts down the mute time of the stream (m1F68)
 void Manager::fn_80488DB8() {
     if (m1F68 > 0.0f) {
-        m1F68 -= lbl_8087EFA8->m3A4;
+        float speed = lbl_8087EFA8->m3A4;
+        m1F68 -= speed;
         if (m1F68 <= 0.0f) {
             m1F68 = 0.0f;
             fn_80488D6C();
