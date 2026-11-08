@@ -376,7 +376,7 @@ struct PPManager2_unk {
     unsigned char m0544[0x55C - 0x544];
     int m55C;                         // inferred: values of messages 0x0C and 0x0E
     int m560;                         // inferred: settings of message 0x0F (m560-m598)
-    int m564;
+    int m564;                         // inferred: also the time limit of the game (seconds)
     int m568;
     unsigned char m56C[0x20];
     unsigned char m58C[0xC];
@@ -386,18 +386,28 @@ struct PPManager2_unk {
     unsigned char m05A4[0x5A8 - 0x5A4];
     int m5A8;
     int m5AC;                         // inferred: the settings of message 0x0F arrived
-    unsigned char m05B0[0x5E4 - 0x5B0];
+    unsigned char m05B0[0x5B8 - 0x5B0];
+    long long mStartTime;             // 0x5B8: inferred: OSGetTime of the start of the game
+    unsigned char m05C0[0x5E4 - 0x5C0];
     PPPlayerArray_unk mPlayers;       // 0x5E4
     unsigned char m05EC[0x5F0 - 0x5EC];
     PPCharaEntry_unk* mCharas;        // 0x5F0
     int mCharaNum;                    // 0x5F4
-    unsigned char m05F8[0x9694 - 0x5F8];
+    unsigned char m05F8[0x2B74 - 0x5F8];
+    atn::SoundRef m2B74;              // inferred: sounds stopped by fn_804DA398
+    atn::SoundRef m2B78;
+    unsigned char m2B7C[0x2B88 - 0x2B7C];
+    int m2B88;                        // inferred: number of the slots of m2B8C
+    PPPlayer_unk m2B8C[8];
+    unsigned char m966C[0x9694 - 0x966C];
     int m9694[8];                     // inferred: per aid values of message 0x35
     unsigned char m96B4[0x9984 - 0x96B4];
     unsigned char m9984[8];           // inferred: two 8-byte blocks of message 0x28
     unsigned char m998C[8];
     unsigned char m9994[8];           // inferred: values of the aids of m9984 (fn_804DD1A8)
-    unsigned char m999C[0x99B0 - 0x999C];
+    unsigned char m999C[0x99A0 - 0x999C];
+    int m99A0;                        // inferred: count down shown by the lobby
+    unsigned char m99A4[0x99B0 - 0x99A4];
     unsigned char m99B0;              // inferred: a packet must be sent back after the loop (to m99B1)
     unsigned char m99B1;
     unsigned char m99B2[0x99B4 - 0x99B2];
@@ -500,6 +510,46 @@ static inline int IsTeamPlayer_unk(PPPlayer_unk* player) {
     return 0;
 }
 
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
+
+// inferred: counts down m99A0 (shown by the lobby); 1 when it ends (or ended) and `keep` is 0
+extern "C" int fn_804DA2D0(PPManager2_unk* mgr, int keep) {
+    if (--mgr->m99A0 < 0) {
+        mgr->m99A0 = 0;
+        if (keep == 0) {
+            return 1;
+        }
+    }
+    if (MP::D2AMpMenuLobby::sInstance != 0) {
+        MP::D2AMpMenuLobby::sInstance->fn_804C2260(mgr->m99A0);
+    }
+    return mgr->m99A0 == 0;
+}
+
+// inferred: stops the voice and the sound of the count down (not in game mode 2)
+extern "C" void fn_804DA398(PPManager2_unk* mgr) {
+    if (mgr->mMode != 2) {
+        if (lbl_8087F498 != 0) {
+            lbl_8087F498->fn_803EBAC8(15, 0);
+        }
+        fn_800CB5C8(&mgr->m2B74, 15, 0);
+    }
+}
+
+// inferred: seconds since the start of the game
+extern "C" int fn_804DB3B4(PPManager2_unk* mgr) {
+    return (OSGetTime() - mgr->mStartTime) / (*(unsigned long*)0x800000F8 / 4);
+}
+
+// NONMATCHING: 92.59% - the original loads m564 before saving r31
+// inferred: seconds left of the time limit (-1 without one)
+extern "C" int fn_804DB408(PPManager2_unk* mgr) {
+    if (mgr->m564 >= 0) {
+        return mgr->m564 - fn_804DB3B4(mgr);
+    }
+    return -1;
+}
+
 // inferred: the player slot of network id `aid` (slots in use only)
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
     for (int i = 0; i < mgr->mPlayers.mNum; i++) {
@@ -555,6 +605,16 @@ extern "C" inline void fn_804EE038(PPManager2_unk* mgr, short value) {
     mgr->m50A = value;
 }
 
+
+extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* player);
+
+// inferred: fn_804E4B44 on the last slot of m2B8C (-1 when there is none)
+extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
+    if (mgr->m2B88 != 0) {
+        return fn_804E4B44(mgr, &mgr->m2B8C[mgr->m2B88 - 1]);
+    }
+    return -1;
+}
 
 // inferred: number of the message for a kind of player (names invented)
 extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
