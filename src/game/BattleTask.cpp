@@ -61,6 +61,18 @@ BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
     return lbl_8087F048;
 }
 
+extern "C" void* fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int a, int time, int b, int c, float f1, float f2);
+
+// inferred: fires a bullet of `chara` on behalf of `user` and returns it (SkillEffectManager)
+extern "C" void* fn_800FBA30(BattleTask* mgr, CharaTask* chara, CharaTask* user, HitInfo_unk* data, int id,
+                            const atn::Vector3* pos, const atn::Vector3* rot) {
+    mgr->m3E398 = user;
+    void* bullet = fn_800FAB80(mgr, chara, data, id, pos, rot, 0, 30, -1, -1, 0.0f, 1.0f);
+    mgr->m3E398 = 0;
+    return bullet;
+}
+
 void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir) {
     fn_800E2A24(&m38A5C);
     m38A5C.m00 = effect;
