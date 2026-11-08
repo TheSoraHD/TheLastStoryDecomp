@@ -1,4 +1,5 @@
 #include "game/CrossbowMenuTask.h"
+#include "atn/D2A_Task.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
 #include "game/GameTask.h"
@@ -7,12 +8,9 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int rand();
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
-extern "C" CrossbowD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: creates a D2A anime
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
 extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
-extern "C" void fn_801F4AA0(CrossbowD2A_unk* anime, const char* name, float r, float g, float b);
-extern "C" void fn_801F4C14(CrossbowD2A_unk* anime, const char* name, const char* text);
 // inferred: sets the value of the pane `name` (name invented)
 inline void SetPaneValue2_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
@@ -112,7 +110,7 @@ CrossbowMenuTask* CrossbowMenuTask::fn_801E9398(atn::Task* parent) {
 // inferred: not inline; auto-inlined in fn_801E9398 and stripped by the linker (its path stays in the string pool)
 CrossbowMenuTask::CrossbowMenuTask(atn::Task* parent)
     : atn::Task(parent), m150(0), m154(1), m158(0x65), m15C(1), m160(1) {
-    m48 = fn_801F3FF8(this, "/data/d2anime/ui_bowgun_select.d2a", 0);
+    m48 = (CrossbowD2A_unk*)fn_801F3FF8(this, "/data/d2anime/ui_bowgun_select.d2a", 0);
     m48->fn_800D246C(1);
 }
 
@@ -275,7 +273,7 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
         }
         SetPaneValue2_unk(m48->m58, show, visible);
         SetPaneValue2_unk(m48->m58, icon, (float)info.mIndex);
-        fn_801F4AA0(m48, color, 255.0f * info.mColor.r, 255.0f * info.mColor.g, 255.0f * info.mColor.b);
+        ((atn::D2A_Task*)m48)->SetColor_unk(color, 255.0f * info.mColor.r, 255.0f * info.mColor.g, 255.0f * info.mColor.b);
         char text[0x20];
         sprintf(text, "%d", count);
         if (fn_80211734(item) != 0) {
@@ -303,7 +301,7 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
             }
         }
         SetPaneText_unk(m48->m58, name, label);
-        fn_801F4C14(m48, num, text);
+        ((atn::D2A_Task*)m48)->SetText_unk(num, (int)text);
     }
 }
 
