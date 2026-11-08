@@ -289,6 +289,11 @@ extern "C" void fn_80376324(GameTask* task, int id);
 extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
 extern "C" void fn_80570A14(GameTaskData_unk* obj, int value);
+extern "C" void fn_80450B28();         // inferred: freezes the item slot animations
+extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
+extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
+extern "C" int VISetTimeToDimming(int type);
+extern "C" void fn_80570A40(GameTaskData_unk* obj, int value);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" void fn_803D83A8(GameUI* ui);
 extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
@@ -2390,7 +2395,6 @@ void GameTask::fn_8036E430(int a, int b) {
     m568C = b;
 }
 
-extern "C" void fn_80570A40(GameTaskData_unk* obj, int value);
 extern "C" void fn_8056BD34(ReplayRecorder_unk* recorder); // inferred: stops the recording
 // inferred: sound engine of lbl_8087EE90 (as EnvSeEngine_unk of game/EnvSeManager.cpp)
 struct SoundEngineReverb_unk {
@@ -3217,13 +3221,65 @@ void GameTask::fn_80371320(PlayerTask* player) {
     }
 }
 
+extern "C" void fn_80570A64(GameTaskData_unk* obj);
+
+// inferred: starts an event of the field (field state 8; called by game/GameEventScript)
+// NONMATCHING: 98.9% - the original reloads lbl_8087EFA8 before storing the depth of field (as fn_8036CC90)
+extern "C" void fn_80371334(GameTask* task) {
+    task->m54E4 = 8;
+    lbl_8087F490->m263C->fn_803B57B0(1);
+    lbl_8087F490->m2640->fn_803B6C88(1);
+    if (lbl_8087FA20 != 0 && ((TaskWithTac_unk*)lbl_8087FA20)->m258 != 0) {
+        ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->FreezeTask();
+    }
+    if (task->m5590 != 0) {
+        fn_80570A14(task->m5590, 1);
+        fn_80570A64(task->m5590);
+        task->m5594 = 0;
+        task->m55A4 = 0;
+    }
+    task->m5650 = 0;
+    task->m5654 = 0;
+    task->m5658 = 0.0f;
+    task->m565C = 0;
+    MenuCommonTask::sInstance->fn_804A2F98();
+    lbl_8087F048->fn_80371664();
+    lbl_8087F8A8->fn_8054E51C();
+    if (task->m56F0 != 0) {
+        fn_800D2338(task->m56F0);
+        task->m56F0 = 0;
+    }
+    lbl_8087F9E8->FreezeTask();
+    fn_80450B28();
+    BattleResult::sInstance->fn_800F1378();
+    DamageEffectParam_unk damage(*lbl_8087EFA8->GetDamage_unk());
+    damage.mEnabled = 0;
+    lbl_8087EFA8->SetDamage_unk(damage);
+    DofParam_unk dof = lbl_8087EFA8->mDof;
+    dof.mNearEnd = task->GetCurrentMap()->mF0;
+    lbl_8087EFA8->mDof = dof;
+    if (lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EB4A8(0, 0);
+        lbl_8087F498->fn_803EAC3C(0);
+    }
+    if (lbl_8087F8A0 != 0) {
+        PlayerTask* leader = lbl_8087F8A0->mHead;
+        if (leader != 0 && leader->m55C == 6 && leader->m560 == 0xD) {
+            leader->fn_8016DA4C();
+            leader->fn_8016EB48(0, 0, 0);
+            task->mCamera.fn_80389838(task->mCamera.m804);
+        }
+    }
+    HomeButtonMenu::sInstance->m88 = 0;
+    fn_800A5B30(lbl_8087EF70, 10);
+    VISetTimeToDimming(1);
+    task->fn_8037177C();
+}
+
 void BattleTask::fn_80371664() {
     mCBAC = 0;
 }
 
-extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
-extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
-extern "C" int VISetTimeToDimming(int type);
 
 // inferred: ends the event of the field (field state 0; called by game/GameEventScript)
 extern "C" void fn_80371674(GameTask* task) {
@@ -3763,7 +3819,6 @@ void GameTask::fn_80373F78() {
     }
 }
 
-extern "C" void fn_80450B28();         // inferred: freezes the item slot animations
 extern "C" void fn_802328DC(int frame); // inferred: effect system frame
 
 // inferred: opens the tactical view (field state 14): freezes the field and keeps the render settings
