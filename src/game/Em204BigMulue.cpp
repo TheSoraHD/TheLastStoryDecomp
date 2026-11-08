@@ -936,7 +936,12 @@ void Em204BigMulue::vf108() {
     }
 }
 
-// NONMATCHING: 99.89% - stack slots of the distance vector and of the ray ends
+// inferred: squared distance helper
+static inline float BigMulueDistSq_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 d = a - b;
+    return PSVECSquareMag(&d);
+}
+
 int Em204BigMulue::fn_802B0430(int state, float* over) {
     int result = 0;
     int far;
@@ -955,8 +960,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
     default:
         return 0;
     }
-    atn::Vector3 d = mC58.mC4->mPos - mPos;
-    float dist = PSVECSquareMag(&d);
+    float dist = BigMulueDistSq_unk(mC58.mC4->mPos, mPos);
     if (dist > (float)far) {
         result = 1;
         if (over != 0) {
@@ -973,8 +977,7 @@ int Em204BigMulue::fn_802B0430(int state, float* over) {
     from.y += 25.0f;
     dir.y += 25.0f;
     if (fn_8004ED34(fn_801404F8(), &res, &from, &dir, fn_80179D44() | 0x80000000, 0, 0) != 0) {
-        atn::Vector3 w = res.m10 - mPos;
-        dist = PSVECSquareMag(&w);
+        dist = BigMulueDistSq_unk(res.m10, mPos);
         if (dist < (float)near) {
             result = -1;
             if (over != 0) {
