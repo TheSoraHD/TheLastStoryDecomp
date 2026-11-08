@@ -396,7 +396,8 @@ struct PPManager2_unk {
     unsigned char m96B4[0x9984 - 0x96B4];
     unsigned char m9984[8];           // inferred: two 8-byte blocks of message 0x28
     unsigned char m998C[8];
-    unsigned char m9994[0x99B0 - 0x9994];
+    unsigned char m9994[8];           // inferred: values of the aids of m9984 (fn_804DD1A8)
+    unsigned char m999C[0x99B0 - 0x999C];
     unsigned char m99B0;              // inferred: a packet must be sent back after the loop (to m99B1)
     unsigned char m99B1;
     unsigned char m99B2[0x99B4 - 0x99B2];
@@ -462,6 +463,8 @@ struct PPNet_unk {
     unsigned int mC2C;  // inferred: bit 0 and bit 1 set by message 0x0D
     unsigned char m0C30[0xC215 - 0xC30];
     unsigned char mC215; // inferred: messages are not checked for an old sequence number
+    unsigned char mC216[0xC218 - 0xC216];
+    int mC218;
 };
 
 // inferred: the packer of the network manager
@@ -489,6 +492,14 @@ extern "C" inline unsigned char fn_804D6348(PPNet_unk* net) {
     return net->mC215;
 }
 
+// inferred: the slot holds a player of a team (team in the high nibble of the aid byte)
+static inline int IsTeamPlayer_unk(PPPlayer_unk* player) {
+    if (player != 0 && player->mAid != 0xFF && (player->mAid & 0xF0) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 // inferred: the player slot of network id `aid` (slots in use only)
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
     for (int i = 0; i < mgr->mPlayers.mNum; i++) {
@@ -501,6 +512,41 @@ extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
 }
 
 
+// NONMATCHING: 99.35% - r6/r7 of the inlined search (as fn_804F3880)
+// inferred: team of network id `aid` (1 or 2); in game mode 1 with the local play the table m9984/m9994 decides
+extern "C" int fn_804DD1A8(PPManager2_unk* mgr, int aid) {
+    PPPlayer_unk* player = fn_804DD158(mgr, aid & 0xF);
+    if (mgr->mMode == 1) {
+        PPNet_unk* net = (PPNet_unk*)lbl_8087F628;
+        if (net->mC215 == 1 && net->mC218 == 1) {
+            for (int i = 0; i < 8; i++) {
+                if (aid == mgr->m9984[i]) {
+                    return mgr->m9994[i];
+                }
+            }
+        } else {
+            int team = 1;
+            if (player->mFlags.m22 == 1) {
+                team = 2;
+            }
+            return team;
+        }
+    }
+    return 2;
+}
+
+// inferred: sets the 4-bit value of the player slot; 0 if it does not change
+extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned int value) {
+    if (player == 0) {
+        return 0;
+    }
+    if (player->mFlags.m22 == value) {
+        return 0;
+    }
+    player->mFlags.m22 = value;
+    return value;
+}
+
 // inferred: state of the manager and the value set when a player slot is added (weak copies)
 extern "C" inline int fn_804EE030(PPManager2_unk* mgr) {
     return mgr->mState;
@@ -509,6 +555,94 @@ extern "C" inline void fn_804EE038(PPManager2_unk* mgr, short value) {
     mgr->m50A = value;
 }
 
+
+// inferred: number of the message for a kind of player (names invented)
+extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
+    switch (kind) {
+    case 0:
+    case 1:
+        return 9;
+    case 2:
+        return 5;
+    default:
+        return 10;
+    }
+}
+
+// NONMATCHING (and fn_804EB26C, fn_804EB400, fn_804EB5D8): 91-98% - the slot offset and the slot pointer of the
+// loops over the player slots take each other's registers (fn_804DD158 has them right)
+// inferred: number of the player slots in use
+extern "C" int fn_804EAFD0(PPManager2_unk* mgr) {
+    int n = 0;
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive) {
+            n++;
+        }
+    }
+    return n;
+}
+
+// inferred: every player in use has m28 set; the number of them in `count`
+extern "C" int fn_804EB26C(PPManager2_unk* mgr, int* count) {
+    int all = 1;
+    int n = 0;
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1) {
+            if (!player->mFlags.m28) {
+                all = 0;
+            }
+            if (player->mFlags.m28) {
+                n++;
+            }
+        }
+    }
+    if (count != 0) {
+        *count = n;
+    }
+    return all;
+}
+
+// inferred: the slot `index` holds a player of a team
+extern "C" int fn_804EB3CC(PPManager2_unk* mgr, int index) {
+    return IsTeamPlayer_unk(&mgr->mPlayers.mData[index]);
+}
+
+// inferred: the player slot (in use) of a character
+static inline PPPlayer_unk* FindByChara_unk(PPManager2_unk* mgr, CharaTask* chara) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1 && player->mRef.mChara == chara) {
+            return player;
+        }
+    }
+    return 0;
+}
+
+// inferred: the character is a player of a team
+extern "C" int fn_804EB400(PPManager2_unk* mgr, CharaTask* chara) {
+    PPPlayer_unk* player = FindByChara_unk(mgr, chara);
+    if (player != 0) {
+        return IsTeamPlayer_unk(player);
+    }
+    return 0;
+}
+
+extern "C" int fn_804EB480(PPManager2_unk* mgr, PPPlayer_unk* player) {
+    return IsTeamPlayer_unk(player);
+}
+
+// inferred: every player in use that is not in a team has m27 set
+extern "C" bool fn_804EB5D8(PPManager2_unk* mgr) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (IsTeamPlayer_unk(player) != 1 && player->mFlags.mActive == 1 && !player->mFlags.m27) {
+            return false;
+        }
+    }
+    return true;
+}
 
 // inferred: empty traces of the receive loop, called on the packer (their arguments are still evaluated);
 // fn_804EE4E4 gives the data back unchanged
@@ -658,13 +792,6 @@ extern "C" void fn_804F1F24(PPPlayer_unk* player) {
     player->mFlags.m27 = 1;
 }
 
-// inferred: the slot holds a player of a team (team in the high nibble of the aid byte)
-static inline bool IsTeamPlayer_unk(PPPlayer_unk* player) {
-    if (player != 0 && player->mAid != 0xFF && (player->mAid & 0xF0) != 0) {
-        return true;
-    }
-    return false;
-}
 
 // NONMATCHING: 99.67% - the original increments the index before the slot offset
 // inferred: `player` is in the team of `leader`
