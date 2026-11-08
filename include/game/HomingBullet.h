@@ -29,7 +29,7 @@ public:
     virtual void vf20(CharaTask* chara, const atn::Vector3* pos, atn::Vector3* dir); // 0x80442A9C
     virtual CharaTask* vf24();         // 0x80442B48
     virtual void vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* owner,
-                      HomingParam_unk* param, int arg); // 0x80441610
+                      const HomingParam_unk* param, int arg); // 0x80441610
     bool IsHoming_unk() const { return mA0.mTime > 0.0f; } // inferred: name invented
     void fn_80441E8C(const atn::Vector3* dir, CharaTask* owner, CharaTask* target); // inferred: reflected
 
