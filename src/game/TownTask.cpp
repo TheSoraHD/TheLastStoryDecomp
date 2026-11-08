@@ -198,9 +198,8 @@ void TownTask::vf10() {
     }
 }
 
-// NONMATCHING: 34% - the target stores z before the paired x/y store (psq_l, lfs, stfs, psq_st); no Vec.h helper
-// has that order and new inline asm is not allowed
-void TownTask::fn_805B7B04(const atn::Vector3& pos) {
+// inferred: non-const reference (with a const one the vector is loaded before the store to m128)
+void TownTask::fn_805B7B04(atn::Vector3& pos) {
     m128 = 0;
     m168 = pos;
 }
