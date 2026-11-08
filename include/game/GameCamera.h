@@ -46,7 +46,7 @@ public:
     void fn_8038A1D8();
     void fn_80390374(); // inferred: goes back to the mode m804
     void fn_803903E0(const atn::Vector3* target, float angle, int arg); // inferred: turns toward `target`
-    void fn_80392C94(GameCameraState_unk* state); // inferred: saves the mode
+    void fn_80392C94(GameCameraState_unk* state) const; // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
     void fn_803933A4(); // inferred: reset of the event state
     void fn_8037F744(); // inferred: called by GameTask::fn_8036CFA4 while m5664 is set

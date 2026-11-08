@@ -79,8 +79,8 @@ void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }
 
-// NONMATCHING: 43% - the original loads every member before the first store
-void GameCamera::fn_80392C94(GameCameraState_unk* state) {
+// inferred: const (the original loads every member before the first store)
+void GameCamera::fn_80392C94(GameCameraState_unk* state) const {
     state->m0C = m80C;
     state->mMode = m7FC;
     state->mPrevMode = m800;
