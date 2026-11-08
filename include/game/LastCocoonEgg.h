@@ -22,6 +22,12 @@ struct LastCocoonEggPart_unk {
 // inferred: shake of the egg (same fields and update as the camera shake of the field, 0x96C); names
 // invented
 struct LastCocoonEggShake_unk {
+    // inferred: counts the frames of the shake (weak copy 0x80454538)
+    void fn_80454538() {
+        if (m00 < mFrames) {
+            m00++;
+        }
+    }
     void Shake_unk(int frames, float x, float y) {
         m00 = m00 % 2;
         mFrames = frames;
@@ -40,6 +46,9 @@ class LastCocoonEgg : public EnemyTask {
 public:
     LastCocoonEgg(atn::Task* parent, EnemyInfo_unk* info); // 0x80452F14
     virtual ~LastCocoonEgg();                              // 0x80453570
+    virtual int vf0C();                                    // 0x8045374C
+    virtual void vf10();                                   // 0x804541A0
+    virtual void vf14();                                   // 0x8045456C
     virtual void vf3C(HitInfo_unk* hit);                   // 0x804549E8
     virtual void vf40(HitInfo_unk* hit);                   // 0x804549F8
     virtual atn::Vector3 vf64(int center);                 // 0x80454D08
@@ -51,6 +60,17 @@ public:
     void fn_80456DB8();
     void fn_80456F04();
     void fn_80456F94(); // inferred: the shield breaks
+    void fn_80454D4C();
+    void fn_80454F08();
+    void fn_8045531C();
+    void fn_80455638();
+    void fn_80455F2C();
+    void fn_804562E4();
+    void fn_80456E1C(CharaTask* target);
+    void fn_804570F4(CharaTask* target);
+    void fn_804576D4();
+    void fn_80457C48();
+    void fn_80457E98();
 
     atn::LH_Binary m14B0; // inferred: parameter file
     CharaTask* m14B8;     // inferred: target
@@ -60,9 +80,16 @@ public:
     int m14CC;
     float m14D0;
     float m14D4;
-    unsigned char m14D8[0x14EC - 0x14D8];
+    unsigned char m14D8[0x14E0 - 0x14D8];
+    int m14E0;
+    int m14E4; // inferred: debug action (vf10 runs fn_804576D4/fn_80457C48/fn_80457E98)
+    int m14E8; // inferred: frame counter
     atn::Model m14EC;
-    unsigned char m18BC[0x1920 - 0x18BC];
+    unsigned char m18BC[0x1908 - 0x18BC];
+    CharaTask* m1908; // inferred: character caught by the egg (released by fn_80457C48)
+    CharaTask* m190C; // inferred: last attacker that came near (vf10)
+    int m1910;        // inferred: frames before m190C is forgotten
+    unsigned char m1914[0x1920 - 0x1914];
     int m1920;
     int m1924;          // inferred: shield points (vf40)
     atn::EfpFile m1928;
@@ -88,7 +115,8 @@ public:
     float m255C;
     unsigned char m2560[0x2A40 - 0x2560];
     ResHandle m2A40; // inferred: debug menu group
-    unsigned char m2A44[0x2A50 - 0x2A44];
+    int m2A44; // inferred: debug keys enabled
+    unsigned char m2A48[0x2A50 - 0x2A48];
 };
 
 #endif
