@@ -3327,17 +3327,14 @@ int GameTask::fn_80370C2C() {
     return 1;
 }
 
-// NONMATCHING: 96% - the original branches bne/b around the type 4 test
 void GameTask::fn_80370C6C() {
     int type = m10D8->m64->mType;
-    if (type != 3) {
-        if (type == 4) {
-            return;
-        }
-        m5624->m78 = 0x12;
-        m5624->Capture();
-        m566C = 1;
+    if (!(type != 3 && type != 4)) {
+        return;
     }
+    m5624->m78 = 0x12;
+    m5624->Capture();
+    m566C = 1;
 }
 
 extern "C" void fn_80376B68(GameTask* task, int arg);
