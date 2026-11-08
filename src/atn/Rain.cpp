@@ -120,6 +120,7 @@ struct RainDrops_unk {
         mCapacity = count;
         mCount = count;
     }
+    RainDrop_unk& operator[](int i) { return mData[i]; }
     ~RainDrops_unk() {
         if (mData != 0) {
             delete[] mData;
@@ -213,8 +214,6 @@ void Rain::vf10(RenderManager* camera) {
     }
 }
 
-// NONMATCHING: 99.79% - volatile registers of the two vertex loops differ (offset/FIFO address in
-// the first, vector/drop address in the second)
 void fn_800B1C44(Rain* rain, RenderManager* camera) {
     if (rain->mCount <= 0) {
         return;
@@ -262,13 +261,13 @@ void fn_800B1C44(Rain* rain, RenderManager* camera) {
     if (sRainLines == 0) {
         GXBegin(0xB8, 0, rain->mCount);
         for (unsigned int i = 0; i < rain->mCount; i++) {
-            GXPosition3f32_unk(rain->mDrops.mData[i].mPos.x, rain->mDrops.mData[i].mPos.y,
-                               rain->mDrops.mData[i].mPos.z);
+            GXPosition3f32_unk(rain->mDrops[i].mPos.x, rain->mDrops[i].mPos.y,
+                               rain->mDrops[i].mPos.z);
         }
     } else {
         GXBegin(0xA8, 0, rain->mCount * 2);
         for (unsigned int i = 0; i < rain->mCount; i++) {
-            RainDrop_unk* drop = &rain->mDrops.mData[i];
+            RainDrop_unk* drop = &rain->mDrops[i];
             Vector3 pos(drop->mPos);
             Vector3 end = pos + rain->mDirection * rain->mLength;
             GXPosition3f32_unk(pos.x, pos.y, pos.z);
