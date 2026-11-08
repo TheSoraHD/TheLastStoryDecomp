@@ -10777,10 +10777,24 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
                             const atn::Vector3& pos, const atn::Vector3& rot, const Color4f_unk& color, int arg7,
                             int arg8, int arg9, float scale);
 
-// NONMATCHING: ~75% (28/113 lines, 2 of them the ptmf .data noise) - the three argument temporaries
-// (pos, rot, color) get their stack slots in the opposite order (target: pos lowest); tried named locals
-// assigned field by field (then the ptmf temporaries move), temporaries, an inline accessor for the
-// m121C test.
+// inferred: effect `efp` on the model at its origin
+inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: starts the effect m121C on the model (mFlag18 is set while it is shown)
 void CharaTask::vf98() {
     bool show = false;
@@ -10796,8 +10810,7 @@ void CharaTask::vf98() {
     if (show) {
         fn_80232B7C(m121C.get(), 0);
         lbl_8087F3C0->mB8 = 2;
-        fn_8023A8B4(lbl_8087F3C0, m121C.get(), &mMotion, 0, atn::Vector3(0.0f, 0.0f, 0.0f),
-                    atn::Vector3(0.0f, 0.0f, 0.0f), Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, m121C.get(), &mMotion);
         lbl_8087F3C0->mB8 = 0;
         mFlag18 = 1;
     }

@@ -498,8 +498,24 @@ void Em209SmallGolem::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 92.73% - stack slots of pos/rot/color and of the safe-bool temporary of m121C: same open case
-// as CharaTask::vf98 (temporaries in the arguments give the opposite order; named locals move the ptmf)
+// inferred: effect `efp` on the model at its origin (as in Em202ForestSpider)
+inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: starts the effect m121C on the model and m1534 on the part in hand (CharaTask::vf98 starts only
 // the first one)
 void Em209SmallGolem::vf98() {
@@ -509,39 +525,13 @@ void Em209SmallGolem::vf98() {
     if (m121C) {
         fn_80232B7C(m121C.get(), 0);
         lbl_8087F3C0->mB8 = 2;
-        atn::Vector3 pos;
-        atn::Vector3 rot;
-        Color4f_unk color;
-        pos.x = 0.0f;
-        pos.y = 0.0f;
-        pos.z = 0.0f;
-        rot.x = 0.0f;
-        rot.y = 0.0f;
-        rot.z = 0.0f;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, m121C.get(), &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, m121C.get(), &mMotion);
         lbl_8087F3C0->mB8 = 0;
     }
     if (m648 != 0) {
         fn_80232B7C(&m1534, 0);
         lbl_8087F3C0->mB8 = 2;
-        atn::Vector3 pos;
-        atn::Vector3 rot;
-        Color4f_unk color;
-        pos.x = 0.0f;
-        pos.y = 0.0f;
-        pos.z = 0.0f;
-        rot.x = 0.0f;
-        rot.y = 0.0f;
-        rot.z = 0.0f;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1534, (atn::Model*)m648->m010, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, &m1534, (atn::Model*)m648->m010);
         lbl_8087F3C0->mB8 = 0;
     }
     mFlag18 = 1;
