@@ -59,7 +59,7 @@ D2A_Message::D2A_Message(D2A_Data* owner, unsigned short id)
     : D2A_Common(owner, id), mFont(1), mAlign(0), mLineSpace(2.0f) {
     mType = 1;
     char name[0x20];
-    sprintf(name, "string%04d", id);
+    sprintf(name, "string%04d\0", id);
     mText.mId = fn_800DC6B4(name);
     mText.fn_801F25E0(0, std::basic_string<wchar_t>(L"MESSAGE"), 0, 1);
     mText.mValue[0] = fn_801F0758(&mText.mTables[0], 0);

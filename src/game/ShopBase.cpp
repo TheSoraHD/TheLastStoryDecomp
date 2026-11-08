@@ -665,7 +665,7 @@ void ShopBase::fn_80581008(int id) {
         if (profit < 0) {
             profit -= profit * 2;
             char text[0x20];
-            sprintf(text, "%d", profit);
+            sprintf(text, "%d\0", profit);
             SetPaneFloat_unk(m90->mLayout, "priceUnit", strlen(text));
             SetPaneFloat_unk(m90->mLayout, "minus", 1.0f);
         } else {
