@@ -220,8 +220,7 @@ extern "C" int fn_800A0548(atn::LH_Motion* motion, MotionPose_unk* pose, unsigne
 
 // inferred: the original calls it out of line from fn_800A09D0; the empty release asserts keep it
 // over the autoinline threshold
-// NONMATCHING: 97.25% - volatile register allocation (data/count/offset)
-extern "C" int fn_800A05AC(atn::LH_Motion* motion, unsigned int hash, int start) {
+extern "C" int fn_800A05AC(const atn::LH_Motion* motion, unsigned int hash, int start) {
     ((void)0);
     ((void)0);
     ((void)0);

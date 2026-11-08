@@ -131,9 +131,8 @@ extern "C" void fn_803CD918(U16Table_unk* table) {
     table->mRuns = 0;
 }
 
-// NONMATCHING: 98.0% - register allocation (the original keeps mRuns in r6, the data in r5)
 // inferred: value at `index`
-extern "C" unsigned short fn_803CD958(U16Table_unk* table, unsigned int index) {
+extern "C" unsigned short fn_803CD958(const U16Table_unk* table, unsigned int index) {
     unsigned short end = 0;
     for (unsigned short i = 0; i < table->mRuns; i++) {
         end += table->mData[i].mCount;

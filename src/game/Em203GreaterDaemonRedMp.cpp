@@ -179,7 +179,7 @@ extern "C" inline float fn_801C3910(const atn::Vector3& v) {
 }
 
 // inferred: hit points ratio (weak copy 0x8029F3AC, also called by game/EnemyQuarkSecond.cpp)
-extern "C" inline float fn_8029F3AC(CharaStatus* status) {
+extern "C" inline float fn_8029F3AC(const CharaStatus* status) {
     if (status->mParamB.m84 > 0) {
         return status->m04 / status->mParamB.m84;
     }

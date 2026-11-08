@@ -342,9 +342,8 @@ void TownTask::fn_805B8110(const atn::Vector3* pos, int* x, int* z) {
     *z = TOWN_CLAMP(*z, lbl_8087E6FC, m13C);
 }
 
-// NONMATCHING: 88% - scheduling of the x/z fmadds
 // inferred: center of a block
-extern "C" atn::Vector3 fn_805B81F0(TownTask* town, int x, int z) {
+extern "C" atn::Vector3 fn_805B81F0(const TownTask* town, int x, int z) {
     atn::Vector3 v;
     v.x = x * town->m134 + 0.5f * town->m134;
     v.y = 0.0f;
