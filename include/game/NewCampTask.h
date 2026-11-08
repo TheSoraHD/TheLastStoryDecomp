@@ -26,6 +26,7 @@ class NewCampPartsGmk;
 
 // inferred: (id, value) pair of the camp (0x8 bytes, fn_80530384); names invented
 struct NewCampPair_unk {
+    NewCampPair_unk() : mId(0), m04(0) {} // inferred: weak copy 0x8052AFF0 (sNullPair is built by __sinit)
     int mId;
     int m04;
 };
@@ -61,7 +62,7 @@ public:
     void fn_80530D30(int duration); // inferred: fades in
     void fn_80530D88(int set, atn::ModelBase* model);
 
-    unsigned char m48[0x5C - 0x48];
+    NewCampOpen_unk mOpen; // 0x48: inferred: what the camp was opened with
     int m5C;
     unsigned char m60[0x64 - 0x60];
     atn::FadeColor* m64; // inferred: fade of the camp (FadeColor::Create in the constructor)
