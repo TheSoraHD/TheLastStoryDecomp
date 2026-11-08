@@ -213,7 +213,7 @@ void fn_801F4728(atn::D2A_Task* task, const char* name, const float* v) {
 namespace atn {
 
 // NONMATCHING: 95.45% - same early load of v[0] as fn_801F4728
-void D2A_Task::SetParam1_unk(const char* name, const float* v) {
+void D2A_Task::SetParam1_unk(const char* name, float* v) {
     SetParamA_unk(this, name, 0, v[0]);
     SetParamA_unk(this, name, 1, v[1]);
     SetParamA_unk(this, name, 4, v[4]);
