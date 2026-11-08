@@ -427,7 +427,24 @@ inline void Em309Ghoul::Die_unk(int motion, int flag) {
     ((GameTask*)lbl_8087F430)->fn_80370320(0xD0, 1, 0);
 }
 
-// NONMATCHING: 99.87% - stack layout of the direction temporaries and of the rotation matrices (~6 variants)
+// inferred: effect `efp` on the model at its origin (as in Em202ForestSpider)
+inline void EffOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
 // inferred: hits: the head spear (0x134) or a hit while weak (m40 == 1 outside state 10) knock the ghoul back
 // and start the rolling state 10 away from the attacker (bent towards the home place); other hits only do
 // damage while the ghoul is under the coffin (state 12)
@@ -479,20 +496,7 @@ void Em309Ghoul::vf3C(HitInfo_unk* hit) {
             m15CC.y = a;
             fn_80300AD8();
         }
-        Color4f_unk color;
-        atn::Vector3 rot;
-        atn::Vector3 pos;
-        rot.x = 0.0f;
-        rot.y = 0.0f;
-        rot.z = 0.0f;
-        pos.x = 0.0f;
-        pos.y = 0.0f;
-        pos.z = 0.0f;
-        color.r = 1.0f;
-        color.g = 1.0f;
-        color.b = 1.0f;
-        color.a = 1.0f;
-        fn_8023A8B4(lbl_8087F3C0, &m1594, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        EffOrigin_unk(lbl_8087F3C0, &m1594, &mMotion);
         m14F8 = 1;
         return;
     }
