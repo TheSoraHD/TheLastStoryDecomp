@@ -191,7 +191,7 @@ void ControlMoveCursor::fn_801C3944(const CursorTarget_unk* target, float a, flo
 
 // NONMATCHING: 89.3% - scheduling: the original loads mChara before the two float constants and the
 // collision world after the first position copy
-int ControlMoveCursor::fn_801C3D1C() {
+int ControlMoveCursor::fn_801C3D1C() const {
     atn::Vector3 from(mChara->mPos);
     void* colli = lbl_8087EE98;
     atn::Vector3 to(mChara->mPos);

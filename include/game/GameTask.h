@@ -127,7 +127,7 @@ public:
     int fn_803754C4(); // inferred: the task at 0x567C exists and is not stopped
     int fn_803761BC(); // inferred: debug field
     int fn_803761DC(); // inferred: a mode compared with 1, 2 and 3
-    GimmickCommon* fn_8036E098(); // inferred: save point in front of the leader
+    GimmickCommon* fn_8036E098() const; // inferred: save point in front of the leader
     void fn_8036FB4C(int entry);        // inferred: moves to an entry of the current map
     void fn_8036FC58();                 // inferred: back from the map move (undoes fn_8036FB4C) // inferred: hide link held by `chara`
     void fn_80373118(); // inferred: one more frame of delay for the fades // inferred: nonzero on some fields

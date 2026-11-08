@@ -116,7 +116,7 @@ public:
     ControlDamageLastOne(Chara_unk* chara, const atn::Vector3* dir, int kind); // 0x801AFAC0
     virtual int vf0C();
     virtual boost::function<void()> vf10();
-    bool fn_801B0260(); // inferred: can be cancelled (control id 0x8E)
+    bool fn_801B0260() const; // inferred: can be cancelled (control id 0x8E)
 
     atn::Vector3 m08; // inferred: push of kind 11
     atn::Vector3 m14; // inferred: rotation to turn to

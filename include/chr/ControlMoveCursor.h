@@ -29,7 +29,7 @@ public:
     void fn_801C3944(const CursorTarget_unk* target, float a, float dist, float c);
     // inferred: nonzero when nothing blocks the space above the character (ray test from +5 to +23);
     // 0x801C3D1C, used by ControlCharge and ControlChant
-    int fn_801C3D1C();
+    int fn_801C3D1C() const;
 
     atn::Vector3 m08; // inferred: cursor position (starts at the character position)
     atn::Vector3 m14; // inferred: starts at the character position too

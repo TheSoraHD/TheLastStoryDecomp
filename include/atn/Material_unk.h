@@ -147,7 +147,7 @@ struct Material_unk {
     const char* fn_8007C46C(const char* path, const char* data, int size);
     void fn_8007FAF0(int mode);       // inferred: sets the draw mode
     int fn_800804D0(int id);           // inferred: index of the stage of id `id`, -1 if none
-    TexStage_unk* fn_80080528(int id); // inferred: stage of id `id`
+    TexStage_unk* fn_80080528(int id) const; // inferred: stage of id `id`
     int fn_800816A8();
     void fn_80081BD0();
     void fn_8007FE5C(atn::ShaderDesc_unk* desc); // inferred: blend modes of a shader description

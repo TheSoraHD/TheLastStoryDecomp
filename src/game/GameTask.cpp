@@ -2508,7 +2508,7 @@ extern "C" EnemyTask* fn_8036DDD4(GameTask* task) {
 
 // NONMATCHING: same instructions; the original loads mGlobalFlags[31] (m1160) before the two floats of `dir` (tried
 // the declaration orders, assignments, bool, ?:, the dir built by members)
-GimmickCommon* GameTask::fn_8036E098() {
+GimmickCommon* GameTask::fn_8036E098() const {
     PlayerTask* leader;
     int any;
     any = mGlobalFlags[31] == 1;

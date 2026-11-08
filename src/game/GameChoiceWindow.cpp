@@ -106,7 +106,7 @@ struct GameChoiceField_unk {
 };
 extern "C" GameChoiceField_unk* lbl_8087F430;
 
-GameMessage* GameMessageList::fn_803B3B38(int id) {
+GameMessage* GameMessageList::fn_803B3B38(int id) const {
     if (lbl_8087F430 != 0) {
         const GameMessageAlias_unk* alias = sAliases_unk;
         for (unsigned int i = 0; i < 6; i++, alias++) {

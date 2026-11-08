@@ -344,7 +344,7 @@ static inline bool __IsPlaying_unk(atn::Bgm* bgm) {
 }
 
 // NONMATCHING: 89.7% - the original loads mCur before saving the registers.
-int GameBgm::fn_8037D34C() {
+int GameBgm::fn_8037D34C() const {
     if (mCur != 0 && fn_800CB58C(&mCur->mSound) != 0 && fn_800CB4C4(&mCur->mSound) != 0) {
         return 1;
     }

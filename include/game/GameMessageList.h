@@ -27,7 +27,7 @@ struct GameMessage {
 struct GameMessageList {
     void fn_803B35FC(const wchar_t* data, unsigned int size); // inferred: parses
     void fn_803B3AC4();                    // inferred: releases the messages
-    GameMessage* fn_803B3B38(int id);      // inferred: message `id`
+    GameMessage* fn_803B3B38(int id) const;      // inferred: message `id`
     void fn_803B3C10(const char* path);    // inferred: loads the messages
     int fn_803B3CA8();                     // inferred: nonzero while loading
 
