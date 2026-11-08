@@ -102,6 +102,7 @@ public:
     void fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
     void fn_800FDF14(BattleCalcParam_unk* param);
     void fn_80100BC0();          // inferred: stops the effects (fn_801055A8 and effect group 5)
+    void fn_800F72F4(class BattleCharaTask* chara, int arg); // inferred: draws the target line of `chara`
     void fn_801055A8(int arg);
     // inferred: plays the battle effect `id` (fn_800EFBC4) / skill effect (fn_800EFDA0) after stopping the group
     void fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
