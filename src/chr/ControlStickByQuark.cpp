@@ -1762,9 +1762,8 @@ int ControlAbsorbedHPReleased::vf0C() {
     return Frame_unk(m) >= m->fn_80097D7C(0);
 }
 
-// NONMATCHING: 80.7% - the original copies mFrom and mTo before the stores of ControlBase
-ControlCliffhangZanGurg::ControlCliffhangZanGurg(Chara_unk* chara, atn::Vector3 from, atn::Vector3 to,
-                                                 atn::Vector3 face)
+ControlCliffhangZanGurg::ControlCliffhangZanGurg(Chara_unk* chara, const atn::Vector3 from,
+                                                 const atn::Vector3 to, const atn::Vector3 face)
     : ControlBase(chara) {
     mFrom = from;
     mTo = to;
@@ -1839,9 +1838,7 @@ atn::Vector3 ControlCliffhangZanGurg::vf14() const {
     return pos;
 }
 
-// NONMATCHING: 92.2% - the original loads `target` before the stores of ControlBase (as the
-// CliffhangZanGurg ctor)
-ControlEndCliffhangZanGurg::ControlEndCliffhangZanGurg(Chara_unk* chara, atn::Vector3 target)
+ControlEndCliffhangZanGurg::ControlEndCliffhangZanGurg(Chara_unk* chara, const atn::Vector3 target)
     : ControlBase(chara), mTarget(target) {
     chara->SetControlId_unk(0x86);
     mChara->fn_8016DA4C();
@@ -1884,8 +1881,8 @@ atn::Vector3 ControlEndCliffhangZanGurg::vf14() const {
     return pos;
 }
 
-// NONMATCHING: 93.8% - the original copies mPos/mDir before the stores of ControlBase; this in r31
-ControlStickZanGurgStand::ControlStickZanGurgStand(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir)
+ControlStickZanGurgStand::ControlStickZanGurgStand(Chara_unk* chara, const atn::Vector3 pos,
+                                                   const atn::Vector3 dir)
     : ControlBase(chara), mPos(pos), mDir(dir) {
     chara->SetControlId_unk(0x87);
     mChara->fn_8016DA4C();
@@ -1940,8 +1937,8 @@ boost::function<void()> ControlStickZanGurgStand::vf10() const {
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
 
-// NONMATCHING: 65.5% - the original copies mPos/mDir before the stores of ControlBase
-ControlStickZanGurgCliff::ControlStickZanGurgCliff(Chara_unk* chara, atn::Vector3 pos, atn::Vector3 dir)
+ControlStickZanGurgCliff::ControlStickZanGurgCliff(Chara_unk* chara, const atn::Vector3 pos,
+                                                   const atn::Vector3 dir)
     : ControlBase(chara), mPos(pos), mDir(dir) {
     chara->SetControlId_unk(0x88);
     Motion_unk* m = &mChara->mMotion;
