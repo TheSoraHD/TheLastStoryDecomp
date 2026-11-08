@@ -1662,7 +1662,6 @@ extern "C" void fn_80075DEC(GraphicsDevice_unk* device) {
 }
 
 // inferred: sets the viewport and the scissor to a rectangle of the EFB (offset by mOffsetX/Y)
-// NONMATCHING: 99.10% - float registers of the scissor
 extern "C" void fn_80075F58(GraphicsDevice_unk* device, int x, int y, int w, int h) {
     device->mViewX = x;
     device->mViewY = y;
@@ -1670,7 +1669,7 @@ extern "C" void fn_80075F58(GraphicsDevice_unk* device, int x, int y, int w, int
     device->mViewH = h;
     GXSetViewport(device->mOffsetX + x, device->mOffsetY + y, w + device->mOffsetX, h + device->mOffsetY, 0.0f,
                   1.0f);
-    GXSetScissor(device->mOffsetX + device->mViewX, device->mOffsetY + device->mViewY,
+    GXSetScissor((float)device->mOffsetX + device->mViewX, (float)device->mOffsetY + device->mViewY,
                  device->mViewW + device->mOffsetX, device->mViewH + device->mOffsetY);
 }
 
