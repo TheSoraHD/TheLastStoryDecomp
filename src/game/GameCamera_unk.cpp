@@ -85,6 +85,14 @@ void GameCamera::fn_8037F744() {
     }
 }
 
+// inferred: direction the camera looks at (Event/Manager.cpp)
+extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
+    atn::Vector3 dir;
+    dir = *camera->GetTarget_unk() - *camera->GetPosition_unk();
+    dir.Normalize_unk();
+    return dir;
+}
+
 void GameCamera::fn_803897EC(const CharaTask* chara) {
     m8F0 = chara->mMotion.mTracks[0].m08 < 67.0f;
     fn_8037F9AC(chara);
