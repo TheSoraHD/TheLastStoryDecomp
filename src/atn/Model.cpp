@@ -197,9 +197,10 @@ inline int IsTextureReady_unk(atn::Texture_unk* tex) {
 
 // inferred: a texture of the materials is ready
 int MaterialSet_unk::fn_80089B5C() {
+    atn::Texture_unk* tex;
     for (unsigned int i = 0; i < mMaterials.mSize; i++) {
         for (int j = 0; j < mMaterials.mData[i]->m4A; j++) {
-            atn::Texture_unk* tex = mMaterials.mData[i]->m0C[j].mTexture;
+            tex = mMaterials.mData[i]->m0C[j].mTexture;
             if (tex != 0) {
                 if (IsTextureReady_unk(tex)) {
                     return 1;

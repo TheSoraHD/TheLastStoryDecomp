@@ -423,10 +423,11 @@ void EffectParticle_unk::fn_80238588(atn::Vector3* pos, float* alpha, EffectColo
 // inferred: frames the effect lasts when played for `frames` frames (0 = endless)
 // NONMATCHING: 98.51% - registers of the emitter pointer and the length (r10/r11 swapped)
 extern "C" unsigned int fn_802386FC(EffectRes_unk* res, int frames) {
+    EffectEmitter_unk* em;
     unsigned int length = 0;
     for (unsigned int i = 0; i < res->mCount; i++) {
         if (res->mEnabled[i] != 0) {
-            EffectEmitter_unk* em = &res->mEmitters[i];
+            em = &res->mEmitters[i];
             if (em->m54 <= 0 || em->m50 == 0) {
                 if (frames != 0 && em->m50 != 0) {
                     unsigned int end = frames + em->m50 + em->m48 - 1;

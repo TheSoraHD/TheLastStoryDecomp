@@ -226,10 +226,11 @@ static inline bool TexReady_unk(atn::Texture_unk* tex) {
 
 // NONMATCHING: 99.4% - obj and minFilter swap r30/r31 (tried declaration orders, a local texture pointer)
 void TexStage_unk::fn_8007B100() {
+    int minFilter;
     if (mTexture != 0 && TexReady_unk(mTexture)) {
         GXTexObj* obj = &mTexture->mObj;
         GXInitTexObjWrapMode(obj, mWrapS, mWrapT);
-        int minFilter = mMinFilter;
+        minFilter = mMinFilter;
         int magFilter = mMagFilter;
         int lods = (mTexture->mImage != 0 ? mTexture->m2F : mTexture->m20.fn_80478198()) - 1;
         if (lods > 0) {
