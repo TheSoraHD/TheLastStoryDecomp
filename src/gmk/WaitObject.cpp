@@ -231,13 +231,8 @@ void WaitObject::vf10() {
     }
 }
 
-// NONMATCHING: 97.56% - the original branches over a `b` for m54 == 0 (bne + b); tried if/else,
-// nested ifs and a switch.
 void WaitObject::vf14() {
-    if (mDesc != 0 && mDesc->m7C == 0) {
-        return;
-    }
-    if (m54 == 0) {
+    if ((mDesc != 0 && mDesc->m7C == 0) || m54 == 0) {
         return;
     }
     if (lbl_8087F0A8->m18 != 0 && (mStates[m54].mFlags & 2) != 2 && vf38() != 0) {

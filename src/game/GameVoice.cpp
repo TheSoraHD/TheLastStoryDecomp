@@ -393,7 +393,8 @@ atn::SoundRef GameVoice::fn_803E9B7C(unsigned int id, int offset, int steal, flo
     return channel->mSound;
 }
 
-// NONMATCHING: 95% - branch shape of the battle check (bne + b), registers of the party loop
+// NONMATCHING: 96.88% - branch shape of the check of lbl_8087F540 (beq; beq; b in the original), registers of
+// the party loop
 void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time) {
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761CC() == 0) {
         return;
@@ -401,10 +402,8 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
         return;
     }
-    if (lbl_8087F540 != 0) {
-        if (lbl_8087F540->m70 != 0) {
-            return;
-        }
+    if (lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
+        return;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
         return;

@@ -323,6 +323,12 @@ struct PPPlayer_unk {
 
 };
 
+// inferred: array of the player slots of MP::Manager2 (pointer and count); names invented
+struct PPPlayerArray_unk {
+    PPPlayer_unk* mData;
+    int mNum;
+};
+
 // inferred: entry of the character list of MP::Manager2 (0xB4 bytes, array at +0x5F0); names invented
 struct PPCharaEntry_unk {
     MpCharaRef_unk mRef;
@@ -333,7 +339,9 @@ struct PPCharaEntry_unk {
 struct PPManager2_unk {
     unsigned char m0000[0x4FC];
     int mState;                       // 0x4FC: inferred: state (30 = in game)
-    unsigned char m0500[0x540 - 0x500];
+    unsigned char m0500[0x50A - 0x500];
+    short m50A;                       // inferred: set to 90 when a player slot is added
+    unsigned char m050C[0x540 - 0x50C];
     int mMode;                        // 0x540: inferred: game mode
     unsigned char m0544[0x55C - 0x544];
     int m55C;                         // inferred: values of messages 0x0C and 0x0E
@@ -349,8 +357,7 @@ struct PPManager2_unk {
     int m5A8;
     int m5AC;                         // inferred: the settings of message 0x0F arrived
     unsigned char m05B0[0x5E4 - 0x5B0];
-    PPPlayer_unk* mPlayers;           // 0x5E4
-    int mPlayerNum;                   // 0x5E8
+    PPPlayerArray_unk mPlayers;       // 0x5E4
     unsigned char m05EC[0x5F0 - 0x5EC];
     PPCharaEntry_unk* mCharas;        // 0x5F0
     int mCharaNum;                    // 0x5F4
@@ -359,23 +366,17 @@ struct PPManager2_unk {
     unsigned char m96B4[0x9984 - 0x96B4];
     unsigned char m9984[8];           // inferred: two 8-byte blocks of message 0x28
     unsigned char m998C[8];
-    unsigned char m9994[0x99F4 - 0x9994];
+    unsigned char m9994[0x99B0 - 0x9994];
+    unsigned char m99B0;              // inferred: a packet must be sent back after the loop (to m99B1)
+    unsigned char m99B1;
+    unsigned char m99B2[0x99B4 - 0x99B2];
+    int m99B4;
+    unsigned char m99B8[0x99F4 - 0x99B8];
     int m99F4[8];                     // inferred: per team flags of message 0x18
 
     int m9A14[8];                     // inferred: per aid flags set by messages 0x38 and 0x3B
     int m9A34[8];
 };
-
-// inferred: the player slot of network id `aid` (slots in use only)
-extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
-    for (int i = 0; i < mgr->mPlayerNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers[i];
-        if (player->mFlags.mActive == 1 && aid == player->mAid) {
-            return player;
-        }
-    }
-    return 0;
-}
 
 // inferred: getter of the packer (out of line, see MP/CryptMP.cpp)
 atn::net::PacketPack* fn_804AE3BC();
@@ -408,6 +409,56 @@ void fn_8050A990(unsigned int aid, const unsigned char* data);
 } // namespace net
 } // namespace atn
 
+// inferred: atn::net::Manager (lbl_8087F628), only the flags used here; names invented
+struct PPNet_unk {
+    inline atn::net::PacketPack* GetPack_unk();
+
+    unsigned char m000[0xC2C];
+    unsigned int mC2C;  // inferred: bit 0 and bit 1 set by message 0x0D
+    unsigned char m0C30[0xC215 - 0xC30];
+    unsigned char mC215; // inferred: messages are not checked for an old sequence number
+};
+
+// inferred: the packer of the network manager
+inline atn::net::PacketPack* PPNet_unk::GetPack_unk() {
+    return fn_804AE3BC();
+}
+
+// inferred: weak copies used by the receive loop (fn_804EE040) and by fn_804D25D0
+extern "C" inline PPNet_unk* fn_804D1694() {
+    return (PPNet_unk*)lbl_8087F628;
+}
+extern "C" inline int fn_804D5F40(PPPlayerArray_unk* players) {
+    return players->mNum;
+}
+extern "C" inline PPPlayer_unk* fn_804D5F48(PPPlayerArray_unk* players, int index) {
+    return &players->mData[index];
+}
+extern "C" inline unsigned char fn_804D6348(PPNet_unk* net) {
+    return net->mC215;
+}
+
+// inferred: the player slot of network id `aid` (slots in use only)
+extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1 && aid == player->mAid) {
+            return player;
+        }
+    }
+    return 0;
+}
+
+
+// inferred: state of the manager and the value set when a player slot is added (weak copies)
+extern "C" inline int fn_804EE030(PPManager2_unk* mgr) {
+    return mgr->mState;
+}
+extern "C" inline void fn_804EE038(PPManager2_unk* mgr, short value) {
+    mgr->m50A = value;
+}
+
+
 // inferred: empty traces of the receive loop, called on the packer (their arguments are still evaluated);
 // fn_804EE4E4 gives the data back unchanged
 extern "C" void fn_804EE4E0(atn::net::PacketPack* pack, unsigned int aid, unsigned short size) {}
@@ -435,7 +486,7 @@ extern "C" void fn_804EE834(PPPlayer_unk* player) {
 }
 
 // inferred: message 9: a voice of the data (id, offset)
-extern "C" void fn_804EFE98() {
+extern "C" void fn_804EFE98(PPPlayer_unk* player) {
     if (lbl_8087F628 != 0 && fn_804AE3BC() != 0 && fn_804AE3BC()->GetWorkBuffer_unk() != 0) {
         unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (lbl_8087F498 != 0) {
@@ -444,11 +495,6 @@ extern "C" void fn_804EFE98() {
     }
 }
 
-// inferred: atn::net::Manager (lbl_8087F628), only the flags used here; names invented
-struct PPNet_unk {
-    unsigned char m000[0xC2C];
-    unsigned int mC2C; // inferred: bit 0 and bit 1 set by message 0x0D
-};
 
 // inferred: messages 0x0C and 0x0E: values kept by the manager
 extern "C" void fn_804F1068() {
@@ -570,8 +616,8 @@ extern "C" void fn_804F1F34(PPPlayer_unk* player) {
     if (player->mRef.mChara != 0) {
         player->mRef.mChara->fn_800D246C(0);
     }
-    for (i = 0; i < mgr->mPlayerNum; i++) {
-        PPPlayer_unk* other = &mgr->mPlayers[i];
+    for (i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* other = &mgr->mPlayers.mData[i];
         if (IsTeamPlayer_unk(other) && (unsigned int)(other->mAid & 0xF) == player->mAid) {
             other->mFlags.m26 = 1;
             if (other->mRef.mChara != 0) {
@@ -723,15 +769,15 @@ extern "C" void fn_804F3AF0() {
     ((PPManager2_unk*)lbl_8087F610)->m5A8 = data[0];
 }
 
-extern "C" void fn_804F50DC(PPManager2_unk* mgr, unsigned int aid, unsigned short a, unsigned short b);
+extern "C" void fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned short a, unsigned short b);
 
 // inferred: message 0x32: two halfwords handled by the manager (fn_804F50DC)
-extern "C" void fn_804F3D80(unsigned int aid) {
+extern "C" void fn_804F3D80(PPPlayer_unk* player) {
     if (PP_NO_DATA_UNK) {
         return;
     }
     unsigned short* data = (unsigned short*)fn_804AE3BC()->GetWorkBuffer_unk();
-    fn_804F50DC((PPManager2_unk*)lbl_8087F610, aid, data[0], data[1]);
+    fn_804F50DC((PPManager2_unk*)lbl_8087F610, player, data[0], data[1]);
 }
 
 // inferred: message 0x33: releases the character of entry `index` of the list
@@ -763,22 +809,22 @@ extern "C" void fn_804F4728() {
 }
 
 // inferred: messages 0x38 and 0x3B: flags per network id
-extern "C" void fn_804F4E1C(unsigned char aid) {
+extern "C" void fn_804F4E1C(unsigned int aid) {
     if (aid < 8) {
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-        mgr->m9A14[aid] = 1;
+        mgr->m9A14[(unsigned char)aid] = 1;
     }
 }
 
-extern "C" void fn_804F4F40(unsigned char aid) {
+extern "C" void fn_804F4F40(unsigned int aid) {
     if (aid < 8) {
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-        mgr->m9A34[aid] = 1;
+        mgr->m9A34[(unsigned char)aid] = 1;
     }
 }
 
 // inferred: message 0x3E: the lobby is told to refresh (mF90)
-extern "C" void fn_804F50C4() {
+extern "C" void fn_804F50C4(unsigned int aid) {
     MP::D2AMpMenuLobby* lobby = MP::D2AMpMenuLobby::sInstance;
     if (lobby != 0) {
         lobby->mF90 = 1;
