@@ -64,6 +64,16 @@ extern "C" inline int fn_80223ED8(Event::Cut* cut) {
 
 namespace Event {
 
+// inferred: as in Event/Sequence.cpp (inline, defined there)
+inline Cut* Sequence::FindCutByIndex_unk(int index) {
+    for (int i = 0; i < (int)mB8.size(); i++) {
+        if (index == mB8[i]->mIndex) {
+            return mB8[i].get();
+        }
+    }
+    return 0;
+}
+
 // inferred: draw functions of the pages (not written yet)
 void fn_80221FA4(DebugInfo_unk* info);
 void fn_80222AD0(DebugInfo_unk* info);
@@ -85,6 +95,36 @@ static DebugInfoColumnDef_unk sColumns2_unk[10] = {
     {0, 0, 0, 80.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 40.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f},
     {0, 0, 0, 40.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 40.0f},
 };
+
+// inferred: a column with this key exists
+int DebugInfoTable_unk::fn_80221CBC(const void* key) {
+    for (int i = 0; i < (int)mColumns.size(); i++) {
+        if (key == (const void*)mColumns[i].m00) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// inferred: number of cuts from the current one to the cut `index` (0: current, -1: not reached)
+int fn_80221CF8(int index) {
+    Sequence* seq = fn_8000DB1C()->fn_80112F54();
+    int count = 0;
+    if (index == seq->m94) {
+        return 0;
+    }
+    Cut* cut = seq->FindCutByIndex_unk(seq->m94);
+    if (cut == 0) {
+        return -1;
+    }
+    for (int next = cut->fn_8053B028(); next != -1; next = seq->FindCutByIndex_unk(next)->fn_8053B028()) {
+        count++;
+        if (index == next) {
+            return count;
+        }
+    }
+    return -1;
+}
 
 // NONMATCHING: 90% - same instructions; the original keeps -1 in r31, 0 in r30 and the column table in r29
 // (ours: table r31, -1 r30, 0 r29). Tried the table as a static/global array, a local pointer, decayed array.
