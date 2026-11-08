@@ -2506,8 +2506,6 @@ extern "C" EnemyTask* fn_8036DDD4(GameTask* task) {
     return 0;
 }
 
-// NONMATCHING: same instructions; the original loads mGlobalFlags[31] (m1160) before the two floats of `dir` (tried
-// the declaration orders, assignments, bool, ?:, the dir built by members)
 GimmickCommon* GameTask::fn_8036E098() const {
     PlayerTask* leader;
     int any;
@@ -4651,7 +4649,6 @@ static inline int IsDungeonExcluded_unk(const char* id) {
 }
 
 // inferred: the current map is a cleared dungeon (not the one of type 2, map 9)
-// NONMATCHING: 95% - the address of the dungeon tables is kept in r30 (the original reloads it at each use)
 int GameTask::fn_803754F0() {
     if (m5694 != 0 && GetCurrentMap() != 0) {
         int type = GetCurrentMap()->mType;
