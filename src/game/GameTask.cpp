@@ -4195,6 +4195,13 @@ void GameTask::fn_80374D64() {
     }
 }
 
+// inferred: sets global flag `id` once (formerly Field_unk::fn_803750E4 of the other units)
+void GameTask::fn_803750E4(int id) {
+    if (fn_80370174(id) == 0) {
+        fn_80370320(id, 1, 0);
+    }
+}
+
 int GameTask::fn_80375184() {
     return m5638 == 0;
 }

@@ -157,7 +157,6 @@ extern "C" float fn_80050A1C(const atn::Vector3* point, const Segment_unk* seg, 
 // inferred: field data (lbl_8087F430); m10D8 holds the route tables (see RouteWalker_unk.cpp)
 struct Field_unk {
     RouteTable_unk* fn_8013C504();
-    void fn_803750E4(int id); // inferred: called with 0xB5 when a knocked-down character had mFlag28
 
     unsigned char m00[0x48];
     int m48; // inferred: field kind (1, or 2 with a sub kind in m4C)
@@ -2667,7 +2666,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
             other = result.m38->m0C;
             if (IsPlayer() && m648 != 0 && mC58.mC0 == 0 && lbl_8087F430 != 0 && other->mType == 3 &&
                 ((GameTask*)lbl_8087F430)->fn_80370174(1000) >= 0x30) {
-                lbl_8087F430->fn_803750E4(0x132);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x132);
             }
             if ((mType == 0 || mType == 2) && m648 == 0) {
                 push = 1;
@@ -8495,7 +8494,7 @@ void CharaTask::fn_8015E7A0(const atn::Vector3& dir, int arg, int arg2) {
     fn_80178208(control);
     m638 = 0;
     if (mFlag28 && lbl_8087F430 != 0) {
-        lbl_8087F430->fn_803750E4(0xB5);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0xB5);
     }
     fn_80164DCC(1);
     if (m1208 != 0) {
@@ -11513,7 +11512,7 @@ unsigned int CharaTask::fn_80179730(HitInfo_unk* hit, int flag) {
     if ((hit->mAC & 0x100000) == 0x100000) {
         flags |= 0x100;
         flags &= ~0x1C;
-        lbl_8087F430->fn_803750E4(0xE9);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0xE9);
     }
     if ((hit->mAC & 0x400000) == 0x400000 && hit->m98 == 0) {
         flags |= 0x800;

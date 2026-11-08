@@ -173,6 +173,7 @@ public:
     void fn_80376254(int delay, int frames);
     void fn_80376324(int id);
     void fn_80376730();
+    void fn_803750E4(int id); // inferred: sets a global flag once
     void fn_80367A40(int arg);
     void fn_8036CA60(int arg);
 

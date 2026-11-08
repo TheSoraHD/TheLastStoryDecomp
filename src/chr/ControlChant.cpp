@@ -98,7 +98,6 @@ extern "C" unsigned long strlen(const char* s);
 extern "C" int rand();
 // inferred: field object (class unknown, as in gmk/LottaSummon.cpp)
 struct Field_unk {
-    void fn_803750E4(int id);
     unsigned char m0000[0x10D0];
     int m10D0; // inferred: play time
 };
@@ -720,7 +719,7 @@ int ControlMagic::vf0C() {
             }
             if ((mChara->mType == 0 || mChara->mType == 3) && fn_8021A984(hit) &&
                 ((GameTask*)lbl_8087F430)->fn_80370174(0x442) >= 7) {
-                lbl_8087F430->fn_803750E4(0x9C);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x9C);
             }
             break;
         }
@@ -731,17 +730,17 @@ int ControlMagic::vf0C() {
             case 9:
             case 10:
                 if (fn_8021A888(hit)) {
-                    lbl_8087F430->fn_803750E4(0xE0);
+                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xE0);
                 }
                 break;
             case 6:
                 if (fn_8021A888(hit)) {
-                    lbl_8087F430->fn_803750E4(0xF5);
+                    ((GameTask*)lbl_8087F430)->fn_803750E4(0xF5);
                 }
                 break;
             case 4:
                 if (fn_8021A888(hit) && lbl_8087F430 && lbl_8087F430->m10D0 >= 0x31CE0) {
-                    lbl_8087F430->fn_803750E4(0x1C2);
+                    ((GameTask*)lbl_8087F430)->fn_803750E4(0x1C2);
                 }
                 break;
             }

@@ -24,7 +24,6 @@ extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
 // inferred: field (lbl_8087F430); only the members used here
 struct Field_unk {
-    void fn_803750E4(int id); // inferred: (as in gmk/RandomMerchant.cpp)
     unsigned char m0000[0x563C];
     int m563C; // inferred: reason of the next map change
 };
@@ -160,13 +159,13 @@ void NewCampTask::fn_8052DEEC(int state) {
         top = 1;
         break;
     case 1:
-        lbl_8087F430->fn_803750E4(0x146);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0x146);
         m11F0 = (NewCampPartsBase*)mStatus;
         break;
     case 2:
-        lbl_8087F430->fn_803750E4(0xEC);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0xEC);
         if (lbl_8087FA20 != 0) {
-            lbl_8087F430->fn_803750E4(0x1BA);
+            ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BA);
         }
         m11F0 = (NewCampPartsBase*)mMapSelect;
         break;

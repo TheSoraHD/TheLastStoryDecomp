@@ -11,12 +11,7 @@ extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" double fmod(double x, double y);
 
-// inferred: field object (lbl_8087F430): route tables at 0x10D8 (class unknown)
-struct DiveField_unk {
-    unsigned char m0000[0x10D8];
-    void* m10D8;
-};
-extern "C" DiveField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 // inferred: nearest route point (stored in RouteWalker_unk::mDestPoint)
 // inferred: finds the ledge of route link `link` near `chara`
 
@@ -135,7 +130,7 @@ int ControlSwatTurn::vf0C() {
         speed *= 0.7f;
     }
     GameSceneRoute_unk ledge;
-    if (len < 5.0f && ((GameTask*)lbl_8087F430)->fn_8036DAF4(&ledge, mChara, 0, m14) != 0) {
+    if (len < 5.0f && lbl_8087F430->fn_8036DAF4(&ledge, mChara, 0, m14) != 0) {
         mChara->fn_80153698(&ledge, 0);
         ret = 1;
     } else if (++m18 > 60) {

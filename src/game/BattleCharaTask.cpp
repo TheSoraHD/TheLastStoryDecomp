@@ -63,7 +63,6 @@ struct BattleArea_unk {
     BattleAreaInfo_unk* m64;
 };
 struct Field_unk {
-    void fn_803750E4(int id); // inferred: sets an event (as in game/CharaTask.cpp)
     unsigned char m0000[0x6C];
     CameraSub_unk m006C; // inferred: also the object of fn_8037EF30 (as in game/Em306GurgBeast.cpp)
     int m868; // inferred: mode (3 and 4: battle, as in game/CharaTask.cpp)
@@ -2065,7 +2064,7 @@ void BattleCharaTask::vfF0() {
                     DamageResult_unk result;
                     fn_8003EA3C(&result, data, this, this, 0, &lbl_807C6B90, 0, 0);
                     if (mType == 3 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(5) == 0) {
-                        lbl_8087F430->fn_803750E4(0x1B7);
+                        ((GameTask*)lbl_8087F430)->fn_803750E4(0x1B7);
                     }
                 }
             } else if (mStatus.m224 <= 0) {
@@ -2254,7 +2253,7 @@ void BattleCharaTask::fn_800EB7A0() {
             kind = 2;
             rate *= lbl_8087F0A8->mPickSucceedBounus;
             if (lbl_8087F430 != 0) {
-                lbl_8087F430->fn_803750E4(0xEB);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0xEB);
             }
         }
         if (fn_8017CB2C()) {

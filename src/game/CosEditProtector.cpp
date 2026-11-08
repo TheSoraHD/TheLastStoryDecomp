@@ -92,7 +92,6 @@ struct CosEditLayout_unk : public atn::Task {
 };
 // inferred: field (lbl_8087F430): chapter at 0x10D0
 struct Field_unk {
-    void fn_803750E4(int id); // inferred: (as in gmk/RandomMerchant.cpp)
     unsigned char m0000[0x10D0];
     int mChapter; // 0x10D0
 };
@@ -763,7 +762,7 @@ void CosEditProtector::vf34(int state) {
         break;
     case 10:
         if (lbl_8087F430 != 0) {
-            lbl_8087F430->fn_803750E4(0xE7);
+            ((GameTask*)lbl_8087F430)->fn_803750E4(0xE7);
         }
         fn_801CE5B0(6, 1);
         mFC = 0;

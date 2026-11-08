@@ -14,7 +14,6 @@ extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 // inferred: field (lbl_8087F430); m10D8 holds the route tables, the event flags are read with
 // fn_80370A78 and written with fn_80370AE4
 struct Field_unk {
-    void fn_803750E4(int id);
     unsigned char m0000[0x10D8];
     RouteTable_unk* m10D8;
 };
@@ -244,7 +243,7 @@ void EnemyFieldMagician::vf10() {
         break;
     case 7:
         if (++m1610 >= 600) {
-            lbl_8087F430->fn_803750E4(0xF7);
+            ((GameTask*)lbl_8087F430)->fn_803750E4(0xF7);
         }
         fn_80145334();
         fn_8014C540();

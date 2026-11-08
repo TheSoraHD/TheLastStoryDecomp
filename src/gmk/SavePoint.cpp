@@ -31,7 +31,6 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 
 // inferred: field object (class unknown)
 struct Field_unk {
-    void fn_803750E4(int id);
     unsigned char m00[0x74];
     atn::Vector3 m74; // inferred: camera position
     unsigned char m80[0x54E4 - 0x80];
@@ -185,7 +184,7 @@ void SavePoint::vf10() {
         float dist = LenSq_unk(player->mPos - m6C);
         if (m54 == 0) {
             if (dist < 64.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() != 0) {
-                lbl_8087F430->fn_803750E4(0x145);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x145);
             }
         } else if (m54 >= 1) {
             float dist2 = LenSq_unk(player->mPos - m6C);

@@ -7,6 +7,7 @@
 #include "game/NpcTask.h"
 #include "game/PlayerTask.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
@@ -40,7 +41,6 @@ extern "C" void* lbl_8087F048; // inferred: effect manager of the characters
 
 // inferred: field object (class unknown)
 struct Field_unk {
-    void fn_803750E4(int id);
     unsigned char m00[0x10D8];
     void* m10D8; // inferred: route tables
 };
@@ -192,7 +192,7 @@ void LottaSummon::vf10() {
             if (player != 0) {
                 if (LenSq_unk(player->mPos - m6C) < 256.0f) {
                     if (lbl_8087F430 != 0) {
-                        lbl_8087F430->fn_803750E4(0x1BD);
+                        ((GameTask*)lbl_8087F430)->fn_803750E4(0x1BD);
                     }
                     if (!player->mFlag6 && !player->HasC48_unk() && !player->mFlag31) {
                         lbl_8087F490->Request_unk(15);

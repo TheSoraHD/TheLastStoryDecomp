@@ -39,7 +39,6 @@ extern "C" void fn_801092C8(Effect_unk* mgr, int id, CharaTask* chara, int a, in
 
 // inferred: field (lbl_8087F430)
 struct Field_unk {
-    void fn_803750E4(int id);
 };
 extern "C" Field_unk* lbl_8087F430;
 
@@ -825,14 +824,14 @@ int fn_80040B44(DamageResult_unk* result, HitInfo_unk* data, CharaStatus* attack
         if (element <= -2) {
             result->mType = 5;
             if (lbl_8087F430 != 0) {
-                lbl_8087F430->fn_803750E4(0x15B);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x15B);
             }
         } else if (element <= -1) {
             result->mType = 4;
         } else if (element >= 1) {
             result->mType = 1;
             if (attacker->mChara != 0 && attacker->mChara->mType == 0 && lbl_8087F430 != 0) {
-                lbl_8087F430->fn_803750E4(0x15A);
+                ((GameTask*)lbl_8087F430)->fn_803750E4(0x15A);
             }
         } else {
             result->mType = 1;

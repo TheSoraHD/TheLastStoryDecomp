@@ -31,7 +31,6 @@ struct GameState_unk {
 extern "C" GameState_unk* lbl_8087EFA8;
 // inferred: field object (class unknown, as in gmk/LottaSummon.cpp)
 struct Field_unk {
-    void fn_803750E4(int id);
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: effect manager of the characters (lbl_8087F048)
@@ -712,7 +711,7 @@ ControlDamageLastOne::ControlDamageLastOne(Chara_unk* chara, const atn::Vector3*
     m14 = (-n).ToRotation_unk();
     mChara->fn_8016DA4C();
     if (mChara->mFlag28 && lbl_8087F430) {
-        lbl_8087F430->fn_803750E4(0xB5);
+        ((GameTask*)lbl_8087F430)->fn_803750E4(0xB5);
     }
     mChara->fn_80164DCC(1);
     if (mChara->mFlag31) {
