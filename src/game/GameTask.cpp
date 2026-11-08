@@ -93,6 +93,11 @@ struct GameTaskStaticEntry_unk {
     int m08;
 };
 
+// inferred: variables of the file in .sdata (names unknown): a counter set to -4 (fn_8036B44C) and the near end
+// of the depth of field scaled by the camera distance (fn_8036CC90)
+int lbl_8087DCD0 = -4;
+float lbl_8087DCD4 = 1.0f;
+
 // inferred: static object of this file (.bss 0x807C8458, 0x98 bytes). The constructor is __sinit_\GameTask_cpp.
 // m04 is a GameTask::Option (used instead of the given one by fn_80365708)
 struct GameTaskStatic_unk {
@@ -299,7 +304,7 @@ extern "C" int fn_800F3490(BattleTask* battle);
 extern "C" void fn_800EFA18(int type, int map);
 extern "C" void fn_8056C3D8(GameTaskData_unk* obj);
 extern "C" void fn_80390A88(GameCamera* camera);
-extern "C" void fn_8038F52C(GameCamera* camera);
+extern "C" void fn_8038F52C(GameCamera* camera, CharaTask* chara); // inferred: update of the camera around `chara`
 extern "C" void fn_8037F744(GameCamera* camera);
 extern "C" int fn_800A555C(void* obj, int a, int b);
 extern "C" void* lbl_8087EF70;
@@ -1513,7 +1518,7 @@ void GameTask::vf10() {
                 }
             } else {
                 if (player->m55C == 5) {
-                    fn_8038F52C(&mCamera);
+                    fn_8038F52C(&mCamera, player);
                     fn_8037F744(&mCamera);
                 } else {
                     fn_8036CC90();
@@ -2111,6 +2116,52 @@ void GameTask::fn_8036CA60(int warp) {
     }
     if (map->mType == 2 && map->mId == 0x28 && map->mSubId == 4) {
         mGlobalFlags[921] = 1;
+    }
+}
+
+extern "C" void fn_800E4278(PlayerTask* player, GameTask* task); // inferred: input of the leader
+extern "C" void fn_8036D2D0(GameTask* task);
+
+// inferred: update of the field in state 0 (camera, leader input, depth of field, skip of the tutorial)
+// NONMATCHING: 98.7% - the original reloads lbl_8087EFA8 before storing the depth of field and keeps the camera
+// distance in f4
+void GameTask::fn_8036CC90() {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    fn_8038F52C(&mCamera, leader);
+    if (mCamera.m7FC != 6 && !leader->IsFlag_unk(4) && !leader->IsFlag_unk(1) && m56D4 == 0) {
+        fn_800E4278(leader, this);
+    }
+    fn_8036CFA4();
+    DofParam_unk dof = lbl_8087EFA8->mDof;
+    if ((unsigned int)(mCamera.m7FC - 3) <= 1) {
+        dof.mNearEnd = 4.0f;
+        lbl_8087EFA8->mDof = dof;
+    } else if (GetCurrentMap() != 0) {
+        dof.mNearEnd = GetCurrentMap()->mF0;
+        if (mCamera.mDist < 25.0f) {
+            float t = mCamera.mDist / 25.0f;
+            dof.mNearEnd = t * (GetCurrentMap()->mF0 - lbl_8087DCD4) + lbl_8087DCD4;
+        }
+        lbl_8087EFA8->mDof = dof;
+    }
+    if (lbl_8087F610 != 0) {
+        lbl_8087EFA8->mDof.mEnabled = 0;
+    }
+    fn_8036D2D0(this);
+    if (lbl_8087F0A8->mInput.fn_801231D0(8) && lbl_8087F490->mD8C == 2) {
+        lbl_8087F490->fn_803E4478();
+        fn_80370320(0xAC, 0, 0);
+        PlayerState_unk state(5);
+        state.m04 = 3;
+        if (lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
+            lbl_8087F8A0->mHead->SetState_unk(state);
+        }
+    }
+    if (m55B8 > 0) {
+        m55B8--;
+    }
+    if (m55BC > 0) {
+        m55BC--;
     }
 }
 
