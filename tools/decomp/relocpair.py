@@ -28,6 +28,7 @@ def syms(o):
     return set(l.split()[-1] for l in out.splitlines() if l.strip())
 
 apply = '--apply' in sys.argv
+funcs = '--funcs' in sys.argv  # pair unnamed functions (fn_XXXXXXXX) with our named weak copies instead
 units = [a for a in sys.argv[1:] if not a.startswith('--')]
 d = json.load(open(R + 'build/SLSP01/report.json'))
 symtxt = open(SYM).read().split('\n')
@@ -46,8 +47,11 @@ for u in d['units']:
         for (ia, xa), (ib, xb) in zip(la, lb):
             if ia != ib: break
             if xa == xb: continue
-            if not re.match(r'^@\d+$', xa): continue
-            if not re.match(r'^@\d+$', xb) or xa in sb or xb in symnames: continue
+            if funcs:
+                if not re.match(r'^fn_[0-9A-F]{8}$', xa) or xa in sb or xb in symnames or xb.startswith('@'): continue
+            else:
+                if not re.match(r'^@\d+$', xa): continue
+                if not re.match(r'^@\d+$', xb) or xa in sb or xb in symnames: continue
             m[xa].add(xb)
     used = collections.Counter(next(iter(v)) for v in m.values() if len(v) == 1)
     for xa, v in m.items():
