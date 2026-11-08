@@ -1409,6 +1409,25 @@ extern "C" unsigned int fn_802A409C(BattleCharaTask* chara) {
     return chara->mFlagC25;
 }
 
+// inferred: random value between min and max (used by fn_802A3D80)
+extern "C" float fn_802A40A8(float min, float max) {
+    return (max - min) * ((float)rand() / 32767.0f) + min;
+}
+
+// inferred: default homing parameters of the shots of fn_802A3D80 (as DaemonHoming_unk of
+// game/Em203GreaterDaemon.cpp)
+extern "C" void fn_802A4120(HomingParam_unk* param) {
+    param->mTarget = 0;
+    param->mAccel = 0.0f;
+    param->m08 = -1.0f;
+    param->mMaxSpeed = 10.0f;
+    param->mTurn = 0.09424778f;
+    param->mTime = 300.0f;
+    param->mDelay = 5.0f;
+    param->mNode = 0;
+    param->mCount = -1;
+}
+
 // NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)
 // inferred: the route point nearest to the daemon among the high hover points (m156C)
 // inferred: current count in the character manager.
