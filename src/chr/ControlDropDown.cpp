@@ -2,6 +2,7 @@
 #include "game/GameVoice.h"
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
+#include "game/GameTask.h"
 
 extern "C" int rand();
 extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
@@ -19,7 +20,6 @@ struct DropField_unk {
     void* m10D8;
 };
 extern "C" DropField_unk* lbl_8087F430;
-extern "C" int fn_80370174(DropField_unk* field, int id); // inferred: field flag
 // inferred: camera settings (lbl_8087EFA8)
 struct DropCamera_unk {
     unsigned char m000[0x3A4];
@@ -159,7 +159,7 @@ int ControlDropDown::vf0C() {
                     }
                 }
             }
-            if (lost && fn_80370174(lbl_8087F430, 0x12B) == 0) {
+            if (lost && ((GameTask*)lbl_8087F430)->fn_80370174(0x12B) == 0) {
                 mChara->mPos = mStart;
                 mChara->m574 = lbl_807C7030;
                 mVel = lbl_807C7030;

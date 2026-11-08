@@ -103,7 +103,6 @@ struct Field_unk {
     int m10D0; // inferred: play time
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
 // inferred: tactics manager (TacView, as in game/CharaTask.cpp)
 // inferred: party manager (as in game/CharaTask.cpp)
 extern "C" PlayerManager* lbl_8087F8A0;
@@ -565,7 +564,7 @@ int ControlMagic::vf0C() {
         mChara->fn_8016DA4C();
         m1D = true;
         if (hit->m04 == 0x6C2) {
-            if (fn_80370174(lbl_8087F430, 0x38D) > 0) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x38D) > 0) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0x38E, 1, 0);
                 mChara->mStatus.m228 = 0.0f;
             }
@@ -720,7 +719,7 @@ int ControlMagic::vf0C() {
                 }
             }
             if ((mChara->mType == 0 || mChara->mType == 3) && fn_8021A984(hit) &&
-                fn_80370174(lbl_8087F430, 0x442) >= 7) {
+                ((GameTask*)lbl_8087F430)->fn_80370174(0x442) >= 7) {
                 lbl_8087F430->fn_803750E4(0x9C);
             }
             break;

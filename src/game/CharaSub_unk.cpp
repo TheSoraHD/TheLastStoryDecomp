@@ -1,5 +1,6 @@
 #include "game/CharaSub_unk.h"
 #include "game/Inventory.h"
+#include "game/GameTask.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -39,7 +40,6 @@ struct ItemDef_unk {
     unsigned char m08[0xD0 - 0x08];
 };
 extern "C" void* lbl_8087F430;
-extern "C" int fn_80370174(void* field, int id);
 extern "C" ItemList_unk* fn_8020787C(int id);
 extern "C" ItemDef_unk* fn_80219EB4();
 extern "C" int fn_80219EBC();
@@ -47,7 +47,7 @@ extern "C" int fn_804446BC(Inventory* inventory, int type, int id);
 extern "C" int fn_804444E8(Inventory* inventory, int id);
 
 int fn_8013539C() {
-    ItemList_unk* list = fn_8020787C(fn_80370174(lbl_8087F430, 100));
+    ItemList_unk* list = fn_8020787C(((GameTask*)lbl_8087F430)->fn_80370174(100));
     if (list == 0 || list->mCount == 0) {
         ItemDef_unk* def = fn_80219EB4();
         int num = fn_80219EBC();

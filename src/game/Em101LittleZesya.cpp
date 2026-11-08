@@ -10,6 +10,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 // inferred: empty release assert (the original functions are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -24,8 +25,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);         // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 // inferred: collision world and its ray test (as in game/ChaserNpc.cpp)
 struct CollResult_unk {
     CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
@@ -854,8 +853,8 @@ void Em101LittleZesya::vf40(HitInfo_unk* hit) {
     float rate = mStatus.m04 / (float)mStatus.mParamB.m84;
     if (rate < 0.5f) {
         if (msg->mAttacker != 0 && msg->mAttacker->mType == 0) {
-            if (fn_80370A78(lbl_8087F430, 0x6B) == 0) {
-                fn_80370AE4(lbl_8087F430, 0x6B, 1);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x6B) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x6B, 1);
             }
         }
         if (m15BC == 0) {

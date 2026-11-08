@@ -14,6 +14,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -144,8 +145,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 struct Effect_unk;
 // inferred: result of fn_8003EA3C (as DamageResult_unk in game/Em002Skelton.cpp); names invented
 struct ElderDamage_unk {
@@ -472,12 +471,12 @@ inline void ElderRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
 // rotation and r0/r3 of two stores (8 variants: temporaries, case order, rotation inline, array init)
 void Em101ElderZesya::vf10() {
     m16A4++;
-    if (fn_80370A78(lbl_8087F430, 0x65) == 1) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0x65) == 1) {
         return;
     }
     if (m16A8 > 0) {
         if (--m16A8 <= 0) {
-            fn_80370AE4(lbl_8087F430, 0x65, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
             m58C = 6;
             m14C8 = 0;
             fn_8016DA4C();
@@ -1146,8 +1145,8 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
                 fn_80259AB4(index, 2);
                 m15F4 = 1;
                 m15EC = 0;
-                if (fn_80370A78(lbl_8087F430, 200) == 0) {
-                    fn_80370AE4(lbl_8087F430, 200, 1);
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(200) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(200, 1);
                 }
             }
         }
@@ -1162,7 +1161,7 @@ void Em101ElderZesya::vf3C(HitInfo_unk* hit) {
     }
     float hp = mStatus.m04;
     if (hp / (float)mStatus.mParamB.m84 < 0.1f) {
-        fn_80370AE4(lbl_8087F430, 210, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(210, 1);
         for (unsigned int i = 0; i < 4; i++) {
             fn_80259AB4(i, 2);
         }
@@ -1275,15 +1274,15 @@ void Em101ElderZesya::fn_80259AB4(int index, int state) {
             Field_unk* field = lbl_8087F430;
             field->m97C.Set_unk(pos, false);
         }
-        fn_80370AE4(lbl_8087F430, 0xCA, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCA, 1);
         if (c->mKind == 3) {
-            fn_80370AE4(lbl_8087F430, 0xCB, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 1);
         } else if (c->mKind == 0) {
-            fn_80370AE4(lbl_8087F430, 0xCB, 2);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 2);
         } else if (c->mKind == 1) {
-            fn_80370AE4(lbl_8087F430, 0xCB, 3);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 3);
         } else if (c->mKind == 4) {
-            fn_80370AE4(lbl_8087F430, 0xCB, 4);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCB, 4);
         }
         break;
     case 1:

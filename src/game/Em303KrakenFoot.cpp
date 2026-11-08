@@ -28,7 +28,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" double cos(double x);
 extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);       // inferred: sets a counter flag
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -663,7 +662,7 @@ struct FootFlag_unk {
 // inferred: as SpecialEnemyBase::fn_805A4A1C (name invented)
 inline void SetFlag_unk(FootFlag_unk* flag, int value) {
     if (flag->mGlobal == 0) {
-        fn_80370AE4(lbl_8087F430, flag->mIndex, value);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(flag->mIndex, value);
     } else if (flag->mGlobal == 1) {
         ((GameTask*)lbl_8087F430)->fn_80370320(flag->mIndex, value, 0);
     }

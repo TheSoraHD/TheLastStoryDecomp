@@ -19,7 +19,6 @@ extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430; // inferred: field
-extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
 extern "C" int fn_80117214(int index); // inferred: palette slot of a colour index
 extern "C" int fn_8020BE40(int id);    // inferred: cell of a palette colour
 extern "C" int fn_8020BF20(int mark);  // inferred: cell of a colour mark
@@ -464,7 +463,7 @@ void CosEditProtector::vf24() {
     for (int i = 0; i < 7; i++) {
         switch (i) {
         case 1:
-            if (lbl_8087F430->mChapter <= 109000 && fn_80370174(lbl_8087F430, 0x764) < 1) {
+            if (lbl_8087F430->mChapter <= 109000 && ((GameTask*)lbl_8087F430)->fn_80370174(0x764) < 1) {
                 continue;
             }
             break;
@@ -728,7 +727,7 @@ void CosEditProtector::vf34(int state) {
         fn_801E6B10();
         break;
     case 4:
-        if (!fn_80370174(lbl_8087F430, 0xE8)) {
+        if (!((GameTask*)lbl_8087F430)->fn_80370174(0xE8)) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0xE8, 1, 0);
         }
         fn_801CE5B0(4, (prev == 0 || prev == 1) ? 0 : 1);
@@ -908,8 +907,8 @@ void CosEditProtector::vf74(int a, int b) {
 }
 
 int CosEditProtector::fn_801D5420(int a, int b) {
-    if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x395) && a == 0 && b == 0 &&
-        fn_80370174(lbl_8087F430, 0x396)) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x395) && a == 0 && b == 0 &&
+        ((GameTask*)lbl_8087F430)->fn_80370174(0x396)) {
         return 0;
     }
     return 1;

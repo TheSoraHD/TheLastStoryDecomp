@@ -110,11 +110,8 @@ extern "C" double sqrt(double x);
 extern "C" inline float fn_801C3910(const atn::Vector3& v) {
     return sqrt(v.x * v.x + v.z * v.z);
 }
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets a counter
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data by id
 extern "C" int fn_800DC12C(const char* s); // inferred: string to int
-extern "C" void fn_80376254(Field_unk* field, int a, int b); // inferred: counts a field event
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" double fmod(double x, double y);
 extern "C" void fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
@@ -439,11 +436,11 @@ void Em309Ghoul::vf3C(HitInfo_unk* hit) {
     int weak = *(int*)&msg->m3C[4]; // inferred: HitMsg_unk+0x40 (as in game/Em205Ogre.cpp)
     if ((weak == 1 && m58C != 10) || msg->mData->m04 == 0x134) {
         if (weak == 1) {
-            fn_80376254(lbl_8087F430, 3, 5);
+            ((GameTask*)lbl_8087F430)->fn_80376254(3, 5);
         }
         msg->m0C |= 0x800;
         if (msg->mData->m04 == 0x134) {
-            fn_80370AE4(lbl_8087F430, 6, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(6, 1);
         }
         int state = m58C;
         if (state == 1 || (state == 6 && m14F0 == 1) || state == 7 || state == 8 || state == 10 || state == 12) {
@@ -580,7 +577,7 @@ atn::Vector3 Em309Ghoul::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
         result = mPos;
-    } else if (fn_80370A78(lbl_8087F430, 0xA1) == 0) {
+    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0xA1) == 0) {
         result = mPos;
     } else {
         result = m624.mData[1].m04.mCenter;
@@ -926,13 +923,13 @@ void Em309Ghoul::fn_80300AD8() {
     PSMTXMultVec(m.m, &m15D8, &m15D8);
     mRot = m15CC;
     m15C8 = 1;
-    fn_80370AE4(lbl_8087F430, 0xA4, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA4, 1);
     wchar_t text[256];
     memset(text, 0, sizeof(text));
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x147), *(const wchar_t**)((char*)m60 + 4));
     ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     if (mFlag22) {
-        fn_80370AE4(lbl_8087F430, 0xA7, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA7, 1);
     }
     fn_80232B7C(this, 400);
     Color4f_unk color;
@@ -994,8 +991,8 @@ void Em309Ghoul::fn_80300DF4() {
     m15CC = mRot;
     m15C8 = 0;
     m15C4 = 0;
-    fn_80370AE4(lbl_8087F430, 0xA4, 1);
-    fn_80370AE4(lbl_8087F430, 0xA5, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA4, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA5, 1);
     fn_80232B7C(this, 400);
     Color4f_unk color;
     atn::Vector3 rot;
@@ -1032,7 +1029,7 @@ void Em309Ghoul::fn_803010BC() {
     fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0x14B), *(const wchar_t**)((char*)m60 + 4));
     ((BattleTask*)lbl_8087F048)->fn_80109828(text);
     if (mFlag22) {
-        fn_80370AE4(lbl_8087F430, 0xA8, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA8, 1);
     }
 }
 
@@ -1047,7 +1044,7 @@ void Em309Ghoul::fn_80301200() {
     mMotion.mTracks[0].m20 = 1.0f;
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 2, 1, 0, 1, 0.0f, 0.1f);
-    fn_80370AE4(lbl_8087F430, 0xA3, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA3, 1);
 }
 
 // inferred: plays effect `efp` on `model` with default placement (name invented)
@@ -1751,7 +1748,7 @@ void Em309Ghoul::fn_80302F94() {
         fn_80239DAC(lbl_8087F3C0, this, 400, 1);
         fn_80232B7C(this, 0x130);
         GhoulEffect_unk(&m1564, m1614->vf38());
-        fn_80370AE4(lbl_8087F430, 0xA4, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA4, 0);
     }
 }
 
@@ -1866,7 +1863,7 @@ void Em309Ghoul::fn_803041C8() {
                 mRot.x = 0.0f;
                 fn_80301200();
                 fn_80239DAC(fn_800F7FA0(), this, 400, 1);
-                fn_80370AE4(fn_80121F00(), 0xA4, 0);
+                ((GameTask*)fn_80121F00())->fn_80370AE4(0xA4, 0);
             }
         } else if (m1624 == 1) {
             atn::Vector3 d = m1608 - mPos;
@@ -1931,7 +1928,7 @@ void Em309Ghoul::fn_80304718() {
             fn_8017A300(m166C);
             fn_80300DF4();
             fn_80239DAC(lbl_8087F3C0, this, 0x131, 1);
-            fn_80370AE4(lbl_8087F430, 0xA2, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xA2, 1);
             m14F4 = 0;
         }
     } else if (m14F0 == 1) {

@@ -112,9 +112,7 @@ extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: pla
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
 extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int c); // inferred: changes the map
-extern "C" void fn_803743AC(GameField_unk* field);
 extern "C" void fn_805AA734(TacView* view); // inferred: closes the tactical view
-extern "C" int fn_8037587C(GameField_unk* field, int type, int id, int subId); // inferred: the map was visited
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -153,7 +151,6 @@ extern "C" int fn_80216988();                // inferred: number of routes of th
 extern "C" int fn_80216954(int index);       // inferred: id of a route
 extern "C" MapSelectRouteData_unk* fn_80216544(int id, int chapter, int flag);
 extern "C" const char* fn_80216700(int id, int chapter, int flag); // inferred: state of the route
-extern "C" int fn_80370174(GameField_unk* field, int flag); // inferred: flag value
 extern "C" PlayerManager* lbl_8087F8A0;
 // inferred: the camp maps of Lazulis (the map select opens there with route 201); name invented
 static inline int IsCastleCamp_unk(int type, int id) {
@@ -651,7 +648,7 @@ void NewCampPartsMapSelect::fn_8051FD20() {
         MapSelectRoute_unk* route = FindRoute_unk(m19A4);
         if (route != 0 && route->m08 == 2) {
             if (route->mId < 500) {
-                if (fn_8037587C(lbl_8087F430, route->mMapType, route->mMapId, route->mMapSubId)) {
+                if (((GameTask*)lbl_8087F430)->fn_8037587C(route->mMapType, route->mMapId, route->mMapSubId)) {
                     fn_8051FB7C(1);
                 } else {
                     fn_8051FB7C(2);
@@ -710,7 +707,7 @@ void NewCampPartsMapSelect::fn_80520098() {
     }
     if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
         fn_805AA734(lbl_8087F9F8);
-        fn_803743AC(lbl_8087F430);
+        ((GameTask*)lbl_8087F430)->fn_803743AC();
     }
     fn_8036F268(lbl_8087F430, route->mMapType, route->mMapId, route->mMapSubId, route->mEntry, 1, 0, 0x12, 1);
     if (lbl_8087F430->GetScene_unk() != 0) {
@@ -815,7 +812,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
     int flag = 0;
     if (lbl_8087F430 != 0) {
         chapter = lbl_8087F430->m10D0;
-        flag = fn_80370174(lbl_8087F430, 0x63);
+        flag = ((GameTask*)lbl_8087F430)->fn_80370174(0x63);
     }
     for (int i = 0; i < fn_80216988(); i++) {
         int id = fn_80216954(i);
@@ -827,7 +824,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
                 MapSelectPoint_unk* point = FindPoint_unk(id);
                 if (state == 2 && lbl_8087F430 != 0) {
                     if (((GameTask*)lbl_8087F430)->fn_80375184() != 0 || lbl_8087F430->m54E4 == 3 ||
-                        fn_80370174(lbl_8087F430, 0x394) != 0 || fn_80370174(lbl_8087F430, 0x62) != 0) {
+                        ((GameTask*)lbl_8087F430)->fn_80370174(0x394) != 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x62) != 0) {
                         state = 1;
                     }
                 }
@@ -837,7 +834,7 @@ void NewCampPartsMapSelect::fn_80520B04() {
                 int mapSubId = data->mMapSubId;
                 int entry = data->mEntry;
                 if (((NewCampMapCamp_unk*)m48)->m1350 == 0 && lbl_8087F430 != 0 && point != 0 && point->m04 > 0 &&
-                    fn_80370174(lbl_8087F430, point->m04) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370174(point->m04) == 0) {
                     open = 0;
                 }
                 if (point == 0 || point->m18 == 0) {

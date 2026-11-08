@@ -3,6 +3,7 @@
 #include "atn/SoundManager.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/GameTask.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int strcmp(const char* a, const char* b);
@@ -18,8 +19,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 // inferred: effects (as in game/Em002Skelton.cpp)
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -219,7 +218,7 @@ void EnemyFieldMagician::fn_8032C964() {
 
 void EnemyFieldMagician::vf10() {
     bool unused = false;
-    if (m1660 >= 0 && lbl_8087F430 != 0 && fn_80370A78(lbl_8087F430, m1660) == 1) {
+    if (m1660 >= 0 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m1660) == 1) {
         unused = true;
     }
     if (m55C == 7 || unused) {
@@ -345,8 +344,8 @@ void EnemyFieldMagician::fn_8032D1F4() {
         m1608 = 1;
         m160C = 0;
         int flag = m1654;
-        if (flag >= 0 && fn_80370A78(lbl_8087F430, flag) == 0) {
-            fn_80370AE4(lbl_8087F430, flag, 1);
+        if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
         }
     }
     float frame2 = mMotion.mTracks[0].m08;
@@ -437,8 +436,8 @@ void EnemyFieldMagician::vf3C(HitInfo_unk* hit) {
                         lbl_8087EFE8->m34D8 = 0;
                     }
                     int flag = m1658;
-                    if (flag >= 0 && fn_80370A78(lbl_8087F430, flag) == 0) {
-                        fn_80370AE4(lbl_8087F430, flag, 1);
+                    if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
+                        ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
                     }
                 }
                 if (weak && msg->mData->m01 == 0) {
@@ -483,8 +482,8 @@ void EnemyFieldMagician::vf40(HitInfo_unk* hit) {
             m14B0[0].mFlags &= ~1;
             m14B0[1].mFlags &= ~1;
             m1608 = 0;
-            if (flag >= 0 && fn_80370A78(lbl_8087F430, flag) == 0) {
-                fn_80370AE4(lbl_8087F430, flag, 1);
+            if (flag >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(flag) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(flag, 1);
             }
         }
     }

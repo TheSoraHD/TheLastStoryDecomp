@@ -151,6 +151,28 @@ public:
     void fn_803737C0();
     void fn_803727DC();
     void fn_80376568();
+    // inferred: former extern "C" functions of game/GameTask.cpp (block 2 of s12h-20261107)
+    void fn_80370094(int chapter);
+    int fn_80370174(unsigned int index);
+    int fn_80370A78(unsigned int index);
+    void fn_80370AE4(unsigned int index, int value);
+    void fn_80370F8C(int count, void* save, int stay);
+    void fn_80371164();
+    void fn_803712BC();
+    void fn_80371334();
+    void fn_80371674();
+    void fn_803729B4(CharaTask* chara);
+    void fn_80373FC4();
+    void fn_803743AC();
+    void fn_80374964(int kind);
+    int fn_803752F4(const char* id);
+    int fn_803754F0();
+    int fn_8037587C(int type, int id, int sub);
+    int fn_80375B78(int arg);
+    int fn_80375D0C();
+    void fn_80376254(int delay, int frames);
+    void fn_80376324(int id);
+    void fn_80376730();
     void fn_80367A40(int arg);
     void fn_8036CA60(int arg);
 

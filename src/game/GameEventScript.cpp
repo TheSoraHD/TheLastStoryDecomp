@@ -61,11 +61,6 @@ extern "C" TownTask* lbl_8087FA20;
 extern "C" const char* const lbl_8074EF78[];
 extern "C" void fn_8036F268(GameField_unk* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
-extern "C" void fn_80371164(GameField_unk* field);
-extern "C" void fn_803712BC(GameField_unk* field);
-extern "C" void fn_80374964(GameField_unk* field, int arg);
-extern "C" void fn_80376730(GameField_unk* field); // inferred: autosave
-extern "C" void fn_80370094(GameField_unk* field, int state); // inferred: sets m10D0
 extern "C" int lbl_8087D990; // inferred: last save slot (-1: none)
 extern "C" int fn_804444E8(Inventory* inv, int id); // inferred: number of items
 
@@ -313,7 +308,7 @@ void GameEventScript::fn_8039EA50(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    fn_80370094(lbl_8087F430, static_cast<const ScriptArgs_unk*>(cmd)->m08);
+    ((GameTask*)lbl_8087F430)->fn_80370094(static_cast<const ScriptArgs_unk*>(cmd)->m08);
     mF0 = 1;
     ((GameTask*)lbl_8087F430)->fn_80370320(0x63, 0, 0);
     ((GameTask*)lbl_8087F430)->fn_80370320(0x11D, 0, 0);
@@ -458,7 +453,7 @@ void GameEventScript::fn_803A3654(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
     int wait = 0;
     if (lbl_8087F430 != 0) {
-        fn_80374964(lbl_8087F430, args->m08);
+        ((GameTask*)lbl_8087F430)->fn_80374964(args->m08);
         if (args->m08 == 3) {
             wait = 1;
         }
@@ -510,7 +505,7 @@ void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk*
 
 void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0 && SetConfig::sInstance->mAutoSave != 0) {
-        fn_80376730(lbl_8087F430);
+        ((GameTask*)lbl_8087F430)->fn_80376730();
     }
     result.SetNext_unk(cmd);
 }
@@ -658,7 +653,7 @@ void GameEventScript::fn_803A8464(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 void GameEventScript::fn_803A90E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    fn_803712BC(lbl_8087F430);
+    ((GameTask*)lbl_8087F430)->fn_803712BC();
     lbl_8087F8A0->mHead->fn_8016E970(0);
     result = ScriptResult_unk(0, 1);
 }
@@ -759,7 +754,7 @@ void GameEventScript::fn_803AB26C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
 }
 
 void GameEventScript::fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    fn_80371164(lbl_8087F430);
+    ((GameTask*)lbl_8087F430)->fn_80371164();
     result.mWait = 1;
     result.mNext = 0;
 }

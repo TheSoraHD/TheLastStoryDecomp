@@ -17,7 +17,6 @@ struct Field_unk {
     float m978;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);                    // inferred: event flag
 extern "C" void* lbl_8087F610; // inferred: arena mode (as in game/CharaTask.cpp)
 // inferred: shot speed ranges (arena and normal)
 extern "C" float lbl_8087DA48;
@@ -100,7 +99,7 @@ ControlShoot::ControlShoot(Chara_unk* chara, int id, const atn::Vector3& from, c
     if ((unsigned int)(mData->m04 - 0x148) <= 2) {
         fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &mTo, 0, 0xA00000, 0, 0.0f, 1.0f);
         Field_unk* field = lbl_8087F430;
-        ((GameTask*)field)->fn_80370320(0xCF7, fn_80370174(field, 0xCF7) + 1, 0);
+        ((GameTask*)field)->fn_80370320(0xCF7, ((GameTask*)field)->fn_80370174(0xCF7) + 1, 0);
     } else if (mData->m04 == 0x144) {
         fn_800F8574(lbl_8087F048, mChara, mData, &mFrom, &mTo, 0, 0x40, 0, 0.0f, 1.0f);
     } else if (mChara->m50 == 700023) {

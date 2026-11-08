@@ -1,6 +1,7 @@
 #include "game/CrossbowMenuTask.h"
 #include "game/Inventory.h"
 #include "atn/Memory.h"
+#include "game/GameTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -34,7 +35,6 @@ struct ItemDef_unk {
     unsigned char m08[0xD0 - 0x08];
 };
 extern "C" void* lbl_8087F430;
-extern "C" int fn_80370174(void* field, int id);
 extern "C" ItemList_unk* fn_8020787C(int id);
 extern "C" ItemDef_unk* fn_80219EB4();
 extern "C" int fn_80219EBC();
@@ -136,7 +136,7 @@ int CrossbowMenuTask::vf0C() {
 // NONMATCHING: 99.8% - the first loop keeps the inventory pointer in r28 and the 0xD0 stride in r29 (swapped in
 // the target); tried local placement, separate id/def locals, pointer arithmetic
 void CrossbowMenuTask::fn_801E9544() {
-    m158 = fn_80370174(lbl_8087F430, 0x6D);
+    m158 = ((GameTask*)lbl_8087F430)->fn_80370174(0x6D);
     if (m158 == 0) {
         m158 = 0x65;
     } else if (m160 != 0) {
@@ -144,7 +144,7 @@ void CrossbowMenuTask::fn_801E9544() {
     }
     m4C.mSize = 0;
     m160 = 1;
-    ItemList_unk* list = fn_8020787C(fn_80370174(lbl_8087F430, 100));
+    ItemList_unk* list = fn_8020787C(((GameTask*)lbl_8087F430)->fn_80370174(100));
     if (list == 0 || list->mCount == 0) {
         m4C.push_back(m158);
         Inventory* inventory;
@@ -281,7 +281,7 @@ void CrossbowMenuTask::fn_801E9B84(int index, int slot) {
         if (fn_80211734(item) != 0) {
             strcpy(text, "--");
         }
-        int level = fn_80370174(lbl_8087F430, 0xDA);
+        int level = ((GameTask*)lbl_8087F430)->fn_80370174(0xDA);
         if (level > 0 && item->mId == 0x65) {
             fn_800DD3FC(label, L"%s + %d", item->mName, level / 10);
         } else {

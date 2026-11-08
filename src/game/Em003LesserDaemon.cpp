@@ -12,6 +12,7 @@
 #include "macros.h"
 #include "atn/Material_unk.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -85,9 +86,6 @@ extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bull
 // inferred: starts an effect resource at a position (argument layout of this unit; see game/Em301LShade.cpp)
 extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" int fn_80370174(Field_unk* field, int id); // inferred: global event flag
 // inferred: AI weights by enemy (fn_80103F60, as in game/Em403WarLion.cpp)
 struct DaemonAi_unk {
     unsigned char m000[0x128];
@@ -526,7 +524,7 @@ void Em003LesserDaemon::vf10() {
     if ((CharaTask*)mC58.mC8 != m14B0) {
         m14B4 = 1;
     }
-    if (m16C4 == 0 && m16CC >= 0 && fn_80370174(lbl_8087F430, m16CC) == 1) {
+    if (m16C4 == 0 && m16CC >= 0 && ((GameTask*)lbl_8087F430)->fn_80370174(m16CC) == 1) {
         m16C4 = 1;
         if (mStatus.IsState_unk(0x20)) {
             fn_8024FCDC();
@@ -592,8 +590,8 @@ void Em003LesserDaemon::vf10() {
             fn_80232B7C(&m1504, 0);
             PlayEffectM_unk(lbl_8087F3C0, &m1504, &mMotion);
             ResetAction_unk();
-            if (mFlag22 == 1 && m1640 >= 2 && m16D0 >= 0 && fn_80370A78(lbl_8087F430, m16D0) == 0) {
-                fn_80370AE4(lbl_8087F430, m16D0, 1);
+            if (mFlag22 == 1 && m1640 >= 2 && m16D0 >= 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(m16D0) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(m16D0, 1);
             }
             fn_800C344C("SE_SP007_001", &mPos, 0, -1, 1.0f);
         }
@@ -754,7 +752,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit) {
             fn_800C344C("SE_SP007_003", &mPos, 0, -1, 1.0f);
             m1640++;
             if (m16D4 > 0) {
-                fn_80370AE4(lbl_8087F430, m16D4, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(m16D4, 1);
             }
             for (unsigned int i = 0; i < mLinks.mSize; i++) {
                 if (mLinks.mData[i]->m58C != 2) {
@@ -1578,8 +1576,8 @@ void Em003LesserDaemon::fn_8024FFE8() {
         mLinks.mData[i]->m1654 = 11;
         mLinks.mData[i]->m1658 = rand() % 2 != 0 ? next : -1;
     }
-    if (fn_80370A78(lbl_8087F430, 0xFA) == 0) {
-        fn_80370AE4(lbl_8087F430, 0xFA, 1);
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xFA) == 0) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xFA, 1);
     }
 }
 

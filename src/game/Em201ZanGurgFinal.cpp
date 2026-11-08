@@ -51,8 +51,6 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 extern "C" Field_unk* fn_80121F00();
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -779,7 +777,7 @@ void Em201ZanGurgFinal::vf10() {
         }
     }
     if (m14C0 == 1) {
-        if (fn_80370A78(fn_80121F00(), 0xE9) == 2) {
+        if (((GameTask*)fn_80121F00())->fn_80370A78(0xE9) == 2) {
             m1634 = 1;
             for (int i = 0; i < 3; i++) {
                 mMotion.fn_8009373C(sShieldNodes_unk[i], 0);
@@ -788,7 +786,7 @@ void Em201ZanGurgFinal::vf10() {
                 mMotion.fn_8009373C(sDamageNodes_unk[i], 1);
             }
             fn_8026AF78();
-            fn_80370AE4(fn_80121F00(), 0xE9, 3);
+            ((GameTask*)fn_80121F00())->fn_80370AE4(0xE9, 3);
         }
         if (m1634 != 0) {
             fn_80265804(&mStatus, 1.0f);
@@ -996,8 +994,8 @@ void Em201ZanGurgFinal::vf3C(HitInfo_unk* hit) {
                 atn::Vector3 rot = msg->m28.ToRotation_unk();
                 fn_80232B7C(0, 0);
                 PlayEffect_unk(&m15F4, &mMotion);
-                if (fn_80370A78(lbl_8087F430, 0xEC) == 0) {
-                    fn_80370AE4(lbl_8087F430, 0xEC, 1);
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEC) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEC, 1);
                 }
                 if (m58C - 17U > 2 && m58C != 7 && m58C != 9) {
                     msg->m10 *= 0.0f;
@@ -1015,8 +1013,8 @@ void Em201ZanGurgFinal::vf3C(HitInfo_unk* hit) {
         }
         msg->m48 = 1;
         msg->m0C |= 0x8008;
-        if (fn_80370A78(lbl_8087F430, 0xEB) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xEB, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEB) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEB, 1);
         }
         if (m58C - 17U <= 2 || m58C == 7) {
             goto hit_unk;
@@ -1053,7 +1051,7 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
                 mStatus.fn_8013322C(0x20);
             }
             if (m1658 <= 0) {
-                fn_80370AE4(fn_80121F00(), 0xE9, 1);
+                ((GameTask*)fn_80121F00())->fn_80370AE4(0xE9, 1);
                 if (m6B8.LengthSq_unk() > 0.0f) {
                     fn_8015E4B0(m6B8, -1);
                 } else {
@@ -1064,8 +1062,8 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
                 fn_8026AF24();
                 m1658 = 0;
             }
-            if (m1658 < m165C / 2 && fn_80370A78(fn_80121F00(), 0xEF) == 0) {
-                fn_80370AE4(fn_80121F00(), 0xEF, 1);
+            if (m1658 < m165C / 2 && ((GameTask*)fn_80121F00())->fn_80370A78(0xEF) == 0) {
+                ((GameTask*)fn_80121F00())->fn_80370AE4(0xEF, 1);
             }
         } else if (msg->mData->m04 == 0xD0 && m1630 == 0) {
             fn_8026CB50();
@@ -1137,8 +1135,8 @@ void Em201ZanGurgFinal::vf40(HitInfo_unk* hit) {
             fn_800F7FA8(fn_800F7FA0(), this, 101);
             ((GameTask*)fn_80121F00())->fn_80370320(0x395, 0, 0);
             ((GameTask*)fn_80121F00())->fn_80370320(0x396, 0, 0);
-            if (fn_80370A78(fn_80121F00(), 0xEA) == 0) {
-                fn_80370AE4(fn_80121F00(), 0xEA, 1);
+            if (((GameTask*)fn_80121F00())->fn_80370A78(0xEA) == 0) {
+                ((GameTask*)fn_80121F00())->fn_80370AE4(0xEA, 1);
                 if (fn_8000D9E8()->GetHead_unk() != 0 && *fn_80266FB4(fn_80266FA4(this), 0) == m1628 &&
                     m1624 != 0) {
                     Inventory::Order()->AddItem(fn_80206BE4(fn_80266FAC(m1624)), 1, 1, 0, 0, 1, 0);
@@ -2034,7 +2032,7 @@ void Em201ZanGurgFinal::fn_8026A7AC() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         mFlag25 = 1;
         mColli.mFlags &= ~1;
-        fn_80370AE4(lbl_8087F430, 0xE6, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
     }
 }
 
@@ -2341,8 +2339,8 @@ void Em201ZanGurgFinal::fn_8026CC28() {
     for (int i = 0; i < 4; i++) {
         mMotion.fn_8009373C(sChainNodes_unk[i], 1);
     }
-    if (m162C != 0 && fn_80370A78(lbl_8087F430, 0xEE) == 0) {
-        fn_80370AE4(lbl_8087F430, 0xEE, 1);
+    if (m162C != 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xEE) == 0) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEE, 1);
     }
 }
 
@@ -2623,8 +2621,8 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
                 lbl_8087F490->m764 = ZanUIHint_unk(6, 14, -1);
             }
             if (((Input_unk*)lbl_8087F0A8->mPad)->fn_801231D0(2)) {
-                if (fn_80370A78(lbl_8087F430, 0xF1) == 0) {
-                    fn_80370AE4(lbl_8087F430, 0xF1, 1);
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(0xF1) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xF1, 1);
                 }
                 m1660 = 3;
                 TakeShield_unk(this, lbl_8087F8A0->mHead);
@@ -2638,8 +2636,8 @@ void Em201ZanGurgFinal::fn_8026DB8C() {
                 }
             }
         }
-        if (fn_80370A78(lbl_8087F430, 0xED) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xED, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xED) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xED, 1);
         }
         break;
     }

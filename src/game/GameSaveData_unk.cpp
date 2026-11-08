@@ -122,7 +122,7 @@ static inline bool IsKeptFlag_unk(int flag) {
 void GameSaveFlags_unk::fn_803B9C98() {
     GameField_unk* field = lbl_8087F430;
     if (field) {
-        fn_80370094(field, mState);
+        ((GameTask*)field)->fn_80370094(mState);
         ((GameTask*)field)->fn_80370320(0x11B, 0, 1);
         for (int i = 0; i < 0x1000; i++) {
             if (i == 0x1E) {

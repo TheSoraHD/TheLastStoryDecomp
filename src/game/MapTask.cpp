@@ -895,12 +895,12 @@ void MapTask::fn_804A0F80() {
 // inferred: restores the area list, its blend and the reflection from the game flags (after a load)
 void MapTask::fn_804A1C4C() {
     if (lbl_8087F430 != 0) {
-        int index = fn_80370174(lbl_8087F430, 0x387);
-        int blend = fn_80370174(lbl_8087F430, 0x388);
+        int index = ((GameTask*)lbl_8087F430)->fn_80370174(0x387);
+        int blend = ((GameTask*)lbl_8087F430)->fn_80370174(0x388);
         float t = ((blend >> 16) & 0xFFFF) / 10000.0f;
         float speed = (blend & 0xFFFF) / 10000.0f;
         fn_804A0F58(index, t, speed);
-        atn::RenderManager::instance_->mLayers[4]->m04 = fn_80370174(lbl_8087F430, 0x38B);
+        atn::RenderManager::instance_->mLayers[4]->m04 = ((GameTask*)lbl_8087F430)->fn_80370174(0x38B);
     }
 }
 

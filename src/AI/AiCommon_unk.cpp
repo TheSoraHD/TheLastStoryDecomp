@@ -8,6 +8,7 @@
 #include "game/PlayerTask.h"
 #include "game/SkillEffectManager.h"
 #include "std/string.h"
+#include "game/GameTask.h"
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -37,7 +38,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int index); // inferred: reads a value of the field
 // inferred: enemy manager (lbl_8087F048); slots of 0x934 bytes (as in game/ArenaTask.cpp)
 struct AiEnemySlot_unk {
     CharaTask* mChara;
@@ -93,7 +93,7 @@ static inline void Compact_unk(CharaTask** list) {
 
 extern "C" int fn_8001A444(int index) {
     if (lbl_8087F430 != 0) {
-        return fn_80370174(lbl_8087F430, index);
+        return ((GameTask*)lbl_8087F430)->fn_80370174(index);
     }
     return 0;
 }
@@ -544,7 +544,7 @@ extern "C" float fn_8001BD14(CharaTask* chara) {
             reach = chara->m64->m38;
             break;
         }
-        if (chara->mType == 3 && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 10) > 0 && chara->m5C != 0 &&
+        if (chara->mType == 3 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(10) > 0 && chara->m5C != 0 &&
             (chara->m5C->m122 == 4 || chara->m5C->m122 == 2)) {
             reach *= 3.0f;
         }

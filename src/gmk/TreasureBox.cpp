@@ -3,6 +3,7 @@
 #include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -27,7 +28,6 @@ extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* m
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 extern "C" void fn_80232B7C(void* owner, int arg);
 extern "C" void* lbl_8087F430; // inferred: field object
-extern "C" int fn_80370174(void* field, int id); // inferred: field flag
 // inferred: item tables (names invented)
 struct ItemEntry_unk {
     int mId;
@@ -206,7 +206,7 @@ void TreasureBox::Start() {
         mColli.mFlags &= ~1;
     }
     GimmickMsg_unk msg(1);
-    if (lbl_8087F430 != 0 && mData != 0 && fn_80370174(lbl_8087F430, mData->mFlag) > 0) {
+    if (lbl_8087F430 != 0 && mData != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(mData->mFlag) > 0) {
         msg.mType = 4;
     }
     vf40(&msg);

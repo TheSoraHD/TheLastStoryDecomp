@@ -40,7 +40,6 @@ struct Field_unk : public atn::Task {
     unsigned int m5744; // inferred: time counter
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);                   // inferred: event flag
 extern "C" void* lbl_8087F0A8;
 
 MarketTask* MarketTask::sInstance;
@@ -101,7 +100,7 @@ void MarketTask::vf10() {
     if (m240 <= 0 && m23C.mPtr != 0) {
         fn_800CB5C8(&m23C, 90, 0);
     }
-    if (fn_80370174(lbl_8087F430, 250) != 1 && lbl_8087F430->m5744 != 0 &&
+    if (((GameTask*)lbl_8087F430)->fn_80370174(250) != 1 && lbl_8087F430->m5744 != 0 &&
         lbl_8087F430->m5744 % m4C == 0) {
         fn_804A233C();
     }
@@ -113,7 +112,7 @@ void MarketTask::fn_804A233C() {
     if (lbl_8087F430 != 0) {
         MarketItem_unk* item = &m58[0];
         for (unsigned int i = 0; i < m58.size(); i++) {
-            int value = fn_80370174(lbl_8087F430, item->mFlag) + 1;
+            int value = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag) + 1;
             if (value % 58 == 0) {
                 int levels = fn_802179B4();
                 value = rand() % levels * 58;
@@ -156,7 +155,7 @@ int MarketTask::fn_804A251C(int id) {
     if (data != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            int value = fn_80370174(lbl_8087F430, item->mFlag);
+            int value = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag);
             float rate = fn_802179BC(value / 58, value % 58);
             if (rate > 100.0f) {
                 rate = (rate - 100.0f) * m50 + 100.0f;
@@ -176,15 +175,15 @@ int MarketTask::fn_804A251C(int id) {
 }
 
 int MarketTask::fn_804A26DC() {
-    return fn_80370174(lbl_8087F430, 251) % 11;
+    return ((GameTask*)lbl_8087F430)->fn_80370174(251) % 11;
 }
 
 int MarketTask::fn_804A2724(int id) {
     if (__GetItem_unk(id) != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            int total = fn_80370174(lbl_8087F430, item->mFlag2);
-            int num = fn_80370174(lbl_8087F430, item->mFlag3);
+            int total = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag2);
+            int num = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag3);
             if (num <= 0) {
                 return 0;
             }
@@ -198,11 +197,11 @@ void MarketTask::fn_804A2800(int id, int num) {
     if (__GetItem_unk(id) != 0 && lbl_8087F430 != 0) {
         MarketItem_unk* item = Find_unk(id);
         if (item != 0) {
-            int total = fn_80370174(lbl_8087F430, item->mFlag2);
+            int total = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag2);
             int price = fn_804A251C(id);
             total += price * num;
             ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag2, total, 0);
-            int count = fn_80370174(lbl_8087F430, item->mFlag3);
+            int count = ((GameTask*)lbl_8087F430)->fn_80370174(item->mFlag3);
             count += num;
             ((GameTask*)lbl_8087F430)->fn_80370320(item->mFlag3, count, 0);
         }

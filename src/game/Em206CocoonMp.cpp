@@ -11,6 +11,7 @@
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
@@ -48,8 +49,6 @@ struct Field_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -192,7 +191,7 @@ inline void Em206CocoonMp::Die_unk() {
     fn_80232B7C(0, 0);
     PlayEffectM_unk(lbl_8087F3C0, &m191C, &mMotion);
     m574 = lbl_807C7030;
-    fn_80370AE4(lbl_8087F430, 0x65, 1);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x65, 1);
     Effect_unk* mgr = lbl_8087F048;
     CharaTask* player = lbl_8087F8A0->mHead;
     int id = fn_800F8548(mgr);
@@ -250,7 +249,7 @@ template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
 void Em206CocoonMp::vf10() {
     if (m1520 != m1524) {
-        fn_80370AE4(lbl_8087F430, 10, 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(10, 1);
         m1524 = m1520;
     }
     if (!CharaTask::mFlag2 || !CanAct_unk()) {
@@ -848,8 +847,8 @@ void Em206CocoonMp::fn_802BE9C8() {
         fn_8016E970(3);
     }
     if (mMotion.mTracks[0].m08 >= 55.1f && m1904 == 0) {
-        if (fn_80370A78(lbl_8087F430, 0x96) == 0) {
-            fn_80370AE4(lbl_8087F430, 0x96, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x96) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x96, 1);
         }
         m1520 = m1520 == 0;
         Effect_unk* mgr = lbl_8087F048;

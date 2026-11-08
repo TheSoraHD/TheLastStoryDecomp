@@ -13,6 +13,7 @@
 #include "game/MapArea.h"
 #include "game/MapPartsArea.h"
 #include "game/MapPartsRain.h"
+#include "game/GameTask.h"
 
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -352,7 +353,6 @@ extern "C" atn::Vector3 fn_805B81F0(TownTask* town, int x, int z) {
     return v + town->m140;
 }
 
-extern "C" int fn_80370174(TownField_unk* field, int id); // inferred: event flag
 extern "C" float PSVECSquareMag(const atn::Vector3* v);      // inferred: squared length
 
 // inferred: tree::find of the block trees (names invented)
@@ -397,7 +397,7 @@ extern "C" TownBlockList_unk fn_805B827C(TownTask* town, int x, int z, int speci
     if (special != 0 && lbl_8087F430 != 0 && (lbl_8087F430->m38 & 2) == 2 && lbl_8087F430->m553C == 0) {
         atn::Vector3 v = town->m168 - atn::Vector3(104.0f, 0.0f, 235.0f);
         v.y = 0.0f;
-        if (PSVECSquareMag(&v) < 900.0f && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x713)) {
+        if (PSVECSquareMag(&v) < 900.0f && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x713)) {
             TOWN_SET(list, TOWN_ID(3, 2), TOWN_ID(2, 2), TOWN_ID(4, 2), TOWN_ID(2, 3), TOWN_ID(3, 3), -1, -1, -1, -1);
             return list;
         }

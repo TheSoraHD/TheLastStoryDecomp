@@ -69,7 +69,6 @@ struct Field_unk {
     void* m10D8; // inferred: collision of the walls
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
 extern "C" int fn_8004D388(void* colli, CollResult_unk* result, const atn::Vector3* pos, const atn::Vector3* move,
                            unsigned int mask, void* ignore, int arg7); // inferred: sweep test
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -297,7 +296,7 @@ int ControlCharge::vf0C() {
                 cursor.m14 = false;
                 lbl_8087F9F8->m15D8 = cursor;
             }
-            fn_80373FC4(lbl_8087F430);
+            ((GameTask*)lbl_8087F430)->fn_80373FC4();
             done = 1;
         }
         mChara->mF6C = m08;

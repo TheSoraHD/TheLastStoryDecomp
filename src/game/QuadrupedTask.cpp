@@ -12,6 +12,7 @@
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "game/GameTask.h"
 
 // inferred: node position (as in game/Em205Ogre.cpp; name invented)
 inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
@@ -27,8 +28,6 @@ struct Field_unk {
     RouteTable_unk* m10D8; // inferred: route tables (as in game/Em403WarLion.cpp)
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector

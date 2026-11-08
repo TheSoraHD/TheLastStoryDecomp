@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "string.h"
+#include "game/GameTask.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" ResultD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
@@ -32,7 +33,6 @@ struct ResultField_unk {
     int m54E4; // inferred: state
 };
 extern "C" ResultField_unk* lbl_8087F430;
-extern "C" int fn_80370174(ResultField_unk* field, int id); // inferred: event flag
 // inferred: LogMessageTask (game/LogMessageTask.h); only the entry count
 struct ResultLog_unk {
     unsigned char m00[0x48];
@@ -349,7 +349,7 @@ void BattleResult::fn_800F0D14(int mode) {
             }
         }
     }
-    if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x11B) > 0 && mItemCount == 1) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) > 0 && mItemCount == 1) {
         Inventory::instance_->AddItem(0x143, 5, 1, 0, 0, 1, 1);
         char text[0x80];
         memset(text, 0, sizeof(text));

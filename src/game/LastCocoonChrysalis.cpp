@@ -7,6 +7,7 @@
 #include <boost/tokenizer.hpp>
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
+#include "game/GameTask.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -18,8 +19,6 @@ struct Field_unk {
     void* m10D8;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
 extern "C" void* lbl_8087EEC8;
 extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
@@ -93,34 +92,34 @@ void LastCocoonChrysalis::vf10() {
     if (mC58.mC0 == 0) {
         fn_8016E970(3);
     }
-    if (fn_80370A78(lbl_8087F430, 200) == 1) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(200) == 1) {
         if (m14CC != 0) {
             m14CC->m14B4 = (CharaTask*)m14D4;
         }
-        fn_80370AE4(lbl_8087F430, 200, 2);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(200, 2);
     }
-    if (fn_80370A78(lbl_8087F430, 230) == 1) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(230) == 1) {
         CharaTask* leader = (CharaTask*)lbl_8087F8A0->mHead;
         leader->fn_8016DF3C(0);
         leader->fn_80154654(leader->mC50, 1);
         leader->fn_8015495C(0, 1, 1, 1);
         leader->mC58.mC4 = 0;
         leader->fn_8016DF3C(3);
-        fn_80370AE4(lbl_8087F430, 230, 0);
-    } else if (fn_80370A78(lbl_8087F430, 230) == 2) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(230, 0);
+    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(230) == 2) {
         CharaTask* leader = (CharaTask*)lbl_8087F8A0->mHead;
         leader->fn_8015495C(0, 1, 1, 1);
         leader->mC58.mC4 = 0;
         leader->fn_8016DF3C(0);
-        fn_80370AE4(lbl_8087F430, 230, 0);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(230, 0);
     }
-    if (fn_80370A78(lbl_8087F430, 231) == 1) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(231) == 1) {
         m14CC->fn_8016E4C4(1);
         m14CC->m14B8 = m14DC;
         m14CC->fn_801CCD00(2);
         m14DC->m54C |= 8;
-        fn_80370AE4(lbl_8087F430, 231, 2);
-    } else if (fn_80370A78(lbl_8087F430, 231) == 2) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(231, 2);
+    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(231) == 2) {
         m14DC->fn_80178668(fn_80219E6C(0x1395), 0, 2, m14DC, 0);
         atn::Vector3 pos = m14DC->fn_80178164();
         const wchar_t* text = lbl_8087F1E4->Get_unk(127);
@@ -132,15 +131,15 @@ void LastCocoonChrysalis::vf10() {
         }
         CharaTask* leader = (CharaTask*)lbl_8087F8A0->mHead;
         if (leader->m55C == 6 && leader->m560 == 10) {
-            fn_80370AE4(lbl_8087F430, 231, 3);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(231, 3);
         }
-        if (m14DC->m55C == 6 && m14DC->m560 == 10 && fn_80370A78(lbl_8087F430, 75) == 0) {
-            fn_80370AE4(lbl_8087F430, 75, 1);
+        if (m14DC->m55C == 6 && m14DC->m560 == 10 && ((GameTask*)lbl_8087F430)->fn_80370A78(75) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(75, 1);
         }
-    } else if (fn_80370A78(lbl_8087F430, 231) == 3) {
+    } else if (((GameTask*)lbl_8087F430)->fn_80370A78(231) == 3) {
         m14DC->fn_80178668(fn_80219E6C(0x1395), 0, 2, m14DC, 0);
         if (((CharaTask*)lbl_8087F8A0->mHead)->fn_80158BB4()) {
-            fn_80370AE4(lbl_8087F430, 91, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(91, 1);
         }
     }
 }

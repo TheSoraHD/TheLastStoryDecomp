@@ -6,6 +6,7 @@
 #include "game/GimmickManager.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -93,7 +94,6 @@ struct VampireField_unk {
     RouteTable_unk* m10D8;
 };
 extern "C" VampireField_unk* lbl_8087F430;
-extern "C" void fn_80370AE4(VampireField_unk* field, int index, int value);
 
 // inferred: multiplayer session (lbl_8087F610), as in Em305VampireMp.cpp
 struct MpSession_unk;
@@ -264,7 +264,7 @@ inline void Em305Vampire::Rolling_unk() {
         if (80.0f <= f && f <= 83.0f) {
             Effect_unk* mgr = lbl_8087F048;
             fn_800FAB80(mgr, this, m1514, fn_800F8548(mgr), &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
-            fn_80370AE4(lbl_8087F430, 5, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(5, 1);
             m1528 = 0;
             m1540 = 0;
         }
@@ -395,7 +395,7 @@ void Em305Vampire::vf3C(HitInfo_unk* hit) {
         msg->m84 = 1;
         msg->m90 = 1;
         if (++m1504 == 3) {
-            fn_80370AE4(lbl_8087F430, 4, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 1);
         }
         if (m1528 == 0 && m58C == 0) {
             fn_802EBBA8();
@@ -412,10 +412,10 @@ void Em305Vampire::vf3C(HitInfo_unk* hit) {
     }
     if (msg->mData->m04 == 0x134) {
         if (m153C == 0) {
-            fn_80370AE4(lbl_8087F430, 4, 2);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 2);
             m153C = 1;
         } else {
-            fn_80370AE4(lbl_8087F430, 4, 4);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(4, 4);
         }
         msg->m0C |= 0x800;
     }

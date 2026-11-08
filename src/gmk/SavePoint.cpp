@@ -40,7 +40,6 @@ struct Field_unk {
     int m5694;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);     // inferred: field flag
 // inferred: global objects (classes unknown)
 struct SaveEvent_unk {
     unsigned char m00[0x48];
@@ -331,7 +330,7 @@ int SavePoint::vf48(const atn::Vector3* pos, const atn::Vector3* dir, int flag) 
         return 0;
     }
     if (LenSq_unk(m6C - *pos) < 64.0f) {
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x92) == 0) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x92) == 0) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0x92, 1, 0);
         }
         return 1;

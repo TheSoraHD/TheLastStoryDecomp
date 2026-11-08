@@ -7,6 +7,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -26,7 +27,6 @@ extern "C" void* fn_8006BA8C(const char* path, unsigned long* size, int arg);
 // inferred: field (lbl_8087F430) and its flags
 struct WeaponField_unk;
 extern "C" WeaponField_unk* lbl_8087F430;
-extern "C" int fn_80370174(WeaponField_unk* field, int flag);
 
 // inferred: one row of /boot/weapon_effect.csv (0x20 bytes)
 struct WeaponEffect_unk {
@@ -310,7 +310,7 @@ extern "C" bool fn_80206D18(WeaponParamEntry_unk* entry, int member, int arg) {
                     result = true;
                 }
                 fn_80206B14(0, Inventory::instance_->mEquip[0].mWeapons[arg].mId);
-                if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x395) && fn_80370174(lbl_8087F430, 0x396)) {
+                if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x395) && ((GameTask*)lbl_8087F430)->fn_80370174(0x396)) {
                     result = false;
                 }
             } else if (entry->mKind == 1) {

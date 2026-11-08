@@ -102,7 +102,6 @@ struct KrakenMpColl_unk {
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, KrakenMpColl_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* chara, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -478,16 +477,16 @@ inline KrakenMpGimmick_unk* RaisePillar_unk(Em302KrakenMp* k) {
 void Em302KrakenMp::vf10() {
     if (m1540 != m1544) {
         if (m1540 == 1) {
-            fn_80370AE4(lbl_8087F430, 11, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(11, 1);
             m1648++;
         } else if (m1540 == 2) {
-            fn_80370AE4(lbl_8087F430, 10, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(10, 1);
             m1648++;
         } else if (m1540 == 3) {
-            fn_80370AE4(lbl_8087F430, 11, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(11, 1);
             m1648++;
         } else if (m1540 == 4) {
-            fn_80370AE4(lbl_8087F430, 10, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(10, 1);
             m1648++;
         }
         m1544 = m1540;
@@ -903,7 +902,7 @@ void Em302KrakenMp::fn_802E03F0() {
             fn_802E10D8(1);
         }
         if (m14E4 == 1) {
-            fn_80370AE4(lbl_8087F430, 0xCC, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCC, 1);
             fn_802E1414();
         }
         if (m14E4 == 2) {

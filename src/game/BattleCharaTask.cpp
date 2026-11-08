@@ -81,7 +81,6 @@ struct Field_unk {
     unsigned int m5744; // inferred: frame counter of the field
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id); // inferred: event flag
 extern "C" void fn_804776F4(atn::LH_MotionSet* set, atn::Model* model); // inferred: applies the motions
 // inferred: effect manager (lbl_8087F048, as in game/CharaTask.cpp)
 struct Effect_unk;
@@ -155,8 +154,7 @@ struct BattleTarget_unk {
     int m08;
     atn::Vector3 mPos;
 };
-extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg); extern "C" int fn_803754F0(Field_unk* field); // inferred: an event scene is running
-extern "C" int fn_80375D0C(Field_unk* field);  // inferred: level cap of the field
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara, int arg);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: experience of a kill (as in gmk/FlyObjManager.cpp)
 extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
@@ -236,8 +234,6 @@ BattleCharaTask::~BattleCharaTask() {
     }
 }
 
-extern "C" int fn_80370A78(Field_unk* field, int id);
-extern "C" void fn_80370AE4(Field_unk* field, int id, int value);
 
 int BattleCharaTask::vf0C() {
     int ok = 1;
@@ -259,7 +255,7 @@ int BattleCharaTask::vf0C() {
             // inferred: m1438 is a gimmick (GimmickCommon::vf68)
             if ((m137C & 0x400) == 0x400 && lbl_8087F610 == 0) {
                 ((GimmickCommon*)m1438)->vf68(0x2724, 1);
-            } else if (m50 == 0x30ED4 && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x11B) > 0) {
+            } else if (m50 == 0x30ED4 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) > 0) {
                 ((GimmickCommon*)m1438)->vf68(0x2747, 1);
             }
         }
@@ -782,7 +778,6 @@ void BattleCharaTask::fn_800E610C() {
 }
 
 extern "C" int fn_8021921C(CharaTask* chara, int slot); // inferred: magic of the slot (db/PlayerParam_unk.cpp)
-extern "C" void fn_80373FC4(Field_unk* field); // inferred: starts the cursor of the field
 extern "C" int fn_8021AF98(int id); // inferred: skill id of a skill growth entry (db/SkillGrowth_unk)
 
 // inferred: control with a timer (ids 10 and 12 of m560; class unknown, names invented)
@@ -806,7 +801,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
     GameConfig_unk* config = lbl_8087F0A8;
     int attack = 1;
     if (lbl_8087F610 == 0 && ((GameTask*)lbl_8087F430)->fn_80375184() && atn::Abs_unk(HpRate_unk(this) - 1.0f) < 1.1920929e-7f &&
-        fn_80370174(lbl_8087F430, 0x88) == 0 && lbl_8087F0A8->mInput.fn_801231D0(0x31)) {
+        ((GameTask*)lbl_8087F430)->fn_80370174(0x88) == 0 && lbl_8087F0A8->mInput.fn_801231D0(0x31)) {
         int cursor = 0;
         if (m55C == 1) {
             cursor = 1;
@@ -825,7 +820,7 @@ void BattleCharaTask::fn_800E62AC(Field_unk* field, int a, int b) {
             cursor = 0;
         }
         if (cursor) {
-            fn_80373FC4(lbl_8087F430);
+            ((GameTask*)lbl_8087F430)->fn_80373FC4();
             return;
         }
     }
@@ -1102,7 +1097,7 @@ int BattleCharaTask::fn_800E73EC(Field_unk* field, int b, int c) {
         }
     } else if ((lbl_8087F0A8->mInput.fn_801240B4(7) || mFlagB16) && (!mFlag31 || !mFlag30) && !mFlagB9) {
         fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
-        if (fn_80370174(lbl_8087F430, 0xEF) == 0 && fn_80370174(lbl_8087F430, 0xEE) == 1) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0xEF) == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xEE) == 1) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0xEF, 1, 0);
         }
         if (mFC0 == 0) {
@@ -1192,7 +1187,7 @@ void BattleCharaTask::fn_800E7650(Field_unk* field) {
             mFC0 = 0;
         } else if (lbl_8087F0A8->mInput.fn_801240B4(7)) {
             fn_800C344C(sBattleSe_unk[0], &mPos, 0, -1, 1.0f);
-            if (fn_80370174(lbl_8087F430, 0xEF) == 0 && fn_80370174(lbl_8087F430, 0xEE) == 1) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0xEF) == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xEE) == 1) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0xEF, 1, 0);
             }
             if (mFC0 == 0) {
@@ -2059,7 +2054,7 @@ void BattleCharaTask::vfF0() {
     if (mFlag16) {
         if (mF50 == 0 && !fn_80175AEC() && !(m55C == 6 && m560 == 0x65)) {
             if (m1450 > 0) {
-                if (lbl_8087F430 == 0 || fn_80370174(lbl_8087F430, 0xAC) == 0) {
+                if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0xAC) == 0) {
                     m1450--;
                 }
                 if (m1450 == 0) {
@@ -2069,7 +2064,7 @@ void BattleCharaTask::vfF0() {
                     }
                     DamageResult_unk result;
                     fn_8003EA3C(&result, data, this, this, 0, &lbl_807C6B90, 0, 0);
-                    if (mType == 3 && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 5) == 0) {
+                    if (mType == 3 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(5) == 0) {
                         lbl_8087F430->fn_803750E4(0x1B7);
                     }
                 }
@@ -2131,10 +2126,10 @@ void BattleCharaTask::vfE8(HitMsg_unk* msg) {
         if (before > 0.3f && after < 0.3f) {
             lbl_8087F490->fn_803E2110(3, this); // 3: low hit points
         }
-        if (fn_80370174(lbl_8087F430, 0x38A) == 1 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 &&
-            fn_80370A78(lbl_8087F430, 0xFA) == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x38A) == 1 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 &&
+            ((GameTask*)lbl_8087F430)->fn_80370A78(0xFA) == 0) {
             Field_unk* field = lbl_8087F430;
-            fn_80370AE4(field, 0xFA, fn_80219558(m50));
+            ((GameTask*)field)->fn_80370AE4(0xFA, fn_80219558(m50));
         }
     }
     if (mType == 2 && (mStatus.m0C & 0x40) != 0x40 && mC58.m11C.m00 >= 2) {
@@ -2228,7 +2223,7 @@ void BattleCharaTask::fn_800EB4AC() {
 
 // inferred: experience of the kill (popup text and the inventory)
 void BattleCharaTask::fn_800EB7A0() {
-    if (lbl_8087F430 != 0 && fn_803754F0(lbl_8087F430) != 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803754F0() != 0) {
         return;
     }
     if (lbl_8087F0A8->mAddExpImmediately != 0 && lbl_8087F610 == 0 && !mFlag16 && mType == 2 &&
@@ -2245,7 +2240,7 @@ void BattleCharaTask::fn_800EB7A0() {
         int cap = 4;
         fn_804491F4(&a, &b, level, exp, 0, 1.0f);
         if (lbl_8087F430 != 0) {
-            cap = fn_80375D0C(lbl_8087F430);
+            cap = ((GameTask*)lbl_8087F430)->fn_80375D0C();
         }
         if (level > cap && lbl_8087F0A8->mCurrentLevel == 3) {
             cap = level;
@@ -2440,7 +2435,7 @@ void BattleCharaTask::fn_800EE360() {
     if (lbl_8087F610 != 0 && fn_804EB1AC(lbl_8087F610) == 0) {
         return;
     }
-    if (mFlag22 != 1 && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x399) > 0) {
+    if (mFlag22 != 1 && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x399) > 0) {
         return;
     }
     if (((unsigned int)m5C->mParam.m9C & 0x4000) == 0x4000) {

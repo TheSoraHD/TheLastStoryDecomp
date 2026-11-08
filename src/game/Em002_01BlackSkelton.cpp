@@ -11,8 +11,6 @@ extern "C" void fn_801092C8(void* mgr, int arg, CharaTask* chara, int a, int b);
 // inferred: field (lbl_8087F430); the event flags are read with fn_80370A78 and written with fn_80370AE4
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: length
 struct EffectMgr_unk;
 struct Color4f_unk {
@@ -127,16 +125,16 @@ void Em002_01BlackSkelton::vf10() {
                 fn_8017547C(m14B8);
                 switch (fn_80219558(m14B8->m50)) {
                 case 2:
-                    fn_80370AE4(lbl_8087F430, 240, 1);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(240, 1);
                     break;
                 case 6:
-                    fn_80370AE4(lbl_8087F430, 241, 1);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(241, 1);
                     break;
                 case 4:
-                    fn_80370AE4(lbl_8087F430, 242, 1);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(242, 1);
                     break;
                 case 11:
-                    fn_80370AE4(lbl_8087F430, 243, 1);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(243, 1);
                     break;
                 }
             }
@@ -176,7 +174,7 @@ void Em002_01BlackSkelton::vf10() {
         }
     }
     mStatus.fn_8013322C(0x20);
-    fn_80370AE4(lbl_8087F430, 7, busy);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(7, busy);
     if (busy) {
         m54C &= ~0x2000;
     } else {
@@ -215,7 +213,7 @@ void Em002_01BlackSkelton::vf40(HitInfo_unk* hit) {
 }
 
 void Em002_01BlackSkelton::fn_80247C68(CharaTask* chara) {
-    int level = fn_80370A78(lbl_8087F430, 206);
+    int level = ((GameTask*)lbl_8087F430)->fn_80370A78(206);
     if (level < 0) {
         level = 0;
     }
@@ -227,24 +225,24 @@ void Em002_01BlackSkelton::fn_80247C68(CharaTask* chara) {
     int found = 0;
     for (int i = 0; i < 6; i++) {
         if (id == table[i][1]) {
-            fn_80370AE4(lbl_8087F430, table[i][0], id);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(table[i][0], id);
             found = 1;
             break;
         }
     }
     if (found) {
-        int count = fn_80370A78(lbl_8087F430, 35);
+        int count = ((GameTask*)lbl_8087F430)->fn_80370A78(35);
         if (count == 0) {
             for (int i = 0; i < 6; i++) {
                 if (id != table[i][1]) {
-                    fn_80370AE4(lbl_8087F430, table[i][0], 0);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(table[i][0], 0);
                 }
                 if (table[i][1] < 0) {
-                    fn_80370AE4(lbl_8087F430, table[i][0], 25);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(table[i][0], 25);
                 }
             }
         }
-        fn_80370AE4(lbl_8087F430, 35, count + 1);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(35, count + 1);
     }
 }
 
@@ -349,16 +347,16 @@ void Em002_01BlackSkelton::fn_8024845C() {
         chara->mStatus.fn_8012D8B8();
         switch (fn_80219558(((CharaTask*)mF54)->m50)) {
         case 2:
-            fn_80370AE4(lbl_8087F430, 30, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(30, 1);
             break;
         case 6:
-            fn_80370AE4(lbl_8087F430, 31, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(31, 1);
             break;
         case 4:
-            fn_80370AE4(lbl_8087F430, 32, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(32, 1);
             break;
         case 11:
-            fn_80370AE4(lbl_8087F430, 33, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(33, 1);
             break;
         }
         fn_80247C68((CharaTask*)mF54);

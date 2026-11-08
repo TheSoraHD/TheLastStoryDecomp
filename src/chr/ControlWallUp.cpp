@@ -13,7 +13,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 extern "C" HitInfo_unk* fn_80219E6C(int id);           // inferred: bullet/skill data by id
 
 extern "C" void* lbl_8087F430;
-extern "C" int fn_80370174(void* field, int id);
 
 // inferred: arena mode object (lbl_8087F610)
 extern "C" void* lbl_8087F610;
@@ -103,7 +102,7 @@ ControlWallUp::ControlWallUp(Chara_unk* chara, const atn::Vector3& pos, const at
     m28 = pos - m34 * 5.0f;
     Chara_unk* c2 = mChara;
     m08 = c2->mPos - m34 * 30.0f;
-    if (fn_80370174(lbl_8087F430, 0x65) && m08.y > 55.0f) {
+    if (((GameTask*)lbl_8087F430)->fn_80370174(0x65) && m08.y > 55.0f) {
         m08.y = 55.0f;
     }
     m->m34C = 1;
@@ -138,12 +137,12 @@ int ControlWallUp::vf0C() {
     if (mChara->mType == 0) {
         float range = 90.0f;
         float angle = -2.5132742f;
-        if (fn_80370174(lbl_8087F430, 0x68)) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x68)) {
             range *= 3.0f;
             angle = -2.8274333f;
         }
         if (m40 <= 0.0f) {
-            if (fn_80370174(lbl_8087F430, 0x65) && m14.y > 55.0f) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x65) && m14.y > 55.0f) {
                 m14.y = 55.0f;
             }
             fn_801C3458(0, 5.0f, range, angle);
@@ -205,7 +204,7 @@ int ControlWallUp::vf0C() {
         m4C = false;
         ret = 1;
     }
-    if (ret != 0 && !m4C && fn_80370174(lbl_8087F430, 0x65)) {
+    if (ret != 0 && !m4C && ((GameTask*)lbl_8087F430)->fn_80370174(0x65)) {
         m08.y = m48;
         m14.y = m48;
     }

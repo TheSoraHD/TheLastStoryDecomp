@@ -9,6 +9,7 @@
 #include "atn/SoundRef.h"
 #include "atn/DrawHelper.h"
 #include "game/TownTask.h"
+#include "game/GameTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -25,7 +26,6 @@ struct Field_unk {
     int m5660;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);         // inferred
 extern "C" GameUI* lbl_8087F490; // inferred: the HUD (fn_803E3BE8 shows a message)
 // inferred: color as four floats (as in gmk/PlayEffect.cpp)
 struct Color4f_unk {
@@ -695,7 +695,7 @@ void ChaserGuard::fn_8017FED0() {
             m14D8--;
             speed *= 0.85f;
         }
-        bool hard = fn_80370174(lbl_8087F430, 0xD4) == 1;
+        bool hard = ((GameTask*)lbl_8087F430)->fn_80370174(0xD4) == 1;
         if (hard) {
             speed *= 0.9f;
         }

@@ -46,8 +46,6 @@ struct HateField_unk {
     int m5694; // inferred: messages other than 1 are ignored while set
 };
 extern "C" HateField_unk* lbl_8087F430;
-extern "C" int fn_80370174(HateField_unk* field, int id);
-extern "C" void fn_80376730(HateField_unk* field);
 // inferred: request of the battle object (class unknown)
 struct HateBattle_unk {
     unsigned char m000[0x7C0];
@@ -149,7 +147,7 @@ void AttractHatePoint::vf10() {
                     mInRange = 1;
                 }
             }
-            if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0xA2) == 0) {
+            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xA2) == 0) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0xA2, 1, 0);
             }
         }
@@ -204,7 +202,7 @@ int AttractHatePoint::vf40(GimmickMsg_unk* msg) {
     case 3:
         if (mInRange != 0) {
             if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && SetConfig::sInstance->mAutoSave != 0) {
-                fn_80376730(lbl_8087F430);
+                ((GameTask*)lbl_8087F430)->fn_80376730();
             }
             m54 = msg->mType;
             fn_800C344C(sSounds[1], &m6C, 0, -1, 1.0f);

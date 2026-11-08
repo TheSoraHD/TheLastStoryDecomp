@@ -76,7 +76,6 @@ struct StatusCurves_unk {
     StatusCurve_unk mCurves[6];
 };
 extern "C" StatusCurves_unk* fn_8020FCE8(int id);
-extern "C" int fn_80375B78(StatusField_unk* field, int arg);
 // inferred: active only in some modes (lbl_8087F610); name invented
 struct Arena_unk {
     unsigned char m000[0x540];
@@ -85,7 +84,6 @@ struct Arena_unk {
     unsigned char m99BC; // inferred: flag set while a revive effect plays (fn_8012E540)
 };
 extern "C" Arena_unk* lbl_8087F610;
-extern "C" int fn_80370174(StatusField_unk* field, int id);
 extern "C" int fn_8021A8D0(HitInfo_unk* hit);
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -217,7 +215,7 @@ void CharaStatus::fn_8012B3E8() {
         }
     }
     if (lbl_8087F430 != 0 && mChara->mType == 2) {
-        bonus += fn_80375B78(lbl_8087F430, 1);
+        bonus += ((GameTask*)lbl_8087F430)->fn_80375B78(1);
     }
     fn_8012C6D4(&mParamA, (int)m1A8.m08 + (bonus + mParamA.m78), m1C - ((m0C & 0x400) ? 3 : 0),
                 mChara->m5C->mC8);
@@ -248,7 +246,7 @@ void CharaStatus::fn_8012B988() {
     mParamB.m78 = MAX(1, mParamB.m78 + m1C - ((m0C & 0x400) == 0x400 ? 3 : 0));
     if (mChara->mType == 2 && (lbl_8087F0A8->m5A0 == 2 || !fn_8020FCE8(mChara->m5C->mC8)) &&
         lbl_8087F430 != 0) {
-        int n = fn_80370174(lbl_8087F430, 282);
+        int n = ((GameTask*)lbl_8087F430)->fn_80370174(282);
         if (n > 0) {
             float rate = MAX(0.1f, 1.0f - 0.2f * n);
             mParamB.m00 *= rate;
@@ -336,7 +334,7 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
         total = MIN(99, MAX(1, level + arg));
     }
     if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
             param->m78 = MIN(69, MAX(1, level));
             total = MIN(69, MAX(1, level + arg));
         } else {
@@ -353,7 +351,7 @@ void CharaStatus::fn_8012C6D4(CharaParam_unk* param, int level, int arg, int id)
         if (mChara != 0 && mChara->mType == 2) {
             cap = 120;
         }
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) > 0) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) > 0) {
             cap = 120;
         }
         int over = MAX(0, total - cap);
@@ -400,41 +398,41 @@ void CharaStatus::fn_8012CE4C(int kind) {
             case 10:
             case 13:
                 if (kind == 2) {
-                    if (fn_80370174(lbl_8087F430, 283) == 0) {
+                    if (((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
                         allowed = false;
                     }
-                } else if (fn_80370174(lbl_8087F430, 5) > 0) {
+                } else if (((GameTask*)lbl_8087F430)->fn_80370174(5) > 0) {
                     allowed = false;
                 }
                 break;
             case 9:
-                if (fn_80370174(lbl_8087F430, 136) > 0) {
+                if (((GameTask*)lbl_8087F430)->fn_80370174(136) > 0) {
                     allowed = false;
                 }
                 break;
             case 61:
                 if (kind == 2) {
-                    if (fn_80370174(lbl_8087F430, 283) == 0) {
+                    if (((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
                         allowed = false;
                     }
-                } else if (fn_80370174(lbl_8087F430, 286) > 0) {
+                } else if (((GameTask*)lbl_8087F430)->fn_80370174(286) > 0) {
                     allowed = false;
                 }
                 break;
             case 62:
             case 63:
-                if (kind == 2 && fn_80370174(lbl_8087F430, 283) == 0) {
+                if (kind == 2 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
                     allowed = false;
                 }
                 break;
             case 2:
-                if (fn_80370174(lbl_8087F430, 287) > 0) {
+                if (((GameTask*)lbl_8087F430)->fn_80370174(287) > 0) {
                     allowed = false;
                 }
                 break;
             case 14:
             case 16:
-                if ((kind == 2 || kind == 3) && fn_80370174(lbl_8087F430, 283) == 0 &&
+                if ((kind == 2 || kind == 3) && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0 &&
                     lbl_8087F0A8->m194 == 0) {
                     allowed = false;
                 }
@@ -493,7 +491,7 @@ void CharaStatus::fn_8012D180() {
         } else {
             m2D0[0] = CharaStatusPair_unk(ids[3]);
         }
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 909) == 1) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(909) == 1) {
             m2D0[3] = CharaStatusPair_unk(1730);
         } else {
             m2D0[3] = CharaStatusPair_unk(ids[5]);
@@ -512,7 +510,7 @@ void CharaStatus::fn_8012D180() {
         } else {
             m2D0[0] = CharaStatusPair_unk(ids[4]);
         }
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 908) == 1) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(908) == 1) {
             m2D0[3] = CharaStatusPair_unk(6042);
         } else {
             m2D0[3] = CharaStatusPair_unk(ids[5]);
@@ -1560,7 +1558,7 @@ int CharaStatus::fn_80133BD8(int force) {
     if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
         level = lbl_8087F430->m10D4->m54;
         level += mParamB.m7C;
-        level += fn_80375B78(lbl_8087F430, 1);
+        level += ((GameTask*)lbl_8087F430)->fn_80375B78(1);
     }
     if (fn_8020FCE8(mChara->m5C->mC8)) {
         if (mChara->mFlag22 == 1 || (mChara->m5C->mParam.m9C & 0x20000) == 0x20000) {
@@ -1573,7 +1571,7 @@ int CharaStatus::fn_80133BD8(int force) {
     if (lbl_8087F610 == 0 || force != 0) {
         const FixedLevel_unk* fixed = FindFixedLevel_unk(mChara->m50);
         if (fixed != 0) {
-            if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+            if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
                 level = fixed->mLevelA;
             } else {
                 level = fixed->mLevelB;
@@ -1581,7 +1579,7 @@ int CharaStatus::fn_80133BD8(int force) {
         }
     }
     if (lbl_8087F610 == 0 && mChara != 0 && mChara->mType == 2) {
-        if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 283) == 0) {
+        if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(283) == 0) {
             level = MIN(69, MAX(1, level));
         } else {
             level = MIN(999, MAX(1, level));
@@ -1820,7 +1818,7 @@ void CharaStatus::fn_801342D0(StatusItem_unk* item, int stat) {
     case 11:
         if (lbl_8087F430 != 0) {
             int n = (int)value;
-            n += fn_80370174(lbl_8087F430, 218);
+            n += ((GameTask*)lbl_8087F430)->fn_80370174(218);
             ((GameTask*)lbl_8087F430)->fn_80370320(218, MIN(n, 990), 0);
             msg = 0x1F;
         }

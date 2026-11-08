@@ -56,8 +56,6 @@ extern "C" bool fn_80215084(LoadingEnvSe_unk* entry, char* buf);
 // inferred: field and its event flags (lbl_8087F430)
 struct EnvSeField_unk;
 extern "C" EnvSeField_unk* lbl_8087F430;
-extern "C" int fn_80370174(EnvSeField_unk* field, int id);
-extern "C" int fn_80370A78(EnvSeField_unk* field, int id);
 
 // inferred: game settings (fn_800F52F8 returns lbl_8087F0A8; weak copy of another file)
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -223,9 +221,9 @@ void EnvSeManager::fn_8035EA2C() {
             if (area->mData.m44 != 0 && lbl_8087F430 != 0) {
                 int value;
                 if (area->mData.m48 == 1) {
-                    value = fn_80370174(lbl_8087F430, area->mData.m4C);
+                    value = ((GameTask*)lbl_8087F430)->fn_80370174(area->mData.m4C);
                 } else {
-                    value = fn_80370A78(lbl_8087F430, area->mData.m4C);
+                    value = ((GameTask*)lbl_8087F430)->fn_80370A78(area->mData.m4C);
                 }
                 if (value == area->mData.m50) {
                     area->m5C = 1;
@@ -730,7 +728,7 @@ void EnvSeManager::fn_8036097C(int a, int b, int c, int d, int useFlag) {
         }
         m1A0 = 0;
         if (useFlag != 0) {
-            m1A0 = fn_80214F38(fn_80370174(lbl_8087F430, 0x393));
+            m1A0 = fn_80214F38(((GameTask*)lbl_8087F430)->fn_80370174(0x393));
         } else {
             m1A0 = fn_80214ED4(a, b, c, d);
         }

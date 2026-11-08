@@ -72,8 +72,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: player manager
 extern "C" atn::Vector3 lbl_807C7030;   // inferred: zero vector
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -481,8 +479,8 @@ inline int Em203GreaterDaemonRed::Chant_unk() {
 
 // NONMATCHING: 89.88% - state switch; register allocation and branch layout of the inlined helpers
 void Em203GreaterDaemonRed::vf10() {
-    if (fn_80370A78(lbl_8087F430, 0xE6) == 1) {
-        fn_80370AE4(lbl_8087F430, 0xE6, 2);
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 1) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 2);
         Field_unk* field = lbl_8087F430;
         field->m8A0 = 0;
         field->m97C.m00 = 0;
@@ -1049,8 +1047,8 @@ void Em203GreaterDaemonRed::fn_80297474() {
             fn_80239DAC(lbl_8087F3C0, this, 1002, 1);
             m14B4 = 2;
         } else if (mMotion.mTracks[0].m08 >= 10.0f && mMotion.mTracks[0].m08 < 11.0f) {
-            if (fn_80370A78(lbl_8087F430, 0x97) == 0) {
-                fn_80370AE4(lbl_8087F430, 0x97, 1);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0x97) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x97, 1);
             }
         } else if (mMotion.mTracks[0].m08 >= 32.0f && mMotion.mTracks[0].m08 < 33.0f) {
             fn_80232B7C(this, 1002);
@@ -1492,7 +1490,7 @@ void Em203GreaterDaemonRed::fn_8029A0A8() {
             blur.m00 = 0;
             lbl_8087EFA8->m240 = blur;
             lbl_8087EFA8->m3A4 = 1.0f;
-            fn_80370AE4(lbl_8087F430, 0x15, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x15, 1);
             m14B4++;
         } else if (21.0f <= frame && frame <= 22.0f) {
             ((GameTask*)lbl_8087F430)->fn_80370B78(-1, 10, 0, -5.0f);

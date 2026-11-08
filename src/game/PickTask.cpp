@@ -6,6 +6,7 @@
 #include "game/CharaTask.h"
 #include "game/ChaseManager.h"
 #include "game/PlayerTask.h"
+#include "game/GameTask.h"
 
 // inferred: 0x934-byte character slot of the battle manager (only the character is known)
 struct PickSlot_unk {
@@ -53,7 +54,6 @@ struct PickField_unk {
     int m54E4;
 };
 extern "C" PickField_unk* lbl_8087F430;
-extern "C" int fn_80370174(PickField_unk* field, int id); // inferred: event flag
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;     // inferred: player manager
 extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
@@ -259,7 +259,7 @@ void PickTask::vf10() {
                 }
             }
         }
-        if (!safe && lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0xD8) == 1 && numSeers == 1) {
+        if (!safe && lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xD8) == 1 && numSeers == 1) {
             atn::Vector3 d = player->mPos - c->mPos;
             if (PSVECSquareMag(&d) < 4900.0f) {
                 safe = true;

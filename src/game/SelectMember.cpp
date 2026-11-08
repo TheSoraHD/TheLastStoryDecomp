@@ -5,6 +5,7 @@
 #include "atn/SoundRef.h"
 #include "macros.h"
 #include "game/MenuCommonTask.h"
+#include "game/GameTask.h"
 
 // Only the two members called here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
 // clash with the local ones of this file).
@@ -60,7 +61,6 @@ struct SelectMemberField_unk {
     int m10D0; // inferred: story progress
 };
 extern "C" SelectMemberField_unk* lbl_8087F430;
-extern "C" int fn_80370174(SelectMemberField_unk* field, int id); // inferred: reads a field value
 // inferred: members available at a point of the story
 struct SelectMemberAvail_unk {
     unsigned char m00[4];
@@ -358,7 +358,7 @@ void SelectMember::fn_80572290() {
     int value = 0;
     if (lbl_8087F430 != 0) {
         progress = lbl_8087F430->m10D0;
-        value = fn_80370174(lbl_8087F430, 99);
+        value = ((GameTask*)lbl_8087F430)->fn_80370174(99);
     }
     SelectMemberAvail_unk* avail = fn_80217D9C(progress);
     if (avail != 0) {

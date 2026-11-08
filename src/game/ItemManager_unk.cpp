@@ -303,7 +303,6 @@ extern "C" int fn_80444CF8(wchar_t* text, int code, int count, int rare) {
     return 1;
 }
 
-extern "C" int fn_80370174(InventoryField_unk* field, int index); // inferred: reads an event counter
 // inferred: chance of finding a weapon by rank (the second one once the weapon was found)
 static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
 static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
@@ -325,9 +324,9 @@ int Inventory::fn_80448F9C(int code) {
             rate = sWeaponRate0_unk[weapon->m118];
         }
         if (lbl_8087F430 != 0) {
-            if (fn_80370174(lbl_8087F430, 0x8A) == 1) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x8A) == 1) {
                 rate = 0;
-            } else if (fn_80370174(lbl_8087F430, 0x8A) >= 2) {
+            } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x8A) >= 2) {
                 rate = 100;
             }
         }

@@ -55,8 +55,6 @@ extern "C" Field_unk* lbl_8087F430;
 extern "C" inline Field_unk* fn_80121F00() {
     return lbl_8087F430;
 }
-extern "C" int fn_80370A78(Field_unk* field, int index);             // inferred: reads an event flag
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value); // inferred: sets an event flag
 // inferred: route tables of the field, null without a field (name invented)
 inline RouteTable_unk* GetRouteTable_unk() {
     return fn_80121F00() != 0 ? fn_80121F00()->fn_8013C504() : 0;
@@ -401,8 +399,8 @@ inline void EnemyQuarkSecond::fn_80344BB4() {
 // inferred: sets the event flag `index` once (inline: expanded in vf3C, weak copy 0x8034472C called by
 // the functions over the inline budget)
 inline void EnemyQuarkSecond::fn_8034472C(int index, int value) {
-    if (fn_80370A78(lbl_8087F430, index) == 0) {
-        fn_80370AE4(lbl_8087F430, index, value);
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(index) == 0) {
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(index, value);
     }
 }
 
@@ -452,7 +450,7 @@ void EnemyQuarkSecond::vf10() {
         m14B0 = leader;
         mC58.mC4 = leader;
     }
-    if (fn_80370A78(fn_80121F00(), 0x8C) != 0) {
+    if (((GameTask*)fn_80121F00())->fn_80370A78(0x8C) != 0) {
         if (m58C == 13) {
             fn_8016E970(3);
             fn_8034441C(0x3E, 1, 1.0f);
@@ -470,7 +468,7 @@ void EnemyQuarkSecond::vf10() {
                 }
             }
         }
-        fn_80370AE4(fn_80121F00(), 0x8C, 0);
+        ((GameTask*)fn_80121F00())->fn_80370AE4(0x8C, 0);
         if (m14BC == 1) {
             fn_80239DAC(fn_800F7FA0(), &m1610, 0, 0);
             fn_800F7FA8(fn_800F7FA0(), &m1610, 0);
@@ -703,7 +701,7 @@ void EnemyQuarkSecond::vf40(HitInfo_unk* hit) {
                 mStatus.m04 = 1.0f;
                 mStatus.fn_8013322C(0x20);
             } else {
-                fn_80370AE4(lbl_8087F430, 0xCE, 1);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCE, 1);
                 mMotion.fn_8009373C("op_01_horn_l", 0);
                 mMotion.fn_8009373C("op_01_hornlight_l", 0);
             }

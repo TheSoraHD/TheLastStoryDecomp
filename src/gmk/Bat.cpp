@@ -4,6 +4,7 @@
 #include "game/CharaManager.h"
 #include "game/CharaTask.h"
 #include "game/PlayerTask.h"
+#include "game/GameTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" unsigned long strlen(const char* s);
@@ -23,9 +24,8 @@ struct BatDebug_unk {
     int m18; // inferred: draw
 };
 extern "C" BatDebug_unk* lbl_8087F0A8;
-// inferred: unknown manager; fn_80370A78(mgr, 0) == 1 starts the bats (class unknown)
+// inferred: unknown manager; ((GameTask*)mgr)->fn_80370A78(0) == 1 starts the bats (class unknown)
 extern "C" void* lbl_8087F430;
-extern "C" int fn_80370A78(void* mgr, int arg);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 
@@ -203,7 +203,7 @@ void Bat::vf10() {
             PlayMotion_unk(&mBats.mData[best].mModel, 1);
         }
     }
-    if (fn_80370A78(lbl_8087F430, 0) == 1 && mStarted == 0) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0) == 1 && mStarted == 0) {
         vf40(0);
     }
     for (int i = 0; i < mNum; i++) {

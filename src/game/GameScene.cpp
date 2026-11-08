@@ -48,8 +48,6 @@ extern "C" void fn_80016888(void* arg);
 extern "C" void* lbl_8087EE68;
 extern "C" void fn_80394C68(GameEventScript* script); // inferred
 struct Field_unk;
-extern "C" int fn_80370174(Field_unk* field, int index); // inferred: reads a value of the field
-extern "C" int fn_80370A78(Field_unk* field, int index); // inferred: reads a flag of the field
 extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
 extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gmk/WindyItem.cpp)
 extern "C" gmk::TreasureBox::Data_unk* fn_8021ECD0(int id); // inferred: treasure data
@@ -776,9 +774,9 @@ inline int CheckFlag_unk(const int* cond) {
     if (cond[0] != 0) {
         int v;
         if (cond[1] == 1) {
-            v = fn_80370174(lbl_8087F430, cond[2]);
+            v = ((GameTask*)lbl_8087F430)->fn_80370174(cond[2]);
         } else {
-            v = fn_80370A78(lbl_8087F430, cond[2]);
+            v = ((GameTask*)lbl_8087F430)->fn_80370A78(cond[2]);
         }
         ok = v == cond[3];
     }
@@ -1842,7 +1840,7 @@ void GameScene::fn_803CA604() {
     if (lbl_8087F430 != 0) {
         if (lbl_8087F430->m5694 != 0) {
             reset = 1;
-            int maps = fn_80370174(lbl_8087F430, 0x392);
+            int maps = ((GameTask*)lbl_8087F430)->fn_80370174(0x392);
             int map = m64->mSubId;
             for (int i = 0; i < 8; i++) {
                 if (map == (maps & 0xF)) {
@@ -1852,7 +1850,7 @@ void GameScene::fn_803CA604() {
                 maps >>= 4;
             }
             if (reset) {
-                ((GameTask*)lbl_8087F430)->fn_80370320(0x392, (fn_80370174(lbl_8087F430, 0x392) << 4) | (map & 0xF), 1);
+                ((GameTask*)lbl_8087F430)->fn_80370320(0x392, (((GameTask*)lbl_8087F430)->fn_80370174(0x392) << 4) | (map & 0xF), 1);
             }
         } else {
             ((GameTask*)lbl_8087F430)->fn_80370320(0x392, 0, 1);
@@ -2276,7 +2274,7 @@ int GameScene::fn_803CC77C() {
             n += fn_8043A530(g);
         }
     }
-    if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0xA1E) > 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xA1E) > 0) {
         n = 0;
     }
     return n;
@@ -2295,7 +2293,7 @@ int GameScene::fn_803CC900() {
             }
         }
     }
-    if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0xA1E) > 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xA1E) > 0) {
         n = 0;
     }
     return n;

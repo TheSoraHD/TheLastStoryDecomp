@@ -134,8 +134,6 @@ extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 
 struct GameVars_unk; // inferred: lbl_8087F430 (only its variable accessors are used here)
 extern "C" GameVars_unk* lbl_8087F430;
-extern "C" int fn_80370A78(GameVars_unk* game, int id);             // inferred: value of a variable
-extern "C" void fn_80370AE4(GameVars_unk* game, int id, int value); // inferred: sets a variable
 
 namespace Event {
 
@@ -802,7 +800,7 @@ int ActionNotify::vf0C(Action* arg, int phase) {
         if (id == -1) {
             return 2;
         }
-        int value = fn_80370A78(lbl_8087F430, id);
+        int value = ((GameTask*)lbl_8087F430)->fn_80370A78(id);
         int result = value;
         int op = arg->GetParam_unk(0)->m04.i;
         int operand = arg->GetParam_unk(1)->m04.i;
@@ -817,7 +815,7 @@ int ActionNotify::vf0C(Action* arg, int phase) {
         } else if (op == 4) {
             result = value / operand;
         }
-        fn_80370AE4(lbl_8087F430, id, result);
+        ((GameTask*)lbl_8087F430)->fn_80370AE4(id, result);
     }
     return 0;
 }

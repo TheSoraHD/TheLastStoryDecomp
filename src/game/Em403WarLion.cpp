@@ -15,6 +15,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 // inferred: circuit of the war lion around the arena: place id and two flags (names invented)
 struct WarLionPlace_unk {
@@ -86,8 +87,6 @@ inline float Clamp01_unk(float x) {
     }
     return x;
 }
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
-extern "C" int fn_80370A78(Field_unk* field, int index);
 extern "C" HitInfo_unk* fn_80219E6C(int id);
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int arg3, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
@@ -469,7 +468,7 @@ void Em403WarLion::vf40(HitInfo_unk* hit) {
             m15F4 = 0;
             ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
             ((BattleTask*)lbl_8087F048)->fn_801079C0(&mMotion, &mMotion);
-            fn_80370AE4(lbl_8087F430, 0x5B, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
         }
     }
     if ((mStatus.m0C & 0x20) == 0x20) {
@@ -1004,7 +1003,7 @@ void Em403WarLion::fn_803267E8() {
         } else if (m14CC == 1) {
             if (m15E4 == 0) {
                 m15E4 = 1;
-                fn_80370AE4(fn_80121F00(), 0x5A, 3);
+                ((GameTask*)fn_80121F00())->fn_80370AE4(0x5A, 3);
             }
             if (m14F8 <= 0) {
                 m14CC = 0;
@@ -1136,7 +1135,7 @@ void Em403WarLion::fn_80327A64() {
     d.y = 0.0f;
     m1580 -= d.GetNormalize() * 10.0f;
     mRot = d.GetNormalize().ToRotation_unk();
-    fn_80370AE4(lbl_8087F430, 0x5D, 2);
+    ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5D, 2);
     m1598 = m14BC;
     if (m1598 != 0) {
         m1598->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlMatHoldPre(m1598, this));
@@ -1240,7 +1239,7 @@ void Em403WarLion::fn_80328270() {
     } else {
         float frame = mMotion.mTracks[0].m08;
         if (frame >= mMotion.fn_80097D7C(0)) {
-            fn_80370AE4(lbl_8087F430, 0xCD, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCD, 1);
             SetState_unk(6);
         }
     }
@@ -1286,8 +1285,8 @@ void Em403WarLion::fn_8032853C() {
             SetState_unk(6);
         } else {
             frame = mMotion.mTracks[0].m08;
-            if (45.0f <= frame && frame <= 47.0f && fn_80370A78(lbl_8087F430, 0x5C) < 1) {
-                fn_80370AE4(lbl_8087F430, 0x5C, 1);
+            if (45.0f <= frame && frame <= 47.0f && ((GameTask*)lbl_8087F430)->fn_80370A78(0x5C) < 1) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5C, 1);
                 lbl_8087F9E8->fn_8059C32C(0);
                 for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
                     if (g->m50 == 40 && g->m4C == 1) {
@@ -1324,7 +1323,7 @@ void Em403WarLion::fn_803289EC() {
     if (mMotion.mTracks[0].m08 >= 6.0f) {
         if (m15E0 == 0) {
             m15E0 = 1;
-            fn_80370AE4(lbl_8087F430, 0x5A, 1);
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5A, 1);
         }
         SetState_unk(12);
         mMotion.m34C = 1;
@@ -1505,8 +1504,8 @@ void Em403WarLion::fn_80329A20() {
         m1598->fn_8015B520();
         m1598 = 0;
     } else if (m15E8 == 0 && m14C8 == 10) {
-        if (fn_80370A78(lbl_8087F430, 0x5B) < 1) {
-            fn_80370AE4(lbl_8087F430, 0x5B, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0x5B) < 1) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
         }
         m15E8 = 1;
     }

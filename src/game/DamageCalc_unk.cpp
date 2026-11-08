@@ -9,6 +9,7 @@
 #include "string.h"
 #include <boost/function.hpp>
 #include "game/BattleTask.h"
+#include "game/GameTask.h"
 
 // Everything below is inferred from the damage computation (0x8003EA3C..0x80041A80); names invented.
 
@@ -41,7 +42,6 @@ struct Field_unk {
     void fn_803750E4(int id);
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id); // inferred: field flag
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
@@ -526,7 +526,7 @@ float fn_80040588(const float* elements, CharaStatus* status, int positiveOnly) 
     if (positiveOnly != 0 && best >= 0.0f) {
         return 0.0f;
     }
-    if (lbl_8087F430 != 0 && fn_80370174(lbl_8087F430, 0x11B) > 0) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x11B) > 0) {
         best *= 2.0f;
     }
     return best;

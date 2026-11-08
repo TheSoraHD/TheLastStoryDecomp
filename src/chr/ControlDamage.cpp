@@ -34,7 +34,6 @@ struct Field_unk {
     void fn_803750E4(int id);
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370174(Field_unk* field, int id);                     // inferred: field flag
 // inferred: effect manager of the characters (lbl_8087F048)
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -289,7 +288,7 @@ ControlKnockdown::ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, in
     if (lbl_8087F498 && !mChara->mFlag2) {
         if (mChara->mStatus.IsState_unk(0x20)) {
             lbl_8087F498->fn_803EA77C(chara, 0xA, 0, 1.0f, 10.0f);
-            if (mChara->mType == 0 && lbl_8087F430 && !fn_80370174(lbl_8087F430, 0xB6)) {
+            if (mChara->mType == 0 && lbl_8087F430 && !((GameTask*)lbl_8087F430)->fn_80370174(0xB6)) {
                 ((GameTask*)lbl_8087F430)->fn_80370320(0xB6, 1, 0);
             }
         } else if (rand() % 2 == 0) {

@@ -5,6 +5,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include <boost/bind.hpp>
+#include "game/GameTask.h"
 
 // inferred: game settings (as in chr/ControlCdnStone.cpp)
 struct Input_unk {
@@ -33,7 +34,6 @@ struct ChaseArena_unk {
 };
 extern "C" ChaseArena_unk* lbl_8087F490;
 extern "C" void* lbl_8087F430; // inferred: field state
-extern "C" int fn_80370174(void* field, int id);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" double fmod(double x, double y);
 extern "C" double sqrt(double x);
@@ -156,7 +156,7 @@ int ControlChaseHeld::vf0C() {
     if (--m10 <= 0) {
         return 1;
     }
-    int period = fn_80370174(lbl_8087F430, 0xD4) ? 18 : 12;
+    int period = ((GameTask*)lbl_8087F430)->fn_80370174(0xD4) ? 18 : 12;
     if (m10 % period == 0 && mChara->mType != 2) {
         CharaStatus* status = &mChara->mStatus;
         status->fn_8012DF7C(status->mParamB.m84 * lbl_8087F0A8->m520, 0, 0);

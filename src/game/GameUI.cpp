@@ -664,7 +664,6 @@ struct Field_unk : public atn::Task {
 };
 extern "C" Field_unk* fn_80121F00();                               // inferred: returns lbl_8087F430
 extern "C" GameUIPlayerInput_unk* fn_80122550(Field_unk* field);   // inferred: field + 0x6C
-extern "C" int fn_80370174(Field_unk* field, int flag);            // inferred: value of a game flag
 extern "C" int fn_80244CA0(atn::Task* table);                      // inferred: (flags >> 1) & 1
 
 // inferred: multiplayer session (lbl_8087F610)
@@ -954,7 +953,7 @@ void GameUI::fn_803D2A6C() {
             ((GameUICounter_unk*)&m8D0)->fn_803CF734();
         } else if (eventShown || fn_80121F00()->GetState_unk() == 0) {
             // inferred: scene colour while the leader is weak
-            if (fn_80370174(fn_80121F00(), 0x2B) == 1) {
+            if (((GameTask*)fn_80121F00())->fn_80370174(0x2B) == 1) {
                 GameUIFog_unk fog;
                 fog.m00 = 1;
                 fog.m18 = 1.0f;
@@ -1394,10 +1393,10 @@ void GameUI::fn_803D2A6C() {
                         }
                         if (!show && static_cast<BattleCharaTask*>(c)->m146C == 5 && fn_80121F00() != 0) {
                             if (fn_8000D9F8(c) == 0x49A85 &&
-                                (fn_80370174(fn_80121F00(), 0x4BA) == 30 || fn_80370174(fn_80121F00(), 0x4C2) == 14)) {
+                                (((GameTask*)fn_80121F00())->fn_80370174(0x4BA) == 30 || ((GameTask*)fn_80121F00())->fn_80370174(0x4C2) == 14)) {
                                 show = true;
                             }
-                            if (fn_80370174(fn_80121F00(), 0x4BA) == 31 || fn_80370174(fn_80121F00(), 0x4C2) == 15) {
+                            if (((GameTask*)fn_80121F00())->fn_80370174(0x4BA) == 31 || ((GameTask*)fn_80121F00())->fn_80370174(0x4C2) == 15) {
                                 show = true;
                             }
                         }

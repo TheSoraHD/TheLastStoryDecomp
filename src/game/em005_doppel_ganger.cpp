@@ -30,8 +30,6 @@ extern "C" double acos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" int rand();
 extern "C" Field_unk* lbl_8087F430;
-extern "C" int fn_80370A78(Field_unk* field, int index);
-extern "C" void fn_80370AE4(Field_unk* field, int index, int value);
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -395,7 +393,7 @@ void Em005DoppelGanger::vf10() {
             break;
         }
     }
-    if (fn_80370A78(lbl_8087F430, 0xC9) == 1) {
+    if (((GameTask*)lbl_8087F430)->fn_80370A78(0xC9) == 1) {
         RoutePlace_unk* jump = m1528;
         if (jump != 0) {
             mPos = jump->mPos;
@@ -490,8 +488,8 @@ void Em005DoppelGanger::vf10() {
                                     Color4f_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
                         fn_8023A02C(lbl_8087F3C0, &m1530, 0, 16);
                         fn_8023A02C(lbl_8087F3C0, &m1530, 0, 8);
-                        if (fn_80370A78(lbl_8087F430, 0xE6) == 0) {
-                            fn_80370AE4(lbl_8087F430, 0xE6, 1);
+                        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE6) == 0) {
+                            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE6, 1);
                         }
                     }
                 }
@@ -724,11 +722,11 @@ void Em005DoppelGanger::vf10() {
         }
     }
     if (lbl_8087F3D8 == 0) {
-        if (fn_80370A78(lbl_8087F430, 0xEA) == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEA) == 0) {
             for (unsigned int i = 0; i < 32; i++) {
                 SkillEffect* b = lbl_8087F9E8->GetBullet_unk(i);
                 if (b != 0 && b->IsActive_unk() && b->fn_8059A264()) {
-                    fn_80370AE4(lbl_8087F430, 0xEA, 1);
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEA, 1);
                     break;
                 }
             }
@@ -736,8 +734,8 @@ void Em005DoppelGanger::vf10() {
         lbl_8087F3D8 = 1;
     }
     if (m14BC != 0 && mStatus.IsState_unk(4)) {
-        if (fn_80370A78(lbl_8087F430, 0xEB) == 0) {
-            fn_80370AE4(lbl_8087F430, 0xEB, 1);
+        if (((GameTask*)lbl_8087F430)->fn_80370A78(0xEB) == 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xEB, 1);
         }
     }
 }
@@ -772,8 +770,8 @@ void Em005DoppelGanger::vf3C(HitInfo_unk* hit) {
                 PSVECNormalize(&msg->m10, &msg->m10);
             }
             msg->m10 *= 8.0f;
-            if (fn_80370A78(lbl_8087F430, 0xE9) == 0) {
-                fn_80370AE4(lbl_8087F430, 0xE9, 1);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE9) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE9, 1);
             }
         } else {
             HitInfo_unk* data = msg->mData;
@@ -906,8 +904,8 @@ void Em005DoppelGanger::fn_80252E6C() {
             mMotion.fn_80097C08(0, 0x14B, 0, 1, 1, 0.0f, 0.1f);
             m1544 = 0;
             m1540 = m1540 < 60 ? m1540 : 60;
-            if (fn_80370A78(lbl_8087F430, 0xE7) == 0) {
-                fn_80370AE4(lbl_8087F430, 0xE7, 1);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xE7) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xE7, 1);
             }
         }
     } else {

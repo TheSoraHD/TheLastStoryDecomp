@@ -206,7 +206,6 @@ struct Effect_unk {
 };
 extern "C" Effect_unk* lbl_8087F048;
 
-extern "C" int fn_80370174(Field_unk* field, int id);  // inferred: event flag
 extern "C" int fn_800F8548(Effect_unk* mgr);
 extern "C" void fn_800FD658(Effect_unk* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 
@@ -1179,9 +1178,9 @@ void CharaTask::fn_80139560() {
                 b = 1.0f;
             } else if (fn_80139EBC()) {
                 b = 1.0f;
-            } else if (fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 1) {
+            } else if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 1) {
                 b = 0.4f;
-            } else if (fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 2) {
+            } else if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 2) {
                 b = 0.5f;
             } else {
                 if (!fn_80139ED0() && !fn_80139EDC()) {
@@ -1192,7 +1191,7 @@ void CharaTask::fn_80139560() {
                 } else {
                     b = 0.8f;
                 }
-                if (fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 3) {
+                if (fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 3) {
                     b *= 0.75f;
                 }
             }
@@ -1231,7 +1230,7 @@ void CharaTask::fn_80139560() {
             } else {
                 rot = mRot;
             }
-            if (IsPlayer() && fn_80121F00() && fn_80370174(fn_80121F00(), 3) == 1) {
+            if (IsPlayer() && fn_80121F00() && ((GameTask*)fn_80121F00())->fn_80370174(3) == 1) {
                 b = 0.4f;
             }
             if (mC58.m11C.fn_8013A144()) {
@@ -2320,7 +2319,7 @@ void CharaTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
                         table->GetLink_unk(mC3C)->m3C = 0;
                     }
                     if (HasRideParts_unk()) {
-                        if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+                        if (((GameTask*)lbl_8087F430)->fn_80370174(0x25) >= 1) {
                             fn_8014EEC4(0);
                         } else if (m674 >= 0) {
                             fn_8014DEE4(0, 0, 0);
@@ -2667,7 +2666,7 @@ void CharaTask::fn_8013CB68(const atn::Vector3& target, int arg, float speed, fl
         if (hitResult != 0 && (result.m3C & 2) == 2) {
             other = result.m38->m0C;
             if (IsPlayer() && m648 != 0 && mC58.mC0 == 0 && lbl_8087F430 != 0 && other->mType == 3 &&
-                fn_80370174(lbl_8087F430, 1000) >= 0x30) {
+                ((GameTask*)lbl_8087F430)->fn_80370174(1000) >= 0x30) {
                 lbl_8087F430->fn_803750E4(0x132);
             }
             if ((mType == 0 || mType == 2) && m648 == 0) {
@@ -5242,7 +5241,7 @@ void CharaTask::fn_80149A30() {
         if (lbl_8087F430 != 0 && lbl_8087FA20 == 0) {
             int visible = 1;
             if (lbl_8087F430 != 0) {
-                switch (fn_80370174(lbl_8087F430, 217)) {
+                switch (((GameTask*)lbl_8087F430)->fn_80370174(217)) {
                 case 1: {
                     visible = 1;
                     bool b = true;
@@ -6896,7 +6895,7 @@ void CharaTask::fn_8015076C(int id, const atn::Vector3& dir, const atn::Vector3&
     if (fn_8017B16C() && m55C == 6 && (m560 == 29 || m560 == 31) && m674 >= 0) {
         fn_8014DEE4(0, 0, 0);
     }
-    if (fn_80370174(fn_80121F00(), 0x67) && IsPlayer() && !mStatus.fn_80139F4C()) {
+    if (((GameTask*)fn_80121F00())->fn_80370174(0x67) && IsPlayer() && !mStatus.fn_80139F4C()) {
         CollResult_unk result;
         atn::Vector3 from = mPos + atn::Vector3(0.0f, 5.0f, 0.0f);
         atn::Vector3 to = (mPos + atn::Vector3(0.0f, 5.0f, 0.0f)) + dir * 8.0f;
@@ -7236,10 +7235,10 @@ void CharaTask::fn_80151448(HitMsg_unk* msg) {
         } else {
             msg->m74 = 0;
         }
-        if (fn_80370174(lbl_8087F430, 0x548) == 1 && mType != 0 && msg->mData->m04 != 0xD0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x548) == 1 && mType != 0 && msg->mData->m04 != 0xD0) {
             flags |= 0x2008;
             msg->mAttacker->vf7C(1);
-        } else if (fn_80370174(lbl_8087F430, 0x28) == 0 && msg->mAttacker != 0 &&
+        } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x28) == 0 && msg->mAttacker != 0 &&
                    ((unsigned int)msg->mAttacker->mStatus.mParamB.m9C & 4) != 4) {
             bool guard = false;
             if ((flags & 8) == 8 && mFlag5 && !mFlag31 && !msg->mFlag31) {
@@ -7315,7 +7314,7 @@ void CharaTask::fn_80151448(HitMsg_unk* msg) {
         param.m14 = mFlag22;
         if (lbl_8087F430 != 0 && msg->mAttacker != 0 && msg->mAttacker->mType == 0 && msg->mData != 0 &&
             msg->mData->m04 == 0x133) {
-            param.m0C = fn_80370174(lbl_8087F430, 0xDA);
+            param.m0C = ((GameTask*)lbl_8087F430)->fn_80370174(0xDA);
         }
         if (msg->mAttacker != 0 && msg->mAttacker->mStatus.fn_80134134(0x43) != 0) {
             param.m10 = 100.0f / (100.0f + msg->mAttacker->mStatus.fn_80134168(0x43, -1));
@@ -7477,7 +7476,7 @@ inline bool CharaTask::IsPartsMode_unk() {
 
 inline void CharaTask::ResetParts_unk() {
     if (IsPartsMode_unk()) {
-        if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x25) >= 1) {
             fn_8014EEC4(0);
         } else if (m674 >= 0) {
             fn_8014DEE4(0, 0, 0);
@@ -7681,7 +7680,7 @@ void CharaTask::fn_80153698(const Ledge_unk* ledge, int keep) {
             fn_80164DCC(1);
         }
     }
-    if (mType == 0 && fn_80370174(lbl_8087F430, 0xED) == 0 && fn_80370174(lbl_8087F430, 0xEA) == 1) {
+    if (mType == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xED) == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xEA) == 1) {
         ((GameTask*)lbl_8087F430)->fn_80370320(0xED, 1, 0);
     }
 }
@@ -7769,8 +7768,8 @@ int CharaTask::fn_80153FD8(int kind) {
     }
     if (mC48 != 0) {
         if (IsPartsMode_unk()) {
-            if (m674 >= 0 || fn_80370174(lbl_8087F430, 0x25) == 1 ||
-                (fn_80370174(lbl_8087F430, 0x25) == 2 && fn_8013539C())) {
+            if (m674 >= 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 1 ||
+                (((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 2 && fn_8013539C())) {
                 fn_8014DEE4(1, 0, 0);
             }
         }
@@ -8031,8 +8030,8 @@ void CharaTask::fn_80155DAC(int arg) {
             mMotion.mTracks[0].m08 = 34.0f;
         } else {
             if (IsPartsMode_unk()) {
-                if (m674 >= 0 || fn_80370174(lbl_8087F430, 0x25) == 1 ||
-                    (fn_80370174(lbl_8087F430, 0x25) == 2 && fn_8013539C())) {
+                if (m674 >= 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 1 ||
+                    (((GameTask*)lbl_8087F430)->fn_80370174(0x25) == 2 && fn_8013539C())) {
                     fn_8014DEE4(1, 0, 0);
                     fn_800C344C(sSoundNames_unk[4], &mPos, 0, -1, 1.0f);
                 }
@@ -8628,7 +8627,7 @@ void CharaTask::fn_8015F568(const atn::Vector3& dest, CharaTask* target, HitInfo
             table->GetLink_unk(mC3C)->m3C = 0;
         }
         if (fn_8017B16C()) {
-            if (fn_80370174(lbl_8087F430, 0x25) >= 1) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x25) >= 1) {
                 if (m648 != 0) {
                     fn_80044E0C(m648, 1);
                 }
@@ -8880,9 +8879,9 @@ void CharaTask::fn_801647BC() {
     chr::ControlAttractHateCharge* control = new ((MemoryTag)0, "", "", 0) chr::ControlAttractHateCharge(this);
     fn_80178208(control);
     if (lbl_8087F430 != 0) {
-        if (fn_80370174(lbl_8087F430, 0x135) == 0) {
+        if (((GameTask*)lbl_8087F430)->fn_80370174(0x135) == 0) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0x135, 1, 0);
-        } else if (fn_80370174(lbl_8087F430, 0x136) == 0) {
+        } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x136) == 0) {
             ((GameTask*)lbl_8087F430)->fn_80370320(0x136, 1, 0);
         }
     }
@@ -8904,7 +8903,7 @@ void CharaTask::fn_80164B00(const CharaShade_unk& shade) {
     if (lbl_8087F048 != 0) {
         ((BattleTask*)lbl_8087F048)->fn_8010337C(0, this);
     }
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && fn_80370174(lbl_8087F430, 0xD6) == 1) {
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80375184() == 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0xD6) == 1) {
         Player_unk* player = (lbl_8087F8A0 != 0) ? (Player_unk*)lbl_8087F8A0->mHead : 0;
         for (; player != 0; player = player->mNext) {
             if (player->CanAct_unk() && (player->m54C & 0x2000) != 0x2000) {
@@ -10218,7 +10217,7 @@ int CharaTask::fn_80172EFC(atn::Vector3* pos, atn::Vector3* move) {
     }
     int limit = 12;
     if (lbl_8087F430 != 0) {
-        int flag = fn_80370174(lbl_8087F430, 0x120);
+        int flag = ((GameTask*)lbl_8087F430)->fn_80370174(0x120);
         if (flag == 1) {
             limit = 4;
         } else if (flag == 2) {
@@ -10329,7 +10328,7 @@ int CharaTask::fn_80174104(atn::Vector3* pos, atn::Vector3* move) {
     if (m55C == 6 || m55C == 8) {
         return 0;
     }
-    if (lbl_8087F430 != 0 && (fn_80370174(lbl_8087F430, 0x1F) > 0 || fn_80370174(lbl_8087F430, 0xD2) > 0)) {
+    if (lbl_8087F430 != 0 && (((GameTask*)lbl_8087F430)->fn_80370174(0x1F) > 0 || ((GameTask*)lbl_8087F430)->fn_80370174(0xD2) > 0)) {
         return 0;
     }
     atn::Vector3 dir(move->x, 0.0f, move->z);
