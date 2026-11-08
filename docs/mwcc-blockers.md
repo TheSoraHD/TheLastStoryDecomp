@@ -201,3 +201,12 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - (`s12h-20261107`) `TacView` (copias debiles `fn_805A96C0`, `fn_805ABD6C`...) y
   `GameTask::fn_80372574`: funciones de 8-124 bytes que son copias debiles detras de su primer usuario grande
   (`fn_80371790`, `vf10` de TacView...); no se pueden colocar sin escribir antes ese usuario.
+- (`s12h-20261108`) Bucles por los slots de jugador de `MP::Manager2` (`atn/PacketPack`): el original da otros
+  registros al indice/desplazamiento/contador (y al cero del bucle, `mr rX, rIndice`) en fn_804DF310, fn_804DBD08,
+  fn_804FB220, fn_804DD1A8, fn_804F1F34 (incrementos contador/puntero invertidos); probados: indice `unsigned`,
+  `while`, `continue`, puntero que avanza, inline `Clear_unk`, el buscador fn_804DD158 con locales de varios tipos.
+- (`s12h-20261108`) `Event/EventParser_unk` ANID/EFID/CAID/POID/MVID: con los ctor `(owner, name, id)` de
+  MotionData.h llegan al 99,5% con el mismo bloqueo de registros/pila que MOID; revertido.
+- (`s12h-20261108`) `MP/func_enter_setting` vf0C/vf10 de `PacketPackMP` (0x8050105C/0x80501054): son copias debiles
+  emitidas tras las de los `func_*`; definidas inline en la clase salen tras vf18 y la vtable al principio de `.data`;
+  con el dtor declarado no se emite la vtable.
