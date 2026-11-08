@@ -3,7 +3,6 @@
 #include "game/GameTask.h"
 #include "game/GameScene.h"
 #include "game/GameVoice.h"
-extern "C" float lbl_80885CCC;
 #include "game/GameEventScript.h"
 #include "Event/Manager.h"
 #include "game/CrowdManager.h"
@@ -594,13 +593,14 @@ void GameScene::fn_803C0F48(int warp) {
 
 // NONMATCHING: 99.4% - f29-f31 allocation (y in f31 in the original)
 atn::Vector3 GameScene::fn_803C11A4(int point) {
+    float z;
     if (point <= 0) {
         return atn::Vector3(0.0f, 0.0f, 0.0f);
     }
     gs::MovePoint& p = m98[point - 1];
     float angle = 6.2831855f * ((float)(rand() % 1001) / 1000.0f);
     float r = 0.9f * (p.m14 * (float)sin(0.5f * (3.1415927f * ((float)(rand() % 1001) / 1000.0f))));
-    float z = r * (float)sin(angle) + p.mPos.z;
+    z = r * (float)sin(angle) + p.mPos.z;
     atn::Vector3 out(r * (float)cos(angle) + p.mPos.x, p.mPos.y, z);
     return out;
 }
@@ -2123,7 +2123,7 @@ int GameScene::fn_803CB820() {
 }
 
 int GameScene::fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara) {
-    return fn_803CC1A4(pos, ((CharaRadius_unk*)chara)->m620, lbl_80885CCC, dir);
+    return fn_803CC1A4(pos, ((CharaRadius_unk*)chara)->m620, 0.5f, dir);
 }
 
 // inferred: a x b

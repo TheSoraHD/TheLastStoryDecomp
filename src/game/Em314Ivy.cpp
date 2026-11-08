@@ -337,6 +337,7 @@ void Em314Ivy::fn_8031319C(CharaTask* target) {
 // NONMATCHING: 99.50% - saved registers of money/counter/effect manager (r28/r27/r29 in the original) and the
 // stack slots of the color and the position of the effect loop; ~20 variants
 void Em314Ivy::fn_803132D0() {
+    Effect_unk* effect;
     if (m14E4 != 0) {
         Mtx m;
         atn::Vector3 dir;
@@ -344,7 +345,7 @@ void Em314Ivy::fn_803132D0() {
             int money = Inventory::instance_->mMoney / 3;
             fn_8044D6AC(Inventory::instance_, money);
             for (int i = 0; i < 5; i++) {
-                Effect_unk* effect = lbl_8087F048;
+                effect = lbl_8087F048;
                 ((BattleTask*)effect)->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(), &chr::lbl_807C7030,
                             &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
             }

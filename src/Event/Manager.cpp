@@ -2624,10 +2624,11 @@ void Manager::fn_80489A50(Action* action, int keep) {
 // NONMATCHING: 98.6% - registers of the sequence and the cut swapped
 // inferred: skips to the end of the current cut
 void Manager::fn_80489C98() {
+    Cut* cut;
     m2390 = 1;
     Sequence* seq = m70;
     if (seq != 0) {
-        Cut* cut = seq->fn_80541210();
+        cut = seq->fn_80541210();
         if (cut != 0) {
             seq->fn_80541534(seq->fn_80541198(cut), cut->m2C);
         }

@@ -1240,6 +1240,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
 
 // NONMATCHING: 99.93% - the original evaluates MenuCommonTask::sInstance before the text (member call?), r30 vs r29
 void NewCampPartsOption::fn_80525F08() {
+    MenuCommonTask* menu;
     int classic = fn_800A58D0(lbl_8087EF70, 0);
     int cursor = mE4;
     void* pad = lbl_8087EF70;
@@ -1280,7 +1281,7 @@ void NewCampPartsOption::fn_80525F08() {
             fn_80117228(2);
         }
     }
-    MenuCommonTask* menu = MenuCommonTask::sInstance;
+    menu = MenuCommonTask::sInstance;
     fn_804A3C24(menu, fn_80116EB8(&sSwapHelp[mE4]), 1);
 }
 

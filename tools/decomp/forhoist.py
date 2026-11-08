@@ -10,6 +10,7 @@ maxsz=int(sys.argv[1],16); minp=float(sys.argv[2]); maxp=float(sys.argv[3]) if l
 flt=sys.argv[4] if len(sys.argv)>4 else ''
 APPLY=os.environ.get('APPLY')  # 1: keep the OK variants in the source
 SKIP=os.environ.get('SKIPTO')  # unit name to start from
+MODE=os.environ.get('MODE','top')  # top: function body; block: innermost enclosing block; prev: before the previous declaration; split: in place
 TY=r'(?:const\s+)?(?:unsigned\s+|signed\s+)?[A-Za-z_][\w:]*(?:<[^;()]*?>)?(?:\s*\*)*'
 FOR=re.compile(r'^(\s+)for \(('+TY+r')\s+(\w+) = ([^;]+);')
 DEF=re.compile(r'^(\s+)('+TY+r')\s+(\w+) = ([^;]+);\s*$')
@@ -46,9 +47,24 @@ for u in d['units']:
             nl=lines[:]
             if m.re is FOR: nl[k]=lines[k].replace('for (%s %s = '%(ty,name),'for (%s = '%name,1)
             else: nl[k]='%s%s = %s;'%(ind,name,expr)
-            nl.insert(1,'    %s %s;'%(ty,name))
+            if MODE=='split':
+                if m.re is FOR: continue
+                nl.insert(k,'%s%s %s;'%(ind,ty,name))
+            elif MODE=='top':
+                nl.insert(1,'    %s %s;'%(ty,name))
+            else:
+                at=None
+                for q in range(k-1,0,-1):
+                    lq=lines[q]
+                    if MODE=='block' and lq.rstrip().endswith('{') and len(lq)-len(lq.lstrip())==len(ind)-4:
+                        at=q+1; break
+                    if MODE=='prev' and (len(lq)-len(lq.lstrip()))<len(ind) and lq.strip(): break
+                    if MODE=='prev' and len(lq)-len(lq.lstrip())==len(ind) and DEF.match(lq):
+                        at=q; break
+                if at is None or at==1 or at==k: continue
+                nl.insert(at,'%s%s %s;'%(ind,ty,name))
             t=s[:st]+'\n'.join(nl)+s[i:]
-            tmp=os.path.dirname(src)+'/.fh.cpp'
+            tmp=os.path.dirname(src)+'/.fh%d.cpp'%os.getpid()
             open(tmp,'w',encoding='latin-1').write(t)
             o=subprocess.run(['python3',R+'tools/decomp/trysym.py',un,tmp,fn],capture_output=True,text=True).stdout.strip()
             print(un,fn,round(p,2),k,lines[k].strip()[:50],(o.split()[0] if o else 'ERR'),flush=True)

@@ -314,6 +314,7 @@ void GameBgm::vf10() {
 
 // NONMATCHING: 99.1% - `start` and `bgm` swap r28/r29.
 void GameBgm::fn_8037D274(atn::Bgm* bgm, const char* name) {
+    int save;
     if (bgm == 0) {
         return;
     }
@@ -328,7 +329,7 @@ void GameBgm::fn_8037D274(atn::Bgm* bgm, const char* name) {
             start = 0;
         }
     }
-    int save = lbl_8087EFE8->m34D4;
+    save = lbl_8087EFE8->m34D4;
     lbl_8087EFE8->m34D0 = 1;
     lbl_8087EFE8->m34D4 = 1;
     lbl_8087EFE8->m34C8 = 0;
