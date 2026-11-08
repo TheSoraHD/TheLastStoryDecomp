@@ -319,7 +319,7 @@ public:
     ControlCliffhangZanGurg(Chara_unk* chara, atn::Vector3 a, atn::Vector3 b, atn::Vector3 c); // 0x8019E4F4
     virtual int vf0C();
     virtual atn::Vector3 vf14() const;
-    virtual int vf30() { return mCount; }
+    virtual int vf30() const { return mCount; }
 
     int mState;           // 0x08
     int mCount;           // 0x0C: inferred: button presses while hanging

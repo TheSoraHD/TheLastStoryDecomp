@@ -34,7 +34,7 @@ public:
     virtual int vf24();
     virtual int vf28();
     virtual int vf2C();
-    virtual int vf30();
+    virtual int vf30() const;
     virtual int vf34();
     virtual int vf38(int arg);
     virtual float vf60();

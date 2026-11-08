@@ -187,7 +187,7 @@ int ControlAttackBase::vf28() {
 }
 
 // NONMATCHING: 98.0% - table and chara in r5/r4 instead of r4/r5.
-int ControlAttackBase::vf30() {
+int ControlAttackBase::vf30() const {
     Chara_unk* chara = mChara;
     if (mTable != 0) {
         float frame = chara->mMotion.mTracks[0].m08;

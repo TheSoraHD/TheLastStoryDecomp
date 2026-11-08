@@ -42,7 +42,7 @@ public:
     virtual int vf2C(); // inferred: returns an int (number of hit windows in chr::ControlAttackBase)
     // inferred: returns an int (compared with 5 by callers of CharaTask::fn_8017A450, tested by vf5C);
     // inline, weak copy 0x800E60FC after the virtual call in BattleCharaTask::fn_800E589C
-    virtual int vf30() { return 0; }
+    virtual int vf30() const { return 0; }
     // inferred: inline (weak copies 0x8017A220 and 0x8017A2F8 in game/CharaTask.cpp, read through
     // CharaTask::fn_8017A160 and fn_8017A228)
     virtual int vf34() { return 0; }
