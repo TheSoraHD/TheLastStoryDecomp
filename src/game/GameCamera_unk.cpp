@@ -196,3 +196,33 @@ void GameCamera::fn_803933A4() {
     mC20 = 0;
     mC84 = 0;
 }
+
+extern "C" int rand();
+
+// inferred: shake of the camera (GameCamera::m900-m90C: frame, length, width and height; names invented;
+// the caller is not written yet, the type should move to GameCamera.h with it)
+struct CameraShake_unk {
+    atn::Vector3 GetOffset_unk() const;
+    int mFrame;
+    int mLength;
+    float mWidth;
+    float mHeight;
+};
+
+static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
+
+// inferred: random offset of the shake, mirrored every other frame and fading out
+atn::Vector3 CameraShake_unk::GetOffset_unk() const {
+    atn::Vector3 v(2.0f * mWidth * ((float)(rand() % 1001) / 1000.0f) - mWidth,
+                   0.7f * mHeight + 0.3f * mHeight * ((float)(rand() % 1001) / 1000.0f), 0.0f);
+    if (mFrame % 2 == 0) {
+        v = Negate_unk(v);
+    }
+    float t = (float)(mLength - mFrame) / (float)mLength;
+    v.x *= t;
+    v.y *= t;
+    v.z *= t;
+    return v;
+}
