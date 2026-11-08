@@ -925,7 +925,6 @@ void QuadrupedTask::fn_80569660(float* speed, atn::Vector3* rot) {
 }
 
 // inferred: AI state 4: walks the route up to mC4, waits next to it, then turns in place for 30 frames
-// NONMATCHING: 99.78% - FPR of the radius of mC4 (f3/f0 swapped, accessor 0x8013C42C inlined?) and .sdata2 labels; ~6 variants
 void QuadrupedTask::fn_8056A03C(float* speed, atn::Vector3* rot) {
     CharaTask* target = mC58.mC4;
     RouteWalker_unk& route = mC58.m0C;
@@ -951,7 +950,7 @@ void QuadrupedTask::fn_8056A03C(float* speed, atn::Vector3* rot) {
             atn::Vector3 d = mC58.fn_8011BF3C(0) - mPos;
             d.y = 0.0f;
             *speed = d.Length_unk();
-            *speed = *speed - mC58.mC4->m5B0;
+            *speed = *speed - (float)mC58.mC4->m5B0;
             if (*speed > mStatus.mParamB.m28) {
                 *rot = d.ToRotation_unk();
             } else {
