@@ -341,7 +341,10 @@ struct PPPlayerFlags_unk {
     unsigned int m27 : 1;     // inferred: set by message 0x17
     unsigned int m26 : 1;     // inferred: set by message 0x18 on the player and its team
     unsigned int m22 : 4;     // inferred: value of message 0x12
-    unsigned int m00 : 22;
+    unsigned int m12 : 10;
+    unsigned int m10 : 2;
+    unsigned int m06 : 4;
+    unsigned int m00 : 6;
 };
 
 // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
@@ -349,7 +352,8 @@ struct PPPlayer_unk {
     MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
     unsigned char m004[0x34 - 0x4];
     PPPlayerState_unk m34;            // inferred: state sent by message 0x16
-    unsigned char m0B0[0xCC - 0xB0];
+    int mB0;
+    unsigned char m0B4[0xCC - 0xB4];
     unsigned char mAid;               // 0xCC: inferred: network id of the player
     unsigned char m0CD[0xD0 - 0xCD];
     PPPlayerFlags_unk mFlags;         // 0xD0
@@ -358,7 +362,8 @@ struct PPPlayer_unk {
 
     int mD38[5];                      // inferred: values of message 0x15
     unsigned int mD4C;                // inferred: bits 10-11 set by message 0x2E
-    unsigned char m0D50[0xD58 - 0xD50];
+    short mD50;
+    unsigned char m0D52[0xD58 - 0xD52];
     int mD58;                         // inferred: score (players of equal score share a rank)
 
 };
@@ -640,6 +645,31 @@ extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* player);
 extern "C" int fn_804E4C34(PPManager2_unk* mgr);
 extern "C" int fn_804E4C5C(PPManager2_unk* mgr);
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
+
+// NONMATCHING: 90.49% - the original reloads lbl_8087F610 in every iteration and keeps the zero of the index in
+// two more registers
+// inferred: resets the player slots (and the aid tables m9984/m998C)
+extern "C" void fn_804DF310(PPManager2_unk* mgr) {
+    memset(mgr->m9984, 0, 8);
+    memset(mgr->m998C, 0xFF, 8);
+    for (int i = 0; i < ((PPManager2_unk*)lbl_8087F610)->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
+        player->mB0 = 0;
+        player->mAid = 0xFF;
+        player->mFlags.mActive = 0;
+        player->mFlags.m29 = 0;
+        player->mFlags.m26 = 1;
+        player->mFlags.m22 = 0;
+        player->mFlags.m10 = 2;
+        player->mFlags.m06 = 0xF;
+        player->mFlags.m30 = 0;
+        player->mD50 = -1;
+        player->mD4C = 0;
+        if (player->mRef.mChara != 0) {
+            ((PPChara_unk*)player->mRef.mChara)->m9F8 = 0;
+        }
+    }
+}
 
 // inferred: result of the game for the player (0, 1 or 2) by game mode (called out of line by fn_804E4D70)
 extern "C" __declspec(noinline) int fn_804E4A60(PPManager2_unk* mgr) {
