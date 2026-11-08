@@ -151,7 +151,6 @@ struct ShopMembers_unk {
 extern "C" ShopMembers_unk* fn_80217D9C(int progress); // inferred: members available at a progress (as game/ShopBuySell.cpp)
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
-extern "C" void fn_804ABF20();
 namespace atn {
 // inferred: only the member used here (atn/PostFx.h clashes with atn/IRender.h)
 class PostFxManager {
@@ -159,7 +158,7 @@ public:
     void fn_800A97C4();
 };
 } // namespace atn
-extern "C" atn::PostFxManager* lbl_8087EF8C;
+extern "C" atn::PostFxManager* fn_804ABF20(); // inferred: post effect manager
 
 // inferred: objects of the camp at 0x468 and 0xB1C (classes unknown; reset when the camp opens)
 struct NewCamp468_unk {
@@ -238,6 +237,7 @@ extern "C" inline void fn_8052C6C0(atn::RenderManager* rm) {
     rm->m554 = 1;
 }
 // inferred: second camera of the render manager (m558)
+// NONMATCHING: 99.96% - order of the copy of the frustum planes (as fn_80392A04 of game/GameCamera_unk.cpp)
 extern "C" inline void fn_8052C6CC(atn::RenderManager* rm, const atn::Camera* camera) {
     rm->m558 = *camera;
 }
@@ -246,8 +246,8 @@ extern "C" inline int fn_8052C0E8(SetConfig* config) {
     return 0;
 }
 
-// NONMATCHING: draft - opens the camp: lists the party members, copies the status of the absent ones,
-// sets the camera of the camp and the parts
+// inferred: opens the camp: lists the party members (with the status of the ones in the party), sets the
+// camera of the camp and the parts
 void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     m5C = 1;
     fn_80117228(0x1F);
@@ -268,7 +268,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
                 break;
             case 1:
                 left = ((GameTask*)fn_80121F00())->fn_80370174(0x125);
-                if (fn_8052C64C((GameTask*)fn_80121F00()) <= 0x29C8 &&
+                if (fn_8052C64C((GameTask*)fn_80121F00()) <= 109000 &&
                     ((GameTask*)fn_80121F00())->fn_80370174(0x764) < 1) {
                     left = 1;
                 }
@@ -303,8 +303,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
                     }
                 }
             } else {
-                CharaStatus* status = chara->GetStatus_unk();
-                fn_8052C664(Inventory::Order()->GetPlayerStatusInfo(pair.mId), status);
+                fn_8052C664(Inventory::Order()->GetPlayerStatusInfo(pair.mId), chara->GetStatus_unk());
                 fn_8052C66C(Inventory::Order()->GetPlayerStatusInfo(pair.mId), 0);
                 fn_8052C674(Inventory::Order()->GetPlayerStatusInfo(pair.mId));
             }
@@ -345,9 +344,8 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     fn_80392A04((atn::Camera*)m260, &mCamera);
     fn_8052C6C0(fn_8008B964());
     fn_8052C6CC(fn_8008B964(), (atn::Camera*)m260);
-    DamageEffectParam_unk& damage = *(DamageEffectParam_unk*)&m130C[0x1310 - 0x130C];
-    damage.mEnabled = 1;
-    fn_802F0990()->SetDamage_unk(damage);
+    ((DamageEffectParam_unk*)&m130C[0x1310 - 0x130C])->mEnabled = 1;
+    fn_802F0990()->SetDamage_unk(*(DamageEffectParam_unk*)&m130C[0x1310 - 0x130C]);
     if (mOpen.mMenu != 0) {
         fn_8052DEEC(mOpen.mMenu);
     } else {
@@ -356,8 +354,7 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     mGmk->fn_80513020(m1354, m464);
     m1360 = fn_8052C0E8(GetSetConfig_unk());
     fn_80530DB4();
-    fn_804ABF20();
-    lbl_8087EF8C->fn_800A97C4();
+    fn_804ABF20()->fn_800A97C4();
 }
 
 void NewCampTask::fn_8052C9C4() {
