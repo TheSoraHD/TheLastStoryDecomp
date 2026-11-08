@@ -9,6 +9,7 @@
 #include "Event/Channel.h"
 #include "Event/Action.h"
 #include "atn/DrawHelper.h"
+#include "atn/Model_unk.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" Event::Manager* lbl_8087F540;
@@ -172,6 +173,79 @@ void fn_80223A10(DebugInfo_unk* info) {
         }
     }
     info->m14.fn_802219CC(info->m04, info->m08, info->m0C, 3);
+}
+
+
+// ---- fn_80224638: page 5 (motions of the characters; over the inlining budget: weak copies) ----
+// inferred: accessors of the event tree (weak copies; C names: their class names are unknown)
+extern "C" inline void fn_8022492C(DebugInfoTable_unk* table) {
+    table->mColumns.clear();
+}
+extern "C" inline int fn_802249E4(Section* section) {
+    return section->m0C;
+}
+extern "C" inline int fn_80224618(Section* section) {
+    return section->m10;
+}
+extern "C" inline DataList_unk<Actor>* fn_80224620(Sequence* seq) {
+    return &seq->m164;
+}
+// inferred: actor of the given id (weak copy 0x802249EC)
+extern "C" inline Actor* fn_802249EC(DataList_unk<Actor>* actors, int id) {
+    for (int i = 0; i < (int)actors->mSize; i++) {
+        Actor* actor = &actors->mData[(unsigned int)i];
+        if (id == actor->m14) {
+            return actor;
+        }
+    }
+    return 0;
+}
+extern "C" const char* fn_80218218(int motion);           // inferred: motion name
+extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
+
+// inferred: motion tracks shown for each character
+static const int sTracks_unk[3] = {0, 3, 4};
+
+// NONMATCHING: offsets of the strings in @stringBase0 (pages 1, 2 and 4 are missing)
+void fn_80224638(DebugInfo_unk* info) {
+    Sequence* seq = fn_8000DB1C()->fn_80112F54();
+    if (seq == 0) {
+        return;
+    }
+    fn_80221CAC(fn_800F7250(), info->m04, info->m08 + info->m0C, -1000000.0f, info->m0C, info->m0C,
+                "Character motions List:", 0xFFFFFFFF, 1);
+    Cut* cut = seq->fn_805411DC();
+    if (cut == 0) {
+        return;
+    }
+    fn_8022492C(&info->m44);
+    for (int i = 0; i < fn_80223ED8(cut); i++) {
+        Section* section = cut->GetSection_unk(i);
+        if (fn_802249E4(section) != 3) {
+            continue;
+        }
+        int id = fn_80224618(section);
+        Actor* actor = fn_802249EC(fn_80224620(seq), id);
+        if (actor == 0) {
+            continue;
+        }
+        atn::Model* model = actor->fn_80012A1C();
+        if (model == 0) {
+            continue;
+        }
+        DebugInfoColumn_unk column;
+        column.mTexts.push_back(std::string(fn_80222A24(section)));
+        for (int k = 0; k < 3; k++) {
+            int motion = model->fn_80139F2C(sTracks_unk[k]);
+            float speed = model->GetMotionSpeed(sTracks_unk[k]);
+            float frame = model->GetMotionFrame(sTracks_unk[k]);
+            column.mTexts.push_back(std::string(motion < 0 ? "" : fn_80218218(motion)));
+            column.mTexts.push_back(motion < 0 ? std::string("") : fn_800DC980("%.2f", speed));
+            column.mTexts.push_back(motion < 0 ? std::string("") : fn_800DC980("%.0f", frame));
+        }
+        info->m44.fn_8022051C(column);
+    }
+    info->m44.fn_802219CC(info->m04, info->m08, info->m0C, 3);
 }
 
 } // namespace Event
