@@ -344,10 +344,10 @@ int ControlCharge::vf0C() {
     return done;
 }
 
-// NONMATCHING: 99.1% - registers of the inlined ControlChargeAttack constructor and stack slots of
+// NONMATCHING: 99.07% - registers of the inlined ControlChargeAttack constructor and stack slots of
 // its two distance temporaries.
 // inferred: starts the attack that follows the charge
-boost::function<void()> ControlCharge::vf10() {
+boost::function<void()> ControlCharge::vf10() const {
     if (m30 != 0) {
         HitInfo_unk* hit = mChara->m638;
         if (hit->m01 == 1) {
@@ -803,7 +803,7 @@ int ControlQuarkSeirenAttack::vf0C() {
 void ControlQuarkSeirenAttack::vf1C() {}
 
 // inferred: steps back to the start point when the attack hit near the target point
-boost::function<void()> ControlQuarkSeirenAttack::vf10() {
+boost::function<void()> ControlQuarkSeirenAttack::vf10() const {
     if (m28 != 0) {
         atn::Vector3 d = mChara->mPos - m08;
         if (PSVECSquareMag(&d) < 900.0f) {

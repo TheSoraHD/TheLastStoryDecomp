@@ -76,9 +76,9 @@ int ControlJumpAt::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 95.0% (scheduling only) - in the inlined ControlGrapple constructor the original
+// NONMATCHING: 99.67% (scheduling only) - in the inlined ControlGrapple constructor the original
 // reads mTarget after storing the ControlBase part, as in chr::ControlRideBeast::vf10.
-boost::function<void()> ControlJumpAt::vf10() {
+boost::function<void()> ControlJumpAt::vf10() const {
     ControlGrapple* next = new ((MemoryTag)0, "", "", 0) ControlGrapple(mChara, mTarget);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -113,8 +113,7 @@ int ControlGrapple::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 98.8% (scheduling only) - the original loads mTarget before storing `dir`.
-boost::function<void()> ControlGrapple::vf10() {
+boost::function<void()> ControlGrapple::vf10() const {
     atn::Vector3 dir(0.0f, 0.0f, 2.0f);
     Mtx mtx;
     PSMTXRotRad(mtx, 'y', mTarget->mRot.y);
@@ -175,14 +174,14 @@ int ControlGrappled::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 97.7% - stack layout: the original places the bind_t of the first branch right
+// NONMATCHING: 99.44% - stack layout: the original places the bind_t of the first branch right
 // below the first matrix (0xD8) and the second matrix below it (0xA8); here both matrices come
 // first. The third branch also loads mChara earlier.
 // Over the inlining budget: the original calls every helper out of line (0x8000D114, 0x8013A13C,
 // 0x80011410, the bind and boost::function constructors 0x801B5DF0, 0x801B5EC0, 0x801B66A4 ...).
 // inferred: the matrix is a plain Mtx viewed as atn::Matrix3x4 (no constructor call); a local
 // atn::Matrix3x4 calls its empty constructor out of line here.
-boost::function<void()> ControlGrappled::vf10() {
+boost::function<void()> ControlGrappled::vf10() const {
     if (mChara->GetStatus_unk()->fn_80139F4C()) {
         atn::Vector3 dir(0.0f, 0.0f, -2.0f);
         float angle = mChara->GetRot_unk()->y;

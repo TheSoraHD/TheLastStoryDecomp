@@ -537,7 +537,7 @@ atn::Vector3 ControlJump::vf14() const {
     return mChara->mPos;
 }
 
-boost::function<void()> ControlJump::vf10() {
+boost::function<void()> ControlJump::vf10() const {
     if (m31) {
         if (mChara->mPos.y >= 90.0f) {
             return boost::bind(&CharaTask::fn_801591E8, (CharaTask*)mChara, Front_unk(mChara->mRot));

@@ -65,7 +65,7 @@ void ControlAppear::vf40() {
     e->mPos.z = 0.0f;
 }
 
-boost::function<void()> ControlAppear::vf10() {
+boost::function<void()> ControlAppear::vf10() const {
     atn::Vector3 from = mChara->mPos;
     atn::Vector3 to = from;
     from.y += 3.0f;
@@ -106,9 +106,7 @@ int ControlAppearEnd::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 94.1% (scheduling only) - the original loads mChara before the member function
-// pointer constant, as in chr::ControlRideBeast::vf10.
-boost::function<void()> ControlAppearEnd::vf10() {
+boost::function<void()> ControlAppearEnd::vf10() const {
     return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
 }
 
@@ -142,8 +140,7 @@ int ControlAppearSkelton::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 96.8% (scheduling only) - mChara is loaded before the stack frame is set up.
-boost::function<void()> ControlAppearSkelton::vf10() {
+boost::function<void()> ControlAppearSkelton::vf10() const {
     if (mChara != 0) {
         mChara->fn_8016E4C4(1);
         mChara->mColli.mFlags |= 1;

@@ -15,7 +15,7 @@ class ControlCannonLift : public ControlBase {
 public:
     ControlCannonLift(Chara_unk* chara, GimmickCommon* cannon); // 0x801A0BA8
     virtual int vf0C();                                         // 0x801A0C54
-    virtual boost::function<void()> vf10();                     // 0x801A10CC
+    virtual boost::function<void()> vf10() const;                     // 0x801A10CC
     virtual void vf1C();                                        // 0x801A1548
 
     GimmickCommon* mCannon; // 0x08
@@ -39,7 +39,7 @@ class ControlCannonTarget : public ControlMoveCursor {
 public:
     ControlCannonTarget(Chara_unk* chara); // 0x801A1BE4
     virtual int vf0C();                     // 0x801A1D9C
-    virtual boost::function<void()> vf10(); // 0x801A2058
+    virtual boost::function<void()> vf10() const; // 0x801A2058
 
     // inferred: passes the aim to the character (read back by CharaTask::fn_8017518C); name invented
     void SetAim_unk() {

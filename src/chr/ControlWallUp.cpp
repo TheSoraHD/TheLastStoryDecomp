@@ -211,8 +211,8 @@ int ControlWallUp::vf0C() {
     return ret;
 }
 
-// NONMATCHING: 99.8% - registers r5/r6 and stack slots of the inlined ControlWallDown constructor.
-boost::function<void()> ControlWallUp::vf10() {
+// NONMATCHING: 99.83% - registers r5/r6 and stack slots of the inlined ControlWallDown constructor.
+boost::function<void()> ControlWallUp::vf10() const {
     if (m4C) {
         if (m50 != 0) {
             return m50->vfB4(mChara);
@@ -353,7 +353,7 @@ void ControlWallSlash::vf1C() {
     }
 }
 
-boost::function<void()> ControlWallSlash::vf10() {
+boost::function<void()> ControlWallSlash::vf10() const {
     if (m34 != 0) {
         return boost::bind(&CharaTask::fn_80155A88, (CharaTask*)mChara, m38, false);
     }

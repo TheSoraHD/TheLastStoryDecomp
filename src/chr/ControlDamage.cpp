@@ -447,7 +447,7 @@ bool ControlKnockdown::fn_801AE41C() {
     return false;
 }
 
-boost::function<void()> ControlKnockdown::vf10() {
+boost::function<void()> ControlKnockdown::vf10() const {
     if (m24) {
         return m24;
     }
@@ -506,9 +506,9 @@ int ControlRevival::vf0C() {
     return done;
 }
 
-// NONMATCHING: 98.4% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10)
+// NONMATCHING: 99.82% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10)
 // and mChara of the second bind after its ptmf.
-boost::function<void()> ControlRevival::vf10() {
+boost::function<void()> ControlRevival::vf10() const {
     CharaTask* chara = mChara;
     if (chara->mType != 0 && chara->m564 != 7) {
         return DoubleFunction(boost::bind(&CharaTask::fn_8016EB48, chara, false, false, false),
@@ -549,8 +549,7 @@ int ControlRevivalSkelton::vf0C() {
     return done;
 }
 
-// NONMATCHING: 94.1% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10).
-boost::function<void()> ControlRevivalSkelton::vf10() {
+boost::function<void()> ControlRevivalSkelton::vf10() const {
     return boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false);
 }
 
@@ -801,8 +800,7 @@ bool ControlDamageLastOne::fn_801B0260() const {
     return frame >= model->fn_80097D7C(0);
 }
 
-// NONMATCHING: 94.0% - the original loads mChara before saving r31 (as in ControlCdnPiyo::vf10).
-boost::function<void()> ControlDamageLastOne::vf10() {
+boost::function<void()> ControlDamageLastOne::vf10() const {
     return boost::bind(&CharaTask::fn_8015ECC4, (CharaTask*)mChara);
 }
 

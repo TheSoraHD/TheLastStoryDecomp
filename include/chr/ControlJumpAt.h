@@ -12,7 +12,7 @@ class ControlJumpAt : public ControlBase {
 public:
     ControlJumpAt(Chara_unk* chara, const atn::Vector3& start, Chara_unk* target); // 0x801B529C
     virtual int vf0C();                     // 0x801B5370
-    virtual boost::function<void()> vf10(); // 0x801B54E8
+    virtual boost::function<void()> vf10() const; // 0x801B54E8
 
     atn::Vector3 mStart;         // 0x08
     Chara_unk* mTarget; // 0x14
@@ -31,7 +31,7 @@ public:
         motion->mTracks[0].m0C = 1.0f;
     }
     virtual int vf0C();                     // 0x801B5894
-    virtual boost::function<void()> vf10(); // 0x801B5A2C
+    virtual boost::function<void()> vf10() const; // 0x801B5A2C
 
     Chara_unk* mTarget; // 0x08
 };
@@ -41,7 +41,7 @@ class ControlGrappled : public ControlBase {
 public:
     ControlGrappled(Chara_unk* chara, Chara_unk* holder); // 0x801B618C
     virtual int vf0C();                     // 0x801B6278
-    virtual boost::function<void()> vf10(); // 0x801B6494
+    virtual boost::function<void()> vf10() const; // 0x801B6494
 
     Chara_unk* mHolder; // 0x08
     int mCount;         // 0x0C

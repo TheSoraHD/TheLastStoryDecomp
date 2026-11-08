@@ -44,7 +44,7 @@ class ControlKnockdown : public ControlBase {
 public:
     ControlKnockdown(Chara_unk* chara, const atn::Vector3& dir, int motion, int arg4); // 0x801AD34C
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     bool fn_801AE41C(); // inferred: can be cancelled (CharaTask::fn_8015EB2C, control id 0x17)
 
@@ -70,7 +70,7 @@ class ControlRevival : public ControlBase {
 public:
     ControlRevival(Chara_unk* chara, int time); // 0x801AE978
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     virtual void vf40();
 
@@ -81,7 +81,7 @@ class ControlRevivalSkelton : public ControlBase {
 public:
     ControlRevivalSkelton(Chara_unk* chara, int a); // 0x801AEF7C
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
 
     int m08;
@@ -115,7 +115,7 @@ class ControlDamageLastOne : public ControlBase {
 public:
     ControlDamageLastOne(Chara_unk* chara, const atn::Vector3* dir, int kind); // 0x801AFAC0
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     bool fn_801B0260() const; // inferred: can be cancelled (control id 0x8E)
 
     atn::Vector3 m08; // inferred: push of kind 11

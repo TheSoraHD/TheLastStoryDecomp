@@ -436,8 +436,7 @@ int ControlChant::vf0C() {
     return done;
 }
 
-// NONMATCHING: 96.7% - the original schedules the load of m44 and mChara into the prologue.
-boost::function<void()> ControlChant::vf10() {
+boost::function<void()> ControlChant::vf10() const {
     if (m44) {
         return boost::bind(&CharaTask::fn_801603CC, (CharaTask*)mChara, m47, m48);
     }
@@ -788,7 +787,7 @@ int ControlMagic::vf0C() {
     return result;
 }
 
-boost::function<void()> ControlMagic::vf10() {
+boost::function<void()> ControlMagic::vf10() const {
     if (m1C) {
         ControlMagicEnd* next = new ((MemoryTag)1, "", "", 0) ControlMagicEnd(mChara);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);

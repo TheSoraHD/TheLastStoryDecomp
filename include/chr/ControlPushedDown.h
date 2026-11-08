@@ -31,7 +31,7 @@ class ControlPushedAvoid : public ControlBase {
 public:
     ControlPushedAvoid(Chara_unk* chara, const atn::Vector3& dir, Chara_unk* other); // 0x801C61EC
     virtual int vf0C();                     // 0x801C6464
-    virtual boost::function<void()> vf10(); // 0x801C6CDC
+    virtual boost::function<void()> vf10() const; // 0x801C6CDC
     virtual void vf1C();                    // 0x801C6CC8
 
     atn::Vector3 m08; // inferred: direction of the side step

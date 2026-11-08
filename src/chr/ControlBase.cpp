@@ -49,9 +49,7 @@ atn::Vector3 ControlBase::vf18() const {
     return RotY_unk(p->m, atn::Vector3(0.0f, 0.0f, 1.0f));
 }
 
-// NONMATCHING: 95.8% - the original loads mChara before saving r31 (prologue scheduling, as in
-// chr/ControlCliffhang.cpp vf10); labels are those of chr/ControlCdnStone (weak copies).
-boost::function<void()> ControlBase::vf10() {
+boost::function<void()> ControlBase::vf10() const {
     return boost::bind(&CharaTask::fn_8016E970, (CharaTask*)mChara, mChara->m564);
 }
 

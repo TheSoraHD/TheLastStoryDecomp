@@ -25,7 +25,7 @@ class ControlRideBeast : public ControlBase {
 public:
     ControlRideBeast(Chara_unk* chara, Chara_unk* rider); // 0x801C706C
     virtual int vf0C();                          // 0x801C71A8
-    virtual boost::function<void()> vf10();      // 0x801C7390
+    virtual boost::function<void()> vf10() const;      // 0x801C7390
     virtual void vf1C();                         // 0x801C7350
 
     Chara_unk* mBeast;  // 0x08: inferred: the same character as mChara

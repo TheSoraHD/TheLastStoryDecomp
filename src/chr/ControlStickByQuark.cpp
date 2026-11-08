@@ -371,10 +371,10 @@ void ControlStickByQuark::fn_80192FB4() {
     mChara->mF1C = (int)mQuark->mMotion.GetNodeMtx_unk("rightwepoint");
 }
 
-// NONMATCHING: 96.4% - the original loads mDone before saving r31 (as in a const method) and swaps
+// NONMATCHING: 99.87% - the original loads mDone before saving r31 (as in a const method) and swaps
 // r8/r9 in the copies of the bound vector
 // inferred: thrown sideways when released, gets up otherwise
-boost::function<void()> ControlStickByQuark::vf10() {
+boost::function<void()> ControlStickByQuark::vf10() const {
     if (mDone) {
         EnemyQuarkStand* quark = mQuark;
         atn::Vector3 dir = quark->mPos - mChara->mPos;
@@ -966,7 +966,7 @@ int ControlMatHoldGuard::vf0C() {
 }
 
 // inferred: thrown backwards when broken free
-boost::function<void()> ControlMatHoldGuard::vf10() {
+boost::function<void()> ControlMatHoldGuard::vf10() const {
     if (mCount <= 0) {
         return boost::bind(&CharaTask::fn_8015DEC0, (CharaTask*)mChara, Neg_unk(Front_unk(mChara)));
     }
@@ -1050,7 +1050,7 @@ int ControlMatHold::vf0C() {
 }
 
 // inferred: thrown backwards when broken free
-boost::function<void()> ControlMatHold::vf10() {
+boost::function<void()> ControlMatHold::vf10() const {
     if (mCount <= 0) {
         return boost::bind(&CharaTask::fn_8015DEC0, (CharaTask*)mChara, Neg_unk(Front_unk(mChara)));
     }
@@ -1360,7 +1360,7 @@ atn::Vector3 ControlThrownAvoid::vf14() const {
 }
 
 // inferred: falls along mDir afterwards
-boost::function<void()> ControlThrownAvoid::vf10() {
+boost::function<void()> ControlThrownAvoid::vf10() const {
     ControlDropDown* next = new ((MemoryTag)0, "", "", 0) ControlDropDown(mChara, mDir);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -1434,7 +1434,7 @@ int ControlThrownSkelton::vf0C() {
 }
 
 // inferred: breaks against the wall
-boost::function<void()> ControlThrownSkelton::vf10() {
+boost::function<void()> ControlThrownSkelton::vf10() const {
     ControlThrownBreakSkelton* next = new ((MemoryTag)0, "", "", 0) ControlThrownBreakSkelton(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -1458,9 +1458,8 @@ int ControlThrownBreakSkelton::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 93.6% - the original loads mChara before saving r31 (as in a const method)
 // inferred: revives as a skeleton
-boost::function<void()> ControlThrownBreakSkelton::vf10() {
+boost::function<void()> ControlThrownBreakSkelton::vf10() const {
     return boost::bind(&CharaTask::fn_8015EFAC, (CharaTask*)mChara, (CharaTask::CONTROL_MODE)1);
 }
 
@@ -1539,7 +1538,7 @@ void ControlThreadCatch::vf1C() {
 }
 
 // inferred: released afterwards
-boost::function<void()> ControlThreadCatch::vf10() {
+boost::function<void()> ControlThreadCatch::vf10() const {
     ControlThreadRelease* next = new ((MemoryTag)0, "", "", 0) ControlThreadRelease(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -1653,7 +1652,7 @@ int ControlBoundShade::vf0C() {
 }
 
 // inferred: gets up and fires the bullet m18 at itself when not broken free in time
-boost::function<void()> ControlBoundShade::vf10() {
+boost::function<void()> ControlBoundShade::vf10() const {
     if (mCount > 0) {
         return DoubleFunction(boost::bind(&CharaTask::fn_8016EB48, (CharaTask*)mChara, false, false, false),
                             boost::bind(&CharaTask::fn_80164454, (CharaTask*)mChara, m18, (CharaTask*)mChara, (CharaTask*)mChara, 0));
@@ -1746,8 +1745,8 @@ inline ControlAbsorbedHPReleased::ControlAbsorbedHPReleased(Chara_unk* chara) : 
     m->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 96.7% - the original loads mCount before saving r31 (as StickByQuark::vf10)
-boost::function<void()> ControlAbsorbedHP::vf10() {
+// NONMATCHING: 99.86% - the original loads mCount before saving r31 (as StickByQuark::vf10)
+boost::function<void()> ControlAbsorbedHP::vf10() const {
     if (mCount > 0) {
         atn::Vector3 dir(0.0f, 0.0f, -1.0f);
         RotY_unk(dir, mChara->mRot.y);
@@ -1936,7 +1935,7 @@ atn::Vector3 ControlStickZanGurgStand::vf14() const {
     return pos;
 }
 
-boost::function<void()> ControlStickZanGurgStand::vf10() {
+boost::function<void()> ControlStickZanGurgStand::vf10() const {
     ControlGetUp* next = new ((MemoryTag)0, "", "", 0) ControlGetUp(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -1987,7 +1986,7 @@ atn::Vector3 ControlStickZanGurgCliff::vf14() const {
     return pos;
 }
 
-boost::function<void()> ControlStickZanGurgCliff::vf10() {
+boost::function<void()> ControlStickZanGurgCliff::vf10() const {
     ControlGetUp* next = new ((MemoryTag)0, "", "", 0) ControlGetUp(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }

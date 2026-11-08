@@ -19,7 +19,7 @@ public:
     ControlChant(Chara_unk* chara, CharaTask* target, const atn::Vector3& pos, int time, float range); // 0x801BC5B8
     virtual ~ControlChant();
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf5C() { fn_800CB5C8(&m30, 5, 0); }
 
     float m28;          // inferred: range of the magic (HitInfo_unk::m58)
@@ -41,7 +41,7 @@ class ControlMagic : public ControlBase {
 public:
     ControlMagic(Chara_unk* chara, CharaTask* target, float f, const atn::Vector3& pos, int b); // 0x801BE10C
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual atn::Vector3 vf18() const;
     virtual int vf28();
     virtual int vf44() {

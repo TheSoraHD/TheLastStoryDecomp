@@ -71,7 +71,7 @@ public:
     ControlJump(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& dir); // 0x801C1DCC
     bool fn_801C2198(atn::Vector3& out, const atn::Vector3& dir); // inferred: looks for the ledge
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual atn::Vector3 vf14() const;
 
     atn::Vector3 m08; // inferred: direction of the jump

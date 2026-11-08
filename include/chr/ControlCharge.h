@@ -50,7 +50,7 @@ class ControlQuarkSeirenAttack : public ControlChargeAttackBase {
 public:
     ControlQuarkSeirenAttack(Chara_unk* chara, const atn::Vector3& target, float speed, int adjust);
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     virtual void vf1C();
     float m2C;
 };
@@ -71,7 +71,7 @@ class ControlCharge : public ControlMoveCursor {
 public:
     ControlCharge(Chara_unk* chara, int a, const atn::Vector3* target, int c); // 0x801A2CEC
     virtual int vf0C();
-    virtual boost::function<void()> vf10();
+    virtual boost::function<void()> vf10() const;
     inline void AimAt_unk(HitInfo_unk* hit, CharaTask* target);
 
     float m28;         // inferred: range of the attack (HitInfo_unk::m58)

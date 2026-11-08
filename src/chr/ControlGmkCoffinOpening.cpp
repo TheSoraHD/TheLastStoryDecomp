@@ -145,7 +145,7 @@ int ControlGmkTrapBat::vf0C() {
     return 0;
 }
 
-boost::function<void()> ControlGmkTrapBat::vf10() {
+boost::function<void()> ControlGmkTrapBat::vf10() const {
     if ((mChara->mStatus.m0C & 0x20) == 0x20) {
         atn::Vector3 dir(0.0f, 0.0f, -0.01f);
         Mtx mtx;

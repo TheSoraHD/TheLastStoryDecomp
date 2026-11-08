@@ -120,7 +120,7 @@ int ControlChaseCaught::vf0C() {
     return done;
 }
 
-boost::function<void()> ControlChaseCaught::vf10() {
+boost::function<void()> ControlChaseCaught::vf10() const {
     ControlChaseHeld* next = new ((MemoryTag)0, "", "", 0) ControlChaseHeld(mChara, m08, m0C, m10);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -174,8 +174,8 @@ inline ControlChaseRelease::ControlChaseRelease(Chara_unk* chara) : ControlBase(
     motion->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 99.7% - r29/r30 swapped for the functor allocated by boost::function.
-boost::function<void()> ControlChaseHeld::vf10() {
+// NONMATCHING: 99.73% - r29/r30 swapped for the functor allocated by boost::function.
+boost::function<void()> ControlChaseHeld::vf10() const {
     ControlChaseRelease* next = new ((MemoryTag)0, "", "", 0) ControlChaseRelease(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -190,7 +190,7 @@ int ControlChaseRelease::vf0C() {
     return done;
 }
 
-boost::function<void()> ControlChaseRelease::vf10() {
+boost::function<void()> ControlChaseRelease::vf10() const {
     if (mChara->mType != 0) {
         ControlChaseFollow* next = new ((MemoryTag)0, "", "", 0) ControlChaseFollow(mChara);
         return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
@@ -240,8 +240,8 @@ int ControlChaseAssist::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.7% - r29/r30 swapped for the functor allocated by boost::function.
-boost::function<void()> ControlChaseAssist::vf10() {
+// NONMATCHING: 99.73% - r29/r30 swapped for the functor allocated by boost::function.
+boost::function<void()> ControlChaseAssist::vf10() const {
     ControlChaseRelease* next = new ((MemoryTag)0, "", "", 0) ControlChaseRelease(mChara);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -341,8 +341,8 @@ inline ControlChaseHold::ControlChaseHold(Chara_unk* chara, CharaTask* target) :
     motion->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 94.8% - the inlined ControlChaseHold constructor loads m08 before mChara.
-boost::function<void()> ControlChaseCatch::vf10() {
+// NONMATCHING: 99.73% - the inlined ControlChaseHold constructor loads m08 before mChara.
+boost::function<void()> ControlChaseCatch::vf10() const {
     ControlChaseHold* next = new ((MemoryTag)0, "", "", 0) ControlChaseHold(mChara, m08);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -382,8 +382,8 @@ inline ControlChaseReleased::ControlChaseReleased(Chara_unk* chara, CharaTask* t
     motion->mTracks[0].m0C = 1.0f;
 }
 
-// NONMATCHING: 94.8% - as ControlChaseCatch::vf10.
-boost::function<void()> ControlChaseHold::vf10() {
+// NONMATCHING: 99.73% - as ControlChaseCatch::vf10.
+boost::function<void()> ControlChaseHold::vf10() const {
     ControlChaseReleased* next = new ((MemoryTag)0, "", "", 0) ControlChaseReleased(mChara, m08);
     return boost::bind(&CharaTask::fn_80178208, (CharaTask*)mChara, next);
 }
@@ -398,7 +398,7 @@ int ControlChaseReleased::vf0C() {
     return done;
 }
 
-boost::function<void()> ControlChaseReleased::vf10() {
+boost::function<void()> ControlChaseReleased::vf10() const {
     mChara->m560 = 0;
     return ControlBase::vf10();
 }
