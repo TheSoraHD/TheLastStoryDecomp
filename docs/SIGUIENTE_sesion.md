@@ -1,13 +1,12 @@
-# Siguiente sesion (tras `s12h-20261108`, sin mergear)
+# Siguiente sesion (tras `s12h-20261108`, mergeada en `main`)
 
-Rama `s12h-20261108` (subida, **sin mergear**; revisar y mergear en `main`): **14596 / 18116** en `report.json`
-(inicio 14351), lost 0, sin bajadas de fuzzy, `main.dol: OK` en un clon limpio de la rama. Notas:
+`main` (merge 47408d2 de `s12h-20261108`): **14596 / 18116** en `report.json`
+(inicio 14351), lost 0, sin bajadas de fuzzy, `main.dol: OK` en un clon limpio. Crear rama nueva desde `main`. Notas:
 `docs/s12h-20261108.md`.
 
 ## Lo primero
 
-- Revisar las decisiones de `docs/s12h-20261108.md` (renombrados de `symbols.txt`, cambios de splits de
-  ControlRide y MenuCommonTask/MiniMapTask) y mergear la rama.
+- Decisiones abiertas de `docs/s12h-20261108.md` (unificar las vistas de `lbl_807C8AB0` y `PPNet_unk`).
 - `configure.py` sin argumentos intenta descargar compiladores (403): usar los flags de `docs/entorno-nube.md`.
 - Tras `pd.sh`/`pdbatch.sh`: devolver `lbl_8087D6E8`/`lbl_8087D6EC` (lineas 29689/29690 de `symbols.txt`).
 - Anadir un `#include` o locales nuevos renumera los `@N` de la unidad: `relocpair.py --apply <unidad>` + `pd.sh`;
