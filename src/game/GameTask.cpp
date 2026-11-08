@@ -2214,6 +2214,77 @@ GimmickCommon* GameTask::fn_8036E098() {
     return 0;
 }
 
+
+// NONMATCHING: 99.8% - registers of the inlined fn_80370C2C (same swap as that function)
+// inferred: nonzero when the field menu can be opened (field idle or a closing shop, no fade, no event)
+int GameTask::fn_8036E170() {
+    if (m54E4 != 0 && m54E4 != 14) {
+        if (m54E4 != 3) {
+            return 0;
+        }
+        if (ShopBuySell::sInstance != 0 && ShopBuySell::sInstance->m25B40 == 0) {
+            return 0;
+        }
+        if (lbl_8087F9E0 != 0 && ((ShopBase*)lbl_8087F9E0)->m25B40 == 0) {
+            return 0;
+        }
+        if (ShopColor::sInstance != 0 && ShopColor::sInstance->m25B40 == 0) {
+            return 0;
+        }
+        if (ShopIdentify::sInstance != 0 && ShopIdentify::sInstance->m25B40 == 0) {
+            return 0;
+        }
+        if (LibraryTask::sInstance != 0) {
+            return 0;
+        }
+    }
+    if (!fn_80370C2C()) {
+        return 0;
+    }
+    if (m5620 != 0 && m5620->mActive != 0 && !m5620->IsEnd()) {
+        return 0;
+    }
+    if (lbl_8087F540->fn_80481668()) {
+        return 0;
+    }
+    if (mGlobalFlags[108] != 0 || lbl_8087F610 != 0) {
+        return 0;
+    }
+    GameMessageWindow* window = lbl_8087F490->m263C;
+    if (window != 0 && window->mState != 0) {
+        return 0;
+    }
+    if (m56D4 != 0 || m56D8 != 0) {
+        return 0;
+    }
+    if (m54E4 != 3) {
+        PlayerTask* leader = lbl_8087F8A0->mHead;
+        if (leader->fn_8017C974() || m5760 > 0) {
+            return 0;
+        }
+        if (leader->m568 < 0.001f) {
+            return 0;
+        }
+        if (leader->m55C != 1) {
+            if (leader->m55C == 6) {
+                if (leader->m560 != 4) {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+    }
+    if (m10D8 != 0 && m10D8->m134 != 0 && m10D8->m134->mE8 > 0) {
+        return 0;
+    }
+    int state;
+    if (lbl_8087EF68 != 0 && fn_800A4228(lbl_8087EF68, &state)) {
+        return 0;
+    }
+    return 1;
+}
+
 void GameTask::fn_8036E430(int a, int b) {
     m5624->m78 = 0x12;
     m5624->Capture();
