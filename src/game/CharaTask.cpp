@@ -12147,10 +12147,8 @@ void CharaTask::vfCC(atn::Vector3* out, const atn::Vector3& vec) {
     out[2] = out[3] - dir * 30.0f + TransformVec_unk(m2, atn::Vector3(0.0f, 0.0f, 10.0f * RandRate_unk() + 20.0f));
 }
 
-// NONMATCHING: the original loads 0.6f into f0 and m5B4 into f2 (ours the other way round);
-// tried member and local forms of the offset.
 atn::Vector3 CharaTask::vfD0(float angle) {
-    atn::Vector3 offset(0.0f, 0.6f * m5B4, 0.0f);
+    atn::Vector3 offset(0.0f, 0.6f * (float)m5B4, 0.0f);
     atn::Vector3 pos(mPos.x + offset.x, mPos.y + offset.y, mPos.z + offset.z);
     Mtx m;
     PSMTXRotRad(m, 'y', angle);

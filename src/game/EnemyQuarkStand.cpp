@@ -2654,11 +2654,9 @@ extern "C" void fn_80354110(EnemyQuarkStand* self) {
     self->mMotion.mTracks[0].m0C = 0.01f;
 }
 
-// NONMATCHING: 99.45% - the original loads 0.6f into f0 and m5B4 into f3 (ours the other way round), same
-// open case as CharaTask::vfD0; ~8 forms of the offset
 atn::Vector3 EnemyQuarkStand::vfD0(float angle) {
     Mtx m;
-    atn::Vector3 up(0.0f, m5B4 * 0.6f, 0.0f);
+    atn::Vector3 up(0.0f, 0.6f * (float)m5B4, 0.0f);
     atn::Vector3 pos = mPos + up;
     atn::Vector3 dir;
     PSMTXRotRad(m, 'y', angle);
