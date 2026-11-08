@@ -3247,3 +3247,11 @@ void SequenceRoot::vf10() {}
 int SequenceRoot::vf0C() { return 1; }
 
 } // namespace Event
+
+// inferred: positions of the message layouts (read by Event/EventParser_unk and Event/ActionEffectPlay,
+// which see it as lbl_807C8AB0); initialized in __sinit
+extern "C" atn::Vector2_unk lbl_807C8AB0[3] = {
+    atn::Vector2_unk(0.5f, 0.81f),
+    atn::Vector2_unk(0.5f, 0.5f),
+    atn::Vector2_unk(0.95f, 0.8f),
+};
