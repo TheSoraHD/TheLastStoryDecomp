@@ -358,7 +358,8 @@ struct PPPlayer_unk {
 
     int mD38[5];                      // inferred: values of message 0x15
     unsigned int mD4C;                // inferred: bits 10-11 set by message 0x2E
-    unsigned char m0D50[0xD5C - 0xD50];
+    unsigned char m0D50[0xD58 - 0xD50];
+    int mD58;                         // inferred: score (players of equal score share a rank)
 
 };
 
@@ -410,10 +411,13 @@ struct PPManager2_unk {
     unsigned char m610[0x2B74 - 0x610]; // inferred: object given to fn_805076F8
     atn::SoundRef m2B74;              // inferred: sounds stopped by fn_804DA398
     atn::SoundRef m2B78;
-    unsigned char m2B7C[0x2B88 - 0x2B7C];
+    unsigned char m2B7C[0x2B80 - 0x2B7C];
+    int m2B80;
+    int m2B84;                        // inferred: result state of the game (fn_804E4A60)
     int m2B88;                        // inferred: number of the slots of m2B8C
     PPPlayer_unk m2B8C[8];
-    unsigned char m966C[0x967C - 0x966C];
+    int m966C;
+    unsigned char m9670[0x967C - 0x9670];
     int m967C;                        // inferred: value for the players marked m30 (fn_804E4D70)
     unsigned char m9680[0x9694 - 0x9680];
     int m9694[8];                     // inferred: per aid values of message 0x35
@@ -632,6 +636,61 @@ extern "C" inline void fn_804EE038(PPManager2_unk* mgr, short value) {
 }
 
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* player);
+
+extern "C" int fn_804E4C34(PPManager2_unk* mgr);
+extern "C" int fn_804E4C5C(PPManager2_unk* mgr);
+extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
+
+// inferred: result of the game for the player (0, 1 or 2) by game mode (called out of line by fn_804E4D70)
+extern "C" __declspec(noinline) int fn_804E4A60(PPManager2_unk* mgr) {
+    int result;
+    if (mgr->mMode == 0) {
+        if (mgr->m2B84 == 0) {
+            result = 0;
+        } else if (mgr->m2B84 == 1 && mgr->m966C == 5 && fn_804E4C34(mgr) != 0) {
+            result = 2;
+        } else {
+            result = 1;
+        }
+    } else if (mgr->mMode == 1) {
+        if (mgr->m2B84 == 0) {
+            result = 0;
+        } else if (mgr->m2B84 == 1) {
+            result = 2;
+        } else {
+            result = 1;
+        }
+    } else {
+        result = mgr->m2B84 == 3 ? 0 : 2;
+    }
+    return result;
+}
+
+// NONMATCHING: 89.78% - the original computes the address of the previous slot with mulli (here it is strength
+// reduced into the loop pointer)
+// inferred: rank of `target` in the ranking m2B8C (game mode 2: m2B80 != 3)
+extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target) {
+    int result = 0;
+    if (mgr->mMode != 2) {
+        if (mgr->mMode != 1 || fn_804E4C5C(mgr) != 3) {
+            int rank = 0;
+            int run = 0;
+            for (int i = 0; i < mgr->m2B88; i++) {
+                if (i > 0 && mgr->m2B8C[i].mD58 != mgr->m2B8C[i - 1].mD58) {
+                    rank += run;
+                    run = 0;
+                }
+                if (mgr->m2B8C[i].mRef.mChara == target->mRef.mChara) {
+                    result = rank;
+                }
+                run++;
+            }
+        }
+    } else {
+        result = mgr->m2B80 != 3;
+    }
+    return result;
+}
 
 // inferred: fn_804E4B44 on the last slot of m2B8C (-1 when there is none)
 extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
@@ -1244,6 +1303,7 @@ static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
     }
     return 0;
 }
+
 // inferred: adds a request (0 when the queue is full)
 extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c) {
     PPRequest_unk* req = FindFreeRequest_unk(queue);
@@ -1282,6 +1342,7 @@ extern "C" int fn_804F7EC8(void* data, int size) {
     }
     return 0;
 }
+
 extern "C" int fn_804F7EF0(void* data, int size) {
     MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
     if (saveLoad != 0) {
