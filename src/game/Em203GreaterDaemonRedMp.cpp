@@ -1178,7 +1178,6 @@ void Em203GreaterDaemonRedMp::fn_802A1BFC() {
     }
 }
 
-// NONMATCHING: 98.2% - load order of the motion speed in the first clamp
 // inferred: state 2 (dies: falls to the ground, then vanishes after 120 frames)
 void Em203GreaterDaemonRedMp::fn_802A2070() {
     if (m14D8 == 0) {
@@ -1202,7 +1201,7 @@ void Em203GreaterDaemonRedMp::fn_802A2070() {
         }
         if (m58C == 2) {
             if (mMotion.mTracks[0].m08 >= 25.0f) {
-                float speed = mMotion.mTracks[0].m0C + 0.05f;
+                float speed = (float)mMotion.mTracks[0].m0C + 0.05f;
                 mMotion.mTracks[0].m0C = 1.0f < speed ? 1.0f : speed;
             } else if (mMotion.mTracks[0].m08 >= 8.0f) {
                 float speed = mMotion.mTracks[0].m0C - 0.05f;
@@ -1227,8 +1226,8 @@ void Em203GreaterDaemonRedMp::fn_802A2070() {
             mFlag15 = 1;
             fn_800D246C(1);
             fn_801765D8();
+            Field_unk* field = lbl_8087F430;
             if (m1554 != 0) {
-                Field_unk* field = lbl_8087F430;
                 field->m8A0 = 0;
                 field->m97C.m00 = 0;
                 m1554 = 0;
