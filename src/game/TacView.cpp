@@ -39,6 +39,7 @@ int fn_805A6D20(const atn::Vector3& dir) {
     return sector;
 }
 
+extern "C" int rand();
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
 // inferred: sounds of the view (fn_805A70D4)
@@ -141,6 +142,87 @@ int TacView::vf0C() {
 }
 
 void TacView::vf14() {}
+
+void TacView::fn_805AA014(CharaTask* chara, int type) {
+    switch (fn_80219558(chara->m50)) {
+    case 1:
+    case 5:
+    case 9:
+    case 10:
+        if (type >= 3 && type <= 5) {
+            chara->fn_8017ABD4(0x2390);
+        } else if (type == 9) {
+            chara->fn_8017ABD4(rand() % 2 == 0 ? 0x27E5 : 0x27E6);
+        } else if (chara->mFlagB9) {
+            chara->fn_8017ABD4(0x27E9);
+        } else {
+            chara->fn_8017ABD4(0x238F);
+        }
+        break;
+    case 2:
+    case 3:
+        if (type == 4) {
+            chara->fn_8017ABD4(0x2392);
+        } else if (type == 9) {
+            chara->fn_8017ABD4(rand() % 2 == 0 ? 0x27E5 : 0x27E6);
+        } else {
+            chara->fn_8017ABD4(0x238D);
+        }
+        break;
+    case 4:
+        if (type >= 3 && type <= 4) {
+            chara->fn_8017ABD4(0x2390);
+        } else if (type == 9) {
+            chara->fn_8017ABD4(rand() % 2 == 0 ? 0x27E5 : 0x27E6);
+        } else if (chara->mFlagB9) {
+            chara->fn_8017ABD4(0x27E9);
+        } else {
+            chara->fn_8017ABD4(0x238F);
+        }
+        break;
+    case 6:
+        if (type == 4) {
+            chara->fn_8017ABD4(0x2329);
+        } else if (type == 9) {
+            chara->fn_8017ABD4(rand() % 2 == 0 ? 0x27E5 : 0x27E6);
+        } else if (chara->mFlagB9) {
+            chara->fn_8017ABD4(0x27E9);
+        } else {
+            chara->fn_8017ABD4(0x238F);
+        }
+        break;
+    case 11:
+        if (type == 9) {
+            chara->fn_8017ABD4(rand() % 2 == 0 ? 0x27E5 : 0x27E6);
+        } else {
+            chara->fn_8017ABD4(0x238D);
+        }
+        break;
+    case 14:
+        if (type == 9) {
+            chara->fn_8017ABD4(rand() % 2 == 0 ? 0x27E5 : 0x27E6);
+        } else if (type == 11) {
+            chara->fn_8017ABD4(0x238E);
+            chara->fn_8014DEE4(0, 0, 0);
+        } else if (type == 10) {
+            chara->fn_8017ABD4(0x238D);
+            chara->fn_8014DEE4(1, 0, 0);
+        }
+        break;
+    default:
+        if (chara->m5C->m122 == 4) {
+            if (type == 11) {
+                chara->fn_8017ABD4(0x238E);
+                chara->fn_8014DEE4(0, 0, 0);
+            } else if (type == 10) {
+                chara->fn_8017ABD4(0x238D);
+                chara->fn_8014DEE4(1, 0, 0);
+            }
+        }
+        break;
+    }
+    chara->mStatus.fn_8012D180();
+}
 
 int TacView::fn_805AA390(CharaTask* chara) {
     int id = chara->fn_8017AC08();
