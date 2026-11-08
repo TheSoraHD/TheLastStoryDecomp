@@ -67,6 +67,8 @@
 #include "atn/Font_unk.h"
 #include "atn/FixedArray.h"
 #include "game/Input_unk.h"
+#include "game/DamageCalc_unk.h"
+#include "chr/ControlBase.h"
 #include "std/vector.h"
 // inferred: post effect manager (atn/PostFx.h, which redefines atn::IRender here)
 extern "C" void* lbl_8087EF8C;
@@ -242,9 +244,13 @@ struct MpSettings_unk {
     int m184; // inferred: debug text of the field (GameTask::vf14)
     unsigned char m188[0x194 - 0x188];
     int m194;
-    unsigned char m198[0x320 - 0x198];
+    unsigned char m198[0x280 - 0x198];
+    int m280; // inferred: no experience is shared at the end of a battle (GameTask fn_80374964)
+    unsigned char m284[0x320 - 0x284];
     int m320; // inferred: halves the talk range (GameTask fn_8036DDD4)
-    unsigned char m324[0x48C - 0x324];
+    unsigned char m324[0x3DC - 0x324];
+    int m3DC; // inferred: the party is healed at the end of a battle (GameTask fn_80374964)
+    unsigned char m3E0[0x48C - 0x3E0];
     Input_unk mInput; // 0x48C
     unsigned char m4DC[0x5A0 - 0x4DC];
     int m5A0;
@@ -3988,6 +3994,99 @@ void GameTask::fn_803748E0(int arg) {
     if (arg != 0 && GameSoundControl::sInstance != 0) {
         GameSoundControl::sInstance->fn_803CDB64();
     }
+}
+
+// inferred: control of state 6/15 of the party (flag at 0x4E; class unknown)
+struct ControlFlag4E_unk {
+    unsigned char m00[0x4E];
+    unsigned char m4E;
+};
+
+// inferred: starts (kind 1-3) or ends (0) a battle of the field (called by GameEventScript and atn/PacketPack)
+extern "C" void fn_80374964(GameTask* task, int kind) {
+    if ((task->m5638 == 0 && kind == 0) || (task->m5638 != 0 && kind != 0)) {
+        return;
+    }
+    task->m5638 = kind;
+    if (kind == 0) {
+        int clear = task->fn_803761BC();
+        if (clear) {
+            task->mGlobalFlags[4] = 0;
+        }
+        task->fn_80375194(0, 0, 60.0f);
+        if (lbl_8087F048 != 0) {
+            lbl_8087F048->fn_8010ABF4();
+        }
+        if (GameSoundControl::sInstance != 0) {
+            GameSoundControl::sInstance->fn_803CDB68();
+        }
+        if (lbl_8087F9F8 != 0) {
+            lbl_8087F9F8->fn_805ADC00();
+        }
+        return;
+    }
+    if (lbl_8087F0A8->m280 == 0) {
+        Inventory::instance_->fn_80449ABC(0, -1);
+    }
+    if (lbl_8087F048 != 0) {
+        lbl_8087F048->fn_8010AC60();
+    }
+    if (task->m5638 == 1 || task->m5638 == 3) {
+        BattleResult::sInstance->fn_800F0D14(0);
+        if (GameSoundControl::sInstance != 0) {
+            GameSoundControl::sInstance->fn_803CDC48();
+        }
+    }
+    if (lbl_8087F9F8 != 0) {
+        lbl_8087F9F8->fn_805ADC10();
+    }
+    if (task->m5638 != 2) {
+        task->fn_80374D64();
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        player->fn_8016DA4C();
+        if (player->m55C == 6 && player->mControl.get() != 0) {
+            player->mControl->vf5C();
+        }
+    }
+    if (task->m5638 == 3) {
+        task->fn_80371790();
+    } else {
+        Inventory::instance_->fn_8044D028();
+    }
+    if (task->fn_80376150() && task->fn_803761BC()) {
+        task->mGlobalFlags[4] = 1;
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        if (lbl_8087F0A8->m3DC != 0) {
+            player->fn_80164DCC(1);
+        }
+        if ((player->mStatus.m0C & 0x20) == 0x20) {
+            HitInfo_unk* data = fn_80219E6C(10001);
+            DamageResult_unk result;
+            fn_8003EA3C(&result, data, player, player, 0, &lbl_807C6B90, 0, 0);
+        }
+        player->mStatus.fn_80133B30(0);
+        player->mStatus.fn_8012D8B8();
+        player->mStatus.m224 = player->mStatus.mParamB.m98;
+        player->mStatus.m2F4 = 0.0f;
+        player->vf48();
+        player->fn_80178A6C();
+        if ((unsigned int)(player->m58C - 3) <= 1) {
+            player->fn_8016EB48(0, 0, 0);
+        }
+        if (player->m55C == 6 && player->m560 == 0xF) {
+            ((ControlFlag4E_unk*)player->mControl.get())->m4E = 1;
+        }
+        player->fn_801750FC();
+        if (player->m55C == 6 && player->m560 == 0x21) {
+            player->fn_8016E970(player->m564);
+        }
+    }
+    lbl_8087F9E8->fn_8059C32C(0);
+    lbl_8087EE68->fn_80016FB4();
+    CrossbowMenuTask::sInstance->fn_801E97DC();
+    lbl_8087F490->fn_803E0D84();
 }
 
 // inferred: skill parameters of a player (as in db/PlayerParam_unk.cpp)
