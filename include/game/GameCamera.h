@@ -20,6 +20,61 @@ struct GameCameraState_unk {
     float m24;
 };
 
+// inferred: blend timer of the camera parameters (0xC bytes; weak copies 0x803829C0, 0x803829D4); names
+// invented
+struct GameCameraTimer_unk {
+    bool fn_803829C0() const { return mActive != 0; } // inferred: running
+    void fn_803829D4() {                                // inferred: steps towards 0
+        mTime = mTime - mStep;
+        mTime = 0.0f > mTime ? 0.0f : mTime;
+    }
+    int mActive;
+    float mTime; // inferred: set from the replay rewind (GameTask::fn_80373AE8)
+    float mStep;
+};
+
+// inferred: parameters of a camera mode (0x3C bytes, at 0x4C0 and 0x684; copy 0x8037E964, blend 0x8037F830);
+// names invented
+struct GameCameraParam_unk {
+    // inferred: weak copy 0x8037E964
+    GameCameraParam_unk(const GameCameraParam_unk& o)
+        : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
+          m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
+    // inferred: weak copy 0x8037F830: blend from a to b
+    void fn_8037F830(const GameCameraParam_unk& a, const GameCameraParam_unk& b, float t) {
+        m00 = t * (b.m00 - a.m00) + a.m00;
+        m04 = t * (b.m04 - a.m04) + a.m04;
+        m08 = t * (b.m08 - a.m08) + a.m08;
+        m0C = t * (b.m0C - a.m0C) + a.m0C;
+        m10 = t * (b.m10 - a.m10) + a.m10;
+        m14 = t * (b.m14 - a.m14) + a.m14;
+        m18 = t * (b.m18 - a.m18) + a.m18;
+        m1C = t * (b.m1C - a.m1C) + a.m1C;
+        m20 = t * (b.m20 - a.m20) + a.m20;
+        m24 = t * (b.m24 - a.m24) + a.m24;
+        m28 = t * (b.m28 - a.m28) + a.m28;
+        m2C = t * (b.m2C - a.m2C) + a.m2C;
+        m30 = t * (b.m30 - a.m30) + a.m30;
+        m34 = t * (b.m34 - a.m34) + a.m34;
+        m38 = a.m38;
+    }
+    float m00; // inferred: distance
+    float m04; // inferred: fovy
+    float m08; // inferred: pitch
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C; // inferred: weight of the distance
+    float m20;
+    float m24; // inferred: weight of the fovy
+    float m28;
+    float m2C;
+    float m30;
+    float m34;
+    int m38;
+};
+
 // Camera of the field (GameTask + 0x6C, constructed by the GameTask constructor; code in
 // game/GameCamera_unk.cpp). Real name from the RSO (__ct__10GameCameraFv, Update__10GameCameraFPC9CharaTask,
 // StartRollBack__10GameCameraFiif...); the constructor 0x8037D8B8 builds two atn::Camera at 0x00 and 0x1F4.
@@ -65,7 +120,9 @@ public:
     void fn_80384188(const CharaTask* chara);
     void fn_80385B48(const CharaTask* chara);
     void fn_80387548(const CharaTask* chara);
-    void fn_80387910(const CharaTask* chara);
+    void fn_80387910(const CharaTask* chara); // inferred: tactical view camera
+    void fn_8038E9B0(const CharaTask* chara, GameCameraParam_unk* param, atn::Vector3* pos, atn::Vector3* target,
+                     atn::Vector3* target2);
     void fn_803884B8(const CharaTask* chara);
     void fn_80388A88(const CharaTask* chara);
     void fn_80388C44(const CharaTask* chara);
@@ -94,14 +151,16 @@ public:
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     unsigned char m3E8[0x46C - 0x3E8];
     int m46C;
-    unsigned char m470[0x4B8 - 0x470];
-    float m4B8; // inferred: set from the replay rewind (GameTask::fn_80373AE8)
-    unsigned char m4BC[0x4FC - 0x4BC];
+    unsigned char m470[0x4B4 - 0x470];
+    GameCameraTimer_unk m4B4; // inferred: blend from m684 to m4C0
+    GameCameraParam_unk m4C0;
     atn::Vector3 m4FC;     // inferred: position of the fixed mode (relative to the character when m518 is set)
     atn::Vector3 m508;     // inferred: target of the fixed mode
     float m514;            // inferred: fovy of the fixed mode
     int m518;              // inferred: m4FC/m508 follow the character
-    unsigned char m51C[0x7F0 - 0x51C];
+    unsigned char m51C[0x684 - 0x51C];
+    GameCameraParam_unk m684;
+    unsigned char m6C0[0x7F0 - 0x6C0];
     int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
     unsigned char m7F8[0x7FC - 0x7F8];
@@ -121,9 +180,12 @@ public:
     int m858;
     float m85C;
     int m860;
-    unsigned char m864[0x880 - 0x864];
+    unsigned char m864[0x868 - 0x864];
+    atn::Vector3 m868; // inferred: target of the tactical view camera (fn_80387910)
+    unsigned char m874[0x880 - 0x874];
     int m880;
-    unsigned char m884[0x8A4 - 0x884];
+    unsigned char m884[0x8A0 - 0x884];
+    float m8A0; // inferred: yaw of the tactical view camera
     atn::Vector3 m8A4; // inferred: point the tactical view starts from (TacView::fn_805AA4E4)
     unsigned char m8B0[0x8D4 - 0x8B0];
     int m8D4; // inferred: set at the end of the replay rewind (GameTask::fn_80373AE8)

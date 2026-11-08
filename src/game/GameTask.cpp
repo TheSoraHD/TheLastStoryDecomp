@@ -4221,7 +4221,7 @@ void GameTask::fn_80373AE8() {
     if (m5598 > 0) {
         if (m559C > 0) {
             if (m55A0 > 0) {
-                mCamera.m4B8 = 1.0f;
+                mCamera.m4B4.mTime = 1.0f;
                 int left = m55A0 - 1;
                 m55A0 = left;
                 mFinish.m3A0 = 1.0f;
@@ -4245,7 +4245,7 @@ void GameTask::fn_80373AE8() {
                 float t = (float)m559C / 90.0f;
                 mFinish.m350 = mFinish.m354;
                 mFinish.m3A0 = t;
-                mCamera.m4B8 = t * t;
+                mCamera.m4B4.mTime = t * t;
             }
             mFinish.fn_803792F0();
             return;

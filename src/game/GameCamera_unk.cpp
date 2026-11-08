@@ -95,6 +95,140 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
     return dir;
 }
 
+// ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
+extern "C" double sin(double x);
+extern "C" double sqrt(double x);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+// inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
+extern "C" inline float fn_80011220(float x) {
+    return __fabs(x);
+}
+extern "C" inline float fn_8037F664(float x) {
+    return sin(x);
+}
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+extern "C" inline float fn_801C3910(const atn::Vector3& v) {
+    return sqrt(v.x * v.x + v.z * v.z);
+}
+extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+extern "C" inline float fn_800F8524(const float* a, const float* b, float t) {
+    return t * (*b - *a) + *a;
+}
+extern "C" inline void fn_8032EC94(int* p) {
+    *p = 0;
+}
+// inferred: camera accessors (weak copies; C names: the method names are unknown)
+extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy) {
+    camera->mFovy = fovy;
+}
+extern "C" inline float fn_80385B40(atn::Camera* camera) {
+    return camera->mDist;
+}
+
+// NONMATCHING: draft
+void GameCamera::fn_80387910(const CharaTask* chara) {
+    GameCameraParam_unk param(m684);
+    if (m4B4.fn_803829C0()) {
+        m4B4.fn_803829D4();
+        param.fn_8037F830(m684, m4C0, m4B4.mTime);
+        if (fn_80011220(m4B4.mTime) < 1.1920929e-7f) {
+            fn_8032EC94(&m4B4.mActive);
+        }
+    }
+    atn::Vector3 pos(*GetPosition_unk());
+    atn::Vector3 target(*GetTarget_unk());
+    atn::Vector3 dir = target - pos;
+    atn::Vector3 flat(dir);
+    flat.y = 0.0f;
+    if (fn_80011220(flat.LengthSq_unk()) < 1.1920929e-7f) {
+        flat.Set_unk(0.0f, 0.0f, 1.0f);
+    } else {
+        flat.Normalize_unk();
+    }
+    float dist = dir.Length_unk();
+    float fovy = GetFovy_unk();
+    dir.Normalize_unk();
+    atn::Vector3 rot = (-dir).ToRotation_unk();
+    rot.y = m8A0;
+    float delta = -param.m08 - rot.x;
+    rot.x += delta;
+    pos.y -= dist * fn_8037F664(delta);
+    float len = (m8A4 - pos).Length_unk();
+    float d = len + (param.m00 - len) * param.m1C;
+    target = m8A4;
+    m868 = target;
+    dir.Set_unk(0.0f, 0.0f, -d);
+    dir.fn_80011410(fn_800109E0(-rot));
+    pos = target + dir;
+    fovy = param.m24 * (param.m04 - fovy) + fovy;
+    fn_8038E9B0(chara, &param, &pos, &target, &target);
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 yaw;
+    yaw.fn_8013A13C(-m8A0);
+    front.fn_80011410(yaw);
+    atn::Vector3 toTarget = target - pos;
+    if (fn_801C3910(toTarget) < 0.01f) {
+        target += front * 0.02f;
+    } else {
+        toTarget.y = 0.0f;
+        toTarget.Normalize_unk();
+        if (fn_801A03E8(toTarget, front) < 0.0f) {
+            atn::Vector3 t(pos);
+            t.y = target.y;
+            t += front * 0.02f;
+            target = t;
+        }
+    }
+    dir = target - pos;
+    dir.y = 0.0f;
+    if (fn_80011220(flat.LengthSq_unk()) < 1.1920929e-7f) {
+        target.z += 0.1f;
+    }
+    dist = (target - pos).Length_unk();
+    if (dist > 0.1f) {
+        float camDist = fn_80385B40(this);
+        dist = fn_800F8524(&camDist, &dist, 0.4f);
+        float pitch = fn_80383728(this).ToRotation_unk().x;
+        atn::Vector3 r = (target - pos).ToRotation_unk();
+        r.x = fn_800F8524(&pitch, &r.x, 0.4f);
+        atn::Matrix3x4 m = fn_800109E0(r);
+        dir = atn::Vector3(0.0f, 0.0f, 1.0f).Transform_unk(m);
+        pos = target - dir * dist;
+    }
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8037F688(this, fovy);
+    fn_8004B378();
+    fn_80392964(0, 1, 0, 0);
+}
+
 void GameCamera::fn_803897EC(const CharaTask* chara) {
     m8F0 = chara->mMotion.mTracks[0].m08 < 67.0f;
     fn_8037F9AC(chara);
