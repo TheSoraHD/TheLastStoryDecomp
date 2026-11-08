@@ -237,7 +237,9 @@ struct MpSettings_unk {
     int m184; // inferred: debug text of the field (GameTask::vf14)
     unsigned char m188[0x194 - 0x188];
     int m194;
-    unsigned char m198[0x48C - 0x198];
+    unsigned char m198[0x320 - 0x198];
+    int m320; // inferred: halves the talk range (GameTask fn_8036DDD4)
+    unsigned char m324[0x48C - 0x324];
     Input_unk mInput; // 0x48C
     unsigned char m4DC[0x5A0 - 0x4DC];
     int m5A0;
@@ -2195,6 +2197,50 @@ extern "C" int fn_8036DBC0(GameTask* task, const atn::Vector3* pos, const atn::V
     return 0;
 }
 
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+
+// inferred: friend in front of the leader and close enough to talk (called by BattleCharaTask)
+// NONMATCHING: 99.7% - r28/r29 swapped (the found flag and the int-to-float constant)
+extern "C" EnemyTask* fn_8036DDD4(GameTask* task) {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', leader->mRot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    for (EnemyTask* chara = (EnemyTask*)FriendManager::sInstance->fn_8036554C(); chara != 0; chara = chara->mNext) {
+        if (chara->IsFlag_unk(4) || chara->mF50 != 0 || chara->fn_80175AEC()) {
+            continue;
+        }
+        if ((chara->mStatus.m0C & 0x20) == 0x20 && !chara->fn_8015EB2C()) {
+            continue;
+        }
+        if (chara->mStatus.m0C == 0 && !(chara->mStatus.m04 / (float)chara->mStatus.mParamB.m84 < 1.0f) &&
+            chara->mStatus.m1C >= 0) {
+            if (!chara->vfF4()) {
+                continue;
+            }
+            if (!chara->CanAct_unk()) {
+                continue;
+            }
+        }
+        atn::Vector3 d(chara->mPos.x - leader->mPos.x, chara->mPos.y - leader->mPos.y, chara->mPos.z - leader->mPos.z);
+        float dist = PSVECSquareMag(&d);
+        PSVECNormalize(&d, &d);
+        float range = 30.0f;
+        if (lbl_8087F0A8->m320 != 0) {
+            range *= 0.667f;
+        }
+        int found = 0;
+        if (dist < range * range && PSVECDotProduct(&d, &dir) > 0.1f) {
+            found = 1;
+        }
+        if (found) {
+            return chara;
+        }
+    }
+    return 0;
+}
+
 // NONMATCHING: same instructions; the original loads mGlobalFlags[31] (m1160) before the two floats of `dir` (tried
 // the declaration orders, assignments, bool, ?:, the dir built by members)
 GimmickCommon* GameTask::fn_8036E098() {
@@ -2411,6 +2457,197 @@ void GameTask::fn_8036EA3C() {
     fn_8036EE0C();
     if (LibraryTask::sInstance != 0) {
         fn_800D2338(LibraryTask::sInstance);
+    }
+}
+
+// inferred: enters a menu state of the field (1: everything frozen, 2: leader frozen, 3-5: shops and menus)
+void GameTask::fn_8036EA6C(int state) {
+    m5680 = m54E4;
+    m54E4 = state;
+    switch (state) {
+    case 1:
+        m10D8->FreezeTask();
+        GetCurrentMap()->FreezeTask();
+        ((atn::Task*)lbl_8087F048)->FreezeTask();
+        lbl_8087F8A0->FreezeTask();
+        EnemyManager::sInstance->FreezeTask();
+        NpcManager::sInstance->FreezeTask();
+        lbl_8087F098->FreezeTask();
+        lbl_8087EE68->FreezeTask();
+        GimmickManager::instance_->FreezeTask();
+        lbl_8087F3C0->FreezeTask();
+        MapManager::instance_->mType = 6;
+        GameSoundControl::sInstance->FreezeTask();
+        lbl_8087F490->FreezeTask();
+        if (lbl_8087F9F8 != 0) {
+            lbl_8087F9F8->FreezeTask();
+        }
+        if (ShopBuySell::sInstance != 0) {
+            ShopBuySell::sInstance->FreezeTask();
+        }
+        if (lbl_8087F9E0 != 0) {
+            lbl_8087F9E0->FreezeTask();
+        }
+        if (ShopColor::sInstance != 0) {
+            ShopColor::sInstance->FreezeTask();
+        }
+        if (ShopIdentify::sInstance != 0) {
+            ShopIdentify::sInstance->FreezeTask();
+        }
+        if (LibraryTask::sInstance != 0) {
+            LibraryTask::sInstance->FreezeTask();
+        }
+        lbl_8087F9E8->FreezeTask();
+        if (lbl_8087F540 != 0) {
+            lbl_8087F540->FreezeTask();
+        }
+        break;
+    case 3:
+    case 4:
+    case 5:
+        MapManager::instance_->fn_800D246C(1);
+        ((atn::Task*)lbl_8087F048)->fn_800D246C(1);
+        lbl_8087F8A0->fn_800D246C(1);
+        EnemyManager::sInstance->fn_800D246C(1);
+        NpcManager::sInstance->fn_800D246C(1);
+        lbl_8087EE68->fn_800D246C(1);
+        lbl_8087F3C0->fn_800D246C(1);
+        lbl_8087F418->fn_800D246C(1);
+        m10D8->fn_800D246C(1);
+        if (lbl_8087F540 != 0) {
+            lbl_8087F540->fn_800D246C(1);
+        }
+        break;
+    case 2:
+        lbl_8087F8A0->mHead->m54C |= 0x10;
+        break;
+    }
+    if (lbl_8087FA20 != 0 && ((TaskWithTac_unk*)lbl_8087FA20)->m258 != 0) {
+        ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->FreezeTask();
+    }
+    MenuCommonTask::sInstance->fn_804A2F98();
+    MenuCommonTask::sInstance->fn_804A313C();
+    lbl_8087F490->m263C->FreezeTask();
+    lbl_8087F490->m2640->FreezeTask();
+    MarketTask::sInstance->FreezeTask();
+    GameTimer::sInstance->FreezeTask();
+    lbl_8087EFE8->fn_800D0518(1, 0.2f, 30);
+    lbl_8087EFE8->m34D4 = 2;
+    lbl_8087EFE8->fn_800CFBA0(8, 1, 4, 15);
+    if (lbl_8087EFE8->fn_800D089C(1, 1) > 0 && GameBgm::sInstance != 0) {
+        int id = GameBgm::sInstance->m84 != 0 ? GameBgm::sInstance->mNext.mId : GameBgm::sInstance->mReq.mId;
+        if (id != 0x67) {
+            lbl_8087EFE8->fn_800CFBA0(2, 1, 4, 15);
+        }
+    }
+}
+
+// inferred: leaves the menu state entered by fn_8036EA6C and goes back to the previous state
+// NONMATCHING: 98.5% - the original tests m5680 against {1, 3, 4, 5, 14} with a bit mask and the 1..5 range with
+// two compares; ours merges 3..5 into a range test (tried switch, if chains in several orders, a local)
+void GameTask::fn_8036EE0C() {
+    switch (m54E4) {
+    case 1:
+        m10D8->MeltTask();
+        GetCurrentMap()->MeltTask();
+        ((atn::Task*)lbl_8087F048)->MeltTask();
+        lbl_8087F8A0->MeltTask();
+        EnemyManager::sInstance->MeltTask();
+        NpcManager::sInstance->MeltTask();
+        lbl_8087F098->MeltTask();
+        lbl_8087EE68->MeltTask();
+        GimmickManager::instance_->MeltTask();
+        lbl_8087F3C0->MeltTask();
+        MapManager::instance_->mType = 0;
+        GameSoundControl::sInstance->MeltTask();
+        lbl_8087F490->MeltTask();
+        if (lbl_8087F9F8 != 0) {
+            lbl_8087F9F8->MeltTask();
+        }
+        if (ShopBuySell::sInstance != 0) {
+            ShopBuySell::sInstance->MeltTask();
+        }
+        if (lbl_8087F9E0 != 0) {
+            lbl_8087F9E0->MeltTask();
+        }
+        if (ShopColor::sInstance != 0) {
+            ShopColor::sInstance->MeltTask();
+        }
+        if (ShopIdentify::sInstance != 0) {
+            ShopIdentify::sInstance->MeltTask();
+        }
+        if (LibraryTask::sInstance != 0) {
+            LibraryTask::sInstance->MeltTask();
+        }
+        lbl_8087F9E8->MeltTask();
+        if (lbl_8087F540 != 0) {
+            lbl_8087F540->MeltTask();
+        }
+        break;
+    case 3:
+    case 4:
+    case 5:
+        MapManager::instance_->fn_800D246C(0);
+        ((atn::Task*)lbl_8087F048)->fn_800D246C(0);
+        lbl_8087F8A0->fn_800D246C(0);
+        EnemyManager::sInstance->fn_800D246C(0);
+        NpcManager::sInstance->fn_800D246C(0);
+        lbl_8087EE68->fn_800D246C(0);
+        lbl_8087F3C0->fn_800D246C(0);
+        lbl_8087F418->fn_800D246C(0);
+        m10D8->fn_800D246C(0);
+        lbl_8087F490->fn_803E4100();
+        if (lbl_8087F540 != 0) {
+            lbl_8087F540->fn_800D246C(0);
+        }
+        break;
+    case 2:
+        lbl_8087F8A0->mHead->m54C &= ~0x10;
+        break;
+    }
+    int keep = 0;
+    int prev = m5680;
+    if (prev == 1 || prev == 3 || prev == 4 || prev == 5 || prev == 14) {
+        keep = 1;
+    }
+    if (!keep) {
+        MenuCommonTask::sInstance->fn_804A2FBC();
+        GameTimer::sInstance->MeltTask();
+    }
+    if (!keep) {
+        if (lbl_8087FA20 != 0 && ((TaskWithTac_unk*)lbl_8087FA20)->m258 != 0) {
+            ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->MeltTask();
+        }
+        lbl_8087F490->m263C->MeltTask();
+        lbl_8087F490->m2640->MeltTask();
+        MarketTask::sInstance->MeltTask();
+    }
+    MenuCommonTask::sInstance->fn_804A313C();
+    if (m5680 < 1 || m5680 > 5) {
+        lbl_8087EFE8->fn_800D0518(1, 1.0f, 30);
+        lbl_8087EFE8->m34D4 = 1;
+        lbl_8087EFE8->fn_800CFBA0(8, 0, 4, 15);
+        lbl_8087EFE8->fn_800CFBA0(2, 0, 4, 15);
+        lbl_8087F0A8->mInput.m14[0x24] = 1; // inferred: locks actions 0x24 and 7
+        lbl_8087F0A8->mInput.m14[7] = 1;
+    }
+    if (m54E4 == 1 && m5680 >= 3 && m5680 <= 5) {
+        m54E4 = m5680;
+        m5680 = 0;
+        if (ShopBuySell::sInstance != 0) {
+            ShopBuySell::sInstance->vf40();
+        }
+        if (lbl_8087F9E0 != 0) {
+            ((ShopBase*)lbl_8087F9E0)->vf40();
+        }
+        if (ShopColor::sInstance != 0) {
+            ShopColor::sInstance->vf40();
+        }
+        if (ShopIdentify::sInstance != 0) {
+            ShopIdentify::sInstance->vf40();
+        }
+    } else {
+        m54E4 = m5680;
     }
 }
 
