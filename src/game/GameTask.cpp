@@ -312,7 +312,6 @@ extern "C" void fn_8056F2F8(GameTaskData_unk* obj, int value);
 extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
 extern "C" atn::Task* lbl_8087FA20;
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
-extern "C" void fn_805AA734(TacView* tac);
 extern "C" void fn_800F3D28(BattleTask* battle);
 extern "C" void fn_800F3170(BattleTask* battle);
 extern "C" int fn_800F3490(BattleTask* battle);
@@ -1089,7 +1088,7 @@ void GameTask::vf10() {
                 }
             }
             if (m54E4 == 14) {
-                fn_805AA734(lbl_8087F9F8);
+                lbl_8087F9F8->fn_805AA734();
                 lbl_8087F430->fn_803743AC();
                 mCamera.m8E4 = 0;
                 mCamera.fn_80389838(0);
@@ -3419,7 +3418,7 @@ void GameTask::fn_80370F8C(int count, void* save, int stay) {
     lbl_8087F490->m263C->fn_803B57B0(1);
     lbl_8087F490->m2640->fn_803B6C88(1);
     if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-        fn_805AA734(lbl_8087F9F8);
+        lbl_8087F9F8->fn_805AA734();
         lbl_8087F430->fn_803743AC();
     }
     lbl_8087F540->MeltTask();

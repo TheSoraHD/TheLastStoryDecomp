@@ -82,7 +82,9 @@ public:
     int m860;
     unsigned char m864[0x880 - 0x864];
     int m880;
-    unsigned char m884[0x8D4 - 0x884];
+    unsigned char m884[0x8A4 - 0x884];
+    atn::Vector3 m8A4; // inferred: point the tactical view starts from (TacView::fn_805AA4E4)
+    unsigned char m8B0[0x8D4 - 0x8B0];
     int m8D4; // inferred: set at the end of the replay rewind (GameTask::fn_80373AE8)
     unsigned char m8D8[0x8E4 - 0x8D8];
     int m8E4; // inferred: cleared by GameTask::vf10 when the tactical view closes

@@ -1,11 +1,15 @@
 // game/TacView.cpp (0x805A6D20-0x805AE26C): tactical view of the battle (TacView). Only some members
 // are reconstructed so far.
 #include "game/TacView.h"
+#include "atn/D2A_Task.h"
+#include "atn/D2A_TaskInstance.h"
 #include "game/CharaTask.h"
 #include "game/SkillEffectManager.h"
 #include "atn/SoundRef.h"
 #include "atn/Memory.h"
 #include "db/SkillParam_unk.h"
+#include "game/GameTask.h"
+#include "game/PlayerManager.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -82,7 +86,7 @@ static const int sTexts2[6] = {0x139, 0x13A, 0x13B, 0x13C, -1, -1};
 
 // NONMATCHING: 99.5% - register coloring of the constants 0/2 and of the end of the mSlots loop
 TacView::TacView(atn::Task* parent)
-    : atn::Task(parent), m48(2), m4C(0), m50(0), mA70(0), mA74(0), mA78(6), mA7C(0), mA80(0), mA84(0),
+    : atn::Task(parent), mA70(0), mA74(0), mA78(6), mA7C(0), mA80(0), mA84(0),
       m158C(0), m1590(0), m1594(0), m1598(0), m15A8(0), m15AC(0), m15D4(0), m15D8(0), m15DC(0.0f, 0.0f, 0.0f),
       m15E8(-1.0f), m15EC(0), m15ED(0) {
     (mLayouts.mSelect = fn_801F3FF8(this, "/data/d2anime/ui_command_select.d2a", 0))->fn_800D246C(1);
@@ -195,6 +199,84 @@ void TacView::fn_805AA4C8(SkillEffect* effect) {
     CharaTask* user = effect->m0C;
     user->mFlagB16 = 0;
     user->fn_80178864(effect->m04, user);
+}
+
+extern "C" GameTask* lbl_8087F430;
+extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" void* lbl_8087EF70; // inferred: pad input
+extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
+
+void TacView::fn_805AA4E4() {
+    if (mA70 != 0) {
+        return;
+    }
+    mA70 = 1;
+    mA74 = 0;
+    mA7C = 0;
+    mA84 = 0;
+    m158C = 0;
+    m1598 = 0;
+    m15A8 = 1;
+    m159C = lbl_8087F430->mCamera.m8A4;
+    m15AC = 0;
+    mCharas.clear();
+    if (m15D8 == 1) {
+        ChangeMode_unk(4);
+    } else {
+        ChangeMode_unk(0);
+    }
+    for (PlayerTask* chara = lbl_8087F8A0->mHead; chara != 0; chara = chara->mNext) {
+        chara->mStatus.fn_8012D180();
+    }
+    if (m158C >= 0 && m158C < (int)mSlots.size()) {
+        m48 = mSlots[m158C].mSel;
+    } else {
+        m48.mState = 2;
+        m48.m04 = 0;
+        m48.mTarget = 0;
+    }
+    fn_805ADDD4(0);
+    if (lbl_8087F430 != 0) {
+        lbl_8087F430->fn_803750E4(0xBB);
+        lbl_8087F430->fn_803750E4(0xBC);
+    }
+    if (fn_800A55D4(lbl_8087EF70, 0, 0) || fn_800A55D4(lbl_8087EF70, 0, 1) || fn_800A55D4(lbl_8087EF70, 0, 2) ||
+        fn_800A55D4(lbl_8087EF70, 0, 3) || fn_800A55D4(lbl_8087EF70, 0, 0x1A) ||
+        fn_800A55D4(lbl_8087EF70, 0, 0x19) || fn_800A55D4(lbl_8087EF70, 0, 0x17) ||
+        fn_800A55D4(lbl_8087EF70, 0, 0x18)) {
+        mA74 = 1;
+    }
+}
+
+void TacView::fn_805AA734() {
+    if (mA70 == 0) {
+        return;
+    }
+    mA70 = 0;
+    ChangeMode_unk(6);
+    m48.mState = 2;
+    m48.m04 = 0;
+    m48.mTarget = 0;
+    m15D8 = 0;
+    m15DC.x = 0.0f;
+    m15DC.y = 0.0f;
+    m15DC.z = 0.0f;
+    m15E8 = -1.0f;
+    m15EC = 0;
+    m15ED = 0;
+    m15F0.mState = 2;
+    m15F0.m04 = 0;
+    m15F0.mTarget = 0;
+    fn_800CB5C8(&m16C0, 15, 0);
+    mLayouts.m1C = 0;
+    mLayouts.m20 = 0;
+    for (int i = 0; i < 4; i++) {
+        mLayouts.mDirs[i]->Rewind_unk();
+    }
+}
+
+int TacView::fn_805AA824() {
+    return 0;
 }
 
 void TacView::fn_805AA82C(atn::Vector3* pos) {

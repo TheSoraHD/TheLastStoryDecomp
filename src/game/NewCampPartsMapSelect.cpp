@@ -113,7 +113,6 @@ extern "C" atn::SoundRef fn_80117228(int id);                   // inferred: pla
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int a, float b);
 extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int c); // inferred: changes the map
-extern "C" void fn_805AA734(TacView* view); // inferred: closes the tactical view
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
@@ -707,7 +706,7 @@ void NewCampPartsMapSelect::fn_80520098() {
         return;
     }
     if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-        fn_805AA734(lbl_8087F9F8);
+        lbl_8087F9F8->fn_805AA734();
         lbl_8087F430->fn_803743AC();
     }
     fn_8036F268(lbl_8087F430, route->mMapType, route->mMapId, route->mMapSubId, route->mEntry, 1, 0, 0x12, 1);

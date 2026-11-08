@@ -1,5 +1,6 @@
 #include "game/NewCampPartsTop.h"
 #include "game/GameTask.h"
+#include "game/TacView.h"
 #include "game/NewCampTask.h"
 #include "game/GameScene.h"
 #include "game/GameUI.h"
@@ -91,12 +92,6 @@ class NpcManager {
 public:
     static atn::Task* sInstance;
 };
-struct NewCampTopMap_unk {
-    unsigned char m000[0xA70];
-    int mA70;
-};
-extern "C" NewCampTopMap_unk* lbl_8087F9F8;
-extern "C" void fn_805AA734(NewCampTopMap_unk* p);
 class GameBgm {
 public:
     int fn_8037D4C0(int id, int fade, int b, int c, float volume); // inferred: requests a BGM
@@ -366,7 +361,7 @@ void NewCampPartsTop::vf2C() {
                 EnemyManager::sInstance->fn_800D246C(1);
                 NpcManager::sInstance->fn_800D246C(1);
                 if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
-                    fn_805AA734(lbl_8087F9F8);
+                    lbl_8087F9F8->fn_805AA734();
                     ((GameTask*)lbl_8087F430)->fn_803743AC();
                 }
                 if (GameBgm::sInstance != 0) {

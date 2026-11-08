@@ -2088,7 +2088,7 @@ void GameUI::fn_803DCA84(CharaTask* chara, float* fade) {
     pos.y += 6.0f;
     int kind = chara->m5C->m122;
     TacView* tac = lbl_8087F9F8;
-    if (tac != 0 && tac->mA70 != 0 && tac->m48 != 2 && tac->IsIdle_unk() && tac->m4C == chara &&
+    if (tac != 0 && tac->mA70 != 0 && tac->m48.mState != 2 && tac->IsIdle_unk() && tac->m48.m04 == chara &&
         tac->m15D8 == 0) {
         selected = true;
     }
