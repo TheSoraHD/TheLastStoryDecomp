@@ -321,9 +321,7 @@ extern "C" SkillEffect* fn_8059B66C(SkillEffectManager* self, HitInfo_unk* skill
     return 0;
 }
 
-// NONMATCHING: 99.46% - scheduling of the load of skill->m58 inside the distance computation
-// (float registers); tried 8 orders of the radius/distance expressions.
-void SkillEffectManager::fn_8059B8A8(HitInfo_unk* skill, CharaTask* user, const atn::Vector3* pos,
+void SkillEffectManager::fn_8059B8A8(const HitInfo_unk* skill, CharaTask* user, const atn::Vector3* pos,
                                      const atn::Vector3* rot) {
     atn::FixedArray_unk<Pair_unk<HitInfo_unk*, CharaTask*>, 32> hits;
     atn::FixedArray_unk<Pair_unk<HitInfo_unk*, CharaTask*>, 32> heals;

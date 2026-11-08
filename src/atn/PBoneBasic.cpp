@@ -38,7 +38,7 @@ struct PBoneModel_unk {
 };
 
 // inferred: rotation (x, y, z) that turns the z axis to dir
-void fn_800A73A4(atn::Vector3* rot, const atn::Vector3* dir);
+void fn_800A73A4(atn::Vector3* rot, atn::Vector3* dir);
 
 
 // inferred: atan2 on floats (name invented)
@@ -47,9 +47,7 @@ inline float Atan2_unk(float y, float x) {
 }
 
 // inferred: angles (x = 0, y, z) of dir; also computes its ToRotation_unk, which is not used
-// NONMATCHING: 93.4% - the epsilon is loaded before the prologue stores in the original, and
-// the Vector3 copy of math/Vec.h gets the source and destination address registers swapped (copy of dir)
-void fn_800A73A4(atn::Vector3* rot, const atn::Vector3* dir) {
+void fn_800A73A4(atn::Vector3* rot, atn::Vector3* dir) {
     if (atn::Abs_unk(dir->x) < 1.1920929e-7f) {
         rot->y = dir->z > 0.0f ? 1.5707964f : -1.5707964f;
         rot->z = 0.0f;

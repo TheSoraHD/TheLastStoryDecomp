@@ -1753,9 +1753,7 @@ struct StatusItem_unk {
 };
 extern "C" int fn_8021AF50(int stat);
 
-// NONMATCHING: 98.9% - only the load of item->mB8 is scheduled after the register saves (the original
-// loads it right after saving f30); same as fn_80133BD8.
-void CharaStatus::fn_801342D0(StatusItem_unk* item, int stat) {
+void CharaStatus::fn_801342D0(const StatusItem_unk* item, int stat) {
     float value = 0.0f;
     float amount = item->mB8;
     int type = item->mB4;
