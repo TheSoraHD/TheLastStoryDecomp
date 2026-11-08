@@ -81,8 +81,15 @@ struct TacViewCursor_unk : public TacViewSel_unk {
 // (weak copy 0x805A7600) clears the whole entry after the cursor state. Names invented.
 struct TacViewSlot_unk {
     TacViewSlot_unk() { memset(this, 0, sizeof(TacViewSlot_unk)); }
+    // inferred: weak copies 0x805AB1B0 and 0x805AB1C0 (fn_805AB828)
+    void fn_805AB1B0(CharaTask* chara) {
+        mSel.mState = 0;
+        mSel.m04 = chara;
+    }
+    bool fn_805AB1C0() const { return mSel.mState != 2; }
     TacViewCursor_unk mSel;
-    unsigned char m0C[0x2C - 0xC];
+    // inferred: nearest slot in each of the 8 directions of fn_805A6D20 (filled by fn_805AB828)
+    TacViewSlot_unk* mNear[8];
 };
 
 // inferred: layout tasks of the view (TacView + 0x15B0, cleared by its constructor); names invented
