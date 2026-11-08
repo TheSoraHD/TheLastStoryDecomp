@@ -7,14 +7,111 @@
 #include "atn/Memory.h"
 #include "db/SkillParam_unk.h"
 
-// inferred: plays the sound `id` of the view (0x805A70D4, not decompiled: its name table is in .rodata)
-atn::SoundRef fn_805A70D4(int id, float volume);
+// inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
+int fn_805A6D20(const atn::Vector3& dir) {
+    atn::Vector3 rot = dir.ToRotation_unk();
+    float a = atn::WrapAngle_unk(rot.y);
+    float h = 0.3926991f; // inferred: half of a sector (pi / 8)
+    int sector = 8;
+    if (8.0f * -h <= a && a < 7.0f * -h) {
+        sector = 4;
+    } else if (7.0f * -h <= a && a < 5.0f * -h) {
+        sector = 3;
+    } else if (5.0f * -h <= a && a < 3.0f * -h) {
+        sector = 2;
+    } else if (3.0f * -h <= a && a < -h) {
+        sector = 1;
+    } else if (-h <= a && a < h) {
+        sector = 0;
+    } else if (h <= a && a < 3.0f * h) {
+        sector = 7;
+    } else if (3.0f * h <= a && a < 5.0f * h) {
+        sector = 6;
+    } else if (5.0f * h <= a && a < 7.0f * h) {
+        sector = 5;
+    } else if (7.0f * h <= a && a <= 8.0f * h) {
+        sector = 4;
+    }
+    return sector;
+}
+
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+
+// inferred: sounds of the view (fn_805A70D4)
+static const char* const sSoundNames[10] = {
+    "SE_UICOM_004", "SE_UICOM_001", "SE_UICOM_002", "SE_UICOM_045", "SE_UICOM_027",
+    "SE_UICOM_013", "SE_UICOM_030", "SE_UICOM_032", "SE_UICOM_033", "SE_UICOM_024",
+};
+
+// inferred: plays the sound `id` of the view
+atn::SoundRef fn_805A70D4(int id, float volume) {
+    return fn_800C31F4(sSoundNames[id], 0, -1, volume);
+}
+
+// inferred: skills shown by the view (filled by the constructor; 0x807C95B0)
+static SkillParam_unk sSkillParams_unk[6];
+
+// inferred: layout anime task (as game/CosEditProtector.cpp)
+extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path);
+// inferred: d2anime task (atn/D2A_Task.h declares it with atn::D2A_Task*)
+extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop);
+
+// inferred: message table (lbl_8087F1E4) as the view reads it: {id, text} entries (8 bytes each)
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+struct TacViewMsgTable_unk {
+    struct Entry {
+        int mId;
+        const wchar_t* mText;
+    };
+    const wchar_t* Get_unk(int id) { return mEntries[id].mText != 0 ? mEntries[id].mText : lbl_808813D0; }
+    Entry mEntries[1];
+};
+extern "C" TacViewMsgTable_unk* lbl_8087F1E4;
 
 TacView* TacView::fn_805A70F0(atn::Task* parent) {
     if (lbl_8087F9F8 == 0) {
         lbl_8087F9F8 = new ((MemoryTag)3, "", "", 0) TacView(parent);
     }
     return lbl_8087F9F8;
+}
+
+// inferred: skill ids, default name/text ids and name/text override ids (-1: none) of the six skills
+static const int sIds[6] = {0x4FBE, 0x4FC0, -1, -1, -1, -1};
+static const int sNames[6] = {0x1AA, 0x1AB, 0x1AC, 0x1AD, 0x1AE, 0x1AF};
+static const int sTexts[6] = {0x1B0, 0x1B1, 0x1B2, 0x1B3, 0x1B4, 0x1B5};
+static const int sNames2[6] = {0x135, 0x136, 0x137, 0x138, -1, -1};
+static const int sTexts2[6] = {0x139, 0x13A, 0x13B, 0x13C, -1, -1};
+
+// NONMATCHING: 99.5% - register coloring of the constants 0/2 and of the end of the mSlots loop
+TacView::TacView(atn::Task* parent)
+    : atn::Task(parent), m48(2), m4C(0), m50(0), mA70(0), mA74(0), mA78(6), mA7C(0), mA80(0), mA84(0),
+      m158C(0), m1590(0), m1594(0), m1598(0), m15A8(0), m15AC(0), m15D4(0), m15D8(0), m15DC(0.0f, 0.0f, 0.0f),
+      m15E8(-1.0f), m15EC(0), m15ED(0) {
+    (mLayouts.mSelect = fn_801F3FF8(this, "/data/d2anime/ui_command_select.d2a", 0))->fn_800D246C(1);
+    (mLayouts.mHpFlash = fn_801F3FF8(this, "/data/d2anime/ui_command_hp_flash.d2a", 0))->fn_800D246C(1);
+    (mLayouts.mFace = fn_801F3FF8(this, "/data/d2anime/ui_command_face.d2a", 0))->fn_800D246C(1);
+    (mLayouts.mUp = fn_801F64D0(this, "/data/d2anime/ui_select_4_u.d2a"))->fn_800D246C(1);
+    (mLayouts.mDown = fn_801F64D0(this, "/data/d2anime/ui_select_4_d.d2a"))->fn_800D246C(1);
+    (mLayouts.mLeft = fn_801F64D0(this, "/data/d2anime/ui_select_4_l.d2a"))->fn_800D246C(1);
+    (mLayouts.mRight = fn_801F64D0(this, "/data/d2anime/ui_select_4_r.d2a"))->fn_800D246C(1);
+    for (int i = 0; i < 6; i++) {
+        sSkillParams_unk[i].mId = sIds[i];
+        sSkillParams_unk[i].m64 = 0;
+        if (sNames2[i] < 0) {
+            sSkillParams_unk[i].mName = lbl_8087F1E4->Get_unk(sNames[i]);
+        } else {
+            sSkillParams_unk[i].mName = lbl_8087F1E4->Get_unk(sNames2[i]);
+        }
+        if (sTexts2[i] < 0) {
+            sSkillParams_unk[i].mText = lbl_8087F1E4->Get_unk(sTexts[i]);
+        } else {
+            sSkillParams_unk[i].mText = lbl_8087F1E4->Get_unk(sTexts2[i]);
+        }
+    }
+}
+
+TacView::~TacView() {
+    lbl_8087F9F8 = 0;
 }
 
 int TacView::fn_805AA390(CharaTask* chara) {
@@ -256,5 +353,4 @@ void TacViewChara_unk::fn_805AE188() {
     m94 = 0;
 }
 
-// inferred: skills shown by the view (filled by the constructor; 0x807C95B0)
-static SkillParam_unk sSkillParams_unk[6];
+

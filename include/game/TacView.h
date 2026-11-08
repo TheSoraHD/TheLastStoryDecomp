@@ -5,6 +5,8 @@
 #include "atn/Task.h"
 #include "game/AiTarget.h"
 #include "math/Vec.h"
+#include "atn/SoundRef.h"
+#include <string.h>
 
 class SkillEffect;
 class CharaTask;
@@ -12,7 +14,7 @@ struct HitInfo_unk;
 
 // inferred: 0xC-byte entry of TacView::mEntries (names invented)
 struct TacViewEntry_unk {
-    TacViewEntry_unk() {}
+    TacViewEntry_unk() : mChara(0), mHit(0), mState(0) {}
     TacViewEntry_unk(CharaTask* chara, HitInfo_unk* hit, unsigned int state) : mChara(chara), mHit(hit), mState(state) {}
     CharaTask* mChara;
     HitInfo_unk* mHit;
@@ -21,6 +23,7 @@ struct TacViewEntry_unk {
 
 // inferred: character entry of TacView (0x98 bytes; TacView + 0x54 and the 16 entries at 0xF0). Names invented.
 struct TacViewChara_unk {
+    TacViewChara_unk() { fn_805AE188(); } // weak copy 0x805A757C
     atn::Vector3 fn_805AE138() const; // inferred: position of the entry
     void fn_805AE188();               // inferred: reset
 
@@ -40,6 +43,10 @@ struct TacViewChara_unk {
     int m94;
 };
 
+// inferred: characters of the view (TacView + 0xEC; the destructor checks the address twice, as
+// AiTargetList_unk)
+class TacViewCharaList_unk : public atn::FixedArray_unk<TacViewChara_unk, 16> {};
+
 // inferred: object aimed at by the cursor of TacView (names invented); m08 is a character
 struct TacViewTarget_unk {
     int m00;
@@ -53,12 +60,44 @@ struct TacViewSel_unk {
     TacViewTarget_unk* mTarget;
 };
 
+// inferred: cursor state cleared by its constructor (TacView + 0x15F0 and TacViewSlot_unk); name invented
+struct TacViewCursor_unk : public TacViewSel_unk {
+    TacViewCursor_unk() {
+        mState = 2;
+        m04 = 0;
+        mTarget = 0;
+    }
+};
+
+// inferred: 0x2C-byte entry of TacView (64 at 0xA8C; also a local of fn_805AB828); the constructor
+// (weak copy 0x805A7600) clears the whole entry after the cursor state. Names invented.
+struct TacViewSlot_unk {
+    TacViewSlot_unk() { memset(this, 0, sizeof(TacViewSlot_unk)); }
+    TacViewCursor_unk mSel;
+    unsigned char m0C[0x2C - 0xC];
+};
+
+// inferred: layout tasks of the view (TacView + 0x15B0, cleared by its constructor); names invented
+struct TacViewLayouts_unk {
+    TacViewLayouts_unk() { memset(this, 0, sizeof(TacViewLayouts_unk)); }
+    atn::Task* mSelect;   // ui_command_select.d2a
+    atn::Task* mFace;     // ui_command_face.d2a
+    atn::Task* mHpFlash;  // ui_command_hp_flash.d2a
+    atn::Task* mUp;       // ui_select_4_u.d2a
+    atn::Task* mLeft;     // ui_select_4_l.d2a
+    atn::Task* mRight;    // ui_select_4_r.d2a
+    atn::Task* mDown;     // ui_select_4_d.d2a
+    atn::Task* m1C;
+    atn::Task* m20;
+};
+
 // inferred: tactical view of the battle (game/TacView.cpp, 0x805A6D20-0x805AE26C; instance lbl_8087F9F8).
 // Only the members used by the decompiled units are declared; other files still use partial views
 // (TacView_unk in game/CharaTask.cpp, chr/ControlCharge.cpp, game/PlayerInput_unk.cpp).
 class TacView : public atn::Task {
 public:
     TacView(atn::Task* parent); // 0x805A7158
+    virtual ~TacView();         // 0x805A764C
     static TacView* fn_805A70F0(atn::Task* parent); // inferred: creates the singleton
     // inferred: end of the effect of a skill started by the player: clears the flag 0x10000 of its
     // user (CharaTask::m12A8) and calls CharaTask::fn_80178864 (0x805AA4C8; bound by
@@ -87,19 +126,34 @@ public:
 
     int m48;              // inferred: state (GameUI::fn_803DCA84 compares it with 0 and 2)
     CharaTask* m4C;       // inferred: character under the cursor
-    unsigned char m50[0xA70 - 0x50];
+    int m50;
+    TacViewChara_unk m54;
+    TacViewCharaList_unk mCharas; // 0xEC
     int mA70;             // inferred: nonzero while the view is open
-    unsigned char mA74[0x1594 - 0xA74];
+    int mA74;
+    int mA78;
+    int mA7C;
+    int mA80;
+    int mA84;
+    atn::FixedArray_unk<TacViewSlot_unk, 64> mSlots; // 0xA88
+    int m158C;
+    int m1590;
     int m1594;
-    unsigned char m1598[0x159C - 0x1598];
+    int m1598;
     atn::Vector3 m159C; // inferred: point the view moves to (fn_805AA82C)
     int m15A8;          // inferred: frames left to move
-    unsigned char m15AC[0x15D8 - 0x15AC];
+    int m15AC;
+    TacViewLayouts_unk mLayouts; // 0x15B0
+    unsigned char m15D4;
     int m15D8;            // inferred: cursor shown by the view (chr/ControlCharge.cpp)
-    unsigned char m15DC[0x15F0 - 0x15DC];
-    TacViewSel_unk m15F0; // inferred: target under the cursor (fn_805AE034)
+    atn::Vector3 m15DC;
+    float m15E8;
+    unsigned char m15EC;
+    unsigned char m15ED;
+    TacViewCursor_unk m15F0; // inferred: target under the cursor (fn_805AE034)
     atn::FixedArray_unk<TacViewEntry_unk, 16> mEntries; // 0x15FC
-    unsigned char m16C0[0x16C8 - 0x16C0];
+    atn::SoundRef m16C0;
+    int m16C4;
 };
 
 extern "C" TacView* lbl_8087F9F8;
