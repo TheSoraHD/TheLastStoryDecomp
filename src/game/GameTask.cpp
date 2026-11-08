@@ -1,6 +1,7 @@
 // game/GameTask.cpp (0x8036555C-0x80376B68): the field task (GameTask). The functions that use the string
 // pool are written in order up to 0x80370AE4 (fn_80370A78); the rest are accessors and dungeon helpers.
 #include "game/GameTask.h"
+#include "game/NewCampTask.h"
 #include "db/StrategyAiTable_unk.h"
 #include "game/GameScene.h"
 #include "game/CharaTask.h"
@@ -247,7 +248,9 @@ struct MpSettings_unk {
     int m194;
     unsigned char m198[0x280 - 0x198];
     int m280; // inferred: no experience is shared at the end of a battle (GameTask fn_80374964)
-    unsigned char m284[0x320 - 0x284];
+    unsigned char m284[0x290 - 0x284];
+    int m290; // inferred: the map name stays shown with the default camera (GameTask fn_8036CFA4)
+    unsigned char m294[0x320 - 0x294];
     int m320; // inferred: halves the talk range (GameTask fn_8036DDD4)
     unsigned char m324[0x3DC - 0x324];
     int m3DC; // inferred: the party is healed at the end of a battle (GameTask fn_80374964)
@@ -313,7 +316,6 @@ extern "C" void fn_800EFA18(int type, int map);
 extern "C" void fn_8056C3D8(GameTaskData_unk* obj);
 extern "C" void fn_80390A88(GameCamera* camera);
 extern "C" void fn_8038F52C(GameCamera* camera, CharaTask* chara); // inferred: update of the camera around `chara`
-extern "C" void fn_8037F744(GameCamera* camera);
 extern "C" int fn_800A555C(void* obj, int a, int b);
 extern "C" void* lbl_8087EF70;
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int kind, atn::Vector3* pos, int arg);
@@ -1524,7 +1526,7 @@ void GameTask::vf10() {
             } else {
                 if (player->m55C == 5) {
                     fn_8038F52C(&mCamera, player);
-                    fn_8037F744(&mCamera);
+                    mCamera.fn_8037F744();
                 } else {
                     fn_8036CC90();
                 }
@@ -1572,7 +1574,7 @@ void GameTask::vf10() {
             m10D8->m64->fn_804A0580(1, &lbl_8087F8A0->mHead->mPos);
         }
         if (m5598 == 0 && m55AC == 1) {
-            fn_8037F744(&mCamera);
+            mCamera.fn_8037F744();
             int replay = 0;
             if (lbl_8087F490 != 0) {
                 GameUIElem1C_unk mode;
@@ -1704,7 +1706,7 @@ void GameTask::vf10() {
         }
         break;
     case 12:
-        fn_8037F744(&mCamera);
+        mCamera.fn_8037F744();
         if (m5620->mActive == 0) {
             m54F0 = 0;
         }
@@ -2170,6 +2172,41 @@ void GameTask::fn_8036CC90() {
     }
 }
 
+// inferred: shows or hides the map name of the field from the camera mode
+void GameTask::fn_8036CFA4() {
+    if (m5664 != 0) {
+        mCamera.fn_8037F744();
+    }
+    int show = 0;
+    switch (mCamera.m7FC) {
+    case 0:
+    case 2:
+    case 8:
+    case 9:
+        if (lbl_8087F0A8->m290 != 0) {
+            show = 1;
+        }
+        break;
+    case 5:
+    case 6: {
+        atn::Vector3 rot = (mCamera.mTarget - mCamera.mPos).GetNormalize().ToRotation_unk();
+        if (rot.x >= 0.7853982f || mCamera.m7FC == mCamera.m800) {
+            show = 1;
+        }
+        break;
+    }
+    case 7:
+        if (mCamera.m7FC == mCamera.m800) {
+            show = 1;
+        }
+        break;
+    }
+    if (m56D4 != 0) {
+        show = 0;
+    }
+    m10D8->m64->fn_804A0580(!show, &lbl_8087F8A0->mHead->mPos);
+}
+
 int GameTask::fn_8036DAA8(CharaTask* chara) {
     if (m56D8 != 0 || m56D4 != 0 || mFinish.m00 != 0) {
         return 0;
@@ -2393,13 +2430,66 @@ void GameTask::fn_8036E430(int a, int b) {
     m568C = b;
 }
 
+extern "C" void fn_8004A1D4(void* engine, int reverb); // inferred: sets the reverb
+
+// inferred: opens the camp (fade out and the menu given to fn_8036E430)
+void GameTask::fn_8036E494() {
+    m5624->mFrame = 0;
+    m5624->mColor0 = 0xFFFFFFFF;
+    m5624->mColor1 = 0xFF000000;
+    m5624->mDelay = 0;
+    m5624->mWait = 100000;
+    m5624->mDuration = 15;
+    m5624->mZ = -5.0f;
+    m5624->mActive = 1;
+    if (m5590 != 0) {
+        fn_80570A14(m5590, 1);
+        fn_80570A40(m5590, 1);
+        m5594 = 0;
+        m55A4 = 0;
+    }
+    m558C.mPtr->fn_8056B3D4();
+    NewCampOpen_unk open;
+    open.mMenu = 0;
+    open.m04 = -1;
+    open.m08 = -1;
+    open.m0C = -1;
+    open.m10 = -1;
+    if (m5688 >= 0) {
+        open.mMenu = m5688;
+    }
+    if (m568C >= 0) {
+        switch (open.mMenu) {
+        case 2:
+            open.m04 = m568C;
+            break;
+        case 5:
+            open.m08 = m568C;
+            break;
+        case 4:
+            open.m10 = m568C;
+            break;
+        }
+    }
+    fn_8036EA6C(1);
+    if (m567C != 0) {
+        m567C->mFlags &= ~4;
+        ((NewCampTask*)m567C)->fn_8052C108(&open);
+    }
+    lbl_8087EFE8->mFx2dEnabled = 1;
+    fn_8004A1D4(lbl_8087EE90, 8);
+    EnvSeManager* envse = lbl_8087F418;
+    envse->m70 = envse->m6C;
+    envse->m6C = 4;
+    lbl_8087F3C0->mSystem.mReplaying = 1;
+}
+
 extern "C" void fn_8056BD34(ReplayRecorder_unk* recorder); // inferred: stops the recording
 // inferred: sound engine of lbl_8087EE90 (as EnvSeEngine_unk of game/EnvSeManager.cpp)
 struct SoundEngineReverb_unk {
     unsigned char m000[0x8C0];
     int m8C0; // inferred: reverb of the field
 };
-extern "C" void fn_8004A1D4(void* engine, int reverb); // inferred: sets the reverb
 extern "C" void fn_803CE070(GameSoundControl* control);
 
 // inferred: leaves the field for the camp (called by game/NewCampTask)
@@ -3340,7 +3430,7 @@ void GameTask::fn_803727DC() {
         Inventory::instance_->mDF30.m90 = 0;
     }
     if (lbl_8087F490->mD8C == 1 && mGlobalFlags[207] != 0) {
-        fn_8037F744(&mCamera);
+        mCamera.fn_8037F744();
         if (m56F4.mCount != 0) {
             fn_80376324(m56F4.Front_unk());
             m56F4.Pop_unk();

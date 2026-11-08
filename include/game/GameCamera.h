@@ -49,6 +49,7 @@ public:
     void fn_80392C94(GameCameraState_unk* state); // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
     void fn_803933A4(); // inferred: reset of the event state
+    void fn_8037F744(); // inferred: called by GameTask::fn_8036CFA4 while m5664 is set
 
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     unsigned char m3E8[0x46C - 0x3E8];
