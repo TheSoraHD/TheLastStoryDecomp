@@ -4,9 +4,11 @@
 #include "game/CharaManager.h"
 #include "game/GameConfig_unk.h"
 #include "game/PlayerTask.h"
+#include "atn/RenderSetting_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" RenderSetting_unk* lbl_8087EFA8;
 
 void GameCamera::fn_8037EF30(int a, int b, float f) {
     fn_8037EF48(lbl_8087F8A0->mHead, a, b, f);
@@ -34,6 +36,51 @@ void GameCamera::fn_8037F6D8(const atn::Vector3* pos) {
 void GameCamera::fn_8037F724(const atn::Vector3* pos) {
     m840 = *pos;
     m860 = 0;
+}
+
+// inferred: member function of a camera mode
+typedef void (GameCamera::*GameCameraMode_unk)(const CharaTask* chara);
+
+// inferred: first frame of a mode (the mode changed) (21 modes; name invented)
+static const GameCameraMode_unk sModeStart_unk[21] = {
+    &GameCamera::fn_80389A00, &GameCamera::fn_8038A200, &GameCamera::fn_8038A5F0,
+    &GameCamera::fn_8038B148, &GameCamera::fn_8038B650, &GameCamera::fn_8038BD78,
+    &GameCamera::fn_8038C070, &GameCamera::fn_8038C5B0, &GameCamera::fn_8038A1D8,
+    &GameCamera::fn_8038A1B8, &GameCamera::fn_8038C928, &GameCamera::fn_8038CD94,
+    &GameCamera::fn_8038D1C0, &GameCamera::fn_8038D4D4, &GameCamera::fn_8038D854,
+    &GameCamera::fn_8038DBE4, &GameCamera::fn_80389A00, &GameCamera::fn_80389A00,
+    &GameCamera::fn_8038DDE0, &GameCamera::fn_8038DDE0, &GameCamera::fn_8038DF5C,
+};
+
+// inferred: update of a mode (21 modes; name invented)
+static const GameCameraMode_unk sModeUpdate_unk[21] = {
+    &GameCamera::fn_8037F9AC, &GameCamera::fn_803830A8, &GameCamera::fn_8038378C,
+    &GameCamera::fn_80384188, &GameCamera::fn_80385B48, &GameCamera::fn_80387548,
+    &GameCamera::fn_80387910, &GameCamera::fn_803884B8, &GameCamera::fn_8037F9AC,
+    &GameCamera::fn_80382A1C, &GameCamera::fn_80388A88, &GameCamera::fn_80388C44,
+    &GameCamera::fn_80389060, &GameCamera::fn_80389210, &GameCamera::fn_803893A0,
+    &GameCamera::fn_8038952C, &GameCamera::fn_8037F9AC, &GameCamera::fn_8037F9AC,
+    &GameCamera::fn_80389678, &GameCamera::fn_80389678, &GameCamera::fn_803897EC,
+};
+
+void GameCamera::fn_8037F744() {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    mNear = lbl_8087EFA8->m1C0;
+    mFar = lbl_8087EFA8->m1C4;
+    if (m800 != m7FC) {
+        (this->*sModeStart_unk[m7FC])(leader);
+    } else {
+        (this->*sModeUpdate_unk[m7FC])(leader);
+    }
+    if (m900 < m904) {
+        m900++;
+    }
+    if (m910 != 0) {
+        m914 = m914 + 1 < m918 ? m914 + 1 : m918;
+    } else {
+        int n = m914 - 2;
+        m914 = n > 0 ? n : 0;
+    }
 }
 
 void GameCamera::fn_803897EC(const CharaTask* chara) {
@@ -67,7 +114,7 @@ void GameCamera::fn_8038A1B8(const CharaTask* chara) {
     fn_80382A1C(chara);
 }
 
-void GameCamera::fn_8038A1D8() {
+void GameCamera::fn_8038A1D8(const CharaTask* chara) {
     if (m800 == 9) {
         m8EC = 1;
     }

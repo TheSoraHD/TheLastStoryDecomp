@@ -43,13 +43,44 @@ public:
     void fn_80389838(int mode); // inferred: sets the sub mode (previous one kept in m800)
     void fn_80382A1C(const CharaTask* chara);
     void fn_8038A1B8(const CharaTask* chara); // inferred: forced update of the current mode
-    void fn_8038A1D8();
+    void fn_8038A1D8(const CharaTask* chara); // inferred: the character is not used (mode table entry)
     void fn_80390374(); // inferred: goes back to the mode m804
     void fn_803903E0(const atn::Vector3* target, float angle, int arg); // inferred: turns toward `target`
     void fn_80392C94(GameCameraState_unk* state) const; // inferred: saves the mode
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
     void fn_803933A4(); // inferred: reset of the event state
-    void fn_8037F744(); // inferred: called by GameTask::fn_8036CFA4 while m5664 is set
+    void fn_8037F744(); // inferred: update of the camera mode (tables 0x8074E018 and 0x8074E114)
+    // inferred: functions of the mode tables of fn_8037F744 (start and update of each mode; not written)
+    void fn_803830A8(const CharaTask* chara);
+    void fn_8038378C(const CharaTask* chara);
+    void fn_80384188(const CharaTask* chara);
+    void fn_80385B48(const CharaTask* chara);
+    void fn_80387548(const CharaTask* chara);
+    void fn_80387910(const CharaTask* chara);
+    void fn_803884B8(const CharaTask* chara);
+    void fn_80388A88(const CharaTask* chara);
+    void fn_80388C44(const CharaTask* chara);
+    void fn_80389060(const CharaTask* chara);
+    void fn_80389210(const CharaTask* chara);
+    void fn_803893A0(const CharaTask* chara);
+    void fn_8038952C(const CharaTask* chara);
+    void fn_80389678(const CharaTask* chara);
+    void fn_80389A00(const CharaTask* chara);
+    void fn_8038A200(const CharaTask* chara);
+    void fn_8038A5F0(const CharaTask* chara);
+    void fn_8038B148(const CharaTask* chara);
+    void fn_8038B650(const CharaTask* chara);
+    void fn_8038BD78(const CharaTask* chara);
+    void fn_8038C070(const CharaTask* chara);
+    void fn_8038C5B0(const CharaTask* chara);
+    void fn_8038C928(const CharaTask* chara);
+    void fn_8038CD94(const CharaTask* chara);
+    void fn_8038D1C0(const CharaTask* chara);
+    void fn_8038D4D4(const CharaTask* chara);
+    void fn_8038D854(const CharaTask* chara);
+    void fn_8038DBE4(const CharaTask* chara);
+    void fn_8038DDE0(const CharaTask* chara);
+    void fn_8038DF5C(const CharaTask* chara);
 
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     unsigned char m3E8[0x46C - 0x3E8];
@@ -101,7 +132,8 @@ public:
     unsigned char m910;
     unsigned char m911[0x914 - 0x911];
     int m914;
-    unsigned char m918[0xA0C - 0x918];
+    int m918; // inferred: maximum of m914
+    unsigned char m91C[0xA0C - 0x91C];
     float mA0C[5];
     unsigned char mA20[0xC20 - 0xA20];
     gs::CameraBox* mC20;   // 0xC20: inferred: camera box (MapTask::fn_804A04AC)
