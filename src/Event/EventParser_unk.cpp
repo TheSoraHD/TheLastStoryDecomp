@@ -582,7 +582,7 @@ static int ParsePARA_unk(unsigned int tag, int size, const char* data, ParserSta
     ActionParam_unk* param = action->fn_80539330(rec.mHash);
     if (param != 0) {
         param->m04.i = rec.mValue;
-        CommandDef_unk* def = fn_800081C0(action->mChannel->m0C);
+        const CommandDef_unk* def = fn_800081C0(action->mChannel->m0C);
         int variant = def->mVariantParam;
         if (variant >= 0) {
             value = action->GetParamAt_unk(variant)->m04.i;

@@ -79,6 +79,6 @@ inline Node::~Node() {}
 } // namespace Event
 
 // inferred: definition of the command `id` (Event/EventCommandDef_unk)
-extern "C" Event::CommandDef_unk* fn_800081C0(int id);
+extern "C" const Event::CommandDef_unk* fn_800081C0(int id);
 
 #endif
