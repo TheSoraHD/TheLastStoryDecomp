@@ -69,6 +69,7 @@
 #include "game/Input_unk.h"
 #include "game/DamageCalc_unk.h"
 #include "chr/ControlBase.h"
+#include "game/ArenaTask.h"
 #include "std/vector.h"
 // inferred: post effect manager (atn/PostFx.h, which redefines atn::IRender here)
 extern "C" void* lbl_8087EF8C;
@@ -291,6 +292,7 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
 extern "C" void fn_80570A14(GameTaskData_unk* obj, int value);
+extern "C" void fn_802328DC(int frame); // inferred: effect system frame
 extern "C" void fn_80450B28();         // inferred: freezes the item slot animations
 extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
 extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
@@ -3809,13 +3811,122 @@ void GameTask::fn_803737C0() {
     lbl_8087EFA8->m3A4 = m55C0;
 }
 
+extern "C" void fn_8056D8C8(GameTaskData_unk* obj, int frame, int a, int b); // inferred: seeks the replay
+extern "C" void fn_805704AC(GameTaskData_unk* obj);
+extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: fades the sound
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach);  // inferred: stops the sound
+extern "C" const char* fn_800EFE3C(int id); // inferred: sound name of a voice
+extern "C" int fn_8021A984(HitInfo_unk* hit);
+extern "C" ArenaTask* lbl_8087EE78;
+// inferred: owner of the hit replayed by the rewind (m55B4; class unknown)
+struct ReplayHit_unk {
+    unsigned char m00[0xB0];
+    int mB0; // inferred: voice id
+};
+
+// inferred: update of the replay rewind (field state 0 with m5598 frames to rewind)
+// NONMATCHING: 99.1% - registers of the colour matrix block (left count and render settings swapped)
+void GameTask::fn_80373AE8() {
+    if (m5598 > 0) {
+        if (m559C > 0) {
+            if (m55A0 > 0) {
+                mCamera.m4B8 = 1.0f;
+                int left = m55A0 - 1;
+                m55A0 = left;
+                mFinish.m3A0 = 1.0f;
+                if (left <= 0) {
+                    fn_800C31F4(sFieldSounds_unk[2], 0, -1, 1.0f);
+                    fn_800CB5B4(&m55A8, 5, 0.1f);
+                }
+                mFinish.m350 = mFinish.m354;
+            } else {
+                fn_8056D8C8(m5590, m559C - m5598, 1, 0);
+                for (int i = 0; i < 3; i++) {
+                    lbl_8087F3C0->fn_8023A614(1);
+                }
+                int left = m559C - 3;
+                m559C = left;
+                if (left <= 0) {
+                    lbl_8087EFA8->m240.mEnabled = 0;
+                    m55A0 = 24;
+                    fn_800CB5B4(&m55A8, 30, 1.0f);
+                }
+                float t = (float)m559C / 90.0f;
+                mFinish.m350 = mFinish.m354;
+                mFinish.m3A0 = t;
+                mCamera.m4B8 = t * t;
+            }
+            mFinish.fn_803792F0();
+            return;
+        }
+        if (m55A0 > 0) {
+            int left = m55A0 - 1;
+            m55A0 = left;
+            ColorMatrixParam_unk cm = lbl_8087EFA8->m324;
+            float step = 0.125f;
+            if (left > 16) {
+                cm.mMonoRate = step * (float)(24 - left) + 1.0f;
+            } else if (left > 8) {
+                cm.mMonoRate = step * (float)(left - 8) + 1.0f;
+            } else {
+                cm.mMonoRate = (float)left * step;
+            }
+            lbl_8087EFA8->m324 = cm;
+            mFinish.fn_803792F0();
+            return;
+        }
+        // inferred: m350 is read as a frame count here
+        if ((int)mFinish.m350 <= 0) {
+            lbl_8087F3C0->fn_800D246C(0);
+            m5598--;
+            fn_8056D8C8(m5590, m559C - m5598, 1, 1);
+            if (m5614 == m5598 && m55B4 != 0) {
+                const char* name = fn_800EFE3C(((ReplayHit_unk*)m55B4)->mB0);
+                if (name != 0) {
+                    fn_800C31F4(name, 0, -1, 1.0f);
+                }
+            }
+            if (m5598 == 0) {
+                m5624->mFrame = 0;
+                m5624->mDelay = 0;
+                m5624->mWait = 0;
+                m5624->mColor0 = 0xFFFFFFFF;
+                m5624->mColor1 = 0xFFFFFF;
+                m563C = 14;
+                m55AC = 0;
+                fn_800CB5C8(&m55A8, 30, 0);
+                if (m55B4 != 0 && fn_8021A984((HitInfo_unk*)m55B4)) {
+                    mCamera.m8D4 = 1;
+                }
+            }
+        }
+        mFinish.fn_803792F0();
+        return;
+    }
+    if (m55AC == 0) {
+        m55AC = 1;
+        m5624->mActive = 1;
+        fn_805704AC(m5590);
+        fn_802328DC(60);
+        lbl_8087F9E8->fn_8059D178();
+        fn_802328DC(0);
+        if (lbl_8087EE78 != 0) {
+            lbl_8087EE78->fn_80043D58(3);
+        }
+        lbl_8087F3C0->mPaused = 0;
+        lbl_8087F3C0->fn_800D246C(1);
+    } else {
+        lbl_8087F3C0->fn_8023A614(5);
+    }
+    mFinish.fn_803792F0();
+}
+
 void GameTask::fn_80373F78() {
     if (m5590 != 0 && fn_80570A4C(m5590) != 0) {
         fn_803731E8();
     }
 }
 
-extern "C" void fn_802328DC(int frame); // inferred: effect system frame
 
 // inferred: opens the tactical view (field state 14): freezes the field and keeps the render settings
 void GameTask::fn_80373FC4() {

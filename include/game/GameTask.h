@@ -209,7 +209,8 @@ public:
     GameTaskData_unk* m5590;
     int m5594;
     int m5598;
-    unsigned char m559C[0x55A4 - 0x559C];
+    int m559C; // inferred: frames of the replay rewind (fn_80373AE8)
+    int m55A0;
     int m55A4;
     atn::SoundRef m55A8;
     int m55AC;

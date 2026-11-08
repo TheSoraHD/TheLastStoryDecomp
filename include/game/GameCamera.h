@@ -53,7 +53,9 @@ public:
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     unsigned char m3E8[0x46C - 0x3E8];
     int m46C;
-    unsigned char m470[0x4FC - 0x470];
+    unsigned char m470[0x4B8 - 0x470];
+    float m4B8; // inferred: set from the replay rewind (GameTask::fn_80373AE8)
+    unsigned char m4BC[0x4FC - 0x4BC];
     atn::Vector3 m4FC;     // inferred: position of the fixed mode (relative to the character when m518 is set)
     atn::Vector3 m508;     // inferred: target of the fixed mode
     float m514;            // inferred: fovy of the fixed mode
@@ -79,7 +81,9 @@ public:
     int m860;
     unsigned char m864[0x880 - 0x864];
     int m880;
-    unsigned char m884[0x8E4 - 0x884];
+    unsigned char m884[0x8D4 - 0x884];
+    int m8D4; // inferred: set at the end of the replay rewind (GameTask::fn_80373AE8)
+    unsigned char m8D8[0x8E4 - 0x8D8];
     int m8E4; // inferred: cleared by GameTask::vf10 when the tactical view closes
     int m8E8; // inferred: cleared by GameTask::vf10 at the end of a map change
     int m8EC;
