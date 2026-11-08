@@ -431,16 +431,20 @@ void Em206CocoonMp::vf50() {
     mFlagB29 = 0;
 }
 
+// inferred: front direction of a rotation (inline)
+inline atn::Vector3 CocoonFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    PSMTXRotRad(r, 'y', rot.y);
+    PSMTXMultVec(r, &v, &v);
+    return v;
+}
+
 void Em206CocoonMp::vf54() {
     if (m624.mSize != 0) {
         for (int i = 0; i < 3; i++) {
             if (i == 0) {
-                atn::Vector3 fwd(0.0f, 0.0f, 1.0f);
-                Mtx m;
-                PSMTXRotRad(m, 'y', mRot.y);
-                PSMTXMultVec(m, &fwd, &fwd);
-                atn::Vector3 off = fwd * 3.0f;
-                m624.mData[i].m04.mCenter = mPos - off;
+                m624.mData[i].m04.mCenter = mPos - CocoonFront_unk(mRot) * 3.0f;
                 m624.mData[i].m04.mCenter.y += 0.5f * sSpheres_unk[i].mRadius;
             } else {
                 MtxPtr a = mMotion.GetNodeMtx_unk(sSpheres_unk[i].mNode);
