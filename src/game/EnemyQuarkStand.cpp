@@ -2669,16 +2669,20 @@ atn::Vector3 EnemyQuarkStand::vfD0(float angle) {
 }
 
 
-// NONMATCHING: 99.53% - stack slots of the front direction and of the scaled temporary swapped; ~8 forms
+// inferred: front direction of a rotation (inline)
+inline atn::Vector3 QuarkFront_unk(const atn::Vector3& rot) {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    Mtx r;
+    PSMTXRotRad(r, 'y', rot.y);
+    PSMTXMultVec(r, &v, &v);
+    return v;
+}
+
 atn::Vector3 EnemyQuarkStand::vfD8(CharaTask* target) {
     MtxPtr m = mMotion.GetNodeMtx_unk("head");
     atn::Vector3 pos = GetTransOf_unk(m);
     pos.y += 5.0f;
-    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
-    Mtx r;
-    PSMTXRotRad(r, 'y', mRot.y);
-    PSMTXMultVec(r, &dir, &dir);
-    pos += dir * 5.0f;
+    pos += QuarkFront_unk(mRot) * 5.0f;
     return pos;
 }
 

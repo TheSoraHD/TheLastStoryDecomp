@@ -682,7 +682,6 @@ ControlGuarded::ControlGuarded(Chara_unk* chara, int a) : ControlBase(chara), m0
     }
 }
 
-// NONMATCHING: 99.8% - stack slots of the three temporaries of the push (front, negated, scaled).
 int ControlGuarded::vf0C() {
     Motion_unk* model = &mChara->mMotion;
     int done = 0;
@@ -691,7 +690,8 @@ int ControlGuarded::vf0C() {
         done = 1;
     }
     if (m08 == 0 && model->mTracks[0].m08 < 25.0f) {
-        mChara->m6B8 = -FrontDir_unk(mChara->mRot) * 0.33f;
+        atn::Vector3 dir = -FrontDir_unk(mChara->mRot);
+        mChara->m6B8 = dir * 0.33f;
     }
     mChara->fn_8013CB68(mChara->mRot, 0, 0.0f, mChara->m568);
     return done;
