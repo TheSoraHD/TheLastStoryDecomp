@@ -4751,22 +4751,19 @@ void CharaTask::vf50() {
     mFlagB29 = 1;
 }
 
-// NONMATCHING: 96% - the original reloads m624.mData before the vector copy (writing
-// m624.mData[0] twice instead swaps r4/r5). Tried: a local item pointer, operand orders.
 void CharaTask::vf54() {
     if (m624.mSize != 0) {
-        Item14_unk* item = m624.mData;
-        item->m04.mRadius = m5B0;
-        item->m04.mCenter = mPos + m5A4;
+        m624[0].m04.mRadius = m5B0;
+        m624[0].m04.mCenter = mPos + m5A4;
         if (mStatus.mParamB.fn_801404E0(0x40)) {
-            m624.mData[0].m04.mCenter.y -= m624.mData[0].m04.mRadius;
+            m624[0].m04.mCenter.y -= m624[0].m04.mRadius;
         } else {
-            m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
+            m624[0].m04.mCenter.y += m624[0].m04.mRadius;
         }
         if (m55C == 6 && m560 == 36) {
             MtxPtr hips = mMotion.GetNodeMtx_unk("hips");
             if (hips != 0) {
-                m624.mData[0].m04.mCenter = GetNodePos_unk(hips);
+                m624[0].m04.mCenter = GetNodePos_unk(hips);
             }
         }
     }

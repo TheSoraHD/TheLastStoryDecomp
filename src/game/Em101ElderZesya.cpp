@@ -784,40 +784,37 @@ void Em101ElderZesya::vf50() {
     mFlagB29 = 1;
 }
 
-// NONMATCHING: 99.24% - the original reloads m624.mData before the copy of the center (one lwz more,
-// same open case as CharaTask::vf54)
 // inferred: damage sphere of the body; while a barrier is up a second sphere covers it
 void Em101ElderZesya::vf54() {
     if (m624.mSize != 0) {
         Barrier_unk* barrier = &m151C[m1680];
-        Item14_unk* item = m624.mData;
-        item->m04.mRadius = m5B0;
-        item->m04.mCenter = mPos + m5A4;
+        m624[0].m04.mRadius = m5B0;
+        m624[0].m04.mCenter = mPos + m5A4;
         if (((unsigned int)mStatus.mParamB.m9C & 0x40) == 0x40) {
-            m624.mData[0].m04.mCenter.y -= m624.mData[0].m04.mRadius;
+            m624[0].m04.mCenter.y -= m624[0].m04.mRadius;
         } else {
-            m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
+            m624[0].m04.mCenter.y += m624[0].m04.mRadius;
         }
         if (barrier->m04.mState != 2) {
-            m624.mData[0].m04.mCenter.y -= 10000.0f;
+            m624[0].m04.mCenter.y -= 10000.0f;
             mFlagB29 = 0;
         } else {
             mFlagB29 = 1;
         }
         if (barrier->m04.mDesc != 0) {
-            m624.mData[1].m04.mRadius = 30.0f;
-            m624.mData[1].m04.mCenter = barrier->m04.mDesc->mPos;
-            m624.mData[1].m04.mCenter.y += 30.0f;
-            m624.mData[1].m04.mCenter.y += -10.0f;
+            m624[1].m04.mRadius = 30.0f;
+            m624[1].m04.mCenter = barrier->m04.mDesc->mPos;
+            m624[1].m04.mCenter.y += 30.0f;
+            m624[1].m04.mCenter.y += -10.0f;
             atn::Vector3 off(0.0f, 0.0f, -1.0f);
             Mtx m;
             PSMTXRotRad(m, 'y', barrier->m04.mDesc->mRotY_unk);
             PSMTXMultVec(m, &off, &off);
-            m624.mData[1].m04.mCenter += off;
-            m624.mData[1].m00 = 0;
+            m624[1].m04.mCenter += off;
+            m624[1].m00 = 0;
             if (barrier->m04.mState == 2) {
-                m624.mData[1].m04.mCenter.y += 10000.0f;
-                m624.mData[1].m00 |= 8;
+                m624[1].m04.mCenter.y += 10000.0f;
+                m624[1].m00 |= 8;
             }
         }
     }
