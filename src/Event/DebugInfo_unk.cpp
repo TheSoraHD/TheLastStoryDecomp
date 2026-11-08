@@ -2,8 +2,61 @@
 // written (the pages 0x80221FA4-0x80224A2C and their tables are missing), so it is not linked.
 #include "Event/DebugInfo_unk.h"
 #include "game/GameConfig_unk.h"
+#include "Event/Manager.h"
+#include "Event/Sequence.h"
+#include "Event/Cut.h"
+#include "Event/Section.h"
+#include "Event/Channel.h"
+#include "Event/Action.h"
+#include "atn/DrawHelper.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" Event::Manager* lbl_8087F540;
+extern "C" int sprintf(char* s, const char* format, ...);
+
+// inferred: accessors (inline: weak copies, some of other files)
+extern "C" inline Event::Manager* fn_8000DB1C() {
+    return lbl_8087F540;
+}
+extern "C" inline atn::DrawHelper* fn_800F7250() {
+    return lbl_8087EEB0;
+}
+// inferred: draws a text (weak copy 0x80221CAC; name invented)
+extern "C" inline void fn_80221CAC(atn::DrawHelper* helper, float x, float y, float z, float w, float h, const char* text,
+                                   unsigned int color, int arg) {
+    helper->fn_800616C0(x, y, z, w, h, text, color, 0.0f, arg, 0, 0);
+}
+// inferred: weak copies of the event tree (C names: their class names are unknown)
+extern "C" inline int fn_80221E00(Event::Cut* cut) {
+    return cut->mIndex;
+}
+extern "C" inline const char* fn_80222A24(Event::Node* node) {
+    return node->mName.c_str();
+}
+extern "C" inline int fn_802239F8(Event::Action* action) {
+    return action->m10;
+}
+extern "C" inline int fn_80223A00(Event::Action* action) {
+    return action->m14;
+}
+extern "C" inline int fn_80223EB0(Event::Sequence* seq) {
+    return seq->m194;
+}
+extern "C" inline int fn_80223EB8(Event::Action* action) {
+    return action->m18;
+}
+extern "C" inline int fn_80223EC0(Event::Action* action) {
+    return action->m1C;
+}
+extern "C" inline int fn_80223EC8(Event::Channel* channel) {
+    return channel->mActions.size();
+}
+extern "C" inline int fn_80223ED0(Event::Section* section) {
+    return section->mChannels.size();
+}
+extern "C" inline int fn_80223ED8(Event::Cut* cut) {
+    return cut->mSections.size();
+}
 
 namespace Event {
 
@@ -14,6 +67,8 @@ void fn_8022354C(DebugInfo_unk* info);
 void fn_80223A10(DebugInfo_unk* info);
 void fn_80224184(DebugInfo_unk* info);
 void fn_80224638(DebugInfo_unk* info);
+
+int fn_802238D0(DebugInfo_unk* info, Action* action, Action* other, int arg); // inferred: the action is shown
 
 // inferred: columns of the three tables (6, 6 and 10 columns)
 static DebugInfoColumnDef_unk sColumns0_unk[6] = {
@@ -55,6 +110,68 @@ void DebugInfo_unk::fn_80221F54(int page) {
     }
     mPage = page;
     mPages[mPage](this);
+}
+
+// NONMATCHING: draft - page 3: actions of the current cut (and the name of the next cut); the earlier pages
+// are not written, so the offsets of the string pool differ
+void fn_80223A10(DebugInfo_unk* info) {
+    Manager* mgr = fn_8000DB1C();
+    Sequence* seq = mgr->fn_80112F54();
+    if (seq == 0) {
+        return;
+    }
+    fn_80221CAC(fn_800F7250(), info->m04, info->m08 + info->m0C, -1000000.0f, info->m0C, info->m0C,
+                "Current Actions List:", 0xFFFFFFFF, 1);
+    Cut* cut = seq->fn_805411DC();
+    if (cut == 0) {
+        return;
+    }
+    int index = fn_80221E00(cut);
+    DebugInfoColumn_unk column;
+    std::string text;
+    if (info->m10 != index) {
+        info->m10 = index;
+        char buf[0x100];
+        sprintf(buf, "Next Cut [%s]\n", fn_80222A24(cut));
+        text = buf;
+        column.mTexts.push_back(text);
+        text = "";
+        for (int i = 0; i < 5; i++) {
+            column.mTexts.push_back(text);
+        }
+        column.m00 = 0;
+        column.m10 = 0xFFC0C0C0;
+        info->m14.fn_8022051C(column);
+    }
+    for (int i = 0; i < fn_80223ED8(cut); i++) {
+        Section* section = cut->GetSection_unk(i);
+        for (int j = 0; j < fn_80223ED0(section); j++) {
+            Channel* channel = section->GetChannel_unk(j);
+            for (int k = 0; k < fn_80223EC8(channel); k++) {
+                Action* action = channel->GetAction_unk(k);
+                if (fn_802238D0(info, action, action, 0) == 0 || fn_80223EB0(seq) != 10) {
+                    continue;
+                }
+                column.mTexts.clear();
+                char buf[0x100];
+                sprintf(buf, "%d", fn_802239F8(action));
+                column.mTexts.push_back(std::string(buf));
+                sprintf(buf, "%d", fn_80223A00(action) - fn_802239F8(action));
+                column.mTexts.push_back(std::string(buf));
+                sprintf(buf, "%d", fn_80223EB8(action));
+                column.mTexts.push_back(std::string(buf));
+                sprintf(buf, "%d", fn_80223EC0(action));
+                column.mTexts.push_back(std::string(buf));
+                sprintf(buf, "%s.%s", fn_80222A24(section), fn_80222A24(channel));
+                column.mTexts.push_back(std::string(buf));
+                sprintf(buf, "%s", fn_80222A24(action));
+                column.mTexts.push_back(std::string(buf));
+                column.m00 = (int)action;
+                info->m14.fn_8022051C(column);
+            }
+        }
+    }
+    info->m14.fn_802219CC(info->m04, info->m08, info->m0C, 3);
 }
 
 } // namespace Event
