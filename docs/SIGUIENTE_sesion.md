@@ -1,13 +1,13 @@
-# Siguiente sesion (tras `s12h-20261107`, sin mergear)
+# Siguiente sesion (tras `s12h-20261107`, mergeada en `main`)
 
-Rama `s12h-20261107` (desde `main` f65316f): **14351 / 18116** en `report.json` (14348 en `objdiff diff`: los vf10
+`main` (merge abdf617 de `s12h-20261107`): **14351 / 18116** en `report.json` (14348 en `objdiff diff`: los vf10
 de ControlRevival, ControlRideBeast y ControlBoundShade quedan al 99,8-99,9% por el pool
-`@stringBase0_8073B8E8`), lost 0, sin bajadas, clon limpio `main.dol: OK`. **Pendiente de revision y merge.**
+`@stringBase0_8073B8E8`), lost 0, sin bajadas, clon limpio `main.dol: OK`. Crear rama nueva desde `main`.
 Notas: `docs/s12h-20261107.md`.
 
 ## Lo primero
 
-- Revisar las decisiones de `docs/s12h-20261107.md` (seccion Resultado) y mergear.
+- Decisiones abiertas de `docs/s12h-20261107.md` (seccion Resultado): revisar al tocar esos ficheros.
 - Tras `precommit.sh --pd`: devolver `lbl_8087D6E8`/`lbl_8087D6EC` en `symbols.txt` (pd los renombra a
   `@STRING@Resize_unk...`).
 
