@@ -135,7 +135,9 @@ struct PPChara_unk {
     int m674;
     unsigned char m0678[0x7E0 - 0x678];
     unsigned int m7E0;
-    unsigned char m07E4[0xC48 - 0x7E4];
+    unsigned char m07E4[0x9F8 - 0x7E4];
+    int m9F8; // inferred: value of message 0x2F
+    unsigned char m09FC[0xC48 - 0x9FC];
     int mC48;
     unsigned char m0C4C[0xD1C - 0xC4C];
     int mD1C;
@@ -291,6 +293,9 @@ extern "C" void fn_804D0164() {
 #include "atn/net/PacketPack.h"
 #include "MP/D2AMpMenuLobby.h"
 #include "game/GameVoice.h"
+#include "game/GameBgm.h"
+#include "game/SetConfig.h"
+#include "MP/MpCharaRef_unk.h"
 
 // inferred: flags of a player slot (MSB first); names invented
 struct PPPlayerFlags_unk {
@@ -299,28 +304,38 @@ struct PPPlayerFlags_unk {
     unsigned int m29 : 1;
     unsigned int m28 : 1;     // inferred: set and cleared by messages 0x10 and 0x11
     unsigned int m27 : 1;     // inferred: set by message 0x17
-    unsigned int m26 : 1;
+    unsigned int m26 : 1;     // inferred: set by message 0x18 on the player and its team
     unsigned int m22 : 4;     // inferred: value of message 0x12
     unsigned int m00 : 22;
 };
 
 // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
 struct PPPlayer_unk {
-    CharaTask* mChara;                // 0x00
+    MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
     unsigned char m004[0xCC - 0x4];
     unsigned char mAid;               // 0xCC: inferred: network id of the player
     unsigned char m0CD[0xD0 - 0xCD];
     PPPlayerFlags_unk mFlags;         // 0xD0
     unsigned char m0D4[0xD38 - 0xD4];
-    int mD38[9];                      // inferred: values of message 0x15
+    int mD38[5];                      // inferred: values of message 0x15
+    unsigned int mD4C;                // inferred: bits 10-11 set by message 0x2E
+    unsigned char m0D50[0xD5C - 0xD50];
 
+};
+
+// inferred: entry of the character list of MP::Manager2 (0xB4 bytes, array at +0x5F0); names invented
+struct PPCharaEntry_unk {
+    MpCharaRef_unk mRef;
+    unsigned char m04[0xB4 - 0x4];
 };
 
 // inferred: MP::Manager2 (lbl_8087F610), only the members used here; names invented
 struct PPManager2_unk {
     unsigned char m0000[0x4FC];
     int mState;                       // 0x4FC: inferred: state (30 = in game)
-    unsigned char m0500[0x55C - 0x500];
+    unsigned char m0500[0x540 - 0x500];
+    int mMode;                        // 0x540: inferred: game mode
+    unsigned char m0544[0x55C - 0x544];
     int m55C;                         // inferred: values of messages 0x0C and 0x0E
     int m560;                         // inferred: settings of message 0x0F (m560-m598)
     int m564;
@@ -336,12 +351,17 @@ struct PPManager2_unk {
     unsigned char m05B0[0x5E4 - 0x5B0];
     PPPlayer_unk* mPlayers;           // 0x5E4
     int mPlayerNum;                   // 0x5E8
-    unsigned char m05EC[0x9694 - 0x5EC];
+    unsigned char m05EC[0x5F0 - 0x5EC];
+    PPCharaEntry_unk* mCharas;        // 0x5F0
+    int mCharaNum;                    // 0x5F4
+    unsigned char m05F8[0x9694 - 0x5F8];
     int m9694[8];                     // inferred: per aid values of message 0x35
     unsigned char m96B4[0x9984 - 0x96B4];
     unsigned char m9984[8];           // inferred: two 8-byte blocks of message 0x28
     unsigned char m998C[8];
-    unsigned char m9994[0x9A14 - 0x9994];
+    unsigned char m9994[0x99F4 - 0x9994];
+    int m99F4[8];                     // inferred: per team flags of message 0x18
+
     int m9A14[8];                     // inferred: per aid flags set by messages 0x38 and 0x3B
     int m9A34[8];
 };
@@ -406,10 +426,10 @@ extern "C" unsigned int fn_804EE4F0(PPPlayer_unk* player, const void* data); // 
 extern "C" void fn_804EE834(PPPlayer_unk* player) {
     if (fn_804EE4F0(player, fn_804AE3BC()->GetWorkBuffer_unk()) == 1) {
         void* data = fn_804AE3BC()->GetWorkBuffer_unk();
-        CharaTask* chara = player->mChara;
+        CharaTask* chara = player->mRef.mChara;
         if (chara != 0) {
             fn_804CF198((PackedMotion_unk*)((unsigned char*)data + 0x2C), chara->GetModel_unk(), 0);
-            ((PPChara_unk*)player->mChara)->m3FC = 1;
+            ((PPChara_unk*)player->mRef.mChara)->m3FC = 1;
         }
     }
 }
@@ -424,6 +444,12 @@ extern "C" void fn_804EFE98() {
     }
 }
 
+// inferred: atn::net::Manager (lbl_8087F628), only the flags used here; names invented
+struct PPNet_unk {
+    unsigned char m000[0xC2C];
+    unsigned int mC2C; // inferred: bit 0 and bit 1 set by message 0x0D
+};
+
 // inferred: messages 0x0C and 0x0E: values kept by the manager
 extern "C" void fn_804F1068() {
     if (PP_NO_DATA_UNK) {
@@ -431,6 +457,37 @@ extern "C" void fn_804F1068() {
     }
     int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m55C = data[0];
+}
+
+// NONMATCHING: 99.26% - r3/r4/r5 of the network manager, its flags and bit 0 rotated
+// inferred: message 0x0D: value m564; in game mode 2 it plays a BGM and sets the flags of the network
+// manager (bit 0, then bit 1) and a flag of the game (0x1B0)
+extern "C" void fn_804F1124() {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    ((PPManager2_unk*)lbl_8087F610)->m564 = data[0];
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30 && ((PPManager2_unk*)lbl_8087F610)->mMode == 2) {
+        if (GameBgm::sInstance != 0) {
+            GameBgm::sInstance->fn_8037D4C0(0x53D, 15, 1, 0, 0.7f);
+        }
+        PPNet_unk* net = (PPNet_unk*)lbl_8087F628;
+        unsigned int flags = net->mC2C;
+        if ((flags & 1) == 1 && (flags & 2) == 2) {
+            return;
+        }
+        if ((flags & 1) != 1) {
+            net->mC2C |= 1;
+        } else if ((flags & 2) != 2) {
+            net->mC2C |= 2;
+        }
+        if (lbl_8087F430 != 0) {
+            SetConfig::sInstance->mShowTutorial = 1;
+            ((GameTask*)lbl_8087F430)->fn_803750E4(0x1B0);
+            SetConfig::sInstance->mShowTutorial = 0;
+        }
+    }
 }
 
 extern "C" void fn_804F12A0() {
@@ -496,17 +553,47 @@ extern "C" void fn_804F1F24(PPPlayer_unk* player) {
     player->mFlags.m27 = 1;
 }
 
+// inferred: the slot holds a player of a team (team in the high nibble of the aid byte)
+static inline bool IsTeamPlayer_unk(PPPlayer_unk* player) {
+    if (player != 0 && player->mAid != 0xFF && (player->mAid & 0xF0) != 0) {
+        return true;
+    }
+    return false;
+}
+
+// NONMATCHING: 99.67% - the original increments the index before the slot offset
+// inferred: message 0x18: marks the player and the players of its team (m26) and the team flag
+extern "C" void fn_804F1F34(PPPlayer_unk* player) {
+    int i;
+    PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+    player->mFlags.m26 = 1;
+    if (player->mRef.mChara != 0) {
+        player->mRef.mChara->fn_800D246C(0);
+    }
+    for (i = 0; i < mgr->mPlayerNum; i++) {
+        PPPlayer_unk* other = &mgr->mPlayers[i];
+        if (IsTeamPlayer_unk(other) && (unsigned int)(other->mAid & 0xF) == player->mAid) {
+            other->mFlags.m26 = 1;
+            if (other->mRef.mChara != 0) {
+                other->mRef.mChara->fn_800D246C(0);
+            }
+        }
+    }
+    PPManager2_unk* mgr2 = (PPManager2_unk*)lbl_8087F610;
+    mgr2->m99F4[player->mAid & 0xF] = 1;
+}
+
 // inferred: message 0x1F: shield parts of the character of the player (count in the data)
 extern "C" void fn_804F2C44(PPPlayer_unk* player) {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
         return;
     }
     int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
-    if (player->mChara != 0) {
+    if (player->mRef.mChara != 0) {
         if (*data > 0) {
-            player->mChara->fn_8014F698(0, *data, 0);
+            player->mRef.mChara->fn_8014F698(0, *data, 0);
         } else {
-            player->mChara->fn_8014F960(0);
+            player->mRef.mChara->fn_8014F960(0);
         }
     }
 }
@@ -580,6 +667,53 @@ extern "C" void fn_804F3170() {
 
 extern "C" void fn_804F36F4(PPPlayer_unk* player, unsigned int aid) {}
 
+// NONMATCHING: 97.18% (and 99.51% fn_804F39D4) - in the inlined fn_804DD158 the manager takes r5 and the
+// slot offset r3 (swapped)
+// inferred: message 0x2E: hit (or end of the hit) of skill 0x4FC1 on the character of a player
+extern "C" void fn_804F3880() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+        return;
+    }
+    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    PPPlayer_unk* player = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
+    if (player != 0 && player->mRef.mChara != 0) {
+        if (data[1] != 0) {
+            player->mD4C |= 0xC00;
+            CharaTask* chara = player->mRef.mChara;
+            if (chara != 0) {
+                player->mRef.mChara->fn_80178668(fn_80219E6C(0x4FC1), 0, 9999, chara, 0);
+            }
+        } else {
+            player->mD4C &= ~0xC00;
+            CharaTask* chara = player->mRef.mChara;
+            if (chara != 0) {
+                player->mRef.mChara->fn_80178864(fn_80219E6C(0x4FC1), chara);
+            }
+        }
+    }
+}
+
+// inferred: message 0x2F: value m9F8 and flag 0x20 of the character of a player (or releases it)
+extern "C" void fn_804F39D4() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+        return;
+    }
+    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    PPPlayer_unk* player = fn_804DD158((PPManager2_unk*)lbl_8087F610, data[0]);
+    if (player == 0) {
+        return;
+    }
+    if (data[1] != 0) {
+        if (player->mRef.mChara != 0) {
+            ((PPChara_unk*)player->mRef.mChara)->m9F8 = data[2];
+            ((PPChara_unk*)player->mRef.mChara)->m7E0 |= 0x20;
+        }
+    } else if (player->mRef.mChara != 0) {
+        player->mRef.fn_805011CC();
+        ((PPChara_unk*)player->mRef.mChara)->m7E0 &= ~0x20;
+    }
+}
+
 // inferred: message 0x30: a byte kept by the manager (m5A8)
 extern "C" void fn_804F3AF0() {
     if (PP_NO_DATA_UNK) {
@@ -598,6 +732,22 @@ extern "C" void fn_804F3D80(unsigned int aid) {
     }
     unsigned short* data = (unsigned short*)fn_804AE3BC()->GetWorkBuffer_unk();
     fn_804F50DC((PPManager2_unk*)lbl_8087F610, aid, data[0], data[1]);
+}
+
+// inferred: message 0x33: releases the character of entry `index` of the list
+extern "C" void fn_804F3E50() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+        return;
+    }
+    int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
+    int index = data[0];
+    if (index < 0 || ((PPManager2_unk*)lbl_8087F610)->mCharaNum <= index) {
+        return;
+    }
+    PPCharaEntry_unk* entry = &((PPManager2_unk*)lbl_8087F610)->mCharas[index];
+    if (entry->mRef.mChara != 0) {
+        entry->mRef.fn_805011CC();
+    }
 }
 
 // inferred: message 0x35: a value per network id
