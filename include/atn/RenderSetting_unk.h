@@ -29,8 +29,8 @@ struct BloomParam_unk {
           mBlurHeight(1.25f), mBlurAngle(0.0f) {
         mKernel[0] = 2.0f;
         mKernel[1] = 1.0f;
-        mKernel[2] = 0.5f;
         mKernel[3] = 1.0f;
+        mKernel[2] = 0.5f;
         mKernel[4] = 0.5f;
         mColor[0] = White_unk();
         mColor[1] = White_unk();
