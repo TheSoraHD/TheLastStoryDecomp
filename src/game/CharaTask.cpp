@@ -1417,14 +1417,10 @@ extern "C" int fn_8003F440(CharaTask* chara, SkillRef_unk* data);
 
 // inferred: moves the character for its current mode (mC58.mMode); called by fn_80139560 with the
 // speed, direction and rate passed to vf34.
-// NONMATCHING: 98.5% - the two node names ("righthand", "head") go to an @STRING@ pool instead of
-// @stringBase0 because the function is inline; the Matrix3x4 of mode 10 calls its empty constructor
-// (and gets f30 instead of f31); the 0.0f argument of fn_80097C08 is loaded later. The original is
-// probably not inline (its literals are in the file pool), but only as an inline candidate does it
-// make fn_80139560 reject its helpers as the original does (with a non-inline definition this
-// function is at 99.0% and fn_80139560 inlines everything). Tried: non-inline, static, accessors
-// as inline functions, small auto-inline stubs of the other callees of fn_80139560.
-inline int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
+// NONMATCHING: 99.6% - the Matrix3x4 of mode 10 calls its empty constructor (and gets f30 instead of f31);
+// the 0.0f argument of fn_80097C08 is loaded later. Not inline: the original is a global function with
+// its literals in the file pool, and fn_80139560 still matches.
+int CharaTask::fn_8013A4E8(float* a, atn::Vector3* rot, float* b) {
     RouteWalker_unk* route = &mC58.m0C;
     if (mC58.m2B4 > 0) {
         mC58.m2B4--;
@@ -4738,11 +4734,11 @@ int CharaTask::fn_80148334() {
     return mFlag2;
 }
 
-// NONMATCHING: 94% (objdiff 99.9%) - only symbol names differ: the Item14_unk constructor is
-// fn_80148990 in the target, and the "" of SimpleVector::reserve are lbl_8087D9E4/lbl_8087D9E0.
 void CharaTask::vf50() {
     m624.clear();
     m624.reserve(1, 3);
+    // inferred: name of the list for the debug output (unused in release; its literal stays in the pool)
+    const char* name = "DamageSphereList";
     Item14_unk item;
     item.m04.mRadius = m5B0;
     item.m04.mCenter = mPos + m5A4;
@@ -4784,8 +4780,6 @@ CharaTask::Item14_unk* CharaTask::fn_80148B0C(int index) {
 }
 
 
-// NONMATCHING: 96% - the instructions are the same; only the offsets in @stringBase0 differ
-// (the strings of the functions before this one are not all defined yet).
 void CharaTask::fn_80148B38(float distSq) {
     if (m648 != 0) {
         if (m648->m04 == 1) {
