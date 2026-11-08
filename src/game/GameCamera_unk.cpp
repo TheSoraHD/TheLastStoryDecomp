@@ -1,6 +1,7 @@
 // Camera of the field (GameCamera, GameTask + 0x6C). Only a few members are written; the constructor and
 // the update (0x8037F9AC) are still missing, so the unit is not linked.
 #include "game/GameCamera.h"
+#include "game/GameScene.h"
 #include "game/CharaManager.h"
 #include "game/GameConfig_unk.h"
 #include "game/PlayerTask.h"
@@ -107,6 +108,22 @@ void GameCamera::fn_80389838(int mode) {
     lbl_8087F0A8->mInput.m10 = 3;
 }
 
+// inferred: applies the depth of field of the current camera box (restores the saved one when it has
+// none) and sets m804
+void GameCamera::fn_80389884(int mode) {
+    if (mC20 != 0 && (mC20->m34 & 1U) == 1) {
+        if (mC84 == 0) {
+            mC24 = lbl_8087EFA8->mDof;
+            lbl_8087EFA8->mDof = mC54;
+            mC84 = 1;
+        }
+    } else if (mC84 != 0) {
+        lbl_8087EFA8->mDof = mC24;
+        mC84 = 0;
+    }
+    m804 = mode;
+}
+
 void GameCamera::fn_8038A1B8(const CharaTask* chara) {
     m8EC = 1;
     m800 = m7FC;
@@ -180,6 +197,25 @@ void GameCamera::fn_80392CE0(const GameCameraState_unk* state) {
     m808 = state->m08;
     m818 = state->m18;
     m830 = state->m24;
+}
+
+// NONMATCHING: 83% - stack slots of the (a - b) and (a - b) * t temporaries swapped and the float registers
+// of the three lerps (tried statement orders, Lerp_unk, named differences and a static inline helper)
+// inferred: blends the render camera from the saved one (mA28) while mC14 is positive
+void GameCamera::fn_80392FE8() {
+    if (mC14 > 0.0f) {
+        float t = mC14;
+        atn::Vector3 pos = (mA28 - m1F4.mPos) * t + m1F4.mPos;
+        atn::Vector3 target = (mA34 - m1F4.mTarget) * t + m1F4.mTarget;
+        atn::Vector3 up = (mA40 - m1F4.mUp) * t + m1F4.mUp;
+        float fovy = t * (mA70 - m1F4.mFovy) + m1F4.mFovy;
+        up.Normalize_unk();
+        m1F4.mPos = pos;
+        m1F4.mTarget = target;
+        m1F4.mUp = up;
+        m1F4.mFovy = fovy;
+        mC14 -= mC18;
+    }
 }
 
 void GameCamera::fn_803933A4() {
