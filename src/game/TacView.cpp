@@ -428,24 +428,24 @@ HitInfo_unk* TacView::fn_805ADD3C(CharaTask* chara) {
     return 0;
 }
 
-// NONMATCHING: 91% - the original builds the 2 with ori from the zeroed index register
 void TacView::fn_805ADD80(CharaTask* chara, HitInfo_unk* hit) {
     for (unsigned int i = 0; i < mEntries.size(); i++) {
         TacViewEntry_unk& entry = mEntries.mData[i];
         if (entry.mChara == chara && entry.mHit == hit && (entry.mState & 2) != 2) {
-            entry.mState = 2;
+            // inferred: clears the state and sets the finished bit (the original builds the 2 from the zero)
+            entry.mState = 0;
+            entry.mState |= 2;
         }
     }
 }
 
-// NONMATCHING: 99% - registers of the entry pointer and of the inner pointer swapped
 void TacView::fn_805ADDD4(CharaTask* chara) {
-    TacViewEntry_unk* entry = mEntries.begin();
-    for (unsigned int i = 0; i < mEntries.size(); entry++, i++) {
+    for (unsigned int i = 0; i < mEntries.size(); i++) {
+        TacViewEntry_unk* entry = &mEntries.mData[i];
         if (chara == 0 || entry->mChara == chara) {
             if ((entry->mState & 1) == 1) {
-                TacViewEntry_unk* other = mEntries.begin();
-                for (unsigned int j = 0; j < mEntries.size(); j++, other++) {
+                for (unsigned int j = 0; j < mEntries.size(); j++) {
+                    TacViewEntry_unk* other = &mEntries.mData[j];
                     if (other->mChara == entry->mChara && other->mState == 0) {
                         other->mHit = entry->mHit;
                         entry->mState |= 4;
