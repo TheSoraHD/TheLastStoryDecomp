@@ -125,6 +125,8 @@ NewCampTask::NewCampTask(atn::Task* parent)
     m12B0.Clear_unk();
 }
 
+NewCampTask::~NewCampTask() {}
+
 // inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
 static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y, int z) {
     atn::Vector3 pos;
