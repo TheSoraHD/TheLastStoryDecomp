@@ -5,6 +5,7 @@
 #include "game/GameConfig_unk.h"
 #include "game/PlayerTask.h"
 #include "atn/RenderSetting_unk.h"
+#include "atn/RenderManager.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -127,6 +128,34 @@ void GameCamera::fn_80390374() {
 }
 
 // inferred: const (the original loads every member before the first store)
+void GameCamera::fn_803928C0() {
+    m1F4.mPos = m1F4.mPos + m93C;
+    m1F4.mTarget = m1F4.mTarget + m948;
+    float fovy = m1F4.mFovy;
+    m1F4.mFovy = m954 + fovy;
+}
+
+// NONMATCHING: the original is over the inlining budget and calls the copy of atn::Camera (0x80392A04, emitted
+// here as a weak copy) and RenderManager::SetCamera_unk; here both are inlined
+void GameCamera::fn_80392964(int a, int b, int c, int d) {
+    m1F4 = *this;
+    if (c != 0) {
+        fn_80392510();
+    }
+    if (d != 0) {
+        fn_80392FE8();
+    }
+    if (a != 0) {
+        fn_803918EC();
+    }
+    if (b != 0) {
+        fn_803920C8();
+    }
+    fn_803928C0();
+    m1F4.fn_8004B378();
+    fn_8008B964()->SetCamera_unk(m1F4);
+}
+
 void GameCamera::fn_80392C94(GameCameraState_unk* state) const {
     state->m0C = m80C;
     state->mMode = m7FC;

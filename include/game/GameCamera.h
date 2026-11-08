@@ -50,6 +50,14 @@ public:
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
     void fn_803933A4(); // inferred: reset of the event state
     void fn_8037F744(); // inferred: update of the camera mode (tables 0x8074E018 and 0x8074E114)
+    void fn_803918EC(); // inferred: corrections of the camera (not written)
+    void fn_803920C8();
+    void fn_80392510();
+    void fn_80392FE8();
+    void fn_803928C0(); // inferred: adds the offsets m93C/m948/m954 to the render camera
+    // inferred: end of the update: copies the camera to m1F4, applies the selected corrections and gives
+    // m1F4 to the render manager
+    void fn_80392964(int a, int b, int c, int d);
     // inferred: functions of the mode tables of fn_8037F744 (start and update of each mode; not written)
     void fn_803830A8(const CharaTask* chara);
     void fn_8038378C(const CharaTask* chara);
@@ -133,7 +141,11 @@ public:
     unsigned char m911[0x914 - 0x911];
     int m914;
     int m918; // inferred: maximum of m914
-    unsigned char m91C[0xA0C - 0x91C];
+    unsigned char m91C[0x93C - 0x91C];
+    atn::Vector3 m93C; // inferred: offset of the position of the render camera (fn_803928C0)
+    atn::Vector3 m948; // inferred: offset of the target
+    float m954;        // inferred: offset of the fovy
+    unsigned char m958[0xA0C - 0x958];
     float mA0C[5];
     unsigned char mA20[0xC20 - 0xA20];
     gs::CameraBox* mC20;   // 0xC20: inferred: camera box (MapTask::fn_804A04AC)
