@@ -872,6 +872,10 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     }
     return m;
 }
+// inferred: *this = m * *this (declared in math/Vec.h; weak copy 0x80011410)
+inline void atn::Vector3::fn_80011410(const atn::Matrix3x4& m) {
+    PSMTXMultVec(m.m, this, this);
+}
 // inferred: fabs (weak copy 0x80011220)
 extern "C" inline float fn_80011220(float x) {
     double r = __fabs(x);
