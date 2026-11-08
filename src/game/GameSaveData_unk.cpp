@@ -3,7 +3,6 @@
 #include "game/GameSaveData.h"
 #include "game/GameTask.h"
 #include "game/GameSaveLoadBackgroundCommon.h"
-#include "game/GameField_unk.h"
 #include "game/GameConfig_unk.h"
 #include "game/PlayerManager.h"
 #include "game/PlayerTask.h"
@@ -20,6 +19,8 @@
 #include "db/EquipParam_unk.h"
 #include "db/ItemParam_unk.h"
 #include "game/MapTask.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
@@ -120,15 +121,15 @@ static inline bool IsKeptFlag_unk(int flag) {
 }
 
 void GameSaveFlags_unk::fn_803B9C98() {
-    GameField_unk* field = lbl_8087F430;
+    GameTask* field = lbl_8087F430;
     if (field) {
-        ((GameTask*)field)->fn_80370094(mState);
-        ((GameTask*)field)->fn_80370320(0x11B, 0, 1);
+        field->fn_80370094(mState);
+        field->fn_80370320(0x11B, 0, 1);
         for (int i = 0; i < 0x1000; i++) {
             if (i == 0x1E) {
-                ((GameTask*)field)->fn_80370320(i, 1, 1);
+                field->fn_80370320(i, 1, 1);
             } else {
-                ((GameTask*)field)->fn_80370320(i, mFlags[i], 1);
+                field->fn_80370320(i, mFlags[i], 1);
             }
         }
         if (mFlags[0x11B] > 0) {
@@ -214,7 +215,7 @@ void GameSavePlayers_unk::fn_803BA408() {
         mEntries[n].m03 = player->m674;
         if (player->m55C == 7 || (player->m55C == 6 && player->m564 == 7)) {
             mEntries[n].mFlags |= 0x10;
-            RouteTable_unk* table = lbl_8087F430 ? lbl_8087F430->m10D8 : 0;
+            RouteTable_unk* table = lbl_8087F430 ? (RouteTable_unk*)lbl_8087F430->m10D8 : 0; // inferred: RouteTable_unk is a view of GameScene
             if (table) {
                 RouteWalker_unk& route = player->mRoute;
                 mEntries[n].mRouteMode = route.m44;
@@ -339,7 +340,7 @@ void GameSaveEnemies_unk::fn_803BB0E0() {
             if ((entry->mFlags & 4) == 4) {
                 enemy->fn_80145334();
                 GameSceneRoute_unk ledge;
-                if (((GameTask*)lbl_8087F430)->fn_8036DAF4(&ledge, enemy, 1, 0)) {
+                if (lbl_8087F430->fn_8036DAF4(&ledge, enemy, 1, 0)) {
                     enemy->fn_80153698(&ledge, 0);
                 }
             }
@@ -527,8 +528,8 @@ void GameSaveData_unk::fn_803BDEE4() {
     if (GameBgm::sInstance) {
         GameBgm::sInstance->fn_8037D808();
     }
-    if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->GetCurrentMap()) {
-        ((GameTask*)lbl_8087F430)->GetCurrentMap()->fn_804A1D2C();
+    if (lbl_8087F430 && lbl_8087F430->GetCurrentMap()) {
+        lbl_8087F430->GetCurrentMap()->fn_804A1D2C();
     }
     if (lbl_8087F418) {
         lbl_8087F418->fn_803608A8();
@@ -625,8 +626,8 @@ void GameSaveData_unk::fn_803BE590() {
 
 void GameSaveData_unk::fn_803BE670() {
     mFlags.fn_803B9D78();
-    if (lbl_8087F430 && ((GameTask*)lbl_8087F430)->GetCurrentMap()) {
-        ((GameTask*)lbl_8087F430)->GetCurrentMap()->fn_804A1C4C();
+    if (lbl_8087F430 && lbl_8087F430->GetCurrentMap()) {
+        lbl_8087F430->GetCurrentMap()->fn_804A1C4C();
     }
 }
 

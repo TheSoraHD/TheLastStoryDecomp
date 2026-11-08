@@ -55,7 +55,7 @@ struct GameTaskTable_unk {
 };
 
 // inferred from __vt__8GameTask (0x8078A3D0): the field task (lbl_8087F430). Other units still use
-// partial views of it (GameField_unk, Field_unk...). Method names invented unless noted.
+// partial views of it (Field_unk...). Method names invented unless noted.
 class GameTask : public atn::Task {
 public:
     // inferred: start options of the game task (0x24 bytes; names invented)

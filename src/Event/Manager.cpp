@@ -24,7 +24,6 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/RenderSetting_unk.h"
-#include "game/GameField_unk.h"
 #include "game/CharaTask.h"
 #include "game/GameScene.h"
 #include "game/GimmickManager.h"
@@ -53,6 +52,8 @@
 #include "atn/SceneColorMatrix_unk.h"
 #include "atn/Lerp_unk.h"
 #include "nw4r/math/triangular.h"
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
 
 extern "C" RenderSetting_unk* lbl_8087EFA8; // inferred: render settings (frame speed at 0x3A4)
 
@@ -902,7 +903,7 @@ void Manager::fn_8047F984(float time) {
 // m194 of the game settings set fades the field out instead. Names invented.
 void Manager::fn_8047F994(int cut, int now) {
     if (cut == 0 && lbl_8087F0A8->m194 != 0 && m70 != 0 && m70->m190 == 0x19D) {
-        ((GameTask*)lbl_8087F430)->fn_80370B78(0xFFFFFFFF, 0, 0, 0.0f);
+        lbl_8087F430->fn_80370B78(0xFFFFFFFF, 0, 0, 0.0f);
         m70->fn_8053E8C8(11);
     } else {
         mB8.push_back(cut);
@@ -1043,7 +1044,7 @@ MapTask* Manager::fn_80480438() {
         return m1A60[0];
     }
     if (lbl_8087F430 != 0) {
-        return ((GameTask*)lbl_8087F430)->GetCurrentMap();
+        return lbl_8087F430->GetCurrentMap();
     }
     return 0;
 }
@@ -1501,8 +1502,8 @@ void fn_80482EB4(MapArea* area, void* arg) {
 // fn_80487064 and fn_804870F4); name invented
 inline MapTask* GetCurrentMap_unk() {
     MapTask* map = 0;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        map = ((GameTask*)lbl_8087F430)->GetCurrentMap();
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map = lbl_8087F430->GetCurrentMap();
     }
     if (map == 0 && MapManager::instance_ != 0 && MapManager::instance_->mMaps.size() != 0) {
         map = MapManager::instance_->mMaps[0];
@@ -2955,9 +2956,9 @@ void Manager::fn_8048E9E0() {
         m1F70->m08 = 3;
     }
     mMoviePlaying = 1;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        m2404_1 = ((GameTask*)lbl_8087F430)->GetCurrentMap()->IsFrozen_unk();
-        ((GameTask*)lbl_8087F430)->GetCurrentMap()->FreezeTask();
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        m2404_1 = lbl_8087F430->GetCurrentMap()->IsFrozen_unk();
+        lbl_8087F430->GetCurrentMap()->FreezeTask();
     }
     if (lbl_8087F8A0 != 0) {
         m2404_2 = lbl_8087F8A0->IsFrozen_unk();
@@ -3010,8 +3011,8 @@ void Manager::fn_8048EC7C() {
         m1F70 = 0;
     }
     mMoviePlaying = 0;
-    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->GetCurrentMap() != 0) {
-        ((GameTask*)lbl_8087F430)->GetCurrentMap()->SetFrozen_unk(m2404_1);
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        lbl_8087F430->GetCurrentMap()->SetFrozen_unk(m2404_1);
     }
     if (lbl_8087F8A0 != 0) {
         lbl_8087F8A0->SetFrozen_unk(m2404_2);
