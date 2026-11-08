@@ -2251,7 +2251,7 @@ void GameScene::fn_803CC774(atn::Task* chara) {
     m134->fn_803ABFD4(chara);
 }
 
-int GameScene::fn_803CC77C() {
+int GameScene::fn_803CC77C() const {
     GameEventScript* script = m134;
     int n = 0;
     if (script != 0) {
@@ -2280,7 +2280,7 @@ int GameScene::fn_803CC77C() {
     return n;
 }
 
-int GameScene::fn_803CC900() {
+int GameScene::fn_803CC900() const {
     GameEventScript* script = m134;
     int n = 0;
     if (script != 0) {

@@ -392,8 +392,8 @@ public:
     void fn_803CC718(atn::Task* chara, int value);
     atn::Vector3 fn_803CC754(unsigned int index); // inferred: position of a NPC set point
     void fn_803CC774(atn::Task* chara);
-    int fn_803CC77C(); // inferred: number of things left
-    int fn_803CC900(); // inferred: number of entries
+    int fn_803CC77C() const; // inferred: number of things left
+    int fn_803CC900() const; // inferred: number of entries
     int fn_803CCA34(CharaTask* chara);
     int fn_803CCA4C(CharaTask* chara);
     int fn_803CCA64(CharaTask* chara, int arg, float range);

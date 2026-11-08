@@ -637,7 +637,7 @@ int Input_unk::fn_8012476C(int action) {
 }
 
 // NONMATCHING: 95.7% - scheduling of the stores of the stick vector and of the result
-float Input_unk::fn_801248DC(atn::Vector3* dir) {
+float Input_unk::fn_801248DC(atn::Vector3* dir) const {
     atn::Vector3 v;
     v.x = -fn_800A56A8(GetPad_unk(), 0, 0, 0);
     v.y = 0.0f;

@@ -456,7 +456,7 @@ public:
     int fn_8012F440(int flags, int power, int remove, int damage, int strong, int both, int effect);
     void ApplyRates_unk(HitInfo_unk* hit);
     void fn_801342D0(struct StatusItem_unk* item, int stat);
-    int fn_80133BD8(int force); // inferred: level of the character
+    int fn_80133BD8(int force) const; // inferred: level of the character
     void ClearBit_unk(int bit);
     int fn_8012E534();
     int fn_80139F4C(); // inferred: accessor called out of line from CharaTask

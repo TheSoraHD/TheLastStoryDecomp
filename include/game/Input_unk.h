@@ -22,7 +22,7 @@ public:
     int fn_801240B4(int action);       // inferred: action held
     inline int Held_unk(int action);
     int fn_8012476C(int action);       // inferred: remote swung (action 0x22)
-    float fn_801248DC(atn::Vector3* dir); // inferred: stick strength; `dir` gets its direction
+    float fn_801248DC(atn::Vector3* dir) const; // inferred: stick strength; `dir` gets its direction
     int fn_80124B60();                 // inferred: input locked (leader controlled by the game)
     void fn_80124BE4();                // inferred: resets the camera yaw
     void fn_80124BFC(int button, int lock); // inferred: locks the actions mapped to `button`
