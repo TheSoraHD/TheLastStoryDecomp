@@ -13,7 +13,7 @@
 #include "MP/SaveLoad.h"
 
 class GameScene;
-struct Ledge_unk;
+struct GameSceneRoute_unk;
 class GimmickCommon;
 class MapTask;
 class PlayerTask;
@@ -120,8 +120,8 @@ public:
     int fn_8036823C();
     void fn_80374710(int arg); // inferred: starts the battle camera (camera mode 6)
     void fn_803748E0(int arg); // inferred: ends the grapple camera
-    int fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int point); // inferred: hide link ahead of `chara`
-    int fn_8036DB24(Ledge_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir); // inferred: next hide link
+    int fn_8036DAF4(GameSceneRoute_unk* route, CharaTask* chara, int check, int point); // inferred: hide link ahead of `chara`
+    int fn_8036DB24(GameSceneRoute_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir); // inferred: next hide link
     int fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara);
     void fn_80375194(int id, int kind, float rot); // inferred: sets m5644/m5640 and moves the party to the leader
     int fn_803754C4(); // inferred: the task at 0x567C exists and is not stopped

@@ -338,7 +338,7 @@ void GameSaveEnemies_unk::fn_803BB0E0() {
             enemy->fn_8014DEE4(entry->m03, 0, 0);
             if ((entry->mFlags & 4) == 4) {
                 enemy->fn_80145334();
-                Ledge_unk ledge;
+                GameSceneRoute_unk ledge;
                 if (((GameTask*)lbl_8087F430)->fn_8036DAF4(&ledge, enemy, 1, 0)) {
                     enemy->fn_80153698(&ledge, 0);
                 }

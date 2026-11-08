@@ -3163,7 +3163,7 @@ void CharaTask::fn_80141674(void* target, float a, float b) {
     if (end != 0) {
         atn::Vector3 d(pos - *end);
         if (LengthSq_unk(d) < LengthSq_unk(d + move)) {
-            Ledge_unk ledge;
+            GameSceneRoute_unk ledge;
             move = *end - pos;
             if (((GameTask*)lbl_8087F430)->fn_8036DB24(&ledge, this, linkA, linkB, &move)) {
                 ReleaseLedge_unk();
@@ -7640,17 +7640,17 @@ bool CharaTask::fn_801533C8(int id, HitInfo_unk* hit) {
 // keeps the ledge in r30 and this in r29, ours the other way round). Tried a free function, other
 // statement orders, the direction computed in place or through helpers.
 // inferred: grabs a ledge
-void CharaTask::fn_80153698(const Ledge_unk* ledge, int keep) {
+void CharaTask::fn_80153698(const GameSceneRoute_unk* ledge, int keep) {
     mFlag31 = 1;
     mC48 = 0;
     mC14 = ledge->GetDir_unk();
-    mFlag30 = ledge->m34 != 0;
-    mC20 = ledge->m18;
-    mC2C = ledge->m24;
-    mC44 = ledge->m30;
-    mC40 = ledge->m34;
-    mC38 = ledge->m38;
-    mC3C = ledge->m3C;
+    mFlag30 = ledge->mType != 0;
+    mC20 = ledge->mFrom;
+    mC2C = ledge->mTo;
+    mC44 = ledge->mFlags;
+    mC40 = ledge->mType;
+    mC38 = ledge->mFromIndex;
+    mC3C = ledge->mToIndex;
     mFlag14 = 1;
     Segment_unk seg(mC20, mC2C);
     atn::Vector3 pos;

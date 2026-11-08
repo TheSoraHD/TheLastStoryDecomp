@@ -17,6 +17,7 @@ class Model;
 class CharaTask;
 
 #include "atn/ResRef_unk.h"
+#include "game/GameSceneRoute_unk.h"
 
 // inferred: run-length encoded array of u16 (see game/U16Table_unk.cpp)
 struct U16Table_unk;
@@ -326,17 +327,6 @@ struct GameSceneSave_unk {
     unsigned char m04[4];
 };
 
-// inferred: hide route filled by GameScene::fn_803CAED0 (0x40 bytes; names invented)
-struct GameSceneRoute_unk {
-    atn::Vector3 mDir;   // 0x00
-    atn::Vector3 mSide;  // 0x0C
-    atn::Vector3 mFrom;  // 0x18
-    atn::Vector3 mTo;    // 0x24
-    unsigned int mFlags; // 0x30: inferred: 1 start on, 2 end on, 4 wide
-    int mType;       // 0x34
-    int mFromIndex;  // 0x38
-    int mToIndex;    // 0x3C
-};
 
 // inferred: pair queued by GameScene::fn_803CCC84 (names invented)
 struct GameScenePair_unk {

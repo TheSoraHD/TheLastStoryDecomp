@@ -11,6 +11,7 @@
 #include "atn/LH_MotionCommandData.h"
 #include "atn/SoundRef.h"
 #include "chr/Motion_unk.h"
+#include "game/GameSceneRoute_unk.h"
 #include "game/CharaStatus.h"
 #include "game/CharaSub_unk.h"
 #include "game/CharaFaceControl.h"
@@ -389,24 +390,6 @@ struct CharaPair8_unk {
     int m04;
 };
 
-// inferred: ledge description passed to CharaTask::fn_80153698; name invented
-struct Ledge_unk {
-    // inferred: name invented
-    atn::Vector3 GetDir_unk() const {
-        atn::Vector3 dir;
-        dir = m24 - m18;
-        PSVECNormalize(&dir, &dir);
-        return dir;
-    }
-
-    unsigned char m00[0x18];
-    atn::Vector3 m18; // inferred: start
-    atn::Vector3 m24; // inferred: end
-    int m30;
-    int m34;
-    int m38; // inferred: route links
-    int m3C;
-};
 
 // inferred: skill reference (CharaTask+0xD34 points to one, BattleCharaTask embeds one at 0xABC);
 // only the id is known
@@ -857,7 +840,7 @@ public:
     int fn_8017CB2C(); // inferred: also used by GimmickManager::fn_803EE45C
     const char* fn_8017C904(); // inferred: "chXXXX_YY" name of the character
     bool fn_801533C8(int id, HitInfo_unk* hit);
-    void fn_80153698(const Ledge_unk* ledge, int keep);
+    void fn_80153698(const GameSceneRoute_unk* ledge, int keep);
     int fn_80153B44(); // inferred: free side (1 or 2) next to the character
     int fn_80153FA0();
     int fn_80153FD8(int kind);

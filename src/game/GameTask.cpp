@@ -2179,9 +2179,7 @@ int GameTask::fn_8036DAA8(CharaTask* chara) {
     return 1;
 }
 
-// inferred: Ledge_unk (CharaTask.h) and GameSceneRoute_unk (GameScene.h) have the same 0x40-byte layout;
-// unifying them renumbers the @N labels of ~50 units (pending)
-int GameTask::fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int point) {
+int GameTask::fn_8036DAF4(GameSceneRoute_unk* route, CharaTask* chara, int check, int point) {
     GameScene* scene = m10D8;
     if (scene == 0) {
         return 0;
@@ -2189,14 +2187,14 @@ int GameTask::fn_8036DAF4(Ledge_unk* route, CharaTask* chara, int check, int poi
     if (chara->IsOnLedge_unk()) {
         return 0;
     }
-    return scene->fn_803CB044((GameSceneRoute_unk*)route, chara, check, point);
+    return scene->fn_803CB044(route, chara, check, point);
 }
 
 // inferred: `dir` is passed on in r8 but not used
-int GameTask::fn_8036DB24(Ledge_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir) {
+int GameTask::fn_8036DB24(GameSceneRoute_unk* route, CharaTask* chara, int point, int exclude, const atn::Vector3* dir) {
     GameScene* scene = m10D8;
     if (scene != 0) {
-        return scene->fn_803CB474((GameSceneRoute_unk*)route, chara, point, exclude);
+        return scene->fn_803CB474(route, chara, point, exclude);
     }
     return 0;
 }

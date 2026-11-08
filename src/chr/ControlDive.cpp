@@ -134,7 +134,7 @@ int ControlSwatTurn::vf0C() {
     } else if (len < 8.0f) {
         speed *= 0.7f;
     }
-    Ledge_unk ledge;
+    GameSceneRoute_unk ledge;
     if (len < 5.0f && ((GameTask*)lbl_8087F430)->fn_8036DAF4(&ledge, mChara, 0, m14) != 0) {
         mChara->fn_80153698(&ledge, 0);
         ret = 1;
