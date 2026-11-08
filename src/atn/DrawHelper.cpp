@@ -1298,7 +1298,6 @@ void DrawHelper::fn_80063200(unsigned int segments, unsigned int color, float x,
     atn::RenderManager::instance_->AddRender(cmd, 0xD, a);
 }
 
-// NONMATCHING: 99.9% - operand order of the fnmsubs of the start angle (angle * 0.5f)
 void DrawHelper::fn_80063484(unsigned int segments, unsigned int color, float x, float y, float z, float rot, float a,
                              float radius, float angle) {
     ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
@@ -1314,7 +1313,7 @@ void DrawHelper::fn_80063484(unsigned int segments, unsigned int color, float x,
     v[0].mColor = color;
     Vector3 d(0.0f, 0.0f, radius);
     Mtx m;
-    PSMTXRotRad(m, 'y', rot - angle * 0.5f);
+    PSMTXRotRad(m, 'y', rot - angle / 2.0f);
     PSMTXMultVec(m, &d, &d);
     for (unsigned int i = 1; i < segments + 1; i++) {
         v[i].mPos = d + c;

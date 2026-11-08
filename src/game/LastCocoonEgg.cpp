@@ -6,6 +6,7 @@
 #include "std/string_members.h"
 #include "std/string.h"
 #include "atn/Keyboard.h"
+#include "atn/Vector4_unk.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -491,3 +492,6 @@ void LastCocoonEgg::fn_80457C48() {
     m14E8 = 0;
     m14E4 = 0;
 }
+
+// inferred: base color of the glow of fn_8045531C (static object, initialized in __sinit)
+static atn::Vector4_unk sGlowColor_unk(0.8f, 0.8f, 0.8f, 1.0f);
