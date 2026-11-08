@@ -1,6 +1,6 @@
 # Siguiente sesion (tras `s12h-20261107`, sin mergear)
 
-Rama `s12h-20261107` (desde `main` f65316f): **14349 / 18116** en `report.json` (14346 en `objdiff diff`: los vf10
+Rama `s12h-20261107` (desde `main` f65316f): **14350 / 18116** en `report.json` (14347 en `objdiff diff`: los vf10
 de ControlRevival, ControlRideBeast y ControlBoundShade quedan al 99,8-99,9% por el pool
 `@stringBase0_8073B8E8`), lost 0, sin bajadas, clon limpio `main.dol: OK`. **Pendiente de revision y merge.**
 Notas: `docs/s12h-20261107.md`.
