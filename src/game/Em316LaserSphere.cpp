@@ -67,7 +67,7 @@ static float sZero_unk = 0.0f;
 
 // inferred: shared by all the spheres: set once the targets have been shared this frame (lbl_8087F3F4)
 // and the last angle (lbl_8087F3F0); names invented
-static float sAngle_unk;
+static float sAngle_unk = atn::DegToRad_unk(70.0f);
 static int sShared_unk;
 
 // inferred: translation of a matrix (name invented)
