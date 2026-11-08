@@ -130,7 +130,9 @@ struct ReplayRecorder_unk {
 // inferred: object of GameTask + 0x5590 (destructor 0x8056C398 in game/ReplayBuffer.cpp; other members
 // in game/GameSystem_unk.cpp)
 struct GameTaskData_unk {
+    GameTaskData_unk(); // 0x8056BF8C
     ~GameTaskData_unk();
+    unsigned char m00000[0x5BDBC]; // inferred: size from the new of GameTask::fn_8036CA60
 };
 
 // inferred: pause task of the field (__vt__13GamePauseTask 0x8078A394, size 0x78); the GameTask
@@ -2066,6 +2068,50 @@ void GameTask::vf14() {
     mCamera.fn_8039328C();
 }
 
+// inferred: places the party at the warp point `warp` (or the start point) once the map is loaded
+// NONMATCHING: 99.6% - r3/r4 swapped for lbl_8087F418 and the map in the sound check
+void GameTask::fn_8036CA60(int warp) {
+    m10D8->fn_800D246C(0);
+    if (warp > 0) {
+        m10D8->fn_803C0F48(warp);
+    } else {
+        m10D8->fn_803C0F48(m10D8->m70);
+    }
+    mCamera.fn_80389838(mCamera.m804);
+    mCamera.fn_8037EF30(1, 1, -1.0f);
+    MapTask* map = m10D8->m64;
+    if ((unsigned int)(map->mType - 2) <= 2) {
+        for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+            if ((enemy->m137C & 0x40) != 0x40) {
+                enemy->fn_8014DEE4(0, 0, 0);
+            }
+        }
+        for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+            if ((player->m137C & 0x40) != 0x40) {
+                player->fn_8014DEE4(0, 0, 0);
+            }
+        }
+        if (map->mType == 2 && m5590 == 0 && map->mId == 9) {
+            m5590 = new ((MemoryTag)1, "", "", 0) GameTaskData_unk;
+            lbl_8087F3C0->mSystem.mListener = (EffectListener_unk*)m5590;
+        }
+    }
+    fn_80371320(lbl_8087F8A0->mHead);
+    if (lbl_8087F418 != 0) {
+        if (lbl_8087F418->mState != 5) {
+            MapTask* current = m10D8->m64;
+            if (current != 0 && current->mType == 2 && current->mId == 0x29 && current->mSubId == 0xD && warp == 100) {
+                lbl_8087F418->m74 = 3;
+            }
+            lbl_8087F418->fn_8035E7CC();
+        }
+        lbl_8087F418->fn_80360B00();
+    }
+    if (map->mType == 2 && map->mId == 0x28 && map->mSubId == 4) {
+        mGlobalFlags[921] = 1;
+    }
+}
+
 int GameTask::fn_8036DAA8(CharaTask* chara) {
     if (m56D8 != 0 || m56D4 != 0 || mFinish.m00 != 0) {
         return 0;
@@ -2109,6 +2155,42 @@ int GameTask::fn_8036DB3C(atn::Vector3* pos, int* index, CharaTask* chara) {
         *index = route.mFromIndex;
         *pos = route.mFrom;
         return 1;
+    }
+    return 0;
+}
+
+// inferred: a character moving fast enough slips on a nearby gimmick of kind 30/31 (called by CharaTask)
+extern "C" int fn_8036DBC0(GameTask* task, const atn::Vector3* pos, const atn::Vector3* move, CharaTask* chara) {
+    if (task->m10D8 == 0) {
+        return 0;
+    }
+    if (task->m10D8->fn_803CB820()) {
+        return 1;
+    }
+    if (chara->m55C == 6) {
+        return 0;
+    }
+    float speed = PSVECSquareMag(move);
+    int slow = 0;
+    if (chara->IsPartyMember_unk() && ((task->m5744 + chara->mId) & 3) == 0) {
+        slow = 1;
+    }
+    if (speed > (slow ? 0.1f : 0.7f) && !chara->mFlag3) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+            if ((unsigned int)(g->m50 - 30) <= 1 && !g->IsFlag_unk(4) && g->vf60()) {
+                atn::Vector3 d(g->m6C.x - chara->mPos.x, g->m6C.y - chara->mPos.y, g->m6C.z - chara->mPos.z);
+                float dist = PSVECSquareMag(&d);
+                PSVECNormalize(&d, &d);
+                if (dist < 64.0f) {
+                    GimmickMsg_unk msg;
+                    msg.mType = 3;
+                    msg.m10 = (int)chara;
+                    g->vf40(&msg);
+                    chara->fn_8016D0A0(0);
+                    return 1;
+                }
+            }
+        }
     }
     return 0;
 }
@@ -2631,6 +2713,62 @@ void GameTask::fn_80370C6C() {
         m5624->Capture();
         m566C = 1;
     }
+}
+
+extern "C" void fn_80376B68(GameTask* task, int arg);
+
+// inferred: starts the game over (field state 6): freezes the field and fades to white
+void GameTask::fn_80370CD0() {
+    if (GameBgm::sInstance != 0) {
+        GameBgm::sInstance->fn_8037D4C0(0, 30, 1, 0, 0.0f);
+    }
+    if (lbl_8087FA20 != 0 && ((TaskWithTac_unk*)lbl_8087FA20)->m258 != 0) {
+        ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->FreezeTask();
+    }
+    if (lbl_8087F498 != 0 && m5638 == 0 && lbl_8087F8A0 != 0) {
+        PlayerTask* leader = lbl_8087F8A0->mHead;
+        if (leader != 0 && !fn_80219558(leader->m50) && (leader->mStatus.m0C & 0x20) == 0x20) {
+            lbl_8087F498->fn_803EA77C(0, 0x26, 0, 1.0f, 10.0f);
+        }
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        player->mC58.mC0 = 0;
+    }
+    for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+        enemy->mC58.mC0 = 0;
+    }
+    if (m54E4 == 8) {
+        lbl_8087F540->FreezeTask();
+        lbl_8087F540->fn_8048169C(1);
+        lbl_8087F540->fn_8047E528();
+    }
+    lbl_8087F490->FreezeTask();
+    lbl_8087F490->m263C->fn_803B57B0(1);
+    lbl_8087F490->m263C->fn_803B57EC();
+    lbl_8087F490->m2640->fn_803B6C88(1);
+    ((atn::Task*)lbl_8087F048)->FreezeTask();
+    lbl_8087EE68->FreezeTask();
+    lbl_8087F8A0->fn_800D246C(1);
+    EnemyManager::sInstance->fn_800D246C(1);
+    NpcManager::sInstance->fn_800D246C(1);
+    lbl_8087F9E8->FreezeTask();
+    if (m10D8 != 0) {
+        m10D8->FreezeTask();
+    }
+    if (m56F0 != 0) {
+        fn_800D2338(m56F0);
+        m56F0 = 0;
+    }
+    m56F4.mCount = 0;
+    m571C.mCount = 0;
+    int on = 0;
+    if (mGlobalFlags[211] != 0) {
+        on = 1;
+    }
+    fn_80376B68(this, on);
+    fn_8037529C(0xFFFFFFFF, 0xFFFFFF, 2, 0, 30);
+    m5624->mZ = -5.0f;
+    m54E4 = 6;
 }
 
 extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, void* save,

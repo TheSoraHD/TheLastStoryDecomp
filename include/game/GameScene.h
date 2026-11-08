@@ -392,7 +392,7 @@ public:
     int fn_803CB044(GameSceneRoute_unk* out, CharaTask* chara, int check, int point); // inferred: nearest hide link ahead
     int fn_803CB474(GameSceneRoute_unk* out, CharaTask* chara, int point, int exclude); // inferred: next hide link
     int fn_803CB618(GameSceneRoute_unk* out, CharaTask* chara); // inferred: link from the held point
-    void fn_803CB820();
+    int fn_803CB820();
     int fn_803CC198(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
     int fn_803CC1A4(const atn::Vector3* pos, float radius, float cosMin, const atn::Vector3* dir); // inferred: a wall link is near
     int fn_803CC3BC(const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* chara);
