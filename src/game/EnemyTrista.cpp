@@ -204,8 +204,7 @@ int ControlShingan::vf0C() {
 
 } // namespace
 
-// NONMATCHING: 98.6% - the original loads info->m20 before saving the registers
-EnemyTrista::EnemyTrista(atn::Task* parent, EnemyInfo_unk* info)
+EnemyTrista::EnemyTrista(atn::Task* parent, const EnemyInfo_unk* info)
     : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14D0(-1), m14D4(-1), m14D8(0), m14DC(0),
       m14E0(0), m14E4(0.0f), m14E8(0), m14EC(0), m14F0(0), m14F4(0), m15A4(120), m15A8(30), m15AC(9.0f),
       m15B0(300) {

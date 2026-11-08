@@ -19,7 +19,7 @@ struct TristaEvent_unk {
 // of the file (0x8035DE10).
 class EnemyTrista : public EnemyTask {
 public:
-    EnemyTrista(atn::Task* parent, EnemyInfo_unk* info);
+    EnemyTrista(atn::Task* parent, const EnemyInfo_unk* info);
     virtual int vf0C();
     virtual void vf10();
     virtual void vf3C(HitInfo_unk* hit);

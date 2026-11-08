@@ -17,18 +17,24 @@ for u in d['units']:
         if '__' not in n and re.match(r'^fn_[0-9A-F]+$',n) and os.environ.get('FREE'):
             cands.append((un,n,n,p)); continue
         if os.environ.get('FREE'): continue
+        if os.environ.get('CTOR'):
+            mc=re.match(r'^__ct__(?:Q\d(?:\d+\w+?)*?)?(\d+)(\w+?)F',n)
+            if mc:
+                k=int(mc.group(1)); rest=n[mc.start(2):]; cls=rest[:k]
+                cands.append((un,n,cls,p))
+            continue
         m=re.match(r'^(\w+?)__',n)
         if not m or n.startswith('__') or '__' not in n: continue
         cands.append((un,n,m.group(1),p))
 hdrs=glob.glob(R+'include/**/*.h',recursive=True)
 def nm_syms(obj,meth):
     out=subprocess.run([R+'build/binutils/powerpc-eabi-nm',obj],capture_output=True,text=True).stdout
-    return [l.split()[-1] for l in out.split('\n') if l.split() and l.split()[-1].startswith(meth+'__')]
+    return [l.split()[-1] for l in out.split('\n') if l.split() and (l.split()[-1].startswith(meth+'__') or ('__ct__' in l and str(len(meth))+meth+'F' in l))]
 for un,n,meth,p in cands:
     src=R+'src/'+un+'.cpp'
     if not os.path.exists(src): continue
     s=open(src,encoding='latin-1').read()
-    defs=list(re.finditer(r'(\w+::)?'+re.escape(meth)+r'\(([^)]*)\)(\s*const)?\s*\{',s))
+    defs=list(re.finditer(r'(\w+::)?'+re.escape(meth)+r'\(([^)]*)\)(\s*const)?\s*[{:]',s))
     if len(defs)!=1: continue
     dm=defs[0]; params=dm.group(2)
     if not params.strip(): continue
