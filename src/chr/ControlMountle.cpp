@@ -500,11 +500,11 @@ bool ControlJump::fn_801C2198(atn::Vector3& out, const atn::Vector3& dir) {
     return ret;
 }
 
-// NONMATCHING: 99.8% - f3/f4 swapped in the load of the motion speed and the time scale (same
-// as ControlWallMountle::vf0C).
 int ControlJump::vf0C() {
     Motion_unk* m = &mChara->mMotion;
-    m34 += m->mTracks[0].m0C * lbl_8087EFA8->m3A4;
+    float rate = m->mTracks[0].m0C;
+    float speed = lbl_8087EFA8->m3A4;
+    m34 += speed * rate;
     if (m30) {
         float a = MIN(1.0f, MAX(0.0f, (m34 - 25.0f) / 8.0f));
         float b = MIN(1.0f, m34 / 25.0f);
