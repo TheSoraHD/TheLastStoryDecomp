@@ -296,6 +296,7 @@ extern "C" void fn_804D0164() {
 #include "game/GameBgm.h"
 #include "game/SetConfig.h"
 #include "MP/MpCharaRef_unk.h"
+#include "MP/SaveLoad.h"
 
 // inferred: state of a player sent by message 0x16 (0x7C bytes); names invented
 struct PPPair_unk {
@@ -371,7 +372,9 @@ struct PPManager2_unk {
     int mState;                       // 0x4FC: inferred: state (30 = in game)
     unsigned char m0500[0x50A - 0x500];
     short m50A;                       // inferred: set to 90 when a player slot is added
-    unsigned char m050C[0x540 - 0x50C];
+    unsigned char m050C[0x514 - 0x50C];
+    MP::SaveLoad* mSaveLoad;          // 0x514
+    unsigned char m0518[0x540 - 0x518];
     int mMode;                        // 0x540: inferred: game mode
     unsigned char m0544[0x55C - 0x544];
     int m55C;                         // inferred: values of messages 0x0C and 0x0E
@@ -401,7 +404,9 @@ struct PPManager2_unk {
     PPPlayer_unk m2B8C[8];
     unsigned char m966C[0x9694 - 0x966C];
     int m9694[8];                     // inferred: per aid values of message 0x35
-    unsigned char m96B4[0x9984 - 0x96B4];
+    unsigned char m96B4[0x976C - 0x96B4];
+    int m976C;                        // inferred: set by fn_804FB530
+    unsigned char m9770[0x9984 - 0x9770];
     unsigned char m9984[8];           // inferred: two 8-byte blocks of message 0x28
     unsigned char m998C[8];
     unsigned char m9994[8];           // inferred: values of the aids of m9984 (fn_804DD1A8)
@@ -452,6 +457,10 @@ void fn_8050A990(unsigned int aid, const unsigned char* data);
 
 extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
+// inferred: atn::net::NetPlayerInfo_unk (0x34 bytes, include/atn/net/Manager.h)
+struct PPNetPlayer_unk {
+    unsigned char m00[0x34];
+};
 // inferred: atn::net::Manager (lbl_8087F628), only the members used here (see include/atn/net/Manager.h);
 // names invented
 struct PPNet_unk {
@@ -465,11 +474,16 @@ struct PPNet_unk {
         }
     }
 
-    unsigned char m000[0x1F8];
+    unsigned char m000[0xC8];
+    int mState;                       // 0xC8
+    unsigned char m0CC[0x1F8 - 0xCC];
     unsigned int m1F8_31_20 : 12;
     unsigned int mDisabled : 1;       // inferred: network disabled
     unsigned int m1F8_18_0 : 19;
-    unsigned char m1FC[0xC2C - 0x1FC];
+    unsigned char m1FC[0x270 - 0x1FC];
+    unsigned int mPlayerNum;          // 0x270: inferred: atn::net::Manager::mPlayers (FixedArray_unk)
+    PPNetPlayer_unk mPlayers[8];      // 0x274
+    unsigned char m414[0xC2C - 0x414];
     unsigned int mC2C;  // inferred: bit 0 and bit 1 set by message 0x0D
     unsigned char m0C30[0xC215 - 0xC30];
     unsigned char mC215; // inferred: messages are not checked for an old sequence number
@@ -561,7 +575,6 @@ extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
     return 0;
 }
 
-
 // NONMATCHING: 99.35% - r6/r7 of the inlined search (as fn_804F3880)
 // inferred: team of network id `aid` (1 or 2); in game mode 1 with the local play the table m9984/m9994 decides
 extern "C" int fn_804DD1A8(PPManager2_unk* mgr, int aid) {
@@ -604,7 +617,6 @@ extern "C" inline int fn_804EE030(PPManager2_unk* mgr) {
 extern "C" inline void fn_804EE038(PPManager2_unk* mgr, short value) {
     mgr->m50A = value;
 }
-
 
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* player);
 
@@ -704,6 +716,37 @@ extern "C" bool fn_804EB5D8(PPManager2_unk* mgr) {
     return true;
 }
 
+// inferred: the player slot of a character
+extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1 && player->mRef.mChara == chara) {
+            return player;
+        }
+    }
+    return 0;
+}
+
+// inferred: index of a character in the list m5F0 (-1 when it is not there)
+static inline int FindCharaIndex_unk(PPManager2_unk* mgr, CharaTask* chara) {
+    for (int i = 0; i < mgr->mCharaNum; i++) {
+        if (mgr->mCharas[i].mRef.mChara == chara) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// NONMATCHING: 97.74% - the index and the entry offset of the loop take each other's registers
+// inferred: the entry of the character list of a character
+extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara) {
+    int index = FindCharaIndex_unk(mgr, chara);
+    if (index >= 0) {
+        return &mgr->mCharas[index];
+    }
+    return 0;
+}
+
 // inferred: empty traces of the receive loop, called on the packer (their arguments are still evaluated);
 // fn_804EE4E4 gives the data back unchanged
 extern "C" void fn_804EE4E0(atn::net::PacketPack* pack, unsigned int aid, unsigned short size) {}
@@ -739,7 +782,6 @@ extern "C" void fn_804EFE98(PPPlayer_unk* player) {
         }
     }
 }
-
 
 // inferred: messages 0x0C and 0x0E: values kept by the manager
 extern "C" void fn_804F1068() {
@@ -798,6 +840,7 @@ struct PPGameSettings_unk {
     unsigned char m2C[0xC];
     int m38;
 };
+
 extern "C" void fn_804F135C() {
     if (PP_NO_DATA_UNK) {
         return;
@@ -820,7 +863,6 @@ extern "C" void fn_804F1478(PPPlayer_unk* player) {
 extern "C" void fn_804F1488(PPPlayer_unk* player) {
     player->mFlags.m28 = 0;
 }
-
 
 // inferred: message 0x12: a 4-bit value of the player slot (bits 22-25 of the flags)
 extern "C" void fn_804F1498(PPPlayer_unk* player) {
@@ -851,7 +893,6 @@ extern "C" void fn_804F1D70(PPPlayer_unk* player) {
 extern "C" void fn_804F1F24(PPPlayer_unk* player) {
     player->mFlags.m27 = 1;
 }
-
 
 // NONMATCHING: 99.67% - the original increments the index before the slot offset
 // inferred: `player` is in the team of `leader`
@@ -899,7 +940,6 @@ extern "C" void fn_804F2C44(PPPlayer_unk* player) {
 }
 
 extern "C" void fn_804F2CE4() {}
-
 
 extern "C" void fn_804F2CE8(unsigned int aid) {
     if (PP_NO_DATA_UNK) {
@@ -1109,4 +1149,57 @@ extern "C" void fn_804F50C4(unsigned int aid) {
     if (lobby != 0) {
         lobby->mF90 = 1;
     }
+}
+
+// inferred: error of the save/load task of the manager
+extern "C" int fn_804F7F34() {
+    MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
+    if (saveLoad != 0) {
+        return saveLoad->mError;
+    }
+    return 0;
+}
+
+// inferred: flag m976C once the network manager reached state 8
+extern "C" void fn_804FB530(PPManager2_unk* mgr) {
+    if (((PPNet_unk*)lbl_8087F628)->mState < 8) {
+        return;
+    }
+    mgr->m976C = 1;
+}
+
+// inferred: number of the players of a game mode (-1: the current one)
+extern "C" int fn_804FB620(void* unused, int mode) {
+    if (mode == -1) {
+        mode = lbl_8087F610 != 0 ? ((PPManager2_unk*)lbl_8087F610)->mMode : 0;
+    }
+    int n;
+    if (mode == 2) {
+        n = 7;
+    } else {
+        n = mode == 1 ? 8 : 6;
+    }
+    return n - 2;
+}
+
+// inferred: info of the player of network id `aid` (two copies of the same accessor)
+extern "C" PPNetPlayer_unk* fn_804FC240(PPNet_unk* net, unsigned int aid) {
+    unsigned int i = aid & 0xF;
+    if (i >= net->mPlayerNum) {
+        return 0;
+    }
+    return &net->mPlayers[i];
+}
+
+extern "C" PPNetPlayer_unk* fn_804FC268(PPNet_unk* net, unsigned int aid) {
+    unsigned int i = aid & 0xF;
+    if (i >= net->mPlayerNum) {
+        return 0;
+    }
+    return &net->mPlayers[i];
+}
+
+// inferred: the character finished loading
+extern "C" bool fn_804FC580(CharaTask* chara) {
+    return chara->fn_8013655C() == 0;
 }
