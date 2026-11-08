@@ -842,6 +842,138 @@ void Actor::fn_80012D0C(float speed) {
     }
 }
 
+// ---- fn_80012D34 and its helpers (over the inlining budget: weak copies at 0x800132EC-0x80013484) ----
+} // namespace Event
+extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
+// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+// inferred: *this = m * *this (declared in math/Vec.h; weak copy 0x80011410)
+inline void atn::Vector3::fn_80011410(const atn::Matrix3x4& m) {
+    PSMTXMultVec(m.m, this, this);
+}
+// inferred: fabs (weak copy 0x80011220)
+extern "C" inline float fn_80011220(float x) {
+    double r = __fabs(x);
+    return r;
+}
+// inferred: the vectors differ (weak copy 0x80013444)
+extern "C" inline int fn_80013444(const atn::Vector3* a, const atn::Vector3* b) {
+    return !(a->x == b->x && a->y == b->y && a->z == b->z);
+}
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+namespace Event {
+
+// NONMATCHING: draft - turns the eyes of the character towards a point (the camera, limited to `angle`
+// around the eye direction), or the head of another actor towards `target`
+void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
+                        int arg6, float weight, float angle) {
+    if (m20 != 7 && m20 != 1) {
+        return;
+    }
+    if (arg6 != 0) {
+        atn::Vector3 pos(cam);
+        atn::Matrix3x4* eye = (atn::Matrix3x4*)fn_800128FC()->GetModel_unk()->GetNodeMtx_unk("eye_R");
+        atn::Vector3 dir(0.0f, 0.0f, (pos - eye->GetTrans_unk()).Length_unk());
+        dir.fn_80011410(eye->GetRotation_unk());
+        atn::Vector3 aim = (cam - eye->GetTrans_unk()).ToRotation_unk();
+        float dx = atn::WrapAngle_unk(aim.x - dir.ToRotation_unk().x);
+        float dy = atn::WrapAngle_unk(aim.y - dir.ToRotation_unk().y);
+        if ((atn::Abs_unk(dx) <= angle && atn::Abs_unk(dy) <= angle) || fn_80011220(angle) < 1.1920929e-07f) {
+            pos = cam;
+        } else {
+            atn::Vector3 rot(angle, angle, 0.0f);
+            if (atn::Abs_unk(dx) <= angle) {
+                rot.x = dx;
+            } else if (dx <= 0.0f) {
+                rot.x *= -1.0f;
+            }
+            if (atn::Abs_unk(dy) <= angle) {
+                rot.y = dy;
+            } else if (dy <= 0.0f) {
+                rot.y *= -1.0f;
+            }
+            dir.fn_80011410(fn_800109E0(rot));
+            pos = eye->GetTrans_unk() + dir;
+        }
+        if (fn_80013444(&jitter, &lbl_807C7030)) {
+            atn::Vector3 base = fn_80010374();
+            atn::Vector3 d = pos - base;
+            d.fn_80011410(fn_800109E0(jitter));
+            pos = base + d;
+        }
+        fn_800134E0(pos, weight);
+    } else if (target->fn_80012A1C() != 0) {
+        atn::Matrix3x4* mtx = (atn::Matrix3x4*)target->fn_80012A1C()->GetNodeMtxByHash_unk(node);
+        if (mtx == 0) {
+            return;
+        }
+        atn::Vector3 aim(0.0f, 0.0f, 0.0f);
+        if (arg4 != 0) {
+            atn::Vector3 d(0.0f, 0.0f, 0.0f);
+            if (fn_80013444(&cam, &lbl_807C7030)) {
+                atn::Vector3 base = fn_80010374();
+                d = mtx->GetTrans_unk() - base;
+                d.fn_80011410(fn_800109E0(cam));
+                d += base;
+                d -= mtx->GetTrans_unk();
+                aim = d;
+            }
+        } else {
+            aim += cam;
+        }
+        if (fn_80013444(&jitter, &lbl_807C7030)) {
+            atn::Vector3 d(0.0f, 0.0f, 0.0f);
+            atn::Vector3 base = fn_80010374();
+            d = mtx->GetTrans_unk() + aim - base;
+            d.fn_80011410(fn_800109E0(jitter));
+            d += base;
+            d -= mtx->GetTrans_unk();
+            aim = d;
+        }
+        fn_80013508((float*)mtx, aim, weight);
+    } else {
+        atn::Vector3 base = fn_80010374();
+        atn::Vector3 pos = target->fn_80010374();
+        if (arg4 != 0) {
+            pos = cam + jitter;
+            fn_800134B8(pos, weight);
+        } else {
+            pos += cam;
+            if (fn_80013444(&jitter, &lbl_807C7030)) {
+                atn::Vector3 d = pos - base;
+                d.fn_80011410(fn_800109E0(jitter));
+                pos = base + d;
+            }
+            fn_800134E0(pos, weight);
+        }
+    }
+}
+
 void Actor::fn_800134B8(const atn::Vector3& pos, float speed) {
     if (m20 == 7 || m20 == 1) {
         GetChara_unk()->mLook.fn_8012ABD0(pos, speed);

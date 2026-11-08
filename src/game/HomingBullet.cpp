@@ -58,10 +58,10 @@ HomingBullet::HomingBullet() {
     mA0.mCount = -1;
 }
 
-// NONMATCHING: 84.3% - the original loads the whole parameter block before storing the owner fields
-// (scheduling); also register choices of the replay event
+// NONMATCHING: 97.4% - the original keeps m08 of the copied block in f1 for the call (here it is loaded again);
+// the block is loaded whole thanks to the const parameter; also register choices of the replay event
 void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn::Vector3* dir, CharaTask* owner,
-                        HomingParam_unk* param, int arg) {
+                        const HomingParam_unk* param, int arg) {
     m84 = 0;
     m88 = owner;
     m8C = 0;

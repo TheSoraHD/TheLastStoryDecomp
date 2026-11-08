@@ -216,7 +216,7 @@ inline float atn::Model::fn_8013C3E4(int track) {
 // inferred: hashes of node names (.sbss 0x8087F078-0x8087F080, set by the static initializer)
 static unsigned int sLeftFoot = fn_800DC6B4("leftfoot");
 static unsigned int sRightFoot = fn_800DC6B4("rightfoot");
-static unsigned int sParts[1] = {fn_800DC6B4("$weapon")};
+static const unsigned int sParts[1] = {fn_800DC6B4("$weapon")};
 
 // inferred: 0 for the weapon node, -1 for the body (name invented)
 inline int GetPart_unk(unsigned int node) {

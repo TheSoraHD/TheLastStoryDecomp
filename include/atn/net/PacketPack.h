@@ -59,6 +59,9 @@ public:
     void* fn_8050E530(void* data, unsigned int size);
     int fn_8050E598(unsigned int id, const unsigned char* header); // inferred: 1 = old sequence number
     void fn_8050E62C(int ok, const char* fmt, ...); // inferred: assert (empty in release)
+    // inferred: shared 4 KB work buffer (lbl_8087F600), allocated on first use; it does not use the
+    // packer (defined inline in atn/PacketPack.cpp, where the message handlers read their data)
+    inline void* GetWorkBuffer_unk();
 
     // inferred: marks the peer `id` as gone
     void __Deactivate_unk(unsigned int id) {

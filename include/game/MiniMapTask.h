@@ -22,13 +22,16 @@ public:
     virtual void vf10(atn::RenderManager* view);
     virtual void vf18(atn::RenderManager* view);
     virtual void vf1C();
+    void fn_804ABF84(atn::RenderManager* view); // inferred: draws the minimap with its orthographic camera
 
     int m4C;                           // inferred: initialized to 1
     atn::LH_Binary m50;               // inferred: minimap resource
     atn::Texture_unk m58[9];          // inferred: nine minimap textures
     atn::Model m208;                  // inferred: minimap model, flags 0x00A00001/0x20
     atn::Task* m5D8;                  // inferred: task for the minimap controller animation
-    unsigned char m5DC[0x64];         // inferred: state up to the camera
+    unsigned char m5DC[0x20];         // inferred: state up to the camera
+    float m5FC;                       // inferred: scale of the view (screen height / 52)
+    unsigned char m600[0x40];
     atn::Camera m640;                 // inferred: minimap camera
     int m834;                         // inferred: initialized to -1
     int m838;                         // inferred: initialized to -1

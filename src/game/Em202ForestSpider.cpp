@@ -1125,8 +1125,7 @@ void Em202ForestSpider::vf160() {
     m14CC = vf170();
     if (m14CC != 0) {
         fn_8017039C(m14CC->mId, 2);
-    }
-    if (vf154(9) == 0) {
+    } else if (vf154(9) == 0) {
         vf144();
     }
 }

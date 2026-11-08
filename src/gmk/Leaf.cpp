@@ -227,6 +227,7 @@ void Leaf::fn_80400D08() {
 
 // NONMATCHING: 99.89% - register of the path string (r27/r28); the unsigned subscript fixed the loop
 void Leaf::vf20() {
+    int i;
     char name[256];
     atn::CsvTab csv((const char*)mBinary.fn_80470580(), mBinary.fn_8047059C());
     csv.fn_8005BCE8(lbl_8087D710);
@@ -252,7 +253,7 @@ void Leaf::vf20() {
         }
     } while (csv.fn_8005BBF8() != 0);
     mLeaves.Resize_unk(mNumLeaf, 0);
-    for (int i = 0; i < mNumLeaf; i++) {
+    for (i = 0; i < mNumLeaf; i++) {
         mLeaves[(unsigned int)i].mInst = new ((MemoryTag)12, "", "", 0) atn::ModelInstance(fn_8009F788(name));
     }
 }

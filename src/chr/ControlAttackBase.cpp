@@ -159,6 +159,7 @@ float ControlAttackBase::vf20() {
 
 // NONMATCHING: 97.3% - same register choice as vf24.
 int ControlAttackBase::vf28() {
+    int type;
     Chara_unk* chara = mChara;
     if (mTable != 0) {
         float frame = chara->mMotion.mTracks[0].m08;
@@ -168,7 +169,7 @@ int ControlAttackBase::vf28() {
             }
         }
     } else {
-    int type = chara->m560;
+    type = chara->m560;
     if (type == 4 || type == 5) {
         return InRange_unk(chara->mMotion.mTracks[0].m08, -1.0f, 9.0f);
     }

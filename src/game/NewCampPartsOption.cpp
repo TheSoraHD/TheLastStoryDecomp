@@ -1240,6 +1240,7 @@ void NewCampPartsOption::fn_80525A08(int count, int ofs) {
 
 // NONMATCHING: 99.93% - the original evaluates MenuCommonTask::sInstance before the text (member call?), r30 vs r29
 void NewCampPartsOption::fn_80525F08() {
+    MenuCommonTask* menu;
     int classic = fn_800A58D0(lbl_8087EF70, 0);
     int cursor = mE4;
     void* pad = lbl_8087EF70;
@@ -1280,7 +1281,7 @@ void NewCampPartsOption::fn_80525F08() {
             fn_80117228(2);
         }
     }
-    MenuCommonTask* menu = MenuCommonTask::sInstance;
+    menu = MenuCommonTask::sInstance;
     fn_804A3C24(menu, fn_80116EB8(&sSwapHelp[mE4]), 1);
 }
 
@@ -1307,47 +1308,48 @@ void NewCampPartsOption::vf48() {
     }
 }
 
-// NONMATCHING: 97.18% - register allocation and the test of page->GetTask() (`bne`+`b` in the original)
+// NONMATCHING: 97.75% - register allocation (r26-r31 rotated)
 void NewCampOptionItem_unk::fn_80526358(int cursor, atn::D3Anime* page) {
     NewCampOptionInst_unk* inst = GetInst_unk(mAnime);
-    if (inst != 0 && page != 0 && page->GetTask() != 0) {
-        char name[0x20];
-        sprintf(name, "list_point%02d", mIndex);
-        NewCampPartsPoint_unk pos = GetPanePos_unk(GetD2A_unk(page), name);
-        fn_801F6E78(inst, "base_pos", &pos);
-        if (IsBar_unk()) {
-            inst->mSpeed = 0.0f;
-            if (cursor != 0) {
-                inst->mFrame = 0.0f;
-            } else {
-                inst->mFrame = 1.0f;
-            }
-            fn_801F6C80(inst, "point", mValue);
+    if (inst == 0 || page == 0 || page->GetTask() == 0) {
+        return;
+    }
+    char name[0x20];
+    sprintf(name, "list_point%02d", mIndex);
+    NewCampPartsPoint_unk pos = GetPanePos_unk(GetD2A_unk(page), name);
+    fn_801F6E78(inst, "base_pos", &pos);
+    if (IsBar_unk()) {
+        inst->mSpeed = 0.0f;
+        if (cursor != 0) {
+            inst->mFrame = 0.0f;
+        } else {
+            inst->mFrame = 1.0f;
         }
-        int value = mValue;
-        NewCampOptionInst_unk* text = GetInst_unk(mAnime);
-        if (text != 0 && mChoices != 0) {
-            if (IsMoving_unk(this) && text->mSpeed > 0.0f) {
-                if (value - 1 >= 0) {
-                    fn_801F837C(text, "conf_before", fn_80116EB8(&mChoices[value - 1]));
-                }
-                fn_801F837C(text, "conf_after", fn_80116EB8(&mChoices[value]));
-            } else {
-                fn_801F837C(text, "conf_before", fn_80116EB8(&mChoices[value]));
-                if (value + 1 < mCount) {
-                    fn_801F837C(text, "conf_after", fn_80116EB8(&mChoices[value + 1]));
-                }
+        fn_801F6C80(inst, "point", mValue);
+    }
+    int value = mValue;
+    NewCampOptionInst_unk* text = GetInst_unk(mAnime);
+    if (text != 0 && mChoices != 0) {
+        if (IsMoving_unk(this) && text->mSpeed > 0.0f) {
+            if (value - 1 >= 0) {
+                fn_801F837C(text, "conf_before", fn_80116EB8(&mChoices[value - 1]));
+            }
+            fn_801F837C(text, "conf_after", fn_80116EB8(&mChoices[value]));
+        } else {
+            fn_801F837C(text, "conf_before", fn_80116EB8(&mChoices[value]));
+            if (value + 1 < mCount) {
+                fn_801F837C(text, "conf_after", fn_80116EB8(&mChoices[value + 1]));
             }
         }
-        if (inst != 0 && mChoices != 0) {
-            fn_801F6C80(inst, "arrowR", 0.0f);
-            fn_801F6C80(inst, "arrowL", 0.0f);
-            if (cursor != 0 && mEnabled != 0) {
-                fn_801F6C80(inst, "arrowL", 1.0f);
-                fn_801F6C80(inst, "arrowR", 1.0f);
-            }
-            fn_801F6C80(inst, "show", mShow != 0 ? 1.0f : 0.0f);
+    }
+    if (inst != 0 && mChoices != 0) {
+        fn_801F6C80(inst, "arrowR", 0.0f);
+        fn_801F6C80(inst, "arrowL", 0.0f);
+        if (cursor != 0 && mEnabled != 0) {
+            fn_801F6C80(inst, "arrowL", 1.0f);
+            fn_801F6C80(inst, "arrowR", 1.0f);
         }
+        fn_801F6C80(inst, "show", mShow != 0 ? 1.0f : 0.0f);
     }
 }
 

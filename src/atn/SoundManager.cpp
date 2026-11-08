@@ -684,6 +684,7 @@ void SoundManager::fn_800D0974(int category, int frames) {
 
 // NONMATCHING: 99.5% - orden de registros.
 SoundCore* SoundManager::fn_800D0AB0(unsigned int id) {
+    SoundCore* sound;
     if (lbl_8087EE90->m04 == 0 || mEnabled == 0) {
         return 0;
     }
@@ -694,7 +695,7 @@ SoundCore* SoundManager::fn_800D0AB0(unsigned int id) {
     int i = mNext;
     do {
         i = (i + 1) % 32;
-        SoundCore* sound = &mSounds[i];
+        sound = &mSounds[i];
         if (sound->fn_800C8278()) {
             mNext = i;
             found = sound;

@@ -898,8 +898,145 @@ struct LessCache_unk {
 struct LessU_unk {
     bool operator()(unsigned int a, unsigned int b) const { return a < b; }
 };
+template <class T>
+inline void Swap_unk(T& a, T& b) {
+    T t = a;
+    a = b;
+    b = t;
+}
+
+// inferred: median of three of the quicksort below (MSL __sort; see game/CharaTask.cpp)
 template <class T, class Compare>
-void Sort_unk(T* first, T* last, Compare comp);
+void Median3_unk(T* a, T* b, T* c, Compare& comp) {
+    bool ca = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
+    if (ca && bc) {
+        return;
+    }
+    if (!ca && !bc) {
+        Swap_unk(*a, *b);
+    } else {
+        if (comp(*b, *a)) {
+            Swap_unk(*a, *b);
+        }
+        if (ca) {
+            Swap_unk(*b, *c);
+        } else {
+            Swap_unk(*a, *c);
+        }
+    }
+}
+
+template <class T, class Compare>
+inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
+    T* result = first;
+    if (first != last) {
+        for (it = first + 1; it != last; it++) {
+            if (comp(*it, *result)) {
+                result = it;
+            }
+        }
+    }
+    return result;
+}
+
+// inferred: quicksort of the cache entries (MSL __sort, as atn/Loader.cpp; the counter is lbl_8087DCD0)
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp) {
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first != last) {
+                for (; first != last - 1; first++) {
+                    T* min = MinElement_unk(first, last, comp);
+                    if (min != first) {
+                        Swap_unk(*min, *first);
+                    }
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + lbl_8087DCD0 % 5);
+        if (++lbl_8087DCD0 >= 5) {
+            lbl_8087DCD0 = -4;
+        }
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + lbl_8087DCD0 % 5);
+        if (++lbl_8087DCD0 >= 5) {
+            lbl_8087DCD0 = -4;
+        }
+        T* i;
+        T* j;
+        T* pivot = last - 1;
+        Median3_unk(a, b, pivot, comp);
+        i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            i++;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            Swap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                Swap_unk(*i, *j);
+                i++;
+            }
+        }
+        if (i == first) {
+            T* back = last - 1;
+            Swap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    i++;
+                }
+                if (i < back) {
+                    Swap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        i++;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    Swap_unk(*i, *j);
+                    i++;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            Sort_unk<T, Compare>(first, i, comp);
+            first = i;
+        } else {
+            Sort_unk<T, Compare>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+// atn/Model.cpp instantiates this one
+template <>
+void Sort_unk<unsigned int, LessU_unk>(unsigned int* first, unsigned int* last, LessU_unk comp);
 
 // inferred: removes the repeated values of a sorted vector (std::unique and erase, inlined)
 static inline void Unique_unk(atn::SimpleVector<unsigned int>& v) {
@@ -2622,11 +2759,6 @@ void GameTask::fn_8036E494() {
     }
     m558C.mPtr->fn_8056B3D4();
     NewCampOpen_unk open;
-    open.mMenu = 0;
-    open.m04 = -1;
-    open.m08 = -1;
-    open.m0C = -1;
-    open.m10 = -1;
     if (m5688 >= 0) {
         open.mMenu = m5688;
     }
@@ -4089,7 +4221,7 @@ void GameTask::fn_80373AE8() {
     if (m5598 > 0) {
         if (m559C > 0) {
             if (m55A0 > 0) {
-                mCamera.m4B8 = 1.0f;
+                mCamera.m4B4.mTime = 1.0f;
                 int left = m55A0 - 1;
                 m55A0 = left;
                 mFinish.m3A0 = 1.0f;
@@ -4113,7 +4245,7 @@ void GameTask::fn_80373AE8() {
                 float t = (float)m559C / 90.0f;
                 mFinish.m350 = mFinish.m354;
                 mFinish.m3A0 = t;
-                mCamera.m4B8 = t * t;
+                mCamera.m4B4.mTime = t * t;
             }
             mFinish.fn_803792F0();
             return;

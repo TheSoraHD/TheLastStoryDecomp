@@ -547,8 +547,6 @@ inline void PlayEffect_unk(atn::EfpFile* efp, atn::Model* model) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
 }
 
-// NONMATCHING: 99.4% - the original tests the frozen flag with bne+b to the body (an inline helper
-// for the test gives a bool instead)
 // inferred: plays the effect of the colour mark of the character (party slot 0 only)
 void CharaEquip_unk::fn_805660DC() {
     if (m000 != 0) {
@@ -566,13 +564,7 @@ void CharaEquip_unk::fn_805660DC() {
         return;
     }
     if (lbl_8087F430 == 0 || !lbl_8087F430->fn_803754C4()) {
-        if (lbl_8087F3C0 == 0) {
-            return;
-        }
-        if (lbl_8087F3C0->IsFlag_unk(1)) {
-            return;
-        }
-        if (lbl_8087F3C0->IsFlag_unk(4)) {
+        if (lbl_8087F3C0 == 0 || lbl_8087F3C0->IsFlag_unk(1) || lbl_8087F3C0->IsFlag_unk(4)) {
             return;
         }
     }

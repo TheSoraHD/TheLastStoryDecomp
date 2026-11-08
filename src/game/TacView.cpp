@@ -10,6 +10,9 @@
 #include "db/SkillParam_unk.h"
 #include "game/GameTask.h"
 #include "game/PlayerManager.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
+#include "game/GameUI.h"
 
 // inferred: sector (0 ahead, 1-7 clockwise, 8 none) of the direction `dir` seen from above
 int fn_805A6D20(const atn::Vector3& dir) {
@@ -374,6 +377,145 @@ void TacView::fn_805AA82C(atn::Vector3* pos) {
         m15A8--;
     }
     *pos += d;
+}
+
+// ---- fn_805AB828: list of the targets of the view (over the inlining budget: the accessors are weak copies) ----
+// inferred: player manager and character lists (weak copies of other files, as in gmk/Cannonball.cpp)
+extern "C" inline PlayerManager* fn_8000D9E8() {
+    return lbl_8087F8A0;
+}
+inline PlayerTask* PlayerManager::GetHead_unk() {
+    return mHead;
+}
+extern "C" inline CharaTask* fn_802A36B0(PlayerManager* mgr) {
+    return mgr->mHead;
+}
+extern "C" inline CharaTask* fn_802A4094(CharaTask* chara) {
+    return ((PlayerTask*)chara)->mNext;
+}
+extern "C" inline EnemyManager* fn_801A03E0() {
+    return EnemyManager::sInstance;
+}
+extern "C" inline EnemyTask* fn_801A0408(EnemyManager* mgr) {
+    return mgr->mHead;
+}
+extern "C" inline EnemyTask* fn_801A03EC(EnemyTask* chara) {
+    return chara->mNext;
+}
+// inferred: accessor of the control data (weak copy 0x800F530C, as in game/BattleTask.cpp)
+extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
+    return &chara->mC58;
+}
+// inferred: weak copy 0x805ABD6C (name invented)
+extern "C" inline int fn_805ABD6C(CharaTask* chara) {
+    return chara->mF94;
+}
+// inferred: player character as seen from here (as game/BattleTask.cpp)
+struct Player_unk : public BattleCharaTask {
+    // inferred: weak copy 0x800F7FB4 (name invented)
+    int GetM146C_unk() { return m146C; }
+};
+// inferred: shared out of line copies of atn::FixedArray_unk (size and clear, as game/GameUI.cpp)
+extern "C" unsigned int fn_80372574(const void* array);
+
+// inferred: adds a party member that is set up (weak copy 0x805AB1D8, name invented)
+extern "C" inline void fn_805AB1D8(atn::SimpleVector<CharaTask*>* list, CharaTask* chara) {
+    if (chara != 0 && chara->mType != 0) {
+        list->push_back(chara);
+    }
+}
+
+// NONMATCHING: 99.9% - registers of `slot` and `best` swapped (r29/r30); rebuilds mSlots with the targets of the mode and links the nearest ones
+void TacView::fn_805AB828(int mode) {
+    // inferred: character numbers of the guests shown with the party (-1 ends)
+    static const int sGuests_unk[10] = {0x31601, 0x31602, 0x31603, 0x31604, 0x31605,
+                                        0x31606, 0x31607, 0x31608, 0x31609, -1};
+    ((GameUICounter_unk*)&mSlots)->fn_803CF734();
+    if (mode == 3) {
+        mode = 0;
+    }
+    CharaTask* head = fn_8000D9E8() ? fn_8000D9E8()->GetHead_unk() : 0;
+    if (mode == 0) {
+        atn::SimpleVector<CharaTask*> list;
+        if (fn_8000D9E8()) {
+            list.push_back(head);
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(0));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(2));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(3));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(6));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(1));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(9));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(10));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(4));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(5));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(11));
+            fn_805AB1D8(&list, fn_8000D9E8()->fn_8054A33C(14));
+        }
+        for (CharaTask* chara = fn_802A36B0(fn_8000D9E8()); chara != 0; chara = fn_802A4094(chara)) {
+            for (const int* no = sGuests_unk; *no > 0; no++) {
+                if (*no == chara->GetCharaNo_unk()) {
+                    list.push_back(chara);
+                    break;
+                }
+            }
+        }
+        for (unsigned int i = 0; i < list.size(); i++) {
+            CharaTask* chara = list[i];
+            if (chara == 0 || chara->IsFrozen_unk() || chara->GetFlag54C13_unk() || !chara->fn_80139EFC()) {
+                continue;
+            }
+            if (chara->GetStatus_unk()->fn_80139F4C() && chara->GetStatus_unk()->m224 <= 0) {
+                continue;
+            }
+            if (chara->GetStatus_unk()->IsState_unk(0x100) || chara->GetStatus_unk()->IsState_unk(0x10000)) {
+                continue;
+            }
+            if (chara->GetStatus_unk()->IsState_unk(0x40) && !fn_805ABD6C(chara)) {
+                continue;
+            }
+            if (head != 0 && fn_800F530C(head)->mB4 > 0 && fn_800F530C(chara)->mB4 > 0 &&
+                fn_800F530C(head)->mB4 != fn_800F530C(chara)->mB4) {
+                continue;
+            }
+            TacViewSlot_unk slot;
+            slot.fn_805AB1B0(chara);
+            mSlots.push_back(slot);
+        }
+    } else if (mode == 1) {
+        for (EnemyTask* chara = fn_801A03E0() ? fn_801A0408(fn_801A03E0()) : 0; chara != 0;
+             chara = fn_801A03EC(chara)) {
+            if (chara->CanAct_unk() && !chara->GetFlag54C13_unk() && fn_800F530C(chara)->mC0 != 0 &&
+                ((Player_unk*)chara)->GetM146C_unk() != 0x29) {
+                TacViewSlot_unk slot;
+                slot.fn_805AB1B0(chara);
+                mSlots.push_back(slot);
+            }
+        }
+    }
+    for (unsigned int i = 0; i < fn_80372574(&mSlots); i++) {
+        TacViewSlot_unk* slot = &mSlots[i];
+        float best[8];
+        for (int k = 0; k < 8; k++) {
+            best[k] = 1e16f;
+        }
+        for (unsigned int j = 0; j < fn_80372574(&mSlots); j++) {
+            TacViewSlot_unk* other = &mSlots[j];
+            if (j != i && other->fn_805AB1C0()) {
+                // inferred: the slot starts as TacViewChara_unk (type, character, object)
+                atn::Vector3 dir = ((const TacViewChara_unk*)other)->fn_805AE138() -
+                                   ((const TacViewChara_unk*)slot)->fn_805AE138();
+                float len = dir.LengthSqXZ_unk();
+                if (len > 0.0f) {
+                    dir.Normalize_unk();
+                }
+                int d = fn_805A6D20(atn::Vector3(dir));
+                if (d != 8 && len < best[d]) {
+                    best[d] = len;
+                    slot->mNear[d] = other;
+                }
+            }
+        }
+    }
 }
 
 void TacView::fn_805ADC00() {

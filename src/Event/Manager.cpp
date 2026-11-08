@@ -2315,10 +2315,10 @@ void Manager::fn_80488A74(const char* name, int fade, float volume) {
 // NONMATCHING: 98.5% - registers of the frame count and the cut (as fn_8048871C)
 // inferred: starts the music of the multi audio again at the position of the next cut
 void Manager::fn_80488B5C(int fade) {
-    if (m70 != 0 && m70->fn_80541210() != 0) {
-        if (strlen(m1F38.c_str()) == 0) {
-            return;
-        }
+    if (m70 == 0 || m70->fn_80541210() == 0 || strlen(m1F38.c_str()) == 0) {
+        return;
+    }
+    {
         Cut* cur = m70->fn_80541210();
         if (cur == 0) {
             return;
@@ -2408,9 +2408,10 @@ void Median3_unk(T* a, T* b, T* c, Compare& comp) {
 
 template <class T, class Compare>
 inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
     T* result = first;
     if (first != last) {
-        for (T* it = first + 1; it != last; it++) {
+        for (it = first + 1; it != last; it++) {
             if (comp(*it, *result)) {
                 result = it;
             }
@@ -2433,7 +2434,7 @@ void Sort_unk(T* first, T* last, Compare comp) {
         }
         if (n <= 20) {
             if (first != last) {
-                for (T* end = last - 1; first != end; first++) {
+                for (; first != last - 1; first++) {
                     T* min = MinElement_unk(first, last, comp);
                     if (min != first) {
                         Swap_unk(*min, *first);
@@ -2446,14 +2447,16 @@ void Sort_unk(T* first, T* last, Compare comp) {
         if (++sOffset >= 5) {
             sOffset = -4;
         }
-        T* b = first + (n * 3 / 4 + sOffset % 5);
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + sOffset % 5);
         if (++sOffset >= 5) {
             sOffset = -4;
         }
+        T* i;
         T* j;
         T* pivot = last - 1;
         Median3_unk(a, b, pivot, comp);
-        T* i = first;
+        i = first;
         j = pivot;
         while (comp(*i, *pivot)) {
             i++;
@@ -2621,10 +2624,11 @@ void Manager::fn_80489A50(Action* action, int keep) {
 // NONMATCHING: 98.6% - registers of the sequence and the cut swapped
 // inferred: skips to the end of the current cut
 void Manager::fn_80489C98() {
+    Cut* cut;
     m2390 = 1;
     Sequence* seq = m70;
     if (seq != 0) {
-        Cut* cut = seq->fn_80541210();
+        cut = seq->fn_80541210();
         if (cut != 0) {
             seq->fn_80541534(seq->fn_80541198(cut), cut->m2C);
         }
@@ -3243,3 +3247,11 @@ void SequenceRoot::vf10() {}
 int SequenceRoot::vf0C() { return 1; }
 
 } // namespace Event
+
+// inferred: positions of the message layouts (read by Event/EventParser_unk and Event/ActionEffectPlay,
+// which see it as lbl_807C8AB0); initialized in __sinit
+extern "C" atn::Vector2_unk lbl_807C8AB0[3] = {
+    atn::Vector2_unk(0.5f, 0.81f),
+    atn::Vector2_unk(0.5f, 0.5f),
+    atn::Vector2_unk(0.95f, 0.8f),
+};

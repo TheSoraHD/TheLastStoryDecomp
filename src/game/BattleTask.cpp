@@ -16,6 +16,11 @@
 #include "game/GameTask.h"
 #include "game/MapTask.h"
 #include "game/GameScene.h"
+#include "game/BattleCharaTask.h"
+#include "atn/Camera_unk.h"
+#include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
+#include "atn/Color.h"
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -59,6 +64,365 @@ BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
         lbl_8087F048 = new ((MemoryTag)1, "", "", 0) BattleTask(parent);
     }
     return lbl_8087F048;
+}
+
+// ---- fn_800F72F4: target marker of a character (over the inlining budget: every helper below is called
+// out of line, and their weak copies follow it at 0x800F7F60-0x800F8548) ----
+
+// inferred: marker of a character (0x78 bytes, 72 of them at BattleTask+0x367B8); names invented
+struct BattleMarker_unk {
+    atn::Matrix3x4 mMtx;  // 0x00: base of the line
+    atn::Matrix3x4 mMtx2; // 0x30: head of the line
+    atn::Vector3 m60;     // inferred: last end point of the line
+    float m6C;            // inferred: last scale
+    int m70;              // inferred: frames left of the appearance (12 when the target changes)
+    unsigned short mMode; // 0x74: 1 own side or multiplayer, 2 `arg`, 3 the leader is flagged, 0 otherwise
+    unsigned short mFlags; // 0x76: 0x01 used, 0x10 effect started
+};
+
+// inferred: effect resource of a marker (0xC bytes; passed to fn_8023A680)
+struct MarkerEfp_unk {
+    unsigned char m00[0xC];
+};
+
+// inferred: markers and resources of the target lines (BattleTask+0x367B8..0x389C8); names invented
+struct BattleMarkers_unk {
+    // inferred: weak copy 0x800F8538; name invented
+    BattleMarker_unk* fn_800F8538(int i) { return &mItems[i]; }
+    BattleMarker_unk mItems[72];
+    // inferred: effects of the line (0xC bytes each): 0/1 base and head toward an enemy, 2/3 appearance,
+    // 4/5 base and head toward the own side
+    MarkerEfp_unk mEfp[6];     // 0x38978
+    int mHideLines;            // 0x389C0: inferred: nonzero hides the lines (sets mode 1)
+    unsigned char mTex[4];     // 0x389C4: inferred: texture of the line (DrawHelper::fn_80064F00)
+};
+
+// inferred: player character as seen from here (as game/CharaTask.cpp)
+struct Player_unk : public BattleCharaTask {
+    // inferred: weak copy 0x800F7FB4 (name invented)
+    int GetM146C_unk() { return m146C; }
+};
+
+// inferred: the "Hate" block of the game config (from 0x350); names as in GameConfig_unk
+struct HateConfig_unk {
+    int mTargetedNumDefault;       // 0x00
+    int mHideDown;                 // 0x04
+    int mTargetSightDown;          // 0x08
+    int mHateRatioDown;            // 0x0C
+    int mHateLineFadeout;          // 0x10
+    unsigned int mLineColorNormal; // 0x14
+    unsigned int mLineColorSword;  // 0x18
+    unsigned int mLineColorArcher; // 0x1C
+    unsigned int mLineColorMagic;  // 0x20
+};
+
+// inferred: segment clipped by the frustum (empty constructor: weak copy 0x800F8544); names invented
+struct LineSeg_unk {
+    LineSeg_unk() {}
+    atn::Vector3 mStart;
+    atn::Vector3 mEnd;
+};
+
+// inferred: vertex of the texture commands (0x18, as atn/DrawHelper.cpp)
+namespace atn {
+struct DrawTexVertex_unk {
+    DrawTexVertex_unk() {}
+    Vector3 mPos;
+    unsigned int mColor;
+    Vec2_unk mUV;
+};
+} // namespace atn
+
+extern "C" PlayerManager* fn_8000D9E8(); // inferred: player manager (weak copy of another file)
+// inferred: first player of the list (weak copy of another file)
+inline PlayerTask* PlayerManager::GetHead_unk() {
+    return mHead;
+}
+extern "C" const char* const lbl_80735DD0[]; // inferred: sound names of the markers (.rodata of this file)
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+
+// inferred: weak copies of game/BattleTask.cpp (C names, called out of line by other files too)
+extern "C" inline void* fn_800F7F90() {
+    return lbl_8087F610;
+}
+extern "C" inline void fn_800F7F98(atn::EffectManager* mgr, int replaying) {
+    mgr->mSystem.mReplaying = replaying;
+}
+extern "C" inline atn::EffectManager* fn_800F7FA0() {
+    return lbl_8087F3C0;
+}
+extern "C" inline void fn_800F7FA8(atn::EffectManager* mgr, void* owner, int group) {
+    fn_80232B7C((unsigned int)owner, group);
+}
+// inferred: center of the collision (the player keeps its own copy)
+extern "C" inline const atn::Vector3* fn_800F7FBC(BattleCharaTask* chara) {
+    if (chara->mFlagC31) {
+        return &chara->m148C;
+    }
+    return &chara->mColli.m48;
+}
+// inferred: radius of the collision
+extern "C" inline float fn_800F7FF8(BattleCharaTask* chara) {
+    if (chara->mFlagC31) {
+        return chara->m1498;
+    }
+    return chara->m5B0;
+}
+// inferred: colour of a 0xAARRGGBB value
+extern "C" inline atn::Color fn_800F8014(unsigned int rgba) {
+    return atn::Color(0.003921569f * (float)((rgba >> 16) & 0xFF), 0.003921569f * (float)((rgba >> 8) & 0xFF),
+                      0.003921569f * (float)(rgba & 0xFF), 0.003921569f * (float)(rgba >> 24));
+}
+extern "C" inline HateConfig_unk* fn_800F8098(GameConfig_unk* config) {
+    return (HateConfig_unk*)&config->mTargetedNumDefault;
+}
+extern "C" inline const Frustum_unk* fn_800F80A0(atn::Camera* camera) {
+    return &camera->mFrustum;
+}
+// inferred: translation matrix by value
+extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3* pos) {
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, pos->x, pos->y, pos->z);
+    return m;
+}
+// inferred: mtx = mtx * rot_z * rot_y * rot_x
+extern "C" inline void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot) {
+    ((atn::Matrix3x4*)mtx)->RotateZYX_unk(*rot);
+}
+// inferred: mtx = mtx * scale
+extern "C" inline void fn_800F8290(MtxPtr mtx, float x, float y, float z) {
+    Mtx s;
+    PSMTXScale(s, x, y, z);
+    Mtx t;
+    PSMTXConcat(mtx, s, t);
+    __MtxCopy(mtx, t);
+}
+extern "C" inline void fn_800F831C(atn::DrawTexVertex_unk* v, const atn::Vector3* pos, unsigned int color,
+                                   const atn::Vec2_unk* uv) {
+    v->mPos = *pos;
+    v->mColor = color;
+    v->mUV = *uv;
+}
+extern "C" inline atn::Model* fn_800F84C8(CharaTask* chara) {
+    return (atn::Model*)&chara->mMotion;
+}
+extern "C" inline void fn_800F84D0(atn::EffectManager* mgr, int layer) {
+    mgr->mSystem.mLayer = layer;
+}
+// inferred: operators of atn::Vec2_unk (inlined; names as the Vector3 ones)
+inline atn::Vec2_unk operator-(const atn::Vec2_unk& a, const atn::Vec2_unk& b) {
+    return atn::Vec2_unk(a.x - b.x, a.y - b.y);
+}
+inline atn::Vec2_unk operator*(const atn::Vec2_unk& a, float t) {
+    return atn::Vec2_unk(a.x * t, a.y * t);
+}
+inline atn::Vec2_unk operator+(const atn::Vec2_unk& a, const atn::Vec2_unk& b) {
+    return atn::Vec2_unk(a.x + b.x, a.y + b.y);
+}
+extern "C" inline atn::Vec2_unk fn_800F84D8(const atn::Vec2_unk& a, const atn::Vec2_unk& b, float t) {
+    return (b - a) * t + a;
+}
+extern "C" inline float fn_800F8524(const float* a, const float* b, float t) {
+    return t * (*b - *a) + *a;
+}
+extern "C" inline GameConfig_unk* fn_800F52F8() {
+    return lbl_8087F0A8;
+}
+extern "C" inline int fn_800F5300(CharaTask* chara) {
+    return chara->mFlag28;
+}
+extern "C" inline CharaC58_unk* fn_800F530C(CharaTask* chara) {
+    return &chara->mC58;
+}
+extern "C" inline atn::DrawHelper* fn_800F7250() {
+    return lbl_8087EEB0;
+}
+inline atn::Camera* atn::RenderManager::fn_800F7258() {
+    return &mCamera;
+}
+
+// NONMATCHING: draft - draws the target line of `chara` (base and head models, the line through the
+// clipped segment and the appearance animation)
+void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
+    if (chara->fn_800EE180() == 0) {
+        return;
+    }
+    CharaC58_unk* info = fn_800F530C(chara);
+    CharaTask* target = info->mC4;
+    if (target == 0 || target->IsPartyMember_unk()) {
+        return;
+    }
+    int index = fn_80102890(chara);
+    fn_80102890(target);
+    BattleMarkers_unk* markers = (BattleMarkers_unk*)&m367B4[4];
+    BattleMarker_unk* marker = markers->fn_800F8538(index);
+    marker->mFlags |= 1;
+    int changed = 0;
+    int mode = 0;
+    if (markers->mHideLines != 0 || (target->IsPlayer() && fn_800F5300(target) != 0) || fn_800F7F90() != 0) {
+        mode = 1;
+    } else if (fn_800F5300(fn_8000D9E8()->GetHead_unk()) != 0) {
+        mode = 3;
+    } else if (arg != 0) {
+        mode = 2;
+    }
+    if (marker->mMode != mode) {
+        changed = 1;
+    }
+    CharaTask* last = (CharaTask*)info->mC8;
+    if (last != target && last != 0) {
+        changed = 1;
+    }
+    if (changed) {
+        fn_800F7F98(fn_800F7FA0(), 1);
+        fn_80239DAC(fn_800F7FA0(), (unsigned int)marker, 0, 0);
+        fn_800F7F98(fn_800F7FA0(), 0);
+        marker->m70 = 12;
+        marker->mFlags &= ~0x10;
+    } else if (chara->vfE4()) {
+        if ((marker->mFlags & 0x10) != 0x10) {
+            fn_800F7F98(fn_800F7FA0(), 1);
+            fn_800F7FA8(fn_800F7FA0(), marker, 0);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mEfp[3], -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
+            if (((Player_unk*)chara)->GetM146C_unk() == 0x12 || ((Player_unk*)chara)->GetM146C_unk() == 0x11) {
+                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+            }
+            fn_800F7F98(fn_800F7FA0(), 0);
+        }
+        marker->mFlags |= 0x10;
+    } else {
+        marker->mFlags &= ~0x10;
+    }
+    atn::Vector3 from(*fn_800F7FBC(chara));
+    atn::Vector3 to(*fn_800F7FBC((BattleCharaTask*)target));
+    atn::Vector3 dir = (to - from).GetNormalize();
+    from += dir * fn_800F7FF8(chara);
+    to -= dir * fn_800F7FF8((BattleCharaTask*)target) * 0.3f;
+    dir = to - from;
+    float scale = (dir.Length_unk() - 4.0f) / 50.0f;
+    dir.Normalize_unk();
+    atn::Vector3 rot = dir.ToRotation_unk();
+    atn::Color color;
+    switch (mode) {
+    case 1:
+        if (chara->GetStatus_unk()->fn_80134270()) {
+            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorMagic);
+        } else if (chara->GetStatus_unk()->fn_80134250()) {
+            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorArcher);
+        } else {
+            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorSword);
+        }
+        if ((unsigned int)(((Player_unk*)chara)->GetM146C_unk() - 0x11) <= 1) {
+            color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorMagic);
+        }
+        break;
+    case 2:
+        color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorMagic);
+        break;
+    default:
+        color = fn_800F8014(fn_800F8098(fn_800F52F8())->mLineColorNormal);
+        break;
+    }
+    marker->mMode = mode;
+    float size = 1.0f;
+    switch (((Player_unk*)chara)->GetM146C_unk()) {
+    case 0x11:
+        size = 1.5f;
+        break;
+    case 0x12:
+    case 0x3B:
+        size = 2.0f;
+        break;
+    }
+    marker->m70--;
+    if (markers->mHideLines == 0 && marker->m70 >= 0) {
+        float t = (float)(marker->m70 - 6) / 6.0f;
+        size = 0.0f > t ? 0.0f : (float)(marker->m70 - 6) / 6.0f;
+        to = atn::Lerp_unk(to, marker->m60, size);
+        dir = to - from;
+        scale = (dir.Length_unk() - 4.0f) / 50.0f;
+        scale = fn_800F8524(&scale, &marker->m6C, size);
+        dir.Normalize_unk();
+        rot = dir.ToRotation_unk();
+        LineSeg_unk seg;
+        LineSeg_unk clipped;
+        seg.mStart = from;
+        seg.mEnd = to;
+        float len;
+        if (fn_80050420(fn_800F80A0(fn_8008B964()->fn_800F7258()), &seg.mStart, &clipped.mStart)) {
+            len = ((clipped.mEnd - clipped.mStart).Length_unk() - 4.0f) / 50.0f;
+        } else {
+            len = 0.001f;
+        }
+        scale = len;
+        marker->mMtx = fn_800F80A8(&clipped.mStart);
+        fn_800F80B8(marker->mMtx.m, &rot);
+        fn_800F8290(marker->mMtx.m, 4.0f, 4.0f, scale);
+        marker->mMtx2 = fn_800F80A8(&(to - dir * 4.0f));
+        fn_800F80B8(marker->mMtx2.m, &rot);
+        atn::DrawTexVertex_unk verts[7];
+        fn_800F831C(&verts[0], &from, color.ToU32(), &atn::Vec2_unk(0.0f, 1.0f));
+        int count = marker->m70 < 6 ? marker->m70 : 6;
+        for (int i = 0; i < count; i++) {
+            atn::DrawTexVertex_unk* v = &verts[i + 1];
+            float f = (float)(count - i - 1) / 6.0f;
+            v->mPos = atn::Lerp_unk(to, marker->m60, f);
+            v->mPos += (v->mPos - from).GetNormalize() * (4.0f * (1.0f - f * f));
+            verts[i].mColor = color.ToU32();
+            v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);
+        }
+        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)markers->mTex, 0.0f);
+        if (marker->m70 == 8) {
+            if (info->mC4->IsPlayer()) {
+                if (fn_800F5300(info->mC4)) {
+                    fn_800C31F4(lbl_80735DD0[0], 0, -1, 2.0f);
+                } else {
+                    fn_800C31F4(lbl_80735DD0[0], 0, -1, 1.0f);
+                }
+            } else {
+                fn_800C31F4(lbl_80735DD0[1], 0, -1, 1.0f);
+            }
+        }
+        if (fn_800F7F90() != 0 && marker->m70 == 1) {
+            fn_801065F4(target, fn_800F84C8(target), (const ColorF_unk*)&color);
+        }
+    } else {
+        float last = scale;
+        LineSeg_unk seg;
+        LineSeg_unk clipped;
+        seg.mStart = from;
+        seg.mEnd = to;
+        if (fn_80050420(fn_800F80A0(fn_8008B964()->fn_800F7258()), &seg.mStart, &clipped.mStart)) {
+            scale = ((clipped.mEnd - clipped.mStart).Length_unk() - 4.0f) / 50.0f;
+        } else {
+            scale = 0.001f;
+        }
+        marker->mMtx = fn_800F80A8(&clipped.mStart);
+        fn_800F80B8(marker->mMtx.m, &rot);
+        if (markers->mHideLines != 0) {
+            fn_800F8290(marker->mMtx.m, 3.0f, 3.0f, scale);
+        } else {
+            fn_800F8290(marker->mMtx.m, size, size, scale);
+        }
+        marker->mMtx2 = fn_800F80A8(&(to - dir * 4.0f));
+        fn_800F80B8(marker->mMtx2.m, &rot);
+        marker->m60 = to;
+        marker->m6C = last;
+    }
+    if (fn_80239D58(fn_800F7FA0(), marker, 0) == 0) {
+        MarkerEfp_unk* res = (mode == 1 || mode == 3) ? &markers->mEfp[4] : &markers->mEfp[0];
+        fn_800F7F98(fn_800F7FA0(), 1);
+        fn_800F84D0(fn_800F7FA0(), 5);
+        fn_800F7FA8(fn_800F7FA0(), marker, 0);
+        fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&res[0], -1, 5, (int)marker, 0, 0, (const EffectColor_unk*)&color, 0, -1, 1, 1.0f);
+        fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&res[1], -1, 5, (int)&marker->mMtx2, 0, 0, (const EffectColor_unk*)&color, 0, -1, 1,
+                    1.0f);
+        fn_800F84D0(fn_800F7FA0(), 0);
+        fn_800F7F98(fn_800F7FA0(), 0);
+    }
 }
 
 extern "C" void* fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,

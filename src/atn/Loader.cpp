@@ -478,9 +478,10 @@ void Median3_unk(T* a, T* b, T* c, Compare& comp) {
 
 template <class T, class Compare>
 inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
     T* result = first;
     if (first != last) {
-        for (T* it = first + 1; it != last; it++) {
+        for (it = first + 1; it != last; it++) {
             if (comp(*it, *result)) {
                 result = it;
             }
@@ -503,7 +504,7 @@ void Sort_unk(T* first, T* last, Compare comp) {
         }
         if (n <= 20) {
             if (first != last) {
-                for (T* end = last - 1; first != end; first++) {
+                for (; first != last - 1; first++) {
                     T* min = MinElement_unk(first, last, comp);
                     if (min != first) {
                         Swap_unk(*min, *first);
@@ -516,14 +517,16 @@ void Sort_unk(T* first, T* last, Compare comp) {
         if (++sOffset >= 5) {
             sOffset = -4;
         }
-        T* b = first + (n * 3 / 4 + sOffset % 5);
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + sOffset % 5);
         if (++sOffset >= 5) {
             sOffset = -4;
         }
+        T* i;
         T* j;
         T* pivot = last - 1;
         Median3_unk(a, b, pivot, comp);
-        T* i = first;
+        i = first;
         j = pivot;
         while (comp(*i, *pivot)) {
             i++;

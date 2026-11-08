@@ -19,6 +19,17 @@
 #include "game/GameConfig_unk.h"
 #include "game/SetConfig.h"
 #include "atn/SoundManager.h"
+#include "game/NpcManager.h"
+#include "game/NpcTask.h"
+#include "game/PlayerManager.h"
+#include "game/Inventory.h"
+#include "game/CharaStatus.h"
+#include "game/GameUI.h"
+#include "atn/RenderManager.h"
+#include "atn/RenderSetting_unk.h"
+#include "atn/LH_Xsca.h"
+#include "atn/GraphicsDevice.h"
+#include "game/NewCampPartsBase.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
@@ -43,7 +54,78 @@ extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
+// inferred: 0x64-byte record of the camp (list lbl_807C912C, read by vf0C); name invented
+struct NewCampElem_unk {
+    unsigned char m00[0x64];
+};
+static std::vector<NewCampElem_unk> sElems_unk; // inferred: cleared by the constructor
 static NewCampPair_unk sNullPair; // inferred: returned by fn_80530384 for a missing id
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
+inline atn::GraphicsDevice_unk* GetGraphics_unk() {
+    return lbl_8087EEE0;
+}
+// inferred: setters (weak copies; C names: the method names are unknown)
+extern "C" inline void fn_8052ACC8(atn::Camera* camera, float aspect) {
+    camera->mAspect = aspect;
+}
+extern "C" inline void fn_8052ACD0(MapTask* map, int type) {
+    map->mType = type;
+}
+extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy);
+
+extern "C" atn::Task* fn_8052A888(atn::Task* parent) {
+    if (parent != 0) {
+        return new ((MemoryTag)1, "", "", 0) NewCampTask(parent);
+    }
+    return 0;
+}
+
+NewCampTask::NewCampTask(atn::Task* parent)
+    : atn::Task(parent), m5C(0), m60(0), m454(0), m458(0.0f), m45C(3.0f), m464(0), m11F0(0), m11F4(0), m11F8(0),
+      m11FC(40.0f, 0.0f, 210.0f), m1208(40.0f, 0.0f, -20.0f), m1214(atn::DegToRad_unk(55.0f)), m121C(0), m1220(0),
+      m12AC(0), m12D0(0.0f), m12D4(lbl_807C7030), m12E0(lbl_807C7030), m12EC(lbl_807C7030), m12F8(lbl_807C7030),
+      m1304(1), m1308(0), m133C(0), m1350(0), m1354(0), m1358(0), m135C(60), m1364(0), m1368(3.0f), m136C(0),
+      m1370(0.0f, 0.0f, 80.0f) {
+    m134C.fn_80470364("/preload/camp.pk", 0, 0, 1);
+    sElems_unk.clear();
+    m1344.vf0C("database/camp/camp_font_conf.csv");
+    fn_8052ACC8(&mCamera, fn_80076FF8(GetGraphics_unk()));
+    if (fn_80076FF8(GetGraphics_unk()) < 1.5f) {
+        m136C = 1;
+        fn_8052ACC8(&mCamera, 1.3333334f);
+    }
+    atn::Vector3 offset(m136C != 0 ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f));
+    mCamera.SetPosition(m11FC + offset);
+    mCamera.SetTarget_unk(m1208 + offset);
+    fn_8037F688(&mCamera, m1214);
+    m460 = MapTask::SetTask(this, "database/map/ui_campmenu.map");
+    fn_8052ACD0(m460, 6);
+    m460->fn_800D246C(1);
+    mTop = NewCampPartsTop::fn_80529118(this);
+    mTop->fn_800D246C(1);
+    mStatus = NewCampPartsStatus::fn_805268C8(this);
+    mStatus->fn_800D246C(1);
+    mMapSelect = NewCampPartsMapSelect::fn_8051B920(this);
+    mMapSelect->fn_800D246C(1);
+    mItem = NewCampPartsItem::fn_805169F8(this);
+    mItem->fn_800D246C(1);
+    mOption = NewCampPartsOption::fn_80521E1C(this);
+    mOption->fn_800D246C(1);
+    mProtector = CosEditProtector::fn_801CFD68(this);
+    mProtector->fn_800D246C(1);
+    mGmk = NewCampPartsGmk::fn_805128C0(this);
+    mGmk->fn_800D246C(1);
+    mHint = NewCampPartsHint::fn_80514720(this);
+    mHint->fn_800D246C(1);
+    m1334.vf0C("database/camp/camp_config.csv");
+    m64 = atn::FadeColor::Create(this, 0, 0, 0);
+    m1360 = -1;
+    m12B0.Clear_unk();
+}
+
+NewCampTask::~NewCampTask() {}
 
 // inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
 static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y, int z) {
@@ -131,6 +213,214 @@ void NewCampTask::vf14() {
     }
 }
 
+// ---- fn_8052C108: opens the camp (over the inlining budget: the helpers below are weak copies at
+// 0x8052C64C-0x8052C6C0) ----
+// inferred: party members available at a progress (as game/ShopBuySell.cpp)
+struct ShopMembers_unk {
+    unsigned char m00[0x0C];
+    unsigned char mIn[8];
+};
+extern "C" ShopMembers_unk* fn_80217D9C(int progress); // inferred: members available at a progress (as game/ShopBuySell.cpp)
+extern "C" int fn_80219544(int member); // inferred: character id of a party member
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
+namespace atn {
+// inferred: only the member used here (atn/PostFx.h clashes with atn/IRender.h)
+class PostFxManager {
+public:
+    void fn_800A97C4();
+};
+} // namespace atn
+extern "C" atn::PostFxManager* fn_804ABF20(); // inferred: post effect manager
+
+extern "C" PlayerManager* lbl_8087F8A0;
+extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings (atn::RenderConfig)
+// inferred: global accessors (inline: weak copies of other files; they count for the inline budget)
+extern "C" inline Field_unk* fn_80121F00() {
+    return lbl_8087F430;
+}
+extern "C" inline PlayerManager* fn_8000D9E8() {
+    return (PlayerManager*)lbl_8087F8A0;
+}
+extern "C" inline RenderSetting_unk* fn_802F0990() {
+    return lbl_8087EFA8;
+}
+inline SetConfig* GetSetConfig_unk() {
+    return SetConfig::sInstance;
+}
+extern "C" inline int fn_80244CA0(atn::Task* task) {
+    return (task->mFlags >> 1) & 1;
+}
+// inferred: copies a camera (defined in game/GameCamera_unk.cpp)
+extern "C" inline void fn_80392A04(atn::Camera* dst, const atn::Camera* src) {
+    *dst = *src;
+}
+extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy) {
+    camera->mFovy = fovy;
+}
+inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
+    m374 = p;
+}
+// inferred: weak copies of game/NewCampTask.cpp (C names: their classes are unknown)
+extern "C" inline int fn_8052C64C(GameTask* task) {
+    return task->m10D0;
+}
+extern "C" inline NpcManager* fn_8052C654() {
+    return NpcManager::sInstance;
+}
+extern "C" inline NpcTask* fn_8052C65C(NpcTask* npc) {
+    return npc->mNext;
+}
+// inferred: copies the base status of a character (the vtable too)
+extern "C" inline void fn_8052C664(CharaStatus* dst, CharaStatus* src) {
+    memcpy(dst, src, sizeof(CharaStatusBase));
+}
+extern "C" inline void fn_8052C66C(CharaStatus* status, CharaTask* chara) {
+    status->mChara = chara;
+}
+extern "C" inline void fn_8052C674(CharaStatus* status) {
+    status->mRefs.mCount = 0;
+}
+extern "C" inline NpcTask* fn_8052C990(NpcManager* mgr) {
+    return mgr->mHead;
+}
+extern "C" inline void* fn_8052C680(NewCampPartsBase* parts) {
+    return parts->m5C.fn_804786F8();
+}
+// inferred: point of the camera curves at `time` (channels x, y, z and the target channels)
+extern "C" inline atn::Vector3 fn_8052C688(XsfCurveSet_unk* curves, float time) {
+    atn::Vector3 v;
+    curves->fn_805BF410(time, &v.x, 1, 2, 3);
+    return v;
+}
+extern "C" inline atn::Vector3 fn_8052C6A4(XsfCurveSet_unk* curves, float time) {
+    atn::Vector3 v;
+    curves->fn_805BF410(time, &v.x, 7, 8, 9);
+    return v;
+}
+extern "C" inline void fn_8052C6C0(atn::RenderManager* rm) {
+    rm->m554 = 1;
+}
+// inferred: second camera of the render manager (m558)
+// NONMATCHING: 99.96% - order of the copy of the frustum planes (as fn_80392A04 of game/GameCamera_unk.cpp)
+extern "C" inline void fn_8052C6CC(atn::RenderManager* rm, const atn::Camera* camera) {
+    rm->m558 = *camera;
+}
+// inferred: weak copy before fn_8052C108 (first used by vf10 in the original)
+extern "C" inline int fn_8052C0E8(SetConfig* config) {
+    return 0;
+}
+
+// inferred: opens the camp: lists the party members (with the status of the ones in the party), sets the
+// camera of the camp and the parts
+void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
+    m5C = 1;
+    fn_80117228(0x1F);
+    ((GameUICounter_unk*)&m1224)->fn_803CF734();
+    ((GameUICounter_unk*)&m1268)->fn_803CF734();
+    NewCampPair_unk pair;
+    pair.mId = 0;
+    pair.m04 = (int)fn_8000D9E8()->fn_8054A33C(pair.mId);
+    m1224.push_back(pair);
+    ((atn::FixedArray_unk<NewCampPair_unk, 8>*)&m1268)->push_back(pair);
+    ShopMembers_unk* members = fn_80217D9C(fn_8052C64C((GameTask*)fn_80121F00()));
+    if (members != 0) {
+        for (unsigned int i = 1; i < 7; i++) {
+            int left = 0;
+            switch (i) {
+            case 0:
+                left = ((GameTask*)fn_80121F00())->fn_80370174(0x124);
+                break;
+            case 1:
+                left = ((GameTask*)fn_80121F00())->fn_80370174(0x125);
+                if (fn_8052C64C((GameTask*)fn_80121F00()) <= 109000 &&
+                    ((GameTask*)fn_80121F00())->fn_80370174(0x764) < 1) {
+                    left = 1;
+                }
+                break;
+            case 2:
+                left = ((GameTask*)fn_80121F00())->fn_80370174(0x126);
+                break;
+            case 3:
+                left = ((GameTask*)fn_80121F00())->fn_80370174(0x127);
+                break;
+            case 4:
+                left = ((GameTask*)fn_80121F00())->fn_80370174(0x128);
+                break;
+            case 5:
+                left = ((GameTask*)fn_80121F00())->fn_80370174(0x12A);
+                break;
+            case 6:
+                left = ((GameTask*)fn_80121F00())->fn_80370174(0x129);
+                break;
+            }
+            if (members->mIn[i] == 0 || left != 0) {
+                continue;
+            }
+            pair.mId = i;
+            CharaTask* chara = fn_8000D9E8()->FindByName_unk(i);
+            if (chara == 0) {
+                int id = fn_80219544(pair.mId);
+                for (NpcTask* npc = fn_8052C990(fn_8052C654()); npc != 0; npc = fn_8052C65C(npc)) {
+                    if (id == npc->GetCharaNo_unk() && fn_80244CA0(npc) && !npc->IsFrozen_unk()) {
+                        chara = npc;
+                        break;
+                    }
+                }
+            } else {
+                fn_8052C664(Inventory::Order()->GetPlayerStatusInfo(pair.mId), chara->GetStatus_unk());
+                fn_8052C66C(Inventory::Order()->GetPlayerStatusInfo(pair.mId), 0);
+                fn_8052C674(Inventory::Order()->GetPlayerStatusInfo(pair.mId));
+            }
+            if (chara != 0 && (!fn_80244CA0(chara) || chara->IsFrozen_unk())) {
+                chara = 0;
+            }
+            pair.m04 = (int)chara;
+            m1224.push_back(pair);
+            if (chara != 0) {
+                ((atn::FixedArray_unk<NewCampPair_unk, 8>*)&m1268)->push_back(pair);
+            }
+        }
+    }
+    if (fn_80121F00() != 0) {
+        ((GameTask*)fn_80121F00())->fn_8037529C(0xFFFFFFFF, 0, 0, 0, 10);
+    }
+    mOpen = *open;
+    mTop->vf24();
+    mStatus->vf24();
+    mMapSelect->vf24();
+    mItem->vf24();
+    mOption->vf24();
+    mProtector->vf24();
+    mGmk->vf24();
+    mHint->vf24();
+    m1308 = 0;
+    mB1C.fn_8052E1A0();
+    m468.fn_8052FA44();
+    atn::Vector3 ofs(m136C != 0 ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f));
+    XsfCurveSet_unk* curves = ((Xsca_unk*)fn_8052C680((NewCampPartsBase*)mStatus))->fn_805BDCBC(0);
+    m11FC = fn_8052C688(curves, 0.0f);
+    m1208 = fn_8052C6A4(curves, 0.0f);
+    mCamera.SetPosition(m11FC + ofs);
+    mCamera.SetTarget_unk(m1208 + ofs);
+    fn_8037F688(&mCamera, m1214);
+    mCamera.fn_8004B378();
+    fn_8008B964()->SetCamera_unk(mCamera);
+    fn_80392A04(&m260, &mCamera);
+    fn_8052C6C0(fn_8008B964());
+    fn_8052C6CC(fn_8008B964(), &m260);
+    ((DamageEffectParam_unk*)&m130C[0x1310 - 0x130C])->mEnabled = 1;
+    fn_802F0990()->SetDamage_unk(*(DamageEffectParam_unk*)&m130C[0x1310 - 0x130C]);
+    if (mOpen.mMenu != 0) {
+        fn_8052DEEC(mOpen.mMenu);
+    } else {
+        mGmk->fn_80512C90(m464);
+    }
+    mGmk->fn_80513020(m1354, m464);
+    m1360 = fn_8052C0E8(GetSetConfig_unk());
+    fn_80530DB4();
+    fn_804ABF20()->fn_800A97C4();
+}
+
 void NewCampTask::fn_8052C9C4() {
     if (m133C == 0) {
         if (lbl_8087F430 != 0) {
@@ -146,6 +436,112 @@ void NewCampTask::fn_8052C9C4() {
         }
     }
     m5C = 0;
+}
+
+// ---- fn_8052D468: camera of the camp (over the inlining budget: the accessors are weak copies) ----
+extern "C" atn::Vector3 fn_80383728(const atn::Camera* camera); // inferred: direction the camera looks at
+extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
+extern "C" int fn_800CB58C(atn::SoundRef* sound);                     // inferred: the sound is playing
+extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
+void* GetPad_unk();
+// inferred: end of the lerp of the camera path (passed by address to fn_800F8524); name invented
+static float sCamPathEnd_unk = 1.0f;
+// inferred: motion blur of the render settings (+0x240)
+extern "C" inline MotionBlurParam_unk* fn_8052D3C8(RenderSetting_unk* settings) {
+    return &settings->m240;
+}
+extern "C" inline void fn_8052D3D0(RenderSetting_unk* settings, const MotionBlurParam_unk& blur) {
+    settings->m240 = blur;
+}
+// inferred: offsets of the camera of the parts (m64: 4:3 screen, m70: 16:9)
+extern "C" inline atn::Vector3 fn_8052DEA4(NewCampPartsBase* parts) {
+    return parts->m64;
+}
+extern "C" inline atn::Vector3 fn_8052DEB8(NewCampPartsBase* parts) {
+    return parts->m70;
+}
+extern "C" inline float fn_8052DECC(XsfCurveSet_unk* curves) {
+    return curves->mLength;
+}
+extern "C" inline bool fn_8052DED4(NewCampTask* task) {
+    return task->m11F8 != 1;
+}
+
+// inferred: camera of the camp: the camera of the parts (curves of the xsca, path m12B0 or free camera m121C)
+// plus the offset of the parts; the second camera (m558 of the render manager) looks between both
+void NewCampTask::fn_8052D468() {
+    atn::Camera camera(m260);
+    atn::Vector3 dir = fn_80383728(&m260);
+    atn::Vector3 target = fn_80383728(&mCamera);
+    target = target + dir;
+    target.Normalize_unk();
+    target = target + dir;
+    target.Normalize_unk();
+    target += *camera.GetPosition_unk();
+    camera.SetTarget_unk(target);
+    camera.fn_8004B378();
+    fn_8052C6CC(fn_8008B964(), &camera);
+    MotionBlurParam_unk blur(*fn_8052D3C8(fn_802F0990()));
+    blur.mEnabled = 0;
+    fn_8052D3D0(fn_802F0990(), blur);
+    atn::Vector3 ofs(m136C != 0 ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f));
+    GetPad_unk();
+    if (m121C != 0) {
+        mCamera.fn_8004BF64(3.0f, 3.0f);
+        m11FC = *mCamera.GetPosition_unk();
+        m1208 = *mCamera.GetTarget_unk();
+    } else {
+        if (m12AC == 1) {
+            m12D0 = fn_800F8524(&m12D0, &sCamPathEnd_unk, 0.3f);
+            m12EC = m12B0.GetPos_unk(m12D0);
+            m12F8 = m12B0.GetPos_unk(m12D0);
+        } else {
+            m12EC = atn::Lerp_unk(m12EC, m12D4, 0.3f);
+            m12F8 = atn::Lerp_unk(m12F8, m12E0, 0.3f);
+        }
+        if (m11F8 == 0) {
+            atn::Vector3 parts((m136C != 0 && m11F0 != 0) ? fn_8052DEA4(m11F0) : lbl_807C7030);
+            parts += (m136C == 0 && m11F0 != 0) ? fn_8052DEB8(m11F0) : lbl_807C7030;
+            mCamera.SetPosition(m11FC + m12EC + ofs + parts);
+            mCamera.SetTarget_unk(m1208 + m12F8 + ofs + parts);
+        } else if (m11F8 == 1 && m454 != 0) {
+            m458 += m45C;
+            XsfCurveSet_unk* curves = ((Xsca_unk*)m454)->fn_805BDCBC(0);
+            m11FC = fn_8052C688(curves, m458);
+            m1208 = fn_8052C6A4(curves, m458);
+            atn::Vector3 cur((m136C != 0 && m11F0 != 0) ? fn_8052DEA4(m11F0) : lbl_807C7030);
+            atn::Vector3 prev((m136C != 0 && m11F4 != 0) ? fn_8052DEA4(m11F4) : lbl_807C7030);
+            cur += (m136C == 0 && m11F0 != 0) ? fn_8052DEB8(m11F0) : lbl_807C7030;
+            prev += (m136C == 0 && m11F4 != 0) ? fn_8052DEB8(m11F4) : lbl_807C7030;
+            atn::Vector3 parts = atn::Lerp_unk(prev, cur, m458 / fn_8052DECC(curves));
+            mCamera.SetPosition(m11FC + m12EC + ofs + parts);
+            mCamera.SetTarget_unk(m1208 + m12F8 + ofs + parts);
+            if (m458 > fn_8052DECC(curves) || m458 < 0.0f) {
+                m11F8 = 0;
+            }
+            bool moving = false;
+            if (m45C > 0.0f) {
+                if (m458 < fn_8052DECC(curves) - 5.0f) {
+                    moving = true;
+                }
+            } else if (m45C < 0.0f) {
+                if (m458 > 5.0f) {
+                    moving = true;
+                }
+            }
+            if (moving) {
+                MotionBlurParam_unk blur2(*fn_8052D3C8(fn_802F0990()));
+                blur2.mEnabled = 0;
+                fn_8052D3D0(fn_802F0990(), blur2);
+            }
+        }
+    }
+    if (fn_800CB58C(&m1340) != 0 && fn_8052DED4(this)) {
+        fn_800CB5C8(&m1340, 20, 0);
+    }
+    fn_8037F688(&mCamera, m1214);
+    mCamera.fn_8004B378();
+    fn_8008B964()->SetCamera_unk(mCamera);
 }
 
 void NewCampTask::fn_8052DEEC(int state) {

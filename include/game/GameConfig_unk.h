@@ -119,6 +119,8 @@ namespace atn {
 struct Vec2_unk {
     Vec2_unk() {}
     Vec2_unk(float x_, float y_) : x(x_), y(y_) {}
+    // inferred: user copy constructor (fn_800F84D8 returns the vector through memory, not in r3/r4)
+    Vec2_unk(const Vec2_unk& v) : x(v.x), y(v.y) {}
     Vec2_unk& operator=(const Vec2_unk& v) {
         __Vec2Copy(&x, &v.x);
         return *this;

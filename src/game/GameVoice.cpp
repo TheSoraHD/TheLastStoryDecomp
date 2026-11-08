@@ -244,7 +244,7 @@ void GameVoiceChannel_unk::CheckPrepared_unk(const char* name) {
                 char buf[0x100];
                 atn::SoundEngine_unk* engine = lbl_8087EE90;
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
-                sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]", id, name,
+                sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]\0", id, name,
                         fn_800CB6F8(&mSound), label);
                 ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
             }
@@ -263,7 +263,7 @@ void GameVoiceChannel_unk::CheckPreparedId_unk(unsigned int id) {
                 const char* name = fn_80049CDC(lbl_8087EE90, id);
                 atn::SoundEngine_unk* engine = lbl_8087EE90;
                 const char* label = fn_80049CDC(engine, fn_800CB6F8(&mSound));
-                sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]", id, name,
+                sprintf(buf, "SoundWarning: cannot match [%d:%s] with prepared voice [%d:%s]\0", id, name,
                         fn_800CB6F8(&mSound), label);
                 ((DebugMessages_unk*)lbl_8087EEB8)->fn_800697D8(buf);
             }
@@ -393,7 +393,8 @@ atn::SoundRef GameVoice::fn_803E9B7C(unsigned int id, int offset, int steal, flo
     return channel->mSound;
 }
 
-// NONMATCHING: 95% - branch shape of the battle check (bne + b), registers of the party loop
+// NONMATCHING: 96.88% - branch shape of the check of lbl_8087F540 (beq; beq; b in the original), registers of
+// the party loop
 void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume, float time) {
     if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_803761CC() == 0) {
         return;
@@ -401,10 +402,8 @@ void GameVoice::fn_803EA77C(CharaTask* chara, int kind, int delay, float volume,
     if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
         return;
     }
-    if (lbl_8087F540 != 0) {
-        if (lbl_8087F540->m70 != 0) {
-            return;
-        }
+    if (lbl_8087F540 != 0 && lbl_8087F540->m70 != 0) {
+        return;
     }
     if (lbl_8087F430 != 0 && lbl_8087F430->m5538 != 0) {
         return;
@@ -513,8 +512,7 @@ void GameVoice::fn_803EAF60(CharaTask* chara) {
     }
 }
 
-// NONMATCHING: 98.26% - the id goes through r3 instead of r4; "/database/lip/%s.lip" needs the
-// "SoundWarning: cannot match" string of an unwritten function before it in the pool
+// NONMATCHING: 98.31% - the id goes through r3 instead of r4
 int GameVoice::fn_803EB038(const char* name, int offset) {
     GameVoiceChannel_unk* channel = fn_803EB7E4(VoiceId_unk(name), 0);
     if (channel == 0 || channel->mPlaying || channel->mPrepared) {
@@ -535,7 +533,7 @@ int GameVoice::fn_803EB038(const char* name, int offset) {
         channel->mPlaying = 1;
     }
     char path[0x100];
-    sprintf(path, "/database/lip/%s.lip", name);
+    sprintf(path, "/database/lip/%s.lip\0", name);
     if (fn_8006AA20(path)) {
         channel->mFile.vf0C(path);
     }

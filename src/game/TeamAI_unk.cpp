@@ -482,7 +482,7 @@ void TeamAI_unk::fn_805B1C84(TeamGimmick_unk* order) {
             lbl_8087EE68->fn_80017EB0(Chara_unk(chara), order->mGimmick, order->mArg);
         } else if (lbl_8087EEB8 != 0) {
             char buf[0x100];
-            sprintf(buf, "[TeamAI] Error: ExecuteAimGimmick chara not found [gm%03d_%03d_%04d]",
+            sprintf(buf, "[TeamAI] Error: ExecuteAimGimmick chara not found [gm%03d_%03d_%04d]\0",
                     order->mGimmick / 1000, order->mGimmick % 1000, order->mArg);
             lbl_8087EEB8->fn_800697D8(buf);
         }

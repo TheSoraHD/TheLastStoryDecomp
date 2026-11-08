@@ -2,6 +2,7 @@
 // of a remote player; the class name is invented.
 #include "game/CharaTask.h"
 #include "game/BattleTask.h"
+#include "MP/MpCharaRef_unk.h"
 
 struct BulletMgr_unk;
 extern "C" BulletMgr_unk* lbl_8087F048; // inferred: bullet manager (see gmk/Coffin.cpp)
@@ -24,14 +25,7 @@ inline CharaListeners_unk* fn_8014F8F4() {
     return &sListeners;
 }
 
-// inferred: holder of the character of a player
-struct MpCharaRef_unk {
-    void fn_805010C0();
-    void fn_805011CC();
-    void fn_80501288(CharaTask* chara);
 
-    CharaTask* mChara;
-};
 
 void MpCharaRef_unk::fn_805010C0() {
     if (mChara != 0) {

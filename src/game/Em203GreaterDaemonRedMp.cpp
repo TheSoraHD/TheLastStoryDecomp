@@ -1178,7 +1178,6 @@ void Em203GreaterDaemonRedMp::fn_802A1BFC() {
     }
 }
 
-// NONMATCHING: 98.2% - load order of the motion speed in the first clamp
 // inferred: state 2 (dies: falls to the ground, then vanishes after 120 frames)
 void Em203GreaterDaemonRedMp::fn_802A2070() {
     if (m14D8 == 0) {
@@ -1202,7 +1201,7 @@ void Em203GreaterDaemonRedMp::fn_802A2070() {
         }
         if (m58C == 2) {
             if (mMotion.mTracks[0].m08 >= 25.0f) {
-                float speed = mMotion.mTracks[0].m0C + 0.05f;
+                float speed = (float)mMotion.mTracks[0].m0C + 0.05f;
                 mMotion.mTracks[0].m0C = 1.0f < speed ? 1.0f : speed;
             } else if (mMotion.mTracks[0].m08 >= 8.0f) {
                 float speed = mMotion.mTracks[0].m0C - 0.05f;
@@ -1227,8 +1226,8 @@ void Em203GreaterDaemonRedMp::fn_802A2070() {
             mFlag15 = 1;
             fn_800D246C(1);
             fn_801765D8();
+            Field_unk* field = lbl_8087F430;
             if (m1554 != 0) {
-                Field_unk* field = lbl_8087F430;
                 field->m8A0 = 0;
                 field->m97C.m00 = 0;
                 m1554 = 0;
@@ -1407,6 +1406,25 @@ extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy) {
 // inferred: whether the C25 battle-character flag is set.
 extern "C" unsigned int fn_802A409C(BattleCharaTask* chara) {
     return chara->mFlagC25;
+}
+
+// inferred: random value between min and max (used by fn_802A3D80)
+extern "C" float fn_802A40A8(float min, float max) {
+    return (max - min) * ((float)rand() / 32767.0f) + min;
+}
+
+// inferred: default homing parameters of the shots of fn_802A3D80 (as DaemonHoming_unk of
+// game/Em203GreaterDaemon.cpp)
+extern "C" void fn_802A4120(HomingParam_unk* param) {
+    param->mTarget = 0;
+    param->mAccel = 0.0f;
+    param->m08 = -1.0f;
+    param->mMaxSpeed = 10.0f;
+    param->mTurn = 0.09424778f;
+    param->mTime = 300.0f;
+    param->mDelay = 5.0f;
+    param->mNode = 0;
+    param->mCount = -1;
 }
 
 // NONMATCHING: 99.29% - loop counter registers swapped (r29/r30, as Red fn_8029C564)

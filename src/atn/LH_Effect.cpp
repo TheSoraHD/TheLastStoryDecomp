@@ -8,6 +8,7 @@
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int fn_80239030(void* data, void* effect);       // inferred: parses the effect data
 extern "C" void fn_8022D754(void* entry);                   // inferred: prepares an entry
+extern "C" void fn_802396A0(void* data);                  // inferred: releases the data (atn/EffectLoader_unk.cpp)
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" std::string fn_8006D008(const std::string& a, const char* b); // inferred: a + b
 extern "C" void fn_8006AD24(std::string& path, const std::string& dir); // inferred
@@ -37,7 +38,6 @@ struct EffectEntry_unk {
 // inferred: effect data (0x44 bytes, cleared with memset; functions at 0x80239030/0x802396A0)
 struct EffectData_unk {
     EffectData_unk() { memset(this, 0, sizeof(EffectData_unk)); }
-    void fn_802396A0(); // inferred: releases the data
 
     unsigned char m00[8];
     unsigned int mNumEntries;  // 0x08
@@ -80,7 +80,7 @@ LoadEffect::~LoadEffect() {
             mData.mObjects[i] = 0;
         }
     }
-    mData.fn_802396A0();
+    fn_802396A0(&mData);
 }
 
 // NONMATCHING: 99.9% - only two saved registers swap: the original keeps the path (this + 6) in

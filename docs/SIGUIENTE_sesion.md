@@ -1,33 +1,35 @@
-# Siguiente sesion (tras `s12h-20261107`, mergeada en `main`)
+# Siguiente sesion (tras `s12h-20261108`, sin mergear)
 
-`main` (merge abdf617 de `s12h-20261107`): **14351 / 18116** en `report.json` (14348 en `objdiff diff`: los vf10
-de ControlRevival, ControlRideBeast y ControlBoundShade quedan al 99,8-99,9% por el pool
-`@stringBase0_8073B8E8`), lost 0, sin bajadas, clon limpio `main.dol: OK`. Crear rama nueva desde `main`.
-Notas: `docs/s12h-20261107.md`.
+Rama `s12h-20261108` (subida, **sin mergear**; revisar y mergear en `main`): **14596 / 18116** en `report.json`
+(inicio 14351), lost 0, sin bajadas de fuzzy, `main.dol: OK` en un clon limpio de la rama. Notas:
+`docs/s12h-20261108.md`.
 
 ## Lo primero
 
-- Decisiones abiertas de `docs/s12h-20261107.md` (seccion Resultado): revisar al tocar esos ficheros.
-- Tras `precommit.sh --pd`: devolver `lbl_8087D6E8`/`lbl_8087D6EC` en `symbols.txt` (pd los renombra a
-  `@STRING@Resize_unk...`).
+- Revisar las decisiones de `docs/s12h-20261108.md` (renombrados de `symbols.txt`, cambios de splits de
+  ControlRide y MenuCommonTask/MiniMapTask) y mergear la rama.
+- `configure.py` sin argumentos intenta descargar compiladores (403): usar los flags de `docs/entorno-nube.md`.
+- Tras `pd.sh`/`pdbatch.sh`: devolver `lbl_8087D6E8`/`lbl_8087D6EC` (lineas 29689/29690 de `symbols.txt`).
+- Anadir un `#include` o locales nuevos renumera los `@N` de la unidad: `relocpair.py --apply <unidad>` + `pd.sh`;
+  si `labelcheck` sigue con faltas, renombrar en `symbols.txt` por direccion comparando el `.sdata2` del `.o`.
+- Falso positivo conocido de `precommit.sh`: `REP+ Event/Manager fn_80489D08 99.95385`.
 
-## Trucos nuevos que conviene seguir aplicando (barridos en `tools/decomp/`)
+## Trucos nuevos (una linea cada uno en `docs/trucos-mwcc.md`, entrada `s12h-20261108`)
 
-- `operator[]` del contenedor en lugar de `.mData[i]` (`opidx.py`): resuelve el cruce r3/r4 de `__VecCopy`.
-- Locales con nombre para lecturas de miembros (`hoist.py`, `hoist2.py`), `const` de nivel superior en
-  parametros por valor (`bvconst.py`).
-- Huecos de pila en orden inverso: el codigo estaba en un inline (sus temporales van debajo). Casos resueltos:
-  `EffOrigin_unk` (bloque pos/rot/color + `fn_8023A8B4`, `effz.py`), direccion frontal (`front.py`), distancia al
-  cuadrado (`dsq.py`). `combo.py` prueba el producto de alternativas por linea sin ninja.
+- `if (a == 0 || b == 0 || c == 0) return;` = `bne X; b fin` del original en el ultimo termino.
+- Copia de struct en bloque = parametro `const T&`/`const T`.
+- Tabla estatica con init dinamico `static const`: el ultimo `stw` del `__sinit` va tras restaurar r31.
+- `__sinit` sin emparejar en `.ctors`: objeto estatico con ctor al final del fuente.
+- Floats: `x / 2.0f` frente a `x * 0.5f`; cast redundante `(float)m` cambia la asignacion de FPR (barrido
+  automatico en `/home/claude/scratch/bin/fcastg.py`, copiado a `tools/decomp/fcastg.py`); `const T& e = arr[i]`
+  da `cmpw campo, param`.
 
 ## Pendientes
 
-1. GameTask 104/133: quedan las grandes (`vf10` 12,7 KB, `fn_80371790`, `fn_803731E8`, dtor, `fn_80367A40`...)
-   y NONMATCHING casi iguales (lista en `docs/mwcc-blockers.md`, entrada s12h).
-2. Unificacion de vistas: ~100 vistas `Field_unk` locales (fichero a fichero, >8 h); `fn_8013C504`,
-   `GetState_unk`/`GetRoute_unk` duplicados en CharaTask y GameUI.
-3. Constructor de `BattleTask` (0x800F1430, 2,7 KB) sin empezar; ctor de `TacView` al 99,5%.
-4. `GameCamera_unk` 17/90: las funciones de modo chocan con el presupuesto de inlining de `fn_80392964`;
-   `fn_8039328C` escrita (89,5%, solo offsets del pool hasta escribir las cadenas anteriores).
-5. `Event/DebugInfo_unk` 2/58; `ut_TextWriterBase` (unica NW4R sin enlazar).
-6. `fn_8017C9AC` (CharaTask) a 4 lineas con inlines para el segmento y el empuje (queda r6/r7).
+1. atn/PacketPack (MP::Manager2): fn_804D25D0 (14644 bytes) tiene 84 copias detras; borradores bloqueados por los
+   registros de los bucles por los slots (fn_804DF310, fn_804DBD08, fn_804FB220, fn_804DD1A8, fn_804F1F34).
+2. Event/EventParser_unk: ANID/EFID/CAID/POID/MVID como MOID (99,5%).
+3. NewCampTask: fn_8052CA6C, NewCampView_unk fn_8052E1A0/fn_8052FA44.
+4. MP/func_enter_setting 204/206: vf0C/vf10 de PacketPackMP (copias debiles tras las de los `func_*`).
+5. GameCamera: modos de camara que inlinean fn_80392964; LastCocoonEgg: 20 funciones sin escribir (vf0C, vf10,
+   vf14, fn_804562E4...), con cuatro copias debiles pequenas detras.

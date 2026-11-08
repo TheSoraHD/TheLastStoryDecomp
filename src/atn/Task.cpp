@@ -239,16 +239,14 @@ static void fn_800D2868(Task* task) {
 }
 
 // inferred: draw of the whole tree
-// NONMATCHING: 98.83% - el original sale con bne + b (aqui beq) y registros de los niveles inlineados.
+// inferred: the `bne + b` of the exit is the `||` with return (docs/trucos-mwcc.md)
 extern "C" void fn_800D2AD8(Task* root) {
     TASK_ASSERT_VALID(root);
     if (root->m20 == 0 || (root->mFlags & 0x10)) {
-        if (!IsKilled_unk(root)) {
-            if (root->IsFlag_unk(4)) {
-                return;
-            }
-            fn_800D2C50(root);
+        if (IsKilled_unk(root) || root->IsFlag_unk(4)) {
+            return;
         }
+        fn_800D2C50(root);
     }
 }
 

@@ -609,8 +609,9 @@ atn::Vector3 LastCocoonQuadruped::fn_804687B0(int* id, int kind8, int kind4) {
     float maxDist = 0.0f;
     int found = 0;
     for (int i = 0; i < 10; i++) {
-        if (kind8 == sQuadPlaces[i].m08 && kind4 == sQuadPlaces[i].m04) {
-            RoutePlace_unk* place = FindQuadPlace_unk(sQuadPlaces[i].mId);
+        const QuadPlace_unk& e = sQuadPlaces[i];
+        if (e.m08 == kind8 && e.m04 == kind4) {
+            RoutePlace_unk* place = FindQuadPlace_unk(e.mId);
             if (place != 0) {
                 float dist = LengthSq_unk(place->mPos - center);
                 if (dist > maxDist) {

@@ -1217,13 +1217,9 @@ extern "C" int fn_80049268(AudioDevice* audio, const char* name) {
     return 0;
 }
 
-// NONMATCHING: 99.40% - forma de salto de la comprobacion del heap (bne + b en el original)
 // inferred: releases a bank; the heap is rolled back to the highest state still in use
 extern "C" void fn_8004937C(AudioDevice* audio, const char* name) {
-    if (audio->m04 == 0) {
-        return;
-    }
-    if (!audio->m300.IsValid()) {
+    if (audio->m04 == 0 || !audio->m300.IsValid()) {
         return;
     }
     if (name == 0 || strlen(name) == 0) {

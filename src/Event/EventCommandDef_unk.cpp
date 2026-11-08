@@ -3,8 +3,7 @@
 // lookups and the __sinit that hashes the names are code.
 // Generated from the DOL data by a script (see docs/batch-auto-20kb-game.md); .rodata, .data,
 // .sdata2 and their relocations are identical to the original.
-// NONMATCHING: __sinit 99.96% - only the last store (hash of dialog.text) is scheduled before the
-// `addi r11` of the epilogue instead of after it (also with other -ipa settings).
+// The command table is `const` (with it the last store of the __sinit goes after the epilogue restores).
 #include "Event/Node.h"
 
 namespace Event {
@@ -1446,7 +1445,7 @@ static ParamDef_unk sActorWindParams_unk[5] = {
     {"pow_max", fn_800DC880("pow_max"), 1, 0.0f},
 };
 
-static CommandDef_unk sCommands_unk[49] = {
+static const CommandDef_unk sCommands_unk[49] = {
     {7, "Effect play", "effect.play", fn_800DC880("effect.play", 789456), 1, 0xF, sEffectPlayParams_unk, -1, 0, 0},
     {0xF, "Animation play", "anim.play", fn_800DC880("anim.play", 789456), 1, 4, sAnimPlayParams_unk, -1, 0, 0},
     {0xA, "Message choice", "message.choice", fn_800DC880("message.choice", 789456), 1, 5, sMessageChoiceParams_unk, -1, 0, 0},
@@ -1506,7 +1505,7 @@ static int sCommandCount_unk = sizeof(sCommands_unk) / sizeof(sCommands_unk[0]);
 // NONMATCHING: 94% - the original sets the index (li r5, 0) after the address of the table, here
 // before it; fn_80008210 with the same loop matches. Tried: operands swapped, `table + i`, a
 // local count, a pointer walk, while, break + single return.
-extern "C" Event::CommandDef_unk* fn_800081C0(int id) {
+extern "C" const Event::CommandDef_unk* fn_800081C0(int id) {
     for (int i = 0; i < Event::sCommandCount_unk; i++) {
         if (id == Event::sCommands_unk[i].mId) {
             return &Event::sCommands_unk[i];

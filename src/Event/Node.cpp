@@ -147,7 +147,7 @@ void Action::fn_80538FD4(int n) {
 }
 
 int Action::fn_805391E4(unsigned int hash) {
-    CommandDef_unk* def = fn_800081C0(m0C);
+    const CommandDef_unk* def = fn_800081C0(m0C);
     // inferred: empty asserts of the release build (with them it is not inlined into its callers,
     // as in the original)
     ((void)0);
