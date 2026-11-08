@@ -511,16 +511,14 @@ void NewCampPartsBase::vf3C(int arg) {
     }
 }
 
-// NONMATCHING: 69.4% - the original copies z of each vector right after loading it (neither
-// __VecCopy nor __VecCopyZFirst)
-void NewCampPartsBase::fn_80511258(NewCampPartsEntry_unk* entry, atn::D3Anime* anime, const atn::Vector3& pos,
-                                   const atn::Vector3& scale, const char* node) {
+// inferred: vectors by value (a copy from a non-const vector stores z first)
+void NewCampPartsBase::fn_80511258(NewCampPartsEntry_unk* entry, atn::D3Anime* anime, atn::Vector3 pos,
+                                   atn::Vector3 scale, const char* node) {
     fn_80512474(entry, anime, atn::Vector3(pos), atn::Vector3(scale), node);
 }
 
-// NONMATCHING: 69.4% - see fn_80511258
 void NewCampPartsBase::fn_805112A8(NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime,
-                                   const atn::Vector3& pos, const atn::Vector3& scale, const char* node) {
+                                   atn::Vector3 pos, atn::Vector3 scale, const char* node) {
     fn_80512028(entry, anime, atn::Vector3(pos), atn::Vector3(scale), node);
 }
 

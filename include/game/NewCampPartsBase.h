@@ -199,10 +199,10 @@ public:
     void fn_80510D64(int wrap, int se); // inferred: moves the cursor up/down (m80/m84)
     void fn_80510E94(int wrap, int se); // inferred: moves the cursor left/right
     void fn_80510FB8(int wrap, int se); // inferred: moves the cursor in a grid of m8C columns
-    void fn_80511258(NewCampPartsEntry_unk* entry, atn::D3Anime* anime, const atn::Vector3& pos,
-                     const atn::Vector3& scale, const char* node);
-    void fn_805112A8(NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime, const atn::Vector3& pos,
-                     const atn::Vector3& scale, const char* node);
+    void fn_80511258(NewCampPartsEntry_unk* entry, atn::D3Anime* anime, atn::Vector3 pos,
+                     atn::Vector3 scale, const char* node);
+    void fn_805112A8(NewCampPartsEntry_unk* entry, atn::D3AnimeInstance* anime, atn::Vector3 pos,
+                     atn::Vector3 scale, const char* node);
     void fn_805118B4(atn::Task* task, const char* name, NewCampPartsEntry_unk* entry, const NewCampPartsPoint_unk& pos,
                      int b); // inferred: cursor of a model
     void fn_805119C8(atn::Task* task, const char* name, NewCampPartsEntry_unk* entry, const NewCampPartsPoint_unk& pos,
