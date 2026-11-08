@@ -28,6 +28,8 @@ struct DebugInfoTable_unk {
     DebugInfoTable_unk() : m00(0), m04(0), m14(0) {}
     void fn_80220168(const DebugInfoColumnDef_unk* defs, int count, int rows); // inferred: sets the columns
     void fn_8022051C(const DebugInfoColumn_unk& column); // inferred: adds a column of texts
+    int fn_80221CBC(const void* key); // inferred: a column with this key (m00) exists
+    int fn_802214F8(const DebugInfoColumn_unk& column); // inferred: replaces the column with the same key
     void fn_802219CC(float x, float y, float h, int arg); // inferred: draws the table
     int m00;
     int m04;
