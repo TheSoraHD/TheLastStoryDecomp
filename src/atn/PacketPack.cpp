@@ -297,6 +297,7 @@ extern "C" void fn_804D0164() {
 #include "game/SetConfig.h"
 #include "MP/MpCharaRef_unk.h"
 #include "MP/SaveLoad.h"
+#include "atn/net/Manager.h"
 
 // inferred: state of a player sent by message 0x16 (0x7C bytes); names invented
 struct PPPair_unk {
@@ -356,14 +357,22 @@ struct PPPlayer_unk {
     unsigned char m0B4[0xCC - 0xB4];
     unsigned char mAid;               // 0xCC: inferred: network id of the player
     unsigned char m0CD[0xD0 - 0xCD];
-    PPPlayerFlags_unk mFlags;         // 0xD0
-    unsigned char m0D4[0xE8 - 0xD4];
+    union {
+        PPPlayerFlags_unk mFlags;     // 0xD0
+        unsigned int mFlagWord;       // inferred: the flags as a word (cleared at once)
+    };
+    int mD4;
+    int mD8;
+    MpCharaRef_unk mDC;               // inferred: a second character reference
+    unsigned char m0E0[0xE8 - 0xE0];
     PPEquip_unk mEquips[4];           // 0xE8
 
     int mD38[5];                      // inferred: values of message 0x15
     unsigned int mD4C;                // inferred: bits 10-11 set by message 0x2E
     short mD50;
-    unsigned char m0D52[0xD58 - 0xD52];
+    unsigned char m0D52;
+    unsigned char mD53;
+    int mD54;
     int mD58;                         // inferred: score (players of equal score share a rank)
 
 };
@@ -459,7 +468,8 @@ inline void* atn::net::PacketPack::GetWorkBuffer_unk() {
     }
     return lbl_8087F600;
 }
-extern "C" void* lbl_8087F628; // inferred: atn::net::Manager instance
+// lbl_8087F628 (atn::net::Manager instance): see atn/net/Manager.h
+extern "C" void fn_804FB220(int* state, int value); // inferred: sets the state of MP::Manager2 (state at +0x4FC)
 // inferred: the network manager and the packer exist and the data of the message is ready
 #define PP_NO_DATA_UNK (lbl_8087F628 == 0 || fn_804AE3BC() == 0 || fn_804AE3BC()->GetWorkBuffer_unk() == 0)
 
@@ -584,6 +594,67 @@ extern "C" int fn_804DB408(PPManager2_unk* mgr) {
         return mgr->m564 - fn_804DB3B4(mgr);
     }
     return -1;
+}
+
+// NONMATCHING: 94.82% - the original takes the zero of the loop as a copy of the index (mr r29, r26), as fn_804DF310
+// inferred: resets the player slots in the modes 0 and 2 and ends the session (mode 3) or the match (0, 1)
+extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode) {
+    if (mode == 0 || mode == 2) {
+        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+            player->mAid = 0xFF;
+            player->mDC.fn_80501288(0);
+            player->mFlagWord = 0;
+            player->mB0 = 0;
+            player->mD38[4] = 0;
+            player->mD50 = -1;
+            player->mD4C = 0;
+            player->mD53 = 0;
+            player->mD54 = -1;
+            player->mD58 = 0;
+            player->mD8 = 0;
+            player->mD4 = 0;
+        }
+        memset(mgr->m9984, 0, 8);
+        memset(mgr->m998C, 0, 8);
+        if (mgr->mState > 10) {
+            fn_804FB220(&mgr->mState, 10);
+        }
+    }
+    if (mode == 3) {
+        return lbl_8087F628->fn_80509DA0();
+    }
+    if (!(mode != 0 && mode != 1)) {
+        return lbl_8087F628->fn_80509CAC();
+    }
+    return 1;
+}
+
+// NONMATCHING: the "," is at +0x19D of the pool of the unit (lbl_80759E48), not written yet
+// inferred: splits `text` at the commas into its 6 fields (the last one runs to the end); 0 if a comma is
+// missing. Empty fields are stored as null pointers
+extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
+    char* end;
+    char* last = text;
+    for (int i = 0; i < 6; i++) {
+        if (i == 5) {
+            end = last + strlen(last);
+        } else {
+            end = strstr(text, ",");
+            if (end == 0) {
+                return 0;
+            }
+        }
+        if (text == end) {
+            *fields = 0;
+        } else {
+            *fields = text;
+        }
+        *end = 0;
+        text = end + 1;
+        fields++;
+    }
+    return 1;
 }
 
 // inferred: the player slot of network id `aid` (slots in use only)
