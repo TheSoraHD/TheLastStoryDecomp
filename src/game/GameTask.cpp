@@ -72,6 +72,8 @@
 #include "chr/ControlBase.h"
 #include "game/ArenaTask.h"
 #include "std/vector.h"
+#include "game/BattleCharaTask.h"
+#include "game/BattleEfp_unk.h"
 // inferred: post effect manager (atn/PostFx.h, which redefines atn::IRender here)
 extern "C" void* lbl_8087EF8C;
 
@@ -250,7 +252,9 @@ struct MpSettings_unk {
     int m280; // inferred: no experience is shared at the end of a battle (GameTask fn_80374964)
     unsigned char m284[0x290 - 0x284];
     int m290; // inferred: the map name stays shown with the default camera (GameTask fn_8036CFA4)
-    unsigned char m294[0x320 - 0x294];
+    unsigned char m294[0x2BC - 0x294];
+    float m2BC; // inferred: added to the frame limit of the finish camera (GameTask fn_8036D2D0)
+    unsigned char m2C0[0x320 - 0x2C0];
     int m320; // inferred: halves the talk range (GameTask fn_8036DDD4)
     unsigned char m324[0x3DC - 0x324];
     int m3DC; // inferred: the party is healed at the end of a battle (GameTask fn_80374964)
@@ -2127,7 +2131,6 @@ void GameTask::fn_8036CA60(int warp) {
 }
 
 extern "C" void fn_800E4278(PlayerTask* player, GameTask* task); // inferred: input of the leader
-extern "C" void fn_8036D2D0(GameTask* task);
 
 // inferred: update of the field in state 0 (camera, leader input, depth of field, skip of the tutorial)
 // NONMATCHING: 98.7% - the original reloads lbl_8087EFA8 before storing the depth of field and keeps the camera
@@ -2154,7 +2157,7 @@ void GameTask::fn_8036CC90() {
     if (lbl_8087F610 != 0) {
         lbl_8087EFA8->mDof.mEnabled = 0;
     }
-    fn_8036D2D0(this);
+    fn_8036D2D0();
     if (lbl_8087F0A8->mInput.fn_801231D0(8) && lbl_8087F490->mD8C == 2) {
         lbl_8087F490->fn_803E4478();
         fn_80370320(0xAC, 0, 0);
@@ -2205,6 +2208,178 @@ void GameTask::fn_8036CFA4() {
         show = 0;
     }
     m10D8->m64->fn_804A0580(!show, &lbl_8087F8A0->mHead->mPos);
+}
+
+// inferred: finish camera of the characters of kind 0 and 2/3 (inlined in fn_8036D2D0: their temporaries
+// come after the ones of the function, as for an inline call; names invented)
+static inline void StartFinishCameraA_unk(GameTask* task, CharaTask* chara) {
+    if (chara->m55C == 6 && chara->m560 == 0x84 && task->mFinish.m00 == 0 && chara->m638 != 0) {
+        BattleEfpEntry_unk* entry = fn_800EFB78(chara->m638->mB0);
+        if (entry != 0 && entry->m34.fn_804786F8() != 0) {
+            task->mFinish.fn_80378610(2, chara, chara->mPos);
+            task->mFinish.fn_8037C690((Xsca_unk*)entry->m34.fn_804786F8(), (int)entry->m3C.fn_804786F8());
+            task->mFinish.fn_803786FC(0);
+            task->mFinish.m358 = chara->mMotion.mTracks[0].m08;
+            if (chara->mC58.mC4 != 0) {
+                task->mFinish.mTarget = chara->mC58.fn_8011BF3C(2);
+            }
+            task->mFinish.m3B4 = 1;
+            task->m56D4 = chara;
+            lbl_8087F8A0->fn_800D246C(1);
+            lbl_8087F8A0->FreezeTask();
+            EnemyManager::sInstance->fn_800D246C(1);
+            EnemyManager::sInstance->FreezeTask();
+        }
+    }
+}
+
+static inline void StartFinishCameraB_unk(GameTask* task, CharaTask* chara) {
+    if (chara->m55C == 6 && chara->m560 == 14 && task->mFinish.m00 == 0 && chara->mMotion.mTracks[0].m08 < 3.0f &&
+        chara->m638 != 0) {
+        BattleEfpEntry_unk* entry = fn_800EFB78(chara->m638->mB0);
+        if (entry != 0 && entry->m34.fn_804786F8() != 0) {
+            task->mFinish.fn_80378610(3, chara, chara->mPos);
+            task->mFinish.fn_8037C690((Xsca_unk*)entry->m34.fn_804786F8(), (int)entry->m3C.fn_804786F8());
+            task->mFinish.fn_803786FC(0);
+            task->mFinish.m358 = chara->mMotion.mTracks[0].m08;
+            if (chara->mControl.get() != 0) {
+                task->mFinish.mTarget = chara->mControl->vf4C();
+            }
+            if (chara->mC58.mC4 != 0) {
+                task->mFinish.m3AC = chara->mC58.mC4->vfDC();
+            }
+            task->mFinish.m3B4 = 1;
+            task->m56D4 = chara;
+            lbl_8087F8A0->fn_800D246C(1);
+            lbl_8087F8A0->FreezeTask();
+            EnemyManager::sInstance->fn_800D246C(1);
+            EnemyManager::sInstance->FreezeTask();
+        }
+    }
+}
+
+void GameTask::fn_8036D2D0() {
+    if (m56D4 != 0) {
+        if (mFinish.m00 != 0 && (mFinish.m04 == 2 || mFinish.m04 == 3)) {
+            switch (fn_80219558(m56D4->m50)) {
+            case 0:
+                ((BattleCharaTask*)m56D4)->fn_800E2FE0();
+                break;
+            case 2:
+            case 3:
+                ((BattleCharaTask*)m56D4)->fn_800E2FE0();
+                if (mFinish.m358 >= 61) {
+                    EnemyManager::sInstance->MeltTask();
+                }
+                if (m56D4->m55C != 6 || m56D4->m560 != 14 || mFinish.m00 == 0) {
+                    if (mFinish.m00 != 0) {
+                        mFinish.fn_80378CCC();
+                    }
+                    m56D4 = 0;
+                }
+                break;
+            case 4:
+            case 6:
+                if (m56D4->m55C == 6 && !(m56D4->m560 != 0x1E && m56D4->m560 != 0x1F)) {
+                    ((BattleCharaTask*)m56D4)->fn_800E2FE0();
+                }
+                break;
+            case 1:
+            case 5:
+                ((BattleCharaTask*)m56D4)->fn_800E2FE0();
+                if (m56D4->m55C != 6 || (m56D4->m560 != 0x1E && m56D4->m560 != 0x1F)) {
+                    mFinish.fn_80378CCC();
+                    m56D4 = 0;
+                }
+                break;
+            }
+        } else {
+            m56D4 = 0;
+        }
+        if (m56D4 == 0) {
+            lbl_8087F8A0->fn_800D246C(0);
+            lbl_8087F8A0->MeltTask();
+            EnemyManager::sInstance->fn_800D246C(0);
+            EnemyManager::sInstance->MeltTask();
+            NpcManager::sInstance->MeltTask();
+            lbl_8087F9E8->m2928 = 0;
+            m10D8->m134->fn_800D246C(0);
+        }
+        return;
+    }
+    if (--m56D0 > 0) {
+        return;
+    }
+    CharaTask* chara = m56D8;
+    if (chara == 0) {
+        return;
+    }
+    int kind = fn_80219558(chara->m50);
+    switch (kind) {
+    case 0:
+        StartFinishCameraA_unk(this, chara);
+        break;
+    case 2:
+    case 3:
+        StartFinishCameraB_unk(this, chara);
+        break;
+    case 1:
+    case 4:
+    case 5:
+    case 6:
+        if (chara->m55C == 6 && chara->m560 == 0x1E && mFinish.m00 == 0 &&
+            chara->mMotion.mTracks[0].m08 < 3.0f + lbl_8087F0A8->m2BC && chara->m638 != 0) {
+            BattleEfpEntry_unk* entry = fn_800EFB78(chara->m638->mB0);
+            if (entry != 0 && entry->m34.fn_804786F8() != 0) {
+                mFinish.fn_80378610(2, chara, chara->mPos);
+                mFinish.fn_8037C690((Xsca_unk*)entry->m34.fn_804786F8(), (int)entry->m3C.fn_804786F8());
+                mFinish.fn_803786FC(0);
+                mFinish.m358 = chara->mMotion.mTracks[0].m08;
+                if (chara->mC58.mC4 != 0 && chara->mType != 0) {
+                    mFinish.mTarget = chara->mC58.mC4->vfD0(chara->mRot.y);
+                    if (entry->m3C.fn_804786F8() != 0) {
+                        mFinish.m3AC = chara->mC58.mC4->vfD4();
+                        mFinish.m3B0 = 0.4f * (chara->mPos - chara->mC58.mC4->mPos).Length_unk();
+                    }
+                } else {
+                    mFinish.mTarget = chara->mF6C;
+                    if (entry->m3C.fn_804786F8() != 0) {
+                        mFinish.m3B0 = 0.4f * (chara->mPos - chara->mF6C).Length_unk();
+                    }
+                }
+                if (kind == 1 || kind == 5) {
+                    mFinish.m3B4 = 0;
+                } else {
+                    mFinish.m3B4 = 1;
+                }
+                m56D4 = chara;
+                lbl_8087F8A0->fn_800D246C(1);
+                if (kind == 4 || kind == 6) {
+                    lbl_8087F8A0->FreezeTask();
+                }
+                EnemyManager::sInstance->fn_800D246C(1);
+            }
+        }
+        break;
+    }
+    if (m56D4 != 0) {
+        if (lbl_8087F490 != 0) {
+            lbl_8087F490->fn_803E598C(2, 0, m56D4->m638->m04);
+        }
+        NpcManager::sInstance->FreezeTask();
+        lbl_8087F9E8->m2928 = 1;
+        m10D8->m134->fn_800D246C(1);
+        PlayerTask* leader = lbl_8087F8A0->mHead;
+        if (leader != 0) {
+            if (leader->HasC48_unk()) {
+                leader->fn_80154344();
+            }
+            if (leader->mFlag6) {
+                leader->fn_80155DAC(0);
+            }
+        }
+    }
+    m56D8 = 0;
 }
 
 int GameTask::fn_8036DAA8(CharaTask* chara) {

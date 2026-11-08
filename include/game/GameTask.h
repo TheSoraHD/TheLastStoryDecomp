@@ -146,6 +146,7 @@ public:
     int fn_8036E170();
     void fn_8036E494();
     void fn_8036CFA4();
+    void fn_8036D2D0(); // inferred: starts and ends the finish camera of the special attacks
     void fn_8036CC90();
     void fn_80373AE8();
     void fn_803737C0();
