@@ -815,7 +815,8 @@ void Em206CocoonMp::fn_802BE2A0() {
         if (mMotion.mTracks[0].m08 >= 35.0f && mMotion.mTracks[0].m08 <= 46.0f) {
             HitInfo_unk* data = fn_80219E6C(0x5BE);
             fn_80144710();
-            fn_800F8C6C(lbl_8087F048, 0, 0, this, data, m590, 30, -1, 0.0f);
+            int id = m590;
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, data, id, 30, -1, 0.0f);
         }
         fn_802BC4EC(fwd.ToRotation_unk(), 1.0f, 1.5f * (3.75f * k));
     }
