@@ -1131,18 +1131,11 @@ void Em202ForestSpider::vf160() {
     }
 }
 
-void Em202ForestSpider::vf16C() {
-    fn_8027688C();
-    m58C = 18;
-    fn_8016E970(3);
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.mTracks[0].m0C = 0.0f;
-    mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
-    fn_80232B7C(this, 200);
-    Color4f_unk color;
-    atn::Vector3 rot;
+// inferred: effect `efp` on the model at its origin (as PlayEffectM_unk of game/em005_doppel_ganger.cpp)
+inline void PlayEffectOrigin_unk(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model) {
     atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -1153,7 +1146,19 @@ void Em202ForestSpider::vf16C() {
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(lbl_8087F3C0, &m192C, &mMotion, 0, pos, rot, color, -1, -1, 1, 1.0f);
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+void Em202ForestSpider::vf16C() {
+    fn_8027688C();
+    m58C = 18;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 0.0f;
+    mMotion.fn_80097C08(0, 2, 1, 1, 1, 0.0f, 0.1f);
+    fn_80232B7C(this, 200);
+    PlayEffectOrigin_unk(lbl_8087F3C0, &m192C, &mMotion);
     Effect_unk* mgr = lbl_8087F048;
     atn::Vector3 p = fn_801781B0();
     fn_80108F38(mgr, &p, 0x80);
