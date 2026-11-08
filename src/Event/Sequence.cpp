@@ -994,13 +994,14 @@ void Sequence::fn_80541588(const wchar_t* text, float x, float y, int show, int 
 }
 
 // inferred: event position to world
-atn::Vector3 Sequence::fn_80541BD8(const atn::Vector3& pos) {
+atn::Vector3 Sequence::fn_80541BD8(const atn::Vector3& pos) const {
     atn::Vector3 v = pos;
     v.x -= m9C.x;
     v.y -= m9C.y;
     v.z -= m9C.z;
+    float yaw = mB4;
     Mtx m;
-    PSMTXRotRad(m, 'y', mB4);
+    PSMTXRotRad(m, 'y', yaw);
     PSMTXMultVec(m, &v, &v);
     v.x += mA8.x;
     v.y += mA8.y;
@@ -1009,7 +1010,7 @@ atn::Vector3 Sequence::fn_80541BD8(const atn::Vector3& pos) {
 }
 
 // inferred: rotates `v` by the yaw of the event
-atn::Vector3 Sequence::fn_80541C94(const atn::Vector3& v) {
+atn::Vector3 Sequence::fn_80541C94(const atn::Vector3& v) const {
     float yaw = mB4;
     atn::Vector3 r = v;
     Mtx m;

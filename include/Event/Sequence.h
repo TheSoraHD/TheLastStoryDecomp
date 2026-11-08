@@ -293,8 +293,8 @@ public:
                      float start, float length, float speed0, float speed1);
     void fn_80541588(const wchar_t* text, float x, float y, int show, int align, unsigned int color,
                      unsigned int flags, float alpha);
-    atn::Vector3 fn_80541BD8(const atn::Vector3& pos);
-    atn::Vector3 fn_80541C94(const atn::Vector3& v);
+    atn::Vector3 fn_80541BD8(const atn::Vector3& pos) const;
+    atn::Vector3 fn_80541C94(const atn::Vector3& v) const;
     float fn_80541CF0(float yaw);
     int fn_80541CFC(int kind, int num);
     void fn_80541F18();
