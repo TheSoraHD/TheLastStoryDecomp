@@ -1275,11 +1275,10 @@ struct LessU_unk {
     bool operator()(const unsigned int& a, const unsigned int& b) const { return a < b; }
 };
 
-// NONMATCHING: 73% - the original computes the two comparisons with subf/orc instead of xor/cntlzw
 template <class T, class C>
 void Median3_unk(T* a, T* b, T* c, C comp) {
-    bool ca = comp(*c, *a);
-    bool bc = comp(*b, *c);
+    bool ca = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
     if (ca && bc) {
         return;
     }
@@ -1297,35 +1296,34 @@ void Median3_unk(T* a, T* b, T* c, C comp) {
     }
 }
 
-template <class T, class C>
-inline T* MinElement_unk(T* first, T* last, C comp) {
-    T* m = first;
+template <class T, class Compare>
+inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
+    T* result = first;
     if (first != last) {
-        while (++first != last) {
-            if (comp(*first, *m)) {
-                m = first;
+        for (it = first + 1; it != last; it++) {
+            if (comp(*it, *result)) {
+                result = it;
             }
         }
     }
-    return m;
+    return result;
 }
 
-// NONMATCHING: 90% - registers and the comparisons of the partition
-template <class T, class C>
-void Sort_unk(T* first, T* last, C comp) {
-    for (;;) {
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp) {
+    while (true) {
         int n = last - first;
         if (n <= 1) {
             return;
         }
         if (n <= 20) {
-            if (first == last) {
-                return;
-            }
-            for (; first != last - 1; first++) {
-                T* m = MinElement_unk(first, last, comp);
-                if (m != first) {
-                    Swap_unk(*m, *first);
+            if (first != last) {
+                for (; first != last - 1; first++) {
+                    T* min = MinElement_unk(first, last, comp);
+                    if (min != first) {
+                        Swap_unk(*min, *first);
+                    }
                 }
             }
             return;
@@ -1334,51 +1332,55 @@ void Sort_unk(T* first, T* last, C comp) {
         if (++lbl_8087D7A8 >= 5) {
             lbl_8087D7A8 = -4;
         }
-        T* b = first + (n * 3 / 4 + lbl_8087D7A8 % 5);
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + lbl_8087D7A8 % 5);
         if (++lbl_8087D7A8 >= 5) {
             lbl_8087D7A8 = -4;
         }
-        T* p = last - 1;
-        Median3_unk(a, b, p, comp);
-        T* i = first;
-        T* j = p;
-        while (comp(*i, *p)) {
-            ++i;
+        T* i;
+        T* j;
+        T* pivot = last - 1;
+        Median3_unk(a, b, pivot, comp);
+        i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            i++;
         }
-        while (--j != i && !comp(*j, *p)) {
+        while (i != --j && !comp(*j, *pivot)) {
         }
         if (i < j) {
             Swap_unk(*i, *j);
-            ++i;
-            for (;;) {
-                while (comp(*i, *p)) {
-                    ++i;
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
                 }
-                while (!comp(*--j, *p)) {
+                while (!comp(*--j, *pivot)) {
                 }
                 if (i >= j) {
                     break;
                 }
                 Swap_unk(*i, *j);
-                ++i;
+                i++;
             }
         }
         if (i == first) {
-            Swap_unk(*i, *p);
-            ++i;
-            j = last - 1;
-            if (!comp(*first, *(last - 1))) {
+            T* back = last - 1;
+            Swap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
                 while (i != last && !comp(*first, *i)) {
-                    ++i;
+                    i++;
                 }
-                if (i < j) {
-                    Swap_unk(*i, *j);
+                if (i < back) {
+                    Swap_unk(*i, *back);
                 }
             }
+            j = back;
             if (i < j) {
-                for (;;) {
+                while (true) {
                     while (!comp(*first, *i)) {
-                        ++i;
+                        i++;
                     }
                     while (comp(*first, *--j)) {
                     }
@@ -1386,21 +1388,20 @@ void Sort_unk(T* first, T* last, C comp) {
                         break;
                     }
                     Swap_unk(*i, *j);
-                    ++i;
+                    i++;
                 }
             }
             first = i;
-            continue;
-        }
-        if (i - first < last - i) {
-            Sort_unk(first, i, comp);
+        } else if (i - first < last - i) {
+            Sort_unk<T, Compare>(first, i, comp);
             first = i;
         } else {
-            Sort_unk(i, last, comp);
+            Sort_unk<T, Compare>(i, last, comp);
             last = i;
         }
     }
 }
+
 
 namespace atn {
 
