@@ -2759,11 +2759,6 @@ void GameTask::fn_8036E494() {
     }
     m558C.mPtr->fn_8056B3D4();
     NewCampOpen_unk open;
-    open.mMenu = 0;
-    open.m04 = -1;
-    open.m08 = -1;
-    open.m0C = -1;
-    open.m10 = -1;
     if (m5688 >= 0) {
         open.mMenu = m5688;
     }

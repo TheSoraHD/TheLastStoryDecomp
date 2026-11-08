@@ -28,6 +28,7 @@
 #include "atn/RenderManager.h"
 #include "atn/RenderSetting_unk.h"
 #include "atn/LH_Xsca.h"
+#include "atn/GraphicsDevice.h"
 #include "game/NewCampPartsBase.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -53,7 +54,76 @@ extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
+// inferred: 0x64-byte record of the camp (list lbl_807C912C, read by vf0C); name invented
+struct NewCampElem_unk {
+    unsigned char m00[0x64];
+};
+static std::vector<NewCampElem_unk> sElems_unk; // inferred: cleared by the constructor
 static NewCampPair_unk sNullPair; // inferred: returned by fn_80530384 for a missing id
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
+inline atn::GraphicsDevice_unk* GetGraphics_unk() {
+    return lbl_8087EEE0;
+}
+// inferred: setters (weak copies; C names: the method names are unknown)
+extern "C" inline void fn_8052ACC8(atn::Camera* camera, float aspect) {
+    camera->mAspect = aspect;
+}
+extern "C" inline void fn_8052ACD0(MapTask* map, int type) {
+    map->mType = type;
+}
+extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy);
+
+extern "C" atn::Task* fn_8052A888(atn::Task* parent) {
+    if (parent != 0) {
+        return new ((MemoryTag)1, "", "", 0) NewCampTask(parent);
+    }
+    return 0;
+}
+
+NewCampTask::NewCampTask(atn::Task* parent)
+    : atn::Task(parent), m5C(0), m60(0), m454(0), m458(0.0f), m45C(3.0f), m464(0), m11F0(0), m11F4(0), m11F8(0),
+      m11FC(40.0f, 0.0f, 210.0f), m1208(40.0f, 0.0f, -20.0f), m1214(atn::DegToRad_unk(55.0f)), m121C(0), m1220(0),
+      m12AC(0), m12D0(0.0f), m12D4(lbl_807C7030), m12E0(lbl_807C7030), m12EC(lbl_807C7030), m12F8(lbl_807C7030),
+      m1304(1), m1308(0), m133C(0), m1350(0), m1354(0), m1358(0), m135C(60), m1364(0), m1368(3.0f), m136C(0),
+      m1370(0.0f, 0.0f, 80.0f) {
+    m134C.fn_80470364("/preload/camp.pk", 0, 0, 1);
+    sElems_unk.clear();
+    m1344.vf0C("database/camp/camp_font_conf.csv");
+    fn_8052ACC8(&mCamera, fn_80076FF8(GetGraphics_unk()));
+    if (fn_80076FF8(GetGraphics_unk()) < 1.5f) {
+        m136C = 1;
+        fn_8052ACC8(&mCamera, 1.3333334f);
+    }
+    atn::Vector3 offset(m136C != 0 ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f));
+    mCamera.SetPosition(m11FC + offset);
+    mCamera.SetTarget_unk(m1208 + offset);
+    fn_8037F688(&mCamera, m1214);
+    m460 = MapTask::SetTask(this, "database/map/ui_campmenu.map");
+    fn_8052ACD0(m460, 6);
+    m460->fn_800D246C(1);
+    mTop = NewCampPartsTop::fn_80529118(this);
+    mTop->fn_800D246C(1);
+    mStatus = NewCampPartsStatus::fn_805268C8(this);
+    mStatus->fn_800D246C(1);
+    mMapSelect = NewCampPartsMapSelect::fn_8051B920(this);
+    mMapSelect->fn_800D246C(1);
+    mItem = NewCampPartsItem::fn_805169F8(this);
+    mItem->fn_800D246C(1);
+    mOption = NewCampPartsOption::fn_80521E1C(this);
+    mOption->fn_800D246C(1);
+    mProtector = CosEditProtector::fn_801CFD68(this);
+    mProtector->fn_800D246C(1);
+    mGmk = NewCampPartsGmk::fn_805128C0(this);
+    mGmk->fn_800D246C(1);
+    mHint = NewCampPartsHint::fn_80514720(this);
+    mHint->fn_800D246C(1);
+    m1334.vf0C("database/camp/camp_config.csv");
+    m64 = atn::FadeColor::Create(this, 0, 0, 0);
+    m1360 = -1;
+    m12B0.Clear_unk();
+}
 
 // inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
 static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y, int z) {
@@ -159,14 +229,6 @@ public:
 };
 } // namespace atn
 extern "C" atn::PostFxManager* fn_804ABF20(); // inferred: post effect manager
-
-// inferred: objects of the camp at 0x468 and 0xB1C (classes unknown; reset when the camp opens)
-struct NewCamp468_unk {
-    void fn_8052FA44();
-};
-struct NewCampB1C_unk {
-    void fn_8052E1A0();
-};
 
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings (atn::RenderConfig)
@@ -330,8 +392,8 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     mGmk->vf24();
     mHint->vf24();
     m1308 = 0;
-    ((NewCampB1C_unk*)&m468[0xB1C - 0x468])->fn_8052E1A0();
-    ((NewCamp468_unk*)m468)->fn_8052FA44();
+    mB1C.fn_8052E1A0();
+    m468.fn_8052FA44();
     atn::Vector3 ofs(m136C != 0 ? m1370 : atn::Vector3(0.0f, 0.0f, 0.0f));
     XsfCurveSet_unk* curves = ((Xsca_unk*)fn_8052C680((NewCampPartsBase*)mStatus))->fn_805BDCBC(0);
     m11FC = fn_8052C688(curves, 0.0f);
@@ -341,9 +403,9 @@ void NewCampTask::fn_8052C108(NewCampOpen_unk* open) {
     fn_8037F688(&mCamera, m1214);
     mCamera.fn_8004B378();
     fn_8008B964()->SetCamera_unk(mCamera);
-    fn_80392A04((atn::Camera*)m260, &mCamera);
+    fn_80392A04(&m260, &mCamera);
     fn_8052C6C0(fn_8008B964());
-    fn_8052C6CC(fn_8008B964(), (atn::Camera*)m260);
+    fn_8052C6CC(fn_8008B964(), &m260);
     ((DamageEffectParam_unk*)&m130C[0x1310 - 0x130C])->mEnabled = 1;
     fn_802F0990()->SetDamage_unk(*(DamageEffectParam_unk*)&m130C[0x1310 - 0x130C]);
     if (mOpen.mMenu != 0) {
