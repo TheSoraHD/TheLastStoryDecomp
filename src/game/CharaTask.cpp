@@ -6422,12 +6422,10 @@ void CharaTask::fn_8014F2B4(int a, int b, int index) {
     }
 }
 
-// NONMATCHING: 90.1% - the original keeps the index in r31 and recomputes &mData[i] for the
-// erase ((i * 4) / 4); ours keeps the element address (lwzu) from the delete.
 void CharaTask::fn_8014F4FC(int a, int b) {
     for (unsigned int i = 0; i < mParts.mCount; i++) {
         if (a == mParts.mData[i]->m04 && b == mParts.mData[i]->m08) {
-            delete mParts.mData[i];
+            delete mParts[i];
             mParts.erase(&mParts.mData[i]);
             return;
         }

@@ -858,13 +858,12 @@ atn::Vector3 Em309GhoulSimple::vf64(int center) {
 
 // inferred: the head (second damage sphere) can be thrust at while the ghoul is down (m55C 2, not in state
 // 12): point 0.8 of the sphere radius in front of it
-// NONMATCHING: 99.52% - r4/r5 of the center address and of the sum temporary (__VecCopy family); ~10 variants
 int Em309GhoulSimple::vfB0(atn::Vector3* out) {
     if (m55C != 2 || m58C == 12 || m624.mSize < 2) {
         return 0;
     }
     float r = mColli.m54;
-    *out = m624.mData[1].m04.mCenter + GhoulFront_unk(mRot.y) * r * 0.8f;
+    *out = m624[1].m04.mCenter + GhoulFront_unk(mRot.y) * r * 0.8f;
     return 1;
 }
 

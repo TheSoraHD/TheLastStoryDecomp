@@ -590,18 +590,17 @@ void Em202Spider::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.31% - r3/r4 of the copy of the center (temporary of mPos + m5A4, __VecCopy family)
 void Em202Spider::vf54() {
     if (m624.mSize != 0) {
         if (m58C == 5) {
             atn::Vector3 off = FrontDir_unk(this) * 20.0f;
-            m624.mData[0].m04.mRadius = 1.5f * m5B0;
-            m624.mData[0].m04.mCenter = mPos + m5A4 + off;
-            m624.mData[0].m04.mCenter.y += 0.5f * m624.mData[0].m04.mRadius;
+            m624[0].m04.mRadius = 1.5f * m5B0;
+            m624[0].m04.mCenter = mPos + m5A4 + off;
+            m624[0].m04.mCenter.y += 0.5f * m624[0].m04.mRadius;
         } else {
-            m624.mData[0].m04.mRadius = 1.5f * m5B0;
-            m624.mData[0].m04.mCenter = mPos + m5A4;
-            m624.mData[0].m04.mCenter.y += 0.5f * m624.mData[0].m04.mRadius;
+            m624[0].m04.mRadius = 1.5f * m5B0;
+            m624[0].m04.mCenter = mPos + m5A4;
+            m624[0].m04.mCenter.y += 0.5f * m624[0].m04.mRadius;
         }
     }
 }

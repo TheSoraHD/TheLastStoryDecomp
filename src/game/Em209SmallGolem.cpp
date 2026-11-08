@@ -569,12 +569,11 @@ void Em209SmallGolem::vf50() {
     mFlagB29 = 1;
 }
 
-// NONMATCHING: 98.87% - r4/r5 of the copy of the center (temporary of mPos + m5A4, __VecCopy family)
 void Em209SmallGolem::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = m5B0;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
+        m624[0].m04.mRadius = m5B0;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
     }
 }
 

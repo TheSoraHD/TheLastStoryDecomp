@@ -1264,19 +1264,18 @@ void Em206EggMonster::vf50() {
     mFlagB29 = 0;
 }
 
-// NONMATCHING: 96% - registers of the Vector3 copies (docs/mwcc-blockers.md, 3); pool offsets wait for vf50
 void Em206EggMonster::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
-        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
-        m624.mData[1].m04.mCenter.y -= 3.0f;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
+        m624[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("head")) + m5A4;
+        m624[1].m04.mCenter.y -= 3.0f;
         atn::Vector3 ofs(0.0f, 0.0f, 7.0f);
         atn::Matrix3x4 m;
         m.fn_8013A13C(mRot.y);
         PSMTXMultVec(m.m, &ofs, &ofs);
-        m624.mData[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
-        m624.mData[2].m04.mCenter += ofs;
+        m624[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")) + m5A4;
+        m624[2].m04.mCenter += ofs;
     }
 }
 

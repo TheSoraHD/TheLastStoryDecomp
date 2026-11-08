@@ -880,13 +880,12 @@ void Em204Mulue::fn_802A7970() {
     }
 }
 
-// NONMATCHING: 98.93% - r3/r4 of the copy of the center (__VecCopy of a temporary, docs/mwcc-blockers.md)
 void Em204Mulue::vf54() {
     if (m624.mSize != 0) {
         atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-        m624.mData[0].m04.mRadius = 1.5f * m5B0;
-        m624.mData[0].m04.mCenter = pos + m5A4;
-        m624.mData[0].m04.mCenter.y = mPos.y + m624.mData[0].m04.mRadius;
+        m624[0].m04.mRadius = 1.5f * m5B0;
+        m624[0].m04.mCenter = pos + m5A4;
+        m624[0].m04.mCenter.y = mPos.y + m624[0].m04.mRadius;
     }
 }
 

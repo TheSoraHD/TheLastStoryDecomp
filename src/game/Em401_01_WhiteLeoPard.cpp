@@ -865,16 +865,15 @@ void Em401_01_WhiteLeoPard::vf50() {
     mFlagB29 = 0;
 }
 
-// NONMATCHING: 99.64% - r6/r7 of the copy of the first center (__VecCopy family); ~3 variants
 // inferred: places the two damage spheres on the body and on the "tale" node (update of m624)
 void Em401_01_WhiteLeoPard::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = 5.0f;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
-        m624.mData[1].m04.mRadius = 5.0f;
-        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tale"));
-        m624.mData[1].m04.mCenter.y -= 5.0f;
+        m624[0].m04.mRadius = 5.0f;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
+        m624[1].m04.mRadius = 5.0f;
+        m624[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("tale"));
+        m624[1].m04.mCenter.y -= 5.0f;
     }
 }
 

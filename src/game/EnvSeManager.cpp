@@ -701,7 +701,6 @@ void EnvSeManager::fn_80360848(int on, unsigned int bits, int fade) {
 
 void EnvSeManager::fn_803608A4() {}
 
-// NONMATCHING: 98.9% - registers of the search loop (record pointer and offset)
 void EnvSeManager::fn_803608A8() {
     if (lbl_8087F430 != 0) {
         int id = 0;
@@ -710,7 +709,7 @@ void EnvSeManager::fn_803608A8() {
         }
         if (id == 0) {
             for (unsigned int i = 0; i < (unsigned int)mRecords.mSize; i++) {
-                EnvSeRecord_unk* r = &mRecords.mData[i];
+                EnvSeRecord_unk* r = &mRecords[i];
                 if (r->mData.mType == 4 && r->mSound.mPtr != 0 && r->mTask != 0 && r->mTask->m58 != 0) {
                     id = fn_800CB6F8(&r->mSound);
                     break;

@@ -554,22 +554,20 @@ void Em309Ghoul::vf50() {
     mFlagB29 = 0;
 }
 
-// NONMATCHING: 99.57% - r6/r7 of the sum temporaries and the place of the "spine1" address load (scheduled
-// before the first copy in the original); 6 variants (named temporaries, helpers, node pointer apart)
 void Em309Ghoul::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = 10.0f;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += m624.mData[0].m04.mRadius;
-        m624.mData[1].m04.mRadius = m16EC;
-        m624.mData[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-        m624.mData[1].m04.mCenter.y += m16F0;
-        m624.mData[2].m04.mRadius = 0.7f * m16EC;
-        m624.mData[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
-        m624.mData[2].m04.mCenter.y += 0.5f * m16F0;
+        m624[0].m04.mRadius = 10.0f;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += m624[0].m04.mRadius;
+        m624[1].m04.mRadius = m16EC;
+        m624[1].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        m624[1].m04.mCenter.y += m16F0;
+        m624[2].m04.mRadius = 0.7f * m16EC;
+        m624[2].m04.mCenter = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        m624[2].m04.mCenter.y += 0.5f * m16F0;
     }
     if (m1690 != 0) {
-        lbl_8087EEB0->fn_80063D3C(m624.mData[1].m04.mCenter, 20.0f, 1000.0f, 0xFFFF00FF);
+        lbl_8087EEB0->fn_80063D3C(m624[1].m04.mCenter, 20.0f, 1000.0f, 0xFFFF00FF);
     }
 }
 

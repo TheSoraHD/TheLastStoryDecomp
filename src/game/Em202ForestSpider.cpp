@@ -525,9 +525,9 @@ void Em202ForestSpider::vf7C(int arg) {
 
 void Em202ForestSpider::vf54() {
     if (m624.mSize != 0) {
-        m624.mData[0].m04.mRadius = 1.5f * m5B0;
-        m624.mData[0].m04.mCenter = mPos + m5A4;
-        m624.mData[0].m04.mCenter.y += 0.5f * m624.mData[0].m04.mRadius;
+        m624[0].m04.mRadius = 1.5f * m5B0;
+        m624[0].m04.mCenter = mPos + m5A4;
+        m624[0].m04.mCenter.y += 0.5f * m624[0].m04.mRadius;
     }
 }
 
