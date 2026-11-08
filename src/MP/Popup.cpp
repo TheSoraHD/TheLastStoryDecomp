@@ -5,6 +5,7 @@
 #include "game/GimmickCommon.h"
 #include "db/WeaponParam_unk.h"
 #include "math/Vec.h"
+#include "gmk/ItemSlotAnime.h"
 #include <string.h>
 
 // inferred: creates a d2anime task playing `path` (returns the task)
@@ -91,7 +92,6 @@ extern "C" PopupPlayer_unk* fn_804EB870(PopupSession_unk* s); // inferred: local
 extern "C" atn::Task* lbl_8087F430;                          // inferred: field task
 extern "C" float PSVECSquareMag(const atn::Vector3* v);       // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-extern "C" int fn_80450A5C(void* slot);                     // inferred: item code of an ItemSlotAnime
 extern "C" const wchar_t* fn_80116FC0(int a, int id);       // inferred: system text
 extern "C" void fn_8021C6A4(wchar_t* out, const void* param); // inferred: text of the item type
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
@@ -120,6 +120,9 @@ struct PopupItem_unk {
     unsigned char m000[0x19C];
     unsigned char mSlot[0x08];
     atn::Vector3 mPos; // 0x1A4
+
+    // inferred: the item slot animation starts at 0x19C (its position is mPos)
+    gmk::ItemSlotAnime* GetSlot_unk() { return (gmk::ItemSlotAnime*)mSlot; }
 };
 
 inline void SetPaneAlpha_unk(void* layout, const char* name, float value) {
@@ -139,10 +142,7 @@ inline void SetSlot_unk(PopupSlot_unk* p, GimmickCommon* g, float dist, atn::Vec
 
 // inferred: places the item popups over the nearest items in front of the player and shows the
 // attack/magic difference with the equipped weapon
-// NONMATCHING: 99.8% - only the flag test of the field task (beq body / b epilogue in the original,
-// a single bne here). Tried (close-units qD + close-near-units, ~15 attempts): separate guards,
-// the body in an if, the guard as an inline bool, `a != 0 && flag` with the body inside, the flag
-// test and body as an inline member (stack grows).
+// inferred: the beq body / b epilogue of the flag test of the field task is the `||` of the early return
 void Popup::vf10() {
     PopupSession_unk* session = lbl_8087F610;
     if (session == 0 || !session->IsPlaying_unk()) {
@@ -154,10 +154,7 @@ void Popup::vf10() {
     if (fn_804EB870(lbl_8087F610)->m00 == 0) {
         return;
     }
-    if (lbl_8087F430 == 0) {
-        return;
-    }
-    if (!lbl_8087F430->IsFlag_unk(2)) {
+    if (lbl_8087F430 == 0 || !lbl_8087F430->IsFlag_unk(2)) {
         return;
     }
     {
@@ -166,7 +163,7 @@ void Popup::vf10() {
         if (g->m50 != 0x12 || g->vf60() == 0) {
             continue;
         }
-        if (fn_80206C50(fn_80450A5C(((PopupItem_unk*)g)->mSlot)) == 0) {
+        if (fn_80206C50(((PopupItem_unk*)g)->GetSlot_unk()->fn_80450A5C()) == 0) {
             continue;
         }
         atn::Vector3 dir = g->m6C - chara->mPos;
@@ -215,7 +212,7 @@ void Popup::vf10() {
         if (chara->m678 != 0) {
             own = chara->m678->m274;
         }
-        WeaponParamEntry_unk* item = fn_80206C50(fn_80450A5C(((PopupItem_unk*)p->mTarget)->mSlot));
+        WeaponParamEntry_unk* item = fn_80206C50(((PopupItem_unk*)p->mTarget)->GetSlot_unk()->fn_80450A5C());
         if (own == 0 || item == 0) {
             continue;
         }
