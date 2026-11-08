@@ -297,6 +297,34 @@ extern "C" void fn_804D0164() {
 #include "game/SetConfig.h"
 #include "MP/MpCharaRef_unk.h"
 
+// inferred: state of a player sent by message 0x16 (0x7C bytes); names invented
+struct PPPair_unk {
+    int m00;
+    int m04;
+};
+struct PPPlayerState_unk {
+    int m00;
+    int m04;
+    float m08;
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    int m20;
+    PPPair_unk m24;
+    PPPair_unk m2C;
+    PPPair_unk m34;
+    PPPair_unk m3C;
+    PPPair_unk m44;
+    PPPair_unk m4C;
+    PPPair_unk m54;
+    PPPair_unk m5C;
+    PPPair_unk m64;
+    PPPair_unk m6C;
+    PPPair_unk m74;
+};
+
 // inferred: flags of a player slot (MSB first); names invented
 struct PPPlayerFlags_unk {
     unsigned int mActive : 1; // inferred: slot in use
@@ -312,7 +340,9 @@ struct PPPlayerFlags_unk {
 // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
 struct PPPlayer_unk {
     MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
-    unsigned char m004[0xCC - 0x4];
+    unsigned char m004[0x34 - 0x4];
+    PPPlayerState_unk m34;            // inferred: state sent by message 0x16
+    unsigned char m0B0[0xCC - 0xB0];
     unsigned char mAid;               // 0xCC: inferred: network id of the player
     unsigned char m0CD[0xD0 - 0xCD];
     PPPlayerFlags_unk mFlags;         // 0xD0
@@ -409,11 +439,26 @@ void fn_8050A990(unsigned int aid, const unsigned char* data);
 } // namespace net
 } // namespace atn
 
-// inferred: atn::net::Manager (lbl_8087F628), only the flags used here; names invented
+extern "C" unsigned char DWC_GetMyAID();
+extern "C" int fn_806A8E40();
+// inferred: atn::net::Manager (lbl_8087F628), only the members used here (see include/atn/net/Manager.h);
+// names invented
 struct PPNet_unk {
     inline atn::net::PacketPack* GetPack_unk();
+    // inferred: own aid (as atn::net::Manager::GetMyAid_unk)
+    unsigned char GetMyAid_unk() {
+        if (mC215 == 0) {
+            return mDisabled ? 0 : DWC_GetMyAID();
+        } else {
+            return mDisabled ? 0 : fn_806A8E40();
+        }
+    }
 
-    unsigned char m000[0xC2C];
+    unsigned char m000[0x1F8];
+    unsigned int m1F8_31_20 : 12;
+    unsigned int mDisabled : 1;       // inferred: network disabled
+    unsigned int m1F8_18_0 : 19;
+    unsigned char m1FC[0xC2C - 0x1FC];
     unsigned int mC2C;  // inferred: bit 0 and bit 1 set by message 0x0D
     unsigned char m0C30[0xC215 - 0xC30];
     unsigned char mC215; // inferred: messages are not checked for an old sequence number
@@ -427,6 +472,12 @@ inline atn::net::PacketPack* PPNet_unk::GetPack_unk() {
 // inferred: weak copies used by the receive loop (fn_804EE040) and by fn_804D25D0
 extern "C" inline PPNet_unk* fn_804D1694() {
     return (PPNet_unk*)lbl_8087F628;
+}
+extern "C" inline PPPlayer_unk* fn_804D5F0C(PPManager2_unk* mgr, int index) {
+    if (index >= 0 && index < mgr->mPlayers.mNum) {
+        return &mgr->mPlayers.mData[index];
+    }
+    return 0;
 }
 extern "C" inline int fn_804D5F40(PPPlayerArray_unk* players) {
     return players->mNum;
@@ -595,6 +646,14 @@ extern "C" void fn_804F1CA0(PPPlayer_unk* player) {
     player->mD38[data[0]] = data[1];
 }
 
+// inferred: message 0x16: state of the player
+extern "C" void fn_804F1D70(PPPlayer_unk* player) {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    player->m34 = *(PPPlayerState_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+}
+
 extern "C" void fn_804F1F24(PPPlayer_unk* player) {
     player->mFlags.m27 = 1;
 }
@@ -608,6 +667,14 @@ static inline bool IsTeamPlayer_unk(PPPlayer_unk* player) {
 }
 
 // NONMATCHING: 99.67% - the original increments the index before the slot offset
+// inferred: `player` is in the team of `leader`
+static inline bool IsSameTeam_unk(PPPlayer_unk* player, PPPlayer_unk* leader) {
+    if (leader == 0 || player == 0 || !IsTeamPlayer_unk(player)) {
+        return false;
+    }
+    return (player->mAid & 0xF) == leader->mAid;
+}
+
 // inferred: message 0x18: marks the player and the players of its team (m26) and the team flag
 extern "C" void fn_804F1F34(PPPlayer_unk* player) {
     int i;
@@ -767,6 +834,32 @@ extern "C" void fn_804F3AF0() {
     }
     unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
     ((PPManager2_unk*)lbl_8087F610)->m5A8 = data[0];
+}
+
+extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int a, int b);
+
+// inferred: player slot of the own aid
+static inline PPPlayer_unk* GetMyPlayer_unk() {
+    PPNet_unk* net = (PPNet_unk*)lbl_8087F628;
+    PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+    return fn_804DD158(mgr, net->GetMyAid_unk());
+}
+
+// NONMATCHING: 96.78% - here the manager pointer is kept in r29 across the loop (the original loads it again
+// in every iteration)
+// inferred: message 0x31: fn_804EAA84 on the characters of the players marked m30 and of the own team
+extern "C" void fn_804F3BAC() {
+    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+        return;
+    }
+    for (int i = 0; i < ((PPManager2_unk*)lbl_8087F610)->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
+        if (player->mFlags.mActive && player->mRef.mChara != 0) {
+            if (player->mFlags.m30 == 1 || IsSameTeam_unk(player, GetMyPlayer_unk())) {
+                fn_804EAA84((PPManager2_unk*)lbl_8087F610, player->mRef.mChara, 1, 0);
+            }
+        }
+    }
 }
 
 extern "C" void fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned short a, unsigned short b);

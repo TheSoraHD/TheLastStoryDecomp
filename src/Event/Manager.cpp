@@ -2315,10 +2315,10 @@ void Manager::fn_80488A74(const char* name, int fade, float volume) {
 // NONMATCHING: 98.5% - registers of the frame count and the cut (as fn_8048871C)
 // inferred: starts the music of the multi audio again at the position of the next cut
 void Manager::fn_80488B5C(int fade) {
-    if (m70 != 0 && m70->fn_80541210() != 0) {
-        if (strlen(m1F38.c_str()) == 0) {
-            return;
-        }
+    if (m70 == 0 || m70->fn_80541210() == 0 || strlen(m1F38.c_str()) == 0) {
+        return;
+    }
+    {
         Cut* cur = m70->fn_80541210();
         if (cur == 0) {
             return;
