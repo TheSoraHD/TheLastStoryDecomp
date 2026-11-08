@@ -326,6 +326,12 @@ struct PPPlayerState_unk {
     PPPair_unk m74;
 };
 
+// inferred: block of a player slot (0x314 bytes, four of them from 0xE8; -1 at 0x00 when unused); names invented
+struct PPEquip_unk {
+    int m00;
+    unsigned char m004[0x314 - 0x4];
+};
+
 // inferred: flags of a player slot (MSB first); names invented
 struct PPPlayerFlags_unk {
     unsigned int mActive : 1; // inferred: slot in use
@@ -347,7 +353,9 @@ struct PPPlayer_unk {
     unsigned char mAid;               // 0xCC: inferred: network id of the player
     unsigned char m0CD[0xD0 - 0xCD];
     PPPlayerFlags_unk mFlags;         // 0xD0
-    unsigned char m0D4[0xD38 - 0xD4];
+    unsigned char m0D4[0xE8 - 0xD4];
+    PPEquip_unk mEquips[4];           // 0xE8
+
     int mD38[5];                      // inferred: values of message 0x15
     unsigned int mD4C;                // inferred: bits 10-11 set by message 0x2E
     unsigned char m0D50[0xD5C - 0xD50];
@@ -396,13 +404,18 @@ struct PPManager2_unk {
     unsigned char m05EC[0x5F0 - 0x5EC];
     PPCharaEntry_unk* mCharas;        // 0x5F0
     int mCharaNum;                    // 0x5F4
-    unsigned char m05F8[0x2B74 - 0x5F8];
+    unsigned char m05F8[0x5FC - 0x5F8];
+    PPPlayer_unk* mOwnPlayer;         // 0x5FC: inferred: used when the character has no slot
+    unsigned char m0600[0x610 - 0x600];
+    unsigned char m610[0x2B74 - 0x610]; // inferred: object given to fn_805076F8
     atn::SoundRef m2B74;              // inferred: sounds stopped by fn_804DA398
     atn::SoundRef m2B78;
     unsigned char m2B7C[0x2B88 - 0x2B7C];
     int m2B88;                        // inferred: number of the slots of m2B8C
     PPPlayer_unk m2B8C[8];
-    unsigned char m966C[0x9694 - 0x966C];
+    unsigned char m966C[0x967C - 0x966C];
+    int m967C;                        // inferred: value for the players marked m30 (fn_804E4D70)
+    unsigned char m9680[0x9694 - 0x9680];
     int m9694[8];                     // inferred: per aid values of message 0x35
     unsigned char m96B4[0x976C - 0x96B4];
     int m976C;                        // inferred: set by fn_804FB530
@@ -628,6 +641,17 @@ extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
     return -1;
 }
 
+extern "C" int fn_804E4A60(PPManager2_unk* mgr);
+extern "C" int fn_805076F8(void* table, int mode, int value, int arg);
+
+// inferred: value of a player (m967C for the players marked m30)
+extern "C" int fn_804E4D70(PPManager2_unk* mgr, PPPlayer_unk* player) {
+    if (player != 0 && player->mFlags.m30) {
+        return mgr->m967C;
+    }
+    return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr));
+}
+
 // inferred: number of the message for a kind of player (names invented)
 extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
     switch (kind) {
@@ -714,6 +738,52 @@ extern "C" bool fn_804EB5D8(PPManager2_unk* mgr) {
         }
     }
     return true;
+}
+
+// inferred: block `index` of the slot of a character (0 when unused)
+extern "C" PPEquip_unk* fn_804EB650(PPManager2_unk* mgr, CharaTask* chara, int index) {
+    PPPlayer_unk* player = FindByChara_unk(mgr, chara);
+    if (player == 0) {
+        player = mgr->mOwnPlayer;
+        if (player == 0) {
+            return 0;
+        }
+    }
+    switch (index) {
+    case 0:
+        if (player->mEquips[0].m00 != -1) {
+            return &player->mEquips[0];
+        }
+        return 0;
+    case 1:
+        if (player->mEquips[1].m00 != -1) {
+            return &player->mEquips[1];
+        }
+        return 0;
+    case 2:
+        if (player->mEquips[2].m00 != -1) {
+            return &player->mEquips[2];
+        }
+        return 0;
+    case 3:
+        if (player->mEquips[3].m00 != -1) {
+            return &player->mEquips[3];
+        }
+        return 0;
+    }
+    return 0;
+}
+
+// inferred: value `index` of the slot of a character (-1 without a slot)
+extern "C" int fn_804EB750(PPManager2_unk* mgr, CharaTask* chara, int index) {
+    PPPlayer_unk* player = FindByChara_unk(mgr, chara);
+    if (player == 0) {
+        player = mgr->mOwnPlayer;
+        if (player == 0) {
+            return -1;
+        }
+    }
+    return player->mD38[index];
 }
 
 // inferred: the player slot of a character
@@ -1149,6 +1219,75 @@ extern "C" void fn_804F50C4(unsigned int aid) {
     if (lobby != 0) {
         lobby->mF90 = 1;
     }
+}
+
+// inferred: queue of 32 requests at 0x48 (0x18 bytes each); names invented
+struct PPRequest_unk {
+    int mUsed;
+    int m04;
+    int m08;
+    unsigned char m0C[0x14 - 0xC];
+    unsigned char m14;
+    unsigned char m15;
+    unsigned char m16[0x18 - 0x16];
+};
+struct PPRequests_unk {
+    unsigned char m00[0x48];
+    PPRequest_unk mRequests[32];
+};
+// inferred: free request of the queue
+static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
+    for (int i = 0; i < 32; i++) {
+        if (queue->mRequests[i].mUsed == 0) {
+            return &queue->mRequests[i];
+        }
+    }
+    return 0;
+}
+// inferred: adds a request (0 when the queue is full)
+extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c) {
+    PPRequest_unk* req = FindFreeRequest_unk(queue);
+    if (req == 0) {
+        return 0;
+    }
+    req->mUsed = 1;
+    req->m04 = 0;
+    req->m14 = a;
+    req->m08 = b;
+    req->m15 = c;
+    return 1;
+}
+
+// inferred: ages the requests: after the timer a new request waits 150 more frames, an old one is freed
+extern "C" void fn_804F5FCC(PPRequests_unk* queue) {
+    for (int i = 0; i < 32; i++) {
+        if (queue->mRequests[i].mUsed != 0) {
+            if (--queue->mRequests[i].m08 < 0) {
+                if (queue->mRequests[i].m04 == 0) {
+                    queue->mRequests[i].m04 = -1;
+                    queue->mRequests[i].m08 = 150;
+                } else {
+                    queue->mRequests[i].mUsed = 0;
+                }
+            }
+        }
+    }
+}
+
+// inferred: requests of the save/load task of the manager (type 0 and 1)
+extern "C" int fn_804F7EC8(void* data, int size) {
+    MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
+    if (saveLoad != 0) {
+        return saveLoad->fn_80502870(0, data, size);
+    }
+    return 0;
+}
+extern "C" int fn_804F7EF0(void* data, int size) {
+    MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
+    if (saveLoad != 0) {
+        return saveLoad->fn_80502870(1, data, size);
+    }
+    return 0;
 }
 
 // inferred: error of the save/load task of the manager
