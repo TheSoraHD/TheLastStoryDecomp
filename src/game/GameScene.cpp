@@ -872,7 +872,8 @@ gs::CameraBox* GameScene::fn_803C2090(atn::SimpleArray<gs::CameraBox>& boxes, Ch
         shape.mSize = box.mSize;
         atn::ColliSphereShape_unk sphere;
         sphere.mCenter = chara->mPos;
-        sphere.mCenter.y += chara->m5B0;
+        float height = chara->m5B0;
+        sphere.mCenter.y += height;
         sphere.mRadius = 0.0f;
         if (fn_80051CD8(&sphere, &shape) != 0) {
             float size = box.mSize.LengthSq_unk();
@@ -2424,7 +2425,8 @@ gs::BgmBox* GameScene::fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTas
         shape.mSize = box.mSize;
         atn::ColliSphereShape_unk sphere;
         sphere.mCenter = chara->mPos;
-        sphere.mCenter.y += chara->m5B0;
+        float height = chara->m5B0;
+        sphere.mCenter.y += height;
         sphere.mRadius = 0.0f;
         if (fn_80051CD8(&sphere, &shape) != 0) {
             float size = box.mSize.LengthSq_unk();
