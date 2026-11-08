@@ -42,7 +42,7 @@ public:
     ControlMagic(Chara_unk* chara, CharaTask* target, float f, const atn::Vector3& pos, int b); // 0x801BE10C
     virtual int vf0C();
     virtual boost::function<void()> vf10();
-    virtual atn::Vector3 vf18();
+    virtual atn::Vector3 vf18() const;
     virtual int vf28();
     virtual int vf44() {
         int result = 0;
@@ -53,7 +53,7 @@ public:
     }
     virtual int vf48() { return 0x41; }
     // NONMATCHING: 60% - the original stores x/y (psq_st) before z (as ControlChargeAttackBase::vf18).
-    virtual atn::Vector3 vf4C() { return m08; }
+    virtual atn::Vector3 vf4C() const { return m08; }
     virtual int vf50();
 
     atn::Vector3 m08; // inferred: target position

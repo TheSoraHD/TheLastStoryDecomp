@@ -29,7 +29,7 @@ public:
         : ControlBase(chara), mTable(0), mHit(0), mDir(dir) {}
     virtual ~ControlAttackBase() {}
     // NONMATCHING: 60% - the original stores x/y (psq_st) before z (as ControlChargeAttackBase::vf18).
-    virtual atn::Vector3 vf18() { return mDir; }
+    virtual atn::Vector3 vf18() const { return mDir; }
     virtual float vf20();
     virtual int vf24();
     virtual int vf28();
@@ -80,7 +80,7 @@ class ControlJumpAttack : public ControlAttackBase {
 public:
     ControlJumpAttack(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& offset); // 0x8018BB7C
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 mTarget; // 0x1C
     atn::Vector3 mStart;  // 0x28
@@ -91,7 +91,7 @@ class ControlJumpAttack2 : public ControlAttackBase {
 public:
     ControlJumpAttack2(Chara_unk* chara, const atn::Vector3& pos, const atn::Vector3& offset); // 0x8018C0EC
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 mTarget; // 0x1C
     atn::Vector3 mStart;  // 0x28

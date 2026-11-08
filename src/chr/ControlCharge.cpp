@@ -393,7 +393,7 @@ ControlChargeAttackBase::ControlChargeAttackBase(Chara_unk* chara, const atn::Ve
 }
 
 // NONMATCHING: 60% - the original stores x/y (psq_st) before z.
-atn::Vector3 ControlChargeAttackBase::vf18() {
+atn::Vector3 ControlChargeAttackBase::vf18() const {
     return m08;
 }
 

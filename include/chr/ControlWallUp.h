@@ -56,8 +56,8 @@ public:
     ControlWallSlash(Chara_unk* chara, const atn::Vector3& target, const atn::Vector3* land); // 0x801CB434
     virtual int vf0C();                     // 0x801CB76C
     virtual boost::function<void()> vf10(); // 0x801CBB34
-    virtual atn::Vector3 vf14();            // 0x801CBAD8
-    virtual atn::Vector3 vf18();            // 0x801CBAAC
+    virtual atn::Vector3 vf14() const;            // 0x801CBAD8
+    virtual atn::Vector3 vf18() const;            // 0x801CBAAC
     virtual void vf1C();                    // 0x801CBAEC
     virtual int vf28();                     // 0x801CBAC0
     virtual int vf54() { return m30; }      // 0x801CBFE4

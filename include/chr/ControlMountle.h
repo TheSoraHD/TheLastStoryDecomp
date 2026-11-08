@@ -17,7 +17,7 @@ public:
     ControlMountle(Chara_unk* chara, const atn::Vector3& dir, float speed); // 0x801C041C
     virtual ~ControlMountle();
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
     virtual void vf60(); // inferred: hook run when the climb ends (empty here)
 
     atn::Vector3 m08; // inferred: direction of the ledge
@@ -42,7 +42,7 @@ class ControlGuardMountle : public ControlBase {
 public:
     ControlGuardMountle(Chara_unk* chara, const atn::Vector3& dir); // 0x801C0D80
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 m08; // inferred: direction
     atn::Vector3 m14; // inferred: start position
@@ -55,7 +55,7 @@ class ControlWallMountle : public ControlBase {
 public:
     ControlWallMountle(Chara_unk* chara, const atn::Vector3& normal, const atn::Vector3& pos, int jump); // 0x801C1578
     virtual int vf0C();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 m08; // inferred: direction towards the wall
     atn::Vector3 m14; // inferred: start position
@@ -72,7 +72,7 @@ public:
     bool fn_801C2198(atn::Vector3& out, const atn::Vector3& dir); // inferred: looks for the ledge
     virtual int vf0C();
     virtual boost::function<void()> vf10();
-    virtual atn::Vector3 vf14();
+    virtual atn::Vector3 vf14() const;
 
     atn::Vector3 m08; // inferred: direction of the jump
     atn::Vector3 m14; // inferred: start position

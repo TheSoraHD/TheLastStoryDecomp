@@ -190,7 +190,7 @@ int ControlMountle::vf0C() {
 
 void ControlMountle::vf60() {}
 
-atn::Vector3 ControlMountle::vf14() {
+atn::Vector3 ControlMountle::vf14() const {
     Chara_unk* c = mChara;
     atn::Vector3 pos = c->mPos;
     float frame = c->mMotion.mTracks[0].m08;
@@ -308,7 +308,7 @@ int ControlGuardMountle::vf0C() {
     return 1;
 }
 
-atn::Vector3 ControlGuardMountle::vf14() {
+atn::Vector3 ControlGuardMountle::vf14() const {
     Chara_unk* c = mChara;
     atn::Vector3 pos = c->mPos;
     float frame = c->mMotion.mTracks[0].m08;
@@ -398,7 +398,7 @@ int ControlWallMountle::vf0C() {
     return frame >= m->fn_80097D7C(0) - 3.0f;
 }
 
-atn::Vector3 ControlWallMountle::vf14() {
+atn::Vector3 ControlWallMountle::vf14() const {
     return mChara->mPos;
 }
 
@@ -533,7 +533,7 @@ int ControlJump::vf0C() {
     return frame > m->fn_80097D7C(0) - 8.0f;
 }
 
-atn::Vector3 ControlJump::vf14() {
+atn::Vector3 ControlJump::vf14() const {
     return mChara->mPos;
 }
 

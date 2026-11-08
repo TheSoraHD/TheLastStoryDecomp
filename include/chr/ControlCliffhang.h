@@ -13,7 +13,7 @@ public:
     ControlCliffhang(Chara_unk* chara, int a, int flags, float f); // 0x801AAB64
     virtual int vf0C();                                            // 0x801AAC48
     virtual boost::function<void()> vf10();                        // 0x801AB294
-    virtual atn::Vector3 vf14();                                   // 0x801AC2FC
+    virtual atn::Vector3 vf14() const;                                   // 0x801AC2FC
     // inferred: starts moving along route link `route` (`first`: use `angle` as the start
     // direction); 0x801AB6B8
     void fn_801AB6B8(int route, int first, float angle);

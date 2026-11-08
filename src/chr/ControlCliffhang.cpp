@@ -416,7 +416,7 @@ int ControlCliffhang::fn_801AC14C() {
     return ret;
 }
 
-atn::Vector3 ControlCliffhang::vf14() {
+atn::Vector3 ControlCliffhang::vf14() const {
     Motion_unk* motion = &mChara->mMotion;
     int id = motion->mTracks[0].m00;
     if (id == 0x59 || id == 0x206) {

@@ -605,7 +605,7 @@ int ControlJumpAttack::vf0C() {
     return 0;
 }
 
-atn::Vector3 ControlJumpAttack::vf14() {
+atn::Vector3 ControlJumpAttack::vf14() const {
     Chara_unk* chara = mChara;
     atn::Vector3 r = chara->mPos;
     float frame = chara->mMotion.mTracks[0].m08;
@@ -666,7 +666,7 @@ int ControlJumpAttack2::vf0C() {
     return 0;
 }
 
-atn::Vector3 ControlJumpAttack2::vf14() {
+atn::Vector3 ControlJumpAttack2::vf14() const {
     Chara_unk* chara = mChara;
     atn::Vector3 r = chara->mPos;
     float frame = chara->mMotion.mTracks[0].m08;

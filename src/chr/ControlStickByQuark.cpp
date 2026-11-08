@@ -593,7 +593,7 @@ int ControlThrustForKraken::vf0C() {
 }
 
 // NONMATCHING: 71.9% - the original loads m10/m1C before saving r31 (as in a const method)
-atn::Vector3 ControlThrustForKraken::vf14() {
+atn::Vector3 ControlThrustForKraken::vf14() const {
     return mFrom + (mFrom - mTarget).GetNormalize() * 30.0f;
 }
 
@@ -778,7 +778,7 @@ int ControlThrustForGhoul::vf0C() {
 }
 
 // NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
-atn::Vector3 ControlThrustForGhoul::vf14() {
+atn::Vector3 ControlThrustForGhoul::vf14() const {
     return m10;
 }
 
@@ -1256,7 +1256,7 @@ int ControlThrown::vf0C() {
 }
 
 // NONMATCHING: 60% - psq_st before the stfs of z in the original (same as ControlWallSlash::vf14)
-atn::Vector3 ControlThrown::vf14() {
+atn::Vector3 ControlThrown::vf14() const {
     return mTarget;
 }
 
@@ -1296,7 +1296,7 @@ int ControlThrownAway::vf0C() {
     return 0;
 }
 
-atn::Vector3 ControlThrownAway::vf14() {
+atn::Vector3 ControlThrownAway::vf14() const {
     atn::Vector3 pos = mChara->mPos;
     pos.y -= 10.0f;
     return pos;
@@ -1350,7 +1350,7 @@ int ControlThrownAvoid::vf0C() {
 
 // NONMATCHING: 93.7% - scheduling of the constants and of mChara
 // inferred: point below the feet, turned with the character
-atn::Vector3 ControlThrownAvoid::vf14() {
+atn::Vector3 ControlThrownAvoid::vf14() const {
     atn::Vector3 v(0.0f, -5.0f, 0.5f);
     Mtx m;
     PSMTXRotRad(m, 'y', mChara->mRot.y);
@@ -1672,7 +1672,7 @@ int ControlThrownSimple::vf0C() {
 }
 
 // NONMATCHING: 60% - the original stores x/y with psq_st before the stfs of z
-atn::Vector3 ControlThrownSimple::vf14() {
+atn::Vector3 ControlThrownSimple::vf14() const {
     return mTarget;
 }
 
@@ -1834,7 +1834,7 @@ int ControlCliffhangZanGurg::vf0C() {
 }
 
 // NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
-atn::Vector3 ControlCliffhangZanGurg::vf14() {
+atn::Vector3 ControlCliffhangZanGurg::vf14() const {
     atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
@@ -1875,7 +1875,7 @@ int ControlEndCliffhangZanGurg::vf0C() {
 }
 
 // NONMATCHING: 86.5% - the original loads mChara before saving r31; node pointer in r4
-atn::Vector3 ControlEndCliffhangZanGurg::vf14() {
+atn::Vector3 ControlEndCliffhangZanGurg::vf14() const {
     Motion_unk* m = &mChara->mMotion;
     float frame = Frame_unk(m);
     float end = m->fn_80097D7C(0);
@@ -1930,7 +1930,7 @@ int ControlStickZanGurgStand::vf0C() {
 }
 
 // NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
-atn::Vector3 ControlStickZanGurgStand::vf14() {
+atn::Vector3 ControlStickZanGurgStand::vf14() const {
     atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;
@@ -1981,7 +1981,7 @@ int ControlStickZanGurgCliff::vf0C() {
 }
 
 // NONMATCHING: 75.3% - the original loads mChara before saving r31 (as StickByQuark::vf10)
-atn::Vector3 ControlStickZanGurgCliff::vf14() {
+atn::Vector3 ControlStickZanGurgCliff::vf14() const {
     atn::Vector3 pos = ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
     pos.y -= 15.0f;
     return pos;

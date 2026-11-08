@@ -29,8 +29,8 @@ public:
     // inferred: returns the action to run when the control finishes (0x801B2A80 binds
     // CharaTask::fn_80178208 to the next control)
     virtual boost::function<void()> vf10();
-    virtual atn::Vector3 vf14(); // inferred: a position (CharaTask::fn_80178088)
-    virtual atn::Vector3 vf18(); // inferred: a direction (CharaTask::fn_80158E1C)
+    virtual atn::Vector3 vf14() const; // inferred: a position (CharaTask::fn_80178088)
+    virtual atn::Vector3 vf18() const; // inferred: a direction (CharaTask::fn_80158E1C)
     // inferred: inline; its weak copy is emitted after the first function of a file that calls it
     // through the vtable (0x800E70A8, after BattleCharaTask::fn_800E62AC)
     virtual void vf1C() {}
@@ -53,7 +53,7 @@ public:
     virtual void vf40() {}
     virtual int vf44() { return 0; }
     virtual int vf48() { return 0; }
-    virtual atn::Vector3 vf4C() { return lbl_807C7030; }
+    virtual atn::Vector3 vf4C() const { return lbl_807C7030; }
     // inferred: returns an int (ControlMagic); inline (weak copy 0x800EE5A4 after BattleCharaTask::vfE4)
     virtual int vf50() { return 0; }
     virtual int vf54() { return 0; } // inferred: weak copy 0x80151180 (tested by CharaTask::fn_8015076C)

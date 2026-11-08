@@ -209,7 +209,7 @@ int ControlDiveIntoWater::vf0C() {
     return ret;
 }
 
-atn::Vector3 ControlDiveIntoWater::vf14() {
+atn::Vector3 ControlDiveIntoWater::vf14() const {
     return ((atn::Matrix3x4*)mChara->mMotion.GetNodeMtx_unk(mChara->m524))->GetTrans_unk();
 }
 

@@ -11,12 +11,12 @@ class ControlChargeAttackBase : public ControlBase {
 public:
     ControlChargeAttackBase(Chara_unk* chara, const atn::Vector3& target, float speed, int adjust); // 0x801A4B00
     virtual ~ControlChargeAttackBase();
-    virtual atn::Vector3 vf18();
+    virtual atn::Vector3 vf18() const;
     virtual int vf24();
     virtual int vf28();
     virtual int vf44() { return vf24(); }
     virtual int vf48() { return 0x23; }
-    virtual atn::Vector3 vf4C() { return m08; } // NONMATCHING: 60% - z stored first (as vf18)
+    virtual atn::Vector3 vf4C() const { return m08; } // NONMATCHING: 60% - z stored first (as vf18)
     virtual int vf54() { return m28; }
     // inferred: moves `target` to a reachable point in front of `from` (ray tests); 0x801A4E08
     static void fn_801A4E08(Chara_unk* chara, const atn::Vector3& from, atn::Vector3& target);

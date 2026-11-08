@@ -331,7 +331,7 @@ int ControlWallSlash::vf0C() {
 
 // NONMATCHING: 60.0% - the copy of the returned vector stores z before the paired single (same
 // issue as GimmickCommon::vf54).
-atn::Vector3 ControlWallSlash::vf18() {
+atn::Vector3 ControlWallSlash::vf18() const {
     return m14;
 }
 
@@ -340,7 +340,7 @@ int ControlWallSlash::vf28() {
 }
 
 // NONMATCHING: 60.0% - same copy order issue as vf18.
-atn::Vector3 ControlWallSlash::vf14() {
+atn::Vector3 ControlWallSlash::vf14() const {
     return m08;
 }
 

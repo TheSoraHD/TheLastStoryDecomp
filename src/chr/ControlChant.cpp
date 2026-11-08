@@ -823,7 +823,7 @@ int ControlMagic::vf50() {
 }
 
 // NONMATCHING: 81.5% - the original loads mChara before 20.0f and m08 after the copy of the position.
-atn::Vector3 ControlMagic::vf18() {
+atn::Vector3 ControlMagic::vf18() const {
     atn::Vector3 from = mChara->mPos;
     from.y += 20.0f;
     atn::Vector3 dir = m08 - from;

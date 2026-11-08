@@ -254,7 +254,7 @@ int ControlLadder::vf0C() {
 // tried a switch, named/unnamed temporaries, a nested block. The clamp of the 0x59 case is expanded
 // once per component (the inliner substitutes the pure argument of operator*).
 // inferred: position of the character for the camera/collision while it gets on or off the ladder
-atn::Vector3 ControlLadder::vf14() {
+atn::Vector3 ControlLadder::vf14() const {
     Motion_unk* m = &mChara->mMotion;
     if (m->mTracks[0].m00 == 0x59) {
         float len = m->fn_80097D7C(0) - 24.0f;
