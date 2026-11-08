@@ -345,7 +345,9 @@ struct PPPlayerFlags_unk {
     unsigned int m12 : 10;
     unsigned int m10 : 2;
     unsigned int m06 : 4;
-    unsigned int m00 : 6;
+    unsigned int m02 : 4;
+    unsigned int m01 : 1;             // inferred: cleared on the server when the match ends (fn_804FB220)
+    unsigned int m00 : 1;
 };
 
 // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
@@ -389,11 +391,21 @@ struct PPCharaEntry_unk {
     unsigned char m04[0xB4 - 0x4];
 };
 
+// inferred: state variable of MP::Manager2 (value and last value set); names invented
+struct PPStateVar_unk {
+    int mValue;
+    int mLast;
+};
+
 // inferred: MP::Manager2 (lbl_8087F610), only the members used here; names invented
 struct PPManager2_unk {
     unsigned char m0000[0x4FC];
-    int mState;                       // 0x4FC: inferred: state (30 = in game)
-    unsigned char m0500[0x50A - 0x500];
+    union {
+        int mState;                   // 0x4FC: inferred: state (30 = in game)
+        PPStateVar_unk mStateVar;
+    };
+    int m504;                         // inferred: reset to -1 when the match ends (fn_804FB220)
+    short m508;                       // inferred: reset to 3629 when the match ends
     short m50A;                       // inferred: set to 90 when a player slot is added
     unsigned char m050C[0x514 - 0x50C];
     MP::SaveLoad* mSaveLoad;          // 0x514
@@ -435,20 +447,26 @@ struct PPManager2_unk {
     int m967C;                        // inferred: value for the players marked m30 (fn_804E4D70)
     unsigned char m9680[0x9694 - 0x9680];
     int m9694[8];                     // inferred: per aid values of message 0x35
-    unsigned char m96B4[0x976C - 0x96B4];
+    unsigned char m96B4[0x975C - 0x96B4];
+    int m975C;                        // inferred: reset to 300 when the match ends (fn_804FB220)
+    unsigned char m9760[0x976C - 0x9760];
     int m976C;                        // inferred: set by fn_804FB530
     unsigned char m9770[0x9984 - 0x9770];
     unsigned char m9984[8];           // inferred: two 8-byte blocks of message 0x28
     unsigned char m998C[8];
     unsigned char m9994[8];           // inferred: values of the aids of m9984 (fn_804DD1A8)
-    unsigned char m999C[0x99A0 - 0x999C];
+    unsigned char m999C;
+    unsigned char m999D;
+    unsigned char m999E[0x99A0 - 0x999E];
     int m99A0;                        // inferred: count down shown by the lobby
     unsigned char m99A4[0x99B0 - 0x99A4];
     unsigned char m99B0;              // inferred: a packet must be sent back after the loop (to m99B1)
     unsigned char m99B1;
     unsigned char m99B2[0x99B4 - 0x99B2];
     int m99B4;
-    unsigned char m99B8[0x99F4 - 0x99B8];
+    unsigned char m99B8[0x99EC - 0x99B8];
+    int m99EC;                        // inferred: 60 when the state 11 is entered (fn_804FB220)
+    unsigned char m99F0[4];
     int m99F4[8];                     // inferred: per team flags of message 0x18
 
     int m9A14[8];                     // inferred: per aid flags set by messages 0x38 and 0x3B
@@ -469,7 +487,7 @@ inline void* atn::net::PacketPack::GetWorkBuffer_unk() {
     return lbl_8087F600;
 }
 // lbl_8087F628 (atn::net::Manager instance): see atn/net/Manager.h
-extern "C" void fn_804FB220(int* state, int value); // inferred: sets the state of MP::Manager2 (state at +0x4FC)
+extern "C" void fn_804FB220(PPStateVar_unk* state, int value);
 // inferred: the network manager and the packer exist and the data of the message is ready
 #define PP_NO_DATA_UNK (lbl_8087F628 == 0 || fn_804AE3BC() == 0 || fn_804AE3BC()->GetWorkBuffer_unk() == 0)
 
@@ -618,7 +636,7 @@ extern "C" int fn_804DBD08(PPManager2_unk* mgr, int mode) {
         memset(mgr->m9984, 0, 8);
         memset(mgr->m998C, 0, 8);
         if (mgr->mState > 10) {
-            fn_804FB220(&mgr->mState, 10);
+            fn_804FB220(&mgr->mStateVar, 10);
         }
     }
     if (mode == 3) {
@@ -1462,6 +1480,40 @@ extern "C" int fn_804F7F34() {
 }
 
 // inferred: flag m976C once the network manager reached state 8
+// NONMATCHING: 99.46% - registers of the inlined search fn_804DD158 (aid/offset/count in r4/r3/r5 in the
+// original), as fn_804DD1A8
+// inferred: sets the state of MP::Manager2; entering 12 (end of the match) resets the match values and
+// clears the flag m01 of the server's slot
+extern "C" void fn_804FB220(PPStateVar_unk* state, int value) {
+    if (value == 12 && state->mLast != 12) {
+        ((PPManager2_unk*)lbl_8087F610)->m504 = -1;
+        ((PPManager2_unk*)lbl_8087F610)->m508 = 0xE2D;
+        ((PPManager2_unk*)lbl_8087F610)->m50A = 0;
+        PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+        if (lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) {
+            PPPlayer_unk* player = fn_804DD158(mgr, lbl_8087F628->GetServerAid_unk());
+            if (player != 0) {
+                player->mFlags.m01 = 0;
+            }
+        }
+        ((PPManager2_unk*)lbl_8087F610)->m975C = 300;
+        ((PPManager2_unk*)lbl_8087F610)->m99F0[0] = 0;
+        ((PPManager2_unk*)lbl_8087F610)->m99F0[1] = 0;
+        ((PPManager2_unk*)lbl_8087F610)->m99F0[2] = 0;
+        ((PPManager2_unk*)lbl_8087F610)->m99F0[3] = 0;
+        ((PPManager2_unk*)lbl_8087F610)->m999C = 0;
+        ((PPManager2_unk*)lbl_8087F610)->m999D = 0;
+        lbl_8087F628->fn_8050A5EC();
+    }
+    if (value == 11) {
+        ((PPManager2_unk*)lbl_8087F610)->m99EC = state->mLast != 11 ? 60 : 0;
+    }
+    if (state->mLast != value) {
+        state->mLast = value;
+    }
+    state->mValue = value;
+}
+
 extern "C" void fn_804FB530(PPManager2_unk* mgr) {
     if (((PPNet_unk*)lbl_8087F628)->mState < 8) {
         return;
