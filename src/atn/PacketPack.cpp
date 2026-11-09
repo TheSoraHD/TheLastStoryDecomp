@@ -133,7 +133,9 @@ struct PPChara_unk {
     PPCharaRef_unk* m638;
     unsigned char m063C[0x674 - 0x63C];
     int m674;
-    unsigned char m0678[0x7E0 - 0x678];
+    unsigned char m0678[0x7D8 - 0x678];
+    float m7D8;       // inferred: set from the state of message 0x1A (fn_804EE9F0)
+    unsigned char m07DC[0x7E0 - 0x7DC];
     unsigned int m7E0;
     unsigned char m07E4[0x9F8 - 0x7E4];
     int m9F8; // inferred: value of message 0x2F
@@ -366,7 +368,9 @@ struct PPPlayerFlags_unk {
     unsigned int m27 : 1;     // inferred: set by message 0x17
     unsigned int m26 : 1;     // inferred: set by message 0x18 on the player and its team
     unsigned int m22 : 4;     // inferred: value of message 0x12 (team, see fn_804E4C5C)
-    unsigned int m12 : 10;
+    unsigned int m14 : 8;
+    unsigned int m13 : 1;     // inferred: set from the state of fn_804EE9F0
+    unsigned int m12 : 1;     // inferred: set from the state of fn_804EE9F0
     unsigned int m10 : 2;
     unsigned int m06 : 4;
     unsigned int m02 : 4;
@@ -396,7 +400,8 @@ struct PPPlayer_unk {
         MpCharaRef_unk mDC;           // inferred: a second character reference
         int mDCScore;                 // inferred: summed as the team score in fn_804E4C5C
     };
-    unsigned char m0E0[0xE8 - 0xE0];
+    int mE0;
+    int mE4;
     PPEquip_unk mEquips[4];           // 0xE8
 
     int mD38[5];                      // inferred: values of message 0x15
@@ -965,7 +970,7 @@ extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c);
 extern "C" void fn_804E49A4(PPManager2_unk* mgr);
 extern "C" void fn_804E5BC4(PPManager2_unk* mgr);
 extern "C" void fn_804D1F6C(PPPlayer_unk* player);
-extern "C" void fn_804FA948(PPManager2_unk* mgr, int a, int b);
+extern "C" void fn_804FA948(PPManager2_unk* mgr, int value, unsigned int flush);
 extern "C" void fn_804FAB40(PPManager2_unk* mgr, int a, PPPlayer_unk* player, int b, int c);
 extern "C" void fn_804EA608(PPManager2_unk* mgr, int a, int b);
 extern "C" int fn_804EAFD0(PPManager2_unk* mgr);
@@ -3498,6 +3503,24 @@ extern "C" int fn_804EB480(PPManager2_unk* mgr, PPPlayer_unk* player) {
     return IsTeamPlayer_unk(player);
 }
 
+// inferred: player slot of the own aid
+static inline PPPlayer_unk* GetMyPlayer_unk() {
+    atn::net::Manager* net = lbl_8087F628;
+    PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+    return fn_804DD158(mgr, net->GetMyAid_unk());
+}
+
+// NONMATCHING: 99.0% - r3/r4/r5 of the inlined search fn_804DD158 (as fn_804DD1A8)
+// inferred: `player` is in the team of the own player
+extern "C" int fn_804EB4AC(PPManager2_unk* mgr, PPPlayer_unk* player) {
+    PPManager2_unk* m = (PPManager2_unk*)lbl_8087F610;
+    PPPlayer_unk* me = fn_804DD158(m, lbl_8087F628->GetMyAid_unk());
+    if (me == 0 || player == 0 || !IsTeamPlayer_unk(player)) {
+        return 0;
+    }
+    return me->mAid == (player->mAid & 0xF);
+}
+
 // inferred: every player in use that is not in a team has m27 set
 extern "C" bool fn_804EB5D8(PPManager2_unk* mgr) {
     for (int i = 0; i < mgr->mPlayers.mNum; i++) {
@@ -3631,6 +3654,36 @@ extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
         unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
         if (data[0x14] != lbl_8087F628->GetMyAid_unk() && ref->mChara != 0) {
             fn_804CF640(data, ref->mChara);
+        }
+    }
+}
+
+// inferred: data of the state of a player applied by fn_804EE9F0; names invented
+struct PPPlayerInfo_unk {
+    int m00;
+    short mChara;
+    unsigned char m06;
+    unsigned char m07;
+    unsigned char m08_0 : 1;
+    unsigned char m13 : 1;
+    unsigned char m12 : 1;
+    unsigned char m08_3 : 5;
+    unsigned char mAid;
+};
+
+// inferred: applies the state of a player received from another machine (only in the game, state 30)
+extern "C" void fn_804EE9F0(PPPlayer_unk* player) {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        PPPlayerInfo_unk* data = (PPPlayerInfo_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+        if (data->mAid != lbl_8087F628->GetMyAid_unk()) {
+            if (player->mRef.mChara != 0) {
+                ((PPChara_unk*)player->mRef.mChara)->m7D8 = data->m00;
+            }
+            player->mDC.fn_80501288((CharaTask*)data->mChara);
+            player->mE0 = data->m06;
+            player->mE4 = data->m07;
+            player->mFlags.m13 = data->m13;
+            player->mFlags.m12 = data->m12;
         }
     }
 }
@@ -3931,13 +3984,6 @@ extern "C" void fn_804F3AF0() {
 
 extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int a, int b);
 
-// inferred: player slot of the own aid
-static inline PPPlayer_unk* GetMyPlayer_unk() {
-    atn::net::Manager* net = lbl_8087F628;
-    PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
-    return fn_804DD158(mgr, net->GetMyAid_unk());
-}
-
 // NONMATCHING: 96.78% - here the manager pointer is kept in r29 across the loop (the original loads it again
 // in every iteration)
 // inferred: message 0x31: fn_804EAA84 on the characters of the players marked m30 and of the own team
@@ -4193,6 +4239,17 @@ extern "C" int fn_804F7F34() {
         return saveLoad->mError;
     }
     return 0;
+}
+
+// inferred: sends the value of message 0x1039 (one byte) to the server
+extern "C" void fn_804FA948(PPManager2_unk* mgr, int value, unsigned int flush) {
+    NetMsgI_unk<unsigned char> msg(0x1039);
+    unsigned char* data = &msg.mData;
+    *data = value;
+    fn_804AE3BC()->fn_8050E094(lbl_8087F628->GetServerAid_unk(), 0x1039, data, 1);
+    if (flush == 1) {
+        fn_804AE3BC()->fn_8050DDDC(lbl_8087F628->GetServerAid_unk(), 1);
+    }
 }
 
 // inferred: payload of the message 0x1008 (flags of a player slot); names invented
