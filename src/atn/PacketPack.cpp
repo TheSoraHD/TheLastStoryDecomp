@@ -2777,6 +2777,17 @@ extern "C" void fn_804DA398(PPManager2_unk* mgr) {
     }
 }
 
+extern "C" int rand();
+extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
+// inferred: sounds of the start of the count down (one of them at random)
+const char* lbl_807910A8[] = {"SE_DG009_007_MP", "SE_DG009_012_MP"};
+// inferred: plays one of the sounds lbl_807910A8 at random in m2B78
+extern "C" void fn_804DA3F4(PPManager2_unk* mgr) {
+    fn_800CB5C8(&mgr->m2B78, 15, 0);
+    mgr->m2B78 = fn_800C31F4(lbl_807910A8[rand() & 1], 0, -1, 1.0f);
+    fn_800CB518(&mgr->m2B78, 45);
+}
+
 extern "C" void fn_804DA478(PPManager2_unk* mgr) {
     if (MP::D2AMpMenuCockpit::sInstance != 0) {
         MP::D2AMpMenuCockpit::sInstance->fn_804B691C();
@@ -2934,6 +2945,79 @@ extern "C" int fn_804DD1A8(PPManager2_unk* mgr, int aid) {
 
 extern "C" int fn_804DD280(PPManager2_unk* mgr, int mode) {
     return mode == 2 ? 21 : 12;
+}
+
+// inferred: order of the stages chosen in the lobby (game mode 2 and the others)
+extern "C" const int lbl_80759BD4[21] = {0, 6, 1, 2, 3, 5, 4, 8, 7, 10, 9, 11, 13, 19, 20, 14, 15, 23, 17, 18, 22};
+extern "C" const int lbl_80759C80[7] = {0, 6, 1, 2, 3, 5, 4};
+
+// inferred: next stage after `*stage` in the order of the game mode (-1 after the last one, the first one
+// when `*stage` is not in the order)
+extern "C" void fn_804DD294(PPManager2_unk* mgr, int arg, int* stage) {
+    const int* table;
+    int num;
+    if (mgr->mMode == 2) {
+        table = lbl_80759C80;
+        num = 7;
+    } else {
+        table = lbl_80759BD4;
+        num = 21;
+    }
+    bool found = false;
+    bool done = false;
+    for (int i = 0; i < num; i++) {
+        if (found == 1) {
+            done = true;
+            *stage = table[i];
+            break;
+        }
+        if (*stage == table[i]) {
+            found = true;
+        }
+    }
+    if (done) {
+        return;
+    }
+    if (found) {
+        *stage = -1;
+    } else {
+        *stage = table[0];
+    }
+}
+
+// NONMATCHING: 99.78% - same bytes; objdiff's data flow guesses another symbol for the end of the table
+// (R_PPC_NONE of `subi r4` and `lwz -4(r3)`), as the rest of .rodata is not written yet
+// inferred: previous stage (as fn_804DD294 backwards)
+extern "C" void fn_804DD33C(PPManager2_unk* mgr, int arg, int* stage) {
+    int num;
+    const int* table;
+    if (mgr->mMode == 2) {
+        num = 7;
+        table = lbl_80759C80;
+    } else {
+        num = 21;
+        table = lbl_80759BD4;
+    }
+    bool found = false;
+    bool done = false;
+    for (int i = num - 1; i >= 0; i--) {
+        if (found == 1) {
+            done = true;
+            *stage = table[i];
+            break;
+        }
+        if (*stage == table[i]) {
+            found = true;
+        }
+    }
+    if (done) {
+        return;
+    }
+    if (found) {
+        *stage = -1;
+    } else {
+        *stage = *(table + num - 1);
+    }
 }
 
 // inferred: sets the 4-bit value of the player slot; 0 if it does not change
@@ -3491,6 +3575,42 @@ extern "C" int fn_804EB26C(PPManager2_unk* mgr, int* count) {
         *count = n;
     }
     return all;
+}
+
+// NONMATCHING: 99.26% - offset and slot pointer of the second loop swapped (r4/r5)
+// inferred: in game mode 1, the players in use are not all of one team (1 also when there is no team)
+extern "C" int fn_804EB2D8(PPManager2_unk* mgr) {
+    if (mgr->mMode != 1) {
+        return 1;
+    }
+    int i;
+    PPPlayer_unk* player;
+    PPPlayer_unk* first = 0;
+    for (i = 0; i < mgr->mPlayers.mNum; i++) {
+        player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1) {
+            first = player;
+            break;
+        }
+    }
+    if (first == 0) {
+        return 1;
+    }
+    if (first->mFlags.mActive == 1 && first->mFlags.m22 == 0) {
+        return 1;
+    }
+    unsigned int n = 0;
+    unsigned int team = first->mFlags.m22;
+    for (i = 0; i < mgr->mPlayers.mNum; i++) {
+        player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1) {
+            n++;
+            if (team != player->mFlags.m22) {
+                return 1;
+            }
+        }
+    }
+    return n <= 1;
 }
 
 // inferred: the slot `index` holds a player of a team
