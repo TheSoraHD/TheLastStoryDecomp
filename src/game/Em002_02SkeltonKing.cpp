@@ -69,7 +69,7 @@ void Em002_02SkeltonKing::vf10() {
                 if (dt < PSVECSquareMag(&toEnemy)) {
 
                     m58C = 6;
-                    fn_80170A20(mTarget, 0, -1.0f);
+                    fn_80170A20(mTarget, -1.0f, 0);
                     mWalkTime = 0;
                     mLastTarget = 0;
                     fn_80145334();

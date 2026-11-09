@@ -755,7 +755,7 @@ void Em206CocoonMp::vf38(int arg) {
 void Em206CocoonMp::fn_802BDFA0() {
     if (m55C != 6) {
         fn_8016E970(3);
-        fn_80170A20(mC58.mC4, 0, -1.0f);
+        fn_80170A20(mC58.mC4, -1.0f, 0);
     }
     fn_802BD118();
 }

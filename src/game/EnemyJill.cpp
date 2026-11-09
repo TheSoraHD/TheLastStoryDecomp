@@ -429,7 +429,7 @@ void EnemyJill::fn_8032EF38() {
         } else if (!fn_8032F0EC()) {
             SetStep_unk();
             m58C = 7;
-            fn_80170A20(mC58.mC4, 0, 30.0f);
+            fn_80170A20(mC58.mC4, 30.0f, 0);
         }
     } else {
         ResetState_unk();
@@ -1208,7 +1208,7 @@ void EnemyJill::fn_803326C0() {
         mFlag5 = 0;
         AttackTarget_unk(1.0f);
     } else {
-        fn_80170A20(mC58.mC4, 0, 30.0f);
+        fn_80170A20(mC58.mC4, 30.0f, 0);
     }
 }
 

@@ -1143,7 +1143,7 @@ void Em403WarLion::fn_80327A64() {
 
 void Em403WarLion::fn_80327E1C() {
     if (m14CC == 3 && !(m55C - 6U <= 1)) {
-        fn_80170A20(m14BC, 0, -1.0f);
+        fn_80170A20(m14BC, -1.0f, 0);
     }
     fn_803241E8();
 }

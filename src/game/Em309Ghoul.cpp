@@ -814,7 +814,7 @@ void Em309Ghoul::fn_802FFFF8() {
         if (move == 0) {
             mRoute.fn_80127D8C(0, 0, 0);
         } else if (move == 1) {
-            fn_80170A20(m14EC, 0, -1.0f);
+            fn_80170A20(m14EC, -1.0f, 0);
         } else if (move == 2) {
             fn_8017039C(m1518->mId, 0);
         } else if (move == 3) {

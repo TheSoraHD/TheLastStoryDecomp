@@ -949,11 +949,11 @@ void EnemyQuarkSecond::fn_8033C3D8() {
         if (m55C == 7) {
             if ((CharaTask*)mC58.mC8 != m14B0) {
                 fn_8016E970(3);
-                fn_80170A20(m14B0, 0, -1.0f);
+                fn_80170A20(m14B0, -1.0f, 0);
             }
         } else {
             fn_8016E970(3);
-            fn_80170A20(m14B0, 0, -1.0f);
+            fn_80170A20(m14B0, -1.0f, 0);
         }
     }
     m6B8 = lbl_807C7030;

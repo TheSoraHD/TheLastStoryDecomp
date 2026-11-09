@@ -616,7 +616,7 @@ void Em003LesserDaemon::vf10() {
     case 12:
         if (m55C - 6U > 1) {
             fn_8016E970(3);
-            fn_80170A20(m14B0, 0, -1.0f);
+            fn_80170A20(m14B0, -1.0f, 0);
         }
         mFlag4 = 1;
         fn_80139560();
@@ -800,7 +800,7 @@ void Em003LesserDaemon::vf3C(HitInfo_unk* hit) {
         fn_8016E970(3);
         m14B8 = 0;
         m14BC = 0;
-        fn_80170A20(m14B0, 0, -1.0f);
+        fn_80170A20(m14B0, -1.0f, 0);
         mStatus.fn_80133130(0x80000000, 100, 0);
         return;
     }
@@ -936,7 +936,7 @@ void Em003LesserDaemon::fn_8024D120() {
             StartAttack_unk();
         } else if (dist < m1664) {
             if (m55C != 7 || m14B4 != 0) {
-                fn_80170A20(m14B0, 0, -1.0f);
+                fn_80170A20(m14B0, -1.0f, 0);
             }
         } else {
             int n = 1;
@@ -969,7 +969,7 @@ void Em003LesserDaemon::fn_8024D120() {
             StartAttack_unk();
         } else if (dist < m1664) {
             if (m55C != 7 || m14B4 != 0) {
-                fn_80170A20(m14B0, 0, -1.0f);
+                fn_80170A20(m14B0, -1.0f, 0);
             }
         } else if (dist < m1668) {
             int n = 2;
@@ -1013,7 +1013,7 @@ void Em003LesserDaemon::fn_8024D120() {
             StartAttack_unk();
         } else if (dist < m1664) {
             if (m55C != 7 || m14B4 != 0) {
-                fn_80170A20(m14B0, 0, -1.0f);
+                fn_80170A20(m14B0, -1.0f, 0);
             }
         } else {
             int n = 2;

@@ -637,7 +637,7 @@ void Em202ForestSpider::vf104() {
         } else if (vf154(6) == 0) {
             m58C = 6;
             fn_8016E970(3);
-            fn_80170A20(m14D4, 0, -1.0f);
+            fn_80170A20(m14D4, -1.0f, 0);
         }
     } else {
         vfFC();

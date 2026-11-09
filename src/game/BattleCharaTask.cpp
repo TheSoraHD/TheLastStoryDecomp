@@ -380,7 +380,7 @@ void BattleCharaTask::fn_800E2FE0() {
             }
             case 9:
                 if (m55C == 2 && !mFlag31) {
-                    fn_80170A20(lbl_8087F8A0->mHead, 0, 30.0f);
+                    fn_80170A20(lbl_8087F8A0->mHead, 30.0f, 0);
                     m1470 = 0;
                 }
                 break;
