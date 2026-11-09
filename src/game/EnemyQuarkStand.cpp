@@ -1445,7 +1445,7 @@ void EnemyQuarkStand::fn_8034AE48() {
 // inferred: state 13 (the sword is stuck in a character, motion 0x14A from state 12): at frame 27 the
 // character is stuck (chr::ControlStickByQuark), then the camera follows the "rightarm" node and at frame 88
 // the sword fires "StickSkill"; the state ends after "AttackedMaxInStick" hits
-// NONMATCHING: 86.43% - the original copies the default camera parameters (Field_unk::m588) with the
+// NONMATCHING: 89.52% - the original copies the default camera parameters (Field_unk::m588) with the
 // FPRs f29-f31 live across Set_unk (same open case as EnemyTrista::fn_8035D294) and the look/node copies sit
 // in other slots; ~4 forms (copy ctor, member copy, inline Set_unk)
 void EnemyQuarkStand::fn_8034B8CC() {
@@ -1511,7 +1511,11 @@ void EnemyQuarkStand::fn_8034B8CC() {
         }
     }
     if (m14B4 < 2 && m1CD4 <= m17E8) {
-        fn_8034F41C();
+        // inferred: as fn_8034F41C without the change of m14C0
+        fn_8034F384();
+        fn_8016E970(3);
+        m58C = 0;
+        QuarkPlayMotion_unk(&mMotion, 2, 1, 0, 1.0f);
         if (m180B != 0) {
             Field_unk* f = lbl_8087F430;
             f->m8A0 = 0;
