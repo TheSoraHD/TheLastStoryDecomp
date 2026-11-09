@@ -40,8 +40,9 @@ static inline void RotateY_unk(atn::Matrix3x4* mtx, float angle) {
 
 // inferred: node callback of the replay models: turns the upper body (bound with the angle in a
 // boost::function, invoker 0x8056B2C0)
-extern "C" void fn_8056A84C(atn::Matrix3x4* mtx, const atn::NodeChunk& node, const atn::ModelNodeCallbackContext& ctx,
-                            float angle) {
+// (the angle comes first: RTTI name of the bound functor at 0x8075FE78)
+extern "C" void fn_8056A84C(float angle, atn::Matrix3x4* mtx, const atn::NodeChunk& node,
+                            const atn::ModelNodeCallbackContext& ctx) {
     const char* name = node.mName;
     if (strcmp(name, "spine") == 0) {
         if ((float)__fabs(angle) > 0.9424779f) {
@@ -67,7 +68,7 @@ extern "C" void fn_8056A84C(atn::Matrix3x4* mtx, const atn::NodeChunk& node, con
 extern "C" __declspec(noinline) void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, void** out, ReplayChara_unk* entry,
                             float angle) {
     if (entry != 0 && entry->m07 != 0) {
-        model->CalcMatrixStack(boost::bind(&fn_8056A84C, _1, _2, _3, angle));
+        model->CalcMatrixStack(boost::bind(&fn_8056A84C, angle, _1, _2, _3));
     }
 }
 
