@@ -117,6 +117,48 @@ static inline float FromHalf_unk(short h) {
 
 
 // NONMATCHING: 77.2% - unrolling of the matrix loop (the original does two elements per pass), stack slots
+// inferred: float to half float of the replay data (names invented)
+static inline short ToHalf_unk(float f) {
+    unsigned int bits = *(unsigned int*)&f;
+    if (bits == 0) {
+        return 0;
+    }
+    int e = ((bits >> 23) & 0xFF) - 0x70;
+    if (e < 0) {
+        return 0;
+    }
+    if (e > 31) {
+        e = 31;
+    }
+    return (short)(((bits >> 16) & 0x8000) | ((e << 10) & 0x7C00) | ((bits >> 13) & 0x3FF));
+}
+
+#define REPLAY_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define REPLAY_MAX(a, b) ((a) > (b) ? (a) : (b))
+// inferred: 0..1 to a byte (names invented)
+static inline unsigned char ToByte_unk(float v) {
+    return (unsigned char)(int)REPLAY_MAX(0.0f, REPLAY_MIN(255.0f, 255.0f * v));
+}
+
+// inferred: packs the first four motion tracks of the model
+extern "C" void fn_8056BAA4(ReplayChara_unk* dst, atn::Model* model) {
+    for (int i = 0; i < 4; i++) {
+        atn::Model::Track_unk& t = model->mTracks[i];
+        dst->mTracks[i].mId = t.m00;
+        dst->mTracks[i].mMotion = t.m04;
+        dst->mTracks[i].mFrame = ToHalf_unk(t.m08);
+        dst->mTracks[i].mSpeed = ToHalf_unk(t.m0C);
+        dst->mTracks[i].mFlag = t.m18;
+        dst->mTracks[i].m11 = ToByte_unk(t.m10);
+        dst->mTracks[i].mWeight = ToByte_unk(t.m14);
+        dst->mTracks[i].m13 = ToByte_unk(t.m1C);
+        dst->mTracks[i].m14 = ToByte_unk(t.m20);
+        dst->mTracks[i].mPrev = t.m24;
+        dst->mTracks[i].mPrevFrame = ToHalf_unk(t.m28);
+        dst->mTracks[i].m15 = ToByte_unk(t.m2C);
+    }
+}
+
 void ReplayRecorder_unk::fn_8056BD34() {
     int i = 0;
     if (m460 > 0) {
@@ -135,7 +177,7 @@ void ReplayRecorder_unk::fn_8056BD34() {
         void* out = 0;
         Mtx world;
         PSMTXConcat(m464.m, mtx, world);
-        fn_8056A9E4(model, entry->m20, 4, world, &out, entry, angle);
+        fn_8056A9E4(model, entry->mTracks, 4, world, &out, entry, angle);
         atn::Vector3 pos(model->mMtx.m[0][3], model->mMtx.m[1][3], model->mMtx.m[2][3]);
         atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - pos;
         float dist = d.LengthSq_unk();

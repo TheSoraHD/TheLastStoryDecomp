@@ -11,6 +11,27 @@ namespace atn {
 class Model;
 }
 
+namespace atn {
+class LH_Motion;
+}
+
+// inferred: motion track of a recorded character (0x18 bytes; atn::Model::Track_unk packed; names invented)
+struct ReplayTrack_unk {
+    atn::LH_Motion* mMotion; // 0x00
+    atn::LH_Motion* mPrev;   // 0x04
+    short mId;               // 0x08
+    short mFrame;            // 0x0A: half float
+    short mSpeed;            // 0x0C: half float
+    short mPrevFrame;        // 0x0E: half float
+    unsigned char mFlag;     // 0x10
+    unsigned char m11;       // 0x11: Track_unk::m10 * 255
+    unsigned char mWeight;   // 0x12: Track_unk::m14 * 255
+    unsigned char m13;       // 0x13: Track_unk::m1C * 255
+    unsigned char m14;       // 0x14: Track_unk::m20 * 255
+    unsigned char m15;       // 0x15: Track_unk::m2C * 255
+    unsigned char m16[0x18 - 0x16];
+};
+
 // inferred: character recorded in a frame of the replay (0x8C bytes; names invented)
 struct ReplayChara_unk {
     CharaTask* mChara;
@@ -19,7 +40,8 @@ struct ReplayChara_unk {
     signed char m06;      // 0x06: inferred: value of Model::m34C
     unsigned char m07;
     short mMtx[3][4];     // 0x08: inferred: model matrix (half floats)
-    unsigned char m20[0x88 - 0x20]; // inferred: node data passed to fn_8056A9E4
+    ReplayTrack_unk mTracks[4];      // 0x20: inferred: passed to fn_8056A9E4
+    unsigned char m80[0x88 - 0x80];
     short mAngle;         // 0x88: inferred: angle of the upper body (half float)
     unsigned char m8A[0x8C - 0x8A];
 };
