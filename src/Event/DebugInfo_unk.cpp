@@ -325,26 +325,26 @@ void fn_80223F50(DebugInfo_unk* info, Action* action, int motion, int start, int
 
 // ---- fn_80224184: page 4 (motion actions; over the inlining budget: weak copies) ----
 // inferred: attribute of the action by name (weak copy 0x802245C0; C name: the method name is unknown)
-extern "C" inline ActionParam_unk* fn_802245C0(Action* action, const char* name) {
+extern "C" __declspec(noinline) inline ActionParam_unk* fn_802245C0(Action* action, const char* name) {
     return action->fn_805392BC(fn_800DC880(name));
 }
 // inferred: value of an attribute read as int, float, motion and flag (four weak copies with the
 // same code; names unknown)
-extern "C" inline int fn_802245B8(ActionParam_unk* param) {
+extern "C" __declspec(noinline) inline int fn_802245B8(ActionParam_unk* param) {
     return param->m04.i;
 }
-extern "C" inline float fn_80224600(ActionParam_unk* param) {
+extern "C" __declspec(noinline) inline float fn_80224600(ActionParam_unk* param) {
     return param->m04.f;
 }
-extern "C" inline int fn_80224608(ActionParam_unk* param) {
+extern "C" __declspec(noinline) inline int fn_80224608(ActionParam_unk* param) {
     return param->m04.i;
 }
-extern "C" inline int fn_80224610(ActionParam_unk* param) {
+extern "C" __declspec(noinline) inline int fn_80224610(ActionParam_unk* param) {
     return param->m04.i;
 }
 
 // NONMATCHING: draft - under the inlining budget here (the original calls push_back, the string
-// constructor and the attribute accessors out of line)
+// constructor and the attribute accessors out of line; the accessors are noinline here)
 void fn_80224184(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
