@@ -410,7 +410,15 @@ struct PPPlayerArray_unk {
 // inferred: entry of the character list of MP::Manager2 (0xB4 bytes, array at +0x5F0); names invented
 struct PPCharaEntry_unk {
     MpCharaRef_unk mRef;
-    unsigned char m04[0xB4 - 0x4];
+    unsigned char m04[0xB0 - 0x4];
+    unsigned int mActive : 1; // 0xB0: inferred: the entry is used (fn_804E7AC0)
+    unsigned int mB0_0 : 31;
+};
+
+// inferred: array of the character list of MP::Manager2 (pointer and count); names invented
+struct PPCharaArray_unk {
+    PPCharaEntry_unk* mData;
+    int mNum;
 };
 
 // inferred: state variable of MP::Manager2 (value and last value set); names invented
@@ -482,8 +490,7 @@ struct PPManager2_unk : public atn::Task {
     GameTask* mGame;                  // 0x5E0
     PPPlayerArray_unk mPlayers;       // 0x5E4
     unsigned char m05EC[0x5F0 - 0x5EC];
-    PPCharaEntry_unk* mCharas;        // 0x5F0
-    int mCharaNum;                    // 0x5F4
+    PPCharaArray_unk mCharas;         // 0x5F0
     unsigned char m05F8[0x5FC - 0x5F8];
     PPPlayer_unk* mOwnPlayer;         // 0x5FC: inferred: used when the character has no slot
     unsigned char m0600[0x604 - 0x600];
@@ -831,8 +838,13 @@ struct PPRoute_unk {
     unsigned char m28[0x2C - 0x28];
     int m2C;
 };
-extern "C" PPRoute_unk* fn_804D80FC(atn::SimpleArrayBase_unk* array, int index);
-extern "C" int fn_804D810C(PPCharaEntry_unk** charas);
+// inferred: weak copies called by vf10 after fn_804D6688 (names invented)
+extern "C" __declspec(noinline) inline PPRoute_unk* fn_804D80FC(atn::SimpleArray<PPRoute_unk>* routes, int index) {
+    return &routes->mData[index];
+}
+extern "C" __declspec(noinline) inline int fn_804D810C(PPCharaArray_unk* charas) {
+    return charas->mNum;
+}
 
 extern "C" void* lbl_8087F518;
 inline void* ResMgr_unk() {
@@ -938,7 +950,14 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int a, int b)
 extern "C" int fn_804EB3CC(PPManager2_unk* mgr, int index);
 extern "C" bool fn_804EB5D8(PPManager2_unk* mgr);
 extern "C" void fn_804E9C64(PPManager2_unk* mgr);
-extern "C" void fn_804D8078(void* dst, CharaInfo_unk* info);
+// inferred: copy of the character information of a player (0x30 bytes at PPPlayer_unk + 4); names invented
+struct PPCharaInfo_unk {
+    int m[12];
+};
+extern "C" __declspec(noinline) inline PPCharaInfo_unk* fn_804D8078(PPCharaInfo_unk* dst, const PPCharaInfo_unk* src) {
+    *dst = *src;
+    return dst;
+}
 extern "C" void fn_804D00B8(int index, int value);
 struct PPRequests_unk;
 extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c);
@@ -969,22 +988,43 @@ extern "C" void fn_804D0164();
 extern "C" int fn_804D0140(int arg);
 extern "C" int fn_804D00DC(unsigned short key);
 
+// inferred: messages with a size and an id, as in atn/NetManager.cpp (NetMsgStatic_unk 0x804D8188)
+struct NetMsgStatic_unk {
+    inline ~NetMsgStatic_unk();
+    int m00;
+};
+inline void __NetMsgStatic_unk() {
+    static NetMsgStatic_unk s;
+    s.m00 = 0;
+}
+template <class T>
+struct PPNetMsg_unk {
+    PPNetMsg_unk(unsigned short id);
+    T* GetData_unk();
+    unsigned short mSize;
+    unsigned short mId;
+    T mData;
+};
+template <class T>
+__declspec(noinline) inline PPNetMsg_unk<T>::PPNetMsg_unk(unsigned short id) : mSize(2), mId(id) {
+    __NetMsgStatic_unk();
+    mSize = sizeof(T) + 2;
+}
+template <class T>
+__declspec(noinline) inline T* PPNetMsg_unk<T>::GetData_unk() {
+    return &mData;
+}
+
 // inferred: the message header sent by vf10 (names invented)
 struct PPMsgHeader_unk {
     PPMsgHeader_unk(unsigned short id) : mType(2), mId(id) {}
     unsigned short mType;
     unsigned short mId;
 };
-// inferred: messages of vf10 built in the stack (fn_804D8114/fn_804D81D0, names invented)
-struct PPMsgA_unk {
-    PPMsgA_unk(unsigned short id);
-    unsigned char* GetData_unk();
-    unsigned char m00[0x34];
-};
-struct PPMsgB_unk {
-    PPMsgB_unk(unsigned short id);
-    unsigned short* GetData_unk();
-    unsigned char m00[0x18];
+// inferred: payload of the message 0x1043 (characters of the players and m2B80); names invented
+struct PPMsgChars_unk {
+    unsigned short mIds[8];
+    int m10;
 };
 
 extern "C" __declspec(noinline) inline atn::net::Manager* fn_804D1694() {
@@ -1292,11 +1332,11 @@ extern "C" __declspec(noinline) inline int fn_804D6420(PPManager2_unk* mgr) {
 extern "C" __declspec(noinline) inline void fn_804D6484(CharaTask* chara, CharaInfo_unk* info) {
     chara->m60 = info;
 }
-extern "C" __declspec(noinline) inline atn::SimpleArrayBase_unk* fn_804D649C(void* route) {
-    return (atn::SimpleArrayBase_unk*)((char*)route + 0xF4);
+extern "C" __declspec(noinline) inline atn::SimpleArray<PPRoute_unk>* fn_804D649C(void* route) {
+    return (atn::SimpleArray<PPRoute_unk>*)((char*)route + 0xF4);
 }
-extern "C" __declspec(noinline) inline PPCharaEntry_unk* fn_804D64A4(PPCharaEntry_unk** charas, int index) {
-    return &(*charas)[index];
+extern "C" __declspec(noinline) inline PPCharaEntry_unk* fn_804D64A4(PPCharaArray_unk* charas, int index) {
+    return &charas->mData[index];
 }
 extern "C" __declspec(noinline) inline unsigned char fn_804D64B4(PPPlayer_unk* player) {
     return player->m0D52++;
@@ -2119,7 +2159,7 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
                 }
                 CharaInfo_unk* info = (CharaInfo_unk*)fn_804D1694()->vf14(player->mAid);
                 if (info != 0 && fn_804EB3CC(mgr, i) == 0) {
-                    fn_804D8078(player->m004, player->mRef.mChara->GetInfo_unk());
+                    fn_804D8078((PPCharaInfo_unk*)player->m004, (PPCharaInfo_unk*)player->mRef.mChara->GetInfo_unk());
                     player->m08 = (char*)info + 0x10;
                     player->m0C = (char*)info + 0x10;
                     fn_804D6484(player->mRef.mChara, (CharaInfo_unk*)player->m004);
@@ -2151,7 +2191,7 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
             player->mRef.mChara->SetSide_unk(player->mFlags.m22);
             if (player->mB0 == 12 || player->mB0 == 21) {
                 if (((Field_unk*)mgr->mGame)->fn_8013C504() != 0) {
-                    atn::SimpleArrayBase_unk* routes = fn_804D649C(((Field_unk*)mgr->mGame)->fn_8013C504());
+                    atn::SimpleArray<PPRoute_unk>* routes = fn_804D649C(((Field_unk*)mgr->mGame)->fn_8013C504());
                     for (unsigned int j = 0; j < routes->size(); j++) {
                         PPRoute_unk* route = fn_804D80FC(routes, j);
                         if (route->m2C != 0) {
@@ -2201,7 +2241,7 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
         mgr->m9A77 = 0;
         fn_804E9360(mgr);
         if (fn_804D6278(fn_804D1694(), own->mAid) != 1) {
-            PPMsgA_unk msg(0x1046);
+            PPNetMsg_unk<unsigned char> msg(0x1046);
             unsigned char* data = msg.GetData_unk();
             data[0] = fn_804D64B4(own);
             fn_804D1694();
@@ -2292,17 +2332,17 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
                     }
                 }
                 if (count == ready) {
-                    PPMsgB_unk msg(0x1043);
-                    unsigned short* data = msg.GetData_unk();
+                    PPNetMsg_unk<PPMsgChars_unk> msg(0x1043);
+                    PPMsgChars_unk* data = msg.GetData_unk();
                     for (int i = 0; i < 8; i++) {
                         PPPlayer_unk* player = fn_804D5F0C(mgr, i);
                         if (player != 0 && player->mFlags.mActive == 1) {
-                            data[i] = fn_804D659C(&player->mDC);
+                            data->mIds[i] = fn_804D659C(&player->mDC);
                         } else {
-                            data[i] = 0;
+                            data->mIds[i] = 0;
                         }
                     }
-                    ((int*)data)[4] = mgr->m2B80;
+                    data->m10 = mgr->m2B80;
                     fn_804D1694();
                     fn_804AE3BC()->fn_8050E094(-1, 0x1043, data, 1);
                     fn_804D1694();
@@ -2616,6 +2656,9 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
     mgr->mFrame++;
 }
 
+// inferred: defined after its first use, so the static of __NetMsgStatic_unk registers it (weak copy 0x804D8188)
+inline NetMsgStatic_unk::~NetMsgStatic_unk() {}
+
 // inferred: the slot holds a player of a team (team in the high nibble of the aid byte)
 static inline int IsTeamPlayer_unk(PPPlayer_unk* player) {
     if (player != 0 && player->mAid != 0xFF && (player->mAid & 0xF0) != 0) {
@@ -2880,6 +2923,175 @@ extern "C" int fn_804E4D70(PPManager2_unk* mgr, PPPlayer_unk* player) {
     return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr));
 }
 
+// inferred: float packed in 16 bits (sign, 5-bit exponent, 10-bit mantissa); names invented
+inline short PackHalf_unk(float f) {
+    unsigned int bits = *(unsigned int*)&f;
+    if (bits == 0) {
+        return 0;
+    }
+    int e = ((bits >> 23) & 0xFF) - 0x70;
+    if (e < 0) {
+        return 0;
+    }
+    if (e > 31) {
+        e = 31;
+    }
+    return (short)(((bits >> 16) & 0x8000) | ((e << 10) & 0x7C00) | ((bits >> 13) & 0x3FF));
+}
+struct PPHalfVec_unk {
+    short x;
+    short y;
+    short z;
+};
+// inferred: state of a character sent by the messages 0x1017 (own character, 0x35 bytes) and 0x101E
+struct PPCharaState_unk {
+    atn::Vector3 mPos;
+    atn::Vector3 mMove;
+    PPHalfVec_unk mNode;
+    PPHalfVec_unk mFA4;
+    float mRotY;
+    float mTurn;
+    PackedMotion_unk mMotion;
+};
+struct PPCharaState2_unk {
+    atn::Vector3 mPos;
+    atn::Vector3 mMove;
+    PPHalfVec_unk mNode;
+    PPHalfVec_unk mFA4;
+    float mRotY;
+    float mTurn;
+    int mIndex;
+    unsigned char mIsChara;
+    PackedMotion_unk mMotion;
+};
+
+extern "C" __declspec(noinline) inline atn::Vector3* fn_804E8090(CharaTask* chara, int i) {
+    return &chara->m13B8[i];
+}
+extern "C" __declspec(noinline) inline int fn_804E80A0(CharaTask* chara) {
+    return chara->mC4C;
+}
+extern "C" __declspec(noinline) inline float fn_804E80A8(CharaTask* chara, int i) {
+    return chara->m13D0[i];
+}
+extern "C" __declspec(noinline) inline int fn_804E80B8(CharaTask* chara) {
+    return chara->m524;
+}
+extern "C" __declspec(noinline) inline float fn_804E80C0(CharaTask* chara) {
+    return chara->m588;
+}
+extern "C" __declspec(noinline) inline void fn_804E80C8(PPHalfVec_unk* dst, const atn::Vector3* v) {
+    dst->x = PackHalf_unk(v->x);
+    dst->y = PackHalf_unk(v->y);
+    dst->z = PackHalf_unk(v->z);
+}
+extern "C" __declspec(noinline) inline atn::Vector3* fn_804E81C4(CharaTask* chara) {
+    return &chara->mFA4;
+}
+extern "C" void fn_804E7434(PPCharaEntry_unk* dst, const PPCharaEntry_unk* src);
+extern "C" int fn_804E650C(CharaTask* chara);
+extern "C" int fn_804CF424(ModelSlotsN_unk* model);
+extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index);
+
+// inferred: sends the state of the own character, of the characters of this aid and of the other
+// characters (messages 0x1017 and 0x101E)
+// NONMATCHING: draft - written for the weak copies of its accessors (0x804E8090-0x804E82BC)
+extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
+    fn_804EB870(mgr);
+    CharaTask* own = ((PlayerManager*)fn_8000D9E8())->GetHead_unk();
+    int slot = fn_804CF424((ModelSlotsN_unk*)own->GetModel_unk());
+    if (own->GetModel_unk()->fn_80139F2C(slot) >= 0) {
+        PPNetMsg_unk<PPCharaState_unk> msg(0x1017);
+        PPCharaState_unk* data = msg.GetData_unk();
+        data->mPos = *own->fn_8013C38C();
+        data->mMove = *fn_804E8090(own, 0) - *fn_804E8090(own, 1);
+        if (own->fn_8013C3A8() != 0 && fn_804E80A0(own) < 3) {
+            data->mMove *= 0.1f;
+        }
+        data->mRotY = own->GetRot_unk()->y;
+        data->mTurn = atn::WrapAngle_unk(fn_804E80A8(own, 0) - fn_804E80A8(own, 1));
+        int node = fn_804E80B8(own);
+        atn::Vector3 pos((&own->GetModel_unk()->fn_80147A00()[node])->mPos);
+        pos.z -= fn_804E80C0(own);
+        fn_804E80C8(&data->mNode, &pos);
+        fn_804E80C8(&data->mFA4, fn_804E81C4(own));
+        fn_804CF374(&data->mMotion, own->GetModel_unk(), slot);
+        fn_804D1694();
+        fn_804AE3BC()->fn_8050E094(-1, 0x1017, data, 0);
+    }
+    for (int i = 0; i < fn_804D5F40(&mgr->mPlayers); i++) {
+        if (fn_804EB3CC(mgr, i) == 0) {
+            continue;
+        }
+        PPPlayer_unk* player = fn_804D5F0C(mgr, i);
+        if (!player->mFlags.mActive || (player->mAid & 0xF) != fn_804D6198(fn_804D1694())) {
+            continue;
+        }
+        CharaTask* chara = player->mRef.mChara;
+        if (chara == 0 || chara->IsFrozen_unk() != 0) {
+            continue;
+        }
+        int slot = fn_804CF424((ModelSlotsN_unk*)chara->GetModel_unk());
+        if (chara->GetModel_unk()->fn_80139F2C(slot) < 0) {
+            continue;
+        }
+        PPNetMsg_unk<PPCharaState2_unk> msg(0x101E);
+        PPCharaState2_unk* data = msg.GetData_unk();
+        data->mPos = *chara->fn_8013C38C();
+        data->mMove = *fn_804E8090(chara, 0) - *fn_804E8090(chara, 1);
+        if (chara->fn_8013C3A8() != 0 && fn_804E80A0(chara) < 3) {
+            data->mMove *= 0.1f;
+        }
+        data->mRotY = chara->GetRot_unk()->y;
+        data->mTurn = atn::WrapAngle_unk(fn_804E80A8(chara, 0) - fn_804E80A8(chara, 1));
+        int node = fn_804E80B8(chara);
+        atn::Vector3 pos((&chara->GetModel_unk()->fn_80147A00()[node])->mPos);
+        pos.z -= fn_804E80C0(chara);
+        fn_804E80C8(&data->mNode, &pos);
+        fn_804E80C8(&data->mFA4, fn_804E81C4(chara));
+        fn_804CF374(&data->mMotion, chara->GetModel_unk(), slot);
+        data->mIndex = player->mAid;
+        data->mIsChara = 0;
+        fn_804D1694();
+        fn_804AE3BC()->fn_8050E094(-1, 0x101E, data, 0);
+    }
+    for (int i = 0; i < fn_804D810C(&mgr->mCharas); i++) {
+        PPCharaEntry_unk entry;
+        fn_804E7434(&entry, fn_804D64A4(&mgr->mCharas, i));
+        CharaTask* chara = entry.mRef.mChara;
+        if (!entry.mActive || chara == 0) {
+            continue;
+        }
+        if (chara->IsFrozen_unk() != 0 && fn_804E650C(chara) == 0) {
+            continue;
+        }
+        int slot = fn_804CF424((ModelSlotsN_unk*)chara->GetModel_unk());
+        if (chara->GetModel_unk()->fn_80139F2C(slot) < 0) {
+            continue;
+        }
+        PPNetMsg_unk<PPCharaState2_unk> msg(0x101E);
+        PPCharaState2_unk* data = msg.GetData_unk();
+        data->mPos = *chara->fn_8013C38C();
+        data->mMove = *fn_804E8090(chara, 0) - *fn_804E8090(chara, 1);
+        if (chara->fn_8013C3A8() != 0 && fn_804E80A0(chara) < 3) {
+            data->mMove *= 0.1f;
+        }
+        data->mRotY = chara->GetRot_unk()->y;
+        data->mTurn = atn::WrapAngle_unk(fn_804E80A8(chara, 0) - fn_804E80A8(chara, 1));
+        int node = fn_804E80B8(chara);
+        atn::Vector3 pos((&chara->GetModel_unk()->fn_80147A00()[node])->mPos);
+        pos.z -= fn_804E80C0(chara);
+        fn_804E80C8(&data->mNode, &pos);
+        fn_804E80C8(&data->mFA4, fn_804E81C4(chara));
+        fn_804CF374(&data->mMotion, chara->GetModel_unk(), slot);
+        data->mIndex = i;
+        data->mIsChara = 1;
+        fn_804D1694();
+        fn_804AE3BC()->fn_8050E094(-1, 0x101E, data, 0);
+    }
+}
+
+
 // inferred: number of the message for a kind of player (names invented)
 extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
     switch (kind) {
@@ -3027,8 +3239,8 @@ extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara) {
 
 // inferred: index of a character in the list m5F0 (-1 when it is not there)
 static inline int FindCharaIndex_unk(PPManager2_unk* mgr, CharaTask* chara) {
-    for (int i = 0; i < mgr->mCharaNum; i++) {
-        if (mgr->mCharas[i].mRef.mChara == chara) {
+    for (int i = 0; i < mgr->mCharas.mNum; i++) {
+        if (mgr->mCharas.mData[i].mRef.mChara == chara) {
             return i;
         }
     }
@@ -3040,7 +3252,7 @@ static inline int FindCharaIndex_unk(PPManager2_unk* mgr, CharaTask* chara) {
 extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara) {
     int index = FindCharaIndex_unk(mgr, chara);
     if (index >= 0) {
-        return &mgr->mCharas[index];
+        return &mgr->mCharas.mData[index];
     }
     return 0;
 }
@@ -3405,10 +3617,10 @@ extern "C" void fn_804F3E50() {
     }
     int* data = (int*)fn_804AE3BC()->GetWorkBuffer_unk();
     int index = data[0];
-    if (index < 0 || ((PPManager2_unk*)lbl_8087F610)->mCharaNum <= index) {
+    if (index < 0 || ((PPManager2_unk*)lbl_8087F610)->mCharas.mNum <= index) {
         return;
     }
-    PPCharaEntry_unk* entry = &((PPManager2_unk*)lbl_8087F610)->mCharas[index];
+    PPCharaEntry_unk* entry = &((PPManager2_unk*)lbl_8087F610)->mCharas.mData[index];
     if (entry->mRef.mChara != 0) {
         entry->mRef.fn_805011CC();
     }
