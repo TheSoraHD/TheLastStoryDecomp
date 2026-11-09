@@ -131,7 +131,7 @@ Em202MothersSpider::Em202MothersSpider(atn::Task* parent, EnemyInfo_unk* info)
 
 Em202MothersSpider::~Em202MothersSpider() {}
 
-// NONMATCHING: 93% - inlined push_back and register allocation (as Em202ForestSpider::vf0C)
+// NONMATCHING: 94.30% - inlined push_back and register allocation (as Em202ForestSpider::vf0C)
 int Em202MothersSpider::vf0C() {
     int loading = 0;
     for (int i = 0; i < 4; i++) {
@@ -143,7 +143,7 @@ int Em202MothersSpider::vf0C() {
         }
     }
     if (fn_8013655C() == 0 && (m1438 == 0 || (m1438->mFlags & 2) == 2) && m1914.IsLoading() == 0 &&
-        m1920.IsLoading() == 0 && m192C.IsLoading() == 0 && m19B4.IsLoading() == 0 &&
+        m1920.IsLoading() == 0 && m19B4.IsLoading() == 0 &&
         m1938.fn_80473F50() == 0 && loading == 0) {
         if (m1938.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
             atn::Csv csv((const char*)m1938.fn_80470580(), m1938.fn_8047059C());
