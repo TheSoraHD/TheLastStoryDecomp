@@ -1,13 +1,11 @@
 // inferred file name (splits-auto): power/reset handling of the game (power and reset callbacks,
-// fade out and shutdown, return to the Wii menu, idle timer), plus five small helpers of GameTask
-// and the field that sit before it without data (they may belong to game/ReplayBuffer).
+// fade out and shutdown, return to the Wii menu, idle timer). The ReplayBuffer members before it are at the
+// end of game/ReplayBuffer.cpp.
 #include "atn/FadeCommon.h"
 #include "atn/SequenceControl.h"
 #include "atn/Memory.h"
 
 #include "game/HomeButtonMenu.h"
-#include "game/ReplayBuffer.h"
-#include "atn/EfpHandle_unk.h"
 
 extern "C" void OSSetResetCallback(void (*callback)());
 extern "C" void OSSetPowerCallback(void (*callback)());
@@ -74,61 +72,6 @@ struct GameSystem_unk {
 };
 extern "C" GameSystem_unk* lbl_8087F9A0;
 extern "C" void fn_805714DC(GameSystem_unk* sys, int wait);
-
-void ReplayBuffer::fn_80570A14(int recording) {
-    m5BDA8 = recording;
-    if (recording != 0) {
-        m5BDAC = m00004;
-    } else {
-        m4517C = 0;
-    }
-}
-
-void ReplayBuffer::fn_80570A40(int pause) {
-    m5BDB0 = pause;
-}
-
-int ReplayBuffer::fn_80570A4C() {
-    return m4517C == 45;
-}
-
-void ReplayBuffer::fn_80570A64() {
-    m4517C = 0;
-}
-
-// inferred: emitters of an efp resource (atn::EfpFile::mResource; 0x54 bytes each, the owner of the
-// effects at 0x48); names invented
-struct EfpEmitter_unk {
-    unsigned char m00[0x48];
-    unsigned char m48[0x54 - 0x48];
-};
-struct EfpRes_unk {
-    unsigned int mCount;
-    EfpEmitter_unk* mItems;
-};
-
-// inferred: removes the effect events of every emitter of `efp`
-// NONMATCHING: 89.4% - register allocation: the original keeps the outer counter in r31 and the
-// erase index in a volatile register (tried counters declared outside, int/unsigned, an erase inline).
-void ReplayBuffer::fn_80570A74(atn::EfpFile* efp) {
-    EfpRes_unk* res = (EfpRes_unk*)efp->mResource;
-    if (res != 0) {
-        for (unsigned int i = 0; i < res->mCount; i++) {
-            void* owner = res->mItems[i].m48;
-            ReplayEffectEntry_unk** p = mEffects.mData;
-            while (p != mEffects.mData + mEffects.mSize) {
-                if ((*p)->mEvent.mRes == owner) {
-                    for (unsigned int j = p - mEffects.mData; j < mEffects.mSize - 1; j++) {
-                        mEffects.mData[j] = mEffects.mData[j + 1];
-                    }
-                    mEffects.mSize = mEffects.mSize - 1;
-                } else {
-                    p++;
-                }
-            }
-        }
-    }
-}
 
 // inferred: stops the game while the request is handled (name invented)
 inline void StopGame_unk() {
@@ -209,7 +152,8 @@ inline void GameSystem_StartFade_unk(GameSystem_unk* sys) {
 
 // inferred: per-frame update
 // NONMATCHING: 99.9% - in the fade block the original loads mFade into r4 and the HOME button menu
-// into r3 (swapped here); tried a local, a helper for the menu state.
+// into r3 (swapped here); tried a local for the fade or the menu, nested ifs, helpers for the menu state
+// (bool/int/accessor), `|= 2 | 0x20` and `mFlags = mFlags | 0x22`.
 extern "C" void fn_80570CF8(GameSystem_unk* sys) {
     int out;
     if (sys->mLock == 0) {

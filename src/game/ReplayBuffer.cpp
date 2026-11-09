@@ -14,6 +14,7 @@
 #include "game/BattleTask.h"
 #include "atn/EffectManager.h"
 #include "atn/DebugMessages_unk.h"
+#include "atn/EfpHandle_unk.h"
 
 // game/ReplayBuffer.cpp (0x8056A84C-0x80570A14): the replay of the field (records the characters and their
 // effects). Partial: only some of the functions are written.
@@ -600,6 +601,61 @@ void ReplayBuffer::fn_8057080C() {
                 m5BDA0 = e->mFrame < m5BDA0 ? e->mFrame : m5BDA0;
             }
             it++;
+        }
+    }
+}
+
+void ReplayBuffer::fn_80570A14(int recording) {
+    m5BDA8 = recording;
+    if (recording != 0) {
+        m5BDAC = m00004;
+    } else {
+        m4517C = 0;
+    }
+}
+
+void ReplayBuffer::fn_80570A40(int pause) {
+    m5BDB0 = pause;
+}
+
+int ReplayBuffer::fn_80570A4C() {
+    return m4517C == 45;
+}
+
+void ReplayBuffer::fn_80570A64() {
+    m4517C = 0;
+}
+
+// inferred: emitters of an efp resource (atn::EfpFile::mResource; 0x54 bytes each, the owner of the
+// effects at 0x48); names invented
+struct EfpEmitter_unk {
+    unsigned char m00[0x48];
+    unsigned char m48[0x54 - 0x48];
+};
+struct EfpRes_unk {
+    unsigned int mCount;
+    EfpEmitter_unk* mItems;
+};
+
+// inferred: removes the effect events of every emitter of `efp`
+// NONMATCHING: 89.4% - register allocation: the original keeps the outer counter in r31 and the
+// erase index in a volatile register (tried counters declared outside, int/unsigned, an erase inline).
+void ReplayBuffer::fn_80570A74(atn::EfpFile* efp) {
+    EfpRes_unk* res = (EfpRes_unk*)efp->mResource;
+    if (res != 0) {
+        for (unsigned int i = 0; i < res->mCount; i++) {
+            void* owner = res->mItems[i].m48;
+            ReplayEffectEntry_unk** p = mEffects.mData;
+            while (p != mEffects.mData + mEffects.mSize) {
+                if ((*p)->mEvent.mRes == owner) {
+                    for (unsigned int j = p - mEffects.mData; j < mEffects.mSize - 1; j++) {
+                        mEffects.mData[j] = mEffects.mData[j + 1];
+                    }
+                    mEffects.mSize = mEffects.mSize - 1;
+                } else {
+                    p++;
+                }
+            }
         }
     }
 }

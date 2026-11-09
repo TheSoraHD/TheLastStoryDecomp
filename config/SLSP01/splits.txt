@@ -3279,7 +3279,7 @@ game/QuadrupedTask.cpp:
 	.sdata2     start:0x80887F40 end:0x80888018
 
 game/ReplayBuffer.cpp:
-	.text       start:0x8056A84C end:0x80570A14
+	.text       start:0x8056A84C end:0x80570B48
 	.rodata     start:0x8075FE68 end:0x8075FFB0
 	.data       start:0x80795820 end:0x80795850
 	.bss        start:0x807C9568 end:0x807C9570
@@ -3287,7 +3287,7 @@ game/ReplayBuffer.cpp:
 	.sdata2     start:0x80888018 end:0x80888058
 
 game/GameSystem_unk.cpp:
-	.text       start:0x80570A14 end:0x8057162C
+	.text       start:0x80570B48 end:0x8057162C
 	.rodata     start:0x8075FFB0 end:0x8075FFB8
 	.sdata2     start:0x80888058 end:0x80888060
 
