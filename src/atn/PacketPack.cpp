@@ -303,11 +303,28 @@ extern "C" void fn_804D0164() {
 #include "MP/MpCharaRef_unk.h"
 #include "MP/SaveLoad.h"
 #include "atn/net/Manager.h"
+#include "atn/SingletonNoStatic.h"
 #include "atn/Camera_unk.h"
 #include "game/GameScene.h"
 #include "game/MapTask.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/ResLoader_unk.h"
+
+namespace MP {
+// inferred: network manager of the multiplayer (vtable 0x807916A0, instance lbl_8087F618, also lbl_8087F628)
+class ManagerMP : public atn::net::Manager, public atn::SingletonNoStatic<ManagerMP> {
+public:
+    virtual ~ManagerMP();
+    virtual int vf0C();
+    virtual atn::net::NetPlayerInfo_unk* vf10(unsigned int aid);
+    virtual atn::net::NetPlayerInfo_unk* vf14(unsigned int aid);
+};
+} // namespace MP
+// inferred: object deleted by MP::ManagerMP::vf0C (virtual destructor; type unknown)
+struct PPNetObject_unk {
+    virtual ~PPNetObject_unk();
+};
+extern "C" PPNetObject_unk* lbl_8087F61C;
 #include "atn/EffectManager.h"
 #include "atn/Array_unk.h"
 #include "game/PlayerManager.h"
@@ -931,7 +948,7 @@ extern "C" void fn_804FB668(PPManager2_unk* mgr);
 extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr);
 extern "C" void fn_804FAA7C(PPManager2_unk* mgr, unsigned int flush, PPPlayer_unk* player);
 extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode);
-extern "C" void fn_804FC0D4(PPManager2_unk* mgr, int arg);
+extern "C" void fn_804FC0D4(PPManager2_unk* mgr, int value);
 extern "C" void fn_804C2268(MP::D2AMpMenuLobby* lobby, int time);
 extern "C" int fn_804EB1AC(PPManager2_unk* mgr);
 extern "C" void fn_804E9360(PPManager2_unk* mgr);
@@ -1422,6 +1439,8 @@ extern "C" __declspec(noinline) inline int fn_804D6664(GameBgm* bgm) {
 extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
 }
+
+MP::ManagerMP::~ManagerMP() {}
 
 extern "C" int fn_800C310C(int arg);
 // inferred: MP::Manager2::vf0C (vtable 0x807916E0): waits for the resources, then shows the menu
@@ -4040,6 +4059,26 @@ extern "C" void fn_804F4728() {
     }
 }
 
+// inferred: payload of the message 0x1035 (9 bytes: a byte and the time of the game); names invented
+struct PPMsgTime_unk {
+    unsigned char m00[9];
+};
+// inferred: message 0x35 asked by `aid`: the first byte goes back in a message 0x1035 and the manager answers it
+// after the loop (m99B0)
+extern "C" void fn_804F4CB8(unsigned int aid) {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    unsigned char* in = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
+    unsigned char* data = msg.mData.m00;
+    data[0] = in[0];
+    fn_804AE3BC()->fn_8050E094(aid, 0x1035, data, 1);
+    ((PPManager2_unk*)lbl_8087F610)->m99B0 = 1;
+    ((PPManager2_unk*)lbl_8087F610)->m99B1 = aid;
+    ((PPManager2_unk*)lbl_8087F610)->m99B4 = 1;
+}
+
 // inferred: messages 0x38 and 0x3B: flags per network id
 extern "C" void fn_804F4E1C(unsigned int aid) {
     if (aid < 8) {
@@ -4084,10 +4123,6 @@ extern "C" void fn_804F4F64() {
     MP::D2AMpMenuCockpit::sInstance->fn_804B6204(((PPManager2_unk*)lbl_8087F610)->m564);
 }
 
-// inferred: payload of the message 0x1035 (9 bytes: a byte and the time of the game); names invented
-struct PPMsgTime_unk {
-    unsigned char m00[9];
-};
 // inferred: answers the time of the game to `aid` (message 0x1035)
 extern "C" void fn_804F4FC4(int aid) {
     if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
@@ -4371,21 +4406,42 @@ extern "C" unsigned int fn_804FC010(PPManager2_unk* mgr) {
     return 0;
 }
 
-// inferred: info of the player of network id `aid` (two copies of the same accessor)
-extern "C" atn::net::NetPlayerInfo_unk* fn_804FC240(atn::net::Manager* net, unsigned int aid) {
-    unsigned int i = aid & 0xF;
-    if (i >= net->mPlayers.mSize) {
-        return 0;
+// NONMATCHING: 99.12% - r3/r4/r5 of the inlined search fn_804DD158 (as fn_804DD1A8)
+// inferred: on the server, flag m01 of its own slot
+extern "C" void fn_804FC0D4(PPManager2_unk* mgr, int value) {
+    if (lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) {
+        PPPlayer_unk* player = fn_804DD158(mgr, lbl_8087F628->GetServerAid_unk());
+        if (player != 0) {
+            player->mFlags.m01 = value;
+        }
     }
-    return &net->mPlayers.mData[i];
 }
 
-extern "C" atn::net::NetPlayerInfo_unk* fn_804FC268(atn::net::Manager* net, unsigned int aid) {
+// inferred: info of the player of network id `aid` (two copies of the same accessor)
+atn::net::NetPlayerInfo_unk* MP::ManagerMP::vf10(unsigned int aid) {
     unsigned int i = aid & 0xF;
-    if (i >= net->mPlayers.mSize) {
+    if (i >= mPlayers.mSize) {
         return 0;
     }
-    return &net->mPlayers.mData[i];
+    return &mPlayers.mData[i];
+}
+
+atn::net::NetPlayerInfo_unk* MP::ManagerMP::vf14(unsigned int aid) {
+    unsigned int i = aid & 0xF;
+    if (i >= mPlayers.mSize) {
+        return 0;
+    }
+    return &mPlayers.mData[i];
+}
+
+// inferred: shuts the library down and deletes lbl_8087F61C
+int MP::ManagerMP::vf0C() {
+    int result = atn::net::Manager::vf0C();
+    if (lbl_8087F61C != 0) {
+        delete lbl_8087F61C;
+        lbl_8087F61C = 0;
+    }
+    return result;
 }
 
 extern "C" int fn_804FC510() {
