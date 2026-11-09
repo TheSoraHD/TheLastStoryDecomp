@@ -301,6 +301,7 @@ extern "C" void fn_804D0164() {
 #include "atn/Camera_unk.h"
 #include "game/MapTask.h"
 #include "atn/EfpHandle_unk.h"
+#include "atn/ResLoader_unk.h"
 #include "atn/EffectManager.h"
 #include "atn/Array_unk.h"
 #include "game/PlayerManager.h"
@@ -523,7 +524,9 @@ struct PPManager2_unk : public atn::Task {
     int m967C;                        // inferred: value for the players marked m30 (fn_804E4D70)
     unsigned char m9680[0x9694 - 0x9680];
     int m9694[8];                     // inferred: per aid values of message 0x35
-    unsigned char m96B4[0x974C - 0x96B4];
+    atn::EfpFile m96B4;               // inferred: effects of the game (fn_804DF404)
+    atn::EffFile m96C0;
+    unsigned char m96CC[0x974C - 0x96CC];
     int m974C;                        // inferred: id given to the ranking requests
     int m9750;
     int m9754;
@@ -1023,6 +1026,19 @@ template <class T, int N>
 __declspec(noinline) inline T* PPNetMsg_unk<T, N>::GetData_unk() {
     return &mData;
 }
+
+// inferred: the same message inlined by the small senders (the drafts call PPNetMsg_unk out of line, see
+// the notes of s12h-20261109)
+template <class T, int N = sizeof(T)>
+struct NetMsgI_unk {
+    NetMsgI_unk(unsigned short id) : mSize(2), mId(id) {
+        __NetMsgStatic_unk();
+        mSize = N + 2;
+    }
+    unsigned short mSize;
+    unsigned short mId;
+    T mData;
+};
 
 // inferred: the message header sent by vf10 (names invented)
 struct PPMsgHeader_unk {
@@ -2930,6 +2946,21 @@ extern "C" void fn_804DF310(PPManager2_unk* mgr) {
     }
 }
 
+// inferred: the game and the characters of the players are ready
+// NONMATCHING: 99% - r3/r4 of the loop (offset and character) swapped, as in fn_804EB870
+extern "C" int fn_804DF404(PPManager2_unk* mgr) {
+    if ((mgr->mGame->mFlags & 2) == 2 && mgr->m96B4.IsLoading() == 0 && mgr->m96C0.IsLoading() == 0) {
+        for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+            CharaTask* chara = mgr->mPlayers.mData[i].mRef.mChara;
+            if (chara != 0 && (chara->mFlags & 2) != 2) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    return 1;
+}
+
 // inferred: comparator of the players by score (higher first)
 extern "C" int fn_804E09AC(void* unused, const PPPlayer_unk* a, const PPPlayer_unk* b) {
     return a->mD58 > b->mD58;
@@ -3210,6 +3241,17 @@ extern "C" bool fn_804EA520(PPManager2_unk* mgr) {
     return mgr->mState == 30;
 }
 
+// inferred: setters of the game settings, sent to the other players when `send` is set (messages
+// 0x1001, 0x1002, 0x1033, 0x1003 and 0x103C)
+extern "C" void fn_804EA534(PPManager2_unk* mgr, int value, int send) {
+    if (send) {
+        NetMsgI_unk<int> msg(0x1001);
+        msg.mData = value;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1001, &msg.mData, 0);
+    }
+    mgr->m55C = value;
+}
+
 // inferred: number of the message for a kind of player (names invented)
 extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
     switch (kind) {
@@ -3221,6 +3263,42 @@ extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
     default:
         return 10;
     }
+}
+
+extern "C" void fn_804EA608(PPManager2_unk* mgr, int value, int send) {
+    if (send) {
+        NetMsgI_unk<int> msg(0x1002);
+        msg.mData = value;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1002, &msg.mData, 1);
+    }
+    mgr->m564 = value;
+}
+
+extern "C" void fn_804EA6B0(PPManager2_unk* mgr, signed char value, int send) {
+    if (send) {
+        NetMsgI_unk<signed char> msg(0x1033);
+        msg.mData = value;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1033, &msg.mData, 0);
+    }
+    mgr->m5A0 = value;
+}
+
+extern "C" void fn_804EA75C(PPManager2_unk* mgr, int value, int send) {
+    if (send && mgr->m568 != value) {
+        NetMsgI_unk<int> msg(0x1003);
+        msg.mData = value;
+        fn_804AE3BC()->fn_8050E094(-1, 0x1003, &msg.mData, 0);
+    }
+    mgr->m568 = value;
+}
+
+extern "C" void fn_804EA810(PPManager2_unk* mgr, int value, int send) {
+    if (send) {
+        NetMsgI_unk<unsigned char> msg(0x103C);
+        msg.mData = value;
+        fn_804AE3BC()->fn_8050E094(-1, 0x103C, &msg.mData, 0);
+    }
+    mgr->m5A8 = value;
 }
 
 extern "C" int fn_804EAA50(PPManager2_unk* mgr) {
@@ -3968,6 +4046,22 @@ extern "C" void fn_804FB530(PPManager2_unk* mgr) {
         return;
     }
     mgr->m976C = 1;
+}
+
+extern "C" int fn_800A5920(void* pad, int port, int all);
+extern "C" int fn_800A59F0(void* pad, int port);
+extern "C" int fn_800A5AA4(void* pad, int port);
+// inferred: marks the inputs of the player (button, stick, other) once they were used
+extern "C" void fn_804FB550(PPManager2_unk* mgr) {
+    if (mgr->m99F0[0] == 0 && (fn_800A5920(GetPad_unk(), 0, 0) != 0 || fn_800A59F0(GetPad_unk(), 0) != 0)) {
+        mgr->m99F0[0] = 1;
+    }
+    if (mgr->m99F0[1] == 0 && fn_800A59F0(GetPad_unk(), 0) != 0) {
+        mgr->m99F0[1] = 1;
+    }
+    if (mgr->m99F0[2] == 0 && fn_800A5AA4(GetPad_unk(), 0) != 0) {
+        mgr->m99F0[2] = 1;
+    }
 }
 
 // inferred: number of the players of a game mode (-1: the current one)
