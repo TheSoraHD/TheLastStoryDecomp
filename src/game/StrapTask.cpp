@@ -46,8 +46,7 @@ extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was pressed
 #include "atn/SequenceBoot_unk.h"
 #include "atn/DrawHelper.h"
-extern "C" void* lbl_8087F9A0;
-extern "C" void fn_8057155C(void* obj, int arg);
+#include "game/ResetShutdown.h"
 
 StrapTask* StrapTask::fn_805A6208(atn::Task* parent) {
     if (parent != 0) {
@@ -130,7 +129,7 @@ void StrapTask::vf10() {
         if (++m4C > 45 && fn_800A5920(lbl_8087EF70, 0, 0) != 0) {
             m4C = 15;
             m48 = 4;
-            fn_8057155C(lbl_8087F9A0, 0);
+            lbl_8087F9A0->fn_8057155C(0);
         }
         break;
     }

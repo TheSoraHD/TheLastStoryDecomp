@@ -27,9 +27,7 @@ struct Unk_8087F018 {
 extern "C" Unk_8087F018* lbl_8087F018;
 extern "C" void fn_800DF0F0(Unk_8087F018* obj, int arg);
 extern "C" void KPADEnableDPD(int chan); // inferred: per controller channel (stops the rumble?)
-extern "C" void* lbl_8087F9A0;
-extern "C" void fn_8057155C(void* obj, int arg); // inferred: reset
-extern "C" void fn_805714DC(void* obj, int arg); // inferred: return to the Wii menu
+#include "game/ResetShutdown.h"
 // inferred: render manager (see game/StrapTask.cpp)
 struct HbmRender_unk {
     unsigned char m00[0x0E];
@@ -99,11 +97,11 @@ void HomeButtonMenu::fn_8044073C() {
         if (ret >= 0) {
             switch (ret) {
             case 1:
-                fn_8057155C(lbl_8087F9A0, 1);
+                lbl_8087F9A0->fn_8057155C(1);
                 m84 = 2;
                 break;
             case 2:
-                fn_805714DC(lbl_8087F9A0, 1);
+                lbl_8087F9A0->fn_805714DC(1);
                 m84 = 2;
                 break;
             default:

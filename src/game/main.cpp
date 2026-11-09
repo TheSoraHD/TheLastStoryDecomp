@@ -26,15 +26,7 @@ extern "C" void NWC24SuspendScheduler();
 extern "C" unsigned char SCGetLanguage();
 extern "C" unsigned long strlen(const char* s);
 
-// inferred: power/reset handling (the GameSystem_unk of game/GameSystem_unk.cpp; class name from the
-// type name of the bound functor at 0x807561F4)
-class ResetShutdown {
-public:
-    void fn_80570CF8(); // inferred: per-frame update
-};
-extern "C" void fn_80570CF8(ResetShutdown* self); // the same function, called directly by main
-extern "C" void fn_80570C50();                    // inferred: creates the ResetShutdown singleton
-extern "C" ResetShutdown* lbl_8087F9A0;
+#include "game/ResetShutdown.h"
 
 // inferred: error manager (class name from the type name of the bound functor at 0x8075617C)
 class ErrorManager {
@@ -219,7 +211,7 @@ int main() {
         lbl_8087F534->mTimer0.Stop_unk();
         lbl_8087F534->fn_805A6BD8();
         fn_80071D60(lbl_8087EEE0, lbl_8087F0A8->m30 == 30);
-        fn_80570CF8(lbl_8087F9A0);
+        lbl_8087F9A0->fn_80570CF8();
         FrameCallbacks_unk* callbacks = lbl_8087EE94;
         for (unsigned int i = 0; i < callbacks->mSize; i++) {
             (*callbacks)[i]();

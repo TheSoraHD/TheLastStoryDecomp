@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 
 #include "game/HomeButtonMenu.h"
+#include "game/ResetShutdown.h"
 
 extern "C" void OSSetResetCallback(void (*callback)());
 extern "C" void OSSetPowerCallback(void (*callback)());
@@ -55,23 +56,6 @@ struct GameSettings_unk {
 };
 extern "C" GameSettings_unk* lbl_8087F0A8;
 
-// inferred: the system state (0x30 bytes, singleton lbl_8087F9A0); names invented
-struct GameSystem_unk {
-    int mPower;      // 0x00: inferred: power button pressed (restart)
-    int mReset;      // 0x04: inferred: reset button pressed
-    int mWait;       // 0x08: inferred: wait for the save to end
-    int mToMenu;     // 0x0C
-    int mToDisc;     // 0x10
-    int mShutdown;   // 0x14
-    atn::FadeColor* mFade; // 0x18
-    int mIdle;       // 0x1C: inferred: frames without input
-    int mNoFade;     // 0x20
-    int mLock;       // 0x24: inferred: requests are delayed while set
-    int mPowerReq;   // 0x28
-    int mResetReq;   // 0x2C
-};
-extern "C" GameSystem_unk* lbl_8087F9A0;
-extern "C" void fn_805714DC(GameSystem_unk* sys, int wait);
 
 // inferred: stops the game while the request is handled (name invented)
 inline void StopGame_unk() {
@@ -89,7 +73,7 @@ inline void StopGame_unk() {
 
 // inferred: power button callback
 extern "C" void fn_80570B48() {
-    GameSystem_unk* sys = lbl_8087F9A0;
+    ResetShutdown* sys = lbl_8087F9A0;
     if (sys->mLock != 0) {
         sys->mPowerReq = 1;
     } else {
@@ -101,7 +85,7 @@ extern "C" void fn_80570B48() {
 
 // inferred: reset button callback
 extern "C" void fn_80570BD0() {
-    GameSystem_unk* sys = lbl_8087F9A0;
+    ResetShutdown* sys = lbl_8087F9A0;
     if (sys->mLock != 0) {
         sys->mResetReq = 1;
     } else {
@@ -113,7 +97,7 @@ extern "C" void fn_80570BD0() {
 // inferred: creates the singleton and installs the callbacks
 extern "C" void fn_80570C50() {
     if (lbl_8087F9A0 == 0) {
-        GameSystem_unk* sys = new ((MemoryTag)1, "", "", 0) GameSystem_unk;
+        ResetShutdown* sys = new ((MemoryTag)1, "", "", 0) ResetShutdown;
         if (sys != 0) {
             sys->mPower = 0;
             sys->mReset = 0;
@@ -135,7 +119,7 @@ extern "C" void fn_80570C50() {
 }
 
 // inferred: fades the screen out before the request (name invented)
-inline void GameSystem_StartFade_unk(GameSystem_unk* sys) {
+inline void GameSystem_StartFade_unk(ResetShutdown* sys) {
     if (lbl_8087F530 != 0 && lbl_8087F420 != 0 && !lbl_8087F420->IsBusy_unk()) {
         sys->mFade = atn::FadeColor::Create(lbl_8087F530, 20, 0, 0xFF000000);
         sys->mFade->mWait = 300000;
@@ -154,39 +138,39 @@ inline void GameSystem_StartFade_unk(GameSystem_unk* sys) {
 // NONMATCHING: 99.9% - in the fade block the original loads mFade into r4 and the HOME button menu
 // into r3 (swapped here); tried a local for the fade or the menu, nested ifs, helpers for the menu state
 // (bool/int/accessor), `|= 2 | 0x20` and `mFlags = mFlags | 0x22`.
-extern "C" void fn_80570CF8(GameSystem_unk* sys) {
+void ResetShutdown::fn_80570CF8() {
     int out;
-    if (sys->mLock == 0) {
-        if (sys->mPowerReq != 0) {
-            sys->mPowerReq = 0;
-            fn_805714DC(sys, 0);
+    if (mLock == 0) {
+        if (mPowerReq != 0) {
+            mPowerReq = 0;
+            fn_805714DC(0);
         }
-        if (sys->mResetReq != 0) {
-            sys->mResetReq = 0;
-            if (sys->mLock != 0) {
-                sys->mResetReq = 1;
+        if (mResetReq != 0) {
+            mResetReq = 0;
+            if (mLock != 0) {
+                mResetReq = 1;
             } else {
-                sys->mReset = 1;
+                mReset = 1;
                 StopGame_unk();
             }
         }
     }
-    if (sys->mShutdown != 0) {
-        if (sys->mPower != 0 && sys->mWait != 0 && fn_800A4228(lbl_8087EF68, &out) == 0) {
+    if (mShutdown != 0) {
+        if (mPower != 0 && mWait != 0 && fn_800A4228(lbl_8087EF68, &out) == 0) {
             OSRestart(0);
         }
         return;
     }
-    if (sys->mNoFade != 0 || sys->mFade != 0) {
-        if (sys->mFade != 0 && HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m84 == 1) {
-            sys->mFade->mFlags |= 0x22;
-            sys->mFade->Update();
+    if (mNoFade != 0 || mFade != 0) {
+        if (mFade != 0 && HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m84 == 1) {
+            mFade->mFlags |= 0x22;
+            mFade->Update();
         }
-        if (sys->mNoFade == 0) {
-            if (sys->mFade == 0) {
+        if (mNoFade == 0) {
+            if (mFade == 0) {
                 return;
             }
-            if (sys->mFade->mFrame <= sys->mFade->mDuration) {
+            if (mFade->mFrame <= mFade->mDuration) {
                 return;
             }
         }
@@ -199,78 +183,78 @@ extern "C" void fn_80570CF8(GameSystem_unk* sys) {
         VISetBlack(1);
         VIFlush();
         VIWaitForRetrace();
-        if (sys->mPower != 0) {
+        if (mPower != 0) {
             OSRestart(0);
-        } else if (sys->mToMenu != 0) {
+        } else if (mToMenu != 0) {
             OSReturnToMenu();
-        } else if (sys->mToDisc != 0) {
+        } else if (mToDisc != 0) {
             OSReturnToDataManager();
         } else {
             OSShutdownSystem();
         }
         return;
     }
-    if (sys->mPower != 0) {
+    if (mPower != 0) {
         if (HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m84 >= 1 && HomeButtonMenu::sInstance->m84 <= 2) {
-            if (sys->mWait != 0) {
+            if (mWait != 0) {
                 if (fn_800A4228(lbl_8087EF68, &out) == 0) {
                     OSRestart(0);
                 }
             } else {
                 HBMStartBlackOut();
-                sys->mShutdown = 1;
+                mShutdown = 1;
                 OSSetResetCallback(0);
                 OSSetPowerCallback(0);
                 StopGame_unk();
             }
         } else {
-            GameSystem_StartFade_unk(sys);
+            GameSystem_StartFade_unk(this);
         }
-    } else if (sys->mToMenu != 0) {
-        if (sys->mWait != 0) {
+    } else if (mToMenu != 0) {
+        if (mWait != 0) {
             if (fn_800A4228(lbl_8087EF68, &out) == 0) {
                 OSReturnToMenu();
             }
         } else {
-            GameSystem_StartFade_unk(sys);
+            GameSystem_StartFade_unk(this);
         }
-    } else if (sys->mToDisc != 0) {
-        GameSystem_StartFade_unk(sys);
-    } else if (sys->mReset != 0) {
-        GameSystem_StartFade_unk(sys);
+    } else if (mToDisc != 0) {
+        GameSystem_StartFade_unk(this);
+    } else if (mReset != 0) {
+        GameSystem_StartFade_unk(this);
     }
     if (lbl_8087EF70 != 0) {
-        sys->mIdle++;
+        mIdle++;
         if (fn_800A5920(lbl_8087EF70, 0, 1) || fn_800A59F0(lbl_8087EF70, 0)) {
-            sys->mIdle = 0;
+            mIdle = 0;
         }
-        if (lbl_8087F0A8->m194 != 0 && sys->mIdle > 5400) {
-            fn_805714DC(sys, 0);
+        if (lbl_8087F0A8->m194 != 0 && mIdle > 5400) {
+            fn_805714DC(0);
         }
     }
 }
 
 // inferred: restart request (power)
-extern "C" void fn_805714DC(GameSystem_unk* sys, int wait) {
-    if (sys->mLock != 0) {
-        sys->mPowerReq = 1;
+void ResetShutdown::fn_805714DC(int wait) {
+    if (mLock != 0) {
+        mPowerReq = 1;
     } else {
-        sys->mPower = 1;
-        sys->mWait = wait;
+        mPower = 1;
+        mWait = wait;
         StopGame_unk();
     }
 }
 
 // inferred: return to the Wii menu
-extern "C" void fn_8057155C(GameSystem_unk* sys, int wait) {
-    sys->mToMenu = 1;
-    sys->mWait = wait;
+void ResetShutdown::fn_8057155C(int wait) {
+    mToMenu = 1;
+    mWait = wait;
     StopGame_unk();
 }
 
 // inferred: restart to the disc channel
-extern "C" void fn_805715C4(GameSystem_unk* sys, int wait) {
-    sys->mToDisc = 1;
-    sys->mWait = wait;
+void ResetShutdown::fn_805715C4(int wait) {
+    mToDisc = 1;
+    mWait = wait;
     StopGame_unk();
 }

@@ -114,7 +114,6 @@ extern "C" void fn_803B854C(char* name, int* size); // inferred: name and size o
 extern "C" void fn_803B84DC(char* name);            // inferred: name of the save directory
 extern "C" int fn_800CB538(atn::SoundRef* sound);   // inferred: the sound is playing
 extern "C" void fn_8006BA74(int lang);              // inferred: sets the text language
-extern "C" void fn_805715C4(void* system, int wait); // inferred: returns to the Wii menu (game/GameSystem_unk.cpp)
 
 // inferred: languages of the second menu (0x80793940)
 struct TitleLang_unk {
@@ -214,12 +213,7 @@ NewTitleTask::NewTitleTask(atn::Task* parent, int index)
     }
 }
 
-// inferred: power/reset state of the game (lbl_8087F9A0, game/GameSystem_unk.cpp); only the member used here
-struct TitleSystem_unk {
-    unsigned char m00[0x24];
-    int mLock; // 0x24
-};
-extern "C" TitleSystem_unk* lbl_8087F9A0;
+#include "game/ResetShutdown.h"
 
 // inferred: as in game/GameTask.cpp
 inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
@@ -1202,7 +1196,7 @@ void NewTitleTask::vf10() {
                 lbl_8087F420->fn_80365320();
             }
             if (lbl_8087F420->mSelect == 0) {
-                fn_805715C4(lbl_8087F9A0, 0);
+                lbl_8087F9A0->fn_805715C4(0);
                 if (lbl_8087EFE8 != 0) {
                     lbl_8087EFE8->fn_800CF45C(25, 0);
                 }
