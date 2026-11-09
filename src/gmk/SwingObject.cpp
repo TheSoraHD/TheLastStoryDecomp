@@ -7,6 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
+#include "atn/NodeChunk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -54,13 +55,6 @@ extern "C" void* lbl_8087F430; // inferred: field
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: node chunk passed to the node callback (only the hash is read)
 
-namespace atn {
-
-struct NodeChunk {
-    unsigned char m00[0x14];
-    int mHash; // 0x14
-};
-} // namespace atn
 
 // inferred: path of a gimmick file. @stringBase0 starts with this literal (followed by an extra
 // zero byte) before the literals of LoadSwing_unk, so a function placed before it used it and was

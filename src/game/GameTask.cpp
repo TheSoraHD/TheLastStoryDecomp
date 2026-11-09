@@ -74,6 +74,7 @@
 #include "std/vector.h"
 #include "game/BattleCharaTask.h"
 #include "game/BattleEfp_unk.h"
+#include "game/ReplayBuffer.h"
 // inferred: post effect manager (atn/PostFx.h, which redefines atn::IRender here)
 extern "C" void* lbl_8087EF8C;
 
@@ -128,23 +129,6 @@ struct GameTaskStatic_unk {
 };
 
 GameTaskStatic_unk sGameTaskStatic_unk;
-
-// inferred: object owned by GameTask + 0x558C (0x494 bytes; constructor and destructor in
-// game/ReplayBuffer.cpp, 0x8056B388/0x8056B394). Name invented.
-struct ReplayRecorder_unk {
-    ReplayRecorder_unk();
-    ~ReplayRecorder_unk();
-    void fn_8056B3D4(); // inferred: 0x8056B3D4
-    unsigned char m000[0x494];
-};
-
-// inferred: object of GameTask + 0x5590 (destructor 0x8056C398 in game/ReplayBuffer.cpp; other members
-// in game/GameSystem_unk.cpp)
-struct GameTaskData_unk {
-    GameTaskData_unk(); // 0x8056BF8C
-    ~GameTaskData_unk();
-    unsigned char m00000[0x5BDBC]; // inferred: size from the new of GameTask::fn_8036CA60
-};
 
 // inferred: pause task of the field (__vt__13GamePauseTask 0x8078A394, size 0x78); the GameTask
 // constructor inlines its creation. Member names invented.

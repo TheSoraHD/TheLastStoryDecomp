@@ -6,6 +6,7 @@
 #include "atn/Memory.h"
 
 #include "game/HomeButtonMenu.h"
+#include "game/ReplayBuffer.h"
 
 extern "C" void OSSetResetCallback(void (*callback)());
 extern "C" void OSSetPowerCallback(void (*callback)());
@@ -72,18 +73,6 @@ struct GameSystem_unk {
 };
 extern "C" GameSystem_unk* lbl_8087F9A0;
 extern "C" void fn_805714DC(GameSystem_unk* sys, int wait);
-
-// inferred: big object of GameTask (0x5BDB4 bytes or more), only the members used here
-struct GameTaskData_unk {
-    unsigned char m00000[0x04];
-    int m00004;
-    unsigned char m00008[0x4517C - 0x8];
-    int m4517C; // inferred: state (45 = ...)
-    unsigned char m45180[0x5BDA8 - 0x45180];
-    int m5BDA8;
-    int m5BDAC;
-    int m5BDB0;
-};
 
 extern "C" void fn_80570A14(GameTaskData_unk* obj, int value) {
     obj->m5BDA8 = value;
