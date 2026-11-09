@@ -690,7 +690,7 @@ extern "C" __declspec(noinline) inline int fn_804D5F40(PPPlayerArray_unk* player
 extern "C" __declspec(noinline) inline PPPlayer_unk* fn_804D5F48(PPPlayerArray_unk* players, int index) {
     return &players->mData[index];
 }
-extern "C" __declspec(noinline) inline unsigned char fn_804D6348(atn::net::Manager* net) {
+extern "C" __declspec(noinline) inline int fn_804D6348(atn::net::Manager* net) {
     return net->mC215;
 }
 
@@ -943,7 +943,7 @@ extern "C" int fn_804F7EC8(void* data, int size);
 extern "C" int fn_804F7EF0(void* data, int size);
 extern "C" int fn_804F7F18();
 extern "C" int fn_804F7F34();
-extern "C" void fn_804EE040();
+extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size);
 extern "C" void fn_804ED768();
 extern "C" void fn_804EDB0C();
 extern "C" void fn_804EDCCC();
@@ -3142,10 +3142,10 @@ extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, u
 }
 
 // inferred: state of the manager and the value set when a player slot is added (weak copies)
-extern "C" inline int fn_804EE030(PPManager2_unk* mgr) {
+extern "C" __declspec(noinline) inline int fn_804EE030(PPManager2_unk* mgr) {
     return mgr->mState;
 }
-extern "C" inline void fn_804EE038(PPManager2_unk* mgr, short value) {
+extern "C" __declspec(noinline) inline void fn_804EE038(PPManager2_unk* mgr, short value) {
     mgr->m50A = value;
 }
 
@@ -3905,6 +3905,310 @@ extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
         if (player->mFlags.mActive == 1 && aid == player->mAid) {
             return player;
         }
+    }
+    return 0;
+}
+
+extern "C" void fn_804EE904(MpCharaRef_unk* ref);
+extern "C" void fn_804EE9F0(PPPlayer_unk* player);
+extern "C" void fn_804EE834(PPPlayer_unk* player);
+extern "C" void fn_804EEB34();
+extern "C" void fn_804EF0F0(unsigned int aid);
+extern "C" void fn_804EF9B4();
+extern "C" void fn_804EFC94();
+extern "C" void fn_804EFE98(PPPlayer_unk* player);
+extern "C" void fn_804EFF74(PPPlayer_unk* player);
+extern "C" void fn_804F1068();
+extern "C" void fn_804F1124();
+extern "C" void fn_804F12A0();
+extern "C" void fn_804F135C();
+extern "C" void fn_804F1478(PPPlayer_unk* player);
+extern "C" void fn_804F1488(PPPlayer_unk* player);
+extern "C" void fn_804F1498(PPPlayer_unk* player);
+extern "C" void fn_804F1564(PPPlayer_unk* player);
+extern "C" void fn_804F1950(PPPlayer_unk* player);
+extern "C" void fn_804F1CA0(PPPlayer_unk* player);
+extern "C" void fn_804F1D70(PPPlayer_unk* player);
+extern "C" void fn_804F1F24(PPPlayer_unk* player);
+extern "C" void fn_804F1F34(PPPlayer_unk* player);
+extern "C" void fn_804F2040(unsigned int type);
+extern "C" void fn_804F2258();
+extern "C" void fn_804F2450(unsigned int type);
+extern "C" void fn_804F2994();
+extern "C" void fn_804F2C44(PPPlayer_unk* player);
+extern "C" void fn_804F2CE4();
+extern "C" void fn_804F2CE8(unsigned int aid);
+extern "C" void fn_804F2DAC(unsigned int aid);
+extern "C" void fn_804F2E3C(unsigned int aid);
+extern "C" void fn_804F2ECC(unsigned int aid);
+extern "C" void fn_804F2F90(unsigned int aid);
+extern "C" void fn_804F3020(unsigned int aid);
+extern "C" void fn_804F30B0();
+extern "C" void fn_804F3170();
+extern "C" void fn_804F3258();
+extern "C" void fn_804F34B4(PPPlayer_unk* player, unsigned int aid);
+extern "C" void fn_804F36F4(PPPlayer_unk* player, unsigned int aid);
+extern "C" void fn_804F36F8(PPPlayer_unk* player);
+extern "C" void fn_804F3880();
+extern "C" void fn_804F39D4();
+extern "C" void fn_804F3AF0();
+extern "C" void fn_804F3BAC();
+extern "C" void fn_804F3D80(PPPlayer_unk* player);
+extern "C" void fn_804F3E50();
+extern "C" void fn_804F3EEC();
+extern "C" void fn_804F4728();
+extern "C" void fn_804F47FC(PPPlayer_unk* player, unsigned int aid);
+extern "C" void fn_804F4CB8(unsigned int aid);
+extern "C" void fn_804F4E1C(unsigned int aid);
+extern "C" void fn_804F4E40();
+extern "C" void fn_804EED7C();
+extern "C" void fn_804F4F40(unsigned int aid);
+extern "C" void fn_804F4F64();
+extern "C" void fn_804F4FC4(int aid);
+extern "C" void fn_804F50C4(unsigned int aid);
+extern "C" int fn_8050E410(atn::net::PacketPack* pack, unsigned char** p, unsigned int mode);
+extern "C" void fn_804EE4E0(atn::net::PacketPack* pack, unsigned int aid, unsigned short size);
+extern "C" const void* fn_804EE4E4(const void* data);
+extern "C" void fn_804EE4E8(atn::net::PacketPack* pack, unsigned int aid, unsigned short size);
+extern "C" void fn_804EE4EC(atn::net::PacketPack* pack, const void* data, unsigned short size);
+
+// NONMATCHING: 99.81% - offset of "update loc\n" in @stringBase0 (pool not complete), the zero of m99B0 and the
+// switch value in other registers
+// inferred: receive loop: the packet of `aid` (a new player gets a slot), then each of its messages goes to
+// its handler (in the work buffer); the answer asked by message 0x35 is sent after the loop
+extern "C" int fn_804EE040(unsigned int aid, void* data, unsigned int size) {
+    int type;
+    fn_804D1694();
+    fn_804EE4E0(fn_804AE3BC(), aid, size);
+    PPPlayer_unk* player = fn_804DD158(fn_800F7F90(), aid);
+    if (player == 0 && fn_804EE030(fn_800F7F90()) <= 12 && aid < fn_804D5F40(&fn_800F7F90()->mPlayers)) {
+        player = fn_804D5F48(&fn_800F7F90()->mPlayers, aid);
+        player->mAid = aid;
+        player->mFlags.mActive = 1;
+        player->mFlags.m30 = 0;
+        player->mFlags.m28 = 0;
+        if (fn_804EB1AC(fn_800F7F90()) == 1) {
+            fn_804EE038(fn_800F7F90(), 90);
+            fn_804FC0D4(fn_800F7F90(), 1);
+        }
+    }
+    data = (void*)fn_804EE4E4(data);
+    fn_804D1694();
+    unsigned char* cursor = (unsigned char*)fn_804AE3BC()->fn_8050E530(data, size);
+    if (cursor == 0) {
+        fn_804D1694();
+        fn_804EE4E8(fn_804AE3BC(), aid, size);
+        return 0;
+    }
+    fn_804D1694();
+    fn_804EE4EC(fn_804AE3BC(), cursor, size);
+    fn_800F7F90()->m99B0 = 0;
+    for (;;) {
+        unsigned char* header = cursor;
+        fn_804D1694();
+        type = fn_8050E410(fn_804AE3BC(), &cursor, 1);
+        if ((unsigned char)type == 0) {
+            break;
+        }
+        if (fn_804D6348(fn_804D1694()) == 0 && (unsigned char)type != 8 && (unsigned char)type != 0x40 &&
+            (unsigned char)type != 10 && (unsigned char)type != 0x1E) {
+            fn_804D1694();
+            if ((unsigned int)fn_804AE3BC()->fn_8050E598(aid, header) == 1) {
+                continue;
+            }
+        }
+        if (player == 0) {
+            continue;
+        }
+        switch ((unsigned char)type) {
+        case 0:
+            break;
+        case 1:
+            fn_804D1694();
+            fn_804AE3BC()->fn_8050E62C(0, "update loc\n");
+            break;
+        case 2:
+            fn_804EE904(&player->mRef);
+            break;
+        case 3:
+            fn_804EE9F0(player);
+            break;
+        case 4:
+            fn_804EE834(player);
+            break;
+        case 5:
+            fn_804EEB34();
+            break;
+        case 58:
+            fn_804EED7C();
+            break;
+        case 6:
+            fn_804EF0F0(aid);
+            break;
+        case 7:
+            fn_804EF9B4();
+            break;
+        case 8:
+        case 64:
+            fn_804EFC94();
+            break;
+        case 9:
+            fn_804EFE98(player);
+            break;
+        case 10:
+        case 11:
+            fn_804EFF74(player);
+            break;
+        case 12:
+            fn_804F1068();
+            break;
+        case 13:
+            fn_804F1124();
+            break;
+        case 14:
+            fn_804F12A0();
+            break;
+        case 15:
+            fn_804F135C();
+            break;
+        case 16:
+            fn_804F1478(player);
+            break;
+        case 17:
+            fn_804F1488(player);
+            break;
+        case 18:
+            fn_804F1498(player);
+            break;
+        case 19:
+        case 44:
+            fn_804F1564(player);
+            break;
+        case 20:
+            fn_804F1950(player);
+            break;
+        case 21:
+            fn_804F1CA0(player);
+            break;
+        case 22:
+            fn_804F1D70(player);
+            break;
+        case 23:
+            fn_804F1F24(player);
+            break;
+        case 24:
+            fn_804F1F34(player);
+            break;
+        case 25:
+        case 26:
+            fn_804F2040(type);
+            break;
+        case 27:
+            fn_804F2258();
+            break;
+        case 28:
+        case 29:
+            fn_804F2450(type);
+            break;
+        case 30:
+            fn_804F2994();
+            break;
+        case 31:
+            fn_804F2C44(player);
+            break;
+        case 32:
+            fn_804F2CE4();
+            break;
+        case 33:
+            fn_804F2CE8(aid);
+            break;
+        case 34:
+            fn_804F2DAC(aid);
+            break;
+        case 35:
+            fn_804F2E3C(aid);
+            break;
+        case 36:
+            fn_804F2ECC(aid);
+            break;
+        case 37:
+            fn_804F2F90(aid);
+            break;
+        case 38:
+            fn_804F3020(aid);
+            break;
+        case 39:
+            fn_804F30B0();
+            break;
+        case 40:
+            fn_804F3170();
+            break;
+        case 41:
+            fn_804F3258();
+            break;
+        case 42:
+            fn_804F34B4(player, aid);
+            break;
+        case 43:
+            fn_804F36F4(player, aid);
+            break;
+        case 45:
+            fn_804F36F8(player);
+            break;
+        case 46:
+            fn_804F3880();
+            break;
+        case 47:
+            fn_804F39D4();
+            break;
+        case 48:
+            fn_804F3AF0();
+            break;
+        case 49:
+            fn_804F3BAC();
+            break;
+        case 50:
+            fn_804F3D80(player);
+            break;
+        case 51:
+            fn_804F3E50();
+            break;
+        case 52:
+            fn_804F3EEC();
+            break;
+        case 53:
+            fn_804F4728();
+            break;
+        case 54:
+        case 63:
+            fn_804F47FC(player, aid);
+            break;
+        case 55:
+            fn_804F4CB8(aid);
+            break;
+        case 56:
+            fn_804F4E1C(aid);
+            break;
+        case 57:
+            fn_804F4E40();
+            break;
+        case 59:
+            fn_804F4F40(aid);
+            break;
+        case 60:
+            fn_804F4F64();
+            break;
+        case 61:
+            fn_804F4FC4(aid);
+            break;
+        case 62:
+            fn_804F50C4(aid);
+            break;
+        }
+    }
+    if (fn_800F7F90()->m99B0 == 1) {
+        fn_804D1694();
+        fn_804AE3BC()->fn_8050DDDC(fn_800F7F90()->m99B1, fn_800F7F90()->m99B4);
     }
     return 0;
 }
