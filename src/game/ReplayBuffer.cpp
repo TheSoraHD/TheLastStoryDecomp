@@ -115,7 +115,6 @@ static inline float FromHalf_unk(short h) {
     return *(float*)&bits;
 }
 
-
 // NONMATCHING: 77.2% - unrolling of the matrix loop (the original does two elements per pass), stack slots
 // inferred: float to half float of the replay data (names invented)
 static inline short ToHalf_unk(float f) {
@@ -158,6 +157,7 @@ extern "C" void fn_8056BAA4(ReplayChara_unk* dst, atn::Model* model) {
         dst->mTracks[i].m15 = ToByte_unk(t.m2C);
     }
 }
+extern "C" void fn_8056D60C(ReplayModel_unk* dst, atn::Model* model);
 
 void ReplayRecorder_unk::fn_8056BD34() {
     int i = 0;
@@ -196,6 +196,24 @@ ReplayBuffer::ReplayBuffer()
       m5BDA0(0), m5BDA4(0), m5BDA8(0), m5BDAC(0), m5BDB0(0), m5BDB4(0), m5BDB8(0.0f) {}
 
 ReplayBuffer::~ReplayBuffer() {}
+
+// inferred: packs the motion track 0 of a gimmick model
+// NONMATCHING: 78% - the original keeps copies of 255.0f/0.0f in f3-f12 (ToByte_unk written differently)
+extern "C" void fn_8056D60C(ReplayModel_unk* dst, atn::Model* model) {
+    atn::Model::Track_unk& t = model->mTracks[0];
+    dst->mTrack.mId = t.m00;
+    dst->mTrack.mMotion = t.m04;
+    dst->mTrack.mFrame = ToHalf_unk(t.m08);
+    dst->mTrack.mSpeed = ToHalf_unk(t.m0C);
+    dst->mTrack.mFlag = t.m18;
+    dst->mTrack.m11 = ToByte_unk(t.m10);
+    dst->mTrack.mWeight = ToByte_unk(t.m14);
+    dst->mTrack.m13 = ToByte_unk(t.m1C);
+    dst->mTrack.m14 = ToByte_unk(t.m20);
+    dst->mTrack.mPrev = t.m24;
+    dst->mTrack.mPrevFrame = ToHalf_unk(t.m28);
+    dst->mTrack.m15 = ToByte_unk(t.m2C);
+}
 
 // NONMATCHING: 92.48% - copy order of the event (colour and vectors); offset of the message in the pool
 // ("reference" of fn_8056A9E4 missing)

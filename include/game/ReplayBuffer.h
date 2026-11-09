@@ -60,9 +60,10 @@ struct ReplayRecorder_unk {
 
 // inferred: model recorded in a frame of the replay (0x38 bytes; names invented)
 struct ReplayModel_unk {
-    int m00;
+    void* mOwner;          // inferred: the gimmick
     atn::Model* mModel;
-    unsigned char m08[0x38 - 0x08];
+    short mMtx[3][4];      // 0x08: inferred: model matrix (half floats)
+    ReplayTrack_unk mTrack; // 0x20: inferred: motion track 0
 };
 
 // inferred: one frame of the replay (0x1808 bytes; names invented)
