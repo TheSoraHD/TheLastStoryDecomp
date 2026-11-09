@@ -11,12 +11,12 @@ extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 // CMPR (S3TC/DXT1) encoder. Pixels are RGBA8, 4x4 per block; a block is two RGB565 colors and
 // sixteen 2-bit indices.
 
-// NONMATCHING: 92.94% - register allocation and scheduling of the palette and index packing
+// NONMATCHING: 93.12% - register allocation and scheduling of the palette and index packing
 // inferred: encodes a block with four colors (c0 > c1); rgb0/rgb1 are the 8-bit endpoints
 extern "C" void fn_80068DB0(unsigned short c0, unsigned short c1, const unsigned char* rgb0,
                             const unsigned char* rgb1, const unsigned char* pixels, unsigned char* out) {
-    unsigned char idx[16];
     unsigned char pal[12];
+    unsigned char idx[16];
     pal[0] = rgb1[0];
     pal[1] = rgb1[1];
     pal[2] = rgb1[2];
@@ -63,12 +63,17 @@ extern "C" void fn_80068DB0(unsigned short c0, unsigned short c1, const unsigned
     out[7] = idx[12] | (idx[13] << 2) | (idx[14] << 4) | (idx[15] << 6);
 }
 
-// NONMATCHING: 78.80% - as fn_80068DB0
+// NONMATCHING: 82.56% - scheduling of the palette loads and registers (as fn_80068DB0)
 // inferred: encodes a block with three colors and transparency (c0 <= c1)
+// inferred: half of a channel (unsigned shift)
+inline unsigned int Half_unk(unsigned int c) {
+    return c >> 1;
+}
+
 extern "C" void fn_80069060(unsigned short c0, unsigned short c1, const unsigned char* rgb0,
                             const unsigned char* rgb1, const unsigned char* pixels, unsigned char* out) {
-    unsigned char idx[16];
     unsigned char pal[12];
+    unsigned char idx[16];
     pal[9] = 0;
     pal[10] = 0;
     pal[11] = 0;
@@ -78,9 +83,9 @@ extern "C" void fn_80069060(unsigned short c0, unsigned short c1, const unsigned
     pal[3] = rgb1[0];
     pal[4] = rgb1[1];
     pal[5] = rgb1[2];
-    pal[6] = (rgb0[0] >> 1) + (rgb1[0] >> 1);
-    pal[7] = (rgb0[1] >> 1) + (rgb1[1] >> 1);
-    pal[8] = (rgb0[2] >> 1) + (rgb1[2] >> 1);
+    pal[6] = Half_unk(rgb0[0]) + Half_unk(rgb1[0]);
+    pal[7] = Half_unk(rgb0[1]) + Half_unk(rgb1[1]);
+    pal[8] = Half_unk(rgb0[2]) + Half_unk(rgb1[2]);
     unsigned char* dst = idx;
     for (int i = 0; i < 16; i++) {
         if (pixels[3] < 0x7F) {
@@ -167,21 +172,22 @@ extern "C" void fn_80069288(const unsigned char* pixels, unsigned char* out) {
     }
 }
 
-// NONMATCHING: 73.65% - the original copies two rows per iteration of an unrolled loop
+// NONMATCHING: 98.06% - r6/r10 of the source pointer and the strength-reduced index in the block copy
 // inferred: encodes a RGBA8 image (width x height) to CMPR: 2x2 blocks per 8x8 tile
 extern "C" void fn_8006945C(const unsigned char* src, int width, int height, unsigned char* dst) {
+    int offset;
     int tilesX = width / 4;
     int tilesY = height / 4;
     int pitch = width * 4;
     for (int ty = 0; ty < tilesY; ty++) {
-        int offset = pitch * (ty * 4);
+        offset = pitch * (ty * 4);
         for (int tx = 0; tx < tilesX; tx++) {
             unsigned char block[64];
             int row = offset;
             unsigned char* b = block;
             for (int y = 0; y < 4; y++) {
                 for (int x = 0; x < 4; x++) {
-                    const unsigned char* s = src + row + x * 4;
+                    const unsigned char* s = &src[row + x * 4];
                     b[0] = 0;
                     b[1] = 0;
                     b[2] = 0;
