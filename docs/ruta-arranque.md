@@ -43,13 +43,13 @@ Estado de todo lo que se ejecuta desde `main()` (game/main.cpp) hasta la pantall
 | `atn/AudioDevice` | 49 | 3 | 56 | 0 | no | 44 |
 | `atn/SoundManager` | 69 | 5 | 76 | 0 | no | 68 |
 | `atn/Pad_unk` | 15 | 0 | 17 | 0 | no | 15 |
-| `atn/MindowsCommon` | 51 | 6 | 57 | 0 | no | 50 |
+| `atn/MindowsCommon` | 57 | 0 | 57 | 0 | si | 50 |
 | `atn/SequenceHolder` | 8 | 1 | 11 | 0 | no | 7 |
 | `atn/SequenceUnitParam1_const_int` | 34 | 3 | 37 | 0 | no | 34 |
 | `game/BootTask` | 4 | 0 | 4 | 0 | si | 0 |
 | `game/StrapTask` | 5 | 0 | 6 | 0 | no | 5 |
 | `game/NewTitleTask` | 2 | 3 | 9 | 0 | no | 1 |
-| **total** | 551 | 51 | 666 | 0 | 6 de 27 | 523 |
+| **total** | 557 | 45 | 666 | 0 | 7 de 27 | 523 |
 
 ## Librerias que llama la ruta
 
