@@ -472,8 +472,8 @@ void QuadrupedTask::vf34(const atn::Vector3& rot, int arg, float a, float b) {
     fn_80567968(rot, 0, a, m568 * b);
 }
 
-// NONMATCHING: 94.65% - same as Em403WarLion::fn_80324A38 (FPR of the turn and of the clamp of m584, stores
-// of move.x/z around sin, order of m574 at the end); ~6 variants
+// NONMATCHING: 97.33% - FPR of the turn, the != 1 of the status bit and the order of m574 at the end;
+// the push of state 1 is scaled by mStatus.fn_8012DB04() (it was missing)
 // inferred: moves the leopard towards the rotation `target` (as Em403WarLion::fn_80324A38, plus the push
 // forward of the first 24 frames of the attack)
 void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed, float rate) {
@@ -534,7 +534,9 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
         move.y *= 2.0f;
         move.z *= 2.0f;
     }
-    if ((mStatus.mParamB.m9C & 1) != 1) {
+    // inferred: the original tests a default-constructed status here (temporary built and destroyed
+    // around the test), not mStatus
+    if ((CharaStatus().mParamB.m9C & 1) != 1) {
         int fps = lbl_8087F0A8->m30;
         m574.y += dt * (-98.1f / (float)(fps * fps));
     }
@@ -554,7 +556,7 @@ void QuadrupedTask::fn_80567968(const atn::Vector3& target, int arg, float speed
         Mtx r;
         PSMTXRotRad(r, 'y', mRot.y);
         PSMTXMultVec(r, &push, &push);
-        move += push;
+        move += push * mStatus.fn_8012DB04();
     }
     int keepRot = 1;
     atn::Vector3 oldPos(pos);
