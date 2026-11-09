@@ -264,6 +264,7 @@ inline EffectData::EffectData(Sequence* owner, const char* name, int id) : Commo
 inline CameraData::CameraData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
 inline PoseData::PoseData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0), m1C(0) {}
 inline MovieData::MovieData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
+inline StringData::StringData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {}
 inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m24(0) {}
 
 // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
@@ -412,10 +413,31 @@ static int ParsePOIN_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub
-// NONMATCHING: stub - adds an actor
+// inferred: entry of a data list by id (inlined copy of DataList_unk::Find_unk)
+template <class T>
+static inline T* FindData_unk(DataList_unk<T>& list, int id) {
+    for (int i = 0; i < (int)list.size(); i++) {
+        if (id == list[i].m14) {
+            return &list[i];
+        }
+    }
+    return 0;
+}
+
+// inferred: adds an actor (once per id)
+// NONMATCHING: 64% - the original builds the Actor inline here (0x1C0 bytes on the stack); our
+// DataList_unk<Actor>::Add_unk is the explicit specialization of Event/Sequence.cpp, called out of line
 static int ParseACID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    if (FindData_unk(seq->m164, id) == 0) {
+        seq->m164.Add_unk("", id);
+        sState_unk->m54 = &seq->m164[seq->m164.size() - 1];
+    } else {
+        sState_unk->m54 = 0;
+    }
+    return 4;
 }
 
 static int ParseACNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -425,10 +447,18 @@ static int ParseACNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub
-// NONMATCHING: stub - adds a stream data
+// inferred: adds a stream data (once per id)
 static int ParseSTID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    if (FindData_unk(seq->m114, id) == 0) {
+        seq->m114.Add_unk("", id);
+        sState_unk->m40 = &seq->m114[seq->m114.size() - 1];
+    } else {
+        sState_unk->m40 = 0;
+    }
+    return 4;
 }
 
 static int ParseSTNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
