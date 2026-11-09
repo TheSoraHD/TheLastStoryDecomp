@@ -2,6 +2,9 @@
 #define GMK_ITEMSLOTANIME_H
 
 #include "math/Vec.h"
+#include "atn/static_string.h"
+
+struct RecycleBufferEntry_unk;
 
 namespace gmk {
 
@@ -36,19 +39,23 @@ public:
     void fn_8044F434(); // inferred: per-frame update
     void fn_80450778();
 
-    int m00;
+    inline void Release_unk(); // inferred: gives the entry m00 back to the buffer (name invented)
+
+    RecycleBufferEntry_unk* m00; // inferred: entry of the ItemSlotAnimeBuffer in use
     // inferred: names invented
     bool IsState_unk(int lo, int hi) const { return lo <= mState && mState < hi; }
     bool IsBusy_unk() const { return IsState_unk(3, 5) || mState == 7; }
     bool IsState56_unk() const { return mState == 5 || mState == 6; } // inferred (gmk::DropItem::vf14)
 
     int mState; // 0x04
-    unsigned char m08[0x18 - 0x08];
+    atn::Vector3 mPos;  // 0x08
+    float mScale;       // 0x14
     int m18;
     int m1C;
     ItemSlotItem_unk* m20; // inferred: current item selected by the animation task
     int m24; // inferred: item count checked by fn_8044E610
-    unsigned char m28[0xEC - 0x28];
+    unsigned char m28[0x2C - 0x28];
+    atn::static_string<32, wchar_t, std::char_traits<wchar_t> > mTexts[3]; // 0x2C: inferred: texts of the item
     // inferred: flags set by gmk::DropItem (names invented)
     unsigned int mFlag31 : 1;  // inferred: rare item (fn_80450B84/fn_80450B60)
     unsigned int mFlag30 : 1;
@@ -58,7 +65,7 @@ public:
     unsigned int mFlag25 : 1;
     unsigned int mFlag24 : 1;
     unsigned int mBits23 : 24;
-    unsigned char mF0[0xF4 - 0xF0];
+    int mF0;
 };
 
 } // namespace gmk

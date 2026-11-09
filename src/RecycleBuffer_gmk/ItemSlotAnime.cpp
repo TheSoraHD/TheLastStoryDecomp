@@ -3,85 +3,10 @@
 #include "game/GameTask.h"
 #include "game/MapTask.h"
 #include "atn/FixedArray.h"
+#include "game/NewCampPartsOption.h"
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
 extern "C" GameTask* lbl_8087F430; // inferred: the field task
-
-namespace gmk {
-
-int ItemSlotAnime::fn_8044E610() {
-    return mState == 2 && m20 != 0 && m24 > 0;
-}
-
-int ItemSlotAnime::fn_80450A5C() {
-    return m20 != 0 ? m20->mId : 0;
-}
-
-// inferred: the item may be taken here (301 and flagged items always; the others by the item table of the
-// current map)
-int ItemSlotAnime::fn_80450A78() const {
-    if (m20 == 0) {
-        return 0;
-    }
-    if (m20->mId == 301) {
-        return 1;
-    }
-    if (m20 == 0) {
-        return 0;
-    }
-    if (m20->mC2 != 0) {
-        return 1;
-    }
-    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
-        MapTask* map = lbl_8087F430->GetCurrentMap();
-        return fn_80213E60(m20, map->mType, map->mId, map->mSubId);
-    }
-    return 0;
-}
-
-} // namespace gmk
-
-extern "C" atn::Task* lbl_8087F4F8;
-
-extern "C" void fn_80450B28() {
-    if (lbl_8087F4F8 != 0) {
-        lbl_8087F4F8->mFlags |= 4;
-    }
-}
-
-extern "C" void fn_80450B44() {
-    if (lbl_8087F4F8 != 0) {
-        lbl_8087F4F8->mFlags &= ~4;
-    }
-}
-
-extern "C" int fn_80450B60(int value) {
-    unsigned int index = value - 0x2711;
-    if (index > 7) {
-        if (value != 0x271A) {
-            goto rejected;
-        }
-    }
-    return 1;
-rejected:
-    return 0;
-}
-
-extern "C" void* lbl_8087F4FC; // inferred: instance of gmk::ItemSlotTextCache
-
-namespace gmk {
-
-// inferred: cache of the texts of the item animations (vtable 0x8078F348, instance lbl_8087F4FC)
-class ItemSlotTextCache : public atn::Task {
-public:
-    virtual ~ItemSlotTextCache();
-};
-
-ItemSlotTextCache::~ItemSlotTextCache() {
-    lbl_8087F4FC = 0;
-}
-
-} // namespace gmk
 
 // inferred: task of an item animation entry (layout task or effect; bytes at 0x4C/0x4D set by
 // ItemSlotAnimeBuffer::vf0C); names invented
@@ -147,6 +72,8 @@ public:
         }
     }
 
+    inline void Free_unk(RecycleBufferEntry_unk* entry);
+
     unsigned int mNum;              // 0x48
     unsigned char* m4C;
     RecycleBufferEntry_unk* mEntries; // 0x50
@@ -161,6 +88,127 @@ public:
     virtual int vf0C(); // inferred: 0x804523D0
     inline bool Start_unk(); // inferred: true while the tasks are loading; then shows them (name invented)
 };
+
+} // namespace gmk
+
+
+extern "C" gmk::ItemSlotAnimeBuffer* lbl_8087F4F8; // inferred: instance of the buffer
+
+// inferred: clears the bit of the entry in the use mask (name invented)
+template <class T>
+inline void RecycleBuffer<T>::Free_unk(RecycleBufferEntry_unk* entry) {
+    for (unsigned int i = 0; i < mNum; i++) {
+        if (&mEntries[i] == entry) {
+            m4C[i >> 3] &= ~(1 << (i & 7));
+            return;
+        }
+    }
+}
+
+namespace gmk {
+
+inline void ItemSlotAnime::Release_unk() {
+    if (m00 != 0) {
+        if (lbl_8087F4F8 != 0) {
+            atn::FixedArray_unk<ItemSlotTask_unk*, 16>& tasks = m00->mTasks;
+            for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+                if (*it != 0) {
+                    (*it)->FreezeTask();
+                }
+            }
+            lbl_8087F4F8->Free_unk(m00);
+        }
+        m00 = 0;
+    }
+}
+
+ItemSlotAnime::ItemSlotAnime() : m00(0), mState(0), mPos(0.0f, 0.0f, 0.0f), mScale(1.0f), m18(0), m1C(0), m20(0), m24(0) {
+    mFlag31 = 1;
+    mFlag30 = 1;
+    mBits29 = 3;
+    mFlag27 = 1;
+    mFlag26 = 0;
+    mFlag25 = 0;
+    mFlag24 = 0;
+    mF0 = 0;
+    mState = 0;
+    Release_unk();
+}
+
+int ItemSlotAnime::fn_8044E610() {
+    return mState == 2 && m20 != 0 && m24 > 0;
+}
+
+int ItemSlotAnime::fn_80450A5C() {
+    return m20 != 0 ? m20->mId : 0;
+}
+
+// inferred: the item may be taken here (301 and flagged items always; the others by the item table of the
+// current map)
+int ItemSlotAnime::fn_80450A78() const {
+    if (m20 == 0) {
+        return 0;
+    }
+    if (m20->mId == 301) {
+        return 1;
+    }
+    if (m20 == 0) {
+        return 0;
+    }
+    if (m20->mC2 != 0) {
+        return 1;
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* map = lbl_8087F430->GetCurrentMap();
+        return fn_80213E60(m20, map->mType, map->mId, map->mSubId);
+    }
+    return 0;
+}
+
+} // namespace gmk
+
+
+extern "C" void fn_80450B28() {
+    if (lbl_8087F4F8 != 0) {
+        lbl_8087F4F8->mFlags |= 4;
+    }
+}
+
+extern "C" void fn_80450B44() {
+    if (lbl_8087F4F8 != 0) {
+        lbl_8087F4F8->mFlags &= ~4;
+    }
+}
+
+extern "C" int fn_80450B60(int value) {
+    unsigned int index = value - 0x2711;
+    if (index > 7) {
+        if (value != 0x271A) {
+            goto rejected;
+        }
+    }
+    return 1;
+rejected:
+    return 0;
+}
+
+extern "C" void* lbl_8087F4FC; // inferred: instance of gmk::ItemSlotTextCache
+
+namespace gmk {
+
+// inferred: cache of the texts of the item animations (vtable 0x8078F348, instance lbl_8087F4FC)
+class ItemSlotTextCache : public atn::Task {
+public:
+    virtual ~ItemSlotTextCache();
+};
+
+ItemSlotTextCache::~ItemSlotTextCache() {
+    lbl_8087F4FC = 0;
+}
+
+} // namespace gmk
+
+namespace gmk {
 
 // inferred: once the tasks of every entry are ready they are shown (and frozen until used)
 inline bool ItemSlotAnimeBuffer::Start_unk() {
