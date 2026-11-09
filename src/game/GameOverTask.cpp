@@ -180,7 +180,7 @@ public:
     void SetState_unk(int state) {
         mPrevState = mState;
         mState = state;
-        switch (state) {
+        switch (mState) {
         case 1:
             mMenu->mSpeed = 0.0f;
             mMenu->mFrame = 30.0f;
@@ -368,7 +368,7 @@ inline void SetRate_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 
-// NONMATCHING: 89.83% - the original keeps the six text tables in registers across the text loop and
+// NONMATCHING: 98.24% - the original keeps the six text tables in registers across the text loop and
 // builds the fade with other stores
 void GameOverTask::vf10() {
     if (MenuCommonTask::sInstance != 0) {
