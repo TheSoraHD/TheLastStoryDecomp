@@ -445,7 +445,11 @@ struct PPThreadRequest_unk {
 
 // inferred: MP::Manager2 (lbl_8087F610), only the members used here; names invented
 struct PPManager2_unk : public atn::Task {
-    unsigned char m0048[0x4F8 - 0x48];
+    unsigned char m0048[0x348 - 0x48];
+    int m348;                         // inferred: room of the next game (fn_804D9BF4)
+    int m34C;
+    int m350;
+    unsigned char m0354[0x4F8 - 0x354];
     int m4F8;
     union {
         int mState;                   // 0x4FC: inferred: state (30 = in game)
@@ -477,7 +481,7 @@ struct PPManager2_unk : public atn::Task {
     int m598;
     int m59C;                         // inferred: aid of the server
     int m5A0;
-    unsigned char m05A4[0x5A8 - 0x5A4];
+    int m5A4;
     int m5A8;
     int m5AC;                         // inferred: the settings of message 0x0F arrived
     int m5B0;
@@ -692,6 +696,7 @@ struct NetRankData_unk;
 class NetRanking_unk {
 public:
     int fn_8050C2F4();
+    void fn_8050C7F0();
     int fn_8050C840(unsigned int kind);
     void fn_8050CCD0(unsigned long id, long score, const wchar_t* name, unsigned long size);
     void fn_8050C898(unsigned long a, unsigned long b, unsigned long c, void (*cb)(int, NetRankData_unk*));
@@ -746,6 +751,7 @@ public:
     void fn_804B50C0(int state);
     void fn_804B6204(int time);
     void fn_804B691C();
+    void fn_804B67E4(int value);
     static D2AMpMenuCockpit* sInstance;
 };
 class D2AMpMenuResult : public atn::Task {
@@ -968,7 +974,7 @@ extern "C" long long* fn_804F5B08(PPManager2_unk* mgr, int id);
 extern "C" int fn_804FB968(PPManager2_unk* mgr, void* player);
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg);
 extern "C" void fn_804E448C(PPManager2_unk* mgr);
-extern "C" void fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c);
+extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c);
 extern "C" void fn_804E49A4(PPManager2_unk* mgr);
 extern "C" void fn_804E5BC4(PPManager2_unk* mgr);
 extern "C" void fn_804D1F6C(PPPlayer_unk* player);
@@ -1018,10 +1024,11 @@ __declspec(noinline) inline T* PPNetMsg_unk<T, N>::GetData_unk() {
 
 // inferred: the message header sent by vf10 (names invented)
 struct PPMsgHeader_unk {
-    PPMsgHeader_unk(unsigned short id) : mType(2), mId(id) {}
+    PPMsgHeader_unk(unsigned short id);
     unsigned short mType;
     unsigned short mId;
 };
+__declspec(noinline) inline PPMsgHeader_unk::PPMsgHeader_unk(unsigned short id) : mType(2), mId(id) {}
 // inferred: payload of the message 0x1043 (characters of the players and m2B80); names invented
 struct PPMsgChars_unk {
     unsigned short mIds[8];
@@ -2670,6 +2677,15 @@ static inline int IsTeamPlayer_unk(PPPlayer_unk* player) {
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
 
+// inferred: sets the room of the next game and the count down
+extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c) {
+    mgr->m348 = a;
+    mgr->m34C = b;
+    mgr->m350 = c;
+    mgr->m99A0 = 90;
+    return 1;
+}
+
 // inferred: counts down m99A0 (shown by the lobby); 1 when it ends (or ended) and `keep` is 0
 extern "C" int fn_804DA2D0(PPManager2_unk* mgr, int keep) {
     if (--mgr->m99A0 < 0) {
@@ -2684,6 +2700,14 @@ extern "C" int fn_804DA2D0(PPManager2_unk* mgr, int keep) {
     return mgr->m99A0 == 0;
 }
 
+extern "C" const char* const lbl_808875AC;
+// inferred: plays a sound when the game is not a mode 2 game
+extern "C" void fn_804DA34C(PPManager2_unk* mgr) {
+    if (mgr->mMode != 2) {
+        fn_800C31F4(lbl_808875AC, 0, -1, 1.0f);
+    }
+}
+
 // inferred: stops the voice and the sound of the count down (not in game mode 2)
 extern "C" void fn_804DA398(PPManager2_unk* mgr) {
     if (mgr->mMode != 2) {
@@ -2691,6 +2715,18 @@ extern "C" void fn_804DA398(PPManager2_unk* mgr) {
             lbl_8087F498->fn_803EBAC8(15, 0);
         }
         fn_800CB5C8(&mgr->m2B74, 15, 0);
+    }
+}
+
+extern "C" void fn_804DA478(PPManager2_unk* mgr) {
+    if (MP::D2AMpMenuCockpit::sInstance != 0) {
+        MP::D2AMpMenuCockpit::sInstance->fn_804B691C();
+    }
+}
+
+extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value) {
+    if (MP::D2AMpMenuCockpit::sInstance != 0) {
+        MP::D2AMpMenuCockpit::sInstance->fn_804B67E4(value);
     }
 }
 
@@ -2769,6 +2805,19 @@ extern "C" int fn_804DBE24(PPManager2_unk* mgr, char* text, char** fields) {
     return 1;
 }
 
+// inferred: updates the room status (2 when the network is not local)
+extern "C" void fn_804DC358(PPManager2_unk* mgr) {
+    int mode = 2;
+    if (lbl_8087F628->m90 == 1) {
+        mode = 1;
+    }
+    fn_804DC450(mgr, mode);
+}
+
+extern "C" int fn_804DCA4C() {
+    return 0;
+}
+
 // inferred: the player slot of network id `aid` (slots in use only)
 extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
     for (int i = 0; i < mgr->mPlayers.mNum; i++) {
@@ -2801,6 +2850,10 @@ extern "C" int fn_804DD1A8(PPManager2_unk* mgr, int aid) {
         }
     }
     return 2;
+}
+
+extern "C" int fn_804DD280(PPManager2_unk* mgr, int mode) {
+    return mode == 2 ? 21 : 12;
 }
 
 // inferred: sets the 4-bit value of the player slot; 0 if it does not change
@@ -2922,6 +2975,12 @@ extern "C" int fn_804E4D70(PPManager2_unk* mgr, PPPlayer_unk* player) {
         return mgr->m967C;
     }
     return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr));
+}
+
+// inferred: leaves the ranking and returns to the state 10
+extern "C" void fn_804E4E74(PPManager2_unk* mgr) {
+    lbl_8087F5A4->fn_8050C7F0();
+    fn_804FB220(&mgr->mStateVar, 10);
 }
 
 // inferred: float packed in 16 bits (sign, 5-bit exponent, 10-bit mantissa); names invented
@@ -3686,6 +3745,8 @@ static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
     return 0;
 }
 
+extern "C" void fn_804F5A94(PPManager2_unk* mgr) {}
+
 // inferred: adds a request (0 when the queue is full)
 extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c) {
     PPRequest_unk* req = FindFreeRequest_unk(queue);
@@ -3796,6 +3857,10 @@ extern "C" int fn_804FB620(void* unused, int mode) {
         n = mode == 1 ? 8 : 6;
     }
     return n - 2;
+}
+
+extern "C" void fn_804FB668(PPManager2_unk* mgr) {
+    mgr->m5A4 = 0;
 }
 
 // inferred: info of the player of network id `aid` (two copies of the same accessor)
