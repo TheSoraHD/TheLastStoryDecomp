@@ -7,6 +7,7 @@
 #include "game/StrapTask.h"
 #include "atn/SequenceBoot_unk.h"
 #include "game/GameLoadTask.h"
+#include "game/NewTitleTask.h"
 
 using atn::Task;
 using atn::SequenceHolder;
@@ -22,8 +23,6 @@ Task* fn_8010EB58(Task* const parent);
 Task* fn_80365708(Task* parent, const GameTask::Option& option); // inferred: GameTask creator
 
 
-class NewTitleTask : public Task {};
-NewTitleTask* fn_80531ED0(Task* parent, int arg); // inferred: NewTitleTask creator
 
 namespace MP {
 class Manager2;
