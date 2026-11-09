@@ -155,17 +155,6 @@ struct PostFxMgrView_unk {
 };
 
 // inferred: views of other singletons used by the constructor and the destructor
-struct GameFlow_unk {
-    void SetLoading_unk(int on) {
-        m18 = on;
-        m1C = on;
-    }
-    unsigned char m00[0x0C];
-    int m0C;
-    unsigned char m10[0x18 - 0x10];
-    int m18;
-    int m1C;
-};
 struct Collision_unk {
     unsigned char m0000[0x9034];
     int m9034; // inferred: single player
@@ -216,7 +205,7 @@ struct MpSettings_unk {
     unsigned char m4DC[0x5A0 - 0x4DC];
     int m5A0;
 };
-extern "C" GameFlow_unk* lbl_8087F420;
+#include "game/ErrorManager.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;

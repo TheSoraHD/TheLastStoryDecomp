@@ -29,25 +29,7 @@ extern "C" bool fn_800A5920(void* pad, int port, int all); // inferred: a button
 extern "C" bool fn_800A59F0(void* pad, int port);          // inferred: a stick was moved
 extern "C" atn::Task* lbl_8087F530; // inferred: root task (parent of the fade)
 
-// inferred: game flow manager (lbl_8087F420), only the members used here
-struct GameFlow_unk {
-    unsigned char m00[0x18];
-    int m18;
-    int m1C;
-    int m20; // inferred: stop request
-    unsigned char m24[0x34 - 0x24];
-    int m34;
-
-    // inferred: name invented
-    int IsBusy_unk() {
-        int busy = 0;
-        if (m18 != 0 || m1C != 0 || m34 == 0) {
-            busy = 1;
-        }
-        return busy;
-    }
-};
-extern "C" GameFlow_unk* lbl_8087F420;
+#include "game/ErrorManager.h"
 
 // inferred: game settings (lbl_8087F0A8), only the member read here
 struct GameSettings_unk {

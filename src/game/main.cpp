@@ -28,16 +28,7 @@ extern "C" unsigned long strlen(const char* s);
 
 #include "game/ResetShutdown.h"
 
-// inferred: error manager (class name from the type name of the bound functor at 0x8075617C)
-class ErrorManager {
-public:
-    void fn_80363DBC(); // inferred: per-frame update
-    void fn_803646C4(); // inferred: per-frame update
-    unsigned char m00[0x18];
-    int m18;
-    int m1C;
-};
-extern "C" ErrorManager* lbl_8087F420;
+#include "game/ErrorManager.h"
 extern "C" void fn_80363CE4(); // inferred: creates the ErrorManager singleton
 
 // inferred: HOME button menu (game/HomeButtonMenu.cpp), only the members used here

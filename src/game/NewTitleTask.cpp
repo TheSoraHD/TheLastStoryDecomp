@@ -73,24 +73,7 @@ extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Mod
 extern "C" WPad_unk* lbl_8087F018;
 extern "C" int fn_803B8AC4(const char* path); // inferred: the save file exists
 
-// inferred: error message manager (lbl_8087F420, game/SystemErrorMessage_unk.cpp); only the members used here
-class ErrorManager {
-public:
-    void fn_80364E7C(int message); // inferred: shows a message with choices
-    void fn_8036503C();            // inferred: moves the cursor of the choices
-    void fn_80365320();            // inferred: closes the choices
-    int mError;
-    int mPrev;
-    int mDelay;
-    int m0C; // inferred: check the Wii Remote
-    int m10;
-    unsigned int mPaused;
-    int m18;
-    int m1C;
-    unsigned char m20[0x40 - 0x20];
-    int mSelect; // 0x40
-};
-extern "C" ErrorManager* lbl_8087F420;
+#include "game/ErrorManager.h"
 
 // inferred: the menu of the save files (game/CampSaveLoad.cpp); only the members used here
 class MenuLoadTask : public atn::Task {

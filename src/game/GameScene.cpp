@@ -83,13 +83,7 @@ struct SaveEntry_unk {
 };
 extern "C" SaveEntry_unk* fn_803BA0CC(void* save, int type, int id); // inferred: entry of type/id
 
-// inferred: game flow manager (lbl_8087F420), only the members used here
-struct GameFlow_unk {
-    unsigned char m00[0x18];
-    int m18;
-    int m1C;
-};
-extern "C" GameFlow_unk* lbl_8087F420;
+#include "game/ErrorManager.h"
 
 // inferred: game settings (lbl_8087F0A8), only the members used here
 struct Settings_unk {

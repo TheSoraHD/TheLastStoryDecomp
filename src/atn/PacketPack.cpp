@@ -743,15 +743,7 @@ struct GameUISession_unk {
 
 extern "C" void OSSleepTicks(long long ticks);
 
-class ErrorManager {
-public:
-    void fn_80364E7C(int code); // inferred: shows an error
-    void fn_8036503C();
-    void fn_80365320();
-    unsigned char m00[0x40];
-    int m40;
-};
-extern "C" ErrorManager* lbl_8087F420;
+#include "game/ErrorManager.h"
 
 namespace atn {
 class RenderConfig {
@@ -1225,7 +1217,7 @@ extern "C" __declspec(noinline) inline void fn_804D602C(PPManager2_unk* mgr, int
     fn_804FB220(&mgr->mStateVar, value);
 }
 extern "C" __declspec(noinline) inline int fn_804D6034(ErrorManager* error) {
-    return error->m40;
+    return error->mSelect;
 }
 extern "C" __declspec(noinline) inline void fn_804D603C(PPManager2_unk* mgr, unsigned char value) {
     mgr->m99BC = value;
