@@ -10,6 +10,7 @@ la ruta `main()` -> pantalla de titulo, con tablas por unidad, llamadas al SDK/N
 - Ruta de arranque (27 unidades): 523 -> 557 / 666 funciones al 100 %, enlazan 7 de 27 (nuevas: `game/BootTask`,
   separada de `game/Bullet`, y `atn/MindowsCommon`; frontera `ReplayBuffer`/`GameSystem_unk` movida). 0 borradores en la ruta;
   `game/NewTitleTask` escrita entera.
+- MP/Popup enlazada (fuera de la ruta; `.sbss` de `sInstance` en `splits.txt`).
 - Borradores: 56 -> 42 (los doce lectores de `Event/EventParser_unk`; `Data48_unk` es `Event::DummyData`).
 - boost::lambda 1.35.0 vendorizado (`atn::SequenceHolder`); `CharaTask::fn_80170A20(target, radius, arg)`.
 - Herramientas: `drafts.py`, `ruta_arranque.py`, `offscan.py`, `blorder.py`, `lblmap.py`, `declperm.py`.
