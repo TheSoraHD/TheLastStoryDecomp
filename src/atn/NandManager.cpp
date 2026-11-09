@@ -212,17 +212,16 @@ inline int NandManager::Exists_unk(const char* path) {
 
 // inferred: path of the temporary copy of the file being saved (written out in each step in the
 // original: the format string is in @stringBase0)
-#define TmpPath_unk(buf)                                                                                \
-    {                                                                                                   \
-        std::basic_string<char> name = fn_8006B174(std::basic_string<char>(GetPath_unk()));                    \
-        sprintf(buf, "/tmp/%s", name.c_str());                                                         \
-    }
+static inline void TmpPath_unk(const atn::NandManager* nand, char* buf) {
+    std::basic_string<char> name = fn_8006B174(std::basic_string<char>(nand->GetPath_unk()));
+    sprintf(buf, "/tmp/%s", name.c_str());
+}
 
 // inferred: first step of a save to a new file: creates or opens its temporary copy
 void NandManager::OpenTmp_unk() {
     mError = 0;
     char tmp[0x100];
-    TmpPath_unk(tmp);
+    TmpPath_unk(this, tmp);
     if (Exists_unk(tmp)) {
         mState = 8;
         NANDSetUserData(&mBlock, this);
@@ -234,7 +233,7 @@ void NandManager::OpenTmp_unk() {
     }
 }
 
-// NONMATCHING: 99.78% - stack slots and registers of the string temporaries of TmpPath_unk and of the
+// NONMATCHING: 99.85% - stack slots and registers of the string temporaries of TmpPath_unk and of the
 // copy of the path (states 3, 5, 25), and data/size registers of the first write
 void NandManager::vf10() {
     switch (mState) {
@@ -261,7 +260,7 @@ void NandManager::vf10() {
             case 0: {
                 mError = 0;
                 char tmp[0x100];
-                TmpPath_unk(tmp);
+                TmpPath_unk(this, tmp);
                 mState = 4;
                 NANDSetUserData(&mBlock, this);
                 int err = fn_800A4494(NANDCreateAsync(tmp, 0x34, 0, CreateDone_unk, &mBlock));
@@ -299,7 +298,7 @@ void NandManager::vf10() {
                 if (mSize > 0) {
                     mError = 0;
                     char tmp[0x100];
-                    TmpPath_unk(tmp);
+                    TmpPath_unk(this, tmp);
                     mState = 8;
                     NANDSetUserData(&mBlock, this);
                     int err = fn_800A4494(NANDOpenAsync(tmp, &mFile, 2, OpenDone_unk, &mBlock));
@@ -319,7 +318,7 @@ void NandManager::vf10() {
             case 3: {
                 mError = 0;
                 char tmp[0x100];
-                TmpPath_unk(tmp);
+                TmpPath_unk(this, tmp);
                 mState = 8;
                 NANDSetUserData(&mBlock, this);
                 int err = fn_800A4494(NANDOpenAsync(tmp, &mFile, 2, OpenDone_unk, &mBlock));
@@ -541,7 +540,7 @@ void NandManager::vf10() {
             if (mOp == 0 || mOp == 3) {
                 mError = 0;
                 char tmp[0x100];
-                TmpPath_unk(tmp);
+                TmpPath_unk(this, tmp);
                 mState = 0x18;
                 int err;
                 {
