@@ -4,6 +4,9 @@
 #include "game/MapTask.h"
 #include "atn/FixedArray.h"
 #include "game/NewCampPartsOption.h"
+#include "game/GimmickManager.h"
+#include "atn/Memory.h"
+#include <string.h>
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
 extern "C" GameTask* lbl_8087F430; // inferred: the field task
@@ -20,6 +23,7 @@ public:
 // inferred: entry of RecycleBuffer (0x84 bytes; empty destructor 0x8044E158, cleared by 0x8044E198); names
 // invented
 struct RecycleBufferEntry_unk {
+    RecycleBufferEntry_unk() { Clear_unk(); } // 0x8044E198
     ~RecycleBufferEntry_unk() {}
     void Clear_unk() {
         m00 = 0;
@@ -39,7 +43,7 @@ struct RecycleBufferEntry_unk {
         }
         return true;
     }
-    int m00;
+    ItemSlotTask_unk* m00;
     atn::FixedArray_unk<ItemSlotTask_unk*, 3> m04;
     atn::FixedArray_unk<ItemSlotTask_unk*, 3> m14;
     atn::FixedArray_unk<ItemSlotTask_unk*, 2> m24;
@@ -53,6 +57,28 @@ struct RecycleBufferEntry_unk {
 template <class T>
 class RecycleBuffer : public atn::Task {
 public:
+    RecycleBuffer(atn::Task* parent) : atn::Task(parent), mNum(0), m4C(0), mEntries(0) {}
+
+    // inferred: reallocates the pool for n entries (inlined in ItemSlotAnime::fn_8044D9BC); name invented
+    void Resize_unk(unsigned int n) {
+        if (mNum != n) {
+            mNum = 0;
+            if (m4C != 0) {
+                delete[] m4C;
+                m4C = 0;
+            }
+            if (mEntries != 0) {
+                delete[] mEntries;
+                mEntries = 0;
+            }
+            mNum = n;
+            unsigned int bytes = mNum >> 3;
+            m4C = new ((MemoryTag)1, "", "", 0) unsigned char[bytes > 1 ? bytes : 1];
+            bytes = mNum >> 3;
+            memset(m4C, 0, bytes > 1 ? bytes : 1);
+            mEntries = new ((MemoryTag)1, "", "", 0) RecycleBufferEntry_unk[mNum];
+        }
+    }
     virtual ~RecycleBuffer() {
         mNum = 0;
         if (m4C != 0) {
@@ -84,6 +110,7 @@ namespace gmk {
 // inferred: the pool of the item animations (vtable 0x8078F388, instance lbl_8087F4F8)
 class ItemSlotAnimeBuffer : public RecycleBuffer<ItemSlotAnime> {
 public:
+    ItemSlotAnimeBuffer(atn::Task* parent) : RecycleBuffer<ItemSlotAnime>(parent) {}
     virtual ~ItemSlotAnimeBuffer();
     virtual int vf0C(); // inferred: 0x804523D0
     inline bool Start_unk(); // inferred: true while the tasks are loading; then shows them (name invented)
@@ -133,6 +160,57 @@ ItemSlotAnime::ItemSlotAnime() : m00(0), mState(0), mPos(0.0f, 0.0f, 0.0f), mSca
     mF0 = 0;
     mState = 0;
     Release_unk();
+}
+
+ItemSlotAnime::~ItemSlotAnime() {
+    mState = 0;
+    Release_unk();
+}
+
+extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
+
+// NONMATCHING: draft - the creation of the ItemSlotTextCache (lbl_8087F4FC) is missing; written for the
+// weak copy of the entry constructor (0x8044E198)
+void ItemSlotAnime::fn_8044D9BC(void* owner) {
+    if (lbl_8087F4F8 == 0) {
+        GimmickManager* gm = GimmickManager::instance_;
+        if (lbl_8087F4F8 == 0) {
+            lbl_8087F4F8 = new ((MemoryTag)1, "", "", 0) ItemSlotAnimeBuffer(gm);
+        }
+        ItemSlotAnimeBuffer* buf = lbl_8087F4F8;
+        buf->Resize_unk(12);
+        buf = lbl_8087F4F8;
+        for (unsigned int i = 0; i < buf->mNum; i++) {
+            RecycleBufferEntry_unk& e = buf->mEntries[i];
+            e.m00 = (ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_base.d2b");
+            for (int j = 0; j < 3; j++) {
+                e.m04.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_h.d2b"));
+                e.m14.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_l.d2b"));
+            }
+            e.m24.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_ok.d2b"));
+            e.m24.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_ok_rare.d2b"));
+            e.m30.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_item_pop.d2b"));
+            e.m30.push_back((ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_item_pop_rare.d2b"));
+            e.m3C = (ItemSlotTask_unk*)fn_801F64D0(buf, "/data/d2anime/ui_slot_rare.d2b");
+            for (unsigned int j = 0; j < e.m04.size(); j++) {
+                e.mTasks.push_back(e.m04[j]);
+                e.mTasks.push_back(e.m14[j]);
+            }
+            e.mTasks.push_back(e.m00);
+            for (unsigned int j = 0; j < e.m24.size(); j++) {
+                e.mTasks.push_back(e.m24[j]);
+            }
+            for (unsigned int j = 0; j < e.m30.size(); j++) {
+                e.mTasks.push_back(e.m30[j]);
+            }
+            e.mTasks.push_back(e.m3C);
+            for (ItemSlotTask_unk** it = e.mTasks.begin(); it != e.mTasks.end(); it++) {
+                if (*it != 0) {
+                    (*it)->fn_800D246C(1);
+                }
+            }
+        }
+    }
 }
 
 int ItemSlotAnime::fn_8044E610() {
