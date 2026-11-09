@@ -595,8 +595,8 @@ void Sort_unk(T* first, T* last, Compare comp) {
 
 namespace atn {
 
-// NONMATCHING: 95.1% - the original reloads mCount for the erase and keeps other registers for
-// the erase loop (tried unsigned/int indices, end pointer as argument or computed inside).
+// NONMATCHING: 99.10% - registers of the two loops (p/items in the first, count/pointer in the erase);
+// size() in the test and begin() + n as the position make the erase reload mCount as the original
 void Loader::fn_8046E410() {
     if (m48.mCount == 0) {
         return;
@@ -617,8 +617,8 @@ void Loader::fn_8046E410() {
             i++;
         }
     }
-    if (last < m48.mCount - 1) {
-        m48.erase(&m48.mItems[last + 1]);
+    if (last < m48.size() - 1) {
+        m48.erase(m48.begin() + (last + 1));
     }
     Sort_unk(m48.begin(), m48.end(), LoadCoreLess_unk());
 }
