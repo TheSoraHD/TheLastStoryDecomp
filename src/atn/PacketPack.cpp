@@ -185,7 +185,10 @@ struct PackedChara_unk {
 };
 
 extern "C" void* lbl_8087F610; // inferred: MP::Manager2 instance
-struct PPManager2_unk;
+namespace MP {
+struct Manager2;
+}
+typedef MP::Manager2 PPManager2_unk;
 extern "C" unsigned int fn_804EAEE0(PPManager2_unk* mgr, CharaTask* chara);
 
 // NONMATCHING: 99.91% - stack frame 0x30 instead of 0x20: the original shares one slot for the two
@@ -422,6 +425,7 @@ struct PPPlayerFlags_unk {
 
 // inferred: player slot of MP::Manager2 (0xD5C bytes, array at +0x5E4); names invented
 struct PPPlayer_unk {
+    ~PPPlayer_unk() {} // inferred: weak copy 0x804D1FD8 (destruction of m2B8C in the destructor of MP::Manager2)
     MpCharaRef_unk mRef;              // 0x00: inferred: the character of the player
     unsigned char m004[4];            // inferred: copy of the character information (fn_804D8078)
     void* m08;
@@ -504,8 +508,36 @@ struct PPLimit_unk {
     int m58;
 };
 
+// inferred: element of the arrays new[]-ed by the entries of MP::Manager2::m2A50 (only its empty
+// destructor is known: weak copy 0x804D1478)
+struct PPTableItem_unk {
+    ~PPTableItem_unk() {}
+    unsigned char m00[4];
+};
+// inferred: entry of the table m2A50 (12 bytes; ctor 0x804D13FC, dtor 0x804D1410); names invented
+struct PPTableEntry_unk {
+    ~PPTableEntry_unk() {
+        if (m08 != 0) {
+            delete[] m08;
+        }
+    }
+    int m00;
+    int m04;
+    PPTableItem_unk* m08;
+};
+// inferred: table of MP::Manager2 at 0x2A50 (21 entries and a buffer); names invented
+struct PPTable_unk {
+    PPTableEntry_unk mEntries[21];
+    unsigned char* mFC;
+};
 // inferred: MP::Manager2 (lbl_8087F610), only the members used here; names invented
-struct PPManager2_unk : public atn::Task {
+namespace MP {
+// inferred: MP::Manager2 (vtable 0x807916E0: dtor, vf0C, vf10, vf14 and atn::Task::vf18)
+struct Manager2 : public atn::Task {
+    virtual ~Manager2();
+    virtual int vf0C();
+    virtual void vf10();
+    virtual void vf14(); // inferred: 0x804F7F54, not written yet
     unsigned char m0048[0x348 - 0x48];
     int m348;                         // inferred: room of the next game (fn_804D9BF4)
     int m34C;
@@ -564,7 +596,7 @@ struct PPManager2_unk : public atn::Task {
     unsigned char m060C[0x610 - 0x60C];
     unsigned char m610[0x69C - 0x610]; // inferred: object given to fn_805076F8
     unsigned char m69C[0x2A50 - 0x69C];
-    unsigned char m2A50[0x2B50 - 0x2A50];
+    PPTable_unk m2A50;                // inferred: destroyed by the destructor (entries 0x804D1410)
     atn::LH_Binary m2B50;             // inferred: resources loaded in state 3
     atn::LH_Binary m2B58;
     atn::LH_Binary m2B60;
@@ -635,6 +667,7 @@ struct PPManager2_unk : public atn::Task {
     long long m9A78;
     unsigned char m9A80;
 };
+} // namespace MP
 
 // inferred: getter of the packer (out of line, see MP/CryptMP.cpp)
 atn::net::PacketPack* fn_804AE3BC();
@@ -1465,11 +1498,27 @@ extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
 }
 
+// NONMATCHING: draft - the waits for the network thread and the clean up of the globals are not written;
+// written for the destruction of the members (weak copies 0x804D1410, 0x804D1478, 0x804D1FD8)
+MP::Manager2::~Manager2() {
+    if (lbl_8087F5A4 != 0) {
+        delete lbl_8087F5A4;
+        lbl_8087F5A4 = 0;
+    }
+    lbl_8087F628->vf0C();
+    lbl_8087F610 = 0;
+    if (m2A50.mFC != 0) {
+        delete[] m2A50.mFC;
+    }
+    m2A50.mFC = 0;
+}
+
 MP::ManagerMP::~ManagerMP() {}
 
 extern "C" int fn_800C310C(int arg);
 // inferred: MP::Manager2::vf0C (vtable 0x807916E0): waits for the resources, then shows the menu
-extern "C" int fn_804D2508(PPManager2_unk* mgr) {
+int MP::Manager2::vf0C() {
+    PPManager2_unk* mgr = this;
     mgr->m2B7C->m58 = 99999;
     if (fn_800C310C(0) == 0 && mgr->m9968.IsLoading() == 0 && mgr->fn_800D3FA4() != 0) {
         fn_80232B7C((unsigned int)mgr, 0);
@@ -1488,7 +1537,8 @@ extern "C" int fn_804D2508(PPManager2_unk* mgr) {
 
 // inferred: MP::Manager2::vf10 (vtable 0x807916E0): update of the multiplayer mode
 // NONMATCHING: draft - written for the weak copies of its accessors (0x804D5F04-0x804D6680)
-extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
+void MP::Manager2::vf10() {
+    PPManager2_unk* mgr = this;
     if (fn_804D5F04(&mgr->mStateVar) == 30 && ((GameUISession_unk*)mgr)->GetM50C_unk() == 0) {
         for (int i = 0; i < fn_804D5F38(mgr); i++) {
             PPPlayer_unk* player = fn_804D5F0C(mgr, i);
@@ -1739,7 +1789,7 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
             int size = mgr->m2B60.fn_8047059C();
             fn_805061C8(mgr->m69C, mgr->m2B60.fn_80470580(), size);
             size = mgr->m2B68.fn_8047059C();
-            fn_80506D94(mgr->m2A50, mgr->m2B68.fn_80470580(), size);
+            fn_80506D94(&mgr->m2A50, mgr->m2B68.fn_80470580(), size);
             size = mgr->m2B50.fn_8047059C();
             fn_80507310(mgr->m610, mgr->m2B50.fn_80470580(), size);
             mgr->m2B58.fn_80473F88();
