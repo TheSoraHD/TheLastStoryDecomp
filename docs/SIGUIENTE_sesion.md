@@ -1,12 +1,15 @@
 # Siguiente sesion (tras s12h-20261109)
 
-Rama `s12h-20261109` (desde `main` f8995cf, **sin mergear**): **14596 -> 14837 / 18109**, lost 0, la unica
+Rama `s12h-20261109` (mergeada en `main` el 2026-11-09): **14596 -> 14837 / 18109**, lost 0, la unica
 bajada de fuzzy es el stub conocido de `MiniMapTask::vf10` (0,33 -> 0; ahora es borrador con +10 copias).
 Clon limpio de la rama: `main.dol: OK`. Notas: `docs/s12h-20261109.md`.
 
 ## Pendiente
 
-- Revisar y mergear la rama (decisiones abajo).
+- Deuda de la regla 10 aceptada al mergear: PacketPack tiene ~170 funciones `extern "C"` con un puntero `self`
+  (accesores de las vistas `PP*_unk`) que deberian ser miembros de sus clases, y ~105 `__declspec(noinline) inline`
+  para emitir copias debiles (hasta ahora solo aceptado en MP/CryptMP). Convertirlas exige renombrar en
+  `symbols.txt` y comprobar que no baja nada.
 - game/ReplayBuffer (14/28): quedan fn_8056A9E4 (borrador), fn_8056B558, fn_8056C3D8, fn_8056CB20, fn_8056F5B4
   (extraccion de angulos con atan2 y PSMTX44MultVec), fn_8056DACC, fn_8056E918, fn_8056FC24 (como fn_8056BD34:
   falta 0x20 de pila). Las funciones de 0x80570A14-0x80570A74 son de ReplayBuffer pero estan en el split de
