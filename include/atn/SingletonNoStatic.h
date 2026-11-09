@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ATN_SINGLETONNOSTATIC_H
+#define ATN_SINGLETONNOSTATIC_H
 
 namespace atn {
 
@@ -8,3 +9,5 @@ template <class T>
 class SingletonNoStatic {};
 
 } // namespace atn
+
+#endif
