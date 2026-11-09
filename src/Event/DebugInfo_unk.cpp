@@ -85,15 +85,17 @@ void fn_80224638(DebugInfo_unk* info);
 int fn_802238D0(DebugInfo_unk* info, Action* action, Action* other, int arg); // inferred: the action is shown
 
 // inferred: columns of the three tables (6, 6 and 10 columns)
+// inferred: the names are built by the __sinit of the unit (NONMATCHING: 96.42% - offsets of the names in
+// @stringBase0, the strings of the page functions before them are not written yet, and registers)
 static DebugInfoColumnDef_unk sColumns0_unk[6] = {
-    {0, 0, 0, 50.0f}, {0, 0, 0, 60.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 60.0f}, {0, 0, 0, 220.0f}, {0, 0, 0, 100.0f},
+    {"Frame", 50.0f}, {"Length", 60.0f}, {"FadeIn", 50.0f}, {"FadeOut", 60.0f}, {"Path", 220.0f}, {"Name", 100.0f},
 };
 static DebugInfoColumnDef_unk sColumns1_unk[6] = {
-    {0, 0, 0, 70.0f}, {0, 0, 0, 60.0f}, {0, 0, 0, 180.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 80.0f}, {0, 0, 0, 100.0f},
+    {"Frame", 70.0f}, {"Actor", 60.0f}, {"Motion", 180.0f}, {"Speed", 50.0f}, {"St.Frame", 80.0f}, {"Loop", 100.0f},
 };
 static DebugInfoColumnDef_unk sColumns2_unk[10] = {
-    {0, 0, 0, 80.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 40.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f},
-    {0, 0, 0, 40.0f}, {0, 0, 0, 70.0f}, {0, 0, 0, 50.0f}, {0, 0, 0, 40.0f},
+    {"Actor", 80.0f}, {"Low", 70.0f}, {"Speed", 50.0f}, {"Frame", 40.0f}, {"Upper", 70.0f},
+    {"Speed", 50.0f}, {"Frame", 40.0f}, {"Face", 70.0f}, {"Speed", 50.0f}, {"Frame", 40.0f},
 };
 
 // inferred: a column with this key exists

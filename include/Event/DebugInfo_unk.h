@@ -14,12 +14,10 @@ struct DebugInfoColumn_unk {
     int m10;
 };
 
-// inferred: column definition of a table of the debug display (0x10 bytes, tables at 0x807835F0;
-// the first three words are zero in the data). Names invented.
+// inferred: column definition of a table of the debug display (0x10 bytes, tables at 0x807835F0: the
+// names are built by the __sinit of the unit, the widths are in the data). Names invented.
 struct DebugInfoColumnDef_unk {
-    int m00;
-    int m04;
-    int m08;
+    std::string mName;
     float mWidth; // inferred: 50, 60, 220, 100...
 };
 
