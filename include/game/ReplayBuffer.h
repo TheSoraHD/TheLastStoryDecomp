@@ -106,6 +106,7 @@ public:
     void fn_8056E918(int frame);
     void fn_80570254(int frame); // inferred: rebuilds the effects and events up to the frame
     void fn_8056D43C(ReplayFrame_unk* frame, const Mtx inv); // inferred: records the gimmick models
+    void fn_8056D06C(); // inferred: frees the effect events that ended more than 90 frames ago
     void fn_8057080C(); // inferred: frees the bullet events that ended more than 90 frames ago
     int m00004; // inferred: current frame
     ReplayFrame_unk mFrames[45]; // 0x00008: inferred: ring of the recorded frames

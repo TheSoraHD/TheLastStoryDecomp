@@ -203,6 +203,95 @@ ReplayBuffer::ReplayBuffer()
 
 ReplayBuffer::~ReplayBuffer() {}
 
+extern "C" int fn_8023779C(void* res);           // inferred: length of the effect (0: endless)
+extern "C" int fn_80237784(void* res, int frame); // inferred: frames left of the effect after `frame`
+
+
+// inferred: group test of the effects (-2: any group); name invented
+static inline bool IsGroup_unk(int group, int want) {
+    return group == want || want == -2;
+}
+
+// inferred: the stop event `stop` is for the effect started by `play` (as EffectManager::IsMatch_unk)
+static inline bool IsSameEffect_unk(const EffectEvent_unk& stop, const EffectEvent_unk& play) {
+    if (stop.mRes != 0) {
+        return play.mRes == stop.mRes;
+    }
+    if (stop.m58 != 0) {
+        return play.m58 == stop.m58;
+    }
+    if (stop.mHandle != 0) {
+        return play.mHandle == stop.mHandle;
+    }
+    return play.mOwner == stop.mOwner && IsGroup_unk(play.mGroup, stop.mGroup);
+}
+
+// NONMATCHING: 99.95% - the group test sets 1 first and clears it (li r4, 1 ... li r4, 0)
+void ReplayBuffer::fn_8056D06C() {
+    atn::FixedArray_unk<ReplayEffectEntry_unk*, 512> plays;
+    ReplayEffectEntry_unk** it = mEffects.begin();
+    while (it != mEffects.end()) {
+        ReplayEffectEntry_unk* e = *it;
+        switch (e->mEvent.mType) {
+        case 0:
+            if (fn_8023779C(e->mEvent.mRes) != 0 && e->mFrame + fn_8023779C(e->mEvent.mRes) < m00004 - 90) {
+                e->mFrame = -1;
+                mEffects.erase(it);
+                continue;
+            }
+            plays.push_back(e);
+            break;
+        case 1:
+            if (e->mFrame < m00004 - 90) {
+                bool unmatched = true;
+                ReplayEffectEntry_unk** p = plays.begin();
+                while (p != plays.end()) {
+                    ReplayEffectEntry_unk* play = *p;
+                    if (play->mFrame < 0) {
+                        continue;
+                    }
+                    if (IsSameEffect_unk(e->mEvent, play->mEvent)) {
+                        unmatched = false;
+                        if (e->mEvent.m5C == 0 ||
+                            play->mFrame + fn_80237784(play->mEvent.mRes, e->mFrame - play->mFrame) < m00004 - 90) {
+                            plays.erase(p);
+                            play->mFrame = -1;
+                            continue;
+                        }
+                    }
+                    p++;
+                }
+                if (unmatched) {
+                    e->mFrame = -1;
+                }
+            }
+            break;
+        }
+        it++;
+    }
+    m52990 = m00004;
+    ReplayEffectEntry_unk** it2 = mEffects.begin();
+    while (it2 != mEffects.end()) {
+        ReplayEffectEntry_unk* e = *it2;
+        if (e->mFrame < 0) {
+            mEffects.erase(it2);
+            continue;
+        }
+        if (e->mEvent.mType == 0) {
+            if (fn_8023779C(e->mEvent.mRes) == 0) {
+                int oldest = m00004 - 60;
+                m52990 = REPLAY_MIN(REPLAY_MAX(e->mFrame, oldest), m52990);
+            } else {
+                m52990 = REPLAY_MIN(e->mFrame, m52990);
+            }
+        }
+        it2++;
+    }
+    if (m00004 - m52990 > 300) {
+        m52990 = m00004 - 300;
+    }
+}
+
 void ReplayBuffer::fn_8056D43C(ReplayFrame_unk* frame, const Mtx inv) {
     for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
         if (frame->mNumModels >= 60) {
