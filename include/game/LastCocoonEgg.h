@@ -39,12 +39,8 @@ struct LastCocoonEggPostFx_unk {
 // invented
 struct LastCocoonEggShake_unk {
     LastCocoonEggShake_unk() : m00(0), mFrames(0), mX(0.0f), mY(0.0f) {} // inferred: weak copy 0x804533B4
-    // inferred: counts the frames of the shake (weak copy 0x80454538)
-    void fn_80454538() {
-        if (m00 < mFrames) {
-            m00++;
-        }
-    }
+    // inferred: counts the frames of the shake (weak copy 0x80454538, called by LastCocoonEgg::vf10)
+    void fn_80454538();
     void Shake_unk(int frames, float x, float y) {
         m00 = m00 % 2;
         mFrames = frames;
@@ -56,6 +52,12 @@ struct LastCocoonEggShake_unk {
     float mX;
     float mY;
 };
+// inferred: called out of line by LastCocoonEgg::vf10 (over the inlining budget in the original)
+__declspec(noinline) inline void LastCocoonEggShake_unk::fn_80454538() {
+    if (m00 < mFrames) {
+        m00++;
+    }
+}
 
 // inferred from __vt__13LastCocoonEgg (0x8078F630): egg form of the last cocoon; the enemy factory
 // (fn_805A5374) allocates 0x2A50 bytes. Members keep their offsets (names unknown).

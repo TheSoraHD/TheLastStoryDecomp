@@ -119,7 +119,7 @@ extern "C" inline float fn_8029F3AC(CharaStatus* status) {
     return 0.0f;
 }
 // inferred: weak copy 0x80454514 (name invented)
-extern "C" inline float fn_80454514(float x) {
+extern "C" __declspec(noinline) inline float fn_80454514(float x) {
     return floor(x);
 }
 
