@@ -225,10 +225,13 @@ extern "C" bool fn_80213B78(int id, int kind, int sub, int num) {
     return result;
 }
 
+// inferred: field getters of the item tables (the getters load the arguments right to left)
+static inline int GetSub_unk(const WeaponData_unk* w) { return w->m78; }
+static inline int GetValue_unk(const WeaponData_unk* w) { return w->m80; }
+static inline int GetSub_unk(const EquipData_unk* e) { return e->mKind; }
+static inline int GetValue_unk(const EquipData_unk* e) { return e->mId; }
+
 // inferred: as fn_80213B78 for item data
-// NONMATCHING: 99.87% - the original loads the value (0x80/0x7C) before the sub kind (0x78) for the
-// inlined search; with HasItem2_unk (value before sub) the registers match but the loads are in the
-// other order. Tried: HasItem_unk, locals for the arguments, reference parameters, compare orders.
 extern "C" bool fn_80213E60(ItemData_unk* item, int kind, int sub, int num) {
     if (item == 0) {
         return false;
@@ -236,12 +239,12 @@ extern "C" bool fn_80213E60(ItemData_unk* item, int kind, int sub, int num) {
     if (fn_80206B9C(item->m04)) {
         WeaponData_unk* weapon = fn_80206C50(item->m04);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-        return weapon->m114 != 0 || (entry != 0 && HasItem2_unk(entry, 1, weapon->m80, weapon->m78));
+        return weapon->m114 != 0 || (entry != 0 && HasItem2_unk(entry, 1, GetValue_unk(weapon), GetSub_unk(weapon)));
     }
     if (fn_8020EF04(item->m04)) {
         EquipData_unk* equip = fn_8020EFEC(item->m04);
         RareEntry_unk* entry = fn_80213B08(kind, sub, num);
-        return entry != 0 && HasItem2_unk(entry, 2, equip->mId, equip->mKind);
+        return entry != 0 && HasItem2_unk(entry, 2, GetValue_unk(equip), GetSub_unk(equip));
     }
     RareEntry_unk* entry = fn_80213B08(kind, sub, num);
     return item->mC2 != 0 || (entry != 0 && HasItem2_unk(entry, 0, item->m04, 0));

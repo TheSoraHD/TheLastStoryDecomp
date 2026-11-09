@@ -1285,7 +1285,7 @@
  {
   "name": "db/ItemRare_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/TreasureList_unk.cpp",
