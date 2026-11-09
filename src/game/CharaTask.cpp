@@ -9877,7 +9877,7 @@ void CharaTask::fn_8017039C(int place, int arg) {
 }
 
 // inferred: routes to the character `target` (mRadius is set only when >= 1)
-void CharaTask::fn_80170A20(CharaTask* target, int arg, float radius) {
+void CharaTask::fn_80170A20(CharaTask* target, float radius, int arg) {
     mRoute.fn_80128930(target, &mPos, arg);
     if (radius >= 1.0f) {
         mRoute.mRadius = radius;

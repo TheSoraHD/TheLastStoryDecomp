@@ -363,7 +363,7 @@ void CosEditBase::fn_801CD648() {
     }
 }
 
-// NONMATCHING: 95.0% - frame 0x40 bytes larger and saved register order (d2anime point temporaries)
+// NONMATCHING: 99.11% - saved registers of the base anime and the entry (one lower in the original)
 void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
     if (list->mBase) {
         list->mBase->mVisible = 0;
@@ -381,6 +381,7 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
         NewCampPartsEntry_unk* entry = &m50[list->m3C];
         if (base && base->GetTask()) {
             D2APoint_unk pos;
+            char name[0x40];
             pos.x = 0.0f;
             pos.y = 0.0f;
             pos.mScaleX = 0.0f;
@@ -393,9 +394,9 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
                 scroll->mVisible = 1;
                 fn_805112A8(entry, scroll, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
                 if (scroll->GetTask()) {
-                    char name[0x40];
                     sprintf(name, "scroll_point");
-                    pos = fn_801F4E8C(base->GetTask(), fn_800DC6B4(name));
+                    atn::Task* task = base->GetTask();
+                    pos = fn_801F4E8C(task, fn_800DC6B4(name));
                     fn_801F6E78(scroll->GetTask(), "basePos", &pos);
                 }
             }
@@ -407,9 +408,9 @@ void CosEditBase::fn_801CDA00(CosEditList_unk* list) {
                 item->mVisible = 1;
                 fn_805112A8(entry, item, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
                 if (item->GetTask()) {
-                    char name[0x40];
                     sprintf(name, "camp_list%d", i + 1);
-                    pos = fn_801F4E8C(base->GetTask(), fn_800DC6B4(name));
+                    atn::Task* task = base->GetTask();
+                    pos = fn_801F4E8C(task, fn_800DC6B4(name));
                     fn_801F6E78(item->GetTask(), "base_point", &pos);
                 }
             }

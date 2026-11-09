@@ -95,7 +95,7 @@ public:
 class MenuLoadTask : public CampSaveLoad {
 public:
     MenuLoadTask(atn::Task* parent, GameLoadTask* data);
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
     virtual ~MenuLoadTask();
 
     static MenuLoadTask* sInstance; // 0x8087F06C
@@ -129,7 +129,7 @@ void MenuSaveTask::vf20() {
     lbl_8087D990 = m150 != 0 ? m128 : -1;
 }
 
-MenuLoadTask* MenuLoadTask::fn_80117914(atn::Task* parent, GameLoadTask* data) {
+MenuLoadTask* MenuLoadTask::fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg) {
     if (sInstance == 0) {
         sInstance = new ((MemoryTag)1, "", "", 0) MenuLoadTask(parent, data);
     }

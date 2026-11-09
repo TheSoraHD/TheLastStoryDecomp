@@ -142,6 +142,7 @@ int GameMessageList::fn_803B3CA8() {
 }
 
 // inferred: converts the tags of a message text (LogMessageTask calls it)
+// DRAFT: empty stub; the tag replacement is not written
 // NONMATCHING: stub (the tag replacement is not written yet)
 extern "C" void fn_803B3D2C(std::basic_string<wchar_t>* text) {
     (void)text;
@@ -337,6 +338,7 @@ int GameChoiceWindow::fn_803B4C24() {
     return mState == 3;
 }
 
+// DRAFT: empty stub; splitting the text into the choices is not written
 // NONMATCHING: stub (splits the text into the choices, a std::vector of wide strings); noinline until
 // it is written (the original, 2104 bytes, is always called with bl)
 __declspec(noinline) void GameChoiceWindow::fn_803B4C38() {
@@ -456,6 +458,7 @@ int GameMessageWindow::fn_803B5950() {
     return 0;
 }
 
+// DRAFT: empty stub; setting the texts of the window is not written
 // NONMATCHING: stub (sets the texts of the window); noinline until it is written (the original, 1976
 // bytes, is always called out of line)
 __declspec(noinline) void GameMessageWindow::fn_803B5974() {}
@@ -485,9 +488,11 @@ int GameTextMessageWindow::vf0C() {
     return 0;
 }
 
+// DRAFT: empty stub
 // NONMATCHING: stub
 void GameTextMessageWindow::vf10() {}
 
+// DRAFT: empty stub
 // NONMATCHING: stub
 void GameTextMessageWindow::fn_803B6970(GameMessage* msg, int arg, float time) {
     (void)msg;
@@ -519,9 +524,11 @@ void GameTextMessageWindow::fn_803B6C88(int enabled) {
     }
 }
 
+// DRAFT: empty stub
 // NONMATCHING: stub
 void GameTextMessageWindow::fn_803B6E04() {}
 
+// DRAFT: empty stub
 // NONMATCHING: stub
 void GameTextMessageWindow::fn_803B710C() {}
 

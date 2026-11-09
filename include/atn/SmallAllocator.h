@@ -38,10 +38,12 @@ public:
     virtual ~SmallAllocator() {}
     virtual void* vf0C(unsigned long size, unsigned long align, int heap, const char* name);
     virtual void vf10(void* p);
-    // NONMATCHING: 97.9% - the original keeps mCount - 1 in its own register
     virtual void* vf14() {
-        const SmallPoolConfig_unk& config = mConfig[mCount - 1];
-        return mPools[mCount - 1].mBase + config.mCount * (config.mSize << 5);
+        const SmallPoolConfig_unk* config;
+        int last;
+        last = mCount - 1;
+        config = &mConfig[last];
+        return mPools[last].mBase + config->mCount * (config->mSize << 5);
     }
     virtual void* vf18() { return mPools[0].mBase; }
     virtual void vf1C() {}

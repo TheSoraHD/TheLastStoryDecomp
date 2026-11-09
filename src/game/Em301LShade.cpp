@@ -503,6 +503,7 @@ int Em301LShade::vf0C() {
 template void std::vector<RoutePlace_unk*>::push_back(RoutePlace_unk* const& x);
 template void std::vector<EnemyTask*>::push_back(EnemyTask* const& x);
 
+// DRAFT: not checked against the original (draft without a description)
 // NONMATCHING: draft
 void Em301LShade::vf10() {
     if (m58C != 8) {

@@ -252,7 +252,7 @@
    "atn::MindowsFolder",
    "atn::Mindows_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Model.cpp",
@@ -553,9 +553,15 @@
   "matching": true
  },
  {
+  "name": "game/BootTask.cpp",
+  "classes": [
+   "BootTask"
+  ],
+  "matching": true
+ },
+ {
   "name": "game/Bullet.cpp",
   "classes": [
-   "BootTask",
    "Bullet"
   ],
   "matching": false
@@ -1279,7 +1285,7 @@
  {
   "name": "db/ItemRare_unk.cpp",
   "classes": [],
-  "matching": false
+  "matching": true
  },
  {
   "name": "db/TreasureList_unk.cpp",
@@ -2880,7 +2886,7 @@
   "classes": [
    "MP::Popup"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "MP/SaveLoad.cpp",

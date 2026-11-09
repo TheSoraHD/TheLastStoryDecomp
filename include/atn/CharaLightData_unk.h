@@ -13,6 +13,8 @@ struct CharaLightData_unk {
     void fn_800C1814(const char* path); // inferred: loads the texture
     void fn_800C18BC();                 // inferred: update (scroll, rotation and texture animation)
     int fn_800C1990();                  // inferred: nonzero while loading
+    // declared only: weak copy 0x8052F88C, first used by game/NewCampTask.cpp (the copy of an atn::Scene)
+    CharaLightData_unk& operator=(const CharaLightData_unk&);
 
     int m00;
     atn::Vector2_unk m04;

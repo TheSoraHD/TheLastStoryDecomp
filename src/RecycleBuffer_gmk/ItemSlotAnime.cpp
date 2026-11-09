@@ -188,6 +188,7 @@ ItemSlotAnime::~ItemSlotAnime() {
 
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path); // inferred: d2anime task
 
+// DRAFT: the creation of the ItemSlotTextCache (lbl_8087F4FC)
 // NONMATCHING: draft - the creation of the ItemSlotTextCache (lbl_8087F4FC) is missing; written for the
 // weak copy of the entry constructor (0x8044E198)
 void ItemSlotAnime::fn_8044D9BC(void* owner) {

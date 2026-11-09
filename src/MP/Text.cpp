@@ -375,11 +375,13 @@ extern "C" void fn_80507310(MpLevelTable_unk* table, const char* data, int size)
 // NONMATCHING: 98.2% - r5/r7 of the count (close-units qD: size local, separate assignment, pointer
 // arithmetic, unsigned/int index forms: no change)
 extern "C" MpLevel_unk* fn_805075C4(MpLevelTable_unk* table, int exp) {
-    unsigned int n = table->mLevels.mSize - 1;
+    MpLevel_unk* e;
+    unsigned int n;
+    n = table->mLevels.mSize - 1;
     for (unsigned int i = 0; i < n; i++) {
         // inferred: the data pointer is reloaded every iteration (volatile read; visible where the
         // function is inlined twice in fn_80507654)
-        MpLevel_unk* e = &(*(MpLevel_unk* volatile*)&table->mLevels.mData)[i];
+        e = &(*(MpLevel_unk* volatile*)&table->mLevels.mData)[i];
         if (exp < e->mExp) {
             return e;
         }

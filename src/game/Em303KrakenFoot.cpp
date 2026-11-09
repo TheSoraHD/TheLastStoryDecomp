@@ -296,7 +296,7 @@ void Em303KrakenFoot::vf10() {
                 } else {
                     switch (m14C0) {
                     case 1:
-                        fn_80170A20((CharaTask*)m14CC, 0, -1.0f);
+                        fn_80170A20((CharaTask*)m14CC, -1.0f, 0);
                         break;
                     case 3:
                         if (m14E8 != 0) {

@@ -3,7 +3,7 @@
 
 namespace atn {
 
-SequenceControl* SequenceControl::fn_800C3610(Task* parent, void* table) {
+SequenceControl* SequenceControl::fn_800C3610(Task* parent, SequenceHolder* table) {
     if (sInstance == 0) {
         return new ((MemoryTag)1, "", "", 0) SequenceControl(parent, table);
     }
@@ -20,20 +20,20 @@ int SequenceControl::vf0C() {
 
 void SequenceControl::vf10() {
     if (mCurrent == 0) {
-        SequenceEntry_unk* entry = mPending;
+        SequenceHolder::SequenceUnitBase* entry = mPending;
         if (entry == 0) {
-            SequenceEntry_unk* found = fn_800C3E84(mTable, mNextId);
+            SequenceHolder::SequenceUnitBase* found = mTable->fn_800C3E84(mNextId);
             if (found != 0) {
                 mNextId = 0;
                 entry = found;
             } else {
-                entry = fn_800C3FB0(mTable, 0);
+                entry = mTable->fn_800C3FB0(0);
             }
         } else {
             mPending = 0;
         }
         mCurrent = entry->vf0C(this);
-        mName = entry->m08;
+        mName = entry->mName;
         fn_800D3F28(mCurrent);
     }
 }

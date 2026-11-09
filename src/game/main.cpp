@@ -26,26 +26,9 @@ extern "C" void NWC24SuspendScheduler();
 extern "C" unsigned char SCGetLanguage();
 extern "C" unsigned long strlen(const char* s);
 
-// inferred: power/reset handling (the GameSystem_unk of game/GameSystem_unk.cpp; class name from the
-// type name of the bound functor at 0x807561F4)
-class ResetShutdown {
-public:
-    void fn_80570CF8(); // inferred: per-frame update
-};
-extern "C" void fn_80570CF8(ResetShutdown* self); // the same function, called directly by main
-extern "C" void fn_80570C50();                    // inferred: creates the ResetShutdown singleton
-extern "C" ResetShutdown* lbl_8087F9A0;
+#include "game/ResetShutdown.h"
 
-// inferred: error manager (class name from the type name of the bound functor at 0x8075617C)
-class ErrorManager {
-public:
-    void fn_80363DBC(); // inferred: per-frame update
-    void fn_803646C4(); // inferred: per-frame update
-    unsigned char m00[0x18];
-    int m18;
-    int m1C;
-};
-extern "C" ErrorManager* lbl_8087F420;
+#include "game/ErrorManager.h"
 extern "C" void fn_80363CE4(); // inferred: creates the ErrorManager singleton
 
 // inferred: HOME button menu (game/HomeButtonMenu.cpp), only the members used here
@@ -168,6 +151,16 @@ inline void CreateFrameCallbacks_unk() {
     }
 }
 
+// inferred: registers the per-frame callbacks of the reset/shutdown and error handlers (name invented).
+// As an inline helper it rejects its own candidates (the three push_back) and is inlined raw into
+// fn_8047A4C8, which then inlines its other candidates as the original does (39.7% -> 76%).
+inline void RegistFrameCallbacks_unk() {
+    CreateFrameCallbacks_unk();
+    lbl_8087EE94->push_back(boost::bind(&ResetShutdown::fn_80570CF8, lbl_8087F9A0));
+    lbl_8087EE94->push_back(boost::bind(&ErrorManager::fn_80363DBC, lbl_8087F420));
+    lbl_8087EE94->push_back(boost::bind(&ErrorManager::fn_803646C4, lbl_8087F420));
+}
+
 extern "C" HeapInfo_unk* lbl_8087F534;
 extern "C" atn::Task* lbl_8087F530; // inferred: root task
 
@@ -219,7 +212,7 @@ int main() {
         lbl_8087F534->mTimer0.Stop_unk();
         lbl_8087F534->fn_805A6BD8();
         fn_80071D60(lbl_8087EEE0, lbl_8087F0A8->m30 == 30);
-        fn_80570CF8(lbl_8087F9A0);
+        lbl_8087F9A0->fn_80570CF8();
         FrameCallbacks_unk* callbacks = lbl_8087EE94;
         for (unsigned int i = 0; i < callbacks->mSize; i++) {
             (*callbacks)[i]();
@@ -231,11 +224,10 @@ int main() {
 }
 
 // inferred: start-up
-// NONMATCHING: 39.7% - the original inlines the boost::bind/boost::function constructors, the
-// strings and LightDesc_unk while calling SimpleVector::push_back out of line (here the three push_back
-// calls make every candidate go out of line; push_back probably takes the function by value in the
-// original). Over the budget OSInitFastCast (approved SDK header asm) is also called out of line here,
-// while the original inlines its four mtspr GQR2-5 after OSInit.
+// NONMATCHING: 76.1% - the original inlines the boost::function constructors and calls only
+// SimpleVector::push_back; with the push_back calls in RegistFrameCallbacks_unk the strings, ResRef_unk,
+// SoundCategory_unk and OSInitFastCast are inlined as in the original, but the three boost::function
+// constructors stay out of line (push_back takes a const reference: see its weak copy 0x80138A50).
 void fn_8047A4C8() {
     OSInit();
     OSInitFastCast();
@@ -261,10 +253,7 @@ void fn_8047A4C8() {
     fn_80363CE4();
     lbl_8087F420->m18 = 1;
     lbl_8087F420->m1C = 1;
-    CreateFrameCallbacks_unk();
-    lbl_8087EE94->push_back(boost::bind(&ResetShutdown::fn_80570CF8, lbl_8087F9A0));
-    lbl_8087EE94->push_back(boost::bind(&ErrorManager::fn_80363DBC, lbl_8087F420));
-    lbl_8087EE94->push_back(boost::bind(&ErrorManager::fn_803646C4, lbl_8087F420));
+    RegistFrameCallbacks_unk();
     OSReport("0.1\n");
     fn_80185AD4();
     SetConfig::fn_8057E8C4();

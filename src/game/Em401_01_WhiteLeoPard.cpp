@@ -429,7 +429,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
     if (state == 4) {
         if (FindRoutePlace2_unk(table, m1568) == 0) {
             mRoute.fn_8012539C();
-            fn_80170A20(mC58.mC4, 0, -1.0f);
+            fn_80170A20(mC58.mC4, -1.0f, 0);
         } else if (((GameTask*)lbl_8087F430)->fn_80370A78(0x3D) != 0) {
             mRoute.fn_8012539C();
             fn_8017039C(m1568, 0);
@@ -466,7 +466,7 @@ void Em401_01_WhiteLeoPard::fn_803202E0() {
             }
             if (LengthXZ_unk(place->mPos - mPos) < m14FC) {
                 mRoute.fn_8012539C();
-                fn_80170A20(mC58.mC4, 0, -1.0f);
+                fn_80170A20(mC58.mC4, -1.0f, 0);
                 m1568 = 9999;
                 m1564 = 0;
                 m1560 = 0;

@@ -199,6 +199,7 @@ inline void Em206CocoonMp::Die_unk() {
     m1914 = 1;
 }
 
+// DRAFT: written for the order of the strings
 // NONMATCHING: written for the order of the strings (std::string, tokenizer and the ResHandle constructor are
 // called out of line in the original, as in game/LastCocoonChrysalis.cpp)
 Em206CocoonMp::Em206CocoonMp(atn::Task* parent, EnemyInfo_unk* info)
@@ -754,7 +755,7 @@ void Em206CocoonMp::vf38(int arg) {
 void Em206CocoonMp::fn_802BDFA0() {
     if (m55C != 6) {
         fn_8016E970(3);
-        fn_80170A20(mC58.mC4, 0, -1.0f);
+        fn_80170A20(mC58.mC4, -1.0f, 0);
     }
     fn_802BD118();
 }

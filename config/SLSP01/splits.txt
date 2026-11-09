@@ -659,10 +659,15 @@ Event/BehaviorMoveTo.cpp:
 	.data       start:0x80779EA0 end:0x80779ED8
 	.sdata2     start:0x80881620 end:0x80881640
 
+game/BootTask.cpp:
+	.text       start:0x8010EB58 end:0x8010ED4C
+	.rodata     start:0x80736608 end:0x80736630
+	.data       start:0x80779ED8 end:0x80779F10
+
 game/Bullet.cpp:
-	.text       start:0x8010EB58 end:0x80112220
-	.rodata     start:0x80736608 end:0x807366B0
-	.data       start:0x80779ED8 end:0x80779F40
+	.text       start:0x8010ED4C end:0x80112220
+	.rodata     start:0x80736630 end:0x807366B0
+	.data       start:0x80779F10 end:0x80779F40
 	.bss        start:0x807C7888 end:0x807C7898
 	.sdata2     start:0x80881640 end:0x808816A8
 
@@ -2996,6 +3001,7 @@ MP/Popup.cpp:
 	.rodata     start:0x8075A858 end:0x8075A970
 	.data       start:0x80792A70 end:0x80792AA8
 	.sdata      start:0x8087E430 end:0x8087E440
+	.sbss       start:0x8087F840 end:0x8087F848
 	.sdata2     start:0x80887680 end:0x808876B8
 
 MP/SaveLoad.cpp:
@@ -3274,7 +3280,7 @@ game/QuadrupedTask.cpp:
 	.sdata2     start:0x80887F40 end:0x80888018
 
 game/ReplayBuffer.cpp:
-	.text       start:0x8056A84C end:0x80570A14
+	.text       start:0x8056A84C end:0x80570B48
 	.rodata     start:0x8075FE68 end:0x8075FFB0
 	.data       start:0x80795820 end:0x80795850
 	.bss        start:0x807C9568 end:0x807C9570
@@ -3282,7 +3288,7 @@ game/ReplayBuffer.cpp:
 	.sdata2     start:0x80888018 end:0x80888058
 
 game/GameSystem_unk.cpp:
-	.text       start:0x80570A14 end:0x8057162C
+	.text       start:0x80570B48 end:0x8057162C
 	.rodata     start:0x8075FFB0 end:0x8075FFB8
 	.sdata2     start:0x80888058 end:0x80888060
 

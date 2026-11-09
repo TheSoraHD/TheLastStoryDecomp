@@ -156,6 +156,7 @@ int Puppeteer<atn::Model>::vf0C() {
     return 1;
 }
 
+// DRAFT: stub; the matrix stack of the model is not computed
 // NONMATCHING: stub - computes the matrix stack of the model
 template <>
 void Puppeteer<atn::Model>::vf10() {
@@ -373,7 +374,7 @@ void Actor::fn_8000E6B0(Sequence* seq, int id) {
 }
 
 void Actor::fn_8000E7B8(Sequence* seq, int id) {
-    Data48_unk* data = seq->m104.Find_unk(id);
+    DummyData* data = seq->m104.Find_unk(id);
     if (data == 0) {
         m20 = 0;
         return;
@@ -533,7 +534,7 @@ atn::Vector3 Actor::fn_80010374() {
         }
     case 4:
         if (m1C != 0) {
-            atn::Matrix3x4* mtx = (atn::Matrix3x4*)((Data48_unk*)m1C)->m18;
+            atn::Matrix3x4* mtx = &((DummyData*)m1C)->m18;
             return atn::Vector3(mtx->m[0][3], mtx->m[1][3], mtx->m[2][3]);
         }
     }
@@ -819,7 +820,7 @@ MtxPtr Actor::fn_80012AC4(unsigned int node) {
         }
         return ((Puppeteer<atn::Model>*)m1C)->m48->mMtx.m;
     case 4:
-        return (MtxPtr)((Data48_unk*)m1C)->m18; // inferred: m18 holds a 3x4 matrix (0x30 bytes)
+        return ((DummyData*)m1C)->m18.m;
     }
     return 0;
 }
@@ -888,6 +889,7 @@ extern "C" inline int fn_80013444(const atn::Vector3* a, const atn::Vector3* b) 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 namespace Event {
 
+// DRAFT: not checked against the original (draft of the eye/head turn)
 // NONMATCHING: draft - turns the eyes of the character towards a point (the camera, limited to `angle`
 // around the eye direction), or the head of another actor towards `target`
 void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,

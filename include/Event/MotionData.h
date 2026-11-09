@@ -47,6 +47,7 @@ public:
 
 class AnimationData : public CommonData {
 public:
+    AnimationData(Sequence* owner, const char* name, int id); // inferred: inlined by "ANID" (Event/EventParser_unk.cpp)
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;
@@ -57,6 +58,7 @@ public:
 
 class ModelData : public CommonData {
 public:
+    ModelData(Sequence* owner, const char* name, int id); // inferred: inlined by "MDID" (Event/EventParser_unk.cpp)
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;
@@ -70,6 +72,7 @@ public:
 
 class EffectData : public CommonData {
 public:
+    EffectData(Sequence* owner, const char* name, int id); // inferred: inlined by "EFID" (Event/EventParser_unk.cpp)
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;
@@ -80,6 +83,7 @@ public:
 
 class CameraData : public CommonData {
 public:
+    CameraData(Sequence* owner, const char* name, int id); // inferred: inlined by "CAID" (Event/EventParser_unk.cpp)
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;
@@ -89,6 +93,7 @@ public:
 
 class PoseData : public CommonData {
 public:
+    PoseData(Sequence* owner, const char* name, int id); // inferred: inlined by "POID" (Event/EventParser_unk.cpp)
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;
@@ -114,6 +119,7 @@ public:
 
 class MovieData : public CommonData {
 public:
+    MovieData(Sequence* owner, const char* name, int id); // inferred: inlined by "MVID" (Event/EventParser_unk.cpp)
     virtual void vf08();
     virtual void vf0C();
     virtual int vf10() const;

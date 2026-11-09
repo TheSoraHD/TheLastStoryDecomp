@@ -47,7 +47,8 @@ struct Material_unk;
 struct ShaderLOD_unk; // include/atn/Shader_unk.h
 #include "std/string.h"
 namespace atn {
-class Texture_unk;
+class Texture;
+typedef Texture Texture_unk;
 }
 
 // inferred: materials of a model (0x30 bytes, atn::ModelBase+0x104; also owned by CharaTask::m480).

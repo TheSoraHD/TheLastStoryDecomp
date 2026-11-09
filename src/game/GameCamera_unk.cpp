@@ -152,6 +152,7 @@ extern "C" inline float fn_80385B40(atn::Camera* camera) {
     return camera->mDist;
 }
 
+// DRAFT: not checked against the original (draft without a description)
 // NONMATCHING: draft
 void GameCamera::fn_80387910(const CharaTask* chara) {
     GameCameraParam_unk param(m684);

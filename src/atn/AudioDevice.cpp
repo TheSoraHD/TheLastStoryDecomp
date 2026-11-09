@@ -78,8 +78,6 @@ public:
             mLeftmost = end();
         }
     }
-    // NONMATCHING: 9.31% (0x8004A664/0x8004A8FC/0x8004ABDC) - el original inlinea dos niveles de la
-    // recursion y aqui salen tres (mismo problema que game/TownTask y atn/ptr_string_base_char_0)
     void Destroy(Node* node);
     static Node* __allocate() {
         Node* p = (Node*)::operator new(sizeof(Node));
@@ -181,12 +179,19 @@ typename AudioMap_unk<K, V, Extra>::Node* AudioMap_unk<K, V, Extra>::InsertNode(
     return node;
 }
 
+// inferred: release assert of the maps (the expression is evaluated, the result is ignored). It makes the
+// recursive Destroy big enough for the inliner to expand two levels, as in the original (without it MWCC
+// expands three).
+#define AUDIOMAP_ASSERT(x) ((void)(x))
+
 template <class K, class V, int Extra>
 void AudioMap_unk<K, V, Extra>::Destroy(Node* node) {
     if (node->mLeft != 0) {
+        AUDIOMAP_ASSERT(node->mLeft->mParent == node);
         Destroy(node->mLeft);
     }
     if (node->mRight != 0) {
+        AUDIOMAP_ASSERT(node->mRight->mParent == node);
         Destroy(node->mRight);
     }
     delete node;
@@ -248,9 +253,11 @@ public:
 template <class K, class V>
 void AudioMap_unk<K, V, 0>::Destroy(Node* node) {
     if (node->mLeft != 0) {
+        AUDIOMAP_ASSERT(node->mLeft->mParent == node);
         Destroy(node->mLeft);
     }
     if (node->mRight != 0) {
+        AUDIOMAP_ASSERT(node->mRight->mParent == node);
         Destroy(node->mRight);
     }
     delete node;
@@ -609,8 +616,7 @@ public:
     }
     unsigned long GetLabel_unk(unsigned int id) {
         if (m8E0 != 0) {
-            id--;
-            AudioMap_unk<unsigned int, const char*, 0>::Node* it = m8E8.find(id);
+            AudioMap_unk<unsigned int, const char*, 0>::Node* it = m8E8.find(id - 1);
             if (it != m8E8.end()) {
                 return (unsigned long)it->mValue.second;
             }
@@ -728,13 +734,13 @@ extern "C" void fn_80046220(int result, unsigned long arg) {
 extern "C" void fn_80046224(int result, unsigned long arg) {
 }
 
-// NONMATCHING: 91.96% - registros del bucle de callbacks (el original guarda un GPR mas; igual que LoadHandle)
+// NONMATCHING: 99.29% - registros del vector, del indice y del elemento en el bucle de callbacks
 // inferred: wait callback of the sound archive: runs the per-frame callbacks and sleeps 1 ms
 extern "C" void fn_80046228() {
     FrameCallbacks_unk* callbacks = lbl_8087EE94;
     if (callbacks != 0) {
-        for (unsigned int i = 0; i < callbacks->mSize; i++) {
-            callbacks->mData[i]();
+        for (unsigned int i = 0; i < callbacks->size(); i++) {
+            (*callbacks)[i]();
         }
     }
     OSSleepTicks((*(unsigned long*)0x800000F8 / 4) / 1000);
@@ -774,8 +780,8 @@ AudioDevice::AudioDevice()
     sprintf(lbl_8087EE8C, "stream");
 }
 
-// NONMATCHING: 29.45% - el MWCC de aqui inlinea un nivel mas la recursion de Destroy de los mapas y saca de
-// linea los destructores de los miembros (el original lo inlinea todo)
+// NONMATCHING: 90.08% - el original repite la comprobacion de nulo del mapa de 0x8F4 en cada nivel inlineado
+// de sus destructores y guarda su direccion en r29
 AudioDevice::~AudioDevice() {
     fn_80047628(this);
     delete[] lbl_8087EE88;
@@ -857,7 +863,7 @@ extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
 }
 
 
-// NONMATCHING: 24.03% - misma recursion de Destroy de los mapas (un nivel mas de inline)
+// NONMATCHING: 99.91% - orden de las recargas del epilogo (el original restaura r31-r28 antes que r0)
 // inferred: shuts the device down
 extern "C" void fn_80047628(AudioDevice* audio) {
     audio->UnloadBanks_unk();
@@ -1357,7 +1363,7 @@ extern "C" int fn_80049C3C(AudioDevice* audio, const char* name) {
     return audio->GetBank_unk(name);
 }
 
-// NONMATCHING: 95.08% - registros de la clave (id - 1) en la busqueda del mapa
+// NONMATCHING: 98.68% - registros de la clave (id - 1) y del final del mapa en la busqueda
 // inferred: label of a sound id
 extern "C" unsigned long fn_80049CDC(AudioDevice* audio, unsigned int id) {
     return audio->GetLabel_unk(id);
@@ -1418,7 +1424,6 @@ extern "C" void fn_80049E54(AudioDevice* audio, const ReverbPreset_unk* preset) 
     }
 }
 
-// NONMATCHING: 16.21% - misma recursion de Destroy de los mapas
 // inferred: removes the reverb presets
 extern "C" void fn_8004A03C(AudioDevice* audio) {
     fn_8004A1D4(audio, 0);
@@ -1511,3 +1516,7 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path) {
     fn_8046DD20(lbl_8087F518, data);
     audio->m8E0 = 1;
 }
+
+// inferred: empty (SoundManager::fn_800CE6E0 calls it with lbl_8087EE90 at the end of its update);
+// last function of the file, before the weak copies of the maps
+extern "C" void fn_8004A660(AudioDevice* audio) {}

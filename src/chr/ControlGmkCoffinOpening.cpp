@@ -164,6 +164,7 @@ inline float __Atan2_unk(float y, float x) {
     return atan2(y, x);
 }
 
+// DRAFT: the matrix copy of the pitch is not reproduced
 // NONMATCHING: draft - turns the character towards the target (yaw from atan2, pitch through a
 // 4x4 matrix at 0x805F9750); the stack layout and the matrix copy are not reproduced.
 ControlGmkBreakArmor::ControlGmkBreakArmor(Chara_unk* chara, GmkTarget_unk* target, void* arg)

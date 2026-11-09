@@ -90,42 +90,12 @@ public:
     static MenuSaveTask* sInstance;
 };
 
-// inferred: 0xC-byte entry of sGameTaskStatic_unk: a flag to set when the field starts (m00 1: global,
-// else local; -1: unused)
-struct GameTaskStaticEntry_unk {
-    GameTaskStaticEntry_unk() : m00(-1), m04(0), m08(0) {}
-    int m00;
-    int m04;
-    int m08;
-};
+#include "game/GameTaskStatic_unk.h"
 
 // inferred: variables of the file in .sdata (names unknown): a counter set to -4 (fn_8036B44C) and the near end
 // of the depth of field scaled by the camera distance (fn_8036CC90)
 int lbl_8087DCD0 = -4;
 float lbl_8087DCD4 = 1.0f;
-
-// inferred: static object of this file (.bss 0x807C8458, 0x98 bytes). The constructor is __sinit_\GameTask_cpp.
-// m04 is a GameTask::Option (used instead of the given one by fn_80365708)
-struct GameTaskStatic_unk {
-    GameTaskStatic_unk()
-        : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(-1), m18(0), m1C(0), m20(0), m24(0), m28(0), m2C(0),
-          m30(0), m34(0) {}
-    int m00;
-    int m04;
-    int m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    int m1C;
-    int m20;
-    int m24;
-    int m28; // inferred: added to the level of the party (GameTask::vf0C)
-    int m2C;
-    int m30;
-    int m34;
-    GameTaskStaticEntry_unk mEntries[8]; // 0x38
-};
 
 GameTaskStatic_unk sGameTaskStatic_unk;
 
@@ -185,17 +155,6 @@ struct PostFxMgrView_unk {
 };
 
 // inferred: views of other singletons used by the constructor and the destructor
-struct GameFlow_unk {
-    void SetLoading_unk(int on) {
-        m18 = on;
-        m1C = on;
-    }
-    unsigned char m00[0x0C];
-    int m0C;
-    unsigned char m10[0x18 - 0x10];
-    int m18;
-    int m1C;
-};
 struct Collision_unk {
     unsigned char m0000[0x9034];
     int m9034; // inferred: single player
@@ -246,7 +205,7 @@ struct MpSettings_unk {
     unsigned char m4DC[0x5A0 - 0x4DC];
     int m5A0;
 };
-extern "C" GameFlow_unk* lbl_8087F420;
+#include "game/ErrorManager.h"
 extern "C" Collision_unk* lbl_8087EE98;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session (null in single player)
 extern "C" atn::EffectManager* lbl_8087F3C0;
@@ -1112,7 +1071,8 @@ static inline long long GetTimeMs_unk() {
     return OSGetTime() / ((*(unsigned int*)0x800000F8 / 4) / 1000);
 }
 
-// NONMATCHING: written for the order of the string pool (the map change states come first); not compared yet
+// DRAFT: written for the order of the string pool; not compared
+// NONMATCHING: 95.62% - registers and scheduling (the state switch emits state 5 before state 0, as here)
 void GameTask::vf10() {
     m5744++;
     m5744 = m5744 < 107999970 ? m5744 : 107999970;
@@ -1586,6 +1546,21 @@ void GameTask::vf10() {
         m5684 = 0;
     }
     switch (m54E4) {
+    case 5:
+        if (m5750->mState == 1) {
+            int value = m5750->mDecided;
+            fn_8036EE0C();
+            if (m5754 == 1) {
+                fn_80370320(m5758, value, 0);
+            } else {
+                fn_80370AE4(m5758, value);
+            }
+            if (m5750 != 0) {
+                fn_800D2338(m5750);
+                m5750 = 0;
+            }
+        }
+        break;
     case 0: {
         if (lbl_8087F490->mD8C == 1 && lbl_8087F0A8->mInput.fn_801231D0(0)) {
             if (m56F4.mCount != 0) {
@@ -1662,21 +1637,6 @@ void GameTask::vf10() {
     case 1:
         if (m5620->mActive == 0) {
             m54F0 = 0;
-        }
-        break;
-    case 5:
-        if (m5750->mState == 1) {
-            int value = m5750->mDecided;
-            fn_8036EE0C();
-            if (m5754 == 1) {
-                fn_80370320(m5758, value, 0);
-            } else {
-                fn_80370AE4(m5758, value);
-            }
-            if (m5750 != 0) {
-                fn_800D2338(m5750);
-                m5750 = 0;
-            }
         }
         break;
     case 6:
@@ -1953,6 +1913,7 @@ static inline float GetHeapFree_unk(atn::DLAllocator* heap) {
     return (unsigned int)heap->fn_80084F84() / 1048576.0f;
 }
 
+// DRAFT: written for the order of the string pool; not compared
 // NONMATCHING: written for the order of the string pool; not compared yet
 void GameTask::vf14() {
     if (lbl_8087F0A8->m184 != 0) {
@@ -3982,6 +3943,7 @@ inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
 
+// DRAFT: not checked against the original (draft of the victory pose)
 // NONMATCHING: draft - victory pose of the multiplayer battle (places the members around the leader and
 // starts the finish camera); every inline is called out of line in the original (R3)
 void GameTask::fn_803729B4(CharaTask* chara) {

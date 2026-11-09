@@ -661,7 +661,7 @@ public:
     bool fn_8016F67C(); // inferred: nothing blocks the way in front of the character
     void fn_8016F824(int point, int arg); // inferred: "pointmove" to the route point `point`
     void fn_8016FDCC(int point, int arg); // inferred: "pointmove" to the hide point `point`
-    void fn_80170A20(CharaTask* target, int arg, float radius);
+    void fn_80170A20(CharaTask* target, float radius, int arg); // inferred: the radius is evaluated before arg by the callers
     void fn_80170F20(const atn::Vector3* pos, int arg, float a, float radius);
     void fn_80171420(CharaTask* target, int arg, float radius);
     void fn_80171DB0(); // inferred: stops the route (fn_80127EF4) and releases the character

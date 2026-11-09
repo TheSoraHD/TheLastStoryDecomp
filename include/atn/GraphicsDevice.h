@@ -40,7 +40,8 @@ typedef atn::Light Light_unk;
 
 namespace atn {
 
-class Texture_unk;
+class Texture;
+typedef Texture Texture_unk;
 class ITextureCacheManager;
 struct ShaderDesc_unk;
 

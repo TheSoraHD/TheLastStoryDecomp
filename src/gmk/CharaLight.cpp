@@ -7,7 +7,8 @@
 #include "game/ResHandle.h"
 #include <boost/function.hpp>
 #include "game/MapManager.h"
-#include "atn/LambdaPlaceholders_unk.h"
+// inferred: the file includes boost/lambda (its placeholders are in .sbss), no lambda left in the code
+#include <boost/lambda/lambda.hpp>
 #include "macros.h"
 #include "atn/RenderManager.h"
 

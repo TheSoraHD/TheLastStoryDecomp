@@ -163,7 +163,6 @@ extern "C" inline float fn_80122560(float x) {
     return d;
 }
 
-// NONMATCHING: 99.2% - the original branches to the yaw update on `ble` and jumps over it with `b`
 void Input_unk::fn_80122330(int reset) {
     if (reset) {
         m00 = 0;
@@ -203,7 +202,9 @@ void Input_unk::fn_80122330(int reset) {
         m10--;
     } else {
         yaw += fn_8008B964()->fn_800F7258()->GetRot_unk()->y;
-        if (!(m10 > 0 && fn_80122560(atn::WrapAngle_unk(yaw - m0C)) > 0.7853982f)) {
+        if (m10 > 0 && fn_80122560(atn::WrapAngle_unk(yaw - m0C)) > 0.7853982f) {
+            yaw = m0C; // inferred: keeps the previous direction (dead store; gives the ble + b of the original)
+        } else {
             m0C = yaw;
             m10--;
         }

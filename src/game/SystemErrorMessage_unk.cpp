@@ -334,48 +334,7 @@ static const char* const sMessages[6][31][4] = {
     },
 };
 
-// inferred: error window (0x4C bytes, instance lbl_8087F420); names invented
-// Real class name ErrorManager (boost::function type names in .rodata, see game/main.cpp).
-class ErrorManager {
-public:
-    ErrorManager();
-    void fn_80363DBC();      // inferred: per-frame update
-    void fn_803646C4();      // inferred: draws the message without the layouts
-    void fn_80364BE8();      // inferred: loads the OS font and sets up GX
-    void fn_80364DB4(int x, int y, int s, int t); // inferred: draws a font cell
-    void fn_80364E7C(int message); // inferred: shows a message with choices
-    void fn_8036503C();      // inferred: moves the cursor of the choices
-    void fn_80365320();      // inferred: closes the choices
-    // inferred: the message is drawn directly (as GameFlow_unk::IsBusy_unk in game/GameSystem_unk.cpp)
-    int IsBusy_unk() {
-        int busy = 0;
-        if (m18 != 0 || m1C != 0 || mReady == 0) {
-            busy = 1;
-        }
-        return busy;
-    }
-
-    int mError;    // 0x00
-    int mPrev;     // 0x04
-    int mDelay;    // 0x08
-    int m0C;       // inferred: check the Wii Remote
-    int m10;       // inferred: frames before the Wii Remote check
-    unsigned int mPaused; // 0x14: inferred: 1 sequence, 2 sound, 4 bgm, 8 movie
-    int m18;
-    int m1C;
-    int m20;
-    atn::D2A_Task* mWindow;  // 0x24
-    atn::D2A_Task* mChoice;  // 0x28: inferred: window with four lines
-    atn::D2A_Task* mChoice2; // 0x2C: inferred: window with two lines
-    atn::D2A_Task* mCursor;  // 0x30
-    int mReady;    // 0x34
-    int m38;       // inferred: closing the window
-    int m3C;       // inferred: closing the choices
-    int mSelect;   // 0x40
-    atn::FadeColor* mFade; // 0x44
-    boost::scoped_ptr<unsigned char> mFont; // 0x48
-};
-extern "C" ErrorManager* lbl_8087F420;
+#include "game/ErrorManager.h"
 
 // inferred: setters of the layout panes (as in atn/D2A_Task.cpp; names invented)
 inline void SetText_unk(void* layout, const char* name, const wchar_t* text) {

@@ -57,7 +57,7 @@ extern "C" void fn_804A39EC(GameOverD2A_unk* anime, int arg1, int repeat, float 
 
 class MenuLoadTask : public atn::Task {
 public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
     static MenuLoadTask* sInstance;
     unsigned char m48[0x13C - 0x48];
     int m13C; // inferred: state
@@ -180,14 +180,14 @@ public:
     void SetState_unk(int state) {
         mPrevState = mState;
         mState = state;
-        switch (state) {
+        switch (mState) {
         case 1:
             mMenu->mSpeed = 0.0f;
             mMenu->mFrame = 30.0f;
             break;
         case 2:
             if (MenuLoadTask::sInstance == 0) {
-                MenuLoadTask::fn_80117914(this, mSave);
+                MenuLoadTask::fn_80117914(this, mSave, 0);
             }
             break;
         }
@@ -368,8 +368,8 @@ inline void SetRate_unk(void* layout, const char* name, float value) {
     fn_801FECE0(layout, fn_800DC6B4(name), value);
 }
 
-// NONMATCHING: 89.58% - the original keeps the six text tables in registers across the text loop,
-// passes a third argument to MenuLoadTask::fn_80117914 and builds the fade with other stores
+// NONMATCHING: 98.24% - the original keeps the six text tables in registers across the text loop and
+// builds the fade with other stores
 void GameOverTask::vf10() {
     if (MenuCommonTask::sInstance != 0) {
         MenuCommonTask::sInstance->m9C = 0;

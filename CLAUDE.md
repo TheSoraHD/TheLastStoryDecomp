@@ -8,6 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
+- `arranque-20261109` (2026-11-09, sin mergear): **14895 / 18109** en `report.json`, lost 0, sin bajadas. Ruta main -> titulo 523 -> 557/666 al 100 %, enlazan 7/27 (BootTask y MindowsCommon nuevas; frontera ReplayBuffer/GameSystem en `splits.txt`), NewTitleTask escrita, MP/Popup y db/ItemRare_unk enlazadas (`.sbss` de Popup en `splits.txt`), borradores 56 -> 42 (0 en la ruta); boost::lambda vendorizado; `CharaTask::fn_80170A20(target, radius, arg)`; trucos: orden de declaracion = orden de registros (`tools/decomp/declperm.py`), inlines que cortan el CSE, `result` bool, `s *= ...; x += s`. Notas: `docs/arranque-20261109.md`, `docs/ruta-arranque.md`.
 - `s12h-20261109` (2026-11-09, mergeada en `main`; deuda de la regla 10 en PacketPack, ver `docs/SIGUIENTE_sesion.md`): **14837 / 18109** en `report.json`, lost 0, sin bajadas salvo el stub conocido de MiniMapTask::vf10. PacketPack 64 -> 242, unidades nuevas `game/ReplayBuffer` (clase `ReplayBuffer`, base `atn::EffectManagerCallback`) y `game/NewTitleTask`, ItemSlotAnime +11, MapPartsGimmickLoc +10; trucos: medio float con mascaras `(h << 16) & 0x80000000 | ...`, `r = j >> 2; c = j & 3` en bucles de matrices, `||` en returns. Notas: `docs/s12h-20261109.md`.
 - `pad7-20261109` (mergeada en `main`): 7 rellenos `auto_03_*_text` absorbidos en la unidad anterior (`splits.txt`), total 18116 -> **18109**; quedan 5 (anterior enlazada y siguiente no: dwc_lanmatch, dwc_match, dwc_account, dwc_ranking, ut_TextWriterBase).
 - `s12h-20261108` (2026-11-08, mergeada en `main`): **14596 / 18116** en `report.json`, lost 0, sin bajadas. PacketPack +56, NewCampTask +35, BattleTask +31, DebugInfo +24; borradores de funciones grandes para emitir sus copias debiles; trucos: `||` en los return tempranos, `const T&` para la copia en bloque, `static const` en tablas de `__sinit`, `__sinit` de `.ctors`, cast redundante `(float)m` (`tools/decomp/fcastg.py`). Notas: `docs/s12h-20261108.md`.
@@ -116,6 +117,7 @@ tools/decomp/precommit.sh [--pd] <unidades...>                 # todas las compr
 ## Convenciones
 
 - Virtuales sin nombre `vfXX` (offset en la vtable); no virtuales `fn_<addr>` dentro de su clase; externos sin clase `extern "C"` con nombre automático (`fn_8005B9CC`, `lbl_8087EF68`); clases desconocidas `<Algo>_unk` con `// inferred:`; miembros `mXX` (`m04`) o `field_0x10[4]` si no se conoce el tipo.
+- Borradores: `// DRAFT: <qué falta>` encima del `// NONMATCHING` de una función que no hace lo mismo que el original (stub, partes sin escribir, sin comprobar); `tools/decomp/drafts.py [--route]` los lista. Ver `docs/fuente-enlazable.md` §6.
 - `chr::Chara_unk` = `CharaTask`. Tipos reales del motor: `atn::Vector3`, `atn::Matrix3x4` (`include/math/Vec.h`), `atn::CsvBase<...>`/`Csv`/`CsvU`/`CsvTabU` (`include/atn/Csv.h`), `atn::Loader`.
 
 ## Antes de dar una tarea por terminada

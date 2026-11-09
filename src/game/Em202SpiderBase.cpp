@@ -356,7 +356,7 @@ void Em202SpiderBase::vf10() {
         default:
             if (m55C - 6U > 1) {
                 m55C = 3;
-                fn_80170A20(m1580, 0, -1.0f);
+                fn_80170A20(m1580, -1.0f, 0);
             }
             fn_802847CC();
             fn_80284CC8();
@@ -774,7 +774,7 @@ void Em202SpiderBase::fn_80285B7C() {
     } else {
         if (m55C - 6U > 1) {
             m55C = 3;
-            fn_80170A20(m1580, 0, -1.0f);
+            fn_80170A20(m1580, -1.0f, 0);
         }
         fn_802847CC();
     }

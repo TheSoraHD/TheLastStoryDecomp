@@ -14,6 +14,7 @@
 #include "game/BattleTask.h"
 #include "atn/EffectManager.h"
 #include "atn/DebugMessages_unk.h"
+#include "atn/EfpHandle_unk.h"
 
 // game/ReplayBuffer.cpp (0x8056A84C-0x80570A14): the replay of the field (records the characters and their
 // effects). Partial: only some of the functions are written.
@@ -62,6 +63,7 @@ extern "C" void fn_8056A84C(float angle, atn::Matrix3x4* mtx, const atn::NodeChu
     }
 }
 
+// DRAFT: the pose of the nodes, the saved callbacks of the model and `out`
 // NONMATCHING: draft - only the node callback of the upper body; the pose of the nodes (`data`, `count`), the
 // saved callbacks of the model and `out` are missing. Written for the weak copies of the boost::function of
 // the callback (0x8056B2C0 invoker, 0x8056B2E0 manager).
@@ -210,7 +212,11 @@ extern "C" int fn_80237784(void* res, int frame); // inferred: frames left of th
 
 // inferred: group test of the effects (-2: any group); name invented
 static inline bool IsGroup_unk(int group, int want) {
-    return group == want || want == -2;
+    bool result = true;
+    if (group != want && want != -2) {
+        result = false;
+    }
+    return result;
 }
 
 // inferred: the stop event `stop` is for the effect started by `play` (as EffectManager::IsMatch_unk)
@@ -224,10 +230,14 @@ static inline bool IsSameEffect_unk(const EffectEvent_unk& stop, const EffectEve
     if (stop.mHandle != 0) {
         return play.mHandle == stop.mHandle;
     }
-    return play.mOwner == stop.mOwner && IsGroup_unk(play.mGroup, stop.mGroup);
+    bool result = false;
+    if (play.mOwner == stop.mOwner && IsGroup_unk(play.mGroup, stop.mGroup)) {
+        result = true;
+    }
+    return result;
 }
 
-// NONMATCHING: 99.95% - the group test sets 1 first and clears it (li r4, 1 ... li r4, 0)
+
 void ReplayBuffer::fn_8056D06C() {
     atn::FixedArray_unk<ReplayEffectEntry_unk*, 512> plays;
     ReplayEffectEntry_unk** it = mEffects.begin();
@@ -599,6 +609,61 @@ void ReplayBuffer::fn_8057080C() {
                 m5BDA0 = e->mFrame < m5BDA0 ? e->mFrame : m5BDA0;
             }
             it++;
+        }
+    }
+}
+
+void ReplayBuffer::fn_80570A14(int recording) {
+    m5BDA8 = recording;
+    if (recording != 0) {
+        m5BDAC = m00004;
+    } else {
+        m4517C = 0;
+    }
+}
+
+void ReplayBuffer::fn_80570A40(int pause) {
+    m5BDB0 = pause;
+}
+
+int ReplayBuffer::fn_80570A4C() {
+    return m4517C == 45;
+}
+
+void ReplayBuffer::fn_80570A64() {
+    m4517C = 0;
+}
+
+// inferred: emitters of an efp resource (atn::EfpFile::mResource; 0x54 bytes each, the owner of the
+// effects at 0x48); names invented
+struct EfpEmitter_unk {
+    unsigned char m00[0x48];
+    unsigned char m48[0x54 - 0x48];
+};
+struct EfpRes_unk {
+    unsigned int mCount;
+    EfpEmitter_unk* mItems;
+};
+
+// inferred: removes the effect events of every emitter of `efp`
+// NONMATCHING: 89.4% - register allocation: the original keeps the outer counter in r31 and the
+// erase index in a volatile register (tried counters declared outside, int/unsigned, an erase inline).
+void ReplayBuffer::fn_80570A74(atn::EfpFile* efp) {
+    EfpRes_unk* res = (EfpRes_unk*)efp->mResource;
+    if (res != 0) {
+        for (unsigned int i = 0; i < res->mCount; i++) {
+            void* owner = res->mItems[i].m48;
+            ReplayEffectEntry_unk** p = mEffects.mData;
+            while (p != mEffects.mData + mEffects.mSize) {
+                if ((*p)->mEvent.mRes == owner) {
+                    for (unsigned int j = p - mEffects.mData; j < mEffects.mSize - 1; j++) {
+                        mEffects.mData[j] = mEffects.mData[j + 1];
+                    }
+                    mEffects.mSize = mEffects.mSize - 1;
+                } else {
+                    p++;
+                }
+            }
         }
     }
 }

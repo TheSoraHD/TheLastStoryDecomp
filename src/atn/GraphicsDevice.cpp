@@ -141,6 +141,11 @@ struct FrameQueue_unk {
 
 };
 
+// inferred: the queue holds no frame
+inline bool IsEmpty_unk(const FrameQueue_unk* queue) {
+    return queue->mTail == 5;
+}
+
 // inferred: adds a frame at the tail of the queue
 static void PushFrame_unk(FrameQueue_unk* queue, void* fifoPtr, void* xfb, unsigned short token) {
     if (queue->mTail == 5) {
@@ -173,7 +178,7 @@ static void PopFrame_unk(FrameQueue_unk* queue) {
 
 // inferred: frame at the head of the queue
 static FrameEntry_unk TopFrame_unk(FrameQueue_unk* queue) {
-    if (queue->mTail == 5) {
+    if (IsEmpty_unk(queue)) {
         OSPanic("atn_graphics_device.cpp", 1051, "queue_top: queue empty");
     }
     return queue->mEntries[queue->mHead];
@@ -184,12 +189,11 @@ static unsigned int CountFrames_unk(FrameQueue_unk* queue) {
     if (queue->mTail == 5) {
         return 0;
     }
-    unsigned int size;
     if (queue->mTail >= queue->mHead) {
-        size = queue->mTail - queue->mHead;
-    } else {
-        size = queue->mTail + 5 - queue->mHead;
+        unsigned int size = queue->mTail - queue->mHead;
+        return size + 1;
     }
+    unsigned int size = queue->mTail + 5 - queue->mHead;
     return size + 1;
 }
 
@@ -727,7 +731,7 @@ extern "C" void fn_80072914(GraphicsDevice_unk* device, int mode) {
 static void NextFrame_unk() {
     PopFrame_unk(&lbl_807C6F68);
     OSWakeupThread(&lbl_807C6F60);
-    if (lbl_807C6F68.mTail == 5) {
+    if (IsEmpty_unk(&lbl_807C6F68)) {
         GXDisableBreakPt();
         lbl_8087EED8 = 0;
     } else {
@@ -737,7 +741,8 @@ static void NextFrame_unk() {
 }
 
 // inferred: GX break point callback (the GPU reached the end of a frame)
-// NONMATCHING: 90.20% - the second TopFrame_unk keeps a redundant empty-queue check in the original
+// NONMATCHING: 93.97% - the address of the queue stays in r31 here (the original rebuilds it with lis/addi)
+// and the empty check of the second TopFrame_unk is reloaded instead of reusing cr0
 extern "C" void fn_80072BDC() {
     FrameEntry_unk frame = TopFrame_unk(&lbl_807C6F68);
     if (frame.mXfb == lbl_8087EEE0->mNextXfb) {
@@ -765,7 +770,6 @@ extern "C" void fn_80072D74(unsigned int retraceCount) {
 }
 
 // inferred: VI post-retrace callback: releases the frame that waited for the swap
-// NONMATCHING: 88.51% - same redundant empty-queue check as fn_80072BDC (NextFrame_unk inlined)
 extern "C" void fn_80072E08(unsigned int retraceCount) {
     if (lbl_8087EEE0->mCC != 0 && (retraceCount & 1)) {
         return;
@@ -956,6 +960,12 @@ extern "C" double cos(double x);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_800D5C84(float m[3][4], float sx, float sy, float c, float s, float tx, float ty);
+// inferred: projection parameters read through getters (the original loads the arguments right to left,
+// as in atn/TextureDraw_unk.cpp)
+inline float GetTop_unk(const Camera_unk* c) { return c->mTop; }
+inline float GetBottom_unk(const Camera_unk* c) { return c->mBottom; }
+inline float GetLeft_unk(const Camera_unk* c) { return c->mLeft; }
+inline float GetRight_unk(const Camera_unk* c) { return c->mRight; }
 extern "C" void fn_800D5E18(float m[3][4], float t, float b, float l, float r, float scaleS, float scaleT,
                             float transS, float transT);
 
@@ -987,7 +997,7 @@ inline bool IsTextureReady_unk(atn::Texture_unk* tex) {
 
 // inferred: projects a texture on the model from above (orthographic when mDir is zero) and
 // modulates the color with it (TEV stage after the material, texture coordinate of type 4)
-// NONMATCHING: 95.53% - register allocation (projector in r27, angle in f29) and load order of the arguments of fn_800D5E18
+// NONMATCHING: 95.53% - register allocation (projector in r27, angle in f29) and (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_unk* proj) {
     if (proj != 0 && 0.0f == proj->mSize.x && 0.0f == proj->mSize.y) {
         return;
@@ -1062,7 +1072,7 @@ extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_un
         camera.fn_8004B378();
         atn::Matrix3x4 proj2;
         proj2.SetIdentity();
-        fn_800D5E18(proj2.m, camera.mTop, camera.mBottom, camera.mLeft, camera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+        fn_800D5E18(proj2.m, GetTop_unk(&camera), GetBottom_unk(&camera), GetLeft_unk(&camera), GetRight_unk(&camera), 0.5f, -0.5f, 0.5f, 0.5f);
         texMtx = MtxMul_unk(proj2, MtxMul_unk(rot, MtxMul_unk(camera.mView, view->mCamera.mInvView)));
     }
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
@@ -1259,7 +1269,7 @@ struct ZeroMatrix3x4_unk : public atn::Matrix3x4 {
 
 // inferred: light map of the shadow camera (texture coordinate of type 4) lit by the normal in
 // light space (texture coordinate of types 1-3); the third stage applies it to the material
-// NONMATCHING: 99.33% - registers of the texture coordinate of types 1-3, reload of lbl_8087EFA8 and load order of the arguments of fn_800D5E18
+// NONMATCHING: 99.33% - registers of the texture coordinate of types 1-3, reload of lbl_8087EFA8 and (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     int stage0 = stats->mTevStages++;
     int stage1 = stats->mTevStages++;
@@ -1299,8 +1309,7 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     atn::RenderManager* view = atn::RenderManager::instance_;
     atn::Matrix3x4 proj;
     proj.SetIdentity();
-    fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
-                view->mShadowCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    fn_800D5E18(proj.m, GetTop_unk(&view->mShadowCamera), GetBottom_unk(&view->mShadowCamera), GetLeft_unk(&view->mShadowCamera), GetRight_unk(&view->mShadowCamera), 0.5f, -0.5f, 0.5f, 0.5f);
     static ZeroMatrix3x4_unk sNrmScale;
     sNrmScale.m[0][2] = 1.0f;
     sNrmScale.m[0][3] = 1.0f;
@@ -1347,7 +1356,7 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
 
 // inferred: light map projected from the shadow camera on the model (simple light map, RenderSetting_unk
 // m18C set); the material color is multiplied (or added, mode 1) with it
-// NONMATCHING: 99.57% - argument registers of GXSetTexCoordGen2 and of the inlined texture load; load order of the arguments of fn_800D5E18
+// NONMATCHING: 99.57% - argument registers of GXSetTexCoordGen2 and of the inlined texture load; (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     int stage = stats->mTevStages++;
     int map = stats->mTexMtxs++;
@@ -1363,8 +1372,7 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     atn::Matrix3x4 proj;
     proj.SetIdentity();
     atn::RenderManager* view = atn::RenderManager::instance_;
-    fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
-                view->mShadowCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    fn_800D5E18(proj.m, GetTop_unk(&view->mShadowCamera), GetBottom_unk(&view->mShadowCamera), GetLeft_unk(&view->mShadowCamera), GetRight_unk(&view->mShadowCamera), 0.5f, -0.5f, 0.5f, 0.5f);
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(view->mShadowCamera.mView, view->mCamera.mInvView));
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     int mode = lbl_8087EFA8->m104.mMode;
@@ -1387,7 +1395,7 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 
 // inferred: shadow projected from the camera of the shadow map (two TEV stages)
-// NONMATCHING: 99.53% - argument registers of GXSetTexCoordGen2 and load order of the arguments of fn_800D5E18
+// NONMATCHING: 99.53% - argument registers of GXSetTexCoordGen2 and (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_80074B24(TevStats_unk* stats, atn::ShadowMap_unk* shadow, int flags) {
     int stage0 = stats->mTevStages++;
     int stage1 = stats->mTevStages++;
@@ -1414,8 +1422,7 @@ extern "C" void fn_80074B24(TevStats_unk* stats, atn::ShadowMap_unk* shadow, int
     atn::Matrix3x4 proj;
     proj.SetIdentity();
     atn::RenderManager* view = atn::RenderManager::instance_;
-    fn_800D5E18(proj.m, shadow->mCamera.mTop, shadow->mCamera.mBottom, shadow->mCamera.mLeft,
-                shadow->mCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    fn_800D5E18(proj.m, GetTop_unk(&shadow->mCamera), GetBottom_unk(&shadow->mCamera), GetLeft_unk(&shadow->mCamera), GetRight_unk(&shadow->mCamera), 0.5f, -0.5f, 0.5f, 0.5f);
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(shadow->mCamera.mView, view->mCamera.mInvView));
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     GXSetTevOrder(stage0, coord, map, 4);
@@ -1649,7 +1656,7 @@ extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsi
 extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
 extern "C" int fn_800760E8(int numVerts, int prim);
 extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* format);
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device);
+extern "C" float fn_80076FF8(const GraphicsDevice_unk* device);
 
 // inferred: full-screen viewport (atn/Layer2DBlur, atn/LayerOcclusionCPU)
 // NONMATCHING: 98.79% - float registers of the scissor
@@ -1789,6 +1796,18 @@ extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsi
 
 // inferred: loads a light; GX light 0 is the key light, as a far point light plus a specular light
 // NONMATCHING: 205 vs 203 instructions (objdiff gives 0%) - register allocation of the vectors of the directional light
+// inferred: weak copy 0x8013C3B4 (declared in math/Vec.h)
+inline atn::Vector3 atn::Vector3::operator-() const {
+    return Vector3(-x, -y, -z);
+}
+
+// inferred: m * v (also defined in game/Bullet.cpp, weak copy 0x8010F6FC)
+inline atn::Vector3 atn::Vector3::Transform_unk(const Matrix3x4& mtx) const {
+    Vector3 r(*this);
+    PSMTXMultVec(mtx.m, &r, &r);
+    return r;
+}
+
 extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* light) {
     if (device->mLights[index] == light) {
         return;
@@ -1798,46 +1817,40 @@ extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* li
         return;
     }
     atn::Matrix3x4& view = atn::RenderManager::instance_->mCamera.mView;
-    if (index != 0) {
+    if (index == 0) {
+        atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+        atn::Vector3 half(4.0f, 4.0f, 4.0f);
+        PSVECNormalize(&half, &half);
+        atn::Vector3 dir = light->mDir;
+        GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
+        atn::Vector3 far = -dir * 1000000.0f;
+        pos = far.Transform_unk(view);
+        half = -dir;
+        PSVECNormalize(&half, &half);
+        GXLightObj diffuse;
+        GXInitLightColor(&diffuse, ToGXColor_unk(light->mColor));
+        GXInitLightPos(&diffuse, pos.x, pos.y, pos.z);
+        GXInitLightAttn(&diffuse, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        GXInitLightDistAttn(&diffuse, 1.0f, 0.07f, 0);
+        GXLoadLightObjImm(&diffuse, 1);
+        GXLightObj specular;
+        atn::Matrix3x4 normalMtx = view;
+        normalMtx.m[0][3] = 0.0f;
+        normalMtx.m[1][3] = 0.0f;
+        normalMtx.m[2][3] = 0.0f;
+        PSMTXInverse(normalMtx.m, normalMtx.m);
+        PSMTXTranspose(normalMtx.m, normalMtx.m);
+        PSMTXMultVec(normalMtx.m, &half, &half);
+        PSVECNormalize(&half, &half);
+        GXInitLightColor(&specular, white);
+        GXInitSpecularDir(&specular, -half.x, -half.y, -half.z);
+        GXInitLightAttn(&specular, 0.0f, 0.0f, 1.0f, 8.0f, 0.0f, -7.0f);
+        GXLoadLightObjImm(&specular, 2);
+    } else {
         GXLightObj obj;
         light->fn_80079994(&obj, view.m);
         GXLoadLightObjImm(&obj, 1 << index);
-        return;
     }
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 half(4.0f, 4.0f, 4.0f);
-    PSVECNormalize(&half, &half);
-    atn::Vector3 dir = light->mDir;
-    atn::Vector3 far = atn::Vector3(-dir.x, -dir.y, -dir.z) * 1000000.0f;
-    PSMTXMultVec(view.m, &far, &far);
-    pos = far;
-    half = atn::Vector3(-dir.x, -dir.y, -dir.z);
-    PSVECNormalize(&half, &half);
-    GXLightObj diffuse;
-    GXColor color;
-    color.r = (int)(255.0f * light->mColor.r);
-    color.g = (int)(255.0f * light->mColor.g);
-    color.b = (int)(255.0f * light->mColor.b);
-    color.a = (int)(255.0f * light->mColor.a);
-    GXInitLightColor(&diffuse, color);
-    GXInitLightPos(&diffuse, pos.x, pos.y, pos.z);
-    GXInitLightAttn(&diffuse, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    GXInitLightDistAttn(&diffuse, 1.0f, 0.07f, 0);
-    GXLoadLightObjImm(&diffuse, 1);
-    atn::Matrix3x4 normalMtx = view;
-    normalMtx.m[0][3] = 0.0f;
-    normalMtx.m[1][3] = 0.0f;
-    normalMtx.m[2][3] = 0.0f;
-    PSMTXInverse(normalMtx.m, normalMtx.m);
-    PSMTXTranspose(normalMtx.m, normalMtx.m);
-    PSMTXMultVec(normalMtx.m, &half, &half);
-    PSVECNormalize(&half, &half);
-    GXLightObj specular;
-    GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
-    GXInitLightColor(&specular, white);
-    GXInitSpecularDir(&specular, -half.x, -half.y, -half.z);
-    GXInitLightAttn(&specular, 0.0f, 0.0f, 1.0f, 8.0f, 0.0f, -7.0f);
-    GXLoadLightObjImm(&specular, 2);
 }
 
 // inferred: sets one field of mState (field index = its dirty bit) and marks it when it changed
@@ -1987,9 +2000,8 @@ extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id) {
     return lbl_8087EEE0->mTexCache->vf0C(obj, id);
 }
 
-// inferred: aspect ratio of the displayed image
-// NONMATCHING: 91.67% - prologue order
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device) {
+// inferred: aspect ratio of the displayed image (const: the load of mWide goes above the stwu)
+extern "C" float fn_80076FF8(const GraphicsDevice_unk* device) {
     float aspect;
     if (device->mWide) {
         aspect = 1.7777778f;

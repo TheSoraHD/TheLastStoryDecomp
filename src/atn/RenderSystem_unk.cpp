@@ -8,6 +8,10 @@
 #include "atn/LayerPostFx.h"
 #include "atn/LayerReflect.h"
 #include "atn/Memory.h"
+#include "atn/Array_unk.h"
+#include "atn/GraphicsDevice.h"
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device
 #include "atn/Sphere.h"
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
@@ -30,13 +34,13 @@ extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short 
 extern "C" void DCFlushRange(void* address, unsigned long size);
 extern "C" int lbl_8087D8F8;
 extern "C" int lbl_8087D8FC;
-extern "C" int lbl_8087D900;
-extern "C" int lbl_8087D904;
 extern "C" float lbl_8087D908;
 extern "C" float lbl_8087D90C;
 extern "C" unsigned char lbl_8087D81C[];
 extern "C" atn::Scene* lbl_8087EFB8; // inferred: default scene
-extern "C" void* lbl_8087EFA8;
+#include "atn/RenderSetting_unk.h"
+
+extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings
 extern "C" void* lbl_8087EF8C;
 
 extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short width,
@@ -50,8 +54,7 @@ extern "C" void GXProject(float x, float y, float z, const float matrix[3][4], c
                             const float viewport[6], float* screenX, float* screenY, float* screenZ);
 extern "C" void fn_800D5F68(Mtx out, int mode, int a, int b, int c);
 extern "C" void fn_8009DE60(void* batch, float bias);
-extern "C" void fn_80071D80(void* device, void* texture);
-extern "C" void fn_800BECF0(void* entries, unsigned int count);
+extern "C" void fn_800BECF0(DrawSortKey_unk* keys, unsigned int count);
 extern "C" void fn_80071AFC(void* state);
 extern "C" void fn_8007A4CC__13LightList_unkFv(void* lights);
 extern "C" void fn_80075DEC(void* state);
@@ -63,8 +66,6 @@ extern "C" int SCGetProgressiveMode();
 extern "C" unsigned int VIGetDTVStatus();
 extern "C" void* memset(void* dest, int value, unsigned long size);
 void operator delete[](void* ptr);
-extern "C" unsigned char lbl_8087D910[];
-extern "C" unsigned char lbl_8087D914[];
 namespace atn {
 // inferred: declared here only for their constructors; the classes are in atn/LayerShadow.cpp and
 // atn/LayerOcclusionCPU.cpp, which use local copies of IRenderLayer (vf10 takes an argument there).
@@ -84,6 +85,16 @@ public:
     unsigned char m14[0x30 - 0x14];
 };
 } // namespace atn
+// inferred: draw order of the pass lists (std::sort comparator of fn_800BDBC8): higher mOrder first, then
+// by address
+struct RenderEntryLess_unk {
+    bool operator()(const atn::RenderEntry_unk* x, const atn::RenderEntry_unk* y) const {
+        return x->mOrder > y->mOrder || (x->mOrder == y->mOrder && x < y);
+    }
+};
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp);
+
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
                               int arg7);
@@ -94,7 +105,6 @@ void fn_800C5644();
 extern "C" void fn_8007A100();
 extern "C" int lbl_8087D72C;
 extern "C" int lbl_8087D728;
-extern "C" void* lbl_8087EEE0;
 extern "C" void* memcpy(void* dst, const void* src, unsigned long size);
 
 namespace atn {
@@ -107,28 +117,9 @@ extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned in
 extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
 extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
 
-static inline int fn_800BF_sortBefore(void* left, void* right) {
-    float leftOrder = *(float*)((unsigned char*)left + 4);
-    float rightOrder = *(float*)((unsigned char*)right + 4);
-    return leftOrder > rightOrder ||
-           (leftOrder == rightOrder && (unsigned int)left < (unsigned int)right);
-}
 
-extern "C" void fn_800BF558(void** first, void** last, void* context);
-extern "C" void fn_800BF9C4(void** first, void** second, void** third);
-extern "C" void fn_800BF0EC(void** first, void** last, void* context);
-extern "C" void fn_800BF558(void** first, void** last, void* context);
-static inline int fn_800BF9C4_ordered(void* const* left, void* const* right) {
-    void* a = *left;
-    void* b = *right;
-    float keyA = *(float*)((unsigned char*)a + 4);
-    float keyB = *(float*)((unsigned char*)b + 4);
-    return !(keyB > keyA || (keyB == keyA && (unsigned int)b < (unsigned int)a));
-}
-extern "C" void fn_800BF9C4(void** first, void** second, void** third);
 extern "C" void* memset(void* dest, int value, unsigned long size);
-extern "C" void fn_800BEDA8(unsigned int shift, const unsigned int* inputPairs, unsigned int* outputPairs, unsigned int count);
-extern "C" void fn_800BECF0(void* first, unsigned int count);
+extern "C" void fn_800BEDA8(int shift, const DrawSortKey_unk* in, DrawSortKey_unk* out, unsigned int count);
 
 extern "C" void GXClearVtxDesc();
 extern "C" void GXSetVtxDesc(int attr, int type);
@@ -140,33 +131,12 @@ extern "C" void PSMTXIdentity(float matrix[3][4]);
 extern "C" void GXLoadPosMtxImm(const float matrix[3][4], unsigned int id);
 extern "C" void GXSetCurrentMtx(unsigned int id);
 extern "C" void GXBegin(int type, int format, unsigned short count);
-extern "C" void fn_80076760(void* render, int stage, int mode);
-extern "C" void fn_800761A8(void* render);
-extern "C" void fn_80076A28(void* render, void* previous);
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* device, unsigned int field, unsigned int value);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* device);
+extern "C" void fn_80076A28(atn::GraphicsDevice_unk* device, const atn::GXStateBits_unk* state);
 extern "C" unsigned int __cvt_fp2unsigned(float value);
 
-struct RenderColor_unk {
-    RenderColor_unk() {}
-    RenderColor_unk(const RenderColor_unk& color) {
-        float r_ = color.r;
-        float g_ = color.g;
-        float b_ = color.b;
-        float a_ = color.a;
-        r = r_;
-        g = g_;
-        b = b_;
-        a = a_;
-    }
-    float r, g, b, a;
-};
-static unsigned char fn_800BFCB4_colorByte(float value);
 
-static inline unsigned int fn_800BFCB4_colorWord(const float* color) {
-    return ((unsigned int)fn_800BFCB4_colorByte(color[3]) << 24) |
-           ((unsigned int)fn_800BFCB4_colorByte(color[0]) << 16) |
-           ((unsigned int)fn_800BFCB4_colorByte(color[1]) << 8) |
-           (unsigned int)fn_800BFCB4_colorByte(color[2]);
-}
 
 struct RenderQueueEntry_unk {
     void* render;
@@ -191,7 +161,6 @@ static inline int ClampRef_unk(int value, const int& lo, const int& hi) {
 
 void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
     // inferred: 256x1 I8 ramp texture (4 rows of each 8x4 tile written)
-    // NONMATCHING: 87.64% - the original computes the tile offset before the clamp and keeps the size in r30
     unsigned char* image;
     unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
     if (m550 == 0) {
@@ -202,13 +171,14 @@ void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
     }
 
     for (int i = 0; i < 256; ++i) {
+        int row = (i >> 3) * 32;
+        int col = i & 7;
         int value = (i - 128) * 4;
         unsigned char c = ClampRef_unk(value, lbl_8087D8F8, lbl_8087D8FC);
-        unsigned char* p = image + (i >> 3) * 32 + (i & 7);
-        p[0] = c;
-        p[8] = c;
-        p[16] = c;
-        p[24] = c;
+        image[row + col] = c;
+        image[row + col + 8] = c;
+        image[row + col + 16] = c;
+        image[row + col + 24] = c;
     }
 
     GXInitTexObj(tex, image, 256, 1, 1, 0, 1, 0);
@@ -252,16 +222,16 @@ extern "C" void fn_800BC798() {
     fn_800B95C4();
     unsigned char progressiveMode = (unsigned char)SCGetProgressiveMode();
     if (progressiveMode == 1 && VIGetDTVStatus() == 1) {
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B0) = 6;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B4) = 8;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B8) = 10;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3BC) = 16;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3C0) = 10;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3C4) = 8;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3C8) = 6;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3AC) = 0;
+        lbl_8087EFA8->m3B0[0] = 6;
+        lbl_8087EFA8->m3B0[1] = 8;
+        lbl_8087EFA8->m3B0[2] = 10;
+        lbl_8087EFA8->m3B0[3] = 16;
+        lbl_8087EFA8->m3B0[4] = 10;
+        lbl_8087EFA8->m3B0[5] = 8;
+        lbl_8087EFA8->m3B0[6] = 6;
+        lbl_8087EFA8->m3AC = 0;
     } else {
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3AC) = 1;
+        lbl_8087EFA8->m3AC = 1;
     }
 
     if (atn::RenderManager::instance_ == 0) {
@@ -293,15 +263,16 @@ inline DrawCmd_unk::DrawCmd_unk() {
 }
 
 atn::RenderManager::RenderManager()
-    : mQueueBuffer(0), mQueueCapacity(0), mQueueUsed(0), m0FC(0.0f), m100(0.0f), mCamera(0, 0), m2F8(-1),
+    : mQueueBuffer(0), mQueueCapacity(0), mQueueUsed(0), m0FC(0.0f, 0.0f), mCamera(0, 0), m2F8(-1),
       mMapHitArg(0), mShadowCamera(0, 0), m52C(0), m550(0), m554(0), m558(0, 0), m890(0), m894(0), m898(150.0f),
       m89C(500.0f), m8A0(0.5f), m8A4(0.5f), m8A8(0.5f), m8AC(1.0f),
       m8B0(boost::function<void(void*)>(), 0), m8C8(boost::function<void(void*)>(), 0),
       m8E0(boost::function<void(void*)>(), 0), m8F8(boost::function<void(void*)>(), 0), mResolveCount(0), m54960(0),
       m54964(0) {
     // inferred: initialize render cameras, callbacks, the default scene, and its render layers.
-    // NONMATCHING: render-state validation and additional menu fields remain incomplete;
-    // "3D Outline" and "3D Object" store the Layer3D vtable once more in the original (class unknown).
+    // NONMATCHING: 89.6%, equivalent - the default DrawCmd_unk of mCmds (the original builds its color and
+    // callback as temporaries and tests m08 for the sort key, as fn_800BC438), the light is copied before
+    // the push_back (Scene::AddLight_unk; inlining it here exceeds the inline budget) and registers.
     unsigned char* self = (unsigned char*)this;
     mKeys.mSize = 0;
     mCmds.mSize = 0;
@@ -313,56 +284,59 @@ atn::RenderManager::RenderManager()
     lbl_8087EFB8 = scene;
     *(void**)(self + 0x2FC) = scene;
     Light_unk light;
-    atn::Vector3 direction((-2.0f), (-3.0f), 4.0f);
-    atn::Vector3 normalizedDirection;
-    PSVECNormalize(&direction, &normalizedDirection);
-    LightColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    light.fn_800790D0(normalizedDirection, color);
-    scene->mLights.push_back(light);
+    atn::Vector3 direction = atn::Vector3(-2.0f, -3.0f, 4.0f);
+    direction.Normalize_unk();
+    light.fn_800790D0(direction, LightColor_unk(1.0f, 1.0f, 1.0f, 1.0f));
+    mScene->mLights.push_back(light);
 
-    void* sceneMenu = *(void**)((unsigned char*)lbl_8087EFA8 + 0x4C);
-    void* menuGroup = fn_8008937C(sceneMenu, "Reflection");
-    scene->fn_800C2E30(menuGroup);
+    void* menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Reflection");
+    mScene->fn_800C2E30(menuGroup);
 
-    menuGroup = fn_8008937C(sceneMenu, "Fog");
-    fn_800874C8(menuGroup, "Fog Mode", &scene->mFog.mMode, 0, 6, 1,
+    menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Fog");
+    fn_800874C8(menuGroup, "Fog Mode", &mScene->mFog.mMode, 0, 6, 1,
                 0, 0);
-    fn_8008771C(menuGroup, "Fog Start", &scene->mFog.mStart, 0, 0,
+    fn_8008771C(menuGroup, "Fog Start", &mScene->mFog.mStart, 0, 0,
                 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog End", &scene->mFog.mEnd, 0, 0,
+    fn_8008771C(menuGroup, "Fog End", &mScene->mFog.mEnd, 0, 0,
                 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog R", &scene->mFog.mColor.r, 0, 0,
+    fn_8008771C(menuGroup, "Fog R", &mScene->mFog.mColor.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog G", &scene->mFog.mColor.g, 0, 0,
+    fn_8008771C(menuGroup, "Fog G", &mScene->mFog.mColor.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog B", &scene->mFog.mColor.b, 0, 0,
+    fn_8008771C(menuGroup, "Fog B", &mScene->mFog.mColor.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
 
-    menuGroup = fn_8008937C(sceneMenu, "KeyLight");
-    scene->GetLight(0)->fn_80079BC8(menuGroup);
-    menuGroup = fn_8008937C(sceneMenu, "Ambient");
-    fn_8008771C(menuGroup, "Ambient R", &scene->mAmbient.r, 0, 0,
+    menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "KeyLight");
+    mScene->GetLight(0)->fn_80079BC8(menuGroup);
+    menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Ambient");
+    fn_8008771C(menuGroup, "Ambient R", &mScene->mAmbient.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient G", &scene->mAmbient.g, 0, 0,
+    fn_8008771C(menuGroup, "Ambient G", &mScene->mAmbient.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient B", &scene->mAmbient.b, 0, 0,
+    fn_8008771C(menuGroup, "Ambient B", &mScene->mAmbient.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS R", &scene->mLS.r, 0, 0,
+    fn_8008771C(menuGroup, "LS R", &mScene->mLS.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS G", &scene->mLS.g, 0, 0,
+    fn_8008771C(menuGroup, "LS G", &mScene->mLS.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS B", &scene->mLS.b, 0, 0,
+    fn_8008771C(menuGroup, "LS B", &mScene->mLS.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
 
     // The layer pointer table occupies the first 20 words of RenderSystem.
     atn::IRenderLayer** layers = (atn::IRenderLayer**)self;
-    layers[0] = new ((MemoryTag)6, "", "", 0) atn::LayerOcclusionCPU();
-    layers[1] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Composite");
     layers[2] = new ((MemoryTag)6, "", "", 0) atn::LayerPrerender();
     layers[3] = new ((MemoryTag)6, "", "", 0) atn::LayerShadow();
+    layers[0] = new ((MemoryTag)6, "", "", 0) atn::LayerOcclusionCPU();
     layers[4] = new ((MemoryTag)6, "", "", 0) atn::LayerReflect();
     layers[5] = 0;
-    layers[10] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Outline");
+    layers[1] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Composite");
+    // inferred: m14 is 0 in the original for "3D Outline" and Layer2D3D (stored by their inlined
+    // constructors; a fourth constructor argument in atn/Layer3D.h renumbers the @N labels of its users)
+    atn::Layer3D* outline = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Outline", -1, 1);
+    if (outline != 0) {
+        outline->m14 = 0;
+    }
+    layers[10] = outline;
     layers[6] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Object", 9, -1);
     layers[7] = new ((MemoryTag)6, "", "", 0) atn::LayerZPrePass();
     layers[8] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Alpha");
@@ -381,7 +355,7 @@ atn::RenderManager::RenderManager()
     layers[17] = new ((MemoryTag)6, "", "", 0) atn::LayerPostFx();
     layers[19] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Debug");
 
-    void* layerMenu = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Layers");
+    void* layerMenu = fn_8008937C(lbl_8087EFA8->m04C, "Layers");
     for (int i = 0; i < 20; ++i) {
         if (layers[i] != 0) {
             layers[i]->vf0C(layerMenu);
@@ -411,7 +385,7 @@ void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name)
     m74C.fn_800D5B58(width, height, 6, 1, "FrameBuffer");
     GXInitTexObjLOD(&m74C.mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     fn_800BC468(&m530);
-    fn_800BC618(&m50C, *(int*)((unsigned char*)lbl_8087EFA8 + 0x154));
+    fn_800BC618(&m50C, lbl_8087EFA8->m154);
     GXInitTexObj(&m77C, m79C, (unsigned short)width, (unsigned short)height, 3, 0, 0, 0);
     GXInitTexObjLOD(&m77C, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 }
@@ -452,621 +426,385 @@ void atn::RenderManager::AddRender(atn::IRender* render, int pass, float order) 
     mPassCounts[pass]++;
 }
 
-void atn::RenderManager::fn_800BDBC8() {
-    // inferred: collect, sort, and relink the queued render entries for each of 20 passes.
-    // poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
-    // time, so its operands were not literals there (source form unknown).
-    // NONMATCHING: 72.91% - remaining render-state details and drawing callbacks still differ.
-    unsigned char* system = (unsigned char*)this;
-    Mtx matrixWork[8];
-    void** entries = 0;
-    unsigned int capacity = 0;
-    unsigned char* passSystem = system;
-
-    for (int pass = 0; pass < 20; ++pass) {
-        unsigned int requested = *(unsigned int*)(passSystem + 0xA0);
-        if (requested >= capacity) {
-            unsigned int newCapacity = requested;
-            void** replacement = (void**)::operator new[](
-                newCapacity * 4, (MemoryTag)0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
-            for (unsigned int i = 0; i < capacity; ++i) {
-                replacement[i] = entries[i];
-            }
-            if (entries != 0) {
-                ::operator delete[](entries);
-            }
-            entries = replacement;
-            capacity = newCapacity;
-        }
-
-        unsigned int count = 0;
-        void* node = *(void**)(passSystem + 0x50);
-        while (node != 0) {
-            if (count == capacity) {
-                unsigned int newCapacity = capacity == 0 ? 8 : capacity * 2;
-                void** replacement = (void**)::operator new[](
-                    newCapacity * 4, (MemoryTag)0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
-                for (unsigned int i = 0; i < count; ++i) {
-                    replacement[i] = entries[i];
-                }
-                if (entries != 0) {
-                    ::operator delete[](entries);
-                }
-                entries = replacement;
-                capacity = newCapacity;
-            }
-            entries[count++] = node;
-            node = *(void**)((unsigned char*)node + 8);
-        }
-
-        if (count != 0) {
-            unsigned char ascending = 0;
-            fn_800BF0EC(entries, entries + count, &ascending);
-            for (unsigned int i = 0; i < count; ++i) {
-                void* next = i + 1 < count ? entries[i + 1] : 0;
-                *(void**)((unsigned char*)entries[i] + 8) = next;
-            }
-            *(void**)(passSystem + 0x50) = entries[0];
-        } else {
-            *(void**)(passSystem + 0x50) = 0;
-        }
-        passSystem += 4;
-    }
-
-    if (entries != 0) {
-        ::operator delete[](entries);
-    }
-
-    atn::DrawHelper* debugDrawer = lbl_8087EEB0;
-    void* renderState = lbl_8087EEE0;
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x1C) != 0 &&
-        *(int*)((unsigned char*)renderState + 0x44) != 0) {
-        float half = 0.5f;
-        float extent = 640.0f - 514.2857f;
-        float left = 640.0f - half * extent;
-        float right = half * extent;
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        debugDrawer->fn_8006144C(left, 0.0f, left, 448.0f, 0xFFFF0000, 0.0f);
-        debugDrawer->fn_8006144C(right, 448.0f, right, 0.0f, 0xFFFF0000, 0.0f);
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
-    }
-
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x18) != 0) {
-        float left = 640.0f * 0.07800001f;
-        float top = 448.0f * 0.095999986f;
-        float right = 640.0f * (1.0f - 0.07800001f);
-        float bottom = 448.0f * (1.0f - 0.095999986f);
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        debugDrawer->fn_8006144C(left, top, right, top, 0xFFFFFF00, 0.0f);
-        debugDrawer->fn_8006144C(right, top, right, bottom, 0xFFFFFF00, 0.0f);
-        debugDrawer->fn_8006144C(right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
-        debugDrawer->fn_8006144C(left, bottom, left, top, 0xFFFFFF00, 0.0f);
-
-        left = 640.0f * 0.065f;
-        top = 448.0f * 0.065f;
-        right = 640.0f * (1.0f - 0.065f);
-        bottom = 448.0f * (1.0f - 0.065f);
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
-        debugDrawer->fn_8006144C(left, top, right, top, 0xFFFFFFFF, 0.0f);
-        debugDrawer->fn_8006144C(right, top, right, bottom, 0xFFFFFFFF, 0.0f);
-        debugDrawer->fn_8006144C(right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
-        debugDrawer->fn_8006144C(left, bottom, left, top, 0xFFFFFFFF, 0.0f);
-    }
-
-    *(int*)((unsigned char*)lbl_8087EF8C + 0x54) = 0;
-    unsigned char* manager = (unsigned char*)lbl_8087EFA8;
-    unsigned char* managerState = (unsigned char*)lbl_8087EEE0;
-    float colorValue = *(float*)(manager + 0x3C);
-    unsigned int red = 0;
-    if (colorValue >= 1.0f) {
-        red = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        red = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    colorValue = *(float*)(manager + 0x40);
-    unsigned int green = 0;
-    if (colorValue >= 1.0f) {
-        green = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        green = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    colorValue = *(float*)(manager + 0x44);
-    unsigned int blue = 0;
-    if (colorValue >= 1.0f) {
-        blue = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        blue = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    colorValue = *(float*)(manager + 0x48);
-    unsigned int alpha = 0;
-    if (colorValue >= 1.0f) {
-        alpha = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        alpha = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    *(unsigned int*)(managerState + 0x48) =
-        (alpha << 24) | (red << 16) | (green << 8) | blue;
-    fn_8007192C(managerState);
-
-    *(void**)(system + 0x2FC) = 0;
-    *(void**)(system + 0x2FC) = (void*)lbl_8087EFB8;
-    atn::RenderManager::FrameCallbackEntry* beforeLayers = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8B0);
-    if (*(void**)beforeLayers != 0) {
-        beforeLayers->mFunc((void*)beforeLayers->mArg);
-    }
-    *(float*)(system + 0xFC) = 0.0f;
-    *(float*)(system + 0x100) = 0.0f;
-    fn_80075DEC(lbl_8087EEE0);
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 4) != 0) {
-        fn_8007A4CC__13LightList_unkFv(lbl_8087EEF8);
-    }
-
-    passSystem = system;
-    for (int pass = 0; pass < 20; ++pass, passSystem += 4) {
-        if (pass == 3 && *(int*)((unsigned char*)lbl_8087EFA8 + 0x104) == 0) {
-            continue;
-        }
-        if (pass == 4 && *(int*)(system + 0x54960) == 0) {
-            continue;
-        }
-        *(int*)(system + 0x2F8) = pass;
-        void* layer = *(void**)passSystem;
-        if (layer != 0 && *(int*)((unsigned char*)layer + 4) != 0) {
-            typedef void (*LayerQueueCall)(void*, void*);
-            ((LayerQueueCall)(*(void***)layer)[4])(layer, *(void**)(passSystem + 0x50));
-        }
-    }
-
-    // Prepare the renderer's per-frame projection matrices.
-    fn_800D5F68(matrixWork[2], 1, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x800), matrixWork[2]);
-    if (*(int*)(system + 0x554) != 0) {
-        __MtxCopy(matrixWork[0], *(Mtx*)(system + 0x1D4));
-        matrixWork[0][0][3] = 0.0f;
-        matrixWork[0][1][3] = 0.0f;
-        matrixWork[0][2][3] = 0.0f;
-        __MtxCopy(matrixWork[1], *(Mtx*)(system + 0x5B0));
-        matrixWork[1][0][3] = 0.0f;
-        matrixWork[1][1][3] = 0.0f;
-        matrixWork[1][2][3] = 0.0f;
-        PSMTXConcat(matrixWork[1], matrixWork[0], matrixWork[4]);
-        PSMTXConcat(*(Mtx*)(system + 0x800), matrixWork[4], matrixWork[3]);
-        __MtxCopy(*(Mtx*)(system + 0x800), matrixWork[3]);
-    }
-    fn_800D5F68(matrixWork[5], 2, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x7A0), matrixWork[5]);
-    fn_800D5F68(matrixWork[6], 3, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x7D0), matrixWork[6]);
-    fn_800D5F68(matrixWork[7], 4, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x830), matrixWork[7]);
-    *(float*)(system + 0x860) = 1.0f;
-    *(float*)(system + 0x864) = 0.0f;
-    *(float*)(system + 0x868) = 0.0f;
-    *(float*)(system + 0x86C) = 0.0f;
-    *(float*)(system + 0x870) = 0.0f;
-    *(float*)(system + 0x874) = 1.0f;
-    *(float*)(system + 0x878) = 0.0f;
-    *(float*)(system + 0x87C) = 0.0f;
-    *(float*)(system + 0x880) = 0.0f;
-    *(float*)(system + 0x884) = 0.0f;
-    *(float*)(system + 0x888) = 1.0f;
-    *(float*)(system + 0x88C) = 0.0f;
-
-    LCEnable();
-    unsigned char* layerSlot = system;
-    for (int pass = 0; pass < 20; ++pass, layerSlot += 4) {
-        *(int*)(system + 0x890) = 0;
-        if (pass == 3 && *(int*)((unsigned char*)lbl_8087EFA8 + 0x104) == 0) {
-            continue;
-        }
-        if (pass == 4 && *(int*)(system + 0x54960) == 0) {
-            continue;
-        }
-        *(int*)(system + 0x2F8) = pass;
-        void* layer = *(void**)layerSlot;
-        void* queue = *(void**)(layerSlot + 0x50);
-        if (layer != 0 && *(int*)((unsigned char*)layer + 4) != 0 && queue != 0) {
-            typedef void (*LayerCall)(void*);
-            typedef void (*LayerQueueCall)(void*, void*);
-            *(int*)(system + 0x958) = 0;
-            *(int*)(system + 0x895C) = 0;
-            ((LayerCall)(*(void***)layer)[7])(layer);
-            ((LayerQueueCall)(*(void***)layer)[5])(layer, queue);
-            if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x39C) != 0 &&
-                *(int*)(system + 0x895C) != 0) {
-                fn_800BECF0(system + 0x95C, *(unsigned int*)(system + 0x958));
-            }
-            unsigned int batchCount = *(unsigned int*)(system + 0x895C);
-            for (unsigned int i = 0; i < batchCount; ++i) {
-                unsigned int index = *(unsigned int*)(system + 0x960 + i * 8);
-                fn_8009DE60(system + 0x8960 + index * 0x4C, 0.0f);
-            }
-            ((LayerQueueCall)(*(void***)layer)[6])(layer, queue);
-            ((LayerCall)(*(void***)layer)[8])(layer);
-        }
-
-        unsigned int textureCount = *(unsigned int*)(system + 0x910);
-        for (unsigned int i = 0; i < textureCount; ++i) {
-            unsigned char* copy = system + 0x914 + i * 8;
-            if (*(unsigned int*)(copy + 4) == pass) {
-                fn_80071D80(lbl_8087EEE0, *(void**)copy);
-            }
-        }
-    }
-    LCDisable();
-
-    atn::RenderManager::FrameCallbackEntry* afterLayers = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8C8);
-    if (*(void**)afterLayers != 0) {
-        afterLayers->mFunc((void*)afterLayers->mArg);
-    }
-    memset(system + 0x50, 0, 0x50);
-    memset(system + 0xA0, 0, 0x50);
-    *(int*)(system + 0xF8) = 0;
-    *(int*)((unsigned char*)lbl_8087EEB0 + 0xC) = 0;
-    *(int*)(system + 0x910) = 0;
-    *(int*)(system + 0x54960) = 0;
-    atn::RenderManager::FrameCallbackEntry* afterCleanup = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8E0);
-    if (*(void**)afterCleanup != 0) {
-        afterCleanup->mFunc((void*)afterCleanup->mArg);
-    }
-    fn_80071AFC(lbl_8087EEE0);
-    atn::RenderManager::FrameCallbackEntry* finalCallback = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8F8);
-    if (*(void**)finalCallback != 0) {
-        finalCallback->mFunc((void*)finalCallback->mArg);
-    }
-}
-
-extern "C" void fn_800BECF0(void* first, unsigned int count) {
-    // inferred: apply the four quadrant transforms using a temporary stack buffer.
-    // NONMATCHING: 93.24% - scratch pointer arithmetic and call argument setup still differ.
-    unsigned char scratch[0x8000];
-    unsigned char* scratchData = scratch + 8;
-    fn_800BEDA8(0, (const unsigned int*)first, (unsigned int*)scratchData, count);
-    fn_800BEDA8(8, (const unsigned int*)scratchData, (unsigned int*)first, count);
-    fn_800BEDA8(16, (const unsigned int*)first, (unsigned int*)scratchData, count);
-    fn_800BEDA8(24, (const unsigned int*)scratchData, (unsigned int*)first, count);
-}
-
-static unsigned char fn_800BFCB4_colorByte(float value) {
+// inferred: converts a color channel to a byte (inlined four times by fn_800BDBC8)
+static inline unsigned int ColorChannel_unk(float value) {
     if (value >= 1.0f) {
         return 0xFF;
     }
     if (value <= 0.0f) {
         return 0;
     }
-    return (unsigned char)__cvt_fp2unsigned(255.0f * value + 0.5f);
+    return (unsigned int)(255.0f * value + 0.5f);
 }
 
-extern "C" void fn_800BEDA8(unsigned int shift, const unsigned int* inputPairs,
-                              unsigned int* outputPairs, unsigned int count) {
-    // inferred: stable counting-sort pass over 8-byte key/value records, grouped by one key byte.
-    // NONMATCHING: 37.60% - the compiler's loop and register layout still differ from the unrolled reference.
+// inferred: draws the frame: sorts the draw lists of the passes, then lets each layer queue and draw them.
+// The layers are called through their vtables (slots 0x10/0x14/0x18 take the draw list): the local copies
+// of IRenderLayer in atn/LayerShadow.cpp and atn/LayerOcclusionCPU.cpp disagree on those signatures.
+// poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
+// time, so its operands were not literals there (source form unknown).
+// NONMATCHING: equivalent - register allocation and the folded safe-area constants
+void atn::RenderManager::fn_800BDBC8() {
+    typedef void (*LayerCall)(IRenderLayer*);
+    typedef void (*LayerListCall)(IRenderLayer*, RenderEntry_unk*);
+    atn::GraphicsDevice_unk* device = lbl_8087EEE0;
+
+    {
+        atn::SimpleVector<atn::RenderEntry_unk*> entries;
+        for (int pass = 0; pass < 20; ++pass) {
+            entries.reserve(mPassCounts[pass]);
+            atn::RenderEntry_unk* entry = mPassHeads[pass];
+            if (entry != 0) {
+                entries.mSize = 0;
+                while (entry != 0) {
+                    entries.push_back(entry);
+                    entry = entry->mNext;
+                }
+                Sort_unk(&entries[0], &entries[0] + entries.size(), RenderEntryLess_unk());
+                for (unsigned int i = 0; i < entries.size(); ++i) {
+                    if (i == entries.size() - 1) {
+                        entries[i]->mNext = 0;
+                    } else {
+                        entries[i]->mNext = entries[i + 1];
+                    }
+                }
+                mPassHeads[pass] = entries[0];
+            }
+        }
+    }
+
+    if (lbl_8087EFA8->m01C != 0 && device->mWide != 0) {
+        float half = 0.5f;
+        float extent = 640.0f - 514.2857f;
+        float left = 640.0f - half * extent;
+        float right = half * extent;
+        lbl_8087EEB0->mA0 = 0x13;
+        lbl_8087EEB0->fn_8006144C(left, 0.0f, left, 448.0f, 0xFFFF0000, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, 448.0f, right, 0.0f, 0xFFFF0000, 0.0f);
+        lbl_8087EEB0->mA0 = 0x12;
+    }
+
+    if (lbl_8087EFA8->m018 != 0) {
+        float left = 640.0f * 0.07800001f;
+        float top = 448.0f * 0.095999986f;
+        float right = 640.0f * (1.0f - 0.07800001f);
+        float bottom = 448.0f * (1.0f - 0.095999986f);
+        lbl_8087EEB0->mA0 = 0x13;
+        lbl_8087EEB0->fn_8006144C(left, top, right, top, 0xFFFFFF00, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, top, right, bottom, 0xFFFFFF00, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
+        lbl_8087EEB0->fn_8006144C(left, bottom, left, top, 0xFFFFFF00, 0.0f);
+
+        left = 640.0f * 0.065f;
+        top = 448.0f * 0.065f;
+        right = 640.0f * (1.0f - 0.065f);
+        bottom = 448.0f * (1.0f - 0.065f);
+        lbl_8087EEB0->mA0 = 0x12;
+        lbl_8087EEB0->fn_8006144C(left, top, right, top, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, top, right, bottom, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->fn_8006144C(left, bottom, left, top, 0xFFFFFFFF, 0.0f);
+    }
+
+    *(int*)((unsigned char*)lbl_8087EF8C + 0x54) = 0;
+    unsigned int red = ColorChannel_unk(lbl_8087EFA8->m03C.r);
+    unsigned int green = ColorChannel_unk(lbl_8087EFA8->m03C.g);
+    unsigned int blue = ColorChannel_unk(lbl_8087EFA8->m03C.b);
+    unsigned int alpha = ColorChannel_unk(lbl_8087EFA8->m03C.a);
+    device->mClearColor = (alpha << 24) | (red << 16) | (green << 8) | blue;
+    fn_8007192C(device);
+
+    fn_800BDB40(0);
+    if (m8B0.mFunc != 0) {
+        m8B0.mFunc((void*)m8B0.mArg);
+    }
+    m0FC = Vector2_unk(0.0f, 0.0f);
+    fn_80075DEC(lbl_8087EEE0);
+    if (lbl_8087EFA8->m004 != 0) {
+        fn_8007A4CC__13LightList_unkFv(lbl_8087EEF8);
+    }
+
+    for (int pass = 0; pass < 20; ++pass) {
+        if (pass == 3 && lbl_8087EFA8->m104.mEnabled == 0) {
+            continue;
+        }
+        if (pass == 4 && m54960 == 0) {
+            continue;
+        }
+        m2F8 = pass;
+        IRenderLayer* layer = mLayers[pass];
+        if (layer != 0 && layer->m04 != 0) {
+            ((LayerListCall)(*(void***)layer)[4])(layer, mPassHeads[pass]);
+        }
+    }
+
+    Matrix3x4 work;
+    fn_800D5F68(work.m, 1, -1, -1, 0);
+    m7A0[2] = work;
+    if (m554 != 0) {
+        Matrix3x4 view = mCamera.mInvView;
+        view.m[0][3] = 0.0f;
+        view.m[1][3] = 0.0f;
+        view.m[2][3] = 0.0f;
+        Matrix3x4 view2 = m558.mView;
+        view2.m[0][3] = 0.0f;
+        view2.m[1][3] = 0.0f;
+        view2.m[2][3] = 0.0f;
+        Matrix3x4 inv;
+        Matrix3x4 result;
+        PSMTXConcat(view2.m, view.m, inv.m);
+        PSMTXConcat(m7A0[2].m, inv.m, result.m);
+        m7A0[2] = result;
+    }
+    Matrix3x4 work2;
+    fn_800D5F68(work2.m, 2, -1, -1, 0);
+    m7A0[0] = work2;
+    Matrix3x4 work3;
+    fn_800D5F68(work3.m, 3, -1, -1, 0);
+    m7A0[1] = work3;
+    Matrix3x4 work4;
+    fn_800D5F68(work4.m, 4, -1, -1, 0);
+    m7A0[3] = work4;
+    m7A0[4].SetIdentity();
+
+    LCEnable();
+    for (int pass = 0; pass < 20; ++pass) {
+        m890 = 0;
+        if (pass == 3 && lbl_8087EFA8->m104.mEnabled == 0) {
+            continue;
+        }
+        if (pass == 4 && m54960 == 0) {
+            continue;
+        }
+        m2F8 = pass;
+        if (mLayers[pass] != 0 && mLayers[pass]->m04 != 0 && mPassHeads[pass] != 0) {
+            mKeys.mSize = 0;
+            mCmds.mSize = 0;
+            mLayers[pass]->vf1C();
+            ((LayerListCall)(*(void***)mLayers[pass])[5])(mLayers[pass], mPassHeads[pass]);
+            if (lbl_8087EFA8->m39C != 0 && mCmds.mSize != 0) {
+                fn_800BECF0(mKeys.mData, mKeys.mSize);
+            }
+            for (unsigned int i = 0; i < mCmds.mSize; ++i) {
+                fn_8009DE60(&mCmds.mData[mKeys.mData[i].mIndex], 0.0f);
+            }
+            ((LayerListCall)(*(void***)mLayers[pass])[6])(mLayers[pass], mPassHeads[pass]);
+            mLayers[pass]->vf20();
+        }
+        for (unsigned int i = 0; i < mResolveCount; ++i) {
+            if (pass == mResolve[i].mFormat) {
+                fn_80071D80(device, mResolve[i].mTex);
+            }
+        }
+    }
+    LCDisable();
+
+    if (m8C8.mFunc != 0) {
+        m8C8.mFunc((void*)m8C8.mArg);
+    }
+    memset(mPassHeads, 0, sizeof(mPassHeads));
+    memset(mPassCounts, 0, sizeof(mPassCounts));
+    mQueueUsed = 0;
+    *(int*)((unsigned char*)lbl_8087EEB0 + 0xC) = 0;
+    mResolveCount = 0;
+    m54960 = 0;
+    if (m8E0.mFunc != 0) {
+        m8E0.mFunc((void*)m8E0.mArg);
+    }
+    fn_80071AFC(device);
+    if (m8F8.mFunc != 0) {
+        m8F8.mFunc((void*)m8F8.mArg);
+    }
+}
+
+// inferred: radix sort of the draw keys, one byte per pass, through a buffer on the stack
+extern "C" void fn_800BECF0(DrawSortKey_unk* keys, unsigned int count) {
+    unsigned char buffer[0x8000];
+    DrawSortKey_unk* tmp = (DrawSortKey_unk*)buffer;
+    fn_800BEDA8(0, keys, tmp, count);
+    fn_800BEDA8(8, tmp, keys, count);
+    fn_800BEDA8(16, keys, tmp, count);
+    fn_800BEDA8(24, tmp, keys, count);
+}
+
+
+// inferred: one pass of the radix sort of the draw keys (stable counting sort on the byte at `shift`)
+extern "C" void fn_800BEDA8(int shift, const DrawSortKey_unk* in, DrawSortKey_unk* out, unsigned int count) {
     unsigned int histogram[256];
     memset(histogram, 0, sizeof(histogram));
-    {
-        const unsigned int* input = inputPairs;
-        unsigned int groups = count >> 3;
-        if (groups != 0) {
-        do {
-            ++histogram[(input[0] >> shift) & 0xFF];
-            ++histogram[(input[2] >> shift) & 0xFF];
-            ++histogram[(input[4] >> shift) & 0xFF];
-            ++histogram[(input[6] >> shift) & 0xFF];
-            ++histogram[(input[8] >> shift) & 0xFF];
-            ++histogram[(input[10] >> shift) & 0xFF];
-            ++histogram[(input[12] >> shift) & 0xFF];
-            ++histogram[(input[14] >> shift) & 0xFF];
-            input += 16;
-        } while (--groups != 0);
-        }
-        for (unsigned int tail = count & 7; tail != 0; --tail, input += 2) {
-            unsigned int bucket = (*input >> shift) & 0xFF;
-            ++histogram[bucket];
-        }
+    const DrawSortKey_unk* p = in;
+    for (unsigned int n = count; n != 0; n--) {
+        histogram[((unsigned int)p->mKey >> shift) & 0xFF]++;
+        p++;
     }
     unsigned int offset = 0;
-    unsigned int* bucketPointer = histogram;
-    for (unsigned int i = 0; i < 256; ++i, ++bucketPointer) {
-        unsigned int entries = *bucketPointer;
-        *bucketPointer = offset;
-        offset += entries;
+    unsigned int* h = histogram;
+    for (int i = 0; i < 256; i++) {
+        unsigned int c = *h;
+        *h = offset;
+        offset += c;
+        h++;
     }
-
-    {
-    const unsigned int* input = inputPairs;
-    unsigned int groups = count >> 2;
-    if (groups != 0) {
-    do {
-        unsigned int key = input[0];
-        unsigned int value = input[1];
-        unsigned int bucket = (key >> shift) & 0xFF;
-        unsigned int destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        key = input[2];
-        value = input[3];
-        bucket = (key >> shift) & 0xFF;
-        destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        key = input[4];
-        value = input[5];
-        bucket = (key >> shift) & 0xFF;
-        destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        key = input[6];
-        value = input[7];
-        bucket = (key >> shift) & 0xFF;
-        destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        input += 8;
-    } while (--groups != 0);
-    }
-    for (unsigned int tail = count & 3; tail != 0; --tail, input += 2) {
-        unsigned int key = input[0];
-        unsigned int value = input[1];
-        unsigned int bucket = (key >> shift) & 0xFF;
-        unsigned int destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-    }
+    p = in;
+    for (unsigned int n = count; n != 0; n--) {
+        out[histogram[((unsigned int)p->mKey >> shift) & 0xFF]++] = *p;
+        p++;
     }
 }
 
-extern "C" void fn_800BF0EC(void** first, void** last, void* context) {
-    // inferred: first MSL __sort instantiation for render-entry pointers; small ranges use selection sort.
-    // NONMATCHING: 90.08% - MWCC register allocation and partition loops still differ.
-    for (;;) {
-        int count = (int)(last - first);
-        if (count <= 1) {
+template <class T>
+inline void Swap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
+template <class T>
+struct Ref_unk {
+    typedef T& type;
+};
+template <class T>
+struct Ref_unk<T&> {
+    typedef T& type;
+};
+
+template <class T, class Compare>
+inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
+    T* result = first;
+    if (first != last) {
+        for (it = first + 1; it != last; it++) {
+            if (comp(*it, *result)) {
+                result = it;
+            }
+        }
+    }
+    return result;
+}
+
+template <class T, class Compare>
+void Median3_unk(T* a, T* b, T* c, Compare& comp);
+
+// inferred: MSL __sort (std::sort) of the pass lists, as atn/Loader.cpp Sort_unk: 0x800BF0EC (comparison by
+// value) and 0x800BF558 (by reference, recursive part)
+// NONMATCHING: 99.79% (both instantiations) - register of the minimum in the selection sort
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp) {
+    typedef typename Ref_unk<Compare>::type CompareRef;
+    static int sOffset = -4; // inferred: lbl_8087D900 and lbl_8087D904 (one per instantiation)
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
             return;
         }
-        if (count <= 20) {
+        if (n <= 20) {
             if (first != last) {
-                for (void** end = last - 1; first != end; ++first) {
-                    void** minimum = first;
-                    for (void** current = first + 1; current != last; ++current) {
-                        if (fn_800BF_sortBefore(*current, *minimum)) {
-                            minimum = current;
-                        }
-                    }
-                    if (minimum != first) {
-                        void* value = *minimum;
-                        *minimum = *first;
-                        *first = value;
+                for (; first != last - 1; first++) {
+                    T* min = MinElement_unk(first, last, comp);
+                    if (min != first) {
+                        Swap_unk(*min, *first);
                     }
                 }
             }
             return;
         }
-
-        int* state = &lbl_8087D900;
-        void** a = first + (count / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
+        T* a = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
         }
-        void** b = first + ((count * 3) / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
         }
-        void** pivot = last - 1;
-        fn_800BF9C4(a, b, pivot);
-
-        void** i = first;
-        void** j;
-        while (fn_800BF_sortBefore(*i, *pivot)) {
-            ++i;
-        }
+        T* i;
+        T* j;
+        T* pivot = last - 1;
+        Median3_unk(a, b, pivot, comp);
+        i = first;
         j = pivot;
-        while (i != --j && !fn_800BF_sortBefore(*j, *pivot)) {
+        while (comp(*i, *pivot)) {
+            i++;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
         }
         if (i < j) {
-            void* value = *i;
-            *i = *j;
-            *j = value;
-            ++i;
-            for (;;) {
-                while (fn_800BF_sortBefore(*i, *pivot)) {
-                    ++i;
+            Swap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
                 }
-                while (!fn_800BF_sortBefore(*--j, *pivot)) {
+                while (!comp(*--j, *pivot)) {
                 }
                 if (i >= j) {
                     break;
                 }
-                value = *i;
-                *i = *j;
-                *j = value;
-                ++i;
+                Swap_unk(*i, *j);
+                i++;
             }
         }
-
         if (i == first) {
-            void** back = last - 1;
-            void* value = *i;
-            *i = *pivot;
-            *pivot = value;
-            ++i;
-            if (!fn_800BF_sortBefore(*first, *back)) {
-                while (i != last && !fn_800BF_sortBefore(*first, *i)) {
-                    ++i;
+            T* back = last - 1;
+            Swap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    i++;
                 }
                 if (i < back) {
-                    value = *i;
-                    *i = *back;
-                    *back = value;
+                    Swap_unk(*i, *back);
                 }
             }
             j = back;
             if (i < j) {
-                for (;;) {
-                    while (!fn_800BF_sortBefore(*first, *i)) {
-                        ++i;
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        i++;
                     }
-                    while (fn_800BF_sortBefore(*first, *--j)) {
+                    while (comp(*first, *--j)) {
                     }
                     if (i >= j) {
                         break;
                     }
-                    value = *i;
-                    *i = *j;
-                    *j = value;
-                    ++i;
+                    Swap_unk(*i, *j);
+                    i++;
                 }
             }
             first = i;
         } else if (i - first < last - i) {
-            fn_800BF558(first, i, context);
+            Sort_unk<T, CompareRef>(first, i, comp);
             first = i;
         } else {
-            fn_800BF558(i, last, context);
+            Sort_unk<T, CompareRef>(i, last, comp);
             last = i;
         }
     }
 }
 
-extern "C" void fn_800BF558(void** first, void** last, void* context) {
-    // inferred: recursive MSL __sort instantiation for render-entry pointers.
-    // NONMATCHING: 90.08% - MWCC register allocation and partition loops still differ.
-    for (;;) {
-        int count = (int)(last - first);
-        if (count <= 1) {
-            return;
-        }
-        if (count <= 20) {
-            if (first != last) {
-                for (void** end = last - 1; first != end; ++first) {
-                    void** minimum = first;
-                    for (void** current = first + 1; current != last; ++current) {
-                        if (fn_800BF_sortBefore(*current, *minimum)) {
-                            minimum = current;
-                        }
-                    }
-                    if (minimum != first) {
-                        void* value = *minimum;
-                        *minimum = *first;
-                        *first = value;
-                    }
-                }
-            }
-            return;
-        }
-
-        int* state = &lbl_8087D904;
-        void** a = first + (count / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
-        }
-        void** b = first + ((count * 3) / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
-        }
-        void** pivot = last - 1;
-        fn_800BF9C4(a, b, pivot);
-
-        void** i = first;
-        void** j;
-        while (fn_800BF_sortBefore(*i, *pivot)) {
-            ++i;
-        }
-        j = pivot;
-        while (i != --j && !fn_800BF_sortBefore(*j, *pivot)) {
-        }
-        if (i < j) {
-            void* value = *i;
-            *i = *j;
-            *j = value;
-            ++i;
-            for (;;) {
-                while (fn_800BF_sortBefore(*i, *pivot)) {
-                    ++i;
-                }
-                while (!fn_800BF_sortBefore(*--j, *pivot)) {
-                }
-                if (i >= j) {
-                    break;
-                }
-                value = *i;
-                *i = *j;
-                *j = value;
-                ++i;
-            }
-        }
-
-        if (i == first) {
-            void** back = last - 1;
-            void* value = *i;
-            *i = *pivot;
-            *pivot = value;
-            ++i;
-            if (!fn_800BF_sortBefore(*first, *back)) {
-                while (i != last && !fn_800BF_sortBefore(*first, *i)) {
-                    ++i;
-                }
-                if (i < back) {
-                    value = *i;
-                    *i = *back;
-                    *back = value;
-                }
-            }
-            j = back;
-            if (i < j) {
-                for (;;) {
-                    while (!fn_800BF_sortBefore(*first, *i)) {
-                        ++i;
-                    }
-                    while (fn_800BF_sortBefore(*first, *--j)) {
-                    }
-                    if (i >= j) {
-                        break;
-                    }
-                    value = *i;
-                    *i = *j;
-                    *j = value;
-                    ++i;
-                }
-            }
-            first = i;
-        } else if (i - first < last - i) {
-            fn_800BF558(first, i, context);
-            first = i;
-        } else {
-            fn_800BF558(i, last, context);
-            last = i;
-        }
-    }
-}
-
-extern "C" void fn_800BF9C4(void** first, void** second, void** third) {
-    // inferred: three-entry ordering network for render keys; NONMATCHING: 91.88% - MWCC folds comparison flags differently.
-    int firstOrdered = fn_800BF9C4_ordered(first, third);
-    int secondOrdered = fn_800BF9C4_ordered(second, third);
-    if (firstOrdered != 0 && secondOrdered != 0) {
+// inferred: MSL __sort3 (median of three of std::sort)
+template <class T, class Compare>
+void Median3_unk(T* a, T* b, T* c, Compare& comp) {
+    bool ac = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
+    if (ac && bc) {
         return;
     }
-    if (firstOrdered == 0 && secondOrdered == 0) {
-        void* value = *first;
-        *first = *second;
-        *second = value;
+    if (!ac && !bc) {
+        Swap_unk(*a, *b);
         return;
     }
-    if (fn_800BF9C4_ordered(third, first) != 0) {
-        void* value = *first;
-        *first = *second;
-        *second = value;
+    if (comp(*b, *a)) {
+        Swap_unk(*a, *b);
     }
-    if (firstOrdered != 0) {
-        void* value = *second;
-        *second = *third;
-        *third = value;
+    if (ac) {
+        Swap_unk(*b, *c);
     } else {
-        void* value = *first;
-        *first = *third;
-        *third = value;
+        Swap_unk(*a, *c);
     }
 }
+// emitted here in the original (after fn_800BEDA8)
+template void Sort_unk<atn::RenderEntry_unk*, RenderEntryLess_unk>(atn::RenderEntry_unk**, atn::RenderEntry_unk**,
+                                                                  RenderEntryLess_unk);
 
 void atn::RenderManager::fn_800BFAC4() {}
 
@@ -1088,10 +826,11 @@ atn::Vector3 atn::RenderManager::GetScreenPosition(const atn::Vector3& pos) cons
 
 void atn::RenderManager::fn_800BFB70() {
     // inferred: full screen quad in white
-    atn::Color color(1.0f, 1.0f, 1.0f, 1.0f);
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
-    fn_800BFCB4(color, color, color, color, width, height, 0.0f, 0.0f);
+    fn_800BFC18(atn::Color(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.0f);
+}
+
+static inline void DrawQuad_unk(atn::RenderManager* self, const atn::Color& c, unsigned int width, unsigned int height, float a, float b) {
+    self->fn_800BFCB4(c, c, c, c, width, height, a, b);
 }
 
 void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
@@ -1099,78 +838,100 @@ void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
     atn::Color c(color);
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
-    fn_800BFCB4(c, c, c, c, width, height, a, b);
+    DrawQuad_unk(this, c, width, height, a, b);
 }
 
+// inferred: ARGB word to GXColor (as in atn/GraphicsDevice.cpp)
+inline GXColor ToGXColor_unk(unsigned int argb) {
+    GXColor color;
+    color.b = argb;
+    color.r = argb >> 16;
+    color.g = argb >> 8;
+    color.a = argb >> 24;
+    return color;
+}
+
+// inferred: color as an ARGB word (as fn_800BDBC8 builds the clear color)
+inline unsigned int ColorToARGB_unk(const atn::Color& c) {
+    unsigned int r = ColorChannel_unk(c.r);
+    unsigned int g = ColorChannel_unk(c.g);
+    unsigned int b = ColorChannel_unk(c.b);
+    unsigned int a = ColorChannel_unk(c.a);
+    unsigned int argb = a << 24;
+    argb |= r << 16;
+    argb |= g << 8;
+    argb |= b;
+    return argb;
+}
+
+// inferred: write gather pipe of the GX FIFO (as in atn/DrawHelper.cpp)
+union RenderWGPipe_unk {
+    float f;
+    unsigned char u8;
+};
+#define GXWGFifo (*(volatile RenderWGPipe_unk*)0xCC008000)
+
+static inline void GXPosition3f32(float x, float y, float z) {
+    GXWGFifo.f = x;
+    GXWGFifo.f = y;
+    GXWGFifo.f = z;
+}
+static inline void GXColor4u8(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    GXWGFifo.u8 = r;
+    GXWGFifo.u8 = g;
+    GXWGFifo.u8 = b;
+    GXWGFifo.u8 = a;
+}
+static inline void GXTexCoord2f32(float s, float t) {
+    GXWGFifo.f = s;
+    GXWGFifo.f = t;
+}
+
+// inferred: screen quad of width x height at (x, y) with a color in each corner (top left, top right,
+// bottom left, bottom right)
+// NONMATCHING: 93.6% - order of the byte stores of the GXColor and scheduling of the vertex writes
 void atn::RenderManager::fn_800BFCB4(atn::Color color0, atn::Color color1, atn::Color color2,
-                                      atn::Color color3, unsigned int width, unsigned int height, float a,
-                                      float b) {
-    const float* c0 = &color0.r;
-    const float* c1 = &color1.r;
-    const float* c2 = &color2.r;
-    const float* c3 = &color3.r;
-    // inferred: set an orthographic projection and draw a four-corner colored screen quad.
-    // NONMATCHING: 78.71% - color conversion and FIFO vertex writes still differ from the SDK call sequence.
-    void* global = lbl_8087EEE0;
-    unsigned int previous = *(unsigned int*)((unsigned char*)global + 0xD0);
-    fn_80076760(global, 8, 1);
-    fn_80076760(global, 9, 7);
-    fn_80076760(global, 10, 0);
-    fn_800761A8(global);
+                                      atn::Color color3, unsigned int width, unsigned int height, float x,
+                                      float y) {
+    atn::GraphicsDevice_unk* device = lbl_8087EEE0;
+    atn::GXStateBits_unk state = device->mState;
+    fn_80076760(device, 8, 1);
+    fn_80076760(device, 9, 7);
+    fn_80076760(device, 10, 0);
+    fn_800761A8(lbl_8087EEE0);
     GXClearVtxDesc();
     GXSetVtxDesc(9, 1);
     GXSetVtxDesc(11, 1);
     GXSetVtxDesc(13, 1);
-
-    unsigned int colors[4];
-    colors[0] = fn_800BFCB4_colorWord(c0);
-    colors[1] = fn_800BFCB4_colorWord(c1);
-    colors[2] = fn_800BFCB4_colorWord(c2);
-    colors[3] = fn_800BFCB4_colorWord(c3);
-    unsigned char* colorBytes = (unsigned char*)colors;
-
+    GXColor c0 = ToGXColor_unk(ColorToARGB_unk(color0));
+    GXColor c1 = ToGXColor_unk(ColorToARGB_unk(color1));
+    GXColor c2 = ToGXColor_unk(ColorToARGB_unk(color2));
+    GXColor c3 = ToGXColor_unk(ColorToARGB_unk(color3));
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 11, 1, 5, 0);
     GXSetVtxAttrFmt(0, 13, 1, 4, 0);
-
     float projection[4][4];
-    C_MTXOrtho(projection, 0.0f, (float)height, 0.0f, (float)width, 0.0f, lbl_8087D908);
+    C_MTXOrtho(projection, 0.0f, (int)height, 0.0f, (int)width, 0.0f, lbl_8087D908);
     GXSetProjection(projection, 1);
     float position[3][4];
     PSMTXIdentity(position);
     GXLoadPosMtxImm(position, 0);
     GXSetCurrentMtx(0);
     GXBegin(0x80, 0, 4);
-
-    volatile unsigned char* fifo = (volatile unsigned char*)0xCC008000;
-    *(volatile float*)fifo = a;
-    *(volatile float*)fifo = b;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[0]; fifo[0] = colorBytes[1]; fifo[0] = colorBytes[2]; fifo[0] = colorBytes[3];
-    *(volatile float*)fifo = 0.0f;
-    *(volatile float*)fifo = 0.0f;
-
-    *(volatile float*)fifo = (float)width + a;
-    *(volatile float*)fifo = b;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[4]; fifo[0] = colorBytes[5]; fifo[0] = colorBytes[6]; fifo[0] = colorBytes[7];
-    *(volatile float*)fifo = 1.0f;
-    *(volatile float*)fifo = 0.0f;
-
-    *(volatile float*)fifo = (float)width;
-    *(volatile float*)fifo = (float)height + b;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[8]; fifo[0] = colorBytes[9]; fifo[0] = colorBytes[10]; fifo[0] = colorBytes[11];
-    *(volatile float*)fifo = 1.0f;
-    *(volatile float*)fifo = 1.0f;
-
-    *(volatile float*)fifo = 0.0f;
-    *(volatile float*)fifo = (float)height;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[12]; fifo[0] = colorBytes[13]; fifo[0] = colorBytes[14]; fifo[0] = colorBytes[15];
-    *(volatile float*)fifo = 0.0f;
-    *(volatile float*)fifo = 1.0f;
-    fn_80076A28(global, &previous);
+    float z = lbl_8087D90C;
+    GXPosition3f32(x, y, z);
+    GXColor4u8(c0.r, c0.g, c0.b, c0.a);
+    GXTexCoord2f32(0.0f, 0.0f);
+    GXPosition3f32((int)width + x, y, z);
+    GXColor4u8(c1.r, c1.g, c1.b, c1.a);
+    GXTexCoord2f32(1.0f, 0.0f);
+    GXPosition3f32((int)width + x, (int)height + y, z);
+    GXColor4u8(c3.r, c3.g, c3.b, c3.a);
+    GXTexCoord2f32(1.0f, 1.0f);
+    GXPosition3f32(x, (int)height + y, z);
+    GXColor4u8(c2.r, c2.g, c2.b, c2.a);
+    GXTexCoord2f32(0.0f, 1.0f);
+    fn_80076A28(lbl_8087EEE0, &state);
 }
 
 void atn::RenderManager::fn_800C0508(int clear) {
@@ -1201,7 +962,7 @@ void atn::RenderManager::fn_800C0590(int clear, int format) {
 
 void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     // NONMATCHING: 94.60% - conversion spill placement and early GX argument setup still differ.
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x2C) != 0) {
+    if (lbl_8087EFA8->m02C != 0) {
         if (*(int*)((unsigned char*)this + 0x890) != 0) {
             *(int*)((unsigned char*)this + 0x890) = 0;
             unsigned int color = 0;
@@ -1312,28 +1073,30 @@ atn::Texture_unk* atn::RenderManager::fn_800C0A98() {
 extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned int height,
                                unsigned int xShift, unsigned int yShift, unsigned int elementSize,
                                unsigned int rowStride, unsigned char* scratch) {
-    // inferred: rearranges one tiled block through a temporary row buffer; NONMATCHING: 94.59% - loop register allocation differs.
-    register unsigned char* output = data;
-    register unsigned int pixelSize = elementSize;
-    register unsigned int stride = rowStride;
-    register unsigned char* temporary = scratch;
+    // inferred: rearranges the blocks of each band through the scratch rows
     unsigned int blocksX = width >> xShift;
     unsigned int blocksY = height >> yShift;
-    unsigned int scratchSize = stride << yShift;
-    unsigned int rows = 1 << yShift;
-    for (unsigned int blockY = 0; blockY < blocksY; ++blockY) {
-        memcpy(temporary, output, scratchSize);
-        unsigned int sourceOffset = 0;
-        for (unsigned int blockX = 0; blockX < blocksX; ++blockX) {
-            unsigned char* sourceRow = temporary + sourceOffset;
-            for (unsigned int row = 0; row < rows; ++row) {
-                for (unsigned int byte = 0; byte < pixelSize; ++byte) {
-                    output[byte] = sourceRow[byte];
+    unsigned int bandSize = rowStride << yShift;
+    unsigned int blockY = 0;
+    unsigned char* p = data;
+    unsigned char* tmp = scratch;
+    unsigned int stride = rowStride;
+    unsigned int size = elementSize;
+    for (; blockY < blocksY; ++blockY) {
+        memcpy(tmp, p, bandSize);
+        unsigned int blockX;
+        unsigned char* src;
+        unsigned int row;
+        unsigned int i;
+        for (blockX = 0; blockX < blocksX; ++blockX) {
+            src = tmp + blockX * size;
+            for (row = 0; row < (1u << yShift); ++row) {
+                for (i = 0; i < size; ++i) {
+                    p[i] = src[i];
                 }
-                output += pixelSize;
-                sourceRow += stride;
+                p += size;
+                src += stride;
             }
-            sourceOffset += pixelSize;
         }
     }
 }
@@ -1341,36 +1104,39 @@ extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned in
 extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned int height,
                                unsigned int xShift, unsigned int yShift, unsigned int elementSize,
                                unsigned int rowStride, unsigned char* scratch) {
-    // inferred: inverse tiled-block rearrangement; NONMATCHING: 92.94% - loop register allocation differs.
-    unsigned char* input = data;
-    unsigned int pixelSize = elementSize;
-    unsigned int stride = rowStride;
-    unsigned char* temporary = scratch;
+    // inferred: inverse of fn_800C0AA4
     unsigned int blocksX = width >> xShift;
     unsigned int blocksY = height >> yShift;
-    unsigned int scratchSize = stride << yShift;
-    unsigned int rows = 1 << yShift;
-    for (unsigned int blockY = 0; blockY < blocksY; ++blockY) {
-        unsigned int sourceOffset = 0;
-        for (unsigned int blockX = 0; blockX < blocksX; ++blockX) {
-            unsigned char* destRow = temporary + sourceOffset;
-            for (unsigned int row = 0; row < rows; ++row) {
-                for (unsigned int byte = 0; byte < pixelSize; ++byte) {
-                    destRow[byte] = input[byte];
+    unsigned int bandSize = rowStride << yShift;
+    unsigned int blockY = 0;
+    unsigned char* p = data;
+    unsigned char* tmp = scratch;
+    unsigned int stride = rowStride;
+    unsigned int size = elementSize;
+    for (; blockY < blocksY; ++blockY) {
+        unsigned char* band = p;
+        unsigned int blockX = 0;
+        unsigned int offset = 0;
+        for (; blockX < blocksX; ++blockX) {
+            unsigned int row = 0;
+            unsigned int i;
+            unsigned char* dst = tmp + offset;
+            for (; row < (1u << yShift); ++row) {
+                for (i = 0; i < size; ++i) {
+                    dst[i] = p[i];
                 }
-                input += pixelSize;
-                destRow += stride;
+                dst += stride;
+                p += size;
             }
-            sourceOffset += pixelSize;
+            offset += size;
         }
-        memcpy(input, temporary, scratchSize);
+        memcpy(band, tmp, bandSize);
     }
 }
 
 extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned int width,
                              unsigned int height) {
     // inferred: converts supported GX texture layouts to tiled storage and flushes the image.
-    // NONMATCHING: 87.99% - switch dispatch and loop scheduling still differ from MWCC.
     unsigned char scratch[0x2000];
     switch (format) {
     case 0:
@@ -1391,40 +1157,64 @@ extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned i
         DCFlushRange(image, (width * height) << 1);
         break;
     case 6: {
-        unsigned int blocksWide = width >> 2;
-        unsigned int blocksHigh = height >> 2;
-        unsigned int rowPairCount = 2;
-        unsigned char* row = image;
-        for (unsigned int blockY = 0; blockY < blocksHigh; ++blockY) {
-            memcpy(scratch, row, width * 16);
-            unsigned int sourceOffset = 0;
-            unsigned char* tile = row;
-            for (unsigned int blockX = 0; blockX < blocksWide; ++blockX) {
-                const unsigned char* source = scratch + sourceOffset;
-                for (unsigned int rowPair = 0; rowPair < rowPairCount; ++rowPair) {
-                    tile[0] = source[0];
-                    tile[1] = source[1];
-                    tile[32] = source[2];
-                    tile[33] = source[3];
-                    tile[2] = source[4];
-                    tile[3] = source[5];
-                    tile[34] = source[6];
-                    tile[35] = source[7];
-                    tile[4] = source[8];
-                    tile[5] = source[9];
-                    tile[36] = source[10];
-                    tile[37] = source[11];
-                    tile[6] = source[12];
-                    tile[7] = source[13];
-                    tile[38] = source[14];
-                    tile[39] = source[15];
-                    source += width * 4;
+        unsigned int blocksWide;
+        unsigned int blocksHigh;
+        unsigned int y;
+        unsigned int rowBytes;
+        unsigned int stride;
+        unsigned char* tile;
+        tile = image;
+        stride = width << 2;
+        blocksWide = width >> 2;
+        blocksHigh = height >> 2;
+        rowBytes = width << 4;
+        y = 0;
+        unsigned int pairs = 2;
+        for (; y < blocksHigh; y++) {
+            memcpy(scratch, tile, rowBytes);
+            unsigned int x;
+            x = 0;
+            for (; x < blocksWide; x++) {
+                const unsigned char* src = scratch + x * 16;
+                for (unsigned int k = 0; k < pairs; k++) {
+                    tile[0] = src[0];
+                    tile[1] = src[1];
+                    tile[32] = src[2];
+                    tile[33] = src[3];
+                    tile[2] = src[4];
+                    tile[3] = src[5];
+                    tile[34] = src[6];
+                    tile[35] = src[7];
+                    tile[4] = src[8];
+                    tile[5] = src[9];
+                    tile[36] = src[10];
+                    tile[37] = src[11];
+                    tile[6] = src[12];
+                    tile[7] = src[13];
+                    tile[38] = src[14];
+                    tile[39] = src[15];
+                    src += stride;
+                    tile[8] = src[0];
+                    tile[9] = src[1];
+                    tile[40] = src[2];
+                    tile[41] = src[3];
+                    tile[10] = src[4];
+                    tile[11] = src[5];
+                    tile[42] = src[6];
+                    tile[43] = src[7];
+                    tile[12] = src[8];
+                    tile[13] = src[9];
+                    tile[44] = src[10];
+                    tile[45] = src[11];
+                    tile[14] = src[12];
+                    tile[15] = src[13];
+                    tile[46] = src[14];
+                    tile[47] = src[15];
+                    src += stride;
                     tile += 16;
                 }
-                sourceOffset += 16;
                 tile += 32;
             }
-            row += width * 16;
         }
         DCFlushRange(image, (width * height) << 2);
         break;
@@ -1436,7 +1226,6 @@ extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned i
 extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned int width,
                              unsigned int height) {
     // inferred: converts supported GX texture layouts back to linear storage and flushes the image.
-    // NONMATCHING: 87.72% - switch dispatch and tile loop scheduling still differ from MWCC.
     unsigned char scratch[0x2000];
     switch (format) {
     case 0:
@@ -1446,6 +1235,7 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
         break;
     case 1:
     case 2:
+    case 9:
         fn_800C0BF8(image, width, height, 3, 2, 8, width, scratch);
         DCFlushRange(image, width * height);
         break;
@@ -1457,65 +1247,67 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
         break;
     case 6:
     case 22: {
-        unsigned int blocksWide = width >> 2;
-        unsigned int blocksHigh = height >> 2;
-        unsigned int rowPairCount = 2;
-        unsigned char* row = image;
-        unsigned char* tile = image;
-        for (unsigned int blockY = 0; blockY < blocksHigh; ++blockY) {
-            unsigned int destOffset = 0;
-            for (unsigned int blockX = 0; blockX < blocksWide; ++blockX) {
-                unsigned char* dest = scratch + destOffset;
-                for (unsigned int rowPair = 0; rowPair < rowPairCount; ++rowPair) {
-                    dest[0] = tile[0];
-                    dest[1] = tile[1];
-                    dest[2] = tile[32];
-                    dest[3] = tile[33];
-                    dest[4] = tile[2];
-                    dest[5] = tile[3];
-                    dest[6] = tile[34];
-                    dest[7] = tile[35];
-                    dest[8] = tile[4];
-                    dest[9] = tile[5];
-                    dest[10] = tile[36];
-                    dest[11] = tile[37];
-                    dest[12] = tile[6];
-                    dest[13] = tile[7];
-                    dest[14] = tile[38];
-                    dest[15] = tile[39];
-                    dest += width * 4;
-                    dest[0] = tile[8];
-                    dest[1] = tile[9];
-                    dest[2] = tile[40];
-                    dest[3] = tile[41];
-                    dest[4] = tile[10];
-                    dest[5] = tile[11];
-                    dest[6] = tile[42];
-                    dest[7] = tile[43];
-                    dest[8] = tile[12];
-                    dest[9] = tile[13];
-                    dest[10] = tile[44];
-                    dest[11] = tile[45];
-                    dest[12] = tile[14];
-                    dest[13] = tile[15];
-                    dest[14] = tile[46];
-                    dest[15] = tile[47];
+        unsigned int blocksWide;
+        unsigned int blocksHigh;
+        unsigned int y;
+        unsigned int rowBytes;
+        unsigned int stride;
+        unsigned char* tile;
+        tile = image;
+        stride = width << 2;
+        blocksWide = width >> 2;
+        blocksHigh = height >> 2;
+        rowBytes = width << 4;
+        y = 0;
+        unsigned int pairs = 2;
+        for (; y < blocksHigh; y++) {
+            unsigned char* row = tile;
+            for (unsigned int x = 0; x < blocksWide; x++) {
+                unsigned char* dst = scratch + x * 16;
+                for (unsigned int k = 0; k < pairs; k++) {
+                    dst[0] = tile[0];
+                    dst[1] = tile[1];
+                    dst[2] = tile[32];
+                    dst[3] = tile[33];
+                    dst[4] = tile[2];
+                    dst[5] = tile[3];
+                    dst[6] = tile[34];
+                    dst[7] = tile[35];
+                    dst[8] = tile[4];
+                    dst[9] = tile[5];
+                    dst[10] = tile[36];
+                    dst[11] = tile[37];
+                    dst[12] = tile[6];
+                    dst[13] = tile[7];
+                    dst[14] = tile[38];
+                    dst[15] = tile[39];
+                    dst += stride;
+                    dst[0] = tile[8];
+                    dst[1] = tile[9];
+                    dst[2] = tile[40];
+                    dst[3] = tile[41];
+                    dst[4] = tile[10];
+                    dst[5] = tile[11];
+                    dst[6] = tile[42];
+                    dst[7] = tile[43];
+                    dst[8] = tile[12];
+                    dst[9] = tile[13];
+                    dst[10] = tile[44];
+                    dst[11] = tile[45];
+                    dst[12] = tile[14];
+                    dst[13] = tile[15];
+                    dst[14] = tile[46];
+                    dst[15] = tile[47];
                     tile += 16;
-                    dest += width * 4;
+                    dst += stride;
                 }
                 tile += 32;
-                destOffset += 16;
             }
-            memcpy(row, scratch, width * 16);
-            row = tile;
+            memcpy(row, scratch, rowBytes);
         }
         DCFlushRange(image, (width * height) << 2);
         break;
     }
-    case 9:
-        fn_800C0BF8(image, width, height, 3, 2, 8, width, scratch);
-        DCFlushRange(image, width * height);
-        break;
     }
     return 1;
 }

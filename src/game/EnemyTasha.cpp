@@ -71,6 +71,7 @@ extern "C" void* lbl_8087EE98;
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
+// DRAFT: not checked against the original (draft without a description)
 // NONMATCHING: draft
 EnemyTasha::EnemyTasha(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(0), m14DC(0), m14E0(3), m14E4(1), m14E8(300.0f), m14F0(0.0f),

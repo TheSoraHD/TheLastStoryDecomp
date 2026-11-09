@@ -110,10 +110,9 @@ extern "C" EffectNode_unk* fn_80237B8C(EffectNode_unk** used, EffectNode_unk** f
     return node;
 }
 
-// inferred: moves `node` from the list `from` to the front of `to`
-// NONMATCHING: 98.46% - the head of `from` and node->mPrev get swapped registers
-extern "C" EffectNode_unk* fn_80237C88(EffectNode_unk** from, EffectNode_unk** to, EffectNode_unk* node) {
-    EffectNode_unk* head = *from;
+// inferred: unlinks `node` from the list `list`
+static inline void Unlink_unk(EffectNode_unk** list, EffectNode_unk* node) {
+    EffectNode_unk* head = *list;
     if (node->mPrev != 0) {
         node->mPrev->mNext = node->mNext;
     }
@@ -121,13 +120,18 @@ extern "C" EffectNode_unk* fn_80237C88(EffectNode_unk** from, EffectNode_unk** t
         node->mNext->mPrev = node->mPrev;
     }
     if (head == node) {
-        *from = node->mNext;
-        if (*from != 0) {
-            (*from)->mPrev = 0;
+        *list = node->mNext;
+        if (*list != 0) {
+            (*list)->mPrev = 0;
         }
     }
     node->mPrev = 0;
     node->mNext = 0;
+}
+
+// inferred: moves `node` from the list `from` to the front of `to`
+extern "C" EffectNode_unk* fn_80237C88(EffectNode_unk** from, EffectNode_unk** to, EffectNode_unk* node) {
+    Unlink_unk(from, node);
     return fn_80237B20(to, node, 0);
 }
 

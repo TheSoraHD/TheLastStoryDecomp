@@ -252,6 +252,25 @@ static int ParseARNU_unk(unsigned int tag, int size, const char* data, ParserSta
     return 4;
 }
 
+// inferred: constructors of the data lists, inlined by the readers below
+inline AnimationData::AnimationData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {
+    m1C = 0;
+    m18 = 0;
+}
+inline EffectData::EffectData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {
+    m1C = 0;
+    m18 = 0;
+}
+inline CameraData::CameraData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
+inline PoseData::PoseData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0), m1C(0) {}
+inline MovieData::MovieData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
+inline StringData::StringData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {}
+inline DummyData::DummyData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {
+    m18.SetIdentity();
+}
+inline Path::Path(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(1) {}
+inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m24(0) {}
+
 // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
 template <class T>
 void DataList_unk<T>::Add_unk(const char* name, int arg) {
@@ -274,9 +293,14 @@ static int ParseMONA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds an animation data
+// inferred: adds an animation data
 static int ParseANID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->mD4.Add_unk("", id);
+    sState_unk->m30 = &seq->mD4[seq->mD4.size() - 1];
+    return 4;
 }
 
 static int ParseANNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -284,9 +308,14 @@ static int ParseANNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds an effect data
+// inferred: adds an effect data
 static int ParseEFID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->mE4.Add_unk("", id);
+    sState_unk->m34 = &seq->mE4[seq->mE4.size() - 1];
+    return 4;
 }
 
 static int ParseEFNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -294,9 +323,14 @@ static int ParseEFNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds a model data
+// inferred: adds a model data
 static int ParseMDID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->mF4.Add_unk("", id);
+    sState_unk->m38 = &seq->mF4[seq->mF4.size() - 1];
+    return 4;
 }
 
 static int ParseMDNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -310,9 +344,14 @@ static int ParseMDMA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds a dummy data
+// inferred: adds a dummy data
 static int ParseDUID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m104.Add_unk("", id);
+    sState_unk->m3C = &seq->m104[seq->m104.size() - 1];
+    return 4;
 }
 
 static int ParseDUNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -320,9 +359,14 @@ static int ParseDUNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds a camera data
+// inferred: adds a camera data
 static int ParseCAID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m124.Add_unk("", id);
+    sState_unk->m44 = &seq->m124[seq->m124.size() - 1];
+    return 4;
 }
 
 static int ParseCANA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -330,9 +374,14 @@ static int ParseCANA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds a pose data
+// inferred: adds a pose data
 static int ParsePOID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m134.Add_unk("", id);
+    sState_unk->m48 = &seq->m134[seq->m134.size() - 1];
+    return 4;
 }
 
 static int ParsePONA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -340,9 +389,14 @@ static int ParsePONA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds a movie data
+// inferred: adds a movie data
 static int ParseMVID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m144.Add_unk("", id);
+    sState_unk->m4C = &seq->m144[seq->m144.size() - 1];
+    return 4;
 }
 
 static int ParseMVNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -350,9 +404,24 @@ static int ParseMVNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds a path
+// inferred: record of "PATH": id of the path and its type
+struct PathRecord_unk {
+    int mId;
+    short mType;
+};
+
+// inferred: adds a path
+// NONMATCHING: 72% - stack layout and registers of the inlined Path copy (the original keeps the
+// path temporary 0x10 bytes lower and one saved register less)
 static int ParsePATH_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    PathRecord_unk rec;
+    memcpy(&rec, data, sizeof(rec));
+    DataList_unk<Path>& paths = sState_unk->m10->m154;
+    paths.Add_unk("", rec.mId);
+    Path* path = &paths[paths.size() - 1];
+    path->m18 = rec.mType;
+    sState_unk->m50 = path;
+    return sizeof(rec);
 }
 
 static int ParsePANA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -360,14 +429,51 @@ static int ParsePANA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - points of the path
+extern "C" void fn_8054875C(Path* path); // inferred: rebuilds the spline of the path (game/PathData_unk.cpp)
+
+// inferred: adds a point to the current path
+// NONMATCHING: 93.9% - registers of the inlined push_back (the original keeps the path in r31 and the
+// point in r30) and the order of the size/capacity loads
 static int ParsePOIN_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Path* path;
+    float rec[4];
+    memcpy(rec, data, sizeof(rec));
+    path = sState_unk->m50;
+    PathPoint_unk point;
+    point.mPos.x = rec[0];
+    point.mPos.y = rec[1];
+    point.mPos.z = rec[2];
+    point.mRotY = rec[3];
+    path->mPoints.push_back(point);
+    fn_8054875C(path);
+    return sizeof(rec);
 }
 
-// NONMATCHING: stub - adds an actor
+// inferred: entry of a data list by id (inlined copy of DataList_unk::Find_unk)
+template <class T>
+static inline T* FindData_unk(DataList_unk<T>& list, int id) {
+    for (int i = 0; i < (int)list.size(); i++) {
+        if (id == list[i].m14) {
+            return &list[i];
+        }
+    }
+    return 0;
+}
+
+// inferred: adds an actor (once per id)
+// NONMATCHING: 64% - the original builds the Actor inline here (0x1C0 bytes on the stack); our
+// DataList_unk<Actor>::Add_unk is the explicit specialization of Event/Sequence.cpp, called out of line
 static int ParseACID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    if (FindData_unk(seq->m164, id) == 0) {
+        seq->m164.Add_unk("", id);
+        sState_unk->m54 = &seq->m164[seq->m164.size() - 1];
+    } else {
+        sState_unk->m54 = 0;
+    }
+    return 4;
 }
 
 static int ParseACNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -377,9 +483,18 @@ static int ParseACNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// NONMATCHING: stub - adds a stream data
+// inferred: adds a stream data (once per id)
 static int ParseSTID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    if (FindData_unk(seq->m114, id) == 0) {
+        seq->m114.Add_unk("", id);
+        sState_unk->m40 = &seq->m114[seq->m114.size() - 1];
+    } else {
+        sState_unk->m40 = 0;
+    }
+    return 4;
 }
 
 static int ParseSTNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -402,9 +517,17 @@ static int ParseCURV_unk(unsigned int tag, int size, const char* data, ParserSta
     return sizeof(id);
 }
 
-// NONMATCHING: stub - points of the curve
+// inferred: adds a point (x, y) to the current curve and rebuilds its lengths
+// NONMATCHING: 67% - the original inlines Clear_unk and the resize of the points (only the resize
+// of the lengths, fn_8032BE88, is a call); here EffectLists_unk::Set_unk keeps them out of line
 static int ParseCVPT_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    float rec[2];
+    memcpy(rec, data, sizeof(rec));
+    EffectLists_unk* curve = sState_unk->m58;
+    curve->mPoints.push_back(atn::Vector3(rec[0], rec[1], 0.0f));
+    std::vector<atn::Vector3> points(curve->mPoints);
+    curve->Set_unk(points);
+    return sizeof(rec);
 }
 
 // inferred: record of a cut (0x14 bytes)

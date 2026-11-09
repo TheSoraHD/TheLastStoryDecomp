@@ -425,7 +425,7 @@ void Em202Spider::vf10() {
                             break;
                         }
                         m55C = 3;
-                        fn_80170A20(m14EC, 0, -1.0f);
+                        fn_80170A20(m14EC, -1.0f, 0);
                     }
                 }
                 fn_8027EB14();
@@ -915,7 +915,7 @@ void Em202Spider::fn_8027FA7C() {
                     fn_8016E970(6);
                     m560 = 4;
                     m1504 = 0;
-                    fn_80170A20(target, 2, 0.0f);
+                    fn_80170A20(target, 0.0f, 2);
                     m151C = 1;
                     mMotion.m34C = 1;
                     mMotion.mTracks[0].m20 = 1.0f;

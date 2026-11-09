@@ -366,7 +366,7 @@ void Em308ParmCrab::vf10() {
                     fn_8017039C(m1564->mId, 8);
                 } else {
                     float r = 0.8f * m152C;
-                    fn_80170A20(m15BC, 0, 30.0f < r ? 30.0f : r);
+                    fn_80170A20(m15BC, 30.0f < r ? 30.0f : r, 0);
                 }
             }
             fn_802F8EBC();
@@ -842,8 +842,6 @@ void Em308ParmCrab::fn_802F9F3C() {
 
 // inferred: state 10 (tackle run, as Em308InvertCrab::fn_802F469C): escape under "EscapeHpRate", tackle within
 // the reach of m1530, needle beyond m152C, else chase the target. inferred: the rotation is computed and not used
-// NONMATCHING: 99.30% - only the li r5, 0 of fn_80170A20 is scheduled before the min(30, 0.8 * m152C) (as vf10;
-// 4 forms)
 void Em308ParmCrab::fn_802FA2F4() {
     atn::Vector3 rot;
     CharaTask* target = m15BC;
@@ -879,7 +877,7 @@ void Em308ParmCrab::fn_802FA2F4() {
         if (m55C - 6U > 1) {
             float r = 0.8f * m152C;
             m55C = 3;
-            fn_80170A20(m15BC, 0, 30.0f < r ? 30.0f : r);
+            fn_80170A20(m15BC, 30.0f < r ? 30.0f : r, 0);
         }
         fn_802F8EBC();
     }

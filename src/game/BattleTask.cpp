@@ -243,6 +243,7 @@ inline atn::Camera* atn::RenderManager::fn_800F7258() {
     return &mCamera;
 }
 
+// DRAFT: written for the weak copies; the drawing of the target line is incomplete
 // NONMATCHING: draft - draws the target line of `chara` (base and head models, the line through the
 // clipped segment and the appearance animation)
 void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {

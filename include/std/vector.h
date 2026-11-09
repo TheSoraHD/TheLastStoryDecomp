@@ -417,6 +417,9 @@ public:
     // inferred: weak copies 0x80513D34 and 0x80513EC4 (game/NewCampPartsGmk.cpp)
     vector(const vector& x) { __init_unk(x.mData, x.mData + x.mSize); }
     ~vector() {}
+    // declared only: weak copies 0x8052E980 (atn::Light) and 0x8052EEBC (atn::Camera), first used by
+    // game/NewCampTask.cpp (the copy of an atn::Scene)
+    vector& operator=(const vector&);
 
     T* begin() { return this->mData; }
     T* end() { return this->mData + this->mSize; }

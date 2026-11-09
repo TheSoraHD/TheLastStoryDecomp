@@ -1427,7 +1427,7 @@ inline float YawTo_unk(const atn::Vector3& d) {
 void Em201ZanGurgFinal::fn_80267F88() {
     if (m55C - 6U > 1 && m14B8 != 0) {
         fn_8016E970(3);
-        fn_80170A20(m14B8, 0, -1.0f);
+        fn_80170A20(m14B8, -1.0f, 0);
     }
     fn_80267134();
     if (m55C != 6 && m14B8 != 0) {

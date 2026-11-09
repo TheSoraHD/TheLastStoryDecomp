@@ -535,11 +535,11 @@ void Em206EggMonster::vf10() {
                 if (m55C == 7) {
                     if (m1594 != 2 && m1584 != (CharaTask*)mC58.mC8) {
                         fn_8016E970(3);
-                        fn_80170A20(m1584, 0, -1.0f);
+                        fn_80170A20(m1584, -1.0f, 0);
                     }
                 } else {
                     fn_8016E970(3);
-                    fn_80170A20(m1584, 0, -1.0f);
+                    fn_80170A20(m1584, -1.0f, 0);
                 }
             }
             fn_802C2BCC();
@@ -823,7 +823,7 @@ void Em206EggMonster::fn_802C2BCC() {
             atn::Vector2_unk v(vel.x, vel.z);
             if ((float)sqrt(d.x * d.x + d.y * d.y) > 90.0f && d.x * v.x + d.y * v.y > 0.0f) {
                 speed = 0.0f;
-                fn_80170A20(m1584, 0, -1.0f);
+                fn_80170A20(m1584, -1.0f, 0);
             }
             if (speed < 0.0001f && m1584 != 0) {
                 atn::Vector3 dir = m1584->mPos - mPos;
@@ -1033,7 +1033,7 @@ void Em206EggMonster::fn_802C3EDC() {
     if (m55C == 7) {
         if (m1594 != 2 && mC58.mC4 != (CharaTask*)mC58.mC8) {
             fn_8016E970(3);
-            fn_80170A20(m1584, 0, -1.0f);
+            fn_80170A20(m1584, -1.0f, 0);
         }
     } else if (m1594 == 2) {
         fn_8016E970(3);
@@ -1041,7 +1041,7 @@ void Em206EggMonster::fn_802C3EDC() {
         fn_8016F824(0xAC, 0);
     } else {
         fn_8016E970(3);
-        fn_80170A20(m1584, 0, -1.0f);
+        fn_80170A20(m1584, -1.0f, 0);
     }
     if (m1594 == 1) {
         m568 = 0.85f;

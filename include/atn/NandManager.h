@@ -30,6 +30,9 @@ public:
 
     // inferred: copies the path of the current operation
     void SetPath_unk(const char* path);
+    // inferred: asynchronous write/read of a buffer of the open file (inline in atn/NandManager.cpp)
+    int WriteAsync_unk(void* data, int size);
+    int ReadAsync_unk(void* data, int size);
     // inferred: records the error of the current step
     void SetError_unk(int err) {
         mLastError = err;
@@ -40,6 +43,8 @@ public:
     void OpenTmp_unk();
 
     int mOp;             // 0x48: inferred: operation (0 create, 1 create dir, 2/3 save, 4/6 load...)
+    // inferred: accessor of the path (the string built from it keeps the pointer in a register)
+    const char* GetPath_unk() const { return mPath; }
     char mPath[0x100];   // 0x4C
     void* mData;         // 0x14C
     int mSize;           // 0x150

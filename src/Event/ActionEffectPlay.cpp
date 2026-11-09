@@ -623,6 +623,7 @@ union CheckState_unk {
     } s;
 };
 
+// DRAFT: a signed compare of the stick direction and the copy of the sphere still differ
 // NONMATCHING: 93.9% - first draft: the screen size of the sphere (d1/d2), the eye and direction copies,
 // the copy of the sphere into m4C and a signed compare of the stick direction still differ
 int ActionCheck::vf08(Action* arg) {

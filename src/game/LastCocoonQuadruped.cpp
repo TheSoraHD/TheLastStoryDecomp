@@ -356,7 +356,7 @@ void LastCocoonQuadruped::vf24() {
 
 void LastCocoonQuadruped::fn_804635B4() {
     if (m14C4 == 4 && (m55C < 6 || m55C > 7)) {
-        fn_80170A20(m1554, 0, -1.0f);
+        fn_80170A20(m1554, -1.0f, 0);
     }
     fn_80461838();
 }

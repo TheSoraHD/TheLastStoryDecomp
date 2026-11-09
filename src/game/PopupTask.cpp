@@ -2,6 +2,7 @@
 // files in .rodata). Class from RTTI "PopupTask" (vtable 0x80794A84: dtor, vf0C, vf10, vf14).
 // Only the small functions are written; vf10 (0x8054B09C), vf14 (0x8054B324, 9 KB) and the popup
 // helpers (0x8054A9A8, 0x8054D794, 0x8054E0FC, 0x8054E574) are still asm. Names invented.
+#include "atn/FixedArray.h"
 #include "atn/Task.h"
 #include "atn/Memory.h"
 
@@ -81,13 +82,8 @@ public:
 
     int m48;
     // inferred: counted array of popups (count at 0x4C, entries at 0x50)
-    struct Entries_unk {
-        Entries_unk() : mCount(0) {}
-        ~Entries_unk() { Clear_unk(); }
-        void Clear_unk() {}
-        unsigned int mCount;
-        PopupEntry_unk mData[0x20];
-    } mEntries; // 0x4C
+    // (a class of its own over the fixed array: the destructor tests the address twice, 0x8054A950)
+    struct Entries_unk : public atn::FixedArray_unk<PopupEntry_unk, 0x20> {} mEntries; // 0x4C
     struct Base_unk {
         unsigned char m00[0x04];
         unsigned int mFlags; // 0x16D4->m00 is a task, see the ctor
@@ -136,15 +132,13 @@ PopupTask::PopupTask(atn::Task* parent) : atn::Task(parent), m48(0) {
     m17D0.mTask = 0;
 }
 
-// NONMATCHING: 97.1% - the original tests the address of the popup array twice before __destroy_arr
-// (an inlined destructor of the array class, not reproduced)
 PopupTask::~PopupTask() {
     lbl_8087F8A8 = 0;
 }
 
 void PopupTask::fn_8054AF08() {
     m48 = 0;
-    mEntries.mCount = 0;
+    mEntries.mSize = 0;
     if (m16E0 != 0) {
         fn_800D2338(m16E0);
         m16E0 = 0;
@@ -187,19 +181,19 @@ int PopupTask::vf0C() {
         ret = 0;
     }
     if (ret != 0) {
-        mEntries.mCount = 0;
+        mEntries.mSize = 0;
     }
     return ret;
 }
 
 // inferred: clears all the popups
 void PopupTask::fn_8054E51C() {
-    mEntries.mCount = 0;
+    mEntries.mSize = 0;
 }
 
 // inferred: detaches the popups of the object `id` (returns the owner tag)
 void* PopupTask::fn_8054E528(unsigned int id) {
-    for (unsigned int i = 0; i < mEntries.mCount; i++) {
+    for (unsigned int i = 0; i < mEntries.mSize; i++) {
         if ((void*)mEntries.mData[i].m94 == m16D0 && (void*)mEntries.mData[i].m8C == (void*)id) {
             mEntries.mData[i].m94 = 0;
         }

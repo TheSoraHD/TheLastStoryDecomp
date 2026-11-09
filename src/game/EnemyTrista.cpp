@@ -555,7 +555,7 @@ __declspec(noinline) void EnemyTrista::fn_8035CE58() {
             fn_801562A0(m14E8, mC58.mC4->mPos, 0, 0, 0, 0, 3.0f);
         }
     } else {
-        fn_80170A20(mC58.mC4, 0, 20.0f);
+        fn_80170A20(mC58.mC4, 20.0f, 0);
     }
 }
 

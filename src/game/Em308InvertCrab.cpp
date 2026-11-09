@@ -402,7 +402,7 @@ void Em308InvertCrab::vf10() {
             if (m55C - 6U > 1) {
                 m55C = 3;
                 int id = m15A8;
-                fn_80170A20((CharaTask*)m1580, id, -1.0f);
+                fn_80170A20((CharaTask*)m1580, -1.0f, id);
             }
             fn_802F33A0();
             fn_802F389C();
@@ -862,7 +862,6 @@ void Em308InvertCrab::fn_802F42CC() {
 // inferred: state 10 (tackle run): tackles when the target is within the reach of the skill m1528, shoots the
 // needle when it gets too far, else keeps chasing it. inferred: the rotation towards the target is computed and
 // not used (the original keeps the call, ToRotation_unk has atan2 calls)
-// NONMATCHING: 99.22% - only the load of m15A8 for fn_80170A20 is scheduled before the -1.0f (6 forms)
 void Em308InvertCrab::fn_802F469C() {
     atn::Vector3 rot;
     CharaTask* target = (CharaTask*)m1580;
@@ -897,7 +896,7 @@ void Em308InvertCrab::fn_802F469C() {
     } else {
         if (m55C - 6U > 1) {
             m55C = 3;
-            fn_80170A20((CharaTask*)m1580, m15A8, -1.0f);
+            fn_80170A20((CharaTask*)m1580, -1.0f, m15A8);
         }
         fn_802F33A0();
     }

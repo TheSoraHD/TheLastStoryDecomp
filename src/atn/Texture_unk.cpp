@@ -20,11 +20,11 @@ struct GimmickUvOwner_unk {
 
 namespace atn {
 
-Texture_unk::Texture_unk() : mImage(0), m2C(0), m2D(0), m2E(0), m2F(0) {
+Texture::Texture() : mImage(0), m2C(0), m2D(0), m2E(0), m2F(0) {
     memset(&mObj, 0xBAD0F00D, sizeof(mObj));
 }
 
-Texture_unk::~Texture_unk() {
+Texture::~Texture() {
     fn_800D58A4(this);
 }
 

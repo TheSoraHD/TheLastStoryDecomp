@@ -1910,6 +1910,12 @@ struct DrawColorF_unk {
     DrawColorF_unk(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
     float x, y, z, w;
 };
+// inferred: luminance weights of the grey scale commands (one table for both, lbl_80731140)
+struct DrawLuminance_unk {
+    float v[4];
+};
+static const DrawLuminance_unk sLuminance_unk = {{0.298912f, 0.586611f, 0.114478f, 0.0f}};
+
 static inline GXColor DrawToGXColor_unk(const DrawColorF_unk& v) {
     GXColor c = {(unsigned char)(255.0f * v.x), (unsigned char)(255.0f * v.y), (unsigned char)(255.0f * v.z),
                  (unsigned char)(255.0f * v.w)};
@@ -1921,11 +1927,11 @@ static inline GXColor DrawToGXColor_unk(const DrawColorF_unk& v) {
 // stack slot of lum
 void DrawHelper::ComDrawTextureMono::vf10(RenderManager* view) {
     float s = 1.0f;
-    float lum[4] = {0.298912f, 0.586611f, 0.114478f, 0.0f};
+    DrawLuminance_unk lum = sLuminance_unk;
     DrawColorF_unk mat[4] = {
-        DrawColorF_unk(lum[0] * s, lum[0] * s, lum[0] * s, 0.0f),
-        DrawColorF_unk(lum[1] * s, lum[1] * s, lum[1] * s, 0.0f),
-        DrawColorF_unk(lum[2] * s, lum[2] * s, lum[2] * s, 0.0f),
+        DrawColorF_unk(lum.v[0] * s, lum.v[0] * s, lum.v[0] * s, 0.0f),
+        DrawColorF_unk(lum.v[1] * s, lum.v[1] * s, lum.v[1] * s, 0.0f),
+        DrawColorF_unk(lum.v[2] * s, lum.v[2] * s, lum.v[2] * s, 0.0f),
         DrawColorF_unk(0.0f, 0.0f, 0.0f, 1.0f),
     };
     DrawColorF_unk k[4];
@@ -2030,11 +2036,11 @@ void DrawHelper::ComDrawTextureMono::vf10(RenderManager* view) {
 void DrawHelper::ComDrawTextureMaskMono::vf10(RenderManager* view) {
     fn_800761A8(lbl_8087EEE0);
     float s = 1.0f;
-    float lum[4] = {0.298912f, 0.586611f, 0.114478f, 0.0f};
+    DrawLuminance_unk lum = sLuminance_unk;
     DrawColorF_unk mat[4] = {
-        DrawColorF_unk(lum[0] * s, lum[0] * s, lum[0] * s, 0.0f),
-        DrawColorF_unk(lum[1] * s, lum[1] * s, lum[1] * s, 0.0f),
-        DrawColorF_unk(lum[2] * s, lum[2] * s, lum[2] * s, 0.0f),
+        DrawColorF_unk(lum.v[0] * s, lum.v[0] * s, lum.v[0] * s, 0.0f),
+        DrawColorF_unk(lum.v[1] * s, lum.v[1] * s, lum.v[1] * s, 0.0f),
+        DrawColorF_unk(lum.v[2] * s, lum.v[2] * s, lum.v[2] * s, 0.0f),
         DrawColorF_unk(0.0f, 0.0f, 0.0f, 1.0f),
     };
     DrawColorF_unk k[4];

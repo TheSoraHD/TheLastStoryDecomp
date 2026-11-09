@@ -537,9 +537,15 @@ void TownTask::fn_805B8DB4(int reload) {
     int z;
     fn_805B8110(&m168, &x, &z);
     if (m174 != x || m178 != z) {
-        float minX = m134 * (m174 - (m164 - 1.0f) / 2.0f) + m140.x;
-        float minZ = m134 * (m178 - (m164 - 1.0f) / 2.0f) + m140.z;
-        if (!TownInside_unk(m168, minX, m134 * m164 + minX, minZ, m134 * m164 + minZ)) {
+        float maxZ;
+        float maxX;
+        float minZ;
+        float minX;
+        minX = m134 * (m174 - (m164 - 1.0f) / 2.0f) + m140.x;
+        minZ = m134 * (m178 - (m164 - 1.0f) / 2.0f) + m140.z;
+        maxX = m134 * m164 + minX;
+        maxZ = m134 * m164 + minZ;
+        if (!TownInside_unk(m168, minX, maxX, minZ, maxZ)) {
             m174 = x;
             m178 = z;
         }
