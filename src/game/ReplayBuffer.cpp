@@ -9,6 +9,7 @@
 #include "atn/Model_unk.h"
 #include "game/BattleTask.h"
 #include "atn/EffectManager.h"
+#include "atn/DebugMessages_unk.h"
 
 // game/ReplayBuffer.cpp (0x8056A84C-0x80570A14): the replay of the field (records the characters and their
 // effects). Partial: only some of the functions are written.
@@ -18,12 +19,6 @@ extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 extern "C" BattleTask* lbl_8087F048;    // inferred: battle manager
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
-
-// inferred: effect event of the replay with its frame (names invented)
-struct ReplayEffectEntry_unk {
-    int mFrame;
-    EffectEvent_unk mEvent;
-};
 
 // inferred: rotation around y keeping the translation (inlined twice in fn_8056A84C; name invented)
 static inline void RotateY_unk(atn::Matrix3x4* mtx, float angle) {
@@ -99,10 +94,10 @@ void ReplayRecorder_unk::fn_8056B3D4() {
     }
 }
 
-GameTaskData_unk::~GameTaskData_unk() {}
+ReplayBuffer::~ReplayBuffer() {}
 
 // inferred: index of the frame `frames` / 2 frames back
-void GameTaskData_unk::fn_8056F2F8(int frames) {
+void ReplayBuffer::fn_8056F2F8(int frames) {
     int back = frames / 2;
     int oldest = 1 - m4517C;
     int idx = m45178 + (-1 < (back > oldest ? back : oldest) ? -1 : (back > oldest ? back : oldest));
@@ -118,14 +113,41 @@ void GameTaskData_unk::fn_8056F2F8(int frames) {
     }
 }
 
-void GameTaskData_unk::fn_805704AC() {
+// NONMATCHING: 92.48% - copy order of the event (colour and vectors); offset of the message in the pool
+// ("reference" of fn_8056A9E4 missing)
+void ReplayBuffer::vf08(EffectEvent_unk* event) {
+    if (m5BDB0 != 0) {
+        return;
+    }
+    if ((unsigned int)(event->mLayer - 3) <= 2 || event->mLayer == 1) {
+        return;
+    }
+    ReplayEffectEntry_unk* entry = 0;
+    for (int i = 0; i < 512; i++) {
+        int n = (mNextEffect + i) % 512;
+        if (mEffectRing[n].mFrame < 0) {
+            entry = &mEffectRing[n];
+            mNextEffect = (n + 1) % 512;
+            break;
+        }
+    }
+    if (entry != 0) {
+        entry->mFrame = m00004;
+        entry->mEvent = *event;
+        mEffects.push_back(entry);
+    } else {
+        lbl_8087EEB8->fn_800697D8("[Replay] eff buffer over!");
+    }
+}
+
+void ReplayBuffer::fn_805704AC() {
     m5BDB4 = 1;
     int end = m00004 + 1;
     fn_8056FC24(0);
     lbl_8087F3C0->mSystem.mReplaying = 1;
     for (int frame = m5BDAC + 1; frame < end; frame++) {
-        for (unsigned int i = 0; i < mEffectCount; i++) {
-            ReplayEffectEntry_unk* e = mEffects[i];
+        for (unsigned int i = 0; i < mEffects.mSize; i++) {
+            ReplayEffectEntry_unk* e = mEffects.mData[i];
             if (e->mFrame == frame) {
                 lbl_8087F3C0->fn_8023B724(&e->mEvent);
             }
@@ -167,7 +189,7 @@ void GameTaskData_unk::fn_805704AC() {
     m5BDA4 = 0;
 }
 
-void GameTaskData_unk::fn_805706C0(const ReplayEvent_unk* ev) {
+void ReplayBuffer::fn_805706C0(const ReplayEvent_unk* ev) {
     if (m5BDA4 != 0 || m5BDB0 != 0) {
         return;
     }

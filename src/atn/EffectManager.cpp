@@ -110,7 +110,7 @@ extern "C" void fn_80239DAC(EffectManager* mgr, unsigned int owner, int group, i
         int r = mgr->mSystem.fn_80232D04(owner, group, flag);
         found = (found != 0 || r > 0) ? 1 : 0;
     }
-    EffectListener_unk* listener = mgr->mSystem.mListener;
+    atn::EffectManagerCallback* listener = mgr->mSystem.mListener;
     if (listener != 0 && mgr->mSystem.mReplaying == 0 && found != 0) {
         EffectEvent_unk event;
         event.mType = 1;

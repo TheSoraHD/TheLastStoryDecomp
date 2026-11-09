@@ -79,7 +79,7 @@
 extern "C" void* lbl_8087EF8C;
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
-extern "C" int fn_80570A4C(GameTaskData_unk* obj);
+extern "C" int fn_80570A4C(ReplayBuffer* obj);
 extern "C" GameTask* lbl_8087F430;
 extern "C" atn::Task* lbl_8087F9E0; // inferred: upgrade shop (ShopUpGrade)
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
@@ -282,13 +282,13 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
-extern "C" void fn_80570A14(GameTaskData_unk* obj, int value);
+extern "C" void fn_80570A14(ReplayBuffer* obj, int value);
 extern "C" void fn_802328DC(int frame); // inferred: effect system frame
 extern "C" void fn_80450B28();         // inferred: freezes the item slot animations
 extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
 extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
 extern "C" int VISetTimeToDimming(int type);
-extern "C" void fn_80570A40(GameTaskData_unk* obj, int value);
+extern "C" void fn_80570A40(ReplayBuffer* obj, int value);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" void fn_803D83A8(GameUI* ui);
 extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
@@ -299,7 +299,7 @@ extern "C" void fn_800F3D28(BattleTask* battle);
 extern "C" void fn_800F3170(BattleTask* battle);
 extern "C" int fn_800F3490(BattleTask* battle);
 extern "C" void fn_800EFA18(int type, int map);
-extern "C" void fn_8056C3D8(GameTaskData_unk* obj);
+extern "C" void fn_8056C3D8(ReplayBuffer* obj);
 extern "C" void fn_80390A88(GameCamera* camera);
 extern "C" void fn_8038F52C(GameCamera* camera, CharaTask* chara); // inferred: update of the camera around `chara`
 extern "C" int fn_800A555C(void* obj, int a, int b);
@@ -2229,8 +2229,8 @@ void GameTask::fn_8036CA60(int warp) {
             }
         }
         if (map->mType == 2 && m5590 == 0 && map->mId == 9) {
-            m5590 = new ((MemoryTag)1, "", "", 0) GameTaskData_unk;
-            lbl_8087F3C0->mSystem.mListener = (EffectListener_unk*)m5590;
+            m5590 = new ((MemoryTag)1, "", "", 0) ReplayBuffer;
+            lbl_8087F3C0->mSystem.mListener = m5590;
         }
     }
     fn_80371320(lbl_8087F8A0->mHead);
@@ -3593,7 +3593,7 @@ void GameTask::fn_80371320(PlayerTask* player) {
     }
 }
 
-extern "C" void fn_80570A64(GameTaskData_unk* obj);
+extern "C" void fn_80570A64(ReplayBuffer* obj);
 
 // inferred: starts an event of the field (field state 8; called by game/GameEventScript)
 // NONMATCHING: 98.9% - the original reloads lbl_8087EFA8 before storing the depth of field (as fn_8036CC90)
@@ -4185,7 +4185,7 @@ void GameTask::fn_803737C0() {
     lbl_8087EFA8->m3A4 = m55C0;
 }
 
-extern "C" void fn_8056D8C8(GameTaskData_unk* obj, int frame, int a, int b); // inferred: seeks the replay
+extern "C" void fn_8056D8C8(ReplayBuffer* obj, int frame, int a, int b); // inferred: seeks the replay
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: fades the sound
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach);  // inferred: stops the sound
 extern "C" const char* fn_800EFE3C(int id); // inferred: sound name of a voice

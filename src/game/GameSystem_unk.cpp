@@ -74,7 +74,7 @@ struct GameSystem_unk {
 extern "C" GameSystem_unk* lbl_8087F9A0;
 extern "C" void fn_805714DC(GameSystem_unk* sys, int wait);
 
-extern "C" void fn_80570A14(GameTaskData_unk* obj, int value) {
+extern "C" void fn_80570A14(ReplayBuffer* obj, int value) {
     obj->m5BDA8 = value;
     if (value != 0) {
         obj->m5BDAC = obj->m00004;
@@ -83,15 +83,15 @@ extern "C" void fn_80570A14(GameTaskData_unk* obj, int value) {
     }
 }
 
-extern "C" void fn_80570A40(GameTaskData_unk* obj, int value) {
+extern "C" void fn_80570A40(ReplayBuffer* obj, int value) {
     obj->m5BDB0 = value;
 }
 
-extern "C" int fn_80570A4C(GameTaskData_unk* obj) {
+extern "C" int fn_80570A4C(ReplayBuffer* obj) {
     return obj->m4517C == 45;
 }
 
-extern "C" void fn_80570A64(GameTaskData_unk* obj) {
+extern "C" void fn_80570A64(ReplayBuffer* obj) {
     obj->m4517C = 0;
 }
 

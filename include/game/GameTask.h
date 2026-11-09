@@ -19,7 +19,7 @@ class MapTask;
 class PlayerTask;
 class CharaTask;
 class SelectMember;
-struct GameTaskData_unk;
+class ReplayBuffer;
 namespace atn {
 class FadeCommon;
 class FadeCapture;
@@ -207,7 +207,7 @@ public:
     unsigned char m556C;
     unsigned char m556D[0x558C - 0x556D];
     MP::Ptr_unk<ReplayRecorder_unk> m558C;
-    GameTaskData_unk* m5590;
+    ReplayBuffer* m5590;
     int m5594;
     int m5598;
     int m559C; // inferred: frames of the replay rewind (fn_80373AE8)

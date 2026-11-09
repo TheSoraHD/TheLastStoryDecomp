@@ -16,7 +16,9 @@ struct EffectColor_unk {
 };
 
 struct EffectRes_unk;
-class EffectListener_unk;
+namespace atn {
+class EffectManagerCallback;
+}
 
 // inferred: particle of the effect system (0x94 bytes, names invented)
 struct EffectParticle_unk {
@@ -271,7 +273,7 @@ public:
     int mUpdating;                // 0x74
     int m78;
     int m7C;
-    EffectListener_unk* mListener; // 0x80
+    atn::EffectManagerCallback* mListener; // 0x80: inferred: the replay (ReplayBuffer)
     int mReplaying;               // 0x84
 };
 

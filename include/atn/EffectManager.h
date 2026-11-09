@@ -10,6 +10,7 @@
 #include "math/Vec.h"
 #include "std/vector.h"
 #include "atn/EffectSystem_unk.h"
+#include "atn/EffectManagerCallback.h"
 
 namespace atn {
 struct Camera;
@@ -30,33 +31,7 @@ extern "C" void fn_802346AC(int handle);
 struct EffectRes_unk;
 extern "C" void fn_80232AC4(EffectRes_unk* res); // inferred: marks the resource as used
 
-// inferred: event sent to the effect listener (0x64 bytes; names invented)
-struct EffectEvent_unk {
-    int mType;              // 0x00: 0 play, 1 stop
-    void* mRes;             // 0x04
-    void* mModel;           // 0x08
-    int m0C;
-    int m10;
-    atn::Vector3 mPos;      // 0x14
-    atn::Vector3 mRot;      // 0x20
-    float mScale;           // 0x2C
-    EffectColor_unk mColor; // 0x30
-    int m40;
-    int m44;
-    int mHandle;            // 0x48
-    unsigned int mOwner;    // 0x4C
-    int mGroup;             // 0x50
-    unsigned int mFlags;    // 0x54
-    int m58;
-    int m5C;
-    int mLayer;             // 0x60
-};
 
-// inferred: receives the effect events (replay)
-class EffectListener_unk {
-public:
-    virtual void vf08(EffectEvent_unk* event) = 0;
-};
 
 // inferred: resource of an efp file: emitters (0x54 bytes each)
 struct EffectEmitter_unk {
@@ -158,7 +133,7 @@ public:
     // inferred: records a stop event for the replay (names invented)
     void NotifyStop_unk(void* res, unsigned int owner, int group, unsigned int flags, int flag, int handle,
                         int effect) {
-        EffectListener_unk* listener = mSystem.mListener;
+        EffectManagerCallback* listener = mSystem.mListener;
         if (listener != 0 && mSystem.mReplaying == 0) {
             EffectEvent_unk event;
             event.mType = 1;
