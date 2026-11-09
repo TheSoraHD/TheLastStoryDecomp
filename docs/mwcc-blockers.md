@@ -210,3 +210,18 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - (`s12h-20261108`) `MP/func_enter_setting` vf0C/vf10 de `PacketPackMP` (0x8050105C/0x80501054): son copias debiles
   emitidas tras las de los `func_*`; definidas inline en la clase salen tras vf18 y la vtable al principio de `.data`;
   con el dtor declarado no se emite la vtable.
+- (`s12h-20261109`) `fn_804DD158` (buscador de jugador de PacketPack) inlineado: mismos registros cambiados
+  (aid/desplazamiento/contador) en ~10 funciones (EB4AC, FC0D4, D8610, EB010, DD3F0, EB2D8...); probados `aid`
+  `unsigned int`/`unsigned char`/`int`, firma `unsigned char`, como miembro, con `PPPlayerArray_unk&`, resultado en
+  variable y envoltorios inline. Solo fn_804E8A80 sale con el `unsigned int` local.
+- (`s12h-20261109`) `GameEventScript`: los 62 comandos sin escribir caen en el r0/r4 (tipo/cero) de `SetNext_unk`;
+  probados SetNext explicito, `int wait`, `int& size`.
+- (`s12h-20261109`) `RecycleBuffer::Alloc_unk` inline (RecycleBuffer_gmk/ItemSlotAnime, 5 funciones): el original da
+  el registro mas alto al indice del byte `i >> 3`; ~20 formas (orden de operandos, `/ 8`, `int i`, while, TrySet/
+  IsUse/SetUse, puntero al byte) sin cambio.
+- (`s12h-20261109`) `ReplayRecorder_unk::fn_8056BD34` y `ReplayBuffer::fn_8056FC24`: con el medio float y los
+  indices ya iguales queda el marco de pila 0x20 menor (huecos de los temporales); probado el orden de las
+  declaraciones.
+- (`s12h-20261109`) Quitar o anadir declaraciones en `game/ReplayBuffer.h` o `game/Bullet.h` renumera los `@N` de
+  GameTask: `fn_8036D2D0` (99,98%) necesita renombrar a mano su etiqueta (linea `0x808857A8` de `symbols.txt`) tras
+  `pd`, que solo empareja las de funciones al 100%.

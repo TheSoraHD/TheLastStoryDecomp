@@ -8,9 +8,9 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
+- `s12h-20261109` (2026-11-09, rama sin mergear): **14837 / 18109** en `report.json`, lost 0, sin bajadas salvo el stub conocido de MiniMapTask::vf10. PacketPack 64 -> 242, unidades nuevas `game/ReplayBuffer` (clase `ReplayBuffer`, base `atn::EffectManagerCallback`) y `game/NewTitleTask`, ItemSlotAnime +11, MapPartsGimmickLoc +10; trucos: medio float con mascaras `(h << 16) & 0x80000000 | ...`, `r = j >> 2; c = j & 3` en bucles de matrices, `||` en returns. Notas: `docs/s12h-20261109.md`.
 - `pad7-20261109` (mergeada en `main`): 7 rellenos `auto_03_*_text` absorbidos en la unidad anterior (`splits.txt`), total 18116 -> **18109**; quedan 5 (anterior enlazada y siguiente no: dwc_lanmatch, dwc_match, dwc_account, dwc_ranking, ut_TextWriterBase).
 - `s12h-20261108` (2026-11-08, mergeada en `main`): **14596 / 18116** en `report.json`, lost 0, sin bajadas. PacketPack +56, NewCampTask +35, BattleTask +31, DebugInfo +24; borradores de funciones grandes para emitir sus copias debiles; trucos: `||` en los return tempranos, `const T&` para la copia en bloque, `static const` en tablas de `__sinit`, `__sinit` de `.ctors`, cast redundante `(float)m` (`tools/decomp/fcastg.py`). Notas: `docs/s12h-20261108.md`.
-- `s12h-20261107` (mergeada en `main`): 14351, GameTask 57 -> 104/133, TacView 14 -> 27/46; `operator[]`, `const` en parametros por valor, inlines que mueven temporales; `docs/s12h-20261107.md`.
 - `gametask-20261107` (mergeada en `main`): 14167, GameTask 42 -> 57/133; `docs/gametask-20261107.md`.
 - `msl-iostream-20261107b`/`c`/`d` (mergeadas en `main`): 14151 -> 14152, MSL C++ 106 -> 112/170; `docs/msl-iostream-20261107.md`.
 - `msl-iostream-20261107` (mergeada en `main`): 14146, MSL C++ 106/170 (`shared_ptr_unk.cpp` enlazada). Flags: `-func_align 4` tras `-O4,p`, `-RTTI on`, `locale.cpp` sin `nostrength`.
