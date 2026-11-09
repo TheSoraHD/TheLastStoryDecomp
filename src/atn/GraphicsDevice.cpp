@@ -1789,6 +1789,18 @@ extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsi
 
 // inferred: loads a light; GX light 0 is the key light, as a far point light plus a specular light
 // NONMATCHING: 205 vs 203 instructions (objdiff gives 0%) - register allocation of the vectors of the directional light
+// inferred: weak copy 0x8013C3B4 (declared in math/Vec.h)
+inline atn::Vector3 atn::Vector3::operator-() const {
+    return Vector3(-x, -y, -z);
+}
+
+// inferred: m * v (also defined in game/Bullet.cpp, weak copy 0x8010F6FC)
+inline atn::Vector3 atn::Vector3::Transform_unk(const Matrix3x4& mtx) const {
+    Vector3 r(*this);
+    PSMTXMultVec(mtx.m, &r, &r);
+    return r;
+}
+
 extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* light) {
     if (device->mLights[index] == light) {
         return;
@@ -1798,46 +1810,40 @@ extern "C" void fn_8007642C(GraphicsDevice_unk* device, int index, Light_unk* li
         return;
     }
     atn::Matrix3x4& view = atn::RenderManager::instance_->mCamera.mView;
-    if (index != 0) {
+    if (index == 0) {
+        atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+        atn::Vector3 half(4.0f, 4.0f, 4.0f);
+        PSVECNormalize(&half, &half);
+        atn::Vector3 dir = light->mDir;
+        GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
+        atn::Vector3 far = -dir * 1000000.0f;
+        pos = far.Transform_unk(view);
+        half = -dir;
+        PSVECNormalize(&half, &half);
+        GXLightObj diffuse;
+        GXInitLightColor(&diffuse, ToGXColor_unk(light->mColor));
+        GXInitLightPos(&diffuse, pos.x, pos.y, pos.z);
+        GXInitLightAttn(&diffuse, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        GXInitLightDistAttn(&diffuse, 1.0f, 0.07f, 0);
+        GXLoadLightObjImm(&diffuse, 1);
+        GXLightObj specular;
+        atn::Matrix3x4 normalMtx = view;
+        normalMtx.m[0][3] = 0.0f;
+        normalMtx.m[1][3] = 0.0f;
+        normalMtx.m[2][3] = 0.0f;
+        PSMTXInverse(normalMtx.m, normalMtx.m);
+        PSMTXTranspose(normalMtx.m, normalMtx.m);
+        PSMTXMultVec(normalMtx.m, &half, &half);
+        PSVECNormalize(&half, &half);
+        GXInitLightColor(&specular, white);
+        GXInitSpecularDir(&specular, -half.x, -half.y, -half.z);
+        GXInitLightAttn(&specular, 0.0f, 0.0f, 1.0f, 8.0f, 0.0f, -7.0f);
+        GXLoadLightObjImm(&specular, 2);
+    } else {
         GXLightObj obj;
         light->fn_80079994(&obj, view.m);
         GXLoadLightObjImm(&obj, 1 << index);
-        return;
     }
-    atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-    atn::Vector3 half(4.0f, 4.0f, 4.0f);
-    PSVECNormalize(&half, &half);
-    atn::Vector3 dir = light->mDir;
-    atn::Vector3 far = atn::Vector3(-dir.x, -dir.y, -dir.z) * 1000000.0f;
-    PSMTXMultVec(view.m, &far, &far);
-    pos = far;
-    half = atn::Vector3(-dir.x, -dir.y, -dir.z);
-    PSVECNormalize(&half, &half);
-    GXLightObj diffuse;
-    GXColor color;
-    color.r = (int)(255.0f * light->mColor.r);
-    color.g = (int)(255.0f * light->mColor.g);
-    color.b = (int)(255.0f * light->mColor.b);
-    color.a = (int)(255.0f * light->mColor.a);
-    GXInitLightColor(&diffuse, color);
-    GXInitLightPos(&diffuse, pos.x, pos.y, pos.z);
-    GXInitLightAttn(&diffuse, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    GXInitLightDistAttn(&diffuse, 1.0f, 0.07f, 0);
-    GXLoadLightObjImm(&diffuse, 1);
-    atn::Matrix3x4 normalMtx = view;
-    normalMtx.m[0][3] = 0.0f;
-    normalMtx.m[1][3] = 0.0f;
-    normalMtx.m[2][3] = 0.0f;
-    PSMTXInverse(normalMtx.m, normalMtx.m);
-    PSMTXTranspose(normalMtx.m, normalMtx.m);
-    PSMTXMultVec(normalMtx.m, &half, &half);
-    PSVECNormalize(&half, &half);
-    GXLightObj specular;
-    GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
-    GXInitLightColor(&specular, white);
-    GXInitSpecularDir(&specular, -half.x, -half.y, -half.z);
-    GXInitLightAttn(&specular, 0.0f, 0.0f, 1.0f, 8.0f, 0.0f, -7.0f);
-    GXLoadLightObjImm(&specular, 2);
 }
 
 // inferred: sets one field of mState (field index = its dirty bit) and marks it when it changed
