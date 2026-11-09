@@ -829,12 +829,16 @@ void atn::RenderManager::fn_800BFB70() {
     fn_800BFC18(atn::Color(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.0f);
 }
 
+static inline void DrawQuad_unk(atn::RenderManager* self, const atn::Color& c, unsigned int width, unsigned int height, float a, float b) {
+    self->fn_800BFCB4(c, c, c, c, width, height, a, b);
+}
+
 void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
     // inferred: full screen quad of one color
     atn::Color c(color);
     unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
     unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
-    fn_800BFCB4(c, c, c, c, width, height, a, b);
+    DrawQuad_unk(this, c, width, height, a, b);
 }
 
 // inferred: ARGB word to GXColor (as in atn/GraphicsDevice.cpp)
