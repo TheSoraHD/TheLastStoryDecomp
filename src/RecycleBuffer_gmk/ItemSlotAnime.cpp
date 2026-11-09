@@ -6,6 +6,7 @@
 #include "game/NewCampPartsOption.h"
 #include "game/GimmickManager.h"
 #include "atn/Memory.h"
+#include "atn/SoundManager.h"
 #include <string.h>
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
@@ -18,6 +19,9 @@ public:
     unsigned char m48[0x4C - 0x48];
     unsigned char m4C;
     unsigned char m4D;
+    unsigned char m4E[0x50 - 0x4E];
+    float m50; // inferred: frame of the layout animation
+    float m54; // inferred: speed of the layout animation
 };
 
 // inferred: entry of RecycleBuffer (0x84 bytes; empty destructor 0x8044E158, cleared by 0x8044E198); names
@@ -99,6 +103,21 @@ public:
     }
 
     inline void Free_unk(RecycleBufferEntry_unk* entry);
+
+    // inferred: takes the first free entry (the last one when all are in use); name invented
+    RecycleBufferEntry_unk* Alloc_unk() {
+        if (mNum == 0) {
+            return 0;
+        }
+        for (unsigned int i = 0; i < mNum; i++) {
+            int bit = 1 << (i & 7);
+            if ((m4C[i >> 3] & bit) != bit) {
+                m4C[i >> 3] |= bit;
+                return &mEntries[i];
+            }
+        }
+        return &mEntries[mNum - 1];
+    }
 
     unsigned int mNum;              // 0x48
     unsigned char* m4C;
@@ -213,8 +232,108 @@ void ItemSlotAnime::fn_8044D9BC(void* owner) {
     }
 }
 
+int ItemSlotAnime::fn_8044E1BC() {
+    if (mState > 0) {
+        return 0;
+    }
+    if (lbl_8087F4F8->Start_unk()) {
+        return 1;
+    }
+    mState = 1;
+    return 0;
+}
+
+// NONMATCHING: 99.17% - registers of the inlined Alloc_unk loop (r5/r7 vs r6/r9)
+void ItemSlotAnime::fn_8044E418(const atn::Vector3* pos, int arg2, int arg3, void* item, int count, int arg6,
+                                int arg7) {
+    mPos = *pos;
+    fn_8044F434();
+    mState = 2;
+    m18 = arg2;
+    m1C = arg3;
+    m20 = (ItemSlotItem_unk*)item;
+    m24 = count;
+    mFlag30 = arg6;
+    m28 = arg7;
+    if (!mFlag31) {
+        mState = 1;
+        if (m00 == 0) {
+            m00 = lbl_8087F4F8->Alloc_unk();
+            if (m00 != 0 && fn_80450A78()) {
+                atn::FixedArray_unk<ItemSlotTask_unk*, 2>& tasks = m00->m24;
+                for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+                    if (*it != 0) {
+                        (*it)->m50 = 0.0f;
+                    }
+                }
+            }
+        }
+    }
+}
+
 int ItemSlotAnime::fn_8044E610() {
     return mState == 2 && m20 != 0 && m24 > 0;
+}
+
+extern "C" float fn_801F6C2C(atn::Task* layout);                                    // inferred: last frame
+extern "C" void fn_801F791C(atn::Task* task, const char* name, int index, float value); // inferred: pane alpha
+
+// inferred: colour pane of the slot layouts
+static const char* const sColorPane = "col0001_01";
+
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+
+// inferred: shows the rare item at once
+// NONMATCHING: 97.57% - registers of the inlined Alloc_unk loop, this in r30, string pool offset
+void ItemSlotAnime::fn_8044E644() {
+    if (mFlag31) {
+        mState = 3;
+        mF0 = 0;
+        if (m00 == 0) {
+            m00 = lbl_8087F4F8->Alloc_unk();
+        }
+        m00->m00->m50 = 0.0f;
+        m00->m00->m54 = 1.0f;
+        for (int i = 0; i < 3; i++) {
+            ItemSlotTask_unk* t = m00->m04[i];
+            t->m50 = i * 3.0f + 2.0f;
+            t->m54 = 1.0f;
+        }
+        for (int i = 0; i < 3; i++) {
+            fn_80450590();
+        }
+        fn_8044F96C();
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->m34D8 = this;
+            fn_800C344C("SE_UICOM_019", &mPos, 0, -1, 1.0f);
+            lbl_8087EFE8->m34D8 = 0;
+        }
+        if (lbl_8087F430 != 0 && lbl_8087F430->m10D0 >= 105000 && lbl_8087F430->GetCurrentMap() != 0 &&
+            lbl_8087F430->GetCurrentMap()->mType == 2) {
+            lbl_8087F430->fn_803750E4(0xBA);
+        }
+    }
+}
+
+// inferred: shows the item at once (the slots stopped)
+// NONMATCHING: 98.35% - registers of the inlined Alloc_unk loop
+void ItemSlotAnime::fn_8044E88C() {
+    if (mFlag31) {
+        mState = 4;
+        m18 = 0;
+        if (m00 == 0) {
+            m00 = lbl_8087F4F8->Alloc_unk();
+        }
+        ItemSlotTask_unk* base = m00->m00;
+        base->m50 = fn_801F6C2C(base);
+        for (int i = 0; i < 3; i++) {
+            ItemSlotTask_unk* t = m00->m14[i];
+            t->m50 = i * 3.0f + 2.0f;
+            t->m54 = 1.0f;
+            fn_801F791C(t, sColorPane, 0, 200.0f);
+        }
+        fn_8044F96C();
+    }
 }
 
 int ItemSlotAnime::fn_80450A5C() {
