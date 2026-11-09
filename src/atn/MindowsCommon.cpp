@@ -86,9 +86,8 @@ extern "C" void fn_8008510C(char* buf) {
 
 namespace atn {
 
-// The draw functions (vf18) are NONMATCHING (90-97%): float register allocation of the line
-// position (16.0f in f5 and the int->float constant in f1 in the original) and the order of the
-// sprintf arguments.
+// The draw functions (vf18): the x of the value goes through ValueX_unk (the length is converted
+// before the sum, which gives the float registers of the original).
 #define MINDOWS_DRAW_BEGIN(ctx, line, color)                                                                       \
     if (*line < ctx->mBottom) {                                                                               \
         if (ctx->mTop <= *line) {                                                                             \
@@ -98,8 +97,14 @@ namespace atn {
             }                                                                                                 \
             lbl_8087EEB0->fn_800616C0(16.0f * (float)depth + ctx->mX, y, -1000000.0f, 16.0f, 16.0f, mName, -1, 0.0f, 0, 0, 0);
 
+// inferred: x of a right-aligned value (8 px per character); the length is converted before the sum
+static inline float ValueX_unk(const MindowsDrawCtx_unk* ctx, const char* text) {
+    float len = (float)strlen(text);
+    return (ctx->mX + ctx->mW) - 8.0f * len;
+}
+
 #define MINDOWS_DRAW_VALUE(text)                                                                              \
-    lbl_8087EEB0->fn_800616C0((ctx->mX + ctx->mW) - 8.0f * (float)strlen(text), y, -1000000.0f, 16.0f, 16.0f, text, -1, 0.0f, 0, 0, 0)
+    lbl_8087EEB0->fn_800616C0(ValueX_unk(ctx, text), y, -1000000.0f, 16.0f, 16.0f, text, -1, 0.0f, 0, 0, 0)
 
 #define MINDOWS_DRAW_END(line)                                                                                \
         }                                                                                                     \
@@ -250,7 +255,8 @@ void MindowsRadian::vf18(const MindowsDrawCtx_unk* ctx, int depth, int* line) {
         MINDOWS_DRAW_VALUE(mEdit);
     } else {
         char buf[32];
-        sprintf(buf, "%.4f", 57.295776f * *mValue);
+        float v = *mValue;
+        sprintf(buf, "%.4f", 57.295776f * v);
         MINDOWS_DRAW_VALUE(buf);
     }
     MINDOWS_DRAW_END(line)
@@ -533,4 +539,10 @@ extern "C" void fn_800897D8(Mindows_unk* self, MindowsCommon* item) {
         item->mParent->vf24(item);
         delete item;
     }
+}
+
+// inferred: function with no caller left in the game (stripped by the linker); only its string
+// "DebugMenu" remains, at the end of the pool. Body and name invented.
+extern "C" const char* StrippedDebugMenu_unk() {
+    return "DebugMenu";
 }
