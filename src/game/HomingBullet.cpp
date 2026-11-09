@@ -1,5 +1,6 @@
 #include "game/HomingBullet.h"
 #include "game/CharaTask.h"
+#include "game/ReplayBuffer.h"
 
 extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
@@ -78,7 +79,7 @@ void HomingBullet::vf28(BulletShot_unk* shot, const atn::Vector3* pos, const atn
         ev.mOwner = m88;
         ev.m3C = 0;
         ev.mBullet = this;
-        fn_805706C0(lbl_8087F430->m5590, &ev);
+        lbl_8087F430->m5590->fn_805706C0(&ev);
     }
     ShotEvent_unk e;
     e.mOwner = owner;
@@ -97,7 +98,7 @@ void HomingBullet::vf0C(int a, int b) {
         ReplayEvent_unk ev;
         ev.mKind = 3;
         ev.mBullet = this;
-        fn_805706C0(lbl_8087F430->m5590, &ev);
+        lbl_8087F430->m5590->fn_805706C0(&ev);
     }
 }
 

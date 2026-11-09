@@ -13,6 +13,7 @@
 #include "atn/SoundCore.h"
 #include "atn/SoundManager.h"
 #include "gmk/Lemon.h"
+#include "game/ReplayBuffer.h"
 
 // inferred: sound engine (lbl_8087EE90)
 extern "C" atn::SoundEngine_unk* lbl_8087EE90;
@@ -246,7 +247,7 @@ void Bullet::fn_8010F018(BulletShot_unk* shot, const atn::Vector3* pos, const at
         ev.mOwner = m88;
         ev.m3C = m8C;
         ev.mBullet = this;
-        fn_805706C0(lbl_8087F430->m5590, &ev);
+        lbl_8087F430->m5590->fn_805706C0(&ev);
     }
 }
 
@@ -269,7 +270,7 @@ void Bullet::vf0C(int record, int b) {
         ReplayEvent_unk ev;
         ev.mKind = 1;
         ev.mBullet = this;
-        fn_805706C0(lbl_8087F430->m5590, &ev);
+        lbl_8087F430->m5590->fn_805706C0(&ev);
     }
 }
 

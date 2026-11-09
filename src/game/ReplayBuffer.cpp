@@ -6,6 +6,7 @@
 #include "game/PlayerManager.h"
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
+#include "atn/Model_unk.h"
 
 // game/ReplayBuffer.cpp (0x8056A84C-0x80570A14): the replay of the field (records the characters and their
 // effects). Partial: only some of the functions are written.
@@ -90,3 +91,41 @@ void ReplayRecorder_unk::fn_8056B3D4() {
 }
 
 GameTaskData_unk::~GameTaskData_unk() {}
+
+// inferred: index of the frame `frames` / 2 frames back
+void GameTaskData_unk::fn_8056F2F8(int frames) {
+    int back = frames / 2;
+    int oldest = 1 - m4517C;
+    int idx = m45178 + (-1 < (back > oldest ? back : oldest) ? -1 : (back > oldest ? back : oldest));
+    if (idx < 0) {
+        idx += 45;
+    }
+    ReplayFrame_unk* frame = m5BDB4 != 0 ? &mLive : &mFrames[idx];
+    for (int i = 0; i < frame->mNumCharas; i++) {
+        frame->mCharas[i].mChara->fn_80149A30();
+    }
+    for (int i = 0; i < frame->mNumModels; i++) {
+        frame->mModels[i].mModel->fn_8008CD60();
+    }
+}
+
+void GameTaskData_unk::fn_805706C0(const ReplayEvent_unk* ev) {
+    if (m5BDA4 != 0 || m5BDB0 != 0) {
+        return;
+    }
+    ReplayEventEntry_unk* entry = 0;
+    for (int i = 0; i < 256; i++) {
+        int n = (mNextEvent + i) % 256;
+        if (mEvents[n].mFrame < 0) {
+            entry = &mEvents[n];
+            mNextEvent = (n + 1) % 256;
+            break;
+        }
+    }
+    if (entry == 0) {
+        return;
+    }
+    entry->mFrame = m00004;
+    entry->mEvent = *ev;
+    mNewEvents.push_back(entry);
+}

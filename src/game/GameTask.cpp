@@ -292,7 +292,6 @@ extern "C" void fn_80570A40(GameTaskData_unk* obj, int value);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" void fn_803D83A8(GameUI* ui);
 extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
-extern "C" void fn_8056F2F8(GameTaskData_unk* obj, int value);
 extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
 extern "C" atn::Task* lbl_8087FA20;
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
@@ -2119,7 +2118,7 @@ void GameTask::vf14() {
         if (!IsIconHidden_unk(ui->mB08[4]) && IsIconEnd_unk(ui->mB08[4])) {
             ui->mB08[4]->FreezeTask();
         }
-        fn_8056F2F8(m5590, -m5598);
+        m5590->fn_8056F2F8(-m5598);
         if (mFinish.m394 != 0 && m5598 == 0) {
             ((atn::D2A_Task*)ui->mB08[5])->SetLayoutValue_unk("iconOn", 0.0f);
             showIcons = 1;

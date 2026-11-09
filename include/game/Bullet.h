@@ -6,6 +6,7 @@
 
 class CharaTask;
 struct CollResult_unk;
+struct GameTaskData_unk;
 
 // inferred: shot parameters (0x1C bytes, copied into the replay event by HomingBullet::vf28)
 struct BulletShot_unk {
@@ -39,12 +40,11 @@ struct ReplayEvent_unk {
     int m3C;
     class Bullet* mBullet;
 };
-extern "C" void fn_805706C0(void* recorder, ReplayEvent_unk* ev); // inferred: records an event
 
 // inferred: field object; m5590 is the replay recorder
 struct HomingField_unk {
     unsigned char m0000[0x5590];
-    void* m5590;
+    GameTaskData_unk* m5590;
 };
 
 // inferred: data of listener event 12 (a bullet was shot); names invented
