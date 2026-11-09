@@ -124,7 +124,11 @@ extern "C" void fn_80069060(unsigned short c0, unsigned short c1, const unsigned
     out[7] = idx[12] | (idx[13] << 2) | (idx[14] << 4) | (idx[15] << 6);
 }
 
-// NONMATCHING: 77.87% - min/max loop kept in memory in the original (byte arrays reloaded each step)
+// inferred: RGB565 of an RGB color
+static inline unsigned short ToRGB565_unk(const unsigned char* c) {
+    return ((c[0] << 8) & 0xF800) | ((c[1] << 3) & 0x7E0) | ((c[2] >> 3) & 0x1F);
+}
+
 // inferred: encodes one 4x4 block (the endpoints are the min and max of each channel)
 extern "C" void fn_80069288(const unsigned char* pixels, unsigned char* out) {
     unsigned char lo[3];
@@ -147,15 +151,18 @@ extern "C" void fn_80069288(const unsigned char* pixels, unsigned char* out) {
         alpha = alpha != 0 || p[3] < 0x7F;
         p += 4;
     }
-    unsigned short c0 = ((lo[0] << 8) & 0xF800) | ((lo[1] << 3) & 0x7E0) | (lo[2] >> 3);
-    unsigned short c1 = ((hi[0] << 8) & 0xF800) | ((hi[1] << 3) & 0x7E0) | (hi[2] >> 3);
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned short c0 = ToRGB565_unk(lo);
+    unsigned short c1 = ToRGB565_unk(hi);
     if (c0 > c1) {
         unsigned short t = c0;
         c0 = c1;
         c1 = t;
-        unsigned char r = lo[0];
-        unsigned char g = lo[1];
-        unsigned char b = lo[2];
+        r = lo[0];
+        g = lo[1];
+        b = lo[2];
         lo[0] = hi[0];
         lo[1] = hi[1];
         lo[2] = hi[2];
