@@ -1,5 +1,10 @@
 #include "gmk/ItemSlotAnime.h"
 #include "atn/Task.h"
+#include "game/GameTask.h"
+#include "game/MapTask.h"
+
+extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
+extern "C" GameTask* lbl_8087F430; // inferred: the field task
 
 namespace gmk {
 
@@ -8,7 +13,29 @@ int ItemSlotAnime::fn_8044E610() {
 }
 
 int ItemSlotAnime::fn_80450A5C() {
-    return m20 != 0 ? *reinterpret_cast<int*>(static_cast<unsigned char*>(m20) + 4) : 0;
+    return m20 != 0 ? m20->mId : 0;
+}
+
+// inferred: the item may be taken here (301 and flagged items always; the others by the item table of the
+// current map)
+int ItemSlotAnime::fn_80450A78() const {
+    if (m20 == 0) {
+        return 0;
+    }
+    if (m20->mId == 301) {
+        return 1;
+    }
+    if (m20 == 0) {
+        return 0;
+    }
+    if (m20->mC2 != 0) {
+        return 1;
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* map = lbl_8087F430->GetCurrentMap();
+        return fn_80213E60(m20, map->mType, map->mId, map->mSubId);
+    }
+    return 0;
 }
 
 } // namespace gmk

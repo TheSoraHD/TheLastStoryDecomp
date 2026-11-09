@@ -5,6 +5,14 @@
 
 namespace gmk {
 
+// inferred: item data shown by the animation (the item table entry; names invented)
+struct ItemSlotItem_unk {
+    int m00;
+    int mId;                  // 0x04: inferred: item id (301: always shown)
+    unsigned char m08[0xC2 - 0x08];
+    signed char mC2;          // inferred: flag: always shown
+};
+
 // inferred: item that pops out of a gimmick (gmk::TreasureBox); the name comes from
 // RecycleBuffer<gmk::ItemSlotAnime> (RecycleBuffer_gmk/ItemSlotAnime.cpp, not decompiled). Only the
 // members used by the gimmicks are known; 0xF4 bytes.
@@ -18,7 +26,7 @@ public:
     int fn_8044EEC0();
     void fn_8044F14C();
     void fn_8044F96C();
-    int fn_80450A78();
+    int fn_80450A78() const;
     // inferred: starts the animation of an item at `pos`
     void fn_8044E418(const atn::Vector3* pos, int arg2, int arg3, void* item, int count, int arg6, int arg7);
     int fn_8044E610();
@@ -38,7 +46,7 @@ public:
     unsigned char m08[0x18 - 0x08];
     int m18;
     int m1C;
-    void* m20; // inferred: current item selected by the animation task
+    ItemSlotItem_unk* m20; // inferred: current item selected by the animation task
     int m24; // inferred: item count checked by fn_8044E610
     unsigned char m28[0xEC - 0x28];
     // inferred: flags set by gmk::DropItem (names invented)
