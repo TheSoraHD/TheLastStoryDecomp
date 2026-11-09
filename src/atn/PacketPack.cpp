@@ -3491,6 +3491,27 @@ extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
 }
 
 
+extern "C" int fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned short a, unsigned short b);
+// inferred: payload of the message 0x103E (two halfwords); names invented
+struct PPMsgHalves_unk {
+    unsigned short m00;
+    unsigned short m02;
+};
+// inferred: applies `value` to the own slot (fn_804F50DC with 0xFFFF) and sends it to the others (message 0x103E)
+extern "C" int fn_804E8A80(PPManager2_unk* mgr, int value) {
+    unsigned int aid = lbl_8087F628->GetMyAid_unk();
+    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    if (fn_804F50DC(mgr, own, 0xFFFF, value) == 0) {
+        return 0;
+    }
+    NetMsgI_unk<PPMsgHalves_unk> msg(0x103E);
+    PPMsgHalves_unk* data = &msg.mData;
+    data->m00 = 0xFFFF;
+    data->m02 = value;
+    fn_804AE3BC()->fn_8050E094(-1, 0x103E, data, 0);
+    return 1;
+}
+
 extern "C" bool fn_804EA520(PPManager2_unk* mgr) {
     return mgr->mState == 30;
 }
@@ -3616,6 +3637,45 @@ extern "C" int fn_804EAFD0(PPManager2_unk* mgr) {
     return n;
 }
 
+// inferred: the player slot (in use) of a character
+static inline PPPlayer_unk* FindByChara_unk(PPManager2_unk* mgr, CharaTask* chara) {
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1 && player->mRef.mChara == chara) {
+            return player;
+        }
+    }
+    return 0;
+}
+
+// inferred: index of a character in the list m5F0 (-1 when it is not there)
+static inline int FindCharaIndex_unk(PPManager2_unk* mgr, CharaTask* chara) {
+    for (int i = 0; i < mgr->mCharas.mNum; i++) {
+        if (mgr->mCharas.mData[i].mRef.mChara == chara) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// NONMATCHING: 98.79% - registers of the inlined searches (aid/offset swapped, as fn_804DD1A8)
+// inferred: `chara` is the own character (game mode 0) or in the team of the own player
+extern "C" int fn_804EB010(PPManager2_unk* mgr, CharaTask* chara) {
+    PPPlayer_unk* own = fn_804DD158(mgr, lbl_8087F628->GetMyAid_unk());
+    if (own == 0) {
+        return 0;
+    }
+    PPPlayer_unk* other = FindByChara_unk(mgr, chara);
+    FindCharaIndex_unk(mgr, chara);
+    if (mgr->mMode == 0) {
+        return own->mRef.mChara == chara;
+    }
+    if (other != 0) {
+        return own->mFlags.m22 == other->mFlags.m22;
+    }
+    return 0;
+}
+
 // inferred: this machine is the server
 extern "C" int fn_804EB1AC(PPManager2_unk* mgr) {
     unsigned char aid = lbl_8087F628->GetMyAid_unk();
@@ -3682,17 +3742,6 @@ extern "C" int fn_804EB2D8(PPManager2_unk* mgr) {
 // inferred: the slot `index` holds a player of a team
 extern "C" int fn_804EB3CC(PPManager2_unk* mgr, int index) {
     return IsTeamPlayer_unk(&mgr->mPlayers.mData[index]);
-}
-
-// inferred: the player slot (in use) of a character
-static inline PPPlayer_unk* FindByChara_unk(PPManager2_unk* mgr, CharaTask* chara) {
-    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
-        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
-        if (player->mFlags.mActive == 1 && player->mRef.mChara == chara) {
-            return player;
-        }
-    }
-    return 0;
 }
 
 // inferred: the character is a player of a team
@@ -3792,16 +3841,6 @@ extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara) {
         }
     }
     return 0;
-}
-
-// inferred: index of a character in the list m5F0 (-1 when it is not there)
-static inline int FindCharaIndex_unk(PPManager2_unk* mgr, CharaTask* chara) {
-    for (int i = 0; i < mgr->mCharas.mNum; i++) {
-        if (mgr->mCharas.mData[i].mRef.mChara == chara) {
-            return i;
-        }
-    }
-    return -1;
 }
 
 // NONMATCHING: 97.74% - the index and the entry offset of the loop take each other's registers
@@ -4221,7 +4260,6 @@ extern "C" void fn_804F3BAC() {
     }
 }
 
-extern "C" void fn_804F50DC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned short a, unsigned short b);
 
 // inferred: message 0x32: two halfwords handled by the manager (fn_804F50DC)
 extern "C" void fn_804F3D80(PPPlayer_unk* player) {
