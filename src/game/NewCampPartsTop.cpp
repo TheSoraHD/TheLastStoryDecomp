@@ -65,7 +65,7 @@ struct NewCampTopLayout_unk : public atn::Task {
 
 class MenuLoadTask : public atn::Task {
 public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
     static MenuLoadTask* sInstance;
     unsigned char m48[0x13C - 0x48];
     int m13C; // inferred: state
@@ -326,9 +326,7 @@ void NewCampPartsTop::vf28() {
     }
 }
 
-// NONMATCHING: 99.51% - the original passes a third argument (0) to MenuLoadTask::fn_80117914, whose known
-// declaration (game/CampSaveLoad.cpp) has two; the size argument of fn_8006EF48 is loaded before the
-// data() branch in the original
+// NONMATCHING: 99.67% - the size argument of fn_8006EF48 is loaded before the data() branch in the original
 void NewCampPartsTop::vf2C() {
     if (mSave == 0 || !mSave->IsFlag_unk(2)) {
         return;
@@ -476,7 +474,7 @@ void NewCampPartsTop::vf2C() {
                 }
                 m7C = 5;
                 if (MenuLoadTask::sInstance == 0) {
-                    MenuLoadTask::fn_80117914(this, mSave);
+                    MenuLoadTask::fn_80117914(this, mSave, 0);
                 }
                 break;
             case 2:

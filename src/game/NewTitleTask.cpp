@@ -78,7 +78,7 @@ extern "C" int fn_803B8AC4(const char* path); // inferred: the save file exists
 // inferred: the menu of the save files (game/CampSaveLoad.cpp); only the members used here
 class MenuLoadTask : public atn::Task {
 public:
-    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data);
+    static MenuLoadTask* fn_80117914(atn::Task* parent, GameLoadTask* data, GameLoadBackground* bg); // inferred: bg unused
     static MenuLoadTask* sInstance;
     unsigned char m48[0x13C - 0x48];
     int m13C; // inferred: state (7: cancelled, 8: loaded)
@@ -461,7 +461,7 @@ int NewTitleTask::fn_80533A28(int count, int axis) {
 }
 
 // inferred: sets the state (the camera key, the damage effect and the layouts of the state)
-// NONMATCHING: 99.2% - stack slots of the effect position, rotation and colour, registers of the gimmick loop
+// NONMATCHING: 99.55% - stack slots of the effect position, rotation and colour, registers of the gimmick loop
 void NewTitleTask::fn_80533BDC(int state) {
     mPrevState = mState;
     mState = state;
@@ -550,7 +550,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         mCursor->mSpeed = -2.0f;
         break;
     case 11:
-        mKey = &mKey2;
+        mKey = &mKey3;
         if (mPrevState == 13 || mPrevState == 14) {
             mCursorPos = 0;
             m2BC = 0;
@@ -570,7 +570,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         break;
     case 15:
         if (MenuLoadTask::sInstance == 0) {
-            MenuLoadTask::fn_80117914(this, mLoadTask);
+            MenuLoadTask::fn_80117914(this, mLoadTask, mLoadBg);
         }
         break;
     case 25:
@@ -602,7 +602,7 @@ inline int Trig_unk(int button) {
 }
 
 // inferred: update: the state machine of the title, the "Push A" layouts and the camera
-// NONMATCHING: 79.0% - register allocation of the state machine and of the camera lerp; MenuLoadTask::fn_80117914 gets a third argument (mLoadBg) in the original
+// NONMATCHING: 88.5% - register allocation of the state machine and of the camera lerp
 void NewTitleTask::vf10() {
     GameConfig_unk* cfg = lbl_8087F0A8;
     mLogo->FreezeTask();
