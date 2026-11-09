@@ -29,7 +29,11 @@ public:
     atn::Texture_unk m58[9];          // inferred: nine minimap textures
     atn::Model m208;                  // inferred: minimap model, flags 0x00A00001/0x20
     atn::Task* m5D8;                  // inferred: task for the minimap controller animation
-    unsigned char m5DC[0x20];         // inferred: state up to the camera
+    float m5DC;                       // inferred: rectangle of the minimap on the screen (x, y, w, h)
+    float m5E0;
+    float m5E4;
+    float m5E8;
+    unsigned char m5EC[0x10];         // inferred: state up to the camera
     float m5FC;                       // inferred: scale of the view (screen height / 52)
     unsigned char m600[0x40];
     atn::Camera m640;                 // inferred: minimap camera

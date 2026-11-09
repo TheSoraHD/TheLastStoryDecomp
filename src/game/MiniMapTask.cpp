@@ -6,6 +6,8 @@
 #include "atn/Layer3D.h"
 #include "atn/ColorF_unk.h"
 #include "atn/Material_unk.h"
+#include "atn/DrawCommand_unk.h"
+#include "atn/GXDecl.h"
 
 extern "C" MiniMapTask* fn_804A7EA4(atn::Task* parent, const char* path) {
     if (parent != 0) {
@@ -53,10 +55,6 @@ void MiniMapTask::vf18(atn::RenderManager* view) {
     (void)view;
 }
 
-// NONMATCHING: 0.33% - target updates the minimap render target.
-void MiniMapTask::vf10(atn::RenderManager* view) {
-    (void)view;
-}
 
 // ---- fn_804ABF84: draw of the minimap (over the inlining budget: the accessors are weak copies) ----
 extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
@@ -117,6 +115,116 @@ extern "C" inline void fn_80316F9C(Material_unk* material, const GXColor* c) {
     material->mColor.g = c->g;
     material->mColor.b = c->b;
     material->mColor.a = c->a;
+}
+
+// ---- vf10: draw of the minimap into a 256x256 texture and of that texture with the mask (over the
+// inlining budget in the original: the accessors are weak copies) ----
+extern "C" void fn_80071E04(atn::GraphicsDevice_unk* device);
+// inferred: the minimap is drawn directly (no texture)
+extern "C" __declspec(noinline) inline int fn_804A9E44(MiniMapTask* task) {
+    return task->m160C;
+}
+// inferred: flag 4 of the model (the model has transparent parts)
+extern "C" __declspec(noinline) inline unsigned int fn_804ABF08(atn::Model* model) {
+    return (*(unsigned int*)((char*)model + 4) >> 4) & 1;
+}
+namespace atn {
+// inferred: atn::PostFxManager (include/atn/PostFx.h redeclares lbl_8087EEE0 with another type)
+class PostFxManager {
+public:
+    void* fn_800A96AC(int width, int height, int format); // inferred: temporary texture
+};
+} // namespace atn
+extern "C" atn::PostFxManager* lbl_8087EF8C;
+// inferred: view of atn::PostFxManager (lbl_8087EF8C), only the member used here
+struct MMPostFx_unk {
+    unsigned char m00[0x54];
+    int m54;
+};
+extern "C" __declspec(noinline) inline void fn_804ABF14(atn::PostFxManager* fx) {
+    ((MMPostFx_unk*)fx)->m54 = 0;
+}
+extern "C" __declspec(noinline) inline atn::PostFxManager* fn_804ABF20() {
+    return lbl_8087EF8C;
+}
+extern "C" __declspec(noinline) inline void fn_804ABF28(atn::GraphicsDevice_unk* device, int value) {
+    fn_80076760(device, 3, value);
+}
+// inferred: GXSetTexCoordGen (the SDK inline)
+extern "C" __declspec(noinline) inline void fn_804ABF34(int dst, int func, int src, unsigned int mtx) {
+    GXSetTexCoordGen2(dst, func, src, mtx, 0, 0x7D);
+}
+extern "C" __declspec(noinline) inline GXTexObj* fn_804ABF40(atn::Texture_unk* texture) {
+    return (GXTexObj*)texture;
+}
+extern "C" __declspec(noinline) inline atn::Texture_unk* fn_804ABF44(atn::RenderManager* view) {
+    return &view->m74C;
+}
+
+// NONMATCHING: draft - draws the minimap into a temporary 256x256 texture (the transparent parts in a
+// second pass) and draws it on the screen through the mask texture m58[3]
+void MiniMapTask::vf10(atn::RenderManager* view) {
+    if (fn_804A9E44(this) != 0) {
+        fn_804ABF84(view);
+        return;
+    }
+    atn::Camera saved(*view->fn_800F7258());
+    view->SetCamera_unk(m640);
+    fn_80071D74(GetGraphics_unk(), fn_804ABEE4(&m640)->m);
+    int width = fn_804A9E84(GetGraphics_unk());
+    int height = fn_804A9E8C(GetGraphics_unk());
+    atn::IRenderLayer* layer = fn_804ABEEC(fn_8008B964(), 0x10);
+    int flags = fn_804ABEF8(layer);
+    view->fn_800C0508(1);
+    fn_800760BC(GetGraphics_unk(), (width - 0x100) / 2, (height - 0x100) / 2, 0x100, 0x100);
+    fn_804ABF00(layer, flags & ~2);
+    m208.vf10(view);
+    if (fn_804ABF08(&m208) != 0) {
+        fn_804ABF00(layer, flags & ~1);
+        m208.vf10(view);
+    }
+    fn_80075DEC(GetGraphics_unk());
+    fn_800760D0(GetGraphics_unk());
+    fn_804ABF14(fn_804ABF20());
+    void* image = fn_804ABF20()->fn_800A96AC(0x100, 0x100, 4);
+    GXTexObj tex;
+    GXInitTexObj(&tex, image, 0x100, 0x100, 4, 0, 0, 0);
+    GXInitTexObjLOD(&tex, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+    GXSetTexCopySrc((unsigned short)(width - 0x100) / 2, (unsigned short)(height - 0x100) / 2, 0x100, 0x100);
+    GXSetTexCopyDst(0x100, 0x100, 4, 0);
+    GXCopyTex(image, 0);
+    GXPixModeSync();
+    fn_80071E04(GetGraphics_unk());
+    fn_804ABF28(GetGraphics_unk(), 0);
+    GXSetNumTexGens(1);
+    GXSetNumChans(0);
+    GXSetNumTevStages(1);
+    GXSetBlendMode(0, 1, 0, 3);
+    fn_804ABF34(0, 1, 4, 0x3C);
+    GXSetTevOp(0, 3);
+    GXSetTevOrder(0, 0, 0, 0xFF);
+    fn_800763FC(GetGraphics_unk(), fn_804ABF40(fn_804ABF44(view)), 0);
+    view->fn_800BFB70();
+    atn::DrawMaskVertex_unk verts[4];
+    verts[0].Set_unk(atn::Vector3(m5DC, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(0.0f, 0.0f, 0.0f, 0.0f));
+    verts[1].Set_unk(atn::Vector3(m5DC + m5E4, m5E0, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(1.0f, 0.0f, 1.0f, 0.0f));
+    verts[2].Set_unk(atn::Vector3(m5DC + m5E4, m5E0 + m5E8, 0.0f), 0xFFFFFFFF,
+                     atn::Vector4_unk(1.0f, 1.0f, 1.0f, 1.0f));
+    verts[3].Set_unk(atn::Vector3(m5DC, m5E0 + m5E8, 0.0f), 0xFFFFFFFF, atn::Vector4_unk(0.0f, 1.0f, 0.0f, 1.0f));
+    fn_804ABF28(GetGraphics_unk(), 1);
+    atn::DrawHelper::ComDrawTextureMask cmd;
+    cmd.m04 = 1;
+    cmd.mVertex = verts;
+    cmd.mTex0 = (atn::Texture_unk*)&tex;
+    cmd.mTex1 = (atn::Texture_unk*)fn_804ABF40(&m58[3]);
+    cmd.m14 = 0;
+    cmd.m18 = 0;
+    cmd.vf10(view);
+    fn_804ABF14(fn_804ABF20());
+    fn_80071E04(GetGraphics_unk());
+    fn_804ABF00(layer, flags);
+    view->SetCamera_unk(saved);
+    fn_80071D68(GetGraphics_unk(), fn_804ABEE4(&saved)->m);
 }
 
 // NONMATCHING: draft - draws the minimap model with its orthographic camera: the transparent parts first
