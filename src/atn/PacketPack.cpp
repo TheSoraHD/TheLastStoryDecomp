@@ -939,7 +939,7 @@ extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value);
 extern "C" void fn_804DA4A0(PPManager2_unk* mgr, int value);
 extern "C" int fn_804DB3B4(PPManager2_unk* mgr);
 extern "C" void fn_804DC358(PPManager2_unk* mgr);
-extern "C" void fn_804DC374(PPManager2_unk* mgr, int mode);
+extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode);
 extern "C" int fn_804DE884(PPManager2_unk* mgr);
 extern "C" int fn_804DF404(PPManager2_unk* mgr);
 extern "C" void fn_804D6688(PPPlayerArray_unk* players, int num);
@@ -2736,6 +2736,46 @@ static inline int IsTeamPlayer_unk(PPPlayer_unk* player) {
 
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
 
+// inferred: this machine is the server (inline of fn_804EB1AC)
+static inline int IsServer_unk() {
+    unsigned char aid = lbl_8087F628->GetMyAid_unk();
+    return aid == lbl_8087F628->GetServerAid_unk();
+}
+
+extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid);
+// NONMATCHING: 99.76% - aid and count of the inlined search fn_804DD158 in r5/r4 (r4/r5 in the original)
+// inferred: flushes the packer; the server goes on with fn_804D824C (mode 1), a client starts the timer m99B8
+extern "C" void fn_804D8610(PPManager2_unk* mgr) {
+    fn_804AE3BC()->fn_8050DE34();
+    unsigned int aid = lbl_8087F628->GetMyAid_unk();
+    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    if (IsServer_unk() == 1) {
+        fn_804D824C(mgr, own, 1);
+    } else {
+        mgr->m99B8 = 300;
+    }
+}
+
+// inferred: waits for the other players: the server is ready at once (m9A74[0]); a client gives up with the
+// error 0x9E when the timer m99B8 runs out
+extern "C" void fn_804D87B0(PPManager2_unk* mgr) {
+    if (IsServer_unk() == 1) {
+        mgr->m9A74[0] = 1;
+    } else if (mgr->m99B8 <= 0) {
+        fn_804FB470(mgr, 0x9E, 9);
+    }
+}
+
+// inferred: the server starts the timer m99B8; a client sends the message 0x1042 to the server
+extern "C" void fn_804D97F0(PPManager2_unk* mgr) {
+    if (IsServer_unk() == 1) {
+        mgr->m99B8 = 300;
+    } else {
+        fn_804AE3BC()->fn_8050E094(lbl_8087F628->GetServerAid_unk(), 0x1042, 0, 1);
+        fn_804AE3BC()->fn_8050DDDC(lbl_8087F628->GetServerAid_unk(), 1);
+    }
+}
+
 // inferred: sets the room of the next game and the count down
 extern "C" int fn_804D9BF4(PPManager2_unk* mgr, int a, int b, int c) {
     mgr->m348 = a;
@@ -2882,6 +2922,32 @@ extern "C" void fn_804DC358(PPManager2_unk* mgr) {
         mode = 1;
     }
     fn_804DC450(mgr, mode);
+}
+
+extern "C" int DWC_GetOwnStatusString(char* status);
+// inferred: room status written in the first field of the status string (by fn_804DC450)
+const char* lbl_80791190[] = {"0", "1", "2", "3", "4", "5"};
+// inferred: the status string says room status 1 or 5 (as `mode`); it is written again when it does not
+extern "C" int fn_804DC374(PPManager2_unk* mgr, int mode) {
+    if (lbl_8087F628->m90 == 0) {
+        return 0;
+    }
+    char* fields[6];
+    char text[0x100];
+    DWC_GetOwnStatusString(text);
+    if (fn_804DBE24(mgr, text, fields) == 0) {
+        return 0;
+    }
+    if (mode == 1) {
+        if (strcmp(fields[0], lbl_80791190[1]) != 0) {
+            fn_804DC450(mgr, 1);
+        }
+    } else if (mode == 5) {
+        if (strcmp(fields[0], lbl_80791190[5]) != 0) {
+            fn_804DC450(mgr, 5);
+        }
+    }
+    return 1;
 }
 
 extern "C" int fn_804DBEC8(PPManager2_unk* mgr, const char* text, char* buf, char** fields, int arg);
