@@ -336,6 +336,61 @@ void ItemSlotAnime::fn_8044E88C() {
     }
 }
 
+// inferred: the item was taken
+// NONMATCHING: 98.83% - registers of the inlined Alloc_unk loop
+void ItemSlotAnime::fn_8044F14C() {
+    mState = 6;
+    if (m00 == 0) {
+        m00 = lbl_8087F4F8->Alloc_unk();
+    }
+    if (mFlag31) {
+        if (m00->m00->m50 < 20.0f) {
+            m00->m00->m50 = 20.0f;
+            m00->m00->m54 = 1.0f;
+        }
+    }
+    atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
+    for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
+        if (*it != 0) {
+            (*it)->m50 = 10.0f;
+        }
+    }
+    atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
+    for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
+        if (*it != 0) {
+            (*it)->m54 = 1.0f;
+        }
+    }
+    fn_80450590();
+    fn_8044F96C();
+}
+
+// inferred: the item could not be taken
+// NONMATCHING: 98.75% - registers of the inlined Alloc_unk loop
+void ItemSlotAnime::fn_8044F2D4() {
+    if (mFlag31) {
+        mState = 7;
+        mF0 = 1;
+        if (m00 == 0) {
+            m00 = lbl_8087F4F8->Alloc_unk();
+        }
+        atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops = m00->m30;
+        for (ItemSlotTask_unk** it = pops.begin(); it != pops.end(); it++) {
+            if (*it != 0) {
+                (*it)->m50 = 0.0f;
+            }
+        }
+        atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops2 = m00->m30;
+        for (ItemSlotTask_unk** it = pops2.begin(); it != pops2.end(); it++) {
+            if (*it != 0) {
+                (*it)->m54 = 1.0f;
+            }
+        }
+        fn_80450590();
+        fn_8044F96C();
+    }
+}
+
 int ItemSlotAnime::fn_80450A5C() {
     return m20 != 0 ? m20->mId : 0;
 }
