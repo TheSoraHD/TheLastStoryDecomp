@@ -988,7 +988,7 @@ extern "C" void fn_804E49A4(PPManager2_unk* mgr);
 extern "C" void fn_804E5BC4(PPManager2_unk* mgr);
 extern "C" void fn_804D1F6C(PPPlayer_unk* player);
 extern "C" void fn_804FA948(PPManager2_unk* mgr, int value, unsigned int flush);
-extern "C" void fn_804FAB40(PPManager2_unk* mgr, int a, PPPlayer_unk* player, int b, int c);
+extern "C" int fn_804FAB40(PPManager2_unk* mgr, int value, PPPlayer_unk* player, int* seq, unsigned int flush);
 extern "C" void fn_804EA608(PPManager2_unk* mgr, int a, int b);
 extern "C" int fn_804EAFD0(PPManager2_unk* mgr);
 extern "C" int fn_804EAA50(PPManager2_unk* mgr);
@@ -4186,6 +4186,46 @@ extern "C" void fn_804F3170() {
     memcpy(((PPManager2_unk*)lbl_8087F610)->m998C, data + 8, 8);
 }
 
+// inferred: queue of 32 requests at 0x48 (0x18 bytes each); names invented
+struct PPRequest_unk {
+    int mUsed;
+    int m04;
+    int m08;
+    unsigned int m0C[2]; // inferred: OSGetTime when the request was sent (long long, 4-byte aligned)
+    unsigned char m14;
+    unsigned char m15;
+    unsigned char m16[0x18 - 0x16];
+};
+struct PPRequests_unk {
+    unsigned char m00[0x48];
+    PPRequest_unk mRequests[32];
+};
+// inferred: request of id `id` (m15)
+static inline PPRequest_unk* FindRequest_unk(PPRequests_unk* queue, unsigned int id) {
+    for (int i = 0; i < 32; i++) {
+        if (queue->mRequests[i].mUsed != 0 && id == queue->mRequests[i].m15) {
+            return &queue->mRequests[i];
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 99.57% - the work buffer and the queue swap r6/r7
+// inferred: message 0x29: answer of a request of this machine (its 8 bytes are kept in the request)
+extern "C" void fn_804F3258() {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    PPRequests_unk* queue = (PPRequests_unk*)lbl_8087F610;
+    PPRequest_unk* req = FindRequest_unk(queue, data[0]);
+    if (req != 0) {
+        req->m04 = 1;
+        req->m08 = 300;
+        memcpy(req->m0C, data + 1, 8);
+    }
+}
+
 extern "C" void fn_804F36F4(PPPlayer_unk* player, unsigned int aid) {}
 
 // inferred: message 0x2D (on the server, unless m999C): value of the slot (mB0 and mD8)
@@ -4402,20 +4442,6 @@ extern "C" void fn_804F50C4(unsigned int aid) {
     }
 }
 
-// inferred: queue of 32 requests at 0x48 (0x18 bytes each); names invented
-struct PPRequest_unk {
-    int mUsed;
-    int m04;
-    int m08;
-    unsigned int m0C[2]; // inferred: OSGetTime when the request was sent (long long, 4-byte aligned)
-    unsigned char m14;
-    unsigned char m15;
-    unsigned char m16[0x18 - 0x16];
-};
-struct PPRequests_unk {
-    unsigned char m00[0x48];
-    PPRequest_unk mRequests[32];
-};
 // inferred: free request of the queue
 static inline PPRequest_unk* FindFreeRequest_unk(PPRequests_unk* queue) {
     for (int i = 0; i < 32; i++) {
@@ -4443,15 +4469,6 @@ extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsign
 }
 
 // inferred: ages the requests: after the timer a new request waits 150 more frames, an old one is freed
-// inferred: request of id `id` (m15)
-static inline PPRequest_unk* FindRequest_unk(PPRequests_unk* queue, unsigned int id) {
-    for (int i = 0; i < 32; i++) {
-        if (queue->mRequests[i].mUsed != 0 && id == queue->mRequests[i].m15) {
-            return &queue->mRequests[i];
-        }
-    }
-    return 0;
-}
 
 extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id) {
     PPRequest_unk* req = FindRequest_unk(queue, id);
@@ -4558,6 +4575,33 @@ extern "C" void fn_804FAA7C(PPManager2_unk* mgr, unsigned int flush, PPPlayer_un
     if (flush == 1) {
         fn_804AE3BC()->fn_8050DDDC(-1, 1);
     }
+}
+
+// NONMATCHING: 99.58% - registers of the inlined request search of fn_804F5A98 (base/index/pointer)
+// inferred: payload of the message 0x1036 (sequence number of the slot and a value); names invented
+struct PPMsgSeq_unk {
+    unsigned char mSeq;
+    unsigned char mValue;
+};
+// inferred: sends `value` to the server with the next sequence number of the slot; with `seq` the request is
+// queued (answer expected) and its number returned there
+extern "C" __declspec(noinline) int fn_804FAB40(PPManager2_unk* mgr, int value, PPPlayer_unk* player, int* seq, unsigned int flush) {
+    NetMsgI_unk<PPMsgSeq_unk> msg(0x1036);
+    PPMsgSeq_unk* data = &msg.mData;
+    unsigned char next = player->m0D52++;
+    data->mSeq = next;
+    data->mValue = value;
+    if (seq != 0) {
+        if (fn_804F5A98((PPRequests_unk*)fn_800F7F90(), lbl_8087F628->GetServerAid_unk(), 150, data->mSeq) == 0) {
+            return 0;
+        }
+        *seq = data->mSeq;
+    }
+    fn_804AE3BC()->fn_8050E094(lbl_8087F628->GetServerAid_unk(), 0x1036, data, 1);
+    if (flush == 1) {
+        fn_804AE3BC()->fn_8050DDDC(lbl_8087F628->GetServerAid_unk(), 1);
+    }
+    return 1;
 }
 
 // inferred: flag m976C once the network manager reached state 8
