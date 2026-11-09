@@ -367,13 +367,38 @@ struct PPPlayerState_unk {
 };
 
 // inferred: block of a player slot (0x314 bytes, four of them from 0xE8; -1 at 0x00 when unused); names invented
-struct PPEquip_unk {
-    int m00;
+struct PPEquipBits_unk {
     unsigned short mOn : 1;   // inferred: tested by the state 19 of vf10
     unsigned short m04_14 : 1;
     unsigned short mLevel : 8;
     unsigned short m04_0 : 6;
-    unsigned char m006[0x314 - 0x6];
+};
+// inferred: 8-byte entry of an equipment (copied as a block by fn_804F1950); names invented
+struct PPEquipItem_unk {
+    unsigned int m[2];
+};
+// inferred: the part of an equipment sent by message 0x1C (fn_804F1950); names invented
+struct PPEquipHead_unk {
+    int m00;
+    PPEquipBits_unk m04;
+    int m08;
+    PPEquipItem_unk mItems[8];
+};
+struct PPEquip_unk {
+    int m00;
+    PPEquipBits_unk m04;
+    int m08;
+    PPEquipItem_unk mItems[8];
+    unsigned char m04C[0x314 - 0x4C];
+    // inferred: copies the part sent by message 0x1C
+    void Set_unk(const PPEquipHead_unk& head) {
+        m00 = head.m00;
+        m04 = head.m04;
+        m08 = head.m08;
+        for (int i = 0; i < 8; i++) {
+            mItems[i] = head.mItems[i];
+        }
+    }
 };
 
 // inferred: flags of a player slot (MSB first); names invented
@@ -2078,7 +2103,7 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
                 PPPlayer_unk* player = fn_804D5F48(&mgr->mPlayers, i);
                 if (player->mFlags.mActive == 1) {
                     fn_804EAA84(mgr, player->mRef.mChara, 1, 0);
-                    if (player->mEquips[0].mOn) {
+                    if (player->mEquips[0].m04.mOn) {
                         if (fn_804D63D0(mgr) != 2 && fn_804D63D8(player->mRef.mChara) != 0) {
                             for (int j = 0; j < 4; j++) {
                                 if (fn_804D63D8(player->mRef.mChara)->mD8[j] > 0) {
@@ -2095,7 +2120,7 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
                                 }
                             }
                         }
-                        fn_804D6400(player->mRef.mChara->GetStatus_unk(), player->mEquips[0].mLevel);
+                        fn_804D6400(player->mRef.mChara->GetStatus_unk(), player->mEquips[0].m04.mLevel);
                     }
                 }
             }
@@ -4052,6 +4077,33 @@ extern "C" void fn_804F1498(PPPlayer_unk* player) {
     }
     unsigned int* data = (unsigned int*)fn_804AE3BC()->GetWorkBuffer_unk();
     player->mFlags.m22 = data[0];
+}
+
+// inferred: payload of the message 0x1C (one equipment of the player: index and its data); names invented
+struct PPMsgEquip_unk {
+    int mKind;
+    PPEquipHead_unk mHead;
+};
+// inferred: message 0x1C: one of the 4 equipments of the player
+extern "C" void fn_804F1950(PPPlayer_unk* player) {
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    PPMsgEquip_unk* data = (PPMsgEquip_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    switch (data->mKind) {
+    case 0:
+        player->mEquips[0].Set_unk(data->mHead);
+        break;
+    case 1:
+        player->mEquips[1].Set_unk(data->mHead);
+        break;
+    case 2:
+        player->mEquips[2].Set_unk(data->mHead);
+        break;
+    case 3:
+        player->mEquips[3].Set_unk(data->mHead);
+        break;
+    }
 }
 
 // inferred: message 0x15: a value of the player slot
