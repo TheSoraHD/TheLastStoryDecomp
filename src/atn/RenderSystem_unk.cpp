@@ -302,9 +302,9 @@ atn::RenderManager::RenderManager()
       m8E0(boost::function<void(void*)>(), 0), m8F8(boost::function<void(void*)>(), 0), mResolveCount(0), m54960(0),
       m54964(0) {
     // inferred: initialize render cameras, callbacks, the default scene, and its render layers.
-    // DRAFT: render-state validation and additional menu fields
-    // NONMATCHING: render-state validation and additional menu fields remain incomplete;
-    // "3D Outline" and "3D Object" store the Layer3D vtable once more in the original (class unknown).
+    // NONMATCHING: 89.6%, equivalent - the default DrawCmd_unk of mCmds (the original builds its color and
+    // callback as temporaries and tests m08 for the sort key, as fn_800BC438), the light is copied before
+    // the push_back (Scene::AddLight_unk; inlining it here exceeds the inline budget) and registers.
     unsigned char* self = (unsigned char*)this;
     mKeys.mSize = 0;
     mCmds.mSize = 0;
@@ -316,56 +316,59 @@ atn::RenderManager::RenderManager()
     lbl_8087EFB8 = scene;
     *(void**)(self + 0x2FC) = scene;
     Light_unk light;
-    atn::Vector3 direction((-2.0f), (-3.0f), 4.0f);
-    atn::Vector3 normalizedDirection;
-    PSVECNormalize(&direction, &normalizedDirection);
-    LightColor_unk color(1.0f, 1.0f, 1.0f, 1.0f);
-    light.fn_800790D0(normalizedDirection, color);
-    scene->mLights.push_back(light);
+    atn::Vector3 direction = atn::Vector3(-2.0f, -3.0f, 4.0f);
+    direction.Normalize_unk();
+    light.fn_800790D0(direction, LightColor_unk(1.0f, 1.0f, 1.0f, 1.0f));
+    mScene->mLights.push_back(light);
 
-    void* sceneMenu = *(void**)((unsigned char*)lbl_8087EFA8 + 0x4C);
-    void* menuGroup = fn_8008937C(sceneMenu, "Reflection");
-    scene->fn_800C2E30(menuGroup);
+    void* menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Reflection");
+    mScene->fn_800C2E30(menuGroup);
 
-    menuGroup = fn_8008937C(sceneMenu, "Fog");
-    fn_800874C8(menuGroup, "Fog Mode", &scene->mFog.mMode, 0, 6, 1,
+    menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Fog");
+    fn_800874C8(menuGroup, "Fog Mode", &mScene->mFog.mMode, 0, 6, 1,
                 0, 0);
-    fn_8008771C(menuGroup, "Fog Start", &scene->mFog.mStart, 0, 0,
+    fn_8008771C(menuGroup, "Fog Start", &mScene->mFog.mStart, 0, 0,
                 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog End", &scene->mFog.mEnd, 0, 0,
+    fn_8008771C(menuGroup, "Fog End", &mScene->mFog.mEnd, 0, 0,
                 0.0f, 10000.0f, 1.0f);
-    fn_8008771C(menuGroup, "Fog R", &scene->mFog.mColor.r, 0, 0,
+    fn_8008771C(menuGroup, "Fog R", &mScene->mFog.mColor.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog G", &scene->mFog.mColor.g, 0, 0,
+    fn_8008771C(menuGroup, "Fog G", &mScene->mFog.mColor.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Fog B", &scene->mFog.mColor.b, 0, 0,
+    fn_8008771C(menuGroup, "Fog B", &mScene->mFog.mColor.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
 
-    menuGroup = fn_8008937C(sceneMenu, "KeyLight");
-    scene->GetLight(0)->fn_80079BC8(menuGroup);
-    menuGroup = fn_8008937C(sceneMenu, "Ambient");
-    fn_8008771C(menuGroup, "Ambient R", &scene->mAmbient.r, 0, 0,
+    menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "KeyLight");
+    mScene->GetLight(0)->fn_80079BC8(menuGroup);
+    menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Ambient");
+    fn_8008771C(menuGroup, "Ambient R", &mScene->mAmbient.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient G", &scene->mAmbient.g, 0, 0,
+    fn_8008771C(menuGroup, "Ambient G", &mScene->mAmbient.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "Ambient B", &scene->mAmbient.b, 0, 0,
+    fn_8008771C(menuGroup, "Ambient B", &mScene->mAmbient.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS R", &scene->mLS.r, 0, 0,
+    fn_8008771C(menuGroup, "LS R", &mScene->mLS.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS G", &scene->mLS.g, 0, 0,
+    fn_8008771C(menuGroup, "LS G", &mScene->mLS.g, 0, 0,
                 0.0f, 1.0f, 0.01f);
-    fn_8008771C(menuGroup, "LS B", &scene->mLS.b, 0, 0,
+    fn_8008771C(menuGroup, "LS B", &mScene->mLS.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
 
     // The layer pointer table occupies the first 20 words of RenderSystem.
     atn::IRenderLayer** layers = (atn::IRenderLayer**)self;
-    layers[0] = new ((MemoryTag)6, "", "", 0) atn::LayerOcclusionCPU();
-    layers[1] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Composite");
     layers[2] = new ((MemoryTag)6, "", "", 0) atn::LayerPrerender();
     layers[3] = new ((MemoryTag)6, "", "", 0) atn::LayerShadow();
+    layers[0] = new ((MemoryTag)6, "", "", 0) atn::LayerOcclusionCPU();
     layers[4] = new ((MemoryTag)6, "", "", 0) atn::LayerReflect();
     layers[5] = 0;
-    layers[10] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Outline");
+    layers[1] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Composite");
+    // inferred: m14 is 0 in the original for "3D Outline" and Layer2D3D (stored by their inlined
+    // constructors; a fourth constructor argument in atn/Layer3D.h renumbers the @N labels of its users)
+    atn::Layer3D* outline = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Outline", -1, 1);
+    if (outline != 0) {
+        outline->m14 = 0;
+    }
+    layers[10] = outline;
     layers[6] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Object", 9, -1);
     layers[7] = new ((MemoryTag)6, "", "", 0) atn::LayerZPrePass();
     layers[8] = new ((MemoryTag)6, "", "", 0) atn::Layer3D("3D Alpha");
