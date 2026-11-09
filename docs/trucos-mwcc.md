@@ -572,3 +572,4 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Clamp a byte con macros MIN/MAX dentro de una funcion inline (`ToByte_unk(float v)`): el parametro guarda el valor y la macro recalcula `255 * v` en la rama (ReplayBuffer fn_8056BAA4); como macro suelta se recarga el campo. (`s12h-20261109`)
 - Bucle `while` con `continue` sin avanzar el iterador (bug del original: bucle infinito si se cumple) reproduce el `blt` a la condicion (ReplayBuffer::fn_8057080C). (`s12h-20261109`)
 - Un borrador pequeno de una funcion que el original llama con `bl` se inlinea en los llamadores: `__declspec(noinline)` (fn_8056A9E4, fn_8056D60C). (`s12h-20261109`)
+- poolcheck tambien compara los nombres de tipo del RTTI: el de un `boost::bind_t` da el orden real de los argumentos de la funcion enlazada (ReplayBuffer, el angulo va primero). (`s12h-20261109`)
