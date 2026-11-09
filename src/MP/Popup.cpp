@@ -193,11 +193,6 @@ void Popup::vf10() {
             (*it)->mFlags |= 4;
         }
     }
-    float add, b, gr, r;
-    add = 30.0f;
-    r = 20.0f;
-    gr = 100.0f;
-    b = 200.0f;
     for (int i = 0; i < 4; i++) {
         PopupSlot_unk* p = &m5C[i];
         if (p->mTarget == 0 || p->mTarget->vf60() == 0) {
@@ -206,6 +201,11 @@ void Popup::vf10() {
         PopupTask_unk* task = (PopupTask_unk*)m48.mData[(unsigned int)i];
         atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(((PopupItem_unk*)p->mTarget)->mPos);
         if (0.0f <= screen.z && screen.z <= 1.0f && p->mDist < 3600.0f && p->mDot >= 0.5f) {
+        float add, b, gr, r;
+        add = 30.0f;
+        r = 20.0f;
+        gr = 100.0f;
+        b = 200.0f;
         SetPaneValue_unk(task->mLayout, "pos0001(1)", 0, screen.x);
         SetPaneValue_unk(task->mLayout, "pos0001(1)", 1, screen.y);
         chr::CharaPartData_unk* own = chara->mParts.mCount != 0 ? chara->mParts[0]->m274 : 0;
