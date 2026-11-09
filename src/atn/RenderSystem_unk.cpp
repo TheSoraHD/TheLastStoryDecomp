@@ -967,10 +967,7 @@ atn::Vector3 atn::RenderManager::GetScreenPosition(const atn::Vector3& pos) cons
 
 void atn::RenderManager::fn_800BFB70() {
     // inferred: full screen quad in white
-    atn::Color color(1.0f, 1.0f, 1.0f, 1.0f);
-    unsigned int width = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x3C);
-    unsigned int height = *(unsigned int*)((unsigned char*)lbl_8087EEE0 + 0x40);
-    fn_800BFCB4(color, color, color, color, width, height, 0.0f, 0.0f);
+    fn_800BFC18(atn::Color(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.0f);
 }
 
 void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
