@@ -31,6 +31,44 @@ MapPartsGimmickLoc::MapPartsGimmickLoc(atn::Task* parent, int type, atn::CsvTab&
     vf28(&csv);
 }
 
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+
+// inferred: options of the part from the csv: POSITION x y z (a colour), HIDE_BIRDVIEW (hidden from the bird
+// view) and HIDE_BIRDVIEW_Y y (hidden below y)
+void MapPartsGimmickLoc::vf28(atn::CsvTab* csv) {
+    const char* key = csv->fn_8005B9CC();
+    do {
+        if (strcmp(key, "") != 0) {
+            if (strcmp(key, "POSITION") == 0) {
+                m124[0] = fn_800DC288(csv->fn_8005B9CC());
+                m124[1] = fn_800DC288(csv->fn_8005B9CC());
+                m124[2] = fn_800DC288(csv->fn_8005B9CC());
+            } else if (strcmp(key, "HIDE_BIRDVIEW") == 0) {
+                m121 = 1;
+                m124[3] = 1e16f;
+            } else if (strcmp(key, "HIDE_BIRDVIEW_Y") == 0) {
+                m121 = 1;
+                m124[3] = fn_800DC288(csv->fn_8005B9CC());
+            } else {
+                break;
+            }
+        }
+        key = csv->fn_8005B9CC();
+    } while (key != 0 && strcmp("", key) != 0);
+}
+
+extern "C" void fn_804006E0(MapPartsGimmickLocScene_unk* obj); // inferred: draws an object (gmk/SwingObject.cpp)
+
+// inferred: draws the objects of m6C while shown
+void MapPartsGimmickLoc::vf14() {
+    if (m120 != 0) {
+        for (unsigned int i = 0; i < m68; i++) {
+            fn_804006E0(m6C[i]);
+        }
+    }
+}
+
 void* MapPartsGimmickLoc::fn_80498E7C(int index) {
     unsigned char* bytes = reinterpret_cast<unsigned char*>(this);
     if (*reinterpret_cast<unsigned int*>(bytes) == 0x6C6F6373) {
@@ -167,4 +205,13 @@ void MapPartsGimmickLoc::fn_80499D60(MapPartsArea* areas) {
             m6C[i]->m64 = atn::RenderManager::instance_->fn_800C16B4();
         }
     }
+}
+
+// inferred: hidden below the height m124[3] (as MapPartsLocatorSet::vf20)
+bool MapPartsGimmickLoc::vf20(const atn::Vector3& pos) {
+    bool hidden = false;
+    if (m121 && m124[3] > 10.0f + pos.y) {
+        hidden = true;
+    }
+    return hidden;
 }
