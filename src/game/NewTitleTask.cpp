@@ -265,7 +265,7 @@ int NewTitleTask::vf0C() {
             return 0;
         }
         mStep++;
-        mLoadTask = GameLoadTask::fn_803B27F8(this, GameLoadTask::Option("", 1));
+        mLoadTask = GameLoadTask::fn_803B27F8(this, GameLoadTask::Option("\0", 1));
         mLoadTask->mD64 = 0;
         Unk_803CE3B8* header = (Unk_803CE3B8*)mHeader;
         header->fn_803CE448();
@@ -1395,7 +1395,7 @@ void NewTitleTask::vf14() {
 }
 
 // inferred: reads the title_param csv (camera keys, map, BGM, layout, damage effect, gimmicks and map areas)
-// NONMATCHING: 99.4% - registers of the inlined vector push_back
+// NONMATCHING: 99.66% - registers of the inlined vector push_back (known std::vector family)
 void NewTitleTask::fn_80536CA8() {
     mGimmicks.clear();
     atn::Csv csv;
@@ -1439,7 +1439,8 @@ void NewTitleTask::fn_80536CA8() {
         } else if (strcmp(key, "OptLerpRate") == 0) {
             mLoad.mRate = fn_800DC288(csv.fn_8005B9CC());
         } else if (strcmp(key, "Map") == 0) {
-            sprintf(mMapPath, "data/map/%s", strtok((char*)csv.fn_8005B9CC(), "\n"));
+            const char* map = strtok((char*)csv.fn_8005B9CC(), "\n");
+            sprintf(mMapPath, "data/map/%s", map);
         } else if (strcmp(key, "BGM") == 0) {
             const char* bgm = csv.fn_8005B9CC();
             if (lbl_8087F0A8->m15C != 0) {
