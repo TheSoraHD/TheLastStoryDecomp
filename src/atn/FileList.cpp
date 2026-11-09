@@ -433,7 +433,7 @@ struct FileListDir_unk {
 // inferred: adds the files of `dir` whose name ends with `ext` ("*" or null: all) and its directories (type 1;
 // files are type 2); flags: 1 recurses into the directories, 0x10000 adds "dir/name" instead of the name. The
 // files of the mounted archives are added by the loader. Returns the number of names added.
-// NONMATCHING: 94.384% - registers; the pool of the file misses "basic_string: out_of_range" and "." before
+// NONMATCHING: 96.94% - registers; the pool of the file misses "basic_string: out_of_range" and "." before
 // "/" (functions of the file not written yet)
 int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
     int count = 0;
@@ -482,16 +482,16 @@ int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
                         fn_8006BD78(this, name);
                     }
                     count++;
-                    mEntries.begin()[m04 - 1].m00 = 1;
+                    mEntries[m04 - 1].m00 = 1;
                     if (recurse != 0) {
                         *tail = new ((MemoryTag)1, "", "", 0) FileListDir_unk;
                         if (*tail == 0) {
                             break;
                         }
                         FileListDir_unk* d = *tail;
-                        tail = &d->mNext;
                         d->mNext = 0;
                         memcpy(&d->mEntry, &ent, sizeof(ent));
+                        tail = &d->mNext;
                     }
                     continue;
                 }
@@ -506,7 +506,7 @@ int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
                     fn_8006BD78(this, name);
                 }
                 count++;
-                mEntries.begin()[m04 - 1].m00 = 2;
+                mEntries[m04 - 1].m00 = 2;
             }
         }
     }
