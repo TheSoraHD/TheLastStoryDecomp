@@ -38,7 +38,9 @@ extern "C" float lbl_8087D908;
 extern "C" float lbl_8087D90C;
 extern "C" unsigned char lbl_8087D81C[];
 extern "C" atn::Scene* lbl_8087EFB8; // inferred: default scene
-extern "C" void* lbl_8087EFA8;
+#include "atn/RenderSetting_unk.h"
+
+extern "C" RenderSetting_unk* lbl_8087EFA8; // render settings
 extern "C" void* lbl_8087EF8C;
 
 extern "C" void GXSetTexCopySrc(unsigned short left, unsigned short top, unsigned short width,
@@ -220,16 +222,16 @@ extern "C" void fn_800BC798() {
     fn_800B95C4();
     unsigned char progressiveMode = (unsigned char)SCGetProgressiveMode();
     if (progressiveMode == 1 && VIGetDTVStatus() == 1) {
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B0) = 6;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B4) = 8;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3B8) = 10;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3BC) = 16;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3C0) = 10;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3C4) = 8;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3C8) = 6;
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3AC) = 0;
+        lbl_8087EFA8->m3B0[0] = 6;
+        lbl_8087EFA8->m3B0[1] = 8;
+        lbl_8087EFA8->m3B0[2] = 10;
+        lbl_8087EFA8->m3B0[3] = 16;
+        lbl_8087EFA8->m3B0[4] = 10;
+        lbl_8087EFA8->m3B0[5] = 8;
+        lbl_8087EFA8->m3B0[6] = 6;
+        lbl_8087EFA8->m3AC = 0;
     } else {
-        *(int*)((unsigned char*)lbl_8087EFA8 + 0x3AC) = 1;
+        lbl_8087EFA8->m3AC = 1;
     }
 
     if (atn::RenderManager::instance_ == 0) {
@@ -287,10 +289,10 @@ atn::RenderManager::RenderManager()
     light.fn_800790D0(direction, LightColor_unk(1.0f, 1.0f, 1.0f, 1.0f));
     mScene->mLights.push_back(light);
 
-    void* menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Reflection");
+    void* menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Reflection");
     mScene->fn_800C2E30(menuGroup);
 
-    menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Fog");
+    menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Fog");
     fn_800874C8(menuGroup, "Fog Mode", &mScene->mFog.mMode, 0, 6, 1,
                 0, 0);
     fn_8008771C(menuGroup, "Fog Start", &mScene->mFog.mStart, 0, 0,
@@ -304,9 +306,9 @@ atn::RenderManager::RenderManager()
     fn_8008771C(menuGroup, "Fog B", &mScene->mFog.mColor.b, 0, 0,
                 0.0f, 1.0f, 0.01f);
 
-    menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "KeyLight");
+    menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "KeyLight");
     mScene->GetLight(0)->fn_80079BC8(menuGroup);
-    menuGroup = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Ambient");
+    menuGroup = fn_8008937C(lbl_8087EFA8->m04C, "Ambient");
     fn_8008771C(menuGroup, "Ambient R", &mScene->mAmbient.r, 0, 0,
                 0.0f, 1.0f, 0.01f);
     fn_8008771C(menuGroup, "Ambient G", &mScene->mAmbient.g, 0, 0,
@@ -353,7 +355,7 @@ atn::RenderManager::RenderManager()
     layers[17] = new ((MemoryTag)6, "", "", 0) atn::LayerPostFx();
     layers[19] = new ((MemoryTag)6, "", "", 0) atn::Layer2D("Debug");
 
-    void* layerMenu = fn_8008937C(*(void**)((unsigned char*)lbl_8087EFA8 + 0x4C), "Layers");
+    void* layerMenu = fn_8008937C(lbl_8087EFA8->m04C, "Layers");
     for (int i = 0; i < 20; ++i) {
         if (layers[i] != 0) {
             layers[i]->vf0C(layerMenu);
@@ -383,7 +385,7 @@ void atn::RenderManager::fn_800BD9C0(int queueCapacity, const std::string& name)
     m74C.fn_800D5B58(width, height, 6, 1, "FrameBuffer");
     GXInitTexObjLOD(&m74C.mObj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
     fn_800BC468(&m530);
-    fn_800BC618(&m50C, *(int*)((unsigned char*)lbl_8087EFA8 + 0x154));
+    fn_800BC618(&m50C, lbl_8087EFA8->m154);
     GXInitTexObj(&m77C, m79C, (unsigned short)width, (unsigned short)height, 3, 0, 0, 0);
     GXInitTexObjLOD(&m77C, 0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 }
@@ -470,7 +472,7 @@ void atn::RenderManager::fn_800BDBC8() {
         }
     }
 
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x1C) != 0 && device->mWide != 0) {
+    if (lbl_8087EFA8->m01C != 0 && device->mWide != 0) {
         float half = 0.5f;
         float extent = 640.0f - 514.2857f;
         float left = 640.0f - half * extent;
@@ -481,7 +483,7 @@ void atn::RenderManager::fn_800BDBC8() {
         lbl_8087EEB0->mA0 = 0x12;
     }
 
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x18) != 0) {
+    if (lbl_8087EFA8->m018 != 0) {
         float left = 640.0f * 0.07800001f;
         float top = 448.0f * 0.095999986f;
         float right = 640.0f * (1.0f - 0.07800001f);
@@ -504,27 +506,25 @@ void atn::RenderManager::fn_800BDBC8() {
     }
 
     *(int*)((unsigned char*)lbl_8087EF8C + 0x54) = 0;
-    unsigned char* config = (unsigned char*)lbl_8087EFA8;
-    unsigned int red = ColorChannel_unk(*(float*)(config + 0x3C));
-    unsigned int green = ColorChannel_unk(*(float*)(config + 0x40));
-    unsigned int blue = ColorChannel_unk(*(float*)(config + 0x44));
-    unsigned int alpha = ColorChannel_unk(*(float*)(config + 0x48));
+    unsigned int red = ColorChannel_unk(lbl_8087EFA8->m03C.r);
+    unsigned int green = ColorChannel_unk(lbl_8087EFA8->m03C.g);
+    unsigned int blue = ColorChannel_unk(lbl_8087EFA8->m03C.b);
+    unsigned int alpha = ColorChannel_unk(lbl_8087EFA8->m03C.a);
     device->mClearColor = (alpha << 24) | (red << 16) | (green << 8) | blue;
     fn_8007192C(device);
 
-    mScene = 0;
-    mScene = fn_800C16B4();
+    fn_800BDB40(0);
     if (m8B0.mFunc != 0) {
         m8B0.mFunc((void*)m8B0.mArg);
     }
     m0FC = Vector2_unk(0.0f, 0.0f);
     fn_80075DEC(lbl_8087EEE0);
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 4) != 0) {
+    if (lbl_8087EFA8->m004 != 0) {
         fn_8007A4CC__13LightList_unkFv(lbl_8087EEF8);
     }
 
     for (int pass = 0; pass < 20; ++pass) {
-        if (pass == 3 && *(int*)((unsigned char*)lbl_8087EFA8 + 0x104) == 0) {
+        if (pass == 3 && lbl_8087EFA8->m104.mEnabled == 0) {
             continue;
         }
         if (pass == 4 && m54960 == 0) {
@@ -569,7 +569,7 @@ void atn::RenderManager::fn_800BDBC8() {
     LCEnable();
     for (int pass = 0; pass < 20; ++pass) {
         m890 = 0;
-        if (pass == 3 && *(int*)((unsigned char*)lbl_8087EFA8 + 0x104) == 0) {
+        if (pass == 3 && lbl_8087EFA8->m104.mEnabled == 0) {
             continue;
         }
         if (pass == 4 && m54960 == 0) {
@@ -581,7 +581,7 @@ void atn::RenderManager::fn_800BDBC8() {
             mCmds.mSize = 0;
             mLayers[pass]->vf1C();
             ((LayerListCall)(*(void***)mLayers[pass])[5])(mLayers[pass], mPassHeads[pass]);
-            if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x39C) != 0 && mCmds.mSize != 0) {
+            if (lbl_8087EFA8->m39C != 0 && mCmds.mSize != 0) {
                 fn_800BECF0(mKeys.mData, mKeys.mSize);
             }
             for (unsigned int i = 0; i < mCmds.mSize; ++i) {
@@ -958,7 +958,7 @@ void atn::RenderManager::fn_800C0590(int clear, int format) {
 
 void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     // NONMATCHING: 94.60% - conversion spill placement and early GX argument setup still differ.
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x2C) != 0) {
+    if (lbl_8087EFA8->m02C != 0) {
         if (*(int*)((unsigned char*)this + 0x890) != 0) {
             *(int*)((unsigned char*)this + 0x890) = 0;
             unsigned int color = 0;
