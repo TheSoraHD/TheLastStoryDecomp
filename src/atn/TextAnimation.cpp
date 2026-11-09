@@ -34,6 +34,8 @@ struct TextAnimEntry_unk {
     float m3C;                          // 0x3C: characters per second
     int m40;                            // 0x40: nonzero: appended to the previous text of the slot
     float m44;                          // 0x44: fade in time
+    // inferred: weak copy 0x800DAD3C (called by fn_800DAB68 on the last text)
+    void ResetTime_unk() { m44 = 0.0f; }
 };
 
 // inferred: offset, rotation or scale of a character (12 bytes); the default is (0, 0, 1)
@@ -203,8 +205,8 @@ extern "C" void fn_800DAA3C(TextAnimation* self, int arg) {
     }
 }
 
-// NONMATCHING: 94.66% - borrador: el original usa constantes de .sdata para los push_back (lbl_8087D940/44)
-// y fn_800DAD3C para el ultimo elemento; registros.
+// NONMATCHING: 99.15% - el original usa constantes de .sdata para los push_back (lbl_8087D940/44);
+// registros.
 // inferred: adds a text
 extern "C" void fn_800DAB68(TextAnimation* self, TextAnimEntry_unk* text) {
     int restart = 0;
@@ -218,7 +220,7 @@ extern "C" void fn_800DAB68(TextAnimation* self, TextAnimEntry_unk* text) {
     }
     self->m84.push_back(restart);
     self->m48.push_back(*text);
-    self->m48[self->m48.size() - 1].m44 = 0.0f;
+    self->m48.back().ResetTime_unk();
     self->m54.push_back(0);
     std::vector<float> times;
     for (int i = 0; i < (int)text->mText.size(); i++) {
