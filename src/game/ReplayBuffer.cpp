@@ -12,6 +12,8 @@
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
 
 // inferred: rotation around y keeping the translation (inlined twice in fn_8056A84C; name invented)
 static inline void RotateY_unk(atn::Matrix3x4* mtx, float angle) {
@@ -55,5 +57,36 @@ ReplayRecorder_unk::ReplayRecorder_unk() {
 }
 
 ReplayRecorder_unk::~ReplayRecorder_unk() {}
+
+// inferred: a hidden or dead character is not recorded (name invented)
+static inline bool IsSkipped_unk(CharaTask* chara) {
+    bool ret = false;
+    if (chara->IsFlag_unk(4) || chara->IsFlag_unk(1)) {
+        ret = true;
+    }
+    return ret;
+}
+
+// NONMATCHING: 99.38% - r3/r4 swapped between the flag word and the result of IsSkipped_unk
+void ReplayRecorder_unk::fn_8056B3D4() {
+    atn::Matrix3x4 inv;
+    atn::Matrix3x4 trans;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    PSMTXTrans(trans.m, leader->mPos.x, leader->mPos.y, leader->mPos.z);
+    m464 = trans;
+    m460 = 0;
+    inv = m464;
+    PSMTXInverse(inv.m, inv.m);
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        if (!player->IsFlag_unk(4) && !(player->mType == 2 && IsSkipped_unk(player))) {
+            fn_8056B558(player, inv);
+        }
+    }
+    for (NpcTask* npc = NpcManager::sInstance->mHead; npc != 0; npc = npc->mNext) {
+        if (!npc->IsFlag_unk(4) && !(npc->mType == 2 && IsSkipped_unk(npc)) && npc->fn_8016E484()) {
+            fn_8056B558(npc, inv);
+        }
+    }
+}
 
 GameTaskData_unk::~GameTaskData_unk() {}
