@@ -163,6 +163,37 @@ void MapPartsGimmickLoc::SetAreaEffConfig() {
     }
 }
 
+// inferred: m = m * rot(axis, rad)
+static inline void RotateAxis_unk(atn::Matrix3x4& m, char axis, float rad) {
+    Mtx t;
+    Mtx r;
+    PSMTXRotRad(r, axis, rad);
+    PSMTXConcat(m.m, r, t);
+    __MtxCopy(m.m, t);
+}
+
+// NONMATCHING: 98.32% - stack slots and registers of the three inlined rotations (z, y, x)
+// inferred: moves and turns the records by the placement of the part
+void MapPartsGimmickLoc::fn_8049994C(const atn::Vector3& pos, const atn::Vector3& rot) {
+    for (unsigned int i = 0; i < m60; i++) {
+        m64[i].m2C += pos;
+        atn::Matrix3x4 m;
+        atn::Matrix3x4* p = &m;
+        p->SetIdentity();
+        if (0.0f != rot.z) {
+            RotateAxis_unk(*p, 'z', rot.z);
+        }
+        if (0.0f != rot.y) {
+            RotateAxis_unk(*p, 'y', rot.y);
+        }
+        if (0.0f != rot.x) {
+            RotateAxis_unk(*p, 'x', rot.x);
+        }
+        PSMTXMultVec(m.m, &m64[i].m2C, &m64[i].m2C);
+        m64[i].m38 += rot;
+    }
+}
+
 // inferred: picks once a random variant of each record
 void MapPartsGimmickLoc::fn_80499B9C() {
     if (m54 == 0) {

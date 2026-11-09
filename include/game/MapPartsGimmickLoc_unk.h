@@ -69,7 +69,8 @@ struct MapPartsGimmickLocRecord_unk {
     unsigned char m00[0x0C];
     char mName[0x20];         // 0x0C: inferred: material name of the effect colour (SetAreaEffConfig)
     atn::Vector3 m2C;         // 0x2C: inferred: position (the area is looked up around it)
-    unsigned char m38[0x78 - 0x38];
+    atn::Vector3 m38;         // 0x38: inferred: rotation
+    unsigned char m44[0x78 - 0x44];
     atn::Color mColor;        // 0x78: inferred: effect colour of the area
     unsigned char m88[0x90 - 0x88];
     int m90;                  // inferred: number of variants
