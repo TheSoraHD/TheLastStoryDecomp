@@ -149,7 +149,7 @@ NewTitleTask* fn_80531ED0(atn::Task* parent, int arg) {
     return 0;
 }
 
-// NONMATCHING: first version
+// NONMATCHING: 90.8% - order of the member stores and float registers of the camera key defaults
 NewTitleTask::NewTitleTask(atn::Task* parent, int index)
     : atn::Task(parent), mMenu(0), mCamera(0, 0), mMap(0), mIndex(index), mBgmStarted(0), mStep(0), mState(0),
       mPrevState(0), mCursorPos(0), m2BC(0), mNoSave(1), mFade(0),
@@ -226,7 +226,7 @@ inline void RenderSetting_unk::SetDamage_unk(DamageEffectParam_unk p) {
     m374 = p;
 }
 
-// NONMATCHING: first version
+// NONMATCHING: 99.3% - r5/r6/r7 of the motion blur and damage copies swapped
 NewTitleTask::~NewTitleTask() {
     if (mState != 25) {
         fn_800D2338(mFade);
@@ -257,7 +257,7 @@ NewTitleTask::~NewTitleTask() {
 
 // inferred: loading: the save header, the preload archive, the logos and the csv, then the maps, then the
 // render state of the map
-// NONMATCHING: first version
+// NONMATCHING: 61.4% - the assignment of the scene (inline Scene::operator=, weak copies of its members) and register allocation of the camera keys
 int NewTitleTask::vf0C() {
     fn_8046ECDC(lbl_8087F518, 0);
     if (mStep == 0) {
@@ -459,7 +459,6 @@ int NewTitleTask::vf0C() {
 
 // inferred: moves the cursor over `count` items with the pad (axis 0: up/down, 1: left/right); nonzero when
 // the cursor moved
-// NONMATCHING: first version
 int NewTitleTask::fn_80533A28(int count, int axis) {
     int move = 0;
     if (axis == 0) {
@@ -491,7 +490,7 @@ int NewTitleTask::fn_80533A28(int count, int axis) {
 }
 
 // inferred: sets the state (the camera key, the damage effect and the layouts of the state)
-// NONMATCHING: first version
+// NONMATCHING: 99.2% - stack slots of the effect position, rotation and colour, registers of the gimmick loop
 void NewTitleTask::fn_80533BDC(int state) {
     mPrevState = mState;
     mState = state;
@@ -632,7 +631,7 @@ inline int Trig_unk(int button) {
 }
 
 // inferred: update: the state machine of the title, the "Push A" layouts and the camera
-// NONMATCHING: first version
+// NONMATCHING: 79.0% - register allocation of the state machine and of the camera lerp; MenuLoadTask::fn_80117914 gets a third argument (mLoadBg) in the original
 void NewTitleTask::vf10() {
     GameConfig_unk* cfg = lbl_8087F0A8;
     mLogo->FreezeTask();
@@ -1308,7 +1307,7 @@ inline unsigned int ToU8_unk(float c) {
 }
 
 // inferred: draw: the damage effect, the area blend of the map, the panes of the layouts and the language menu
-// NONMATCHING: first version
+// NONMATCHING: 89.8% - register allocation and the inlined colour conversion
 void NewTitleTask::vf14() {
     atn::DrawHelper* dh = lbl_8087EEB0;
     if (dh == 0) {
@@ -1396,7 +1395,7 @@ void NewTitleTask::vf14() {
 }
 
 // inferred: reads the title_param csv (camera keys, map, BGM, layout, damage effect, gimmicks and map areas)
-// NONMATCHING: first version
+// NONMATCHING: 99.4% - registers of the inlined vector push_back
 void NewTitleTask::fn_80536CA8() {
     mGimmicks.clear();
     atn::Csv csv;
