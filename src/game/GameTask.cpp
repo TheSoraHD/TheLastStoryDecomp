@@ -4185,7 +4185,6 @@ void GameTask::fn_803737C0() {
     lbl_8087EFA8->m3A4 = m55C0;
 }
 
-extern "C" void fn_8056D8C8(ReplayBuffer* obj, int frame, int a, int b); // inferred: seeks the replay
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: fades the sound
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach);  // inferred: stops the sound
 extern "C" const char* fn_800EFE3C(int id); // inferred: sound name of a voice
@@ -4213,7 +4212,7 @@ void GameTask::fn_80373AE8() {
                 }
                 mFinish.m350 = mFinish.m354;
             } else {
-                fn_8056D8C8(m5590, m559C - m5598, 1, 0);
+                m5590->fn_8056D8C8(m559C - m5598, 1, 0);
                 for (int i = 0; i < 3; i++) {
                     lbl_8087F3C0->fn_8023A614(1);
                 }
@@ -4252,7 +4251,7 @@ void GameTask::fn_80373AE8() {
         if ((int)mFinish.m350 <= 0) {
             lbl_8087F3C0->fn_800D246C(0);
             m5598--;
-            fn_8056D8C8(m5590, m559C - m5598, 1, 1);
+            m5590->fn_8056D8C8(m559C - m5598, 1, 1);
             if (m5614 == m5598 && m55B4 != 0) {
                 const char* name = fn_800EFE3C(((ReplayHit_unk*)m55B4)->mB0);
                 if (name != 0) {

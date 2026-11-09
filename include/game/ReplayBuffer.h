@@ -67,6 +67,9 @@ public:
     void fn_805706C0(const ReplayEvent_unk* ev); // inferred: records an event (game/Bullet.cpp)
     void fn_8056FC24(int arg);
     void fn_805704AC(); // inferred: replays the effects and events since the frame m5BDAC
+    void fn_8056D8C8(int frame, int restore, int replay); // inferred: seeks the replay to the frame
+    void fn_8056DACC(int frame);
+    void fn_8056E918(int frame);
     int m00004; // inferred: current frame
     ReplayFrame_unk mFrames[45]; // 0x00008: inferred: ring of the recorded frames
     ReplayFrame_unk mLive;       // 0x43970: inferred: frame shown while m5BDB4 is set

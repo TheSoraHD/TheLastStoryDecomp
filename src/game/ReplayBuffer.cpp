@@ -115,6 +115,57 @@ void ReplayBuffer::fn_8056F2F8(int frames) {
 
 // NONMATCHING: 92.48% - copy order of the event (colour and vectors); offset of the message in the pool
 // ("reference" of fn_8056A9E4 missing)
+// NONMATCHING: 99.07% - registers of the loop pointers/counters (r24/r26 swapped)
+void ReplayBuffer::fn_8056D8C8(int frame, int restore, int replay) {
+    if (replay != 0) {
+        int f = m5BDAC + frame;
+        lbl_8087F3C0->mSystem.mReplaying = 1;
+        for (unsigned int i = 0; i < mEffects.mSize; i++) {
+            ReplayEffectEntry_unk* e = mEffects.mData[i];
+            if (e->mFrame == f) {
+                lbl_8087F3C0->fn_8023B724(&e->mEvent);
+            }
+        }
+        fn_80232B7C(0, 0);
+        atn::EffectManager::fn_8023B71C(lbl_8087F3C0, 0);
+        lbl_8087F3C0->mSystem.mReplaying = 0;
+        m5BDA4 = 1;
+        int g = m5BDAC + frame;
+        for (unsigned int i = 0; i < mNewEvents.size(); i++) {
+            ReplayEventEntry_unk* e = mNewEvents.mData[i];
+            if (e->mFrame == g) {
+                ReplayEvent_unk& ev = e->mEvent;
+                switch (ev.mKind) {
+                case 0:
+                    if (ev.mOwner != 0) {
+                        ev.mBullet->fn_8010EE78((BulletShot_unk*)&ev.mShot, &ev.mPos, &ev.mDir, ev.mOwner, -1, 0, -1.0f);
+                    } else if (ev.m3C != 0) {
+                        ev.mBullet->fn_8010EFC8((BulletShot_unk*)&ev.mShot, &ev.mPos, &ev.mDir, ev.m3C, -1, 0, -1.0f);
+                    }
+                    break;
+                case 1:
+                    ev.mBullet->vf0C(1, 0);
+                    break;
+                case 2:
+                    ev.mBullet->fn_8010F26C((BulletShot_unk*)&ev.mShot);
+                    break;
+                case 3:
+                    ev.mBullet->fn_8010F41C();
+                    break;
+                }
+            }
+        }
+        m5BDA4 = 0;
+        fn_8056E918(frame);
+    }
+    if (restore != 0) {
+        fn_8056DACC(frame);
+    }
+    if (replay != 0) {
+        lbl_8087F048->fn_80101138();
+    }
+}
+
 void ReplayBuffer::vf08(EffectEvent_unk* event) {
     if (m5BDB0 != 0) {
         return;
