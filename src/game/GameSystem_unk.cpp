@@ -117,9 +117,6 @@ inline void GameSystem_StartFade_unk(ResetShutdown* sys) {
 }
 
 // inferred: per-frame update
-// NONMATCHING: 99.9% - in the fade block the original loads mFade into r4 and the HOME button menu
-// into r3 (swapped here); tried a local for the fade or the menu, nested ifs, helpers for the menu state
-// (bool/int/accessor), `|= 2 | 0x20` and `mFlags = mFlags | 0x22`.
 void ResetShutdown::fn_80570CF8() {
     int out;
     if (mLock == 0) {
@@ -144,8 +141,10 @@ void ResetShutdown::fn_80570CF8() {
         return;
     }
     if (mNoFade != 0 || mFade != 0) {
-        if (mFade != 0 && HomeButtonMenu::sInstance != 0 && HomeButtonMenu::sInstance->m84 == 1) {
-            mFade->mFlags |= 0x22;
+        HomeButtonMenu* menu;
+        atn::FadeColor* fade;
+        if ((fade = mFade) != 0 && (menu = HomeButtonMenu::sInstance) != 0 && menu->m84 == 1) {
+            fade->mFlags |= 0x22;
             mFade->Update();
         }
         if (mNoFade == 0) {
