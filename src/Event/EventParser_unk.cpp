@@ -517,10 +517,17 @@ static int ParseCURV_unk(unsigned int tag, int size, const char* data, ParserSta
     return sizeof(id);
 }
 
-// DRAFT: stub
-// NONMATCHING: stub - points of the curve
+// inferred: adds a point (x, y) to the current curve and rebuilds its lengths
+// NONMATCHING: 67% - the original inlines Clear_unk and the resize of the points (only the resize
+// of the lengths, fn_8032BE88, is a call); here EffectLists_unk::Set_unk keeps them out of line
 static int ParseCVPT_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    float rec[2];
+    memcpy(rec, data, sizeof(rec));
+    EffectLists_unk* curve = sState_unk->m58;
+    curve->mPoints.push_back(atn::Vector3(rec[0], rec[1], 0.0f));
+    std::vector<atn::Vector3> points(curve->mPoints);
+    curve->Set_unk(points);
+    return sizeof(rec);
 }
 
 // inferred: record of a cut (0x14 bytes)
