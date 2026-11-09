@@ -90,15 +90,24 @@ Task::Task(Task* parent) : TaskBase(0) {
     fn_800D1D94(parent);
 }
 
-// NONMATCHING: 95.00% - el recorrido hasta el ultimo hijo: el original compara *link en r0 y lo recarga
-// (lwz/lwzu); probado: while, for, do-while y un accesor inline del enlace.
 void Task::fn_800D1D94(Task* parent) {
     m18 = 0;
     m1C = 0;
     mFlags = 0;
     if (parent != 0) {
         TASK_ASSERT_VALID(parent);
-        parent->AddChild_unk(this);
+        // inferred: AddChild_unk with the first child tested before the loop (lwz of m18, then
+        // lwz/lwzu per link)
+        if (this != 0) {
+            m20 = parent;
+            Task** link = &parent->m18;
+            if (*link != 0) {
+                do {
+                    link = (*link)->GetNextLink_unk();
+                } while (*link != 0);
+            }
+            *link = this;
+        }
         Task* root = parent->m24;
         m24 = root;
         if (root != parent) {
