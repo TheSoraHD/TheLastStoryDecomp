@@ -25,6 +25,9 @@
 #include "game/GameTask.h"
 #include "atn/SequenceBoot_unk.h"
 #include "atn/WPad_unk.h"
+#include "atn/GraphicsDevice.h"
+#include "atn/DrawHelper.h"
+#include "atn/Csv.h"
 extern "C" int sprintf(char* buf, const char* format, ...);
 #include <string.h>
 
@@ -41,9 +44,17 @@ extern "C" void* lbl_8087EE90; // inferred: audio device
 extern "C" int fn_8004829C(void* audio, const char** groups, unsigned int count); // inferred: loads sound groups
 extern "C" void fn_8004895C(void* audio); // inferred: releases the sound groups
 extern "C" int fn_803CE44C(const Unk_803CE3B8* h); // inferred: the header is out of range
-extern "C" float fn_80076FF8(void* device); // inferred: screen aspect ratio
-extern "C" void* lbl_8087EEE0; // inferred: graphics device
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
 extern "C" void* fn_801FEB9C(void* layout, const char* name); // inferred: track of a pane value
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
+extern "C" void fn_801F4728(atn::D2A_Task* task, const char* name, const float* v); // inferred: SetParam0
+extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
+extern "C" void* lbl_8087EEC8; // inferred: font
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+extern "C" char* strtok(char* s, const char* delim);
 extern "C" float fn_801F0544(void* key, int frame); // inferred: value of a key
 // inferred: items of the debug menu (atn/MindowsCommon.h; the folder is a ResHandle here)
 // fn_80087994 (AddBool) is declared in atn/Layer3D.h
@@ -114,6 +125,17 @@ TitleLang_unk lbl_80793940[2] = {{"Japanese", 0}, {"English", 1}};
 
 // inferred: SE of the menu (SE_UICOM_001 move? 002, 003 cursor, 018)
 static const char* const sSeNames_unk[4] = {"SE_UICOM_001", "SE_UICOM_002", "SE_UICOM_003", "SE_UICOM_018"};
+
+// inferred: sets a value of a pane of a layout (as SetPaneValue_unk of atn/Loader.cpp)
+inline void SetPaneValue_unk(atn::D2A_Task* layout, const char* name, float value) {
+    fn_801FECE0(&layout->mData.m10, fn_800DC6B4(name), value);
+}
+
+// inferred: entries of the main menu (0: new game, 1: load, 2: multiplayer): all of them, without the
+// multiplayer, or only the new game when there is no save
+static const int sItems3[3] = {0, 1, 2};
+static const int sItems2[2] = {0, 1};
+static const int sItems1[1] = {1};
 
 // inferred: value of a pane track at frame 0 (as D2A_Task::GetTrack_unk of game/GameUI.cpp)
 inline float GetTrackValue_unk(atn::D2A_Task* layout, const char* name) {
@@ -230,170 +252,6 @@ NewTitleTask::~NewTitleTask() {
     }
     if (lbl_8087F9A0 != 0 && lbl_8087F9A0->mLock != 0) {
         lbl_8087F9A0->mLock = 0;
-    }
-}
-
-// inferred: moves the cursor over `count` items with the pad (axis 0: up/down, 1: left/right); nonzero when
-// the cursor moved
-// NONMATCHING: first version
-int NewTitleTask::fn_80533A28(int count, int axis) {
-    int move = 0;
-    if (axis == 0) {
-        if (fn_800A55AC(lbl_8087EF70, 0, 0) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x1A) != 0) {
-            move = -1;
-        } else if (fn_800A55AC(lbl_8087EF70, 0, 1) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x19) != 0) {
-            move = 1;
-        }
-    } else if (axis == 1) {
-        if (fn_800A55AC(lbl_8087EF70, 0, 2) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x17) != 0) {
-            move = -1;
-        } else if (fn_800A55AC(lbl_8087EF70, 0, 3) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x18) != 0) {
-            move = 1;
-        }
-    } else {
-        return 0;
-    }
-    int prev = mCursorPos;
-    if (move != 0) {
-        if ((mCursorPos = prev + move) < 0) {
-            mCursorPos += count;
-        }
-        if (mCursorPos >= count) {
-            mCursorPos -= count;
-        }
-        fn_800C31F4(sSeNames_unk[2], 0, -1, 1.0f);
-    }
-    return prev != mCursorPos;
-}
-
-// inferred: sets the state (the camera key, the damage effect and the layouts of the state)
-// NONMATCHING: first version
-void NewTitleTask::fn_80533BDC(int state) {
-    mPrevState = mState;
-    mState = state;
-    switch (state) {
-    case 1:
-        mKey = &mKeys[0];
-        fn_80232B7C((unsigned int)this, 0);
-        {
-            atn::Vector3 pos(0.0f, 0.0f, 0.0f);
-            atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-            atn::Color color(1.0f, 1.0f, 1.0f, 1.0f);
-            fn_8023A8B4(lbl_8087F3C0, &mEfp0, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
-        }
-        mFrame = 0;
-        mLogo->mFrame = 0.0f;
-        mLogoNm->mFrame = 0.0f;
-        break;
-    case 2:
-        mDamage = &mDamage1;
-        mCapture->fn_800D246C(0);
-        mCapture->mDeleteAtEnd = 1;
-        mCapture->mWait = 0;
-        mCapture->mDelay = 0;
-        mCapture->mColor0 = 0xFFFFFFFF;
-        mCapture->mColor1 = 0xFFFFFF;
-        mCapture->m78 = 0x12;
-        mCapture->mDuration = 60;
-        mCapture->mFrame = 0;
-        mCapture->mZ = -100.0f;
-        mCapture->Capture();
-        mFrame = 0;
-        if (mBgm.mSound.mPtr != 0) {
-            mBgm.fn_8004B1EC(90);
-        }
-        if (mBgm2.mSound.mPtr != 0) {
-            mBgm2.fn_8004B158(1.0f, 90);
-        }
-        break;
-    case 3:
-        mDamage = &mDamage1;
-        if (mPrevState == 10) {
-            mKey = &mKeys[2];
-        } else {
-            mKey = &mKeys[1];
-        }
-        mLogo->mFrame = 29.0f;
-        mLogoNm->mFrame = 29.0f;
-        mMenu->mFrame = 0.0f;
-        mMenu->mSpeed = 1.0f;
-        mCursor->mFrame = 0.0f;
-        mCursor->mSpeed = 0.0f;
-        mFrame = 0;
-        for (unsigned int i = 0; i < mGimmicks.size(); i++) {
-            TitleGimmick_unk& e = mGimmicks.begin()[i];
-            GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
-            if (g != 0) {
-                g->vf70(e.mState);
-            }
-        }
-        break;
-    case 4:
-        mCursor->mSpeed = 1.0f;
-        mFrame = 0;
-        break;
-    case 9:
-        mKey = &mKeys[3];
-        mCursorPos = 0;
-        m2BC = 0;
-        for (unsigned int i = 0; i < mGimmicks.size(); i++) {
-            TitleGimmick_unk& e = mGimmicks.begin()[i];
-            GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
-            if (g != 0 && e.mMsg != 0) {
-                GimmickMsg_unk msg(e.mMsg);
-                g->vf40(&msg);
-            }
-        }
-        break;
-    case 10:
-        mKey = &mKeys[2];
-        mCursorPos = 0;
-        m2BC = 0;
-        mCursor->mSpeed = 0.0f;
-        mMenu->mSpeed = 0.0f;
-        mLogoCl->mFrame = mLogoCl->mData.mEndFrame;
-        mMenu->mSpeed = -2.0f;
-        mCursor->mSpeed = -2.0f;
-        break;
-    case 11:
-        mKey = &mKeys[2];
-        if (mPrevState == 13 || mPrevState == 14) {
-            mCursorPos = 0;
-            m2BC = 0;
-        }
-        mMenu->mSpeed = -2.0f;
-        mCursor->mFrame = 5.0f;
-        mCursor->mSpeed = 0.0f;
-        break;
-    case 12:
-        mCursor->mSpeed = 1.0f;
-        mMenu->mSpeed = 1.0f;
-        mKey = &mKeys[4];
-        break;
-    case 13:
-    case 14:
-        mCursorPos = 0;
-        break;
-    case 15:
-        if (MenuLoadTask::sInstance == 0) {
-            MenuLoadTask::fn_80117914(this, mLoadTask);
-        }
-        break;
-    case 25:
-        if (mBgm2.mSound.mPtr != 0) {
-            mBgm2.fn_8004B1EC(90);
-        }
-        mFade->fn_800D246C(0);
-        mFade->mDeleteAtEnd = 1;
-        mFade->mDelay = 0;
-        mFade->mDuration = 60;
-        mFade->mWait = 0x23;
-        mFade->mColor0 = 0;
-        mFade->mColor1 = 0xFF000000;
-        mFade->mZ = -100.0f;
-        mFade->mFrame = 0;
-        mFade->mActive = 1;
-        break;
     }
 }
 
@@ -597,6 +455,170 @@ int NewTitleTask::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// inferred: moves the cursor over `count` items with the pad (axis 0: up/down, 1: left/right); nonzero when
+// the cursor moved
+// NONMATCHING: first version
+int NewTitleTask::fn_80533A28(int count, int axis) {
+    int move = 0;
+    if (axis == 0) {
+        if (fn_800A55AC(lbl_8087EF70, 0, 0) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x1A) != 0) {
+            move = -1;
+        } else if (fn_800A55AC(lbl_8087EF70, 0, 1) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x19) != 0) {
+            move = 1;
+        }
+    } else if (axis == 1) {
+        if (fn_800A55AC(lbl_8087EF70, 0, 2) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x17) != 0) {
+            move = -1;
+        } else if (fn_800A55AC(lbl_8087EF70, 0, 3) != 0 || fn_800A55AC(lbl_8087EF70, 0, 0x18) != 0) {
+            move = 1;
+        }
+    } else {
+        return 0;
+    }
+    int prev = mCursorPos;
+    if (move != 0) {
+        if ((mCursorPos = prev + move) < 0) {
+            mCursorPos += count;
+        }
+        if (mCursorPos >= count) {
+            mCursorPos -= count;
+        }
+        fn_800C31F4(sSeNames_unk[2], 0, -1, 1.0f);
+    }
+    return prev != mCursorPos;
+}
+
+// inferred: sets the state (the camera key, the damage effect and the layouts of the state)
+// NONMATCHING: first version
+void NewTitleTask::fn_80533BDC(int state) {
+    mPrevState = mState;
+    mState = state;
+    switch (state) {
+    case 1:
+        mKey = &mKeys[0];
+        fn_80232B7C((unsigned int)this, 0);
+        {
+            atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+            atn::Vector3 rot(0.0f, 0.0f, 0.0f);
+            atn::Color color(1.0f, 1.0f, 1.0f, 1.0f);
+            fn_8023A8B4(lbl_8087F3C0, &mEfp0, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
+        }
+        mFrame = 0;
+        mLogo->mFrame = 0.0f;
+        mLogoNm->mFrame = 0.0f;
+        break;
+    case 2:
+        mDamage = &mDamage1;
+        mCapture->fn_800D246C(0);
+        mCapture->mDeleteAtEnd = 1;
+        mCapture->mWait = 0;
+        mCapture->mDelay = 0;
+        mCapture->mColor0 = 0xFFFFFFFF;
+        mCapture->mColor1 = 0xFFFFFF;
+        mCapture->m78 = 0x12;
+        mCapture->mDuration = 60;
+        mCapture->mFrame = 0;
+        mCapture->mZ = -100.0f;
+        mCapture->Capture();
+        mFrame = 0;
+        if (mBgm.mSound.mPtr != 0) {
+            mBgm.fn_8004B1EC(90);
+        }
+        if (mBgm2.mSound.mPtr != 0) {
+            mBgm2.fn_8004B158(1.0f, 90);
+        }
+        break;
+    case 3:
+        mDamage = &mDamage1;
+        if (mPrevState == 10) {
+            mKey = &mKeys[2];
+        } else {
+            mKey = &mKeys[1];
+        }
+        mLogo->mFrame = 29.0f;
+        mLogoNm->mFrame = 29.0f;
+        mMenu->mFrame = 0.0f;
+        mMenu->mSpeed = 1.0f;
+        mCursor->mFrame = 0.0f;
+        mCursor->mSpeed = 0.0f;
+        mFrame = 0;
+        for (unsigned int i = 0; i < mGimmicks.size(); i++) {
+            TitleGimmick_unk& e = mGimmicks.begin()[i];
+            GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
+            if (g != 0) {
+                g->vf70(e.mState);
+            }
+        }
+        break;
+    case 4:
+        mCursor->mSpeed = 1.0f;
+        mFrame = 0;
+        break;
+    case 9:
+        mKey = &mKeys[3];
+        mCursorPos = 0;
+        m2BC = 0;
+        for (unsigned int i = 0; i < mGimmicks.size(); i++) {
+            TitleGimmick_unk& e = mGimmicks.begin()[i];
+            GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
+            if (g != 0 && e.mMsg != 0) {
+                GimmickMsg_unk msg(e.mMsg);
+                g->vf40(&msg);
+            }
+        }
+        break;
+    case 10:
+        mKey = &mKeys[2];
+        mCursorPos = 0;
+        m2BC = 0;
+        mCursor->mSpeed = 0.0f;
+        mMenu->mSpeed = 0.0f;
+        mLogoCl->mFrame = mLogoCl->mData.mEndFrame;
+        mMenu->mSpeed = -2.0f;
+        mCursor->mSpeed = -2.0f;
+        break;
+    case 11:
+        mKey = &mKeys[2];
+        if (mPrevState == 13 || mPrevState == 14) {
+            mCursorPos = 0;
+            m2BC = 0;
+        }
+        mMenu->mSpeed = -2.0f;
+        mCursor->mFrame = 5.0f;
+        mCursor->mSpeed = 0.0f;
+        break;
+    case 12:
+        mCursor->mSpeed = 1.0f;
+        mMenu->mSpeed = 1.0f;
+        mKey = &mKeys[4];
+        break;
+    case 13:
+    case 14:
+        mCursorPos = 0;
+        break;
+    case 15:
+        if (MenuLoadTask::sInstance == 0) {
+            MenuLoadTask::fn_80117914(this, mLoadTask);
+        }
+        break;
+    case 25:
+        if (mBgm2.mSound.mPtr != 0) {
+            mBgm2.fn_8004B1EC(90);
+        }
+        mFade->fn_800D246C(0);
+        mFade->mDeleteAtEnd = 1;
+        mFade->mDelay = 0;
+        mFade->mDuration = 60;
+        mFade->mWait = 0x23;
+        mFade->mColor0 = 0;
+        mFade->mColor1 = 0xFF000000;
+        mFade->mZ = -100.0f;
+        mFade->mFrame = 0;
+        mFade->mActive = 1;
+        break;
+    }
 }
 
 // inferred: plays a SE of the menu
@@ -920,9 +942,6 @@ void NewTitleTask::vf10() {
         }
         break;
     case 11: {
-        static const int sItems3[3] = {0, 1, 2};
-        static const int sItems2[2] = {0, 1};
-        static const int sItems1[1] = {1};
         mMenu->MeltTask();
         mCursor->MeltTask();
         if (mMenu->mFrame <= 70.0f) {
@@ -1275,4 +1294,184 @@ void NewTitleTask::vf10() {
     }
     mCamera.fn_8004B378();
     atn::RenderManager::instance_->SetCamera_unk(mCamera);
+}
+
+// inferred: 0..1 to 0..255 (rounded)
+inline unsigned int ToU8_unk(float c) {
+    if (c >= 1.0f) {
+        return 0xFF;
+    }
+    if (c <= 0.0f) {
+        return 0;
+    }
+    return (unsigned int)(255.0f * c + 0.5f);
+}
+
+// inferred: draw: the damage effect, the area blend of the map, the panes of the layouts and the language menu
+// NONMATCHING: first version
+void NewTitleTask::vf14() {
+    atn::DrawHelper* dh = lbl_8087EEB0;
+    if (dh == 0) {
+        return;
+    }
+    if (mIdleOn != 0 && mState == 1) {
+        dh->fn_800616C0(439.0f, 60.0f, -1000.0f, 16.0f, 16.0f, lbl_8087F0A8->m1F4.mBuf, 0xFF000000, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(440.0f, 59.0f, -1000.0f, 16.0f, 16.0f, lbl_8087F0A8->m1F4.mBuf, 0xFF000000, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(441.0f, 60.0f, -1000.0f, 16.0f, 16.0f, lbl_8087F0A8->m1F4.mBuf, 0xFF000000, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(440.0f, 61.0f, -1000.0f, 16.0f, 16.0f, lbl_8087F0A8->m1F4.mBuf, 0xFF000000, 0.0f, 1, 1, 0);
+        lbl_8087EEB0->fn_800616C0(440.0f, 60.0f, -1000.0f, 16.0f, 16.0f, lbl_8087F0A8->m1F4.mBuf, 0xFFFFFFFF, 0.0f, 1, 1, 0);
+    }
+    DamageEffectParam_unk* target = mDamage;
+    if (target != 0) {
+        DamageEffectParam_unk damage = lbl_8087EFA8->m374;
+        damage.mEnabled = target->mEnabled;
+        damage.mColor = target->mColor;
+        damage.mZoom = 0.15f * (target->mZoom - damage.mZoom) + damage.mZoom;
+        lbl_8087EFA8->SetDamage_unk(damage);
+    }
+    if (mAreaIndex != 0 && mMap->m110 >= 1.0f) {
+        if (++m2E0 >= mAreas.size()) {
+            m2E0 = 0;
+        }
+        mMap->fn_804A0F58(mAreas.begin()[m2E0].mArea, 0.0f, mAreas.begin()[m2E0].mTime);
+    }
+    int wide = lbl_8087EEE0->mWide;
+    SetPaneValue_unk(mLogo, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
+    SetPaneValue_unk(mLogoCl, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
+    SetPaneValue_unk(mLogoNm, "aspectSD", 0.0f);
+    int state = mState;
+    if (state == 25) {
+        state = mPrevState;
+    }
+    if (state == 14) {
+        static wchar_t sVoiceSelect[] = L"Voice Select";
+        float size = 18.0f;
+        float space = 3.0f;
+        float z = -20.0f;
+        float height = 3.0f * (size + space);
+        float w = fn_8006EF48(lbl_8087EEC8, sVoiceSelect, size, 0.0f, 1, 1);
+        dh->fn_80061824(0.5f * lbl_8087EEE0->mWidth - 0.5f * w, 0.5f * (lbl_8087EEE0->mHeight - height), z, size, size,
+                        0.0f, 0.0f, 0.0f, sVoiceSelect, 0x96FFFA96, 1, 1, 0, 0, 0xFF000000);
+        for (int i = 0; i < 2; i++) {
+            wchar_t text[0x100];
+            fn_8006F2F0(lbl_8087EEC8, text, lbl_80793940[i].mName, 0x100);
+            float tw = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+            float x = 0.5f * lbl_8087EEE0->mWidth - 0.5f * tw;
+            float y = (i + 1) * (size + space) + 0.5f * (lbl_8087EEE0->mHeight - height);
+            dh->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, text, 0x96FFFA96, 1, 1, 0, 0, 0xFF000000);
+            if (i == mCursorPos) {
+                dh->fn_8006144C(x, y, x + tw, y + size, 0x96FFFA96, z);
+            }
+        }
+    }
+    const int* items = sItems3;
+    int multi = 1;
+    if (mNoSave != 0) {
+        items = sItems1;
+    }
+    if (mNoSave == 0 && lbl_8087F0A8->m194 != 0 && lbl_8087F0A8->m198 == 0) {
+        items = sItems2;
+        multi = 0;
+    }
+    int select = items[m2BC];
+    char name[0x40];
+    sprintf(name, "cursorPoint%02d", select);
+    atn::D2A_DrawRect rect;
+    atn::Color color;
+    atn::D2A_DrawExtra extra;
+    unsigned char work[0x50];
+    mMenu->GetDrawParams_unk(fn_800DC6B4(name), &rect, &color, &extra, work);
+    fn_801F4728(mCursor, "base_pos", &rect.x);
+    unsigned int r = ToU8_unk(color.r);
+    unsigned int g = ToU8_unk(color.g);
+    unsigned int b = ToU8_unk(color.b);
+    unsigned int a = ToU8_unk(color.a);
+    mCursor->SetColor_unk("col0001", (a << 24) | (r << 16) | (g << 8) | b);
+    for (int i = 0; i < 3; i++) {
+        sprintf(name, "select%02d", i);
+        SetPaneValue_unk(mMenu, name, i == select ? 1.0f : 0.0f);
+    }
+    SetPaneValue_unk(mMenu, "isNewGame", mNoSave != 0 ? 1.0f : 0.0f);
+    SetPaneValue_unk(mMenu, "isMultiPlay", multi != 0 ? 1.0f : 0.0f);
+}
+
+// inferred: reads the title_param csv (camera keys, map, BGM, layout, damage effect, gimmicks and map areas)
+// NONMATCHING: first version
+void NewTitleTask::fn_80536CA8() {
+    mGimmicks.clear();
+    atn::Csv csv;
+    csv.SetData((const char*)mParamFile.fn_80470580(), mParamFile.fn_8047059C());
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "StartPos") == 0) {
+            mStart.mPos.x = fn_800DC288(csv.fn_8005B9CC());
+            mStart.mPos.y = fn_800DC288(csv.fn_8005B9CC());
+            mStart.mPos.z = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "StartTgt") == 0) {
+            mStart.mTgt.x = fn_800DC288(csv.fn_8005B9CC());
+            mStart.mTgt.y = fn_800DC288(csv.fn_8005B9CC());
+            mStart.mTgt.z = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "StartAng") == 0) {
+            mStart.mAngle = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "StartLerpRate") == 0) {
+            mStart.mRate = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "EndPos") == 0) {
+            mEnd.mPos.x = fn_800DC288(csv.fn_8005B9CC());
+            mEnd.mPos.y = fn_800DC288(csv.fn_8005B9CC());
+            mEnd.mPos.z = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "EndTgt") == 0) {
+            mEnd.mTgt.x = fn_800DC288(csv.fn_8005B9CC());
+            mEnd.mTgt.y = fn_800DC288(csv.fn_8005B9CC());
+            mEnd.mTgt.z = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "EndAng") == 0) {
+            mEnd.mAngle = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "EndLerpRate") == 0) {
+            mEnd.mRate = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "LoadPos") == 0) {
+            mLoad.mPos.x = fn_800DC288(csv.fn_8005B9CC());
+            mLoad.mPos.y = fn_800DC288(csv.fn_8005B9CC());
+            mLoad.mPos.z = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "LoadTgt") == 0) {
+            mLoad.mTgt.x = fn_800DC288(csv.fn_8005B9CC());
+            mLoad.mTgt.y = fn_800DC288(csv.fn_8005B9CC());
+            mLoad.mTgt.z = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "LoadAng") == 0) {
+            mLoad.mAngle = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "OptLerpRate") == 0) {
+            mLoad.mRate = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "Map") == 0) {
+            sprintf(mMapPath, "data/map/%s", strtok((char*)csv.fn_8005B9CC(), "\n"));
+        } else if (strcmp(key, "BGM") == 0) {
+            const char* bgm = csv.fn_8005B9CC();
+            if (lbl_8087F0A8->m15C != 0) {
+                bgm = "BGM_EXTR004_WHAM";
+            }
+            mBgm2.fn_8004AE84(bgm, 0);
+        } else if (strcmp(key, "UI") == 0) {
+            const char* ui = strtok((char*)csv.fn_8005B9CC(), "\n");
+            if (lbl_8087F0A8->m15C != 0) {
+                ui = "title_logo_ch.d2a";
+            }
+            sprintf(mUiPath, "/data/d2anime/%s", ui);
+        } else if (strcmp(key, "DamageEff") == 0) {
+            mDamage1.mEnabled = strcmp(csv.fn_8005B9CC(), "TRUE") == 0;
+            mDamage1.mZoom = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "Gimmick") == 0) {
+            const char* name = csv.fn_8005B9CC();
+            if (strncmp(name, "gm", 2) == 0) {
+                TitleGimmick_unk e;
+                e.mId = fn_800DC12C(name + 2) * 1000 + fn_800DC12C(name + 6);
+                e.mIndex = fn_800DC12C(name + 10);
+                e.mState = fn_800DC12C(csv.fn_8005B9CC());
+                e.mMsg = fn_800DC12C(csv.fn_8005B9CC());
+                mGimmicks.push_back(e);
+            }
+        } else if (strcmp(key, "MapArea") == 0) {
+            TitleMapArea_unk area;
+            area.mArea = fn_800DC12C(csv.fn_8005B9CC());
+            area.mTime = fn_800DC288(csv.fn_8005B9CC());
+            mAreas.push_back(area);
+        }
+    } while (csv.fn_8005BBF8() != 0);
+    mParamFile.fn_80473F88();
 }
