@@ -11,21 +11,29 @@ namespace atn {
 class Model;
 }
 
+// inferred: character recorded in a frame of the replay (0x8C bytes; names invented)
+struct ReplayChara_unk {
+    CharaTask* mChara;
+    signed char mMotion;  // 0x04: inferred: motion (negative: none)
+    signed char mNode;    // 0x05: inferred: value of Model::m50
+    signed char m06;      // 0x06: inferred: value of Model::m34C
+    unsigned char m07;
+    short mMtx[3][4];     // 0x08: inferred: model matrix (half floats)
+    unsigned char m20[0x88 - 0x20]; // inferred: node data passed to fn_8056A9E4
+    short mAngle;         // 0x88: inferred: angle of the upper body (half float)
+    unsigned char m8A[0x8C - 0x8A];
+};
+
 // inferred: object owned by GameTask + 0x558C (0x494 bytes; code in game/ReplayBuffer.cpp). Name invented.
 struct ReplayRecorder_unk {
     ReplayRecorder_unk();  // 0x8056B388
     ~ReplayRecorder_unk(); // 0x8056B394
     void fn_8056B3D4();    // inferred: records every character relative to the leader
     void fn_8056B558(CharaTask* chara, const atn::Matrix3x4& inv); // inferred: records one character
-    unsigned char m000[0x460];
-    unsigned char m460;
+    void fn_8056BD34(); // inferred: puts every recorded character back
+    ReplayChara_unk mCharas[8]; // 0x000
+    signed char m460;           // inferred: number of characters in mCharas
     atn::Matrix3x4 m464; // inferred: position of the leader when recording
-};
-
-// inferred: character recorded in a frame of the replay (0x8C bytes; names invented)
-struct ReplayChara_unk {
-    CharaTask* mChara;
-    unsigned char m04[0x8C - 0x04];
 };
 
 // inferred: model recorded in a frame of the replay (0x38 bytes; names invented)

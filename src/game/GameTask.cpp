@@ -2771,7 +2771,6 @@ void GameTask::fn_8036E494() {
     lbl_8087F3C0->mSystem.mReplaying = 1;
 }
 
-extern "C" void fn_8056BD34(ReplayRecorder_unk* recorder); // inferred: stops the recording
 // inferred: sound engine of lbl_8087EE90 (as EnvSeEngine_unk of game/EnvSeManager.cpp)
 struct SoundEngineReverb_unk {
     unsigned char m000[0x8C0];
@@ -2785,7 +2784,7 @@ extern "C" void fn_8036E624(GameTask* task) {
         fn_80570A14(task->m5590, 0);
         fn_80570A40(task->m5590, 0);
     }
-    fn_8056BD34(task->m558C.mPtr);
+    task->m558C.mPtr->fn_8056BD34();
     task->fn_8036EE0C();
     if (task->m567C != 0) {
         task->m567C->FreezeTask();
@@ -3694,7 +3693,7 @@ void GameTask::fn_803727DC() {
         fn_80570A40(m5590, 0);
     }
     if (lbl_8087F0A8->mD0 != 1) {
-        fn_8056BD34(m558C.mPtr);
+        m558C.mPtr->fn_8056BD34();
     }
     MotionBlurParam_unk blur = lbl_8087EFA8->m240;
     blur.mEnabled = 0;
@@ -4984,7 +4983,7 @@ void GameTask::fn_80376568() {
         fn_80570A14(m5590, 0);
         fn_80570A40(m5590, 0);
     }
-    fn_8056BD34(m558C.mPtr);
+    m558C.mPtr->fn_8056BD34();
     lbl_8087F8A0->fn_800D246C(0);
     FriendManager::sInstance->fn_800D246C(0);
     EnemyManager::sInstance->fn_800D246C(0);

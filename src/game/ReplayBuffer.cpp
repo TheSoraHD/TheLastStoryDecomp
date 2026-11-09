@@ -94,6 +94,51 @@ void ReplayRecorder_unk::fn_8056B3D4() {
     }
 }
 
+// inferred: half float of the replay data to float (names invented)
+static inline float FromHalf_unk(short h) {
+    if (h == 0) {
+        return 0.0f;
+    }
+    unsigned int bits = ((h << 16) & 0x80000000) | ((h << 13) & 0x007FE000) | (((((h >> 10) & 0x1F) + 0x70) << 23) & 0x7F800000);
+    return *(float*)&bits;
+}
+
+extern "C" void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, void** out, ReplayChara_unk* entry,
+                            float angle);
+
+// NONMATCHING: 77.2% - unrolling of the matrix loop (the original does two elements per pass), stack slots
+void ReplayRecorder_unk::fn_8056BD34() {
+    int i = 0;
+    if (m460 > 0) {
+    for (; i < m460; i++) {
+        ReplayChara_unk* entry = &mCharas[i];
+        atn::Model* model = &entry->mChara->mMotion;
+        int node = entry->mNode;
+        model->m20C_15_8 = model->m50;
+        model->m50 = node;
+        model->m34C = entry->m06;
+        Mtx mtx;
+        for (unsigned int j = 0; j < 12; j++) {
+            mtx[j / 4][j % 4] = FromHalf_unk(entry->mMtx[j / 4][j % 4]);
+        }
+        float angle = FromHalf_unk(entry->mAngle);
+        void* out = 0;
+        Mtx world;
+        PSMTXConcat(m464.m, mtx, world);
+        fn_8056A9E4(model, entry->m20, 4, world, &out, entry, angle);
+        atn::Vector3 pos(model->mMtx.m[0][3], model->mMtx.m[1][3], model->mMtx.m[2][3]);
+        atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - pos;
+        float dist = d.LengthSq_unk();
+        if (entry->mMotion >= 0) {
+            entry->mChara->fn_8014DEE4(entry->mMotion, 1, 0);
+        } else {
+            entry->mChara->fn_8014EEC4(1);
+        }
+        entry->mChara->fn_80148B38(dist);
+    }
+    }
+}
+
 ReplayBuffer::~ReplayBuffer() {}
 
 // NONMATCHING: 92.48% - copy order of the event (colour and vectors); offset of the message in the pool
