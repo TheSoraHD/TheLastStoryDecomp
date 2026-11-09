@@ -595,3 +595,4 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Bytes recargados de un array local tras usarlos en una expresion: calcular la expresion en un inline que recibe el puntero (`ToRGB565_unk(lo)`), que corta el CSE (fn_80069288, 2026-11-09).
 - Bucle de busqueda `it/end/elem` con registros volatiles cambiados: declarar las tres variables sin inicializar en el orden de los registros (r mas bajo primero) y asignarlas despues (D2A_Texture fn_801FEB9C..fn_801FEEFC, 2026-11-09).
 - `ble X; b fin` (salto muerto sobre el bloque else) en vez de `bgt fin`: el then-bloque no esta vacio en el original; una asignacion muerta (`yaw = m0C;`) lo reproduce (Input_unk fn_80122330, 2026-11-09).
+- `fmuls` + `fadds` en el original donde sale `fmadds`: acumular en la variable (`s *= a * b; x += s;`) en vez de `x += s * (a * b)` (EventCamera_unk fn_801151A4, 2026-11-09).
