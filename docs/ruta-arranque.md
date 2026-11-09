@@ -26,7 +26,7 @@ Estado de todo lo que se ejecuta desde `main()` (game/main.cpp) hasta la pantall
 | `atn/Task` | 13 | 3 | 25 | 0 | no | 12 |
 | `atn/Loader` | 23 | 5 | 31 | 0 | no | 21 |
 | `atn/FileList` | 21 | 2 | 27 | 0 | no | 20 |
-| `atn/FileUtil_unk` | 9 | 1 | 16 | 0 | no | 9 |
+| `atn/FileUtil_unk` | 10 | 1 | 16 | 0 | no | 9 |
 | `atn/NandManager` | 32 | 1 | 34 | 0 | no | 32 |
 | `atn/LinearAllocator` | 24 | 0 | 24 | 0 | si | 24 |
 | `atn/ResRef_unk` | 5 | 0 | 5 | 0 | si | 5 |
@@ -37,7 +37,7 @@ Estado de todo lo que se ejecuta desde `main()` (game/main.cpp) hasta la pantall
 | `game/HeapInfo_unk` | 4 | 0 | 4 | 0 | si | 4 |
 | `game/HomeButtonMenu` | 5 | 0 | 5 | 0 | si | 5 |
 | `atn/GraphicsDevice` | 30 | 6 | 41 | 0 | no | 26 |
-| `atn/RenderSystem_unk` | 28 | 4 | 37 | 0 | no | 20 |
+| `atn/RenderSystem_unk` | 30 | 2 | 37 | 0 | no | 20 |
 | `atn/DrawHelper` | 54 | 6 | 68 | 0 | no | 54 |
 | `atn/D2A_Manager` | 18 | 0 | 21 | 0 | no | 18 |
 | `atn/AudioDevice` | 49 | 3 | 56 | 0 | no | 44 |
@@ -49,7 +49,7 @@ Estado de todo lo que se ejecuta desde `main()` (game/main.cpp) hasta la pantall
 | `game/BootTask` | 4 | 0 | 4 | 0 | si | 0 |
 | `game/StrapTask` | 5 | 0 | 6 | 0 | no | 5 |
 | `game/NewTitleTask` | 2 | 3 | 9 | 0 | no | 1 |
-| **total** | 548 | 53 | 666 | 0 | 6 de 27 | 523 |
+| **total** | 551 | 51 | 666 | 0 | 6 de 27 | 523 |
 
 ## Librerias que llama la ruta
 
@@ -156,7 +156,11 @@ un contador atomico normal).
 - atn/RenderSystem_unk: `fn_800BC618` al 97,92 % (registros guardados); `fn_800BDBC8`: constantes del
   area segura plegadas por MWCC.
 - atn/GraphicsDevice `fn_80072BDC` (93,97 %), atn/FileUtil_unk `fn_80069060` (82,56 %) y `fn_80068DB0`
-  (93,12 %), atn/Loader `fn_8046E410` (99,10 %), atn/AudioDevice `fn_80046228`/GetLabel (99,3/98,7 %).
+  (93,12 %), atn/Loader `fn_8046E410` (99,10 %), atn/AudioDevice `fn_80046228`/GetLabel (99,3/98,7 %),
+  atn/NandManager `fn_800A4244` (98,02 %: orden de la carga de `rect.w` frente a `data()`).
+- atn/SoundManager `fn_800CB800`/`fn_800CBE8C`/`fn_800CC518` (99,90 %): la segunda inline (volumen) intercambia
+  indice y gestor (r30/r31); una inline libre con el indice primero arregla los registros pero cambia el orden de
+  los temporales de `boost::bind` en la pila.
 - Bloqueos conocidos: GameSystem `fn_80570CF8` (99,93), Pad `fn_800A58D0`/`fn_800A58F8` (orden de
   registros), Util `fn_800DC12C` (`b` inicial), Task `fn_800D2C50` (registros de la recursion inline).
 - Las capas de render (`IRenderLayer`) tienen copias locales con firmas distintas en atn/LayerShadow y
