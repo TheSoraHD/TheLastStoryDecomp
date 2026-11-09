@@ -1665,7 +1665,7 @@ int ControlThrownSimple::vf0C() {
     CharaTask* c = mChara;
     c->mPos = c->mPos + mVel;
     int fps = lbl_8087F0A8->mFps;
-    mVel.y += lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
+    mVel.y += (float)lbl_8087EFA8->m3A4 * (0.5f * (-98.1f / (float)(fps * fps)));
     mFrames--;
     return 0;
 }

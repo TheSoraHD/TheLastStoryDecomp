@@ -90,8 +90,8 @@ extern "C" void fn_804CF198(PackedMotion_unk* in, atn::Model* model, int index) 
 extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index) {
     ModelSlot_unk& slot = ((ModelSlots_unk*)model)->mSlots[index];
     out->mMotion = slot.mMotion;
-    out->mFrame = slot.mFrame * 63.0f;
-    out->mSpeed = slot.mSpeed * 12.7f;
+    out->mFrame = (float)slot.mFrame * 63.0f;
+    out->mSpeed = (float)slot.mSpeed * 12.7f;
     out->m04 = slot.m10 * 255.0f;
     out->m05 = slot.m14 * 255.0f;
     out->m06 = slot.m20 * 255.0f;
