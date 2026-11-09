@@ -311,7 +311,8 @@ void MindowsFolder::vf18(const MindowsDrawCtx_unk* ctx, int depth, int* line) {
                 lbl_8087EEB0->fn_80060D58(ctx->mX, y, -1000000.0f, ctx->mW, 16.0f, 0xFF8080FF);
             }
             char buf[32];
-            sprintf(buf, "%c%s", mOpen ? '-' : '+', mName);
+            const char* name = mName;
+            sprintf(buf, "%c%s", mOpen ? '-' : '+', name);
             lbl_8087EEB0->fn_800616C0(16.0f * (float)depth + ctx->mX, y, -1000000.0f, 16.0f, 16.0f, buf, -1, 0.0f, 0, 0, 0);
         }
         (*line)++;
