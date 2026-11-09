@@ -238,198 +238,192 @@ NewTitleTask::~NewTitleTask() {
 int NewTitleTask::vf0C() {
     fn_8046ECDC(lbl_8087F518, 0);
     if (mStep == 0) {
-        if (mLoadBg->m154 != 0) {
-            return 0;
-        }
-        mStep++;
-        mLoadTask = GameLoadTask::fn_803B27F8(this, GameLoadTask::Option("\0", 1));
-        mLoadTask->mD64 = 0;
-        Unk_803CE3B8* header = (Unk_803CE3B8*)mHeader;
-        header->fn_803CE448();
-        if (fn_803CE44C(header) == 0 && lbl_8087F0A8 != 0) {
-            lbl_8087F0A8->m1140 = header->m0A & 1;
-            lbl_8087F0A8->m113C = header->m08;
-        }
-        if (mIndex == -1) {
-            int progress = fn_803CE44C(header) == 0 ? header->m00 : 0;
-            if (progress < 401000) {
-                if (progress < 201000) {
-                    if (progress < 106000) {
-                        mIndex = 0;
-                    } else {
-                        mIndex = 3;
-                    }
-                } else if (progress < 301000) {
-                    mIndex = 4;
-                } else {
-                    mIndex = 5;
-                }
-            } else if (progress < 501000) {
-                if (progress < 409000) {
-                    mIndex = 6;
-                } else {
-                    mIndex = 7;
-                }
-            } else if (progress < 600000) {
-                mIndex = 8;
-            } else {
-                mIndex = 2;
+        if (mLoadBg->m154 == 0) {
+            mStep++;
+            mLoadTask = GameLoadTask::fn_803B27F8(this, GameLoadTask::Option("\0", 1));
+            mLoadTask->mD64 = 0;
+            Unk_803CE3B8* header = (Unk_803CE3B8*)mHeader;
+            header->fn_803CE448();
+            if (fn_803CE44C(header) == 0 && lbl_8087F0A8 != 0) {
+                lbl_8087F0A8->m1140 = header->m0A & 1;
+                lbl_8087F0A8->m113C = header->m08;
             }
+            if (mIndex == -1) {
+                int progress = fn_803CE44C(header) == 0 ? header->m00 : 0;
+                if (progress < 401000) {
+                    if (progress < 201000) {
+                        if (progress < 106000) {
+                            mIndex = 0;
+                        } else {
+                            mIndex = 3;
+                        }
+                    } else if (progress < 301000) {
+                        mIndex = 4;
+                    } else {
+                        mIndex = 5;
+                    }
+                } else if (progress < 501000) {
+                    if (progress < 409000) {
+                        mIndex = 6;
+                    } else {
+                        mIndex = 7;
+                    }
+                } else if (progress < 600000) {
+                    mIndex = 8;
+                } else {
+                    mIndex = 2;
+                }
+            }
+            if (lbl_8087F0A8->m194 != 0) {
+                mIndex = 0;
+            }
+            char path[0x100];
+            sprintf(path, "preload/title%02d.pk", mIndex);
+            if (lbl_8087F420 != 0) {
+                lbl_8087F420->SetLoading_unk(1);
+            }
+            mPreload.fn_8047043C(path, 0, 0);
+            if (lbl_8087F420 != 0) {
+                lbl_8087F420->SetLoading_unk(0);
+            }
+            mEfp0.LoadRequest("be010_006.efp");
+            mEfp1.LoadRequest("be010_005.efp");
+            mLogo = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory.d2a", 0);
+            mLogo->fn_800D246C(1);
+            mLogoCl = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory_cl.d2a", 0);
+            mLogoCl->fn_800D246C(1);
+            mLogoNm = fn_801F3FF8(this, "/data/d2anime/title_logo_nm.d2a", 0);
+            mLogoNm->fn_800D246C(1);
+            mPushOp = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory_push_op.d2a", 0);
+            mPushOp->fn_800D246C(1);
+            mPushLoop = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory_push_loop.d2a", 0);
+            mPushLoop->fn_800D246C(1);
+            mCursor = fn_801F3FF8(this, "/data/d2anime/title_cursor.d2a", 0);
+            mCursor->fn_800D246C(1);
+            char csv[0x100];
+            sprintf(csv, "database/title/title_param%02d.csv", mIndex);
+            mParamFile.vf0C(csv);
         }
-        if (lbl_8087F0A8->m194 != 0) {
-            mIndex = 0;
-        }
-        char path[0x100];
-        sprintf(path, "preload/title%02d.pk", mIndex);
-        if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 1;
-            lbl_8087F420->m1C = 1;
-        }
-        mPreload.fn_8047043C(path, 0, 0);
-        if (lbl_8087F420 != 0) {
-            lbl_8087F420->m18 = 0;
-            lbl_8087F420->m1C = 0;
-        }
-        mEfp0.LoadRequest("be010_006.efp");
-        mEfp1.LoadRequest("be010_005.efp");
-        mLogo = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory.d2a", 0);
-        mLogo->fn_800D246C(1);
-        mLogoCl = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory_cl.d2a", 0);
-        mLogoCl->fn_800D246C(1);
-        mLogoNm = fn_801F3FF8(this, "/data/d2anime/title_logo_nm.d2a", 0);
-        mLogoNm->fn_800D246C(1);
-        mPushOp = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory_push_op.d2a", 0);
-        mPushOp->fn_800D246C(1);
-        mPushLoop = fn_801F3FF8(this, "/data/d2anime/title_logo_laststory_push_loop.d2a", 0);
-        mPushLoop->fn_800D246C(1);
-        mCursor = fn_801F3FF8(this, "/data/d2anime/title_cursor.d2a", 0);
-        mCursor->fn_800D246C(1);
-        char csv[0x100];
-        sprintf(csv, "database/title/title_param%02d.csv", mIndex);
-        mParamFile.vf0C(csv);
     } else if (mStep == 1) {
-        if (fn_800D3FA4() == 0 || fn_800C310C(0) != 0 || mParamFile.fn_80473F50() != 0 || mEfp0.IsLoading() != 0 ||
-            mEfp1.IsLoading() != 0) {
-            return 0;
+        if (fn_800D3FA4() != 0 && fn_800C310C(0) == 0 && mParamFile.fn_80473F50() == 0 && mEfp0.IsLoading() == 0 &&
+            mEfp1.IsLoading() == 0) {
+            mStep++;
+            fn_80536CA8();
+            mBgm.fn_8004AE84("BGM_SYST001", 0);
+            mMap = MapTask::SetTask(this, mMapPath);
+            mMap->fn_800D246C(1);
+            mMenu = fn_801F3FF8(this, mUiPath, 0);
+            mMenu->fn_800D246C(1);
+            mKeys[1].mPos = mStart.mPos;
+            mKeys[1].mTgt = mStart.mTgt;
+            mKeys[1].mAngle = mStart.mAngle;
+            mKeys[1].mRate = 1.0f;
+            mKeys[2] = mStart;
+            mKeys[3] = mEnd;
+            mKeys[4] = mLoad;
+            mKey = &mKeys[1];
         }
-        mStep++;
-        fn_80536CA8();
-        mBgm.fn_8004AE84("BGM_SYST001", 0);
-        mMap = MapTask::SetTask(this, mMapPath);
-        mMap->fn_800D246C(1);
-        mMenu = fn_801F3FF8(this, mUiPath, 0);
-        mMenu->fn_800D246C(1);
-        mKeys[1].mPos = mStart.mPos;
-        mKeys[1].mTgt = mStart.mTgt;
-        mKeys[1].mAngle = mStart.mAngle;
-        mKeys[1].mRate = 1.0f;
-        mKeys[2] = mStart;
-        mKeys[3] = mEnd;
-        mKeys[4] = mLoad;
-        mKey = &mKeys[1];
     } else if (mStep == 2) {
         int ready = 1;
         if (fn_800D3FA4() == 0 || mBgm.fn_8004B0E4() != 0 || mBgm2.fn_8004B0E4() != 0 || !mMap->IsFlag_unk(2)) {
             ready = 0;
         }
-        if (ready == 0) {
-            return 0;
+        if (ready != 0) {
+            mMap->fn_800D246C(0);
+            mMap->FreezeTask();
+            atn::Scene* scene = atn::RenderManager::instance_->fn_800C16B4();
+            mView.mScene = *scene;
+            mView.mShadow = lbl_8087EFA8->m104;
+            mView.mClearColor = lbl_8087EFA8->m03C;
+            mView.mBloom = lbl_8087EFA8->m054;
+            mView.mDof = lbl_8087EFA8->mDof;
+            mView.mColorMatrix = lbl_8087EFA8->m324;
+            mView.mGamma = lbl_8087EFA8->m3DC;
+            atn::IRenderLayer* reflect = atn::RenderManager::instance_->mLayers[4];
+            if (reflect != 0) {
+                mView.m4BC = reflect->m04;
+            } else {
+                mView.m4BC = 0;
+            }
+            mStep = 3;
+            mWhiteMap = MapTask::SetTask(this, "titlle_white.map");
+            mWhiteMap->fn_800D246C(1);
         }
-        mMap->fn_800D246C(0);
-        mMap->FreezeTask();
-        atn::Scene* scene = atn::RenderManager::instance_->fn_800C16B4();
-        mView.mScene = *scene;
-        mView.mShadow = lbl_8087EFA8->m104;
-        mView.mClearColor = lbl_8087EFA8->m03C;
-        mView.mBloom = lbl_8087EFA8->m054;
-        mView.mDof = lbl_8087EFA8->mDof;
-        mView.mColorMatrix = lbl_8087EFA8->m324;
-        mView.mGamma = lbl_8087EFA8->m3DC;
-        atn::IRenderLayer* reflect = atn::RenderManager::instance_->mLayers[4];
-        if (reflect != 0) {
-            mView.m4BC = reflect->m04;
-        } else {
-            mView.m4BC = 0;
-        }
-        mStep = 3;
-        mWhiteMap = MapTask::SetTask(this, "titlle_white.map");
-        mWhiteMap->fn_800D246C(1);
     } else if (mStep == 3) {
-        if (!mWhiteMap->IsFlag_unk(2)) {
-            return 0;
-        }
-        mWhiteMap->fn_800D246C(0);
-        mPreload.fn_80470528();
-        fn_80533BDC(1);
-        mFirst = GetTrackValue_unk(mMenu, "first");
-        mSecond = GetTrackValue_unk(mMenu, "second");
-        mOpSelect = GetTrackValue_unk(mMenu, "opSelect");
-        mOpCursor = GetTrackValue_unk(mMenu, "opCursor");
-        mInFrame = GetTrackValue_unk(mCursor, "inFrame");
-        mSelectFrame = GetTrackValue_unk(mCursor, "selectFrame");
-        mMenu->mRepeat = 0;
-        mMenu->fn_800D246C(0);
-        mCursor->mRepeat = 0;
-        mCursor->fn_800D246C(0);
-        mLogo->mRepeat = 0;
-        mLogo->fn_800D246C(0);
-        mLogoCl->mRepeat = 0;
-        mLogoCl->mSpeed = 0.0f;
-        mLogoCl->fn_800D246C(0);
-        mLogoNm->mRepeat = 0;
-        mLogoNm->fn_800D246C(0);
-        mPushOp->mRepeat = 0;
-        mPushOp->fn_800D246C(0);
-        mPushLoop->fn_800D246C(0);
-        mFade->mKillAtEnd = 1;
-        mFade->mDelay = 0;
-        mFade->mDuration = lbl_8087F0A8->mTitle.mMaskFadeTime;
-        mFade->mWait = 0;
-        mFade->mColor0 = 0xFF000000;
-        mFade->mColor1 = 0;
-        mFade->mZ = -100.0f;
-        mFade->mFrame = 0;
-        mFade->mActive = 1;
-        mCamera.mPos = mKeys[1].mPos;
-        mCamera.mTarget = mKeys[1].mTgt;
-        mCamera.mUp = atn::Vector3(0.0f, 1.0f, 0.0f);
-        mCamera.mFovy = mKeys[1].mAngle;
-        mCamera.mAspect = fn_80076FF8(lbl_8087EEE0);
-        void* menu = mDebugMenu.Load("NewTitle");
-        fn_80087994(menu, "FreeCamera", &mFreeCamera, 0, 0);
-        fn_80087E9C(menu, "CameraPos", &mCameraPos.x, -1e16f, 1e16f, 1.0f, 0, 0);
-        fn_80087E9C(menu, "CameraTarget", &mCameraTarget.x, -1e16f, 1e16f, 1.0f, 0, 0);
-        fn_80087858(menu, "CameraAngle", &mCameraAngle, 0.0f, 1.5707964f, 1.0f, 0, 0);
-        fn_800874C8(menu, "StopTime", &mStopTime, 0, 10000, 1, 0, 0);
-        fn_8008771C(menu, "Damage Zoom", &mDamage1.mZoom, -1000.0f, 1000.0f, 0.1f, 0, 0);
-        fn_8008771C(menu, "AspectOfs", &mAspectOfs, 0.0f, 100.0f, 0.01f, 0, 0);
-        for (unsigned int i = 0; i < mGimmicks.size(); i++) {
-            TitleGimmick_unk& e = mGimmicks.begin()[i];
-            GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
-            if (g != 0) {
-                g->vf70(e.mState);
-            } else if (lbl_8087EEB8 != 0) {
-                char msg[0x100];
-                sprintf(msg, "error: not found change Gimmick[gm%d_%d_%d]\n", e.mId / 1000, e.mId % 1000, e.mIndex);
-                lbl_8087EEB8->fn_800697D8(msg);
+        if (mWhiteMap->IsFlag_unk(2)) {
+            mWhiteMap->fn_800D246C(0);
+            mPreload.fn_80470528();
+            fn_80533BDC(1);
+            mFirst = GetTrackValue_unk(mMenu, "first");
+            mSecond = GetTrackValue_unk(mMenu, "second");
+            mOpSelect = GetTrackValue_unk(mMenu, "opSelect");
+            mOpCursor = GetTrackValue_unk(mMenu, "opCursor");
+            mInFrame = GetTrackValue_unk(mCursor, "inFrame");
+            mSelectFrame = GetTrackValue_unk(mCursor, "selectFrame");
+            mMenu->mRepeat = 0;
+            mMenu->fn_800D246C(0);
+            mCursor->mRepeat = 0;
+            mCursor->fn_800D246C(0);
+            mLogo->mRepeat = 0;
+            mLogo->fn_800D246C(0);
+            mLogoCl->mRepeat = 0;
+            mLogoCl->mSpeed = 0.0f;
+            mLogoCl->fn_800D246C(0);
+            mLogoNm->mRepeat = 0;
+            mLogoNm->fn_800D246C(0);
+            mPushOp->mRepeat = 0;
+            mPushOp->fn_800D246C(0);
+            mPushLoop->fn_800D246C(0);
+            mFade->mKillAtEnd = 1;
+            mFade->mDelay = 0;
+            mFade->mDuration = lbl_8087F0A8->mTitle.mMaskFadeTime;
+            mFade->mWait = 0;
+            mFade->mColor0 = 0xFF000000;
+            mFade->mColor1 = 0;
+            mFade->mZ = -100.0f;
+            mFade->mFrame = 0;
+            mFade->mActive = 1;
+            mCamera.mPos = mKeys[1].mPos;
+            mCamera.mTarget = mKeys[1].mTgt;
+            mCamera.mUp = atn::Vector3(0.0f, 1.0f, 0.0f);
+            mCamera.mFovy = mKeys[1].mAngle;
+            mCamera.mAspect = fn_80076FF8(lbl_8087EEE0);
+            void* menu = mDebugMenu.Load("NewTitle");
+            fn_80087994(menu, "FreeCamera", &mFreeCamera, 0, 0);
+            fn_80087E9C(menu, "CameraPos", &mCameraPos.x, -1e16f, 1e16f, 1.0f, 0, 0);
+            fn_80087E9C(menu, "CameraTarget", &mCameraTarget.x, -1e16f, 1e16f, 1.0f, 0, 0);
+            fn_80087858(menu, "CameraAngle", &mCameraAngle, 0.0f, 1.5707964f, 1.0f, 0, 0);
+            fn_800874C8(menu, "StopTime", &mStopTime, 0, 10000, 1, 0, 0);
+            fn_8008771C(menu, "Damage Zoom", &mDamage1.mZoom, -1000.0f, 1000.0f, 0.1f, 0, 0);
+            fn_8008771C(menu, "AspectOfs", &mAspectOfs, 0.0f, 100.0f, 0.01f, 0, 0);
+            for (unsigned int i = 0; i < mGimmicks.size(); i++) {
+                TitleGimmick_unk& e = mGimmicks.begin()[i];
+                GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
+                if (g != 0) {
+                    g->vf70(e.mState);
+                } else if (lbl_8087EEB8 != 0) {
+                    char msg[0x100];
+                    sprintf(msg, "error: not found change Gimmick[gm%d_%d_%d]\n", e.mId / 1000, e.mId % 1000, e.mIndex);
+                    lbl_8087EEB8->fn_800697D8(msg);
+                }
             }
-        }
-        mNoSave = 1;
-        for (int i = 0; i < 17; i++) {
-            if (mLoadTask->mSlots[i].fn_803BEAB4() != 0) {
-                mNoSave = 0;
-                break;
+            mNoSave = 1;
+            for (int i = 0; i < 17; i++) {
+                if (mLoadTask->mSlots[i].fn_803BEAB4() != 0) {
+                    mNoSave = 0;
+                    break;
+                }
             }
+            if (mLoadBg->fn_803B8144() != 0) {
+                fn_800D2338(mLoadBg);
+                mLoadBg = 0;
+            }
+            if (mNoSave != 0) {
+                fn_800D2338(mLoadTask);
+                mLoadTask = 0;
+            }
+            return 1;
         }
-        if (mLoadBg->fn_803B8144() != 0) {
-            fn_800D2338(mLoadBg);
-            mLoadBg = 0;
-        }
-        if (mNoSave != 0) {
-            fn_800D2338(mLoadTask);
-            mLoadTask = 0;
-        }
-        return 1;
     }
     return 0;
 }
