@@ -34,8 +34,6 @@ extern "C" unsigned int GXGetTexBufferSize(unsigned short width, unsigned short 
 extern "C" void DCFlushRange(void* address, unsigned long size);
 extern "C" int lbl_8087D8F8;
 extern "C" int lbl_8087D8FC;
-extern "C" int lbl_8087D900;
-extern "C" int lbl_8087D904;
 extern "C" float lbl_8087D908;
 extern "C" float lbl_8087D90C;
 extern "C" unsigned char lbl_8087D81C[];
@@ -87,6 +85,16 @@ public:
     unsigned char m14[0x30 - 0x14];
 };
 } // namespace atn
+// inferred: draw order of the pass lists (std::sort comparator of fn_800BDBC8): higher mOrder first, then
+// by address
+struct RenderEntryLess_unk {
+    bool operator()(const atn::RenderEntry_unk* x, const atn::RenderEntry_unk* y) const {
+        return x->mOrder > y->mOrder || (x->mOrder == y->mOrder && x < y);
+    }
+};
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp);
+
 extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
                               int arg7);
@@ -109,25 +117,7 @@ extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned in
 extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
 extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned int width, unsigned int height);
 
-static inline int fn_800BF_sortBefore(void* left, void* right) {
-    float leftOrder = *(float*)((unsigned char*)left + 4);
-    float rightOrder = *(float*)((unsigned char*)right + 4);
-    return leftOrder > rightOrder ||
-           (leftOrder == rightOrder && (unsigned int)left < (unsigned int)right);
-}
 
-extern "C" void fn_800BF558(void** first, void** last, void* context);
-extern "C" void fn_800BF9C4(void** first, void** second, void** third);
-extern "C" void fn_800BF0EC(void** first, void** last, void* context);
-extern "C" void fn_800BF558(void** first, void** last, void* context);
-static inline int fn_800BF9C4_ordered(void* const* left, void* const* right) {
-    void* a = *left;
-    void* b = *right;
-    float keyA = *(float*)((unsigned char*)a + 4);
-    float keyB = *(float*)((unsigned char*)b + 4);
-    return !(keyB > keyA || (keyB == keyA && (unsigned int)b < (unsigned int)a));
-}
-extern "C" void fn_800BF9C4(void** first, void** second, void** third);
 extern "C" void* memset(void* dest, int value, unsigned long size);
 extern "C" void fn_800BEDA8(int shift, const DrawSortKey_unk* in, DrawSortKey_unk* out, unsigned int count);
 
@@ -490,8 +480,7 @@ void atn::RenderManager::fn_800BDBC8() {
                     entries.push_back(entry);
                     entry = entry->mNext;
                 }
-                unsigned char ascending = 0;
-                fn_800BF0EC((void**)&entries[0], (void**)&entries[0] + entries.size(), &ascending);
+                Sort_unk(&entries[0], &entries[0] + entries.size(), RenderEntryLess_unk());
                 for (unsigned int i = 0; i < entries.size(); ++i) {
                     if (i == entries.size() - 1) {
                         entries[i]->mNext = 0;
@@ -694,267 +683,160 @@ extern "C" void fn_800BEDA8(int shift, const DrawSortKey_unk* in, DrawSortKey_un
     }
 }
 
-extern "C" void fn_800BF0EC(void** first, void** last, void* context) {
-    // inferred: first MSL __sort instantiation for render-entry pointers; small ranges use selection sort.
-    // NONMATCHING: 90.08% - MWCC register allocation and partition loops still differ.
-    for (;;) {
-        int count = (int)(last - first);
-        if (count <= 1) {
-            return;
-        }
-        if (count <= 20) {
-            if (first != last) {
-                for (void** end = last - 1; first != end; ++first) {
-                    void** minimum = first;
-                    for (void** current = first + 1; current != last; ++current) {
-                        if (fn_800BF_sortBefore(*current, *minimum)) {
-                            minimum = current;
-                        }
-                    }
-                    if (minimum != first) {
-                        void* value = *minimum;
-                        *minimum = *first;
-                        *first = value;
-                    }
-                }
-            }
-            return;
-        }
-
-        int* state = &lbl_8087D900;
-        void** a = first + (count / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
-        }
-        void** b = first + ((count * 3) / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
-        }
-        void** pivot = last - 1;
-        fn_800BF9C4(a, b, pivot);
-
-        void** i = first;
-        void** j;
-        while (fn_800BF_sortBefore(*i, *pivot)) {
-            ++i;
-        }
-        j = pivot;
-        while (i != --j && !fn_800BF_sortBefore(*j, *pivot)) {
-        }
-        if (i < j) {
-            void* value = *i;
-            *i = *j;
-            *j = value;
-            ++i;
-            for (;;) {
-                while (fn_800BF_sortBefore(*i, *pivot)) {
-                    ++i;
-                }
-                while (!fn_800BF_sortBefore(*--j, *pivot)) {
-                }
-                if (i >= j) {
-                    break;
-                }
-                value = *i;
-                *i = *j;
-                *j = value;
-                ++i;
-            }
-        }
-
-        if (i == first) {
-            void** back = last - 1;
-            void* value = *i;
-            *i = *pivot;
-            *pivot = value;
-            ++i;
-            if (!fn_800BF_sortBefore(*first, *back)) {
-                while (i != last && !fn_800BF_sortBefore(*first, *i)) {
-                    ++i;
-                }
-                if (i < back) {
-                    value = *i;
-                    *i = *back;
-                    *back = value;
-                }
-            }
-            j = back;
-            if (i < j) {
-                for (;;) {
-                    while (!fn_800BF_sortBefore(*first, *i)) {
-                        ++i;
-                    }
-                    while (fn_800BF_sortBefore(*first, *--j)) {
-                    }
-                    if (i >= j) {
-                        break;
-                    }
-                    value = *i;
-                    *i = *j;
-                    *j = value;
-                    ++i;
-                }
-            }
-            first = i;
-        } else if (i - first < last - i) {
-            fn_800BF558(first, i, context);
-            first = i;
-        } else {
-            fn_800BF558(i, last, context);
-            last = i;
-        }
-    }
-}
-
-extern "C" void fn_800BF558(void** first, void** last, void* context) {
-    // inferred: recursive MSL __sort instantiation for render-entry pointers.
-    // NONMATCHING: 90.08% - MWCC register allocation and partition loops still differ.
-    for (;;) {
-        int count = (int)(last - first);
-        if (count <= 1) {
-            return;
-        }
-        if (count <= 20) {
-            if (first != last) {
-                for (void** end = last - 1; first != end; ++first) {
-                    void** minimum = first;
-                    for (void** current = first + 1; current != last; ++current) {
-                        if (fn_800BF_sortBefore(*current, *minimum)) {
-                            minimum = current;
-                        }
-                    }
-                    if (minimum != first) {
-                        void* value = *minimum;
-                        *minimum = *first;
-                        *first = value;
-                    }
-                }
-            }
-            return;
-        }
-
-        int* state = &lbl_8087D904;
-        void** a = first + (count / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
-        }
-        void** b = first + ((count * 3) / 4) + (*state % 5);
-        if (++*state >= 5) {
-            *state = -4;
-        }
-        void** pivot = last - 1;
-        fn_800BF9C4(a, b, pivot);
-
-        void** i = first;
-        void** j;
-        while (fn_800BF_sortBefore(*i, *pivot)) {
-            ++i;
-        }
-        j = pivot;
-        while (i != --j && !fn_800BF_sortBefore(*j, *pivot)) {
-        }
-        if (i < j) {
-            void* value = *i;
-            *i = *j;
-            *j = value;
-            ++i;
-            for (;;) {
-                while (fn_800BF_sortBefore(*i, *pivot)) {
-                    ++i;
-                }
-                while (!fn_800BF_sortBefore(*--j, *pivot)) {
-                }
-                if (i >= j) {
-                    break;
-                }
-                value = *i;
-                *i = *j;
-                *j = value;
-                ++i;
-            }
-        }
-
-        if (i == first) {
-            void** back = last - 1;
-            void* value = *i;
-            *i = *pivot;
-            *pivot = value;
-            ++i;
-            if (!fn_800BF_sortBefore(*first, *back)) {
-                while (i != last && !fn_800BF_sortBefore(*first, *i)) {
-                    ++i;
-                }
-                if (i < back) {
-                    value = *i;
-                    *i = *back;
-                    *back = value;
-                }
-            }
-            j = back;
-            if (i < j) {
-                for (;;) {
-                    while (!fn_800BF_sortBefore(*first, *i)) {
-                        ++i;
-                    }
-                    while (fn_800BF_sortBefore(*first, *--j)) {
-                    }
-                    if (i >= j) {
-                        break;
-                    }
-                    value = *i;
-                    *i = *j;
-                    *j = value;
-                    ++i;
-                }
-            }
-            first = i;
-        } else if (i - first < last - i) {
-            fn_800BF558(first, i, context);
-            first = i;
-        } else {
-            fn_800BF558(i, last, context);
-            last = i;
-        }
-    }
-}
-
-// inferred: draw order of the pass lists (std::sort comparator of fn_800BDBC8): higher mOrder first, then
-// by address
-static inline bool RenderEntryLess_unk(const atn::RenderEntry_unk* x, const atn::RenderEntry_unk* y) {
-    return x->mOrder > y->mOrder || (x->mOrder == y->mOrder && x < y);
-}
-
-// inferred: std::swap
 template <class T>
-inline void __Swap_unk(T& x, T& y) {
-    T t = x;
-    x = y;
-    y = t;
+inline void Swap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
 }
 
-// inferred: MSL __sort3 (median of three of std::sort) on the render entries
-extern "C" void fn_800BF9C4(void** first, void** second, void** third) {
-    atn::RenderEntry_unk** a = (atn::RenderEntry_unk**)first;
-    atn::RenderEntry_unk** b = (atn::RenderEntry_unk**)second;
-    atn::RenderEntry_unk** c = (atn::RenderEntry_unk**)third;
-    bool ac = !RenderEntryLess_unk(*c, *a);
-    bool bc = !RenderEntryLess_unk(*b, *c);
+template <class T>
+struct Ref_unk {
+    typedef T& type;
+};
+template <class T>
+struct Ref_unk<T&> {
+    typedef T& type;
+};
+
+template <class T, class Compare>
+inline T* MinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
+    T* result = first;
+    if (first != last) {
+        for (it = first + 1; it != last; it++) {
+            if (comp(*it, *result)) {
+                result = it;
+            }
+        }
+    }
+    return result;
+}
+
+template <class T, class Compare>
+void Median3_unk(T* a, T* b, T* c, Compare& comp);
+
+// inferred: MSL __sort (std::sort) of the pass lists, as atn/Loader.cpp Sort_unk: 0x800BF0EC (comparison by
+// value) and 0x800BF558 (by reference, recursive part)
+// NONMATCHING: 99.79% (both instantiations) - register of the minimum in the selection sort
+template <class T, class Compare>
+void Sort_unk(T* first, T* last, Compare comp) {
+    typedef typename Ref_unk<Compare>::type CompareRef;
+    static int sOffset = -4; // inferred: lbl_8087D900 and lbl_8087D904 (one per instantiation)
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first != last) {
+                for (; first != last - 1; first++) {
+                    T* min = MinElement_unk(first, last, comp);
+                    if (min != first) {
+                        Swap_unk(*min, *first);
+                    }
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* i;
+        T* j;
+        T* pivot = last - 1;
+        Median3_unk(a, b, pivot, comp);
+        i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            i++;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            Swap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                Swap_unk(*i, *j);
+                i++;
+            }
+        }
+        if (i == first) {
+            T* back = last - 1;
+            Swap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    i++;
+                }
+                if (i < back) {
+                    Swap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        i++;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    Swap_unk(*i, *j);
+                    i++;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            Sort_unk<T, CompareRef>(first, i, comp);
+            first = i;
+        } else {
+            Sort_unk<T, CompareRef>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+// inferred: MSL __sort3 (median of three of std::sort)
+template <class T, class Compare>
+void Median3_unk(T* a, T* b, T* c, Compare& comp) {
+    bool ac = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
     if (ac && bc) {
         return;
     }
     if (!ac && !bc) {
-        __Swap_unk(*a, *b);
+        Swap_unk(*a, *b);
         return;
     }
-    if (RenderEntryLess_unk(*b, *a)) {
-        __Swap_unk(*a, *b);
+    if (comp(*b, *a)) {
+        Swap_unk(*a, *b);
     }
     if (ac) {
-        __Swap_unk(*b, *c);
+        Swap_unk(*b, *c);
     } else {
-        __Swap_unk(*a, *c);
+        Swap_unk(*a, *c);
     }
 }
+// emitted here in the original (after fn_800BEDA8)
+template void Sort_unk<atn::RenderEntry_unk*, RenderEntryLess_unk>(atn::RenderEntry_unk**, atn::RenderEntry_unk**,
+                                                                  RenderEntryLess_unk);
 
 void atn::RenderManager::fn_800BFAC4() {}
 
