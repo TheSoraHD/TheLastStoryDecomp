@@ -79,6 +79,7 @@ public:
     void fn_8056DACC(int frame);
     void fn_8056E918(int frame);
     void fn_80570254(int frame); // inferred: rebuilds the effects and events up to the frame
+    void fn_8057080C(); // inferred: frees the bullet events that ended more than 90 frames ago
     int m00004; // inferred: current frame
     ReplayFrame_unk mFrames[45]; // 0x00008: inferred: ring of the recorded frames
     ReplayFrame_unk mLive;       // 0x43970: inferred: frame shown while m5BDB4 is set

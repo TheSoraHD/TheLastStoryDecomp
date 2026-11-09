@@ -360,3 +360,52 @@ void ReplayBuffer::fn_805706C0(const ReplayEvent_unk* ev) {
     entry->mEvent = *ev;
     mNewEvents.push_back(entry);
 }
+
+void ReplayBuffer::fn_8057080C() {
+    atn::FixedArray_unk<ReplayEventEntry_unk*, 256> shots;
+    for (ReplayEventEntry_unk** it = mNewEvents.begin(); it != mNewEvents.end(); it++) {
+        ReplayEventEntry_unk* e = *it;
+        switch (e->mEvent.mKind) {
+        case 0:
+        case 2:
+            shots.push_back(e);
+            break;
+        case 1:
+        case 3:
+            if (e->mFrame < m00004 - 90) {
+                if (shots.size() == 0) {
+                    e->mFrame = -1;
+                } else {
+                    // inferred: as in the original, a freed shot (negative frame) is not skipped
+                    ReplayEventEntry_unk** p = shots.begin();
+                    while (p != shots.end()) {
+                        ReplayEventEntry_unk* shot = *p;
+                        if (shot->mFrame < 0) {
+                            continue;
+                        }
+                        if (e->mEvent.mBullet == shot->mEvent.mBullet) {
+                            shots.erase(p);
+                            e->mFrame = -1;
+                            shot->mFrame = -1;
+                            break;
+                        }
+                        p++;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    m5BDA0 = m00004;
+    for (ReplayEventEntry_unk** it = mNewEvents.begin(); it != mNewEvents.end();) {
+        ReplayEventEntry_unk* e = *it;
+        if (e->mFrame < 0) {
+            mNewEvents.erase(it);
+        } else {
+            if (e->mEvent.mKind == 0 || e->mEvent.mKind == 2) {
+                m5BDA0 = e->mFrame < m5BDA0 ? e->mFrame : m5BDA0;
+            }
+            it++;
+        }
+    }
+}
