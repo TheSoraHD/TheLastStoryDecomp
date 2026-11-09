@@ -594,7 +594,8 @@ void EventCamera_unk::fn_801151A4() {
         if (GetSetConfig_unk()) {
             s *= GetCameraConfig_unk(GetSetConfig_unk())->GetRotScale_unk();
         }
-        m25C.x += s * (sign * m200);
+        s *= sign * m200;
+        m25C.x += s;
         m25C.x = atn::WrapAngle_unk(m25C.x);
         if (atn::Abs_unk(m25C.x) > m268.x) {
             m25C.x = m268.x * (m25C.x > 0.0f ? 1.0f : -1.0f);
@@ -614,7 +615,8 @@ void EventCamera_unk::fn_801151A4() {
         if (GetSetConfig_unk()) {
             s *= GetCameraConfig_unk(GetSetConfig_unk())->GetRotScale_unk();
         }
-        m25C.y += s * (sign * m200);
+        s *= sign * m200;
+        m25C.y += s;
         m25C.y = atn::WrapAngle_unk(m25C.y);
         if (atn::Abs_unk(m25C.y) > m268.y) {
             m25C.y = m268.y * (m25C.y > 0.0f ? 1.0f : -1.0f);
