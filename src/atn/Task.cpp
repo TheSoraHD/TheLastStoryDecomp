@@ -14,8 +14,10 @@ extern "C" atn::TaskStats_unk lbl_807C75D8;
 // inferred: set when a task is killed; fn_800D2D7C only walks the tree when it is set
 static int lbl_8087EFF0;
 
-// inferred: release assert of the original (the expression is evaluated, the result is ignored)
-#define TASK_ASSERT_VALID(t) ((void)((t) != 0 && (t)->IsValid()))
+// inferred: release assert of the original (the expression is evaluated, the result is ignored). As a
+// statement (`if`) and not as an `&&` expression: the expression form is bigger for the inliner and the
+// recursive helpers (fn_800D498C, fn_800D51EC) get one level of inlining less than in the original.
+#define TASK_ASSERT_VALID(t) do { if (t) (t)->IsValid(); } while (0)
 
 // inferred: mapping tables used by the material and shader code (atn/MaterialParser_unk,
 // atn/Shader_unk). They are at the start of the split; they may belong to another file.
@@ -364,8 +366,8 @@ static int fn_800D4280(Task* task) {
     return ready;
 }
 
-// NONMATCHING: 42.70% - el original inlinea un nivel mas de fn_800D498C (assert del hijo en el llamador);
-// con el assert al principio de la funcion llega a la profundidad pero cambia la entrada.
+// NONMATCHING: 97.70% - registros de los niveles inlineados de fn_800D498C (el original da r31 a `task` y
+// r30 al primer hijo; aqui al reves). Probado: un local o dos, `if ((c = ...) != 0)`, assert como inline.
 void Task::fn_800D4558() {
     Task* child = m18;
     if (child != 0) {
@@ -373,20 +375,22 @@ void Task::fn_800D4558() {
     }
 }
 
-// NONMATCHING: 42.73% - profundidad de inline (ver fn_800D4558).
+// NONMATCHING: 97.57% - registros de los niveles inlineados (ver fn_800D4558).
 static void fn_800D498C(Task* task) {
-    if (task->m18 != 0) {
-        TASK_ASSERT_VALID(task->m18);
-        fn_800D498C(task->m18);
+    Task* child = task->m18;
+    if (child != 0) {
+        TASK_ASSERT_VALID(child);
+        fn_800D498C(child);
     }
-    if (task->m1C != 0) {
-        TASK_ASSERT_VALID(task->m1C);
-        fn_800D498C(task->m1C);
+    child = task->m1C;
+    if (child != 0) {
+        TASK_ASSERT_VALID(child);
+        fn_800D498C(child);
     }
     task->mFlags |= 4;
 }
 
-// NONMATCHING: 42.70% - profundidad de inline (ver fn_800D4558).
+// NONMATCHING: 97.70% - registros de los niveles inlineados (ver fn_800D4558).
 void Task::fn_800D4DB8() {
     Task* child = m18;
     if (child != 0) {
@@ -394,15 +398,17 @@ void Task::fn_800D4DB8() {
     }
 }
 
-// NONMATCHING: 42.73% - profundidad de inline (ver fn_800D4558).
+// NONMATCHING: 97.57% - registros de los niveles inlineados (ver fn_800D4558).
 static void fn_800D51EC(Task* task) {
-    if (task->m18 != 0) {
-        TASK_ASSERT_VALID(task->m18);
-        fn_800D51EC(task->m18);
+    Task* child = task->m18;
+    if (child != 0) {
+        TASK_ASSERT_VALID(child);
+        fn_800D51EC(child);
     }
-    if (task->m1C != 0) {
-        TASK_ASSERT_VALID(task->m1C);
-        fn_800D51EC(task->m1C);
+    child = task->m1C;
+    if (child != 0) {
+        TASK_ASSERT_VALID(child);
+        fn_800D51EC(child);
     }
     task->mFlags &= ~4;
 }
