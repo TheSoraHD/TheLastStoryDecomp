@@ -1069,28 +1069,30 @@ atn::Texture_unk* atn::RenderManager::fn_800C0A98() {
 extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned int height,
                                unsigned int xShift, unsigned int yShift, unsigned int elementSize,
                                unsigned int rowStride, unsigned char* scratch) {
-    // inferred: rearranges one tiled block through a temporary row buffer; NONMATCHING: 94.59% - loop register allocation differs.
-    register unsigned char* output = data;
-    register unsigned int pixelSize = elementSize;
-    register unsigned int stride = rowStride;
-    register unsigned char* temporary = scratch;
+    // inferred: rearranges the blocks of each band through the scratch rows
     unsigned int blocksX = width >> xShift;
     unsigned int blocksY = height >> yShift;
-    unsigned int scratchSize = stride << yShift;
-    unsigned int rows = 1 << yShift;
-    for (unsigned int blockY = 0; blockY < blocksY; ++blockY) {
-        memcpy(temporary, output, scratchSize);
-        unsigned int sourceOffset = 0;
-        for (unsigned int blockX = 0; blockX < blocksX; ++blockX) {
-            unsigned char* sourceRow = temporary + sourceOffset;
-            for (unsigned int row = 0; row < rows; ++row) {
-                for (unsigned int byte = 0; byte < pixelSize; ++byte) {
-                    output[byte] = sourceRow[byte];
+    unsigned int bandSize = rowStride << yShift;
+    unsigned int blockY = 0;
+    unsigned char* p = data;
+    unsigned char* tmp = scratch;
+    unsigned int stride = rowStride;
+    unsigned int size = elementSize;
+    for (; blockY < blocksY; ++blockY) {
+        memcpy(tmp, p, bandSize);
+        unsigned int blockX;
+        unsigned char* src;
+        unsigned int row;
+        unsigned int i;
+        for (blockX = 0; blockX < blocksX; ++blockX) {
+            src = tmp + blockX * size;
+            for (row = 0; row < (1u << yShift); ++row) {
+                for (i = 0; i < size; ++i) {
+                    p[i] = src[i];
                 }
-                output += pixelSize;
-                sourceRow += stride;
+                p += size;
+                src += stride;
             }
-            sourceOffset += pixelSize;
         }
     }
 }
@@ -1098,29 +1100,33 @@ extern "C" void fn_800C0AA4(unsigned char* data, unsigned int width, unsigned in
 extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned int height,
                                unsigned int xShift, unsigned int yShift, unsigned int elementSize,
                                unsigned int rowStride, unsigned char* scratch) {
-    // inferred: inverse tiled-block rearrangement; NONMATCHING: 92.94% - loop register allocation differs.
-    unsigned char* input = data;
-    unsigned int pixelSize = elementSize;
-    unsigned int stride = rowStride;
-    unsigned char* temporary = scratch;
+    // inferred: inverse of fn_800C0AA4
     unsigned int blocksX = width >> xShift;
     unsigned int blocksY = height >> yShift;
-    unsigned int scratchSize = stride << yShift;
-    unsigned int rows = 1 << yShift;
-    for (unsigned int blockY = 0; blockY < blocksY; ++blockY) {
-        unsigned int sourceOffset = 0;
-        for (unsigned int blockX = 0; blockX < blocksX; ++blockX) {
-            unsigned char* destRow = temporary + sourceOffset;
-            for (unsigned int row = 0; row < rows; ++row) {
-                for (unsigned int byte = 0; byte < pixelSize; ++byte) {
-                    destRow[byte] = input[byte];
+    unsigned int bandSize = rowStride << yShift;
+    unsigned int blockY = 0;
+    unsigned char* p = data;
+    unsigned char* tmp = scratch;
+    unsigned int stride = rowStride;
+    unsigned int size = elementSize;
+    for (; blockY < blocksY; ++blockY) {
+        unsigned char* band = p;
+        unsigned int blockX = 0;
+        unsigned int offset = 0;
+        for (; blockX < blocksX; ++blockX) {
+            unsigned int row = 0;
+            unsigned int i;
+            unsigned char* dst = tmp + offset;
+            for (; row < (1u << yShift); ++row) {
+                for (i = 0; i < size; ++i) {
+                    dst[i] = p[i];
                 }
-                input += pixelSize;
-                destRow += stride;
+                dst += stride;
+                p += size;
             }
-            sourceOffset += pixelSize;
+            offset += size;
         }
-        memcpy(input, temporary, scratchSize);
+        memcpy(band, tmp, bandSize);
     }
 }
 
