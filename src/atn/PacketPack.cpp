@@ -222,7 +222,9 @@ extern "C" int fn_804CF634(PPChara_unk* chara) {
 }
 
 // NONMATCHING: stub
-extern "C" void fn_804CF640(void* in, void* chara) {}
+// NONMATCHING: stub of the 0xA50-byte function that applies a received character state (noinline so that
+// its callers keep the call while it is empty)
+extern "C" __declspec(noinline) void fn_804CF640(void* in, void* chara) {}
 
 // inferred: object with a flag word at 0x08 (name invented)
 struct PPFlags_unk {
@@ -445,6 +447,12 @@ struct PPThreadRequest_unk {
     void* mFuncs[8];
 };
 
+// inferred: object of MP::Manager2 at 0x2B7C (only m58 is used); names invented
+struct PPLimit_unk {
+    unsigned char m00[0x58];
+    int m58;
+};
+
 // inferred: MP::Manager2 (lbl_8087F610), only the members used here; names invented
 struct PPManager2_unk : public atn::Task {
     unsigned char m0048[0x348 - 0x48];
@@ -513,7 +521,7 @@ struct PPManager2_unk : public atn::Task {
     atn::SoundRef m2B70;
     atn::SoundRef m2B74;              // inferred: sounds stopped by fn_804DA398
     atn::SoundRef m2B78;
-    unsigned char m2B7C[0x2B80 - 0x2B7C];
+    PPLimit_unk* m2B7C;              // inferred: object whose m58 is raised during the load (fn_804D2508)
     int m2B80;
     int m2B84;                        // inferred: result state of the game (fn_804E4A60)
     int m2B88;                        // inferred: number of the slots of m2B8C
@@ -721,7 +729,7 @@ extern "C" atn::net::NetRanking_unk* lbl_8087F5A4;
 namespace MP {
 // inferred: views of MP::D2AMpMenu and MP::D2AMpMenuFriend (their headers redeclare lbl_8087EFA8 and
 // lbl_8087F628 with other types)
-class D2AMpMenu {
+class D2AMpMenu : public atn::Task {
 public:
     struct Work_unk {
         int m00;
@@ -731,7 +739,7 @@ public:
     };
     void fn_804AF520(int state);
     static D2AMpMenu* sInstance;
-    unsigned char m0000[0xBC];
+    unsigned char m0048[0xBC - 0x48];
     int mBC;
     unsigned char m00C0[0xC8 - 0xC0];
     int mC8;
@@ -944,7 +952,7 @@ extern "C" void fn_804D6688(PPPlayerArray_unk* players, int num);
 extern "C" void fn_804DF310(PPManager2_unk* mgr);
 extern "C" void fn_804FB668(PPManager2_unk* mgr);
 extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr);
-extern "C" void fn_804FAA7C(PPManager2_unk* mgr, int a, PPPlayer_unk* player);
+extern "C" void fn_804FAA7C(PPManager2_unk* mgr, unsigned int flush, PPPlayer_unk* player);
 extern "C" void fn_804D824C(PPManager2_unk* mgr, PPPlayer_unk* player, int mode);
 extern "C" void fn_804FC0D4(PPManager2_unk* mgr, int arg);
 extern "C" void fn_804C2268(MP::D2AMpMenuLobby* lobby, int time);
@@ -1077,6 +1085,22 @@ extern "C" __declspec(noinline) inline atn::net::NetThread_unk* fn_804D16E4(atn:
 extern "C" __declspec(noinline) inline ErrorManager* fn_804D16F0() {
     return lbl_8087F420;
 }
+// inferred: clears a player slot
+extern "C" void fn_804D1F6C(PPPlayer_unk* player) {
+    player->mAid = 0xFF;
+    player->mDC.fn_80501288(0);
+    player->mFlagWord = 0;
+    player->mB0 = 0;
+    player->mD38[4] = 0;
+    player->mD50 = -1;
+    player->mD4C = 0;
+    player->mD53 = 0;
+    player->mD54 = -1;
+    player->mD58 = 0;
+    player->mD8 = 0;
+    player->mD4 = 0;
+}
+
 extern "C" __declspec(noinline) inline int fn_804D24A8(atn::net::NetThread_unk* thread) {
     return thread->mRunning;
 }
@@ -1420,6 +1444,25 @@ extern "C" __declspec(noinline) inline int fn_804D6664(GameBgm* bgm) {
 }
 extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
+}
+
+extern "C" int fn_800C310C(int arg);
+// inferred: MP::Manager2::vf0C (vtable 0x807916E0): waits for the resources, then shows the menu
+extern "C" int fn_804D2508(PPManager2_unk* mgr) {
+    mgr->m2B7C->m58 = 99999;
+    if (fn_800C310C(0) == 0 && mgr->m9968.IsLoading() == 0 && mgr->fn_800D3FA4() != 0) {
+        fn_80232B7C((unsigned int)mgr, 0);
+        MP::D2AMpMenu::sInstance->fn_800D246C(0);
+        MP::D2AMpMenu* menu = MP::D2AMpMenu::sInstance;
+        menu->m299C.m00 = 2;
+        menu->m299C.m08 = 0;
+        menu->m299C.m04 = 0;
+        menu->m299C.m0C = 0;
+        MP::D2ACommonDialog::sInstance->fn_800D246C(0);
+        mgr->m2B7C->m58 = 0;
+        return 1;
+    }
+    return 0;
 }
 
 // inferred: MP::Manager2::vf10 (vtable 0x807916E0): update of the multiplayer mode
@@ -2923,6 +2966,15 @@ extern "C" int fn_804E4C34(PPManager2_unk* mgr);
 extern "C" int fn_804E4C5C(PPManager2_unk* mgr);
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
 
+// inferred: the server asks the other players for their state (message 0x1047)
+extern "C" void fn_804DDD50(PPManager2_unk* mgr) {
+    unsigned char aid = lbl_8087F628->GetMyAid_unk();
+    if (aid == lbl_8087F628->GetServerAid_unk()) {
+        fn_804AE3BC()->fn_8050E094(-1, 0x1047, 0, 1);
+        fn_804AE3BC()->fn_8050DDDC(-1, 1);
+    }
+}
+
 // NONMATCHING: 90.49% - the original reloads lbl_8087F610 in every iteration and keeps the zero of the index in
 // two more registers
 // inferred: resets the player slots (and the aid tables m9984/m998C)
@@ -3561,6 +3613,16 @@ extern "C" void fn_804EE834(PPPlayer_unk* player) {
     }
 }
 
+// inferred: applies the state of a character received from another player (only in the game, state 30)
+extern "C" void fn_804EE904(MpCharaRef_unk* ref) {
+    if (((PPManager2_unk*)lbl_8087F610)->mState == 30) {
+        unsigned char* data = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+        if (data[0x14] != lbl_8087F628->GetMyAid_unk() && ref->mChara != 0) {
+            fn_804CF640(data, ref->mChara);
+        }
+    }
+}
+
 // inferred: message 9: a voice of the data (id, offset)
 extern "C" void fn_804EFE98(PPPlayer_unk* player) {
     if (lbl_8087F628 != 0 && fn_804AE3BC() != 0 && fn_804AE3BC()->GetWorkBuffer_unk() != 0) {
@@ -3935,6 +3997,15 @@ extern "C" void fn_804F4F40(unsigned int aid) {
     }
 }
 
+// inferred: starts the game (state 29) and the cockpit
+extern "C" void fn_804F4F64() {
+    fn_804FB220(&((PPManager2_unk*)lbl_8087F610)->mStateVar, 29);
+    MP::D2AMpMenu::sInstance->fn_804AF520(16);
+    MP::D2AMpMenuCockpit::sInstance->fn_800D246C(0);
+    MP::D2AMpMenuCockpit::sInstance->fn_804B50C0(1);
+    MP::D2AMpMenuCockpit::sInstance->fn_804B6204(((PPManager2_unk*)lbl_8087F610)->m564);
+}
+
 // inferred: message 0x3E: the lobby is told to refresh (mF90)
 extern "C" void fn_804F50C4(unsigned int aid) {
     MP::D2AMpMenuLobby* lobby = MP::D2AMpMenuLobby::sInstance;
@@ -4037,6 +4108,22 @@ extern "C" int fn_804F7F34() {
         return saveLoad->mError;
     }
     return 0;
+}
+
+// inferred: payload of the message 0x1008 (flags of a player slot); names invented
+struct PPMsgFlags_unk {
+    unsigned char m00[0x1C];
+    unsigned int mFlags;
+};
+// inferred: sends the flags of a player slot
+extern "C" void fn_804FAA7C(PPManager2_unk* mgr, unsigned int flush, PPPlayer_unk* player) {
+    NetMsgI_unk<PPMsgFlags_unk> msg(0x1008);
+    PPMsgFlags_unk* data = &msg.mData;
+    data->mFlags = player->mFlagWord;
+    fn_804AE3BC()->fn_8050E094(-1, 0x1008, data, 1);
+    if (flush == 1) {
+        fn_804AE3BC()->fn_8050DDDC(-1, 1);
+    }
 }
 
 // inferred: flag m976C once the network manager reached state 8
