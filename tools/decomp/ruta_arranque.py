@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# ruta_arranque.py [report.json]: tables of the boot route (main() -> title screen) for docs/ruta-arranque.md.
+# ruta_arranque.py [report.json [ref_report.json]]: tables of the boot route (main() -> title screen) for docs/ruta-arranque.md.
 #  1. per unit of the route: functions at 100%, almost equal (>= 99%), DRAFT, linked (matching in game_units.json);
 #  2. library objects called from the route (bl targets in the asm of the route units) and whether they link.
 # Needs build/SLSP01/asm (dtk split) and build/SLSP01/report.json.
@@ -14,6 +14,9 @@ GAME = ('game', 'atn', 'Event', 'AI', 'gmk', 'chr', 'MP', 'db')
 
 rep = json.load(open(sys.argv[1] if len(sys.argv) > 1 else 'build/SLSP01/report.json'))
 units = {u['name'].replace('main/', ''): u for u in rep['units']}
+ref = None
+if len(sys.argv) > 2:
+    ref = {u['name'].replace('main/', ''): u for u in json.load(open(sys.argv[2]))['units']}
 gu = {u['name'].rsplit('.', 1)[0]: u.get('matching') for u in json.load(open('config/SLSP01/game_units.json'))}
 libs = {l['name']: l.get('matching') for l in json.load(open('config/SLSP01/libs_ref.json'))}
 
@@ -26,8 +29,8 @@ def drafts(u):
     return 0
 
 
-print('| Unidad | 100 % | casi (>= 99 %) | total | DRAFT | enlaza |')
-print('|---|---|---|---|---|---|')
+print('| Unidad | 100 % | casi (>= 99 %) | total | DRAFT | enlaza |' + (' 100 % antes |' if ref else ''))
+print('|---|---|---|---|---|---|' + ('---|' if ref else ''))
 tot = collections.Counter()
 for u in ROUTE:
     fs = units.get(u, {}).get('functions', [])
@@ -36,10 +39,16 @@ for u in ROUTE:
     near = sum(1 for x in p if 99 <= x < 100)
     d = drafts(u)
     link = 'si' if gu.get(u) else 'no'
+    before = ''
+    if ref is not None:
+        rf = ref.get(u, {}).get('functions', [])
+        b = sum(1 for f in rf if f.get('fuzzy_match_percent', 0) == 100)
+        tot.update(before=b)
+        before = ' %d |' % b
     tot.update(full=full, near=near, n=len(p), d=d, link=1 if gu.get(u) else 0)
-    print('| `%s` | %d | %d | %d | %d | %s |' % (u, full, near, len(p), d, link))
-print('| **total** | %d | %d | %d | %d | %d de %d |' % (tot['full'], tot['near'], tot['n'], tot['d'], tot['link'],
-                                                       len(ROUTE)))
+    print('| `%s` | %d | %d | %d | %d | %s |%s' % (u, full, near, len(p), d, link, before))
+print('| **total** | %d | %d | %d | %d | %d de %d |%s' % (tot['full'], tot['near'], tot['n'], tot['d'], tot['link'],
+                                                         len(ROUTE), (' %d |' % tot['before']) if ref else ''))
 
 # library calls of the route
 splits = open('config/SLSP01/splits.txt').read()
