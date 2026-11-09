@@ -64,8 +64,6 @@ extern "C" int SCGetProgressiveMode();
 extern "C" unsigned int VIGetDTVStatus();
 extern "C" void* memset(void* dest, int value, unsigned long size);
 void operator delete[](void* ptr);
-extern "C" unsigned char lbl_8087D910[];
-extern "C" unsigned char lbl_8087D914[];
 namespace atn {
 // inferred: declared here only for their constructors; the classes are in atn/LayerShadow.cpp and
 // atn/LayerOcclusionCPU.cpp, which use local copies of IRenderLayer (vf10 takes an argument there).
