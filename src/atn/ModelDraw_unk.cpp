@@ -461,11 +461,13 @@ void fn_8009B9E8(Material_unk* mat, DrawMesh_unk* mesh, DrawSubMesh_unk* sub, Mt
     }
 }
 
-// NONMATCHING: 82.64% - register allocation reversed (loop locals get the highest registers in the original), f30/f31 swapped
+// NONMATCHING: 95.64% - register allocation (the address of the matrix copy gets r31 here, r23 in the
+// original), f29/f30; the projected modes (1-4) come after the mode-0 block as in the original
 void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
-    DrawDesc_unk* desc = ((DrawShader_unk*)mat->m08)->mDesc;
     int texMtx = 0x40;
-    for (int i = 0; i < desc->m0EC; i++) {
+    int i = 0;
+    DrawDesc_unk* desc = ((DrawShader_unk*)mat->m08)->mDesc;
+    for (; i < desc->m0EC; i++) {
         DrawTexGen_unk* gen = desc->m0F0[i];
         DrawTexMtxSrc_unk* src = desc->m0F8[i];
         TexStage_unk* stage = FindStage_unk(mat, &((DrawShader_unk*)mat->m08)->mTex[((DrawShader_unk*)mat->m08)->mOrder[i]]);
@@ -473,7 +475,16 @@ void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
         UvMtx_unk(uvm, stage->mUv);
         int mode = src->m10;
         int skinned = mesh->m14 == -1;
-        if (mode >= 1 && mode <= 4) {
+        if (mode < 1 || mode > 4) {
+            if (mode == 0) {
+                if (skinned == 0) {
+                    GXLoadTexMtxImm(uvm, gen->m18, 1);
+                } else {
+                    GXLoadTexMtxImm(uvm, texMtx, 0);
+                    texMtx += 3;
+                }
+            }
+        } else {
             if (skinned == 0) {
                 if (mode != 4) {
                     atn::Matrix3x4 m(mtx[mesh->m14]);
@@ -497,13 +508,6 @@ void fn_8009BB9C(Material_unk* mat, DrawMesh_unk* mesh, Mtx* mtx) {
             PSMTXConcat(uvm, proj.m, out);
             GXLoadTexMtxImm(out, texMtx, 0);
             texMtx += 3;
-        } else if (mode == 0) {
-            if (skinned == 0) {
-                GXLoadTexMtxImm(uvm, gen->m18, 1);
-            } else {
-                GXLoadTexMtxImm(uvm, texMtx, 0);
-                texMtx += 3;
-            }
         }
     }
 }
