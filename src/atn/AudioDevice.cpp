@@ -1511,3 +1511,7 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path) {
     fn_8046DD20(lbl_8087F518, data);
     audio->m8E0 = 1;
 }
+
+// inferred: empty (SoundManager::fn_800CE6E0 calls it with lbl_8087EE90 at the end of its update);
+// last function of the file, before the weak copies of the maps
+extern "C" void fn_8004A660(AudioDevice* audio) {}

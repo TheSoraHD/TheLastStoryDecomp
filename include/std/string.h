@@ -294,6 +294,9 @@ public:
     }
 
     size_type find(const T* s, size_type pos, size_type n) const; // 0x8006A004 (char)
+    // inferred: data and size of `str` from one test (defined in atn/FileList.cpp, its only user: named
+    // parameters here would renumber the @N of every file that includes this header)
+    size_type find(const basic_string&, size_type = 0) const;
     // inferred: inlined in CharaTask::fn_801371AC
     size_type find(const T* s, size_type pos = 0) const { return find(s, pos, strlen(s)); }
 

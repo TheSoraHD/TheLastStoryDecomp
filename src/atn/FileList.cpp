@@ -239,6 +239,53 @@ extern "C" std::string fn_8006B53C(const std::string& path) {
     return r;
 }
 
+namespace std {
+
+// inferred: MSL basic_string::find(const basic_string&, pos), inlined in fn_8006B594 (declared in
+// std/string.h)
+template <class T, class Tr, class A>
+inline typename basic_string<T, Tr, A>::size_type basic_string<T, Tr, A>::find(const basic_string& str,
+                                                                                 size_type pos) const {
+    const T* p;
+    size_type n;
+    if (!str.is_long()) {
+        p = (const T*)&str + 1;
+        n = str.mShort.mSize & 0x7F;
+    } else {
+        p = str.mLong.mData;
+        n = str.mLong.mSize;
+    }
+    return find(p, pos, n);
+}
+
+} // namespace std
+
+// NONMATCHING: 98.6% - saved registers of the "." literal and of the size (r28/r29 swapped)
+// inferred: copy of a path without the language suffixes ("_jp." -> ".") of the file language, of the text
+// language and "_xx"
+extern "C" std::string fn_8006B594(const std::string& path) {
+    std::string r(path);
+    std::string s(sLangSuffix[lbl_8087EEC0]);
+    s += ".";
+    unsigned long pos = r.find(s);
+    if (pos != std::string::npos) {
+        r.replace(pos, s.size() - 1, "");
+    }
+    s = sLangSuffix[lbl_8087EEC4];
+    s += ".";
+    pos = r.find(s);
+    if (pos != std::string::npos) {
+        r.replace(pos, s.size() - 1, "");
+    }
+    s = sLangSuffix[6];
+    s += ".";
+    pos = r.find(s);
+    if (pos != std::string::npos) {
+        r.replace(pos, s.size() - 1, "");
+    }
+    return r;
+}
+
 extern "C" int fn_8006BA30() {
     return lbl_8087EEC0;
 }

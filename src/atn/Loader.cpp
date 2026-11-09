@@ -77,6 +77,14 @@ inline D2APoint_unk GetPanePos_unk(Task* layout, const char* name) {
     return fn_801F4E8C(layout, fn_800DC6B4(name));
 }
 
+// inferred: first functions of the file (0x8046CBB0, 0x8046CBBC); the constructor and the destructor call
+// them with bl, so they are noinline here (MWCC would inline them with -ipa file)
+__declspec(noinline) void Loader::fn_8046CBB0() {
+    m4044 = 0;
+}
+
+__declspec(noinline) void Loader::fn_8046CBBC() {}
+
 // inferred: the file exists on disc
 static int fn_8046CBC0(const char* path) {
     std::string s(path);
@@ -245,8 +253,6 @@ extern "C" Loader* fn_8046D7D8(Task* parent) {
 
 // NONMATCHING: 99.72% - the original computes the "/test" pointer into r31 (the string pool base),
 // here into r30 (tried the path copy as constructor body and as operator=).
-// fn_8046CBB0/fn_8046CBBC are called out of line: defined in this file they are inlined, so they
-// belong to another file (probably atn/LoadManager_unk.cpp, whose split ends just before them).
 Loader::Loader(Task* parent)
     : Task(parent), m3ED8(0), m3EDC(0), m3EE0(0), m3EE4(0), m3EE8(60), m3EEC(0), m3EF0(0), m3EF4(1),
       m3EF8(1), m3EFC("/"), m3F08("/test"), m4008(0), m400C(1) {
