@@ -252,6 +252,20 @@ static int ParseARNU_unk(unsigned int tag, int size, const char* data, ParserSta
     return 4;
 }
 
+// inferred: constructors of the data lists, inlined by the readers below
+inline AnimationData::AnimationData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {
+    m1C = 0;
+    m18 = 0;
+}
+inline EffectData::EffectData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {
+    m1C = 0;
+    m18 = 0;
+}
+inline CameraData::CameraData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
+inline PoseData::PoseData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0), m1C(0) {}
+inline MovieData::MovieData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
+inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m24(0) {}
+
 // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
 template <class T>
 void DataList_unk<T>::Add_unk(const char* name, int arg) {
@@ -274,10 +288,14 @@ static int ParseMONA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds an animation data
+// inferred: adds an animation data
 static int ParseANID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->mD4.Add_unk("", id);
+    sState_unk->m30 = &seq->mD4[seq->mD4.size() - 1];
+    return 4;
 }
 
 static int ParseANNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -285,10 +303,14 @@ static int ParseANNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds an effect data
+// inferred: adds an effect data
 static int ParseEFID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->mE4.Add_unk("", id);
+    sState_unk->m34 = &seq->mE4[seq->mE4.size() - 1];
+    return 4;
 }
 
 static int ParseEFNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -296,10 +318,14 @@ static int ParseEFNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds a model data
+// inferred: adds a model data
 static int ParseMDID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->mF4.Add_unk("", id);
+    sState_unk->m38 = &seq->mF4[seq->mF4.size() - 1];
+    return 4;
 }
 
 static int ParseMDNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -324,10 +350,14 @@ static int ParseDUNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds a camera data
+// inferred: adds a camera data
 static int ParseCAID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m124.Add_unk("", id);
+    sState_unk->m44 = &seq->m124[seq->m124.size() - 1];
+    return 4;
 }
 
 static int ParseCANA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -335,10 +365,14 @@ static int ParseCANA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds a pose data
+// inferred: adds a pose data
 static int ParsePOID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m134.Add_unk("", id);
+    sState_unk->m48 = &seq->m134[seq->m134.size() - 1];
+    return 4;
 }
 
 static int ParsePONA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
@@ -346,10 +380,14 @@ static int ParsePONA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds a movie data
+// inferred: adds a movie data
 static int ParseMVID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m144.Add_unk("", id);
+    sState_unk->m4C = &seq->m144[seq->m144.size() - 1];
+    return 4;
 }
 
 static int ParseMVNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
