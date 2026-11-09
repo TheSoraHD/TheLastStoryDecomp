@@ -581,3 +581,13 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Resultado de comparacion de float con `mfcr; extrwi.` antes del salto: el original usa una funcion `bool` inline (`return x >= 1.0f;`) en la condicion (NewTitleTask::vf14).
 - Un array de 5 objetos con constructor sale en bucle (con el primero pelado); si el original los construye desenrollados, son 5 miembros sueltos (NewTitleTask, claves de camara, ctor 90,7 -> 98,7 %).
 - Orden de registros de varios locales de un bloque: declararlos todos arriba (sin inicializar) en el orden de los registros (r31, r30...) y asignarlos despues en el orden de las instrucciones (RenderManager fn_800C0D4C/0FBC 96,9 -> 98,6 %).
+- Rango con signo sin fusionar en `cmplwi`: `0 <= x && x < N` (constante a la izquierda) dentro de una inline (FileList fn_8006B53C). (`arranque-20261109`)
+- Carga de un campo antes del `stwu`: el parametro es `const T*` tambien en funciones `extern "C"` (GraphicsDevice fn_80076FF8). (`arranque-20261109`)
+- Dos `beq` seguidos sobre la misma direccion al destruir un miembro: dos destructores inline anidados (clase propia vacia sobre `FixedArray_unk`; SoundManager dtor, PopupTask dtor). (`arranque-20261109`)
+- Comprobacion redundante que se conserva (`bne` sobre el mismo cr0 y su OSPanic): las dos pruebas son una inline `bool` (`IsEmpty_unk`) (GraphicsDevice fn_80072E08). (`arranque-20261109`)
+- `if (*link != 0) do { link = next; } while (*link != 0);` da el `lwz` del primer hijo y el bucle `lwz/lwzu` (Task fn_800D1D94). (`arranque-20261109`)
+- Prioridad de registros por orden de declaracion: volatiles de menor a mayor, salvados de mayor a menor; un indice `x * 16` (reducido por el compilador) frente a un `offset += 16` cambia la asignacion (RenderSystem fn_800C0AA4/C0BF8/C0D4C/C0FBC). (`arranque-20261109`)
+- Argumentos de una llamada leidos antes de otra llamada: ambas dentro de una inline miembro (`WriteAsync_unk(mData, mSize)` llama a `NANDSetUserData` y despues a `NANDWriteAsync`) (NandManager vf10). (`arranque-20261109`)
+- `switch (mState)` tras `mState = state;` en una inline: las copias inlineadas conservan los `case` muertos (y sus llamadas) como el original; `switch (state)` los elimina (GameOverTask vf10 89,8 -> 98,2 %). (`arranque-20261109`)
+- Bloques en otro orden: `tools/decomp/blorder.py` compara la secuencia de llamadas; un `case` o una rama permutados se arreglan moviendo el codigo (NandManager, GameTask, ModelDraw, ControlMagic). (`arranque-20261109`)
+- Una funcion `std::find_if` con lambda de boost se reproduce con boost::lambda real (`*_1 == name`): las copias del predicado en la pila salen solas (SequenceHolder). (`arranque-20261109`)
