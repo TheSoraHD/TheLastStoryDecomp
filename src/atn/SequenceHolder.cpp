@@ -3,17 +3,16 @@
 #include "atn/SequenceControl.h"
 #include "atn/SequenceHolder.h"
 
-#include "atn/LambdaPlaceholders_unk.h"
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 // inferred: lookups used through a void* by SequenceControl (see include/atn/SequenceControl.h)
-extern "C" atn::SequenceHolder::SequenceUnitBase* fn_800C3D74(atn::SequenceHolder* holder, const char* name);
-extern "C" atn::SequenceHolder::SequenceUnitBase* fn_800C3FB0(atn::SequenceHolder* holder, int index);
 
 namespace atn {
 
 // inferred: id of the sequence called `name` (0 if there is none)
 int SequenceControl::fn_800C37FC(const char* name) {
-    SequenceHolder::SequenceUnitBase* unit = fn_800C3D74((SequenceHolder*)mTable, name);
+    SequenceHolder::SequenceUnitBase* unit = mTable->fn_800C3D74(name);
     if (unit != 0) {
         return unit->mId;
     }
@@ -40,17 +39,6 @@ int SequenceHolder::SequenceUnitBase::fn_800C3D6C() const {
 
 } // namespace atn
 
-// inferred: fn_800C3D74 (by name) and fn_800C3E84 (by id) are std::find_if with boost::lambda predicates
-// (the lambda placeholders are the .sbss objects set up by the __sinit). The boost::lambda headers are not
-// vendored: the predicates are written as functors that keep the placeholder (one byte) and the value.
-template <class It, class Pred>
-inline It __FindIf_unk(It first, It last, Pred pred) {
-    while (first != last && !pred(*first)) {
-        ++first;
-    }
-    return first;
-}
-
 // inferred: std::equal
 inline bool __Equal_unk(const char* first, const char* last, const char* other) {
     for (; first != last; ++first, ++other) {
@@ -61,57 +49,62 @@ inline bool __Equal_unk(const char* first, const char* last, const char* other) 
     return true;
 }
 
-// inferred: `_1->mName == name` (the C strings are equal)
-struct __NameIs_unk {
-    __NameIs_unk(const char* name) : mArg(_1), mName(name) {}
-    bool operator()(atn::SequenceHolder::SequenceUnitBase* unit) const {
-        const char* a = unit->mName;
-        unsigned long n = strlen(a);
-        return mName[n] == 0 && __Equal_unk(a, a + n, mName);
-    }
-    LambdaPlaceholder1_unk mArg;
-    const char* mName;
-};
+// inferred: the units are compared with a name by boost::lambda (`*_1 == name`)
+namespace atn {
+inline bool operator==(const SequenceHolder::SequenceUnitBase& unit, const char* name) {
+    const char* str = unit.mName;
+    unsigned long n = strlen(str);
+    return name[n] == '\0' && __Equal_unk(str, str + n, name);
+}
+} // namespace atn
 
-// noinline: fn_800C37FC calls it with bl (MWCC would inline it here).
-// NONMATCHING: 86.8% - functor stand-in for the boost::lambda predicate (the original copies the lambda
-// functor four times on the stack, with the placeholder byte read through _1)
-extern "C" __declspec(noinline) atn::SequenceHolder::SequenceUnitBase* fn_800C3D74(atn::SequenceHolder* holder,
-                                                                                 const char* name) {
-    atn::SequenceHolder::SequenceUnitBase** end = holder->mUnits.end();
-    atn::SequenceHolder::SequenceUnitBase** it = __FindIf_unk(holder->mUnits.begin(), end, __NameIs_unk(name));
+// inferred: std::find_if (MSL C++ <algorithm> is not reconstructed); the predicate is copied once more
+// on the way in
+template <class It, class Pred>
+inline It __FindIf2_unk(It first, It last, Pred pred) {
+    while (first != last && !pred(*first)) {
+        ++first;
+    }
+    return first;
+}
+template <class It, class Pred>
+inline It __FindIf_unk(It first, It last, Pred pred) {
+    return __FindIf2_unk(first, last, pred);
+}
+
+namespace atn {
+
+// inferred: lookup of the first unit that satisfies the predicate
+template <class Pred>
+inline SequenceHolder::SequenceUnitBase* __Find_unk(SequenceHolder* holder, Pred pred) {
+    SequenceHolder::SequenceUnitBase** it = holder->mUnits.begin();
+    SequenceHolder::SequenceUnitBase** end = holder->mUnits.end();
+    it = __FindIf2_unk(it, end, pred);
     return it != end ? *it : 0;
 }
 
-// inferred: `bind(&SequenceUnitBase::fn_800C3D6C, _1) == id` (the id through a member pointer)
-struct __IdIs_unk {
-    typedef int (atn::SequenceHolder::SequenceUnitBase::*Getter_unk)() const;
-    __IdIs_unk(Getter_unk get, int id) : mGet(get), mArg(_1), mId(id) {}
-    bool operator()(atn::SequenceHolder::SequenceUnitBase* unit) const { return (unit->*mGet)() == mId; }
-    Getter_unk mGet;
-    LambdaPlaceholder1_unk mArg;
-    int mId;
-};
-
-// NONMATCHING: 39.6% - functor stand-in for the boost::lambda predicate (the original copies the lambda
-// functor, member pointer and placeholder byte, seven times on the stack)
-extern "C" atn::SequenceHolder::SequenceUnitBase* fn_800C3E84(atn::SequenceHolder* holder, int id) {
-    atn::SequenceHolder::SequenceUnitBase** it = __FindIf_unk(
-        holder->mUnits.begin(), holder->mUnits.end(), __IdIs_unk(&atn::SequenceHolder::SequenceUnitBase::fn_800C3D6C, id));
-    return it != holder->mUnits.end() ? *it : 0;
+// noinline: fn_800C37FC calls it with bl (MWCC would inline it here).
+__declspec(noinline) SequenceHolder::SequenceUnitBase* SequenceHolder::fn_800C3D74(const char* name) {
+    return __Find_unk(this, *boost::lambda::_1 == name);
 }
 
-extern "C" atn::SequenceHolder::SequenceUnitBase* fn_800C3FB0(atn::SequenceHolder* holder, int index) {
+// NONMATCHING: 98.07% - the end of the vector gets r28 and the member pointer r29-r31 (the original
+// keeps the end in r31)
+SequenceHolder::SequenceUnitBase* SequenceHolder::fn_800C3E84(unsigned int id) {
+    SequenceUnitBase** it = __FindIf_unk(mUnits.begin(), mUnits.end(),
+                                         boost::lambda::bind(&SequenceUnitBase::fn_800C3D6C, boost::lambda::_1) == id);
+    return it != mUnits.end() ? *it : 0;
+}
+
+SequenceHolder::SequenceUnitBase* SequenceHolder::fn_800C3FB0(int index) {
     int i = 0;
-    for (atn::SequenceHolder::SequenceUnitBase** it = holder->mUnits.begin(); it != holder->mUnits.end(); ++it, ++i) {
+    for (SequenceUnitBase** it = mUnits.begin(); it != mUnits.end(); ++it, ++i) {
         if (i == index) {
             return *it;
         }
     }
     return 0;
 }
-
-namespace atn {
 
 Task* SequenceHolder::SequenceUnit::vf0C(Task* parent) {
     return mFunc(parent);

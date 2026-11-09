@@ -78,6 +78,10 @@ public:
     // inferred: same body as fn_800C3990 for the other unit types
     template <class T>
     int Regist_unk(const T& unit);
+    // inferred: lookups (atn/SequenceHolder.cpp; atn::SequenceControl takes the units from here)
+    SequenceUnitBase* fn_800C3D74(const char* name); // by name
+    SequenceUnitBase* fn_800C3E84(unsigned int id);  // by id
+    SequenceUnitBase* fn_800C3FB0(int index);        // by position
 
     int mCount;                            // 0x00
     std::vector<SequenceUnitBase*> mUnits; // 0x04

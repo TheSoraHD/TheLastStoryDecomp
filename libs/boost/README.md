@@ -91,3 +91,11 @@ layout (`{name, bases}`, compared with `strcmp`). `std::allocator::allocate` rep
 `fprintf` + `abort` like `basic_string` (0x801B2D3C: "Memory allocation failure").
 `std::less` (in `functional`) and `iosfwd` (forward declarations of `char_traits` and
 `basic_ostream`) are only there for `boost/shared_ptr.hpp`.
+- `boost/lambda/*` and `boost/tuple/*`: tag `boost-1.35.0` of `boostorg/lambda` and `boostorg/tuple`, with what
+  they open (more of `boost/type_traits/*`, `boost/preprocessor/*`, `boost/indirect_reference.hpp`,
+  `boost/pointee.hpp`, `boost/is_placeholder.hpp`, `boost/detail/is_incrementable.hpp`) from the same tag
+  (lookups of `atn::SequenceHolder`, 0x800C3D74 and 0x800C3E84; the placeholders `free1..3` and `_1.._3` are the
+  six .sbss objects and the `__sinit` of atn/SequenceHolder.cpp and gmk/CharaLight.cpp). One change:
+  `boost/lambda/detail/operator_return_type_traits.hpp` no longer forward-declares `std::vector` and
+  `std::basic_string` nor specialises the subscript return type for them, as the reconstructions of
+  include/std have other template parameter lists. `msl_shim/iosfwd` declares `basic_istream` for it.
