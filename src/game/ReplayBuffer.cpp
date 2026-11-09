@@ -7,14 +7,23 @@
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
 #include "atn/Model_unk.h"
+#include "game/BattleTask.h"
+#include "atn/EffectManager.h"
 
 // game/ReplayBuffer.cpp (0x8056A84C-0x80570A14): the replay of the field (records the characters and their
 // effects). Partial: only some of the functions are written.
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+extern "C" BattleTask* lbl_8087F048;    // inferred: battle manager
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
+
+// inferred: effect event of the replay with its frame (names invented)
+struct ReplayEffectEntry_unk {
+    int mFrame;
+    EffectEvent_unk mEvent;
+};
 
 // inferred: rotation around y keeping the translation (inlined twice in fn_8056A84C; name invented)
 static inline void RotateY_unk(atn::Matrix3x4* mtx, float angle) {
@@ -107,6 +116,55 @@ void GameTaskData_unk::fn_8056F2F8(int frames) {
     for (int i = 0; i < frame->mNumModels; i++) {
         frame->mModels[i].mModel->fn_8008CD60();
     }
+}
+
+void GameTaskData_unk::fn_805704AC() {
+    m5BDB4 = 1;
+    int end = m00004 + 1;
+    fn_8056FC24(0);
+    lbl_8087F3C0->mSystem.mReplaying = 1;
+    for (int frame = m5BDAC + 1; frame < end; frame++) {
+        for (unsigned int i = 0; i < mEffectCount; i++) {
+            ReplayEffectEntry_unk* e = mEffects[i];
+            if (e->mFrame == frame) {
+                lbl_8087F3C0->fn_8023B724(&e->mEvent);
+            }
+        }
+        lbl_8087F3C0->fn_80239C14();
+        lbl_8087F3C0->fn_80239C20();
+    }
+    fn_80232B7C(0, 0);
+    atn::EffectManager::fn_8023B71C(lbl_8087F3C0, 0);
+    lbl_8087F3C0->mSystem.mReplaying = 0;
+    m5BDA4 = 1;
+    for (int frame = m5BDAC + 1; frame < end; frame++) {
+        for (unsigned int i = 0; i < mNewEvents.size(); i++) {
+            ReplayEventEntry_unk* e = mNewEvents.mData[i];
+            if (e->mFrame == frame) {
+                ReplayEvent_unk& ev = e->mEvent;
+                switch (ev.mKind) {
+                case 0:
+                    if (ev.mOwner != 0) {
+                        ev.mBullet->fn_8010EE78((BulletShot_unk*)&ev.mShot, &ev.mPos, &ev.mDir, ev.mOwner, -1, 0, -1.0f);
+                    } else if (ev.m3C != 0) {
+                        ev.mBullet->fn_8010EFC8((BulletShot_unk*)&ev.mShot, &ev.mPos, &ev.mDir, ev.m3C, -1, 0, -1.0f);
+                    }
+                    break;
+                case 1:
+                    ev.mBullet->vf0C(1, 0);
+                    break;
+                case 2:
+                    ev.mBullet->fn_8010F26C((BulletShot_unk*)&ev.mShot);
+                    break;
+                case 3:
+                    ev.mBullet->fn_8010F41C();
+                    break;
+                }
+            }
+        }
+        lbl_8087F048->fn_80101138();
+    }
+    m5BDA4 = 0;
 }
 
 void GameTaskData_unk::fn_805706C0(const ReplayEvent_unk* ev) {

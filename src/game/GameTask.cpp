@@ -4186,7 +4186,6 @@ void GameTask::fn_803737C0() {
 }
 
 extern "C" void fn_8056D8C8(GameTaskData_unk* obj, int frame, int a, int b); // inferred: seeks the replay
-extern "C" void fn_805704AC(GameTaskData_unk* obj);
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, int frames, float volume); // inferred: fades the sound
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach);  // inferred: stops the sound
 extern "C" const char* fn_800EFE3C(int id); // inferred: sound name of a voice
@@ -4280,7 +4279,7 @@ void GameTask::fn_80373AE8() {
     if (m55AC == 0) {
         m55AC = 1;
         m5624->mActive = 1;
-        fn_805704AC(m5590);
+        m5590->fn_805704AC();
         fn_802328DC(60);
         lbl_8087F9E8->fn_8059D178();
         fn_802328DC(0);

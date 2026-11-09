@@ -49,6 +49,8 @@ struct ReplayEventEntry_unk {
     ReplayEvent_unk mEvent;
 };
 
+struct ReplayEffectEntry_unk; // inferred: effect event with its frame (game/ReplayBuffer.cpp)
+
 // inferred: object of GameTask + 0x5590 (constructor 0x8056BF8C and destructor 0x8056C398 in
 // game/ReplayBuffer.cpp; other members in game/GameSystem_unk.cpp)
 struct GameTaskData_unk {
@@ -56,19 +58,23 @@ struct GameTaskData_unk {
     ~GameTaskData_unk();
     void fn_8056F2F8(int frames); // inferred: shows the frame `frames` / 2 frames back
     void fn_805706C0(const ReplayEvent_unk* ev); // inferred: records an event (game/Bullet.cpp)
+    void fn_8056FC24(int arg);
+    void fn_805704AC(); // inferred: replays the effects and events since the frame m5BDAC
     unsigned char m00000[0x04];
     int m00004;
     ReplayFrame_unk mFrames[45]; // 0x00008: inferred: ring of the recorded frames
     ReplayFrame_unk mLive;       // 0x43970: inferred: frame shown while m5BDB4 is set
     int m45178;                  // inferred: index of the newest frame in mFrames
     int m4517C;                  // inferred: number of frames recorded (45: full)
-    unsigned char m45180[0x52994 - 0x45180];
+    unsigned char m45180[0x52184 - 0x45180];
+    unsigned int mEffectCount;            // 0x52184
+    ReplayEffectEntry_unk* mEffects[515]; // 0x52188: inferred: effect events recorded
     ReplayEventEntry_unk mEvents[256]; // 0x52994: inferred: ring of the events
     unsigned char m57194[0x5B994 - 0x57194];
     atn::FixedArray_unk<ReplayEventEntry_unk*, 256> mNewEvents; // 0x5B994: inferred: events of this frame
     int mNextEvent; // 0x5BD98: inferred: first slot of mEvents to try
     unsigned char m5BD9C[0x5BDA4 - 0x5BD9C];
-    int m5BDA4;
+    int m5BDA4; // inferred: set while the events are replayed
     int m5BDA8;
     int m5BDAC;
     int m5BDB0;
