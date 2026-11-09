@@ -101,8 +101,7 @@ public:
     unsigned char* mQueueBuffer;   // 0x0F0: inferred: entries (0x10 bytes) of the pass lists
     int mQueueCapacity;            // 0x0F4
     int mQueueUsed;                // 0x0F8
-    float m0FC;
-    float m100;
+    Vector2_unk m0FC;              // 0x0FC: inferred: cleared at the start of each frame (paired copy)
     Camera mCamera;                // 0x104: camera of the game
     int m2F8;                      // 0x2F8: inferred: render pass (3: shadow pass; 4: one matrix per item)
     Scene* mScene;     // 0x2FC: inferred: scene drawn (lights, fog...)

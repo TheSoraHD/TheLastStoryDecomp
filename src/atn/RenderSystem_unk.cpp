@@ -8,6 +8,10 @@
 #include "atn/LayerPostFx.h"
 #include "atn/LayerReflect.h"
 #include "atn/Memory.h"
+#include "atn/Array_unk.h"
+#include "atn/GraphicsDevice.h"
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device
 #include "atn/Sphere.h"
 #include "atn/Texture_unk.h"
 #include "math/Vec.h"
@@ -50,7 +54,6 @@ extern "C" void GXProject(float x, float y, float z, const float matrix[3][4], c
                             const float viewport[6], float* screenX, float* screenY, float* screenZ);
 extern "C" void fn_800D5F68(Mtx out, int mode, int a, int b, int c);
 extern "C" void fn_8009DE60(void* batch, float bias);
-extern "C" void fn_80071D80(void* device, void* texture);
 extern "C" void fn_800BECF0(void* entries, unsigned int count);
 extern "C" void fn_80071AFC(void* state);
 extern "C" void fn_8007A4CC__13LightList_unkFv(void* lights);
@@ -94,7 +97,6 @@ void fn_800C5644();
 extern "C" void fn_8007A100();
 extern "C" int lbl_8087D72C;
 extern "C" int lbl_8087D728;
-extern "C" void* lbl_8087EEE0;
 extern "C" void* memcpy(void* dst, const void* src, unsigned long size);
 
 namespace atn {
@@ -293,7 +295,7 @@ inline DrawCmd_unk::DrawCmd_unk() {
 }
 
 atn::RenderManager::RenderManager()
-    : mQueueBuffer(0), mQueueCapacity(0), mQueueUsed(0), m0FC(0.0f), m100(0.0f), mCamera(0, 0), m2F8(-1),
+    : mQueueBuffer(0), mQueueCapacity(0), mQueueUsed(0), m0FC(0.0f, 0.0f), mCamera(0, 0), m2F8(-1),
       mMapHitArg(0), mShadowCamera(0, 0), m52C(0), m550(0), m554(0), m558(0, 0), m890(0), m894(0), m898(150.0f),
       m89C(500.0f), m8A0(0.5f), m8A4(0.5f), m8A8(0.5f), m8AC(1.0f),
       m8B0(boost::function<void(void*)>(), 0), m8C8(boost::function<void(void*)>(), 0),
@@ -453,84 +455,62 @@ void atn::RenderManager::AddRender(atn::IRender* render, int pass, float order) 
     mPassCounts[pass]++;
 }
 
+// inferred: converts a color channel to a byte (inlined four times by fn_800BDBC8)
+static inline unsigned int ColorChannel_unk(float value) {
+    if (value >= 1.0f) {
+        return 0xFF;
+    }
+    if (value <= 0.0f) {
+        return 0;
+    }
+    return (unsigned int)(255.0f * value + 0.5f);
+}
+
+// inferred: draws the frame: sorts the draw lists of the passes, then lets each layer queue and draw them.
+// The layers are called through their vtables (slots 0x10/0x14/0x18 take the draw list): the local copies
+// of IRenderLayer in atn/LayerShadow.cpp and atn/LayerOcclusionCPU.cpp disagree on those signatures.
+// poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
+// time, so its operands were not literals there (source form unknown).
+// NONMATCHING: equivalent - register allocation and the folded safe-area constants
 void atn::RenderManager::fn_800BDBC8() {
-    // inferred: collect, sort, and relink the queued render entries for each of 20 passes.
-    // poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
-    // time, so its operands were not literals there (source form unknown).
-    // DRAFT: not checked against the original (render-state details and drawing callbacks)
-    // NONMATCHING: 72.91% - remaining render-state details and drawing callbacks still differ.
-    unsigned char* system = (unsigned char*)this;
-    Mtx matrixWork[8];
-    void** entries = 0;
-    unsigned int capacity = 0;
-    unsigned char* passSystem = system;
+    typedef void (*LayerCall)(IRenderLayer*);
+    typedef void (*LayerListCall)(IRenderLayer*, RenderEntry_unk*);
+    atn::GraphicsDevice_unk* device = lbl_8087EEE0;
 
-    for (int pass = 0; pass < 20; ++pass) {
-        unsigned int requested = *(unsigned int*)(passSystem + 0xA0);
-        if (requested >= capacity) {
-            unsigned int newCapacity = requested;
-            void** replacement = (void**)::operator new[](
-                newCapacity * 4, (MemoryTag)0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
-            for (unsigned int i = 0; i < capacity; ++i) {
-                replacement[i] = entries[i];
-            }
-            if (entries != 0) {
-                ::operator delete[](entries);
-            }
-            entries = replacement;
-            capacity = newCapacity;
-        }
-
-        unsigned int count = 0;
-        void* node = *(void**)(passSystem + 0x50);
-        while (node != 0) {
-            if (count == capacity) {
-                unsigned int newCapacity = capacity == 0 ? 8 : capacity * 2;
-                void** replacement = (void**)::operator new[](
-                    newCapacity * 4, (MemoryTag)0, (const char*)lbl_8087D914, (const char*)lbl_8087D910, 0);
-                for (unsigned int i = 0; i < count; ++i) {
-                    replacement[i] = entries[i];
+    {
+        atn::SimpleVector<atn::RenderEntry_unk*> entries;
+        for (int pass = 0; pass < 20; ++pass) {
+            entries.reserve(mPassCounts[pass]);
+            atn::RenderEntry_unk* entry = mPassHeads[pass];
+            if (entry != 0) {
+                entries.mSize = 0;
+                while (entry != 0) {
+                    entries.push_back(entry);
+                    entry = entry->mNext;
                 }
-                if (entries != 0) {
-                    ::operator delete[](entries);
+                unsigned char ascending = 0;
+                fn_800BF0EC((void**)&entries[0], (void**)&entries[0] + entries.size(), &ascending);
+                for (unsigned int i = 0; i < entries.size(); ++i) {
+                    if (i == entries.size() - 1) {
+                        entries[i]->mNext = 0;
+                    } else {
+                        entries[i]->mNext = entries[i + 1];
+                    }
                 }
-                entries = replacement;
-                capacity = newCapacity;
+                mPassHeads[pass] = entries[0];
             }
-            entries[count++] = node;
-            node = *(void**)((unsigned char*)node + 8);
         }
-
-        if (count != 0) {
-            unsigned char ascending = 0;
-            fn_800BF0EC(entries, entries + count, &ascending);
-            for (unsigned int i = 0; i < count; ++i) {
-                void* next = i + 1 < count ? entries[i + 1] : 0;
-                *(void**)((unsigned char*)entries[i] + 8) = next;
-            }
-            *(void**)(passSystem + 0x50) = entries[0];
-        } else {
-            *(void**)(passSystem + 0x50) = 0;
-        }
-        passSystem += 4;
     }
 
-    if (entries != 0) {
-        ::operator delete[](entries);
-    }
-
-    atn::DrawHelper* debugDrawer = lbl_8087EEB0;
-    void* renderState = lbl_8087EEE0;
-    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x1C) != 0 &&
-        *(int*)((unsigned char*)renderState + 0x44) != 0) {
+    if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x1C) != 0 && device->mWide != 0) {
         float half = 0.5f;
         float extent = 640.0f - 514.2857f;
         float left = 640.0f - half * extent;
         float right = half * extent;
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        debugDrawer->fn_8006144C(left, 0.0f, left, 448.0f, 0xFFFF0000, 0.0f);
-        debugDrawer->fn_8006144C(right, 448.0f, right, 0.0f, 0xFFFF0000, 0.0f);
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
+        lbl_8087EEB0->mA0 = 0x13;
+        lbl_8087EEB0->fn_8006144C(left, 0.0f, left, 448.0f, 0xFFFF0000, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, 448.0f, right, 0.0f, 0xFFFF0000, 0.0f);
+        lbl_8087EEB0->mA0 = 0x12;
     }
 
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x18) != 0) {
@@ -538,183 +518,133 @@ void atn::RenderManager::fn_800BDBC8() {
         float top = 448.0f * 0.095999986f;
         float right = 640.0f * (1.0f - 0.07800001f);
         float bottom = 448.0f * (1.0f - 0.095999986f);
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x13;
-        debugDrawer->fn_8006144C(left, top, right, top, 0xFFFFFF00, 0.0f);
-        debugDrawer->fn_8006144C(right, top, right, bottom, 0xFFFFFF00, 0.0f);
-        debugDrawer->fn_8006144C(right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
-        debugDrawer->fn_8006144C(left, bottom, left, top, 0xFFFFFF00, 0.0f);
+        lbl_8087EEB0->mA0 = 0x13;
+        lbl_8087EEB0->fn_8006144C(left, top, right, top, 0xFFFFFF00, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, top, right, bottom, 0xFFFFFF00, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
+        lbl_8087EEB0->fn_8006144C(left, bottom, left, top, 0xFFFFFF00, 0.0f);
 
         left = 640.0f * 0.065f;
         top = 448.0f * 0.065f;
         right = 640.0f * (1.0f - 0.065f);
         bottom = 448.0f * (1.0f - 0.065f);
-        *(int*)((unsigned char*)debugDrawer + 0xA0) = 0x12;
-        debugDrawer->fn_8006144C(left, top, right, top, 0xFFFFFFFF, 0.0f);
-        debugDrawer->fn_8006144C(right, top, right, bottom, 0xFFFFFFFF, 0.0f);
-        debugDrawer->fn_8006144C(right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
-        debugDrawer->fn_8006144C(left, bottom, left, top, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->mA0 = 0x12;
+        lbl_8087EEB0->fn_8006144C(left, top, right, top, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, top, right, bottom, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->fn_8006144C(left, bottom, left, top, 0xFFFFFFFF, 0.0f);
     }
 
     *(int*)((unsigned char*)lbl_8087EF8C + 0x54) = 0;
-    unsigned char* manager = (unsigned char*)lbl_8087EFA8;
-    unsigned char* managerState = (unsigned char*)lbl_8087EEE0;
-    float colorValue = *(float*)(manager + 0x3C);
-    unsigned int red = 0;
-    if (colorValue >= 1.0f) {
-        red = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        red = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    colorValue = *(float*)(manager + 0x40);
-    unsigned int green = 0;
-    if (colorValue >= 1.0f) {
-        green = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        green = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    colorValue = *(float*)(manager + 0x44);
-    unsigned int blue = 0;
-    if (colorValue >= 1.0f) {
-        blue = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        blue = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    colorValue = *(float*)(manager + 0x48);
-    unsigned int alpha = 0;
-    if (colorValue >= 1.0f) {
-        alpha = 0xFF;
-    } else if (!(colorValue <= 0.0f)) {
-        alpha = (unsigned int)(255.0f * colorValue + 0.5f);
-    }
-    *(unsigned int*)(managerState + 0x48) =
-        (alpha << 24) | (red << 16) | (green << 8) | blue;
-    fn_8007192C(managerState);
+    unsigned char* config = (unsigned char*)lbl_8087EFA8;
+    unsigned int red = ColorChannel_unk(*(float*)(config + 0x3C));
+    unsigned int green = ColorChannel_unk(*(float*)(config + 0x40));
+    unsigned int blue = ColorChannel_unk(*(float*)(config + 0x44));
+    unsigned int alpha = ColorChannel_unk(*(float*)(config + 0x48));
+    device->mClearColor = (alpha << 24) | (red << 16) | (green << 8) | blue;
+    fn_8007192C(device);
 
-    *(void**)(system + 0x2FC) = 0;
-    *(void**)(system + 0x2FC) = (void*)lbl_8087EFB8;
-    atn::RenderManager::FrameCallbackEntry* beforeLayers = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8B0);
-    if (*(void**)beforeLayers != 0) {
-        beforeLayers->mFunc((void*)beforeLayers->mArg);
+    mScene = 0;
+    mScene = fn_800C16B4();
+    if (m8B0.mFunc != 0) {
+        m8B0.mFunc((void*)m8B0.mArg);
     }
-    *(float*)(system + 0xFC) = 0.0f;
-    *(float*)(system + 0x100) = 0.0f;
+    m0FC = Vector2_unk(0.0f, 0.0f);
     fn_80075DEC(lbl_8087EEE0);
     if (*(int*)((unsigned char*)lbl_8087EFA8 + 4) != 0) {
         fn_8007A4CC__13LightList_unkFv(lbl_8087EEF8);
     }
 
-    passSystem = system;
-    for (int pass = 0; pass < 20; ++pass, passSystem += 4) {
+    for (int pass = 0; pass < 20; ++pass) {
         if (pass == 3 && *(int*)((unsigned char*)lbl_8087EFA8 + 0x104) == 0) {
             continue;
         }
-        if (pass == 4 && *(int*)(system + 0x54960) == 0) {
+        if (pass == 4 && m54960 == 0) {
             continue;
         }
-        *(int*)(system + 0x2F8) = pass;
-        void* layer = *(void**)passSystem;
-        if (layer != 0 && *(int*)((unsigned char*)layer + 4) != 0) {
-            typedef void (*LayerQueueCall)(void*, void*);
-            ((LayerQueueCall)(*(void***)layer)[4])(layer, *(void**)(passSystem + 0x50));
+        m2F8 = pass;
+        IRenderLayer* layer = mLayers[pass];
+        if (layer != 0 && layer->m04 != 0) {
+            ((LayerListCall)(*(void***)layer)[4])(layer, mPassHeads[pass]);
         }
     }
 
-    // Prepare the renderer's per-frame projection matrices.
-    fn_800D5F68(matrixWork[2], 1, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x800), matrixWork[2]);
-    if (*(int*)(system + 0x554) != 0) {
-        __MtxCopy(matrixWork[0], *(Mtx*)(system + 0x1D4));
-        matrixWork[0][0][3] = 0.0f;
-        matrixWork[0][1][3] = 0.0f;
-        matrixWork[0][2][3] = 0.0f;
-        __MtxCopy(matrixWork[1], *(Mtx*)(system + 0x5B0));
-        matrixWork[1][0][3] = 0.0f;
-        matrixWork[1][1][3] = 0.0f;
-        matrixWork[1][2][3] = 0.0f;
-        PSMTXConcat(matrixWork[1], matrixWork[0], matrixWork[4]);
-        PSMTXConcat(*(Mtx*)(system + 0x800), matrixWork[4], matrixWork[3]);
-        __MtxCopy(*(Mtx*)(system + 0x800), matrixWork[3]);
+    Matrix3x4 work;
+    fn_800D5F68(work.m, 1, -1, -1, 0);
+    m7A0[2] = work;
+    if (m554 != 0) {
+        Matrix3x4 view = mCamera.mInvView;
+        view.m[0][3] = 0.0f;
+        view.m[1][3] = 0.0f;
+        view.m[2][3] = 0.0f;
+        Matrix3x4 view2 = m558.mView;
+        view2.m[0][3] = 0.0f;
+        view2.m[1][3] = 0.0f;
+        view2.m[2][3] = 0.0f;
+        Matrix3x4 inv;
+        Matrix3x4 result;
+        PSMTXConcat(view2.m, view.m, inv.m);
+        PSMTXConcat(m7A0[2].m, inv.m, result.m);
+        m7A0[2] = result;
     }
-    fn_800D5F68(matrixWork[5], 2, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x7A0), matrixWork[5]);
-    fn_800D5F68(matrixWork[6], 3, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x7D0), matrixWork[6]);
-    fn_800D5F68(matrixWork[7], 4, -1, -1, 0);
-    __MtxCopy(*(Mtx*)(system + 0x830), matrixWork[7]);
-    *(float*)(system + 0x860) = 1.0f;
-    *(float*)(system + 0x864) = 0.0f;
-    *(float*)(system + 0x868) = 0.0f;
-    *(float*)(system + 0x86C) = 0.0f;
-    *(float*)(system + 0x870) = 0.0f;
-    *(float*)(system + 0x874) = 1.0f;
-    *(float*)(system + 0x878) = 0.0f;
-    *(float*)(system + 0x87C) = 0.0f;
-    *(float*)(system + 0x880) = 0.0f;
-    *(float*)(system + 0x884) = 0.0f;
-    *(float*)(system + 0x888) = 1.0f;
-    *(float*)(system + 0x88C) = 0.0f;
+    Matrix3x4 work2;
+    fn_800D5F68(work2.m, 2, -1, -1, 0);
+    m7A0[0] = work2;
+    Matrix3x4 work3;
+    fn_800D5F68(work3.m, 3, -1, -1, 0);
+    m7A0[1] = work3;
+    Matrix3x4 work4;
+    fn_800D5F68(work4.m, 4, -1, -1, 0);
+    m7A0[3] = work4;
+    m7A0[4].SetIdentity();
 
     LCEnable();
-    unsigned char* layerSlot = system;
-    for (int pass = 0; pass < 20; ++pass, layerSlot += 4) {
-        *(int*)(system + 0x890) = 0;
+    for (int pass = 0; pass < 20; ++pass) {
+        m890 = 0;
         if (pass == 3 && *(int*)((unsigned char*)lbl_8087EFA8 + 0x104) == 0) {
             continue;
         }
-        if (pass == 4 && *(int*)(system + 0x54960) == 0) {
+        if (pass == 4 && m54960 == 0) {
             continue;
         }
-        *(int*)(system + 0x2F8) = pass;
-        void* layer = *(void**)layerSlot;
-        void* queue = *(void**)(layerSlot + 0x50);
-        if (layer != 0 && *(int*)((unsigned char*)layer + 4) != 0 && queue != 0) {
-            typedef void (*LayerCall)(void*);
-            typedef void (*LayerQueueCall)(void*, void*);
-            *(int*)(system + 0x958) = 0;
-            *(int*)(system + 0x895C) = 0;
-            ((LayerCall)(*(void***)layer)[7])(layer);
-            ((LayerQueueCall)(*(void***)layer)[5])(layer, queue);
-            if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x39C) != 0 &&
-                *(int*)(system + 0x895C) != 0) {
-                fn_800BECF0(system + 0x95C, *(unsigned int*)(system + 0x958));
+        m2F8 = pass;
+        if (mLayers[pass] != 0 && mLayers[pass]->m04 != 0 && mPassHeads[pass] != 0) {
+            mKeys.mSize = 0;
+            mCmds.mSize = 0;
+            mLayers[pass]->vf1C();
+            ((LayerListCall)(*(void***)mLayers[pass])[5])(mLayers[pass], mPassHeads[pass]);
+            if (*(int*)((unsigned char*)lbl_8087EFA8 + 0x39C) != 0 && mCmds.mSize != 0) {
+                fn_800BECF0(mKeys.mData, mKeys.mSize);
             }
-            unsigned int batchCount = *(unsigned int*)(system + 0x895C);
-            for (unsigned int i = 0; i < batchCount; ++i) {
-                unsigned int index = *(unsigned int*)(system + 0x960 + i * 8);
-                fn_8009DE60(system + 0x8960 + index * 0x4C, 0.0f);
+            for (unsigned int i = 0; i < mCmds.mSize; ++i) {
+                fn_8009DE60(&mCmds.mData[mKeys.mData[i].mIndex], 0.0f);
             }
-            ((LayerQueueCall)(*(void***)layer)[6])(layer, queue);
-            ((LayerCall)(*(void***)layer)[8])(layer);
+            ((LayerListCall)(*(void***)mLayers[pass])[6])(mLayers[pass], mPassHeads[pass]);
+            mLayers[pass]->vf20();
         }
-
-        unsigned int textureCount = *(unsigned int*)(system + 0x910);
-        for (unsigned int i = 0; i < textureCount; ++i) {
-            unsigned char* copy = system + 0x914 + i * 8;
-            if (*(unsigned int*)(copy + 4) == pass) {
-                fn_80071D80(lbl_8087EEE0, *(void**)copy);
+        for (unsigned int i = 0; i < mResolveCount; ++i) {
+            if (pass == mResolve[i].mFormat) {
+                fn_80071D80(device, mResolve[i].mTex);
             }
         }
     }
     LCDisable();
 
-    atn::RenderManager::FrameCallbackEntry* afterLayers = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8C8);
-    if (*(void**)afterLayers != 0) {
-        afterLayers->mFunc((void*)afterLayers->mArg);
+    if (m8C8.mFunc != 0) {
+        m8C8.mFunc((void*)m8C8.mArg);
     }
-    memset(system + 0x50, 0, 0x50);
-    memset(system + 0xA0, 0, 0x50);
-    *(int*)(system + 0xF8) = 0;
+    memset(mPassHeads, 0, sizeof(mPassHeads));
+    memset(mPassCounts, 0, sizeof(mPassCounts));
+    mQueueUsed = 0;
     *(int*)((unsigned char*)lbl_8087EEB0 + 0xC) = 0;
-    *(int*)(system + 0x910) = 0;
-    *(int*)(system + 0x54960) = 0;
-    atn::RenderManager::FrameCallbackEntry* afterCleanup = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8E0);
-    if (*(void**)afterCleanup != 0) {
-        afterCleanup->mFunc((void*)afterCleanup->mArg);
+    mResolveCount = 0;
+    m54960 = 0;
+    if (m8E0.mFunc != 0) {
+        m8E0.mFunc((void*)m8E0.mArg);
     }
-    fn_80071AFC(lbl_8087EEE0);
-    atn::RenderManager::FrameCallbackEntry* finalCallback = (atn::RenderManager::FrameCallbackEntry*)(system + 0x8F8);
-    if (*(void**)finalCallback != 0) {
-        finalCallback->mFunc((void*)finalCallback->mArg);
+    fn_80071AFC(device);
+    if (m8F8.mFunc != 0) {
+        m8F8.mFunc((void*)m8F8.mArg);
     }
 }
 
