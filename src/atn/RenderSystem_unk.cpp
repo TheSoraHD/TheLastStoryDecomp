@@ -131,33 +131,12 @@ extern "C" void PSMTXIdentity(float matrix[3][4]);
 extern "C" void GXLoadPosMtxImm(const float matrix[3][4], unsigned int id);
 extern "C" void GXSetCurrentMtx(unsigned int id);
 extern "C" void GXBegin(int type, int format, unsigned short count);
-extern "C" void fn_80076760(void* render, int stage, int mode);
-extern "C" void fn_800761A8(void* render);
-extern "C" void fn_80076A28(void* render, void* previous);
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* device, unsigned int field, unsigned int value);
+extern "C" void fn_800761A8(atn::GraphicsDevice_unk* device);
+extern "C" void fn_80076A28(atn::GraphicsDevice_unk* device, const atn::GXStateBits_unk* state);
 extern "C" unsigned int __cvt_fp2unsigned(float value);
 
-struct RenderColor_unk {
-    RenderColor_unk() {}
-    RenderColor_unk(const RenderColor_unk& color) {
-        float r_ = color.r;
-        float g_ = color.g;
-        float b_ = color.b;
-        float a_ = color.a;
-        r = r_;
-        g = g_;
-        b = b_;
-        a = a_;
-    }
-    float r, g, b, a;
-};
-static unsigned char fn_800BFCB4_colorByte(float value);
 
-static inline unsigned int fn_800BFCB4_colorWord(const float* color) {
-    return ((unsigned int)fn_800BFCB4_colorByte(color[3]) << 24) |
-           ((unsigned int)fn_800BFCB4_colorByte(color[0]) << 16) |
-           ((unsigned int)fn_800BFCB4_colorByte(color[1]) << 8) |
-           (unsigned int)fn_800BFCB4_colorByte(color[2]);
-}
 
 struct RenderQueueEntry_unk {
     void* render;
@@ -649,15 +628,6 @@ extern "C" void fn_800BECF0(DrawSortKey_unk* keys, unsigned int count) {
     fn_800BEDA8(24, tmp, keys, count);
 }
 
-static unsigned char fn_800BFCB4_colorByte(float value) {
-    if (value >= 1.0f) {
-        return 0xFF;
-    }
-    if (value <= 0.0f) {
-        return 0;
-    }
-    return (unsigned char)__cvt_fp2unsigned(255.0f * value + 0.5f);
-}
 
 // inferred: one pass of the radix sort of the draw keys (stable counting sort on the byte at `shift`)
 extern "C" void fn_800BEDA8(int shift, const DrawSortKey_unk* in, DrawSortKey_unk* out, unsigned int count) {
@@ -869,75 +839,97 @@ void atn::RenderManager::fn_800BFC18(atn::Color color, float a, float b) {
     fn_800BFCB4(c, c, c, c, width, height, a, b);
 }
 
+// inferred: ARGB word to GXColor (as in atn/GraphicsDevice.cpp)
+inline GXColor ToGXColor_unk(unsigned int argb) {
+    GXColor color;
+    color.b = argb;
+    color.r = argb >> 16;
+    color.g = argb >> 8;
+    color.a = argb >> 24;
+    return color;
+}
+
+// inferred: color as an ARGB word (as fn_800BDBC8 builds the clear color)
+inline unsigned int ColorToARGB_unk(const atn::Color& c) {
+    unsigned int r = ColorChannel_unk(c.r);
+    unsigned int g = ColorChannel_unk(c.g);
+    unsigned int b = ColorChannel_unk(c.b);
+    unsigned int a = ColorChannel_unk(c.a);
+    unsigned int argb = a << 24;
+    argb |= r << 16;
+    argb |= g << 8;
+    argb |= b;
+    return argb;
+}
+
+// inferred: write gather pipe of the GX FIFO (as in atn/DrawHelper.cpp)
+union RenderWGPipe_unk {
+    float f;
+    unsigned char u8;
+};
+#define GXWGFifo (*(volatile RenderWGPipe_unk*)0xCC008000)
+
+static inline void GXPosition3f32(float x, float y, float z) {
+    GXWGFifo.f = x;
+    GXWGFifo.f = y;
+    GXWGFifo.f = z;
+}
+static inline void GXColor4u8(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    GXWGFifo.u8 = r;
+    GXWGFifo.u8 = g;
+    GXWGFifo.u8 = b;
+    GXWGFifo.u8 = a;
+}
+static inline void GXTexCoord2f32(float s, float t) {
+    GXWGFifo.f = s;
+    GXWGFifo.f = t;
+}
+
+// inferred: screen quad of width x height at (x, y) with a color in each corner (top left, top right,
+// bottom left, bottom right)
+// NONMATCHING: 93.6% - order of the byte stores of the GXColor and scheduling of the vertex writes
 void atn::RenderManager::fn_800BFCB4(atn::Color color0, atn::Color color1, atn::Color color2,
-                                      atn::Color color3, unsigned int width, unsigned int height, float a,
-                                      float b) {
-    const float* c0 = &color0.r;
-    const float* c1 = &color1.r;
-    const float* c2 = &color2.r;
-    const float* c3 = &color3.r;
-    // inferred: set an orthographic projection and draw a four-corner colored screen quad.
-    // NONMATCHING: 78.71% - color conversion and FIFO vertex writes still differ from the SDK call sequence.
-    void* global = lbl_8087EEE0;
-    unsigned int previous = *(unsigned int*)((unsigned char*)global + 0xD0);
-    fn_80076760(global, 8, 1);
-    fn_80076760(global, 9, 7);
-    fn_80076760(global, 10, 0);
-    fn_800761A8(global);
+                                      atn::Color color3, unsigned int width, unsigned int height, float x,
+                                      float y) {
+    atn::GraphicsDevice_unk* device = lbl_8087EEE0;
+    atn::GXStateBits_unk state = device->mState;
+    fn_80076760(device, 8, 1);
+    fn_80076760(device, 9, 7);
+    fn_80076760(device, 10, 0);
+    fn_800761A8(lbl_8087EEE0);
     GXClearVtxDesc();
     GXSetVtxDesc(9, 1);
     GXSetVtxDesc(11, 1);
     GXSetVtxDesc(13, 1);
-
-    unsigned int colors[4];
-    colors[0] = fn_800BFCB4_colorWord(c0);
-    colors[1] = fn_800BFCB4_colorWord(c1);
-    colors[2] = fn_800BFCB4_colorWord(c2);
-    colors[3] = fn_800BFCB4_colorWord(c3);
-    unsigned char* colorBytes = (unsigned char*)colors;
-
+    GXColor c0 = ToGXColor_unk(ColorToARGB_unk(color0));
+    GXColor c1 = ToGXColor_unk(ColorToARGB_unk(color1));
+    GXColor c2 = ToGXColor_unk(ColorToARGB_unk(color2));
+    GXColor c3 = ToGXColor_unk(ColorToARGB_unk(color3));
     GXSetVtxAttrFmt(0, 9, 1, 4, 0);
     GXSetVtxAttrFmt(0, 11, 1, 5, 0);
     GXSetVtxAttrFmt(0, 13, 1, 4, 0);
-
     float projection[4][4];
-    C_MTXOrtho(projection, 0.0f, (float)height, 0.0f, (float)width, 0.0f, lbl_8087D908);
+    C_MTXOrtho(projection, 0.0f, (int)height, 0.0f, (int)width, 0.0f, lbl_8087D908);
     GXSetProjection(projection, 1);
     float position[3][4];
     PSMTXIdentity(position);
     GXLoadPosMtxImm(position, 0);
     GXSetCurrentMtx(0);
     GXBegin(0x80, 0, 4);
-
-    volatile unsigned char* fifo = (volatile unsigned char*)0xCC008000;
-    *(volatile float*)fifo = a;
-    *(volatile float*)fifo = b;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[0]; fifo[0] = colorBytes[1]; fifo[0] = colorBytes[2]; fifo[0] = colorBytes[3];
-    *(volatile float*)fifo = 0.0f;
-    *(volatile float*)fifo = 0.0f;
-
-    *(volatile float*)fifo = (float)width + a;
-    *(volatile float*)fifo = b;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[4]; fifo[0] = colorBytes[5]; fifo[0] = colorBytes[6]; fifo[0] = colorBytes[7];
-    *(volatile float*)fifo = 1.0f;
-    *(volatile float*)fifo = 0.0f;
-
-    *(volatile float*)fifo = (float)width;
-    *(volatile float*)fifo = (float)height + b;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[8]; fifo[0] = colorBytes[9]; fifo[0] = colorBytes[10]; fifo[0] = colorBytes[11];
-    *(volatile float*)fifo = 1.0f;
-    *(volatile float*)fifo = 1.0f;
-
-    *(volatile float*)fifo = 0.0f;
-    *(volatile float*)fifo = (float)height;
-    *(volatile float*)fifo = lbl_8087D90C;
-    fifo[0] = colorBytes[12]; fifo[0] = colorBytes[13]; fifo[0] = colorBytes[14]; fifo[0] = colorBytes[15];
-    *(volatile float*)fifo = 0.0f;
-    *(volatile float*)fifo = 1.0f;
-    fn_80076A28(global, &previous);
+    float z = lbl_8087D90C;
+    GXPosition3f32(x, y, z);
+    GXColor4u8(c0.r, c0.g, c0.b, c0.a);
+    GXTexCoord2f32(0.0f, 0.0f);
+    GXPosition3f32((int)width + x, y, z);
+    GXColor4u8(c1.r, c1.g, c1.b, c1.a);
+    GXTexCoord2f32(1.0f, 0.0f);
+    GXPosition3f32((int)width + x, (int)height + y, z);
+    GXColor4u8(c3.r, c3.g, c3.b, c3.a);
+    GXTexCoord2f32(1.0f, 1.0f);
+    GXPosition3f32(x, (int)height + y, z);
+    GXColor4u8(c2.r, c2.g, c2.b, c2.a);
+    GXTexCoord2f32(0.0f, 1.0f);
+    fn_80076A28(lbl_8087EEE0, &state);
 }
 
 void atn::RenderManager::fn_800C0508(int clear) {
