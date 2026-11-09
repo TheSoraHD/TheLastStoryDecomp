@@ -1176,15 +1176,13 @@ void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
     chara->mFC0 = target;
 }
 
-// NONMATCHING: 93% - the original tests the log instance with bne over a blr
+// inferred: the early return as !(a) || !(b) gives the bne over a blr of the original
 void BattleTask::fn_80109828(const wchar_t* text) {
-    if (lbl_8087F0A8->m06C > 0) {
-        if (LogMessageTask::sInstance == 0) {
-            return;
-        }
-        if (text != 0) {
-            LogMessageTask::sInstance->fn_8047961C(text, -0x3301, 0, 0);
-        }
+    if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
+        return;
+    }
+    if (text != 0) {
+        LogMessageTask::sInstance->fn_8047961C(text, -0x3301, 0, 0);
     }
 }
 

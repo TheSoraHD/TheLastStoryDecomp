@@ -677,14 +677,15 @@ void NewCampTask::fn_80530D30(int duration) {
     m68 = 0;
 }
 
-// NONMATCHING: 80% - the original keeps a dead blr after the tail call
+// inferred: the early return written as !(a) || !(b) keeps the dead blr after the tail call of the original
 void NewCampTask::fn_80530D88(int set, atn::ModelBase* model) {
     if (model == 0) {
         return;
     }
-    if (0 <= set && set < 3) {
-        ((atn::Model*)model)->fn_8008C828(0);
+    if (!(0 <= set) || !(set < 3)) {
+        return;
     }
+    ((atn::Model*)model)->fn_8008C828(0);
 }
 
 // NONMATCHING: 97% - the original copies the alpha of the fog color again as a word after the assignment
