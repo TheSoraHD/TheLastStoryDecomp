@@ -1,6 +1,6 @@
 # Siguiente sesion (tras arranque-20261109)
 
-Rama `arranque-20261109` (sin mergear; inicio 2026-11-09 12:41, cierre ~00:41): **14837 -> 14893 / 18109**, lost 0,
+Rama `arranque-20261109` (sin mergear; inicio 2026-11-09 12:41, cierre ~00:41): **14837 -> 14894 / 18109**, lost 0,
 sin bajadas de fuzzy, build limpio y clon limpio de la rama con `main.dol: OK`. Notas: `docs/arranque-20261109.md`;
 la ruta `main()` -> pantalla de titulo, con tablas por unidad, llamadas al SDK/NW4R y asm aprobado:
 `docs/ruta-arranque.md`.
@@ -10,7 +10,7 @@ la ruta `main()` -> pantalla de titulo, con tablas por unidad, llamadas al SDK/N
 - Ruta de arranque (27 unidades): 523 -> 557 / 666 funciones al 100 %, enlazan 7 de 27 (nuevas: `game/BootTask`,
   separada de `game/Bullet`, y `atn/MindowsCommon`; frontera `ReplayBuffer`/`GameSystem_unk` movida). 0 borradores en la ruta;
   `game/NewTitleTask` escrita entera.
-- MP/Popup enlazada (fuera de la ruta; `.sbss` de `sInstance` en `splits.txt`).
+- Fuera de la ruta, enlazadas: MP/Popup (`.sbss` de `sInstance` en `splits.txt`) y db/ItemRare_unk (getters).
 - Borradores: 56 -> 42 (los doce lectores de `Event/EventParser_unk`; `Data48_unk` es `Event::DummyData`).
 - boost::lambda 1.35.0 vendorizado (`atn::SequenceHolder`); `CharaTask::fn_80170A20(target, radius, arg)`.
 - Herramientas: `drafts.py`, `ruta_arranque.py`, `offscan.py`, `blorder.py`, `lblmap.py`, `declperm.py`.
