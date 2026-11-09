@@ -6,6 +6,8 @@
 #include "game/PlayerManager.h"
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
+#include "game/GimmickManager.h"
+#include "game/GimmickCommon.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/Model_unk.h"
@@ -62,7 +64,7 @@ extern "C" void fn_8056A84C(atn::Matrix3x4* mtx, const atn::NodeChunk& node, con
 // NONMATCHING: draft - only the node callback of the upper body; the pose of the nodes (`data`, `count`), the
 // saved callbacks of the model and `out` are missing. Written for the weak copies of the boost::function of
 // the callback (0x8056B2C0 invoker, 0x8056B2E0 manager).
-extern "C" void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, void** out, ReplayChara_unk* entry,
+extern "C" __declspec(noinline) void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, void** out, ReplayChara_unk* entry,
                             float angle) {
     if (entry != 0 && entry->m07 != 0) {
         model->CalcMatrixStack(boost::bind(&fn_8056A84C, _1, _2, _3, angle));
@@ -111,11 +113,13 @@ static inline float FromHalf_unk(short h) {
     if (h == 0) {
         return 0.0f;
     }
-    unsigned int bits = ((h << 16) & 0x80000000) | ((h << 13) & 0x007FE000) | (((((h >> 10) & 0x1F) + 0x70) << 23) & 0x7F800000);
+    unsigned int bits = (h << 16) & 0x80000000;
+    bits |= (h << 13) & 0x007FE000;
+    bits |= ((((h >> 10) & 0x1F) + 0x70) << 23) & 0x7F800000;
     return *(float*)&bits;
 }
 
-// NONMATCHING: 77.2% - unrolling of the matrix loop (the original does two elements per pass), stack slots
+// NONMATCHING: 97.15% - stack frame 0x20 smaller (slots of the temporaries) and registers
 // inferred: float to half float of the replay data (names invented)
 static inline short ToHalf_unk(float f) {
     unsigned int bits = *(unsigned int*)&f;
@@ -157,7 +161,7 @@ extern "C" void fn_8056BAA4(ReplayChara_unk* dst, atn::Model* model) {
         dst->mTracks[i].m15 = ToByte_unk(t.m2C);
     }
 }
-extern "C" void fn_8056D60C(ReplayModel_unk* dst, atn::Model* model);
+extern "C" __declspec(noinline) void fn_8056D60C(ReplayModel_unk* dst, atn::Model* model);
 
 void ReplayRecorder_unk::fn_8056BD34() {
     int i = 0;
@@ -171,7 +175,9 @@ void ReplayRecorder_unk::fn_8056BD34() {
         model->m34C = entry->m06;
         Mtx mtx;
         for (unsigned int j = 0; j < 12; j++) {
-            mtx[j / 4][j % 4] = FromHalf_unk(entry->mMtx[j / 4][j % 4]);
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
         }
         float angle = FromHalf_unk(entry->mAngle);
         void* out = 0;
@@ -197,9 +203,32 @@ ReplayBuffer::ReplayBuffer()
 
 ReplayBuffer::~ReplayBuffer() {}
 
+void ReplayBuffer::fn_8056D43C(ReplayFrame_unk* frame, const Mtx inv) {
+    for (GimmickCommon* gimmick = GimmickManager::instance_->mHead; gimmick != 0; gimmick = gimmick->m5C) {
+        if (frame->mNumModels >= 60) {
+            break;
+        }
+        atn::Model* model = gimmick->vf38();
+        if (model != 0 && gimmick->m9C != 0) {
+            ReplayModel_unk* entry = &frame->mModels[frame->mNumModels];
+            entry->mOwner = gimmick;
+            entry->mModel = model;
+            frame->mNumModels++;
+            Mtx mtx;
+            PSMTXConcat(inv, model->mMtx.m, mtx);
+            for (unsigned int j = 0; j < 12; j++) {
+                unsigned int r = j >> 2;
+                unsigned int c = j & 3;
+                entry->mMtx[r][c] = ToHalf_unk(mtx[r][c]);
+            }
+            fn_8056D60C(entry, model);
+        }
+    }
+}
+
 // inferred: packs the motion track 0 of a gimmick model
 // NONMATCHING: 78% - the original keeps copies of 255.0f/0.0f in f3-f12 (ToByte_unk written differently)
-extern "C" void fn_8056D60C(ReplayModel_unk* dst, atn::Model* model) {
+extern "C" __declspec(noinline) void fn_8056D60C(ReplayModel_unk* dst, atn::Model* model) {
     atn::Model::Track_unk& t = model->mTracks[0];
     dst->mTrack.mId = t.m00;
     dst->mTrack.mMotion = t.m04;
