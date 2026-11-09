@@ -616,8 +616,7 @@ public:
     }
     unsigned long GetLabel_unk(unsigned int id) {
         if (m8E0 != 0) {
-            id--;
-            AudioMap_unk<unsigned int, const char*, 0>::Node* it = m8E8.find(id);
+            AudioMap_unk<unsigned int, const char*, 0>::Node* it = m8E8.find(id - 1);
             if (it != m8E8.end()) {
                 return (unsigned long)it->mValue.second;
             }
@@ -735,13 +734,13 @@ extern "C" void fn_80046220(int result, unsigned long arg) {
 extern "C" void fn_80046224(int result, unsigned long arg) {
 }
 
-// NONMATCHING: 91.96% - registros del bucle de callbacks (el original guarda un GPR mas; igual que LoadHandle)
+// NONMATCHING: 99.29% - registros del vector, del indice y del elemento en el bucle de callbacks
 // inferred: wait callback of the sound archive: runs the per-frame callbacks and sleeps 1 ms
 extern "C" void fn_80046228() {
     FrameCallbacks_unk* callbacks = lbl_8087EE94;
     if (callbacks != 0) {
-        for (unsigned int i = 0; i < callbacks->mSize; i++) {
-            callbacks->mData[i]();
+        for (unsigned int i = 0; i < callbacks->size(); i++) {
+            (*callbacks)[i]();
         }
     }
     OSSleepTicks((*(unsigned long*)0x800000F8 / 4) / 1000);
@@ -1364,7 +1363,7 @@ extern "C" int fn_80049C3C(AudioDevice* audio, const char* name) {
     return audio->GetBank_unk(name);
 }
 
-// NONMATCHING: 95.08% - registros de la clave (id - 1) en la busqueda del mapa
+// NONMATCHING: 98.68% - registros de la clave (id - 1) y del final del mapa en la busqueda
 // inferred: label of a sound id
 extern "C" unsigned long fn_80049CDC(AudioDevice* audio, unsigned int id) {
     return audio->GetLabel_unk(id);
