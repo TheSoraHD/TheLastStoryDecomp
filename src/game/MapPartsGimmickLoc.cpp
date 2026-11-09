@@ -13,6 +13,24 @@ static inline int Random_unk(int n) {
     return n > 0 ? rand() % n : 0;
 }
 
+MapPartsGimmickLoc* MapPartsGimmickLoc::SetTask(atn::Task* parent, int type, atn::CsvTab& csv) {
+    if (parent != 0) {
+        return new ((MemoryTag)12, "", "", 0) MapPartsGimmickLoc(parent, type, csv);
+    }
+    return 0;
+}
+
+// inferred: the locator file is named in the csv; the rest of the csv goes to vf28
+MapPartsGimmickLoc::MapPartsGimmickLoc(atn::Task* parent, int type, atn::CsvTab& csv)
+    : MapPartsBase(parent, type), m50(0), m54(0), m60(0), m64(0), m68(0), m6C(0), mName(""), m120(1), m121(0) {
+    m124[0] = 0.0f;
+    m124[1] = 0.0f;
+    m124[2] = 0.0f;
+    m124[3] = 0.0f;
+    mFile.vf0C(csv.fn_8005B9CC());
+    vf28(&csv);
+}
+
 void* MapPartsGimmickLoc::fn_80498E7C(int index) {
     unsigned char* bytes = reinterpret_cast<unsigned char*>(this);
     if (*reinterpret_cast<unsigned int*>(bytes) == 0x6C6F6373) {

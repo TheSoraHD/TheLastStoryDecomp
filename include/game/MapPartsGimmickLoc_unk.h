@@ -5,6 +5,8 @@
 #include "atn/LH_Binary.h"
 #include "atn/Sphere.h"
 #include "atn/Color.h"
+#include "atn/static_string.h"
+#include "atn/Texture_unk.h"
 
 class MapPartsArea;
 namespace atn {
@@ -81,6 +83,14 @@ struct MapPartsGimmickLocRecord_unk {
 class MapPartsGimmickLoc : public MapPartsBase {
 public:
     static MapPartsGimmickLoc* SetTask(atn::Task* parent, int type, atn::CsvTab& csv); // 0x80496EE8 (RSO name)
+    MapPartsGimmickLoc(atn::Task* parent, int type, atn::CsvTab& csv); // 0x80496F6C
+    virtual ~MapPartsGimmickLoc();                        // 0x804970D4
+    virtual int vf0C();                                   // 0x80497374
+    virtual void vf10();                                  // 0x80497874
+    virtual void vf14();                                  // 0x80498574
+    virtual bool vf20(const atn::Vector3& pos);           // 0x80499FE4
+    virtual void vf28(atn::CsvTab* csv);                  // 0x80497248
+    virtual void vf2C(unsigned int hash, int draw);       // 0x80499E14
     void* fn_80498E7C(int index);
     void fn_80498EF8(const atn::Vector3& scale);
     void fn_80498F08();
@@ -101,6 +111,11 @@ public:
     MapPartsGimmickLocRecord_unk* m64; // 0x64: inferred: records
     unsigned int m68;         // 0x68: inferred: number of the entries of m6C
     MapPartsGimmickLocScene_unk** m6C; // 0x6C: inferred: objects that keep the scene (fn_80499CCC)
+    atn::static_string<128, char, std::char_traits<char> > mName; // 0x70
+    atn::Texture_unk mTexture; // 0xF0
+    unsigned char m120;       // inferred: shown (vf14, vf2C)
+    unsigned char m121;
+    float m124[4];            // inferred: a colour (0 at the start)
 };
 
 #endif
