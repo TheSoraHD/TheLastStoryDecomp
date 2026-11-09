@@ -6,11 +6,14 @@
 
 namespace atn {
 
-// inferred: render target texture (0x30 bytes); the real class name is unknown.
-class Texture_unk {
+// Texture of the engine (0x30 bytes). Real name atn::Texture: type name "boost::_bi::bind_t<atn::Texture *,
+// boost::_mfi::mf1<atn::Texture *, atn::ModelBase, ...>" in .rodata and atn::Texture::operator= (0x8052E8D4,
+// the implicit one: declaring it makes game/NewCampPartsGmk lose its weak copy constructors); Texture_unk is
+// the older name used in this project.
+class Texture {
 public:
-    Texture_unk();  // 0x800D5738
-    ~Texture_unk(); // 0x800D5808
+    Texture();  // 0x800D5738
+    ~Texture(); // 0x800D5808
     void fn_800D5908(const char* path); // inferred: loads a texture file (m20.vf0C)
     int fn_800D5B58(int width, int height, int format, int lods, const char* name); // inferred: allocate (returns 1)
 
@@ -22,6 +25,7 @@ public:
     signed char m2E; // inferred: wrap mode T
     signed char m2F; // inferred: mip levels of an allocated texture (read with extsb)
 };
+typedef Texture Texture_unk;
 
 } // namespace atn
 
