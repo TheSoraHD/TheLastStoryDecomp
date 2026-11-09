@@ -1133,8 +1133,6 @@ extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned in
 extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned int width,
                              unsigned int height) {
     // inferred: converts supported GX texture layouts to tiled storage and flushes the image.
-    // NONMATCHING: 98.56% - the original keeps the offset in the scratch row and adds the stack address
-    // in each block (ours strength-reduces it to a pointer)
     unsigned char scratch[0x2000];
     switch (format) {
     case 0:
@@ -1171,11 +1169,9 @@ extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned i
         for (; y < blocksHigh; y++) {
             memcpy(scratch, tile, rowBytes);
             unsigned int x;
-            unsigned int offset;
             x = 0;
-            offset = 0;
             for (; x < blocksWide; x++) {
-                const unsigned char* src = scratch + offset;
+                const unsigned char* src = scratch + x * 16;
                 for (unsigned int k = 0; k < pairs; k++) {
                     tile[0] = src[0];
                     tile[1] = src[1];
@@ -1214,7 +1210,6 @@ extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned i
                     tile += 16;
                 }
                 tile += 32;
-                offset += 16;
             }
         }
         DCFlushRange(image, (width * height) << 2);
@@ -1227,7 +1222,6 @@ extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned i
 extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned int width,
                              unsigned int height) {
     // inferred: converts supported GX texture layouts back to linear storage and flushes the image.
-    // NONMATCHING: 98.56% - as fn_800C0D4C (offset in the scratch row)
     unsigned char scratch[0x2000];
     switch (format) {
     case 0:
@@ -1264,9 +1258,8 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
         unsigned int pairs = 2;
         for (; y < blocksHigh; y++) {
             unsigned char* row = tile;
-            unsigned int offset = 0;
             for (unsigned int x = 0; x < blocksWide; x++) {
-                unsigned char* dst = scratch + offset;
+                unsigned char* dst = scratch + x * 16;
                 for (unsigned int k = 0; k < pairs; k++) {
                     dst[0] = tile[0];
                     dst[1] = tile[1];
@@ -1305,7 +1298,6 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
                     dst += stride;
                 }
                 tile += 32;
-                offset += 16;
             }
             memcpy(row, scratch, rowBytes);
         }
