@@ -225,3 +225,15 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - (`s12h-20261109`) Quitar o anadir declaraciones en `game/ReplayBuffer.h` o `game/Bullet.h` renumera los `@N` de
   GameTask: `fn_8036D2D0` (99,98%) necesita renombrar a mano su etiqueta (linea `0x808857A8` de `symbols.txt`) tras
   `pd`, que solo empareja las de funciones al 100%.
+- (`arranque-20261109`) Par contador/desplazamiento de un bucle con los registros cambiados (EnvSeManager fn_8035F33C,
+  GameEventScript fn_803A2DD8, MemberList fn_80217D9C, TextureCacheManager): el orden de declaracion no lo cambia
+  (el desplazamiento lo crea MWCC); probados `unsigned`/`int`, cast, `++i`, puntero al elemento, `break`.
+- (`arranque-20261109`) `atn::Lerp_unk(Vector3)` de math/Vec.h: `(b - a) * t + a` da el 100 % pero renumera las
+  etiquetas de 13 unidades y baja TutorialTask vf10 y CharaFaceControl; no repetir sin arreglar esas dos.
+- (`arranque-20261109`) SoundManager fn_800CB800/BE8C/C518: una inline libre con el indice primero arregla los
+  registros de la segunda inline, pero mueve el `@LOCAL@...stored_vtable` de boost::function (.bss) y baja 9 funciones.
+- (`arranque-20261109`) Saved FPR (QuadrupedTask vf24, CharaTask fn_8015EB2C) y PostFxRain vf10: `declperm.py`
+  no cambia nada; el orden de declaracion solo vale para volatiles y algunos saved GPR.
+- (`arranque-20261109`) Em308ParmCrab vf10 / Em401 fn_8031FE4C: `fn_800F8C6C` (124 llamadas, `extern "C"` en
+  muchas unidades) tiene el mismo problema de orden de argumentos que fn_80170A20; no tocado.
+
