@@ -6,6 +6,8 @@
 #include "game/PlayerManager.h"
 #include "game/NpcManager.h"
 #include "game/NpcTask.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include "atn/Model_unk.h"
 #include "game/BattleTask.h"
 #include "atn/EffectManager.h"
@@ -57,6 +59,16 @@ extern "C" void fn_8056A84C(atn::Matrix3x4* mtx, const atn::NodeChunk& node, con
     }
 }
 
+// NONMATCHING: draft - only the node callback of the upper body; the pose of the nodes (`data`, `count`), the
+// saved callbacks of the model and `out` are missing. Written for the weak copies of the boost::function of
+// the callback (0x8056B2C0 invoker, 0x8056B2E0 manager).
+extern "C" void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, void** out, ReplayChara_unk* entry,
+                            float angle) {
+    if (entry != 0 && entry->m07 != 0) {
+        model->CalcMatrixStack(boost::bind(&fn_8056A84C, _1, _2, _3, angle));
+    }
+}
+
 ReplayRecorder_unk::ReplayRecorder_unk() {
     m460 = 0;
 }
@@ -103,8 +115,6 @@ static inline float FromHalf_unk(short h) {
     return *(float*)&bits;
 }
 
-extern "C" void fn_8056A9E4(atn::Model* model, void* data, int count, Mtx mtx, void** out, ReplayChara_unk* entry,
-                            float angle);
 
 // NONMATCHING: 77.2% - unrolling of the matrix loop (the original does two elements per pass), stack slots
 void ReplayRecorder_unk::fn_8056BD34() {
