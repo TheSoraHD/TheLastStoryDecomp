@@ -66,6 +66,22 @@ rejected:
     return 0;
 }
 
+extern "C" void* lbl_8087F4FC; // inferred: instance of gmk::ItemSlotTextCache
+
+namespace gmk {
+
+// inferred: cache of the texts of the item animations (vtable 0x8078F348, instance lbl_8087F4FC)
+class ItemSlotTextCache : public atn::Task {
+public:
+    virtual ~ItemSlotTextCache();
+};
+
+ItemSlotTextCache::~ItemSlotTextCache() {
+    lbl_8087F4FC = 0;
+}
+
+} // namespace gmk
+
 // inferred: entry of RecycleBuffer (0x84 bytes; empty destructor 0x8044E158, cleared by 0x8044E198); names
 // invented
 struct RecycleBufferEntry_unk {
