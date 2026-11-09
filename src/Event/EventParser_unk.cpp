@@ -77,11 +77,7 @@ static int ParseGroup_unk(unsigned int tag, int size, const char* data, ParserSt
 }
 
 // inferred: positions of the message layouts (.bss of Event/Manager.cpp)
-struct LayoutPos_unk {
-    float x;
-    float y;
-};
-extern "C" LayoutPos_unk lbl_807C8AB0[3];
+#include "Event/MessageLayoutPos_unk.h"
 
 // inferred: converts the parameters of the old versions of some actions after reading
 static void FixAction_unk(Action* action) {

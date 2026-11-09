@@ -48,7 +48,7 @@ namespace atn {
 struct Camera;
 } // namespace atn
 typedef atn::Camera Camera_unk;
-extern "C" float lbl_807C8AB0[3][2]; // inferred: text speeds of the message actions
+#include "Event/MessageLayoutPos_unk.h"
 // inferred: prints a message of the event (window, text, kind, style, size, flags, start, length, speeds)
 // inferred: effect manager lbl_8087F3C0 (only the member used here)
 struct EffectMgr_unk {
@@ -916,8 +916,8 @@ int ActionMessagePrint::vf0C(Action* arg, int phase) {
         float speed0 = 0.5f;
         float speed1 = 0.5f;
         if (kind <= 2) {
-            speed0 = lbl_807C8AB0[kind][0];
-            speed1 = lbl_807C8AB0[kind][1];
+            speed0 = lbl_807C8AB0[kind].x;
+            speed1 = lbl_807C8AB0[kind].y;
         }
         GameMessage* msg = manager->m1D4.fn_803B3B38(text);
         if (kind == 0 && style == 0 && manager->m50 == 3 && lbl_8087F490 != 0 && lbl_8087F490->m2640 != 0) {
