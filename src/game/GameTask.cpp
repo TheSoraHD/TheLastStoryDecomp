@@ -1072,7 +1072,7 @@ static inline long long GetTimeMs_unk() {
 }
 
 // DRAFT: written for the order of the string pool; not compared
-// NONMATCHING: written for the order of the string pool (the map change states come first); not compared yet
+// NONMATCHING: 95.62% - registers and scheduling (the state switch emits state 5 before state 0, as here)
 void GameTask::vf10() {
     m5744++;
     m5744 = m5744 < 107999970 ? m5744 : 107999970;
@@ -1546,6 +1546,21 @@ void GameTask::vf10() {
         m5684 = 0;
     }
     switch (m54E4) {
+    case 5:
+        if (m5750->mState == 1) {
+            int value = m5750->mDecided;
+            fn_8036EE0C();
+            if (m5754 == 1) {
+                fn_80370320(m5758, value, 0);
+            } else {
+                fn_80370AE4(m5758, value);
+            }
+            if (m5750 != 0) {
+                fn_800D2338(m5750);
+                m5750 = 0;
+            }
+        }
+        break;
     case 0: {
         if (lbl_8087F490->mD8C == 1 && lbl_8087F0A8->mInput.fn_801231D0(0)) {
             if (m56F4.mCount != 0) {
@@ -1622,21 +1637,6 @@ void GameTask::vf10() {
     case 1:
         if (m5620->mActive == 0) {
             m54F0 = 0;
-        }
-        break;
-    case 5:
-        if (m5750->mState == 1) {
-            int value = m5750->mDecided;
-            fn_8036EE0C();
-            if (m5754 == 1) {
-                fn_80370320(m5758, value, 0);
-            } else {
-                fn_80370AE4(m5758, value);
-            }
-            if (m5750 != 0) {
-                fn_800D2338(m5750);
-                m5750 = 0;
-            }
         }
         break;
     case 6:
