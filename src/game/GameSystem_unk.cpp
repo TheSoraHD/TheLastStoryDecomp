@@ -74,25 +74,25 @@ struct GameSystem_unk {
 extern "C" GameSystem_unk* lbl_8087F9A0;
 extern "C" void fn_805714DC(GameSystem_unk* sys, int wait);
 
-extern "C" void fn_80570A14(ReplayBuffer* obj, int value) {
-    obj->m5BDA8 = value;
-    if (value != 0) {
-        obj->m5BDAC = obj->m00004;
+void ReplayBuffer::fn_80570A14(int recording) {
+    m5BDA8 = recording;
+    if (recording != 0) {
+        m5BDAC = m00004;
     } else {
-        obj->m4517C = 0;
+        m4517C = 0;
     }
 }
 
-extern "C" void fn_80570A40(ReplayBuffer* obj, int value) {
-    obj->m5BDB0 = value;
+void ReplayBuffer::fn_80570A40(int pause) {
+    m5BDB0 = pause;
 }
 
-extern "C" int fn_80570A4C(ReplayBuffer* obj) {
-    return obj->m4517C == 45;
+int ReplayBuffer::fn_80570A4C() {
+    return m4517C == 45;
 }
 
-extern "C" void fn_80570A64(ReplayBuffer* obj) {
-    obj->m4517C = 0;
+void ReplayBuffer::fn_80570A64() {
+    m4517C = 0;
 }
 
 // inferred: list of effects of the field (field->m5590): count at 0x52184, pointers at 0x52188

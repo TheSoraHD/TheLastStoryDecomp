@@ -107,6 +107,11 @@ public:
     void fn_80570254(int frame); // inferred: rebuilds the effects and events up to the frame
     void fn_8056D43C(ReplayFrame_unk* frame, const Mtx inv); // inferred: records the gimmick models
     void fn_8056D06C(); // inferred: frees the effect events that ended more than 90 frames ago
+    // inferred: code in game/GameSystem_unk.cpp (0x80570A14-0x80570A70)
+    void fn_80570A14(int recording); // inferred: starts/stops the recording
+    void fn_80570A40(int pause);     // inferred: pauses the recording of the events
+    int fn_80570A4C();               // inferred: the buffer is full (45 frames)
+    void fn_80570A64();              // inferred: clears the frames
     void fn_8057080C(); // inferred: frees the bullet events that ended more than 90 frames ago
     int m00004; // inferred: current frame
     ReplayFrame_unk mFrames[45]; // 0x00008: inferred: ring of the recorded frames

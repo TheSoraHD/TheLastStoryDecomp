@@ -79,7 +79,6 @@
 extern "C" void* lbl_8087EF8C;
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
-extern "C" int fn_80570A4C(ReplayBuffer* obj);
 extern "C" GameTask* lbl_8087F430;
 extern "C" atn::Task* lbl_8087F9E0; // inferred: upgrade shop (ShopUpGrade)
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
@@ -282,13 +281,11 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 
 extern "C" void fn_801092C8(void* battle, int kind, CharaTask* chara, int bit, int arg);
 extern "C" TutorialData_unk* fn_8021F09C(int id); // inferred: row of the tutorial table
-extern "C" void fn_80570A14(ReplayBuffer* obj, int value);
 extern "C" void fn_802328DC(int frame); // inferred: effect system frame
 extern "C" void fn_80450B28();         // inferred: freezes the item slot animations
 extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
 extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
 extern "C" int VISetTimeToDimming(int type);
-extern "C" void fn_80570A40(ReplayBuffer* obj, int value);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
 extern "C" void fn_803D83A8(GameUI* ui);
 extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
@@ -1637,7 +1634,7 @@ void GameTask::vf10() {
             lbl_8087F490->fn_803E32EC();
             PlayerTask* player = lbl_8087F8A0->mHead;
             if (player->m648 != 0) {
-                if (lbl_8087F0A8->mInput.fn_801231D0(0xB) && m5590 != 0 && fn_80570A4C(m5590) && m5594 != 0 &&
+                if (lbl_8087F0A8->mInput.fn_801231D0(0xB) && m5590 != 0 && m5590->fn_80570A4C() && m5594 != 0 &&
                     m55A4 > 0) {
                     fn_803731E8();
                 } else {
@@ -2735,8 +2732,8 @@ void GameTask::fn_8036E494() {
     m5624->mZ = -5.0f;
     m5624->mActive = 1;
     if (m5590 != 0) {
-        fn_80570A14(m5590, 1);
-        fn_80570A40(m5590, 1);
+        m5590->fn_80570A14(1);
+        m5590->fn_80570A40(1);
         m5594 = 0;
         m55A4 = 0;
     }
@@ -2781,8 +2778,8 @@ extern "C" void fn_803CE070(GameSoundControl* control);
 // inferred: leaves the field for the camp (called by game/NewCampTask)
 extern "C" void fn_8036E624(GameTask* task) {
     if (task->m5590 != 0) {
-        fn_80570A14(task->m5590, 0);
-        fn_80570A40(task->m5590, 0);
+        task->m5590->fn_80570A14(0);
+        task->m5590->fn_80570A40(0);
     }
     task->m558C.mPtr->fn_8056BD34();
     task->fn_8036EE0C();
@@ -3592,7 +3589,6 @@ void GameTask::fn_80371320(PlayerTask* player) {
     }
 }
 
-extern "C" void fn_80570A64(ReplayBuffer* obj);
 
 // inferred: starts an event of the field (field state 8; called by game/GameEventScript)
 // NONMATCHING: 98.9% - the original reloads lbl_8087EFA8 before storing the depth of field (as fn_8036CC90)
@@ -3604,8 +3600,8 @@ void GameTask::fn_80371334() {
         ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->FreezeTask();
     }
     if (m5590 != 0) {
-        fn_80570A14(m5590, 1);
-        fn_80570A64(m5590);
+        m5590->fn_80570A14(1);
+        m5590->fn_80570A64();
         m5594 = 0;
         m55A4 = 0;
     }
@@ -3659,8 +3655,8 @@ void GameTask::fn_80371674() {
         ((atn::Task*)((TaskWithTac_unk*)lbl_8087FA20)->m258)->MeltTask();
     }
     if (m5590 != 0) {
-        fn_80570A14(m5590, 0);
-        fn_80570A40(m5590, 0);
+        m5590->fn_80570A14(0);
+        m5590->fn_80570A40(0);
     }
     m5650 = 0;
     m5654 = 0;
@@ -3689,8 +3685,8 @@ void GameTask::fn_8037177C() {
 void GameTask::fn_803727DC() {
     m54E4 = 0;
     if (m5590 != 0) {
-        fn_80570A14(m5590, 0);
-        fn_80570A40(m5590, 0);
+        m5590->fn_80570A14(0);
+        m5590->fn_80570A40(0);
     }
     if (lbl_8087F0A8->mD0 != 1) {
         m558C.mPtr->fn_8056BD34();
@@ -4175,7 +4171,7 @@ void GameTask::fn_803737C0() {
     if (GameBgm::sInstance != 0) {
         GameBgm::sInstance->fn_8037D49C(GameBgm::sInstance->mE0, 30);
     }
-    fn_80570A14(m5590, 0);
+    m5590->fn_80570A14(0);
     lbl_8087F9E8->fn_8059D268(1);
     if (lbl_8087F0A8->m090 != 0) {
         lbl_8087F048->fn_8010AB34();
@@ -4293,7 +4289,7 @@ void GameTask::fn_80373AE8() {
 }
 
 void GameTask::fn_80373F78() {
-    if (m5590 != 0 && fn_80570A4C(m5590) != 0) {
+    if (m5590 != 0 && m5590->fn_80570A4C() != 0) {
         fn_803731E8();
     }
 }
@@ -4956,7 +4952,7 @@ void GameTask::fn_80376324(int id) {
             m571C.mCount = 0;
         }
         if (m5590 != 0) {
-            fn_80570A14(m5590, 1);
+            m5590->fn_80570A14(1);
         }
         m558C.mPtr->fn_8056B3D4();
         lbl_8087F8A0->fn_800D246C(1);
@@ -4980,8 +4976,8 @@ void GameTask::fn_80376324(int id) {
 // inferred: ends the tutorial of the field and shows the next waiting one
 void GameTask::fn_80376568() {
     if (m5590 != 0) {
-        fn_80570A14(m5590, 0);
-        fn_80570A40(m5590, 0);
+        m5590->fn_80570A14(0);
+        m5590->fn_80570A40(0);
     }
     m558C.mPtr->fn_8056BD34();
     lbl_8087F8A0->fn_800D246C(0);
