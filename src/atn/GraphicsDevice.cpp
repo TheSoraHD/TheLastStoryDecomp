@@ -1649,7 +1649,7 @@ extern "C" void fn_800763FC(GraphicsDevice_unk* device, const void* texObj, unsi
 extern "C" void fn_80076F88(GraphicsDevice_unk* device, unsigned int index);
 extern "C" int fn_800760E8(int numVerts, int prim);
 extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* format);
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device);
+extern "C" float fn_80076FF8(const GraphicsDevice_unk* device);
 
 // inferred: full-screen viewport (atn/Layer2DBlur, atn/LayerOcclusionCPU)
 // NONMATCHING: 98.79% - float registers of the scissor
@@ -1993,9 +1993,8 @@ extern "C" GXTexRegion* fn_80076FD4(GXTexObj* obj, unsigned int id) {
     return lbl_8087EEE0->mTexCache->vf0C(obj, id);
 }
 
-// inferred: aspect ratio of the displayed image
-// NONMATCHING: 91.67% - prologue order
-extern "C" float fn_80076FF8(GraphicsDevice_unk* device) {
+// inferred: aspect ratio of the displayed image (const: the load of mWide goes above the stwu)
+extern "C" float fn_80076FF8(const GraphicsDevice_unk* device) {
     float aspect;
     if (device->mWide) {
         aspect = 1.7777778f;
