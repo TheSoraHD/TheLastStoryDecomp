@@ -3,6 +3,7 @@
 
 #include "game/MapPartsBase.h"
 #include "atn/LH_Binary.h"
+#include "atn/Sphere.h"
 
 class MapPartsArea;
 namespace atn {
@@ -52,6 +53,23 @@ public:
     int mA4;
 };
 
+// inferred: object that keeps a scene pointer at 0x64 (entries of MapPartsGimmickLoc::m6C; real class unknown)
+struct MapPartsGimmickLocScene_unk {
+    unsigned char m00[8];
+    atn::Sphere mSphere;      // 0x08: inferred: bounds used to find its area (fn_80499D60)
+    unsigned char m18[0x64 - 0x18];
+    atn::Scene* m64;
+};
+
+// inferred: record of the locator file (0xA0 bytes): an effect of the areas (SetAreaEffConfig); names invented
+struct MapPartsGimmickLocRecord_unk {
+    unsigned char m00[0x90];
+    int m90;                  // inferred: number of variants
+    int m94;
+    int m98;                  // inferred: variant picked at random (fn_80499B9C)
+    int m9C;
+};
+
 // inferred: map-part location controller (RTTI at 0x80790560; fields are established by local
 // offset accessors in game/MapPartsGimmickLoc.cpp).
 class MapPartsGimmickLoc : public MapPartsBase {
@@ -74,9 +92,9 @@ public:
     int m54;                  // 0x54: inferred: 2 when the effect colours go to the EffectManager
     atn::LH_Binary mFile;     // 0x58: inferred: locator file (constructor 0x80496F6C)
     unsigned int m60;         // 0x60: inferred: number of records of 0xA0 bytes (SetAreaEffConfig)
-    unsigned char* m64;       // 0x64: inferred: records
-    int m68;
-    int m6C;
+    MapPartsGimmickLocRecord_unk* m64; // 0x64: inferred: records
+    unsigned int m68;         // 0x68: inferred: number of the entries of m6C
+    MapPartsGimmickLocScene_unk** m6C; // 0x6C: inferred: objects that keep the scene (fn_80499CCC)
 };
 
 #endif

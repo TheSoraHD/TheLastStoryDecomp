@@ -1,4 +1,15 @@
 #include "game/MapPartsGimmickLoc_unk.h"
+#include "game/GimmickCommon.h"
+#include "game/MapPartsArea.h"
+#include "game/MapArea.h"
+#include "atn/RenderManager.h"
+#include "atn/EffectManager.h"
+
+extern "C" int rand();
+// inferred: random number in [0, n) (0 when n is not positive)
+static inline int Random_unk(int n) {
+    return n > 0 ? rand() % n : 0;
+}
 
 void* MapPartsGimmickLoc::fn_80498E7C(int index) {
     unsigned char* bytes = reinterpret_cast<unsigned char*>(this);
@@ -73,4 +84,48 @@ void* MapPartsGimmickLocArray8_unk::fn_80499724(int index) const {
 
 void* MapPartsGimmickLocArray4_unk::fn_8049981C(int index) const {
     return static_cast<unsigned char*>(mData) + index * 4;
+}
+
+// inferred: picks once a random variant of each record
+void MapPartsGimmickLoc::fn_80499B9C() {
+    if (m54 == 0) {
+        m54 = 1;
+        int n;
+        for (unsigned int i = 0; i < m60; i++) {
+            n = m64[i].m90;
+            m64[i].m98 = n > 0 ? rand() % n : 0;
+        }
+    }
+}
+
+// inferred: stops the effects of the records
+void MapPartsGimmickLoc::fn_80499C48() {
+    m54 = 0;
+    atn::EffectManager* effects = lbl_8087F3C0;
+    for (unsigned int i = 0; i < m60; i++) {
+        fn_80239DAC(effects, (unsigned int)&m64[i], 0, 0);
+    }
+}
+
+// inferred: gives the scene to the gimmicks (children) and to the objects of m6C
+void MapPartsGimmickLoc::fn_80499CCC(atn::Scene* scene) {
+    for (atn::Task* child = m18; child != 0; child = child->m1C) {
+        static_cast<GimmickCommon*>(child)->vf3C(scene);
+    }
+    for (unsigned int i = 0; i < m68; i++) {
+        m6C[i]->m64 = scene;
+    }
+}
+
+// inferred: the scene of each object of m6C is the one of the area it is in (default scene otherwise)
+void MapPartsGimmickLoc::fn_80499D60(MapPartsArea* areas) {
+    for (unsigned int i = 0; i < m68; i++) {
+        atn::Sphere sphere = m6C[i]->mSphere;
+        MapArea* area = areas->fn_804962B0(&sphere);
+        if (area != 0) {
+            m6C[i]->m64 = &area->GetScene_unk();
+        } else {
+            m6C[i]->m64 = atn::RenderManager::instance_->fn_800C16B4();
+        }
+    }
 }
