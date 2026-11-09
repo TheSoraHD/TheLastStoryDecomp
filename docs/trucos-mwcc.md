@@ -597,3 +597,4 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `ble X; b fin` (salto muerto sobre el bloque else) en vez de `bgt fin`: el then-bloque no esta vacio en el original; una asignacion muerta (`yaw = m0C;`) lo reproduce (Input_unk fn_80122330, 2026-11-09).
 - `fmuls` + `fadds` en el original donde sale `fmadds`: acumular en la variable (`s *= a * b; x += s;`) en vez de `x += s * (a * b)` (EventCamera_unk fn_801151A4, 2026-11-09).
 - Resultado bool con `li 1 ... li 0` (o `li 0 ... li 1`) en el original: variable `result` inicializada y asignada en un if (ReplayBuffer fn_8056D06C, IsGroup_unk/IsSameEffect_unk, 2026-11-09).
+- Un argumento int cargado/creado despues de un float en el original (`li r5, 0` tras el calculo del float): el parametro float va antes en la firma (`fn_80170A20(target, radius, arg)`); los argumentos se evaluan en el orden de la firma (Em308ParmCrab/InvertCrab, 2026-11-09).
