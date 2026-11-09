@@ -620,44 +620,12 @@ void fn_8050A990(unsigned int aid, const unsigned char* data);
 
 extern "C" unsigned char DWC_GetMyAID();
 extern "C" int fn_806A8E40();
-// inferred: atn::net::NetPlayerInfo_unk (0x34 bytes, include/atn/net/Manager.h)
-struct PPNetPlayer_unk {
-    unsigned char m00[0x34];
-};
-// inferred: atn::net::Manager (lbl_8087F628), only the members used here (see include/atn/net/Manager.h);
-// names invented
+// inferred: atn::net::Manager (lbl_8087F628), only for mC2C: a word of the data saved by the game inside
+// MpFriendList_unk::m7F0 (atn::net::Manager::mFriendList + 0x7FC), not yet split in include/atn/net/Manager.h
 struct PPNet_unk {
-    inline atn::net::PacketPack* GetPack_unk();
-    // inferred: own aid (as atn::net::Manager::GetMyAid_unk)
-    unsigned char GetMyAid_unk() {
-        if (mC215 == 0) {
-            return mDisabled ? 0 : DWC_GetMyAID();
-        } else {
-            return mDisabled ? 0 : fn_806A8E40();
-        }
-    }
-
-    unsigned char m000[0xC8];
-    int mState;                       // 0xC8
-    unsigned char m0CC[0x1F8 - 0xCC];
-    unsigned int m1F8_31_20 : 12;
-    unsigned int mDisabled : 1;       // inferred: network disabled
-    unsigned int m1F8_18_0 : 19;
-    unsigned char m1FC[0x270 - 0x1FC];
-    unsigned int mPlayerNum;          // 0x270: inferred: atn::net::Manager::mPlayers (FixedArray_unk)
-    PPNetPlayer_unk mPlayers[8];      // 0x274
-    unsigned char m414[0xC2C - 0x414];
-    unsigned int mC2C;  // inferred: bit 0 and bit 1 set by message 0x0D
-    unsigned char m0C30[0xC215 - 0xC30];
-    unsigned char mC215; // inferred: messages are not checked for an old sequence number
-    unsigned char mC216[0xC218 - 0xC216];
-    int mC218;
+    unsigned char m000[0xC2C];
+    unsigned int mC2C; // inferred: bit 0 and bit 1 set by message 0x0D
 };
-
-// inferred: the packer of the network manager
-inline atn::net::PacketPack* PPNet_unk::GetPack_unk() {
-    return fn_804AE3BC();
-}
 
 // inferred: weak copies used by the receive loop (fn_804EE040) and by fn_804D25D0
 extern "C" inline PPPlayer_unk* fn_804D5F0C(PPManager2_unk* mgr, int index) {
@@ -2919,7 +2887,7 @@ extern "C" PPPlayer_unk* fn_804DD158(PPManager2_unk* mgr, unsigned int aid) {
 extern "C" int fn_804DD1A8(PPManager2_unk* mgr, int aid) {
     PPPlayer_unk* player = fn_804DD158(mgr, aid & 0xF);
     if (mgr->mMode == 1) {
-        PPNet_unk* net = (PPNet_unk*)lbl_8087F628;
+        atn::net::Manager* net = lbl_8087F628;
         if (net->mC215 == 1 && net->mC218 == 1) {
             for (int i = 0; i < 8; i++) {
                 if (aid == mgr->m9984[i]) {
@@ -3922,7 +3890,7 @@ extern "C" void fn_804EAA84(PPManager2_unk* mgr, CharaTask* chara, int a, int b)
 
 // inferred: player slot of the own aid
 static inline PPPlayer_unk* GetMyPlayer_unk() {
-    PPNet_unk* net = (PPNet_unk*)lbl_8087F628;
+    atn::net::Manager* net = lbl_8087F628;
     PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
     return fn_804DD158(mgr, net->GetMyAid_unk());
 }
@@ -4218,7 +4186,7 @@ extern "C" void fn_804FB470(PPManager2_unk* mgr, int code, int arg) {
 }
 
 extern "C" void fn_804FB530(PPManager2_unk* mgr) {
-    if (((PPNet_unk*)lbl_8087F628)->mState < 8) {
+    if (lbl_8087F628->mState < 8) {
         return;
     }
     mgr->m976C = 1;
@@ -4269,20 +4237,20 @@ extern "C" unsigned int fn_804FC010(PPManager2_unk* mgr) {
 }
 
 // inferred: info of the player of network id `aid` (two copies of the same accessor)
-extern "C" PPNetPlayer_unk* fn_804FC240(PPNet_unk* net, unsigned int aid) {
+extern "C" atn::net::NetPlayerInfo_unk* fn_804FC240(atn::net::Manager* net, unsigned int aid) {
     unsigned int i = aid & 0xF;
-    if (i >= net->mPlayerNum) {
+    if (i >= net->mPlayers.mSize) {
         return 0;
     }
-    return &net->mPlayers[i];
+    return &net->mPlayers.mData[i];
 }
 
-extern "C" PPNetPlayer_unk* fn_804FC268(PPNet_unk* net, unsigned int aid) {
+extern "C" atn::net::NetPlayerInfo_unk* fn_804FC268(atn::net::Manager* net, unsigned int aid) {
     unsigned int i = aid & 0xF;
-    if (i >= net->mPlayerNum) {
+    if (i >= net->mPlayers.mSize) {
         return 0;
     }
-    return &net->mPlayers[i];
+    return &net->mPlayers.mData[i];
 }
 
 extern "C" int fn_804FC510() {
