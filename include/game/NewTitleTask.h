@@ -22,6 +22,7 @@ class FadeCapture;
 class MapTask;
 class GameLoadBackground;
 class GameLoadTask;
+class GameSaveBackground;
 
 // inferred: camera key of the title (0x20 bytes; title_param csv: Start/End/Load Pos, Tgt, Ang, LerpRate).
 // Names invented.
@@ -139,7 +140,7 @@ public:
     unsigned char mHeader[0x20];          // 0x6C0: inferred: Unk_803CE3B8 (save header), cleared with memset
     GameLoadBackground* mLoadBg;          // 0x6E0
     GameLoadTask* mLoadTask;              // 0x6E4
-    int m6E8;
+    GameSaveBackground* mSaveBg;          // 0x6E8
     TitleView_unk mView;                  // 0x6EC
     int mIdle;                            // 0xBAC: frames with the three buttons held
     int mIdleOn;                          // 0xBB0
