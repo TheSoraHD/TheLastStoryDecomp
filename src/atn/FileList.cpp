@@ -2,6 +2,7 @@
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "std/string.h"
+#include <stdarg.h>
 
 // File and path utilities of the engine (path normalisation, language suffixes, loaded file
 // buffers) and atn::FileList (files of a directory). Functions 0x8006A950-0x8006BBCC are free
@@ -19,6 +20,7 @@ namespace atn {
 class Loader {
 public:
     int fn_8046F4D4(const char* path); // inferred: some mounted archive has `path`
+    int fn_8046F544(void* out, const char* dir, const char* ext, int flags); // inferred: files of the archives
 };
 } // namespace atn
 typedef atn::Loader Unk_8087F518;
@@ -82,6 +84,23 @@ extern "C" void fn_8006A9A4(std::string& path) {
 
 extern "C" std::string fn_8006AB54(const char* path);
 extern "C" int DVDConvertPathToEntrynum(const char* path); // inferred: DVDConvertPathToEntrynum
+// inferred: DVDDir / DVDDirEntry of the RVL SDK
+struct DVDDir_unk {
+    unsigned long mEntryNum;
+    unsigned long mLocation;
+    unsigned long mNext;
+};
+struct DVDDirEntry_unk {
+    unsigned long mEntryNum;
+    int mIsDir;
+    char* mName;
+};
+extern "C" int DVDFastOpenDir(long entry, DVDDir_unk* dir);
+extern "C" int DVDReadDir(DVDDir_unk* dir, DVDDirEntry_unk* entry);
+extern "C" int vsprintf(char* buf, const char* format, va_list args);
+extern "C" char* strcat(char* dst, const char* src);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
 // inferred: nonzero when the file exists (in a mounted archive or on the disc)
 extern "C" int fn_8006AA20(const char* name) {
@@ -361,6 +380,21 @@ FileList::~FileList() {
     mEntries.clear();
 }
 
+// inferred: adds a formatted name to the list; returns the number of names added (C name: atn/FileSystem_unk
+// calls it by this name)
+// NONMATCHING: 97.6% - order of the arguments of the string assignment and stack slots of the inlined push_back
+extern "C" int fn_8006BD78(FileList* list, const char* format, ...) {
+    char buf[0x100];
+    va_list args;
+    va_start(args, format);
+    vsprintf(buf, format, args);
+    va_end(args);
+    FileList::Entry entry;
+    entry.mName = buf;
+    list->mEntries.push_back(entry);
+    return ++list->m04;
+}
+
 // inferred: index of the first entry whose name contains `name` (case insensitive when `nocase`)
 int FileList::fn_8006C300(const char* name, int nocase) {
     char buf[0x100];
@@ -390,4 +424,96 @@ int FileList::fn_8006C300(const char* name, int nocase) {
     }
     return found;
 }
+// inferred: entry of a subdirectory waiting to be read (0x10 bytes: next, then the DVDDirEntry)
+struct FileListDir_unk {
+    FileListDir_unk* mNext;
+    DVDDirEntry_unk mEntry;
+};
+
+// inferred: adds the files of `dir` whose name ends with `ext` ("*" or null: all) and its directories (type 1;
+// files are type 2); flags: 1 recurses into the directories, 0x10000 adds "dir/name" instead of the name. The
+// files of the mounted archives are added by the loader. Returns the number of names added.
+// NONMATCHING: 94.384% - registers; the pool of the file misses "basic_string: out_of_range" and "." before
+// "/" (functions of the file not written yet)
+int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
+    int count = 0;
+    FileListDir_unk* dirs = 0;
+    FileListDir_unk** tail = &dirs;
+    int entry = DVDConvertPathToEntrynum(dir);
+    if (entry >= 0) {
+        DVDDir_unk info;
+        if (DVDFastOpenDir(entry, &info) != 0) {
+            int full = flags & 0x10000;
+            int recurse = flags & 1;
+            DVDDirEntry_unk ent;
+            for (;;) {
+                if (DVDReadDir(&info, &ent) == 0) {
+                    if (recurse == 0) {
+                        break;
+                    }
+                    FileListDir_unk* d = dirs;
+                    while (d != 0) {
+                        char path[0x100];
+                        if (dir[0] != '/') {
+                            strcpy(path, "/");
+                        } else {
+                            strcpy(path, "");
+                        }
+                        strcat(path, dir);
+                        if (dir[strlen(dir) - 1] != '/') {
+                            strcat(path, "/");
+                        }
+                        strcat(path, d->mEntry.mName);
+                        count += fn_8006C3F0(path, ext, flags);
+                        FileListDir_unk* done = d;
+                        d = d->mNext;
+                        delete done;
+                    }
+                    break;
+                }
+                const char* name = ent.mName;
+                if (strcmp(name, ".svn") == 0) {
+                    continue;
+                }
+                if (ent.mIsDir != 0) {
+                    if (full != 0) {
+                        fn_8006BD78(this, "%s/%s", dir, name);
+                    } else {
+                        fn_8006BD78(this, name);
+                    }
+                    count++;
+                    mEntries.begin()[m04 - 1].m00 = 1;
+                    if (recurse != 0) {
+                        *tail = new ((MemoryTag)1, "", "", 0) FileListDir_unk;
+                        if (*tail == 0) {
+                            break;
+                        }
+                        FileListDir_unk* d = *tail;
+                        tail = &d->mNext;
+                        d->mNext = 0;
+                        memcpy(&d->mEntry, &ent, sizeof(ent));
+                    }
+                    continue;
+                }
+                if (ext != 0 && strcmp(ext, "*") != 0) {
+                    if (strcmp(name + strlen(name) - strlen(ext), ext) != 0) {
+                        continue;
+                    }
+                }
+                if (full != 0) {
+                    fn_8006BD78(this, "%s/%s", dir, name);
+                } else {
+                    fn_8006BD78(this, name);
+                }
+                count++;
+                mEntries.begin()[m04 - 1].m00 = 2;
+            }
+        }
+    }
+    if (lbl_8087F518 != 0) {
+        count += lbl_8087F518->fn_8046F544(this, dir, ext, flags);
+    }
+    return count;
+}
+
 } // namespace atn

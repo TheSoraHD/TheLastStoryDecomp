@@ -20,7 +20,7 @@ public:
     const char* GetStrings(int i) const { return mEntries[i].mName.c_str(); }
     // inferred: fills the list with the files of `dir` with the extension `ext`; atn::Loader builds
     // the list on the stack (the vtable 0x80777BC0 only has the destructor: no pure virtual)
-    void fn_8006C3F0(const char* dir, const char* ext, int flags);
+    int fn_8006C3F0(const char* dir, const char* ext, int flags);
     int fn_8006C300(const char* name, int arg); // inferred: index of `name`, negative if missing
 
     int m04;
