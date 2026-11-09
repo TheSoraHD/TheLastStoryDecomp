@@ -533,6 +533,18 @@ extern "C" void fn_80089620(void* owner) {
     }
 }
 
+namespace atn {
+
+int MindowsCommon::vf28() {
+    return 0;
+}
+
+void MindowsCommon::vf0C() {}
+
+void MindowsCommon::vf10() {}
+
+} // namespace atn
+
 // inferred: removes an item from its folder and deletes it
 extern "C" void fn_800897D8(Mindows_unk* self, MindowsCommon* item) {
     if (item->mParent != 0 && &self->mTemp != item) {
@@ -540,6 +552,18 @@ extern "C" void fn_800897D8(Mindows_unk* self, MindowsCommon* item) {
         delete item;
     }
 }
+
+namespace atn {
+
+int MindowsCommon::vf24(MindowsCommon* child) {
+    return 0;
+}
+
+int MindowsFolder::vf28() {
+    return 1;
+}
+
+} // namespace atn
 
 // inferred: function with no caller left in the game (stripped by the linker); only its string
 // "DebugMenu" remains, at the end of the pool. Body and name invented.

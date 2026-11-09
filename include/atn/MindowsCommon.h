@@ -37,8 +37,8 @@ public:
         mFunc = 0;
     }
     virtual ~MindowsCommon(); // 0x80084FD8
-    virtual void vf0C() {}    // inferred: begin editing
-    virtual void vf10() {}    // inferred: end editing (apply the typed text)
+    virtual void vf0C();      // inferred: begin editing
+    virtual void vf10();      // inferred: end editing (apply the typed text)
     virtual void vf14() = 0;  // inferred: input
     virtual void vf18(const MindowsDrawCtx_unk* ctx, int depth, int* line) = 0; // inferred: draw
     virtual int vf1C() const { return 1; } // inferred: number of lines
@@ -53,8 +53,8 @@ public:
         (*counter)++;
         return r;
     }
-    virtual int vf24(MindowsCommon* child) { return 0; } // inferred: removes a child
-    virtual int vf28() { return 0; }                      // inferred: is a folder
+    virtual int vf24(MindowsCommon* child); // inferred: removes a child
+    virtual int vf28();                     // inferred: is a folder
     virtual void vf2C(MindowsFunc_unk func, void* arg) {
         mFunc = func;
         mArg = arg;
@@ -70,6 +70,7 @@ public:
 
 class MindowsInt : public MindowsCommon {
 public:
+    virtual ~MindowsInt() {}
     MindowsInt(MindowsFolder* parent, const char* name, int* value, int min, int max, int step)
         : MindowsCommon(parent, name, 0) {
         mValue = value;
@@ -92,6 +93,7 @@ public:
 
 class MindowsUInt : public MindowsCommon {
 public:
+    virtual ~MindowsUInt() {}
     MindowsUInt(MindowsFolder* parent, const char* name, unsigned int* value, unsigned int min, unsigned int max,
                 unsigned int step)
         : MindowsCommon(parent, name, 0) {
@@ -115,6 +117,7 @@ public:
 
 class MindowsFloat : public MindowsCommon {
 public:
+    virtual ~MindowsFloat() {}
     MindowsFloat(MindowsFolder* parent, const char* name, float* value, float min, float max, float step)
         : MindowsCommon(parent, name, 0) {
         mValue = value;
@@ -137,6 +140,7 @@ public:
 
 class MindowsBool : public MindowsCommon {
 public:
+    virtual ~MindowsBool() {}
     MindowsBool(MindowsFolder* parent, const char* name, int* value) : MindowsCommon(parent, name, 1) {
         mValue = value;
     }
@@ -148,6 +152,7 @@ public:
 
 class MindowsFlag : public MindowsCommon {
 public:
+    virtual ~MindowsFlag() {}
     MindowsFlag(MindowsFolder* parent, const char* name, unsigned int* value, unsigned int mask)
         : MindowsCommon(parent, name, 1) {
         mValue = value;
@@ -163,6 +168,7 @@ public:
 // inferred: angle shown and typed in degrees, stored in radians
 class MindowsRadian : public MindowsCommon {
 public:
+    virtual ~MindowsRadian() {}
     MindowsRadian(MindowsFolder* parent, const char* name, float* value, float min, float max, float step)
         : MindowsCommon(parent, name, 0) {
         mValue = value;
@@ -196,7 +202,7 @@ public:
     virtual int vf1C() const;
     virtual MindowsCommon* vf20(int index, int* counter);
     virtual int vf24(MindowsCommon* child);
-    virtual int vf28() { return 1; }
+    virtual int vf28();
 
     void Append_unk(MindowsCommon* item) {
         if (mFirst == 0) {
