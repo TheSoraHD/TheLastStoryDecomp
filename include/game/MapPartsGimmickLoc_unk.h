@@ -7,6 +7,8 @@
 #include "atn/Color.h"
 #include "atn/static_string.h"
 #include "atn/Texture_unk.h"
+#include "atn/Array_unk.h"
+#include "atn/ResLoader_unk.h"
 
 class MapPartsArea;
 namespace atn {
@@ -66,7 +68,8 @@ struct MapPartsGimmickLocScene_unk {
 
 // inferred: record of the locator file (0xA0 bytes): an effect of the areas (SetAreaEffConfig); names invented
 struct MapPartsGimmickLocRecord_unk {
-    unsigned char m00[0x0C];
+    MapPartsGimmickLocRecord_unk() { mName[0] = '\0'; } // 0x804997E4
+    atn::EffFile mEff;        // 0x00: inferred: effect of the record
     char mName[0x20];         // 0x0C: inferred: material name of the effect colour (SetAreaEffConfig)
     atn::Vector3 m2C;         // 0x2C: inferred: position (the area is looked up around it)
     atn::Vector3 m38;         // 0x38: inferred: rotation
@@ -108,10 +111,8 @@ public:
     int m50;
     int m54;                  // 0x54: inferred: 2 when the effect colours go to the EffectManager
     atn::LH_Binary mFile;     // 0x58: inferred: locator file (constructor 0x80496F6C)
-    unsigned int m60;         // 0x60: inferred: number of records of 0xA0 bytes (SetAreaEffConfig)
-    MapPartsGimmickLocRecord_unk* m64; // 0x64: inferred: records
-    unsigned int m68;         // 0x68: inferred: number of the entries of m6C
-    MapPartsGimmickLocScene_unk** m6C; // 0x6C: inferred: objects that keep the scene (fn_80499CCC)
+    atn::SimpleArray<MapPartsGimmickLocRecord_unk> mRecords; // 0x60: inferred: records (SetAreaEffConfig)
+    atn::SimpleArray<MapPartsGimmickLocScene_unk*> mScenes;  // 0x68: inferred: objects that keep the scene (fn_80499CCC)
     atn::static_string<128, char, std::char_traits<char> > mName; // 0x70
     atn::Texture_unk mTexture; // 0xF0
     unsigned char m120;       // inferred: shown (vf14, vf2C)

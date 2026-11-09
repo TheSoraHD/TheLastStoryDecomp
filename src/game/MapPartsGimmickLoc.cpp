@@ -22,7 +22,7 @@ MapPartsGimmickLoc* MapPartsGimmickLoc::SetTask(atn::Task* parent, int type, atn
 
 // inferred: the locator file is named in the csv; the rest of the csv goes to vf28
 MapPartsGimmickLoc::MapPartsGimmickLoc(atn::Task* parent, int type, atn::CsvTab& csv)
-    : MapPartsBase(parent, type), m50(0), m54(0), m60(0), m64(0), m68(0), m6C(0), mName(""), m120(1), m121(0) {
+    : MapPartsBase(parent, type), m50(0), m54(0), mName(""), m120(1), m121(0) {
     m124[0] = 0.0f;
     m124[1] = 0.0f;
     m124[2] = 0.0f;
@@ -63,8 +63,8 @@ extern "C" void fn_804006E0(MapPartsGimmickLocScene_unk* obj); // inferred: draw
 // inferred: draws the objects of m6C while shown
 void MapPartsGimmickLoc::vf14() {
     if (m120 != 0) {
-        for (unsigned int i = 0; i < m68; i++) {
-            fn_804006E0(m6C[i]);
+        for (unsigned int i = 0; i < mScenes.size(); i++) {
+            fn_804006E0(mScenes.mData[i]);
         }
     }
 }
@@ -150,14 +150,14 @@ void MapPartsGimmickLoc::SetAreaEffConfig() {
     if (MapManager::instance_ == 0) {
         return;
     }
-    for (unsigned int i = 0; i < m60; i++) {
-        atn::Sphere sphere(m64[i].m2C, 5.0f);
+    for (unsigned int i = 0; i < mRecords.size(); i++) {
+        atn::Sphere sphere(mRecords.mData[i].m2C, 5.0f);
         MapArea* area = MapManager::instance_->FindArea(sphere);
         if (area != 0 && area->mEffConfig != 0) {
-            const atn::D2A_DrawColor* color = area->mEffConfig->fn_80043014(0, m64[i].mName);
-            m64[i].mColor = *color;
+            const atn::D2A_DrawColor* color = area->mEffConfig->fn_80043014(0, mRecords.mData[i].mName);
+            mRecords.mData[i].mColor = *color;
             if (m54 == 2) {
-                lbl_8087F3C0->fn_8023A184((unsigned int)&m64[i], 0, (const EffectColor_unk*)&m64[i].mColor);
+                lbl_8087F3C0->fn_8023A184((unsigned int)&mRecords.mData[i], 0, (const EffectColor_unk*)&mRecords.mData[i].mColor);
             }
         }
     }
@@ -175,8 +175,8 @@ static inline void RotateAxis_unk(atn::Matrix3x4& m, char axis, float rad) {
 // NONMATCHING: 98.32% - stack slots and registers of the three inlined rotations (z, y, x)
 // inferred: moves and turns the records by the placement of the part
 void MapPartsGimmickLoc::fn_8049994C(const atn::Vector3& pos, const atn::Vector3& rot) {
-    for (unsigned int i = 0; i < m60; i++) {
-        m64[i].m2C += pos;
+    for (unsigned int i = 0; i < mRecords.size(); i++) {
+        mRecords.mData[i].m2C += pos;
         atn::Matrix3x4 m;
         atn::Matrix3x4* p = &m;
         p->SetIdentity();
@@ -189,8 +189,8 @@ void MapPartsGimmickLoc::fn_8049994C(const atn::Vector3& pos, const atn::Vector3
         if (0.0f != rot.x) {
             RotateAxis_unk(*p, 'x', rot.x);
         }
-        PSMTXMultVec(m.m, &m64[i].m2C, &m64[i].m2C);
-        m64[i].m38 += rot;
+        PSMTXMultVec(m.m, &mRecords.mData[i].m2C, &mRecords.mData[i].m2C);
+        mRecords.mData[i].m38 += rot;
     }
 }
 
@@ -199,9 +199,9 @@ void MapPartsGimmickLoc::fn_80499B9C() {
     if (m54 == 0) {
         m54 = 1;
         int n;
-        for (unsigned int i = 0; i < m60; i++) {
-            n = m64[i].m90;
-            m64[i].m98 = n > 0 ? rand() % n : 0;
+        for (unsigned int i = 0; i < mRecords.size(); i++) {
+            n = mRecords.mData[i].m90;
+            mRecords.mData[i].m98 = n > 0 ? rand() % n : 0;
         }
     }
 }
@@ -210,8 +210,8 @@ void MapPartsGimmickLoc::fn_80499B9C() {
 void MapPartsGimmickLoc::fn_80499C48() {
     m54 = 0;
     atn::EffectManager* effects = lbl_8087F3C0;
-    for (unsigned int i = 0; i < m60; i++) {
-        fn_80239DAC(effects, (unsigned int)&m64[i], 0, 0);
+    for (unsigned int i = 0; i < mRecords.size(); i++) {
+        fn_80239DAC(effects, (unsigned int)&mRecords.mData[i], 0, 0);
     }
 }
 
@@ -220,20 +220,20 @@ void MapPartsGimmickLoc::fn_80499CCC(atn::Scene* scene) {
     for (atn::Task* child = m18; child != 0; child = child->m1C) {
         static_cast<GimmickCommon*>(child)->vf3C(scene);
     }
-    for (unsigned int i = 0; i < m68; i++) {
-        m6C[i]->m64 = scene;
+    for (unsigned int i = 0; i < mScenes.size(); i++) {
+        mScenes.mData[i]->m64 = scene;
     }
 }
 
 // inferred: the scene of each object of m6C is the one of the area it is in (default scene otherwise)
 void MapPartsGimmickLoc::fn_80499D60(MapPartsArea* areas) {
-    for (unsigned int i = 0; i < m68; i++) {
-        atn::Sphere sphere = m6C[i]->mSphere;
+    for (unsigned int i = 0; i < mScenes.size(); i++) {
+        atn::Sphere sphere = mScenes.mData[i]->mSphere;
         MapArea* area = areas->fn_804962B0(&sphere);
         if (area != 0) {
-            m6C[i]->m64 = &area->GetScene_unk();
+            mScenes.mData[i]->m64 = &area->GetScene_unk();
         } else {
-            m6C[i]->m64 = atn::RenderManager::instance_->fn_800C16B4();
+            mScenes.mData[i]->m64 = atn::RenderManager::instance_->fn_800C16B4();
         }
     }
 }
