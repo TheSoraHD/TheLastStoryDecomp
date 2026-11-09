@@ -234,7 +234,8 @@ void NandManager::OpenTmp_unk() {
     }
 }
 
-// NONMATCHING: 94.41% - order of the blocks of the states after the reads (switch layout) and registers
+// NONMATCHING: 99.78% - stack slots and registers of the string temporaries of TmpPath_unk and of the
+// copy of the path (states 3, 5, 25), and data/size registers of the first write
 void NandManager::vf10() {
     switch (mState) {
     case 1:
@@ -461,31 +462,6 @@ void NandManager::vf10() {
             fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
         }
         break;
-    case 13:
-        if (mError == 0) {
-            switch (mOp) {
-            case 4: {
-                mState = 0x10;
-                NANDSetUserData(&mBlock, this);
-                int err = fn_800A4494(NANDSimpleSafeCloseAsync(&mFile, ReadCloseDone_unk, &mBlock));
-                mError = err;
-                if (err != 0) {
-                    SetError_unk(err);
-                    mState = 0;
-                }
-                break;
-            }
-            case 6:
-                mState = 0;
-                break;
-            }
-        } else {
-            SetError_unk(mError);
-            mState = 0x14;
-            NANDSetUserData(&mBlock, this);
-            fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
-        }
-        break;
     case 15:
         if (mError == 0) {
             switch (mOp) {
@@ -529,6 +505,31 @@ void NandManager::vf10() {
             if (mOp == 0) {
                 atn::MemoryManager::Instance()->Free(mData);
             }
+            mState = 0x14;
+            NANDSetUserData(&mBlock, this);
+            fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
+        }
+        break;
+    case 13:
+        if (mError == 0) {
+            switch (mOp) {
+            case 4: {
+                mState = 0x10;
+                NANDSetUserData(&mBlock, this);
+                int err = fn_800A4494(NANDSimpleSafeCloseAsync(&mFile, ReadCloseDone_unk, &mBlock));
+                mError = err;
+                if (err != 0) {
+                    SetError_unk(err);
+                    mState = 0;
+                }
+                break;
+            }
+            case 6:
+                mState = 0;
+                break;
+            }
+        } else {
+            SetError_unk(mError);
             mState = 0x14;
             NANDSetUserData(&mBlock, this);
             fn_800A4494(NANDSafeCancelAsync_unk(&mFile, SafeCloseDone_unk, &mBlock));
