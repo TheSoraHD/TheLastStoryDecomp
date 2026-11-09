@@ -8,6 +8,7 @@ Repo `TheSoraHD/TheLastStoryDecomp` (plantilla decomp-toolkit + objdiff + ninja)
 
 ## Estado
 
+- `pad7-20261109` (mergeada en `main`): 7 rellenos `auto_03_*_text` absorbidos en la unidad anterior (`splits.txt`), total 18116 -> **18109**; quedan 5 (anterior enlazada y siguiente no: dwc_lanmatch, dwc_match, dwc_account, dwc_ranking, ut_TextWriterBase).
 - `s12h-20261108` (2026-11-08, mergeada en `main`): **14596 / 18116** en `report.json`, lost 0, sin bajadas. PacketPack +56, NewCampTask +35, BattleTask +31, DebugInfo +24; borradores de funciones grandes para emitir sus copias debiles; trucos: `||` en los return tempranos, `const T&` para la copia en bloque, `static const` en tablas de `__sinit`, `__sinit` de `.ctors`, cast redundante `(float)m` (`tools/decomp/fcastg.py`). Notas: `docs/s12h-20261108.md`.
 - `s12h-20261107` (mergeada en `main`): 14351, GameTask 57 -> 104/133, TacView 14 -> 27/46; `operator[]`, `const` en parametros por valor, inlines que mueven temporales; `docs/s12h-20261107.md`.
 - `gametask-20261107` (mergeada en `main`): 14167, GameTask 42 -> 57/133; `docs/gametask-20261107.md`.

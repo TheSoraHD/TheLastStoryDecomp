@@ -3505,7 +3505,7 @@ RVL_SDK/src/revolution/hbm/HBMAnmController.cpp:
 	.data       start:0x80797A50 end:0x80797A98
 
 RVL_SDK/src/revolution/hbm/HBMGUIManager.cpp:
-	.text       start:0x805C03A0 end:0x805C1BB8
+	.text       start:0x805C03A0 end:0x805C1BC0
 	.rodata     start:0x80764140 end:0x80764150
 	.data       start:0x80797A98 end:0x80797D08
 	.bss        start:0x807C9F80 end:0x807C9F88
@@ -3644,12 +3644,12 @@ RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_ResFontBase.cpp:
 	.data       start:0x8079A5E8 end:0x8079A6A8
 
 RVL_SDK/src/revolution/hbm/nw4hbm/ut/ut_TagProcessorBase.cpp:
-	.text       start:0x805DA7B0 end:0x805DB268
+	.text       start:0x805DA7B0 end:0x805DB270
 	.rodata     start:0x80764628 end:0x80764630
 	.data       start:0x8079A6A8 end:0x8079A730
 
 tp_revolution/homebuttonLib/nw4hbm/ut/ut_TextWriterBase.cpp:
-	.text       start:0x805DB270 end:0x805E06D4
+	.text       start:0x805DB270 end:0x805E06E0
 	.ctors      start:0x8072D3FC end:0x8072D400
 	.rodata     start:0x80764630 end:0x80764644
 	.data       start:0x8079A730 end:0x8079A738
@@ -4601,7 +4601,7 @@ msc/src/RVL_SDK/kpad/KPADMplsMath_unk.c:
 	.sdata2     start:0x808889C0 end:0x808889D0
 
 RVL_SDK/src/revolution/usb/usb.c:
-	.text       start:0x8065B8E0 end:0x8065CE2C
+	.text       start:0x8065B8E0 end:0x8065CE30
 	.data       start:0x807B8A98 end:0x807B92C8
 	.sdata      start:0x8087EBA8 end:0x8087EBB8
 	.sbss       start:0x808801F0 end:0x80880200
@@ -5385,7 +5385,7 @@ dwc/src/base/dwc_account.c:
 	.bss        start:0x808608B0 end:0x808608C0
 
 dwc/src/auth/dwc_auth_interface.c:
-	.text       start:0x806D08E0 end:0x806D2D74
+	.text       start:0x806D08E0 end:0x806D2D80
 	.data       start:0x807C1DD8 end:0x807C2710
 	.bss        start:0x808608C0 end:0x80860D88
 
@@ -5845,7 +5845,7 @@ nw4r/src/snd/snd_StrmChannel.cpp:
 	.text       start:0x80718ED0 end:0x80719110
 
 ss_nw4r/src/snd/snd_StrmFile.cpp:
-	.text       start:0x80719110 end:0x80719A94
+	.text       start:0x80719110 end:0x80719AA0
 
 ss_nw4r/src/snd/snd_StrmPlayer.cpp:
 	.text       start:0x80719AA0 end:0x8071C8E0
@@ -5975,7 +5975,7 @@ nw4r/src/ut/ut_CharWriter.cpp:
 	.sdata2     start:0x80889358 end:0x80889378
 
 ss_nw4r/src/ut/ut_TextWriterBase.cpp:
-	.text       start:0x80727E50 end:0x8072D204
+	.text       start:0x80727E50 end:0x8072D210
 	.ctors      start:0x8072D430 end:0x8072D434
 	.bss        start:0x8087D6A0 end:0x8087D6B8
 	.sdata      start:0x8087EE40 end:0x8087EE48
