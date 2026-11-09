@@ -3086,6 +3086,24 @@ extern "C" void fn_804DD33C(PPManager2_unk* mgr, int arg, int* stage) {
     }
 }
 
+// NONMATCHING: 98.81% - registers of the inlined search and of the loop (as fn_804DD1A8)
+// inferred: character of a team player on the side of the own character whose slot value mB0 is 12 or 21
+extern "C" CharaTask* fn_804DD3F0(PPManager2_unk* mgr) {
+    unsigned int aid = lbl_8087F628->GetMyAid_unk();
+    PPPlayer_unk* own = fn_804DD158(mgr, aid);
+    if (own == 0 || own->mRef.mChara == 0) {
+        return 0;
+    }
+    for (unsigned int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive && player->mRef.mChara != 0 && IsTeamPlayer_unk(player) &&
+            player->mRef.mChara->fn_8016F3D0(own->mRef.mChara, 1) && (player->mB0 == 12 || player->mB0 == 21)) {
+            return player->mRef.mChara;
+        }
+    }
+    return 0;
+}
+
 // inferred: sets the 4-bit value of the player slot; 0 if it does not change
 extern "C" unsigned int fn_804DD9CC(PPManager2_unk* mgr, PPPlayer_unk* player, unsigned int value) {
     if (player == 0) {
