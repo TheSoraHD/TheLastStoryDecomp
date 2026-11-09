@@ -997,7 +997,8 @@ inline void __NetMsgStatic_unk() {
     static NetMsgStatic_unk s;
     s.m00 = 0;
 }
-template <class T>
+// inferred: N is the size of the payload on the network (the payload structs are not padded there)
+template <class T, int N = sizeof(T)>
 struct PPNetMsg_unk {
     PPNetMsg_unk(unsigned short id);
     T* GetData_unk();
@@ -1005,13 +1006,13 @@ struct PPNetMsg_unk {
     unsigned short mId;
     T mData;
 };
-template <class T>
-__declspec(noinline) inline PPNetMsg_unk<T>::PPNetMsg_unk(unsigned short id) : mSize(2), mId(id) {
+template <class T, int N>
+__declspec(noinline) inline PPNetMsg_unk<T, N>::PPNetMsg_unk(unsigned short id) : mSize(2), mId(id) {
     __NetMsgStatic_unk();
-    mSize = sizeof(T) + 2;
+    mSize = N + 2;
 }
-template <class T>
-__declspec(noinline) inline T* PPNetMsg_unk<T>::GetData_unk() {
+template <class T, int N>
+__declspec(noinline) inline T* PPNetMsg_unk<T, N>::GetData_unk() {
     return &mData;
 }
 
@@ -3001,7 +3002,7 @@ extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
     CharaTask* own = ((PlayerManager*)fn_8000D9E8())->GetHead_unk();
     int slot = fn_804CF424((ModelSlotsN_unk*)own->GetModel_unk());
     if (own->GetModel_unk()->fn_80139F2C(slot) >= 0) {
-        PPNetMsg_unk<PPCharaState_unk> msg(0x1017);
+        PPNetMsg_unk<PPCharaState_unk, 0x35> msg(0x1017);
         PPCharaState_unk* data = msg.GetData_unk();
         data->mPos = *own->fn_8013C38C();
         data->mMove = *fn_804E8090(own, 0) - *fn_804E8090(own, 1);
@@ -3035,7 +3036,7 @@ extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
         if (chara->GetModel_unk()->fn_80139F2C(slot) < 0) {
             continue;
         }
-        PPNetMsg_unk<PPCharaState2_unk> msg(0x101E);
+        PPNetMsg_unk<PPCharaState2_unk, 0x3A> msg(0x101E);
         PPCharaState2_unk* data = msg.GetData_unk();
         data->mPos = *chara->fn_8013C38C();
         data->mMove = *fn_804E8090(chara, 0) - *fn_804E8090(chara, 1);
@@ -3069,7 +3070,7 @@ extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
         if (chara->GetModel_unk()->fn_80139F2C(slot) < 0) {
             continue;
         }
-        PPNetMsg_unk<PPCharaState2_unk> msg(0x101E);
+        PPNetMsg_unk<PPCharaState2_unk, 0x3A> msg(0x101E);
         PPCharaState2_unk* data = msg.GetData_unk();
         data->mPos = *chara->fn_8013C38C();
         data->mMove = *fn_804E8090(chara, 0) - *fn_804E8090(chara, 1);
