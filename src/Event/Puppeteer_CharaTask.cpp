@@ -156,6 +156,7 @@ int Puppeteer<atn::Model>::vf0C() {
     return 1;
 }
 
+// DRAFT: stub; the matrix stack of the model is not computed
 // NONMATCHING: stub - computes the matrix stack of the model
 template <>
 void Puppeteer<atn::Model>::vf10() {
@@ -888,6 +889,7 @@ extern "C" inline int fn_80013444(const atn::Vector3* a, const atn::Vector3* b) 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 namespace Event {
 
+// DRAFT: not checked against the original (draft of the eye/head turn)
 // NONMATCHING: draft - turns the eyes of the character towards a point (the camera, limited to `angle`
 // around the eye direction), or the head of another actor towards `target`
 void Actor::fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,

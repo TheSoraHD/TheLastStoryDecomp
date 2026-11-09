@@ -1085,14 +1085,17 @@ void Sequence::fn_80541F18() {
     }
 }
 
+// DRAFT: empty stub
 // NONMATCHING: stub
 void Sequence::fn_8054204C(int id, const EffectLists_unk& lists) {
 }
 
+// DRAFT: empty stub
 // NONMATCHING: stub
 void Sequence::fn_80542684() {
 }
 
+// DRAFT: empty stub
 // NONMATCHING: stub
 void Sequence::fn_805428A8() {
 }

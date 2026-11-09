@@ -116,6 +116,7 @@ tools/decomp/precommit.sh [--pd] <unidades...>                 # todas las compr
 ## Convenciones
 
 - Virtuales sin nombre `vfXX` (offset en la vtable); no virtuales `fn_<addr>` dentro de su clase; externos sin clase `extern "C"` con nombre automático (`fn_8005B9CC`, `lbl_8087EF68`); clases desconocidas `<Algo>_unk` con `// inferred:`; miembros `mXX` (`m04`) o `field_0x10[4]` si no se conoce el tipo.
+- Borradores: `// DRAFT: <qué falta>` encima del `// NONMATCHING` de una función que no hace lo mismo que el original (stub, partes sin escribir, sin comprobar); `tools/decomp/drafts.py [--route]` los lista. Ver `docs/fuente-enlazable.md` §6.
 - `chr::Chara_unk` = `CharaTask`. Tipos reales del motor: `atn::Vector3`, `atn::Matrix3x4` (`include/math/Vec.h`), `atn::CsvBase<...>`/`Csv`/`CsvU`/`CsvTabU` (`include/atn/Csv.h`), `atn::Loader`.
 
 ## Antes de dar una tarea por terminada

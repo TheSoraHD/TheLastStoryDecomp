@@ -300,6 +300,7 @@ atn::RenderManager::RenderManager()
       m8E0(boost::function<void(void*)>(), 0), m8F8(boost::function<void(void*)>(), 0), mResolveCount(0), m54960(0),
       m54964(0) {
     // inferred: initialize render cameras, callbacks, the default scene, and its render layers.
+    // DRAFT: render-state validation and additional menu fields
     // NONMATCHING: render-state validation and additional menu fields remain incomplete;
     // "3D Outline" and "3D Object" store the Layer3D vtable once more in the original (class unknown).
     unsigned char* self = (unsigned char*)this;
@@ -456,6 +457,7 @@ void atn::RenderManager::fn_800BDBC8() {
     // inferred: collect, sort, and relink the queued render entries for each of 20 passes.
     // poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
     // time, so its operands were not literals there (source form unknown).
+    // DRAFT: not checked against the original (render-state details and drawing callbacks)
     // NONMATCHING: 72.91% - remaining render-state details and drawing callbacks still differ.
     unsigned char* system = (unsigned char*)this;
     Mtx matrixWork[8];

@@ -274,6 +274,7 @@ static int ParseMONA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds an animation data
 static int ParseANID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -284,6 +285,7 @@ static int ParseANNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds an effect data
 static int ParseEFID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -294,6 +296,7 @@ static int ParseEFNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds a model data
 static int ParseMDID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -310,6 +313,7 @@ static int ParseMDMA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds a dummy data
 static int ParseDUID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -320,6 +324,7 @@ static int ParseDUNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds a camera data
 static int ParseCAID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -330,6 +335,7 @@ static int ParseCANA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds a pose data
 static int ParsePOID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -340,6 +346,7 @@ static int ParsePONA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds a movie data
 static int ParseMVID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -350,6 +357,7 @@ static int ParseMVNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub that returns the size
 // NONMATCHING: stub - adds a path
 static int ParsePATH_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -360,11 +368,13 @@ static int ParsePANA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub
 // NONMATCHING: stub - points of the path
 static int ParsePOIN_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
 }
 
+// DRAFT: stub
 // NONMATCHING: stub - adds an actor
 static int ParseACID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -377,6 +387,7 @@ static int ParseACNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
+// DRAFT: stub
 // NONMATCHING: stub - adds a stream data
 static int ParseSTID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;
@@ -402,6 +413,7 @@ static int ParseCURV_unk(unsigned int tag, int size, const char* data, ParserSta
     return sizeof(id);
 }
 
+// DRAFT: stub
 // NONMATCHING: stub - points of the curve
 static int ParseCVPT_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
     return size;

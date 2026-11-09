@@ -227,6 +227,7 @@ extern "C" int fn_804CF634(PPChara_unk* chara) {
 }
 
 // NONMATCHING: stub
+// DRAFT: empty stub of the 0xA50-byte function
 // NONMATCHING: stub of the 0xA50-byte function that applies a received character state (noinline so that
 // its callers keep the call while it is empty)
 extern "C" __declspec(noinline) void fn_804CF640(void* in, void* chara) {}
@@ -251,6 +252,7 @@ extern "C" void fn_804D00B8(int index, int value) {
     }
 }
 
+// DRAFT: returns 0 instead of the debug keyboard test
 // NONMATCHING: stub (debug keyboard test; the original passes the keyboard itself as the key state)
 extern "C" int fn_804D00DC(unsigned short key) {
     return 0;
@@ -1498,6 +1500,7 @@ extern "C" __declspec(noinline) inline atn::net::NetRanking_unk* fn_804D6680() {
     return lbl_8087F5A4;
 }
 
+// DRAFT: the waits for the network thread and the clean up of the globals
 // NONMATCHING: draft - the waits for the network thread and the clean up of the globals are not written;
 // written for the destruction of the members (weak copies 0x804D1410, 0x804D1478, 0x804D1FD8)
 MP::Manager2::~Manager2() {
@@ -1536,6 +1539,7 @@ int MP::Manager2::vf0C() {
 }
 
 // inferred: MP::Manager2::vf10 (vtable 0x807916E0): update of the multiplayer mode
+// DRAFT: written for the weak copies of its accessors; not checked against the original
 // NONMATCHING: draft - written for the weak copies of its accessors (0x804D5F04-0x804D6680)
 void MP::Manager2::vf10() {
     PPManager2_unk* mgr = this;
@@ -3487,6 +3491,7 @@ extern "C" int fn_804E650C(CharaTask* chara) {
 
 // inferred: sends the state of the own character, of the characters of this aid and of the other
 // characters (messages 0x1017 and 0x101E)
+// DRAFT: written for the weak copies of its accessors; not checked against the original
 // NONMATCHING: draft - written for the weak copies of its accessors (0x804E8090-0x804E82BC)
 extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
     fn_804EB870(mgr);

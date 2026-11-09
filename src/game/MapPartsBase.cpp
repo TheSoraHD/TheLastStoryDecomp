@@ -111,6 +111,7 @@ extern "C" std::string fn_8006AC08(const std::string& path); // inferred: extens
 extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 
+// DRAFT: ParseScene is only written for the order of the string pool
 // NONMATCHING: ParseScene is only written for the order of the string pool (vf1C and fn_80494354 come after
 // it): the inlined AddLight_unk (std::vector growth) does not match (known blocker)
 // inferred: reads one scene setting of an area (the key is the current field of the csv): ambient colour, floor

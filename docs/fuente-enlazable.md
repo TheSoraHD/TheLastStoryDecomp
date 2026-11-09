@@ -73,3 +73,15 @@ propio split queda sin definir al enlazar. `poolcheck.py` comprueba floats y cad
   unidad a enlazar.
 - Codex y otros agentes leen `AGENTS.md`, que remite a `CLAUDE.md`: mismas reglas, rama propia y
   merge tras la checklist, nunca commits directos en `main`.
+
+## 6. Borradores (`DRAFT`)
+
+Un `NONMATCHING` puede ser casi igual (registros, orden, profundidad de inline: hace lo mismo) o un borrador
+escrito para que el compilador emita copias débiles, para ordenar el pool de cadenas o como stub (no hace lo
+mismo). Para un port hay que distinguirlos:
+
+- Encima de la línea `// NONMATCHING: X% - motivo` (que se queda, regla 1) va `// DRAFT: <qué falta>` si la
+  función no es equivalente al original o nadie lo ha comprobado (borrador sin descripción).
+- Sin `DRAFT`, un `NONMATCHING` afirma que el código es equivalente: solo cambian registros, orden, pila o inline.
+- `tools/decomp/drafts.py [--route] [--count] [unidad...]` lista los `DRAFT` por unidad y marca los de la ruta
+  de arranque (`docs/ruta-arranque.md`). Al terminar un borrador, quitar la línea `DRAFT`.

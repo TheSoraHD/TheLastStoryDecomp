@@ -62,6 +62,7 @@ extern "C" void fn_8056A84C(float angle, atn::Matrix3x4* mtx, const atn::NodeChu
     }
 }
 
+// DRAFT: the pose of the nodes, the saved callbacks of the model and `out`
 // NONMATCHING: draft - only the node callback of the upper body; the pose of the nodes (`data`, `count`), the
 // saved callbacks of the model and `out` are missing. Written for the weak copies of the boost::function of
 // the callback (0x8056B2C0 invoker, 0x8056B2E0 manager).

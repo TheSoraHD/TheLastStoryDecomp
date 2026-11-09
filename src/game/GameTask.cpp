@@ -1112,6 +1112,7 @@ static inline long long GetTimeMs_unk() {
     return OSGetTime() / ((*(unsigned int*)0x800000F8 / 4) / 1000);
 }
 
+// DRAFT: written for the order of the string pool; not compared
 // NONMATCHING: written for the order of the string pool (the map change states come first); not compared yet
 void GameTask::vf10() {
     m5744++;
@@ -1953,6 +1954,7 @@ static inline float GetHeapFree_unk(atn::DLAllocator* heap) {
     return (unsigned int)heap->fn_80084F84() / 1048576.0f;
 }
 
+// DRAFT: written for the order of the string pool; not compared
 // NONMATCHING: written for the order of the string pool; not compared yet
 void GameTask::vf14() {
     if (lbl_8087F0A8->m184 != 0) {
@@ -3982,6 +3984,7 @@ inline ColorMatrixParam_unk* RenderSetting_unk::GetColorMatrix_unk() {
     return &m324;
 }
 
+// DRAFT: not checked against the original (draft of the victory pose)
 // NONMATCHING: draft - victory pose of the multiplayer battle (places the members around the leader and
 // starts the finish camera); every inline is called out of line in the original (R3)
 void GameTask::fn_803729B4(CharaTask* chara) {

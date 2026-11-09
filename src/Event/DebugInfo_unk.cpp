@@ -158,6 +158,7 @@ void DebugInfo_unk::fn_80221F54(int page) {
     mPages[mPage](this);
 }
 
+// DRAFT: pages 1, 2 and 4 of the debug info are not written
 // NONMATCHING: draft - page 3: actions of the current cut (and the name of the next cut); the earlier pages
 // are not written, so the offsets of the string pool differ
 // inferred: the action is active at the current frame and is shown on the page (mode 0: not listed

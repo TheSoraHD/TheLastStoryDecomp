@@ -779,6 +779,7 @@ MapPartsBase* MapTask::fn_804A0BCC(int type, unsigned int hash) {
     }
     return 0;
 }
+// DRAFT: not checked against the original (stub of the map resource loading)
 // NONMATCHING: stub - update map resource loading.
 void MapTask::fn_804A0E18(const char* name, int draw) {
     unsigned int hash = fn_800DC6B4(name);
@@ -786,6 +787,7 @@ void MapTask::fn_804A0E18(const char* name, int draw) {
         part->vf2C(hash, draw);
     }
 }
+// DRAFT: not checked against the original (stub of the map resource loading)
 // NONMATCHING: stub - update map resource loading.
 void MapTask::fn_804A0E90(unsigned int hash, int draw) {
     for (MapPartsBase* part = mParts; part != 0; part = part->mNext) {

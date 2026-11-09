@@ -321,6 +321,7 @@ Em302KrakenMp::Em302KrakenMp(atn::Task* parent, EnemyInfo_unk* info)
     m1644 = 0;
 }
 
+// DRAFT: not checked against the original (draft copied from Em302Kraken::vf0C)
 // NONMATCHING: draft (same reader as Em302Kraken::vf0C)
 int Em302KrakenMp::vf0C() {
     if (m14D4 == 0) {
@@ -605,6 +606,7 @@ void Em302KrakenMp::vf100(int state) {
 }
 
 // inferred: update of the remote copy (multiplayer): only the states started by vf100 run here
+// DRAFT: not checked against the original (draft without a description)
 // NONMATCHING: draft
 void Em302KrakenMp::vf104() {
     if (mC58.mC0 == 0 || mC58.mC4 == 0) {

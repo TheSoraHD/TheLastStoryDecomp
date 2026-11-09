@@ -1121,6 +1121,7 @@ ControlMatHoldDamage::ControlMatHoldDamage(Chara_unk* chara) : ControlBase(chara
     m->mTracks[0].m0C = 1.0f;
 }
 
+// DRAFT: not checked against the original (draft without a description)
 // NONMATCHING: draft - falls back for 64 frames, then takes a 10000 damage
 int ControlMatHoldDamage::vf0C() {
     CharaTask* c = mChara;

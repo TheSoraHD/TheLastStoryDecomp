@@ -161,6 +161,7 @@ extern "C" __declspec(noinline) inline atn::Texture_unk* fn_804ABF44(atn::Render
     return &view->m74C;
 }
 
+// DRAFT: written for the weak copies; not checked against the original
 // NONMATCHING: draft - draws the minimap into a temporary 256x256 texture (the transparent parts in a
 // second pass) and draws it on the screen through the mask texture m58[3]
 void MiniMapTask::vf10(atn::RenderManager* view) {
@@ -227,6 +228,7 @@ void MiniMapTask::vf10(atn::RenderManager* view) {
     fn_80071D68(GetGraphics_unk(), fn_804ABEE4(&saved)->m);
 }
 
+// DRAFT: written for the weak copies; not checked against the original
 // NONMATCHING: draft - draws the minimap model with its orthographic camera: the transparent parts first
 // (alpha 0.6, house/line/road hidden), then the rest, and restores the camera of the view
 void MiniMapTask::fn_804ABF84(atn::RenderManager* view) {
