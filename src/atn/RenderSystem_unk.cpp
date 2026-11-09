@@ -918,32 +918,41 @@ extern "C" void fn_800BF558(void** first, void** last, void* context) {
     }
 }
 
+// inferred: draw order of the pass lists (std::sort comparator of fn_800BDBC8): higher mOrder first, then
+// by address
+static inline bool RenderEntryLess_unk(const atn::RenderEntry_unk* x, const atn::RenderEntry_unk* y) {
+    return x->mOrder > y->mOrder || (x->mOrder == y->mOrder && x < y);
+}
+
+// inferred: std::swap
+template <class T>
+inline void __Swap_unk(T& x, T& y) {
+    T t = x;
+    x = y;
+    y = t;
+}
+
+// inferred: MSL __sort3 (median of three of std::sort) on the render entries
 extern "C" void fn_800BF9C4(void** first, void** second, void** third) {
-    // inferred: three-entry ordering network for render keys; NONMATCHING: 91.88% - MWCC folds comparison flags differently.
-    int firstOrdered = fn_800BF9C4_ordered(first, third);
-    int secondOrdered = fn_800BF9C4_ordered(second, third);
-    if (firstOrdered != 0 && secondOrdered != 0) {
+    atn::RenderEntry_unk** a = (atn::RenderEntry_unk**)first;
+    atn::RenderEntry_unk** b = (atn::RenderEntry_unk**)second;
+    atn::RenderEntry_unk** c = (atn::RenderEntry_unk**)third;
+    bool ac = !RenderEntryLess_unk(*c, *a);
+    bool bc = !RenderEntryLess_unk(*b, *c);
+    if (ac && bc) {
         return;
     }
-    if (firstOrdered == 0 && secondOrdered == 0) {
-        void* value = *first;
-        *first = *second;
-        *second = value;
+    if (!ac && !bc) {
+        __Swap_unk(*a, *b);
         return;
     }
-    if (fn_800BF9C4_ordered(third, first) != 0) {
-        void* value = *first;
-        *first = *second;
-        *second = value;
+    if (RenderEntryLess_unk(*b, *a)) {
+        __Swap_unk(*a, *b);
     }
-    if (firstOrdered != 0) {
-        void* value = *second;
-        *second = *third;
-        *third = value;
+    if (ac) {
+        __Swap_unk(*b, *c);
     } else {
-        void* value = *first;
-        *first = *third;
-        *third = value;
+        __Swap_unk(*a, *c);
     }
 }
 
