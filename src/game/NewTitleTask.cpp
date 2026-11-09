@@ -184,10 +184,10 @@ NewTitleTask::NewTitleTask(atn::Task* parent, int index)
     if (fn_803B8AC4(name) != 0) {
         mLoadBg->fn_803B3530(name, (int)mHeader, 0x20, size);
     }
-    mKeys[0].mPos = atn::Vector3(0.0f, -99500.0f, 0.0f);
-    mKeys[0].mTgt = atn::Vector3(0.0f, -99500.0f, 10.0f);
-    mKeys[0].mAngle = 1.0471976f;
-    mKeys[0].mRate = 1.0f;
+    mKey0.mPos = atn::Vector3(0.0f, -99500.0f, 0.0f);
+    mKey0.mTgt = atn::Vector3(0.0f, -99500.0f, 10.0f);
+    mKey0.mAngle = 1.0471976f;
+    mKey0.mRate = 1.0f;
     if (lbl_8087F420 != 0) {
         lbl_8087F420->m0C = 1;
     }
@@ -314,14 +314,14 @@ int NewTitleTask::vf0C() {
             mMap->fn_800D246C(1);
             mMenu = fn_801F3FF8(this, mUiPath, 0);
             mMenu->fn_800D246C(1);
-            mKeys[1].mPos = mStart.mPos;
-            mKeys[1].mTgt = mStart.mTgt;
-            mKeys[1].mAngle = mStart.mAngle;
-            mKeys[1].mRate = 1.0f;
-            mKeys[2] = mStart;
-            mKeys[3] = mEnd;
-            mKeys[4] = mLoad;
-            mKey = &mKeys[1];
+            mKey1.mPos = mStart.mPos;
+            mKey1.mTgt = mStart.mTgt;
+            mKey1.mAngle = mStart.mAngle;
+            mKey1.mRate = 1.0f;
+            mKey2 = mStart;
+            mKey3 = mEnd;
+            mKey4 = mLoad;
+            mKey = &mKey1;
         }
     } else if (mStep == 2) {
         int ready = 1;
@@ -383,10 +383,10 @@ int NewTitleTask::vf0C() {
             mFade->mZ = -100.0f;
             mFade->mFrame = 0;
             mFade->mActive = 1;
-            mCamera.mPos = mKeys[1].mPos;
-            mCamera.mTarget = mKeys[1].mTgt;
+            mCamera.mPos = mKey1.mPos;
+            mCamera.mTarget = mKey1.mTgt;
             mCamera.mUp = atn::Vector3(0.0f, 1.0f, 0.0f);
-            mCamera.mFovy = mKeys[1].mAngle;
+            mCamera.mFovy = mKey1.mAngle;
             mCamera.mAspect = fn_80076FF8(lbl_8087EEE0);
             void* menu = mDebugMenu.Load("NewTitle");
             fn_80087994(menu, "FreeCamera", &mFreeCamera, 0, 0);
@@ -467,7 +467,7 @@ void NewTitleTask::fn_80533BDC(int state) {
     mState = state;
     switch (state) {
     case 1:
-        mKey = &mKeys[0];
+        mKey = &mKey0;
         fn_80232B7C((unsigned int)this, 0);
         {
             atn::Vector3 pos(0.0f, 0.0f, 0.0f);
@@ -503,9 +503,9 @@ void NewTitleTask::fn_80533BDC(int state) {
     case 3:
         mDamage = &mDamage1;
         if (mPrevState == 10) {
-            mKey = &mKeys[2];
+            mKey = &mKey2;
         } else {
-            mKey = &mKeys[1];
+            mKey = &mKey1;
         }
         mLogo->mFrame = 29.0f;
         mLogoNm->mFrame = 29.0f;
@@ -527,7 +527,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         mFrame = 0;
         break;
     case 9:
-        mKey = &mKeys[3];
+        mKey = &mKey3;
         mCursorPos = 0;
         m2BC = 0;
         for (unsigned int i = 0; i < mGimmicks.size(); i++) {
@@ -540,7 +540,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         }
         break;
     case 10:
-        mKey = &mKeys[2];
+        mKey = &mKey2;
         mCursorPos = 0;
         m2BC = 0;
         mCursor->mSpeed = 0.0f;
@@ -550,7 +550,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         mCursor->mSpeed = -2.0f;
         break;
     case 11:
-        mKey = &mKeys[2];
+        mKey = &mKey2;
         if (mPrevState == 13 || mPrevState == 14) {
             mCursorPos = 0;
             m2BC = 0;
@@ -562,7 +562,7 @@ void NewTitleTask::fn_80533BDC(int state) {
     case 12:
         mCursor->mSpeed = 1.0f;
         mMenu->mSpeed = 1.0f;
-        mKey = &mKeys[4];
+        mKey = &mKey4;
         break;
     case 13:
     case 14:
@@ -663,7 +663,7 @@ void NewTitleTask::vf10() {
         if (mFrame == 1) {
             mLogo->MeltTask();
             mLogoNm->MeltTask();
-            mKey = &mKeys[1];
+            mKey = &mKey1;
             mCapture->mActive = 1;
             mWhiteMap->FreezeTask();
             mMap->MeltTask();

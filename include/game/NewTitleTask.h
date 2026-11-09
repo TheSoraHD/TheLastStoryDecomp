@@ -123,7 +123,12 @@ public:
     atn::Vector3 m334;
     float mCameraAngle;         // 0x340
     float mAspectOfs;           // 0x344
-    TitleCameraKey_unk mKeys[5];          // 0x348
+    // inferred: five separate keys, not an array (the constructor builds them unrolled, 0x80531F10)
+    TitleCameraKey_unk mKey0;             // 0x348: inferred: camera hidden below the map (first frames)
+    TitleCameraKey_unk mKey1;             // 0x368: inferred: start view at rate 1 (copy of mStart)
+    TitleCameraKey_unk mKey2;             // 0x388: copy of mStart
+    TitleCameraKey_unk mKey3;             // 0x3A8: copy of mEnd
+    TitleCameraKey_unk mKey4;             // 0x3C8: copy of mLoad
     TitleCameraKey_unk* mKey;             // 0x3E8: key the camera moves to
     DamageEffectParam_unk mDamage0;       // 0x3EC
     DamageEffectParam_unk mDamage1;       // 0x410: "Damage Zoom"
