@@ -517,7 +517,9 @@ struct PPManager2_unk : public atn::Task {
     int m2B88;                        // inferred: number of the slots of m2B8C
     PPPlayer_unk m2B8C[8];
     int m966C;
-    unsigned char m9670[0x967C - 0x9670];
+    unsigned char m9670[0x9674 - 0x9670];
+    int m9674;                        // inferred: item won in the game (code, count)
+    int m9678;
     int m967C;                        // inferred: value for the players marked m30 (fn_804E4D70)
     unsigned char m9680[0x9694 - 0x9680];
     int m9694[8];                     // inferred: per aid values of message 0x35
@@ -2814,6 +2816,27 @@ extern "C" void fn_804DC358(PPManager2_unk* mgr) {
     fn_804DC450(mgr, mode);
 }
 
+extern "C" int fn_804DBEC8(PPManager2_unk* mgr, const char* text, char* buf, char** fields, int arg);
+extern "C" int atoi(const char* s);
+// inferred: fourth and fifth fields of a status string as numbers
+extern "C" int fn_804DC7C0(PPManager2_unk* mgr, const char* text) {
+    char* fields[6];
+    char buf[0x100];
+    if (fn_804DBEC8(mgr, text, buf, fields, 0) == 0 || fields[3] == 0) {
+        return 0;
+    }
+    return atoi(fields[3]);
+}
+
+extern "C" int fn_804DC80C(PPManager2_unk* mgr, const char* text) {
+    char* fields[6];
+    char buf[0x100];
+    if (fn_804DBEC8(mgr, text, buf, fields, 0) == 0 || fields[4] == 0) {
+        return 0;
+    }
+    return atoi(fields[4]);
+}
+
 extern "C" int fn_804DCA4C() {
     return 0;
 }
@@ -2905,6 +2928,33 @@ extern "C" void fn_804DF310(PPManager2_unk* mgr) {
             ((PPChara_unk*)player->mRef.mChara)->m9F8 = 0;
         }
     }
+}
+
+// inferred: comparator of the players by score (higher first)
+extern "C" int fn_804E09AC(void* unused, const PPPlayer_unk* a, const PPPlayer_unk* b) {
+    return a->mD58 > b->mD58;
+}
+
+extern "C" void* fn_80211480(int code); // inferred: entry of an item code
+// inferred: adds the items won in the game to the save data and saves
+extern "C" void fn_804E49A4(PPManager2_unk* mgr) {
+    if (mgr->m9674 > 0 && fn_80211480(mgr->m9674) != 0 && mgr->mSaveLoad->m48 != 0 &&
+        ((GameSaveInventory_unk*)&mgr->mSaveLoad->m48->mSub)->fn_803BD2B0(mgr->m9674, mgr->m9678) != 0) {
+        mgr->mSaveLoad->fn_8050272C();
+    }
+}
+
+// inferred: a value of the save data, 0x19640 when there is no save data
+extern "C" int fn_804E4A20(PPManager2_unk* mgr) {
+    MP::SaveLoad* save = mgr->mSaveLoad;
+    bool ok = false;
+    if (save != 0 && save->m48 != 0) {
+        ok = true;
+    }
+    if (ok) {
+        return ((int*)save->m48)[1];
+    }
+    return 0x19640;
 }
 
 // inferred: result of the game for the player (0, 1 or 2) by game mode (called out of line by fn_804E4D70)
@@ -3053,6 +3103,10 @@ extern "C" int fn_804E650C(CharaTask* chara);
 extern "C" int fn_804CF424(ModelSlotsN_unk* model);
 extern "C" void fn_804CF374(PackedMotion_unk* out, atn::Model* model, int index);
 
+extern "C" int fn_804E650C(CharaTask* chara) {
+    return chara->mFlag15;
+}
+
 // inferred: sends the state of the own character, of the characters of this aid and of the other
 // characters (messages 0x1017 and 0x101E)
 // NONMATCHING: draft - written for the weak copies of its accessors (0x804E8090-0x804E82BC)
@@ -3152,6 +3206,10 @@ extern "C" void fn_804E7AC0(PPManager2_unk* mgr) {
 }
 
 
+extern "C" bool fn_804EA520(PPManager2_unk* mgr) {
+    return mgr->mState == 30;
+}
+
 // inferred: number of the message for a kind of player (names invented)
 extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
     switch (kind) {
@@ -3163,6 +3221,19 @@ extern "C" int fn_804EA5DC(PPManager2_unk* mgr, int kind) {
     default:
         return 10;
     }
+}
+
+extern "C" int fn_804EAA50(PPManager2_unk* mgr) {
+    return lbl_8087F628->m25C;
+}
+
+extern "C" void fn_804EAA5C(PPManager2_unk* mgr, int value) {
+    lbl_8087F628->m25C = value;
+}
+
+extern "C" void fn_804EAA68(PPManager2_unk* mgr, int value) {
+    atn::net::Manager* net = lbl_8087F628;
+    net->m264 = value >= 8 ? 8 : value;
 }
 
 // NONMATCHING (and fn_804EB26C, fn_804EB400, fn_804EB5D8): 91-98% - the slot offset and the slot pointer of the
@@ -3177,6 +3248,12 @@ extern "C" int fn_804EAFD0(PPManager2_unk* mgr) {
         }
     }
     return n;
+}
+
+// inferred: this machine is the server
+extern "C" int fn_804EB1AC(PPManager2_unk* mgr) {
+    unsigned char aid = lbl_8087F628->GetMyAid_unk();
+    return aid == lbl_8087F628->GetServerAid_unk();
 }
 
 // inferred: every player in use has m28 set; the number of them in `count`
@@ -3317,6 +3394,19 @@ extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara) 
     return 0;
 }
 
+// inferred: slot of the own player
+// NONMATCHING: 99.39% - r4/r5 of the loop (index and aid) swapped
+extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
+    unsigned char aid = lbl_8087F628->GetMyAid_unk();
+    for (int i = 0; i < mgr->mPlayers.mNum; i++) {
+        PPPlayer_unk* player = &mgr->mPlayers.mData[i];
+        if (player->mFlags.mActive == 1 && aid == player->mAid) {
+            return player;
+        }
+    }
+    return 0;
+}
+
 // inferred: empty traces of the receive loop, called on the packer (their arguments are still evaluated);
 // fn_804EE4E4 gives the data back unchanged
 extern "C" void fn_804EE4E0(atn::net::PacketPack* pack, unsigned int aid, unsigned short size) {}
@@ -3351,6 +3441,10 @@ extern "C" void fn_804EFE98(PPPlayer_unk* player) {
             lbl_8087F498->fn_803E9B7C(data[0], data[1], 1, 1.0f);
         }
     }
+}
+
+extern "C" int fn_804F1060() {
+    return 6;
 }
 
 // inferred: messages 0x0C and 0x0E: values kept by the manager
@@ -3777,6 +3871,12 @@ extern "C" void fn_804F5FCC(PPRequests_unk* queue) {
     }
 }
 
+extern "C" void fn_804F60D4() {}
+
+extern "C" void fn_804F60D8() {}
+
+extern "C" void fn_804F60DC() {}
+
 // inferred: requests of the save/load task of the manager (type 0 and 1)
 extern "C" int fn_804F7EC8(void* data, int size) {
     MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
@@ -3790,6 +3890,14 @@ extern "C" int fn_804F7EF0(void* data, int size) {
     MP::SaveLoad* saveLoad = ((PPManager2_unk*)lbl_8087F610)->mSaveLoad;
     if (saveLoad != 0) {
         return saveLoad->fn_80502870(1, data, size);
+    }
+    return 0;
+}
+
+extern "C" int fn_804F7F18() {
+    PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
+    if (mgr->mSaveLoad != 0) {
+        return mgr->mSaveLoad->fn_80502848();
     }
     return 0;
 }
@@ -3838,6 +3946,23 @@ extern "C" void fn_804FB220(PPStateVar_unk* state, int value) {
     state->mValue = value;
 }
 
+// inferred: ends the game with an error code (state 43)
+extern "C" void fn_804FB470(PPManager2_unk* mgr, int code, int arg) {
+    if (lbl_8087F628->m25C == 1 && MP::D2AMpMenuFriendRoom::sInstance != 0 && MP::D2AMpMenuFriendRoom::sInstance->m88 == 8) {
+        MP::D2AMpMenuFriendRoom::sInstance->fn_804BA350(9);
+    }
+    mgr->m9750 = -1;
+    if (code == -2) {
+        fn_804FAD48(mgr, -1);
+    }
+    if ((unsigned int)(mgr->m9750 - 0xA1) <= 1) {
+        arg = 9;
+    }
+    fn_804FB220(&mgr->mStateVar, 43);
+    mgr->m9754 = code;
+    mgr->m9758 = arg;
+}
+
 extern "C" void fn_804FB530(PPManager2_unk* mgr) {
     if (((PPNet_unk*)lbl_8087F628)->mState < 8) {
         return;
@@ -3880,7 +4005,23 @@ extern "C" PPNetPlayer_unk* fn_804FC268(PPNet_unk* net, unsigned int aid) {
     return &net->mPlayers[i];
 }
 
+extern "C" int fn_804FC510() {
+    return 0;
+}
+
+extern "C" int fn_804FC518() {
+    return 0;
+}
+
+extern "C" int fn_804FC520() {
+    return 0;
+}
+
 // inferred: the character finished loading
 extern "C" bool fn_804FC580(CharaTask* chara) {
     return chara->fn_8013655C() == 0;
+}
+
+extern "C" void fn_804FC7DC(CharaTask* chara) {
+    chara->fn_80149A30();
 }
