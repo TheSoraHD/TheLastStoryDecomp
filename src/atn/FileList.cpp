@@ -237,19 +237,14 @@ extern "C" std::string fn_8006B46C(const std::string& path) {
 }
 
 // inferred: sets the file language (ignored when out of range); inlined in fn_8006B53C
+// (`0 <= lang` keeps the two signed compares, `lang >= 0 && lang < 6` would become one cmplwi 5)
 static inline void __SetLang_unk(int lang) {
-    if (lang < 0) {
-        return;
+    if (0 <= lang && lang < 6) {
+        lbl_8087EEC0 = lang;
     }
-    if (lang >= 6) {
-        return;
-    }
-    lbl_8087EEC0 = lang;
 }
 
 // inferred: as fn_8006B46C with the text language
-// NONMATCHING: 75.9% - the inlined range checks are merged into one cmplwi 5 here; the original keeps
-// both compares (as in fn_8006BA54, where early returns give them; inlined, 7 forms tried)
 extern "C" std::string fn_8006B53C(const std::string& path) {
     int lang = lbl_8087EEC0;
     __SetLang_unk(lbl_8087EEC4);
