@@ -45,6 +45,7 @@ struct ReplayModel_unk {
 
 // inferred: one frame of the replay (0x1808 bytes; names invented)
 struct ReplayFrame_unk {
+    ReplayFrame_unk() : mNumCharas(0), mNumModels(0) {}
     ReplayChara_unk mCharas[15];  // 0x000
     ReplayModel_unk mModels[60];  // 0x834
     signed char mNumCharas;       // 0x1554
@@ -54,12 +55,14 @@ struct ReplayFrame_unk {
 
 // inferred: event of the replay with the frame it happened (0x48 bytes; a negative frame marks a free slot)
 struct ReplayEventEntry_unk {
+    ReplayEventEntry_unk() : mFrame(-1) {}
     int mFrame;
     ReplayEvent_unk mEvent;
 };
 
 // inferred: effect event of the replay with its frame (0x68 bytes; a negative frame marks a free slot)
 struct ReplayEffectEntry_unk {
+    ReplayEffectEntry_unk() : mFrame(-1) {}
     int mFrame;
     EffectEvent_unk mEvent;
 };
@@ -91,8 +94,7 @@ public:
     int mNextEffect; // 0x52988: inferred: first slot of mEffectRing to try
     int m5298C;
     int m52990; // inferred: first frame of the effects to replay
-    ReplayEventEntry_unk mEvents[256]; // 0x52994: inferred: ring of the events
-    unsigned char m57194[0x5B994 - 0x57194];
+    ReplayEventEntry_unk mEvents[512]; // 0x52994: inferred: events (fn_805706C0 only uses the first 256)
     atn::FixedArray_unk<ReplayEventEntry_unk*, 256> mNewEvents; // 0x5B994: inferred: events of this frame
     int mNextEvent; // 0x5BD98: inferred: first slot of mEvents to try
     int m5BD9C;
@@ -102,7 +104,7 @@ public:
     int m5BDAC;
     int m5BDB0;
     int m5BDB4;
-    unsigned char m5BDB8[0x5BDBC - 0x5BDB8]; // inferred: size from the new of GameTask::fn_8036CA60
+    float m5BDB8; // inferred: time accumulated for the recording (size from the new of GameTask::fn_8036CA60)
 };
 
 #endif

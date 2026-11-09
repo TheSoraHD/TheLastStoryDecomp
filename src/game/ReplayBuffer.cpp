@@ -149,6 +149,10 @@ void ReplayRecorder_unk::fn_8056BD34() {
     }
 }
 
+ReplayBuffer::ReplayBuffer()
+    : m00004(0), m45178(0), m4517C(0), m45180(1), mNextEffect(0), m5298C(0), m52990(0), mNextEvent(0), m5BD9C(0),
+      m5BDA0(0), m5BDA4(0), m5BDA8(0), m5BDAC(0), m5BDB0(0), m5BDB4(0), m5BDB8(0.0f) {}
+
 ReplayBuffer::~ReplayBuffer() {}
 
 // NONMATCHING: 92.48% - copy order of the event (colour and vectors); offset of the message in the pool
