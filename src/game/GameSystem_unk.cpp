@@ -7,6 +7,7 @@
 
 #include "game/HomeButtonMenu.h"
 #include "game/ReplayBuffer.h"
+#include "atn/EfpHandle_unk.h"
 
 extern "C" void OSSetResetCallback(void (*callback)());
 extern "C" void OSSetPowerCallback(void (*callback)());
@@ -95,43 +96,32 @@ void ReplayBuffer::fn_80570A64() {
     m4517C = 0;
 }
 
-// inferred: list of effects of the field (field->m5590): count at 0x52184, pointers at 0x52188
-struct EfpEntry_unk {
-    unsigned char m00[0x08];
-    void* mOwner; // 0x08
-};
-struct EfpList_unk {
-    unsigned char m00000[0x52184];
-    unsigned int mCount;      // 0x52184
-    EfpEntry_unk* mItems[1];  // 0x52188
-};
-struct EfpOwner_unk {
+// inferred: emitters of an efp resource (atn::EfpFile::mResource; 0x54 bytes each, the owner of the
+// effects at 0x48); names invented
+struct EfpEmitter_unk {
     unsigned char m00[0x48];
     unsigned char m48[0x54 - 0x48];
 };
-struct EfpOwners_unk {
+struct EfpRes_unk {
     unsigned int mCount;
-    EfpOwner_unk* mItems;
-};
-struct EfpFile {
-    EfpOwners_unk* mOwners;
+    EfpEmitter_unk* mItems;
 };
 
-// inferred: removes from the list every entry that belongs to one of the owners of `efp`
+// inferred: removes the effect events of every emitter of `efp`
 // NONMATCHING: 89.4% - register allocation: the original keeps the outer counter in r31 and the
 // erase index in a volatile register (tried counters declared outside, int/unsigned, an erase inline).
-extern "C" void fn_80570A74(EfpList_unk* list, EfpFile* efp) {
-    EfpOwners_unk* owners = efp->mOwners;
-    if (owners != 0) {
-        for (unsigned int i = 0; i < owners->mCount; i++) {
-            void* owner = owners->mItems[i].m48;
-            EfpEntry_unk** p = list->mItems;
-            while (p != list->mItems + list->mCount) {
-                if ((*p)->mOwner == owner) {
-                    for (unsigned int j = p - list->mItems; j < list->mCount - 1; j++) {
-                        list->mItems[j] = list->mItems[j + 1];
+void ReplayBuffer::fn_80570A74(atn::EfpFile* efp) {
+    EfpRes_unk* res = (EfpRes_unk*)efp->mResource;
+    if (res != 0) {
+        for (unsigned int i = 0; i < res->mCount; i++) {
+            void* owner = res->mItems[i].m48;
+            ReplayEffectEntry_unk** p = mEffects.mData;
+            while (p != mEffects.mData + mEffects.mSize) {
+                if ((*p)->mEvent.mRes == owner) {
+                    for (unsigned int j = p - mEffects.mData; j < mEffects.mSize - 1; j++) {
+                        mEffects.mData[j] = mEffects.mData[j + 1];
                     }
-                    list->mCount = list->mCount - 1;
+                    mEffects.mSize = mEffects.mSize - 1;
                 } else {
                     p++;
                 }

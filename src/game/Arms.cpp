@@ -7,6 +7,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include "game/BattleTask.h"
+#include "game/ReplayBuffer.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char* strcpy(char* dst, const char* src);
@@ -41,10 +42,9 @@ extern "C" void fn_80232B7C(void* owner, int arg);
 // inferred: field object (class unknown)
 struct Field_unk {
     unsigned char m0000[0x5590];
-    void* m5590;
+    ReplayBuffer* m5590;
 };
 extern "C" Field_unk* lbl_8087F430;
-extern "C" void fn_80570A74(void* obj, atn::EfpFile* efp);
 
 struct ArmsEffectMgr_unk;
 extern "C" ArmsEffectMgr_unk* lbl_8087F048; // inferred: effect manager of the characters
@@ -286,7 +286,7 @@ extern "C" void fn_80044E0C(void* object, int arg) {
         lbl_8087F3C0->mB8 = 0;
         self->m2A0 = 0;
         if (lbl_8087F430 != 0 && lbl_8087F430->m5590 != 0) {
-            fn_80570A74(lbl_8087F430->m5590, self->m29C.get());
+            lbl_8087F430->m5590->fn_80570A74(self->m29C.get());
         }
     }
 }

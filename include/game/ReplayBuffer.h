@@ -13,6 +13,7 @@ class Model;
 
 namespace atn {
 class LH_Motion;
+class EfpFile;
 }
 
 // inferred: motion track of a recorded character (0x18 bytes; atn::Model::Track_unk packed; names invented)
@@ -112,6 +113,7 @@ public:
     void fn_80570A40(int pause);     // inferred: pauses the recording of the events
     int fn_80570A4C();               // inferred: the buffer is full (45 frames)
     void fn_80570A64();              // inferred: clears the frames
+    void fn_80570A74(atn::EfpFile* efp); // inferred: removes the effect events of the resource
     void fn_8057080C(); // inferred: frees the bullet events that ended more than 90 frames ago
     int m00004; // inferred: current frame
     ReplayFrame_unk mFrames[45]; // 0x00008: inferred: ring of the recorded frames
