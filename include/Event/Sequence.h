@@ -101,12 +101,6 @@ void DataList_unk<T>::SetOwner_unk(Sequence* owner) {
 }
 
 
-// inferred: data of 0x48 bytes listed at 0x104 of the sequence (class unknown)
-class Data48_unk : public CommonData {
-public:
-    unsigned char m18[0x48 - 0x18];
-};
-
 // inferred: message slot of the sequence (0x24 bytes, four at 0x1F0; names invented)
 struct ScreenEffect_unk {
     void Reset_unk() {
@@ -395,7 +389,7 @@ public:
     DataList_unk<AnimationData> mD4;
     DataList_unk<EffectData> mE4;
     DataList_unk<ModelData> mF4;
-    DataList_unk<Data48_unk> m104;
+    DataList_unk<DummyData> m104;
     DataList_unk<StringData> m114; // inferred: named entries (streams of the multi audio actions)
     DataList_unk<CameraData> m124;
     DataList_unk<PoseData> m134;

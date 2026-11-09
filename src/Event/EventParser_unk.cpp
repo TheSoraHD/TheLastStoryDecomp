@@ -265,6 +265,9 @@ inline CameraData::CameraData(Sequence* owner, const char* name, int id) : Commo
 inline PoseData::PoseData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0), m1C(0) {}
 inline MovieData::MovieData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(0) {}
 inline StringData::StringData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {}
+inline DummyData::DummyData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {
+    m18.SetIdentity();
+}
 inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m24(0) {}
 
 // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
@@ -340,10 +343,14 @@ static int ParseMDMA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds a dummy data
+// inferred: adds a dummy data
 static int ParseDUID_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Sequence* seq = sState_unk->m10;
+    int id;
+    memcpy(&id, data, 4);
+    seq->m104.Add_unk("", id);
+    sState_unk->m3C = &seq->m104[seq->m104.size() - 1];
+    return 4;
 }
 
 static int ParseDUNA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
