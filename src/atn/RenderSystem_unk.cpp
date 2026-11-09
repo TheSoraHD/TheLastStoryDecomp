@@ -161,7 +161,6 @@ static inline int ClampRef_unk(int value, const int& lo, const int& hi) {
 
 void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
     // inferred: 256x1 I8 ramp texture (4 rows of each 8x4 tile written)
-    // NONMATCHING: 87.64% - the original computes the tile offset before the clamp and keeps the size in r30
     unsigned char* image;
     unsigned int size = GXGetTexBufferSize(256, 1, 1, 0, 0);
     if (m550 == 0) {
@@ -172,13 +171,14 @@ void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
     }
 
     for (int i = 0; i < 256; ++i) {
+        int row = (i >> 3) * 32;
+        int col = i & 7;
         int value = (i - 128) * 4;
         unsigned char c = ClampRef_unk(value, lbl_8087D8F8, lbl_8087D8FC);
-        unsigned char* p = image + (i >> 3) * 32 + (i & 7);
-        p[0] = c;
-        p[8] = c;
-        p[16] = c;
-        p[24] = c;
+        image[row + col] = c;
+        image[row + col + 8] = c;
+        image[row + col + 16] = c;
+        image[row + col + 24] = c;
     }
 
     GXInitTexObj(tex, image, 256, 1, 1, 0, 1, 0);
