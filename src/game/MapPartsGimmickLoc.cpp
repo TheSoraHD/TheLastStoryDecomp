@@ -4,6 +4,8 @@
 #include "game/MapArea.h"
 #include "atn/RenderManager.h"
 #include "atn/EffectManager.h"
+#include "game/MapManager.h"
+#include "game/AreaEffConfig.h"
 
 extern "C" int rand();
 // inferred: random number in [0, n) (0 when n is not positive)
@@ -84,6 +86,25 @@ void* MapPartsGimmickLocArray8_unk::fn_80499724(int index) const {
 
 void* MapPartsGimmickLocArray4_unk::fn_8049981C(int index) const {
     return static_cast<unsigned char*>(mData) + index * 4;
+}
+
+// inferred: colour of the effect of each record from the AreaEffConfig of its area (given to the
+// EffectManager in mode 2)
+void MapPartsGimmickLoc::SetAreaEffConfig() {
+    if (MapManager::instance_ == 0) {
+        return;
+    }
+    for (unsigned int i = 0; i < m60; i++) {
+        atn::Sphere sphere(m64[i].m2C, 5.0f);
+        MapArea* area = MapManager::instance_->FindArea(sphere);
+        if (area != 0 && area->mEffConfig != 0) {
+            const atn::D2A_DrawColor* color = area->mEffConfig->fn_80043014(0, m64[i].mName);
+            m64[i].mColor = *color;
+            if (m54 == 2) {
+                lbl_8087F3C0->fn_8023A184((unsigned int)&m64[i], 0, (const EffectColor_unk*)&m64[i].mColor);
+            }
+        }
+    }
 }
 
 // inferred: picks once a random variant of each record
