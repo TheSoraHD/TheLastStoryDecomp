@@ -1129,7 +1129,8 @@ extern "C" void fn_800C0BF8(unsigned char* data, unsigned int width, unsigned in
 extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned int width,
                              unsigned int height) {
     // inferred: converts supported GX texture layouts to tiled storage and flushes the image.
-    // NONMATCHING: 87.99% - switch dispatch and loop scheduling still differ from MWCC.
+    // NONMATCHING: 98.56% - the original keeps the offset in the scratch row and adds the stack address
+    // in each block (ours strength-reduces it to a pointer)
     unsigned char scratch[0x2000];
     switch (format) {
     case 0:
@@ -1150,40 +1151,67 @@ extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned i
         DCFlushRange(image, (width * height) << 1);
         break;
     case 6: {
-        unsigned int blocksWide = width >> 2;
-        unsigned int blocksHigh = height >> 2;
-        unsigned int rowPairCount = 2;
-        unsigned char* row = image;
-        for (unsigned int blockY = 0; blockY < blocksHigh; ++blockY) {
-            memcpy(scratch, row, width * 16);
-            unsigned int sourceOffset = 0;
-            unsigned char* tile = row;
-            for (unsigned int blockX = 0; blockX < blocksWide; ++blockX) {
-                const unsigned char* source = scratch + sourceOffset;
-                for (unsigned int rowPair = 0; rowPair < rowPairCount; ++rowPair) {
-                    tile[0] = source[0];
-                    tile[1] = source[1];
-                    tile[32] = source[2];
-                    tile[33] = source[3];
-                    tile[2] = source[4];
-                    tile[3] = source[5];
-                    tile[34] = source[6];
-                    tile[35] = source[7];
-                    tile[4] = source[8];
-                    tile[5] = source[9];
-                    tile[36] = source[10];
-                    tile[37] = source[11];
-                    tile[6] = source[12];
-                    tile[7] = source[13];
-                    tile[38] = source[14];
-                    tile[39] = source[15];
-                    source += width * 4;
+        unsigned int blocksWide;
+        unsigned int blocksHigh;
+        unsigned int y;
+        unsigned int rowBytes;
+        unsigned int stride;
+        unsigned char* tile;
+        tile = image;
+        stride = width << 2;
+        blocksWide = width >> 2;
+        blocksHigh = height >> 2;
+        rowBytes = width << 4;
+        y = 0;
+        unsigned int pairs = 2;
+        for (; y < blocksHigh; y++) {
+            memcpy(scratch, tile, rowBytes);
+            unsigned int x;
+            unsigned int offset;
+            x = 0;
+            offset = 0;
+            for (; x < blocksWide; x++) {
+                const unsigned char* src = scratch + offset;
+                for (unsigned int k = 0; k < pairs; k++) {
+                    tile[0] = src[0];
+                    tile[1] = src[1];
+                    tile[32] = src[2];
+                    tile[33] = src[3];
+                    tile[2] = src[4];
+                    tile[3] = src[5];
+                    tile[34] = src[6];
+                    tile[35] = src[7];
+                    tile[4] = src[8];
+                    tile[5] = src[9];
+                    tile[36] = src[10];
+                    tile[37] = src[11];
+                    tile[6] = src[12];
+                    tile[7] = src[13];
+                    tile[38] = src[14];
+                    tile[39] = src[15];
+                    src += stride;
+                    tile[8] = src[0];
+                    tile[9] = src[1];
+                    tile[40] = src[2];
+                    tile[41] = src[3];
+                    tile[10] = src[4];
+                    tile[11] = src[5];
+                    tile[42] = src[6];
+                    tile[43] = src[7];
+                    tile[12] = src[8];
+                    tile[13] = src[9];
+                    tile[44] = src[10];
+                    tile[45] = src[11];
+                    tile[14] = src[12];
+                    tile[15] = src[13];
+                    tile[46] = src[14];
+                    tile[47] = src[15];
+                    src += stride;
                     tile += 16;
                 }
-                sourceOffset += 16;
                 tile += 32;
+                offset += 16;
             }
-            row += width * 16;
         }
         DCFlushRange(image, (width * height) << 2);
         break;
@@ -1195,7 +1223,7 @@ extern "C" int fn_800C0D4C(unsigned char* image, unsigned int format, unsigned i
 extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned int width,
                              unsigned int height) {
     // inferred: converts supported GX texture layouts back to linear storage and flushes the image.
-    // NONMATCHING: 87.72% - switch dispatch and tile loop scheduling still differ from MWCC.
+    // NONMATCHING: 98.56% - as fn_800C0D4C (offset in the scratch row)
     unsigned char scratch[0x2000];
     switch (format) {
     case 0:
@@ -1205,6 +1233,7 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
         break;
     case 1:
     case 2:
+    case 9:
         fn_800C0BF8(image, width, height, 3, 2, 8, width, scratch);
         DCFlushRange(image, width * height);
         break;
@@ -1216,65 +1245,69 @@ extern "C" int fn_800C0FBC(unsigned char* image, unsigned int format, unsigned i
         break;
     case 6:
     case 22: {
-        unsigned int blocksWide = width >> 2;
-        unsigned int blocksHigh = height >> 2;
-        unsigned int rowPairCount = 2;
-        unsigned char* row = image;
-        unsigned char* tile = image;
-        for (unsigned int blockY = 0; blockY < blocksHigh; ++blockY) {
-            unsigned int destOffset = 0;
-            for (unsigned int blockX = 0; blockX < blocksWide; ++blockX) {
-                unsigned char* dest = scratch + destOffset;
-                for (unsigned int rowPair = 0; rowPair < rowPairCount; ++rowPair) {
-                    dest[0] = tile[0];
-                    dest[1] = tile[1];
-                    dest[2] = tile[32];
-                    dest[3] = tile[33];
-                    dest[4] = tile[2];
-                    dest[5] = tile[3];
-                    dest[6] = tile[34];
-                    dest[7] = tile[35];
-                    dest[8] = tile[4];
-                    dest[9] = tile[5];
-                    dest[10] = tile[36];
-                    dest[11] = tile[37];
-                    dest[12] = tile[6];
-                    dest[13] = tile[7];
-                    dest[14] = tile[38];
-                    dest[15] = tile[39];
-                    dest += width * 4;
-                    dest[0] = tile[8];
-                    dest[1] = tile[9];
-                    dest[2] = tile[40];
-                    dest[3] = tile[41];
-                    dest[4] = tile[10];
-                    dest[5] = tile[11];
-                    dest[6] = tile[42];
-                    dest[7] = tile[43];
-                    dest[8] = tile[12];
-                    dest[9] = tile[13];
-                    dest[10] = tile[44];
-                    dest[11] = tile[45];
-                    dest[12] = tile[14];
-                    dest[13] = tile[15];
-                    dest[14] = tile[46];
-                    dest[15] = tile[47];
+        unsigned int blocksWide;
+        unsigned int blocksHigh;
+        unsigned int y;
+        unsigned int rowBytes;
+        unsigned int stride;
+        unsigned char* tile;
+        tile = image;
+        stride = width << 2;
+        blocksWide = width >> 2;
+        blocksHigh = height >> 2;
+        rowBytes = width << 4;
+        y = 0;
+        unsigned int pairs = 2;
+        for (; y < blocksHigh; y++) {
+            unsigned char* row = tile;
+            unsigned int offset = 0;
+            for (unsigned int x = 0; x < blocksWide; x++) {
+                unsigned char* dst = scratch + offset;
+                for (unsigned int k = 0; k < pairs; k++) {
+                    dst[0] = tile[0];
+                    dst[1] = tile[1];
+                    dst[2] = tile[32];
+                    dst[3] = tile[33];
+                    dst[4] = tile[2];
+                    dst[5] = tile[3];
+                    dst[6] = tile[34];
+                    dst[7] = tile[35];
+                    dst[8] = tile[4];
+                    dst[9] = tile[5];
+                    dst[10] = tile[36];
+                    dst[11] = tile[37];
+                    dst[12] = tile[6];
+                    dst[13] = tile[7];
+                    dst[14] = tile[38];
+                    dst[15] = tile[39];
+                    dst += stride;
+                    dst[0] = tile[8];
+                    dst[1] = tile[9];
+                    dst[2] = tile[40];
+                    dst[3] = tile[41];
+                    dst[4] = tile[10];
+                    dst[5] = tile[11];
+                    dst[6] = tile[42];
+                    dst[7] = tile[43];
+                    dst[8] = tile[12];
+                    dst[9] = tile[13];
+                    dst[10] = tile[44];
+                    dst[11] = tile[45];
+                    dst[12] = tile[14];
+                    dst[13] = tile[15];
+                    dst[14] = tile[46];
+                    dst[15] = tile[47];
                     tile += 16;
-                    dest += width * 4;
+                    dst += stride;
                 }
                 tile += 32;
-                destOffset += 16;
+                offset += 16;
             }
-            memcpy(row, scratch, width * 16);
-            row = tile;
+            memcpy(row, scratch, rowBytes);
         }
         DCFlushRange(image, (width * height) << 2);
         break;
     }
-    case 9:
-        fn_800C0BF8(image, width, height, 3, 2, 8, width, scratch);
-        DCFlushRange(image, width * height);
-        break;
     }
     return 1;
 }
