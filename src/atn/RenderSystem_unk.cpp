@@ -54,7 +54,7 @@ extern "C" void GXProject(float x, float y, float z, const float matrix[3][4], c
                             const float viewport[6], float* screenX, float* screenY, float* screenZ);
 extern "C" void fn_800D5F68(Mtx out, int mode, int a, int b, int c);
 extern "C" void fn_8009DE60(void* batch, float bias);
-extern "C" void fn_800BECF0(void* entries, unsigned int count);
+extern "C" void fn_800BECF0(DrawSortKey_unk* keys, unsigned int count);
 extern "C" void fn_80071AFC(void* state);
 extern "C" void fn_8007A4CC__13LightList_unkFv(void* lights);
 extern "C" void fn_80075DEC(void* state);
@@ -129,8 +129,7 @@ static inline int fn_800BF9C4_ordered(void* const* left, void* const* right) {
 }
 extern "C" void fn_800BF9C4(void** first, void** second, void** third);
 extern "C" void* memset(void* dest, int value, unsigned long size);
-extern "C" void fn_800BEDA8(unsigned int shift, const unsigned int* inputPairs, unsigned int* outputPairs, unsigned int count);
-extern "C" void fn_800BECF0(void* first, unsigned int count);
+extern "C" void fn_800BEDA8(int shift, const DrawSortKey_unk* in, DrawSortKey_unk* out, unsigned int count);
 
 extern "C" void GXClearVtxDesc();
 extern "C" void GXSetVtxDesc(int attr, int type);
@@ -651,15 +650,14 @@ void atn::RenderManager::fn_800BDBC8() {
     }
 }
 
-extern "C" void fn_800BECF0(void* first, unsigned int count) {
-    // inferred: apply the four quadrant transforms using a temporary stack buffer.
-    // NONMATCHING: 93.24% - scratch pointer arithmetic and call argument setup still differ.
-    unsigned char scratch[0x8000];
-    unsigned char* scratchData = scratch + 8;
-    fn_800BEDA8(0, (const unsigned int*)first, (unsigned int*)scratchData, count);
-    fn_800BEDA8(8, (const unsigned int*)scratchData, (unsigned int*)first, count);
-    fn_800BEDA8(16, (const unsigned int*)first, (unsigned int*)scratchData, count);
-    fn_800BEDA8(24, (const unsigned int*)scratchData, (unsigned int*)first, count);
+// inferred: radix sort of the draw keys, one byte per pass, through a buffer on the stack
+extern "C" void fn_800BECF0(DrawSortKey_unk* keys, unsigned int count) {
+    unsigned char buffer[0x8000];
+    DrawSortKey_unk* tmp = (DrawSortKey_unk*)buffer;
+    fn_800BEDA8(0, keys, tmp, count);
+    fn_800BEDA8(8, tmp, keys, count);
+    fn_800BEDA8(16, keys, tmp, count);
+    fn_800BEDA8(24, tmp, keys, count);
 }
 
 static unsigned char fn_800BFCB4_colorByte(float value) {
@@ -672,81 +670,27 @@ static unsigned char fn_800BFCB4_colorByte(float value) {
     return (unsigned char)__cvt_fp2unsigned(255.0f * value + 0.5f);
 }
 
-extern "C" void fn_800BEDA8(unsigned int shift, const unsigned int* inputPairs,
-                              unsigned int* outputPairs, unsigned int count) {
-    // inferred: stable counting-sort pass over 8-byte key/value records, grouped by one key byte.
-    // NONMATCHING: 37.60% - the compiler's loop and register layout still differ from the unrolled reference.
+// inferred: one pass of the radix sort of the draw keys (stable counting sort on the byte at `shift`)
+extern "C" void fn_800BEDA8(int shift, const DrawSortKey_unk* in, DrawSortKey_unk* out, unsigned int count) {
     unsigned int histogram[256];
     memset(histogram, 0, sizeof(histogram));
-    {
-        const unsigned int* input = inputPairs;
-        unsigned int groups = count >> 3;
-        if (groups != 0) {
-        do {
-            ++histogram[(input[0] >> shift) & 0xFF];
-            ++histogram[(input[2] >> shift) & 0xFF];
-            ++histogram[(input[4] >> shift) & 0xFF];
-            ++histogram[(input[6] >> shift) & 0xFF];
-            ++histogram[(input[8] >> shift) & 0xFF];
-            ++histogram[(input[10] >> shift) & 0xFF];
-            ++histogram[(input[12] >> shift) & 0xFF];
-            ++histogram[(input[14] >> shift) & 0xFF];
-            input += 16;
-        } while (--groups != 0);
-        }
-        for (unsigned int tail = count & 7; tail != 0; --tail, input += 2) {
-            unsigned int bucket = (*input >> shift) & 0xFF;
-            ++histogram[bucket];
-        }
+    const DrawSortKey_unk* p = in;
+    for (unsigned int n = count; n != 0; n--) {
+        histogram[((unsigned int)p->mKey >> shift) & 0xFF]++;
+        p++;
     }
     unsigned int offset = 0;
-    unsigned int* bucketPointer = histogram;
-    for (unsigned int i = 0; i < 256; ++i, ++bucketPointer) {
-        unsigned int entries = *bucketPointer;
-        *bucketPointer = offset;
-        offset += entries;
+    unsigned int* h = histogram;
+    for (int i = 0; i < 256; i++) {
+        unsigned int c = *h;
+        *h = offset;
+        offset += c;
+        h++;
     }
-
-    {
-    const unsigned int* input = inputPairs;
-    unsigned int groups = count >> 2;
-    if (groups != 0) {
-    do {
-        unsigned int key = input[0];
-        unsigned int value = input[1];
-        unsigned int bucket = (key >> shift) & 0xFF;
-        unsigned int destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        key = input[2];
-        value = input[3];
-        bucket = (key >> shift) & 0xFF;
-        destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        key = input[4];
-        value = input[5];
-        bucket = (key >> shift) & 0xFF;
-        destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        key = input[6];
-        value = input[7];
-        bucket = (key >> shift) & 0xFF;
-        destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-        input += 8;
-    } while (--groups != 0);
-    }
-    for (unsigned int tail = count & 3; tail != 0; --tail, input += 2) {
-        unsigned int key = input[0];
-        unsigned int value = input[1];
-        unsigned int bucket = (key >> shift) & 0xFF;
-        unsigned int destination = histogram[bucket]++;
-        outputPairs[destination * 2] = key;
-        outputPairs[destination * 2 + 1] = value;
-    }
+    p = in;
+    for (unsigned int n = count; n != 0; n--) {
+        out[histogram[((unsigned int)p->mKey >> shift) & 0xFF]++] = *p;
+        p++;
     }
 }
 
