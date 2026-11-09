@@ -53,6 +53,10 @@ struct SoundLogEntry_unk {
     SoundCore* mSound;           // 0x8C
 };
 
+// inferred: list of the last sounds played (debug log). A class of its own over the fixed array: the
+// destructor of SoundManager checks the address twice (two nested inline destructors, 0x800CDF14).
+struct SoundLog_unk : public FixedArray_unk<SoundLogEntry_unk, 32> {};
+
 // inferred: name in the RTTI (atn::SoundManager); singleton lbl_8087EFE8 (fn_800CCBA4), 0x46E8 bytes
 class SoundManager {
 public:
@@ -156,7 +160,7 @@ public:
     int m34D4;                             // 0x34D4: scope of the next sound
     const void* m34D8;                     // 0x34D8: owner of the next sound (a CharaTask)
     int mDebugLevel;                       // 0x34DC: DebugLevel
-    FixedArray_unk<SoundLogEntry_unk, 32> mLog; // 0x34E0
+    SoundLog_unk mLog;                     // 0x34E0
     ResHandle mMenu;                       // 0x46E4: debug menu "Sound"
 };
 
