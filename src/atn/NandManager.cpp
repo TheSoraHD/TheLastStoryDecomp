@@ -612,7 +612,8 @@ static inline D2A_DrawRect GetRect_unk(D2A_Task* task, const char* name) {
     return fn_801F4E8C(task, fn_800DC6B4(name));
 }
 
-// NONMATCHING: 96.34% - one more saved register (pane/icon registers) and the load of the rect width
+// NONMATCHING: 98.02% - the original loads the rect width before the data() test of the string (as an
+// argument evaluated before the text; inline wrappers tried, see docs/arranque-20261109.md)
 void NandManager::fn_800A4244() {
     if (mIcon->IsFlag_unk(4)) {
         mIcon->mFrame = 0.0f;
@@ -630,7 +631,8 @@ void NandManager::fn_800A4244() {
     }
     D2A_TextParam_unk* pane = (D2A_TextParam_unk*)fn_801FEC74(&mIcon->mData.m10, "string0011");
     if (pane != 0) {
-        D2A_DrawRect rect = GetRect_unk(mIcon, "message_0011");
+        D2A_Task* icon = mIcon;
+        D2A_DrawRect rect = GetRect_unk(icon, "message_0011");
         float w = fn_8006EF48(lbl_8087EEC8, fn_800A4450(pane, 0, 0).data(), rect.w, 0.0f, 1, 4);
         SetPaneValue_unk(&mIcon->mData.m10, "dotpos", 0, 35.0f + w);
     }

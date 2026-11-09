@@ -591,3 +591,4 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `switch (mState)` tras `mState = state;` en una inline: las copias inlineadas conservan los `case` muertos (y sus llamadas) como el original; `switch (state)` los elimina (GameOverTask vf10 89,8 -> 98,2 %). (`arranque-20261109`)
 - Bloques en otro orden: `tools/decomp/blorder.py` compara la secuencia de llamadas; un `case` o una rama permutados se arreglan moviendo el codigo (NandManager, GameTask, ModelDraw, ControlMagic). (`arranque-20261109`)
 - Una funcion `std::find_if` con lambda de boost se reproduce con boost::lambda real (`*_1 == name`): las copias del predicado en la pila salen solas (SequenceHolder). (`arranque-20261109`)
+- Copias de argumentos struct por valor en orden inverso en la pila (1er argumento en la direccion mas alta): pasarlos desde un inline que recibe `const T&` (RenderManager fn_800BFC18, 2026-11-09).
