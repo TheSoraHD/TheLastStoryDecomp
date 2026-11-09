@@ -365,7 +365,7 @@ struct PPPlayerFlags_unk {
     unsigned int m28 : 1;     // inferred: set and cleared by messages 0x10 and 0x11
     unsigned int m27 : 1;     // inferred: set by message 0x17
     unsigned int m26 : 1;     // inferred: set by message 0x18 on the player and its team
-    unsigned int m22 : 4;     // inferred: value of message 0x12
+    unsigned int m22 : 4;     // inferred: value of message 0x12 (team, see fn_804E4C5C)
     unsigned int m12 : 10;
     unsigned int m10 : 2;
     unsigned int m06 : 4;
@@ -392,7 +392,10 @@ struct PPPlayer_unk {
     };
     int mD4;
     int mD8;
-    MpCharaRef_unk mDC;               // inferred: a second character reference
+    union {
+        MpCharaRef_unk mDC;           // inferred: a second character reference
+        int mDCScore;                 // inferred: summed as the team score in fn_804E4C5C
+    };
     unsigned char m0E0[0xE8 - 0xE0];
     PPEquip_unk mEquips[4];           // 0xE8
 
@@ -2932,7 +2935,7 @@ extern "C" inline void fn_804EE038(PPManager2_unk* mgr, short value) {
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* player);
 
 extern "C" int fn_804E4C34(PPManager2_unk* mgr);
-extern "C" int fn_804E4C5C(PPManager2_unk* mgr);
+extern "C" int fn_804E4C5C(const PPManager2_unk* mgr);
 extern "C" int fn_804E4B44(PPManager2_unk* mgr, PPPlayer_unk* target);
 
 // inferred: the server asks the other players for their state (message 0x1047)
@@ -3068,6 +3071,46 @@ extern "C" int fn_804E4C34(PPManager2_unk* mgr) {
         return fn_804E4B44(mgr, &mgr->m2B8C[mgr->m2B88 - 1]);
     }
     return -1;
+}
+
+// inferred: score of the team `team` (sum over the ranking m2B8C)
+static inline int PPTeamScore_unk(const PPManager2_unk* mgr, int team) {
+    int score[3];
+    memset(score, 0, sizeof(score));
+    for (unsigned int i = 0; i < mgr->m2B88; i++) {
+        const PPPlayer_unk& player = mgr->m2B8C[i];
+        score[player.mFlags.m22] += player.mDCScore;
+    }
+    return score[team];
+}
+
+// inferred: winning team of the game (3 = none or draw)
+extern "C" int fn_804E4C5C(const PPManager2_unk* mgr) {
+    switch (mgr->mMode) {
+    case 0:
+        break;
+    case 1: {
+        int scores[3];
+        for (int i = 0; i < 3; i++) {
+            scores[i] = PPTeamScore_unk(mgr, i);
+        }
+        int best = 3;
+        int max = -1;
+        for (int i = 1; i < 3; i++) {
+            if (scores[i] > max) {
+                best = i;
+                max = scores[i];
+            }
+        }
+        if (best == 3 || scores[1] == scores[2]) {
+            break;
+        }
+        return best;
+    }
+    default:
+        return (mgr->m2B80 == 3) + 1;
+    }
+    return 3;
 }
 
 extern "C" int fn_804E4A60(PPManager2_unk* mgr);
