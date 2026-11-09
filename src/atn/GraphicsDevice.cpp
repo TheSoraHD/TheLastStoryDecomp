@@ -141,6 +141,11 @@ struct FrameQueue_unk {
 
 };
 
+// inferred: the queue holds no frame
+inline bool IsEmpty_unk(const FrameQueue_unk* queue) {
+    return queue->mTail == 5;
+}
+
 // inferred: adds a frame at the tail of the queue
 static void PushFrame_unk(FrameQueue_unk* queue, void* fifoPtr, void* xfb, unsigned short token) {
     if (queue->mTail == 5) {
@@ -173,7 +178,7 @@ static void PopFrame_unk(FrameQueue_unk* queue) {
 
 // inferred: frame at the head of the queue
 static FrameEntry_unk TopFrame_unk(FrameQueue_unk* queue) {
-    if (queue->mTail == 5) {
+    if (IsEmpty_unk(queue)) {
         OSPanic("atn_graphics_device.cpp", 1051, "queue_top: queue empty");
     }
     return queue->mEntries[queue->mHead];
@@ -726,7 +731,7 @@ extern "C" void fn_80072914(GraphicsDevice_unk* device, int mode) {
 static void NextFrame_unk() {
     PopFrame_unk(&lbl_807C6F68);
     OSWakeupThread(&lbl_807C6F60);
-    if (lbl_807C6F68.mTail == 5) {
+    if (IsEmpty_unk(&lbl_807C6F68)) {
         GXDisableBreakPt();
         lbl_8087EED8 = 0;
     } else {
@@ -736,7 +741,8 @@ static void NextFrame_unk() {
 }
 
 // inferred: GX break point callback (the GPU reached the end of a frame)
-// NONMATCHING: 90.20% - the second TopFrame_unk keeps a redundant empty-queue check in the original
+// NONMATCHING: 93.97% - the address of the queue stays in r31 here (the original rebuilds it with lis/addi)
+// and the empty check of the second TopFrame_unk is reloaded instead of reusing cr0
 extern "C" void fn_80072BDC() {
     FrameEntry_unk frame = TopFrame_unk(&lbl_807C6F68);
     if (frame.mXfb == lbl_8087EEE0->mNextXfb) {
@@ -764,7 +770,6 @@ extern "C" void fn_80072D74(unsigned int retraceCount) {
 }
 
 // inferred: VI post-retrace callback: releases the frame that waited for the swap
-// NONMATCHING: 88.51% - same redundant empty-queue check as fn_80072BDC (NextFrame_unk inlined)
 extern "C" void fn_80072E08(unsigned int retraceCount) {
     if (lbl_8087EEE0->mCC != 0 && (retraceCount & 1)) {
         return;
