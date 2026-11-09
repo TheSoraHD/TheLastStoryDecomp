@@ -1,6 +1,6 @@
 # Siguiente sesion (tras arranque-20261109)
 
-Rama `arranque-20261109` (sin mergear; inicio 2026-11-09 12:41, cierre ~00:41): **14837 -> 14894 / 18109**, lost 0,
+Rama `arranque-20261109` (sin mergear; inicio 2026-11-09 12:41, cierre ~00:41): **14837 -> 14895 / 18109**, lost 0,
 sin bajadas de fuzzy, build limpio y clon limpio de la rama con `main.dol: OK`. Notas: `docs/arranque-20261109.md`;
 la ruta `main()` -> pantalla de titulo, con tablas por unidad, llamadas al SDK/NW4R y asm aprobado:
 `docs/ruta-arranque.md`.
