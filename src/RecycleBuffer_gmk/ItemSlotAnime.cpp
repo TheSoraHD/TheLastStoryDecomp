@@ -2,6 +2,7 @@
 #include "atn/Task.h"
 #include "game/GameTask.h"
 #include "game/MapTask.h"
+#include "atn/FixedArray.h"
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
 extern "C" GameTask* lbl_8087F430; // inferred: the field task
@@ -82,31 +83,44 @@ ItemSlotTextCache::~ItemSlotTextCache() {
 
 } // namespace gmk
 
+// inferred: task of an item animation entry (layout task or effect; bytes at 0x4C/0x4D set by
+// ItemSlotAnimeBuffer::vf0C); names invented
+class ItemSlotTask_unk : public atn::Task {
+public:
+    unsigned char m48[0x4C - 0x48];
+    unsigned char m4C;
+    unsigned char m4D;
+};
+
 // inferred: entry of RecycleBuffer (0x84 bytes; empty destructor 0x8044E158, cleared by 0x8044E198); names
 // invented
 struct RecycleBufferEntry_unk {
     ~RecycleBufferEntry_unk() {}
     void Clear_unk() {
         m00 = 0;
-        m04 = 0;
-        m14 = 0;
-        m24 = 0;
-        m30 = 0;
+        m04.mSize = 0;
+        m14.mSize = 0;
+        m24.mSize = 0;
+        m30.mSize = 0;
         m3C = 0;
-        m40 = 0;
+        mTasks.mSize = 0;
+    }
+    // inferred: every task of the entry finished its vf0C
+    bool IsReady_unk() {
+        for (ItemSlotTask_unk** it = mTasks.begin(); it != mTasks.end(); it++) {
+            if (*it != 0 && !(*it)->IsFlag_unk(2)) {
+                return false;
+            }
+        }
+        return true;
     }
     int m00;
-    int m04;
-    unsigned char m08[0x14 - 0x08];
-    int m14;
-    unsigned char m18[0x24 - 0x18];
-    int m24;
-    unsigned char m28[0x30 - 0x28];
-    int m30;
-    unsigned char m34[0x3C - 0x34];
-    int m3C;
-    int m40;
-    unsigned char m44[0x84 - 0x44];
+    atn::FixedArray_unk<ItemSlotTask_unk*, 3> m04;
+    atn::FixedArray_unk<ItemSlotTask_unk*, 3> m14;
+    atn::FixedArray_unk<ItemSlotTask_unk*, 2> m24;
+    atn::FixedArray_unk<ItemSlotTask_unk*, 2> m30;
+    ItemSlotTask_unk* m3C;
+    atn::FixedArray_unk<ItemSlotTask_unk*, 16> mTasks; // 0x40
 };
 
 // inferred: task keeping a pool of entries (RecycleBuffer<gmk::ItemSlotAnime>, vtable 0x8078F3C8); members
@@ -145,12 +159,62 @@ class ItemSlotAnimeBuffer : public RecycleBuffer<ItemSlotAnime> {
 public:
     virtual ~ItemSlotAnimeBuffer();
     virtual int vf0C(); // inferred: 0x804523D0
+    inline bool Start_unk(); // inferred: true while the tasks are loading; then shows them (name invented)
 };
+
+// inferred: once the tasks of every entry are ready they are shown (and frozen until used)
+inline bool ItemSlotAnimeBuffer::Start_unk() {
+    for (unsigned int i = 0; i < mNum; i++) {
+        if (!mEntries[i].IsReady_unk()) {
+            return true;
+        }
+    }
+    for (unsigned int i = 0; i < mNum; i++) {
+        RecycleBufferEntry_unk* e = &mEntries[i];
+        for (ItemSlotTask_unk** it = e->mTasks.begin(); it != e->mTasks.end(); it++) {
+            if (*it != 0) {
+                (*it)->fn_800D246C(0);
+            }
+        }
+        for (ItemSlotTask_unk** it = e->mTasks.begin(); it != e->mTasks.end(); it++) {
+            if (*it != 0) {
+                (*it)->FreezeTask();
+            }
+        }
+        for (ItemSlotTask_unk** it = e->mTasks.begin(); it != e->mTasks.end(); it++) {
+            if (*it != 0) {
+                (*it)->m4D = 0;
+            }
+        }
+        for (ItemSlotTask_unk** it = e->mTasks.begin(); it != e->mTasks.end(); it++) {
+            if (*it != 0) {
+                (*it)->m4C = 1;
+            }
+        }
+        for (ItemSlotTask_unk** it = e->m04.begin(); it != e->m04.end(); it++) {
+            if (*it != 0) {
+                (*it)->m4D = 1;
+            }
+        }
+        for (ItemSlotTask_unk** it = e->m14.begin(); it != e->m14.end(); it++) {
+            if (*it != 0) {
+                (*it)->m4D = 1;
+            }
+        }
+        e->m3C->m4D = 1;
+    }
+    return false;
+}
+
+int ItemSlotAnimeBuffer::vf0C() {
+    return !Start_unk();
+}
 
 // inferred: clears the entries and the instance pointer
 ItemSlotAnimeBuffer::~ItemSlotAnimeBuffer() {
     ClearAll_unk();
     lbl_8087F4F8 = 0;
 }
+
 
 } // namespace gmk
