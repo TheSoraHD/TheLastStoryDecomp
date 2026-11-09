@@ -1279,6 +1279,11 @@ inline unsigned int ToU8_unk(float c) {
 
 // inferred: draw: the damage effect, the area blend of the map, the panes of the layouts and the language menu
 // NONMATCHING: 89.8% - register allocation and the inlined colour conversion
+// inferred: the blend of the area lists of the map is over (bool helper: the result goes through mfcr)
+inline bool IsAreaBlendDone_unk(const MapTask* map) {
+    return map->m110 >= 1.0f;
+}
+
 void NewTitleTask::vf14() {
     atn::DrawHelper* dh = lbl_8087EEB0;
     if (dh == 0) {
@@ -1299,8 +1304,8 @@ void NewTitleTask::vf14() {
         damage.mZoom = 0.15f * (target->mZoom - damage.mZoom) + damage.mZoom;
         lbl_8087EFA8->SetDamage_unk(damage);
     }
-    if (mAreaIndex != 0 && mMap->m110 >= 1.0f) {
-        if (++m2E0 >= mAreas.size()) {
+    if (mAreaIndex != 0 && IsAreaBlendDone_unk(mMap)) {
+        if ((int)mAreas.size() <= ++m2E0) {
             m2E0 = 0;
         }
         mMap->fn_804A0F58(mAreas.begin()[m2E0].mArea, 0.0f, mAreas.begin()[m2E0].mTime);
