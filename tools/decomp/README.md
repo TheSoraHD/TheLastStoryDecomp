@@ -67,3 +67,9 @@ Sin argumentos recorren todas las unidades del juego sin enlazar que tienen fuen
 - `precommit.sh [--pd] <unidades...>`: `pd.sh`/`pdbatch.sh` opcional, `ninja` (`main.dol: OK`), regress, fuzzdrop, ordercheck, mnemcheck y poolcheck de las unidades, y labelcheck (solo cuenta si una unidad tiene mas etiquetas sin emparejar que en la referencia) + rep100 frente a `$REF`. Ultima linea `PRECOMMIT OK` o `PRECOMMIT FAIL: <motivos>`.
 - `try.sh` busca los compiladores en `$COMPILERS`, `build/compilers`, `../compilers` o `/home/claude/tls-build/build/compilers`.
 - `weakpair.py [unidades...]`: funciones `fn_XXXXXXXX` del original cuyos bytes (sin relocaciones) coinciden con una sola funcion de nuestro `.o` sin nombre en el original: copias debiles ya emitidas que solo hay que renombrar en `symbols.txt` (revisar antes; `s12h-20261109`).
+
+- `lblfix.py <unidad>`: tras cambiar una cabecera compartida, renombra en `symbols.txt` las etiquetas `@N` de los
+  datos de la unidad con los nombres de nuestro `.o` en el mismo offset (solo vale si el pool coincide).
+- `lblpair.py <unidad> <funciones...>`: lo mismo a partir del diff de objdiff de esas funciones (para pools
+  distintos del original: lo que avisa `precommit.sh` como `REP+` con un solo `@N` cambiado).
+- `ruta_arranque.py`: tablas de la ruta de arranque (unidades y librerias) para `docs/ruta-arranque.md`.
