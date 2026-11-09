@@ -4131,6 +4131,21 @@ extern "C" void fn_804F3170() {
 
 extern "C" void fn_804F36F4(PPPlayer_unk* player, unsigned int aid) {}
 
+// inferred: message 0x2D (on the server, unless m999C): value of the slot (mB0 and mD8)
+extern "C" void fn_804F36F8(PPPlayer_unk* player) {
+    if (((PPManager2_unk*)lbl_8087F610)->m999C == 1) {
+        return;
+    }
+    if (PP_NO_DATA_UNK) {
+        return;
+    }
+    if (lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk()) {
+        signed char* data = (signed char*)fn_804AE3BC()->GetWorkBuffer_unk();
+        player->mB0 = data[0];
+        player->mD8 = data[0];
+    }
+}
+
 // NONMATCHING: 97.18% (and 99.51% fn_804F39D4) - in the inlined fn_804DD158 the manager takes r5 and the
 // slot offset r3 (swapped)
 // inferred: message 0x2E: hit (or end of the hit) of skill 0x4FC1 on the character of a player
