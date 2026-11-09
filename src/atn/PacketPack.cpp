@@ -952,9 +952,9 @@ extern "C" void fn_804D00B8(int index, int value);
 struct PPRequests_unk;
 extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsigned char c);
 extern "C" void fn_804F5FCC(PPRequests_unk* queue);
-extern "C" int fn_804F5E38(PPManager2_unk* mgr, int id);
-extern "C" void fn_804F5C9C(PPManager2_unk* mgr, int id);
-extern "C" long long* fn_804F5B08(PPManager2_unk* mgr, int id);
+extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id);
+extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id);
+extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id);
 extern "C" int fn_804FB968(PPManager2_unk* mgr, void* player);
 extern "C" void fn_804EA8B8(PPManager2_unk* mgr, int arg);
 extern "C" void fn_804E448C(PPManager2_unk* mgr);
@@ -2296,14 +2296,14 @@ extern "C" void fn_804D25D0(PPManager2_unk* mgr) {
         fn_804E9360(mgr);
         PPPlayer_unk* own = fn_804EB870(mgr);
         if (mgr->m9A77 == 0 && own != 0 && fn_804D6278(fn_804D1694(), own->mAid) != 1) {
-            int result = fn_804F5E38(fn_800F7F90(), mgr->m9A80);
+            int result = fn_804F5E38((PPRequests_unk*)fn_800F7F90(), mgr->m9A80);
             if ((unsigned int)(result + 2) <= 1) {
-                fn_804F5C9C(fn_800F7F90(), mgr->m9A80);
+                fn_804F5C9C((PPRequests_unk*)fn_800F7F90(), mgr->m9A80);
             } else if (result == 1) {
                 long long now = fn_804CF194();
                 long long half = (now - mgr->m9A78) / 2;
-                mgr->mStartTime = now - (*fn_804F5B08(mgr, mgr->m9A80) + half);
-                fn_804F5C9C(fn_800F7F90(), mgr->m9A80);
+                mgr->mStartTime = now - (*fn_804F5B08((PPRequests_unk*)mgr, mgr->m9A80) + half);
+                fn_804F5C9C((PPRequests_unk*)fn_800F7F90(), mgr->m9A80);
                 mgr->m9A77 = 1;
             }
         }
@@ -3544,9 +3544,9 @@ extern "C" PPCharaEntry_unk* fn_804EB814(PPManager2_unk* mgr, CharaTask* chara) 
 }
 
 // inferred: slot of the own player
-// NONMATCHING: 99.39% - r4/r5 of the loop (index and aid) swapped
+// inferred: the aid as unsigned int puts it in r5 and the offset in r4, as in the original
 extern "C" PPPlayer_unk* fn_804EB870(PPManager2_unk* mgr) {
-    unsigned char aid = lbl_8087F628->GetMyAid_unk();
+    unsigned int aid = lbl_8087F628->GetMyAid_unk();
     for (int i = 0; i < mgr->mPlayers.mNum; i++) {
         PPPlayer_unk* player = &mgr->mPlayers.mData[i];
         if (player->mFlags.mActive == 1 && aid == player->mAid) {
@@ -4026,7 +4026,7 @@ struct PPRequest_unk {
     int mUsed;
     int m04;
     int m08;
-    unsigned char m0C[0x14 - 0xC];
+    unsigned int m0C[2]; // inferred: OSGetTime when the request was sent (long long, 4-byte aligned)
     unsigned char m14;
     unsigned char m15;
     unsigned char m16[0x18 - 0x16];
@@ -4062,6 +4062,41 @@ extern "C" int fn_804F5A98(PPRequests_unk* queue, unsigned char a, int b, unsign
 }
 
 // inferred: ages the requests: after the timer a new request waits 150 more frames, an old one is freed
+// inferred: request of id `id` (m15)
+static inline PPRequest_unk* FindRequest_unk(PPRequests_unk* queue, unsigned int id) {
+    for (int i = 0; i < 32; i++) {
+        if (queue->mRequests[i].mUsed != 0 && id == queue->mRequests[i].m15) {
+            return &queue->mRequests[i];
+        }
+    }
+    return 0;
+}
+
+extern "C" long long* fn_804F5B08(PPRequests_unk* queue, unsigned int id) {
+    PPRequest_unk* req = FindRequest_unk(queue, id);
+    if (req == 0) {
+        return 0;
+    }
+    return (long long*)req->m0C;
+}
+
+extern "C" int fn_804F5C9C(PPRequests_unk* queue, unsigned int id) {
+    PPRequest_unk* req = FindRequest_unk(queue, id);
+    if (req == 0) {
+        return 0;
+    }
+    req->mUsed = 0;
+    return 1;
+}
+
+extern "C" int fn_804F5E38(PPRequests_unk* queue, unsigned int id) {
+    PPRequest_unk* req = FindRequest_unk(queue, id);
+    if (req == 0) {
+        return -2;
+    }
+    return req->m04;
+}
+
 extern "C" void fn_804F5FCC(PPRequests_unk* queue) {
     for (int i = 0; i < 32; i++) {
         if (queue->mRequests[i].mUsed != 0) {
