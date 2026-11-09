@@ -78,6 +78,7 @@ public:
     void fn_8056D8C8(int frame, int restore, int replay); // inferred: seeks the replay to the frame
     void fn_8056DACC(int frame);
     void fn_8056E918(int frame);
+    void fn_80570254(int frame); // inferred: rebuilds the effects and events up to the frame
     int m00004; // inferred: current frame
     ReplayFrame_unk mFrames[45]; // 0x00008: inferred: ring of the recorded frames
     ReplayFrame_unk mLive;       // 0x43970: inferred: frame shown while m5BDB4 is set
@@ -87,12 +88,14 @@ public:
     ReplayEffectEntry_unk mEffectRing[512]; // 0x45184: inferred: ring of the effect events
     atn::FixedArray_unk<ReplayEffectEntry_unk*, 512> mEffects; // 0x52184: inferred: effect events recorded
     int mNextEffect; // 0x52988: inferred: first slot of mEffectRing to try
-    unsigned char m5298C[0x52994 - 0x5298C];
+    int m5298C;
+    int m52990; // inferred: first frame of the effects to replay
     ReplayEventEntry_unk mEvents[256]; // 0x52994: inferred: ring of the events
     unsigned char m57194[0x5B994 - 0x57194];
     atn::FixedArray_unk<ReplayEventEntry_unk*, 256> mNewEvents; // 0x5B994: inferred: events of this frame
     int mNextEvent; // 0x5BD98: inferred: first slot of mEvents to try
-    unsigned char m5BD9C[0x5BDA4 - 0x5BD9C];
+    int m5BD9C;
+    int m5BDA0; // inferred: first frame of the events to replay
     int m5BDA4; // inferred: set while the events are replayed
     int m5BDA8;
     int m5BDAC;

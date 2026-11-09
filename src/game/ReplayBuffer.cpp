@@ -236,6 +236,61 @@ void ReplayBuffer::vf08(EffectEvent_unk* event) {
     }
 }
 
+void ReplayBuffer::fn_80570254(int frame) {
+    m5BDB4 = 0;
+    fn_8056DACC(frame);
+    int end = m5BDAC + frame;
+    lbl_8087F3C0->mSystem.mReplaying = 1;
+    for (unsigned int i = 0; i < mEffects.mSize; i++) {
+        ReplayEffectEntry_unk* e = mEffects.mData[i];
+        if (e->mFrame < m52990) {
+            lbl_8087F3C0->fn_8023B724(&e->mEvent);
+        }
+    }
+    for (int f = m52990; f < end; f++) {
+        for (unsigned int i = 0; i < mEffects.mSize; i++) {
+            ReplayEffectEntry_unk* e = mEffects.mData[i];
+            if (e->mFrame == f) {
+                lbl_8087F3C0->fn_8023B724(&e->mEvent);
+            }
+        }
+        lbl_8087F3C0->fn_80239C14();
+        lbl_8087F3C0->fn_80239C20();
+    }
+    fn_80232B7C(0, 0);
+    atn::EffectManager::fn_8023B71C(lbl_8087F3C0, 0);
+    lbl_8087F3C0->mSystem.mReplaying = 0;
+    m5BDA4 = 1;
+    for (int f = m5BDA0; f < end; f++) {
+        for (unsigned int i = 0; i < mNewEvents.size(); i++) {
+            ReplayEventEntry_unk* e = mNewEvents.mData[i];
+            if (e->mFrame == f) {
+                ReplayEvent_unk& ev = e->mEvent;
+                switch (ev.mKind) {
+                case 0:
+                    if (ev.mOwner != 0) {
+                        ev.mBullet->fn_8010EE78((BulletShot_unk*)&ev.mShot, &ev.mPos, &ev.mDir, ev.mOwner, -1, 0, -1.0f);
+                    } else if (ev.m3C != 0) {
+                        ev.mBullet->fn_8010EFC8((BulletShot_unk*)&ev.mShot, &ev.mPos, &ev.mDir, ev.m3C, -1, 0, -1.0f);
+                    }
+                    break;
+                case 1:
+                    ev.mBullet->vf0C(1, 0);
+                    break;
+                case 2:
+                    ev.mBullet->fn_8010F26C((BulletShot_unk*)&ev.mShot);
+                    break;
+                case 3:
+                    ev.mBullet->fn_8010F41C();
+                    break;
+                }
+            }
+        }
+        lbl_8087F048->fn_80101138();
+    }
+    m5BDA4 = 0;
+}
+
 void ReplayBuffer::fn_805704AC() {
     m5BDB4 = 1;
     int end = m00004 + 1;
