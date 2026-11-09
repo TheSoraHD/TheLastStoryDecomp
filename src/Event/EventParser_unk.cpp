@@ -429,10 +429,24 @@ static int ParsePANA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub
-// NONMATCHING: stub - points of the path
+extern "C" void fn_8054875C(Path* path); // inferred: rebuilds the spline of the path (game/PathData_unk.cpp)
+
+// inferred: adds a point to the current path
+// NONMATCHING: 93.9% - registers of the inlined push_back (the original keeps the path in r31 and the
+// point in r30) and the order of the size/capacity loads
 static int ParsePOIN_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    Path* path;
+    float rec[4];
+    memcpy(rec, data, sizeof(rec));
+    path = sState_unk->m50;
+    PathPoint_unk point;
+    point.mPos.x = rec[0];
+    point.mPos.y = rec[1];
+    point.mPos.z = rec[2];
+    point.mRotY = rec[3];
+    path->mPoints.push_back(point);
+    fn_8054875C(path);
+    return sizeof(rec);
 }
 
 // inferred: entry of a data list by id (inlined copy of DataList_unk::Find_unk)
