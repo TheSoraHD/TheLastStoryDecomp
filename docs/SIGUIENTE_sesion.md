@@ -13,6 +13,8 @@ Clon limpio de la rama: `main.dol: OK`. Notas: `docs/s12h-20261109.md`.
   game/GameSystem_unk (frontera de split a revisar).
 - Bloqueos de registros sin resolver: buscador fn_804DD158 de PacketPack (~10 funciones), `Alloc_unk` de
   ItemSlotAnime (5), `SetNext_unk` de GameEventScript (62 comandos).
+- MapPartsGimmickLoc: 6 copias (operator[], Resize_unk, ctor/dtor del registro) saldran con el dtor
+  (0x804970D4; hace falta `SwingPart_unk` de gmk/SwingObject.cpp en cabecera) o el borrador de fn_804985E4.
 - Unidades sin fuente: ShopUpGrade (57 funciones, deriva de ShopBase), NewTitleTask (8 grandes restantes).
 
 ## Decisiones a revisar
