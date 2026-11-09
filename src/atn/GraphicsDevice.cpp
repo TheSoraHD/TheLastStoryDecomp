@@ -184,12 +184,11 @@ static unsigned int CountFrames_unk(FrameQueue_unk* queue) {
     if (queue->mTail == 5) {
         return 0;
     }
-    unsigned int size;
     if (queue->mTail >= queue->mHead) {
-        size = queue->mTail - queue->mHead;
-    } else {
-        size = queue->mTail + 5 - queue->mHead;
+        unsigned int size = queue->mTail - queue->mHead;
+        return size + 1;
     }
+    unsigned int size = queue->mTail + 5 - queue->mHead;
     return size + 1;
 }
 
