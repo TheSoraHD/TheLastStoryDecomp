@@ -29,6 +29,7 @@ struct PathPoint_unk {
 class Path : public CommonData {
 public:
     Path() : m18(1) {}
+    Path(Sequence* owner, const char* name, int id); // inferred: inlined by "PATH" (Event/EventParser_unk.cpp)
     virtual void vf08() {}
     virtual void vf0C() {}
     virtual int vf10() const { return 1; }

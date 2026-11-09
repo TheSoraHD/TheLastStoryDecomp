@@ -268,6 +268,7 @@ inline StringData::StringData(Sequence* owner, const char* name, int id) : Commo
 inline DummyData::DummyData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id) {
     m18.SetIdentity();
 }
+inline Path::Path(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m18(1) {}
 inline ModelData::ModelData(Sequence* owner, const char* name, int id) : CommonData(owner, name, id), m24(0) {}
 
 // inferred: generic version (the actors have an explicit specialization in Event/Sequence.cpp)
@@ -403,10 +404,24 @@ static int ParseMVNA_unk(unsigned int tag, int size, const char* data, ParserSta
     return size;
 }
 
-// DRAFT: stub that returns the size
-// NONMATCHING: stub - adds a path
+// inferred: record of "PATH": id of the path and its type
+struct PathRecord_unk {
+    int mId;
+    short mType;
+};
+
+// inferred: adds a path
+// NONMATCHING: 72% - stack layout and registers of the inlined Path copy (the original keeps the
+// path temporary 0x10 bytes lower and one saved register less)
 static int ParsePATH_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
-    return size;
+    PathRecord_unk rec;
+    memcpy(&rec, data, sizeof(rec));
+    DataList_unk<Path>& paths = sState_unk->m10->m154;
+    paths.Add_unk("", rec.mId);
+    Path* path = &paths[paths.size() - 1];
+    path->m18 = rec.mType;
+    sState_unk->m50 = path;
+    return sizeof(rec);
 }
 
 static int ParsePANA_unk(unsigned int tag, int size, const char* data, ParserState_unk* state) {
