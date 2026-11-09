@@ -140,7 +140,7 @@ struct PPChara_unk {
     unsigned char m09FC[0xC48 - 0x9FC];
     int mC48;
     unsigned char m0C4C[0xD1C - 0xC4C];
-    int mD1C;
+    CharaTask* mD1C; // inferred: target of the character
     unsigned char m0D20[0xFB8 - 0xD20];
     float mFB8;
     float mFBC;
@@ -183,7 +183,8 @@ struct PackedChara_unk {
 };
 
 extern "C" void* lbl_8087F610; // inferred: MP::Manager2 instance
-extern "C" unsigned int fn_804EAEE0(void* mgr, int id);
+struct PPManager2_unk;
+extern "C" unsigned int fn_804EAEE0(PPManager2_unk* mgr, CharaTask* chara);
 
 // NONMATCHING: 99.91% - stack frame 0x30 instead of 0x20: the original shares one slot for the two
 // float to integer conversions
@@ -204,7 +205,7 @@ extern "C" void fn_804CF468(PackedChara_unk* out, CharaTask* task) {
     out->m12_2 = chara->m12A8 >> 1;
     out->m12_0 = (chara->m12A4 >> 31) && chara->mC48 != 0;
     out->m12_1 = 0;
-    unsigned short id = fn_804EAEE0(lbl_8087F610, chara->mD1C) >> 16;
+    unsigned short id = fn_804EAEE0((PPManager2_unk*)lbl_8087F610, chara->mD1C) >> 16;
     out->m10 = *(PPId_unk*)&id;
     out->m13_7 = chara->m7E0 >> 19;
     out->m13_6 = chara->m7E0 >> 2;
@@ -702,6 +703,7 @@ class NetRanking_unk {
 public:
     int fn_8050C2F4();
     void fn_8050C7F0();
+    void fn_8050C1D8(void* friends);
     int fn_8050C840(unsigned int kind);
     void fn_8050CCD0(unsigned long id, long score, const wchar_t* name, unsigned long size);
     void fn_8050C898(unsigned long a, unsigned long b, unsigned long c, void (*cb)(int, NetRankData_unk*));
@@ -3058,6 +3060,20 @@ extern "C" int fn_804E4D70(PPManager2_unk* mgr, PPPlayer_unk* player) {
     return fn_805076F8(mgr->m610, mgr->mMode, mgr->m55C, fn_804E4A60(mgr));
 }
 
+// inferred: enters the ranking (state 35, or 37 when mode is not 1); not in local play
+extern "C" int fn_804E4DD4(PPManager2_unk* mgr, unsigned int kind, unsigned int mode) {
+    atn::net::Manager* net = lbl_8087F628;
+    if (net->mC215 == 1 && net->mC218 == 1) {
+        return 0;
+    }
+    if (lbl_8087F5A4->fn_8050C840(kind) == 0) {
+        return 0;
+    }
+    lbl_8087F5A4->fn_8050C1D8(&lbl_8087F628->mFriendList);
+    fn_804FB220(&mgr->mStateVar, mode == 1 ? 35 : 37);
+    return 1;
+}
+
 // inferred: leaves the ranking and returns to the state 10
 extern "C" void fn_804E4E74(PPManager2_unk* mgr) {
     lbl_8087F5A4->fn_8050C7F0();
@@ -3312,6 +3328,40 @@ extern "C" void fn_804EAA5C(PPManager2_unk* mgr, int value) {
 extern "C" void fn_804EAA68(PPManager2_unk* mgr, int value) {
     atn::net::Manager* net = lbl_8087F628;
     net->m264 = value >= 8 ? 8 : value;
+}
+
+// inferred: kind (1 none, 2 player, 3 character of the list) and index of a character, in the high half
+// NONMATCHING: 96.63% - registers of the inlined searches
+extern "C" PPPlayer_unk* fn_804EB7C4(PPManager2_unk* mgr, CharaTask* chara);
+union PPCharaId_unk {
+    struct {
+        unsigned char mKind;
+        unsigned char mIndex;
+    } m;
+    unsigned short mRaw;
+};
+extern "C" unsigned int fn_804EAEE0(PPManager2_unk* mgr, CharaTask* chara) {
+    PPCharaId_unk id;
+    id.m.mKind = 0;
+    id.m.mIndex = 0;
+    if (chara == 0) {
+        id.m.mKind = 1;
+        return id.mRaw << 16;
+    }
+    PPPlayer_unk* player = fn_804EB7C4(mgr, chara);
+    if (player != 0) {
+        id.m.mKind = 2;
+        id.m.mIndex = player->mAid;
+        return id.mRaw << 16;
+    }
+    for (int i = 0; i < mgr->mCharas.mNum; i++) {
+        if (mgr->mCharas.mData[i].mRef.mChara == chara) {
+            id.m.mKind = 3;
+            id.m.mIndex = i;
+            return id.mRaw << 16;
+        }
+    }
+    return id.mRaw << 16;
 }
 
 // NONMATCHING (and fn_804EB26C, fn_804EB400, fn_804EB5D8): 91-98% - the slot offset and the slot pointer of the
@@ -4080,6 +4130,16 @@ extern "C" int fn_804FB620(void* unused, int mode) {
 
 extern "C" void fn_804FB668(PPManager2_unk* mgr) {
     mgr->m5A4 = 0;
+}
+
+// inferred: flag m01 of the slot of the server
+// NONMATCHING: 98.47% - registers of the inlined search (as fn_804DD1A8)
+extern "C" unsigned int fn_804FC010(PPManager2_unk* mgr) {
+    PPPlayer_unk* player = fn_804DD158(mgr, lbl_8087F628->GetServerAid_unk());
+    if (player != 0) {
+        return player->mFlags.m01;
+    }
+    return 0;
 }
 
 // inferred: info of the player of network id `aid` (two copies of the same accessor)
