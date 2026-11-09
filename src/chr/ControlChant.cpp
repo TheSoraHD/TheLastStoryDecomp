@@ -526,7 +526,7 @@ ControlMagic::ControlMagic(Chara_unk* chara, CharaTask* target, float f, const a
     }
 }
 
-// NONMATCHING: 90.4% - the stack frame is 0x30 bytes bigger in the original (slots of the bullet
+// NONMATCHING: 93.5% - the stack frame is 0x30 bytes bigger in the original (slots of the bullet
 // parameters, the four targets and the matrices), one more saved register, and mChara is loaded again
 // for the motion id.
 // inferred: casts the magic at the release frame of the motion and fires its bullets or applies
@@ -581,7 +581,11 @@ int ControlMagic::vf0C() {
         case 1:
         case 6:
         case 9:
-            if ((unsigned int)(hit->m04 - 0x179B) <= 3) {
+            if (hit->m04 == 0x179A) {
+                atn::Vector3 pos = m1E ? m08 : m14->mPos;
+                fn_800FAB80(lbl_8087F048, mChara, hit, fn_800F8548(lbl_8087F048), &pos, &chr::lbl_807C7030, 0, 30, -1,
+                            -1, 0.0f, 1.0f);
+            } else if ((unsigned int)(hit->m04 - 0x179B) <= 3) {
                 atn::Vector3 flat(dir.x, 0.0f, dir.z);
                 if (!(atn::Abs_unk(PSVECSquareMag(&flat)) < 1.1920929e-7f)) {
                     PSVECNormalize(&flat, &flat);
@@ -608,10 +612,6 @@ int ControlMagic::vf0C() {
                     }
                     fn_800F8574(lbl_8087F048, mChara, hit, &from, &d, 0, flags, i * 15, len, 1.0f);
                 }
-            } else if (hit->m04 == 0x179A) {
-                atn::Vector3 pos = m1E ? m08 : m14->mPos;
-                fn_800FAB80(lbl_8087F048, mChara, hit, fn_800F8548(lbl_8087F048), &pos, &chr::lbl_807C7030, 0, 30, -1,
-                            -1, 0.0f, 1.0f);
             } else if (follow) {
                 MagicHoming_unk param;
                 param.mTarget = m14;
