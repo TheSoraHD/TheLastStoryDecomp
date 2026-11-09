@@ -553,9 +553,15 @@
   "matching": true
  },
  {
+  "name": "game/BootTask.cpp",
+  "classes": [
+   "BootTask"
+  ],
+  "matching": true
+ },
+ {
   "name": "game/Bullet.cpp",
   "classes": [
-   "BootTask",
    "Bullet"
   ],
   "matching": false
