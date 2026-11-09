@@ -96,23 +96,6 @@ void ReplayRecorder_unk::fn_8056B3D4() {
 
 ReplayBuffer::~ReplayBuffer() {}
 
-// inferred: index of the frame `frames` / 2 frames back
-void ReplayBuffer::fn_8056F2F8(int frames) {
-    int back = frames / 2;
-    int oldest = 1 - m4517C;
-    int idx = m45178 + (-1 < (back > oldest ? back : oldest) ? -1 : (back > oldest ? back : oldest));
-    if (idx < 0) {
-        idx += 45;
-    }
-    ReplayFrame_unk* frame = m5BDB4 != 0 ? &mLive : &mFrames[idx];
-    for (int i = 0; i < frame->mNumCharas; i++) {
-        frame->mCharas[i].mChara->fn_80149A30();
-    }
-    for (int i = 0; i < frame->mNumModels; i++) {
-        frame->mModels[i].mModel->fn_8008CD60();
-    }
-}
-
 // NONMATCHING: 92.48% - copy order of the event (colour and vectors); offset of the message in the pool
 // ("reference" of fn_8056A9E4 missing)
 // NONMATCHING: 99.07% - registers of the loop pointers/counters (r24/r26 swapped)
@@ -163,6 +146,23 @@ void ReplayBuffer::fn_8056D8C8(int frame, int restore, int replay) {
     }
     if (replay != 0) {
         lbl_8087F048->fn_80101138();
+    }
+}
+
+// inferred: index of the frame `frames` / 2 frames back
+void ReplayBuffer::fn_8056F2F8(int frames) {
+    int back = frames / 2;
+    int oldest = 1 - m4517C;
+    int idx = m45178 + (-1 < (back > oldest ? back : oldest) ? -1 : (back > oldest ? back : oldest));
+    if (idx < 0) {
+        idx += 45;
+    }
+    ReplayFrame_unk* frame = m5BDB4 != 0 ? &mLive : &mFrames[idx];
+    for (int i = 0; i < frame->mNumCharas; i++) {
+        frame->mCharas[i].mChara->fn_80149A30();
+    }
+    for (int i = 0; i < frame->mNumModels; i++) {
+        frame->mModels[i].mModel->fn_8008CD60();
     }
 }
 
