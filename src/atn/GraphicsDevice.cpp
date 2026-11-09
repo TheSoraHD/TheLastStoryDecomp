@@ -960,6 +960,12 @@ extern "C" double cos(double x);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void fn_800D5C84(float m[3][4], float sx, float sy, float c, float s, float tx, float ty);
+// inferred: projection parameters read through getters (the original loads the arguments right to left,
+// as in atn/TextureDraw_unk.cpp)
+inline float GetTop_unk(const Camera_unk* c) { return c->mTop; }
+inline float GetBottom_unk(const Camera_unk* c) { return c->mBottom; }
+inline float GetLeft_unk(const Camera_unk* c) { return c->mLeft; }
+inline float GetRight_unk(const Camera_unk* c) { return c->mRight; }
 extern "C" void fn_800D5E18(float m[3][4], float t, float b, float l, float r, float scaleS, float scaleT,
                             float transS, float transT);
 
@@ -991,7 +997,7 @@ inline bool IsTextureReady_unk(atn::Texture_unk* tex) {
 
 // inferred: projects a texture on the model from above (orthographic when mDir is zero) and
 // modulates the color with it (TEV stage after the material, texture coordinate of type 4)
-// NONMATCHING: 95.53% - register allocation (projector in r27, angle in f29) and load order of the arguments of fn_800D5E18
+// NONMATCHING: 95.53% - register allocation (projector in r27, angle in f29) and (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_unk* proj) {
     if (proj != 0 && 0.0f == proj->mSize.x && 0.0f == proj->mSize.y) {
         return;
@@ -1066,7 +1072,7 @@ extern "C" void fn_80073194(TevStats_unk* stats, int flags, atn::TexProjector_un
         camera.fn_8004B378();
         atn::Matrix3x4 proj2;
         proj2.SetIdentity();
-        fn_800D5E18(proj2.m, camera.mTop, camera.mBottom, camera.mLeft, camera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+        fn_800D5E18(proj2.m, GetTop_unk(&camera), GetBottom_unk(&camera), GetLeft_unk(&camera), GetRight_unk(&camera), 0.5f, -0.5f, 0.5f, 0.5f);
         texMtx = MtxMul_unk(proj2, MtxMul_unk(rot, MtxMul_unk(camera.mView, view->mCamera.mInvView)));
     }
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
@@ -1263,7 +1269,7 @@ struct ZeroMatrix3x4_unk : public atn::Matrix3x4 {
 
 // inferred: light map of the shadow camera (texture coordinate of type 4) lit by the normal in
 // light space (texture coordinate of types 1-3); the third stage applies it to the material
-// NONMATCHING: 99.33% - registers of the texture coordinate of types 1-3, reload of lbl_8087EFA8 and load order of the arguments of fn_800D5E18
+// NONMATCHING: 99.33% - registers of the texture coordinate of types 1-3, reload of lbl_8087EFA8 and (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     int stage0 = stats->mTevStages++;
     int stage1 = stats->mTevStages++;
@@ -1303,8 +1309,7 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
     atn::RenderManager* view = atn::RenderManager::instance_;
     atn::Matrix3x4 proj;
     proj.SetIdentity();
-    fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
-                view->mShadowCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    fn_800D5E18(proj.m, GetTop_unk(&view->mShadowCamera), GetBottom_unk(&view->mShadowCamera), GetLeft_unk(&view->mShadowCamera), GetRight_unk(&view->mShadowCamera), 0.5f, -0.5f, 0.5f, 0.5f);
     static ZeroMatrix3x4_unk sNrmScale;
     sNrmScale.m[0][2] = 1.0f;
     sNrmScale.m[0][3] = 1.0f;
@@ -1351,7 +1356,7 @@ extern "C" void fn_800742C8(TevStats_unk* stats, int flags) {
 
 // inferred: light map projected from the shadow camera on the model (simple light map, RenderSetting_unk
 // m18C set); the material color is multiplied (or added, mode 1) with it
-// NONMATCHING: 99.57% - argument registers of GXSetTexCoordGen2 and of the inlined texture load; load order of the arguments of fn_800D5E18
+// NONMATCHING: 99.57% - argument registers of GXSetTexCoordGen2 and of the inlined texture load; (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     int stage = stats->mTevStages++;
     int map = stats->mTexMtxs++;
@@ -1367,8 +1372,7 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
     atn::Matrix3x4 proj;
     proj.SetIdentity();
     atn::RenderManager* view = atn::RenderManager::instance_;
-    fn_800D5E18(proj.m, view->mShadowCamera.mTop, view->mShadowCamera.mBottom, view->mShadowCamera.mLeft,
-                view->mShadowCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    fn_800D5E18(proj.m, GetTop_unk(&view->mShadowCamera), GetBottom_unk(&view->mShadowCamera), GetLeft_unk(&view->mShadowCamera), GetRight_unk(&view->mShadowCamera), 0.5f, -0.5f, 0.5f, 0.5f);
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(view->mShadowCamera.mView, view->mCamera.mInvView));
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     int mode = lbl_8087EFA8->m104.mMode;
@@ -1391,7 +1395,7 @@ extern "C" void fn_800748D8(TevStats_unk* stats, int flags) {
 extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferred: loads a texture
 
 // inferred: shadow projected from the camera of the shadow map (two TEV stages)
-// NONMATCHING: 99.53% - argument registers of GXSetTexCoordGen2 and load order of the arguments of fn_800D5E18
+// NONMATCHING: 99.53% - argument registers of GXSetTexCoordGen2 and (load order of fn_800D5E18 fixed with getters)
 extern "C" void fn_80074B24(TevStats_unk* stats, atn::ShadowMap_unk* shadow, int flags) {
     int stage0 = stats->mTevStages++;
     int stage1 = stats->mTevStages++;
@@ -1418,8 +1422,7 @@ extern "C" void fn_80074B24(TevStats_unk* stats, atn::ShadowMap_unk* shadow, int
     atn::Matrix3x4 proj;
     proj.SetIdentity();
     atn::RenderManager* view = atn::RenderManager::instance_;
-    fn_800D5E18(proj.m, shadow->mCamera.mTop, shadow->mCamera.mBottom, shadow->mCamera.mLeft,
-                shadow->mCamera.mRight, 0.5f, -0.5f, 0.5f, 0.5f);
+    fn_800D5E18(proj.m, GetTop_unk(&shadow->mCamera), GetBottom_unk(&shadow->mCamera), GetLeft_unk(&shadow->mCamera), GetRight_unk(&shadow->mCamera), 0.5f, -0.5f, 0.5f, 0.5f);
     atn::Matrix3x4 texMtx = MtxMul_unk(proj, MtxMul_unk(shadow->mCamera.mView, view->mCamera.mInvView));
     GXLoadTexMtxImm(texMtx.m, postMtx, 0);
     GXSetTevOrder(stage0, coord, map, 4);
