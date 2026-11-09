@@ -302,6 +302,7 @@ extern "C" void fn_804D0164() {
 #include "MP/SaveLoad.h"
 #include "atn/net/Manager.h"
 #include "atn/Camera_unk.h"
+#include "game/GameScene.h"
 #include "game/MapTask.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/ResLoader_unk.h"
@@ -3990,6 +3991,26 @@ extern "C" void fn_804F4E1C(unsigned int aid) {
     }
 }
 
+// inferred: payload of the message 0x1043 as read (signed ids); names invented
+struct PPMsgCharsIn_unk {
+    short mIds[8];
+    int m10;
+};
+// inferred: message 0x1043: characters of the players and m2B80 (0x10 = team game)
+// NONMATCHING: 99.66% - order of the two pointer increments of the loop
+extern "C" void fn_804F4E40() {
+    PPMsgCharsIn_unk* data = (PPMsgCharsIn_unk*)fn_804AE3BC()->GetWorkBuffer_unk();
+    for (int i = 0; i < 8; i++) {
+        PPPlayer_unk* player = fn_804D5F0C((PPManager2_unk*)lbl_8087F610, i);
+        if (player != 0) {
+            player->mDC.fn_80501288((CharaTask*)data->mIds[i]);
+        }
+    }
+    ((PPManager2_unk*)lbl_8087F610)->m2B80 = data->m10;
+    ((PPManager2_unk*)lbl_8087F610)->m534 = data->m10 == 1;
+    ((PPManager2_unk*)lbl_8087F610)->m50C = 3;
+}
+
 extern "C" void fn_804F4F40(unsigned int aid) {
     if (aid < 8) {
         PPManager2_unk* mgr = (PPManager2_unk*)lbl_8087F610;
@@ -4004,6 +4025,24 @@ extern "C" void fn_804F4F64() {
     MP::D2AMpMenuCockpit::sInstance->fn_800D246C(0);
     MP::D2AMpMenuCockpit::sInstance->fn_804B50C0(1);
     MP::D2AMpMenuCockpit::sInstance->fn_804B6204(((PPManager2_unk*)lbl_8087F610)->m564);
+}
+
+// inferred: payload of the message 0x1035 (9 bytes: a byte and the time of the game); names invented
+struct PPMsgTime_unk {
+    unsigned char m00[9];
+};
+// inferred: answers the time of the game to `aid` (message 0x1035)
+extern "C" void fn_804F4FC4(int aid) {
+    if (((PPManager2_unk*)lbl_8087F610)->mState != 30) {
+        return;
+    }
+    unsigned char* in = (unsigned char*)fn_804AE3BC()->GetWorkBuffer_unk();
+    long long time = OSGetTime() - ((PPManager2_unk*)lbl_8087F610)->mStartTime;
+    NetMsgI_unk<PPMsgTime_unk, 9> msg(0x1035);
+    unsigned char* data = msg.mData.m00;
+    *(long long*)(data + 1) = time;
+    data[0] = in[0];
+    fn_804AE3BC()->fn_8050E094(aid, 0x1035, data, 1);
 }
 
 // inferred: message 0x3E: the lobby is told to refresh (mF90)
@@ -4265,4 +4304,42 @@ extern "C" bool fn_804FC580(CharaTask* chara) {
 
 extern "C" void fn_804FC7DC(CharaTask* chara) {
     chara->fn_80149A30();
+}
+
+// inferred: warp points of the field where a player of team `team` can appear (by game mode)
+// NONMATCHING: 96.86% - registers of the loop and one branch of the mode 0 test
+extern "C" int fn_804FC7E0(PPManager2_unk* mgr, atn::FixedArray_unk<gs::WarpPoint*, 32>* list, int team) {
+    if (mgr->mGame == 0 || mgr->mGame->m10D8 == 0 || (mgr->mGame->m10D8->mFlags & 2) != 2) {
+        return 0;
+    }
+    GameScene* scene = mgr->mGame->m10D8;
+    for (unsigned int i = 0; i < scene->m78.mSize; i++) {
+        int mode = mgr->mMode;
+        gs::WarpPoint* point = &scene->m78.mData[i];
+        if (mode == 0) {
+            if (point->mId < 100 || point->mId > 120) {
+                continue;
+            }
+        } else {
+            if (point->mId >= 100) {
+                continue;
+            }
+            if (mode == 1) {
+                if (team == 2) {
+                    if (point->mId >= 50) {
+                        continue;
+                    }
+                } else if (team == 1) {
+                    if (point->mId < 50) {
+                        continue;
+                    }
+                }
+            }
+            if (mode == 2 && point->mId >= 10) {
+                continue;
+            }
+        }
+        list->push_back(point);
+    }
+    return 1;
 }
