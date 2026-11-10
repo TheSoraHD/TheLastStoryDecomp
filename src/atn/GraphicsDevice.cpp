@@ -177,6 +177,15 @@ static void PopFrame_unk(FrameQueue_unk* queue) {
 }
 
 // inferred: frame at the head of the queue
+// inferred: the same queue_top (line 1051) as TopFrame_unk, written with the test in place: as the first
+// statement of fn_80072BDC the original tests mTail directly; the copy inlined through NextFrame_unk keeps
+// the IsEmpty_unk of the caller (its OSPanic test reuses cr0)
+static FrameEntry_unk TopFrameB_unk(FrameQueue_unk* queue) {
+    if (queue->mTail == 5) {
+        OSPanic("atn_graphics_device.cpp", 1051, "queue_top: queue empty");
+    }
+    return queue->mEntries[queue->mHead];
+}
 static FrameEntry_unk TopFrame_unk(FrameQueue_unk* queue) {
     if (IsEmpty_unk(queue)) {
         OSPanic("atn_graphics_device.cpp", 1051, "queue_top: queue empty");
@@ -739,10 +748,8 @@ static void NextFrame_unk() {
 }
 
 // inferred: GX break point callback (the GPU reached the end of a frame)
-// NONMATCHING: 93.97% - the address of the queue stays in r31 here (the original rebuilds it with lis/addi)
-// and the empty check of the second TopFrame_unk is reloaded instead of reusing cr0
 extern "C" void fn_80072BDC() {
-    FrameEntry_unk frame = TopFrame_unk(&lbl_807C6F68);
+    FrameEntry_unk frame = TopFrameB_unk(&lbl_807C6F68);
     if (frame.mXfb == lbl_8087EEE0->mNextXfb) {
         lbl_8087EED9 = 1;
     } else {
