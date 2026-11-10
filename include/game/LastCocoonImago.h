@@ -2,6 +2,7 @@
 #define GAME_LASTCOCOONIMAGO_H
 
 #include "atn/LH_Binary.h"
+#include "atn/LH_Xsca.h"
 #include "atn/EfpHandle_unk.h"
 #include "atn/ColliBase.h"
 #include "game/EnemyTask.h"
@@ -41,29 +42,42 @@ public:
     virtual int vfE4();                                      // 0x8045F6A0
 
     atn::LH_Binary m14B0; // inferred: parameter file
-    unsigned char m14B8[0x14BC - 0x14B8];
+    int m14B8;
     int m14BC;
     int m14C0; // inferred: frame counter of the mode
-    unsigned char m14C4[0x14C8 - 0x14C4];
+    int m14C4;
     int m14C8;
-    unsigned char m14CC[0x14F0 - 0x14CC];
-    atn::EfpFile m14F0;
+    int m14CC;
+    int m14D0;
+    atn::Vector3 m14D4;
+    atn::Vector3 m14E0;
+    int m14EC;
+    atn::EfpFile m14F0; // inferred: "ef_sk023a.efp"
     unsigned char m14FC[0x1500 - 0x14FC];
     atn::ColliCapsule mCapsules[11]; // 0x1500: inferred: hit capsules (bit 0 of mFlags enables them)
     int m18C8;                       // inferred: sphere (m624) used as the center
-    unsigned char m18CC[0x18D0 - 0x18CC];
+    int m18CC;
     int m18D0;
-    unsigned char m18D4[0x18F8 - 0x18D4];
+    unsigned char m18D4[0x18EC - 0x18D4];
+    int m18EC;
+    int m18F0;
+    unsigned char m18F4[0x18F8 - 0x18F4];
     GimmickCommon* m18F8; // inferred: gimmick told (message 5) when mode 12 starts
     atn::ColliSphere m18FC; // inferred: a sphere (0x4C bytes; its destructor is inlined)
-    unsigned char m1948[0x1964 - 0x1948];
-    atn::LH_Binary m1964;
-    atn::EfpFile m196C;
-    unsigned char m1978[0x197C - 0x1978];
+    atn::Vector3 m1948;
+    float m1954;
+    int m1958;
+    int m195C;
+    int m1960;
+    atn::LH_Xsca m1964; // inferred: "camera/battle/cm000_em206_00.xsca"
+    atn::EfpFile m196C; // inferred: "ef_uc030.efp"
+    int m1978;
     unsigned char m197C;
     unsigned char m197D[0x1980 - 0x197D];
     ResHandle m1980; // inferred: debug menu group
-    unsigned char m1984[0x1990 - 0x1984];
+    int m1984;
+    float m1988;
+    unsigned char m198C[0x1990 - 0x198C];
 };
 
 #endif

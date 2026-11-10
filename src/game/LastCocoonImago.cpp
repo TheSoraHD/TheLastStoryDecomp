@@ -3,6 +3,9 @@
 #include "game/GameMessageList.h"
 #include "game/GimmickManager.h"
 #include "game/GameTask.h"
+#include <boost/tokenizer.hpp>
+#include "std/string_members.h"
+#include "std/string.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -20,6 +23,39 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" atn::Vector3 lbl_807C7030;        // inferred: zero vector
 extern "C" int fn_80051B14(const atn::ColliSphereShape_unk* s, const atn::ColliCapsuleShape_unk* c); // inferred: hit test
+
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
+
+// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls every inline
+// (LH_Binary, Vector3, LH_Xsca and ResHandle constructors, the strings, the tokenizer); this one stays under it
+// and inlines them (same problem as the constructor of LastCocoonChrysalis, docs/close-one-func.md)
+LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
+    : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14D0(5), m18C8(1), m18CC(1),
+      m18D0(0), m18EC(0), m18F0(0), m1960(0), m1978(0), m197C(0), m1984(0), m1988(40.0f) {
+    mFlag22 = 1;
+    std::string dir("database/chara/special/");
+    std::string name("db_last_cocoon.csv");
+    std::string params(info->m2C);
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    Tokenizer tok(params, boost::char_separator<char>(";"));
+    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+        if (strncmp(it->c_str(), "db_name=", 8) == 0) {
+            name = it->c_str() + 8;
+        }
+    }
+    std::string path = fn_8006AFF8(dir, name);
+    m14B0.vf0C(path.c_str());
+    m14F0.LoadRequest("ef_sk023a.efp");
+    m18F8 = 0;
+    m1948 = lbl_807C7030;
+    m1954 = 30.0f;
+    m1958 = 0;
+    m195C = 0;
+    m1964.vf0C("camera/battle/cm000_em206_00.xsca");
+    m196C.LoadRequest("ef_uc030.efp");
+    mFlagC31 = 1;
+}
 
 atn::Vector3 LastCocoonImago::vf64(int center) {
     atn::Vector3 result = mPos;
