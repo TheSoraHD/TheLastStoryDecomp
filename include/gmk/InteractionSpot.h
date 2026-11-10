@@ -25,13 +25,13 @@ public:
     static GimmickCommon* fn_80428B0C(atn::Task* parent, GimmickDesc_unk* desc); // inferred: factory
     virtual ~InteractionSpot() {}
     virtual int vf0C();
-    virtual void vf10(); // 0x80428DE8: not decompiled yet
+    virtual void vf10();
     virtual void vf14();
     virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual int vf60();
 
-    CharaTask* fn_8042917C(CharaTask* other); // inferred: picks a character; not decompiled yet
+    CharaTask* fn_8042917C(CharaTask* other); // inferred: picks a character
     void fn_8042952C(int state);              // inferred: sets the state (11 releases the characters)
 
     GimmickDesc_unk* mDesc; // 0xF4
