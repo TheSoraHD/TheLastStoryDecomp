@@ -37,6 +37,9 @@
 #include "Event/Sequence.h"
 #include "game/BattleResult.h"
 #include "game/GameTimer.h"
+#include "game/SongManager.h"
+#include "game/MiniMapTask.h"
+#include "game/AiTarget.h"
 
 #include <exception>
 
@@ -494,6 +497,14 @@ void GameEventScript::fn_803A0520(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: the character (m10, m14) gets hate from the character (m08, m0C) (AIManager::fn_80017E90)
+void GameEventScript::fn_803A08D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    lbl_8087EE68->fn_80017E90(chara, GetChara_unk(args->m10, args->m14));
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803A0AB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087FA00->OnTarget_unk(static_cast<const TeamMsgIn_unk*>(cmd));
     result.SetNext_unk(cmd);
@@ -526,6 +537,61 @@ void GameEventScript::fn_803A0CAC(ScriptResult_unk& result, const ScriptCmd_unk*
 
 void GameEventScript::fn_803A0D10(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087FA00->OnChara_unk(static_cast<const TeamMsgIn_unk*>(cmd));
+    result.SetNext_unk(cmd);
+}
+
+// inferred: stores a value of the leader (m0C 0: m10 4 mC58.mC0, 5 mC58.mB4) or of the team (m08, m0C) in
+// (m14, m18): 0 HP ratio (at least 1 when above 0), 1 member ratio, 2 leader HP ratio, 3 to 6 AI type,
+// battle mode, area and m242; other values do nothing (the command stays)
+void GameEventScript::fn_803A0D74(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    if (args->m0C == 0) {
+        CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (leader != 0) {
+            switch (args->m10) {
+            case 4:
+                fn_8039BF04(args->m14, args->m18, 0, 0, leader->mC58.mC0);
+                break;
+            case 5:
+                fn_8039BF04(args->m14, args->m18, 0, 0, leader->mC58.mB4);
+                break;
+            }
+        }
+    } else {
+        TeamAI_unk* team = lbl_8087FA00->Find_unk(args->m08, args->m0C);
+        if (team != 0) {
+            int value;
+            switch (args->m10) {
+            case 0:
+                value = team->fn_805AE454();
+                if (value == 0 && team->fn_805AE454() > 0.0f) {
+                    value = 1;
+                }
+                break;
+            case 1:
+                value = team->fn_805AE5E8();
+                break;
+            case 2:
+                value = team->fn_805AE74C();
+                break;
+            case 3:
+                value = team->mAIType;
+                break;
+            case 4:
+                value = team->mBattleMode;
+                break;
+            case 5:
+                value = team->mAreaID;
+                break;
+            case 6:
+                value = team->m242;
+                break;
+            default:
+                return;
+            }
+            fn_8039BF04(args->m14, args->m18, 0, 0, value);
+        }
+    }
     result.SetNext_unk(cmd);
 }
 
@@ -853,6 +919,54 @@ void GameEventScript::fn_803A5384(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// NONMATCHING: 95.5% - IsFree_unk is computed as a bool (cror) in the original and mState is reused
+// inferred: shows the text messages m10 to m1C of the scene in the text window (m14 bit 0: do not wait,
+// bit 1: closes the window instead, bit 2: sets the event counter (m08, m0C))
+void GameEventScript::fn_803A5804(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(args->m10);
+    GameTextMessageWindow* window = lbl_8087F490->m2640;
+    if ((args->m14 & 2) != 2) {
+        if (window != 0 && window->IsFree_unk(5.0f) && msg != 0) {
+            if (window->mState == 2) {
+                window->fn_803B6E04(msg, args->m18, 5.0f);
+            } else {
+                window->fn_803B6970(msg, args->m18, 5.0f);
+            }
+            window->mCount = 0;
+            if (args->m1C > args->m10) {
+                for (int i = args->m10 + 1; i <= args->m1C; i++) {
+                    GameMessage* next = (GameMessage*)mScene->fn_803CC6B4(i);
+                    if (next != 0) {
+                        window->fn_803B78B4(next);
+                    }
+                }
+            }
+            window->fn_803B78E8();
+            if ((args->m14 & 4) == 4) {
+                window->m71 = 1;
+                window->m74 = args->m08;
+                window->m78 = args->m0C;
+            }
+            mB4 = 0;
+            if ((args->m14 & 1) != 1) {
+                result.mWait = 1;
+            } else {
+                result.mWait = 0;
+            }
+        } else {
+            result.mWait = 0;
+        }
+    } else {
+        if (window->mState != 0) {
+            window->mCount = 0;
+            window->fn_803B6C88(0);
+        }
+        result.mWait = 0;
+    }
+    result.mNext = NextCmd_unk(cmd);
+}
+
 void GameEventScript::fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     GameTextMessageWindow* window = lbl_8087F490->m2640;
     result.mNext = NextCmd_unk(cmd);
@@ -1107,6 +1221,70 @@ void GameEventScript::fn_803A7CC0(ScriptResult_unk& result, const ScriptCmd_unk*
         }
     }
     result.SetNext_unk(cmd, 1);
+}
+
+// NONMATCHING: 97.3% - the store of mWait is scheduled after the table address in the original
+// inferred: closes a gauge of the UI (m10 bit 1) or opens it (bit 2), the minimap of the town follows;
+// otherwise waits while the field is in state 3
+void GameEventScript::fn_803A7D94(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int flags = args->m10;
+    int wait = 1;
+    if ((flags & 2) == 2) {
+        if (lbl_8087F490 != 0 && !lbl_8087F490->fn_803E644C()) {
+            lbl_8087F490->fn_803E64F0();
+            lbl_8087F490->fn_803E656C();
+            wait = 0;
+            if (lbl_8087FA20 != 0 && lbl_8087FA20->m258 != 0) {
+                ((MiniMapTask*)lbl_8087FA20->m258)->m4C = 0; // inferred: m258 is the minimap (fn_804A7EA4)
+            }
+        }
+    } else if ((flags & 4) == 4) {
+        if (lbl_8087F490 != 0 && lbl_8087F490->m262C.m0C == 0) {
+            lbl_8087F490->fn_803E63D0();
+            wait = 0;
+            if (lbl_8087FA20 != 0 && lbl_8087FA20->m258 != 0) {
+                ((MiniMapTask*)lbl_8087FA20->m258)->m4C = 1;
+            }
+        }
+    } else if (lbl_8087F430->m54E4 != 3) {
+        wait = 0;
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
+// NONMATCHING: 99.5% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: stores a value of the song (m08: 0 state, 1 index, 3 distance, 4 and 5 volumes in percent)
+// in (m0C, m10)
+void GameEventScript::fn_803A7EB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = 0;
+    SongManager* song = SongManager::sInstance;
+    if (song != 0) {
+        switch (args->m08) {
+        case 0:
+            value = song->m48;
+            break;
+        case 1:
+            value = song->m4C;
+            break;
+        case 3:
+            value = song->mDistance.mTo;
+            break;
+        case 4: {
+            float volume = song->mMinVolume.mTo;
+            value = 100.0f * volume;
+            break;
+        }
+        case 5: {
+            float volume = song->mMaxVolume.mTo;
+            value = 100.0f * volume;
+            break;
+        }
+        }
+    }
+    fn_8039BF04(args->m0C, args->m10, 0, 0, value);
+    result.SetNext_unk(cmd);
 }
 
 // inferred: stores the money of the inventory (m08 0) in (m0C, m10)

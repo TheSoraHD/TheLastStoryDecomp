@@ -526,7 +526,7 @@ void GameTextMessageWindow::fn_803B6C88(int enabled) {
 
 // DRAFT: empty stub
 // NONMATCHING: stub
-void GameTextMessageWindow::fn_803B6E04() {}
+void GameTextMessageWindow::fn_803B6E04(GameMessage* msg, int arg, float time) {}
 
 // DRAFT: empty stub
 // NONMATCHING: stub

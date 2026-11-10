@@ -96,7 +96,7 @@ public:
 
     void fn_803B6970(GameMessage* msg, int arg, float time); // inferred: shows a message
     void fn_803B6C88(int enabled);
-    void fn_803B6E04();
+    void fn_803B6E04(GameMessage* msg, int arg, float time); // inferred: same arguments as fn_803B6970 (GameEventScript::fn_803A5804)
     void fn_803B710C();
     void fn_803B78B4(GameMessage* msg); // inferred: queues a message
     void fn_803B78E8();          // inferred: sets the event counter of the message
