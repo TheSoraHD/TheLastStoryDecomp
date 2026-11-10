@@ -49,6 +49,8 @@ class GameEventScript : public atn::Task {
 public:
     virtual ~GameEventScript(); // 0x80394320
     virtual int vf0C();         // 0x80394BA4: inferred: waits for the three script files
+    virtual void vf10();        // 0x80398704
+    virtual void vf14();        // 0x8039BC6C
     // inferred: compiles a script file `index` (data, size)
     void fn_8039BDB4(int index, const void* data, int size);
     int fn_80398530(int event);          // inferred: the event is done
@@ -122,6 +124,53 @@ public:
     void fn_803A6B9C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A6CDC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A6E24(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    // inferred: the other commands of the table (declared ahead, written as they are decompiled)
+    void fn_8039D4C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039DB2C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039E328(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039EBB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039F08C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039F600(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0040(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A064C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A08D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0D74(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A0F4C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A1B20(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A1DB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A26F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A2E20(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A3444(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A372C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A3D20(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A3FFC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A4568(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5118(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A54C0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5650(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5804(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5A8C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A5FF8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A6744(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A6F90(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7124(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7954(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7D94(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7EB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7FBC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A8284(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A9C40(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A9DBC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AA5E4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AAAE4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AAC60(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AADCC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AAF74(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AB06C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803AB37C(CharaTask* chara);
     void fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_8039E9C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
