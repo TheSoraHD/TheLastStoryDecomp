@@ -2,6 +2,7 @@
 // boost::bad_lexical_cast and the weak copies of std::bad_cast and the MSL string streams).
 // The former GameEventScript_cont/_cont2 and std/bad_cast/_what splits are merged here.
 #include "atn/SoundManager.h"
+#include "atn/Memory.h"
 #include "game/TacView.h"
 #include "game/GameCamera.h"
 #include "game/BattleTask.h"
@@ -242,6 +243,14 @@ extern "C" atn::SoundRef fn_803935AC(const char* name, float volume) {
 // inferred: plays one of the UI sounds of the table
 extern "C" atn::SoundRef fn_803935FC(int index, float volume) {
     return fn_803935AC(lbl_8074EF78[index], volume);
+}
+
+// inferred: creates the event script of a scene (game/GameScene.cpp)
+extern "C" GameEventScript* fn_80393610(atn::Task* parent, const char* path, int area, int map) {
+    if (parent != 0) {
+        return new ((MemoryTag)3, "", "", 0) GameEventScript(parent, path, area, map);
+    }
+    return 0;
 }
 
 std::bad_cast::~bad_cast() {}

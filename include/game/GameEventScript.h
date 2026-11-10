@@ -57,6 +57,7 @@ struct ScriptPartsFlag_unk {
 
 class GameEventScript : public atn::Task {
 public:
+    GameEventScript(atn::Task* parent, const char* path, int area, int map); // 0x803936A4
     virtual ~GameEventScript(); // 0x80394320
     virtual int vf0C();         // 0x80394BA4: inferred: waits for the three script files
     virtual void vf10();        // 0x80398704
@@ -288,6 +289,7 @@ public:
     ScriptPartsFlag_unk m154[64]; // inferred: draw flags of the map parts by name hash (fn_803A68B8)
     unsigned char m354[0x37C - 0x354];
     int m37C; // inferred: cleared while a command writes a flag of the field (fn_803A6F90)
+    unsigned char m380[0x390 - 0x380]; // inferred: size 0x390 (operator new in fn_80393610)
 };
 
 #endif
