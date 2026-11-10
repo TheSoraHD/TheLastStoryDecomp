@@ -36,6 +36,15 @@ Rama desde `main` 4ef537b: 14958 / 18109, lost 0, `main.dol: OK`. Funciones al 0
   variable de `SetNext_unk`): cambio de nombre mangled en symbols.txt.
 - jumptables `jumptable_8078AFAC/AFE0/B040` renombradas a su `@N` (truco existente, trucos-mwcc 435).
 
+- `GameCamera.h`: `m911` byte, `m91C/m928` (Vector3), `m934/m938` (blend de fn_80392510), `m73C/m744/m750`
+  (modo caja, fn_80388A88), `m824` Vector3 (m818 - m80C).
+- Modos de `GameCamera` escritos (fn_80388A88, fn_80389060, fn_80389210, fn_803893A0, fn_8038952C, fn_80389678,
+  fn_8038DBE4, fn_8038DDE0, fn_8038DF5C): quedan `NONMATCHING` hasta escribir los callees de `fn_80392964`
+  (fn_803918EC, fn_803920C8...): mientras faltan, fn_80392964 cabe en el presupuesto de inlining (R3) e inlinea
+  fn_80392A04/fn_803928C0/SetCamera_unk, que en el original son llamadas. No se ha puesto `noinline`.
+- `GameEventScript::fn_8039CCD0` (recursiva) al 89,8 %: el original la inlinea una vez en si misma y en
+  fn_8039DB2C/fn_8039E328/fn_8039EBB8; esas tres heredan la diferencia de registros.
+
 ## Cambios de splits
 
 Ninguno.
@@ -47,6 +56,11 @@ Ninguno: solo renombrados `fn_XXXXXXXX` -> nombre mangled de las funciones escri
 ## Resultados por unidad
 
 ## Hallazgos
+
+- `lblmap.py` necesita el split al dia: dos pasadas seguidas sin `ninja` (re-split) entre ellas oscilan (pares
+  de etiquetas intercambiados). Una pasada, `configure` + `ninja`, y otra si hace falta.
+- Expresion `MIN(MAX(x, 0), 1)` con macros (x evaluado hasta cuatro veces): se ve como dos comparaciones con la
+  division repetida (GameCamera fn_80392510).
 
 - `5.0f + (a->m5B0 + b->m5B0)` con los `lfs` en el orden de `b` primero y `fadds fX, fY(a), fX(b)`: `float r; float c;
   r = b->m5B0; c = a->m5B0; 5.0f + (c + r)` (GameEventScript fn_803A2E20). Posible para RouteWalker_unk fn_80128930.
