@@ -1922,18 +1922,31 @@ static inline GXColor DrawToGXColor_unk(const DrawColorF_unk& v) {
     return c;
 }
 
-// inferred: grey scale version of ComDrawTexture (color matrix with the luminance weights in the TEV)
-// NONMATCHING: 98.1% - same instructions; order of the stores of the matrix (by columns in the original) and
-// stack slot of lum
-void DrawHelper::ComDrawTextureMono::vf10(RenderManager* view) {
-    float s = 1.0f;
+// inferred: grey scale color matrix (luminance weights scaled by s)
+static inline void DrawMonoMatrix_unk(DrawColorF_unk* mat, float s) {
     DrawLuminance_unk lum = sLuminance_unk;
-    DrawColorF_unk mat[4] = {
-        DrawColorF_unk(lum.v[0] * s, lum.v[0] * s, lum.v[0] * s, 0.0f),
-        DrawColorF_unk(lum.v[1] * s, lum.v[1] * s, lum.v[1] * s, 0.0f),
-        DrawColorF_unk(lum.v[2] * s, lum.v[2] * s, lum.v[2] * s, 0.0f),
-        DrawColorF_unk(0.0f, 0.0f, 0.0f, 1.0f),
-    };
+    mat[0].w = mat[1].w = mat[2].w = 0.0f;
+    mat[3].w = 1.0f;
+    mat[0].x = lum.v[0] * s;
+    mat[1].x = lum.v[1] * s;
+    mat[2].x = lum.v[2] * s;
+    mat[3].x = 0.0f;
+    mat[0].y = lum.v[0] * s;
+    mat[1].y = lum.v[1] * s;
+    mat[2].y = lum.v[2] * s;
+    mat[3].y = 0.0f;
+    mat[0].z = lum.v[0] * s;
+    mat[1].z = lum.v[1] * s;
+    mat[2].z = lum.v[2] * s;
+    mat[3].z = 0.0f;
+}
+
+// inferred: grey scale version of ComDrawTexture (color matrix with the luminance weights in the TEV)
+// NONMATCHING: 98.25% - the loop: the original converts w, z, y, x (x first here) and keeps the copy of
+// mat[i] below the temporary k[i] (swapped here)
+void DrawHelper::ComDrawTextureMono::vf10(RenderManager* view) {
+    DrawColorF_unk mat[4];
+    DrawMonoMatrix_unk(mat, 1.0f);
     DrawColorF_unk k[4];
     for (int i = 0; i < 3; i++) {
         DrawColorF_unk c = mat[i];
@@ -2031,18 +2044,12 @@ void DrawHelper::ComDrawTextureMono::vf10(RenderManager* view) {
 }
 
 // inferred: grey scale version of ComDrawTextureMask
-// NONMATCHING: 98.1% - same instructions; as in ComDrawTextureMono::vf10, order of the stores of the
+// NONMATCHING: 98.28% - as in ComDrawTextureMono::vf10 (the loop); before: order of the stores of the
 // matrix and stack slot of lum
 void DrawHelper::ComDrawTextureMaskMono::vf10(RenderManager* view) {
     fn_800761A8(lbl_8087EEE0);
-    float s = 1.0f;
-    DrawLuminance_unk lum = sLuminance_unk;
-    DrawColorF_unk mat[4] = {
-        DrawColorF_unk(lum.v[0] * s, lum.v[0] * s, lum.v[0] * s, 0.0f),
-        DrawColorF_unk(lum.v[1] * s, lum.v[1] * s, lum.v[1] * s, 0.0f),
-        DrawColorF_unk(lum.v[2] * s, lum.v[2] * s, lum.v[2] * s, 0.0f),
-        DrawColorF_unk(0.0f, 0.0f, 0.0f, 1.0f),
-    };
+    DrawColorF_unk mat[4];
+    DrawMonoMatrix_unk(mat, 1.0f);
     DrawColorF_unk k[4];
     for (int i = 0; i < 3; i++) {
         DrawColorF_unk c = mat[i];
