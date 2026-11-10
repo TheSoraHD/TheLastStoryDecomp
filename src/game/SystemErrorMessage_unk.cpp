@@ -386,6 +386,15 @@ ErrorManager::ErrorManager()
 }
 
 
+inline int IsSaving_unk(void* save) {
+    int work;
+    int saving = 1;
+    if (fn_800A4228(save, &work) == 0 && ((SysSave_unk*)save)->m174 <= 0) {
+        saving = 0;
+    }
+    return saving;
+}
+
 // NONMATCHING: 99.77% - `input = lbl_8087F018` again before m40C0 gives the reload, but the original
 // keeps the first load (r4) for GetExt_unk; mError is reloaded when it is kept; register order of the
 // constants 3/0 and of the fade counters
@@ -486,14 +495,14 @@ void ErrorManager::fn_80363DBC() {
             if (mFade != 0 && mFade->mActive != 0) {
                 mFade->mWait = 0;
                 mFade->mStep = -1;
-                mFade->mFrame = mFade->mWait + mFade->mDuration + mFade->mDelay;
+                mFade->mFrame = mFade->mDuration + mFade->mDelay + mFade->mWait;
                 mFade->mActive = 1;
             }
             mFont.reset();
         }
     } else if (mError != error) {
-        mError = error;
         mDelay = 3;
+        mError = error;
         if (!IsBusy_unk()) {
             m38 = 0;
             for (int i = 0; i < 4; i++) {
@@ -559,15 +568,8 @@ void ErrorManager::fn_80363DBC() {
             pause = 0;
         }
         void* save = lbl_8087EF68;
-        if (save != 0) {
-            int work;
-            int saving = 1;
-            if (fn_800A4228(save, &work) == 0 && ((SysSave_unk*)save)->m174 <= 0) {
-                saving = 0;
-            }
-            if (saving) {
-                pause = 0;
-            }
+        if (save != 0 && IsSaving_unk(save)) {
+            pause = 0;
         }
         if (pause && mPaused == 0) {
             if (atn::SequenceControl::sInstance != 0 && (atn::SequenceControl::sInstance->mFlags & 1) != 1) {
@@ -595,8 +597,27 @@ inline unsigned int ToU8_unk(float f) {
     return f >= 1.0f ? 255 : (f <= 0.0f ? 0 : (unsigned int)(255.0f * f + 0.5f));
 }
 
-// NONMATCHING: 98.66% - stack slots of the colour and of the pointer to member test (the named array
-// below the temporary in the original), registers of the first loop (size/step/int conversion)
+// inferred: colour converted with the ToU8_unk of this file (a temporary, like atn::Color::ToU32: its
+// slot goes below the pointer to member test as in the original). Name invented.
+struct ErrColor_unk {
+    ErrColor_unk(float r_, float g_, float b_, float a_) {
+        r = r_;
+        g = g_;
+        b = b_;
+        a = a_;
+    }
+    unsigned int ToARGB_unk() const {
+        unsigned int ur = ToU8_unk(r);
+        unsigned int ug = ToU8_unk(g);
+        unsigned int ub = ToU8_unk(b);
+        unsigned int ua = ToU8_unk(a);
+        return (ua << 24) | (ur << 16) | (ug << 8) | ub;
+    }
+    float r, g, b, a;
+};
+
+// NONMATCHING: 98.94% - registers of the font loop: gfx/y/the strength-reduced index (r30/r28/r29
+// in the original) and 1.0f/the int-to-float constant (f31/f30)
 void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {
@@ -606,37 +627,31 @@ void ErrorManager::fn_803646C4() {
             return;
         }
         float size = 20.0f;
-        float step = 1.1f * size;
         for (unsigned int i = 0; i < 4; i++) {
             wchar_t text[0x100];
             fn_80363C28(text, sMessages[fn_8006BA30()][mError][i], 0x100);
-            lbl_8087EEB0->fn_80061824(80.0f, step * i + 80.0f, -100000.0f, size, size, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
+            float fi = i;
+            lbl_8087EEB0->fn_80061824(80.0f, 1.1f * size * fi + 80.0f, -100000.0f, size, size, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
         }
     } else {
         if (mError == 0) {
             return;
         }
         if (mFont) {
-            SysGraphics_unk* gfx = lbl_8087EEE0;
-            float rgba[4];
-            rgba[0] = 0.0f;
-            rgba[1] = 0.0f;
-            rgba[2] = 0.0f;
-            rgba[3] = 1.0f;
-            unsigned int r = ToU8_unk(rgba[0]);
-            unsigned int g = ToU8_unk(rgba[1]);
-            unsigned int b = ToU8_unk(rgba[2]);
-            unsigned int a = ToU8_unk(rgba[3]);
-            gfx->mClearColor = (a << 24) | (r << 16) | (g << 8) | b;
+            int y;
+            SysGraphics_unk* gfx;
+            unsigned int i;
+            gfx = lbl_8087EEE0;
+            gfx->mClearColor = ErrColor_unk(0.0f, 0.0f, 0.0f, 1.0f).ToARGB_unk();
             fn_8007192C(gfx);
             fn_80075DEC(gfx);
-            int y = 50;
-            for (unsigned int i = 0; i < 4; i++) {
+            y = 50;
+            for (i = 0; i < 4; i++) {
                 float one = 1.0f;
                 char text[0x100];
                 sprintf(text, "%s\0", sMessages[fn_8006BA30()][mError][i]);
-                int x = 0;
                 const char* p = text;
+                int x = 0;
                 while (*p != 0) {
                     int width;
                     int cy;
