@@ -41,6 +41,7 @@ public:
 // inferred: input manager (lbl_8087F018)
 struct SysInput_unk {
     int GetExt_unk() { return m5C; } // inferred: name invented
+    bool IsNoPad_unk() const { return m40C0 == 0; }
     unsigned char m0000[0x5C];
     unsigned char m5C; // inferred: extension type of the first Wii Remote
     unsigned char m005D[0x40C0 - 0x5D];
@@ -395,9 +396,12 @@ inline int IsSaving_unk(void* save) {
     return saving;
 }
 
-// NONMATCHING: 99.77% - `input = lbl_8087F018` again before m40C0 gives the reload, but the original
-// keeps the first load (r4) for GetExt_unk; mError is reloaded when it is kept; register order of the
-// constants 3/0 and of the fade counters
+inline bool ErrorManager::IsPadError_unk() const {
+    return (unsigned int)(mError - 5) <= 1;
+}
+
+// NONMATCHING: 99.97% - mDelay = 3 / the busy flag of IsBusy_unk in r3/r4 (the original stores mError
+// first and keeps the 3 in r4); with mError stored first the registers swap
 void ErrorManager::fn_80363DBC() {
     if (m20 != 0) {
         return;
@@ -443,8 +447,7 @@ void ErrorManager::fn_80363DBC() {
         SysInput_unk* input;
         if (m0C != 0 && (input = lbl_8087F018) != 0 &&
             (HomeButtonMenu::sInstance == 0 || HomeButtonMenu::sInstance->m84 != 1)) {
-            input = lbl_8087F018;
-            if (input->m40C0 == 0) {
+            if (lbl_8087F018->IsNoPad_unk()) {
                 error = 5;
             }
             int ext = input->GetExt_unk();
@@ -474,7 +477,7 @@ void ErrorManager::fn_80363DBC() {
         if ((unsigned int)(mError - 1) <= 3 && DVDCheckDisk() == 0) {
             error = mError;
         }
-        if ((unsigned int)(mError - 5) <= 1 && HomeButtonMenu::sInstance != 0 &&
+        if (IsPadError_unk() && HomeButtonMenu::sInstance != 0 &&
             HomeButtonMenu::sInstance->m84 == 1) {
             error = mError;
         }

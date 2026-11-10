@@ -21,6 +21,7 @@ public:
     void fn_8036503C();      // inferred: moves the cursor of the choices
     void fn_80365320();      // inferred: closes the choices
     // inferred: the message is drawn directly (game/SystemErrorMessage_unk.cpp, game/GameSystem_unk.cpp)
+    bool IsPadError_unk() const;
     int IsBusy_unk() {
         int busy = 0;
         if (m18 != 0 || m1C != 0 || mReady == 0) {
