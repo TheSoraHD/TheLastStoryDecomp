@@ -595,8 +595,8 @@ inline unsigned int ToU8_unk(float f) {
     return f >= 1.0f ? 255 : (f <= 0.0f ? 0 : (unsigned int)(255.0f * f + 0.5f));
 }
 
-// NONMATCHING: 98.04% - stack slots of the colour and of the pointer to member test, registers of the
-// font loop (the scale constant and the double of the int conversion are swapped)
+// NONMATCHING: 98.66% - stack slots of the colour and of the pointer to member test (the named array
+// below the temporary in the original), registers of the first loop (size/step/int conversion)
 void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {
@@ -630,9 +630,9 @@ void ErrorManager::fn_803646C4() {
             gfx->mClearColor = (a << 24) | (r << 16) | (g << 8) | b;
             fn_8007192C(gfx);
             fn_80075DEC(gfx);
-            float one = 1.0f;
             int y = 50;
             for (unsigned int i = 0; i < 4; i++) {
+                float one = 1.0f;
                 char text[0x100];
                 sprintf(text, "%s\0", sMessages[fn_8006BA30()][mError][i]);
                 int x = 0;
