@@ -8,11 +8,10 @@ namespace MP {
 // left out)
 class PacketPackMP : public atn::net::PacketPack {
 public:
-    // inferred: vf10 returns 0x41 (0x80501054) and vf0C returns 0 (0x8050105C); they come after the
-    // weak copies of the MP::func_* classes in the original, which is not reproduced yet, so they
-    // are only declared
-    virtual int vf0C();
-    virtual unsigned char vf10();
+    // inferred: inline (weak copies 0x8050105C and 0x80501054, after the weak copies of the MP::func_*
+    // classes in the original)
+    virtual int vf0C() { return 0; }
+    virtual unsigned char vf10() { return 0x41; }
     virtual unsigned char vf14(int code);
     virtual atn::net::FuncMessage* vf18(unsigned char id);
 };
