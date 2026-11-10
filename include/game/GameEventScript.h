@@ -248,7 +248,8 @@ public:
     int mB8; // inferred: step of the running command
     int mBC;
     int mC0; // inferred: frame counter of the running command
-    unsigned char mC4[0xD0 - 0xC4];
+    int mC4; // inferred: flag 0x1000 of the status of the character under control (fn_803A9C40)
+    unsigned char mC8[0xD0 - 0xC8];
     int mD0;
     unsigned char mD4[0xDC - 0xD4];
     int mDC; // inferred: kind 0 of GetChara_unk is the leader
@@ -263,6 +264,8 @@ public:
     ScriptNpcFlag_unk* m118; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
     unsigned char m11C[0x12C - 0x11C];
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
+    unsigned char m138[0x37C - 0x138];
+    int m37C; // inferred: cleared while a command writes a flag of the field (fn_803A6F90)
 };
 
 #endif
