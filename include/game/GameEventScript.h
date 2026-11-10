@@ -62,6 +62,7 @@ public:
     void fn_8039BDB4(int index, const void* data, int size);
     int fn_80398530(int event);          // inferred: the event is done
     int fn_80398590(int event, int arg); // inferred: the event can start
+    int fn_8039CCD0(const ScriptCmd_unk* cmd); // inferred: the next enabled command is a choice
     int fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd); // inferred: runs the script from cmd (0: waits)
     int fn_8039CC24(int id);             // inferred: event with the given id
     int fn_803ABFD4(atn::Task* chara);

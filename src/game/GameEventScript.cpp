@@ -379,6 +379,33 @@ int GameEventScript::fn_8039CC24(int id) {
 typedef void (GameEventScript::*ScriptCmdFn_unk)(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
 extern "C" const ScriptCmdFn_unk lbl_8074F0B0[];
 
+// NONMATCHING: 48% - the original inlines the recursive call once (keeping &m94->mCmds in a register and
+// reloading the count); this source is not inlined
+// inferred: the first enabled command from `cmd` (skipping commands 9) is a choice (7, 8, or 15 with
+// GameConfig_unk::m0B8)
+int GameEventScript::fn_8039CCD0(const ScriptCmd_unk* cmd) {
+    if (cmd == 0) {
+        return 0;
+    }
+    ScriptCmd_unk* end = &m94->mCmds;
+    for (unsigned int i = 0; i < m94->mCmdCount; i++) {
+        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
+    }
+    if (cmd < end) {
+        if ((cmd->m04 & 1) == 1 || cmd->mCmd == 9) {
+            return fn_8039CCD0((const ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]));
+        }
+        if (cmd->mCmd - 7 <= 1) {
+            return 1;
+        }
+        if (lbl_8087F0A8->m0B8 != 0 && cmd->mCmd == 15) {
+            return 1;
+        }
+        return 0;
+    }
+    return 0;
+}
+
 // NONMATCHING: 99.2% - `end` and `count` take r30/r29 swapped
 // inferred: runs the commands of `data` from `cmd`; 0 when a command waits, 1 at the end
 int GameEventScript::fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd) {
@@ -659,6 +686,208 @@ static inline void StopAction_unk(CharaTask* chara, int keep) {
             chara->fn_801539E0();
         }
         chara->fn_8014EEC4(0);
+    }
+}
+
+// NONMATCHING: 99% - operands of the fmuls of case 1 swapped
+// inferred: stores a value of `chara` (args->m10) into the script variable m14/m18
+void GameEventScript::fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args) {
+    if (chara == 0) {
+        return;
+    }
+    int value = 0;
+    switch (args->m10) {
+    case 0: {
+        float hp = chara->mStatus.m04;
+        value = (int)hp * 100 / chara->mStatus.mParamB.m84;
+        if (value == 0 && hp > 0.0f) {
+            value = 1;
+        }
+        break;
+    }
+    case 1:
+        value = 100.0f * chara->m568;
+        break;
+    case 2:
+        value = chara->mStatus.mParamB.m9C & 1;
+        break;
+    case 3:
+        value = chara->mC58.mC0;
+        break;
+    case 4:
+        value = chara->mC58.mB4;
+        break;
+    case 5:
+        value = chara->mC58.mD8 & 1;
+        break;
+    case 6:
+        value = !(chara->m674 < 0);
+        break;
+    case 7:
+        if (chara->mC58.m11C.m00 == 0 || chara->mC58.m11C.m00 == 2) {
+            value = 0;
+        } else if (chara->mC58.m11C.m00 == 1) {
+            value = 2;
+        } else {
+            value = 1;
+        }
+        break;
+    case 8: {
+        CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (leader != 0) {
+            atn::Vector3 d = chara->mPos - leader->mPos;
+            value = PSVECMag(&d);
+        }
+        break;
+    }
+    case 9:
+        value = (chara->m54C >> 13) & 1;
+        break;
+    case 10:
+        value = chara->mStatus.m224;
+        break;
+    case 11:
+        value = chara->mStatus.mParamA.m78;
+        break;
+    case 12:
+        value = chara->mStatus.m1C;
+        break;
+    case 13:
+        if (chara->mC58.m11C.m01 == 0 || chara->mC58.m11C.m01 == 2) {
+            value = 0;
+        } else if (chara->mC58.m11C.m01 == 1) {
+            value = 2;
+        } else {
+            value = 1;
+        }
+        break;
+    case 14:
+        value = chara->mF14;
+        break;
+    case 15:
+        value = chara->m5C->m122;
+        break;
+    case 16:
+        if (chara->mC58.m11C.m00 == 0) {
+            value = -1;
+        } else if (chara->mC58.m11C.m00 == 1) {
+            value = ((chara->mC58.m11C.m20 >> 2) & 1) + 1;
+        } else {
+            value = 0;
+        }
+        break;
+    case 17:
+        value = chara->mFlagB14;
+        break;
+    case 18:
+        value = chara->mFlag28;
+        break;
+    }
+    fn_8039BF04(args->m14, args->m18, 0, 0, value);
+}
+
+// inferred: sets a value of `chara` (args->m10) from the script value m14/m18 (counterpart of
+// fn_8039F9A4)
+void GameEventScript::fn_8039FBFC(CharaTask* chara, const ScriptArgs_unk* args) {
+    if (chara == 0) {
+        return;
+    }
+    int value = ScriptValue_unk(args->m14, args->m18);
+    switch (args->m10) {
+    case 0:
+        chara->mStatus.m04 = (float)(value * chara->mStatus.mParamB.m84) / 100.0f;
+        chara->mStatus.fn_801333E4();
+        if ((float)value <= 0.0f && lbl_8087F048 != 0) {
+            lbl_8087F048->fn_800FDE60(0, chara, atn::Vector3(0.0f, 1.0f, 0.0f));
+        }
+        if ((float)value > 99.0f && lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 &&
+            lbl_8087F430->GetCurrentMap()->mType == 2 && lbl_8087F430->GetCurrentMap()->mId == 0x43 &&
+            lbl_8087F430->GetCurrentMap()->mSubId == 1) {
+            chara->mStatus.fn_8012D8B8();
+        }
+        break;
+    case 1:
+        chara->m568 = (float)value / 100.0f;
+        break;
+    case 2:
+        if (value != 0) {
+            chara->mStatus.mParamB.m9C |= 1;
+        } else {
+            chara->mStatus.mParamB.m9C &= ~1;
+        }
+        break;
+    case 3:
+        chara->mC58.mC0 = value;
+        break;
+    case 4:
+        chara->mC58.mB4 = value;
+        break;
+    case 5:
+        if (value != 0) {
+            chara->mC58.mD8 |= 1;
+        } else {
+            chara->mC58.mD8 &= ~1;
+        }
+        break;
+    case 6:
+        if (value != 0 && chara->mParts.mCount != 0) {
+            chara->fn_8014DEE4(0, 0, 0);
+        } else {
+            chara->fn_8014EEC4(0);
+        }
+        break;
+    case 7:
+        if (chara->mType == 2) {
+            chara->mC58.m11C.fn_8011CD84(chara, value);
+        }
+        break;
+    case 9:
+        if (value != 0) {
+            chara->m54C |= 0x2000;
+        } else {
+            chara->m54C &= ~0x2000;
+        }
+        break;
+    case 10:
+        chara->mStatus.m224 = value;
+        if (value < 5) {
+            chara->mStatus.m300 = 0;
+        }
+        break;
+    case 11:
+        chara->mStatus.m1A8.m08 += (float)(value - chara->mStatus.mParamA.m78);
+        chara->mStatus.fn_8012B3E8();
+        chara->mStatus.fn_8012B988();
+        chara->mStatus.fn_8012D8B8();
+        break;
+    case 12:
+        chara->mStatus.fn_80133B30(value);
+        chara->mStatus.fn_8012D8B8();
+        break;
+    case 13:
+        if (chara->mType == 2) {
+            if (value == 1) {
+                chara->mC58.m11C.m01 = 3;
+                if (!chara->IsFlag_unk(4)) {
+                    fn_800C31F4(lbl_8074EF78[6], 0, -1, 1.0f);
+                }
+            } else if (value == 2) {
+                chara->mC58.m11C.m01 = 1;
+                if (!chara->IsFlag_unk(4)) {
+                    fn_800C31F4(lbl_8074EF78[7], 0, -1, 1.0f);
+                }
+            } else {
+                chara->mC58.m11C.m01 = 0;
+            }
+        }
+        break;
+    case 14:
+        chara->mF18 = chara->mF14;
+        chara->mF14 = value;
+        break;
+    case 17:
+        chara->mFlagB14 = value != 0;
+        break;
     }
 }
 
