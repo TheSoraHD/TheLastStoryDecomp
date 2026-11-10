@@ -398,14 +398,17 @@ inline int IsSaving_unk(void* save) {
 
 // inferred: draws a string with the OS font (name invented; as an inline the registers of the first loop
 // come out as in the original)
-static inline void DrawString_unk(ErrorManager* m, const char* text, int y) {
+static inline void DrawString_unk(ErrorManager* m, const char* msg, int y) {
+    char text[0x100];
+    const char* p;
     int x = 0;
-    const char* p = text;
+    sprintf(text, "%s\0", msg);
+    p = text;
     while (*p != 0) {
-        void* image;
-        int cx;
-        int cy;
         int width;
+        int cy;
+        int cx;
+        void* image;
         p = OSGetFontTexture(p, &image, &cx, &cy, &width);
         SysFont_unk* font = (SysFont_unk*)m->mFont.get();
         GXTexObj obj;
@@ -643,8 +646,24 @@ struct ErrColor_unk {
     float r, g, b, a;
 };
 
-// NONMATCHING: 99.18% - registers of the font loop: gfx/y/the strength-reduced index (r30/r28/r29
-// in the original) and x = 0 scheduled before the sprintf
+// inferred: draws the message with the OS font when the layouts are not available (name invented)
+static inline void DrawFontMessage_unk(ErrorManager* m) {
+    int y;
+    unsigned int i;
+    SysGraphics_unk* gfx;
+    gfx = lbl_8087EEE0;
+    gfx->mClearColor = ErrColor_unk(0.0f, 0.0f, 0.0f, 1.0f).ToARGB_unk();
+    fn_8007192C(gfx);
+    fn_80075DEC(gfx);
+    for (i = 0, y = 50; i < 4; i++, y += 30) {
+        DrawString_unk(m, sMessages[fn_8006BA30()][m->mError][i], y);
+    }
+    fn_80071AFC(gfx);
+    fn_80071D60(gfx, 1);
+}
+
+// NONMATCHING: 99.86% - the loop counter of DrawFontMessage_unk and its strength-reduced index swapped
+// (r27/r29 in the original)
 void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {
@@ -664,22 +683,7 @@ void ErrorManager::fn_803646C4() {
             return;
         }
         if (mFont) {
-            int y;
-            SysGraphics_unk* gfx;
-            unsigned int i;
-            gfx = lbl_8087EEE0;
-            gfx->mClearColor = ErrColor_unk(0.0f, 0.0f, 0.0f, 1.0f).ToARGB_unk();
-            fn_8007192C(gfx);
-            fn_80075DEC(gfx);
-            y = 50;
-            for (i = 0; i < 4; i++) {
-                char text[0x100];
-                sprintf(text, "%s\0", sMessages[fn_8006BA30()][mError][i]);
-                DrawString_unk(this, text, y);
-                y += 30;
-            }
-            fn_80071AFC(gfx);
-            fn_80071D60(gfx, 1);
+            DrawFontMessage_unk(this);
         } else if (mReady == 0 || mWindow->IsFlag_unk(4)) {
             fn_80364BE8();
         }
