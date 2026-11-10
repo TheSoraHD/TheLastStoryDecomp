@@ -28,17 +28,6 @@ struct ScriptEventNode_unk {
     int mKey;
     int mValue;
 };
-// inferred: 0x40-byte record of GameEventScript::m100 (names invented)
-struct ScriptEntry40_unk {
-    int mId;
-    unsigned char m04[0x40 - 0x04];
-};
-// inferred: state of an event sphere of the scene (12 bytes; names invented)
-struct ScriptSphereState_unk {
-    int mScript;     // inferred: index of the script picked in the sphere, -1 if none
-    unsigned int m04; // inferred: flags (0x20: the leader can start its talk event)
-    float m08;
-};
 // inferred: 0x14-byte record of GameEventScript::m12C (names invented)
 struct ScriptRecord14_unk {
     CharaTask* mChara;
@@ -49,9 +38,9 @@ struct ScriptRecord14_unk {
 };
 // inferred: 0xC-byte record of GameEventScript::m118 (names invented)
 struct ScriptNpcFlag_unk {
-    int m00;
-    unsigned int mFlags;
-    int m08;
+    int m00;             // inferred: index of the script picked in the point, -1 if none
+    unsigned int mFlags; // inferred: 0x20: the leader can start its talk event
+    float m08;           // inferred: distance of the talk event (the nearest goes to mF4)
 };
 
 // inferred: draw flags of a map part set by the scripts (bit 0 drawn, bit 1 set; bit 2 locator
@@ -99,12 +88,13 @@ public:
     inline int CountCharas_unk(atn::SimpleArray<gs::NpcSetPoint>& points, atn::SimpleArray<ScriptNpcFlag_unk>& flags,
                                int kind, CharaTask* leader, const atn::Vector3& pos, unsigned int mask, float range);
     inline int CountSpheres_unk(atn::SimpleArray<gs::EventSphere>& spheres,
-                                atn::SimpleArray<ScriptSphereState_unk>& states, CharaTask* leader,
+                                atn::SimpleArray<ScriptNpcFlag_unk>& states, CharaTask* leader,
                                 const atn::Vector3& pos, unsigned int mask, float range);
     // inferred: the camera looks at `chara` within `range`; `line` receives the segment of the camera
     int fn_803AC3D8(CharaTask* chara, atn::Vector3* line, int wait, float range);
     int fn_803AC708(CharaTask* chara);
     int fn_803AC978(CharaTask* chara);
+    void fn_8039AB10(); // inferred: finds the talk event box of the leader
     void fn_8039AF50(); // inferred: finds the talk event sphere of the leader
     inline int HasTalkEvent_unk(atn::SimpleArray<gs::NpcSetPoint>& points, atn::SimpleArray<ScriptNpcFlag_unk>& flags,
                                 CharaTask* chara); // inferred: helper of fn_803AC978 (name invented)
@@ -311,11 +301,11 @@ public:
     int mE8; // inferred: an event of the event manager is running
     int mEC;
     int mF0;
-    struct ScriptSphereState_unk* mF4; // inferred: nearest talk event sphere of the leader (fn_8039AF50)
+    ScriptNpcFlag_unk* mF4; // inferred: nearest talk event of the leader (fn_8039AF50)
     int mF8;
-    atn::SimpleArray<ScriptEntry40_unk> mFC; // inferred: records of 0x40 bytes
+    atn::SimpleArray<ScriptNpcFlag_unk> mFC; // inferred: one per EventBox of the scene (fn_8039AB10)
     unsigned char m104[0x10C - 0x104];
-    atn::SimpleArray<ScriptSphereState_unk> m10C; // inferred: one per EventSphere of the scene (fn_803AC708)
+    atn::SimpleArray<ScriptNpcFlag_unk> m10C; // inferred: one per EventSphere of the scene (fn_803AC708)
     atn::SimpleArray<ScriptNpcFlag_unk> m114; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
     atn::SimpleArray<ScriptNpcFlag_unk> m11C; // inferred: one per EnemySetPoint of the scene (fn_803AC978)
     atn::SimpleArray<ScriptNpcFlag_unk> m124; // inferred: one per FriendSetPoint of the scene (fn_803AC978)

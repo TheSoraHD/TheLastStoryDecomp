@@ -537,11 +537,13 @@ extern "C" int fn_8004ED34(void* world, atn::ColliResult_unk* result, const atn:
 // inferred: the character can start a talk event (idle or walking without being busy, or the states 60-61
 // of the control 6; names invented)
 static inline bool CanStartTalk_unk(PlayerTask* chara) {
-    unsigned int state = chara->m55C;
-    if (state <= 1 || state - 9 <= 1) {
+    switch (chara->m55C) {
+    case 0:
+    case 1:
+    case 9:
+    case 10:
         return !chara->mFlag31 && !chara->mFlag6 && chara->m14A0 <= 0 && chara->m1208 == 0;
-    }
-    if (state == 6) {
+    case 6:
         return (unsigned int)(chara->m560 - 60) <= 1;
     }
     return false;
@@ -552,7 +554,69 @@ static inline bool FieldFlagOn_unk(int flag) {
     return lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(flag);
 }
 
-// NONMATCHING: 90.5% - stack slots of the ray test vectors and registers of the loop
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+
+// inferred: the talk events may start (an event is running, or the field flag 2590; name invented)
+static inline bool TalkAllowed_unk(const GameEventScript* script) {
+    bool on = true;
+    if (script->mE0 <= 0 && !FieldFlagOn_unk(2590)) {
+        on = false;
+    }
+    return on;
+}
+
+// NONMATCHING: 96.5% - as fn_8039AF50
+// inferred: same as fn_8039AF50 for the talk event boxes (with m40, the leader must also face the box)
+void GameEventScript::fn_8039AB10() {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Sphere sphere;
+    sphere.mCenter = leader->m614;
+    sphere.mRadius = leader->m620;
+    if (leader->m55C == 6 && leader->m560 == 11) {
+        atn::ColliResult_unk result;
+        atn::Vector3 to = sphere.mCenter + atn::Vector3(0.0f, -100.0f, 0.0f);
+        if (fn_8004ED34(lbl_8087EE98, &result, &sphere.mCenter, &to, 0x80000000, 0, 0)) {
+            sphere.mCenter = result.m10 + atn::Vector3(0.0f, sphere.mRadius, 0.0f);
+        }
+    }
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
+        gs::EventBox& box = scene->mE4[i];
+        int group = i;
+        if (box.m2C >= 0) {
+            group = box.m2C;
+        }
+        ScriptNpcFlag_unk& state = mFC[group];
+        if (state.m00 >= 0) {
+            state.mFlags &= ~0x20;
+            const ScriptEventConds_unk* e =
+                (const ScriptEventConds_unk*)FindEvent_unk(scene->mE4[group].m24[state.m00]);
+            if (e != 0 && e->m0C == 0) {
+                bool facing = true;
+                if (box.m40 != 0) {
+                    Mtx m;
+                    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+                    PSMTXRotRad(m, 'y', 3.1415927f + box.m14);
+                    PSMTXMultVec(m, &front, &front);
+                    Mtx r;
+                    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                    PSMTXRotRad(r, 'y', leader->mRot.y);
+                    PSMTXMultVec(r, &dir, &dir);
+                    facing = PSVECDotProduct(&front, &dir) > 0.70710677f;
+                }
+                if ((facing & fn_803ACE18(i, &sphere, 0)) && CanStartTalk_unk(leader) && TalkAllowed_unk(this)) {
+                    state.mFlags |= 0x20;
+                    state.m08 = -1.0f;
+                    if (mF4 == 0 || state.m08 < mF4->m08) {
+                        mF4 = &state;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// NONMATCHING: 95.9% - stack slots of the ray test vectors and registers of the loop
 // inferred: marks the talk event spheres the leader stands in (flag 0x20) and keeps the nearest in mF4;
 // while hanging (control 6, state 11) the leader is projected on the ground below
 void GameEventScript::fn_8039AF50() {
@@ -573,14 +637,14 @@ void GameEventScript::fn_8039AF50() {
         if (scene->mEC[i].m20 >= 0) {
             group = scene->mEC[i].m20;
         }
-        ScriptSphereState_unk& state = m10C[group];
-        if (state.mScript >= 0) {
-            state.m04 &= ~0x20;
+        ScriptNpcFlag_unk& state = m10C[group];
+        if (state.m00 >= 0) {
+            state.mFlags &= ~0x20;
             const ScriptEventConds_unk* e =
-                (const ScriptEventConds_unk*)FindEvent_unk(scene->mEC[group].m18[state.mScript]);
+                (const ScriptEventConds_unk*)FindEvent_unk(scene->mEC[group].m18[state.m00]);
             if (e != 0 && e->m0C == 0 && fn_803ACF88(i, &sphere, 0) && CanStartTalk_unk(leader) &&
-                (mE0 > 0 || FieldFlagOn_unk(2590))) {
-                state.m04 |= 0x20;
+                TalkAllowed_unk(this)) {
+                state.mFlags |= 0x20;
                 state.m08 = -1.0f;
                 if (mF4 == 0 || state.m08 < mF4->m08) {
                     mF4 = &state;
@@ -4207,7 +4271,7 @@ __declspec(noinline) inline int GameEventScript::CountCharas_unk(atn::SimpleArra
 // NONMATCHING: 98.6% - registers of the loop and stack slots of the two ends of the ray
 // inferred: same for the event spheres (the ray is shortened at both ends)
 __declspec(noinline) inline int GameEventScript::CountSpheres_unk(atn::SimpleArray<gs::EventSphere>& spheres,
-                                             atn::SimpleArray<ScriptSphereState_unk>& states, CharaTask* leader,
+                                             atn::SimpleArray<ScriptNpcFlag_unk>& states, CharaTask* leader,
                                              const atn::Vector3& pos, unsigned int mask, float range) {
     int count = 0;
     for (unsigned int i = 0; i < spheres.size(); i++) {
@@ -4216,7 +4280,7 @@ __declspec(noinline) inline int GameEventScript::CountSpheres_unk(atn::SimpleArr
         if (sphere.m20 >= 0) {
             group = sphere.m20;
         }
-        int script = states[group].mScript;
+        int script = states[group].m00;
         if (script >= 0) {
             const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(spheres[group].m18[script]);
             if (e != 0 && e->m0C == 4 && (e->mB8 & mask) == 0) {
@@ -4336,7 +4400,7 @@ int GameEventScript::fn_803AC708(CharaTask* chara) {
         if (sphere.m20 >= 0) {
             group = sphere.m20;
         }
-        int script = m10C[group].mScript;
+        int script = m10C[group].m00;
         if (script >= 0) {
             const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(sphere.m18[script]);
             if (e != 0 && e->m0C == 7 && (e->mB8 & 8) == 8) {
