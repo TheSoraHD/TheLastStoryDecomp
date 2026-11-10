@@ -11,7 +11,7 @@ extern "C" char* strncpy(char* dst, const char* src, unsigned long n);
 // CMPR (S3TC/DXT1) encoder. Pixels are RGBA8, 4x4 per block; a block is two RGB565 colors and
 // sixteen 2-bit indices.
 
-// NONMATCHING: 93.12% - register allocation and scheduling of the palette and index packing
+// NONMATCHING: 95.4% - register allocation and scheduling of the palette and index packing
 // inferred: encodes a block with four colors (c0 > c1); rgb0/rgb1 are the 8-bit endpoints
 extern "C" void fn_80068DB0(unsigned short c0, unsigned short c1, const unsigned char* rgb0,
                             const unsigned char* rgb1, const unsigned char* pixels, unsigned char* out) {
@@ -23,26 +23,30 @@ extern "C" void fn_80068DB0(unsigned short c0, unsigned short c1, const unsigned
     pal[3] = rgb0[0];
     pal[4] = rgb0[1];
     pal[5] = rgb0[2];
-    pal[6] = (rgb0[0] * 3 + rgb1[0] * 5) / 8;
-    pal[7] = (rgb0[1] * 3 + rgb1[1] * 5) / 8;
-    pal[8] = (rgb0[2] * 3 + rgb1[2] * 5) / 8;
-    pal[9] = (rgb0[0] * 5 + rgb1[0] * 3) / 8;
-    pal[10] = (rgb0[1] * 5 + rgb1[1] * 3) / 8;
-    pal[11] = (rgb0[2] * 5 + rgb1[2] * 3) / 8;
+    pal[6] = (pal[3] * 3 + pal[0] * 5) / 8;
+    pal[7] = (pal[4] * 3 + pal[1] * 5) / 8;
+    pal[8] = (pal[5] * 3 + pal[2] * 5) / 8;
+    pal[9] = (pal[3] * 5 + pal[0] * 3) / 8;
+    pal[10] = (pal[4] * 5 + pal[1] * 3) / 8;
+    pal[11] = (pal[5] * 5 + pal[2] * 3) / 8;
     unsigned char* dst = idx;
     for (int i = 0; i < 16; i++) {
         int r = pixels[0];
         int g = pixels[1];
         int b = pixels[2];
-        int best = 0;
-        int dr = r - pal[0];
-        int dg = g - pal[1];
-        int db = b - pal[2];
+        int db;
+        int dg;
+        int dr;
+        int best;
+        best = 0;
+        dr = r - pal[0];
+        dg = g - pal[1];
+        db = b - pal[2];
         int bestDist = db * db + dr * dr + dg * dg;
         for (int j = 1; j < 4; j++) {
             dr = r - pal[j * 3 + 0];
-            dg = g - pal[j * 3 + 1];
             db = b - pal[j * 3 + 2];
+            dg = g - pal[j * 3 + 1];
             int dist = db * db + dr * dr + dg * dg;
             if (dist < bestDist) {
                 best = j;
@@ -63,7 +67,7 @@ extern "C" void fn_80068DB0(unsigned short c0, unsigned short c1, const unsigned
     out[7] = idx[12] | (idx[13] << 2) | (idx[14] << 4) | (idx[15] << 6);
 }
 
-// NONMATCHING: 82.56% - scheduling of the palette loads and registers (as fn_80068DB0)
+// NONMATCHING: 84.1% - scheduling of the palette loads and registers (as fn_80068DB0)
 // inferred: encodes a block with three colors and transparency (c0 <= c1)
 // inferred: half of a channel (unsigned shift)
 inline unsigned int Half_unk(unsigned int c) {
@@ -83,9 +87,9 @@ extern "C" void fn_80069060(unsigned short c0, unsigned short c1, const unsigned
     pal[3] = rgb1[0];
     pal[4] = rgb1[1];
     pal[5] = rgb1[2];
-    pal[6] = Half_unk(rgb0[0]) + Half_unk(rgb1[0]);
-    pal[7] = Half_unk(rgb0[1]) + Half_unk(rgb1[1]);
-    pal[8] = Half_unk(rgb0[2]) + Half_unk(rgb1[2]);
+    pal[6] = Half_unk(pal[0]) + Half_unk(pal[3]);
+    pal[7] = Half_unk(pal[1]) + Half_unk(pal[4]);
+    pal[8] = Half_unk(pal[2]) + Half_unk(pal[5]);
     unsigned char* dst = idx;
     for (int i = 0; i < 16; i++) {
         if (pixels[3] < 0x7F) {
