@@ -750,27 +750,8 @@ class RenderConfig {
 public:
     void SetClearColor(const Color& color);
 };
-namespace net {
-struct NetRankData_unk;
-// inferred: ranking of the Wi-Fi Connection (lbl_8087F5A4, atn/NetManager.cpp); only the members used here
-class NetRanking_unk {
-public:
-    int fn_8050C2F4();
-    void fn_8050C7F0();
-    void fn_8050C1D8(void* friends);
-    int fn_8050C840(unsigned int kind);
-    void fn_8050CCD0(unsigned long id, long score, const wchar_t* name, unsigned long size);
-    void fn_8050C898(unsigned long a, unsigned long b, unsigned long c, void (*cb)(int, NetRankData_unk*));
-    void fn_8050CB24(unsigned long a, int b, unsigned long c, void (*cb)(int, NetRankData_unk*));
-    void fn_8050C9D4(unsigned long a, int b, unsigned long c, void (*cb)(int, NetRankData_unk*));
-    void fn_8050CDA8();
-    int mState;
-    int m004[(0x750 - 0x4) / 4];
-    int m750;
-};
-} // namespace net
 } // namespace atn
-extern "C" atn::net::NetRanking_unk* lbl_8087F5A4;
+#include "atn/net/NetRanking.h"
 
 namespace MP {
 // inferred: views of MP::D2AMpMenu and MP::D2AMpMenuFriend (their headers redeclare lbl_8087EFA8 and
@@ -1474,8 +1455,8 @@ extern "C" __declspec(noinline) inline void fn_804D65DC(atn::net::NetRanking_unk
     if (state == 2) {
         ranking->fn_8050CDA8();
     }
-    if (state == 2 && ranking->m750 != -1) {
-        ranking->m004[ranking->m750] = -1;
+    if (state == 2 && ranking->mIndex != -1) {
+        ranking->mTimes[ranking->mIndex] = -1;
     }
     ranking->mState = state;
 }

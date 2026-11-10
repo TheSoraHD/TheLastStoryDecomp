@@ -571,9 +571,9 @@ void D2AMpMenuResult::vf14() {
         float size = 24.0f;
         float y = 42.0f;
         float x = 319.0f;
-        float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 5);
+        float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 5);
         lbl_8087EEB0->fn_80061824(x + 1.0f - 0.5f * w, y, -10.0f, 24.0f, 24.0f, 0.0f, 0.0f, 0.0f, text, 0xFF000000, 1, 5, 0, 0, 0xFF000000);
-        w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 4);
+        w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 4);
         lbl_8087EEB0->fn_80061824(x - 0.5f * w, y, -10.0f, 24.0f, 24.0f, 0.0f, 0.0f, 0.0f, text, 0xFFFFFFFF, 1, 4, 0, 0, 0xFF000000);
         break;
     }

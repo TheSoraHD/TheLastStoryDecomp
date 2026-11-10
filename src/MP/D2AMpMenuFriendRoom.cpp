@@ -100,8 +100,7 @@ D2AMpMenuFriendRoom::~D2AMpMenuFriendRoom() {
     }
 }
 
-// NONMATCHING: 98.28% - 16.0f loaded before the data() branch (as in D2AMpMenuSetRule::vf0C) and
-// text/layout registers of the L"" texts
+// NONMATCHING: 99.85% - text/layout registers of the L"" texts swapped (r28/r29)
 int D2AMpMenuFriendRoom::vf0C() {
     if (fn_800D3FA4() != 0) {
         mA0 = 0;
@@ -113,7 +112,7 @@ int D2AMpMenuFriendRoom::vf0C() {
         SetPaneValue_unk(m78->mLayout, "pos0017", 4, -110.0f);
         void* pane = FindPane_unk(m78->mLayout, "string0007(1)");
         if (pane != 0) {
-            float w = fn_8006EF48(lbl_8087EEC8, fn_800A4450(pane, 0, 0).data(), 16.0f, 0.0f, 1, 1);
+            float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
             SetPaneValue_unk(m78->mLayout, "pos0017", 0, 590.0f - w);
         }
         SetPaneText_unk(m4C->mLayout, "string0001(1)", L"");

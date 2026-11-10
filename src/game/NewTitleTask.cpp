@@ -49,7 +49,7 @@ extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: scre
 extern "C" void* fn_801FEB9C(void* layout, const char* name); // inferred: track of a pane value
 extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
 extern "C" void fn_801F4728(atn::D2A_Task* task, const char* name, const float* v); // inferred: SetParam0
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" void* lbl_8087EEC8; // inferred: font
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
@@ -1333,13 +1333,13 @@ void NewTitleTask::vf14() {
     if (state == 14) {
         static wchar_t sVoiceSelect[] = L"Voice Select";
         float height = 3.0f * (size + space);
-        float w = fn_8006EF48(lbl_8087EEC8, sVoiceSelect, size, 0.0f, 1, 1);
+        float w = fn_8006EF48(lbl_8087EEC8, size, sVoiceSelect, 0.0f, 1, 1);
         dh->fn_80061824(0.5f * lbl_8087EEE0->mWidth - 0.5f * w, 0.5f * (lbl_8087EEE0->mHeight - height), z, size, size,
                         0.0f, 0.0f, 0.0f, sVoiceSelect, 0x96FFFA96, 1, 1, 0, 0, 0xFF000000);
         for (int i = 0; i < 2; i++) {
             wchar_t text[0x100];
             fn_8006F2F0(lbl_8087EEC8, text, lbl_80793940[i].mName, 0x100);
-            float tw = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+            float tw = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
             float x = 0.5f * lbl_8087EEE0->mWidth - 0.5f * tw;
             float y = (i + 1) * (size + space) + 0.5f * (lbl_8087EEE0->mHeight - height);
             dh->fn_80061824(x, y, z, size, size, 0.0f, 0.0f, 0.0f, text, 0x96FFFA96, 1, 1, 0, 0, 0xFF000000);

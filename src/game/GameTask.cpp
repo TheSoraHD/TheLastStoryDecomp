@@ -279,7 +279,7 @@ struct TaskWithTac_unk {
 };
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 extern "C" void fn_801FECE0(atn::D2A_Layout_unk* layout, unsigned int hash, float value);
-extern "C" float fn_8006EF48(atn::Font_unk* font, const wchar_t* text, float size, float f2, int a, int b);
+extern "C" float fn_8006EF48(atn::Font_unk* font, float size, const wchar_t* text, float f2, int a, int b);
 extern "C" void fn_8006F2F0(atn::Font_unk* font, wchar_t* dst, const char* src, int size); // inferred: to wide text
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" int lbl_8087F438; // inferred: the loading time is being measured
@@ -1871,7 +1871,7 @@ static const char* const sFieldSounds_unk[] = {
 
 // inferred: one line of the debug text, right aligned at x 590
 static inline void DrawDebugLine_unk(const wchar_t* text, float y, float size, float z) {
-    float width = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+    float width = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
     lbl_8087EEB0->fn_80061824(590.0f - width, y, z, size, size, 0.0f, 0.0f, 0.0f, text, 0xFFFFFFFF, 1, 1, 0, 0,
                               0xFF000000);
 }

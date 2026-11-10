@@ -14,6 +14,7 @@
 #include "MP/D2AMpMenuLobby.h"
 #include "MP/D2AMpMenuMessageList.h"
 #include "game/GameConfig_unk.h"
+#include "atn/net/NetRanking.h"
 
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -40,6 +41,9 @@ extern "C" void fn_800D2338(atn::Task* task);                 // inferred: remov
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
 extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" void* fn_801FEC08(void* layout, const char* name); // inferred: track of a pane value
+extern "C" float fn_801F0544(void* key, int frame);           // inferred: value of a key
+extern "C" void fn_804EAA5C(MpMsgSession_unk* s, int value);  // inferred: sets the kind of match
 extern "C" int fn_804EA520(MpMsgSession_unk* s); // inferred: nonzero when the session is idle (atn/PacketPack.cpp)
 
 namespace MP {
@@ -142,7 +146,6 @@ D2AMpMenu::~D2AMpMenu() {
     }
 }
 
-// NONMATCHING: the original loads the 16.0f of fn_8006EF48 before the data() branch (as D2AMpMenuSetRule::vf0C)
 int D2AMpMenu::vf0C() {
     if (fn_800D3FA4() != 0) {
         SetAll_unk(0);
@@ -152,7 +155,7 @@ int D2AMpMenu::vf0C() {
         SetPaneValue_unk(m70->mLayout, "pos0017", 4, -110.0f);
         void* pane = fn_801FEC74(m70->mLayout, "string0007(1)");
         if (pane != 0) {
-            fn_8006EF48(lbl_8087EEC8, fn_800A4450(pane, 0, 0).data(), 16.0f, 0.0f, 1, 1);
+            fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
         }
         fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
         D2AMpMenuRankMark::sInstance->fn_804B4770(-1);
@@ -388,6 +391,76 @@ void D2AMpMenu::fn_804B12F8() {
     }
 }
 
+// inferred: widens the cursor `pos` of `task` to the text of the pane `str`
+static inline float TextWidth_unk(const std::basic_string<wchar_t>& text, float size) {
+    return fn_8006EF48(lbl_8087EEC8, size, text.data(), 0.0f, 1, 1);
+}
+static inline void FitCursor_unk(MpD2A_unk* task, const char* str, const char* pos) {
+    float w = TextWidth_unk(fn_800A4450(fn_801FEC74(task->mLayout, str), 0, 0), 21.0f);
+    SetPaneValue_unk(task->mLayout, pos, 2, (7.0f + w) / 100.0f);
+}
+
+// NONMATCHING: 99.0% - the pane name of m64 is computed before its layout in the original; the pad gets r28
+// (r29 in the original); offsets in @stringBase0
+// inferred: input of the match selection (state 9)
+void D2AMpMenu::fn_804B1528() {
+    if (D2ACommonDialog::sInstance->m4C != 0) {
+        if (D2ACommonDialog::sInstance->fn_804AC734()) {
+            D2ACommonDialog::sInstance->fn_804ACAF8();
+            D2ACommonDialog::sInstance->fn_804ACDBC();
+            FitCursor_unk(m50, "cmd01", "cursorPos1(1)");
+            FitCursor_unk(m50, "string0006(1)", "pos0003(1)");
+            FitCursor_unk(m50, "string0001(1)", "pos0007(1)");
+            FitCursor_unk(m50, "string0010(1)", "pos0008(1)");
+            FitCursor_unk(m50, "string0004", "cursorPos3");
+            Play_unk(m50, 0, 1.0f);
+            Play_unk(m54, 0, 1.0f);
+            for (int i = 0; i < sizeof(m58) / sizeof(m58[0]); i++) {
+                Play_unk(m58[i], 1, 1.0f);
+            }
+            float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(fn_801FEC74(m64->mLayout, "string0001(1)(1)"), 0, 0).data(), 0.0f, 1, 1);
+            w += fn_801F0544((char*)fn_801FEC08(m64->mLayout, "pos0001") + 4, 0);
+            SetPaneValue_unk(m64->mLayout, "pos0008(2)", 0, w);
+            Play_unk(m64, 0, 1.0f);
+            D2AMpMenuRankMark::sInstance->fn_804B4678(0, 1.0f, 0);
+            D2AMpMenuRankMark::sInstance->fn_804B4700(0);
+            if (mD4 = fn_8050F5A8(&lbl_8087F628->m430, 0) != -1) {
+                m50->SetColor_unk("col0006", 255.0f, 255.0f, 255.0f);
+            } else {
+                m50->SetColor_unk("col0006", 100.0f, 100.0f, 100.0f);
+            }
+        } else {
+            return;
+        }
+    }
+    if (mE4 == 1 && mD4 == 0) {
+        mE4 = 0;
+    }
+    void* pad = lbl_8087EF70;
+    do {
+        fn_804A436C(&mE4, 5, 5, 1, 3);
+    } while (mE4 == 1 && mD4 == 0);
+    if (fn_800A555C(pad, 0, 4) != 0) {
+        fn_80117228(1);
+        if (mE4 == 0) {
+            fn_804EAA5C(lbl_8087F610, 0);
+            fn_804AF520(10);
+        } else if (mE4 == 1) {
+            fn_804EAA5C(lbl_8087F610, 1);
+            fn_804AF520(10);
+        } else if (mE4 == 2) {
+            fn_804AF520(17);
+        } else if (mE4 == 3) {
+            fn_804AF520(6);
+        } else if (mE4 == 4) {
+            fn_804AF520(8);
+        }
+    } else if (fn_800A555C(pad, 0, 5) != 0) {
+        fn_80117228(2);
+        fn_804AF520(8);
+    }
+}
+
 // inferred: sends the room settings
 static inline void SendRoomInfo_unk() {
     if (lbl_8087F628 != 0) {
@@ -441,6 +514,127 @@ void D2AMpMenu::fn_804B1C88() {
     }
 }
 
+// NONMATCHING: 94.5% - the original keeps dead zeroed locals (0x40 bytes and five floats) before the copy of the
+// rows, so its frame is 0x160 and the registers shift by one; offsets in @stringBase0
+// inferred: input of the ranking (state 18)
+void D2AMpMenu::fn_804B1E48() {
+    char name[64] = "";
+    MpRect_unk rect;
+    void* pad = lbl_8087EF70;
+    for (int i = 0; i < 10; i++) {
+        sprintf(name, "ranking_list%02d", i + 1);
+        rect = GetPaneRect_unk(m80, name);
+        fn_801F4728(m8C[i], "pos0030(1)(1)(1)", &rect);
+    }
+    int decide = Decide_unk(&mE4, 1);
+    if (decide == 1) {
+        fn_804AF520(9);
+    } else if (decide == 2) {
+        fn_804AF520(9);
+    }
+    for (int i = 0; i < 2; i++) {
+        if (mEC[i] != -1) {
+            int v;
+            if (mEC[i] <= 5) {
+                v = mEC[i] * 30;
+            } else {
+                v = 150 - (mEC[i] - 5) * 30;
+            }
+            unsigned int color = 0xFF000000 | (v & 0xFF) << 16 | (v & 0xFF) << 8 | (v & 0xFF);
+            if (i == 0) {
+                m78->SetColor_unk("col0101(1)", color);
+            } else if (i == 1) {
+                m78->SetColor_unk("col0102(1)", color);
+            }
+            mEC[i]++;
+            if (mEC[i] > 10) {
+                mEC[i] = -1;
+            }
+        } else if (i == 0) {
+            m78->SetColor_unk("col0101(1)", 0xFF000000);
+        } else if (i == 1) {
+            m78->SetColor_unk("col0102(1)", 0xFF000000);
+        }
+    }
+    int prev = mC8;
+    int changed = 0;
+    if (fn_800A555C(pad, 0, 0x17) != 0 || fn_800A555C(pad, 0, 2) != 0) {
+        mEC[0] = 0;
+        if (--mC8 < 0) {
+            mC8 = 2;
+        }
+        changed = 1;
+    } else if (fn_800A555C(pad, 0, 0x18) != 0 || fn_800A555C(pad, 0, 3) != 0) {
+        mEC[1] = 0;
+        if (++mC8 > 2) {
+            mC8 = 0;
+        }
+        changed = 1;
+    }
+    if (changed) {
+        fn_80117228(3);
+        if (lbl_8087F5A4->fn_8050C840(mC8) != 0) {
+            fn_804AF520(17);
+        } else {
+            mDC = 0;
+            fn_804B3EFC(-1, 0, 10);
+            if (mDC != 0) {
+                RANKING_DATA_LIST* list = mLists[mC8];
+                for (int i = 0; i < list->GetCount(); i++) {
+                    list->Get(i)->Clear();
+                }
+                list = mLists[mC8];
+                atn::FixedArray_unk<atn::net::NetRankData_unk, 65>* rows = &lbl_8087F5A4->mRows;
+                for (int i = 0; i < list->GetCount(); i++) {
+                    if (i < rows->mSize) {
+                        atn::net::NetRankData_unk* row = &(*rows)[i];
+                        list->Get(i)->m00 = row->mOrder;
+                        list->Get(i)->m04 = row->mScore;
+                        fn_800DD3FC(list->Get(i)->mName, (const wchar_t*)row->mUserData);
+                        list->Get(i)->m48 = 1;
+                        list->Get(i)->m4C = row->mPid;
+                    } else {
+                        list->Get(i)->m48 = 0;
+                    }
+                }
+                list->m04 = rows->mSize;
+                mLists[mC8]->m00 = 0;
+            }
+            fn_804B3EFC(mC8, mLists[mC8]->m00, 10);
+            mDC = 1;
+        }
+        fn_804B3C78(prev, mC8, 1);
+    } else {
+        int top = mLists[mC8]->m00;
+        if (fn_800A55AC(pad, 0, 0) != 0 || fn_800A55AC(pad, 0, 0x1A) != 0) {
+            if (--mLists[mC8]->m00 < 0) {
+                mLists[mC8]->m00 = 0;
+            }
+        } else if (fn_800A55AC(pad, 0, 1) != 0 || fn_800A55AC(pad, 0, 0x19) != 0) {
+            RANKING_DATA* data = mLists[mC8]->Get(mLists[mC8]->m00 + 10);
+            bool more = data == 0 ? false : data->m48 != 0;
+            if (more == true) {
+                mLists[mC8]->m00++;
+            }
+        }
+        if (top != mLists[mC8]->m00) {
+            fn_804B3EFC(mC8, mLists[mC8]->m00, 10);
+            fn_80117228(3);
+        }
+    }
+    for (int i = 0; i < 10; i++) {
+        if (i != mCC && m8C[i]->mFrame >= 11.0f) {
+            m8C[i]->mSpeed = 0.0f;
+            m8C[i]->mFrame = 11.0f;
+        }
+    }
+    rect = GetPaneRect_unk(m80, "sb_null_0003(1)");
+    rect.h = 1.0f;
+    fn_801F4728(mB4, "basePos", &rect);
+    SetPaneFloat_unk(&mB4->mLayout, "s_hightMax", 170.0f);
+}
+
+// inferred: input of the room type (state 10)
 void D2AMpMenu::fn_804B274C() {
     int decide = Decide_unk(&mE4, 3);
     if (decide == 1) {
@@ -628,7 +822,7 @@ static inline void SideName_unk(wchar_t* text, int side) {
 
 // NONMATCHING: 99.4% - the task of Play_unk in r29 instead of r30; offsets in @stringBase0
 // inferred: shows the change of side from `before` to `after` (animated backwards if `back`)
-void D2AMpMenu::fn_804B3C78(int before, int after, int back) {
+__declspec(noinline) void D2AMpMenu::fn_804B3C78(int before, int after, int back) {
     wchar_t textBefore[256] = {0};
     wchar_t textAfter[256] = {0};
     SideName_unk(textBefore, before);

@@ -369,7 +369,7 @@ inline bool IsArenaMode_unk(int mode) {
 
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
 extern "C" void* lbl_8087EEC8;
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F2F0(void* font, wchar_t* dst, const char* src, int n); // inferred: to wide characters
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
@@ -5409,21 +5409,21 @@ void CharaTask::fn_80149A30() {
                 wchar_t text[256];
                 sprintf(lbl_807C7B28, "ch%04d_%02d", m50 / 100, m50 % 100);
                 fn_8006F2F0(lbl_8087EEC8, text, lbl_807C7B28, 256);
-                float w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
+                float w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"ControlMode %d, %d", m55C, m560);
-                w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
+                w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"Motion(blend, speed) wt(%.2f, %.2f) wk(%.2f, %.2f) rn(%.2f, %.2f)",
                          mMotion.fn_8013C3E4(0), mMotion.GetMotionSpeed(0), mMotion.fn_8013C3E4(1),
                          mMotion.GetMotionSpeed(1), mMotion.fn_8013C3E4(2), mMotion.GetMotionSpeed(2));
-                w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
+                w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
                 swprintf(text, 256, L"inertia %.2f", m570);
-                w = fn_8006EF48(lbl_8087EEC8, text, 12.0f, 0.0f, 1, 1);
+                w = fn_8006EF48(lbl_8087EEC8, 12.0f, text, 0.0f, 1, 1);
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, y, 0.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
                 y += 12.0f;
             }
@@ -5527,7 +5527,7 @@ void CharaTask::fn_80149A30() {
                     text = lbl_8087F1E4->Get_unk(129);
                 }
                 float size = 12.0f;
-                float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+                float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA000FFFF, 1, 1, 0, 0, 0xFF000000);
@@ -5536,7 +5536,7 @@ void CharaTask::fn_80149A30() {
                 atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
                 const wchar_t* text = lbl_8087F1E4->Get_unk(65);
                 float size = 12.0f;
-                float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+                float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xD0AA88AA, 1, 1, 0, 0, 0xFF000000);
@@ -5545,7 +5545,7 @@ void CharaTask::fn_80149A30() {
                 atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
                 const wchar_t* text = lbl_8087F1E4->Get_unk(97);
                 float size = 12.0f;
-                float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+                float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
                 atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
                 if (screen.z > 0.0f && screen.z < 1.0f) {
                     lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xC0AA88FF, 1, 1, 0, 0, 0xFF000000);
@@ -5580,7 +5580,7 @@ void CharaTask::fn_80149A30() {
             if (text == 0) {
                 return;
             }
-            float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+            float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (!(screen.z > 0.0f)) {
                 return;
@@ -5601,7 +5601,7 @@ void CharaTask::fn_80149A30() {
             unsigned int color = (mC58.m11C.m01 == 1) ? 0xA0FF4040 : 0xA0FFC040;
 
             float size = 30.0f * (0.4f * m12C8 + 1.0f);
-            float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+            float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, color, 1, 1, 0, 0, 0xFF000000);
@@ -5610,7 +5610,7 @@ void CharaTask::fn_80149A30() {
             atn::Vector3 pos = mColli.m48 + atn::Vector3(0.0f, 1.5f * m5B0, 0.0f);
             const wchar_t* text = lbl_8087F1E4->Get_unk(121);
             float size = 30.0f * (0.4f * m12C8 + 1.0f);
-            float w = fn_8006EF48(lbl_8087EEC8, text, size, 0.0f, 1, 1);
+            float w = fn_8006EF48(lbl_8087EEC8, size, text, 0.0f, 1, 1);
             atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
             if (screen.z > 0.0f && screen.z < 1.0f) {
                 lbl_8087EEB0->fn_80061824(screen.x - 0.5f * w, screen.y - 12.0f - m12C8, 0.0f, size, size, 0.0f, 0.0f, 0.0f, text, 0xA0FFC040, 1, 1, 0, 0, 0xFF000000);

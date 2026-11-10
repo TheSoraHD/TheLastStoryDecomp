@@ -349,7 +349,7 @@ void D2AMpMenuMessageList::fn_804C50C0() {
                 float off = i == mAC ? scroll : 0.0f;
                 lbl_8087EEB0->fn_80061AE4(msg->mText != 0 ? msg->mText : lbl_808813D0, -1, 1, 1, 0, 1, 0xFF000000, pos.x - off, pos.y, -100.0f, 17.0f, 17.0f, 0.0f, 0.0f, 0.0f, pos.x - width * scale, width, scale);
                 if (i == mAC) {
-                    float w = fn_8006EF48(lbl_8087EEC8, msg->mText != 0 ? msg->mText : lbl_808813D0, 17.0f, 0.0f, 1, 1);
+                    float w = fn_8006EF48(lbl_8087EEC8, 17.0f, msg->mText != 0 ? msg->mText : lbl_808813D0, 0.0f, 1, 1);
                     if (scroll > w) {
                         mB0 = 0.0f;
                     }

@@ -88,7 +88,7 @@ extern "C" MP::MpMsgTable_unk* lbl_8087F86C;
 // inferred: text of a pane (returned by value) and its width with the font lbl_8087EEC8
 extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
 extern "C" void* lbl_8087EEC8;
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
 
 namespace MP {
 

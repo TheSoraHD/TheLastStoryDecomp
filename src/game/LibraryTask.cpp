@@ -34,7 +34,7 @@ extern "C" void fn_801F6E78(MenuLayout_unk* layout, const char* name, const atn:
 extern "C" void fn_801F6C80(MenuLayout_unk* layout, const char* name, float value);
 extern "C" void fn_801F837C(MenuLayout_unk* layout, const char* name, const wchar_t* text);
 extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size); // inferred: wide to multibyte
 // inferred: word wrap of a text
 extern "C" std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float width, float size, float f3, int a,
@@ -536,7 +536,7 @@ void BookTask::fn_8046ACDC() {
 // loaded first, stack slots of the iterator tags
 void BookTask::fn_8046AE7C() {
     m50->mFlags &= ~4;
-    float width = fn_8006EF48(lbl_8087EEC8, mTitle.c_str(), 20.0f, 0.0f, 1, 1);
+    float width = fn_8006EF48(lbl_8087EEC8, 20.0f, mTitle.c_str(), 0.0f, 1, 1);
     SetLayoutValue_unk(&m50->mData.m10, "strLength", width);
     SetLayoutValue_unk(&m50->mData.m10, "fade", mFade);
     SetLayoutText_unk(&m50->mData.m10, "bookName", mTitle.c_str());

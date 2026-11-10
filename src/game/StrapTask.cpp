@@ -145,7 +145,7 @@ extern "C" StrapMsgTable_unk* lbl_8087F1E4;
 extern "C" void* lbl_8087EEC8; // inferred: font
 extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, int arg2, int font,
                             void* callback, float maxWidth, float size, float spacing); // inferred: splits the lines
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 // inferred: draws a texture of texW x texH over the screen (4:3 or 16:9); name invented
 inline float Ratio_unk(int a, int b) {
@@ -201,7 +201,7 @@ void StrapTask::vf14() {
         std::vector<std::basic_string<wchar_t> > lines;
         fn_800E0000(&lines, lbl_8087F1E4->Get_unk(0x38F), 1, 1, 0, 560.0f, 20.0f, 0.0f);
         for (unsigned int i = 0; i < lines.size(); i++) {
-            float w = fn_8006EF48(lbl_8087EEC8, lines[i].c_str(), 20.0f, 0.0f, 1, 1);
+            float w = fn_8006EF48(lbl_8087EEC8, 20.0f, lines[i].c_str(), 0.0f, 1, 1);
             float x = 0.5f * (640.0f - w);
             float y = 30.0f * i + 50.0f;
             unsigned int color = ((unsigned int)(255.0f * alpha) << 24) | 0xFFFFFF;

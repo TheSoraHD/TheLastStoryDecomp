@@ -102,8 +102,6 @@ void D2AMpMenuSetRule::UpdateListPos_unk() {
     }
 }
 
-// NONMATCHING: 98.46% - the original loads the 16.0f size argument of fn_8006EF48 before the
-// branch of data(); tried a temporary/named/scoped string, inline width helpers, local size/font
 int D2AMpMenuSetRule::vf0C() {
     if (fn_800D3FA4() != 0) {
         for (unsigned int i = 0; i < m7C.size(); i++) {
@@ -114,7 +112,7 @@ int D2AMpMenuSetRule::vf0C() {
         UpdateListPos_unk();
         void* pane = FindPane_unk(m58->mLayout, "string0007(1)");
         if (pane != 0) {
-            float w = fn_8006EF48(lbl_8087EEC8, fn_800A4450(pane, 0, 0).data(), 16.0f, 0.0f, 1, 1);
+            float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 1);
             SetPaneValue_unk(m58->mLayout, "pos0017", 0, 590.0f - w);
         }
         m5C = 5;

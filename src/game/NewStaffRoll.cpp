@@ -33,7 +33,7 @@ extern "C" StaffRollScreen_unk* lbl_8087EEE0;
 // inferred: the event manager (lbl_8087F540, Event/Manager.h) and its current sequence
 // inferred: debug drawing (lbl_8087EEB0) and the font used to measure the text (lbl_8087EEC8)
 extern "C" void* lbl_8087EEC8;
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 // inferred: type of a line (name invented)
 static inline int __GetType_unk(const wchar_t* s) {
@@ -253,7 +253,7 @@ void NewStaffRoll::vf14() {
                 lbl_8087EEB0->fn_8005E7F4(-1, 0, &mLogo, x, y, -1.05f, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
                 lbl_8087EEB0->mA0 = 18;
             } else {
-                float w = fn_8006EF48(lbl_8087EEC8, line.mText, line.mSize, 0.0f, 1, 1);
+                float w = fn_8006EF48(lbl_8087EEC8, line.mSize, line.mText, 0.0f, 1, 1);
                 float x = __GetX_unk(line.mAlign, width, w);
                 lbl_8087EEB0->mA0 = 19;
                 lbl_8087EEB0->fn_80061824(1.0f + x, 1.0f + y, -1.05f, line.mSize, line.mSize, 0.0f, 0.0f, 0.0f, line.mText, 0xFF000000, 1, 1, 0, 0, 0xFF000000);

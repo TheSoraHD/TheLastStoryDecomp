@@ -138,7 +138,7 @@ extern "C" float lbl_8087DBD4;
 extern "C" void* lbl_8087EF70;
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 extern "C" void* lbl_8087EEC8;
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 
@@ -415,7 +415,7 @@ void Dialog::fn_80228CA0(int slot, const wchar_t* text, int align, int size, int
             mSlots[slot].mXY.y += -3.0f;
         }
     } else if (mode == 2) {
-        mSlots[slot].mXY.x += fn_8006EF48(lbl_8087EEC8, lbl_8087DBD8, fontSize, 0.0f, 1, 1);
+        mSlots[slot].mXY.x += fn_8006EF48(lbl_8087EEC8, fontSize, lbl_8087DBD8, 0.0f, 1, 1);
     }
     if (m11C != slot) {
         fn_800DAA3C(lbl_8087F008, 0);
@@ -446,7 +446,7 @@ void Dialog::fn_80228CA0(int slot, const wchar_t* text, int align, int size, int
     param.m3C = f2;
     param.m40 = offset;
     fn_800DAB68(lbl_8087F008, &param);
-    mSlots[slot].mXY.x += fn_8006EF48(lbl_8087EEC8, text, fontSize, 0.0f, 1, 1);
+    mSlots[slot].mXY.x += fn_8006EF48(lbl_8087EEC8, fontSize, text, 0.0f, 1, 1);
 }
 
 // inferred: actor taking part in the conversation

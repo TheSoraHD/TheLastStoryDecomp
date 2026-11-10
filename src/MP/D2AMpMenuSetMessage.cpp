@@ -751,7 +751,7 @@ void D2AMpMenuSetMessage::fn_804CB2F0() {
             float off = i == mE4 ? scroll : 0.0f;
             lbl_8087EEB0->fn_80061AE4(text, -1, 1, 1, 0, 1, 0xFF000000, pos.x - off, pos.y, -5.0f, 17.0f, 17.0f, 0.0f, 0.0f, 0.0f, pos.x - width * scale, width, scale);
             if (i == mE4) {
-                float w = fn_8006EF48(lbl_8087EEC8, text, 17.0f, 0.0f, 1, 1);
+                float w = fn_8006EF48(lbl_8087EEC8, 17.0f, text, 0.0f, 1, 1);
                 if (scroll > w) {
                     m170 = 0.0f;
                 }
@@ -869,7 +869,7 @@ void D2AMpMenuSetMessage::fn_804CBCD0() {
             float off = i == mE4 ? scroll : 0.0f;
             lbl_8087EEB0->fn_80061AE4(text, -1, 1, 1, 0, 1, 0xFF000000, pos.x - off, pos.y, -10.0f, 17.0f, 17.0f, 0.0f, 0.0f, 0.0f, pos.x - width * scale, width, scale);
             if (i == mE4) {
-                float w = fn_8006EF48(lbl_8087EEC8, text, 17.0f, 0.0f, 1, 1);
+                float w = fn_8006EF48(lbl_8087EEC8, 17.0f, text, 0.0f, 1, 1);
                 if (scroll > w) {
                     m170 = 0.0f;
                 }
@@ -891,7 +891,7 @@ void D2AMpMenuSetMessage::fn_804CBCD0() {
             who = GetSpeaker_unk(m164, index);
         }
         if (who != 0) {
-            int w = fn_8006EF48(lbl_8087EEC8, who, 17.0f, 0.0f, 1, 1);
+            int w = fn_8006EF48(lbl_8087EEC8, 17.0f, who, 0.0f, 1, 1);
             if (w < 119) {
                 lbl_8087EEB0->fn_80061824(pos.x, pos.y, -10.0f, 17.0f, 17.0f, 0.0f, 0.0f, 0.0f, who, -1, 1, 1, 0, 0, 0xFF000000);
             } else {

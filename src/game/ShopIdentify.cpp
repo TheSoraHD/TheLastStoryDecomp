@@ -35,7 +35,7 @@ struct D2A_TextParam_unk;
 extern "C" atn::D2A_TextParam_unk* fn_801FEC74(void* layout, const char* name);
 extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, int index, int table); // inferred
 extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 // inferred: 2D point of a d2anime pane (0x14 bytes)
 struct ShopPoint_unk {
@@ -594,12 +594,12 @@ void ShopIdentify::fn_80589DE0(ShopIdentifyEntry_unk* entry, int help) {
     float width;
     {
         std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mContent->mLayout, "string0012(1)"), 0, 0);
-        width = fn_8006EF48(lbl_8087EEC8, text.data(), 14.0f, 0.0f, 1, 1);
+        width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
     SetPaneValue_unk(mContent->mLayout, "pos0011", 0, 175.0f - width - 16.0f);
     {
         std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mContent->mLayout, "string0010(1)"), 0, 0);
-        width = fn_8006EF48(lbl_8087EEC8, text.data(), 14.0f, 0.0f, 1, 1);
+        width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
     SetPaneValue_unk(mContent->mLayout, "pos0009", 0, 175.0f - width - 16.0f);
     if (help) {
@@ -635,7 +635,7 @@ void ShopIdentify::fn_8058A0F0(ShopIdentifyEntry_unk* entry) {
     float width;
     {
         std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(mResult->mLayout, "string0012(1)(1)"), 0, 0);
-        width = fn_8006EF48(lbl_8087EEC8, text.data(), 14.0f, 0.0f, 1, 1);
+        width = fn_8006EF48(lbl_8087EEC8, 14.0f, text.data(), 0.0f, 1, 1);
     }
     SetPaneValue_unk(mResult->mLayout, "pos0011", 0, 155.0f - width - 16.0f);
 }

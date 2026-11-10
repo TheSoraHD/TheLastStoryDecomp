@@ -59,7 +59,7 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" wchar_t* fn_800DC3C8(wchar_t* s, const wchar_t* delim, wchar_t** context); // inferred: wcstok
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: path without its extension
 extern "C" atn::D2A_Task* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b);
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b);
 
 namespace Event {
 
@@ -419,8 +419,7 @@ void Sequence::fn_8053F1B4() {
         if ((unsigned int)(m190 - 0x238D) <= 5) {
             atn::D2A_Task* task = static_cast<atn::D2A_Task*>(mD4.mData[0].m18);
             float width =
-                fn_8006EF48(lbl_8087EEC8, fn_800A4450(fn_801FEC74(&task->mData.m10, "mapName"), 0, 0).c_str(), 20.0f,
-                            0.0f, 1, 1);
+                fn_8006EF48(lbl_8087EEC8, 20.0f, fn_800A4450(fn_801FEC74(&task->mData.m10, "mapName"), 0, 0).c_str(), 0.0f, 1, 1);
             fn_801FECE0(&task->mData.m10, fn_800DC6B4("strLength"), width);
         }
     }
@@ -961,13 +960,13 @@ void Sequence::fn_80541588(const wchar_t* text, float x, float y, int show, int 
         float px;
         switch (align) {
         case 0:
-            px = width * x - 0.5f * fn_8006EF48(lbl_8087EEC8, tok, 20.0f, 0.0f, 1, 1);
+            px = width * x - 0.5f * fn_8006EF48(lbl_8087EEC8, 20.0f, tok, 0.0f, 1, 1);
             break;
         case 1:
             px = width * x;
             break;
         case 2:
-            px = width * x - fn_8006EF48(lbl_8087EEC8, tok, 20.0f, 0.0f, 1, 1);
+            px = width * x - fn_8006EF48(lbl_8087EEC8, 20.0f, tok, 0.0f, 1, 1);
             break;
         }
         float py = top + (height * y + 20.0f * line++);

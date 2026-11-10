@@ -49,7 +49,7 @@ struct D2A_TextParam_unk;
 extern "C" atn::D2A_TextParam_unk* fn_801FEC74(void* layout, const char* name);
 extern "C" std::basic_string<wchar_t> fn_800A4450(atn::D2A_TextParam_unk* text, int index, int table); // inferred
 extern "C" void* lbl_8087EEC8; // inferred: font
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float f2, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
 
 
 // inferred: functions of NewCampPartsBase (0x8050F93C-0x80512024) still called by their automatic names
@@ -326,7 +326,6 @@ void NewCampPartsTop::vf28() {
     }
 }
 
-// NONMATCHING: 99.67% - the size argument of fn_8006EF48 is loaded before the data() branch in the original
 void NewCampPartsTop::vf2C() {
     if (mSave == 0 || !mSave->IsFlag_unk(2)) {
         return;
@@ -502,7 +501,7 @@ void NewCampPartsTop::vf2C() {
         float width;
         {
             std::basic_string<wchar_t> text = fn_800A4450(fn_801FEC74(task->mLayout, "string0004(1)(1)"), 0, 0);
-            width = fn_8006EF48(lbl_8087EEC8, text.data(), 16.0f, 0.0f, 1, 1);
+            width = fn_8006EF48(lbl_8087EEC8, 16.0f, text.data(), 0.0f, 1, 1);
         }
         fn_801FED24(task->mLayout, fn_800DC6B4("TimePos"), 0, 18.0f + width);
         void* pad = lbl_8087EF70;

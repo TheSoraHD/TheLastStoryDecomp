@@ -425,7 +425,7 @@ extern "C" void fn_8006D7B0(Font_unk* self, float x, float y, float size, float 
 
 // inferred: width of a wide string
 // NONMATCHING: 90% - float register allocation and loop shape
-extern "C" float fn_8006EF48(Font_unk* self, const wchar_t* text, float size, float spacing, int proportional, int font) {
+extern "C" float fn_8006EF48(Font_unk* self, float size, const wchar_t* text, float spacing, int proportional, int font) {
     float w = 0.0f;
     unsigned int len = wcslen(text);
     if (proportional) {

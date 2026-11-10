@@ -747,7 +747,7 @@ extern "C" void* lbl_8087EEC8; // inferred: font
 inline void* GetFont_unk() {
     return lbl_8087EEC8;
 }
-extern "C" float fn_8006EF48(void* font, const wchar_t* text, float size, float space, int a, int b); // inferred: width
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float space, int a, int b); // inferred: width
 extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, float width,
                             float size, float space, int a, int b, int c); // inferred: word wrap
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
@@ -1692,7 +1692,7 @@ void GameUI::fn_803D2A6C() {
                 const wchar_t* name = fn_802168BC(m2648);
                 int type = fn_80216908(m2648);
                 if (name != 0) {
-                    float width = fn_8006EF48(GetFont_unk(), name, 20.0f, 0.0f, 1, 1);
+                    float width = fn_8006EF48(GetFont_unk(), 20.0f, name, 0.0f, 1, 1);
                     m2654->SetLayoutText_unk("mapName", name);
                     m2654->SetLayoutValue_unk("strLength", width);
                     m2654->SetLayoutValue_unk("type", (float)type);
