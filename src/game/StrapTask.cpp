@@ -174,12 +174,13 @@ inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW
     h *= fy;
     float s = (sy * fx) / ky;
     w /= s;
-    float x = 0.5f * (scrW * s - texW) + x0;
+    scrW *= s;
+    float x = 0.5f * (scrW - texW) + x0;
     float y = 0.0f;
     lbl_8087EEB0->fn_8005DFC8(color, tex, 1, x, y, 0.0f, w, h);
 }
 
-// NONMATCHING: 91.6% - FPR allocation (alpha in f31 vs f29, constants of the line loop). The original
+// NONMATCHING: 92.1% - FPR allocation (alpha in f31 vs f29, constants of the line loop). The original
 // loads the 20.0f/0.0f arguments once per use (the 0.0f twice in one call: z and f6-f8), ours shares them;
 // tried named/extern/static const floats, inline text helpers taking the string and the size. `y` as a
 // local in DrawScreen_unk and the screen width after the ratio of the widths: 85.9 -> 91.6.
