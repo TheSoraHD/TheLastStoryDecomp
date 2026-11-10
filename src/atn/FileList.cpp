@@ -2,6 +2,7 @@
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "std/string.h"
+#include "std/string_members.h"
 #include <stdarg.h>
 
 // File and path utilities of the engine (path normalisation, language suffixes, loaded file
@@ -135,6 +136,10 @@ extern "C" std::string fn_8006AC08(const std::string& path) {
     return std::string("");
 }
 
+// inferred: instantiated here too (its weak copy is the one of atn/FileUtil_unk.cpp, 0x80069BF4): its
+// "basic_string: out_of_range" follows the strings of fn_8006AC08 in the pool
+template std::string::basic_string(const std::string& str, std::string::size_type pos, std::string::size_type n);
+
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b);
 
 // NONMATCHING: 98.2% - registers of the inlined rfind (as fn_8006AC08) and the pool offset of "."
@@ -149,7 +154,9 @@ extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext) {
     return path;
 }
 
-// 0x8006AF38: std::operator+(const char*, const std::string&) (include/std/string.h)
+// inferred: the original emits this weak copy right after fn_8006AD24 (0x8006AF38); its strings follow
+// those of that function in the pool
+template std::string std::operator+(const char* lhs, const std::string& rhs);
 
 // inferred: a + b (std::string operator+(const std::string&, const std::string&))
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b) {
@@ -428,8 +435,7 @@ struct FileListDir_unk {
 // inferred: adds the files of `dir` whose name ends with `ext` ("*" or null: all) and its directories (type 1;
 // files are type 2); flags: 1 recurses into the directories, 0x10000 adds "dir/name" instead of the name. The
 // files of the mounted archives are added by the loader. Returns the number of names added.
-// NONMATCHING: 96.94% - registers; the pool of the file misses "basic_string: out_of_range" and "." before
-// "/" (functions of the file not written yet)
+// NONMATCHING: 97.15% - registers (the pool matches since the explicit instantiations of arranque2)
 int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
     int count = 0;
     FileListDir_unk* dirs = 0;
