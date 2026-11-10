@@ -56,9 +56,12 @@ void Em209BigGolem::vf40(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.7% - the address registers of the copy of the node position into b are swapped
-// (r3/r4); the chained assignment of a fixes the same swap for a. Same family as Em208Queen::vf20.
-// Tried for b: chained, MtxPtr local, named/field-wise return, temporary, reference, late declaration.
+// inferred: Vector3 copy through one more inline level (as DrawAssign_unk in atn/DrawHelper.cpp)
+static inline void GolemAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
+// The chained assignment of a and GolemAssign_unk for b keep the copy registers (r3/r4) in order.
 void Em209BigGolem::vf20() {
     atn::Vector3 a;
     atn::Vector3 b;
@@ -67,7 +70,7 @@ void Em209BigGolem::vf20() {
     m614 = mPos + m5A4;
     m614.y += m620;
     (a = mPos + m5A4).y += 0.8f * radius;
-    b = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+    GolemAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")));
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = radius;

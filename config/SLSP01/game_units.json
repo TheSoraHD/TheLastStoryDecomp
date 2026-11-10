@@ -1651,7 +1651,7 @@
   "classes": [
    "Em209BigGolem"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "game/Em209SmallGolem.cpp",
