@@ -160,7 +160,12 @@ public:
     int m518;              // inferred: m4FC/m508 follow the character
     unsigned char m51C[0x684 - 0x51C];
     GameCameraParam_unk m684;
-    unsigned char m6C0[0x7F0 - 0x6C0];
+    unsigned char m6C0[0x73C - 0x6C0];
+    float m73C;          // inferred: fovy of the box camera mode (fn_80388A88)
+    unsigned char m740[0x744 - 0x740];
+    atn::Vector3 m744;   // inferred: position of the box camera mode
+    float m750;          // inferred: height of its target above the character
+    unsigned char m754[0x7F0 - 0x754];
     int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
     unsigned char m7F8[0x7FC - 0x7F8];

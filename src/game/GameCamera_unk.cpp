@@ -97,6 +97,8 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
 
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
 extern "C" double sin(double x);
+extern "C" double tan(double x);
+extern "C" double atan(double x);
 extern "C" double sqrt(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 // inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
@@ -226,6 +228,25 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     SetPosition(pos);
     SetTarget_unk(target);
     fn_8037F688(this, fovy);
+    fn_8004B378();
+    fn_80392964(0, 1, 0, 0);
+}
+
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: camera mode at m744 looking at the character (m750 above it); with a camera box of size m30
+// the fovy is narrowed to keep that size in view
+void GameCamera::fn_80388A88(const CharaTask* chara) {
+    SetPosition(m744);
+    atn::Vector3 offset(0.0f, m750, 0.0f);
+    SetTarget_unk(const_cast<CharaTask*>(chara)->fn_80178088() + offset);
+    mFovy = m73C;
+    if (mC20 != 0 && mC20->m30 > 0) {
+        atn::Vector3 d = mPos - mTarget;
+        float dist = PSVECMag(&d);
+        float fovy = 2.0f * (float)atan((float)mC20->m30 * (float)tan(m73C * 0.5f) / dist);
+        mFovy = fovy < m73C ? fovy : m73C;
+    }
     fn_8004B378();
     fn_80392964(0, 1, 0, 0);
 }
