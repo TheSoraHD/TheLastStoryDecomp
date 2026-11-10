@@ -249,9 +249,11 @@ static inline int MoveTmp_unk(atn::NandManager* nand, const char* tmp) {
 static inline int WriteAsync2_unk(atn::NandManager* n) {
     return n->fn_800A4494(n->WriteAsync_unk(n->mData, n->mSize));
 }
-// NONMATCHING: 99.93% - state 1 (OpenTmp_unk inlined): the path of the string constructor of
+// NONMATCHING: 99.95% - state 1 (OpenTmp_unk inlined): the path of the string constructor of
 // TmpPath_unk in r29 and its length in r28 (swapped here; states 3/5 match). Tried: TmpPath_unk body
-// inlined in OpenTmp_unk, OpenTmp_unk body in the case, path in a local, non-const nand.
+// inlined in OpenTmp_unk, OpenTmp_unk body in the case, path in a local, non-const nand. States 17/19:
+// the stack slots of the strings of TmpPath_unk and MoveTmp_unk are swapped (the original keeps
+// TmpPath_unk higher, as in the other states); tried MoveTmp_unk first, one inline, the bodies in the case.
 void NandManager::vf10() {
     switch (mState) {
     case 1:
@@ -557,8 +559,8 @@ void NandManager::vf10() {
             if (mOp == 0 || mOp == 3) {
                 mError = 0;
                 char tmp[0x100];
-                int err = CommitTmp_unk(this, tmp);
-                mError = err;
+                mError = CommitTmp_unk(this, tmp);
+                int err = mError;
                 if (err != 0) {
                     SetError_unk(err);
                     mState = 0;
