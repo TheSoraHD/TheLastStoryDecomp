@@ -61,6 +61,11 @@ for a in re.finditer(r'^(\s*)([A-Za-z_][\w\.\->\[\]\(\)\*]*)\s=\s([^;]+);', body
     if '(' in lhs and not lhs.startswith('('):
         continue
     asg.append((i + a.start(2), i + a.end(0), lhs, a.group(3)))
+# declarations with an initializer of a Vector3: "atn::Vector3 v = expr;" -> "atn::Vector3 v; W(v, expr);"
+for a in re.finditer(r'^(\s*)((?:const )?(?:atn::)?Vector3) (\w+) = ([^;]+);', body, re.M):
+    asg.append((i + a.start(2), i + a.end(0), a.group(3), a.group(4), a.group(2), a.group(1).lstrip('\n')))
+if '--declonly' in sys.argv:
+    asg = [a for a in asg if len(a) == 6]
 print('assignments', len(asg))
 NAME, TYPE = 'AsgW_unk', None
 for k, a in enumerate(sys.argv):
@@ -83,9 +88,12 @@ drop = False
 
 def build(sel):
     s = orig
-    for k in sorted(sel, reverse=True):
-        p0, p1, lhs, rhs = asg[k]
-        s = s[:p0] + '%s(%s, %s);' % (NAME, lhs, rhs) + s[p1:]
+    for k in sorted(sel, key=lambda k: asg[k][0], reverse=True):
+        p0, p1, lhs, rhs = asg[k][:4]
+        if len(asg[k]) == 6:
+            s = s[:p0] + '%s %s;\n%s%s(%s, %s);' % (asg[k][4].replace('const ', ''), lhs, asg[k][5], NAME, lhs, rhs) + s[p1:]
+        else:
+            s = s[:p0] + '%s(%s, %s);' % (NAME, lhs, rhs) + s[p1:]
     if drop and '// NONMATCHING' in cblock:
         kept, skip = [], False
         for l in cblock.split('\n')[:-1]:

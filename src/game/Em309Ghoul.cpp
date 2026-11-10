@@ -600,13 +600,18 @@ void Em309Ghoul::vf44() {
     }
 }
 
-// NONMATCHING: 99.48% - r5/r6 of the copies of the temporaries (__VecCopy family, documented blocker)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void GhoulAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em309Ghoul::vf20() {
     m620 = m5B0;
     m614 = mPos + m5A4;
     m614.y += m620;
     atn::Vector3 base(mPos.x, mPos.y, mPos.z);
-    atn::Vector3 head = base;
+    atn::Vector3 head;
+    GhoulAssign_unk(head, base);
     head.y += 1.5f * m620;
     float r = m620;
     mColli.m3C = base;

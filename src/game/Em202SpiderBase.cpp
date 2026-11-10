@@ -267,7 +267,11 @@ int Em202SpiderBase::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.90% - r3/r4 of the copy of the bottom point of the capsule (__VecCopy family)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void SpiderAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em202SpiderBase::vf10() {
     atn::Vector3 pos;
     mC58.mC8 = (int)mC58.mC4; // inferred: previous target (mC8 is an int in the shared header)
@@ -374,7 +378,8 @@ void Em202SpiderBase::vf10() {
         m614 = pos;
         m614.y += m620;
     }
-    atn::Vector3 top = pos;
+    atn::Vector3 top;
+    SpiderAssign_unk(top, pos);
     top.y = mPos.y + m5B0;
     mColli.m3C = pos;
     mColli.m48 = top;
