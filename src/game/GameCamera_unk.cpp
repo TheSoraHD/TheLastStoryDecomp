@@ -230,6 +230,43 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     fn_80392964(0, 1, 0, 0);
 }
 
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: camera mode looking at the hips of the character from 50 above its position
+void GameCamera::fn_8038952C(const CharaTask* chara) {
+    const atn::Model* model = &chara->mMotion;
+    const atn::Matrix3x4* node = (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
+    atn::Vector3 target = node->GetTrans_unk();
+    atn::Vector3 offset(0.0f, 50.0f, 0.0f);
+    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 0);
+}
+
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: fixed camera mode (position m4FC, target m508, fovy m514; turned and moved with the
+// character when m518 is set)
+void GameCamera::fn_80389678(const CharaTask* chara) {
+    atn::Vector3 pos = m4FC;
+    atn::Vector3 target = m508;
+    if (m518 != 0) {
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &pos, &pos);
+        PSMTXMultVec(m, &target, &target);
+        pos += chara->mPos;
+        target += chara->mPos;
+    }
+    SetPosition(pos);
+    SetTarget_unk(target);
+    mFovy = m514;
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 0);
+}
+
 void GameCamera::fn_803897EC(const CharaTask* chara) {
     m8F0 = chara->mMotion.mTracks[0].m08 < 67.0f;
     fn_8037F9AC(chara);
