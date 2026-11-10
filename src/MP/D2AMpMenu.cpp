@@ -388,6 +388,34 @@ void D2AMpMenuRankMark::fn_804B4770(int index) {
     }
 }
 
+// NONMATCHING: 99.2% - offsets in @stringBase0 and the .sdata2 constants (functions before it
+// are not written)
+// inferred: shows the pattern, the sword and the stars of the rank of the experience `exp` (own
+// experience if negative) in the mark `index`
+void D2AMpMenuRankMark::fn_804B47E0(int exp, int index) {
+    if (exp < 0) {
+        exp = lbl_8087F628->m430.m7F8;
+    }
+    unsigned int row = fn_805075C4(&lbl_8087F610->m610, exp)->m00;
+    char name[64] = {0};
+    if (index > 3) {
+        index = 3;
+    }
+    if (row >= mRows.mCount) {
+        row = mRows.mCount - 1;
+    }
+    SetPaneFloat_unk(&mMarks[index]->mLayout, "patternIndex", (float)(unsigned int)mRows.mEntries[row].m04);
+    SetPaneFloat_unk(&mMarks[index]->mLayout, "swordIndex", (float)(unsigned int)(mRows.mEntries[row].m08 + 3));
+    for (int i = 0; i < 4; i++) {
+        sprintf(name, "drawFlg%d", i + 1);
+        if ((unsigned int)i < mRows.mEntries[row].m0C) {
+            SetPaneFloat_unk(&mMarks[index]->mLayout, name, 1.0f);
+        } else {
+            SetPaneFloat_unk(&mMarks[index]->mLayout, name, 0.0f);
+        }
+    }
+}
+
 // NONMATCHING: 99.25% - offset of "pos0026(1)" in @stringBase0 (the functions before it are not written)
 void D2AMpMenuRankMark::fn_804B49C0(MpRect_unk rect, int index) {
     fn_801F4728(mMarks[index], "pos0026(1)", &rect);
