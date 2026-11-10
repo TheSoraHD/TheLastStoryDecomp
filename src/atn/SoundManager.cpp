@@ -330,15 +330,16 @@ void SoundManager::fn_800CE6E0() {
 } // namespace atn
 
 // inferred: volume bar of a sound in the debug display
-// NONMATCHING: 99.17% - orden de carga de floats.
 extern "C" void fn_800CE9A4(atn::SoundCore* sound, float x, float y, float z, float w, float h) {
     if (sound->fn_800C8278() || sound->mHandle.mSound == 0) {
         return;
     }
+    atn::DrawHelper* draw;
     unsigned int color = 0x66FF8800;
     if (sound->mA8 != 0) {
         switch (sound->mA8->m00) {
         case 0:
+            color = 0x66FF8800;
             break;
         case 1:
             color = 0x660088FF;
@@ -352,7 +353,7 @@ extern "C" void fn_800CE9A4(atn::SoundCore* sound, float x, float y, float z, fl
         }
     }
     lbl_8087EEB0->fn_80060D58(x, y, z, w, h, 0x66888888);
-    atn::DrawHelper* draw = lbl_8087EEB0;
+    draw = lbl_8087EEB0;
     draw->fn_80060D58(x, y, z, w * sound->fn_800CACEC(), h, color);
     char buf[0x100];
     sprintf(buf, "%.2f%%", 100.0f * sound->fn_800CACEC());
@@ -362,8 +363,7 @@ extern "C" void fn_800CE9A4(atn::SoundCore* sound, float x, float y, float z, fl
         lbl_8087EEB0->fn_800616C0(1.0f + (5.0f + (x + w)), 1.0f + y, z, h, h, "Loading...", 0xCC000000, 0.0f, 1, 0, 0);
         lbl_8087EEB0->fn_800616C0(5.0f + (x + w), y, z, h, h, "Loading...", 0xCCFFFFFF, 0.0f, 1, 0, 0);
     } else {
-        int length = sound->fn_800CA910();
-        sprintf(buf, "%6d / %6d\0", sound->fn_800CAA88(), length);
+        sprintf(buf, "%6d / %6d\0", sound->fn_800CAA88(), sound->fn_800CA910());
         lbl_8087EEB0->fn_800616C0(1.0f + (5.0f + (x + w)), 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 0, 0);
         lbl_8087EEB0->fn_800616C0(5.0f + (x + w), y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 0, 0);
     }
@@ -712,7 +712,16 @@ SoundCore* SoundManager::fn_800D0AB0(unsigned int id) {
     return found;
 }
 
-// NONMATCHING: 99.6% - orden de registros.
+// inferred: stops the sound slot `sound` (name invented)
+inline void StopSound_unk(SoundManager* mgr, SoundCore* sound) {
+    for (int i = 0; i < 32; i++) {
+        if (sound == &mgr->mSounds[i]) {
+            mgr->mSounds[i].mHandle.Stop(0);
+            break;
+        }
+    }
+}
+
 int SoundManager::fn_800D0C1C(SoundCore* sound, float volume) {
     if (sound == 0 || lbl_8087EE90->m04 == 0) {
         return 0;
@@ -726,12 +735,7 @@ int SoundManager::fn_800D0C1C(SoundCore* sound, float volume) {
             for (SoundLogEntry_unk* it = mLog.begin(); it != mLog.end(); it++) {
                 if (it->mId == id && it->mAge <= mDupLimitFrame) {
                     if (it->mSound->mA4 <= 0 && it->mVolume < volume) {
-                        for (int i = 0; i < 32; i++) {
-                            if (it->mSound == &mSounds[i]) {
-                                mSounds[i].mHandle.Stop(0);
-                                break;
-                            }
-                        }
+                        StopSound_unk(this, it->mSound);
                         it->mSound = sound;
                         it->mId = sound->m98;
                         it->mAge = 0;
