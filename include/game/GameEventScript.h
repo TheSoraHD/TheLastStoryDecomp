@@ -93,8 +93,14 @@ public:
     int fn_803ACE18(int index, const atn::Sphere* sphere, int group);
     // inferred: the sphere touches the event sphere `index` (or, with `group`, one of its group)
     int fn_803ACF88(int index, const atn::Sphere* sphere, int group); // inferred: the event has a condition of kind -2
-    int fn_803AC088(); // inferred: count
-    int fn_803AC230(); // inferred: count
+    int fn_803AC088(); // inferred: count of the reachable talk events (flag 16)
+    int fn_803AC230(); // inferred: count of the reachable talk events (flags 16 and 32)
+    // inferred: helpers of fn_803AC088/fn_803AC230 (weak copies 0x803AEA24 and 0x803AE718; names invented)
+    inline int CountCharas_unk(atn::SimpleArray<gs::NpcSetPoint>& points, atn::SimpleArray<ScriptNpcFlag_unk>& flags,
+                               int kind, CharaTask* leader, const atn::Vector3& pos, unsigned int mask, float range);
+    inline int CountSpheres_unk(atn::SimpleArray<gs::EventSphere>& spheres,
+                                atn::SimpleArray<ScriptSphereState_unk>& states, CharaTask* leader,
+                                const atn::Vector3& pos, unsigned int mask, float range);
     // inferred: the camera looks at `chara` within `range`; `line` receives the segment of the camera
     int fn_803AC3D8(CharaTask* chara, atn::Vector3* line, int wait, float range);
     int fn_803AC708(CharaTask* chara);

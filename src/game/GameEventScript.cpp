@@ -4173,6 +4173,111 @@ int GameEventScript::fn_803ABFD4(atn::Task* chara) {
     return 0;
 }
 
+// Both helpers are called out of line in the original (__declspec(noinline), weak copies at the end of the unit)
+// inferred: characters of the set points with a picked event of kind 4 (without the flags `mask`) that the
+// leader can reach: in range and in sight (or the field flag 206)
+__declspec(noinline) inline int GameEventScript::CountCharas_unk(atn::SimpleArray<gs::NpcSetPoint>& points,
+                                            atn::SimpleArray<ScriptNpcFlag_unk>& flags, int kind, CharaTask* leader,
+                                            const atn::Vector3& pos, unsigned int mask, float range) {
+    int count = 0;
+    for (unsigned int i = 0; i < points.size(); i++) {
+        int script = flags[i].m00;
+        gs::NpcSetPoint& point = points[i];
+        if (script >= 0) {
+            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(point.m140[script]);
+            if (e != 0 && e->m0C == 4 && (e->mB8 & mask) == 0) {
+                CharaTask* chara = GetChara_unk(kind, point.mId);
+                if (chara != 0 && chara->CanAct_unk()) {
+                    atn::Vector3 target = chara->mColli.m48;
+                    atn::Vector3 d = target - pos;
+                    if (PSVECSquareMag(&d) < range * range) {
+                        if (fn_8004ECC0(lbl_8087EE98, 0, &pos, &target, 0x80000010, 0, 0) != 0 &&
+                            (lbl_8087F430 == 0 || lbl_8087F430->fn_80370174(206) == 0)) {
+                            continue;
+                        }
+                        count++;
+                    }
+                }
+            }
+        }
+    }
+    return count;
+}
+
+// NONMATCHING: 98.6% - registers of the loop and stack slots of the two ends of the ray
+// inferred: same for the event spheres (the ray is shortened at both ends)
+__declspec(noinline) inline int GameEventScript::CountSpheres_unk(atn::SimpleArray<gs::EventSphere>& spheres,
+                                             atn::SimpleArray<ScriptSphereState_unk>& states, CharaTask* leader,
+                                             const atn::Vector3& pos, unsigned int mask, float range) {
+    int count = 0;
+    for (unsigned int i = 0; i < spheres.size(); i++) {
+        gs::EventSphere& sphere = spheres[i];
+        int group = i;
+        if (sphere.m20 >= 0) {
+            group = sphere.m20;
+        }
+        int script = states[group].mScript;
+        if (script >= 0) {
+            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(spheres[group].m18[script]);
+            if (e != 0 && e->m0C == 4 && (e->mB8 & mask) == 0) {
+                atn::Vector3 d = sphere.mPos - pos;
+                float sq = PSVECSquareMag(&d);
+                if (sq > 0.0f) {
+                    PSVECNormalize(&d, &d);
+                }
+                if (sq < range * range) {
+                    float margin = 5.0f;
+                    if (leader != 0 && !leader->mFlag31) {
+                        margin = 2.0f;
+                    }
+                    atn::Vector3 to = sphere.mPos - d * sphere.m14 * 1.2f;
+                    atn::Vector3 from = pos + d * margin;
+                    if (fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000010, 0, 0) != 0 &&
+                        (lbl_8087F430 == 0 || lbl_8087F430->fn_80370174(206) == 0)) {
+                        continue;
+                    }
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
+
+int GameEventScript::fn_803AC088() {
+    PlayerTask* leader;
+    if (lbl_8087F8A0 == 0 || (leader = lbl_8087F8A0->mHead) == 0 || lbl_8087F430 == 0 ||
+        !lbl_8087F430->IsFlag_unk(2)) {
+        return 0;
+    }
+    atn::Vector3 pos = leader->mColli.m48;
+    if (leader->m55C == 1 && lbl_8087F430->mCamera.m7FC == 0) {
+        pos = leader->mColli.m3C + atn::Vector3(0.0f, leader->m5B4, 0.0f);
+    }
+    float range = 500.0f;
+    int count = CountCharas_unk(mScene->m80, m114, 1, leader, pos, 16, range);
+    count += CountCharas_unk(mScene->m88, m11C, 2, leader, pos, 16, range);
+    count += CountCharas_unk(mScene->m90, m124, 3, leader, pos, 16, range);
+    return count + CountSpheres_unk(mScene->mEC, m10C, leader, pos, 16, range);
+}
+
+int GameEventScript::fn_803AC230() {
+    PlayerTask* leader;
+    if (lbl_8087F8A0 == 0 || (leader = lbl_8087F8A0->mHead) == 0 || lbl_8087F430 == 0 ||
+        !lbl_8087F430->IsFlag_unk(2)) {
+        return 0;
+    }
+    atn::Vector3 pos = leader->mColli.m48;
+    if (leader->m55C == 1 && lbl_8087F430->mCamera.m7FC == 0) {
+        pos = leader->mColli.m3C + atn::Vector3(0.0f, leader->m5B4, 0.0f);
+    }
+    float range = 500.0f;
+    int count = CountCharas_unk(mScene->m80, m114, 1, leader, pos, 48, range);
+    count += CountCharas_unk(mScene->m88, m11C, 2, leader, pos, 48, range);
+    count += CountCharas_unk(mScene->m90, m124, 3, leader, pos, 48, range);
+    return count + CountSpheres_unk(mScene->mEC, m10C, leader, pos, 48, range);
+}
+
 extern "C" int fn_80051BC4(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
 
 // NONMATCHING: 95.3% - stack slots of the locals (the segment, and those of the inlined fn_803ABE54, as there)
