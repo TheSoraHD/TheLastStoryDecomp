@@ -64,6 +64,17 @@ for a in re.finditer(r'^(\s*)([A-Za-z_][\w\.\->\[\]\(\)\*]*)\s=\s([^;]+);', body
 # declarations with an initializer of a Vector3: "atn::Vector3 v = expr;" -> "atn::Vector3 v; W(v, expr);"
 for a in re.finditer(r'^(\s*)((?:const )?(?:atn::)?Vector3) (\w+) = ([^;]+);', body, re.M):
     asg.append((i + a.start(2), i + a.end(0), a.group(3), a.group(4), a.group(2), a.group(1).lstrip('\n')))
+# --ops: also x++; x--; ++x; --x; and x op= y; through template inlines (OpInc_unk, OpAdd_unk...)
+OPS = {'+=': 'OpAdd_unk', '-=': 'OpSub_unk', '*=': 'OpMul_unk', '/=': 'OpDiv_unk', '|=': 'OpOr_unk',
+       '&=': 'OpAnd_unk', '++': 'OpInc_unk', '--': 'OpDec_unk'}
+if '--ops' in sys.argv or '--opsonly' in sys.argv:
+    for a in re.finditer(r'^(\s*)([A-Za-z_][\w\.\->\[\]\(\)\*]*)\s*(\+=|-=|\*=|/=|\|=|&=)\s*([^;]+);', body, re.M):
+        asg.append((i + a.start(2), i + a.end(0), a.group(2), a.group(4), a.group(3), None, 'op'))
+    for a in re.finditer(r'^(\s*)(?:(\+\+|--)([A-Za-z_][\w\.\->\[\]\(\)\*]*)|([A-Za-z_][\w\.\->\[\]\(\)\*]*)(\+\+|--));', body, re.M):
+        lhs = a.group(3) or a.group(4); op = a.group(2) or a.group(5)
+        asg.append((i + a.start(0) + len(a.group(1)), i + a.end(0), lhs, '', op, None, 'op'))
+if '--opsonly' in sys.argv:
+    asg = [a for a in asg if len(a) == 7]
 if '--declonly' in sys.argv:
     asg = [a for a in asg if len(a) == 6]
 print('assignments', len(asg))
@@ -90,19 +101,37 @@ def build(sel):
     s = orig
     for k in sorted(sel, key=lambda k: asg[k][0], reverse=True):
         p0, p1, lhs, rhs = asg[k][:4]
+        if len(asg[k]) == 7:
+            op = asg[k][4]
+            if op in ('++', '--'):
+                s = s[:p0] + '%s(%s);' % (OPS[op], lhs) + s[p1:]
+            else:
+                s = s[:p0] + '%s(%s, %s);' % (OPS[op], lhs, rhs) + s[p1:]
+            continue
         if len(asg[k]) == 6:
             s = s[:p0] + '%s %s;\n%s%s(%s, %s);' % (asg[k][4].replace('const ', ''), lhs, asg[k][5], NAME, lhs, rhs) + s[p1:]
         else:
             s = s[:p0] + '%s(%s, %s);' % (NAME, lhs, rhs) + s[p1:]
+    if any(len(asg[k]) == 7 for k in sel):
+        opdecl = ''
+        for op, nm in OPS.items():
+            if re.search(r'\b%s\(' % nm, s) and not re.search(r'inline \w+ %s\(' % nm, s):
+                if op in ('++', '--'):
+                    opdecl += 'template <class T> static inline void %s(T& v) { v%s; }\n' % (nm, op)
+                else:
+                    opdecl += 'template <class T, class U> static inline void %s(T& v, const U& x) { v %s x; }\n' % (nm, op)
+        DECLX = opdecl + '\n'
+    else:
+        DECLX = ''
     if drop and '// NONMATCHING' in cblock:
         kept, skip = [], False
         for l in cblock.split('\n')[:-1]:
             if l.startswith('// NONMATCHING'): skip = True
             elif l.startswith('// inferred') or l.startswith('// DRAFT'): skip = False
             if not skip: kept.append(l)
-        s = s[:start] + DECL + ''.join(l + '\n' for l in kept) + s[defstart:]
+        s = s[:start] + DECLX + DECL + ''.join(l + '\n' for l in kept) + s[defstart:]
     else:
-        s = s[:start] + DECL + s[start:]
+        s = s[:start] + DECLX + DECL + s[start:]
     open(path, 'w', encoding='latin-1').write(s)
     r = subprocess.run(['ninja', 'build/SLSP01/src/%s.o' % unit], capture_output=True)
     if r.returncode:
@@ -117,7 +146,7 @@ try:
         if apply and v == 100.0 and '// NONMATCHING' in cblock:
             drop = True; v = build(ONLY)
         print('only', ONLY, v)
-        if v != 100.0: restore()
+        if v != 100.0 and '--keep' not in sys.argv: restore()
         if not apply: restore()
         sys.exit(0)
     base = build([])
