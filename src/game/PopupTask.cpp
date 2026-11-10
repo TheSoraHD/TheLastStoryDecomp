@@ -1,10 +1,12 @@
 // inferred: popups of the battle HUD (combo, critical, weapon skill, headshot, steal... d2anime
 // files in .rodata). Class from RTTI "PopupTask" (vtable 0x80794A84: dtor, vf0C, vf10, vf14).
-// Only the small functions are written; vf10 (0x8054B09C), vf14 (0x8054B324, 9 KB) and the popup
+// Only the small functions and vf10 are written; vf14 (0x8054B324, 9 KB) and the popup
 // helpers (0x8054A9A8, 0x8054D794, 0x8054E0FC, 0x8054E574) are still asm. Names invented.
 #include "atn/FixedArray.h"
 #include "atn/Task.h"
 #include "atn/Memory.h"
+#include "atn/static_string.h"
+#include "math/Vec.h"
 
 extern "C" void* __construct_array(void* block, void (*ctor)(), void (*dtor)(), unsigned long size,
                                    unsigned long n);
@@ -12,13 +14,65 @@ extern "C" void __destroy_arr(void* block, void (*dtor)(), unsigned long size, u
 extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
 extern "C" void fn_800D2338(atn::Task* task);                                   // inferred: deletes the task
 
-// inferred: one popup (0xB4 bytes)
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
+
+namespace atn {
+// inferred: the wide string of the popups (as in game/NewCampPartsOption.h; the copy keeps the source
+// pointer in a register: a local in the copy assignment)
+template <>
+inline static_string<32, wchar_t, std::char_traits<wchar_t> >::static_string() {
+    mStr[0] = 0;
+}
+template <>
+inline static_string<32, wchar_t, std::char_traits<wchar_t> >::~static_string() {}
+template <>
+inline static_string<32, wchar_t, std::char_traits<wchar_t> >&
+static_string<32, wchar_t, std::char_traits<wchar_t> >::operator=(const static_string& o) {
+    const wchar_t* str = o.mStr;
+    if (str != mStr) {
+        wmemcpy(mStr, str, wcslen(str) + 1);
+    }
+    return *this;
+}
+} // namespace atn
+
+// inferred: one popup (0xB4 bytes; copied member by member when a popup is removed, PopupTask::vf10)
 struct PopupEntry_unk {
     PopupEntry_unk()
-        : m00(0), m04(0.0f), m08(0.0f), m0C(0), m10(0), m14(0), m18(0), m1C(1), m20(0), m60(0.0f), m64(0.0f),
-          m68(0.0f), m6C(0.0f), m70(0.0f), m74(0.0f), m78(0), m7C(-1), m80(-1), m84(0), m88(0), m8C(0), m90(0),
-          m94(0), m98(0), m9C(0), mA0(0), mA4(0), mA8(0), mAC(0), mB0(0) {}
+        : m00(0), m04(0.0f), m08(0.0f), m0C(0), m10(0), m14(0), m18(0), m1C(1), m60(0.0f, 0.0f, 0.0f),
+          m6C(0.0f, 0.0f, 0.0f), m78(0), m7C(-1), m80(-1), m84(0), m88(0), m8C(0), m90(0), m94(0), m98(0), m9C(0),
+          mA0(0), mA4(0), mA8(0), mAC(0), mB0(0) {}
     ~PopupEntry_unk() {}
+    PopupEntry_unk& operator=(const PopupEntry_unk& o) {
+        m00 = o.m00;
+        m04 = o.m04;
+        m08 = o.m08;
+        m0C = o.m0C;
+        m10 = o.m10;
+        m14 = o.m14;
+        m18 = o.m18;
+        m1C = o.m1C;
+        m20 = o.m20;
+        m60 = o.m60;
+        m6C = o.m6C;
+        m78 = o.m78;
+        m7C = o.m7C;
+        m80 = o.m80;
+        m84 = o.m84;
+        m88 = o.m88;
+        m8C = o.m8C;
+        m90 = o.m90;
+        m94 = o.m94;
+        m98 = o.m98;
+        m9C = o.m9C;
+        mA0 = o.mA0;
+        mA4 = o.mA4;
+        mA8 = o.mA8;
+        mAC = o.mAC;
+        mB0 = o.mB0;
+        return *this;
+    }
 
     int m00;   // inferred: frame
     float m04; // inferred: duration
@@ -28,14 +82,9 @@ struct PopupEntry_unk {
     int m14;
     int m18;
     int m1C;
-    short m20;
-    unsigned char m22[0x60 - 0x22];
-    float m60;
-    float m64;
-    float m68;
-    float m6C;
-    float m70;
-    float m74;
+    atn::static_string<32, wchar_t, std::char_traits<wchar_t> > m20; // inferred: text
+    atn::Vector3 m60;
+    atn::Vector3 m6C;
     int m78;
     int m7C;
     int m80;
@@ -187,6 +236,45 @@ int PopupTask::vf0C() {
 }
 
 // inferred: clears all the popups
+// inferred: counts the frames of the popups and removes the finished ones
+// NONMATCHING: 99.69% - the index of the erase loop and the text pointer of the copy swap r24/r25;
+// tried the text pointer as a local of an explicit PopupEntry_unk::operator= (first or in place),
+// a setter, and the erase loop written out.
+void PopupTask::vf10() {
+    for (PopupEntry_unk* e = mEntries.begin(); e != mEntries.end();) {
+        e->m00++;
+        if (e->m00 >= e->m04) {
+            if (e->m94 != 0) {
+                e->m94 = 0;
+            }
+            if (e->m90 != 0) {
+                e->m90 = 0;
+            }
+            if (e->m98 != 0) {
+                e->m98 = 0;
+            }
+            if (e->m9C != 0) {
+                e->m9C = 0;
+            }
+            if (e->mA0 != 0) {
+                e->mA0 = 0;
+            }
+            if (e->mA4 != 0) {
+                e->mA4 = 0;
+            }
+            if (e->mA8 != 0) {
+                e->mA8 = 0;
+            }
+            if (e->mAC != 0) {
+                e->mAC = 0;
+            }
+            mEntries.erase(e);
+        } else {
+            e++;
+        }
+    }
+}
+
 void PopupTask::fn_8054E51C() {
     mEntries.mSize = 0;
 }
