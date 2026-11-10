@@ -233,8 +233,25 @@ void NandManager::OpenTmp_unk() {
     }
 }
 
-// NONMATCHING: 99.85% - stack slots and registers of the string temporaries of TmpPath_unk and of the
-// copy of the path (states 3, 5, 25), and data/size registers of the first write
+static inline int MoveTmp_unk(atn::NandManager* nand, const char* tmp);
+static inline int CommitTmp_unk(atn::NandManager* nand, char* tmp) {
+    TmpPath_unk(nand, tmp);
+    nand->mState = 0x18;
+    return MoveTmp_unk(nand, tmp);
+}
+// inferred: moves the temporary copy over the file (name invented)
+static inline int MoveTmp_unk(atn::NandManager* nand, const char* tmp) {
+    std::basic_string<char> dst = fn_8006B0C8(std::basic_string<char>(nand->GetPath_unk()));
+    NANDSetUserData(&nand->mBlock, nand);
+    return nand->fn_800A4494(NANDMoveAsync(tmp, dst.c_str(), MoveDone_unk, &nand->mBlock));
+}
+
+static inline int WriteAsync2_unk(atn::NandManager* n) {
+    return n->fn_800A4494(n->WriteAsync_unk(n->mData, n->mSize));
+}
+// NONMATCHING: 99.93% - state 1 (OpenTmp_unk inlined): the path of the string constructor of
+// TmpPath_unk in r29 and its length in r28 (swapped here; states 3/5 match). Tried: TmpPath_unk body
+// inlined in OpenTmp_unk, OpenTmp_unk body in the case, path in a local, non-const nand.
 void NandManager::vf10() {
     switch (mState) {
     case 1:
@@ -343,7 +360,7 @@ void NandManager::vf10() {
                 mData = fn_800838B8(atn::MemoryManager::Instance(), (mSize + 0x1F) & ~0x1F, 0x20, 1, "", "", 0);
                 memset(mData, 0, (mSize + 0x1F) & ~0x1F);
                 mState = 0xE;
-                mError = fn_800A4494(WriteAsync_unk(mData, mSize));
+                mError = WriteAsync2_unk(this);
                 if (mError != 0) {
                     atn::MemoryManager::Instance()->Free(mData);
                     SetError_unk(mError);
@@ -540,14 +557,7 @@ void NandManager::vf10() {
             if (mOp == 0 || mOp == 3) {
                 mError = 0;
                 char tmp[0x100];
-                TmpPath_unk(this, tmp);
-                mState = 0x18;
-                int err;
-                {
-                    std::basic_string<char> dst = fn_8006B0C8(std::basic_string<char>(GetPath_unk()));
-                    NANDSetUserData(&mBlock, this);
-                    err = fn_800A4494(NANDMoveAsync(tmp, dst.c_str(), MoveDone_unk, &mBlock));
-                }
+                int err = CommitTmp_unk(this, tmp);
                 mError = err;
                 if (err != 0) {
                     SetError_unk(err);
@@ -612,8 +622,11 @@ static inline D2A_DrawRect GetRect_unk(D2A_Task* task, const char* name) {
     return fn_801F4E8C(task, fn_800DC6B4(name));
 }
 
-// NONMATCHING: 98.02% - the original loads the rect width before the data() test of the string (as an
-// argument evaluated before the text; inline wrappers tried, see docs/arranque-20261109.md)
+// inferred: width of a text; the size is loaded before the data() test of the string only when it is a
+// parameter in front of the font (name and parameter order invented)
+static inline float GetTextWidth_unk(const std::basic_string<wchar_t>& text, float size, void* font) {
+    return fn_8006EF48(font, text.data(), size, 0.0f, 1, 4);
+}
 void NandManager::fn_800A4244() {
     if (mIcon->IsFlag_unk(4)) {
         mIcon->mFrame = 0.0f;
@@ -633,7 +646,7 @@ void NandManager::fn_800A4244() {
     if (pane != 0) {
         D2A_Task* icon = mIcon;
         D2A_DrawRect rect = GetRect_unk(icon, "message_0011");
-        float w = fn_8006EF48(lbl_8087EEC8, fn_800A4450(pane, 0, 0).data(), rect.w, 0.0f, 1, 4);
+        float w = GetTextWidth_unk(fn_800A4450(pane, 0, 0), rect.w, lbl_8087EEC8);
         SetPaneValue_unk(&mIcon->mData.m10, "dotpos", 0, 35.0f + w);
     }
 }

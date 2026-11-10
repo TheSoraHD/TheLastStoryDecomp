@@ -155,8 +155,8 @@ inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW
     float w = texW;
     float h = texH;
     StrapRender_unk* render = lbl_8087EEE0;
-    float scrW = render->mWidth;
     float sx = Ratio_unk(render->mWidth, render->mFbWidth);
+    float scrW = render->mWidth;
     float sy = Ratio_unk(render->mHeight, render->mFbHeight);
     float kx = 1.0f;
     float ky = 1.0f;
@@ -175,12 +175,14 @@ inline void DrawScreen_unk(atn::Texture_unk* tex, unsigned int color, float texW
     float s = (sy * fx) / ky;
     w /= s;
     float x = 0.5f * (scrW * s - texW) + x0;
-    lbl_8087EEB0->fn_8005DFC8(color, tex, 1, x, 0.0f, 0.0f, w, h);
+    float y = 0.0f;
+    lbl_8087EEB0->fn_8005DFC8(color, tex, 1, x, y, 0.0f, w, h);
 }
 
-// NONMATCHING: 85.9% - FPR allocation (alpha in f31 vs f29, constants of the line loop) and the
-// scheduling of the screen ratio computations. The colour of a line as a named local fixes the reload of
-// the line address after the width call.
+// NONMATCHING: 91.6% - FPR allocation (alpha in f31 vs f29, constants of the line loop). The original
+// loads the 20.0f/0.0f arguments once per use (the 0.0f twice in one call: z and f6-f8), ours shares them;
+// tried named/extern/static const floats, inline text helpers taking the string and the size. `y` as a
+// local in DrawScreen_unk and the screen width after the ratio of the widths: 85.9 -> 91.6.
 // inferred: draws the strap texture (two pages alternating every 150 frames) or the message of states 3-4
 void StrapTask::vf14() {
     float alpha = 1.0f;

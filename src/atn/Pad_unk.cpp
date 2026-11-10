@@ -129,6 +129,8 @@ bool fn_800A5870(Pad_unk* pad, int port, int axis, float threshold) {
 }
 
 // NONMATCHING: register allocation only (the original keeps the manager in r3 and the table in r5)
+// (arranque2: also tried locals in both orders, direct member/bitfield access, free inlines with the
+// port translation inside, unsigned/bool signatures: all 97.0)
 unsigned int fn_800A58D0(Pad_unk* pad, int port) {
     return lbl_8087F018->GetBit0_unk(sPortMap[port]);
 }
