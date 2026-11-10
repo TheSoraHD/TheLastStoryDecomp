@@ -695,8 +695,19 @@ void Em315Coffin::vf108() {
     }
 }
 
-// NONMATCHING: 99.46% - r3/r4 swapped in the Vector3 copies from temporaries (__VecCopy family, documented
-// blocker; tried: named node vector, head = head + off, per-component add, head assigned apart)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void CoffinAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
+// inferred: collision capsule set through an inline (with the Assign inlines above, the copies keep the
+// registers of the original)
+template <class C> static inline void CoffinSet_unk(C& c, const atn::Vector3& a, const atn::Vector3& b, float r) {
+    c.m3C = a;
+    c.m48 = b;
+    c.m54 = r;
+}
+
 void Em315Coffin::fn_80315654() {
     m620 = m5B0;
     m614 = mPos + m5A4;
@@ -704,17 +715,16 @@ void Em315Coffin::fn_80315654() {
     atn::Vector3 center(mPos.x, mPos.y + m5B0, mPos.z);
     MtxPtr hips = mMotion.GetNodeMtx_unk("hips");
     if (hips != 0) {
-        center = GetNodePos_unk(hips);
+        CoffinAssign_unk(center, GetNodePos_unk(hips));
     }
-    atn::Vector3 head = center;
+    atn::Vector3 head;
+    CoffinAssign_unk(head, center);
     atn::Vector3 off(0.0f, m5B4 - 2.0f * m620, 0.0f);
     atn::Matrix3x4 m;
     CoffinRotZYX_unk(m, mRot);
     PSMTXMultVec(m.m, &off, &off);
     head += off;
-    mColli.m3C = center;
-    mColli.m48 = head;
-    mColli.m54 = m620;
+    CoffinSet_unk(mColli, center, head, m620);
     mColli.m20 = 0x80;
 }
 
