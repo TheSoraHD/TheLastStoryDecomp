@@ -187,6 +187,22 @@ int LastCocoonImago::vfE4() {
     return 0;
 }
 
+// NONMATCHING: 98% - offsets in the string pool (lbl_80754DE0, the strings of the unwritten functions are missing)
+// inferred: the four points of the body (right shoulder, spine, left shoulder, hips)
+void LastCocoonImago::vfCC(atn::Vector3* out, const atn::Vector3& dir) {
+    out[0] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("rightshoulder"))->GetTrans_unk();
+    out[1] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
+    out[2] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("leftshoulder"))->GetTrans_unk();
+    out[3] = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+}
+
+// NONMATCHING: 99.4% - offset of "head" in the string pool (see vfCC)
+atn::Vector3 LastCocoonImago::vfD8(CharaTask* target) {
+    atn::Vector3 pos = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    pos.y += 10.0f;
+    return pos;
+}
+
 float LastCocoonImago::vfDC() {
     return 0.7f;
 }

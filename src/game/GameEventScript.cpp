@@ -4113,6 +4113,42 @@ int GameEventScript::fn_803ABFD4(atn::Task* chara) {
     return 0;
 }
 
+extern "C" int fn_80051BC4(const atn::ColliCapsuleShape_unk* a, const atn::ColliCapsuleShape_unk* b);
+
+// NONMATCHING: 95.3% - stack slots of the locals (the segment, and those of the inlined fn_803ABE54, as there)
+// inferred: the camera segment (`range` long) touches the capsule of `chara`, nothing blocks the view and
+// the action 36 is held (debug input) or the camera mode is stable (with `wait`, for 15 frames)
+int GameEventScript::fn_803AC3D8(CharaTask* chara, atn::Vector3* line, int wait, float range) {
+    atn::ColliCapsuleShape_unk segment;
+    segment.mStart = lbl_8087F430->mCamera.mPos;
+    segment.mEnd = lbl_8087F430->mCamera.mTarget;
+    segment.mEnd -= segment.mStart;
+    if (!((float)__fabs(segment.mEnd.LengthSq_unk()) < 1.1920929e-7f)) {
+        segment.mEnd.Normalize_unk();
+    }
+    segment.mEnd *= range;
+    segment.mEnd += segment.mStart;
+    int result = 0;
+    atn::ColliCapsuleShape_unk capsule(chara->mColli.m3C, chara->mColli.m48, chara->mColli.m54);
+    if (fn_80051BC4(&segment, &capsule) && fn_803ABE54(&segment.mStart, &capsule.mEnd, capsule.mRadius)) {
+        int ok;
+        if (lbl_8087F0A8->m0B0 != 0) {
+            ok = lbl_8087F0A8->mInput.fn_801240B4(36);
+        } else {
+            GameCamera& camera = lbl_8087F430->mCamera;
+            ok = camera.m7FC == camera.m800 && (wait == 0 || camera.m808 >= 15);
+        }
+        if (ok) {
+            result = 1;
+            if (line != 0) {
+                line[0] = segment.mStart;
+                line[1] = segment.mEnd;
+            }
+        }
+    }
+    return result;
+}
+
 extern "C" int fn_80051B70(const atn::ColliCapsuleShape_unk* capsule, const atn::ColliSphereShape_unk* sphere);
 
 // NONMATCHING: 93.4% - temporaries of the segment (the original frame is 0x10 bytes smaller and keeps a

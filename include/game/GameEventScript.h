@@ -63,6 +63,7 @@ struct ScriptPartsFlag_unk {
 
 namespace atn {
 struct Sphere;
+class Vector3;
 }
 namespace gs {
 struct EventSphere;
@@ -94,7 +95,8 @@ public:
     int fn_803ACF88(int index, const atn::Sphere* sphere, int group); // inferred: the event has a condition of kind -2
     int fn_803AC088(); // inferred: count
     int fn_803AC230(); // inferred: count
-    int fn_803AC3D8(CharaTask* chara, int a, int b, float range);
+    // inferred: the camera looks at `chara` within `range`; `line` receives the segment of the camera
+    int fn_803AC3D8(CharaTask* chara, atn::Vector3* line, int wait, float range);
     int fn_803AC708(CharaTask* chara);
     int fn_803AC978(CharaTask* chara);
     inline int HasTalkEvent_unk(atn::SimpleArray<gs::NpcSetPoint>& points, atn::SimpleArray<ScriptNpcFlag_unk>& flags,
