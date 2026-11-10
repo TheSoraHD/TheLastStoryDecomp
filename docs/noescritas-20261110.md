@@ -57,6 +57,13 @@ Ninguno: solo renombrados `fn_XXXXXXXX` -> nombre mangled de las funciones escri
 
 ## Hallazgos
 
+- Busquedas en bucle (indice y desplazamiento en registros cruzados, o el valor del nodo cargado despues de la
+  direccion del bloque): el original las tiene en una inline auxiliar; `static inline FindEntry_unk(array, id)`
+  y `FindEvent_unk` (con `int* base = &m64[...]; return *base + found->mValue;`) dejan al 100 %
+  GameEventScript fn_8039CC24, fn_803A2DD8, fn_803ACD50 y fn_80398530 (`InEventRange_unk`).
+- Una funcion que se inlinea en otra deja de inlinearse en cuanto declara un local nuevo (fn_8039CC24 en
+  fn_803ACD50): si el original la inlinea con ese local, la inline es otra funcion (la publica la envuelve).
+
 - `lblmap.py` necesita el split al dia: dos pasadas seguidas sin `ninja` (re-split) entre ellas oscilan (pares
   de etiquetas intercambiados). Una pasada, `configure` + `ninja`, y otra si hace falta.
 - Expresion `MIN(MAX(x, 0), 1)` con macros (x evaluado hasta cuatro veces): se ve como dos comparaciones con la
