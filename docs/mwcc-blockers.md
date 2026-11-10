@@ -15,7 +15,7 @@ ficheros enlazados. Sin asm ni pragmas nuevos.
 |---|---|---|---|
 | 1. `std::vector::push_back` inline | q1 | sin cambio commiteable (22 variantes de cabecera) | +0 |
 | 2. `atn::CsvU` ctor inline, `this` en registro salvado | q2 | **resuelto**: `~CsvBase() {}` en `Csv.h` | +4 (y 7 unidades suben de fuzzy) |
-| 3. `__VecCopy` r3/r4 cruzados y copias z-primero | q3 | sin cambio commiteable (16 intentos, patron documentado) | +0 |
+| 3. `__VecCopy` r3/r4 cruzados y copias z-primero | q3 | **resuelto el cruce** en `arranque2-20261110`: copia a traves de una inline `XAssign_unk(dst, src)` (`tools/decomp/asgwrap.py`) | +30 |
 | 4. 18 ptmf huerfanos de `.data` de `CharaTask` | q4 | **resuelto**: 7 lanzadores eliminados por el enlazador + envoltorios inline | +107 |
 
 Por unidad (solo las que cambian de funciones al 100%):
@@ -59,6 +59,10 @@ que queda es el pool `@wstringBase0`).
   357); LZST en ctor y operator= es con diferencia la mejor partida. El cruce r3/r4 aparece cuando el
   src es un temporal (rvalue de un inline): el original materializa el dst antes; con src con nombre
   materializa el src antes (ahi ya coincidimos). Ninguna de las ~25 firmas de helper lo reproduce.
+  **Arreglo (`arranque2-20261110`)**: la asignacion a traves de un nivel de inline mas,
+  `static inline void XAssign_unk(atn::Vector3& dst, const atn::Vector3& src) { dst = src; }`, en la copia que sale
+  cruzada. `tools/decomp/asgwrap.py <unidad> <simbolo>` prueba cada asignacion; ~30 funciones al 100 %. Donde no
+  sirve, el cruce viene de otra cosa (registros del bucle, carga del origen desde un miembro).
 
 ## Lo probado que no funciona (resumen; detalle en cada `-qN.md`)
 
