@@ -12,8 +12,18 @@ namespace gmk {
 struct ItemSlotItem_unk {
     int m00;
     int mId;                  // 0x04: inferred: item id (301: always shown)
-    unsigned char m08[0xC2 - 0x08];
+    unsigned char m08[0xAC - 0x08];
+    int mAC;                  // inferred: flags (0x100: skill item)
+    int mB0;
+    int mB4;                  // inferred: the HUD shows the item when it is taken
+    int mB8;
+    short mBC;                // inferred: category (6: no take message)
+    unsigned char mBE[0xC0 - 0xBE];
+    unsigned char mC0;        // inferred: kind (3: skill)
+    unsigned char mC1;
     signed char mC2;          // inferred: flag: always shown
+    unsigned char mC3;
+    int mC4;                  // inferred: skill used on the leader when taken
 };
 
 // inferred: item that pops out of a gimmick (gmk::TreasureBox); the name comes from
