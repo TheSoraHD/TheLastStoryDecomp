@@ -35,6 +35,8 @@
 #include "atn/SequenceBoot_unk.h"
 #include "game/ArenaTask.h"
 #include "Event/Sequence.h"
+#include "game/BattleResult.h"
+#include "game/GameTimer.h"
 
 #include <exception>
 
@@ -69,6 +71,26 @@ extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
 extern "C" ArenaTask* lbl_8087EE78;
+extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
+                           int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
+extern "C" int rand();
+extern "C" void* lbl_8087EF70;                                     // inferred: pad input
+extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+// inferred: squared length (name invented)
+static inline float SqLength_unk(const atn::Vector3& v) {
+    return PSVECSquareMag(&v);
+}
+// inferred: sets the mode of the members of a team, keeping the previous one (name invented)
+static inline void SetTeamMode_unk(TeamAI_unk* team, int mode) {
+    if (team != 0) {
+        for (int i = 0; i < team->mNumMembers; i++) {
+            CharaTask* member = (CharaTask*)team->mMembers[i]; // inferred: TeamChara_unk is a view of CharaTask
+            member->mF18 = member->mF14;
+            member->mF14 = mode;
+        }
+    }
+}
 extern "C" void fn_8036E6D4(GameTask* task, int type, int sub, int arg); // inferred: opens a menu of the town
 // inferred: view of the commands that name a motion of a character (names invented)
 // inferred: view of the commands that name a sound (names invented)
@@ -668,6 +690,44 @@ void GameEventScript::fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd, wait);
 }
 
+// inferred: waits for the tactical view (m08 2) or for a button after showing a guide (3: guide 13,
+// else 12) in the UI; then ends the grapple camera
+// NONMATCHING: 93.7% - registers of the guide fields and the store of mWait
+void GameEventScript::fn_803A3AB4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int wait = 0;
+    if (lbl_8087F430 != 0) {
+        if (args->m08 == 2) {
+            if (lbl_8087F9F8->mA70 == 0) {
+                lbl_8087F9F8->fn_805AA734();
+                lbl_8087F430->fn_803748E0(1);
+                wait = 0;
+            } else {
+                wait = 1;
+            }
+        } else {
+            if (lbl_8087F490 != 0) {
+                GameUIElem1C_unk& guide = lbl_8087F490->m764;
+                guide.m00 = 6;
+                guide.m04 = (args->m08 == 3) + 12;
+                guide.m08 = -1;
+                guide.m0C = 0;
+                guide.m10 = 0;
+                guide.m14 = 0;
+                guide.m18 = 0;
+            }
+            if (fn_800A555C(lbl_8087EF70, 0, 4) != 0) {
+                fn_800C31F4(lbl_8074EF78[8], 0, -1, 1.0f);
+                lbl_8087F430->fn_803748E0(1);
+                wait = 0;
+            } else {
+                wait = 1;
+            }
+        }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
 // inferred: autosave point (when autosave is enabled)
 // inferred: sets the camera of the current map
 void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -740,6 +800,37 @@ void GameEventScript::fn_803A47A4(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: sends the members of the team (m08, m0C) away (state 1 of the group: m08...)
+// NONMATCHING: 96.1% - registers (r26-r29) of the leader, the team and the member pointer
+void GameEventScript::fn_803A48A8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int wait = 0;
+    if (args->m08 == 2) {
+        CharaTask* leader = lbl_8087F8A0->mHead;
+        TeamAI_unk* team = lbl_8087FA00->Find_unk(args->m08, args->m0C);
+        if (team != 0) {
+            float best = 0.0f;
+            CharaTask* far = 0;
+            for (int i = 0; i < team->mNumMembers; i++) {
+                CharaTask* member = (CharaTask*)team->mMembers[i]; // inferred: TeamChara_unk is a view of CharaTask
+                if (member->mC58.mC0 > 0) {
+                    float dist = SqLength_unk(leader->mPos - member->mPos);
+                    if (dist > best) {
+                        best = dist;
+                        far = member;
+                    }
+                }
+            }
+            if (far != 0) {
+                far->fn_80161570(0x6A, 0, 0, -1.0f, -1.0f);
+                mB4 = 0;
+                wait = 1;
+            }
+        }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
 // inferred: waits while the message window is open
 // inferred: waits 30 frames, then sets the battle mode of a team
 void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
@@ -750,6 +841,16 @@ void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
         wait = 0;
     }
     result.SetNext_unk(cmd, wait);
+}
+
+// inferred: sets the mode of the members of three teams (pairs m08/m0C, m10/m14, m18/m1C) to 0, 1 and 2
+// NONMATCHING: 98.5% - the member pointer and the member swap r5/r7
+void GameEventScript::fn_803A5384(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    SetTeamMode_unk(lbl_8087FA00->Find_unk(args->m08, args->m0C), 0);
+    SetTeamMode_unk(lbl_8087FA00->Find_unk(args->m10, args->m14), 1);
+    SetTeamMode_unk(lbl_8087FA00->Find_unk(args->m18, args->m1C), 2);
+    result.SetNext_unk(cmd);
 }
 
 void GameEventScript::fn_803A59D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -881,6 +982,80 @@ void GameEventScript::fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk*
             CrowdManager::sInstance->FreezeTask();
         }
         CrowdManager::sInstance->fn_801EB8C0(enable);
+    }
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 92.3% - the original reloads mItemCount for the slot of AddItem_unk (as BattleCharaTask::fn_800EE360) and stores mDB0C later
+// inferred: gives the item m08 (bit 0 of m0C: added to the result of the battle instead) and shows it
+void GameEventScript::fn_803A6B9C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    Inventory::instance_->mDB0C = 0;
+    if (((unsigned int)args->m0C & 1) != 1) {
+        int a;
+        int b;
+        int c;
+        if (fn_80444020(Inventory::instance_, args->m08, 1, -1, 0, 0, &a, &b, &c) != 0) {
+            lbl_8087F490->fn_803E5E64(a, b, c);
+            fn_800C31F4(lbl_8074EF78[4], 0, -1, 1.0f);
+        }
+    } else if (BattleResult::sInstance != 0) {
+        BattleResult::sInstance->AddItem_unk(args->m08);
+    }
+    Inventory::instance_->mDB0C = 1;
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: controls the game timer (m08 0/1: starts it counting down/up to the value, 2: pauses,
+// 3: stops, 4: adds, 5: subtracts); the value is m10, or the flag m10 (m0C 1, 2) or a random number
+// in [1, m10] (m0C 3)
+void GameEventScript::fn_803A6CDC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int type = args->m0C;
+    int value = args->m10;
+    if (lbl_8087F430 == 0) {
+        value = 0;
+    } else if (type == 2) {
+        value = lbl_8087F430->fn_80370174(value);
+    } else if (type == 1) {
+        value = lbl_8087F430->fn_80370A78(value);
+    } else if (type == 3) {
+        value = rand() % value + 1;
+    }
+    GameTimer* timer = GameTimer::sInstance;
+    if (timer != 0) {
+        switch (args->m08) {
+        case 0:
+        case 1:
+            timer->fn_803CE688(value, args->m08 == 0);
+            break;
+        case 2:
+            timer->fn_803CE6BC(value != 0);
+            break;
+        case 3:
+            timer->fn_803CE6FC();
+            break;
+        case 4:
+            timer->fn_803CE708(value);
+            break;
+        case 5:
+            timer->fn_803CE738(value);
+            break;
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
+// inferred: passes a character to the gimmick (m10, m14) (vf4C)
+void GameEventScript::fn_803A6E24(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        GimmickCommon* gimmick = GimmickManager::instance_->fn_803EEE10(args->m10, args->m14);
+        if (gimmick != 0) {
+            gimmick->vf4C(chara);
+        }
     }
     result.SetNext_unk(cmd);
 }
