@@ -20,6 +20,11 @@ extern "C" void fn_804EA810(MpMsgSession_unk* s, int value, int b);
 extern "C" void fn_804EA608(MpMsgSession_unk* s, int time, int b);
 extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
 extern "C" int fn_804EAA50(MpMsgSession_unk* s); // inferred: nonzero for the host of the room
+extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
+extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible); // inferred: scroll bar
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
+extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: state of a friend
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
@@ -308,6 +313,65 @@ void D2AMpMenu::fn_804B274C() {
         }
     } else if (decide == 2) {
         fn_804AF520(9);
+    }
+}
+
+// NONMATCHING: 99.9% - offset of "col0005" in @stringBase0 (functions before it are not written)
+// inferred: shows the windows of the ranking
+void D2AMpMenu::fn_804B3838() {
+    if (mDC != 0) {
+        m78->mFlags &= ~4;
+        m80->mFlags &= ~4;
+        m84->mFlags &= ~4;
+        m88->mFlags &= ~4;
+        mB4->mFlags &= ~4;
+        m70->mFlags &= ~4;
+        SetPaneValue2_unk(&m80->mLayout, "col0005", 0, 125.0f);
+        for (int i = 0; i < 10; i++) {
+            m8C[i]->mFlags &= ~4;
+        }
+        fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(mC8 + 0xAD), 0);
+        fn_804A4738(mB4, mLists[mC8]->m00, mLists[mC8]->m04, 10);
+    }
+}
+
+// NONMATCHING: 97.7% - stack slots of the three rectangles and r29/r30 swapped; L"" in the .data
+// pool of the original (the functions with the other wide strings are not written)
+// inferred: shows the game selection
+void D2AMpMenu::fn_804B39F8() {
+    m68->mFlags &= ~4;
+    m6C->mFlags &= ~4;
+    MpD2A_unk* base = m68;
+    if (MenuCommonTask::sInstance != 0 && D2ACommonDialog::sInstance->m4C == 0) {
+        char name[64];
+        sprintf(name, "top_cursor%d", mE4 + 1);
+        MpRect_unk rect = GetPaneRect_unk(base, name);
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, 0);
+        const wchar_t* text = fn_804B424C(mBC, mE4);
+        if (wcscmp(text, L"") != 0) {
+            fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+        }
+    }
+    if (fn_804EAA50(lbl_8087F610) == 1) {
+        if (lbl_8087F628->mC8 >= 8) {
+            int id = fn_8050F5A8(&lbl_8087F628->m430, 0);
+            while (id != -1) {
+                if (fn_804DCA4C(lbl_8087F610, id, 2) != 0) {
+                    m58[0]->mFlags &= ~4;
+                    MpRect_unk rect = GetPaneRect_unk(m68, "friend_online1");
+                    fn_801F4728(m58[0], "pos0009(1)", &rect);
+                }
+                if (fn_804DCA4C(lbl_8087F610, id, 0) != 0) {
+                    m58[1]->mFlags &= ~4;
+                    MpRect_unk rect = GetPaneRect_unk(m68, "friend_online2");
+                    fn_801F4728(m58[1], "pos0009(1)", &rect);
+                }
+                id = fn_8050F664(&lbl_8087F628->m430, 0);
+            }
+        }
+        SetPaneText_unk(&m6C->mLayout, "title", fn_80116FC0(0, 0x166));
+    } else {
+        SetPaneText_unk(&m6C->mLayout, "title", fn_80116FC0(0, 0x164));
     }
 }
 
