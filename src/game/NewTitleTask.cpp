@@ -1362,8 +1362,9 @@ void NewTitleTask::vf14() {
     atn::D2A_DrawRect rect;
     atn::Color color;
     atn::D2A_DrawExtra extra;
-    unsigned char work[0x50];
-    mMenu->GetDrawParams_unk(fn_800DC6B4(name), &rect, &color, &extra, work);
+    int work[6]; // inferred: as in D2A_Task::GetColor_unk
+    atn::D2A_Task* menu = mMenu;
+    menu->GetDrawParams_unk(fn_800DC6B4(name), &rect, &color, &extra, work);
     fn_801F4728(mCursor, "base_pos", &rect.x);
     unsigned int r = ToU8_unk(color.r);
     unsigned int g = ToU8_unk(color.g);
