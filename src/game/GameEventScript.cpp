@@ -3,6 +3,7 @@
 // The former GameEventScript_cont/_cont2 and std/bad_cast/_what splits are merged here.
 #include "atn/SoundManager.h"
 #include "atn/Memory.h"
+#include "atn/DrawHelper.h"
 #include "game/TacView.h"
 #include "game/GameCamera.h"
 #include "game/BattleTask.h"
@@ -377,6 +378,26 @@ static inline int FlagValue_unk(int kind, int flag) {
         return lbl_8087F430->fn_80370174(flag);
     }
     return lbl_8087F430->fn_80370A78(flag);
+}
+
+extern "C" const char* const lbl_8074EB1C[]; // inferred: names of the script commands
+extern "C" const char* const lbl_8074EFC8[]; // inferred: names of the kinds of event
+
+// NONMATCHING: 99.97% - offsets in @stringBase0 (the strings of the unwritten functions before it are missing)
+// inferred: debug display of the running event (kind, id, page and command)
+void GameEventScript::vf14() {
+    if (lbl_8087F0A8->mDebugSceneFlag != 0) {
+        lbl_8087EEB0->fn_80060D58(320.0f, 240.0f, 0.0f, 300.0f, 28.0f, 0x80000000);
+        if (m8C != 0) {
+            char text[256];
+            sprintf(text, "%s  ID:%d  PAGE:%d", lbl_8074EFC8[m9C], mA0, mA4 + 1);
+            lbl_8087EEB0->fn_800616C0(330.0f, 240.0f, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 0, 0, 0);
+            if (m94 != 0 && m90 != 0) {
+                sprintf(text, "COM:%s", lbl_8074EB1C[m90->mCmd]);
+                lbl_8087EEB0->fn_800616C0(330.0f, 254.0f, 0.0f, 14.0f, 14.0f, text, 0xFFFFFFFF, 0.0f, 1, 1, 0);
+            }
+        }
+    }
 }
 
 // inferred: compares the flag `flag` (kind 1: fn_80370174, else fn_80370A78) with the script value
