@@ -238,9 +238,11 @@ public:
         }
         return result;
     }
+    // inferred: the key is copied to a local (gives the register of the key of fn_80049CDC)
     Node* find(const K& key) {
-        Node* result = lower_bound_unk(key);
-        if (result == end() || key < result->mValue.first) {
+        K k = key;
+        Node* result = lower_bound_unk(k);
+        if (result == end() || k < result->mValue.first) {
             result = end();
         }
         return result;
@@ -1375,7 +1377,6 @@ extern "C" int fn_80049C3C(AudioDevice* audio, const char* name) {
     return audio->GetBank_unk(name);
 }
 
-// NONMATCHING: 98.68% - registros de la clave (id - 1) y del final del mapa en la busqueda
 // inferred: label of a sound id
 extern "C" unsigned long fn_80049CDC(AudioDevice* audio, unsigned int id) {
     return audio->GetLabel_unk(id);
