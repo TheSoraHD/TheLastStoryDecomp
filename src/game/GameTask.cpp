@@ -217,6 +217,7 @@ extern "C" int fn_80219558(int id);
 class PopupTask : public atn::Task {
 public:
     void fn_8054E51C();
+    void fn_8054A9A8();
     void fn_8054AF08();
 };
 extern "C" PopupTask* lbl_8087F8A8;
@@ -230,7 +231,6 @@ extern "C" int fn_803CE154();
 extern "C" int fn_803CE148();
 extern "C" void fn_80047B54(void* sound, int arg);
 extern "C" void fn_800F2C9C(void* battle);
-extern "C" void fn_8054A9A8(void* obj);
 extern "C" void fn_800EF588(int type, int map);
 extern "C" void fn_8004829C(void* sound, const char** groups, int count);
 extern "C" void fn_803D022C(void* obj);
@@ -503,7 +503,7 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
     }
     if (!fn_8036555C(option.mType, option.mMap, option.mSub)) {
         fn_800F2C9C(lbl_8087F048);
-        fn_8054A9A8(lbl_8087F8A8);
+        lbl_8087F8A8->fn_8054A9A8();
     }
     ((PostFxMgrView_unk*)lbl_8087EF8C)->mMotionBlur.fn_800AFEBC(IsSpecialField_unk(option.mType, option.mMap, option.mSub) ? 4 : 2);
     fn_800EF588(option.mType, option.mMap);
@@ -1315,7 +1315,7 @@ void GameTask::vf10() {
             fn_800EFA18(m550C.mType, m550C.mId);
             if (!fn_8036555C(m550C.mType, m550C.mId, m550C.mSub)) {
                 fn_800F2C9C(lbl_8087F048);
-                fn_8054A9A8(lbl_8087F8A8);
+                lbl_8087F8A8->fn_8054A9A8();
                 fn_803D0B20(lbl_8087F490);
             }
             m550C.mState = 7;

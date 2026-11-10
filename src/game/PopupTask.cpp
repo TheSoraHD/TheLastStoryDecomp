@@ -1,7 +1,7 @@
 // inferred: popups of the battle HUD (combo, critical, weapon skill, headshot, steal... d2anime
 // files in .rodata). Class from RTTI "PopupTask" (vtable 0x80794A84: dtor, vf0C, vf10, vf14).
-// Only the small functions and vf10 are written; vf14 (0x8054B324, 9 KB) and the popup
-// helpers (0x8054A9A8, 0x8054D794, 0x8054E0FC, 0x8054E574) are still asm. Names invented.
+// vf14 (0x8054B324, 9 KB) and the popup helpers (0x8054D794, 0x8054E0FC, 0x8054E574) are still
+// asm. Names invented.
 #include "atn/FixedArray.h"
 #include "atn/Task.h"
 #include "atn/Memory.h"
@@ -13,6 +13,12 @@ extern "C" void* __construct_array(void* block, void (*ctor)(), void (*dtor)(), 
 extern "C" void __destroy_arr(void* block, void (*dtor)(), unsigned long size, unsigned long n);
 extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg); // inferred: d2anime task
 extern "C" void fn_800D2338(atn::Task* task);                                   // inferred: deletes the task
+extern "C" unsigned int fn_800DC6B4(const char* s);                             // inferred: string hash
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+// inferred: sets the value `index` of the pane `name` (as in game/MenuCommonTask.cpp)
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
 
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
@@ -102,19 +108,22 @@ struct PopupEntry_unk {
     int mB0;
 };
 
-// inferred: a d2anime of the popups and its state (0xC bytes)
-struct PopupAnime_unk {
-    atn::Task* mTask;
-    int m04;
-    int m08;
-};
-
-// inferred: d2anime task (bit 30 of the word at 0xFC is cleared after the creation)
+// inferred: d2anime task (bits 30 and 28 of the word at 0xFC are cleared after the creation)
 struct PopupD2A_unk : public atn::Task {
-    unsigned char m48[0xFC - 0x48];
+    unsigned char m48[0x58 - 0x48];
+    unsigned char mLayout[0xFC - 0x58]; // 0x58: inferred: layout (as MP::Popup's PopupTask_unk)
     unsigned int mFlagFC_hi : 1;
     unsigned int mFlagFC : 1;
-    unsigned int mFlagFC_lo : 30;
+    unsigned int mFlagFC_29 : 1;
+    unsigned int mFlagFC2 : 1;
+    unsigned int mFlagFC_lo : 28;
+};
+
+// inferred: a d2anime of the popups and its state (0xC bytes)
+struct PopupAnime_unk {
+    PopupD2A_unk* mTask;
+    int m04;
+    int m08;
 };
 
 class PopupTask : public atn::Task {
@@ -125,6 +134,7 @@ public:
     virtual void vf10();
     virtual void vf14();
 
+    void fn_8054A9A8();
     void fn_8054AF08();
     void fn_8054E51C();
     void* fn_8054E528(unsigned int id);
@@ -140,7 +150,7 @@ public:
     unsigned char m16D0[0x4]; // inferred: owner tag of the popups (its address is stored in m94)
     PopupD2A_unk* m16D4;
     unsigned char m16D8[0x16E0 - 0x16D8];
-    atn::Task* m16E0;
+    PopupD2A_unk* m16E0;
     unsigned char m16E4[0x16EC - 0x16E4];
     PopupAnime_unk m16EC[3];
     PopupAnime_unk m1710[11];
@@ -148,7 +158,7 @@ public:
     PopupAnime_unk m17B8;
     PopupAnime_unk m17C4;
     struct {
-        atn::Task* mTask;
+        PopupD2A_unk* mTask;
         int m04;
     } m17D0;
 };
@@ -183,6 +193,99 @@ PopupTask::PopupTask(atn::Task* parent) : atn::Task(parent), m48(0) {
 
 PopupTask::~PopupTask() {
     lbl_8087F8A8 = 0;
+}
+
+// inferred: loads the d2anime files of the popups (once)
+void PopupTask::fn_8054A9A8() {
+    if (m48 == 0) {
+        m48 = 1;
+        m16E0 = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_critical.d2a", 0);
+        m16E0->fn_800D246C(1);
+        m16E0->mFlagFC = 0;
+        m16E0->mFlagFC2 = 0;
+        m16EC[0].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_weapon_skill.d2a", 0);
+        m16EC[0].mTask->fn_800D246C(1);
+        m16EC[0].mTask->mFlagFC = 0;
+        m16EC[0].mTask->mFlagFC2 = 0;
+        SetPaneValue_unk(m16EC[0].mTask->mLayout, "basePoint", 2, 3.0f);
+        m16EC[1].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_headshot.d2a", 0);
+        m16EC[1].mTask->fn_800D246C(1);
+        m16EC[1].mTask->mFlagFC = 0;
+        m16EC[2].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_steal.d2a", 0);
+        // inferred: the original clears this flag on the steal anime instead of the headshot one (a slip)
+        m16EC[2].mTask->mFlagFC2 = 0;
+        m16EC[2].mTask->fn_800D246C(1);
+        m16EC[2].mTask->mFlagFC = 0;
+        m16EC[2].mTask->mFlagFC2 = 0;
+        m1710[0].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage.d2a", 0);
+        m1710[0].mTask->fn_800D246C(1);
+        m1710[0].mTask->mFlagFC = 0;
+        m1710[0].mTask->mFlagFC2 = 0;
+        m1710[1].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_guard.d2a", 0);
+        m1710[1].mTask->fn_800D246C(1);
+        m1710[1].mTask->mFlagFC = 0;
+        m1710[1].mTask->mFlagFC2 = 0;
+        m1710[2].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_fire.d2a", 0);
+        m1710[2].mTask->fn_800D246C(1);
+        m1710[2].mTask->mFlagFC = 0;
+        m1710[2].mTask->mFlagFC2 = 0;
+        m1710[3].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_ice.d2a", 0);
+        m1710[3].mTask->fn_800D246C(1);
+        m1710[3].mTask->mFlagFC = 0;
+        m1710[3].mTask->mFlagFC2 = 0;
+        m1710[4].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_holy.d2a", 0);
+        m1710[4].mTask->fn_800D246C(1);
+        m1710[4].mTask->mFlagFC = 0;
+        m1710[4].mTask->mFlagFC2 = 0;
+        m1710[5].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_forest.d2a", 0);
+        m1710[5].mTask->fn_800D246C(1);
+        m1710[5].mTask->mFlagFC = 0;
+        m1710[5].mTask->mFlagFC2 = 0;
+        m1710[6].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_star.d2a", 0);
+        m1710[6].mTask->fn_800D246C(1);
+        m1710[6].mTask->mFlagFC = 0;
+        m1710[6].mTask->mFlagFC2 = 0;
+        m1710[7].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_dark.d2a", 0);
+        m1710[7].mTask->fn_800D246C(1);
+        m1710[7].mTask->mFlagFC = 0;
+        m1710[7].mTask->mFlagFC2 = 0;
+        m1710[8].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_mydamage.d2a", 0);
+        m1710[8].mTask->fn_800D246C(1);
+        m1710[8].mTask->mFlagFC = 0;
+        m1710[8].mTask->mFlagFC2 = 0;
+        m1710[9].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_mydamage_guard.d2a", 0);
+        m1710[9].mTask->fn_800D246C(1);
+        m1710[9].mTask->mFlagFC = 0;
+        m1710[9].mTask->mFlagFC2 = 0;
+        m1710[10].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_damage_heal.d2a", 0);
+        m1710[10].mTask->fn_800D246C(1);
+        m1710[10].mTask->mFlagFC = 0;
+        m1710[10].mTask->mFlagFC2 = 0;
+        m1794[0].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_exp.d2a", 0);
+        m1794[0].mTask->fn_800D246C(1);
+        m1794[0].mTask->mFlagFC = 0;
+        m1794[0].mTask->mFlagFC2 = 0;
+        m1794[1].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_exp_summon.d2a", 0);
+        m1794[1].mTask->fn_800D246C(1);
+        m1794[1].mTask->mFlagFC = 0;
+        m1794[1].mTask->mFlagFC2 = 0;
+        m1794[2].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_exp_bonus.d2a", 0);
+        m1794[2].mTask->fn_800D246C(1);
+        m1794[2].mTask->mFlagFC = 0;
+        m1794[2].mTask->mFlagFC2 = 0;
+        m17B8.mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_boost.d2a", 0);
+        m17B8.mTask->fn_800D246C(1);
+        m17B8.mTask->mFlagFC = 0;
+        m17B8.mTask->mFlagFC2 = 0;
+        m17C4.mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_point_powered.d2a", 0);
+        m17C4.mTask->fn_800D246C(1);
+        m17C4.mTask->mFlagFC = 0;
+        m17C4.mTask->mFlagFC2 = 0;
+        m17D0.mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_element_hit.d2a", 0);
+        m17D0.mTask->fn_800D246C(1);
+        m17D0.mTask->mFlagFC = 0;
+        m17D0.mTask->mFlagFC2 = 0;
+    }
 }
 
 void PopupTask::fn_8054AF08() {
@@ -235,7 +338,6 @@ int PopupTask::vf0C() {
     return ret;
 }
 
-// inferred: clears all the popups
 // inferred: counts the frames of the popups and removes the finished ones
 // NONMATCHING: 99.69% - the index of the erase loop and the text pointer of the copy swap r24/r25;
 // tried the text pointer as a local of an explicit PopupEntry_unk::operator= (first or in place),
@@ -275,6 +377,7 @@ void PopupTask::vf10() {
     }
 }
 
+// inferred: clears all the popups
 void PopupTask::fn_8054E51C() {
     mEntries.mSize = 0;
 }
