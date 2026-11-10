@@ -2,6 +2,7 @@
 #include "atn/MemoryManager.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "macros.h"
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 
@@ -23,7 +24,8 @@ extern "C" void fn_800C0D4C(void* data, int arg1, int w, int h); // inferred: fl
 
 // inferred: global render settings; m1DC enables the occlusion buffer view
 struct RenderSettings_unk {
-    unsigned char m000[0x1DC];
+    unsigned char m000[0x1D8];
+    float m1D8; // inferred: depth bias of the occlusion tests ("ZBias")
     int m1DC;
 };
 extern "C" RenderSettings_unk* lbl_8087EFA8;
@@ -142,7 +144,10 @@ public:
     void fn_800B4694(OccModel_unk* model, OccMeshList_unk* list);
 
     float* mBuffers[5]; // 0x14: inferred: (32 >> i) squared values each
-    void* m28;          // inferred: written by fn_800B47AC
+    struct Span_unk {
+        int mLeft;
+        int mRight;
+    }* m28;             // inferred: x range of each row of the triangle being drawn (fn_800B543C)
     int m2C;            // inferred: something was drawn this frame
 };
 
@@ -329,6 +334,69 @@ void LayerOcclusionCPU::fn_800B4694(OccModel_unk* model, OccMeshList_unk* list) 
         }
         fn_800B47AC(this, mesh->mIndices, mesh->mCount, shape->m14->m1C->m0C, shape->m14->m1C->m14, shape->m1C, 1, m);
     }
+}
+
+// inferred: walks the edge (x0, y0)-(x1, y1) and stores its x on each row (left or right end of the span),
+// from row y0 + skip
+void fn_800B543C(LayerOcclusionCPU* layer, int x0, int y0, int x1, int y1, int left, int skip) {
+    int dx = x1 - x0;
+    int dy = y1 - y0;
+    if (dy == 0) {
+        return;
+    }
+    float slope = (float)dx / (float)dy;
+    int start = y0 + skip < 0 ? 0 : y0 + skip;
+    int end = y1 < 32 ? y1 : 32;
+    for (int y = start; y < end; y++) {
+        if ((unsigned int)y <= 31) {
+            int x = x0 + (int)(slope * (float)(y - y0));
+            if (left) {
+                layer->m28[y].mLeft = x;
+            } else {
+                layer->m28[y].mRight = x;
+            }
+        }
+    }
+}
+
+// NONMATCHING: 99.6% - f0/f2 of the bias and the buffer value swapped
+// inferred: the rectangle (x0, y0)-(x1, y1) of the buffer, at `depth`, is hidden at the level `level` of
+// the buffer pyramid (each visible cell is tested again one level lower)
+int fn_800B64DC(LayerOcclusionCPU* layer, int x0, int y0, int x1, int y1, float depth, int level) {
+    int sx0 = x0 >> level;
+    int sy0 = y0 >> level;
+    int sx1 = x1 >> level;
+    int sy1 = y1 >> level;
+    float* data = layer->mBuffers[level];
+    int width = 32 >> level;
+    float bias = lbl_8087EFA8->m1D8;
+    for (int y = sy0; y <= sy1; y++) {
+        for (int x = sx0; x <= sx1; x++) {
+            if (depth <= data[y * width + x] + bias) {
+                return 0;
+            }
+            if (level > 0) {
+                return fn_800B64DC(layer, x0, y0, x1, y1, depth, level - 1);
+            }
+        }
+    }
+    return 1;
+}
+
+// NONMATCHING: 99.6% - f0/f2 of the bias and the buffer value swapped (as fn_800B64DC)
+// inferred: part of the rectangle (x0, y0)-(x1, y1) of the full buffer that is behind `depth`
+float fn_800B65B4(LayerOcclusionCPU* layer, int x0, int y0, int x1, int y1, float depth) {
+    float* data = layer->mBuffers[0];
+    int count = 0;
+    float bias = lbl_8087EFA8->m1D8;
+    for (int y = y0; y <= y1; y++) {
+        for (int x = x0; x <= x1; x++) {
+            if (depth > data[y * 32 + x] + bias) {
+                count++;
+            }
+        }
+    }
+    return (float)count / (float)((x1 - x0 + 1) * (y1 - y0 + 1));
 }
 
 } // namespace atn
