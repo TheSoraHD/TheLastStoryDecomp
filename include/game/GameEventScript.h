@@ -64,6 +64,7 @@ public:
         return (ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]);
     }
     int fn_8039BF04(int a, int b, int c, int d, int e);
+    int fn_8039C7F0(int a, int b, int c, int d, int e); // inferred: condition of a jump
     void fn_803957F0(int id); // inferred: clears the flag 2 of the NPC set point `id`
     ScriptEntry40_unk* fn_803A2DD8(int id);
     void fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args);
@@ -86,6 +87,7 @@ public:
     // inferred: script commands (member function pointers of the command table in .data);
     // the (start, step) pairs reset the step counter mB8 and run the first step
     void fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039D274(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039D1E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039D3E0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039D930(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -96,6 +98,12 @@ public:
     void fn_8039DA38(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E280(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E80C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039E8A8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_8039EACC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A02C8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A2600(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A2210(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A24A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_8039E9C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E9D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);

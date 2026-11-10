@@ -29,6 +29,10 @@
 #include "game/NpcTask.h"
 #include "game/EnemyTask.h"
 #include "game/PlayerTask.h"
+#include "game/TownTask.h"
+#include "atn/LoadManager.h"
+#include "game/GameConfig_unk.h"
+#include "atn/SequenceBoot_unk.h"
 
 #include <exception>
 
@@ -57,8 +61,18 @@ public:
 } // namespace boost
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
-class TownTask;
 extern "C" TownTask* lbl_8087FA20;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
+extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
+// inferred: view of the commands that name a motion of a character (names invented)
+struct ScriptMotionArgs_unk : public ScriptCmd_unk {
+    int m08;
+    int m0C;
+    int m10;
+    char mName[0x20]; // 0x14
+    int m34;          // inferred: flags (bit 0: wait)
+};
 extern "C" const char* const lbl_8074EF78[];
 extern "C" void fn_8036F268(GameTask* field, int type, int id, int subId, int entry, int a, int b, int reason,
                             int arg9); // inferred: changes the map (game/NewCampPartsMapSelect.cpp)
@@ -196,6 +210,40 @@ void GameEventScript::fn_8039D1E8(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd, 1);
 }
 
+// inferred: waits (0: for m0C frames, 1: until the leader stops, 2: until the town is loaded)
+void GameEventScript::fn_8039D274(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    mB4++;
+    result.mWait = 1;
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    int type = args->m08;
+    if (type == 0) {
+        if (mB4 >= args->m0C) {
+            result.mWait = 0;
+            if (mD0 != 0) {
+                leader->fn_8016E970(1);
+            }
+        }
+    } else if (type == 1) {
+        if (mD0 != 0 && leader->mRoute.m2C != 0) {
+            result.mWait = 0;
+        }
+    } else if (type == 2) {
+        if (lbl_8087FA20 != 0 && GameBgm::sInstance != 0 && GameBgm::sInstance->mState == 2) {
+            GameBgm::sInstance->fn_8037D3E8(1, 4, 15);
+        }
+        if (lbl_8087FA20 == 0 || lbl_8087FA20->fn_800D3FA4() != 0) {
+            result.mWait = 0;
+            if (lbl_8087FA20 != 0 && GameBgm::sInstance != 0) {
+                GameBgm::sInstance->fn_8037D3E8(0, 4, 30);
+            }
+        } else {
+            fn_8046ECDC(lbl_8087F518, 0);
+        }
+    }
+    result.mNext = NextCmd_unk(cmd);
+}
+
 // inferred: fades the screen (0, 2: out; 1, 3: in)
 void GameEventScript::fn_8039D3E0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -292,6 +340,29 @@ void GameEventScript::fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.mWait = 0;
 }
 
+// inferred: conditional jump: fn_8039C7F0 picks one of two (kind, label) pairs (kind 0: next command,
+// 1: end, else: jump to the label)
+void GameEventScript::fn_8039E8A8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int kind;
+    int label;
+    if (fn_8039C7F0(args->m08, args->m0C, args->m18, args->m10, args->m14) != 0) {
+        kind = args->m1C;
+        label = args->m20;
+    } else {
+        kind = args->m24;
+        label = args->m28;
+    }
+    if (kind == 0) {
+        result.mNext = NextCmd_unk(cmd);
+    } else if (kind == 1) {
+        result.mNext = 0;
+    } else {
+        result.mNext = FindLabel_unk(label);
+    }
+    result.mWait = 0;
+}
+
 void GameEventScript::fn_8039E9C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 0);
 }
@@ -308,6 +379,20 @@ void GameEventScript::fn_8039EA50(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: shows the choices of the message m08 and waits for the answer
+// NONMATCHING: 84.6% - this and cmd swap r29/r30 (tried an args local)
+void GameEventScript::fn_8039EACC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    lbl_8087F490->m263C->fn_803B583C(args->m08);
+    fn_803935FC(1, 1.0f);
+    if (lbl_8087F0A8->m0B8 == 0 || !lbl_8087F490->m263C->IsShown_unk()) {
+        lbl_8087F8A0->mHead->fn_8016E970(5);
+    }
+    mB8 = 0;
+    mBC = 20;
+    result = ScriptResult_unk(NextCmd_unk(args), 1);
+}
+
 void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087F430->fn_80370094(static_cast<const ScriptArgs_unk*>(cmd)->m08);
     mF0 = 1;
@@ -319,6 +404,21 @@ void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_8039F878(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     fn_8039F9A4(GetChara_unk(args->m08, args->m0C), args);
+    result.SetNext_unk(cmd);
+}
+
+// inferred: sends the message m10 to the gimmick (m08, m0C) (bit 0 of m14: through vf70)
+void GameEventScript::fn_803A02C8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    GimmickCommon* gimmick = GimmickManager::instance_->fn_803EEE10(args->m08, args->m0C);
+    if (gimmick != 0) {
+        if ((args->m14 & 1) != 1) {
+            GimmickMsg_unk msg(args->m10);
+            gimmick->vf40(&msg);
+        } else {
+            gimmick->vf70(args->m10);
+        }
+    }
     result.SetNext_unk(cmd);
 }
 
@@ -411,6 +511,23 @@ void GameEventScript::fn_803A2154(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: plays the motion named in the command on a character (bit 0 of m34: wait)
+// NONMATCHING: 97.8% - registers of the character, cmd and result, and the store of mWait
+void GameEventScript::fn_803A2210(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptMotionArgs_unk* args = static_cast<const ScriptMotionArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    int wait = 0;
+    if (chara != 0) {
+        char name[0x20];
+        memcpy(name, args->mName, sizeof(name));
+        chara->fn_80161570(fn_802180A8(name), 0, 0, -1.0f, -1.0f);
+        if ((args->m34 & 1) == 1) {
+            wait = 1;
+        }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
 // NONMATCHING: 97% - the wait flag is stored before the table lookup
 void GameEventScript::fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -420,6 +537,54 @@ void GameEventScript::fn_803A2378(ScriptResult_unk& result, const ScriptCmd_unk*
         wait = 1;
     }
     result.SetNext_unk(cmd, wait);
+}
+
+// inferred: opens the gauge of the UI (the leader keeps flag 0x10 and its value in mC0); without the
+// gauge, in the map (2, 0x36, 1) it goes back to the title
+// NONMATCHING: 98.9% - "Title" is in the other string pool of the file (lbl_8074F8CC + 0x13E)
+void GameEventScript::fn_803A24A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
+        if (lbl_8087F490 != 0) {
+            lbl_8087F490->fn_803E58E4();
+            CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            if (leader != 0) {
+                mC0 = leader->fn_8017C9A0();
+                leader->m54C |= 0x10;
+            }
+        }
+        result.SetNext_unk(cmd, 1);
+    } else {
+        result.SetNext_unk(cmd);
+        if (lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mType == 2 &&
+            lbl_8087F430->GetCurrentMap()->mId == 0x36 && lbl_8087F430->GetCurrentMap()->mSubId == 1) {
+            sSequenceBoot_unk->SetNext_unk("Title");
+            fn_800D2338(lbl_8087F430);
+        }
+    }
+}
+
+// inferred: waits for the gauge of the UI; meanwhile sets flag 0x10 of the leader from mC0
+// NONMATCHING: 96.7% - registers of this, result and cmd (r29-r31)
+void GameEventScript::fn_803A2600(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
+        int wait;
+        if (lbl_8087F490 != 0 && lbl_8087F490->fn_803E5940()) {
+            wait = 1;
+        } else {
+            wait = 0;
+            CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            if (leader != 0) {
+                if (mC0 != 0) {
+                    leader->m54C |= 0x10;
+                } else {
+                    leader->m54C &= ~0x10;
+                }
+            }
+        }
+        result.SetNext_unk(cmd, wait);
+    } else {
+        result = ScriptResult_unk(0, 0);
+    }
 }
 
 // NONMATCHING: 97.8% - registers of the index and of the entry offset swapped
