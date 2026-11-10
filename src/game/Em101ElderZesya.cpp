@@ -1197,11 +1197,15 @@ inline atn::Vector3 PartyCenter_unk() {
     return center;
 }
 
-// NONMATCHING: 99.22% - r3/r4 of the vector copies (the zero vector and the chosen point; __VecCopy family,
-// docs/mwcc-blockers-q3.md) and the order of the two increments of the loop
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void ZesyaAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 // inferred: picks the chant point nearest to the center of the party (m1694)
 void Em101ElderZesya::fn_802598DC() {
-    atn::Vector3 center = lbl_807C7030;
+    atn::Vector3 center;
+    ZesyaAssign_unk(center, lbl_807C7030);
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         center += p->mPos;
     }
@@ -1209,14 +1213,14 @@ void Em101ElderZesya::fn_802598DC() {
     int best = -1;
     float dist = 1e16f;
     for (unsigned int i = 0; i < m14BC.mSize; i++) {
-        atn::Vector3 d = center - m14BC.mData[i];
+        atn::Vector3 d = center - m14BC[i];
         float len = sqrt(d.x * d.x + d.z * d.z);
         if (dist > len) {
             dist = len;
             best = i;
         }
     }
-    m1694 = m14BC.mData[best];
+    ZesyaAssign_unk(m1694, m14BC.mData[best]);
 }
 
 // inferred: plays a barrier effect with the color of its kind (name invented)
