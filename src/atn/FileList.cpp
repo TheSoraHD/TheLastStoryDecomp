@@ -435,8 +435,11 @@ struct FileListDir_unk {
 // inferred: adds the files of `dir` whose name ends with `ext` ("*" or null: all) and its directories (type 1;
 // files are type 2); flags: 1 recurses into the directories, 0x10000 adds "dir/name" instead of the name. The
 // files of the mounted archives are added by the loader. Returns the number of names added.
-// NONMATCHING: 97.15% - registers (the pool matches since the explicit instantiations of arranque2)
+// NONMATCHING: 98.5% - registers of the directory loop (r17 here r20) and the new node: the original reloads
+// *tail after storing it (lwz) where MWCC reuses r3 here (the pool matches since the explicit instantiations of arranque2)
 int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
+    int full;
+    int recurse;
     int count = 0;
     FileListDir_unk* dirs = 0;
     FileListDir_unk** tail = &dirs;
@@ -444,8 +447,8 @@ int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
     if (entry >= 0) {
         DVDDir_unk info;
         if (DVDFastOpenDir(entry, &info) != 0) {
-            int full = flags & 0x10000;
-            int recurse = flags & 1;
+            full = flags & 0x10000;
+            recurse = flags & 1;
             DVDDirEntry_unk ent;
             for (;;) {
                 if (DVDReadDir(&info, &ent) == 0) {
@@ -489,10 +492,9 @@ int FileList::fn_8006C3F0(const char* dir, const char* ext, int flags) {
                         if (*tail == 0) {
                             break;
                         }
-                        FileListDir_unk* d = *tail;
-                        d->mNext = 0;
-                        memcpy(&d->mEntry, &ent, sizeof(ent));
-                        tail = &d->mNext;
+                        (*tail)->mNext = 0;
+                        memcpy(&(*tail)->mEntry, &ent, sizeof(ent));
+                        tail = &(*tail)->mNext;
                     }
                     continue;
                 }
