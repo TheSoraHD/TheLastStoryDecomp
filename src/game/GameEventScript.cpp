@@ -355,6 +355,47 @@ int GameEventScript::fn_80398590(int event, int arg) {
     return ok;
 }
 
+// inferred: a flag of the field (kind 1: global flag, else fn_80370A78); 0 without a field (name invented)
+static inline int FlagValue_unk(int kind, int flag) {
+    if (lbl_8087F430 == 0) {
+        return 0;
+    }
+    if (kind == 1) {
+        return lbl_8087F430->fn_80370174(flag);
+    }
+    return lbl_8087F430->fn_80370A78(flag);
+}
+
+// inferred: compares the flag `flag` (kind 1: fn_80370174, else fn_80370A78) with the script value
+// type/value (op 5 ==, 6 !=, 7 <, 8 <=, 9 >, 10 >=)
+int GameEventScript::fn_8039C7F0(int kind, int flag, int op, int type, int value) {
+    if (lbl_8087F430 == 0) {
+        return 0;
+    }
+    int result = 0;
+    switch (op) {
+    case 5:
+        result = FlagValue_unk(kind, flag) == ScriptValue_unk(type, value);
+        break;
+    case 6:
+        result = FlagValue_unk(kind, flag) != ScriptValue_unk(type, value);
+        break;
+    case 7:
+        result = FlagValue_unk(kind, flag) < ScriptValue_unk(type, value);
+        break;
+    case 8:
+        result = FlagValue_unk(kind, flag) <= ScriptValue_unk(type, value);
+        break;
+    case 9:
+        result = FlagValue_unk(kind, flag) > ScriptValue_unk(type, value);
+        break;
+    case 10:
+        result = FlagValue_unk(kind, flag) >= ScriptValue_unk(type, value);
+        break;
+    }
+    return result;
+}
+
 // NONMATCHING: 97.8% - the original loads the value of the node before the block address
 int GameEventScript::fn_8039CC24(int id) {
     ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m80;
