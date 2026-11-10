@@ -400,8 +400,6 @@ inline bool ErrorManager::IsPadError_unk() const {
     return (unsigned int)(mError - 5) <= 1;
 }
 
-// NONMATCHING: 99.97% - mDelay = 3 / the busy flag of IsBusy_unk in r3/r4 (the original stores mError
-// first and keeps the 3 in r4); with mError stored first the registers swap
 void ErrorManager::fn_80363DBC() {
     if (m20 != 0) {
         return;
@@ -504,8 +502,8 @@ void ErrorManager::fn_80363DBC() {
             mFont.reset();
         }
     } else if (mError != error) {
-        mDelay = 3;
         mError = error;
+        mDelay = 3;
         if (!IsBusy_unk()) {
             m38 = 0;
             for (int i = 0; i < 4; i++) {
