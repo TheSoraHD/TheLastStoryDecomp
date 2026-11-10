@@ -3658,7 +3658,7 @@
   "classes": [
    "Camera_unk"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Frustum_unk.cpp",

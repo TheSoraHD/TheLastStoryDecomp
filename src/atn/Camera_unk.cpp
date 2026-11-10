@@ -146,6 +146,10 @@ inline float SinF_unk(float x) {
     return sin(x);
 }
 
+// inferred: Vector3 copy through one more inline level (as DrawAssign_unk in atn/DrawHelper.cpp)
+inline void CamAssign_unk(Vector3& dst, const Vector3& src) {
+    dst = src;
+}
 // inferred: cross product by value (name invented)
 inline Vector3 Cross_unk(const Vector3& a, const Vector3& b) {
     Vector3 r;
@@ -162,7 +166,6 @@ atn::Camera::Camera(int type, int projType)
 
 atn::Camera::~Camera() {}
 
-// NONMATCHING: 99.97% - r3/r4 swapped in the copy of the cross product (__VecCopy, known blocker)
 void Camera_unk::fn_8004B378() {
     switch (mType) {
     case 0: {
@@ -196,7 +199,7 @@ void Camera_unk::fn_8004B378() {
             PSVECNormalize(&d, &d);
             PSVECNormalize(&side, &side);
             Vector3 u;
-            u = Cross_unk(d, side);
+            CamAssign_unk(u, Cross_unk(d, side));
             float cs = CosF_unk(mRoll);
             float sn = SinF_unk(mRoll);
             Vector3 r;
@@ -261,7 +264,6 @@ void Camera_unk::fn_8004B378() {
     }
 }
 
-// NONMATCHING: 99.94% - r3/r4 swapped in the two vector copies after the rotations
 bool Camera_unk::fn_8004BF64(float speed, float rotSpeed) {
     Vector3 pos(mPos);
     Vector3 target(mTarget);
@@ -318,14 +320,14 @@ bool Camera_unk::fn_8004BF64(float speed, float rotSpeed) {
     if (Abs_unk(f) > 0.1f) {
         Mtx m;
         PSMTXRotAxisRad(m, up, 0.05f * -f * rotSpeed / 3.0f);
-        target = MultVec_unk(m, target - pos) + pos;
+        CamAssign_unk(target, MultVec_unk(m, target - pos) + pos);
         moved = true;
     }
     f = fn_800A56A8(lbl_8087EF70, 0, 3, 1);
     if (Abs_unk(f) > 0.1f) {
         Mtx m;
         PSMTXRotAxisRad(m, &side, 0.05f * f * rotSpeed / 3.0f);
-        target = MultVec_unk(m, target - pos) + pos;
+        CamAssign_unk(target, MultVec_unk(m, target - pos) + pos);
         moved = true;
     }
 
