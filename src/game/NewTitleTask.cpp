@@ -461,6 +461,7 @@ int NewTitleTask::fn_80533A28(int count, int axis) {
     return prev != mCursorPos;
 }
 
+// inferred: sets the state of every title gimmick (name invented)
 inline void SetGimmickStates_unk(NewTitleTask* t) {
     for (unsigned int i = 0; i < t->mGimmicks.size(); i++) {
         TitleGimmick_unk& e = t->mGimmicks.begin()[i];
@@ -470,7 +471,8 @@ inline void SetGimmickStates_unk(NewTitleTask* t) {
         }
     }
 }
-inline void SendMsg2_unk(TitleGimmick_unk& e) {
+// inferred: sends its message to a title gimmick (name invented)
+inline void SendGimmickMsg_unk(TitleGimmick_unk& e) {
     GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
     if (g != 0 && e.mMsg != 0) {
         GimmickMsg_unk msg(e.mMsg);
@@ -542,7 +544,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         mCursorPos = 0;
         m2BC = 0;
         for (unsigned int i = 0; i < mGimmicks.size(); i++) {
-            SendMsg2_unk(mGimmicks.begin()[i]);
+            SendGimmickMsg_unk(mGimmicks.begin()[i]);
         }
         break;
     case 10:
