@@ -109,8 +109,8 @@ TitleLang_unk lbl_80793940[2] = {{"Japanese", 0}, {"English", 1}};
 static const char* const sSeNames_unk[4] = {"SE_UICOM_001", "SE_UICOM_002", "SE_UICOM_003", "SE_UICOM_018"};
 
 // inferred: sets a value of a pane of a layout (as SetPaneValue_unk of atn/Loader.cpp)
-inline void SetPaneValue_unk(atn::D2A_Task* layout, const char* name, float value) {
-    fn_801FECE0(&layout->mData.m10, fn_800DC6B4(name), value);
+inline void SetPaneValue_unk(void* data, const char* name, float value) {
+    fn_801FECE0(data, fn_800DC6B4(name), value);
 }
 
 // inferred: entries of the main menu (0: new game, 1: load, 2: multiplayer): all of them, without the
@@ -1319,9 +1319,9 @@ void NewTitleTask::vf14() {
         mMap->fn_804A0F58(mAreas.begin()[m2E0].mArea, 0.0f, mAreas.begin()[m2E0].mTime);
     }
     int wide = lbl_8087EEE0->mWide;
-    SetPaneValue_unk(mLogo, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
-    SetPaneValue_unk(mLogoCl, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
-    SetPaneValue_unk(mLogoNm, "aspectSD", 0.0f);
+    SetPaneValue_unk(&(mLogo)->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
+    SetPaneValue_unk(&(mLogoCl)->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
+    SetPaneValue_unk(&(mLogoNm)->mData.m10, "aspectSD", 0.0f);
     int state = mState;
     if (state == 25) {
         state = mPrevState;
@@ -1372,10 +1372,10 @@ void NewTitleTask::vf14() {
     mCursor->SetColor_unk("col0001", (a << 24) | (r << 16) | (g << 8) | b);
     for (int i = 0; i < 3; i++) {
         sprintf(name, "select%02d", i);
-        SetPaneValue_unk(mMenu, name, i == select ? 1.0f : 0.0f);
+        SetPaneValue_unk(&(mMenu)->mData.m10, name, i == select ? 1.0f : 0.0f);
     }
-    SetPaneValue_unk(mMenu, "isNewGame", mNoSave != 0 ? 1.0f : 0.0f);
-    SetPaneValue_unk(mMenu, "isMultiPlay", multi != 0 ? 1.0f : 0.0f);
+    SetPaneValue_unk(&(mMenu)->mData.m10, "isNewGame", mNoSave != 0 ? 1.0f : 0.0f);
+    SetPaneValue_unk(&(mMenu)->mData.m10, "isMultiPlay", multi != 0 ? 1.0f : 0.0f);
 }
 
 // inferred: reads the title_param csv (camera keys, map, BGM, layout, damage effect, gimmicks and map areas)
