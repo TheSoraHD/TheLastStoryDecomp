@@ -69,6 +69,7 @@ public:
     int fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd); // inferred: runs the script from cmd (0: waits)
     int fn_8039CC24(int id);             // inferred: event with the given id
     int fn_803ABFD4(atn::Task* chara);
+    int fn_803ACD50(int id); // inferred: the event has a condition of kind -2
     int fn_803AC088(); // inferred: count
     int fn_803AC230(); // inferred: count
     int fn_803AC3D8(CharaTask* chara, int a, int b, float range);

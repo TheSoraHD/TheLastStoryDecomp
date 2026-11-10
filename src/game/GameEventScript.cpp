@@ -630,6 +630,38 @@ void GameEventScript::fn_8039DA38(ScriptResult_unk& result, const ScriptCmd_unk*
     result.mNext = NextCmd_unk(cmd);
 }
 
+// NONMATCHING: 91.3% - registers of the inlined fn_8039CCD0 (as fn_8039E328)
+// inferred: waits until the message is read (or m10 frames, if positive), then goes on
+void GameEventScript::fn_8039DB2C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    GameMessageWindow* window = lbl_8087F490->m263C;
+    if (mA8 != 0) {
+        result.SetNext_unk(cmd, 1);
+        mB4++;
+        if (window->fn_803B5950() || (mB4 >= args->m10 && args->m10 > 0)) {
+            fn_803935FC(2, 1.0f);
+            mB4 = args->m10;
+            mA8 = 0;
+            if (!fn_8039CCD0(result.mNext)) {
+                lbl_8087F490->m263C->fn_803B57B0(0);
+                lbl_8087F8A0->mHead->fn_8016E970(1);
+            }
+        }
+    } else if (mB4 >= args->m10) {
+        result.mNext = NextCmd_unk(cmd);
+        int state = window->mState;
+        result.mWait = !(state == 2 || state == 4 || state == 0);
+    } else {
+        result.SetNext_unk(cmd, 1);
+        if (++mB4 >= args->m10) {
+            if (!fn_8039CCD0(result.mNext)) {
+                lbl_8087F490->m263C->fn_803B57B0(0);
+                lbl_8087F8A0->mHead->fn_8016E970(1);
+            }
+        }
+    }
+}
+
 void GameEventScript::fn_8039E280(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     GameMessageWindow* window = lbl_8087F490->m263C;
     GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(static_cast<const ScriptArgs_unk*>(cmd)->m08);
@@ -3291,6 +3323,17 @@ void GameEventScript::fn_803AB37C(CharaTask* chara) {
     }
 }
 
+// inferred: removes the record of `chara` from m12C; 1 if there was one
+int GameEventScript::fn_803ABFD4(atn::Task* chara) {
+    for (unsigned int i = 0; i < m12C.size(); i++) {
+        if (m12C[i].mChara == chara) {
+            m12C.erase(&m12C[i]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // inferred: ends the event started by the script on the event manager
 void GameEventScript::fn_803ACD08() {
     if (mE8 > 0) {
@@ -3298,6 +3341,20 @@ void GameEventScript::fn_803ACD08() {
         mE8 = 0;
         mEC = 0;
     }
+}
+
+// NONMATCHING: 98.4% - registers of the inlined fn_8039CC24 (same difference as that function)
+// inferred: the event `id` has a condition of kind -2
+int GameEventScript::fn_803ACD50(int id) {
+    const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)fn_8039CC24(id);
+    if (e != 0) {
+        for (int i = 0; i < e->mCount; i++) {
+            if (e->mConds[i].m10 == -2) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 const char* boost::bad_lexical_cast::what() const { return lbl_8078B34C; }
