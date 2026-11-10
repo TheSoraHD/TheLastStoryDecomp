@@ -3130,18 +3130,137 @@ void GameEventScript::fn_803A9138(ScriptResult_unk& result, const ScriptCmd_unk*
     fn_803A914C(result, cmd);
 }
 
-void GameEventScript::fn_803A9558(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    mB8 = 0;
-    mC0 = 60;
-    fn_803A956C(result, cmd);
-}
-
 // inferred: offsets of the render camera written by the shake command (names invented)
 struct ScriptShake_unk {
     atn::Vector3 mPos;
     atn::Vector3 mTarget;
     float mFovy;
 };
+// inferred: sets or clears flag 0x10 of the leader (name invented)
+static inline void HoldLeaderFlag_unk(int hold) {
+    CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (leader != 0) {
+        if (hold != 0) {
+            leader->m54C |= 0x10;
+        } else {
+            leader->m54C &= ~0x10;
+        }
+    }
+}
+extern "C" const char* const lbl_8074F020[][2]; // inferred: sounds of the start of the swing
+
+// NONMATCHING: 94.3% - the leader takes r31 instead of r27 (shifting this/result/cmd), the leader lookups
+// of flag 0x80 are not reloaded, float registers as fn_803A956C
+// inferred: makes the leader walk to the place m14 (m10: 0x01 no walk), waits for it and for the
+// camera, fades out and swings the camera for mC0 frames (as fn_803A956C, with a cosine)
+void GameEventScript::fn_803A914C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int wait;
+    CharaTask* leader;
+    leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    wait = 1;
+    switch (mB8) {
+    case 0:
+        if (((unsigned int)args->m10 & 0x80) == 0x80) {
+            HoldLeaderFlag_unk(1);
+        }
+        if (((unsigned int)args->m10 & 1) != 1 && leader != 0) {
+            leader->fn_8017039C(args->m14, 0);
+        }
+        mB8++;
+    case 1:
+        if (((unsigned int)args->m10 & 1) != 1 && leader != 0 && leader->mRoute.m2C == 0) {
+            break;
+        }
+        if (((unsigned int)args->m10 & 0x40) != 0x40 && lbl_8087F430 != 0 &&
+            lbl_8087F430->mCamera.m800 != lbl_8087F430->mCamera.m7FC) {
+            break;
+        }
+        mB8++;
+    case 2:
+        if (lbl_8087F430 != 0 && ((unsigned int)args->m10 & 2) != 2) {
+            lbl_8087F430->fn_80370B78(0xFF000000, mC0 - 5, 5, -9.0f);
+        }
+        if (((unsigned int)args->m10 & 0x10) != 0x10) {
+            fn_803935AC(lbl_8074F020[args->m08][args->m0C], 1.0f);
+        }
+        mBC = 0;
+        mB8++;
+    case 3:
+        if (lbl_8087F430 != 0) {
+            if (((unsigned int)args->m10 & 2) != 2 || ((unsigned int)args->m10 & 4) != 4) {
+                if (((unsigned int)args->m10 & 4) != 4 && ((unsigned int)args->m10 & 0x20) != 0x20) {
+                    float t;
+                    float amp;
+                    float scale;
+                    t = (float)mBC / (float)mC0;
+                    ScriptShake_unk shake;
+                    shake.mPos.x = 0.0f;
+                    shake.mPos.y = 0.0f;
+                    shake.mPos.z = 0.0f;
+                    shake.mTarget.x = 0.0f;
+                    shake.mTarget.y = 0.0f;
+                    shake.mTarget.z = 0.0f;
+                    shake.mFovy = 0.0f;
+                    GameTask* field = lbl_8087F430;
+                    amp = (1.0f - (float)cos(3.1415927f * t * 0.5f)) * 0.5f;
+                    scale = field->mCamera.mDist / 3.0f;
+                    if (((unsigned int)args->m10 & 0x20) != 0x20) {
+                        if (args->m0C == 1) {
+                            scale *= -1.0f;
+                        }
+                        shake.mTarget.x = 0.0f;
+                        shake.mTarget.y = amp * scale;
+                        shake.mTarget.z = 0.0f;
+                    } else {
+                        if (args->m0C == 0) {
+                            scale *= -1.0f;
+                        }
+                        amp *= scale;
+                        shake.mPos.x = 0.0f;
+                        shake.mPos.y = 0.7f * amp;
+                        shake.mPos.z = 0.0f;
+                        shake.mTarget.x = 0.0f;
+                        shake.mTarget.y = amp;
+                        shake.mTarget.z = 0.0f;
+                    }
+                    field->mCamera.m93C = shake.mPos;
+                    field->mCamera.m948 = shake.mTarget;
+                    field->mCamera.m954 = shake.mFovy;
+                }
+                if (++mBC < mC0) {
+                    break;
+                }
+            }
+        }
+        mB8++;
+    case 4: {
+        GameTask* field = lbl_8087F430;
+        if (field != 0) {
+            field->mCamera.m93C.x = 0.0f;
+            field->mCamera.m93C.y = 0.0f;
+            field->mCamera.m93C.z = 0.0f;
+            field->mCamera.m948.x = 0.0f;
+            field->mCamera.m948.y = 0.0f;
+            field->mCamera.m948.z = 0.0f;
+            field->mCamera.m954 = 0.0f;
+        }
+        if (((unsigned int)args->m10 & 0x80) == 0x80) {
+            HoldLeaderFlag_unk(0);
+        }
+        wait = 0;
+        break;
+    }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
+void GameEventScript::fn_803A9558(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    mB8 = 0;
+    mC0 = 60;
+    fn_803A956C(result, cmd);
+}
+
 extern "C" const char* const lbl_8074F088[][2]; // inferred: sounds of the end of the shake
 
 // NONMATCHING: 96.6% - float registers of the shake computation (f3/f4 swapped, zero in f7)
