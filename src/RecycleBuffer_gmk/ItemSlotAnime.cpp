@@ -341,6 +341,67 @@ void ItemSlotAnime::fn_8044E88C() {
     }
 }
 
+// NONMATCHING: 69.7% - the original inlines fn_8044F14C at the end (defined later; here it stays a call)
+// and the registers of the inlined Alloc_unk loop
+// inferred: stops the slots on the item (`shown`: the item is already shown); with mFlag27 the item is taken
+// at once (fn_8044F14C)
+void ItemSlotAnime::fn_8044EA34(int shown) {
+    if (mFlag31) {
+        mState = 5;
+        m18 = 0;
+        if (m00 == 0) {
+            m00 = lbl_8087F4F8->Alloc_unk();
+        }
+        m00->m00->m50 = 10.0f;
+        m00->m00->m54 = 1.0f;
+        for (int i = 0; i < 3; i++) {
+            ItemSlotTask_unk* t = m00->m14[i];
+            t->m50 = i * 3.0f + 2.0f;
+            t->m54 = 0.0f;
+        }
+        if (shown == 0) {
+            atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
+            for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
+                if (*it != 0) {
+                    (*it)->m50 = 5.0f;
+                }
+            }
+            atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
+            for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
+                if (*it != 0) {
+                    (*it)->m54 = 0.35f;
+                }
+            }
+            if (lbl_8087EFE8 != 0) {
+                lbl_8087EFE8->fn_800CFD18(this, 0);
+                fn_800C344C("SE_UICOM_020", &mPos, 0, -1, 1.0f);
+            }
+        } else {
+            ItemSlotTask_unk* base = m00->m00;
+            base->m50 = fn_801F6C2C(base);
+            atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
+            for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
+                if (*it != 0) {
+                    (*it)->m50 = 10.0f;
+                }
+            }
+            atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks2 = m00->m24;
+            for (ItemSlotTask_unk** it = oks2.begin(); it != oks2.end(); it++) {
+                if (*it != 0) {
+                    (*it)->m54 = 0.35f;
+                }
+            }
+            if (lbl_8087EFE8 != 0) {
+                lbl_8087EFE8->fn_800CFD18(this, 0);
+            }
+        }
+        fn_8044F96C();
+        if (mBits29 & 1) {
+            fn_8044F14C();
+        }
+    }
+}
+
 // inferred: the layout animation of `task` reached its last frame (name invented)
 static inline bool IsAnimeEnd_unk(ItemSlotTask_unk* task) {
     return task->m50 >= fn_801F6C2C(task);
