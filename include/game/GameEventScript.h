@@ -253,7 +253,8 @@ public:
     int mD0;
     unsigned char mD4[0xDC - 0xD4];
     int mDC; // inferred: kind 0 of GetChara_unk is the leader
-    unsigned char mE0[0xE8 - 0xE0];
+    int mE0; // inferred: 0x24 after an event (fn_803A1DB0)
+    int mE4;
     int mE8; // inferred: an event of the event manager is running
     int mEC;
     int mF0;

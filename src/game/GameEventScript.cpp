@@ -42,6 +42,8 @@
 #include "game/AiTarget.h"
 #include "game/EquipItemData.h"
 #include "game/FriendManager.h"
+#include "db/EventIdTable_unk.h"
+#include "game/GameVoice.h"
 #include "atn/DebugMessages_unk.h"
 #include "game/ChaseManager.h"
 #include "game/ChaserNpc.h"
@@ -87,6 +89,7 @@ extern "C" int sprintf(char* buf, const char* format, ...);
 extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int value, int arg4); // inferred: battle log entry
 extern "C" void* lbl_8087EF70;                                     // inferred: pad input
 extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
+extern "C" void fn_80392D2C(Camera_unk* camera, const Camera_unk* from, float rate); // inferred: blends back
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 // inferred: squared length (name invented)
 static inline float SqLength_unk(const atn::Vector3& v) {
@@ -789,6 +792,232 @@ void GameEventScript::fn_803A0D74(ScriptResult_unk& result, const ScriptCmd_unk*
         }
     }
     result.SetNext_unk(cmd);
+}
+
+// inferred: sets a value of the leader (m0C == 0) or of the team AI m08/m0C
+void GameEventScript::fn_803A0F4C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    if (args->m0C == 0) {
+        CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (leader != 0) {
+            switch (args->m10) {
+            case 4:
+                leader->mC58.mC0 = ScriptValue_unk(args->m14, args->m18);
+                break;
+            case 5:
+                leader->mC58.mB4 = ScriptValue_unk(args->m14, args->m18);
+                break;
+            }
+        }
+    } else {
+        TeamAI_unk* team = lbl_8087FA00->Find_unk(args->m08, args->m0C);
+        if (team != 0) {
+            int value = ScriptValue_unk(args->m14, args->m18);
+            switch (args->m10) {
+            case 0:
+                team->fn_805AE864(value);
+                break;
+            case 3:
+                team->SetAIType_unk(value);
+                break;
+            case 4:
+                team->SetBattleMode_unk(value);
+                break;
+            case 5:
+                team->SetAreaID_unk(value);
+                break;
+            case 6:
+                team->SetM242_unk(value);
+                break;
+            default:
+                return;
+            }
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
+// inferred: ends the event `id` (hold: the leader drops flag 0x10; successive: argument of
+// fn_8047EFD8); always 1
+extern "C" int fn_803A19B4(int id, int hold, int successive) {
+    CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (hold != 0 && leader != 0) {
+        leader->m54C &= ~0x10;
+    }
+    leader->fn_80164DCC(0);
+    lbl_8087F540->fn_8047EFD8(id, successive);
+    if (lbl_8087F540->fn_8047F420(id) != 0) {
+        lbl_8087F430->fn_80371674();
+        if (lbl_8087F498 != 0) {
+            lbl_8087F498->fn_803EBAC8(15, 0);
+            if (lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->GetMapType() == 1) {
+                lbl_8087F498->mNumChannels = 2;
+            } else {
+                lbl_8087F498->mNumChannels = 1;
+            }
+        }
+        if (id == 0xEC5) {
+            lbl_8087EFA8->m144 = 1;
+        }
+        if (id == 0x151E) {
+            atn::RenderManager::instance_->mLayers[4]->m04 = 1;
+        }
+        if (id == 0x524) {
+            for (PlayerTask* p = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0; p != 0; p = p->mNext) {
+                p->fn_8016F634();
+            }
+        }
+    }
+    if (lbl_8087F098 != 0) {
+        lbl_8087F098->fn_80183948();
+    }
+    return 1;
+}
+
+// inferred: starts an event (id, m18, m0C of the command); 1 if it started
+extern "C" int fn_803A11D8(int id, int arg, int arg2, EventIdEntry_unk* entry);
+// inferred: keeps the leader's state while an event with flag 0x10 runs (name invented)
+static inline void HoldLeader_unk(int& saved, EventIdEntry_unk* entry, CharaTask* leader) {
+    if ((entry->mFlags & 0x10) == 0x10 && leader != 0) {
+        saved = leader->fn_8017C9A0();
+        leader->m54C |= 0x10;
+    }
+}
+
+// NONMATCHING: 98.7% - @stringBase0 offset (earlier strings unwritten) and the store of `wait` in
+// SetNext_unk is scheduled one instruction later in the original
+// inferred: starts the event m08 (flag 2: queued, flag 0x40000000: stops it instead); the result
+// is 1 while it runs
+void GameEventScript::fn_803A1B20(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* leader;
+    int wait;
+    EventIdEntry_unk* entry;
+    mB4 = 0;
+    wait = 0;
+    entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(args->m08);
+    leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (entry != 0 && (entry->m44 == 1 || entry->m44 == 3) && ((unsigned int)args->m10 & 2) != 2 &&
+        ((unsigned int)args->m10 & 0x40000000) != 0x40000000 && lbl_8087F540->fn_8047F420(args->m08) != 0) {
+        mB4 = -1;
+        lbl_8087F430->m563C = 0x12;
+        lbl_8087F430->fn_80373118();
+        wait = 1;
+        HoldLeader_unk(mC4, entry, leader);
+    }
+    if (mB4 != -1) {
+        if (((unsigned int)args->m10 & 2) == 2) {
+            lbl_8087F540->fn_8047E964(args->m08, 1);
+        } else if (((unsigned int)args->m10 & 0x40000000) != 0x40000000) {
+            if (entry != 0) {
+                wait = fn_803A11D8(args->m08, args->m18, args->m0C, entry);
+                HoldLeader_unk(mC4, entry, leader);
+                mC0 = 0;
+                Event::Sequence* seq = lbl_8087F540->m70;
+                if (wait != 0 && seq != 0 && seq->m98_8 == 1 && leader != 0) {
+                    leader->m54C |= 0x10;
+                    mC0 = 1;
+                }
+            } else {
+                char text[0x100];
+                sprintf(text, "Event not found! ev%04d", args->m08);
+                if (lbl_8087EEB8 != 0) {
+                    lbl_8087EEB8->fn_800697D8(text);
+                }
+            }
+        } else {
+            int id = args->m08;
+            if (id <= 0 && lbl_8087F540->m70 != 0) {
+                id = lbl_8087F540->m70->m190;
+            }
+            lbl_8087F540->fn_8047EFD8(id, 0);
+        }
+        if (wait != 0 && lbl_8087F540->m70 != 0 && lbl_8087F540->m70->m194 != 10) {
+            lbl_8087F430->fn_80373118();
+        }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
+// NONMATCHING: 99.8% - r0/r5 swap in SetNext_unk (docs/mwcc-blockers.md, GameEventScript family)
+// inferred: waits for the event started by fn_803A1B20: the first frame starts it, then waits until
+// it ends and restores the camera and the leader
+void GameEventScript::fn_803A1DB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    EventIdEntry_unk* entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(args->m08);
+    CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    result.SetNext_unk(cmd, 1);
+    if (mB4 == -1) {
+        fn_803A11D8(args->m08, args->m18, args->m0C, entry);
+        if (entry->m44 == 1) {
+            lbl_8087F430->fn_8037529C(0xFFFFFFFF, 0xFFFFFF, 0, 0, 15);
+        }
+        mC0 = 0;
+        Event::Sequence* seq = lbl_8087F540->m70;
+        if (seq != 0 && seq->m98_8 == 1 && leader != 0) {
+            leader->m54C |= 0x10;
+            mC0 = 1;
+        }
+        lbl_8087F430->fn_80373118();
+        mB4++;
+        return;
+    }
+    mB4++;
+    if (entry != 0 && mB4 > 15 && entry->m44 != 3) {
+        int fade = lbl_8087F540->m1AA0 == 0;
+        if (lbl_8087F540->m1AA0 == 2 && (args->m08 == 0x232F || args->m08 == 0x12C3 || args->m08 == 0x5E4)) {
+            fade = 1;
+        }
+        if (fade) {
+            lbl_8087F430->m563C = 0x12;
+        }
+    }
+    if (lbl_8087F540->fn_8047F364(args->m08) != 0) {
+        entry = EventIdTable_unk::fn_8020F130()->fn_8020F71C(args->m08);
+        if (entry != 0) {
+            switch (entry->m48) {
+            case 1:
+                lbl_8087F430->mCamera.fn_8037EF30(1, 1, -1.0f);
+                lbl_8087F430->fn_8037529C(0xFFFFFFFF, 0xFFFFFF, 0, 0, 30);
+                break;
+            case 2:
+                lbl_8087F430->fn_8037529C(0xFFFFFFFF, 0xFFFFFF, 5, 0, 10);
+                fn_80392D2C(&lbl_8087F430->mCamera, lbl_8087F540->GetCamera_unk(), 0.05f);
+                lbl_8087F430->mCamera.fn_8037EF30(1, 1, -1.0f);
+                break;
+            default:
+                lbl_8087F430->mCamera.fn_8037EF30(1, 1, -1.0f);
+                break;
+            }
+            if ((entry->mFlags & 0x10) == 0x10 && leader != 0) {
+                if (mC4 != 0) {
+                    leader->m54C |= 0x10;
+                } else {
+                    leader->m54C &= ~0x10;
+                }
+            }
+        }
+        fn_803A19B4(args->m08, mC0 == 1, lbl_8087F0A8->mProcessSuccessiveEvent);
+        if (lbl_8087F0A8->mProcessSuccessiveEvent != 0) {
+            mE8 = args->m08;
+        }
+        mE0 = 0x24;
+        result.mWait = 0;
+    } else {
+        Event::Sequence* seq = lbl_8087F540->m70;
+        if (seq != 0) {
+            if (seq->m194 != 10) {
+                lbl_8087F430->fn_80373118();
+            } else if (args->m08 == 0x324 || args->m08 == 0x4E0) {
+                for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+                    if (p->fn_8016E484() != 0 && (p->mStatus.m0C & 0x20) == 0x20) {
+                        p->mStatus.fn_8012D8B8();
+                        p->m58C = 0;
+                    }
+                }
+            }
+        }
+    }
 }
 
 // inferred: requests a BGM (unless the same one is already requested)
