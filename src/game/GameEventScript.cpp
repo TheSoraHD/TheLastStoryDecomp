@@ -1182,6 +1182,88 @@ void GameEventScript::fn_803A36D8(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd, wait);
 }
 
+// inferred: arguments of the cliff command (name invented)
+struct ScriptCliffArgs_unk : public ScriptCmd_unk {
+    int m08;
+    int m0C;
+    unsigned int m10;
+    float m14;
+};
+
+// inferred: the interaction point `id` of the scene (name invented)
+static inline gs::InteractionPoint* FindInteraction_unk(GameScene* scene, int id) {
+    for (unsigned int i = 0; i < scene->mC4.size(); i++) {
+        if (id == scene->mC4[i].mId) {
+            return &scene->mC4[i];
+        }
+    }
+    return 0;
+}
+
+// inferred: the point linked after `point` (name invented)
+static inline gs::InteractionPoint* NextInteraction_unk(GameScene* scene, gs::InteractionPoint* point) {
+    for (unsigned int i = 0; i < scene->mCC.size(); i++) {
+        gs::InteractionConnection& c = scene->mCC[i];
+        if (point->mIndex - 1 == c.m00) {
+            return &scene->mC4[c.m04];
+        }
+    }
+    return 0;
+}
+
+// inferred: the point linked before `point` (name invented)
+static inline gs::InteractionPoint* PrevInteraction_unk(GameScene* scene, gs::InteractionPoint* point) {
+    for (unsigned int i = 0; i < scene->mCC.size(); i++) {
+        gs::InteractionConnection& c = scene->mCC[i];
+        if (point->mIndex - 1 == c.m04) {
+            return &scene->mC4[c.m00];
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 97.2% - case 5 reads m14 through the incoming cmd register, case 13 schedules the
+// vector arithmetic with other float registers
+// inferred: cliff hanging of the leader (m08: 5 grabs/leaves, 10 moves between the two points of a
+// connection, 13 climbs along the link of the point); m10 bit 0 leaves, bit 5 takes the reverse link
+void GameEventScript::fn_803A372C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptCliffArgs_unk* args = static_cast<const ScriptCliffArgs_unk*>(cmd);
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    if (leader != 0) {
+        unsigned int flags = args->m10;
+        if ((flags & 1) != 1) {
+            switch (args->m08) {
+            case 5:
+                leader->fn_8016939C(args->m0C, flags, args->m14);
+                break;
+            case 10: {
+                gs::InteractionPoint* point = FindInteraction_unk(mScene, args->m0C);
+                if ((flags & 0x20) != 0x20) {
+                    leader->fn_80162A08(point->mPos, NextInteraction_unk(mScene, point)->mPos);
+                } else {
+                    leader->fn_80162A08(point->mPos, PrevInteraction_unk(mScene, point)->mPos);
+                }
+                break;
+            }
+            case 13: {
+                gs::InteractionPoint* point = FindInteraction_unk(mScene, args->m0C);
+                if (point != 0) {
+                    gs::InteractionConnection* c = (gs::InteractionConnection*)mScene->fn_803C18DC(13, point->mId);
+                    if (c != 0) {
+                        gs::InteractionPoint& other = mScene->mC4[c->m04];
+                        leader->fn_80163B88(leader->mPos, leader->mPos + (other.mPos - point->mPos));
+                    }
+                }
+                break;
+            }
+            }
+        } else if (args->m08 == 5) {
+            leader->fn_801696E0();
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: battle camera on (m08 0: mode m0C) or off (1, 2: also opens the tactical view)
 void GameEventScript::fn_803A39F8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
@@ -1255,6 +1337,71 @@ void GameEventScript::fn_803A3BF4(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_803A3CA8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0 && SetConfig::sInstance->mAutoSave != 0) {
         lbl_8087F430->fn_80376730();
+    }
+    result.SetNext_unk(cmd);
+}
+
+// inferred: control in [4, 12) of kind 6 (name invented)
+static inline bool InControl6_unk(int ctl, int id) {
+    return ctl == 6 && id >= 4 && id < 12;
+}
+
+// inferred: stores a state of the character m08/m0C (m10) into the script variable m14/m18
+void GameEventScript::fn_803A3D20(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        int value = 0;
+        int ctl = chara->m55C;
+        int id = chara->m560;
+        switch (args->m10) {
+        case 0:
+            value = chara->mFlag31;
+            break;
+        case 1:
+            value = chara->mFlag31 && chara->mC48 != 0;
+            break;
+        case 2:
+            value = ctl == 6 && id == 0x17;
+            break;
+        case 3:
+            value = ctl == 6 && id == 0x3B;
+            break;
+        case 4:
+            if (InControl6_unk(ctl, id)) {
+                value = 1;
+            }
+            break;
+        case 5:
+            value = ctl == 6 && id == 0x16;
+            break;
+        case 6:
+            if (ctl == 6 && (id == 0x1D || id == 0x1E)) {
+                value = 1;
+            }
+            break;
+        case 7:
+            value = chara->mFlag6;
+            break;
+        case 8:
+            value = ctl == 6 && id == 0x62;
+            break;
+        case 9:
+            value = ctl == 6 && id == 0x44;
+            break;
+        case 10:
+            if (chara->fn_8016D3F8()) {
+                value = 1;
+            }
+            break;
+        case 11:
+            value = ctl == 6 && id == 0x2A;
+            break;
+        case 12:
+            value = ctl == 6 && id == 0x3D;
+            break;
+        }
+        fn_8039BF04(args->m14, args->m18, 0, 0, value);
     }
     result.SetNext_unk(cmd);
 }
@@ -1389,6 +1536,42 @@ void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.SetNext_unk(cmd, wait);
 }
 
+// inferred: moves a character back along its facing direction (name invented)
+static inline void StepBack_unk(CharaTask* chara) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    chara->fn_8015E7A0(atn::Vector3(-front.x, -front.y, -front.z), -1, 0);
+}
+
+// inferred: character m08/m0C: m10 0 disables it, 1 moves it back along its facing direction and
+// jumps to the end of its motion, 2 only moves it back
+void GameEventScript::fn_803A5118(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        chara->vf44();
+        switch (args->m10) {
+        case 0:
+            chara->fn_801765D8();
+            break;
+        case 1:
+            chara->FreezeTask();
+            StepBack_unk(chara);
+            chara->mMotion.mTracks[0].m10 = 1.0f;
+            chara->mMotion.mTracks[0].m08 = chara->mMotion.fn_80097D7C(0);
+            chara->fn_80145334();
+            chara->MeltTask();
+            break;
+        case 2:
+            StepBack_unk(chara);
+            break;
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: sets the mode of the members of three teams (pairs m08/m0C, m10/m14, m18/m1C) to 0, 1 and 2
 // NONMATCHING: 98.5% - the member pointer and the member swap r5/r7
 void GameEventScript::fn_803A5384(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -1500,6 +1683,91 @@ void GameEventScript::fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk*
     if (msg != 0) {
         lbl_8087F048->fn_80109828(msg->mText);
     }
+    result.SetNext_unk(cmd);
+}
+
+// inferred: value of the chase or of the config `kind` (name invented)
+static inline int ChaseValue_unk(int kind) {
+    int value = 0;
+    switch (kind) {
+    case 0:
+        if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
+            value = 1;
+        } else if (ChaserNpc::fn_8018059C() != 0 && ChaserNpc::fn_8018059C()->m14B0 != 5) {
+            value = 1;
+        }
+        break;
+    case 1:
+        if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
+            if (lbl_8087F098->mState == 2) {
+                value = 4;
+            } else if (lbl_8087F098->m50 > 0) {
+                value = 3;
+            } else if (lbl_8087F098->m4C > 0) {
+                value = 2;
+            } else {
+                value = 1;
+            }
+        } else if (ChaserNpc::fn_8018059C() != 0) {
+            value = ChaserNpc::fn_8018059C()->m14B0;
+        }
+        break;
+    case 2:
+        if (lbl_8087F098 != 0 && lbl_8087F098->mState != 0) {
+            value = lbl_8087F098->mGoalId;
+        } else if (ChaserNpc::fn_8018059C() != 0) {
+            ChaserNpc* npc = ChaserNpc::fn_8018059C();
+            value = npc->m14C0 >= 0 ? npc->m14B4[npc->m14C0] : 0;
+        }
+        break;
+    case 5:
+        value = lbl_8087F0A8->m4DC.m08;
+        break;
+    case 6:
+        value = lbl_8087F0A8->m4DC.m04;
+        break;
+    case 7:
+        value = lbl_8087F0A8->m4DC.m0C * 57.29578f;
+        break;
+    case 9:
+        value = lbl_8087F0A8->m53C.m44;
+        break;
+    case 10:
+        value = lbl_8087F0A8->m53C.m40;
+        break;
+    case 11:
+        if (lbl_8087F098 != 0) {
+            value = lbl_8087F098->mShowGoal;
+        }
+        break;
+    }
+    return value;
+}
+
+// inferred: writes a field flag without recording it (m37C cleared meanwhile) (name invented)
+static inline void StoreValue_unk(GameEventScript* self, int value, int flag, int mode) {
+    GameTask* field = lbl_8087F430;
+    if (field != 0) {
+        int saved = self->m37C;
+        self->m37C = 0;
+        if (mode == 1) {
+            field->fn_80370320(flag, value, 0);
+        } else {
+            field->fn_80370AE4(flag, value);
+        }
+        self->mF0 = 1;
+        self->m37C = saved;
+    }
+}
+
+// NONMATCHING: 98.4% - the value takes r28 instead of r31 (this/result/cmd shifted) and the operands
+// of the fmuls of case 7 are swapped
+// inferred: stores a value of the chase or of the config (m08) into the field flag m10 (m0C: 1 with
+// fn_80370320, else fn_80370AE4); counterpart of the setter above
+void GameEventScript::fn_803A5A8C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = ChaseValue_unk(args->m08);
+    StoreValue_unk(this, value, args->m10, args->m0C);
     result.SetNext_unk(cmd);
 }
 
@@ -1679,6 +1947,89 @@ void GameEventScript::fn_803A6324(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// NONMATCHING: 99.8% - r0/r4 swap in SetNext_unk (docs/mwcc-blockers.md, GameEventScript family)
+// inferred: arena settings (m08) from the values m0C/m10 and m14/m18
+void GameEventScript::fn_803A6410(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = ScriptValue_unk(args->m0C, args->m10);
+    int value2 = ScriptValue_unk(args->m14, args->m18);
+    ArenaTask* arena = lbl_8087EE78;
+    if (arena != 0) {
+        switch (args->m08) {
+        case 0:
+            if (value != 0) {
+                arena->fn_80043B34();
+            } else {
+                arena->fn_80043BDC();
+            }
+            break;
+        case 1:
+            arena->mMode = value;
+            break;
+        case 2:
+            arena->m5C = value;
+            break;
+        case 3:
+            arena->mScore0 = value;
+            break;
+        case 4:
+            arena->mScore1 = value;
+            break;
+        case 5:
+            arena->mResult = value;
+            arena->mFirstResult = 1;
+            break;
+        case 6:
+            arena->mSe = value;
+            break;
+        case 7:
+            arena->mVoice = value;
+            break;
+        case 8:
+            arena->mVoices[0].mCount = 0;
+            break;
+        case 9: {
+            ArenaTask::Voice_unk voice;
+            voice.mFirst = value;
+            voice.mLast = value2;
+            arena->mVoices[0].PushBack_unk(voice);
+            break;
+        }
+        case 10:
+            arena->mVoices[1].mCount = 0;
+            break;
+        case 11: {
+            ArenaTask::Voice_unk voice;
+            voice.mFirst = value;
+            voice.mLast = value2;
+            arena->mVoices[1].PushBack_unk(voice);
+            break;
+        }
+        case 12:
+            arena->mVoices[2].mCount = 0;
+            break;
+        case 13: {
+            ArenaTask::Voice_unk voice;
+            voice.mFirst = value;
+            voice.mLast = value2;
+            arena->mVoices[2].PushBack_unk(voice);
+            break;
+        }
+        case 14:
+            arena->mVoices[3].mCount = 0;
+            break;
+        case 15: {
+            ArenaTask::Voice_unk voice;
+            voice.mFirst = value;
+            voice.mLast = value2;
+            arena->mVoices[3].PushBack_unk(voice);
+            break;
+        }
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: enables or disables the crowd of NPCs
 // NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -1809,6 +2160,22 @@ void GameEventScript::fn_803A6F90(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: links (value 1) or unlinks the characters m0C/m10 and m14/m18 (m08 == 0 only)
+void GameEventScript::fn_803A7954(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m0C, args->m10);
+    CharaTask* other = GetChara_unk(args->m14, args->m18);
+    int value = ScriptValue_unk(args->m1C, args->m20);
+    if (args->m08 == 0) {
+        if (value == 1) {
+            chara->fn_8017A33C(other, 1);
+        } else {
+            chara->fn_8017A33C(0, 1);
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->mCamera.fn_8037EF30(static_cast<const ScriptArgs_unk*>(cmd)->m08, 1, -1.0f);
@@ -1915,6 +2282,58 @@ void GameEventScript::fn_803A7EB8(ScriptResult_unk& result, const ScriptCmd_unk*
         }
     }
     fn_8039BF04(args->m0C, args->m10, 0, 0, value);
+    result.SetNext_unk(cmd);
+}
+
+// inferred: the warp point `id` of the scene of the field (name invented)
+static inline gs::WarpPoint* FindWarp_unk(int id) {
+    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (scene != 0) {
+        for (unsigned int i = 0; i < scene->m78.size(); i++) {
+            if (id == scene->m78[i].mId) {
+                return &scene->m78[i];
+            }
+        }
+        return 0;
+    }
+    return 0;
+}
+
+// NONMATCHING: 99.6% - r0/r4 swap in SetNext_unk (docs/mwcc-blockers.md, GameEventScript family)
+// inferred: song control (m08: 0 state, 1 song, 2 position of a warp point, 3 distance, 4/5 volumes
+// in percent, 6 environment sounds)
+void GameEventScript::fn_803A7FBC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = ScriptValue_unk(args->m0C, args->m10);
+    if (SongManager::sInstance != 0) {
+        switch (args->m08) {
+        case 0:
+            SongManager::sInstance->fn_805A2FD4(value);
+            break;
+        case 1:
+            SongManager::sInstance->fn_805A32C8(value);
+            break;
+        case 2: {
+            gs::WarpPoint* warp = FindWarp_unk(value);
+            if (warp != 0) {
+                SongManager::sInstance->fn_805A3448(warp->mPos);
+            }
+            break;
+        }
+        case 3:
+            SongManager::sInstance->fn_805A358C(value);
+            break;
+        case 4:
+            SongManager::sInstance->fn_805A3660(value / 100.0f);
+            break;
+        case 5:
+            SongManager::sInstance->fn_805A3734(value / 100.0f);
+            break;
+        case 6:
+            SongManager::sInstance->fn_805A3808(value);
+            break;
+        }
+    }
     result.SetNext_unk(cmd);
 }
 
