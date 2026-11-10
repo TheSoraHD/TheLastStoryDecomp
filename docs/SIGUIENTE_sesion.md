@@ -1,6 +1,6 @@
 # Siguiente sesion (tras noescritas-20261110)
 
-Rama `noescritas-20261110` (sin mergear, la revisa el usuario; inicio 2026-11-10 12:28, cierre 22:40, adelantado):
+Rama `noescritas-20261110` (mergeada en `main`; inicio 2026-11-10 12:28, cierre 22:40, adelantado):
 **14958 -> 15008 / 18109**, lost 0, sin bajadas de fuzzy, build limpio y clon limpio con `main.dol: OK`.
 Funciones al 0 %: **1148 -> 1023 (-125)**. DRAFT: 42 (0 en la ruta). Solo renombrados en `symbols.txt`; splits sin
 cambios. Notas y decisiones: `docs/noescritas-20261110.md`.
