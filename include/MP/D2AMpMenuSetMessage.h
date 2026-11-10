@@ -9,7 +9,9 @@
 struct MpMsgSession_unk {
     unsigned char m0000[0x4FC];
     int m4FC;  // inferred: error code
-    unsigned char m0500[0x540 - 0x500];
+    unsigned char m0500[0x50C - 0x500];
+    int m50C;  // inferred: state of the match (tested with m4FC == 30)
+    unsigned char m0510[0x540 - 0x510];
     int m540;  // inferred: game mode
     unsigned char m0544[0x610 - 0x544];
     MpLevelTable_unk m610; // inferred: experience table

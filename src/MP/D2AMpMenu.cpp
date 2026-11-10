@@ -11,6 +11,9 @@
 #include "MP/SoftKeyboard.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/DrawHelper.h"
+#include "MP/D2AMpMenuLobby.h"
+#include "MP/D2AMpMenuMessageList.h"
+#include "game/GameConfig_unk.h"
 
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -36,6 +39,8 @@ extern "C" const wchar_t* fn_804FA8E8(MpMsgSession_unk* s, int value); // inferr
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" int fn_804EA520(MpMsgSession_unk* s); // inferred: nonzero when the session is idle (atn/PacketPack.cpp)
 
 namespace MP {
 
@@ -238,6 +243,110 @@ void D2AMpMenu::fn_804B0A78() {
         MenuCommonTask::sInstance->fn_800D246C(0);
         MenuCommonTask::sInstance->fn_804A2F98();
         break;
+    }
+}
+
+// inferred: update of the menu, runs the input of the current state
+void D2AMpMenu::vf10() {
+    if (mD8 != 0) {
+        mD8 = 0;
+        return;
+    }
+    switch (mBC) {
+    case 2:
+        fn_804B12F8();
+        break;
+    case 3:
+        if (D2ACommonDialog::sInstance->m4C != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C()) {
+                fn_804AF520(19);
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC()) {
+                fn_804AF520(2);
+            }
+        }
+        break;
+    case 4: {
+        int state = D2AMpMenuSetMessage::sInstance->mD8;
+        if (state == 8) {
+            fn_804AF520(2);
+        } else if (state == 1) {
+            Play_unk(m70, 0, 1.0f);
+        } else if (state == 7) {
+            Play_unk(m70, 0, -1.0f);
+        }
+        break;
+    }
+    case 5:
+        fn_804B2934();
+        break;
+    case 6:
+        if (D2AMpMenuFriend::sInstance->m2BC == 6) {
+            fn_804AF520(mC0);
+        }
+        break;
+    case 8:
+        if (D2ACommonDialog::sInstance->m4C != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C()) {
+                for (int i = 2; i < 25; i++) {
+                    mEC[i] = -1;
+                }
+                fn_804AF520(2);
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC()) {
+                fn_804AF520(9);
+            }
+        }
+        break;
+    case 9:
+        fn_804B1528();
+        break;
+    case 16:
+        if (lbl_8087F0A8->mInput.fn_801231D0(0x34) != 0 && fn_804EA520(lbl_8087F610) != 0 &&
+            D2AMpMenuMessageList::sInstance != 0 && D2AMpMenuMessageList::sInstance->m94 == 4) {
+            if (lbl_8087F610->m4FC != 30 || lbl_8087F610->m50C == 0) {
+                fn_80117228(10);
+                D2AMpMenuMessageList::sInstance->fn_804C35F0(1);
+            }
+        }
+        break;
+    case 17:
+        fn_804B1C88();
+        break;
+    case 18:
+        fn_804B1E48();
+        break;
+    case 10:
+        fn_804B274C();
+        break;
+    case 11:
+        if (D2AMpMenuFriendRoom::sInstance->m88 == 5 && D2AMpMenuFriendRoom::sInstance->mA0 != 0) {
+            D2AMpMenuFriendRoom::sInstance->fn_804BA350(6);
+            fn_804AF520(10);
+        }
+        break;
+    case 13:
+        if (D2AMpMenuLobby::sInstance->mD88 == 9 && D2AMpMenuLobby::sInstance->mDA4 == 0) {
+            if (D2AMpMenuLobby::sInstance != 0) {
+                fn_800D2338(D2AMpMenuLobby::sInstance);
+            }
+            if (fn_804EAA50(lbl_8087F610) == 1) {
+                fn_804AF520(11);
+            } else {
+                fn_804AF520(10);
+            }
+        }
+        break;
+    case 19:
+        if (m299C.m04 == m299C.m08) {
+            fn_804AF520(20);
+        }
+        break;
+    }
+    if (m299C.m00 != 0 && m299C.m0C == 0) {
+        m299C.m04++;
+        if (m299C.m04 >= m299C.m08) {
+            m299C.m04 = m299C.m08;
+            m299C.m0C = 1;
+        }
     }
 }
 
