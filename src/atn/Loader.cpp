@@ -358,8 +358,24 @@ void Loader::vf10() {
     }
 }
 
-// NONMATCHING: 98.45% - registers: the original swaps r28/r29 (pool base/end of the archive list)
-// and the temporaries of the pending search, and copies the iterator to r3 in the loop test.
+// inferred: a pending load uses the archive (name invented)
+static inline int IsPending_unk(Loader* loader, PfsArchive_unk* archive) {
+    int pending;
+    std::list<PendingLoad_unk>::iterator p;
+    std::list<PendingLoad_unk>::iterator e;
+    pending = 0;
+    e = loader->mPending.end();
+    for (p = loader->mPending.begin(); p != e; ++p) {
+        if ((*p).mArchive == archive) {
+            pending = 1;
+            break;
+        }
+    }
+    return pending;
+}
+
+// NONMATCHING: 98.59% - registers of the pane block (pool base/layout in r29/r30 in the original) and
+// of the pending loop (end in r4, flag in r6)
 void Loader::vf14() {
     if (m3EE0 != 0 && m3EE0->IsFlag_unk(2)) {
         if (m3EF4 == 0) {
@@ -409,13 +425,7 @@ void Loader::vf14() {
     while (it != end) {
         PfsArchive_unk* archive = *it;
         if (archive->mRefCount <= 0) {
-            int pending = 0;
-            for (std::list<PendingLoad_unk>::iterator p = mPending.begin(); p != mPending.end(); ++p) {
-                if ((*p).mArchive == archive) {
-                    pending = 1;
-                    break;
-                }
-            }
+            int pending = IsPending_unk(this, archive);
             if (pending == 0) {
                 if (archive->m74 != 0) {
                     it = mArchives.erase(it);
