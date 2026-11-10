@@ -1,4 +1,5 @@
 #include "gmk/FlyObjManager.h"
+#include "game/PopupTask.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
 #include "atn/Memory.h"
@@ -25,9 +26,6 @@ struct FlyDebug_unk {
 extern "C" FlyDebug_unk* lbl_8087F0A8;
 // inferred: item manager and popup text (classes unknown)
 extern "C" void fn_804491F4(int* a, int* b, int arg2, int arg3, int arg4, float rate);
-extern "C" void* lbl_8087F8A8;
-extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
-                            int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 
 #define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
 
@@ -315,7 +313,7 @@ int FlyObjManager::vf44(GimmickHitMsg_unk* msg) {
         if (lbl_8087F8A8 != 0) {
             wchar_t text[0x20];
             swprintf(text, 0x20, L"%d", count);
-            fn_8054D794(lbl_8087F8A8, 2, text, &obj->mPos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
+            lbl_8087F8A8->fn_8054D794(2, text, &obj->mPos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
         }
     }
     return 0;

@@ -2,6 +2,7 @@
 // 0x8077DE00-0x8077ED00, RTTI names in .data). The classes are declared in .dol order in
 // chr/ControlStickByQuark.h (their implicit destructors are emitted at the end of the file).
 #include "chr/ControlStickByQuark.h"
+#include "game/PopupTask.h"
 #include "game/GameVoice.h"
 #include "game/CharaTask.h"
 #include "game/EnemyQuarkStand.h"
@@ -118,12 +119,9 @@ extern "C" int fn_8003EA3C(Damage_unk* result, HitInfo_unk* data, CharaTask* att
                            unsigned int flags, const DamageParam_unk* param, const atn::Vector3* pos,
                            const atn::Vector3* rot);
 extern "C" int swprintf(wchar_t* buf, unsigned long size, const wchar_t* format, ...);
-extern "C" void* lbl_8087F8A8; // inferred: popup text manager
 // inferred: start yaw of the climb (a zero float in .sdata in the original, only read here; ours goes to
 // .sbss without explicit_zero_data)
 float lbl_8087DA00 = 0.0f;
-extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
-                            int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button pressed
 
@@ -1724,7 +1722,7 @@ int ControlAbsorbedHP::vf0C() {
             pos += atn::Vector3(0.0f, 15.0f, 0.0f);
             wchar_t text[0x20];
             swprintf(text, 0x20, L"%d", damage.m04);
-            fn_8054D794(lbl_8087F8A8, 1, text, &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
+            lbl_8087F8A8->fn_8054D794(1, text, &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
         }
         if (mChara->mType == 0) {
             lbl_8087F490->m728 = 1;

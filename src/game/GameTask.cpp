@@ -1,6 +1,7 @@
 // game/GameTask.cpp (0x8036555C-0x80376B68): the field task (GameTask). The functions that use the string
 // pool are written in order up to 0x80370AE4 (fn_80370A78); the rest are accessors and dungeon helpers.
 #include "game/GameTask.h"
+#include "game/PopupTask.h"
 #include "game/NewCampTask.h"
 #include "db/StrategyAiTable_unk.h"
 #include "game/GameScene.h"
@@ -213,14 +214,6 @@ extern "C" atn::SoundManager* lbl_8087EFE8;
 extern "C" void* lbl_8087EE90; // inferred: sound engine
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle task
 extern "C" int fn_80219558(int id);
-// inferred: popup messages of the field (lbl_8087F8A8; code in game/PopupTask.cpp)
-class PopupTask : public atn::Task {
-public:
-    void fn_8054E51C();
-    void fn_8054A9A8();
-    void fn_8054AF08();
-};
-extern "C" PopupTask* lbl_8087F8A8;
 extern "C" MpSettings_unk* lbl_8087F0A8;
 extern "C" SysInput_unk* lbl_8087F018;
 extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: pending save data

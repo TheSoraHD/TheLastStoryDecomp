@@ -1,4 +1,5 @@
 #include "Event/Manager.h"
+#include "game/PopupTask.h"
 #include "atn/EffectSystem_unk.h"
 #include "game/GameCamera.h"
 #include "game/AiTarget.h"
@@ -159,9 +160,6 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
 extern "C" void fn_80449448(int* a, int* b, int level, int cap);
 // inferred: popup texts (lbl_8087F8A8, as in gmk/FlyObjManager.cpp)
-extern "C" void* lbl_8087F8A8;
-extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
-                            int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 extern "C" int swprintf(wchar_t* s, unsigned long n, const wchar_t* format, ...);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
@@ -2267,7 +2265,7 @@ void BattleCharaTask::fn_800EB7A0() {
         if (lbl_8087F8A8 != 0) {
             wchar_t text[0x40];
             swprintf(text, 0x20, L"%d", a);
-            fn_8054D794(lbl_8087F8A8, 2, text, &pos, kind, 0, 1, 0, 0, 0, 1, -1, -1);
+            lbl_8087F8A8->fn_8054D794(2, text, &pos, kind, 0, 1, 0, 0, 0, 1, -1, -1);
         }
         Inventory::instance_->fn_80449A18(m13B0, level, exp, 0, rate);
     }

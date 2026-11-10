@@ -1,4 +1,5 @@
 #include "game/LastCocoonEgg.h"
+#include "game/PopupTask.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "game/GameTask.h"
@@ -29,12 +30,9 @@ struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087F8A8;
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)               // inferred: popup text manager
-extern "C" void fn_8054D794(void* obj, int arg1, const wchar_t* text, const atn::Vector3* pos, int arg4, int arg5,
-                            int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12);
 // inferred: camera shake request of the field (lbl_8087F430); as in gmk/ShakeCamera.cpp
 struct EggField_unk {
     unsigned char m00[0x96C];
@@ -303,7 +301,7 @@ void LastCocoonEgg::vf40(HitInfo_unk* hit) {
         lbl_8087F430->Shake_unk(60, 1.5f, 1.5f);
         atn::Vector3 pos = fn_80148B0C(0)->m04.mCenter;
         pos += atn::Vector3(0.0f, 15.0f, 0.0f);
-        fn_8054D794(lbl_8087F8A8, 0, L"Shield Break!!", &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
+        lbl_8087F8A8->fn_8054D794(0, L"Shield Break!!", &pos, 0, 0, 1, 0, 0, 0, 1, -1, -1);
     } else {
         fn_80232B7C(0, 0);
         PlayEfp3_unk(&m1934, &mMotion);

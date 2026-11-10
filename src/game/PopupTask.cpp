@@ -1,7 +1,7 @@
 // inferred: popups of the battle HUD (combo, critical, weapon skill, headshot, steal... d2anime
 // files in .rodata). Class from RTTI "PopupTask" (vtable 0x80794A84: dtor, vf0C, vf10, vf14).
-// vf14 (0x8054B324, 9 KB) and the popup helpers (0x8054D794, 0x8054E0FC, 0x8054E574) are still
-// asm. Names invented.
+// vf14 (0x8054B324, 9 KB) is still asm. Names invented.
+#include "game/PopupTask.h"
 #include "atn/FixedArray.h"
 #include "atn/Task.h"
 #include "atn/Memory.h"
@@ -9,8 +9,18 @@
 #include "math/Vec.h"
 #include "game/CharaTask.h"
 #include "game/SetConfig.h"
+#include "game/GameTask.h"
+#include "game/GameUI.h"
+#include "game/GameConfig_unk.h"
+#include "atn/SoundRef.h"
 
 extern "C" int rand();
+extern "C" GameTask* lbl_8087F430;
+extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: number of a text
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
+extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
 
 extern "C" void* __construct_array(void* block, void (*ctor)(), void (*dtor)(), unsigned long size,
                                    unsigned long n);
@@ -24,152 +34,6 @@ inline void SetPaneValue_unk(void* layout, const char* name, int index, float va
     fn_801FED24(layout, fn_800DC6B4(name), index, value);
 }
 
-extern "C" unsigned long wcslen(const wchar_t* s);
-extern "C" wchar_t* wmemcpy(wchar_t* dst, const wchar_t* src, unsigned long n);
-
-namespace atn {
-// inferred: the wide string of the popups (as in game/NewCampPartsOption.h; the copy keeps the source
-// pointer in a register: a local in the copy assignment)
-template <>
-inline static_string<32, wchar_t, std::char_traits<wchar_t> >::static_string() {
-    mStr[0] = 0;
-}
-template <>
-inline static_string<32, wchar_t, std::char_traits<wchar_t> >::~static_string() {}
-template <>
-inline static_string<32, wchar_t, std::char_traits<wchar_t> >&
-static_string<32, wchar_t, std::char_traits<wchar_t> >::operator=(const static_string& o) {
-    const wchar_t* str = o.mStr;
-    if (str != mStr) {
-        wmemcpy(mStr, str, wcslen(str) + 1);
-    }
-    return *this;
-}
-} // namespace atn
-
-// inferred: one popup (0xB4 bytes; copied member by member when a popup is removed, PopupTask::vf10)
-struct PopupEntry_unk {
-    PopupEntry_unk()
-        : m00(0), m04(0.0f), m08(0.0f), m0C(0), m10(0), m14(0), m18(0), m1C(1), m60(0.0f, 0.0f, 0.0f),
-          m6C(0.0f, 0.0f, 0.0f), m78(0), m7C(-1), m80(-1), m84(0), m88(0), m8C(0), m90(0), m94(0), m98(0), m9C(0),
-          mA0(0), mA4(0), mA8(0), mAC(0), mB0(0) {}
-    ~PopupEntry_unk() {}
-    PopupEntry_unk& operator=(const PopupEntry_unk& o) {
-        m00 = o.m00;
-        m04 = o.m04;
-        m08 = o.m08;
-        m0C = o.m0C;
-        m10 = o.m10;
-        m14 = o.m14;
-        m18 = o.m18;
-        m1C = o.m1C;
-        m20 = o.m20;
-        m60 = o.m60;
-        m6C = o.m6C;
-        m78 = o.m78;
-        m7C = o.m7C;
-        m80 = o.m80;
-        m84 = o.m84;
-        m88 = o.m88;
-        m8C = o.m8C;
-        m90 = o.m90;
-        m94 = o.m94;
-        m98 = o.m98;
-        m9C = o.m9C;
-        mA0 = o.mA0;
-        mA4 = o.mA4;
-        mA8 = o.mA8;
-        mAC = o.mAC;
-        mB0 = o.mB0;
-        return *this;
-    }
-
-    int m00;   // inferred: frame
-    float m04; // inferred: duration
-    float m08;
-    int m0C;
-    int m10;
-    int m14;
-    int m18;
-    int m1C;
-    atn::static_string<32, wchar_t, std::char_traits<wchar_t> > m20; // inferred: text
-    atn::Vector3 m60;
-    atn::Vector3 m6C;
-    int m78;
-    int m7C;
-    int m80;
-    int m84;
-    int m88;
-    unsigned int m8C;
-    int m90;
-    int m94;
-    int m98;
-    int m9C;
-    int mA0;
-    int mA4;
-    int mA8;
-    int mAC;
-    int mB0;
-};
-
-// inferred: d2anime task (bits 30 and 28 of the word at 0xFC are cleared after the creation)
-struct PopupD2A_unk : public atn::Task {
-    unsigned char m48[0x58 - 0x48];
-    unsigned char mLayout[0xFC - 0x58]; // 0x58: inferred: layout (as MP::Popup's PopupTask_unk)
-    unsigned int mFlagFC_hi : 1;
-    unsigned int mFlagFC : 1;
-    unsigned int mFlagFC_29 : 1;
-    unsigned int mFlagFC2 : 1;
-    unsigned int mFlagFC_lo : 28;
-};
-
-// inferred: a d2anime of the popups and its state (0xC bytes; PopupEntry_unk::m9C points to one)
-struct PopupAnime_unk {
-    int m00;
-    PopupD2A_unk* mTask;
-    int m08;
-};
-
-class PopupTask : public atn::Task {
-public:
-    PopupTask(atn::Task* parent);
-    virtual ~PopupTask();
-    virtual int vf0C();
-    virtual void vf10();
-    virtual void vf14();
-
-    void fn_8054A9A8();
-    void fn_8054AF08();
-    void fn_8054E0FC(PopupEntry_unk* entry);
-    void fn_8054E51C();
-    void* fn_8054E528(unsigned int id);
-
-    int m48;
-    // inferred: counted array of popups (count at 0x4C, entries at 0x50)
-    // (a class of its own over the fixed array: the destructor tests the address twice, 0x8054A950)
-    struct Entries_unk : public atn::FixedArray_unk<PopupEntry_unk, 0x20> {} mEntries; // 0x4C
-    struct Base_unk {
-        unsigned char m00[0x04];
-        unsigned int mFlags; // 0x16D4->m00 is a task, see the ctor
-    };
-    unsigned char m16D0[0x4]; // inferred: owner tag of the popups (its address is stored in m94)
-    PopupD2A_unk* m16D4;
-    unsigned char m16D8[0x16E0 - 0x16D8];
-    PopupD2A_unk* m16E0;
-    unsigned char m16E4[0x16E8 - 0x16E4];
-    PopupAnime_unk m16E8[3];
-    PopupAnime_unk m170C[11];
-    PopupAnime_unk m1790[3];
-    PopupAnime_unk m17B4;
-    PopupAnime_unk m17C0;
-    unsigned char m17CC[0x17D0 - 0x17CC];
-    struct {
-        PopupD2A_unk* mTask;
-        int m04;
-    } m17D0;
-};
-
-extern "C" PopupTask* lbl_8087F8A8;
 
 extern "C" PopupTask* fn_8054A6E8(atn::Task* parent) {
     if (lbl_8087F8A8 == 0) {
@@ -179,10 +43,10 @@ extern "C" PopupTask* fn_8054A6E8(atn::Task* parent) {
 }
 
 PopupTask::PopupTask(atn::Task* parent) : atn::Task(parent), m48(0) {
-    m16D4 = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_combo.d2a", 0);
-    m16D4->fn_800D246C(1);
-    m16D4->mFlagFC = 0;
-    m16E0 = 0;
+    m16D0.mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_combo.d2a", 0);
+    m16D0.mTask->fn_800D246C(1);
+    m16D0.mTask->mFlagFC = 0;
+    m16DC.mTask = 0;
     for (int i = 0; i < 3; i++) {
         m16E8[i].mTask = 0;
     }
@@ -194,7 +58,7 @@ PopupTask::PopupTask(atn::Task* parent) : atn::Task(parent), m48(0) {
     }
     m17B4.mTask = 0;
     m17C0.mTask = 0;
-    m17D0.mTask = 0;
+    m17CC.mTask = 0;
 }
 
 PopupTask::~PopupTask() {
@@ -205,10 +69,10 @@ PopupTask::~PopupTask() {
 void PopupTask::fn_8054A9A8() {
     if (m48 == 0) {
         m48 = 1;
-        m16E0 = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_critical.d2a", 0);
-        m16E0->fn_800D246C(1);
-        m16E0->mFlagFC = 0;
-        m16E0->mFlagFC2 = 0;
+        m16DC.mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_critical.d2a", 0);
+        m16DC.mTask->fn_800D246C(1);
+        m16DC.mTask->mFlagFC = 0;
+        m16DC.mTask->mFlagFC2 = 0;
         m16E8[0].mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_weapon_skill.d2a", 0);
         m16E8[0].mTask->fn_800D246C(1);
         m16E8[0].mTask->mFlagFC = 0;
@@ -287,19 +151,19 @@ void PopupTask::fn_8054A9A8() {
         m17C0.mTask->fn_800D246C(1);
         m17C0.mTask->mFlagFC = 0;
         m17C0.mTask->mFlagFC2 = 0;
-        m17D0.mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_element_hit.d2a", 0);
-        m17D0.mTask->fn_800D246C(1);
-        m17D0.mTask->mFlagFC = 0;
-        m17D0.mTask->mFlagFC2 = 0;
+        m17CC.mTask = (PopupD2A_unk*)fn_801F3FF8(this, "data/d2anime/ui_element_hit.d2a", 0);
+        m17CC.mTask->fn_800D246C(1);
+        m17CC.mTask->mFlagFC = 0;
+        m17CC.mTask->mFlagFC2 = 0;
     }
 }
 
 void PopupTask::fn_8054AF08() {
     m48 = 0;
     mEntries.mSize = 0;
-    if (m16E0 != 0) {
-        fn_800D2338(m16E0);
-        m16E0 = 0;
+    if (m16DC.mTask != 0) {
+        fn_800D2338(m16DC.mTask);
+        m16DC.mTask = 0;
     }
     for (int i = 0; i < 3; i++) {
         if (m16E8[i].mTask != 0) {
@@ -327,9 +191,9 @@ void PopupTask::fn_8054AF08() {
         fn_800D2338(m17C0.mTask);
         m17C0.mTask = 0;
     }
-    if (m17D0.mTask != 0) {
-        fn_800D2338(m17D0.mTask);
-        m17D0.mTask = 0;
+    if (m17CC.mTask != 0) {
+        fn_800D2338(m17CC.mTask);
+        m17CC.mTask = 0;
     }
 }
 
@@ -383,6 +247,160 @@ void PopupTask::vf10() {
     }
 }
 
+// inferred: std::min of two floats
+static inline float MinF_unk(float a, float b) {
+    return a < b ? a : b;
+}
+
+// NONMATCHING: 99.15% - TakeAnime_unk keeps the anime in a register for m16E8[2]/[1] but recomputes it for
+// m16E8[0] in the original (and the loop pointer/anime registers are swapped); L"%+d" in the .data pool of
+// the wide strings of vf14 (not written)
+// inferred: adds a popup of the kind `kind` (0: damage, 1: heal, 2: anime `value`, 3/4: text, 6/7: animes,
+// 8: number `value`) with its animes selected by `flags`, `combo` and `elem`
+void PopupTask::fn_8054D794(int kind, const wchar_t* text, const atn::Vector3* pos, int value, unsigned int flags,
+                            int combo, int arg7, CharaTask* src, CharaTask* owner, int m1C, int elem, int m80) {
+    if (mEntries.size() >= 0x20) {
+        return;
+    }
+    if (owner != 0 && (owner->mType == 0 || owner->mType == 3) && SetConfig::sInstance->mDrawFriendPopup == 0) {
+        return;
+    }
+    if (owner != 0 && owner->mType == 2 && SetConfig::sInstance->mDrawEnemyPopup == 0) {
+        return;
+    }
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8) {
+        return;
+    }
+    int hud = 0;
+    if (owner != 0 && owner->mType == 2 && kind == 1) {
+        GameUI* ui = lbl_8087F490;
+        ui->fn_803E6BF0((unsigned int)owner, fn_800DC1DC(text));
+        hud = 1;
+    }
+    PopupEntry_unk e;
+    e.m10 = kind;
+    e.m20 = text;
+    e.m60 = *pos;
+    e.m6C = lbl_807C7030;
+    e.m78 = value;
+    e.m14 = flags;
+    e.m1C = m1C;
+    e.m88 = (int)src;
+    e.m8C = (unsigned int)owner;
+    e.m7C = elem;
+    e.m80 = m80;
+    e.m04 = 30.0f;
+    e.m08 = 0.0f;
+    e.m0C = 0;
+    if (hud == 0) {
+        switch (kind) {
+        case 0:
+            e.m04 = 30.0f;
+            if (owner != 0 && (owner->mType == 0 || owner->mType == 3)) {
+                if ((flags & 8) == 8 || (flags & 0x40000000) == 0x40000000) {
+                    e.m9C = Anime_unk(&m170C[9]);
+                } else {
+                    e.m9C = Anime_unk(&m170C[8]);
+                }
+            } else {
+                switch (elem) {
+                case 0:
+                    e.m9C = Anime_unk(&m170C[2]);
+                    break;
+                case 1:
+                    e.m9C = Anime_unk(&m170C[3]);
+                    break;
+                case 3:
+                    e.m9C = Anime_unk(&m170C[5]);
+                    break;
+                case 4:
+                    e.m9C = Anime_unk(&m170C[4]);
+                    break;
+                case 6:
+                    e.m9C = Anime_unk(&m170C[6]);
+                    break;
+                case 5:
+                    e.m9C = Anime_unk(&m170C[7]);
+                    break;
+                case 2:
+                    break;
+                default:
+                    if (elem < 0) {
+                        if ((flags & 8) == 8 || (flags & 0x40000000) == 0x40000000) {
+                            e.m9C = Anime_unk(&m170C[1]);
+                        } else {
+                            e.m9C = Anime_unk(&m170C[0]);
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+        case 1:
+            e.m04 = 30.0f;
+            e.m9C = Anime_unk(&m170C[10]);
+            break;
+        case 2:
+            e.mA0 = Anime_unk(&m1790[value]);
+            if (e.mA0 != 0) {
+                e.m04 = e.mA0->mTask->mLastFrame;
+            }
+            break;
+        case 3:
+        case 4:
+            e.m04 = 30.0f;
+            break;
+        case 6:
+            e.mA4 = TakeLevelUp_unk();
+            if (e.mA4 != 0) {
+                e.m04 = e.mA4->mTask->mLastFrame;
+            }
+            break;
+        case 7:
+            e.mA4 = Anime_unk(&m17C0);
+            if (e.mA4 != 0) {
+                e.m04 = e.mA4->mTask->mLastFrame;
+            }
+            break;
+        case 8: {
+            e.m04 = 45.0f;
+            wchar_t number[256];
+            fn_800DD3FC(number, L"%+d", value);
+            e.m20 = number;
+            break;
+        }
+        }
+        if (src != 0 && combo > 1 && src->fn_8017A450() == 0) {
+            e.m94 = TakeCombo_unk(owner);
+            if (e.m94 != 0) {
+                e.m84 = combo;
+                e.m04 = e.m94->mTask->mLastFrame;
+                atn::SoundRef sound = fn_800C31F4("SE_UICOM_023", 0, -1, 1.3f);
+                float pitch = 1.0f;
+                for (int n = combo - 1; n > 0; n--) {
+                    pitch *= 1.122462f;
+                }
+                fn_800CB688(&sound, 0, MinF_unk(pitch, 2.0f));
+            }
+        }
+        if ((flags & 0x200) == 0x200) {
+            e.m98 = TakeAnime_unk(&m16E8[2], src, owner);
+        } else if ((flags & 0x2000000) == 0x2000000) {
+            e.m98 = TakeAnime_unk(&m16E8[0], src, owner);
+        }
+        if ((flags & 0x80000000) == 0x80000000) {
+            e.mAC = TakeAnime_unk(&m16E8[1], src, owner);
+        }
+        if ((flags & 0x80) == 0x80) {
+            e.m90 = TakeCritical_unk(src, owner);
+        }
+        if (owner != 0 && owner->mType == 2 && lbl_8087F0A8->m194 == 0 && m80 >= 0) {
+            e.mA8 = Anime_unk(&m17CC);
+        }
+    }
+    fn_8054E0FC(&e);
+}
+
 // NONMATCHING: 99.87% - the owner of the new popup gets r4 and SetConfig::sInstance r3 (r3/r4 in the original)
 // inferred: adds a popup: popups of friends need "draw friend popup", of enemies "draw enemy popup"; a popup at
 // the same place as another moves up and gets a random direction (a quarter turn more for each one)
@@ -410,7 +428,7 @@ void PopupTask::fn_8054E0FC(PopupEntry_unk* entry) {
                     entry->m08 += near;
                     entry->m04 += near;
                     other.m0C = 1;
-                    other.m9C = m170C[9].mTask == 0 ? 0 : (int)&m170C[9];
+                    other.m9C = m170C[9].mTask == 0 ? 0 : &m170C[9];
                 } else {
                     entry->m08 += far;
                     entry->m04 += far;
@@ -435,9 +453,9 @@ void PopupTask::fn_8054E51C() {
 // inferred: detaches the popups of the object `id` (returns the owner tag)
 void* PopupTask::fn_8054E528(unsigned int id) {
     for (unsigned int i = 0; i < mEntries.mSize; i++) {
-        if ((void*)mEntries.mData[i].m94 == m16D0 && (void*)mEntries.mData[i].m8C == (void*)id) {
+        if (mEntries.mData[i].m94 == &m16D0 && (void*)mEntries.mData[i].m8C == (void*)id) {
             mEntries.mData[i].m94 = 0;
         }
     }
-    return m16D0;
+    return &m16D0;
 }
