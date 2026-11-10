@@ -1409,3 +1409,5 @@ atn::Vector3 EnemyQuarkSecond::vfD8(CharaTask* target) {
 float EnemyQuarkSecond::vfDC() {
     return 0.7f;
 }
+
+EnemyQuarkSecond::~EnemyQuarkSecond() {}
