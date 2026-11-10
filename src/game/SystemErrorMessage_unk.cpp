@@ -396,6 +396,32 @@ inline int IsSaving_unk(void* save) {
     return saving;
 }
 
+// inferred: draws a string with the OS font (name invented; as an inline the registers of the first loop
+// come out as in the original)
+static inline void DrawString_unk(ErrorManager* m, const char* text, int y) {
+    int x = 0;
+    const char* p = text;
+    while (*p != 0) {
+        void* image;
+        int cx;
+        int cy;
+        int width;
+        p = OSGetFontTexture(p, &image, &cx, &cy, &width);
+        SysFont_unk* font = (SysFont_unk*)m->mFont.get();
+        GXTexObj obj;
+        GXInitTexObj(&obj, image, font->m1E, font->m20, font->m18, 0, 0, 0);
+        GXInitTexObjLOD(&obj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+        GXLoadTexObj(&obj, 0);
+        SysMtx mtx;
+        PSMTXScale(mtx, 1.0f / ((SysFont_unk*)m->mFont.get())->m1E, 1.0f / ((SysFont_unk*)m->mFont.get())->m20, 1.0f);
+        GXLoadTexMtxImm(mtx, 30, 1);
+        GXSetNumTexGens(1);
+        GXSetTexCoordGen2(0, 1, 4, 30, 0, 125);
+        m->fn_80364DB4(x + 50, y, cx, cy);
+        x += width;
+    }
+}
+
 inline bool ErrorManager::IsPadError_unk() const {
     return (unsigned int)(mError - 5) <= 1;
 }
@@ -617,8 +643,8 @@ struct ErrColor_unk {
     float r, g, b, a;
 };
 
-// NONMATCHING: 98.94% - registers of the font loop: gfx/y/the strength-reduced index (r30/r28/r29
-// in the original) and 1.0f/the int-to-float constant (f31/f30)
+// NONMATCHING: 99.18% - registers of the font loop: gfx/y/the strength-reduced index (r30/r28/r29
+// in the original) and x = 0 scheduled before the sprintf
 void ErrorManager::fn_803646C4() {
     if (!IsBusy_unk()) {
         if (mError == 0) {
@@ -631,8 +657,7 @@ void ErrorManager::fn_803646C4() {
         for (unsigned int i = 0; i < 4; i++) {
             wchar_t text[0x100];
             fn_80363C28(text, sMessages[fn_8006BA30()][mError][i], 0x100);
-            float fi = i;
-            lbl_8087EEB0->fn_80061824(80.0f, 1.1f * size * fi + 80.0f, -100000.0f, size, size, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
+            lbl_8087EEB0->fn_80061824(80.0f, 1.1f * size * i + 80.0f, -100000.0f, size, size, 0.0f, 0.0f, 0.0f, text, -1, 1, 1, 0, 0, 0xFF000000);
         }
     } else {
         if (mError == 0) {
@@ -648,30 +673,9 @@ void ErrorManager::fn_803646C4() {
             fn_80075DEC(gfx);
             y = 50;
             for (i = 0; i < 4; i++) {
-                float one = 1.0f;
                 char text[0x100];
                 sprintf(text, "%s\0", sMessages[fn_8006BA30()][mError][i]);
-                const char* p = text;
-                int x = 0;
-                while (*p != 0) {
-                    int width;
-                    int cy;
-                    int cx;
-                    void* image;
-                    p = OSGetFontTexture(p, &image, &cx, &cy, &width);
-                    SysFont_unk* font = (SysFont_unk*)mFont.get();
-                    GXTexObj obj;
-                    GXInitTexObj(&obj, image, font->m1E, font->m20, font->m18, 0, 0, 0);
-                    GXInitTexObjLOD(&obj, 1, 1, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-                    GXLoadTexObj(&obj, 0);
-                    SysMtx mtx;
-                    PSMTXScale(mtx, one / ((SysFont_unk*)mFont.get())->m1E, one / ((SysFont_unk*)mFont.get())->m20, one);
-                    GXLoadTexMtxImm(mtx, 30, 1);
-                    GXSetNumTexGens(1);
-                    GXSetTexCoordGen2(0, 1, 4, 30, 0, 125);
-                    fn_80364DB4(x + 50, y, cx, cy);
-                    x += width;
-                }
+                DrawString_unk(this, text, y);
                 y += 30;
             }
             fn_80071AFC(gfx);
