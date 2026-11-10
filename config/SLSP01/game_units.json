@@ -2255,7 +2255,7 @@
   "classes": [
    "gmk::Fireworks"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/ArenaFloor.cpp",

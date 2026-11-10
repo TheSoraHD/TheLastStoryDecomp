@@ -101,9 +101,10 @@ void Fireworks::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.8% - flash loop: the element address and the address of its first member swap
-// r6/r7. The unsigned subscript repeated in every access gives the per-iteration offset of the
-// original. Tried: reference/pointer to the element, delay local, mixed forms.
+// inferred: the delay is decremented through one more inline level (r6/r7 of the element and its
+// first member come out as in the original; the unsigned subscript gives the per-iteration offset)
+template <class T> static inline void FwDec_unk(T& v) { v--; }
+
 void Fireworks::vf10() {
     if (m54 == 0) {
         Start();
@@ -112,7 +113,7 @@ void Fireworks::vf10() {
     float size = 0.0f;
     for (int i = mFlashes.mCount - 1; i >= 0; i--) {
         if (mFlashes.mData[(unsigned int)i].mDelay > 0) {
-            mFlashes.mData[(unsigned int)i].mDelay--;
+            FwDec_unk(mFlashes.mData[(unsigned int)i].mDelay);
         } else if (--mFlashes.mData[(unsigned int)i].mFrames > 0) {
             size += mFlashes.mData[(unsigned int)i].mSize;
         } else {
