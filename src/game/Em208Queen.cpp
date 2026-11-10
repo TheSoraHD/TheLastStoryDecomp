@@ -529,7 +529,11 @@ void Em208Queen::vf54() {
     }
 }
 
-// NONMATCHING: 99.81% - r3/r4 of the copies of the midpoint and the neck position (__VecCopy family)
+// inferred: Vector3 copy through one more inline level (as DrawAssign_unk in atn/DrawHelper.cpp)
+static inline void QAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em208Queen::vf20() {
     m620 = m5B0;
     atn::Vector3 down(0.0f, 0.0f, -10.0f);
@@ -541,9 +545,9 @@ void Em208Queen::vf20() {
     MtxPtr left = mMotion.GetNodeMtx_unk("leftleg");
     MtxPtr right = mMotion.GetNodeMtx_unk("rightleg");
     atn::Vector3 mid;
-    mid = (GetNodePos_unk(left) + GetNodePos_unk(right)) * 0.5f;
+    QAssign_unk(mid, (GetNodePos_unk(left) + GetNodePos_unk(right)) * 0.5f);
     atn::Vector3 head;
-    head = GetNodePos_unk(mMotion.GetNodeMtx_unk("neck"));
+    QAssign_unk(head, GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")));
     mColli.m3C = mid;
     mColli.m48 = head;
     mColli.m54 = 2.0f * m620;
@@ -1036,7 +1040,7 @@ void Em208Queen::vfEC() {
     }
 }
 
-// NONMATCHING: 97.29% - r3/r4 of the vector copies and the order of the 0.05f products (__VecCopy family)
+// NONMATCHING: 97.44% - order of the subtractions and the 0.05f products (z first in the original), stack of the temporary
 void Em208Queen::fn_802CC19C(int arg, const atn::Vector3* pos) {
     SetState_unk(7);
     PlayMotion_unk(0x13F);
@@ -1058,7 +1062,7 @@ void Em208Queen::fn_802CC19C(int arg, const atn::Vector3* pos) {
         to.y -= 1000.0f;
         fn_8004ECC0(lbl_8087EE98, &dest, &from, &to, 0x20000000, &mColli, 0);
     }
-    m1530 = atn::Vector3(dest.x - mPos.x, dest.y - mPos.y, dest.z - mPos.z) * 0.05f;
+    QAssign_unk(m1530, atn::Vector3(dest.x - mPos.x, dest.y - mPos.y, dest.z - mPos.z) * 0.05f);
 }
 
 void Em208Queen::fn_802CC39C() {
