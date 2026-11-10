@@ -603,6 +603,9 @@ public:
     }
     // inferred: index of the sound in the archive (name invented)
     int GetSoundIndex_unk(const char* name) { return GetSoundId_unk(name) - 1; }
+    // inferred: name invented; as an accessor its test is not reused by the one of GetSoundId_unk
+    // (fn_80049268 reads m04 again)
+    bool IsInit_unk() const { return m04 != 0; }
     // inferred: names invented (fn_80049B74, fn_80049C3C, fn_80049CDC)
     unsigned int GetGroupId_unk(const char* name) {
         if (m8E0 != 0) {
@@ -680,7 +683,7 @@ public:
         }
     }
 
-    volatile int m04; // inferred: initialized (reloaded after each test)
+    int m04; // inferred: initialized
     nw4r::snd::DvdSoundArchive mArchive; // 0x08
     void* m194; // inferred: header buffer of the archive
     void* m198; // inferred: label buffer of the archive
@@ -881,7 +884,6 @@ extern "C" int fn_80046EE0(AudioDevice* audio, const char* path) {
 }
 
 
-// NONMATCHING: 99.91% - orden de las recargas del epilogo (el original restaura r31-r28 antes que r0)
 // inferred: shuts the device down
 extern "C" void fn_80047628(AudioDevice* audio) {
     audio->UnloadBanks_unk();
@@ -1225,7 +1227,7 @@ extern "C" int fn_80048F8C(AudioDevice* audio, const char* name) {
 
 // inferred: the bank is loaded
 extern "C" int fn_80049268(AudioDevice* audio, const char* name) {
-    if (audio->m04 == 0) {
+    if (!audio->IsInit_unk()) {
         return 1;
     }
     unsigned int id = audio->GetSoundId_unk(name);
