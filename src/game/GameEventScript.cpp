@@ -1714,8 +1714,7 @@ void GameEventScript::fn_803A24A4(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: waits for the gauge of the UI; meanwhile sets flag 0x10 of the leader from mC0
-// NONMATCHING: 96.7% - registers of this, result and cmd (r29-r31)
-void GameEventScript::fn_803A2600(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+void GameEventScript::fn_803A2600(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0 && lbl_8087F430->m5694 != 0) {
         int wait;
         if (lbl_8087F490 != 0 && lbl_8087F490->fn_803E5940()) {
