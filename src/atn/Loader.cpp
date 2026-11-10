@@ -633,16 +633,27 @@ int Loader::fn_8046ECC8() {
     return !m3EE0->IsFlag_unk(2);
 }
 
-// NONMATCHING: 97.7% - the original loads the size argument of fn_8006EF48 before the branch of
-// the inlined data() and keeps the layout pointers in r28 (tried a named wstring, a width helper).
-extern "C" void fn_8046ECDC(Loader* loader, int show) {
-    SetPaneValue_unk(loader->m3EE0->mLayout, "batteryMsg", 0.0f);
+// inferred: width of a text (as in atn/NandManager.cpp: the size is a parameter before the font, so it is
+// loaded before the branch of the inlined data())
+static inline float GetTextWidth_unk(const std::basic_string<wchar_t>& text, float size, void* font) {
+    return fn_8006EF48(font, text.data(), size, 0.0f, 1, 4);
+}
+
+// inferred: places the dots after the loading message (name invented)
+static inline void SetDotPos_unk(Loader* loader) {
     void* text = fn_801FEC74(loader->m3EE0->mLayout, "string0011");
     if (text != 0) {
         D2APoint_unk pos = GetPanePos_unk(loader->m3EE0, "message_0011");
-        float w = fn_8006EF48(lbl_8087EEC8, fn_800A4450(text, 0, 0).data(), pos.mScaleX, 0.0f, 1, 4);
+        float w = GetTextWidth_unk(fn_800A4450(text, 0, 0), pos.mScaleX, lbl_8087EEC8);
         SetPaneValue_unk(loader->m3EE0->mLayout, "dotpos", 0, 35.0f + w);
     }
+}
+
+// NONMATCHING: 99.92% - register of the layout of the "dotpos" call (r28, the one of `text`, in the
+// original)
+extern "C" void fn_8046ECDC(Loader* loader, int show) {
+    SetPaneValue_unk(loader->m3EE0->mLayout, "batteryMsg", 0.0f);
+    SetDotPos_unk(loader);
     if (show) {
         if (loader->m3EEC == 0) {
             loader->m3EF0 = 0;
