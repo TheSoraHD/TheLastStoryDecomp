@@ -5,6 +5,7 @@
 #include "atn/LH_Binary.h"
 #include "atn/Task.h"
 #include "game/EventScriptCmd_unk.h"
+#include "std/vector.h"
 
 class CharaTask;
 class GameScene;
@@ -31,6 +32,11 @@ struct ScriptEventNode_unk {
 struct ScriptEntry40_unk {
     int mId;
     unsigned char m04[0x40 - 0x04];
+};
+// inferred: 0x14-byte record of GameEventScript::m12C (names invented)
+struct ScriptRecord14_unk {
+    CharaTask* mChara;
+    unsigned char m04[0x14 - 0x04];
 };
 // inferred: 0xC-byte record of GameEventScript::m118 (names invented)
 struct ScriptNpcFlag_unk {
@@ -104,6 +110,13 @@ public:
     void fn_803A2600(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A2210(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A24A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A6230(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A6324(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7C28(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A7CC0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A47A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A81F8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803AB37C(CharaTask* chara);
     void fn_8039E834(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_8039E9C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_8039E9D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -193,6 +206,8 @@ public:
     atn::SimpleArray<ScriptEntry40_unk> mFC; // inferred: records looked up by id (fn_803A2DD8)
     unsigned char m104[0x118 - 0x104];
     ScriptNpcFlag_unk* m118; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
+    unsigned char m11C[0x12C - 0x11C];
+    std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
 };
 
 #endif

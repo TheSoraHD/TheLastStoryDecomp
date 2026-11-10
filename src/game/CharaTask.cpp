@@ -38,6 +38,7 @@
 #include "chr/ControlCharge.h"
 #include "chr/ControlWallUp.h"
 #include "chr/ControlMountle.h"
+#include "game/GameEventScript.h"
 #include "chr/ControlStool.h"
 #include "chr/ControlPushedDown.h"
 #include "chr/ControlStagger.h"
@@ -9916,8 +9917,6 @@ void CharaTask::fn_801718F8() {
     }
 }
 
-extern "C" void fn_803AB37C(void* object, CharaTask* chara);
-
 void CharaTask::fn_80171DB0() {
     if (mRoute.m2C != 0) {
         return;
@@ -9930,7 +9929,7 @@ void CharaTask::fn_80171DB0() {
     lbl_8087EE68->fn_80017064(this);
     RouteTable_unk* table = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
     if (table != 0) {
-        fn_803AB37C(table->m134, this);
+        ((GameEventScript*)table->m134)->fn_803AB37C(this);
     }
 }
 

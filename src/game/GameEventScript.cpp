@@ -33,6 +33,8 @@
 #include "atn/LoadManager.h"
 #include "game/GameConfig_unk.h"
 #include "atn/SequenceBoot_unk.h"
+#include "game/ArenaTask.h"
+#include "Event/Sequence.h"
 
 #include <exception>
 
@@ -63,9 +65,18 @@ public:
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" TownTask* lbl_8087FA20;
 extern "C" GameConfig_unk* lbl_8087F0A8;
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int fn_802180A8(const char* s); // inferred: motion id from its name
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes a task
+extern "C" ArenaTask* lbl_8087EE78;
+extern "C" void fn_8036E6D4(GameTask* task, int type, int sub, int arg); // inferred: opens a menu of the town
 // inferred: view of the commands that name a motion of a character (names invented)
+// inferred: view of the commands that name a sound (names invented)
+struct ScriptSoundArgs_unk : public ScriptCmd_unk {
+    char mName[0x20]; // 0x08
+    float m28;        // inferred: volume
+    unsigned int m2C; // inferred: flags
+};
 struct ScriptMotionArgs_unk : public ScriptCmd_unk {
     int m08;
     int m0C;
@@ -706,6 +717,29 @@ void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.mWait = 0;
 }
 
+// inferred: plays the sound named in the command for the field (bit 0 of m2C: stops the sounds of
+// the field instead; "SE_VOTWN_041" stops them first)
+// NONMATCHING: 99.9% - only the offset of "SE_VOTWN_041" in the string pool (other strings of the file not written yet)
+void GameEventScript::fn_803A47A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptSoundArgs_unk* args = static_cast<const ScriptSoundArgs_unk*>(cmd);
+    char name[0x20];
+    memcpy(name, args->mName, sizeof(name));
+    atn::SoundManager* sound = lbl_8087EFE8;
+    if (sound != 0) {
+        if ((args->m2C & 1) != 1) {
+            if (strncmp(args->mName, "SE_VOTWN_041", 12) == 0) {
+                sound->fn_800CFD18(lbl_8087F430, 15);
+            }
+            lbl_8087EFE8->m34D8 = lbl_8087F430;
+            fn_803935AC(name, args->m28);
+            lbl_8087EFE8->m34D8 = 0;
+        } else {
+            sound->fn_800CFD18(lbl_8087F430, 15);
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: waits while the message window is open
 // inferred: waits 30 frames, then sets the battle mode of a team
 void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
@@ -779,6 +813,63 @@ void GameEventScript::fn_803A61F4(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: stores in (m10, m14) whether the event m08 (<= 0: the current one) is done (m0C 0) or
+// playing (m0C 1)
+// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803A6230(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int id = args->m08;
+    int value = 0;
+    if (id <= 0 && lbl_8087F540->m70 != 0) {
+        id = lbl_8087F540->m70->m190;
+    }
+    if (id > 0) {
+        switch (args->m0C) {
+        case 0:
+            value = lbl_8087F540->fn_8047F268(id) != 0;
+            break;
+        case 1:
+            value = lbl_8087F540->fn_8047F2EC(id) != 0;
+            break;
+        }
+    }
+    fn_8039BF04(args->m10, args->m14, 0, 0, value);
+    result.SetNext_unk(cmd);
+}
+
+// inferred: stores a value of the arena (m08: 0 running, 1 mode, 2 m5C, 3 and 4 scores, 5 result) in
+// (m0C, m10)
+// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803A6324(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = 0;
+    ArenaTask* arena = lbl_8087EE78;
+    if (arena != 0) {
+        switch (args->m08) {
+        case 0:
+            value = arena->mState == 1;
+            break;
+        case 1:
+            value = arena->mMode;
+            break;
+        case 2:
+            value = arena->m5C;
+            break;
+        case 3:
+            value = arena->mScore0;
+            break;
+        case 4:
+            value = arena->mScore1;
+            break;
+        case 5:
+            value = arena->mResult;
+            break;
+        }
+    }
+    fn_8039BF04(args->m0C, args->m10, 0, 0, value);
+    result.SetNext_unk(cmd);
+}
+
 // inferred: enables or disables the crowd of NPCs
 // NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -802,6 +893,56 @@ void GameEventScript::fn_803A7BB0(ScriptResult_unk& result, const ScriptCmd_unk*
     if (lbl_8087F430 != 0) {
         lbl_8087F430->mCamera.fn_8037EF30(static_cast<const ScriptArgs_unk*>(cmd)->m08, 1, -1.0f);
     }
+    result.SetNext_unk(cmd);
+}
+
+// inferred: m08 != 0: fn_8017A504 on the leader, 0: clears its flag 0x200000
+// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803A7C28(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (leader != 0) {
+        if (static_cast<const ScriptArgs_unk*>(cmd)->m08 != 0) {
+            leader->fn_8017A504();
+        } else {
+            leader->m54C &= ~0x200000;
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
+// inferred: opens a menu of the town (m10 bit 1: shop animations of town m14, bit 2: fn_803E65F8,
+// else m08 3: library, 5: nothing, others through fn_8036E6D4)
+// NONMATCHING: 99%% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803A7CC0(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int flags = args->m10;
+    if ((flags & 2) == 2) {
+        if (lbl_8087F490 != 0) {
+            lbl_8087F490->fn_803E627C(args->m14);
+        }
+    } else if ((flags & 4) == 4) {
+        if (lbl_8087F490 != 0) {
+            lbl_8087F490->fn_803E65F8();
+        }
+    } else if (lbl_8087F430 != 0) {
+        if (args->m08 == 3) {
+            lbl_8087F430->fn_8036EA04();
+        } else if (args->m08 != 5) {
+            fn_8036E6D4(lbl_8087F430, args->m08, args->m0C, args->m14);
+        }
+    }
+    result.SetNext_unk(cmd, 1);
+}
+
+// inferred: stores the money of the inventory (m08 0) in (m0C, m10)
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+void GameEventScript::fn_803A81F8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = 0;
+    if (Inventory::instance_ != 0 && args->m08 == 0) {
+        value = Inventory::instance_->mMoney;
+    }
+    fn_8039BF04(args->m0C, args->m10, 0, 0, value);
     result.SetNext_unk(cmd);
 }
 
@@ -927,6 +1068,17 @@ void GameEventScript::fn_803AB328(ScriptResult_unk& result, const ScriptCmd_unk*
 
 void GameEventScript::fn_803AB368(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     result = ScriptResult_unk(0, 1);
+}
+
+// inferred: removes the record of `chara` from m12C (CharaTask::fn_80171DB0, through the scene)
+void GameEventScript::fn_803AB37C(CharaTask* chara) {
+    for (unsigned int i = 0; i < m12C.size(); i++) {
+        CharaTask* v = m12C[i].mChara;
+        if (v == chara) {
+            m12C.erase(&m12C[i]);
+            return;
+        }
+    }
 }
 
 // inferred: ends the event started by the script on the event manager
