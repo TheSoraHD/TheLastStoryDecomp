@@ -187,7 +187,9 @@ void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
 }
 
 void atn::RenderManager::fn_800BC618(GXTexObj* texture, int offset) {
-    // NONMATCHING: 97.92% - two clamp branches still differ.
+    // NONMATCHING: 97.92% - the original clamps with two plain ifs (the zero falls into the 0xFFFF test) and
+    // unrolls the loop x2; written so here MWCC unrolls it x4 (65%); the else-if keeps x2 with an extra b.
+    // Tried ternaries, a clamp inline, an index inline, other index/loop forms, padding statements.
     unsigned short* remap;
     unsigned int size;
     size = GXGetTexBufferSize(256, 256, 3, 0, 0);
@@ -961,7 +963,8 @@ void atn::RenderManager::fn_800C0590(int clear, int format) {
 }
 
 void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
-    // NONMATCHING: 94.60% - conversion spill placement and early GX argument setup still differ.
+    // NONMATCHING: 98.06% - stack slots of the colours: the original passes GXColor by value (temporaries
+    // after the named colour); declared so, fn_800C08B0 loses its scheduling (71%)
     if (lbl_8087EFA8->m02C != 0) {
         if (*(int*)((unsigned char*)this + 0x890) != 0) {
             *(int*)((unsigned char*)this + 0x890) = 0;
@@ -1001,24 +1004,17 @@ void atn::RenderManager::fn_800C06B0(const atn::FogSettings* fog) {
     case 4: type = 6; break;
     case 5: type = 7; break;
     }
-    unsigned char colorBytes[4] = {0, 0, 0, 0};
-    unsigned int* color = (unsigned int*)(colorBytes + 8);
-    const float scale = 255.0f;
-    float red = *(float*)(bytes + 0x8A0);
-    float green = *(float*)(bytes + 0x8A4);
-    float blue = *(float*)(bytes + 0x8A8);
-    float alpha = *(float*)(bytes + 0x8AC);
-    colorBytes[0] = (unsigned char)(int)(red * scale);
-    colorBytes[1] = (unsigned char)(int)(green * scale);
-    colorBytes[2] = (unsigned char)(int)(blue * scale);
-    colorBytes[3] = (unsigned char)(int)(alpha * scale);
-    *color = *(unsigned int*)colorBytes;
-    GXSetFog(type, color, *(float*)(bytes + 0x898), *(float*)(bytes + 0x89C),
+    GXColor c;
+    c.r = (unsigned char)(255.0f * *(float*)(bytes + 0x8A0));
+    c.g = (unsigned char)(255.0f * *(float*)(bytes + 0x8A4));
+    c.b = (unsigned char)(255.0f * *(float*)(bytes + 0x8A8));
+    c.a = (unsigned char)(255.0f * *(float*)(bytes + 0x8AC));
+    GXColor arg = c;
+    GXSetFog(type, &arg, *(float*)(bytes + 0x898), *(float*)(bytes + 0x89C),
              *(float*)(bytes + 0x1CC), *(float*)(bytes + 0x1D0));
 }
 
 void atn::RenderManager::fn_800C08B0() {
-    // NONMATCHING: 90.00% - only the stack color-pointer setup remains out of order.
     if (*(int*)((unsigned char*)this + 0x890) != 0) {
         *(int*)((unsigned char*)this + 0x890) = 0;
         unsigned int color = 0;
