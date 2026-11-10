@@ -170,7 +170,7 @@ public:
     int m808;
     atn::Vector3 m80C;
     atn::Vector3 m818;
-    unsigned char m824[0x830 - 0x824];
+    atn::Vector3 m824; // inferred: m818 - m80C
     float m830;
     int m834;
     int m838;

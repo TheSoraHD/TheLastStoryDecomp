@@ -379,6 +379,72 @@ void GameCamera::fn_8038A1D8(const CharaTask* chara) {
     m834 = 0;
 }
 
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: one frame of the "hips" camera after saving the current camera in m80C-m830; then goes back
+// to the sub mode with m83C = 6
+void GameCamera::fn_8038DBE4(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m824 = m818 - m80C;
+        m830 = mFovy;
+    }
+    const atn::Model* model = &chara->mMotion;
+    const atn::Matrix3x4* node = (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
+    atn::Vector3 target = node->GetTrans_unk();
+    atn::Vector3 offset(0.0f, 50.0f, 0.0f);
+    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 0, 0);
+    if (++m808 > 1) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
+// NONMATCHING: inlines fn_80389678 (and through it fn_80392964, see there)
+// inferred: fixed camera mode that keeps the current sub mode as the previous one
+void GameCamera::fn_8038DDE0(const CharaTask* chara) {
+    m800 = m7FC;
+    fn_80389678(chara);
+}
+
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: blends over 30 frames from the camera saved on the first frame to the default mode
+void GameCamera::fn_8038DF5C(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+    }
+    m834 = 0;
+    m8F0 = 1;
+    fn_8037F9AC(chara);
+    m8F0 = 0;
+    float t = (float)m808 / 30.0f;
+    float k = 0.5f * (1.0f + (float)sin(3.1415927f * t - 1.5707964f));
+    atn::Vector3 pos = (mPos - m80C) * k + m80C;
+    atn::Vector3 target = (mTarget - m818) * k + m818;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    mFovy = k * (mFovy - m830) + m830;
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+    if (++m808 >= 30) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+}
+
 void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }
