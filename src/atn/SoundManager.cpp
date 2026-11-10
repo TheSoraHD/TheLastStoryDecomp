@@ -371,7 +371,8 @@ extern "C" void fn_800CE9A4(atn::SoundCore* sound, float x, float y, float z, fl
 
 namespace atn {
 
-// NONMATCHING: 90.72% - asignacion de registros de coordenadas.
+// NONMATCHING: 98.3% - registros flotantes salvados de cada bloque (x/y por bloque, z/h de toda la funcion:
+// el original recarga 10/20 en cada bloque y deja -1000/13 en f31/f30).
 void SoundManager::fn_800CECF0() {
     if (lbl_8087EEB0 == 0) {
         return;
@@ -379,28 +380,32 @@ void SoundManager::fn_800CECF0() {
     float x = 10.0f;
     float z = -1000.0f;
     float h = 13.0f;
+    float y;
     char buf[0x100];
     if (mDebugLevel == 1) {
-        float y = 20.0f;
+        x = 10.0f;
+        y = 20.0f;
         for (SoundLogEntry_unk* it = mLog.begin(); it != mLog.end(); it++) {
             lbl_8087EEB0->fn_800616C0(x, y, z, h, h, it->mText.mText, -1, 0.0f, 1, 1, 0);
             y += h;
         }
     }
     if (mDebugLevel == 2 || mDebugLevel == 3) {
-        float y = 20.0f;
+        x = 10.0f;
+        y = 20.0f;
         for (int i = 0; i < 32; i++) {
             SoundCore& sound = mSounds[i];
             if (!sound.fn_800C8278()) {
+                float volume;
                 if ((sound.m9C & 2) == 2) {
                     Vector3 pos = sound.m08.mActor.mPosition;
                     float span = sound.fn_800CA8E0();
                     float pan = sound.fn_800CA8B0();
-                    float volume = sound.fn_800CA844();
+                    volume = sound.fn_800CA844();
                     sprintf(buf, "[%s] Pos(%.2f, %.2f, %.2f) Vol:%.2f Pan:%.2f SPan:%.2f", sound.fn_800CA834(), pos.x,
                             pos.y, pos.z, volume, pan, span);
                 } else {
-                    float volume = sound.fn_800CA844();
+                    volume = sound.fn_800CA844();
                     sprintf(buf, "[%s] Vol:%.2f", sound.fn_800CA834(), volume);
                 }
                 lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, -1, 0.0f, 1, 1, 0);
@@ -409,11 +414,12 @@ void SoundManager::fn_800CECF0() {
         }
     }
     if (mDebugLevel == 3) {
+        float size = 12.0f;
         for (int i = 0; i < 32; i++) {
             SoundCore& sound = mSounds[i];
             if (!sound.fn_800C8278() && (sound.m9C & 2) == 2) {
                 Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(sound.m08.mActor.mPosition);
-                if (screen.z >= 0.0f && 1.0f >= screen.z) {
+                if (!(screen.z < 0.0f) && !(1.0f < screen.z)) {
                     unsigned int color = 0xFF00FFFF;
                     if (sound.mHandle.GetRemainingFadeFrames() > 0) {
                         color = 0xFFFFFF00;
@@ -422,13 +428,17 @@ void SoundManager::fn_800CECF0() {
                         color = 0xFFFF0000;
                     }
                     lbl_8087EEB0->fn_80063D3C(sound.m08.mActor.mPosition, 2.0f, 0.0f, color);
-                    lbl_8087EEB0->fn_800616C0(screen.x, screen.y, 0.0f, 12.0f, 12.0f, sound.fn_800CA834(), -1, 0.0f, 1, 1, 0);
+                    DrawHelper* draw = lbl_8087EEB0;
+                    draw->fn_800616C0(screen.x, screen.y, 0.0f, size, size, sound.fn_800CA834(), -1, 0.0f, 1, 1, 0);
                 }
             }
         }
     }
     if (mDebugLevel == 4 || mDebugLevel == 8) {
-        float y = 20.0f;
+        x = 10.0f;
+        y = 20.0f;
+        float d = 330.0f;
+        float w = 60.0f;
         for (int i = 0; i < 32; i++) {
             SoundCore& sound = mSounds[i];
             unsigned int color;
@@ -447,15 +457,16 @@ void SoundManager::fn_800CECF0() {
             lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
             lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, color, 0.0f, 1, 1, 0);
             if (mDebugLevel == 8) {
-                fn_800CE9A4(&sound, x + 330.0f, y, z, 60.0f, h);
+                fn_800CE9A4(&sound, x + d, y, z, w, h);
             }
             y += h;
         }
     }
     if (mDebugLevel == 5) {
+        x = 10.0f;
         SoundEngine_unk* engine = lbl_8087EE90;
         unsigned int color = -1;
-        float y = 20.0f;
+        y = 20.0f;
         char line[0x100];
         if (engine->mBankCount != 0) {
             color = -1;
@@ -469,7 +480,9 @@ void SoundManager::fn_800CECF0() {
         lbl_8087EEB0->fn_800616C0(x, y, z, h, h, line, color, 0.0f, 1, 1, 0);
     }
     if (mDebugLevel == 6 || mDebugLevel == 7) {
-        float y = 20.0f;
+        x = 10.0f;
+        y = 20.0f;
+        float w = 60.0f;
         for (int i = 0; i < 32; i++) {
             SoundCore& sound = mSounds[i];
             if (!sound.fn_800C8278() && sound.mHandle.mSound != 0 && (sound.m9C & 8) == 8) {
@@ -480,8 +493,8 @@ void SoundManager::fn_800CECF0() {
                     sprintf(buf, "[%d] Vol:%.2f", sound.m98, sound.fn_800CA844());
                 }
                 lbl_8087EEB0->fn_800616C0(1.0f + x, 1.0f + y, z, h, h, buf, 0xCC000000, 0.0f, 1, 1, 0);
-            lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 1, 0);
-                fn_800CE9A4(&sound, x + 180.0f, y, z, 60.0f, h);
+                lbl_8087EEB0->fn_800616C0(x, y, z, h, h, buf, 0xCCFFFFFF, 0.0f, 1, 1, 0);
+                fn_800CE9A4(&sound, x + 180.0f, y, z, w, h);
                 y += h;
             }
         }
