@@ -15,7 +15,9 @@ lines = orig.split('\n')
 block = lines[start - 1:end]
 decls = []
 for l in block:
-    m = re.match(r'^(\s*)((?:const\s+)?[\w:<>]+(?:\s*\*+)?)\s+(\w+)\s*=\s*(.*);\s*$', l)
+    # (arranque2) types of several words (unsigned int, const char*...) and declarations without
+    # initializer (kept as plain declarations)
+    m = re.match(r'^(\s*)((?:(?:const|unsigned|signed|struct|volatile)\s+)*[\w:<>]+(?:\s*\*+)?(?:\s*&)?)\s+(\w+)\s*(?:=\s*(.*))?;\s*$', l)
     if not m:
         sys.exit('not a declaration: ' + l)
     decls.append(m.groups())
@@ -36,7 +38,7 @@ best = (-1, None)
 try:
     for perm in itertools.permutations(range(len(decls))):
         new = ['%s%s %s;' % (indent, decls[i][1], decls[i][2]) for i in perm]
-        new += ['%s%s = %s;' % (indent, d[2], d[3]) for d in decls]
+        new += ['%s%s = %s;' % (indent, d[2], d[3]) for d in decls if d[3] is not None]
         open(src, 'w').write('\n'.join(lines[:start - 1] + new + lines[end:]))
         r = subprocess.run(['ninja', 'build/SLSP01/src/%s.o' % unit], capture_output=True, text=True)
         p = pct() if r.returncode == 0 else -2.0
@@ -50,7 +52,7 @@ finally:
     if apply and best[0] == 100.0:
         perm = best[1]
         new = ['%s%s %s;' % (indent, decls[i][1], decls[i][2]) for i in perm]
-        new += ['%s%s = %s;' % (indent, d[2], d[3]) for d in decls]
+        new += ['%s%s = %s;' % (indent, d[2], d[3]) for d in decls if d[3] is not None]
         open(src, 'w').write('\n'.join(lines[:start - 1] + new + lines[end:]))
     else:
         open(src, 'w').write(orig)

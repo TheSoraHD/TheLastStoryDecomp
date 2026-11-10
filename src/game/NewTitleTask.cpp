@@ -208,8 +208,9 @@ NewTitleTask::~NewTitleTask() {
     if (mState != 25) {
         fn_800D2338(mFade);
     }
+    MotionBlurParam_unk blur;
     RenderSetting_unk* rs = lbl_8087EFA8;
-    MotionBlurParam_unk blur = rs->m240;
+    blur = rs->m240;
     blur.mEnabled = 0;
     blur.mEndBlend = 0;
     rs->m240 = blur;

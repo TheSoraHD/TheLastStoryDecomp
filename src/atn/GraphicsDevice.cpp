@@ -487,6 +487,7 @@ inline void SetTexCache_unk(GraphicsDevice_unk* device, atn::ITextureCacheManage
     device->mTexCache = cache;
 }
 extern "C" void fn_80071E04(GraphicsDevice_unk* device);
+extern "C" void fn_80075DEC(GraphicsDevice_unk* device);
 
 // inferred: blend factors (indices of fn_800761A8); marks them dirty when they change
 inline void SetBlendSrc_unk(GraphicsDevice_unk* device, int src) {
@@ -526,7 +527,8 @@ extern "C" void fn_80071D80(GraphicsDevice_unk* device, atn::Texture_unk* textur
 }
 
 // inferred: resets the GX state to the defaults of the game
-// NONMATCHING: 98.90% - registers of the initial GX state (viewport/scissor inlined)
+// NONMATCHING: 99.26% - float registers of the inlined viewports (f6/f7: the int->float constant and mOffsetX;
+// fn_80075DEC on its own matches); the first one loads mWidth before mHeight
 extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     fn_80074EC8(device, 0, 0, 0, 0, 0);
     device->mVtxFormat = 0;
@@ -595,24 +597,15 @@ extern "C" void fn_80071E04(GraphicsDevice_unk* device) {
     GXSetTexCoordScaleManually(7, 0, 0, 0);
     GXSetTexCoordCylWrap(7, 0, 0);
     float identity[3][4];
-    identity[0][0] = 1.0f;
-    identity[0][1] = 0.0f;
-    identity[0][2] = 0.0f;
-    identity[0][3] = 0.0f;
-    identity[1][0] = 0.0f;
-    identity[1][1] = 1.0f;
-    identity[1][2] = 0.0f;
-    identity[1][3] = 0.0f;
-    identity[2][0] = 0.0f;
-    identity[2][1] = 0.0f;
-    identity[2][2] = 1.0f;
-    identity[2][3] = 0.0f;
+    identity[0][1] = identity[0][2] = identity[0][3] = identity[1][0] = identity[1][2] = identity[1][3] =
+        identity[2][0] = identity[2][1] = identity[2][3] = 0.0f;
+    identity[0][0] = identity[1][1] = identity[2][2] = 1.0f;
     GXLoadPosMtxImm(identity, 0);
     GXLoadNrmMtxImm(identity, 0);
     GXSetCurrentMtx(0);
     GXLoadTexMtxImm(identity, 60, 0);
     GXLoadTexMtxImm(identity, 125, 0);
-    fn_80075F58(device, x, y, device->mWidth, device->mHeight);
+    fn_80075DEC(device);
     GXSetCoPlanar(0);
     GXSetCullMode(2);
     GXSetClipMode(0);
@@ -1659,12 +1652,15 @@ extern "C" void fn_80076BE4(GraphicsDevice_unk* device, const VtxFormat_unk* for
 extern "C" float fn_80076FF8(const GraphicsDevice_unk* device);
 
 // inferred: full-screen viewport (atn/Layer2DBlur, atn/LayerOcclusionCPU)
-// NONMATCHING: 98.79% - float registers of the scissor
 extern "C" void fn_80075DEC(GraphicsDevice_unk* device) {
-    int h = device->mHeight;
-    int w = device->mWidth;
-    int y = 0;
-    int x = 0;
+    int w;
+    int h;
+    int y;
+    int x;
+    h = device->mHeight;
+    w = device->mWidth;
+    y = 0;
+    x = 0;
     fn_80075F58(device, x, y, w, h);
 }
 

@@ -74,10 +74,15 @@ DialogSide_unk::DialogSide_unk() {}
 
 // NONMATCHING: 98.0% - register allocation (dialog folder, string pool and current folder)
 void DialogConfig_unk::fn_801856B8(void* menu) {
-    atn::MindowsFolder* dialog = fn_8008937C((atn::MindowsFolder*)menu, "Dialog");
+    atn::MindowsFolder* group;
+    atn::Scene* scene;
+    atn::Scene* dark;
+    atn::MindowsFolder* dialog;
+    int i;
+    dialog = fn_8008937C((atn::MindowsFolder*)menu, "Dialog");
     fn_80087994(dialog, "UseWaitMotion", &mUseWaitMotion, 0, 0);
     fn_80087994(dialog, "UseLipSync", &mUseLipSync, 0, 0);
-    atn::MindowsFolder* group = fn_8008937C(dialog, "Left");
+    group = fn_8008937C(dialog, "Left");
     fn_80087BB4(group, "V Pos", &mLeft.mVPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
     fn_80087BB4(group, "V Size", &mLeft.mVSize.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
     fn_80087E9C(group, "Pos", &mLeft.mPos.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
@@ -92,9 +97,9 @@ void DialogConfig_unk::fn_801856B8(void* menu) {
     fn_80087E9C(group, "Cam Target", &mRight.mCamTarget.x, -1000.0f, 1000.0f, 1.0f, 0, 0);
     fn_80087858(group, "Cam AngleOfView", &mRight.mCamAngleOfView, -360.0f, 360.0f, 1.0f, 0, 0);
     const char* names[2] = {"SceneLeft", "SceneRight"};
-    atn::Scene* scene = &mScenes[0][0];
-    atn::Scene* dark = &mScenes[0][1];
-    for (int i = 0; i < 2; i++, scene += 2, dark += 2) {
+    scene = &mScenes[0][0];
+    dark = &mScenes[0][1];
+    for (i = 0; i < 2; i++, scene += 2, dark += 2) {
         
         group = fn_8008937C(dialog, names[i]);
         fn_80088FAC(group, "Ambient", &scene->mAmbient.r, 0.0f, 1.0f, 0.01f, 0, 0);
