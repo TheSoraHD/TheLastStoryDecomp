@@ -202,10 +202,14 @@ public:
     float m908;
     float m90C;
     unsigned char m910;
-    unsigned char m911[0x914 - 0x911];
+    unsigned char m911;
+    unsigned char m912[0x914 - 0x912];
     int m914;
     int m918; // inferred: maximum of m914
-    unsigned char m91C[0x93C - 0x91C];
+    atn::Vector3 m91C; // inferred: target the camera blends to (fn_80392510)
+    atn::Vector3 m928; // inferred: blended target
+    float m934;        // inferred: fovy the camera blends to (none when <= 0)
+    float m938;        // inferred: blended fovy
     atn::Vector3 m93C; // inferred: offset of the position of the render camera (fn_803928C0)
     atn::Vector3 m948; // inferred: offset of the target
     float m954;        // inferred: offset of the fovy

@@ -326,6 +326,39 @@ void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }
 
+extern "C" double cos(double x);
+
+// NONMATCHING: 95.9% - stack slots of the vector temporaries and the copy of the target through a
+// register-held temporary
+// inferred: blends the target and the fovy of m1F4 towards m91C/m934 over m918 frames (eased with a
+// cosine; from m928/m938 when m910 and m911 are set, else from the current camera)
+void GameCamera::fn_80392510() {
+    float k = 0.5f * (1.0f - (float)cos(3.1415927f * ((((float)m914 / (float)m918 > 0.0f ? (float)m914 / (float)m918 : 0.0f) < 1.0f) ? ((float)m914 / (float)m918 > 0.0f ? (float)m914 / (float)m918 : 0.0f) : 1.0f)));
+    if (m910 != 0 && m911 != 0) {
+        atn::Vector3 d = m91C - m928;
+        m928 = d * k + m928;
+    } else {
+        atn::Vector3 d = m91C - m1F4.mTarget;
+        m928 = d * k + m1F4.mTarget;
+    }
+    atn::Vector3 target = m928;
+    m1F4.SetTarget_unk(target);
+    float fovy = m1F4.mFovy;
+    float k2 = 0.5f * (1.0f - (float)cos(3.1415927f * ((((float)m914 / (float)m918 > 0.0f ? (float)m914 / (float)m918 : 0.0f) < 1.0f) ? ((float)m914 / (float)m918 > 0.0f ? (float)m914 / (float)m918 : 0.0f) : 1.0f)));
+    if (m910 != 0 && m911 != 0) {
+        if (m934 > 0.0f) {
+            m938 = k2 * (m934 - m938) + m938;
+        } else {
+            m938 = k2 * (fovy - m938) + m938;
+        }
+    } else if (m934 > 0.0f) {
+        m938 = k2 * (m934 - fovy) + fovy;
+    } else {
+        m938 = fovy;
+    }
+    m1F4.mFovy = m938;
+}
+
 // inferred: const (the original loads every member before the first store)
 void GameCamera::fn_803928C0() {
     m1F4.mPos = m1F4.mPos + m93C;
