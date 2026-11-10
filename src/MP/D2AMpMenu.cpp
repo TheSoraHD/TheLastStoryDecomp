@@ -393,4 +393,20 @@ void D2AMpMenuRankMark::fn_804B49C0(MpRect_unk rect, int index) {
     fn_801F4728(mMarks[index], "pos0026(1)", &rect);
 }
 
+// NONMATCHING: 99.4% - offsets in @stringBase0 (the functions before it are not written)
+// inferred: colours the mark `index` with the colours of the rank of the experience `exp`
+void D2AMpMenuRankMark::fn_804B49E0(int exp, int index) {
+    unsigned int row = fn_805075C4(&lbl_8087F610->m610, exp)->m00;
+    if (row >= mRows.mCount) {
+        row = mRows.mCount - 1;
+    }
+    int color = mRows.mEntries[row].mColor;
+    mMarks[index]->SetColor_unk("col0009(1)(1)", mColors[color][0]);
+    mMarks[index]->SetColor_unk("col0021(1)(1)", mColors[color][1]);
+    mMarks[index]->SetColor_unk("col1", mColors[color][2]);
+    mMarks[index]->SetColor_unk("col2", mColors[color][2]);
+    mMarks[index]->SetColor_unk("col3", mColors[color][2]);
+    mMarks[index]->SetColor_unk("col4", mColors[color][2]);
+}
+
 } // namespace MP

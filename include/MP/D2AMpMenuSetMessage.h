@@ -3,6 +3,7 @@
 
 #include "MP/D2AMpMenu_unk.h"
 #include "MP/MpMessage_unk.h"
+#include "MP/MpLevel_unk.h"
 
 // inferred: multiplayer session manager (lbl_8087F610), as in MP/D2AMpMenuMessageList.cpp
 struct MpMsgSession_unk {
@@ -10,7 +11,9 @@ struct MpMsgSession_unk {
     int m4FC;  // inferred: error code
     unsigned char m0500[0x540 - 0x500];
     int m540;  // inferred: game mode
-    unsigned char m0544[0x2A50 - 0x544];
+    unsigned char m0544[0x610 - 0x544];
+    MpLevelTable_unk m610; // inferred: experience table
+    unsigned char m0618[0x2A50 - 0x618];
     MpMessageTable_unk m2A50;
 };
 extern "C" MpMsgSession_unk* lbl_8087F610;

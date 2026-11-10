@@ -1,5 +1,6 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "MP/D2AMpMenu.h"
+#include "MP/MpLevel_unk.h"
 #include "game/Inventory.h"
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
@@ -49,21 +50,6 @@ struct MpResult_unk {
     int m6B14[8];
 };
 
-// inferred: experience table of the session (lbl_8087F610 + 0x610)
-struct MpLevel_unk {
-    int m00;
-    int m04;
-    int m08;
-};
-struct MpLevelTable_unk;
-extern "C" MpLevel_unk* fn_80507610(MpLevelTable_unk* table, int exp);
-extern "C" MpLevel_unk* fn_805075C4(MpLevelTable_unk* table, int exp);
-extern "C" int fn_80507764(MpLevelTable_unk* table, int exp);
-struct MpLevelTable_unk {
-    int GetNext_unk(int exp) { return fn_80507610(this, exp) != 0 ? fn_80507610(this, exp)->m08 : m04->m04; }
-    int m00;
-    MpLevel_unk* m04;
-};
 
 // inferred: slot data of the session (0x34 bytes from lbl_8087F610 + 0x368)
 struct MpSlot_unk {
