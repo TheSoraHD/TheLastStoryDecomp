@@ -76,3 +76,11 @@ Ninguno: solo renombrados `fn_XXXXXXXX` -> nombre mangled de las funciones escri
   exterior se carga demasiado pronto y por referencia dentro del bucle (fn_803A2E20).
 - Codigo en dos ramas con los temporales a la inversa en la pila (`Vector3` + `Mtx`): sacarlo a una `static
   inline` comun (`StepBack_unk`, fn_803A5118).
+
+### fn_803A26F4 (18:45-19:20)
+
+- Funcion grande (0x6E4) donde el original llama a **todos** los inline (GetChara_unk, GetRot_unk, operadores de Vector3, NextCmd_unk...): escrita con los inline normales, MWCC tambien los rechaza todos (R3, todo o nada) y sale al 98,5 %. Ver que el original llama copias debiles no es motivo para dejarla sin escribir.
+- `fn_803A2DD8` no era de GameEventScript: recibe el `GameScene*` de `GameTask::m10D8` y busca en `GameScene::mFC` (AttentionPoint de 0x40). Ahora es `FindAttention_unk(GameScene*, int)` (funcion libre, sigue al 100 % con el helper estatico `FindPoint_unk`).
+- `RouteTable_unk::FindPlace_unk` (0x800EC204) recorre `m78/m7C` con registros de 0x28: es la busqueda de WarpPoint de `GameScene` (`m78`), `RouteTable_unk` es una vista de GameScene. Y `Field_unk::fn_8013C504` es `return m10D8` de GameTask. Unificar estos nombres (decenas de unidades con vistas `Field_unk`) daria el 100 % de fn_803A26F4; no hecho por alcance.
+- Copias debiles renombradas: `fn_8039CCB4` -> `NextCmd_unk__15GameEventScriptFP13ScriptCmd_unk`, `fn_803AD05C` -> `GetChara_unk__15GameEventScriptCFii`.
+- Recordatorio del entorno: `python3 configure.py` sin flags intenta descargar herramientas (403); usar `/home/claude/scratch/conf.sh`.

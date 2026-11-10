@@ -89,7 +89,6 @@ public:
     int fn_8039BF04(int a, int b, int c, int d, int e);
     int fn_8039C7F0(int a, int b, int c, int d, int e); // inferred: condition of a jump
     void fn_803957F0(int id); // inferred: clears the flag 2 of the NPC set point `id`
-    ScriptEntry40_unk* fn_803A2DD8(int id);
     void fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args);
     void fn_8039FBFC(CharaTask* chara, const ScriptArgs_unk* args);
     // inferred: character named by a script command (kind 0: leader or party member 1, 1: NPC, 2: enemy,
@@ -153,7 +152,7 @@ public:
     void fn_803A0F4C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A1B20(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A1DB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
-    void fn_803A26F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A2E20(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A3444(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A372C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
@@ -279,7 +278,7 @@ public:
     int mF0;
     int mF4;
     int mF8;
-    atn::SimpleArray<ScriptEntry40_unk> mFC; // inferred: records looked up by id (fn_803A2DD8)
+    atn::SimpleArray<ScriptEntry40_unk> mFC; // inferred: records of 0x40 bytes
     unsigned char m104[0x118 - 0x104];
     ScriptNpcFlag_unk* m118; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
     unsigned char m11C[0x12C - 0x11C];

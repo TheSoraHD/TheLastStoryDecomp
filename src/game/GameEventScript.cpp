@@ -1736,8 +1736,175 @@ void GameEventScript::fn_803A2600(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     }
 }
 
-// inferred: the record `id` of an array, null if missing (name invented)
-static inline ScriptEntry40_unk* FindEntry_unk(atn::SimpleArray<ScriptEntry40_unk>& array, int id) {
+// inferred: arguments of the turn/place command (names invented)
+struct ScriptPlaceArgs_unk : public ScriptCmd_unk {
+    int m08;
+    int m0C;
+    unsigned int m10; // inferred: kind (0..7)
+    float m14;
+    int m18;
+    int m1C;
+    float m20;
+    unsigned int m24; // inferred: flags (bit 0: no wait, bit 1: instant, bit 2: keeps flag 0x200)
+    int m28;
+};
+
+extern "C" GameTask* fn_80121F00(); // inferred: field task (lbl_8087F430), weak copy
+extern "C" int fn_80267B20(CharaTask* chara); // inferred: returns m55C (game/GameTask.cpp)
+extern "C" float fn_80011220(float x); // inferred: fabs (weak copy of another helper)
+gs::AttentionPoint* FindAttention_unk(GameScene* scene, int id);
+
+// NONMATCHING: 98.5% - the original calls the weak accessor fn_8013C504 (named after the Field_unk view
+// in symbols.txt) where this loads GameTask::m10D8, and the weak lookup FindPlace_unk__14RouteTable_unk
+// (RouteTable_unk is a view of the warp points of GameScene) where this calls FindWarpIn_unk; the
+// store of mBC is scheduled after the first flag extraction
+// inferred: turns or places the character m08/m0C (m10: 0 turns by m14, 1 turns to m14, 2 next to the
+// character m18/m1C, 3 faces it, 4 scene position, 5 route place m28, 6 faces it, 7 faces the attention
+// point m28); instant with bit 1 of m24, otherwise walking. Every inline is called (budget, R3)
+void GameEventScript::fn_803A26F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptPlaceArgs_unk* args = static_cast<ScriptPlaceArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    int wait = 0;
+    if (chara != 0) {
+        unsigned int flags = args->m24;
+        mBC = 0;
+        wait = 1;
+        int nowait = flags & 1;
+        int instant = (flags >> 1) & 1;
+        int keep = (flags >> 2) & 1;
+        if (instant && chara->GetCharaNo_unk() == 0x92AE2 && fn_80267B20(chara) == 6) {
+            chara->fn_8016EB48(0, 0, 0);
+        }
+        switch (args->m10) {
+        case 0:
+            if (!instant) {
+                chara->fn_80170F20(chara->fn_8013C38C(), 0, args->m14 + chara->GetRot_unk()->y, -1.0f);
+            } else {
+                chara->SetRot_unk(*chara->GetRot_unk() + atn::Vector3(0.0f, args->m14, 0.0f));
+            }
+            break;
+        case 1:
+            if (!instant) {
+                chara->fn_80170F20(chara->fn_8013C38C(), 0, args->m14, -1.0f);
+            } else {
+                atn::Vector3 rot(*chara->GetRot_unk());
+                rot.y = args->m14;
+                chara->SetRot_unk(rot);
+            }
+            break;
+        case 2: {
+            CharaTask* target = GetChara_unk(args->m18, args->m1C);
+            float dist = MAX(args->m20, 5.0f + (chara->fn_8013C42C() + target->fn_8013C42C()));
+            if (!instant) {
+                chara->fn_80170A20(target, dist, 0);
+            } else {
+                atn::Vector3 dir = *chara->fn_8013C38C() - *target->fn_8013C38C();
+                if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                    dir.Normalize_unk();
+                }
+                dir *= dist;
+                chara->SetPosition_unk(*target->fn_8013C38C() + dir);
+            }
+            break;
+        }
+        case 3: {
+            CharaTask* target = GetChara_unk(args->m18, args->m1C);
+            if (target != 0) {
+                atn::Vector3 dir = *target->fn_8013C38C() - *chara->fn_8013C38C();
+                if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                    dir.Normalize_unk();
+                }
+                if (!instant) {
+                    chara->fn_80170F20(chara->fn_8013C38C(), 0, dir.ToRotation_unk().y, -1.0f);
+                } else {
+                    atn::Vector3 rot(*chara->GetRot_unk());
+                    rot.y = dir.ToRotation_unk().y;
+                    chara->SetRot_unk(rot);
+                }
+            }
+            break;
+        }
+        case 4: {
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+            if (scene != 0) {
+                atn::Vector3 pos;
+                atn::Vector3 rot;
+                if (scene->fn_803CCA84(chara, &pos, &rot) != 0) {
+                    if (!instant) {
+                        chara->fn_80170F20(&pos, 0, rot.y, -1.0f);
+                    } else {
+                        chara->SetPosition_unk(pos);
+                        chara->SetRot_unk(rot);
+                    }
+                }
+            }
+            break;
+        }
+        case 5: {
+            float dist = MAX(args->m20, 5.0f + chara->fn_8013C42C()); // inferred: unused
+            if (!instant) {
+                chara->fn_8017039C(args->m28, 0);
+            } else {
+                GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+                gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, args->m28) : 0;
+                if (warp != 0) {
+                    chara->SetPosition_unk(warp->mPos);
+                    chara->SetRot_unk(atn::Vector3(0.0f, warp->m14, 0.0f));
+                }
+            }
+            break;
+        }
+        case 6: {
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+            gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, args->m28) : 0;
+            if (warp != 0) {
+                atn::Vector3 dir = warp->mPos - *chara->fn_8013C38C();
+                if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                    dir.Normalize_unk();
+                }
+                if (!instant) {
+                    chara->fn_80170F20(chara->fn_8013C38C(), 0, dir.ToRotation_unk().y, -1.0f);
+                } else {
+                    atn::Vector3 rot(*chara->GetRot_unk());
+                    rot.y = dir.ToRotation_unk().y;
+                    chara->SetRot_unk(rot);
+                }
+            }
+            break;
+        }
+        case 7: {
+            GameScene* scene = fn_80121F00() != 0 ? fn_80121F00()->m10D8 : 0;
+            gs::AttentionPoint* point = scene != 0 ? FindAttention_unk(scene, args->m28) : 0;
+            if (point != 0) {
+                atn::Vector3 dir = point->mPos - *chara->fn_8013C38C();
+                if (!(fn_80011220(dir.LengthSq_unk()) < 1.1920929e-7f)) {
+                    dir.Normalize_unk();
+                }
+                if (!instant) {
+                    chara->fn_80170F20(chara->fn_8013C38C(), 0, dir.ToRotation_unk().y, -1.0f);
+                } else {
+                    atn::Vector3 rot(*chara->GetRot_unk());
+                    rot.y = dir.ToRotation_unk().y;
+                    chara->SetRot_unk(rot);
+                }
+            }
+            break;
+        }
+        }
+        if (nowait || instant) {
+            wait = 0;
+        }
+        if (wait && keep) {
+            mB8 = chara->fn_8013C404(0x200);
+            chara->SetFlag(0x200);
+        }
+    }
+    result.mNext = NextCmd_unk(cmd);
+    result.mWait = wait;
+}
+
+// inferred: the point `id` of an array, null if missing (name invented)
+static inline gs::AttentionPoint* FindPoint_unk(atn::SimpleArray<gs::AttentionPoint>& array, int id) {
     for (unsigned int i = 0; i < array.size(); i++) {
         if (id == array[i].mId) {
             return &array[i];
@@ -1746,8 +1913,9 @@ static inline ScriptEntry40_unk* FindEntry_unk(atn::SimpleArray<ScriptEntry40_un
     return 0;
 }
 
-ScriptEntry40_unk* GameEventScript::fn_803A2DD8(int id) {
-    return FindEntry_unk(mFC, id);
+// inferred: the attention point `id` of the scene, null if missing (name invented)
+gs::AttentionPoint* FindAttention_unk(GameScene* scene, int id) {
+    return FindPoint_unk(scene->mFC, id);
 }
 
 // inferred: arguments of the wait-and-warp command (name invented)
