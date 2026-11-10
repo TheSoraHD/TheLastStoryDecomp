@@ -232,6 +232,63 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
 
 // NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
 // callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: camera mode at a fixed offset of the character looking at a point in front of it
+void GameCamera::fn_80389060(const CharaTask* chara) {
+    atn::Vector3 target = chara->mPos;
+    atn::Vector3 front(0.0f, 0.0f, 10.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    target += front;
+    atn::Vector3 pos = chara->mPos;
+    atn::Vector3 offset(0.0f, 35.0f, -20.0f);
+    Mtx m2;
+    PSMTXRotRad(m2, 'y', chara->mRot.y);
+    PSMTXMultVec(m2, &offset, &offset);
+    pos += offset;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+}
+
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: camera mode 40 beyond the character, on the line from a point 5 below its own position
+void GameCamera::fn_80389210(const CharaTask* chara) {
+    atn::Vector3 target = chara->mPos;
+    atn::Vector3 offset(0.0f, -5.0f, 0.0f);
+    atn::Vector3 from = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    atn::Vector3 dir = target - from;
+    atn::Vector3 d = dir;
+    PSVECNormalize(&d, &d);
+    SetPosition(target + d * 40.0f);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+}
+
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// inferred: camera mode 30 away behind and above the character, along (0.4, 0.2, 1) turned with it
+void GameCamera::fn_803893A0(const CharaTask* chara) {
+    atn::Vector3 target = chara->mPos;
+    target.y += 20.451f;
+    atn::Vector3 dir(0.4f, 0.2f, 1.0f);
+    PSVECNormalize(&dir, &dir);
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    atn::Vector3 d = dir;
+    PSMTXMultVec(m, &d, &d);
+    d *= 30.0f;
+    SetPosition(target - d);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 0);
+}
+
+// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
+// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
 // inferred: camera mode looking at the hips of the character from 50 above its position
 void GameCamera::fn_8038952C(const CharaTask* chara) {
     const atn::Model* model = &chara->mMotion;
