@@ -37,6 +37,54 @@ extern "C" void fn_800C0FBC(void* image, int format, int width, int height); // 
 extern "C" void fn_800D6E48(void* src, void* dst, int width, int height);    // inferred: tiles to RGBA8
 extern "C" void GXDrawDone();
 
+
+// inferred: reverses the four 2-bit indices of a byte (name invented)
+inline unsigned char SwapIdx_unk(unsigned char b) {
+    return ((b << 6) & 0xC0) | ((b << 2) & 0x30) | ((b >> 2) & 0xC) | ((b >> 6) & 3);
+}
+// inferred: one DXT1 block to the GX CMPR order: colours byte-swapped, indices reversed (name
+// invented)
+inline void CmprBlock_unk(unsigned char* dst, int d, const unsigned char* src, int s) {
+    dst[d + 1] = src[s + 0];
+    dst[d + 0] = src[s + 1];
+    dst[d + 3] = src[s + 2];
+    dst[d + 2] = src[s + 3];
+    dst[d + 4] = SwapIdx_unk(src[s + 4]);
+    dst[d + 5] = SwapIdx_unk(src[s + 5]);
+    dst[d + 6] = SwapIdx_unk(src[s + 6]);
+    dst[d + 7] = SwapIdx_unk(src[s + 7]);
+}
+
+// inferred: converts a DXT1 image (rows of 4x4 blocks) to GX CMPR (2x2 blocks per tile when the
+// image is wider than two blocks)
+// NONMATCHING: 74.7% - registers: the original keeps a dead block counter (y * bw, +1 per block)
+// next to the byte offset and spills the row counter and the height to the stack; tried the
+// orders of the terms of the destination index and of the bit swap (brute force).
+extern "C" void fn_800D6BE0(unsigned char* dst, const unsigned char* src, int width, int height) {
+    int bw = width / 4;
+    int bh = height / 4;
+    if (bw <= 2) {
+        for (int y = 0; y < bh; y++) {
+            int i = y * bw * 8;
+            for (int x = 0; x < bw; x++) {
+                CmprBlock_unk(dst, i, src, i);
+                i += 8;
+            }
+        }
+    } else {
+        int half = bw / 2;
+        for (int y = 0; y < bh; y++) {
+            int i = y * bw;
+            for (int x = 0; x < bw; x++) {
+                int dx = x / 2 * 4 % bw + x % 2 + y % 2 * 2;
+                int dy = y / 2 * 2 + x / half % 2;
+                CmprBlock_unk(dst, (dx + dy * bw) * 8, src, i * 8);
+                i++;
+            }
+        }
+    }
+}
+
 namespace atn {
 
 // inferred: RGBA color (name invented)
