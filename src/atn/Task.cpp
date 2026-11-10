@@ -75,7 +75,7 @@ static void fn_800D26A4(Task* task);
 static void fn_800D2868(Task* task);
 static void fn_800D2C50(Task* task);
 static void fn_800D32B8(Task* task);
-static void fn_800D37B8(Task* task);
+void fn_800D37B8(Task* task);
 static void fn_800D3B74(Task* task);
 static int fn_800D4280(Task* task);
 static void fn_800D498C(Task* task);
@@ -127,11 +127,34 @@ void Task::fn_800D1D94(Task* parent) {
     m44 = 0;
 }
 
-// NONMATCHING: 95.44% - registros de los niveles inlineados del borrado recursivo (r29/r30/r31).
+// inferred: removes `child` from the children of `parent` (first link tested before the loop)
+static inline void UnlinkChild_unk(Task* parent, Task* child) {
+    Task** link = &parent->m18;
+    if (child != 0) {
+        Task* t = *link;
+        if (t != 0) {
+            while (child != t) {
+                link = &t->m1C;
+                t = *link;
+                if (t == 0) {
+                    return;
+                }
+            }
+            *link = t->m1C;
+            child->m20 = 0;
+        }
+    } else {
+        *link = 0;
+    }
+}
+
 Task::~Task() {
-    fn_800D37B8(this);
+    Task* child = m18;
+    if (child != 0) {
+        fn_800D3B74(child);
+    }
     if (m20 != 0) {
-        ((Task*)m20)->RemoveChild_unk(this);
+        UnlinkChild_unk((Task*)m20, this);
     }
     lbl_807C75D8.mCount--;
     m24->m3C--;
@@ -293,7 +316,7 @@ extern "C" void fn_800D2D7C(Task* root) {
     }
 }
 
-// NONMATCHING: 91.44% - registros de los niveles inlineados y addic. -1 frente a subic. 1.
+// NONMATCHING: 97.61% - registros: el original da r31 al primer nivel inlineado de fn_800D3B74 y r30 al hijo.
 static void fn_800D32B8(Task* task) {
     Task* child = task->m18;
     if (child != 0) {
@@ -302,7 +325,9 @@ static void fn_800D32B8(Task* task) {
                 if (--child->m40 > 0) {
                     continue;
                 }
-                fn_800D37B8(child);
+                if (child->m18 != 0) {
+                    fn_800D3B74(child->m18);
+                }
                 Task* next = child->m1C;
                 fn_800D2398(child);
                 child = next;
@@ -315,7 +340,7 @@ static void fn_800D32B8(Task* task) {
 }
 
 // inferred: deletes all the descendants of the task
-static void fn_800D37B8(Task* task) {
+void fn_800D37B8(Task* task) {
     Task* child = task->m18;
     if (child != 0) {
         fn_800D3B74(child);
