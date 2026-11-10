@@ -291,6 +291,69 @@ int GameEventScript::fn_80398530(int event) {
     return e->IsAlways_unk() || e->Contains_unk(value);
 }
 
+// inferred: a condition of an event (names invented)
+struct ScriptEventCond_unk {
+    int m00; // inferred: negative: the event must not be finished, else the kind of fn_8039C7F0
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+};
+// inferred: an event with its range of the field value and its conditions (names invented)
+struct ScriptEventConds_unk : public ScriptEventRange_unk {
+    int m0C;
+    ScriptEventCond_unk mConds[8]; // 0x10
+    int mCount;                    // 0xB0
+};
+
+// NONMATCHING: 99.4% - volatile registers of the range test reversed (r5-r8), as fn_80398530
+// inferred: the event can start (field value in range and all its conditions; arg 0 tests only the
+// conditions of kind 1)
+int GameEventScript::fn_80398590(int event, int arg) {
+    int ok = 0;
+    if (event != 0) {
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)event;
+        bool pass = true;
+        int value = lbl_8087F430->m10D0;
+        if (!e->IsAlways_unk() && !e->Contains_unk(value)) {
+            pass = false;
+        }
+        if (pass) {
+            ok = 1;
+            const ScriptEventCond_unk* cond = e->mConds;
+            for (int i = 0; i < e->mCount; cond++, i++) {
+                if (arg == 0 || cond->m00 == 1) {
+                    int r;
+                    int id = e->m00;
+                    if (cond->m00 < 0) {
+                        ScriptEventNode_unk* node = m13C;
+                        ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m13C;
+                        while (node != 0) {
+                            if (!(node->mKey < id)) {
+                                found = node;
+                                node = node->mLeft;
+                            } else {
+                                node = node->mRight;
+                            }
+                        }
+                        if (found == (ScriptEventNode_unk*)&m13C || id < found->mKey) {
+                            found = (ScriptEventNode_unk*)&m13C;
+                        }
+                        r = found == (ScriptEventNode_unk*)&m13C;
+                    } else {
+                        r = fn_8039C7F0(cond->m00, cond->m04, cond->m10, cond->m08, cond->m0C);
+                    }
+                    if (r == 0) {
+                        ok = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return ok;
+}
+
 // NONMATCHING: 97.8% - the original loads the value of the node before the block address
 int GameEventScript::fn_8039CC24(int id) {
     ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m80;
@@ -310,6 +373,51 @@ int GameEventScript::fn_8039CC24(int id) {
         return m64[id / 10000] + found->mValue;
     }
     return 0;
+}
+
+// inferred: handlers of the commands, by index (member function pointers in .rodata)
+typedef void (GameEventScript::*ScriptCmdFn_unk)(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+extern "C" const ScriptCmdFn_unk lbl_8074F0B0[];
+
+// NONMATCHING: 99.2% - `end` and `count` take r30/r29 swapped
+// inferred: runs the commands of `data` from `cmd`; 0 when a command waits, 1 at the end
+int GameEventScript::fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd) {
+    m94 = data;
+    ScriptCmd_unk* end = &data->mCmds;
+    unsigned int count = data->mCmdCount;
+    for (unsigned int i = 0; i < count; i++) {
+        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
+    }
+    for (unsigned int n = 0; n < count; n++) {
+        if (cmd == 0 || cmd >= end) {
+            break;
+        }
+        m90 = cmd;
+        ScriptResult_unk result;
+        if ((cmd->m04 & 1) == 1) {
+            result.SetNext_unk(cmd);
+        } else {
+            switch (cmd->mCmd) {
+            case 1: case 3: case 4: case 5: case 7: case 8: case 13: case 15: case 16: case 17: case 20:
+            case 25: case 28: case 29: case 30: case 31: case 36: case 39: case 40: case 41: case 43: case 44:
+            case 45: case 46: case 56: case 57: case 58: case 60: case 61: case 62: case 79: case 83: case 86:
+            case 91: case 92: case 93: case 94: case 95: case 96: case 97: case 101: case 106: case 108:
+            case 109:
+                if (mE8 > 0) {
+                    lbl_8087F540->fn_8047F580();
+                    mE8 = 0;
+                    mEC = 0;
+                }
+                break;
+            }
+            (this->*lbl_8074F0B0[cmd->mCmd])(result, cmd);
+        }
+        if (result.mWait != 0) {
+            return 0;
+        }
+        cmd = result.mNext;
+    }
+    return 1;
 }
 
 void GameEventScript::fn_8039D178(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {

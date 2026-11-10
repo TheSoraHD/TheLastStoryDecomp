@@ -62,6 +62,7 @@ public:
     void fn_8039BDB4(int index, const void* data, int size);
     int fn_80398530(int event);          // inferred: the event is done
     int fn_80398590(int event, int arg); // inferred: the event can start
+    int fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd); // inferred: runs the script from cmd (0: waits)
     int fn_8039CC24(int id);             // inferred: event with the given id
     int fn_803ABFD4(atn::Task* chara);
     int fn_803AC088(); // inferred: count
@@ -246,7 +247,7 @@ public:
     int m84;
     GameScene* mScene; // 0x88: inferred: scene that owns the script (GameScene::m134)
     int m8C; // inferred: a script is running
-    int m90;
+    ScriptCmd_unk* m90; // inferred: command being run
     ScriptData_unk* m94; // inferred: compiled script of the running event
     unsigned char m98[0xA8 - 0x98];
     int mA8; // inferred: a message window is open
@@ -272,7 +273,9 @@ public:
     ScriptNpcFlag_unk* m118; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
     unsigned char m11C[0x12C - 0x11C];
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
-    unsigned char m138[0x154 - 0x138];
+    unsigned char m138[0x13C - 0x138];
+    ScriptEventNode_unk* m13C; // inferred: root of the set of finished events (end node at &m13C)
+    unsigned char m140[0x154 - 0x140];
     ScriptPartsFlag_unk m154[64]; // inferred: draw flags of the map parts by name hash (fn_803A68B8)
     unsigned char m354[0x37C - 0x354];
     int m37C; // inferred: cleared while a command writes a flag of the field (fn_803A6F90)

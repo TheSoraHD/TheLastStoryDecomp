@@ -37,6 +37,7 @@ struct ScriptArgsF_unk : public ScriptCmd_unk {
 // inferred: what a command step returns: the next command to run (null: stay on this one) and
 // whether the script waits (1) before running it
 struct ScriptResult_unk {
+    ScriptResult_unk() {}
     ScriptResult_unk(ScriptCmd_unk* next, int wait) : mNext(next), mWait(wait) {}
     ScriptResult_unk(const ScriptResult_unk& r) : mNext(r.mNext), mWait(r.mWait) {}
     // inferred: goes on with the command after `cmd` without waiting
