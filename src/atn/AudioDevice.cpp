@@ -275,6 +275,26 @@ void AudioMap_unk<K, V, 0>::Destroy(Node* node) {
     delete node;
 }
 
+// inferred: the maps of the device are destroyed through five nested destructors (~AudioDevice tests
+// the address of each map five times before the tree is freed), as the layers of an MSL std::map over
+// its tree. Names invented.
+template <class K, class V, int N>
+struct AudioMapL1_unk : public AudioMap_unk<K, V, N> {
+    ~AudioMapL1_unk() {}
+};
+template <class K, class V, int N>
+struct AudioMapL2_unk : public AudioMapL1_unk<K, V, N> {
+    ~AudioMapL2_unk() {}
+};
+template <class K, class V, int N>
+struct AudioMapL3_unk : public AudioMapL2_unk<K, V, N> {
+    ~AudioMapL3_unk() {}
+};
+template <class K, class V, int N>
+struct AudioMapL4_unk : public AudioMapL3_unk<K, V, N> {
+    ~AudioMapL4_unk() {}
+};
+
 // inferred: sound id of a name in rsid.csv (id and bank)
 struct AudioSoundId_unk {
     int mId;
@@ -711,17 +731,17 @@ public:
     nw4r::snd::FxReverbStdDpl2 mReverb; // 0x410
     nw4r::snd::FxChorus mChorus;        // 0x640: inferred: never used after its construction
     nw4r::snd::FxDelay mDelay;          // 0x7C4: inferred: never used after its construction
-    AudioMap_unk<int, AudioFxPreset_unk, 4> m8AC; // inferred: effect presets
+    AudioMapL4_unk<int, AudioFxPreset_unk, 4> m8AC; // inferred: effect presets
     int m8BC;
     int m8C0;
     void* m8C4;
     unsigned long m8C8;
     int m8CC;
-    AudioMap_unk<unsigned int, AudioSoundId_unk, 4> m8D0; // inferred: sound ids (rsid.csv)
+    AudioMapL4_unk<unsigned int, AudioSoundId_unk, 4> m8D0; // inferred: sound ids (rsid.csv)
     int m8E0;
     char* m8E4;
-    AudioMap_unk<unsigned int, const char*, 0> m8E8; // inferred: labels of the sound ids
-    AudioMap_unk<unsigned int, const char*, 0> m8F4;
+    AudioMapL4_unk<unsigned int, const char*, 0> m8E8; // inferred: labels of the sound ids
+    AudioMapL4_unk<unsigned int, const char*, 0> m8F4;
     Sound3dEngine m900;
     AudioPath_unk m91C;
 };
@@ -801,8 +821,6 @@ AudioDevice::AudioDevice()
     sprintf(lbl_8087EE8C, "stream");
 }
 
-// NONMATCHING: 90.08% - el original repite la comprobacion de nulo del mapa de 0x8F4 en cada nivel inlineado
-// de sus destructores y guarda su direccion en r29
 AudioDevice::~AudioDevice() {
     fn_80047628(this);
     delete[] lbl_8087EE88;
