@@ -1461,8 +1461,10 @@ inline Vector3 DrawCircle_unk(float t, float z) {
 }
 
 // inferred: wire cone from 'pos' along 'dir' ('angle' in degrees, half aperture)
-// NONMATCHING: 99.9% - r3/r4 swapped in the copy of the fallback up vector (Vector3 copy from a
-// temporary, docs/mwcc-blockers-q3.md)
+// inferred: Vector3 copy through one more inline level (gives the dst/src registers of the original)
+static inline void DrawAssign_unk(Vector3& dst, const Vector3& src) {
+    dst = src;
+}
 void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned int color, float length, float angle,
                              float a) {
     ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
@@ -1477,7 +1479,7 @@ void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned in
     }
     Vector3 up(0.0f, 1.0f, 0.0f);
     if (Abs_unk(PSVECDotProduct(&dir, &up)) > 0.99f) {
-        up = Vector3(0.0f, 0.0f, -1.0f);
+        DrawAssign_unk(up, Vector3(0.0f, 0.0f, -1.0f));
     }
     Vector3 right = DrawCross_unk(dir, up).GetNormalize();
     up = DrawCross_unk(right, dir).GetNormalize();
@@ -1535,8 +1537,6 @@ inline bool DrawSamePos_unk(const Vector3& a, const Vector3& b) {
 }
 
 // inferred: wire capsule between 'a' and 'b' (two spheres and 8 lines)
-// NONMATCHING: 99.9% - r19/r20 swapped for the addresses of 'side' and 'p' in the loop (copy of a
-// Vector3, docs/mwcc-blockers-q3.md)
 void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int color, float radius, float z) {
     fn_80063D3C(a, radius, z, color);
     if (DrawSamePos_unk(a, b)) {
@@ -1566,7 +1566,8 @@ void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int co
         side *= radius;
     }
     for (unsigned int i = 0; i < 8; i++) {
-        Vector3 p = side;
+        Vector3 p;
+        DrawAssign_unk(p, side);
         Mtx m;
         PSMTXRotAxisRad(m, &dir, 0.7853982f * i);
         PSMTXMultVec(m, &p, &p);
