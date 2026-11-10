@@ -3,6 +3,7 @@
 
 #include "atn/GXDecl.h"
 #include "atn/RenderManager.h"
+#include "atn/PostFxManager.h"
 
 // inferred: render manager (lbl_8087EEE0; see atn/Layer2DBlur.cpp)
 struct PostFxRenderMgr_unk {
@@ -32,14 +33,8 @@ public:
 // inferred: base of the post effects (only its RTTI is known, emitted by atn/PostFxBloom.cpp)
 class IPostFx : public IRender {};
 
-// inferred: owner of the post effects (see atn/LinearAllocator.cpp)
-class PostFxManager {
-public:
-    void* fn_800A96AC(int width, int height, int format); // inferred: temporary texture
-};
 
 } // namespace atn
 
-extern "C" atn::PostFxManager* lbl_8087EF8C;
 
 #endif

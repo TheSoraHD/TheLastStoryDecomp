@@ -1,6 +1,7 @@
 #include "atn/Texture_unk.h"
 #include "std/vector.h"
 #include "atn/RenderManager.h"
+#include "atn/PostFxManager.h"
 
 // inferred: GX/OS functions not in atn/GXDecl.h (enums as int)
 extern "C" {
@@ -34,7 +35,8 @@ extern "C" void fn_80075F58(RenderState_unk* rs, int x, int y, int w, int h); //
 extern "C" void fn_80075DEC(RenderState_unk* rs);
 extern "C" void fn_800763FC(RenderState_unk* rs, atn::Texture_unk* texture, int map); // inferred: loads a texture
 extern "C" void fn_800C0FBC(void* image, int format, int width, int height); // inferred: untiles an image
-extern "C" void fn_800D6E48(void* src, void* dst, int width, int height);    // inferred: tiles to RGBA8
+extern "C" void fn_8006945C(const unsigned char* src, int width, int height, unsigned char* dst); // inferred: DXT1
+extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void GXDrawDone();
 
 
@@ -83,6 +85,35 @@ extern "C" void fn_800D6BE0(unsigned char* dst, const unsigned char* src, int wi
             }
         }
     }
+}
+
+// NONMATCHING: 63.2% - the pixel loop: the original loads the four bytes of a pixel before storing them (ours
+// interleaves load/store); tried temporaries, an inline writer, index/pointer forms and the store order
+// inferred: converts an ARGB8 image to GX CMPR in `dst` through two temporary buffers of the post effects
+// allocator (RGBA8 copy, then DXT1)
+extern "C" void fn_800D6E48(const unsigned char* src, unsigned char* dst, int width, int height) {
+    unsigned long rgbaSize = GXGetTexBufferSize(width, height, 6, 0, 0);
+    unsigned long dxtSize = GXGetTexBufferSize(width, height, 0xE, 0, 0);
+    lbl_8087EF8C->mAlloc.mUsed = 0;
+    unsigned char* rgba = (unsigned char*)lbl_8087EF8C->mAlloc.vf0C(rgbaSize, 0x20, 6, "UnswizzledTemp");
+    DCInvalidateRange(rgba, rgbaSize);
+    unsigned char* dxt = (unsigned char*)lbl_8087EF8C->mAlloc.vf0C(dxtSize, 0x20, 6, "DxtTemp");
+    DCInvalidateRange(dxt, dxtSize);
+    GXInvalidateTexAll();
+    for (int i = 0; i < width * height; i++) {
+        const unsigned char* s = &src[i * 4];
+        unsigned char* d = &rgba[i * 4];
+        d[0] = s[1];
+        d[1] = s[2];
+        d[2] = s[3];
+        d[3] = s[0];
+    }
+    fn_8006945C(rgba, width, height, dxt);
+    memset(rgba, 0, rgbaSize);
+    fn_800D6BE0(dst, dxt, width, height);
+    memset(dxt, 0, dxtSize);
+    lbl_8087EF8C->mAlloc.mUsed = 0;
+    DCFlushRange(dst, dxtSize);
 }
 
 namespace atn {
