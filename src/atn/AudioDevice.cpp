@@ -600,7 +600,7 @@ public:
         return 0;
     }
     // inferred: index of the sound in the archive (name invented)
-    unsigned int GetSoundIndex_unk(const char* name) { return GetSoundId_unk(name) - 1; }
+    int GetSoundIndex_unk(const char* name) { return GetSoundId_unk(name) - 1; }
     // inferred: names invented (fn_80049B74, fn_80049C3C, fn_80049CDC)
     unsigned int GetGroupId_unk(const char* name) {
         if (m8E0 != 0) {
@@ -653,6 +653,8 @@ public:
         }
         return false;
     }
+    // inferred: an extra bank is set (an accessor: the original reads m404 again in IsExtraLoading_unk)
+    bool HasExtra_unk() const { return m404 != 0; }
     bool IsExtraLoading_unk() {
         if (m404 != 0 && mExtraBank.mState != 3 && mExtraBank.mState != 4) {
             return true;
@@ -1191,7 +1193,6 @@ extern "C" int fn_800489F4(AudioDevice* audio, const char* name) {
     return 1;
 }
 
-// NONMATCHING: 92.06% - registros (name/this) y el bool de IsExtraLoading_unk materializado en el original
 // inferred: a bank (or any bank when name is 0) is still loading
 extern "C" int fn_80048F8C(AudioDevice* audio, const char* name) {
     if (audio->m04 == 0) {
@@ -1206,18 +1207,15 @@ extern "C" int fn_80048F8C(AudioDevice* audio, const char* name) {
         if (audio->m400 != 0 && audio->IsQueueLoading_unk()) {
             return 1;
         }
-        if (audio->m404 != 0 && audio->IsExtraLoading_unk()) {
+        if (audio->HasExtra_unk() && audio->IsExtraLoading_unk()) {
             return 1;
         }
-        return 0;
-    }
-    if (lbl_8087EE90->GetSoundIndex_unk(name) == 0xFFFFFFFF) {
-        return 0;
-    }
-    unsigned int id = audio->GetSoundId_unk(name);
-    for (AudioBank_unk* it = audio->mBanks.mData; it != audio->mBanks.mData + audio->mBanks.mSize; it++) {
-        if (id == it->mId && it->mState != 3 && it->mState != 4) {
-            return 1;
+    } else if (lbl_8087EE90->GetSoundIndex_unk(name) != 0xFFFFFFFF) {
+        unsigned int id = audio->GetSoundId_unk(name);
+        for (AudioBank_unk* it = audio->mBanks.mData; it != audio->mBanks.mData + audio->mBanks.mSize; it++) {
+            if (id == it->mId && it->mState != 3 && it->mState != 4) {
+                return 1;
+            }
         }
     }
     return 0;
