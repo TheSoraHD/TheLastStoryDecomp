@@ -45,6 +45,13 @@ struct ScriptNpcFlag_unk {
     int m08;
 };
 
+// inferred: draw flags of a map part set by the scripts (bit 0 drawn, bit 1 set; bit 2 locator
+// drawn, bit 3 set); names invented
+struct ScriptPartsFlag_unk {
+    unsigned int mHash;
+    unsigned int mFlags;
+};
+
 class GameEventScript : public atn::Task {
 public:
     virtual ~GameEventScript(); // 0x80394320
@@ -265,7 +272,9 @@ public:
     ScriptNpcFlag_unk* m118; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
     unsigned char m11C[0x12C - 0x11C];
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
-    unsigned char m138[0x37C - 0x138];
+    unsigned char m138[0x154 - 0x138];
+    ScriptPartsFlag_unk m154[64]; // inferred: draw flags of the map parts by name hash (fn_803A68B8)
+    unsigned char m354[0x37C - 0x354];
     int m37C; // inferred: cleared while a command writes a flag of the field (fn_803A6F90)
 };
 

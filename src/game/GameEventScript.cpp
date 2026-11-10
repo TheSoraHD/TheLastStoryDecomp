@@ -43,7 +43,11 @@
 #include "game/EquipItemData.h"
 #include "game/FriendManager.h"
 #include "db/EventIdTable_unk.h"
+#include "db/ItemParam_unk.h"
+#include "db/WeaponParam_unk.h"
 #include "game/GameVoice.h"
+#include "game/MapManager.h"
+#include "game/MapPartsLocatorSet.h"
 #include "atn/DebugMessages_unk.h"
 #include "game/ChaseManager.h"
 #include "game/ChaserNpc.h"
@@ -90,6 +94,8 @@ extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int value, in
 extern "C" void* lbl_8087EF70;                                     // inferred: pad input
 extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
 extern "C" void fn_80392D2C(Camera_unk* camera, const Camera_unk* from, float rate); // inferred: blends back
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 // inferred: squared length (name invented)
 static inline float SqLength_unk(const atn::Vector3& v) {
@@ -1406,6 +1412,34 @@ void GameEventScript::fn_803A3D20(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// NONMATCHING: 97.9% - the original stores mDB0C = 1 in the middle of SetNext_unk (as fn_803A6B9C)
+// inferred: gives (or removes, m14 bit 0) the item m08 (unknown codes are item 1) in the amount
+// m0C/m10, logs it and shows it
+void GameEventScript::fn_803A3FFC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int item = args->m08;
+    if (fn_80211480(item) == 0) {
+        item = 1;
+    }
+    Inventory::instance_->mDB0C = 0;
+    if ((args->m14 & 1) == 1) {
+        fn_8044441C(Inventory::instance_, item, ScriptValue_unk(args->m0C, args->m10));
+    } else {
+        int full = 1;
+        Inventory::instance_->AddItem(item, ScriptValue_unk(args->m0C, args->m10), 0, 1, &full, 1, 1);
+        if (fn_80206B9C(args->m08) && full == 0) {
+            fn_801092C8(lbl_8087F048, 2, 0, args->m08, ScriptValue_unk(args->m0C, args->m10));
+            lbl_8087F490->fn_803E5E64(item, ScriptValue_unk(args->m0C, args->m10), 0);
+        } else {
+            fn_801092C8(lbl_8087F048, 1, 0, item, ScriptValue_unk(args->m0C, args->m10));
+            lbl_8087F490->fn_803E5E64(item, ScriptValue_unk(args->m0C, args->m10), 1);
+        }
+        fn_800C31F4(lbl_8074EF78[4], 0, -1, 1.0f);
+    }
+    Inventory::instance_->mDB0C = 1;
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803A4400(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     if (lbl_8087F430 != 0) {
@@ -2061,6 +2095,70 @@ void GameEventScript::fn_803A6744(ScriptResult_unk& result, const ScriptCmd_unk*
         case 1:
             minimap->fn_804AAFCC(chara);
             break;
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 93.9% - register allocation (free/entry/this and the loop variables), r0/r4 in SetNext_unk
+// inferred: shows or hides (m10) the map parts named mName in every map (m08: 0 the parts, 1 the
+// locator sets) and remembers it in m154
+void GameEventScript::fn_803A68B8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptMotionArgs_unk* args = static_cast<const ScriptMotionArgs_unk*>(cmd);
+    int value = ScriptValue_unk(args->m0C, args->m10);
+    if (MapManager::instance_ != 0) {
+        atn::FixedArray_unk<MapTask*, 64>* maps;
+        int free;
+        ScriptPartsFlag_unk* entry;
+        char name[0x20];
+        memcpy(name, args->mName, sizeof(name));
+        free = -1;
+        entry = 0;
+        unsigned int hash = fn_800DC6B4(name);
+        for (int i = 0; i < 64; i++) {
+            if (hash == m154[i].mHash) {
+                entry = &m154[i];
+                break;
+            }
+            if (m154[i].mHash == 0 && free == -1) {
+                free = i;
+            }
+        }
+        if (entry == 0 && free >= 0) {
+            entry = &m154[free];
+            entry->mHash = hash;
+        }
+        maps = &MapManager::instance_->mMaps;
+        for (unsigned int i = 0; i < maps->size(); i++) {
+            MapTask* map = (*maps)[i];
+            switch (args->m08) {
+            case 0:
+                map->fn_804A0E18(name, value);
+                if (entry != 0) {
+                    if (value != 0) {
+                        entry->mFlags |= 1;
+                    } else {
+                        entry->mFlags &= ~1;
+                    }
+                    entry->mFlags |= 2;
+                }
+                break;
+            case 1: {
+                MapPartsLocatorSet* set = (MapPartsLocatorSet*)map->fn_804A06B4(4, name);
+                if (set != 0) {
+                    set->fn_8049B72C(value != 0 ? set->mFlags | 0x400 : set->mFlags & ~0x400);
+                }
+                if (entry != 0) {
+                    if (value != 0) {
+                        entry->mFlags |= 4;
+                    } else {
+                        entry->mFlags &= ~4;
+                    }
+                    entry->mFlags |= 8;
+                }
+                break;
+            }
+            }
         }
     }
     result.SetNext_unk(cmd);
