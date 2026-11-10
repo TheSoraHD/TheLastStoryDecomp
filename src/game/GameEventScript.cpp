@@ -102,6 +102,30 @@ static inline int ScriptValue_unk(int type, int value) {
     }
     return value;
 }
+// inferred: command after the end of the block that starts at `cmd` (commands 0x44 open nested
+// blocks, 0x45 closes one); the end of the script if missing (name invented)
+static inline ScriptCmd_unk* SkipBlock_unk(ScriptData_unk* data, const ScriptCmd_unk* cmd) {
+    ScriptCmd_unk* end = &data->mCmds;
+    for (unsigned int i = 0; i < data->mCmdCount; i++) {
+        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
+    }
+    ScriptCmd_unk* next = (ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]);
+    int depth = 0;
+    while (next != end) {
+        if ((next->m04 & 1) != 1) {
+            if (next->mCmd == 0x44) {
+                depth++;
+            } else if (next->mCmd == 0x45) {
+                if (depth <= 0) {
+                    break;
+                }
+                depth--;
+            }
+        }
+        next = (ScriptCmd_unk*)((char*)next + lbl_8074ED24[next->mCmd]);
+    }
+    return next;
+}
 // inferred: sets the mode of the members of a team, keeping the previous one (name invented)
 static inline void SetTeamMode_unk(TeamAI_unk* team, int mode) {
     if (team != 0) {
@@ -463,6 +487,21 @@ void GameEventScript::fn_8039EACC(ScriptResult_unk& result, const ScriptCmd_unk*
     result = ScriptResult_unk(NextCmd_unk(args), 1);
 }
 
+// inferred: releases a character from the event (removes its record of m12C; the leader sets mD0)
+// and sets its state m14 (CharaTask::fn_80154654)
+void GameEventScript::fn_8039F600(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        if (chara->mType == 0) {
+            mD0 = 1;
+        }
+        fn_803AB37C(chara);
+        chara->fn_80154654(chara->mC50, args->m14);
+    }
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_8039F7D8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087F430->fn_80370094(static_cast<const ScriptArgs_unk*>(cmd)->m08);
     mF0 = 1;
@@ -742,6 +781,27 @@ void GameEventScript::fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk*
         chara->fn_8014C0B4(0, value + 0xD5);
     }
     result.SetNext_unk(cmd);
+}
+
+// inferred: shakes the camera (90 frames) and every character that can act (fn_8016CDB8 with m08)
+void GameEventScript::fn_803A3444(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    GameCamera& camera = lbl_8087F430->mCamera;
+    camera.m900 %= 2;
+    camera.m904 = 90;
+    camera.m908 = 1.0f;
+    camera.m90C = 1.0f;
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        if (player->CanAct_unk()) {
+            player->fn_8016CDB8(90, args->m08);
+        }
+    }
+    for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+        if (enemy->CanAct_unk()) {
+            enemy->fn_8016CDB8(90, args->m08);
+        }
+    }
+    result.SetNext_unk(cmd, 1);
 }
 
 void GameEventScript::fn_803A362C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -1087,6 +1147,19 @@ void GameEventScript::fn_803A5F88(ScriptResult_unk& result, const ScriptCmd_unk*
         }
     }
     result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 99.5% - the counter and the count of the end loop of SkipBlock_unk swap r4/r5
+// inferred: conditional block: runs it when fn_8039C7F0 holds, else goes on after its end (as
+// fn_803AADCC)
+void GameEventScript::fn_803A5FF8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    result.mWait = 0;
+    if (fn_8039C7F0(args->m08, args->m0C, args->m18, args->m10, args->m14) != 0) {
+        result.mNext = NextCmd_unk(cmd);
+    } else {
+        result.mNext = SkipBlock_unk(m94, cmd);
+    }
 }
 
 // NONMATCHING: 98% - registers r0/r6 swapped (type/zero)
@@ -1542,7 +1615,7 @@ void GameEventScript::fn_803AAD58(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// NONMATCHING: 98% - the pointer to the end of the script and the count swap r8/r9; the end loop uses lwzux
+// NONMATCHING: 99.5% - the counter and the count of the end loop of SkipBlock_unk swap r4/r5
 // inferred: block (closed by command 0x45, nested by 0x44): runs it when the counter m10D0 of the field
 // lies in [m08, m0C], else goes on after its end
 void GameEventScript::fn_803AADCC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -1553,27 +1626,7 @@ void GameEventScript::fn_803AADCC(ScriptResult_unk& result, const ScriptCmd_unk*
         result.mNext = NextCmd_unk(cmd);
         return;
     }
-    ScriptData_unk* data = m94;
-    ScriptCmd_unk* end = &data->mCmds;
-    for (unsigned int i = 0; i < data->mCmdCount; i++) {
-        end = NextCmd_unk(end);
-    }
-    ScriptCmd_unk* next = NextCmd_unk(cmd);
-    int depth = 0;
-    while (next != end) {
-        if ((next->m04 & 1) != 1) {
-            if (next->mCmd == 0x44) {
-                depth++;
-            } else if (next->mCmd == 0x45) {
-                if (depth <= 0) {
-                    break;
-                }
-                depth--;
-            }
-        }
-        next = NextCmd_unk(next);
-    }
-    result.mNext = next;
+    result.mNext = SkipBlock_unk(m94, cmd);
 }
 
 // NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
