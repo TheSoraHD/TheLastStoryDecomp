@@ -3163,6 +3163,55 @@ void GameEventScript::fn_803A9C40(ScriptResult_unk& result, const ScriptCmd_unk*
     fn_803A9DBC(result, cmd);
 }
 
+// inferred: arguments of the constrain command (names invented)
+struct ScriptConstrainArgs_unk : public ScriptCmd_unk {
+    int m08;
+    int m0C;
+    char mNode[0x20]; // 0x10
+    int mModel;       // 0x30
+    int mRelease;     // 0x34
+    atn::Vector3 mOffset; // 0x38
+};
+
+// NONMATCHING: 99.9% - only the @stringBase0 offsets (the earlier strings belong to unwritten functions)
+// inferred: attaches the constrained model mModel of the field scene to the node mNode of the
+// character m08/m0C (mRelease: detaches it)
+void GameEventScript::fn_803AA5E4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptConstrainArgs_unk* args = static_cast<const ScriptConstrainArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    GameScene* scene = FieldScene_unk();
+    if (chara != 0 && scene != 0) {
+        char name[0x100];
+        gs::ConstrainModel* model = scene->fn_803CC6D0(args->mModel);
+        if (model != 0) {
+            if (args->mRelease == 0) {
+                atn::Model* motion = &chara->mMotion;
+                memset(name, 0, sizeof(name));
+                memcpy(name, args->mNode, 0x20);
+                int node = motion->GetNodeNoByName(name, 0);
+                if (node < 0) {
+                    char text[0x100];
+                    sprintf(text, "ConstrainModel node not found! <%s>", name);
+                    lbl_8087EEB8->fn_800697D8(text);
+                }
+                model->m1C = !chara->IsFlag_unk(4);
+                model->m08 = chara;
+                model->m0C = (const atn::Matrix3x4*)motion->GetNodeMtx_unk(node);
+                model->m10 = args->mOffset;
+            } else {
+                model->m1C = 0;
+                model->m08 = 0;
+                model->m0C = 0;
+            }
+        } else {
+            char text[0x100];
+            sprintf(text, "ConstrainModel model not found! <%s>", name);
+            lbl_8087EEB8->fn_800697D8(text);
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: waits while the field is in state 5
 void GameEventScript::fn_803AA82C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
