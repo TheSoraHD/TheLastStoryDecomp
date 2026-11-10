@@ -17,6 +17,8 @@ struct MpMsgSession_unk {
     MpLevelTable_unk m610; // inferred: experience table
     unsigned char m0618[0x2A50 - 0x618];
     MpMessageTable_unk m2A50;
+    unsigned char m2A50_end[0x99EC - 0x2A50 - sizeof(MpMessageTable_unk)];
+    int m99EC; // inferred: pending messages (as PPManager2_unk::m99EC in atn/PacketPack.cpp)
 };
 extern "C" MpMsgSession_unk* lbl_8087F610;
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound

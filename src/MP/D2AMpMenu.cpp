@@ -727,6 +727,149 @@ void D2AMpMenu::fn_804B2934() {
     }
 }
 
+// inferred: fills the screen with `color` at depth `z`
+static inline void FillScreen_unk(float z, unsigned int color) {
+    lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, z, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight, color);
+}
+
+// NONMATCHING: 98.1% - L"" of the help test in the .data pool of the original; case 12 reloads lbl_8087F628;
+// alpha and the device pointer of the fade get r7/r8 swapped; offsets in @stringBase0
+// inferred: draw of the menu: shows the windows of the current state, then the fade
+void D2AMpMenu::vf14() {
+    for (MpD2A_unk** it = &mTasks[0]; it != &mTasks[mTasks.size()]; it++) {
+        if (*it != 0) {
+            (*it)->mFlags |= 4;
+        }
+    }
+    switch (mBC) {
+    case 2:
+        m48->mFlags &= ~4;
+        m4C->mFlags &= ~4;
+        if (D2ACommonDialog::sInstance->m4C == 0) {
+            SetTopCursor_unk(this, m48);
+        }
+        break;
+    case 3:
+        D2ACommonDialog::sInstance->mFlags &= ~4;
+        m48->mFlags &= ~4;
+        m4C->mFlags &= ~4;
+        if (D2ACommonDialog::sInstance->m4C == 0) {
+            SetTopCursor_unk(this, m48);
+        }
+        break;
+    case 4:
+        if (D2AMpMenuSetMessage::sInstance != 0) {
+            m70->mFlags &= ~4;
+            int state = D2AMpMenuSetMessage::sInstance->mD8;
+            if (state < 1 || state == 8) {
+                FillScreen_unk(100.0f, 0x80000000);
+            }
+        }
+        break;
+    case 5:
+        D2ACommonDialog::sInstance->mFlags &= ~4;
+        if (m154 == 3) {
+            if (lbl_8087F860->m25AC == 1) {
+                FillScreen_unk(100.0f, 0x80000000);
+            }
+        } else {
+            m48->mFlags &= ~4;
+            m4C->mFlags &= ~4;
+            if (D2ACommonDialog::sInstance->m4C == 0) {
+                SetTopCursor_unk(this, m48);
+            }
+        }
+        break;
+    case 6:
+        if (D2AMpMenuFriend::sInstance != 0 && D2AMpMenuFriend::sInstance->m2BC < 1) {
+            FillScreen_unk(100.0f, 0x80000000);
+        }
+        if (D2ACommonDialog::sInstance->m4C == 0) {
+            m70->mFlags &= ~4;
+        }
+        break;
+    case 8:
+        D2ACommonDialog::sInstance->mFlags &= ~4;
+        fn_804B3494();
+        break;
+    case 9:
+        fn_804B3494();
+        break;
+    case 18:
+        fn_804B3838();
+        break;
+    case 17:
+        m78->mFlags &= ~4;
+        m7C->mFlags &= ~4;
+        m80->mFlags &= ~4;
+        m84->mFlags &= ~4;
+        m88->mFlags &= ~4;
+        fn_804A4738(mB4, 0, 0, 10);
+        SetPaneValue2_unk(&m80->mLayout, "col0005", 0, 125.0f);
+        break;
+    case 12:
+        mB8->mFlags &= ~4;
+        if (lbl_8087F628->mC1F8 == 8 || lbl_8087F628->mC1F4 == 1) {
+            if (lbl_8087F610->m99EC <= 0) {
+                if (lbl_8087F628->mC0 == 1) {
+                    m150++;
+                } else {
+                    m150 = 0;
+                }
+                if (m150 < 30) {
+                    m74->mFlags &= ~4;
+                }
+            }
+        }
+        break;
+    case 10:
+        fn_804B39F8();
+        break;
+    case 13:
+        if (D2AMpMenuLobby::sInstance != 0 && D2AMpMenuLobby::sInstance->mD88 < 1) {
+            FillScreen_unk(100.0f, 0x80000000);
+        }
+        break;
+    case 15:
+        mB8->mFlags &= ~4;
+        break;
+    case 7:
+        if (mDC != 0) {
+            mB8->mFlags &= ~4;
+        } else {
+            FillScreen_unk(100.0f, 0x80000000);
+        }
+        break;
+    case 19:
+        m48->mFlags &= ~4;
+        m4C->mFlags &= ~4;
+        vf20();
+        break;
+    case 20:
+        m48->mFlags &= ~4;
+        m4C->mFlags &= ~4;
+        break;
+    case 22:
+        FillScreen_unk(100.0f, 0x80000000);
+        break;
+    }
+    int mode = m299C.m00;
+    if (mode != 0) {
+        unsigned int color;
+        int alpha = 255;
+        if (m299C.m08 != 0) {
+            alpha = 255 / m299C.m08 * m299C.m04;
+        }
+        bool in = mode == 1 || mode == 3;
+        if (in) {
+            alpha = 255 - alpha;
+        }
+        bool black = mode == 1 || mode == 2;
+        color = black ? 0 : 0xFFFFFF;
+        FillScreen_unk(-10000.0f, color + (alpha << 24));
+    }
+}
+
 // NONMATCHING: 97.0% - the original reads D2ACommonDialog::sInstance->m4C at the end without using
 // it; offsets in @stringBase0 and the .data pool of L""
 // inferred: shows the main page of the menu

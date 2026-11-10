@@ -49,7 +49,8 @@ struct MpRoomInfo_unk {
     unsigned char m2[2];
 };
 struct MpData_unk {
-    unsigned char m000[0xC1];
+    unsigned char m000[0xC0];
+    unsigned char mC0; // inferred: 1 while a message is shown (MP/D2AMpMenu.cpp vf14)
     MpRoomInfo_unk mC1;
     unsigned char mC5[0xC8 - 0xC5];
     int mC8; // inferred: number of friends
@@ -58,6 +59,7 @@ struct MpData_unk {
     int mE38; // inferred: own player id (compared with RANKING_DATA::m4C)
     unsigned char mE3C[0xC1F4 - 0xE3C];
     int mC1F4; // inferred: 1 when connected (as MP/D2AMpMenuFriendRoom.cpp)
+    int mC1F8; // inferred: connection state (8: online)
 };
 extern "C" MpData_unk* lbl_8087F628;
 
