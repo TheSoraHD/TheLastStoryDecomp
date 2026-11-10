@@ -41,6 +41,7 @@
 #include "game/MiniMapTask.h"
 #include "game/AiTarget.h"
 #include "game/EquipItemData.h"
+#include "game/FriendManager.h"
 #include "atn/DebugMessages_unk.h"
 #include "game/ChaseManager.h"
 #include "game/ChaserNpc.h"
@@ -529,6 +530,52 @@ void GameEventScript::fn_8039F878(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: stops a character's current action (name invented)
+static inline void StopAction_unk(CharaTask* chara, int keep) {
+    if (keep != 0) {
+        chara->fn_8014DEE4(0, 0, 0);
+    } else {
+        if (chara->IsFlag5_unk()) {
+            chara->mFlag5 = 0;
+        }
+        if (chara->mFlag31) {
+            chara->fn_801539E0();
+        }
+        chara->fn_8014EEC4(0);
+    }
+}
+
+// inferred: stops the leader and every enemy and friend nearer than m0C to it
+void GameEventScript::fn_803A0040(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    StopAction_unk(leader, args->m08);
+    {
+        float range = args->m0C;
+        int keep = args->m08;
+        range = range * range;
+        for (EnemyTask* chara = EnemyManager::sInstance->mHead; chara != 0; chara = chara->mNext) {
+            atn::Vector3 d = chara->mPos - leader->mPos;
+            if (SqLength_unk(d) < range) {
+                StopAction_unk(chara, keep);
+            }
+        }
+    }
+    {
+        float range = args->m0C;
+        int keep = args->m08;
+        CharaTask* chara = FriendManager::sInstance->fn_8036554C();
+        range = range * range;
+        for (; chara != 0; chara = ((EnemyTask*)chara)->mNext) {
+            atn::Vector3 d = chara->mPos - leader->mPos;
+            if (SqLength_unk(d) < range) {
+                StopAction_unk(chara, keep);
+            }
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: sends the message m10 to the gimmick (m08, m0C) (bit 0 of m14: through vf70)
 void GameEventScript::fn_803A02C8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
@@ -580,6 +627,69 @@ void GameEventScript::fn_803A04C0(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_803A0520(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     fn_8039FBFC(GetChara_unk(args->m08, args->m0C), args);
+    result.SetNext_unk(cmd);
+}
+
+// inferred: the first non-null of four characters (name invented)
+static inline CharaTask* FirstOf_unk(CharaTask* a, CharaTask* b, CharaTask* c, CharaTask* d) {
+    if (a != 0) {
+        return a;
+    }
+    if (b != 0) {
+        return b;
+    }
+    if (c != 0) {
+        return c;
+    }
+    return d;
+}
+
+// NONMATCHING: 99.2% - only the @stringBase0 offset (0xE2): the earlier strings belong to unwritten functions
+// inferred: makes a character use a gimmick (m10, m14); the party member 3 with id <= 0 is the
+// first archer, then the first of kind 6, then 1/9/10, then the one with data m122 == 2
+void GameEventScript::fn_803A064C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = 0;
+    if (args->m08 != 3 || args->m0C > 0) {
+        chara = GetChara_unk(args->m08, args->m0C);
+    } else if (lbl_8087F8A0 != 0) {
+        chara = 0;
+        CharaTask* second = 0;
+        CharaTask* third = 0;
+        CharaTask* fourth = 0;
+        for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+            if (p->mType == 0 || p->IsFlag_unk(4) || (p->m54C & 0x2000) == 0x2000) {
+                continue;
+            }
+            switch (fn_80219558(p->m50)) {
+            case 4:
+                chara = p;
+                break;
+            case 6:
+                second = p;
+                break;
+            case 1:
+            case 9:
+            case 10:
+                third = p;
+                break;
+            default:
+                if (p->m5C->m122 == 2) {
+                    fourth = p;
+                }
+                break;
+            }
+        }
+        chara = FirstOf_unk(chara, second, third, fourth);
+    }
+    if (chara != 0) {
+        lbl_8087EE68->fn_80017EB0(chara, args->m10, args->m14);
+    } else if (lbl_8087EEB8 != 0) {
+        char text[0x100];
+        sprintf(text, "ScriptError: ExecComAimGimmick chara not found [gm%03d_%03d_%04d]", args->m10 / 1000,
+                args->m10 % 1000, args->m14);
+        lbl_8087EEB8->fn_800697D8(text);
+    }
     result.SetNext_unk(cmd);
 }
 
