@@ -445,9 +445,9 @@ static inline unsigned int ColorChannel_unk(float value) {
 // inferred: draws the frame: sorts the draw lists of the passes, then lets each layer queue and draw them.
 // The layers are called through their vtables (slots 0x10/0x14/0x18 take the draw list): the local copies
 // of IRenderLayer in atn/LayerShadow.cpp and atn/LayerOcclusionCPU.cpp disagree on those signatures.
-// poolcheck: MWCC folds the safe-area products (640.0f * 0.078f...); the original multiplies at run
-// time, so its operands were not literals there (source form unknown).
-// NONMATCHING: equivalent - register allocation and the folded safe-area constants
+// NONMATCHING: 98.4% - register allocation (stack slot of the vector, the wide lines, the reset block). The
+// safe-area values are computed at run time (float locals, not folded) and the white frame is drawn with
+// mA0 = 0x13 as the yellow one (the order was wrong before)
 void atn::RenderManager::fn_800BDBC8() {
     typedef void (*LayerCall)(IRenderLayer*);
     typedef void (*LayerListCall)(IRenderLayer*, RenderEntry_unk*);
@@ -478,36 +478,43 @@ void atn::RenderManager::fn_800BDBC8() {
     }
 
     if (lbl_8087EFA8->m01C != 0 && device->mWide != 0) {
-        float half = 0.5f;
-        float extent = 640.0f - 514.2857f;
-        float left = 640.0f - half * extent;
-        float right = half * extent;
+        float w = 640.0f;
+        float top = 0.0f;
+        float bottom = 448.0f;
+        float extent = w - 514.2857f;
+        float left = w - 0.5f * extent;
+        float right = 0.5f * extent;
         lbl_8087EEB0->mA0 = 0x13;
-        lbl_8087EEB0->fn_8006144C(left, 0.0f, left, 448.0f, 0xFFFF0000, 0.0f);
-        lbl_8087EEB0->fn_8006144C(right, 448.0f, right, 0.0f, 0xFFFF0000, 0.0f);
+        lbl_8087EEB0->fn_8006144C(left, top, left, bottom, 0xFFFF0000, 0.0f);
+        lbl_8087EEB0->fn_8006144C(right, bottom, right, top, 0xFFFF0000, 0.0f);
         lbl_8087EEB0->mA0 = 0x12;
     }
 
     if (lbl_8087EFA8->m018 != 0) {
-        float left = 640.0f * 0.07800001f;
-        float top = 448.0f * 0.095999986f;
-        float right = 640.0f * (1.0f - 0.07800001f);
-        float bottom = 448.0f * (1.0f - 0.095999986f);
+        float mx = 0.07800001f;
+        float my = 0.095999986f;
+        float left = 640.0f * mx;
+        float top = 448.0f * my;
+        float right = 640.0f * (1.0f - mx);
+        float bottom = 448.0f * (1.0f - my);
         lbl_8087EEB0->mA0 = 0x13;
         lbl_8087EEB0->fn_8006144C(left, top, right, top, 0xFFFFFF00, 0.0f);
         lbl_8087EEB0->fn_8006144C(right, top, right, bottom, 0xFFFFFF00, 0.0f);
         lbl_8087EEB0->fn_8006144C(right, bottom, left, bottom, 0xFFFFFF00, 0.0f);
         lbl_8087EEB0->fn_8006144C(left, bottom, left, top, 0xFFFFFF00, 0.0f);
-
-        left = 640.0f * 0.065f;
-        top = 448.0f * 0.065f;
-        right = 640.0f * (1.0f - 0.065f);
-        bottom = 448.0f * (1.0f - 0.065f);
         lbl_8087EEB0->mA0 = 0x12;
+
+        float m = 0.065f;
+        left = 640.0f * m;
+        top = 448.0f * m;
+        right = 640.0f * (1.0f - m);
+        bottom = 448.0f * (1.0f - m);
+        lbl_8087EEB0->mA0 = 0x13;
         lbl_8087EEB0->fn_8006144C(left, top, right, top, 0xFFFFFFFF, 0.0f);
         lbl_8087EEB0->fn_8006144C(right, top, right, bottom, 0xFFFFFFFF, 0.0f);
         lbl_8087EEB0->fn_8006144C(right, bottom, left, bottom, 0xFFFFFFFF, 0.0f);
         lbl_8087EEB0->fn_8006144C(left, bottom, left, top, 0xFFFFFFFF, 0.0f);
+        lbl_8087EEB0->mA0 = 0x12;
     }
 
     *(int*)((unsigned char*)lbl_8087EF8C + 0x54) = 0;
