@@ -295,17 +295,6 @@ void GameEventScript::fn_803957F0(int id) {
     }
 }
 
-// inferred: the field value is in the range of the event (name invented)
-static inline bool InEventRange_unk(int event) {
-    const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
-    int value = lbl_8087F430->m10D0;
-    return e->IsAlways_unk() || e->Contains_unk(value);
-}
-
-int GameEventScript::fn_80398530(int event) {
-    return InEventRange_unk(event);
-}
-
 // inferred: a condition of an event (names invented)
 struct ScriptEventCond_unk {
     int m00; // inferred: negative: the event must not be finished, else the kind of fn_8039C7F0
@@ -320,6 +309,164 @@ struct ScriptEventConds_unk : public ScriptEventRange_unk {
     ScriptEventCond_unk mConds[8]; // 0x10
     int mCount;                    // 0xB0
 };
+
+// inferred: fn_80398590 testing every condition (name invented)
+inline int GameEventScript::CanStart_unk(int event) {
+    const ScriptEventCond_unk* cond;
+    int ok = 0;
+    if (event != 0) {
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)event;
+        bool pass = true;
+        int value = lbl_8087F430->m10D0;
+        if (!e->IsAlways_unk() && !e->Contains_unk(value)) {
+            pass = false;
+        }
+        if (pass) {
+            ok = 1;
+            cond = e->mConds;
+            for (int i = 0; i < e->mCount; cond++, i++) {
+                {
+                    int r;
+                    int id = e->m00;
+                    if (cond->m00 < 0) {
+                        ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m13C;
+                        ScriptEventNode_unk* node = m13C;
+                        while (node != 0) {
+                            if (!(node->mKey < id)) {
+                                found = node;
+                                node = node->mLeft;
+                            } else {
+                                node = node->mRight;
+                            }
+                        }
+                        if (found == (ScriptEventNode_unk*)&m13C || id < found->mKey) {
+                            found = (ScriptEventNode_unk*)&m13C;
+                        }
+                        r = found == (ScriptEventNode_unk*)&m13C;
+                    } else {
+                        r = fn_8039C7F0(cond->m00, cond->m04, cond->m10, cond->m08, cond->m0C);
+                    }
+                    if (r == 0) {
+                        ok = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return ok;
+}
+
+// inferred: index of the last script of the point whose event can start (bit 0 of the flags enables the
+// point, bit 1 when m5694 is set), -1 if none; with the global flag 27, -1 also when that event has no
+// condition on the flag 27
+int GameEventScript::fn_80395F34(const gs::EventSphere* sphere) {
+    if (sphere->m24 != 0 && lbl_8087F430 != 0) {
+        int on = lbl_8087F430->m5694 != 0 ? (sphere->m24 & 2) != 0 : (sphere->m24 & 1) != 0;
+        if (on == 0) {
+            return -1;
+        }
+    }
+    int flag = lbl_8087F430->fn_80370174(27);
+    int index = -1;
+    for (int i = sphere->m18.size() - 1; i >= 0; i--) {
+        if (CanStart_unk(FindEvent_unk(sphere->m18[i]))) {
+            index = i;
+            break;
+        }
+    }
+    if (flag != 0 && index >= 0) {
+        int found = 0;
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(sphere->m18[index]);
+        const ScriptEventCond_unk* cond = e->mConds;
+        for (int i = 0; i < e->mCount; i++, cond++) {
+            if (cond->m00 == 1 && cond->m04 == 27) {
+                found = 1;
+                break;
+            }
+        }
+        if (found == 0) {
+            index = -1;
+        }
+    }
+    return index;
+}
+
+int GameEventScript::fn_80396298(const gs::EventBox* box) {
+    if (box->m44 != 0 && lbl_8087F430 != 0) {
+        int on = lbl_8087F430->m5694 != 0 ? (box->m44 & 2) != 0 : (box->m44 & 1) != 0;
+        if (on == 0) {
+            return -1;
+        }
+    }
+    int flag = lbl_8087F430->fn_80370174(27);
+    int index = -1;
+    for (int i = box->m24.size() - 1; i >= 0; i--) {
+        if (CanStart_unk(FindEvent_unk(box->m24[i]))) {
+            index = i;
+            break;
+        }
+    }
+    if (flag != 0 && index >= 0) {
+        int found = 0;
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(box->m24[index]);
+        const ScriptEventCond_unk* cond = e->mConds;
+        for (int i = 0; i < e->mCount; i++, cond++) {
+            if (cond->m00 == 1 && cond->m04 == 27) {
+                found = 1;
+                break;
+            }
+        }
+        if (found == 0) {
+            index = -1;
+        }
+    }
+    return index;
+}
+
+int GameEventScript::fn_80396F44(const gs::NpcSetPoint* point) {
+    if (point->m13C != 0 && lbl_8087F430 != 0) {
+        int on = lbl_8087F430->m5694 != 0 ? (point->m13C & 2) != 0 : (point->m13C & 1) != 0;
+        if (on == 0) {
+            return -1;
+        }
+    }
+    int flag = lbl_8087F430->fn_80370174(27);
+    int index = -1;
+    for (int i = point->m140.size() - 1; i >= 0; i--) {
+        if (CanStart_unk(FindEvent_unk(point->m140[i]))) {
+            index = i;
+            break;
+        }
+    }
+    if (flag != 0 && index >= 0) {
+        int found = 0;
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(point->m140[index]);
+        const ScriptEventCond_unk* cond = e->mConds;
+        for (int i = 0; i < e->mCount; i++, cond++) {
+            if (cond->m00 == 1 && cond->m04 == 27) {
+                found = 1;
+                break;
+            }
+        }
+        if (found == 0) {
+            index = -1;
+        }
+    }
+    return index;
+}
+
+// inferred: the field value is in the range of the event (name invented)
+static inline bool InEventRange_unk(int event) {
+    const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
+    int value = lbl_8087F430->m10D0;
+    return e->IsAlways_unk() || e->Contains_unk(value);
+}
+
+int GameEventScript::fn_80398530(int event) {
+    return InEventRange_unk(event);
+}
+
 
 // NONMATCHING: 99.4% - volatile registers of the range test reversed (r5-r8), as fn_80398530
 // inferred: the event can start (field value in range and all its conditions; arg 0 tests only the

@@ -55,6 +55,12 @@ struct ScriptPartsFlag_unk {
     unsigned int mFlags;
 };
 
+namespace gs {
+struct EventSphere;
+struct EventBox;
+struct NpcSetPoint;
+} // namespace gs
+
 class GameEventScript : public atn::Task {
 public:
     GameEventScript(atn::Task* parent, const char* path, int area, int map); // 0x803936A4
@@ -66,6 +72,7 @@ public:
     void fn_8039BDB4(int index, const void* data, int size);
     int fn_80398530(int event);          // inferred: the event is done
     int fn_80398590(int event, int arg); // inferred: the event can start
+    inline int CanStart_unk(int event); // inferred: fn_80398590 testing every condition (name invented)
     int fn_8039CCD0(const ScriptCmd_unk* cmd); // inferred: the next enabled command is a choice
     int fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd); // inferred: runs the script from cmd (0: waits)
     inline int FindEvent_unk(int id); // inferred: address of the event `id`, 0 if missing (defined in the .cpp)
@@ -89,6 +96,10 @@ public:
     int fn_8039BF04(int a, int b, int c, int d, int e);
     int fn_8039C7F0(int a, int b, int c, int d, int e); // inferred: condition of a jump
     void fn_803957F0(int id); // inferred: clears the flag 2 of the NPC set point `id`
+    // inferred: index of the last script of the point whose event can start, -1 if none
+    int fn_80395F34(const gs::EventSphere* sphere);
+    int fn_80396298(const gs::EventBox* box);
+    int fn_80396F44(const gs::NpcSetPoint* point);
     void fn_8039F9A4(CharaTask* chara, const ScriptArgs_unk* args);
     void fn_8039FBFC(CharaTask* chara, const ScriptArgs_unk* args);
     // inferred: character named by a script command (kind 0: leader or party member 1, 1: NPC, 2: enemy,
