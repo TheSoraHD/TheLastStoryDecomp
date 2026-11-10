@@ -461,8 +461,23 @@ int NewTitleTask::fn_80533A28(int count, int axis) {
     return prev != mCursorPos;
 }
 
+inline void SetGimmickStates_unk(NewTitleTask* t) {
+    for (unsigned int i = 0; i < t->mGimmicks.size(); i++) {
+        TitleGimmick_unk& e = t->mGimmicks.begin()[i];
+        GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
+        if (g != 0) {
+            g->vf70(e.mState);
+        }
+    }
+}
+inline void SendMsg2_unk(TitleGimmick_unk& e) {
+    GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
+    if (g != 0 && e.mMsg != 0) {
+        GimmickMsg_unk msg(e.mMsg);
+        g->vf40(&msg);
+    }
+}
 // inferred: sets the state (the camera key, the damage effect and the layouts of the state)
-// NONMATCHING: 99.55% - stack slots of the effect position, rotation and colour, registers of the gimmick loop
 void NewTitleTask::fn_80533BDC(int state) {
     mPrevState = mState;
     mState = state;
@@ -471,9 +486,10 @@ void NewTitleTask::fn_80533BDC(int state) {
         mKey = &mKey0;
         fn_80232B7C((unsigned int)this, 0);
         {
-            atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+            atn::Color color;
             atn::Vector3 rot(0.0f, 0.0f, 0.0f);
-            atn::Color color(1.0f, 1.0f, 1.0f, 1.0f);
+            atn::Vector3 pos(0.0f, 0.0f, 0.0f);
+            color.Set_unk(1.0f, 1.0f, 1.0f, 1.0f);
             fn_8023A8B4(lbl_8087F3C0, &mEfp0, 0, 0, pos, rot, color, -1, -1, 1, 1.0f);
         }
         mFrame = 0;
@@ -515,13 +531,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         mCursor->mFrame = 0.0f;
         mCursor->mSpeed = 0.0f;
         mFrame = 0;
-        for (unsigned int i = 0; i < mGimmicks.size(); i++) {
-            TitleGimmick_unk& e = mGimmicks.begin()[i];
-            GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
-            if (g != 0) {
-                g->vf70(e.mState);
-            }
-        }
+        SetGimmickStates_unk(this);
         break;
     case 4:
         mCursor->mSpeed = 1.0f;
@@ -532,12 +542,7 @@ void NewTitleTask::fn_80533BDC(int state) {
         mCursorPos = 0;
         m2BC = 0;
         for (unsigned int i = 0; i < mGimmicks.size(); i++) {
-            TitleGimmick_unk& e = mGimmicks.begin()[i];
-            GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(e.mId, e.mIndex);
-            if (g != 0 && e.mMsg != 0) {
-                GimmickMsg_unk msg(e.mMsg);
-                g->vf40(&msg);
-            }
+            SendMsg2_unk(mGimmicks.begin()[i]);
         }
         break;
     case 10:
