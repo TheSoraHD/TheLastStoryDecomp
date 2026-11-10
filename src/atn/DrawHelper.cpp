@@ -496,7 +496,11 @@ void DrawHelper::fn_8005EEA0(unsigned int color, void* texture, int blend, unsig
     fn_8005EEE0(color, texture, blend, flags, x, y, z, w, h, scaleX, scaleY, rotation, u0, v0, u1, v1);
 }
 
-// NONMATCHING: 99.8% - r3/r4 swapped for the vertex and position addresses in the loop
+static inline void SetVertex_unk(DrawTexVertex_unk* d, const Vector3& p, unsigned int color, const Vector2_unk& uv) {
+    d->mPos = p;
+    d->mColor = color;
+    d->mUV = uv;
+}
 void DrawHelper::fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1) {
     ComDrawTextureAdd* cmd = m04.New_unk<ComDrawTextureAdd>();
     if (cmd == 0) {
@@ -523,9 +527,7 @@ void DrawHelper::fn_8005EEE0(unsigned int color, void* tex, int arg, int flags, 
         pos[i] += center;
         pos[i] = DrawTransform_unk(mA4, pos[i]);
         Vector2_unk uv((i == 0 || i == 3) ? u0 : u1, (i / 2) ? v0 : v1);
-        v[i].mPos = pos[i];
-        v[i].mColor = color;
-        v[i].mUV = uv;
+        SetVertex_unk(&v[i], pos[i], color, uv);
     }
     int blend = 1;
     if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
@@ -680,7 +682,7 @@ void DrawHelper::fn_8005FD80(unsigned int color, void* texture0, void* texture1,
     atn::RenderManager::instance_->AddRender(cmd, mA0, z);
 }
 
-// NONMATCHING: 99.7% - r3/r4 swapped for the vertex and position addresses in the loop
+// NONMATCHING: 99.81% - the ready flag of the texture check (li here, mr of the valid flag in the original)
 void DrawHelper::fn_800602E8(unsigned int color, void* texture, int blend_, unsigned int flags, float x, float y, float z, float w, float h, float cx, float cy, float rot, float u0, float v0, float u1, float v1) {
     ComDrawTextureMono* cmd = m04.New_unk<ComDrawTextureMono>();
     if (cmd == 0) {
@@ -707,9 +709,7 @@ void DrawHelper::fn_800602E8(unsigned int color, void* texture, int blend_, unsi
         pos[i] += center;
         pos[i] = DrawTransform_unk(mA4, pos[i]);
         Vector2_unk uv((i == 0 || i == 3) ? u0 : u1, (i / 2) ? v0 : v1);
-        v[i].mPos = pos[i];
-        v[i].mColor = color;
-        v[i].mUV = uv;
+        SetVertex_unk(&v[i], pos[i], color, uv);
     }
     int blend = 1;
     if (mA0 == 6 || mA0 == 8 || mA0 == 0xD) {
