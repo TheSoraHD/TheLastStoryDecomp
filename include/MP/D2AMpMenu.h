@@ -167,7 +167,10 @@ public:
     void fn_804AF520(int state); // inferred: changes the state
     void fn_804B0A78();          // inferred: closes the windows of the previous state
     void fn_804B12F8();          // inferred: input of the game selection
+    void fn_804B1C88();          // inferred: blinks the side marks, starts the ranking request
     void fn_804B274C();          // inferred: input of the room type
+    void fn_804B2934();          // inferred: input of the own name
+    void OpenKeyboard_unk();     // inferred: opens the keyboard with the own name
     void fn_804B3838();          // inferred: shows the windows of the ranking
     void fn_804B39F8();          // inferred: shows the game selection
     void fn_804B3C78(int before, int after, int back); // inferred: shows the change of side

@@ -1,5 +1,6 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "MP/D2AMpMenu.h"
+#include "MP/MpCampMsgTable_unk.h"
 #include "MP/MpLevel_unk.h"
 #include "game/Inventory.h"
 #include "atn/DrawHelper.h"
@@ -109,12 +110,6 @@ struct MpField_unk {
 extern "C" MpField_unk* lbl_8087F430;
 
 
-// inferred: camp message table (lbl_8087F1E4, see game/MenuCommonTask.cpp)
-struct MpCampMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : MP::lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" MpCampMsgTable_unk* lbl_8087F1E4;
 
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume);
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task

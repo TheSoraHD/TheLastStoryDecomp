@@ -1,5 +1,6 @@
 #include "MP/D2AMpMenu_unk.h"
 #include "MP/D2AMpMenu.h"
+#include "MP/MpCampMsgTable_unk.h"
 #include "MP/D2AMpMenuSetRule.h"
 #include "MP/D2ACommonDialog.h"
 #include "game/MenuCommonTask.h"
@@ -29,12 +30,6 @@ extern "C" void fn_804EA608(MpSession_unk* s, int time, int b);
 extern "C" int fn_804FB620(MpSession_unk* s, int mode); // inferred: highest value of the first rule
 
 
-// inferred: camp message table (lbl_8087F1E4, see game/MenuCommonTask.cpp)
-struct MpCampMsgTable_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : MP::lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" MpCampMsgTable_unk* lbl_8087F1E4;
 
 extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);

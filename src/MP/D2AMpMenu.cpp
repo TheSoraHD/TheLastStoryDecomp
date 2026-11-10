@@ -1,12 +1,14 @@
 // MP/D2AMpMenu.cpp (0x804AE820-0x804B4C50): main multiplayer menu (title, match select, rankings) and
 // the rank mark task. Only part of the functions are reconstructed so far.
 #include "MP/D2AMpMenu.h"
+#include "MP/MpCampMsgTable_unk.h"
 #include "MP/D2AMpMenuFriendRoom.h"
 #include "MP/D2AMpMenuFriend.h"
 #include "MP/D2ACommonDialog.h"
 #include "MP/D2AMpMenuSetMessage.h"
 #include "game/MenuCommonTask.h"
 #include "atn/Csv.h"
+#include "MP/SoftKeyboard.h"
 
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -25,18 +27,12 @@ extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible)
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
 extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: state of a friend
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" int fn_804E4DD4(MpMsgSession_unk* s, int mode, int arg); // inferred: starts the ranking request
+extern "C" void fn_804FB220(int* state, int value); // inferred: changes the state of the session (as atn/PacketPack.cpp)
 extern "C" const wchar_t* fn_804FA8E8(MpMsgSession_unk* s, int value); // inferred: text of a score
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
-// inferred: software keyboard (lbl_8087F860, MP::SoftKeyboard); only the members used here
-struct MpMenuKeyboard_unk : public atn::Task {
-    unsigned char m048[0xFC - 0x48];
-    wchar_t mFC[0x10];  // inferred: text entered
-    unsigned char m11C[0x25B8 - 0x11C];
-    int m25B8;          // inferred: nonzero when the text was decided
-};
-extern "C" MpMenuKeyboard_unk* lbl_8087F860;
 
 namespace MP {
 
@@ -292,6 +288,47 @@ static inline void SendRoomInfo_unk() {
     }
 }
 
+// NONMATCHING: 99.5% - offsets in @stringBase0 (functions before it are not written)
+// inferred: blinks the side marks and starts the ranking request
+void D2AMpMenu::fn_804B1C88() {
+    for (int i = 0; i < 2; i++) {
+        if (mEC[i] != -1) {
+            int v;
+            if (mEC[i] <= 5) {
+                v = mEC[i] * 30;
+            } else {
+                v = 150 - (mEC[i] - 5) * 30;
+            }
+            unsigned int color = 0xFF000000 | (v & 0xFF) << 16 | (v & 0xFF) << 8 | (v & 0xFF);
+            if (i == 0) {
+                m78->SetColor_unk("col0101(1)", color);
+            } else if (i == 1) {
+                m78->SetColor_unk("col0102(1)", color);
+            }
+            mEC[i]++;
+            if (mEC[i] > 10) {
+                mEC[i] = -1;
+            }
+        } else if (i == 0) {
+            m78->SetColor_unk("col0101(1)", 0xFF000000);
+        } else if (i == 1) {
+            m78->SetColor_unk("col0102(1)", 0xFF000000);
+        }
+    }
+    if (mDC == 0) {
+        mDC = fn_804E4DD4(lbl_8087F610, mC8, mE0 != 0);
+        mE0 = 0;
+        if (mDC == 0) {
+            fn_804AF520(0x12);
+            fn_804FB220(&lbl_8087F610->m4FC, 0x2A);
+        }
+        MpRect_unk rect = GetPaneRect_unk(m80, "sb_null_0003(1)");
+        rect.h = 1.0f;
+        fn_801F4728(mB4, "basePos", &rect);
+        SetPaneFloat_unk(&mB4->mLayout, "s_hightMax", 170.0f);
+    }
+}
+
 void D2AMpMenu::fn_804B274C() {
     int decide = Decide_unk(&mE4, 3);
     if (decide == 1) {
@@ -314,6 +351,58 @@ void D2AMpMenu::fn_804B274C() {
         }
     } else if (decide == 2) {
         fn_804AF520(9);
+    }
+}
+
+// inferred: opens the keyboard with the own name
+inline void D2AMpMenu::OpenKeyboard_unk() {
+    for (int i = 2; i < 25; i++) {
+        mEC[i] = -1;
+    }
+    if (lbl_8087F860 == 0) {
+        SoftKeyboard::fn_80502974(this);
+    }
+    lbl_8087F860->SetText_unk(lbl_8087F628->m430.m1C0);
+    lbl_8087F860->fn_805053F8();
+    mDC = 0;
+    m154 = 3;
+}
+
+// inferred: input of the own name
+void D2AMpMenu::fn_804B2934() {
+    switch (m154) {
+    case 0:
+        if (D2ACommonDialog::sInstance->m4C != 0 && D2ACommonDialog::sInstance->fn_804AC734() != 0) {
+            OpenKeyboard_unk();
+        }
+        break;
+    case 1:
+        if (D2ACommonDialog::sInstance->m4C != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C() != 0) {
+                D2ACommonDialog::sInstance->fn_804AC96C(0, 1.0f, 1, 0);
+                D2ACommonDialog::sInstance->fn_804AD000(lbl_8087F1E4->Get_unk(0x39D), 0);
+                D2ACommonDialog::sInstance->fn_804ACD10();
+                m154 = 2;
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC() != 0) {
+                fn_804AF520(2);
+            }
+        }
+        break;
+    case 2:
+        if (D2ACommonDialog::sInstance->m4C != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C() != 0) {
+                OpenKeyboard_unk();
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC() != 0) {
+                fn_804AF520(2);
+            }
+        }
+        break;
+    case 3:
+        if (lbl_8087F860->m25AC == 0) {
+            m154 = 1;
+            fn_804AF520(2);
+        }
+        break;
     }
 }
 
@@ -605,5 +694,4 @@ void D2AMpMenuRankMark::fn_804B49E0(int exp, int index) {
     mMarks[index]->SetColor_unk("col3", mColors[color][2]);
     mMarks[index]->SetColor_unk("col4", mColors[color][2]);
 }
-
 } // namespace MP
