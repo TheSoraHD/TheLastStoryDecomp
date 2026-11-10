@@ -1398,6 +1398,11 @@ int ActionAmbientLight::vf0C(Action* arg, int phase) {
     return 0;
 }
 
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void CloudAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 // inferred: position of the cloud map: actor of parameter 0 (node of parameter 1) plus the offset of
 // parameters 2-4, seen from above
 // NONMATCHING: 99.8% - r3/r4 swapped in the copy of the node position (tried a Vector3 built from the
@@ -1421,7 +1426,7 @@ atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
     if (model != 0) {
         atn::Matrix3x4* mtx = (atn::Matrix3x4*)model->GetNodeMtx_unk(model->fn_800928B0(node, 0));
         if (mtx != 0) {
-            pos = mtx->GetTrans_unk();
+            CloudAssign_unk(pos, mtx->GetTrans_unk());
         }
     }
     pos += offset;

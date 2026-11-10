@@ -975,7 +975,11 @@ void Em204MulueMp::fn_802B596C() {
     }
 }
 
-// NONMATCHING: 99.91% - r3/r4 of the copy of the home (__VecCopy family)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void MulueAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em204MulueMp::fn_802B5DA4() {
     atn::Vector3 d = m15E4 - mPos;
     d.Length_unk();
@@ -1013,7 +1017,7 @@ void Em204MulueMp::fn_802B5DA4() {
                 m14F4 = -1;
             }
             if (m14F4 == -1) {
-                m15E4 = m15D4;
+                MulueAssign_unk(m15E4, m15D4);
             } else {
                 m15E4 = m154C.mData[m14F4]->mPos;
             }

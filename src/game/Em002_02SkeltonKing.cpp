@@ -206,8 +206,11 @@ void Em002_02SkeltonKing::vf3C(HitInfo_unk* hit) {
     }
 }
 
-// NONMATCHING: 99.9% - the copy of `a` swaps r6/r7 (the __VecCopy register family); m620 = m5B0 first fixed
-// the float registers
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void SkelAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em002_02SkeltonKing::vf20() {
     atn::Vector3 a;
     atn::Vector3 b;
@@ -217,7 +220,7 @@ void Em002_02SkeltonKing::vf20() {
     m614.y += m620;
     MtxPtr left = mMotion.GetNodeMtx_unk("leftleg");
     MtxPtr right = mMotion.GetNodeMtx_unk("rightleg");
-    a = (((atn::Matrix3x4*)left)->GetTrans_unk() + ((atn::Matrix3x4*)right)->GetTrans_unk()) * 0.5f;
+    SkelAssign_unk(a, (((atn::Matrix3x4*)left)->GetTrans_unk() + ((atn::Matrix3x4*)right)->GetTrans_unk()) * 0.5f);
     MtxPtr neck = mMotion.GetNodeMtx_unk("neck");
     b = ((atn::Matrix3x4*)neck)->GetTrans_unk();
     b.y -= 10.0f;

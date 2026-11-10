@@ -102,7 +102,11 @@ void HomingBullet::vf0C(int a, int b) {
     }
 }
 
-// NONMATCHING: 99.93% - r3/r4 of the inlined vector copy of the node translation
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void BulletAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void HomingBullet::vf10() {
     float dt = lbl_8087EFA8->mTimeScale;
     if (m94 >= 0.0f) {
@@ -134,7 +138,7 @@ void HomingBullet::vf10() {
                 atn::Model* model = target->GetModel_unk();
                 MtxPtr m = model->GetNodeMtx_unk(model->fn_800928B0(mA0.mNode, 0));
                 if (m != 0) {
-                    pos = GetTrans_unk(m);
+                    BulletAssign_unk(pos, GetTrans_unk(m));
                 }
             }
             atn::Vector3 to = pos - m08;

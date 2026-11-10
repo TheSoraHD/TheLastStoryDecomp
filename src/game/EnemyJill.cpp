@@ -488,7 +488,11 @@ int EnemyJill::fn_8032F204() {
     return result;
 }
 
-// NONMATCHING: 99.89% - r3/r4 of the copy of the free point into m14C0 (known __VecCopy register case)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void JillAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 int EnemyJill::fn_8032F314() {
     if (mC58.mC4 == 0) {
         return 0;
@@ -517,7 +521,7 @@ int EnemyJill::fn_8032F314() {
             from.y += 10.0f;
             dest.y += 10.0f;
             if (fn_8004ED34(world, &hit, &from, &dest, fn_80179D44() | 0x80000000, 0, 0) == 0) {
-                m14C0 = dest;
+                JillAssign_unk(m14C0, dest);
                 m14C0.y -= 10.0f;
                 result = 1;
                 break;

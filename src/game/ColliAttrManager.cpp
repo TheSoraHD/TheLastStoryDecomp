@@ -294,15 +294,19 @@ void ColliAttrManager::fn_801847C0(CharaTask* chara) {
     }
 }
 
-// NONMATCHING: 99.7% - the copy of the sum into `from` uses r3/r4 the other way round
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void ColliAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 int ColliAttrManager::fn_80184864(CollResult_unk* result, CharaTask* chara, int useNode, int node) {
     atn::Vector3 from;
     atn::Vector3 to;
     if (useNode) {
         atn::Model* model = &chara->mMotion;
-        from = NodePos_unk(model->GetNodeMtx_unk(model->fn_800928B0(node, 0))) + atn::Vector3(0.0f, 5.0f, 0.0f);
+        ColliAssign_unk(from, NodePos_unk(model->GetNodeMtx_unk(model->fn_800928B0(node, 0))) + atn::Vector3(0.0f, 5.0f, 0.0f));
     } else {
-        from = chara->mPos + atn::Vector3(0.0f, 5.0f, 0.0f);
+        ColliAssign_unk(from, chara->mPos + atn::Vector3(0.0f, 5.0f, 0.0f));
     }
     to = from + atn::Vector3(0.0f, -15.0f, 0.0f);
     if (mForceAttr >= 0) {

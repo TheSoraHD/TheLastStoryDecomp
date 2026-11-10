@@ -707,7 +707,11 @@ inline int Em203GreaterDaemon::CanFall_unk() {
 static inline int SkillType_unk(HitInfo_unk* skill) {
     return skill->m02;
 }
-// NONMATCHING: 99.90% - r6/r7 crossing on the psq copy of a temporary vector (known blocker)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void DaemonAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em203GreaterDaemon::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
     if (HpRate_unk() < 0.1f && m14C8 == 0) {
@@ -727,7 +731,7 @@ void Em203GreaterDaemon::vf40(HitInfo_unk* hit) {
                 if (dir.Length_unk() > 100.0f) {
                     dir.Normalize_unk();
                     dir *= 20.0f * ((float)(rand() % 1001) / 1000.0f) + 80.0f;
-                    pos = m1500->mPos + dir;
+                    DaemonAssign_unk(pos, m1500->mPos + dir);
                     pos.y += 100.0f;
                 }
             }
@@ -1801,7 +1805,7 @@ void Em203GreaterDaemon::fn_8028FC28() {
     PlayMotion_unk(0x15E, 0, 0, 1.0f);
     atn::Vector3 target = m1978;
     target.y = 200.0f;
-    m151C = target - mPos;
+    DaemonAssign_unk(m151C, target - mPos);
     atn::Vector3 dir(m151C.x, 0.0f, m151C.z);
     dir.Normalize_unk();
     m151C -= dir * 55.0f;

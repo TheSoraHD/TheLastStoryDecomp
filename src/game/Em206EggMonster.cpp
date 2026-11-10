@@ -1130,7 +1130,11 @@ void Em206EggMonster::fn_802C4480() {
     }
 }
 
-// NONMATCHING: 99.6% - r3/r4 of the Vector3 copy to the field (docs/mwcc-blockers.md, 3)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void EggAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em206EggMonster::vfEC() {
     Field_unk* field = lbl_8087F430;
     float frame = mMotion.mTracks[0].m08;
@@ -1161,7 +1165,7 @@ void Em206EggMonster::vfEC() {
             p.y = 5.0f + mPos.y;
         }
         field->mCamera.m834 = this;
-        field->mCamera.m910.mPos = p;
+        EggAssign_unk(field->mCamera.m910.mPos, p);
     }
 }
 
