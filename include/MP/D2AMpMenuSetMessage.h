@@ -13,11 +13,14 @@ struct MpMsgSession_unk {
     int m50C;  // inferred: state of the match (tested with m4FC == 30)
     unsigned char m0510[0x540 - 0x510];
     int m540;  // inferred: game mode
-    unsigned char m0544[0x610 - 0x544];
+    int m544;  // inferred: argument of the lobby (MP/D2AMpMenu.cpp fn_804AF520)
+    unsigned char m0548[0x610 - 0x548];
     MpLevelTable_unk m610; // inferred: experience table
     unsigned char m0618[0x2A50 - 0x618];
     MpMessageTable_unk m2A50;
-    unsigned char m2A50_end[0x99EC - 0x2A50 - sizeof(MpMessageTable_unk)];
+    unsigned char m2A50_end[0x9750 - 0x2A50 - sizeof(MpMessageTable_unk)];
+    int m9750; // inferred: last error (as PPManager2_unk::m9750 in atn/PacketPack.cpp)
+    unsigned char m9754[0x99EC - 0x9754];
     int m99EC; // inferred: pending messages (as PPManager2_unk::m99EC in atn/PacketPack.cpp)
 };
 extern "C" MpMsgSession_unk* lbl_8087F610;

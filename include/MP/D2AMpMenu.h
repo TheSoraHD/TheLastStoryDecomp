@@ -170,6 +170,7 @@ public:
     void fn_804B1528();          // inferred: input of the match selection (state 9)
     void fn_804B1C88();          // inferred: blinks the side marks, starts the ranking request
     void fn_804B1E48();          // inferred: input of the ranking (state 18)
+    void RefreshRanking_unk();   // inferred: copies the received ranking (inline)
     void fn_804B274C();          // inferred: input of the room type
     void fn_804B2934();          // inferred: input of the own name
     void OpenKeyboard_unk();     // inferred: opens the keyboard with the own name
@@ -231,7 +232,8 @@ public:
     int mE0;
     int mE4;
     int mE8;
-    int mEC[25];
+    int mEC[2];              // inferred: blink counters of the side marks
+    int mF4[23];             // inferred: cursor saved for each state (-1: none)
     int m150;
     int m154;
     atn::FixedArray_unk<MpD2A_unk*, 0x40> mTasks; // 0x158
