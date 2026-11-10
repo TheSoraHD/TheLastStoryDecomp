@@ -1584,8 +1584,26 @@ void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int co
 
 // inferred: textured quad of 1x1 centered in the origin, scaled, rotated (z, y, x) and moved to 'pos'
 // (a 3D sprite of game/GameUI); uv0 for the left/top corners, uv1 for the others
-// NONMATCHING: 92.6% - stack slots of the matrices (the original has the locals of the three
-// __MtxRotate before the identity and the products) and the stfsux of the corner
+// NONMATCHING: 96.0% - stack slots of the matrices (the original has the locals of the scale and the
+// corners below the rotation; the rotation and its product in inlines put the three __MtxRotate in place)
+// and the stfsux of the corner
+// inferred: rotation z, then y, then x (name invented)
+static inline void DrawRotateZYX_unk(Matrix3x4& r, const Vector3& rot) {
+    r.SetIdentity();
+    __MtxRotate(r.m, 'z', rot.z);
+    __MtxRotate(r.m, 'y', rot.y);
+    __MtxRotate(r.m, 'x', rot.x);
+}
+static inline void DrawConcat_unk(Mtx mtx, const Mtx m) {
+    Mtx t;
+    PSMTXConcat(mtx, m, t);
+    __MtxCopy(mtx, t);
+}
+static inline void DrawConcatRotate_unk(Mtx mtx, const Vector3& rot) {
+    Matrix3x4 r;
+    DrawRotateZYX_unk(r, rot);
+    DrawConcat_unk(mtx, r.m);
+}
 void DrawHelper::fn_80064AC4(const Vector3& pos, const Vector3& rot, const Vector3& scale, const Vector2_unk& uv0,
                              const Vector2_unk& uv1, unsigned int color, int a, int b, int c, float z) {
     ComDrawD3TextureMask* cmd = m04.New_unk<ComDrawD3TextureMask>();
@@ -1599,14 +1617,7 @@ void DrawHelper::fn_80064AC4(const Vector3& pos, const Vector3& rot, const Vecto
     Mtx mtx;
     Vector3 pts[4];
     PSMTXTrans(mtx, pos.x, pos.y, pos.z);
-    Matrix3x4 r;
-    r.SetIdentity();
-    __MtxRotate(r.m, 'z', rot.z);
-    __MtxRotate(r.m, 'y', rot.y);
-    __MtxRotate(r.m, 'x', rot.x);
-    Mtx t;
-    PSMTXConcat(mtx, r.m, t);
-    __MtxCopy(mtx, t);
+    DrawConcatRotate_unk(mtx, rot);
     Mtx sc;
     PSMTXScale(sc, scale.x, scale.y, scale.z);
     Mtx t2;
