@@ -312,15 +312,22 @@ inline int IsPending_unk(Loader* loader, LoadCore* core) {
     return 0;
 }
 
-// NONMATCHING: 97.6% - registers (this r28, iterator r27, resource r26 in the original). The named
+// NONMATCHING: 98.0% - registers (this r28, end r29 in the original; the locals declared first with the
+// resource last give r26/r27 to it/core as the original). The named
 // end of the first loop gives the loop guard (begin != end) of the original; tried while/for loops,
 // the pending search as goto, as inline helper and over const_iterator, the end of the second loop
 // named, the resource assigned apart.
 void Loader::vf10() {
+    std::list<LoadCore*>::iterator end;
+    std::list<LoadCore*>::iterator it;
+    int count;
+    std::list<PendingLoad_unk>::iterator p;
+    PfsArchive_unk* archive;
+    LoadCore* core;
     fn_8046C1C8();
-    std::list<LoadCore*>::iterator end = mList.end();
-    for (std::list<LoadCore*>::iterator it = mList.begin(); it != end;) {
-        LoadCore* core = *it;
+    end = mList.end();
+    for (it = mList.begin(); it != end;) {
+        core = *it;
         if (core->GetState_unk() == 2) {
             core->vf0C();
         }
@@ -339,9 +346,9 @@ void Loader::vf10() {
             ++it;
         }
     }
-    int count = 0;
-    for (std::list<PendingLoad_unk>::iterator p = mPending.begin(); p != mPending.end();) {
-        PfsArchive_unk* archive = (*p).mArchive;
+    count = 0;
+    for (p = mPending.begin(); p != mPending.end();) {
+        archive = (*p).mArchive;
         if (IsLoaded_unk(archive)) {
             fn_8046C2D4(this, (*p).mArchive, (*p).mCore, (*p).mPath.m, (*p).mIndex);
             p = mPending.erase(p);
