@@ -379,29 +379,22 @@ int GameEventScript::fn_8039CC24(int id) {
 typedef void (GameEventScript::*ScriptCmdFn_unk)(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
 extern "C" const ScriptCmdFn_unk lbl_8074F0B0[];
 
-// NONMATCHING: 48% - the original inlines the recursive call once (keeping &m94->mCmds in a register and
-// reloading the count); this source is not inlined
+// NONMATCHING: 89.8% - block layout of the two returns 0 and the registers of the inlined recursive call
+// (the original keeps &m94->mCmds and reloads the count)
 // inferred: the first enabled command from `cmd` (skipping commands 9) is a choice (7, 8, or 15 with
 // GameConfig_unk::m0B8)
 int GameEventScript::fn_8039CCD0(const ScriptCmd_unk* cmd) {
-    if (cmd == 0) {
-        return 0;
-    }
-    ScriptCmd_unk* end = &m94->mCmds;
-    for (unsigned int i = 0; i < m94->mCmdCount; i++) {
-        end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
-    }
-    if (cmd < end) {
-        if ((cmd->m04 & 1) == 1 || cmd->mCmd == 9) {
-            return fn_8039CCD0((const ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]));
+    if (cmd != 0) {
+        ScriptCmd_unk* end = &m94->mCmds;
+        for (unsigned int i = 0; i < m94->mCmdCount; i++) {
+            end = (ScriptCmd_unk*)((char*)end + lbl_8074ED24[end->mCmd]);
         }
-        if (cmd->mCmd - 7 <= 1) {
-            return 1;
+        if (cmd < end) {
+            if ((cmd->m04 & 1) == 1 || cmd->mCmd == 9) {
+                return fn_8039CCD0((const ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]));
+            }
+            return cmd->mCmd - 7 <= 1 || (lbl_8087F0A8->m0B8 != 0 && cmd->mCmd == 15);
         }
-        if (lbl_8087F0A8->m0B8 != 0 && cmd->mCmd == 15) {
-            return 1;
-        }
-        return 0;
     }
     return 0;
 }
@@ -516,6 +509,76 @@ void GameEventScript::fn_8039D3E0(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: the warp point `id` of the scene of the field (name invented)
+static inline gs::WarpPoint* FindWarpIn_unk(GameScene* scene, int id) {
+    for (unsigned int i = 0; i < scene->m78.size(); i++) {
+        if (id == scene->m78[i].mId) {
+            return &scene->m78[i];
+        }
+    }
+    return 0;
+}
+static inline GameScene* FieldScene_unk() {
+    return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+}
+
+// inferred: puts a character on a warp point of the scene, keeping its collision flag (name invented)
+static inline void WarpChara_unk(CharaTask* chara, gs::WarpPoint* warp) {
+    if (chara->mFlag31) {
+        chara->fn_801539E0();
+    }
+    if (chara->mFlag18) {
+        chara->vf9C(0);
+        chara->vf98();
+    }
+    chara->mPos = warp->mPos;
+    chara->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
+    int colli = chara->mColli.mFlags & 1;
+    chara->fn_80145334();
+    if (colli != 0) {
+        chara->mColli.mFlags |= 1;
+    } else {
+        chara->mColli.mFlags &= ~1;
+    }
+}
+
+// NONMATCHING: 98.7% - the warp point takes r31 and cmd/result r30/r29 (original: cmd r31, result r30,
+// warp r29)
+// inferred: warps a character (m0C: 0 the leader, 1 the npc, 2 the enemy, 3 the friend with id m10) to
+// the warp point m08 of the scene
+void GameEventScript::fn_8039D4C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    gs::WarpPoint* warp = FindWarpIn_unk(mScene, args->m08);
+    if (args->m0C == 0) {
+        CharaTask* leader = lbl_8087F8A0->mHead;
+        WarpChara_unk(leader, warp);
+        lbl_8087F430->mCamera.fn_8037EF30(1, 1, -1.0f);
+    } else if (args->m0C == 1) {
+        for (NpcTask* npc = NpcManager::sInstance->mHead; npc != 0; npc = npc->mNext) {
+            if (args->m10 == npc->m58) {
+                WarpChara_unk(npc, warp);
+                break;
+            }
+        }
+    } else if (args->m0C == 2) {
+        for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+            if (args->m10 == enemy->m58) {
+                WarpChara_unk(enemy, warp);
+                break;
+            }
+        }
+    } else if (args->m0C == 3) {
+        for (CharaTask* chara = FriendManager::sInstance->fn_8036554C(); chara != 0;
+             chara = ((EnemyTask*)chara)->mNext) {
+            if (args->m10 == chara->m58) {
+                WarpChara_unk(chara, warp);
+                break;
+            }
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_8039D930(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     fn_8036F268(lbl_8087F430, args->m08, args->m0C, args->m10, args->m14, args->m18, 0, 0x12, 0);
@@ -581,6 +644,54 @@ void GameEventScript::fn_8039E280(ScriptResult_unk& result, const ScriptCmd_unk*
         result.mWait = 0;
     }
     result.mNext = NextCmd_unk(cmd);
+}
+
+// inferred: arguments of the choice command (names invented)
+struct ScriptChoiceArgs_unk : public ScriptCmd_unk {
+    int m08;
+    int mKind[4];  // 0x0C: 0 goes on, 1 ends, else jumps to the label mLabel
+    int mLabel[4]; // 0x1C
+    int mTimeout;  // 0x2C: frames before the last choice is taken (0: none)
+};
+
+// NONMATCHING: 92% - the inlined fn_8039CCD0 differs as that function does, and the label search
+// branches/registers
+// inferred: waits for the choice of the message window and picks the next command from it
+void GameEventScript::fn_8039E328(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptChoiceArgs_unk* args = static_cast<const ScriptChoiceArgs_unk*>(cmd);
+    GameMessageWindow* window = lbl_8087F490->m263C;
+    if (mA8 != 0) {
+        result.SetNext_unk(cmd, 1);
+        int choice = -1;
+        mB4++;
+        if (window->mChoices->fn_803B4C24()) {
+            choice = window->mChoices->mChoice;
+            fn_803935FC(0, 1.0f);
+        }
+        if (mB4 >= args->mTimeout && args->mTimeout > 0) {
+            choice = window->mChoices->mCount - 1;
+        }
+        if (choice >= 0) {
+            int kind = args->mKind[choice];
+            if (kind == 0) {
+                mAC = NextCmd_unk(cmd);
+            } else if (kind == 1) {
+                mAC = 0;
+            } else {
+                mAC = FindLabel_unk(args->mLabel[choice]);
+            }
+            mA8 = 0;
+            window->fn_803B57EC();
+            if (!fn_8039CCD0(mAC)) {
+                lbl_8087F490->m263C->fn_803B57B0(0);
+                lbl_8087F8A0->mHead->fn_8016E970(1);
+            }
+        }
+    } else {
+        result.mNext = mAC;
+        int state = window->mState;
+        result.mWait = !(state == 2 || state == 4 || state == 0);
+    }
 }
 
 void GameEventScript::fn_8039E80C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -1476,18 +1587,6 @@ struct ScriptWarpArgs_unk : public ScriptCmd_unk {
     int m28;
 };
 
-// inferred: the warp point `id` of the scene of the field (name invented)
-static inline gs::WarpPoint* FindWarpIn_unk(GameScene* scene, int id) {
-    for (unsigned int i = 0; i < scene->m78.size(); i++) {
-        if (id == scene->m78[i].mId) {
-            return &scene->m78[i];
-        }
-    }
-    return 0;
-}
-static inline GameScene* FieldScene_unk() {
-    return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
-}
 
 // inferred: waits while the character m08/m0C moves (m10 <= 7); when it is stuck for 90 frames it is
 // warped (2: next to the character m18/m1C at least m20 away, 4: to the scene position, 5: to the

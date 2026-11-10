@@ -252,7 +252,8 @@ public:
     ScriptData_unk* m94; // inferred: compiled script of the running event
     unsigned char m98[0xA8 - 0x98];
     int mA8; // inferred: a message window is open
-    unsigned char mAC[0xB4 - 0xAC];
+    ScriptCmd_unk* mAC; // inferred: command after the choice of the message window
+    unsigned char mB0[0xB4 - 0xB0];
     int mB4;
     int mB8; // inferred: step of the running command
     int mBC;
