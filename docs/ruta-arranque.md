@@ -1,7 +1,7 @@
 # Ruta de arranque: de `main()` a la pantalla de titulo
 
 Estado de todo lo que se ejecuta desde `main()` (game/main.cpp) hasta la pantalla de titulo
-(game/NewTitleTask), al cierre de `arranque-20261109`. Las tablas salen de `tools/decomp/ruta_arranque.py`
+(game/NewTitleTask), al cierre de `arranque2-20261110` (columna "100 % antes": al empezar esa sesion). Las tablas salen de `tools/decomp/ruta_arranque.py`
 (volver a generarlas con `python3 tools/decomp/ruta_arranque.py` tras un `ninja` completo).
 
 ## Recorrido
@@ -22,34 +22,34 @@ Estado de todo lo que se ejecuta desde `main()` (game/main.cpp) hasta la pantall
 
 | Unidad | 100 % | casi (>= 99 %) | total | DRAFT | enlaza | 100 % antes |
 |---|---|---|---|---|---|---|
-| `game/main` | 11 | 2 | 14 | 0 | no | 11 |
-| `atn/Task` | 13 | 3 | 25 | 0 | no | 12 |
-| `atn/Loader` | 23 | 5 | 31 | 0 | no | 21 |
-| `atn/FileList` | 21 | 2 | 27 | 0 | no | 20 |
-| `atn/FileUtil_unk` | 10 | 1 | 16 | 0 | no | 9 |
-| `atn/NandManager` | 32 | 1 | 34 | 0 | no | 32 |
+| `game/main` | 12 | 1 | 14 | 0 | no | 11 |
+| `atn/Task` | 16 | 1 | 25 | 0 | no | 13 |
+| `atn/Loader` | 23 | 6 | 31 | 0 | no | 23 |
+| `atn/FileList` | 21 | 2 | 27 | 0 | no | 21 |
+| `atn/FileUtil_unk` | 10 | 1 | 16 | 0 | no | 10 |
+| `atn/NandManager` | 33 | 1 | 34 | 0 | no | 32 |
 | `atn/LinearAllocator` | 24 | 0 | 24 | 0 | si | 24 |
 | `atn/ResRef_unk` | 5 | 0 | 5 | 0 | si | 5 |
-| `game/GameConfig_unk` | 11 | 0 | 15 | 0 | no | 11 |
-| `game/SystemErrorMessage_unk` | 9 | 1 | 11 | 0 | no | 9 |
-| `game/GameSystem_unk` | 6 | 1 | 7 | 0 | no | 10 |
+| `game/GameConfig_unk` | 12 | 1 | 15 | 0 | no | 11 |
+| `game/SystemErrorMessage_unk` | 10 | 1 | 11 | 0 | no | 9 |
+| `game/GameSystem_unk` | 7 | 0 | 7 | 0 | si | 6 |
 | `game/SetConfig` | 8 | 0 | 8 | 0 | si | 8 |
 | `game/HeapInfo_unk` | 4 | 0 | 4 | 0 | si | 4 |
 | `game/HomeButtonMenu` | 5 | 0 | 5 | 0 | si | 5 |
-| `atn/GraphicsDevice` | 30 | 6 | 41 | 0 | no | 26 |
-| `atn/RenderSystem_unk` | 30 | 2 | 37 | 0 | no | 20 |
-| `atn/DrawHelper` | 54 | 6 | 68 | 0 | no | 54 |
+| `atn/GraphicsDevice` | 32 | 5 | 41 | 0 | no | 30 |
+| `atn/RenderSystem_unk` | 31 | 2 | 37 | 0 | no | 30 |
+| `atn/DrawHelper` | 57 | 3 | 68 | 0 | no | 54 |
 | `atn/D2A_Manager` | 18 | 0 | 21 | 0 | no | 18 |
-| `atn/AudioDevice` | 49 | 3 | 56 | 0 | no | 44 |
-| `atn/SoundManager` | 69 | 5 | 76 | 0 | no | 68 |
+| `atn/AudioDevice` | 56 | 0 | 56 | 0 | si | 49 |
+| `atn/SoundManager` | 71 | 3 | 76 | 0 | no | 69 |
 | `atn/Pad_unk` | 15 | 0 | 17 | 0 | no | 15 |
-| `atn/MindowsCommon` | 57 | 0 | 57 | 0 | si | 50 |
-| `atn/SequenceHolder` | 8 | 1 | 11 | 0 | no | 7 |
+| `atn/MindowsCommon` | 57 | 0 | 57 | 0 | si | 57 |
+| `atn/SequenceHolder` | 8 | 1 | 11 | 0 | no | 8 |
 | `atn/SequenceUnitParam1_const_int` | 34 | 3 | 37 | 0 | no | 34 |
-| `game/BootTask` | 4 | 0 | 4 | 0 | si | 0 |
+| `game/BootTask` | 4 | 0 | 4 | 0 | si | 4 |
 | `game/StrapTask` | 5 | 0 | 6 | 0 | no | 5 |
-| `game/NewTitleTask` | 2 | 3 | 9 | 0 | no | 1 |
-| **total** | 557 | 45 | 666 | 0 | 7 de 27 | 523 |
+| `game/NewTitleTask` | 3 | 2 | 9 | 0 | no | 2 |
+| **total** | 581 | 33 | 666 | 0 | 9 de 27 | 557 |
 
 ## Librerias que llama la ruta
 
@@ -147,22 +147,23 @@ un contador atomico normal).
 
 ## Que falta para enlazar la ruta
 
-- Unidades que no enlazan: todas las de la tabla con "no". Casi todas tienen funciones al 99,x % por
-  registros o por el orden de las instrucciones (bloqueos de MWCC en `docs/mwcc-blockers.md`).
-- `game/main` `fn_8047A4C8` (76,1 %): con `RegistFrameCallbacks_unk` inline (Create + 3 `push_back` de
-  `boost::bind`); faltan los constructores de `boost::function`, que el original deja fuera de linea.
-- atn/SequenceHolder: ya usa `boost::lambda` de Boost 1.35.0 (`libs/boost`); `fn_800C3D74` al 100 %,
-  `fn_800C3E84` al 98,07 %; el constructor y `fn_800C3990` siguen por `std::vector`.
-- atn/RenderSystem_unk: `fn_800BC618` al 97,92 % (registros guardados); `fn_800BDBC8`: constantes del
-  area segura plegadas por MWCC.
-- atn/GraphicsDevice `fn_80072BDC` (93,97 %), atn/FileUtil_unk `fn_80069060` (82,56 %) y `fn_80068DB0`
-  (93,12 %), atn/Loader `fn_8046E410` (99,10 %), atn/AudioDevice `fn_80046228`/GetLabel (99,3/98,7 %),
-  atn/NandManager `fn_800A4244` (98,02 %: orden de la carga de `rect.w` frente a `data()`).
-- atn/SoundManager `fn_800CB800`/`fn_800CBE8C`/`fn_800CC518` (99,90 %): la segunda inline (volumen) intercambia
-  indice y gestor (r30/r31); una inline libre con el indice primero arregla los registros pero cambia el orden de
-  los temporales de `boost::bind` en la pila.
-- Bloqueos conocidos: GameSystem `fn_80570CF8` (99,93), Pad `fn_800A58D0`/`fn_800A58F8` (orden de
-  registros), Util `fn_800DC12C` (`b` inicial), Task `fn_800D2C50` (registros de la recursion inline).
+Al cierre de `arranque2-20261110` no queda ninguna funcion de la ruta sin escribir ni borrador: las 85 que no estan
+al 100 % hacen lo mismo que el original (33 al 99-99,9 %, 46 al 90-99 %, 6 por debajo del 90 %).
+
+- Las que estan mas lejos: `game/main` `fn_8047A4C8` (76 %: los constructores de `boost::function` que el original
+  deja fuera de linea), atn/FileUtil_unk `fn_80069060` (84 %) y el constructor de `std::string` de la unidad (82 %),
+  el constructor de `RenderManager` (89 %), `NewTitleTask` vf0C/vf10 (82/89 %: el original llama fuera de linea a
+  los `operator=` de `Texture`/`GodRay`/`HazeParam_unk` dentro de la copia de `atn::Scene`; declararlos rompe copias
+  debiles de NewCampPartsGmk).
+- Una sola funcion por unidad: atn/NandManager vf10 (99,95 %: temporales de `std::string` de los estados 17/19),
+  game/SystemErrorMessage_unk `fn_803646C4` (99,86 %: r27/r29 del contador del bucle; 864 ordenes de declaracion
+  probados).
+- Reparto de registros sin resolver: atn/Pad_unk `fn_800A58D0`/`fn_800A58F8`, game/GameConfig_unk
+  `fn_801856B8` (99,67 %) y el constructor (255 en r30), atn/D2A_Manager `__sinit` y `fn_801F10E0`, game/StrapTask
+  vf14 (FPR), atn/FileList `rfind`, atn/Task (familias `fn_800D498C`/`fn_800D51EC`/`fn_800D4280`/`fn_800D2C50`),
+  atn/SequenceHolder y SequenceUnitParam1 (`std::vector::push_back`: capacidad antes que tamano).
+- El truco de `arranque2-20261110` (copia de `Vector3` a traves de una inline, `tools/decomp/asgwrap.py`) cerro
+  DrawHelper `fn_800641CC`/`fn_8006471C`; pasado a las 54 funciones de la ruta al 90-99,9 % no cierra ninguna mas.
 - Las capas de render (`IRenderLayer`) tienen copias locales con firmas distintas en atn/LayerShadow y
   atn/LayerOcclusionCPU; unificarlas en `include/atn/Layer3D.h` permitiria llamar a `vf10`/`vf14`/`vf18`
   sin cast desde `RenderManager::fn_800BDBC8`.
