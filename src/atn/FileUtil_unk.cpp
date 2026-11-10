@@ -324,7 +324,16 @@ void DebugMessages_unk::fn_80069D48(const char* text) {
     Add_unk(text, 0xFF00FFFF);
 }
 
-// NONMATCHING: ~90% - register allocation of the loops
+// inferred: removes a message, moving the next ones down (name invented)
+inline void EraseMessage_unk(DebugMessages_unk* m, DebugMessage_unk* msg) {
+    for (unsigned int i = msg - m->mMessages; i < m->mCount - 1; i++) {
+        m->mMessages[i].mText = m->mMessages[i + 1].mText.mStr;
+        m->mMessages[i].mTimer = m->mMessages[i + 1].mTimer;
+        m->mMessages[i].mColor = m->mMessages[i + 1].mColor;
+    }
+    m->mCount = m->mCount - 1;
+}
+// NONMATCHING: 98.49% - register allocation of the loops (the erase in an inline: 98.35 -> 98.49)
 void DebugMessages_unk::fn_80069E50(int draw) {
     if (draw != 0) {
         for (unsigned int i = 0; i < mCount; i++) {
@@ -334,12 +343,7 @@ void DebugMessages_unk::fn_80069E50(int draw) {
     DebugMessage_unk* msg = mMessages;
     while (msg != &mMessages[mCount]) {
         if (--msg->mTimer <= 0) {
-            for (unsigned int i = msg - mMessages; i < mCount - 1; i++) {
-                mMessages[i].mText = mMessages[i + 1].mText.mStr;
-                mMessages[i].mTimer = mMessages[i + 1].mTimer;
-                mMessages[i].mColor = mMessages[i + 1].mColor;
-            }
-            mCount = mCount - 1;
+            EraseMessage_unk(this, msg);
         } else {
             msg++;
         }

@@ -734,14 +734,18 @@ extern "C" void fn_80046220(int result, unsigned long arg) {
 extern "C" void fn_80046224(int result, unsigned long arg) {
 }
 
-// NONMATCHING: 99.29% - registros del vector, del indice y del elemento en el bucle de callbacks
+// inferred: calls every per-frame callback (same inline as game/main.cpp; name invented)
+inline void CallAll_unk(FrameCallbacks_unk* callbacks) {
+    for (unsigned int i = 0; i < callbacks->size(); i++) {
+        (*callbacks)[i]();
+    }
+}
+
 // inferred: wait callback of the sound archive: runs the per-frame callbacks and sleeps 1 ms
 extern "C" void fn_80046228() {
     FrameCallbacks_unk* callbacks = lbl_8087EE94;
     if (callbacks != 0) {
-        for (unsigned int i = 0; i < callbacks->size(); i++) {
-            (*callbacks)[i]();
-        }
+        CallAll_unk(callbacks);
     }
     OSSleepTicks((*(unsigned long*)0x800000F8 / 4) / 1000);
 }
@@ -1434,7 +1438,8 @@ extern "C" void fn_8004A03C(AudioDevice* audio) {
 }
 
 
-// NONMATCHING: 98.79% - registros nodo/resultado en la busqueda del mapa
+// NONMATCHING: 98.79% - registros nodo/resultado en la busqueda del mapa (con `result` declarado antes que
+// `node` en find sale al 100 %, pero bajan otras siete funciones que usan el mismo find)
 // inferred: selects the reverb preset (0: none)
 extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
     if (audio->m408 == 0) {
