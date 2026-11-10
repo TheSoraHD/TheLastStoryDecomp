@@ -34,7 +34,7 @@ public:
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
 
-    void fn_8041E480(float t); // inferred: places the entries; not decompiled yet
+    void fn_8041E480(float t); // inferred: places the entries
     void fn_8041E7E4(int on);  // inferred: switches the parts of type 5
 
     MapTask* mGroup; // 0xF4

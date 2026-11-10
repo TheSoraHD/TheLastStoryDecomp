@@ -19,6 +19,29 @@ struct Params_unk {
 };
 extern "C" Params_unk* lbl_8087EFA8;
 
+// inferred: a macro (the inner maximum is evaluated twice)
+#define __MAX_unk(a, b) ((a) > (b) ? (a) : (b))
+// inferred: sets the translation of a matrix (name invented)
+inline void __SetTrans_unk(atn::Matrix3x4& m, const atn::Vector3& v) {
+    m.m[0][3] = v.x;
+    m.m[1][3] = v.y;
+    m.m[2][3] = v.z;
+}
+
+// inferred: length of a column of a matrix (name invented)
+inline float ColLen_unk(const atn::Matrix3x4& mtx, int i) {
+    atn::Vector3 v(mtx.m[0][i], mtx.m[1][i], mtx.m[2][i]);
+    return PSVECMag(&v);
+}
+// inferred: largest scale of the axes of a matrix (name invented)
+inline float MaxScale_unk(const atn::Matrix3x4& mtx) {
+    float sz = ColLen_unk(mtx, 2);
+    float sy = ColLen_unk(mtx, 1);
+    float sx = ColLen_unk(mtx, 0);
+    atn::Vector3 s(sx, sy, sz);
+    return __MAX_unk(s.x, __MAX_unk(s.y, s.z));
+}
+
 namespace gmk {
 
 GimmickCommon* ArenaFloor::fn_8041DDE4(atn::Task* parent, int id, int arg) {
@@ -101,8 +124,8 @@ void ArenaFloor::Start() {
     vf40(&msg);
 }
 
-// The original calls fn_8041E7E4 out of line here and in vf40 (__declspec(noinline) on it; with
-// fn_8041E480 written the inlining budget might do the same).
+// The original calls fn_8041E7E4 out of line here and in vf40 (__declspec(noinline) on it; still
+// needed with fn_8041E480 written).
 void ArenaFloor::vf10() {
     if (m54 == 0) {
         Start();
@@ -129,6 +152,35 @@ void ArenaFloor::vf10() {
                 GimmickMsg_unk msg(1);
                 vf40(&msg);
             }
+        }
+    }
+}
+
+// inferred: places the entries at their position plus `t` times the offset
+void ArenaFloor::fn_8041E480(float t) {
+    Entry_unk* e;
+    atn::Model* model;
+    for (unsigned int i = 0; i < mEntries.mSize; i++) {
+        e = &mEntries.mData[i];
+        switch (e->mType) {
+        case 0: {
+            model = (atn::Model*)e->mObject;
+            atn::Matrix3x4 mtx = *(atn::Matrix3x4*)model->mMtx.m;
+            __SetTrans_unk(mtx, e->mPos + mOffset * t);
+            __MtxCopy(model->mMtx.m, mtx.m);
+            model->m54 = MaxScale_unk(mtx);
+            ((atn::Model*)e->mObject)->CalcMatrixStack(atn::ModelNodeCallback_unk());
+            break;
+        }
+        case 4: {
+            atn::Matrix3x4 mtx = ((atn::ModelInstance*)e->mObject)->mMtx;
+            __SetTrans_unk(mtx, e->mPos + mOffset * t);
+            ((atn::ModelInstance*)e->mObject)->fn_8009EE30(mtx);
+            break;
+        }
+        case 5:
+            ((GimmickCommon*)e->mObject)->m6C = e->mPos + mOffset * t;
+            break;
         }
     }
 }
