@@ -35,9 +35,9 @@ struct ScriptEntry40_unk {
 };
 // inferred: state of an event sphere of the scene (12 bytes; names invented)
 struct ScriptSphereState_unk {
-    int mScript; // inferred: index of the script picked in the sphere, -1 if none
-    int m04;
-    int m08;
+    int mScript;     // inferred: index of the script picked in the sphere, -1 if none
+    unsigned int m04; // inferred: flags (0x20: the leader can start its talk event)
+    float m08;
 };
 // inferred: 0x14-byte record of GameEventScript::m12C (names invented)
 struct ScriptRecord14_unk {
@@ -99,6 +99,7 @@ public:
     int fn_803AC3D8(CharaTask* chara, atn::Vector3* line, int wait, float range);
     int fn_803AC708(CharaTask* chara);
     int fn_803AC978(CharaTask* chara);
+    void fn_8039AF50(); // inferred: finds the talk event sphere of the leader
     inline int HasTalkEvent_unk(atn::SimpleArray<gs::NpcSetPoint>& points, atn::SimpleArray<ScriptNpcFlag_unk>& flags,
                                 CharaTask* chara); // inferred: helper of fn_803AC978 (name invented)
     void fn_803ACD08();
@@ -304,7 +305,7 @@ public:
     int mE8; // inferred: an event of the event manager is running
     int mEC;
     int mF0;
-    int mF4;
+    struct ScriptSphereState_unk* mF4; // inferred: nearest talk event sphere of the leader (fn_8039AF50)
     int mF8;
     atn::SimpleArray<ScriptEntry40_unk> mFC; // inferred: records of 0x40 bytes
     unsigned char m104[0x10C - 0x104];
