@@ -40,6 +40,10 @@
 #include "game/SongManager.h"
 #include "game/MiniMapTask.h"
 #include "game/AiTarget.h"
+#include "game/EquipItemData.h"
+#include "atn/DebugMessages_unk.h"
+#include "game/ChaseManager.h"
+#include "game/ChaserNpc.h"
 
 #include <exception>
 
@@ -77,6 +81,8 @@ extern "C" ArenaTask* lbl_8087EE78;
 extern "C" int fn_80444020(Inventory* party, int item, int a, int b, int c, int d, int* outA, int* outB,
                            int* outC); // inferred: adds an item (as in game/BattleResult.cpp)
 extern "C" int rand();
+extern "C" int atoi(const char* s);
+extern "C" int sprintf(char* buf, const char* format, ...);
 extern "C" void fn_801092C8(BattleTask* battle, int kind, int arg, int value, int arg4); // inferred: battle log entry
 extern "C" void* lbl_8087EF70;                                     // inferred: pad input
 extern "C" int fn_800A555C(void* pad, int port, int button);       // inferred: button triggered
@@ -159,6 +165,13 @@ struct ScriptFollowArgs_unk : public ScriptCmd_unk {
     int m18;
     float m1C; // inferred: distance
     int m20;   // inferred: 1 stops
+};
+// inferred: view of the node command (fn_803A4568; names invented)
+struct ScriptNodeArgs_unk : public ScriptCmd_unk {
+    int m08;
+    int m0C;
+    char mName[0x20]; // 0x10
+    int m30;          // inferred: 0 shows
 };
 struct ScriptMotionArgs_unk : public ScriptCmd_unk {
     int m08;
@@ -937,6 +950,40 @@ void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     result.mWait = 0;
 }
 
+// NONMATCHING: 99.9% - only the offsets of the two strings in the pool (other strings of the file not written yet)
+// inferred: shows (m30 0) or hides a node of the model of a character; "@eqN" names the equipped
+// item N (its flag is set instead)
+void GameEventScript::fn_803A4568(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptNodeArgs_unk* args = static_cast<const ScriptNodeArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    if (chara != 0) {
+        atn::Model* model = &chara->mMotion;
+        char name[0x20];
+        memcpy(name, args->mName, sizeof(name));
+        if (name[0] == '@') {
+            if (strncmp(name, "@eq", 3) == 0) {
+                int i = atoi(name + 3);
+                EquipItemData* item = i < (int)chara->m6A4.mCount ? chara->m6A4.mData[i] : 0;
+                if (item != 0) {
+                    item->mFlags.mFlag = args->m30 == 0;
+                } else {
+                    char text[0x100];
+                    sprintf(text, "OptionParts not found! <%s>", name);
+                    lbl_8087EEB8->fn_800697D8(text);
+                }
+            }
+        } else if (model->GetNodeNoByName(name, 0) >= 0) {
+            model->fn_80093B88(name);
+            model->fn_8009373C(name, args->m30 == 0);
+        } else {
+            char text[0x100];
+            sprintf(text, "OptionParts not found! <%s>", name);
+            lbl_8087EEB8->fn_800697D8(text);
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: plays the sound named in the command for the field (bit 0 of m2C: stops the sounds of
 // the field instead; "SE_VOTWN_041" stops them first)
 // NONMATCHING: 99.9% - only the offset of "SE_VOTWN_041" in the string pool (other strings of the file not written yet)
@@ -1113,6 +1160,67 @@ void GameEventScript::fn_803A5A10(ScriptResult_unk& result, const ScriptCmd_unk*
     GameMessage* msg = (GameMessage*)mScene->fn_803CC6B4(static_cast<const ScriptArgs_unk*>(cmd)->m0C);
     if (msg != 0) {
         lbl_8087F048->fn_80109828(msg->mText);
+    }
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 99.8% - the jump table label and registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: settings of the chase and of the game config, with the value (m10, m0C, as fn_803A6CDC)
+void GameEventScript::fn_803A5CDC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = ScriptValue_unk(args->m10, args->m0C);
+    switch ((unsigned int)args->m08) {
+    case 0:
+        if (lbl_8087F098 != 0 && value != 0) {
+            lbl_8087F098->fn_801826E0();
+        } else {
+            lbl_8087F098->fn_80182890();
+        }
+        break;
+    case 1:
+        break;
+    case 2:
+        if (lbl_8087F098 != 0) {
+            lbl_8087F098->fn_80183618(value);
+        }
+        break;
+    case 3:
+        if (lbl_8087F098 != 0) {
+            lbl_8087F098->fn_80183588(value);
+        }
+        break;
+    case 4:
+        lbl_8087F0A8->m4DC.m38 = value;
+        break;
+    case 5:
+        lbl_8087F0A8->m4DC.m08 = value;
+        break;
+    case 6:
+        lbl_8087F0A8->m4DC.m04 = value;
+        break;
+    case 7:
+        lbl_8087F0A8->m4DC.m0C = 0.017453292f * value;
+        break;
+    case 8:
+        if (ChaserNpc::fn_8018059C() != 0) {
+            if (value == 1) {
+                ChaserNpc::fn_8018059C()->fn_80181284();
+            } else if (value == 0) {
+                ChaserNpc::fn_8018059C()->fn_8018120C();
+            }
+        }
+        break;
+    case 9:
+        lbl_8087F0A8->m53C.m44 = value;
+        break;
+    case 10:
+        lbl_8087F0A8->m53C.m40 = value;
+        break;
+    case 11:
+        if (lbl_8087F098 != 0) {
+            lbl_8087F098->fn_80183774(value);
+        }
+        break;
     }
     result.SetNext_unk(cmd);
 }
