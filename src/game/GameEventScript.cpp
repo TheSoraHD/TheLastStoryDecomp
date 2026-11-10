@@ -294,11 +294,15 @@ void GameEventScript::fn_803957F0(int id) {
     }
 }
 
-// NONMATCHING: 98% - registers of the field value and of the minimum swapped
-int GameEventScript::fn_80398530(int event) {
+// inferred: the field value is in the range of the event (name invented)
+static inline bool InEventRange_unk(int event) {
     const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
     int value = lbl_8087F430->m10D0;
     return e->IsAlways_unk() || e->Contains_unk(value);
+}
+
+int GameEventScript::fn_80398530(int event) {
+    return InEventRange_unk(event);
 }
 
 // inferred: a condition of an event (names invented)
@@ -323,8 +327,8 @@ int GameEventScript::fn_80398590(int event, int arg) {
     int ok = 0;
     if (event != 0) {
         const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)event;
-        bool pass = true;
         int value = lbl_8087F430->m10D0;
+        bool pass = true;
         if (!e->IsAlways_unk() && !e->Contains_unk(value)) {
             pass = false;
         }
@@ -405,8 +409,7 @@ int GameEventScript::fn_8039C7F0(int kind, int flag, int op, int type, int value
     return result;
 }
 
-// NONMATCHING: 97.8% - the original loads the value of the node before the block address
-int GameEventScript::fn_8039CC24(int id) {
+inline int GameEventScript::FindEvent_unk(int id) {
     ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m80;
     ScriptEventNode_unk* node = m80;
     while (node != 0) {
@@ -421,9 +424,14 @@ int GameEventScript::fn_8039CC24(int id) {
         found = (ScriptEventNode_unk*)&m80;
     }
     if (found != (ScriptEventNode_unk*)&m80) {
-        return m64[id / 10000] + found->mValue;
+        int* base = &m64[id / 10000];
+        return *base + found->mValue;
     }
     return 0;
+}
+
+int GameEventScript::fn_8039CC24(int id) {
+    return FindEvent_unk(id);
 }
 
 // inferred: handlers of the commands, by index (member function pointers in .rodata)
@@ -1729,14 +1737,18 @@ void GameEventScript::fn_803A2600(ScriptResult_unk& result, const ScriptCmd_unk*
     }
 }
 
-// NONMATCHING: 97.8% - registers of the index and of the entry offset swapped
-ScriptEntry40_unk* GameEventScript::fn_803A2DD8(int id) {
-    for (unsigned int i = 0; i < mFC.size(); i++) {
-        if (id == mFC[i].mId) {
-            return &mFC[i];
+// inferred: the record `id` of an array, null if missing (name invented)
+static inline ScriptEntry40_unk* FindEntry_unk(atn::SimpleArray<ScriptEntry40_unk>& array, int id) {
+    for (unsigned int i = 0; i < array.size(); i++) {
+        if (id == array[i].mId) {
+            return &array[i];
         }
     }
     return 0;
+}
+
+ScriptEntry40_unk* GameEventScript::fn_803A2DD8(int id) {
+    return FindEntry_unk(mFC, id);
 }
 
 // inferred: arguments of the wait-and-warp command (name invented)
@@ -3745,13 +3757,12 @@ void GameEventScript::fn_803ACD08() {
     }
 }
 
-// NONMATCHING: 98.4% - registers of the inlined fn_8039CC24 (same difference as that function)
 // inferred: the event `id` has a condition of kind -2
 int GameEventScript::fn_803ACD50(int id) {
-    const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)fn_8039CC24(id);
+    const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(id);
     if (e != 0) {
         for (int i = 0; i < e->mCount; i++) {
-            if (e->mConds[i].m10 == -2) {
+            if (e->mConds[i].m00 == -2) {
                 return 1;
             }
         }
