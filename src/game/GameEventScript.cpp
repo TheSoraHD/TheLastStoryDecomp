@@ -2238,18 +2238,22 @@ void GameEventScript::fn_803A47A4(ScriptResult_unk& result, const ScriptCmd_unk*
 }
 
 // inferred: sends the members of the team (m08, m0C) away (state 1 of the group: m08...)
-// NONMATCHING: 96.1% - registers (r26-r29) of the leader, the team and the member pointer
-void GameEventScript::fn_803A48A8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
-    int wait = 0;
+void GameEventScript::fn_803A48A8(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
+    TeamAI_unk* team;
+    TeamChara_unk** members;
+    int wait;
+    CharaTask* leader;
+    wait = 0;
     if (args->m08 == 2) {
-        CharaTask* leader = lbl_8087F8A0->mHead;
-        TeamAI_unk* team = lbl_8087FA00->Find_unk(args->m08, args->m0C);
+        leader = lbl_8087F8A0->mHead;
+        team = lbl_8087FA00->Find_unk(args->m08, args->m0C);
         if (team != 0) {
             float best = 0.0f;
             CharaTask* far = 0;
-            for (int i = 0; i < team->mNumMembers; i++) {
-                CharaTask* member = (CharaTask*)team->mMembers[i]; // inferred: TeamChara_unk is a view of CharaTask
+            members = team->mMembers;
+            for (int i = 0; i < team->mNumMembers; members++, i++) {
+                CharaTask* member = (CharaTask*)*members; // inferred: TeamChara_unk is a view of CharaTask
                 if (member->mC58.mC0 > 0) {
                     float dist = SqLength_unk(leader->mPos - member->mPos);
                     if (dist > best) {

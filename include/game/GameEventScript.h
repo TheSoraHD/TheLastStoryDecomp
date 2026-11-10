@@ -134,7 +134,7 @@ public:
     void fn_803A47A4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A81F8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A3AB4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
-    void fn_803A48A8(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A48A8(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A5384(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A6B9C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A6CDC(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
