@@ -292,7 +292,8 @@ inline void SetViewRect_unk(GraphicsDevice_unk* device, int x, int y, int w, int
 extern "C" void fn_80075F58(GraphicsDevice_unk* device, int x, int y, int w, int h);
 
 // inferred: video and GX initialization
-// NONMATCHING: 98.41% - registers of the render mode copy and the overscan arithmetic
+// NONMATCHING: 98.73% - float registers of the inlined viewport (f6/f7) and the store of mFifo scheduled
+// before them (the original stores it after the conversions)
 extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     device->mWidth = width;
     device->mHeight = height;
@@ -368,10 +369,14 @@ extern "C" int fn_800713D4(GraphicsDevice_unk* device, int width, int height) {
     memset(device->mXfb0, 0, xfbSize);
     memset(device->mXfb1, 0, xfbSize);
     device->mFifo = GXInit(device->mFifoBuffer, 0x80000);
-    int h = device->mHeight;
-    int w = device->mWidth;
-    int y = 0;
-    int x = 0;
+    int y;
+    int x;
+    int w;
+    int h;
+    w = device->mWidth;
+    h = device->mHeight;
+    y = 0;
+    x = 0;
     fn_80075F58(device, x, y, w, h);
     unsigned short lines = GXSetDispCopyYScale(GXGetYScaleFactor(device->mRMode.efbHeight, device->mRMode.xfbHeight));
     GXSetDispCopySrc(0, 0, device->mRMode.fbWidth, device->mRMode.efbHeight);
