@@ -72,7 +72,8 @@ DialogConfig_unk::DialogConfig_unk() : mUseWaitMotion(1), mUseLipSync(1) {
 
 DialogSide_unk::DialogSide_unk() {}
 
-// NONMATCHING: 98.0% - register allocation (dialog folder, string pool and current folder)
+// NONMATCHING: 99.67% - register allocation (the Left/Right folder gets r29 instead of r31, the names
+// pointer of the loop is set up after the scenes)
 void DialogConfig_unk::fn_801856B8(void* menu) {
     atn::MindowsFolder* group;
     atn::Scene* scene;
@@ -113,8 +114,7 @@ void DialogConfig_unk::fn_801856B8(void* menu) {
         fn_8008771C(fog, "Fog R", &scene->mFog.mColor.r, 0.0f, 1.0f, 0.01f, 0, 0);
         fn_8008771C(fog, "Fog G", &scene->mFog.mColor.g, 0.0f, 1.0f, 0.01f, 0, 0);
         fn_8008771C(fog, "Fog B", &scene->mFog.mColor.b, 0.0f, 1.0f, 0.01f, 0, 0);
-        atn::MindowsFolder* keyLight = fn_8008937C(group, "KeyLight");
-        scene->GetLight(0)->fn_80079BC8(keyLight);
+        scene->GetLight(0)->fn_80079BC8(fn_8008937C(group, "KeyLight"));
     }
 }
 
@@ -339,7 +339,6 @@ GameConfig_unk::GameConfig_unk()
     mZRot = 0.0f;
 }
 
-// NONMATCHING: 98.0% - register allocation (this, root folder and string pool)
 static inline atn::MindowsFolder* MenuFolder_unk(GameConfig_unk*, const char*);
 void GameConfig_unk::fn_80186520() {
     atn::MindowsFolder* root = MenuFolder_unk(this, "Config");
