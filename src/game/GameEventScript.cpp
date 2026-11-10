@@ -46,6 +46,7 @@
 #include "db/ItemParam_unk.h"
 #include "db/WeaponParam_unk.h"
 #include "game/GameVoice.h"
+#include "game/EnvSeManager.h"
 #include "game/MapManager.h"
 #include "game/MapPartsLocatorSet.h"
 #include "atn/DebugMessages_unk.h"
@@ -3135,6 +3136,107 @@ void GameEventScript::fn_803A9558(ScriptResult_unk& result, const ScriptCmd_unk*
     fn_803A956C(result, cmd);
 }
 
+// inferred: offsets of the render camera written by the shake command (names invented)
+struct ScriptShake_unk {
+    atn::Vector3 mPos;
+    atn::Vector3 mTarget;
+    float mFovy;
+};
+extern "C" const char* const lbl_8074F088[][2]; // inferred: sounds of the end of the shake
+
+// NONMATCHING: 96.6% - float registers of the shake computation (f3/f4 swapped, zero in f7)
+// inferred: shakes the camera for mC0 frames (m0C: direction, m10 flags: 0x04 no shake, 0x10 no sound,
+// 0x20 vertical, 0x80 holds the leader), then plays the sound m08/m0C
+void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int wait = 1;
+    switch (mB8) {
+    case 0:
+        if (((unsigned int)args->m10 & 0x80) == 0x80) {
+            CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            if (leader != 0) {
+                leader->m54C |= 0x10;
+            }
+        }
+        if (lbl_8087F430 != 0 && lbl_8087F430->m54F0 == 1) {
+            lbl_8087F430->fn_80370BD0(mC0, 0, 1e-05f);
+        }
+        mBC = 0;
+        mB8++;
+    case 1: {
+        GameTask* field = lbl_8087F430;
+        if (field != 0 && ((unsigned int)args->m10 & 4) != 4 && ((unsigned int)args->m10 & 0x20) != 0x20) {
+            float t; float amp; float scale;
+            t = (float)mBC / (float)mC0;
+            ScriptShake_unk shake;
+            shake.mPos.x = 0.0f;
+            shake.mPos.y = 0.0f;
+            shake.mPos.z = 0.0f;
+            shake.mTarget.x = 0.0f;
+            shake.mTarget.y = 0.0f;
+            shake.mTarget.z = 0.0f;
+            shake.mFovy = 0.0f;
+            amp = 1.0f - (float)sin(0.5f * (3.1415927f * t));
+            scale = field->mCamera.mDist / 3.0f;
+            if (((unsigned int)args->m10 & 0x20) != 0x20) {
+                if (args->m0C == 1) {
+                    scale *= -1.0f;
+                }
+                shake.mTarget.x = 0.0f;
+                shake.mTarget.y = amp * scale;
+                shake.mTarget.z = 0.0f;
+            } else {
+                if (args->m0C == 0) {
+                    scale *= -1.0f;
+                }
+                amp *= scale;
+                shake.mPos.x = 0.0f;
+                shake.mPos.y = amp;
+                shake.mPos.z = 0.0f;
+                shake.mTarget.x = 0.0f;
+                shake.mTarget.y = 0.7f * amp;
+                shake.mTarget.z = 0.0f;
+            }
+            field->mCamera.m93C = shake.mPos;
+            field->mCamera.m948 = shake.mTarget;
+            field->mCamera.m954 = shake.mFovy;
+            if (++mBC < mC0) {
+                break;
+            }
+        }
+        mB8++;
+    }
+    case 2: {
+        GameTask* field = lbl_8087F430;
+        if (field != 0) {
+            field->mCamera.m93C.x = 0.0f;
+            field->mCamera.m93C.y = 0.0f;
+            field->mCamera.m93C.z = 0.0f;
+            field->mCamera.m948.x = 0.0f;
+            field->mCamera.m948.y = 0.0f;
+            field->mCamera.m948.z = 0.0f;
+            field->mCamera.m954 = 0.0f;
+            field->mCamera.m900 %= 2;
+            field->mCamera.m904 = 30;
+            field->mCamera.m908 = 0.1f;
+            field->mCamera.m90C = 0.2f;
+        }
+        if (((unsigned int)args->m10 & 0x10) != 0x10) {
+            fn_803935AC(lbl_8074F088[args->m08][args->m0C], 1.0f);
+        }
+        if (((unsigned int)args->m10 & 0x80) == 0x80) {
+            CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            if (leader != 0) {
+                leader->m54C &= ~0x10;
+            }
+        }
+        wait = 0;
+        break;
+    }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
 // NONMATCHING: 98% - registers r0/r6 swapped in the next command (as fn_803A61CC)
 void GameEventScript::fn_803A98C4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     unsigned int flags = static_cast<const ScriptArgs_unk*>(cmd)->m14;
@@ -3143,6 +3245,88 @@ void GameEventScript::fn_803A98C4(ScriptResult_unk& result, const ScriptCmd_unk*
     if ((flags & 4) == 4) n = 45;
     mC0 = n;
     fn_803A98EC(result, cmd);
+}
+
+// inferred: accessor of CharaTask::mFlag0 (reloads the flag word; name invented)
+static inline bool IsFlag0_unk(const CharaTask* chara) {
+    return chara->mFlag0;
+}
+
+// NONMATCHING: 99% - the store of `wait` in SetNext_unk is scheduled one instruction later in the
+// original (the non-const cmd that fixes it elsewhere does not fit: fn_803A98C4 passes its const cmd)
+// inferred: makes the leader walk to the place m18 (m14 flags: 0x1 no walk, 0x2 wait for the route
+// instead of mC0 frames, 0x4 keeps flag 3, 0x8 keeps the input) with a fade out
+void GameEventScript::fn_803A98EC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    int wait = 1;
+    switch (mB8) {
+    case 0:
+        if ((args->m14 & 1) != 1 && leader != 0) {
+            leader->fn_8017039C(args->m18, 0);
+        }
+        if ((args->m14 & 2) != 2 && lbl_8087F430 != 0) {
+            lbl_8087F430->fn_80370B78(0xFF000000, mC0 - 5, 5, -9.0f);
+        }
+        if ((args->m14 & 4) == 4) {
+            mC4 = lbl_8087F430->fn_80370174(3);
+            lbl_8087F430->fn_80370320(3, 1, 0);
+        }
+        if ((args->m14 & 8) != 8 && lbl_8087F430 != 0) {
+            lbl_8087F430->m5664 = 0;
+        }
+        if (leader != 0 && leader->m55C == 6 && (leader->m560 == 0x54 || leader->m560 == 0x28)) {
+            leader->mFlag0 = 1;
+        }
+        mBC = 0;
+        mB8++;
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && (args->m14 & 1) != 1) {
+            int stop = 0;
+            MapTask* map = lbl_8087F430->GetCurrentMap();
+            if (map->mType == 1) {
+                int id = map->mId;
+                if ((id == 1 && args->m18 == 0x69) || (id == 2 && args->m18 == 0x19) ||
+                    (id == 3 && args->m18 == 0x11) || (id == 6 && args->m18 == 0x48)) {
+                    stop = 1;
+                }
+            }
+            if (stop != 0) {
+                if (GameBgm::sInstance != 0) {
+                    GameBgm::sInstance->fn_8037D4C0(0, 0x2D, 1, 0, 1.0f);
+                }
+                if (lbl_8087F418 != 0) {
+                    lbl_8087F418->fn_8035E858();
+                }
+            }
+        }
+    case 1:
+        if ((args->m14 & 1) != 1 || (args->m14 & 2) != 2) {
+            if ((args->m14 & 2) != 2) {
+                if (++mBC < mC0) {
+                    break;
+                }
+            } else if (leader->mRoute.m2C == 0) {
+                break;
+            }
+        }
+        mB8++;
+    case 2:
+        if ((args->m14 & 4) == 4 && lbl_8087F430 != 0) {
+            lbl_8087F430->fn_80370320(3, mC4, 0);
+        }
+        if ((args->m14 & 8) != 8 && lbl_8087F430 != 0) {
+            lbl_8087F430->m5664 = 1;
+        }
+        if ((args->m14 & 1) != 1 && leader != 0) {
+            leader->fn_80171DB0();
+        }
+        if (leader != 0 && IsFlag0_unk(leader)) {
+            leader->mFlag0 = 0;
+        }
+        wait = 0;
+        break;
+    }
+    result.SetNext_unk(cmd, wait);
 }
 
 // inferred: takes the control of a character for the event (saves its flags in mC0/mC4) and runs the
