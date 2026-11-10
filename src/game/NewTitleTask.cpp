@@ -1319,9 +1319,9 @@ void NewTitleTask::vf14() {
         mMap->fn_804A0F58(mAreas.begin()[m2E0].mArea, 0.0f, mAreas.begin()[m2E0].mTime);
     }
     int wide = lbl_8087EEE0->mWide;
-    SetPaneValue_unk(&(mLogo)->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
-    SetPaneValue_unk(&(mLogoCl)->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
-    SetPaneValue_unk(&(mLogoNm)->mData.m10, "aspectSD", 0.0f);
+    SetPaneValue_unk(&mLogo->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
+    SetPaneValue_unk(&mLogoCl->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
+    SetPaneValue_unk(&mLogoNm->mData.m10, "aspectSD", 0.0f);
     int state = mState;
     if (state == 25) {
         state = mPrevState;
@@ -1372,10 +1372,10 @@ void NewTitleTask::vf14() {
     mCursor->SetColor_unk("col0001", (a << 24) | (r << 16) | (g << 8) | b);
     for (int i = 0; i < 3; i++) {
         sprintf(name, "select%02d", i);
-        SetPaneValue_unk(&(mMenu)->mData.m10, name, i == select ? 1.0f : 0.0f);
+        SetPaneValue_unk(&mMenu->mData.m10, name, i == select ? 1.0f : 0.0f);
     }
-    SetPaneValue_unk(&(mMenu)->mData.m10, "isNewGame", mNoSave != 0 ? 1.0f : 0.0f);
-    SetPaneValue_unk(&(mMenu)->mData.m10, "isMultiPlay", multi != 0 ? 1.0f : 0.0f);
+    SetPaneValue_unk(&mMenu->mData.m10, "isNewGame", mNoSave != 0 ? 1.0f : 0.0f);
+    SetPaneValue_unk(&mMenu->mData.m10, "isMultiPlay", multi != 0 ? 1.0f : 0.0f);
 }
 
 // inferred: reads the title_param csv (camera keys, map, BGM, layout, damage effect, gimmicks and map areas)
