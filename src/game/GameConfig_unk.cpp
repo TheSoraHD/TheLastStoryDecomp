@@ -340,14 +340,9 @@ GameConfig_unk::GameConfig_unk()
 }
 
 // NONMATCHING: 98.0% - register allocation (this, root folder and string pool)
+static inline atn::MindowsFolder* MenuFolder_unk(GameConfig_unk*, const char*);
 void GameConfig_unk::fn_80186520() {
-    atn::MindowsFolder* root;
-    if (mMenu == 0 && lbl_8087EF10) {
-        root = fn_8008937C(&lbl_8087EF10->mRoot, "Config");
-        mMenu = root;
-    } else {
-        root = 0;
-    }
+    atn::MindowsFolder* root = MenuFolder_unk(this, "Config");
     fn_800874C8(root, "DrawSystemInfo", &mDrawSystemInfo, 0, 2, 1, 0, 0);
     fn_80087994(root, "DrawGameInfo", &mDrawGameInfo, 0, 0);
     atn::MindowsFolder* g2 = fn_8008937C(root, "DebugCamera");
@@ -522,4 +517,16 @@ void GameConfig_unk::fn_80187C44() {
 
 float GameConfig_unk::fn_80187CC0(int diff) {
     return mLvBonus.m[MAX(-5, MIN(5, diff)) + 5];
+}
+
+// inferred: creates the debug menu folder of the configuration once (name invented)
+static inline atn::MindowsFolder* MenuFolder_unk(GameConfig_unk* config, const char* name) {
+    atn::MindowsFolder* root;
+    if (config->mMenu == 0 && lbl_8087EF10) {
+        root = fn_8008937C(&lbl_8087EF10->mRoot, name);
+        config->mMenu = root;
+    } else {
+        root = 0;
+    }
+    return root;
 }
