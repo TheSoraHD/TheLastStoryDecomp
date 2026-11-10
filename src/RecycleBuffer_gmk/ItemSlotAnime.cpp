@@ -483,6 +483,79 @@ void ItemSlotAnime::fn_8044F2D4() {
     }
 }
 
+// NONMATCHING: 98% - the test of the states 3-5 (here a range check) and registers of the inlined loops
+// inferred: per-frame update: steps of the slot animation (3: spin, 4: stop, 5-6: shown, 7: not taken)
+void ItemSlotAnime::fn_8044F434() {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 == 8 && (mState == 3 || mState == 4 || mState == 5)) {
+        if (!fn_8044EEC0()) {
+            fn_8044EA34(1);
+        }
+    }
+    if (lbl_8087F4F8 != 0 ? lbl_8087F4F8->IsFrozen_unk() : false) {
+        return;
+    }
+    fn_80450590();
+    fn_8044F96C();
+    if (mState == 3) {
+        if (--m18 <= 0) {
+            fn_8044E88C();
+        }
+    } else if (mState == 4) {
+        if (--m1C <= 0) {
+            fn_8044EA34(0);
+        }
+    } else if (mState == 5) {
+        if (fn_8044EEC0()) {
+            mState = 1;
+            if (m00 != 0 && !fn_80450A78()) {
+                atn::FixedArray_unk<ItemSlotTask_unk*, 2>& oks = m00->m24;
+                for (ItemSlotTask_unk** it = oks.begin(); it != oks.end(); it++) {
+                    if (*it != 0) {
+                        (*it)->FreezeTask();
+                    }
+                }
+                lbl_8087F4F8->Free_unk(m00);
+                m00 = 0;
+            }
+        }
+    } else if (mState == 6) {
+        if (fn_8044EEC0()) {
+            mState = 1;
+            if (m00 != 0) {
+                atn::FixedArray_unk<ItemSlotTask_unk*, 16>& tasks = m00->mTasks;
+                for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+                    if (*it != 0) {
+                        (*it)->FreezeTask();
+                    }
+                }
+                lbl_8087F4F8->Free_unk(m00);
+                m00 = 0;
+            }
+        }
+    } else if (mState == 7) {
+        ItemSlotTask_unk* pop = fn_80450A78() ? m00->m30[1] : m00->m30[0];
+        if (pop->m50 >= 10.0f && mFlag31) {
+            mState = 5;
+            if (m00 == 0) {
+                m00 = lbl_8087F4F8->Alloc_unk();
+            }
+            atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops = m00->m30;
+            for (ItemSlotTask_unk** it = pops.begin(); it != pops.end(); it++) {
+                if (*it != 0) {
+                    (*it)->m50 = 10.0f;
+                }
+            }
+            atn::FixedArray_unk<ItemSlotTask_unk*, 2>& pops2 = m00->m30;
+            for (ItemSlotTask_unk** it = pops2.begin(); it != pops2.end(); it++) {
+                if (*it != 0) {
+                    (*it)->m54 = 1.0f;
+                }
+            }
+            fn_8044F96C();
+        }
+    }
+}
+
 } // namespace gmk
 
 extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
