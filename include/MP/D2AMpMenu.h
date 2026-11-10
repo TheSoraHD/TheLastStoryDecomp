@@ -171,6 +171,7 @@ public:
     void fn_804B274C();          // inferred: input of the room type
     void fn_804B2934();          // inferred: input of the own name
     void OpenKeyboard_unk();     // inferred: opens the keyboard with the own name
+    void fn_804B3494();          // inferred: shows the main page of the menu
     void fn_804B3838();          // inferred: shows the windows of the ranking
     void fn_804B39F8();          // inferred: shows the game selection
     void fn_804B3C78(int before, int after, int back); // inferred: shows the change of side

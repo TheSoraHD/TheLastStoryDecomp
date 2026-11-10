@@ -9,6 +9,8 @@
 #include "game/MenuCommonTask.h"
 #include "atn/Csv.h"
 #include "MP/SoftKeyboard.h"
+#include "atn/GraphicsDevice.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -29,6 +31,7 @@ extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: s
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" int fn_804E4DD4(MpMsgSession_unk* s, int mode, int arg); // inferred: starts the ranking request
 extern "C" void fn_804FB220(int* state, int value); // inferred: changes the state of the session (as atn/PacketPack.cpp)
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (screen size)
 extern "C" const wchar_t* fn_804FA8E8(MpMsgSession_unk* s, int value); // inferred: text of a score
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
@@ -354,6 +357,21 @@ void D2AMpMenu::fn_804B274C() {
     }
 }
 
+// inferred: places the cursor on the selected item of `base` and shows its help (a static function:
+// with it the rectangle gets the lowest stack slot, as in the original)
+static void SetTopCursor_unk(D2AMpMenu* menu, MpD2A_unk* base) {
+    if (MenuCommonTask::sInstance != 0 && D2ACommonDialog::sInstance->m4C == 0) {
+        char name[64];
+        sprintf(name, "top_cursor%d", menu->mE4 + 1);
+        MpRect_unk rect = GetPaneRect_unk(base, name);
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, 0);
+        const wchar_t* text = menu->fn_804B424C(menu->mBC, menu->mE4);
+        if (wcscmp(text, L"") != 0) {
+            fn_804A3C24(MenuCommonTask::sInstance, text, 0);
+        }
+    }
+}
+
 // inferred: opens the keyboard with the own name
 inline void D2AMpMenu::OpenKeyboard_unk() {
     for (int i = 2; i < 25; i++) {
@@ -406,6 +424,39 @@ void D2AMpMenu::fn_804B2934() {
     }
 }
 
+// NONMATCHING: 97.0% - the original reads D2ACommonDialog::sInstance->m4C at the end without using
+// it; offsets in @stringBase0 and the .data pool of L""
+// inferred: shows the main page of the menu
+void D2AMpMenu::fn_804B3494() {
+    if (D2ACommonDialog::sInstance->m4C != 0 && mBC != 8) {
+        lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth,
+                                  (float)lbl_8087EEE0->mHeight, 0x80000000);
+        return;
+    }
+    MpData_unk* data = lbl_8087F628;
+    m50->mFlags &= ~4;
+    SetTopCursor_unk(this, m50);
+    m54->mFlags &= ~4;
+    m64->mFlags &= ~4;
+    D2AMpMenuRankMark::sInstance->fn_804B4700(0);
+    if (lbl_8087F628->mC8 >= 8) {
+        int id = fn_8050F5A8(&lbl_8087F628->m430, 0);
+        while (id != -1) {
+            if (fn_804DCA4C(lbl_8087F610, id, 1) != 0 || fn_804DCA4C(lbl_8087F610, id, 0) != 0 ||
+                fn_804DCA4C(lbl_8087F610, id, 2) != 0) {
+                m58[0]->mFlags &= ~4;
+                MpRect_unk rect = GetPaneRect_unk(m50, "friend_online");
+                fn_801F4728(m58[0], "pos0009(1)", &rect);
+                break;
+            }
+            id = fn_8050F664(&lbl_8087F628->m430, 0);
+        }
+    }
+    MpRect_unk rect = GetPaneRect_unk(m64, "rank_null");
+    D2AMpMenuRankMark::sInstance->fn_804B49C0(rect, 0);
+    D2AMpMenuRankMark::sInstance->fn_804B49E0(data->m430.m7F8, 0);
+}
+
 // NONMATCHING: 99.9% - offset of "col0005" in @stringBase0 (functions before it are not written)
 // inferred: shows the windows of the ranking
 void D2AMpMenu::fn_804B3838() {
@@ -425,23 +476,13 @@ void D2AMpMenu::fn_804B3838() {
     }
 }
 
-// NONMATCHING: 97.7% - stack slots of the three rectangles and r29/r30 swapped; L"" in the .data
-// pool of the original (the functions with the other wide strings are not written)
+// NONMATCHING: 97.9% - r29/r30 swapped in the title text; L"" in the .data pool of the original
+// (the functions with the other wide strings are not written)
 // inferred: shows the game selection
 void D2AMpMenu::fn_804B39F8() {
     m68->mFlags &= ~4;
     m6C->mFlags &= ~4;
-    MpD2A_unk* base = m68;
-    if (MenuCommonTask::sInstance != 0 && D2ACommonDialog::sInstance->m4C == 0) {
-        char name[64];
-        sprintf(name, "top_cursor%d", mE4 + 1);
-        MpRect_unk rect = GetPaneRect_unk(base, name);
-        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, 0);
-        const wchar_t* text = fn_804B424C(mBC, mE4);
-        if (wcscmp(text, L"") != 0) {
-            fn_804A3C24(MenuCommonTask::sInstance, text, 0);
-        }
-    }
+    SetTopCursor_unk(this, m68);
     if (fn_804EAA50(lbl_8087F610) == 1) {
         if (lbl_8087F628->mC8 >= 8) {
             int id = fn_8050F5A8(&lbl_8087F628->m430, 0);
