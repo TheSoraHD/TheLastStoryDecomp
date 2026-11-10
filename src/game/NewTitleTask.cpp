@@ -1286,7 +1286,8 @@ inline unsigned int ToU8_unk(float c) {
 }
 
 // inferred: draw: the damage effect, the area blend of the map, the panes of the layouts and the language menu
-// NONMATCHING: 89.8% - register allocation and the inlined colour conversion
+// NONMATCHING: 95.7% - register allocation and the inlined colour conversion (the sizes of the voice menu are
+// locals of the whole function: the original loads them before the state test)
 // inferred: the blend of the area lists of the map is over (bool helper: the result goes through mfcr)
 inline bool IsAreaBlendDone_unk(const MapTask* map) {
     return map->m110 >= 1.0f;
@@ -1322,15 +1323,15 @@ void NewTitleTask::vf14() {
     SetPaneValue_unk(&mLogo->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
     SetPaneValue_unk(&mLogoCl->mData.m10, "aspectSD", wide != 0 ? 0.0f : mAspectOfs);
     SetPaneValue_unk(&mLogoNm->mData.m10, "aspectSD", 0.0f);
+    float size = 18.0f;
+    float space = 3.0f;
+    float z = -20.0f;
     int state = mState;
     if (state == 25) {
         state = mPrevState;
     }
     if (state == 14) {
         static wchar_t sVoiceSelect[] = L"Voice Select";
-        float size = 18.0f;
-        float space = 3.0f;
-        float z = -20.0f;
         float height = 3.0f * (size + space);
         float w = fn_8006EF48(lbl_8087EEC8, sVoiceSelect, size, 0.0f, 1, 1);
         dh->fn_80061824(0.5f * lbl_8087EEE0->mWidth - 0.5f * w, 0.5f * (lbl_8087EEE0->mHeight - height), z, size, size,
