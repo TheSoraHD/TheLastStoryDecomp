@@ -337,6 +337,32 @@ void ItemSlotAnime::fn_8044E88C() {
     }
 }
 
+// inferred: the layout animation of `task` reached its last frame (name invented)
+static inline bool IsAnimeEnd_unk(ItemSlotTask_unk* task) {
+    return task->m50 >= fn_801F6C2C(task);
+}
+
+// NONMATCHING: 96.4% - the state test of IsState56_unk (the original keeps mState in r4 from the start
+// and sets the flag to 1 on the branches)
+// inferred: the animation of the item can be skipped (loading, or the slots of states 5-6 finished)
+int ItemSlotAnime::fn_8044EEC0() {
+    if (mState == 1) {
+        return 1;
+    }
+    if (IsState56_unk()) {
+        ItemSlotTask_unk* a = fn_80450A78() ? m00->m24[1] : m00->m24[0];
+        ItemSlotTask_unk* b = fn_80450A78() ? m00->m30[1] : m00->m30[0];
+        if ((!a->IsFlag_unk(4) && IsAnimeEnd_unk(a)) || (!b->IsFlag_unk(4) && IsAnimeEnd_unk(b))) {
+            return 1;
+        }
+        if (mState == 5 && !a->IsFlag_unk(4) && (float)__fabs(a->m50 - 10.0f) < 1.1920929e-7f &&
+            IsAnimeEnd_unk(m00->m00)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // inferred: the item was taken
 // NONMATCHING: 98.83% - registers of the inlined Alloc_unk loop
 void ItemSlotAnime::fn_8044F14C() {
@@ -389,6 +415,51 @@ void ItemSlotAnime::fn_8044F2D4() {
         }
         fn_80450590();
         fn_8044F96C();
+    }
+}
+
+} // namespace gmk
+
+extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
+extern "C" void fn_804515A8(gmk::ItemSlotAnime* anime, wchar_t* text);     // inferred: text of the current step
+
+namespace gmk {
+
+// inferred: writes the name of the current item to the line `line` (name invented)
+static inline void SetItemLine_unk(ItemSlotAnime* anime, int line) {
+    wchar_t text[64];
+    memset(text, 0, sizeof(text));
+    if (anime->m20 != 0) {
+        fn_80444CF8(text, anime->m20->mId, anime->m24, anime->mFlag30);
+    }
+    anime->mTexts[line] = text;
+}
+
+// inferred: updates the texts of the step: states 3-4 push a new line, state 7 replaces the first line,
+// the others the second
+void ItemSlotAnime::fn_80450590() {
+    bool loading = mState == 1 || mState == 2;
+    if (!loading && m20 != 0 && mState >= 3) {
+        wchar_t text[64];
+        memset(text, 0, sizeof(text));
+        if (mState != 7) {
+            if ((unsigned int)(mState - 3) <= 1) {
+                for (int i = 2; i > 0; i--) {
+                    mTexts[i] = mTexts[i - 1];
+                }
+                fn_804515A8(this, text);
+                mTexts[0] = text;
+            } else {
+                wchar_t line[64];
+                memset(line, 0, sizeof(line));
+                if (m20 != 0) {
+                    fn_80444CF8(line, m20->mId, m24, mFlag30);
+                }
+                mTexts[1] = line;
+            }
+        } else {
+            SetItemLine_unk(this, 0);
+        }
     }
 }
 
