@@ -55,6 +55,30 @@ Ninguno: solo renombrados `fn_XXXXXXXX` -> nombre mangled de las funciones escri
 
 ## Resultados por unidad
 
+Cierre 2026-11-10 22:40 (adelantado a peticion del usuario; cierre previsto 00:28). Build limpio: **15008 / 18109**
+(+50), lost 0, sin bajadas de fuzzy, `main.dol: OK`. Funciones al 0 %: **1148 -> 1023 (-125)**. Borradores DRAFT:
+42 (0 en la ruta de arranque), sin cambios. Unidades enlazadas: 657 -> 657.
+
+| Unidad | al 100 % | al 0 % | total |
+|---|---|---|---|
+| game/GameEventScript | 61 -> 101 | 145 -> 52 | 224 |
+| MP/D2AMpMenu | 20 -> 21 | 15 -> 5 | 41 |
+| RecycleBuffer_gmk/ItemSlotAnime | 16 -> 17 | 8 -> 3 | 30 |
+| atn/LayerOcclusionCPU | 6 -> 7 | 8 -> 5 | 18 |
+| game/PopupTask | 9 -> 10 | 5 -> 3 | 14 |
+| gmk/InteractionSpot | 7 -> 9 | 2 -> 0 | 10 |
+| MP/func_enter_setting | 204 -> 206 | 2 -> 0 | 206 |
+| game/LastCocoonImago | 14 -> 14 | 22 -> 20 | 36 |
+| game/GameCamera_unk | 23 -> 23 | 62 -> 60 | 90 |
+| gmk/ArenaFloor | 10 -> 11 | 1 -> 0 | 13 |
+| game/HomingBullet | 8 -> 8 | 1 -> 0 | 10 |
+| game/EnemyQuarkSecond | 42 -> 43 | 17 -> 16 | 70 |
+| atn/TextureComposite | 11 -> 11 | 2 -> 1 | 14 |
+
+La mayoria de las funciones escritas en MP/D2AMpMenu, GameEventScript e ItemSlotAnime quedan al 99,x % solo por
+desplazamientos en `@stringBase0`/pools de `.sdata2`: pasaran al 100 % cuando esten escritas las funciones que
+faltan delante en la misma unidad.
+
 ## Hallazgos
 
 - Busquedas en bucle (indice y desplazamiento en registros cruzados, o el valor del nodo cargado despues de la
@@ -95,3 +119,6 @@ Ninguno: solo renombrados `fn_XXXXXXXX` -> nombre mangled de las funciones escri
 - `fn_803AC088`/`fn_803AC230` al 100 % con los ayudantes `CountCharas_unk` (100 %) y `CountSpheres_unk` (98,6 %) como `__declspec(noinline) inline` (el original los llama: copias debiles al final de la unidad). `if (rayo && (lbl == 0 || !flag)) continue; count++;` en vez de `||` en la condicion evita un booleano temporal.
 - `ScriptNpcFlag_unk` (12 bytes: script elegido, flags, distancia) es el estado de cada punto: NPC/enemigo/amigo (`m114/m11C/m124`), caja (`mFC`) y esfera (`m10C`); `mF4` apunta al mas cercano.
 - `fn_8039AB10`/`fn_8039AF50` (cajas/esferas de charla del lider) al 96 %: el `switch` con casos 0/1/9/10 y 6 da la disposicion de saltos del original para el estado del personaje; `bool on = true; if (...) on = false; return on;` para el permiso (mE0 o flag 2590).
+- MP/D2AMpMenu: un bloque repetido en dos funciones (cursor `top_cursor%d` + ayuda) era una funcion `static` comun: con ella el rectangulo toma el hueco de pila mas bajo como en el original (con el bloque escrito en linea iba al mas alto); como `inline` miembro definida fuera de la clase sus literales iban a `@STRING@`.
+- MP/D2AMpMenu: `new (..., "", "", 0) T[n]` con los `""` en `.sdata` (lbl_8087E0F4/F8) = metodo inline definido en la clase (`Table_unk::Resize_unk`).
+- MP: `lbl_8087F1E4` tiene tipos distintos en varias unidades (SoftKeyboardU, D2AMpMenuSetMessage): `MpCampMsgTable_unk` va en su propia cabecera, no en `D2AMpMenu_unk.h`.

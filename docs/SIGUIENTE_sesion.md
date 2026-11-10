@@ -1,65 +1,44 @@
-# Siguiente sesion (tras arranque2-20261110)
+# Siguiente sesion (tras noescritas-20261110)
 
-Rama `arranque2-20261110` (mergeada en `main`; inicio 2026-11-10 00:52, cierre 12:15): **14895 -> 14958 / 18109**,
-lost 0, sin bajadas de fuzzy, build limpio y clon limpio con `main.dol: OK`. Notas: `docs/arranque2-20261110.md`;
-ruta `main()` -> pantalla de titulo: `docs/ruta-arranque.md` (581/666 al 100 %, enlazan 9 de 27).
+Rama `noescritas-20261110` (sin mergear, la revisa el usuario; inicio 2026-11-10 12:28, cierre 22:40, adelantado):
+**14958 -> 15008 / 18109**, lost 0, sin bajadas de fuzzy, build limpio y clon limpio con `main.dol: OK`.
+Funciones al 0 %: **1148 -> 1023 (-125)**. DRAFT: 42 (0 en la ruta). Solo renombrados en `symbols.txt`; splits sin
+cambios. Notas y decisiones: `docs/noescritas-20261110.md`.
 
-## Primera tarea: unificar las inlines de copia en `include/math/Vec.h`
+## Primera tarea: terminar `MP/D2AMpMenu` (quedan 5 funciones al 0 %)
 
-Hay 33 copias locales de la misma inline, una por unidad, con nombres distintos (`DrawAssign_unk`, `CamAssign_unk`,
-`VecAssign_unk`, `GolemAssign_unk`, `DaemonAssign_unk`...; lista con
-`grep -rn "inline void [A-Za-z0-9]*Assign_unk" src`). Todas son
-`static inline void XAssign_unk(atn::Vector3& dst, const atn::Vector3& src) { dst = src; }`.
+Casi todo lo escrito en la unidad esta al 99,x % solo por desplazamientos en `@stringBase0`, en `.sdata2` y en el
+pool ancho de `.data` (`L"%d"` + `L""`, lbl_80790B70): faltan las funciones de delante. Al escribirlas, muchas
+pasan al 100 % sin tocarlas.
 
-1. Anadir una sola en `include/math/Vec.h`, en `namespace atn` despues de `Vector3`, con `// inferred:` (copia a
-   traves de un nivel de inline mas: da los registros del original en el `__VecCopy`; direccion de ejemplo
-   Camera_unk). Nombre propuesto: `atn::VecAssign_unk(Vector3& dst, const Vector3& src)`. Ojo: ya existe el
-   miembro `Vector3::Assign_unk` (copia z-primero, `__VecCopyZFirst`): no confundirlos.
-2. Probar primero en 2-3 unidades (Camera_unk, DrawHelper, una de enemigos) que la funcion libre de cabecera da lo
-   mismo que la `static inline` local (mismo nivel de inline; si no, probar un miembro `Vector3::Set_unk`).
-3. Sustituir en las 33 unidades, borrar las copias locales, `lblmap.py` en cada unidad que salga en LC+ (los `@N`
-   se renumeran), `configure`, `ninja` y `precommit.sh` con todas las unidades tocadas: 0 lost, 0 bajadas.
-   Las 7 unidades enlazadas (`Camera_unk`, `ControlUseSkill`, `Em209BigGolem`, `LottaSummon`, `Fireworks` y las de
-   la ruta) tienen que seguir dando `main.dol: OK`.
-4. Plantillas sueltas parecidas que se pueden dejar donde estan: `FwDec_unk` (Fireworks), `CoffinSet_unk`
-   (Em315Coffin), `MenuFolder_unk` (GameConfig), `Wrap26A4_unk` (Task), `ClampU16_unk` (RenderSystem).
-5. Actualizar `tools/decomp/asgwrap.py` para que use por defecto `atn::VecAssign_unk` (sin declarar nada nuevo si
-   el tipo es `atn::Vector3`) y la linea de `docs/trucos-mwcc.md`.
+1. `vf10` (0x804B0F58, 928 bytes): `switch (mBC)` de 20 casos (jumptable_807909CC) que llama a las funciones de
+   cada estado (`fn_804B12F8`, `fn_804B2934`, `fn_804B1528`, `fn_804B1C88`, `fn_804B1E48`, `fn_804B274C`) y al final
+   cuenta `m29A0` hasta `m29A4` (`Work_unk m299C`). Ya esta decodificado en buena parte (ver la sesion).
+2. `fn_804B1528` (1888), `fn_804B1E48` (2308), `vf14` (2164) y `fn_804AF520` (5456, cambio de estado: el que mete
+   las cadenas que faltan al principio del pool).
+3. Helpers ya hechos: `SetTopCursor_unk` (static, cursor + ayuda), `OpenKeyboard_unk`, `Play_unk`/`Stop_unk`,
+   `MP::SoftKeyboard` (`include/MP/SoftKeyboard.h`), `MpCampMsgTable_unk` (`include/MP/MpCampMsgTable_unk.h`).
+4. Cada cambio de `include/MP/D2AMpMenu.h` pide `lblmap.py` en D2AMpMenuCockpit, FriendRoom, Lobby, SetRule,
+   Result, CosEditPalette_unk y atn/SoftKeyboardU (salen como LC+ en precommit).
 
-Tope: 1,5 h. Commit unico "Unify Vector3 copy inlines in Vec.h".
+## Despues
 
-## Recomendacion para el resto de la sesion: funciones sin escribir, por unidad
-
-Estado al cierre (report.json): de las 3151 funciones que no estan al 100 %, **1148 no estan escritas (0 %)** y
-suman ~1,38 MB de codigo (el 38 % de lo que falta); 1677 estan al 90-100 % (~1,87 MB) y 326 por debajo del 90 %.
-En esta sesion las funciones al 99,x % dieron cada vez menos por hora (reparto de registros), y una unidad con una
-sola funcion sin escribir no puede enlazar nunca (regla 10). Por eso:
-
-- **Si**, dedicar la sesion a escribir funciones que faltan, pero **por unidad** (terminar unidades) y no sueltas.
-- Primero las unidades a las que solo les faltan funciones sin escribir (21 unidades, 190 funciones):
-  `atn/LH_Motion_cont` (1), `game/LastCocoonChrysalis` (1, el ctor), `game/HomingBullet` (1+1), `atn/LH_Model` (1+1),
-  `gmk/ArenaFloor`, `atn/LensFlare`, `game/NewCampPartsGmk`, `MP/func_enter_setting` (2 de 16 B), `game/GimmickManager`,
-  `atn/BoneCalc_unk`, `atn/TextureComposite`, `gmk/InteractionSpot`, `game/PopupTask` (5), `game/TacView` (6),
-  `game/RouteWalker_unk` (7), `game/AiTarget` (11), `game/MapPartsGimmickLoc` (19), `game/LastCocoonImago` (22),
-  `MP/D2AMpMenuLobby` (22), `atn/EffectSystem_unk` (24), `game/ShopUpGrade` (57, sin fuente).
-- Despues, los grandes bloques: `game/GameEventScript` (145), `atn/PacketPack` (97, con la deuda de la regla 10),
-  `game/CosEditItemList_unk` (91), `game/BattleTask` (76), `game/GameCamera_unk` (62).
-- Al escribir cada funcion: pasar `asgwrap.py` (normal y `--declonly`) si el diff tiene `psq_`; dejar al 9x % con
-  `NONMATCHING` y seguir (no gastar mas de ~30 min por funcion en registros).
-- Lo que cuenta: funciones de 0 % a escritas (equivalentes, sin `DRAFT`), unidades enlazadas, y despues 100 %.
+- `game/GameEventScript`: 52 funciones al 0 % (de 224); 101 al 100 %. El resto al 89-99,9 % por el cruce r0/r4
+  de `SetNext_unk` y offsets del pool.
+- `RecycleBuffer_gmk/ItemSlotAnime` (3 al 0 %), `atn/LayerOcclusionCPU` (5), `game/PopupTask` (3),
+  `atn/TextureComposite` (1: `fn_800D6E48` necesita `LinearAllocator`/`PostFxManager` en una cabecera).
+- `game/GameCamera_unk`: escribir los callees de `fn_80392964` (`fn_803918EC`, `fn_803920C8`...) antes de
+  volver a los modos (presupuesto de inlining R3).
+- Unidades a las que solo les faltan funciones sin escribir (de arranque2): `atn/LH_Motion_cont`,
+  `game/LastCocoonChrysalis`, `atn/LH_Model`, `atn/LensFlare`, `game/TacView`, `game/RouteWalker_unk`,
+  `game/AiTarget`, `game/MapPartsGimmickLoc`, `game/LastCocoonImago` (20), `MP/D2AMpMenuLobby`.
 
 ## Pendiente (menor)
 
-- Unas 45 funciones al 97-99 % con diferencias en `psq_` no pasaron por `asgwrap` en modo normal (se puede hacer en
-  segundo plano, es barato).
-- Mejoras parciales sin commitear: BattleCharaTask fn_800E3F5C 99,96 (huecos de pila), ChaserGuard fn_8017F4A0
-  99,95, CharaTask vfD8 99,82 (r29/r30).
-- Ruta: bloqueos de registros (lista en "Que falta" de `docs/ruta-arranque.md`); `Loader::Get_unk<T>` (99,7 %)
-  cerraria de golpe ocho `atn/LH_*`.
-- De antes: cabecera unica de `IRenderLayer`; `fn_800F8C6C` (orden de parametros); `ordercheck` de
-  atn/SmallAllocator_8; deuda de la regla 10 en PacketPack; ReplayBuffer; MapPartsGimmickLoc.
+- `lbl_8087F1E4` y `lbl_8087EEE0` tienen tipos distintos segun la unidad: unificar antes de poner una cabecera comun.
+- BattleTask vf0C (0x800F26D4) necesita retipar `ModelBase::mB8` (callback de nodos).
+- ~45 funciones al 97-99 % con `psq_` sin pasar por `asgwrap`; `Loader::Get_unk<T>` (99,7 %) cerraria ocho `atn/LH_*`.
 
 ## Decisiones a revisar
 
-- Seccion "Decisiones tomadas sin el usuario" de `docs/arranque2-20261110.md`.
-- Las de `docs/arranque-20261109.md` siguen abiertas.
+- `docs/noescritas-20261110.md` (seccion "Decisiones tomadas sin el usuario").

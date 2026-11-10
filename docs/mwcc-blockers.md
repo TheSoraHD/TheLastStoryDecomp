@@ -241,3 +241,7 @@ en variable antes de la llamada. Pista sin probar del todo: en `fn_804C23E4` el 
 - (`arranque-20261109`) Em308ParmCrab vf10 / Em401 fn_8031FE4C: `fn_800F8C6C` (124 llamadas, `extern "C"` en
   muchas unidades) tiene el mismo problema de orden de argumentos que fn_80170A20; no tocado.
 
+- `noescritas-20261110`: GameEventScript `fn_8039CCD0` (recursiva) al 89,8 %: el original la inlinea una vez en si misma y en tres llamadoras, que heredan los registros; no se consigue con `inline`/`noinline` (sin pragmas).
+- `noescritas-20261110`: GameCamera, modos escritos sin 100 % mientras falten los callees de `fn_80392964` (cabe en el presupuesto R3 e inlinea lo que el original llama); no poner `noinline`, escribir los callees.
+- `noescritas-20261110`: D2AMpMenu `fn_804B3494` lee `D2ACommonDialog::sInstance->m4C` al final sin usarlo; un `if` vacio desaparece. Probable inline con una rama vacia (assert/debug); sin resolver.
+- `noescritas-20261110`: `lbl_8087F1E4` y `lbl_8087EEE0` tienen tipos distintos en varias unidades: no se pueden poner en una cabecera comun incluida por todas sin unificar antes esos tipos.
