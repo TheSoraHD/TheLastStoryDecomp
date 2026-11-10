@@ -176,7 +176,13 @@ void fn_804799CC(void*) {
     lbl_8087F534->mTimer2.Stop_unk();
 }
 
-// NONMATCHING: 98.6% - saved register allocation (the original keeps the callback offset in r31)
+// inferred: calls every per-frame callback (name invented)
+inline void CallAll_unk(FrameCallbacks_unk* callbacks) {
+    for (unsigned int i = 0; i < callbacks->mSize; i++) {
+        (*callbacks)[i]();
+    }
+}
+
 int main() {
     fn_8047A4C8();
     int frame = 0;
@@ -213,10 +219,7 @@ int main() {
         lbl_8087F534->fn_805A6BD8();
         fn_80071D60(lbl_8087EEE0, lbl_8087F0A8->m30 == 30);
         lbl_8087F9A0->fn_80570CF8();
-        FrameCallbacks_unk* callbacks = lbl_8087EE94;
-        for (unsigned int i = 0; i < callbacks->mSize; i++) {
-            (*callbacks)[i]();
-        }
+        CallAll_unk(lbl_8087EE94);
         if (frame == 2) {
             frame = 0;
         }
