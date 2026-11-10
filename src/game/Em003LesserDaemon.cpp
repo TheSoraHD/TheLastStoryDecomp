@@ -1195,9 +1195,12 @@ void Em003LesserDaemon::fn_8024E7E4() {
     }
 }
 
-// NONMATCHING: 99.61% - r27/r28 of the forward and the bullet direction swapped and f20/f21 for the
-// frame (about 10 variants of declaration order); the @stringBase0 offset of "SE_EM003_003" waits
-// for the unwritten functions
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void LesserAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
+// The @stringBase0 offset of "SE_EM003_003" waits for the unwritten functions of the unit.
 void Em003LesserDaemon::fn_8024ED68() {
     int done = 1;
     if (m14B8 == 0 && m55C == 6) {
@@ -1211,6 +1214,7 @@ void Em003LesserDaemon::fn_8024ED68() {
             ControlMagic_unk* control = (ControlMagic_unk*)mControl.get();
             HitInfo_unk* hit = m638;
             bool fire = false;
+            float frame;
             if (control->m1D == 0 && mMotion.mTracks[0].m08 >= 24.0f) {
                 fire = true;
             }
@@ -1231,7 +1235,8 @@ void Em003LesserDaemon::fn_8024ED68() {
                 int count = 3;
                 int n = count - 1;
                 for (int i = 0; i < count; i++) {
-                    atn::Vector3 dir = fwd;
+                    atn::Vector3 dir;
+                    LesserAssign_unk(dir, fwd);
                     float t = ((float)i - 0.5f * (float)n) / (0.5f * (float)n);
                     atn::Vector3 axis(0.0f, 0.0f, 1.0f);
                     PSMTXRotRad(m2, 'y', mRot.y);
@@ -1254,7 +1259,7 @@ void Em003LesserDaemon::fn_8024ED68() {
                 }
                 fn_800C344C("SE_EM003_003", &pos, 0, -1, 1.0f);
             } else {
-                float frame = mMotion.mTracks[0].m08;
+                frame = mMotion.mTracks[0].m08;
                 if (frame >= mMotion.fn_80097D7C(0)) {
                     fn_80178208(new ((MemoryTag)1, "", "", 0) chr::ControlMagicEnd(this));
                 }
