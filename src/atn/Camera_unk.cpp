@@ -1,6 +1,7 @@
 // atn/Camera_unk.cpp: engine camera (view, projection and frustum) and the free debug camera
 // moved with the pad (file name invented; probably atn_camera.cpp).
 #include "atn/Camera_unk.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" void C_MTXLookAt(Mtx m, const atn::Vector3* camPos, const atn::Vector3* camUp, const atn::Vector3* target);
 extern "C" void C_MTXPerspective(float m[4][4], float fovy, float aspect, float n, float f);
@@ -146,10 +147,6 @@ inline float SinF_unk(float x) {
     return sin(x);
 }
 
-// inferred: Vector3 copy through one more inline level (as DrawAssign_unk in atn/DrawHelper.cpp)
-inline void CamAssign_unk(Vector3& dst, const Vector3& src) {
-    dst = src;
-}
 // inferred: cross product by value (name invented)
 inline Vector3 Cross_unk(const Vector3& a, const Vector3& b) {
     Vector3 r;
@@ -199,7 +196,7 @@ void Camera_unk::fn_8004B378() {
             PSVECNormalize(&d, &d);
             PSVECNormalize(&side, &side);
             Vector3 u;
-            CamAssign_unk(u, Cross_unk(d, side));
+            atn::VecAssign_unk(u, Cross_unk(d, side));
             float cs = CosF_unk(mRoll);
             float sn = SinF_unk(mRoll);
             Vector3 r;
@@ -320,14 +317,14 @@ bool Camera_unk::fn_8004BF64(float speed, float rotSpeed) {
     if (Abs_unk(f) > 0.1f) {
         Mtx m;
         PSMTXRotAxisRad(m, up, 0.05f * -f * rotSpeed / 3.0f);
-        CamAssign_unk(target, MultVec_unk(m, target - pos) + pos);
+        atn::VecAssign_unk(target, MultVec_unk(m, target - pos) + pos);
         moved = true;
     }
     f = fn_800A56A8(lbl_8087EF70, 0, 3, 1);
     if (Abs_unk(f) > 0.1f) {
         Mtx m;
         PSMTXRotAxisRad(m, &side, 0.05f * f * rotSpeed / 3.0f);
-        CamAssign_unk(target, MultVec_unk(m, target - pos) + pos);
+        atn::VecAssign_unk(target, MultVec_unk(m, target - pos) + pos);
         moved = true;
     }
 

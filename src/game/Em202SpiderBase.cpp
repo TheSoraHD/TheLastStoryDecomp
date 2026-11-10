@@ -6,6 +6,7 @@
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -267,10 +268,6 @@ int Em202SpiderBase::vf0C() {
     return 0;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void SpiderAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em202SpiderBase::vf10() {
     atn::Vector3 pos;
@@ -379,7 +376,7 @@ void Em202SpiderBase::vf10() {
         m614.y += m620;
     }
     atn::Vector3 top;
-    SpiderAssign_unk(top, pos);
+    atn::VecAssign_unk(top, pos);
     top.y = mPos.y + m5B0;
     mColli.m3C = pos;
     mColli.m48 = top;

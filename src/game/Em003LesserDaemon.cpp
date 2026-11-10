@@ -13,6 +13,7 @@
 #include "atn/Material_unk.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int atoi(const char* s);
@@ -1195,10 +1196,6 @@ void Em003LesserDaemon::fn_8024E7E4() {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void LesserAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 // The @stringBase0 offset of "SE_EM003_003" waits for the unwritten functions of the unit.
 void Em003LesserDaemon::fn_8024ED68() {
@@ -1236,7 +1233,7 @@ void Em003LesserDaemon::fn_8024ED68() {
                 int n = count - 1;
                 for (int i = 0; i < count; i++) {
                     atn::Vector3 dir;
-                    LesserAssign_unk(dir, fwd);
+                    atn::VecAssign_unk(dir, fwd);
                     float t = ((float)i - 0.5f * (float)n) / (0.5f * (float)n);
                     atn::Vector3 axis(0.0f, 0.0f, 1.0f);
                     PSMTXRotRad(m2, 'y', mRot.y);

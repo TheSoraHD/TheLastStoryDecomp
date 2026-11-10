@@ -10,6 +10,7 @@
 #include <boost/function.hpp>
 #include "std/string_members.h"
 #include "chr/CharaEquip_unk.h"
+#include "math/VecAssign_unk.h"
 
 // Everything below is inferred from Event::DialogHead (0x802251F8..0x802280B4); names are invented.
 
@@ -122,10 +123,6 @@ void DialogHead::fn_802254B0(float top, float bottom) {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void HeadAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 int DialogHead::vf0C() {
     int loading = 0;
@@ -160,7 +157,7 @@ int DialogHead::vf0C() {
             }
         }
         m1824 = mMotion.GetNodeNoByName("head", 0);
-        HeadAssign_unk(m1828, ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(m1824))->GetTrans_unk());
+        atn::VecAssign_unk(m1828, ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(m1824))->GetTrans_unk());
         m1834.y = MIN(1.6f, 0.3f * -(m1828.y - 15.771023f));
         fn_80225C80(0);
         m1A10 = rand() % 90;

@@ -11,6 +11,7 @@
 #include "std/string_members.h"
 #include "game/MapTask.h"
 #include "game/BattleTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -1558,10 +1559,6 @@ void Em203GreaterDaemonRed::fn_8029A674(int kind) {
     m154C = mPos;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void DaemonAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 // inferred: starts state 11 (dives on the target)
 void Em203GreaterDaemonRed::fn_8029A788() {
@@ -1579,7 +1576,7 @@ void Em203GreaterDaemonRed::fn_8029A788() {
     PlayMotion_unk(0x15E, 0, 0, 1.0f);
     atn::Vector3 target = m14B0->mPos;
     target.y = 0.0f;
-    DaemonAssign_unk(m1530, target - mPos);
+    atn::VecAssign_unk(m1530, target - mPos);
     atn::Vector3 dir(m1530.x, 0.0f, m1530.z);
     dir.Normalize_unk();
     m1530 -= dir * 85.0f;

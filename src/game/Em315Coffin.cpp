@@ -3,6 +3,7 @@
 #include "atn/Material_unk.h"
 #include "atn/Memory.h"
 #include "math/Vec.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -695,10 +696,6 @@ void Em315Coffin::vf108() {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void CoffinAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 // inferred: collision capsule set through an inline (with the Assign inlines above, the copies keep the
 // registers of the original)
@@ -715,10 +712,10 @@ void Em315Coffin::fn_80315654() {
     atn::Vector3 center(mPos.x, mPos.y + m5B0, mPos.z);
     MtxPtr hips = mMotion.GetNodeMtx_unk("hips");
     if (hips != 0) {
-        CoffinAssign_unk(center, GetNodePos_unk(hips));
+        atn::VecAssign_unk(center, GetNodePos_unk(hips));
     }
     atn::Vector3 head;
-    CoffinAssign_unk(head, center);
+    atn::VecAssign_unk(head, center);
     atn::Vector3 off(0.0f, m5B4 - 2.0f * m620, 0.0f);
     atn::Matrix3x4 m;
     CoffinRotZYX_unk(m, mRot);

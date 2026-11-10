@@ -16,6 +16,7 @@
 #include "atn/RenderManager.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: circuit of the war lion around the arena: place id and two flags (names invented)
 struct WarLionPlace_unk {
@@ -1100,10 +1101,6 @@ void Em403WarLion::fn_803272A8() {
     mRot = (m1524.GetPos_unk(1.0f / 27.0f) - m1524.GetPos_unk(0.0f)).ToRotationZ_unk();
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void LionAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em403WarLion::fn_803278B4() {
     SetState_unk(14);
@@ -1112,7 +1109,7 @@ void Em403WarLion::fn_803278B4() {
     mMotion.mTracks[0].m0C = 1.0f;
     mMotion.fn_80097C08(0, 0x143, 0, 1, 1, 0.0f, 0.1f);
     mRot = m1518;
-    LionAssign_unk(m150C, m1500 - mPos);
+    atn::VecAssign_unk(m150C, m1500 - mPos);
     m150C *= 1.0f / mMotion.fn_80097D7C(0);
 }
 

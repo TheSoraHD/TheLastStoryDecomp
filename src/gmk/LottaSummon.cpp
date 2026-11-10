@@ -8,6 +8,7 @@
 #include "game/PlayerTask.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" char lbl_8087D710[2]; // inferred: field separators of the tab CSV
@@ -150,10 +151,6 @@ void LottaSummon::Start() {
     vf40(&msg);
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void LottaAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void LottaSummon::vf10() {
     if (mDesc != 0) {
@@ -220,7 +217,7 @@ void LottaSummon::vf10() {
                         if (!((float)__fabs(len) < 1.1920929e-7f) && len > 4.0f) {
                             PSVECNormalize(&d, &d);
                         } else {
-                            LottaAssign_unk(d, Back_unk(chara));
+                            atn::VecAssign_unk(d, Back_unk(chara));
                         }
                         chara->fn_8016B8D4(d, 1, 0, 0);
                     }

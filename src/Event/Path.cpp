@@ -13,6 +13,7 @@
 #include "std/string_members.h"
 #include "Event/Actor.h"
 #include "atn/RenderManager.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
@@ -239,10 +240,6 @@ void EventCamera_unk::fn_801129C0(float t) {
     m294 = MAX(0.0f, MIN(1.0f, t));
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void PathAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 atn::Vector3 EventCamera_unk::fn_80112A00(const CameraTarget_unk& target, float t) {
     if (target.mPath) {
@@ -252,7 +249,7 @@ atn::Vector3 EventCamera_unk::fn_80112A00(const CameraTarget_unk& target, float 
     MtxPtr mtx = model ? model->GetNodeMtx_unk(model->fn_800928B0(target.mNode, 0)) : 0;
     atn::Vector3 base;
     if (mtx) {
-        PathAssign_unk(base, GetMtxPos_unk(mtx));
+        atn::VecAssign_unk(base, GetMtxPos_unk(mtx));
     } else {
         base = target.mActor->fn_80010374();
     }

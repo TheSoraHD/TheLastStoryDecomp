@@ -10,6 +10,7 @@
 #include "atn/DrawHelper.h"
 #include "game/TownTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -606,10 +607,6 @@ void ChaserGuard::fn_8017F4A0(int state) {
     m14B0 = state;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void GuardAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 bool ChaserGuard::fn_8017FBEC() {
     CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
@@ -646,7 +643,7 @@ bool ChaserGuard::fn_8017FBEC() {
         }
         if (seen) {
             m14B8 = player->mPos;
-            GuardAssign_unk(m14C4, mPos - m14B8);
+            atn::VecAssign_unk(m14C4, mPos - m14B8);
         }
         return seen;
     }

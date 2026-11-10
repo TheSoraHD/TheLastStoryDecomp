@@ -27,6 +27,7 @@
 #include "Event/Dialog.h"
 #include "game/GameChoiceWindow.h"
 #include "game/MapInstance_unk.h"
+#include "math/VecAssign_unk.h"
 
 // Effect, light, sound and message actions of the events: processors with vf08 (per frame) and vf0C
 // (phase), as in Event/ActionCameraMode. Class names from the RTTI (the vtables of the last seven
@@ -1398,10 +1399,6 @@ int ActionAmbientLight::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void CloudAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 // inferred: position of the cloud map: actor of parameter 0 (node of parameter 1) plus the offset of
 // parameters 2-4, seen from above
@@ -1424,7 +1421,7 @@ atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
     if (model != 0) {
         atn::Matrix3x4* mtx = (atn::Matrix3x4*)model->GetNodeMtx_unk(model->fn_800928B0(node, 0));
         if (mtx != 0) {
-            CloudAssign_unk(pos, mtx->GetTrans_unk());
+            atn::VecAssign_unk(pos, mtx->GetTrans_unk());
         }
     }
     pos += offset;

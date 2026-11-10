@@ -11,6 +11,7 @@
 #include "math/Vec.h"
 #include "std/string.h"
 #include <boost/scoped_array.hpp>
+#include "math/VecAssign_unk.h"
 
 // atn/DrawHelper: debug and 2D drawing helper (singleton lbl_8087EEB0). Every command is placed in the command buffer of the helper (DrawHelper::m04), with its vertices behind it, and
 // queued in the render system (atn::RenderManager::instance_) with the current blend mode (DrawHelper::mA0).
@@ -285,10 +286,6 @@ public:
     virtual void vf10(RenderManager* view);
 };
 
-// inferred: Vector3 copy through one more inline level (gives the dst/src registers of the original)
-static inline void DrawAssign_unk(Vector3& dst, const Vector3& src) {
-    dst = src;
-}
 // inferred: m * v by value (the copy of the result is kept on the stack)
 inline Vector3 DrawTransform_unk(const Matrix3x4& m, const Vector3& v) {
     Vector3 r = v;
@@ -1479,7 +1476,7 @@ void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned in
     }
     Vector3 up(0.0f, 1.0f, 0.0f);
     if (Abs_unk(PSVECDotProduct(&dir, &up)) > 0.99f) {
-        DrawAssign_unk(up, Vector3(0.0f, 0.0f, -1.0f));
+        atn::VecAssign_unk(up, Vector3(0.0f, 0.0f, -1.0f));
     }
     Vector3 right = DrawCross_unk(dir, up).GetNormalize();
     up = DrawCross_unk(right, dir).GetNormalize();
@@ -1567,7 +1564,7 @@ void DrawHelper::fn_8006471C(const Vector3& a, const Vector3& b, unsigned int co
     }
     for (unsigned int i = 0; i < 8; i++) {
         Vector3 p;
-        DrawAssign_unk(p, side);
+        atn::VecAssign_unk(p, side);
         Mtx m;
         PSMTXRotAxisRad(m, &dir, 0.7853982f * i);
         PSMTXMultVec(m, &p, &p);

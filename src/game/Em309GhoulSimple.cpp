@@ -9,6 +9,7 @@
 #include "std/new.h"
 #include "math/Vec.h"
 #include "game/BattleTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" unsigned long strlen(const char* s);
@@ -799,10 +800,6 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
     return atn::Vector3(m[0][3], m[1][3], m[2][3]);
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void GhoulAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em309GhoulSimple::vf20() {
     m620 = m5B0;
@@ -812,7 +809,7 @@ void Em309GhoulSimple::vf20() {
     atn::Vector3 head;
     int spine = mMotion.GetNodeNoByName("spine1", 0);
     if (spine > -1) {
-        GhoulAssign_unk(head, GetNodePos_unk(mMotion.mMtx.mNodes.mData[spine].m));
+        atn::VecAssign_unk(head, GetNodePos_unk(mMotion.mMtx.mNodes.mData[spine].m));
     } else {
         head = top;
         head.y += m5B4 - 2.0f * m620;

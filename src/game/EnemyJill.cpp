@@ -7,6 +7,7 @@
 #include "chr/ControlBase.h"
 #include "std/string_members.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -488,10 +489,6 @@ int EnemyJill::fn_8032F204() {
     return result;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void JillAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 int EnemyJill::fn_8032F314() {
     if (mC58.mC4 == 0) {
@@ -521,7 +518,7 @@ int EnemyJill::fn_8032F314() {
             from.y += 10.0f;
             dest.y += 10.0f;
             if (fn_8004ED34(world, &hit, &from, &dest, fn_80179D44() | 0x80000000, 0, 0) == 0) {
-                JillAssign_unk(m14C0, dest);
+                atn::VecAssign_unk(m14C0, dest);
                 m14C0.y -= 10.0f;
                 result = 1;
                 break;

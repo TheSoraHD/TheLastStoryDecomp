@@ -10,6 +10,7 @@
 #include "atn/DrawHelper.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: empty release assert (some state functions of the original are not auto-inlined)
 #define ASSERT_UNK(x) ((void)0)
@@ -707,10 +708,6 @@ inline int Em203GreaterDaemon::CanFall_unk() {
 static inline int SkillType_unk(HitInfo_unk* skill) {
     return skill->m02;
 }
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void DaemonAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em203GreaterDaemon::vf40(HitInfo_unk* hit) {
     HitMsg_unk* msg = (HitMsg_unk*)hit;
@@ -731,7 +728,7 @@ void Em203GreaterDaemon::vf40(HitInfo_unk* hit) {
                 if (dir.Length_unk() > 100.0f) {
                     dir.Normalize_unk();
                     dir *= 20.0f * ((float)(rand() % 1001) / 1000.0f) + 80.0f;
-                    DaemonAssign_unk(pos, m1500->mPos + dir);
+                    atn::VecAssign_unk(pos, m1500->mPos + dir);
                     pos.y += 100.0f;
                 }
             }
@@ -1804,7 +1801,7 @@ void Em203GreaterDaemon::fn_8028FC28() {
     PlayMotion_unk(0x15E, 0, 0, 1.0f);
     atn::Vector3 target = m1978;
     target.y = 200.0f;
-    DaemonAssign_unk(m151C, target - mPos);
+    atn::VecAssign_unk(m151C, target - mPos);
     atn::Vector3 dir(m151C.x, 0.0f, m151C.z);
     dir.Normalize_unk();
     m151C -= dir * 55.0f;

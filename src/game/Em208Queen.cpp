@@ -11,6 +11,7 @@
 #include "atn/DrawHelper.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: debug menu entries (as in game/Em101LittleZesya.cpp)
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
@@ -529,10 +530,6 @@ void Em208Queen::vf54() {
     }
 }
 
-// inferred: Vector3 copy through one more inline level (as DrawAssign_unk in atn/DrawHelper.cpp)
-static inline void QAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em208Queen::vf20() {
     m620 = m5B0;
@@ -545,9 +542,9 @@ void Em208Queen::vf20() {
     MtxPtr left = mMotion.GetNodeMtx_unk("leftleg");
     MtxPtr right = mMotion.GetNodeMtx_unk("rightleg");
     atn::Vector3 mid;
-    QAssign_unk(mid, (GetNodePos_unk(left) + GetNodePos_unk(right)) * 0.5f);
+    atn::VecAssign_unk(mid, (GetNodePos_unk(left) + GetNodePos_unk(right)) * 0.5f);
     atn::Vector3 head;
-    QAssign_unk(head, GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")));
+    atn::VecAssign_unk(head, GetNodePos_unk(mMotion.GetNodeMtx_unk("neck")));
     mColli.m3C = mid;
     mColli.m48 = head;
     mColli.m54 = 2.0f * m620;
@@ -1062,7 +1059,7 @@ void Em208Queen::fn_802CC19C(int arg, const atn::Vector3* pos) {
         to.y -= 1000.0f;
         fn_8004ECC0(lbl_8087EE98, &dest, &from, &to, 0x20000000, &mColli, 0);
     }
-    QAssign_unk(m1530, atn::Vector3(dest.x - mPos.x, dest.y - mPos.y, dest.z - mPos.z) * 0.05f);
+    atn::VecAssign_unk(m1530, atn::Vector3(dest.x - mPos.x, dest.y - mPos.y, dest.z - mPos.z) * 0.05f);
 }
 
 void Em208Queen::fn_802CC39C() {

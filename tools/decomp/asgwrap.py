@@ -4,6 +4,8 @@
 # "lhs = rhs;" of the function in AsgW_unk(lhs, rhs) (template inline inserted before the function),
 # one at a time, then greedily accumulates the ones that improve. Prints the percentages.
 # Without --apply the source is always restored. With --apply the best set is left in place
+# Default: atn::VecAssign_unk of include/math/VecAssign_unk.h (the include is added if missing; only for
+# atn::Vector3: other types do not compile and are skipped). --template: the old template AsgW_unk.
 # --name N --type T: named non-template inline (reused if already in the file); --only=i,j: build just that set.
 import re, subprocess, sys, signal
 
@@ -79,13 +81,17 @@ if '--declonly' in sys.argv:
     asg = [a for a in asg if len(a) == 6]
 print('assignments', len(asg))
 NAME, TYPE = 'AsgW_unk', None
+VECDEF = '--template' not in sys.argv and '--name' not in sys.argv and '--type' not in sys.argv
+if VECDEF: NAME = 'atn::VecAssign_unk'
 for k, a in enumerate(sys.argv):
     if a == '--name': NAME = sys.argv[k + 1]
     if a == '--type': TYPE = sys.argv[k + 1]
 ONLY = None
 for a in sys.argv:
     if a.startswith('--only='): ONLY = [int(x) for x in a[7:].split(',')]
-if TYPE:
+if VECDEF:
+    DECL = ''
+elif TYPE:
     DECL = ('// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)\n'
             'static inline void %s(%s& dst, const %s& src) {\n    dst = src;\n}\n\n' % (NAME, TYPE, TYPE))
 else:
@@ -132,6 +138,9 @@ def build(sel):
         s = s[:start] + DECLX + DECL + ''.join(l + '\n' for l in kept) + s[defstart:]
     else:
         s = s[:start] + DECLX + DECL + s[start:]
+    if VECDEF and '"math/VecAssign_unk.h"' not in s:
+        m = list(re.finditer(r'^#include [^\n]*\n', s[:start], re.M))[-1]
+        s = s[:m.end()] + '#include "math/VecAssign_unk.h"\n' + s[m.end():]
     open(path, 'w', encoding='latin-1').write(s)
     r = subprocess.run(['ninja', 'build/SLSP01/src/%s.o' % unit], capture_output=True)
     if r.returncode:

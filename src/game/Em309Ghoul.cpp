@@ -12,6 +12,7 @@
 #include "atn/DrawHelper.h"
 #include "atn/RenderManager.h"
 #include "game/BattleTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
 struct Effect_unk;
@@ -600,10 +601,6 @@ void Em309Ghoul::vf44() {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void GhoulAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em309Ghoul::vf20() {
     m620 = m5B0;
@@ -611,7 +608,7 @@ void Em309Ghoul::vf20() {
     m614.y += m620;
     atn::Vector3 base(mPos.x, mPos.y, mPos.z);
     atn::Vector3 head;
-    GhoulAssign_unk(head, base);
+    atn::VecAssign_unk(head, base);
     head.y += 1.5f * m620;
     float r = m620;
     mColli.m3C = base;

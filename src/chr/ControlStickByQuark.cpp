@@ -14,6 +14,7 @@
 #include "chr/ControlDamage.h"
 #include "chr/FuncPair_unk.h"
 #include <boost/bind.hpp>
+#include "math/VecAssign_unk.h"
 
 
 // inferred: input state embedded at +0x48C of the object behind lbl_8087F0A8
@@ -371,10 +372,6 @@ void ControlStickByQuark::fn_80192FB4() {
     mChara->mF1C = (int)mQuark->mMotion.GetNodeMtx_unk("rightwepoint");
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void QuarkAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 boost::function<void()> ControlStickByQuark::vf10() const {
     if (mDone) {
@@ -383,9 +380,9 @@ boost::function<void()> ControlStickByQuark::vf10() const {
         dir.y = 0.0f;
         dir.Normalize_unk();
         if (quark->m17F0 == 0) {
-            QuarkAssign_unk(dir, Cross_unk(dir, atn::Vector3(0.0f, -1.0f, 0.0f)));
+            atn::VecAssign_unk(dir, Cross_unk(dir, atn::Vector3(0.0f, -1.0f, 0.0f)));
         } else {
-            QuarkAssign_unk(dir, Cross_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f)));
+            atn::VecAssign_unk(dir, Cross_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f)));
         }
         return boost::bind(&CharaTask::fn_80155790, (CharaTask*)mChara, dir);
     }

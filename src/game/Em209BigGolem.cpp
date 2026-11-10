@@ -1,5 +1,6 @@
 #include "game/Em209BigGolem.h"
 #include "math/Vec.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void fn_802CFAE4(Em209SmallGolem* golem); // inferred: Em209SmallGolem (not decompiled yet)
@@ -56,10 +57,6 @@ void Em209BigGolem::vf40(HitInfo_unk* hit) {
     }
 }
 
-// inferred: Vector3 copy through one more inline level (as DrawAssign_unk in atn/DrawHelper.cpp)
-static inline void GolemAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 // The chained assignment of a and GolemAssign_unk for b keep the copy registers (r3/r4) in order.
 void Em209BigGolem::vf20() {
@@ -70,7 +67,7 @@ void Em209BigGolem::vf20() {
     m614 = mPos + m5A4;
     m614.y += m620;
     (a = mPos + m5A4).y += 0.8f * radius;
-    GolemAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")));
+    atn::VecAssign_unk(b, GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")));
     mColli.m3C = a;
     mColli.m48 = b;
     mColli.m54 = radius;

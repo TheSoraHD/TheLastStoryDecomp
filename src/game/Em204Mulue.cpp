@@ -13,6 +13,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -1216,10 +1217,6 @@ void Em204Mulue::fn_802A9ADC(int aimed, int skipKind3) {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void MulueAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em204Mulue::fn_802AA1B8() {
     atn::Vector3 d = m15D4 - mPos;
@@ -1258,7 +1255,7 @@ void Em204Mulue::fn_802AA1B8() {
                 m14D8 = -1;
             }
             if (m14D8 == -1) {
-                MulueAssign_unk(m15D4, m15C4);
+                atn::VecAssign_unk(m15D4, m15C4);
             } else {
                 m15D4 = m153C.mData[m14D8]->mPos;
             }

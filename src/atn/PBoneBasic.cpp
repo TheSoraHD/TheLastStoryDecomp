@@ -6,6 +6,7 @@
 #include <boost/function.hpp>
 #include "atn/DrawHelper.h"
 #include "std/string_members.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: physics bones (a bone that swings between two nodes of a model, read from a CSV).
 // Member names are invented.
@@ -102,16 +103,12 @@ PBoneBasic::PBoneBasic()
 
 PBoneBasic::~PBoneBasic() {}
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void BoneAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void PBoneBasic::vf0C() {
     Vector3 root;
-    BoneAssign_unk(root, m64->GetNodeMtx_unk(m38)->GetTrans_unk());
+    atn::VecAssign_unk(root, m64->GetNodeMtx_unk(m38)->GetTrans_unk());
     Vector3 tip;
-    BoneAssign_unk(tip, m64->GetNodeMtx_unk(m3C)->GetTrans_unk());
+    atn::VecAssign_unk(tip, m64->GetNodeMtx_unk(m3C)->GetTrans_unk());
     m5C = (tip - root).Length_unk();
     m14 = (tip - root).GetNormalize();
     vf14();
@@ -208,9 +205,9 @@ void PBoneBasic::vf34() {
 
 void PBoneBasic::vf14() {
     Vector3 root;
-    BoneAssign_unk(root, m64->GetNodeMtx_unk(m38)->GetTrans_unk());
+    atn::VecAssign_unk(root, m64->GetNodeMtx_unk(m38)->GetTrans_unk());
     Vector3 tip;
-    BoneAssign_unk(tip, m64->GetNodeMtx_unk(m3C)->GetTrans_unk());
+    atn::VecAssign_unk(tip, m64->GetNodeMtx_unk(m3C)->GetTrans_unk());
     m08 = root;
     m14 = (tip - root).GetNormalize();
     m20 = lbl_807C7030;
@@ -286,7 +283,7 @@ void PBoneOutForce::vf34() {
     PSVECNormalize(&dir, &dir);
     PSVECNormalize(&dir, &dir);
     Vector3 c = Cross_unk(v, dir);
-    BoneAssign_unk(c, Cross_unk(c, v));
+    atn::VecAssign_unk(c, Cross_unk(c, v));
     if (!c.IsZero_unk()) {
         PSVECNormalize(&c, &c);
     }

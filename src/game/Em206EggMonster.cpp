@@ -13,6 +13,7 @@
 #include "game/GimmickCommon.h"
 #include "game/GimmickManager.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: point the camera looks at (lbl_8087F430 + 0x97C, as in game/Em101ElderZesya.cpp); names invented
 struct EggLook_unk {
@@ -1130,10 +1131,6 @@ void Em206EggMonster::fn_802C4480() {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void EggAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em206EggMonster::vfEC() {
     Field_unk* field = lbl_8087F430;
@@ -1165,7 +1162,7 @@ void Em206EggMonster::vfEC() {
             p.y = 5.0f + mPos.y;
         }
         field->mCamera.m834 = this;
-        EggAssign_unk(field->mCamera.m910.mPos, p);
+        atn::VecAssign_unk(field->mCamera.m910.mPos, p);
     }
 }
 

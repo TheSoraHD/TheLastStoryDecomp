@@ -4,6 +4,7 @@
 #include "game/GameConfig_unk.h"
 #include "gmk/Lemon.h"
 #include "atn/RenderManager.h"
+#include "math/VecAssign_unk.h"
 
 // Everything below is inferred from the finishing camera (0x80378474..0x8037C71C); names are invented.
 
@@ -93,10 +94,6 @@ void FinishCamera_unk::fn_803786F0() {
     mEntries.mCount = 0;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void CamAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
     m00 = 1;
@@ -117,7 +114,7 @@ void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
         PSMTXMultVec(rot, &eye, &eye);
         eye += target;
         if (fn_8004ECC0(lbl_8087EE98, &hit, &target, &eye, 0x80000000, 0, 0) != 0) {
-            CamAssign_unk(eye, hit);
+            atn::VecAssign_unk(eye, hit);
         }
         break;
     }
@@ -132,7 +129,7 @@ void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
         PSMTXMultVec(rot, &eye, &eye);
         eye += target;
         if (fn_8004ECC0(lbl_8087EE98, &hit, &target, &eye, 0x80000000, 0, 0) != 0) {
-            CamAssign_unk(eye, hit);
+            atn::VecAssign_unk(eye, hit);
         }
         break;
     }
@@ -149,17 +146,17 @@ void FinishCamera_unk::fn_803786FC(CharaTask* chara) {
             PSMTXRotRad(rot2, 'y', mRot.y);
             AddCurve_unk(eye, rot2, curve, 0.0f, 1, 2, 3);
         } else {
-            CamAssign_unk(target, atn::RenderManager::instance_->mCamera.mTarget);
+            atn::VecAssign_unk(target, atn::RenderManager::instance_->mCamera.mTarget);
             eye = atn::RenderManager::instance_->mCamera.mPos;
         }
         break;
     case 5:
-        CamAssign_unk(target, atn::RenderManager::instance_->mCamera.mTarget);
+        atn::VecAssign_unk(target, atn::RenderManager::instance_->mCamera.mTarget);
         eye = atn::RenderManager::instance_->mCamera.mPos;
         m394 = lbl_8087F0A8->m0D0 == 1;
         break;
     case 6:
-        CamAssign_unk(target, atn::RenderManager::instance_->mCamera.mTarget);
+        atn::VecAssign_unk(target, atn::RenderManager::instance_->mCamera.mTarget);
         eye = atn::RenderManager::instance_->mCamera.mPos;
         m394 = lbl_8087F0A8->m0D0 == 1;
         break;

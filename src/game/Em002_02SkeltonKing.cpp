@@ -2,6 +2,7 @@
 #include "game/EnemyManager.h"
 #include "chr/ControlStickByQuark.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
@@ -206,10 +207,6 @@ void Em002_02SkeltonKing::vf3C(HitInfo_unk* hit) {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void SkelAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em002_02SkeltonKing::vf20() {
     atn::Vector3 a;
@@ -220,7 +217,7 @@ void Em002_02SkeltonKing::vf20() {
     m614.y += m620;
     MtxPtr left = mMotion.GetNodeMtx_unk("leftleg");
     MtxPtr right = mMotion.GetNodeMtx_unk("rightleg");
-    SkelAssign_unk(a, (((atn::Matrix3x4*)left)->GetTrans_unk() + ((atn::Matrix3x4*)right)->GetTrans_unk()) * 0.5f);
+    atn::VecAssign_unk(a, (((atn::Matrix3x4*)left)->GetTrans_unk() + ((atn::Matrix3x4*)right)->GetTrans_unk()) * 0.5f);
     MtxPtr neck = mMotion.GetNodeMtx_unk("neck");
     b = ((atn::Matrix3x4*)neck)->GetTrans_unk();
     b.y -= 10.0f;

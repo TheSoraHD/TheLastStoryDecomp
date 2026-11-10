@@ -6,6 +6,7 @@
 #include "game/CharaTask.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -294,19 +295,15 @@ void ColliAttrManager::fn_801847C0(CharaTask* chara) {
     }
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void ColliAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 int ColliAttrManager::fn_80184864(CollResult_unk* result, CharaTask* chara, int useNode, int node) {
     atn::Vector3 from;
     atn::Vector3 to;
     if (useNode) {
         atn::Model* model = &chara->mMotion;
-        ColliAssign_unk(from, NodePos_unk(model->GetNodeMtx_unk(model->fn_800928B0(node, 0))) + atn::Vector3(0.0f, 5.0f, 0.0f));
+        atn::VecAssign_unk(from, NodePos_unk(model->GetNodeMtx_unk(model->fn_800928B0(node, 0))) + atn::Vector3(0.0f, 5.0f, 0.0f));
     } else {
-        ColliAssign_unk(from, chara->mPos + atn::Vector3(0.0f, 5.0f, 0.0f));
+        atn::VecAssign_unk(from, chara->mPos + atn::Vector3(0.0f, 5.0f, 0.0f));
     }
     to = from + atn::Vector3(0.0f, -15.0f, 0.0f);
     if (mForceAttr >= 0) {

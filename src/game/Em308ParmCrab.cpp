@@ -5,6 +5,7 @@
 #include "std/string.h"
 #include "std/string_members.h"
 #include <boost/function.hpp>
+#include "math/VecAssign_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -448,10 +449,6 @@ inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
     return front;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void CrabAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 void Em308ParmCrab::vf20() {
     atn::Vector3 pos = mPos;
@@ -459,7 +456,7 @@ void Em308ParmCrab::vf20() {
     atn::Vector3 off(0.0f, 0.0f, 0.0f);
     atn::Vector3 bottom;
     if (m58C == 8) {
-        CrabAssign_unk(off, CrabFront_unk(mRot) * 10.0f);
+        atn::VecAssign_unk(off, CrabFront_unk(mRot) * 10.0f);
     }
     pos += off;
     m620 = 0.7f * m5B0;

@@ -15,6 +15,7 @@
 #include "std/string_members.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -1197,15 +1198,11 @@ inline atn::Vector3 PartyCenter_unk() {
     return center;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void ZesyaAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
 
 // inferred: picks the chant point nearest to the center of the party (m1694)
 void Em101ElderZesya::fn_802598DC() {
     atn::Vector3 center;
-    ZesyaAssign_unk(center, lbl_807C7030);
+    atn::VecAssign_unk(center, lbl_807C7030);
     for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
         center += p->mPos;
     }
@@ -1220,7 +1217,7 @@ void Em101ElderZesya::fn_802598DC() {
             best = i;
         }
     }
-    ZesyaAssign_unk(m1694, m14BC.mData[best]);
+    atn::VecAssign_unk(m1694, m14BC.mData[best]);
 }
 
 // inferred: plays a barrier effect with the color of its kind (name invented)
