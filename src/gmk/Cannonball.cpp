@@ -701,13 +701,17 @@ void Cannonball::fn_803FB870(const atn::Vector3* pos, CharaTask* owner, int flag
     }
 }
 
-// NONMATCHING: 99.72% - r5/r6 swapped in the copy to msg.mVec
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void BallAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Cannonball::fn_803FBC34(const atn::Vector3* pos) {
     if (mBulletId > 0) {
         GimmickMsg_unk msg;
         msg.m10 = (int)mHolder;
         msg.mType = 7;
-        msg.mVec = *pos - mVel.GetNormalize() * 1.5f;
+        BallAssign_unk(msg.mVec, *pos - mVel.GetNormalize() * 1.5f);
         vf40(&msg);
     }
     fn_800CB5C8(&mSound, 10, 0);

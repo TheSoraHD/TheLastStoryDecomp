@@ -448,13 +448,18 @@ inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
     return front;
 }
 
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void CrabAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em308ParmCrab::vf20() {
     atn::Vector3 pos = mPos;
     pos.y -= 2.0f;
     atn::Vector3 off(0.0f, 0.0f, 0.0f);
     atn::Vector3 bottom;
     if (m58C == 8) {
-        off = CrabFront_unk(mRot) * 10.0f;
+        CrabAssign_unk(off, CrabFront_unk(mRot) * 10.0f);
     }
     pos += off;
     m620 = 0.7f * m5B0;

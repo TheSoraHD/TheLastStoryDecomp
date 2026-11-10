@@ -467,12 +467,17 @@ inline atn::Vector3 CrabFront_unk(const atn::Vector3& rot) {
     return front;
 }
 
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void CrabAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void Em308InvertCrab::vf20() {
     atn::Vector3 pos = mPos;
     atn::Vector3 off(0.0f, 0.0f, 0.0f);
     atn::Vector3 bottom;
     if (m58C == 8) {
-        off = CrabFront_unk(mRot) * 10.0f;
+        CrabAssign_unk(off, CrabFront_unk(mRot) * 10.0f);
     }
     pos += off;
     m620 = 0.7f * m5B0;
@@ -1179,13 +1184,7 @@ int Em308InvertCrab::fn_802F62A0(CharaTask* target, int next) {
     return 1;
 }
 
-// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
-static inline void CrabAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
-    dst = src;
-}
-
 // inferred: death: effect ef_sp008_01 at the node "hit_top" of the player (6 above), or 5 below the crab
-// NONMATCHING: 99.86% - r3/r4 of the __VecCopy of the node translation (known blocker); ~8 forms
 void Em308InvertCrab::fn_802F66CC() {
     fn_80239DAC(lbl_8087F3C0, this, 0, 0);
     fn_800CB5C8(&m1514, 0, 0);

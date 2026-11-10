@@ -2439,7 +2439,7 @@
   "classes": [
    "gmk::LottaSummon"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "gmk/Chain.cpp",

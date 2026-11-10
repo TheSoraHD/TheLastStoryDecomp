@@ -239,7 +239,11 @@ void EventCamera_unk::fn_801129C0(float t) {
     m294 = MAX(0.0f, MIN(1.0f, t));
 }
 
-// NONMATCHING: 99.8% - src/dst registers of a Vector3 copy swapped (mwcc-blockers q3)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void PathAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 atn::Vector3 EventCamera_unk::fn_80112A00(const CameraTarget_unk& target, float t) {
     if (target.mPath) {
         return fn_8054856C(target.mPath, t);
@@ -248,7 +252,7 @@ atn::Vector3 EventCamera_unk::fn_80112A00(const CameraTarget_unk& target, float 
     MtxPtr mtx = model ? model->GetNodeMtx_unk(model->fn_800928B0(target.mNode, 0)) : 0;
     atn::Vector3 base;
     if (mtx) {
-        base = GetMtxPos_unk(mtx);
+        PathAssign_unk(base, GetMtxPos_unk(mtx));
     } else {
         base = target.mActor->fn_80010374();
     }

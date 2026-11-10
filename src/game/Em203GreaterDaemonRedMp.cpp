@@ -1372,8 +1372,12 @@ void Em203GreaterDaemonRedMp::fn_802A3520() {
     PlayMotion_unk(0x14D, 0, 0, 1.0f);
 }
 
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void DaemonAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 // inferred: starts state 14 (turns towards the route point m1570)
-// NONMATCHING: 99.69% - r4/r5 crossing of the Vector3 copy into m1560 (known blocker)
 void Em203GreaterDaemonRedMp::fn_802A35B0(int kind) {
     ResetState_unk();
     m58C = 14;
@@ -1382,7 +1386,7 @@ void Em203GreaterDaemonRedMp::fn_802A35B0(int kind) {
     m560 = 4;
     fn_802A42CC();
     atn::Vector3 d = m1570->mPos - mPos;
-    m1560 = d;
+    DaemonAssign_unk(m1560, d);
     m1610 = 0;
     m1630 = 0;
     m1634 = 0;

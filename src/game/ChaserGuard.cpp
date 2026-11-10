@@ -606,7 +606,11 @@ void ChaserGuard::fn_8017F4A0(int state) {
     m14B0 = state;
 }
 
-// NONMATCHING: 99.9% - the address registers of the copy into m14C4 are swapped (r4/r5).
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void GuardAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 bool ChaserGuard::fn_8017FBEC() {
     CharaTask* player = fn_80183860(lbl_8087F098, &mPos);
     if (player == 0) {
@@ -642,7 +646,7 @@ bool ChaserGuard::fn_8017FBEC() {
         }
         if (seen) {
             m14B8 = player->mPos;
-            m14C4 = mPos - m14B8;
+            GuardAssign_unk(m14C4, mPos - m14B8);
         }
         return seen;
     }

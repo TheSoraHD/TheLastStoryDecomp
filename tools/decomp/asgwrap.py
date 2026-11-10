@@ -86,8 +86,13 @@ def build(sel):
     for k in sorted(sel, reverse=True):
         p0, p1, lhs, rhs = asg[k]
         s = s[:p0] + '%s(%s, %s);' % (NAME, lhs, rhs) + s[p1:]
-    if drop and cblock.startswith('// NONMATCHING'):
-        s = s[:start] + DECL + s[defstart:]
+    if drop and '// NONMATCHING' in cblock:
+        kept, skip = [], False
+        for l in cblock.split('\n')[:-1]:
+            if l.startswith('// NONMATCHING'): skip = True
+            elif l.startswith('// inferred') or l.startswith('// DRAFT'): skip = False
+            if not skip: kept.append(l)
+        s = s[:start] + DECL + ''.join(l + '\n' for l in kept) + s[defstart:]
     else:
         s = s[:start] + DECL + s[start:]
     open(path, 'w', encoding='latin-1').write(s)
@@ -101,9 +106,10 @@ def build(sel):
 try:
     if ONLY is not None:
         v = build(ONLY)
-        if apply and v == 100.0 and cblock.startswith('// NONMATCHING'):
+        if apply and v == 100.0 and '// NONMATCHING' in cblock:
             drop = True; v = build(ONLY)
         print('only', ONLY, v)
+        if v != 100.0: restore()
         if not apply: restore()
         sys.exit(0)
     base = build([])

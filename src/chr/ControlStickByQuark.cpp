@@ -371,9 +371,11 @@ void ControlStickByQuark::fn_80192FB4() {
     mChara->mF1C = (int)mQuark->mMotion.GetNodeMtx_unk("rightwepoint");
 }
 
-// NONMATCHING: 99.87% - the original loads mDone before saving r31 (as in a const method) and swaps
-// r8/r9 in the copies of the bound vector
-// inferred: thrown sideways when released, gets up otherwise
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void QuarkAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 boost::function<void()> ControlStickByQuark::vf10() const {
     if (mDone) {
         EnemyQuarkStand* quark = mQuark;
@@ -381,9 +383,9 @@ boost::function<void()> ControlStickByQuark::vf10() const {
         dir.y = 0.0f;
         dir.Normalize_unk();
         if (quark->m17F0 == 0) {
-            dir = Cross_unk(dir, atn::Vector3(0.0f, -1.0f, 0.0f));
+            QuarkAssign_unk(dir, Cross_unk(dir, atn::Vector3(0.0f, -1.0f, 0.0f)));
         } else {
-            dir = Cross_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f));
+            QuarkAssign_unk(dir, Cross_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f)));
         }
         return boost::bind(&CharaTask::fn_80155790, (CharaTask*)mChara, dir);
     }

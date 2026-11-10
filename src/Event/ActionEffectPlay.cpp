@@ -1405,8 +1405,6 @@ static inline void CloudAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
 
 // inferred: position of the cloud map: actor of parameter 0 (node of parameter 1) plus the offset of
 // parameters 2-4, seen from above
-// NONMATCHING: 99.8% - r3/r4 swapped in the copy of the node position (tried a Vector3 built from the
-// matrix, GetTrans_unk on MtxPtr and on a Matrix3x4 pointer)
 atn::Vector2_unk ActionCloudMap::fn_80560FE8(Action* arg) {
     int id;
     EventManager_unk* manager = arg->fn_805381C8();

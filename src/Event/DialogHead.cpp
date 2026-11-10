@@ -122,8 +122,11 @@ void DialogHead::fn_802254B0(float top, float bottom) {
     }
 }
 
-// NONMATCHING: 99.9% - copy of the head position into m1828: source and target address registers
-// swapped (r3/r4, known blocker of the Vector3 copy from a temporary)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void HeadAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 int DialogHead::vf0C() {
     int loading = 0;
     for (int i = 0; i < 7; i++) {
@@ -157,7 +160,7 @@ int DialogHead::vf0C() {
             }
         }
         m1824 = mMotion.GetNodeNoByName("head", 0);
-        m1828 = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(m1824))->GetTrans_unk();
+        HeadAssign_unk(m1828, ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(m1824))->GetTrans_unk());
         m1834.y = MIN(1.6f, 0.3f * -(m1828.y - 15.771023f));
         fn_80225C80(0);
         m1A10 = rand() % 90;

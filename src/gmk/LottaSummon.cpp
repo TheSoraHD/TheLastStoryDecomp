@@ -150,10 +150,11 @@ void LottaSummon::Start() {
     vf40(&msg);
 }
 
-// NONMATCHING: 99.9% - r29/r30 swapped for the hoisted addresses of the pushed direction and its
-// temporary in the player loop. Tried: back/d declaration orders, a named copy of Back_unk(),
-// other return forms of Back_unk (named, operator-, * -1), inverted condition, Normalize_unk,
-// Assign_unk.
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void LottaAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void LottaSummon::vf10() {
     if (mDesc != 0) {
         int enabled = mDesc->m7C;
@@ -219,7 +220,7 @@ void LottaSummon::vf10() {
                         if (!((float)__fabs(len) < 1.1920929e-7f) && len > 4.0f) {
                             PSVECNormalize(&d, &d);
                         } else {
-                            d = Back_unk(chara);
+                            LottaAssign_unk(d, Back_unk(chara));
                         }
                         chara->fn_8016B8D4(d, 1, 0, 0);
                     }

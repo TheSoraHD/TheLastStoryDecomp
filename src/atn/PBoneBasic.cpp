@@ -102,13 +102,16 @@ PBoneBasic::PBoneBasic()
 
 PBoneBasic::~PBoneBasic() {}
 
-// NONMATCHING: 99.6% - the Vector3 copy of math/Vec.h gets the source and destination address registers swapped
-// (copies of the node positions)
+// inferred: copy through one more inline level (fixes the r3/r4 swap of the __VecCopy, see trucos-mwcc.md)
+static inline void BoneAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 void PBoneBasic::vf0C() {
     Vector3 root;
-    root = m64->GetNodeMtx_unk(m38)->GetTrans_unk();
+    BoneAssign_unk(root, m64->GetNodeMtx_unk(m38)->GetTrans_unk());
     Vector3 tip;
-    tip = m64->GetNodeMtx_unk(m3C)->GetTrans_unk();
+    BoneAssign_unk(tip, m64->GetNodeMtx_unk(m3C)->GetTrans_unk());
     m5C = (tip - root).Length_unk();
     m14 = (tip - root).GetNormalize();
     vf14();
@@ -203,13 +206,11 @@ void PBoneBasic::vf34() {
     m20 *= 0.9f;
 }
 
-// NONMATCHING: 99.6% - the Vector3 copy of math/Vec.h gets the source and destination address registers swapped
-// (copies of the node positions)
 void PBoneBasic::vf14() {
     Vector3 root;
-    root = m64->GetNodeMtx_unk(m38)->GetTrans_unk();
+    BoneAssign_unk(root, m64->GetNodeMtx_unk(m38)->GetTrans_unk());
     Vector3 tip;
-    tip = m64->GetNodeMtx_unk(m3C)->GetTrans_unk();
+    BoneAssign_unk(tip, m64->GetNodeMtx_unk(m3C)->GetTrans_unk());
     m08 = root;
     m14 = (tip - root).GetNormalize();
     m20 = lbl_807C7030;
@@ -272,8 +273,6 @@ PBoneOutForce::PBoneOutForce() {}
 
 PBoneOutForce::~PBoneOutForce() {}
 
-// NONMATCHING: 99.9% - the Vector3 copy of math/Vec.h gets the source and destination address registers swapped
-// (c = Cross_unk(c, v))
 void PBoneOutForce::vf34() {
     Matrix3x4* root = m64->GetNodeMtx_unk(m38);
     Matrix3x4* tip = m64->GetNodeMtx_unk(m3C);
@@ -287,7 +286,7 @@ void PBoneOutForce::vf34() {
     PSVECNormalize(&dir, &dir);
     PSVECNormalize(&dir, &dir);
     Vector3 c = Cross_unk(v, dir);
-    c = Cross_unk(c, v);
+    BoneAssign_unk(c, Cross_unk(c, v));
     if (!c.IsZero_unk()) {
         PSVECNormalize(&c, &c);
     }

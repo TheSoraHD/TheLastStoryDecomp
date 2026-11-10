@@ -1564,7 +1564,6 @@ static inline void DaemonAssign_unk(atn::Vector3& dst, const atn::Vector3& src) 
 }
 
 // inferred: starts state 11 (dives on the target)
-// NONMATCHING: 99.81% - r5/r6 crossing on the psq copy into m1530 (known blocker)
 void Em203GreaterDaemonRed::fn_8029A788() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);

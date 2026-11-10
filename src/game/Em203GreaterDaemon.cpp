@@ -1788,7 +1788,6 @@ void Em203GreaterDaemon::fn_8028FB30() {
 }
 
 // inferred: starts state 13 (dives to the centre of the arena)
-// NONMATCHING: 99.80% - r6/r7 crossing on the psq copy into m151C (known blocker)
 void Em203GreaterDaemon::fn_8028FC28() {
     ASSERT_UNK(this != 0);
     ASSERT_UNK(this != 0);
