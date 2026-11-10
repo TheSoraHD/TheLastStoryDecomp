@@ -1,6 +1,8 @@
 #ifndef GAME_MINIMAPTASK_H
 #define GAME_MINIMAPTASK_H
 
+#include "atn/Color.h"
+
 #include "atn/Camera_unk.h"
 #include "atn/IRender.h"
 #include "atn/LH_Binary.h"
@@ -9,6 +11,7 @@
 #include "atn/Texture_unk.h"
 
 // inferred: map minimap renderer, with a secondary atn::IRender base at +0x48
+class CharaTask;
 class MiniMapTask : public atn::Task, public atn::IRender {
 public:
     MiniMapTask(atn::Task* parent, const char* path);
@@ -22,6 +25,9 @@ public:
     virtual void vf10(atn::RenderManager* view);
     virtual void vf18(atn::RenderManager* view);
     virtual void vf1C();
+    // inferred: marks / unmarks a character on the minimap (GameEventScript::fn_803A6744)
+    void fn_804AAD68(CharaTask* chara, const atn::Color* color);
+    void fn_804AAFCC(CharaTask* chara);
     void fn_804ABF84(atn::RenderManager* view); // inferred: draws the minimap with its orthographic camera
 
     int m4C;                           // inferred: initialized to 1

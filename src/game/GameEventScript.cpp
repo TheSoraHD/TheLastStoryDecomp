@@ -84,6 +84,23 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v);
 static inline float SqLength_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
+// inferred: value of an argument (type 1: the flag `value` of the field, 2: fn_80370174, 3: a random
+// number in [1, value], else the value itself; 0 without a field) (name invented)
+static inline int ScriptValue_unk(int type, int value) {
+    if (lbl_8087F430 == 0) {
+        return 0;
+    }
+    if (type == 2) {
+        return lbl_8087F430->fn_80370174(value);
+    }
+    if (type == 1) {
+        return lbl_8087F430->fn_80370A78(value);
+    }
+    if (type == 3) {
+        value = rand() % value + 1;
+    }
+    return value;
+}
 // inferred: sets the mode of the members of a team, keeping the previous one (name invented)
 static inline void SetTeamMode_unk(TeamAI_unk* team, int mode) {
     if (team != 0) {
@@ -101,6 +118,12 @@ struct ScriptSoundArgs_unk : public ScriptCmd_unk {
     char mName[0x20]; // 0x08
     float m28;        // inferred: volume
     unsigned int m2C; // inferred: flags
+};
+// inferred: view of the area command (fn_803AAC60; names invented)
+struct ScriptAreaArgs_unk : public ScriptCmd_unk {
+    int m08;
+    float m0C; // inferred: blend
+    int m10;   // inferred: frames
 };
 struct ScriptMotionArgs_unk : public ScriptCmd_unk {
     int m08;
@@ -1100,6 +1123,27 @@ void GameEventScript::fn_803A66B0(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: marks (m08 0) or unmarks (1) a character on the minimap of the town
+void GameEventScript::fn_803A6744(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    if (lbl_8087FA20 != 0) {
+        MiniMapTask* minimap = (MiniMapTask*)lbl_8087FA20->m258; // inferred: m258 is the minimap (fn_804A7EA4)
+        CharaTask* chara = GetChara_unk(args->m0C, args->m10);
+        switch (args->m08) {
+        case 0: {
+            atn::Color color(0.8156863f, 0.0f, 0.0f, 1.0f);
+            minimap->fn_804AAD68(chara, &color);
+            break;
+        }
+        case 1:
+            minimap->fn_804AAFCC(chara);
+            break;
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // NONMATCHING: 92.3% - the original reloads mItemCount for the slot of AddItem_unk (as BattleCharaTask::fn_800EE360) and stores mDB0C later
 // inferred: gives the item m08 (bit 0 of m0C: added to the result of the battle instead) and shows it
 void GameEventScript::fn_803A6B9C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
@@ -1126,17 +1170,7 @@ void GameEventScript::fn_803A6B9C(ScriptResult_unk& result, const ScriptCmd_unk*
 // in [1, m10] (m0C 3)
 void GameEventScript::fn_803A6CDC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
-    int type = args->m0C;
-    int value = args->m10;
-    if (lbl_8087F430 == 0) {
-        value = 0;
-    } else if (type == 2) {
-        value = lbl_8087F430->fn_80370174(value);
-    } else if (type == 1) {
-        value = lbl_8087F430->fn_80370A78(value);
-    } else if (type == 3) {
-        value = rand() % value + 1;
-    }
+    int value = ScriptValue_unk(args->m0C, args->m10);
     GameTimer* timer = GameTimer::sInstance;
     if (timer != 0) {
         switch (args->m08) {
@@ -1368,9 +1402,61 @@ void GameEventScript::fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: switches the current map to the area list m08 (modulo the count) with the blend m0C over
+// m10 frames
+void GameEventScript::fn_803AAC60(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptAreaArgs_unk* args = static_cast<const ScriptAreaArgs_unk*>(cmd);
+    MapTask* map = lbl_8087F430 != 0 ? lbl_8087F430->GetCurrentMap() : 0;
+    if (map != 0 && (int)map->mAreas.mSize > 0) {
+        int index = args->m08 % (int)map->mAreas.mSize;
+        float speed = 1.0f;
+        if (args->m10 > 0) {
+            speed = 1.0f / args->m10;
+        }
+        lbl_8087F430->GetCurrentMap()->fn_804A0F58(index, args->m0C, speed);
+    }
+    result.SetNext_unk(cmd);
+}
+
 void GameEventScript::fn_803AAD58(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     lbl_8087F490->fn_803E44C4((args->m0C & 1) ^ 1, args->m08, 45);
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: m08 1: shows the notice 0 of the UI when the value (m0C, m10, as fn_803A6CDC) is 0
+void GameEventScript::fn_803AAF74(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    int value = ScriptValue_unk(args->m0C, args->m10);
+    if (args->m08 == 1 && lbl_8087F490 != 0 && value == 0) {
+        lbl_8087F490->fn_803E598C(0, 30, 0);
+    }
+    result.SetNext_unk(cmd);
+}
+
+// NONMATCHING: 99% - registers r0/r4 swapped in the next command (as fn_803A61CC)
+// inferred: notices and gauges of the UI (m08: 0 notice 1, 1 fn_803E58CC, 2 notice 0, 3 fn_803E58E4,
+// 4 fn_803DF5B4)
+void GameEventScript::fn_803AB06C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    switch (static_cast<const ScriptArgs_unk*>(cmd)->m08) {
+    case 0:
+        lbl_8087F490->fn_803E598C(1, 0, 0);
+        break;
+    case 1:
+        lbl_8087F490->fn_803E58CC();
+        break;
+    case 2:
+        lbl_8087F490->fn_803E598C(0, 0, 0);
+        break;
+    case 3:
+        lbl_8087F490->fn_803E58E4();
+        break;
+    case 4:
+        lbl_8087F490->fn_803DF5B4();
+        break;
+    }
     result.SetNext_unk(cmd);
 }
 

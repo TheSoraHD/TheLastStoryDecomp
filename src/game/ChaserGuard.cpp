@@ -11,6 +11,7 @@
 #include "game/TownTask.h"
 #include "game/GameTask.h"
 #include "math/VecAssign_unk.h"
+#include "game/MiniMapTask.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
@@ -34,8 +35,6 @@ struct Color4f_unk {
     Color4f_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
-extern "C" void fn_804AAFCC(void* list, ChaserGuard* guard); // inferred: removes the guard
-extern "C" void fn_804AAD68(void* list, ChaserGuard* guard, const Color4f_unk* color); // inferred: adds the guard
 // inferred: chase manager (class unknown)
 struct ChaseState_unk {
     unsigned char m00[0x48];
@@ -167,7 +166,7 @@ ChaserGuard::ChaserGuard(atn::Task* parent, EnemyInfo_unk* info)
 
 ChaserGuard::~ChaserGuard() {
     if (lbl_8087FA20 != 0) {
-        fn_804AAFCC(lbl_8087FA20->m258, this);
+        ((MiniMapTask*)lbl_8087FA20->m258)->fn_804AAFCC(this);
     }
 }
 
@@ -578,7 +577,8 @@ void ChaserGuard::fn_8017F4A0(int state) {
         mMotion.mTracks[0].m0C = 1.0f;
         m1508 = 0;
         Color4f_unk color(1.0f, 0.0f, 0.0f, 1.0f);
-        fn_804AAD68(lbl_8087FA20->m258, this, &color);
+        // inferred: m258 is the minimap of the town; Color4f_unk has the layout of atn::Color
+        ((MiniMapTask*)lbl_8087FA20->m258)->fn_804AAD68(this, (const atn::Color*)&color);
         break;
     }
     case 1: {
