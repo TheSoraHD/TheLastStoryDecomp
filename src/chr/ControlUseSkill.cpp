@@ -37,6 +37,11 @@ struct DamageResult_unk {
 extern "C" void fn_8003EA3C(DamageResult_unk* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner,
                             unsigned int flags, const HitParam_unk* param, int arg, int arg2); // inferred: computes the damage
 
+// inferred: Vector3 copy through one more inline level (as DrawAssign_unk in atn/DrawHelper.cpp)
+static inline void VecAssign_unk(atn::Vector3& dst, const atn::Vector3& src) {
+    dst = src;
+}
+
 namespace chr {
 
 ControlUseSkill::ControlUseSkill(Chara_unk* chara, void* data, CharaTask* target, int motion, const char* name, float f)
@@ -88,7 +93,7 @@ int ControlUseSkill::vf0C() {
         if (kind == 2 || kind == 6 || kind == 1) {
             atn::Vector3 pos = mChara->mPos + atn::Vector3(0.0f, 10.0f, 0.0f);
             if (mNode != 0) {
-                pos = ((atn::Matrix3x4*)mNode)->GetTrans_unk();
+                VecAssign_unk(pos, ((atn::Matrix3x4*)mNode)->GetTrans_unk());
             }
             atn::Vector3 d = dir;
             if (!(atn::Abs_unk(PSVECSquareMag(&d)) < 1.1920929e-7f)) {

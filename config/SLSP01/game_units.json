@@ -977,7 +977,7 @@
   "classes": [
    "chr::ControlUseSkill"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "chr/ControlSitting.cpp",
