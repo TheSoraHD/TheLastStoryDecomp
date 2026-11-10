@@ -6,6 +6,10 @@
 #include "MP/D2ACommonDialog.h"
 #include "MP/D2AMpMenuSetMessage.h"
 #include "game/MenuCommonTask.h"
+#include "atn/Csv.h"
+
+extern "C" int atoi(const char* s);
+extern "C" int strcmp(const char* a, const char* b);
 
 // inferred: setters of the session rules (the last argument: 1 = default)
 extern "C" void fn_804EA75C(MpMsgSession_unk* s, int value, int b);
@@ -362,6 +366,47 @@ int D2AMpMenuRankMark::vf0C() {
         return 1;
     }
     return 0;
+}
+
+// NONMATCHING: 98.1% - the original sets the row offset (r30) before reading the count, and
+// register of the count; offsets in @stringBase0
+// inferred: reads the colours of the marks and the rows of the rank table
+void D2AMpMenuRankMark::fn_804B4400() {
+    int count;
+    int i;
+    int numColors = 0;
+    atn::Csv csv((const char*)mTable.fn_80470580(), mTable.fn_8047059C());
+    const char* field = csv.fn_8005B9CC();
+    do {
+        int r = atoi(field);
+        int g = atoi(csv.fn_8005B9CC());
+        int b = atoi(csv.fn_8005B9CC());
+        const char* kind = csv.fn_8005B9CC();
+        if (strcmp(kind, "base") == 0) {
+            mColors[numColors][0] = (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
+        } else if (strcmp(kind, "pattern") == 0) {
+            mColors[numColors][1] = (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
+        } else if (strcmp(kind, "sword") == 0) {
+            mColors[numColors][2] = (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
+            numColors++;
+        }
+        csv.fn_8005BBF8();
+    } while (numColors < 8 && strcmp(field = csv.fn_8005B9CC(), "rank_num") != 0);
+
+    i = 0;
+    count = atoi(csv.fn_8005B9CC());
+    mRows.Resize_unk(count);
+    while (csv.fn_8005BBF8() != 0) {
+        Entry* e = &mRows.mEntries[i];
+        e->mColor = atoi(csv.fn_8005B9CC());
+        e->m04 = atoi(csv.fn_8005B9CC());
+        e->m08 = atoi(csv.fn_8005B9CC());
+        e->m0C = atoi(csv.fn_8005B9CC());
+        i++;
+        if (i >= count) {
+            break;
+        }
+    }
 }
 
 void D2AMpMenuRankMark::fn_804B4678(int index, float speed, int repeat) {

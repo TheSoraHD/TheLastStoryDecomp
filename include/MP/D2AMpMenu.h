@@ -51,6 +51,18 @@ public:
             mEntries = 0;
             mCount = 0;
         }
+        // inferred: reallocates the rows (inline: its "" literals are in @STRING@ pools of .sdata)
+        void Resize_unk(unsigned int count) {
+            if (mEntries != 0) {
+                delete[] mEntries;
+            }
+            mCount = count;
+            if (count != 0) {
+                mEntries = new ((MemoryTag)0, "", "", 0) Entry[count];
+            } else {
+                mEntries = 0;
+            }
+        }
         unsigned int mCount;
         Entry* mEntries;
     };
