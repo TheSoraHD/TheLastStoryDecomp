@@ -186,10 +186,17 @@ void atn::RenderManager::fn_800BC468(GXTexObj* tex) {
     DCFlushRange(image, size);
 }
 
+// inferred: clamp to 0..0xFFFF
+static inline int ClampU16_unk(int value) {
+    if (value < 0) {
+        value = 0;
+    }
+    if (value > 0xFFFF) {
+        value = 0xFFFF;
+    }
+    return value;
+}
 void atn::RenderManager::fn_800BC618(GXTexObj* texture, int offset) {
-    // NONMATCHING: 97.92% - the original clamps with two plain ifs (the zero falls into the 0xFFFF test) and
-    // unrolls the loop x2; written so here MWCC unrolls it x4 (65%); the else-if keeps x2 with an extra b.
-    // Tried ternaries, a clamp inline, an index inline, other index/loop forms, padding statements.
     unsigned short* remap;
     unsigned int size;
     size = GXGetTexBufferSize(256, 256, 3, 0, 0);
@@ -202,11 +209,7 @@ void atn::RenderManager::fn_800BC618(GXTexObj* texture, int offset) {
     // inferred: 256x256 halfword remap table, with each source value clamped to 16 bits.
     for (unsigned int i = 0; i < 0x10000; ++i) {
         int value = (int)i + offset;
-        if (value < 0) {
-            value = 0;
-        } else if (value > 0xFFFF) {
-            value = 0xFFFF;
-        }
+        value = ClampU16_unk(value);
         unsigned int index0 = ((unsigned int)value & 3) << 2;
         unsigned int index1 = (((unsigned int)value >> 2) & 0x3F) << 10;
         unsigned int index2 = (((unsigned int)value >> 10) & 0x3F) << 4;
