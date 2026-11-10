@@ -763,6 +763,7 @@ int lbl_8087EE84;
 unsigned int* lbl_8087EE88;
 char* lbl_8087EE8C;
 AudioDevice* lbl_8087EE90;
+FrameCallbacks_unk* lbl_8087EE94; // inferred: per-frame callbacks (filled by game/main.cpp)
 
 // inferred: callbacks of the remote speaker (empty)
 extern "C" void fn_80046220(int result, unsigned long arg) {
@@ -1431,16 +1432,14 @@ struct ReverbPreset_unk {
 #define AUDIO_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
 #define AUDIO_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
 
-// NONMATCHING: 99.75% - registros del clamp del numero de reflexiones
 // inferred: adds a reverb preset
 extern "C" void fn_80049E54(AudioDevice* audio, const ReverbPreset_unk* preset) {
     AudioFxPreset_unk param;
     param.m1C = preset->mType;
     param.m04 = preset->m08;
-    int n = AUDIO_MIN_UNK(AUDIO_MAX_UNK((int)preset->m0C, 5), 40);
+    param.m14 = AUDIO_MIN_UNK(AUDIO_MAX_UNK((int)preset->m0C, 5), 40) / 5 - 1;
     param.m0C = preset->m10;
     param.m18 = 0.05f;
-    param.m14 = n / 5 - 1;
     param.m00 = AUDIO_MIN_UNK(preset->m14, 0.05f);
     param.m08 = preset->m18;
     param.m20 = preset->m1C;
@@ -1549,6 +1548,21 @@ extern "C" void fn_8004A3FC(AudioDevice* audio, const char* path) {
     audio->m8E0 = 1;
 }
 
-// inferred: empty (SoundManager::fn_800CE6E0 calls it with lbl_8087EE90 at the end of its update);
-// last function of the file, before the weak copies of the maps
+// inferred: the weak copies of the maps follow the order of the original (0x8004A600-0x8004AD9C); the explicit
+// instantiations place them as in the original, around the last function of the file
+template AudioMap_unk<unsigned int, AudioSoundId_unk, 4>::Node*
+AudioMap_unk<unsigned int, AudioSoundId_unk, 4>::FindInsertPos(const unsigned int& key, Node*& pred, bool& left,
+                                                              bool& leftmost);
+
+// inferred: empty (SoundManager::fn_800CE6E0 calls it with lbl_8087EE90 at the end of its update)
 extern "C" void fn_8004A660(AudioDevice* audio) {}
+
+template void AudioMap_unk<unsigned int, const char*, 0>::Destroy(Node* node);
+template AudioMap_unk<unsigned int, AudioSoundId_unk, 4>::Node*
+AudioMap_unk<unsigned int, AudioSoundId_unk, 4>::InsertNode(Node* parent, bool left, bool leftmost, const Value& value);
+template void AudioMap_unk<unsigned int, AudioSoundId_unk, 4>::Destroy(Node* node);
+template AudioMap_unk<int, AudioFxPreset_unk, 4>::Node*
+AudioMap_unk<int, AudioFxPreset_unk, 4>::InsertNode(Node* parent, bool left, bool leftmost, const Value& value);
+template void AudioMap_unk<int, AudioFxPreset_unk, 4>::Destroy(Node* node);
+template AudioMap_unk<int, AudioFxPreset_unk, 4>::Node*
+AudioMap_unk<int, AudioFxPreset_unk, 4>::FindInsertPos(const int& key, Node*& pred, bool& left, bool& leftmost);

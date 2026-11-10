@@ -160,7 +160,7 @@
   "classes": [
    "atn::AudioDevice"
   ],
-  "matching": false
+  "matching": true
  },
  {
   "name": "atn/Bgm.cpp",
