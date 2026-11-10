@@ -1,6 +1,6 @@
 # Siguiente sesion (tras arranque2-20261110)
 
-Rama `arranque2-20261110` (sin mergear; inicio 2026-11-10 00:52, cierre 12:52): **14895 -> 14956 / 18109**, lost 0,
+Rama `arranque2-20261110` (sin mergear; inicio 2026-11-10 00:52, cierre 12:52): **14895 -> 14958 / 18109**, lost 0,
 sin bajadas de fuzzy, build limpio y clon limpio de la rama con `main.dol: OK`. Notas: `docs/arranque2-20261110.md`;
 ruta `main()` -> pantalla de titulo: `docs/ruta-arranque.md` (581/666 al 100 %, enlazan 9 de 27).
 
@@ -22,8 +22,10 @@ ruta `main()` -> pantalla de titulo: `docs/ruta-arranque.md` (581/666 al 100 %, 
 - Pasar `asgwrap.py` (modo normal y `--declonly`) a las funciones al 97-99,9 % con diferencias en `psq_` que no
   llegaron a probarse (unas 45 de `scratch`: regenerar con un barrido de `odiff2.py | grep psq_` sobre las
   funciones al 97-99,9 % de `report.json`). El modo `--ops` y las funciones sin `psq_` no sacaron nada.
-- Mejoras parciales de `asgwrap` sin commitear (BattleCharaTask fn_800E3F5C 99,96; Em003-like casos en
-  ChaserGuard fn_8017F4A0, CharaTask vfD8, Em101ElderZesya fn_802598DC, Em315Coffin fn_80315654): falta lo otro.
+- Mejoras parciales de `asgwrap` sin commitear (BattleCharaTask fn_800E3F5C 99,96: huecos de pila de dos
+  temporales; ChaserGuard fn_8017F4A0 99,95: huecos de pila; CharaTask vfD8 99,82: r29/r30 de `d`/`from`). Con la
+  copia envuelta mas un segundo cambio pequeno salieron Em003LesserDaemon fn_8024ED68 (`float frame` arriba),
+  Em101ElderZesya fn_802598DC (`m14BC[i]` con `operator[]`) y Em315Coffin fn_80315654 (capsula en una inline).
 - Ruta: bloqueos de registros (lista en "Que falta" de `docs/ruta-arranque.md`); `Loader::Get_unk<T>` cerraria los
   ocho `atn/LH_*` de golpe (99,7 %).
 - De sesiones anteriores: cabecera unica de `IRenderLayer`; `fn_800F8C6C` (orden de parametros); `ordercheck` de
