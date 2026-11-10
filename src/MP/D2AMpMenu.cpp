@@ -25,6 +25,7 @@ extern "C" void fn_804A4738(MP::MpD2A_unk* bar, int top, int count, int visible)
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
 extern "C" int fn_804DCA4C(MpMsgSession_unk* s, int id, int arg); // inferred: state of a friend
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" const wchar_t* fn_804FA8E8(MpMsgSession_unk* s, int value); // inferred: text of a score
 extern "C" void fn_800D2338(atn::Task* task);                 // inferred: removes the task
 extern "C" void fn_804E4E74(MpMsgSession_unk* s);
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
@@ -372,6 +373,65 @@ void D2AMpMenu::fn_804B39F8() {
         SetPaneText_unk(&m6C->mLayout, "title", fn_80116FC0(0, 0x166));
     } else {
         SetPaneText_unk(&m6C->mLayout, "title", fn_80116FC0(0, 0x164));
+    }
+}
+
+// inferred: name of a side
+static inline void SideName_unk(wchar_t* text, int side) {
+    if (side == 0) {
+        fn_800DD3FC(text, fn_80116FC0(0, 0x89547B));
+    } else if (side == 2) {
+        fn_800DD3FC(text, fn_80116FC0(0, 0x89547C));
+    } else if (side == 1) {
+        fn_800DD3FC(text, fn_80116FC0(0, 0x8954D7));
+    }
+}
+
+// NONMATCHING: 99.4% - the task of Play_unk in r29 instead of r30; offsets in @stringBase0
+// inferred: shows the change of side from `before` to `after` (animated backwards if `back`)
+void D2AMpMenu::fn_804B3C78(int before, int after, int back) {
+    wchar_t textBefore[256] = {0};
+    wchar_t textAfter[256] = {0};
+    SideName_unk(textBefore, before);
+    SideName_unk(textAfter, after);
+    if (back == 0) {
+        SetPaneText_unk(&m88->mLayout, "conf_before", textBefore);
+        SetPaneText_unk(&m88->mLayout, "conf_after(1)", textAfter);
+        m88->mFrame = 0.0f;
+        Play_unk(m88, 0, 1.0f);
+    } else {
+        SetPaneText_unk(&m88->mLayout, "conf_before", textAfter);
+        SetPaneText_unk(&m88->mLayout, "conf_after(1)", textBefore);
+        m88->mFrame = 10.0f;
+        Play_unk(m88, 0, -1.0f);
+    }
+}
+
+// NONMATCHING: 95.6% - L"" belongs to the .data pool after L"%d" (used by a function not written
+// yet), so the original adds 6 to the pool address; registers follow from it
+// inferred: fills the rows of the ranking with `count` entries of the list `list` from `first`
+void D2AMpMenu::fn_804B3EFC(int list, int first, int count) {
+    mCC = -1;
+    int row = 0;
+    for (int i = first; i < first + count; i++, row++) {
+        if (list >= 0 && mLists[list]->Get(i)->m48 != 0) {
+            RANKING_DATA* data = mLists[list]->Get(i);
+            m8C[row]->SetNumber_unk("string0006(1)", data->m00, 0);
+            SetPaneText_unk(&m8C[row]->mLayout, "string0028(1)", data->mName);
+            SetPaneText_unk(&m8C[row]->mLayout, "string0029(1)", fn_804FA8E8(lbl_8087F610, data->m04));
+            m8C[row]->SetNumber_unk("string0027(1)", data->m04, 0);
+            Play_unk(m8C[row], 0, 1.0f);
+            if (data->m4C == lbl_8087F628->mE38) {
+                mCC = row;
+            }
+        } else {
+            m8C[row]->SetNumber_unk("string0006(1)", i + 1, 0);
+            const wchar_t* empty = L"";
+            SetPaneText_unk(&m8C[row]->mLayout, "string0028(1)", empty);
+            SetPaneText_unk(&m8C[row]->mLayout, "string0029(1)", empty);
+            SetPaneText_unk(&m8C[row]->mLayout, "string0027(1)", empty);
+            Stop_unk(m8C[row]);
+        }
     }
 }
 

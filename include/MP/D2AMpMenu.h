@@ -170,6 +170,8 @@ public:
     void fn_804B274C();          // inferred: input of the room type
     void fn_804B3838();          // inferred: shows the windows of the ranking
     void fn_804B39F8();          // inferred: shows the game selection
+    void fn_804B3C78(int before, int after, int back); // inferred: shows the change of side
+    void fn_804B3EFC(int list, int first, int count);  // inferred: fills the rows of the ranking
     void fn_804B4150(int state); // inferred: sets the default rules of a game mode
     const wchar_t* fn_804B424C(int rule, int value); // inferred: text of a rule value
 
