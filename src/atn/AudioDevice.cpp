@@ -54,9 +54,10 @@ public:
         }
     }
     Node* end() { return (Node*)&mRoot; }
-    Node* find(const K& key) {
-        Node* node = mRoot;
+    // inferred: MSL __tree::lower_bound, inlined by find (with the result declared before the node)
+    Node* lower_bound_unk(const K& key) {
         Node* result = end();
+        Node* node = mRoot;
         while (node != 0) {
             if (!(node->mValue.first < key)) {
                 result = node;
@@ -65,6 +66,10 @@ public:
                 node = node->mRight;
             }
         }
+        return result;
+    }
+    Node* find(const K& key) {
+        Node* result = lower_bound_unk(key);
         if (result == end() || key < result->mValue.first) {
             result = end();
         }
@@ -219,7 +224,8 @@ public:
         }
     }
     Node* end() { return (Node*)&mRoot; }
-    Node* find(const K& key) {
+    // inferred: MSL __tree::lower_bound, inlined by find
+    Node* lower_bound_unk(const K& key) {
         Node* result = end();
         Node* node = mRoot;
         while (node != 0) {
@@ -230,6 +236,10 @@ public:
                 node = node->mRight;
             }
         }
+        return result;
+    }
+    Node* find(const K& key) {
+        Node* result = lower_bound_unk(key);
         if (result == end() || key < result->mValue.first) {
             result = end();
         }
@@ -1438,8 +1448,6 @@ extern "C" void fn_8004A03C(AudioDevice* audio) {
 }
 
 
-// NONMATCHING: 98.79% - registros nodo/resultado en la busqueda del mapa (con `result` declarado antes que
-// `node` en find sale al 100 %, pero bajan otras siete funciones que usan el mismo find)
 // inferred: selects the reverb preset (0: none)
 extern "C" void fn_8004A1D4(AudioDevice* audio, int preset) {
     if (audio->m408 == 0) {
