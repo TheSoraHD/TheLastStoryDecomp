@@ -756,6 +756,88 @@ void GameEventScript::fn_8039EACC(ScriptResult_unk& result, const ScriptCmd_unk*
     result = ScriptResult_unk(NextCmd_unk(args), 1);
 }
 
+// NONMATCHING: 93.4% - registers of the inlined FindLabel_unk and the inlined fn_8039CCD0 (as fn_8039E328)
+// inferred: waits for a yes/no choice of the message window (choice 0: m0C/m10, else m14/m18, as
+// kind/label of fn_8039E328), after mBC frames
+void GameEventScript::fn_8039EBB8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    GameMessageWindow* window = lbl_8087F490->m263C;
+    int done = 0;
+    if (mB8 == 0) {
+        if (--mBC <= 0 && window->mChoices->fn_803B4C24()) {
+            if (window->mChoices->mChoice == 0) {
+                mB8 = 1;
+                mC0 = args->m0C;
+                mC4 = args->m10;
+                window->fn_803B57EC();
+            } else {
+                mB8 = 1;
+                mC0 = args->m14;
+                mC4 = args->m18;
+                window->fn_803B57EC();
+            }
+            fn_803935FC(0, 1.0f);
+        }
+    } else if (window->mChoices->mState == 0) {
+        done = 1;
+    }
+    if (done != 0) {
+        if (mC0 == 0) {
+            result.mNext = NextCmd_unk(cmd);
+        } else if (mC0 == 1) {
+            result.mNext = 0;
+        } else {
+            result.mNext = FindLabel_unk(mC4);
+        }
+        if (lbl_8087F0A8->m0B8 != 0) {
+            if (!fn_8039CCD0(result.mNext)) {
+                lbl_8087F490->m263C->fn_803B57B0(0);
+                lbl_8087F8A0->mHead->fn_8016E970(1);
+            }
+        } else {
+            lbl_8087F8A0->mHead->fn_8016E970(1);
+        }
+        result.mWait = 0;
+    } else {
+        result.SetNext_unk(cmd, 1);
+    }
+}
+
+// NONMATCHING: 98.5% - inside the inlined vector::push_back: @stringBase0 offset (earlier strings unwritten)
+// and two stack slots of the growth computation swapped
+// inferred: makes the character m10/m14 act (m08: 0 fn_8016F824, 1 fn_8016FDCC, 2 fn_8017039C with m0C)
+// and, with m18, records the label m1C to run for it
+void GameEventScript::fn_8039F08C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m10, args->m14);
+    if (chara != 0 && !chara->IsFlag_unk(4) &&
+        !(chara->mType == 2 && (chara->mStatus.m0C & 0x20) == 0x20)) {
+        switch (args->m08) {
+        case 0:
+            chara->fn_8016F824(args->m0C, 0);
+            break;
+        case 1:
+            chara->fn_8016FDCC(args->m0C, 0);
+            break;
+        case 2:
+            chara->fn_8017039C(args->m0C, 0);
+            break;
+        }
+        if (args->m18 != 0) {
+            fn_803AB37C(chara);
+            ScriptData_unk* data = m94;
+            ScriptRecord14_unk record;
+            record.mChara = chara;
+            record.mData = data;
+            record.mLabel = FindLabel_unk(args->m1C);
+            record.m0C = m9C;
+            record.m10 = mA0;
+            m12C.push_back(record);
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: releases a character from the event (removes its record of m12C; the leader sets mD0)
 // and sets its state m14 (CharaTask::fn_80154654)
 void GameEventScript::fn_8039F600(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {

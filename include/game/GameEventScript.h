@@ -36,7 +36,10 @@ struct ScriptEntry40_unk {
 // inferred: 0x14-byte record of GameEventScript::m12C (names invented)
 struct ScriptRecord14_unk {
     CharaTask* mChara;
-    unsigned char m04[0x14 - 0x04];
+    ScriptData_unk* mData; // inferred: script of the record (GameEventScript::m94)
+    ScriptCmd_unk* mLabel; // inferred: label command to run (fn_8039F08C)
+    int m0C;               // inferred: GameEventScript::m9C
+    int m10;               // inferred: GameEventScript::mA0
 };
 // inferred: 0xC-byte record of GameEventScript::m118 (names invented)
 struct ScriptNpcFlag_unk {
@@ -250,7 +253,10 @@ public:
     int m8C; // inferred: a script is running
     ScriptCmd_unk* m90; // inferred: command being run
     ScriptData_unk* m94; // inferred: compiled script of the running event
-    unsigned char m98[0xA8 - 0x98];
+    unsigned char m98[0x9C - 0x98];
+    int m9C; // inferred: id of the running event (printed by fn_8039BC6C)
+    int mA0;
+    int mA4;
     int mA8; // inferred: a message window is open
     ScriptCmd_unk* mAC; // inferred: command after the choice of the message window
     unsigned char mB0[0xB4 - 0xB0];
