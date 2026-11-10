@@ -143,10 +143,10 @@ public:
     void fn_803A08D4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A0D74(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A0F4C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
-    void fn_803A1B20(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A1B20(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A1DB0(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A26F4(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
-    void fn_803A2E20(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+    void fn_803A2E20(ScriptResult_unk& result, ScriptCmd_unk* cmd);
     void fn_803A3444(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A372C(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
     void fn_803A3D20(ScriptResult_unk& result, const ScriptCmd_unk* cmd);

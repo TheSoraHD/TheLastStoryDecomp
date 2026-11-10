@@ -890,12 +890,11 @@ static inline void HoldLeader_unk(int& saved, EventIdEntry_unk* entry, CharaTask
     }
 }
 
-// NONMATCHING: 98.7% - @stringBase0 offset (earlier strings unwritten) and the store of `wait` in
-// SetNext_unk is scheduled one instruction later in the original
+// NONMATCHING: 99.9% - only the @stringBase0 offset (the earlier strings belong to unwritten functions)
 // inferred: starts the event m08 (flag 2: queued, flag 0x40000000: stops it instead); the result
 // is 1 while it runs
-void GameEventScript::fn_803A1B20(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
-    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+void GameEventScript::fn_803A1B20(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptArgs_unk* args = static_cast<ScriptArgs_unk*>(cmd);
     CharaTask* leader;
     int wait;
     EventIdEntry_unk* entry;
@@ -1125,6 +1124,105 @@ ScriptEntry40_unk* GameEventScript::fn_803A2DD8(int id) {
         }
     }
     return 0;
+}
+
+// inferred: arguments of the wait-and-warp command (name invented)
+struct ScriptWarpArgs_unk : public ScriptCmd_unk {
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+    int m1C;
+    float m20;
+    int m24;
+    int m28;
+};
+
+// inferred: the warp point `id` of the scene of the field (name invented)
+static inline gs::WarpPoint* FindWarpIn_unk(GameScene* scene, int id) {
+    for (unsigned int i = 0; i < scene->m78.size(); i++) {
+        if (id == scene->m78[i].mId) {
+            return &scene->m78[i];
+        }
+    }
+    return 0;
+}
+static inline GameScene* FieldScene_unk() {
+    return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+}
+
+// inferred: waits while the character m08/m0C moves (m10 <= 7); when it is stuck for 90 frames it is
+// warped (2: next to the character m18/m1C at least m20 away, 4: to the scene position, 5: to the
+// warp point m28)
+void GameEventScript::fn_803A2E20(ScriptResult_unk& result, ScriptCmd_unk* cmd) {
+    ScriptWarpArgs_unk* args = static_cast<ScriptWarpArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m08, args->m0C);
+    int wait = 0;
+    if (chara != 0) {
+        wait = 1;
+        if ((unsigned int)args->m10 <= 7) {
+            if (chara->m570 > 0.1f && SqLength_unk(chara->m13B8[1] - chara->m13B8[0]) < 1.0f) {
+                if (++mBC > 45 && (chara->m54C & 0x200) != 0x200) {
+                    mB8 = (chara->m54C & 0x200) == 0x200;
+                    chara->m54C |= 0x200;
+                }
+                if (mBC > 90) {
+                    switch (args->m10) {
+                    case 2: {
+                        CharaTask* target = GetChara_unk(args->m18, args->m1C);
+                        float r;
+                        float c;
+                        r = target->m5B0;
+                        c = chara->m5B0;
+                        float min = 5.0f + (c + r);
+                        float dist = args->m20 > min ? args->m20 : min;
+                        atn::Vector3 dir = chara->mPos - target->mPos;
+                        if (!((float)__fabs(SqLength_unk(dir)) < 1.1920929e-07f)) {
+                            PSVECNormalize(&dir, &dir);
+                        }
+                        dir *= dist;
+                        chara->mPos = target->mPos + dir;
+                        chara->fn_80171DB0();
+                        break;
+                    }
+                    case 4: {
+                        GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+                        if (scene != 0) {
+                            atn::Vector3 pos;
+                            atn::Vector3 rot;
+                            if (scene->fn_803CCA84(chara, &pos, &rot) != 0) {
+                                chara->mPos = pos;
+                                chara->mRot = rot;
+                            }
+                        }
+                        chara->fn_80171DB0();
+                        break;
+                    }
+                    case 5: {
+                        GameScene* scene = FieldScene_unk();
+                        gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, args->m28) : 0;
+                        if (warp != 0) {
+                            chara->mPos = warp->mPos;
+                            chara->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
+                        }
+                        chara->fn_80171DB0();
+                        break;
+                    }
+                    }
+                }
+            } else {
+                mBC = 0;
+            }
+            if (chara->mRoute.m2C != 0) {
+                wait = 0;
+                if (mB8 == 0) {
+                    chara->m54C &= ~0x200;
+                }
+            }
+        }
+    }
+    result.SetNext_unk(cmd, wait);
 }
 
 // NONMATCHING: 87% - the original keeps the character and the value in r5/r4 across fn_8014C468
@@ -2383,20 +2481,6 @@ void GameEventScript::fn_803A7EB8(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// inferred: the warp point `id` of the scene of the field (name invented)
-static inline gs::WarpPoint* FindWarp_unk(int id) {
-    GameScene* scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
-    if (scene != 0) {
-        for (unsigned int i = 0; i < scene->m78.size(); i++) {
-            if (id == scene->m78[i].mId) {
-                return &scene->m78[i];
-            }
-        }
-        return 0;
-    }
-    return 0;
-}
-
 // NONMATCHING: 99.6% - r0/r4 swap in SetNext_unk (docs/mwcc-blockers.md, GameEventScript family)
 // inferred: song control (m08: 0 state, 1 song, 2 position of a warp point, 3 distance, 4/5 volumes
 // in percent, 6 environment sounds)
@@ -2412,7 +2496,8 @@ void GameEventScript::fn_803A7FBC(ScriptResult_unk& result, const ScriptCmd_unk*
             SongManager::sInstance->fn_805A32C8(value);
             break;
         case 2: {
-            gs::WarpPoint* warp = FindWarp_unk(value);
+            GameScene* scene = FieldScene_unk();
+            gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, value) : 0;
             if (warp != 0) {
                 SongManager::sInstance->fn_805A3448(warp->mPos);
             }
