@@ -285,6 +285,10 @@ public:
     virtual void vf10(RenderManager* view);
 };
 
+// inferred: Vector3 copy through one more inline level (gives the dst/src registers of the original)
+static inline void DrawAssign_unk(Vector3& dst, const Vector3& src) {
+    dst = src;
+}
 // inferred: m * v by value (the copy of the result is kept on the stack)
 inline Vector3 DrawTransform_unk(const Matrix3x4& m, const Vector3& v) {
     Vector3 r = v;
@@ -1461,10 +1465,6 @@ inline Vector3 DrawCircle_unk(float t, float z) {
 }
 
 // inferred: wire cone from 'pos' along 'dir' ('angle' in degrees, half aperture)
-// inferred: Vector3 copy through one more inline level (gives the dst/src registers of the original)
-static inline void DrawAssign_unk(Vector3& dst, const Vector3& src) {
-    dst = src;
-}
 void DrawHelper::fn_800641CC(const Vector3& pos, const Vector3& dir, unsigned int color, float length, float angle,
                              float a) {
     ComDrawLine* cmd = m04.New_unk<ComDrawLine>();
