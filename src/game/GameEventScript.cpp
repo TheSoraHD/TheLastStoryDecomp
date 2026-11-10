@@ -4,6 +4,7 @@
 #include "atn/SoundManager.h"
 #include "atn/Memory.h"
 #include "atn/DrawHelper.h"
+#include "atn/ColliBase.h"
 #include "game/TacView.h"
 #include "game/GameCamera.h"
 #include "game/BattleTask.h"
@@ -4130,6 +4131,54 @@ int GameEventScript::fn_803ACD50(int id) {
         }
     }
     return 0;
+}
+
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" int fn_80051CD8(const atn::Sphere* sphere, const atn::ColliBoxShape_unk* box); // inferred: sphere in box
+
+// The original calls both tests recursively out of line (not inlined into themselves)
+// NONMATCHING: 99.96% - stack slots of the two matrices of RotateAxis_unk swapped
+__declspec(noinline) int GameEventScript::fn_803ACE18(int index, const atn::Sphere* sphere, int group) {
+    gs::EventBox& event = mScene->mE4[index];
+    int hit = 0;
+    if (group != 0) {
+        if (event.m2C >= 0) {
+            index = event.m2C;
+        }
+        for (unsigned int i = 0; i < m144[index].size() && hit == 0; i++) {
+            hit = fn_803ACE18(m144[index][i], sphere, 0);
+        }
+    } else {
+        atn::ColliBoxShape_unk box;
+        box.mSize = event.mSize;
+        atn::Matrix3x4 trans;
+        PSMTXTrans(trans.m, event.mPos.x, event.mPos.y, event.mPos.z);
+        box.mMtx = trans;
+        atn::Matrix3x4::RotateAxis_unk(box.mMtx, 'y', event.m14);
+        hit = fn_80051CD8(sphere, &box);
+    }
+    return hit;
+}
+
+extern "C" int fn_80051A88(const atn::Sphere* a, const atn::Sphere* b); // inferred: the spheres touch
+
+__declspec(noinline) int GameEventScript::fn_803ACF88(int index, const atn::Sphere* sphere, int group) {
+    gs::EventSphere& event = mScene->mEC[index];
+    int hit = 0;
+    if (group != 0) {
+        if (event.m20 >= 0) {
+            index = event.m20;
+        }
+        for (unsigned int i = 0; i < m14C[index].size() && hit == 0; i++) {
+            hit = fn_803ACF88(m14C[index][i], sphere, 0);
+        }
+    } else {
+        atn::Sphere bounds;
+        bounds.mCenter = event.mPos;
+        bounds.mRadius = event.m14;
+        hit = fn_80051A88(sphere, &bounds);
+    }
+    return hit;
 }
 
 const char* boost::bad_lexical_cast::what() const { return lbl_8078B34C; }

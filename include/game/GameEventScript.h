@@ -55,6 +55,9 @@ struct ScriptPartsFlag_unk {
     unsigned int mFlags;
 };
 
+namespace atn {
+struct Sphere;
+}
 namespace gs {
 struct EventSphere;
 struct EventBox;
@@ -78,7 +81,11 @@ public:
     inline int FindEvent_unk(int id); // inferred: address of the event `id`, 0 if missing (defined in the .cpp)
     int fn_8039CC24(int id);             // inferred: event with the given id
     int fn_803ABFD4(atn::Task* chara);
-    int fn_803ACD50(int id); // inferred: the event has a condition of kind -2
+    int fn_803ACD50(int id);
+    // inferred: the sphere is in the event box `index` (or, with `group`, in one of its group)
+    int fn_803ACE18(int index, const atn::Sphere* sphere, int group);
+    // inferred: the sphere touches the event sphere `index` (or, with `group`, one of its group)
+    int fn_803ACF88(int index, const atn::Sphere* sphere, int group); // inferred: the event has a condition of kind -2
     int fn_803AC088(); // inferred: count
     int fn_803AC230(); // inferred: count
     int fn_803AC3D8(CharaTask* chara, int a, int b, float range);
@@ -296,7 +303,9 @@ public:
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
     unsigned char m138[0x13C - 0x138];
     ScriptEventNode_unk* m13C; // inferred: root of the set of finished events (end node at &m13C)
-    unsigned char m140[0x154 - 0x140];
+    int m140;
+    atn::SimpleArray<atn::SimpleVector<int> > m144; // inferred: groups of event boxes (fn_803ACE18)
+    atn::SimpleArray<atn::SimpleVector<int> > m14C; // inferred: groups of event spheres (fn_803ACF88)
     ScriptPartsFlag_unk m154[64]; // inferred: draw flags of the map parts by name hash (fn_803A68B8)
     unsigned char m354[0x37C - 0x354];
     int m37C; // inferred: cleared while a command writes a flag of the field (fn_803A6F90)
