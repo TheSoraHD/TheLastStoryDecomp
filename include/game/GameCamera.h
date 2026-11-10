@@ -220,13 +220,7 @@ public:
     float m954;        // inferred: offset of the fovy
     unsigned char m958[0xA0C - 0x958];
     float mA0C[5];
-    unsigned char mA20[0xA28 - 0xA20];
-    atn::Vector3 mA28;     // inferred: position the render camera is blended from (fn_80392FE8)
-    atn::Vector3 mA34;     // inferred: target of the blend
-    atn::Vector3 mA40;     // inferred: up vector of the blend
-    unsigned char mA4C[0xA70 - 0xA4C];
-    float mA70;            // inferred: fovy of the blend
-    unsigned char mA74[0xC14 - 0xA74];
+    atn::Camera mA20;      // inferred: camera the render camera is blended from (fn_80392FE8, fn_80392D2C)
     float mC14;            // inferred: blend weight, decreased by mC18 every frame
     float mC18;
     unsigned char mC1C[0xC20 - 0xC1C];

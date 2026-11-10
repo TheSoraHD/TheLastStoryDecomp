@@ -558,16 +558,25 @@ void GameCamera::fn_80392CE0(const GameCameraState_unk* state) {
     m830 = state->m24;
 }
 
+// NONMATCHING: 98.8% - the copy of the camera, as fn_80392A04
+// inferred: makes the render camera blend back from `from` (weight 1, decreased by `rate` every frame);
+// called with the camera of the field (EnemyQuarkStand, GameEventScript)
+extern "C" void fn_80392D2C(GameCamera* camera, const atn::Camera* from, float rate) {
+    camera->mA20 = *from;
+    camera->mC14 = 1.0f;
+    camera->mC18 = rate;
+}
+
 // NONMATCHING: 83% - stack slots of the (a - b) and (a - b) * t temporaries swapped and the float registers
 // of the three lerps (tried statement orders, Lerp_unk, named differences and a static inline helper)
-// inferred: blends the render camera from the saved one (mA28) while mC14 is positive
+// inferred: blends the render camera from the saved one (mA20) while mC14 is positive
 void GameCamera::fn_80392FE8() {
     if (mC14 > 0.0f) {
         float t = mC14;
-        atn::Vector3 pos = (mA28 - m1F4.mPos) * t + m1F4.mPos;
-        atn::Vector3 target = (mA34 - m1F4.mTarget) * t + m1F4.mTarget;
-        atn::Vector3 up = (mA40 - m1F4.mUp) * t + m1F4.mUp;
-        float fovy = t * (mA70 - m1F4.mFovy) + m1F4.mFovy;
+        atn::Vector3 pos = (mA20.mPos - m1F4.mPos) * t + m1F4.mPos;
+        atn::Vector3 target = (mA20.mTarget - m1F4.mTarget) * t + m1F4.mTarget;
+        atn::Vector3 up = (mA20.mUp - m1F4.mUp) * t + m1F4.mUp;
+        float fovy = t * (mA20.mFovy - m1F4.mFovy) + m1F4.mFovy;
         up.Normalize_unk();
         m1F4.mPos = pos;
         m1F4.mTarget = target;
