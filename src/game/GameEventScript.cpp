@@ -290,7 +290,7 @@ void GameEventScript::fn_803957F0(int id) {
     GameScene* scene = mScene;
     for (unsigned int i = 0; i < scene->m80.size(); i++) {
         if (id == scene->m80[i].mId) {
-            m118[i].mFlags &= ~2;
+            m114[i].mFlags &= ~2;
             return;
         }
     }
@@ -309,6 +309,8 @@ struct ScriptEventConds_unk : public ScriptEventRange_unk {
     int m0C;
     ScriptEventCond_unk mConds[8]; // 0x10
     int mCount;                    // 0xB0
+    int mB4;
+    unsigned int mB8; // inferred: flags (8: started from the camera, fn_803AC708)
 };
 
 // inferred: fn_80398590 testing every condition (name invented)
@@ -4107,6 +4109,79 @@ int GameEventScript::fn_803ABFD4(atn::Task* chara) {
             m12C.erase(&m12C[i]);
             return 1;
         }
+    }
+    return 0;
+}
+
+extern "C" int fn_80051B70(const atn::ColliCapsuleShape_unk* capsule, const atn::ColliSphereShape_unk* sphere);
+
+// NONMATCHING: 93.4% - temporaries of the segment (the original frame is 0x10 bytes smaller and keeps a
+// second copy of the camera position at 0x3C) and registers of the loop
+// inferred: the camera looks (80 units ahead) at an event sphere whose picked event is of kind 7 with the
+// flag 8
+int GameEventScript::fn_803AC708(CharaTask* chara) {
+    atn::Camera& camera = atn::RenderManager::instance_->mCamera;
+    atn::Vector3 pos = camera.mPos;
+    atn::Vector3 dir = (camera.mTarget - camera.mPos).GetNormalize();
+    atn::Vector3 end = pos + dir * 80.0f;
+    atn::Vector3 start = pos;
+    atn::ColliCapsuleShape_unk capsule;
+    capsule.mStart = start;
+    capsule.mEnd = end;
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mEC.size(); i++) {
+        gs::EventSphere& sphere = scene->mEC[i];
+        int group = i;
+        if (sphere.m20 >= 0) {
+            group = sphere.m20;
+        }
+        int script = m10C[group].mScript;
+        if (script >= 0) {
+            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(sphere.m18[script]);
+            if (e != 0 && e->m0C == 7 && (e->mB8 & 8) == 8) {
+                atn::ColliSphereShape_unk bounds(sphere.mPos, sphere.m14);
+                if (fn_80051B70(&capsule, &bounds)) {
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+// inferred: the set point of `chara` has a picked script whose event is of kind 7 (name invented)
+inline int GameEventScript::HasTalkEvent_unk(atn::SimpleArray<gs::NpcSetPoint>& points,
+                                             atn::SimpleArray<ScriptNpcFlag_unk>& flags, CharaTask* chara) {
+    for (unsigned int i = 0; i < points.size(); i++) {
+        gs::NpcSetPoint& point = points[i];
+        if (point.mId == chara->m58) {
+            int script = flags[i].m00;
+            if (script >= 0 && script < point.m140.mSize) {
+                const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(point.m140[script]);
+                if (e != 0 && e->m0C == 7) {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 85.3% - registers (the original keeps the type in r5 and the party test in r0)
+// inferred: the character has an event of kind 7 at its set point (NPC, enemy or friend)
+int GameEventScript::fn_803AC978(CharaTask* chara) {
+    if (chara == 0) {
+        return 0;
+    }
+    if (chara->IsPartyMember_unk() && HasTalkEvent_unk(mScene->m80, m114, chara)) {
+        return 1;
+    }
+    if (chara->mType == 2 && HasTalkEvent_unk(mScene->m88, m11C, chara)) {
+        return 1;
+    }
+    if (chara->mType == 3 && HasTalkEvent_unk(mScene->m90, m124, chara)) {
+        return 1;
     }
     return 0;
 }

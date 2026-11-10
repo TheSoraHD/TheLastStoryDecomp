@@ -33,6 +33,12 @@ struct ScriptEntry40_unk {
     int mId;
     unsigned char m04[0x40 - 0x04];
 };
+// inferred: state of an event sphere of the scene (12 bytes; names invented)
+struct ScriptSphereState_unk {
+    int mScript; // inferred: index of the script picked in the sphere, -1 if none
+    int m04;
+    int m08;
+};
 // inferred: 0x14-byte record of GameEventScript::m12C (names invented)
 struct ScriptRecord14_unk {
     CharaTask* mChara;
@@ -91,6 +97,8 @@ public:
     int fn_803AC3D8(CharaTask* chara, int a, int b, float range);
     int fn_803AC708(CharaTask* chara);
     int fn_803AC978(CharaTask* chara);
+    inline int HasTalkEvent_unk(atn::SimpleArray<gs::NpcSetPoint>& points, atn::SimpleArray<ScriptNpcFlag_unk>& flags,
+                                CharaTask* chara); // inferred: helper of fn_803AC978 (name invented)
     void fn_803ACD08();
 
     // inferred: next command after `cmd` (inline; out-of-line copy 0x8039CCB4)
@@ -297,9 +305,11 @@ public:
     int mF4;
     int mF8;
     atn::SimpleArray<ScriptEntry40_unk> mFC; // inferred: records of 0x40 bytes
-    unsigned char m104[0x118 - 0x104];
-    ScriptNpcFlag_unk* m118; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
-    unsigned char m11C[0x12C - 0x11C];
+    unsigned char m104[0x10C - 0x104];
+    atn::SimpleArray<ScriptSphereState_unk> m10C; // inferred: one per EventSphere of the scene (fn_803AC708)
+    atn::SimpleArray<ScriptNpcFlag_unk> m114; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
+    atn::SimpleArray<ScriptNpcFlag_unk> m11C; // inferred: one per EnemySetPoint of the scene (fn_803AC978)
+    atn::SimpleArray<ScriptNpcFlag_unk> m124; // inferred: one per FriendSetPoint of the scene (fn_803AC978)
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
     unsigned char m138[0x13C - 0x138];
     ScriptEventNode_unk* m13C; // inferred: root of the set of finished events (end node at &m13C)
