@@ -197,8 +197,12 @@ void Task::fn_800D246C(int arg) {
     }
 }
 
+// inferred: fn_800D26A4 through one more inline level (the original inlines it with the registers of one more
+// level: task/first child in r31/r30)
+static inline void Wrap26A4_unk(Task* t) {
+    fn_800D26A4(t);
+}
 // inferred: update of the whole tree
-// NONMATCHING: 99.02% - r30/r31 intercambiados en los niveles inlineados de fn_800D26A4.
 extern "C" void fn_800D2494(Task* root) {
     TASK_ASSERT_VALID(root);
     if (root->m20 == 0 || (root->mFlags & 0x10)) {
@@ -206,7 +210,7 @@ extern "C" void fn_800D2494(Task* root) {
             if (!root->IsFlag_unk(1)) {
                 fn_800D2868(root);
             } else {
-                fn_800D26A4(root);
+                Wrap26A4_unk(root);
             }
         }
     }
@@ -240,7 +244,6 @@ int Task::vf0C() {
     return 1;
 }
 
-// NONMATCHING: 99.17% - r30/r31 intercambiados en los niveles inlineados de fn_800D26A4.
 static void fn_800D2868(Task* task) {
     Task* child = task->m18;
     if (child != 0) {
@@ -261,7 +264,7 @@ static void fn_800D2868(Task* task) {
                     if (!child->IsFlag_unk(1)) {
                         fn_800D2868(child);
                     } else {
-                        fn_800D26A4(child);
+                        Wrap26A4_unk(child);
                     }
                 }
             }
