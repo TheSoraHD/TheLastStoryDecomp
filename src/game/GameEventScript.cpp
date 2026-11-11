@@ -56,6 +56,8 @@
 #include "game/ChaseManager.h"
 #include "game/ChaserNpc.h"
 #include "gmk/TreasureBox.h"
+#include "db/ChapterList_unk.h"
+#include "db/GrowthParseGlobal.h"
 
 #include <exception>
 #include "std/string.h"
@@ -4537,6 +4539,36 @@ void GameEventScript::fn_803AA954(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_803AAA74(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     if (lbl_8087F430 != 0) {
         lbl_8087F430->fn_8036E430(2, static_cast<const ScriptArgs_unk*>(cmd)->m08);
+    }
+    result.SetNext_unk(cmd);
+}
+
+extern "C" CharaInfo_unk* fn_8020924C(int id);         // inferred: character table entry
+extern "C" chr::CharaData_unk* fn_8020A81C(int id);    // inferred: character data
+extern "C" db::GrowthEntry_unk* fn_8020FCE8(int id);   // inferred: growth table
+
+// inferred: gives the party the experience of defeating the character m08 (its level and experience; scaled
+// by the difficulty for characters that grow, and by the chapter when the field has one)
+void GameEventScript::fn_803AAAE4(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    if (lbl_8087F430 != 0 && !lbl_8087F430->fn_803754F0()) {
+        CharaInfo_unk* info = fn_8020924C(args->m08);
+        chr::CharaData_unk* data = info != 0 ? fn_8020A81C(info->m14) : 0;
+        if (data != 0) {
+            ChapterEntry_unk* chapter = lbl_8087F430 != 0 ? lbl_8087F430->m10D4 : 0;
+            int add = 0;
+            if (lbl_8087F0A8->m284 != 0 && fn_8020FCE8(data->mC8) && chapter != 0) {
+                DifficultyParam_unk& difficulty = lbl_8087F0A8->mDifficulty[lbl_8087F0A8->mCurrentLevel];
+                add = (int)((float)chapter->m58 * difficulty.mLevelMul + 0.2f);
+                add += difficulty.mLevelAdd;
+            }
+            int level = data->mParam.m78;
+            int exp = data->mParam.m80;
+            if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
+                level = data->mParam.m7C + lbl_8087F430->fn_80375D0C();
+            }
+            Inventory::instance_->fn_80449A18(0, level + add, exp, 0, 1.0f);
+        }
     }
     result.SetNext_unk(cmd);
 }
