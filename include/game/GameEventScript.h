@@ -234,7 +234,8 @@ public:
     void fn_80395848(int check);
     void fn_80399148(); // inferred: approach events of the event boxes (vf10)
     void fn_80399734(); // inferred: approach events of the event spheres (vf10)
-    void PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log); // inferred: weak copy 0x803AB428 (name invented)
+    void PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log); // inferred: 0x803AB428 (name invented)
+    void fn_803AB96C(int scope, unsigned int index, int old, int value); // inferred: logs a flag change (GameTask)
     // inferred: talk flags, markers and approach events of the character points of one manager (weak copies
     // of vf10; names invented)
     template <class Manager>

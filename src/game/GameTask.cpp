@@ -290,7 +290,6 @@ extern "C" int fn_8021446C(int level, int magic); // inferred: second weapon of 
 extern "C" int fn_802143EC(int level, int magic, int seed); // inferred: protector of the level
 extern "C" void fn_8044D184(Inventory* inventory, int slot, int item, int upgrade, int index);
 extern "C" void fn_80218268(int type, int map, int sub);
-extern "C" void fn_803AB96C(void* obj, int arg, unsigned int index, int old, int value);
 extern "C" void fn_803D164C(GameUI* ui);
 extern "C" void fn_803D2194(GameUI* ui);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
@@ -3261,7 +3260,7 @@ void GameTask::fn_80370320(int index, int value, int arg) {
     int old = mGlobalFlags[index];
     mGlobalFlags[index] = value;
     if (m10D8 != 0 && m10D8->m134 != 0) {
-        fn_803AB96C(m10D8->m134, 1, index, old, value);
+        m10D8->m134->fn_803AB96C(1, index, old, value);
     }
     if (arg != 0) {
         return;
@@ -3352,7 +3351,7 @@ void GameTask::fn_80370AE4(unsigned int index, int value) {
     int old = mLocalFlags[index];
     mLocalFlags[index] = value;
     if (m10D8 != 0 && m10D8->m134 != 0) {
-        fn_803AB96C(m10D8->m134, 0, index, old, value);
+        m10D8->m134->fn_803AB96C(0, index, old, value);
     }
 }
 

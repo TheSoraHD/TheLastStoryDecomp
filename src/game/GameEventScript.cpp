@@ -5448,6 +5448,43 @@ void GameEventScript::fn_803AB37C(CharaTask* chara) {
     }
 }
 
+// NONMATCHING: 98.3% - the inlined push_back computes the size of the old storage without the (end - begin)
+// inferred: writes the page changes of a log as lines "turn,kind,id,<page change>,<pages>," into m384
+void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
+    for (unsigned int i = 0; i < log.size(); i++) {
+        ScriptLog_unk& entry = log[i];
+        if (entry.m10 == entry.m14) {
+            continue;
+        }
+        char pages[256];
+        if (entry.m10 == -1) {
+            sprintf(pages, "START Page%d", entry.m14 + 1);
+        } else if (entry.m14 == -1) {
+            sprintf(pages, "END");
+        } else {
+            sprintf(pages, "Page%d -> %d", entry.m10 + 1, entry.m14 + 1);
+        }
+        char line[256];
+        sprintf(line, "%d,%s,%d,\x83y\x81[\x83W\x90\xD8\x82\xE8\x91\xD6\x82\xA6,%s,", mB0, lbl_8074EFC8[entry.m04],
+                entry.m08, pages);
+        m384.push_back(std::string(line));
+    }
+}
+
+// NONMATCHING: 97.2% - the inlined push_back (as PrintLog_unk)
+// inferred: while the log is on (m37C), writes the change of a flag of the field made outside the scripts
+// (scope 0: local "L", 1: global "G") as a line into m384
+void GameEventScript::fn_803AB96C(int scope, unsigned int index, int old, int value) {
+    // inferred: .rodata 0x8074ECD8, its strings in .sdata2
+    static const char* const sScopes[] = {"L", "G"};
+    if (m37C != 0) {
+        char line[256];
+        sprintf(line, "%d,None,0,\x8AO\x95\x94\x82\xA9\x82\xE7\x83t\x83\x89\x83O\x95\xCF\x8DX,None,None,%s%d = %d,%s%d: %d -> %d,",
+                mB0, sScopes[scope], index, value, sScopes[scope], index, old, value);
+        m384.push_back(std::string(line));
+    }
+}
+
 extern "C" void* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
