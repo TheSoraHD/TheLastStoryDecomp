@@ -152,7 +152,9 @@ struct RenderSystemPassTables_unk {
 extern "C" void fn_800BC798();
 
 extern "C" int fn_800B5994(void* value, const void* bounds);
-extern "C" float fn_800B6218(void* value, const void* bounds);
+namespace atn {
+float fn_800B6218(LayerOcclusionCPU* layer, const AABB_unk* box); // inferred: hidden part of a box (atn/LayerOcclusionCPU.cpp)
+}
 
 // inferred: clamp with the bounds passed by reference (each bound is read twice; name invented)
 static inline int ClampRef_unk(int value, const int& lo, const int& hi) {
@@ -1359,7 +1361,7 @@ void atn::RenderManager::AddResolveTexture(atn::Texture_unk* tex, int format) {
 float atn::RenderManager::fn_800C169C(const atn::AABB_unk* bounds) {
     void* pass = *(void**)this;
     if (pass != 0) {
-        return fn_800B6218(pass, bounds);
+        return atn::fn_800B6218((atn::LayerOcclusionCPU*)pass, bounds);
     }
     return 0.0f;
 }
