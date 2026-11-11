@@ -462,14 +462,14 @@ inline int GameEventScript::CanStart_unk(int event) {
                         ScriptDoneNode_unk* found = mDone.End_unk();
                         ScriptDoneNode_unk* node = mDone.mRoot;
                         while (node != 0) {
-                            if (!(node->mValue < id)) {
+                            if (!(node->mValue.first < id)) {
                                 found = node;
                                 node = node->mLeft;
                             } else {
                                 node = node->mRight;
                             }
                         }
-                        if (found == mDone.End_unk() || id < found->mValue) {
+                        if (found == mDone.End_unk() || id < found->mValue.first) {
                             found = mDone.End_unk();
                         }
                         r = found == mDone.End_unk();
@@ -910,14 +910,14 @@ inline int GameEventScript::CanStartArg_unk(int event, int arg) {
                         ScriptDoneNode_unk* node = mDone.mRoot;
                         ScriptDoneNode_unk* found = mDone.End_unk();
                         while (node != 0) {
-                            if (!(node->mValue < id)) {
+                            if (!(node->mValue.first < id)) {
                                 found = node;
                                 node = node->mLeft;
                             } else {
                                 node = node->mRight;
                             }
                         }
-                        if (found == mDone.End_unk() || id < found->mValue) {
+                        if (found == mDone.End_unk() || id < found->mValue.first) {
                             found = mDone.End_unk();
                         }
                         r = found == mDone.End_unk();
@@ -958,14 +958,14 @@ int GameEventScript::fn_80398590(int event, int arg) {
                         ScriptDoneNode_unk* node = mDone.mRoot;
                         ScriptDoneNode_unk* found = mDone.End_unk();
                         while (node != 0) {
-                            if (!(node->mValue < id)) {
+                            if (!(node->mValue.first < id)) {
                                 found = node;
                                 node = node->mLeft;
                             } else {
                                 node = node->mRight;
                             }
                         }
-                        if (found == mDone.End_unk() || id < found->mValue) {
+                        if (found == mDone.End_unk() || id < found->mValue.first) {
                             found = mDone.End_unk();
                         }
                         r = found == mDone.End_unk();
@@ -1281,6 +1281,144 @@ void GameEventScript::CharaMarkers_unk(Manager* manager, atn::SimpleArray<gs::Np
     }
 }
 
+// NONMATCHING: 99.1% - registers of the loop and stack slots of the ray (as fn_8039AB10)
+// inferred: the events of the event boxes that start by approach (kind 1: entering, 8: leaving, 6: outside,
+// 2: always) or by talking (kind 0: the nearest talk box and the action button; shows the hint of the HUD);
+// conditions on unfinished events mark them finished; stops at the first event that runs
+void GameEventScript::fn_80399148() {
+    m98 = 0;
+    m9C = 5;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Sphere sphere;
+    sphere.mCenter = leader->m614;
+    sphere.mRadius = leader->m620;
+    if (leader->m55C == 6 && leader->m560 == 11) {
+        atn::ColliResult_unk result;
+        atn::Vector3 to = sphere.mCenter + atn::Vector3(0.0f, -100.0f, 0.0f);
+        if (fn_8004ED34(lbl_8087EE98, &result, &sphere.mCenter, &to, 0x80000000, 0, 0)) {
+            sphere.mCenter = result.m10 + atn::Vector3(0.0f, sphere.mRadius, 0.0f);
+        }
+    }
+    GameUIElem1C_unk hint;
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
+        gs::EventBox& box = scene->mE4[i];
+        bool stop = false;
+        mA0 = box.mId;
+        int group = i;
+        if (box.m2C >= 0) {
+            group = box.m2C;
+        }
+        ScriptNpcFlag_unk& state = mFC[group];
+        if (state.m00 >= 0) {
+            mA4 = state.m00;
+            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(scene->mE4[group].m24[state.m00]);
+            if (e != 0) {
+                bool start = false;
+                if (e->m0C == 0) {
+                    if ((state.mFlags & 0x20) == 0x20 && mF4 == &state) {
+                        hint.m14 = 1;
+                        hint.m00 = 6;
+                        switch (e->mC4) {
+                        case 1:
+                            hint.m04 = 1;
+                            break;
+                        case 2:
+                            hint.m04 = 6;
+                            break;
+                        case 3:
+                            hint.m04 = 7;
+                            break;
+                        case 4:
+                            hint.m04 = 8;
+                            break;
+                        case 5:
+                            hint.m04 = 9;
+                            break;
+                        case 6:
+                            hint.m04 = 2;
+                            break;
+                        case 7:
+                            hint.m04 = 10;
+                            break;
+                        case 8:
+                            hint.m04 = 11;
+                            break;
+                        case 9:
+                            hint.m04 = 18;
+                            break;
+                        case 10:
+                            hint.m04 = 21;
+                            break;
+                        case 11:
+                            hint.m04 = 22;
+                            break;
+                        default:
+                            hint.m04 = 1;
+                            break;
+                        }
+                        lbl_8087F490->m764 = hint;
+                        int pressed = TalkAllowed_unk(this) ? 0 : lbl_8087F0A8->mInput.fn_801231D0(0);
+                        if (pressed) {
+                            mE0 = 36;
+                            start = true;
+                            if (lbl_8087F490 != 0) {
+                                lbl_8087F490->fn_803E3384();
+                            }
+                        }
+                    }
+                } else if (e->m0C == 1) {
+                    if (fn_803ACE18(i, &sphere, 1)) {
+                        if ((state.mFlags & 1) != 1) {
+                            start = true;
+                        }
+                        state.mFlags |= 1;
+                    } else {
+                        state.mFlags &= ~1;
+                    }
+                } else if (e->m0C == 8) {
+                    if (fn_803ACE18(i, &sphere, 1)) {
+                        state.mFlags |= 8;
+                    } else {
+                        if ((state.mFlags & 8) == 8) {
+                            start = true;
+                        }
+                        state.mFlags &= ~8;
+                    }
+                } else if (e->m0C == 6) {
+                    if (!fn_803ACE18(i, &sphere, 1)) {
+                        if ((state.mFlags & 4) != 4) {
+                            start = true;
+                        }
+                        state.mFlags |= 4;
+                    }
+                } else if (e->m0C == 2) {
+                    start = true;
+                }
+                if (start) {
+                    for (int j = 0; j < e->mCount; j++) {
+                        if (e->mConds[j].m00 < 0) {
+                            Done_unk(e->m00) = true;
+                            break;
+                        }
+                    }
+                    ScriptData_unk* data = (ScriptData_unk*)e;
+                    if (fn_8039CF8C(data, &data->mCmds) == 0) {
+                        m8C = 1;
+                        stop = true;
+                    }
+                }
+            }
+            if (m8C != 0) {
+                stop = true;
+            }
+        }
+        if (stop) {
+            break;
+        }
+    }
+}
+
 // NONMATCHING: 98.5% - as fn_8039AF50
 // inferred: same as fn_8039AF50 for the talk event boxes (with m40, the leader must also face the box)
 void GameEventScript::fn_8039AB10() {
@@ -1435,6 +1573,19 @@ void GameEventScript::fn_8039B2BC() {
         marker.m10 = 0;
         lbl_8087F490->fn_803E3C78(marker);
     }
+}
+
+// inferred: MSL map::operator[] of the finished events (name invented)
+inline bool& GameEventScript::Done_unk(const int& key) {
+    ScriptDoneNode_unk* pred;
+    bool left;
+    bool leftmost;
+    ScriptDoneNode_unk* parent = mDone.FindInsertPos_unk(key, pred, left, leftmost);
+    ScriptDonePair_unk* v;
+    if (pred == 0 || (v = &pred->mValue, v->first < key)) {
+        v = &mDone.InsertNode_unk(parent, left, leftmost, ScriptDonePair_unk(key, bool()))->mValue;
+    }
+    return v->second;
 }
 
 // NONMATCHING: 92.9% - more saved registers here (zeros and counters) and stack slots

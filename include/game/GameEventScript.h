@@ -42,18 +42,25 @@ struct ScriptEventNode_unk {
     unsigned int mParent;
     Value mValue;
 };
-// inferred: node of the set of finished events (std::set<int>; names invented)
+// inferred: entry of the map of finished events (std::map<int, bool>; the default value is a bool()
+// temporary, kept in .sdata; names invented)
+struct ScriptDonePair_unk {
+    ScriptDonePair_unk(const int& key, const bool& value) : first(key), second(value) {}
+    int first;   // inferred: event id
+    bool second; // inferred: finished
+};
+// inferred: node of the map of finished events (names invented)
 struct ScriptDoneNode_unk {
-    typedef int Value;
-    static const int& Key_unk(const Value& value) { return value; }
+    typedef ScriptDonePair_unk Value;
+    static const int& Key_unk(const Value& value) { return value.first; }
     ScriptDoneNode_unk* mLeft;
     ScriptDoneNode_unk* mRight;
     unsigned int mParent;
-    Value mValue; // inferred: id of the finished event
+    Value mValue;
 };
-// inferred: the red-black tree of std::map<int, int> / std::set<int> (MSL <tree>) as the script uses it:
+// inferred: the red-black tree of std::map<int, int> / std::map<int, bool> (MSL <tree>) as the script uses it:
 // size, root (the end node is at &mRoot) and first node; the nodes are freed by the recursive Destroy_unk
-// (weak copies 0x803AD508 for the map, 0x803AD278 for the set). Names invented.
+// (weak copies 0x803AD508 for the map, 0x803AD278 for the finished events). Names invented.
 template <class Node>
 struct ScriptTreeData_unk {
     ScriptTreeData_unk() : mSize(0), mRoot(0), mFirst((Node*)&mRoot) {}
@@ -252,6 +259,7 @@ public:
     // inferred: compiles a script file `index` (data, size)
     void fn_8039BDB4(int index, const void* data, int size);
     inline int& EventOffset_unk(const int& key); // inferred: mEvents[key] (name invented)
+    inline bool& Done_unk(const int& key); // inferred: mDone[key] (name invented)
     int fn_80398530(int event);          // inferred: the event is done
     int fn_80398590(int event, int arg); // inferred: the event can start
     inline int CanStartArg_unk(int event, int arg); // inferred: body of fn_80398590 (name invented)
@@ -464,7 +472,7 @@ public:
     int m8C; // inferred: a script is running
     ScriptCmd_unk* m90; // inferred: command being run
     ScriptData_unk* m94; // inferred: compiled script of the running event
-    unsigned char m98[0x9C - 0x98];
+    int m98; // inferred: cleared when the approach events are checked (fn_80399148)
     int m9C; // inferred: id of the running event (printed by fn_8039BC6C)
     int mA0;
     int mA4;
@@ -495,7 +503,7 @@ public:
     atn::SimpleArray<ScriptNpcFlag_unk> m11C; // inferred: one per EnemySetPoint of the scene (fn_803AC978)
     atn::SimpleArray<ScriptNpcFlag_unk> m124; // inferred: one per FriendSetPoint of the scene (fn_803AC978)
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
-    ScriptTree_unk<ScriptDoneNode_unk> mDone; // 0x138: inferred: finished events (std::set<int>)
+    ScriptTree_unk<ScriptDoneNode_unk> mDone; // 0x138: inferred: finished events (std::map<int, bool>)
     atn::SimpleArray<atn::SimpleVector<int> > m144; // inferred: groups of event boxes (fn_803ACE18)
     atn::SimpleArray<atn::SimpleVector<int> > m14C; // inferred: groups of event spheres (fn_803ACF88)
     ScriptPartsFlag_unk m154[64]; // inferred: draw flags of the map parts by name hash (fn_803A68B8)
