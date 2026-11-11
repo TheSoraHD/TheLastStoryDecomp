@@ -56,6 +56,9 @@
 #include "game/ChaseManager.h"
 #include "game/ChaserNpc.h"
 #include "gmk/TreasureBox.h"
+#include "atn/EffectManager.h"
+#include "game/SkillEffectManager.h"
+#include "game/DamageCalc_unk.h"
 #include "db/ChapterList_unk.h"
 #include "db/GrowthParseGlobal.h"
 
@@ -3217,6 +3220,115 @@ void GameEventScript::fn_803A49F4(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
         wait = 0;
     }
     result.SetNext_unk(cmd, wait);
+}
+
+extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id` (game/BattleTask.cpp)
+extern "C" atn::EfpFile* fn_800EFC64(int id); // inferred: effect of a skill
+extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
+extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const atn::Color& color, int arg7,
+                            int arg8, int arg9, float scale); // inferred: plays an effect
+extern "C" int fn_800F8548(BattleTask* battle); // inferred: new bullet id
+extern "C" void fn_800FAB80(BattleTask* battle, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: shoots a bullet
+
+// inferred: the member can be hit by a script skill (name invented)
+static inline bool IsTargetable_unk(CharaTask* chara) {
+    return chara->IsFree_unk() && !chara->IsGrappled_unk();
+}
+
+// NONMATCHING: 99.3% - stack slots of the bullet position (front/center/pos) and registers of the other
+// member loops and of the effects
+// inferred: the skill m18 on the members of the team (m10, m14): m1C 0 its damage, 1 as a bullet in front of
+// each, 2 its effects; without the hit the skill effects are stopped. Without the team, m1C 2 plays the
+// battle effect on the character m10/m14
+void GameEventScript::fn_803A4A7C(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    TeamAI_unk* team = lbl_8087FA00->Find_unk(args->m10, args->m14);
+    TeamChara_unk** members;
+    CharaTask* member;
+    HitInfo_unk* hit = fn_80219E6C(args->m18);
+    int i;
+    if (team != 0) {
+        if ((unsigned int)args->m1C <= 1) {
+            if (hit != 0) {
+                members = team->mMembers;
+                for (i = 0; i < team->mNumMembers; members++, i++) {
+                    member = (CharaTask*)*members; // inferred: TeamChara_unk views CharaTask
+                    if (IsTargetable_unk(member)) {
+                        if (args->m1C == 0) {
+                            DamageResult_unk damage;
+                            fn_8003EA3C(&damage, hit, member, member, 0, &lbl_807C6B90, 0, 0);
+                        } else if (args->m1C == 1 && lbl_8087F048 != 0) {
+                            lbl_8087F048->m3E39C = 1;
+                            Mtx m;
+                            atn::Vector3 front(0.0f, 0.0f, 0.5f);
+                            PSMTXRotRad(m, 'y', member->mRot.y);
+                            PSMTXMultVec(m, &front, &front);
+                            atn::Vector3 pos = member->fn_801781B0() + front;
+                            BattleTask* battle = lbl_8087F048;
+                            fn_800FAB80(battle, member, hit, fn_800F8548(battle), &pos, &member->mRot, 0, 30, -1, -1,
+                                        0.0f, 0.5f);
+                            lbl_8087F048->m3E39C = 0;
+                        }
+                    }
+                }
+            } else {
+                TeamChara_unk** members = team->mMembers;
+                for (int i = 0; i < team->mNumMembers; members++, i++) {
+                    CharaTask* member = (CharaTask*)*members;
+                    if (IsTargetable_unk(member) && lbl_8087F9E8 != 0) {
+                        lbl_8087F9E8->fn_8059C2A8(member, 0);
+                    }
+                }
+            }
+        } else {
+            atn::EfpFile* battleEfp = fn_800EFBC4(args->m18);
+            atn::EfpFile* skillEfp = fn_800EFC64(args->m18);
+            atn::EfpFile* charaEfp = fn_800EFDA0(args->m18);
+            if (battleEfp != 0 || skillEfp != 0 || charaEfp != 0) {
+                TeamChara_unk** members = team->mMembers;
+                for (int i = 0; i < team->mNumMembers; members++, i++) {
+                    CharaTask* member = (CharaTask*)*members;
+                    fn_80232B7C((unsigned int)member, 9997);
+                    if (battleEfp != 0) {
+                        fn_8023A8B4(lbl_8087F3C0, battleEfp, member->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
+                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1,
+                                    0.5f);
+                    }
+                    if (skillEfp != 0) {
+                        fn_8023A8B4(lbl_8087F3C0, skillEfp, member->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
+                                    atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1,
+                                    0.5f);
+                    }
+                    if (charaEfp != 0) {
+                        float scale = member->vf90();
+                        fn_8023A8B4(lbl_8087F3C0, charaEfp, 0, 0, member->mPos, member->mRot,
+                                    atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1, scale);
+                    }
+                }
+            } else {
+                TeamChara_unk** members = team->mMembers;
+                for (int i = 0; i < team->mNumMembers; members++, i++) {
+                    fn_80239DAC(lbl_8087F3C0, (unsigned int)*members, 9997, 1);
+                }
+            }
+        }
+    } else if (args->m1C == 2 && args->m10 == 1) {
+        CharaTask* chara = GetChara_unk(args->m10, args->m14);
+        if (chara != 0) {
+            atn::EfpFile* efp = fn_800EFBC4(args->m18);
+            if (efp != 0) {
+                fn_80232B7C((unsigned int)chara, 999);
+                fn_8023A8B4(lbl_8087F3C0, efp, chara->GetModel_unk(), 0, atn::Vector3(0.0f, 0.0f, 0.0f),
+                            atn::Vector3(0.0f, 0.0f, 0.0f), atn::Color(0.5f, 0.5f, 0.5f, 0.5f), -1, -1, 1, 0.5f);
+            } else {
+                fn_80239DAC(lbl_8087F3C0, (unsigned int)chara, 999, 1);
+            }
+        }
+    }
+    result.SetNext_unk(cmd);
 }
 
 // inferred: moves a character back along its facing direction (name invented)
