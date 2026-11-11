@@ -300,7 +300,8 @@ public:
     ScriptCmd_unk* NextCmd_unk(const ScriptCmd_unk* cmd) {
         return (ScriptCmd_unk*)((const char*)cmd + lbl_8074ED24[cmd->mCmd]);
     }
-    int fn_8039BF04(int a, int b, int c, int d, int e);
+    int fn_8039BF04(int kind, int flag, int op, int type, int value); // inferred: flag command
+    inline int SetFlag_unk(int kind, int flag, int value); // inferred: name invented
     int fn_8039C7F0(int a, int b, int c, int d, int e); // inferred: condition of a jump
     void fn_803957F0(int id); // inferred: clears the flag 2 of the NPC set point `id`
     // inferred: index of the last script of the point whose event can start, -1 if none

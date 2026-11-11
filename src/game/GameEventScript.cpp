@@ -126,7 +126,7 @@ static inline int ScriptValue_unk(int type, int value) {
         return lbl_8087F430->fn_80370A78(value);
     }
     if (type == 3) {
-        value = rand() % value + 1;
+        return rand() % value + 1;
     }
     return value;
 }
@@ -1698,6 +1698,68 @@ __declspec(noinline) void GameEventScript::fn_8039BDB4(int index, const void* da
     for (int i = 0; i < count; i++) {
         EventOffset_unk(index * 10000 + m70[index][i].mId) = m70[index][i].mOffset;
     }
+}
+
+// inferred: names of the kinds of flag, of the kinds of value and of the operators in the log lines
+// (.rodata 0x8074ECD8, 0x8074ECE8, 0x8074ECF8; names invented)
+static const char* const sFlagScopes_unk[] = {"L", "G"};
+static const char* const sValueTypes_unk[] = {"", "L", "G", "Rand"};
+static const char* const sFlagOps_unk[] = {"=", "+=", "-=", "*=", "/=", "==", "!=", "<", "<=", ">", ">="};
+
+// inferred: sets the flag `flag` (kind 1: fn_80370320, else fn_80370AE4) without logging it as an outside
+// change; 0 without a field (name invented)
+inline int GameEventScript::SetFlag_unk(int kind, int flag, int value) {
+    GameTask* task = lbl_8087F430;
+    if (task == 0) {
+        return 0;
+    }
+    int log = m37C;
+    m37C = 0;
+    if (kind == 1) {
+        task->fn_80370320(flag, value, 0);
+    } else {
+        task->fn_80370AE4(flag, value);
+    }
+    mF0 = 1;
+    m37C = log;
+    return 1;
+}
+
+// NONMATCHING: 94.5% - offsets of the name tables from the start of .rodata (not laid out yet) and the inlined push_back
+// inferred: command on a flag of the field (op 0 =, 1 +=, 2 -=, 3 *=, 4 /= the value type/value); while the log
+// is on, writes the change as a line into m384
+int GameEventScript::fn_8039BF04(int kind, int flag, int op, int type, int value) {
+    if (lbl_8087F430 == 0) {
+        return 0;
+    }
+    int old = FlagValue_unk(kind, flag);
+    int v = 0;
+    switch (op) {
+    case 0:
+        v = ScriptValue_unk(type, value);
+        break;
+    case 1:
+        v = FlagValue_unk(kind, flag) + ScriptValue_unk(type, value);
+        break;
+    case 2:
+        v = FlagValue_unk(kind, flag) - ScriptValue_unk(type, value);
+        break;
+    case 3:
+        v = FlagValue_unk(kind, flag) * ScriptValue_unk(type, value);
+        break;
+    case 4:
+        v = FlagValue_unk(kind, flag) / ScriptValue_unk(type, value);
+        break;
+    }
+    int ok = SetFlag_unk(kind, flag, v);
+    if (m37C != 0) {
+        char line[256];
+        sprintf(line, "%d,%s,%d,\x83R\x83}\x83\x93\x83h,Page%d,%s,%s%d %s %s%d,%s%d: %d -> %d,", mB0, lbl_8074EFC8[m9C],
+                mA0, mA4 + 1, lbl_8074EB1C[m90->mCmd], sFlagScopes_unk[kind], flag, sFlagOps_unk[op],
+                sValueTypes_unk[type], value, sFlagScopes_unk[kind], flag, old, v);
+        m384.push_back(std::string(line));
+    }
+    return ok;
 }
 
 // inferred: compares the flag `flag` (kind 1: fn_80370174, else fn_80370A78) with the script value
@@ -5475,12 +5537,10 @@ void GameEventScript::PrintLog_unk(atn::SimpleArray<ScriptLog_unk>& log) {
 // inferred: while the log is on (m37C), writes the change of a flag of the field made outside the scripts
 // (scope 0: local "L", 1: global "G") as a line into m384
 void GameEventScript::fn_803AB96C(int scope, unsigned int index, int old, int value) {
-    // inferred: .rodata 0x8074ECD8, its strings in .sdata2
-    static const char* const sScopes[] = {"L", "G"};
     if (m37C != 0) {
         char line[256];
         sprintf(line, "%d,None,0,\x8AO\x95\x94\x82\xA9\x82\xE7\x83t\x83\x89\x83O\x95\xCF\x8DX,None,None,%s%d = %d,%s%d: %d -> %d,",
-                mB0, sScopes[scope], index, value, sScopes[scope], index, old, value);
+                mB0, sFlagScopes_unk[scope], index, value, sFlagScopes_unk[scope], index, old, value);
         m384.push_back(std::string(line));
     }
 }
