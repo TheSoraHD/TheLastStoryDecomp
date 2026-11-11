@@ -972,6 +972,147 @@ int GameEventScript::fn_80398590(int event, int arg) {
     return ok;
 }
 
+typedef void (GameEventScript::*ScriptCmdFn_unk)(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
+// inferred: the point a character is looked at from: its neck, else above its head or spine, else its
+// center (also inlined in vf10; name invented)
+static inline atn::Vector3 LookPos_unk(CharaTask* chara) {
+    atn::Model* model = chara->GetModel_unk();
+    MtxPtr m = model->GetNodeMtx_unk("neck");
+    if (m != 0) {
+        return ((atn::Matrix3x4*)m)->GetTrans_unk();
+    }
+    m = model->GetNodeMtx_unk("head");
+    if (m != 0) {
+        return ((atn::Matrix3x4*)m)->GetTrans_unk() - atn::Vector3(0.0f, -1.0f, 0.0f);
+    }
+    m = model->GetNodeMtx_unk("spine1");
+    if (m != 0) {
+        return ((atn::Matrix3x4*)m)->GetTrans_unk() + atn::Vector3(0.0f, 2.0f, 0.0f);
+    }
+    return chara->fn_801781B0();
+}
+
+// NONMATCHING: 89.3% - six handlers of the table take a non-const command here (the register trick of
+// SetNext_unk, see their comments): their casted member pointers are copied at run time like the null ones;
+// in the original only the null entries are
+// inferred: per-frame update of the scripts: the camera follows the looked character, the running command
+// goes on (the commands of the frame through the table below), the records of finished characters resume
+// their scripts, then every point of the scene is updated (characters, boxes, spheres, their markers and
+// the approach events)
+void GameEventScript::vf10() {
+    if (lbl_8087F0A8->mPauseScriptExecute != 0) {
+        return;
+    }
+    if (mE4 != 0 && lbl_8087F430 != 0) {
+        lbl_8087F430->mCamera.m91C = LookPos_unk(mE4);
+    }
+    if (m8C != 0) {
+        // inferred: the commands that go on every frame (the others are run once by fn_8039CF8C)
+        static ScriptCmdFn_unk sFrameCmds[111] = {
+            0, &GameEventScript::fn_8039D274, 0, 0, &GameEventScript::fn_8039D99C, &GameEventScript::fn_8039DA00, 0,
+            &GameEventScript::fn_8039DB2C, &GameEventScript::fn_8039E328, 0, 0, 0, 0, 0, 0,
+            &GameEventScript::fn_8039EBB8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            &GameEventScript::fn_803A1DB0, 0, &GameEventScript::fn_803A2378, (ScriptCmdFn_unk)&GameEventScript::fn_803A2600,
+            (ScriptCmdFn_unk)&GameEventScript::fn_803A2E20, 0, &GameEventScript::fn_803A362C, (ScriptCmdFn_unk)&GameEventScript::fn_803A36D8, 0,
+            &GameEventScript::fn_803A3AB4, 0, 0, 0, 0, 0, 0, 0, 0, 0, (ScriptCmdFn_unk)&GameEventScript::fn_803A49F4, 0, 0, 0, 0, 0,
+            &GameEventScript::fn_803A59D4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            &GameEventScript::fn_803A7D94, 0, 0, 0, 0, 0, &GameEventScript::fn_803A8470, 0,
+            &GameEventScript::fn_803A914C, &GameEventScript::fn_803A956C, &GameEventScript::fn_803A98EC,
+            &GameEventScript::fn_803A9DBC, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (ScriptCmdFn_unk)&GameEventScript::fn_803AB1B0,
+            (ScriptCmdFn_unk)&GameEventScript::fn_803AB26C, &GameEventScript::fn_803AB368};
+        ScriptResult_unk result;
+        (this->*sFrameCmds[m90->mCmd])(result, m90);
+        int done;
+        if (result.mWait != 0) {
+            done = 0;
+        } else if (result.mNext != 0) {
+            done = fn_8039CF8C(m94, result.mNext);
+        } else {
+            done = 1;
+        }
+        if (done == 0) {
+            return;
+        }
+    }
+    m8C = 0;
+    for (unsigned int i = 0; i < m12C.size();) {
+        ScriptRecord14_unk record = m12C[i];
+        if (record.mChara->mRoute.m2C != 0) {
+            m12C.erase(&m12C[i]);
+            if (record.mLabel != 0 && fn_8039CF8C(record.mData, record.mLabel) == 0) {
+                m8C = 1;
+                m9C = record.m0C;
+                mA0 = record.m10;
+                return;
+            }
+        } else {
+            i++;
+        }
+    }
+    if (mF0 != 0) {
+        mF0 = 0;
+        if (mE8 > 0) {
+            lbl_8087F540->fn_8047F580();
+            mE8 = 0;
+            mEC = 0;
+        }
+    }
+    fn_80395848(0);
+    if (mD0 != 0 && lbl_8087F8A0->mHead->mRoute.m2C != 0) {
+        lbl_8087F8A0->mHead->fn_8016E970(1);
+        mD0 = 0;
+    }
+    if (m37C != 0 && (m8C == 0 || m380 == 0)) {
+        m380 = m8C;
+        PrintLog_unk(m364);
+        PrintLog_unk(m36C);
+        PrintLog_unk(m374);
+        PrintLog_unk(m35C);
+        PrintLog_unk(m354);
+    }
+    mF4 = 0;
+    TalkCharas_unk(NpcManager::sInstance, mScene->m80, m114, 1);
+    TalkCharas_unk(EnemyManager::sInstance, mScene->m88, m11C, 2);
+    TalkCharas_unk(FriendManager::sInstance, mScene->m90, m124, 3);
+    fn_8039AB10();
+    fn_8039AF50();
+    lbl_8087F490->mC38.mCount = 0;
+    CharaMarkers_unk(NpcManager::sInstance, mScene->m80, m114, 1);
+    CharaMarkers_unk(EnemyManager::sInstance, mScene->m88, m11C, 2);
+    CharaMarkers_unk(FriendManager::sInstance, mScene->m90, m124, 3);
+    fn_8039B2BC();
+    fn_8039B7B0();
+    mF8 = 0;
+    if (m8C == 0) {
+        ApproachCharas_unk(NpcManager::sInstance, mScene->m80, m114, 1);
+    }
+    if (m8C == 0) {
+        ApproachCharas_unk(EnemyManager::sInstance, mScene->m88, m11C, 2);
+    }
+    if (m8C == 0) {
+        ApproachCharas_unk(FriendManager::sInstance, mScene->m90, m124, 3);
+    }
+    if (m8C == 0) {
+        fn_80399148();
+    }
+    if (m8C == 0) {
+        fn_80399734();
+    }
+    if (mF8 == 0) {
+        mD4 = 0;
+        mD8 = 0;
+    }
+    mB0++;
+    if (m8C == 0 && mE0 > 0) {
+        mE0--;
+    }
+    if (mE8 > 0) {
+        lbl_8087F540->fn_8047F580();
+        mE8 = 0;
+        mEC = 0;
+    }
+}
+
 // inferred: a flag of the field (kind 1: global flag, else fn_80370A78); 0 without a field (name invented)
 static inline int FlagValue_unk(int kind, int flag) {
     if (lbl_8087F430 == 0) {
@@ -1343,7 +1484,6 @@ int GameEventScript::fn_8039CC24(int id) {
 }
 
 // inferred: handlers of the commands, by index (member function pointers in .rodata)
-typedef void (GameEventScript::*ScriptCmdFn_unk)(ScriptResult_unk& result, const ScriptCmd_unk* cmd);
 extern "C" const ScriptCmdFn_unk lbl_8074F0B0[];
 
 // NONMATCHING: 89.8% - block layout of the two returns 0 and the registers of the inlined recursive call
@@ -4148,24 +4288,6 @@ void GameEventScript::fn_803A6F90(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// inferred: the point a character is looked at from: its neck, else above its head or spine, else its
-// center (also inlined in vf10; name invented)
-static inline atn::Vector3 LookPos_unk(CharaTask* chara) {
-    atn::Model* model = chara->GetModel_unk();
-    MtxPtr m = model->GetNodeMtx_unk("neck");
-    if (m != 0) {
-        return ((atn::Matrix3x4*)m)->GetTrans_unk();
-    }
-    m = model->GetNodeMtx_unk("head");
-    if (m != 0) {
-        return ((atn::Matrix3x4*)m)->GetTrans_unk() - atn::Vector3(0.0f, -1.0f, 0.0f);
-    }
-    m = model->GetNodeMtx_unk("spine1");
-    if (m != 0) {
-        return ((atn::Matrix3x4*)m)->GetTrans_unk() + atn::Vector3(0.0f, 2.0f, 0.0f);
-    }
-    return chara->fn_801781B0();
-}
 
 // inferred: the camera blends its target to `pos` with the fovy `fovy` (as fn_8026610C of
 // game/Em201ZanGurgFinal.cpp; name invented)
