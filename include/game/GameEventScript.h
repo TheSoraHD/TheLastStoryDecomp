@@ -6,6 +6,7 @@
 #include "atn/Task.h"
 #include "game/EventScriptCmd_unk.h"
 #include "std/vector.h"
+#include "std/string.h"
 
 class CharaTask;
 class GameScene;
@@ -28,6 +29,70 @@ struct ScriptEventNode_unk {
     int mKey;
     int mValue;
 };
+// inferred: node of the set of finished events (std::set<int>; names invented)
+struct ScriptDoneNode_unk {
+    ScriptDoneNode_unk* mLeft;
+    ScriptDoneNode_unk* mRight;
+    unsigned int mParent;
+    int mKey;
+};
+// inferred: the red-black tree of std::map<int, int> / std::set<int> (MSL <tree>) as the script uses it:
+// size, root (the end node is at &mRoot) and first node; the nodes are freed by the recursive Destroy_unk
+// (weak copies 0x803AD508 for the map, 0x803AD278 for the set). Names invented.
+template <class Node>
+struct ScriptTreeData_unk {
+    ScriptTreeData_unk() : mSize(0), mRoot(0), mFirst((Node*)&mRoot) {}
+    ~ScriptTreeData_unk() {
+        if (mRoot != 0) {
+            Destroy_unk(mRoot);
+        }
+    }
+    // inferred: the release asserts of the parents are evaluated (as AudioMap_unk::Destroy of
+    // atn/AudioDevice.cpp): they make the body big enough for the inliner to expand two levels
+    void Destroy_unk(Node* node) {
+        if (node->mLeft != 0) {
+            (void)((Node*)node->mLeft->mParent == node);
+            Destroy_unk(node->mLeft);
+        }
+        if (node->mRight != 0) {
+            (void)((Node*)node->mRight->mParent == node);
+            Destroy_unk(node->mRight);
+        }
+        delete node;
+    }
+    Node* End_unk() { return (Node*)&mRoot; }
+
+    int mSize;
+    Node* mRoot;
+    Node* mFirst;
+};
+// inferred: the layers of std::map / std::set over the tree (the destructor tests the object five times)
+template <class Node>
+struct ScriptTreeL4_unk : public ScriptTreeData_unk<Node> {
+    ~ScriptTreeL4_unk() {}
+};
+template <class Node>
+struct ScriptTreeL3_unk : public ScriptTreeL4_unk<Node> {
+    ~ScriptTreeL3_unk() {}
+};
+template <class Node>
+struct ScriptTreeL2_unk : public ScriptTreeL3_unk<Node> {
+    ~ScriptTreeL2_unk() {}
+};
+template <class Node>
+struct ScriptTree_unk : public ScriptTreeL2_unk<Node> {
+    ~ScriptTree_unk() {}
+};
+// inferred: 0x18-byte entry of the logs of GameEventScript (constructor 0x803AB948; names invented)
+struct ScriptLog_unk {
+    ScriptLog_unk() : m00(0), m04(0), m08(0), m0C(0), m10(-1), m14(-1) {}
+    int m00;
+    int m04;
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+};
 // inferred: 0x14-byte record of GameEventScript::m12C (names invented)
 struct ScriptRecord14_unk {
     CharaTask* mChara;
@@ -38,6 +103,7 @@ struct ScriptRecord14_unk {
 };
 // inferred: 0xC-byte record of GameEventScript::m118 (names invented)
 struct ScriptNpcFlag_unk {
+    ScriptNpcFlag_unk() : m00(-1), mFlags(0), m08(-1.0f) {} // 0x80395794
     int m00;             // inferred: index of the script picked in the point, -1 if none
     unsigned int mFlags; // inferred: 0x20: the leader can start its talk event
     float m08;           // inferred: distance of the talk event (the nearest goes to mF4)
@@ -52,6 +118,7 @@ struct ScriptPartsFlag_unk {
 
 namespace atn {
 struct Sphere;
+class ColliBox;
 class Vector3;
 }
 namespace gs {
@@ -275,9 +342,7 @@ public:
     int m60;
     int m64[3];                 // inferred: base address of the events of each block of 10000 ids (one per file)
     unsigned char m70[0x7C - 0x70];
-    int m7C;
-    ScriptEventNode_unk* m80;   // inferred: root of the tree of events by id (end node at &m80)
-    ScriptEventNode_unk* m84;   // inferred: first node of the tree (&m80 when empty)
+    ScriptTree_unk<ScriptEventNode_unk> mEvents; // 0x7C: inferred: offset of the events by id (std::map<int, int>)
     GameScene* mScene; // 0x88: inferred: scene that owns the script (GameScene::m134)
     int m8C; // inferred: a script is running
     ScriptCmd_unk* m90; // inferred: command being run
@@ -307,22 +372,26 @@ public:
     ScriptNpcFlag_unk* mF4; // inferred: nearest talk event of the leader (fn_8039AF50)
     int mF8;
     atn::SimpleArray<ScriptNpcFlag_unk> mFC; // inferred: one per EventBox of the scene (fn_8039AB10)
-    int m104;
-    int m108;
+    atn::SimpleArray<atn::ColliBox> m104; // inferred: boxes of the events (destroyed with ColliBox::~ColliBox)
     atn::SimpleArray<ScriptNpcFlag_unk> m10C; // inferred: one per EventSphere of the scene (fn_803AC708)
     atn::SimpleArray<ScriptNpcFlag_unk> m114; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
     atn::SimpleArray<ScriptNpcFlag_unk> m11C; // inferred: one per EnemySetPoint of the scene (fn_803AC978)
     atn::SimpleArray<ScriptNpcFlag_unk> m124; // inferred: one per FriendSetPoint of the scene (fn_803AC978)
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
-    int m138;
-    ScriptEventNode_unk* m13C; // inferred: root of the set of finished events (end node at &m13C)
-    ScriptEventNode_unk* m140; // inferred: first node of the set (&m13C when empty)
+    ScriptTree_unk<ScriptDoneNode_unk> mDone; // 0x138: inferred: finished events (std::set<int>)
     atn::SimpleArray<atn::SimpleVector<int> > m144; // inferred: groups of event boxes (fn_803ACE18)
     atn::SimpleArray<atn::SimpleVector<int> > m14C; // inferred: groups of event spheres (fn_803ACF88)
     ScriptPartsFlag_unk m154[64]; // inferred: draw flags of the map parts by name hash (fn_803A68B8)
-    int m354[10];
+    // inferred: log of the events checked for each point of the scene while m37C is set (EventBox, EventSphere,
+    // NpcSetPoint, EnemySetPoint, FriendSetPoint)
+    atn::SimpleArray<ScriptLog_unk> m354;
+    atn::SimpleArray<ScriptLog_unk> m35C;
+    atn::SimpleArray<ScriptLog_unk> m364;
+    atn::SimpleArray<ScriptLog_unk> m36C;
+    atn::SimpleArray<ScriptLog_unk> m374;
     int m37C; // inferred: cleared while a command writes a flag of the field (fn_803A6F90)
-    int m380[4]; // inferred: size 0x390 (operator new in fn_80393610)
+    int m380;
+    std::vector<std::string> m384; // inferred: size 0x390 (operator new in fn_80393610)
 };
 
 #endif

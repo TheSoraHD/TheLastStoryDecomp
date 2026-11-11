@@ -262,21 +262,13 @@ extern "C" std::string fn_8006B2D8(const std::string& path);      // inferred: n
 // inferred: boost::lexical_cast<std::string>(const int&) (weak copy 0x80393BEC; string stream)
 extern "C" std::string fn_80393BEC(const int& value);
 
-// NONMATCHING: 99.36% - the stores of the non-zero members (&m80, the scene, -1, &m13C) are scheduled first,
-// and registers of the string sizes
+// NONMATCHING: 99.95% - registers of the string sizes (r23 vs r20)
 // inferred: loads the script of the scene (file 0) and its sub scripts (files 1-2): the town sub quest and
 // hint scripts when the config asks for them, else <path>_sub1.sc and <path>_sub2.sc
 GameEventScript::GameEventScript(atn::Task* parent, const char* path, int area, int map)
-    : atn::Task(parent), m60(0), m7C(0), m80(0), m84((ScriptEventNode_unk*)&m80), mScene((GameScene*)parent),
+    : atn::Task(parent), m60(0), mScene((GameScene*)parent),
       m8C(0), m9C(0), mA0(0), mA4(0), mD0(0), mD4(-1), mD8(0), mDC(0), mE0(0), mE4(0), mE8(0), mEC(0), mF0(0),
-      mF4(0), mF8(0), m104(0), m108(0), m138(0), m13C(0), m140((ScriptEventNode_unk*)&m13C) {
-    for (int i = 0; i < 10; i++) {
-        m354[i] = 0;
-    }
-    m37C = 0;
-    for (int i = 0; i < 4; i++) {
-        m380[i] = 0;
-    }
+      mF4(0), mF8(0), m37C(0), m380(0) {
     memset(m64, 0, sizeof(m64));
     m48[0].vf0C(path);
     if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
@@ -300,6 +292,41 @@ GameEventScript::GameEventScript(atn::Task* parent, const char* path, int area, 
         }
     }
     memset(m154, 0, sizeof(m154));
+}
+
+// inferred: starts or stops the log of the checked events (name invented)
+static inline void SetLog_unk(GameEventScript* self, int on) {
+    if (self->m37C != on) {
+        self->m37C = on;
+        if (lbl_8087EEB8 != 0) {
+            if (self->m37C != 0) {
+                lbl_8087EEB8->fn_80069D48("EventScript Log START");
+                if (self->m364.mSize == 0) {
+                    self->m364.Resize_unk(self->mScene->m80.size(), 1);
+                }
+                if (self->m36C.mSize == 0) {
+                    self->m36C.Resize_unk(self->mScene->m88.size(), 1);
+                }
+                if (self->m374.mSize == 0) {
+                    self->m374.Resize_unk(self->mScene->m90.size(), 1);
+                }
+                if (self->m354.mSize == 0) {
+                    self->m354.Resize_unk(self->mScene->mE4.size(), 1);
+                }
+                if (self->m35C.mSize == 0) {
+                    self->m35C.Resize_unk(self->mScene->mEC.size(), 1);
+                }
+            } else {
+                lbl_8087EEB8->fn_80069D48("EventScript Log END");
+            }
+        }
+    }
+}
+
+// NONMATCHING: 99.45% - registers: the size of the logs (r29 vs r27) and the tree objects and roots
+// (r28/r27 swapped)
+GameEventScript::~GameEventScript() {
+    SetLog_unk(this, 0);
 }
 
 std::bad_cast::~bad_cast() {}
@@ -379,8 +406,8 @@ inline int GameEventScript::CanStart_unk(int event) {
                     int r;
                     int id = e->m00;
                     if (cond->m00 < 0) {
-                        ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m13C;
-                        ScriptEventNode_unk* node = m13C;
+                        ScriptDoneNode_unk* found = mDone.End_unk();
+                        ScriptDoneNode_unk* node = mDone.mRoot;
                         while (node != 0) {
                             if (!(node->mKey < id)) {
                                 found = node;
@@ -389,10 +416,10 @@ inline int GameEventScript::CanStart_unk(int event) {
                                 node = node->mRight;
                             }
                         }
-                        if (found == (ScriptEventNode_unk*)&m13C || id < found->mKey) {
-                            found = (ScriptEventNode_unk*)&m13C;
+                        if (found == mDone.End_unk() || id < found->mKey) {
+                            found = mDone.End_unk();
                         }
-                        r = found == (ScriptEventNode_unk*)&m13C;
+                        r = found == mDone.End_unk();
                     } else {
                         r = fn_8039C7F0(cond->m00, cond->m04, cond->m10, cond->m08, cond->m0C);
                     }
@@ -538,8 +565,8 @@ int GameEventScript::fn_80398590(int event, int arg) {
                     int r;
                     int id = e->m00;
                     if (cond->m00 < 0) {
-                        ScriptEventNode_unk* node = m13C;
-                        ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m13C;
+                        ScriptDoneNode_unk* node = mDone.mRoot;
+                        ScriptDoneNode_unk* found = mDone.End_unk();
                         while (node != 0) {
                             if (!(node->mKey < id)) {
                                 found = node;
@@ -548,10 +575,10 @@ int GameEventScript::fn_80398590(int event, int arg) {
                                 node = node->mRight;
                             }
                         }
-                        if (found == (ScriptEventNode_unk*)&m13C || id < found->mKey) {
-                            found = (ScriptEventNode_unk*)&m13C;
+                        if (found == mDone.End_unk() || id < found->mKey) {
+                            found = mDone.End_unk();
                         }
-                        r = found == (ScriptEventNode_unk*)&m13C;
+                        r = found == mDone.End_unk();
                     } else {
                         r = fn_8039C7F0(cond->m00, cond->m04, cond->m10, cond->m08, cond->m0C);
                     }
@@ -752,8 +779,8 @@ int GameEventScript::fn_8039C7F0(int kind, int flag, int op, int type, int value
 }
 
 inline int GameEventScript::FindEvent_unk(int id) {
-    ScriptEventNode_unk* found = (ScriptEventNode_unk*)&m80;
-    ScriptEventNode_unk* node = m80;
+    ScriptEventNode_unk* found = mEvents.End_unk();
+    ScriptEventNode_unk* node = mEvents.mRoot;
     while (node != 0) {
         if (!(node->mKey < id)) {
             found = node;
@@ -762,10 +789,10 @@ inline int GameEventScript::FindEvent_unk(int id) {
             node = node->mRight;
         }
     }
-    if (found == (ScriptEventNode_unk*)&m80 || id < found->mKey) {
-        found = (ScriptEventNode_unk*)&m80;
+    if (found == mEvents.End_unk() || id < found->mKey) {
+        found = mEvents.End_unk();
     }
-    if (found != (ScriptEventNode_unk*)&m80) {
+    if (found != mEvents.End_unk()) {
         int* base = &m64[id / 10000];
         return *base + found->mValue;
     }
