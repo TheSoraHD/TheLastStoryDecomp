@@ -177,7 +177,7 @@ public:
     atn::Vector3 m818;
     atn::Vector3 m824; // inferred: m818 - m80C
     float m830;
-    int m834;
+    CharaTask* m834; // inferred: character looked at (GameEventScript::fn_803A7124)
     int m838;
     int m83C;
     atn::Vector3 m840;     // inferred: point looked at (fn_8037F690)

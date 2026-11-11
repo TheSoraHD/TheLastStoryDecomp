@@ -4019,6 +4019,114 @@ void GameEventScript::fn_803A6F90(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: the point a character is looked at from: its neck, else above its head or spine, else its
+// center (also inlined in vf10; name invented)
+static inline atn::Vector3 LookPos_unk(CharaTask* chara) {
+    atn::Model* model = chara->GetModel_unk();
+    MtxPtr m = model->GetNodeMtx_unk("neck");
+    if (m != 0) {
+        return ((atn::Matrix3x4*)m)->GetTrans_unk();
+    }
+    m = model->GetNodeMtx_unk("head");
+    if (m != 0) {
+        return ((atn::Matrix3x4*)m)->GetTrans_unk() - atn::Vector3(0.0f, -1.0f, 0.0f);
+    }
+    m = model->GetNodeMtx_unk("spine1");
+    if (m != 0) {
+        return ((atn::Matrix3x4*)m)->GetTrans_unk() + atn::Vector3(0.0f, 2.0f, 0.0f);
+    }
+    return chara->fn_801781B0();
+}
+
+// inferred: the camera blends its target to `pos` with the fovy `fovy` (as fn_8026610C of
+// game/Em201ZanGurgFinal.cpp; name invented)
+static inline void SetCameraTarget_unk(GameCamera* camera, const atn::Vector3& pos, float fovy, int keep) {
+    camera->m911 = camera->m910;
+    camera->m910 = 1;
+    camera->m91C = pos;
+    camera->m934 = fovy;
+    camera->m914 = keep != 0 ? camera->m918 : 0;
+}
+
+// inferred: arguments of the look command (names invented)
+struct ScriptLookArgs_unk : public ScriptCmd_unk {
+    int m08;             // inferred: id of the point or of the character
+    unsigned int mFlags; // inferred: 1 release, 2 keep the blend time
+    int mFovy;           // inferred: degrees
+    int mKind;           // inferred: 0 attention point, 1 npc, 2 enemy, 3 player
+};
+
+// NONMATCHING: 88.7% - the original keeps `keep` as a 0/1 value (cntlzw) and stores the target through
+// a base at m910 (here a bit test and a base at m91C); registers
+// inferred: the camera looks at (m14) 0 the attention point m08, 1-3 the npc/enemy/player m08 with the
+// fovy m10 (degrees); m0C bit 0 releases it, bit 1 keeps the blend time
+void GameEventScript::fn_803A7124(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptLookArgs_unk* args = static_cast<const ScriptLookArgs_unk*>(cmd);
+    GameTask* field = lbl_8087F430;
+    if (field != 0) {
+        if ((args->mFlags & 1) == 1) {
+            field->mCamera.m910 = 0;
+            if ((args->mFlags & 2) == 2) {
+                field->mCamera.m914 = 0;
+            }
+            field->mCamera.m834 = 0;
+            mE4 = 0;
+        } else {
+            GameScene* scene = field->m10D8;
+            switch (args->mKind) {
+            case 0: {
+                gs::AttentionPoint* point = 0;
+                if (scene != 0) {
+                    for (unsigned int i = 0; i < scene->mFC.size(); i++) {
+                        if (args->m08 == scene->mFC[i].mId) {
+                            point = &scene->mFC[i];
+                            break;
+                        }
+                    }
+                }
+                if (point != 0) {
+                    SetCameraTarget_unk(&field->mCamera, point->mPos, 0.017453292f * (float)args->mFovy,
+                                        (args->mFlags & 2) == 2);
+                    mE4 = 0;
+                }
+                break;
+            }
+            case 1: {
+                CharaTask* chara = NpcManager::sInstance != 0 ? NpcManager::sInstance->Find_unk(args->m08) : 0;
+                if (chara != 0) {
+                    field->mCamera.m834 = chara;
+                    SetCameraTarget_unk(&field->mCamera, LookPos_unk(chara), 0.017453292f * (float)args->mFovy,
+                                        (args->mFlags & 2) == 2);
+                    mE4 = chara;
+                }
+                break;
+            }
+            case 2: {
+                CharaTask* chara = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->Find_unk(args->m08) : 0;
+                if (chara != 0) {
+                    field->mCamera.m834 = chara;
+                    SetCameraTarget_unk(&field->mCamera, LookPos_unk(chara), 0.017453292f * (float)args->mFovy,
+                                        (args->mFlags & 2) == 2);
+                    mE4 = chara;
+                }
+                break;
+            }
+            case 3: {
+                CharaTask* chara = lbl_8087F8A0 != 0 ? lbl_8087F8A0->Find_unk(args->m08) : 0;
+                if (chara != 0) {
+                    field->mCamera.m834 = chara;
+                    SetCameraTarget_unk(&field->mCamera, LookPos_unk(chara), 0.017453292f * (float)args->mFovy,
+                                        (args->mFlags & 2) == 2);
+                    mE4 = chara;
+                }
+                break;
+            }
+            }
+        }
+    }
+    result.SetNext_unk(cmd);
+}
+
 // inferred: links (value 1) or unlinks the characters m0C/m10 and m14/m18 (m08 == 0 only)
 void GameEventScript::fn_803A7954(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);

@@ -466,7 +466,7 @@ public:
     int mD8;
     int mDC; // inferred: kind 0 of GetChara_unk is the leader
     int mE0; // inferred: 0x24 after an event (fn_803A1DB0)
-    int mE4;
+    CharaTask* mE4; // inferred: character the camera looks at (fn_803A7124, vf10)
     int mE8; // inferred: an event of the event manager is running
     int mEC;
     int mF0;
