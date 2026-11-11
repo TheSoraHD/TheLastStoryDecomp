@@ -5271,6 +5271,151 @@ void GameEventScript::fn_803A9C40(ScriptResult_unk& result, const ScriptCmd_unk*
     fn_803A9DBC(result, cmd);
 }
 
+// inferred: the event box `id` of the scene (name invented)
+static inline gs::EventBox* FindBoxIn_unk(GameScene* scene, int id) {
+    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
+        if (id == scene->mE4[i].mId) {
+            return &scene->mE4[i];
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 99.1% - registers of the angle (PI + rotation) and the store of `wait` in SetNext_unk
+// inferred: steps of the opening of a chest or gimmick by a character (m10/m14): m20 flags 0x2 walk to the
+// front of the gimmick (stopped by walls), 0x4 face it, 0x8 locks the leader, 0x10 the chest of the running
+// event box, 0x1 gives the item m24; m0C the message to the gimmick (1: 5, 2: none, else 3), m08 1 plays the
+// motion 0x65; ends when the gimmick is in the state 1 or 4
+void GameEventScript::fn_803A9DBC(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m10, args->m14);
+    gs::EventBox* box = FindBoxIn_unk(mScene, m9C == 5 ? mA0 : -1);
+    if (!(box != 0 && box->m30 != 0 && box->m34 > 0) && ((unsigned int)args->m20 & 0x10) != 0x10) {
+        box = FindBoxIn_unk(mScene, args->m1C);
+    }
+    gmk::TreasureBox::Data_unk* chest = fn_8021ECD0(box != 0 && box->m30 != 0 ? box->m34 : -1);
+    int kind = 0;
+    int id = 0;
+    if (((unsigned int)args->m20 & 0x10) != 0x10) {
+        kind = args->m18;
+        id = args->m1C;
+    } else if (chest != 0 && box != 0) {
+        kind = chest->mType + 21000;
+        id = box->mId;
+    }
+    GimmickCommon* gimmick = GimmickManager::instance_ != 0 ? GimmickManager::instance_->fn_803EEE10(kind, id) : 0;
+    int wait = 1;
+    switch (mB8) {
+    case 0:
+        if ((((unsigned int)args->m20 & 2) == 2 || ((unsigned int)args->m20 & 4) == 4) && chara != 0 && gimmick != 0) {
+            float offset = 6.0f;
+            atn::Vector3 front(0.0f, 0.0f, 1.0f);
+            Mtx m;
+            PSMTXRotRad(m, 'y', gimmick->m78.y);
+            PSMTXMultVec(m, &front, &front);
+            atn::Vector3 pos = gimmick->m6C + front * offset;
+            if (((unsigned int)args->m20 & 2) == 2) {
+                atn::ColliResult_unk hit;
+                atn::Vector3 up(0.0f, 5.0f, 0.0f);
+                atn::Vector3 from = gimmick->m6C + up;
+                atn::Vector3 to = gimmick->m6C + front * 20.0f + up;
+                if (fn_8004ED34(lbl_8087EE98, &hit, &from, &to, 0x80000000, 0, 0)) {
+                    pos = hit.m10 + front * offset;
+                }
+                pos.y = chara->mPos.y;
+            } else {
+                pos = chara->mPos;
+            }
+            chara->fn_80170F20(&pos, 0, gimmick->m78.y + 3.1415927f, 3.0f);
+            mBC = 0;
+        }
+        if (((unsigned int)args->m20 & 8) == 8) {
+            CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            if (leader != 0) {
+                leader->m54C |= 0x10;
+            }
+        }
+        mB8++;
+    case 1:
+        if ((((unsigned int)args->m20 & 2) == 2 || ((unsigned int)args->m20 & 4) == 4) && chara != 0 && chara->mRoute.m2C == 0) {
+            if (++mBC < 90) {
+                break;
+            }
+            chara->fn_80171DB0();
+        }
+        mB8++;
+    case 2:
+        if (gimmick != 0 && args->m0C != 2) {
+            GimmickMsg_unk msg(3);
+            if (args->m0C == 1) {
+                msg.mType = 5;
+            }
+            gimmick->vf40(&msg);
+        }
+        if (chara != 0 && args->m08 == 1) {
+            chara->fn_80161570(0x65, 0, 0, -1.0f, -1.0f);
+        }
+        mB8++;
+    case 3:
+        if (chara != 0 && chara->m55C == 6 && chara->m560 == 0x27) {
+            float frame = chara->mMotion.mTracks[0].m08;
+            if (frame < chara->mMotion.fn_80097D7C(0)) {
+                break;
+            }
+        }
+        mB8++;
+    case 4:
+        if (gimmick != 0) {
+            if (gimmick->m54 == 1 || gimmick->m54 == 4) {
+                wait = 0;
+            }
+        } else {
+            wait = 0;
+        }
+        break;
+    }
+    if (wait == 0) {
+        int got = 0;
+        if (((unsigned int)args->m20 & 1) == 1) {
+            int a;
+            int b;
+            int c;
+            got = fn_80444020(Inventory::instance_, args->m24, 1, -1, 0, 0, &a, &b, &c);
+            if (got != 0) {
+                lbl_8087F490->fn_803E5E64(a, b, c);
+            }
+        } else if (chest != 0) {
+            got = 1;
+            gimmick->vf68(1, 0);
+        }
+        if (got != 0) {
+            fn_800C31F4(lbl_8074EF78[4], 0, -1, 1.0f);
+        }
+        if (chest != 0 && chest->mFlag > 0 && lbl_8087F430 != 0) {
+            lbl_8087F430->fn_80370320(chest->mFlag, 1, 0);
+        }
+        if (((unsigned int)args->m20 & 8) == 8) {
+            CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            if (leader != 0) {
+                leader->m54C &= ~0x10;
+            }
+        }
+        if (chara != 0) {
+            if (mC0 != 0) {
+                chara->m54C |= 4;
+            } else {
+                chara->m54C &= ~4;
+            }
+            if (mC4 != 0) {
+                chara->mStatus.fn_8013310C(0x1000, 0);
+            } else {
+                chara->mStatus.fn_8013322C(0x1000);
+            }
+        }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
 // inferred: arguments of the constrain command (names invented)
 struct ScriptConstrainArgs_unk : public ScriptCmd_unk {
     int m08;
