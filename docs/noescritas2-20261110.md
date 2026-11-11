@@ -29,12 +29,33 @@ Inicio: 2026-11-10 23:27 (CET). Funciones al 0 % al empezar: 1023 (report.json, 
   ceros van a `.sbss` sin `explicit_zero_data` (solo aprobado en PostFxColorMatrix), asi que fn_800B6218 queda
   al 99.66 por los datos (REP+ en precommit: report.json lo da al 100).
 - `RenderSystem_unk::fn_800C169C` llama a `atn::fn_800B6218` (antes `extern "C"`).
+- `gmk::ItemSlotAnime::mBits29` (2 bits) se parte en `mFlag29`/`mFlag28` (el original prueba cada bit con
+  `extrwi` de un bit); el ctor y gmk/DropItem no cambian. Las tablas de paneles del split (0x807547DC...) y los
+  punteros de `.sdata2` (`sArrowPane`, `sColorPane`, `sPosPane`) definidos en el fuente. Cabecera nueva
+  `MP/MpSession_unk.h` (lbl_8087F610); CharaListeners_unk y D2AMpMenuCockpit siguen con su vista local (deuda).
+- GameEventScript: los miembros 0x64-0x390 retipados con lo que piden ctor y dtor: `m64[3]`, el mapa de eventos
+  (0x7C) y el conjunto de terminados (0x138) como `ScriptTree_unk<Node>` (arbol rojo-negro de MSL: tamano, raiz,
+  primero; cuatro capas de destructores para las cinco pruebas de `this` y el truco del assert de release en
+  `Destroy_unk` para la profundidad del original), `m104` = `SimpleArray<atn::ColliBox>`, cinco logs
+  `SimpleArray<ScriptLog_unk>` en 0x354-0x378, `m384` = `std::vector<std::string>`; `ScriptNpcFlag_unk` gana su
+  ctor (0x80395794). `fn_80394C68` y `fn_80395848` pasan a miembros (renombrados en symbols.txt; GameScene llama
+  `m134->fn_80394C68()`). Las tres copias de 0x803965FC/0x803972A8/0x80397BEC son una plantilla miembro
+  `UpdatePoints_unk<Manager>` con instanciacion explicita en su sitio (`template void ...;`).
+- `CanStartArg_unk` (GameEventScript): copia en linea del cuerpo de `fn_80398590`, que el original inlinea en la
+  plantilla; con `fn_80398590` como envoltorio de la inline, esta bajaba 99.4 -> 98.5 (fuzzdrop), asi que el
+  cuerpo queda duplicado.
+- Conocido: `ordercheck` da 1 fuera de orden en GameEventScript (`__ct__13ScriptLog_unkFv`, copia debil que el
+  original emite cerca de 0x803AB948 y la nuestra tras el dtor). Las copias debiles de los destructores de capas
+  del arbol que emitimos de mas no se referencian (el enlazador las quita).
 
 ## Cambios de splits
 
 Ninguno.
 
 ## Cambios de symbols.txt (salvo renombrados)
+
+- `@32305` estaba duplicado en 0x80885B30/0x80885B34 (de una pasada anterior de lblmap): 0x80885B30 (1.0f) pasa
+  a `@28388`.
 
 - `lbl_80790B70` (.data de D2AMpMenu, L"%d" + L"") -> `@wstringBase0` (size 0x8, scope:local): el pool ancho
   del fuente.
@@ -52,6 +73,11 @@ Ninguno.
 - atn/LensFlare: fn_80078938 escrita (77.7 %); la unidad queda toda escrita.
 - atn/LayerOcclusionCPU: fn_800B5528 (89 %), fn_800B6218 (99.66, datos); quedan fn_800B4390/fn_800B47AC
   (asm escrito a mano) y fn_800B5994.
+- RecycleBuffer_gmk/ItemSlotAnime: fn_8044F96C escrita (99.27 %, registros); quedan fn_80450B84 (2.6 KB, pila de
+  14 KB y la ItemSlotTextCache del borrador fn_8044D9BC) y fn_804515A8 (3.5 KB).
+- game/GameEventScript: ctor 99.95, dtor 99.45, fn_80394C68 99.77, fn_80395848 93.1, UpdatePoints_unk x3 98.5;
+  al 100 % las copias debiles Destroy_unk x2, ScriptLog_unk ctor, ScriptNpcFlag_unk ctor y ColliBox ctor.
+  Ceros: 52 -> 41.
 
 ## Hallazgos
 
