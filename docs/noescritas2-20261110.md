@@ -48,6 +48,27 @@ Inicio: 2026-11-10 23:27 (CET). Funciones al 0 % al empezar: 1023 (report.json, 
   original emite cerca de 0x803AB948 y la nuestra tras el dtor). Las copias debiles de los destructores de capas
   del arbol que emitimos de mas no se referencian (el enlazador las quita).
 
+- GameEventScript (cont.): el conjunto de terminados (0x138) es en realidad `std::map<int, bool>` (nodo de 0x14,
+  `ScriptDonePair_unk`; el `bool()` del `operator[]` es un temporal constante que MWCC deja en `.sdata`:
+  0x8087DD38 pasa a `@N` scope:local); `Done_unk` es su `operator[]` en linea, definida justo antes de
+  fn_8039B7B0 para que la copia debil de `FindInsertPos_unk` caiga en 0x8039BC0C. `m98` pasa a `int`.
+- `fn_803AB96C` (log de un cambio de flag desde fuera, lo llama GameTask) pasa a miembro
+  `GameEventScript::fn_803AB96C(scope, index, old, value)`; GameTask llama `m10D8->m134->fn_803AB96C(...)` en lugar
+  del `extern "C"` con el objeto como primer argumento (regla 10).
+- `PrintLog_unk` no es copia debil sino funcion normal (con `inline` sus cadenas iban a `@STRING@...` en lugar de
+  `@stringBase0`).
+- Tablas de nombres del log (`sFlagScopes_unk` 0x8074ECD8, `sValueTypes_unk` 0x8074ECE8, `sFlagOps_unk`
+  0x8074ECF8) definidas en el fuente (regla 10). El original las direcciona como desplazamientos desde el inicio
+  del `.rodata` de la unidad (lbl_8074E440); como el resto del `.rodata` (nombres de comandos, tamanos, sonidos)
+  sigue con `extern`, los inmediatos no coinciden (fn_8039BF04 al 94.5 %). Ademas "NONE" (0x8074E440) va antes
+  que las cadenas de la primera tabla: no se ha podido deducir el orden de definicion, se deja.
+- `ScriptValue_unk`: `return rand() % value + 1;` en lugar de reasignar `value` (fn_8039BF04 +2 %, nada baja).
+- Grupo lexical_cast (fn_80393BEC, fn_80394318, str(), destructores de basic_[io]stream/stringstream y sus
+  thunks, fn_803B2780 el `__sinit` de las guardas de locale::id): es `boost::lexical_cast<std::string>(int)` de
+  Boost 1.34.1 (lexical_stream con std::stringstream, `unsetf(skipws)`, `precision(10)`). Necesita
+  reconstruir istream/iostream/stringstream de MSL (`include/std/` solo tiene ostream y stringbuf): se deja para
+  un lote propio.
+
 ## Cambios de splits
 
 Ninguno.
@@ -57,6 +78,8 @@ Ninguno.
 - `@32305` estaba duplicado en 0x80885B30/0x80885B34 (de una pasada anterior de lblmap): 0x80885B30 (1.0f) pasa
   a `@28388`.
 
+- 0x8087DD38 (`lbl_8087DD38`, byte de `.sdata`) -> `@N` scope:local (el `bool()` de `Done_unk`).
+- `lbl_8074ECE0` (size 0x44) se parte en la cadena "Rand" (0x5), `sValueTypes_unk` (0x10) y `sFlagOps_unk` (0x2C).
 - `lbl_80790B70` (.data de D2AMpMenu, L"%d" + L"") -> `@wstringBase0` (size 0x8, scope:local): el pool ancho
   del fuente.
 - `lbl_80734740` (.rodata de TextureComposite, "UnswizzledTemp" + "DxtTemp") -> `@stringBase0`, scope:local.
@@ -78,6 +101,9 @@ Ninguno.
 - game/GameEventScript: ctor 99.95, dtor 99.45, fn_80394C68 99.77, fn_80395848 93.1, UpdatePoints_unk x3 98.5;
   al 100 % las copias debiles Destroy_unk x2, ScriptLog_unk ctor, ScriptNpcFlag_unk ctor y ColliBox ctor.
   Ceros: 52 -> 41.
+  Despues: fn_803AAAE4 100, fn_803A4A7C 99.3, fn_803A7124 88.7, vf10 89.3 (tabla de comandos por frame),
+  fn_8039B7B0 92.9, fn_8039B2BC 34.5, fn_8039BDB4 96.7, TalkCharas_unk x3 98.7, CharaMarkers_unk x3 96.0,
+  fn_80399148 99.2, PrintLog_unk 98.3, fn_803AB96C 97.2, fn_8039BF04 94.5; al 100 % ademas FindInsertPos_unk x2.
 
 ## Hallazgos
 
