@@ -455,14 +455,14 @@ inline int GameEventScript::CanStart_unk(int event) {
                         ScriptDoneNode_unk* found = mDone.End_unk();
                         ScriptDoneNode_unk* node = mDone.mRoot;
                         while (node != 0) {
-                            if (!(node->mKey < id)) {
+                            if (!(node->mValue < id)) {
                                 found = node;
                                 node = node->mLeft;
                             } else {
                                 node = node->mRight;
                             }
                         }
-                        if (found == mDone.End_unk() || id < found->mKey) {
+                        if (found == mDone.End_unk() || id < found->mValue) {
                             found = mDone.End_unk();
                         }
                         r = found == mDone.End_unk();
@@ -892,14 +892,14 @@ inline int GameEventScript::CanStartArg_unk(int event, int arg) {
                         ScriptDoneNode_unk* node = mDone.mRoot;
                         ScriptDoneNode_unk* found = mDone.End_unk();
                         while (node != 0) {
-                            if (!(node->mKey < id)) {
+                            if (!(node->mValue < id)) {
                                 found = node;
                                 node = node->mLeft;
                             } else {
                                 node = node->mRight;
                             }
                         }
-                        if (found == mDone.End_unk() || id < found->mKey) {
+                        if (found == mDone.End_unk() || id < found->mValue) {
                             found = mDone.End_unk();
                         }
                         r = found == mDone.End_unk();
@@ -940,14 +940,14 @@ int GameEventScript::fn_80398590(int event, int arg) {
                         ScriptDoneNode_unk* node = mDone.mRoot;
                         ScriptDoneNode_unk* found = mDone.End_unk();
                         while (node != 0) {
-                            if (!(node->mKey < id)) {
+                            if (!(node->mValue < id)) {
                                 found = node;
                                 node = node->mLeft;
                             } else {
                                 node = node->mRight;
                             }
                         }
-                        if (found == mDone.End_unk() || id < found->mKey) {
+                        if (found == mDone.End_unk() || id < found->mValue) {
                             found = mDone.End_unk();
                         }
                         r = found == mDone.End_unk();
@@ -1120,6 +1120,39 @@ void GameEventScript::vf14() {
     }
 }
 
+// inferred: header of a compiled script file: its events (id, offset) from 0xC (names invented)
+struct ScriptFileHeader_unk {
+    int m00;
+    int mCount; // inferred: number of events
+    int m08;
+};
+
+// inferred: MSL map::operator[] of the events by id (name invented)
+inline int& GameEventScript::EventOffset_unk(const int& key) {
+    ScriptEventNode_unk* pred;
+    bool left;
+    bool leftmost;
+    ScriptEventNode_unk* parent = mEvents.FindInsertPos_unk(key, pred, left, leftmost);
+    ScriptEventPair_unk* v;
+    if (pred == 0 || (v = &pred->mValue, v->first < key)) {
+        v = &mEvents.InsertNode_unk(parent, left, leftmost, ScriptEventPair_unk(key, int()))->mValue;
+    }
+    return v->second;
+}
+
+// NONMATCHING: 96.7% - the load of the count is scheduled after the multiply
+// inferred: adds the events of the script file `index` (ids of the block index * 10000); noinline: vf0C
+// calls it
+__declspec(noinline) void GameEventScript::fn_8039BDB4(int index, const void* data, int size) {
+    int count = ((const ScriptFileHeader_unk*)data)->mCount;
+    m64[index] = (int)data;
+    m60 += count;
+    m70[index] = (const ScriptEventEntry_unk*)((const char*)data + sizeof(ScriptFileHeader_unk));
+    for (int i = 0; i < count; i++) {
+        EventOffset_unk(index * 10000 + m70[index][i].mId) = m70[index][i].mOffset;
+    }
+}
+
 // inferred: compares the flag `flag` (kind 1: fn_80370174, else fn_80370A78) with the script value
 // type/value (op 5 ==, 6 !=, 7 <, 8 <=, 9 >, 10 >=)
 int GameEventScript::fn_8039C7F0(int kind, int flag, int op, int type, int value) {
@@ -1154,19 +1187,19 @@ inline int GameEventScript::FindEvent_unk(int id) {
     ScriptEventNode_unk* found = mEvents.End_unk();
     ScriptEventNode_unk* node = mEvents.mRoot;
     while (node != 0) {
-        if (!(node->mKey < id)) {
+        if (!(node->mValue.first < id)) {
             found = node;
             node = node->mLeft;
         } else {
             node = node->mRight;
         }
     }
-    if (found == mEvents.End_unk() || id < found->mKey) {
+    if (found == mEvents.End_unk() || id < found->mValue.first) {
         found = mEvents.End_unk();
     }
     if (found != mEvents.End_unk()) {
         int* base = &m64[id / 10000];
-        return *base + found->mValue;
+        return *base + found->mValue.second;
     }
     return 0;
 }

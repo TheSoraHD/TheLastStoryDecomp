@@ -6,6 +6,8 @@
 #include "atn/Task.h"
 #include "game/EventScriptCmd_unk.h"
 #include "std/vector.h"
+#include "std/tree.h"
+#include "std/msl_common.h"
 #include "std/string.h"
 
 class CharaTask;
@@ -22,19 +24,32 @@ struct ScriptData_unk {
 // inferred from __vt__15GameEventScript: event script of a scene (created by fn_80393610 for
 // GameScene::m134); only the members used by game/GameScene.cpp, method names invented
 // inferred: node of the tree of events (std::map<int, int> laid out by hand; names invented)
+// inferred: event of a script file (names invented)
+struct ScriptEventEntry_unk {
+    int mId;
+    int mOffset;
+};
+struct ScriptEventPair_unk {
+    ScriptEventPair_unk(const int& key, const int& value) : first(key), second(value) {}
+    int first;  // inferred: event id (block of 10000 per file)
+    int second; // inferred: offset of the event in its file
+};
 struct ScriptEventNode_unk {
+    typedef ScriptEventPair_unk Value;
+    static const int& Key_unk(const Value& value) { return value.first; }
     ScriptEventNode_unk* mLeft;
     ScriptEventNode_unk* mRight;
     unsigned int mParent;
-    int mKey;
-    int mValue;
+    Value mValue;
 };
 // inferred: node of the set of finished events (std::set<int>; names invented)
 struct ScriptDoneNode_unk {
+    typedef int Value;
+    static const int& Key_unk(const Value& value) { return value; }
     ScriptDoneNode_unk* mLeft;
     ScriptDoneNode_unk* mRight;
     unsigned int mParent;
-    int mKey;
+    Value mValue; // inferred: id of the finished event
 };
 // inferred: the red-black tree of std::map<int, int> / std::set<int> (MSL <tree>) as the script uses it:
 // size, root (the end node is at &mRoot) and first node; the nodes are freed by the recursive Destroy_unk
@@ -61,11 +76,85 @@ struct ScriptTreeData_unk {
         delete node;
     }
     Node* End_unk() { return (Node*)&mRoot; }
+    // inferred: MSL __tree::find_insert_position / insert_node (weak copies 0x8039BEA4 and 0x803AD3D8 for the
+    // map; as AudioMap_unk of atn/AudioDevice.cpp)
+    Node* FindInsertPos_unk(const int& key, Node*& pred, bool& left, bool& leftmost);
+    Node* InsertNode_unk(Node* parent, bool left, bool leftmost, const typename Node::Value& value);
+    static Node* Allocate_unk() {
+        Node* p = (Node*)::operator new(sizeof(Node));
+        if (p == 0) {
+            __msl_error("Memory allocation failure");
+        }
+        return p;
+    }
+    // inferred: frees the node if the construction does not finish (names invented)
+    struct NodeHolder_unk {
+        NodeHolder_unk(void* alloc, Node* node) : mAlloc(alloc), mNode(node) {}
+        ~NodeHolder_unk() {
+            if (mNode != 0) {
+                delete mNode;
+            }
+        }
+        Node* release() {
+            Node* node = mNode;
+            mNode = 0;
+            return node;
+        }
+        void* mAlloc;
+        Node* mNode;
+    };
 
     int mSize;
     Node* mRoot;
     Node* mFirst;
 };
+
+template <class Node>
+Node* ScriptTreeData_unk<Node>::FindInsertPos_unk(const int& key, Node*& pred, bool& left, bool& leftmost) {
+    pred = 0;
+    Node* parent = End_unk();
+    Node* node = mRoot;
+    left = true;
+    leftmost = true;
+    while (node != 0) {
+        parent = node;
+        if (key < Node::Key_unk(node->mValue)) {
+            node = node->mLeft;
+            left = true;
+        } else {
+            pred = node;
+            node = node->mRight;
+            left = false;
+            leftmost = false;
+        }
+    }
+    return parent;
+}
+
+template <class Node>
+Node* ScriptTreeData_unk<Node>::InsertNode_unk(Node* parent, bool left, bool leftmost,
+                                               const typename Node::Value& value) {
+    if (mSize == 0xFFFFFFFF) {
+        __msl_error("tree::insert length error");
+    }
+    NodeHolder_unk holder(&mRoot, Allocate_unk());
+    ::new (&holder.mNode->mValue) typename Node::Value(value);
+    Node* node = holder.release();
+    node->mRight = 0;
+    node->mLeft = 0;
+    ::new (&node->mParent) unsigned int((unsigned int)parent);
+    if (left) {
+        parent->mLeft = node;
+    } else {
+        parent->mRight = node;
+    }
+    mSize++;
+    std::__red_black_tree_void::balance_insert((std::__tree_node_base_void*)node, (std::__tree_node_base_void*)mRoot);
+    if (leftmost) {
+        mFirst = node;
+    }
+    return node;
+}
 // inferred: the layers of std::map / std::set over the tree (the destructor tests the object five times)
 template <class Node>
 struct ScriptTreeL4_unk : public ScriptTreeData_unk<Node> {
@@ -146,6 +235,7 @@ public:
     virtual void vf14();        // 0x8039BC6C
     // inferred: compiles a script file `index` (data, size)
     void fn_8039BDB4(int index, const void* data, int size);
+    inline int& EventOffset_unk(const int& key); // inferred: mEvents[key] (name invented)
     int fn_80398530(int event);          // inferred: the event is done
     int fn_80398590(int event, int arg); // inferred: the event can start
     inline int CanStartArg_unk(int event, int arg); // inferred: body of fn_80398590 (name invented)
@@ -352,7 +442,7 @@ public:
     atn::LH_Binary m48[3]; // inferred: script files
     int m60;
     int m64[3];                 // inferred: base address of the events of each block of 10000 ids (one per file)
-    unsigned char m70[0x7C - 0x70];
+    const ScriptEventEntry_unk* m70[3]; // inferred: events (id, offset) of each file
     ScriptTree_unk<ScriptEventNode_unk> mEvents; // 0x7C: inferred: offset of the events by id (std::map<int, int>)
     GameScene* mScene; // 0x88: inferred: scene that owns the script (GameScene::m134)
     int m8C; // inferred: a script is running
