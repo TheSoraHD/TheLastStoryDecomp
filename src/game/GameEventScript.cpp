@@ -4923,6 +4923,229 @@ void GameEventScript::fn_803A8464(ScriptResult_unk& result, const ScriptCmd_unk*
     fn_803A8470(result, cmd);
 }
 
+// inferred: unit vector in front of a character (name invented)
+static inline atn::Vector3 FrontOf_unk(const CharaTask* chara) {
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    return front;
+}
+
+// NONMATCHING: 98.0% - scheduling of the vertical ray and the store of `wait` in SetNext_unk
+// inferred: steps of the use of a gimmick (m18/m1C) by a character (m10/m14): m20 flags 0x1/0x8 place the
+// character in front of it (0x10: walks to the place m24 instead; 0x1 stopped by walls), 0x6 locks the
+// leader, 0x2 waits for the gimmick (vf64(0)); m08 the motion (1-5, distances 11/5/7), m0C the message (2: none)
+void GameEventScript::fn_803A8470(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
+    const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
+    CharaTask* chara = GetChara_unk(args->m10, args->m14);
+    GimmickCommon* gimmick =
+        GimmickManager::instance_ != 0 ? GimmickManager::instance_->fn_803EEE10(args->m18, args->m1C) : 0;
+    int wait = 1;
+    switch (mB8) {
+    case 0:
+        if ((((unsigned int)args->m20 & 1) == 1 || ((unsigned int)args->m20 & 8) == 8) && chara != 0 &&
+            gimmick != 0) {
+            if (((unsigned int)args->m20 & 0x10) == 0x10) {
+                chara->fn_8017039C(args->m24, 0);
+            } else {
+                atn::Vector3 front(0.0f, 0.0f, 1.0f);
+                Mtx m;
+                PSMTXRotRad(m, 'y', gimmick->m78.y);
+                PSMTXMultVec(m, &front, &front);
+                atn::Vector3 side((float)gimmick->vf64(9), 0.0f, 0.0f);
+                Mtx m2;
+                PSMTXRotRad(m2, 'y', gimmick->m78.y);
+                PSMTXMultVec(m2, &side, &side);
+                atn::Vector3 dir(chara->mPos.x - gimmick->m6C.x, 0.0f, chara->mPos.z - gimmick->m6C.z);
+                if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-07f)) {
+                    PSVECNormalize(&dir, &dir);
+                }
+                bool facing = PSVECDotProduct(&front, &dir) >= 0.0f;
+                if (!facing) {
+                    Mtx m3;
+                    PSMTXRotRad(m3, 'y', 3.1415927f);
+                    PSMTXMultVec(m3, &front, &front);
+                }
+                float dist = 11.0f;
+                switch (args->m08) {
+                case 4:
+                    dist = 5.0f;
+                    break;
+                case 5:
+                    dist = 7.0f;
+                    break;
+                }
+                atn::Vector3 pos = gimmick->m6C + front * dist;
+                atn::ColliResult_unk hit;
+                atn::Vector3 up(0.0f, 5.0f, 0.0f);
+                if (((unsigned int)args->m20 & 1) == 1) {
+                    atn::Vector3 base = gimmick->m6C + up;
+                    atn::Vector3 ahead = gimmick->m6C + front * 12.0f + up;
+                    if (fn_8004ED34(lbl_8087EE98, &hit, &ahead, &base, 0x80000000, 0, 0)) {
+                        pos = hit.m10 + front * dist;
+                    }
+                    pos.y = chara->mPos.y;
+                } else {
+                    pos = chara->mPos;
+                }
+                pos += side;
+                atn::Vector3 height(0.0f, 12.0f, 0.0f);
+                atn::Vector3 top = pos + height;
+                atn::Vector3 bottom = pos - height * 2.0f;
+                if (fn_8004ED34(lbl_8087EE98, &hit, &top, &bottom, 0x80000000, 0, 0)) {
+                    pos = hit.m10;
+                }
+                float rot = gimmick->m78.y;
+                if (!facing) {
+                    rot += 3.1415927f;
+                }
+                chara->fn_80170F20(&pos, 0x80, 3.1415927f + rot, 3.0f);
+            }
+            mBC = 0;
+        }
+        if (((unsigned int)args->m20 & 6) == 6) {
+            CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+            if (leader != 0) {
+                leader->m54C |= 0x10;
+            }
+        }
+        mB8++;
+    case 1:
+        if ((((unsigned int)args->m20 & 1) == 1 || ((unsigned int)args->m20 & 8) == 8) && chara != 0 &&
+            chara->mRoute.m2C == 0) {
+            mBC++;
+            atn::Vector3 d = chara->mRoute.m30 - chara->mPos;
+            if (0.0f < PSVECSquareMag(&d) && PSVECSquareMag(&d) < 25.0f) {
+                atn::Vector3 n = d;
+                PSVECNormalize(&n, &n);
+                float step = chara->m570 < 0.5f ? chara->m570 : 0.5f;
+                chara->mPos = chara->mPos + n * step;
+            }
+            if (mBC < 90) {
+                break;
+            }
+            chara->fn_80171DB0();
+        }
+        mB8++;
+    case 2:
+        if (chara != 0) {
+            switch (args->m08) {
+            case 1:
+                if (chara->m648 != 0) {
+                    chara->fn_80161570(9, 0, 0, -1.0f, -1.0f);
+                } else {
+                    chara->fn_80161570(10, 0, 0, -1.0f, -1.0f);
+                }
+                break;
+            case 2:
+                if (chara->m648 != 0) {
+                    chara->fn_80161B70(13, FrontOf_unk(chara) * -13.0f);
+                } else {
+                    chara->fn_80161B70(14, FrontOf_unk(chara) * -13.0f);
+                }
+                break;
+            case 3:
+                if (chara->m648 != 0) {
+                    chara->fn_80161570(11, 0, 0, -1.0f, -1.0f);
+                } else {
+                    chara->fn_80161570(12, 0, 0, -1.0f, -1.0f);
+                }
+                break;
+            case 4:
+                chara->fn_80161B70(15, FrontOf_unk(chara) * 2.5f);
+                break;
+            case 5:
+                chara->fn_80161B70(16, FrontOf_unk(chara) * 0.0f);
+                break;
+            }
+        }
+        mB8++;
+    case 3: {
+        bool next = false;
+        if (chara != 0 && chara->m55C == 6 && chara->m560 == 0x27) {
+            switch (args->m08) {
+            case 0:
+                next = true;
+                break;
+            case 1:
+                if (chara->mMotion.mTracks[0].m08 >= 16.0f) {
+                    next = true;
+                }
+                break;
+            case 2:
+                if (chara->mMotion.mTracks[0].m08 >= 23.0f) {
+                    next = true;
+                }
+                break;
+            case 3:
+                if (chara->mMotion.mTracks[0].m08 >= 23.0f) {
+                    next = true;
+                }
+                break;
+            case 4:
+            case 5:
+                if (chara->mMotion.mTracks[0].m08 >= 5.0f) {
+                    next = true;
+                }
+                break;
+            }
+        } else {
+            next = true;
+        }
+        if (!next) {
+            break;
+        }
+        if (gimmick != 0 && args->m0C != 2) {
+            GimmickMsg_unk msg;
+            if (gimmick->m50 == 2) {
+                msg.mType = 3;
+                if (args->m0C == 1) {
+                    msg.mType = 4;
+                }
+            } else if (gimmick->m50 == 28) {
+                msg.mType = 3;
+                if (gimmick->mId == 28085 || gimmick->mId == 28087) {
+                    msg.mType = 2;
+                }
+            } else {
+                msg.mType = 3;
+            }
+            gimmick->vf40(&msg);
+        }
+        mB8++;
+    }
+    case 4:
+        if (chara != 0 && chara->m55C == 6 && chara->m560 == 0x27) {
+            float frame = chara->mMotion.mTracks[0].m08;
+            if (frame < chara->mMotion.fn_80097D7C(0)) {
+                break;
+            }
+        }
+        mB8++;
+    case 5:
+        if (((unsigned int)args->m20 & 2) == 2 && args->m0C != 2) {
+            if (gimmick != 0) {
+                if (gimmick->vf64(0) > 0) {
+                    wait = 0;
+                }
+            } else {
+                wait = 0;
+            }
+        } else {
+            wait = 0;
+        }
+        break;
+    }
+    if (wait == 0 && ((unsigned int)args->m20 & 6) == 6) {
+        CharaTask* leader = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (leader != 0) {
+            leader->m54C &= ~0x10;
+        }
+    }
+    result.SetNext_unk(cmd, wait);
+}
+
 void GameEventScript::fn_803A90E8(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     lbl_8087F430->fn_803712BC();
     lbl_8087F8A0->mHead->fn_8016E970(0);
@@ -5281,7 +5504,7 @@ static inline gs::EventBox* FindBoxIn_unk(GameScene* scene, int id) {
     return 0;
 }
 
-// NONMATCHING: 99.1% - registers of the angle (PI + rotation) and the store of `wait` in SetNext_unk
+// NONMATCHING: 99.2% - registers of the angle (PI + rotation) and the store of `wait` in SetNext_unk
 // inferred: steps of the opening of a chest or gimmick by a character (m10/m14): m20 flags 0x2 walk to the
 // front of the gimmick (stopped by walls), 0x4 face it, 0x8 locks the leader, 0x10 the chest of the running
 // event box, 0x1 gives the item m24; m0C the message to the gimmick (1: 5, 2: none, else 3), m08 1 plays the
@@ -5317,9 +5540,10 @@ void GameEventScript::fn_803A9DBC(ScriptResult_unk& result, const ScriptCmd_unk*
             if (((unsigned int)args->m20 & 2) == 2) {
                 atn::ColliResult_unk hit;
                 atn::Vector3 up(0.0f, 5.0f, 0.0f);
-                atn::Vector3 from = gimmick->m6C + up;
-                atn::Vector3 to = gimmick->m6C + front * 20.0f + up;
-                if (fn_8004ED34(lbl_8087EE98, &hit, &from, &to, 0x80000000, 0, 0)) {
+                atn::Vector3 base = gimmick->m6C + up;
+                atn::Vector3 ahead = gimmick->m6C + front * 20.0f + up;
+                // inferred: the ray goes from the point ahead back to the gimmick
+                if (fn_8004ED34(lbl_8087EE98, &hit, &ahead, &base, 0x80000000, 0, 0)) {
                     pos = hit.m10 + front * offset;
                 }
                 pos.y = chara->mPos.y;
