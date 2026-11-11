@@ -45,7 +45,6 @@ extern "C" double sin(double x);
 extern "C" double cos(double x);
 extern "C" void fn_80016888(void* arg);
 extern "C" void* lbl_8087EE68;
-extern "C" void fn_80394C68(GameEventScript* script); // inferred
 struct Field_unk;
 extern "C" int fn_80435CBC(GimmickCommon* item); // inferred: gmk::RandomItem (game/RandomItem.cpp)
 extern "C" int fn_8043A530(GimmickCommon* item); // inferred: gmk::WindyItem (gmk/WindyItem.cpp)
@@ -567,7 +566,7 @@ void GameScene::fn_803C0F48(int warp) {
     lbl_8087F8A0->vf1C();
     GimmickManager::instance_->fn_803EE374(0);
     m134->fn_800D246C(0);
-    fn_80394C68(m134);
+    m134->fn_80394C68();
     CrowdManager::sInstance->mCenter = lbl_8087F8A0->mHead->mPos;
     CrowdManager::sInstance->fn_801EB078();
     PlayerTask* leader = lbl_8087F8A0->mHead;

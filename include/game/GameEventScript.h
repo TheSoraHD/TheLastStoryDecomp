@@ -132,6 +132,8 @@ public:
     GameEventScript(atn::Task* parent, const char* path, int area, int map); // 0x803936A4
     virtual ~GameEventScript(); // 0x80394320
     virtual int vf0C();         // 0x80394BA4: inferred: waits for the three script files
+    void fn_80394C68();         // inferred: prepares the flags of the points (GameScene::fn_803C0F48)
+    void fn_80395848(int arg);
     virtual void vf10();        // 0x80398704
     virtual void vf14();        // 0x8039BC6C
     // inferred: compiles a script file `index` (data, size)
@@ -353,7 +355,7 @@ public:
     int mA4;
     int mA8; // inferred: a message window is open
     ScriptCmd_unk* mAC; // inferred: command after the choice of the message window
-    unsigned char mB0[0xB4 - 0xB0];
+    int mB0;
     int mB4;
     int mB8; // inferred: step of the running command
     int mBC;

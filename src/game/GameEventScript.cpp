@@ -359,6 +359,49 @@ int GameEventScript::vf0C() {
     return 1;
 }
 
+// NONMATCHING: 99.77% - registers: the array and the scene of the Resize_unk calls 2-5 (r3/r4) and the
+// counters of the sphere loop
+// inferred: prepares the flags of the points of the scene (GameScene::fn_803C0F48): one per point, the boxes
+// of the event boxes and the groups of boxes and spheres (each one with the others of its group)
+void GameEventScript::fn_80394C68() {
+    m114.Resize_unk(mScene->m80.size(), 1);
+    m11C.Resize_unk(mScene->m88.size(), 1);
+    m124.Resize_unk(mScene->m90.size(), 1);
+    mFC.Resize_unk(mScene->mE4.size(), 1);
+    m10C.Resize_unk(mScene->mEC.size(), 1);
+    m104.Resize_unk(mScene->mE4.size(), 1);
+    m144.Resize_unk(mScene->mE4.size(), 1);
+    m14C.Resize_unk(mScene->mEC.size(), 1);
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
+        gs::EventBox& box = scene->mE4[i];
+        atn::Vector3 pos = box.mPos;
+        pos.y += box.mSize.y;
+        atn::Vector3 rot(0.0f, box.m14, 0.0f);
+        m104[i].fn_800575BC(&pos, &rot, &box.mSize);
+        for (unsigned int j = 0; j < scene->mE4.size(); j++) {
+            gs::EventBox& other = scene->mE4[j];
+            if (i == j || box.m2C == j || other.m2C == i || (box.m2C >= 0 && box.m2C == other.m2C)) {
+                m144[i].push_back(j);
+            }
+        }
+    }
+    scene = mScene;
+    for (unsigned int i = 0; i < scene->mEC.size(); i++) {
+        gs::EventSphere& sphere = scene->mEC[i];
+        for (unsigned int j = 0; j < scene->mEC.size(); j++) {
+            gs::EventSphere& other = scene->mEC[j];
+            if (i == j || sphere.m20 == j || other.m20 == i || (sphere.m20 >= 0 && sphere.m20 == other.m20)) {
+                m14C[i].push_back(j);
+            }
+        }
+    }
+    fn_80395848(1);
+    mB0 = 0;
+    mD4 = -1;
+    mD8 = 0;
+}
+
 // NONMATCHING: 98.4% - registers of the scene and of the entry offset swapped
 void GameEventScript::fn_803957F0(int id) {
     GameScene* scene = mScene;
