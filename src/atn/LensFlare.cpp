@@ -10,6 +10,11 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 // inferred: GX functions not in atn/GXDecl.h (enums as int)
 extern "C" {
 void GXBegin(int type, int fmt, unsigned short count);
+void GXClearVtxDesc();
+void GXSetVtxDesc(int attr, int type);
+void GXSetVtxAttrFmt(int fmt, int attr, int count, int type, unsigned char frac);
+void GXLoadPosMtxImm(const Mtx m, unsigned int id);
+void GXSetCurrentMtx(unsigned int id);
 }
 
 // inferred: write gather pipe of the GX FIFO
@@ -52,6 +57,10 @@ struct LensRenderState_unk {
     int mHeight;
 };
 extern "C" LensRenderState_unk* lbl_8087EEE0;
+extern "C" void fn_80076760(LensRenderState_unk* rs, int index, int value); // inferred: sets a render state
+extern "C" void fn_80072914(LensRenderState_unk* rs, int mode);
+extern "C" void fn_800761A8(LensRenderState_unk* rs);                     // inferred: sends the render states
+extern "C" void fn_800763C0(LensRenderState_unk* rs, int map, atn::Texture_unk* tex); // inferred: loads a texture
 
 // inferred: screen limits and alpha range (globals of another file)
 extern "C" float lbl_8087D740;
@@ -101,14 +110,12 @@ struct LensVertex_unk {
         mColor = (a << 24) | (r << 16) | (g << 8) | b;
         mUV = uv;
     }
+    LensVertex_unk(const atn::Vector3& pos, unsigned int color, const atn::Vector2_unk& uv)
+        : mPos(pos), mColor(color), mUV(uv) {}
     atn::Vector3 mPos;
     unsigned int mColor;
     atn::Vector2_unk mUV;
 };
-
-namespace atn {
-extern "C" void fn_80078938(LensFlare* flare, float alpha);
-}
 
 // inferred: clamps v to [min, max]
 inline float LensClamp_unk(float v, float min, float max) {
@@ -188,7 +195,7 @@ void LensFlare::vf10(RenderManager* arg) {
             screen.mMax.y = LensClamp_unk(screen.mMax.y, lbl_8087D74C, height);
             float alpha = (1.0f - visible) -
                           (1.0f - (screen.mMin.x - screen.mMax.x) * (screen.mMin.y - screen.mMax.y) / area);
-            fn_80078938(this, LensClamp_unk(alpha, lbl_8087D750, lbl_8087D754));
+            fn_80078938(LensClamp_unk(alpha, lbl_8087D750, lbl_8087D754));
         }
     }
 }
@@ -223,5 +230,72 @@ extern "C" void fn_8007786C(const atn::Vector3& center, const atn::Vector3& righ
     }
 }
 
-// NONMATCHING: not decompiled - fn_80078938 (0x80078938, sets up GX and draws every element with
-// fn_8007786C along the axis between the sun and the screen center)
+namespace atn {
+
+// NONMATCHING: 77.7% - scheduling of the sun quad (dead code: built and not drawn, as in the original) and
+// of the camera axes
+// inferred: draws the elements along the line from the screen center to the sun (`alpha`: their opacity); the
+// quad of the sun itself is built but not drawn (dead code of the original)
+void LensFlare::fn_80078938(float alpha) {
+    RenderManager* rm = RenderManager::instance_;
+    Light* light = rm->mScene->GetLight(0);
+    Vector3 dir(-light->mDir.x, -light->mDir.y, -light->mDir.z);
+    Vector3 sun = rm->mCamera.mPos + dir * 800.0f;
+    {
+        Vector3 right =
+            Vector3(rm->mCamera.mView.m[0][0], rm->mCamera.mView.m[0][1], rm->mCamera.mView.m[0][2]) * 50.0f;
+        Vector3 up = Vector3(rm->mCamera.mView.m[1][0], rm->mCamera.mView.m[1][1], rm->mCamera.mView.m[1][2]) * 50.0f;
+        unsigned int color = 0xFFFFFFFF;
+        LensVertex_unk v[4] = {
+            LensVertex_unk(sun + up - right, color, atn::Vector2_unk(1.0f, 0.0f)),
+            LensVertex_unk(sun + up + right, color, atn::Vector2_unk(0.0f, 1.0f)),
+            LensVertex_unk(sun - up - right, color, atn::Vector2_unk(1.0f, 1.0f)),
+            LensVertex_unk(sun - up + right, color, atn::Vector2_unk(0.0f, 0.0f)),
+        };
+    }
+    GXSetNumChans(1);
+    GXSetNumTexGens(1);
+    GXSetNumTevStages(1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevOp(0, 0);
+    GXSetChanCtrl(4, 0, 1, 1, 1, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xB, 1);
+    GXSetVtxDesc(0xD, 1);
+    GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+    GXSetVtxAttrFmt(0, 0xB, 1, 5, 0);
+    GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    LensRenderState_unk* rs = lbl_8087EEE0;
+    fn_80076760(rs, 8, 0);
+    fn_80076760(rs, 9, 7);
+    fn_80076760(rs, 10, 0);
+    fn_80072914(lbl_8087EEE0, 1);
+    Matrix3x4 identity(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    GXLoadPosMtxImm(identity.m, 0);
+    GXSetCurrentMtx(0);
+    Vector3 screen = rm->GetScreenPosition(sun);
+    screen.z = 0.0f;
+    float width = lbl_8087EEE0->mWidth;
+    float height = lbl_8087EEE0->mHeight;
+    Vector3 axisY(0.0f, 1.0f, 0.0f);
+    Vector3 axisX(1.0f, 0.0f, 0.0f);
+    Vector3 center(0.5f * width, 0.5f * height, 1.0f);
+    Vector3 toSun(screen.x - center.x, screen.y - center.y, 0.0f);
+    fn_800761A8(lbl_8087EEE0);
+    for (unsigned int i = 0; i < mElems.mCount; i++) {
+        LensFlareElem* e = &mElems[i];
+        if (e->m00 != 0) {
+            fn_800763C0(lbl_8087EEE0, 0, &m20[e->m00 - 1]);
+            float aspect = height / width;
+            Vector3 right(axisY.x * e->m04, axisY.y * e->m04 * aspect, axisY.z * e->m04);
+            Vector3 up = axisX * e->m04;
+            LensColor_unk color(e->m0C, e->m10, e->m14, alpha);
+            Vector3 pos = Vector3(0.5f * width, 0.5f * height, 0.0f) + toSun * e->m08;
+            fn_8007786C(pos, right, up, color);
+        }
+    }
+}
+
+} // namespace atn

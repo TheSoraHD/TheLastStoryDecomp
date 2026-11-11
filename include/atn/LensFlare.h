@@ -60,6 +60,7 @@ public:
 
     int fn_800774D4(); // inferred: nonzero while loading
     void fn_80077534(); // inferred: per-frame update
+    void fn_80078938(float alpha); // inferred: draws the elements
 
     int m04;                    // inferred: 1 = follows the sun
     atn::Vector3 mPos;          // 0x08
