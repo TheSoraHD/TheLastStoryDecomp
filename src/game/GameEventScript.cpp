@@ -865,6 +865,7 @@ int GameEventScript::fn_80396F44(const gs::NpcSetPoint* point) {
 template void GameEventScript::UpdatePoints_unk<EnemyManager>(atn::SimpleArray<gs::NpcSetPoint>&, atn::SimpleArray<ScriptNpcFlag_unk>&, atn::SimpleArray<ScriptLog_unk>&, EnemyManager*, int, int, CharaTask*);
 template void GameEventScript::UpdatePoints_unk<NpcManager>(atn::SimpleArray<gs::NpcSetPoint>&, atn::SimpleArray<ScriptNpcFlag_unk>&, atn::SimpleArray<ScriptLog_unk>&, NpcManager*, int, int, CharaTask*);
 
+
 // inferred: the field value is in the range of the event (name invented)
 static inline bool InEventRange_unk(int event) {
     const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
@@ -1138,7 +1139,10 @@ static inline bool CanStartTalk_unk(PlayerTask* chara) {
     case 10:
         return !chara->mFlag31 && !chara->mFlag6 && chara->m14A0 <= 0 && chara->m1208 == 0;
     case 6:
-        return (unsigned int)(chara->m560 - 60) <= 1;
+        if (chara->m560 >= 60 && chara->m560 <= 61) {
+            return true;
+        }
+        break;
     }
     return false;
 }
@@ -1148,7 +1152,6 @@ static inline bool FieldFlagOn_unk(int flag) {
     return lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(flag);
 }
 
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 // inferred: the talk events may start (an event is running, or the field flag 2590; name invented)
 static inline bool TalkAllowed_unk(const GameEventScript* script) {
@@ -1159,7 +1162,56 @@ static inline bool TalkAllowed_unk(const GameEventScript* script) {
     return on;
 }
 
-// NONMATCHING: 96.5% - as fn_8039AF50
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+
+// NONMATCHING: 98.7% (each copy) - registers (leader and counters)
+// inferred: marks the talk events of the character points (flag 0x20) whose character is in front of the
+// leader and within 20 units; the nearest goes to mF4 (as fn_8039AF50 for the spheres)
+template <class Manager>
+void GameEventScript::TalkCharas_unk(Manager* manager, atn::SimpleArray<gs::NpcSetPoint>& points,
+                                     atn::SimpleArray<ScriptNpcFlag_unk>& flags, int kind) {
+    typedef typename PointChara_unk<Manager>::Chara Chara;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', leader->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    for (unsigned int i = 0; i < points.size(); i++) {
+        gs::NpcSetPoint& point = points[i];
+        if (flags[i].m00 < 0) {
+            continue;
+        }
+        flags[i].mFlags &= ~0x20;
+        Chara* chara;
+        for (chara = FirstChara_unk(manager); chara != 0; chara = chara->mNext) {
+            if (point.mId == chara->m58) {
+                break;
+            }
+        }
+        if (chara == 0 || chara->fn_8013655C() || chara->IsFlag_unk(4)) {
+            continue;
+        }
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(point.m140[flags[i].m00]);
+        if (e == 0 || e->m0C != 0) {
+            continue;
+        }
+        atn::Vector3 dir = chara->mPos - leader->mPos;
+        float dist = PSVECSquareMag(&dir);
+        if (!((float)__fabs(dist) < 1.1920929e-07f)) {
+            PSVECNormalize(&dir, &dir);
+        }
+        bool near = dist < 400.0f && PSVECDotProduct(&dir, &front) > 0.1f;
+        if (near && CanStartTalk_unk(leader) && !TalkAllowed_unk(this)) {
+            flags[i].mFlags |= 0x20;
+            flags[i].m08 = dist;
+            if (mF4 == 0 || dist < mF4->m08) {
+                mF4 = &flags[i];
+            }
+        }
+    }
+}
+
+// NONMATCHING: 98.5% - as fn_8039AF50
 // inferred: same as fn_8039AF50 for the talk event boxes (with m40, the leader must also face the box)
 void GameEventScript::fn_8039AB10() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
@@ -1210,7 +1262,7 @@ void GameEventScript::fn_8039AB10() {
     }
 }
 
-// NONMATCHING: 95.9% - stack slots of the ray test vectors and registers of the loop
+// NONMATCHING: 98.3% - stack slots of the ray test vectors and registers of the loop
 // inferred: marks the talk event spheres the leader stands in (flag 0x20) and keeps the nearest in mF4;
 // while hanging (control 6, state 11) the leader is projected on the ground below
 void GameEventScript::fn_8039AF50() {
@@ -1254,7 +1306,7 @@ extern "C" int fn_80051A88(const atn::Sphere* a, const atn::Sphere* b); // infer
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" int fn_80051CD8(const atn::Sphere* sphere, const atn::ColliBoxShape_unk* box); // inferred: sphere in box
 
-// NONMATCHING: 31.9% - as fn_8039B7B0 (extra saved registers shift the whole body)
+// NONMATCHING: 34.5% - as fn_8039B7B0 (extra saved registers shift the whole body)
 // inferred: the talk markers of the event boxes near the leader (as fn_8039B7B0)
 void GameEventScript::fn_8039B2BC() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
@@ -1315,8 +1367,7 @@ void GameEventScript::fn_8039B2BC() {
     }
 }
 
-// NONMATCHING: 91.4% - more saved registers here (zeros and counters), the state test of CanStartTalk_unk
-// branchless and stack slots
+// NONMATCHING: 92.9% - more saved registers here (zeros and counters) and stack slots
 // inferred: the talk markers of the event spheres near the leader (within 170; dimmed beyond 150 and faded
 // from 30 to 150 units)
 void GameEventScript::fn_8039B7B0() {
