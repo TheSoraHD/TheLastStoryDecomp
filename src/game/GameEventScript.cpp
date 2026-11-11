@@ -682,6 +682,16 @@ static inline EnemyTask* FirstChara_unk(EnemyManager* manager) {
 static inline PlayerTask* FirstChara_unk(FriendManager* manager) {
     return (PlayerTask*)manager->fn_8036554C();
 }
+// inferred: the character of a point by its id (the friends are in the party manager; names invented)
+static inline NpcTask* FindChara_unk(NpcManager* manager, int id) {
+    return manager->Find_unk(id);
+}
+static inline EnemyTask* FindChara_unk(EnemyManager* manager, int id) {
+    return manager->Find_unk(id);
+}
+static inline PlayerTask* FindChara_unk(FriendManager* manager, int id) {
+    return lbl_8087F8A0->Find_unk(id);
+}
 // inferred: the type of the characters of a manager (name invented)
 template <class Manager>
 struct PointChara_unk;
@@ -1208,6 +1218,66 @@ void GameEventScript::TalkCharas_unk(Manager* manager, atn::SimpleArray<gs::NpcS
                 mF4 = &flags[i];
             }
         }
+    }
+}
+
+// NONMATCHING: 96.0% (each copy) - registers: the zero of the marker and the loop counter share one register
+// inferred: the talk markers of the character points within 170 units of the leader (over the head node, or
+// 15 units over the position; dimmed beyond 150; for the icon 2, highlighted when the character is down)
+template <class Manager>
+void GameEventScript::CharaMarkers_unk(Manager* manager, atn::SimpleArray<gs::NpcSetPoint>& points,
+                                       atn::SimpleArray<ScriptNpcFlag_unk>& flags, int kind) {
+    typedef typename PointChara_unk<Manager>::Chara Chara;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    for (unsigned int i = 0; i < points.size(); i++) {
+        gs::NpcSetPoint& point = points[i];
+        if (flags[i].m00 < 0) {
+            continue;
+        }
+        Chara* chara = FindChara_unk(manager, point.mId);
+        if (chara == 0 || chara->IsFlag_unk(4)) {
+            continue;
+        }
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(point.m140[flags[i].m00]);
+        if (e == 0 || (m8C != 0 && e->m0C == 0)) {
+            continue;
+        }
+        atn::Vector3 dir = chara->mPos - leader->mPos;
+        float dist = PSVECSquareMag(&dir);
+        if (dist > 0.0f) {
+            PSVECNormalize(&dir, &dir);
+        }
+        bool inView = dist < 28900.0f;
+        if (!inView || TalkAllowed_unk(this)) {
+            continue;
+        }
+        if (!CanStartTalk_unk(leader) && e->m0C == 0) {
+            continue;
+        }
+        GameUIMarker_unk marker;
+        if (e->mC8 <= 0) {
+            if (e->m0C != 0) {
+                continue;
+            }
+            marker.m00 = 0;
+        } else {
+            marker.m00 = e->mC8;
+        }
+        MtxPtr head = chara->GetModel_unk()->GetNodeMtx_unk("head");
+        marker.mPos = head != 0 ? ((atn::Matrix3x4*)head)->GetTrans_unk() + atn::Vector3(0.0f, 5.0f, 0.0f)
+                                : chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
+        if (e->mC8 == 2) {
+            marker.m14 = chara->mStatus.m04 == 0.0f;
+        } else {
+            marker.m14 = mF4 == &flags[i];
+        }
+        marker.m18 = !(dist < 22500.0f);
+        marker.m1C = (PSVECMag(&(leader->mPos - marker.mPos)) - 30.0f) / 120.0f;
+        marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
+                                 ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
+                                 : 1.0f);
+        marker.m10 = (int)chara; // inferred: the character of the marker
+        lbl_8087F490->fn_803E3C78(marker);
     }
 }
 
