@@ -436,6 +436,8 @@ struct ScriptEventConds_unk : public ScriptEventRange_unk {
     int mB8; // inferred: flags (1: box enabled, 4: box flag 0x20, 8: started from the camera, fn_803AC708)
     int mBC;
     int mC0; // inferred: warp point where the character of the point is placed (fn_80395848)
+    int mC4;
+    int mC8; // inferred: icon of the talk marker (fn_8039B7B0)
 };
 
 // inferred: fn_80398590 testing every condition (name invented)
@@ -1102,6 +1104,69 @@ void GameEventScript::fn_8039AF50() {
                 }
             }
         }
+    }
+}
+
+
+extern "C" int fn_80051A88(const atn::Sphere* a, const atn::Sphere* b); // inferred: the spheres touch
+
+// NONMATCHING: 91.4% - more saved registers here (zeros and counters), the state test of CanStartTalk_unk
+// branchless and stack slots
+// inferred: the talk markers of the event spheres near the leader (within 170; dimmed beyond 150 and faded
+// from 30 to 150 units)
+void GameEventScript::fn_8039B7B0() {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Sphere own;
+    own.mCenter = leader->m614;
+    own.mRadius = leader->m620;
+    atn::Sphere near;
+    near.mCenter = leader->m614;
+    near.mRadius = 150.0f;
+    atn::Sphere inner;
+    inner.mCenter = leader->m614;
+    inner.mRadius = 30.0f;
+    atn::Sphere view;
+    view.mCenter = leader->m614;
+    view.mRadius = 170.0f;
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mEC.size(); i++) {
+        gs::EventSphere& point = scene->mEC[i];
+        int group = i;
+        if (point.m20 >= 0) {
+            group = point.m20;
+        }
+        ScriptNpcFlag_unk& state = m10C[group];
+        if (state.m00 < 0) {
+            continue;
+        }
+        atn::Sphere sphere;
+        sphere.mCenter = point.mPos;
+        sphere.mRadius = point.m14;
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(scene->mEC[group].m18[state.m00]);
+        if (e == 0 || (m8C != 0 && e->m0C == 0) || !fn_80051A88(&view, &sphere) || TalkAllowed_unk(this)) {
+            continue;
+        }
+        if (!CanStartTalk_unk(leader) && e->m0C == 0) {
+            continue;
+        }
+        GameUIMarker_unk marker;
+        if (e->mC8 <= 0) {
+            if (e->m0C != 0) {
+                continue;
+            }
+            marker.m00 = 0;
+        } else {
+            marker.m00 = e->mC8;
+        }
+        marker.mPos = point.mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
+        marker.m14 = &state == mF4;
+        marker.m18 = !fn_80051A88(&near, &sphere);
+        marker.m1C = (PSVECMag(&(leader->mPos - marker.mPos)) - 30.0f) / 120.0f;
+        marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
+                                 ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
+                                 : 0.5f);
+        marker.m10 = 0;
+        lbl_8087F490->fn_803E3C78(marker);
     }
 }
 
@@ -5222,7 +5287,6 @@ __declspec(noinline) int GameEventScript::fn_803ACE18(int index, const atn::Sphe
     return hit;
 }
 
-extern "C" int fn_80051A88(const atn::Sphere* a, const atn::Sphere* b); // inferred: the spheres touch
 
 __declspec(noinline) int GameEventScript::fn_803ACF88(int index, const atn::Sphere* sphere, int group) {
     gs::EventSphere& event = mScene->mEC[index];
