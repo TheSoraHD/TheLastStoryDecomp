@@ -265,7 +265,8 @@ public:
     Sequence* FindSequence_unk(int id);
     void AddSequence_unk(Sequence* seq); // inferred: not in the DOL (see Event/Manager.cpp)
     int fn_8047E5DC(int id); // inferred: loads the sequence `id`
-    int fn_8047EA34(int id, int arg, int arg2); // inferred: starts the sequence `id`
+    // inferred: starts the sequence `id` (pos and rot of the start point, unused here; arg kept in m1AC)
+    int fn_8047EA34(int id, atn::Vector3 pos, int arg, float rot);
     int fn_8047E964(int id, int queue); // inferred: starts (or queues) the sequence `id`
     int fn_8047F268(int id); // inferred: the sequence `id` is missing, not started or past state 5
     int fn_8047F2EC(int id); // inferred: the sequence `id` is playing (state 10)

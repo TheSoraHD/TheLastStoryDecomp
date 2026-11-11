@@ -13,6 +13,7 @@
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
 #include "Event/Manager.h"
+#include "Event/Path.h"
 #include "atn/Layer3D.h"
 #include "atn/RenderManager.h"
 #include "atn/SceneColorMatrix_unk.h"
@@ -1272,7 +1273,8 @@ void GameEventScript::CharaMarkers_unk(Manager* manager, atn::SimpleArray<gs::Np
             marker.m14 = mF4 == &flags[i];
         }
         marker.m18 = !(dist < 22500.0f);
-        marker.m1C = (PSVECMag(&(leader->mPos - marker.mPos)) - 30.0f) / 120.0f;
+        atn::Vector3 toLeader = leader->mPos - marker.mPos;
+        marker.m1C = (PSVECMag(&toLeader) - 30.0f) / 120.0f;
         marker.m1C = 1.0f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 1.0f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
                                  : 1.0f);
@@ -1566,7 +1568,8 @@ void GameEventScript::fn_8039B2BC() {
         marker.mPos = point.mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
         marker.m14 = &state == mF4;
         marker.m18 = !fn_80051CD8(&near, &shape);
-        marker.m1C = (PSVECMag(&(leader->mPos - marker.mPos)) - 30.0f) / 120.0f;
+        atn::Vector3 toLeader = leader->mPos - marker.mPos;
+        marker.m1C = (PSVECMag(&toLeader) - 30.0f) / 120.0f;
         marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
                                  : 0.5f);
@@ -1638,7 +1641,8 @@ void GameEventScript::fn_8039B7B0() {
         marker.mPos = point.mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
         marker.m14 = &state == mF4;
         marker.m18 = !fn_80051A88(&near, &sphere);
-        marker.m1C = (PSVECMag(&(leader->mPos - marker.mPos)) - 30.0f) / 120.0f;
+        atn::Vector3 toLeader = leader->mPos - marker.mPos;
+        marker.m1C = (PSVECMag(&toLeader) - 30.0f) / 120.0f;
         marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
                                  ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
                                  : 0.5f);
@@ -2837,6 +2841,88 @@ void GameEventScript::fn_803A0F4C(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
+// inferred: the "AutoLightFix" values of an event (type and ratio; key and ambient intensity); names invented
+static inline void SetLightFix_unk(const EventIdEntry_unk* entry) {
+    Event::Manager* manager = lbl_8087F540;
+    manager->m240C = entry->m50;
+    manager->m2410 = entry->m54;
+}
+static inline void SetLightIntensity_unk(const EventIdEntry_unk* entry) {
+    Event::Manager* manager = lbl_8087F540;
+    manager->m2414 = entry->m58;
+    manager->m2418 = entry->m5C;
+}
+
+// NONMATCHING: 98.2% - the test of m44 is scheduled before the second light setter; registers of the camera copy
+// inferred: starts the event `id` at the warp point `warpId` (arg: argument of fn_8047EA34); for an in-game
+// event the running one is stopped first (event 0x23F1 also turns the leader towards the enemy 400004); the
+// entry gives the light of the event and, for a camera event (m44 2), its camera starts from the field
+// camera; 1 if it started
+extern "C" int fn_803A11D8(int id, int arg, int warpId, EventIdEntry_unk* entry) {
+    GameScene* scene;
+    int started = 0;
+    scene = lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
+    if (lbl_8087F540->fn_8047F420(id) != 0) {
+        if (lbl_8087F540->m70 != 0) {
+            lbl_8087F540->fn_8047EFD8(lbl_8087F540->m70->m190, 0);
+        }
+        if (lbl_8087F098 != 0) {
+            lbl_8087F098->fn_80183930();
+        }
+        lbl_8087F430->fn_80371334();
+        if (id == 0xEC5) {
+            lbl_8087EFA8->m144 = 0;
+        }
+        if (id == 0x151E) {
+            atn::RenderManager::instance_->mLayers[4]->m04 = 0;
+        }
+        if (id == 0x23F1) {
+            EnemyTask* enemy = EnemyManager::sInstance->Find_unk(400004);
+            if (enemy != 0) {
+                atn::Vector3 dir = enemy->mPos - lbl_8087F8A0->mHead->mPos;
+                if (PSVECSquareMag(&dir) > 0.01f) {
+                    dir.fn_80139F60();
+                    dir.x = 0.0f;
+                    dir.y = atn::WrapAngle_unk(dir.y + (rand() % 2 == 0 ? 1.0f : -1.0f) * 0.62831855f);
+                    lbl_8087F8A0->mHead->mRot = dir;
+                }
+            }
+        }
+        started = 1;
+    }
+    atn::Vector3 pos = lbl_807C7030;
+    float rot = 0.0f;
+    gs::WarpPoint* warp = scene != 0 ? FindWarpIn_unk(scene, warpId) : 0;
+    if (warp != 0) {
+        pos = warp->mPos;
+        rot = warp->m14;
+    }
+    if (started != 0 && lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EBAC8(15, 1);
+        if ((lbl_8087F540->fn_8047F420(id) != 0 || lbl_8087F540->fn_8047F498(id) != 0) &&
+            lbl_8087F540->fn_8047F510(id) == 0) {
+            lbl_8087F498->mNumChannels = 2;
+        } else {
+            lbl_8087F498->mNumChannels = 1;
+        }
+    }
+    lbl_8087F540->fn_8047EA34(id, pos, arg, rot);
+    SetLightFix_unk(entry);
+    SetLightIntensity_unk(entry);
+    if (entry->m44 == 2) {
+        Event::EventCamera_unk* camera = lbl_8087F540->GetCamera_unk();
+        GameTask* field = lbl_8087F430;
+        float speed = 30.0f;
+        camera->m444 = field->mCamera;
+        camera->m63C = speed;
+        camera->m638 = 0.0f;
+    }
+    if (lbl_8087F430->m54F0 == 1) {
+        lbl_8087F430->fn_80370BD0(20, id == 0x1FB ? 15 : 3, -9.0f);
+    }
+    return started;
+}
+
 // inferred: ends the event `id` (hold: the leader drops flag 0x10; successive: argument of
 // fn_8047EFD8); always 1
 extern "C" int fn_803A19B4(int id, int hold, int successive) {
@@ -2874,8 +2960,6 @@ extern "C" int fn_803A19B4(int id, int hold, int successive) {
     return 1;
 }
 
-// inferred: starts an event (id, m18, m0C of the command); 1 if it started
-extern "C" int fn_803A11D8(int id, int arg, int arg2, EventIdEntry_unk* entry);
 // inferred: keeps the leader's state while an event with flag 0x10 runs (name invented)
 static inline void HoldLeader_unk(int& saved, EventIdEntry_unk* entry, CharaTask* leader) {
     if ((entry->mFlags & 0x10) == 0x10 && leader != 0) {

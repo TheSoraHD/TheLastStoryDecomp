@@ -588,7 +588,7 @@ int Manager::fn_8047E964(int id, int queue) {
 // NONMATCHING: 98.8% - the original reloads the ring count in every test of the erase loop
 // inferred: starts the sequence `id` (the cut list and the queue are reset for the in-game kinds 1
 // and 3); names invented
-int Manager::fn_8047EA34(int id, int arg, int arg2) {
+int Manager::fn_8047EA34(int id, atn::Vector3 pos, int arg, float rot) {
     Sequence* seq = FindSequence_unk(id);
     if (seq == 0) {
         return 0;
@@ -666,7 +666,7 @@ int Manager::fn_8047EA34(int id, int arg, int arg2) {
         }
     }
     seq->fn_80541244(seq->fn_80541198(seq->FindCutByIndex_unk(seq->m94)));
-    seq->m1AC = arg2;
+    seq->m1AC = arg;
     seq->fn_8054F9DC();
     for (Ring_unk<QueuedSequence_unk, 8>::iterator it = m23B8.begin(); it != m23B8.end(); ++it) {
         if (id == it->mId) {
