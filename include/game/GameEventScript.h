@@ -133,13 +133,22 @@ public:
     virtual ~GameEventScript(); // 0x80394320
     virtual int vf0C();         // 0x80394BA4: inferred: waits for the three script files
     void fn_80394C68();         // inferred: prepares the flags of the points (GameScene::fn_803C0F48)
-    void fn_80395848(int arg);
+    void fn_80395848(int check);
+    // inferred: script of the character points of one manager (weak copies 0x803965FC friends, 0x803972A8
+    // enemies, 0x80397BEC npcs; name invented)
+    template <class Manager>
+    void UpdatePoints_unk(atn::SimpleArray<gs::NpcSetPoint>& points, atn::SimpleArray<ScriptNpcFlag_unk>& flags,
+                          atn::SimpleArray<ScriptLog_unk>& logs, Manager* manager, int kind, int check,
+                          CharaTask* keep);
+    inline int HasEventInRange_unk(const atn::SimpleArray<int>& scripts); // inferred: name invented
+    inline int HasPointEvent_unk(const gs::NpcSetPoint& point);            // inferred: name invented
     virtual void vf10();        // 0x80398704
     virtual void vf14();        // 0x8039BC6C
     // inferred: compiles a script file `index` (data, size)
     void fn_8039BDB4(int index, const void* data, int size);
     int fn_80398530(int event);          // inferred: the event is done
     int fn_80398590(int event, int arg); // inferred: the event can start
+    inline int CanStartArg_unk(int event, int arg); // inferred: body of fn_80398590 (name invented)
     inline int CanStart_unk(int event); // inferred: fn_80398590 testing every condition (name invented)
     int fn_8039CCD0(const ScriptCmd_unk* cmd); // inferred: the next enabled command is a choice
     int fn_8039CF8C(ScriptData_unk* data, ScriptCmd_unk* cmd); // inferred: runs the script from cmd (0: waits)

@@ -55,6 +55,7 @@
 #include "atn/DebugMessages_unk.h"
 #include "game/ChaseManager.h"
 #include "game/ChaserNpc.h"
+#include "gmk/TreasureBox.h"
 
 #include <exception>
 #include "std/string.h"
@@ -427,7 +428,9 @@ struct ScriptEventConds_unk : public ScriptEventRange_unk {
     ScriptEventCond_unk mConds[8]; // 0x10
     int mCount;                    // 0xB0
     int mB4;
-    unsigned int mB8; // inferred: flags (8: started from the camera, fn_803AC708)
+    int mB8; // inferred: flags (1: box enabled, 4: box flag 0x20, 8: started from the camera, fn_803AC708)
+    int mBC;
+    int mC0; // inferred: warp point where the character of the point is placed (fn_80395848)
 };
 
 // inferred: fn_80398590 testing every condition (name invented)
@@ -475,6 +478,108 @@ inline int GameEventScript::CanStart_unk(int event) {
         }
     }
     return ok;
+}
+
+extern "C" gmk::TreasureBox::Data_unk* fn_8021ECD0(int id); // inferred: chest data
+
+// inferred: the field value is in the range of the event (as the start of fn_80398590; name invented)
+static inline int EventInRange_unk(int event) {
+    const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
+    bool pass = true;
+    int value = lbl_8087F430->m10D0;
+    if (!e->IsAlways_unk() && !e->Contains_unk(value)) {
+        pass = false;
+    }
+    return pass;
+}
+
+// inferred: one of the scripts has an event in range (name invented)
+inline int GameEventScript::HasEventInRange_unk(const atn::SimpleArray<int>& scripts) {
+    for (unsigned int j = 0; j < scripts.size(); j++) {
+        int event = FindEvent_unk(scripts[j]);
+        if (event != 0 && EventInRange_unk(event)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 93.1% - the loops of HasEventInRange_unk become ctr loops here (the original keeps the
+// counter and reloads the size) and registers
+// inferred: picks the script of every point of the scene: characters (npcs, enemies, friends), then event
+// boxes and spheres; with `check` (towns) the points without an event in range are disabled (flag 0x10)
+void GameEventScript::fn_80395848(int check) {
+    UpdatePoints_unk(mScene->m80, m114, m364, NpcManager::sInstance, 1, check, (CharaTask*)0);
+    UpdatePoints_unk(mScene->m88, m11C, m36C, EnemyManager::sInstance, 2, check, (CharaTask*)0);
+    UpdatePoints_unk(mScene->m90, m124, m374, FriendManager::sInstance, 3, check, (CharaTask*)lbl_8087F8A0->mHead);
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
+        gs::EventBox& box = scene->mE4[i];
+        if (box.m2C < 0) {
+            if (check != 0 && lbl_8087FA20 != 0 && !HasEventInRange_unk(box.m24)) {
+                mFC[i].mFlags |= 0x10;
+            }
+            if ((mFC[i].mFlags & 0x10) != 0x10) {
+                int index = fn_80396298(&box);
+                if (box.m30 != 0) {
+                    gmk::TreasureBox::Data_unk* chest = fn_8021ECD0(box.m34);
+                    if (chest != 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(chest->mFlag) > 0) {
+                        index = -1;
+                    }
+                }
+                mFC[i].mFlags &= ~4;
+                if (index != mFC[i].m00) {
+                    mFC[i].mFlags &= ~1;
+                    mFC[i].mFlags &= ~8;
+                    mFC[i].m00 = index;
+                    const ScriptEventConds_unk* e =
+                        (const ScriptEventConds_unk*)(index >= 0 ? FindEvent_unk(box.m24[index]) : 0);
+                    if (e != 0 && (e->mB8 & 1) == 1) {
+                        m104[i].mFlags |= 1;
+                        m104[i].m20 = box.m38;
+                        m104[i].m1C = box.m3C;
+                        if ((e->mB8 & 4) == 4) {
+                            m104[i].mFlags |= 0x20;
+                        } else {
+                            m104[i].mFlags &= ~0x20;
+                        }
+                    } else {
+                        m104[i].mFlags &= ~1;
+                    }
+                }
+                if (m37C != 0) {
+                    m354[i].m04 = 5;
+                    m354[i].m08 = box.mId;
+                    m354[i].m10 = mFC[i].m00;
+                    m354[i].m14 = index;
+                }
+            }
+        }
+    }
+    scene = mScene;
+    for (unsigned int i = 0; i < scene->mEC.size(); i++) {
+        gs::EventSphere& sphere = scene->mEC[i];
+        if (sphere.m20 < 0) {
+            if (check != 0 && lbl_8087FA20 != 0 && !HasEventInRange_unk(sphere.m18)) {
+                m10C[i].mFlags |= 0x10;
+            }
+            if ((m10C[i].mFlags & 0x10) != 0x10) {
+                int index = fn_80395F34(&sphere);
+                m10C[i].mFlags &= ~4;
+                if (index != m10C[i].m00) {
+                    m10C[i].mFlags &= ~1;
+                    m10C[i].mFlags &= ~8;
+                    m10C[i].m00 = index;
+                }
+                if (m37C != 0) {
+                    m35C[i].m04 = 4;
+                    m35C[i].m08 = sphere.mId;
+                    m35C[i].m10 = m10C[i].m00;
+                    m35C[i].m14 = index;
+                }
+            }
+        }
+    }
 }
 
 // inferred: index of the last script of the point whose event can start (bit 0 of the flags enables the
@@ -544,6 +649,180 @@ int GameEventScript::fn_80396298(const gs::EventBox* box) {
     return index;
 }
 
+// inferred: the warp point `id` of the scene (name invented)
+static inline gs::WarpPoint* FindWarpIn_unk(GameScene* scene, int id) {
+    for (unsigned int i = 0; i < scene->m78.size(); i++) {
+        if (id == scene->m78[i].mId) {
+            return &scene->m78[i];
+        }
+    }
+    return 0;
+}
+
+// inferred: bit 25 of the flag word at 0x12A4 through an accessor (reloaded before it is cleared; as in
+// gmk/ReinforcePoint.cpp)
+inline unsigned int IsFlag25_unk(const CharaTask* chara) {
+    return chara->mFlag25;
+}
+
+// inferred: the first character of the list of each manager (names invented)
+static inline NpcTask* FirstChara_unk(NpcManager* manager) {
+    return manager->mHead;
+}
+static inline EnemyTask* FirstChara_unk(EnemyManager* manager) {
+    return manager->mHead;
+}
+static inline PlayerTask* FirstChara_unk(FriendManager* manager) {
+    return (PlayerTask*)manager->fn_8036554C();
+}
+// inferred: the type of the characters of a manager (name invented)
+template <class Manager>
+struct PointChara_unk;
+template <>
+struct PointChara_unk<NpcManager> {
+    typedef NpcTask Chara;
+};
+template <>
+struct PointChara_unk<EnemyManager> {
+    typedef EnemyTask Chara;
+};
+template <>
+struct PointChara_unk<FriendManager> {
+    typedef PlayerTask Chara;
+};
+
+// inferred: one of the scripts of the point has an event in range; for a talk point (bit 11 of m12C) one that
+// can start by its flags (name invented)
+inline int GameEventScript::HasPointEvent_unk(const gs::NpcSetPoint& point) {
+    int any = ((point.m12C >> 11) & 1) ^ 1;
+    for (unsigned int j = 0; j < point.m140.size(); j++) {
+        int event = FindEvent_unk(point.m140[j]);
+        if (event != 0) {
+            if (any != 0 && fn_80398530(event)) {
+                return 1;
+            }
+            if (any == 0 && CanStartArg_unk(event, 1)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.5% (each copy) - registers (the original keeps the point in r21 and the event in r20;
+// a zero is kept on the stack for m58C) and cmpwi of the flags
+// inferred: picks the script of every character point (npcs, enemies or friends: `kind` 1-3) and starts,
+// moves or stops its character; the friend `keep` is never stopped
+template <class Manager>
+void GameEventScript::UpdatePoints_unk(atn::SimpleArray<gs::NpcSetPoint>& points,
+                                       atn::SimpleArray<ScriptNpcFlag_unk>& flags,
+                                       atn::SimpleArray<ScriptLog_unk>& logs, Manager* manager, int kind,
+                                       int check, CharaTask* keep) {
+    typedef typename PointChara_unk<Manager>::Chara Chara;
+    for (unsigned int i = 0; i < points.size(); i++) {
+        gs::NpcSetPoint& point = points[i];
+        if (check != 0 && lbl_8087FA20 != 0 && !HasPointEvent_unk(point)) {
+            flags[i].mFlags |= 0x10;
+        }
+        if ((flags[i].mFlags & 0x10) == 0x10) {
+            continue;
+        }
+        int index = fn_80396F44(&point);
+        Chara* chara;
+        for (chara = FirstChara_unk(manager); chara != 0; chara = chara->mNext) {
+            if (point.mId == chara->m58) {
+                break;
+            }
+        }
+        const ScriptEventConds_unk* e =
+            (const ScriptEventConds_unk*)(index >= 0 ? FindEvent_unk(point.m140[index]) : 0);
+        if ((flags[i].mFlags & 2) != 2) {
+            if (index >= 0) {
+                if (chara != 0 && !chara->IsFlag_unk(1)) {
+                    gs::WarpPoint* warp = FindWarpIn_unk(mScene, e->mC0);
+                    if (warp != 0) {
+                        chara->mPos = warp->mPos;
+                        chara->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
+                    }
+                    chara->fn_80154654(chara->mC50, point.m24);
+                    chara->fn_80176ACC();
+                    flags[i].mFlags |= 2;
+                }
+            } else if (chara != 0 && chara->IsFlag_unk(2) && !chara->IsFlag_unk(4)) {
+                chara->fn_801765D8();
+            }
+        } else if (index != flags[i].m00 && (chara != 0 || keep == 0 || point.mId != keep->m58)) {
+            if (index >= 0) {
+                if ((chara->mC50 != chara->mType || point.m24 != chara->mC54) && point.m24 != 0) {
+                    chara->fn_80154654(chara->mType, point.m24);
+                }
+                if (chara->IsFlag_unk(4)) {
+                    gs::WarpPoint* warp = FindWarpIn_unk(mScene, e->mC0);
+                    if (warp != 0) {
+                        chara->mPos = warp->mPos;
+                        chara->mRot = atn::Vector3(0.0f, warp->m14, 0.0f);
+                    } else {
+                        chara->mPos = point.mPos;
+                        chara->mRot = atn::Vector3(0.0f, point.m14, 0.0f);
+                    }
+                    if (chara->mType == 2 && (chara->mStatus.m0C & 0x20) == 0x20) {
+                        bool reset = true;
+                        if (flags[i].m00 >= 0 && index >= 0) {
+                            // inferred: maps that keep the characters of the points as they are
+                            MapTask* map = mScene != 0 ? mScene->m64 : 0;
+                            if (map != 0 && map->mType == 2 &&
+                                ((map->mId == 1 && map->mSubId == 1) || (map->mId == 3 && map->mSubId == 1) ||
+                                 (map->mId == 12 && map->mSubId == 3) || (map->mId == 22 && map->mSubId == 1) ||
+                                 (map->mId == 22 && map->mSubId == 2) || (map->mId == 36 && map->mSubId == 1) ||
+                                 (map->mId == 36 && map->mSubId == 2) || (map->mId == 36 && map->mSubId == 3) ||
+                                 (map->mId == 36 && map->mSubId == 4) || (map->mId == 39 && map->mSubId == 3))) {
+                                reset = false;
+                            }
+                        }
+                        if (GimmickManager::instance_ != 0 && GimmickManager::instance_->fn_803EE45C(chara)) {
+                            reset = false;
+                        }
+                        if (reset) {
+                            chara->mStatus.fn_8012D8B8();
+                            chara->mStatus.m224 = chara->mStatus.mParamB.m98;
+                            chara->m58C = 0;
+                            chara->fn_800D246C(0);
+                            if (IsFlag25_unk(chara)) {
+                                chara->mFlag25 = 0;
+                            }
+                            chara->mFlag15 = 0;
+                            chara->fn_80145334();
+                        }
+                    }
+                    chara->fn_80176ACC();
+                }
+            } else if (!chara->IsFlag_unk(4)) {
+                chara->fn_801765D8();
+            }
+        }
+        if (chara != 0 && !chara->IsFlag_unk(4) && e != 0) {
+            if ((e->mB8 & 8) == 8) {
+                chara->m54C |= 0x400000;
+            } else {
+                chara->m54C &= ~0x400000;
+            }
+        }
+        if (index != flags[i].m00) {
+            flags[i].mFlags &= ~1;
+            flags[i].mFlags &= ~8;
+        }
+        if (m37C != 0) {
+            logs[i].m04 = kind;
+            logs[i].m08 = point.mId;
+            logs[i].m10 = flags[i].m00;
+            logs[i].m14 = index;
+        }
+        flags[i].m00 = index;
+    }
+}
+
+template void GameEventScript::UpdatePoints_unk<FriendManager>(atn::SimpleArray<gs::NpcSetPoint>&, atn::SimpleArray<ScriptNpcFlag_unk>&, atn::SimpleArray<ScriptLog_unk>&, FriendManager*, int, int, CharaTask*);
+
 int GameEventScript::fn_80396F44(const gs::NpcSetPoint* point) {
     if (point->m13C != 0 && lbl_8087F430 != 0) {
         int on = lbl_8087F430->m5694 != 0 ? (point->m13C & 2) != 0 : (point->m13C & 1) != 0;
@@ -576,6 +855,9 @@ int GameEventScript::fn_80396F44(const gs::NpcSetPoint* point) {
     return index;
 }
 
+template void GameEventScript::UpdatePoints_unk<EnemyManager>(atn::SimpleArray<gs::NpcSetPoint>&, atn::SimpleArray<ScriptNpcFlag_unk>&, atn::SimpleArray<ScriptLog_unk>&, EnemyManager*, int, int, CharaTask*);
+template void GameEventScript::UpdatePoints_unk<NpcManager>(atn::SimpleArray<gs::NpcSetPoint>&, atn::SimpleArray<ScriptNpcFlag_unk>&, atn::SimpleArray<ScriptLog_unk>&, NpcManager*, int, int, CharaTask*);
+
 // inferred: the field value is in the range of the event (name invented)
 static inline bool InEventRange_unk(int event) {
     const ScriptEventRange_unk* e = (const ScriptEventRange_unk*)event;
@@ -587,6 +869,53 @@ int GameEventScript::fn_80398530(int event) {
     return InEventRange_unk(event);
 }
 
+
+// inferred: the same test as fn_80398590, which the original inlines in UpdatePoints_unk (here a call
+// would stay a call; name invented)
+inline int GameEventScript::CanStartArg_unk(int event, int arg) {
+    int ok = 0;
+    if (event != 0) {
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)event;
+        int value = lbl_8087F430->m10D0;
+        bool pass = true;
+        if (!e->IsAlways_unk() && !e->Contains_unk(value)) {
+            pass = false;
+        }
+        if (pass) {
+            ok = 1;
+            const ScriptEventCond_unk* cond = e->mConds;
+            for (int i = 0; i < e->mCount; cond++, i++) {
+                if (arg == 0 || cond->m00 == 1) {
+                    int r;
+                    int id = e->m00;
+                    if (cond->m00 < 0) {
+                        ScriptDoneNode_unk* node = mDone.mRoot;
+                        ScriptDoneNode_unk* found = mDone.End_unk();
+                        while (node != 0) {
+                            if (!(node->mKey < id)) {
+                                found = node;
+                                node = node->mLeft;
+                            } else {
+                                node = node->mRight;
+                            }
+                        }
+                        if (found == mDone.End_unk() || id < found->mKey) {
+                            found = mDone.End_unk();
+                        }
+                        r = found == mDone.End_unk();
+                    } else {
+                        r = fn_8039C7F0(cond->m00, cond->m04, cond->m10, cond->m08, cond->m0C);
+                    }
+                    if (r == 0) {
+                        ok = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return ok;
+}
 
 // NONMATCHING: 99.4% - volatile registers of the range test reversed (r5-r8), as fn_80398530
 // inferred: the event can start (field value in range and all its conditions; arg 0 tests only the
@@ -980,15 +1309,6 @@ void GameEventScript::fn_8039D3E0(ScriptResult_unk& result, const ScriptCmd_unk*
     result.SetNext_unk(cmd);
 }
 
-// inferred: the warp point `id` of the scene of the field (name invented)
-static inline gs::WarpPoint* FindWarpIn_unk(GameScene* scene, int id) {
-    for (unsigned int i = 0; i < scene->m78.size(); i++) {
-        if (id == scene->m78[i].mId) {
-            return &scene->m78[i];
-        }
-    }
-    return 0;
-}
 static inline GameScene* FieldScene_unk() {
     return lbl_8087F430 != 0 ? lbl_8087F430->m10D8 : 0;
 }
