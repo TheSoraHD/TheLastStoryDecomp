@@ -1110,6 +1110,70 @@ void GameEventScript::fn_8039AF50() {
 
 extern "C" int fn_80051A88(const atn::Sphere* a, const atn::Sphere* b); // inferred: the spheres touch
 
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" int fn_80051CD8(const atn::Sphere* sphere, const atn::ColliBoxShape_unk* box); // inferred: sphere in box
+
+// NONMATCHING: 31.9% - as fn_8039B7B0 (extra saved registers shift the whole body)
+// inferred: the talk markers of the event boxes near the leader (as fn_8039B7B0)
+void GameEventScript::fn_8039B2BC() {
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Sphere own;
+    own.mCenter = leader->m614;
+    own.mRadius = leader->m620;
+    atn::Sphere near;
+    near.mCenter = leader->m614;
+    near.mRadius = 150.0f;
+    atn::Sphere inner;
+    inner.mCenter = leader->m614;
+    inner.mRadius = 30.0f;
+    atn::Sphere view;
+    view.mCenter = leader->m614;
+    view.mRadius = 170.0f;
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mE4.size(); i++) {
+        gs::EventBox& point = scene->mE4[i];
+        int group = i;
+        if (point.m2C >= 0) {
+            group = point.m2C;
+        }
+        ScriptNpcFlag_unk& state = mFC[group];
+        if (state.m00 < 0) {
+            continue;
+        }
+        atn::ColliBoxShape_unk shape;
+        shape.mSize = point.mSize;
+        atn::Matrix3x4 trans;
+        PSMTXTrans(trans.m, point.mPos.x, point.mPos.y, point.mPos.z);
+        shape.mMtx = trans;
+        atn::Matrix3x4::RotateAxis_unk(shape.mMtx, 'y', point.m14);
+        const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(scene->mE4[group].m24[state.m00]);
+        if (e == 0 || (m8C != 0 && e->m0C == 0) || !fn_80051CD8(&view, &shape) || TalkAllowed_unk(this)) {
+            continue;
+        }
+        if (!CanStartTalk_unk(leader) && e->m0C == 0) {
+            continue;
+        }
+        GameUIMarker_unk marker;
+        if (e->mC8 <= 0) {
+            if (e->m0C != 0) {
+                continue;
+            }
+            marker.m00 = 0;
+        } else {
+            marker.m00 = e->mC8;
+        }
+        marker.mPos = point.mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
+        marker.m14 = &state == mF4;
+        marker.m18 = !fn_80051CD8(&near, &shape);
+        marker.m1C = (PSVECMag(&(leader->mPos - marker.mPos)) - 30.0f) / 120.0f;
+        marker.m1C = 0.5f - ((marker.m1C > 0.0f ? marker.m1C : 0.0f) < 0.5f
+                                 ? (marker.m1C > 0.0f ? marker.m1C : 0.0f)
+                                 : 0.5f);
+        marker.m10 = 0;
+        lbl_8087F490->fn_803E3C78(marker);
+    }
+}
+
 // NONMATCHING: 91.4% - more saved registers here (zeros and counters), the state test of CanStartTalk_unk
 // branchless and stack slots
 // inferred: the talk markers of the event spheres near the leader (within 170; dimmed beyond 150 and faded
@@ -5260,8 +5324,6 @@ int GameEventScript::fn_803ACD50(int id) {
     return 0;
 }
 
-extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
-extern "C" int fn_80051CD8(const atn::Sphere* sphere, const atn::ColliBoxShape_unk* box); // inferred: sphere in box
 
 // The original calls both tests recursively out of line (not inlined into themselves)
 // NONMATCHING: 99.96% - stack slots of the two matrices of RotateAxis_unk swapped

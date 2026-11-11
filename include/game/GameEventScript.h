@@ -222,6 +222,7 @@ public:
     virtual ~GameEventScript(); // 0x80394320
     virtual int vf0C();         // 0x80394BA4: inferred: waits for the three script files
     void fn_80394C68();
+    void fn_8039B2BC(); // inferred: talk markers of the event boxes (vf10)
     void fn_8039B7B0(); // inferred: talk markers of the event spheres (vf10)         // inferred: prepares the flags of the points (GameScene::fn_803C0F48)
     void fn_80395848(int check);
     // inferred: script of the character points of one manager (weak copies 0x803965FC friends, 0x803972A8
