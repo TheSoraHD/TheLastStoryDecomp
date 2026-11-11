@@ -273,9 +273,11 @@ public:
 
     atn::LH_Binary m48[3]; // inferred: script files
     int m60;
-    int m64[7];                 // inferred: base address of the events of each block of 10000 ids
+    int m64[3];                 // inferred: base address of the events of each block of 10000 ids (one per file)
+    unsigned char m70[0x7C - 0x70];
+    int m7C;
     ScriptEventNode_unk* m80;   // inferred: root of the tree of events by id (end node at &m80)
-    int m84;
+    ScriptEventNode_unk* m84;   // inferred: first node of the tree (&m80 when empty)
     GameScene* mScene; // 0x88: inferred: scene that owns the script (GameScene::m134)
     int m8C; // inferred: a script is running
     ScriptCmd_unk* m90; // inferred: command being run
@@ -294,7 +296,8 @@ public:
     int mC4; // inferred: flag 0x1000 of the status of the character under control (fn_803A9C40)
     unsigned char mC8[0xD0 - 0xC8];
     int mD0;
-    unsigned char mD4[0xDC - 0xD4];
+    int mD4;
+    int mD8;
     int mDC; // inferred: kind 0 of GetChara_unk is the leader
     int mE0; // inferred: 0x24 after an event (fn_803A1DB0)
     int mE4;
@@ -304,21 +307,22 @@ public:
     ScriptNpcFlag_unk* mF4; // inferred: nearest talk event of the leader (fn_8039AF50)
     int mF8;
     atn::SimpleArray<ScriptNpcFlag_unk> mFC; // inferred: one per EventBox of the scene (fn_8039AB10)
-    unsigned char m104[0x10C - 0x104];
+    int m104;
+    int m108;
     atn::SimpleArray<ScriptNpcFlag_unk> m10C; // inferred: one per EventSphere of the scene (fn_803AC708)
     atn::SimpleArray<ScriptNpcFlag_unk> m114; // inferred: one per NpcSetPoint of the scene (fn_803957F0)
     atn::SimpleArray<ScriptNpcFlag_unk> m11C; // inferred: one per EnemySetPoint of the scene (fn_803AC978)
     atn::SimpleArray<ScriptNpcFlag_unk> m124; // inferred: one per FriendSetPoint of the scene (fn_803AC978)
     std::vector<ScriptRecord14_unk> m12C; // inferred: records removed by id (fn_803AB37C)
-    unsigned char m138[0x13C - 0x138];
+    int m138;
     ScriptEventNode_unk* m13C; // inferred: root of the set of finished events (end node at &m13C)
-    int m140;
+    ScriptEventNode_unk* m140; // inferred: first node of the set (&m13C when empty)
     atn::SimpleArray<atn::SimpleVector<int> > m144; // inferred: groups of event boxes (fn_803ACE18)
     atn::SimpleArray<atn::SimpleVector<int> > m14C; // inferred: groups of event spheres (fn_803ACF88)
     ScriptPartsFlag_unk m154[64]; // inferred: draw flags of the map parts by name hash (fn_803A68B8)
-    unsigned char m354[0x37C - 0x354];
+    int m354[10];
     int m37C; // inferred: cleared while a command writes a flag of the field (fn_803A6F90)
-    unsigned char m380[0x390 - 0x380]; // inferred: size 0x390 (operator new in fn_80393610)
+    int m380[4]; // inferred: size 0x390 (operator new in fn_80393610)
 };
 
 #endif

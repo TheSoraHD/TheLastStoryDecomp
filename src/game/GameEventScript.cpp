@@ -57,6 +57,8 @@
 #include "game/ChaserNpc.h"
 
 #include <exception>
+#include "std/string.h"
+#include "std/string_members.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -253,6 +255,51 @@ extern "C" GameEventScript* fn_80393610(atn::Task* parent, const char* path, int
         return new ((MemoryTag)3, "", "", 0) GameEventScript(parent, path, area, map);
     }
     return 0;
+}
+
+extern "C" int fn_8006AA20(const char* path);                     // inferred: the file exists
+extern "C" std::string fn_8006B2D8(const std::string& path);      // inferred: name without extension
+// inferred: boost::lexical_cast<std::string>(const int&) (weak copy 0x80393BEC; string stream)
+extern "C" std::string fn_80393BEC(const int& value);
+
+// NONMATCHING: 99.36% - the stores of the non-zero members (&m80, the scene, -1, &m13C) are scheduled first,
+// and registers of the string sizes
+// inferred: loads the script of the scene (file 0) and its sub scripts (files 1-2): the town sub quest and
+// hint scripts when the config asks for them, else <path>_sub1.sc and <path>_sub2.sc
+GameEventScript::GameEventScript(atn::Task* parent, const char* path, int area, int map)
+    : atn::Task(parent), m60(0), m7C(0), m80(0), m84((ScriptEventNode_unk*)&m80), mScene((GameScene*)parent),
+      m8C(0), m9C(0), mA0(0), mA4(0), mD0(0), mD4(-1), mD8(0), mDC(0), mE0(0), mE4(0), mE8(0), mEC(0), mF0(0),
+      mF4(0), mF8(0), m104(0), m108(0), m138(0), m13C(0), m140((ScriptEventNode_unk*)&m13C) {
+    for (int i = 0; i < 10; i++) {
+        m354[i] = 0;
+    }
+    m37C = 0;
+    for (int i = 0; i < 4; i++) {
+        m380[i] = 0;
+    }
+    memset(m64, 0, sizeof(m64));
+    m48[0].vf0C(path);
+    if (area == 1 && lbl_8087F0A8->mLoadTownSubScript != 0) {
+        std::string file("/game_scene/tw_subquest.sc");
+        if (fn_8006AA20(file.c_str()) && map != 3) {
+            m48[1].vf0C(file.c_str());
+        }
+        file = "/game_scene/tw_hintnpc.sc";
+        if (fn_8006AA20(file.c_str())) {
+            m48[2].vf0C(file.c_str());
+        }
+    } else {
+        for (int i = 1; i < 3; i++) {
+            std::string file = fn_8006B2D8(std::string(path));
+            file += "_sub";
+            file += fn_80393BEC(i);
+            file += ".sc";
+            if (fn_8006AA20(file.c_str())) {
+                m48[i].vf0C(file.c_str());
+            }
+        }
+    }
+    memset(m154, 0, sizeof(m154));
 }
 
 std::bad_cast::~bad_cast() {}
