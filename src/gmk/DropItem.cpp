@@ -211,7 +211,8 @@ DropItem::DropItem(atn::Task* parent, int id, int arg)
       m180(1), m184(0.0f, 12.0f, 0.0f), m190(0), m194(0), m198(0), m29C(0xFF), m2A0(-1) {
     m54 = 0;
     mSlot.fn_8044D9BC(this);
-    mSlot.mBits29 = 0;
+    mSlot.mFlag29 = 0;
+    mSlot.mFlag28 = 0;
     mSlot.mFlag24 = 1;
     DropLayout_unk* layout = (DropLayout_unk*)fn_801F64D0(this, "/data/d2anime/ui_slot_ok.d2b");
     if (mLayouts.size() < 2) {

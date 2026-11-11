@@ -5,6 +5,7 @@
 #include "atn/static_string.h"
 
 struct RecycleBufferEntry_unk;
+class ItemSlotTask_unk;
 
 namespace gmk {
 
@@ -51,7 +52,10 @@ public:
     void fn_8044F434(); // inferred: per-frame update
     void fn_80450778();
 
-    inline void Release_unk(); // inferred: gives the entry m00 back to the buffer (name invented)
+    inline void Release_unk();
+    inline ::ItemSlotTask_unk* OkTask_unk() const;  // inferred: name invented
+    inline ::ItemSlotTask_unk* PopTask_unk() const; // inferred: name invented
+    inline void ClearText_unk(::ItemSlotTask_unk* task, const char* pane); // inferred: name invented // inferred: gives the entry m00 back to the buffer (name invented)
 
     RecycleBufferEntry_unk* m00; // inferred: entry of the ItemSlotAnimeBuffer in use
     // inferred: names invented
@@ -71,7 +75,8 @@ public:
     // inferred: flags set by gmk::DropItem (names invented)
     unsigned int mFlag31 : 1;  // inferred: rare item (fn_80450B84/fn_80450B60)
     unsigned int mFlag30 : 1;
-    unsigned int mBits29 : 2;
+    unsigned int mFlag29 : 1;  // inferred: the item is shown in the second line (fn_8044F96C)
+    unsigned int mFlag28 : 1;
     unsigned int mFlag27 : 1;
     unsigned int mFlag26 : 1;  // inferred: the "take" prompt is shown
     unsigned int mFlag25 : 1;

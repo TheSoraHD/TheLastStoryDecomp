@@ -11,6 +11,8 @@
 #include "game/PlayerTask.h"
 #include "game/Inventory.h"
 #include "game/GameUI.h"
+#include "atn/RenderManager.h"
+#include "MP/MpSession_unk.h"
 #include <string.h>
 
 extern "C" bool fn_80213E60(gmk::ItemSlotItem_unk* item, int kind, int sub, int num); // inferred: db/ItemRare_unk.cpp
@@ -175,7 +177,8 @@ inline void ItemSlotAnime::Release_unk() {
 ItemSlotAnime::ItemSlotAnime() : m00(0), mState(0), mPos(0.0f, 0.0f, 0.0f), mScale(1.0f), m18(0), m1C(0), m20(0), m24(0) {
     mFlag31 = 1;
     mFlag30 = 1;
-    mBits29 = 3;
+    mFlag29 = 1;
+    mFlag28 = 1;
     mFlag27 = 1;
     mFlag26 = 0;
     mFlag25 = 0;
@@ -283,8 +286,15 @@ int ItemSlotAnime::fn_8044E610() {
 extern "C" float fn_801F6C2C(atn::Task* layout);                                    // inferred: last frame
 extern "C" void fn_801F791C(atn::Task* task, const char* name, int index, float value); // inferred: pane alpha
 
-// inferred: colour pane of the slot layouts
+// inferred: panes of the slot layouts (names invented but sColorPane)
+static const char* const sSlotTextPanes[7] = {"string0009(1)", "string0008(1)", "string0007(1)", "string0006(1)",
+                                              "string0005(1)", "string0003(1)", "arrowName02"};
+static const char* const sArrowPane = "arrowName02";
 static const char* const sColorPane = "col0001_01";
+static const char* const sOkTextPanes[3] = {"arrowName02", "string0006(1)", "string0003(1)"};
+static const char* const sOkColorPanes[3] = {"col0001_01", "col0003", "col0006"};
+static const char* const sPopTextPanes[3] = {"arrowName02", "string0006(1)", "string0003(1)"};
+static const char* const sPosPane = "pos0001(1)";
 
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
@@ -396,7 +406,7 @@ void ItemSlotAnime::fn_8044EA34(int shown) {
             }
         }
         fn_8044F96C();
-        if (mBits29 & 1) {
+        if (mFlag28) {
             fn_8044F14C();
         }
     }
@@ -556,6 +566,185 @@ void ItemSlotAnime::fn_8044F434() {
     }
 }
 
+extern "C" void fn_801F6D7C(atn::Task* task, const char* name, int index, float value); // inferred: pane value
+extern "C" void fn_801F837C(atn::Task* task, const char* name, const wchar_t* text);    // inferred: pane text
+
+// inferred: the "take" layout shown for the item (name invented)
+inline ItemSlotTask_unk* ItemSlotAnime::OkTask_unk() const {
+    return fn_80450A78() ? m00->m24[1] : m00->m24[0];
+}
+
+// inferred: the popup layout shown for the item (name invented)
+inline ItemSlotTask_unk* ItemSlotAnime::PopTask_unk() const {
+    return fn_80450A78() ? m00->m30[1] : m00->m30[0];
+}
+
+// inferred: alpha rate of the "take" layout fading in (frames 5-10) and out (10-15); names invented
+static inline float FadeIn_unk(float frame) {
+    float rate = (10.0f - frame) / 5.0f;
+    return rate > 0.0f ? rate : 0.0f;
+}
+static inline float FadeOut_unk(float frame) {
+    float rate = (5.0f - (frame - 10.0f)) / 5.0f;
+    return rate > 0.0f ? rate : 0.0f;
+}
+
+// inferred: clears a text pane (name invented)
+inline void ItemSlotAnime::ClearText_unk(ItemSlotTask_unk* task, const char* pane) {
+    fn_801F837C(task, pane, L"");
+}
+
+// NONMATCHING: 99.27% - registers of the iterator loops (iterator and end base swapped) and of the selected
+// layouts (r27 vs r30)
+// inferred: shows the layouts of the current step and writes their panes (position, texts, alpha)
+void ItemSlotAnime::fn_8044F96C() {
+    bool loading = mState == 1 || mState == 2;
+    if (loading && !mFlag26 || m00 == 0) {
+        if (m00 != 0) {
+            ItemSlotTask_unk* frame = m00->m3C;
+            if (!frame->IsFlag_unk(4)) {
+                frame->FreezeTask();
+            }
+            if (mState == 1) {
+                atn::FixedArray_unk<ItemSlotTask_unk*, 16>& tasks = m00->mTasks;
+                for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+                    if (*it != 0) {
+                        (*it)->FreezeTask();
+                    }
+                }
+            }
+        }
+        return;
+    }
+    atn::FixedArray_unk<ItemSlotTask_unk*, 16>& tasks = m00->mTasks;
+    for (ItemSlotTask_unk** it = tasks.begin(); it != tasks.end(); it++) {
+        if (*it != 0) {
+            (*it)->FreezeTask();
+        }
+    }
+    atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(mPos);
+    if (0.0f <= screen.z && screen.z <= 1.0f) {
+        float x = screen.x;
+        atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t0 = m00->mTasks;
+        for (ItemSlotTask_unk** it = t0.begin(); it != t0.end(); it++) {
+            if (*it != 0) {
+                fn_801F6D7C(*it, sPosPane, 0, x);
+            }
+        }
+        float y = screen.y;
+        atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t1 = m00->mTasks;
+        for (ItemSlotTask_unk** it = t1.begin(); it != t1.end(); it++) {
+            if (*it != 0) {
+                fn_801F6D7C(*it, sPosPane, 1, y);
+            }
+        }
+        float sx = mScale;
+        atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t2 = m00->mTasks;
+        for (ItemSlotTask_unk** it = t2.begin(); it != t2.end(); it++) {
+            if (*it != 0) {
+                fn_801F6D7C(*it, sPosPane, 2, sx);
+            }
+        }
+        float sy = mScale;
+        atn::FixedArray_unk<ItemSlotTask_unk*, 16>& t3 = m00->mTasks;
+        for (ItemSlotTask_unk** it = t3.begin(); it != t3.end(); it++) {
+            if (*it != 0) {
+                fn_801F6D7C(*it, sPosPane, 3, sy);
+            }
+        }
+    }
+    if (lbl_8087F610 != 0 && !lbl_8087F610->IsStarting_unk()) {
+        return;
+    }
+    if (mFlag27 && !mFlag25 && fn_80450A78() && (mState == 5 || mState == 6 || mFlag26)) {
+        if (mFlag29 || (OkTask_unk() != 0 && OkTask_unk()->m50 < 30.0f)) {
+            m00->m3C->MeltTask();
+        } else {
+            m00->m3C->FreezeTask();
+        }
+    } else {
+        m00->m3C->FreezeTask();
+    }
+    if (mState == 3) {
+        m00->m00->MeltTask();
+        if (m00->m00->m50 > 10.0f) {
+            m00->m00->m50 = 10.0f;
+        }
+        for (int i = 0; i < 3; i++) {
+            ItemSlotTask_unk* slot = m00->m04[i];
+            if (m00->m00->m50 >= 10.0f) {
+                slot->MeltTask();
+                for (int j = 0; j < 7; j++) {
+                    fn_801F837C(slot, sSlotTextPanes[j], mTexts[i].mStr);
+                }
+            }
+        }
+    } else if (mState == 4 || mState == 5) {
+        if (mF0 == 0) {
+            m00->m00->MeltTask();
+            if (mState == 4 && m00->m00->m50 > 10.0f) {
+                m00->m00->m50 = 10.0f;
+            }
+            for (int i = 0; i < 3; i++) {
+                ItemSlotTask_unk* arrow = m00->m14[i];
+                arrow->MeltTask();
+                if (mState == 4 || i != 1) {
+                    fn_801F837C(arrow, sArrowPane, mTexts[i].mStr);
+                } else {
+                    ClearText_unk(arrow, sArrowPane);
+                }
+            }
+            if (mState == 5) {
+                ItemSlotTask_unk* ok = OkTask_unk();
+                ok->MeltTask();
+                if (ok->m50 > 10.0f) {
+                    ok->m50 = 10.0f;
+                }
+                float rate = FadeIn_unk(ok->m50) < 1.0f ? FadeIn_unk(ok->m50) : 1.0f;
+                float alpha = 200.0f * rate;
+                for (int i = 0; i < 3; i++) {
+                    fn_801F791C(m00->m14[i], sColorPane, 0, alpha);
+                }
+                for (int i = 0; i < 3; i++) {
+                    fn_801F791C(ok, sOkColorPanes[i], 0, alpha);
+                    if (mFlag29 || i != 0) {
+                fn_801F837C(ok, sOkTextPanes[i], mTexts[1].mStr);
+            } else {
+                ClearText_unk(ok, sOkTextPanes[i]);
+            }
+                }
+            }
+        } else {
+            PopTask_unk()->MeltTask();
+        }
+    } else if (mState == 6) {
+        if (mFlag31) {
+            m00->m00->MeltTask();
+        }
+        ItemSlotTask_unk* ok = OkTask_unk();
+        ok->MeltTask();
+        float rate = FadeOut_unk(ok->m50) < 1.0f ? FadeOut_unk(ok->m50) : 1.0f;
+        float alpha = 200.0f * rate;
+        for (int i = 0; i < 3; i++) {
+            fn_801F791C(m00->m14[i], sColorPane, 0, alpha);
+        }
+        for (int i = 0; i < 3; i++) {
+            fn_801F791C(ok, sOkColorPanes[i], 0, 200.0f);
+            if (mFlag29 || i != 0) {
+                fn_801F837C(ok, sOkTextPanes[i], mTexts[1].mStr);
+            } else {
+                ClearText_unk(ok, sOkTextPanes[i]);
+            }
+        }
+    } else if (mState == 7) {
+        ItemSlotTask_unk* pop = PopTask_unk();
+        pop->MeltTask();
+        for (int i = 0; i < 3; i++) {
+            fn_801F837C(pop, sPopTextPanes[i], mTexts[0].mStr);
+        }
+    }
+}
+
 } // namespace gmk
 
 extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
@@ -619,8 +808,6 @@ struct ItemDamage_unk {
     unsigned int mFlags31_28 : 4;
     unsigned int mFlags27_0 : 28;
 };
-struct MpSession_unk;
-extern "C" MpSession_unk* lbl_8087F610;     // inferred: multiplayer session
 extern "C" void* lbl_8087F048;              // inferred: effect/bullet manager
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0;
 extern "C" void fn_801092C8(void* mgr, int arg1, int arg2, int item, int num); // inferred: take message
