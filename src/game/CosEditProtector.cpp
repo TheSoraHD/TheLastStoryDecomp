@@ -577,6 +577,131 @@ void CosEditProtector::vf48() {
     }
 }
 
+extern "C" void fn_804A4930(atn::Task* task, int top, int count, int page); // inferred: scroll bar
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const atn::D2A_DrawRect* rect, int c);
+
+// inferred: rectangle of the pane `name` of a layout (name invented)
+inline atn::D2A_DrawRect GetPaneRect_unk(atn::Task* layout, const char* name) {
+    return fn_801F4E8C((atn::D2A_Task*)layout, fn_800DC6B4(name));
+}
+
+// inferred: places the cursor of the current state (select, list or palette cursor) and the icon
+// cursor of the palettes
+// NONMATCHING: 97.2% - the original keeps dead stores of 0.0f/1.0f in twelve stack temporaries at the start
+void CosEditProtector::fn_801D3DF4() {
+    mIconCursor->mVisible = 0;
+    if (((NewCampTask*)m48)->m11F0 != this) {
+        return;
+    }
+    char name[0x40];
+    atn::D2A_DrawRect pos;
+    int kind = 0;
+    NewCampPartsEntry_unk* entry = 0;
+    atn::D3Anime* palette = 0;
+    switch (m7C) {
+    case 0:
+        sprintf(name, "select_cursor%d", m1B98 + 1);
+        pos = GetPaneRect_unk(mSelect->GetTask(), name);
+        fn_805118B4(mSelect->GetTask(), sListTexts[m1B98], &m50[1], (const NewCampPartsPoint_unk&)pos, 0);
+        break;
+    case 2:
+    case 3:
+        if (m80 >= 0 && m84 > 0) {
+            sprintf(name, "camp_cursor%d", m80 - m88 + 1);
+            pos = GetPaneRect_unk(mLists[0].mBase->GetTask(), name);
+            atn::Task* bar = mLists[0].mScrollBar->GetTask();
+            if (bar != 0) {
+                fn_801F6C80(bar, "s_hightMax", 210.0f);
+                fn_804A4930(bar, m88, m84, m8C);
+            }
+            fn_805119C8(mLists[0].mItems[m80 - m88]->GetTask(), 0, &m50[1], (const NewCampPartsPoint_unk&)pos, 0);
+        } else {
+            atn::Task* bar = mLists[0].mScrollBar->GetTask();
+            if (bar != 0) {
+                fn_801F6C80(bar, "s_hightMax", 210.0f);
+                fn_804A4930(bar, 0, 1, 1);
+            }
+        }
+        break;
+    case 10:
+        if (m80 >= 0 && m84 > 0) {
+            sprintf(name, "camp_cursor%d", m80 - m88 + 1);
+            pos = GetPaneRect_unk(mLists[2].mBase->GetTask(), name);
+            atn::Task* bar = mLists[2].mScrollBar->GetTask();
+            if (bar != 0) {
+                fn_801F6C80(bar, "s_hightMax", 270.0f);
+                fn_804A4930(bar, m88, m84, m8C);
+            }
+            fn_805119C8(mLists[2].mItems[m80 - m88]->GetTask(), 0, &m50[8], (const NewCampPartsPoint_unk&)pos, 0);
+        } else {
+            atn::Task* bar = mLists[2].mScrollBar->GetTask();
+            if (bar != 0) {
+                fn_801F6C80(bar, "s_hightMax", 210.0f);
+                fn_804A4930(bar, 0, 1, 1);
+            }
+        }
+        break;
+    case 4:
+        sprintf(name, "select_cursor%d", m1BA0 + 1);
+        pos = GetPaneRect_unk(mColorSelect->GetTask(), name);
+        fn_805118B4(mColorSelect->GetTask(), sPartTexts[m1BA0], &m50[8], (const NewCampPartsPoint_unk&)pos, 0);
+        break;
+    case 6: {
+        int cursor;
+        if (m1BB0 == 1) {
+            cursor = m1BA8;
+        } else {
+            cursor = m1BA4;
+        }
+        sprintf(name, "select_cursor%d", cursor + 1);
+        pos = GetPaneRect_unk(mLists[1].mBase->GetTask(), name);
+        fn_805119C8(mLists[1].mItems[cursor]->GetTask(), 0, &m50[8], (const NewCampPartsPoint_unk&)pos, 0);
+        break;
+    }
+    case 7:
+        sprintf(name, "select_cursor%d", m1BAC + 1);
+        pos = GetPaneRect_unk(mLists[1].mBase->GetTask(), name);
+        fn_805119C8(mLists[1].mItems[m1BAC]->GetTask(), 0, &m50[8], (const NewCampPartsPoint_unk&)pos, 0);
+        break;
+    case 5:
+        kind = 2;
+        entry = &m50[8];
+        palette = mColorPalette;
+        sprintf(name, "palette%02d", m1BB8);
+        break;
+    case 8:
+        kind = 2;
+        entry = &m50[8];
+        palette = mColorPalette;
+        sprintf(name, "slt_palette%d%d", m1FC, m1F8);
+        break;
+    case 9:
+        kind = 2;
+        entry = &m50[8];
+        palette = mEffectPalette;
+        sprintf(name, "slt_palette%d%d", m204, m200);
+        break;
+    case 11:
+        sprintf(name, "list_cursor%d", m1BBC + 1);
+        pos = GetPaneRect_unk(mBestTask, name);
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &pos, 0);
+        break;
+    case 14:
+        sprintf(name, "list_cursor%d", m1BC0 + 1);
+        pos = GetPaneRect_unk(mNaked, name);
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &pos, 0);
+        break;
+    }
+    if (kind == 2 && entry != 0 && palette != 0 && mB8C >= 0) {
+        mIconCursor->mVisible = 1;
+        fn_80511258(entry, mIconCursor, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f), "reference");
+        if (palette != 0 && palette->GetTask() != 0) {
+            atn::D2A_DrawRect base = GetPaneRect_unk(palette->GetTask(), name);
+            fn_801F4728((atn::D2A_Task*)mIconCursor->GetTask(), "base_pos", &base.x);
+        }
+    }
+}
+
 void CosEditProtector::fn_801D463C(atn::D3Anime** out, CosEditList_unk* lists, int state, int a, int b) {
     switch (state) {
     case 5:
