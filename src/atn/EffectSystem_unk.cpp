@@ -24,6 +24,8 @@ static int sCurrentHandle;           // 0x8087F370
 static float sTimeStep = 1.0f;       // 0x8087DBE0
 static int sFrameStep = 1;           // 0x8087DBE4
 static int sCurrentGroup = -1;       // 0x8087DBE8
+// inferred: serial number of the effects started (1..100000; name invented)
+static unsigned int sSerial_unk = 1; // 0x8087DBEC
 
 // inferred: work buffer of fn_8022D078 (0x30 bytes of floats) and the descriptor passed to fn_8022C9C8
 // by fn_8022DA70 and fn_80231754 (count 5, the buffer and two zero words); names invented
@@ -138,8 +140,264 @@ void EffectSystem_unk::fn_8022C2A0() {
     }
 }
 
-// inferred: matrix of an instance from its emitter state (prev null: identity), its position and its mode
-extern "C" void fn_8022C9C8(void* work, const atn::Matrix3x4* prev, float* out, Vector3* pos, unsigned int mode);
+extern "C" void* fn_80237C88(void* from, void* to, void* node); // inferred: moves a node to another list
+extern "C" void* fn_80237B8C(void* used, void* free, int recycle); // inferred: takes a node of the free list
+
+// inferred: releases a slot of an instance and moves it to the free list (name invented)
+static inline void FreeSlot_unk(EffectSystem_unk* system, EffectInst_unk* inst, EffectSlot_unk* slot) {
+    ReleaseSlot_unk(system->m2C, slot);
+    slot->m08 = 0;
+    slot->m190 = 0;
+    fn_80237C88(&inst->mSlots, &system->mFreeSlots, slot);
+}
+
+// inferred: largest of two values (name invented)
+template <class T>
+static inline T EffectMaxT_unk(T a, T b) {
+    return a > b ? a : b;
+}
+
+// NONMATCHING: 99.3% - the ring size m1AC of the loop condition is loaded before the max of mB4 (r3)
+// inferred: frees the stopped instances and slots, keeps the fade rings of the slots, counts the slots
+// and the draw passes used; when the slots run out, frees one of three slots of the instances with flag
+// 0x40
+void EffectSystem_unk::fn_8022C3F0() {
+    m4C = 0;
+    m50 = 0;
+    m58 = 0;
+    m5C = 0;
+    m60 = 0;
+    mFlags = 0;
+    EffectInst_unk* inst = mInsts;
+    while (inst != 0) {
+        EffectInst_unk* next = inst->mNext;
+        if (inst->mKill != 0) {
+            EffectSlot_unk* slot = inst->mSlots;
+            while (slot != 0) {
+                EffectSlot_unk* nextSlot = slot->mNext;
+                FreeSlot_unk(this, inst, slot);
+                m50++;
+                slot = nextSlot;
+            }
+            inst->mFlags &= ~0x8001;
+            fn_80237C88(&mInsts, &m08, inst);
+            m4C++;
+        } else {
+            EffectSlot_unk* slot = inst->mSlots;
+            while (slot != 0) {
+                EffectSlot_unk* nextSlot = slot->mNext;
+                if ((slot->m190 & 4) == 4) {
+                    FreeSlot_unk(this, inst, slot);
+                    m50++;
+                } else {
+                    if ((slot->m190 & 8) == 8 && (inst->mParam->m4C & 0x20000) && sFrameStep != 0) {
+                        if (slot->m1A8 != 0) {
+                            if (slot->m1AC == slot->m1B4) {
+                                slot->m1B0 = (slot->m1B0 + 1) % slot->m1B4;
+                                slot->m1AC = EffectMaxT_unk<unsigned int>(slot->m1AC - 1, 0);
+                            }
+                            EffectFade_unk* fade = &slot->m1A8[(slot->m1B0 + slot->m1AC) % slot->m1B4];
+                            *(Vector3*)&fade->m00 = slot->m194;
+                            fade->m0C = slot->m1A0;
+                            fade->m10 = slot->m1A4;
+                            slot->m1AC++;
+                        }
+                        while ((float)slot->m1AC > (slot->mB4 > 0.0f ? slot->mB4 : 0.0f)) {
+                            slot->m1B0 = (slot->m1B0 + 1) % slot->m1B4;
+                            slot->m1AC = EffectMaxT_unk<unsigned int>(slot->m1AC - 1, 0);
+                        }
+                    }
+                    slot->m190 = (slot->m190 | 2) & ~8;
+                    m50++;
+                    if (inst->mParam->m4C & 0x20000) {
+                        m58++;
+                        int n = (int)inst->mParam->m11C.z > 1 ? (int)inst->mParam->m11C.z : 1;
+                        m5C += n * slot->m1AC * 2;
+                    } else if (inst->mData->mEntries[inst->mParam->m40].mType == 1) {
+                        m60++;
+                    } else {
+                        m5C += 4;
+                    }
+                }
+                slot = nextSlot;
+            }
+            inst->mCC = inst->mC8;
+            inst->mFlags = (inst->mFlags | 0x8000) & 0xBFFF;
+            switch (inst->mParam->m4C & 0x30000000) {
+            case 0x10000000:
+                mFlags |= 1;
+                break;
+            case 0x20000000:
+                mFlags |= 2;
+                break;
+            case 0x30000000:
+                mFlags |= 4;
+                break;
+            }
+            if ((inst->mFlags & 8) == 8) {
+                mFlags |= 8;
+            }
+            m4C++;
+        }
+        inst = next;
+    }
+    if (m50 >= mSlotCount - 0x80) {
+        int freed = 0;
+        EffectInst_unk* inst = mInsts;
+        while (inst != 0) {
+            if ((inst->mFlags & 0x40) == 0x40) {
+                int i = 0;
+                EffectSlot_unk* slot = inst->mSlots;
+                while (slot != 0) {
+                    EffectSlot_unk* nextSlot = slot->mNext;
+                    if (slot->m14 != 0.0f && i % 3 == 0) {
+                        FreeSlot_unk(this, inst, slot);
+                        freed++;
+                    }
+                    slot = nextSlot;
+                    i++;
+                    if (m50 - freed < mSlotCount - 0x80) {
+                        break;
+                    }
+                }
+            }
+            inst = inst->mNext;
+            if (m50 - freed < mSlotCount - 0x80) {
+                break;
+            }
+        }
+    }
+}
+
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+
+// inferred: length of a column of a matrix (name invented)
+static inline float EffectColLen_unk(const atn::Matrix3x4& m, int i) {
+    Vector3 v(m.m[0][i], m.m[1][i], m.m[2][i]);
+    return PSVECMag(&v);
+}
+
+// inferred: m = m * rot(axis, rad) when the angle is not zero (name invented)
+static inline atn::Matrix3x4& EffectRotate_unk(atn::Matrix3x4& m, char axis, float rad) {
+    if (0.0f != rad) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, axis, rad);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
+// inferred: matrix of a position and angles: trans(pos) * rot_y * rot_x * rot_z (name invented)
+static inline void EffectPosRotMtx_unk(atn::Matrix3x4* out, const Vector3* pos, const Vector3* rot) {
+    atn::Matrix3x4 res;
+    atn::Matrix3x4 m;
+    atn::Matrix3x4* p = &m;
+    p->SetIdentity();
+    EffectRotate_unk(*p, 'y', rot->y);
+    EffectRotate_unk(*p, 'x', rot->x);
+    EffectRotate_unk(*p, 'z', rot->z);
+    atn::Matrix3x4 t;
+    PSMTXTrans(t.m, pos->x, pos->y, pos->z);
+    PSMTXConcat(t.m, p->m, res.m);
+    *out = res;
+}
+
+// NONMATCHING: 98.3% - mode 1: the original keeps pointers to the camera position and angles (r25/r27)
+// and the RenderManager in r4; stack slots of the temporaries (frame 0x10 smaller)
+// inferred: matrix of an instance from its emitter state (prev null: identity), its position and its mode:
+// 1 at the camera (bit 0: position only), 3 at a matrix of a node (bit 0: its translation only), 5 at a
+// matrix (bit 0: its translation, with mode bit 6 scaled by its largest axis), 6 at a position, 4 kept,
+// otherwise prev
+extern "C" void fn_8022C9C8(void* work, const atn::Matrix3x4* prev, float* out, Vector3* pos, unsigned int mode) {
+    EffectWork_unk* w = (EffectWork_unk*)work;
+    atn::Matrix3x4 tmpOut;
+    atn::Matrix3x4 ident;
+    if (prev == 0) {
+        ident.SetIdentity();
+        prev = &ident;
+    }
+    if (out == 0) {
+        out = tmpOut.m[0];
+    }
+    switch ((unsigned int)w->mNum) {
+    case 1: {
+        atn::RenderManager* rm = atn::RenderManager::instance_;
+        const Vector3* camRot = rm->mCamera.GetRot_unk();
+        const Vector3* camPos = rm->mCamera.GetPosition_unk();
+        atn::Matrix3x4 base;
+        if (w->m08 & 1) {
+            atn::Matrix3x4 t;
+            PSMTXTrans(t.m, rm->mCamera.mPos.x, rm->mCamera.mPos.y, rm->mCamera.mPos.z);
+            base = t;
+        } else {
+            EffectPosRotMtx_unk(&base, camPos, camRot);
+        }
+        atn::Matrix3x4 res;
+        PSMTXConcat(base.m, prev->m, res.m);
+        *(atn::Matrix3x4*)out = res;
+        break;
+    }
+    case 3:
+        if (w->m08 & 1) {
+            Vector3 v = ((atn::Matrix3x4*)((char*)w->mData + 8))->GetTrans_unk();
+            atn::Matrix3x4 t;
+            PSMTXTrans(t.m, v.x, v.y, v.z);
+            atn::Matrix3x4 res;
+            PSMTXConcat(t.m, prev->m, res.m);
+            *(atn::Matrix3x4*)out = res;
+        } else {
+            atn::Matrix3x4 res;
+            PSMTXConcat(((atn::Matrix3x4*)((char*)w->mData + 8))->m, prev->m, res.m);
+            *(atn::Matrix3x4*)out = res;
+        }
+        break;
+    case 4:
+        break;
+    case 5:
+        if (w->m08 & 1) {
+            Vector3 v = ((atn::Matrix3x4*)w->mData)->GetTrans_unk();
+            atn::Matrix3x4 t;
+            PSMTXTrans(t.m, v.x, v.y, v.z);
+            if (mode & 0x40) {
+                atn::Matrix3x4* m = (atn::Matrix3x4*)w->mData;
+                Vector3 s(EffectColLen_unk(*m, 0), EffectColLen_unk(*m, 1), EffectColLen_unk(*m, 2));
+                float l = s.x > (s.y > s.z ? s.y : s.z) ? s.x : (s.y > s.z ? s.y : s.z);
+                Vector3 sc(l, l, l);
+                atn::Matrix3x4 sm;
+                PSMTXScale(sm.m, sc.x, sc.y, sc.z);
+                atn::Matrix3x4 ts;
+                PSMTXConcat(t.m, sm.m, ts.m);
+                t = ts;
+            }
+            atn::Matrix3x4 res;
+            PSMTXConcat(t.m, prev->m, res.m);
+            *(atn::Matrix3x4*)out = res;
+        } else {
+            atn::Matrix3x4 res;
+            PSMTXConcat(((atn::Matrix3x4*)w->mData)->m, prev->m, res.m);
+            *(atn::Matrix3x4*)out = res;
+        }
+        break;
+    case 6: {
+        Vector3* v = (Vector3*)w->mData;
+        atn::Matrix3x4 t;
+        PSMTXTrans(t.m, v->x, v->y, v->z);
+        atn::Matrix3x4 res;
+        PSMTXConcat(t.m, prev->m, res.m);
+        *(atn::Matrix3x4*)out = res;
+        break;
+    }
+    default:
+        *(atn::Matrix3x4*)out = *prev;
+        break;
+    }
+    if (pos != 0) {
+        *pos = ((atn::Matrix3x4*)out)->GetTrans_unk();
+    }
+}
 extern "C" void fn_80231754(EffectInst_unk* inst, EffectSlot_unk* slots, float* mtx);
 
 // inferred: moves the instances forward by whole frames (the last one partial)
@@ -317,7 +575,8 @@ extern "C" int rand();
 // NONMATCHING: 99.2% - the curve mode and the reloaded frame count swap r26/r27
 // inferred: texture frame of an entry for a frame number (uv: first frame in, frame out; last: random
 // state); returns the frame index
-extern "C" int fn_8022D790(EffectUV_unk* uv, EffectFileEntry_unk* entry, int frame, int unused, int* last) {
+extern "C" int fn_8022D790(EffectUV_unk* uv, EffectFileEntry_unk* entry, int frame, int unused, int* last,
+                            int unused2) {
     int n = entry->m108;
     float h, w, v, u;
     u = entry->mUV.u;
@@ -390,7 +649,6 @@ extern "C" int fn_8022D790(EffectUV_unk* uv, EffectFileEntry_unk* entry, int fra
     return index;
 }
 
-extern "C" EffectSlot_unk* fn_80237B8C(EffectSlot_unk** used, EffectSlot_unk** free, int recycle);
 extern "C" int fn_80230780(void* owner, EffectInst_unk* inst, EffectParam_unk* param, EffectSlot_unk* slot, float t);
 extern "C" void fn_80231508(EffectSlot_unk* slot);
 
@@ -416,7 +674,7 @@ static inline EffectFade_unk* AllocFade_unk(EffectSystemPool_unk& pool) {
 // and its fade items (param->m4C bit 17); free function (the caller passes the system)
 EffectSlot_unk* fn_8022DA70(EffectSystem_unk* system, void* owner, EffectInst_unk* inst, EffectParam_unk* param,
                             float t) {
-    EffectSlot_unk* slot = fn_80237B8C(&inst->mSlots, &system->mFreeSlots, 0);
+    EffectSlot_unk* slot = (EffectSlot_unk*)fn_80237B8C(&inst->mSlots, &system->mFreeSlots, 0);
     if (slot == 0) {
         return 0;
     }
@@ -459,6 +717,120 @@ EffectSlot_unk* fn_8022DA70(EffectSystem_unk* system, void* owner, EffectInst_un
     }
     slot->m190 |= 8;
     return slot;
+}
+
+// inferred: owner and group of a particle (name invented)
+static inline void SetParticleOwner_unk(EffectParticle_unk& p, unsigned int owner, int group) {
+    p.m28 = owner;
+    p.m2C = group;
+}
+
+// NONMATCHING: 99.8% - stack slots of the temporaries of the y and z rotations swapped
+// inferred: starts an effect: one instance per emitter enabled (emitter < 0: all of them), at the
+// position and angles given, with its color and scale, moved forward the frame offset; then the
+// particles enabled; returns the serial number of the effect (0: none started)
+void* EffectSystem_unk::fn_8022FAC4(void* res, int emitter, int b, int c, const Vector3* pos, const Vector3* rot,
+                                    const EffectColor_unk* color, int d, int e, float scale) {
+    EffectAnimData_unk* data = (EffectAnimData_unk*)res;
+    if (data == 0) {
+        return 0;
+    }
+    Vector3 zero(0.0f, 0.0f, 0.0f);
+    EffectColor_unk white(1.0f, 1.0f, 1.0f, 1.0f);
+    if (pos == 0) {
+        pos = &zero;
+    }
+    if (rot == 0) {
+        rot = &zero;
+    }
+    if (color == 0) {
+        color = &white;
+    }
+    int start;
+    unsigned int end;
+    if (emitter < 0) {
+        end = data->m00;
+        start = 0;
+    } else {
+        start = emitter;
+        end = emitter + 1;
+    }
+    if (data->m00 < end) {
+        return 0;
+    }
+    if (++sSerial_unk > 100000) {
+        sSerial_unk = 1;
+    }
+    EffectInst_unk* first = 0;
+    for (int i = start; i < (int)end; i++) {
+        if (data->mEmitterOn[i] == 0) {
+            continue;
+        }
+        EffectInst_unk* inst = (EffectInst_unk*)fn_80237B8C(&mInsts, &m08, 0);
+        if (inst == 0) {
+            continue;
+        }
+        if (first == 0) {
+            first = inst;
+        }
+        inst->mFlags = 1;
+        if (m78 != 0) {
+            inst->mFlags |= 0x20;
+        }
+        if (m7C != 0) {
+            inst->mFlags |= 0x100;
+        }
+        inst->m1C = 0.0f;
+        EffectParam_unk* param = &data->mParams[i];
+        inst->mData = data;
+        inst->mParam = param;
+        inst->mSlots = 0;
+        inst->m1A = 1;
+        inst->mOwnerPtr = sCurrentRes;
+        inst->mOwner = sCurrentOwner;
+        inst->mGroup = sCurrentGroup;
+        inst->mHandle = sCurrentHandle;
+        inst->mEffect = (void*)sSerial_unk;
+        inst->mTag = mLayer;
+        inst->mLayer = m70;
+        inst->mA8 = scale * inst->mParam->m64;
+        inst->mColor.r = color->r;
+        inst->mColor.g = color->g;
+        inst->mColor.b = color->b;
+        inst->mColor.a = color->a;
+        inst->m08 = b;
+        inst->m0C = (float*)c;
+        inst->m10 = d;
+        inst->m14 = e;
+        EffectPosRotMtx_unk(&inst->mMtx, pos, rot);
+        inst->m6C = inst->mMtx;
+        fn_8022C9C8(&inst->m08, &inst->mMtx, 0, &inst->mPos, inst->mParam->m4C);
+        inst->mKill = 0;
+        inst->mC8 = 0.0f;
+        inst->mCC = 0.0f;
+        inst->mVec = Vector3(0.0f, 0.0f, 0.0f);
+        inst->mRate = 1.0f;
+        if (sFrame > 0) {
+            fn_802328EC(inst, sFrame);
+        }
+    }
+    if (first != 0) {
+        for (unsigned int j = 0; j < data->mParticleDefCount; j++) {
+            if (data->mParticleOn[j] == 0) {
+                continue;
+            }
+            for (int k = 0; k < mParticleCount; k++) {
+                if (!mParticles[k].IsActive_unk()) {
+                    mParticles[k].fn_802383D8(this, (EffectInstDef_unk*)first, j);
+                    mParticles[k].m24 = (int)sCurrentRes;
+                    SetParticleOwner_unk(mParticles[k], sCurrentOwner, sCurrentGroup);
+                    mParticles[k].m30 = sCurrentHandle;
+                    break;
+                }
+            }
+        }
+    }
+    return (void*)(first != 0 ? sSerial_unk : 0);
 }
 
 // inferred: reduces the emission of an instance with the distance to the camera (param->m25C bit 0):
@@ -571,6 +943,197 @@ void EffectSystem_unk::fn_802301EC(EffectInst_unk* inst, EffectParam_unk* param,
             fn_8022DA70(this, inst->mData, inst, param, (float)i / (float)count);
         }
     }
+}
+
+extern "C" void fn_80233D74(EffectSlot_unk* slot, EffectParam_unk* param);
+extern "C" void fn_80233348(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_802334E0(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_80233678(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_80233810(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_802339A8(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_80233B40(EffectColor_unk* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+
+// inferred: flag of the animation of an emitter (name invented)
+static inline bool EffectAnimFlag_unk(const EffectAnimData_unk* data, int emitter, unsigned int flag) {
+    return (data->mAnimFlags[emitter] & flag) == flag;
+}
+
+// inferred: value clamped to [0, 1] (name invented)
+static inline void EffectClamp01_unk(float& v) {
+    if (v < 0.0f) {
+        v = 0.0f;
+    } else if (v > 1.0f) {
+        v = 1.0f;
+    }
+}
+
+// NONMATCHING: 99.9% - else branch: the entries pointer is loaded after param->m40 (and r5/r7 in the
+// emitter index)
+// inferred: sets up a new slot of an instance: its model or texture (and its frames), its offset, size,
+// direction, speed, color and the draw flags from the parameters of the emitter; 0 when the entry has
+// nothing to draw
+extern "C" int fn_80230780(void* owner, EffectInst_unk* inst, EffectParam_unk* param, EffectSlot_unk* slot, float t) {
+    EffectAnimData_unk* data = (EffectAnimData_unk*)owner;
+    EffectFileEntry_unk* entries = data->mEntries;
+    EffectFileEntry_unk* entry = &entries[param->m40];
+    if (entry->mType == 1) {
+        slot->m08 = (EffectInst_unk*)data->mResources[param->m40];
+        slot->m14 = (float)(unsigned int)param->m50;
+        slot->m1C = &entries[param->m40];
+    } else {
+        slot->m1C = entry;
+        if ((unsigned int)entry->m128 == 1) {
+            slot->m20 = entry->m108 != 0 ? rand() % entry->m108 : 0;
+        } else {
+            slot->m20 = 0;
+        }
+        slot->m24 = slot->m20;
+        if (data->mEntries[param->m40].mType == 2) {
+            void** res = data->mResources;
+            slot->m08 = (EffectInst_unk*)res[param->m40];
+            slot->m0C = (int)((char*)res[param->m40] + 0x30);
+            if ((param->m4C & 0xC0000000) == 0x80000000) {
+                slot->m08 = (EffectInst_unk*)slot->m0C;
+            }
+        } else {
+            slot->m08 = (EffectInst_unk*)data->mResources[param->m40];
+            slot->m0C = 0;
+        }
+        if (param->m50 == 0) {
+            slot->m14 = (float)slot->m1C->m108 * param->m23C;
+        } else {
+            slot->m14 = (float)(unsigned int)param->m50;
+        }
+    }
+    if (slot->m08 == 0) {
+        return 0;
+    }
+    fn_80233D74(slot, param);
+    int emitter = param - inst->mData->mParams;
+    Vector3 ofs;
+    fn_80233348(&ofs, slot, emitter, inst);
+    ofs.x *= inst->mA8;
+    ofs.y *= inst->mA8;
+    ofs.z *= inst->mA8;
+    if (param->m70 != 0) {
+        ofs.y = slot->m13C * ofs.x;
+        ofs.z = slot->m140 * ofs.x;
+    }
+    fn_802334E0((Vector3*)&slot->mA4, slot, emitter, inst);
+    if (param->m4C & 1) {
+        if (param->m78 != 0) {
+            slot->mA8 = slot->m144 * slot->mA4;
+            slot->mAC = slot->m148 * slot->mA4;
+        }
+    } else if ((inst->mData->mAnimFlags[emitter] & 2) != 2) {
+        slot->mA4 = 0.0f;
+        slot->mA8 = 0.0f;
+        slot->mAC = param->mE0.z + slot->m120.z;
+    }
+    fn_80233678((Vector3*)&slot->mB0, slot, emitter, inst);
+    slot->mB0 *= inst->mA8;
+    slot->mB4 *= inst->mA8;
+    slot->mB8 *= inst->mA8;
+    if (param->m80 != 0) {
+        slot->mB4 = slot->m14C * slot->mB0;
+        slot->mB8 = slot->m150 * slot->mB0;
+    }
+    if ((inst->mData->mAnimFlags[emitter] & 0x40) == 0x40) {
+        slot->mCC = fn_8023329C(0x12, emitter, inst->mData, 0, 0.0f, slot->m12C);
+        slot->mCC *= inst->mA8;
+    } else {
+        slot->mCC = param->m1E4 + slot->m12C;
+        slot->mCC *= inst->mA8;
+    }
+    fn_80233810((Vector3*)&slot->mD0, slot, emitter, inst);
+    if (param->mA0 != 0) {
+        slot->mD4 = slot->m16C * slot->mD0;
+        slot->mD8 = slot->m170 * slot->mD0;
+    }
+    fn_802339A8(&slot->m98, slot, emitter, inst);
+    slot->m98.x *= inst->mA8;
+    slot->m98.y *= inst->mA8;
+    slot->m98.z *= inst->mA8;
+    if (param->m88 != 0) {
+        slot->m98.y = slot->m154 * slot->m98.x;
+        slot->m98.z = slot->m158 * slot->m98.x;
+    }
+    fn_80233B40(&slot->mBC, slot, emitter, inst);
+    if (param->m90 != 0) {
+        slot->mBC.g = slot->m15C * slot->mBC.r;
+        slot->mBC.b = slot->m160 * slot->mBC.r;
+    }
+    if (!(param->m4C & 2)) {
+        EffectClamp01_unk(slot->mBC.r);
+        EffectClamp01_unk(slot->mBC.g);
+        EffectClamp01_unk(slot->mBC.b);
+        EffectClamp01_unk(slot->mBC.a);
+    }
+    EffectAnimData_unk* anim = inst->mData;
+    if (EffectAnimFlag_unk(anim, emitter, 0x100)) {
+        slot->mDC = fn_8023329C(10, emitter, anim, 0, 0.0f, 0.0f);
+        slot->mE0 = fn_8023329C(11, emitter, anim, 0, 0.0f, 0.0f);
+    } else {
+        slot->mDC = 0.0f;
+        slot->mE0 = 0.0f;
+    }
+    if (param->m4C & 8) {
+        slot->m10 = 2;
+    } else {
+        slot->m10 = 6;
+    }
+    if (param->m4C & 4) {
+        slot->m10 |= 0x10;
+    }
+    if (!(param->m4C & 0x2000000)) {
+        slot->m10 |= 8;
+    }
+    if (param->m4C & 0x4000000) {
+        slot->m10 |= 0x10000;
+    } else if (param->m4C & 0x8000000) {
+        slot->m10 |= 0x20000;
+    }
+    if (param->m4C & 0x100) {
+        slot->m10 |= 0x80;
+    }
+    slot->m10 |= 1;
+    switch (param->m4C & 0xC0000000) {
+    case 0x40000000:
+        slot->m10 |= 0x40000;
+        break;
+    case 0x80000000:
+        slot->m10 |= 0x80000;
+        break;
+    }
+    switch (param->m234) {
+    case 1:
+        slot->m10 |= 0x100;
+        break;
+    case 2:
+        slot->m10 |= 0x400;
+        break;
+    case 3:
+        slot->m10 |= 0x200;
+        break;
+    case 4:
+        slot->m10 |= 0x800;
+        break;
+    case 5:
+        slot->m10 |= 0x1000;
+        break;
+    }
+    if (data->mEntries[param->m40].mType == 2) {
+        slot->m10 |= 0x200000;
+    }
+    slot->m68.x += ofs.x;
+    slot->m68.y += ofs.y;
+    slot->m68.z += ofs.z;
+    slot->m1B0 = 0;
+    slot->m1AC = 0;
+    slot->m174 = Vector3(0.0f, 0.0f, 0.0f);
+    slot->m180 = 0.0f;
+    slot->m184 = Vector3(1.0f, 0.0f, 0.0f);
+    return 1;
 }
 
 // inferred: largest of two values (a macro: the operands are evaluated again)
@@ -687,9 +1250,10 @@ extern "C" void fn_80231508(EffectSlot_unk* slot) {
     slot->m80.z += dir.z;
 }
 
+extern "C" void fn_80230F3C(EffectInst_unk* inst, EffectSlot_unk* slot);
+
 extern "C" int fn_8023193C(EffectInst_unk* inst, EffectParam_unk* param, EffectSlot_unk* slot, Vector3* prev,
                            float* mtx, int first);
-extern "C" void fn_80230F3C(EffectInst_unk* inst, EffectSlot_unk* slot);
 
 // inferred: moves the slots of an instance and emits their particles
 extern "C" void fn_80231754(EffectInst_unk* inst, EffectSlot_unk* slot, float* mtx) {
@@ -721,6 +1285,272 @@ extern "C" void fn_80231754(EffectInst_unk* inst, EffectSlot_unk* slot, float* m
         }
     }
 }
+
+// inferred: same vector (name invented)
+static inline bool EffectVecEqual_unk(const Vector3& a, const Vector3& b) {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
+static inline bool EffectVecDiffer_unk(const Vector3& a, const Vector3& b) {
+    return !EffectVecEqual_unk(a, b);
+}
+
+// NONMATCHING: 98.4% - the curve results multiplied by the scale go through frsp in the original without
+// a store (m98.z, mB8, mCC); argument loads of fn_8022D790 scheduled differently; emitter*4 kept once
+// inferred: moves a slot one step: its texture frame, offset, position (velocity of the slot and of the
+// instance), size, direction, speed (curves or speed and damping; bounce on the ground), scale and color,
+// and the fade item and the direction of the movement; 1 when the slot ends (time out or transparent)
+extern "C" int fn_8023193C(EffectInst_unk* inst, EffectParam_unk* param, EffectSlot_unk* slot, Vector3* prev,
+                           float* mtx, int first) {
+    if (slot->m14 > 0.0f && slot->m14 <= slot->m18 && param->m50 != 0) {
+        return 1;
+    }
+    if (slot->mBC.a < 1.0f / 255.0f ||
+        (slot->mBC.r < 1.0f / 255.0f && slot->mBC.g < 1.0f / 255.0f && slot->mBC.b < 1.0f / 255.0f)) {
+        return 1;
+    }
+    if (slot->m1C->mType != 1) {
+        slot->m24 = fn_8022D790((EffectUV_unk*)&slot->m28, slot->m1C, (int)(slot->m18 * param->m23C), (int)slot->m14,
+                                &slot->m20, slot->m24);
+    }
+    if (first) {
+        return 0;
+    }
+    float t = slot->m18 / slot->m14;
+    EffectAnimData_unk* data = inst->mData;
+    int emitter = param - data->mParams;
+    if (data->mLocked == 0 || (data->mLocked[emitter] & 2) != 2) {
+        if (EffectAnimFlag_unk(data, emitter, 2)) {
+            int mul = param->m74 & 1;
+            slot->mA4 = fn_8023329C(15, emitter, data, mul, t, slot->m120.x);
+            slot->mA8 = fn_8023329C(16, emitter, data, mul, t, slot->m120.y);
+            slot->mAC = fn_8023329C(17, emitter, data, mul, t, slot->m120.z);
+        } else if (!(param->m4C & 1)) {
+            slot->mAC += sTimeStep * param->m100;
+        } else {
+            slot->mA4 += sTimeStep * param->mF8;
+            slot->mA8 += sTimeStep * param->mFC;
+            slot->mAC += sTimeStep * param->m100;
+        }
+        if ((param->m4C & 1) && param->m78 != 0) {
+            slot->mA8 = slot->m144 * slot->mA4;
+            slot->mAC = slot->m148 * slot->mA4;
+        }
+    }
+    Vector3 ofs;
+    if (0.0f != slot->m98.x || 0.0f != slot->m98.y || 0.0f != slot->m98.z) {
+        Vector3 v = slot->m98;
+        PSMTXMultVec(slot->mMtx.m, &v, &v);
+        ofs = v;
+    } else {
+        ofs.x = ofs.y = ofs.z = 0.0f;
+    }
+    ofs += inst->mVec;
+    slot->m8C += ofs * sTimeStep;
+    slot->m80 = slot->m74;
+    slot->m80 += slot->m8C;
+    fn_80231508(slot);
+    if (data->mLocked == 0 || (data->mLocked[emitter] & 0x20) != 0x20) {
+        if (EffectAnimFlag_unk(data, emitter, 0x40)) {
+            slot->mCC = (float)fn_8023329C(0x12, emitter, data, 0, t, slot->m12C) * inst->mA8;
+        } else {
+            slot->mCC += sTimeStep * (param->m1EC * inst->mA8);
+            if (sFrameStep != 0) {
+                slot->mCC *= param->m1F0;
+            }
+        }
+    }
+    if (data->mLocked == 0 || (data->mLocked[emitter] & 0x40) != 0x40) {
+        if (EffectAnimFlag_unk(data, emitter, 0x80)) {
+            int mul = param->m9C & 1;
+            slot->mD0 = fn_8023329C(0x13, emitter, data, mul, t, slot->m130.x);
+            slot->mD4 = fn_8023329C(0x14, emitter, data, mul, t, slot->m130.y);
+            slot->mD8 = fn_8023329C(0x15, emitter, data, mul, t, slot->m130.z);
+        } else {
+            slot->mD0 += sTimeStep * param->m210;
+            slot->mD4 += sTimeStep * param->m214;
+            slot->mD8 += sTimeStep * param->m218;
+            if (sFrameStep != 0) {
+                slot->mD0 *= param->m21C;
+                slot->mD4 *= param->m220;
+                slot->mD8 *= param->m224;
+            }
+        }
+        if (param->mA0 != 0) {
+            slot->mD4 = slot->m16C * slot->mD0;
+            slot->mD8 = slot->m170 * slot->mD0;
+        }
+    }
+    if (data->mLocked == 0 || (data->mLocked[emitter] & 8) != 8) {
+        if (EffectAnimFlag_unk(data, emitter, 8)) {
+            int mul = param->m84 & 1;
+            slot->m98.x = fn_8023329C(7, emitter, data, mul, t, slot->m100.x);
+            slot->m98.y = fn_8023329C(8, emitter, data, mul, t, slot->m100.y);
+            slot->m98.z = fn_8023329C(9, emitter, data, mul, t, slot->m100.z);
+            slot->m98 *= inst->mA8;
+        } else {
+            float scale = inst->mA8;
+            slot->m98.x += sTimeStep * (param->m170 * scale);
+            slot->m98.y += sTimeStep * (param->m174 * scale);
+            slot->m98.z += sTimeStep * (param->m178 * scale);
+            if (sFrameStep != 0) {
+                slot->m98.x *= param->m17C;
+                slot->m98.y *= param->m180;
+                slot->m98.z *= param->m184;
+            }
+        }
+        if (param->m88 != 0) {
+            slot->m98.y = slot->m154 * slot->m98.x;
+            slot->m98.z = slot->m158 * slot->m98.x;
+        }
+        if (param->m240 != 0 && !EffectAnimFlag_unk(data, emitter, 8)) {
+            float radius = param->m248 * inst->mA8;
+            float y = slot->m80.y + sTimeStep * slot->m98.y;
+            float gravity = param->m244 * inst->mA8;
+            float bottom = y - radius;
+            float ground = param->m258;
+            if ((inst->m10 & 2) == 2) {
+                atn::Matrix3x4* m = (atn::Matrix3x4*)mtx;
+                Vector3 pos = m->GetTrans_unk();
+                ground += pos.y;
+            }
+            if (bottom <= ground) {
+                float pen;
+                slot->m98.y = slot->m98.y * -param->m24C;
+                if (slot->m98.y < sTimeStep * gravity) {
+                    pen = 0.0f;
+                    slot->m98.y = pen;
+                    Vector3 rel = slot->m80 - (slot->m74 + slot->m8C);
+                    slot->m8C.y = ground + (radius + pen) - (slot->m74.y + rel.y);
+                } else {
+                    slot->m98.y -= sTimeStep * gravity;
+                    pen = -param->m24C * (bottom - ground);
+                }
+                slot->m80.y = ground + (radius + pen);
+                Vector3 dir(slot->m98.x, 0.0f, slot->m98.z);
+                if (0.0f != dir.x && 0.0f != dir.y && 0.0f != dir.z) {
+                    PSVECNormalize(&dir, &dir);
+                }
+                if (0.0f == pen) {
+                    slot->m98.x -= sTimeStep * (dir.x * param->m250);
+                    slot->m98.z -= sTimeStep * (dir.z * param->m250);
+                } else {
+                    slot->m98.x -= dir.x * param->m250;
+                    slot->m98.z -= dir.z * param->m250;
+                }
+                if ((slot->m98.x > 0.0f && dir.x < 0.0f) || (slot->m98.x < 0.0f && dir.x > 0.0f)) {
+                    slot->m98.x = 0.0f;
+                }
+                if ((slot->m98.z > 0.0f && dir.z < 0.0f) || (slot->m98.z < 0.0f && dir.z > 0.0f)) {
+                    slot->m98.z = 0.0f;
+                }
+            } else {
+                slot->m98.y -= sTimeStep * gravity;
+            }
+            if (0.0f != slot->m98.x || 0.0f != slot->m98.z) {
+                Vector3 move(sTimeStep * slot->m98.x, 0.0f, sTimeStep * slot->m98.z);
+                if (0.0f != move.x || 0.0f != move.z) {
+                    float round = 3.1415927f * (2.0f * radius);
+                    float turns = PSVECMag(&move) / round;
+                    slot->m180 += param->m254 * (6.2831855f * turns);
+                    Vector3 down(0.0f, -1.0f, 0.0f);
+                    Vector3 axis;
+                    PSVECCrossProduct(&move, &down, &axis);
+                    slot->m184 = axis;
+                    PSVECNormalize(&slot->m184, &slot->m184);
+                }
+            }
+        }
+    }
+    if (data->mLocked == 0 || (data->mLocked[emitter] & 4) != 4) {
+        if (EffectAnimFlag_unk(data, emitter, 4)) {
+            int mul = param->m7C & 1;
+            slot->mB0 = fn_8023329C(0, emitter, data, mul, t, slot->mE4.x);
+            slot->mB4 = fn_8023329C(1, emitter, data, mul, t, slot->mE4.y);
+            slot->mB8 = fn_8023329C(2, emitter, data, mul, t, slot->mE4.z);
+            (*(Vector3*)&slot->mB0) *= inst->mA8;
+        } else {
+            float scale = inst->mA8;
+            slot->mB0 += sTimeStep * (param->m134 * scale);
+            slot->mB4 += sTimeStep * (param->m138 * scale);
+            slot->mB8 += sTimeStep * (param->m13C * scale);
+            if (sFrameStep != 0) {
+                slot->mB0 *= param->m140;
+                slot->mB4 *= param->m144;
+                slot->mB8 *= param->m148;
+            }
+        }
+        if (param->m80 != 0) {
+            slot->mB4 = slot->m14C * slot->mB0;
+            slot->mB8 = slot->m150 * slot->mB0;
+        }
+    }
+    if (data->mLocked == 0 || (data->mLocked[emitter] & 0x10) != 0x10) {
+        unsigned int flags = data->mAnimFlags[emitter];
+        int mul = param->m8C & 1;
+        switch ((int)(flags >> 4 & 1) + (int)(flags >> 5 & 1)) {
+        case 0:
+            slot->mBC.r += sTimeStep * param->m1B4;
+            slot->mBC.g += sTimeStep * param->m1B8;
+            slot->mBC.b += sTimeStep * param->m1BC;
+            slot->mBC.a += sTimeStep * param->m1C0;
+            if (sFrameStep != 0) {
+                slot->mBC.r *= param->m1C4;
+                slot->mBC.g *= param->m1C8;
+                slot->mBC.b *= param->m1CC;
+                slot->mBC.a *= param->m1D0;
+            }
+            break;
+        case 1:
+            slot->mBC.r += sTimeStep * param->m1B4;
+            slot->mBC.g += sTimeStep * param->m1B8;
+            slot->mBC.b += sTimeStep * param->m1BC;
+            if (sFrameStep != 0) {
+                slot->mBC.r *= param->m1C4;
+                slot->mBC.g *= param->m1C8;
+                slot->mBC.b *= param->m1CC;
+            }
+            slot->mBC.a = fn_8023329C(6, emitter, data, mul, t, slot->mF0.a);
+            break;
+        case 2:
+            slot->mBC.a = fn_8023329C(6, emitter, data, mul, t, slot->mF0.a);
+            slot->mBC.r = fn_8023329C(3, emitter, data, mul, t, slot->mF0.r);
+            slot->mBC.g = fn_8023329C(4, emitter, data, mul, t, slot->mF0.g);
+            slot->mBC.b = fn_8023329C(5, emitter, data, mul, t, slot->mF0.b);
+            break;
+        }
+        if (param->m90 != 0) {
+            slot->mBC.g = slot->m15C * slot->mBC.r;
+            slot->mBC.b = slot->m160 * slot->mBC.r;
+        }
+        if (!(param->m4C & 2)) {
+            EffectClamp01_unk(slot->mBC.r);
+            EffectClamp01_unk(slot->mBC.g);
+            EffectClamp01_unk(slot->mBC.b);
+            EffectClamp01_unk(slot->mBC.a);
+        }
+    }
+    if (EffectAnimFlag_unk(data, emitter, 0x100)) {
+        slot->mDC = fn_8023329C(10, emitter, data, 0, t, 0.0f);
+        slot->mE0 = fn_8023329C(11, emitter, data, 0, t, 0.0f);
+    }
+    if (param->m4C & 0x20000) {
+        float a4, b0;
+        b0 = slot->mB0;
+        a4 = slot->mA4;
+        slot->m194 = slot->m80;
+        slot->m1A0 = a4;
+        slot->m1A4 = b0;
+    }
+    if (param->m4C & 0x800) {
+        if (EffectVecDiffer_unk(slot->m80, *prev)) {
+            slot->m174 = slot->m80 - *prev;
+            PSVECNormalize(&slot->m174, &slot->m174);
+        }
+    }
+    return 0;
+}
+
 
 // inferred: frame offset of the effects (game/GameTask.cpp)
 extern "C" void fn_802328DC(int frame) {
@@ -1232,6 +2062,49 @@ extern "C" void fn_80233B40(EffectColor_unk* out, EffectSlot_unk* slot, int emit
         out->b += slot->mF0.b;
         out->a += slot->mF0.a;
     }
+}
+
+// inferred: random value in [-range, range] in steps of range / 500 (0 when the range is 0; name invented)
+static inline float EffectRand_unk(float range) {
+    float v = 0.0f;
+    if (v != range) {
+        float lo = -range;
+        v = (range - lo) * ((float)(rand() % 1001) / 1000.0f) + lo;
+    }
+    return v;
+}
+
+// NONMATCHING: 86.5% - registers of the range and its negation swapped (f29/f30), the 0.0 of the
+// compare is loaded first; the original keeps a fourth saved float (f28) for the 0.0 base of m12C
+// inferred: random start values of a slot: each one is 1 or 0 (flag bit 0 of the parameters) plus a
+// random value in its range
+extern "C" void fn_80233D74(EffectSlot_unk* slot, EffectParam_unk* param) {
+    float base = (param->m84 & 1) ? 1.0f : 0.0f;
+    slot->m100.x = base + EffectRand_unk(param->m188);
+    slot->m100.y = base + EffectRand_unk(param->m18C);
+    slot->m100.z = base + EffectRand_unk(param->m190);
+    base = (param->m7C & 1) ? 1.0f : 0.0f;
+    slot->mE4.x = base + EffectRand_unk(param->m14C);
+    slot->mE4.y = base + EffectRand_unk(param->m150);
+    slot->mE4.z = base + EffectRand_unk(param->m154);
+    base = (param->m8C & 1) ? 1.0f : 0.0f;
+    slot->mF0.a = base + EffectRand_unk(param->m1E0);
+    slot->mF0.r = base + EffectRand_unk(param->m1D4);
+    slot->mF0.g = base + EffectRand_unk(param->m1D8);
+    slot->mF0.b = base + EffectRand_unk(param->m1DC);
+    base = (param->m6C & 1) ? 1.0f : 0.0f;
+    slot->m114.x = base + EffectRand_unk(param->mD4);
+    slot->m114.y = base + EffectRand_unk(param->mD8);
+    slot->m114.z = base + EffectRand_unk(param->mDC);
+    base = (param->m74 & 1) ? 1.0f : 0.0f;
+    slot->m120.x = base + EffectRand_unk(param->m110);
+    slot->m120.y = base + EffectRand_unk(param->m114);
+    slot->m120.z = base + EffectRand_unk(param->m118);
+    slot->m12C = 0.0f + EffectRand_unk(param->m1F4);
+    base = (param->m9C & 1) ? 1.0f : 0.0f;
+    slot->m130.x = base + EffectRand_unk(param->m228);
+    slot->m130.y = base + EffectRand_unk(param->m22C);
+    slot->m130.z = base + EffectRand_unk(param->m230);
 }
 
 // inferred: handle of the effect being created
