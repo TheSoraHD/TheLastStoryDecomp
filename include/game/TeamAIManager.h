@@ -224,7 +224,7 @@ struct TeamAI_unk : public TeamNode_unk {
     template <class P>
     int SelectPoint_unk(int index, P** points, int mode);
     template <class P>
-    void Move_unk(int kind, TeamPointList_unk<P>* list, unsigned int flags); // 0x805AF614, 0x805B01C0, 0x805B0D6C
+    void Move_unk(int kind, TeamPointList_unk<P>* list, unsigned int flags, int mode); // 0x805AF614, 0x805B01C0, 0x805B0D6C
 
     TeamRing_unk<TeamCmd_unk, 32> m10; // 0x010
     TeamData_unk* m218;                // 0x218
