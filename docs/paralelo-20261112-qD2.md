@@ -21,6 +21,10 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/FinishCamera_unk`, `game/Popu
 - `fn_804AABA8` (anade un marcador; parametros **por valor**: `Vector3`, `Color`, `float`) **100 %**,
   `fn_804AAD54` (quita un marcador) **100 %**, `fn_804AAFCC` (quita la marca de un personaje) **100 %**,
   `fn_804AAD68` (marca un personaje) 99,58 %.
+- `fn_804AA490` (lee el csv del minimapa: "LOCATION", "RADAR", "POINT", "ARROW", "OFF_AREA", "LOWER_LAYER")
+  99,67 %; la cabecera gana los campos que lee (m5EC-m5F8, `atn::Color m600/m610/m620`, m630-m63C,
+  `FixedArray_unk<MiniMapArea_unk, 8> m1538` (dos `Vector2_unk`: la copia con dos `psq_l/psq_st`), m15F4-m1608).
+- `fn_804A9EB4` (coloca el marco y dibuja los marcadores activos) 82 %: `m5D8` pasa a `atn::D2A_Task*`.
 - `game/ChaseManager` llamaba a fn_804AABA8/fn_804AAD54 como `extern "C"` con un `void*`: ahora incluye
   `game/MiniMapTask.h` y llama a los metodos (fn_80183618 sigue en 99,60 %).
 
