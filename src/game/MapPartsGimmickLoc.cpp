@@ -332,6 +332,36 @@ void MapPartsGimmickLoc::fn_80499D60(MapPartsArea* areas) {
     }
 }
 
+extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
+extern "C" unsigned int fn_800DC6B4(const char* s);             // inferred: string hash
+
+// NONMATCHING: 99.95% - offset of "<all>" in @stringBase0 (the strings of fn_804985E4 and vf10 are missing)
+// inferred: shows or hides the part when `hash` is the hash of its file name (or of "<all>"): picks the
+// variants and wakes the gimmicks, or stops the effects and the gimmicks
+void MapPartsGimmickLoc::vf2C(unsigned int hash, int draw) {
+    std::string name = fn_8006B174(std::string(mFile.fn_80473F18()));
+    if (hash == fn_800DC6B4(name.c_str()) || hash == fn_800DC6B4("<all>")) {
+        if ((m120 = draw != 0)) {
+            if (m54 == 0) {
+                m54 = 1;
+                for (unsigned int i = 0; i < mRecords.size(); i++) {
+                    int n = mRecords.mData[i].m90;
+                    mRecords.mData[i].m98 = n > 0 ? rand() % n : 0;
+                }
+            }
+            fn_800D4DB8();
+        } else {
+            m54 = 0;
+            unsigned int i = 0;
+            atn::EffectManager* effects = lbl_8087F3C0;
+            for (; i < mRecords.size(); i++) {
+                fn_80239DAC(effects, (unsigned int)&mRecords.mData[i], 0, 0);
+            }
+            fn_800D4558();
+        }
+    }
+}
+
 // inferred: hidden below the height m124[3] (as MapPartsLocatorSet::vf20)
 bool MapPartsGimmickLoc::vf20(const atn::Vector3& pos) {
     bool hidden = false;

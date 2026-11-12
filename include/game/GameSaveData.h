@@ -135,8 +135,8 @@ struct GameSavePlayer_unk {
     atn::Vector3 mPos;      // 0x08
     atn::Vector3 mRot;      // 0x14
     int m20;                // inferred: CharaC58_unk::mB4
-    short mRouteMode;       // 0x24: inferred: RouteWalker_unk::m44
-    short mRouteFlag;       // 0x26: inferred: RouteWalker_unk::m48
+    unsigned short mRouteMode; // 0x24: inferred: RouteWalker_unk::m44
+    unsigned short mRouteFlag; // 0x26: inferred: RouteWalker_unk::m48
     int mRouteTarget;       // 0x28: inferred: point, link, place or character of the route
     int mRouteRadius;       // 0x2C
     unsigned char m30[0x44 - 0x30];

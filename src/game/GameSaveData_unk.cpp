@@ -451,6 +451,88 @@ void GameSavePlayers_unk::fn_803BA408() {
     }
 }
 
+// inferred: state of a player from its entry (inlined in fn_803BA620: its locals are on the stack in the order
+// of an inline; name invented)
+static inline void RestorePlayer_unk(const GameSavePlayer_unk* entry, PlayerTask* player) {
+    player->mPos = entry->mPos;
+    player->mRot = entry->mRot;
+    player->mC58.mC0 = entry->m02;
+    player->mC58.mB4 = entry->m20;
+    player->m58C = 0;
+    if ((entry->mFlags & 2) == 2) {
+        player->vf44();
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        Mtx rot;
+        PSMTXRotRad(rot, 'y', player->mRot.y);
+        PSMTXMultVec(rot, &dir, &dir);
+        player->fn_8015E7A0(atn::Vector3(-dir.x, -dir.y, -dir.z), -1, 0);
+    }
+    signed char level = entry->m03;
+    if (level >= 0) {
+        player->fn_8014DEE4(player->m50 == 1 ? 0 : level, 0, 0);
+    } else {
+        player->fn_8014EEC4(0);
+    }
+    if ((entry->mFlags & 4) == 4) {
+        player->fn_80145334();
+        GameSceneRoute_unk ledge;
+        if (lbl_8087F430->fn_8036DAF4(&ledge, player, 1, 0)) {
+            player->fn_80153698(&ledge, 0);
+        }
+    }
+    if ((entry->mFlags & 8) == 8) {
+        player->m54C |= 0x2000;
+    }
+    if ((entry->mFlags & 0x10) == 0x10) {
+        switch (entry->mRouteMode) {
+        case 0:
+            player->fn_8016F824(entry->mRouteTarget, entry->mRouteFlag);
+            break;
+        case 1:
+            player->fn_8016FDCC(entry->mRouteTarget, entry->mRouteFlag);
+            break;
+        case 3:
+            player->fn_8017039C(entry->mRouteTarget, entry->mRouteFlag);
+            break;
+        case 6:
+            player->fn_80171420(lbl_8087F8A0->Find_unk(entry->mRouteTarget), entry->mRouteFlag,
+                                (float)entry->mRouteRadius);
+            break;
+        }
+    }
+}
+
+// NONMATCHING: 99.83% - the original loads the id of the entry before the one of the player in the search
+// inferred: restores the players: each one takes the entry with its id (or a free entry with id 0 when it has
+// none), its position, state, ledge and route
+void GameSavePlayers_unk::fn_803BA620() {
+    if (lbl_8087F8A0 == 0) {
+        return;
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player; player = player->mNext) {
+        int index = -1;
+        for (int i = 0; i < 16; i++) {
+            if ((mEntries[i].mFlags & 1) == 1 && mEntries[i].m04 == player->m58) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) {
+            for (int i = 0; i < 16; i++) {
+                if ((mEntries[i].mFlags & 1) == 1 && mEntries[i].m04 == 0 && player->m58 == -1) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        if (index < 0) {
+            continue;
+        }
+        RestorePlayer_unk(&mEntries[index], player);
+    }
+}
+
+
 GameSaveParty_unk::GameSaveParty_unk() {
     mMask = 0;
 }
@@ -722,6 +804,56 @@ void GameSaveInventory_unk::fn_803BD6C0(int mode) {
                 }
             }
         }
+    }
+}
+
+// NONMATCHING: the original copies the player settings of GameConfig_unk (0x244-0x334) into a local, sets
+// mAlwaysBirdview in it and copies it back member by member (no type for that block yet); the small arrays of
+// SetConfig go through word copies
+// inferred: restores the settings (format 7 and later), then the defaults of the settings added by later
+// formats
+void GameSaveSettings_unk::fn_803BD79C() {
+    if (lbl_8087DD64 >= 7) {
+        lbl_8087F0A8->mAlwaysBirdview = mAlwaysBirdview & 1;
+        SetConfig::sInstance->m24 = m08;
+        SetConfig::sInstance->mAttackType = mAttackType;
+        SetConfig::sInstance->mDiveType = mDiveType;
+        SetConfig::sInstance->mInTacviewType = mInTacviewType;
+        SetConfig::sInstance->mGatheringType = mGatheringType;
+        memcpy(SetConfig::sInstance->m38, m1C, sizeof(m1C));
+        SetConfig::sInstance->mAttackTurnSpeed = mAttackTurnSpeed;
+        SetConfig::sInstance->mTurnSpeed = mTurnSpeed;
+        SetConfig::sInstance->mRollbackSpeed = mRollbackSpeed;
+        SetConfig::sInstance->mCameraRotSpeed = mCameraRotSpeed;
+        SetConfig::sInstance->m50 = m34;
+        SetConfig::sInstance->mRotDelay = mRotDelay;
+        SetConfig::sInstance->mBattleDrawHateLine = mBattleDrawHateLine;
+        SetConfig::sInstance->mDrawEnemyHP = mDrawEnemyHP;
+        SetConfig::sInstance->mDrawEnemyPopup = mDrawEnemyPopup;
+        SetConfig::sInstance->mDrawFriendPopup = mDrawFriendPopup;
+        memcpy(SetConfig::sInstance->m68, m4C, sizeof(m4C));
+        SetConfig::sInstance->mShowDialog = mShowDialog;
+        SetConfig::sInstance->mShowTutorial = mShowTutorial;
+        SetConfig::sInstance->mEventSkipType = mEventSkipType;
+        SetConfig::sInstance->mEventCameraControl = mEventCameraControl;
+        memcpy(SetConfig::sInstance->m88, m6C, sizeof(m6C));
+        SetConfig::sInstance->fn_8057F1B4(&mSound);
+        SetConfig::sInstance->fn_8057F198(m88);
+    }
+    if (lbl_8087DD64 < 8) {
+        SetConfig::sInstance->mAttackTurnSpeed = 1.0f;
+        SetConfig::sInstance->mTurnSpeed = 1.0f;
+        SetConfig::sInstance->mRollbackSpeed = 0.8f;
+        SetConfig::sInstance->mCameraRotSpeed = 1.0f;
+        SetConfig::sInstance->mRotDelay = 31.0f;
+        SetConfig::sInstance->m50 = 16;
+    }
+    if (lbl_8087DD64 < 14) {
+        SetConfig::sInstance->mTurnSpeed = 1.0f;
+        SetConfig::sInstance->mRotDelay = 1.0f;
+    }
+    if (lbl_8087DD64 < 15) {
+        SetConfig::sInstance->mAttackTurnSpeed = 1.0f;
     }
 }
 

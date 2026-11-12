@@ -42,7 +42,8 @@ struct ReplayChara_unk {
     unsigned char m07;
     short mMtx[3][4];     // 0x08: inferred: model matrix (half floats)
     ReplayTrack_unk mTracks[4];      // 0x20: inferred: passed to fn_8056A9E4
-    unsigned char m80[0x88 - 0x80];
+    short mRefPos[3];     // 0x80: inferred: position of the "reference" node (half floats)
+    short mRefFlags;      // 0x86: inferred: flags of the "reference" node pose
     short mAngle;         // 0x88: inferred: angle of the upper body (half float)
     unsigned char m8A[0x8C - 0x8A];
 };
