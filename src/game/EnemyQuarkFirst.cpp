@@ -10,6 +10,9 @@
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
 #include "game/GameTask.h"
+#include "game/EnemyQuarkSecond.h"
+#include "chr/ControlDamage.h"
+#include "atn/SoundRef.h"
 
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -18,14 +21,64 @@ extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-// inferred: field (lbl_8087F430): camera follow state cleared by vf10 (names invented)
+// inferred: parameters of a camera mode of the field (0x3C bytes; names invented)
+struct QuarkCamParam_unk {
+    float mDist;  // 0x00
+    float m04;
+    float mPitch; // 0x08
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
+    float m24;
+    float m28;
+    float m2C;
+    float m30;
+    float m34;
+    int m38;
+};
+// inferred: point the camera looks at (lbl_8087F430 + 0x97C, as KrakenLook_unk in game/Em302Kraken.cpp)
+struct QuarkLook_unk {
+    void Set_unk(const atn::Vector3& pos, bool flag) {
+        m01 = m00;
+        m00 = 1;
+        mPos = pos;
+        m24 = 0.0f;
+        m04 = flag ? 1 : 0;
+    }
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02[2];
+    int m04;
+    unsigned char m08[4];
+    atn::Vector3 mPos; // 0x0C
+    unsigned char m18[0x24 - 0x18];
+    float m24;
+};
+// inferred: field (lbl_8087F430): camera mode and follow state (names invented)
 struct Field_unk {
+    // inferred: changes the camera mode (name invented)
+    void SetCamera_unk(int mode, const QuarkCamParam_unk& param) {
+        if (m4D8 != mode) {
+            m4D8 = mode;
+            m4E4 = param;
+            m4E0 = 0.05f;
+            m4DC = 1.0f;
+        }
+    }
     unsigned char m000[0x4D8];
-    int m4D8;
-    unsigned char m4DC[0x8A0 - 0x4DC];
+    int m4D8; // inferred: camera mode
+    float m4DC;
+    float m4E0;
+    QuarkCamParam_unk m4E4;
+    unsigned char m520[0x588 - 0x520];
+    QuarkCamParam_unk m588; // inferred: default parameters
+    unsigned char m5C4[0x8A0 - 0x5C4];
     CharaTask* m8A0; // inferred: character the camera follows (as in game/Em302Kraken.cpp)
     unsigned char m8A4[0x97C - 0x8A4];
-    unsigned char m97C;
+    QuarkLook_unk m97C;
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
@@ -203,7 +256,7 @@ void EnemyQuarkFirst::vf10() {
         Field_unk* field = lbl_8087F430;
         field->m8A0 = 0;
         field->m4D8 = 0;
-        field->m97C = 0;
+        field->m97C.m00 = 0;
         m157C = 0;
     }
     fn_8014C540();
@@ -285,7 +338,6 @@ void EnemyQuarkFirst::vfFC() {
 }
 
 
-// NONMATCHING: vf108 (state machine, 5976 bytes) not written yet
 
 extern "C" int rand();
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
@@ -635,6 +687,347 @@ void EnemyQuarkFirst::vf104() {
         vf100(0);
         break;
     }
+}
+
+extern "C" void fn_8023A108(EffectMgr_unk* mgr, atn::EfpFile* efp, int id, int arg); // inferred: effect fade
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
+                           int c, float f); // inferred: hit test of the current attack
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet
+extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           float f); // inferred: the attack reaches the target (>= 0)
+
+// inferred: the counter attack reaches m14E4 (name invented)
+inline bool EnemyQuarkFirst::CanHitTarget_unk(HitInfo_unk* hit) {
+    return m14E4->IsActive_unk() && fn_800FBA9C(lbl_8087F048, this, m14E4, hit, -1, 0.0f) >= 0;
+}
+
+// inferred: TurnTo_unk that also tells whether the turn is at least 0 degrees (always true; the test
+// is kept in the original); name invented
+inline bool EnemyQuarkFirst::TurnToCheck_unk(float rate) {
+    atn::Vector3 dir = m14E4->mPos - mPos;
+    if (!((float)__fabs(PSVECSquareMag(&dir)) < 1.1920929e-7f)) {
+        PSVECNormalize(&dir, &dir);
+    }
+    atn::Vector3 rot = dir.ToRotation_unk();
+    rot.z = 0.0f;
+    float d = rot.y - mRot.y;
+    float y;
+    if (d > 3.1415927f) {
+        y = rate * (d - 6.2831855f) + mRot.y;
+    } else if (d < -3.1415927f) {
+        y = rate * (6.2831855f + d) + mRot.y;
+    } else {
+        y = rate * d + mRot.y;
+    }
+    float diff = atn::WrapAngle_unk(y - mRot.y);
+    mRot.y = y;
+    atn::WrapAngle_unk(y);
+    return (float)__fabs(57.295776f * diff) >= 0.0f;
+}
+
+// inferred: update of the states: movement (states 7, 10, 11), end of the motions, the final scene
+// (state 2) and, out of control mode 2, the counter attack (state 1) and the camera of state 8
+// NONMATCHING: 94.3% - register and stack allocation; the original keeps the dead 57.3 * angle test
+// of the turn of state 2 (TurnToCheck_unk) and allocates the counter-attack control before its
+// direction
+void EnemyQuarkFirst::vf108() {
+    atn::Vector3 rot = mRot;
+    float dist = 0.0f;
+    float rate = 1.0f;
+    if (m55C == 2) {
+        switch (m58C) {
+        case 6:
+            if (m14C0 > m1504) {
+                mFlag31 = 1;
+            }
+            break;
+        case 7:
+            mC58.m0C.fn_80126214();
+            if (mC58.m0C.m2C != 0) {
+                mFlag31 = 1;
+            }
+            {
+                atn::Vector3 step = mC58.m0C.m58;
+                dist = PSVECSquareMag(&step);
+                if (dist > 0.0001f) {
+                    atn::Vector3 dir = step;
+                    PSVECNormalize(&dir, &dir);
+                    rot = dir.ToRotation_unk();
+                } else {
+                    rot = mRot;
+                }
+            }
+            rate = 0.15f;
+            break;
+        case 1:
+            mFlag31 = 1;
+            break;
+        case 8:
+            mFlag31 = 1;
+            break;
+        case 9: {
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                PlayMotion_unk(0x174, 1);
+            }
+            if (m14C0 > m150C) {
+                mFlag31 = 1;
+            }
+            if (m14C0 == m150C - 20 && m58C == 10) {
+                fn_80239DAC(lbl_8087F3C0, this, 0, 1);
+            }
+            break;
+        }
+        case 10:
+            mC58.m0C.fn_80126214();
+            if (mC58.m0C.m2C != 0) {
+                mFlag31 = 1;
+            }
+            {
+                atn::Vector3 step = mC58.m0C.m58;
+                dist = PSVECSquareMag(&step);
+                if (dist > 0.0001f) {
+                    atn::Vector3 dir = step;
+                    PSVECNormalize(&dir, &dir);
+                    rot = dir.ToRotation_unk();
+                } else {
+                    rot = mRot;
+                }
+            }
+            rate = 0.15f;
+            if (m14BC == 0) {
+                if (m14C0 > 15) {
+                    mPos = m14EC;
+                    m14BC++;
+                    m14C0 = 0;
+                }
+            } else if (m14C0 > 15) {
+                mFlag31 = 1;
+            }
+            break;
+        case 11:
+            if (m14BC == 0) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    m14BC++;
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.mTracks[0].m0C = 2.0f;
+                    mMotion.fn_80097C08(0, 0x14B, 0, 0, 1, 0.0f, 0.1f);
+                } else if (mMotion.mTracks[0].m08 >= 22.0f) {
+                    mPos = m14EC;
+                } else if (mMotion.mTracks[0].m08 >= 20.0f) {
+                    float t = (mMotion.mTracks[0].m08 - 20.0f) * 0.5f;
+                    mPos = (m14EC - m14F8) * t + m14F8;
+                } else {
+                    mPos = m14F8;
+                    if (m14E4 != 0) {
+                        TurnTo_unk(0.2f);
+                    }
+                }
+                float cur = mMotion.mTracks[0].m08;
+                if (cur >= 21.0f && cur <= 25.0f) {
+                    fn_800F8C6C(lbl_8087F048, 0, 0, this, m1518, m590, 30, -1, 0.0f);
+                }
+            } else if (m14BC == 1) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    m14BC++;
+                    PlayMotion_unk(0x14C, 0);
+                }
+            } else {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    mFlag31 = 1;
+                }
+            }
+            break;
+        case 2: {
+            if (mMotion.mTracks[0].m00 != 0x14D) {
+                float frame = mMotion.mTracks[0].m08;
+                if (frame >= mMotion.fn_80097D7C(0)) {
+                    mMotion.m34C = 1;
+                    mMotion.mTracks[0].m20 = 1.0f;
+                    mMotion.fn_80097C08(0, 0x14D, 0, 1, 1, 0.0f, 0.1f);
+                    mMotion.mTracks[0].m0C = 0.5f;
+                    mPos.x = 0.0f;
+                    mPos.y = 0.0f;
+                    mPos.z = 0.0f;
+                    m14E4 = lbl_8087F8A0->mHead;
+                    if (m14E4 != 0) {
+                        if (TurnToCheck_unk(1.0f)) {
+                        }
+                    }
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCE, 1);
+                    EnemyQuarkSecond* second = (EnemyQuarkSecond*)m1540;
+                    second->fn_80344DF4();
+                    m1540->mPos = mPos;
+                    m1540->mRot = mRot;
+                    fn_80232B7C(&m1534, 0);
+                    Color4f_unk color;
+                    atn::Vector3 rot2;
+                    atn::Vector3 pos;
+                    rot2.x = 0.0f;
+                    rot2.y = 0.0f;
+                    rot2.z = 0.0f;
+                    pos.x = 0.0f;
+                    pos.y = 0.0f;
+                    pos.z = 0.0f;
+                    color.r = 1.0f;
+                    color.g = 1.0f;
+                    color.b = 1.0f;
+                    color.a = 1.0f;
+                    fn_8023A8B4(lbl_8087F3C0, &m1534, &mMotion, 0, pos, rot2, color, -1, -1, 1, 1.0f);
+                    fn_8023A108(lbl_8087F3C0, &m1534, 0, 10);
+                    fn_800C31F4("SE_DG040_105", 0, -1, 1.0f);
+                    CharaTask* head = lbl_8087F8A0->mHead;
+                    Effect_unk* mgr = lbl_8087F048;
+                    int id = fn_800F8548(mgr);
+                    fn_800FAB80(mgr, head, fn_80219E6C(0x780), id, &mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+                    return;
+                }
+                break;
+            }
+            Field_unk* field = lbl_8087F430;
+            if (m14BC == 0) {
+                if (mMotion.mTracks[0].m08 >= 50.0f) {
+                    ((GameTask*)field)->fn_80370B78(-1, 20, 0, -100.0f);
+                    m14BC++;
+                }
+            } else if (m14BC == 1) {
+                if (mMotion.mTracks[0].m08 >= 60.0f) {
+                    fn_8016E4C4(0);
+                    fn_80239DAC(lbl_8087F3C0, &m1534, 0, 0);
+                    ((GameTask*)lbl_8087F430)->fn_80370BD0(60, 5, -100.0f);
+                    m14BC++;
+                }
+            } else if (((EnemyQuarkSecond*)m1540)->m16B4 == 0) {
+                mFlag31 = 1;
+                if (m157C != 0) {
+                    field->m8A0 = 0;
+                    field->m4D8 = 0;
+                    field->m97C.m00 = 0;
+                    m157C = 0;
+                }
+            }
+            if (!mFlag31) {
+                atn::Vector3 look = mPos;
+                look.y += 15.0f;
+                if (m157C == 0) {
+                    QuarkCamParam_unk param;
+                    param.mDist = 15.0f;
+                    param.m04 = 0.7853982f;
+                    param.mPitch = 0.0f;
+                    param.m0C = field->m588.m0C;
+                    param.m10 = 8.0f;
+                    param.m14 = field->m588.m14;
+                    param.m18 = field->m588.m18;
+                    param.m1C = field->m588.m1C;
+                    param.m20 = field->m588.m20;
+                    param.m24 = field->m588.m24;
+                    param.m28 = field->m588.m28;
+                    param.m2C = field->m588.m2C;
+                    param.m30 = field->m588.m30;
+                    param.m34 = field->m588.m34;
+                    param.m38 = field->m588.m38;
+                    field->m8A0 = this;
+                    field->SetCamera_unk(4, param);
+                    field->m97C.Set_unk(look, false);
+                    m157C = 1;
+                } else {
+                    field->m8A0 = this;
+                    field->m97C.mPos = look;
+                }
+            }
+            return;
+        }
+        }
+    } else {
+    switch (m58C) {
+    case 1: {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        if (fn_80158CA4()) {
+            if (mControl && mControl->vf30() > m598) {
+                m598 = mControl->vf30();
+                m594 = 8;
+                m590 = fn_800F8548(lbl_8087F048);
+            }
+            fn_80144710();
+            if (m560 == 0x8D && mMotion.mTracks[0].m00 == 0x16E && mControl->vf30() == 0 && !m14E4->mFlag5 &&
+                CanHitTarget_unk(fn_80219E6C(0xE3))) {
+                if (!(m14E4->m55C == 6 && m14E4->m560 == 0x8E)) {
+                    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                    Mtx m;
+                    PSMTXRotRad(m, 'y', mRot.y);
+                    PSMTXMultVec(m, &dir, &dir);
+                    m14E4->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlDamageLastOne(m14E4, &dir, 9));
+                    m14E4->mMotion.mTracks[0].m08 = mMotion.mTracks[0].m08;
+                }
+            }
+            if (fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, -1, 0.0f) > 0 && m14D8 == 0 &&
+                fn_805A49E4((SpecialFlag_unk*)&m1564) == 0) {
+                fn_805A4A1C((SpecialFlag_unk*)&m1564, 1);
+            }
+        }
+        fn_8013A258();
+        return;
+    }
+    case 8: {
+        Field_unk* field = lbl_8087F430;
+        if (m55C == 6) {
+            if (m560 != 13) {
+                if (m560 == 14) {
+                    atn::Vector3 pos = mPos;
+                    pos.y += 15.0f;
+                    if (m157C == 0) {
+                        QuarkCamParam_unk param;
+                    param.mDist = 15.0f;
+                    param.m04 = 0.7853982f;
+                    param.mPitch = -0.43633232f;
+                    param.m0C = field->m588.m0C;
+                    param.m10 = 8.0f;
+                    param.m14 = field->m588.m14;
+                    param.m18 = field->m588.m18;
+                    param.m1C = field->m588.m1C;
+                    param.m20 = field->m588.m20;
+                    param.m24 = field->m588.m24;
+                    param.m28 = field->m588.m28;
+                    param.m2C = field->m588.m2C;
+                    param.m30 = field->m588.m30;
+                    param.m34 = field->m588.m34;
+                    param.m38 = field->m588.m38;
+                    field->m8A0 = this;
+                    field->SetCamera_unk(4, param);
+                    atn::Vector3 look = mPos;
+                    look.y += 25.0f;
+                    field->m97C.Set_unk(look, false);
+                    m157C = 1;
+                    } else {
+                        field->m8A0 = this;
+                        field->m97C.mPos = pos;
+                    }
+                } else {
+                    mFlag31 = 1;
+                }
+            }
+        } else {
+            mFlag31 = 1;
+        }
+        fn_8013A258();
+        return;
+    }
+    default:
+        fn_805A4254();
+        return;
+    }
+    }
+    fn_8013CB68(rot, 0, dist, m568 * rate);
 }
 
 int EnemyQuarkFirst::fn_803383E4() {
