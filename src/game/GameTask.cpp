@@ -12,6 +12,7 @@
 #include "game/ShopBuySell.h"
 #include "game/ShopColor.h"
 #include "game/ShopIdentify.h"
+#include "game/ShopUpGrade.h"
 #include "atn/FadeCommon.h"
 #include "atn/EffectManager.h"
 #include "game/AiTarget.h"
@@ -81,7 +82,6 @@ extern "C" void* lbl_8087EF8C;
 
 extern "C" void fn_800D2338(atn::Task* task); // inferred: deletes the task
 extern "C" GameTask* lbl_8087F430;
-extern "C" atn::Task* lbl_8087F9E0; // inferred: upgrade shop (ShopUpGrade)
 extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
 
 // inferred: save menu (game/CampSaveLoad.cpp)
@@ -2604,7 +2604,7 @@ int GameTask::fn_8036E170() {
         if (ShopBuySell::sInstance != 0 && ShopBuySell::sInstance->m25B40 == 0) {
             return 0;
         }
-        if (lbl_8087F9E0 != 0 && ((ShopBase*)lbl_8087F9E0)->m25B40 == 0) {
+        if (ShopUpGrade::sInstance != 0 && ShopUpGrade::sInstance->m25B40 == 0) {
             return 0;
         }
         if (ShopColor::sInstance != 0 && ShopColor::sInstance->m25B40 == 0) {
@@ -2748,7 +2748,6 @@ extern "C" void fn_8036E624(GameTask* task) {
     lbl_8087F3C0->mSystem.mReplaying = 0;
 }
 
-extern "C" void fn_8058ABF4(atn::Task* parent, int a, int b, int kind); // inferred: creates the upgrade shop
 
 // inferred: opens a shop of the field (called by game/GameEventScript)
 extern "C" void fn_8036E6D4(GameTask* task, int type, int sub, int arg) {
@@ -2770,15 +2769,15 @@ extern "C" void fn_8036E6D4(GameTask* task, int type, int sub, int arg) {
         if (sub == 0) {
             ShopIdentify::fn_80588684(task, sub, arg);
         } else if (sub == 1) {
-            fn_8058ABF4(task, sub, arg, 0);
+            ShopUpGrade::fn_8058ABF4(task, sub, arg, 0);
         } else if (sub == 2) {
             ShopColor::fn_80586DB0(task, sub, arg);
         } else if (sub == 3) {
-            fn_8058ABF4(task, sub, arg, 1);
+            ShopUpGrade::fn_8058ABF4(task, sub, arg, 1);
         } else if (sub == 4) {
-            fn_8058ABF4(task, sub, arg, 2);
+            ShopUpGrade::fn_8058ABF4(task, sub, arg, 2);
         } else if (sub == 5) {
-            fn_8058ABF4(task, sub, arg, 3);
+            ShopUpGrade::fn_8058ABF4(task, sub, arg, 3);
         } else {
             ShopIdentify::fn_80588684(task, sub, arg);
         }
@@ -2797,8 +2796,8 @@ void GameTask::fn_8036E89C() {
     if (ShopBuySell::sInstance != 0) {
         fn_800D2338(ShopBuySell::sInstance);
     }
-    if (lbl_8087F9E0 != 0) {
-        fn_800D2338(lbl_8087F9E0);
+    if (ShopUpGrade::sInstance != 0) {
+        fn_800D2338(ShopUpGrade::sInstance);
     }
     if (ShopColor::sInstance != 0) {
         fn_800D2338(ShopColor::sInstance);
@@ -2864,8 +2863,8 @@ void GameTask::fn_8036EA6C(int state) {
         if (ShopBuySell::sInstance != 0) {
             ShopBuySell::sInstance->FreezeTask();
         }
-        if (lbl_8087F9E0 != 0) {
-            lbl_8087F9E0->FreezeTask();
+        if (ShopUpGrade::sInstance != 0) {
+            ShopUpGrade::sInstance->FreezeTask();
         }
         if (ShopColor::sInstance != 0) {
             ShopColor::sInstance->FreezeTask();
@@ -2946,8 +2945,8 @@ void GameTask::fn_8036EE0C() {
         if (ShopBuySell::sInstance != 0) {
             ShopBuySell::sInstance->MeltTask();
         }
-        if (lbl_8087F9E0 != 0) {
-            lbl_8087F9E0->MeltTask();
+        if (ShopUpGrade::sInstance != 0) {
+            ShopUpGrade::sInstance->MeltTask();
         }
         if (ShopColor::sInstance != 0) {
             ShopColor::sInstance->MeltTask();
@@ -3016,8 +3015,8 @@ void GameTask::fn_8036EE0C() {
         if (ShopBuySell::sInstance != 0) {
             ShopBuySell::sInstance->vf40();
         }
-        if (lbl_8087F9E0 != 0) {
-            ((ShopBase*)lbl_8087F9E0)->vf40();
+        if (ShopUpGrade::sInstance != 0) {
+            ShopUpGrade::sInstance->vf40();
         }
         if (ShopColor::sInstance != 0) {
             ShopColor::sInstance->vf40();
