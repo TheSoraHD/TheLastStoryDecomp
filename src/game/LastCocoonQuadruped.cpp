@@ -5,6 +5,16 @@
 #include "game/PlayerTask.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "game/MapTask.h"
+#include "game/EnemyManager.h"
+#include "game/GimmickCommon.h"
+#include "atn/DrawHelper.h"
+#include "atn/Csv.h"
+#include "std/string.h"
+#include "std/string_members.h"
+#include <boost/tokenizer.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -188,6 +198,255 @@ inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     fn_8016E970(3);
 }
 
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+// inferred: node callbacks of the model (as in game/CharaTask.cpp and game/Em403WarLion.cpp)
+typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
+                        std::allocator<boost::function_base> >
+    NodeCallback_unk;
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
+
+// NONMATCHING: 0% - the original is over the inlining budget (docs/inlining.md R3) and calls every inline
+// (LH_Binary, Vector3, Matrix3x4, QuadRoutes_unk and ResHandle constructors, the strings, the tokenizer);
+// this one stays under it and inlines them (same problem as the constructor of LastCocoonChrysalis)
+LastCocoonQuadruped::LastCocoonQuadruped(atn::Task* parent, EnemyInfo_unk* info)
+    : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m14CC(0),
+      m14D4(0.0f, 0.0f, 0.0f), m14E0(0.0f, 0.0f, 0.0f), m14EC(0), m1554(0), m1558(1), m1574(0), m15A8(0),
+      m15B0(0.0f, 0.0f, 0.0f), m15BC(0.0f, 0.0f, 0.0f), m15C8(0), m15CC(0.0f, 0.0f, 0.0f), m1800(0), m18EC(0),
+      m18F4(0) {
+    mFlag22 = 1;
+    std::string dir("database/chara/special/");
+    std::string name("db_last_cocoon.csv");
+    std::string params(info->m2C);
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    Tokenizer tok(params, boost::char_separator<char>(";"));
+    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+        if (strncmp(it->c_str(), "db_name=", 8) == 0) {
+            name = it->c_str() + 8;
+        }
+    }
+    std::string path = fn_8006AFF8(dir, name);
+    m14B0.vf0C(path.c_str());
+    m1790.LoadRequest("ef_bs042a.efp");
+    m179C.LoadRequest("ef_bs043a.efp");
+    m1824.LoadRequest("ef_sk043c_01.eff");
+    m1830.LoadRequest("ef_sk043a.efp");
+    m183C.LoadRequest("ef_sk043g_01.eff");
+    m1848.LoadRequest("ef_sk043g_02.eff");
+    mFlagC31 = 1;
+}
+
+int LastCocoonQuadruped::vf0C() {
+    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1790.IsLoading() == 0 && m179C.IsLoading() == 0 &&
+        m1824.IsLoading() == 0 && m1830.IsLoading() == 0 && m183C.IsLoading() == 0 && m1848.IsLoading() == 0) {
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0xC219;
+        mStatus.m18 |= 0x3800000;
+        fn_80087994(m18F0.Load("LastCocoonQuadruped"), "DebugDisp", &m18F4, 0, 0);
+        if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
+            atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
+            do {
+                csv.fn_8005B9CC();
+            } while (csv.fn_8005BBF8());
+        }
+        m56C = 0.125f;
+        mColli.mFlags &= ~0x80000000;
+        for (int i = 0; i < 5; i++) {
+            mCapsules[i].m0C = (int)this;
+            mCapsules[i].mFlags |= 3;
+            mCapsules[i].mFlags &= ~0x80000000;
+        }
+        m54C |= 0x200;
+        m17A8.m20 = 0x98;
+        m17A8.mFlags &= ~1;
+        m17A8.mFlags |= 2;
+        m17A8.m0C = (int)this;
+        fn_800F29D0(&mMotion, boost::bind(&LastCocoonQuadruped::fn_80462CCC, this, _1, _2));
+        mMotion.fn_80091CFC("neck");
+        mMotion.fn_80091CFC("waist");
+        mMotion.fn_80091CFC("spine");
+        atn::Vector3 limit(0.7853982f, 0.62831855f, 0.0f);
+        mLook.mLimit = limit;
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: field object (as in gmk/FlamingArrow.cpp)
+struct Field_unk {
+    RouteTable_unk* fn_8013C504();
+};
+extern "C" Field_unk* fn_80121F00();
+// inferred: player input of the field (as in game/Em201ZanGurgFinal.cpp; weak copies with C names)
+struct QuadInput_unk;
+extern "C" QuadInput_unk* fn_80122550(Field_unk* field);
+extern "C" void fn_8026616C(QuadInput_unk* input, CharaTask* chara);
+extern "C" void fn_8026610C(QuadInput_unk* input, const atn::Vector3& pos, float f, int keep);
+extern "C" atn::Vector3* fn_80266164(QuadInput_unk* input);
+extern "C" atn::Matrix3x4* fn_80266154(atn::Model* model);
+extern "C" float fn_80011220(float x); // inferred: fabs
+
+// NONMATCHING: 0% - the original is over the inlining budget (docs/inlining.md R3: Vector3 copies, operators,
+// ToRotation_unk, GetTrans_unk and the matrix helpers are all called); this one inlines them
+void LastCocoonQuadruped::vf10() {
+    fn_804617A4();
+    atn::Vector3 pos(mPos);
+    atn::Vector3 rot(mRot);
+    m14C0++;
+    if (mC58.mC0 == 0 || m14B8 == 0) {
+        fn_8016E970(3);
+    } else {
+        if (m14C4 == 0 && m58C != 6 && m58C != 8) {
+            int kind = 0;
+            atn::Vector3 target;
+            float angle;
+            if (fn_80468038(&kind, &target, &angle) != 0) {
+                if (++m14C8 > 5) {
+                    m14D4 = fn_804687B0(&m14F4, 0, 1);
+                    atn::Vector3 next = fn_80468A08(m14F4, 0);
+                    m14E0 = (next - m14D4).ToRotation_unk();
+                    m14C4 = 1;
+                    m14EC = 0;
+                    m14C8 = 0;
+                    m14F0 = (rand() % 3) * 2 + 4;
+                } else {
+                    m14D4 = target;
+                    m14E0 = mRot;
+                    m14E0.y = angle;
+                }
+                fn_80466B8C();
+            }
+        }
+        if (m14B8 != 0) {
+            int look = 0;
+            switch (m58C) {
+            case 6:
+                fn_80463610();
+                look = 1;
+                break;
+            case 7:
+                fn_804638A4();
+                break;
+            case 8:
+                fn_80463C58();
+                break;
+            case 9:
+                fn_80463DCC();
+                break;
+            case 10:
+                fn_80463F20();
+                break;
+            case 11:
+                fn_80464608();
+                break;
+            case 12:
+                fn_80464CF0();
+                break;
+            case 13:
+                fn_80465294();
+                break;
+            case 14:
+                fn_804654F0();
+                break;
+            case 15:
+                fn_804655AC();
+                break;
+            case 16:
+                fn_80465B88();
+                break;
+            case 17:
+                fn_80466370();
+                break;
+            case 18:
+                fn_804666D8();
+                look = 1;
+                break;
+            case 19:
+                fn_80466868();
+                break;
+            default:
+                if (m55C != 6) {
+                    fn_80463174();
+                }
+                if (m58C == 0) {
+                    fn_804635B4();
+                }
+                break;
+            }
+            mFlag24 = 0;
+            if (look != 0) {
+                mLook.fn_80129A48(0.3f);
+            } else {
+                mLook.fn_80129978(m14B8->GetModel_unk(), "neck", lbl_807C7030, 0.3f);
+            }
+            MapTask* map = ((GameTask*)fn_80121F00())->GetCurrentMap();
+            QuadInput_unk* input = fn_80122550(fn_80121F00());
+            if (m58C == 15 || m58C == 16) {
+                if (map->GetCamera_unk() != 2) {
+                    map->fn_804A04AC(2, 30, -1, 0);
+                    map->SetDefaultCamera_unk(2);
+                }
+            } else if (m58C == 6) {
+                if (mMotion.fn_80139F2C(0) == 0x14A) {
+                    if (map->GetCamera_unk() != 0) {
+                        map->fn_804A04AC(0, 15, -1, 0);
+                        map->SetDefaultCamera_unk(0);
+                    }
+                } else {
+                    atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
+                    if (m18EC == 0) {
+                        fn_8026616C(input, this);
+                        fn_8026610C(input, spine, 0.0f, 0);
+                        m18EC = 1;
+                    } else {
+                        fn_8026616C(input, this);
+                        fn_80266164(input)[1] = spine;
+                    }
+                    if (map->GetCamera_unk() != 2) {
+                        map->fn_804A04AC(2, 150, -1, 0);
+                        map->SetDefaultCamera_unk(2);
+                    }
+                }
+            } else if (m58C == 17) {
+                if (map->GetCamera_unk() != 0) {
+                    map->fn_804A04AC(0, 30, -1, 0);
+                    map->SetDefaultCamera_unk(0);
+                }
+            } else if (m58C == 18) {
+                if (map->GetCamera_unk() != 0) {
+                    map->fn_804A04AC(0, 60, -1, 0);
+                    map->SetDefaultCamera_unk(0);
+                }
+            } else {
+                if (map->GetCamera_unk() != 0) {
+                    map->fn_804A04AC(0, 15, -1, 0);
+                    map->SetDefaultCamera_unk(0);
+                }
+            }
+        }
+    }
+    m15CC.y *= 0.8f;
+    float d = rot.y + m15CC.y - mRot.y;
+    if (fn_80011220(d) > sAngle_unk) {
+        d = sAngle_unk * (d / fn_80011220(d));
+    }
+    m15CC.y = d;
+    fn_8014C540();
+    fn_80145334();
+    atn::Vector3 offset(0.0f, 0.0f, 0.0f);
+    m1578 = *fn_80266154(&mMotion);
+    offset += m1578.GetTrans_unk();
+    m1578.fn_8010F668();
+    atn::Matrix3x4 turn;
+    turn.fn_8013A13C(3.1415927f);
+    m1578.fn_801495E8(turn);
+    m1578.fn_801479E4(offset);
+    m148C = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
+    m1498 = 5.0f;
+}
+
 void LastCocoonQuadruped::vf14() {
     fn_80149A30();
 }
@@ -354,11 +613,165 @@ void LastCocoonQuadruped::vf24() {
     }
 }
 
+class GimmickManager;
+class GimmickCommon;
+extern "C" GimmickManager* fn_80279790();                // inferred: GimmickManager::instance_
+extern "C" GimmickCommon* fn_80279788(GimmickManager* m); // inferred: head of its list
+extern "C" atn::Vector3* fn_802797A0(GimmickCommon* g);   // inferred: position of the gimmick
+extern "C" GimmickCommon* fn_802797D4(GimmickCommon* g);  // inferred: next gimmick of the list
+extern "C" int fn_804635A4(GimmickCommon* g);
+extern "C" CharaTask* fn_804635AC(GimmickCommon* g);
+extern "C" float fn_802A7964(float rad); // inferred: radians to degrees
+extern "C" float fn_802A7910(float deg); // inferred: wraps an angle in degrees
+void* fn_801404F8();                     // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: line check
+
+// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls the Vector3 copies,
+// operators and the angle helpers; this one inlines them
+void LastCocoonQuadruped::fn_80463174() {
+    if (m14B8 == 0) {
+        return;
+    }
+    atn::Vector3 tpos(*m14B8->fn_8013C38C());
+    atn::Vector3 diff = tpos - mPos;
+    float dist = diff.Length_unk();
+    if (m14C4 == 0) {
+        if (m14C0 > 60 && dist < 35.0f) {
+            fn_80466AE4();
+        }
+    } else if (m14C4 == 1) {
+        if (m14EC == 0) {
+            fn_80467F50();
+            m14EC = 1;
+            return;
+        }
+        int walk = 1;
+        if (m14F0 <= 0) {
+            int found = 0;
+            atn::Vector3 pos;
+            CharaTask* chara = 0;
+            if (m1558 >= 0) {
+                for (GimmickCommon* g = fn_80279788(fn_80279790()); g != 0; g = fn_802797D4(g)) {
+                    if (fn_804635A4(g) == 0x455 && g->vf5C() != 0) {
+                        pos = *fn_802797A0(g);
+                        chara = fn_804635AC(g);
+                        atn::Vector3 d = pos - mPos;
+                        float len = d.Length_unk();
+                        float angle = fn_80011220(
+                            fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - GetRot_unk()->y)));
+                        if (angle <= 360.0f && len < 100.0f) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (found != 0) {
+                m1558 = 0;
+                m14C4 = 6;
+                fn_80467C18(chara, atn::Vector3(pos));
+                walk = 0;
+            } else if (m14F0 < -2) {
+                m1558++;
+                m14C4 = 4;
+                m1554 = m14B8;
+                fn_80468B68(&m1504, m14F4, &m14F4, 1);
+                fn_804672CC();
+                walk = 0;
+            }
+        }
+        if (walk != 0) {
+            m14F0--;
+            fn_80468B68(&m1504, m14F4, &m14F4, 0);
+            fn_80466CA4();
+        }
+    } else if (m14C4 == 4) {
+        if (m1554 == 0 || !m1554->CanAct_unk()) {
+            m14C4 = 0;
+            fn_80466974();
+        }
+        atn::Vector3 d = *m1554->fn_8013C38C() - mPos;
+        float len = diff.Length_unk();
+        float angle =
+            fn_80011220(fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - GetRot_unk()->y)));
+        if (angle <= 45.0f && len < 100.0f) {
+            atn::Vector3 from(mPos);
+            from.y += 10.0f;
+            atn::Vector3 to(tpos);
+            to.y += 10.0f;
+            if (fn_8004ECC0(fn_801404F8(), 0, &from, &to, 0x80000080, &mColli, 0) == 0) {
+                m14C4 = 5;
+                fn_804678F4();
+            }
+        }
+    } else if (m14C4 == 5) {
+        m14C4 = 0;
+        m1574 = 0;
+    } else if (m14C4 == 6) {
+        m14C4 = 0;
+    } else if (m14C4 == 7) {
+        fn_80466A04();
+    }
+}
+
+// inferred: id and owner of a gimmick (weak copies; C names)
+extern "C" int fn_804635A4(GimmickCommon* g) {
+    return g->mId;
+}
+
+extern "C" CharaTask* fn_804635AC(GimmickCommon* g) {
+    return (CharaTask*)g->m4C;
+}
+
 void LastCocoonQuadruped::fn_804635B4() {
     if (m14C4 == 4 && (m55C < 6 || m55C > 7)) {
         fn_80170A20(m1554, -1.0f, 0);
     }
     fn_80461838();
+}
+
+void LastCocoonQuadruped::fn_80463610() {
+    if (mMotion.mTracks[0].m00 == 0x14A) {
+        if ((float)__fabs(mMotion.mTracks[0].m08 - 3.0f) < 1.1920929e-7f) {
+            lbl_8087F430->Shake_unk(60, 0.3f, 0.3f);
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+            lbl_8087F430->Shake_unk(180, 0.1f, 0.1f);
+            fn_800C344C("SE_EM206_027", &mPos, 0, -1, 1.0f);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if ((float)__fabs(frame - 50.0f) < 1.1920929e-7f) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+        } else if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag25 = 1;
+            mColli.mFlags &= ~1;
+            for (int i = 0; i < 5; i++) {
+                mCapsules[i].mFlags &= ~1;
+            }
+            m17A8.mFlags &= ~1;
+            mFlag15 = 1;
+            fn_801765D8();
+            for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+                if (enemy->m60->m24 == 0x3B) {
+                    atn::Vector3 dir;
+                    dir.x = 0.0f;
+                    dir.y = 0.0f;
+                    dir.z = 1.0f;
+                    atn::Matrix3x4 rot;
+                    rot.fn_8013A13C(mRot.y);
+                    PSMTXMultVec(rot.m, &dir, &dir);
+                    enemy->vf80(mPos, dir);
+                }
+            }
+        }
+    }
 }
 
 void LastCocoonQuadruped::fn_804638A4() {
@@ -411,6 +824,48 @@ void LastCocoonQuadruped::fn_80463DCC() {
         } else {
             fn_80466AE4();
         }
+    }
+}
+
+// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
+// inferred: walks along the route for 45 frames, hitting with the bullet 0x5B4
+void LastCocoonQuadruped::fn_80463F20() {
+    if (m14C0 >= 45) {
+        SetMode_unk(0);
+        if (m1800 != 0) {
+            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            m1800 = 0;
+        }
+        return;
+    }
+    mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
+    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    fn_80144710();
+    HitInfo_unk* bullet = fn_80219E6C(0x5B4);
+    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    if (m18F4 != 0) {
+        lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
+    }
+}
+
+// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
+// inferred: walks along the route for 33 frames, hitting with the bullet 0x5B4
+void LastCocoonQuadruped::fn_80464608() {
+    if (m14C0 >= 33) {
+        SetMode_unk(0);
+        if (m1800 != 0) {
+            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            m1800 = 0;
+        }
+        return;
+    }
+    mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
+    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    fn_80144710();
+    HitInfo_unk* bullet = fn_80219E6C(0x5B4);
+    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    if (m18F4 != 0) {
+        lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
     }
 }
 
@@ -557,6 +1012,25 @@ inline RoutePlace_unk* FindQuadPlace_unk(int id) {
     return 0;
 }
 
+// inferred: modes 10 and 11: walk along the route, facing its start
+void LastCocoonQuadruped::fn_80466CA4() {
+    SetMode_unk(10);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x21, 1, 0, 1, 0.0f, 0.1f);
+    mRot = (m1504.GetPos_unk(1.0f / 45.0f) - m1504.GetPos_unk(0.0f)).ToRotationZ_unk();
+}
+
+void LastCocoonQuadruped::fn_804672CC() {
+    SetMode_unk(11);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x21, 1, 0, 1, 0.0f, 0.1f);
+    mRot = (m1504.GetPos_unk(1.0f / 45.0f) - m1504.GetPos_unk(0.0f)).ToRotationZ_unk();
+}
+
 void LastCocoonQuadruped::fn_804678F4() {
     SetMode_unk(12);
     mMotion.m34C = 1;
@@ -587,6 +1061,16 @@ void LastCocoonQuadruped::fn_80467C18(CharaTask* target, const atn::Vector3& pos
     dir.y = 0.0f;
     dir.Normalize_unk();
     mRot = dir.ToRotation_unk();
+}
+
+void LastCocoonQuadruped::fn_80467F50() {
+    SetMode_unk(19);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+    fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+    fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
 }
 
 // NONMATCHING: 99.8% - the two compares with the table are emitted as cmpw arg, entry (entry, arg in
@@ -648,6 +1132,71 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
         *next = nextId;
     }
     return pos;
+}
+
+// inferred: points of the path, a std::vector<atn::Vector3> handled through the weak copies of
+// game/Em403WarLion.cpp (C names)
+struct QuadPoints_unk {
+    atn::Vector3* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+};
+extern "C" void fn_8032AB90(QuadPoints_unk* v);                         // inferred: constructor
+extern "C" QuadPoints_unk* fn_8032ABA4(QuadPoints_unk* v, int flag);    // inferred: destructor
+extern "C" void fn_8032AC1C(QuadPoints_unk* v, const atn::Vector3* p);  // inferred: push_back
+extern "C" void fn_8032AF90(QuadRoutes_unk* path, QuadPoints_unk* pts); // inferred: builds the path
+
+// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls the Vector3
+// copies and RouteTable_unk::FindPlace_unk; the points are a std::vector<atn::Vector3> whose weak copies
+// (C names) live in game/Em403WarLion.cpp, so here they are plain calls and the budget is not reached
+int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, int last) {
+    atn::Vector3 pos1 = lbl_807C7030;
+    atn::Vector3 pos2 = lbl_807C7030;
+    atn::Vector3 pos0 = lbl_807C7030;
+    int id2 = 0;
+    int id1 = 0;
+    for (int i = 0; i < 10; i++) {
+        if (id == sQuadPlaces[i].mId) {
+            int j = i + 1;
+            if (j == 10) {
+                j = 0;
+            }
+            id1 = sQuadPlaces[j].mId;
+            if (last != 0) {
+                id2 = 600;
+            } else {
+                int k = j + 1;
+                if (k == 10) {
+                    k = 0;
+                }
+                id2 = sQuadPlaces[k].mId;
+            }
+            break;
+        }
+    }
+    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+    if (place != 0) {
+        pos0 = place->mPos;
+    }
+    place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id1);
+    if (place != 0) {
+        pos1 = place->mPos;
+    }
+    place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id2);
+    if (place != 0) {
+        pos2 = place->mPos;
+    }
+    QuadPoints_unk points;
+    fn_8032AB90(&points);
+    fn_8032AC1C(&points, &pos0);
+    fn_8032AC1C(&points, &pos1);
+    fn_8032AC1C(&points, &pos2);
+    fn_8032AF90(path, &points);
+    if (next != 0) {
+        *next = id2;
+    }
+    fn_8032ABA4(&points, -1);
+    return 1;
 }
 
 int LastCocoonQuadruped::vfE4() {
