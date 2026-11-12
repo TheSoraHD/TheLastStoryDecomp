@@ -16,6 +16,7 @@
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
 #include "game/PopupTask.h"
+#include "std/new.h"
 #include "game/SetConfig.h"
 #include "game/GameTask.h"
 #include "game/MapTask.h"
@@ -1685,6 +1686,12 @@ extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn
     }
 }
 
+// inferred: push_back of mStuns (inlined); name invented
+inline void PushStun_unk(BattleTask* mgr, const BattleStun_unk& stun) {
+    new (&mgr->mStuns[mgr->mStunCount]) BattleStun_unk(stun);
+    mgr->mStunCount++;
+}
+
 // inferred: plays an EFP effect at the model with a scale (inlined); name invented
 inline void PlayEfpScaled_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, lbl_807C7030, lbl_807C7030, EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1,
@@ -1697,6 +1704,60 @@ inline void EraseStun_unk(BattleTask* mgr, BattleStun_unk* it) {
         mgr->mStuns[i] = mgr->mStuns[i + 1];
     }
     mgr->mStunCount--;
+}
+
+// NONMATCHING: 95.7% - the original reloads mStunCount for the push after storing the new entry; the height is loaded in
+// the other register order; string pool offsets differ (file not complete)
+// inferred: the character becomes stunned: restarts its timer if it is in mStuns, else adds it, starts the first
+// effect of its row, shows the popup over its neck and counts the stuns of the players (global flag 0x442). C name,
+// called by game/CharaTask.cpp as extern "C"
+extern "C" void fn_8010A4A8(BattleTask* mgr, CharaTask* chara) {
+    for (unsigned int i = 0; i < mgr->mStunCount; i++) {
+        if (mgr->mStuns[i].mChara == chara) {
+            mgr->mStuns[i].mTimer = 1;
+            return;
+        }
+    }
+    if (mgr->mStunCount >= 4) {
+        return;
+    }
+    BattleStun_unk stun;
+    stun.mChara = chara;
+    stun.mTimer = 1;
+    stun.mStarted = 0;
+    PushStun_unk(mgr, stun);
+    bool enemy;
+    if (lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
+        enemy = !chara->fn_8016F3D0(lbl_8087F8A0->mHead, 1);
+    } else {
+        enemy = chara->mType == 2;
+    }
+    if (chara->mStatus.IsState_unk(0x10000) || chara->mStatus.IsState_unk(0x100)) {
+        enemy = !enemy;
+    }
+    int row = !enemy;
+    float scale = MAX(1.0f, chara->mColli.m54 / 5.0f);
+    fn_800F7FA8(fn_800F7FA0(), chara, 0x3E9);
+    PlayEfpScaled_unk(&mgr->mStunEfp[row][0], fn_800F84C8(chara), scale);
+    PopupEntry_unk e;
+    e.m10 = 5;
+    e.m20 = lbl_8087F1E4->Get_unk(0x7D);
+    e.m60.x = 0.0f;
+    e.m60.y = 3.0f;
+    e.m60.z = 0.0f;
+    atn::Model* model = fn_800F84C8(chara);
+    e.mB0 = (int)model->GetNodeMtx_unk("neck");
+    if (e.mB0 == 0) {
+        e.mB0 = (int)&chara->mMotion.mMtx;
+        e.m60.y += chara->m5B4;
+    }
+    e.m04 = 40.0f;
+    e.m78 = enemy ? 0xFF6496E6 : 0xFFFF2020;
+    e.m1C = 2;
+    lbl_8087F8A8->fn_8054E0FC(&e);
+    if (chara->mType == 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x442) >= 7) {
+        lbl_8087F430->fn_803750E4(0xB4);
+    }
 }
 
 // inferred: counts down the timed effects of mStuns: starts the loop effect once, and at the end stops it, plays

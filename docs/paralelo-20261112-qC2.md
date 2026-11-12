@@ -1,6 +1,6 @@
 # Lote paralelo 2026-11-12, cola C2 (Batalla, segunda pasada)
 
-Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `game/TacView`, `game/BattleCharaTask`.
+Inicio: 2026-11-12 21:32 CET; cierre 22:50 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `game/TacView`, `game/BattleCharaTask`.
 
 ## Resultado por unidad
 
@@ -11,7 +11,11 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   enemigos), `fn_8010AEF4` (comparacion de los totales, 100 %), `fn_801002DC` (objetivo de la camara, miembro
   nuevo), `fn_8010A868` (efectos temporizados `mStuns`, 100 %) `fn_80108C10` (popup de dano) y
   `fn_80102EAC` (odio hacia el atacante y los que siguen al personaje), `fn_80108F38` (popup del nombre de un
-  estado, 100 %).
+  estado, 100 %) y `fn_8010A4A8` (alta en `mStuns`, efecto y popup).
+- Resumen BattleTask: funciones al 0 % 68 -> 53 (15 escritas, sin `DRAFT`); 7 nuevas al 100 %
+  (`fn_800F8548`, `fn_80101434`, `fn_8010B250`, `fn_800F3B4C`, `fn_8010AEF4`, `fn_8010A868`, `fn_80108F38`);
+  `report.json` 15179 -> 15187. TacView (6) y BattleCharaTask (1) sin tocar: sus funciones al 0 % son de
+  2-8 KB (`fn_805ADB28`, 216 bytes, es el `operator+(wstring, wstring)` de MSL que solo emite `fn_805AC758`).
 - Los marcadores (`BattleMarker_unk`, `BattleMarkers_unk`) pasan del .cpp a `BattleTask.h` como miembro
   `BattleTask::mMarkers` (0x367B8): con el cast `(BattleMarkers_unk*)&m367B4[4]` el compilador no plegaba los
   desplazamientos (fn_800F39A4/fn_800F3B4C).
@@ -35,6 +39,11 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   de mirar el modo; la cadena de formato esta en la tabla de cadenas anchas del fichero (incompleto).
 
 - `fn_80102EAC` 99,6 %: registros de la entrada y del puntero de la lista cambiados (r29/r30).
+
+- `fn_8010A4A8` 95,8 %: el original vuelve a leer `mStunCount` para el `push` despues de guardar la entrada; la
+  altura se carga en el otro orden de registros; offsets del pool de cadenas. La copia debil del destructor de
+  `atn::static_string<32, wchar_t>` (0x8010A828) que el original emite detras no sale (el destructor no esta
+  definido en `atn/static_string.h`).
 
 ## Decisiones tomadas sin el usuario
 
@@ -62,6 +71,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   `mEfp363C0[26 + i]` no se reducian a puntero).
 - `fn_80102EAC` tambien `extern "C"`, con un quinto parametro sin nombre que no se lee (Em101ElderZesya pasa -1).
   `fn_8010ACCC` usa `CharaTask::CanAct_unk()` (ya existia) en vez de inlines locales.
+- `fn_8010A4A8` tambien `extern "C"` (game/CharaTask.cpp lo llama asi; se probo como miembro y se volvio atras
+  para no romper ese llamador). Push de `mStuns` con `new` de colocacion (`std/new.h`) en un inline local.
 - `fn_80108F38` tambien `extern "C"` (Em202ForestSpider, Em308ParmCrab...); `BattleMsg_unk` se mueve antes de
   ella en el .cpp.
 - `fn_80108C10` tambien `extern "C"` (12 llamadores `extern "C"`); su registro de dano es otra vista local
@@ -71,6 +82,15 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   repetido en muchas unidades (pendiente de unificar en una cabecera).
 - Punteros de `.sdata` a cadenas (`lbl_808813F4`... `lbl_808813D8`) y la tabla `lbl_80735988` siguen `extern`
   como el resto de datos del fichero (`lbl_80735DD0`).
+
+## Pendientes
+
+- Pasar a miembros de `BattleTask` las funciones `extern "C"` con `BattleTask*` (fn_800F8548, fn_80101434,
+  fn_8010B250, fn_8010A308, fn_800F3D28, fn_80108C10, fn_80102EAC, fn_80108F38, fn_8010A4A8, y la vieja
+  fn_800FBA30) junto con sus llamadores `extern "C"` de otras colas (renumera `@N`).
+- Unificar `CollResult_unk`, `Arena_unk` y el registro de dano (`BattleDamage_unk`) en cabeceras.
+- Definir los datos de `.sdata`/`.rodata` del fichero que siguen `extern` (`lbl_808813F4`..., `lbl_80735988`,
+  `lbl_80735DD0`).
 
 ## Hallazgos
 
