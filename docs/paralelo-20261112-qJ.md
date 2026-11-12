@@ -64,3 +64,25 @@ Inicio: 18:19 (corte del servidor 18:33-20:16; reanudado 20:16). Rama `agent-J`.
   coincide con el original, que limita la capacidad con `0x71C71C7`/`0xE38E38E` y elige por `min`; no tocado:
   cabecera compartida). Queda `fn_800D9960` (4 KB, paired-single).
 - `precommit` da FAIL solo por `ordercheck` (1 fuera de orden, `TextAnimVec_unk` ctor), igual que antes del cambio.
+
+## atn/WordWrap_unk
+
+- Funciones al 0 %: 5 -> 3. Escrita `fn_800E0000` (parte el texto ajustado por `fn_800DFB40` en un
+  `std::vector<std::wstring>`; NONMATCHING 77,8 %: el `push_back` inline de `std/vector.h` crece distinto del
+  original). Con ella sale la copia debil del constructor de subcadena de `std::wstring` (0x800E0908, 0 -> 83 %).
+  Quedan `setstate`, el ctor de copia de `std::string` y el thunk del dtor de `basic_ostream` (dependen del inline
+  de las funciones de iostream de la unidad, ver las notas del fichero).
+
+## Pendientes
+
+- `atn/Motion_unk` `fn_800A2664` (0x2B8): `new variate_generator<mt19937, uniform_real<double> >` con semilla
+  `OSGetTick()`; las clases TR1 estan definidas dentro de `src/MP/CryptMP.cpp` (otra familia): moverlas a una
+  cabecera (`std/tr1_random`) y escribirla aqui. Sus dos `double` (0.0/1.0) estan en el `.data` de Motion.
+- Split propuesto (regla 3, no aplicado): 0x800A0A68-0x800A2978 de `atn/Motion_unk` como fichero propio (reserva de
+  cadenas en 0x80732768); daria el 100 % a `fn_800A130C` y a los dos `InsertNode_unk`.
+- `std::__red_black_tree::balance_erase` a `std/tree.h` si se acepta renumerar las `@N` de sus 6 unidades.
+- Cabecera unica de `XsfCurveSet_unk` (6 vistas parciales en otras unidades).
+- `atn/Model` (15 al 0 %), `BoneCalc_unk`, `LayerOcclusionCPU`, `TextAnimation fn_800D9960`: paired-single o
+  funciones de 1-4 KB; `LH_Model fn_80474F0C` (3,8 KB de tablas de formatos de vertice). No empezadas.
+  `atn/Model fn_80099F70` es el `dummy::nonnull()` vacio del safe-bool de `boost::function` (lo emite
+  `fn_80097E80` al probar `m35C/m370`).
