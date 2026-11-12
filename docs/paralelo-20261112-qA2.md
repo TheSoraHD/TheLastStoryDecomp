@@ -1,6 +1,7 @@
 # Lote paralelo 2026-11-12, cola A2 (Tiendas, segunda pasada)
 
-Inicio: 2026-11-12 21:32 (CET). Rama `agent-A2`.
+Inicio: 2026-11-12 21:32 (CET), cierre 22:30. Rama `agent-A2`. `report.json`: 15179 -> **15189** funciones
+al 100 % (lost 0, sin bajadas de fuzzy).
 
 ## Resultado por unidad
 
@@ -38,6 +39,13 @@ Inicio: 2026-11-12 21:32 (CET). Rama `agent-A2`.
   CosEditItemList_unk 0x8087DA70..). No lo toco (cabecera ajena); afecta a Event/Node, NewCampPartsItem,
   CosEditItemList_unk y ShopBase (ninguna enlazada).
 
+- `include/game/MslSort_unk.h` (cola B), **probado y revertido**: con tres cambios los dos `MslSort_unk` de
+  ShopBase pasan de 95,9 % a **100 %** (parche en `/home/claude/scratch-A2/MslSort_unk-fix.patch`):
+  `static int sOffset = -4;`, segundo pivote `int n3 = n * 3 / 4; Iter j(first + (n3 + sOffset % 5));` y
+  la rama `i == first` como el original (`MslSwap_unk(*i, *pivot); ++i; j = last; if (!comp(*first, *--j))
+  {... if (i < j) MslSwap_unk(*i, *j);}` sin `back`). Revisar con CosEditItemList_unk, NewCampPartsItem y
+  Event/Node antes de aplicarlo.
+
 ## Decisiones tomadas sin el usuario
 
 - Predicados de ShopBase y ShopUpGrade en un namespace anonimo (cambia sus nombres mangled y los de las
@@ -47,6 +55,10 @@ Inicio: 2026-11-12 21:32 (CET). Rama `agent-A2`.
 - `symbols.txt`: solo renombrados de las 6 funciones del sort de ShopBase y de sus dos contadores
   (`@LOCAL@MslSort_unk<...>@sOffset`).
 - `ShopWeapon_unk` (local de ShopBase.cpp) gana `m78` (clave de orden de las armas), sin cambiar el tamano.
+
+- Probado sin exito (ShopBase vf38 99,99 %): `entry.m48` del CSV, el original guarda el `double` con `stfs f1`
+  y compara una copia `frsp`; con `double rate` aparte o asignacion en el `if` sale igual que antes.
+- `poolcheck` de ShopBase avisa de `Zatn::Csv` (cadena RTTI, no tocada en este lote).
 
 ## Hallazgos
 
