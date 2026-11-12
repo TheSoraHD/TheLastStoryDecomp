@@ -9,7 +9,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   `fn_8010A308` (salpicadura al cruzar agua), `fn_800F3D28` (reinicio de la batalla), `fn_800F39A4` (peticiones de
   carga de recursos) y `fn_800F3B4C` (espera de esas cargas, 100 %), `fn_8010ACCC` (totales de jugadores y
   enemigos), `fn_8010AEF4` (comparacion de los totales, 100 %), `fn_801002DC` (objetivo de la camara, miembro
-  nuevo), `fn_8010A868` (efectos temporizados `mStuns`, 100 %) y `fn_80108C10` (popup de dano).
+  nuevo), `fn_8010A868` (efectos temporizados `mStuns`, 100 %) `fn_80108C10` (popup de dano) y
+  `fn_80102EAC` (odio hacia el atacante y los que siguen al personaje).
 - Los marcadores (`BattleMarker_unk`, `BattleMarkers_unk`) pasan del .cpp a `BattleTask.h` como miembro
   `BattleTask::mMarkers` (0x367B8): con el cast `(BattleMarkers_unk*)&m367B4[4]` el compilador no plegaba los
   desplazamientos (fn_800F39A4/fn_800F3B4C).
@@ -31,6 +32,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
 
 - `fn_80108C10` 97,8 %: el `return` por dano vacio sale `bne/b` en el original; `lbl_8087F610` se recarga antes
   de mirar el modo; la cadena de formato esta en la tabla de cadenas anchas del fichero (incompleto).
+
+- `fn_80102EAC` 99,6 %: registros de la entrada y del puntero de la lista cambiados (r29/r30).
 
 ## Decisiones tomadas sin el usuario
 
@@ -56,6 +59,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   GameCamera_unk).
 - `mEfp363C0[46]` se parte en `mEfp363C0[26]`, `mSplashEfp[3]` (0x364F8) y `mEfp3651C[17]` (los bucles sobre
   `mEfp363C0[26 + i]` no se reducian a puntero).
+- `fn_80102EAC` tambien `extern "C"`, con un quinto parametro sin nombre que no se lee (Em101ElderZesya pasa -1).
+  `fn_8010ACCC` usa `CharaTask::CanAct_unk()` (ya existia) en vez de inlines locales.
 - `fn_80108C10` tambien `extern "C"` (12 llamadores `extern "C"`); su registro de dano es otra vista local
   (`BattleDamage_unk`, como `StatusDamage_unk`/`DaemonDamage_unk` de otras unidades) y `Arena_unk` local
   (como en CharaTask.cpp) para `lbl_8087F610`, que pasa de `void*` a `Arena_unk*`.

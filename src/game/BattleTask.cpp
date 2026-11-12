@@ -811,6 +811,37 @@ void BattleTask::fn_801028E4(CharaTask* chara, CharaTask* other, int value) {
     }
 }
 
+// NONMATCHING: 99.6% - registers of the entry and of the list pointer swapped (r29/r30)
+// inferred: adds hate `value` of `chara` toward `attacker`, and of the characters that follow `chara` (mode 0x11)
+// on its side; a player hit outside multiplayer rounds the value; the last argument is not read (-1 from
+// Em101ElderZesya). C name, called by other files as extern "C"
+extern "C" void fn_80102EAC(BattleTask* mgr, CharaTask* chara, CharaTask* attacker, int value, int) {
+    fn_80210220(lbl_8087F0A8->mParamIndex);
+    if (attacker != 0 && attacker->mType == 0 && lbl_8087F610 == 0) {
+        value = (int)(value * 1.0f);
+    }
+    int a = mgr->FindChara_unk(chara);
+    int b = mgr->FindChara_unk(attacker);
+    if (b >= 0 && a >= 0) {
+        BattleChara_unk* entry = &mgr->mCharas[a];
+        if (entry->mChara != 0 && entry->mChara->CanAct_unk()) {
+            entry->fn_801088B8(b, value);
+            BattleChara_unk* p = mgr->mCharas;
+            for (int i = 0; i < mgr->mCharaCount; i++) {
+                if (p->mChara != 0 && p->mChara->CanAct_unk() && p->mChara->fn_8016F3D0(chara, 1) &&
+                    p->mChara->mC58.mMode == 0x11 && p->mChara->mC58.mCC == chara) {
+                    p->fn_801088B8(b, value);
+                }
+                p++;
+            }
+        }
+        if (entry->m804 > 0 && entry->mChara->m55C == 6 && entry->mChara->m560 == 0x60) {
+            entry->m804 = 0;
+            entry->mChara->fn_8016E970(entry->mChara->m564);
+        }
+    }
+}
+
 void BattleTask::fn_801031D0(CharaTask* chara, CharaTask* other, int all) {
     fn_80210220(lbl_8087F0A8->mParamIndex);
     int a = FindChara_unk(chara);
@@ -1671,19 +1702,6 @@ void BattleTask::fn_8010AC60() {
     fn_80105510(40);
 }
 
-// inferred: the character takes part (not stopped, not children only); inlined, name invented
-inline bool IsActive_unk(CharaTask* chara) {
-    return !chara->IsFlag_unk(4) && !chara->IsFlag_unk(1);
-}
-// inferred: active and without the status flag 0x20 (down?); inlined, name invented
-inline bool IsUp_unk(CharaTask* chara) {
-    return IsActive_unk(chara) && !chara->mStatus.IsState_unk(0x20);
-}
-// inferred: up and not grappled; inlined, name invented
-inline bool IsFree_unk(CharaTask* chara) {
-    return IsUp_unk(chara) && !chara->IsGrappled_unk();
-}
-
 // NONMATCHING: 99.5% - registers r5/r6 swapped (life of the player and the base of the battle task)
 // inferred: totals of the battle: keeps the previous ones in m38CA4 and sums the scaled life (m00) and the
 // number (m08) of the players, and the life (m04) and number (m0C) of the enemies
@@ -1703,7 +1721,7 @@ void BattleTask::fn_8010ACCC() {
         }
     }
     for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
-        if ((IsFree_unk(e) || e->IsFlag54C_unk(0x80000)) && !e->IsFlag54C_unk(0x2000) && e->mC54 != 0) {
+        if ((e->CanAct_unk() || e->IsFlag54C_unk(0x80000)) && !e->IsFlag54C_unk(0x2000) && e->mC54 != 0) {
             m38C90.m04 += e->mStatus.mParamB.m78;
             if (e->mFlag22 == 1) {
                 m38C90.m10 = 1;
