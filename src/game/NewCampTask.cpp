@@ -30,6 +30,7 @@
 #include "atn/LH_Xsca.h"
 #include "atn/GraphicsDevice.h"
 #include "game/NewCampPartsBase.h"
+#include "atn/Csv.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
@@ -160,7 +161,7 @@ extern "C" void fn_8052B7F8(RenderSetting_unk* settings); // inferred: default p
 // menu items
 // NONMATCHING: 91% - the original is over the inlining budget (R3): the accessor of the gamma settings, the
 // ResHandle load and the vector accessors are called out of line (weak copies 0x8052B7F0, 0x8052BC90,
-// 0x8052BCE4, 0x8052BCF4); fn_8052B7F8, fn_805303D0 and fn_805305D0 are not written
+// 0x8052BCE4, 0x8052BCF4); fn_8052B7F8 and fn_805305D0 are not written
 int NewCampTask::vf0C() {
     fn_8046ECDC(ResMgr_unk(), 0);
     if (m60 == 0) {
@@ -762,6 +763,34 @@ NewCampPair_unk& NewCampTask::fn_80530384(int id) {
         }
     }
     return sNullPair;
+}
+
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+
+// inferred: reads camp_config.csv: the damage effect of the camp starts from the one of the render settings
+// ("angle", "color" r g b a, "scale", "zoom")
+// NONMATCHING: 99.8% - offsets of the string pool until fn_805305D0 is written
+void NewCampTask::fn_805303D0() {
+    atn::Csv csv;
+    m1310 = fn_802F0990()->m374;
+    csv.SetData((const char*)m1334.fn_80470580(), m1334.fn_8047059C());
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "angle") == 0) {
+            m1310.mAngle = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "color") == 0) {
+            m1310.mColor.r = fn_800DC288(csv.fn_8005B9CC());
+            m1310.mColor.g = fn_800DC288(csv.fn_8005B9CC());
+            m1310.mColor.b = fn_800DC288(csv.fn_8005B9CC());
+            m1310.mColor.a = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "scale") == 0) {
+            m1310.mScale = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "zoom") == 0) {
+            m1310.mZoom = fn_800DC288(csv.fn_8005B9CC());
+        }
+    } while (csv.fn_8005BBF8());
+    m1334.fn_80473F88();
 }
 
 void NewCampTask::fn_80530CD0(int duration) {
