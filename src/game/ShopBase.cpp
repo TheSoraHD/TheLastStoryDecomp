@@ -9,6 +9,7 @@
 #include "atn/Csv.h"
 #include "math/Vec.h"
 #include "std/new.h"
+#include "game/MslSort_unk.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" ShopD2A_unk* fn_801F3FF8(atn::Task* parent, const char* path, int loop); // inferred: d2anime task
@@ -124,7 +125,9 @@ struct ShopParams_unk {
 };
 struct ShopWeapon_unk {
     ShopParams_unk mParams; // 0x00
-    unsigned char m10[0x88 - 0x10];
+    unsigned char m10[0x78 - 0x10];
+    int m78; // inferred: sort key of the weapons
+    unsigned char m7C[0x88 - 0x7C];
     const wchar_t* mHelp; // 0x88
     unsigned char m8C[0xB8 - 0x8C];
     int mKind; // 0xB8
@@ -159,12 +162,89 @@ extern "C" int fn_8021150C(int code);           // inferred: index of an item co
 extern "C" int fn_8011728C(int kind, ShopItem_unk* item); // inferred: the shop of kind `kind` deals the item
 extern "C" int fn_8044D560(Inventory* party);           // inferred: number of items to identify
 extern "C" int fn_8044D500(Inventory* party, int index); // inferred: item to identify
-// inferred: comparison of the sorted list (empty object passed by value)
+extern "C" int fn_801173A8(ShopItem_unk* item); // inferred: sort group of an item
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
+// NONMATCHING: 98.48% - L"%s" is a weak @STRING@ here (inline member) and part of the file pool
+// (@wstringBase0 + 0x12) in the original (as game/ShopUpGrade.cpp); registers of the names of the new items.
+// The std::sort code of the list (0x80582598-0x80584174) is game/MslSort_unk.h: 94-99%, see its notes
+// (its counter has no -4 initializer: .sbss here, .sdata in the original)
+// inferred: order of the list (std::sort predicate, 0x805828B0): by group and kind of the item; the
+// materials (kinds other than 2 and 3) by their bag index; the rest the new ones first, then the weapons
+// by their sort key and by name (without the "+n" of the upgrades, shorter first, the new ones by the
+// item name and their order)
 struct ShopEntryLess_unk {
-    unsigned char m00;
+    bool operator()(const ShopEntry5C_unk& a, const ShopEntry5C_unk& b) const {
+        ShopItem_unk* ia = (ShopItem_unk*)a.m54;
+        ShopItem_unk* ib = (ShopItem_unk*)b.m54;
+        int ga = fn_801173A8(ia);
+        int gb = fn_801173A8(ib);
+        if (ga != gb) {
+            return ga < gb;
+        }
+        if (ia->mKind != ib->mKind) {
+            return ia->mKind < ib->mKind;
+        }
+        if (ia->mKind != 2 && ib->mKind != 2 && ia->mKind != 3 && ib->mKind != 3) {
+            return a.m58 < b.m58;
+        }
+        if (a.m48 != 0 && b.m48 == 0) {
+            return true;
+        }
+        if (a.m48 == 0 && b.m48 != 0) {
+            return false;
+        }
+        ShopWeapon_unk* wa = 0;
+        ShopWeapon_unk* wb = 0;
+        if (fn_80206B9C(a.m00)) {
+            wa = fn_80206C50(a.m00);
+        }
+        if (fn_80206B9C(b.m00)) {
+            wb = fn_80206C50(b.m00);
+        }
+        if (wa != 0 && wb != 0 && wa->m78 != wb->m78) {
+            return wa->m78 < wb->m78;
+        }
+        const wchar_t* na = ia->mName;
+        if (a.m48 == 0 && wa != 0) {
+            na = lbl_8087F1E4->Get_unk(wa->mKind + 0xEB);
+        }
+        const wchar_t* nb = ib->mName;
+        if (b.m48 == 0 && wb != 0) {
+            nb = lbl_8087F1E4->Get_unk(wb->mKind + 0xEB);
+        }
+        wchar_t sa[0x40];
+        fn_800DD3FC(sa, L"%s", na);
+        wchar_t* p = wcschr(sa, L'+');
+        if (p != 0) {
+            *p = 0;
+        }
+        wchar_t sb[0x40];
+        fn_800DD3FC(sb, L"%s", nb);
+        p = wcschr(sb, L'+');
+        if (p != 0) {
+            *p = 0;
+        }
+        if (wcscmp(sa, sb) == 0) {
+            if (a.m48 == 0 && b.m48 == 0) {
+                nb = ib->mName;
+                const wchar_t* xa = ia->mName;
+                if (wcscmp(xa, nb) == 0) {
+                    return a.m4C > b.m4C;
+                }
+                return wcscmp(xa, nb) < 0;
+            } else {
+                int la = wcslen(na);
+                int lb = wcslen(nb);
+                if (la != lb) {
+                    return la < lb;
+                }
+            }
+        }
+        return wcscmp(na, nb) < 0;
+    }
 };
-// inferred: std::sort of the list (template code of this file, 0x80582598-0x80584750; not reconstructed)
-extern "C" void fn_80582598(ShopEntry5C_unk* first, ShopEntry5C_unk* last, ShopEntryLess_unk comp);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
@@ -969,9 +1049,7 @@ void ShopBase::fn_80581FD8() {
             m32FC++;
         }
     }
-    ShopEntryLess_unk less;
-    less.m00 = 0;
-    fn_80582598(&mEntries5C[0], &mEntries5C[m32FC], less);
+    MslSort_unk(&mEntries5C[0], &mEntries5C[m32FC], ShopEntryLess_unk());
     mScroll.mCount = m32FC;
     if (mScroll.mCursor >= mScroll.mCount) {
         int last = mScroll.mCount - 1;
