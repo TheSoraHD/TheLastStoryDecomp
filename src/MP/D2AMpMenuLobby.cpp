@@ -55,7 +55,9 @@ struct MpLobbySession_unk : public atn::Task {
     int m540;                 // inferred: game mode (0: raid, 1: versus)
     unsigned char m544[0x55C - 0x544];
     int m55C;
-    unsigned char m560[0x5E4 - 0x560];
+    unsigned char m560[0x5B4 - 0x560];
+    unsigned char m5B4;       // inferred: debug flags (4: everybody warrior, 8: everybody mage)
+    unsigned char m5B5[0x5E4 - 0x5B5];
     MpLobbyMember_unk* m5E4; // inferred: players
     int m5E8;                // inferred: number of players
 };
@@ -436,6 +438,80 @@ void D2AMpMenuLobby::fn_804C0548() {
             fn_804F5C9C(lbl_8087F610, mE64);
             mE64 = -1;
         }
+    }
+}
+
+// inferred: draw: freezes every task, then lets the ones of the state draw; with the debug flags of the
+// session, draws "everybody warrior" or "everybody mage" (Japanese) with a shadow
+// NONMATCHING: 97.9% - offsets in the wide string pool until the other wide strings of the file are written
+void D2AMpMenuLobby::vf14() {
+    for (MpD2A_unk** it = &mTasks[0]; it != &mTasks[mTasks.size()]; it++) {
+        if (*it != 0) {
+            (*it)->FreezeTask();
+        }
+    }
+    switch (mD88) {
+    case 2:
+        fn_804C0A40();
+        fn_804C1634();
+        break;
+    case 3:
+        fn_804C0A40();
+        fn_804C1634();
+        break;
+    case 1:
+        fn_804C0A40();
+        SetPaneValue2_unk(m4C->mLayout, "col0005", 0, 128.0f);
+        m64->MeltTask();
+        break;
+    case 4:
+        fn_804C0EA4();
+        break;
+    case 5: {
+        int mode = D2AMpMenu::sInstance->mC4;
+        if (mode == 1 || mode == 3) {
+            m58->MeltTask();
+        } else if (mode == 2) {
+            m54->MeltTask();
+        }
+        m4C->MeltTask();
+        if (GetHostCount_unk() >= 2) {
+            m50->MeltTask();
+        }
+        break;
+    }
+    case 6:
+        fn_804C0F88();
+        break;
+    case 10:
+        m68->MeltTask();
+        break;
+    case 7:
+        fn_804C1370();
+        break;
+    case 8:
+    case 9:
+        if (mDA4 != 0) {
+            fn_804C1370();
+        } else {
+            fn_804C0A40();
+        }
+        vf20();
+        break;
+    }
+    unsigned char flags = lbl_8087F610->m5B4;
+    if (flags & 4) {
+        float size = 16.0f;
+        lbl_8087EEB0->fn_80061824(181.0f, 81.0f, 0.0f, size, size, 0.0f, 0.0f, 0.0f, L"\x5168\x54E1\x6226\x58EB",
+                                  0xFF000000, 1, 1, 0, 0, 0xFF000000);
+        lbl_8087EEB0->fn_80061824(180.0f, 80.0f, 0.0f, size, size, 0.0f, 0.0f, 0.0f, L"\x5168\x54E1\x6226\x58EB",
+                                  0xFFFFFF00, 1, 1, 0, 0, 0xFF000000);
+    } else if (flags & 8) {
+        float size = 16.0f;
+        lbl_8087EEB0->fn_80061824(181.0f, 81.0f, 0.0f, size, size, 0.0f, 0.0f, 0.0f,
+                                  L"\x5168\x54E1\x9B54\x6CD5\x4F7F\x3044", 0xFF000000, 1, 1, 0, 0, 0xFF000000);
+        lbl_8087EEB0->fn_80061824(180.0f, 80.0f, 0.0f, size, size, 0.0f, 0.0f, 0.0f,
+                                  L"\x5168\x54E1\x9B54\x6CD5\x4F7F\x3044", 0xFFFFFF00, 1, 1, 0, 0, 0xFF000000);
     }
 }
 

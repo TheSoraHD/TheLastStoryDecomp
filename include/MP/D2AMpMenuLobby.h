@@ -57,6 +57,8 @@ public:
     void fn_804C0548(); // inferred: changes the face
     void fn_804C0A40();
     void fn_804C0EA4(); // inferred: refreshes the help text
+    void fn_804C0F88(); // inferred: draw of state 6
+    void fn_804C1370(); // inferred: draw of states 7-9
     void fn_804C1634();
     void fn_804C2260(int v);
     void fn_804C2268(int time); // inferred: shows the time left
