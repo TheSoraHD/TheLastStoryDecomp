@@ -30,6 +30,7 @@
 #include "atn/LH_Xsca.h"
 #include "atn/GraphicsDevice.h"
 #include "game/NewCampPartsBase.h"
+#include "atn/Csv.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" atn::SoundRef fn_80117228(int id); // inferred: plays a system sound effect
@@ -54,9 +55,17 @@ extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// inferred: 0x64-byte record of the camp (list lbl_807C912C, read by vf0C); name invented
+// inferred: 0x64-byte record of camp_font_conf.csv (list lbl_807C912C, read by vf0C): colours of a font;
+// names invented
 struct NewCampElem_unk {
-    unsigned char m00[0x64];
+    int m00;
+    char mName[0x20];   // 0x04: inferred: name of the debug menu folder
+    int m24;
+    int mBase[3];       // 0x28: R, G, B
+    int mBaseShadow[4]; // 0x34: A, R, G, B
+    int m44;
+    int mAfter[3];       // 0x48: R, G, B
+    int mAfterShadow[4]; // 0x54: A, R, G, B
 };
 static std::vector<NewCampElem_unk> sElems_unk; // inferred: cleared by the constructor
 static NewCampPair_unk sNullPair; // inferred: returned by fn_80530384 for a missing id
@@ -126,6 +135,110 @@ NewCampTask::NewCampTask(atn::Task* parent)
 }
 
 NewCampTask::~NewCampTask() {}
+
+namespace atn {
+class Loader;
+}
+atn::Loader* ResMgr_unk(); // inferred: loader of the game (lbl_8087F518)
+extern "C" void fn_8046ECDC(atn::Loader* loader, int show); // inferred: shows the loading screen
+// inferred: debug menu (atn/MindowsCommon.h; arguments in the order of game/NewCampPartsBase.cpp)
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // AddBool
+extern "C" void fn_80087E9C(void* group, const char* name, void* value, int arg3, int arg4, float min, float max,
+                            float step); // x, y, z
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step); // AddFloat
+extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step); // AddRadian
+extern "C" void fn_800874C8(void* group, const char* name, int* value, int min, int max, int step, int arg6,
+                            int arg7); // AddInt
+// inferred: gamma settings of the render settings (weak copy)
+extern "C" inline GammaParams_unk* fn_8052B7F0(RenderSetting_unk* settings) {
+    return &settings->m3DC;
+}
+extern "C" RenderSetting_unk* fn_802F0990();
+
+// inferred: loading of the camp: waits for its files, prepares the parts and the post effects and adds the debug
+// menu items
+// NONMATCHING: 33% - the original is over the inlining budget (R3): RenderSetting_unk::ResetPostFx_unk (weak copy
+// 0x8052B7F8), the accessor of the gamma settings, the ResHandle load and the vector accessors are called out of
+// line (0x8052B7F0, 0x8052BC90, 0x8052BCE4, 0x8052BCF4); here they are inlined (91% when the reset is an
+// external call)
+int NewCampTask::vf0C() {
+    fn_8046ECDC(ResMgr_unk(), 0);
+    if (m60 == 0) {
+        m60 = 1;
+    } else if (m60 == 1) {
+        m60 = 2;
+    } else if (m60 == 2) {
+        if (fn_800D3FA4() && !m1334.fn_80473F50() && !m1344.fn_80473F50()) {
+            m460->fn_800D246C(0);
+            mTop->vf1C((NewCampScene_unk*)m460);
+            mTop->fn_800D246C(0);
+            mStatus->vf1C((NewCampScene_unk*)m460);
+            mStatus->fn_800D246C(0);
+            mMapSelect->vf1C((NewCampScene_unk*)m460);
+            mMapSelect->fn_800D246C(0);
+            mItem->vf1C((NewCampScene_unk*)m460);
+            mItem->fn_800D246C(0);
+            mOption->vf1C((NewCampScene_unk*)m460);
+            mOption->fn_800D246C(0);
+            mProtector->vf1C((NewCampScene_unk*)m460);
+            mProtector->fn_800D246C(0);
+            mGmk->vf1C((NewCampScene_unk*)m460);
+            mGmk->fn_800D246C(0);
+            mHint->vf1C((NewCampScene_unk*)m460);
+            mHint->fn_800D246C(0);
+            fn_8052DEEC(0);
+            fn_8052B7F0(fn_802F0990())->mEnable = 0;
+            m468.fn_8052E1A0();
+            fn_802F0990()->ResetPostFx_unk();
+            fn_805303D0();
+            fn_805305D0();
+            void* group = m1218.Load("NewCamp");
+            fn_80087994(group, "FreeCamera", &m121C, 0, 0);
+            fn_80087E9C(group, "CameraOfs(Aspect4:3)", &m1370, 0, 0, -1000.0f, 1000.0f, 1.0f);
+            fn_8008771C(group, "CameraSpeed", &m1368, 0, 0, 0.0f, 100.0f, 1.0f);
+            fn_80087994(group, "DispLocId", &m1220, 0, 0);
+            fn_800874C8(group, "InfoOnTime", &m135C, 0, 999999, 1, 0, 0);
+            fn_80087858(group, "CamAng", &m1214, 0, 0, 0.0f, 360.0f, 1.0f);
+            fn_80087994(group, "UnlockMapAll", &m1350, 0, 0);
+            fn_80087994(group, "MapLinkDebug", &m1364, 0, 0);
+            fn_800874C8(group, "BackType", &m1354, 0, 7, 1, 0, 0);
+            mTop->vf40(group);
+            mStatus->vf40(group);
+            mMapSelect->vf40(group);
+            mItem->vf40(group);
+            mOption->vf40(group);
+            mProtector->vf40(group);
+            mGmk->vf40(group);
+            mHint->vf40(group);
+            for (unsigned int i = 0; i < sElems_unk.size(); i++) {
+                NewCampElem_unk* elem = &sElems_unk[i];
+                void* folder = fn_8008937C(group, elem->mName);
+                void* sub = fn_8008937C(folder, "base");
+                fn_800874C8(sub, "R", &elem->mBase[0], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "G", &elem->mBase[1], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "B", &elem->mBase[2], 0, 0xFF, 1, 0, 0);
+                sub = fn_8008937C(folder, "base_sdw");
+                fn_800874C8(sub, "A", &elem->mBaseShadow[0], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "R", &elem->mBaseShadow[1], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "G", &elem->mBaseShadow[2], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "B", &elem->mBaseShadow[3], 0, 0xFF, 1, 0, 0);
+                sub = fn_8008937C(folder, "after");
+                fn_800874C8(sub, "R", &elem->mAfter[0], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "G", &elem->mAfter[1], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "B", &elem->mAfter[2], 0, 0xFF, 1, 0, 0);
+                sub = fn_8008937C(folder, "after_sdw");
+                fn_800874C8(sub, "A", &elem->mAfterShadow[0], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "R", &elem->mAfterShadow[1], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "G", &elem->mAfterShadow[2], 0, 0xFF, 1, 0, 0);
+                fn_800874C8(sub, "B", &elem->mAfterShadow[3], 0, 0xFF, 1, 0, 0);
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // inferred: point of the start of the camera animation of `parts` (channels x, y, z; name invented)
 static inline atn::Vector3 GetCurvePos_unk(NewCampPartsBase* parts, int x, int y, int z) {
@@ -651,6 +764,89 @@ NewCampPair_unk& NewCampTask::fn_80530384(int id) {
         }
     }
     return sNullPair;
+}
+
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+
+// inferred: reads camp_config.csv: the damage effect of the camp starts from the one of the render settings
+// ("angle", "color" r g b a, "scale", "zoom")
+// NONMATCHING: 99.8% - offsets of the string pool (the vector error string of fn_805305D0 comes first)
+void NewCampTask::fn_805303D0() {
+    atn::Csv csv;
+    m1310 = fn_802F0990()->m374;
+    csv.SetData((const char*)m1334.fn_80470580(), m1334.fn_8047059C());
+    do {
+        const char* key = csv.fn_8005B9CC();
+        if (strcmp(key, "angle") == 0) {
+            m1310.mAngle = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "color") == 0) {
+            m1310.mColor.r = fn_800DC288(csv.fn_8005B9CC());
+            m1310.mColor.g = fn_800DC288(csv.fn_8005B9CC());
+            m1310.mColor.b = fn_800DC288(csv.fn_8005B9CC());
+            m1310.mColor.a = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "scale") == 0) {
+            m1310.mScale = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(key, "zoom") == 0) {
+            m1310.mZoom = fn_800DC288(csv.fn_8005B9CC());
+        }
+    } while (csv.fn_8005BBF8());
+    m1334.fn_80473F88();
+}
+
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+
+// inferred: reads camp_font_conf.csv into sElems_unk (lines starting with ';' are comments): name, id and the
+// sixteen colour values
+// NONMATCHING: 80% - the inlined push_back of sElems_unk: the original copies the record word by word and
+// reports the allocation error with lbl_80793868 (another vector variant than std/vector.h)
+void NewCampTask::fn_805305D0() {
+    atn::Csv csv;
+    csv.SetData((const char*)m1344.fn_80470580(), m1344.fn_8047059C());
+    NewCampElem_unk elem;
+    elem.m24 = 0;
+    elem.mBase[0] = 0;
+    elem.mBase[1] = 0;
+    elem.mBase[2] = 0;
+    elem.mBaseShadow[0] = 0;
+    elem.mBaseShadow[1] = 0;
+    elem.mBaseShadow[2] = 0;
+    elem.mBaseShadow[3] = 0;
+    elem.m44 = 0;
+    elem.mAfter[0] = 0;
+    elem.mAfter[1] = 0;
+    elem.mAfter[2] = 0;
+    elem.mAfterShadow[0] = 0;
+    elem.mAfterShadow[1] = 0;
+    elem.mAfterShadow[2] = 0;
+    elem.mAfterShadow[3] = 0;
+    do {
+        const char* field = csv.fn_8005B9CC();
+        if (*field == 0 || *field == ';') {
+            continue;
+        }
+        strcpy(elem.mName, field);
+        elem.m00 = fn_800DC12C(csv.fn_8005B9CC());
+        elem.m24 = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBase[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBase[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBase[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[3] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.m44 = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfter[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfter[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfter[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[3] = fn_800DC12C(csv.fn_8005B9CC());
+        sElems_unk.push_back(elem);
+    } while (csv.fn_8005BBF8());
+    m1344.fn_80473F88();
 }
 
 void NewCampTask::fn_80530CD0(int duration) {

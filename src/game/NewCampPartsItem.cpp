@@ -9,6 +9,7 @@
 #include "game/MenuCommonTask.h"
 #include "game/GameConfig_unk.h"
 #include "game/Inventory.h"
+#include "game/MslSort_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 extern "C" void* lbl_8087EF70;                                // inferred: pad
@@ -26,6 +27,8 @@ struct NewCampItemData_unk {
     int mCountId;         // 0x04: inferred: id counted by fn_804444E8
     const wchar_t* mName; // 0x08
     const wchar_t* mHelp; // 0x0C
+    unsigned char m10[0xBC - 0x10];
+    short mKind; // 0xBC: inferred: item kind (as MenuItem_unk of game/MenuCommon_unk.cpp)
 };
 extern "C" NewCampItemData_unk* fn_80211480(int id); // inferred: item data
 extern "C" bool fn_8021175C(NewCampItemData_unk* item); // inferred: the item has no count (key items)
@@ -362,6 +365,178 @@ void NewCampPartsItem::vf30() {
     fn_8051B164();
 }
 
+struct NewCampWeapon_unk {
+    unsigned char m00[0x78];
+    int mOrder; // 0x78: inferred: order of the weapons in the item list
+    unsigned char m7C[0xB8 - 0x7C];
+    int mKind; // 0xB8
+};
+extern "C" NewCampWeapon_unk* fn_80206C50(int code);
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+struct NewCampMsgPair_unk {
+    int m00;
+    const wchar_t* mText;
+};
+struct NewCampMsg_unk {
+    const wchar_t* GetPair_unk(int id) {
+        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
+    }
+    NewCampMsgPair_unk mPairs[1];
+};
+extern "C" NewCampMsg_unk* lbl_8087F1E4;
+extern "C" NewCampItemData_unk* fn_802114E0(int index); // inferred: entry of the item table by index
+extern "C" int fn_8011728C(int category, NewCampItemData_unk* item); // inferred: the item is in the category
+extern "C" int fn_801173A8(NewCampItemData_unk* item);               // inferred: category of the item
+extern "C" int fn_8021150C(int id);                                   // inferred: order of the item in its table
+extern "C" int fn_8044D560(Inventory* party);                         // inferred: number of items to identify
+extern "C" int fn_8044D500(Inventory* party, int index);              // inferred: item to identify
+extern "C" bool fn_80206B9C(int code);                                // inferred: whether an item code is a weapon
+extern "C" int fn_800DD3FC(wchar_t* dst, const wchar_t* fmt, ...);   // inferred: swprintf
+extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" unsigned long wcslen(const wchar_t* s);
+
+// inferred: order of the list by category: category, kind, then (weapons and armour) the items to identify
+// last, the weapon order and the name without the "+n" suffix (the shorter name first); the other kinds by
+// their order in the item table. Names invented
+// NONMATCHING: 98.1% (out-of-line copy 0x80519948) - registers
+struct NewCampCategoryLess_unk {
+    bool operator()(const NewCampItemEntry_unk& a, const NewCampItemEntry_unk& b) const {
+        NewCampItemData_unk* da = (NewCampItemData_unk*)a.m10;
+        NewCampItemData_unk* db = (NewCampItemData_unk*)b.m10;
+        int ca = fn_801173A8(da);
+        int cb = fn_801173A8(db);
+        if (ca != cb) {
+            return ca < cb;
+        }
+        short ka = da->mKind;
+        short kb = db->mKind;
+        if (ka != kb) {
+            return ka < kb;
+        }
+        if (ka != 2 && kb != 2 && ka != 3 && kb != 3) {
+            return a.m14 < b.m14;
+        }
+        if (a.m08 != 0 && b.m08 == 0) {
+            return true;
+        }
+        if (a.m08 == 0 && b.m08 != 0) {
+            return false;
+        }
+        NewCampWeapon_unk* wa = 0;
+        NewCampWeapon_unk* wb = 0;
+        if (fn_80206B9C(a.mId)) {
+            wa = fn_80206C50(a.mId);
+        }
+        if (fn_80206B9C(b.mId)) {
+            wb = fn_80206C50(b.mId);
+        }
+        if (wa != 0 && wb != 0 && wa->mOrder != wb->mOrder) {
+            return wa->mOrder < wb->mOrder;
+        }
+        const wchar_t* na = da->mName;
+        if (a.m08 == 0 && wa != 0) {
+            na = lbl_8087F1E4->GetPair_unk(wa->mKind + 0xEB);
+        }
+        const wchar_t* nb = db->mName;
+        if (b.m08 == 0 && wb != 0) {
+            nb = lbl_8087F1E4->GetPair_unk(wb->mKind + 0xEB);
+        }
+        wchar_t sa[64];
+        fn_800DD3FC(sa, L"%s", na);
+        wchar_t* plus = wcschr(sa, L'+');
+        if (plus != 0) {
+            *plus = 0;
+        }
+        wchar_t sb[64];
+        fn_800DD3FC(sb, L"%s", nb);
+        plus = wcschr(sb, L'+');
+        if (plus != 0) {
+            *plus = 0;
+        }
+        if (wcscmp(sa, sb) == 0) {
+            if (a.m08 == 0 && b.m08 == 0) {
+                if (wcscmp(da->mName, db->mName) == 0) {
+                    return a.m04 < b.m04;
+                }
+                return wcscmp(da->mName, db->mName) < 0;
+            }
+            int la = wcslen(na);
+            int lb = wcslen(nb);
+            if (la != lb) {
+                return la < lb;
+            }
+        }
+        return wcscmp(na, nb) < 0;
+    }
+};
+// inferred: order of the list by the order of the bag (m04)
+struct NewCampBagLess_unk {
+    bool operator()(const NewCampItemEntry_unk& a, const NewCampItemEntry_unk& b) const { return a.m04 < b.m04; }
+};
+typedef MslIter_unk<NewCampItemEntry_unk> NewCampItemIter_unk;
+// inferred: begin() and end() of the list as iterators
+inline NewCampItemIter_unk NewCampBegin_unk(std::vector<NewCampItemEntry_unk>& list) {
+    return NewCampItemIter_unk(list.begin());
+}
+inline NewCampItemIter_unk NewCampEnd_unk(std::vector<NewCampItemEntry_unk>& list) {
+    return NewCampItemIter_unk(list.end());
+}
+
+// inferred: reads the list of the category mE0: the items of the bag (m04: their order in the bag) and, for
+// the categories 1 and 6, the items to identify after them; then sorts it (mEC: 0 by category, 1 as the bag)
+// NONMATCHING: 99.4% - registers of the inlined push_back
+void NewCampPartsItem::fn_80517B3C() {
+    mList.clear();
+    int last = 0x600;
+    Inventory* party = Inventory::Order();
+    for (int i = 0; i < 0x600; i++) {
+        Inventory::Item_unk* item = party->fn_80444804(i);
+        if (item == 0 || item->mCount <= 0) {
+            continue;
+        }
+        NewCampItemData_unk* data = fn_802114E0(i);
+        if (!fn_8011728C(mE0, data)) {
+            continue;
+        }
+        NewCampItemEntry_unk entry;
+        entry.mId = data->mCountId;
+        entry.m04 = item->m08;
+        entry.m06 = item->mCount;
+        entry.m08 = 1;
+        entry.m0C = -1;
+        entry.m10 = (int)data;
+        entry.m14 = fn_8021150C(entry.mId);
+        mList.push_back(entry);
+        if (entry.m04 > last) {
+            last = entry.m04;
+        }
+    }
+    if (mE0 == 6 || mE0 == 1) {
+        int num = fn_8044D560(party);
+        int top = last + num;
+        for (int i = 0; i < num; i++) {
+            NewCampItemEntry_unk entry;
+            entry.mId = fn_8044D500(party, i);
+            entry.m04 = top - i;
+            entry.m06 = 1;
+            entry.m08 = 0;
+            entry.m0C = i;
+            entry.m10 = (int)fn_80211480(entry.mId);
+            entry.m14 = fn_8021150C(entry.mId);
+            mList.push_back(entry);
+        }
+    }
+    switch (mEC) {
+    case 0:
+        MslSort_unk(NewCampBegin_unk(mList), NewCampEnd_unk(mList), NewCampCategoryLess_unk());
+        break;
+    case 1:
+        MslSort_unk(NewCampBegin_unk(mList), NewCampEnd_unk(mList), NewCampBagLess_unk());
+        break;
+    }
+}
+
 // inferred: changes the state (the list is drawn again in state 0); name invented
 inline void NewCampPartsItem::SetState_unk(int state) {
     m7C = state;
@@ -401,23 +576,6 @@ extern "C" NewCampItemUV_unk fn_80444C50(Inventory* party, int icon);
 extern "C" void fn_801F7590(atn::Task* layout, const char* name, NewCampItemUV_unk uv);
 extern "C" void fn_801F837C(atn::Task* layout, const char* name, const wchar_t* text);
 extern "C" void fn_801F8598(atn::Task* layout, const char* name, int value, int digits);
-struct NewCampWeapon_unk {
-    unsigned char m00[0xB8];
-    int mKind; // 0xB8
-};
-extern "C" NewCampWeapon_unk* fn_80206C50(int code);
-extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
-struct NewCampMsgPair_unk {
-    int m00;
-    const wchar_t* mText;
-};
-struct NewCampMsg_unk {
-    const wchar_t* GetPair_unk(int id) {
-        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
-    }
-    NewCampMsgPair_unk mPairs[1];
-};
-extern "C" NewCampMsg_unk* lbl_8087F1E4;
 
 // NONMATCHING: 98% - L"--" is the first wide literal here (L"%s" of fn_80517B3C, not written yet, goes before
 // it in the original), so the pool address takes one more register; same offsets of @stringBase0

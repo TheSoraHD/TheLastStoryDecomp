@@ -179,8 +179,10 @@ public:
     int m1BCC;
     int mSetCount;                // 0x1BD0: inferred: saved costume sets
     CosEditSet_unk mSets[7];      // 0x1BD4
-    atn::FixedArray_unk<CosEditSet_unk, 4> m1C0C;
-    atn::FixedArray_unk<CosEditSet_unk, 4> m1C30;
+    // inferred: members of the party still to take everything off (state 13; the selected one first),
+    // the members done and the members done that were selected (0x24 bytes each, fn_801D94D0)
+    atn::FixedArray_unk<NewCampPair_unk*, 8> m1C0C;
+    atn::FixedArray_unk<NewCampPair_unk*, 8> m1C30;
     atn::FixedArray_unk<NewCampPair_unk*, 8> m1C54; // inferred: members of the party (NewCampTask list)
     std::vector<CosEditItem_unk> m1C78;
     std::vector<CosEditItem_unk> m1C84;
