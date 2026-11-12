@@ -7,11 +7,11 @@ cd "$(dirname "$0")/../.."
 B=${B:-/home/claude/tls-build}; T=${T:-/home/claude/tools}
 u=$1
 conf() { python3 configure.py --compilers $B/build/compilers --dtk $T/dtk --objdiff $T/objdiff-cli --sjiswrap $B/build/tools/sjiswrap.exe --wrapper $T/wibo >/dev/null 2>&1; }
-cp config/SLSP01/symbols.txt /tmp/pd_sym.bak
+cp config/SLSP01/symbols.txt ${TMPDIR:-/tmp}/pd_sym.bak
 ninja build/SLSP01/src/$u.o >/dev/null 2>&1
 b=$(python3 tools/decomp/fnstat.py $u --nobuild 2>/dev/null | tail -1 | awk '{print $2}' | cut -d/ -f1)
 python3 tools/decomp/pairdata.py $u --relabel --apply >/dev/null 2>&1
-if cmp -s config/SLSP01/symbols.txt /tmp/pd_sym.bak; then echo "$u $b -> $b (sin cambios)"; exit 0; fi
+if cmp -s config/SLSP01/symbols.txt ${TMPDIR:-/tmp}/pd_sym.bak; then echo "$u $b -> $b (sin cambios)"; exit 0; fi
 conf; ninja build/SLSP01/src/$u.o >/dev/null 2>&1
 a=$(python3 tools/decomp/fnstat.py $u --nobuild 2>/dev/null | tail -1 | awk '{print $2}' | cut -d/ -f1)
-if [ "$a" -lt "$b" ] 2>/dev/null; then cp /tmp/pd_sym.bak config/SLSP01/symbols.txt; conf; echo "$u $b -> $a REVERTED"; else echo "$u $b -> $a"; fi
+if [ "$a" -lt "$b" ] 2>/dev/null; then cp ${TMPDIR:-/tmp}/pd_sym.bak config/SLSP01/symbols.txt; conf; echo "$u $b -> $a REVERTED"; else echo "$u $b -> $a"; fi

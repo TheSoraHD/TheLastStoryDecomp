@@ -11,8 +11,8 @@ if [ "$1" = "--pd" ]; then
 fi
 fail=""
 rm -f build/SLSP01/main.dol
-timeout 590 ninja > /tmp/precommit_ninja.log 2>&1
-grep -q "main.dol: OK" /tmp/precommit_ninja.log && echo "main.dol: OK" || { grep -E "FAILED|error" /tmp/precommit_ninja.log | head -5; fail="$fail ninja"; }
+timeout 590 ninja > ${TMPDIR:-/tmp}/precommit_ninja.log 2>&1
+grep -q "main.dol: OK" ${TMPDIR:-/tmp}/precommit_ninja.log && echo "main.dol: OK" || { grep -E "FAILED|error" ${TMPDIR:-/tmp}/precommit_ninja.log | head -5; fail="$fail ninja"; }
 r=$(python3 tools/decomp/regress.py build/SLSP01/report.json $REF/report.json | tail -2); echo "$r"
 echo "$r" | grep -q "lost: 0" || fail="$fail regress"
 f=$(python3 tools/decomp/fuzzdrop.py build/SLSP01/report.json $REF/report.json | tail -1); echo "$f"
@@ -26,19 +26,19 @@ if [ $# -gt 0 ]; then
     p=$(python3 tools/decomp/poolcheck.py "$@" | grep -v "units with findings: 0")
     [ -n "$p" ] && { echo "$p" | head -4; echo "(poolcheck: compare with the known warnings)"; }
 fi
-python3 tools/decomp/labelcheck.py $(cat $REF/units.txt) > /tmp/precommit_lc.txt 2>&1
-python3 tools/decomp/rep100.py > /tmp/precommit_rep.txt 2>&1
-python3 - "$REF" <<'P' || fail="$fail labelcheck/rep100"
+python3 tools/decomp/labelcheck.py $(cat $REF/units.txt) > ${TMPDIR:-/tmp}/precommit_lc.txt 2>&1
+python3 tools/decomp/rep100.py > ${TMPDIR:-/tmp}/precommit_rep.txt 2>&1
+python3 - "$REF" "${TMPDIR:-/tmp}" <<'P' || fail="$fail labelcheck/rep100"
 import sys
-ref=sys.argv[1]
+ref=sys.argv[1]; tmp=sys.argv[2]
 def load(f): return set(l.strip() for l in open(f) if l.strip())
 def units(s): return {x.split()[0]: x for x in s}
-a=units(load(ref+'/labelcheck.txt')); b=units(load('/tmp/precommit_lc.txt'))
+a=units(load(ref+'/labelcheck.txt')); b=units(load(tmp+'/precommit_lc.txt'))
 worse=[]
 for u,x in b.items():
     nb=int(x.split()[-1]); na=int(a[u].split()[-1]) if u in a else 0
     if nb>na: worse.append(x)
-ra=load(ref+'/rep100.txt'); rb=load('/tmp/precommit_rep.txt')
+ra=load(ref+'/rep100.txt'); rb=load(tmp+'/precommit_rep.txt')
 newr=[x for x in rb-ra if not x.startswith('REP total') and not x.startswith('total')]
 for x in sorted(worse): print('LC+',x)
 for x in sorted(newr): print('REP+',x)

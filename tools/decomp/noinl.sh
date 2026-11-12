@@ -4,7 +4,7 @@
 # git checkout del .cpp si no compensa). Candidatas: tools/decomp/missbl.py.
 cd "$(dirname "$0")/../.."
 u=$1; pat=$2; f=src/$u.cpp
-python3 tools/decomp/fnstat.py $u > /tmp/noinl.before
+python3 tools/decomp/fnstat.py $u > ${TMPDIR:-/tmp}/noinl.before
 python3 - "$f" "$pat" <<'PY'
 import sys, re
 f, pat = sys.argv[1], sys.argv[2]
@@ -16,5 +16,5 @@ s = s[:m.start()] + "__declspec(noinline) " + s[m.start():]
 open(f, "w", encoding="latin-1").write(s)
 PY
 ninja build/SLSP01/src/$u.o 2>&1 | grep -i error
-python3 tools/decomp/fnstat.py $u > /tmp/noinl.after
-diff /tmp/noinl.before /tmp/noinl.after
+python3 tools/decomp/fnstat.py $u > ${TMPDIR:-/tmp}/noinl.after
+diff ${TMPDIR:-/tmp}/noinl.before ${TMPDIR:-/tmp}/noinl.after
