@@ -24,6 +24,8 @@ Inicio: 2026-11-12 16:10 (reloj del contenedor). Rama `agent-E`.
   .rodata `sImagoAttacks_unk` (0x80754C24) y `sImagoCapsules_unk` (0x80754D30) definidas en el fuente;
   `m18D4` pasa a `AttackTimer_unk[3]` (la copia de la espera de la tabla 0 sale plegada a 0, como en el
   original).
+- vf0C 0x80458590 (100 %; `m18F4` = lugar 2 de la tabla de rutas, `Field_unk` local con `m10D8`),
+  vf54 0x8045A8F0 (98,6 %: ranuras de pila de las dos ramas).
 
 ## game/LastCocoonEgg
 

@@ -15,9 +15,11 @@ class LastCocoonImago : public EnemyTask {
 public:
     LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info); // 0x80458270
     virtual ~LastCocoonImago();                              // 0x8045F9A0
+    virtual int vf0C();                                      // 0x80458590
     virtual void vf20();                                     // 0x8045B594
     virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
+    virtual void vf54(); // 0x8045A8F0: inferred: places the hit spheres of the attacks
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
     virtual float vf90();                                    // 0x8045F998
     virtual int vfB8(wchar_t* name);                         // 0x80459F24
@@ -69,7 +71,7 @@ public:
     } m18D4[3];
     int m18EC;
     int m18F0;
-    unsigned char m18F4[0x18F8 - 0x18F4];
+    RoutePlace_unk* m18F4; // inferred: place 2 of the field
     GimmickCommon* m18F8; // inferred: gimmick told (message 5) when mode 12 starts
     atn::ColliSphere m18FC; // inferred: a sphere (0x4C bytes; its destructor is inlined)
     atn::Vector3 m1948;

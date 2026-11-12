@@ -15,7 +15,9 @@ struct Effect_unk {
 extern "C" Effect_unk* lbl_8087F048;
 // inferred: field (lbl_8087F430); only the member used here
 struct Field_unk {
-    unsigned char m0000[0x54F4];
+    unsigned char m0000[0x10D8];
+    RouteTable_unk* m10D8; // inferred: route table of the map
+    unsigned char m10DC[0x54F4 - 0x10DC];
     unsigned char m54F4[4]; // inferred: name table (fn_803B3B38)
 };
 extern "C" Field_unk* lbl_8087F430;
@@ -55,6 +57,47 @@ LastCocoonImago::LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info)
     m1964.vf0C("camera/battle/cm000_em206_00.xsca");
     m196C.LoadRequest("ef_uc030.efp");
     mFlagC31 = 1;
+}
+
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+// inferred: RouteTable_unk::FindPlace_unk with the array read inside the loop (as in
+// game/LastCocoonQuadruped.cpp)
+inline RoutePlace_unk* FindImagoPlace_unk(RouteTable_unk* table, int id) {
+    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
+        RoutePlace_unk* places = table->mPlaces;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
+int LastCocoonImago::vf0C() {
+    if (fn_8013655C() == 0 && m14F0.IsLoading() == 0 && m14B0.fn_80473F50() == 0 && m1964.fn_80473F50() == 0 &&
+        m196C.IsLoading() == 0) {
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0xC219;
+        mStatus.m18 |= 0x3800000;
+        fn_80087994(m1980.Load("LastCocoonImago"), "DebugDisp", &m1984, 0, 0);
+        if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
+            m18F4 = FindImagoPlace_unk(lbl_8087F430->m10D8, 2);
+        }
+        m56C = 0.02f;
+        m5B0 = 25.0f;
+        m5B4 = 120.0f;
+        for (int i = 0; i < 11; i++) {
+            mCapsules[i].mFlags |= 3;
+            mCapsules[i].m0C = (int)this;
+            mCapsules[i].mFlags &= ~0x80000000;
+        }
+        m18FC.mFlags |= 3;
+        m18FC.m0C = (int)this;
+        vf20();
+        ResetAttacks_unk();
+        return 1;
+    }
+    return 0;
 }
 
 atn::Vector3 LastCocoonImago::vf64(int center) {
@@ -133,6 +176,38 @@ int LastCocoonImago::vfB8(wchar_t* name) {
         }
     }
     return 0;
+}
+
+// NONMATCHING: 98.5% - stack slots of the temporaries of the two branches (and the load order of the nodes)
+void LastCocoonImago::vf54() {
+    if (m624.mSize != 0) {
+        for (int i = 0; i < 3; i++) {
+            if (i == 0) {
+                atn::Vector3 dir;
+                dir.x = 0.0f;
+                dir.y = 0.0f;
+                dir.z = 1.0f;
+                atn::Matrix3x4 rot;
+                rot.fn_8013A13C(mRot.y);
+                PSMTXMultVec(rot.m, &dir, &dir);
+                m624.mData[i].m04.mCenter = mPos - dir * 3.0f;
+                m624.mData[i].m04.mCenter.y += 0.5f * sImagoAttacks_unk[i].mRadius;
+            } else {
+                MtxPtr a = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode0);
+                MtxPtr b = mMotion.GetNodeMtx_unk(sImagoAttacks_unk[i].mNode1);
+                if (a != 0) {
+                    if (b != 0) {
+                        atn::Vector3 pb = ((atn::Matrix3x4*)b)->GetTrans_unk();
+                        atn::Vector3 pa = ((atn::Matrix3x4*)a)->GetTrans_unk();
+                        m624.mData[i].m04.mCenter = pa + (pb - pa) * 0.6f;
+                    } else {
+                        m624.mData[i].m04.mCenter = ((atn::Matrix3x4*)a)->GetTrans_unk();
+                    }
+                }
+            }
+        }
+        m624.mData[3].m04.mCenter = m1948;
+    }
 }
 
 void LastCocoonImago::vf24() {
