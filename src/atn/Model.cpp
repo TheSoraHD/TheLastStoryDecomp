@@ -1816,6 +1816,39 @@ void Model::fn_80094F14(float u, float v) {
     }
 }
 
+// inferred: element-wise matrix sum and scale (the arguments of the constructor are evaluated from
+// the last one); names invented
+static inline Matrix3x4 MtxAdd_unk(const Matrix3x4& a, const Matrix3x4& b) {
+    return Matrix3x4(a.m[0][0] + b.m[0][0], a.m[0][1] + b.m[0][1], a.m[0][2] + b.m[0][2], a.m[0][3] + b.m[0][3],
+                     a.m[1][0] + b.m[1][0], a.m[1][1] + b.m[1][1], a.m[1][2] + b.m[1][2], a.m[1][3] + b.m[1][3],
+                     a.m[2][0] + b.m[2][0], a.m[2][1] + b.m[2][1], a.m[2][2] + b.m[2][2], a.m[2][3] + b.m[2][3]);
+}
+static inline Matrix3x4 MtxScale_unk(const Matrix3x4& a, float s) {
+    return Matrix3x4(a.m[0][0] * s, a.m[0][1] * s, a.m[0][2] * s, a.m[0][3] * s, a.m[1][0] * s, a.m[1][1] * s,
+                     a.m[1][2] * s, a.m[1][3] * s, a.m[2][0] * s, a.m[2][1] * s, a.m[2][2] * s, a.m[2][3] * s);
+}
+
+// inferred: bounding sphere in world space: the center of the box through the world matrix, or the
+// matrix of the node mB0 (the middle of the nodes mB0 and mB4 if both are set)
+// NONMATCHING: 99.5% - r3/r7 swapped between the node array and the address of the scaled matrix
+Model::Sphere_unk Model::fn_80094F98() {
+    Matrix3x4 mtx = mMtx;
+    if (mB0 >= 0) {
+        if (mB4 >= 0) {
+            mtx = MtxScale_unk(MtxAdd_unk(mMtx.mNodes.mData[mB0], mMtx.mNodes.mData[mB4]), 0.5f);
+        } else {
+            mtx = mMtx.mNodes.mData[mB0];
+        }
+    }
+    float scale = m54 * mAC;
+    Vector3 center = m9C;
+    PSMTXMultVec(mtx.m, &center, &center);
+    Sphere_unk sphere;
+    sphere.mCenter = center;
+    sphere.mRadius = mA8 * scale;
+    return sphere;
+}
+
 // inferred: over the inline budget (R3) as the original: every accessor, matrix product and box
 // assignment is called out of line (weak copies 0x8008CD50, 0x8008E2E0, 0x80091C00, 0x800952F8...)
 AABB_unk Model::fn_80095300() {
