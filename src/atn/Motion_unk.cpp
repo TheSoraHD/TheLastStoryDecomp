@@ -601,7 +601,7 @@ struct MotionTree_unk {
         delete node;
     }
     Node* End_unk() { return (Node*)&mRoot; }
-    Node* Find_unk(MotionKey_unk key) {
+    iterator Find_unk(MotionKey_unk key) {
         Node* result = End_unk();
         Node* node = mRoot;
         while (node != 0) {
@@ -613,9 +613,9 @@ struct MotionTree_unk {
             }
         }
         if (result == End_unk() || mComp(key, result->mValue.first)) {
-            return End_unk();
+            return iterator(End_unk());
         }
-        return result;
+        return iterator(result);
     }
     void Erase_unk(iterator pos) {
         Node* n = pos.mNode;
@@ -691,6 +691,8 @@ struct MotionMap_unk : public MotionTreeL2_unk<Node> {
 struct MotionBankCache_unk {
     MotionMap_unk<MotionBankNode_unk> mBanks; // 0x00
     MotionMap_unk<MotionUseNode_unk> mUses;   // 0x10
+
+    void Release_unk(MotionKey_unk key);
 };
 
 static inline MotionBankCache_unk& GetMotionBanks_unk() {
@@ -699,20 +701,18 @@ static inline MotionBankCache_unk& GetMotionBanks_unk() {
 }
 
 // inferred: drops the use of a (model, motion) pair, and its bank with the last use
-static inline void ReleaseMotionBank_unk(atn::MotionCmd_unk* cmd) {
-    MotionBankCache_unk& cache = GetMotionBanks_unk();
-    MotionTreeIter_unk<MotionUseNode_unk> use = cache.mUses.Find_unk(cmd->mKey);
+inline void MotionBankCache_unk::Release_unk(MotionKey_unk key) {
+    MotionTreeIter_unk<MotionUseNode_unk> use = mUses.Find_unk(key);
     if (--use.mNode->mValue.second.mRef <= 0) {
-        MotionTreeIter_unk<MotionBankNode_unk> bank = cache.mBanks.Find_unk(use.mNode->mValue.second.mBank);
+        MotionTreeIter_unk<MotionBankNode_unk> bank = mBanks.Find_unk(use.mNode->mValue.second.mBank);
         if (--bank.mNode->mValue.second.mRef <= 0) {
             delete[] bank.mNode->mValue.second.mData;
-            cache.mBanks.Erase_unk(bank);
+            mBanks.Erase_unk(bank);
         }
-        cache.mUses.Erase_unk(use);
+        mUses.Erase_unk(use);
     }
 }
 
-// inferred: a new bank for the (model, motion) pair, shared with the pairs that animate the same nodes
 struct MotionBankRef_unk {
     MotionBankRef_unk(short* data, const MotionKey_unk& key) : mKey(key) { mData = data; }
     short* mData;
@@ -721,20 +721,21 @@ struct MotionBankRef_unk {
 extern "C" MotionBankRef_unk fn_800A130C(MotionBankCache_unk* cache, atn::Model* model, atn::LH_Motion* motion);
 extern "C" unsigned int fn_800DC500(const void* data, unsigned long len); // inferred: checksum
 
-// NONMATCHING: 94% - registers (the cache in r31 and the bank iterator in r29 in the original)
+// NONMATCHING: 94.9% - registers: the use and bank iterators swap r29/r30 and the erase keeps the
+// incremented iterator in a saved register
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* motion) {
     if (cmd->mKey != 0) {
-        ReleaseMotionBank_unk(cmd);
+        GetMotionBanks_unk().Release_unk(cmd->mKey);
     }
     MotionBankRef_unk result = fn_800A130C(&GetMotionBanks_unk(), model, (atn::LH_Motion*)motion);
     cmd->mData = result.mData;
     cmd->mKey = result.mKey;
 }
 
-// NONMATCHING: 93% - registers (as fn_800A0A68)
+// NONMATCHING: 94.0% - registers (as fn_800A0A68)
 extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd) {
     if (cmd->mKey != 0) {
-        ReleaseMotionBank_unk(cmd);
+        GetMotionBanks_unk().Release_unk(cmd->mKey);
     }
     cmd->mKey = 0;
     cmd->mData = 0;
@@ -802,7 +803,7 @@ extern "C" MotionBankRef_unk fn_800A130C(MotionBankCache_unk* cache, atn::Model*
     unsigned int modelHash = model->fn_8008B138();
     unsigned int motionId = motion->fn_804768B4();
     MotionKey_unk useKey = ((MotionKey_unk)motionId << 32) | modelHash;
-    MotionUseNode_unk* use = cache->mUses.Find_unk(useKey);
+    MotionUseNode_unk* use = cache->mUses.Find_unk(useKey).mNode;
     if (use == cache->mUses.End_unk()) {
         short keys[0x100];
         int count = ((MotionModelRes_unk*)model->GetRes_unk())->m44;
@@ -810,7 +811,7 @@ extern "C" MotionBankRef_unk fn_800A130C(MotionBankCache_unk* cache, atn::Model*
         int size = count * 2;
         unsigned int sum = fn_800DC500(keys, size);
         MotionKey_unk bankKey = ((MotionKey_unk)HashBytes_unk((const char*)keys, size) << 32) | sum;
-        if (cache->mBanks.Find_unk(bankKey) == cache->mBanks.End_unk()) {
+        if (cache->mBanks.Find_unk(bankKey).mNode == cache->mBanks.End_unk()) {
             short* data = (short*)new ((MemoryTag)6, "", "", 0) char[size];
             memcpy(data, keys, size);
             cache->mBanks.At_unk(bankKey).second = MakeBank_unk(data, 1);
