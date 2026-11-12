@@ -14,12 +14,7 @@
 #include "atn/EffectManager.h"
 #include "atn/RenderManager.h"
 
-// inferred: render parameters (fields named by offset)
-struct EffectParams_unk {
-    unsigned char m000[0x3A4];
-    float mTimeScale; // 0x3A4
-};
-extern "C" EffectParams_unk* lbl_8087EFA8;
+#include "atn/EffectParams_unk.h"
 
 namespace atn {
 

@@ -1,4 +1,5 @@
 #include "atn/LH_Effect.h"
+#include "atn/EffectFileEntry_unk.h"
 #include "atn/LoadManager.h"
 #include "atn/Texture_unk.h"
 #include "atn/Model_unk.h"
@@ -7,7 +8,6 @@
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int fn_80239030(void* data, void* effect);       // inferred: parses the effect data
-extern "C" void fn_8022D754(void* entry);                   // inferred: prepares an entry
 extern "C" void fn_802396A0(void* data);                  // inferred: releases the data (atn/EffectLoader_unk.cpp)
 std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
 extern "C" std::string fn_8006D008(const std::string& a, const char* b); // inferred: a + b
@@ -27,13 +27,8 @@ struct EffectTexturePair_unk {
     atn::Texture_unk m30;
 };
 
-// inferred: entry of the effect data (0x138 bytes)
-struct EffectEntry_unk {
-    char mName[0x80];    // 0x00
-    char mTexture[0x84]; // 0x80
-    unsigned int mType; // 0x104: 1 = model, 2 = texture pair, otherwise a texture
-    unsigned char m108[0x138 - 0x108];
-};
+// inferred: entry of the effect data, EffectFileEntry_unk of atn/EffectFileEntry_unk.h
+typedef EffectFileEntry_unk EffectEntry_unk;
 
 // inferred: effect data (0x44 bytes, cleared with memset; functions at 0x80239030/0x802396A0)
 struct EffectData_unk {

@@ -685,13 +685,11 @@ extern "C" void fn_80235BF8() {
 }
 
 // inferred: functions of the effect system (atn/EffectSystem_unk.cpp, automatic names)
-extern "C" void fn_8022D078(EffectSystem_unk* system);
-extern "C" void fn_8022D478(EffectSystem_unk* system, void* arg);
 extern "C" void fn_802380D4(EffectSystem_unk* system, float dt);
 
 // inferred: update
 void EffectSystem_unk::fn_8023686C(float rate) {
-    fn_8022D078(this);
+    fn_8022D078(rate);
     fn_802380D4(this, rate);
 }
 
@@ -705,7 +703,7 @@ void EffectSystem_unk::fn_802368B0(void* arg) {
     sStripFar = -999999.0f;
     sModelNear = 999999.0f;
     sModelFar = -999999.0f;
-    fn_8022D478(this, arg);
+    fn_8022D478((int)arg);
     fn_80234CD8();
     fn_80235BF8();
     fn_80072914(lbl_8087EEE0, 0);
