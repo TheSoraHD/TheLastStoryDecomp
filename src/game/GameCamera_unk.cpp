@@ -849,7 +849,8 @@ void GameCamera::fn_8038D1C0(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
     atn::Vector3 front(0.0f, 0.0f, 10.0f);
     Mtx m;
-    PSMTXRotRad(m, 'y', chara->mRot.y);
+    float rotY = chara->mRot.y;
+    PSMTXRotRad(m, 'y', rotY);
     PSMTXMultVec(m, &front, &front);
     target += front;
     target = (target - m818) * ((float)m808 / 30.0f) + m818;
