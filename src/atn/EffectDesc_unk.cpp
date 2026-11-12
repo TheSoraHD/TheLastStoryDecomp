@@ -6,6 +6,7 @@
 #include "atn/EffectSystem_unk.h"
 #include "atn/RenderManager.h"
 #include "atn/Scene.h"
+#include "atn/GraphicsDevice.h"
 
 // Sorted drawing of the effect primitives: polygon strips (items A, 0x70 bytes) and models (items B,
 // 0x5C bytes) are queued by the effect system while it updates, bucket-sorted by view depth and
@@ -67,7 +68,8 @@ extern "C" EffectSettings_unk* lbl_8087EFA8;
 
 
 // inferred: renderer (automatic names)
-struct EffectRender_unk;
+// inferred: the graphics device (atn/GraphicsDevice.h)
+typedef atn::GraphicsDevice_unk EffectRender_unk;
 extern "C" EffectRender_unk* lbl_8087EEE0;
 extern "C" void fn_80072914(EffectRender_unk* render, int arg);
 extern "C" void fn_800761A8(EffectRender_unk* render);
@@ -216,7 +218,6 @@ extern "C" void fn_80236938(int count, EffectVertex_unk* verts, const float* col
 // inferred: functions of the renderer and the camera (automatic names)
 extern "C" void fn_80071E04(EffectRender_unk* render);
 extern "C" void fn_80076760(EffectRender_unk* render, int state, int value);
-extern "C" void fn_800763C0(EffectRender_unk* render, int stage, void* texture);
 // inferred: functions of the models (automatic names)
 extern "C" void fn_80094F14(atn::Model* model, float a, float b);
 extern "C" void fn_80094D88(atn::Model* model, int blend, int a, int b, int c, int d);
@@ -287,7 +288,7 @@ inline void SetItemRender_unk(unsigned int flags, void* tex0, void* tex1) {
         break;
     }
     fn_80072914(lbl_8087EEE0, blend);
-    fn_800763C0(lbl_8087EEE0, 0, tex0);
+    fn_800763C0(lbl_8087EEE0, 0, (atn::Texture_unk*)(tex0));
 }
 
 // NONMATCHING: 95.14% - one saved register more than the original; the flag of the camera is
@@ -458,7 +459,7 @@ extern "C" void fn_80234CD8() {
                 }
                 SetItemRender_unk(item->mFlags, item->m0C, item->m10);
                 if ((item->mFlags & 0x200000) == 0x200000 && item->m10 != 0) {
-                    fn_800763C0(lbl_8087EEE0, 1, item->m10);
+                    fn_800763C0(lbl_8087EEE0, 1, (atn::Texture_unk*)(item->m10));
                 }
                 if (atn::RenderManager::instance_->m2F8 == 4) {
                     GXLoadPosMtxImm(item->mMtx.m, 0);
@@ -479,7 +480,7 @@ extern "C" void fn_80234CD8() {
                 }
                 SetItemRender_unk(item->mFlags, item->m0C, item->m10);
                 if ((item->mFlags & 0x200000) == 0x200000 && item->m10 != 0) {
-                    fn_800763C0(lbl_8087EEE0, 1, item->m10);
+                    fn_800763C0(lbl_8087EEE0, 1, (atn::Texture_unk*)(item->m10));
                 }
                 if (atn::RenderManager::instance_->m2F8 == 4) {
                     GXLoadPosMtxImm(item->mMtx.m, 0);
@@ -502,9 +503,186 @@ extern "C" void fn_80234CD8() {
     GXSetTevSwapMode(1, 0, 0);
 }
 
-// inferred: draws the deferred strips of sBuf with an indirect texture (heat haze); not decompiled
-// yet (0x80235BF8, 0xC74 bytes: indirect matrices, seven texture coordinates per vertex)
-extern "C" void fn_80235BF8();
+// inferred: color from four floats in [0, 1]
+inline GXColor ToGXColor_unk(const float* color) {
+    GXColor c;
+    c.r = (int)(255.0f * color[0]);
+    c.g = (int)(255.0f * color[1]);
+    c.b = (int)(255.0f * color[2]);
+    c.a = (int)(255.0f * color[3]);
+    return c;
+}
+
+extern "C" {
+void GXSetIndTexMtx(int id, const float mtx[2][3], signed char scaleExp);
+void GXSetTevIndWarp(int stage, int indStage, unsigned char signedOffset, unsigned char replaceMode, int matrixSel);
+void GXSetIndTexOrder(int indStage, int texCoord, int texMap);
+void GXSetIndTexCoordScale(int indStage, int scaleS, int scaleT);
+}
+
+// inferred: draws the deferred strips of sBuf: 0x40000 with an indirect texture (heat haze), 0x80000
+// with seven texture coordinates towards the screen position of the center (radial blur)
+// NONMATCHING: 94.7% - stack slots of the colour temporaries, and the radial pass computes the screen
+// coordinates y first in the original
+extern "C" void fn_80235BF8() {
+    if (sBufCount == 0) {
+        return;
+    }
+    fn_80072914(lbl_8087EEE0, 0);
+    atn::RenderManager::instance_->fn_800C0508(0);
+    GXSetNumChans(1);
+    GXSetNumTexGens(2);
+    GXSetNumTevStages(1);
+    GXSetNumIndStages(1);
+    GXSetTevOrder(0, 0, 0, 4);
+    GXSetTevColorIn(0, 0xF, 8, 0xC, 0xF);
+    GXSetTevAlphaIn(0, 7, 4, 5, 7);
+    GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+    GXSetTevKColorSel(0, 0xC);
+    GXSetTevKAlphaSel(0, 0x1C);
+    GXSetTevIndWarp(0, 0, 1, 0, 1);
+    GXSetIndTexOrder(0, 1, 1);
+    GXSetIndTexCoordScale(0, 0, 0);
+    GXSetTevOrder(1, 1, 2, 4);
+    GXSetTevColorIn(1, 0xF, 0, 0xC, 0xF);
+    GXSetTevAlphaIn(1, 7, 0, 4, 7);
+    GXSetTevColorOp(1, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(1, 0, 0, 0, 1, 0);
+    GXSetTevKColorSel(1, 0xC);
+    GXSetTevKAlphaSel(1, 0x1C);
+    GXSetTevDirect(1);
+    GXSetTevSwapModeTable(1, 0, 0, 0, 0);
+    GXSetTevSwapMode(1, 0, 1);
+    GXColor black;
+    black.r = 0;
+    black.g = 0;
+    black.b = 0;
+    black.a = 0;
+    GXSetChanAmbColor(4, black);
+    GXSetChanCtrl(4, 0, 0, 0, 0, 0, 2);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    GXSetTexCoordGen2(1, 1, 5, 0x3C, 0, 0x7D);
+    GXLoadPosMtxImm(atn::RenderManager::instance_->mCamera.mView.m, 0);
+    GXSetCurrentMtx(0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xD, 1);
+    GXSetVtxDesc(0xE, 1);
+    GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+    GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    GXSetVtxAttrFmt(0, 0xE, 1, 4, 0);
+    fn_800763C0(lbl_8087EEE0, 0, (atn::Texture_unk*)(&atn::RenderManager::instance_->m74C));
+    float width = (float)lbl_8087EEE0->mWidth;
+    float height = (float)lbl_8087EEE0->mHeight;
+    // inferred: indirect matrix of the heat haze (scaled by the first colour component)
+    float mtx[2][3] = {{0.5f, 0.0f, 0.0f}, {0.0f, 0.5f, 0.0f}};
+    for (int i = 0; i < sBufCount; i++) {
+        EffectStrip_unk* item = (EffectStrip_unk*)sBuf[i];
+        unsigned int flags = item->mFlags;
+        EffectVertex_unk* v = item->mVerts;
+        if ((flags & 0x40000) != 0x40000) {
+            continue;
+        }
+        EffectRender_unk* render = lbl_8087EEE0;
+        fn_80076760(render, 8, ((flags >> 7) & 1) ^ 1);
+        fn_80076760(render, 9, 2);
+        fn_80076760(render, 10, ((flags >> 3) & 1) ^ 1);
+        fn_800763C0(lbl_8087EEE0, 1, (atn::Texture_unk*)(item->m0C));
+        if ((item->mFlags & 0x200000) == 0x200000 && item->m10 != 0) {
+            fn_800763C0(lbl_8087EEE0, 2, (atn::Texture_unk*)(item->m10));
+            GXSetNumTevStages(2);
+        } else {
+            GXSetNumTevStages(1);
+        }
+        GXSetChanMatColor(4, ToGXColor_unk(item->mColor));
+        mtx[0][0] = 0.2f * item->mColor[0];
+        mtx[1][1] = 0.2f * item->mColor[0];
+        GXSetIndTexMtx(1, mtx, 1);
+        fn_800761A8(lbl_8087EEE0);
+        GXBegin(0x98, 0, item->mCount);
+        for (int j = 0; j < item->mCount; j++, v++) {
+            atn::Vector3 screen =
+                atn::RenderManager::instance_->GetScreenPosition(atn::Vector3(v->mPos.x, v->mPos.y, v->mPos.z));
+            GXPosition3f32(v->mPos.x, v->mPos.y, v->mPos.z);
+            GXTexCoord2f32(screen.x / width, screen.y / height);
+            GXTexCoord2f32(v->u, v->v);
+        }
+    }
+    GXSetTevSwapMode(1, 0, 0);
+    GXSetNumChans(1);
+    GXSetNumTexGens(8);
+    GXSetNumTevStages(8);
+    GXSetNumIndStages(0);
+    GXSetTevOrder(0, 0, 1, 4);
+    GXSetTevColorIn(0, 0xF, 0xF, 0xF, 0xF);
+    GXSetTevAlphaIn(0, 7, 4, 5, 7);
+    GXSetTevColorOp(0, 0, 0, 0, 1, 0);
+    GXSetTevAlphaOp(0, 0, 0, 0, 1, 0);
+    GXSetTevKColorSel(0, 0x10);
+    GXSetTevDirect(0);
+    GXSetTexCoordGen2(0, 1, 4, 0x3C, 0, 0x7D);
+    GXSetTevSwapModeTable(1, 0, 0, 0, 0);
+    GXSetTevSwapMode(0, 0, 1);
+    for (int k = 0; k < 7; k++) {
+        GXSetTevOrder(k + 1, k + 1, 0, 0xFF);
+        GXSetTevColorIn(k + 1, 0xF, 8, 0xE, 0);
+        GXSetTevAlphaIn(k + 1, 7, 7, 7, 0);
+        GXSetTevColorOp(k + 1, 0, 0, 0, 1, 0);
+        GXSetTevAlphaOp(k + 1, 0, 0, 0, 1, 0);
+        GXSetTevKColorSel(k + 1, 0x10);
+        GXSetTevDirect(k + 1);
+        GXSetTexCoordGen2(k + 1, 1, k + 5, 0x3C, 0, 0x7D);
+    }
+    float weight[4];
+    weight[0] = 0.14285715f;
+    weight[1] = 0.0f;
+    weight[2] = 0.0f;
+    weight[3] = 0.0f;
+    GXSetTevKColor(0, ToGXColor_unk(weight));
+    GXClearVtxDesc();
+    GXSetVtxDesc(9, 1);
+    GXSetVtxDesc(0xD, 1);
+    for (int k = 0; k < 7; k++) {
+        GXSetVtxDesc(k + 0xE, 1);
+    }
+    GXSetVtxAttrFmt(0, 9, 1, 4, 0);
+    GXSetVtxAttrFmt(0, 0xD, 1, 4, 0);
+    for (int k = 0; k < 7; k++) {
+        GXSetVtxAttrFmt(0, k + 0xE, 1, 4, 0);
+    }
+    for (int i = 0; i < sBufCount; i++) {
+        EffectStrip_unk* item = (EffectStrip_unk*)sBuf[i];
+        unsigned int flags = item->mFlags;
+        EffectVertex_unk* v = item->mVerts;
+        if ((flags & 0x80000) != 0x80000) {
+            continue;
+        }
+        EffectRender_unk* render = lbl_8087EEE0;
+        fn_80076760(render, 8, ((flags >> 7) & 1) ^ 1);
+        fn_80076760(render, 9, 2);
+        fn_80076760(render, 10, ((flags >> 3) & 1) ^ 1);
+        GXSetChanMatColor(4, ToGXColor_unk(item->mColor));
+        fn_800763C0(lbl_8087EEE0, 1, (atn::Texture_unk*)(item->m10 != 0 ? item->m10 : item->m0C));
+        atn::Vector3 c3 = atn::RenderManager::instance_->GetScreenPosition(item->mCenter);
+        atn::Vector2_unk center(c3.x / width, c3.y / height);
+        fn_800761A8(lbl_8087EEE0);
+        GXBegin(0x98, 0, item->mCount);
+        for (int j = 0; j < item->mCount; j++, v++) {
+            atn::Vector3 s3 =
+                atn::RenderManager::instance_->GetScreenPosition(atn::Vector3(v->mPos.x, v->mPos.y, v->mPos.z));
+            atn::Vector2_unk screen(s3.x / width, s3.y / height);
+            GXPosition3f32(v->mPos.x, v->mPos.y, v->mPos.z);
+            GXTexCoord2f32(v->u, v->v);
+            atn::Vector2_unk step = (center - screen) * item->mColor[0] * 0.14285715f;
+            for (int k = 0; k < 7; k++) {
+                GXTexCoord2f32(screen.x + step.x * k, screen.y + step.y * k);
+            }
+        }
+    }
+    GXSetTevSwapMode(0, 0, 0);
+    sBufCount = 0;
+}
 
 // inferred: functions of the effect system (atn/EffectSystem_unk.cpp, automatic names)
 extern "C" void fn_8022D078(EffectSystem_unk* system);
@@ -533,15 +711,6 @@ void EffectSystem_unk::fn_802368B0(void* arg) {
     fn_80072914(lbl_8087EEE0, 0);
 }
 
-// inferred: color from four floats in [0, 1]
-inline GXColor ToGXColor_unk(const float* color) {
-    GXColor c;
-    c.r = (int)(255.0f * color[0]);
-    c.g = (int)(255.0f * color[1]);
-    c.b = (int)(255.0f * color[2]);
-    c.a = (int)(255.0f * color[3]);
-    return c;
-}
 
 // NONMATCHING: 94.73% - scheduling of the position loads/FIFO stores, the registers that hold the
 // addresses of the vector temporaries and the camera copy (r3/r4)
