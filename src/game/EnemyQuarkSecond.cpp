@@ -1177,6 +1177,19 @@ void EnemyQuarkSecond::fn_8034228C() {
     SetJump_unk(m1598);
 }
 
+// inferred: action 1: jumps at the target (state 9)
+// NONMATCHING: ~93% - stack slots of the jump temporaries (as fn_8034228C: the original keeps the target and its
+// copy at the top of the frame); tried the target by reference, as a temporary and as a named local
+void EnemyQuarkSecond::fn_80342BC8() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 9;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x156, 0, 1.0f);
+    atn::Vector3 target = m14B0->mPos;
+    SetJump_unk(target);
+}
+
 // inferred: same as PlayEffect_unk with the locals declared pos, rot, color (as PlayEffect_unk of
 // game/Em301LShade.cpp); name invented
 inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
