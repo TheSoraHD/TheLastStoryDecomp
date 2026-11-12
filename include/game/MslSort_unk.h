@@ -112,13 +112,14 @@ inline void MslSelectionSort_unk(Iter first, Iter last, Compare& comp) {
 
 // inferred: MSL __sort of the lists (quicksort with a selection sort below 21 elements, the pivots move with
 // a counter of each instantiation; as game/CharaTask.cpp Sort_unk)
-// NONMATCHING: 87-94% with inline predicates (registers and scheduling); 3% when the original is over the
-// inlining budget and calls the iterator operators, the selection sort and the median out of line (here
-// they are inlined); see game/CosEditItemList_unk.cpp and game/NewCampPartsItem.cpp
+// 100% in ShopBase and NewCampPartsItem (CategoryLess); elsewhere NONMATCHING: 78-96% with inline predicates
+// (registers and scheduling); 0% when the original is over the inlining budget and calls the iterator
+// operators, the selection sort and the median out of line (here they are inlined); see
+// game/CosEditItemList_unk.cpp and game/NewCampPartsItem.cpp
 template <class Iter, class Compare>
 void MslSort_unk(Iter first, Iter last, Compare comp) {
     typedef typename MslRef_unk<Compare>::type CompareRef;
-    static int sOffset; // inferred: one per instantiation (lbl_8087DA70..), -4 to 4
+    static int sOffset = -4; // inferred: one per instantiation (lbl_8087DA70..), -4 to 4
     while (true) {
         int n = last - first;
         if (n <= 1) {
@@ -132,7 +133,8 @@ void MslSort_unk(Iter first, Iter last, Compare comp) {
         if (++sOffset >= 5) {
             sOffset = -4;
         }
-        Iter j(first + (n * 3 / 4 + sOffset % 5));
+        int n3 = n * 3 / 4;
+        Iter j(first + (n3 + sOffset % 5));
         if (++sOffset >= 5) {
             sOffset = -4;
         }
@@ -162,18 +164,17 @@ void MslSort_unk(Iter first, Iter last, Compare comp) {
             }
         }
         if (i == first) {
-            Iter back(last - 1);
             MslSwap_unk(*i, *pivot);
             ++i;
-            if (!comp(*first, *back)) {
+            j = last;
+            if (!comp(*first, *--j)) {
                 while (i != last && !comp(*first, *i)) {
                     ++i;
                 }
-                if (i < back) {
-                    MslSwap_unk(*i, *back);
+                if (i < j) {
+                    MslSwap_unk(*i, *j);
                 }
             }
-            j = back;
             if (i < j) {
                 while (true) {
                     while (!comp(*first, *i)) {

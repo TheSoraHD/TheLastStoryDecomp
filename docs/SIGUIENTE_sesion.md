@@ -3,8 +3,8 @@
 > Sesion `paralelo-20261112` (8 h, lote en paralelo con 4 agentes) cerrada el 2026-11-12 hacia las 23:45
 > (inicio 14:47; reinicio del servidor 18:33-20:16). Rama `paralelo-20261112` **sin mergear**: pendiente de revision.
 
-Estado: **15057 -> 15227 / 18109**, lost 0, sin bajadas de fuzzy, rep100 136 -> 135, `main.dol: OK` (build limpio y
-clon limpio). Funciones al 0 %: **870 -> 546**. 42 DRAFT (0 en la ruta). Ninguna unidad nueva enlaza. Split nuevo
+Estado: **15057 -> 15231 / 18109**, lost 0, sin bajadas de fuzzy, rep100 136 -> 135, `main.dol: OK` (build limpio y
+clon limpio). Funciones al 0 %: **870 -> 550**. 42 DRAFT (0 en la ruta). Ninguna unidad nueva enlaza. Split nuevo
 `atn/MotionBank_unk` (de Motion_unk en 0x800A0A68, aprobado al cierre); `symbols.txt` solo renombrados y `scope:local` de etiquetas. Notas:
 `docs/paralelo-20261112.md` (resumen, decisiones e integraciones) y `docs/paralelo-20261112-q*.md` (una por cola).
 
@@ -13,8 +13,7 @@ clon limpio). Funciones al 0 %: **870 -> 546**. 42 DRAFT (0 en la ruta). Ninguna
 - Deuda de la regla 10 en `game/BattleTask`: nueve funciones nuevas `extern "C"` con `BattleTask*` primero (80
   llamadores de `fn_800F8548` en otras unidades). Pasarlas a miembros en un lote de integracion, junto con sus
   llamadores.
-- Parche no aplicado `docs/paralelo-20261112-MslSort_unk-fix.patch` (`game/MslSort_unk.h`): sube los sorts de
-  ShopBase y NewCampPartsItem al 100 %, pero cuatro sorts de CosEditItemList_unk bajan de 2,89 % a 0 %.
+- Parche de `game/MslSort_unk.h` aplicado (ShopBase y NewCampPartsItem al 100 %; 4 sorts de CosEditItemList_unk a 0 %).
 - Split `atn/MotionBank_unk` aplicado al cierre (ver "Cambios de splits" en las notas).
 - Firma de `CharaTask::vfBC()`: el de LastCocoonImago (0x80459FB8) recibe un argumento.
 

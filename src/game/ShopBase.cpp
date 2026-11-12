@@ -168,8 +168,7 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
 // NONMATCHING: 99.93% - registers of the names of the new items (r25 for r30). In an unnamed namespace
 // (local linkage: its L"%s" goes to the file pool @wstringBase0 + 0x12 as in the original). The std::sort
-// code of the list (0x80582598-0x80584174) is game/MslSort_unk.h: 95.9-99.9%, see its notes (its counter
-// has no -4 initializer: .sbss here, .sdata in the original)
+// code of the list (0x80582598-0x80584174) is game/MslSort_unk.h (both sorts at 100%)
 // inferred: order of the list (std::sort predicate, 0x805828B0): by group and kind of the item; the
 // materials (kinds other than 2 and 3) by their bag index; the rest the new ones first, then the weapons
 // by their sort key and by name (without the "+n" of the upgrades, shorter first, the new ones by the
