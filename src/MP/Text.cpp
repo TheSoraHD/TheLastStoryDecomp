@@ -8,10 +8,12 @@
 #include "atn/LH_Binary.h"
 #include "atn/Memory.h"
 #include "atn/Task.h"
+#include "game/GameSaveData.h"
 
 extern "C" int atoi(const char* s);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" int rand();
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text (shared by the text tables)
@@ -144,7 +146,7 @@ struct MpRewardTable_unk {
 };
 
 // NONMATCHING: 93.2% - string pool offsets (the pool of the original has no "" first but one
-// after "RAID", used by fn_80506D94, not decompiled) and register allocation
+// after "RAID", used by fn_80506D94) and register allocation
 extern "C" void fn_805061C8(MpRewardTable_unk* table, const char* data, int size) {
     atn::Csv csv(data, size);
     while (csv.fn_8005BBF8()) {
@@ -237,11 +239,126 @@ struct MpRewardPair_unk {
     int m08;
 };
 
-extern "C" int rand();
+extern "C" int fn_80506C10(atn::FixedArray_unk<int, 16>* out, MpRewardPair_unk* pairs);
+extern "C" int fn_80206B9C(int id); // inferred: the item is a weapon (its upgrades follow its code)
+
+// inferred: multiplayer session (lbl_8087F610): save data of the player through its save/load manager
+struct MpRewardSaveLoad_unk {
+    unsigned char m00[0x48];
+    GameSaveData_unk* m48;
+};
+struct MpRewardSession_unk {
+    unsigned char m000[0x514];
+    MpRewardSaveLoad_unk* m514;
+};
+extern "C" MpRewardSession_unk* lbl_8087F610;
+
+// inferred: number of items `code` the player has (a weapon counts with its `n` upgrades)
+inline int CountItem_unk(GameSaveData_unk* save, int code, int n) {
+    int count = save->mInventory.fn_803BD49C(code);
+    if (fn_80206B9C(code)) {
+        for (int c = code + 1; c <= code + n; c++) {
+            count += save->mInventory.fn_803BD49C(c);
+        }
+    }
+    return count;
+}
+
+// NONMATCHING: 95.68% - the original recomputes the address of the last list (table + index) at the end of
+// each branch, clears the raid item list earlier and loads its size twice at the end; registers
+// inferred: picks the reward of a match: the first item of the rank rows (shuffled) that the player does
+// not have yet, else a random one of the last row (PVP, mode 0/1); in the raids (mode 2+) a random item of
+// the last row the player does not have, once every item of the step rows is owned
+extern "C" int fn_8050655C(MpRewardTable_unk* table, unsigned int mode, int raid, int pvp) {
+    GameSaveData_unk* save = lbl_8087F610->m514->m48;
+    if (mode <= 1) {
+        unsigned int i = 0;
+        MpRewardRow_unk* row = fn_8050652C(table, table->mPvp[pvp][0]);
+        while (row != 0) {
+            atn::FixedArray_unk<int, 16> out;
+            fn_80506C10(&out, (MpRewardPair_unk*)row);
+            for (unsigned int j = 0; j < out.size(); j++) {
+                if (save != 0 && CountItem_unk(save, out.mData[j], 4) <= 0) {
+                    return out.mData[j];
+                }
+            }
+            if (++i >= table->mPvp[pvp].size()) {
+                break;
+            }
+            row = fn_8050652C(table, table->mPvp[pvp][i]);
+        }
+        atn::FixedArray_unk<int, 16>& list = table->mPvp[pvp];
+        MpRewardRow_unk* last = fn_8050652C(table, list[list.size() - 1]);
+        int n = 0;
+        for (int k = 0; k < 32; k++) {
+            if (last->m04.m[k] > 0) {
+                n++;
+            }
+        }
+        if (n > 0) {
+            return last->m04.m[rand() % n];
+        }
+    } else if (pvp == 0) {
+        unsigned int i = 0;
+        MpRewardRow_unk* row = fn_8050652C(table, table->mRaid[raid][0]);
+        while (row != 0) {
+            atn::FixedArray_unk<int, 16> out;
+            fn_80506C10(&out, (MpRewardPair_unk*)row);
+            for (unsigned int j = 0; j < out.size(); j++) {
+                if (save != 0 && CountItem_unk(save, out.mData[j], 4) <= 0) {
+                    return out.mData[j];
+                }
+            }
+            if (++i >= table->mRaid[raid].size() - 1) {
+                break;
+            }
+            row = fn_8050652C(table, table->mRaid[raid][i]);
+        }
+        atn::FixedArray_unk<int, 16>& list = table->mRaid[raid];
+        atn::FixedArray_unk<int, 64> items;
+        MpRewardRow_unk* last = fn_8050652C(table, list[list.size() - 1]);
+        for (int k = 0; k < 32; k++) {
+            int v = last->m04.m[k];
+            if (v > 0) {
+                for (int c = 0; c < 9; c++) {
+                    items.push_back(v);
+                }
+            }
+        }
+        int all = 1;
+        for (int t = 0; t < 5; t++) {
+            MpRewardRow_unk* r = fn_8050652C(table, table->mRaid[t][0]);
+            int missing = 0;
+            for (int k = 0; k < 32; k++) {
+                int v = r->m04.m[k];
+                if (v > 0 && CountItem_unk(save, v, 6) <= 0) {
+                    missing++;
+                }
+            }
+            if (missing > 0) {
+                all = 0;
+                break;
+            }
+        }
+        if (all) {
+            MpRewardRow_unk* r = fn_8050652C(table, table->mRaid[5][0]);
+            for (int k = 0; k < 32; k++) {
+                int v = r->m04.m[k];
+                if (v > 0 && CountItem_unk(save, v, 4) <= 0) {
+                    items.push_back(v);
+                }
+            }
+        }
+        unsigned int n = items.size();
+        if (items.size() != 0) {
+            return items[rand() % n];
+        }
+    }
+    return 0;
+}
 
 // inferred: shuffles the values of the 16 rows of `pairs` (fields +4/+8, stopping at the first one
-// that is not positive) into `out`; returns 0 if there were none. fn_8050655C (not decompiled)
-// is between this function and fn_8050652C in the original.
+// that is not positive) into `out`; returns 0 if there were none.
 // NONMATCHING: 94.5% - the original loads each value once into r5 before the size check and keeps
 // an unused counter in r7; registers of the erase loop (tried value locals, index/pointer loops,
 // pair struct forms: 10 attempts)
