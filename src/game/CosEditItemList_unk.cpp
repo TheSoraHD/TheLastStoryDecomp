@@ -477,6 +477,115 @@ void CosEditProtector::fn_801D9388() {
 
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
+// inferred: equipment entry (only the kind is read here)
+struct CosEditEquip2_unk {
+    unsigned char m00[0xA8];
+    int mKind; // 0xA8
+};
+// inferred: equipment data (only the kind and the name are read)
+struct CosEditEquip_unk {
+    unsigned char m00[0x78];
+    int mKind;            // 0x78: inferred: 1 and 3 use the second slot
+    unsigned char m7C[0x80 - 0x7C];
+    const wchar_t* mName; // 0x80
+};
+extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: removes items
+
+// inferred: equips the equipment entry on the member (a: puts the old one back in the inventory, b:
+// takes the new one out); a full-body piece also fills the second slot, and taking one off puts the
+// preferred free piece in it. 0 when nothing changes
+// NONMATCHING: 41% - the original calls fn_801DC8C8 out of line: over the inlining budget (R3) once
+// fn_801DD26C (not written yet) is a candidate of the file
+int CosEditProtector::fn_801DC42C(int member, CharaTask* chara, CosEditItem_unk* e, int a, int b) {
+    if (e == 0 || e->mIndex < 0) {
+        return 0;
+    }
+    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
+    int slot = 0;
+    int kind = ((CosEditEquip_unk*)e->mItem)->mKind;
+    if (kind == 1 || kind == 3) {
+        slot = 1;
+    }
+    if (m1E8 == 2 && e->mIndex == equip->mProtectors[slot].mId) {
+        return 0;
+    }
+    int wasFull = 0;
+    if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, equip->mProtectors[0].mId))) {
+        wasFull = 1;
+    }
+    int isFull = 0;
+    if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, e->mIndex))) {
+        isFull = 1;
+    }
+    fn_801DC8C8(member, slot, e->mIndex);
+    if (slot == 0) {
+        fn_801DC8C8(member, 2, e->mIndex);
+    } else if (slot == 1) {
+        fn_801DC8C8(member, 3, e->mIndex);
+    }
+    if (isFull) {
+        fn_801DC8C8(member, 1, e->mIndex);
+        fn_801DC8C8(member, 3, e->mIndex);
+    }
+    if (a) {
+        Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, slot)), 1, 1, 0, 0, 0, 0);
+    }
+    if (!wasFull && isFull) {
+        Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, 1)), 1, 1, 0, 0, 0, 0);
+    }
+    int base = member * 4;
+    Inventory::instance_->fn_8044D0DC(slot, e->mIndex, slot + base, member);
+    if (slot == 0) {
+        Inventory::instance_->fn_8044D0DC(2, e->mIndex, base + 2, member);
+    } else if (slot == 1) {
+        Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
+    }
+    if (isFull) {
+        Inventory::instance_->fn_8044D0DC(1, e->mIndex, base + 1, member);
+        Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
+    }
+    if (b) {
+        fn_8044441C(Inventory::instance_, fn_8020EF80(fn_8020ED84(slot, e->mIndex)), 1);
+    }
+    CharaStatus* status = Inventory::instance_->GetPlayerStatusInfo(member);
+    fn_801CEA98(member, chara, slot, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(slot), 0xE);
+    if (slot == 0) {
+        fn_801CEA98(member, chara, 2, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(2), 0xE);
+    } else if (slot == 1) {
+        fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
+    }
+    if (isFull) {
+        fn_801CEA98(member, chara, 1, e->mIndex, -1, 0, 0, 0xE);
+        fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
+    }
+    if (wasFull && !isFull) {
+        fn_801DD26C(member);
+        fn_801DC42C(member, chara, fn_801DCE88(member, 1, 0), 0, 1);
+    }
+    return 1;
+}
+
+extern "C" int* fn_8044D034(Inventory* inv, int index); // inferred: equipment record
+
+// inferred: forgets the record of the equipment of the slot when the new item `id` is of another
+// kind (or the slot was empty)
+void CosEditProtector::fn_801DC8C8(int member, int slot, int id) {
+    EquipParamEntry_unk* cur = fn_8020ED84(slot, Inventory::instance_->mEquip[member].mProtectors[slot].mId);
+    EquipParamEntry_unk* next = fn_8020ED84(slot, id);
+    int index = slot + member * 4;
+    if (cur == 0) {
+        int* record = fn_8044D034(Inventory::instance_, index);
+        if (record != 0) {
+            *record = -1;
+        }
+    } else if (cur != 0 && next != 0 && ((CosEditEquip2_unk*)cur)->mKind != ((CosEditEquip2_unk*)next)->mKind) {
+        int* record = fn_8044D034(Inventory::instance_, index);
+        if (record != 0) {
+            *record = -1;
+        }
+    }
+}
+
 // inferred: equipment priorities of a member (fn_80218BB4/fn_80218BC4) and the data they compare
 // (weapon or protector parameters); names invented
 struct CosEditStat_unk {
@@ -833,13 +942,6 @@ extern "C" CosEditListUV_unk fn_80444C50(Inventory* inv, int icon);    // inferr
 inline void SetListUV_unk(const char* name, CosEditListLayout_unk* inst, CosEditListUV_unk uv) {
     fn_801F7590(inst, name, &uv.u0);
 }
-// inferred: equipment data (only the kind and the name are read)
-struct CosEditEquip_unk {
-    unsigned char m00[0x78];
-    int mKind;            // 0x78: inferred: 1 and 3 use the second slot
-    unsigned char m7C[0x80 - 0x7C];
-    const wchar_t* mName; // 0x80
-};
 
 // inferred: draws the page of the equipment list m1E4 (names, icons, face of the member who wears
 // it and the state of each row)
@@ -1040,5 +1142,66 @@ void CosEditProtector::fn_801E7098(CosEditItem_unk* item, int list, int* cursor,
             }
             return;
         }
+    }
+}
+
+extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
+extern "C" int fn_8021C6A4(wchar_t* out, const CosEditStat_unk* skill); // inferred: name of a skill
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
+// inferred: d2anime task seen through its layout (as in game/CosEditProtector.cpp)
+struct CosEditListTask_unk : public atn::Task {
+    unsigned char m48[0x58 - 0x48];
+    unsigned char mLayout[4]; // 0x58
+};
+
+// inferred: writes the names of the two skills of the protector (dashes without one, question marks
+// while it is not known)
+extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
+    if (anime == 0 || anime->GetTask() == 0) {
+        return;
+    }
+    wchar_t names[2][64];
+    memset(names[0], 0, sizeof(names[0]));
+    memset(names[1], 0, sizeof(names[1]));
+    CosEditStat_unk* skill = &((CosEditArmor_unk*)item)->mElem0;
+    for (int i = 0; i < 2; i++) {
+        if (item == 0) {
+            wcscpy(names[i], L"-----");
+        } else if (known == 0) {
+            wcscpy(names[i], L"?????");
+        } else if (skill == 0 || !fn_8021C6A4(names[i], skill)) {
+            wcscpy(names[i], L"-----");
+        }
+        char name[0x40];
+        sprintf(name, "skill_name%02d", i);
+        CosEditListTask_unk* task = (CosEditListTask_unk*)anime->GetTask();
+        fn_801FEE08(task->mLayout, fn_800DC6B4(name), names[i]);
+        skill = (CosEditStat_unk*)((char*)skill + 0x14);
+    }
+}
+
+// inferred: same for the two skills of an equipment
+extern "C" void fn_801E7EA8(atn::D3Anime* anime, void* entry, int known) {
+    if (anime == 0 || anime->GetTask() == 0) {
+        return;
+    }
+    wchar_t names[2][64];
+    memset(names[0], 0, sizeof(names[0]));
+    memset(names[1], 0, sizeof(names[1]));
+    CosEditStat_unk* skill = &((CosEditGear_unk*)entry)->mElem0;
+    for (int i = 0; i < 2; i++) {
+        if (entry == 0) {
+            wcscpy(names[i], L"-----");
+        } else if (known == 0) {
+            wcscpy(names[i], L"?????");
+        } else if (skill == 0 || !fn_8021C6A4(names[i], skill)) {
+            wcscpy(names[i], L"-----");
+        }
+        char name[0x40];
+        sprintf(name, "skill_name%02d", i);
+        CosEditListTask_unk* task = (CosEditListTask_unk*)anime->GetTask();
+        fn_801FEE08(task->mLayout, fn_800DC6B4(name), names[i]);
+        skill = (CosEditStat_unk*)((char*)skill + 0x14);
     }
 }
