@@ -13,8 +13,8 @@ namespace atn {
 struct PfsEntry_unk {
     unsigned int mHash;
     unsigned int mOffset;
-    unsigned int m08;
-    unsigned int m0C;
+    unsigned int mSize;       // 0x08: inferred: size of the file (atn/LoadManager_unk.cpp)
+    unsigned int mPackedSize; // 0x0C: inferred: compressed size, 0 when stored
 };
 
 // inferred: fixed-size path (cleared by its constructor, copied only from another buffer)
@@ -48,11 +48,11 @@ public:
     LH_Binary mData;         // 0x10
     int m18;
     LH_Binary m1C;           // 0x1C
-    int m24;
+    int mEntry;              // 0x24: inferred: disc entry of the data file
     unsigned int mHash;      // 0x28
     int mRefCount;           // 0x2C
     PathName_unk mName;      // 0x30
-    int m70;
+    int m70;                 // 0x70: inferred: data kept in memory (no copy)
     int m74;
     int mIndexLoaded;        // 0x78
 };
