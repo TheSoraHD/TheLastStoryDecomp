@@ -461,7 +461,8 @@ void GameCamera::fn_80389678(const CharaTask* chara) {
     atn::Vector3 target = m508;
     if (m518 != 0) {
         Mtx m;
-        PSMTXRotRad(m, 'y', chara->mRot.y);
+        float rotY = chara->mRot.y;
+        PSMTXRotRad(m, 'y', rotY);
         PSMTXMultVec(m, &pos, &pos);
         PSMTXMultVec(m, &target, &target);
         pos += chara->mPos;
