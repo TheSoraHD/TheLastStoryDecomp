@@ -22,7 +22,7 @@ extern "C" unsigned long long fn_806D0030(void* friendData); // inferred: friend
 extern "C" unsigned char DWC_GetFriendStatus(void* friendData, void* status); // inferred: online state
 extern "C" int fn_806CF160(void* friendData);
 
-#define OS_TIMER_CLOCK_UNK (*(unsigned long*)0x800000F8 / 4)
+#define OS_TIMER_CLOCK_UNK (*(unsigned int*)0x800000F8 / 4)
 
 // inferred: one counter: current, maximum and last value per period
 struct NetCounter_unk {

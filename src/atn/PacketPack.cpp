@@ -2894,7 +2894,7 @@ extern "C" void fn_804DA48C(PPManager2_unk* mgr, int value) {
 
 // inferred: seconds since the start of the game
 extern "C" int fn_804DB3B4(PPManager2_unk* mgr) {
-    return (OSGetTime() - mgr->mStartTime) / (*(unsigned long*)0x800000F8 / 4);
+    return (OSGetTime() - mgr->mStartTime) / (*(unsigned int*)0x800000F8 / 4);
 }
 
 // NONMATCHING: 92.59% - the original loads m564 before saving r31

@@ -192,12 +192,12 @@ void* SmallAllocator<N>::vf0C(unsigned long size, unsigned long align, int heap,
         config++;
     }
     int index = config - mConfig;
-    unsigned long* end = mPools[mCount - 1].mBitmap + mConfig[mCount - 1].mCount;
-    for (unsigned long* word = mPools[index].mBitmap; word != end; word++) {
-        unsigned long bits = *word;
+    unsigned int* end = mPools[mCount - 1].mBitmap + mConfig[mCount - 1].mCount;
+    for (unsigned int* word = mPools[index].mBitmap; word != end; word++) {
+        unsigned int bits = *word;
         if (bits != 0xFFFFFFFF) {
             for (int bit = 0; bit < 32; bit++) {
-                unsigned long mask = 1 << bit;
+                unsigned int mask = 1 << bit;
                 if ((mask & bits) != mask) {
                     *word |= mask;
                     int pool = 0;

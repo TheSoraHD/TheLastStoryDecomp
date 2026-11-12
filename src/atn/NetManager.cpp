@@ -28,7 +28,7 @@ extern "C" int OSCreateThread(NetOSThread_unk* thread, void* (*func)(void*), voi
                               unsigned long stackSize, int priority, unsigned short attr);
 extern "C" void OSSleepTicks(long long ticks);
 
-#define OS_TIMER_CLOCK_UNK (*(unsigned long*)0x800000F8 / 4)
+#define OS_TIMER_CLOCK_UNK (*(unsigned int*)0x800000F8 / 4)
 #define OSMillisecondsToTicks_unk(msec) ((msec) * (OS_TIMER_CLOCK_UNK / 1000))
 #define OSMicrosecondsToTicks_unk(usec) (((usec) * (OS_TIMER_CLOCK_UNK / 125000)) / 8)
 

@@ -79,7 +79,7 @@ void LoadHandle::fn_80473FCC(const char* path) {
             if (fn_80473F50() == 0) {
                 break;
             }
-            OSSleepTicks((*(unsigned long*)0x800000F8 / 4) / 1000);
+            OSSleepTicks((*(unsigned int*)0x800000F8 / 4) / 1000);
         }
     }
 }
