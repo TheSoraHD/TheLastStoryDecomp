@@ -79,6 +79,8 @@ public:
     void fn_801DD26C(int member);
     // inferred: puts the cursor of the protector list on `item` (name invented)
     void fn_801E7098(CosEditItem_unk* item, int list, int* cursor, int* top);
+    void fn_801E714C(int member, atn::D2A_Task* task); // inferred: shows the equipment of the member
+    void fn_801E75F8(int member, CharaStatus* status, atn::D3Anime* base, NewCampPartsEntry_unk* entry);
     void fn_801E07A4(int member, int list);
     void fn_801E6714();
     void fn_801E6B10();
