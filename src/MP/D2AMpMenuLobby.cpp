@@ -10,6 +10,7 @@
 #include "MP/D2AMpMenu.h"
 #include "atn/DrawHelper.h"
 #include "atn/Color.h"
+#include "atn/net/Manager.h"
 
 // inferred: hash of the "CustomData" pane (as in MP/D2AMpMenu.cpp; read by functions not written yet); its
 // initializer is the __sinit of the file (0x804C2FC8)
@@ -66,18 +67,6 @@ struct MpLobbySession_unk : public atn::Task {
 };
 extern "C" MpLobbySession_unk* lbl_8087F610;
 extern "C" MpLobbyPlayerInfo_unk* fn_804EB870(MpLobbySession_unk* s); // inferred: local player
-// inferred: multiplayer data (lbl_8087F628); only the members used here (as MP/D2AMpMenuMessageList.cpp)
-struct MpLobbyData_unk {
-    unsigned char m0000[0x1F8];
-    unsigned int m1F8_hi : 12;
-    unsigned int m1F8_12 : 1; // inferred: nonzero when playing alone
-    unsigned int m1F8_lo : 19;
-    unsigned char m1FC[0x25C - 0x1FC];
-    int m25C;                 // inferred: 1 while the face can be changed
-    unsigned char m260[0xC215 - 0x260];
-    unsigned char mC215;      // inferred: nonzero for a friend room
-};
-extern "C" MpLobbyData_unk* lbl_8087F628;
 extern "C" int DWC_GetNumConnectionHost();
 extern "C" int fn_806A8E70();
 extern "C" void fn_804DDA04(MpLobbySession_unk* s); // inferred: sends the game mode
@@ -93,6 +82,8 @@ struct MpLobbyAids_unk {
     unsigned char* mAids;
 };
 extern "C" int fn_804EB1AC(MpLobbySession_unk* s); // inferred: nonzero for the host
+extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
+                            const wchar_t* desc2); // inferred: help text (three lines)
 extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int arg); // inferred: help text
 extern "C" void fn_804DD9CC(MpLobbySession_unk* s, MpLobbyPlayerInfo_unk* player, int face); // inferred: sets the face (host)
 extern "C" unsigned int fn_804FAB40(MpLobbySession_unk* s, int face, MpLobbyPlayerInfo_unk* player, int* id, int arg); // inferred: requests the face
@@ -188,16 +179,16 @@ D2AMpMenuLobby::~D2AMpMenuLobby() {
 
 // inferred: number of connected hosts
 static inline int GetHostCount_unk() {
-    MpLobbyData_unk* data = lbl_8087F628;
+    atn::net::Manager* data = lbl_8087F628;
     if (data->mC215 == 0) {
-        return data->m1F8_12 ? 1 : DWC_GetNumConnectionHost();
+        return data->mFlags.mB12 ? 1 : DWC_GetNumConnectionHost();
     }
-    return data->m1F8_12 ? 1 : fn_806A8E70();
+    return data->mFlags.mB12 ? 1 : fn_806A8E70();
 }
 
 // inferred: index of a connected host by its aid (-1: none)
 static inline int GetAidIndex_unk(unsigned int aid) {
-    if (lbl_8087F628->m1F8_12) {
+    if (lbl_8087F628->mFlags.mB12) {
         return 0;
     }
     MpLobbyAids_unk aids;
@@ -212,7 +203,7 @@ static inline int GetAidIndex_unk(unsigned int aid) {
 
 // inferred: aid of the i-th connected host (0xFF: none)
 static inline unsigned int GetAid_unk(int i) {
-    if (lbl_8087F628->m1F8_12) {
+    if (lbl_8087F628->mFlags.mB12) {
         return 0;
     }
     MpLobbyAids_unk aids;
@@ -632,6 +623,61 @@ void D2AMpMenuLobby::fn_804C0EA4() {
             fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xC9), 0);
         }
     }
+}
+
+// inferred: help text of state 6 (waiting for the other players): the host may start once everybody answered,
+// the others see the name of the host; then the list and the players
+// NONMATCHING: 99.6% - only the name of the wide string pool (lbl_80790D74 / @wstringBase0) differs
+void D2AMpMenuLobby::fn_804C0F88() {
+    bool host = fn_804EB1AC(lbl_8087F610) != 0;
+    if (D2ACommonDialog::sInstance->m4C == 0) {
+        bool ready = false;
+        if (lbl_8087F628->mC215 != 0) {
+            if (fn_804EB26C(lbl_8087F610, 0) == 1) {
+                ready = true;
+            }
+        } else {
+            int count = 0;
+            if (fn_804EB26C(lbl_8087F610, &count) != 0 && GetHostCount_unk() > 1 && count == GetHostCount_unk()) {
+                ready = true;
+            }
+        }
+        if (mDD0 < 120 || D2AMpMenu::sInstance->mC4 == 2) {
+            if (ready == true) {
+                if (host) {
+                    if (mDB0 > 0) {
+                        fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
+                    } else {
+                        fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xCB), L"", L"");
+                        m64->mFlags &= ~4;
+                    }
+                } else if (fn_804FC010(lbl_8087F610) != 0) {
+                    fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xD2), L"", L"");
+                } else {
+                    wchar_t text[256] = {0};
+                    atn::net::NetPlayerInfo_unk* info = lbl_8087F628->vf14(lbl_8087F628->GetServerAid_unk());
+                    if (info != 0) {
+                        fn_800DD3FC(text, lbl_8087F86C->Get_unk(0xCC), info->mName);
+                        fn_804A5D34(MenuCommonTask::sInstance, 0, text, L"", L"");
+                    }
+                }
+            } else {
+                fn_804A5D34(MenuCommonTask::sInstance, 0, lbl_8087F86C->Get_unk(0xCA), L"", L"");
+            }
+        } else {
+            fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xE1), 0);
+        }
+        if (!host) {
+            if (++mDD0 > 240) {
+                mDD0 = 0;
+            }
+        }
+    } else {
+        mDD0 = 0;
+    }
+    fn_804C0A40();
+    fn_804C1634();
+    m64->mFlags &= ~4;
 }
 
 // inferred: draw of the map list (states 7-9): the list of the game mode, the cursor on the entry mDB4 and the
