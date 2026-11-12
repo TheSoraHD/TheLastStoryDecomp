@@ -1,6 +1,7 @@
 #include "MP/D2ACommonDialog.h"
 #include "game/MenuCommonTask.h"
 #include "std/vector.h"
+#include "atn/WordWrap_unk.h"
 #include "std/string_members.h"
 
 namespace std {
@@ -38,8 +39,6 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
 } // namespace std
 
 // inferred: splits a text in lines (see game/MenuCommonTask.cpp)
-extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, float width,
-                            float size, int a, int b, int c, float d);
 // inferred: moves a list cursor (game/MenuCommonTask.cpp)
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c);
@@ -265,7 +264,7 @@ void D2ACommonDialog::fn_804AD000(const wchar_t* text, int line) {
 // L"" of the original is a second .sdata literal (lbl_8087E0E8 + 2), not the file pool one
 void D2ACommonDialog::fn_804AD1EC(const wchar_t* text) {
     std::vector<std::basic_string<wchar_t> > lines;
-    fn_800E0000(&lines, text, 100000.0f, 16.0f, 1, 1, 0, 0.0f);
+    fn_800E0000(&lines, text, 100000.0f, 16.0f, 0.0f, 1, 1, 0);
     while (lines.size() < 6) {
         lines.push_back(std::basic_string<wchar_t>(L""));
     }

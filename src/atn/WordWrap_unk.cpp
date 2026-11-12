@@ -10,6 +10,7 @@
 #include "std/string.h"
 #include "std/vector.h"
 #include "std/string_members.h"
+#include "atn/WordWrap_unk.h"
 #include "std/ostream.h"
 #include "std/sstream.h"
 #include "std/ios_init.h"
@@ -139,8 +140,6 @@ __declspec(noinline) const wchar_t* fn_800DFADC(const wchar_t* p) {
     return p;
 }
 
-// inferred: measures one character; returns < 0 to use the font
-typedef float (*MeasureChar_unk)(wchar_t c, const wchar_t** p, float size);
 
 // NONMATCHING: 83.4% (fn_800DFADC out of line, as the original) - word wrap of `text` to `maxWidth` (inserts line feeds). Same blocks; the
 // original loads the iterator tag of each appended character once before the loops and keeps the
