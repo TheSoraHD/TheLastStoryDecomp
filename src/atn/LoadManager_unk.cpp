@@ -5,6 +5,7 @@
 #include "atn/MemoryManager.h"
 #include "atn/LH_Binary.h"
 #include "atn/FixedArray.h"
+#include "atn/PfsArchive_unk.h"
 
 extern "C" char* strstr(const char* s, const char* sub);
 extern "C" int DVDConvertPathToEntrynum(const char* path); // inferred: DVDConvertPathToEntrynum
@@ -29,42 +30,21 @@ extern "C" void DCZeroRange(void* addr, unsigned long size);
 
 // inferred: engine memory manager (see atn/DwcAllocator_unk.cpp)
 
-// inferred: decompression (whole buffer, and by parts with a state of 0x18 bytes)
+// inferred: decompression (whole buffer, and by parts with a state of 0x18 bytes). The state is the
+// CXUncompContextLZ of the SDK (revolution/cx/CXStreamingUncompression.h): same fields
 struct Decoder_unk {
-    unsigned char m00[0x18];
+    unsigned char* mDest;    // 0x00
+    int mDestCount;          // 0x04
+    int mForceDestCount;     // 0x08
+    int mLength;             // 0x0C
+    unsigned char m10[5];    // 0x10: lengthFlg, flags, flagIndex, headerSize, exFormat
 };
 extern "C" void CXUncompressAny(const void* src, void* dst);
 extern "C" void CXInitUncompContextLZ(Decoder_unk* decoder, void* dst);
-extern "C" void CXReadUncompLZ(Decoder_unk* decoder, const void* src);
+// inferred: the length is slot->mLength, left in r5 by the comparison before the call
+extern "C" int CXReadUncompLZ(Decoder_unk* decoder, const void* src, unsigned int len);
 
 namespace atn {
-
-// inferred: entry of an archive index (see atn/FileSystem_unk.cpp)
-struct PfsEntry_unk {
-    unsigned int mHash;
-    unsigned int mOffset;
-    unsigned int mSize;
-    unsigned int mPackedSize;
-};
-
-// inferred: pfs archive (only what is used here, see atn/FileSystem_unk.cpp)
-class PfsArchive_unk {
-public:
-    int fn_8046FBB0(const char* path) const;
-    PfsEntry_unk* fn_8046FD1C(int index) const;
-    void* fn_8046FD2C(int index);
-    int fn_80470264();
-
-    int mCount;             // 0x00
-    PfsEntry_unk* mEntries; // 0x04
-    LH_Binary mIndex;       // 0x08
-    LH_Binary mData;        // 0x10
-    int m18;
-    LH_Binary m1C;          // 0x1C
-    int mEntry;             // 0x24: inferred: disc entry of the data file
-    unsigned char m28[0x70 - 0x28];
-    int m70; // 0x70: inferred: data kept in memory (no copy)
-};
 
 // inferred: read of a resource (0x50 bytes)
 struct ReadRequest_unk {
@@ -204,8 +184,8 @@ inline void Remove_unk(FixedArray_unk<T, N>& a, T* pos) {
     a.mSize--;
 }
 
-// NONMATCHING: 99.95% - only the register of slot->mLength in the first comparison (r5 in the
-// original, r0 here)
+// inferred: slot->mLength stays in r5 after the first comparison because it is the third argument
+// of CXReadUncompLZ (SDK: CXReadUncompLZ(context, data, len))
 extern "C" void fn_8046BBF0(Reader_unk* reader, ReadSlot_unk* slot) {
     ReadRequest_unk** it = &slot->mRequests[0];
     while (it != &slot->mRequests[slot->mRequests.mSize]) {
@@ -217,7 +197,7 @@ extern "C" void fn_8046BBF0(Reader_unk* reader, ReadSlot_unk* slot) {
                 if (slot->mLength >= req->mPackedSize && req->mDone == 0) {
                     CXUncompressAny(src, req->mBuffer);
                 } else {
-                    CXReadUncompLZ(&req->mDecoder, src);
+                    CXReadUncompLZ(&req->mDecoder, src, slot->mLength);
                 }
             }
             unsigned int n = slot->mLength;
