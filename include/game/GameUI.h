@@ -305,7 +305,13 @@ public:
     void fn_803CF74C();
     void fn_803D11B4(); // inferred: releases the parts of the HUD
     int fn_803D1574();
+    // inferred: called by GameTask (0x803D164C, 0x803D2194: refresh of the HUD parts; 0x803D83A8: per-frame
+    // update; 0x803DAB4C: icons and TacView flags)
+    void fn_803D164C();
+    void fn_803D2194();
     void fn_803D8344();
+    void fn_803D83A8();
+    void fn_803DAB4C(int, int);
     void fn_803DE648(); // inferred: updates the markers of the skill effects
     void fn_803DE89C(SkillEffect* bullet, int index);
     void fn_803DEE24(SkillEffect* bullet, GameUIColor_unk* add, GameUIColor_unk* mul); // inferred: colours of a marker

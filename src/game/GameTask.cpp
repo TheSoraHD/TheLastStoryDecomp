@@ -239,8 +239,6 @@ extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
 extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
 extern "C" int VISetTimeToDimming(int type);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" void fn_803D83A8(GameUI* ui);
-extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
 extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
 extern "C" atn::Task* lbl_8087FA20;
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
@@ -289,8 +287,6 @@ extern "C" int fn_8021446C(int level, int magic); // inferred: second weapon of 
 extern "C" int fn_802143EC(int level, int magic, int seed); // inferred: protector of the level
 extern "C" void fn_8044D184(Inventory* inventory, int slot, int item, int upgrade, int index);
 extern "C" void fn_80218268(int type, int map, int sub);
-extern "C" void fn_803D164C(GameUI* ui);
-extern "C" void fn_803D2194(GameUI* ui);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" unsigned long strlen(const char* s);
@@ -765,8 +761,8 @@ int GameTask::vf0C() {
     if (mOption.m1C == 0 && m10D0 >= 100000 && 403000 > m10D0) {
         fn_80370320(0x11F, 1, 0);
     }
-    fn_803D164C(lbl_8087F490);
-    fn_803D2194(lbl_8087F490);
+    lbl_8087F490->fn_803D164C();
+    lbl_8087F490->fn_803D2194();
     m5620->mFrame = 0;
     m5620->mDelay = 3;
     m5620->mDuration = 10;
@@ -1365,8 +1361,8 @@ void GameTask::vf10() {
                 m5748 = 5;
             }
             fn_80367A40(0);
-            fn_803D164C(lbl_8087F490);
-            fn_803D2194(lbl_8087F490);
+            lbl_8087F490->fn_803D164C();
+            lbl_8087F490->fn_803D2194();
             lbl_8087F490->fn_803E32EC();
             lbl_8087F490->fn_800D246C(0);
             if (m574C > 0) {
@@ -1984,7 +1980,7 @@ void GameTask::vf14() {
         }
     }
     lbl_8087F490->fn_803D2A6C();
-    fn_803D83A8(lbl_8087F490);
+    lbl_8087F490->fn_803D83A8();
     int showIcons = 0;
     int tacView = 0;
     int swing = SetConfig::sInstance->mSwingReplay;
@@ -2150,7 +2146,7 @@ void GameTask::vf14() {
         m56E4++;
         break;
     }
-    fn_803DAB4C(lbl_8087F490, showIcons, tacView);
+    lbl_8087F490->fn_803DAB4C(showIcons, tacView);
     mCamera.fn_8039328C();
 }
 
