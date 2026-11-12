@@ -30,26 +30,14 @@ extern "C" unsigned long strlen(const char* s);
 
 #include "game/ErrorManager.h"
 #include "game/HomeButtonMenu.h"
+#include "game/GameConfig_unk.h"
 extern "C" void fn_80363CE4(); // inferred: creates the ErrorManager singleton
 
 // inferred: HOME button menu (game/HomeButtonMenu.cpp), only the members used here
 // HomeButtonMenu: game/HomeButtonMenu.h
 
-// inferred: settings (only the members used here)
-struct MainConfig_unk {
-    unsigned char m000[0x08];
-    int m08;
-    unsigned char m00C[0x10 - 0x0C];
-    int m10;
-    int m14;
-    unsigned char m018[0x30 - 0x18];
-    int m30; // inferred: frame rate (30 or 60)
-    unsigned char m034[0x4C - 0x34];
-    int m4C;
-    unsigned char m050[0x5B8 - 0x50];
-    int m5B8;
-};
-extern "C" MainConfig_unk* lbl_8087F0A8;
+// GameConfig_unk (lbl_8087F0A8): game/GameConfig_unk.h
+extern "C" GameConfig_unk* lbl_8087F0A8;
 
 class SetConfig {
 public:
@@ -103,9 +91,6 @@ extern "C" void fn_80071220();
 extern "C" void fn_800713D4(void* obj, int w, int h);
 extern "C" void fn_80089620();
 extern "C" void fn_800B95C4();
-extern "C" void fn_80185AD4();
-extern "C" void fn_80187C44(MainConfig_unk* config, const char* path);
-extern "C" void fn_80186520(MainConfig_unk* config);
 extern "C" void fn_800696C8();
 extern "C" void fn_8046D7D8(atn::Task* root);
 extern "C" void fn_800BC798();
@@ -197,10 +182,10 @@ int main() {
         fn_800D2D7C(lbl_8087F530);
         fn_800D2AD8(lbl_8087F530);
         HomeButtonMenu::sInstance->fn_8044073C();
-        if (lbl_8087F0A8->m08 != 0) {
-            fn_8004D258(lbl_8087EE98, 1, 0, lbl_8087F0A8->m10, -1, lbl_8087F0A8->m14);
+        if (lbl_8087F0A8->mDrawCollision != 0) {
+            fn_8004D258(lbl_8087EE98, 1, 0, lbl_8087F0A8->mDrawColliAttrColor, -1, lbl_8087F0A8->mDrawBirdViewColli);
         }
-        lbl_8087EEB8->fn_80069E50(lbl_8087F0A8->m4C);
+        lbl_8087EEB8->fn_80069E50(lbl_8087F0A8->mDrawErrorMessage);
         atn::RenderManager::instance_->fn_800BFAC4();
         lbl_8087F534->mTimer3.Start_unk();
         fn_80047DCC(lbl_8087EE90);
@@ -209,7 +194,7 @@ int main() {
         lbl_8087F534->mTimer3.Stop_unk();
         lbl_8087F534->mTimer0.Stop_unk();
         lbl_8087F534->fn_805A6BD8();
-        fn_80071D60(lbl_8087EEE0, lbl_8087F0A8->m30 == 30);
+        fn_80071D60(lbl_8087EEE0, lbl_8087F0A8->m030 == 30);
         lbl_8087F9A0->fn_80570CF8();
         CallAll_unk(lbl_8087EE94);
         if (frame == 2) {
@@ -250,10 +235,10 @@ void fn_8047A4C8() {
     lbl_8087F420->m1C = 1;
     RegistFrameCallbacks_unk();
     OSReport("0.1\n");
-    fn_80185AD4();
+    GameConfig_unk::fn_80185AD4();
     SetConfig::fn_8057E8C4();
-    fn_80187C44(lbl_8087F0A8, "/config.ini");
-    fn_80186520(lbl_8087F0A8);
+    lbl_8087F0A8->fn_80187C44("/config.ini");
+    lbl_8087F0A8->fn_80186520();
     OSReport("0.2\n");
     SetConfig::sInstance->fn_8057EAF0();
     SequenceBoot_unk::Create_unk(lbl_8087F530);
@@ -261,7 +246,7 @@ void fn_8047A4C8() {
     fn_800696C8();
     fn_8046D7D8(lbl_8087F530);
     OSReport("1\n");
-    lbl_8087F518->m3ED8 = lbl_8087F0A8->m5B8;
+    lbl_8087F518->m3ED8 = lbl_8087F0A8->mTitle.m34;
     OSReport("2\n");
     fn_8046F014(lbl_8087F518);
     OSReport("3\n");

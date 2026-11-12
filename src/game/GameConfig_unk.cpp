@@ -506,7 +506,7 @@ void GameConfig_unk::fn_80186520() {
     fn_80087994(root, "LoadTownSubScript", &mLoadTownSubScript, 0, 0);
 }
 
-void GameConfig_unk::fn_80187C44() {
+void GameConfig_unk::fn_80187C44(const char*) {
     m1B0 = 0;
     mStrap.Set_unk("Strap");
     mDrawErrorMessage = 0;

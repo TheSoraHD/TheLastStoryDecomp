@@ -179,7 +179,8 @@ public:
     static void fn_80185AD4(); // inferred: creates the instance
     GameConfig_unk();
     void fn_80186520();        // inferred: debug menu
-    void fn_80187C44();        // inferred: resets the strap name and some flags
+    void fn_80187C44(const char* path); // inferred: resets the strap name and some flags; path of
+                                        // config.ini (main), unused in this build
     float fn_80187CC0(int diff); // inferred: bonus damage for a level difference (-5..5)
 
     void* mMenu;                 // 0x000
