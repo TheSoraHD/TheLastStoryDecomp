@@ -48,7 +48,9 @@ struct MpLobbySession_unk : public atn::Task {
     }
     unsigned char m048[0x508 - 0x48];
     short m508;               // inferred: time left (-1: none)
-    unsigned char m50A[0x55C - 0x50A];
+    unsigned char m50A[0x540 - 0x50A];
+    int m540;                 // inferred: game mode (0: raid, 1: versus)
+    unsigned char m544[0x55C - 0x544];
     int m55C;
     unsigned char m560[0x5E4 - 0x560];
     MpLobbyMember_unk* m5E4; // inferred: players
@@ -70,6 +72,7 @@ struct MpLobbyData_unk {
 extern "C" MpLobbyData_unk* lbl_8087F628;
 extern "C" int DWC_GetNumConnectionHost();
 extern "C" int fn_806A8E70();
+extern "C" void fn_804DDA04(MpLobbySession_unk* s); // inferred: sends the game mode
 // inferred: list of the connected aids
 struct MpLobbyAids_unk {
     unsigned char* mAids;
@@ -305,6 +308,35 @@ int D2AMpMenuLobby::fn_804BE330(int count) {
     return decide;
 }
 
+// inferred: answer of the common dialog: "yes" switches the game mode (raid/versus) and enters the state mD8C,
+// "no" enters it as it is; while the time left is under 90 the dialog is closed when the other players left
+// NONMATCHING: 99.9% - offset of "col0005" until the strings of the functions before it are written
+void D2AMpMenuLobby::fn_804BE4A4() {
+    D2ACommonDialog* dialog = D2ACommonDialog::sInstance;
+    if (dialog->m4C == 0) {
+        return;
+    }
+    if (dialog->fn_804AC79C()) {
+        MpLobbySession_unk* session = lbl_8087F610;
+        if (session->m540 == 0) {
+            session->m540 = 1;
+            D2AMpMenu::sInstance->mC4 = 1;
+            if (lbl_8087F628->m25C == 1) {
+                fn_804DDA04(lbl_8087F610);
+            }
+        } else if (session->m540 == 1) {
+            session->m540 = 0;
+            D2AMpMenu::sInstance->mC4 = 3;
+            SetPaneValue2_unk(m64->mLayout, "col0005", 0, 0.0f);
+        }
+        fn_804BC628(mD8C);
+    } else if (D2ACommonDialog::sInstance->fn_804AC7EC()) {
+        fn_804BC628(mD8C);
+    } else if (lbl_8087F610->m508 < 90 && GetHostCount_unk() != 1) {
+        D2ACommonDialog::sInstance->fn_804AD738();
+    }
+}
+
 // inferred: before the countdown, waits for the base animation to go back to its first frame and enters the
 // next state; then shows the seconds left on the map (30 - mDCC), fading out at 15 and beeping from 29
 void D2AMpMenuLobby::fn_804C0430() {
@@ -426,5 +458,4 @@ bool D2AMpMenuLobby::fn_804C2F9C() {
     int state = mD88;
     return state == 7 || state == 8 || state == 10;
 }
-
 } // namespace MP

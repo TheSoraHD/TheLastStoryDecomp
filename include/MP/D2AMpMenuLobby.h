@@ -48,6 +48,7 @@ public:
     void fn_804BC628(int state); // inferred: changes the state
     void fn_804BD9B8(); // inferred: enters the state of mD8C
     int fn_804BE330(int count); // inferred: cursor and decide/cancel keys
+    void fn_804BE4A4(); // inferred: answer of the common dialog
     void fn_804BF550();
     void fn_804C0430(); // inferred: countdown before the start
     void fn_804C0548(); // inferred: changes the face
