@@ -26,10 +26,12 @@ Inicio: 2026-11-12 21:50 CET (tope 23:35).
 - `vf0C` 99,5 %: registros del grupo del menu de depuracion (r27/r28); probado declarar `sub` antes: igual.
 - `ResetPostFx_unk` 96,6 %: registros de las constantes del Dof.
 
-- `NewCampPartsMapSelect::vf14` 92,4 %: registros y orden de los temporales de las matrices
-  (`SetEntryScale_unk`, `MoveEntry_unk`) y del offset de la camara. En la unidad faltan cinco cadenas `""` del
-  original en `@stringBase0` (0x1EB, 0x1FC, 0x210-0x212, tras "map_board01_%04d"/"map_board01.d2a"/
-  "map_be010_001_%04d": aqui se fusionan): desplazan 5 bytes las cadenas siguientes (vf10, vf48...).
+- `NewCampPartsMapSelect::vf14` 92,5 %: registros y orden de los temporales de las matrices
+  (`SetEntryScale_unk`, `MoveEntry_unk`) y del offset de la camara.
+- Pool de cadenas de NewCampPartsMapSelect: el original tiene un NUL de mas tras "map_board01_%04d",
+  "map_board01.d2a", "map_be010_001_%04d" y "" de vf4C (bytes sin referencia). Se escribe `"...\0"` en esos
+  `sprintf`: `@stringBase0` identico al original salvo el relleno final; `vf48` al 100 %, vf4C 94,8 -> 96,5 %,
+  vf10 95,2 -> 94,9 % (registros, el comentario de cadenas desaparece). Decision a revisar (estilo).
 
 ## Parche de `MslSort_unk.h` (agente A2)
 

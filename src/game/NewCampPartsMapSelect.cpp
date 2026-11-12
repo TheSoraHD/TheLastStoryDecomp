@@ -349,12 +349,13 @@ int NewCampPartsMapSelect::vf4C() {
             m198C[i].mModel = m1990[i * 2];
             m198C[i].mAnime = m1990[i * 2 + 1];
             if (mPoints.mData[i].m10 >= 0) {
+                // inferred: the names end with an extra NUL in the original pool (unreferenced "" after each)
                 if (mPoints.mData[i].m00 < 500) {
-                    sprintf(m1990[i * 2], "map_board01_%04d", mPoints.mData[i].m14);
-                    sprintf(m1990[i * 2 + 1], "map_board01.d2a");
+                    sprintf(m1990[i * 2], "map_board01_%04d\0", mPoints.mData[i].m14);
+                    sprintf(m1990[i * 2 + 1], "map_board01.d2a\0");
                 } else {
-                    sprintf(m1990[i * 2], "map_be010_001_%04d", mPoints.mData[i].m14);
-                    sprintf(m1990[i * 2 + 1], "");
+                    sprintf(m1990[i * 2], "map_be010_001_%04d\0", mPoints.mData[i].m14);
+                    sprintf(m1990[i * 2 + 1], "\0");
                 }
                 m198C[i].m08 = 0;
                 if (m198C[i].mAnime[0] != 0) {
@@ -462,8 +463,7 @@ inline void SetPaneItem_unk(void* layout, const char* name, int index, float val
 
 // inferred: frame of the map: blinks the marks, raises the boards of the open points of the area under the cursor,
 // shows the name and the revisit level of the point under the cursor and places the cursor on the screen
-// NONMATCHING: 94.7% - the loop over the points keeps the index (stfsu); offsets of the string pool (five empty
-// strings of the original are missing: "" is merged here)
+// NONMATCHING: 94.9% - the loop over the points keeps the index (stfsu)
 void NewCampPartsMapSelect::vf10() {
     m19BC += 1.0f;
     if (m19BC > 35.0f) {
