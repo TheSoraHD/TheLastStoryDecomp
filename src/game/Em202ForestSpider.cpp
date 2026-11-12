@@ -74,7 +74,7 @@ extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" int fn_800C3118(const char* group); // inferred: nonzero when the sound group is loaded
-extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const atn::Vector3& pos, int arg2, int arg3, float volume);
 extern "C" double sqrt(double x);
 extern "C" HitInfo_unk* fn_80219E6C(int id);  // inferred: skill data
 // inferred: effect/bullet manager (lbl_8087F048); class unknown
@@ -101,8 +101,8 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* eff, int a, int b,
                             int d, int e, float scale); // inferred: effect on a matrix
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4); // debug menu
 // inferred: effect `efp` on the model (shared with gmk/FlamingArrow, Em315Coffin and the Quark enemies)
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a5, int a6, int a7, float scale);
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
+                            const atn::Vector3& rot, int a5, int a6, int a7, float scale);
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
@@ -753,12 +753,12 @@ void Em202ForestSpider::vf110() {
                     t->m04 = 1;
                     t->m88->fn_8015C0C0((int)this, t->m0C);
                     atn::Vector3 pos(t->m28.m[0][3], t->m28.m[1][3], t->m28.m[2][3]);
-                    fn_800C344C("SE_EM202_012", &pos, 0, -1, 1.0f);
+                    fn_800C344C("SE_EM202_012", pos, 0, -1, 1.0f);
                     fn_80232B7C(0, 0);
                     atn::Vector3 rot = t->m10.ToRotation_unk();
                     rot.z = 0.0f;
                     atn::Vector3 p(t->m28.m[0][3], t->m28.m[1][3], t->m28.m[2][3]);
-                    fn_80276AE4(lbl_8087F3C0, &t->mA4, 0, &p, &rot, -1, -1, 1, 1.0f);
+                    fn_80276AE4(lbl_8087F3C0, &t->mA4, 0, p, rot, -1, -1, 1, 1.0f);
                     fn_80232B7C(t, 0x66);
                     PlayEffect_unk(&t->mC8, &t->m88->mMotion);
                     fn_80232B7C(t, 0x67);
@@ -956,14 +956,14 @@ void Em202ForestSpider::vf164() {
     fn_80239DAC(lbl_8087F3C0, this, 200, 0);
 }
 
-extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3* pos,
-                            const atn::Vector3* rot, int a5, int a6, int a7, float scale) {
+extern "C" void fn_80276AE4(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, const atn::Vector3& pos,
+                            const atn::Vector3& rot, int a5, int a6, int a7, float scale) {
     Color4f_unk color;
     color.r = 1.0f;
     color.g = 1.0f;
     color.b = 1.0f;
     color.a = 1.0f;
-    fn_8023A8B4(mgr, efp, model, 0, *pos, *rot, color, a5, a6, a7, scale);
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, a5, a6, a7, scale);
 }
 
 void Em202ForestSpider::vf140() {
@@ -1201,7 +1201,7 @@ void Em202ForestSpider::fn_80277BC0() {
         CollResult_unk result;
         if (fn_8004ED34(lbl_8087EE98, &result, &origin, &to, 0x80000000, 0, 0) != 0) {
             if (!played && fn_800C3118(sSeGroup_unk) != 0) {
-                fn_800C344C(sSe_unk, &result.m10, 0, -1, 1.0f);
+                fn_800C344C(sSe_unk, result.m10, 0, -1, 1.0f);
                 played = 1;
             }
             fn_80232B7C(0, 0);
@@ -1407,89 +1407,151 @@ void Em202ForestSpider::fn_802790A0(int index) {
     t->m88 = 0;
 }
 
-// NONMATCHING: approximate; the original calls its inline candidates out of line (over the budget, docs/inlining.md),
-// which leaves the weak copies 0x80279788-0x802797D4
+// inferred: accessors of the gimmick list (weak copies 0x80279788-0x802797D4, emitted after fn_80279280 that calls
+// them out of line; the GimmickMsg_unk constructor is the one at 0x802797A8)
+extern "C" inline GimmickCommon* fn_80279788(GimmickManager* manager) {
+    return manager->mHead;
+}
+extern "C" inline GimmickManager* fn_80279790() {
+    return GimmickManager::instance_;
+}
+extern "C" inline int fn_80279798(GimmickCommon* gimmick) {
+    return gimmick->m50;
+}
+extern "C" inline atn::Vector3* fn_802797A0(GimmickCommon* gimmick) {
+    return &gimmick->m6C;
+}
+extern "C" inline GimmickCommon* fn_802797D4(GimmickCommon* gimmick) {
+    return gimmick->m5C;
+}
+// inferred: asserts of the debug build, empty in release: with them fn_80279280 goes over the inline budget as the
+// original (docs/inlining.md R3)
+#define SPIDER_ASSERT_UNK(x) ((void)0)
+#define SPIDER_ASSERT10_UNK(x)                                                                                 \
+    SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x); \
+    SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x); SPIDER_ASSERT_UNK(x)
+#define SPIDER_ASSERT100_UNK(x)                                                                                \
+    SPIDER_ASSERT10_UNK(x); SPIDER_ASSERT10_UNK(x); SPIDER_ASSERT10_UNK(x); SPIDER_ASSERT10_UNK(x);              \
+    SPIDER_ASSERT10_UNK(x); SPIDER_ASSERT10_UNK(x); SPIDER_ASSERT10_UNK(x); SPIDER_ASSERT10_UNK(x);              \
+    SPIDER_ASSERT10_UNK(x); SPIDER_ASSERT10_UNK(x)
+// inferred: state and sub-state of a character (weak copies 0x80267B20/0x80267B28 of another file)
+extern "C" inline int fn_80267B20(CharaTask* chara) {
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    SPIDER_ASSERT100_UNK(chara != 0);
+    return chara->m55C;
+}
+extern "C" inline int fn_80267B28(CharaTask* chara) {
+    return chara->m560;
+}
+// inferred: weak copies of other files called out of line below
+extern "C" EffectMgr_unk* fn_800F7FA0();
+extern "C" void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg);
+extern "C" void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg);
+extern "C" void fn_800F80B8(atn::Matrix3x4* mtx, const atn::Vector3* rot);
+extern "C" void fn_800F8290(atn::Matrix3x4* mtx, float x, float y, float z);
+void* fn_801404F8(); // inferred: collision world
+extern "C" void fn_8004D124(void* world); // inferred: refreshes the collision world
+extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
+extern "C" int fn_801A03F4(CollPoly_unk* poly);           // inferred: the polygon belongs to a character
+extern "C" CharaTask* fn_801A0400(CollPoly_unk* poly);    // inferred: its character
+
+// inferred: updates the four threads: a caught character drags the tip; a free tip flies on, breaks the webs of
+// the gimmicks of type 1 it crosses and catches the character it hits; then the thread is stretched from the head
+// to the tip. Over the inline budget as the original (every inline is called out of line)
 void Em202ForestSpider::fn_80279280() {
     for (int i = 0; i < 4; i++) {
         SpiderThread_unk* t = &m1538[i];
         if (t->m00 == 0) {
             continue;
         }
-        if (t->m04 != 0 && t->m88 != 0) {
-            atn::Matrix3x4 spine(t->m88->GetModel_unk()->GetNodeMtx_unk("spine"));
-            t->m28 = spine;
-            if (t->m0C == 0) {
+        if (t->m04 != 0) {
+            if (t->m88 != 0) {
+                atn::Matrix3x4 spine(t->m88->GetModel_unk()->GetNodeMtx_unk("spine"));
+                t->m28 = spine;
                 int held = 0;
-                if (t->m88->m55C == 6 && (t->m88->m560 == 0x74 || t->m88->m560 == 0x75)) {
-                    held = 1;
-                }
-                if (held == 0) {
-                    fn_802790A0(i);
+                if (t->m0C == 0) {
+                    if (fn_80267B20(t->m88) == 6 &&
+                        (fn_80267B28(t->m88) == 0x74 || fn_80267B28(t->m88) == 0x75)) {
+                        held = 1;
+                    }
+                    if (held == 0) {
+                        fn_802790A0(i);
+                    }
                 }
             }
-        }
-        if (--t->m08 < 0) {
-            fn_802790A0(i);
-        }
-        atn::Vector3 from = t->m28.GetTrans_unk();
-        atn::Vector3 to = from + t->m10;
-        CollResult_unk result;
-        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, m1900, &mColli, 0) != 0) {
-            t->m28.fn_801479E4(to);
         } else {
-            t->m28.fn_801479E4(to);
+            if (--t->m08 < 0) {
+                fn_802790A0(i);
+                return;
+            }
+            atn::Vector3 from = t->m28.GetTrans_unk();
+            atn::Vector3 to = from + t->m10;
+            for (GimmickCommon* g = fn_80279788(fn_80279790()); g != 0; g = fn_802797D4(g)) {
+                if (fn_80279798(g) == 1) {
+                    atn::Vector3 a(from);
+                    a.y = 0.0f;
+                    atn::Vector3 b(to);
+                    b.y = 0.0f;
+                    atn::Vector3 c(*fn_802797A0(g));
+                    c.y = 0.0f;
+                    atn::Vector3 ab = b - a;
+                    float lsq = ab.LengthSq_unk();
+                    float s = -fn_801A03E8(ab, a - c) / lsq;
+                    if (0.0f < s && s < 1.0f) {
+                        atn::Vector3 p = a + ab * s;
+                        float radius = g->vf58();
+                        if ((p - c).Length_unk() < radius && g->vf5C()) {
+                            GimmickMsg_unk msg;
+                            msg.mType = 4;
+                            g->vf40(&msg);
+                            fn_8004D124(fn_801404F8());
+                        }
+                    }
+                }
+            }
+            CollResult_unk result;
+            if (fn_8004ED34(fn_801404F8(), &result, &from, &to, m1900, &mColli, 0) != 0) {
+                if (result.m38 != 0 && fn_801A03F4(result.m38)) {
+                    if (fn_801A0400(result.m38) == t->m88) {
+                        t->m28.fn_801479E4(result.m10);
+                        fn_80239DAC(fn_800F7FA0(), t, 100, 1);
+                        t->m04 = 1;
+                        t->m88->fn_8015C0C0((int)this, t->m0C);
+                        fn_800C344C("SE_EM202_012", t->m28.GetTrans_unk(), 0, -1, 1.0f);
+                        fn_800F7FA8(fn_800F7FA0(), 0, 0);
+                        fn_80276AE4(fn_800F7FA0(), &t->mA4, 0, t->m28.GetTrans_unk(), t->m10.ToRotation_unk(), -1, -1, 1,
+                                    1.0f);
+                        fn_800F7FA8(fn_800F7FA0(), t, 0x66);
+                        fn_8026607C(fn_800F7FA0(), &t->mC8, t->m88->GetModel_unk(), 1);
+                        fn_800F7FA8(fn_800F7FA0(), t, 0x67);
+                        fn_8026607C(fn_800F7FA0(), &t->mD4, t->m88->GetModel_unk(), 1);
+                    } else {
+                        t->m28.fn_801479E4(to);
+                    }
+                } else {
+                    t->m88 = 0;
+                    fn_802790A0(i);
+                }
+            } else {
+                t->m28.fn_801479E4(to);
+            }
         }
-        MtxPtr hm = mMotion.GetNodeMtx_unk("head");
-        atn::Vector3 head(hm[0][3], hm[1][3], hm[2][3]);
+        atn::Vector3 head = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
         atn::Vector3 d = t->m28.GetTrans_unk() - head;
-        atn::Vector3 r = d.ToRotation_unk();
-        float scale = PSVECMag(&d) / 50.0f;
+        atn::Vector3 rot = d.ToRotation_unk();
+        float scale = d.Length_unk() / 50.0f;
         t->m58.SetIdentity();
         t->m58.fn_801479E4(head);
-        atn::Matrix3x4 m;
-        RotZYX_unk(m, r);
-        PSMTXConcat(t->m58.m, m.m, t->m58.m);
-        Mtx sm;
-        PSMTXScale(sm, 1.0f, 1.0f, scale);
-        PSMTXConcat(t->m58.m, sm, t->m58.m);
+        fn_800F80B8(&t->m58, &rot);
+        fn_800F8290(&t->m58, 1.0f, 1.0f, scale);
     }
-}
-
-// inferred: head of the linked list owned by the singleton GimmickManager.
-extern "C" GimmickCommon* fn_80279788(GimmickManager* manager) {
-    return manager->mHead;
-}
-
-// inferred: current GimmickManager singleton.
-extern "C" GimmickManager* fn_80279790() {
-    return GimmickManager::instance_;
-}
-
-// inferred: gimmick type field used to filter the manager list.
-extern "C" int fn_80279798(GimmickCommon* gimmick) {
-    return gimmick->m50;
-}
-
-// inferred: address of the gimmick's position.
-extern "C" atn::Vector3* fn_802797A0(GimmickCommon* gimmick) {
-    return &gimmick->m6C;
-}
-
-// inferred: default construction for a GimmickMsg_unk local in the thread collision loop.
-extern "C" void fn_802797A8(GimmickMsg_unk* msg) {
-    msg->mType = 0;
-    msg->m04 = 0;
-    msg->m08 = 0;
-    msg->m0C = 0;
-    msg->m10 = 0;
-    msg->mVec.x = 0.0f;
-    msg->mVec.y = 0.0f;
-    msg->mVec.z = 0.0f;
-}
-
-// inferred: next entry in the GimmickManager linked list.
-extern "C" GimmickCommon* fn_802797D4(GimmickCommon* gimmick) {
-    return gimmick->m5C;
 }
 
 void Em202ForestSpider::fn_802797DC() {

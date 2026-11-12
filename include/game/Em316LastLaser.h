@@ -37,12 +37,8 @@ public:
     int m04;
     void* m08; // inferred: effect of the start of the laser (Em316LastLaser::m1574)
     void* m0C; // inferred: effect of the end of the laser (Em316LastLaser::m1580)
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    float m20;
-    float m24;
+    atn::Vector3 m10; // inferred: end of the laser
+    atn::Vector3 m1C; // inferred: normal of the surface hit by the laser
     LaserList_unk m28;
     LaserPoint_unk* m34;
     atn::SoundRef m38;
@@ -66,6 +62,8 @@ public:
     inline void SetState_unk(int state); // inferred: inlined everywhere (name invented)
     inline void Appear_unk(const atn::Vector3& pos, const atn::Vector3& offset);
     inline void SetAppear_unk(const atn::Vector3& pos, const atn::Vector3& offset); // inferred: name invented
+    // inferred: unused (the distance of vf10 is a static function of the file, SpineDist_unk); kept so the
+    // @N labels of the units that include this header do not move
     float TargetDist_unk(CharaTask* target);
     inline void UpdateColli_unk();
     void fn_8031CA30(); // inferred: state 8
