@@ -6,6 +6,10 @@
 #include "game/GimmickManager.h"
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
+#include "game/GameTask.h"
+#include "game/GameUI.h"
+#include "game/Inventory.h"
+#include "game/PopupTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -14,6 +18,61 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
+extern "C" GameTask* lbl_8087F430; // inferred: field task
+extern "C" int rand();
+extern "C" float PSVECMag(const atn::Vector3* v);
+extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
+extern "C" int fn_8021E4E4(int* itemId, int* num, int id, unsigned int flags);
+extern "C" int fn_80450B60(int item);
+extern "C" void* fn_80211480(int id); // inferred: item data
+extern "C" int fn_80216AFC(const char* name, int* type, int* map, int* point); // inferred: parses a map id
+struct WindyTable_unk;
+extern "C" WindyTable_unk* fn_8021D990(int level); // inferred: random table of the wind items
+extern "C" bool fn_8021D9D4(WindyTable_unk* table, int* item, char* name, int index); // inferred: random item
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" void* lbl_8087EE98;                     // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: ray test
+
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0
+struct WindyEffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+};
+struct WindyColor_unk {
+    WindyColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    float r, g, b, a;
+};
+extern "C" WindyEffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
+                            const atn::Vector3& pos, const atn::Vector3& rot, const WindyColor_unk& color,
+                            int arg7, int arg8, int arg9, float scale);
+extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
+extern "C" void fn_80232B7C(void* owner, int arg);
+extern "C" int fn_80239D58(WindyEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale);
+extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
+extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
+extern "C" const char* lbl_80754260[4]; // inferred: sound effects of the wind
+struct WindySphere_unk {
+    atn::Vector3 mCenter;
+    float mRadius;
+};
+// inferred: gimmicks that react to the gust (scale and length set from the strength)
+struct WindyTarget_unk {
+    unsigned char m00[0x124];
+    float m124;
+    int m128;
+};
+
+extern "C" int fn_80051CD8(const WindySphere_unk* sphere, const atn::Vector3* box); // inferred: sphere in the
+                                                                                    // box (half size, matrix)
+extern "C" int fn_80051B70(const atn::Vector3* line, const WindySphere_unk* sphere); // inferred: segment hits sphere
+
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
@@ -76,8 +135,6 @@ void WindyItem::Start() {
     }
 }
 
-// vf10 (0x804375C0) is not decompiled yet (wind gusts and item paths).
-
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 
 // inferred: point of a path at the parameter `t` (0..1); names invented
@@ -119,6 +176,224 @@ inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
         d -= len;
     }
     return path.mStart;
+}
+
+// inferred: camera modes in which the player looks around (as in gmk/RandomItem.cpp)
+inline bool IsLookMode_unk(int mode) {
+    return mode == 3 || mode == 1 || mode == 4;
+}
+
+// inferred: the item can be seen from `eye` (as in gmk/RandomItem.cpp; name invented)
+inline int CanSee_unk(const atn::Vector3& eye, const WindySphere_unk& sphere) {
+    atn::Vector3 line[2];
+    line[0] = eye;
+    line[1] = sphere.mCenter;
+    atn::Vector3 d = line[1] - line[0];
+    float len = PSVECMag(&d);
+    float radius = sphere.mRadius;
+    if (!((float)__fabs(len) < 1.1920929e-7f)) {
+        line[1] = line[1] - line[0];
+        PSVECNormalize(&line[1], &line[1]);
+        line[1] = line[1] * (len - radius) + line[0];
+    }
+    return fn_8004ECC0(lbl_8087EE98, 0, &line[0], &line[1], 0x80000010, 0, 0) == 0;
+}
+
+// inferred: source of the item added to the inventory (as in gmk/RandomItem.cpp)
+inline void SetSource_unk(Inventory* inv, int set, int type, int map, int point) {
+    inv->mDB14 = set;
+    inv->mDB18 = type;
+    inv->mDB1C = map;
+    inv->mDB20 = point;
+    inv->mDB24 = 0;
+    inv->mDB28 = 0;
+}
+
+// inferred: update: finds the area of the player, runs the gusts and the blown items; looked at through
+// the camera during a gust an item is caught (the player plays motion 100), then it is given with a popup
+// NONMATCHING: 36.6% - over the inline budget here (R3 of docs/inlining.md): our copy calls Eval_unk,
+// CanSee_unk, the Vector3 operators... with bl, the original inlines every candidate
+void WindyItem::vf10() {
+    if (m54 == 0) {
+        if (mActive > 0) {
+            for (int i = 0; i < 8; i++) {
+                WindySlot_unk& slot = mSlots[i];
+                if (slot.mState != 0) {
+                    slot.mState = 0;
+                    if (lbl_8087F3C0 != 0 && fn_80239D58(lbl_8087F3C0, &slot, 0) != 0) {
+                        fn_80239DAC(lbl_8087F3C0, &slot, 0, 0);
+                    }
+                    mActive--;
+                }
+            }
+        }
+        if (mGust > 0) {
+            ResetWait_unk();
+        }
+        return;
+    }
+    mArea = 0;
+    CharaTask* player = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
+    WindySphere_unk sphere;
+    if (player != 0) {
+        sphere.mCenter = player->m614;
+        sphere.mRadius = player->m620;
+    } else {
+        sphere.mCenter = atn::RenderManager::instance_->mCamera.mPos;
+        sphere.mRadius = 5.0f;
+    }
+    for (unsigned int i = 0; i < mAreas.size(); i++) {
+        if (fn_80051CD8(&sphere, &mAreas[i].mHalf)) {
+            mArea = &mAreas[i];
+            break;
+        }
+    }
+    if (mArea == 0 && mActive <= 0) {
+        return;
+    }
+    if (mWait > 0 && --mWait <= 0) {
+        mGust = mGustLength;
+        mEE4 = 0;
+        mED8 = 1;
+    }
+    if (mGust > 0) {
+        if (mED8 > 0 && --mED8 <= 0) {
+            fn_804392C0();
+        }
+        if (--mGust <= 0 || mEE4 >= mEE8) {
+            ResetWait_unk();
+        }
+    }
+    for (int i = 0; i < 8; i++) {
+        fn_8043A08C(&mSlots[i]);
+    }
+    player = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
+    GameTask* field = lbl_8087F430;
+    if (field != 0 && player != 0 && IsLookMode_unk(field->mCamera.m7FC)) {
+        float range = 600.0f;
+        if (mArea != 0) {
+            atn::Vector3 front(0.0f, 0.0f, 1.0f);
+            Mtx rot;
+            PSMTXRotRad(rot, 'y', player->mRot.y);
+            PSMTXMultVec(rot, &front, &front);
+            if (PSVECDotProduct(&mArea->mDir, &front) < 0.0f) {
+                range = 200.0f;
+            }
+        }
+        GameCamera& camera = field->mCamera;
+        for (int i = 0; i < 8; i++) {
+            WindySlot_unk& slot = mSlots[i];
+            if (slot.mState != 2) {
+                continue;
+            }
+            atn::Vector3 line[2];
+            line[0] = camera.mPos;
+            line[1] = camera.mTarget - line[0];
+            PSVECNormalize(&line[1], &line[1]);
+            line[1] = line[1] * range + line[0];
+            WindySphere_unk ball;
+            ball.mCenter = Eval_unk(slot.mPath, slot.mPath.mT);
+            ball.mRadius = mEF4;
+            WindySphere_unk item = ball;
+            atn::Vector3 toItem = ball.mCenter - camera.mPos;
+            float dist = PSVECMag(&toItem);
+            atn::Vector3 lo(-item.mRadius, -item.mRadius, 0.0f);
+            atn::Vector3 hi(item.mRadius, item.mRadius, 0.0f);
+            atn::Matrix3x4 view = camera.mInvView;
+            view.m[0][3] = 0.0f;
+            view.m[1][3] = 0.0f;
+            view.m[2][3] = 0.0f;
+            PSMTXMultVec(view.m, &lo, &lo);
+            PSMTXMultVec(view.m, &hi, &hi);
+            atn::Vector3 p1 = item.mCenter + lo;
+            p1 = atn::RenderManager::instance_->GetScreenPosition(p1);
+            atn::Vector3 p2 = item.mCenter + hi;
+            p2 = atn::RenderManager::instance_->GetScreenPosition(p2);
+            atn::Vector2_unk size(0.5f * (float)__fabs(p1.x - p2.x) + 12.0f, 0.5f * (float)__fabs(p1.y - p2.y) + 12.0f);
+            atn::Vector2_unk center(0.5f * (p1.x + p2.x), 0.5f * (p1.y + p2.y));
+            if (mGust <= 0) {
+                continue;
+            }
+            if (mED0 == 2 && fn_80051B70(line, &ball) != 0 && CanSee_unk(line[0], ball)) {
+                mED0 = 0;
+                mED4 = i;
+                player->mMotion.fn_80097C08(3, 100, 0, 0, 1, 0.0f, 0.1f);
+                player->mMotion.mTracks[3].m0C = 1.5f;
+            }
+            if (dist < 600.0f && CanSee_unk(line[0], ball)) {
+                lbl_8087F490->fn_803E3050(item.mCenter, atn::Vector3(center.x, center.y, p1.z), size, dist);
+            }
+        }
+    }
+    if (mED0 == 2) {
+        return;
+    }
+    atn::Model& motion = player->mMotion;
+    if (mED0 == 0) {
+        if (motion.mTracks[3].m08 >= 12.0f || motion.mTracks[3].m00 != 100) {
+            mED0 = 1;
+            mEE4++;
+            WindySlot_unk* slot = &mSlots[mED4];
+            if (lbl_8087F8A8 != 0) {
+                PopupEntry_unk e;
+                e.m10 = 9;
+                e.m94 = (PopupAnime_unk*)lbl_8087F8A8->fn_8054E528((unsigned int)player, mEE4);
+                if (mEE4 >= 5) {
+                    e.m84 = 100;
+                }
+                e.m04 = e.m94->mTask->mLastFrame;
+                e.m60 = Eval_unk(slot->mPath, slot->mPath.mT);
+                e.m84 = mEE4;
+                lbl_8087F8A8->fn_8054E0FC(&e);
+            }
+            WindyTable_unk* table = fn_8021D990(lbl_8087F430->m10D0);
+            char name[0x10];
+            memset(name, 0, sizeof(name));
+            int item;
+            int id;
+            int count;
+            if (table != 0 && fn_8021D9D4(table, &item, name, mEE4 - 1) && item > 0 &&
+                fn_8021E4E4(&id, &count, item, 1)) {
+                int first = fn_80450B60(id);
+                if (Inventory::instance_ != 0) {
+                    int type = -1;
+                    int map = -1;
+                    int point = -1;
+                    if (fn_80216AFC(name, &type, &map, &point)) {
+                        SetSource_unk(Inventory::instance_, 1, type, map, point);
+                    }
+                    fn_80445130(Inventory::instance_, &id, &count, 0);
+                    SetSource_unk(Inventory::instance_, 0, -1, -1, -1);
+                }
+                void* data = fn_80211480(id);
+                if (data != 0) {
+                    int rare = 0;
+                    if (Inventory::instance_->fn_80448F9C(id) > rand() % 100) {
+                        rare = 1;
+                    }
+                    atn::Vector3 pos = Eval_unk(slot->mPath, slot->mPath.mT);
+                    slot->mAnime.fn_8044E418(&pos, 25, 25, data, count, rare, 0);
+                    if (slot->mAnime.fn_8044E610() != 0) {
+                        if (first != 0) {
+                            slot->mAnime.fn_8044E644();
+                        } else {
+                            slot->mAnime.fn_8044F2D4();
+                        }
+                    }
+                    slot->mState = 3;
+                    if (lbl_8087F3C0 != 0 && fn_80239D58(lbl_8087F3C0, slot, 0) != 0) {
+                        fn_80239DAC(lbl_8087F3C0, slot, 0, 0);
+                    }
+                }
+            }
+        }
+    } else if (mED0 == 1) {
+        if (motion.mTracks[3].m08 >= motion.fn_80097D7C(3) || motion.mTracks[3].m00 != 100) {
+            motion.mTracks[3].m0C = 1.0f;
+            motion.fn_80097CCC(3, 0.0f);
+            mED0 = 2;
+        }
+    }
 }
 
 // inferred: debug drawing of the areas and of the paths of the blown items
@@ -212,45 +487,6 @@ void WindyItem::vf70(int state) {
 }
 
 } // namespace gmk
-
-extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
-extern "C" void* lbl_8087EE98;                     // inferred: collision world
-extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, void* ignore, int arg); // inferred: ray test
-
-// inferred: effect manager (class unknown), global instance at 0x8087F3C0
-struct WindyEffectMgr_unk {
-    unsigned char m00[0xB8];
-    int mB8;
-};
-struct WindyColor_unk {
-    WindyColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
-extern "C" WindyEffectMgr_unk* lbl_8087F3C0;
-extern "C" void fn_8023A8B4(WindyEffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
-                            const atn::Vector3& pos, const atn::Vector3& rot, const WindyColor_unk& color,
-                            int arg7, int arg8, int arg9, float scale);
-extern "C" void fn_80239DAC(WindyEffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
-extern "C" void fn_80232B7C(void* owner, int arg);
-extern "C" int fn_80239D58(WindyEffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
-extern "C" void fn_8023A680(WindyEffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
-                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
-                            int arg10, float scale);
-extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
-extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
-extern "C" void fn_800CB518(atn::SoundRef* sound, int frames); // inferred: fades the sound in
-extern "C" const char* lbl_80754260[4]; // inferred: sound effects of the wind
-struct WindySphere_unk {
-    atn::Vector3 mCenter;
-    float mRadius;
-};
-// inferred: gimmicks that react to the gust (scale and length set from the strength)
-struct WindyTarget_unk {
-    unsigned char m00[0x124];
-    float m124;
-    int m128;
-};
 
 // inferred: starts a gust in the area of the player (name unknown)
 // NONMATCHING: 96.7% - the address of the sphere is computed once before the branch in the original.

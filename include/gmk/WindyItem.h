@@ -78,7 +78,7 @@ public:
     static GimmickCommon* fn_80436E34(atn::Task* parent, int id, int arg); // inferred: factory
     virtual ~WindyItem();
     virtual int vf0C();
-    virtual void vf10(); // not decompiled
+    virtual void vf10();
     virtual void vf14(); // inferred: debug drawing
     virtual int vf1C();
     virtual void vf20();
