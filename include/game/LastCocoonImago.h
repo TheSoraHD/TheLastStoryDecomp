@@ -28,6 +28,7 @@ public:
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x8045F6E0
     virtual atn::Vector3 vfD8(CharaTask* target);            // 0x8045F884
     void fn_8045ABB4(const atn::Vector3& pos, float f1, float f2); // inferred: moves towards pos
+    void fn_8045DF34(); // inferred: mode 11: carries the gimmick m18F8, then waits for the thrust
     void fn_8045E548(); // inferred: mode with the motions 0x14B-0x14D, then mode 10
     void fn_8045E780(); // inferred: mode 10: lunges towards m14D4 with the bullet 0x5B6
     inline void ResetAttacks_unk();

@@ -3,6 +3,11 @@
 #include "game/GameMessageList.h"
 #include "game/GimmickManager.h"
 #include "game/GameTask.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
+#include "game/GameUI.h"
+#include "game/GameConfig_unk.h"
+#include "chr/ControlStickByQuark.h"
 #include <boost/tokenizer.hpp>
 #include "std/string_members.h"
 #include "std/string.h"
@@ -396,6 +401,116 @@ void LastCocoonImago::fn_8045D224() {
     }
 }
 
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" GameUI* lbl_8087F490;
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m48C: input)
+extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
+                            const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
+                            float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
+extern "C" float PSVECMag(const atn::Vector3* v);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+// inferred: button hint of the UI with its defaults (as MulueUIHint_unk in game/Em204Mulue.cpp)
+struct ImagoUIHint_unk : public GameUIElem1C_unk {
+    ImagoUIHint_unk(int a, int b, int c) {
+        m00 = a;
+        m04 = b;
+        m08 = c;
+        m0C = 0;
+        m10 = 0;
+        m14 = 0;
+        m18 = 1;
+    }
+};
+
+// NONMATCHING: 97% - stack slots and scheduling of the temporaries of the first lerp of the gimmick position
+// inferred: mode 11: carries the gimmick m18F8 (its position follows the imago at the height m1948.y),
+// shoots the skill 0x5BD from frame 85 and then waits for the player to thrust (chr::ControlThrustForCocoon)
+void LastCocoonImago::fn_8045DF34() {
+    if (m14BC == 0) {
+        if (mMotion.mTracks[0].m08 < 60.0f) {
+            atn::Vector3 pos = m18F8->m6C;
+            pos = (mPos - pos) * 0.05f + pos;
+            pos.y = m1948.y;
+            m18F8->m6C = pos;
+            m1948 = pos;
+            atn::Vector3 rot = m18F8->m78;
+            float turn = 0.05f * atn::WrapAngle_unk(mRot.y - rot.y);
+            rot.y = atn::WrapAngle_unk(rot.y + turn);
+            m18F8->m78 = rot;
+        } else {
+            atn::Vector3 pos = m18F8->m6C;
+            pos = mPos;
+            pos.y = m1948.y;
+            m18F8->m6C = pos;
+            m1948 = pos;
+            atn::Vector3 rot = m18F8->m78;
+            rot = mRot;
+            m18F8->m78 = rot;
+            if (mMotion.mTracks[0].m08 >= 85.0f) {
+                m14BC++;
+                HitInfo_unk* bullet = fn_80219E6C(0x5BD);
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                atn::Matrix3x4 m;
+                m.fn_8013A13C(mRot.y);
+                PSMTXMultVec(m.m, &dir, &dir);
+                atn::Vector3 at = mPos + dir;
+                CharaTask* player = lbl_8087F8A0->mHead;
+                Effect_unk* mgr = lbl_8087F048;
+                fn_800FAB80(mgr, player, bullet, fn_800F8548(mgr), &at, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            }
+        }
+    } else if (m14BC == 1) {
+        atn::Vector3 pos = m18F8->m6C;
+        pos = mPos;
+        pos.y = m1948.y;
+        m18F8->m6C = pos;
+        m1948 = pos;
+        atn::Vector3 rot = m18F8->m78;
+        rot = mRot;
+        m18F8->m78 = rot;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m14BC++;
+            mMotion.fn_80097C08(0, 0x30, 1, 0, 1, 1.0f, 0.1f);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD0) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD0, 1);
+            }
+        }
+    } else {
+        m18F8->vf38()->mTracks[0].m08 = m18F8->vf38()->fn_80097D7C(0);
+        PlayerTask* player = lbl_8087F8A0->mHead;
+        atn::Vector3 d = player->mPos - mPos;
+        d.y = 0.0f;
+        if (PSVECMag(&d) < 80.0f) {
+            int ok = player->fn_8016DDB0(0);
+            if (player->m55C == 6 && player->m560 == 4) {
+                ok = 1;
+            }
+            PSVECNormalize(&d, &d);
+            atn::Vector3 front(0.0f, 0.0f, 1.0f);
+            atn::Matrix3x4 m;
+            m.fn_8013A13C(mRot.y);
+            PSMTXMultVec(m.m, &front, &front);
+            if (PSVECDotProduct(&d, &front) < 0.0f) {
+                ok = 0;
+            }
+            if (ok) {
+                GameUI* ui = lbl_8087F490;
+                if (ui != 0) {
+                    ui->m764 = ImagoUIHint_unk(6, 0x11, -1);
+                }
+                if (lbl_8087F0A8->mInput.fn_801231D0(0)) {
+                    player->fn_80178208(new ((MemoryTag)3, "", "", 0) chr::ControlThrustForCocoon(player, this, 0x5BC));
+                    fn_8045ECC4();
+                    if (lbl_8087F490 != 0) {
+                        lbl_8087F490->fn_803E3384();
+                    }
+                }
+            }
+        }
+    }
+}
+
 void LastCocoonImago::fn_8045E548() {
     if (m14BC == 0) {
         float frame = mMotion.mTracks[0].m08;
@@ -498,7 +613,8 @@ void LastCocoonImago::fn_8045EB60() {
     m574 = lbl_807C7030;
 }
 
-void LastCocoonImago::fn_8045ECC4() {
+// called with bl by fn_8045DF34 (MWCC would inline it there)
+__declspec(noinline) void LastCocoonImago::fn_8045ECC4() {
     SetMode_unk(12);
     mMotion.m34C = 1;
     mMotion.mTracks[0].m20 = 1.0f;
