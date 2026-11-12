@@ -24,6 +24,7 @@
 #include "atn/D2A_Task.h"
 #include "atn/ResLoader_unk.h"
 #include "atn/Texture_unk.h"
+#include "game/GimmickCommon.h"
 #include "atn/NodeChunk.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -128,39 +129,17 @@ int BattleTask::vf0C() {
 // ---- fn_800F72F4: target marker of a character (over the inlining budget: every helper below is called
 // out of line, and their weak copies follow it at 0x800F7F60-0x800F8548) ----
 
-// inferred: marker of a character (0x78 bytes, 72 of them at BattleTask+0x367B8); names invented
-struct BattleMarker_unk {
-    atn::Matrix3x4 mMtx;  // 0x00: base of the line
-    atn::Matrix3x4 mMtx2; // 0x30: head of the line
-    atn::Vector3 m60;     // inferred: last end point of the line
-    float m6C;            // inferred: last scale
-    int m70;              // inferred: frames left of the appearance (12 when the target changes)
-    unsigned short mMode; // 0x74: 1 own side or multiplayer, 2 `arg`, 3 the leader is flagged, 0 otherwise
-    unsigned short mFlags; // 0x76: 0x01 used, 0x10 effect started
-};
-
-// inferred: effect resource of a marker (0xC bytes; passed to fn_8023A680)
-struct MarkerEfp_unk {
-    unsigned char m00[0xC];
-};
-
-// inferred: markers and resources of the target lines (BattleTask+0x367B8..0x389C8); names invented
-struct BattleMarkers_unk {
-    // inferred: weak copy 0x800F8538; name invented
-    BattleMarker_unk* fn_800F8538(int i) { return &mItems[i]; }
-    // inferred: clears a marker (inlined in fn_800F3D28); name invented
-    void Reset_unk(int i) {
-        mItems[i].m70 = 0;
-        mItems[i].mFlags = 0;
-        mItems[i].mMode = 0;
-    }
-    BattleMarker_unk mItems[72];
-    // inferred: effects of the line (0xC bytes each): 0/1 base and head toward an enemy, 2/3 appearance,
-    // 4/5 base and head toward the own side
-    atn::EffFile mEfp[6];      // 0x38978
-    int mHideLines;            // 0x389C0: inferred: nonzero hides the lines (sets mode 1)
-    atn::Texture mTex;         // 0x389C4: inferred: texture of the line (DrawHelper::fn_80064F00)
-};
+// BattleMarker_unk and BattleMarkers_unk are in game/BattleTask.h (BattleTask::mMarkers)
+// inferred: weak copy 0x800F8538; name invented
+inline BattleMarker_unk* BattleMarkers_unk::fn_800F8538(int i) {
+    return &mItems[i];
+}
+inline atn::EffFile* BattleMarkers_unk::GetEfp_unk(int i) {
+    return (atn::EffFile*)mEfp[i];
+}
+inline atn::Texture* BattleMarkers_unk::GetTex_unk() {
+    return (atn::Texture*)mTex;
+}
 
 extern "C" const char* lbl_808813F4; // inferred: "/effect/hateline/hate_line_01a.eff" (.sdata of this file)
 extern "C" const char* lbl_808813F8; // inferred: "/effect/hateline/hate_line_01b.eff"
@@ -174,19 +153,18 @@ extern "C" const char* const lbl_80735988[3]; // inferred: splash effects (.roda
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
 extern "C" int sprintf(char* s, const char* format, ...);
 
-// NONMATCHING: the original reaches the line effects and the texture as members of this (this + 0x40000 - x
-// each time); here they go through the markers pointer. String pool offsets differ (file not complete)
+// NONMATCHING: 97.9% - the first string pointer is loaded before the register saves in the original; string pool
+// offsets differ (file not complete)
 // inferred: load requests of the battle resources (called by the constructor): the target lines, the
 // d2anime tasks, the splash and palette effects
 void BattleTask::fn_800F39A4() {
-    BattleMarkers_unk* markers = (BattleMarkers_unk*)&m367B4[4];
-    markers->mEfp[0].LoadRequest(lbl_808813F4);
-    markers->mEfp[1].LoadRequest(lbl_808813F8);
-    markers->mEfp[4].LoadRequest(lbl_808813FC);
-    markers->mEfp[5].LoadRequest(lbl_80881400);
-    markers->mEfp[2].LoadRequest(lbl_80881404);
-    markers->mEfp[3].LoadRequest(lbl_80881408);
-    markers->mTex.fn_800D5908("/battle/hatemove.texture");
+    mMarkers.GetEfp_unk(0)->LoadRequest(lbl_808813F4);
+    mMarkers.GetEfp_unk(1)->LoadRequest(lbl_808813F8);
+    mMarkers.GetEfp_unk(4)->LoadRequest(lbl_808813FC);
+    mMarkers.GetEfp_unk(5)->LoadRequest(lbl_80881400);
+    mMarkers.GetEfp_unk(2)->LoadRequest(lbl_80881404);
+    mMarkers.GetEfp_unk(3)->LoadRequest(lbl_80881408);
+    mMarkers.GetTex_unk()->fn_800D5908("/battle/hatemove.texture");
     mCB30 = fn_801F3FF8(this, lbl_808813D4, 0);
     mCB30->fn_800D246C(1);
     mCB60 = fn_801F3FF8(this, lbl_808813D8, 0);
@@ -194,7 +172,7 @@ void BattleTask::fn_800F39A4() {
     m3E2F4 = fn_801F3FF8(this, "data/d2anime/ui_hp_up.d2a", 0);
     m3E2F4->fn_800D246C(1);
     for (int i = 0; i < 3; i++) {
-        mEfp363C0[26 + i].LoadRequest(lbl_80735988[i]);
+        mSplashEfp[i].LoadRequest(lbl_80735988[i]);
     }
     mEfp38AF4[24].LoadRequest("data/eff/ef_sc024.efp");
     for (unsigned int i = 0; i < 31; i++) {
@@ -204,7 +182,54 @@ void BattleTask::fn_800F39A4() {
     }
 }
 
-// NONMATCHING: 86.5% - registers: in the original the marker of entry i is reached through a separate offset (i * 0x78
+// inferred: both effects of a line pair are loading (inlined); name invented
+inline bool IsLoading_unk(BattleMarkers_unk& markers, int first) {
+    bool loading = false;
+    if (markers.GetEfp_unk(first)->IsLoading() || markers.GetEfp_unk(first + 1)->IsLoading()) {
+        loading = true;
+    }
+    return loading;
+}
+
+// inferred: nonzero while the resources requested by fn_800F39A4 load
+int BattleTask::fn_800F3B4C() {
+    int loading = 0;
+    if (IsLoading_unk(mMarkers, 0) || IsLoading_unk(mMarkers, 4)) {
+        loading = 1;
+    }
+    if (IsLoading_unk(mMarkers, 2)) {
+        loading = 1;
+    }
+    // inferred: the texture is seen through GimmickUvOwner_unk, as in the other callers of fn_800D59B8
+    if (((GimmickUvOwner_unk*)mMarkers.GetTex_unk())->fn_800D59B8()) {
+        loading = 1;
+    }
+    if (!mCB30->IsFlag_unk(2)) {
+        loading = 1;
+    }
+    if (!mCB60->IsFlag_unk(2)) {
+        loading = 1;
+    }
+    if (!m3E2F4->IsFlag_unk(2)) {
+        loading = 1;
+    }
+    for (int i = 0; i < 3; i++) {
+        if (mSplashEfp[i].IsLoading()) {
+            loading = 1;
+        }
+    }
+    if (mEfp38AF4[24].IsLoading()) {
+        loading = 1;
+    }
+    for (unsigned int i = 0; i < 31; i++) {
+        if (mEfp3663C[i].IsLoading()) {
+            loading = 1;
+        }
+    }
+    return loading;
+}
+
+// NONMATCHING: 92.9% - registers: in the original the marker of entry i is reached through a separate offset (i * 0x78
 // added to this + 0x30000) and its zero stores use their own register
 // inferred: resets the battle (GameTask::vf10 at a map change): removes the bullets and clears the characters,
 // their hate, the target markers and the effect slots. C name, called by game/GameTask.cpp as extern "C"
@@ -218,7 +243,9 @@ extern "C" void fn_800F3D28(BattleTask* mgr) {
         mgr->mCharas[i].m92F = 0;
         mgr->mCharas[i].fn_801081D8();
         memset(mgr->m391E0[i], 0, sizeof(mgr->m391E0[i]));
-        ((BattleMarkers_unk*)&mgr->m367B4[4])->Reset_unk(i);
+        mgr->mMarkers.mItems[i].m70 = 0;
+        mgr->mMarkers.mItems[i].mFlags = 0;
+        mgr->mMarkers.mItems[i].mMode = 0;
     }
     mgr->mCharaCount = 0;
     mgr->mCBAC = 0;
@@ -389,7 +416,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
     }
     int index = fn_80102890(chara);
     fn_80102890(target);
-    BattleMarkers_unk* markers = (BattleMarkers_unk*)&m367B4[4];
+    BattleMarkers_unk* markers = &mMarkers;
     BattleMarker_unk* marker = markers->fn_800F8538(index);
     marker->mFlags |= 1;
     int changed = 0;
@@ -418,10 +445,10 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         if ((marker->mFlags & 0x10) != 0x10) {
             fn_800F7F98(fn_800F7FA0(), 1);
             fn_800F7FA8(fn_800F7FA0(), marker, 0);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
-            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mEfp[3], -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[3], -1, 5, (int)&marker->mMtx2, 0, 0, 0, 0, -1, 1, 2.0f);
             if (((Player_unk*)chara)->GetM146C_unk() == 0x12 || ((Player_unk*)chara)->GetM146C_unk() == 0x11) {
-                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
+                fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)markers->mEfp[2], -1, 5, (int)marker, 0, 0, 0, 0, -1, 1, 1.0f);
             }
             fn_800F7F98(fn_800F7FA0(), 0);
         }
@@ -507,7 +534,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
             verts[i].mColor = color.ToU32();
             v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);
         }
-        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)&markers->mTex, 0.0f);
+        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)markers->mTex, 0.0f);
         if (marker->m70 == 8) {
             if (info->mC4->IsPlayer()) {
                 if (fn_800F5300(info->mC4)) {
@@ -546,7 +573,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         marker->m6C = last;
     }
     if (fn_80239D58(fn_800F7FA0(), marker, 0) == 0) {
-        atn::EffFile* res = (mode == 1 || mode == 3) ? &markers->mEfp[4] : &markers->mEfp[0];
+        atn::EffFile* res = (mode == 1 || mode == 3) ? (atn::EffFile*)markers->mEfp[4] : (atn::EffFile*)markers->mEfp[0];
         fn_800F7F98(fn_800F7FA0(), 1);
         fn_800F84D0(fn_800F7FA0(), 5);
         fn_800F7FA8(fn_800F7FA0(), marker, 0);
@@ -959,12 +986,12 @@ void BattleTask::fn_80106680(void* owner, atn::Model* model) {
 
 void BattleTask::fn_80106728(int arg, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp363C0[44], model);
+    PlayEfp_unk(&mEfp3651C[15], model);
 }
 
 void BattleTask::fn_801067D0(CharaTask* chara, atn::Model* model) {
     fn_80232B7C(0, 0);
-    PlayEfp_unk(&mEfp363C0[45], model);
+    PlayEfp_unk(&mEfp3651C[16], model);
 }
 
 void BattleTask::fn_801070C8(int id, unsigned int owner, int group, atn::Model* model, const atn::Vector3* pos,
@@ -1413,8 +1440,7 @@ extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn
             scale = size / 8.0f;
         }
         fn_800F7FA8(fn_800F7FA0(), 0, 0);
-        atn::EfpFile* splash = &mgr->mEfp363C0[26]; // inferred: one effect per kind
-        fn_8023A8B4(lbl_8087F3C0, &splash[kind], 0, 0, result.m04, lbl_807C7030,
+        fn_8023A8B4(lbl_8087F3C0, &mgr->mSplashEfp[kind], 0, 0, result.m04, lbl_807C7030,
                     EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
         fn_800C344C(lbl_80735DD0[23], &result.m04, 0, -1, 1.0f);
     }

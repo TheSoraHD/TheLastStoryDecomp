@@ -21,6 +21,8 @@ class D2A_Task;
 struct NodeChunk;
 struct ModelNodeCallbackContext;
 struct Model;
+struct EffFile;
+class Texture;
 }
 
 // inferred: object hit by the cursor ray (as game/BattleCharaTask.cpp)
@@ -75,6 +77,34 @@ struct BattleSel_unk {
     int m08;
     int m0C;
     unsigned char m10;
+};
+
+// inferred: marker of a character (0x78 bytes, 72 of them at BattleTask+0x367B8); names invented
+struct BattleMarker_unk {
+    atn::Matrix3x4 mMtx;  // 0x00: base of the line
+    atn::Matrix3x4 mMtx2; // 0x30: head of the line
+    atn::Vector3 m60;     // inferred: last end point of the line
+    float m6C;            // inferred: last scale
+    int m70;              // inferred: frames left of the appearance (12 when the target changes)
+    unsigned short mMode; // 0x74: 1 own side or multiplayer, 2 `arg`, 3 the leader is flagged, 0 otherwise
+    unsigned short mFlags; // 0x76: 0x01 used, 0x10 effect started
+};
+
+// inferred: markers and resources of the target lines (BattleTask+0x367B8..0x389F4); names invented. The
+// methods are defined inline in game/BattleTask.cpp and declared here without parameter names: an inline body
+// here (or including atn/ResLoader_unk.h and atn/Texture_unk.h for the members) renumbers the @N of every unit
+// that includes this header, so the EffFile and Texture members are kept as raw storage.
+struct BattleMarkers_unk {
+    BattleMarker_unk* fn_800F8538(int); // weak copy 0x800F8538
+    atn::EffFile* GetEfp_unk(int);
+    atn::Texture* GetTex_unk();
+
+    BattleMarker_unk mItems[72];
+    // inferred: effects of the line (atn::EffFile, 0xC bytes each): 0/1 base and head toward an enemy, 2/3
+    // appearance, 4/5 base and head toward the own side
+    unsigned char mEfp[6][0xC]; // 0x38978
+    int mHideLines;             // 0x389C0: inferred: nonzero hides the lines (sets mode 1)
+    unsigned char mTex[0x30];   // 0x389C4: inferred: texture of the line (atn::Texture, DrawHelper::fn_80064F00)
 };
 
 class BattleTask : public atn::Task {
@@ -242,11 +272,14 @@ public:
     int mCharaCount;               // 0x363B0
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
-    atn::EfpFile mEfp363C0[46];  // 0x363C0: inferred: battle effects (EFP files)
+    atn::EfpFile mEfp363C0[26];  // 0x363C0: inferred: battle effects (EFP files)
+    atn::EfpFile mSplashEfp[3];  // 0x364F8: inferred: splashes on water (fn_8010A308; loaded by fn_800F39A4)
+    atn::EfpFile mEfp3651C[17];  // 0x3651C: inferred: battle effects (EFP files)
     unsigned char m365E8[0x3663C - 0x365E8];
     atn::EfpFile mEfp3663C[31]; // 0x3663C: inferred: palette effects (ef_<palette>.efp, fn_800F39A4)
     int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change
-    unsigned char m367B4[0x389F4 - 0x367B4];
+    unsigned char m367B4[0x367B8 - 0x367B4];
+    BattleMarkers_unk mMarkers; // 0x367B8: inferred: target lines
     int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
     unsigned char m389F8[0x38A04 - 0x389F8];
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
