@@ -681,6 +681,122 @@ void Em316LaserSphere::fn_80319578() {
     }
 }
 
+// inferred: state and sub-state of a character (weak copies 0x80267B20/0x80267B28 of another file, as in
+// game/GameUI.cpp)
+// inferred: asserts of the debug build, empty in release: with them fn_8031958C goes over the inline budget
+// and calls everything out of line as the original (see SPHERE_ASSERT_UNK)
+#define SPHERE_ASSERT10_UNK(x)                                                                                 \
+    SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x); \
+    SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x); SPHERE_ASSERT_UNK(x)
+#define SPHERE_ASSERT100_UNK(x)                                                                                \
+    SPHERE_ASSERT10_UNK(x); SPHERE_ASSERT10_UNK(x); SPHERE_ASSERT10_UNK(x); SPHERE_ASSERT10_UNK(x);              \
+    SPHERE_ASSERT10_UNK(x); SPHERE_ASSERT10_UNK(x); SPHERE_ASSERT10_UNK(x); SPHERE_ASSERT10_UNK(x);              \
+    SPHERE_ASSERT10_UNK(x); SPHERE_ASSERT10_UNK(x)
+extern "C" inline int fn_80267B20(CharaTask* chara) {
+    SPHERE_ASSERT100_UNK(chara != 0);
+    SPHERE_ASSERT100_UNK(chara != 0);
+    SPHERE_ASSERT100_UNK(chara != 0);
+    return chara->m55C;
+}
+extern "C" inline int fn_80267B28(CharaTask* chara) {
+    return chara->m560;
+}
+// inferred: weak copies 0x800F7FA0 and 0x800F7FA8 of another file (as in game/Em203GreaterDaemon.cpp)
+extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+    return lbl_8087F3C0;
+}
+extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+    fn_80232B7C(owner, arg);
+}
+extern "C" int fn_80239D58(EffectMgr_unk* mgr, void* owner, int id); // inferred: the effect is playing
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+                            const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
+// inferred: bullet manager and collision world (weak copies 0x8013A194/0x801404F8 of another file)
+inline Effect_unk* fn_8013A194() {
+    return lbl_8087F048;
+}
+inline void* fn_801404F8() {
+    return lbl_8087EE98;
+}
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, void* param, int flags, int arg7, float arg8, float arg9);
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+// inferred: translation matrix by value, rotation and scale (weak copies of another file, as in
+// game/BattleTask.cpp)
+extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3& pos) {
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, pos.x, pos.y, pos.z);
+    return m;
+}
+extern "C" inline void fn_800F80B8(MtxPtr mtx, const atn::Vector3* rot) {
+    ((atn::Matrix3x4*)mtx)->RotateZYX_unk(*rot);
+}
+extern "C" inline void fn_800F8290(MtxPtr mtx, float x, float y, float z) {
+    Mtx s;
+    PSMTXScale(s, x, y, z);
+    Mtx t;
+    PSMTXConcat(mtx, s, t);
+    __MtxCopy(mtx, t);
+}
+
+// inferred: state 9 (tackle): the laser follows the caught character (or goes straight until it hits a wall)
+// for 90 frames; over the inline budget, every inline is called out of line as in the original
+void Em316LaserSphere::fn_8031958C() {
+    if (m14C0 > 90) {
+        fn_80319C10();
+        if (fn_80267B20(m15B4) == 6 && fn_80267B28(m15B4) == 0x8C) {
+            fn_80319998((LaserCatch_unk*)fn_80318F90(m15B4));
+            m15B4 = 0;
+        }
+        fn_80239DAC(fn_800F7FA0(), this, 1000, 1);
+        fn_80239DAC(fn_800F7FA0(), this, 1001, 1);
+        return;
+    }
+    atn::Vector3 target;
+    if (fn_80267B20(m15B4) == 6 && fn_80267B28(m15B4) == 0x8C) {
+        target = *m15B4->fn_8013C38C();
+        target.y += 13.0f;
+        target += m15B4->fn_8014052C() * 4.0f;
+        m155C = target - (mPos + m155C * m5B0);
+        float len = m155C.Length_unk() / 50.0f;
+        m155C.Normalize_unk();
+        atn::Vector3 rot = m155C.ToRotation_unk();
+        m15B8 = fn_800F80A8(mPos + m155C * m5B0);
+        fn_800F80B8(m15B8.m, &rot);
+        m15E8 = m15B8;
+        fn_800F8290(m15B8.m, 1.0f, 1.0f, len);
+    } else {
+        m14C0 = m14C0 < 60 ? 60 : m14C0;
+        if (m14C0 % 10 == 0) {
+            fn_800F8574(fn_8013A194(), this, m157C, &mPos, &m155C, 0, 0, 0, 0.0f, 1.0f);
+        }
+        CollResult_unk result;
+        atn::Vector3 from(mPos);
+        atn::Vector3 to = from + m155C * 1000.0f;
+        if (fn_8004ED34(fn_801404F8(), &result, &from, &to, 0x80000004, 0, 0) != 0) {
+            target = result.m04;
+        } else {
+            target = to;
+        }
+    }
+    m155C = target - (mPos + m155C * m5B0);
+    float len = m155C.Length_unk() / 50.0f;
+    m155C.Normalize_unk();
+    atn::Vector3 rot = m155C.ToRotation_unk();
+    m15B8 = fn_800F80A8(mPos + m155C * m5B0);
+    fn_800F80B8(m15B8.m, &rot);
+    m15E8 = m15B8;
+    fn_800F8290(m15B8.m, 1.0f, 1.0f, len);
+    m1618 = fn_800F80A8(target);
+    if (fn_80239D58(fn_800F7FA0(), this, 1001) == 0) {
+        fn_800F7FA8(fn_800F7FA0(), this, 1001);
+        fn_8023A680(fn_800F7FA0(), &m1584, -1, 5, &m1618, 0, 0, 0, 1.0f, 0, -1, 1);
+    }
+}
+
 // NONMATCHING: 99.90% - only the offset of "spine1" in @stringBase0 and of 0.35f in .sdata2 (functions of the
 // unit not written yet)
 void Em316LaserSphere::fn_803199A4() {
