@@ -42,6 +42,23 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
 
 ## Hallazgos
 
+- Los `""` de `new (tag, "", "", 0)` en una inline van a `@STRING@<inline>` de `.sdata`; con una plantilla las
+  parejas salen en orden de instanciacion, con sobrecargas no plantilla (una por clase, macro) en orden inverso de
+  definicion, que es lo que da el original de `fn_8054E574` (100 %).
+- `delete p` con la prueba `if (p)` delante: el original repite el `beq` cuando la clase tiene destructor vacio
+  inline (base `atn::SingletonNoStatic`); sin destructor MWCC fusiona las dos pruebas.
+- Componentes de un `Vector3` calculados uno a uno (`r.x = ...; r.y = ...; r.z = ...`) en vez del constructor de
+  tres argumentos: arregla el orden de evaluacion de la curva cubica de `WindyItem` (93,7 -> 98,6 %).
+- Un local declarado sin inicializar y asignado despues (`atn::Vector3 d; d = a + b;`) conserva el temporal y su
+  copia (el constructor desde la expresion lo elide): `fn_8059A298`.
+- Una constante usada en un bucle se carga en un registro guardado solo si es una variable (`unsigned int mask =
+  0x80080000;`) declarada justo antes del primer uso (antes: la primera llamada usa `lis` inmediato).
+- `!x` de un bit da `cntlzw/srwi`; el original de `EffectDesc fn_80235BF8` usa `x ^ 1` (`xori`).
+- Un inicializador constante de un array local (`float m[2][3] = {...}`) se copia de una plantilla de `.rodata`
+  palabra a palabra (lwz/stw); asignar elemento a elemento da `stfs` sueltos.
+- Presupuesto de inline (R3) al limite: escribir las asignaciones de un helper pequeno a mano (12 sentencias propias)
+  hace que la funcion vuelva a inlinear todo (`WindyItem::vf10`, 36 -> 89 %).
+
 ## Pendientes
 
 - Bloque 1 (las cuatro unidades a las que solo les faltan funciones al 0 %), sin avance, todas bloqueadas:
