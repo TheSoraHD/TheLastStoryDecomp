@@ -3,6 +3,14 @@
 Agente D2, rama `agent-D2`. Inicio: 2026-11-12 20:43 CET (tope ~2,5 h).
 Unidades: `game/GameUI`, `game/MiniMapTask`, `game/FinishCamera_unk`, `game/PopupTask`; despues `game/GameCamera_unk`.
 
+## Resumen
+
+- Funciones al 0 %: GameUI 27 -> 22, MiniMapTask 10 -> 4, GameCamera_unk 27 -> 26, FinishCamera_unk 1 -> 1,
+  PopupTask 1 -> 1 (cola 66 -> 54; proyecto 658 -> 646).
+- Al 100 % nuevas: 4 (`GameUIMedian3_unk`, `MiniMapTask::fn_804AABA8`, `fn_804AAD54`, `fn_804AAFCC`);
+  `report.json` 15170 -> 15174, lost 0, sin bajadas, `labelcheck/rep100: igual`, `main.dol: OK`.
+- Fin: 2026-11-12 ~21:45 CET.
+
 ## Resultado por unidad
 
 ### game/GameUI (27 al 0 %)
@@ -71,4 +79,11 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/FinishCamera_unk`, `game/Popu
 - `GameUI::fn_803E2110`: `push_back` de `std::vector` en m30C (`GameUIList_unk` es una vista a mano del vector);
   pasar m30C a `std::vector` toca funciones ya al 100 % (destructor, fn_803E0D84).
 - `GameUI fn_803E78B4`: `__sinit` de la unidad (tabla de colores de `.bss` y la tabla de `.data` 0x8078BE40).
+- `GameCamera::fn_8037EF48` (seguir al lider, 1784 bytes): necesita `float m7F8` y `float mCA8` en
+  `GameCamera.h` (hoy relleno), el campo 0x2DC de CharaTask (id de movimiento, 0x55) y la rotacion
+  `fn_800109E0` (inline definida mas abajo en el fuente).
+- `GameUI::fn_803E3468` (1920 bytes): lee la tabla de `.data` 0x8078BE40 (entradas de 0x1C, la rellena el
+  `__sinit` fn_803E78B4); falta su tipo.
+- MiniMapTask: quedan SetPosition/SetTarget de `atn::Camera` (inline nueva en `Camera_unk.h`, muy incluida),
+  `fn_804ABF74` (constructor de `ComDrawTextureMask`, lo usa el borrador vf10) y los borradores vf10/vf18.
 - `TownTask::m258` es el `MiniMapTask*` (ChaseManager lo convierte); cambiar el tipo en `TownTask.h` (otra familia).
