@@ -1578,6 +1578,299 @@ void GameEventScript::fn_8039B2BC() {
     }
 }
 
+// inferred: frames the camera rests on a camera event (kind 7) before it starts, by the field flag 0x121
+// (.rodata 0x8074EEE0; name invented)
+static const int sLookDelays_unk[] = {90, 30};
+
+// inferred: a character a camera event (kind 7) can be picked on (name invented)
+struct ApproachEntry_unk {
+    ApproachEntry_unk() : mId(0), mChara(0) {}
+    ApproachEntry_unk(int id, CharaTask* chara) : mId(id), mChara(chara) {}
+    int mId;
+    CharaTask* mChara;
+};
+
+// inferred: the camera mode lets the player look at things (modes 1, 3 and 4, without the field flag 2590);
+// name invented
+static inline bool CanLook_unk() {
+    int mode = lbl_8087F430->mCamera.m7FC;
+    if (mode == 3 || mode == 1 || mode == 4) {
+        if (lbl_8087F430 == 0 || lbl_8087F430->fn_80370174(2590) <= 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// NONMATCHING: 95.3% (each copy) - registers and stack slots (the original frame keeps more temporaries of
+// the examined capsule)
+// inferred: the events of the character points that start by approach: first the camera event (kind 7) of
+// the character the camera looks at (the nearest to the camera among the first eight, kept in mF8), then
+// for every point: kind 0 talk (nearest talk point and the action button), 1 entering / 8 leaving / 6 outside
+// 10 units, 2 always, 3 looked at from 80 units, 4 examined (looked at from 1200 units: the frame of the HUD
+// around its capsule), 7 the picked camera event after 90 (or 30) frames
+template <class Manager>
+void GameEventScript::ApproachCharas_unk(Manager* manager, atn::SimpleArray<gs::NpcSetPoint>& points,
+                                         atn::SimpleArray<ScriptNpcFlag_unk>& flags, int kind) {
+    typedef typename PointChara_unk<Manager>::Chara Chara;
+    m98 = 0;
+    m9C = kind;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', leader->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    GameUIElem1C_unk hint;
+    if (mF8 <= 0) {
+        atn::FixedArray_unk<ApproachEntry_unk, 8> list;
+        for (unsigned int i = 0; i < points.size(); i++) {
+            gs::NpcSetPoint& point = points[i];
+            if (flags[i].m00 < 0) {
+                continue;
+            }
+            Chara* chara;
+            for (chara = FirstChara_unk(manager); chara != 0; chara = chara->mNext) {
+                if (point.mId == chara->m58) {
+                    break;
+                }
+            }
+            if (chara == 0 || chara->fn_8013655C() || chara->IsFlag_unk(4)) {
+                continue;
+            }
+            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(point.m140[flags[i].m00]);
+            if (e == 0 || e->m0C != 7 || !CanLook_unk()) {
+                continue;
+            }
+            atn::Vector3 line[2];
+            if (fn_803AC3D8(chara, line, 1, 80.0f)) {
+                list.push_back(ApproachEntry_unk(e->m00, chara));
+            }
+            if (list.size() >= 8) {
+                break;
+            }
+        }
+        if (list.size() != 0) {
+            if (list.size() > 1) {
+                GameTask* field = lbl_8087F430;
+                float best = 1e16f;
+                for (unsigned int j = 0; j < list.size(); j++) {
+                    atn::Vector3 d = field->mCamera.mPos - list[j].mChara->mPos;
+                    float dist = PSVECSquareMag(&d);
+                    if (dist < best) {
+                        best = dist;
+                        mF8 = list[j].mId;
+                    }
+                }
+            } else {
+                mF8 = list[0].mId;
+            }
+        }
+    }
+    for (unsigned int i = 0; i < points.size(); i++) {
+        gs::NpcSetPoint& point = points[i];
+        bool stop = false;
+        mA0 = point.mId;
+        if (flags[i].m00 >= 0) {
+            mA4 = flags[i].m00;
+            Chara* chara;
+            for (chara = FirstChara_unk(manager); chara != 0; chara = chara->mNext) {
+                if (point.mId == chara->m58) {
+                    break;
+                }
+            }
+            if (chara == 0) {
+                flags[i].mFlags &= ~2;
+                continue;
+            }
+            if (!chara->fn_8013655C() && !chara->IsFlag_unk(4)) {
+                const ScriptEventConds_unk* e =
+                    (const ScriptEventConds_unk*)FindEvent_unk(point.m140[flags[i].m00]);
+                if (e != 0) {
+                    atn::Vector3 dir = chara->mPos - leader->mPos;
+                    float dist = PSVECSquareMag(&dir);
+                    if (!((float)__fabs(dist) < 1.1920929e-07f)) {
+                        PSVECNormalize(&dir, &dir);
+                    }
+                    bool start = false;
+                    switch (e->m0C) {
+                    case 0:
+                        if ((flags[i].mFlags & 0x20) == 0x20 && mF4 == &flags[i] &&
+                            !(chara->m55C == 6 && chara->m560 == 0x44)) {
+                            hint.m14 = 1;
+                            hint.m00 = 6;
+                            switch (e->mC4) {
+                            case 1:
+                                hint.m04 = 1;
+                                break;
+                            case 2:
+                                hint.m04 = 6;
+                                break;
+                            case 3:
+                                hint.m04 = 7;
+                                break;
+                            case 4:
+                                hint.m04 = 8;
+                                break;
+                            case 5:
+                                hint.m04 = 9;
+                                break;
+                            case 6:
+                                hint.m04 = 2;
+                                break;
+                            case 7:
+                                hint.m04 = 10;
+                                break;
+                            case 8:
+                                hint.m04 = 11;
+                                break;
+                            case 9:
+                                hint.m04 = 18;
+                                break;
+                            case 10:
+                                hint.m04 = 21;
+                                break;
+                            case 11:
+                                hint.m04 = 22;
+                                break;
+                            default:
+                                hint.m04 = 2;
+                                break;
+                            }
+                            lbl_8087F490->m764 = hint;
+                            int pressed = TalkAllowed_unk(this) ? 0 : lbl_8087F0A8->mInput.fn_801231D0(0);
+                            if (pressed) {
+                                mE0 = 36;
+                                start = true;
+                                if (lbl_8087F490 != 0) {
+                                    lbl_8087F490->fn_803E3384();
+                                }
+                            }
+                        }
+                        break;
+                    case 1: {
+                        bool near = dist < 100.0f;
+                        if (near) {
+                            if ((flags[i].mFlags & 1) != 1) {
+                                start = true;
+                            }
+                            flags[i].mFlags |= 1;
+                        } else {
+                            flags[i].mFlags &= ~1;
+                        }
+                        break;
+                    }
+                    case 8: {
+                        bool near = dist < 100.0f;
+                        if (near) {
+                            flags[i].mFlags |= 8;
+                        } else {
+                            if ((flags[i].mFlags & 8) == 8) {
+                                start = true;
+                            }
+                            flags[i].mFlags &= ~8;
+                        }
+                        break;
+                    }
+                    case 6: {
+                        bool near = dist < 100.0f;
+                        if (!near) {
+                            start = true;
+                        }
+                        break;
+                    }
+                    case 2:
+                        start = true;
+                        break;
+                    case 3:
+                        if (CanLook_unk()) {
+                            atn::Vector3 line[2];
+                            if (fn_803AC3D8(chara, line, 1, 80.0f)) {
+                                start = true;
+                            }
+                        }
+                        break;
+                    case 7:
+                        if (mF8 == e->m00) {
+                            if (mD4 != e->m00) {
+                                mD8 = 0;
+                            }
+                            mD4 = e->m00;
+                            mD8++;
+                            if (mD8 > sLookDelays_unk[lbl_8087F430->fn_80370174(0x121)]) {
+                                mD8 = 0;
+                                start = true;
+                                fn_803935FC(5, 1.0f);
+                            }
+                        }
+                        break;
+                    case 4: {
+                        GameCamera& camera = lbl_8087F430->mCamera;
+                        if (CanLook_unk()) {
+                            atn::Vector3 line[2];
+                            int seen = fn_803AC3D8(chara, line, 1, 1200.0f);
+                            atn::ColliCapsuleShape_unk capsule(chara->mColli.m3C, chara->mColli.m48,
+                                                               chara->mColli.m54);
+                            atn::Vector3 toEnd = capsule.mEnd - camera.mPos;
+                            dist = PSVECMag(&toEnd);
+                            atn::Vector3 lo(-capsule.mRadius, -capsule.mRadius, 0.0f);
+                            atn::Vector3 hi(capsule.mRadius, capsule.mRadius, 0.0f);
+                            atn::Matrix3x4 rot = *(atn::Matrix3x4*)&camera.mInvView;
+                            rot.m[0][3] = 0.0f;
+                            rot.m[1][3] = 0.0f;
+                            rot.m[2][3] = 0.0f;
+                            PSMTXMultVec(rot.m, &lo, &lo);
+                            PSMTXMultVec(rot.m, &hi, &hi);
+                            atn::Vector3 p1 = capsule.mStart + lo;
+                            p1 = atn::RenderManager::instance_->GetScreenPosition(p1);
+                            atn::Vector3 p2 = capsule.mEnd + hi;
+                            p2 = atn::RenderManager::instance_->GetScreenPosition(p2);
+                            atn::Vector2_unk center(0.5f * (p1.x + p2.x), 0.5f * (p1.y + p2.y));
+                            atn::Vector2_unk size(0.5f * (float)__fabs(p1.x - p2.x) + 12.0f,
+                                                  0.5f * (float)__fabs(p1.y - p2.y) + 12.0f);
+                            if (seen) {
+                                lbl_8087F490->fn_803E6ADC(capsule.mStart + lo, capsule.mEnd + hi);
+                                start = true;
+                                atn::Vector3 mid = (capsule.mStart + capsule.mEnd) * 0.5f;
+                                camera.fn_8037F690(&mid);
+                                fn_803935FC(5, 1.0f);
+                            }
+                            if (!seen && dist < 1200.0f) {
+                                if (fn_803ABE54(&line[0], &capsule.mEnd, capsule.mRadius) ||
+                                    (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xCE))) {
+                                    lbl_8087F490->fn_803E3050((capsule.mStart + capsule.mEnd) * 0.5f,
+                                                              atn::Vector3(center.x, center.y, p1.z), size, dist);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    }
+                    if (start) {
+                        m98 = (int)chara;
+                        for (int j = 0; j < e->mCount; j++) {
+                            if (e->mConds[j].m00 < 0) {
+                                Done_unk(e->m00) = true;
+                                break;
+                            }
+                        }
+                        ScriptData_unk* data = (ScriptData_unk*)e;
+                        if (fn_8039CF8C(data, &data->mCmds) == 0) {
+                            m8C = 1;
+                            stop = true;
+                        }
+                    }
+                }
+                if (m8C != 0) {
+                    stop = true;
+                }
+            }
+        }
+        if (stop) {
+            break;
+        }
+    }
+}
+
 // inferred: MSL map::operator[] of the finished events (name invented)
 inline bool& GameEventScript::Done_unk(const int& key) {
     ScriptDoneNode_unk* pred;
