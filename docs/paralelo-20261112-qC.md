@@ -1,6 +1,6 @@
 # Lote paralelo 2026-11-12, cola C (Batalla)
 
-Inicio: 2026-11-12 14:55 CET. Rama `agent-C`. Unidades: `game/BattleTask`, `game/BattleCharaTask`,
+Inicio: 2026-11-12 14:55 CET; cierre 17:08 CET. Rama `agent-C`. Unidades: `game/BattleTask`, `game/BattleCharaTask`,
 `game/TacView`, `game/TeamAI_unk`.
 
 ## Resultado por unidad
@@ -15,7 +15,7 @@ Inicio: 2026-11-12 14:55 CET. Rama `agent-C`. Unidades: `game/BattleTask`, `game
   `BetoModel::fn_8010D854` (0x8010D854, callback de nodos) y el invoker/manager del `boost::function`
   (0x800F2BB8, 0x800F2BE4). `fn_800F3490`/`fn_800F3B4C` pasan a miembros (GameTask.cpp actualizado).
   Tambien al 100 %: `fn_80109864` (mensaje de log de un estado), `fn_8010CB2C` (ritmo de la carga de un
-  personaje) y `fn_8010CD3C` (tirada de un estado). BattleTask: 0 % 76 -> 70.
+  personaje) y `fn_8010CD3C` (tirada de un estado). BattleTask: 0 % 76 -> 68 (100 %: 127 -> 135).
 
 ## NONMATCHING
 
