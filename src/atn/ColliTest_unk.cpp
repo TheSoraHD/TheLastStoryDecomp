@@ -1038,10 +1038,180 @@ extern "C" int fn_80055810(ColliResult_unk* r, const ColliCapsuleShape_unk* b, c
 }
 
 // inferred: swept sphere b (from mStart to end along the unit dir, move = end - start) against the
-// triangle (v0, v1, v2) of normal n and center c
+// triangle (v0, v1, v2) of normal n and center c: the face (m00 1), an edge (m00 2: m10 the center
+// of b, m04 the point of the edge) or a vertex (m00 3)
+// NONMATCHING: 99.8% - FPR allocation of the plane members (as in fn_80054038) and r14/r26 of
+// back and la.mDir
 extern "C" int fn_80055C40(ColliResult_unk* r, const ColliCapsuleShape_unk* b, const Vector3* end,
                            const Vector3* move, const Vector3* dir, const Vector3* v0, const Vector3* v1,
-                           const Vector3* v2, const Vector3* n, const Vector3* c, float radius);
+                           const Vector3* v2, const Vector3* n, const Vector3* c, float radius) {
+    float d = Dot_unk(*n, b->mStart - *c);
+    if (d * d <= radius * radius &&
+        fn_80052760(r, (const ColliSphereShape_unk*)b, v0, v1, v2, n, radius, d)) {
+        return 1;
+    }
+    float s0 = Dot_unk(*n, b->mStart - *c);
+    float s1 = Dot_unk(*n, *end - *c);
+    if (s0 * s1 > 0.0f) {
+        if (s0 > radius && s1 > radius) {
+            return 0;
+        }
+        if (s0 < -radius && s1 < -radius) {
+            return 0;
+        }
+    }
+    if (s0 != s1) {
+        ColliPlane_unk plane(*n, *c);
+        Vector3 hit = plane.Intersect_unk(b->mStart, *end);
+        if (!IsInfNan_unk(hit)) {
+            Vector3 p = hit + *dir * (radius / PSVECDotProduct(n, dir));
+            Vector3 ps = p - b->mStart;
+            Vector3 pe = p - *end;
+            if (PSVECDotProduct(&ps, &pe) > 0.0f) {
+                return 0;
+            }
+            Vector3 q = p - *n * radius;
+            Vector3 a0 = q - *v0;
+            Vector3 a1 = q - *v1;
+            Vector3 a2 = q - *v2;
+            Vector3 c0;
+            Vector3 c1;
+            Vector3 c2;
+            int outside = -1;
+            PSVECCrossProduct(&a0, &a1, &c0);
+            PSVECCrossProduct(&a1, &a2, &c1);
+            PSVECCrossProduct(&a2, &a0, &c2);
+            if (PSVECDotProduct(n, &c0) < 0.0f) {
+                outside = 0;
+            }
+            if (PSVECDotProduct(n, &c1) < 0.0f) {
+                outside = 1;
+            }
+            if (PSVECDotProduct(n, &c2) < 0.0f) {
+                outside = 2;
+            }
+            if (outside < 0) {
+                if (r) {
+                    r->m00 = 1;
+                    r->m04 = p - *n * radius;
+                    r->m10 = p;
+                    r->m1C = *n;
+                }
+                return 1;
+            }
+        }
+    }
+    ColliSegment_unk pts[3];
+    ColliSegment_unk edges[3];
+    edges[0].mStart = *v0;
+    edges[0].mEnd = *v1;
+    edges[1].mStart = *v1;
+    edges[1].mEnd = *v2;
+    edges[2].mStart = *v2;
+    edges[2].mEnd = *v0;
+    ColliSegment_unk seg;
+    seg.mStart = b->mStart;
+    seg.mEnd = *end;
+    int hits[3] = {-1, -1, -1};
+    Vector3 e0 = *v1 - *v0;
+    Vector3 e1 = *v2 - *v1;
+    Vector3 e2 = *v0 - *v2;
+    Vector3 back = *dir * -1.0f;
+    int found = 0;
+    for (int i = 0; i < 3; i++) {
+        Vector3 ed;
+        switch (i) {
+        case 0:
+            ed = e0;
+            break;
+        case 1:
+            ed = e1;
+            break;
+        case 2:
+            ed = e2;
+            break;
+        }
+        Vector3 linePts[2];
+        if (fn_80050E18((const ColliCapsuleShape_unk*)&seg, (const ColliCapsuleShape_unk*)&edges[i], 0, linePts) <=
+            radius) {
+            ColliLine_unk la;
+            ColliLine_unk lb;
+            found = 1;
+            la.mPos = linePts[0];
+            lb.mPos = linePts[1];
+            la.mDir = back;
+            lb.mDir = ed.GetNormalize();
+            hits[i] = fn_80051684(&pts[i].mStart, (const ColliCapsuleShape_unk*)&seg, &la,
+                                  (const ColliCapsuleShape_unk*)&edges[i], &lb, radius);
+        }
+    }
+    if (!found) {
+        return 0;
+    }
+    float best = 1e16f;
+    int bi = -1;
+    ColliSegment_unk bp;
+    for (int i = 0; i < 3; i++) {
+        if (hits[i] == 0) {
+            float sq = SquareMag_unk(pts[i].mStart - b->mStart);
+            if (best > sq) {
+                best = sq;
+                bi = i;
+                bp = pts[i];
+            }
+        }
+    }
+    if (bi >= 0) {
+        if (r) {
+            r->m10 = bp.mStart;
+            r->m04 = bp.mEnd;
+            r->m00 = 2;
+            r->m1C = (r->m10 - r->m04).GetNormalize();
+        }
+        return 1;
+    }
+    Vector3 cp[3][2];
+    float dist[3][2];
+    for (int i = 0; i < 3; i++) {
+        dist[i][0] = fn_80050A1C(&edges[i].mStart, (const ColliCapsuleShape_unk*)&seg, &cp[i][0]);
+        dist[i][1] = fn_80050A1C(&edges[i].mEnd, (const ColliCapsuleShape_unk*)&seg, &cp[i][1]);
+    }
+    float min = 1e16f;
+    int ei = -1;
+    int vi = -1;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 2; j++) {
+            if (min > dist[i][j]) {
+                min = dist[i][j];
+                ei = i;
+                vi = j;
+            }
+        }
+    }
+    if (min < radius) {
+        Vector3 v;
+        switch ((ei + vi) % 3) {
+        case 0:
+            v = *v0;
+            break;
+        case 1:
+            v = *v1;
+            break;
+        case 2:
+            v = *v2;
+            break;
+        }
+        if (r) {
+            r->m00 = 3;
+            Vector3 g = Advance_unk(cp[ei][vi], back, v, radius);
+            r->m1C = (g - v).GetNormalize();
+            r->m04 = v;
+            r->m10 = g;
+        }
+        return 1;
+    }
+    return 0;
+}
 
 // inferred: swept sphere against a triangle
 // NONMATCHING: 99.6% - GPR allocation of move/dir (r30/r31 swapped)
@@ -1113,5 +1283,4 @@ extern "C" int fn_80056AE8(ColliResult_unk* r, const ColliCapsuleShape_unk* b, C
     return 0;
 }
 
-// TODO: fn_8005454C (segment against an oriented box, 0xC70 bytes) and fn_80055C40 (swept sphere
-// against a triangle, 0xCDC bytes, uses the int table lbl_80731048) are not written yet.
+// TODO: fn_8005454C (segment against an oriented box, 0xC70 bytes) is not written yet.
