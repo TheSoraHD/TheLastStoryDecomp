@@ -625,6 +625,56 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
 
 extern "C" double cos(double x);
 
+// inferred: blends from the current camera back to the box camera of fn_80388A88 while the timer m424 runs (at
+// once when the two horizontal directions of view differ by more than 45 degrees)
+// NONMATCHING: 87.1% - scheduling of the blends and stack slots; fn_8008B964 (see fn_80388A88)
+void GameCamera::fn_8038C928(const CharaTask* chara) {
+    float t = 1.0f;
+    m80C = mPos;
+    m818 = mTarget;
+    m830 = mFovy;
+    if (m424.fn_803829C0()) {
+        m424.fn_803829D4();
+        t = 1.0f - m424.mTime;
+        if (m424.mTime < m424.mStep) {
+            m424.mActive = 0;
+        }
+    }
+    atn::Vector3 pos(m744.x, m744.y, m744.z);
+    atn::Vector3 offset(0.0f, m750, 0.0f);
+    atn::Vector3 target = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    float fovy = m73C;
+    if (mC20 != 0 && mC20->m30 > 0) {
+        atn::Vector3 d = pos - target;
+        float dist = PSVECMag(&d);
+        fovy = 2.0f * (float)atan((float)mC20->m30 * (float)tan(m73C * 0.5f) / dist);
+        fovy = fovy < m73C ? fovy : m73C;
+    }
+    atn::Vector3 a(pos.x - target.x, 0.0f, pos.z - target.z);
+    if (PSVECSquareMag(&a) > 0.0f) {
+        PSVECNormalize(&a, &a);
+    }
+    atn::Vector3 b(m80C.x - m818.x, 0.0f, m80C.z - m818.z);
+    if (PSVECSquareMag(&b) > 0.0f) {
+        PSVECNormalize(&b, &b);
+    }
+    if (PSVECDotProduct(&a, &b) < 0.70710677f) {
+        t = 1.0f;
+    }
+    m808++;
+    if (t >= 1.0f) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    SetPosition((pos - m80C) * t + m80C);
+    SetTarget_unk((target - m818) * t + m818);
+    mFovy = t * (fovy - m830) + m830;
+    fn_8004B378();
+    fn_80392964(0, 1, 0, 0);
+}
+
 // inferred: event camera at m780 from the head of the character (turned by m79C degrees, facing it), looking
 // m774 away with the pitch m77C and the fovy m778; blended with an eased curve while the timer m424 runs
 // NONMATCHING: 91.5% - scheduling of the front vector and of the blends; fn_8008B964 (see fn_80388A88)
