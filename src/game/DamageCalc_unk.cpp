@@ -34,7 +34,6 @@ extern "C" Effect_unk* lbl_8087F048;
 extern "C" void fn_800FB1BC(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
                             const atn::Vector3* rot, int a, int b, float scale); // inferred: hit effect
 extern "C" void fn_80108F38(Effect_unk* mgr, const atn::Vector3& pos, int status); // inferred: status effect
-extern "C" int fn_8010CD3C(Effect_unk* mgr, int kind, CharaTask* chara, CharaTask* target);
 extern "C" void fn_801092C8(Effect_unk* mgr, int id, CharaTask* chara, int a, int b);
 
 // inferred: field (lbl_8087F430)
@@ -942,7 +941,7 @@ int fn_800417E8(int kind, CharaTask* chara, CharaTask* target) {
         }
     }
     if (kind == 1) {
-        if (lbl_8087F048 != 0 && fn_8010CD3C(lbl_8087F048, 3, chara, target)) {
+        if (lbl_8087F048 != 0 && ((BattleTask*)lbl_8087F048)->fn_8010CD3C(3, chara, target)) {
             fn_801092C8(lbl_8087F048, 0xE, chara, 3, 0);
             chance = 1.0f;
         }

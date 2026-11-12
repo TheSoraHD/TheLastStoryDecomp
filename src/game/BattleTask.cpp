@@ -21,6 +21,10 @@
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
 #include "atn/Color.h"
+#include "atn/D2A_Task.h"
+#include "atn/NodeChunk.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -37,6 +41,16 @@ extern "C" int fn_80219558(int id); // inferred: party member kind of a characte
 extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: node callback of a model (as game/CharaTask.cpp: the functor manager uses the default allocator of
+// boost::function3, std::allocator<function_base>)
+typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
+                        std::allocator<boost::function_base> >
+    NodeCallback_unk;
+// inferred: sets the node callback of a model (weak copy 0x800F29D0 of an inline of atn::Model that the
+// other files call by this name; ModelBase::mB8 is declared with another signature)
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
@@ -64,6 +78,49 @@ BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
         lbl_8087F048 = new ((MemoryTag)1, "", "", 0) BattleTask(parent);
     }
     return lbl_8087F048;
+}
+
+// inferred: setup: waits for the effects and the d2anime tasks, then binds the node callback of the effect
+// models (the nodes follow the character the model is drawn on)
+int BattleTask::vf0C() {
+    int ready = 1;
+    if (fn_800D3FA4() == 0) {
+        ready = 0;
+    }
+    if (fn_800F3490() != 0) {
+        ready = 0;
+    }
+    if (fn_800F3B4C() != 0) {
+        ready = 0;
+    }
+    if (ready != 0) {
+        mCB30->fn_800D246C(0);
+        mCB30->mRepeat = 0;
+        mCB30->FreezeTask();
+        if (mCB60 != 0) {
+            mCB60->fn_800D246C(0);
+            mCB60->mRepeat = 1;
+            mCB60->FreezeTask();
+        }
+        m3E2F4->fn_800D246C(0);
+        m3E2F4->mRepeat = 0;
+        m3E2F4->FreezeTask();
+        for (unsigned int i = 0; i < 8; i++) {
+            atn::Model* model = mSlots[i].mModel.GetModel_unk();
+            if (model->m20C_31_24 == 8) {
+                fn_800F29D0(model, boost::bind(&BetoModel::fn_8010D854, &mSlots[i], _1, _2, _3));
+                model->fn_80091CFC("head");
+                model->fn_80091CFC("lefthand");
+                model->fn_80091CFC("leftleg");
+                model->fn_80091CFC("righthand");
+                model->fn_80091CFC("rightleg");
+                model->fn_80091CFC("spine1");
+                model->fn_80091CFC("waist");
+            }
+        }
+        fn_800D246C(1);
+    }
+    return ready;
 }
 
 // ---- fn_800F72F4: target marker of a character (over the inlining budget: every helper below is called
@@ -1187,6 +1244,33 @@ void BattleTask::fn_80109828(const wchar_t* text) {
     }
 }
 
+// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
+struct BattleMsg_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" BattleMsg_unk* lbl_8087F1E4;
+extern "C" bool fn_8021BE98(wchar_t* buf, SpEffect_unk* effect); // inferred: text of a status effect
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+
+// inferred: log message "<character> <effect>" (format 0x8B of the message table)
+void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
+    if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
+        return;
+    }
+    wchar_t text[0x100];
+    memset(text, 0, sizeof(text));
+    const wchar_t* format = lbl_8087F1E4->Get_unk(0x8B);
+    wchar_t name[0x100];
+    memset(name, 0, sizeof(name));
+    if (fn_8021BE98(name, effect)) {
+        fn_800DD3FC(text, format, chara->m60->m04, name);
+    }
+    if (text[0] != 0) {
+        LogMessageTask::sInstance->fn_8047961C(text, -0x333334, 2, 0);
+    }
+}
+
 // inferred: the 0.0f bound goes through a variable (MAX evaluates it twice); with the literal f2/f3 come out swapped
 void BattleTask::fn_8010AB34() {
     float add = m38A28;
@@ -1294,6 +1378,30 @@ float BattleTask::fn_8010CA3C(CharaTask* chara, float rate) {
     return rate;
 }
 
+float BattleTask::fn_8010CB2C(CharaTask* chara, float rate) {
+    rate *= 1.0f + chara->mStatus.mParamB.m94 / 2000.0f;
+    if (chara->mType == 0 || chara->mType == 3) {
+        rate *= chara->fn_801789D8(0x4FBF, 0) != 0 ? 2.0f : 1.4f;
+    }
+    rate *= chara->mStatus.fn_8012DB04();
+    rate += rate * chara->mStatus.fn_80134168(0x2B, -1) / 100.0f;
+    if (((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
+        rate *= 2.4f;
+    }
+    if (chara->mType == 0 || chara->mType == 3) {
+        PlayerTask* leader;
+        if ((lbl_8087F430 != 0 && lbl_8087F430->fn_803761BC() == 0) ||
+            (lbl_8087F8A0 != 0 && (leader = lbl_8087F8A0->mHead) != 0 &&
+             (leader->mFlag28 || leader != lbl_8087F8A0->fn_8054A33C(0)))) {
+            rate *= 2.0f;
+        }
+        if (chara->mType == 0 && lbl_8087F610 != 0) {
+            rate *= 1.4f;
+        }
+    }
+    return rate;
+}
+
 float BattleTask::fn_8010CCD0() {
     return 0.75f;
 }
@@ -1308,6 +1416,37 @@ float BattleTask::fn_8010CCD8(CharaTask* chara) {
         gain *= 1.5f;
     }
     return gain;
+}
+
+// inferred: random roll of the status effect `kind` (2/3, 7/8, 4 and 5); names invented
+int BattleTask::fn_8010CD3C(int kind, CharaTask* chara, CharaTask* other) {
+    switch (kind) {
+    case 2:
+    case 3:
+        if (chara != 0 && chara->m55C != 6 && chara->mStatus.fn_801346C8(kind, 0) && rand() % 100 < 15) {
+            return 1;
+        }
+        break;
+    case 4:
+        if (chara != 0 && other != 0 && chara->mStatus.fn_801346C8(4, 0) &&
+            (other->m5C != 0 ? other->m5C->mD0 : 0) > 0 && rand() % 100 < 5) {
+            return 1;
+        }
+        break;
+    case 7:
+    case 8:
+        if (chara != 0 && (chara->m55C == 1 || chara->m55C == 2) && (unsigned int)chara->m5C->m11C <= 2 &&
+            (chara->mFlagB16 || rand() % 100 < 15)) {
+            return 1;
+        }
+        break;
+    case 5:
+        if (chara != 0 && chara->mStatus.fn_801346C8(5, 0) && rand() % 100 < 30) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
 }
 
 int BattleTask::fn_8010D770(HitInfo_unk* hit) {
@@ -1329,4 +1468,26 @@ int BattleTask::fn_8010D7B4(HitInfo_unk* hit) {
         return 1;
     }
     return 0;
+}
+
+BattleTask::BetoModel::BetoModel() : mUsed(0), mModel(0x505), mChara(0) {
+}
+
+// inferred: the node takes the position of the node of the same name of the character, scaled by vf60
+void BattleTask::BetoModel::fn_8010D854(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
+                                        const atn::ModelNodeCallbackContext& context) {
+    if (mChara != 0) {
+        float scale = mChara->vf60();
+        MtxPtr node = mChara->mMotion.GetNodeMtx_unk(chunk.mName);
+        if (node != 0) {
+            atn::Vector3 pos = ((atn::Matrix3x4*)node)->GetTrans_unk();
+            mtx->fn_801479E4(pos);
+            atn::Vector3 s(scale, scale, scale);
+            atn::Matrix3x4 r;
+            Mtx m;
+            PSMTXScale(m, s.x, s.y, s.z);
+            PSMTXConcat(mtx->m, m, r.m);
+            *mtx = r;
+        }
+    }
 }
