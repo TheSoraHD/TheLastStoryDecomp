@@ -1,6 +1,6 @@
 # Lote paralelo 2026-11-12, cola F2 (Efectos, segunda pasada)
 
-Inicio: 2026-11-12 21:40 CET. Rama `agent-F2`. Unidades: `atn/EffectSystem_unk`, `atn/EffectManager`.
+Inicio: 2026-11-12 21:40 CET. Fin: 22:30 CET. Rama `agent-F2`. Unidades: `atn/EffectSystem_unk`, `atn/EffectManager`.
 
 ## Resultado por unidad
 
@@ -12,6 +12,19 @@ Inicio: 2026-11-12 21:40 CET. Rama `agent-F2`. Unidades: `atn/EffectSystem_unk`,
 - `atn/EffectSystem_unk` (commit 3): 0 % 2 -> 1; escrita NONMATCHING fn_8023193C (paso de un slot: frame de la
   textura, desplazamiento, posicion, tamano, direccion, velocidad con rebote en el suelo, escala y color,
   98,4 %). Queda al 0 % solo fn_8022DD1C (dibujado de un slot, 7592 bytes, 18 floats guardados).
+
+- **Total EffectSystem_unk**: funciones al 0 % 7 -> 1; al 100 % sin cambios (43/58 en `report.json`); escritas
+  NONMATCHING nuevas 6. No enlaza todavia (falta fn_8022DD1C).
+- `atn/EffectManager`: sin cambios (29 al 0 %). fn_8023BA10 es el `operator<<` de un `ostream` (sentry, flush,
+  `num_put::put`) instanciado en la unidad: hay que reconstruir `num_put`/`numpunct`/`basic_ostream` de MSL en
+  `libs/` (no estan en `msl_iostream_unk.h`); no se empezo.
+
+## Pendientes
+
+- fn_8022DD1C (dibujado de un slot): ~1900 instrucciones, 26 PSMTXConcat, 20 PSMTXRotRad, una matriz 4x4
+  (PSMTX44MultVec) y atan2 (parece `Vector3::ToRotation_unk`/`Matrix44` de `math/Vec.h`); empieza mirando
+  param->m25C bit 1 (distancia a la camara > m260 + m264: no se dibuja) y los flags 0x20/0x100 de la instancia.
+- EffectManager: MSL de `ostringstream` (ver arriba).
 
 ## NONMATCHING
 
