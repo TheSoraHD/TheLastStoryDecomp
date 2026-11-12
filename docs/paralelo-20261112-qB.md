@@ -1,6 +1,9 @@
 # Lote paralelo 2026-11-12, cola B (vestuario y campamento)
 
-Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
+Inicio: 2026-11-12 14:55 CET. Tope ~17:25; cerrado a las 16:35.
+
+Total: funciones al 0 % / sin escribir de la cola 108 -> 52; `report.json` 15057 -> 15078 funciones al 100 %
+(+21), lost 0, sin bajadas. Ninguna unidad pasa a enlazar.
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
