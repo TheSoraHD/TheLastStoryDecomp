@@ -8,6 +8,7 @@
 #include "game/GameConfig_unk.h"
 #include "MP/D2AMpMenuMessageList.h"
 #include "MP/D2AMpMenu.h"
+#include "atn/DrawHelper.h"
 
 // inferred: hash of the "CustomData" pane (as in MP/D2AMpMenu.cpp; read by functions not written yet); its
 // initializer is the __sinit of the file (0x804C2FC8)
@@ -412,6 +413,40 @@ void D2AMpMenuLobby::fn_804C0EA4() {
             fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(chara + 0xB3), 0);
         } else {
             fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xC9), 0);
+        }
+    }
+}
+
+// inferred: scrolls the names of the players in their balloons (after 30 frames, 1.5 per frame; back to the
+// start once the whole name went past)
+// NONMATCHING: 99.6% - offset of "message_0007" until the strings of the functions before it are written
+void D2AMpMenuLobby::fn_804C1634() {
+    MpRect_unk pos;
+    float scroll;
+    float scale = 0.05f;
+    float speed = 1.5f;
+    float width = 220.0f;
+    for (int i = 0; i < 6; i++) {
+        if (mPlayers[i].m20 == 0) {
+            continue;
+        }
+        int frame = ++mPlayers[i].m24;
+        if ((float)frame < 30.0f) {
+            scroll = 0.0f;
+        } else {
+            scroll = speed * ((float)frame - 30.0f);
+        }
+        if (mPlayers[i].m28 == 0) {
+            pos = GetPaneRect_unk(mPlayers[i].mTasks[3], "message_0007");
+        } else {
+            pos = GetPaneRect_unk(mPlayers[i].mTasks[4], "message_0007");
+        }
+        pos.x += 2.0f;
+        const wchar_t* name = (const wchar_t*)&mPlayers[i].m2C;
+        lbl_8087EEB0->fn_80061AE4(name, -1, 1, 1, 0, 1, 0xFF000000, pos.x - scroll, pos.y, -10.0f, 14.0f, 12.0f,
+                                  0.0f, 1.0f, 1.0f, pos.x - width * scale, width, scale);
+        if (scroll > fn_8006EF48(lbl_8087EEC8, 17.0f, name, 0.0f, 1, 1)) {
+            mPlayers[i].m24 = 0;
         }
     }
 }
