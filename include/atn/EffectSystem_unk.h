@@ -89,6 +89,8 @@ struct EffectAnimData_unk {
     int m24;
     int* mEmitterOn;             // 0x28: inferred: per emitter, started with the effect
     int* mParticleOn;            // 0x2C: inferred: per particle definition, started with the effect
+    int m30;
+    void** mResources;           // 0x34: inferred: per entry of the data, its model or texture
 };
 // inferred: parameters of an effect (fields named by offset)
 struct EffectParam_unk {
@@ -123,19 +125,42 @@ struct EffectParam_unk {
     float mC8;              // 0xC8: inferred: damping of the velocity per axis
     float mCC;
     float mD0;
-    unsigned char mD4[0xE0 - 0xD4];
+    float mD4;              // 0xD4: inferred: random ranges of EffectSlot_unk::m114
+    float mD8;
+    float mDC;
     atn::Vector3 mE0;
-    unsigned char mEC[0x11C - 0xEC];
+    unsigned char mEC[0x110 - 0xEC];
+    float m110;             // 0x110: inferred: random ranges of EffectSlot_unk::m120
+    float m114;
+    float m118;
     atn::Vector3 m11C;
-    unsigned char m128[0x158 - 0x128];
+    unsigned char m128[0x14C - 0x128];
+    float m14C;             // 0x14C: inferred: random ranges of EffectSlot_unk::mE4
+    float m150;
+    float m154;
     atn::Vector3 m158;
-    unsigned char m164[0x194 - 0x164];
+    unsigned char m164[0x188 - 0x164];
+    float m188;             // 0x188: inferred: random ranges of EffectSlot_unk::m100
+    float m18C;
+    float m190;
     EffectColor_unk m194;   // 0x194: inferred: color when not animated
-    unsigned char m1A4[0x1F8 - 0x1A4];
+    unsigned char m1A4[0x1D4 - 0x1A4];
+    float m1D4;             // 0x1D4: inferred: random ranges of the color EffectSlot_unk::mF0 (r, g, b, a)
+    float m1D8;
+    float m1DC;
+    float m1E0;
+    float m1E4;
+    unsigned char m1E8[0x1F4 - 0x1E8];
+    float m1F4;             // 0x1F4: inferred: random range of EffectSlot_unk::m12C
     atn::Vector3 m1F8;
-    unsigned char m204[0x238 - 0x204];
+    unsigned char m204[0x228 - 0x204];
+    float m228;             // 0x228: inferred: random ranges of EffectSlot_unk::m130
+    float m22C;
+    float m230;
+    unsigned int m234;      // 0x234: inferred: blend mode of the slots (1-5)
     int m238;               // 0x238: inferred: frames the slots move (< 0: always)
-    unsigned char m23C[0x25C - 0x23C];
+    float m23C;             // 0x23C: inferred: frame length scale of the texture animation
+    unsigned char m240[0x25C - 0x240];
     unsigned int m25C;      // 0x25C: inferred: bit 0: emission reduced with the camera distance
     float m260;             // 0x260: inferred: distance where the reduction starts
     float m264;             // 0x264: inferred: distance range of the reduction
@@ -209,25 +234,27 @@ struct EffectSlot_unk {
     atn::Vector3 m74;      // 0x74: inferred: position
     atn::Vector3 m80;      // 0x80: inferred: emission point (m74 + m8C, moved by fn_80231508)
     atn::Vector3 m8C;
-    unsigned char m98[0xA4 - 0x98];
+    atn::Vector3 m98;
     float mA4;
-    unsigned char mA8[0xB0 - 0xA8];
+    float mA8;
+    float mAC;
     float mB0;             // 0xB0: inferred: scale x, y, z of the slot
     float mB4;
     float mB8;
-    unsigned char mBC[0xCC - 0xBC];
+    EffectColor_unk mBC;   // 0xBC: inferred: color of the slot
     float mCC;             // 0xCC: inferred: distance along the direction (fn_80231508)
     float mD0;             // 0xD0: inferred: rotations x, y, z of the direction
     float mD4;
     float mD8;
-    unsigned char mDC[0xE4 - 0xDC];
+    float mDC;
+    float mE0;
     atn::Vector3 mE4;
     EffectColor_unk mF0;   // 0xF0: inferred: color offset or scale of the slot
     atn::Vector3 m100;
     unsigned char m10C[0x114 - 0x10C];
     atn::Vector3 m114;
     atn::Vector3 m120;
-    unsigned char m12C[0x130 - 0x12C];
+    float m12C;
     atn::Vector3 m130;
     float m13C;
     float m140;
@@ -242,7 +269,9 @@ struct EffectSlot_unk {
     unsigned char m164[0x16C - 0x164];
     float m16C;
     float m170;
-    unsigned char m174[0x190 - 0x174];
+    atn::Vector3 m174;
+    float m180;
+    atn::Vector3 m184;
     unsigned int m190; // 0x190: inferred: flags (2: drawn)
     atn::Vector3 m194;     // 0x194: inferred: emission point when the slot starts (fn_8022DA70)
     float m1A0;

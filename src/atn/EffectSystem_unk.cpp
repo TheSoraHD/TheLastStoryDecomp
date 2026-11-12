@@ -944,6 +944,197 @@ void EffectSystem_unk::fn_802301EC(EffectInst_unk* inst, EffectParam_unk* param,
     }
 }
 
+extern "C" void fn_80233D74(EffectSlot_unk* slot, EffectParam_unk* param);
+extern "C" void fn_80233348(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_802334E0(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_80233678(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_80233810(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_802339A8(Vector3* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+extern "C" void fn_80233B40(EffectColor_unk* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst);
+
+// inferred: flag of the animation of an emitter (name invented)
+static inline bool EffectAnimFlag_unk(const EffectAnimData_unk* data, int emitter, unsigned int flag) {
+    return (data->mAnimFlags[emitter] & flag) == flag;
+}
+
+// inferred: value clamped to [0, 1] (name invented)
+static inline void EffectClamp01_unk(float& v) {
+    if (v < 0.0f) {
+        v = 0.0f;
+    } else if (v > 1.0f) {
+        v = 1.0f;
+    }
+}
+
+// NONMATCHING: 99.9% - else branch: the entries pointer is loaded after param->m40 (and r5/r7 in the
+// emitter index)
+// inferred: sets up a new slot of an instance: its model or texture (and its frames), its offset, size,
+// direction, speed, color and the draw flags from the parameters of the emitter; 0 when the entry has
+// nothing to draw
+extern "C" int fn_80230780(void* owner, EffectInst_unk* inst, EffectParam_unk* param, EffectSlot_unk* slot, float t) {
+    EffectAnimData_unk* data = (EffectAnimData_unk*)owner;
+    EffectFileEntry_unk* entries = data->mEntries;
+    EffectFileEntry_unk* entry = &entries[param->m40];
+    if (entry->mType == 1) {
+        slot->m08 = (EffectInst_unk*)data->mResources[param->m40];
+        slot->m14 = (float)(unsigned int)param->m50;
+        slot->m1C = &entries[param->m40];
+    } else {
+        slot->m1C = entry;
+        if ((unsigned int)entry->m128 == 1) {
+            slot->m20 = entry->m108 != 0 ? rand() % entry->m108 : 0;
+        } else {
+            slot->m20 = 0;
+        }
+        slot->m24 = slot->m20;
+        if (data->mEntries[param->m40].mType == 2) {
+            void** res = data->mResources;
+            slot->m08 = (EffectInst_unk*)res[param->m40];
+            slot->m0C = (int)((char*)res[param->m40] + 0x30);
+            if ((param->m4C & 0xC0000000) == 0x80000000) {
+                slot->m08 = (EffectInst_unk*)slot->m0C;
+            }
+        } else {
+            slot->m08 = (EffectInst_unk*)data->mResources[param->m40];
+            slot->m0C = 0;
+        }
+        if (param->m50 == 0) {
+            slot->m14 = (float)slot->m1C->m108 * param->m23C;
+        } else {
+            slot->m14 = (float)(unsigned int)param->m50;
+        }
+    }
+    if (slot->m08 == 0) {
+        return 0;
+    }
+    fn_80233D74(slot, param);
+    int emitter = param - inst->mData->mParams;
+    Vector3 ofs;
+    fn_80233348(&ofs, slot, emitter, inst);
+    ofs.x *= inst->mA8;
+    ofs.y *= inst->mA8;
+    ofs.z *= inst->mA8;
+    if (param->m70 != 0) {
+        ofs.y = slot->m13C * ofs.x;
+        ofs.z = slot->m140 * ofs.x;
+    }
+    fn_802334E0((Vector3*)&slot->mA4, slot, emitter, inst);
+    if (param->m4C & 1) {
+        if (param->m78 != 0) {
+            slot->mA8 = slot->m144 * slot->mA4;
+            slot->mAC = slot->m148 * slot->mA4;
+        }
+    } else if ((inst->mData->mAnimFlags[emitter] & 2) != 2) {
+        slot->mA4 = 0.0f;
+        slot->mA8 = 0.0f;
+        slot->mAC = param->mE0.z + slot->m120.z;
+    }
+    fn_80233678((Vector3*)&slot->mB0, slot, emitter, inst);
+    slot->mB0 *= inst->mA8;
+    slot->mB4 *= inst->mA8;
+    slot->mB8 *= inst->mA8;
+    if (param->m80 != 0) {
+        slot->mB4 = slot->m14C * slot->mB0;
+        slot->mB8 = slot->m150 * slot->mB0;
+    }
+    if ((inst->mData->mAnimFlags[emitter] & 0x40) == 0x40) {
+        slot->mCC = fn_8023329C(0x12, emitter, inst->mData, 0, 0.0f, slot->m12C);
+        slot->mCC *= inst->mA8;
+    } else {
+        slot->mCC = param->m1E4 + slot->m12C;
+        slot->mCC *= inst->mA8;
+    }
+    fn_80233810((Vector3*)&slot->mD0, slot, emitter, inst);
+    if (param->mA0 != 0) {
+        slot->mD4 = slot->m16C * slot->mD0;
+        slot->mD8 = slot->m170 * slot->mD0;
+    }
+    fn_802339A8(&slot->m98, slot, emitter, inst);
+    slot->m98.x *= inst->mA8;
+    slot->m98.y *= inst->mA8;
+    slot->m98.z *= inst->mA8;
+    if (param->m88 != 0) {
+        slot->m98.y = slot->m154 * slot->m98.x;
+        slot->m98.z = slot->m158 * slot->m98.x;
+    }
+    fn_80233B40(&slot->mBC, slot, emitter, inst);
+    if (param->m90 != 0) {
+        slot->mBC.g = slot->m15C * slot->mBC.r;
+        slot->mBC.b = slot->m160 * slot->mBC.r;
+    }
+    if (!(param->m4C & 2)) {
+        EffectClamp01_unk(slot->mBC.r);
+        EffectClamp01_unk(slot->mBC.g);
+        EffectClamp01_unk(slot->mBC.b);
+        EffectClamp01_unk(slot->mBC.a);
+    }
+    EffectAnimData_unk* anim = inst->mData;
+    if (EffectAnimFlag_unk(anim, emitter, 0x100)) {
+        slot->mDC = fn_8023329C(10, emitter, anim, 0, 0.0f, 0.0f);
+        slot->mE0 = fn_8023329C(11, emitter, anim, 0, 0.0f, 0.0f);
+    } else {
+        slot->mDC = 0.0f;
+        slot->mE0 = 0.0f;
+    }
+    if (param->m4C & 8) {
+        slot->m10 = 2;
+    } else {
+        slot->m10 = 6;
+    }
+    if (param->m4C & 4) {
+        slot->m10 |= 0x10;
+    }
+    if (!(param->m4C & 0x2000000)) {
+        slot->m10 |= 8;
+    }
+    if (param->m4C & 0x4000000) {
+        slot->m10 |= 0x10000;
+    } else if (param->m4C & 0x8000000) {
+        slot->m10 |= 0x20000;
+    }
+    if (param->m4C & 0x100) {
+        slot->m10 |= 0x80;
+    }
+    slot->m10 |= 1;
+    switch (param->m4C & 0xC0000000) {
+    case 0x40000000:
+        slot->m10 |= 0x40000;
+        break;
+    case 0x80000000:
+        slot->m10 |= 0x80000;
+        break;
+    }
+    switch (param->m234) {
+    case 1:
+        slot->m10 |= 0x100;
+        break;
+    case 2:
+        slot->m10 |= 0x400;
+        break;
+    case 3:
+        slot->m10 |= 0x200;
+        break;
+    case 4:
+        slot->m10 |= 0x800;
+        break;
+    case 5:
+        slot->m10 |= 0x1000;
+        break;
+    }
+    if (data->mEntries[param->m40].mType == 2) {
+        slot->m10 |= 0x200000;
+    }
+    slot->m68.x += ofs.x;
+    slot->m68.y += ofs.y;
+    slot->m68.z += ofs.z;
+    slot->m1B0 = 0;
+    slot->m1AC = 0;
+    slot->m174 = Vector3(0.0f, 0.0f, 0.0f);
+    slot->m180 = 0.0f;
+    slot->m184 = Vector3(1.0f, 0.0f, 0.0f);
+    return 1;
+}
+
 // inferred: largest of two values (a macro: the operands are evaluated again)
 #define EFFECT_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
 static inline float EffectMax_unk(float a, float b) {
@@ -1603,6 +1794,49 @@ extern "C" void fn_80233B40(EffectColor_unk* out, EffectSlot_unk* slot, int emit
         out->b += slot->mF0.b;
         out->a += slot->mF0.a;
     }
+}
+
+// inferred: random value in [-range, range] in steps of range / 500 (0 when the range is 0; name invented)
+static inline float EffectRand_unk(float range) {
+    float v = 0.0f;
+    if (v != range) {
+        float lo = -range;
+        v = (range - lo) * ((float)(rand() % 1001) / 1000.0f) + lo;
+    }
+    return v;
+}
+
+// NONMATCHING: 86.5% - registers of the range and its negation swapped (f29/f30), the 0.0 of the
+// compare is loaded first; the original keeps a fourth saved float (f28) for the 0.0 base of m12C
+// inferred: random start values of a slot: each one is 1 or 0 (flag bit 0 of the parameters) plus a
+// random value in its range
+extern "C" void fn_80233D74(EffectSlot_unk* slot, EffectParam_unk* param) {
+    float base = (param->m84 & 1) ? 1.0f : 0.0f;
+    slot->m100.x = base + EffectRand_unk(param->m188);
+    slot->m100.y = base + EffectRand_unk(param->m18C);
+    slot->m100.z = base + EffectRand_unk(param->m190);
+    base = (param->m7C & 1) ? 1.0f : 0.0f;
+    slot->mE4.x = base + EffectRand_unk(param->m14C);
+    slot->mE4.y = base + EffectRand_unk(param->m150);
+    slot->mE4.z = base + EffectRand_unk(param->m154);
+    base = (param->m8C & 1) ? 1.0f : 0.0f;
+    slot->mF0.a = base + EffectRand_unk(param->m1E0);
+    slot->mF0.r = base + EffectRand_unk(param->m1D4);
+    slot->mF0.g = base + EffectRand_unk(param->m1D8);
+    slot->mF0.b = base + EffectRand_unk(param->m1DC);
+    base = (param->m6C & 1) ? 1.0f : 0.0f;
+    slot->m114.x = base + EffectRand_unk(param->mD4);
+    slot->m114.y = base + EffectRand_unk(param->mD8);
+    slot->m114.z = base + EffectRand_unk(param->mDC);
+    base = (param->m74 & 1) ? 1.0f : 0.0f;
+    slot->m120.x = base + EffectRand_unk(param->m110);
+    slot->m120.y = base + EffectRand_unk(param->m114);
+    slot->m120.z = base + EffectRand_unk(param->m118);
+    slot->m12C = 0.0f + EffectRand_unk(param->m1F4);
+    base = (param->m9C & 1) ? 1.0f : 0.0f;
+    slot->m130.x = base + EffectRand_unk(param->m228);
+    slot->m130.y = base + EffectRand_unk(param->m22C);
+    slot->m130.z = base + EffectRand_unk(param->m230);
 }
 
 // inferred: handle of the effect being created
