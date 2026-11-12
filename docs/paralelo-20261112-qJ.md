@@ -1,6 +1,12 @@
 # Lote paralelo 2026-11-12, cola J (motor atn)
 
-Inicio: 18:19 (corte del servidor 18:33-20:16; reanudado 20:16). Rama `agent-J`.
+Inicio: 18:19 (corte del servidor 18:33-20:16; reanudado 20:16, cierre 21:40). Rama `agent-J`.
+
+**Resultado** (report.json frente a `ref-J`): funciones al 0 % de la cola 57 -> 26; al 100 % 15156 -> 15173
+(+17: XsfParser 10, Motion_unk 6, Model 1); lost 0, sin bajadas, `main.dol: OK`, labelcheck igual.
+Por unidad (0 %): Model 15 -> 10, Motion_unk 12 -> 1, XsfParser_unk 11 -> 0, WordWrap_unk 5 -> 3, TextAnimation
+3 -> 1; sin cambios LayerOcclusionCPU 3, LH_Model 1, LH_Binary 2, LH_Motion_cont 1, SmallAllocator_8 2,
+BoneCalc_unk 2.
 
 ## atn/XsfParser_unk
 
