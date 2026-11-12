@@ -9,6 +9,7 @@
 #include "atn/Texture_unk.h"
 #include "atn/Array_unk.h"
 #include "atn/ResLoader_unk.h"
+struct SwingPart_unk; // gmk/SwingPart_unk.h
 
 class MapPartsArea;
 namespace atn {
@@ -58,14 +59,6 @@ public:
     int mA4;
 };
 
-// inferred: object that keeps a scene pointer at 0x64 (entries of MapPartsGimmickLoc::m6C; real class unknown)
-struct MapPartsGimmickLocScene_unk {
-    unsigned char m00[8];
-    atn::Sphere mSphere;      // 0x08: inferred: bounds used to find its area (fn_80499D60)
-    unsigned char m18[0x64 - 0x18];
-    atn::Scene* m64;
-};
-
 // inferred: record of the locator file (0xA0 bytes): an effect of the areas (SetAreaEffConfig); names invented
 struct MapPartsGimmickLocRecord_unk {
     MapPartsGimmickLocRecord_unk() { mName[0] = '\0'; } // 0x804997E4
@@ -112,7 +105,7 @@ public:
     int m54;                  // 0x54: inferred: 2 when the effect colours go to the EffectManager
     atn::LH_Binary mFile;     // 0x58: inferred: locator file (constructor 0x80496F6C)
     atn::SimpleArray<MapPartsGimmickLocRecord_unk> mRecords; // 0x60: inferred: records (SetAreaEffConfig)
-    atn::SimpleArray<MapPartsGimmickLocScene_unk*> mScenes;  // 0x68: inferred: objects that keep the scene (fn_80499CCC)
+    atn::SimpleArray<SwingPart_unk*> mScenes;  // 0x68: inferred: swinging parts (keep the scene, fn_80499CCC)
     atn::static_string<128, char, std::char_traits<char> > mName; // 0x70
     atn::Texture_unk mTexture; // 0xF0
     unsigned char m120;       // inferred: shown (vf14, vf2C)

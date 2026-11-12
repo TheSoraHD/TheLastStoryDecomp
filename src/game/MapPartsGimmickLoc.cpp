@@ -1,4 +1,5 @@
 #include "game/MapPartsGimmickLoc_unk.h"
+#include "gmk/SwingPart_unk.h"
 #include "game/GimmickCommon.h"
 #include "game/MapPartsArea.h"
 #include "game/MapArea.h"
@@ -58,13 +59,11 @@ void MapPartsGimmickLoc::vf28(atn::CsvTab* csv) {
     } while (key != 0 && strcmp("", key) != 0);
 }
 
-extern "C" void fn_804006E0(MapPartsGimmickLocScene_unk* obj); // inferred: draws an object (gmk/SwingObject.cpp)
-
 // inferred: draws the objects of m6C while shown
 void MapPartsGimmickLoc::vf14() {
     if (m120 != 0) {
         for (unsigned int i = 0; i < mScenes.size(); i++) {
-            fn_804006E0(mScenes.mData[i]);
+            mScenes.mData[i]->fn_804006E0();
         }
     }
 }
@@ -221,19 +220,19 @@ void MapPartsGimmickLoc::fn_80499CCC(atn::Scene* scene) {
         static_cast<GimmickCommon*>(child)->vf3C(scene);
     }
     for (unsigned int i = 0; i < mScenes.size(); i++) {
-        mScenes.mData[i]->m64 = scene;
+        mScenes.mData[i]->mInst.m64 = scene;
     }
 }
 
 // inferred: the scene of each object of m6C is the one of the area it is in (default scene otherwise)
 void MapPartsGimmickLoc::fn_80499D60(MapPartsArea* areas) {
     for (unsigned int i = 0; i < mScenes.size(); i++) {
-        atn::Sphere sphere = mScenes.mData[i]->mSphere;
+        atn::Sphere sphere = mScenes.mData[i]->mInst.mBound;
         MapArea* area = areas->fn_804962B0(&sphere);
         if (area != 0) {
-            mScenes.mData[i]->m64 = &area->GetScene_unk();
+            mScenes.mData[i]->mInst.m64 = &area->GetScene_unk();
         } else {
-            mScenes.mData[i]->m64 = atn::RenderManager::instance_->fn_800C16B4();
+            mScenes.mData[i]->mInst.m64 = atn::RenderManager::instance_->fn_800C16B4();
         }
     }
 }

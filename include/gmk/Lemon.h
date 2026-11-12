@@ -33,7 +33,8 @@ public:
     float m74; // inferred: LOD scale
     float m78; // inferred: LOD offset
     void* m7C; // inferred: light map texture (MapPartsLocatorSet::vf0C)
-    unsigned char m80[0x88 - 0x80];
+    Mtx* m80; // inferred: node matrices (set by the swinging map parts, gmk/SwingObject.cpp)
+    unsigned char m84[0x88 - 0x84];
 };
 
 } // namespace atn

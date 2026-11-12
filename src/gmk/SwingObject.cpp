@@ -4,6 +4,7 @@
 #include "atn/LH_Binary.h"
 #include "atn/Memory.h"
 #include "gmk/Lemon.h"
+#include "gmk/SwingPart_unk.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
@@ -13,6 +14,8 @@ extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" double sin(double x);
 extern "C" double cos(double x);
+extern "C" InstData_unk* fn_8009F788(const char* name); // inferred: finds or loads a building model
+extern "C" int fn_8009FFCC(InstData_unk* data);         // inferred: nonzero while loading
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_800DC6B4(const char* s);   // inferred: hash of a name
@@ -425,35 +428,95 @@ void SwingObject::fn_803FFC50() {
 }
 } // namespace gmk
 
-// inferred: swinging map part (a model instance with the swing state; built by fn_803FFD10)
-struct SwingPartData_unk {
-    unsigned char m00[0x44];
-    int mNumNodes; // 0x44
-};
-struct SwingPartInst_unk {
-    unsigned char m00[0x4C];
-    Mtx* mNodes; // 0x4C: inferred: local node matrices
-    unsigned char m50[0x17C - 0x50];
-    SwingPartData_unk* m17C;
-};
-struct SwingPartPos_unk {
-    int m00;
-    atn::Vector3 mPos; // 0x04
-};
-struct SwingPart_unk : public atn::ModelInstance {
-    unsigned char m88[0x94 - 0x88];
-    SwingPartPos_unk* m94;
-    Mtx* m98; // inferred: world node matrices
-    int m9C;
-    int mA0;
-    int mA4;
-    gmk::SwingCore_unk mCore; // 0xA8
-};
+// inferred: model of the building data (name invented)
+inline atn::Model* GetInstModel_unk(InstData_unk* data) {
+    return (atn::Model*)((char*)data + 0x10);
+}
 
-// inferred: update of a swinging map part (called by MapPartsGimmickLoc; name unknown)
+static char sSwingPath_unk[0x100]; // inferred: path buffer of the swinging map parts (0x807C8770)
+
+// inferred: model of a swinging map part: the .gmk path is also the name of its building model
+static InstData_unk* GetSwingData_unk(int id) {
+    SwingPath_unk(sSwingPath_unk, id);
+    return fn_8009F788(sSwingPath_unk);
+}
+
+// NONMATCHING: 99.36% - registers of the inlined SwingCore_unk array constructor and the LH_Binary vtable
+SwingPart_unk::SwingPart_unk(int id, void* arg, SwingPartPos_unk* pos, unsigned int flags)
+    : mInst(GetSwingData_unk(id)), m90(0), m94(pos), m98(0), m9C(0), mA0(0), mA4(0), m134(flags) {
+    SwingPath_unk(sSwingPath_unk, id);
+    mLoader.vf0C(sSwingPath_unk);
+}
+
+// NONMATCHING: 96.02% - float registers of the inlined UpdateSwing_unk (as in SwingObject::vf10) and the
+// position of the reload of lbl_8087F3C0 before the effect call
+// inferred: loading of a swinging map part (1 when ready)
+int SwingPart_unk::fn_803FFF40() {
+    switch (m90) {
+    case 0:
+        if (fn_8009FFCC(mInst.mData) != 0 || mLoader.fn_80473F50() != 0) {
+            return 0;
+        }
+        LoadSwing_unk((const char*)mLoader.fn_80470580(), mLoader.fn_8047059C(), mCore.mParams, mCore.mNodes, &mEfp);
+        mLoader.fn_80473F88();
+        m90 = 1;
+    case 1: {
+        if (mEfp.IsLoading()) {
+            return 0;
+        }
+        m90 = 2;
+        mInst.fn_8009EE30(mInst.mMtx);
+        if ((m134 & 1) != 1 || (m134 & 2) != 2) {
+            int count = ((SwingPartInst_unk*)mInst.mData)->m17C->mNumNodes;
+            Mtx* nodes = (Mtx*)new ((MemoryTag)6, "", "", 0) atn::Matrix3x4[count];
+            Mtx* old = m98;
+            m98 = nodes;
+            delete[] (atn::Matrix3x4*)old;
+            Mtx* base = m98;
+            m9C = base + GetInstModel_unk(mInst.mData)->fn_800928B0(mCore.mNodes[0], 0);
+            base = m98;
+            mA0 = base + GetInstModel_unk(mInst.mData)->fn_800928B0(mCore.mNodes[1], 0);
+            base = m98;
+            mA4 = base + GetInstModel_unk(mInst.mData)->fn_800928B0(mCore.mNodes[2], 0);
+            mInst.m80 = m98;
+        }
+        if ((m134 & 2) != 2) {
+            fn_80232B7C(this, 1);
+            lbl_8087F3C0->mB8 = 1;
+            Color4f_unk color;
+            color.r = 1.0f;
+            color.g = 1.0f;
+            color.b = 1.0f;
+            color.a = 1.0f;
+            fn_8023A8B4(lbl_8087F3C0, &mEfp, 0, this, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+            lbl_8087F3C0->mB8 = 0;
+        }
+        mCore.mCur = &mCore.mParams[0];
+        UpdateSwing_unk(&mCore);
+        mInst.fn_8009EB20();
+        Mtx* nodes = m98;
+        if (nodes != 0) {
+            SwingPartInst_unk* data = (SwingPartInst_unk*)mInst.mData;
+            int count = data->m17C->mNumNodes;
+            Mtx* local = data->mNodes;
+            atn::Matrix3x4 t;
+            atn::Matrix3x4 mtx = mInst.mMtx;
+            for (int i = 0; i < count; i++) {
+                PSMTXConcat(mtx.m, local[i], t.m);
+                *(atn::Matrix3x4*)nodes[i] = t;
+            }
+        }
+    }
+    }
+    return 1;
+}
+
+
+// inferred: update of a swinging map part (called by MapPartsGimmickLoc)
 // NONMATCHING: 96.9% - float registers of the inlined UpdateSwing_unk (as in SwingObject::vf10) and
 // the registers of the node pointer and the loop counter swapped.
-extern "C" void fn_804003E0(SwingPart_unk* part) {
+void SwingPart_unk::fn_804003E0() {
+    SwingPart_unk* part = this;
     if (CameraDistSq_unk(part->m94->mPos) > 90000.0f) {
         return;
     }
@@ -461,27 +524,26 @@ extern "C" void fn_804003E0(SwingPart_unk* part) {
     if (part->m9C == 0 || part->mA0 == 0 || part->mA4 == 0) {
         return;
     }
-    part->fn_8009EB20();
+    part->mInst.fn_8009EB20();
     Mtx* nodes = part->m98;
     if (nodes == 0) {
         return;
     }
-    SwingPartInst_unk* data = (SwingPartInst_unk*)part->mData;
+    SwingPartInst_unk* data = (SwingPartInst_unk*)part->mInst.mData;
     int count = data->m17C->mNumNodes;
     Mtx* local = data->mNodes;
     atn::Matrix3x4 t;
-    atn::Matrix3x4 mtx = part->mMtx;
+    atn::Matrix3x4 mtx = part->mInst.mMtx;
     for (int i = 0; i < count; i++) {
         PSMTXConcat(mtx.m, local[i], t.m);
         *(atn::Matrix3x4*)nodes[i] = t;
     }
 }
 
-// inferred: draw of a swinging map part (its model instance comes first); called by
-// MapPartsGimmickLoc (name unknown)
-extern "C" void fn_804006E0(atn::ModelInstance* inst) {
+// inferred: draw of a swinging map part (called by MapPartsGimmickLoc::vf14)
+void SwingPart_unk::fn_804006E0() {
     if (lbl_8087F0A8->m18 != 0) {
-        inst->fn_8009E6EC(0);
+        mInst.fn_8009E6EC(0);
     }
 }
 
