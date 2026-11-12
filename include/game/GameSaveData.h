@@ -21,8 +21,8 @@ struct GameSaveChara_unk {
 
 // inferred: 8-byte entry copied from 0x154 of the route tables
 struct GameSaveRoute_unk {
-    int m00;
-    int m04;
+    unsigned int m00; // inferred: name hash of the map part (as ScriptPartsFlag_unk, unsigned compares)
+    unsigned int m04; // inferred: draw flags
 };
 
 // inferred: game flags of the save data (at +0x04 of GameSaveData_unk): values and work values of the
@@ -47,7 +47,7 @@ struct GameSaveFlags_unk {
     unsigned char mArea;             // 0x4D0D
     unsigned short mPoint;           // 0x4D0E
     int m4D10;
-    int mLeader;                     // 0x4D14: inferred: character id of the first player
+    unsigned int mLeader;            // 0x4D14: inferred: character id of the first player
     GameSaveRoute_unk m4D18[64];     // inferred: copy of 0x154 of the route tables
 };
 

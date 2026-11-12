@@ -19,9 +19,19 @@
 #include "db/EquipParam_unk.h"
 #include "db/ItemParam_unk.h"
 #include "game/MapTask.h"
+#include "game/GameScene.h"
+#include "game/GameEventScript.h"
+#include "game/GameUI.h"
+#include "game/GameChoiceWindow.h"
+#include "game/TeamAIManager.h"
+#include "game/ChaseManager.h"
+#include "game/NpcManager.h"
+#include "game/NpcTask.h"
+#include "game/MapPartsLocatorSet.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
+extern "C" int rand();
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" unsigned int fn_800DC500(const void* data, unsigned long len); // inferred: checksum
@@ -120,6 +130,156 @@ static inline bool IsKeptFlag_unk(int flag) {
     return false;
 }
 
+// inferred: MSL map::operator[] of the finished events (as in game/GameEventScript.cpp)
+inline bool& GameEventScript::Done_unk(const int& key) {
+    ScriptDoneNode_unk* pred;
+    bool left;
+    bool leftmost;
+    ScriptDoneNode_unk* parent = mDone.FindInsertPos_unk(key, pred, left, leftmost);
+    ScriptDonePair_unk* v;
+    if (pred == 0 || (v = &pred->mValue, v->first < key)) {
+        v = &mDone.InsertNode_unk(parent, left, leftmost, ScriptDonePair_unk(key, bool()))->mValue;
+    }
+    return v->second;
+}
+
+// inferred: next node of the finished events (MSL tree iterator increment; name invented)
+static inline ScriptDoneNode_unk* NextDone_unk(ScriptDoneNode_unk* node) {
+    ScriptDoneNode_unk* next = node->mRight;
+    if (next != 0) {
+        while (next->mLeft != 0) {
+            next = next->mLeft;
+        }
+        node = next;
+    } else {
+        ScriptDoneNode_unk* parent;
+        while (node != (parent = (ScriptDoneNode_unk*)(node->mParent & ~1))->mLeft) {
+            node = parent;
+        }
+        node = parent;
+    }
+    return node;
+}
+
+// inferred: entry before `cmd` in the ring of orders of a team, 0 at the end (name invented)
+static inline TeamCmd_unk* PrevCmd_unk(TeamRing_unk<TeamCmd_unk, 32>& ring, TeamCmd_unk* cmd) {
+    unsigned int pos = ((char*)cmd - (char*)ring.mData) / sizeof(TeamCmd_unk);
+    int i = pos > 31 ? -1 : (int)pos;
+    if (i == -1) {
+        return 0;
+    }
+    i = ring.Prev_unk(i);
+    if (i == ring.mTail) {
+        return 0;
+    }
+    return &ring.mData[i];
+}
+
+// NONMATCHING: 97.87% - register allocation (r25-r31) and the copy of the next node of the finished events
+// inferred: collects the flags, the work values, the map, the open events, the team orders that write values,
+// the chase, the characters of the scene and the draw flags of the map parts
+void GameSaveFlags_unk::fn_803B9804() {
+    GameTask* field = lbl_8087F430;
+    mState = field->m10D0;
+    for (int i = 0; i < 0x1000; i++) {
+        mFlags[i] = field->fn_80370174(i);
+    }
+    for (int i = 0; i < 0x100; i++) {
+        mWork[i] = field->fn_80370A78(i);
+    }
+    MapTask* map = field->GetCurrentMap();
+    mMap = map->mType;
+    mPoint = map->mId;
+    mArea = map->mSubId;
+    GameScene* scene = field->m10D8;
+    GameEventScript* script = scene->m134;
+    int count = 0;
+    for (ScriptDoneNode_unk* node = script->mDone.mFirst; node != script->mDone.End_unk(); node = NextDone_unk(node)) {
+        if (script->fn_803ACD50(node->mValue.first) == 0) {
+            mSpots[count] = node->mValue.first;
+            count++;
+        }
+    }
+    mSpotCount = count;
+    GameUI* ui = lbl_8087F490;
+    if (ui != 0 && ui->m2640 != 0 && ui->m2640->m71 != 0) {
+        int mode = ui->m2640->m74;
+        if (mode == 1) {
+            mFlags[ui->m2640->m78] = 1;
+        } else if (mode == 0) {
+            mWork[ui->m2640->m78] = 1;
+        }
+    }
+    TeamAIManager* teams = lbl_8087FA00;
+    if (teams != 0) {
+        for (unsigned int i = 0; i < teams->mTeams.size(); i++) {
+            TeamRing_unk<TeamCmd_unk, 32>& ring = teams->mTeams.mData[i].m10;
+            for (TeamCmd_unk* cmd = ring.Last_unk(); cmd != 0; cmd = PrevCmd_unk(ring, cmd)) {
+                if (cmd->m00 == 0x20) {
+                    TeamVarOp_unk* op = (TeamVarOp_unk*)&cmd->m04;
+                    int value = op->mValue;
+                    if (op->mSrc == 2) {
+                        value = mFlags[value];
+                    } else if (op->mSrc == 1) {
+                        value = mWork[value];
+                    } else if (op->mSrc == 3) {
+                        value = rand() % op->mValue + 1;
+                    }
+                    if (op->mDst == 1) {
+                        mFlags[op->mVar] = value;
+                    } else if (op->mDst == 0) {
+                        mWork[op->mVar] = value;
+                    }
+                }
+            }
+        }
+    }
+    if (lbl_8087F098 != 0) {
+        mFlags[0x397] = lbl_8087F098->mGoalId;
+        mFlags[0x398] = lbl_8087F098->mShowGoal;
+    }
+    int n = 0;
+    for (unsigned int i = 0; i < scene->m80.size(); i++) {
+        if (n >= 0x100) {
+            break;
+        }
+        CharaTask* chara = NpcManager::sInstance->Find_unk(scene->m80.mData[i].mId);
+        if (chara != 0) {
+            mCharas[n].mId = scene->m80.mData[i].mId;
+            mCharas[n].mType = 1;
+            mCharas[n].mFlag = chara->mFlagB20;
+            n++;
+        }
+    }
+    for (unsigned int i = 0; i < scene->m88.size(); i++) {
+        if (n >= 0x100) {
+            break;
+        }
+        CharaTask* chara = EnemyManager::sInstance->Find_unk(scene->m88.mData[i].mId);
+        if (chara != 0) {
+            mCharas[n].mId = scene->m88.mData[i].mId;
+            mCharas[n].mType = 2;
+            mCharas[n].mFlag = chara->mFlagB20;
+            n++;
+        }
+    }
+    for (unsigned int i = 0; i < scene->m90.size(); i++) {
+        if (n >= 0x100) {
+            break;
+        }
+        CharaTask* chara = lbl_8087F8A0->Find_unk(scene->m90.mData[i].mId);
+        if (chara != 0) {
+            mCharas[n].mId = scene->m90.mData[i].mId;
+            mCharas[n].mType = 3;
+            mCharas[n].mFlag = chara->mFlagB20;
+            n++;
+        }
+    }
+    mCharaCount = n;
+    mLeader = lbl_8087F8A0->mHead->m58;
+    memcpy(m4D18, script->m154, sizeof(m4D18));
+}
+
 void GameSaveFlags_unk::fn_803B9C98() {
     GameTask* field = lbl_8087F430;
     if (field) {
@@ -136,6 +296,55 @@ void GameSaveFlags_unk::fn_803B9C98() {
             lbl_8087F0A8->mCurrentLevel = 3;
         } else {
             lbl_8087F0A8->mCurrentLevel = 1;
+        }
+    }
+}
+
+// NONMATCHING: 92.41% - the original guards the loop of the finished events with a signed test and keeps the
+// map in a saved register; the chase manager is loaded into saved registers before the flag reads
+// inferred: restores the work values, the finished events, the leader, the chase and the draw flags of the
+// map parts
+void GameSaveFlags_unk::fn_803B9D78() {
+    GameTask* field = lbl_8087F430;
+    for (int i = 0; i < 0x100; i++) {
+        field->fn_80370AE4(i, mWork[i]);
+    }
+    GameScene* scene = field->m10D8;
+    GameEventScript* script = scene->m134;
+    ScriptTree_unk<ScriptDoneNode_unk>& done = script->mDone;
+    if (done.mRoot != 0) {
+        done.Destroy_unk(done.mRoot);
+        done.mSize = 0;
+        done.mRoot = 0;
+        done.mFirst = done.End_unk();
+    }
+    if (mSpotCount > 0) {
+        for (int i = 0; i < mSpotCount; i++) {
+            script->Done_unk(mSpots[i]) = true;
+        }
+    }
+    if (mLeader != -1 && lbl_8087F8A0->Find_unk(mLeader) != 0) {
+        PlayerManager* players = lbl_8087F8A0;
+        players->fn_8054A09C(players->Find_unk(mLeader), 0);
+    }
+    if (lbl_8087F098 != 0) {
+        lbl_8087F098->fn_80183618(field->fn_80370174(0x397));
+        lbl_8087F098->fn_80183774(field->fn_80370174(0x398));
+    }
+    memcpy(script->m154, m4D18, sizeof(m4D18));
+    for (int i = 0; i < 0x40; i++) {
+        if (m4D18[i].m00 == 0) {
+            break;
+        }
+        if ((m4D18[i].m04 & 2) == 2) {
+            scene->m64->fn_804A0E90(m4D18[i].m00, m4D18[i].m04 & 1);
+        }
+        if ((m4D18[i].m04 & 8) == 8) {
+            MapPartsLocatorSet* set = (MapPartsLocatorSet*)scene->m64->fn_804A0BCC(4, m4D18[i].m00);
+            if (set != 0) {
+                unsigned int flags = set->mFlags;
+                set->fn_8049B72C((m4D18[i].m04 & 4) == 4 ? flags | 0x400 : flags & ~0x400);
+            }
         }
     }
 }

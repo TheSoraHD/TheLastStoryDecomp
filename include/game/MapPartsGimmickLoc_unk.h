@@ -94,6 +94,7 @@ public:
     void fn_80498F0C(int value);
     void fn_80498F4C();
     void fn_80499388(int value);
+    void fn_804985E4(); // inferred: creates the gimmicks of the locator file
     void SetAreaEffConfig(); // 0x8049982C (RSO name): effect colours of the areas of the gimmicks
     void fn_8049994C(const atn::Vector3& pos, const atn::Vector3& rot); // inferred: places the gimmicks of the part
     void fn_80499B9C(); // inferred
