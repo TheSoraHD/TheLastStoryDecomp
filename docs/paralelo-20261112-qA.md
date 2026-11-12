@@ -20,6 +20,15 @@ Agente A, rama `agent-A`. Inicio: 2026-11-12 14:54 CET (tope ~2,5 h).
 - Las plantillas de `std::sort` de la unidad (0x8058E0C8-0x80595F78, ~30 funciones) se declaran
   `extern "C"` y no se reconstruyen (como en ShopBase y CosEditItemList_unk).
 
+- Incluir `game/ShopUpGrade.h` en GameTask renumera sus etiquetas `@N`: tras cada cambio de la cabecera hay que
+  pasar `precommit.sh --pd game/ShopUpGrade game/GameTask`; `pairdata` no reempareja un float de `.sdata2`
+  (0x808857A8, usado por `GameTask::fn_8036D2D0`): renombrarlo a mano al `@N` de nuestro `.o` (`nm`).
+- `ShopUpGradeEntry_unk` lleva constructor (sus copias son miembro a miembro como en el original,
+  fn_8058CA44), aunque el `push_back` original de fn_805969D4 va por la rama POD de MSL: contradiccion sin
+  resolver, fn_805969D4 queda en NONMATCHING.
+- `fn_80597268`/`fn_80597554` usan la vista parcial local de `atn::D2A_Task` (SetNumber_unk/SetColor_unk), como
+  ShopIdentify, porque `atn/D2A_Task.h` choca con las declaraciones `extern "C"` de las tiendas.
+
 ## Hallazgos
 
 - ShopUpGrade: `mMode` 0 mejora, 1 Rotta (flag 0xD7), 2-3 mejora extra; pestanas `mTab` 0 armas, 1 protectores,

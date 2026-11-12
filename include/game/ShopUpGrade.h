@@ -13,8 +13,10 @@ struct CharaEquip_unk;
 }
 
 // inferred: line of the upgrade list (0x58 bytes, built by fn_805969D4); names invented
-// inferred: a POD (vector::push_back stores it after incrementing the size, the POD path of MSL)
+// inferred: with a constructor its copies are member-wise as in the original (fn_8058CA44), but the
+// original push_back (fn_805969D4) takes the POD path of MSL
 struct ShopUpGradeEntry_unk {
+    ShopUpGradeEntry_unk() : mCode(0), mPrice(0) { memset(m08, 0, sizeof(m08)); }
     int mCode;         // 0x00: inferred: item code
     int mPrice;        // 0x04
     unsigned char m08[0x40];
@@ -52,6 +54,11 @@ public:
     virtual void vf20(int result);                          // 0x8058BE78
     virtual int vf3C();                                     // 0x8059886C
     virtual void vf40();                                    // 0x805987C4
+    // inferred: FixedArray-like push (placement copy, then the count)
+    void PushReload_unk(const ShopUpGradeReload_unk& reload) {
+        new (&mReload[mReloadNum]) ShopUpGradeReload_unk(reload);
+        mReloadNum++;
+    }
     void fn_8058C74C(); // inferred: input of the top menu
     void fn_8058CA44(); // inferred: input of the list
     void fn_8058CF60(); // inferred: result of the upgrade
@@ -67,7 +74,8 @@ public:
     void fn_80597164(const ShopUpGradeEntry_unk& entry, int& cursor, int& top); // inferred: finds the entry again
     void fn_80597268(int arg);
     void fn_80597554(ShopUpGradeEntry_unk* entry); // inferred: draws the selected item
-    void fn_80598530();
+    // inferred: draws an item line (price, needed number, number; -1 hides them)
+    void fn_80598530(ShopLayout_unk* layout, ItemParamEntry_unk* item, int price, int need, int num, int have);
 
     int mMode;                       // 0x25B68
     ShopD2A_unk* mTop;               // 0x25B6C

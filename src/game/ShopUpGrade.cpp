@@ -4,6 +4,8 @@
 #include "game/MenuCommonTask.h"
 #include "game/CharaTask.h"
 #include "chr/CharaEquip_unk.h"
+#include "game/PlayerManager.h"
+#include "game/PlayerTask.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
 #include "atn/FixedArray.h"
@@ -31,6 +33,10 @@ extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button
 extern "C" void* lbl_8087F518; // inferred: loader
 extern "C" void fn_8046ECDC(void* loader, int show); // inferred: shows the loading screen
 extern "C" void fn_8046EED8(void* loader);           // inferred: hides the loading screen
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: the party
+extern "C" void* fn_8044D034(Inventory* party, int index); // inferred: equipment data
+extern "C" void fn_8044D104(Inventory* party, int slot, int item, int upgrade, int chara); // inferred: sets a weapon
+extern "C" int fn_80219544(int member); // inferred: character id of a party member
 extern "C" void* lbl_8087F048; // inferred: effect manager of the characters
 extern "C" void fn_8010C00C(void* mgr, CharaTask* chara);
 extern "C" bool fn_802124B4(ItemParamEntry_unk* item, int level); // inferred: the item can be upgraded
@@ -38,6 +44,103 @@ extern "C" int fn_80211940(ItemParamEntry_unk* item, int level);   // inferred: 
 extern "C" int fn_80444564(Inventory* party, int id); // inferred: number of equipment items
 extern "C" void fn_8044441C(Inventory* party, int id, int num); // inferred: removes items
 extern "C" void fn_8044D6AC(Inventory* party, int money);       // inferred: pays money
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value);
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+// inferred: 2D point of a d2anime pane (0x14 bytes)
+struct ShopPoint_unk {
+    ShopPoint_unk() : x(0.0f), y(0.0f), w(0.0f), h(0.0f), z(0.0f) {}
+    float x, y, w, h, z;
+};
+extern "C" ShopPoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
+extern "C" void fn_801F4728(atn::Task* task, const char* name, const ShopPoint_unk* pos); // inferred: SetParam0
+extern "C" void fn_804A55FC(MenuCommonTask* menu, atn::Task* id, const char* name, const ShopPoint_unk* rect,
+                            int end);
+inline ShopPoint_unk GetPanePos_unk(atn::Task* layout, const char* name) {
+    return fn_801F4E8C(layout, fn_800DC6B4(name));
+}
+inline void SetPaneText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+inline void SetPaneFloat_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+extern "C" void fn_801F6E78(atn::Task* task, const char* name, const ShopPoint_unk* pos);
+extern "C" void fn_801F6C80(atn::Task* layout, const char* name, float value);    // inferred: sets a value
+extern "C" void fn_801F837C(atn::Task* layout, const char* name, const wchar_t* text); // inferred: sets a text
+extern "C" void fn_801F8598(atn::Task* layout, const char* name, int value, int arg); // inferred: sets a number
+extern "C" void fn_801F7DF0(atn::Task* layout, const char* name, float r, float g, float b); // inferred: sets a colour
+extern "C" void fn_804A4CE4(atn::Task* task, int face, int a, int b); // inferred: sets the face of a member
+// inferred: texture rectangle (as MenuUV_unk in game/MenuCommonTask.cpp)
+struct ShopUV_unk {
+    ShopUV_unk() {}
+    ShopUV_unk(const ShopUV_unk& o) {
+        __Vec4Copy(&u0, &o.u0);
+    }
+    float u0, v0, u1, v1;
+};
+extern "C" void fn_801F7590(atn::Task* layout, const char* name, ShopUV_unk uv); // inferred: sets a rectangle
+extern "C" int fn_80444BE8(Inventory* party, ItemParamEntry_unk* item); // inferred: icon of an item
+extern "C" int fn_80444C48(Inventory* party);                          // inferred: icon of an unknown item
+extern "C" ShopUV_unk fn_80444C50(Inventory* party, int icon);
+// inferred: message table (lbl_8087F1E4)
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+struct ShopMsgPair_unk {
+    const wchar_t* m00;
+    const wchar_t* mText;
+};
+struct ShopMsg_unk {
+    const wchar_t* GetPair_unk(int id) {
+        return mPairs[id].mText != 0 ? mPairs[id].mText : lbl_808813D0;
+    }
+    ShopMsgPair_unk mPairs[1];
+};
+extern "C" ShopMsg_unk* lbl_8087F1E4;
+// Only the members used here (the full class is in atn/D2A_Task.h, whose extern "C" declarations
+// clash with the local ones of this file, as in game/ShopIdentify.cpp).
+namespace atn {
+class D2A_Task : public Task {
+public:
+    void SetColor_unk(const char* name, float r, float g, float b); // 0x801F4AA0
+    void SetNumber_unk(const char* name, int value, int digits);     // 0x801F4CB4
+};
+} // namespace atn
+// inferred: the first parameters of a weapon or protector row (same prefix in both tables)
+struct ShopParamHead_unk {
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+};
+// inferred: message ids of the five parameters, then the parameters shown for weapons and protectors
+struct ShopUpGradeParams_unk {
+    int mMsg[5];
+    int mWeapon[3];
+    int mArmor[3];
+};
+// inferred: colours of a raised, lowered and unchanged value (as in game/CosEditItemList_unk.cpp)
+struct ShopColor_unk {
+    float r, g, b, a;
+};
+extern "C" ShopColor_unk lbl_807C7898;
+extern "C" ShopColor_unk lbl_807C78A8;
+extern "C" ShopColor_unk lbl_807C78C8;
+extern "C" const wchar_t* fn_80211770(int id, int slot); // inferred: name of an upgraded item
+extern "C" bool fn_8021C6A4(wchar_t* out, const void* skill); // inferred: name of a skill
+extern "C" void fn_80212C34(EquipParamEntry_unk* equip, EquipParamEntry_unk* base, int level);
+extern "C" void fn_80212840(WeaponParamEntry_unk* weapon, WeaponParamEntry_unk* base, int level);
+extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
+extern "C" void fn_804A7DD4(MenuCommonTask* menu, int item);
+// inferred: debug settings (lbl_8087F0A8)
+struct ShopSettings_unk {
+    unsigned char m000[0x488];
+    int m488;
+};
+extern "C" ShopSettings_unk* lbl_8087F0A8;
 // inferred: party members available at a progress (as game/ShopBuySell.cpp)
 struct ShopMembers_unk {
     unsigned char m00[0x0C];
@@ -63,6 +166,13 @@ extern "C" void fn_805933E8(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk**
 extern "C" void fn_80591858(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk** last, ShopUpGradeLessB_unk* comp);
 extern "C" void fn_8058FF18(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk** last, ShopUpGradeLessC_unk* comp);
 extern "C" void fn_8058E0C8(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk** last, ShopUpGradeLessD_unk* comp);
+
+// inferred: message ids of the parameters and the parameters shown for weapons and protectors
+static const ShopUpGradeParams_unk sParams = {
+    {0x191, 0x192, 0x195, 0x194, 0x193},
+    {0, 4, 2},
+    {1, 3, 2},
+};
 
 // inferred: entries of the top menus of the four shops
 static const int sMenuItems0[4] = {0, 1, 3, 4};
@@ -399,6 +509,179 @@ void ShopUpGrade::vf1C(int state) {
     }
 }
 
+// inferred: whether `code` is in the list ended by a negative value (inline, name invented)
+inline bool Contains_unk(const int* list, int code) {
+    for (; *list >= 0; list++) {
+        if (code == *list) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// NONMATCHING: 98.67% - register allocation (the original keeps the entry in r31 and this in r27)
+void ShopUpGrade::vf20(int result) {
+    if (result == 0 || result == 1) {
+        ShopUpGradeEntry_unk* entry = &mItems[mCursors[mTab]];
+        ItemParamEntry_unk* item = fn_80211480(entry->mCode);
+        if (item != 0) {
+            int code = item->m134;
+            if (entry->mMember < 0) {
+                code = fn_8058D994(entry, 1);
+            } else {
+                if (code == 0) {
+                    fn_8058AABC();
+                    code = fn_80211940(item, 1);
+                }
+                if (fn_8020EF04(code)) {
+                    EquipParamEntry_unk* param = fn_8020EFEC(code);
+                    int id = param != 0 ? param->mId : 0;
+                    EquipParamEntry_unk* pair = 0;
+                    if (param->mKind == 0) {
+                        pair = fn_8020ED84(2, param->mId);
+                    } else if (param->mKind == 1) {
+                        pair = fn_8020ED84(3, param->mId);
+                    }
+                    {
+                        int member = entry->mMember;
+                        int chara = fn_80219544(member);
+                        int index = param->mKind + member * 4;
+                        PlayerTask* player = lbl_8087F8A0->fn_8054A33C(member);
+                        if (player != 0) {
+                            unsigned int* data = (unsigned int*)fn_8044D034(Inventory::instance_, index);
+                            int options = Inventory::instance_->mPlayers[member].fn_801347C8(param->mKind);
+                            chr::CharaEquip_unk* equip = new ((MemoryTag)6, "", "", 0)
+                                chr::CharaEquip_unk(param->mKind, id, index, player, data, 0, options, 1, 1);
+                            ShopUpGradeReload_unk reload;
+                            reload.mKind = 0;
+                            reload.mEquip = equip;
+                            reload.mChara = player;
+                            PushReload_unk(reload);
+                        }
+                        Inventory::instance_->fn_8044D060(param->mKind, id, index, chara);
+                    }
+                    {
+                        int member = entry->mMember;
+                        int chara = fn_80219544(member);
+                        int index = pair->mKind + member * 4;
+                        PlayerTask* player = lbl_8087F8A0->fn_8054A33C(member);
+                        if (player != 0) {
+                            unsigned int* data = (unsigned int*)fn_8044D034(Inventory::instance_, index);
+                            int options = Inventory::instance_->mPlayers[member].fn_801347C8(pair->mKind);
+                            chr::CharaEquip_unk* equip = new ((MemoryTag)6, "", "", 0)
+                                chr::CharaEquip_unk(pair->mKind, id, index, player, data, 0, options, 1, 1);
+                            ShopUpGradeReload_unk reload;
+                            reload.mKind = 0;
+                            reload.mEquip = equip;
+                            reload.mChara = player;
+                            PushReload_unk(reload);
+                        }
+                        Inventory::instance_->fn_8044D060(pair->mKind, id, index, chara);
+                    }
+                    if (param->mKind == 0 && fn_8020EF4C(param)) {
+                        EquipParamEntry_unk* a = fn_8020ED84(1, param->mId);
+                        EquipParamEntry_unk* b = fn_8020ED84(3, param->mId);
+                        {
+                            int member = entry->mMember;
+                            int chara = fn_80219544(member);
+                            int index = a->mKind + member * 4;
+                            PlayerTask* player = lbl_8087F8A0->fn_8054A33C(member);
+                            if (player != 0) {
+                                unsigned int* data = (unsigned int*)fn_8044D034(Inventory::instance_, index);
+                                int options = Inventory::instance_->mPlayers[member].fn_801347C8(a->mKind);
+                                chr::CharaEquip_unk* equip = new ((MemoryTag)6, "", "", 0)
+                                    chr::CharaEquip_unk(a->mKind, id, index, player, data, 0, options, 1, 1);
+                                ShopUpGradeReload_unk reload;
+                                reload.mKind = 0;
+                                reload.mEquip = equip;
+                                reload.mChara = player;
+                                PushReload_unk(reload);
+                            }
+                            Inventory::instance_->fn_8044D060(a->mKind, id, index, chara);
+                        }
+                    {
+                        int member = entry->mMember;
+                        int chara = fn_80219544(member);
+                        int index = b->mKind + member * 4;
+                        PlayerTask* player = lbl_8087F8A0->fn_8054A33C(member);
+                        if (player != 0) {
+                            unsigned int* data = (unsigned int*)fn_8044D034(Inventory::instance_, index);
+                            int options = Inventory::instance_->mPlayers[member].fn_801347C8(b->mKind);
+                            chr::CharaEquip_unk* equip = new ((MemoryTag)6, "", "", 0)
+                                chr::CharaEquip_unk(b->mKind, id, index, player, data, 0, options, 1, 1);
+                            ShopUpGradeReload_unk reload;
+                            reload.mKind = 0;
+                            reload.mEquip = equip;
+                            reload.mChara = player;
+                            PushReload_unk(reload);
+                        }
+                        Inventory::instance_->fn_8044D060(b->mKind, id, index, chara);
+                    }
+                    }
+                    fn_8058D994(entry, 0);
+                } else if (fn_80206B9C(code)) {
+                    WeaponParamEntry_unk* weapon = fn_80206C50(code);
+                    int member = entry->mMember;
+                    int slot = entry->mSlot;
+                    int chara = fn_80219544(member);
+                    PlayerTask* player = lbl_8087F8A0->fn_8054A33C(member);
+                    fn_8044D104(Inventory::instance_, slot, weapon->mId, -1, chara);
+                    if (player != 0) {
+                        int part = player->m674;
+                        player->fn_8014EEC4(1);
+                        player->fn_8014F5D4(slot, weapon->mKind, weapon->mId);
+                        if (part >= 0) {
+                            player->fn_8014DEE4(part, 0, 1);
+                        }
+                        ShopUpGradeReload_unk reload;
+                        reload.mKind = 1;
+                        reload.mEquip = 0;
+                        reload.mChara = player;
+                        PushReload_unk(reload);
+                    }
+                    fn_8058D994(entry, 0);
+                }
+            }
+            m26110 = entry->mCode;
+            m26108 = code;
+            m2610C = entry->mMember;
+        }
+        if (lbl_8087F430->fn_80370174(0x11C)) {
+            lbl_8087F430->fn_80370320(0x11C, 0, 0);
+        }
+        m26080 = -1;
+        if (result == 1) {
+            fn_80117228(0x1B);
+        } else {
+            fn_80117228(0x1C);
+            // inferred: weapons whose upgrade plays the second effect
+            int codes[7] = {0x1882F, 0x18830, 0x18831, 0x18832, 0x18833, 0x18834, -1};
+            bool found = Contains_unk(codes, m26108);
+            if (found) {
+                m26080 = 1;
+                fn_80117228(0x1D);
+            } else {
+                m26080 = 0;
+            }
+        }
+        vf1C(8);
+    } else if (result == 2) {
+        if (lbl_8087F430->fn_80370174(0x11C)) {
+            lbl_8087F430->fn_80370320(0x11C, 0, 0);
+        }
+        fn_80117228(1);
+        vf1C(1);
+    } else if (result == 5) {
+        fn_80584D78(&mEntries5C[mDC], m25B24);
+        fn_80581FD8();
+        fn_80117228(0x19);
+        vf1C(5);
+    } else {
+        fn_80117228(2);
+        vf1C(4);
+    }
+}
+
 void ShopUpGrade::fn_8058C74C() {
     fn_805847EC(1);
     mTopCursor = mScroll.mCursor;
@@ -563,6 +846,75 @@ void ShopUpGrade::fn_8058CF60() {
             }
         }
     }
+}
+
+// NONMATCHING: 99.88% - registers of the first inlined SetPaneText_unk (text and layout swapped)
+void ShopUpGrade::fn_8058D16C() {
+    fn_80597268(1);
+    if (mCursors[mTab] < (int)mItems.size()) {
+        fn_80597554(&mItems[mCursors[mTab]]);
+    }
+    if (mItems.size() != 0) {
+        char name[0x40];
+        int line = mCursors[mTab] - mTops[mTab];
+        sprintf(name, "list_cursor%d", line + 1);
+        ShopPoint_unk pos = GetPanePos_unk(mListBase, name);
+        fn_804A55FC(MenuCommonTask::sInstance, mList[line], 0, &pos, 0);
+    }
+    mSort->mFlags &= ~4;
+    ShopPoint_unk pos;
+    pos.x = 515.0f;
+    pos.y = 360.0f;
+    pos.h = 1.0f;
+    pos.w = 1.0f;
+    fn_801F4728(mSort, "basePos", &pos);
+    if (mTab == 1) {
+        SetPaneText_unk(mSort->mLayout, "sortMainName", fn_80116FC0(0, 0x192));
+        SetPaneText_unk(mSort->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+    } else {
+        SetPaneText_unk(mSort->mLayout, "sortMainName", fn_80116FC0(0, 0x191));
+        SetPaneText_unk(mSort->mLayout, "sortSubName", fn_80116FC0(0, 0x196));
+    }
+    if (mSortOrder == 0) {
+        SetPaneFloat_unk(mSort->mLayout, "sortID", 1.0f);
+        SetPaneFloat_unk(mSort->mLayout, "sortSub", 0.0f);
+    } else if (mSortOrder == 1) {
+        SetPaneFloat_unk(mSort->mLayout, "sortID", 0.0f);
+        SetPaneFloat_unk(mSort->mLayout, "sortSub", 1.0f);
+    }
+}
+
+void ShopUpGrade::fn_8058D458() {
+    int arg = 0;
+    if (m26080 >= 0) {
+        ShopD2A_unk* effect = mEffect[m26080];
+        if (effect == 0 || effect->IsEnd_unk()) {
+            if (mCursorAnime->mFrame <= 0.0f) {
+                fn_8058DB10();
+                mScroll.mCount = mItems.size();
+                mScroll.mPage = 10;
+                fn_80597098(m26108, m2610C, mTab);
+                mScroll.mCursor = mCursors[mTab];
+                mScroll.mTop = mTops[mTab];
+            }
+            char name[0x40];
+            sprintf(name, "list_cursor%d", mCursors[mTab] - mTops[mTab] + 1);
+            ShopPoint_unk pos = GetPanePos_unk(mListBase, name);
+            mCursorAnime->mFlags &= ~4;
+            SetPaneValue_unk(mCursorAnime->mLayout, "cursor_pos", 0, pos.x);
+            SetPaneValue_unk(mCursorAnime->mLayout, "cursor_pos", 1, pos.y);
+            SetPaneValue_unk(mCursorAnime->mLayout, "cursor_pos", 4, pos.z);
+            SetPaneFloat_unk(mCursorAnime->mLayout, "wRate", pos.w);
+            SetPaneFloat_unk(mCursorAnime->mLayout, "hRate", pos.h);
+            if (mCursorAnime->IsEnd_unk()) {
+                m26080 = -1;
+            }
+            arg = 1;
+        } else if (effect != 0) {
+            effect->mFlags &= ~4;
+        }
+    }
+    fn_80597268(arg);
 }
 
 void ShopUpGrade::fn_8058D6D8() {
@@ -780,12 +1132,10 @@ void ShopUpGrade::fn_8058DB10() {
     fn_8058AABC();
 }
 
-// NONMATCHING: 86.64% - the inlined vector growth moves the old elements with a word loop instead of the unrolled copy of the original
+// NONMATCHING: 90% - push_back: the original stores the entry by the POD path of MSL (size first), here the
+// placement copy of a class with a constructor
 void ShopUpGrade::fn_805969D4(int code, int member, int slot, int have) {
     ShopUpGradeEntry_unk entry;
-    entry.mCode = 0;
-    entry.mPrice = 0;
-    memset(entry.m08, 0, sizeof(entry.m08));
     ItemParamEntry_unk* item = fn_80211480(code);
     if (item == 0) {
         return;
@@ -889,6 +1239,322 @@ void ShopUpGrade::fn_80597164(const ShopUpGradeEntry_unk& entry, int& cursor, in
     if (size >= 10 && size - 1 <= top + 9) {
         top = size - 10;
     }
+}
+
+void ShopUpGrade::fn_80597268(int show) {
+    Inventory* party = Inventory::instance_;
+    mListBase->mFlags &= ~4;
+    SetPaneFloat_unk(mListBase->mLayout, "ofsOn", 1.0f);
+    mContent->mFlags &= ~4;
+    ((atn::D2A_Task*)mContent)->SetNumber_unk("myMoney", Inventory::instance_->mMoney, 0);
+    fn_80584750(mListBase, mScroll.mTop, mItems.size(), 10);
+    ShopPoint_unk pos;
+    for (int i = 0; i < 10; i++) {
+        char name[0x40];
+        sprintf(name, "list_point%d", i + 1);
+        pos = GetPanePos_unk(mListBase, name);
+        fn_801F6E78(mList[i], "basePos", &pos);
+        int index = i + mScroll.mTop;
+        if (index < (int)mItems.size()) {
+            ShopUpGradeEntry_unk* entry = &mItems[index];
+            ItemParamEntry_unk* item = fn_80211480(entry->mCode);
+            int num = fn_804444E8(party, item->mId);
+            if (show) {
+                if (entry->mMember < 0) {
+                    fn_801F6C80(mList[i], "faceOn", 0.0f);
+                } else {
+                    fn_804A4CE4(mList[i], entry->mMember, 4, 2);
+                    fn_801F6C80(mList[i], "faceOn", 1.0f);
+                    num = -1;
+                }
+                if (entry->mCanUpgrade != 0) {
+                    fn_801F7DF0(mList[i], "itemCol", 255.0f, 255.0f, 255.0f);
+                    fn_801F6C80(mList[i], "subColorR", 180.0f);
+                    fn_801F6C80(mList[i], "subColorR", 180.0f);
+                    fn_801F6C80(mList[i], "subColorR", 180.0f);
+                } else {
+                    fn_801F7DF0(mList[i], "itemCol", 128.0f, 128.0f, 128.0f);
+                    fn_801F6C80(mList[i], "subColorR", 100.0f);
+                    fn_801F6C80(mList[i], "subColorR", 100.0f);
+                    fn_801F6C80(mList[i], "subColorR", 100.0f);
+                }
+                fn_80598530(mList[i], item, -1, num, -1, entry->mHave);
+            } else {
+                mList[i]->mFlags &= ~4;
+            }
+        }
+    }
+}
+
+// NONMATCHING: 91.43% - the copy of the item row (mItem = *item) is member-wise here; the original copies
+// 0x10-0x70 of the row as a block (layout of BulletParam_unk in db/ParseUtil_unk.h), plus registers
+void ShopUpGrade::fn_80597554(ShopUpGradeEntry_unk* entry) {
+    Inventory* party = Inventory::instance_;
+    ((atn::D2A_Task*)mContent)->SetNumber_unk("upgradeMoney", entry->mPrice, 0);
+    ShopPoint_unk pos;
+    pos = GetPanePos_unk(mContent, "AfterItem");
+    fn_801F6E78(mColor, "basePos", &pos);
+    fn_801F6C80(mColor, "faceOn", 0.0f);
+    fn_801F6E78(mColorNoItem, "basePos", &pos);
+    char name[0x40];
+    for (int i = 0; i < 2; i++) {
+        sprintf(name, "skill_point%d", i + 1);
+        pos = GetPanePos_unk(mContent, name);
+        fn_801F6E78(mSkill[i], "basePos", &pos);
+        fn_801F6E78(mSkillBlue[i], "basePos", &pos);
+    }
+    for (int i = 0; i < 3; i++) {
+        sprintf(name, "NeedItem%d", i + 1);
+        pos = GetPanePos_unk(mContent, name);
+        fn_801F6E78(mColors[i], "basePos", &pos);
+        fn_801F6C80(mColors[i], "faceOn", 0.0f);
+    }
+    ItemParamEntry_unk* item = fn_80211480(entry->mCode);
+    ItemParamEntry_unk* next = fn_80211480(item->m134);
+    int stone = 0;
+    EquipParamEntry_unk* equip = 0;
+    EquipParamEntry_unk* equip2 = 0;
+    WeaponParamEntry_unk* weapon = 0;
+    if (next != 0) {
+        if (entry->mCanUpgrade != 0) {
+            equip = fn_8020EFEC(next->mId);
+            weapon = fn_80206C50(next->mId);
+            if (equip != 0 && fn_8020EF4C(equip)) {
+                equip2 = fn_8020ED84(1, equip->mId);
+            }
+        }
+    } else if (entry->mCanUpgrade != 0 && lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) > 0) {
+        mItem = *item;
+        next = &mItem;
+        if (fn_8020EF04(next->mId)) {
+            equip = fn_8020EFEC(next->mId);
+        }
+        if (fn_80206B9C(next->mId)) {
+            weapon = fn_80206C50(next->mId);
+        }
+        if (equip != 0) {
+            fn_80212C34(&mEquipA, equip, 1);
+            equip = &mEquipA;
+        }
+        if (weapon != 0) {
+            fn_80212840(&mWeapon, weapon, 1);
+            weapon = &mWeapon;
+        }
+        mItem.mId += 1000000;
+        mItem.mName = fn_80211770(mItem.mId, -1);
+        if (equip != 0 && fn_8020EF4C(equip)) {
+            equip2 = fn_8020ED84(1, equip->mId);
+        }
+        stone = 1;
+    }
+    if (entry->mCanUpgrade != 0) {
+        int have = fn_804444E8(party, next->mId) < 0 ? 0 : fn_804444E8(party, next->mId);
+        fn_80598530(mColor, next, -1, have, -1, 1);
+        fn_801F7DF0(mColor, "itemCol", 255.0f, 255.0f, 255.0f);
+        if (stone) {
+            ItemParamEntry_unk* need = fn_80211480(0x143);
+            if (need != 0) {
+                int num = fn_804444E8(party, need->mId);
+                fn_80598530(mColors[0], need, -1, 1, num, 1);
+                if (num >= 1) {
+                    fn_801F7DF0(mColors[0], "itemCol", 255.0f, 255.0f, 255.0f);
+                } else {
+                    fn_801F7DF0(mColors[0], "itemCol", 128.0f, 128.0f, 128.0f);
+                }
+            }
+        } else {
+            for (int i = 0; i < 3; i++) {
+                ItemParamEntry_unk* need = fn_80211480(item->m11C[i]);
+                if (need != 0 && item->m11C[i] != 0) {
+                    int num = fn_804444E8(party, need->mId);
+                    fn_80598530(mColors[i], need, -1, (signed char)item->m12C[i], num, 1);
+                    if ((signed char)item->m12C[i] <= num) {
+                        fn_801F7DF0(mColors[i], "itemCol", 255.0f, 255.0f, 255.0f);
+                    } else {
+                        fn_801F7DF0(mColors[i], "itemCol", 128.0f, 128.0f, 128.0f);
+                    }
+                }
+            }
+        }
+    } else {
+        mColorNoItem->mFlags &= ~4;
+    }
+    for (int i = 0; i < 2; i++) {
+        const void* skill = 0;
+        if (equip != 0) {
+            skill = &equip->mE4[i];
+        } else if (weapon != 0) {
+            skill = &weapon->mC4[i];
+        }
+        mSkillBlue[i]->mFlags &= ~4;
+        wchar_t text[0x100];
+        if (entry->mCanUpgrade != 0 && entry->mHave != 0 && skill != 0 && fn_8021C6A4(text, skill)) {
+            mSkill[i]->mFlags &= ~4;
+            fn_801F837C(mSkill[i], "skillName", text);
+        } else {
+            mSkillBlue[i]->mFrame = 0.0f;
+        }
+    }
+    int isWeapon = 0;
+    ShopParamHead_unk* base = 0;
+    ShopParamHead_unk* upgraded = 0;
+    ShopParamHead_unk* base2 = 0;
+    ShopParamHead_unk* upgraded2 = 0;
+    if (fn_80206B9C(item->mId)) {
+        isWeapon = 1;
+        WeaponParamEntry_unk* param = fn_80206C50(item->mId);
+        base = (ShopParamHead_unk*)param;
+        upgraded = (ShopParamHead_unk*)weapon;
+        if (param != 0) {
+            if (entry->mHave != 0) {
+                fn_804A3C24(MenuCommonTask::sInstance, param->mText, 0);
+            } else {
+                MenuCommonTask* menu = MenuCommonTask::sInstance;
+                fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+            }
+        }
+    } else if (fn_8020EF04(item->mId)) {
+        isWeapon = 0;
+        EquipParamEntry_unk* param = fn_8020EFEC(item->mId);
+        base = (ShopParamHead_unk*)param;
+        upgraded = (ShopParamHead_unk*)equip;
+        if (fn_8020EF4C(param)) {
+            base2 = (ShopParamHead_unk*)fn_8020ED84(1, param->mId);
+            upgraded2 = (ShopParamHead_unk*)equip2;
+        }
+        if (param != 0) {
+            if (entry->mHave != 0) {
+                fn_804A3C24(MenuCommonTask::sInstance, param->mText, 0);
+            } else {
+                MenuCommonTask* menu = MenuCommonTask::sInstance;
+                fn_804A3C24(menu, fn_80116FC0(1, 0x15B), 0);
+            }
+        }
+    }
+    int before[5];
+    memset(before, 0, sizeof(before));
+    int after[5];
+    memset(after, 0, sizeof(after));
+    if (base != 0) {
+        before[0] = (int)base->m00;
+        before[1] = (int)base->m08;
+        before[2] = 0;
+        before[3] = (int)base->m0C;
+        before[4] = (int)base->m04;
+    }
+    if (base2 != 0) {
+        before[0] += (int)base2->m00;
+        before[1] += (int)base2->m08;
+        before[3] += (int)base2->m0C;
+        before[4] += (int)base2->m04;
+    }
+    int diff[5];
+    memset(diff, 0, sizeof(diff));
+    if (base != 0 && upgraded != 0) {
+        diff[0] = (int)upgraded->m00 - (int)base->m00;
+        diff[1] = (int)upgraded->m08 - (int)base->m08;
+        diff[2] = 0;
+        diff[3] = (int)upgraded->m0C - (int)base->m0C;
+        diff[4] = (int)upgraded->m04 - (int)base->m04;
+        if (base2 != 0 && upgraded2 != 0) {
+            diff[0] += (int)upgraded2->m00 - (int)base2->m00;
+            diff[1] += (int)upgraded2->m08 - (int)base2->m08;
+            diff[3] += (int)upgraded2->m0C - (int)base2->m0C;
+            diff[4] += (int)upgraded2->m04 - (int)base2->m04;
+        }
+        for (int k = 0; k < 5; k++) {
+            after[k] = before[k] + diff[k];
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        int k = isWeapon ? sParams.mWeapon[i] : sParams.mArmor[i];
+        ShopLayout_unk* arrow = 0;
+        sprintf(name, "param%02d", i);
+        SetPaneText_unk(mContent->mLayout, name, fn_80116FC0(0, sParams.mMsg[k]));
+        if (entry->mHave != 0) {
+            sprintf(name, "param%02d_color", i);
+            if (diff[k] > 0) {
+                arrow = mStatusUp[i];
+                ((atn::D2A_Task*)mContent)->SetColor_unk(name, lbl_807C7898.r, lbl_807C7898.g, lbl_807C7898.b);
+            } else if (diff[k] == 0) {
+                ((atn::D2A_Task*)mContent)->SetColor_unk(name, lbl_807C78C8.r, lbl_807C78C8.g, lbl_807C78C8.b);
+            } else {
+                arrow = mStatusDown[i];
+                ((atn::D2A_Task*)mContent)->SetColor_unk(name, lbl_807C78A8.r, lbl_807C78A8.g, lbl_807C78A8.b);
+            }
+            sprintf(name, "param%02d_before", i);
+            ((atn::D2A_Task*)mContent)->SetNumber_unk(name, before[k], 0);
+            sprintf(name, "param%02d_after", i);
+            if (upgraded != 0) {
+                ((atn::D2A_Task*)mContent)->SetNumber_unk(name, after[k], 0);
+            } else {
+                SetPaneText_unk(mContent->mLayout, name, L"");
+            }
+        } else {
+            sprintf(name, "param%02d_color", i);
+            ((atn::D2A_Task*)mContent)->SetColor_unk(name, lbl_807C78C8.r, lbl_807C78C8.g, lbl_807C78C8.b);
+            sprintf(name, "param%02d_before", i);
+            SetPaneText_unk(mContent->mLayout, name, L"???");
+            sprintf(name, "param%02d_after", i);
+            SetPaneText_unk(mContent->mLayout, name, L"???");
+        }
+        if (arrow != 0) {
+            char posName[0x40];
+            sprintf(posName, "param%02d_updw_pos", i);
+            ShopPoint_unk arrowPos = GetPanePos_unk(mContent, posName);
+            arrow->mFlags &= ~4;
+            fn_801F6E78(arrow, "basePos", &arrowPos);
+        }
+    }
+    if (lbl_8087F0A8->m488 != 0) {
+        fn_804A7DD4(MenuCommonTask::sInstance, entry->mCode);
+    }
+}
+
+// NONMATCHING: 95.96% - the original reads the message text twice (two address forms, as in
+// ShopIdentify::fn_8058A0F0) and the wide literal offsets differ (L"%s" of the sort code is not written)
+void ShopUpGrade::fn_80598530(ShopLayout_unk* layout, ItemParamEntry_unk* item, int price, int need, int num,
+                              int have) {
+    layout->mFlags &= ~4;
+    int icon = 0;
+    if (item != 0) {
+        if (have == 0) {
+            WeaponParamEntry_unk* weapon = fn_80206C50(item->mId);
+            if (weapon != 0) {
+                fn_801F837C(layout, "itemName", lbl_8087F1E4->GetPair_unk(weapon->mType + 0xEB));
+            } else {
+                fn_801F837C(layout, "itemName", L"--");
+            }
+            fn_801F837C(layout, "needNum", L"-");
+            fn_801F6C80(layout, "showNum2", 0.0f);
+            fn_801F837C(layout, "num", L"");
+            icon = fn_80444C48(Inventory::instance_);
+        } else {
+            fn_801F837C(layout, "itemName", item->mName);
+            if (need < 0) {
+                fn_801F837C(layout, "needNum", L"-");
+            } else {
+                fn_801F8598(layout, "needNum", need, 0);
+            }
+            if (num < 0) {
+                fn_801F6C80(layout, "showNum2", 0.0f);
+                fn_801F837C(layout, "num", L"");
+            } else {
+                fn_801F6C80(layout, "showNum2", 1.0f);
+                fn_801F8598(layout, "num", num, 0);
+            }
+            icon = fn_80444BE8(Inventory::instance_, item);
+        }
+    }
+    if (price < 0) {
+        fn_801F6C80(layout, "showPrice", 0.0f);
+        fn_801F837C(layout, "price", L"");
+    } else {
+        fn_801F6C80(layout, "showPrice", 1.0f);
+        fn_801F8598(layout, "price", price, 0);
+    }
+    ShopUV_unk uv = fn_80444C50(Inventory::instance_, icon);
+    fn_801F7590(layout, "iconUv", uv);
 }
 
 void ShopUpGrade::vf40() {
