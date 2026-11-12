@@ -83,6 +83,8 @@ public:
     void UpdateCamera_unk();          // inferred: resets the camera and goes to the top parts
     void fn_8053032C(atn::Vector3 pos, atn::Vector3 rot); // inferred: starts a camera path
     NewCampPair_unk& fn_80530384(int id);
+    void fn_805303D0(); // inferred: reads camp_config.csv (damage effect of the camp)
+    void fn_805305D0();
     void fn_80530CD0(int duration); // inferred: fades out
     void fn_80530D30(int duration); // inferred: fades in
     void fn_80530D88(int set, atn::ModelBase* model);

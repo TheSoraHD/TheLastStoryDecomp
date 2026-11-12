@@ -11,7 +11,10 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
   `fn_801DD26C` 81,3 -> 94,7 % (begin/end como iteradores).
 - `game/NewCampPartsItem`: 22 -> 0. `fn_80517B3C` (99,4 %) y todas las copias de `std::sort`: 15 -> 30
   funciones al 100 % (operadores del iterador, swap, mediana del orden de la bolsa); el resto 91-98 %.
-- `game/NewCampPartsMapSelect`: 4 -> 3. `fn_805212BC` (cursor del mapa) 91,7 %.
+- `game/NewCampPartsMapSelect`: 4 -> 1. `fn_805212BC` (cursor del mapa) 91,8 %, `vf10` (0x8051CF78) 94,7 %,
+  `vf28` (0x8051F138) 96 %; falta `vf14` (0x8051D864, 5 KB).
+- `game/NewCampTask`: 16 -> 15. `vf0C` (carga y menu de depuracion) 91 %.
+- `game/CosEditProtector`: 1 -> 1 (`vf64`, 9 KB, sin tocar).
 
 ## NONMATCHING
 
@@ -21,7 +24,12 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
   R3 y llama a los operadores del iterador, a la seleccion y a la mediana (aqui se inlinean): 3 %. Probado el
   predicado `inline` (dentro y fuera de la clase): lo inlinea todo; revertido.
 - `NewCampCategoryLess_unk::operator()` 98,1 %, `fn_80517B3C` 99,4 % (registros del push_back).
-- `fn_805212BC` 91,7 %: el bucle de los puntos guarda el indice (`lwzu`).
+- `fn_805212BC` 91,8 %, `vf10` 94,7 %: el bucle de los puntos guarda el indice (`lwzu`/`stfsu`); `vf10` con
+  offsets de `@stringBase0` desplazados hasta escribir `vf14`. `vf28` 96 %: el anime de la miniatura se
+  relee tras el `sprintf` (como `vf20`).
+- `NewCampTask::vf0C` 91 %: el original pasa el presupuesto R3 y llama fuera de linea a los accesores (gamma,
+  `ResHandle::Load`, `size`/`operator[]` de `sElems_unk`); `fn_8052B7F8`, `fn_805303D0`, `fn_805305D0` sin
+  escribir (declaradas).
 
 ## Decisiones tomadas sin el usuario
 
@@ -35,6 +43,13 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
 - `symbols.txt`: solo renombrados (copias de sort, iterador, begin/end, `__sinit_\CosEditItemList_unk_cpp`);
   `sHidePos` (0x807C7D38) con `scope:local` (pd le puso el nombre global de CosEditPalette_unk y el enlazador
   daba duplicado).
+
+- `include/game/NewCampTask.h`: declarados `fn_805303D0()`/`fn_805305D0()` (los llama vf0C; 12 unidades la
+  incluyen; labelcheck igual). `include/game/NewCampPartsMapSelect.h`: `vf10`/`vf28` declaradas (eran
+  `fn_8051CF78`/`fn_8051F138` en la vtable) y `m18FC` pasa de `unsigned char[4]` a `float`.
+- `NewCampElem_unk` (`sElems_unk`, NewCampTask.cpp) con campos: carpeta del menu de depuracion y colores
+  base/base_sdw/after/after_sdw.
+- Aviso previo de `poolcheck` en NewCampTask (0.0174533), ya estaba antes del lote.
 
 ## Hallazgos
 
