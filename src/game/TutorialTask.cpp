@@ -15,6 +15,7 @@
 #include "game/MenuCommonTask.h"
 #include "atn/RenderManager.h"
 #include "atn/RenderSetting_unk.h"
+#include "game/HomeButtonMenu.h"
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" int strcmp(const char* a, const char* b);
@@ -47,12 +48,7 @@ extern "C" inline Settings_unk* fn_800F52F8() {
 }
 extern "C" void* lbl_8087EF70; // inferred: pad
 
-class HomeButtonMenu {
-public:
-    static HomeButtonMenu* sInstance;
-    unsigned char m00[0x88];
-    int m88; // inferred: the home button menu is disabled
-};
+// HomeButtonMenu: game/HomeButtonMenu.h
 
 static const char* const sSe = "SE_UICOM_022";
 // inferred: tutorials with a movie (compared with the name of the tutorial)

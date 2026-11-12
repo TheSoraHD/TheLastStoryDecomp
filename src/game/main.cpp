@@ -29,19 +29,11 @@ extern "C" unsigned long strlen(const char* s);
 #include "game/ResetShutdown.h"
 
 #include "game/ErrorManager.h"
+#include "game/HomeButtonMenu.h"
 extern "C" void fn_80363CE4(); // inferred: creates the ErrorManager singleton
 
 // inferred: HOME button menu (game/HomeButtonMenu.cpp), only the members used here
-class HomeButtonMenu {
-public:
-    static void fn_804405F8(void* arg); // inferred: creates the singleton
-    void fn_8044073C();                // inferred: per-frame update
-
-    unsigned char m00[0x84];
-    int m84; // inferred: state (1 open)
-
-    static HomeButtonMenu* sInstance;
-};
+// HomeButtonMenu: game/HomeButtonMenu.h
 
 // inferred: settings (only the members used here)
 struct MainConfig_unk {

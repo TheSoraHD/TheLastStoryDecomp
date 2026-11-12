@@ -26,6 +26,8 @@ struct ModelJoint_unk {
     atn::Vector3 m34; // inferred: initial scale
     atn::Vector3 m40; // inferred: initial rotation (euler)
     atn::Vector3 m4C; // inferred: initial position
+    unsigned char m58[0x70 - 0x58];
+    int m70; // inferred: > 0 for the joints kept by atn::LoadModel (atn/LH_Model.cpp)
     // inferred: bind pose by value (defined in atn/Model.cpp, used by fn_80099010); names invented
     inline atn::Vector3 GetScale_unk() const;
     inline atn::Vector3 GetRot_unk() const;
@@ -56,7 +58,14 @@ struct ModelMtxBlock_unk {
     const SkinWeight4_unk* mSkin4;
 };
 
-// inferred: model data of the loaded file (the 'modl' chunk; also a local copy in atn/LH_Model.cpp)
+// inferred: node of the model data (atn/LH_Model.cpp)
+struct ModelNode_unk {
+    unsigned char m00[0x24];
+    int m24;
+    int m28;
+};
+
+// inferred: model data of the loaded file (the 'modl' chunk)
 struct ModelData_unk {
     // inferred: corners of the bounding box by value (weak copies 0x8008CCC0/0x8008CCD4)
     atn::Vector3 GetMax_unk() const { return mMax; }
@@ -69,7 +78,8 @@ struct ModelData_unk {
     int m30; // inferred: number of materials
     atn::ShaderDesc_unk** m34; // inferred: shader descriptions of the materials (m30 of them)
     ModelMtxBlock_unk* m38;
-    unsigned char m3C[0x44 - 0x3C];
+    int m3C;                // inferred: number of nodes
+    ModelNode_unk** m40;    // inferred: nodes
     int m44;              // inferred: number of joints (nodes of atn::Model)
     ModelJoint_unk** m48; // inferred: joints
     unsigned char m4C[0x50 - 0x4C];
