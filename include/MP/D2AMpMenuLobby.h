@@ -56,6 +56,7 @@ public:
     void fn_804C0EA4(); // inferred: refreshes the help text
     void fn_804C1634();
     void fn_804C2260(int v);
+    void fn_804C2268(int time); // inferred: shows the time left
     void fn_804C28A0(int count); // inferred: selects the next entry
     void fn_804C2994(int id); // inferred: setter of mDCC (called from atn/PacketPack)
     int fn_804C2C14(); // inferred: nonzero while busy

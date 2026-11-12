@@ -418,6 +418,25 @@ void D2AMpMenuLobby::fn_804C0EA4() {
 
 void D2AMpMenuLobby::fn_804C2260(int v) { mDCC = v; }
 
+// inferred: shows the time left of the lobby (color index 1 is 255, 2 and 3 depend on the time: the original
+// computes them with a mask, (t > 30) ? 0 : 0xFF or the reverse) and, while the lobby runs, plays the clock
+// animation forwards or backwards
+// NONMATCHING: 85% - the branchless color value and the string offsets
+void D2AMpMenuLobby::fn_804C2268(int time) {
+    m50->SetNumber_unk("string0100(1)", time, 0);
+    SetPaneValue2_unk(m50->mLayout, "col0100", 1, 255.0f);
+    SetPaneValue2_unk(m50->mLayout, "col0100", 2, (float)(time > 30 ? 0xFF : 0));
+    SetPaneValue2_unk(m50->mLayout, "col0100", 3, (float)(time > 30 ? 0xFF : 0));
+    if (mD88 != 0) {
+        MpD2A_unk* task = m50;
+        if (task != 0) {
+            task->fn_800D246C(0);
+            task->mSpeed = (float)(time != 0 ? 1 : -1);
+            task->mRepeat = 0;
+        }
+    }
+}
+
 void D2AMpMenuLobby::fn_804C28A0(int count) {
     if (mD88 == 7) {
         int start = mDB4;
