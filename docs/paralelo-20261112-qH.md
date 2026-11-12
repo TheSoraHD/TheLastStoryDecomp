@@ -7,8 +7,8 @@ Inicio: 2026-11-12 17:20 CET. Rama `agent-H`.
 - `game/Em316LaserSphere`: al 0 % 9 -> 6 (`fn_8031958C` y sus copias weak `fn_80318F90`, `fn_80319998`, las tres al 100 %); 22 -> 25/40 al 100 %.
 
 - `game/EnemyQuarkSecond`: `fn_8033A7A0` (antes 0 %, escrita) al 100 % (43 -> 44/70).
-- `game/Em316LastLaser`: al 0 % 5 -> 1 (falta `fn_8031CA30`); `fn_8031D350` y `LaserTrace::fn_8031E8BC` al 100 %
-  (8 -> 10/19); `fn_8031D6DC` 98,4 % y `fn_8031E078` 98,9 % (NONMATCHING: marco 0x10 menor y offset de `""`).
+- `game/Em316LastLaser`: al 0 % 5 -> 0; `fn_8031CA30`, `fn_8031D350` y `LaserTrace::fn_8031E8BC` al 100 %
+  (8 -> 11/19); `fn_8031D6DC` 98,4 % y `fn_8031E078` 98,9 % (NONMATCHING: marco 0x10 menor).
 
 ## Decisiones tomadas sin el usuario
 
@@ -25,7 +25,9 @@ Inicio: 2026-11-12 17:20 CET. Rama `agent-H`.
   parametro (simbolos locales sin nombre y literales en `@stringBase0`); renombradas en `symbols.txt` a su nombre
   mangled con `scope:local`. `LaserTrace::m10..m24` pasan de seis `float` a dos `atn::Vector3` (ctor sigue al 100 %).
   300-600 asserts vacios en `fn_802657FC` y `fn_800F7FA8` (copias weak de otras unidades, solo las llaman
-  fn_8031D350 y fn_8031E8BC). `lbl_80884E34..E40` pasan a `@N` locales.
+  fn_8031D350 y fn_8031E8BC). `lbl_80884E34..E40` pasan a `@N` locales. `TargetDist_unk` (distancia a "spine1"
+  de vf10) pasa a `static inline SpineDist_unk` (su literal va en `@stringBase0`); la declaracion del miembro se queda
+  sin definir en la cabecera para no mover los `@N` de SpecialEnemyBase/SpecialEnemyFactory_unk.
 
 ## Hallazgos
 

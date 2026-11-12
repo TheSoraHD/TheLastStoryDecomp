@@ -43,7 +43,7 @@ struct CollResult_unk {
     unsigned char m1C[0x28 - 0x1C];
     atn::Vector3 m28; // inferred: normal of the hit
     int m34;
-    int m38;
+    atn::ColliBase* m38; // inferred: collision object hit (its m0C is the owner)
     int m3C;
     int m40;
     unsigned char m44[0x50 - 0x44];
@@ -82,9 +82,9 @@ extern "C" LaserSettings_unk* lbl_8087F0A8;
 
 // inferred: plays `efp` on `model` with default placement (as CoffinEffect_unk of game/Em315Coffin.cpp)
 inline void LastLaserEffect_unk(atn::EfpFile* efp, atn::Model* model) {
-    atn::Vector3 pos;
-    atn::Vector3 rot;
     Color4f_unk color;
+    atn::Vector3 rot;
+    atn::Vector3 pos;
     rot.x = 0.0f;
     rot.y = 0.0f;
     rot.z = 0.0f;
@@ -261,8 +261,9 @@ inline bool CanTarget_unk(CharaTask* chara) {
     return chara->IsFree_unk() && !chara->IsGrappled_unk();
 }
 
-// inferred: distance to the "spine1" node of the target (computed and not used; name invented)
-inline float Em316LastLaser::TargetDist_unk(CharaTask* target) {
+// inferred: distance from `pos` to the "spine1" node of the target (computed and not used; name invented). A static
+// function of the file: its literal is in @stringBase0 (an inline member would put it in @STRING@)
+static inline float SpineDist_unk(const atn::Vector3& pos, CharaTask* target) {
     MtxPtr mtx = target->mMotion.GetNodeMtx_unk("spine1");
     atn::Vector3 p(0.0f, 0.0f, 0.0f);
     if (mtx != 0) {
@@ -271,7 +272,7 @@ inline float Em316LastLaser::TargetDist_unk(CharaTask* target) {
         p = target->mPos;
         p.y += 10.0f;
     }
-    return (mPos - p).Length_unk();
+    return (pos - p).Length_unk();
 }
 
 // inferred: position of a character by value (name invented)
@@ -358,7 +359,7 @@ void Em316LastLaser::vf10() {
                 mRot = (CharaPos_unk(m14B8) - mPos).GetNormalize().ToRotation_unk();
             }
             if (CharaTask* target = m14B8) {
-                TargetDist_unk(target);
+                SpineDist_unk(mPos, target);
                 if (m1530 < 0) {
                     fn_8031D350();
                 }
@@ -484,6 +485,50 @@ void Em316LastLaser::vfEC() {
     mPos += m14F0;
 }
 
+// inferred: inline in the original (weak copy 0x8013C3B4, defined out of line in game/CharaTask.cpp)
+inline atn::Vector3 atn::Vector3::operator-() const {
+    return atn::Vector3(-x, -y, -z);
+}
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" void fn_800FDB20(BulletMgr_unk* mgr, CharaTask* owner, CharaTask* target, int arg, HitInfo_unk* data, int id,
+                            const atn::Vector3* pos, const atn::Vector3* dir, int time, float scale);
+extern "C" void fn_80101434(BulletMgr_unk* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int a, int b);
+
+// inferred: state 9: the laser sweeps from m150C along m1524 for 90 frames and hurts the character it hits (skill
+// 0x76E); then back to the wait with a new delay
+void Em316LastLaser::fn_8031CA30() {
+    if (m14C0 > 90) {
+        fn_80239DAC(lbl_8087F3C0, this, 0x65, 0);
+        SetState_unk(9);
+        fn_80232B7C(this, 0x66);
+        LastLaserEffect_unk(&m15A4, (atn::Model*)&mMotion);
+        m1538.m04 = 0;
+        m1530 = rand() % 90 + 15;
+    } else {
+        m150C += m1524 * 1.0f;
+        m1500 = m150C - mPos;
+        m1500.Normalize_unk();
+        mRot = m1500.ToRotation_unk();
+        atn::Vector3 dir(0.0f, 0.0f, 10000.0f);
+        atn::Matrix3x4 m;
+        MakeRotationZYX_unk(m, mRot);
+        PSMTXMultVec(m.m, &dir, &dir);
+        atn::Vector3 to = mPos + dir;
+        CollResult_unk result;
+        if (fn_8004ED34(lbl_8087EE98, &result, &mPos, &to, 0x40000000, &mColli, 0) != 0 && result.m38 != 0 &&
+            (result.m38->mFlags & 2) == 2) {
+            HitInfo_unk* skill = fn_80219E6C(0x76E);
+            CharaTask* chara = (CharaTask*)result.m38->m0C;
+            if (!chara->fn_801533C8(m590, skill)) {
+                atn::Vector3 rot = (-dir).ToRotation_unk();
+                fn_800FDB20(lbl_8087F048, this, chara, 0, skill, m590, &result.m10, &m1500, 15, 0.1f);
+                fn_80101434(lbl_8087F048, &result.m10, &rot, skill->mC4, 0);
+                fn_800C344C("SE_BTCOM_006", &result.m10, 0, -1, 1.0f);
+            }
+        }
+    }
+}
+
 void Em316LastLaser::fn_8031D27C() {
     m14BC = 0;
     m14C0 = 0;
@@ -561,7 +606,6 @@ extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* m
                             const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
 extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
-extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
 extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 // inferred: translation matrix by value, rotation and scale (weak copies of another file, as in

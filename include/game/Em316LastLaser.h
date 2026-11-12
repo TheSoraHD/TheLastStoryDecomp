@@ -62,6 +62,8 @@ public:
     inline void SetState_unk(int state); // inferred: inlined everywhere (name invented)
     inline void Appear_unk(const atn::Vector3& pos, const atn::Vector3& offset);
     inline void SetAppear_unk(const atn::Vector3& pos, const atn::Vector3& offset); // inferred: name invented
+    // inferred: unused (the distance of vf10 is a static function of the file, SpineDist_unk); kept so the
+    // @N labels of the units that include this header do not move
     float TargetDist_unk(CharaTask* target);
     inline void UpdateColli_unk();
     void fn_8031CA30(); // inferred: state 8
