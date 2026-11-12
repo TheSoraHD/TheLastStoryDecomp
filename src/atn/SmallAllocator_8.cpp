@@ -331,12 +331,12 @@ MemoryMode_unk::~MemoryMode_unk() {
     mgr->mAlign = 0x20;
 }
 
-void* operator new(unsigned long size, MemoryTag heap, const char* name, const char* file, int line) {
+void* operator new(__msl_size_t size, MemoryTag heap, const char* name, const char* file, int line) {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, heap);
 }
 
-void* operator new(unsigned long size) {
+void* operator new(__msl_size_t size) {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, 0);
 }
@@ -349,7 +349,7 @@ void operator delete(void* p) {
     atn::MemoryManager::Instance()->Free(p);
 }
 
-void* operator new[](unsigned long size, MemoryTag heap, const char* name, const char* file, int line) {
+void* operator new[](__msl_size_t size, MemoryTag heap, const char* name, const char* file, int line) {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, heap);
 }
@@ -360,7 +360,7 @@ extern "C" void* fn_800848B4(unsigned long size, unsigned long align, int heap, 
     return fn_800832AC(atn::MemoryManager::Instance(), size, align, heap);
 }
 
-void* operator new[](unsigned long size) {
+void* operator new[](__msl_size_t size) {
     atn::MemoryManager* mgr = atn::MemoryManager::Instance();
     return fn_800832AC(mgr, size, mgr->mAlign, 0);
 }

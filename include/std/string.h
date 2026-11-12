@@ -336,7 +336,7 @@ private:
     // inferred: clears the three words through a word pointer (the object address then stays in
     // a register for the calls that follow, 0x804732DC)
     void __zero() {
-        unsigned long (&a)[3] = mRaw.mWords;
+        __msl_size_t (&a)[3] = mRaw.mWords;
         for (unsigned int i = 0; i < 3; i++) {
             a[i] = 0;
         }
@@ -350,8 +350,8 @@ private:
     }
 
     struct Long {
-        unsigned long mCap;
-        unsigned long mSize;
+        __msl_size_t mCap;
+        __msl_size_t mSize;
         T* mData;
     };
     struct Short {
@@ -369,7 +369,7 @@ private:
         unsigned char mSize : 7;
     };
     struct Raw {
-        unsigned long mWords[3];
+        __msl_size_t mWords[3];
     };
     union {
         Raw mRaw;
