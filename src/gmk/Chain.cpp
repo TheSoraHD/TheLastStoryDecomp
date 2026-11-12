@@ -4,6 +4,7 @@
 #include "game/EnemyManager.h"
 #include "game/NpcManager.h"
 #include "atn/RenderManager.h"
+#include "std/vector.h"
 
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
@@ -11,6 +12,7 @@ extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" void C_QUATMtx(atn::Quaternion_unk* q, const Mtx m);
 extern "C" void C_QUATRotAxisRad(atn::Quaternion_unk* q, const atn::Vector3* axis, float rad); // inferred: C_QUATRotAxisRad
 extern "C" double acos(double x);
+extern "C" int sprintf(char* buf, const char* format, ...);
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: game settings
 struct Settings_unk {
@@ -84,8 +86,52 @@ int Chain::vf0C() {
     return 0;
 }
 
-// NONMATCHING: 99.95% - only the place of 90000.0f in .sdata2 (fn_8043B9E0, not decompiled yet,
-// creates 1.4f before it).
+// NONMATCHING: 95.74% - the inlined std::vector<ChainJoint_unk>::push_back (growth of include/std/vector.h,
+// draft) and the copy loop of mJoints2
+// inferred: places the model, then collects the "joint1".."joint10" nodes into the two joint arrays
+void Chain::fn_8043B9E0() {
+    atn::Vector3 pos(m6C.x, m6C.y - 1.4f, m6C.z);
+    atn::Matrix3x4 mtx;
+    PSMTXTrans(mtx.m, pos.x, pos.y, pos.z);
+    *(atn::Matrix3x4*)mModel.GetModel_unk()->mMtx.m = mtx;
+    mModel.GetModel_unk()->m54 = MaxScale_unk(mtx);
+    mModel.GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
+    ChainJoint_unk joint;
+    std::vector<ChainJoint_unk> joints;
+    for (int i = 0; i < 10; i++) {
+        char name[0x20];
+        sprintf(name, "joint%d", i + 1);
+        int node = mModel.GetNodeNoByName(name, 0);
+        if (node >= 0) {
+            joint.mNode = node;
+            joint.m1C = *(atn::Matrix3x4*)mModel.GetModel_unk()->GetNodeMtx_unk(node);
+            joints.push_back(joint);
+        }
+    }
+    mNumJoints = joints.size();
+    if (mNumJoints > 0) {
+        mJoints.reset(new ((MemoryTag)3, "", "", 0) ChainJoint_unk[mNumJoints]);
+        for (int i = 0; i < mNumJoints; i++) {
+            mJoints.mData[i].mNode = joints[i].mNode;
+            mJoints.mData[i].m1C = joints[i].m1C;
+            mJoints.mData[i].m04 = mJoints.mData[i].m1C.GetTrans_unk();
+            if (i < mNumJoints - 1) {
+                atn::Vector3 d = joints[i + 1].m1C.GetTrans_unk() - joints[i].m1C.GetTrans_unk();
+                mJoints.mData[i].m58 = PSVECMag(&d);
+            } else {
+                mJoints.mData[i].m58 = 0.0f;
+            }
+            mJoints.mData[i].m10 = mJoints.mData[i].m04;
+            mLength += mJoints.mData[i].m58;
+        }
+        mJoints2.reset(new ((MemoryTag)3, "", "", 0) ChainJoint_unk[mNumJoints]);
+        for (int i = 0; i < mNumJoints; i++) {
+            mJoints2.mData[i] = mJoints.mData[i];
+        }
+    }
+}
+
+// NONMATCHING: 99.95% - only the place of 90000.0f in .sdata2.
 void Chain::vf10() {
     if (SqLength_unk(atn::RenderManager::instance_->mCamera.mPos - m6C) > 90000.0f) {
         return;

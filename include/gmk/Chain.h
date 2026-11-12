@@ -22,6 +22,11 @@ struct ChainJoint_unk {
 struct ChainJointArray_unk {
     ChainJointArray_unk() : mData(0) {}
     ~ChainJointArray_unk() { delete[] mData; }
+    void reset(ChainJoint_unk* p) {
+        ChainJoint_unk* old = mData;
+        mData = p;
+        delete[] old;
+    }
     ChainJoint_unk* mData;
 };
 
@@ -38,7 +43,7 @@ public:
     virtual void vf3C(atn::Scene* scene);
     virtual int vf40(GimmickMsg_unk* msg);
 
-    void fn_8043B9E0(); // inferred: builds the joints; not decompiled yet
+    void fn_8043B9E0(); // inferred: builds the joints
     void fn_8043C508(); // inferred: update
     void fn_8043CA58(); // inferred: relaxes the joints (20 passes of length constraints)
     void fn_8043CF58(); // inferred: orients the joints along the chain
