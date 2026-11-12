@@ -3,6 +3,7 @@
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
 #include "atn/Csv.h"
+#include "atn/Memory.h"
 #include "game/HitInfo_unk.h"
 #include "math/Vec.h"
 #include "std/string.h"
@@ -500,8 +501,116 @@ void Em316LastLaser::fn_8031D2BC() {
     fn_80239DAC(lbl_8087F3C0, this, 0x66, 0);
 }
 
+// inferred: weak copies of other files called out of line by the functions over the inline budget below (as in
+// game/Em316LaserSphere.cpp and game/Em201ZanGurgFinal.cpp)
+// inferred: asserts of the debug build, empty in release: with them fn_8031D350 and LaserTrace::fn_8031E8BC go over
+// the inline budget as the original (docs/inlining.md R3)
+#define LASER_ASSERT_UNK(x) ((void)0)
+#define LASER_ASSERT10_UNK(x)                                                                                  \
+    LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x);      \
+    LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x); LASER_ASSERT_UNK(x)
+#define LASER_ASSERT100_UNK(x)                                                                                 \
+    LASER_ASSERT10_UNK(x); LASER_ASSERT10_UNK(x); LASER_ASSERT10_UNK(x); LASER_ASSERT10_UNK(x);                  \
+    LASER_ASSERT10_UNK(x); LASER_ASSERT10_UNK(x); LASER_ASSERT10_UNK(x); LASER_ASSERT10_UNK(x);                  \
+    LASER_ASSERT10_UNK(x); LASER_ASSERT10_UNK(x)
+extern "C" inline void fn_802657FC(CharaTask* chara, int state) {
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    LASER_ASSERT100_UNK(chara != 0);
+    chara->m58C = state;
+}
+extern "C" inline EffectMgr_unk* fn_800F7FA0() {
+    return lbl_8087F3C0;
+}
+extern "C" inline void fn_800F7FA8(EffectMgr_unk* mgr, void* owner, int arg) {
+    LASER_ASSERT100_UNK(mgr != 0);
+    LASER_ASSERT100_UNK(mgr != 0);
+    LASER_ASSERT100_UNK(mgr != 0);
+    LASER_ASSERT100_UNK(mgr != 0);
+    LASER_ASSERT100_UNK(mgr != 0);
+    LASER_ASSERT100_UNK(mgr != 0);
+    fn_80232B7C(owner, arg);
+}
+// inferred: plays an effect on the model (as in game/Em201ZanGurgFinal.cpp)
+extern "C" inline void fn_8026607C(EffectMgr_unk* mgr, atn::EfpFile* efp, atn::Model* model, int arg) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    Color4f_unk color;
+    rot.x = 0.0f;
+    rot.y = 0.0f;
+    rot.z = 0.0f;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(mgr, efp, model, 0, pos, rot, color, -1, -1, arg, 1.0f);
+}
+inline void* fn_801404F8() {
+    return lbl_8087EE98;
+}
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, void* res, int a, int b, void* mtx, const atn::Vector3* pos,
+                            const atn::Vector3* rot, const float* color, float scale, int e, int f, int g);
+extern "C" float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b); // inferred: dot product
+extern "C" void fn_800CB6E4(atn::SoundRef* sound, const atn::Vector3* pos); // inferred: moves the sound
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+// inferred: translation matrix by value, rotation and scale (weak copies of another file, as in
+// game/BattleTask.cpp)
+extern "C" inline atn::Matrix3x4 fn_800F80A8(const atn::Vector3& pos) {
+    atn::Matrix3x4 m;
+    PSMTXTrans(m.m, pos.x, pos.y, pos.z);
+    return m;
+}
+extern "C" inline void fn_800F80B8(MtxPtr mtx, const atn::Vector3& rot) {
+    ((atn::Matrix3x4*)mtx)->RotateZYX_unk(rot);
+}
+extern "C" inline void fn_800F8290(MtxPtr mtx, float x, float y, float z) {
+    Mtx s;
+    PSMTXScale(s, x, y, z);
+    Mtx t;
+    PSMTXConcat(mtx, s, t);
+    __MtxCopy(mtx, t);
+}
+
+static void fn_8031D6DC(LaserTrace* t, const atn::Vector3& pos, const atn::Vector3& normal);
+static inline void fn_8031E078(LaserTrace* t, const atn::Vector3& pos);
+
+// inferred: state 8: aims at the target from 40 units in front of it and starts the laser where the ray hits
+void Em316LastLaser::fn_8031D350() {
+    fn_8031D27C();
+    fn_802657FC(this, 8);
+    fn_8016E970(3);
+    fn_800F7FA8(fn_800F7FA0(), this, 0x65);
+    fn_8026607C(fn_800F7FA0(), &m1598, (atn::Model*)&mMotion, 1);
+    atn::Vector3 dir = *m14B8->fn_8013C38C() - mPos;
+    dir.Normalize_unk();
+    m1524 = dir;
+    m1524.y = 0.0f;
+    m1524.Normalize_unk();
+    m150C = *m14B8->fn_8013C38C() - m1524 * 40.0f;
+    dir = (m150C - mPos).GetNormalize();
+    atn::Vector3 to = mPos + dir * 1000.0f;
+    CollResult_unk result;
+    if (fn_8004ED34(fn_801404F8(), &result, &mPos, &to, 0x80000004, &mColli, 0) != 0) {
+        fn_8031D6DC(&m1538, result.m10, result.m28);
+        mRot = (result.m10 - mPos).GetNormalize().ToRotation_unk();
+    } else {
+        fn_8031D2BC();
+    }
+}
+
 LaserTrace::LaserTrace()
-    : m04(0), m08(0), m10(0.0f), m14(0.0f), m18(0.0f), m1C(0.0f), m20(1.0f), m24(0.0f), m34(0) {
+    : m04(0), m08(0), m10(0.0f, 0.0f, 0.0f), m1C(0.0f, 1.0f, 0.0f), m34(0) {
     m28.__shrink_unk(0);
 }
 
@@ -511,6 +620,91 @@ LaserTrace::~LaserTrace() {
     Reset_unk();
 }
 
+// inferred: restarts the trail at `pos` (static of the file, see fn_8031E078; called by fn_8031D350)
+// NONMATCHING: 98.4% - as fn_8031E078 (frame 0x10 smaller, offsets of "" in @stringBase0 until fn_8031CA30 is written)
+static void fn_8031D6DC(LaserTrace* t, const atn::Vector3& pos, const atn::Vector3& normal) {
+    t->Reset_unk();
+    t->m04 = 1;
+    t->m10 = pos;
+    t->m1C = normal;
+    fn_8031E078(t, pos);
+    t->m34 = t->m28.back();
+    t->m38 = fn_800C344C("SE_DG040_009", &pos, 0, -1, 1.0f);
+}
+
 LaserPoint_unk** LaserList_unk::Back_unk() {
     return &(*this)[size() - 1];
+}
+
+// inferred: new segment from the end of the trail (m10) to `pos`, its effect placed at `pos` (name keeps the
+// address). Static functions of the file in the original: local symbols without a name at 0x8031D6DC/0x8031E078
+// and their literals in @stringBase0 (an inline member would put them in @STRING@). Inlined in fn_8031D6DC, called
+// by fn_8031E8BC
+// NONMATCHING: 98.9% - the original frame is 0x10 larger (one more temporary of 12 bytes above the difference) and
+// "" sits at 0xE0 of @stringBase0 (strings of fn_8031CA30, not written yet); tried a named difference
+static inline void fn_8031E078(LaserTrace* t, const atn::Vector3& pos) {
+    LaserPoint_unk* p = new ((MemoryTag)1, "", "", 0) LaserPoint_unk;
+    p->m30 = t->m10;
+    atn::Vector3 dir = pos - t->m10;
+    p->m3C = dir;
+    p->m48 = p->m3C.Length_unk();
+    if (!(atn::Abs_unk(p->m48) < 1.1920929e-7f)) {
+        p->m3C.Normalize_unk();
+    }
+    p->m4C = 30;
+    p->m00 = fn_800F80A8(pos);
+    fn_800F80B8(p->m00.m, p->m3C.ToRotation_unk());
+    fn_800F8290(p->m00.m, 1.0f, 1.0f, p->m48 / 10.0f);
+    t->m28.push_back(p);
+    if (t->m08 != 0) {
+        fn_80232B7C(p, 0);
+        fn_8023A680(lbl_8087F3C0, t->m08, -1, 5, p, 0, 0, 0, 1.0f, 0, -1, 1);
+    }
+}
+
+
+// inferred: the end of the laser moved to `pos`: the last segment is stretched, or a new one is started when the
+// laser turned or the segment is long enough; over the inline budget as the original
+void LaserTrace::fn_8031E8BC(const atn::Vector3& pos, const atn::Vector3& normal) {
+    if (m04 == 0) {
+        if (fn_80239D58(fn_800F7FA0(), this, 0) != 0) {
+            fn_80239DAC(fn_800F7FA0(), this, 0, 0);
+        }
+        return;
+    }
+    if (fn_80239D58(fn_800F7FA0(), this, 0) == 0) {
+        fn_800F7FA8(fn_800F7FA0(), this, 0);
+        fn_8023A680(fn_800F7FA0(), m0C, -1, 6, &m10, 0, 0, 0, 1.0f, 0, -1, 1);
+    }
+    atn::Vector3 d = pos - m34->m30;
+    float len = d.Length_unk();
+    if (len < 0.0001f) {
+        return;
+    }
+    int split = 0;
+    if (fn_801A03E8(d.GetNormalize(), normal) > 0.0001f) {
+        split = 1;
+    }
+    if (m34->m48 > 0.0f && fn_801A03E8(d.GetNormalize(), m34->m3C) < 0.99f) {
+        split = 1;
+    }
+    if (m34->m48 >= 12.0f) {
+        split = 1;
+    }
+    if (split == 0) {
+        if (m34->m48 <= 0.0f) {
+            m34->m3C = d.GetNormalize();
+        }
+        m34->m48 = len;
+        m34->m00 = fn_800F80A8(m34->m30);
+        fn_800F80B8(m34->m00.m, m34->m3C.ToRotation_unk());
+        fn_800F8290(m34->m00.m, 1.0f, 1.0f, m34->m48 / 10.0f);
+        m34->m4C = 30;
+    } else {
+        fn_8031E078(this, pos);
+        m34 = *m28.Back_unk();
+    }
+    fn_800CB6E4(&m38, &pos);
+    m10 = pos;
+    m1C = normal;
 }
