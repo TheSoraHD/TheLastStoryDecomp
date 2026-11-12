@@ -1930,6 +1930,27 @@ extern "C" void fn_80095F10(void* model, ModelCameraParam_unk* param) {
     }
 }
 
+// inferred: collects the path hashes of the resources of the model (levels, materials, stage textures)
+// into `list` and the composite textures into `arg` (a second SimpleVector<unsigned int>)
+void Model::fn_80096218(SimpleVector<unsigned int>* list, void* arg) {
+    for (int i = 0; i < m20C_23_16; i++) {
+        list->push_back(mLods[i].mHandle.fn_80473F34());
+    }
+    list->push_back(mFC.fn_80473F34());
+    for (unsigned int i = 0; i < m104.mMaterials.mSize; i++) {
+        for (int j = 0; j < m104.mMaterials.mData[i]->m4A; j++) {
+            Texture_unk* tex = m104.mMaterials.mData[i]->m0C[j].mTexture;
+            if (tex != 0) {
+                list->push_back(tex->m20.fn_80473F34());
+            }
+        }
+    }
+    SimpleVector<unsigned int>* composites = (SimpleVector<unsigned int>*)arg;
+    for (unsigned int i = 0; i < m1E4.size(); i++) {
+        composites->push_back((unsigned int)m1E4[i]->m14.mEntry);
+    }
+}
+
 // NONMATCHING: 99.3% - the "" of the pool is at 0xA in the original, and the motion slots are built with
 // the constructor of LH_Motion (here the implicit one of MotionSlot_unk)
 Model::Model(int flags, int motions)

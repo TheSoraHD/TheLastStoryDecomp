@@ -75,7 +75,9 @@ Inicio: 18:19 (corte del servidor 18:33-20:16; reanudado 20:16). Rama `agent-J`.
 
 ## atn/Model
 
-- Funciones al 0 %: 15 -> 14. Escrita `ModelBase::fn_80093158` (mapa de joints de un LOD a los del modelo
+- Funciones al 0 %: 15 -> 13. **`Model::fn_80096218` al 100 %** (hashes de los recursos: LODs, materiales, texturas
+  de las etapas; las texturas compuestas al segundo `SimpleVector`, que el prototipo comun deja en `void*`).
+  Escrita `ModelBase::fn_80093158` (mapa de joints de un LOD a los del modelo
   principal; NONMATCHING 97,9 %, dos desplazamientos y el -1 en registros salvados). `ModelJoint_unk::m10` = nombre
   (cabecera `atn/ModelPose_unk.h`, mismo layout).
 - `pd.sh atn/Model` renombra `lbl_8087D6E8/EC` (`.sdata` de un hueco `auto_09`) a `@STRING@Resize_unk...`, que
