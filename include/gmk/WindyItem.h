@@ -46,6 +46,7 @@ struct WindyLengths_unk : public std::vector<WindyLength_unk> {};
 // inferred: path followed by a blown item; 0x5C bytes. Names invented.
 struct WindyPath_unk {
     WindyPath_unk() : mCount(0), mScale(0.0f), mT(0.0f), m54(0.0f), m58(0) {}
+    inline void Build_unk(const atn::Vector3* pts, int n); // inferred: defined in gmk/WindyItem.cpp
     int mCount;                         // 0x00: inferred: number of points
     float mScale;                       // 0x04
     atn::Vector3 mStart;                // 0x08
@@ -84,7 +85,7 @@ public:
     virtual void Start();
     virtual int vf40(GimmickMsg_unk* msg);
     virtual void vf70(int state);
-    // inferred: defined after vf70 (0x804392C0-0x8043A530; fn_80439574 not decompiled)
+    // inferred: defined after vf70 (0x804392C0-0x8043A530)
     void fn_804392C0();
     void fn_80439574(WindySlot_unk* slot);
     void fn_8043A08C(WindySlot_unk* slot);

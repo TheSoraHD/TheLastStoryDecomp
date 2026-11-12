@@ -14,6 +14,8 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
 extern "C" void PSMTXConcat(const Mtx a, const Mtx b, Mtx ab);
 extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
+extern "C" float PSVECSquareMag(const atn::Vector3* v);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 
 // inferred: direction, half size and box matrix of an area (name invented)
 inline void gmk::WindyArea_unk::Setup_unk() {
@@ -299,6 +301,120 @@ void gmk::WindyItem::fn_804392C0() {
             }
         }
     }
+}
+
+// inferred: raw storage of a std::vector<float> (constructed and destroyed through the weak copies,
+// as PathFloats_unk of Event/ActionActorPosition.cpp)
+struct WindyFloats_unk {
+    float* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+};
+// inferred: helpers of the spline compiled in another file (weak copies, C names as in
+// Event/ActionActorPosition.cpp and game/Em403WarLion.cpp)
+extern "C" void fn_8032B314(std::vector<gmk::WindyCoef_unk>* v, unsigned int n);      // inferred: resize
+extern "C" WindyFloats_unk* fn_8032B6F8(WindyFloats_unk* v, unsigned int n);          // inferred: vector(n)
+extern "C" void fn_8000D844(WindyFloats_unk* v, int flag);                            // inferred: ~vector<float>
+extern "C" void fn_8032B7F0(gmk::WindyPath_unk* path, const float* y, gmk::WindyCoef_unk* out); // inferred: solve
+extern "C" void fn_8032BE88(gmk::WindyLengths_unk* v, unsigned int n);                // inferred: resize
+extern "C" float fn_8032C1EC(gmk::WindyPath_unk* path, int i);                        // inferred: segment length
+
+// inferred: builds the spline through the points (same code as Event::PathSpline_unk::Build_unk)
+inline void gmk::WindyPath_unk::Build_unk(const atn::Vector3* pts, int n) {
+    mCount = n;
+    fn_8032B314(&mX, n - 1);
+    fn_8032B314(&mY, n - 1);
+    fn_8032B314(&mZ, n - 1);
+    WindyFloats_unk zs;
+    WindyFloats_unk ys;
+    WindyFloats_unk xs;
+    fn_8032B6F8(&xs, n);
+    fn_8032B6F8(&ys, n);
+    fn_8032B6F8(&zs, n);
+    for (int i = 0; i < n; i++) {
+        xs.mData[i] = pts[i].x;
+        ys.mData[i] = pts[i].y;
+        zs.mData[i] = pts[i].z;
+    }
+    fn_8032B7F0(this, xs.mData, mX.begin());
+    fn_8032B7F0(this, ys.mData, mY.begin());
+    fn_8032B7F0(this, zs.mData, mZ.begin());
+    mStart = pts[0];
+    mEnd = pts[n - 1];
+    mScale = 0.0f;
+    fn_8032BE88(&mLength, n - 1);
+    for (int i = 0; i < n - 1; i++) {
+        mLength[i].v = fn_8032C1EC(this, i);
+        mScale += mLength[i].v;
+    }
+    fn_8000D844(&zs, -1);
+    fn_8000D844(&ys, -1);
+    fn_8000D844(&xs, -1);
+}
+
+// inferred: segment [a, b] (name invented)
+struct WindySegment_unk {
+    WindySegment_unk(const atn::Vector3& a, const atn::Vector3& b) : mA(a), mB(b) {}
+    // inferred: point of the segment nearest to `p`
+    atn::Vector3 Nearest_unk(const atn::Vector3& p) const {
+        atn::Vector3 ab = mB - mA;
+        float len = PSVECSquareMag(&ab);
+        if (atn::Abs_unk(len) < 1.1920929e-7f) {
+            return mA;
+        }
+        atn::Vector3 ap = mA - p;
+        float t = -PSVECDotProduct(&ab, &ap) / len;
+        t = (t > 0.0f ? t : 0.0f) < 1.0f ? (t > 0.0f ? t : 0.0f) : 1.0f;
+        return mA + ab * t;
+    }
+    atn::Vector3 mA;
+    atn::Vector3 mB;
+};
+
+// inferred: starts a blown item in the area of the player (name unknown)
+// NONMATCHING: 94.63% - the original copies the start of the segment before computing its end (and
+// rounds both z with frsp); registers of the inlined Build_unk/Eval_unk
+void gmk::WindyItem::fn_80439574(WindySlot_unk* slot) {
+    if (slot->mState != 0) {
+        return;
+    }
+    Mtx rot;
+    float rotY = mArea->mRotY;
+    float sx = mArea->mSizeX;
+    float sy = mArea->mSizeY;
+    float sz = mArea->mSizeZ;
+    PSMTXRotRad(rot, 'y', rotY);
+    slot->mState = 1;
+    slot->m184 = (int)mArea;
+    slot->mPath.m58 = rand() % 5 * 30 - 75;
+    CharaTask* player = lbl_8087F8A0 != 0 ? (CharaTask*)lbl_8087F8A0->mHead : 0;
+    atn::Vector3 eye;
+    if (player != 0) {
+        eye = player->mPos;
+    } else {
+        eye = atn::RenderManager::instance_->mCamera.mPos;
+    }
+    WindySegment_unk seg(mArea->mPos, mArea->mPos + mArea->mDir * sz);
+    atn::Vector3 nearest = seg.Nearest_unk(eye);
+    atn::Vector3 base = nearest - mArea->mDir * 500.0f;
+    int n = rand() % 6 + 6;
+    atn::Vector3 pts[12];
+    for (int i = 0; i < n; i++) {
+        pts[i] = base + mArea->mDir * (1000.0f / n) * i;
+        atn::Vector3 v(sx * (rand() % 1001 / 1000.0f) - 0.5f * sx, sy * (rand() % 1001 / 1000.0f) + 5.0f, 0.0f);
+        PSMTXMultVec(rot, &v, &v);
+        pts[i] += v;
+    }
+    slot->mPath.Build_unk(pts, n);
+    slot->mMtx.SetIdentity();
+    slot->mMtx.fn_801479E4(Eval_unk(slot->mPath, 0.0f));
+    slot->mPath.m54 = 0.0025641026f;
+    if (slot->mPath.m58 >= 0) {
+        slot->mPath.mT = 0.0f;
+    } else {
+        slot->mPath.mT = 0.0025641026f * -slot->mPath.m58;
+    }
+    mActive++;
 }
 
 // inferred: update of a blown item (name unknown)
