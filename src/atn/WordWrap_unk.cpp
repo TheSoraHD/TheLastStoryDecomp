@@ -230,6 +230,24 @@ std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float maxWidth, floa
     return result;
 }
 
+// inferred: wraps `text` (fn_800DFB40, breaking at spaces) and splits the result into its lines
+// NONMATCHING: 77.8% - std::vector<std::wstring>::push_back (inlined, with its reallocation) of
+// include/std/vector.h grows the storage differently from the original (stack temporaries, constants)
+void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, float maxWidth, float size,
+                 float spacing, int a, int b, MeasureChar_unk measure) {
+    std::basic_string<wchar_t> wrapped = fn_800DFB40(text, maxWidth, size, spacing, a, b, measure, 0);
+    unsigned long pos = 0;
+    for (;;) {
+        unsigned long end = wrapped.find((wchar_t)0xA, pos);
+        if (end == std::basic_string<wchar_t>::npos) {
+            break;
+        }
+        lines->push_back(std::basic_string<wchar_t>(wrapped, pos, end - pos));
+        pos = end + 1;
+    }
+    lines->push_back(std::basic_string<wchar_t>(wrapped, pos, std::basic_string<wchar_t>::npos));
+}
+
 // inferred: accessors of a small container used by game/Em203GreaterDaemon (class unknown, names
 // invented; the word at +4 is a count)
 struct Count4_unk {
@@ -247,9 +265,8 @@ bool fn_800E0AB0(const Count4_unk* c) {
 
 } // extern "C"
 
-// Not decompiled yet: fn_800E0000 (splits the wrapped text into a std::vector<std::wstring>), the weak
-// copy of the std::wstring substring constructor (0x800E0908) and the weak MSL iostream helper
-// 0x800E0A64 (basic_ios::clear).
+// Not decompiled yet: the weak copy of the std::wstring substring constructor (0x800E0908) and the
+// weak MSL iostream helper 0x800E0A64 (basic_ios::clear).
 
 // --- former std/allocator_char.cpp ---
 // std/allocator_char.cpp: reader of the tagged text files (TextParser_unk, 0x800E0CF0-0x800E19AC) and

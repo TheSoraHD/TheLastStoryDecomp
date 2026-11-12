@@ -16,7 +16,8 @@ typedef boost::function<void(Matrix3x4*, const NodeChunk&, const ModelNodeCallba
 
 // inferred: joint of the loaded model data (also a local copy in atn/LH_Model.cpp); names invented
 struct ModelJoint_unk {
-    unsigned char m00[0x14];
+    unsigned char m00[0x10];
+    const char* m10;  // inferred: name (fn_80093158)
     unsigned int m14; // inferred: name hash (CharaFaceControl)
     int m18;          // inferred: index of the node in atn::Model::m21C
     int m1C;          // inferred: parent node
