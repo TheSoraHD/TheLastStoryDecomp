@@ -10,10 +10,8 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
 
 ## Decisiones tomadas sin el usuario
 
-- `game/Em314Ivy` vf0C (escrita, 97,8 %): mete `-1.0f` en `.sdata2` antes que el original (al original le falta
-  aun un `0.0f` de otra funcion en el indice 2), y `fn_803132D0`, que objdiff daba al 100 % por coincidencia del
-  pool, queda al 99,95 % (`REP+` nuevo en precommit; `report.json` lo sigue dando al 100 %, lost 0). Se acepta:
-  el pool solo cuadrara con toda la unidad escrita.
+- `game/Em314Ivy`: con vf0C escrita, `fn_803132D0` paso del 100 % de objdiff al 99,95 % por el pool de `.sdata2`
+  (REP+); al escribir vf100 el pool vuelve a cuadrar y vuelve al 100 % (PRECOMMIT OK).
 - `PopupTask::fn_8054E528` recibe un segundo argumento que no lee (`gmk::RandomItem` lo pasa en r5): firma
   `(unsigned int, int)`, simbolo renombrado; las unidades que incluyen `game/PopupTask.h` renumeran etiquetas
   (`lblmap` en ControlStickByQuark, BattleCharaTask, GameTask, LastCocoonEgg, FlyObjManager).

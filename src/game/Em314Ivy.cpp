@@ -19,6 +19,7 @@ extern "C" void* fn_8008937C(void* menu, const char* name);
 extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
+extern "C" int rand();
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
@@ -259,6 +260,100 @@ void Em314Ivy::vf40(HitInfo_unk* hit) {
 void Em314Ivy::vfFC() {
     fn_8016E970(2);
     vf100(10);
+}
+
+// NONMATCHING: 98.97% - registers of the inlined CanAct_unk test (as in vf104)
+// inferred: state change: 6 waits hidden, 7 appears, 8 hides (lets the caught character go), 9 waits shown,
+// 10 moves to a random route point, 11 catches, 12 holds, 13 releases
+void Em314Ivy::vf100(int state) {
+    m14BC = 0;
+    m14C0 = 0;
+    m14C4 = 0;
+    m14C8 = 0;
+    mFlag31 = 0;
+    mFlag30 = 0;
+    mFlag29 = 0;
+    mFlag28 = 0;
+    mFlag27 = 1;
+    m14D0 = 0;
+    m58C = state;
+    switch (state) {
+    case 6:
+        mFlag30 = 1;
+        break;
+    case 7:
+        fn_8016E4C4(1);
+        mColli.mFlags |= 1;
+        vf98();
+        fn_805A4F1C(0x2D, 0, 1, 1.0f, 1.0f);
+        mFlag30 = 0;
+        break;
+    case 8:
+        vf48();
+        fn_805A4F1C(0x2D, 0, 0, -1.0f, 0.0f);
+        mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0);
+        if (m14E4 != 0) {
+            if (m14E4->CanAct_unk()) {
+                m14E4->fn_8015AC48(-1);
+                m14E4 = 0;
+            } else {
+                fn_803132D0();
+            }
+        }
+        if (vfF8() == 0 && (m54C & 0x2000) == 0x2000) {
+            mC58.mC0 = 0;
+        }
+        if (m624.mSize != 0) {
+            m1510.clear();
+            for (unsigned int i = 0; i < m624.mSize; i++) {
+                m1510.push_back(m624.mData[i]);
+            }
+            m624.clear();
+        }
+        m15A4 = 0;
+        mFlag30 = 0;
+        break;
+    case 9: {
+        mFlag30 = 1;
+        mMotion.fn_80097C08(0, m484[0], 1, 0, 1, 0.0f, 0.1f);
+        float t = (float)(rand() % 1001) / 1000.0f;
+        mMotion.mTracks[0].m08 = mMotion.fn_80097D7C(0) * t;
+        mMotion.fn_80097E80(1);
+        break;
+    }
+    case 10: {
+        fn_80178A6C();
+        unsigned int n = mPoints.mSize;
+        if (n != 0 && m15A0 != 0) {
+            GameScene* scene = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->m10D8 : 0;
+            if (scene != 0) {
+                mPos = scene->fn_803C11A4(mPoints.mData[rand() % n]->m10);
+            }
+        }
+        mFlag30 = 1;
+        break;
+    }
+    case 11:
+        fn_805A4F1C(0x13F, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    case 12:
+        fn_805A4F1C(0x140, 1, 1, 1.0f, 0.0f);
+        if (m14E4 != 0) {
+            m14E4->mMotion.fn_80097C08(0, 0x1D8, 1, 0, 1, 0.0f, 0.1f);
+            chr::ControlCaught* control = (chr::ControlCaught*)m14E4->mControl.get();
+            if (control != 0 && (m15AC == 0 || m14E4->mType != 0)) {
+                control->m18 = 1;
+                control->m19 = m15A0 == 1;
+            }
+        }
+        mFlag30 = 0;
+        break;
+    case 13:
+        fn_805A4F1C(0x141, 0, 1, 1.0f, 0.0f);
+        mFlag30 = 0;
+        break;
+    }
 }
 
 // NONMATCHING: 98.90% - registers of the inlined CanAct_unk test (r5/r6, as in vf10) and of the copy loop of
