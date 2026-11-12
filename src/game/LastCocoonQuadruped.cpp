@@ -5,6 +5,7 @@
 #include "game/PlayerTask.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "game/GimmickManager.h"
 #include "game/MapTask.h"
 #include "game/EnemyManager.h"
 #include "game/GimmickCommon.h"
@@ -1133,6 +1134,125 @@ void LastCocoonQuadruped::fn_804655AC() {
             }
         } else {
             mRot.y = m15BC.ToRotation_unk().y;
+        }
+    }
+}
+
+// inferred: homing parameters with their defaults (as ZanHoming_unk in game/Em201ZanGurgFinal.cpp); name
+// invented
+struct QuadHoming_unk : public HomingParam_unk {
+    QuadHoming_unk() {
+        mTarget = 0;
+        mAccel = 0.0f;
+        m08 = -1.0f;
+        mMaxSpeed = 10.0f;
+        mTurn = 0.09424778f;
+        mTime = 300.0f;
+        mDelay = 5.0f;
+        mNode = 0;
+        mCount = -1;
+    }
+};
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a homing bullet (as in game/Em203GreaterDaemon.cpp)
+
+// inferred: copy of the shot parameters of a bullet built in place (Bullet::GetShot_unk makes one more
+// copy); name invented
+struct QuadShot_unk {
+    QuadShot_unk(const Bullet& b)
+        : m00(b.m5C), m04(b.m60), m08(b.m64), m0C(b.m68), m10(b.m6C), m14(b.m70), m18(b.m74) {}
+    float m00;
+    int m04;
+    int m08;
+    HitInfo_unk* m0C;
+    int m10;
+    float m14;
+    float m18;
+};
+
+// NONMATCHING: 97.6% - stack slots (the locals of the jump-off branch are laid out in the opposite
+// order) and the scheduling of m15BC in the mode 17 branch
+// inferred: mode 16: on the gimmick 0x455 (the player of mode 15); shoots the homing skill 0x5BA at it
+// every 120 frames, jumps off after 1200 frames (mode 17) or when the gimmick drops it (mode 18)
+void LastCocoonQuadruped::fn_80465B88() {
+    GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(0x455, (int)m15AC);
+    if (g->vf5C() == 0 || m18E8 != 0) {
+        if (m18E8 != 0 && g->vf5C() != 0) {
+            GimmickMsg_unk msg(4);
+            g->vf40(&msg);
+        }
+        mMotion.fn_80097CCC(3, 1.0f);
+        SetMode_unk(18);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+        atn::Vector3 v(0.0f, -140.0f, 40.0f);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
+        PSMTXMultVec(m.m, &v, &v);
+        m15BC = v * 0.022222223f;
+        v.y = 0.0f;
+        v.Normalize_unk();
+        mRot = v.ToRotation_unk();
+        m1800 = 0;
+        return;
+    }
+    if (m14BC == 1) {
+        if (mMotion.mTracks[3].m08 >= 10.0f) {
+            mMotion.mTracks[3].m0C = 1.0f;
+        }
+        if (mMotion.mTracks[3].m08 >= 18.0f) {
+            m14BC = 2;
+            atn::Vector3 v(0.0f, 0.0f, 1.0f);
+            atn::Matrix3x4 m;
+            m.fn_8013A13C(mRot.y);
+            PSMTXMultVec(m.m, &v, &v);
+            atn::Vector3 pos = mPos + v * 20.0f;
+            atn::Vector3 to = m14B8->mPos;
+            to.y += 5.0f;
+            atn::Vector3 dir = to - pos;
+            float dist = dir.Length_unk();
+            dir.Normalize_unk();
+            HitInfo_unk* data = fn_80219E6C(0x5BA);
+            QuadHoming_unk param;
+            param.mTarget = m14B8;
+            param.mTurn = 0.12566371f;
+            param.mDelay = 0.0f;
+            param.mTime = dist / data->m4C;
+            fn_800F8574(lbl_8087F048, this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
+        }
+    } else if (m14BC == 2) {
+        float frame = mMotion.mTracks[3].m08;
+        if (frame >= mMotion.fn_80097D7C(3)) {
+            m14BC = 0;
+            mMotion.fn_80097CCC(3, 1.0f);
+        }
+    } else if (m14C0 > 1200) {
+        CharaTask* target = m14B8;
+        SetMode_unk(17);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
+        if (lbl_8087F430 != 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
+        }
+        m15C8 = target;
+        m15BC = target->mPos - mPos;
+        m15BC.y = -140.0f;
+        m15BC *= 0.05f;
+    } else if (m14C0 % 120 == 0) {
+        mMotion.fn_80097C08(3, 0x156, 0, 1, 1, 0.0f, 0.1f);
+        mMotion.mTracks[3].m0C = 0.4f;
+        m14BC = 1;
+    }
+    for (int i = 0; i < 32; i++) {
+        HomingBullet* b = &((BattleTask*)lbl_8087F048)->mHomings[i];
+        if (b->HasFlag_unk(0x10000) && QuadShot_unk(*b).m0C != 0 && QuadShot_unk(*b).m0C->m04 == 0x5BA &&
+            b->m88 != this) {
+            b->m04 |= 0x800;
         }
     }
 }
