@@ -3783,6 +3783,13 @@
   "matching": false
  },
  {
+  "name": "game/CosEditItemList_unk.cpp",
+  "classes": [
+   "CosEditProtector"
+  ],
+  "matching": false
+ },
+ {
   "name": "game/FinishCamera_unk.cpp",
   "classes": [
    "FinishCamera_unk"
