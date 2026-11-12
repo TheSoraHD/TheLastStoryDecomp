@@ -2,6 +2,7 @@
 #include "atn/RenderManager.h"
 #include "Event/Manager.h"
 #include "Event/Behavior.h"
+#include "Event/ActionProcessors_unk.h"
 #include "Event/Path.h"
 #include "atn/LH_Xsca.h"
 #include "atn/Color4f_unk.h"
@@ -16,9 +17,6 @@
 
 namespace atn {
 
-// inferred: base named in the RTTI of the processors (no member is used here)
-template <class T>
-class SingletonNoStatic {};
 
 } // namespace atn
 
@@ -44,51 +42,7 @@ inline EventCamera_unk* GetCamera_unk(ActionOwner_unk* section) {
     return &lbl_8087F540->mCameras[section->m10];
 }
 
-class ActionCameraInertia : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraInertia> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionCameraMotion : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraMotion> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionCameraFocus : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraFocus> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionCameraSetting : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraSetting> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionCameraShake : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraShake> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
 // inferred: screen effect of the camera mode action (fade/flash: kind, two times and an ARGB color)
-
-class ActionCameraMode : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraMode> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionCameraEffect : public ActionProcessor, public atn::SingletonNoStatic<ActionCameraEffect> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-    void fn_8055BB08(MapArea* area, const void* arg); // inferred: fog of a map area (bound with boost::bind)
-    void fn_8055BC5C(MapArea* area, void* arg);       // inferred: haze of a map area (bound with boost::bind)
-};
 
 int ActionCameraMode::vf08(Action* arg) {
     EventManager_unk* manager = arg->fn_805381C8();

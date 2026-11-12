@@ -1,4 +1,5 @@
 #include "Event/Behavior.h"
+#include "Event/ActionProcessors_unk.h"
 #include "Event/Path.h"
 #include "Event/Manager.h"
 #include "atn/Model_unk.h"
@@ -13,9 +14,6 @@
 
 namespace atn {
 
-// inferred: base named in the RTTI of the processors (no member is used here)
-template <class T>
-class SingletonNoStatic {};
 
 } // namespace atn
 
@@ -147,75 +145,6 @@ void ScaleStep_unk(atn::Vector3& v, float frames) {
 }
 
 namespace Event {
-
-class ActionActorPosition : public ActionProcessor, public atn::SingletonNoStatic<ActionActorPosition> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-    // inferred: moves the actor of a position action; t is the number of frames left (static: vf08
-    // only passes the action)
-    static void fn_80551194(Action* arg, float t);
-};
-
-class ActionActorMotion : public ActionProcessor, public atn::SingletonNoStatic<ActionActorMotion> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionActorFacial : public ActionProcessor, public atn::SingletonNoStatic<ActionActorFacial> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionActorEyes : public ActionProcessor, public atn::SingletonNoStatic<ActionActorEyes> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-    static void fn_80553A74(Action* arg, float now); // inferred: eyes towards the camera, with jitter
-    // inferred: eyes towards a point (`cur` moves towards `goal` in `frames`; angles from the parameters
-    // when `mode` is not 0)
-    static void fn_80553DC8(Action* arg, atn::Vector3* cur, const atn::Vector3* goal, int mode, float frames);
-    // inferred: eyes outside the wandering window (`left` frames left, at frame `now`)
-    static void fn_80554088(Action* arg, int length, atn::Vector3* v, int mode, float left, float now);
-};
-
-class ActionActorPose : public ActionProcessor, public atn::SingletonNoStatic<ActionActorPose> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionActorHeading : public ActionProcessor, public atn::SingletonNoStatic<ActionActorHeading> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionActorNode : public ActionProcessor, public atn::SingletonNoStatic<ActionActorNode> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionActorSetting : public ActionProcessor, public atn::SingletonNoStatic<ActionActorSetting> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionActorWind : public ActionProcessor, public atn::SingletonNoStatic<ActionActorWind> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
-
-class ActionActorMaterial : public ActionProcessor, public atn::SingletonNoStatic<ActionActorMaterial> {
-public:
-    virtual int vf08(Action* arg);
-    virtual int vf0C(Action* arg, int phase);
-};
 
 // inferred: getters compiled in another file (weak copies in Event/DebugInfo_unk)
 extern "C" int fn_80224610(ActionParam_unk* param);   // inferred: flag value of a parameter

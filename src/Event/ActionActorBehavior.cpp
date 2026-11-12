@@ -7,9 +7,9 @@
 #include "Event/Behavior.h"
 #include "Event/Sequence.h"
 #include "Event/Manager.h"
+#include "Event/ActionProcessors_unk.h"
+#include "atn/Memory.h"
 
-extern "C" int fn_805510F8();
-extern "C" int fn_80551100();
 
 
 extern "C" volatile float lbl_80887E20;
@@ -22,9 +22,288 @@ extern "C" void fn_8047F994(void* object, int arg1, int arg2);
 namespace Event {
 // inferred: processor of each kind of action (.bss of this file)
 ActionProcessor* sProcessors_unk[56];
+
+// inferred: the processors (.sbss of this file, laid out in the order of declaration)
+static ActionActorMaterial* sActorMaterial_unk; // lbl_8087F8B0
+static ActionActorWind* sActorWind_unk; // lbl_8087F8B4
+static ActionActorSetting* sActorSetting_unk; // lbl_8087F8B8
+static ActionActorNode* sActorNode_unk; // lbl_8087F8BC
+static ActionActorHeading* sActorHeading_unk; // lbl_8087F8C0
+static ActionActorPose* sActorPose_unk; // lbl_8087F8C4
+static ActionActorEyes* sActorEyes_unk; // lbl_8087F8C8
+static ActionActorFacial* sActorFacial_unk; // lbl_8087F8CC
+static ActionActorMotion* sActorMotion_unk; // lbl_8087F8D0
+static ActionActorPosition* sActorPosition_unk; // lbl_8087F8D4
+static ActionActorBehavior* sActorBehavior_unk; // lbl_8087F8D8
+static ActionCameraInertia* sCameraInertia_unk; // lbl_8087F8DC
+static ActionCameraMotion* sCameraMotion_unk; // lbl_8087F8E0
+static ActionCameraFocus* sCameraFocus_unk; // lbl_8087F8E4
+static ActionCameraSetting* sCameraSetting_unk; // lbl_8087F8E8
+static ActionCameraShake* sCameraShake_unk; // lbl_8087F8EC
+static ActionCameraEffect* sCameraEffect_unk; // lbl_8087F8F0
+static ActionCameraMode* sCameraMode_unk; // lbl_8087F8F4
+static ActionCutAdjust* sCutAdjust_unk; // lbl_8087F8F8
+static ActionDialogText* sDialogText_unk; // lbl_8087F8FC
+static ActionDialogSpeaker* sDialogSpeaker_unk; // lbl_8087F900
+static ActionGameSetting* sGameSetting_unk; // lbl_8087F904
+static ActionMapReflect* sMapReflect_unk; // lbl_8087F908
+static ActionLocatorHide* sLocatorHide_unk; // lbl_8087F90C
+static ActionCameraChange* sCameraChange_unk; // lbl_8087F910
+static ActionColorGradation* sColorGradation_unk; // lbl_8087F914
+static ActionColorMatrix* sColorMatrix_unk; // lbl_8087F918
+static ActionBrightness* sBrightness_unk; // lbl_8087F91C
+static ActionLightSurround* sLightSurround_unk; // lbl_8087F920
+static ActionSpotLight* sSpotLight_unk; // lbl_8087F924
+static ActionPointLight* sPointLight_unk; // lbl_8087F928
+static ActionCloudMap* sCloudMap_unk; // lbl_8087F92C
+static ActionAmbientLight* sAmbientLight_unk; // lbl_8087F930
+static ActionSunLight* sSunLight_unk; // lbl_8087F934
+static ActionGodRay* sGodRay_unk; // lbl_8087F938
+static ActionMoviePlay* sMoviePlay_unk; // lbl_8087F93C
+static ActionMultiAudio* sMultiAudio_unk; // lbl_8087F940
+static ActionVoicePlay* sVoicePlay_unk; // lbl_8087F944
+static ActionAudioEffect* sAudioEffect_unk; // lbl_8087F948
+static ActionMusicPlay* sMusicPlay_unk; // lbl_8087F94C
+static ActionEnvSound* sEnvSound_unk; // lbl_8087F950
+static ActionSoundPlay* sSoundPlay_unk; // lbl_8087F954
+static ActionMessagePrint* sMessagePrint_unk; // lbl_8087F958
+static ActionMessageWindow* sMessageWindow_unk; // lbl_8087F95C
+static ActionMessageChoice* sMessageChoice_unk; // lbl_8087F960
+static ActionNotify* sNotify_unk; // lbl_8087F964
+static ActionCheck* sCheck_unk; // lbl_8087F968
+static ActionAnimationPlay* sAnimationPlay_unk; // lbl_8087F96C
+static ActionEffectPlay* sEffectPlay_unk; // lbl_8087F970
+
+// inferred: creates a processor once (one overload per class: the "" of the operator new go to the
+// .sdata of each copy)
+#define EVENT_PROCESSOR_CREATE(T)                                                                 \
+    inline void CreateProcessor_unk(T*& processor) {                                              \
+        if (processor == 0) {                                                                      \
+            processor = new ((MemoryTag)1, "", "", 0) T;                                           \
+        }                                                                                          \
+    }
+EVENT_PROCESSOR_CREATE(ActionEffectPlay)
+EVENT_PROCESSOR_CREATE(ActionAnimationPlay)
+EVENT_PROCESSOR_CREATE(ActionMessageChoice)
+EVENT_PROCESSOR_CREATE(ActionMessageWindow)
+EVENT_PROCESSOR_CREATE(ActionMessagePrint)
+EVENT_PROCESSOR_CREATE(ActionSoundPlay)
+EVENT_PROCESSOR_CREATE(ActionEnvSound)
+EVENT_PROCESSOR_CREATE(ActionMusicPlay)
+EVENT_PROCESSOR_CREATE(ActionAudioEffect)
+EVENT_PROCESSOR_CREATE(ActionVoicePlay)
+EVENT_PROCESSOR_CREATE(ActionMultiAudio)
+EVENT_PROCESSOR_CREATE(ActionMoviePlay)
+EVENT_PROCESSOR_CREATE(ActionCheck)
+EVENT_PROCESSOR_CREATE(ActionNotify)
+EVENT_PROCESSOR_CREATE(ActionGodRay)
+EVENT_PROCESSOR_CREATE(ActionSunLight)
+EVENT_PROCESSOR_CREATE(ActionAmbientLight)
+EVENT_PROCESSOR_CREATE(ActionCloudMap)
+EVENT_PROCESSOR_CREATE(ActionPointLight)
+EVENT_PROCESSOR_CREATE(ActionSpotLight)
+EVENT_PROCESSOR_CREATE(ActionLightSurround)
+EVENT_PROCESSOR_CREATE(ActionBrightness)
+EVENT_PROCESSOR_CREATE(ActionColorMatrix)
+EVENT_PROCESSOR_CREATE(ActionColorGradation)
+EVENT_PROCESSOR_CREATE(ActionLocatorHide)
+EVENT_PROCESSOR_CREATE(ActionCameraChange)
+EVENT_PROCESSOR_CREATE(ActionMapReflect)
+EVENT_PROCESSOR_CREATE(ActionGameSetting)
+EVENT_PROCESSOR_CREATE(ActionCameraMode)
+EVENT_PROCESSOR_CREATE(ActionCameraEffect)
+EVENT_PROCESSOR_CREATE(ActionCameraShake)
+EVENT_PROCESSOR_CREATE(ActionCameraSetting)
+EVENT_PROCESSOR_CREATE(ActionCameraFocus)
+EVENT_PROCESSOR_CREATE(ActionCameraMotion)
+EVENT_PROCESSOR_CREATE(ActionCameraInertia)
+EVENT_PROCESSOR_CREATE(ActionActorBehavior)
+EVENT_PROCESSOR_CREATE(ActionActorPosition)
+EVENT_PROCESSOR_CREATE(ActionActorMotion)
+EVENT_PROCESSOR_CREATE(ActionActorFacial)
+EVENT_PROCESSOR_CREATE(ActionActorEyes)
+EVENT_PROCESSOR_CREATE(ActionActorPose)
+EVENT_PROCESSOR_CREATE(ActionActorHeading)
+EVENT_PROCESSOR_CREATE(ActionActorNode)
+EVENT_PROCESSOR_CREATE(ActionActorSetting)
+EVENT_PROCESSOR_CREATE(ActionActorWind)
+EVENT_PROCESSOR_CREATE(ActionActorMaterial)
+EVENT_PROCESSOR_CREATE(ActionDialogSpeaker)
+EVENT_PROCESSOR_CREATE(ActionDialogText)
+EVENT_PROCESSOR_CREATE(ActionCutAdjust)
+
+// inferred: deletes a processor
+template <class T>
+inline void DeleteProcessor_unk(T*& processor) {
+    if (processor != 0) {
+        delete processor;
+        processor = 0;
+    }
+}
+
 } // namespace Event
-extern "C" void* lbl_8087F8B0;
-void operator delete(void* ptr);
+
+// inferred: creates the processors of the actions and fills the table of each kind (called by
+// Event::Manager)
+extern "C" void fn_8054E574() {
+    Event::CreateProcessor_unk(Event::sEffectPlay_unk);
+    Event::CreateProcessor_unk(Event::sAnimationPlay_unk);
+    Event::CreateProcessor_unk(Event::sMessageChoice_unk);
+    Event::CreateProcessor_unk(Event::sMessageWindow_unk);
+    Event::CreateProcessor_unk(Event::sMessagePrint_unk);
+    Event::CreateProcessor_unk(Event::sSoundPlay_unk);
+    Event::CreateProcessor_unk(Event::sEnvSound_unk);
+    Event::CreateProcessor_unk(Event::sMusicPlay_unk);
+    Event::CreateProcessor_unk(Event::sAudioEffect_unk);
+    Event::CreateProcessor_unk(Event::sVoicePlay_unk);
+    Event::CreateProcessor_unk(Event::sMultiAudio_unk);
+    Event::CreateProcessor_unk(Event::sMoviePlay_unk);
+    Event::CreateProcessor_unk(Event::sCheck_unk);
+    Event::CreateProcessor_unk(Event::sNotify_unk);
+    Event::CreateProcessor_unk(Event::sGodRay_unk);
+    Event::CreateProcessor_unk(Event::sSunLight_unk);
+    Event::CreateProcessor_unk(Event::sAmbientLight_unk);
+    Event::CreateProcessor_unk(Event::sCloudMap_unk);
+    Event::CreateProcessor_unk(Event::sPointLight_unk);
+    Event::CreateProcessor_unk(Event::sSpotLight_unk);
+    Event::CreateProcessor_unk(Event::sLightSurround_unk);
+    Event::CreateProcessor_unk(Event::sBrightness_unk);
+    Event::CreateProcessor_unk(Event::sColorMatrix_unk);
+    Event::CreateProcessor_unk(Event::sColorGradation_unk);
+    Event::CreateProcessor_unk(Event::sLocatorHide_unk);
+    Event::CreateProcessor_unk(Event::sCameraChange_unk);
+    Event::CreateProcessor_unk(Event::sMapReflect_unk);
+    Event::CreateProcessor_unk(Event::sGameSetting_unk);
+    Event::CreateProcessor_unk(Event::sCameraMode_unk);
+    Event::CreateProcessor_unk(Event::sCameraEffect_unk);
+    Event::CreateProcessor_unk(Event::sCameraShake_unk);
+    Event::CreateProcessor_unk(Event::sCameraSetting_unk);
+    Event::CreateProcessor_unk(Event::sCameraFocus_unk);
+    Event::CreateProcessor_unk(Event::sCameraMotion_unk);
+    Event::CreateProcessor_unk(Event::sCameraInertia_unk);
+    Event::CreateProcessor_unk(Event::sActorBehavior_unk);
+    Event::CreateProcessor_unk(Event::sActorPosition_unk);
+    Event::CreateProcessor_unk(Event::sActorMotion_unk);
+    Event::CreateProcessor_unk(Event::sActorFacial_unk);
+    Event::CreateProcessor_unk(Event::sActorEyes_unk);
+    Event::CreateProcessor_unk(Event::sActorPose_unk);
+    Event::CreateProcessor_unk(Event::sActorHeading_unk);
+    Event::CreateProcessor_unk(Event::sActorNode_unk);
+    Event::CreateProcessor_unk(Event::sActorSetting_unk);
+    Event::CreateProcessor_unk(Event::sActorWind_unk);
+    Event::CreateProcessor_unk(Event::sActorMaterial_unk);
+    Event::CreateProcessor_unk(Event::sDialogSpeaker_unk);
+    Event::CreateProcessor_unk(Event::sDialogText_unk);
+    Event::CreateProcessor_unk(Event::sCutAdjust_unk);
+    for (int i = 0; i < 55; i++) {
+        Event::sProcessors_unk[i] = 0;
+    }
+    Event::sProcessors_unk[7] = Event::sEffectPlay_unk;
+    Event::sProcessors_unk[15] = Event::sAnimationPlay_unk;
+    Event::sProcessors_unk[10] = Event::sMessageChoice_unk;
+    Event::sProcessors_unk[11] = Event::sMessageWindow_unk;
+    Event::sProcessors_unk[12] = Event::sMessagePrint_unk;
+    Event::sProcessors_unk[1] = Event::sSoundPlay_unk;
+    Event::sProcessors_unk[2] = Event::sEnvSound_unk;
+    Event::sProcessors_unk[4] = Event::sMusicPlay_unk;
+    Event::sProcessors_unk[3] = Event::sAudioEffect_unk;
+    Event::sProcessors_unk[5] = Event::sVoicePlay_unk;
+    Event::sProcessors_unk[43] = Event::sMultiAudio_unk;
+    Event::sProcessors_unk[6] = Event::sMoviePlay_unk;
+    Event::sProcessors_unk[8] = Event::sCheck_unk;
+    Event::sProcessors_unk[9] = Event::sNotify_unk;
+    Event::sProcessors_unk[48] = Event::sGodRay_unk;
+    Event::sProcessors_unk[16] = Event::sSunLight_unk;
+    Event::sProcessors_unk[18] = Event::sAmbientLight_unk;
+    Event::sProcessors_unk[17] = Event::sCloudMap_unk;
+    Event::sProcessors_unk[47] = Event::sPointLight_unk;
+    Event::sProcessors_unk[49] = Event::sSpotLight_unk;
+    Event::sProcessors_unk[50] = Event::sLightSurround_unk;
+    Event::sProcessors_unk[51] = Event::sBrightness_unk;
+    Event::sProcessors_unk[19] = Event::sColorMatrix_unk;
+    Event::sProcessors_unk[52] = Event::sColorGradation_unk;
+    Event::sProcessors_unk[20] = Event::sLocatorHide_unk;
+    Event::sProcessors_unk[29] = Event::sCameraChange_unk;
+    Event::sProcessors_unk[46] = Event::sMapReflect_unk;
+    Event::sProcessors_unk[21] = Event::sGameSetting_unk;
+    Event::sProcessors_unk[22] = Event::sCameraMode_unk;
+    Event::sProcessors_unk[26] = Event::sCameraEffect_unk;
+    Event::sProcessors_unk[25] = Event::sCameraShake_unk;
+    Event::sProcessors_unk[27] = Event::sCameraSetting_unk;
+    Event::sProcessors_unk[24] = Event::sCameraFocus_unk;
+    Event::sProcessors_unk[28] = Event::sCameraMotion_unk;
+    Event::sProcessors_unk[30] = Event::sCameraInertia_unk;
+    Event::sProcessors_unk[31] = Event::sActorBehavior_unk;
+    Event::sProcessors_unk[37] = Event::sActorPosition_unk;
+    Event::sProcessors_unk[33] = Event::sActorMotion_unk;
+    Event::sProcessors_unk[32] = Event::sActorFacial_unk;
+    Event::sProcessors_unk[44] = Event::sActorEyes_unk;
+    Event::sProcessors_unk[34] = Event::sActorPose_unk;
+    Event::sProcessors_unk[35] = Event::sActorHeading_unk;
+    Event::sProcessors_unk[45] = Event::sActorNode_unk;
+    Event::sProcessors_unk[38] = Event::sActorSetting_unk;
+    Event::sProcessors_unk[39] = Event::sActorWind_unk;
+    Event::sProcessors_unk[54] = Event::sActorMaterial_unk;
+    Event::sProcessors_unk[41] = Event::sDialogSpeaker_unk;
+    Event::sProcessors_unk[42] = Event::sDialogText_unk;
+    Event::sProcessors_unk[53] = Event::sCutAdjust_unk;
+}
+
+// inferred: deletes the processors and clears the table
+extern "C" void fn_8054F380() {
+    Event::DeleteProcessor_unk(Event::sEffectPlay_unk);
+    Event::DeleteProcessor_unk(Event::sAnimationPlay_unk);
+    Event::DeleteProcessor_unk(Event::sMessageChoice_unk);
+    Event::DeleteProcessor_unk(Event::sMessageWindow_unk);
+    Event::DeleteProcessor_unk(Event::sMessagePrint_unk);
+    Event::DeleteProcessor_unk(Event::sSoundPlay_unk);
+    Event::DeleteProcessor_unk(Event::sEnvSound_unk);
+    Event::DeleteProcessor_unk(Event::sMusicPlay_unk);
+    Event::DeleteProcessor_unk(Event::sAudioEffect_unk);
+    Event::DeleteProcessor_unk(Event::sVoicePlay_unk);
+    Event::DeleteProcessor_unk(Event::sMultiAudio_unk);
+    Event::DeleteProcessor_unk(Event::sMoviePlay_unk);
+    Event::DeleteProcessor_unk(Event::sCheck_unk);
+    Event::DeleteProcessor_unk(Event::sNotify_unk);
+    Event::DeleteProcessor_unk(Event::sGodRay_unk);
+    Event::DeleteProcessor_unk(Event::sSunLight_unk);
+    Event::DeleteProcessor_unk(Event::sAmbientLight_unk);
+    Event::DeleteProcessor_unk(Event::sCloudMap_unk);
+    Event::DeleteProcessor_unk(Event::sPointLight_unk);
+    Event::DeleteProcessor_unk(Event::sSpotLight_unk);
+    Event::DeleteProcessor_unk(Event::sLightSurround_unk);
+    Event::DeleteProcessor_unk(Event::sBrightness_unk);
+    Event::DeleteProcessor_unk(Event::sColorMatrix_unk);
+    Event::DeleteProcessor_unk(Event::sColorGradation_unk);
+    Event::DeleteProcessor_unk(Event::sLocatorHide_unk);
+    Event::DeleteProcessor_unk(Event::sCameraChange_unk);
+    Event::DeleteProcessor_unk(Event::sMapReflect_unk);
+    Event::DeleteProcessor_unk(Event::sGameSetting_unk);
+    Event::DeleteProcessor_unk(Event::sCameraMode_unk);
+    Event::DeleteProcessor_unk(Event::sCameraEffect_unk);
+    Event::DeleteProcessor_unk(Event::sCameraShake_unk);
+    Event::DeleteProcessor_unk(Event::sCameraSetting_unk);
+    Event::DeleteProcessor_unk(Event::sCameraFocus_unk);
+    Event::DeleteProcessor_unk(Event::sCameraMotion_unk);
+    Event::DeleteProcessor_unk(Event::sCameraInertia_unk);
+    Event::DeleteProcessor_unk(Event::sActorBehavior_unk);
+    Event::DeleteProcessor_unk(Event::sActorPosition_unk);
+    Event::DeleteProcessor_unk(Event::sActorMotion_unk);
+    Event::DeleteProcessor_unk(Event::sActorFacial_unk);
+    Event::DeleteProcessor_unk(Event::sActorEyes_unk);
+    Event::DeleteProcessor_unk(Event::sActorPose_unk);
+    Event::DeleteProcessor_unk(Event::sActorHeading_unk);
+    Event::DeleteProcessor_unk(Event::sActorNode_unk);
+    Event::DeleteProcessor_unk(Event::sActorSetting_unk);
+    Event::DeleteProcessor_unk(Event::sActorWind_unk);
+    Event::DeleteProcessor_unk(Event::sActorMaterial_unk);
+    Event::DeleteProcessor_unk(Event::sDialogSpeaker_unk);
+    Event::DeleteProcessor_unk(Event::sDialogText_unk);
+    Event::DeleteProcessor_unk(Event::sCutAdjust_unk);
+    for (int i = 0; i < 55; i++) {
+        Event::sProcessors_unk[i] = 0;
+    }
+}
 extern "C" void fn_80489A50(void* manager, int arg1, int arg2);
 extern "C" void fn_8048F9B0(void* manager, void* event);
 extern "C" void fn_80484FBC(void* manager);
@@ -35,19 +314,6 @@ extern "C" void fn_8048FC7C(void* manager);
 extern "C" void* lbl_8087F0A8;
 extern "C" void* lbl_8087F430;
 
-// NONMATCHING: 17.26% - releases 49 cached action instances and clears the 55-entry action dispatch table.
-extern "C" void fn_8054F380() {
-    void** cachedActions = reinterpret_cast<void**>(&lbl_8087F8B0);
-    for (int i = 48; i >= 0; --i) {
-        if (cachedActions[i] != 0) {
-            operator delete(cachedActions[i]);
-            cachedActions[i] = 0;
-        }
-    }
-    for (int i = 0; i < 55; ++i) {
-        Event::sProcessors_unk[i] = 0;
-    }
-}
 
 namespace Event {
 
@@ -532,13 +798,16 @@ void Sequence::fn_80550CE0() {
 
 } // namespace Event
 
-// The short status helpers are kept here in address order while the behaviour dispatchers are
-// reconstructed from the original split.
-extern "C" int fn_805510F8() {
+namespace Event {
+
+// inferred: the behaviour action does nothing by itself (its work is done by Sequence, above)
+int ActionActorBehavior::vf0C(Action* arg, int phase) {
     return 0;
 }
 
-extern "C" int fn_80551100() {
+int ActionActorBehavior::vf08(Action* arg) {
     return 0;
 }
+
+} // namespace Event
 
