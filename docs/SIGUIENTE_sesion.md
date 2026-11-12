@@ -1,7 +1,7 @@
 # Siguiente sesion (tras fueraruta-20261112)
 
 > Sesion `fueraruta-20261112` (12 h, unidades fuera de la ruta de arranque) cerrada el 2026-11-12 hacia las 13:00
-> (inicio 02:29). Rama `fueraruta-20261112` subida y **sin mergear** (revisar y mergear en `main`).
+> (inicio 02:29). Rama `fueraruta-20261112` revisada y mergeada en `main` (2026-11-12, fast-forward).
 
 Estado: **15030 -> 15057 / 18109**, lost 0, sin bajadas de fuzzy, `main.dol: OK` (build limpio y clon limpio).
 Funciones al 0 %: **972 -> 870**. 42 DRAFT (0 en la ruta). Ninguna unidad nueva enlaza. Splits sin cambios;
@@ -9,8 +9,10 @@ Funciones al 0 %: **972 -> 870**. 42 DRAFT (0 en la ruta). Ninguna unidad nueva 
 etiquetas `@N` y dos `@STRING@` de Em203GreaterDaemonRedMp a `scope:local`.
 Notas: `docs/fueraruta-20261112.md`.
 
-## Revision al mergear
+## Revision
 
+- Revisado al mergear: sin asm/pragma nuevos, sin `extern "C"` mangled, `symbols.txt` solo renombrados (mismas
+  direcciones y tamanos), 0 fuera de orden nuevos, ningun DRAFT nuevo.
 - Decisiones sin el usuario en `docs/fueraruta-20261112.md` (seccion "Decisiones tomadas sin el usuario").
 - Cabeceras tocadas que incluyen muchas unidades: `game/GameCamera.h` (campos y `CameraShake_unk mShake`),
   `game/CosEditBase.h` (`CosEditItem_unk`), `game/PopupTask.h` (firma de `fn_8054E528`), `gmk/SwingPart_unk.h`
