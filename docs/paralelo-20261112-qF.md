@@ -7,6 +7,9 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
 - `atn/EffectSystem_unk` (commit 1): 0 % 24 -> 18; al 100 % nuevas: fn_8022C2A0 (liberacion), fn_8022D078
   (update), fn_8022D328 (filtro de capa/pasada), fn_8022D478 (dibujado de una capa), fn_8022D754 (entrada del
   fichero de efectos, extern "C"), fn_80232ED4 (parar por etiqueta).
+- `atn/EffectSystem_unk` (commit 2): 0 % 18 -> 14; al 100 % nuevas: fn_80230034 (reduccion de la emision con la
+  distancia a la camara; funcion libre C++ que recibe el sistema), fn_80231508 (avance de un slot en su
+  direccion), fn_80231754 (avance de los slots de una instancia), fn_802328EC (avanzar una instancia N frames).
 
 ## NONMATCHING
 
@@ -30,6 +33,8 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
   `include/atn/EffectParams_unk.h` (compartida con EffectSystem_unk).
 - `EffectDesc_unk.cpp` llamaba a fn_8022D078/fn_8022D478 como `extern "C"` con `self`: ahora llama a los
   miembros (`fn_8022D478((int)arg)`: el argumento de fn_802368B0 es la capa; no se cambio su firma).
+- `fn_80230034` escrita como funcion libre C++ (`fn_80230034(EffectSystem_unk*, ...)`) y no como miembro: no se
+  sabe si es metodo, y un miembro nuevo renumeraria otra vez las 67 unidades. Revisar si se prefiere miembro.
 - `fn_802301EC` renombrado en `symbols.txt` al nombre del miembro declarado (sin escribir aun).
 
 ## Hallazgos
@@ -38,4 +43,7 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
   pasada 4 (se lee antes de escribirla); reproducido con `world` fuera del bucle.
 - fn_8022D478: `rm` en r31 sale con una referencia a la camara (`Camera& camera = instance_->mCamera`), no con
   un puntero a RenderManager.
+- `Matrix3x4::fn_8013A13C` (rotacion y inline) en vez de `PSMTXRotRad(.., 'y', ..)` hace que la carga del
+  angulo use r3 como el original (fn_80231508); `Matrix3x4::GetTrans_unk()` en vez de `Vector3(m[0][3]...)`
+  arregla el orden de registros (fn_80230034).
 - fn_8022D078: la posicion se pasa por puntero a fn_8022C9C8 y la copia previa (`move = old - new`) no se usa.

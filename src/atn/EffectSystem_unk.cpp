@@ -95,7 +95,7 @@ void EffectSystem_unk::fn_8022C2A0() {
 }
 
 // inferred: matrix of an instance from its emitter state (prev null: identity), its position and its mode
-extern "C" void fn_8022C9C8(int* state, const atn::Matrix3x4* prev, float* out, Vector3* pos, unsigned int mode);
+extern "C" void fn_8022C9C8(void* work, const atn::Matrix3x4* prev, float* out, Vector3* pos, unsigned int mode);
 extern "C" void fn_80231754(EffectInst_unk* inst, EffectSlot_unk* slots, float* mtx);
 
 // inferred: moves the instances forward by whole frames (the last one partial)
@@ -267,9 +267,151 @@ extern "C" void fn_8022D754(EffectFileEntry_unk* entry) {
     entry->m10C = entry->m108 * entry->m120;
 }
 
+// inferred: reduces the emission of an instance with the distance to the camera (param->m25C bit 0):
+// count = count * (1 + t * (m268 - 1)) with t the distance ratio, and the seed moved by the index of
+// the instance; free function (the caller passes the system), names invented
+void fn_80230034(EffectSystem_unk* system, EffectInst_unk* inst, EffectParam_unk* param, const atn::Matrix3x4* mtx,
+                 int* seed, int* count, int* interval) {
+    int s = *seed;
+    int n = *count;
+    int iv = *interval;
+    if ((param->m25C & 1) && param->m260 > 0.0f) {
+        Vector3 d = *atn::RenderManager::instance_->mCamera.GetPosition_unk() -
+                    mtx->GetTrans_unk();
+        float t = 1.0f;
+        float dist = d.Length_unk();
+        if (dist > param->m260) {
+            float r = (dist - param->m260) / param->m264;
+            if (r > 1.0f) {
+                r = 1.0f;
+            }
+            if (r < t) {
+                t = r;
+            }
+        } else {
+            t = 0.0f;
+        }
+        if (t > 0.0f) {
+            float v = 1.0f + t * (param->m268 - 1.0f);
+            v *= n;
+            if (v > iv) {
+                v /= iv;
+                iv = 1;
+            }
+            n = v;
+            s += inst - system->mInstPool;
+        }
+    }
+    *seed = s;
+    *count = n;
+    *interval = iv;
+}
+
+// inferred: moves a slot forward along its direction (mCC: distance; mD0/mD4/mD8: rotations x/y/z
+// over its matrix)
+extern "C" void fn_80231508(EffectSlot_unk* slot) {
+    if (slot->mCC == 0.0f) {
+        return;
+    }
+    atn::Matrix3x4 rot;
+    if (slot->mD0 != 0.0f || slot->mD4 != 0.0f || slot->mD8 != 0.0f) {
+        if (slot->mD0 != 0.0f || slot->mD4 != 0.0f) {
+            if (slot->mD0 != 0.0f) {
+                atn::Matrix3x4 m;
+                atn::Matrix3x4 rx;
+                atn::Matrix3x4 ry;
+                ry.fn_8013A13C(slot->mD4);
+                PSMTXRotRad(rx.m, 'x', slot->mD0);
+                PSMTXConcat(ry.m, rx.m, m.m);
+                rot = m;
+            } else {
+                atn::Matrix3x4 ry;
+                ry.fn_8013A13C(slot->mD4);
+                rot = ry;
+            }
+        } else {
+            rot.SetIdentity();
+        }
+        if (slot->mD8 != 0.0f) {
+            atn::Matrix3x4 rz;
+            PSMTXRotRad(rz.m, 'z', slot->mD8);
+            PSMTXConcat(rz.m, rot.m, rot.m);
+        }
+        PSMTXConcat(slot->mMtx.m, rot.m, rot.m);
+    } else {
+        rot = slot->mMtx;
+    }
+    Vector3 dir;
+    dir = Vector3(0.0f, 0.0f, slot->mCC);
+    PSMTXMultVec(rot.m, &dir, &dir);
+    slot->m80.x += dir.x;
+    slot->m80.y += dir.y;
+    slot->m80.z += dir.z;
+}
+
+extern "C" int fn_8023193C(EffectInst_unk* inst, EffectParam_unk* param, EffectSlot_unk* slot, Vector3* prev,
+                           float* mtx, int first);
+extern "C" void fn_80230F3C(EffectInst_unk* inst, EffectSlot_unk* slot);
+
+// inferred: moves the slots of an instance and emits their particles
+extern "C" void fn_80231754(EffectInst_unk* inst, EffectSlot_unk* slot, float* mtx) {
+    EffectParam_unk* param = inst->mParam;
+    for (; slot != 0; slot = slot->mNext) {
+        Vector3 prev = slot->m80;
+        if (param->m238 < 0 || slot->m18 < param->m238) {
+            fn_8022C9C8(&sEffectWork_unk, 0, slot->mMtx.m[0], &slot->m74, param->m4C);
+            slot->mMtx.m[0][3] = 0.0f;
+            slot->mMtx.m[1][3] = 0.0f;
+            slot->mMtx.m[2][3] = 0.0f;
+            Vector3 ofs = slot->m68;
+            PSMTXMultVec(slot->mMtx.m, &ofs, &ofs);
+            slot->m74.x += ofs.x;
+            slot->m74.y += ofs.y;
+            slot->m74.z += ofs.z;
+            slot->m80 = slot->m74 + slot->m8C;
+            fn_80231508(slot);
+        }
+        if ((slot->m190 & 4) == 4) {
+            continue;
+        }
+        slot->m190 |= 8;
+        if (fn_8023193C(inst, param, slot, &prev, mtx, slot->m18 == 0.0f)) {
+            slot->m190 |= 4;
+        } else {
+            slot->m18 += sTimeStep;
+            fn_80230F3C(inst, slot);
+        }
+    }
+}
+
 // inferred: frame offset of the effects (game/GameTask.cpp)
 extern "C" void fn_802328DC(int frame) {
     sFrame = sFrameBase + frame;
+}
+
+// inferred: moves an instance forward count frames (stops when it ends)
+void EffectSystem_unk::fn_802328EC(EffectInst_unk* inst, int count) {
+    if (inst == 0 || (inst->mFlags & 2) == 2 || inst->mKill != 0) {
+        return;
+    }
+    Vector3 move;
+    for (int i = 0; i < count; i++) {
+        atn::VecAssign_unk(move, inst->mPos);
+        fn_8022C9C8(&inst->m08, &inst->mMtx, sEffectWorkBuf_unk, &inst->mPos, inst->mParam->m4C);
+        move = move - inst->mPos; // inferred: not used afterwards
+        fn_802301EC(inst, inst->mParam, sEffectWorkBuf_unk);
+        fn_80231754(inst, inst->mSlots, sEffectWorkBuf_unk);
+        if ((inst->m1A & 0x7F) == 0 && inst->mSlots == 0) {
+            Kill_unk(inst);
+            return;
+        }
+        inst->m1C += sTimeStep;
+        if (inst->m1C >= inst->m14 && inst->m14 >= 0) {
+            inst->m08 = 0;
+            inst->mMtx = *(atn::Matrix3x4*)sEffectWorkBuf_unk;
+            inst->m14 = -1;
+        }
+    }
 }
 
 // inferred: marks the resource as used

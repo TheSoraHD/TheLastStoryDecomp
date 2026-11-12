@@ -105,6 +105,13 @@ struct EffectParam_unk {
     atn::Vector3 m158;
     unsigned char m164[0x1F8 - 0x164];
     atn::Vector3 m1F8;
+    unsigned char m204[0x238 - 0x204];
+    int m238;               // 0x238: inferred: frames the slots move (< 0: always)
+    unsigned char m23C[0x25C - 0x23C];
+    unsigned int m25C;      // 0x25C: inferred: bit 0: emission reduced with the camera distance
+    float m260;             // 0x260: inferred: distance where the reduction starts
+    float m264;             // 0x264: inferred: distance range of the reduction
+    float m268;             // 0x268: inferred: emission scale at full reduction
 };
 
 // inferred: effect instance of the system (one per started effect; linked list from
@@ -169,7 +176,17 @@ struct EffectSlot_unk {
     float m2C;
     float m30;
     float m34;
-    unsigned char m38[0xE4 - 0x38];
+    atn::Matrix3x4 mMtx;   // 0x38: inferred: matrix of the slot (fn_80231754)
+    atn::Vector3 m68;      // 0x68: inferred: offset, turned by mMtx and added to m74
+    atn::Vector3 m74;      // 0x74: inferred: position
+    atn::Vector3 m80;      // 0x80: inferred: emission point (m74 + m8C, moved by fn_80231508)
+    atn::Vector3 m8C;
+    unsigned char m98[0xCC - 0x98];
+    float mCC;             // 0xCC: inferred: distance along the direction (fn_80231508)
+    float mD0;             // 0xD0: inferred: rotations x, y, z of the direction
+    float mD4;
+    float mD8;
+    unsigned char mDC[0xE4 - 0xDC];
     atn::Vector3 mE4;
     unsigned char mF0[0x100 - 0xF0];
     atn::Vector3 m100;
@@ -233,7 +250,7 @@ public:
     void fn_8022C3F0();                    // inferred: update
     void* fn_8022FAC4(void* res, int a, int b, int c, const atn::Vector3* pos, const atn::Vector3* rot,
                       const EffectColor_unk* color, int d, int e, float scale);
-    void fn_802328EC(EffectInst_unk* inst, int arg); // inferred: stops an instance
+    void fn_802328EC(EffectInst_unk* inst, int count); // inferred: moves an instance forward count frames
     void fn_80232ACC(void* owner);
     int fn_80232B98(unsigned int owner, int group);
     int fn_80232BEC(unsigned int owner, int group, int count);
