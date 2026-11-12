@@ -26,6 +26,9 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 // inferred: effect/bullet manager (lbl_8087F048, as in chr/ControlUseSkill.cpp); class unknown
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
+extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: bullet/skill data by id
+extern "C" void fn_800FD658(Effect_unk* mgr, CharaTask* a, CharaTask* b, void* bullet, int arg4, int arg5, int arg6);
 extern "C" void fn_801092C8(Effect_unk* effect, int msg, CharaTask* chara, int value, int arg);
 // inferred: color as four floats (name invented)
 typedef EffectColor_unk IvyColor_unk;
@@ -54,7 +57,7 @@ inline atn::Vector3 GetNodePos_unk(MtxPtr m) {
 }
 
 Em314Ivy::Em314Ivy(atn::Task* parent, EnemyInfo_unk* info)
-    : SpecialEnemyBase(parent, info), m14D4(info->m14),
+    : SpecialEnemyBase(parent, info), m14D4(1.0f, info->m14, 1.0f),
 
       m14E0(1e16f), m14E4(0), m14EC(0),
       m14F0(0), m14F4(0), m14F8(0), m14FC(1.0f), m1500(1.0f), m1504(1.0f), m1508(1.0f), m150C(0), m15A0(1), m15A4(0), m15A8(0), m15AC(0), m15B0(-1), m15B4(0), m15B8(0) {
@@ -450,6 +453,169 @@ void Em314Ivy::vf104() {
     default:
         vf100(6);
         break;
+    }
+}
+
+// NONMATCHING: 99.4% - registers of the flag word and the stored values, and of the inlined CanAct_unk tests
+// inferred: action of the current state (motion speed, the catch and its damage, the turn towards the target)
+void Em314Ivy::vf108() {
+    float dist = 0.0f;
+    float speed = 1.0f;
+    atn::Vector3 rot = mRot;
+    float anim = mStatus.fn_8012DB04() > 0.5f ? mStatus.fn_8012DB04() : 0.5f;
+    int turn = 0;
+    if (m55C == 2) {
+    switch (m58C) {
+    case 7: {
+        mMotion.mTracks[0].m0C = anim;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        break;
+    }
+    case 8:
+        mMotion.mTracks[0].m0C = -anim;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame <= 0.0f) {
+            mFlag31 = 1;
+        }
+        break;
+    case 9:
+        mMotion.mTracks[0].m0C = anim;
+        if (vfF8() == 0 || m15A4 != 0 || m14E0 > m1504 * m1504) {
+            mFlag31 = 1;
+            m14C4 = 8;
+        } else if (m14C0 > m150C && m14E0 < m1508 * m1508) {
+            mFlag31 = 1;
+            m14C4 = 11;
+            m150C = 0;
+        }
+        break;
+    case 10:
+        fn_8016E4C4(0);
+        mColli.mFlags &= ~1;
+        if (mFlag18) {
+            vf9C(1);
+        }
+        if (vfF8() != 0 && m14C0 > m150C && m14E0 < m1500 * m1500) {
+            mFlag31 = 1;
+            m150C = 0;
+        }
+        if (mC58.mC0 != 0 && (m54C & 0x2000) == 0x2000 && m15A8 != 0 && lbl_8087F430 != 0 &&
+            ((GameTask*)lbl_8087F430)->fn_80375184() != 0) {
+            m15A4 = 0;
+            m54C &= ~0x2000;
+            m15A8 = 0;
+        }
+        return;
+    case 11: {
+        mMotion.mTracks[0].m0C = anim;
+        if (m15AC != 0 && m14E4 != 0 && m14E4->mType == 0 && lbl_8087F430 != 0) {
+            ((GameTask*)lbl_8087F430)->m55B8 = 2;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (m14E4 == 0 && 22.0f <= frame && frame <= 30.0f) {
+            if (mC58.mC4 != 0) {
+                atn::Vector3 d = mC58.mC4->mPos - mPos;
+                m14E0 = PSVECSquareMag(&d);
+            }
+            if (m14E0 < m1508 * m1508) {
+                fn_8031319C(mC58.mC4);
+            }
+        }
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+            if (m14E4 != 0) {
+                m14C4 = 12;
+            } else {
+                m14C4 = 9;
+            }
+        }
+        if (m14E4 == 0 && mC58.mC4 != 0) {
+            atn::Vector3 d = mC58.mC4->mPos - mPos;
+            if (!((float)__fabs(PSVECSquareMag(&d)) < 1.1920929e-7f)) {
+                PSVECNormalize(&d, &d);
+            }
+            rot = d.ToRotation_unk();
+        } else {
+            rot = m14D4;
+        }
+        break;
+    }
+    case 12: {
+        mMotion.mTracks[0].m0C = anim;
+        if (m15AC != 0 && m14E4 != 0 && m14E4->mType == 0 && lbl_8087F430 != 0) {
+            ((GameTask*)lbl_8087F430)->m55B8 = 2;
+        }
+        if (m14C0 > (int)((float)m14F8 / mStatus.fn_8012DB04())) {
+            m14C0 = 0;
+            Effect_unk* effect = lbl_8087F048;
+            if (effect != 0 && m14EC > 0) {
+                int id = fn_800F8548(effect);
+                fn_800FD658(effect, 0, m14E4, fn_80219E6C(m14EC), id, 0, 30);
+                if (m14E4 != 0 && lbl_8087F498 != 0 && rand() % 2 == 0) {
+                    lbl_8087F498->fn_803EA77C(m14E4, 0x2A, 0, 1.0f, 10.0f);
+                }
+                if (m14E4 != 0 && m14E4->mType == 0 && m15AC != 0 && Inventory::instance_ != 0) {
+                    fn_8044D6AC(Inventory::instance_, 10);
+                    effect = lbl_8087F048;
+                    ((BattleTask*)effect)->fn_80107168(0x232D, 0, 0, 0, &m14E4->fn_801781B0(),
+                                                            &chr::lbl_807C7030, &IvyColor_unk(1.0f, 1.0f, 1.0f, 1.0f),
+                                                            1.0f);
+                    fn_801092C8(lbl_8087F048, 4, 0, 10, 0);
+                }
+            }
+        }
+        int count = 9999;
+        if (m14E4 != 0 && m14E4->mControl.get() != 0) {
+            count = ((chr::ControlCaught*)m14E4->mControl.get())->mCount;
+        }
+        if (m14E4 == 0 || !m14E4->CanAct_unk() || (m14E4->m54C & 0x2000) == 0x2000 || m14E4->m55C != 6 ||
+            m14E4->m560 != 0x11 || vfF8() == 0 || m15A4 != 0 || count <= 0) {
+            mFlag31 = 1;
+            int state;
+            if (m14E4 == 0 || (m14E4->CanAct_unk() && m15A0 != 0)) {
+                state = 8;
+            } else {
+                state = 13;
+            }
+            m14C4 = state;
+        }
+        rot = m14D4;
+        break;
+    }
+    case 13: {
+        mMotion.mTracks[0].m0C = anim;
+        if (m14E4 != 0 && mMotion.mTracks[0].m08 >= 23.0f) {
+            fn_803132D0();
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag31 = 1;
+        }
+        rot = m14D4;
+        break;
+    }
+    }
+    } else {
+        fn_805A4254();
+        return;
+    }
+    if (turn && mFC0 != 0) {
+        fn_80140588(&rot, dist, m568 * speed);
+    } else {
+        fn_8013CB68(rot, 0, dist, m568 * speed);
+    }
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->m54E4 == 8 && m14E4 != 0) {
+        if ((unsigned int)m14E4->mF1C == (unsigned int)m14E8) {
+            m14E4->mF1C = 0;
+        }
+        m14E4 = 0;
+        if (m58C == 11 && mMotion.mTracks[0].m08 <= 30.0f) {
+            mMotion.mTracks[0].m08 = 31.0f;
+        }
     }
 }
 
