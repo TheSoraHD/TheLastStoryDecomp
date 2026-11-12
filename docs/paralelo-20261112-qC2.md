@@ -10,7 +10,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   carga de recursos) y `fn_800F3B4C` (espera de esas cargas, 100 %), `fn_8010ACCC` (totales de jugadores y
   enemigos), `fn_8010AEF4` (comparacion de los totales, 100 %), `fn_801002DC` (objetivo de la camara, miembro
   nuevo), `fn_8010A868` (efectos temporizados `mStuns`, 100 %) `fn_80108C10` (popup de dano) y
-  `fn_80102EAC` (odio hacia el atacante y los que siguen al personaje).
+  `fn_80102EAC` (odio hacia el atacante y los que siguen al personaje), `fn_80108F38` (popup del nombre de un
+  estado, 100 %).
 - Los marcadores (`BattleMarker_unk`, `BattleMarkers_unk`) pasan del .cpp a `BattleTask.h` como miembro
   `BattleTask::mMarkers` (0x367B8): con el cast `(BattleMarkers_unk*)&m367B4[4]` el compilador no plegaba los
   desplazamientos (fn_800F39A4/fn_800F3B4C).
@@ -61,6 +62,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   `mEfp363C0[26 + i]` no se reducian a puntero).
 - `fn_80102EAC` tambien `extern "C"`, con un quinto parametro sin nombre que no se lee (Em101ElderZesya pasa -1).
   `fn_8010ACCC` usa `CharaTask::CanAct_unk()` (ya existia) en vez de inlines locales.
+- `fn_80108F38` tambien `extern "C"` (Em202ForestSpider, Em308ParmCrab...); `BattleMsg_unk` se mueve antes de
+  ella en el .cpp.
 - `fn_80108C10` tambien `extern "C"` (12 llamadores `extern "C"`); su registro de dano es otra vista local
   (`BattleDamage_unk`, como `StatusDamage_unk`/`DaemonDamage_unk` de otras unidades) y `Arena_unk` local
   (como en CharaTask.cpp) para `lbl_8087F610`, que pasa de `void*` a `Arena_unk*`.

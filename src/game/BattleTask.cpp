@@ -1532,6 +1532,84 @@ extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn
                               damage->m14, damage->m18);
 }
 
+// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
+struct BattleMsg_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" BattleMsg_unk* lbl_8087F1E4;
+
+// inferred: popup with the name of the status effect `status` (one bit) at `pos`. C name, called by other files
+// as extern "C"
+extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int status) {
+    const wchar_t* text = 0;
+    int kind = 3;
+    switch (status) {
+    case 0x1:
+        text = lbl_8087F1E4->Get_unk(0x41);
+        break;
+    case 0x400000:
+        text = lbl_8087F1E4->Get_unk(0x61);
+        break;
+    case 0x2:
+        text = lbl_8087F1E4->Get_unk(0x43);
+        break;
+    case 0x4:
+        text = lbl_8087F1E4->Get_unk(0x45);
+        break;
+    case 0x10:
+        text = lbl_8087F1E4->Get_unk(0x47);
+        break;
+    case 0x20:
+        text = lbl_8087F1E4->Get_unk(0x49);
+        break;
+    case 0x40:
+        text = lbl_8087F1E4->Get_unk(0x4B);
+        break;
+    case 0x80:
+        text = lbl_8087F1E4->Get_unk(0x4D);
+        break;
+    case 0x100:
+        text = lbl_8087F1E4->Get_unk(0x4F);
+        break;
+    case 0x4000:
+        text = lbl_8087F1E4->Get_unk(0x51);
+        break;
+    case 0x8000:
+        text = lbl_8087F1E4->Get_unk(0x53);
+        break;
+    case 0x10000:
+        text = lbl_8087F1E4->Get_unk(0x55);
+        break;
+    case 0x40000:
+        text = lbl_8087F1E4->Get_unk(0x57);
+        break;
+    case 0x80000:
+        text = lbl_8087F1E4->Get_unk(0x77);
+        break;
+    case 0x8:
+    case 0x200:
+        text = lbl_8087F1E4->Get_unk(0x5B);
+        break;
+    case 0x800000:
+        text = lbl_8087F1E4->Get_unk(0x5D);
+        break;
+    case 0x400:
+        text = lbl_8087F1E4->Get_unk(0x5F);
+        break;
+    case 0x1000000:
+        text = lbl_8087F1E4->Get_unk(0x63);
+        break;
+    case 0x2000000:
+        text = lbl_8087F1E4->Get_unk(0x65);
+        kind = 4;
+        break;
+    }
+    if (text != 0) {
+        lbl_8087F8A8->fn_8054D794(kind, text, pos, -0xBC, 0, 1, 0, 0, 0, 1, -1, -1);
+    }
+}
+
 void BattleTask::fn_80109828(const wchar_t* text) {
     if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
         return;
@@ -1541,12 +1619,6 @@ void BattleTask::fn_80109828(const wchar_t* text) {
     }
 }
 
-// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
-struct BattleMsg_unk {
-    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
-    const wchar_t* mText[1];
-};
-extern "C" BattleMsg_unk* lbl_8087F1E4;
 extern "C" bool fn_8021BE98(wchar_t* buf, SpEffect_unk* effect); // inferred: text of a status effect
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
 
