@@ -184,6 +184,21 @@ static inline int GetHostCount_unk() {
     return data->m1F8_12 ? 1 : fn_806A8E70();
 }
 
+// inferred: index of a connected host by its aid (-1: none)
+static inline int GetAidIndex_unk(unsigned int aid) {
+    if (lbl_8087F628->m1F8_12) {
+        return 0;
+    }
+    MpLobbyAids_unk aids;
+    int count = fn_8050BA68(&aids);
+    for (int i = 0; i < count; i++) {
+        if (aid == aids.mAids[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 // inferred: aid of the i-th connected host (0xFF: none)
 static inline unsigned int GetAid_unk(int i) {
     if (lbl_8087F628->m1F8_12) {
@@ -557,6 +572,57 @@ int D2AMpMenuLobby::fn_804C2C14() {
         }
     }
     return 0;
+}
+
+// inferred: shows `text` in the balloon of the player `member` (kind 0: first balloon, 1: second one) for
+// frames + 30 frames (90 when no time is given), clearing the old text and opening the balloon
+// NONMATCHING: 90.8% - L"" is in the .sdata until the other wide strings of the file are written (the original
+// pools them in .data); the bounds test of the index
+void D2AMpMenuLobby::fn_804C2D5C(MpLobbyMember_unk* member, const wchar_t* text, int frames, int kind) {
+    int index = GetAidIndex_unk(member->mCC);
+    if (index < 0) {
+        return;
+    }
+    if (index < 6) {
+        if (kind == 0) {
+            SetPaneText_unk(mPlayers[index].mTasks[3]->mLayout, "string0007(1)", L"");
+            mPlayers[index].mTasks[3]->mFrame = 0.0f;
+        } else {
+            SetPaneText_unk(mPlayers[index].mTasks[4]->mLayout, "string0007(1)", L"");
+            mPlayers[index].mTasks[4]->mFrame = 0.0f;
+        }
+        mPlayers[index].m20 = frames > 0 ? frames + 30 : 90;
+        mPlayers[index].m24 = 0;
+        mPlayers[index].m28 = kind;
+        fn_800DD3FC((wchar_t*)&mPlayers[index].m2C, text);
+        if (kind == 0) {
+            MpD2A_unk* task = mPlayers[index].mTasks[3];
+            if (task != 0) {
+                task->fn_800D246C(0);
+                task->mSpeed = 1.0f;
+                task->mRepeat = 0;
+            }
+            task = mPlayers[index].mTasks[4];
+            if (task != 0) {
+                task->fn_800D246C(1);
+                task->mSpeed = -1.0f;
+                task->mFrame = 0.0f;
+            }
+        } else {
+            MpD2A_unk* task = mPlayers[index].mTasks[4];
+            if (task != 0) {
+                task->fn_800D246C(0);
+                task->mSpeed = 1.0f;
+                task->mRepeat = 0;
+            }
+            task = mPlayers[index].mTasks[3];
+            if (task != 0) {
+                task->fn_800D246C(1);
+                task->mSpeed = -1.0f;
+                task->mFrame = 0.0f;
+            }
+        }
+    }
 }
 
 void D2AMpMenuLobby::fn_804C2F98() { fn_800D2338(this); }

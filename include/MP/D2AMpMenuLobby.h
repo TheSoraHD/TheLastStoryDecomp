@@ -8,6 +8,8 @@ namespace atn {
 class FadeColor;
 }
 
+struct MpLobbyMember_unk; // inferred: player of the session (MP/D2AMpMenuLobby.cpp)
+
 namespace MP {
 
 // inferred from __vt__Q22MP14D2AMpMenuLobby (0x80790CCC): lobby of a multiplayer game (raid or
@@ -60,6 +62,7 @@ public:
     void fn_804C2268(int time); // inferred: shows the time left
     void fn_804C28A0(int count); // inferred: selects the next entry
     void fn_804C2994(int id); // inferred: setter of mDCC (called from atn/PacketPack)
+    void fn_804C2D5C(MpLobbyMember_unk* member, const wchar_t* text, int frames, int kind); // inferred: balloon
     int fn_804C2C14(); // inferred: nonzero while busy
     void fn_804C2F98(); // inferred: removes the menu task
     bool fn_804C2F9C(); // inferred: true in states 7, 8 and 10
