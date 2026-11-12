@@ -477,6 +477,283 @@ void CosEditProtector::fn_801D9388() {
     vf34(0);
 }
 
+// inferred: entry of the item table (db/ItemParam_unk; only the item code is read)
+struct CosEditListParam_unk {
+    unsigned char m00[0x04];
+    int mId; // 0x04
+};
+extern "C" int fn_802114D8();                          // inferred: number of entries of the item table
+extern "C" CosEditListParam_unk* fn_802114E0(int index); // inferred: entry by index
+extern "C" bool fn_8020F0AC(EquipParamEntry_unk* entry, int member); // inferred: whether the member can wear it
+extern "C" int fn_804444E8(Inventory* inv, int id);                   // inferred: number of items
+// inferred: predicates of the three std::sort of the lists (by kind; for the members who wear armour; for the
+// others)
+struct CosEditKindLess_unk {};
+struct CosEditArmourLess_unk {};
+struct CosEditRobeLess_unk {};
+// inferred: the std::sort instantiations of this unit (their template internals are not reconstructed)
+extern "C" void fn_801DF3D4(CosEditItem_unk** first, CosEditItem_unk** last, CosEditKindLess_unk* comp);
+extern "C" void fn_801DA308(CosEditItem_unk** first, CosEditItem_unk** last, CosEditArmourLess_unk* comp);
+extern "C" void fn_801DD7B0(CosEditItem_unk** first, CosEditItem_unk** last, CosEditRobeLess_unk* comp);
+// inferred: std::sort(list.begin(), list.end(), Pred()) (the arguments are evaluated from the last one)
+inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditKindLess_unk comp) {
+    CosEditItem_unk* last = list.end();
+    CosEditItem_unk* first = list.begin();
+    fn_801DF3D4(&first, &last, &comp);
+}
+inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditArmourLess_unk comp) {
+    CosEditItem_unk* last = list.end();
+    CosEditItem_unk* first = list.begin();
+    fn_801DA308(&first, &last, &comp);
+}
+inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditRobeLess_unk comp) {
+    CosEditItem_unk* last = list.end();
+    CosEditItem_unk* first = list.begin();
+    fn_801DD7B0(&first, &last, &comp);
+}
+
+// inferred: inserts at the front of a member list (name invented)
+inline void PushFront_unk(atn::FixedArray_unk<NewCampPair_unk*, 8>& list, NewCampPair_unk* pair) {
+    NewCampPair_unk** pos = list.begin();
+    unsigned int index = pos - list.mData;
+    for (unsigned int i = list.mSize; i > index; i--) {
+        list.mData[i] = list.mData[i - 1];
+    }
+    list.mData[index] = pair;
+    list.mSize++;
+}
+
+// inferred: state 13, takes everything off the whole party one member at a time: first every weapon and
+// protector goes back to the inventory and the members are queued (the selected one first); then, while
+// some member has no free armour of its kind, the members get the free robes (m1C90, kinds 1/3/5) or
+// armours (m1C9C) of the inventory, and the others get the preferred free pieces
+void CosEditProtector::fn_801D94D0() {
+    if (m1BC8 < 0) {
+        m1C0C.clear();
+        m1C30.clear();
+        m1C54.clear();
+        int count = ((NewCampTask*)m48)->m1224.size();
+        for (int i = 0; i < count; i++) {
+            NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[i];
+            Inventory::Equip_unk* equip = &Inventory::Order()->mEquip[pair->mId];
+            for (int slot = 0; slot < 2; slot++) {
+                if (slot == 1 && pair->mId != 3) {
+                    continue;
+                }
+                if (fn_801D5420(pair->mId, slot)) {
+                    int id = fn_80206BE4(fn_801CFA5C(pair->mId, slot));
+                    if (id > 0) {
+                        Inventory::Order()->AddItem(id, 1, 1, 0, 0, 0, 0);
+                        equip->mWeapons[slot].mId = -1;
+                    }
+                }
+            }
+            for (int slot = 0; slot < 2; slot++) {
+                int id = fn_8020EF80(fn_801CFAA8(pair->mId, slot));
+                if (id > 0) {
+                    Inventory::Order()->AddItem(id, 1, 1, 0, 0, 0, 0);
+                    equip->mProtectors[slot].mId = -1;
+                    if (slot == 0) {
+                        equip->mProtectors[2].mId = -1;
+                    } else if (slot == 1) {
+                        equip->mProtectors[3].mId = -1;
+                    }
+                }
+            }
+        }
+        m1BC8 = fn_801CF334()->mFace;
+        for (int i = 0; i < count; i++) {
+            NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[i];
+            if (pair != 0) {
+                if (pair->mId == m1BC8) {
+                    PushFront_unk(m1C0C, pair);
+                } else {
+                    m1C0C.push_back(pair);
+                }
+            }
+        }
+        return;
+    }
+    if (m1C0C.size() == 0) {
+        for (unsigned int i = 0; i < m1C30.size(); i++) {
+            NewCampPair_unk* pair = m1C30[i];
+            int member = pair->mId;
+            CharaTask* chara = (CharaTask*)pair->m04;
+            if (fn_801D5420(member, 0)) {
+                fn_801DCF60(member, chara, 0, 0);
+            }
+            if (member == 3) {
+                fn_801DCF60(member, chara, 1, 0);
+            }
+            if (pair->mId == m1BC8) {
+                PushFront_unk(m1C54, pair);
+            } else {
+                m1C54.push_back(pair);
+            }
+        }
+        m1C54.clear();
+        m1C30.clear();
+        vf34(0);
+        return;
+    }
+    if (m1BCC == 0) {
+        m1C78.clear();
+        m1C84.clear();
+        m1C90.clear();
+        m1C9C.clear();
+        for (int k = 0; k < fn_802114D8(); k++) {
+            CosEditListParam_unk* param = fn_802114E0(k);
+            if (param == 0 || !fn_8020EF04(param->mId)) {
+                continue;
+            }
+            EquipParamEntry_unk* entry = fn_8020EFEC(param->mId);
+            if (entry == 0) {
+                continue;
+            }
+            int num = fn_804444E8(Inventory::Order(), param->mId);
+            if (num <= 0) {
+                continue;
+            }
+            std::vector<CosEditItem_unk>* list = 0;
+            if (entry->mKind == 0) {
+                if (fn_8020EF4C(entry)) {
+                    if (entry->mA8 == 8) {
+                        list = &m1C9C;
+                    } else {
+                        list = &m1C90;
+                    }
+                } else {
+                    list = &m1C78;
+                }
+            } else if (entry->mKind == 1) {
+                list = &m1C84;
+            }
+            if (list == 0) {
+                continue;
+            }
+            for (int j = 0; j < num; j++) {
+                CosEditItem_unk item;
+                item.mItem = entry;
+                item.mId = entry->mKind;
+                item.mIndex = entry->mId;
+                item.mOwner = -1;
+                item.mEnabled = 1;
+                item.m14 = param->mId;
+                list->push_back(item);
+            }
+        }
+        if (m1C78.size() >= m1C0C.size() && m1C84.size() >= m1C0C.size()) {
+            m1BCC = 1;
+        } else {
+            int armours = 0;
+            int robes = 0;
+            for (int i = m1C0C.size() - 1; i >= 0; i--) {
+                int id = m1C0C[i]->mId;
+                if (id == 1 || id == 3 || id == 5) {
+                    robes++;
+                } else {
+                    armours++;
+                }
+            }
+            NewCampPair_unk* found = 0;
+            int pick = -1;
+            int selected = -1;
+            for (unsigned int i = 0; i < m1C0C.size(); i++) {
+                if (m1BC8 == m1C0C[i]->mId) {
+                    selected = i;
+                    break;
+                }
+            }
+            CosEditItem_unk* best = 0;
+            if (m1C90.size() != 0) {
+                SortList_unk(m1C90, CosEditArmourLess_unk());
+                best = m1C90.begin();
+                for (int i = m1C0C.size() - 1; i >= 0; i--) {
+                    int id = m1C0C[i]->mId;
+                    if (id == 1 || id == 3 || id == 5) {
+                        if (m1BC8 != id || robes < 2) {
+                            pick = i;
+                            break;
+                        }
+                    }
+                }
+                if (pick >= 0 && selected >= 0 && pick != selected &&
+                    (m1BC8 == 1 || m1BC8 == 3 || m1BC8 == 5)) {
+                    fn_801DD26C(m1BC8);
+                    CosEditItem_unk* cur = fn_801DCE88(m1BC8, 0, 0);
+                    if (cur != 0 && cur->mIndex == best->mIndex) {
+                        pick = selected;
+                    }
+                }
+                if (pick >= 0 && pick < (int)m1C0C.size()) {
+                    NewCampPair_unk** it = m1C0C.begin() + pick;
+                    found = *it;
+                    m1C0C.erase(it);
+                }
+            }
+            if (found == 0 && m1C9C.size() != 0) {
+                SortList_unk(m1C9C, CosEditArmourLess_unk());
+                best = m1C9C.begin();
+                for (int i = m1C0C.size() - 1; i >= 0; i--) {
+                    int id = m1C0C[i]->mId;
+                    if (id == 0 || id == 2 || id == 4 || id == 6) {
+                        if (m1BC8 != id || armours < 2) {
+                            pick = i;
+                            break;
+                        }
+                    }
+                }
+                if (pick >= 0 && selected >= 0 && pick != selected &&
+                    (m1BC8 == 0 || m1BC8 == 2 || m1BC8 == 4 || m1BC8 == 6)) {
+                    fn_801DD26C(m1BC8);
+                    CosEditItem_unk* cur = fn_801DCE88(m1BC8, 0, 0);
+                    if (cur != 0 && cur->mIndex == best->mIndex) {
+                        pick = selected;
+                    }
+                }
+                if (pick >= 0 && pick < (int)m1C0C.size()) {
+                    NewCampPair_unk** it = m1C0C.begin() + pick;
+                    found = *it;
+                    m1C0C.erase(it);
+                }
+            }
+            if (found != 0) {
+                int member = found->mId;
+                if (member == m1BC8) {
+                    CharaTask* chara = (CharaTask*)found->m04;
+                    if (fn_801D5420(member, 0)) {
+                        fn_801DCF60(member, chara, 0, 0);
+                    }
+                    if (member == 3) {
+                        fn_801DCF60(member, chara, 1, 0);
+                    }
+                    m1C54.push_back(found);
+                } else {
+                    m1C30.push_back(found);
+                }
+                fn_801DC42C(found->mId, (CharaTask*)found->m04, best, 0, 1);
+            }
+            return;
+        }
+    }
+    NewCampPair_unk* pair = m1C0C[0];
+    fn_801DD26C(pair->mId);
+    int member = pair->mId;
+    CharaTask* chara = (CharaTask*)pair->m04;
+    if (fn_801D5420(member, 0)) {
+        fn_801DCF60(member, chara, 0, 0);
+    }
+    if (member == 3) {
+        fn_801DCF60(member, chara, 1, 0);
+    }
+    fn_801DC42C(member, chara, fn_801DCE88(member, 0, 0), 0, 1);
+    if (!fn_8020EF4C(fn_8020ED84(0, Inventory::Order()->mEquip[member].mProtectors[0].mId))) {
+        fn_801DC42C(member, chara, fn_801DCE88(member, 1, 0), 0, 1);
+    }
+    m1C54.push_back(pair);
+    m1C0C.erase(m1C0C.begin());
+}
+
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
 // inferred: equipment entry (only the kind is read here)
@@ -921,41 +1198,6 @@ CosEditItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, int slot
         }
     }
     return 0;
-}
-
-// inferred: entry of the item table (db/ItemParam_unk; only the item code is read)
-struct CosEditListParam_unk {
-    unsigned char m00[0x04];
-    int mId; // 0x04
-};
-extern "C" int fn_802114D8();                          // inferred: number of entries of the item table
-extern "C" CosEditListParam_unk* fn_802114E0(int index); // inferred: entry by index
-extern "C" bool fn_8020F0AC(EquipParamEntry_unk* entry, int member); // inferred: whether the member can wear it
-extern "C" int fn_804444E8(Inventory* inv, int id);                   // inferred: number of items
-// inferred: predicates of the three std::sort of the lists (by kind; for the members who wear armour; for the
-// others)
-struct CosEditKindLess_unk {};
-struct CosEditArmourLess_unk {};
-struct CosEditRobeLess_unk {};
-// inferred: the std::sort instantiations of this unit (their template internals are not reconstructed)
-extern "C" void fn_801DF3D4(CosEditItem_unk** first, CosEditItem_unk** last, CosEditKindLess_unk* comp);
-extern "C" void fn_801DA308(CosEditItem_unk** first, CosEditItem_unk** last, CosEditArmourLess_unk* comp);
-extern "C" void fn_801DD7B0(CosEditItem_unk** first, CosEditItem_unk** last, CosEditRobeLess_unk* comp);
-// inferred: std::sort(list.begin(), list.end(), Pred()) (the arguments are evaluated from the last one)
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditKindLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801DF3D4(&first, &last, &comp);
-}
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditArmourLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801DA308(&first, &last, &comp);
-}
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditRobeLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801DD7B0(&first, &last, &comp);
 }
 
 // inferred: builds the lists of the two protector slots for the member: the pieces worn by the party
