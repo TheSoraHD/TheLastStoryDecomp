@@ -305,6 +305,28 @@ int D2AMpMenuLobby::fn_804BE330(int count) {
     return decide;
 }
 
+// inferred: before the countdown, waits for the base animation to go back to its first frame and enters the
+// next state; then shows the seconds left on the map (30 - mDCC), fading out at 15 and beeping from 29
+void D2AMpMenuLobby::fn_804C0430() {
+    if (mDA4 == 0) {
+        if (m4C->mFrame <= 0.0f) {
+            int next = mD90;
+            mD90 = mD8C;
+            fn_804BC628(next);
+        }
+    } else if (mDCC < 30) {
+        SetPaneFloat_unk(m70->mLayout, "zoomFrame", (float)(30 - mDCC));
+        if (mDCC < 29) {
+            if (mDCC == 15) {
+                m7C->mWait = 5;
+                m7C->mActive = 1;
+            }
+        } else {
+            fn_80117228(8);
+        }
+    }
+}
+
 void D2AMpMenuLobby::fn_804C0548() {
     void* pad = lbl_8087EF70;
     MpLobbyPlayerInfo_unk* player = fn_804EB870(lbl_8087F610);
