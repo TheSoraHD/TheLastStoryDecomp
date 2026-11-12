@@ -175,7 +175,9 @@ public:
     void fn_8038DF5C(const CharaTask* chara);
 
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
-    unsigned char m3E8[0x46C - 0x3E8];
+    unsigned char m3E8[0x424 - 0x3E8];
+    GameCameraTimer_unk m424; // inferred: blend of the event camera (fn_8038CD94)
+    unsigned char m430[0x46C - 0x430];
     GameCameraModeParam_unk m46C;
     GameCameraTimer_unk m4B4; // inferred: blend from m684 to m4C0
     GameCameraParam_unk m4C0;
@@ -204,7 +206,14 @@ public:
     unsigned char m740[0x744 - 0x740];
     atn::Vector3 m744;   // inferred: position of the box camera mode
     float m750;          // inferred: height of its target above the character
-    unsigned char m754[0x7B4 - 0x754];
+    unsigned char m754[0x774 - 0x754];
+    float m774;          // inferred: look distance of the event camera (fn_8038CD94)
+    float m778;          // inferred: its fovy
+    float m77C;          // inferred: its pitch
+    atn::Vector3 m780;   // inferred: its offset from the head of the character
+    unsigned char m78C[0x79C - 0x78C];
+    float m79C;          // inferred: its yaw in degrees
+    unsigned char m7A0[0x7B4 - 0x7A0];
     float m7B4;          // inferred: fovy of the low side mode (fn_8038C5B0)
     unsigned char m7B8[0x7F0 - 0x7B8];
     int m7F0; // inferred: debug display of the camera (fn_8039328C)

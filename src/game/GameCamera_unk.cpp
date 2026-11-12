@@ -623,6 +623,55 @@ void GameCamera::fn_8038C5B0(const CharaTask* chara) {
     m834 = 0;
 }
 
+extern "C" double cos(double x);
+
+// inferred: event camera at m780 from the head of the character (turned by m79C degrees, facing it), looking
+// m774 away with the pitch m77C and the fovy m778; blended with an eased curve while the timer m424 runs
+// NONMATCHING: 91.5% - scheduling of the front vector and of the blends; fn_8008B964 (see fn_80388A88)
+void GameCamera::fn_8038CD94(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+    }
+    float yaw = 0.017453292f * m79C;
+    atn::Vector3 offset(m780.x, m780.y, m780.z);
+    Mtx m;
+    PSMTXRotRad(m, 'y', 3.1415927f + yaw);
+    PSMTXMultVec(m, &offset, &offset);
+    atn::Vector3 head = const_cast<CharaTask*>(chara)->fn_80178088();
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Vector3 pos = head + offset;
+    Mtx m2;
+    PSMTXRotRad(m2, 'x', -m77C);
+    PSMTXMultVec(m2, &front, &front);
+    Mtx m3;
+    PSMTXRotRad(m3, 'y', 3.1415927f + yaw);
+    PSMTXMultVec(m3, &front, &front);
+    atn::Vector3 target = pos + front * m774;
+    float t = 1.0f;
+    if (m424.fn_803829C0()) {
+        m424.fn_803829D4();
+        t = (1.0f - (float)cos(3.1415927f * (1.0f - m424.mTime))) * 0.5f;
+        if (m424.mTime < m424.mStep) {
+            m424.mActive = 0;
+        }
+    }
+    SetPosition((pos - m80C) * t + m80C);
+    SetTarget_unk((target - m818) * t + m818);
+    mFovy = t * (m778 - m830) + m830;
+    fn_8004B378();
+    fn_80392964(0, 1, 1, 1);
+    m808++;
+    if (t >= 1.0f) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
 // inferred: blends in 30 frames from the saved camera to the camera of fn_80389060 (eye 35 up and 20 behind
 // the character, looking 10 in front of it); then back to the sub mode with m83C = 6
 // NONMATCHING: 87.8% - scheduling of the two blends (the angle of the rotation is loaded before the matrix)
@@ -943,7 +992,6 @@ void GameCamera::fn_803920C8() {
     m1F4.mTarget = target;
 }
 
-extern "C" double cos(double x);
 
 // NONMATCHING: 95.9% - stack slots of the vector temporaries and the copy of the target through a
 // register-held temporary
