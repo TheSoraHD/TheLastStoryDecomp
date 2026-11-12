@@ -748,7 +748,7 @@ void ItemSlotAnime::fn_8044F96C() {
 } // namespace gmk
 
 extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
-extern "C" void fn_804515A8(gmk::ItemSlotAnime* anime, wchar_t* text);     // inferred: text of the current step
+extern "C" int fn_804515A8(gmk::ItemSlotAnime* anime, wchar_t* text);      // inferred: text of the current step
 
 namespace gmk {
 
@@ -914,15 +914,329 @@ rejected:
     return 0;
 }
 
-extern "C" void* lbl_8087F4FC; // inferred: instance of gmk::ItemSlotTextCache
+// inferred: an item that a treasure table can give (0xC bytes, filled by fn_80445F44; names invented)
+struct ItemSlotDraw_unk {
+    ItemSlotDraw_unk() : mId(0), m04(1), m06(10), m08(0) {}
+    int mId;
+    short m04;
+    short m06; // inferred: weight of the item in the draw
+    int m08;
+};
+typedef atn::FixedArray_unk<ItemSlotDraw_unk, 384> ItemSlotList_unk;
+// inferred: items of the treasure table `mTable` for the item kind `mKind` (0x120C bytes)
+struct ItemSlotRecord_unk {
+    int mTable;
+    int mKind;
+    ItemSlotList_unk mList;
+};
+// inferred: treasure tables of the item boxes (db/TreasureBoxTable_unk.cpp)
+struct ItemSlotBoxItem_unk {
+    int mId;
+    int mNum;
+    float mRate;
+};
+struct ItemSlotBox_unk {
+    int mId;
+    ItemSlotBoxItem_unk* mItems;
+    unsigned int mCount;
+};
+extern "C" ItemSlotBox_unk* fn_8021E444(int id); // inferred: treasure box of an id
+extern "C" int fn_8040B394(int item);              // inferred: kind of an item (gmk/DropItem.cpp)
+// inferred: items of a treasure entry (nonzero when there are some)
+extern "C" int fn_80445F44(Inventory* inv, ItemSlotList_unk* out, int id, int num, int arg);
 
 namespace gmk {
 
-// inferred: cache of the texts of the item animations (vtable 0x8078F348, instance lbl_8087F4FC)
+// inferred: cache of the items of the treasure tables (vtable 0x8078F348, instance lbl_8087F4FC):
+// twelve records reused in turn, cleared when the map changes
 class ItemSlotTextCache : public atn::Task {
 public:
     virtual ~ItemSlotTextCache();
+
+    ItemSlotRecord_unk mRecords[12]; // 0x48
+    int mNext;                       // 0xD8D8: inferred: next record to reuse
+    int mMapType;                    // 0xD8DC
+    int mMapId;
+    int mMapSubId;
 };
+
+} // namespace gmk
+
+extern "C" gmk::ItemSlotTextCache* lbl_8087F4FC; // inferred: instance of gmk::ItemSlotTextCache
+
+// inferred: the treasure table `table` gives more than one item (for the kind of `item` when it is
+// positive); the list is kept in the cache
+// NONMATCHING: 97.3% - register allocation of the record pointers and the early return of a missing box
+extern "C" int fn_80450B84(int table, int item, int arg) {
+    if (lbl_8087F610 != 0) {
+        return 0;
+    }
+    ItemSlotBox_unk* box = fn_8021E444(table);
+    if (box != 0) {
+        ItemSlotList_unk list;
+        gmk::ItemSlotTextCache* cache = lbl_8087F4FC;
+        if (cache != 0) {
+            if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+                MapTask* map = lbl_8087F430->GetCurrentMap();
+                if (cache->mMapType != map->mType || cache->mMapId != map->mId || cache->mMapSubId != map->mSubId) {
+                    cache->mMapType = map->mType;
+                    cache->mMapId = map->mId;
+                    cache->mMapSubId = map->mSubId;
+                    for (int i = 0; i < 12; i++) {
+                        cache->mRecords[i].mTable = 0;
+                        cache->mRecords[i].mKind = 0;
+                        cache->mRecords[i].mList.clear();
+                    }
+                }
+            }
+            int index = -1;
+            int kind;
+            if (item > 0) {
+                kind = fn_8040B394(item);
+            } else {
+                kind = -1;
+            }
+            for (int i = 0; i < 12; i++) {
+                if (cache->mRecords[i].mTable == table && cache->mRecords[i].mKind == kind) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index < 0) {
+                index = cache->mNext;
+                cache->mNext = (index + 1) % 12;
+                ItemSlotRecord_unk* rec = &cache->mRecords[index];
+                rec->mTable = table;
+                rec->mKind = kind;
+                ItemSlotBox_unk* entries = fn_8021E444(table);
+                for (unsigned int j = 0; j < entries->mCount; j++) {
+                    ItemSlotBoxItem_unk* entry = &entries->mItems[j];
+                    if (entry->mRate > 0.0f && entry->mId > 0) {
+                        ItemSlotList_unk items;
+                        if (fn_80445F44(Inventory::instance_, &items, entry->mId, entry->mNum, arg)) {
+                            for (unsigned int k = 0; k < items.size(); k++) {
+                                if (rec->mList.size() < 384) {
+                                    rec->mList.push_back(items.mData[k]);
+                                    (rec->mList.end() - 1)->m06 =
+                                        MAX(entry->mRate / (float)items.size(), 1.0f);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (item > 0) {
+                    for (ItemSlotDraw_unk* p = rec->mList.begin(); p != rec->mList.end();) {
+                        if (kind != fn_8040B394(p->mId)) {
+                            rec->mList.erase(p);
+                        } else {
+                            p++;
+                        }
+                    }
+                }
+            }
+            if (index >= 0) {
+                ItemSlotList_unk& src = cache->mRecords[index].mList;
+                list.clear();
+                for (unsigned int k = 0; k < src.size(); k++) {
+                    if (list.size() < 384) {
+                        list.push_back(src.mData[k]);
+                    }
+                }
+            }
+        } else {
+            for (unsigned int j = 0; j < box->mCount; j++) {
+                ItemSlotBoxItem_unk* entry = &box->mItems[j];
+                if (entry->mRate > 0.0f && entry->mId > 0) {
+                    ItemSlotList_unk items;
+                    if (fn_80445F44(Inventory::instance_, &items, entry->mId, entry->mNum, arg)) {
+                        for (unsigned int k = 0; k < items.size(); k++) {
+                            list.push_back(items.mData[k]);
+                        }
+                    }
+                }
+            }
+        }
+        if (list.size() > 1) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+extern "C" int fn_80206B68();                 // inferred: number of weapons
+extern "C" void* fn_80206B70(int index);      // inferred: weapon by index
+extern "C" int fn_80206BE4(void* weapon);     // inferred: item id of a weapon
+extern "C" int fn_8020EF04(int id);           // inferred: the item is an equipment (db/EquipParam_unk)
+extern "C" int fn_8020EE58();                 // inferred: number of equipments
+// inferred: equipment entry (only the kind and the part are used here)
+struct ItemSlotEquip_unk {
+    unsigned char m00[0x78];
+    int mKind; // 0x78: 2 and 3: parts of a costume
+    int mPart; // 0x7C
+};
+extern "C" ItemSlotEquip_unk* fn_8020EE60(int index);        // inferred: equipment by index
+extern "C" ItemSlotEquip_unk* fn_8020ED84(int slot, int part); // inferred: equipment of a costume part
+extern "C" int fn_8020EF80(ItemSlotEquip_unk* entry);         // inferred: item id of an equipment
+// inferred: item data (only the id is used here)
+struct ItemSlotData_unk {
+    int m00;
+    int mId;
+};
+extern "C" int fn_802114D8();                     // inferred: number of items
+extern "C" ItemSlotData_unk* fn_802114E0(int index); // inferred: item by index
+extern "C" int rand();
+
+// inferred: writes in `text` the name of the item drawn for the current step: from the treasure
+// table m28 (weighted by the rates, through the cache), else a random weapon, equipment or item of
+// the same kind as m20; 0 when there is no item
+// NONMATCHING: 97.4% - register allocation (same code as fn_80450B84 for the list of the table)
+extern "C" int fn_804515A8(gmk::ItemSlotAnime* anime, wchar_t* text) {
+    if (anime->m20 == 0 || text == 0) {
+        return 0;
+    }
+    if (anime->m28 > 0) {
+        ItemSlotBox_unk* box = fn_8021E444(anime->m28);
+        if (box != 0) {
+            ItemSlotList_unk list;
+            gmk::ItemSlotTextCache* cache = lbl_8087F4FC;
+            if (cache != 0) {
+                bool arg = !anime->mFlag24;
+                int item;
+                if (anime->mFlag24) {
+                    item = anime->m20->mId;
+                } else {
+                    item = 0;
+                }
+                int table = anime->m28;
+                if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+                    MapTask* map = lbl_8087F430->GetCurrentMap();
+                    if (cache->mMapType != map->mType || cache->mMapId != map->mId ||
+                        cache->mMapSubId != map->mSubId) {
+                        cache->mMapType = map->mType;
+                        cache->mMapId = map->mId;
+                        cache->mMapSubId = map->mSubId;
+                        for (int i = 0; i < 12; i++) {
+                            cache->mRecords[i].mTable = 0;
+                            cache->mRecords[i].mKind = 0;
+                            cache->mRecords[i].mList.clear();
+                        }
+                    }
+                }
+                int index = -1;
+                int kind;
+                if (item > 0) {
+                    kind = fn_8040B394(item);
+                } else {
+                    kind = -1;
+                }
+                for (int i = 0; i < 12; i++) {
+                    if (cache->mRecords[i].mTable == table && cache->mRecords[i].mKind == kind) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index < 0) {
+                    index = cache->mNext;
+                    cache->mNext = (index + 1) % 12;
+                    ItemSlotRecord_unk* rec = &cache->mRecords[index];
+                    rec->mTable = table;
+                    rec->mKind = kind;
+                    ItemSlotBox_unk* entries = fn_8021E444(table);
+                    for (unsigned int j = 0; j < entries->mCount; j++) {
+                        ItemSlotBoxItem_unk* entry = &entries->mItems[j];
+                        if (entry->mRate > 0.0f && entry->mId > 0) {
+                            ItemSlotList_unk items;
+                            if (fn_80445F44(Inventory::instance_, &items, entry->mId, entry->mNum, arg)) {
+                                for (unsigned int k = 0; k < items.size(); k++) {
+                                    if (rec->mList.size() < 384) {
+                                        rec->mList.push_back(items.mData[k]);
+                                        (rec->mList.end() - 1)->m06 =
+                                            MAX(entry->mRate / (float)items.size(), 1.0f);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (item > 0) {
+                        for (ItemSlotDraw_unk* p = rec->mList.begin(); p != rec->mList.end();) {
+                            if (kind != fn_8040B394(p->mId)) {
+                                rec->mList.erase(p);
+                            } else {
+                                p++;
+                            }
+                        }
+                    }
+                }
+                if (index >= 0) {
+                    ItemSlotList_unk& src = cache->mRecords[index].mList;
+                    list.clear();
+                    for (unsigned int k = 0; k < src.size(); k++) {
+                        if (list.size() < 384) {
+                            list.push_back(src.mData[k]);
+                        }
+                    }
+                }
+            } else {
+                for (unsigned int j = 0; j < box->mCount; j++) {
+                    ItemSlotBoxItem_unk* entry = &box->mItems[j];
+                    if (entry->mRate > 0.0f && entry->mId > 0) {
+                        ItemSlotList_unk items;
+                        if (fn_80445F44(Inventory::instance_, &items, entry->mId, entry->mNum, 0)) {
+                            for (unsigned int k = 0; k < items.size(); k++) {
+                                list.push_back(items.mData[k]);
+                                (list.end() - 1)->m06 = MAX(entry->mRate / (float)items.size(), 1.0f);
+                            }
+                        }
+                    }
+                }
+            }
+            if (list.size() != 0) {
+                int total = 0;
+                for (unsigned int k = 0; k < list.size(); k++) {
+                    total += list.mData[k].m06;
+                }
+                int r = rand() % total;
+                for (ItemSlotDraw_unk* p = list.begin(); p != list.end(); p++) {
+                    if (r < p->m06) {
+                        fn_80444CF8(text, p->mId, p->m04, anime->mFlag30);
+                        break;
+                    }
+                    r -= p->m06;
+                }
+            } else {
+                int saved = anime->m28;
+                anime->m28 = 0;
+                fn_804515A8(anime, text);
+                anime->m28 = saved;
+            }
+        }
+    } else if (fn_80206B9C(anime->m20->mId)) {
+        void* weapon = fn_80206B70(rand() % fn_80206B68());
+        if (!anime->mFlag30) {
+            rand();
+        }
+        fn_80444CF8(text, fn_80206BE4(weapon), 1, anime->mFlag30);
+    } else if (fn_8020EF04(anime->m20->mId)) {
+        ItemSlotEquip_unk* entry = fn_8020EE60(rand() % fn_8020EE58());
+        if (entry->mKind == 2) {
+            entry = fn_8020ED84(0, entry->mPart);
+        } else if (entry->mKind == 3) {
+            entry = fn_8020ED84(1, entry->mPart);
+        }
+        fn_80444CF8(text, fn_8020EF80(entry), 1, 1);
+    } else if (anime->m20->mId == 10004) {
+        int count = MAX(anime->m24 * (rand() % 5 - 2), 1);
+        fn_80444CF8(text, anime->m20->mId, rand() % count, 1);
+    } else if (anime->m20->mId == 10009) {
+        fn_80444CF8(text, anime->m20->mId, anime->m24, 1);
+    } else {
+        ItemSlotData_unk* data = fn_802114E0(rand() % fn_802114D8());
+        fn_80444CF8(text, data->mId, rand() % (anime->m24 * 5), 1);
+    }
+    return 1;
+}
+
+namespace gmk {
 
 ItemSlotTextCache::~ItemSlotTextCache() {
     lbl_8087F4FC = 0;
