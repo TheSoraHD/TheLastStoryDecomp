@@ -17,6 +17,7 @@
 #include "atn/Csv.h"
 #include "atn/FadeCommon.h"
 #include "game/PlayerManager.h"
+#include "macros.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -946,6 +947,90 @@ int NewCampPartsMapSelect::fn_80521010() {
         ret = 0;
     }
     return ret;
+}
+
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+
+// inferred: position of the model of a point (relative to m4800)
+inline atn::Vector3 GetPointPos_unk(MapSelectPoint_unk* point, const atn::Vector3& origin) {
+    return GetModel_unk(point->m18->mModel)->mMtx.GetTrans_unk() - origin;
+}
+
+// inferred: moves the cursor of the map with the stick: it snaps to the nearest point of an open route of the
+// area within m481C (slower over the point already selected), then it is kept inside the area (the main
+// map from chapter 400000 on is larger)
+// NONMATCHING: 91.7% - the loop over the points keeps the index (lwzu), scheduling of the position temporaries
+void NewCampPartsMapSelect::fn_805212BC() {
+    atn::Vector3 move;
+    move.x = fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+    move.y = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    move.z = 0.0f;
+    if ((float)__fabs(move.x) < 0.3f) {
+        move.x = 0.0f;
+    }
+    if ((float)__fabs(move.y) < 0.3f) {
+        move.y = 0.0f;
+    }
+    MapSelectPoint_unk* cur = FindPoint_unk(m19A4);
+    m19A4 = -1;
+    float best = 1e16f;
+    MapSelectPoint_unk* found = 0;
+    for (int i = 0; i < m4C; i++) {
+        MapSelectPoint_unk* point = &mPoints.mData[i];
+        if (FindRoute_unk(point->m00) != 0 && m19A8 == point->m10) {
+            atn::Vector3 pos = GetPointPos_unk(point, m4800);
+            atn::Vector3 diff = m480C - pos;
+            float dist = diff.x * diff.x + diff.y * diff.y;
+            if (!(dist >= m481C * m481C) && dist < best) {
+                best = dist;
+                m19A4 = point->m00;
+                found = point;
+            }
+        }
+    }
+    if (found != 0 && found != cur) {
+        fn_80117228(3);
+    }
+    if (found != 0) {
+        atn::Vector3 pos = GetPointPos_unk(found, m4800);
+        atn::Vector3 dir;
+        dir = pos - m480C;
+        float len = dir.x * dir.x + dir.y * dir.y;
+        if (len > 0.1f) {
+            if (len > 3.0f * m4818) {
+                len = 3.0f * m4818;
+            }
+            PSVECNormalize(&dir, &dir);
+            dir *= len;
+            if (cur == found) {
+                dir *= m4820 * m4824;
+            } else {
+                dir *= m4820;
+            }
+            move += dir;
+        }
+    }
+    m480C += move * m4818;
+    if (m19A8 == 2) {
+        m480C.x = MAX(-150.0f, MIN(0.0f, m480C.x));
+        m480C.y = MAX(-60.0f, MIN(50.0f, m480C.y));
+    } else {
+        atn::Vector3 lo(0.0f, 0.0f, 0.0f);
+        atn::Vector3 hi(0.0f, 0.0f, 0.0f);
+        if (m19A8 == 0) {
+            if (lbl_8087F430->m10D0 >= 400000) {
+                lo += atn::Vector3(0.0f, 60.0f, 0.0f);
+                lo += atn::Vector3(-20.0f, -30.0f, 0.0f);
+                hi += atn::Vector3(0.0f, 60.0f, 0.0f);
+                hi += atn::Vector3(50.0f, 5.0f, 0.0f);
+            }
+        } else {
+            lo += atn::Vector3(0.0f, -15.0f, 0.0f);
+            hi += atn::Vector3(0.0f, 0.0f, 0.0f);
+        }
+        m480C.x = MAX(m48AC + lo.x, MIN(m48B4 + hi.x, m480C.x));
+        m480C.y = MAX(m48B0 + lo.y, MIN(m48B8 + hi.y, m480C.y));
+    }
 }
 
 // NONMATCHING: float registers of the negated offset
