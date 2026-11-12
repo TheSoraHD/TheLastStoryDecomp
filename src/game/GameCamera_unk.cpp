@@ -12,6 +12,7 @@
 #include "game/GameTask.h"
 #include "game/MapTask.h"
 #include "gmk/Lemon.h"
+#include "chr/CharaEquip_unk.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -587,6 +588,76 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
     SetTarget_unk(look);
     mFovy = angle;
     fn_8004B378();
+}
+
+// inferred: camera behind the hips of the character (offset m874, zoomed by mC1C while the global flag 0x6A
+// says so), blended in 5 frames through fn_8038AEF0; with mFlag14 clear it uses the fixed m884/m890
+// NONMATCHING: 93.7% - copies of m884/m890 and stack slots of the offsets; fn_8008B964 (see fn_80388A88)
+void GameCamera::fn_8038B148(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+        float x = -m5DC;
+        if (chara->mC48 == 2 || (chara->mC48 == 3 && chara->mFlag29)) {
+            x = -x - 0.5f;
+        }
+        m874.x = x;
+        m874.y = m5E0;
+        m874.z = 0.0f;
+        int id = chara->m50;
+        if ((unsigned int)(id - 700013) <= 7 || (unsigned int)(id - 700022) <= 1) {
+            m874.x = m874.x > 0.0f ? 6.5f : -6.5f;
+        } else if (chara->m680[0] != 0 && chara->m680[0]->m004 % 1000 / 10 == 8) {
+            m874.x = x > 0.0f ? 6.5f : -6.5f;
+        }
+    }
+    float fovy = m5D4;
+    atn::Vector3 pos;
+    atn::Vector3 target;
+    if (!chara->mFlag14) {
+        pos = m884;
+        target = m890;
+    } else {
+        float ox = m874.x;
+        float oy = m874.y;
+        const atn::Model* model = &chara->mMotion;
+        const atn::Matrix3x4* node =
+            (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
+        atn::Vector3 hips = node->GetTrans_unk();
+        atn::Vector3 offset(ox, oy, m5E4);
+        float speed = -2.0f;
+        if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x6A)) {
+            speed = 2.0f;
+        }
+        mC1C += speed;
+        mC1C = MIN(MAX(0.0f, mC1C), 10.0f);
+        offset.z += mC1C;
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &offset, &offset);
+        pos = offset + hips;
+        offset = atn::Vector3(ox, oy, m5D0);
+        PSMTXMultVec(m, &offset, &offset);
+        target = offset + hips;
+        target.y += m5E8;
+    }
+    fn_8038AEF0(&pos, &target, chara, 0, fovy, (float)m808 / 5.0f);
+    fn_80392964(1, 1, 0, 0);
+    if (++m808 > 5) {
+        m80C = pos;
+        m818 = target;
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+        const atn::Model* model = &chara->mMotion;
+        const atn::Matrix3x4* node =
+            (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
+        m9F8 = node->GetTrans_unk();
+    }
+    m834 = 0;
+    m860 = 0;
 }
 
 // inferred: side camera mode: from beside the character (m654 to the side, m658 up, m65C behind its target

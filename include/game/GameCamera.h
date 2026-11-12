@@ -190,7 +190,15 @@ public:
     float m55C;            // inferred: fovy of the head mode
     unsigned char m560[0x568 - 0x560];
     float m568;            // inferred: height of the eye of the head mode
-    unsigned char m56C[0x648 - 0x56C];
+    unsigned char m56C[0x5D0 - 0x56C];
+    float m5D0;            // inferred: look distance of the hips mode (fn_8038B148)
+    float m5D4;            // inferred: its fovy
+    unsigned char m5D8[0x5DC - 0x5D8];
+    float m5DC;            // inferred: side offset of its eye
+    float m5E0;            // inferred: height of its eye
+    float m5E4;            // inferred: distance of its eye
+    float m5E8;            // inferred: height of its target
+    unsigned char m5EC[0x648 - 0x5EC];
     int m648;              // inferred: state of the collision of the side mode (fn_8038E540)
     float m64C;            // inferred: fovy of the side mode
     unsigned char m650[0x654 - 0x650];
@@ -237,9 +245,9 @@ public:
     int m860;
     unsigned char m864[0x868 - 0x864];
     atn::Vector3 m868; // inferred: target of the tactical view camera (fn_80387910)
-    unsigned char m874[0x880 - 0x874];
+    atn::Vector3 m874;   // inferred: offset of the eye of the hips mode
     int m880;
-    unsigned char m884[0x890 - 0x884];
+    atn::Vector3 m884;   // inferred: eye of the hips mode when the character does not move (mFlag14)
     atn::Vector3 m890;   // inferred: target of the character (CharaTask::mF6C) saved by fn_8038C5B0
     int m89C;            // inferred: frames the eye has been hitting a wall (0-8, fn_8038E540)
     float m8A0; // inferred: yaw of the tactical view camera
@@ -267,12 +275,14 @@ public:
     atn::Vector3 m93C; // inferred: offset of the position of the render camera (fn_803928C0)
     atn::Vector3 m948; // inferred: offset of the target
     float m954;        // inferred: offset of the fovy
-    unsigned char m958[0xA0C - 0x958];
+    unsigned char m958[0x9F8 - 0x958];
+    atn::Vector3 m9F8;   // inferred: hips of the character when the hips mode ends
+    unsigned char mA04[0xA0C - 0xA04];
     float mA0C[5];
     atn::Camera mA20;      // inferred: camera the render camera is blended from (fn_80392FE8, fn_80392D2C)
     float mC14;            // inferred: blend weight, decreased by mC18 every frame
     float mC18;
-    unsigned char mC1C[0xC20 - 0xC1C];
+    float mC1C;            // inferred: zoom of the hips mode (0-10)
     gs::CameraBox* mC20;   // 0xC20: inferred: camera box (MapTask::fn_804A04AC)
     DofParam_unk mC24;     // inferred: depth of field saved while the camera box sets its own (fn_80389884)
     DofParam_unk mC54;     // inferred: depth of field of the camera box
