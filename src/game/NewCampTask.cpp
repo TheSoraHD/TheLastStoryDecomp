@@ -55,11 +55,12 @@ extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 extern "C" GameConfig_unk* lbl_8087F0A8;
 
-// inferred: 0x64-byte record of the camp (list lbl_807C912C, read by vf0C): colours of a debug menu folder;
+// inferred: 0x64-byte record of camp_font_conf.csv (list lbl_807C912C, read by vf0C): colours of a font;
 // names invented
 struct NewCampElem_unk {
     int m00;
-    char mName[0x24];   // 0x04: inferred: name of the debug menu folder
+    char mName[0x20];   // 0x04: inferred: name of the debug menu folder
+    int m24;
     int mBase[3];       // 0x28: R, G, B
     int mBaseShadow[4]; // 0x34: A, R, G, B
     int m44;
@@ -161,7 +162,7 @@ extern "C" void fn_8052B7F8(RenderSetting_unk* settings); // inferred: default p
 // menu items
 // NONMATCHING: 91% - the original is over the inlining budget (R3): the accessor of the gamma settings, the
 // ResHandle load and the vector accessors are called out of line (weak copies 0x8052B7F0, 0x8052BC90,
-// 0x8052BCE4, 0x8052BCF4); fn_8052B7F8 and fn_805305D0 are not written
+// 0x8052BCE4, 0x8052BCF4); fn_8052B7F8 is not written
 int NewCampTask::vf0C() {
     fn_8046ECDC(ResMgr_unk(), 0);
     if (m60 == 0) {
@@ -770,7 +771,7 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 
 // inferred: reads camp_config.csv: the damage effect of the camp starts from the one of the render settings
 // ("angle", "color" r g b a, "scale", "zoom")
-// NONMATCHING: 99.8% - offsets of the string pool until fn_805305D0 is written
+// NONMATCHING: 99.8% - offsets of the string pool (the vector error string of fn_805305D0 comes first)
 void NewCampTask::fn_805303D0() {
     atn::Csv csv;
     m1310 = fn_802F0990()->m374;
@@ -791,6 +792,61 @@ void NewCampTask::fn_805303D0() {
         }
     } while (csv.fn_8005BBF8());
     m1334.fn_80473F88();
+}
+
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int fn_800DC12C(const char* s); // inferred: string to int
+
+// inferred: reads camp_font_conf.csv into sElems_unk (lines starting with ';' are comments): name, id and the
+// sixteen colour values
+// NONMATCHING: 80% - the inlined push_back of sElems_unk: the original copies the record word by word and
+// reports the allocation error with lbl_80793868 (another vector variant than std/vector.h)
+void NewCampTask::fn_805305D0() {
+    atn::Csv csv;
+    csv.SetData((const char*)m1344.fn_80470580(), m1344.fn_8047059C());
+    NewCampElem_unk elem;
+    elem.m24 = 0;
+    elem.mBase[0] = 0;
+    elem.mBase[1] = 0;
+    elem.mBase[2] = 0;
+    elem.mBaseShadow[0] = 0;
+    elem.mBaseShadow[1] = 0;
+    elem.mBaseShadow[2] = 0;
+    elem.mBaseShadow[3] = 0;
+    elem.m44 = 0;
+    elem.mAfter[0] = 0;
+    elem.mAfter[1] = 0;
+    elem.mAfter[2] = 0;
+    elem.mAfterShadow[0] = 0;
+    elem.mAfterShadow[1] = 0;
+    elem.mAfterShadow[2] = 0;
+    elem.mAfterShadow[3] = 0;
+    do {
+        const char* field = csv.fn_8005B9CC();
+        if (*field == 0 || *field == ';') {
+            continue;
+        }
+        strcpy(elem.mName, field);
+        elem.m00 = fn_800DC12C(csv.fn_8005B9CC());
+        elem.m24 = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBase[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBase[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBase[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mBaseShadow[3] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.m44 = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfter[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfter[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfter[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[0] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[1] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[2] = fn_800DC12C(csv.fn_8005B9CC());
+        elem.mAfterShadow[3] = fn_800DC12C(csv.fn_8005B9CC());
+        sElems_unk.push_back(elem);
+    } while (csv.fn_8005BBF8());
+    m1344.fn_80473F88();
 }
 
 void NewCampTask::fn_80530CD0(int duration) {

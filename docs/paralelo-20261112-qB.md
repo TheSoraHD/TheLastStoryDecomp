@@ -13,7 +13,8 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
   funciones al 100 % (operadores del iterador, swap, mediana del orden de la bolsa); el resto 91-98 %.
 - `game/NewCampPartsMapSelect`: 4 -> 1. `fn_805212BC` (cursor del mapa) 91,8 %, `vf10` (0x8051CF78) 94,7 %,
   `vf28` (0x8051F138) 96 %; falta `vf14` (0x8051D864, 5 KB).
-- `game/NewCampTask`: 16 -> 15. `vf0C` (carga y menu de depuracion) 91 %.
+- `game/NewCampTask`: 16 -> 13. `vf0C` (carga y menu de depuracion) 91 %, `fn_805303D0` (camp_config.csv)
+  99,8 %, `fn_805305D0` (camp_font_conf.csv) 80 %.
 - `game/CosEditProtector`: 1 -> 1 (`vf64`, 9 KB, sin tocar).
 
 ## NONMATCHING
@@ -28,8 +29,11 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
   offsets de `@stringBase0` desplazados hasta escribir `vf14`. `vf28` 96 %: el anime de la miniatura se
   relee tras el `sprintf` (como `vf20`).
 - `NewCampTask::vf0C` 91 %: el original pasa el presupuesto R3 y llama fuera de linea a los accesores (gamma,
-  `ResHandle::Load`, `size`/`operator[]` de `sElems_unk`); `fn_8052B7F8`, `fn_805303D0`, `fn_805305D0` sin
-  escribir (declaradas).
+  `ResHandle::Load`, `size`/`operator[]` de `sElems_unk`); `fn_8052B7F8` sin escribir (declarada).
+- `fn_805303D0` 99,8 %: solo el offset de las cadenas ("vector length error" va antes en el original, de las
+  copias sin escribir de `vector<Light>`/`vector<Camera>::operator=`).
+- `fn_805305D0` 80 %: el push_back inline de `sElems_unk` (el original copia el registro palabra a palabra y usa
+  el mensaje `lbl_80793868`: otra variante del vector); probado con campos escalares en vez de arrays: 76 %.
 
 ## Decisiones tomadas sin el usuario
 
@@ -47,8 +51,8 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
 - `include/game/NewCampTask.h`: declarados `fn_805303D0()`/`fn_805305D0()` (los llama vf0C; 12 unidades la
   incluyen; labelcheck igual). `include/game/NewCampPartsMapSelect.h`: `vf10`/`vf28` declaradas (eran
   `fn_8051CF78`/`fn_8051F138` en la vtable) y `m18FC` pasa de `unsigned char[4]` a `float`.
-- `NewCampElem_unk` (`sElems_unk`, NewCampTask.cpp) con campos: carpeta del menu de depuracion y colores
-  base/base_sdw/after/after_sdw.
+- `NewCampElem_unk` (`sElems_unk`, NewCampTask.cpp) con campos (registro de camp_font_conf.csv): nombre,
+  id y colores base/base_sdw/after/after_sdw.
 - Aviso previo de `poolcheck` en NewCampTask (0.0174533), ya estaba antes del lote.
 
 ## Hallazgos
