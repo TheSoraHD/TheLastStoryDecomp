@@ -2043,6 +2043,66 @@ void BattleCharaTask::fn_800E9ED8() {
     fn_800E7BB0();
 }
 
+// inferred: listeners of the character events (inline in the original, as in gmk/ReinforcePoint.cpp)
+inline CharaListeners_unk* fn_8014F8F4() {
+    static CharaListeners_unk sListeners;
+    return &sListeners;
+}
+
+// inferred: calls the listeners of `id` (as in gmk/ReinforcePoint.cpp; name invented)
+inline void NotifyListeners_unk(CharaListeners_unk* listeners, int id, void* chara, void* arg) {
+    if (listeners->mEnabled != 0) {
+        for (int i = 0; i < (int)listeners->mList.size(); i++) {
+            CharaListener_unk& listener = listeners->mList[i];
+            if (listener.mId == -1 || id == listener.mId) {
+                listener.mFunc(id, (CharaTask*)chara, arg);
+            }
+        }
+    }
+}
+
+// inferred: end of the knock-down of the head of the party in multiplayer (type 3): event 5 to the
+// listeners; offline (no session) the character dies after m1450 frames
+void BattleCharaTask::vfEC() {
+    if (fn_8015EB2C() == 0) {
+        fn_80139560();
+        m1450 = 0;
+        return;
+    }
+    if (mF50 == 0 && !fn_80175AEC() && !(m55C == 6 && m560 == 0x65)) {
+        if (lbl_8087F610 != 0) {
+            if (m1450 == 0) {
+                NotifyListeners_unk(fn_8014F8F4(), 5, this, 0);
+                mColli.mFlags &= ~1;
+                fn_800D246C(1);
+                m1450 = 1;
+            }
+        } else if (m1450 > 0) {
+            if (--m1450 == 0) {
+                HitInfo_unk* data = fn_80219E6C(0x2711);
+                if (!mStatus.IsState_unk(0x20)) {
+                    mStatus.fn_8013310C(0x20, 0);
+                }
+                DamageResult_unk result;
+                fn_8003EA3C(&result, data, this, this, 0, &lbl_807C6B90, 0, 0);
+            }
+        } else {
+            NotifyListeners_unk(fn_8014F8F4(), 5, this, 0);
+            mColli.mFlags &= ~1;
+            if (mStatus.m224 <= 0) {
+                fn_800D246C(1);
+                if (((GameTask*)lbl_8087F430)->fn_80370174(0x66) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370C6C();
+                }
+            } else {
+                m1450 = 30;
+            }
+        }
+    } else {
+        fn_80139560();
+    }
+}
+
 // NONMATCHING: 97.3% - the original reloads the flag word for mFlag25 after the mFlag16 test (as CharaTask::vf34)
 // inferred: end of the knock-down: after m1450 frames down the character dies (event 0x1B7 for type 3)
 void BattleCharaTask::vfF0() {
