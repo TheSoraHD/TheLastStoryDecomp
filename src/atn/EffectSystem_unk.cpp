@@ -501,6 +501,78 @@ void fn_80230034(EffectSystem_unk* system, EffectInst_unk* inst, EffectParam_unk
     *interval = iv;
 }
 
+extern "C" float fn_8023329C(int curve, int emitter, const EffectAnimData_unk* data, int mul, float t, float base);
+
+// NONMATCHING: 89% - written from the original; the vector temporaries and the order of the stores of
+// the translation differ
+// inferred: moves an instance (animated: by the curves 12-14 from its first frame; else by its velocity,
+// damped per axis) and starts its slots every period frames
+void EffectSystem_unk::fn_802301EC(EffectInst_unk* inst, EffectParam_unk* param, float* mtx) {
+    if ((inst->m1A & 0x7F) == 0 || sFrameStep == 0) {
+        return;
+    }
+    if (!(inst->m1C >= param->m48)) {
+        return;
+    }
+    int frame = (int)inst->m1C - param->m48;
+    if (param->m54 > 0 && param->m54 <= frame) {
+        inst->m1A &= 0x80;
+    }
+    if ((inst->m1A & 0x7F) == 0) {
+        return;
+    }
+    int period = param->m58 < 1 ? 1 : param->m58;
+    int count = param->m5C < 1 ? 1 : param->m5C;
+    fn_80230034(this, inst, param, (const atn::Matrix3x4*)mtx, &frame, &period, &count);
+    EffectAnimData_unk* data = inst->mData;
+    int emitter = param - data->mParams;
+    if ((data->mAnimFlags[emitter] & 1) == 1 && param->m54 > 0) {
+        atn::Matrix3x4 rot = inst->m6C;
+        rot.m[0][3] = 0.0f;
+        rot.m[1][3] = 0.0f;
+        rot.m[2][3] = 0.0f;
+        inst->mMtx = inst->m6C;
+        float t = (inst->m1C - param->m48) / param->m54;
+        Vector3 d;
+        float base = fn_8023329C(12, emitter, data, 0, 0.0f, 0.0f);
+        d.x = fn_8023329C(12, emitter, inst->mData, 0, t, 0.0f) - base;
+        base = fn_8023329C(13, emitter, inst->mData, 0, 0.0f, 0.0f);
+        d.y = fn_8023329C(13, emitter, inst->mData, 0, t, 0.0f) - base;
+        base = fn_8023329C(14, emitter, inst->mData, 0, 0.0f, 0.0f);
+        d.z = fn_8023329C(14, emitter, inst->mData, 0, t, 0.0f) - base;
+        d.x *= inst->mA8;
+        d.y *= inst->mA8;
+        d.z *= inst->mA8;
+        PSMTXMultVec(rot.m, &d, &d);
+        d += inst->mMtx.GetTrans_unk();
+        inst->mMtx.fn_801479E4(d);
+    } else {
+        atn::Matrix3x4 rot = inst->m6C;
+        rot.m[0][3] = 0.0f;
+        rot.m[1][3] = 0.0f;
+        rot.m[2][3] = 0.0f;
+        Vector3 v = param->mBC;
+        v.x *= inst->mA8;
+        v.y *= inst->mA8;
+        v.z *= inst->mA8;
+        PSMTXMultVec(rot.m, &v, &v);
+        v = v * sTimeStep;
+        v += inst->mMtx.GetTrans_unk();
+        inst->mMtx.fn_801479E4(v);
+        if (sFrameStep != 0) {
+            v = Vector3(v.x * param->mC8, v.y * param->mCC, v.z * param->mD0);
+            inst->mMtx.fn_801479E4(v);
+        }
+    }
+    inst->mC8 = 0.0f;
+    inst->mMtx.fn_801479E4(inst->mMtx.GetTrans_unk() + inst->mVec * sTimeStep);
+    if (frame % period == 0) {
+        for (int i = 0; i < count; i++) {
+            fn_8022DA70(this, inst->mData, inst, param, (float)i / (float)count);
+        }
+    }
+}
+
 // inferred: moves a slot forward along its direction (mCC: distance; mD0/mD4/mD8: rotations x/y/z
 // over its matrix)
 extern "C" void fn_80231508(EffectSlot_unk* slot) {

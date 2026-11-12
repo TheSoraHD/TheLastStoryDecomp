@@ -14,6 +14,8 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
   NONMATCHING fn_8022D790 (99,2 %) y fn_8022DA70 (98,9 %).
 - `atn/EffectSystem_unk` (commit 4): 0 % 11 -> 9; escritas NONMATCHING fn_8022B850 (inicializacion, 99,5 %) y
   fn_8022BEAC (pool de fundidos, 99,4 %).
+- `atn/EffectSystem_unk` (commit 5): 0 % 9 -> 8; escrita NONMATCHING fn_802301EC (movimiento de la instancia y
+  emision de slots, 89 %).
 
 ## NONMATCHING
 
@@ -21,6 +23,8 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
 - `fn_8022B850` 99,5 %: indice y desplazamiento del bucle de slots cruzados (r10/r11); registros del
   crecimiento inline del vector del mapa de bits.
 - `fn_8022BEAC` 99,4 %: registros y huecos de pila del crecimiento inline del vector (`resize`).
+- `fn_802301EC` 89 %: escrita entera desde el original; difieren los temporales de `Vector3` y el orden de las
+  escrituras de la traslacion (`d += GetTrans_unk()` / `fn_801479E4`). Primera candidata a afinar.
 - `fn_8022DA70` 98,9 %: el original vuelve a cargar la palabra del mapa de bits del pool para el `|=`
   (quiza un `std::vector<bool>` con referencia proxy); con dos inlines Test/Set sigue saliendo una carga.
 

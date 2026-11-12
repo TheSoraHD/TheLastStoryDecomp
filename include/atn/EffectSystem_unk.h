@@ -75,16 +75,24 @@ struct EffectEmitterCurves_unk {
     EffectCurve_unk mCurves[22];
 };
 // inferred: animation data of an effect (fields named by use)
+struct EffectParam_unk;
 struct EffectAnimData_unk {
-    unsigned char m00[0x18];
+    int m00;
+    EffectParam_unk* mParams;    // 0x04: inferred: one per emitter (0x26C bytes each)
+    unsigned char m08[0x18 - 0x08];
     unsigned int* mAnimFlags;    // 0x18: per emitter, bit 0: animated
     EffectEmitterCurves_unk* mEmitters; // 0x1C
 };
 // inferred: parameters of an effect (fields named by offset)
 struct EffectParam_unk {
-    unsigned char m00[0x4C];
+    unsigned char m00[0x48];
+    unsigned int m48;  // 0x48: inferred: first frame of the emission
     unsigned int m4C;  // 0x4C: inferred: bits 28-29 render pass, bits 30-31 mode (fn_8022D328)
-    unsigned char m50[0x6C - 0x50];
+    int m50;
+    int m54;           // 0x54: inferred: frames of the emission (> 0: it stops after them)
+    int m58;           // 0x58: inferred: emission period in frames (at least 1)
+    int m5C;           // 0x5C: inferred: slots started per emission (at least 1)
+    unsigned char m60[0x6C - 0x60];
     unsigned int m6C;
     unsigned int m70;
     unsigned int m74;
@@ -99,7 +107,12 @@ struct EffectParam_unk {
     unsigned int m9C;
     unsigned int mA0;
     atn::Vector3 mA4;
-    unsigned char mB0[0xE0 - 0xB0];
+    unsigned char mB0[0xBC - 0xB0];
+    atn::Vector3 mBC;       // 0xBC: inferred: velocity of the instance (not animated)
+    float mC8;              // 0xC8: inferred: damping of the velocity per axis
+    float mCC;
+    float mD0;
+    unsigned char mD4[0xE0 - 0xD4];
     atn::Vector3 mE0;
     unsigned char mEC[0x11C - 0xEC];
     atn::Vector3 m11C;
@@ -140,9 +153,9 @@ struct EffectInst_unk {
     int mTag;               // 0x34
     int mLayer;             // 0x38: inferred: layer drawn (fn_8022D328)
     atn::Matrix3x4 mMtx;    // 0x3C: inferred: matrix of the instance (set from the work buffer by fn_8022D078)
-    unsigned char m6C[0x9C - 0x6C];
+    atn::Matrix3x4 m6C;     // 0x6C: inferred: base matrix (its translation is not used)
     atn::Vector3 mPos;      // 0x9C: inferred: center of the bounding sphere (radius mCC)
-    int mA8;
+    float mA8;              // 0xA8: inferred: scale of the movement
     EffectColor_unk mColor; // 0xAC
     EffectAnimData_unk* mData;  // 0xBC
     EffectParam_unk* mParam;    // 0xC0
