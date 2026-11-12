@@ -1,6 +1,10 @@
 # Lote paralelo 2026-11-12, cola B2 (vestuario y campamento, segunda pasada)
 
-Inicio: 2026-11-12 21:50 CET (tope 23:35).
+Inicio: 2026-11-12 21:50 CET (tope 23:35); cerrado a las 22:50.
+
+Total: funciones al 0 % / sin escribir de la cola 52 -> 47 (+ ResetPostFx_unk emitida); `report.json`
+15200 -> 15205 funciones al 100 %, lost 0, sin bajadas. Ninguna unidad pasa a enlazar. Sin tocar:
+CosEditItemList_unk (sus 37 copias debiles dependen de R3, ver cola B) y `CosEditProtector::vf64` (9 KB).
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
@@ -59,3 +63,7 @@ integracion aceptando esa bajada cosmetica.
 
 - Escribir una funcion grande no inline del mismo fichero puede subir otras: con `-ipa file` es candidata a
   autoinline de sus llamadores y los pasa del presupuesto (vf0C 33 % -> 99,5 % al escribir fn_8052E1A0).
+- Las cadenas de una funcion inline auxiliar (no las pasadas como argumento) van a un pool `@STRING@<funcion>`
+  propio, no a `@stringBase0`: escribir esas llamadas en la funcion (vf14 92 -> 96 %).
+- Bytes NUL sin referencia en `@stringBase0` tras una cadena = literal con `\0` final en el original
+  (NewCampPartsMapSelect: `sprintf(buf, "map_board01_%04d\0", ...)`).
