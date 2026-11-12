@@ -68,7 +68,8 @@ public:
     void fn_801D94D0(); // inferred: state 13
     // inferred: equips the entry on the member (nonzero when it changed; name invented)
     int fn_801DC42C(int member, CharaTask* chara, CosEditItem_unk* entry, int a, int b);
-    CosEditItem_unk* fn_801DCE88(int member, int slot, int a); // inferred: empty entry of an equipment slot
+    void* fn_801DC9A4(void* priorities, void* a, void* b); // inferred: the preferred of two equipments
+    CosEditItem_unk* fn_801DCE88(int member, int slot, int a); // inferred: free entry preferred for a slot
     void fn_801DCF60(int member, CharaTask* chara, int slot, int a); // inferred: takes the protector off
     void fn_801DD26C(int member);
     // inferred: puts the cursor of the protector list on `item` (name invented)

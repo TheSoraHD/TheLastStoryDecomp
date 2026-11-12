@@ -477,6 +477,33 @@ void CosEditProtector::fn_801D9388() {
 
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
+extern "C" void* fn_80218BB4(int member); // inferred: equipment priorities of a member
+
+// inferred: free entry of the equipment list `slot` that the priorities of the member prefer (a: from
+// the item it wears)
+// NONMATCHING: 0% - written, not compared yet
+CosEditItem_unk* CosEditProtector::fn_801DCE88(int member, int slot, int a) {
+    void* priorities = fn_80218BB4(member);
+    CosEditItem_unk* result = 0;
+    void* best = fn_801CFAA8(member, slot);
+    if (a == 0) {
+        best = 0;
+    }
+    std::vector<CosEditItem_unk>& list = mB34[slot];
+    unsigned int count = list.size();
+    for (unsigned int i = 0; i < count; i++) {
+        CosEditItem_unk* e = &list[i];
+        if (e->mOwner < 0 && e->mEnabled != 0) {
+            void* item = e->mItem;
+            if (fn_801DC9A4(priorities, best, item) == item) {
+                best = item;
+                result = e;
+            }
+        }
+    }
+    return result;
+}
+
 // Members of atn::D2A_TaskInstanceBase<32, 8> with automatic names (as in game/CosEditPalette_unk.cpp)
 typedef atn::D2A_TaskInstanceBase<32, 8> CosEditListLayout_unk;
 extern "C" void fn_801F7590(CosEditListLayout_unk* inst, const char* name, const float* uv);
@@ -686,6 +713,24 @@ void CosEditProtector::fn_801E6FC8(int member, int slot, int* cursor, int* top, 
             if (mB4C.size() < 10) {
                 *top = 0;
             }
+        }
+    }
+}
+
+// inferred: puts the cursor of the protector list on the entry of `item` (same item, same owner and
+// slot, or both free), keeping its row on the page
+void CosEditProtector::fn_801E7098(CosEditItem_unk* item, int list, int* cursor, int* top) {
+    int row = *cursor - *top;
+    for (int i = 0; i < (int)mB4C.size(); i++) {
+        CosEditItem_unk* e = &mB4C[i];
+        if (e->mId == item->mId &&
+            ((e->mOwner < 0 && item->mOwner < 0) || (e->mOwner == item->mOwner && e->m14 == item->m14))) {
+            *cursor = i;
+            *top = MAX(i - row, 0);
+            if (mB4C.size() < 10) {
+                *top = 0;
+            }
+            return;
         }
     }
 }
