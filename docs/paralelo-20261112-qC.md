@@ -14,6 +14,8 @@ Inicio: 2026-11-12 14:55 CET. Rama `agent-C`. Unidades: `game/BattleTask`, `game
   `boost::bind`). Nuevas al 100 %: `vf0C` (0x800F26D4), `BetoModel::BetoModel` (0x8010D808),
   `BetoModel::fn_8010D854` (0x8010D854, callback de nodos) y el invoker/manager del `boost::function`
   (0x800F2BB8, 0x800F2BE4). `fn_800F3490`/`fn_800F3B4C` pasan a miembros (GameTask.cpp actualizado).
+  Tambien al 100 %: `fn_80109864` (mensaje de log de un estado), `fn_8010CB2C` (ritmo de la carga de un
+  personaje) y `fn_8010CD3C` (tirada de un estado). BattleTask: 0 % 76 -> 70.
 
 ## NONMATCHING
 
@@ -31,11 +33,16 @@ Inicio: 2026-11-12 14:55 CET. Rama `agent-C`. Unidades: `game/BattleTask`, `game
 - `std::map<float, int>` de MSL escrito a mano en `TeamAI_unk.cpp` (`TeamDistTree_unk`, copia de los
   arboles de `GameEventScript.h` con clave `float`): `<map>` no esta disponible. El miembro se guarda
   como `int` (los dos mapas comparten las copias debiles, asi que tienen el mismo tipo).
-- `include/game/BattleTask.h` incluye `atn/Model_unk.h` (BetoModel lleva un `atn::ModelBase`): renumera
-  +3 los `@N` de las 55 unidades que incluyen BattleTask.h antes que Model_unk.h. Relabel con
-  `pdbatch.sh` de las 55 y a mano los que dejo: Em203GreaterDaemonRedMp (5), Em314Ivy, GameTask,
-  GameEventScript (5), Em204BigMulue (2). **Al integrar con las otras colas puede haber conflictos en
-  esas lineas de `symbols.txt`: repetir `pdbatch.sh` tras el merge.**
+- **Los parametros con nombre de una declaracion en una cabecera consumen un `@N` cada uno** (sin nombre,
+  no): las declaraciones nuevas de `BattleTask.h` y el cuarto argumento de `Move_unk` en
+  `TeamAIManager.h` van sin nombre de parametro para no renumerar las unidades que las incluyen. El
+  relabel de 55 unidades del commit anterior se deshizo (symbols.txt vuelve a las etiquetas de la base
+  fuera de BattleTask y TeamAI_unk).
+- Llamadores `extern "C"` pasados a metodos de `BattleTask` (cast `((BattleTask*)lbl_8087F048)->`, como ya
+  hacian): GameTask (`fn_800F3490`), Em001Necromancer y chr/ControlChant (`fn_8010CB2C`), CharaTask y
+  DamageCalc_unk (`fn_8010CD3C`). Quitar sus `extern` con parametros con nombre renumera sus `@N`: relabel
+  con `pd.sh`/`pdbatch.sh` de esas cinco unidades (y dos etiquetas de GameTask a mano, 0x808857A8/AC).
+  **Al integrar, repetir `pdbatch.sh` de esas unidades si otra cola las toco.**
 - `BattleTask` declara sus virtuales (`~BattleTask`, `vf0C`, `vf10`, `vf14`); solo `vf0C` esta definida.
 - `fn_800F29D0` (copia debil de un inline de `atn::Model` que fija el callback de nodos) sigue como
   `extern "C"`: `ModelBase::mB8` esta declarado como `boost::function<void()>` y cambiarlo toca atn/Model.
@@ -43,8 +50,8 @@ Inicio: 2026-11-12 14:55 CET. Rama `agent-C`. Unidades: `game/BattleTask`, `game
 
 ## Hallazgos
 
-- Incluir en una cabecera muy usada otra cabecera que esas unidades ya incluyen mas tarde (aqui
-  `atn/Model_unk.h`) tambien renumera sus `@N` (+3).
+- Cada parametro con nombre de una funcion declarada (miembro o `extern`) consume un `@N` en la unidad;
+  sin nombre no. Para anadir metodos a una cabecera muy incluida, declararlos sin nombres de parametro.
 
 - Comparaciones de la clave de un arbol MSL con `mfcr`/`srwi.`: el original pasa por un comparador que
   devuelve `bool` (`std::less`); un `<` directo da `bge`.

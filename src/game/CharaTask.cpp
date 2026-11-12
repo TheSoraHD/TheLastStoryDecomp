@@ -7130,7 +7130,6 @@ extern "C" HitParam_unk lbl_807C6B90; // inferred: default parameters
 extern "C" void fn_8003EA3C(int* result, HitInfo_unk* data, CharaTask* attacker, CharaTask* owner, unsigned int flags,
                             const HitParam_unk* param, int arg, int arg2); // inferred: computes the damage
 extern "C" int fn_80041A28(int arg, CharaTask* chara, CharaTask* attacker);
-extern "C" int fn_8010CD3C(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
 extern "C" void fn_8010CF28(Effect_unk* effect, int kind, CharaTask* chara, void* attacker);
 
 void CharaTask::fn_80151448(HitMsg_unk* msg) {
@@ -7193,7 +7192,7 @@ void CharaTask::fn_80151448(HitMsg_unk* msg) {
                 }
             }
         }
-        if (lbl_8087F048 != 0 && fn_8010CD3C(lbl_8087F048, 5, this, this)) {
+        if (lbl_8087F048 != 0 && ((BattleTask*)lbl_8087F048)->fn_8010CD3C(5, this, this)) {
             fn_8010CF28(lbl_8087F048, 5, this, this);
             flags |= 0x20;
         }
@@ -7438,7 +7437,7 @@ int CharaTask::vf4C(void* attacker, HitInfo_unk* hit, int arg, const atn::Vector
             if (mFlag5 && m55C != 6 && ((unsigned int)mStatus.m14 & 1) == 1) {
                 ok = true;
             }
-            if (fn_8010CD3C(lbl_8087F048, 8, this, attacker)) {
+            if (((BattleTask*)lbl_8087F048)->fn_8010CD3C(8, this, (CharaTask*)attacker)) {
                 ok = true;
             }
             if (Dot_unk(*dir, -fn_8014052C()) > -0.70710677f && ok) {

@@ -84,7 +84,7 @@ public:
     struct BetoModel {
         BetoModel(); // 0x8010D808 (destructor: weak copy 0x800F1F38)
         // inferred: node callback (bound by vf0C): the nodes follow the same node of the character, scaled
-        void fn_8010D854(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk, const atn::ModelNodeCallbackContext& context);
+        void fn_8010D854(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&);
 
         int mUsed;
         atn::ModelBase mModel; // 0x04
@@ -210,6 +210,7 @@ public:
     // inferred: nearest target of `chara` in the cone `theta` around `dir` within `range`
     CharaTask* fn_800FFE68(CharaTask* chara, const atn::Vector3* dir, int a, int b, float range, float theta);
     void fn_80109828(const wchar_t* text); // inferred: debug log message
+    void fn_80109864(struct SpEffect_unk*, CharaTask*); // inferred: log message of a status effect
     void fn_8010AB34();
     void fn_8010AB94();
     int fn_8010B180(CharaTask* a, CharaTask* b); // inferred: the two characters can reach each other (AI areas)
@@ -217,7 +218,9 @@ public:
     float fn_8010CA2C();
     float fn_8010CA34();
     float fn_8010CA3C(CharaTask* chara, float rate);
+    float fn_8010CB2C(CharaTask*, float); // inferred: rate of the gauge gained by `chara`
     float fn_8010CCD0();
+    int fn_8010CD3C(int, CharaTask*, CharaTask*); // inferred: chance of a status effect
     float fn_8010CCD8(CharaTask* chara); // inferred: gauge gained by the magic
     int fn_8010D770(HitInfo_unk* hit);
     int fn_8010D7B4(HitInfo_unk* hit);

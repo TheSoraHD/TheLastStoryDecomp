@@ -41,6 +41,7 @@ extern "C" int fn_80219558(int id); // inferred: party member kind of a characte
 extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
 // inferred: node callback of a model (as game/CharaTask.cpp: the functor manager uses the default allocator of
 // boost::function3, std::allocator<function_base>)
 typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
@@ -1243,6 +1244,33 @@ void BattleTask::fn_80109828(const wchar_t* text) {
     }
 }
 
+// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
+struct BattleMsg_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" BattleMsg_unk* lbl_8087F1E4;
+extern "C" bool fn_8021BE98(wchar_t* buf, SpEffect_unk* effect); // inferred: text of a status effect
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: wide sprintf
+
+// inferred: log message "<character> <effect>" (format 0x8B of the message table)
+void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
+    if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
+        return;
+    }
+    wchar_t text[0x100];
+    memset(text, 0, sizeof(text));
+    const wchar_t* format = lbl_8087F1E4->Get_unk(0x8B);
+    wchar_t name[0x100];
+    memset(name, 0, sizeof(name));
+    if (fn_8021BE98(name, effect)) {
+        fn_800DD3FC(text, format, chara->m60->m04, name);
+    }
+    if (text[0] != 0) {
+        LogMessageTask::sInstance->fn_8047961C(text, -0x333334, 2, 0);
+    }
+}
+
 // inferred: the 0.0f bound goes through a variable (MAX evaluates it twice); with the literal f2/f3 come out swapped
 void BattleTask::fn_8010AB34() {
     float add = m38A28;
@@ -1350,6 +1378,30 @@ float BattleTask::fn_8010CA3C(CharaTask* chara, float rate) {
     return rate;
 }
 
+float BattleTask::fn_8010CB2C(CharaTask* chara, float rate) {
+    rate *= 1.0f + chara->mStatus.mParamB.m94 / 2000.0f;
+    if (chara->mType == 0 || chara->mType == 3) {
+        rate *= chara->fn_801789D8(0x4FBF, 0) != 0 ? 2.0f : 1.4f;
+    }
+    rate *= chara->mStatus.fn_8012DB04();
+    rate += rate * chara->mStatus.fn_80134168(0x2B, -1) / 100.0f;
+    if (((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
+        rate *= 2.4f;
+    }
+    if (chara->mType == 0 || chara->mType == 3) {
+        PlayerTask* leader;
+        if ((lbl_8087F430 != 0 && lbl_8087F430->fn_803761BC() == 0) ||
+            (lbl_8087F8A0 != 0 && (leader = lbl_8087F8A0->mHead) != 0 &&
+             (leader->mFlag28 || leader != lbl_8087F8A0->fn_8054A33C(0)))) {
+            rate *= 2.0f;
+        }
+        if (chara->mType == 0 && lbl_8087F610 != 0) {
+            rate *= 1.4f;
+        }
+    }
+    return rate;
+}
+
 float BattleTask::fn_8010CCD0() {
     return 0.75f;
 }
@@ -1364,6 +1416,37 @@ float BattleTask::fn_8010CCD8(CharaTask* chara) {
         gain *= 1.5f;
     }
     return gain;
+}
+
+// inferred: random roll of the status effect `kind` (2/3, 7/8, 4 and 5); names invented
+int BattleTask::fn_8010CD3C(int kind, CharaTask* chara, CharaTask* other) {
+    switch (kind) {
+    case 2:
+    case 3:
+        if (chara != 0 && chara->m55C != 6 && chara->mStatus.fn_801346C8(kind, 0) && rand() % 100 < 15) {
+            return 1;
+        }
+        break;
+    case 4:
+        if (chara != 0 && other != 0 && chara->mStatus.fn_801346C8(4, 0) &&
+            (other->m5C != 0 ? other->m5C->mD0 : 0) > 0 && rand() % 100 < 5) {
+            return 1;
+        }
+        break;
+    case 7:
+    case 8:
+        if (chara != 0 && (chara->m55C == 1 || chara->m55C == 2) && (unsigned int)chara->m5C->m11C <= 2 &&
+            (chara->mFlagB16 || rand() % 100 < 15)) {
+            return 1;
+        }
+        break;
+    case 5:
+        if (chara != 0 && chara->mStatus.fn_801346C8(5, 0) && rand() % 100 < 30) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
 }
 
 int BattleTask::fn_8010D770(HitInfo_unk* hit) {
