@@ -323,9 +323,10 @@ extern "C" double floor(double x);
         count++;                                                                                              \
     }
 
-extern "C" void fn_8006D7B0(Font_unk* self, float x, float y, float size, float height, float spacing,
-                            const wchar_t* text, int arg6, unsigned int flags, int font, unsigned int color, float ox,
-                            float oy) {
+// inferred: the second argument is the view (unused; atn/DrawHelper passes it), the text is r5
+extern "C" void fn_8006D7B0(Font_unk* self, void* view, float x, float y, float size, float height,
+                            const wchar_t* text, int arg6, unsigned int flags, int font, float spacing,
+                            unsigned int color, float ox, float oy) {
     unsigned int len = wcslen(text);
     int count = 0;
     Texture_unk* curTex = 0;

@@ -121,8 +121,8 @@ extern "C" std::string fn_8006AB54(const char* path) {
 // inferred: view of the std::string words (the operator+ bodies below read the private layout
 // as the friend operator+ of std/string.h does)
 struct StringView_unk {
-    unsigned long mWord0; // bit 31: long string; short: size in the low 7 bits of the first byte
-    unsigned long mSize;
+    __msl_size_t mWord0; // bit 31: long string; short: size in the low 7 bits of the first byte
+    __msl_size_t mSize;
     const char* mData;
 };
 

@@ -3,6 +3,7 @@
 #include "atn/RenderManager.h"
 #include "game/GameChoiceWindow.h"
 #include "game/GameUI.h"
+#include "atn/WordWrap_unk.h"
 #include "game/GameScene.h"
 #include "atn/D2A_Task.h"
 #include "atn/D2A_TaskInstance.h"
@@ -748,8 +749,6 @@ inline void* GetFont_unk() {
     return lbl_8087EEC8;
 }
 extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float space, int a, int b); // inferred: width
-extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, float width,
-                            float size, float space, int a, int b, int c); // inferred: word wrap
 extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 extern "C" double sin(double x);
 extern "C" void* memset(void* dst, int c, unsigned long n);

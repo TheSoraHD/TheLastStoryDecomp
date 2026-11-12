@@ -3,6 +3,7 @@
 #include "atn/D3AnimeInstance.h"
 #include "atn/D2A_Message.h"
 #include "std/vector.h"
+#include "atn/WordWrap_unk.h"
 #include "atn/SoundRef.h"
 #include "math/Vec.h"
 #include "macros.h"
@@ -435,8 +436,6 @@ struct __vec_split_unk<basic_string<wchar_t> > : public __vec_storage_unk<basic_
 };
 } // namespace std
 
-extern "C" void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, float width,
-                            float size, int a, int b, int c, float d); // inferred: splits a text in lines
 extern "C" void fn_804A5D34(MenuCommonTask* menu, int id, const wchar_t* desc0, const wchar_t* desc1,
                             const wchar_t* desc2);
 extern "C" wchar_t lbl_8087E0E0[2]; // inferred: empty text
@@ -447,7 +446,7 @@ extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id) {
         return;
     }
     std::vector<std::basic_string<wchar_t> > lines;
-    fn_800E0000(&lines, text, 100000.0f, 16.0f, 1, 1, 0, 0.0f);
+    fn_800E0000(&lines, text, 100000.0f, 16.0f, 0.0f, 1, 1, 0);
     while (lines.size() < 3) {
         lines.push_back(std::basic_string<wchar_t>(lbl_8087E0E0));
     }

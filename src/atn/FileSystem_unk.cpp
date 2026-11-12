@@ -202,7 +202,7 @@ PfsArchive_unk::PfsArchive_unk(const char* name, const char* index, int flags)
         }
     }
     if (!(flags & 1)) {
-        m24 = DVDConvertPathToEntrynum(name);
+        mEntry = DVDConvertPathToEntrynum(name);
     }
 }
 
