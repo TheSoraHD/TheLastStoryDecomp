@@ -114,10 +114,12 @@ public:
     int mLoaded;                                    // 0xDB08: inferred: mLoader done (fn_8044386C)
     int mDB0C;                                      // inferred: cleared by the shops around AddItem (0x805849E8)
     unsigned char mDB10[0xDB14 - 0xDB10];
-    int mDB14;                                      // inferred: read by fn_8044909C
-    unsigned char mDB18[0xDB24 - 0xDB18];
+    int mDB14;                                      // inferred: read by fn_8044909C; 1 while mDB18-mDB20 are set
+    int mDB18;                                      // inferred: map of the item being added (type, map,
+    int mDB1C;                                      // point of fn_80216AFC; -1 when unset, gmk::RandomItem)
+    int mDB20;
     int mDB24;                                      // inferred: read by fn_8044909C
-    unsigned char mDB28[0xDB2C - 0xDB28];
+    int mDB28;
     atn::FixedArray_unk<int, 0x100> mIdentify;      // 0xDB2C: inferred: items to identify (game/ShopIdentify)
     InventoryFinish_unk mDF30;                      // (size from fn_80442F10)
 

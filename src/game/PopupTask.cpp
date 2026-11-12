@@ -451,7 +451,7 @@ void PopupTask::fn_8054E51C() {
 }
 
 // inferred: detaches the popups of the object `id` (returns the owner tag)
-void* PopupTask::fn_8054E528(unsigned int id) {
+void* PopupTask::fn_8054E528(unsigned int id, int) {
     for (unsigned int i = 0; i < mEntries.mSize; i++) {
         if (mEntries.mData[i].m94 == &m16D0 && (void*)mEntries.mData[i].m8C == (void*)id) {
             mEntries.mData[i].m94 = 0;

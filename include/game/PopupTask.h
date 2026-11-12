@@ -194,7 +194,7 @@ public:
         return result;
     }
     void fn_8054E51C();
-    void* fn_8054E528(unsigned int id);
+    void* fn_8054E528(unsigned int id, int count); // inferred: count is not read (gmk::RandomItem passes it)
 
     int m48;
     // inferred: counted array of popups (count at 0x4C, entries at 0x50)

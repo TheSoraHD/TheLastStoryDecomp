@@ -5,6 +5,12 @@
 #include "atn/Memory.h"
 #include "game/CharaStatus.h"
 #include "atn/DrawHelper.h"
+#include "atn/RenderManager.h"
+#include "game/GameTask.h"
+#include "game/GameScene.h"
+#include "game/GameUI.h"
+#include "game/Inventory.h"
+#include "game/PopupTask.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -57,6 +63,52 @@ struct RandomItemBox_unk {
 };
 extern "C" int fn_80051CD8(const RandomItemSphere_unk* sphere, const RandomItemBox_unk* box); // inferred: sphere in box
 // inferred: debug drawing (lbl_8087EEB0)
+extern "C" void PSMTXMultVec(const Mtx m, const atn::Vector3* src, atn::Vector3* dst);
+extern "C" void PSVECNormalize(const atn::Vector3* src, atn::Vector3* dst);
+extern "C" int fn_80051B70(const atn::Vector3* line, const RandomItemSphere_unk* sphere); // inferred: segment hits sphere
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
+extern "C" void fn_800CB688(atn::SoundRef* sound, int arg, float pitch); // inferred: sets the pitch
+extern "C" void fn_80445130(void* mgr, int* id, int* count, int arg);
+extern "C" int fn_8021E4E4(int* itemId, int* num, int id, unsigned int flags);
+extern "C" int fn_80450B60(int item);
+extern "C" void* fn_80211480(int id); // inferred: item data
+extern "C" int fn_80216AFC(const char* name, int* type, int* map, int* point); // inferred: parses a map id
+extern "C" void* lbl_8087F048; // inferred: battle manager
+
+// inferred: sounds of the item (found, taken)
+static const char* const sSounds_unk[] = {"SE_UICOM_011", "SE_UICOM_008"};
+
+// inferred: map of the items being added to the inventory (name invented)
+inline void SetSource_unk(Inventory* inv, int set, int type, int map, int point) {
+    inv->mDB14 = set;
+    inv->mDB18 = type;
+    inv->mDB1C = map;
+    inv->mDB20 = point;
+    inv->mDB24 = 0;
+    inv->mDB28 = 0;
+}
+
+// inferred: camera modes in which the player looks around (as CanLook_unk of game/GameEventScript.cpp)
+inline bool IsLookMode_unk(int mode) {
+    return mode == 3 || mode == 1 || mode == 4;
+}
+
+// inferred: the item can be seen from `eye` (a ray to the near side of its sphere hits nothing; name
+// invented)
+inline int CanSee_unk(const atn::Vector3& eye, const RandomItemSphere_unk& sphere) {
+    atn::Vector3 line[2];
+    line[0] = eye;
+    line[1] = sphere.mCenter;
+    atn::Vector3 d = line[1] - line[0];
+    float len = PSVECMag(&d);
+    float radius = sphere.mRadius;
+    if (!((float)__fabs(len) < 1.1920929e-7f)) {
+        line[1] = line[1] - line[0];
+        PSVECNormalize(&line[1], &line[1]);
+        line[1] = line[1] * (len - radius) + line[0];
+    }
+    return fn_8004ECC0(lbl_8087EE98, 0, &line[0], &line[1], 0x80000010, 0, 0) == 0;
+}
 
 inline void CopyMtx_unk(const Mtx src, Mtx dst) {
     __MtxCopy(dst, src);
@@ -288,6 +340,165 @@ void RandomItem::fn_8043465C() {
             fn_80435684(0);
         }
     }
+}
+
+// NONMATCHING: 86% - stack layout of the temporaries of the look test (state 2) and scheduling
+// inferred: update of the item by state: 1 waits, 2 is shown (looked at through the camera it is found:
+// the HUD frames it and it goes to 3), 3 is picked up near the player (item, popup and effect), until
+// the count of the entry is reached (4)
+void RandomItem::fn_804348C4() {
+    if (m144 == 0 || m54 == 0) {
+        if (m11C != 0) {
+            fn_80435684(0);
+        }
+        return;
+    }
+    GameCamera& camera = ((GameTask*)lbl_8087F430)->mCamera;
+    if (!IsLookMode_unk(camera.m7FC)) {
+        camera.m858 = 0;
+        camera.m838 = 0;
+    }
+    switch (m11C) {
+    case 1:
+        if (--m148 <= 0) {
+            fn_80435684(2);
+        }
+        break;
+    case 2: {
+        if (m168 == 0) {
+            fn_80435684(2);
+            break;
+        }
+        if (IsLookMode_unk(camera.m7FC)) {
+            atn::Vector3 line[2];
+            line[0] = camera.mPos;
+            line[1] = camera.mTarget - line[0];
+            PSVECNormalize(&line[1], &line[1]);
+            line[1] = line[1] * 800.0f + line[0];
+            RandomItemSphere_unk sphere;
+            sphere.mCenter = m154;
+            sphere.mRadius = m120;
+            RandomItemSphere_unk item = sphere;
+            atn::Vector3 toItem = sphere.mCenter - camera.mPos;
+            float dist = PSVECMag(&toItem);
+            atn::Vector3 lo(-item.mRadius, -item.mRadius, 0.0f);
+            atn::Vector3 hi(item.mRadius, item.mRadius, 0.0f);
+            atn::Matrix3x4 rot = camera.mInvView;
+            rot.m[0][3] = 0.0f;
+            rot.m[1][3] = 0.0f;
+            rot.m[2][3] = 0.0f;
+            PSMTXMultVec(rot.m, &lo, &lo);
+            PSMTXMultVec(rot.m, &hi, &hi);
+            atn::Vector3 p1 = item.mCenter + lo;
+            p1 = atn::RenderManager::instance_->GetScreenPosition(p1);
+            atn::Vector3 p2 = item.mCenter + hi;
+            p2 = atn::RenderManager::instance_->GetScreenPosition(p2);
+            atn::Vector2_unk size(0.5f * (float)__fabs(p1.x - p2.x) + 12.0f, 0.5f * (float)__fabs(p1.y - p2.y) + 12.0f);
+            atn::Vector2_unk center(0.5f * (p1.x + p2.x), 0.5f * (p1.y + p2.y));
+            int found = 0;
+            if (fn_80051B70(line, &sphere) != 0 && CanSee_unk(line[0], sphere)) {
+                found = 1;
+                lbl_8087F490->fn_803E6ADC(item.mCenter + lo, item.mCenter + hi);
+                lbl_8087F490->fn_803E3BE8(((GameTask*)lbl_8087F430)->m10D8->fn_803CC6B4(m124 + rand() % 4), 0, 0.0f);
+                fn_800C31F4(sSounds_unk[0], 0, -1, 1.0f);
+                camera.fn_8037F6D8(&m154);
+                fn_80435684(3);
+            }
+            if (!found && dist < 800.0f && CanSee_unk(line[0], sphere)) {
+                lbl_8087F490->fn_803E3050(item.mCenter, atn::Vector3(center.x, center.y, p1.z), size, dist);
+            }
+        }
+        if (--m14C <= 0) {
+            fn_80435684(4);
+        }
+        break;
+    }
+    case 3:
+        if (lbl_8087F8A0 != 0 && lbl_8087F430 != 0 && Inventory::instance_ != 0 && lbl_8087F048 != 0) {
+            CharaTask* player = (CharaTask*)lbl_8087F8A0->mHead;
+            atn::Vector3 d = m154 - player->mPos;
+            if (PSVECSquareMag(&d) < 56.25f) {
+                atn::Vector3 pos = m154 + atn::Vector3(0.0f, 13.0f, 0.0f);
+                m168 = 0;
+                m160++;
+                fn_80232B7C(this, 1);
+                fn_8023A8B4(lbl_8087F3C0, &mEfpGet, 0, 0, m154, lbl_807C7030,
+                            RandomItemColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, 1.0f);
+                if (lbl_8087F8A8 != 0) {
+                    PopupEntry_unk e;
+                    e.m10 = 9;
+                    e.m94 = (PopupAnime_unk*)lbl_8087F8A8->fn_8054E528((unsigned int)player, m160);
+                    if (m160 >= m164) {
+                        e.m84 = 100;
+                    }
+                    e.m04 = e.m94->mTask->mLastFrame;
+                    e.m60 = pos;
+                    e.m84 = m160;
+                    lbl_8087F8A8->fn_8054E0FC(&e);
+                }
+                RandomTable_unk* table = fn_8021D720(((GameTask*)lbl_8087F430)->m10D0, m144->m04);
+                char name[0x10];
+                memset(name, 0, sizeof(name));
+                int item;
+                int id;
+                int count;
+                if (table != 0 && fn_8021D770(table, &item, name, m160 - 1) && item > 0 &&
+                    fn_8021E4E4(&id, &count, item, 1)) {
+                    int first = fn_80450B60(id);
+                    if (Inventory::instance_ != 0) {
+                        int type = -1;
+                        int map = -1;
+                        int point = -1;
+                        if (fn_80216AFC(name, &type, &map, &point)) {
+                            SetSource_unk(Inventory::instance_, 1, type, map, point);
+                        }
+                        fn_80445130(Inventory::instance_, &id, &count, 0);
+                        SetSource_unk(Inventory::instance_, 0, -1, -1, -1);
+                    }
+                    void* data = fn_80211480(id);
+                    if (data != 0) {
+                        int rare = 0;
+                        int chance = Inventory::instance_->fn_80448F9C(id);
+                        if (chance > rand() % 100) {
+                            rare = 1;
+                        }
+                        mAnime.fn_8044E418(&pos, 25, 25, data, count, rare, 0);
+                        if (mAnime.fn_8044E610() != 0 && first != 0) {
+                            mAnime.fn_8044E644();
+                        }
+                        m260 = 1;
+                    }
+                }
+                if (m160 < m164) {
+                    fn_80435684(2);
+                } else {
+                    fn_80435684(4);
+                }
+            }
+        }
+        if (--m150 <= 0) {
+            fn_80435684(4);
+        }
+        break;
+    }
+    if (mAnime.IsBusy_unk() || mAnime.IsState56_unk()) {
+        mAnime.fn_8044F434();
+    }
+    if (m260 != 0 && !mAnime.IsBusy_unk()) {
+        mAnime.fn_80450778();
+        GameUI* ui = lbl_8087F490;
+        if (ui != 0) {
+            ui->fn_803E5E64(mAnime.fn_80450A5C(), mAnime.m24, mAnime.mFlag30);
+        }
+        m260 = 0;
+        atn::SoundRef sound = fn_800C31F4(sSounds_unk[1], 0, -1, 1.0f);
+        float pitch = 1.0f;
+        for (int n = m160 - 1; n > 0; n--) {
+            pitch *= 1.122462f;
+        }
+        fn_800CB688(&sound, 0, pitch < 2.0f ? pitch : 2.0f);
+    }
+    m118 = camera.m7FC;
 }
 
 // inferred: state change of the item (0 off, 1 waiting, 2 shown, 3 taken, 4 done)
