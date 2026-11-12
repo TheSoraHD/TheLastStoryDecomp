@@ -5,6 +5,7 @@
 #include "atn/AABB_unk.h"
 #include "atn/ColliBase.h"
 #include "math/Vec.h"
+#include "math/VecAssign_unk.h"
 
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
 extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
@@ -113,7 +114,7 @@ inline float Dot_unk(const Vector3& a, const Vector3& b) {
 
 // inferred: squared distance between two segments; out: the closest point of each segment,
 // lineOut: the closest points of the two lines
-// NONMATCHING: 98.6% - FPR allocation in the both-clipped case (q.z in f6) and r3/r4 of two copies
+// NONMATCHING: 98.7% - FPR allocation in the both-clipped case (q.z in f6)
 extern "C" float fn_80050E18(const ColliCapsuleShape_unk* a, const ColliCapsuleShape_unk* b, Vector3* out, Vector3* lineOut) {
     Vector3 da = a->mEnd - a->mStart;
     Vector3 db = b->mEnd - b->mStart;
@@ -168,13 +169,13 @@ extern "C" float fn_80050E18(const ColliCapsuleShape_unk* a, const ColliCapsuleS
         diff = pa - b->mStart;
         float u = PSVECDotProduct(&db, &diff);
         diff -= db * u;
-        pb = pa - diff;
+        atn::VecAssign_unk(pb, pa - diff);
         dist = PSVECSquareMag(&diff);
     } else if (clip == 2) {
         diff = pb - a->mStart;
         float u = PSVECDotProduct(&da, &diff);
         diff -= da * u;
-        pa = pb - diff;
+        atn::VecAssign_unk(pa, pb - diff);
         dist = PSVECSquareMag(&diff);
     } else {
         Vector3 e = pa - pb;
@@ -388,7 +389,6 @@ inline bool Overlap_unk(const AABB_unk& box, const ColliCapsuleShape_unk& c) {
 }
 
 // inferred: the segment of the capsule may overlap the oriented box
-// NONMATCHING: 99.9% - r4/r5 crossed in the copy of the negated half size (known __VecCopy pattern)
 extern "C" int fn_80051E90(const ColliCapsuleShape_unk* c, const ColliBoxShape_unk* box) {
     Matrix3x4 inv0;
     Matrix3x4 inv1;
@@ -400,13 +400,12 @@ extern "C" int fn_80051E90(const ColliCapsuleShape_unk* c, const ColliBoxShape_u
     inv1 = box->mMtx;
     PSMTXInverse(inv1.m, inv1.m);
     seg.mEnd = atn::Transform_unk(inv1, c->mEnd);
-    aabb.mMin = -box->mSize;
+    atn::VecAssign_unk(aabb.mMin, -box->mSize);
     aabb.mMax = box->mSize;
     return Overlap_unk(aabb, seg);
 }
 
 // inferred: the swept sphere may overlap the oriented box
-// NONMATCHING: 99.9% - r4/r5 crossed in the copy of the negated half size (known __VecCopy pattern)
 extern "C" int fn_800520F0(const ColliCapsuleShape_unk* b, const ColliBoxShape_unk* box) {
     Matrix3x4 inv0;
     Matrix3x4 inv1;
@@ -419,7 +418,7 @@ extern "C" int fn_800520F0(const ColliCapsuleShape_unk* b, const ColliBoxShape_u
     inv1 = box->mMtx;
     PSMTXInverse(inv1.m, inv1.m);
     local.mEnd = atn::Transform_unk(inv1, b->mEnd);
-    aabb.mMin = -box->mSize;
+    atn::VecAssign_unk(aabb.mMin, -box->mSize);
     aabb.mMax = box->mSize;
     return Overlap_unk(aabb, local);
 }
@@ -455,7 +454,6 @@ extern "C" int fn_800523A0(ColliResult_unk* r, const ColliSphereShape_unk* s, co
 
 // inferred: sphere s against capsule; on a hit: m04 point of the capsule surface towards s, m10
 // the center of s pushed out, m1C/m28 the direction from the capsule to s
-// NONMATCHING: 99.7% - r3/r4 crossed in the copy n = d (known __VecCopy pattern)
 extern "C" int fn_8005256C(ColliResult_unk* r, const ColliSphereShape_unk* s, const ColliCapsuleShape_unk* c) {
     if (r) {
         r->m00 = 0;
@@ -475,7 +473,7 @@ extern "C" int fn_8005256C(ColliResult_unk* r, const ColliSphereShape_unk* s, co
         } else {
             d.Set_unk(0.0f, 0.0f, 1.0f);
         }
-        n = d;
+        atn::VecAssign_unk(n, d);
         Vector3 a = p + n * c->mRadius;
         r->m04 = a;
         r->m10 = p + n * rr;
@@ -711,7 +709,6 @@ inline Vector3 Advance_unk(const Vector3& p, const Vector3& dir, const Vector3& 
 
 // inferred: segment (moving point) c against the sphere: m04/m10 the first point of the segment on
 // the sphere, m1C the normal there
-// NONMATCHING: 99.9% - r3/r4 crossed in the copy of start + (start - end) (known __VecCopy pattern)
 extern "C" int fn_8005361C(ColliResult_unk* r, const ColliCapsuleShape_unk* c, const ColliSphereShape_unk* sphere) {
     if (r) {
         r->m00 = 0;
@@ -722,7 +719,7 @@ extern "C" int fn_8005361C(ColliResult_unk* r, const ColliCapsuleShape_unk* c, c
             r->m00 = 1;
             Vector3 p = c->mStart;
             if (IsSame_unk(c->mStart, sphere->mCenter)) {
-                p = c->mStart + (c->mStart - c->mEnd);
+                atn::VecAssign_unk(p, c->mStart + (c->mStart - c->mEnd));
             }
             r->m1C = (p - sphere->mCenter).GetNormalize();
             r->m10 = r->m04 = sphere->mCenter + r->m1C * rad;
@@ -872,7 +869,7 @@ struct ColliPlane_unk {
 
 // inferred: segment (moving point) c against a triangle: m04/m10 the point of the plane crossed,
 // m1C/m28 the normal
-// NONMATCHING: 99.5% - GPR/FPR allocation of seg/dir and of the plane members
+// NONMATCHING: 99.7% - FPR allocation of the plane members
 extern "C" int fn_80054038(ColliResult_unk* r, const ColliCapsuleShape_unk* c, ColliTriangle_unk* tri) {
     if (r) {
         r->m00 = 0;
@@ -884,7 +881,8 @@ extern "C" int fn_80054038(ColliResult_unk* r, const ColliCapsuleShape_unk* c, C
         return 0;
     }
     Vector3 seg = *end - c->mStart;
-    Vector3 dir = seg;
+    Vector3 dir;
+    atn::VecAssign_unk(dir, seg);
     dir.Normalize_unk();
     float rt = tri->mRadius;
     Vector3 w = tri->Center_unk() - c->mStart;
@@ -930,6 +928,134 @@ extern "C" int fn_80054038(ColliResult_unk* r, const ColliCapsuleShape_unk* c, C
         r->m28 = tri->Normal_unk();
     }
     return 1;
+}
+
+// inferred: point of the line on the plane of the box face of normal n at coord along its axis (pos
+// the coordinate of the line point on that axis); out unchanged when the line leaves the plane
+// (name invented)
+inline bool FaceHit_unk(const ColliLine_unk& line, float nx, float ny, float nz, float coord, const float& pos,
+                        Vector3* out) {
+    Vector3 n(nx, ny, nz);
+    float dn = -PSVECDotProduct(&line.mDir, &n);
+    if (dn <= 0.0f) {
+        return false;
+    }
+    float dist = atn::Abs_unk(pos - coord);
+    if (out) {
+        *out = line.mDir * (dist / dn) + line.mPos;
+    }
+    return true;
+}
+
+// inferred: segment (moving point) c against the oriented box: m04/m10 the point of the face crossed,
+// m1C the normal of that face (test in the space of the box)
+extern "C" int fn_8005454C(ColliResult_unk* r, const ColliCapsuleShape_unk* c, const ColliBoxShape_unk* box) {
+    if (r) {
+        r->m00 = 0;
+    }
+    Matrix3x4 inv;
+    inv = box->mMtx;
+    PSMTXInverse(inv.m, inv.m);
+    ColliSegment_unk seg;
+    seg.mStart = atn::Transform_unk(inv, c->mStart);
+    seg.mEnd = atn::Transform_unk(inv, c->mEnd);
+    AABB_unk aabb;
+    atn::VecAssign_unk(aabb.mMin, -box->mSize);
+    aabb.mMax = box->mSize;
+    if (!Overlap_unk(aabb, seg)) {
+        return 0;
+    }
+    Vector3 dir = seg.mEnd - seg.mStart;
+    PSVECNormalize(&dir, &dir);
+    ColliLine_unk line;
+    atn::VecAssign_unk(line.mPos, seg.mStart);
+    atn::VecAssign_unk(line.mDir, dir);
+    Vector3 hit;
+    if (dir.x > 0.0f && seg.mStart.x < aabb.mMin.x && seg.mEnd.x > aabb.mMin.x) {
+        FaceHit_unk(line, -1.0f, 0.0f, 0.0f, aabb.mMin.x, line.mPos.x, &hit);
+        if (hit.y > aabb.mMin.y && hit.y < aabb.mMax.y && hit.z > aabb.mMin.z && hit.z < aabb.mMax.z) {
+            if (r) {
+                PSMTXMultVec(box->mMtx.m, &hit, &hit);
+                Vector3 n = atn::Transform_unk(box->mMtx, Vector3(-1.0f, 0.0f, 0.0f));
+                r->m00 = 1;
+                r->m1C = n;
+                r->m04 = hit;
+                r->m10 = hit;
+            }
+            return 1;
+        }
+    }
+    if (dir.x < 0.0f && seg.mStart.x > aabb.mMax.x && seg.mEnd.x < aabb.mMax.x) {
+        FaceHit_unk(line, 1.0f, 0.0f, 0.0f, aabb.mMax.x, line.mPos.x, &hit);
+        if (hit.y > aabb.mMin.y && hit.y < aabb.mMax.y && hit.z > aabb.mMin.z && hit.z < aabb.mMax.z) {
+            if (r) {
+                PSMTXMultVec(box->mMtx.m, &hit, &hit);
+                Vector3 n = atn::Transform_unk(box->mMtx, Vector3(1.0f, 0.0f, 0.0f));
+                r->m00 = 1;
+                r->m1C = n;
+                r->m04 = hit;
+                r->m10 = hit;
+            }
+            return 1;
+        }
+    }
+    if (dir.y > 0.0f && seg.mStart.y < aabb.mMin.y && seg.mEnd.y > aabb.mMin.y) {
+        FaceHit_unk(line, 0.0f, -1.0f, 0.0f, aabb.mMin.y, line.mPos.y, &hit);
+        if (hit.x > aabb.mMin.x && hit.x < aabb.mMax.x && hit.z > aabb.mMin.z && hit.z < aabb.mMax.z) {
+            if (r) {
+                PSMTXMultVec(box->mMtx.m, &hit, &hit);
+                Vector3 n = atn::Transform_unk(box->mMtx, Vector3(0.0f, -1.0f, 0.0f));
+                r->m00 = 1;
+                r->m1C = n;
+                r->m04 = hit;
+                r->m10 = hit;
+            }
+            return 1;
+        }
+    }
+    if (dir.y < 0.0f && seg.mStart.y > aabb.mMax.y && seg.mEnd.y < aabb.mMax.y) {
+        FaceHit_unk(line, 0.0f, 1.0f, 0.0f, aabb.mMax.y, line.mPos.y, &hit);
+        if (hit.x > aabb.mMin.x && hit.x < aabb.mMax.x && hit.z > aabb.mMin.z && hit.z < aabb.mMax.z) {
+            if (r) {
+                PSMTXMultVec(box->mMtx.m, &hit, &hit);
+                Vector3 n = atn::Transform_unk(box->mMtx, Vector3(0.0f, 1.0f, 0.0f));
+                r->m00 = 1;
+                r->m1C = n;
+                r->m04 = hit;
+                r->m10 = hit;
+            }
+            return 1;
+        }
+    }
+    if (dir.z > 0.0f && seg.mStart.z < aabb.mMin.z && seg.mEnd.z > aabb.mMin.z) {
+        FaceHit_unk(line, 0.0f, 0.0f, -1.0f, aabb.mMin.z, line.mPos.z, &hit);
+        if (hit.y > aabb.mMin.y && hit.y < aabb.mMax.y && hit.x > aabb.mMin.x && hit.x < aabb.mMax.x) {
+            if (r) {
+                PSMTXMultVec(box->mMtx.m, &hit, &hit);
+                Vector3 n = atn::Transform_unk(box->mMtx, Vector3(0.0f, 0.0f, -1.0f));
+                r->m00 = 1;
+                r->m1C = n;
+                r->m04 = hit;
+                r->m10 = hit;
+            }
+            return 1;
+        }
+    }
+    if (dir.z < 0.0f && seg.mStart.z > aabb.mMax.z && seg.mEnd.z < aabb.mMax.z) {
+        FaceHit_unk(line, 0.0f, 0.0f, 1.0f, aabb.mMax.z, line.mPos.z, &hit);
+        if (hit.y > aabb.mMin.y && hit.y < aabb.mMax.y && hit.x > aabb.mMin.x && hit.x < aabb.mMax.x) {
+            if (r) {
+                PSMTXMultVec(box->mMtx.m, &hit, &hit);
+                Vector3 n = atn::Transform_unk(box->mMtx, Vector3(0.0f, 0.0f, 1.0f));
+                r->m00 = 1;
+                r->m1C = n;
+                r->m04 = hit;
+                r->m10 = hit;
+            }
+            return 1;
+        }
+    }
+    return 0;
 }
 
 // inferred: swept sphere b against the sphere: m04 the point of the sphere touched, m10 the center
@@ -1214,7 +1340,6 @@ extern "C" int fn_80055C40(ColliResult_unk* r, const ColliCapsuleShape_unk* b, c
 }
 
 // inferred: swept sphere against a triangle
-// NONMATCHING: 99.6% - GPR allocation of move/dir (r30/r31 swapped)
 extern "C" int fn_8005691C(ColliResult_unk* r, const ColliCapsuleShape_unk* b, ColliTriangle_unk* tri) {
     if (r) {
         r->m00 = 0;
@@ -1224,7 +1349,8 @@ extern "C" int fn_8005691C(ColliResult_unk* r, const ColliCapsuleShape_unk* b, C
     const Vector3* end = &b->mEnd;
     Vector3* c = &tri->Center_unk();
     Vector3 move = *end - b->mStart;
-    Vector3 dir = move;
+    Vector3 dir;
+    atn::VecAssign_unk(dir, move);
     dir.Normalize_unk();
     Vector3 w = *c - b->mStart;
     float t = PSVECDotProduct(&dir, &w);
@@ -1244,7 +1370,7 @@ extern "C" int fn_8005691C(ColliResult_unk* r, const ColliCapsuleShape_unk* b, C
 
 // inferred: swept sphere against a triangle of a mesh placed by mtx (the bounding radius scaled by
 // scale)
-// NONMATCHING: 87.2% - z-first order of the vertex copies and GPR allocation of move/dir
+// NONMATCHING: 87.5% - order of the loads and stores in the vertex copies
 extern "C" int fn_80056AE8(ColliResult_unk* r, const ColliCapsuleShape_unk* b, ColliTriangle_unk* tri,
                            const Matrix3x4* mtx, float scale) {
     if (r) {
@@ -1256,7 +1382,8 @@ extern "C" int fn_80056AE8(ColliResult_unk* r, const ColliCapsuleShape_unk* b, C
     PSMTXMultVec(mtx->m, &c, &c);
     Vector3 move = *end - b->mStart;
     float rt = tri->mRadius * scale;
-    Vector3 dir = move;
+    Vector3 dir;
+    atn::VecAssign_unk(dir, move);
     dir.Normalize_unk();
     Vector3 w = c - b->mStart;
     float t = PSVECDotProduct(&dir, &w);
@@ -1283,4 +1410,3 @@ extern "C" int fn_80056AE8(ColliResult_unk* r, const ColliCapsuleShape_unk* b, C
     return 0;
 }
 
-// TODO: fn_8005454C (segment against an oriented box, 0xC70 bytes) is not written yet.
