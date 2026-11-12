@@ -19,9 +19,19 @@
 #include "db/EquipParam_unk.h"
 #include "db/ItemParam_unk.h"
 #include "game/MapTask.h"
+#include "game/GameScene.h"
+#include "game/GameEventScript.h"
+#include "game/GameUI.h"
+#include "game/GameChoiceWindow.h"
+#include "game/TeamAIManager.h"
+#include "game/ChaseManager.h"
+#include "game/NpcManager.h"
+#include "game/NpcTask.h"
+#include "game/MapPartsLocatorSet.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
+extern "C" int rand();
 extern "C" void* memset(void* dst, int c, unsigned long n);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" unsigned int fn_800DC500(const void* data, unsigned long len); // inferred: checksum
@@ -120,6 +130,156 @@ static inline bool IsKeptFlag_unk(int flag) {
     return false;
 }
 
+// inferred: MSL map::operator[] of the finished events (as in game/GameEventScript.cpp)
+inline bool& GameEventScript::Done_unk(const int& key) {
+    ScriptDoneNode_unk* pred;
+    bool left;
+    bool leftmost;
+    ScriptDoneNode_unk* parent = mDone.FindInsertPos_unk(key, pred, left, leftmost);
+    ScriptDonePair_unk* v;
+    if (pred == 0 || (v = &pred->mValue, v->first < key)) {
+        v = &mDone.InsertNode_unk(parent, left, leftmost, ScriptDonePair_unk(key, bool()))->mValue;
+    }
+    return v->second;
+}
+
+// inferred: next node of the finished events (MSL tree iterator increment; name invented)
+static inline ScriptDoneNode_unk* NextDone_unk(ScriptDoneNode_unk* node) {
+    ScriptDoneNode_unk* next = node->mRight;
+    if (next != 0) {
+        while (next->mLeft != 0) {
+            next = next->mLeft;
+        }
+        node = next;
+    } else {
+        ScriptDoneNode_unk* parent;
+        while (node != (parent = (ScriptDoneNode_unk*)(node->mParent & ~1))->mLeft) {
+            node = parent;
+        }
+        node = parent;
+    }
+    return node;
+}
+
+// inferred: entry before `cmd` in the ring of orders of a team, 0 at the end (name invented)
+static inline TeamCmd_unk* PrevCmd_unk(TeamRing_unk<TeamCmd_unk, 32>& ring, TeamCmd_unk* cmd) {
+    unsigned int pos = ((char*)cmd - (char*)ring.mData) / sizeof(TeamCmd_unk);
+    int i = pos > 31 ? -1 : (int)pos;
+    if (i == -1) {
+        return 0;
+    }
+    i = ring.Prev_unk(i);
+    if (i == ring.mTail) {
+        return 0;
+    }
+    return &ring.mData[i];
+}
+
+// NONMATCHING: 97.87% - register allocation (r25-r31) and the copy of the next node of the finished events
+// inferred: collects the flags, the work values, the map, the open events, the team orders that write values,
+// the chase, the characters of the scene and the draw flags of the map parts
+void GameSaveFlags_unk::fn_803B9804() {
+    GameTask* field = lbl_8087F430;
+    mState = field->m10D0;
+    for (int i = 0; i < 0x1000; i++) {
+        mFlags[i] = field->fn_80370174(i);
+    }
+    for (int i = 0; i < 0x100; i++) {
+        mWork[i] = field->fn_80370A78(i);
+    }
+    MapTask* map = field->GetCurrentMap();
+    mMap = map->mType;
+    mPoint = map->mId;
+    mArea = map->mSubId;
+    GameScene* scene = field->m10D8;
+    GameEventScript* script = scene->m134;
+    int count = 0;
+    for (ScriptDoneNode_unk* node = script->mDone.mFirst; node != script->mDone.End_unk(); node = NextDone_unk(node)) {
+        if (script->fn_803ACD50(node->mValue.first) == 0) {
+            mSpots[count] = node->mValue.first;
+            count++;
+        }
+    }
+    mSpotCount = count;
+    GameUI* ui = lbl_8087F490;
+    if (ui != 0 && ui->m2640 != 0 && ui->m2640->m71 != 0) {
+        int mode = ui->m2640->m74;
+        if (mode == 1) {
+            mFlags[ui->m2640->m78] = 1;
+        } else if (mode == 0) {
+            mWork[ui->m2640->m78] = 1;
+        }
+    }
+    TeamAIManager* teams = lbl_8087FA00;
+    if (teams != 0) {
+        for (unsigned int i = 0; i < teams->mTeams.size(); i++) {
+            TeamRing_unk<TeamCmd_unk, 32>& ring = teams->mTeams.mData[i].m10;
+            for (TeamCmd_unk* cmd = ring.Last_unk(); cmd != 0; cmd = PrevCmd_unk(ring, cmd)) {
+                if (cmd->m00 == 0x20) {
+                    TeamVarOp_unk* op = (TeamVarOp_unk*)&cmd->m04;
+                    int value = op->mValue;
+                    if (op->mSrc == 2) {
+                        value = mFlags[value];
+                    } else if (op->mSrc == 1) {
+                        value = mWork[value];
+                    } else if (op->mSrc == 3) {
+                        value = rand() % op->mValue + 1;
+                    }
+                    if (op->mDst == 1) {
+                        mFlags[op->mVar] = value;
+                    } else if (op->mDst == 0) {
+                        mWork[op->mVar] = value;
+                    }
+                }
+            }
+        }
+    }
+    if (lbl_8087F098 != 0) {
+        mFlags[0x397] = lbl_8087F098->mGoalId;
+        mFlags[0x398] = lbl_8087F098->mShowGoal;
+    }
+    int n = 0;
+    for (unsigned int i = 0; i < scene->m80.size(); i++) {
+        if (n >= 0x100) {
+            break;
+        }
+        CharaTask* chara = NpcManager::sInstance->Find_unk(scene->m80.mData[i].mId);
+        if (chara != 0) {
+            mCharas[n].mId = scene->m80.mData[i].mId;
+            mCharas[n].mType = 1;
+            mCharas[n].mFlag = chara->mFlagB20;
+            n++;
+        }
+    }
+    for (unsigned int i = 0; i < scene->m88.size(); i++) {
+        if (n >= 0x100) {
+            break;
+        }
+        CharaTask* chara = EnemyManager::sInstance->Find_unk(scene->m88.mData[i].mId);
+        if (chara != 0) {
+            mCharas[n].mId = scene->m88.mData[i].mId;
+            mCharas[n].mType = 2;
+            mCharas[n].mFlag = chara->mFlagB20;
+            n++;
+        }
+    }
+    for (unsigned int i = 0; i < scene->m90.size(); i++) {
+        if (n >= 0x100) {
+            break;
+        }
+        CharaTask* chara = lbl_8087F8A0->Find_unk(scene->m90.mData[i].mId);
+        if (chara != 0) {
+            mCharas[n].mId = scene->m90.mData[i].mId;
+            mCharas[n].mType = 3;
+            mCharas[n].mFlag = chara->mFlagB20;
+            n++;
+        }
+    }
+    mCharaCount = n;
+    mLeader = lbl_8087F8A0->mHead->m58;
+    memcpy(m4D18, script->m154, sizeof(m4D18));
+}
+
 void GameSaveFlags_unk::fn_803B9C98() {
     GameTask* field = lbl_8087F430;
     if (field) {
@@ -136,6 +296,55 @@ void GameSaveFlags_unk::fn_803B9C98() {
             lbl_8087F0A8->mCurrentLevel = 3;
         } else {
             lbl_8087F0A8->mCurrentLevel = 1;
+        }
+    }
+}
+
+// NONMATCHING: 92.41% - the original guards the loop of the finished events with a signed test and keeps the
+// map in a saved register; the chase manager is loaded into saved registers before the flag reads
+// inferred: restores the work values, the finished events, the leader, the chase and the draw flags of the
+// map parts
+void GameSaveFlags_unk::fn_803B9D78() {
+    GameTask* field = lbl_8087F430;
+    for (int i = 0; i < 0x100; i++) {
+        field->fn_80370AE4(i, mWork[i]);
+    }
+    GameScene* scene = field->m10D8;
+    GameEventScript* script = scene->m134;
+    ScriptTree_unk<ScriptDoneNode_unk>& done = script->mDone;
+    if (done.mRoot != 0) {
+        done.Destroy_unk(done.mRoot);
+        done.mSize = 0;
+        done.mRoot = 0;
+        done.mFirst = done.End_unk();
+    }
+    if (mSpotCount > 0) {
+        for (int i = 0; i < mSpotCount; i++) {
+            script->Done_unk(mSpots[i]) = true;
+        }
+    }
+    if (mLeader != -1 && lbl_8087F8A0->Find_unk(mLeader) != 0) {
+        PlayerManager* players = lbl_8087F8A0;
+        players->fn_8054A09C(players->Find_unk(mLeader), 0);
+    }
+    if (lbl_8087F098 != 0) {
+        lbl_8087F098->fn_80183618(field->fn_80370174(0x397));
+        lbl_8087F098->fn_80183774(field->fn_80370174(0x398));
+    }
+    memcpy(script->m154, m4D18, sizeof(m4D18));
+    for (int i = 0; i < 0x40; i++) {
+        if (m4D18[i].m00 == 0) {
+            break;
+        }
+        if ((m4D18[i].m04 & 2) == 2) {
+            scene->m64->fn_804A0E90(m4D18[i].m00, m4D18[i].m04 & 1);
+        }
+        if ((m4D18[i].m04 & 8) == 8) {
+            MapPartsLocatorSet* set = (MapPartsLocatorSet*)scene->m64->fn_804A0BCC(4, m4D18[i].m00);
+            if (set != 0) {
+                unsigned int flags = set->mFlags;
+                set->fn_8049B72C((m4D18[i].m04 & 4) == 4 ? flags | 0x400 : flags & ~0x400);
+            }
         }
     }
 }
@@ -241,6 +450,88 @@ void GameSavePlayers_unk::fn_803BA408() {
         }
     }
 }
+
+// inferred: state of a player from its entry (inlined in fn_803BA620: its locals are on the stack in the order
+// of an inline; name invented)
+static inline void RestorePlayer_unk(const GameSavePlayer_unk* entry, PlayerTask* player) {
+    player->mPos = entry->mPos;
+    player->mRot = entry->mRot;
+    player->mC58.mC0 = entry->m02;
+    player->mC58.mB4 = entry->m20;
+    player->m58C = 0;
+    if ((entry->mFlags & 2) == 2) {
+        player->vf44();
+        atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+        Mtx rot;
+        PSMTXRotRad(rot, 'y', player->mRot.y);
+        PSMTXMultVec(rot, &dir, &dir);
+        player->fn_8015E7A0(atn::Vector3(-dir.x, -dir.y, -dir.z), -1, 0);
+    }
+    signed char level = entry->m03;
+    if (level >= 0) {
+        player->fn_8014DEE4(player->m50 == 1 ? 0 : level, 0, 0);
+    } else {
+        player->fn_8014EEC4(0);
+    }
+    if ((entry->mFlags & 4) == 4) {
+        player->fn_80145334();
+        GameSceneRoute_unk ledge;
+        if (lbl_8087F430->fn_8036DAF4(&ledge, player, 1, 0)) {
+            player->fn_80153698(&ledge, 0);
+        }
+    }
+    if ((entry->mFlags & 8) == 8) {
+        player->m54C |= 0x2000;
+    }
+    if ((entry->mFlags & 0x10) == 0x10) {
+        switch (entry->mRouteMode) {
+        case 0:
+            player->fn_8016F824(entry->mRouteTarget, entry->mRouteFlag);
+            break;
+        case 1:
+            player->fn_8016FDCC(entry->mRouteTarget, entry->mRouteFlag);
+            break;
+        case 3:
+            player->fn_8017039C(entry->mRouteTarget, entry->mRouteFlag);
+            break;
+        case 6:
+            player->fn_80171420(lbl_8087F8A0->Find_unk(entry->mRouteTarget), entry->mRouteFlag,
+                                (float)entry->mRouteRadius);
+            break;
+        }
+    }
+}
+
+// NONMATCHING: 99.83% - the original loads the id of the entry before the one of the player in the search
+// inferred: restores the players: each one takes the entry with its id (or a free entry with id 0 when it has
+// none), its position, state, ledge and route
+void GameSavePlayers_unk::fn_803BA620() {
+    if (lbl_8087F8A0 == 0) {
+        return;
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player; player = player->mNext) {
+        int index = -1;
+        for (int i = 0; i < 16; i++) {
+            if ((mEntries[i].mFlags & 1) == 1 && mEntries[i].m04 == player->m58) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) {
+            for (int i = 0; i < 16; i++) {
+                if ((mEntries[i].mFlags & 1) == 1 && mEntries[i].m04 == 0 && player->m58 == -1) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        if (index < 0) {
+            continue;
+        }
+        RestorePlayer_unk(&mEntries[index], player);
+    }
+}
+
 
 GameSaveParty_unk::GameSaveParty_unk() {
     mMask = 0;
@@ -513,6 +804,56 @@ void GameSaveInventory_unk::fn_803BD6C0(int mode) {
                 }
             }
         }
+    }
+}
+
+// NONMATCHING: the original copies the player settings of GameConfig_unk (0x244-0x334) into a local, sets
+// mAlwaysBirdview in it and copies it back member by member (no type for that block yet); the small arrays of
+// SetConfig go through word copies
+// inferred: restores the settings (format 7 and later), then the defaults of the settings added by later
+// formats
+void GameSaveSettings_unk::fn_803BD79C() {
+    if (lbl_8087DD64 >= 7) {
+        lbl_8087F0A8->mAlwaysBirdview = mAlwaysBirdview & 1;
+        SetConfig::sInstance->m24 = m08;
+        SetConfig::sInstance->mAttackType = mAttackType;
+        SetConfig::sInstance->mDiveType = mDiveType;
+        SetConfig::sInstance->mInTacviewType = mInTacviewType;
+        SetConfig::sInstance->mGatheringType = mGatheringType;
+        memcpy(SetConfig::sInstance->m38, m1C, sizeof(m1C));
+        SetConfig::sInstance->mAttackTurnSpeed = mAttackTurnSpeed;
+        SetConfig::sInstance->mTurnSpeed = mTurnSpeed;
+        SetConfig::sInstance->mRollbackSpeed = mRollbackSpeed;
+        SetConfig::sInstance->mCameraRotSpeed = mCameraRotSpeed;
+        SetConfig::sInstance->m50 = m34;
+        SetConfig::sInstance->mRotDelay = mRotDelay;
+        SetConfig::sInstance->mBattleDrawHateLine = mBattleDrawHateLine;
+        SetConfig::sInstance->mDrawEnemyHP = mDrawEnemyHP;
+        SetConfig::sInstance->mDrawEnemyPopup = mDrawEnemyPopup;
+        SetConfig::sInstance->mDrawFriendPopup = mDrawFriendPopup;
+        memcpy(SetConfig::sInstance->m68, m4C, sizeof(m4C));
+        SetConfig::sInstance->mShowDialog = mShowDialog;
+        SetConfig::sInstance->mShowTutorial = mShowTutorial;
+        SetConfig::sInstance->mEventSkipType = mEventSkipType;
+        SetConfig::sInstance->mEventCameraControl = mEventCameraControl;
+        memcpy(SetConfig::sInstance->m88, m6C, sizeof(m6C));
+        SetConfig::sInstance->fn_8057F1B4(&mSound);
+        SetConfig::sInstance->fn_8057F198(m88);
+    }
+    if (lbl_8087DD64 < 8) {
+        SetConfig::sInstance->mAttackTurnSpeed = 1.0f;
+        SetConfig::sInstance->mTurnSpeed = 1.0f;
+        SetConfig::sInstance->mRollbackSpeed = 0.8f;
+        SetConfig::sInstance->mCameraRotSpeed = 1.0f;
+        SetConfig::sInstance->mRotDelay = 31.0f;
+        SetConfig::sInstance->m50 = 16;
+    }
+    if (lbl_8087DD64 < 14) {
+        SetConfig::sInstance->mTurnSpeed = 1.0f;
+        SetConfig::sInstance->mRotDelay = 1.0f;
+    }
+    if (lbl_8087DD64 < 15) {
+        SetConfig::sInstance->mAttackTurnSpeed = 1.0f;
     }
 }
 

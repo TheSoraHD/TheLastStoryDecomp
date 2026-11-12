@@ -113,6 +113,74 @@ inline float LengthSq_unk(const atn::Vector3& v) {
     return PSVECSquareMag(&v);
 }
 
+// inferred: position of the point mPointB as the walker reaches it: the point itself, a random spot of it
+// ahead of the walk direction or a random spot (name invented; inlined in fn_801279E8)
+static inline atn::Vector3 GetPointPos_unk(RouteWalker_unk* walker) {
+    int point = walker->mPointB;
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (((unsigned int)walker->m48 & 2) == 2) {
+        return table->mPoints[point - 1].mPos;
+    }
+    if (((unsigned int)walker->m48 & 0x10) == 0x10) {
+        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+        atn::Vector3 side;
+        PSVECCrossProduct(&walker->m58, &up, &side);
+        if (0.0f == PSVECSquareMag(&side)) {
+            side = up;
+        } else {
+            atn::Vector3 n = side;
+            PSVECNormalize(&n, &n);
+            side = n;
+        }
+        return ((GameScene*)table)->fn_803C1338(point, &side);
+    }
+    return ((GameScene*)table)->fn_803C11A4(point);
+}
+
+// NONMATCHING: 98.65% - stack slots of the vectors of modes 4, 5 and 7 (the original has them in the opposite
+// order) and the load of the facing of the target before the copy of its position
+// inferred: distance from the character to the goal of the route in its mode (-1 without route)
+float RouteWalker_unk::fn_801279E8() {
+    switch (mMode) {
+    case 0:
+        if (m44 == 4) {
+            atn::Vector3 d = mTarget->mPos - mChara->mPos;
+            return PSVECMag(&d);
+        } else if (m44 == 5) {
+            atn::Vector3 d = m30 - mChara->mPos;
+            return PSVECMag(&d);
+        } else if (m44 == 7) {
+            atn::Vector3 pos = mTarget->mPos;
+            atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+            Mtx rot;
+            PSMTXRotRad(rot, 'y', mTarget->mRot.y);
+            PSMTXMultVec(rot, &dir, &dir);
+            Mtx rot2;
+            PSMTXRotRad(rot2, 'y', m9C);
+            PSMTXMultVec(rot2, &dir, &dir);
+            pos += dir * 15.0f;
+            atn::Vector3 d = pos - mChara->mPos;
+            return PSVECMag(&d);
+        } else {
+            atn::Vector3 pos = GetPointPos_unk(this);
+            atn::Vector3 d = pos - mChara->mPos;
+            return PSVECMag(&d);
+        }
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 7:
+        return PSVECMag(&m58);
+    case 6: {
+        atn::Vector3 d = mTarget->mPos - mChara->mPos;
+        return PSVECMag(&d);
+    }
+    }
+    return -1.0f;
+}
+
 void RouteWalker_unk::fn_80127D8C(int a, int b, int c) {
     chr::Chara_unk* chara = mChara;
     m4C = chara->mPos;

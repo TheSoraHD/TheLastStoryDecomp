@@ -361,6 +361,46 @@ void CampSaveLoad::fn_8011B3D8(int wrap) {
     }
 }
 
+// inferred: the load menu shows a third page of a single row (name invented)
+static inline bool IsSinglePage_unk(CampSaveLoad* menu) {
+    return menu->mMode == 1 && menu->m134 == 2;
+}
+
+// NONMATCHING: 80.52% - the pad tests are materialized as bools (neg/or/srwi.) in the original, as in
+// fn_8011B3D8
+// inferred: moves the cursor on the slot grid: two columns (m130), four rows (m12C) per page (m134); the load
+// menu has a third page with one row
+void CampSaveLoad::fn_8011B570() {
+    if (IsRepeated_unk(0) || IsRepeated_unk(0x1A)) {
+        if (--m130 < 0) {
+            m130 += 2;
+        }
+        fn_80117228(3);
+    } else if (IsRepeated_unk(1) || IsRepeated_unk(0x19)) {
+        if (++m130 >= 2) {
+            m130 -= 2;
+        }
+        fn_80117228(3);
+    } else if (IsRepeated_unk(3) || IsRepeated_unk(0x18)) {
+        m12C++;
+        if ((IsSinglePage_unk(this) ? 1 : 4) <= m12C) {
+            m12C = 0;
+            m134 = (m134 + 1) % ((mMode == 1) + 2);
+        }
+        fn_80117228(3);
+    } else if (IsRepeated_unk(2) || IsRepeated_unk(0x17)) {
+        if (--m12C < 0) {
+            m134 = m134 > 0 ? m134 - 1 : (mMode == 1) + 1;
+            m12C = IsSinglePage_unk(this) ? 0 : 3;
+        }
+        fn_80117228(3);
+    }
+    if (IsSinglePage_unk(this)) {
+        m12C = 0;
+        m130 = 0;
+    }
+}
+
 // NONMATCHING: 94.6% - the original keeps L"" (offset 0x90 of @wstringBase0) in a saved register and
 // the wide string pool of the unit is not reproduced yet (the asm functions own most of it); with the
 // empty ~CsvBase() the csv address is now in a saved register as in the original

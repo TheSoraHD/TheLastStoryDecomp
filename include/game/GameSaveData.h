@@ -21,8 +21,8 @@ struct GameSaveChara_unk {
 
 // inferred: 8-byte entry copied from 0x154 of the route tables
 struct GameSaveRoute_unk {
-    int m00;
-    int m04;
+    unsigned int m00; // inferred: name hash of the map part (as ScriptPartsFlag_unk, unsigned compares)
+    unsigned int m04; // inferred: draw flags
 };
 
 // inferred: game flags of the save data (at +0x04 of GameSaveData_unk): values and work values of the
@@ -47,7 +47,7 @@ struct GameSaveFlags_unk {
     unsigned char mArea;             // 0x4D0D
     unsigned short mPoint;           // 0x4D0E
     int m4D10;
-    int mLeader;                     // 0x4D14: inferred: character id of the first player
+    unsigned int mLeader;            // 0x4D14: inferred: character id of the first player
     GameSaveRoute_unk m4D18[64];     // inferred: copy of 0x154 of the route tables
 };
 
@@ -135,8 +135,8 @@ struct GameSavePlayer_unk {
     atn::Vector3 mPos;      // 0x08
     atn::Vector3 mRot;      // 0x14
     int m20;                // inferred: CharaC58_unk::mB4
-    short mRouteMode;       // 0x24: inferred: RouteWalker_unk::m44
-    short mRouteFlag;       // 0x26: inferred: RouteWalker_unk::m48
+    unsigned short mRouteMode; // 0x24: inferred: RouteWalker_unk::m44
+    unsigned short mRouteFlag; // 0x26: inferred: RouteWalker_unk::m48
     int mRouteTarget;       // 0x28: inferred: point, link, place or character of the route
     int mRouteRadius;       // 0x2C
     unsigned char m30[0x44 - 0x30];
