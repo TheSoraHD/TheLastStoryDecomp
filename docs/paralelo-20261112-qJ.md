@@ -55,3 +55,12 @@ Inicio: 18:19 (corte del servidor 18:33-20:16; reanudado 20:16). Rama `agent-J`.
     `is_red()/set_black()` recarga la palabra).
   - `map::operator[]` inline: `return InsertNode(...)->mValue;` en la rama de insercion (no reasignar `pred`).
   - El valor por defecto de `operator[]` con `make_pair` por valor deja los dos temporales en pila del original.
+
+## atn/TextAnimation
+
+- Funciones al 0 %: 3 -> 1. `fn_800DAD6C` y `fn_800DB6E0` eran los `push_back` debiles de
+  `std::vector<TextAnimEntry_unk>` y `std::vector<std::vector<float> >` (llamados desde `fn_800DAB68`) que nuestro
+  `.o` ya emite: solo renombrados en `symbols.txt` (74 % y 69 %; el crecimiento generico de `std/vector.h` no
+  coincide con el original, que limita la capacidad con `0x71C71C7`/`0xE38E38E` y elige por `min`; no tocado:
+  cabecera compartida). Queda `fn_800D9960` (4 KB, paired-single).
+- `precommit` da FAIL solo por `ordercheck` (1 fuera de orden, `TextAnimVec_unk` ctor), igual que antes del cambio.
