@@ -49,7 +49,9 @@ struct MpLobbySession_unk : public atn::Task {
     }
     unsigned char m048[0x508 - 0x48];
     short m508;               // inferred: time left (-1: none)
-    unsigned char m50A[0x540 - 0x50A];
+    unsigned char m50A[0x514 - 0x50A];
+    int m514;                 // inferred: nonzero once the play time is known (fn_804E4A20)
+    unsigned char m518[0x540 - 0x518];
     int m540;                 // inferred: game mode (0: raid, 1: versus)
     unsigned char m544[0x55C - 0x544];
     int m55C;
@@ -74,6 +76,7 @@ extern "C" MpLobbyData_unk* lbl_8087F628;
 extern "C" int DWC_GetNumConnectionHost();
 extern "C" int fn_806A8E70();
 extern "C" void fn_804DDA04(MpLobbySession_unk* s); // inferred: sends the game mode
+extern "C" int fn_804E4A20(); // inferred: play time of the player
 // inferred: list of the connected aids
 struct MpLobbyAids_unk {
     unsigned char* mAids;
@@ -460,13 +463,14 @@ void D2AMpMenuLobby::fn_804C2260(int v) { mDCC = v; }
 void D2AMpMenuLobby::fn_804C2268(int time) {
     m50->SetNumber_unk("string0100(1)", time, 0);
     SetPaneValue2_unk(m50->mLayout, "col0100", 1, 255.0f);
-    SetPaneValue2_unk(m50->mLayout, "col0100", 2, (float)(time > 30 ? 0xFF : 0));
-    SetPaneValue2_unk(m50->mLayout, "col0100", 3, (float)(time > 30 ? 0xFF : 0));
+    int full = 0xFF;
+    SetPaneValue2_unk(m50->mLayout, "col0100", 2, (float)(time <= 30 ? 0 : full));
+    SetPaneValue2_unk(m50->mLayout, "col0100", 3, (float)(time <= 30 ? 0 : full));
     if (mD88 != 0) {
         MpD2A_unk* task = m50;
         if (task != 0) {
             task->fn_800D246C(0);
-            task->mSpeed = (float)(time != 0 ? 1 : -1);
+            task->mSpeed = (float)(time == 0 ? -1 : 1);
             task->mRepeat = 0;
         }
     }
@@ -489,6 +493,31 @@ void D2AMpMenuLobby::fn_804C28A0(int count) {
             mDCC++;
             fn_80117228(3);
         }
+    }
+}
+
+// inferred: selects the map drawing of the entry `id` (tables per game mode) and, once the play time is known,
+// colors the logo and moves Ruri for the players under 407000 (0x635D8) frames
+// NONMATCHING: 96.5% - the tables are one .rodata object with the int-to-float constant in the original; order
+// of two instructions after fn_804E4A20
+void D2AMpMenuLobby::fn_804C2994(int id) {
+    int versus[9] = {0, 0, 1, 0, 0, 0, 2, 0, 0};
+    int raid[5] = {0, 0, 0, 0, 1};
+    mE58 = D2AMpMenu::sInstance->mC4 == 2 ? raid[id] : versus[id];
+    const char* names[3] = {"draw1", "draw2", "draw3"};
+    for (int i = 0; i < 3; i++) {
+        if (i == mE58) {
+            SetPaneFloat_unk(m70->mLayout, names[i], 1.0f);
+        } else {
+            SetPaneFloat_unk(m70->mLayout, names[i], 0.0f);
+        }
+    }
+    if (lbl_8087F610->m514 != 0) {
+        int time = fn_804E4A20();
+        int full = 0xFF;
+        SetPaneValue2_unk(m70->mLayout, "col0002(1)", 0, (float)(time <= 407000 ? 0 : full));
+        SetPaneValue2_unk(m70->mLayout, "col0009(1)", 0, (float)(time <= 407000 ? 0 : full));
+        SetPaneFloat_unk(m70->mLayout, "ruriXposCorrection", (float)(time <= 407000 ? -100 : 0));
     }
 }
 
