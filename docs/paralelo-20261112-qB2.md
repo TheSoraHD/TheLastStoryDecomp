@@ -11,7 +11,7 @@ Inicio: 2026-11-12 21:50 CET (tope 23:35).
   33 % -> 99,5 % y `RenderSetting_unk::ResetPostFx_unk` (0x8052B7F8) se emite: 96,6 %; al 100 % nuevas las
   copias debiles `fn_8052B7F0`, `ResHandle::Load` (0x8052BC90), `vector<NewCampElem_unk>::operator[]`/`size`.
 
-- `game/NewCampPartsMapSelect`: 1 -> 0. `vf14` (0x8051D864, dibujo del mapa, 5 KB) escrita: 92,4 %. Declarada
+- `game/NewCampPartsMapSelect`: 1 -> 0. `vf14` (0x8051D864, dibujo del mapa, 5 KB) escrita: 96,3 %. Declarada
   `virtual void vf14()` en `NewCampPartsMapSelect.h` (la vtable apuntaba a la de la base); simbolo
   `fn_8051D864` -> `vf14__21NewCampPartsMapSelectFv`. Tabla `sBackRanges_unk` (lbl_8075BE80, rangos de los
   tableros de fondo) definida en el fuente. El `.sdata2` de la unidad queda identico al original.
@@ -26,8 +26,8 @@ Inicio: 2026-11-12 21:50 CET (tope 23:35).
 - `vf0C` 99,5 %: registros del grupo del menu de depuracion (r27/r28); probado declarar `sub` antes: igual.
 - `ResetPostFx_unk` 96,6 %: registros de las constantes del Dof.
 
-- `NewCampPartsMapSelect::vf14` 92,5 %: registros y orden de los temporales de las matrices
-  (`SetEntryScale_unk`, `MoveEntry_unk`) y del offset de la camara.
+- `NewCampPartsMapSelect::vf14` 96,3 %: temporales del lerp de `MoveEntry_unk`, un registro float guardado de mas, orden de las sumas de la caja de depuracion y del offset de camara (mDC 2). Las marcas se escriben sin helper inline: las cadenas de un helper inline van a un pool `@STRING@` propio
+
 - Pool de cadenas de NewCampPartsMapSelect: el original tiene un NUL de mas tras "map_board01_%04d",
   "map_board01.d2a", "map_be010_001_%04d" y "" de vf4C (bytes sin referencia). Se escribe `"...\0"` en esos
   `sprintf`: `@stringBase0` identico al original salvo el relleno final; `vf48` al 100 %, vf4C 94,8 -> 96,5 %,
@@ -51,7 +51,9 @@ integracion aceptando esa bajada cosmetica.
   `RsColor_unk` el constructor de NewCampView_unk bajaba (llama al constructor de RsColor_unk).
 
 - `symbols.txt`: `@14042`/`@14384` de NewCampPartsMapSelect renombradas a mano a `@15196`/`@15538` (pd.sh no
-  las renumero).
+  las renumero). Despues, todas las etiquetas `@N` de `.sdata2` de NewCampPartsMapSelect renombradas por
+  direccion a las de nuestro `.o` (el `.sdata2` es identico byte a byte; pairdata las emparejaba mal por valores
+  repetidos).
 
 ## Hallazgos
 
