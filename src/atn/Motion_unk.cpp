@@ -1,20 +1,21 @@
 // atn/Motion_unk.cpp (file name invented): cache of the map models loaded from a csv list
 // ("FOLDER", "MODEL", "MODEL_LOD"), the out-of-line members of atn::LH_Motion and the motion
-// helpers of the models (pose of a node, MotionPose_unk, atn::MotionCommandData), then the motion banks
-// kept in static maps (0x800A0A68-0x800A2664, not written yet) and the random generator of
-// MP::CryptMP (0x800A2664, not written yet). The __sinit is the one of <iostream>.
+// helpers of the models (pose of a node, MotionPose_unk, atn::MotionCommandData). The motion banks
+// (0x800A0A68-0x800A2978) are another file: atn/MotionBank_unk.cpp.
 #include "atn/Csv.h"
 #include "atn/Model_unk.h"
+#include "atn/MotionCmd_unk.h"
+#include "atn/MotionModelRes_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/LH_Motion.h"
 #include "atn/Light_unk.h"
 #include "atn/Memory.h"
 #include "game/MotionCmdData_unk.h"
 #include "gmk/MapLift.h"
-#include "std/ios_init.h"
 #include "std/string.h"
 #include "std/string_members.h"
 #include "std/vector.h"
+#include "std/tree.h"
 #include "nw4r/math/triangular.h"
 
 extern "C" {
@@ -323,16 +324,7 @@ int atn::MotionCommandData::fn_800A091C() {
     return 0;
 }
 
-// inferred: model resource seen by fn_800A09D0 (node table at 0x44/0x4C)
-struct MotionModelRes_unk {
-    unsigned char m00[0x44];
-    int m44;
-    unsigned char m48[0x4C - 0x48];
-    struct Node_unk {
-        int m00; // inferred: index
-        unsigned int m04; // inferred: name hash
-    }* m4C;
-};
+
 
 // inferred: index of each node of a model in a motion (-1: not animated)
 extern "C" void fn_800A09D0(short* out, atn::Model* model, atn::LH_Motion* motion) {

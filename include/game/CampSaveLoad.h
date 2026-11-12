@@ -80,6 +80,7 @@ public:
     void fn_8011968C();                   // inferred: handles the cancel/back input
     void fn_8011979C();                   // inferred: handles the confirmation window input
     void fn_8011B3D8(int wrap);           // inferred: moves the cursor m154 within [0, m158)
+    void fn_8011B570();                   // inferred: moves the cursor on the slot grid
     void fn_8011B8D4(const wchar_t* text, int length); // inferred: reads the list of entries
     void fn_8011AD38();                   // inferred: animates the slot frames
     int fn_8011BBD0(int slot);            // inferred: nonzero if the slot is newer than the current data

@@ -35,7 +35,6 @@ extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared len
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" float fn_8010CB2C(Effect_unk* mgr, CharaTask* chara, float rate); // inferred: chant speed
 extern "C" void fn_800FAB80(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* bullet, int id, const atn::Vector3* pos,
                             const atn::Vector3* rot, int arg6, int arg7, int arg8, int arg9, float arg10,
                             float arg11); // inferred: fires a bullet (as in gmk/Coffin.cpp)
@@ -757,7 +756,7 @@ void Em001Necromancer::fn_80246594() {
     HitInfo_unk* hit = m638 = m1520[m152C];
     mFBC = (float)hit->mC0;
     if (mFB8 < (float)hit->mC0) {
-        float r = fn_8010CB2C(lbl_8087F048, this, 1.0f);
+        float r = ((BattleTask*)lbl_8087F048)->fn_8010CB2C(this, 1.0f);
         mFB8 += lbl_8087EFA8->GetTime_unk() * (r * r);
         if (mFB8 >= (float)m638->mC0) {
             done = 1;

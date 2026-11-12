@@ -469,16 +469,14 @@ int SwingPart_unk::fn_803FFF40() {
         if ((m134 & 1) != 1 || (m134 & 2) != 2) {
             int count = ((SwingPartInst_unk*)mInst.mData)->m17C->mNumNodes;
             Mtx* nodes = (Mtx*)new ((MemoryTag)6, "", "", 0) atn::Matrix3x4[count];
-            Mtx* old = m98;
-            m98 = nodes;
-            delete[] (atn::Matrix3x4*)old;
-            Mtx* base = m98;
+            m98.reset((atn::Matrix3x4*)nodes);
+            Mtx* base = (Mtx*)m98.get();
             m9C = base + GetInstModel_unk(mInst.mData)->fn_800928B0(mCore.mNodes[0], 0);
-            base = m98;
+            base = (Mtx*)m98.get();
             mA0 = base + GetInstModel_unk(mInst.mData)->fn_800928B0(mCore.mNodes[1], 0);
-            base = m98;
+            base = (Mtx*)m98.get();
             mA4 = base + GetInstModel_unk(mInst.mData)->fn_800928B0(mCore.mNodes[2], 0);
-            mInst.m80 = m98;
+            mInst.m80 = (Mtx*)m98.get();
         }
         if ((m134 & 2) != 2) {
             fn_80232B7C(this, 1);
@@ -494,7 +492,7 @@ int SwingPart_unk::fn_803FFF40() {
         mCore.mCur = &mCore.mParams[0];
         UpdateSwing_unk(&mCore);
         mInst.fn_8009EB20();
-        Mtx* nodes = m98;
+        Mtx* nodes = (Mtx*)m98.get();
         if (nodes != 0) {
             SwingPartInst_unk* data = (SwingPartInst_unk*)mInst.mData;
             int count = data->m17C->mNumNodes;
@@ -525,7 +523,7 @@ void SwingPart_unk::fn_804003E0() {
         return;
     }
     part->mInst.fn_8009EB20();
-    Mtx* nodes = part->m98;
+    Mtx* nodes = (Mtx*)part->m98.get();
     if (nodes == 0) {
         return;
     }

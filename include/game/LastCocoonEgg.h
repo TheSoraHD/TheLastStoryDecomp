@@ -89,6 +89,7 @@ public:
     void fn_804570F4(CharaTask* target);
     void fn_804576D4();
     void fn_80457C48();
+    void fn_8045817C(); // inferred: debug menu (called by vf0C)
     void fn_80457E98();
 
     atn::LH_Binary m14B0; // inferred: parameter file

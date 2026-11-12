@@ -7,6 +7,23 @@
 #include "atn/EffectManager.h"
 #include "game/MapManager.h"
 #include "game/AreaEffConfig.h"
+#include "game/GimmickManager.h"
+#include "game/TownTask.h"
+#include "atn/Loader_unk.h"
+#include "std/string.h"
+#include "std/string_members.h"
+
+std::string fn_8006B0C8(const std::string& path); // inferred: directory of a path
+
+// inferred: header of the locator file of the gimmicks (only the texture name is read here)
+struct GimmickLocFile_unk {
+    unsigned char m00[0x20];
+    const char* mTexture; // 0x20: inferred: texture of the part (in "<dir>/textures/")
+};
+
+// inferred: empty destructor of the name (inlined in ~MapPartsGimmickLoc, 0x804970D4; weak copy 0x80041C0C)
+template <int N, class C, class Tr>
+inline atn::static_string<N, C, Tr>::~static_string() {}
 
 extern "C" int rand();
 // inferred: random number in [0, n) (0 when n is not positive)
@@ -30,6 +47,13 @@ MapPartsGimmickLoc::MapPartsGimmickLoc(atn::Task* parent, int type, atn::CsvTab&
     m124[3] = 0.0f;
     mFile.vf0C(csv.fn_8005B9CC());
     vf28(&csv);
+}
+
+// inferred: deletes the swinging parts; the members free the records, the parts array and the file
+MapPartsGimmickLoc::~MapPartsGimmickLoc() {
+    for (unsigned int i = 0; i < mScenes.size(); i++) {
+        delete mScenes[i];
+    }
 }
 
 extern "C" int strcmp(const char* a, const char* b);
@@ -57,6 +81,77 @@ void MapPartsGimmickLoc::vf28(atn::CsvTab* csv) {
         }
         key = csv->fn_8005B9CC();
     } while (key != 0 && strcmp("", key) != 0);
+}
+
+// inferred: reads the locator file and starts the load of its texture (inlined in vf0C: its locals are
+// on the stack in the order of an inline; as MapPartsLocatorSet::fn_8049B1F0)
+static inline void LoadFile_unk(MapPartsGimmickLoc* self) {
+    Loader_unk loader;
+    fn_804714A4(&loader);
+    fn_804714B0(&loader, self->mFile.fn_80470580(), (void*)self->mFile.fn_8047059C(), LoaderCallback_unk(), 0);
+    if (self->mFile.fn_80473EFC() == 3) {
+        GimmickLocFile_unk* file = (GimmickLocFile_unk*)self->mFile.fn_80470580();
+        if (self->mName == "" && strcmp(file->mTexture, "") != 0) {
+            const char* path = self->mFile.fn_80473F18();
+            std::string dir(fn_8006B0C8(std::string(path)));
+            dir += "/textures/";
+            dir += file->mTexture;
+            self->mName = dir.c_str();
+        }
+        if (!(self->mName == "")) {
+            self->mTexture.fn_800D5908(self->mName.mStr);
+        }
+    }
+}
+
+// NONMATCHING: 99.84% - r27/r28/r29 of the inlined std::string constructor (path, temporary, length)
+// inferred: loading: the locator file and its texture (0), the gimmicks (1, fn_804985E4), the
+// effects and swinging parts (3), then ready (4)
+int MapPartsGimmickLoc::vf0C() {
+    switch (m50) {
+    case 0: {
+        if (mFile.fn_80473F50() != 0) {
+            return 0;
+        }
+        LoadFile_unk(this);
+        m50 = 1;
+    }
+    case 1:
+        if (((GimmickUvOwner_unk*)&mTexture)->fn_800D59B8() != 0) {
+            return 0;
+        }
+        fn_804985E4();
+        m50 = 3;
+    case 3:
+        for (unsigned int i = 0; i < mRecords.size(); i++) {
+            if (mRecords.mData[i].mEff.IsLoading()) {
+                return 0;
+            }
+        }
+        for (unsigned int i = 0; i < mScenes.size(); i++) {
+            if (mScenes.mData[i]->fn_803FFF40() == 0) {
+                return 0;
+            }
+        }
+        if (fn_800D3FA4() == 0) {
+            return 0;
+        }
+        m50 = 4;
+    }
+    if (m50 == 4) {
+        if (m54 == 0) {
+            m54 = 1;
+            for (unsigned int i = 0; i < mRecords.size(); i++) {
+                int n = mRecords.mData[i].m90;
+                mRecords.mData[i].m98 = n > 0 ? rand() % n : 0;
+            }
+        }
+        if (lbl_8087FA20 != 0 && (lbl_8087FA20->mFlags & 2) == 2) {
+            GimmickManager::instance_->fn_803EE374(this);
+        }
+        return 1;
+    }
+    return 0;
 }
 
 // inferred: draws the objects of m6C while shown
@@ -233,6 +328,36 @@ void MapPartsGimmickLoc::fn_80499D60(MapPartsArea* areas) {
             mScenes.mData[i]->mInst.m64 = &area->GetScene_unk();
         } else {
             mScenes.mData[i]->mInst.m64 = atn::RenderManager::instance_->fn_800C16B4();
+        }
+    }
+}
+
+extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
+extern "C" unsigned int fn_800DC6B4(const char* s);             // inferred: string hash
+
+// NONMATCHING: 99.95% - offset of "<all>" in @stringBase0 (the strings of fn_804985E4 and vf10 are missing)
+// inferred: shows or hides the part when `hash` is the hash of its file name (or of "<all>"): picks the
+// variants and wakes the gimmicks, or stops the effects and the gimmicks
+void MapPartsGimmickLoc::vf2C(unsigned int hash, int draw) {
+    std::string name = fn_8006B174(std::string(mFile.fn_80473F18()));
+    if (hash == fn_800DC6B4(name.c_str()) || hash == fn_800DC6B4("<all>")) {
+        if ((m120 = draw != 0)) {
+            if (m54 == 0) {
+                m54 = 1;
+                for (unsigned int i = 0; i < mRecords.size(); i++) {
+                    int n = mRecords.mData[i].m90;
+                    mRecords.mData[i].m98 = n > 0 ? rand() % n : 0;
+                }
+            }
+            fn_800D4DB8();
+        } else {
+            m54 = 0;
+            unsigned int i = 0;
+            atn::EffectManager* effects = lbl_8087F3C0;
+            for (; i < mRecords.size(); i++) {
+                fn_80239DAC(effects, (unsigned int)&mRecords.mData[i], 0, 0);
+            }
+            fn_800D4558();
         }
     }
 }

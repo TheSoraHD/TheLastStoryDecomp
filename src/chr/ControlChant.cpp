@@ -44,7 +44,6 @@ typedef EffectColor_unk Color4f_unk;
 struct Effect_unk {
 };
 extern "C" Effect_unk* lbl_8087F048;
-extern "C" float fn_8010CB2C(Effect_unk* mgr, CharaTask* chara, float rate); // inferred: chant speed
 extern "C" void fn_801070C8(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
                             const atn::Vector3* pos, const atn::Vector3* rot, const Color4f_unk& color, float scale);
 extern "C" void fn_80107168(Effect_unk* effect, int id, int a, int b, chr::Motion_unk* motion,
@@ -269,7 +268,7 @@ ControlChant::~ControlChant() {
 int ControlChant::vf0C() {
     int done = 0;
     Motion_unk* model = &mChara->mMotion;
-    float rate = fn_8010CB2C(lbl_8087F048, mChara, m40);
+    float rate = ((BattleTask*)lbl_8087F048)->fn_8010CB2C(mChara, m40);
     HitInfo_unk* hit;
     if (lbl_8087F9F8 && ((TacView*)lbl_8087F9F8)->fn_805ADCC0(mChara, mChara->m638, 0)) {
         if ((mChara->m638->mAC & 0x40000) != 0x40000) {

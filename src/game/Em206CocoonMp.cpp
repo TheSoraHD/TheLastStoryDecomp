@@ -12,6 +12,7 @@
 #include <boost/tokenizer.hpp>
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "game/PlayerManager.h"
 
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
@@ -407,6 +408,149 @@ void Em206CocoonMp::vf100(int state) {
             fn_802BD480();
         }
         break;
+    }
+}
+
+// inferred: helpers of the target lists, weak copies of game/Em203GreaterDaemonRedMp.cpp (called out of line
+// here: the function is over the inline budget)
+extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
+extern "C" CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr);   // inferred: first player
+extern "C" CharaTask* fn_802A4094(CharaTask* chara);                // inferred: next player
+extern "C" CharaManager<EnemyTask>* fn_801A03E0();                  // inferred: enemy manager
+extern "C" EnemyTask* fn_801A0408(CharaManager<EnemyTask>* mgr);    // inferred: first enemy
+extern "C" EnemyTask* fn_801A03EC(EnemyTask* enemy);                // inferred: next enemy
+// inferred: the list of candidates is a std::vector<EnemyTask*>; its constructor is the weak copy 0x802A4170 and
+// its destructor the one named __dt__18NecroPlaceList_unkFv in symbols.txt (names of the relocations differ)
+extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* list, int index);
+extern "C" unsigned int fn_800E0AA8(const std::vector<EnemyTask*>* list); // inferred: size
+BattleTask* fn_8013A194(); // inferred: battle task (lbl_8087F048)
+// inferred: asserts of the debug build, empty in release: with them vf104 goes over the inline budget as the
+// original (docs/inlining.md R3)
+#define COCOON_ASSERT_UNK(x) ((void)0)
+#define COCOON_ASSERT10_UNK(x)                                                                                 \
+    COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x); \
+    COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x); COCOON_ASSERT_UNK(x)
+#define COCOON_ASSERT100_UNK(x)                                                                                \
+    COCOON_ASSERT10_UNK(x); COCOON_ASSERT10_UNK(x); COCOON_ASSERT10_UNK(x); COCOON_ASSERT10_UNK(x);              \
+    COCOON_ASSERT10_UNK(x); COCOON_ASSERT10_UNK(x); COCOON_ASSERT10_UNK(x); COCOON_ASSERT10_UNK(x);              \
+    COCOON_ASSERT10_UNK(x); COCOON_ASSERT10_UNK(x)
+// inferred: the list is empty (weak copy 0x800E0AB0 of atn/WordWrap_unk.cpp)
+extern "C" inline bool fn_800E0AB0(const std::vector<EnemyTask*>* list) {
+    COCOON_ASSERT100_UNK(list != 0);
+    COCOON_ASSERT100_UNK(list != 0);
+    COCOON_ASSERT100_UNK(list != 0);
+    return list->mSize == 0;
+}
+// inferred: aggro weights of the battle record of a character (as BattleSlots_unk of game/Em301LShade.cpp)
+struct CocoonSlots_unk {
+    unsigned char m000[0x128];
+    float m128[1];
+};
+
+// inferred: runs the current state; while rolling (states 13 and 14) every 120 frames one random character
+// other than the target gets all the aggro, else every character has the same weight
+// NONMATCHING: 99.9% - the names of the list constructor/destructor relocations (the original calls the weak
+// copies named fn_802A4170 and __dt__18NecroPlaceList_unkFv in symbols.txt, ours std::vector<EnemyTask*>) and the
+// register of the last 1.0f (f31 here; with the index in a local it is f0 as the original, but then report.json
+// counts the function at 100% while objdiff-cli does not, see the notes of the queue)
+void Em206CocoonMp::vf104() {
+    m14E0++;
+    if (mC58.mC4 == 0) {
+        mC58.mC4 = ((PlayerManager*)fn_8000D9E8())->GetHead_unk();
+    }
+    if (mC58.mC0 == 0 || mC58.mC4 == 0) {
+        if (m58C == 2) {
+            vfEC();
+        } else {
+            fn_8016E970(3);
+        }
+        return;
+    }
+    if (mC58.mC4 != 0) {
+        switch (m58C) {
+        case 6:
+            fn_802BE0FC();
+            break;
+        case 8:
+            fn_802BE180();
+            break;
+        case 9:
+            fn_802BE2A0();
+            break;
+        case 10:
+            fn_802BE7EC();
+            break;
+        case 11:
+            fn_802BE9C8();
+            break;
+        case 12:
+            fn_802BEAEC();
+            break;
+        case 13:
+            fn_802BEE44();
+            break;
+        case 14:
+            fn_802BF5C0();
+            break;
+        case 15:
+            fn_802C0058();
+            break;
+        case 16:
+            fn_802C0458();
+            break;
+        case 17:
+            fn_802C06B4();
+            break;
+        case 18:
+            fn_802C0738();
+            break;
+        case 2:
+            vfEC();
+            break;
+        default:
+            fn_802BDFA0();
+            if (m55C != 6) {
+                fn_802BD480();
+            }
+            break;
+        }
+    }
+    if (m58C == 13 || m58C == 14) {
+        if (++m1918 > 120) {
+            m1918 = 0;
+            CocoonSlots_unk* slots = (CocoonSlots_unk*)fn_8013A194()->fn_80103F60(this);
+            std::vector<EnemyTask*> list;
+            for (EnemyTask* p = (EnemyTask*)fn_802A36B0(fn_8000D9E8()); p != 0; p = (EnemyTask*)fn_802A4094(p)) {
+                if (p != mC58.mC4) {
+                    list.push_back(p);
+                }
+                slots->m128[((BattleTask*)slots)->fn_80108378(p)] = 0.2f;
+            }
+            for (EnemyTask* e = fn_801A0408(fn_801A03E0()); e != 0; e = fn_801A03EC(e)) {
+                if (!e->fn_8013A158()) {
+                    if (e != mC58.mC4) {
+                        list.push_back(e);
+                    }
+                    slots->m128[((BattleTask*)slots)->fn_80108378(e)] = 0.2f;
+                }
+            }
+            if (!fn_800E0AB0(&list)) {
+                unsigned int n = fn_800E0AA8(&list);
+                CharaTask* t = *fn_802A4184(&list, rand() % n);
+                slots->m128[((BattleTask*)slots)->fn_80108378(t)] = 1.0f;
+            }
+        }
+    } else {
+        m1918 = 0;
+        CocoonSlots_unk* slots = (CocoonSlots_unk*)fn_8013A194()->fn_80103F60(this);
+        for (CharaTask* p = fn_802A36B0(fn_8000D9E8()); p != 0; p = fn_802A4094(p)) {
+            slots->m128[((BattleTask*)slots)->fn_80108378(p)] = 1.0f;
+        }
+        for (EnemyTask* e = fn_801A0408(fn_801A03E0()); e != 0; e = fn_801A03EC(e)) {
+            if (!e->fn_8013A158()) {
+                slots->m128[((BattleTask*)slots)->fn_80108378(e)] = 1.0f;
+            }
+        }
     }
 }
 

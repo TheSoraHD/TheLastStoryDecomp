@@ -9,7 +9,7 @@ namespace Event {
 // destructor of Event::Manager). Names invented.
 struct DebugInfoColumn_unk {
     DebugInfoColumn_unk() : m00(0), m10(-1) {} // inferred: weak copy 0x80223DDC (Event/DebugInfo_unk.cpp)
-    int m00;
+    const void* m00; // inferred: key of the row (an action, 0 for none; compared unsigned)
     std::vector<std::string> mTexts; // 0x04
     int m10;
 };
@@ -25,14 +25,15 @@ struct DebugInfoColumnDef_unk {
 struct DebugInfoTable_unk {
     DebugInfoTable_unk() : m00(0), m04(0), m14(0) {}
     void fn_80220168(const DebugInfoColumnDef_unk* defs, int count, int rows); // inferred: sets the columns
-    void fn_8022051C(const DebugInfoColumn_unk& column); // inferred: adds a column of texts
+    int fn_8022051C(const DebugInfoColumn_unk& column); // inferred: adds a row at the top (0: wrong width)
+    int fn_80220620(); // inferred: the table is full (the last row is replaced)
     int fn_80221CBC(const void* key); // inferred: a column with this key (m00) exists
     int fn_802214F8(const DebugInfoColumn_unk& column); // inferred: replaces the column with the same key
     void fn_802219CC(float x, float y, float h, int arg); // inferred: draws the table
-    int m00;
-    int m04;
-    std::vector<DebugInfoColumn_unk> mColumns; // 0x08
-    int m14;
+    const DebugInfoColumnDef_unk* m00; // inferred: column definitions
+    int m04;                           // inferred: number of columns (texts of a row)
+    std::vector<DebugInfoColumn_unk> mColumns; // 0x08: inferred: rows of the table
+    int m14;                           // inferred: number of rows shown
 };
 
 // inferred: debug display of the event (0x78 bytes, Event/DebugInfo_unk.cpp; constructor 0x80221E08).

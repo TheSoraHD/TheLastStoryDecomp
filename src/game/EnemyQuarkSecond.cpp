@@ -49,6 +49,8 @@ struct Field_unk {
     CharaTask* m8A0;
     unsigned char m8A4[0x97C - 0x8A4];
     unsigned char m97C;
+    unsigned char m97D[0x10D8 - 0x97D];
+    RouteTable_unk* m10D8; // inferred: route table (read directly by fn_80342674)
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
@@ -350,7 +352,20 @@ extern "C" int fn_8004ED34(void* colli, void* result, const atn::Vector3* from, 
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 // inferred: size of a vector (weak copy 0x800E0AA8 of atn/WordWrap_unk.cpp) and element i (weak copy
 // 0x8028B74C of game/Em203GreaterDaemon.cpp)
+// inferred: asserts of the debug build, empty in release: with them fn_8033A7A0 goes over the inline budget and
+// calls everything out of line as the original (docs/inlining.md R3)
+#define QUARK_ASSERT_UNK(x) ((void)0)
+#define QUARK_ASSERT10_UNK(x)                                                                                  \
+    QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x);      \
+    QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x); QUARK_ASSERT_UNK(x)
+#define QUARK_ASSERT100_UNK(x)                                                                                 \
+    QUARK_ASSERT10_UNK(x); QUARK_ASSERT10_UNK(x); QUARK_ASSERT10_UNK(x); QUARK_ASSERT10_UNK(x);                  \
+    QUARK_ASSERT10_UNK(x); QUARK_ASSERT10_UNK(x); QUARK_ASSERT10_UNK(x); QUARK_ASSERT10_UNK(x);                  \
+    QUARK_ASSERT10_UNK(x); QUARK_ASSERT10_UNK(x)
 extern "C" inline unsigned int fn_800E0AA8(const IntVector_unk* v) {
+    QUARK_ASSERT100_UNK(v != 0);
+    QUARK_ASSERT100_UNK(v != 0);
+    QUARK_ASSERT100_UNK(v != 0);
     return v->mSize;
 }
 // inferred: length in the xz plane (weak copy 0x801C3910, as in chr/ControlMoveCursor.cpp)
@@ -742,27 +757,32 @@ void EnemyQuarkSecond::vf40(HitInfo_unk* hit) {
     }
 }
 
-// inferred: next index of a range table (inlined three times in fn_8033A7A0): the current one is clamped
-// to the last element, its id is returned and the index wraps around
-inline int EnemyQuarkSecond::NextInTable_unk(int range, int& index) {
-    int i = index;
-    if (i >= (int)fn_800E0AA8(&m14EC[m1558][range]) - 1) {
-        i = fn_800E0AA8(&m14EC[m1558][range]) - 1;
+// inferred: next index of a range table (written three times in fn_8033A7A0, a macro: the original inlines it while
+// it calls the accessors out of line): the current one is clamped to the last element, its id is taken and the
+// index wraps around (name invented)
+#define QUARK_NEXT_IN_TABLE_UNK(action, range, index)                                                          \
+    {                                                                                                          \
+        int i;                                                                                                 \
+        int cur = index;                                                                                       \
+        if (cur < (int)fn_800E0AA8(&m14EC[m1558][range]) - 1) {                                                \
+            i = cur;                                                                                           \
+        } else {                                                                                               \
+            i = fn_800E0AA8(&m14EC[m1558][range]) - 1;                                                         \
+        }                                                                                                      \
+        index = i;                                                                                             \
+        action = m14EC[m1558][range][i];                                                                       \
+        index = (unsigned int)(index + 1) % fn_800E0AA8(&m14EC[m1558][range]);                                 \
     }
-    index = i;
-    int id = m14EC[m1558][range][i];
-    index = (unsigned int)(index + 1) % fn_800E0AA8(&m14EC[m1558][range]);
-    return id;
-}
 
-// NONMATCHING: the original is over the inline budget (fn_8000D9E8, fn_8000DCF4, the Vector3 copy and
-// operator-, fn_801C3910, fn_800E0AA8 and fn_8028B74C are called out of line); this compile inlines them
+// inferred: over the inline budget as the original (fn_8000D9E8, the Vector3 copy and operator-, fn_801C3910,
+// fn_800E0AA8 and fn_8028B74C are called out of line): asserts of fn_800E0AA8
 inline void EnemyQuarkSecond::fn_8033A7A0() {
     if (m14B0 == 0) {
         return;
     }
     fn_8000D9E8()->GetHead_unk();
-    float dist = fn_801C3910(mPos - atn::Vector3(*m14B0->fn_8013C38C()));
+    atn::Vector3 target(*m14B0->fn_8013C38C());
+    float dist = fn_801C3910(mPos - target);
     int action = 0;
     if (m14BC != 2) {
         if (mStatus.m228 >= 1.0f) {
@@ -787,11 +807,11 @@ inline void EnemyQuarkSecond::fn_8033A7A0() {
             if (fn_803446BC(mPos) != 0) {
                 action = 3;
             } else if (dist <= m177C) {
-                action = NextInTable_unk(0, m155C);
+                QUARK_NEXT_IN_TABLE_UNK(action, 0, m155C);
             } else if (dist <= m1780) {
-                action = NextInTable_unk(1, m1560);
+                QUARK_NEXT_IN_TABLE_UNK(action, 1, m1560);
             } else {
-                action = NextInTable_unk(2, m1564);
+                QUARK_NEXT_IN_TABLE_UNK(action, 2, m1564);
             }
             if (++m1664 >= 3) {
                 m165C = 1;
@@ -806,8 +826,8 @@ inline void EnemyQuarkSecond::fn_8033A7A0() {
     case 2:
         fn_8034315C();
         break;
-    case 3:
-        fn_803435B8();
+    case 6:
+        fn_8034228C();
         break;
     case 4:
         fn_80342004();
@@ -815,11 +835,11 @@ inline void EnemyQuarkSecond::fn_8033A7A0() {
     case 5:
         fn_80342674();
         break;
-    case 6:
-        fn_8034228C();
-        break;
     case 7:
         fn_80342FB4();
+        break;
+    case 3:
+        fn_803435B8();
         break;
     case 8:
         fn_80343B0C();
@@ -1159,6 +1179,44 @@ void EnemyQuarkSecond::fn_8034228C() {
     SetJump_unk(m1598);
 }
 
+// inferred: action 5: jumps to whichever of the places 3 and 4 of the route table is farther from the leader
+// (state 8)
+// NONMATCHING: ~90% - stack slots of the place copies and of the jump temporaries (the original frame is 0x10
+// larger and keeps one more saved register); tried the places found inside the copies
+void EnemyQuarkSecond::fn_80342674() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 8;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x13F, 0, 1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* p3 = table->FindPlace_unk(3);
+    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    atn::Vector3 a = p3->mPos;
+    atn::Vector3 b = p4->mPos;
+    atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
+    float da = fn_801C3910(a - leader);
+    float db = fn_801C3910(b - leader);
+    atn::Vector3* target = &b;
+    if (da >= db) {
+        target = &a;
+    }
+    SetJump_unk(*target);
+}
+
+// inferred: action 1: jumps at the target (state 9)
+// NONMATCHING: ~93% - stack slots of the jump temporaries (as fn_8034228C: the original keeps the target and its
+// copy at the top of the frame); tried the target by reference, as a temporary and as a named local
+void EnemyQuarkSecond::fn_80342BC8() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 9;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x156, 0, 1.0f);
+    atn::Vector3 target = m14B0->mPos;
+    SetJump_unk(target);
+}
+
 // inferred: same as PlayEffect_unk with the locals declared pos, rot, color (as PlayEffect_unk of
 // game/Em301LShade.cpp); name invented
 inline void PlayEffectA_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
@@ -1187,6 +1245,66 @@ void EnemyQuarkSecond::fn_80342FB4() {
     m16C8 = 0;
     fn_80232B7C(this, 0x3F0);
     PlayEffectA_unk(&m15A4, &mMotion, 1.0f);
+}
+
+// inferred: action 2: jumps at the target with the effect "ef_bs079b.efp" (state 10)
+// NONMATCHING: ~93% - stack slots of the jump temporaries (as fn_80342BC8)
+void EnemyQuarkSecond::fn_8034315C() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 10;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x142, 0, 1.0f);
+    atn::Vector3 target = m14B0->mPos;
+    SetJump_unk(target);
+    fn_80232B7C(this, 0x3F1);
+    PlayEffectA_unk(&m1698, &mMotion, 1.0f);
+}
+
+// inferred: action 3: jumps to the farther of the places 3 and 4 (state 15, as fn_80342674)
+// NONMATCHING: ~90% - stack slots, as fn_80342674
+void EnemyQuarkSecond::fn_803435B8() {
+    ResetState_unk();
+    fn_8016E970(3);
+    fn_8016E970(3);
+    m58C = 15;
+    PlayMotion_unk(0x13F, 0, 1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* p3 = table->FindPlace_unk(3);
+    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    atn::Vector3 a = p3->mPos;
+    atn::Vector3 b = p4->mPos;
+    atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
+    float da = fn_801C3910(a - leader);
+    float db = fn_801C3910(b - leader);
+    atn::Vector3* target = &b;
+    if (da >= db) {
+        target = &a;
+    }
+    SetJump_unk(*target);
+}
+
+// inferred: action 8: jumps to the farther of the places 3 and 4 (state 16, as fn_80342674)
+// NONMATCHING: ~90% - stack slots, as fn_80342674
+void EnemyQuarkSecond::fn_80343B0C() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 16;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x13F, 0, 1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* p3 = table->FindPlace_unk(3);
+    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    atn::Vector3 a = p3->mPos;
+    atn::Vector3 b = p4->mPos;
+    atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
+    float da = fn_801C3910(a - leader);
+    float db = fn_801C3910(b - leader);
+    atn::Vector3* target = &b;
+    if (da >= db) {
+        target = &a;
+    }
+    SetJump_unk(*target);
 }
 
 void EnemyQuarkSecond::fn_80344060() {

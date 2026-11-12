@@ -56,7 +56,6 @@ inline Path* EventManager_unk::FindPath_unk(int id) {
 
 } // namespace Event
 
-extern "C" atn::Vector3 fn_800112E0(Event::Actor* actor); // inferred: front of an actor (Event/Puppeteer_CharaTask.cpp)
 
 namespace Event {
 
@@ -134,7 +133,7 @@ int ActionCameraMode::vf0C(Action* arg, int phase) {
                 PSMTXMultVec(m.m, &dir, &dir);
                 camera->m274 = dir;
             } else {
-                camera->m274 = fn_800112E0(eyeActor);
+                camera->m274 = eyeActor->fn_800112E0();
             }
             if (keep == 0) {
                 lbl_8087F540->fn_804816F4();

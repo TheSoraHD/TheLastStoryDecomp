@@ -5,6 +5,7 @@
 #include "atn/EfpHandle_unk.h"
 #include "gmk/Lemon.h"
 #include "gmk/SwingObject.h"
+#include <boost/scoped_array.hpp>
 
 // inferred: data of the building model of a swinging map part (views; names invented)
 struct SwingPartData_unk {
@@ -35,7 +36,9 @@ struct SwingPart_unk {
     atn::LH_Binary mLoader;   // 0x88: the .gmk file
     int m90;                  // 0x90: inferred: loading step
     SwingPartPos_unk* m94;
-    Mtx* m98;                 // 0x98: inferred: world node matrices
+    // 0x98: inferred: world node matrices; a scoped array: the destructor of MapPartsGimmickLoc
+    // (0x804970D4) frees it as a member, after mEfp and before mLoader
+    boost::scoped_array<atn::Matrix3x4> m98;
     Mtx* m9C;                 // inferred: matrices of the three swing nodes
     Mtx* mA0;
     Mtx* mA4;

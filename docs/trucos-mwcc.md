@@ -638,3 +638,9 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Un `switch` con tabla de saltos: los bloques de los `case` salen en el orden del fuente; ordenar los `case` como los bloques del original (MP::D2AMpMenuLobby::vf14, fueraruta-20261112).
 - Un `__declspec(weak)`/inline virtual de otra clase (p. ej. `atn::net::Manager::vf14`) solo se emite en la unidad si se llama con la clase real: una vista local del objeto la pierde; usar la cabecera de la clase (MP::D2AMpMenuLobby 0x804C134C, fueraruta-20261112).
 - Pool de cadenas anchas en `.data` (`@wstringBase0`): en una unidad sin enlazar objdiff marca el nombre (`lbl_8079...`) aunque el offset coincida (99,6 %), y `report.json` la da al 100 %: no cuenta (fueraruta-20261112).
+- `paralelo-20261112`: cada parametro **con nombre** en una declaracion de cabecera consume un `@N` en todas las unidades que la incluyen; sin nombre, no. Declarar sin nombres de parametro en cabeceras muy incluidas (BattleTask.h, TeamAIManager.h).
+- `paralelo-20261112`: declarar una plantilla o un cuerpo inline nuevo en una cabecera muy incluida renumera los `@N` aunque no se use; anadir solo miembros de datos (o cambiar un tipo de miembro) no los renumera.
+- `paralelo-20261112`: un literal ancho (`L"%s"`) dentro de un functor/predicado con enlace externo sale como `@STRING@` debil; con el predicado en un namespace anonimo va al pool `@wstringBase0` del fichero, como el original (ShopUpGrade, ShopBase).
+- `paralelo-20261112`: escribir una funcion grande no inline del mismo fichero puede hacer que sus llamadores pasen el presupuesto de inlining y cuadren con el original (NewCampTask::vf0C 33 -> 99,5 %).
+- `paralelo-20261112`: las cadenas literales escritas dentro de un helper inline van a un pool `@STRING@` propio, no a `@stringBase0`.
+- `paralelo-20261112`: en el pool, `"texto\0"` dentro de `sprintf` reproduce cadenas del original que llevan un nulo extra (NewCampPartsMapSelect::vf48).

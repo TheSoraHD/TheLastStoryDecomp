@@ -12,6 +12,7 @@
 #include "atn/AABB_unk.h"
 #include "atn/PBone.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 #include "atn/RenderSetting_unk.h"
 #include "std/new.h"
 #include <boost/bind.hpp>
@@ -92,21 +93,7 @@ extern "C" void fn_8009A2C0(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 extern "C" void fn_80090C58(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight3_unk* w, int n);
 extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight4_unk* w, int n);
 
-extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd); // inferred: clears
-
-namespace atn {
-
-// inferred: motion command entry of a motion slot (16 bytes, atn::Model::m354); its destructor clears it
-// (fn_800A1060); names invented
-struct MotionCmd_unk {
-    MotionCmd_unk() { m04 = 0; m00 = 0; m08 = 0; } // inferred: weak ctor 0x80097BF4
-    ~MotionCmd_unk() { fn_800A1060(this); }
-    int m00;
-    int m04;
-    short* m08; // inferred: motion key of each node (-1: none)
-    int m0C;
-};
-} // namespace atn
+#include "atn/MotionCmd_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
 
@@ -858,6 +845,46 @@ void ModelBase::vf18(RenderManager* view) {
         }
     }
 }
+
+extern "C" void fn_8008E818(ModelBase* model, RenderManager* view); // inferred: draws the meshes
+
+// inferred: draw: picks the level of detail (with the LOD bias of the render settings in the shadow and
+// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, still not
+// written, as a member it would need a new declaration in atn/Model_unk.h)
+// NONMATCHING: 92.0% - scheduling of the inlined sphere (fn_80094F98) and the early return layout
+void ModelBase::vf10(RenderManager* view) {
+    if (m20C_31_24 != 8 || !mFlag6_unk) {
+        return;
+    }
+    int lod = m50;
+    Sphere sphere = GetModel_unk()->fn_80094F98();
+    if (view->GetPass_unk() == 3 || view->GetPass_unk() == 4) {
+        m50 += lbl_8087EFA8->m178;
+        if (m50 >= m20C_23_16) {
+            m50 = m20C_23_16 - 1;
+        }
+    }
+    Matrix3x4 mtx = view->mCamera.mView;
+    if ((mFlags & 0x400) == 0x400 && view->GetPass_unk() == 4) {
+        Scene* scene = m1DC;
+        if (scene == 0) {
+            scene = RenderManager::instance_->mScene;
+        }
+        Matrix3x4 t;
+        PSMTXConcat(mtx.m, scene->mReflect.m, t.m);
+        mtx = t;
+    }
+    if (view->GetPass_unk() != 10) {
+        fn_80091A90(mtx.m);
+    }
+    fn_8008E818(this, view);
+    const int* remap = mLods[m50].m10.mData;
+    if (view->GetPass_unk() == 10) {
+        CalcMatrixStack(0, ModelNodeCallback_unk());
+        fn_80091684(view->mCamera.mView.m, remap);
+    }
+    m50 = lod;
+}
 } // namespace atn
 
 // inferred: bounding box of `box` transformed by `m` (its eight corners)
@@ -1467,6 +1494,38 @@ void Model::fn_80092A00(float alpha) {
     }
 }
 
+extern "C" double tan(double x);
+
+// inferred: picks the level of detail from the distance of the bounding sphere to the camera, scaled by
+// the field of view (the bounding sphere fn_80094F98 is inlined, as in the original)
+// NONMATCHING: 98.9% - registers (the sphere temporaries and the node offsets)
+void Model::fn_80092A4C() {
+    if (m20C_23_16 <= 1) {
+        return;
+    }
+    Sphere_unk sphere = fn_80094F98();
+    RenderManager* rm = RenderManager::instance_;
+    Vector3 d = sphere.mCenter - rm->mCamera.mPos;
+    float dist = PSVECMag(&d) - sphere.mRadius;
+    m20C_15_8 = m50;
+    float min = 0.0f;
+    min = min > dist ? min : dist;
+    float t0 = tan(1.0471976f); // inferred: 60 degrees
+    float t1 = tan(rm->mCamera.GetFovy_unk());
+    m50 = m20C_23_16 - 1;
+    float limit = min * (t1 / t0);
+    while (m50 != 0) {
+        float lod = mLods[m50].m0C;
+        if ((float)__fabs(lod) < 1.1920929e-07f) {
+            lod = lbl_8087EFA8->m20C[m50 - 1]; // inferred: "LOD: Distance 1-3" of the render settings
+        }
+        if (lod <= limit) {
+            break;
+        }
+        m50--;
+    }
+}
+
 void ModelBase::fn_80092EC8(const char* path) {
     mFlag4_unk = 1;
     mFlag5_unk = 1;
@@ -1514,6 +1573,57 @@ void ModelBase::fn_8009303C() {
     if (mFlag5_unk && !mFlag1_unk) {
         m1C4.m08 = m1C4.mHandle.fn_80475DF8();
         fn_80093158(&m1C4);
+    }
+}
+
+// inferred: index of the joint with the given name hash (-1: none or no data)
+static inline int FindJointIndex_unk(ModelData_unk* res, unsigned int hash) {
+    if (res == 0) {
+        return -1;
+    }
+    for (int j = 0; j < res->m44; j++) {
+        if (hash == res->m48[j]->m14) {
+            return j;
+        }
+    }
+    return -1;
+}
+
+// inferred: maps the joints of a level of detail to the joints of the main model (by name hash; a
+// joint named as the level file maps to the joint named as the main file)
+// NONMATCHING: 97.9% - the original keeps two offsets (joints and map) and the -1 in saved registers
+void ModelBase::fn_80093158(ModelLod_unk* lod) {
+    ModelLod_unk* main = &mLods[0];
+    std::string lodName = fn_8006B174(std::string(lod->mHandle.fn_80473F18()));
+    lodName = std::string(lodName, 0, lodName.find('.'));
+    if (lod != main) {
+        lod->m10.Resize_unk(((Res_unk*)lod->m08)->m44, 6);
+    }
+    std::string mainName = fn_8006B174(std::string(main->mHandle.fn_80473F18()));
+    mainName = std::string(mainName, 0, mainName.find('.'));
+    unsigned int hash = fn_800DC6B4(mainName.c_str());
+    int root = FindJointIndex_unk(GetRes_unk(), hash);
+    for (int i = 0; i < ((Res_unk*)lod->m08)->m44; i++) {
+        ModelJoint_unk* joint = ((Res_unk*)lod->m08)->m48[i];
+        if (lod == main) {
+            continue;
+        }
+        lod->m10.mData[i] = -1;
+        Res_unk* mres = GetRes_unk();
+        for (int j = 0; j < mres->m44; j++) {
+            if (joint->m14 == mres->m48[j]->m14) {
+                lod->m10.mData[i] = j;
+                break;
+            }
+        }
+        if (lod->m10.mData[i] == -1 && lodName.compare(joint->m10) == 0) {
+            lod->m10.mData[i] = root;
+        }
+        if (lod->m10.mData[i] == -1) {
+            char msg[0x100];
+            sprintf(msg, "LOD Node '%s' not found in model %s", joint->m10, mLods[0].mHandle.fn_80473F18());
+            lbl_8087EEB8->fn_800697D8(msg);
+        }
     }
 }
 
@@ -1779,6 +1889,39 @@ void Model::fn_80094F14(float u, float v) {
     }
 }
 
+// inferred: element-wise matrix sum and scale (the arguments of the constructor are evaluated from
+// the last one); names invented
+static inline Matrix3x4 MtxAdd_unk(const Matrix3x4& a, const Matrix3x4& b) {
+    return Matrix3x4(a.m[0][0] + b.m[0][0], a.m[0][1] + b.m[0][1], a.m[0][2] + b.m[0][2], a.m[0][3] + b.m[0][3],
+                     a.m[1][0] + b.m[1][0], a.m[1][1] + b.m[1][1], a.m[1][2] + b.m[1][2], a.m[1][3] + b.m[1][3],
+                     a.m[2][0] + b.m[2][0], a.m[2][1] + b.m[2][1], a.m[2][2] + b.m[2][2], a.m[2][3] + b.m[2][3]);
+}
+static inline Matrix3x4 MtxScale_unk(const Matrix3x4& a, float s) {
+    return Matrix3x4(a.m[0][0] * s, a.m[0][1] * s, a.m[0][2] * s, a.m[0][3] * s, a.m[1][0] * s, a.m[1][1] * s,
+                     a.m[1][2] * s, a.m[1][3] * s, a.m[2][0] * s, a.m[2][1] * s, a.m[2][2] * s, a.m[2][3] * s);
+}
+
+// inferred: bounding sphere in world space: the center of the box through the world matrix, or the
+// matrix of the node mB0 (the middle of the nodes mB0 and mB4 if both are set)
+// NONMATCHING: 99.5% - r3/r7 swapped between the node array and the address of the scaled matrix
+Model::Sphere_unk Model::fn_80094F98() {
+    Matrix3x4 mtx = mMtx;
+    if (mB0 >= 0) {
+        if (mB4 >= 0) {
+            mtx = MtxScale_unk(MtxAdd_unk(mMtx.mNodes.mData[mB0], mMtx.mNodes.mData[mB4]), 0.5f);
+        } else {
+            mtx = mMtx.mNodes.mData[mB0];
+        }
+    }
+    float scale = m54 * mAC;
+    Vector3 center = m9C;
+    PSMTXMultVec(mtx.m, &center, &center);
+    Sphere_unk sphere;
+    sphere.mCenter = center;
+    sphere.mRadius = mA8 * scale;
+    return sphere;
+}
+
 // inferred: over the inline budget (R3) as the original: every accessor, matrix product and box
 // assignment is called out of line (weak copies 0x8008CD50, 0x8008E2E0, 0x80091C00, 0x800952F8...)
 AABB_unk Model::fn_80095300() {
@@ -1890,6 +2033,27 @@ extern "C" void fn_80095F10(void* model, ModelCameraParam_unk* param) {
     if (base->m208) {
         *base->m208 = *(const ModelCamera_unk*)param;
         base->mFlags |= 0x80000;
+    }
+}
+
+// inferred: collects the path hashes of the resources of the model (levels, materials, stage textures)
+// into `list` and the composite textures into `arg` (a second SimpleVector<unsigned int>)
+void Model::fn_80096218(SimpleVector<unsigned int>* list, void* arg) {
+    for (int i = 0; i < m20C_23_16; i++) {
+        list->push_back(mLods[i].mHandle.fn_80473F34());
+    }
+    list->push_back(mFC.fn_80473F34());
+    for (unsigned int i = 0; i < m104.mMaterials.mSize; i++) {
+        for (int j = 0; j < m104.mMaterials.mData[i]->m4A; j++) {
+            Texture_unk* tex = m104.mMaterials.mData[i]->m0C[j].mTexture;
+            if (tex != 0) {
+                list->push_back(tex->m20.fn_80473F34());
+            }
+        }
+    }
+    SimpleVector<unsigned int>* composites = (SimpleVector<unsigned int>*)arg;
+    for (unsigned int i = 0; i < m1E4.size(); i++) {
+        composites->push_back((unsigned int)m1E4[i]->m14.mEntry);
     }
 }
 
@@ -2250,7 +2414,7 @@ void Model::fn_80098C90(int node, int siblings, int replace, Res_unk* res, Track
     while (node >= 0) {
         NodeRes_unk* joint = res->m48[node];
         int index = (remap != 0) ? remap[joint->m18] : joint->m18;
-        int key = m354.mData[track->m00].m08[index];
+        int key = m354.mData[track->m00].mData[index];
         if (key >= 0) {
             if (replace) {
                 fn_800A05FC(track->m04, &m21C.mData[index], key, &m214.mData[index], track->m08);

@@ -146,6 +146,45 @@ static inline unsigned char ToByte_unk(float v) {
     return (unsigned char)(int)REPLAY_MAX(0.0f, REPLAY_MIN(255.0f, 255.0f * v));
 }
 
+extern "C" void fn_8056BAA4(ReplayChara_unk* dst, atn::Model* model);
+
+// inferred: vector to three half floats (name invented)
+static inline void ToHalf3_unk(short* dst, const atn::Vector3& v) {
+    dst[0] = ToHalf_unk(v.x);
+    dst[1] = ToHalf_unk(v.y);
+    dst[2] = ToHalf_unk(v.z);
+}
+// NONMATCHING: 99.32% - registers of the prologue (m460 in r0, the matrix argument copied last) and a frsp
+// of the z of the direction before atan2
+// inferred: records one character in mCharas: matrix relative to the leader, motion tracks, pose of the
+// "reference" node and the angle of the upper body
+void ReplayRecorder_unk::fn_8056B558(CharaTask* chara, const atn::Matrix3x4& inv) {
+    if (m460 < 8 && (chara->mFlags & 2) == 2) {
+        atn::Model* model = &chara->mMotion;
+        ReplayChara_unk* entry = &mCharas[m460];
+        entry->mChara = chara;
+        entry->mNode = model->m50;
+        entry->mMotion = chara->m674;
+        entry->m06 = model->m34C;
+        Mtx mtx;
+        PSMTXConcat(inv.m, model->mMtx.m, mtx);
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            entry->mMtx[r][c] = ToHalf_unk(mtx[r][c]);
+        }
+        fn_8056BAA4(entry, model);
+        atn::Model::Node_unk* nodes = model->m21C.mData;
+        atn::Model::Node_unk* node = &nodes[model->GetNodeNoByName("reference", 0)];
+        ToHalf3_unk(entry->mRefPos, node->mPos);
+        entry->mRefFlags = node->m00;
+        atn::Vector3 rot = chara->mFA4.ToRotationZ_unk();
+        entry->mAngle = ToHalf_unk(atn::WrapAngle_unk(rot.y - chara->mRot.y));
+        entry->m07 = chara->HasC48_unk();
+        m460++;
+    }
+}
+
 // inferred: packs the first four motion tracks of the model
 extern "C" void fn_8056BAA4(ReplayChara_unk* dst, atn::Model* model) {
     for (int i = 0; i < 4; i++) {
@@ -205,6 +244,37 @@ ReplayBuffer::ReplayBuffer()
       m5BDA0(0), m5BDA4(0), m5BDA8(0), m5BDAC(0), m5BDB0(0), m5BDB4(0), m5BDB8(0.0f) {}
 
 ReplayBuffer::~ReplayBuffer() {}
+
+// NONMATCHING: same as ReplayRecorder_unk::fn_8056B558 (prologue registers, frsp before atan2)
+// inferred: records one character in the frame (same code as ReplayRecorder_unk::fn_8056B558; a free function:
+// a new member in ReplayBuffer.h renumbers the @N labels of the units that include it)
+void fn_8056CB20(ReplayFrame_unk* frame, CharaTask* chara, const atn::Matrix3x4& inv) {
+    if (frame->mNumCharas < 15 && (chara->mFlags & 2) == 2) {
+        atn::Model* model = &chara->mMotion;
+        ReplayChara_unk* entry = &frame->mCharas[frame->mNumCharas];
+        entry->mChara = chara;
+        entry->mNode = model->m50;
+        entry->mMotion = chara->m674;
+        entry->m06 = model->m34C;
+        Mtx mtx;
+        PSMTXConcat(inv.m, model->mMtx.m, mtx);
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            entry->mMtx[r][c] = ToHalf_unk(mtx[r][c]);
+        }
+        fn_8056BAA4(entry, model);
+        atn::Model::Node_unk* nodes = model->m21C.mData;
+        atn::Model::Node_unk* node = &nodes[model->GetNodeNoByName("reference", 0)];
+        ToHalf3_unk(entry->mRefPos, node->mPos);
+        entry->mRefFlags = node->m00;
+        atn::Vector3 rot = chara->mFA4.ToRotationZ_unk();
+        entry->mAngle = ToHalf_unk(atn::WrapAngle_unk(rot.y - chara->mRot.y));
+        entry->m07 = chara->HasC48_unk();
+        frame->mNumCharas++;
+    }
+}
+
 
 extern "C" int fn_8023779C(void* res);           // inferred: length of the effect (0: endless)
 extern "C" int fn_80237784(void* res, int frame); // inferred: frames left of the effect after `frame`

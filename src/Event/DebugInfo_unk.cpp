@@ -62,6 +62,102 @@ extern "C" inline int fn_80223ED8(Event::Cut* cut) {
     return cut->mSections.size();
 }
 
+namespace std {
+
+// inferred: growth of vector<string>::operator= (defined out of the class: its message goes to the file
+// pool; no check of the result here, it is checked after the old storage is freed)
+template <class T>
+unsigned int __vec_grow_assign_unk(vector<T>& v, unsigned int n) {
+    if (n > v.max_size() - v.capacity()) {
+        __msl_error("vector length error");
+    }
+    unsigned int cap = v.capacity();
+    if (cap < v.max_size() / 3) {
+        cap += __vec_max_unk((unsigned int)((cap + 1) * 3 / 5), n);
+    } else if (cap < v.max_size() / 3 * 2) {
+        cap += __vec_max_unk((unsigned int)((cap + 1) / 2), n);
+    } else {
+        cap = v.max_size();
+    }
+    return cap;
+}
+
+template <class T>
+inline const T& __vec_min_unk(const T& a, const T& b) {
+    return (b < a) ? b : a;
+}
+
+// inferred: assignment (inlined in the weak copy of Event::DebugInfoColumn_unk::operator=, 0x80220660):
+// the old elements are assigned first, the rest destroyed or copy-constructed; when the new size is over
+// the capacity, the storage is cleared and freed before the new one is allocated. Defined here, not in
+// std/vector_string.h: a new body in that header renumbers the @N labels of the files that include it.
+// NONMATCHING: 53% (weak copy 0x80220660) - block order (the original lays out the assignment path between
+// the growth and the reallocation)
+template <>
+inline vector<string>& vector<string>::operator=(const vector<string>& x) {
+    if (this != &x) {
+        const string* first = x.mData;
+        const string* last = x.mData + x.mSize;
+        size_type n = last - first;
+        if (n > this->mCap) {
+            size_type cap = __vec_grow_assign_unk(*this, n - this->mCap);
+            this->clear();
+            if (this->mData != 0) {
+                ::operator delete(this->mData);
+                this->mData = 0;
+                this->mCap = 0;
+            }
+            __check_length_unk(cap);
+            this->mData = __vec_alloc_sel_unk<string>::alloc(cap);
+            this->mCap = cap;
+            string* p = this->mData + this->mSize;
+            for (; first != last; ++first, ++p) {
+                new (p) string(*first);
+                ++this->mSize;
+            }
+        } else {
+            const string* mid = first + __vec_min_unk(this->mSize, n);
+            string* p = this->mData;
+            for (; first < mid; ++first, ++p) {
+                *p = *first;
+            }
+            if (n < this->mSize) {
+                this->__shrink_unk(n);
+            } else if (this->mSize < n) {
+                p = this->mData + this->mSize;
+                for (; mid != last; ++mid, ++p) {
+                    new (p) string(*mid);
+                    ++this->mSize;
+                }
+            }
+        }
+    }
+    return *this;
+}
+
+// inferred: reserve of the rows of a debug table (inlined in 0x80220168): the rows are copy-constructed
+// into the new storage and the old ones destroyed with it, not moved as raw bytes
+template <>
+inline void vector<Event::DebugInfoColumn_unk>::reserve(size_type n) {
+    if (n > this->mCap) {
+        __vec_storage_unk<Event::DebugInfoColumn_unk> buf;
+        __check_length_unk(n);
+        buf.mData = __vec_alloc_sel_unk<Event::DebugInfoColumn_unk>::alloc(n);
+        buf.mCap = n;
+        Event::DebugInfoColumn_unk* last = this->mData + this->mSize;
+        Event::DebugInfoColumn_unk* dst = buf.mData + buf.mSize;
+        for (Event::DebugInfoColumn_unk* p = this->mData; p < last; ++p, ++dst) {
+            new (dst) Event::DebugInfoColumn_unk(*p);
+            ++buf.mSize;
+        }
+        __vec_swap_unk(this->mCap, buf.mCap);
+        __vec_swap_unk(this->mData, buf.mData);
+        __vec_swap_unk(this->mSize, buf.mSize);
+    }
+}
+
+} // namespace std
+
 namespace Event {
 
 // inferred: as in Event/Sequence.cpp (inline, defined there)
@@ -72,6 +168,73 @@ inline Cut* Sequence::FindCutByIndex_unk(int index) {
         }
     }
     return 0;
+}
+
+// inferred: sets the columns of the table and drops its rows
+// inferred: noinline: the constructor calls it with bl (MWCC would inline it there)
+// NONMATCHING: 98.2% - registers of the clear() loop (count and pointer)
+__declspec(noinline) void DebugInfoTable_unk::fn_80220168(const DebugInfoColumnDef_unk* defs, int count, int rows) {
+    m00 = defs;
+    m04 = count;
+    mColumns.clear();
+    mColumns.reserve(count);
+    m14 = rows;
+}
+
+// inferred: weak copy (inline)
+inline int DebugInfoTable_unk::fn_80220620() {
+    return (int)mColumns.size() >= m14 - 1;
+}
+
+// inferred: adds a row at the top of the table (the last one is dropped when the table is full)
+int DebugInfoTable_unk::fn_8022051C(const DebugInfoColumn_unk& column) {
+    if (m04 != column.mTexts.size()) {
+        return 0;
+    }
+    if (fn_80220620()) {
+        mColumns.back() = column;
+    } else {
+        mColumns.push_back(column);
+    }
+    for (int i = mColumns.size() - 1; i > 0; i--) {
+        DebugInfoColumn_unk tmp(mColumns[i - 1]);
+        mColumns[i - 1] = mColumns[i];
+        mColumns[i] = tmp;
+    }
+    return 1;
+}
+
+// inferred: replaces the row with the key of `column` (0: wrong width or no such row)
+// NONMATCHING: 55% - block order of the inlined vector<string>::operator= (the original lays out the
+// assignment path between the growth and the reallocation; same in the weak copy 0x80220660, 53%)
+int DebugInfoTable_unk::fn_802214F8(const DebugInfoColumn_unk& column) {
+    if (m04 != column.mTexts.size()) {
+        return 0;
+    }
+    for (int i = 0; i < (int)mColumns.size(); i++) {
+        if (column.m00 == mColumns[i].m00) {
+            mColumns[i] = column;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 88.9% - scheduling of the first draw call (the original takes c_str() before the row)
+// inferred: draws the table: the names of the columns in the row `row`, then the rows below them
+void DebugInfoTable_unk::fn_802219CC(float x, float y, float h, int row) {
+    float left = 0.0f;
+    for (int i = 0; i < m04; i++) {
+        std::string name = m00[i].mName;
+        fn_80221CAC(fn_800F7250(), left + (x + h), y + h * row, -1000000.0f, h, h, name.c_str(), 0xFF00EAAF, 1);
+        int r = row + 2;
+        for (int j = 0; j < (int)mColumns.size(); j++) {
+            std::string text = mColumns[j].mTexts[i];
+            fn_80221CAC(fn_800F7250(), left + (x + h), y + h * r++, -1000000.0f, h, h, text.c_str(),
+                        mColumns[j].m10, 1);
+        }
+        left += m00[i].mWidth;
+    }
 }
 
 // inferred: draw functions of the pages (not written yet)
@@ -101,7 +264,7 @@ static DebugInfoColumnDef_unk sColumns2_unk[10] = {
 // inferred: a column with this key exists
 int DebugInfoTable_unk::fn_80221CBC(const void* key) {
     for (int i = 0; i < (int)mColumns.size(); i++) {
-        if (key == (const void*)mColumns[i].m00) {
+        if (key == mColumns[i].m00) {
             return 1;
         }
     }
@@ -158,7 +321,69 @@ void DebugInfo_unk::fn_80221F54(int page) {
     mPages[mPage](this);
 }
 
-// DRAFT: pages 1, 2 and 4 of the debug info are not written
+// inferred: cut `index` of the sequence (0 when out of range)
+inline Cut* GetCutAt_unk(Sequence* seq, int index) {
+    return (index >= 0 && index < (int)seq->mB8.size()) ? seq->mB8[index].get() : 0;
+}
+
+// inferred: page 2 of the debug info: list of the cuts (ten around the current one)
+// NONMATCHING: 96.3% - offsets of the strings in @stringBase0 (pages 0 and 1 are not written) and the
+// register of the length of the cut
+void fn_8022354C(DebugInfo_unk* info) {
+    Sequence* seq = fn_8000DB1C()->fn_80112F54();
+    if (seq == 0) {
+        return;
+    }
+    char buf[0x100];
+    int row = 1;
+    fn_80221CAC(fn_800F7250(), info->m04, info->m08 + info->m0C * row, -1000000.0f, info->m0C, info->m0C,
+                "Cut List:", 0xFFFFFFFF, 1);
+    row += 2;
+    sprintf(buf, "Cut: num=%d", seq->mB8.size());
+    fn_80221CAC(fn_800F7250(), info->m04, info->m08 + info->m0C * row++, -1000000.0f, info->m0C, info->m0C, buf,
+                0xFFFFFFFF, 1);
+    int count = seq->mB8.size();
+    int start = 0;
+    for (int page = 1; page < count / 10 + 1; page++) {
+        if (page * 10 <= seq->m1A0) {
+            start = page * 10;
+        }
+    }
+    int end = start + 10;
+    if (end >= count) {
+        end = count;
+    }
+    for (int i = start; i < end; i++) {
+        if (i == seq->m1A0) {
+            sprintf(buf, ">");
+            // inferred: the original takes the x position for y here (the mark is drawn off the list)
+            fn_80221CAC(fn_800F7250(), info->m04, info->m04 + info->m0C * row, -1000000.0f, info->m0C,
+                        info->m0C, buf, 0xFFFFFFFF, 1);
+        }
+        Cut* cut = GetCutAt_unk(seq, i);
+        if (i < 9) {
+            const char* mark = cut->mIndex == seq->m94 ? "StartCut" : "";
+            const char* skip = cut->fn_8053C124(cut->mSkip);
+            const char* name = fn_80222A24(cut);
+            int len = cut->m2C;
+            int id = cut->mIndex;
+            sprintf(buf, "[%02d]: id=%d, name=%s,  next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
+                    len, skip, mark);
+        } else {
+            const char* mark = cut->mIndex == seq->m94 ? "StartCut" : "";
+            const char* skip = cut->fn_8053C124(cut->mSkip);
+            const char* name = fn_80222A24(cut);
+            int len = cut->m2C;
+            int id = cut->mIndex;
+            sprintf(buf, "[%02d]: id=%d, name=%s, next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
+                    len, skip, mark);
+        }
+        fn_80221CAC(fn_800F7250(), info->m04 + info->m0C, info->m08 + info->m0C * row++, -1000000.0f,
+                    info->m0C, info->m0C, buf, 0xFFFFFFFF, 1);
+    }
+}
+
+// DRAFT: pages 0 and 1 of the debug info are not written
 // NONMATCHING: draft - page 3: actions of the current cut (and the name of the next cut); the earlier pages
 // are not written, so the offsets of the string pool differ
 // inferred: the action is active at the current frame and is shown on the page (mode 0: not listed
@@ -256,7 +481,7 @@ void fn_80223A10(DebugInfo_unk* info) {
                 column.mTexts.push_back(std::string(buf));
                 sprintf(buf, "%s", fn_80222A24(action));
                 column.mTexts.push_back(std::string(buf));
-                column.m00 = (int)action;
+                column.m00 = action;
                 info->m14.fn_8022051C(column);
             }
         }
@@ -317,7 +542,7 @@ void fn_80223F50(DebugInfo_unk* info, Action* action, int motion, int start, int
     column.mTexts.push_back(fn_800DC980("%.2f", speed));
     column.mTexts.push_back(fn_800DC980("%d", start));
     column.mTexts.push_back(std::string(loop ? "O" : "X"));
-    column.m00 = (int)key;
+    column.m00 = key;
     column.m10 = color;
     if (info->m2C.fn_80221CBC(key)) {
         info->m2C.fn_802214F8(column);

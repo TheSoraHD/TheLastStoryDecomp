@@ -17,6 +17,9 @@
 #include "atn/Csv.h"
 #include "atn/FadeCommon.h"
 #include "game/PlayerManager.h"
+#include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
+#include "macros.h"
 
 extern "C" GameTask* lbl_8087F430; // inferred: the field
 
@@ -346,12 +349,13 @@ int NewCampPartsMapSelect::vf4C() {
             m198C[i].mModel = m1990[i * 2];
             m198C[i].mAnime = m1990[i * 2 + 1];
             if (mPoints.mData[i].m10 >= 0) {
+                // inferred: the names end with an extra NUL in the original pool (unreferenced "" after each)
                 if (mPoints.mData[i].m00 < 500) {
-                    sprintf(m1990[i * 2], "map_board01_%04d", mPoints.mData[i].m14);
-                    sprintf(m1990[i * 2 + 1], "map_board01.d2a");
+                    sprintf(m1990[i * 2], "map_board01_%04d\0", mPoints.mData[i].m14);
+                    sprintf(m1990[i * 2 + 1], "map_board01.d2a\0");
                 } else {
-                    sprintf(m1990[i * 2], "map_be010_001_%04d", mPoints.mData[i].m14);
-                    sprintf(m1990[i * 2 + 1], "");
+                    sprintf(m1990[i * 2], "map_be010_001_%04d\0", mPoints.mData[i].m14);
+                    sprintf(m1990[i * 2 + 1], "\0");
                 }
                 m198C[i].m08 = 0;
                 if (m198C[i].mAnime[0] != 0) {
@@ -440,6 +444,406 @@ void NewCampPartsMapSelect::vf1C(NewCampScene_unk* scene) {
     vf3C(0);
 }
 
+extern "C" const wchar_t* fn_802168BC(int id);                // inferred: name of a map point
+extern "C" void* lbl_8087EEC8;                                  // inferred: font used to measure the text
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // inferred: width
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text); // inferred: sets a text
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value); // inferred: sets a vector item
+// inferred: data of a map (only the revisit level is read)
+struct MapSelectMapData_unk {
+    unsigned char m00[0xC8];
+    int mLevel; // 0xC8
+};
+extern "C" MapSelectMapData_unk* fn_8021771C(int type, int id, int arg); // inferred: data of a map
+extern "C" void fn_804A5E40(MenuCommonTask* menu, int type, atn::Vector3 ofs, int id);
+static wchar_t sNoName_unk[] = L"???"; // inferred: name of a point without text (lbl_80793590)
+inline void SetPaneItem_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+
+// inferred: frame of the map: blinks the marks, raises the boards of the open points of the area under the cursor,
+// shows the name and the revisit level of the point under the cursor and places the cursor on the screen
+// NONMATCHING: 94.9% - the loop over the points keeps the index (stfsu)
+void NewCampPartsMapSelect::vf10() {
+    m19BC += 1.0f;
+    if (m19BC > 35.0f) {
+        m19BC = 6.0f;
+    }
+    if (fn_80521010() != 0) {
+        return;
+    }
+    vf20();
+    int shown = 0;
+    if (((NewCampTask*)m48)->m458 >= 30.0f && ((NewCampTask*)m48)->m11F0 == this) {
+        shown = 1;
+    }
+    for (int i = 0; i < m4C; i++) {
+        MapSelectPoint_unk* point = &mPoints.mData[i];
+        if (FindRoute_unk(point->m00) == 0 || m1998 == 4 || m1998 == 5 || m19A8 != point->m10 || !shown) {
+            point->m28 -= 0.075f;
+        } else {
+            point->m28 += 0.075f;
+        }
+        point->m28 = MIN(1.0f, MAX(0.0f, point->m28));
+    }
+    if (shown) {
+        if (m1998 == 5) {
+            m19B8 -= 0.1f;
+        } else {
+            m19B8 += 0.1f;
+        }
+    } else {
+        m19B8 -= 0.1f;
+    }
+    m19B8 = MIN(1.0f, MAX(0.0f, m19B8));
+    MapSelectPoint_unk* cur = FindPoint_unk(m19A4);
+    if (cur != 0 && m1998 == 0) {
+        atn::Task* name = mMapName;
+        int level = 0;
+        MapSelectRoute_unk* route = FindRoute_unk(cur->m00);
+        int visits = lbl_8087F430->fn_80370174(cur->m04);
+        if (route != 0) {
+            bool revisit = false;
+            if (visits >= 100) {
+                revisit = true;
+            }
+            if (route->mId == 0xCB) {
+                revisit = true;
+            }
+            if (revisit && cur->m08 != 0) {
+                if (route->mId == 0xCB) {
+                    int chapter = lbl_8087F430->m10D0;
+                    int lv;
+                    if (chapter < 400000) {
+                        lv = 1;
+                    } else if (chapter < 600000) {
+                        lv = lbl_8087F430->fn_80370174(200) == 0 ? 1 : 2;
+                    } else {
+                        lv = 4;
+                    }
+                    level = lv > 5 ? 5 : lv;
+                } else {
+                    MapSelectMapData_unk* data = fn_8021771C(route->mMapType, route->mMapId, 1);
+                    if (data != 0) {
+                        level = data->mLevel;
+                    }
+                }
+            }
+        }
+        SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "battle", 0.0f);
+        if (cur->m08 > 0) {
+            SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "battle", 1.0f);
+        }
+        if (name != 0) {
+            int chapter = lbl_8087F430->m10D0;
+            const wchar_t* text = fn_802168BC(cur->m00);
+            if (text != 0) {
+                if (cur->m00 == 0x193) {
+                    if (chapter == 205000) {
+                        text = fn_802168BC(0x276);
+                    }
+                } else if (cur->m00 == 500) {
+                    if (201000 <= chapter && chapter <= 202000) {
+                        text = fn_802168BC(0x1F8);
+                    }
+                }
+                fn_801FEE08(((NewCampMapD2A_unk*)name)->mLayout, fn_800DC6B4("mapName01"), text);
+                m1900 = fn_8006EF48(lbl_8087EEC8, 16.0f, text, 0.0f, 1, 1);
+            } else {
+                fn_801FEE08(((NewCampMapD2A_unk*)name)->mLayout, fn_800DC6B4("mapName01"), sNoName_unk);
+                m1900 = 48.0f;
+            }
+            SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "msgLength", m1900);
+            if (cur->m08 != 0) {
+                m1900 += 18.0f;
+            }
+            if (level >= 1) {
+                SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "revisitLevel", 1.0f);
+            } else {
+                SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "revisitLevel", 0.0f);
+            }
+            SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv1", 1.0f);
+            SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv2", 0.0f);
+            SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv3", 0.0f);
+            SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv4", 0.0f);
+            SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv5", 0.0f);
+            if (level >= 5) {
+                SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv5", 1.0f);
+            }
+            if (level >= 4) {
+                SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv4", 1.0f);
+            }
+            if (level >= 3) {
+                SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv3", 1.0f);
+            }
+            if (level >= 2) {
+                SetPaneFloat_unk(((NewCampMapD2A_unk*)name)->mLayout, "lv2", 1.0f);
+            }
+        }
+        m18FC += 0.2f;
+        m18F0 = GetModel_unk(cur->m18->mModel)->mMtx.GetTrans_unk();
+        m18F0 += atn::Vector3(-10.0f * m18FC, 0.0f, 0.0f);
+    } else {
+        m18FC -= 0.2f;
+    }
+    m18FC = MIN(1.0f, MAX(0.0f, m18FC));
+    if (m1998 == 0) {
+        if (mDC == 1) {
+            fn_804A5E40(MenuCommonTask::sInstance, 2, lbl_807C7030, 0);
+        } else {
+            fn_804A5E40(MenuCommonTask::sInstance, 1, lbl_807C7030, 0);
+        }
+        ((NewCampMapD2A_unk*)mUiCursor)->mSpeed = 1.0f;
+        if (((NewCampMapD2A_unk*)mUiCursor)->mFrame >= 5.0f) {
+            ((NewCampMapD2A_unk*)mUiCursor)->mFrame = 5.0f;
+        }
+    } else {
+        ((NewCampMapD2A_unk*)mUiCursor)->mSpeed = -1.0f;
+    }
+    atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m480C + m4800);
+    SetPaneItem_unk(((NewCampMapD2A_unk*)mUiCursor)->mLayout, "base_pos", 0, screen.x);
+    SetPaneItem_unk(((NewCampMapD2A_unk*)mUiCursor)->mLayout, "base_pos", 1, screen.y);
+}
+
+// inferred: ranges of the background boards (m1910): area of the cursor and chapters (GameTask::m10D0) in which
+// each board is shown (lbl_8075BE80); names invented
+static const MapSelectRouteEffect_unk sBackRanges_unk[6] = {
+    {0, 400000, 999999}, {0, 0, 400000}, {0, 0, 999999}, {1, 203000, 999999}, {0, 501000, 999999}, {2, 408000, 999999},
+};
+extern "C" void fn_801FEEFC(void* layout, unsigned int hash, int value); // inferred: sets an item of a pane
+extern "C" void fn_801F6C80(atn::D2AInstance_unk* task, const char* name, float value); // inferred: sets a pane value
+// inferred: offset of the camera of the camp (inline setters of NewCampTask; names invented)
+inline void SetCampPos_unk(NewCampTask* camp, atn::Vector3 pos) {
+    camp->m12D4 = pos;
+}
+inline void SetCampTarget_unk(NewCampTask* camp, atn::Vector3 pos) {
+    camp->m12E0 = pos;
+}
+// inferred: moves the model of an entry by the lerp of `ofs` to zero (the boards rise with m19B8)
+inline void MoveEntry_unk(NewCampPartsEntry_unk* entry, const atn::Vector3& ofs, float t) {
+    atn::Matrix3x4 mtx(GetModel_unk(entry->mModel)->mMtx);
+    atn::Vector3 pos = atn::Lerp_unk(ofs, lbl_807C7030, t);
+    atn::Vector3 trans = mtx.GetTrans_unk() + pos;
+    mtx.m[0][3] = trans.x;
+    mtx.m[1][3] = trans.y;
+    mtx.m[2][3] = trans.z;
+    GetModel_unk(entry->mModel)->fn_8009EE30(mtx);
+}
+// inferred: sets a value of a pane of the d2anime of `anime` (names invented)
+inline void SetAnimeInt_unk(atn::D3Anime* anime, const char* name, int value) {
+    fn_801FEEFC(GetD2A_unk(anime)->mLayout, fn_800DC6B4(name), value);
+}
+inline void SetAnimeFloat_unk(atn::D3Anime* anime, const char* name, float value) {
+    fn_801FECE0(GetD2A_unk(anime)->mLayout, fn_800DC6B4(name), value);
+}
+
+// inferred: draw of the map: hides the marks, then either the boards of the points while the routes are being
+// placed, or the boards of the open points of the area with their marks, the background boards, the name of the
+// point under the cursor and the offset of the camera of the camp
+// NONMATCHING: 96.3% - temporaries of the lerp of MoveEntry_unk, one more saved float register, order of the sums
+// of the debug cursor box and of the offset of the camera (mDC 2)
+void NewCampPartsMapSelect::vf14() {
+    if (m4C <= 0) {
+        return;
+    }
+    for (int i = 0; i < 32; i++) {
+        if (mBattles[i].mAnime != 0) {
+            mBattles[i].mAnime->mVisible = 0;
+        }
+        if (mGoes[i].mAnime != 0) {
+            mGoes[i].mAnime->mVisible = 0;
+        }
+        if (mCursors[i].mAnime != 0) {
+            mCursors[i].mAnime->mVisible = 0;
+        }
+    }
+    int moving = 0;
+    mBattleBoard->FreezeTask();
+    mLogo->FreezeTask();
+    mBattle->mVisible = 0;
+    mGo->mVisible = 0;
+    if (((NewCampTask*)m48)->m458 >= 0.1f) {
+        moving = 1;
+    }
+    if (fn_8050FD20() && ((NewCampTask*)m48)->m11F8 != 1) {
+        mLogo->MeltTask();
+    }
+    if (fn_80521010()) {
+        for (int i = 0; i < m4C; i++) {
+            NewCampPartsEntry_unk* entry = &m50[i];
+            if (entry->mAnime != 0) {
+                entry->mAnime->mVisible = 1;
+            }
+            if (entry->mModel != 0) {
+                entry->mModel->mHidden = 0;
+                SetEntryScale_unk(entry, 0.0f);
+                vf54(entry, "reference");
+                vf5C(entry);
+            }
+        }
+        for (int i = 0; i < m190C; i++) {
+            NewCampPartsEntry_unk* entry = &m1910[i];
+            if (entry->mAnime != 0) {
+                entry->mAnime->mVisible = 1;
+            }
+            if (entry->mModel != 0) {
+                entry->mModel->mHidden = 0;
+                SetEntryScale_unk(entry, 0.0f);
+                vf54(entry, "reference");
+                vf5C(entry);
+            }
+        }
+        return;
+    }
+    for (int i = 0; i < m4C; i++) {
+        NewCampPartsEntry_unk* entry = &m50[i];
+        MapSelectPoint_unk* point = &mPoints.mData[i];
+        MapSelectRoute_unk* route = FindRoute_unk(point->m00);
+        if (route == 0 || m19A8 != point->m10) {
+            if (entry->mModel != 0) {
+                entry->mModel->mHidden = 1;
+            }
+            if (entry->mAnime != 0) {
+                entry->mAnime->mVisible = 0;
+            }
+            continue;
+        }
+        if (entry->mModel != 0) {
+            entry->mModel->mHidden = 0;
+        }
+        if (entry->mAnime != 0) {
+            entry->mAnime->mVisible = 1;
+        }
+        vf60(entry, 0, 7, 0.0f);
+        MoveEntry_unk(entry, m1914[0].mPos, m19B8);
+        SetEntryScale_unk(&m50[i], point->m28);
+        vf54(entry, "reference");
+        vf5C(entry);
+        if (entry->mAnime != 0 && entry->mAnime->GetTask() != 0) {
+            SetAnimeInt_unk(entry->mAnime, "blend0002", 0);
+            SetAnimeFloat_unk(entry->mAnime, "icon", 0.0f);
+            if (route != 0 && route->m08 == 1) {
+                SetAnimeInt_unk(entry->mAnime, "blend0002", -1);
+            }
+        }
+        if (point->m1C != 0) {
+            point->m1C->mAnime->mVisible = 1;
+            fn_801F6C80(((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask(), "wRate", 1.18f);
+            fn_801F6C80(((atn::D3AnimeInstance*)point->m1C->mAnime)->GetTask(), "hRate", 1.28f);
+            vf54(point->m1C, "reference");
+            vf5C(point->m1C);
+            if (m19A4 == point->m00 && m1998 == 0) {
+                if (mBattle != 0 && mBattle->GetTask() != 0) {
+                    mBattle->mVisible = 1;
+                    SetAnimeFloat_unk(mBattle, "wRate", 1.18f);
+                    SetAnimeFloat_unk(mBattle, "hRate", 1.28f);
+                    fn_80511258(point->m18, mBattle, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
+                                "reference");
+                }
+                if (point->m18->mAnime != 0 && point->m18->mAnime->GetTask() != 0) {
+                    mBattleBoard->MeltTask();
+                    atn::D2A_Task* task = (atn::D2A_Task*)point->m18->mAnime->GetTask();
+                    atn::D2A_DrawRect p = fn_801F4E8C(task, fn_800DC6B4("new_point"));
+                    atn::Vector3 pos(p.x, p.y, 0.0f);
+                    PSMTXMultVec(point->m18->mAnime->mMtx.m, &pos, &pos);
+                    pos = atn::RenderManager::instance_->GetScreenPosition(pos);
+                    SetPaneItem_unk(((NewCampMapD2A_unk*)mBattleBoard)->mLayout, "base_point", 0, pos.x);
+                    SetPaneItem_unk(((NewCampMapD2A_unk*)mBattleBoard)->mLayout, "base_point", 1, pos.y);
+                }
+            }
+        }
+        if (point->m20 != 0) {
+            point->m20->mAnime->mVisible = 1;
+            fn_801F6C80(((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask(), "wRate", 1.18f);
+            fn_801F6C80(((atn::D3AnimeInstance*)point->m20->mAnime)->GetTask(), "hRate", 1.28f);
+            vf54(point->m20, "reference");
+            vf5C(point->m20);
+            if (m19A4 == point->m00 && m1998 == 0 && mGo != 0 && mGo->GetTask() != 0) {
+                mGo->mVisible = 1;
+                SetAnimeFloat_unk(mGo, "wRate", 1.18f);
+                SetAnimeFloat_unk(mGo, "hRate", 1.28f);
+                fn_80511258(point->m18, mGo, atn::Vector3(0.0f, 0.0f, 0.0f), atn::Vector3(1.0f, 1.0f, 1.0f),
+                            "reference");
+            }
+        }
+        if (point->m24 != 0) {
+            point->m24->mAnime->mVisible = 1;
+            ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->mSpeed = 0.0f;
+            ((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask()->mFrame = 0.0f;
+            fn_801F6C80(((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask(),
+                        "wRate", 1.18f);
+            fn_801F6C80(((atn::D3AnimeInstance*)point->m24->mAnime)->GetTask(),
+                        "hRate", 1.28f);
+            vf54(point->m24, "reference");
+            vf5C(point->m24);
+        }
+    }
+    int chapter = lbl_8087F430->m10D0;
+    for (int i = 0; i < m190C; i++) {
+        NewCampPartsEntry_unk* entry = &m1910[i];
+        if (entry->mModel == 0) {
+            continue;
+        }
+        const MapSelectRouteEffect_unk* range = &sBackRanges_unk[i];
+        if (range->mMin > chapter || range->mMax <= chapter || m19A8 != range->mArea) {
+            entry->mModel->mHidden = 1;
+        } else {
+            entry->mModel->mHidden = 0;
+        }
+        vf60(entry, 0, 7, 0.0f);
+        MoveEntry_unk(entry, m1914[i].mPos, m19B8);
+        vf54(entry, "reference");
+        vf5C(entry);
+    }
+    if (m18FC <= 0.0f) {
+        mMapName->FreezeTask();
+    } else {
+        atn::Vector3 scale(m18FC, m18FC, m18FC);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(m18F0);
+        mMapName->MeltTask();
+        SetPaneItem_unk(((NewCampMapD2A_unk*)mMapName)->mLayout, "basePos", 0, screen.x);
+        SetPaneItem_unk(((NewCampMapD2A_unk*)mMapName)->mLayout, "basePos", 1, screen.y);
+        SetPaneItem_unk(((NewCampMapD2A_unk*)mMapName)->mLayout, "basePos", 2, scale.x);
+        SetPaneItem_unk(((NewCampMapD2A_unk*)mMapName)->mLayout, "basePos", 3, scale.y);
+    }
+    if (fn_8050FD20()) {
+        if (moving) {
+            atn::Vector3 ofs(0.0f, 0.0f, 0.0f);
+            if (mDC == 0) {
+                if (m19A8 == 0 && lbl_8087F430->m10D0 >= 400000) {
+                    ofs += atn::Vector3(0.0f, 60.0f, 0.0f);
+                    if (((NewCampTask*)m48)->m136C == 0) {
+                        ofs += atn::Vector3(0.0f, 0.0f, 60.0f);
+                    }
+                }
+            } else if (mDC == 1) {
+                ofs = m480C;
+                ofs += m4864;
+            } else if (mDC == 2) {
+                ofs = m480C;
+                ofs += m4864;
+                ofs += atn::Vector3(5.0f, 0.0f, 8.0f * -m19C0);
+            }
+            SetCampPos_unk((NewCampTask*)m48, ofs);
+            SetCampTarget_unk((NewCampTask*)m48, ofs);
+        } else {
+            atn::Vector3 zero(0.0f, 0.0f, 0.0f);
+            SetCampPos_unk((NewCampTask*)m48, zero);
+            SetCampTarget_unk((NewCampTask*)m48, zero);
+        }
+    } else {
+        atn::Vector3 zero(0.0f, 0.0f, 0.0f);
+        SetCampPos_unk((NewCampTask*)m48, zero);
+        SetCampTarget_unk((NewCampTask*)m48, zero);
+    }
+    if (m48A8 != 0) {
+        atn::Vector3 center(0.5f * (m48B4 + m48AC), 0.5f * (m48B8 + m48B0), 0.0f);
+        atn::Vector3 size(0.5f * (m48B4 - m48AC), 0.5f * (m48B8 - m48B0), 10.0f);
+        center += m4800;
+        lbl_8087EEB0->fn_800629F0(center, size, 0.0f, 0xFFFF0000, 0);
+    }
+}
+
 // NONMATCHING: 89% - the route search of the camp is kept (dead) in the original; the anime of the thumbnail is
 // reloaded after sprintf there
 void NewCampPartsMapSelect::vf20() {
@@ -502,6 +906,90 @@ inline void NewCampPartsMapSelect::Answer_unk() {
     } else {
         fn_80117228(2);
         fn_8051FB7C(m199C);
+    }
+}
+
+// inferred: clears the thumbnail of a point (white texture)
+static inline void ClearTexture_unk(atn::D3Anime* anime, const char* pane, const char* name) {
+    if (strncmp(name, "", 1) != 0) {
+        char path[0x80];
+        sprintf(path, "data/texture/sys_white.texture");
+        ((atn::D2A_Task*)anime->GetTask())->fn_801F4D80(pane, (int)path);
+    }
+}
+
+// inferred: resets the map (cursor, routes, marks, thumbnails and boards of the points)
+// NONMATCHING: 96% - the anime of the thumbnail is reloaded after sprintf in the original (as vf20); loops over
+// the points addressed from this
+void NewCampPartsMapSelect::vf28() {
+    m1998 = 4;
+    m199C = 4;
+    if (m1908 != 0) {
+        fn_800D2338(m1908);
+        m1908 = 0;
+    }
+    mD8 = 0;
+    mRoutes.clear();
+    memset(m45D4.m00, 0, sizeof(m45D4.m00));
+    m46D4 = 0;
+    mDC = 0;
+    m19A8 = 0;
+    m19B0 = 0;
+    m19C0 = 0.0f;
+    ((NewCampTask*)m48)->fn_8053032C(lbl_807C7030, lbl_807C7030);
+    m19B4 = 0;
+    fn_80521908(1);
+    fn_80239DAC(lbl_8087F3C0, this, 1, 0);
+    {
+        NewCampPartsEntry_unk* entries = mBattles;
+        for (int i = 0; i < 32; i++) {
+            ResetEntry_unk(entries[i]);
+        }
+    }
+    {
+        unsigned int i = 0;
+        MapSelectPoint_unk* point = mPoints.mData;
+        for (; i < mPoints.mSize; i++, point++) {
+            point->m1C = 0;
+        }
+    }
+    {
+        NewCampPartsEntry_unk* entries = mGoes;
+        for (int i = 0; i < 32; i++) {
+            ResetEntry_unk(entries[i]);
+        }
+    }
+    {
+        unsigned int i = 0;
+        MapSelectPoint_unk* point = mPoints.mData;
+        for (; i < mPoints.mSize; i++, point++) {
+            point->m20 = 0;
+        }
+    }
+    {
+        NewCampPartsEntry_unk* entries = mCursors;
+        for (int i = 0; i < 32; i++) {
+            ResetEntry_unk(entries[i]);
+        }
+    }
+    {
+        unsigned int i = 0;
+        MapSelectPoint_unk* point = mPoints.mData;
+        for (; i < mPoints.mSize; i++, point++) {
+            point->m24 = 0;
+        }
+    }
+    m18FC = 0.0f;
+    for (int i = 0; i < m4C; i++) {
+        fn_805113E8(m50[i].mAnime, 1, 1, 0.0f, 1.0f);
+        if (m50[i].mAnime != 0 && m50[i].mAnime->GetTask() != 0) {
+            ClearTexture_unk(m50[i].mAnime, "thumbnail", mPoints.mData[i].mThumbnail);
+        }
+    }
+    m96 = 0;
+    for (int i = 0; i < m4C; i++) {
+        mPoints.mData[i].m28 = 0.0f;
+        SetEntryScale_unk(&m50[i], mPoints.mData[i].m28);
     }
 }
 
@@ -948,6 +1436,90 @@ int NewCampPartsMapSelect::fn_80521010() {
     return ret;
 }
 
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+
+// inferred: position of the model of a point (relative to m4800)
+inline atn::Vector3 GetPointPos_unk(MapSelectPoint_unk* point, const atn::Vector3& origin) {
+    return GetModel_unk(point->m18->mModel)->mMtx.GetTrans_unk() - origin;
+}
+
+// inferred: moves the cursor of the map with the stick: it snaps to the nearest point of an open route of the
+// area within m481C (slower over the point already selected), then it is kept inside the area (the main
+// map from chapter 400000 on is larger)
+// NONMATCHING: 91.7% - the loop over the points keeps the index (lwzu), scheduling of the position temporaries
+void NewCampPartsMapSelect::fn_805212BC() {
+    atn::Vector3 move;
+    move.x = fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+    move.y = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    move.z = 0.0f;
+    if ((float)__fabs(move.x) < 0.3f) {
+        move.x = 0.0f;
+    }
+    if ((float)__fabs(move.y) < 0.3f) {
+        move.y = 0.0f;
+    }
+    MapSelectPoint_unk* cur = FindPoint_unk(m19A4);
+    m19A4 = -1;
+    float best = 1e16f;
+    MapSelectPoint_unk* found = 0;
+    for (int i = 0; i < m4C; i++) {
+        MapSelectPoint_unk* point = &mPoints.mData[i];
+        if (FindRoute_unk(point->m00) != 0 && m19A8 == point->m10) {
+            atn::Vector3 pos = GetPointPos_unk(point, m4800);
+            atn::Vector3 diff = m480C - pos;
+            float dist = diff.x * diff.x + diff.y * diff.y;
+            if (!(dist >= m481C * m481C) && dist < best) {
+                best = dist;
+                m19A4 = point->m00;
+                found = point;
+            }
+        }
+    }
+    if (found != 0 && found != cur) {
+        fn_80117228(3);
+    }
+    if (found != 0) {
+        atn::Vector3 pos = GetPointPos_unk(found, m4800);
+        atn::Vector3 dir;
+        dir = pos - m480C;
+        float len = dir.x * dir.x + dir.y * dir.y;
+        if (len > 0.1f) {
+            if (len > 3.0f * m4818) {
+                len = 3.0f * m4818;
+            }
+            PSVECNormalize(&dir, &dir);
+            dir *= len;
+            if (cur == found) {
+                dir *= m4820 * m4824;
+            } else {
+                dir *= m4820;
+            }
+            move += dir;
+        }
+    }
+    m480C += move * m4818;
+    if (m19A8 == 2) {
+        m480C.x = MAX(-150.0f, MIN(0.0f, m480C.x));
+        m480C.y = MAX(-60.0f, MIN(50.0f, m480C.y));
+    } else {
+        atn::Vector3 lo(0.0f, 0.0f, 0.0f);
+        atn::Vector3 hi(0.0f, 0.0f, 0.0f);
+        if (m19A8 == 0) {
+            if (lbl_8087F430->m10D0 >= 400000) {
+                lo += atn::Vector3(0.0f, 60.0f, 0.0f);
+                lo += atn::Vector3(-20.0f, -30.0f, 0.0f);
+                hi += atn::Vector3(0.0f, 60.0f, 0.0f);
+                hi += atn::Vector3(50.0f, 5.0f, 0.0f);
+            }
+        } else {
+            lo += atn::Vector3(0.0f, -15.0f, 0.0f);
+            hi += atn::Vector3(0.0f, 0.0f, 0.0f);
+        }
+        m480C.x = MAX(m48AC + lo.x, MIN(m48B4 + hi.x, m480C.x));
+        m480C.y = MAX(m48B0 + lo.y, MIN(m48B8 + hi.y, m480C.y));
+    }
+}
+
 // NONMATCHING: float registers of the negated offset
 void NewCampPartsMapSelect::fn_80521908(int reset) {
     if (reset) {
@@ -1013,7 +1585,6 @@ void NewCampPartsMapSelect::vf44() {
     }
 }
 
-// NONMATCHING: 99.8% - only the offset of its string in @stringBase0 (strings of vf10/vf14 not written yet)
 void NewCampPartsMapSelect::vf48() {
     float frame = 0.0f;
     for (int i = 0; i < m4C; i++) {

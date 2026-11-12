@@ -15,13 +15,23 @@ class LastCocoonImago : public EnemyTask {
 public:
     LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info); // 0x80458270
     virtual ~LastCocoonImago();                              // 0x8045F9A0
+    virtual int vf0C();                                      // 0x80458590
+    virtual void vf20();                                     // 0x8045B594
     virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
+    virtual void vf3C(HitInfo_unk* hit);                     // 0x80459358
+    virtual void vf54(); // 0x8045A8F0: inferred: places the hit spheres of the attacks
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
+    virtual void vf80(const atn::Vector3& pos, const atn::Vector3& dir); // 0x8045C83C
     virtual float vf90();                                    // 0x8045F998
     virtual int vfB8(wchar_t* name);                         // 0x80459F24
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x8045F6E0
     virtual atn::Vector3 vfD8(CharaTask* target);            // 0x8045F884
+    void fn_8045ABB4(const atn::Vector3& pos, float f1, float f2); // inferred: moves towards pos
+    void fn_8045DF34(); // inferred: mode 11: carries the gimmick m18F8, then waits for the thrust
+    void fn_8045E548(); // inferred: mode with the motions 0x14B-0x14D, then mode 10
+    void fn_8045E780(); // inferred: mode 10: lunges towards m14D4 with the bullet 0x5B6
+    inline void ResetAttacks_unk();
     void fn_8045D224(); // inferred: mode update: holds the gimmick motion, frame 120 disables the capsules
     void fn_8045EB60();
     void fn_8045F4CC(); // inferred: sends message 4 to the gimmicks of type 1 touching the body // inferred: mode 2 (motion 0x37, or 0x31 from frame 200 after mode 14)
@@ -58,10 +68,14 @@ public:
     int m18C8;                       // inferred: sphere (m624) used as the center
     int m18CC;
     int m18D0;
-    unsigned char m18D4[0x18EC - 0x18D4];
+    // inferred: wait and counter of the three attacks of sImagoAttacks_unk (names invented)
+    struct AttackTimer_unk {
+        int mWait;
+        int mCount;
+    } m18D4[3];
     int m18EC;
     int m18F0;
-    unsigned char m18F4[0x18F8 - 0x18F4];
+    RoutePlace_unk* m18F4; // inferred: place 2 of the field
     GimmickCommon* m18F8; // inferred: gimmick told (message 5) when mode 12 starts
     atn::ColliSphere m18FC; // inferred: a sphere (0x4C bytes; its destructor is inlined)
     atn::Vector3 m1948;

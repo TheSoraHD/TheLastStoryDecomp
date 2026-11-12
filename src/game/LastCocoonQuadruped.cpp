@@ -5,6 +5,19 @@
 #include "game/PlayerTask.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "game/GimmickManager.h"
+#include "macros.h"
+#include "game/MapTask.h"
+#include "game/EnemyManager.h"
+#include "game/GimmickCommon.h"
+#include "atn/DrawHelper.h"
+#include "game/GameConfig_unk.h"
+#include "atn/Csv.h"
+#include "std/string.h"
+#include "std/string_members.h"
+#include <boost/tokenizer.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
@@ -177,6 +190,22 @@ struct QuadCollResult_unk {
 extern "C" int fn_8004ED34(void* colli, QuadCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
+extern "C" int fn_8004D388(void* world, QuadCollResult_unk* result, const atn::Vector3* from,
+                           const atn::Vector3* to, unsigned int mask, void* ignore, int arg,
+                           float radius); // inferred: sphere sweep
+// inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
+// (as in game/Em208Queen.cpp)
+inline RoutePlace_unk* FindQuadPlace_unk(int id) {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
+        RoutePlace_unk* places = table->mPlaces;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
 inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
@@ -186,6 +215,255 @@ inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     }
     m58C = mode;
     fn_8016E970(3);
+}
+
+extern "C" int strncmp(const char* a, const char* b, unsigned long n);
+extern "C" std::string fn_8006AFF8(const std::string& a, const std::string& b); // inferred: a + b
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+// inferred: node callbacks of the model (as in game/CharaTask.cpp and game/Em403WarLion.cpp)
+typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
+                        std::allocator<boost::function_base> >
+    NodeCallback_unk;
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
+
+// NONMATCHING: 0% - the original is over the inlining budget (docs/inlining.md R3) and calls every inline
+// (LH_Binary, Vector3, Matrix3x4, QuadRoutes_unk and ResHandle constructors, the strings, the tokenizer);
+// this one stays under it and inlines them (same problem as the constructor of LastCocoonChrysalis)
+LastCocoonQuadruped::LastCocoonQuadruped(atn::Task* parent, EnemyInfo_unk* info)
+    : EnemyTask(parent, info->m20), m14B8(0), m14BC(0), m14C0(0), m14C4(0), m14C8(0), m14CC(0),
+      m14D4(0.0f, 0.0f, 0.0f), m14E0(0.0f, 0.0f, 0.0f), m14EC(0), m1554(0), m1558(1), m1574(0), m15A8(0),
+      m15B0(0.0f, 0.0f, 0.0f), m15BC(0.0f, 0.0f, 0.0f), m15C8(0), m15CC(0.0f, 0.0f, 0.0f), m1800(0), m18EC(0),
+      m18F4(0) {
+    mFlag22 = 1;
+    std::string dir("database/chara/special/");
+    std::string name("db_last_cocoon.csv");
+    std::string params(info->m2C);
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    Tokenizer tok(params, boost::char_separator<char>(";"));
+    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it) {
+        if (strncmp(it->c_str(), "db_name=", 8) == 0) {
+            name = it->c_str() + 8;
+        }
+    }
+    std::string path = fn_8006AFF8(dir, name);
+    m14B0.vf0C(path.c_str());
+    m1790.LoadRequest("ef_bs042a.efp");
+    m179C.LoadRequest("ef_bs043a.efp");
+    m1824.LoadRequest("ef_sk043c_01.eff");
+    m1830.LoadRequest("ef_sk043a.efp");
+    m183C.LoadRequest("ef_sk043g_01.eff");
+    m1848.LoadRequest("ef_sk043g_02.eff");
+    mFlagC31 = 1;
+}
+
+int LastCocoonQuadruped::vf0C() {
+    if (fn_8013655C() == 0 && m14B0.fn_80473F50() == 0 && m1790.IsLoading() == 0 && m179C.IsLoading() == 0 &&
+        m1824.IsLoading() == 0 && m1830.IsLoading() == 0 && m183C.IsLoading() == 0 && m1848.IsLoading() == 0) {
+        mStatus.m18 |= 0x1C0;
+        mStatus.m18 |= 0x10000;
+        mStatus.m18 |= 0xC219;
+        mStatus.m18 |= 0x3800000;
+        fn_80087994(m18F0.Load("LastCocoonQuadruped"), "DebugDisp", &m18F4, 0, 0);
+        if (m14B0.fn_80470580() != 0 && lbl_8087F430 != 0 && lbl_8087F430->m10D8 != 0) {
+            atn::Csv csv((const char*)m14B0.fn_80470580(), m14B0.fn_8047059C());
+            do {
+                csv.fn_8005B9CC();
+            } while (csv.fn_8005BBF8());
+        }
+        m56C = 0.125f;
+        mColli.mFlags &= ~0x80000000;
+        for (int i = 0; i < 5; i++) {
+            mCapsules[i].m0C = (int)this;
+            mCapsules[i].mFlags |= 3;
+            mCapsules[i].mFlags &= ~0x80000000;
+        }
+        m54C |= 0x200;
+        m17A8.m20 = 0x98;
+        m17A8.mFlags &= ~1;
+        m17A8.mFlags |= 2;
+        m17A8.m0C = (int)this;
+        fn_800F29D0(&mMotion, boost::bind(&LastCocoonQuadruped::fn_80462CCC, this, _1, _2));
+        mMotion.fn_80091CFC("neck");
+        mMotion.fn_80091CFC("waist");
+        mMotion.fn_80091CFC("spine");
+        atn::Vector3 limit(0.7853982f, 0.62831855f, 0.0f);
+        mLook.mLimit = limit;
+        return 1;
+    }
+    return 0;
+}
+
+// inferred: field object (as in gmk/FlamingArrow.cpp)
+struct Field_unk {
+    RouteTable_unk* fn_8013C504();
+};
+extern "C" Field_unk* fn_80121F00();
+// inferred: player input of the field (as in game/Em201ZanGurgFinal.cpp; weak copies with C names)
+struct QuadInput_unk;
+extern "C" QuadInput_unk* fn_80122550(Field_unk* field);
+extern "C" void fn_8026616C(QuadInput_unk* input, CharaTask* chara);
+extern "C" void fn_8026610C(QuadInput_unk* input, const atn::Vector3& pos, float f, int keep);
+extern "C" atn::Vector3* fn_80266164(QuadInput_unk* input);
+extern "C" atn::Matrix3x4* fn_80266154(atn::Model* model);
+extern "C" float fn_80011220(float x); // inferred: fabs
+
+// NONMATCHING: 0% - the original is over the inlining budget (docs/inlining.md R3: Vector3 copies, operators,
+// ToRotation_unk, GetTrans_unk and the matrix helpers are all called); this one inlines them
+void LastCocoonQuadruped::vf10() {
+    fn_804617A4();
+    atn::Vector3 pos(mPos);
+    atn::Vector3 rot(mRot);
+    m14C0++;
+    if (mC58.mC0 == 0 || m14B8 == 0) {
+        fn_8016E970(3);
+    } else {
+        if (m14C4 == 0 && m58C != 6 && m58C != 8) {
+            int kind = 0;
+            atn::Vector3 target;
+            float angle;
+            if (fn_80468038(&kind, &target, &angle) != 0) {
+                if (++m14C8 > 5) {
+                    m14D4 = fn_804687B0(&m14F4, 0, 1);
+                    atn::Vector3 next = fn_80468A08(m14F4, 0);
+                    m14E0 = (next - m14D4).ToRotation_unk();
+                    m14C4 = 1;
+                    m14EC = 0;
+                    m14C8 = 0;
+                    m14F0 = (rand() % 3) * 2 + 4;
+                } else {
+                    m14D4 = target;
+                    m14E0 = mRot;
+                    m14E0.y = angle;
+                }
+                fn_80466B8C();
+            }
+        }
+        if (m14B8 != 0) {
+            int look = 0;
+            switch (m58C) {
+            case 6:
+                fn_80463610();
+                look = 1;
+                break;
+            case 7:
+                fn_804638A4();
+                break;
+            case 8:
+                fn_80463C58();
+                break;
+            case 9:
+                fn_80463DCC();
+                break;
+            case 10:
+                fn_80463F20();
+                break;
+            case 11:
+                fn_80464608();
+                break;
+            case 12:
+                fn_80464CF0();
+                break;
+            case 13:
+                fn_80465294();
+                break;
+            case 14:
+                fn_804654F0();
+                break;
+            case 15:
+                fn_804655AC();
+                break;
+            case 16:
+                fn_80465B88();
+                break;
+            case 17:
+                fn_80466370();
+                break;
+            case 18:
+                fn_804666D8();
+                look = 1;
+                break;
+            case 19:
+                fn_80466868();
+                break;
+            default:
+                if (m55C != 6) {
+                    fn_80463174();
+                }
+                if (m58C == 0) {
+                    fn_804635B4();
+                }
+                break;
+            }
+            mFlag24 = 0;
+            if (look != 0) {
+                mLook.fn_80129A48(0.3f);
+            } else {
+                mLook.fn_80129978(m14B8->GetModel_unk(), "neck", lbl_807C7030, 0.3f);
+            }
+            MapTask* map = ((GameTask*)fn_80121F00())->GetCurrentMap();
+            QuadInput_unk* input = fn_80122550(fn_80121F00());
+            if (m58C == 15 || m58C == 16) {
+                if (map->GetCamera_unk() != 2) {
+                    map->fn_804A04AC(2, 30, -1, 0);
+                    map->SetDefaultCamera_unk(2);
+                }
+            } else if (m58C == 6) {
+                if (mMotion.fn_80139F2C(0) == 0x14A) {
+                    if (map->GetCamera_unk() != 0) {
+                        map->fn_804A04AC(0, 15, -1, 0);
+                        map->SetDefaultCamera_unk(0);
+                    }
+                } else {
+                    atn::Vector3 spine = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("spine1"))->GetTrans_unk();
+                    if (m18EC == 0) {
+                        fn_8026616C(input, this);
+                        fn_8026610C(input, spine, 0.0f, 0);
+                        m18EC = 1;
+                    } else {
+                        fn_8026616C(input, this);
+                        fn_80266164(input)[1] = spine;
+                    }
+                    if (map->GetCamera_unk() != 2) {
+                        map->fn_804A04AC(2, 150, -1, 0);
+                        map->SetDefaultCamera_unk(2);
+                    }
+                }
+            } else if (m58C == 17) {
+                if (map->GetCamera_unk() != 0) {
+                    map->fn_804A04AC(0, 30, -1, 0);
+                    map->SetDefaultCamera_unk(0);
+                }
+            } else if (m58C == 18) {
+                if (map->GetCamera_unk() != 0) {
+                    map->fn_804A04AC(0, 60, -1, 0);
+                    map->SetDefaultCamera_unk(0);
+                }
+            } else {
+                if (map->GetCamera_unk() != 0) {
+                    map->fn_804A04AC(0, 15, -1, 0);
+                    map->SetDefaultCamera_unk(0);
+                }
+            }
+        }
+    }
+    m15CC.y *= 0.8f;
+    float d = rot.y + m15CC.y - mRot.y;
+    if (fn_80011220(d) > sAngle_unk) {
+        d = sAngle_unk * (d / fn_80011220(d));
+    }
+    m15CC.y = d;
+    fn_8014C540();
+    fn_80145334();
+    atn::Vector3 offset(0.0f, 0.0f, 0.0f);
+    m1578 = *fn_80266154(&mMotion);
+    offset += m1578.GetTrans_unk();
+    m1578.fn_8010F668();
+    atn::Matrix3x4 turn;
+    turn.fn_8013A13C(3.1415927f);
+    m1578.fn_801495E8(turn);
+    m1578.fn_801479E4(offset);
+    m148C = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("neck"))->GetTrans_unk();
+    m1498 = 5.0f;
 }
 
 void LastCocoonQuadruped::vf14() {
@@ -200,6 +478,42 @@ void LastCocoonQuadruped::vf3C(HitInfo_unk* hit) {
         }
         fn_80151448(msg);
         vf40(hit);
+    }
+}
+
+// NONMATCHING: 99.9% - r5/r6 of the rotation temporary and of m14E0 swapped
+void LastCocoonQuadruped::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    int down = 0;
+    if (m58C == 13 && ++m15A8 > 3) {
+        down = 1;
+    }
+    if (down) {
+        SetMode_unk(14);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
+        if (m1574 != 0) {
+            m1574->fn_8015B238();
+            m1574 = 0;
+        }
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+    }
+    if (msg->mData->m04 == 0x5BA) {
+        m18E8 = 1;
+    }
+    float rate = mStatus.mParamB.m84 > 0 ? mStatus.m04 / (float)mStatus.mParamB.m84 : 0.0f;
+    if (rate < 0.5f) {
+        m14C4 = 7;
+        RoutePlace_unk* place = FindQuadPlace_unk(600);
+        if (place != 0) {
+            m14D4 = place->mPos;
+            m14E0 = atn::Vector3(0.0f, place->m14, 0.0f);
+            fn_80466B8C();
+        } else {
+            fn_80466A04();
+        }
     }
 }
 
@@ -285,6 +599,176 @@ void LastCocoonQuadruped::fn_804617A4() {
     }
 }
 
+// inferred: movement of modes 0/3/7 (as Em403WarLion::fn_803241E8): keeps the rotation, follows the route or
+// circles the target m14B8; turns in place when the angle to it is 75 degrees or more
+void LastCocoonQuadruped::fn_80461838() {
+    atn::Vector3 rot(mRot);
+    float a = 0.0f;
+    float b = 1.0f;
+    int state = m55C;
+    if (state == 0 || state == 5 || state == 9 || mFlag2) {
+        rot = mRot;
+    } else if (state == 1) {
+        rot = mRot;
+    } else if (state == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 dir(mRoute.m58);
+        a = dir.Length_unk();
+        if (a > 0.0001f) {
+            rot = dir.GetNormalize().ToRotation_unk();
+        } else {
+            rot = mRot;
+        }
+    } else if (state == 3) {
+        if (m14C4 == 0) {
+            atn::Vector3 d = m14B8->mPos - mPos;
+            a = d.Length_unk();
+            if (a < 1e-5f) {
+                rot = mRot;
+                a = 0.0f;
+            } else {
+                d.Normalize_unk();
+                if (a < 30.0f) {
+                    a = 0.0f;
+                    float diff = atn::WrapAngle_unk(d.ToRotation_unk().y - mRot.y);
+                    if (atn::Abs_unk(diff) >= 1.3089969f) {
+                        fn_8016D454(diff);
+                        return;
+                    }
+                } else {
+                    a = 0.6f;
+                    atn::Vector3 t = mC58.fn_8011BF3C(0) - mPos;
+                    rot = t.ToRotationZ_unk();
+                    rot.y -= 0.15707964f;
+                }
+            }
+        }
+    } else if (state == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_80462038(rot, 1, a, b);
+}
+
+
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m030: frames per second)
+extern "C" double sin(double x);
+extern "C" double cos(double x);
+
+// NONMATCHING: 98.1% - float registers of the turn and of the m584 clamp (the original rounds it with frsp,
+// as in Em403WarLion::fn_80324A38) and the order of m574 at the end
+// inferred: moves towards the rotation `target` (as Em403WarLion::fn_80324A38, without its landing flag)
+void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float speed, float rate) {
+    atn::Vector3 pos(mPos);
+    atn::Vector3 rot(mRot);
+    float diff = atn::WrapAngle_unk(target.y - rot.y);
+    float dt = lbl_8087EFA8->m3A4;
+    float cur = rot.y;
+    float turn = m56C;
+    rate *= dt;
+    float k = atn::Abs_unk(diff / 3.1415927f) * 0.75f;
+    turn *= 1.0f + k;
+    float step = diff * turn;
+    cur += step;
+    rot.y = cur;
+    m570 *= 0.85f;
+    if (m570 < 0.001f) {
+        m570 = 0.0f;
+    }
+    if (speed > 1.0f) {
+        speed = 1.0f;
+    }
+    if (speed > 0.4f) {
+        float ofs = 0.25f;
+        speed = (speed - 0.4f) / 0.6f;
+        speed *= rate;
+        if (m570 < 0.5f) {
+            ofs = 0.0f;
+        }
+        float angle = atn::Abs_unk(diff / 3.1415927f) - ofs;
+        if (angle < 0.0f) {
+            angle = 0.0f;
+        }
+        speed *= 1.0f - 1.5f * (angle / (1.0f - ofs));
+        if (speed < 0.0f) {
+            speed = 0.0f;
+        }
+    } else {
+        speed = 0.0f;
+    }
+    m580 += 0.25f * (0.7f * diff) - 0.4f * m580;
+    if (atn::Abs_unk(m580) < 0.001f) {
+        m580 = 0.0f;
+    }
+    m570 += 0.26f * speed - 0.125f * m570;
+    vf24();
+    m574.x *= 0.3f;
+    m574.z *= 0.3f;
+    atn::Vector3 move;
+    move.x = m570 * (float)sin(rot.y);
+    move.y = 0.0f;
+    move.z = m570 * (float)cos(rot.y);
+    move.x *= dt;
+    move.y *= dt;
+    move.z *= dt;
+    if (m570 > 1.0f) {
+        move.x *= 2.0f;
+        move.y *= 2.0f;
+        move.z *= 2.0f;
+    }
+    if ((mStatus.mParamB.m9C & 1u) != 1) {
+        int fps = lbl_8087F0A8->m030;
+        m574.y += dt * (-98.1f / (float)(fps * fps));
+    }
+    move += m6B8;
+    m6B8.x *= 0.8f;
+    m6B8.y = 0.0f;
+    m6B8.z *= 0.8f;
+    if (m6B8.Length_unk() < 0.1f) {
+        m6B8.Set_unk(0.0f, 0.0f, 0.0f);
+    }
+    move += m574;
+    if (move.y < -6.0f) {
+        move.y = -6.0f;
+    }
+    int keepRot = 1;
+    atn::Vector3 oldPos(pos);
+    QuadCollResult_unk result;
+    CharaTask::Sphere_unk sphere = fn_80176548(pos);
+    unsigned int mask = arg != 0 ? 0x80000000 : 0;
+    if (mType == 0) {
+        mask |= 0x20;
+    } else if (mType == 3) {
+        mask |= 0x40;
+    } else if (mType == 2) {
+        mask |= 0x80;
+    }
+    int hit = fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &move, mask, &mColli, 0, sphere.mRadius);
+    pos = result.m10;
+    pos -= m5A4;
+    pos.y -= sphere.mRadius;
+    if (hit != 0 && oldPos.y - pos.y < 0.95f * -move.y) {
+        move.y = 0.0f;
+    }
+    float lean = 0.0f;
+    atn::Vector3 vel(move + (pos - oldPos));
+    if (PSVECSquareMag(&vel) > 0.001f && speed > 0.001f) {
+        lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
+    }
+    lean *= 2.0f;
+    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
+    if ((m54C & 2) == 2 && pos.y < 0.0f) {
+        pos.y = 0.0f;
+    }
+    mPos = pos;
+    if (keepRot) {
+        mRot = rot;
+    }
+    m574 = move;
+    m574.z /= dt;
+    m574.x /= dt;
+}
+
 // NONMATCHING: 99.5% - the frame time (dt) is in f28 here, f29 in the original. Tried: local
 // declaration orders, a copy of dt after the motion lengths, separate weights.
 // inferred: walk motions blended by speed (simplified CharaTask::vf24)
@@ -354,11 +838,245 @@ void LastCocoonQuadruped::vf24() {
     }
 }
 
+// inferred: m = m * rotation(r) z, y, x (as in game/QuadrupedTask.cpp and game/Em403WarLion.cpp; name
+// invented)
+inline atn::Matrix3x4& QuadRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
+// inferred: turns the neck with the lean, the waist and the spine with m15CC.y (node matrix callback)
+// NONMATCHING: 99.2% - as QuadrupedTask::fn_805688CC (register of the node, stack of the matrices)
+void LastCocoonQuadruped::fn_80462CCC(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk) {
+    ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
+    if (mLook.fn_8012A288(mtx, node) != 0) {
+        return;
+    }
+    const char* name = node->mName;
+    if (strcmp(name, "neck") == 0) {
+        if (m648 == 0) {
+            atn::Vector3 pos = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            Mtx r;
+            PSMTXRotRad(r, 'z', m580 - 0.7f * m584);
+            PSMTXConcat(r, mtx->m, mtx->m);
+            mtx->m[0][3] = pos.x;
+            mtx->m[1][3] = pos.y;
+            mtx->m[2][3] = pos.z;
+        }
+    } else if (strcmp(name, "waist") == 0) {
+        if (m55C != 8) {
+            atn::Vector3 pos = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            atn::Vector3 rot(m15CC.y, 0.0f, 0.1f * m15CC.y);
+            atn::Matrix3x4 r;
+            QuadRotationZYX_unk(r, rot);
+            PSMTXConcat(r.m, mtx->m, mtx->m);
+            mtx->m[0][3] = pos.x;
+            mtx->m[1][3] = pos.y;
+            mtx->m[2][3] = pos.z;
+        }
+    } else if (strcmp(name, "spine") == 0) {
+        if (m55C != 8) {
+            atn::Vector3 pos = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            atn::Vector3 rot(0.0f, 0.0f, 0.3f * m15CC.y);
+            atn::Matrix3x4 r;
+            QuadRotationZYX_unk(r, rot);
+            PSMTXConcat(r.m, mtx->m, mtx->m);
+            mtx->m[0][3] = pos.x;
+            mtx->m[1][3] = pos.y;
+            mtx->m[2][3] = pos.z;
+        }
+    }
+}
+
+class GimmickManager;
+class GimmickCommon;
+extern "C" GimmickManager* fn_80279790();                // inferred: GimmickManager::instance_
+extern "C" GimmickCommon* fn_80279788(GimmickManager* m); // inferred: head of its list
+extern "C" atn::Vector3* fn_802797A0(GimmickCommon* g);   // inferred: position of the gimmick
+extern "C" GimmickCommon* fn_802797D4(GimmickCommon* g);  // inferred: next gimmick of the list
+extern "C" int fn_804635A4(GimmickCommon* g);
+extern "C" CharaTask* fn_804635AC(GimmickCommon* g);
+extern "C" float fn_802A7964(float rad); // inferred: radians to degrees
+extern "C" float fn_802A7910(float deg); // inferred: wraps an angle in degrees
+void* fn_801404F8();                     // inferred: collision world
+extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg); // inferred: line check
+
+// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls the Vector3 copies,
+// operators and the angle helpers; this one inlines them
+void LastCocoonQuadruped::fn_80463174() {
+    if (m14B8 == 0) {
+        return;
+    }
+    atn::Vector3 tpos(*m14B8->fn_8013C38C());
+    atn::Vector3 diff = tpos - mPos;
+    float dist = diff.Length_unk();
+    if (m14C4 == 0) {
+        if (m14C0 > 60 && dist < 35.0f) {
+            fn_80466AE4();
+        }
+    } else if (m14C4 == 1) {
+        if (m14EC == 0) {
+            fn_80467F50();
+            m14EC = 1;
+            return;
+        }
+        int walk = 1;
+        if (m14F0 <= 0) {
+            int found = 0;
+            atn::Vector3 pos;
+            CharaTask* chara = 0;
+            if (m1558 >= 0) {
+                for (GimmickCommon* g = fn_80279788(fn_80279790()); g != 0; g = fn_802797D4(g)) {
+                    if (fn_804635A4(g) == 0x455 && g->vf5C() != 0) {
+                        pos = *fn_802797A0(g);
+                        chara = fn_804635AC(g);
+                        atn::Vector3 d = pos - mPos;
+                        float len = d.Length_unk();
+                        float angle = fn_80011220(
+                            fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - GetRot_unk()->y)));
+                        if (angle <= 360.0f && len < 100.0f) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (found != 0) {
+                m1558 = 0;
+                m14C4 = 6;
+                fn_80467C18(chara, atn::Vector3(pos));
+                walk = 0;
+            } else if (m14F0 < -2) {
+                m1558++;
+                m14C4 = 4;
+                m1554 = m14B8;
+                fn_80468B68(&m1504, m14F4, &m14F4, 1);
+                fn_804672CC();
+                walk = 0;
+            }
+        }
+        if (walk != 0) {
+            m14F0--;
+            fn_80468B68(&m1504, m14F4, &m14F4, 0);
+            fn_80466CA4();
+        }
+    } else if (m14C4 == 4) {
+        if (m1554 == 0 || !m1554->CanAct_unk()) {
+            m14C4 = 0;
+            fn_80466974();
+        }
+        atn::Vector3 d = *m1554->fn_8013C38C() - mPos;
+        float len = diff.Length_unk();
+        float angle =
+            fn_80011220(fn_802A7910(fn_802A7964(d.GetNormalize().ToRotation_unk().y - GetRot_unk()->y)));
+        if (angle <= 45.0f && len < 100.0f) {
+            atn::Vector3 from(mPos);
+            from.y += 10.0f;
+            atn::Vector3 to(tpos);
+            to.y += 10.0f;
+            if (fn_8004ECC0(fn_801404F8(), 0, &from, &to, 0x80000080, &mColli, 0) == 0) {
+                m14C4 = 5;
+                fn_804678F4();
+            }
+        }
+    } else if (m14C4 == 5) {
+        m14C4 = 0;
+        m1574 = 0;
+    } else if (m14C4 == 6) {
+        m14C4 = 0;
+    } else if (m14C4 == 7) {
+        fn_80466A04();
+    }
+}
+
+// inferred: id and owner of a gimmick (weak copies; C names)
+extern "C" int fn_804635A4(GimmickCommon* g) {
+    return g->mId;
+}
+
+extern "C" CharaTask* fn_804635AC(GimmickCommon* g) {
+    return (CharaTask*)g->m4C;
+}
+
 void LastCocoonQuadruped::fn_804635B4() {
     if (m14C4 == 4 && (m55C < 6 || m55C > 7)) {
         fn_80170A20(m1554, -1.0f, 0);
     }
     fn_80461838();
+}
+
+void LastCocoonQuadruped::fn_80463610() {
+    if (mMotion.mTracks[0].m00 == 0x14A) {
+        if ((float)__fabs(mMotion.mTracks[0].m08 - 3.0f) < 1.1920929e-7f) {
+            lbl_8087F430->Shake_unk(60, 0.3f, 0.3f);
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+            lbl_8087F430->Shake_unk(180, 0.1f, 0.1f);
+            fn_800C344C("SE_EM206_027", &mPos, 0, -1, 1.0f);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if ((float)__fabs(frame - 50.0f) < 1.1920929e-7f) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5B, 1);
+        } else if (frame >= mMotion.fn_80097D7C(0)) {
+            mFlag25 = 1;
+            mColli.mFlags &= ~1;
+            for (int i = 0; i < 5; i++) {
+                mCapsules[i].mFlags &= ~1;
+            }
+            m17A8.mFlags &= ~1;
+            mFlag15 = 1;
+            fn_801765D8();
+            for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+                if (enemy->m60->m24 == 0x3B) {
+                    atn::Vector3 dir;
+                    dir.x = 0.0f;
+                    dir.y = 0.0f;
+                    dir.z = 1.0f;
+                    atn::Matrix3x4 rot;
+                    rot.fn_8013A13C(mRot.y);
+                    PSMTXMultVec(rot.m, &dir, &dir);
+                    enemy->vf80(mPos, dir);
+                }
+            }
+        }
+    }
 }
 
 void LastCocoonQuadruped::fn_804638A4() {
@@ -414,6 +1132,111 @@ void LastCocoonQuadruped::fn_80463DCC() {
     }
 }
 
+// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
+// inferred: walks along the route for 45 frames, hitting with the bullet 0x5B4
+void LastCocoonQuadruped::fn_80463F20() {
+    if (m14C0 >= 45) {
+        SetMode_unk(0);
+        if (m1800 != 0) {
+            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            m1800 = 0;
+        }
+        return;
+    }
+    mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
+    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    fn_80144710();
+    HitInfo_unk* bullet = fn_80219E6C(0x5B4);
+    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    if (m18F4 != 0) {
+        lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
+    }
+}
+
+// NONMATCHING: 99.9% - stack slots of the two path positions and of the direction rotated by one
+// inferred: walks along the route for 33 frames, hitting with the bullet 0x5B4
+void LastCocoonQuadruped::fn_80464608() {
+    if (m14C0 >= 33) {
+        SetMode_unk(0);
+        if (m1800 != 0) {
+            ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+            m1800 = 0;
+        }
+        return;
+    }
+    mPos = m1504.GetPos_unk(1.0f / 45.0f * m14C0);
+    mRot = (mPos - m1504.GetPos_unk(1.0f / 45.0f * (m14C0 - 1))).ToRotationZ_unk();
+    fn_80144710();
+    HitInfo_unk* bullet = fn_80219E6C(0x5B4);
+    fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+    if (m18F4 != 0) {
+        lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
+    }
+}
+
+
+// NONMATCHING: 99.9% - stack slots of the position, rotation and color of PlayEfp_unk (reversed)
+// inferred: mode 12: jumps towards m155C (m1568 per frame, with gravity), the bullet 0x5B5 at frame 24
+void LastCocoonQuadruped::fn_80464CF0() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        if (m1574 != 0) {
+            SetMode_unk(13);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+            m15A8 = 0;
+            fn_80232B7C(this, 1000);
+            PlayEfp_unk(&m179C, &mMotion);
+        } else {
+            SetMode_unk(0);
+            if (m1800 != 0) {
+                ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+                m1800 = 0;
+            }
+        }
+        return;
+    }
+    if (m14C0 < 24) {
+        QuadCollResult_unk result;
+        QuadCollResult_unk unused;
+        atn::Vector3 move = m1568;
+        move.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
+        CharaTask::Sphere_unk sphere = fn_80176548(mPos);
+        sphere.mRadius += 30.0f;
+        sphere.mCenter.y += 30.0f;
+        fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &move, 0x80000080, &mColli, 0, sphere.mRadius);
+        mPos = result.m10;
+        mPos.x -= m5A4.x;
+        mPos.y -= m5A4.y;
+        mPos.z -= m5A4.z;
+        mPos.y -= sphere.mRadius;
+    } else if (m14C0 == 24) {
+        fn_80144710();
+        m1574 = 0;
+        float rotY = mRot.y;
+        int id = fn_800F8548(lbl_8087F048);
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B5), id, 30, -1, rotY);
+    } else {
+        QuadCollResult_unk result;
+        atn::Vector3 move(0.0f, -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030), 1.0f);
+        atn::Matrix3x4 m;
+        QuadRotationZYX_unk(m, mRot);
+        PSMTXMultVec(m.m, &move, &move);
+        QuadCollResult_unk unused;
+        CharaTask::Sphere_unk sphere = fn_80176548(mPos);
+        sphere.mRadius += 30.0f;
+        sphere.mCenter.y += 30.0f;
+        fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &move, 0x80000080, &mColli, 0, sphere.mRadius);
+        mPos = result.m10;
+        mPos.x -= m5A4.x;
+        mPos.y -= m5A4.y;
+        mPos.z -= m5A4.z;
+        mPos.y -= sphere.mRadius;
+    }
+}
+
 // NONMATCHING: 99.8% - the bitfield word of the damage record is loaded into r7 (r3 in the original),
 // as in Em204Mulue::fn_802A91D0
 void LastCocoonQuadruped::fn_80465294() {
@@ -445,6 +1268,162 @@ void LastCocoonQuadruped::fn_804654F0() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {
         fn_80466974();
+    }
+}
+
+// NONMATCHING: 99.6% - r3/r4 of the step copy and the float registers of the sum to mPos
+// inferred: mode 15: the jump of fn_80467C18 (m15BC per frame), then turns towards the place 600
+void LastCocoonQuadruped::fn_804655AC() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        SetMode_unk(16);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x143, 1, 0, 1, 0.0f, 0.1f);
+        if (lbl_8087F430 != 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, (int)m15AC);
+        }
+        m18E8 = 0;
+        return;
+    }
+    frame = mMotion.mTracks[0].m08;
+    if (frame <= 30.0f) {
+        atn::Vector3 step = m15BC;
+        bool start = frame <= 5.0f;
+        if (!start) {
+            step.z = 0.0f;
+            step.x = 0.0f;
+        }
+        mPos += step;
+        if (mMotion.mTracks[0].m08 > 20.0f) {
+            RoutePlace_unk* place = FindQuadPlace_unk(600);
+            if (place != 0) {
+                atn::Vector3 d = place->mPos - mPos;
+                mRot.y += 0.3f * atn::WrapAngle_unk(d.ToRotationZ_unk().y - mRot.y);
+            }
+        } else {
+            mRot.y = m15BC.ToRotation_unk().y;
+        }
+    }
+}
+
+// inferred: homing parameters with their defaults (as ZanHoming_unk in game/Em201ZanGurgFinal.cpp); name
+// invented
+struct QuadHoming_unk : public HomingParam_unk {
+    QuadHoming_unk() {
+        mTarget = 0;
+        mAccel = 0.0f;
+        m08 = -1.0f;
+        mMaxSpeed = 10.0f;
+        mTurn = 0.09424778f;
+        mTime = 300.0f;
+        mDelay = 5.0f;
+        mNode = 0;
+        mCount = -1;
+    }
+};
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a homing bullet (as in game/Em203GreaterDaemon.cpp)
+
+// inferred: copy of the shot parameters of a bullet built in place (Bullet::GetShot_unk makes one more
+// copy); name invented
+struct QuadShot_unk {
+    QuadShot_unk(const Bullet& b)
+        : m00(b.m5C), m04(b.m60), m08(b.m64), m0C(b.m68), m10(b.m6C), m14(b.m70), m18(b.m74) {}
+    float m00;
+    int m04;
+    int m08;
+    HitInfo_unk* m0C;
+    int m10;
+    float m14;
+    float m18;
+};
+
+// NONMATCHING: 97.6% - stack slots (the locals of the jump-off branch are laid out in the opposite
+// order) and the scheduling of m15BC in the mode 17 branch
+// inferred: mode 16: on the gimmick 0x455 (the player of mode 15); shoots the homing skill 0x5BA at it
+// every 120 frames, jumps off after 1200 frames (mode 17) or when the gimmick drops it (mode 18)
+void LastCocoonQuadruped::fn_80465B88() {
+    GimmickCommon* g = GimmickManager::instance_->fn_803EEE10(0x455, (int)m15AC);
+    if (g->vf5C() == 0 || m18E8 != 0) {
+        if (m18E8 != 0 && g->vf5C() != 0) {
+            GimmickMsg_unk msg(4);
+            g->vf40(&msg);
+        }
+        mMotion.fn_80097CCC(3, 1.0f);
+        SetMode_unk(18);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+        atn::Vector3 v(0.0f, -140.0f, 40.0f);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
+        PSMTXMultVec(m.m, &v, &v);
+        m15BC = v * 0.022222223f;
+        v.y = 0.0f;
+        v.Normalize_unk();
+        mRot = v.ToRotation_unk();
+        m1800 = 0;
+        return;
+    }
+    if (m14BC == 1) {
+        if (mMotion.mTracks[3].m08 >= 10.0f) {
+            mMotion.mTracks[3].m0C = 1.0f;
+        }
+        if (mMotion.mTracks[3].m08 >= 18.0f) {
+            m14BC = 2;
+            atn::Vector3 v(0.0f, 0.0f, 1.0f);
+            atn::Matrix3x4 m;
+            m.fn_8013A13C(mRot.y);
+            PSMTXMultVec(m.m, &v, &v);
+            atn::Vector3 pos = mPos + v * 20.0f;
+            atn::Vector3 to = m14B8->mPos;
+            to.y += 5.0f;
+            atn::Vector3 dir = to - pos;
+            float dist = dir.Length_unk();
+            dir.Normalize_unk();
+            HitInfo_unk* data = fn_80219E6C(0x5BA);
+            QuadHoming_unk param;
+            param.mTarget = m14B8;
+            param.mTurn = 0.12566371f;
+            param.mDelay = 0.0f;
+            param.mTime = dist / data->m4C;
+            fn_800F8574(lbl_8087F048, this, data, &pos, &dir, &param, 0x100, 0, 0.0f, 1.0f);
+        }
+    } else if (m14BC == 2) {
+        float frame = mMotion.mTracks[3].m08;
+        if (frame >= mMotion.fn_80097D7C(3)) {
+            m14BC = 0;
+            mMotion.fn_80097CCC(3, 1.0f);
+        }
+    } else if (m14C0 > 1200) {
+        CharaTask* target = m14B8;
+        SetMode_unk(17);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x144, 0, 0, 1, 0.0f, 0.1f);
+        if (lbl_8087F430 != 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, 0);
+        }
+        m15C8 = target;
+        m15BC = target->mPos - mPos;
+        m15BC.y = -140.0f;
+        m15BC *= 0.05f;
+    } else if (m14C0 % 120 == 0) {
+        mMotion.fn_80097C08(3, 0x156, 0, 1, 1, 0.0f, 0.1f);
+        mMotion.mTracks[3].m0C = 0.4f;
+        m14BC = 1;
+    }
+    for (int i = 0; i < 32; i++) {
+        HomingBullet* b = &((BattleTask*)lbl_8087F048)->mHomings[i];
+        if (b->HasFlag_unk(0x10000) && QuadShot_unk(*b).m0C != 0 && QuadShot_unk(*b).m0C->m04 == 0x5BA &&
+            b->m88 != this) {
+            b->m04 |= 0x800;
+        }
     }
 }
 
@@ -544,17 +1523,24 @@ void LastCocoonQuadruped::fn_80466B8C() {
     PlayEfp_unk(&m1790, &mMotion);
 }
 
-// inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
-// (as in game/Em208Queen.cpp)
-inline RoutePlace_unk* FindQuadPlace_unk(int id) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
-        if (id == places[i].mId) {
-            return &places[i];
-        }
-    }
-    return 0;
+
+// inferred: modes 10 and 11: walk along the route, facing its start
+void LastCocoonQuadruped::fn_80466CA4() {
+    SetMode_unk(10);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x21, 1, 0, 1, 0.0f, 0.1f);
+    mRot = (m1504.GetPos_unk(1.0f / 45.0f) - m1504.GetPos_unk(0.0f)).ToRotationZ_unk();
+}
+
+void LastCocoonQuadruped::fn_804672CC() {
+    SetMode_unk(11);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x21, 1, 0, 1, 0.0f, 0.1f);
+    mRot = (m1504.GetPos_unk(1.0f / 45.0f) - m1504.GetPos_unk(0.0f)).ToRotationZ_unk();
 }
 
 void LastCocoonQuadruped::fn_804678F4() {
@@ -587,6 +1573,122 @@ void LastCocoonQuadruped::fn_80467C18(CharaTask* target, const atn::Vector3& pos
     dir.y = 0.0f;
     dir.Normalize_unk();
     mRot = dir.ToRotation_unk();
+}
+
+void LastCocoonQuadruped::fn_80467F50() {
+    SetMode_unk(19);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
+    fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+    fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
+}
+
+extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           float f); // inferred: the attack reaches the target
+extern "C" int fn_800FBE70(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           atn::Vector3* dir, int a, int b); // inferred: the attack in `dir` reaches the target
+
+// NONMATCHING: 97.7% - `m560 == 4 || m560 == 5` becomes a range test (two compares in the original), which
+// shifts the registers r23-r31
+// inferred: looks for a player attacking it; returns the place to move to (fn_80468534) and its angle
+int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle) {
+    if (++*count > 5) {
+        return 1;
+    }
+    atn::Vector3 at;
+    at.x = 0.0f;
+    at.y = 0.0f;
+    at.z = 0.0f;
+    int found = 0;
+    float yaw = 0.0f;
+    float dist = 40.0f;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        if (!p->IsActive_unk() || p->vf78() == 0) {
+            continue;
+        }
+        if (p->m560 == 4 || p->m560 == 5) {
+            if (fn_800FBA9C(lbl_8087F048, p, this, p->m638, -1, 0.0f) >= 0) {
+                at = p->mPos;
+                found = 1;
+                dist = 30.0f;
+                yaw = p->mRot.y;
+                break;
+            }
+        } else if (p->m560 == 30) {
+            HitInfo_unk* data = p->m638;
+            if (data != 0 && data->m01 == 1) {
+                atn::Vector3 dir;
+                dir = p->fn_80158E1C();
+                PSVECNormalize(&dir, &dir);
+                atn::Vector3 from = p->mPos;
+                from.y += 20.0f;
+                atn::Vector3 to = from + dir * 1000.0f;
+                QuadCollResult_unk result;
+                if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &p->mColli, 0) != 0 &&
+                    (((atn::ColliBase*)result.m38)->mFlags & 2) == 2 &&
+                    ((atn::ColliBase*)result.m38)->m0C == (int)this) {
+                    at = mPos;
+                    yaw = dir.ToRotationZ_unk().y;
+                    found = 1;
+                    dist = 40.0f;
+                    break;
+                }
+            }
+        } else if (p->m560 == 14) {
+            atn::Vector3 dir = p->fn_80158E1C();
+            if (fn_800FBE70(lbl_8087F048, p, this, p->m638, -1, &dir, 1, -1) >= 0) {
+                at = dir;
+                found = 1;
+                yaw = p->mRot.y;
+                break;
+            }
+        } else {
+            at = p->mPos;
+            found = 1;
+            yaw = p->mRot.y;
+            break;
+        }
+    }
+    if (found != 0) {
+        fn_80468534(pos, angle, at, yaw, dist);
+        return 1;
+    }
+    return 0;
+}
+
+
+// NONMATCHING: 99.6% - r28/r29 of the rotated vector and of the direction swapped
+void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn::Vector3& at, float base,
+                                      float dist) {
+    atn::Vector3 dir;
+    dir.z = dist;
+    QuadCollResult_unk result;
+    atn::Vector3 from = at;
+    dir.x = 0.0f;
+    from.y += m620;
+    dir.y = 0.0f;
+    float best = 0.0f;
+    float yaw = mRot.y;
+    atn::Vector3 bestPos;
+    for (int i = 0; i < 2; i++) {
+        float a = base + 3.1415927f * i - 1.5707964f;
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(a);
+        atn::Vector3 v = dir;
+        PSMTXMultVec(m.m, &v, &v);
+        fn_8004D388(lbl_8087EE98, &result, &from, &v, 0x80000000, &mColli, 0, m620);
+        v = result.m10;
+        float sq = LengthSq_unk(v - from);
+        if (sq > best) {
+            yaw = atn::WrapAngle_unk(3.1415927f + a);
+            best = sq;
+            bestPos = v;
+        }
+    }
+    *pos = bestPos;
+    *angle = yaw;
 }
 
 // NONMATCHING: 99.8% - the two compares with the table are emitted as cmpw arg, entry (entry, arg in
@@ -648,6 +1750,71 @@ atn::Vector3 LastCocoonQuadruped::fn_80468A08(int id, int* next) {
         *next = nextId;
     }
     return pos;
+}
+
+// inferred: points of the path, a std::vector<atn::Vector3> handled through the weak copies of
+// game/Em403WarLion.cpp (C names)
+struct QuadPoints_unk {
+    atn::Vector3* mData;
+    unsigned int mSize;
+    unsigned int mCap;
+};
+extern "C" void fn_8032AB90(QuadPoints_unk* v);                         // inferred: constructor
+extern "C" QuadPoints_unk* fn_8032ABA4(QuadPoints_unk* v, int flag);    // inferred: destructor
+extern "C" void fn_8032AC1C(QuadPoints_unk* v, const atn::Vector3* p);  // inferred: push_back
+extern "C" void fn_8032AF90(QuadRoutes_unk* path, QuadPoints_unk* pts); // inferred: builds the path
+
+// NONMATCHING: the original is over the inlining budget (docs/inlining.md R3) and calls the Vector3
+// copies and RouteTable_unk::FindPlace_unk; the points are a std::vector<atn::Vector3> whose weak copies
+// (C names) live in game/Em403WarLion.cpp, so here they are plain calls and the budget is not reached
+int LastCocoonQuadruped::fn_80468B68(QuadRoutes_unk* path, int id, int* next, int last) {
+    atn::Vector3 pos1 = lbl_807C7030;
+    atn::Vector3 pos2 = lbl_807C7030;
+    atn::Vector3 pos0 = lbl_807C7030;
+    int id2 = 0;
+    int id1 = 0;
+    for (int i = 0; i < 10; i++) {
+        if (id == sQuadPlaces[i].mId) {
+            int j = i + 1;
+            if (j == 10) {
+                j = 0;
+            }
+            id1 = sQuadPlaces[j].mId;
+            if (last != 0) {
+                id2 = 600;
+            } else {
+                int k = j + 1;
+                if (k == 10) {
+                    k = 0;
+                }
+                id2 = sQuadPlaces[k].mId;
+            }
+            break;
+        }
+    }
+    RoutePlace_unk* place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id);
+    if (place != 0) {
+        pos0 = place->mPos;
+    }
+    place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id1);
+    if (place != 0) {
+        pos1 = place->mPos;
+    }
+    place = fn_80121F00()->fn_8013C504()->FindPlace_unk(id2);
+    if (place != 0) {
+        pos2 = place->mPos;
+    }
+    QuadPoints_unk points;
+    fn_8032AB90(&points);
+    fn_8032AC1C(&points, &pos0);
+    fn_8032AC1C(&points, &pos1);
+    fn_8032AC1C(&points, &pos2);
+    fn_8032AF90(path, &points);
+    if (next != 0) {
+        *next = id2;
+    }
+    fn_8032ABA4(&points, -1);
+    return 1;
 }
 
 int LastCocoonQuadruped::vfE4() {
