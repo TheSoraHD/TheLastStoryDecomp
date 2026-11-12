@@ -8,11 +8,16 @@
 #include "atn/RenderSetting_unk.h"
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
+#include "macros.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" int sprintf(char* buf, const char* fmt, ...);
+
+static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
+    return atn::Vector3(-v.x, -v.y, -v.z);
+}
 
 // inferred: starts the parameters of a camera mode (blend weight 1, decreased by the speed)
 void GameCameraModeParam_unk::fn_8037E89C(int mode, const GameCameraParam_unk& param, float step) {
@@ -496,6 +501,49 @@ void GameCamera::fn_8038BD78(const CharaTask* chara) {
     m834 = 0;
 }
 
+// inferred: low camera beside the character (50 above it, m654 to the side) looking at 12 above it; the target and
+// the fovy (m7B4) are blended in 10 frames; then back to the sub mode with m83C = 6. The eye position is
+// computed but not used
+// NONMATCHING: 48% - here fn_80392964 and its callees (fn_803920C8, fn_803928C0...) are all inlined, while the
+// original calls them as in fn_8038BD78
+void GameCamera::fn_8038C5B0(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+        m890 = chara->mF6C;
+    }
+    atn::Vector3 pos = mPos;
+    atn::Vector3 target = mTarget;
+    atn::Vector3 up = mUp;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    front = Negate_unk(front);
+    pos = chara->mPos;
+    pos.y += 50.0f;
+    float side = m654;
+    atn::Vector3 cross;
+    PSVECCrossProduct(&front, &up, &cross);
+    float t = MIN((float)m808 / 10.0f, 1.0f);
+    pos += cross * side;
+    target = chara->mPos;
+    target.y += 12.0f;
+    target = (target - m818) * t + m818;
+    SetTarget_unk(target);
+    mFovy = MIN((float)m808 / 10.0f, 1.0f) * (m7B4 - m830) + m830;
+    fn_8004B378();
+    fn_80392964(0, 1, 0, 0);
+    if (++m808 > 10) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
 // inferred: blends in 30 frames from the saved camera to the camera of fn_80389060 (eye 35 up and 20 behind
 // the character, looking 10 in front of it); then back to the sub mode with m83C = 6
 // NONMATCHING: 87.8% - scheduling of the two blends (the angle of the rotation is loaded before the matrix)
@@ -895,9 +943,6 @@ void GameCamera::fn_803933A4() {
 
 extern "C" int rand();
 
-static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
-    return atn::Vector3(-v.x, -v.y, -v.z);
-}
 
 // inferred: random offset of the shake, mirrored every other frame and fading out
 atn::Vector3 CameraShake_unk::GetOffset_unk() const {

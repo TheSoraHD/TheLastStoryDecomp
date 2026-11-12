@@ -198,7 +198,9 @@ public:
     unsigned char m740[0x744 - 0x740];
     atn::Vector3 m744;   // inferred: position of the box camera mode
     float m750;          // inferred: height of its target above the character
-    unsigned char m754[0x7F0 - 0x754];
+    unsigned char m754[0x7B4 - 0x754];
+    float m7B4;          // inferred: fovy of the low side mode (fn_8038C5B0)
+    unsigned char m7B8[0x7F0 - 0x7B8];
     int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
     unsigned char m7F8[0x7FC - 0x7F8];
@@ -222,7 +224,9 @@ public:
     atn::Vector3 m868; // inferred: target of the tactical view camera (fn_80387910)
     unsigned char m874[0x880 - 0x874];
     int m880;
-    unsigned char m884[0x8A0 - 0x884];
+    unsigned char m884[0x890 - 0x884];
+    atn::Vector3 m890;   // inferred: target of the character (CharaTask::mF6C) saved by fn_8038C5B0
+    unsigned char m89C[0x8A0 - 0x89C];
     float m8A0; // inferred: yaw of the tactical view camera
     atn::Vector3 m8A4; // inferred: point the tactical view starts from (TacView::fn_805AA4E4)
     unsigned char m8B0[0x8D4 - 0x8B0];
