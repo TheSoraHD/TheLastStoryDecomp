@@ -2,6 +2,24 @@
 
 Inicio: 2026-11-12 17:20 CET (reinicio del servidor 18:33-20:16; cierre previsto 21:30). Rama `agent-H`.
 
+## Resumen
+
+Funciones al 0 % / sin escribir 39 -> 23 (EnemyQuarkSecond 16 -> 10, Em316LaserSphere 9 -> 6, Em316LastLaser 5 -> 0,
+Em206CocoonMp 6 -> 5, Em202ForestSpider 1 -> 0, Em203GreaterDaemonRedMp 1, Em203GreaterDaemon 1). Nuevas al 100 %: 9
+(Em316LaserSphere fn_8031958C, fn_80318F90, fn_80319998; EnemyQuarkSecond fn_8033A7A0; Em316LastLaser fn_8031CA30,
+fn_8031D350, LaserTrace::fn_8031E8BC; Em202ForestSpider fn_80279280). report.json 15129 -> 15137 (precommit). Ninguna
+unidad pasa a enlazar.
+
+## Pendientes
+
+- `__dt__18NecroPlaceList_unkFv` (0x80244674) parece el destructor de una lista de `EnemyTask*` (lo llaman GameTask,
+  Em203GreaterDaemonRedMp y Em206CocoonMp con `push_back` de `vector<EnemyTask*>`); renombrarlo toca otras colas.
+- Em203GreaterDaemonRedMp `fn_802A3D80` y Em206CocoonMp ctor: siguen al 0 % (fuera de presupuesto en el original;
+  los helpers weak de Red estan como funciones fuertes y `fn_802A4170` es el ctor de esa lista).
+- Em203GreaterDaemon `vector<int>::operator[]` (0x8028B74C): sale solo si `fn_8028B47C` supera el presupuesto.
+- EnemyQuarkSecond: quedan 10 grandes (fn_803402C0 es una static de fn_803405C0); Em316LaserSphere: fn_803176D0
+  (con la insercion de vector 0x8031ACC0), fn_80317EF8, fn_80318AA4, fn_80319C90, fn_8031A670.
+
 ## Resultado por unidad
 
 - `game/Em316LaserSphere`: al 0 % 9 -> 6 (`fn_8031958C` y sus copias weak `fn_80318F90`, `fn_80319998`, las tres al 100 %); 22 -> 25/40 al 100 %.
