@@ -9,6 +9,7 @@
 #include "MP/D2AMpMenuMessageList.h"
 #include "MP/D2AMpMenu.h"
 #include "atn/DrawHelper.h"
+#include "atn/Color.h"
 
 // inferred: hash of the "CustomData" pane (as in MP/D2AMpMenu.cpp; read by functions not written yet); its
 // initializer is the __sinit of the file (0x804C2FC8)
@@ -30,7 +31,9 @@ struct MpLobbyMember_unk {
     unsigned char mCC;        // inferred: aid
     unsigned char mCD[0xD0 - 0xCD];
     unsigned int mD0_31 : 1;  // inferred: valid
-    unsigned int mD0_1 : 19;
+    unsigned int mD0_1 : 2;
+    unsigned int mD0_3 : 1;   // inferred: ready (shows the ok mark of the lobby)
+    unsigned int mD0_4 : 16;
     unsigned int mD0_20 : 2;  // inferred: zero while still loading
     unsigned int mD0_lo : 10;
     unsigned char mD4[0xD5C - 0xD4];
@@ -515,6 +518,51 @@ void D2AMpMenuLobby::vf14() {
                                   L"\x5168\x54E1\x9B54\x6CD5\x4F7F\x3044", 0xFF000000, 1, 1, 0, 0, 0xFF000000);
         lbl_8087EEB0->fn_80061824(180.0f, 80.0f, 0.0f, size, size, 0.0f, 0.0f, 0.0f,
                                   L"\x5168\x54E1\x9B54\x6CD5\x4F7F\x3044", 0xFFFFFF00, 1, 1, 0, 0, 0xFF000000);
+    }
+}
+
+// inferred: draw of the lobby: the base, the logo of the game mode (texts cleared), and for every player slot
+// the profile, the face mark and the balloons (or the wait mark), with the ok mark in the color of the face
+// once the player is ready
+// NONMATCHING: 97.2% - wide and narrow string offsets; order of the shifts of the color
+void D2AMpMenuLobby::fn_804C0A40() {
+    int mode = D2AMpMenu::sInstance->mC4;
+    m4C->MeltTask();
+    if (GetHostCount_unk() >= 2) {
+        m50->MeltTask();
+    }
+    if (mode == 1 || mode == 3) {
+        m58->MeltTask();
+    } else if (mode == 2) {
+        m54->MeltTask();
+        SetPaneText_unk(m4C->mLayout, "string0010(1)", L"");
+        SetPaneText_unk(m4C->mLayout, "string0011(1)", L"");
+    }
+    SetPaneText_unk(m4C->mLayout, "string0006(1)", L"");
+    SetPaneText_unk(m4C->mLayout, "string0007(1)", L"");
+    if (mD88 == 5) {
+        return;
+    }
+    for (int i = 0; i < 6; i++) {
+        if (mPlayers[i].m18 != 0) {
+            mPlayers[i].mTasks[2]->MeltTask();
+            continue;
+        }
+        mPlayers[i].mTasks[0]->MeltTask();
+        if (mD88 != 9 && mD88 != 8) {
+            mPlayers[i].mTasks[1]->MeltTask();
+        }
+        if (mD88 != 8 && mD88 != 9) {
+            mPlayers[i].mTasks[3]->MeltTask();
+            mPlayers[i].mTasks[4]->MeltTask();
+        }
+        MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(GetAid_unk(i));
+        if (member != 0 && member->mD0_31 == 1 && member->mD0_3 == 1) {
+            mPlayers[i].mTasks[5]->MeltTask();
+            MpD2A_unk* face = mPlayers[i].mTasks[1];
+            atn::Color color = face->GetColor_unk(fn_800DC6B4("face1"));
+            mPlayers[i].mTasks[5]->SetColor_unk("col0001", color.ToU32());
+        }
     }
 }
 

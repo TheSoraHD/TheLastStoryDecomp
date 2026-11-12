@@ -5,6 +5,7 @@
 // Everything here is inferred from the uses in those files; names are invented.
 
 #include "atn/Task.h"
+#include "atn/Color.h"
 #include "atn/FixedArray.h"
 #include "atn/Memory.h"
 #include "atn/SoundRef.h"
@@ -20,6 +21,7 @@ public:
     void SetColor_unk(const char* name, float r, float g, float b);   // 0x801F4AA0
     void SetText_unk(const char* name, int textId);                   // 0x801F4C14
     void SetNumber_unk(const char* name, int value, int digits);      // 0x801F4CB4
+    Color GetColor_unk(unsigned int id);                              // 0x801F4F08
 };
 } // namespace atn
 
