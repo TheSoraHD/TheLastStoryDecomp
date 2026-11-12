@@ -1399,6 +1399,74 @@ int Em203GreaterDaemonRedMp::fn_802A3D6C(HitInfo_unk* skill) {
     return skill != 0;
 }
 
+// inferred: weak copies called out of line here (the function is over the inline budget)
+extern "C" CharaManager<PlayerTask>* fn_8000D9E8();
+extern "C" CharaTask* fn_802A36B0(CharaManager<PlayerTask>* mgr);
+extern "C" int fn_802A4168(CharaManager<EnemyTask>* manager);
+extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy);
+extern "C" unsigned int fn_802A409C(BattleCharaTask* chara);
+extern "C" float fn_802A40A8(float min, float max);
+extern "C" void fn_802A4120(HomingParam_unk* param);
+extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* candidates, int index);
+extern "C" EnemyTask* fn_801A0408(CharaManager<EnemyTask>* mgr); // inferred: first enemy
+extern "C" EnemyTask* fn_801A03EC(EnemyTask* enemy);            // inferred: next enemy
+extern "C" atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot); // inferred: rotation matrix (z, y, x)
+Effect_unk* fn_8013A194(); // inferred: bullet manager (lbl_8087F048)
+
+// inferred: fires the laser (m14E8) at the leader (single) or at every player and every other enemy
+// that can act (names invented)
+// NONMATCHING: 0% - over the inline budget in the original (R3 of docs/inlining.md: every helper,
+// push_back, CanAct_unk, GetTrans_unk, DegToRad_unk... is called with bl); ours inlines push_back and
+// CanAct_unk (with the helpers of this file as inline candidates it still inlines all of them)
+void Em203GreaterDaemonRedMp::fn_802A3D80(int single) {
+    if (m14E8 == 0) {
+        return;
+    }
+    fn_802A4168((CharaManager<EnemyTask>*)fn_8000D9E8());
+    std::vector<EnemyTask*> targets;
+    if (single != 0) {
+        EnemyTask* head = (EnemyTask*)((PlayerManager*)fn_8000D9E8())->GetHead_unk();
+        targets.push_back(head);
+    } else {
+        for (EnemyTask* p = (EnemyTask*)fn_802A36B0(fn_8000D9E8()); p != 0; p = fn_802A4094(p)) {
+            if (p->CanAct_unk()) {
+                targets.push_back(p);
+            }
+        }
+        for (EnemyTask* e = fn_801A0408(fn_801A03E0()); e != 0; e = fn_801A03EC(e)) {
+            if (e->CanAct_unk() && !e->fn_8016F3D0(this, 1) && fn_802A409C(e) != 0) {
+                targets.push_back(e);
+            }
+        }
+    }
+    for (unsigned int i = 0; i < fn_800E0AA8((const IntVector_unk*)&targets); i++) {
+        CharaTask* target = *fn_802A4184(&targets, i);
+        atn::Vector3 pos = ((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk("spine"))->GetTrans_unk();
+        atn::Vector3 offset(0.0f, 0.0f, 30.0f);
+        offset.fn_80011410(fn_800109E0(mRot));
+        offset.fn_80011410(((atn::Matrix3x4*)GetModel_unk()->GetNodeMtx_unk("spine"))->GetRotation_unk());
+        pos += offset;
+        float angle = fn_802A40A8(0.0f, 180.0f);
+        atn::Vector3 dir(0.0f, 0.0f, 10.0f);
+        atn::Matrix3x4 ry;
+        ry.fn_8013A13C(atn::DegToRad_unk(90.0f));
+        dir.fn_80011410(ry);
+        atn::Matrix3x4 rz;
+        fn_802A3D64(rz.m, atn::DegToRad_unk(angle));
+        dir.fn_80011410(rz);
+        dir.fn_80011410(fn_800109E0(mRot));
+        HomingParam_unk param;
+        fn_802A4120(&param);
+        param.mTarget = target;
+        param.mDelay = 10.0f;
+        param.mAccel = 0.3f;
+        param.mMaxSpeed = m1690;
+        param.mTime = (float)m14E8->m5C;
+        param.mTurn = atn::DegToRad_unk(m1694);
+        fn_800F8574(fn_8013A194(), this, m14E8, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
+    }
+}
+
 // inferred: next EnemyTask link used by the daemon's homing target search.
 extern "C" EnemyTask* fn_802A4094(EnemyTask* enemy) {
     return enemy->mNext;
