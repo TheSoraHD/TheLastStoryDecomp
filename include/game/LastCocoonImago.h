@@ -19,8 +19,10 @@ public:
     virtual void vf20();                                     // 0x8045B594
     virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
+    virtual void vf3C(HitInfo_unk* hit);                     // 0x80459358
     virtual void vf54(); // 0x8045A8F0: inferred: places the hit spheres of the attacks
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
+    virtual void vf80(const atn::Vector3& pos, const atn::Vector3& dir); // 0x8045C83C
     virtual float vf90();                                    // 0x8045F998
     virtual int vfB8(wchar_t* name);                         // 0x80459F24
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x8045F6E0

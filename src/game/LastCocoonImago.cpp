@@ -100,6 +100,92 @@ int LastCocoonImago::vf0C() {
     return 0;
 }
 
+// inferred: effect manager (class unknown), global instance at 0x8087F3C0 (as in game/LastCocoonEgg.cpp)
+struct EffectMgr_unk {
+    unsigned char m00[0xB8];
+    int mB8;
+};
+struct Color4f_unk {
+    Color4f_unk() {}
+    float r, g, b, a;
+};
+extern "C" EffectMgr_unk* lbl_8087F3C0;
+extern "C" void fn_8023A8B4(EffectMgr_unk* mgr, atn::EfpFile* efp, void* model, int arg3, const atn::Vector3& pos,
+                            const atn::Vector3& rot, const Color4f_unk& color, int arg7, int arg8, int arg9,
+                            float scale);
+extern "C" void fn_80232B7C(void* owner, int arg);
+extern "C" double sqrt(double x);
+// inferred: plays an effect on the model with the default color and scale (as in game/LastCocoonEgg.cpp)
+static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
+    atn::Vector3 pos;
+    atn::Vector3 rot;
+    rot.Set_unk(0.0f, 0.0f, 0.0f);
+    pos.Set_unk(0.0f, 0.0f, 0.0f);
+    Color4f_unk color;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
+    color.a = 1.0f;
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+void LastCocoonImago::vf3C(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    if (m58C == 12 && msg->mData->m04 != 0x5BC) {
+        return;
+    }
+    // inferred: HitMsg_unk+0x40 is the index of the part hit (as in game/Em205Ogre.cpp)
+    if (*(int*)&msg->m3C[4] == 3) {
+        if (m18F8->m54 == 3 || m18F8->m54 == 4) {
+            return;
+        }
+        if (++m1958 > 3) {
+            GimmickMsg_unk gm;
+            atn::Vector3 d = mPos - m1948;
+            if ((float)sqrt(d.x * d.x + d.z * d.z) < 30.0f) {
+                gm.mType = 3;
+                m14BC = 0;
+                m14C0 = 0;
+                m590 = fn_800F8548(lbl_8087F048);
+                m58C = 14;
+                fn_8016E970(3);
+                mMotion.m34C = 1;
+                mMotion.mTracks[0].m20 = 1.0f;
+                mMotion.mTracks[0].m0C = 1.0f;
+                mMotion.fn_80097C08(0, 0x2F, 0, 0, 1, 0.0f, 0.1f);
+                m574 = lbl_807C7030;
+            } else {
+                gm.mType = 4;
+                m195C = 1;
+            }
+            m18F8->vf40(&gm);
+            m18FC.mFlags &= ~1;
+        } else {
+            GimmickMsg_unk gm;
+            gm.mType = m1958 % 2 == 0 ? 2 : 6;
+            m18F8->vf40(&gm);
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD3) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD3, 1);
+            }
+        }
+        return;
+    }
+    msg->m10 *= 0.0f;
+    if (m58C == 14 || m58C == 12) {
+        msg->m0C |= 0x80;
+    } else if (!IsDown_unk() && !msg->mData->m90.Check(0x80000)) {
+        msg->m0C |= 8;
+    }
+    if (*(int*)&msg->m3C[4] == 1) {
+        msg->m0C |= 0x80000000;
+        msg->m0C &= ~8;
+        fn_80232B7C(0, 0);
+        PlayEfp_unk(&m196C, &mMotion);
+    }
+    fn_80151448(msg);
+    vf40(hit);
+}
+
 atn::Vector3 LastCocoonImago::vf64(int center) {
     atn::Vector3 result = mPos;
     if (center == 0) {
@@ -255,6 +341,27 @@ void LastCocoonImago::vf20() {
     m18FC.mSphere = atn::ColliSphereShape_unk(m1948, m1954);
     m148C = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
     m1498 = 13.0f;
+}
+
+// NONMATCHING: 98.2% - stack slots of the rotation and r30/r31 of dir and of the copy
+// inferred: placed at pos facing dir, in mode 6 (motion 2)
+void LastCocoonImago::vf80(const atn::Vector3& pos, const atn::Vector3& dir) {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 6;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, 2, 0, 1, 1, 1.0f, 0.025f);
+    mPos = pos;
+    mMotion.mTracks[0].m08 = 0.0f;
+    atn::Vector3 rot = dir;
+    rot.fn_80139F60();
+    mRot = rot;
+    fn_80144710();
+    mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
 }
 
 void LastCocoonImago::vf38(int enable) {
