@@ -3,7 +3,9 @@
 
 // Declarations shared by the MSL C++ reconstructions (std/string.h, std/vector.h).
 
-void* operator new(unsigned long size);
+#include "std/msl_size.h"
+
+void* operator new(__msl_size_t size);
 void operator delete(void* p);
 
 struct _FILE_unk {
