@@ -89,7 +89,7 @@ struct EffectAnimData_unk {
     int m24;
     int* mEmitterOn;             // 0x28: inferred: per emitter, started with the effect
     int* mParticleOn;            // 0x2C: inferred: per particle definition, started with the effect
-    int m30;
+    unsigned int* mLocked;       // 0x30: inferred: per emitter, curves not applied to the slots (may be null)
     void** mResources;           // 0x34: inferred: per entry of the data, its model or texture
 };
 // inferred: parameters of an effect (fields named by offset)
@@ -129,38 +129,76 @@ struct EffectParam_unk {
     float mD8;
     float mDC;
     atn::Vector3 mE0;
-    unsigned char mEC[0x110 - 0xEC];
+    unsigned char mEC[0xF8 - 0xEC];
+    float mF8;              // 0xF8: inferred: speed of EffectSlot_unk::mA4 (not animated)
+    float mFC;
+    float m100;
+    unsigned char m104[0x110 - 0x104];
     float m110;             // 0x110: inferred: random ranges of EffectSlot_unk::m120
     float m114;
     float m118;
     atn::Vector3 m11C;
-    unsigned char m128[0x14C - 0x128];
+    unsigned char m128[0x134 - 0x128];
+    float m134;             // 0x134: inferred: speed of the scale EffectSlot_unk::mB0 (then damping 0x140)
+    float m138;
+    float m13C;
+    float m140;
+    float m144;
+    float m148;
     float m14C;             // 0x14C: inferred: random ranges of EffectSlot_unk::mE4
     float m150;
     float m154;
     atn::Vector3 m158;
-    unsigned char m164[0x188 - 0x164];
+    unsigned char m164[0x170 - 0x164];
+    float m170;             // 0x170: inferred: acceleration of EffectSlot_unk::m98 (then damping 0x17C)
+    float m174;
+    float m178;
+    float m17C;
+    float m180;
+    float m184;
     float m188;             // 0x188: inferred: random ranges of EffectSlot_unk::m100
     float m18C;
     float m190;
     EffectColor_unk m194;   // 0x194: inferred: color when not animated
-    unsigned char m1A4[0x1D4 - 0x1A4];
+    unsigned char m1A4[0x1B4 - 0x1A4];
+    float m1B4;             // 0x1B4: inferred: speed of the color EffectSlot_unk::mBC (then damping 0x1C4)
+    float m1B8;
+    float m1BC;
+    float m1C0;
+    float m1C4;
+    float m1C8;
+    float m1CC;
+    float m1D0;
     float m1D4;             // 0x1D4: inferred: random ranges of the color EffectSlot_unk::mF0 (r, g, b, a)
     float m1D8;
     float m1DC;
     float m1E0;
     float m1E4;
-    unsigned char m1E8[0x1F4 - 0x1E8];
+    float m1E8;
+    float m1EC;             // 0x1EC: inferred: speed of EffectSlot_unk::mCC (then damping 0x1F0)
+    float m1F0;
     float m1F4;             // 0x1F4: inferred: random range of EffectSlot_unk::m12C
     atn::Vector3 m1F8;
-    unsigned char m204[0x228 - 0x204];
+    unsigned char m204[0x210 - 0x204];
+    float m210;             // 0x210: inferred: speed of the direction EffectSlot_unk::mD0 (then damping 0x21C)
+    float m214;
+    float m218;
+    float m21C;
+    float m220;
+    float m224;
     float m228;             // 0x228: inferred: random ranges of EffectSlot_unk::m130
     float m22C;
     float m230;
     unsigned int m234;      // 0x234: inferred: blend mode of the slots (1-5)
     int m238;               // 0x238: inferred: frames the slots move (< 0: always)
     float m23C;             // 0x23C: inferred: frame length scale of the texture animation
-    unsigned char m240[0x25C - 0x240];
+    unsigned int m240;      // 0x240: inferred: the slots bounce on the ground
+    float m244;             // 0x244: inferred: gravity
+    float m248;             // 0x248: inferred: radius
+    float m24C;             // 0x24C: inferred: bounce
+    float m250;             // 0x250: inferred: friction
+    float m254;             // 0x254: inferred: rolling
+    float m258;             // 0x258: inferred: height of the ground
     unsigned int m25C;      // 0x25C: inferred: bit 0: emission reduced with the camera distance
     float m260;             // 0x260: inferred: distance where the reduction starts
     float m264;             // 0x264: inferred: distance range of the reduction

@@ -9,6 +9,9 @@ Inicio: 2026-11-12 21:40 CET. Rama `agent-F2`. Unidades: `atn/EffectSystem_unk`,
   fn_8022FAC4 (creacion de un efecto, 99,8 %).
 - `atn/EffectSystem_unk` (commit 2): 0 % 4 -> 2; escritas NONMATCHING fn_80230780 (preparacion de un slot nuevo,
   99,9 %) y fn_80233D74 (valores iniciales aleatorios de un slot, 86,5 %).
+- `atn/EffectSystem_unk` (commit 3): 0 % 2 -> 1; escrita NONMATCHING fn_8023193C (paso de un slot: frame de la
+  textura, desplazamiento, posicion, tamano, direccion, velocidad con rebote en el suelo, escala y color,
+  98,4 %). Queda al 0 % solo fn_8022DD1C (dibujado de un slot, 7592 bytes, 18 floats guardados).
 
 ## NONMATCHING
 
@@ -24,6 +27,10 @@ Inicio: 2026-11-12 21:40 CET. Rama `agent-F2`. Unidades: `atn/EffectSystem_unk`,
   antes; el original guarda un cuarto float (f28) para la base 0.0 de m12C. Probado: rango por referencia,
   inline (lo, hi), base como variable, varias formas de la expresion.
 
+- `fn_8023193C` 98,4 %: los resultados de las curvas multiplicados por la escala pasan por `frsp` sin store en el
+  original (m98.z, mB8, mCC; con `fn_8023329C` devolviendo double bajan otras 6 funciones, descartado);
+  orden de carga de los argumentos de fn_8022D790; emitter*4 se calcula una vez.
+
 ## Decisiones tomadas sin el usuario
 
 - `include/atn/EffectSystem_unk.h` (67 unidades): solo **miembros de datos** (sin funciones nuevas, no renumera
@@ -35,6 +42,12 @@ Inicio: 2026-11-12 21:40 CET. Rama `agent-F2`. Unidades: `atn/EffectSystem_unk`,
   0x38), rangos aleatorios de `EffectParam_unk` (0xD4.., 0x110.., 0x14C.., 0x188.., 0x1D4..0x1E4, 0x1F4,
   0x228..0x230), `m234` y `m23C`; `EffectSlot_unk` m98 (Vector3), mA8/mAC, mBC (color), mDC/mE0, m12C, m174/
   m180/m184. Los arrays de relleno se acortan; ningun cambio de tamano en EffectParam_unk ni EffectSlot_unk.
+- Commit 3: `EffectAnimData_unk::mLocked` (0x30, puntero por emisor de curvas no aplicadas); velocidades y
+  amortiguaciones de `EffectParam_unk` (0xF8..0x100, 0x134..0x148, 0x170..0x184, 0x1B4..0x1D0, 0x1E8..0x1F0,
+  0x210..0x224) y rebote 0x240..0x258. `fn_8022D790` gana un sexto parametro sin usar (el original pasa
+  slot->m24 en r8; su codigo no cambia).
+- fn_8023193C reproduce un fallo del original: la direccion en el suelo solo se normaliza si sus tres
+  componentes son no nulas (y = 0 siempre, asi que nunca).
 - `fn_80237B8C` se declara `void*` (lista generica, como fn_80237C88) y el llamador de slots hace el cast.
 - `lbl_8087DBEC` definida en la unidad como `sSerial_unk = 1` (numero de serie de los efectos).
 - Inlines nuevos en el `.cpp` (no en cabeceras): `FreeSlot_unk`, `EffectMaxT_unk`, `EffectRotate_unk`,
@@ -42,6 +55,10 @@ Inicio: 2026-11-12 21:40 CET. Rama `agent-F2`. Unidades: `atn/EffectSystem_unk`,
   `EffectColLen_unk`, `SetParticleOwner_unk`.
 
 ## Hallazgos
+
+- Patron `cntlzw; srwi.` = `if (Differ(a, b))` con un inline bool que niega otro inline bool de igualdad.
+- Una condicion `a == 0 || (a[i] & f) != f` dentro de un inline bool se materializa (li 1/li 0); escrita en el
+  `if` sale como el original.
 
 - `max<unsigned>(x - 1, 0)` sale como `neg; or; srawi 31; and` (x != 0 ? x : 0).
 - Escribir en `Matrix3x4` a traves de `Matrix3x4* p = &m` deja la matriz en un registro (mr r4, r25) como el
