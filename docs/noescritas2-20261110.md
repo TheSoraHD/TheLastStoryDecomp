@@ -116,3 +116,17 @@ Ninguno.
   `float near = 1.0f; float far = 8.0f; float step = ...` (PopupTask::fn_8054E0FC 97.8 -> 99.9).
 - `x - y >= 0 ? x : y` no da `fsel`; `__fsel(x - y, x, y)` si (pero con `frsp` al pasar a float).
 - `(int)floor(x)` frente a `(int)(float)floor(x)`: el original redondea a float antes del `fctiwz`.
+
+## Cierre
+
+- La sesion se corto por el entorno el 2026-11-11 hacia las 04:50 (despues de fn_803A11D8) y se reanudo el
+  2026-11-12 a las 02:00, ya pasada la hora minima de cierre (11:27): se termino ApproachCharas_unk y se cerro.
+- Fin: 2026-11-12 02:30 (CET). Build limpio `main.dol: OK`, regress lost 0, fuzzy sin bajadas.
+- **15008 -> 15030 / 18109**; funciones al 0 %: **1023 -> 972**; DRAFT 42 (0 en la ruta). Ninguna unidad nueva
+  enlaza.
+- Ultimos escritos: fn_80399148 99.2, PrintLog_unk 98.3, fn_803AB96C 97.2, fn_8039BF04 94.5, fn_803A9DBC 99.2,
+  fn_803A8470 98.0, fn_803A11D8 98.2, ApproachCharas_unk x3 95.3, CharaMarkers_unk x3 96.0.
+- GameEventScript al 0 %: 16 (fn_80399734, 5 KB, y el grupo de `boost::lexical_cast` con stringstream de MSL).
+- precommit: fallos conocidos (ordercheck GameEventScript por la copia debil del ctor de ScriptLog_unk;
+  REP+ LayerOcclusionCPU fn_800B6218 por `.sbss`). poolcheck: avisos en Event/Manager (255.0), ItemSlotAnime
+  (15.0) y GameEventScript (57.2958, 0.815686), de unidades sin enlazar con el `.sdata2` aun incompleto.

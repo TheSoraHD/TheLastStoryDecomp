@@ -620,3 +620,12 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `new (..., "", "", 0) T[n]` con los `""` en `.sdata` = metodo inline definido dentro de la clase (`Table_unk::Resize_unk`, D2AMpMenuRankMark) (`noescritas-20261110`).
 - `L""` sumado a la direccion de un pool de `.data` (`lbl + 6`): el pool `@wstringBase0` empieza por otra cadena ancha (`L"%d"`) de una funcion anterior; no se arregla hasta escribirla (`noescritas-20261110`).
 - `__declspec(noinline) inline` en helpers debiles que el original llama con `bl` (CountCharas_unk de GameEventScript) y `__declspec(noinline)` en recursivas fuertes (`noescritas-20261110`).
+- `x = a; x += b;` en lugar de `x = a + b` cambia el orden de los operandos de la suma (GameEventScript fn_803AAAE4 al 100 %) (`noescritas2-20261110`).
+- Un `return` con rama (`if (c) return true; break;`) en lugar de un `return c` sin ramas sube varias funciones que inlinean el helper (CanStartTalk_unk de GameEventScript) (`noescritas2-20261110`).
+- Recursivas debiles (Destroy del arbol de MSL): la profundidad de inlining del original sale con asserts de release `(void)(expr)` en el cuerpo (`noescritas2-20261110`).
+- `template void Clase::f<T>(...);` (instanciacion explicita) coloca la copia debil donde el original la emite (`noescritas2-20261110`).
+- La copia debil de una plantilla usada desde una inline (`operator[]` del mapa) cae tras la funcion que sigue a la *definicion* de la inline: definirla justo antes de la funcion buscada (`Done_unk`, GameEventScript) (`noescritas2-20261110`).
+- `T()` ligado a `const T&` (p. ej. `pair(key, bool())`) deja un temporal constante de 1 byte en `.sdata` (`@N`); no es un `explicit_zero_data` (`noescritas2-20261110`).
+- Funcion con `inline` que no se inlinea: sus cadenas van a `@STRING@<func>` y no a `@stringBase0`; si el original usa `@stringBase0`, es una funcion normal (`noescritas2-20261110`).
+- Dos `Manager* m = lbl;` en helpers inline separados reproducen las dos cargas del global entre escrituras de miembros (fn_803A11D8) (`noescritas2-20261110`).
+- `fn_8004ED34` (rayo de colision): el original suele pasar primero el punto lejano y luego el cercano; mirar los desplazamientos de pila (+0.1 % en fn_803A9DBC) (`noescritas2-20261110`).
