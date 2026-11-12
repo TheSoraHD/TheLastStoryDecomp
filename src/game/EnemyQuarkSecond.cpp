@@ -49,6 +49,8 @@ struct Field_unk {
     CharaTask* m8A0;
     unsigned char m8A4[0x97C - 0x8A4];
     unsigned char m97C;
+    unsigned char m97D[0x10D8 - 0x97D];
+    RouteTable_unk* m10D8; // inferred: route table (read directly by fn_80342674)
 };
 extern "C" Field_unk* lbl_8087F430;
 // inferred: field accessor (weak copy 0x80121F00, as in game/EnemyJill.cpp)
@@ -1177,6 +1179,31 @@ void EnemyQuarkSecond::fn_8034228C() {
     SetJump_unk(m1598);
 }
 
+// inferred: action 5: jumps to whichever of the places 3 and 4 of the route table is farther from the leader
+// (state 8)
+// NONMATCHING: ~90% - stack slots of the place copies and of the jump temporaries (the original frame is 0x10
+// larger and keeps one more saved register); tried the places found inside the copies
+void EnemyQuarkSecond::fn_80342674() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 8;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x13F, 0, 1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* p3 = table->FindPlace_unk(3);
+    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    atn::Vector3 a = p3->mPos;
+    atn::Vector3 b = p4->mPos;
+    atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
+    float da = fn_801C3910(a - leader);
+    float db = fn_801C3910(b - leader);
+    atn::Vector3* target = &b;
+    if (da >= db) {
+        target = &a;
+    }
+    SetJump_unk(*target);
+}
+
 // inferred: action 1: jumps at the target (state 9)
 // NONMATCHING: ~93% - stack slots of the jump temporaries (as fn_8034228C: the original keeps the target and its
 // copy at the top of the frame); tried the target by reference, as a temporary and as a named local
@@ -1218,6 +1245,20 @@ void EnemyQuarkSecond::fn_80342FB4() {
     m16C8 = 0;
     fn_80232B7C(this, 0x3F0);
     PlayEffectA_unk(&m15A4, &mMotion, 1.0f);
+}
+
+// inferred: action 2: jumps at the target with the effect "ef_bs079b.efp" (state 10)
+// NONMATCHING: ~93% - stack slots of the jump temporaries (as fn_80342BC8)
+void EnemyQuarkSecond::fn_8034315C() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 10;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x142, 0, 1.0f);
+    atn::Vector3 target = m14B0->mPos;
+    SetJump_unk(target);
+    fn_80232B7C(this, 0x3F1);
+    PlayEffectA_unk(&m1698, &mMotion, 1.0f);
 }
 
 void EnemyQuarkSecond::fn_80344060() {

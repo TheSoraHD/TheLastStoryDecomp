@@ -6,8 +6,9 @@ Inicio: 2026-11-12 17:20 CET (reinicio del servidor 18:33-20:16; cierre previsto
 
 - `game/Em316LaserSphere`: al 0 % 9 -> 6 (`fn_8031958C` y sus copias weak `fn_80318F90`, `fn_80319998`, las tres al 100 %); 22 -> 25/40 al 100 %.
 
-- `game/EnemyQuarkSecond`: `fn_8033A7A0` (antes 0 %, escrita) al 100 % (43 -> 44/70); `fn_80342BC8` escrita (no
-  existia; NONMATCHING ~93 %, huecos de pila de los temporales del salto, como fn_8034228C).
+- `game/EnemyQuarkSecond`: `fn_8033A7A0` (antes 0 %, escrita) al 100 % (43 -> 44/70); `fn_80342674`, `fn_80342BC8`
+  y `fn_8034315C` escritas (no existian; NONMATCHING 90-93 %, huecos de pila de los temporales del salto, como
+  fn_8034228C). `Field_unk` (local del fichero) gana `m10D8` (tabla de rutas).
 - `game/Em316LastLaser`: al 0 % 5 -> 0; `fn_8031CA30`, `fn_8031D350` y `LaserTrace::fn_8031E8BC` al 100 %
   (8 -> 11/19); `fn_8031D6DC` 98,4 % y `fn_8031E078` 98,9 % (NONMATCHING: marco 0x10 menor).
 - `game/Em206CocoonMp`: al 0 % 6 -> 5; `vf104` escrita (NONMATCHING 99,9 %: nombres de las relocalizaciones del
