@@ -75,9 +75,11 @@ Inicio: 18:19 (corte del servidor 18:33-20:16; reanudado 20:16). Rama `agent-J`.
 
 ## atn/Model
 
-- Funciones al 0 %: 15 -> 12. **`Model::fn_80096218` al 100 %** (hashes de los recursos: LODs, materiales, texturas
+- Funciones al 0 %: 15 -> 11. **`Model::fn_80096218` al 100 %** (hashes de los recursos: LODs, materiales, texturas
   de las etapas; las texturas compuestas al segundo `SimpleVector`, que el prototipo comun deja en `void*`).
-  Escrita `Model::fn_80094F98` (esfera envolvente; NONMATCHING 99,5 %, r3/r7; suma y escala de matrices como
+  Escrita `Model::fn_80092A4C` (eleccion del LOD por distancia de la esfera a la camara escalada por
+  `tan(fovy)/tan(60)`, distancias por defecto `RenderSetting_unk::m20C`; NONMATCHING 98,9 %, registros; el original
+  inlinea `fn_80094F98` aqui). Escrita `Model::fn_80094F98` (esfera envolvente; NONMATCHING 99,5 %, r3/r7; suma y escala de matrices como
   inline locales `MtxAdd_unk`/`MtxScale_unk` con el constructor de 12 floats, que evalua los argumentos del
   ultimo al primero como el original). Escrita `ModelBase::fn_80093158` (mapa de joints de un LOD a los del modelo
   principal; NONMATCHING 97,9 %, dos desplazamientos y el -1 en registros salvados). `ModelJoint_unk::m10` = nombre

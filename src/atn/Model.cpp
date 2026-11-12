@@ -1453,6 +1453,38 @@ void Model::fn_80092A00(float alpha) {
     }
 }
 
+extern "C" double tan(double x);
+
+// inferred: picks the level of detail from the distance of the bounding sphere to the camera, scaled by
+// the field of view (the bounding sphere fn_80094F98 is inlined, as in the original)
+// NONMATCHING: 98.9% - registers (the sphere temporaries and the node offsets)
+void Model::fn_80092A4C() {
+    if (m20C_23_16 <= 1) {
+        return;
+    }
+    Sphere_unk sphere = fn_80094F98();
+    RenderManager* rm = RenderManager::instance_;
+    Vector3 d = sphere.mCenter - rm->mCamera.mPos;
+    float dist = PSVECMag(&d) - sphere.mRadius;
+    m20C_15_8 = m50;
+    float min = 0.0f;
+    min = min > dist ? min : dist;
+    float t0 = tan(1.0471976f); // inferred: 60 degrees
+    float t1 = tan(rm->mCamera.GetFovy_unk());
+    m50 = m20C_23_16 - 1;
+    float limit = min * (t1 / t0);
+    while (m50 != 0) {
+        float lod = mLods[m50].m0C;
+        if ((float)__fabs(lod) < 1.1920929e-07f) {
+            lod = lbl_8087EFA8->m20C[m50 - 1]; // inferred: "LOD: Distance 1-3" of the render settings
+        }
+        if (lod <= limit) {
+            break;
+        }
+        m50--;
+    }
+}
+
 void ModelBase::fn_80092EC8(const char* path) {
     mFlag4_unk = 1;
     mFlag5_unk = 1;
