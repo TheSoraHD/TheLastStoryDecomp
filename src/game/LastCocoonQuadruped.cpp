@@ -6,6 +6,7 @@
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
 #include "game/GimmickManager.h"
+#include "macros.h"
 #include "game/MapTask.h"
 #include "game/EnemyManager.h"
 #include "game/GimmickCommon.h"
@@ -598,6 +599,176 @@ void LastCocoonQuadruped::fn_804617A4() {
     }
 }
 
+// inferred: movement of modes 0/3/7 (as Em403WarLion::fn_803241E8): keeps the rotation, follows the route or
+// circles the target m14B8; turns in place when the angle to it is 75 degrees or more
+void LastCocoonQuadruped::fn_80461838() {
+    atn::Vector3 rot(mRot);
+    float a = 0.0f;
+    float b = 1.0f;
+    int state = m55C;
+    if (state == 0 || state == 5 || state == 9 || mFlag2) {
+        rot = mRot;
+    } else if (state == 1) {
+        rot = mRot;
+    } else if (state == 7) {
+        mRoute.fn_80126214();
+        atn::Vector3 dir(mRoute.m58);
+        a = dir.Length_unk();
+        if (a > 0.0001f) {
+            rot = dir.GetNormalize().ToRotation_unk();
+        } else {
+            rot = mRot;
+        }
+    } else if (state == 3) {
+        if (m14C4 == 0) {
+            atn::Vector3 d = m14B8->mPos - mPos;
+            a = d.Length_unk();
+            if (a < 1e-5f) {
+                rot = mRot;
+                a = 0.0f;
+            } else {
+                d.Normalize_unk();
+                if (a < 30.0f) {
+                    a = 0.0f;
+                    float diff = atn::WrapAngle_unk(d.ToRotation_unk().y - mRot.y);
+                    if (atn::Abs_unk(diff) >= 1.3089969f) {
+                        fn_8016D454(diff);
+                        return;
+                    }
+                } else {
+                    a = 0.6f;
+                    atn::Vector3 t = mC58.fn_8011BF3C(0) - mPos;
+                    rot = t.ToRotationZ_unk();
+                    rot.y -= 0.15707964f;
+                }
+            }
+        }
+    } else if (state == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_80462038(rot, 1, a, b);
+}
+
+
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m030: frames per second)
+extern "C" double sin(double x);
+extern "C" double cos(double x);
+
+// NONMATCHING: 98.1% - float registers of the turn and of the m584 clamp (the original rounds it with frsp,
+// as in Em403WarLion::fn_80324A38) and the order of m574 at the end
+// inferred: moves towards the rotation `target` (as Em403WarLion::fn_80324A38, without its landing flag)
+void LastCocoonQuadruped::fn_80462038(const atn::Vector3& target, int arg, float speed, float rate) {
+    atn::Vector3 pos(mPos);
+    atn::Vector3 rot(mRot);
+    float diff = atn::WrapAngle_unk(target.y - rot.y);
+    float dt = lbl_8087EFA8->m3A4;
+    float cur = rot.y;
+    float turn = m56C;
+    rate *= dt;
+    float k = atn::Abs_unk(diff / 3.1415927f) * 0.75f;
+    turn *= 1.0f + k;
+    float step = diff * turn;
+    cur += step;
+    rot.y = cur;
+    m570 *= 0.85f;
+    if (m570 < 0.001f) {
+        m570 = 0.0f;
+    }
+    if (speed > 1.0f) {
+        speed = 1.0f;
+    }
+    if (speed > 0.4f) {
+        float ofs = 0.25f;
+        speed = (speed - 0.4f) / 0.6f;
+        speed *= rate;
+        if (m570 < 0.5f) {
+            ofs = 0.0f;
+        }
+        float angle = atn::Abs_unk(diff / 3.1415927f) - ofs;
+        if (angle < 0.0f) {
+            angle = 0.0f;
+        }
+        speed *= 1.0f - 1.5f * (angle / (1.0f - ofs));
+        if (speed < 0.0f) {
+            speed = 0.0f;
+        }
+    } else {
+        speed = 0.0f;
+    }
+    m580 += 0.25f * (0.7f * diff) - 0.4f * m580;
+    if (atn::Abs_unk(m580) < 0.001f) {
+        m580 = 0.0f;
+    }
+    m570 += 0.26f * speed - 0.125f * m570;
+    vf24();
+    m574.x *= 0.3f;
+    m574.z *= 0.3f;
+    atn::Vector3 move;
+    move.x = m570 * (float)sin(rot.y);
+    move.y = 0.0f;
+    move.z = m570 * (float)cos(rot.y);
+    move.x *= dt;
+    move.y *= dt;
+    move.z *= dt;
+    if (m570 > 1.0f) {
+        move.x *= 2.0f;
+        move.y *= 2.0f;
+        move.z *= 2.0f;
+    }
+    if ((mStatus.mParamB.m9C & 1u) != 1) {
+        int fps = lbl_8087F0A8->m030;
+        m574.y += dt * (-98.1f / (float)(fps * fps));
+    }
+    move += m6B8;
+    m6B8.x *= 0.8f;
+    m6B8.y = 0.0f;
+    m6B8.z *= 0.8f;
+    if (m6B8.Length_unk() < 0.1f) {
+        m6B8.Set_unk(0.0f, 0.0f, 0.0f);
+    }
+    move += m574;
+    if (move.y < -6.0f) {
+        move.y = -6.0f;
+    }
+    int keepRot = 1;
+    atn::Vector3 oldPos(pos);
+    QuadCollResult_unk result;
+    CharaTask::Sphere_unk sphere = fn_80176548(pos);
+    unsigned int mask = arg != 0 ? 0x80000000 : 0;
+    if (mType == 0) {
+        mask |= 0x20;
+    } else if (mType == 3) {
+        mask |= 0x40;
+    } else if (mType == 2) {
+        mask |= 0x80;
+    }
+    int hit = fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &move, mask, &mColli, 0, sphere.mRadius);
+    pos = result.m10;
+    pos -= m5A4;
+    pos.y -= sphere.mRadius;
+    if (hit != 0 && oldPos.y - pos.y < 0.95f * -move.y) {
+        move.y = 0.0f;
+    }
+    float lean = 0.0f;
+    atn::Vector3 vel(move + (pos - oldPos));
+    if (PSVECSquareMag(&vel) > 0.001f && speed > 0.001f) {
+        lean = atn::WrapAngle_unk(vel.GetNormalize().ToRotation_unk().y - mRot.y);
+    }
+    lean *= 2.0f;
+    m584 = MAX(MIN(m584 - 0.5f * lean, 1.0471976f), -1.0471976f) * 0.9f;
+    if ((m54C & 2) == 2 && pos.y < 0.0f) {
+        pos.y = 0.0f;
+    }
+    mPos = pos;
+    if (keepRot) {
+        mRot = rot;
+    }
+    m574 = move;
+    m574.z /= dt;
+    m574.x /= dt;
+}
+
 // NONMATCHING: 99.5% - the frame time (dt) is in f28 here, f29 in the original. Tried: local
 // declaration orders, a copy of dt after the motion lengths, separate weights.
 // inferred: walk motions blended by speed (simplified CharaTask::vf24)
@@ -1003,7 +1174,6 @@ void LastCocoonQuadruped::fn_80464608() {
     }
 }
 
-extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m030: frames per second)
 
 // NONMATCHING: 99.9% - stack slots of the position, rotation and color of PlayEfp_unk (reversed)
 // inferred: mode 12: jumps towards m155C (m1568 per frame, with gravity), the bullet 0x5B5 at frame 24

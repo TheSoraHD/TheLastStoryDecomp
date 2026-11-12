@@ -97,7 +97,10 @@ public:
     void fn_804654F0(); // inferred: back to mode 0 at the end of the motion
 
     void fn_804617A4(); // inferred: chooses the target of the mode
-    void fn_80461838();
+    void fn_80461838(); // inferred: movement of modes 0/3/7
+    // inferred: moves towards the rotation `rot` (own version of CharaTask::fn_8013CB68, as
+    // Em403WarLion::fn_80324A38)
+    void fn_80462038(const atn::Vector3& rot, int arg, float speed, float rate);
     void fn_80463174(); // inferred: mode 0: chooses the next mode
     void fn_80463610(); // inferred: mode 6
     void fn_80466CA4(); // inferred: walks along the route (m1504)
