@@ -1236,31 +1236,28 @@ struct ShopAddRef_unk<T&> {
 // inferred: std::min_element (inlined in the selection sort)
 template <class It, class Cmp>
 inline It MinElement_unk(It first, It last, Cmp& comp) {
-    if (first == last) {
-        return first;
-    }
     It result = first;
-    while (++first != last) {
-        if (comp(*first, *result)) {
-            result = first;
+    if (first != last) {
+        for (++first; first != last; ++first) {
+            if (comp(*first, *result)) {
+                result = first;
+            }
         }
     }
     return result;
 }
 
 // inferred: selection sort of the short ranges (0x8058FAD0)
-// NONMATCHING: 96.46-96.88% (0x8058FAD0, 0x80591504, 0x8059302C) - the original keeps last - 1 and last on
-// the stack
+// NONMATCHING: 98.69-98.87% (0x8058FAD0, 0x80591504, 0x8059302C) - order of the loads of first and last,
+// registers of the swap (MSL __selection_sort)
 template <class It, class Cmp>
 void SortSelect_unk(It first, It last, Cmp& comp) {
-    if (first == last) {
-        return;
-    }
-    It end = last - 1;
-    for (; first != end; ++first) {
-        It min = MinElement_unk(first, last, comp);
-        if (min != first) {
-            Swap_unk(*min, *first);
+    if (first != last) {
+        for (It end = last - 1; first != end; ++first) {
+            It min = MinElement_unk(first, last, comp);
+            if (min != first) {
+                Swap_unk(*min, *first);
+            }
         }
     }
 }
@@ -1288,8 +1285,8 @@ void SortMedian_unk(It a, It b, It c, Cmp& comp) {
 }
 
 // inferred: std::sort (quicksort on a median of three with a rotating offset, selection sort below 21)
-// NONMATCHING: 97-98% (0x8058E0C8, 0x8058E7A4, 0x8058FF18, 0x80590578, 0x80591858, 0x80591F34, 0x805933E8,
-// 0x805949B0) - scheduling of the two pivot offsets
+// NONMATCHING: 98.30% with LessA_unk (0x805933E8, 0x805949B0: everything inlined) - the original keeps the
+// pointers of first and last loaded for n in the inlined selection sort; 100% with LessB/C/D_unk
 template <class It, class Cmp>
 void Sort_unk(It first, It last, Cmp comp) {
     static int sOffset = -4;
@@ -1306,7 +1303,8 @@ void Sort_unk(It first, It last, Cmp comp) {
         if (++sOffset >= 5) {
             sOffset = -4;
         }
-        It j = first + (3 * n / 4 + sOffset % 5);
+        int n3 = n * 3 / 4;
+        It j = first + (n3 + sOffset % 5);
         if (++sOffset >= 5) {
             sOffset = -4;
         }
@@ -1317,7 +1315,7 @@ void Sort_unk(It first, It last, Cmp comp) {
         while (comp(*i, *pivot)) {
             ++i;
         }
-        while (--j != i && !comp(*j, *pivot)) {
+        while (i != --j && !comp(*j, *pivot)) {
         }
         if (i < j) {
             Swap_unk(*i, *j);

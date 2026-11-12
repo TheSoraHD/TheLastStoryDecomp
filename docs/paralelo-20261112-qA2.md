@@ -9,9 +9,9 @@ Inicio: 2026-11-12 21:32 (CET). Rama `agent-A2`.
   (0x805828B0), este en un namespace anonimo. Al 100 % nueva: `MslSwap_unk<ShopEntry5C_unk>` (0x80582EFC).
   NONMATCHING: sort 95,9 % (x2, codigo de la cabecera), predicado 99,93 %, mediana 99,92 %, seleccion 99,4 %.
 - `game/ShopUpGrade`: funciones al 0 % **2 -> 0** (`__cl__..LessC_unk` 0x80590448 y `SortSelect_unk<..LessC..>`
-  0x80591504). Al 100 % **30 -> 37 / 57**: predicados LessB/LessC/LessD y medianas LessA/B/C/D (las 4 de
-  `L"%s"` que `report.json` ya daba al 100 %). Sort LessA 96,6 -> 97,85 %, Sort LessC 0 -> 98,25 %,
-  seleccion 93,4 -> 96,9 %.
+  0x80591504). Al 100 % **30 -> 43 / 57**: predicados LessB/LessC/LessD, medianas LessA/B/C/D (las 4 de
+  `L"%s"` que `report.json` ya daba al 100 %) y los seis `Sort_unk` de LessB/C/D (LessC desde 0 %).
+  Sort LessA 96,6 -> 98,3 %, seleccion 93,4 -> 98,9 %.
 
 ## NONMATCHING (motivo)
 
@@ -49,6 +49,10 @@ Inicio: 2026-11-12 21:32 (CET). Rama `agent-A2`.
 - `ShopWeapon_unk` (local de ShopBase.cpp) gana `m78` (clave de orden de las armas), sin cambiar el tamano.
 
 ## Hallazgos
+
+- `std::sort` de MSL: segundo pivote con `int n3 = n * 3 / 4;` en una sentencia aparte (como atn/Loader y
+  GameTask) y `while (i != --j && ...)` (el `!=` con `i` a la izquierda): Sort_unk de ShopUpGrade al 100 %.
+  `MslSort_unk.h` ya usa `i != --j` pero no `n3` (pendiente de la cola B).
 
 - Una cadena literal en una funcion inline/plantilla con enlace externo sale como `@STRING@` debil; con la
   clase en un namespace anonimo va al pool del fichero (`@stringBase0`/`@wstringBase0`).
