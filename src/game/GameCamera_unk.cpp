@@ -17,6 +17,10 @@ extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" int sprintf(char* buf, const char* fmt, ...);
+extern "C" GameTask* lbl_8087F430; // inferred: the field
+extern "C" void* lbl_8087EE98;     // inferred: collision manager
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
     return atn::Vector3(-v.x, -v.y, -v.z);
@@ -334,6 +338,45 @@ void GameCamera::fn_80388A88(const CharaTask* chara) {
     }
     fn_8004B378();
     fn_80392964(0, 1, 0, 0);
+}
+
+// inferred: event camera (see fn_8038CD94) kept out of the walls: when the ray from the target to the eye hits,
+// the eye is moved to the wall over 10 frames (m880), and back when it stops hitting
+// NONMATCHING: 96.3% - stack slots of the temporaries; fn_8008B964 (see fn_80388A88)
+void GameCamera::fn_80388C44(const CharaTask* chara) {
+    float yaw = 0.017453292f * m79C;
+    atn::Vector3 offset(m780.x, m780.y, m780.z);
+    Mtx m;
+    PSMTXRotRad(m, 'y', 3.1415927f + yaw);
+    PSMTXMultVec(m, &offset, &offset);
+    atn::Vector3 target = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    Mtx m2;
+    PSMTXRotRad(m2, 'x', -m77C);
+    PSMTXMultVec(m2, &front, &front);
+    Mtx m3;
+    PSMTXRotRad(m3, 'y', 3.1415927f + yaw);
+    PSMTXMultVec(m3, &front, &front);
+    atn::Vector3 pos = target + front * m774;
+    CollResult_unk result;
+    if (fn_8004ED34(lbl_8087EE98, &result, &target, &pos, 0x80000008, 0, 0)) {
+        pos = result.m10;
+        pos += Negate_unk(front) * 0.1f;
+        if (m880 < 10) {
+            m880++;
+        }
+        pos = (pos - mPos) * ((float)m880 / 10.0f) + mPos;
+    } else {
+        if (m880 > 0) {
+            m880--;
+        }
+        pos = (pos - mPos) * (1.0f - (float)m880 / 10.0f) + mPos;
+    }
+    SetPosition(pos);
+    SetTarget_unk(target);
+    mFovy = m778;
+    fn_8004B378();
+    fn_80392964(0, 1, 1, 1);
 }
 
 // NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
@@ -887,10 +930,6 @@ void GameCamera::fn_8038DF5C(const CharaTask* chara) {
     }
 }
 
-extern "C" GameTask* lbl_8087F430; // inferred: the field
-extern "C" void* lbl_8087EE98;     // inferred: collision manager
-extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
-                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
 // inferred: keeps the eye out of the walls: on maps with ceilings (MapTask::mEC) the eye is put under the ceiling
 // above it, then a ray from the character to the eye (at the same height) pulls it in front of the wall; while it
