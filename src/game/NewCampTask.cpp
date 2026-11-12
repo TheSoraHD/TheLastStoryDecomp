@@ -159,10 +159,9 @@ extern "C" RenderSetting_unk* fn_802F0990();
 
 // inferred: loading of the camp: waits for its files, prepares the parts and the post effects and adds the debug
 // menu items
-// NONMATCHING: 33% - the original is over the inlining budget (R3): RenderSetting_unk::ResetPostFx_unk (weak copy
-// 0x8052B7F8), the accessor of the gamma settings, the ResHandle load and the vector accessors are called out of
-// line (0x8052B7F0, 0x8052BC90, 0x8052BCE4, 0x8052BCF4); here they are inlined (91% when the reset is an
-// external call)
+// NONMATCHING: 99.5% - registers of the debug menu group (r27/r28); with NewCampView_unk::fn_8052E1A0 written
+// (auto-inline candidate) the function is over the inlining budget (R3) as in the original and calls the reset,
+// the gamma accessor, ResHandle::Load and the vector accessors out of line (it was 33% before)
 int NewCampTask::vf0C() {
     fn_8046ECDC(ResMgr_unk(), 0);
     if (m60 == 0) {
@@ -551,14 +550,11 @@ void NewCampTask::fn_8052C9C4() {
     m5C = 0;
 }
 
-// ---- fn_8052D468: camera of the camp (over the inlining budget: the accessors are weak copies) ----
-extern "C" atn::Vector3 fn_80383728(const atn::Camera* camera); // inferred: direction the camera looks at
-extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
+extern "C" void fn_8036E624(GameTask* task); // inferred: defined in game/GameTask.cpp
+extern "C" atn::PostFxManager* lbl_8087EF8C;  // inferred: post effect manager (returned by fn_804ABF20)
 extern "C" int fn_800CB58C(atn::SoundRef* sound);                     // inferred: the sound is playing
 extern "C" void fn_800CB5C8(atn::SoundRef* sound, int frames, int detach); // inferred: stops the sound
-void* GetPad_unk();
-// inferred: end of the lerp of the camera path (passed by address to fn_800F8524); name invented
-static float sCamPathEnd_unk = 1.0f;
+
 // inferred: motion blur of the render settings (+0x240)
 extern "C" inline MotionBlurParam_unk* fn_8052D3C8(RenderSetting_unk* settings) {
     return &settings->m240;
@@ -566,6 +562,44 @@ extern "C" inline MotionBlurParam_unk* fn_8052D3C8(RenderSetting_unk* settings) 
 extern "C" inline void fn_8052D3D0(RenderSetting_unk* settings, const MotionBlurParam_unk& blur) {
     settings->m240 = blur;
 }
+// inferred: closes the camp: restores the scene, the camera and the post effects saved when the camp opened
+// (mB1C), closes the parts and turns off the effects of the camp
+// NONMATCHING: 78% - the implicit atn::Scene::operator= is over the inlining budget in the original (R3/R5):
+// the copies of Texture, GodRay, HazeParam_unk and ColorMatrixParam_unk are called (weak copies 0x8052E8D4,
+// 0x8052BBEC, 0x8047C7FC, 0x80453DBC); here they are inlined (vector/CharaLightData_unk operator= are only
+// declared, so they are no candidates); registers of the camera copy as fn_8052C6CC
+void NewCampTask::fn_8052CA6C() {
+    if (lbl_8087F430 != 0) {
+        fn_8036E624((GameTask*)lbl_8087F430);
+    }
+    mB1C.fn_8052FA44();
+    mTop->vf28();
+    mStatus->vf28();
+    mMapSelect->vf28();
+    mItem->vf28();
+    mOption->vf28();
+    mProtector->vf28();
+    mGmk->vf28();
+    mHint->vf28();
+    m1310.mEnabled = 0;
+    fn_802F0990()->SetDamage_unk(m1310);
+    MotionBlurParam_unk blur(*fn_8052D3C8(fn_802F0990()));
+    blur.mEnabled = 0;
+    fn_8052D3D0(fn_802F0990(), blur);
+    atn::RenderManager::instance_->m554 = 0;
+    lbl_8087EF8C->fn_800A97C4();
+    if (fn_800CB58C(&m1340)) {
+        fn_800CB5C8(&m1340, 10, 0);
+    }
+    m5C = 0;
+}
+
+// ---- fn_8052D468: camera of the camp (over the inlining budget: the accessors are weak copies) ----
+extern "C" atn::Vector3 fn_80383728(const atn::Camera* camera); // inferred: direction the camera looks at
+extern "C" float fn_800F8524(const float* a, const float* b, float t); // inferred: lerp of two floats
+void* GetPad_unk();
+// inferred: end of the lerp of the camera path (passed by address to fn_800F8524); name invented
+static float sCamPathEnd_unk = 1.0f;
 // inferred: offsets of the camera of the parts (m64: 4:3 screen, m70: 16:9)
 extern "C" inline atn::Vector3 fn_8052DEA4(NewCampPartsBase* parts) {
     return parts->m64;
@@ -724,6 +758,36 @@ void NewCampTask::fn_8052DEEC(int state) {
         mGmk->fn_80512C90(m464);
     }
     m1304 = 0;
+}
+
+// inferred: saves the scene, the camera and the post effects of the game (done when the camp opens)
+// NONMATCHING: 71% - the implicit atn::Scene::operator= is over the inlining budget in the original (R3/R5):
+// the copies of Texture, GodRay, HazeParam_unk and ColorMatrixParam_unk are called (weak copies 0x8052E8D4,
+// 0x8052BBEC, 0x8047C7FC, 0x80453DBC); here they are inlined (as fn_8052CA6C)
+void NewCampView_unk::fn_8052E1A0() {
+    mScene = *atn::RenderManager::instance_->fn_800C16B4();
+    mCamera = atn::RenderManager::instance_->mCamera;
+    mShadow = fn_802F0990()->m104;
+    *(RsColor_unk*)m238 = fn_802F0990()->m03C;
+    mBloom = fn_802F0990()->m054;
+    mDof = fn_802F0990()->mDof;
+    mColorMatrix = fn_802F0990()->m324;
+    mGamma = *fn_8052B7F0(fn_802F0990());
+}
+
+// inferred: sets the scene, the camera and the post effects of the view
+// NONMATCHING: 73% - the implicit atn::Scene::operator= is over the inlining budget in the original (R3/R5):
+// the copies of Texture, GodRay, HazeParam_unk and ColorMatrixParam_unk are called (weak copies 0x8052E8D4,
+// 0x8052BBEC, 0x8047C7FC, 0x80453DBC); here they are inlined (as fn_8052CA6C)
+void NewCampView_unk::fn_8052FA44() {
+    *atn::RenderManager::instance_->fn_800C16B4() = mScene;
+    atn::RenderManager::instance_->SetCamera_unk(mCamera);
+    fn_802F0990()->m03C = *(RsColor_unk*)m238; // inferred: clear color
+    fn_802F0990()->mDof = mDof;
+    fn_802F0990()->m054 = mBloom;
+    fn_802F0990()->m104 = mShadow;
+    fn_802F0990()->m324 = mColorMatrix;
+    *fn_8052B7F0(fn_802F0990()) = mGamma;
 }
 
 // NONMATCHING: 96% - order of the store of m11F8 and float registers of the camera sums

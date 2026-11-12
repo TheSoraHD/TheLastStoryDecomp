@@ -81,6 +81,7 @@ public:
     NewCampPartsMapSelect(atn::Task* parent);                      // 0x8051B984
     virtual ~NewCampPartsMapSelect();                              // 0x8051C2A8
     virtual void vf10();                                           // 0x8051CF78
+    virtual void vf14();                                           // 0x8051D864
     virtual void vf1C(NewCampScene_unk* scene);                    // 0x8051CA74
     virtual void vf20();                                           // 0x8051EC50
     virtual void vf24();                                           // 0x8051EF20
