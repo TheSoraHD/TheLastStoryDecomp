@@ -6,7 +6,8 @@ Rama `agent-D`. Inicio: 2026-11-12 14:55 CET. Referencia: `/home/claude/ref-D` (
 
 ### game/GameCamera_unk
 
-- Funciones al 0 %: 33 -> 31 (`fn_8038C070` 98,1 %, `fn_80389A00` 90,8 %, ambas NONMATCHING con motivo).
+- Funciones al 0 %: 33 -> 30 (`fn_8038C070` 98,1 %, `fn_80389A00` 90,8 %, `fn_8038B650` 92,2 %; NONMATCHING con
+  motivo).
 - Nuevas al 100 %: `fn_80389678`, `fn_8038DDE0` (vibracion, por el getter inline) y `fn_80389060` (giro con
   `Matrix3x4::fn_8013A13C`): 20 -> 28 / 90 contando las que vuelven a 100 tras renombrar etiquetas.
 - `fn_8008B964` (getter de `RenderManager::instance_`): definida `extern "C" inline` **en `GameCamera_unk.cpp`**
@@ -18,6 +19,11 @@ Rama `agent-D`. Inicio: 2026-11-12 14:55 CET. Referencia: `/home/claude/ref-D` (
   datos no renumera los `@N` (comprobado con `Event/Dialog.o`); una declaracion de metodo si.
 
 ## NONMATCHING nuevas
+
+- `fn_8038B650` 92,2 % (modo de apuntar): la diferencia de la vista de `m1F4` queda en el hueco mas bajo de la
+  pila en el original (como si el rayo estuviera en un inline) y redondea (frsp) la z del origen. Los ids
+  700013-700020/700022/700023 son un `switch` (cadena de comparaciones igual que el original).
+  Campos nuevos de `GameCamera.h`: m60C, m610, m618-m624 (miembros de datos, no renumeran).
 
 - `fn_8038C070` 98 %: el original pone la rotacion z de `fn_800109E0` mas arriba en la pila y la x mas abajo
   (aqui al reves); cambiar el orden de los temporales de `fn_800109E0` solo arregla la y y baja fn_803918EC.

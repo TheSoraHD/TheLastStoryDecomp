@@ -728,6 +728,113 @@ void GameCamera::fn_8038B148(const CharaTask* chara) {
     m860 = 0;
 }
 
+// inferred: aim camera mode: over the shoulder of the character (offset m874 from m618/m61C/m620, set by the
+// character type and the weapon; zoomed by mC1C while the global flag 0x6A says so) looking m60C in front of it,
+// blended in 5 frames through fn_8038AEF0. Coming from mode 3 it keeps looking at the point the previous
+// camera was aiming at (m890: hit of a ray of 800 along its view)
+// NONMATCHING: 92.2% - stack slots: the original keeps the difference of the view of m1F4 lowest on the stack
+// (as if the ray were in an inline) and rounds the z of its start (frsp)
+void GameCamera::fn_8038B650(const CharaTask* chara) {
+    if (m808 == 0) {
+        if (m800 == 3) {
+            atn::Vector3 dir = (m1F4.mTarget - m1F4.mPos).GetNormalize();
+            atn::Vector3 from = m1F4.mPos;
+            atn::Vector3 to = from + dir * 800.0f;
+            CollResult_unk result;
+            atn::Vector3 point = m1F4.mTarget;
+            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 4, (void*)&chara->mColli, 0)) {
+                point = result.m04;
+            } else {
+                point = from + dir * 800.0f;
+            }
+            m890 = point;
+            if (m874.x < 0.0f) {
+                m874.x = -m618;
+            } else {
+                m874.x = m618;
+            }
+            m874.y = m61C;
+        } else {
+            m874.x = -m618;
+            m874.y = m61C;
+        }
+        m874.z = m620;
+        if (!chara->mFlag6) {
+            m874.x = m874.x > 0.0f ? 10.0f : -10.0f;
+            m874.y = 18.0f;
+            m874.z -= 20.0f;
+        } else {
+            switch (chara->m50) {
+            case 700013:
+            case 700014:
+            case 700015:
+            case 700016:
+            case 700017:
+            case 700018:
+            case 700019:
+            case 700020:
+                m874.x = m874.x > 0.0f ? 7.0f : -7.0f;
+                break;
+            case 700022:
+                m874.x = m874.x > 0.0f ? 6.0f : -6.0f;
+                m874.y += 10.0f;
+                break;
+            case 700023:
+                m874.x = 3.0f;
+                m874.y += 12.0f;
+                break;
+            default:
+                if (chara->m680[0] != 0 && chara->m680[0]->m004 % 1000 / 10 == 8) {
+                    m874.x = m874.x > 0.0f ? 6.5f : -6.5f;
+                }
+                break;
+            }
+        }
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+    }
+    float ox = m874.x;
+    float oy = m874.y;
+    if (chara->mFlag6 && chara->m674 >= 0) {
+        oy -= m624;
+    }
+    atn::Vector3 offset(ox, oy, m874.z);
+    float speed = -2.0f;
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x6A)) {
+        speed = 2.0f;
+    }
+    mC1C += speed;
+    mC1C = MIN(MAX(0.0f, mC1C), 10.0f);
+    offset.z += mC1C;
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &offset, &offset);
+    atn::Vector3 pos = offset + chara->mPos;
+    offset = atn::Vector3(ox, oy, m60C);
+    PSMTXMultVec(m, &offset, &offset);
+    atn::Vector3 target = offset + chara->mPos;
+    float fovy = !chara->mFlag6 ? 1.0471976f : m610;
+    if (m800 == 3) {
+        atn::Vector3 d = target - pos;
+        float dist = PSVECMag(&d);
+        atn::Vector3 dir = (m890 - pos).GetNormalize();
+        target = dir * dist + pos;
+    }
+    fn_8038AEF0(&pos, &target, chara, 0, fovy, (float)m808 / 5.0f);
+    fn_80392964(1, 1, 0, 0);
+    if (++m808 > 5) {
+        m80C = pos;
+        m818 = target;
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+    m860 = 0;
+}
+
 // inferred: side camera mode: from beside the character (m654 to the side, m658 up, m65C behind its target
 // mF6C, or halfway to it), blended in 15 frames; then back to the sub mode with m83C = 6
 // NONMATCHING: 92.2% - temporaries of the point and the cross product; fn_8008B964 (see fn_80388A88)

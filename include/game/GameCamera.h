@@ -198,7 +198,15 @@ public:
     float m5E0;            // inferred: height of its eye
     float m5E4;            // inferred: distance of its eye
     float m5E8;            // inferred: height of its target
-    unsigned char m5EC[0x648 - 0x5EC];
+    unsigned char m5EC[0x60C - 0x5EC];
+    float m60C;            // inferred: distance of the target of the aim mode (fn_8038B650)
+    float m610;            // inferred: its fovy
+    unsigned char m614[0x618 - 0x614];
+    float m618;            // inferred: side offset of its eye
+    float m61C;            // inferred: height of its eye
+    float m620;            // inferred: distance of its eye
+    float m624;            // inferred: lowered eye with mFlag6 and CharaTask::m674
+    unsigned char m628[0x648 - 0x628];
     int m648;              // inferred: state of the collision of the side mode (fn_8038E540)
     float m64C;            // inferred: fovy of the side mode
     unsigned char m650[0x654 - 0x650];
