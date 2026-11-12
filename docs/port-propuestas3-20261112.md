@@ -31,6 +31,11 @@ Resultado: **15058 / 18109**, `main.dol: OK`, `regress.py` lost 0, `fuzzdrop.py`
    largas en Windows (LLP64: `unsigned long` de 4 bytes). Era la causa de que el port de Windows no
    encontrara los `.gly` de las fuentes. Typedef de `unsigned long` en la Wii: neutro.
 
+6. **`fn_8006D7B0` (texto con la fuente) con la firma de su llamador**: `atn/DrawHelper` la declara
+   con la vista como segundo argumento, y el ensamblador lee el texto de r5. La definición de
+   `atn/Font_unk` no la tenía: en PC tomaba la vista por el texto y los menús salían sin letras.
+   Objdiff de la función 74,018 -> 74,024 %; sin bajadas.
+
 ## Decisiones sin el usuario
 
 - D2A_Message fuera de la propuesta (ver 4).
