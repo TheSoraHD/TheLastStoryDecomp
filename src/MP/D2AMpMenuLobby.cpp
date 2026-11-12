@@ -79,6 +79,9 @@ extern "C" int DWC_GetNumConnectionHost();
 extern "C" int fn_806A8E70();
 extern "C" void fn_804DDA04(MpLobbySession_unk* s); // inferred: sends the game mode
 extern "C" int fn_804E4A20(); // inferred: play time of the player
+extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c); // inferred: cursor
+extern "C" const wchar_t* fn_804FA7C8(MpLobbySession_unk* s, int mode, int map); // inferred: name of a map
 // inferred: list of the connected aids
 struct MpLobbyAids_unk {
     unsigned char* mAids;
@@ -532,6 +535,57 @@ void D2AMpMenuLobby::fn_804C0EA4() {
         } else {
             fn_804A3C24(MenuCommonTask::sInstance, lbl_8087F86C->Get_unk(0xC9), 0);
         }
+    }
+}
+
+// inferred: draw of the map list (states 7-9): the list of the game mode, the cursor on the entry mDB4 and the
+// names of the maps (grey when not selectable); updates the number of entries
+// NONMATCHING: 99.2% - registers of the loop pointer and of the color; string offsets
+void D2AMpMenuLobby::fn_804C1370() {
+    MpRect_unk rect;
+    char name[0x40] = {0};
+    int count = 0;
+    m6C->MeltTask();
+    m70->MeltTask();
+    MpD2A_unk* list;
+    unsigned int color;
+    atn::DrawHelper* helper;
+    if (lbl_8087F610->m540 != 2) {
+        list = m74;
+    } else {
+        list = m78;
+    }
+    list->MeltTask();
+    SetPaneValue2_unk(m70->mLayout, "col0005", 0, 128.0f);
+    if (MenuCommonTask::sInstance != 0 && !(list->mFrame < 2.0f)) {
+        sprintf(name, "message_list%02d", mDB4 + 1);
+        MpRect_unk cursor = GetPaneRect_unk(list, name);
+        rect.x = cursor.x;
+        rect.y = cursor.y;
+        rect.w = 2.56f;
+        rect.h = 0.24f;
+        rect.z = -10.0f;
+        fn_804A53D4(MenuCommonTask::sInstance, 0, 0, &rect, mD88 == 7);
+        for (int i = 0; i < 16; i++) {
+            if (mDD4[i] == -1) {
+                continue;
+            }
+            sprintf(name, "message_list%02d", i + 1);
+            MpRect_unk pos = GetPaneRect_unk(list, name);
+            rect = pos;
+            rect.x += 15.0f;
+            rect.y += 6.0f;
+            color = 0xFF888888;
+            if (mE14[i] != 0) {
+                color = 0xFFFFFFFF;
+            }
+            helper = lbl_8087EEB0;
+            helper->fn_80061824(rect.x, rect.y, -10.0f, 17.0f, 17.0f, 0.0f, 0.0f, 0.0f,
+                                      fn_804FA7C8(lbl_8087F610, lbl_8087F610->m540, mDD4[i]), color, 1, 1, 0, 0,
+                                      0xFF000000);
+            count++;
+        }
+        fn_804C28A0(count);
     }
 }
 

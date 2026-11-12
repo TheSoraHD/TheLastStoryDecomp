@@ -635,3 +635,4 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Valor sin salto `xoris/subfic/addc/subfe` + `andc rX, rC, mask` (rC = 0xFF en un registro): `int full = 0xFF; ... (t <= 30 ? 0 : full)`; con el literal sale `clrlwi`. `and rX, -100, mask`: `t <= K ? -100 : 0` (fueraruta-20261112, MP/D2AMpMenuLobby).
 - `pos.x - width * scale` con `fnmsubs` en el original: constantes en variables locales (`float scale = 0.05f; ...`), si no MWCC pliega el producto; el orden de declaracion fija el orden de los FPR (fueraruta-20261112).
 - Un `float a = chara->mRot.y;` antes de `PSMTXRotRad` hace que el angulo se cargue con el registro del parametro (r4) antes de guardarlo, como el original (GameCamera fn_80389678).
+- Un `switch` con tabla de saltos: los bloques de los `case` salen en el orden del fuente; ordenar los `case` como los bloques del original (MP::D2AMpMenuLobby::vf14, fueraruta-20261112).
