@@ -785,7 +785,7 @@ extern "C" void fn_80046228() {
     if (callbacks != 0) {
         CallAll_unk(callbacks);
     }
-    OSSleepTicks((*(unsigned long*)0x800000F8 / 4) / 1000);
+    OSSleepTicks((*(unsigned int*)0x800000F8 / 4) / 1000);
 }
 
 // inferred: error callback of the sound archive

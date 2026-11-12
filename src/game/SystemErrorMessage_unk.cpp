@@ -12,6 +12,7 @@
 #include <boost/scoped_ptr.hpp>
 #include "atn/DrawHelper.h"
 #include "game/GameTask.h"
+#include "game/HomeButtonMenu.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" int sprintf(char* buf, const char* format, ...);
@@ -31,13 +32,7 @@ extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float
 extern "C" void* lbl_8087EF70; // inferred: pad
 extern "C" int fn_800A555C(void* pad, int port, int button); // inferred: button triggered
 // inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here
-class HomeButtonMenu {
-public:
-    unsigned char m00[0x84];
-    int m84; // inferred: state (1 open)
-
-    static HomeButtonMenu* sInstance;
-};
+// HomeButtonMenu: game/HomeButtonMenu.h
 // inferred: input manager (lbl_8087F018)
 struct SysInput_unk {
     int GetExt_unk() { return m5C; } // inferred: name invented

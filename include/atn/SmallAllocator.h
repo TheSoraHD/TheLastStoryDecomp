@@ -22,7 +22,7 @@ struct SmallPool_unk {
         mBitmap = 0;
         mBase = 0;
     }
-    unsigned long* mBitmap; // 0x00
+    unsigned int* mBitmap; // 0x00: 32-bit words
     unsigned char* mBase;   // 0x04
     int mUsed;              // 0x08
     int mPeak;              // 0x0C
@@ -61,7 +61,7 @@ public:
         unsigned char* p = (unsigned char*)buf;
         m04 = p;
         for (int i = 0; i < mCount; i++) {
-            mPools[i].mBitmap = (unsigned long*)p;
+            mPools[i].mBitmap = (unsigned int*)p;
             memset(p, 0, mConfig[i].mCount * 4);
             p += mConfig[i].mCount * 4;
         }

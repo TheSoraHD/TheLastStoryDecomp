@@ -5,7 +5,7 @@
 #include "game/HeapInfo_unk.h"
 
 // inferred: OS_BUS_CLOCK / OSTicksToMicroseconds of the SDK
-#define OS_BUS_CLOCK_UNK (*(unsigned long*)0x800000F8)
+#define OS_BUS_CLOCK_UNK (*(unsigned int*)0x800000F8)
 #define OS_TIMER_CLOCK_UNK (OS_BUS_CLOCK_UNK / 4)
 #define OS_TICKS_TO_USEC_UNK(ticks) (((ticks) * 8) / (OS_TIMER_CLOCK_UNK / 125000))
 

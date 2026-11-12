@@ -16,15 +16,7 @@ struct GimmickUvOwner_unk {
 
 // inferred: view of HomeButtonMenu (game/HomeButtonMenu.cpp), only the members used here (as in
 // game/GameSystem_unk.cpp)
-class HomeButtonMenu {
-public:
-    unsigned char m00[0x88];
-    int m88; // inferred: menu allowed
-    int m8C;
-    int m90; // inferred: show the icon when the menu is not allowed
-
-    static HomeButtonMenu* sInstance;
-};
+// HomeButtonMenu: game/HomeButtonMenu.h
 // inferred: globals of unknown classes
 struct Unk_8087F018 {
     unsigned char m0000[0x40E0];
@@ -47,6 +39,7 @@ extern "C" int fn_800A5920(void* obj, int a, int b); // inferred: a button was p
 #include "atn/SequenceBoot_unk.h"
 #include "atn/DrawHelper.h"
 #include "game/ResetShutdown.h"
+#include "game/HomeButtonMenu.h"
 
 StrapTask* StrapTask::fn_805A6208(atn::Task* parent) {
     if (parent != 0) {

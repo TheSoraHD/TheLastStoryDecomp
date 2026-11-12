@@ -1,15 +1,12 @@
 #include "atn/LH_Scene.h"
+#include "atn/Light_unk.h"
 #include "atn/Array_unk.h"
 #include "atn/LoadManager.h"
 #include "atn/Loader_unk.h"
 #include "math/Vec.h"
 #include "atn/Camera_unk.h"
 
-// inferred: animation track of the scene file (12 bytes); evaluates the value at `frame`
-struct SceneTrack_unk {
-    float fn_8047202C(const short& frame, float defaultValue);
-    unsigned char m00[0xC];
-};
+// SceneTrack_unk, LightData_unk: atn/Light_unk.h
 
 // inferred: camera of the scene file
 struct SceneCameraData_unk {
@@ -40,30 +37,7 @@ struct SceneHeader_unk {
 };
 
 
-// inferred: engine light (0x44 bytes; constructor 0x80079044, no destructor)
-struct LightPair_unk {
-    int a;
-    int b;
-};
-struct LightData_unk;
-namespace atn {
-struct Light {
-    Light();
-    Light(LightData_unk* data); // inferred: builds a light from the file data (atn/Light_unk.cpp)
-    int m00;
-    int m04;
-    atn::Vector3 m08;
-    atn::Vector3 m14;
-    int m20;
-    float m24;
-    float m28;
-    float m2C;
-    float m30;
-    LightPair_unk m34;
-    LightPair_unk m3C;
-};
-} // namespace atn
-typedef atn::Light Light_unk; // inferred: real name atn::Light (RSO)
+// atn::Light (Light_unk): atn/Light_unk.h
 
 // inferred: value of a track at frame 0 (each call has its own frame variable on the stack)
 static inline float __EvalTrack_unk(SceneTrack_unk& track) {
