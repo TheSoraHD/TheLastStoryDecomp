@@ -1,5 +1,5 @@
-// MP/D2AMpMenuLobby.cpp (0x804BBBA0-0x804C2FF8): lobby of a multiplayer game. Only the first functions are
-// reconstructed so far.
+// MP/D2AMpMenuLobby.cpp (0x804BBBA0-0x804C2FF8): lobby of a multiplayer game. All the functions are written;
+// see the NONMATCHING notes.
 #include "MP/D2AMpMenuLobby.h"
 #include "MP/D2AMpMenuSetRule.h"
 #include "atn/FadeCommon.h"
@@ -11,6 +11,8 @@
 #include "atn/DrawHelper.h"
 #include "atn/Color.h"
 #include "atn/net/Manager.h"
+#include "MP/MpLevel_unk.h"
+#include "game/CharaTask.h"
 
 // inferred: hash of the "CustomData" pane (as in MP/D2AMpMenu.cpp; read by functions not written yet); its
 // initializer is the __sinit of the file (0x804C2FC8)
@@ -22,21 +24,34 @@ struct MpLobbyPlayerInfo_unk {
     unsigned char m00[0xB0];
     int mB0;
     unsigned char mB4[0xD0 - 0xB4];
-    unsigned int mD0_hi : 6;
+    unsigned int mD0_0 : 3;
+    unsigned int mD0_3 : 1;   // inferred: ready
+    unsigned int mD0_4 : 2;
     unsigned int mD0_6 : 4;   // inferred: face
-    unsigned int mD0_lo : 22;
+    unsigned int mD0_10 : 10;
+    unsigned int mD0_20 : 2;  // inferred: loading state
+    unsigned int mD0_22 : 4;  // inferred: map voted by the player
+    unsigned int mD0_26 : 4;  // inferred: entry of the map chosen by the lottery
+    unsigned int mD0_30 : 2;
 };
 // inferred: one player of the session (0xD5C bytes)
 struct MpLobbyMember_unk {
-    unsigned char m000[0xCC];
+    unsigned char m000[0xB0];
+    int mB0;                  // inferred: character
+    unsigned char mB4[0xCC - 0xB4];
     unsigned char mCC;        // inferred: aid
     unsigned char mCD[0xD0 - 0xCD];
     unsigned int mD0_31 : 1;  // inferred: valid
-    unsigned int mD0_1 : 2;
+    unsigned int mD0_1 : 1;   // inferred: the local player
+    unsigned int mD0_2 : 1;
     unsigned int mD0_3 : 1;   // inferred: ready (shows the ok mark of the lobby)
-    unsigned int mD0_4 : 16;
+    unsigned int mD0_4 : 2;
+    unsigned int mD0_6 : 4;   // inferred: team (versus)
+    unsigned int mD0_10 : 10;
     unsigned int mD0_20 : 2;  // inferred: zero while still loading
-    unsigned int mD0_lo : 10;
+    unsigned int mD0_22 : 4;  // inferred: map voted by the player
+    unsigned int mD0_26 : 4;  // inferred: entry of the map chosen by the lottery (host)
+    unsigned int mD0_30 : 2;
     unsigned char mD4[0xD5C - 0xD4];
 };
 // inferred: multiplayer session manager (lbl_8087F610, a task); only what the lobby uses here
@@ -55,15 +70,25 @@ struct MpLobbySession_unk : public atn::Task {
     short m508;               // inferred: time left (-1: none)
     unsigned char m50A[0x514 - 0x50A];
     int m514;                 // inferred: nonzero once the play time is known (fn_804E4A20)
-    unsigned char m518[0x540 - 0x518];
+    unsigned char m518[0x53C - 0x518];
+    int m53C;                 // inferred: set when the matching closes
     int m540;                 // inferred: game mode (0: raid, 1: versus)
     unsigned char m544[0x55C - 0x544];
     int m55C;
-    unsigned char m560[0x5B4 - 0x560];
+    unsigned char m560[0x564 - 0x560];
+    int m564;                 // inferred: time limit in seconds (-1: none)
+    unsigned char m568[0x5A4 - 0x568];
+    int m5A4;                 // inferred: shown in "string0007(1)" of the base
+    unsigned char m5A8[0x5B0 - 0x5A8];
+    int m5B0;                 // inferred: on/off rule shown in "string0011(1)" of the base
     unsigned char m5B4;       // inferred: debug flags (4: everybody warrior, 8: everybody mage)
     unsigned char m5B5[0x5E4 - 0x5B5];
     MpLobbyMember_unk* m5E4; // inferred: players
     int m5E8;                // inferred: number of players
+    unsigned char m5EC[0x610 - 0x5EC];
+    MpLevelTable_unk m610;   // inferred: experience table
+    unsigned char m618[0x999C - 0x618];
+    unsigned char m999C;     // inferred: set once the game starts
 };
 extern "C" MpLobbySession_unk* lbl_8087F610;
 extern "C" MpLobbyPlayerInfo_unk* fn_804EB870(MpLobbySession_unk* s); // inferred: local player
@@ -94,6 +119,73 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" void fn_804A436C(int* cursor, int count, int arg2, int wrap, int sound); // inferred: moves a cursor
 extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
 extern "C" int fn_8050BA68(MpLobbyAids_unk* aids); // inferred: number of aids
+extern "C" int fn_804EA5DC(MpLobbySession_unk* s, int mode); // inferred: number of maps of a game mode
+extern "C" void fn_804EA534(MpLobbySession_unk* s, int map, int host); // inferred: sets the map
+extern "C" int rand();
+extern "C" void* memset(void* dst, int c, unsigned long n);
+extern "C" void fn_804A5CD8(MenuCommonTask* menu, float y); // inferred: places the help window
+extern "C" void fn_804DDD50(MpLobbySession_unk* s);              // inferred: sends the rules (server)
+extern "C" void fn_804DE2F8(MpLobbySession_unk* s, int mode);   // inferred: sends the map lottery
+extern "C" void fn_804DC450(MpLobbySession_unk* s, int state);
+extern "C" void fn_804DDFFC(MpLobbySession_unk* s); // inferred: resumes the matching
+extern "C" int DWCi_IsMatchingSuspended();
+extern "C" CharaInfo_unk* fn_8020924C(int id); // inferred: character table entry
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" const wchar_t* fn_804FA88C(MpLobbySession_unk* s, int value); // inferred: rank name
+extern "C" int fn_804EB2D8(MpLobbySession_unk* s);
+extern "C" int fn_804EAFD0(MpLobbySession_unk* s);              // inferred: number of players ready
+extern "C" int fn_804DDE34(MpLobbySession_unk* s, int mode);    // inferred: sends the start of the game
+extern "C" void fn_804E8A80(MpLobbySession_unk* s, int id);     // inferred: debug command              // inferred: nonzero once the game starts
+extern "C" int fn_804DBD08(MpLobbySession_unk* s, int mode);
+extern "C" void fn_804FB470(MpLobbySession_unk* s, int code, int arg); // inferred: error of the session
+extern "C" void fn_804DD33C(MpLobbySession_unk* s, int arg, int* value); // inferred: next character
+extern "C" void fn_804DD294(MpLobbySession_unk* s, int arg, int* value); // inferred: previous character
+extern "C" void fn_804FA948(MpLobbySession_unk* s, int value, unsigned int flush); // inferred: requests the character
+
+// inferred: float values of panes given as integers (converted after the hash of the name)
+static inline void SetPaneInt_unk(void* layout, const char* name, int value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+static inline void SetPaneValue2Int_unk(void* layout, const char* name, int index, int value) {
+    fn_801FEDBC(layout, fn_800DC6B4(name), index, value);
+}
+
+// inferred: shows the rules of the session on the base: time limit and healer marks, the number of the rules,
+// the on/off rule and the minutes of the time limit
+static inline void ShowRules_unk(MP::D2AMpMenuLobby* lobby) {
+    wchar_t text[32] = {0};
+    int menuMode = MP::D2AMpMenu::sInstance->mC4;
+    int time = lbl_8087F610->m564;
+    MP::SetPaneValue2_unk(lobby->m4C->mLayout, "time_color", 0, (int)(unsigned char)(time != -1 ? 0xFF : 0));
+    MP::SetPaneValue2_unk(lobby->m4C->mLayout, "healer_color", 0, (int)(unsigned char)(menuMode == 2 ? 0xFF : 0));
+    lobby->m4C->SetNumber_unk("string0007(1)", lbl_8087F610->m5A4, 0);
+    MP::SetPaneText_unk(lobby->m4C->mLayout, "string0011(1)", lbl_8087F610->m5B0 != 0 ? L"ON" : L"OFF");
+    if (lbl_8087F610->m564 != -1) {
+        fn_800DD3FC(text, L"%02d", lbl_8087F610->m564 / 60);
+        MP::SetPaneText_unk(lobby->m4C->mLayout, "string0014(1)", text);
+    }
+}
+
+// inferred: true on the server of the session
+static inline int IsServer_unk() {
+    return lbl_8087F628->GetMyAid_unk() == lbl_8087F628->GetServerAid_unk();
+}
+
+// inferred: title texts of the menu of the game mode ("$B+" and the name of the mode; cleared in mode 2)
+static inline void SetModeText_unk(MP::D2AMpMenuLobby* lobby, int mode) {
+    if (mode == 2) {
+        const wchar_t* empty = L"";
+        MP::SetPaneText_unk(lobby->m64->mLayout, "string0002(1)", empty);
+        MP::SetPaneText_unk(lobby->m64->mLayout, "string0001(1)", empty);
+    } else {
+        MP::SetPaneText_unk(lobby->m64->mLayout, "string0002(1)", L"$B+");
+        int id = 0xD1;
+        if (mode == 1) {
+            id = 0xD0;
+        }
+        MP::SetPaneText_unk(lobby->m64->mLayout, "string0001(1)", lbl_8087F86C->Get_unk(id));
+    }
+}
 
 namespace MP {
 
@@ -241,6 +333,202 @@ int D2AMpMenuLobby::vf0C() {
     return 0;
 }
 
+// inferred: changes the state: leaves the current one (mD8C keeps it) and sets up the parts of the new one
+// NONMATCHING: 95.6% - the id of the mode text is a branchless select here (two branches in the original);
+// registers
+void D2AMpMenuLobby::fn_804BC628(int state) {
+    if (mD88 == state) {
+        return;
+    }
+    if (state < 0) {
+        return;
+    }
+    MpLobbyPlayerInfo_unk* player = fn_804EB870(lbl_8087F610);
+    int mode = D2AMpMenu::sInstance->mC4;
+    int entry = mDB4;
+    mDB4 = 0;
+    mD8C = mD88;
+    mD88 = state;
+    fn_804BD9B8();
+    switch (mD88) {
+    case 1:
+        vf1C();
+        fn_804BF550();
+        ShowRules_unk(this);
+        fn_804A5CD8(MenuCommonTask::sInstance, -100.0f);
+        if (mode == 2) {
+            Play_unk(m54, 0, 1.0f);
+        } else {
+            Play_unk(m58, 0, 1.0f);
+        }
+        Play_unk(m4C, 0, 1.0f);
+        Play_unk(m50, 0, 1.0f);
+        Play_unk(m64, 0, 1.0f);
+        SetModeText_unk(this, mode);
+        for (int i = 0; i < 6; i++) {
+            if (mPlayers[i].m18 != 0) {
+                Play_unk(mPlayers[i].mTasks[2], 0, 1.0f);
+                Stop_unk(mPlayers[i].mTasks[3]);
+                Stop_unk(mPlayers[i].mTasks[4]);
+            }
+        }
+        if (player != 0) {
+            int count = fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540);
+            mE5C = count;
+            if (player->mD0_22 > count) {
+                player->mD0_22 = count;
+            } else {
+                mE5C = player->mD0_22;
+            }
+        }
+        mE7C = 0;
+        break;
+    case 2:
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        D2ACommonDialog::sInstance->fn_804AC96C(0, 1.0f, 1, 0);
+        D2ACommonDialog::sInstance->fn_804ACD10();
+        D2ACommonDialog::sInstance->fn_804AD000(lbl_8087F86C->Get_unk(0xF1), 0);
+        break;
+    case 3: {
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        D2ACommonDialog::sInstance->fn_804AC96C(0, 1.0f, 0, 0);
+        D2ACommonDialog::sInstance->fn_804ACD10();
+        wchar_t text[256];
+        memset(text, 0, sizeof(text));
+        fn_800DD3FC(text, lbl_8087F86C->Get_unk(0xCF), lbl_8087F86C->Get_unk(mode == 1 ? 0xD0 : 0xD1));
+        D2ACommonDialog::sInstance->fn_804AD000(text, 0);
+        break;
+    }
+    case 4:
+        Play_unk(m5C, 0, 1.0f);
+        Play_unk(m64, 0, 1.0f);
+        SetModeText_unk(this, mode);
+        mE68 = -1;
+        fn_804C18A8();
+        fn_804BFB54();
+        SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0003(1)", 0, 0.0f);
+        SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0004(1)", 0, 0.0f);
+        SetPaneValue2_unk(m5C->mLayout, "col0001(1)", 0, 0.0f);
+        SetPaneValue2_unk(m5C->mLayout, "col0004(1)", 0, 0.0f);
+        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, -120.0f);
+        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0011_01(1)", 4, -120.0f);
+        if (player != 0) {
+            player->mD0_20 = 1;
+            player->mD0_3 = 0;
+        }
+        mE78 = 0x7FFFFFFF;
+        break;
+    case 5:
+        D2AMpMenuSetRule::sInstance->fn_804CDE1C(1);
+        if (IsServer_unk() == 1) {
+            fn_804DDD50(lbl_8087F610);
+        }
+        break;
+    case 6:
+        mDD0 = 0;
+        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, 200.0f);
+        SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0011_01(1)", 4, 200.0f);
+        SetPaneText_unk(m64->mLayout, "string0002(1)", L"$Ba");
+        SetPaneText_unk(m64->mLayout, "string0001(1)", lbl_8087F86C->Get_unk(0xCE));
+        fn_804BF550();
+        if (player != 0) {
+            player->mD0_3 = 1;
+        }
+        mE78 = 0x7FFFFFFF;
+        break;
+    case 10:
+        lbl_8087F610->m53C = 1;
+        lbl_8087F628->fn_8050A634(1);
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        Play_unk(m68, 1, 1.0f);
+        SetPaneText_unk(m68->mLayout, "cmd01", lbl_8087F86C->Get_unk(0x102));
+        SetPaneText_unk(m68->mLayout, "string0003(1)", lbl_8087F86C->Get_unk(0x102));
+        mDB8 = 30;
+        break;
+    case 7: {
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        int all = 1;
+        for (int i = 0; i < GetHostCount_unk(); i++) {
+            MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(GetAid_unk(i));
+            if (member != 0 && member->mD0_31 == 1 &&
+                member->mD0_22 != fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540)) {
+                all = 0;
+                break;
+            }
+        }
+        mDA8 = all;
+        mDA4 = 0;
+        fn_804C23E4();
+        Play_unk(m6C, 0, 1.0f);
+        if (lbl_8087F610->m540 != 2) {
+            Play_unk(m74, 0, 1.0f);
+            Stop_unk(m78);
+        } else {
+            Stop_unk(m74);
+            Play_unk(m78, 0, 1.0f);
+        }
+        Play_unk(m70, 0, 0.0f);
+        Stop_unk(m64);
+        Stop_unk(m4C);
+        Stop_unk(m50);
+        if (mode == 2) {
+            Stop_unk(m54);
+        } else {
+            Stop_unk(m58);
+        }
+        for (int i = 0; i < 6; i++) {
+            Stop_unk(mPlayers[i].mTasks[0]);
+            Stop_unk(mPlayers[i].mTasks[2]);
+            Stop_unk(mPlayers[i].mTasks[1]);
+            Stop_unk(mPlayers[i].mTasks[3]);
+            Stop_unk(mPlayers[i].mTasks[4]);
+            Stop_unk(mPlayers[i].mTasks[5]);
+            mPlayers[i].m18 = 1;
+        }
+        break;
+    }
+    case 8:
+        mDB4 = entry;
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        vf20();
+        Play_unk(m70, 0, 1.0f);
+        Play_unk(m4C, 0, -1.0f);
+        if (mD90 != 5) {
+            if (mode == 2) {
+                Play_unk(m54, 0, -1.0f);
+            } else {
+                Play_unk(m58, 0, -1.0f);
+            }
+            Play_unk(m50, 0, -1.0f);
+        }
+        for (int i = 0; i < 6; i++) {
+            Play_unk(mPlayers[i].mTasks[0], 0, -1.0f);
+            Play_unk(mPlayers[i].mTasks[2], 0, -1.0f);
+            Play_unk(mPlayers[i].mTasks[1], 0, -1.0f);
+            Play_unk(mPlayers[i].mTasks[3], 0, -1.0f);
+            Play_unk(mPlayers[i].mTasks[4], 0, -1.0f);
+            Play_unk(mPlayers[i].mTasks[5], 0, -1.0f);
+        }
+        if (mDA4 != 0) {
+            fn_804DE2F8(lbl_8087F610, D2AMpMenu::sInstance->mC4);
+            mDB4 = lbl_8087F610->FindMember_unk(lbl_8087F628->GetServerAid_unk())->mD0_26;
+        }
+        break;
+    case 9:
+        if (mDA4 == 0) {
+            fn_804DBD08(lbl_8087F610, 0);
+        } else {
+            mDB4 = lbl_8087F610->FindMember_unk(lbl_8087F628->GetServerAid_unk())->mD0_26;
+        }
+        break;
+    }
+}
+
 void D2AMpMenuLobby::vf1C() {}
 
 void D2AMpMenuLobby::vf20() {}
@@ -301,6 +589,98 @@ void D2AMpMenuLobby::fn_804BD9B8() {
     }
 }
 
+// inferred: update: refreshes the slots once when asked (mD98), then runs the state
+// NONMATCHING: 98.6% - register allocation (this r30/r31) and the layout/mode temporaries of ShowRules_unk
+void D2AMpMenuLobby::vf10() {
+    mE7C++;
+    if (mD98 != 0) {
+        fn_804C18A8();
+        fn_804BFB54();
+        fn_804BF9AC();
+        mD98 = 0;
+        return;
+    }
+    switch (mD88) {
+    case 1:
+        fn_804C18A8();
+        fn_804BFB54();
+        if (m4C->mFrame >= 10.0f) {
+            fn_804BC628(4);
+        }
+        break;
+    case 2:
+        if (D2ACommonDialog::sInstance->m4C != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C() != 0) {
+                mD90 = 9;
+                fn_804BC628(8);
+                mD90 = 9;
+                fn_804BC628(8);
+                fn_804DC450(lbl_8087F610, 0);
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC() != 0) {
+                fn_804BC628(mD8C);
+            } else if (lbl_8087F610->m508 < 90 && GetHostCount_unk() != 1) {
+                D2ACommonDialog::sInstance->fn_804AD738();
+            }
+        }
+        fn_804C18A8();
+        fn_804BFB54();
+        fn_804BF9AC();
+        break;
+    case 3:
+        fn_804BE4A4();
+        fn_804C18A8();
+        fn_804BFB54();
+        fn_804BF9AC();
+        break;
+    case 4:
+        fn_804BE610();
+        break;
+    case 5:
+        if (fn_804EB1AC(lbl_8087F610) != 0 && D2AMpMenuSetRule::sInstance != 0 &&
+            D2AMpMenuSetRule::sInstance->m5C == 5) {
+            mF90 = 0;
+            ShowRules_unk(this);
+            fn_804BC628(mD90);
+        }
+        break;
+    case 6:
+        fn_804BEDB8();
+        break;
+    case 10: {
+        int suspended = DWCi_IsMatchingSuspended();
+        if (--mDB8 < 0 && (suspended == 1 || lbl_8087F628->mFlags.mB12)) {
+            fn_804DDFFC(lbl_8087F610);
+            fn_804BC628(7);
+        }
+        break;
+    }
+    case 7: {
+        static unsigned int sCount;
+        if (++sCount % 5 == 0 && D2AMpMenuMessageList::sInstance != 0 && D2AMpMenuMessageList::sInstance->m94 != 4) {
+            D2AMpMenuMessageList::sInstance->fn_804C35F0(8);
+        }
+        break;
+    }
+    case 8:
+        fn_804C0430();
+        if (mDA4 != 0) {
+            MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(lbl_8087F628->GetServerAid_unk());
+            if (member != 0) {
+                mDB4 = member->mD0_26;
+            }
+        }
+        break;
+    case 9:
+        if (mDA4 != 0) {
+            MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(lbl_8087F628->GetServerAid_unk());
+            if (member != 0) {
+                mDB4 = member->mD0_26;
+            }
+        }
+        break;
+    }
+}
+
 int D2AMpMenuLobby::fn_804BE330(int count) {
     void* pad = lbl_8087EF70;
     int decide = 0;
@@ -331,7 +711,6 @@ int D2AMpMenuLobby::fn_804BE330(int count) {
 
 // inferred: answer of the common dialog: "yes" switches the game mode (raid/versus) and enters the state mD8C,
 // "no" enters it as it is; while the time left is under 90 the dialog is closed when the other players left
-// NONMATCHING: 99.9% - offset of "col0005" until the strings of the functions before it are written
 void D2AMpMenuLobby::fn_804BE4A4() {
     D2ACommonDialog* dialog = D2ACommonDialog::sInstance;
     if (dialog->m4C == 0) {
@@ -358,9 +737,256 @@ void D2AMpMenuLobby::fn_804BE4A4() {
     }
 }
 
+// inferred: true while a connected player is still loading (guests only)
+static inline bool IsLoading_unk() {
+    if (fn_804EB1AC(lbl_8087F610) != 0) {
+        return false;
+    }
+    for (int i = 0; i < GetHostCount_unk(); i++) {
+        MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(GetAid_unk(i));
+        if (member != 0 && member->mD0_31 == 1 && member->mD0_20 == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// inferred: a player is still loading: leaves the session when not ready yet, otherwise waits (state 10)
+static inline void WaitLoading_unk(MP::D2AMpMenuLobby* lobby) {
+    if (fn_804EB870(lbl_8087F610) == 0 || (fn_804EB870(lbl_8087F610)->mD0_3 == 0 && lobby->mE7C < 30)) {
+        fn_804DBD08(lbl_8087F610, 0);
+        fn_804FB470(lbl_8087F610, 0xA1, 9);
+        return;
+    }
+    fn_80117228(6);
+    lobby->fn_804BC628(10);
+    if (MP::D2AMpMenuMessageList::sInstance != 0) {
+        MP::D2AMpMenuMessageList::sInstance->fn_804C35F0(3);
+    }
+}
+
+// inferred: update of the lobby: warns the guests when the time runs out, follows the rules of the host, places
+// the parts, reads the cursor (decide: state 6, cancel: state 2), waits for the players still loading, and
+// changes the character (left/right) or the voted map (up/down)
+// NONMATCHING: volatile registers of the member search (offset r3/r5, member r5/r3), as vf0C
+void D2AMpMenuLobby::fn_804BE610() {
+    void* pad = lbl_8087EF70;
+    MpLobbyPlayerInfo_unk* player = fn_804EB870(lbl_8087F610);
+    if (fn_804EB1AC(lbl_8087F610) == 0) {
+        short time = lbl_8087F610->m508;
+        if (time > mE78 && time <= 900 && fn_804EB2D8(lbl_8087F610) == 0 &&
+            (D2ACommonDialog::sInstance->m4C == 0 || D2ACommonDialog::sInstance->fn_804AC734() != 0)) {
+            D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 1);
+            D2ACommonDialog::sInstance->fn_804ACD10();
+            D2ACommonDialog::sInstance->fn_804AD1EC(lbl_8087F86C->Get_unk(0xF2));
+            Play_unk(m64, 0, -1.0f);
+            mDAC = 1;
+        }
+        mE78 = lbl_8087F610->m508;
+    }
+    if (fn_804EB1AC(lbl_8087F610) == 0) {
+        fn_804C0094();
+    } else {
+        short time = lbl_8087F610->m508;
+        if ((time == -1 || time > 900 || GetHostCount_unk() == 1) && lbl_8087F0A8->mInput.fn_801231D0(0x35) != 0) {
+            if (lbl_8087F610->m540 != 2) {
+                fn_804BC628(3);
+                fn_80117228(10);
+            }
+            return;
+        }
+    }
+    MpD2A_unk* cursor = m5C;
+    if (cursor->mFrame >= 10.0f) {
+        Play_unk(cursor, 0, 1.0f);
+        m5C->mFrame = 5.0f;
+    }
+    fn_804C18A8();
+    fn_804BFB54();
+    fn_804BF550();
+    fn_804BF9AC();
+    if (mE68 != -1 && mE68 == player->mB0) {
+        mE68 = -1;
+    }
+    if (D2ACommonDialog::sInstance->m4C != 0 && D2ACommonDialog::sInstance->fn_804AC734() != 0) {
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        Play_unk(m64, 0, 1.0f);
+    }
+    int decide = fn_804BE330(0);
+    if (D2ACommonDialog::sInstance->m4C != 0 && D2ACommonDialog::sInstance->fn_804AC734() == 0) {
+        decide = 0;
+    }
+    if (decide == 1) {
+        fn_804BC628(6);
+    } else if (decide == 2) {
+        short time = lbl_8087F610->m508;
+        if (time == -1 || time > 90 || GetHostCount_unk() == 1) {
+            fn_804BC628(2);
+            return;
+        }
+    }
+    if (IsLoading_unk()) {
+        WaitLoading_unk(this);
+        return;
+    }
+    if (lbl_8087F610->m540 == 1) {
+        fn_804C0548();
+    }
+    if (player == 0) {
+        return;
+    }
+    int* chara = &mE6C;
+    int old = *chara;
+    if (fn_800A55AC(pad, 0, 0x1A) != 0 || fn_800A55AC(pad, 0, 0) != 0) {
+        fn_804DD33C(lbl_8087F610, 0, chara);
+        mDBC[0] = 0;
+    } else if (fn_800A55AC(pad, 0, 0x19) != 0 || fn_800A55AC(pad, 0, 1) != 0) {
+        fn_804DD294(lbl_8087F610, 0, chara);
+        mDBC[1] = 0;
+    } else if (fn_800A55AC(pad, 0, 0x18) != 0 || fn_800A55AC(pad, 0, 3) != 0) {
+        int time = lbl_8087F610->m508;
+        if ((unsigned short)time > 90) {
+            mE5C++;
+            if (mE5C > fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540)) {
+                mE5C = 0;
+            }
+            fn_804EB870(lbl_8087F610)->mD0_22 = mE5C;
+            mDBC[3] = 0;
+            fn_80117228(3);
+        }
+    } else if (fn_800A55AC(pad, 0, 0x17) != 0 || fn_800A55AC(pad, 0, 2) != 0) {
+        int time = lbl_8087F610->m508;
+        if ((unsigned short)time > 90) {
+            if (--mE5C < 0) {
+                mE5C = fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540);
+            }
+            fn_804EB870(lbl_8087F610)->mD0_22 = mE5C;
+            mDBC[2] = 0;
+            fn_80117228(3);
+        }
+    }
+    if (old != *chara) {
+        if (fn_804EB1AC(lbl_8087F610) == 1) {
+            player->mB0 = *chara;
+        } else {
+            mE68 = *chara;
+            fn_804FA948(lbl_8087F610, *chara, 1);
+        }
+        fn_80117228(3);
+    }
+}
+
+// inferred: the time is running out: tells the guests (message 0xF2) and remembers it (mDAC)
+static inline void ShowTimeWarning_unk(MP::D2AMpMenuLobby* lobby) {
+    MP::D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 1);
+    MP::D2ACommonDialog::sInstance->fn_804ACD10();
+    MP::D2ACommonDialog::sInstance->fn_804AD1EC(lbl_8087F86C->Get_unk(0xF2));
+    MP::Play_unk(lobby->m64, 0, -1.0f);
+    lobby->mDAC = 1;
+}
+
+// inferred: the host starts the game
+static inline bool StartGame_unk() {
+    if (fn_804DDE34(lbl_8087F610, MP::D2AMpMenu::sInstance->mC4) == 0) {
+        return false;
+    }
+    lbl_8087F610->m999C = 1;
+    lbl_8087F628->fn_8050A4E0(1);
+    return true;
+}
+
+// inferred: update of state 6 (waiting for the other players): the host starts the game once everybody is
+// ready (or the time runs out); the guests are warned when the time runs out
+// NONMATCHING: the original reloads lbl_8087F610 after the check of the time; volatile registers of the member
+// search (as vf0C)
+void D2AMpMenuLobby::fn_804BEDB8() {
+    void* pad = lbl_8087EF70;
+    if (fn_804EB1AC(lbl_8087F610) == 0) {
+        fn_804C0094();
+    }
+    fn_804C18A8();
+    fn_804BFB54();
+    fn_804BF550();
+    fn_804BF9AC();
+    fn_804EB26C(lbl_8087F610, 0);
+    if (D2ACommonDialog::sInstance->m4C != 0 && D2ACommonDialog::sInstance->fn_804AC734() != 0) {
+        D2ACommonDialog::sInstance->fn_804ACAF8();
+        D2ACommonDialog::sInstance->fn_804ACDBC();
+        Play_unk(m64, 0, 1.0f);
+        if (mDAC != 0) {
+            mDAC = 0;
+            fn_804BC628(4);
+            return;
+        }
+    }
+    int decide = fn_804BE330(0);
+    if (D2ACommonDialog::sInstance->m4C != 0 && D2ACommonDialog::sInstance->fn_804AC734() == 0) {
+        decide = 0;
+    }
+    if (lbl_8087F610->m508 == 0) {
+        decide = 1;
+    }
+    if (fn_804FC010(lbl_8087F610) != 0 && decide == 1) {
+        decide = 0;
+    }
+    if (fn_804EB1AC(lbl_8087F610) == 0) {
+        short time = lbl_8087F610->m508;
+        if (time > mE78 && time <= 900 && fn_804EB2D8(lbl_8087F610) == 0 &&
+            (D2ACommonDialog::sInstance->m4C == 0 || D2ACommonDialog::sInstance->fn_804AC734() != 0)) {
+            ShowTimeWarning_unk(this);
+        }
+        mE78 = lbl_8087F610->m508;
+    }
+    if (decide == 1) {
+        if (fn_804EB1AC(lbl_8087F610) != 0) {
+            bool start = false;
+            if (GetHostCount_unk() > 1 || lbl_8087F628->mC215 != 0) {
+                if (lbl_8087F610->m508 == 0) {
+                    if (fn_804EB2D8(lbl_8087F610) == 0) {
+                        lbl_8087F610->m508 = 900;
+                        if (D2ACommonDialog::sInstance->m4C == 0 || D2ACommonDialog::sInstance->fn_804AC734() != 0) {
+                            ShowTimeWarning_unk(this);
+                        }
+                    } else if (StartGame_unk() == true) {
+                        start = true;
+                    } else {
+                        lbl_8087F610->m508 = 900;
+                    }
+                } else if (fn_804EB2D8(lbl_8087F610) == 1 && fn_804EB26C(lbl_8087F610, 0) == 1) {
+                    int count = GetHostCount_unk();
+                    if (count == fn_804EAFD0(lbl_8087F610) && StartGame_unk() == true) {
+                        start = true;
+                    }
+                }
+            }
+            if (start == true) {
+                fn_804BC628(10);
+            }
+        }
+    } else if (decide == 2) {
+        fn_804BC628(4);
+    }
+    if (D2AMpMenu::sInstance->mC4 != 2) {
+        if (fn_800A555C(pad, 0, 2) != 0) {
+            fn_804E8A80(lbl_8087F610, 0xDF);
+        }
+        if (fn_800A555C(pad, 0, 3) != 0) {
+            fn_804E8A80(lbl_8087F610, 0xE0);
+        }
+    }
+    if (IsLoading_unk()) {
+        WaitLoading_unk(this);
+        return;
+    }
+    if (D2AMpMenu::sInstance->mC4 == 1 && fn_804EB26C(lbl_8087F610, 0) != 0 && fn_804EB2D8(lbl_8087F610) == 0 &&
+        (D2ACommonDialog::sInstance->m4C == 0 || D2ACommonDialog::sInstance->fn_804AC734() != 0)) {
+        ShowTimeWarning_unk(this);
+    }
+}
+
 // inferred: colors of the buttons of the face select: "start" (col0003) lit for the host when the players can
 // start, col0004 always lit, the index of the local player, and col0005 while the face can be changed
-// NONMATCHING: 99.7% - @stringBase0 offsets (pool order)
 void D2AMpMenuLobby::fn_804BF550() {
     if (fn_804EB1AC(lbl_8087F610) != 0) {
         if (mD88 == 6) {
@@ -405,7 +1031,6 @@ void D2AMpMenuLobby::fn_804BF550() {
 
 // inferred: flashes four parts of the lobby (face select colors 4 and 1, colors 3 and 4 of the profile of the
 // local player) while mDBC[i] counts from 0 to 10 (up to 0xFF and back, 0x33 per frame)
-// NONMATCHING: 99.8% - offsets of the strings until the functions before it are written
 void D2AMpMenuLobby::fn_804BF9AC() {
     for (int i = 0; i < 4; i++) {
         if (mDBC[i] == -1) {
@@ -425,6 +1050,103 @@ void D2AMpMenuLobby::fn_804BF9AC() {
             mDBC[i] = -1;
         }
     }
+}
+
+// inferred: places the parts of the slot on the pane rect `base` (the wait mark, or the profile with the face
+// mark, the two balloons and the ok mark); an inline member, so its literals are in .data
+inline void D2AMpMenuLobby::Player_unk::SetPos_unk(const MpRect_unk& base) {
+    MpRect_unk rect = base;
+    if (m18 != 0) {
+        fn_801F4728(mTasks[2], "pos0111(1)", &rect);
+    } else {
+        fn_801F4728(mTasks[0], "pos0001(1)(1)", &rect);
+        rect = GetPaneRect_unk(mTasks[0], "rank_null");
+        fn_801F4728(mTasks[1], "pos0026(1)", &rect);
+        rect = GetPaneRect_unk(mTasks[0], "fukidasi_null");
+        fn_801F4728(mTasks[3], "basePos", &rect);
+        fn_801F4728(mTasks[4], "basePos", &rect);
+        rect = base;
+        fn_801F4728(mTasks[5], "pos0001(1)(1)", &rect);
+    }
+}
+
+// inferred: places the slots of the players on the "profile_null0N" panes of the base: first the players
+// (with the cursor of the face selection in state 4 and the end of the balloons), then the waiting slots
+void D2AMpMenuLobby::fn_804BFB54() {
+    char name[0x40] = {0};
+    MpRect_unk rect;
+    int n = 0;
+    for (int i = 0; i < 6; i++) {
+        if (mPlayers[i].m18 != 0) {
+            continue;
+        }
+        sprintf(name, "profile_null0%d", n + 1);
+        n++;
+        rect = GetPaneRect_unk(m4C, name);
+        mPlayers[i].SetPos_unk(rect);
+        if (mD88 == 4 && i == mE60) {
+            rect = GetPaneRect_unk(mPlayers[i].mTasks[0], "rank_null");
+            fn_801F4728(m5C, "pos0003(1)", &rect);
+        }
+        if (mPlayers[i].m20 > 0) {
+            if (--mPlayers[i].m20 <= 0) {
+                mPlayers[i].m20 = 0;
+                mPlayers[i].m24 = 0;
+                Play_unk(mPlayers[i].mTasks[3], 0, -1.0f);
+                Play_unk(mPlayers[i].mTasks[4], 0, -1.0f);
+            }
+        }
+    }
+    for (int i = n; i < 6; i++) {
+        if (mPlayers[i].m18 == 0) {
+            continue;
+        }
+        sprintf(name, "profile_null0%d", n + 1);
+        n++;
+        rect = GetPaneRect_unk(m4C, name);
+        mPlayers[i].SetPos_unk(rect);
+    }
+}
+
+// inferred: for the guests, follows the rules of the host: when the game mode changes, sets the mode of the menu,
+// shows the message of the new mode and goes to state 4; then shows the rules on the base (time limit, healer,
+// the on/off rule and the minutes of the time limit)
+// NONMATCHING: 98.8% - registers of the message id (r4/r5) and of the layout/mode temporaries (r26/r27)
+void D2AMpMenuLobby::fn_804C0094() {
+    if (fn_804EB1AC(lbl_8087F610) == 1) {
+        return;
+    }
+    int mode = lbl_8087F610->m540;
+    if (mE74 != mode) {
+        if (mode == 0) {
+            D2AMpMenu::sInstance->mC4 = 3;
+            if (D2ACommonDialog::sInstance->m4C != 0 && D2ACommonDialog::sInstance->fn_804AC734() == 0) {
+                D2ACommonDialog::sInstance->fn_804AD738();
+            }
+            D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 1);
+            D2ACommonDialog::sInstance->fn_804ACD10();
+            D2ACommonDialog::sInstance->fn_804AD1EC(lbl_8087F86C->Get_unk(0xF9));
+            fn_804BC628(4);
+            Play_unk(m64, 0, -1.0f);
+        } else if (mode == 1) {
+            D2AMpMenu::sInstance->mC4 = 1;
+            if (D2ACommonDialog::sInstance->m4C != 0 && D2ACommonDialog::sInstance->fn_804AC734() == 0) {
+                D2ACommonDialog::sInstance->fn_804AD738();
+            }
+            D2ACommonDialog::sInstance->fn_804AC83C(0, 1.0f, 1);
+            D2ACommonDialog::sInstance->fn_804ACD10();
+            int id = 0xF4;
+            if (lbl_8087F628->m25C == 1) {
+                id = 0xF3;
+            }
+            const wchar_t* text = lbl_8087F86C->Get_unk(id);
+            D2ACommonDialog::sInstance->fn_804AD1EC(text);
+            fn_804BC628(4);
+            Play_unk(m64, 0, -1.0f);
+        }
+        mE74 = lbl_8087F610->m540;
+    }
+    ShowRules_unk(this);
 }
 
 // inferred: before the countdown, waits for the base animation to go back to its first frame and enters the
@@ -488,7 +1210,6 @@ void D2AMpMenuLobby::fn_804C0548() {
 
 // inferred: draw: freezes every task, then lets the ones of the state draw; with the debug flags of the
 // session, draws "everybody warrior" or "everybody mage" (Japanese) with a shadow
-// NONMATCHING: 97.9% - offsets in the wide string pool until the other wide strings of the file are written
 void D2AMpMenuLobby::vf14() {
     for (MpD2A_unk** it = &mTasks[0]; it != &mTasks[mTasks.size()]; it++) {
         if (*it != 0) {
@@ -563,7 +1284,8 @@ void D2AMpMenuLobby::vf14() {
 // inferred: draw of the lobby: the base, the logo of the game mode (texts cleared), and for every player slot
 // the profile, the face mark and the balloons (or the wait mark), with the ok mark in the color of the face
 // once the player is ready
-// NONMATCHING: 97.2% - wide and narrow string offsets; order of the shifts of the color
+// NONMATCHING: 97.5% - registers of the string pools and of the member search (as vf0C); order of the shifts
+// of the color
 void D2AMpMenuLobby::fn_804C0A40() {
     int mode = D2AMpMenu::sInstance->mC4;
     m4C->MeltTask();
@@ -627,7 +1349,6 @@ void D2AMpMenuLobby::fn_804C0EA4() {
 
 // inferred: help text of state 6 (waiting for the other players): the host may start once everybody answered,
 // the others see the name of the host; then the list and the players
-// NONMATCHING: 99.6% - only the name of the wide string pool (lbl_80790D74 / @wstringBase0) differs
 void D2AMpMenuLobby::fn_804C0F88() {
     bool host = fn_804EB1AC(lbl_8087F610) != 0;
     if (D2ACommonDialog::sInstance->m4C == 0) {
@@ -733,7 +1454,6 @@ void D2AMpMenuLobby::fn_804C1370() {
 
 // inferred: scrolls the names of the players in their balloons (after 30 frames, 1.5 per frame; back to the
 // start once the whole name went past)
-// NONMATCHING: 99.6% - offset of "message_0007" until the strings of the functions before it are written
 void D2AMpMenuLobby::fn_804C1634() {
     MpRect_unk pos;
     float scroll;
@@ -765,6 +1485,126 @@ void D2AMpMenuLobby::fn_804C1634() {
     }
 }
 
+// inferred: stops an anime on the frame `frame`
+static inline void StopAt_unk(MP::MpD2A_unk* task, float frame) {
+    if (task != 0) {
+        task->fn_800D246C(1);
+        task->mSpeed = -1.0f;
+        task->mFrame = frame;
+    }
+}
+
+// inferred: refreshes the player slots from the session: empty slots show the wait mark; the others the name,
+// the character, the rank, the voted map, the face (with the team color in versus) and the mark of the host
+// NONMATCHING: 95% - register allocation of the loop; the range check of the character is folded into one
+// unsigned compare here; (mode == 1) of "drawFlg1" is computed after the hash here
+void D2AMpMenuLobby::fn_804C18A8() {
+    atn::net::NetPlayerInfo_unk* server = lbl_8087F628->vf14(lbl_8087F628->GetServerAid_unk());
+    wchar_t text[64] = {0};
+    int mode = D2AMpMenu::sInstance->mC4;
+    for (int i = 0; i < 6; i++) {
+        if (i >= GetHostCount_unk()) {
+            mPlayers[i].m18 = 1;
+            mPlayers[i].m1C = 0;
+            mPlayers[i].m20 = 0;
+            mPlayers[i].m24 = 0;
+            Play_unk(mPlayers[i].mTasks[2], 0, 1.0f);
+            Stop_unk(mPlayers[i].mTasks[0]);
+            Stop_unk(mPlayers[i].mTasks[1]);
+            Stop_unk(mPlayers[i].mTasks[3]);
+            Stop_unk(mPlayers[i].mTasks[4]);
+            Stop_unk(mPlayers[i].mTasks[5]);
+            continue;
+        }
+        unsigned int aid = GetAid_unk(i);
+        atn::net::NetPlayerInfo_unk* info = lbl_8087F628->vf14(aid);
+        MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(aid);
+        fn_805075C4(&lbl_8087F610->m610, info != 0 ? info->m30 : 0);
+        if (member == 0) {
+            mPlayers[i].m18 = 1;
+            mPlayers[i].m1C = 0;
+            Play_unk(mPlayers[i].mTasks[2], 0, 1.0f);
+            Stop_unk(mPlayers[i].mTasks[0]);
+            Stop_unk(mPlayers[i].mTasks[1]);
+            Stop_unk(mPlayers[i].mTasks[3]);
+            Stop_unk(mPlayers[i].mTasks[4]);
+            Stop_unk(mPlayers[i].mTasks[5]);
+            continue;
+        }
+        if ((unsigned int)(mode - 2) <= 1) {
+            mPlayers[i].m1C = 2;
+        } else {
+            mPlayers[i].m1C = member->mD0_6;
+        }
+        mPlayers[i].m18 = 0;
+        int chara = member->mB0;
+        int map = member->mD0_22;
+        if (map >= fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540)) {
+            map = fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540);
+        }
+        if (member->mD0_1 == 1) {
+            mE60 = i;
+            chara = mE6C;
+            map = mE5C;
+            if (mD88 == 4) {
+                SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, 0.0f);
+                SetPaneValue_unk(mPlayers[mE60].mTasks[0]->mLayout, "pos0011_01(1)", 4, 0.0f);
+            }
+        } else {
+            SetPaneValue_unk(mPlayers[i].mTasks[0]->mLayout, "pos0010_01(1)(1)", 4, 200.0f);
+            SetPaneValue_unk(mPlayers[i].mTasks[0]->mLayout, "pos0011_01(1)", 4, 200.0f);
+            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0003(1)", 0, 0.0f);
+            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0004(1)", 0, 0.0f);
+        }
+        if (wcscmp(info->mName, L"") == 0) {
+            const wchar_t* none = lbl_8087F86C->Get_unk(0xCD);
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0027(2)", none);
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0007(1)(1)", L"");
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)(1)", L"");
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)", L"");
+            SetPaneFloat_unk(mPlayers[i].mTasks[1]->mLayout, "patternIndex", 0.0f);
+        } else {
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0027(2)", info->mName);
+            CharaInfo_unk* ci = fn_8020924C(chara + 0xAAE60);
+            if (chara == -1) {
+                fn_800DD3FC(text, lbl_8087F86C->Get_unk(0x2A));
+            } else if (chara >= 0 && chara < 26) {
+                fn_800DD3FC(text, ci->m04);
+            } else {
+                fn_800DD3FC(text, ci != 0 ? ci->m04 : L"");
+            }
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0007(1)(1)", text);
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)(1)", fn_804FA88C(lbl_8087F610, info->m30));
+            SetPaneText_unk(mPlayers[i].mTasks[0]->mLayout, "string0001(1)", fn_804FA7C8(lbl_8087F610, lbl_8087F610->m540, map));
+            int pattern = ci != 0 ? ci->m2C : 0;
+            SetPaneInt_unk(mPlayers[i].mTasks[1]->mLayout, "patternIndex", pattern);
+            SetPaneValue2Int_unk(mPlayers[i].mTasks[1]->mLayout, "col0006", 0, (unsigned char)(pattern == 0 ? 0xFF : 0));
+        }
+        if (info == server) {
+            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0001", 3, 180.0f);
+            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0027", 3, 180.0f);
+        } else {
+            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0001", 3, 255.0f);
+            SetPaneValue2_unk(mPlayers[i].mTasks[0]->mLayout, "col0027", 3, 255.0f);
+        }
+        SetPaneInt_unk(mPlayers[i].mTasks[1]->mLayout, "drawFlg1", mode == 1);
+        if (mode == 1) {
+            unsigned int color = 0xFFFFFFFF;
+            if (mPlayers[i].m1C == 2) {
+                color = 0xFF0096FF;
+            } else if (mPlayers[i].m1C == 1) {
+                color = 0xFFFF0000;
+            }
+            mPlayers[i].mTasks[1]->SetColor_unk("col0002(1)", color);
+        }
+        Play_unk(mPlayers[i].mTasks[0], 0, 1.0f);
+        Play_unk(mPlayers[i].mTasks[1], 0, 1.0f);
+        Play_unk(mPlayers[i].mTasks[5], 0, 1.0f);
+        mPlayers[i].mTasks[0]->mFrame = mPlayers[i].mTasks[0]->mLastFrame;
+        StopAt_unk(mPlayers[i].mTasks[2], mPlayers[i].mTasks[2]->mLastFrame);
+    }
+}
+
 void D2AMpMenuLobby::fn_804C2260(int v) { mDCC = v; }
 
 // inferred: shows the time left of the lobby (color index 1 is 255, 2 and 3 depend on the time: the original
@@ -785,6 +1625,75 @@ void D2AMpMenuLobby::fn_804C2268(int time) {
             task->mRepeat = 0;
         }
     }
+}
+
+// inferred: lottery of the map: the entries voted by the players (other than "random", the last one) take
+// part, or every entry when nobody voted; with a single entry it is set at once, otherwise the host draws one
+// (the guests take the one of the host) and the roulette runs for 60 frames
+// NONMATCHING: the fill of mE14 is unrolled 8x2 in the original (16 stores here); volatile registers of the
+// member search (as vf0C)
+void D2AMpMenuLobby::fn_804C23E4() {
+    int count = 0;
+    for (unsigned int i = 0; i < 16; i++) {
+        if ((int)i < fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540)) {
+            mDD4[i] = i;
+        } else {
+            mDD4[i] = -1;
+        }
+        mE14[i] = 0;
+    }
+    for (int i = 0; i < GetHostCount_unk(); i++) {
+        MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(GetAid_unk(i));
+        if (member != 0 && member->mD0_31 == 1) {
+            unsigned int map = member->mD0_22;
+            if (map != fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540) && mE14[map] == 0) {
+                mE14[map] = 1;
+                count++;
+            }
+        }
+    }
+    if (count <= 0) {
+        for (int i = 0; i < 16; i++) {
+            mE14[i] = 1;
+        }
+        count = fn_804EA5DC(lbl_8087F610, lbl_8087F610->m540);
+    }
+    if (count == 1) {
+        mE54 = 1;
+        for (int i = 0; i < 16; i++) {
+            if (mE14[i] != 0) {
+                MpLobbySession_unk* s = lbl_8087F610;
+                fn_804EA534(s, mDD4[i], fn_804EB1AC(s));
+                fn_804EB870(lbl_8087F610)->mD0_26 = mDD4[i];
+                fn_804C2994(mDD4[i]);
+                return;
+            }
+        }
+        return;
+    }
+    mE54 = 60;
+    int sel = 0;
+    if (fn_804EB1AC(lbl_8087F610) != 0) {
+        int r = rand() % count;
+        for (int i = 0; i < 16; i++) {
+            if (mE14[i] != 0) {
+                if (r <= 0) {
+                    sel = i;
+                    break;
+                }
+                r--;
+            }
+        }
+        fn_804EB870(lbl_8087F610)->mD0_26 = sel;
+    } else {
+        MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(lbl_8087F628->GetServerAid_unk());
+        if (member != 0) {
+            sel = member->mD0_26;
+        }
+    }
+    MpLobbySession_unk* s = lbl_8087F610;
+    fn_804EA534(s, mDD4[sel], fn_804EB1AC(s));
+    fn_804C2994(mDD4[sel]);
 }
 
 void D2AMpMenuLobby::fn_804C28A0(int count) {
@@ -848,8 +1757,7 @@ int D2AMpMenuLobby::fn_804C2C14() {
 
 // inferred: shows `text` in the balloon of the player `member` (kind 0: first balloon, 1: second one) for
 // frames + 30 frames (90 when no time is given), clearing the old text and opening the balloon
-// NONMATCHING: 90.8% - L"" is in the .sdata until the other wide strings of the file are written (the original
-// pools them in .data); the bounds test of the index
+// NONMATCHING: 98.3% - the bounds test of the index (blt + b in the original); registers
 void D2AMpMenuLobby::fn_804C2D5C(MpLobbyMember_unk* member, const wchar_t* text, int frames, int kind) {
     int index = GetAidIndex_unk(member->mCC);
     if (index < 0) {
