@@ -87,6 +87,7 @@ public:
     virtual void vf20();                                         // 0x80461520
     virtual void vf24();                                         // 0x804628B4
     virtual void vf3C(HitInfo_unk* hit);                         // 0x80460A94
+    virtual void vf40(HitInfo_unk* hit);                         // 0x80460B48
     virtual void vf50();                                         // 0x80460F18
     virtual void vf54(); // 0x80461398: inferred: places the hit spheres on the head, waist and spine
     virtual atn::Vector3 vf64(int center);                       // 0x80460EF0
@@ -108,6 +109,8 @@ public:
     void fn_80465B88(); // inferred: mode 16
     // inferred: a place to walk to was found (kind, position and angle)
     int fn_80468038(int* kind, atn::Vector3* pos, float* angle);
+    // inferred: of the two sides (base -/+ 90 degrees), the farthest free position at dist from `at`
+    void fn_80468534(atn::Vector3* pos, float* angle, const atn::Vector3& at, float base, float dist);
     void fn_80462CCC(atn::Matrix3x4* mtx, const atn::NodeChunk& node); // inferred: node matrix callback
     void fn_804635B4();
     void fn_804638A4(); // inferred: turns to m14B8, then the bullet 0x5B4 at frames 19-26
@@ -175,7 +178,7 @@ public:
     atn::Matrix3x4 m1858;
     atn::Matrix3x4 m1888;
     atn::Matrix3x4 m18B8;
-    unsigned char m18E8[0x18EC - 0x18E8];
+    int m18E8; // inferred: hit by the skill 0x5BA
     int m18EC;
     ResHandle m18F0; // inferred: debug menu group
     int m18F4;       // inferred: DebugDisp value

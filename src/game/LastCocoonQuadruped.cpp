@@ -187,6 +187,19 @@ struct QuadCollResult_unk {
 extern "C" int fn_8004ED34(void* colli, QuadCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
+// inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
+// (as in game/Em208Queen.cpp)
+inline RoutePlace_unk* FindQuadPlace_unk(int id) {
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
+        RoutePlace_unk* places = table->mPlaces;
+        if (id == places[i].mId) {
+            return &places[i];
+        }
+    }
+    return 0;
+}
+
 inline void LastCocoonQuadruped::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
@@ -462,6 +475,42 @@ void LastCocoonQuadruped::vf3C(HitInfo_unk* hit) {
     }
 }
 
+// NONMATCHING: 99.9% - r5/r6 of the rotation temporary and of m14E0 swapped
+void LastCocoonQuadruped::vf40(HitInfo_unk* hit) {
+    HitMsg_unk* msg = (HitMsg_unk*)hit;
+    int down = 0;
+    if (m58C == 13 && ++m15A8 > 3) {
+        down = 1;
+    }
+    if (down) {
+        SetMode_unk(14);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x148, 0, 0, 1, 0.0f, 0.1f);
+        if (m1574 != 0) {
+            m1574->fn_8015B238();
+            m1574 = 0;
+        }
+        fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
+    }
+    if (msg->mData->m04 == 0x5BA) {
+        m18E8 = 1;
+    }
+    float rate = mStatus.mParamB.m84 > 0 ? mStatus.m04 / (float)mStatus.mParamB.m84 : 0.0f;
+    if (rate < 0.5f) {
+        m14C4 = 7;
+        RoutePlace_unk* place = FindQuadPlace_unk(600);
+        if (place != 0) {
+            m14D4 = place->mPos;
+            m14E0 = atn::Vector3(0.0f, place->m14, 0.0f);
+            fn_80466B8C();
+        } else {
+            fn_80466A04();
+        }
+    }
+}
+
 atn::Vector3 LastCocoonQuadruped::vf64(int center) {
     atn::Vector3 result = mPos;
     result = m624.mData[0].m04.mCenter;
@@ -610,6 +659,86 @@ void LastCocoonQuadruped::vf24() {
         mMotion.fn_80097C08(2, m484[3], 1, 0, 1, 0.0f, 0.1f);
         mMotion.mTracks[2].m0C = runSpeed;
         mMotion.mTracks[2].m20 = w;
+    }
+}
+
+// inferred: m = m * rotation(r) z, y, x (as in game/QuadrupedTask.cpp and game/Em403WarLion.cpp; name
+// invented)
+inline atn::Matrix3x4& QuadRotationZYX_unk(atn::Matrix3x4& m, const atn::Vector3& r) {
+    m.SetIdentity();
+    if (r.z != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'z', r.z);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.y != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'y', r.y);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    if (r.x != 0.0f) {
+        Mtx t;
+        Mtx a;
+        PSMTXRotRad(a, 'x', r.x);
+        PSMTXConcat(m.m, a, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
+// inferred: turns the neck with the lean, the waist and the spine with m15CC.y (node matrix callback)
+// NONMATCHING: 99.2% - as QuadrupedTask::fn_805688CC (register of the node, stack of the matrices)
+void LastCocoonQuadruped::fn_80462CCC(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk) {
+    ModelNodeDesc_unk* node = (ModelNodeDesc_unk*)&chunk;
+    if (mLook.fn_8012A288(mtx, node) != 0) {
+        return;
+    }
+    const char* name = node->mName;
+    if (strcmp(name, "neck") == 0) {
+        if (m648 == 0) {
+            atn::Vector3 pos = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            Mtx r;
+            PSMTXRotRad(r, 'z', m580 - 0.7f * m584);
+            PSMTXConcat(r, mtx->m, mtx->m);
+            mtx->m[0][3] = pos.x;
+            mtx->m[1][3] = pos.y;
+            mtx->m[2][3] = pos.z;
+        }
+    } else if (strcmp(name, "waist") == 0) {
+        if (m55C != 8) {
+            atn::Vector3 pos = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            atn::Vector3 rot(m15CC.y, 0.0f, 0.1f * m15CC.y);
+            atn::Matrix3x4 r;
+            QuadRotationZYX_unk(r, rot);
+            PSMTXConcat(r.m, mtx->m, mtx->m);
+            mtx->m[0][3] = pos.x;
+            mtx->m[1][3] = pos.y;
+            mtx->m[2][3] = pos.z;
+        }
+    } else if (strcmp(name, "spine") == 0) {
+        if (m55C != 8) {
+            atn::Vector3 pos = mtx->GetTrans_unk();
+            mtx->m[0][3] = 0.0f;
+            mtx->m[1][3] = 0.0f;
+            mtx->m[2][3] = 0.0f;
+            atn::Vector3 rot(0.0f, 0.0f, 0.3f * m15CC.y);
+            atn::Matrix3x4 r;
+            QuadRotationZYX_unk(r, rot);
+            PSMTXConcat(r.m, mtx->m, mtx->m);
+            mtx->m[0][3] = pos.x;
+            mtx->m[1][3] = pos.y;
+            mtx->m[2][3] = pos.z;
+        }
     }
 }
 
@@ -999,18 +1128,6 @@ void LastCocoonQuadruped::fn_80466B8C() {
     PlayEfp_unk(&m1790, &mMotion);
 }
 
-// inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
-// (as in game/Em208Queen.cpp)
-inline RoutePlace_unk* FindQuadPlace_unk(int id) {
-    RouteTable_unk* table = lbl_8087F430->m10D8;
-    for (unsigned int i = 0; i < table->mNumPlaces; i++) {
-        RoutePlace_unk* places = table->mPlaces;
-        if (id == places[i].mId) {
-            return &places[i];
-        }
-    }
-    return 0;
-}
 
 // inferred: modes 10 and 11: walk along the route, facing its start
 void LastCocoonQuadruped::fn_80466CA4() {
@@ -1071,6 +1188,42 @@ void LastCocoonQuadruped::fn_80467F50() {
     mMotion.fn_80097C08(0, 0x14A, 0, 0, 1, 0.0f, 0.1f);
     fn_80239DAC(lbl_8087F3C0, this, 1000, 0);
     fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
+}
+
+extern "C" int fn_8004D388(void* world, QuadCollResult_unk* result, const atn::Vector3* from,
+                           const atn::Vector3* to, unsigned int mask, void* ignore, int arg,
+                           float radius); // inferred: sphere sweep
+
+// NONMATCHING: 99.6% - r28/r29 of the rotated vector and of the direction swapped
+void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn::Vector3& at, float base,
+                                      float dist) {
+    atn::Vector3 dir;
+    dir.z = dist;
+    QuadCollResult_unk result;
+    atn::Vector3 from = at;
+    dir.x = 0.0f;
+    from.y += m620;
+    dir.y = 0.0f;
+    float best = 0.0f;
+    float yaw = mRot.y;
+    atn::Vector3 bestPos;
+    for (int i = 0; i < 2; i++) {
+        float a = base + 3.1415927f * i - 1.5707964f;
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(a);
+        atn::Vector3 v = dir;
+        PSMTXMultVec(m.m, &v, &v);
+        fn_8004D388(lbl_8087EE98, &result, &from, &v, 0x80000000, &mColli, 0, m620);
+        v = result.m10;
+        float sq = LengthSq_unk(v - from);
+        if (sq > best) {
+            yaw = atn::WrapAngle_unk(3.1415927f + a);
+            best = sq;
+            bestPos = v;
+        }
+    }
+    *pos = bestPos;
+    *angle = yaw;
 }
 
 // NONMATCHING: 99.8% - the two compares with the table are emitted as cmpw arg, entry (entry, arg in

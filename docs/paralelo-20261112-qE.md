@@ -8,10 +8,21 @@ Inicio: 2026-11-12 16:10 (reloj del contenedor). Rama `agent-E`.
   invoker/manager de boost::function 0x80460374/0x804603A0 (100 %/99,6), vf10 0x80460458 (92 %),
   fn_80463174 (100 %), fn_804635A4/AC (100 %), fn_80463610 (99,96: cadena), fn_80463F20/fn_80464608
   (99,9: ranuras de pila), fn_80466CA4/fn_804672CC (100 %), fn_80467F50 (99,9: pool), fn_80468B68 (19,6 %).
-- 100 %: 25 -> 35 de 54.
+- Segunda tanda: vf40 0x80460B48 (99,9: r5/r6), fn_80462CCC callback de nodos (99,2: como
+  QuadrupedTask::fn_805688CC), fn_80468534 (99,6: r28/r29).
+- 100 %: 25 -> 38 de 54. Sin escribir: 9 -> 6 (fn_80461838, fn_80462038, fn_80464CF0, fn_804655AC,
+  fn_80465B88, fn_80468038).
 - NONMATCHING: vf10 (presupuesto de inlining R3 del original), fn_80468B68 (el original queda por encima
   del presupuesto: llama a las copias de Vector3 y a FindPlace_unk; los auxiliares de std::vector son
   copias debiles de Em403WarLion con nombre C).
+
+## game/LastCocoonEgg
+
+- fn_8045817C (menu de depuracion, 99,5: solo offsets de cadenas, falta el resto del pool). Las copias
+  debiles fn_80453C88/fn_80453DB4/fn_80453DBC (y fn_80454554/64) solo existen porque vf0C/vf10 estan
+  por encima del presupuesto: hay que escribirlas con esas funciones.
+- Etiquetas @11773/@11775/@11998 renombradas a mano (@11800/@11802/@12025): pairdata las da por ambiguas
+  aunque el pool coincide por posicion.
 
 ## Decisiones tomadas sin el usuario
 
