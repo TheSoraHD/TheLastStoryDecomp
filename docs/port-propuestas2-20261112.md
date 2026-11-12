@@ -11,12 +11,13 @@ el tipo tiene que ser exactamente `size_t` o tan ancho como un puntero:
 
 - el tamano de `operator new` (`std/msl_common.h`; las versiones con `MemoryTag` de `atn/Memory.h`;
   las cuatro definiciones de `atn/SmallAllocator_8.cpp`);
+- el `new` de colocacion de `std/new.h` (anadido en la revision);
 - las palabras de `std::basic_string` (`Long`, `Raw`, `__zero`), en `std/string.h`.
 
 Un typedef se mangla como su tipo (`__nw__FUl`), asi que MWCC genera lo mismo. En Windows de 64 bits
 `size_t` es `unsigned long long` y `unsigned long` mide 32 bits: `operator new(unsigned long)` no
 compila alli, y la `std::string` dejaba de ser tan ancha como sus punteros. Con el typedef, el port
-cambia una linea en vez de esos siete sitios.
+cambia una linea en vez de esos nueve sitios.
 
 No se cambia el `Flags` de `std::string` (campo de bits 1 + 31 de la Wii), ni las ~190
 redeclaraciones `extern "C"` de `memset`/`memcpy`/`strncmp`... con `unsigned long`: el port las
