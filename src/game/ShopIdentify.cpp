@@ -130,18 +130,6 @@ extern "C" void fn_804A3C24(MenuCommonTask* menu, const wchar_t* text, int id);
 extern "C" void fn_804A7DD4(MenuCommonTask* menu, int item);
 extern "C" void fn_804A39EC(ShopD2A_unk* anime, int arg1, int repeat, float frame, float speed);
 extern "C" void fn_804A3A68(ShopLayout_unk* layout, int arg1, int repeat, float frame, float speed);
-// inferred: weak copy of an MSL vector insertion helper (0x8058A3AC, called with the position, the value and
-// a tag); not reconstructed
-extern "C" void fn_8058A3AC(std::vector<ShopIdentifyEntry_unk>* v, ShopIdentifyEntry_unk* pos,
-                            const ShopIdentifyEntry_unk* x, const char* tag);
-
-// inferred: inlined vector::insert (name invented)
-inline void Insert_unk(std::vector<ShopIdentifyEntry_unk>& v, ShopIdentifyEntry_unk* pos,
-                       const ShopIdentifyEntry_unk& x) {
-    char tag = 0;
-    fn_8058A3AC(&v, pos, &x, &tag);
-}
-
 ShopIdentify* ShopIdentify::sInstance;
 
 ShopIdentify* ShopIdentify::fn_80588684(atn::Task* parent, int a, int b) {
@@ -178,7 +166,7 @@ inline void ShopIdentify::ReadItems_unk() {
         entry.mItem = fn_8044D500(party, i);
         entry.mDone = 0;
         entry.mPrice = fn_80584F44(fn_80211480(entry.mItem), 1.0f);
-        Insert_unk(mItems, mItems.begin(), entry);
+        mItems.insert(mItems.begin(), entry);
     }
 }
 
