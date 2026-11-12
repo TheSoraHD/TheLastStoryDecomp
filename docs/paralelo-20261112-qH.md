@@ -9,6 +9,8 @@ Inicio: 2026-11-12 17:20 CET. Rama `agent-H`.
 - `game/EnemyQuarkSecond`: `fn_8033A7A0` (antes 0 %, escrita) al 100 % (43 -> 44/70).
 - `game/Em316LastLaser`: al 0 % 5 -> 0; `fn_8031CA30`, `fn_8031D350` y `LaserTrace::fn_8031E8BC` al 100 %
   (8 -> 11/19); `fn_8031D6DC` 98,4 % y `fn_8031E078` 98,9 % (NONMATCHING: marco 0x10 menor).
+- `game/Em206CocoonMp`: al 0 % 6 -> 5; `vf104` escrita (NONMATCHING 99,9 %: nombres de las relocalizaciones del
+  ctor/dtor de la lista y un registro de float). 27/39 al 100 % (sin cambios).
 
 ## Decisiones tomadas sin el usuario
 
@@ -28,6 +30,13 @@ Inicio: 2026-11-12 17:20 CET. Rama `agent-H`.
   fn_8031D350 y fn_8031E8BC). `lbl_80884E34..E40` pasan a `@N` locales. `TargetDist_unk` (distancia a "spine1"
   de vf10) pasa a `static inline SpineDist_unk` (su literal va en `@stringBase0`); la declaracion del miembro se queda
   sin definir en la cabecera para no mover los `@N` de SpecialEnemyBase/SpecialEnemyFactory_unk.
+- Em206CocoonMp `vf104`: lista de candidatos como `std::vector<EnemyTask*>` (el original llama a `fn_802A4170` y a
+  `__dt__18NecroPlaceList_unkFv` 0x80244674; ese nombre de Em001 parece erroneo, lo llaman tambien GameTask y
+  Em203GreaterDaemonRedMp con `push_back` de `vector<EnemyTask*>`: **pendiente** renombrarlo, toca otras colas).
+  Con el indice en un local sale todo igual salvo esos nombres, pero `report.json` la cuenta al 100 % y objdiff-cli
+  no (REP+): se deja la forma con `CharaTask* t` (99,9 %). `fn_802BEE44`/`fn_802BF5C0` declaradas como miembros
+  (renombradas en `symbols.txt` a su nombre mangled); se incluye `game/PlayerManager.h`. 300 asserts vacios en
+  `fn_800E0AB0` (copia weak).
 
 ## Hallazgos
 
