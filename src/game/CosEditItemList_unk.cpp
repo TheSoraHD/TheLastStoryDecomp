@@ -17,8 +17,7 @@
 
 // Third file of CosEditProtector (inferred file name, game/CosEditProtector.cpp and
 // game/CosEditPalette_unk.cpp have the rest): the equipment lists of the costume menu (states 0, 2,
-// 3, 11-13) and their item lists. The std::sort copies and the list helpers of the file are not
-// written yet.
+// 3, 11-13), their item lists and the std::sort copies of the lists.
 
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s);          // inferred: string hash
@@ -486,31 +485,266 @@ extern "C" int fn_802114D8();                          // inferred: number of en
 extern "C" CosEditListParam_unk* fn_802114E0(int index); // inferred: entry by index
 extern "C" bool fn_8020F0AC(EquipParamEntry_unk* entry, int member); // inferred: whether the member can wear it
 extern "C" int fn_804444E8(Inventory* inv, int id);                   // inferred: number of items
-// inferred: predicates of the three std::sort of the lists (by kind; for the members who wear armour; for the
-// others)
-struct CosEditKindLess_unk {};
-struct CosEditArmourLess_unk {};
-struct CosEditRobeLess_unk {};
-// inferred: the std::sort instantiations of this unit (their template internals are not reconstructed)
-extern "C" void fn_801DF3D4(CosEditItem_unk** first, CosEditItem_unk** last, CosEditKindLess_unk* comp);
-extern "C" void fn_801DA308(CosEditItem_unk** first, CosEditItem_unk** last, CosEditArmourLess_unk* comp);
-extern "C" void fn_801DD7B0(CosEditItem_unk** first, CosEditItem_unk** last, CosEditRobeLess_unk* comp);
-// inferred: std::sort(list.begin(), list.end(), Pred()) (the arguments are evaluated from the last one)
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditKindLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801DF3D4(&first, &last, &comp);
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+
+// inferred: random access iterator of the equipment lists (a class holding the element pointer: std::sort
+// gets it by address and calls its operators out of line when it is over the inlining budget, weak copies
+// 0x801DBAC0-0x801DC07C); names invented
+template <class T>
+struct CosEditIter_unk {
+    CosEditIter_unk& operator=(const CosEditIter_unk& other) {
+        mPtr = other.mPtr;
+        return *this;
+    }
+    T& operator*() const { return *mPtr; }
+    CosEditIter_unk& operator++() {
+        mPtr++;
+        return *this;
+    }
+    CosEditIter_unk& operator--() {
+        mPtr--;
+        return *this;
+    }
+    CosEditIter_unk operator+(int n) const {
+        CosEditIter_unk it = {mPtr + n};
+        return it;
+    }
+    CosEditIter_unk operator-(int n) const {
+        CosEditIter_unk it = {mPtr - n};
+        return it;
+    }
+    T* mPtr;
+};
+template <class T>
+inline int operator-(const CosEditIter_unk<T>& a, const CosEditIter_unk<T>& b) {
+    return a.mPtr - b.mPtr;
 }
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditArmourLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801DA308(&first, &last, &comp);
+template <class T>
+inline bool operator==(const CosEditIter_unk<T>& a, const CosEditIter_unk<T>& b) {
+    return a.mPtr == b.mPtr;
 }
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditRobeLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801DD7B0(&first, &last, &comp);
+template <class T>
+inline bool operator!=(const CosEditIter_unk<T>& a, const CosEditIter_unk<T>& b) {
+    return a.mPtr != b.mPtr;
 }
+template <class T>
+inline bool operator<(const CosEditIter_unk<T>& a, const CosEditIter_unk<T>& b) {
+    return a.mPtr < b.mPtr;
+}
+template <class T>
+inline bool operator>=(const CosEditIter_unk<T>& a, const CosEditIter_unk<T>& b) {
+    return a.mPtr >= b.mPtr;
+}
+
+template <class T>
+inline void CosEditSwap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
+// inferred: comparison by reference in the recursive copies of the sort (as game/CharaTask.cpp)
+template <class T>
+struct CosEditRef_unk {
+    typedef T& type;
+};
+template <class T>
+struct CosEditRef_unk<T&> {
+    typedef T& type;
+};
+
+// inferred: median of three of the quicksort below (MSL __sort; see game/CharaTask.cpp)
+// NONMATCHING: 86-98% (registers); 32-40% with the out-of-line predicates (iterator operators inlined)
+template <class Iter, class Compare>
+void CosEditMedian3_unk(Iter a, Iter b, Iter c, Compare& comp) {
+    bool ca = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
+    if (ca && bc) {
+        return;
+    }
+    if (!ca && !bc) {
+        CosEditSwap_unk(*a, *b);
+    } else {
+        if (comp(*b, *a)) {
+            CosEditSwap_unk(*a, *b);
+        }
+        if (ca) {
+            CosEditSwap_unk(*b, *c);
+        } else {
+            CosEditSwap_unk(*a, *c);
+        }
+    }
+}
+
+// inferred: selection sort of the short ranges (MSL __selection_sort)
+template <class Iter, class Compare>
+inline void CosEditSelectionSort_unk(Iter first, Iter last, Compare& comp) {
+    if (first != last) {
+        for (Iter end = last - 1; first != end; ++first) {
+            Iter min = first;
+            if (first != last) {
+                Iter it = first + 1;
+                for (; it != last; ++it) {
+                    if (comp(*it, *min)) {
+                        min = it;
+                    }
+                }
+            }
+            if (min != first) {
+                CosEditSwap_unk(*min, *first);
+            }
+        }
+    }
+}
+
+// inferred: MSL __sort of the lists (quicksort with a selection sort below 21 elements, the pivots move with
+// a counter of each instantiation; as game/CharaTask.cpp Sort_unk)
+// NONMATCHING: 87-94% with the inline predicates (registers and scheduling); 3% with the out-of-line ones
+// (0x801DF3D4, 0x801E4E64: the original is over the inlining budget and calls the iterator operators, the
+// selection sort 0x801E057C/0x801E610C and the median out of line, weak copies 0x801DBAC0-0x801DC07C; here
+// they are inlined). The weapon list (mB4C) has its own weak copies in the original (0x801E26B4-0x801E2D68,
+// another element type); here it shares the type of the protector lists
+template <class Iter, class Compare>
+void CosEditSort_unk(Iter first, Iter last, Compare comp) {
+    typedef typename CosEditRef_unk<Compare>::type CompareRef;
+    static int sOffset; // inferred: lbl_8087DA70.. (one per instantiation), -4 to 4
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            CosEditSelectionSort_unk(first, last, comp);
+            return;
+        }
+        Iter i = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        Iter j = first + (n * 3 / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        Iter pivot = last - 1;
+        CosEditMedian3_unk(i, j, pivot, comp);
+        i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            ++i;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            CosEditSwap_unk(*i, *j);
+            ++i;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    ++i;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                CosEditSwap_unk(*i, *j);
+                ++i;
+            }
+        }
+        if (i == first) {
+            Iter back = last - 1;
+            CosEditSwap_unk(*i, *pivot);
+            ++i;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    ++i;
+                }
+                if (i < back) {
+                    CosEditSwap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        ++i;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    CosEditSwap_unk(*i, *j);
+                    ++i;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            CosEditSort_unk<Iter, CompareRef>(first, i, comp);
+            first = i;
+        } else {
+            CosEditSort_unk<Iter, CompareRef>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+typedef CosEditIter_unk<CosEditItem_unk> CosEditItemIter_unk;
+// inferred: begin() and end() of the lists as iterators (weak copies 0x801DC410 and 0x801DC418)
+inline CosEditItemIter_unk CosEditBegin_unk(std::vector<CosEditItem_unk>& list) {
+    CosEditItemIter_unk it = {list.begin()};
+    return it;
+}
+inline CosEditItemIter_unk CosEditEnd_unk(std::vector<CosEditItem_unk>& list) {
+    CosEditItemIter_unk it = {list.end()};
+    return it;
+}
+
+// inferred: predicates of the std::sort of the lists: by kind (out of line, below), for the members who wear
+// armour (physical defence first) and for the others (magic defence first); the members' own pieces first,
+// then by value and name
+struct CosEditEquipLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
+};
+struct CosEditArmourLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+        if (a.mIndex == b.mIndex) {
+            if (a.mOwner >= 0 && b.mOwner >= 0) {
+                return a.mOwner < b.mOwner;
+            }
+            if (a.mOwner >= 0) {
+                return true;
+            }
+            return false;
+        }
+        float va = ((EquipParamEntry_unk*)a.mItem)->m08;
+        float vb = ((EquipParamEntry_unk*)b.mItem)->m08;
+        if ((float)__fabs(va - vb) < 1.1920929e-7f) {
+            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem)))->mName,
+                          ((CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem)))->mName) < 0;
+        }
+        return va > vb;
+    }
+};
+struct CosEditRobeLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+        if (a.mIndex == b.mIndex) {
+            if (a.mOwner >= 0 && b.mOwner >= 0) {
+                return a.mOwner < b.mOwner;
+            }
+            if (a.mOwner >= 0) {
+                return true;
+            }
+            return false;
+        }
+        float va = ((EquipParamEntry_unk*)a.mItem)->m0C;
+        float vb = ((EquipParamEntry_unk*)b.mItem)->m0C;
+        if ((float)__fabs(va - vb) < 1.1920929e-7f) {
+            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem)))->mName,
+                          ((CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem)))->mName) < 0;
+        }
+        return va > vb;
+    }
+};
 
 // inferred: inserts at the front of a member list (name invented)
 inline void PushFront_unk(atn::FixedArray_unk<NewCampPair_unk*, 8>& list, NewCampPair_unk* pair) {
@@ -666,7 +900,7 @@ void CosEditProtector::fn_801D94D0() {
             }
             CosEditItem_unk* best = 0;
             if (m1C90.size() != 0) {
-                SortList_unk(m1C90, CosEditArmourLess_unk());
+                CosEditSort_unk(CosEditBegin_unk(m1C90), CosEditEnd_unk(m1C90), CosEditArmourLess_unk());
                 best = m1C90.begin();
                 for (int i = m1C0C.size() - 1; i >= 0; i--) {
                     int id = m1C0C[i]->mId;
@@ -692,7 +926,7 @@ void CosEditProtector::fn_801D94D0() {
                 }
             }
             if (found == 0 && m1C9C.size() != 0) {
-                SortList_unk(m1C9C, CosEditArmourLess_unk());
+                CosEditSort_unk(CosEditBegin_unk(m1C9C), CosEditEnd_unk(m1C9C), CosEditArmourLess_unk());
                 best = m1C9C.begin();
                 for (int i = m1C0C.size() - 1; i >= 0; i--) {
                     int id = m1C0C[i]->mId;
@@ -1203,9 +1437,8 @@ CosEditItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, int slot
 // inferred: builds the lists of the two protector slots for the member: the pieces worn by the party
 // (enabled when both can swap them), then the free pieces of the inventory that the member can wear
 // (one entry per item, after the worn copies of the same piece); finally sorts them
-// NONMATCHING: 83.5% - the original is over the inlining budget (R3: vector/FixedArray accessors, the
-// CosEditItem_unk constructor 0x801D8C90, begin/end called out of line); the std::sort templates are not
-// reconstructed
+// NONMATCHING: 94.7% - the original is over the inlining budget (R3: vector/FixedArray accessors and the
+// CosEditItem_unk constructor 0x801D8C90 called out of line)
 void CosEditProtector::fn_801DD26C(int member) {
     std::vector<CosEditItem_unk> worn[2];
     for (int i = 0; i < 2; i++) {
@@ -1295,16 +1528,16 @@ void CosEditProtector::fn_801DD26C(int member) {
         }
         switch (mB7C) {
         case 1:
-            SortList_unk(mB34[0], CosEditKindLess_unk());
-            SortList_unk(mB34[1], CosEditKindLess_unk());
+            CosEditSort_unk(CosEditBegin_unk(mB34[0]), CosEditEnd_unk(mB34[0]), CosEditEquipLess_unk());
+            CosEditSort_unk(CosEditBegin_unk(mB34[1]), CosEditEnd_unk(mB34[1]), CosEditEquipLess_unk());
             break;
         case 0:
             if (member == 0 || member == 2 || member == 3 || member == 6) {
-                SortList_unk(mB34[0], CosEditArmourLess_unk());
-                SortList_unk(mB34[1], CosEditArmourLess_unk());
+                CosEditSort_unk(CosEditBegin_unk(mB34[0]), CosEditEnd_unk(mB34[0]), CosEditArmourLess_unk());
+                CosEditSort_unk(CosEditBegin_unk(mB34[1]), CosEditEnd_unk(mB34[1]), CosEditArmourLess_unk());
             } else if (member == 1 || member == 4 || member == 5) {
-                SortList_unk(mB34[0], CosEditRobeLess_unk());
-                SortList_unk(mB34[1], CosEditRobeLess_unk());
+                CosEditSort_unk(CosEditBegin_unk(mB34[0]), CosEditEnd_unk(mB34[0]), CosEditRobeLess_unk());
+                CosEditSort_unk(CosEditBegin_unk(mB34[1]), CosEditEnd_unk(mB34[1]), CosEditRobeLess_unk());
             }
             break;
         }
@@ -1317,10 +1550,6 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 
 // inferred: order of the equipment list (std::sort predicate): items worn first (by member), then
 // by name without the "+n" suffix, the shorter name first; names invented
-struct CosEditEquipLess_unk {
-    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
-};
-
 bool CosEditEquipLess_unk::operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
     if (a.mIndex == b.mIndex) {
         if (a.mOwner >= 0 && b.mOwner >= 0) {
@@ -1357,36 +1586,69 @@ bool CosEditEquipLess_unk::operator()(const CosEditItem_unk& a, const CosEditIte
 
 extern "C" bool fn_80206B9C(int code);                 // inferred: whether an item code is a weapon
 extern "C" int fn_8044453C(Inventory* inv, int index); // inferred: number of items of an entry of the item table
-// inferred: predicates of the three std::sort of the weapon list
-struct CosEditWeaponKindLess_unk {};
-struct CosEditWeaponArmourLess_unk {};
-struct CosEditWeaponRobeLess_unk {};
-extern "C" void fn_801E4E64(CosEditItem_unk** first, CosEditItem_unk** last, CosEditWeaponKindLess_unk* comp);
-extern "C" void fn_801E2D78(CosEditItem_unk** first, CosEditItem_unk** last, CosEditWeaponArmourLess_unk* comp);
-extern "C" void fn_801E0B0C(CosEditItem_unk** first, CosEditItem_unk** last, CosEditWeaponRobeLess_unk* comp);
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditWeaponKindLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801E4E64(&first, &last, &comp);
-}
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditWeaponArmourLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801E2D78(&first, &last, &comp);
-}
-inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditWeaponRobeLess_unk comp) {
-    CosEditItem_unk* last = list.end();
-    CosEditItem_unk* first = list.begin();
-    fn_801E0B0C(&first, &last, &comp);
-}
+// inferred: weapon data (only the attack values are read)
+struct CosEditWeaponStat_unk {
+    float mAttack; // 0x00
+    float mMagic;  // 0x04
+};
+// inferred: predicates of the std::sort of the weapon list: by kind (out of line, below), for the members who
+// wear armour (attack first) and for the others (magic first); the members' own weapons first
+struct CosEditArmorLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
+};
+struct CosEditWeaponArmourLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+        if (a.mId == b.mId) {
+            if (a.mOwner >= 0 && b.mOwner >= 0) {
+                if (a.mOwner == b.mOwner) {
+                    return a.m14 < b.m14;
+                }
+                return a.mOwner < b.mOwner;
+            }
+            if (a.mOwner >= 0) {
+                return true;
+            }
+            return false;
+        }
+        float va = ((CosEditWeaponStat_unk*)a.mItem)->mAttack;
+        float vb = ((CosEditWeaponStat_unk*)b.mItem)->mAttack;
+        if ((float)__fabs(va - vb) < 1.1920929e-7f) {
+            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem)))->mName,
+                          ((CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem)))->mName) < 0;
+        }
+        return va > vb;
+    }
+};
+struct CosEditWeaponRobeLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+        if (a.mId == b.mId) {
+            if (a.mOwner >= 0 && b.mOwner >= 0) {
+                if (a.mOwner == b.mOwner) {
+                    return a.m14 < b.m14;
+                }
+                return a.mOwner < b.mOwner;
+            }
+            if (a.mOwner >= 0) {
+                return true;
+            }
+            return false;
+        }
+        float va = ((CosEditWeaponStat_unk*)a.mItem)->mMagic;
+        float vb = ((CosEditWeaponStat_unk*)b.mItem)->mMagic;
+        if ((float)__fabs(va - vb) < 1.1920929e-7f) {
+            return wcscmp(((CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem)))->mName,
+                          ((CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem)))->mName) < 0;
+        }
+        return va > vb;
+    }
+};
 
 // inferred: builds the weapon list of the hand for the member: the weapons worn by the party (mB58, enabled
 // when both can swap them), then the free weapons of the inventory that the member can hold (one entry per
 // item, after the worn copies of the same weapon); finally sorts it
 // NONMATCHING: 0% - the original is over the inlining budget (R3: every vector accessor, clear, push_back and
 // begin/end called out of line, other weak copies than those of mB34: the weapon entries are probably
-// another type, without constructor); here everything is inlined. The std::sort templates are not
-// reconstructed
+// another type, without constructor); here everything is inlined
 void CosEditProtector::fn_801E07A4(int member, int slot) {
     mB4C.clear();
     mB58.clear();
@@ -1451,13 +1713,13 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
     }
     switch (mB80) {
     case 1:
-        SortList_unk(mB4C, CosEditWeaponKindLess_unk());
+        CosEditSort_unk(CosEditBegin_unk(mB4C), CosEditEnd_unk(mB4C), CosEditArmorLess_unk());
         break;
     case 0:
         if (member == 0 || member == 2 || member == 3 || member == 6) {
-            SortList_unk(mB4C, CosEditWeaponArmourLess_unk());
+            CosEditSort_unk(CosEditBegin_unk(mB4C), CosEditEnd_unk(mB4C), CosEditWeaponArmourLess_unk());
         } else if (member == 1 || member == 4 || member == 5) {
-            SortList_unk(mB4C, CosEditWeaponRobeLess_unk());
+            CosEditSort_unk(CosEditBegin_unk(mB4C), CosEditEnd_unk(mB4C), CosEditWeaponRobeLess_unk());
         }
         break;
     }
@@ -1465,10 +1727,6 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
 
 // inferred: order of the protector list: same item, worn first (by member, then by slot), then by name
 // as CosEditEquipLess_unk
-struct CosEditArmorLess_unk {
-    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
-};
-
 bool CosEditArmorLess_unk::operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
     if (a.mId == b.mId) {
         if (a.mOwner >= 0 && b.mOwner >= 0) {
