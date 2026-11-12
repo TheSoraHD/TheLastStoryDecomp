@@ -921,6 +921,93 @@ CosEditItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, int slot
     return 0;
 }
 
+extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" unsigned long wcslen(const wchar_t* s);
+
+// inferred: order of the equipment list (std::sort predicate): items worn first (by member), then
+// by name without the "+n" suffix, the shorter name first; names invented
+struct CosEditEquipLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
+};
+
+bool CosEditEquipLess_unk::operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+    if (a.mIndex == b.mIndex) {
+        if (a.mOwner >= 0 && b.mOwner >= 0) {
+            return a.mOwner < b.mOwner;
+        }
+        if (a.mOwner >= 0) {
+            return true;
+        }
+        return false;
+    }
+    CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
+    CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
+    wchar_t sa[64];
+    fn_800DD3FC(sa, L"%s", na->mName);
+    wchar_t* plus = wcschr(sa, L'+');
+    if (plus != 0) {
+        *plus = 0;
+    }
+    wchar_t sb[64];
+    fn_800DD3FC(sb, L"%s", nb->mName);
+    plus = wcschr(sb, L'+');
+    if (plus != 0) {
+        *plus = 0;
+    }
+    if (wcscmp(sa, sb) == 0) {
+        int la = wcslen(na->mName);
+        int lb = wcslen(nb->mName);
+        if (la != lb) {
+            return la < lb;
+        }
+    }
+    return wcscmp(na->mName, nb->mName) < 0;
+}
+
+// inferred: order of the protector list: same item, worn first (by member, then by slot), then by name
+// as CosEditEquipLess_unk
+struct CosEditArmorLess_unk {
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
+};
+
+bool CosEditArmorLess_unk::operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+    if (a.mId == b.mId) {
+        if (a.mOwner >= 0 && b.mOwner >= 0) {
+            if (a.mOwner == b.mOwner) {
+                return a.m14 < b.m14;
+            }
+            return a.mOwner < b.mOwner;
+        }
+        if (a.mOwner >= 0) {
+            return true;
+        }
+        return false;
+    }
+    CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
+    CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
+    wchar_t sa[64];
+    fn_800DD3FC(sa, L"%s", na->mName);
+    wchar_t* plus = wcschr(sa, L'+');
+    if (plus != 0) {
+        *plus = 0;
+    }
+    wchar_t sb[64];
+    fn_800DD3FC(sb, L"%s", nb->mName);
+    plus = wcschr(sb, L'+');
+    if (plus != 0) {
+        *plus = 0;
+    }
+    if (wcscmp(sa, sb) == 0) {
+        int la = wcslen(na->mName);
+        int lb = wcslen(nb->mName);
+        if (la != lb) {
+            return la < lb;
+        }
+    }
+    return wcscmp(na->mName, nb->mName) < 0;
+}
+
 // Members of atn::D2A_TaskInstanceBase<32, 8> with automatic names (as in game/CosEditPalette_unk.cpp)
 typedef atn::D2A_TaskInstanceBase<32, 8> CosEditListLayout_unk;
 extern "C" void fn_801F7590(CosEditListLayout_unk* inst, const char* name, const float* uv);
