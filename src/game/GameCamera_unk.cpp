@@ -549,8 +549,7 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     fn_80392964(0, 1, 0, 0);
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
+// NONMATCHING: 92.5% - stack slots and registers of the temporaries
 // inferred: camera mode at m738.m0C looking at the character (m738.m18 above it); with a camera box of size m30
 // the fovy is narrowed to keep that size in view
 void GameCamera::fn_80388A88(const CharaTask* chara) {
@@ -570,7 +569,7 @@ void GameCamera::fn_80388A88(const CharaTask* chara) {
 
 // inferred: event camera (see fn_8038CD94) kept out of the walls: when the ray from the target to the eye hits,
 // the eye is moved to the wall over 10 frames (m880), and back when it stops hitting
-// NONMATCHING: 96.3% - stack slots of the temporaries; fn_8008B964 (see fn_80388A88)
+// NONMATCHING: 96.3% - stack slots of the temporaries
 void GameCamera::fn_80388C44(const CharaTask* chara) {
     float yaw = 0.017453292f * m774.m28;
     atn::Vector3 offset(m774.m0C, m774.m10, m774.m14);
@@ -607,8 +606,6 @@ void GameCamera::fn_80388C44(const CharaTask* chara) {
     fn_80392964(0, 1, 1, 1);
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: camera mode at a fixed offset of the character looking at a point in front of it
 void GameCamera::fn_80389060(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
@@ -629,43 +626,34 @@ void GameCamera::fn_80389060(const CharaTask* chara) {
     fn_80392964(1, 1, 1, 1);
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: camera mode 40 beyond the character, on the line from a point 5 below its own position
 void GameCamera::fn_80389210(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
-    atn::Vector3 offset(0.0f, -5.0f, 0.0f);
-    atn::Vector3 from = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
-    atn::Vector3 dir = target - from;
-    atn::Vector3 d = dir;
-    PSVECNormalize(&d, &d);
-    SetPosition(target + d * 40.0f);
+    atn::Vector3 dir = target - (const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, -5.0f, 0.0f));
+    atn::Vector3 pos = target + dir.GetNormalize() * 40.0f;
+    SetPosition(pos);
     SetTarget_unk(target);
     fn_8004B378();
     fn_80392964(1, 1, 1, 1);
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
+// NONMATCHING: 92.3% - stack slots: the original keeps the normalized direction below the temporaries
 // inferred: camera mode 30 away behind and above the character, along (0.4, 0.2, 1) turned with it
 void GameCamera::fn_803893A0(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
     target.y += 20.451f;
-    atn::Vector3 dir(0.4f, 0.2f, 1.0f);
-    PSVECNormalize(&dir, &dir);
+    const atn::Vector3& dir = atn::Vector3(0.4f, 0.2f, 1.0f).GetNormalize();
     Mtx m;
     PSMTXRotRad(m, 'y', chara->mRot.y);
     atn::Vector3 d = dir;
     PSMTXMultVec(m, &d, &d);
-    d *= 30.0f;
-    SetPosition(target - d);
+    SetPosition(target - d * 30.0f);
     SetTarget_unk(target);
     fn_8004B378();
     fn_80392964(1, 1, 1, 0);
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
+// NONMATCHING: 84.8% - stack slots and registers of the temporaries
 // inferred: camera mode looking at the hips of the character from 50 above its position
 void GameCamera::fn_8038952C(const CharaTask* chara) {
     const atn::Model* model = &chara->mMotion;
@@ -679,8 +667,6 @@ void GameCamera::fn_8038952C(const CharaTask* chara) {
     fn_80392964(1, 1, 1, 0);
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: fixed camera mode (position m4FC, target m508, fovy m514; turned and moved with the
 // character when m518 is set)
 void GameCamera::fn_80389678(const CharaTask* chara) {
@@ -881,7 +867,7 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
 
 // inferred: camera behind the hips of the character (offset m874, zoomed by mC1C while the global flag 0x6A
 // says so), blended in 5 frames through fn_8038AEF0; with mFlag14 clear it uses the fixed m884/m890
-// NONMATCHING: 93.7% - copies of m884/m890 and stack slots of the offsets; fn_8008B964 (see fn_80388A88)
+// NONMATCHING: 93.7% - copies of m884/m890 and stack slots of the offsets
 void GameCamera::fn_8038B148(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mPos;
@@ -1058,7 +1044,7 @@ void GameCamera::fn_8038B650(const CharaTask* chara) {
 
 // inferred: side camera mode: from beside the character (m648.m0C to the side, m648.m10 up, m648.m14 behind its target
 // mF6C, or halfway to it), blended in 15 frames; then back to the sub mode with m83C = 6
-// NONMATCHING: 92.2% - temporaries of the point and the cross product; fn_8008B964 (see fn_80388A88)
+// NONMATCHING: 92.2% - temporaries of the point and the cross product
 void GameCamera::fn_8038BD78(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mPos;
@@ -1235,7 +1221,7 @@ void GameCamera::fn_8038C928(const CharaTask* chara) {
 
 // inferred: event camera at m774.m0C from the head of the character (turned by m774.m28 degrees, facing it), looking
 // m774.m00 away with the pitch m774.m08 and the fovy m774.m04; blended with an eased curve while the timer m424 runs
-// NONMATCHING: 91.5% - scheduling of the front vector and of the blends; fn_8008B964 (see fn_80388A88)
+// NONMATCHING: 91.5% - scheduling of the front vector and of the blends
 void GameCamera::fn_8038CD94(const CharaTask* chara) {
     if (m808 == 0) {
         m80C = mPos;
@@ -1380,8 +1366,7 @@ void GameCamera::fn_8038D854(const CharaTask* chara) {
     m834 = 0;
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
+// NONMATCHING: 89.3% - stack slots and registers of the temporaries
 // inferred: one frame of the "hips" camera after saving the current camera in m80C-m830; then goes back
 // to the sub mode with m83C = 6
 void GameCamera::fn_8038DBE4(const CharaTask* chara) {
@@ -1409,15 +1394,13 @@ void GameCamera::fn_8038DBE4(const CharaTask* chara) {
     m834 = 0;
 }
 
-// NONMATCHING: inlines fn_80389678 (and through it fn_80392964, see there)
 // inferred: fixed camera mode that keeps the current sub mode as the previous one
 void GameCamera::fn_8038DDE0(const CharaTask* chara) {
     m800 = m7FC;
     fn_80389678(chara);
 }
 
-// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
-// atn/Model.cpp) is called where the original inlines it; other differences of its own
+// NONMATCHING: 84.9% - stack slots and registers of the temporaries
 // inferred: blends over 30 frames from the camera saved on the first frame to the default mode
 void GameCamera::fn_8038DF5C(const CharaTask* chara) {
     if (m808 == 0) {

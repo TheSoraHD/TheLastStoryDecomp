@@ -8,8 +8,11 @@ Rama `agent-D`. Inicio: 2026-11-12 14:55 CET. Referencia: `/home/claude/ref-D` (
 
 - Funciones al 0 %: 33 -> 27 (`fn_8037DD00` al **100 %**, `fn_803903E0` 98,4 %, `fn_803830A8` 97,4 %, `fn_8038C070` 98,1 %, `fn_80389A00` 90,8 %, `fn_8038B650` 92,2 %; NONMATCHING con
   motivo).
-- Nuevas al 100 %: `fn_80389678`, `fn_8038DDE0` (vibracion, por el getter inline) y `fn_80389060` (giro con
-  `Matrix3x4::fn_8013A13C`): 20 -> 28 / 90 contando las que vuelven a 100 tras renombrar etiquetas.
+- Nuevas al 100 %: `fn_80389678`, `fn_8038DDE0` (vibracion, por el getter inline), `fn_80389060` (giro con
+  `Matrix3x4::fn_8013A13C`), `fn_80389210` (direccion como temporal y `pos` con nombre) y `fn_8037DD00`:
+  20 -> 30 / 90 (`report.json` 15057 -> 15062).
+- `fn_803893A0` 81 -> 92 % (direccion con `GetNormalize()` como referencia a temporal).
+- Comentarios NONMATCHING antiguos que culpaban al getter `fn_8008B964` actualizados.
 - `fn_8008B964` (getter de `RenderManager::instance_`): definida `extern "C" inline` **en `GameCamera_unk.cpp`**
   (como ya hacia `PlayerInput_unk.cpp`), no en `RenderManager.h`. Ver decisiones.
 - `Matrix3x4::fn_8013A13C(rot)` en lugar de `PSMTXRotRad(m, 'y', rot)` (el original pasa el angulo por un
