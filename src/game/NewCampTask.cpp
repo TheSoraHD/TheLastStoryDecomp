@@ -156,13 +156,13 @@ extern "C" inline GammaParams_unk* fn_8052B7F0(RenderSetting_unk* settings) {
     return &settings->m3DC;
 }
 extern "C" RenderSetting_unk* fn_802F0990();
-extern "C" void fn_8052B7F8(RenderSetting_unk* settings); // inferred: default post effects of the camp
 
 // inferred: loading of the camp: waits for its files, prepares the parts and the post effects and adds the debug
 // menu items
-// NONMATCHING: 91% - the original is over the inlining budget (R3): the accessor of the gamma settings, the
-// ResHandle load and the vector accessors are called out of line (weak copies 0x8052B7F0, 0x8052BC90,
-// 0x8052BCE4, 0x8052BCF4); fn_8052B7F8 is not written
+// NONMATCHING: 33% - the original is over the inlining budget (R3): RenderSetting_unk::ResetPostFx_unk (weak copy
+// 0x8052B7F8), the accessor of the gamma settings, the ResHandle load and the vector accessors are called out of
+// line (0x8052B7F0, 0x8052BC90, 0x8052BCE4, 0x8052BCF4); here they are inlined (91% when the reset is an
+// external call)
 int NewCampTask::vf0C() {
     fn_8046ECDC(ResMgr_unk(), 0);
     if (m60 == 0) {
@@ -191,7 +191,7 @@ int NewCampTask::vf0C() {
             fn_8052DEEC(0);
             fn_8052B7F0(fn_802F0990())->mEnable = 0;
             m468.fn_8052E1A0();
-            fn_8052B7F8(fn_802F0990());
+            fn_802F0990()->ResetPostFx_unk();
             fn_805303D0();
             fn_805305D0();
             void* group = m1218.Load("NewCamp");

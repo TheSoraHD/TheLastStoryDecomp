@@ -13,7 +13,7 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
   funciones al 100 % (operadores del iterador, swap, mediana del orden de la bolsa); el resto 91-98 %.
 - `game/NewCampPartsMapSelect`: 4 -> 1. `fn_805212BC` (cursor del mapa) 91,8 %, `vf10` (0x8051CF78) 94,7 %,
   `vf28` (0x8051F138) 96 %; falta `vf14` (0x8051D864, 5 KB).
-- `game/NewCampTask`: 16 -> 13. `vf0C` (carga y menu de depuracion) 91 %, `fn_805303D0` (camp_config.csv)
+- `game/NewCampTask`: 16 -> 13. `vf0C` (carga y menu de depuracion) 33 %, `fn_805303D0` (camp_config.csv)
   99,8 %, `fn_805305D0` (camp_font_conf.csv) 80 %.
 - `game/CosEditProtector`: 1 -> 1 (`vf64`, 9 KB, sin tocar).
 
@@ -28,8 +28,10 @@ Inicio: 2026-11-12 14:55 CET. Tope ~17:25.
 - `fn_805212BC` 91,8 %, `vf10` 94,7 %: el bucle de los puntos guarda el indice (`lwzu`/`stfsu`); `vf10` con
   offsets de `@stringBase0` desplazados hasta escribir `vf14`. `vf28` 96 %: el anime de la miniatura se
   relee tras el `sprintf` (como `vf20`).
-- `NewCampTask::vf0C` 91 %: el original pasa el presupuesto R3 y llama fuera de linea a los accesores (gamma,
-  `ResHandle::Load`, `size`/`operator[]` de `sElems_unk`); `fn_8052B7F8` sin escribir (declarada).
+- `NewCampTask::vf0C` 33 %: el original pasa el presupuesto R3 y llama fuera de linea a los accesores (gamma,
+  `ResHandle::Load`, `size`/`operator[]` de `sElems_unk`) y a `RenderSetting_unk::ResetPostFx_unk` (copia
+  debil 0x8052B7F8, renombrada en `symbols.txt`); aqui se inlinea todo. Con un `extern "C" fn_8052B7F8` daba
+  91 %, pero es un metodo (regla 10): se deja la llamada al miembro.
 - `fn_805303D0` 99,8 %: solo el offset de las cadenas ("vector length error" va antes en el original, de las
   copias sin escribir de `vector<Light>`/`vector<Camera>::operator=`).
 - `fn_805305D0` 80 %: el push_back inline de `sElems_unk` (el original copia el registro palabra a palabra y usa
