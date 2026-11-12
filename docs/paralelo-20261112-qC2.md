@@ -13,8 +13,9 @@ Inicio: 2026-11-12 21:32 CET; cierre 22:55 CET. Rama `agent-C2`. Unidades: `game
   `fn_80102EAC` (odio hacia el atacante y los que siguen al personaje), `fn_80108F38` (popup del nombre de un
   estado, 100 %), `fn_8010A4A8` (alta en `mStuns`, efecto y popup) y `fn_80109F7C` (despertar enemigos; miembro
   nuevo, renombrado en `symbols.txt`).
-- Resumen BattleTask: funciones al 0 % 68 -> 52 (16 escritas, sin `DRAFT`); 7 nuevas al 100 %
-  (`fn_800F8548`, `fn_80101434`, `fn_8010B250`, `fn_800F3B4C`, `fn_8010AEF4`, `fn_8010A868`, `fn_80108F38`);
+- Resumen BattleTask: funciones al 0 % 68 -> 51 (16 escritas, sin `DRAFT`, y la copia debil del destructor de
+  `atn::static_string<32, wchar_t>` 0x8010A828 que emite `fn_8010A4A8`); 8 nuevas al 100 % (`fn_800F8548`,
+  `fn_80101434`, `fn_8010B250`, `fn_800F3B4C`, `fn_8010AEF4`, `fn_8010A868`, `fn_80108F38`, 0x8010A828);
   `report.json` 15179 -> 15187. TacView (6) y BattleCharaTask (1) sin tocar: sus funciones al 0 % son de
   2-8 KB (`fn_805ADB28`, 216 bytes, es el `operator+(wstring, wstring)` de MSL que solo emite `fn_805AC758`).
 - Los marcadores (`BattleMarker_unk`, `BattleMarkers_unk`) pasan del .cpp a `BattleTask.h` como miembro
@@ -42,9 +43,7 @@ Inicio: 2026-11-12 21:32 CET; cierre 22:55 CET. Rama `agent-C2`. Unidades: `game
 - `fn_80102EAC` 99,6 %: registros de la entrada y del puntero de la lista cambiados (r29/r30).
 
 - `fn_8010A4A8` 95,8 %: el original vuelve a leer `mStunCount` para el `push` despues de guardar la entrada; la
-  altura se carga en el otro orden de registros; offsets del pool de cadenas. La copia debil del destructor de
-  `atn::static_string<32, wchar_t>` (0x8010A828) que el original emite detras no sale (el destructor no esta
-  definido en `atn/static_string.h`).
+  altura se carga en el otro orden de registros; offsets del pool de cadenas.
 
 - `fn_80109F7C` 89 %: la prueba del tipo (`m146C`) es una busqueda binaria en el original que deja pasar los
   valores menores que 1 (no es un `switch` con `case 0`); se deja la condicion equivalente con `||`. Registros.
