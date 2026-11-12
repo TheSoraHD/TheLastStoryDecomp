@@ -6,7 +6,20 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
 
 ## Resultado
 
+- **15057 / 18109** al 100 % en `report.json` (inicio 15030, +27), lost 0, sin bajadas de fuzzy, `main.dol: OK`
+  en build limpio. Funciones al 0 % **972 -> 870** (-102).
+- Por unidad (0 %): GameCamera_unk 60 -> 33, CosEditItemList_unk 91 -> 65 (unidad nueva en `game_units.json`),
+  MP/D2AMpMenuLobby 22 -> 8, CompositeIntensityTintMulti 3 -> 0, Em314Ivy, RotaryRoom y WindyItem 3 -> 0,
+  ColliTest_unk 2 -> 0 (+6 al 100 %), SwingObject, ItemSlotAnime y MP/Text 2 -> 0, y una en EffectDesc_unk,
+  EnemyQuarkFirst, GameVoice, RandomItem, Chain, NewCampPartsGmk, ActionActorBehavior, ActionCameraMode,
+  ShopIdentify, SkillEffect, BattleCharaTask, CosEditProtector, Em203GreaterDaemonRedMp y GameEventScript.
+- Ninguna unidad empieza a enlazar. Borradores (`DRAFT`): 42 en 23 unidades, 0 en la ruta (sin cambio).
+
 ## Cambios de splits
+
+- Ninguno en `splits.txt`. `game_units.json`: entrada nueva `game/CosEditItemList_unk.cpp` (`matching: false`).
+  `symbols.txt`: renombrados (miembros al mangled, `@N` de etiquetas) y dos `@STRING@` de Em203GreaterDaemonRedMp a
+  `scope:local`.
 
 ## Decisiones tomadas sin el usuario
 
@@ -106,6 +119,15 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
   CharaFaceControl.o): solo se conservan los cambios `@N -> @N` (script en las notas de la sesion) y se parte con
   `configure` + `ninja`, sin `pdbatch`.
 - `game/GameEventScript`: `__dt__15GameEventScriptFv` fuera de orden ya en `HEAD` (no es de esta sesion).
+
+- `MP/D2AMpMenuLobby`: `lbl_8087F628` pasa de la vista local `MpLobbyData_unk` a `atn::net::Manager`
+  (`atn/net/Manager.h`, regla 10): asi `fn_804C0F88` llama a `vf14` y la copia debil 0x804C134C
+  (`vf14__Q33atn3net7ManagerFUi`) sale en su sitio, al 100 %. `fn_804C0F88` queda al 99,6 %: solo difiere el nombre
+  del pool de cadenas anchas (`lbl_80790D74` en el original, `@wstringBase0` en el nuestro; offsets iguales), y
+  `report.json` la da al 100 % (`REP+` de precommit, mismo caso que `fn_804DD33C` de s12h-20261109): no se cuenta.
+  Escritas tambien `__sinit`, fn_804C0430 (100 %), E4A4, 2268, 1634, 2994, F9AC, 2D5C, vf14, 1370, 0A40 y F550
+  (99,7 %: offsets de `@stringBase0`). Quedan fn_804BC628 (5000 bytes), vf10, fn_804BE610, fn_804BEDB8,
+  fn_804BFB54, fn_804C0094 (no declarada en la cabecera, que incluye PacketPack), fn_804C18A8, fn_804C23E4.
 
 ## Pendientes
 

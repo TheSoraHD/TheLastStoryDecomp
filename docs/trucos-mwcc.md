@@ -636,3 +636,5 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `pos.x - width * scale` con `fnmsubs` en el original: constantes en variables locales (`float scale = 0.05f; ...`), si no MWCC pliega el producto; el orden de declaracion fija el orden de los FPR (fueraruta-20261112).
 - Un `float a = chara->mRot.y;` antes de `PSMTXRotRad` hace que el angulo se cargue con el registro del parametro (r4) antes de guardarlo, como el original (GameCamera fn_80389678).
 - Un `switch` con tabla de saltos: los bloques de los `case` salen en el orden del fuente; ordenar los `case` como los bloques del original (MP::D2AMpMenuLobby::vf14, fueraruta-20261112).
+- Un `__declspec(weak)`/inline virtual de otra clase (p. ej. `atn::net::Manager::vf14`) solo se emite en la unidad si se llama con la clase real: una vista local del objeto la pierde; usar la cabecera de la clase (MP::D2AMpMenuLobby 0x804C134C, fueraruta-20261112).
+- Pool de cadenas anchas en `.data` (`@wstringBase0`): en una unidad sin enlazar objdiff marca el nombre (`lbl_8079...`) aunque el offset coincida (99,6 %), y `report.json` la da al 100 %: no cuenta (fueraruta-20261112).
