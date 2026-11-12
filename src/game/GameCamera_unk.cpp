@@ -9,6 +9,9 @@
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
 #include "macros.h"
+#include "game/GameTask.h"
+#include "game/MapTask.h"
+#include "gmk/Lemon.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -706,6 +709,77 @@ void GameCamera::fn_8038DF5C(const CharaTask* chara) {
         m838 = 0;
         m83C = 6;
         m808 = 0;
+    }
+}
+
+extern "C" GameTask* lbl_8087F430; // inferred: the field
+extern "C" void* lbl_8087EE98;     // inferred: collision manager
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+
+// inferred: keeps the eye out of the walls: on maps with ceilings (MapTask::mEC) the eye is put under the ceiling
+// above it, then a ray from the character to the eye (at the same height) pulls it in front of the wall; while it
+// keeps hitting (m89C, up to 8 frames) the eye is blended back towards the current camera position
+// NONMATCHING: 92.4% - order of the first loads (radius, top) and stack slots of the ray ends
+void GameCamera::fn_8038E540(const CharaTask* chara, int* state, atn::Vector3* pos, atn::Vector3* target,
+                             const atn::Vector3* charaPos) {
+    float radius = lbl_8087F0A8->m08C;
+    float top = 50.0f + pos->y;
+    float height = 30.0f;
+    CollResult_unk result;
+    bool map = false;
+    bool ceiling = false;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map = true;
+    }
+    if (map && lbl_8087F430->GetCurrentMap()->mEC != 0) {
+        ceiling = true;
+    }
+    if (ceiling) {
+        atn::Vector3 from = *charaPos;
+        atn::Vector3 to = *charaPos;
+        to.y = 2.0f + pos->y;
+        if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0x08000000, 0, 0)) {
+            atn::Vector3 p = *pos;
+            p.y = result.m10.y - 2.0f;
+            *pos = p;
+            height = MIN(height, pos->y - charaPos->y);
+            top = MIN(top, pos->y);
+        }
+    }
+    atn::Vector3 from = *charaPos;
+    atn::Vector3 to = *pos;
+    from.y += height;
+    to.y = from.y;
+    atn::Vector3 dir = (to - from).GetNormalize();
+    to += dir * radius;
+    unsigned int mask = 0x08000000;
+    bool map2 = false;
+    bool ceiling2 = false;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map2 = true;
+    }
+    if (map2 && lbl_8087F430->GetCurrentMap()->mEC != 0) {
+        ceiling2 = true;
+    }
+    if (!ceiling2) {
+        mask = 0x80000008;
+    }
+    if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mask, 0, 0)) {
+        atn::Vector3 hit = result.m10 - dir * radius;
+        hit.y = pos->y;
+        atn::Vector3 d = hit - *pos;
+        hit.y += MIN(20.0f, PSVECMag(&d));
+        hit.y = MIN(top, hit.y);
+        *pos = hit;
+        m89C++;
+    } else {
+        m89C--;
+    }
+    m89C = MIN(8, MAX(0, m89C));
+    if (m89C > 0) {
+        float k = 0.5f * ((float)m89C * 0.125f);
+        *pos = (mPos - *pos) * k + *pos;
     }
 }
 
