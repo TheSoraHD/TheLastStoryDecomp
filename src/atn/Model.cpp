@@ -92,21 +92,7 @@ extern "C" void fn_8009A2C0(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 extern "C" void fn_80090C58(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight3_unk* w, int n);
 extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight4_unk* w, int n);
 
-extern "C" void fn_800A1060(atn::MotionCmd_unk* cmd); // inferred: clears
-
-namespace atn {
-
-// inferred: motion command entry of a motion slot (16 bytes, atn::Model::m354); its destructor clears it
-// (fn_800A1060); names invented
-struct MotionCmd_unk {
-    MotionCmd_unk() { m04 = 0; m00 = 0; m08 = 0; } // inferred: weak ctor 0x80097BF4
-    ~MotionCmd_unk() { fn_800A1060(this); }
-    int m00;
-    int m04;
-    short* m08; // inferred: motion key of each node (-1: none)
-    int m0C;
-};
-} // namespace atn
+#include "atn/MotionCmd_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
 
@@ -2250,7 +2236,7 @@ void Model::fn_80098C90(int node, int siblings, int replace, Res_unk* res, Track
     while (node >= 0) {
         NodeRes_unk* joint = res->m48[node];
         int index = (remap != 0) ? remap[joint->m18] : joint->m18;
-        int key = m354.mData[track->m00].m08[index];
+        int key = m354.mData[track->m00].mData[index];
         if (key >= 0) {
             if (replace) {
                 fn_800A05FC(track->m04, &m21C.mData[index], key, &m214.mData[index], track->m08);
