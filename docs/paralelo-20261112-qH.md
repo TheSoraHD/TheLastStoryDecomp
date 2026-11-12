@@ -11,6 +11,7 @@ Inicio: 2026-11-12 17:20 CET. Rama `agent-H`.
   (8 -> 11/19); `fn_8031D6DC` 98,4 % y `fn_8031E078` 98,9 % (NONMATCHING: marco 0x10 menor).
 - `game/Em206CocoonMp`: al 0 % 6 -> 5; `vf104` escrita (NONMATCHING 99,9 %: nombres de las relocalizaciones del
   ctor/dtor de la lista y un registro de float). 27/39 al 100 % (sin cambios).
+- `game/Em202ForestSpider`: `fn_80279280` (antes DRAFT al 0 %, no equivalente) reescrita al 100 % (39 -> 40/64).
 
 ## Decisiones tomadas sin el usuario
 
@@ -37,11 +38,17 @@ Inicio: 2026-11-12 17:20 CET. Rama `agent-H`.
   no (REP+): se deja la forma con `CharaTask* t` (99,9 %). `fn_802BEE44`/`fn_802BF5C0` declaradas como miembros
   (renombradas en `symbols.txt` a su nombre mangled); se incluye `game/PlayerManager.h`. 300 asserts vacios en
   `fn_800E0AB0` (copia weak).
+- Em202ForestSpider `fn_80279280`: las copias weak 0x80279788-0x802797D4 pasan de funciones fuertes a
+  `extern "C" inline` definidas antes (salen detras en orden de primer uso); 0x802797A8 es el constructor de
+  `GimmickMsg_unk` (renombrado en `symbols.txt` a `__ct__14GimmickMsg_unkFv`). `fn_800C344C` y `fn_80276AE4` toman
+  referencias en vez de punteros (mismo codigo). 900 asserts vacios en `fn_80267B20` (copia weak).
 
 ## Hallazgos
 
 - `bge X; b Y` sobre un clamp: `int cur = index; if (cur < n - 1) { i = cur; } else { i = n - 1; }` (EnemyQuarkSecond).
 - `static inline` deja los literales en `@stringBase0` (con `inline` solo van a `@STRING@`) y se inlinea en una
   llamadora dentro de presupuesto mientras la que esta fuera la llama (Em316LastLaser fn_8031E078).
+- Temporales pasados por referencia a una funcion `extern "C"`: declararla con `const atn::Vector3&` en vez de
+  puntero evita el aviso "not an lvalue" y deja el temporal en la zona baja de la pila como el original.
 - Quitar una declaracion de una cabecera renumera los `@N` de todas las unidades que la incluyen.
 
