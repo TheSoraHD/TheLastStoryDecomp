@@ -275,7 +275,9 @@ public:
     atn::Vector3 m93C; // inferred: offset of the position of the render camera (fn_803928C0)
     atn::Vector3 m948; // inferred: offset of the target
     float m954;        // inferred: offset of the fovy
-    unsigned char m958[0x9F8 - 0x958];
+    unsigned char m958[0x98C - 0x958];
+    atn::Vector3 m98C[8]; // inferred: cleared by the default mode (fn_80389A00)
+    unsigned char m9EC[0x9F8 - 0x9EC];
     atn::Vector3 m9F8;   // inferred: hips of the character when the hips mode ends
     unsigned char mA04[0xA0C - 0xA04];
     float mA0C[5];
