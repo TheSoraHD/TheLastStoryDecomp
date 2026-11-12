@@ -14,6 +14,43 @@ extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8;
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
+// inferred: starts the parameters of a camera mode (blend weight 1, decreased by the speed)
+void GameCameraModeParam_unk::fn_8037E89C(int mode, const GameCameraParam_unk& param, float step) {
+    if (mMode != mode && mMode != 4) {
+        mMode = mode;
+        mParam = param;
+        mStep = step;
+        mWeight = 1.0f;
+    }
+}
+
+// inferred: debug menu items (atn debug menu, as in gmk/SwingObject.cpp and gmk/Ocean.cpp)
+extern "C" void* fn_8008937C(void* menu, const char* name); // inferred: group of a menu
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
+extern "C" void fn_80087858(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step); // inferred: angle item
+
+// inferred: debug menu of the parameters of a camera mode
+// NONMATCHING: 94.3% - offsets of the strings until the rest of the pool is written; named floats
+void GameCamera::fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* param) {
+    void* group = fn_8008937C(menu, name);
+    fn_8008771C(group, "Length", &param->m00, 0, 0, 1.0f, 10000.0f, 5.0f);
+    fn_80087858(group, "AngleOfView", &param->m04, 0, 0, 0.0f, 90.0f, 5.0f);
+    fn_80087858(group, "Pitch", &param->m08, 0, 0, -90.0f, 90.0f, 5.0f);
+    fn_8008771C(group, "OffsetX", &param->m0C, 0, 0, -1000.0f, 1000.0f, 1.0f);
+    fn_8008771C(group, "OffsetY", &param->m10, 0, 0, -1000.0f, 1000.0f, 1.0f);
+    fn_8008771C(group, "OffsetZ", &param->m14, 0, 0, -1000.0f, 1000.0f, 1.0f);
+    fn_8008771C(group, "CrouchOffset", &param->m18, 0, 0, -1000.0f, 1000.0f, 1.0f);
+    fn_8008771C(group, "MoveSpeed", &param->m1C, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "PitchSpeed", &param->m20, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "ZoomSpeed", &param->m24, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "RollSpeed", &param->m28, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_8008771C(group, "AutoRollSpeed", &param->m2C, 0, 0, 0.0f, 1.0f, 0.001f);
+    fn_8008771C(group, "AutoLockOnSpeed", &param->m30, 0, 0, 0.0f, 1.0f, 0.01f);
+    fn_80087858(group, "OffsetRotY", &param->m34, 0, 0, -180.0f, 180.0f, 1.0f);
+}
+
 void GameCamera::fn_8037EF30(int a, int b, float f) {
     fn_8037EF48(lbl_8087F8A0->mHead, a, b, f);
 }
@@ -232,8 +269,8 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     fn_80392964(0, 1, 0, 0);
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: camera mode at m744 looking at the character (m750 above it); with a camera box of size m30
 // the fovy is narrowed to keep that size in view
 void GameCamera::fn_80388A88(const CharaTask* chara) {
@@ -251,8 +288,8 @@ void GameCamera::fn_80388A88(const CharaTask* chara) {
     fn_80392964(0, 1, 0, 0);
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: camera mode at a fixed offset of the character looking at a point in front of it
 void GameCamera::fn_80389060(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
@@ -273,8 +310,8 @@ void GameCamera::fn_80389060(const CharaTask* chara) {
     fn_80392964(1, 1, 1, 1);
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: camera mode 40 beyond the character, on the line from a point 5 below its own position
 void GameCamera::fn_80389210(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
@@ -289,8 +326,8 @@ void GameCamera::fn_80389210(const CharaTask* chara) {
     fn_80392964(1, 1, 1, 1);
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: camera mode 30 away behind and above the character, along (0.4, 0.2, 1) turned with it
 void GameCamera::fn_803893A0(const CharaTask* chara) {
     atn::Vector3 target = chara->mPos;
@@ -308,8 +345,8 @@ void GameCamera::fn_803893A0(const CharaTask* chara) {
     fn_80392964(1, 1, 1, 0);
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: camera mode looking at the hips of the character from 50 above its position
 void GameCamera::fn_8038952C(const CharaTask* chara) {
     const atn::Model* model = &chara->mMotion;
@@ -323,8 +360,8 @@ void GameCamera::fn_8038952C(const CharaTask* chara) {
     fn_80392964(1, 1, 1, 0);
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: fixed camera mode (position m4FC, target m508, fovy m514; turned and moved with the
 // character when m518 is set)
 void GameCamera::fn_80389678(const CharaTask* chara) {
@@ -400,8 +437,67 @@ void GameCamera::fn_8038A1D8(const CharaTask* chara) {
     m834 = 0;
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: 89.3% - order of the blend temporaries and float registers
+void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target, const CharaTask* chara,
+                             int collide, float fovy, float t) {
+    atn::Vector3 eye = (*pos - m80C) * t + m80C;
+    atn::Vector3 look = (*target - m818) * t + m818;
+    float angle = t * (fovy - m830) + m830;
+    if (collide) {
+        fn_8038E540(chara, &m648, &eye, &look, &chara->mPos);
+    }
+    atn::Vector3 d = look - eye;
+    if (d.x * d.x + d.z * d.z < 1.0f) {
+        atn::Vector3 h(d.x, 0.0f, d.z);
+        if (PSVECSquareMag(&h) < 1.0e-6f) {
+            h = atn::Vector3(0.0f, 0.0f, 1.0f);
+        } else {
+            PSVECNormalize(&h, &h);
+        }
+        look += h;
+    }
+    SetPosition(eye);
+    SetTarget_unk(look);
+    mFovy = angle;
+    fn_8004B378();
+}
+
+// inferred: side camera mode: from beside the character (m654 to the side, m658 up, m65C behind its target
+// mF6C, or halfway to it), blended in 15 frames; then back to the sub mode with m83C = 6
+// NONMATCHING: 92.2% - temporaries of the point and the cross product; fn_8008B964 (see fn_80388A88)
+void GameCamera::fn_8038BD78(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+    }
+    atn::Vector3 point = chara->mF6C;
+    if (lbl_8087F0A8->m040 == 0) {
+        point = (chara->mF6C + chara->mPos) * 0.5f;
+    }
+    atn::Vector3 target = point;
+    atn::Vector3 dir = (target - chara->mPos).GetNormalize();
+    atn::Vector3 pos = chara->mPos + dir * m65C;
+    pos.y += m658;
+    float side = m654;
+    atn::Vector3 cross;
+    PSVECCrossProduct(&dir, &mUp, &cross);
+    pos += cross * side;
+    fn_8038AEF0(&pos, &target, chara, 1, m64C, (float)m808 / 15.0f);
+    fn_80392964(0, 1, 0, 0);
+    if (++m808 > 15) {
+        m80C = pos;
+        m818 = target;
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: one frame of the "hips" camera after saving the current camera in m80C-m830; then goes back
 // to the sub mode with m83C = 6
 void GameCamera::fn_8038DBE4(const CharaTask* chara) {
@@ -436,8 +532,8 @@ void GameCamera::fn_8038DDE0(const CharaTask* chara) {
     fn_80389678(chara);
 }
 
-// NONMATCHING: the inlined fn_80392964 inlines fn_80392A04/fn_803928C0/SetCamera_unk here (its other
-// callees are unwritten, so it stays under the inlining budget, docs/inlining.md R3)
+// NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
+// atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: blends over 30 frames from the camera saved on the first frame to the default mode
 void GameCamera::fn_8038DF5C(const CharaTask* chara) {
     if (m808 == 0) {
@@ -689,7 +785,7 @@ void GameCamera::fn_803933A4() {
     m914 = 0;
     m858 = 0;
     m838 = 0;
-    m46C = 0;
+    m46C.mMode = 0;
     mShake.mFrame = mShake.mFrame % 2;
     mShake.mLength = 0;
     mShake.mWidth = 0.0f;

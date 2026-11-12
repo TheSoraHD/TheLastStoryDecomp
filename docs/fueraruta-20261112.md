@@ -98,6 +98,13 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
   que el original inlinea en el llamador. `CameraShake_unk` pasa a `GameCamera.h` (miembro `mShake` en 0x900).
 - `GameCamera::fn_803918EC` (balanceo con el xsca del mapa, 97 %): `m8F8` es un float (fotograma). Las curvas
   `XsfCurveSet_unk`/`Xsca_unk` se declaran por fichero (como en NewCampTask y Em309Ghoul): falta una cabecera.
+- `GameCamera.h`: `GameCameraModeParam_unk m46C` (con `fn_8037E89C`, 100 %), `GameCameraParam_unk m51C` y campos
+  m648-m65C del modo lateral; declarados `fn_8037ECF0` (menu de depuracion), `fn_8038AEF0` (mezcla desde la camara
+  guardada) y `fn_8038E540` (colision). Las declaraciones nuevas renumeran los `@N` de las 144 unidades que incluyen
+  la cabecera: `lblmap.py` en todas y un `configure` + split. Cuidado: `lblmap`/`pdbatch` (`pairdata --relabel`)
+  renombran tambien `lbl_` de regiones `auto_` a `@STRING@...` y rompen el enlace (simbolo duplicado con
+  CharaFaceControl.o): solo se conservan los cambios `@N -> @N` (script en las notas de la sesion) y se parte con
+  `configure` + `ninja`, sin `pdbatch`.
 - `game/GameEventScript`: `__dt__15GameEventScriptFv` fuera de orden ya en `HEAD` (no es de esta sesion).
 
 ## Pendientes

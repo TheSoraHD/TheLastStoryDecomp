@@ -75,6 +75,16 @@ struct GameCameraParam_unk {
     int m38;
 };
 
+// inferred: parameters a camera mode imposes (GameCamera::m46C): mode (4 keeps the current one), weight and
+// speed of the blend, and the parameters; names invented
+struct GameCameraModeParam_unk {
+    void fn_8037E89C(int mode, const GameCameraParam_unk& param, float step); // inferred: starts a mode
+    int mMode;
+    float mWeight;
+    float mStep;
+    GameCameraParam_unk mParam;
+};
+
 // inferred: shake of the camera (GameCamera::mShake: frame, length, width and height; names invented)
 struct CameraShake_unk {
     atn::Vector3 GetOffset_unk() const; // 0x803933F4
@@ -115,7 +125,14 @@ public:
     void fn_80392CE0(const GameCameraState_unk* state); // inferred: restores it
     void fn_803933A4(); // inferred: reset of the event state
     void fn_8037F744(); // inferred: update of the camera mode (tables 0x8074E018 and 0x8074E114)
-    void fn_803918EC(); // inferred: corrections of the camera (not written)
+    void fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* param); // inferred: debug menu of a mode
+    // inferred: moves the camera from the saved one (m80C) to pos/target over t; with collide, the eye is moved
+    // out of the walls
+    void fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target, const CharaTask* chara, int collide,
+                     float fovy, float t);
+    void fn_8038E540(const CharaTask* chara, int* state, atn::Vector3* pos, atn::Vector3* target,
+                     const atn::Vector3* charaPos); // inferred: collision of the eye
+    void fn_803918EC(); // inferred: ambient sway of the camera (xsca of the map)
     void fn_803920C8();
     void fn_80392510();
     void fn_80392FE8();
@@ -159,15 +176,22 @@ public:
 
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     unsigned char m3E8[0x46C - 0x3E8];
-    int m46C;
-    unsigned char m470[0x4B4 - 0x470];
+    GameCameraModeParam_unk m46C;
     GameCameraTimer_unk m4B4; // inferred: blend from m684 to m4C0
     GameCameraParam_unk m4C0;
     atn::Vector3 m4FC;     // inferred: position of the fixed mode (relative to the character when m518 is set)
     atn::Vector3 m508;     // inferred: target of the fixed mode
     float m514;            // inferred: fovy of the fixed mode
     int m518;              // inferred: m4FC/m508 follow the character
-    unsigned char m51C[0x684 - 0x51C];
+    GameCameraParam_unk m51C; // inferred: parameters of the "hips" side mode (copied by fn_8038F52C)
+    unsigned char m558[0x648 - 0x558];
+    int m648;              // inferred: state of the collision of the side mode (fn_8038E540)
+    float m64C;            // inferred: fovy of the side mode
+    unsigned char m650[0x654 - 0x650];
+    float m654;            // inferred: side offset of the side mode
+    float m658;            // inferred: height of its position
+    float m65C;            // inferred: distance of its position behind the character
+    unsigned char m660[0x684 - 0x660];
     GameCameraParam_unk m684;
     unsigned char m6C0[0x73C - 0x6C0];
     float m73C;          // inferred: fovy of the box camera mode (fn_80388A88)
