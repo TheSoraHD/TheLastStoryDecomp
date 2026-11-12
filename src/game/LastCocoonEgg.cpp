@@ -42,6 +42,8 @@ struct EggField_unk {
     int m970;   // inferred: frames
     float m974; // inferred: x amplitude
     float m978; // inferred: y amplitude
+    unsigned char m97C[0x10D8 - 0x97C];
+    RouteTable_unk* m10D8; // inferred: route table of the map
     // inferred: starts a camera shake (name invented)
     void Shake_unk(int frame, float x, float y) {
         m96C = m96C % 2;
@@ -351,6 +353,52 @@ void LastCocoonEgg::fn_80454D4C() {
 }
 
 extern "C" double sin(double x);
+
+// inferred: offset of the shake: random in x/z, alternating sign every frame and fading with the frame
+// count (name invented)
+inline atn::Vector3 EggShakeOffset_unk(const LastCocoonEggShake_unk& s) {
+    if (s.m00 >= s.mFrames) {
+        return lbl_807C7030;
+    }
+    float z = 0.7f * s.mY + 0.3f * s.mY * ((rand() % 1001) / 1000.0f);
+    float x = 2.0f * s.mX * ((rand() % 1001) / 1000.0f) - s.mX;
+    atn::Vector3 v(x, 0.0f, z);
+    if (s.m00 % 2 == 0) {
+        v = atn::Vector3(-v.x, -v.y, -v.z);
+    }
+    v *= (float)s.m00 / (float)s.mFrames;
+    return v;
+}
+
+// NONMATCHING: 98.7% - registers of the place search and stack slots of the shake offset
+// inferred: floats over the place 601 with a sine bob, adds the shake m2548 (alternating sign every frame,
+// fading with its frame count) and eases the scale m540 towards m14D0
+void LastCocoonEgg::fn_80454F08() {
+    if (mC58.mC0 != 0) {
+        if (m14CC != 0) {
+            m14C8++;
+        }
+        if (m14C8 >= 240) {
+            m14C8 = 0;
+        }
+        float bob = 3.0f * (float)sin(6.2831855f * (m14C8 / 240.0f));
+        RoutePlace_unk* place = lbl_8087F430->m10D8->FindPlace_unk(601);
+        if (place != 0) {
+            mPos = place->mPos;
+        } else {
+            mPos = lbl_807C7030;
+        }
+        mPos.y = 15.0f + bob;
+        mPos += EggShakeOffset_unk(m2548);
+        if (m2A4C != 0) {
+            m540 = (atn::Vector3(m14D0, m14D0, m14D0) - m540) * m14D4 + m540;
+        }
+    }
+    fn_80144710();
+    mMotion.m20C_15_8 = mMotion.m50;
+    mMotion.m50 = 0;
+    mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
+}
 
 // inferred: color as four floats (as LeoColor_unk in game/Em401_01_WhiteLeoPard.cpp); name invented
 struct EggColor_unk {
