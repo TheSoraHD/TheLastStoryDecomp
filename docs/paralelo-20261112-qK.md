@@ -4,7 +4,11 @@ Inicio: 2026-11-12 18:25 CET; corte del servidor 18:33-20:16; reanudado 20:16, t
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
-- `MP/D2AMpMenuLobby`: 8 -> 2 (quedan `fn_804BC628` 5 KB y `vf10`). Escritas, todas `NONMATCHING`:
+- `MP/D2AMpMenuLobby`: 8 -> 1 (queda `fn_804BC628`, 5 KB). Escritas, todas `NONMATCHING`:
+  - `vf10` (update, switch de estados) 98,6 %: registros (this r30/r31) y los temporales de `ShowRules_unk`.
+    Las reglas del anfitrion son una `static inline ShowRules_unk(lobby)` comun con `fn_804C0094` (el codigo
+    es identico en las dos); como miembro inline sus literales irian a `.data` (peor). Contador estatico local
+    del estado 7 (`lbl_8087F5C8`).
   - `fn_804C0094` (lado del invitado de las reglas del anfitrion) 98,6 %: registros del id del mensaje (r4/r5)
     y de los temporales layout/modo (r26/r27).
   - `fn_804BFB54` (coloca los huecos de jugador en los "profile_null0N") 99,9 %: solo el offset de

@@ -120,6 +120,9 @@ extern "C" int fn_8050BA68(MpLobbyAids_unk* aids); // inferred: number of aids
 extern "C" int fn_804EA5DC(MpLobbySession_unk* s, int mode); // inferred: number of maps of a game mode
 extern "C" void fn_804EA534(MpLobbySession_unk* s, int map, int host); // inferred: sets the map
 extern "C" int rand();
+extern "C" void fn_804DC450(MpLobbySession_unk* s, int state);
+extern "C" void fn_804DDFFC(MpLobbySession_unk* s); // inferred: resumes the matching
+extern "C" int DWCi_IsMatchingSuspended();
 extern "C" CharaInfo_unk* fn_8020924C(int id); // inferred: character table entry
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" const wchar_t* fn_804FA88C(MpLobbySession_unk* s, int value); // inferred: rank name
@@ -139,6 +142,22 @@ static inline void SetPaneInt_unk(void* layout, const char* name, int value) {
 }
 static inline void SetPaneValue2Int_unk(void* layout, const char* name, int index, int value) {
     fn_801FEDBC(layout, fn_800DC6B4(name), index, value);
+}
+
+// inferred: shows the rules of the session on the base: time limit and healer marks, the number of the rules,
+// the on/off rule and the minutes of the time limit
+static inline void ShowRules_unk(MP::D2AMpMenuLobby* lobby) {
+    wchar_t text[32] = {0};
+    int menuMode = MP::D2AMpMenu::sInstance->mC4;
+    int time = lbl_8087F610->m564;
+    MP::SetPaneValue2_unk(lobby->m4C->mLayout, "time_color", 0, (int)(unsigned char)(time != -1 ? 0xFF : 0));
+    MP::SetPaneValue2_unk(lobby->m4C->mLayout, "healer_color", 0, (int)(unsigned char)(menuMode == 2 ? 0xFF : 0));
+    lobby->m4C->SetNumber_unk("string0007(1)", lbl_8087F610->m5A4, 0);
+    MP::SetPaneText_unk(lobby->m4C->mLayout, "string0011(1)", lbl_8087F610->m5B0 != 0 ? L"ON" : L"OFF");
+    if (lbl_8087F610->m564 != -1) {
+        fn_800DD3FC(text, L"%02d", lbl_8087F610->m564 / 60);
+        MP::SetPaneText_unk(lobby->m4C->mLayout, "string0014(1)", text);
+    }
 }
 
 namespace MP {
@@ -343,6 +362,98 @@ void D2AMpMenuLobby::fn_804BD9B8() {
             D2AMpMenuMessageList::sInstance->fn_804C35F0(3);
         }
         mDCC = 30;
+        break;
+    }
+}
+
+// inferred: update: refreshes the slots once when asked (mD98), then runs the state
+// NONMATCHING: 98.6% - register allocation (this r30/r31) and the layout/mode temporaries of ShowRules_unk
+void D2AMpMenuLobby::vf10() {
+    mE7C++;
+    if (mD98 != 0) {
+        fn_804C18A8();
+        fn_804BFB54();
+        fn_804BF9AC();
+        mD98 = 0;
+        return;
+    }
+    switch (mD88) {
+    case 1:
+        fn_804C18A8();
+        fn_804BFB54();
+        if (m4C->mFrame >= 10.0f) {
+            fn_804BC628(4);
+        }
+        break;
+    case 2:
+        if (D2ACommonDialog::sInstance->m4C != 0) {
+            if (D2ACommonDialog::sInstance->fn_804AC79C() != 0) {
+                mD90 = 9;
+                fn_804BC628(8);
+                mD90 = 9;
+                fn_804BC628(8);
+                fn_804DC450(lbl_8087F610, 0);
+            } else if (D2ACommonDialog::sInstance->fn_804AC7EC() != 0) {
+                fn_804BC628(mD8C);
+            } else if (lbl_8087F610->m508 < 90 && GetHostCount_unk() != 1) {
+                D2ACommonDialog::sInstance->fn_804AD738();
+            }
+        }
+        fn_804C18A8();
+        fn_804BFB54();
+        fn_804BF9AC();
+        break;
+    case 3:
+        fn_804BE4A4();
+        fn_804C18A8();
+        fn_804BFB54();
+        fn_804BF9AC();
+        break;
+    case 4:
+        fn_804BE610();
+        break;
+    case 5:
+        if (fn_804EB1AC(lbl_8087F610) != 0 && D2AMpMenuSetRule::sInstance != 0 &&
+            D2AMpMenuSetRule::sInstance->m5C == 5) {
+            mF90 = 0;
+            ShowRules_unk(this);
+            fn_804BC628(mD90);
+        }
+        break;
+    case 6:
+        fn_804BEDB8();
+        break;
+    case 10: {
+        int suspended = DWCi_IsMatchingSuspended();
+        if (--mDB8 < 0 && (suspended == 1 || lbl_8087F628->mFlags.mB12)) {
+            fn_804DDFFC(lbl_8087F610);
+            fn_804BC628(7);
+        }
+        break;
+    }
+    case 7: {
+        static unsigned int sCount;
+        if (++sCount % 5 == 0 && D2AMpMenuMessageList::sInstance != 0 && D2AMpMenuMessageList::sInstance->m94 != 4) {
+            D2AMpMenuMessageList::sInstance->fn_804C35F0(8);
+        }
+        break;
+    }
+    case 8:
+        fn_804C0430();
+        if (mDA4 != 0) {
+            MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(lbl_8087F628->GetServerAid_unk());
+            if (member != 0) {
+                mDB4 = member->mD0_26;
+            }
+        }
+        break;
+    case 9:
+        if (mDA4 != 0) {
+            MpLobbyMember_unk* member = lbl_8087F610->FindMember_unk(lbl_8087F628->GetServerAid_unk());
+            if (member != 0) {
+                mDB4 = member->mD0_26;
+            }
+        }
         break;
     }
 }
@@ -781,7 +892,7 @@ void D2AMpMenuLobby::fn_804BFB54() {
 // inferred: for the guests, follows the rules of the host: when the game mode changes, sets the mode of the menu,
 // shows the message of the new mode and goes to state 4; then shows the rules on the base (time limit, healer,
 // the on/off rule and the minutes of the time limit)
-// NONMATCHING: 98.6% - registers of the message id (r4/r5) and of the layout/mode temporaries (r26/r27)
+// NONMATCHING: 98.8% - registers of the message id (r4/r5) and of the layout/mode temporaries (r26/r27)
 void D2AMpMenuLobby::fn_804C0094() {
     if (fn_804EB1AC(lbl_8087F610) == 1) {
         return;
@@ -816,18 +927,7 @@ void D2AMpMenuLobby::fn_804C0094() {
         }
         mE74 = lbl_8087F610->m540;
     }
-    wchar_t text[32] = {0};
-    int menuMode = D2AMpMenu::sInstance->mC4;
-    int timeAlpha = (unsigned char)(lbl_8087F610->m564 != -1 ? 0xFF : 0);
-    SetPaneValue2_unk(m4C->mLayout, "time_color", 0, timeAlpha);
-    int healerAlpha = (unsigned char)(menuMode == 2 ? 0xFF : 0);
-    SetPaneValue2_unk(m4C->mLayout, "healer_color", 0, healerAlpha);
-    m4C->SetNumber_unk("string0007(1)", lbl_8087F610->m5A4, 0);
-    SetPaneText_unk(m4C->mLayout, "string0011(1)", lbl_8087F610->m5B0 != 0 ? L"ON" : L"OFF");
-    if (lbl_8087F610->m564 != -1) {
-        fn_800DD3FC(text, L"%02d", lbl_8087F610->m564 / 60);
-        SetPaneText_unk(m4C->mLayout, "string0014(1)", text);
-    }
+    ShowRules_unk(this);
 }
 
 // inferred: before the countdown, waits for the base animation to go back to its first frame and enters the
