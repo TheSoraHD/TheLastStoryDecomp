@@ -277,6 +277,92 @@ void GameCamera::fn_8037F744() {
     }
 }
 
+extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
+extern "C" void* lbl_8087EF70; // inferred: pad
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis (as in Em306GurgBeast)
+
+// inferred: interpolation (b - a) * t + a (as in RedMp)
+static inline atn::Vector3 LerpV_unk(const atn::Vector3& a, const atn::Vector3& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: free camera moved with the stick (dead zone 0.2, squared response, turned around the up vector and the
+// side vector at the speed m558.m1C) from frame 15 on, and kept m558.m10 above the character looking m558.m00 away;
+// with m838 set it blends instead the target from m84C to m840 and the fovy from m85C to half m558.m04 (6 steps)
+// NONMATCHING: 97.4% - stack slots of the temporaries of the two stick rotations and of the final offset
+void GameCamera::fn_803830A8(const CharaTask* chara) {
+    if (++m808 < 15) {
+        return;
+    }
+    if (m838 != 0) {
+        if (m83C < 6) {
+            m83C++;
+            float t = (float)m83C / 6.0f;
+            SetTarget_unk(LerpV_unk(m84C, m840, t));
+            float fovy = 0.5f * m558.m04;
+            mFovy = t * (fovy - m85C) + m85C;
+        }
+    } else {
+        atn::Vector3 pos = mPos;
+        atn::Vector3 target = mTarget;
+        atn::Vector3 up = mUp;
+        atn::Vector3 dir;
+        dir = mTarget - mPos;
+        PSVECNormalize(&dir, &dir);
+        atn::Vector3 side;
+        PSVECCrossProduct(&dir, &up, &side);
+        atn::Vector3 back(m818.x - m80C.x, m818.y - m80C.y, m818.z - m80C.z);
+        PSVECNormalize(&back, &back);
+        if (PSVECSquareMag(&side) < 0.01f) {
+            side.x = 0.0f;
+            side.y = 0.0f;
+            side.z = 1.0f;
+        }
+        float x = fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+        if ((float)__fabs(x) > 0.2f) {
+            float v = (x - (x > 0.0f ? 0.2f : -0.2f)) / 0.8f;
+            v *= (float)__fabs(v);
+            Mtx m;
+            PSMTXRotAxisRad(m, &up, -v * m558.m1C);
+            atn::Vector3 off;
+            off = target - pos;
+            PSMTXMultVec(m, &off, &off);
+            target = off + pos;
+        }
+        float y = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+        if ((float)__fabs(y) > 0.2f) {
+            float v = (y - (y > 0.0f ? 0.2f : -0.2f)) / 0.8f;
+            v *= (float)__fabs(v);
+            Mtx m;
+            PSMTXRotAxisRad(m, &side, v * m558.m1C);
+            atn::Vector3 off;
+            off = target - pos;
+            PSMTXMultVec(m, &off, &off);
+            target = off + pos;
+        }
+        dir = target - pos;
+        PSVECNormalize(&dir, &dir);
+        if ((float)__fabs(dir.y) > 0.9f) {
+            pos = mPos;
+            target = mTarget;
+            dir = (mTarget - mPos).GetNormalize();
+        }
+        atn::Vector3 head = chara->mPos;
+        atn::Vector3 rot = chara->mRot;
+        atn::Vector3 offset(0.0f, m558.m10, 0.0f);
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXMultVec(r, &offset, &offset);
+        head += offset;
+        pos = head;
+        target = pos + dir * m558.m00;
+        mPos = pos;
+        mTarget = target;
+    }
+    fn_8004B378();
+    fn_80392964(1, 1, 0, 0);
+}
+
 // inferred: direction the camera looks at (Event/Manager.cpp)
 extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
     atn::Vector3 dir;
