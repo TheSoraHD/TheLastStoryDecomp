@@ -148,24 +148,6 @@ struct ShopMembers_unk {
 };
 extern "C" ShopMembers_unk* fn_80217D9C(int progress);
 
-// inferred: predicates of the std::sort of the list (by kind and by name, for weapons and protectors)
-struct ShopUpGradeLessA_unk {
-    unsigned char m00;
-};
-struct ShopUpGradeLessB_unk {
-    unsigned char m00;
-};
-struct ShopUpGradeLessC_unk {
-    unsigned char m00;
-};
-struct ShopUpGradeLessD_unk {
-    unsigned char m00;
-};
-// inferred: the std::sort instantiations of this unit (their template internals are not reconstructed)
-extern "C" void fn_805933E8(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk** last, ShopUpGradeLessA_unk* comp);
-extern "C" void fn_80591858(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk** last, ShopUpGradeLessB_unk* comp);
-extern "C" void fn_8058FF18(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk** last, ShopUpGradeLessC_unk* comp);
-extern "C" void fn_8058E0C8(ShopUpGradeEntry_unk** first, ShopUpGradeEntry_unk** last, ShopUpGradeLessD_unk* comp);
 
 // inferred: message ids of the parameters and the parameters shown for weapons and protectors
 static const ShopUpGradeParams_unk sParams = {
@@ -1041,13 +1023,345 @@ inline int ShopUpGrade::IsTarget_unk(EquipParamEntry_unk* param) {
     return ok;
 }
 
-// inferred: std::sort(list.begin(), list.end(), Pred()) (the arguments are evaluated from the last one)
+// inferred: iterator of the list given to std::sort; its members are not inlined in the big sort
+// functions (0x8058ECD4-0x8058EEEC, 0x8058FE8C-0x8058FF08)
+class ShopUpGradeIter_unk {
+public:
+    ShopUpGradeIter_unk(ShopUpGradeEntry_unk* const& p) : mPtr(p) {}
+    ShopUpGradeIter_unk& operator=(const ShopUpGradeIter_unk& o) {
+        mPtr = o.mPtr;
+        return *this;
+    }
+    ShopUpGradeEntry_unk& operator*() const { return *mPtr; }
+    ShopUpGradeIter_unk& operator++() {
+        mPtr++;
+        return *this;
+    }
+    ShopUpGradeIter_unk& operator--() {
+        mPtr--;
+        return *this;
+    }
+    ShopUpGradeEntry_unk* operator+(int n) const { return mPtr + n; }
+    ShopUpGradeEntry_unk* operator-(int n) const { return mPtr + -n; }
+    int operator-(const ShopUpGradeIter_unk& o) const { return mPtr - o.mPtr; }
+    bool operator==(const ShopUpGradeIter_unk& o) const { return mPtr == o.mPtr; }
+    bool operator!=(const ShopUpGradeIter_unk& o) const { return mPtr != o.mPtr; }
+    bool operator<(const ShopUpGradeIter_unk& o) const { return mPtr < o.mPtr; }
+    bool operator>=(const ShopUpGradeIter_unk& o) const { return mPtr >= o.mPtr; }
+
+    ShopUpGradeEntry_unk* mPtr;
+};
+
+extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
+extern "C" unsigned long wcslen(const wchar_t* s);
+extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
+extern "C" int fn_800DD3FC(wchar_t* out, const wchar_t* format, ...); // inferred: swprintf
+
+// NONMATCHING: 99.81% (0x8058E5F8, 0x80591D88) - L"%s" is a weak @STRING@ here (inline member) and in the
+// file pool in the original
+// inferred: order of the list (std::sort predicates): the items with a row first; the same item by member
+// (the bag last); then by the main parameter (higher first, by name when equal: A weapons, C protectors)
+// or by name (without the "+n" of the upgrades, shorter first: B weapons, D protectors)
+struct ShopUpGradeLessA_unk {
+    bool operator()(const ShopUpGradeEntry_unk& a, const ShopUpGradeEntry_unk& b) const {
+        WeaponParamEntry_unk* pa = fn_80206C50(a.mCode);
+        WeaponParamEntry_unk* pb = fn_80206C50(b.mCode);
+        if (pa != 0 && pb == 0) {
+            return true;
+        }
+        if (pa == 0 && pb != 0) {
+            return false;
+        }
+        if (a.mCode == b.mCode) {
+            if (a.mMember >= 0 && b.mMember >= 0) {
+                return a.mMember < b.mMember;
+            }
+            if (a.mMember >= 0) {
+                return true;
+            }
+            return false;
+        }
+        if ((float)__fabs(pa->m00 - pb->m00) < 1.1920929e-07f) {
+            return wcscmp(fn_80211480(a.mCode)->mName, fn_80211480(b.mCode)->mName) < 0;
+        }
+        return pa->m00 > pb->m00;
+    }
+};
+struct ShopUpGradeLessB_unk {
+    bool operator()(const ShopUpGradeEntry_unk& a, const ShopUpGradeEntry_unk& b) const {
+        WeaponParamEntry_unk* pa = fn_80206C50(a.mCode);
+        WeaponParamEntry_unk* pb = fn_80206C50(b.mCode);
+        if (pa != 0 && pb == 0) {
+            return true;
+        }
+        if (pa == 0 && pb != 0) {
+            return false;
+        }
+        if (a.mCode == b.mCode) {
+            if (a.mMember >= 0 && b.mMember >= 0) {
+                return a.mMember < b.mMember;
+            }
+            if (a.mMember >= 0) {
+                return true;
+            }
+            return false;
+        }
+        ItemParamEntry_unk* ia = fn_80211480(a.mCode);
+        ItemParamEntry_unk* ib = fn_80211480(b.mCode);
+        wchar_t na[0x40];
+        fn_800DD3FC(na, L"%s", ia->mName);
+        wchar_t* p = wcschr(na, L'+');
+        if (p != 0) {
+            *p = 0;
+        }
+        wchar_t nb[0x40];
+        fn_800DD3FC(nb, L"%s", ib->mName);
+        p = wcschr(nb, L'+');
+        if (p != 0) {
+            *p = 0;
+        }
+        if (wcscmp(na, nb) == 0) {
+            int la = wcslen(ia->mName);
+            int lb = wcslen(ib->mName);
+            if (la != lb) {
+                return la < lb;
+            }
+        }
+        return wcscmp(ia->mName, ib->mName) < 0;
+    }
+};
+struct ShopUpGradeLessC_unk {
+    bool operator()(const ShopUpGradeEntry_unk& a, const ShopUpGradeEntry_unk& b) const {
+        EquipParamEntry_unk* pa = fn_8020EFEC(a.mCode);
+        EquipParamEntry_unk* pb = fn_8020EFEC(b.mCode);
+        if (pa != 0 && pb == 0) {
+            return true;
+        }
+        if (pa == 0 && pb != 0) {
+            return false;
+        }
+        if (a.mCode == b.mCode) {
+            if (a.mMember >= 0 && b.mMember >= 0) {
+                return a.mMember < b.mMember;
+            }
+            if (a.mMember >= 0) {
+                return true;
+            }
+            return false;
+        }
+        if ((float)__fabs(pa->m08 - pb->m08) < 1.1920929e-07f) {
+            return wcscmp(fn_80211480(a.mCode)->mName, fn_80211480(b.mCode)->mName) < 0;
+        }
+        return pa->m08 > pb->m08;
+    }
+};
+struct ShopUpGradeLessD_unk {
+    bool operator()(const ShopUpGradeEntry_unk& a, const ShopUpGradeEntry_unk& b) const {
+        EquipParamEntry_unk* pa = fn_8020EFEC(a.mCode);
+        EquipParamEntry_unk* pb = fn_8020EFEC(b.mCode);
+        if (pa != 0 && pb == 0) {
+            return true;
+        }
+        if (pa == 0 && pb != 0) {
+            return false;
+        }
+        if (a.mCode == b.mCode) {
+            if (a.mMember >= 0 && b.mMember >= 0) {
+                return a.mMember < b.mMember;
+            }
+            if (a.mMember >= 0) {
+                return true;
+            }
+            return false;
+        }
+        ItemParamEntry_unk* ia = fn_80211480(a.mCode);
+        ItemParamEntry_unk* ib = fn_80211480(b.mCode);
+        wchar_t na[0x40];
+        fn_800DD3FC(na, L"%s", ia->mName);
+        wchar_t* p = wcschr(na, L'+');
+        if (p != 0) {
+            *p = 0;
+        }
+        wchar_t nb[0x40];
+        fn_800DD3FC(nb, L"%s", ib->mName);
+        p = wcschr(nb, L'+');
+        if (p != 0) {
+            *p = 0;
+        }
+        if (wcscmp(na, nb) == 0) {
+            int la = wcslen(ia->mName);
+            int lb = wcslen(ib->mName);
+            if (la != lb) {
+                return la < lb;
+            }
+        }
+        return wcscmp(ia->mName, ib->mName) < 0;
+    }
+};
+
+// inferred: std::swap of two lines (0x8058ED28)
+inline void Swap_unk(ShopUpGradeEntry_unk& a, ShopUpGradeEntry_unk& b) {
+    ShopUpGradeEntry_unk tmp = a;
+    a = b;
+    b = tmp;
+}
+
+// inferred: the reference type of the predicate (the recursion of std::sort uses its own copy of the
+// function, with its own counter: 0x8058E0C8 / 0x8058E7A4)
+template <class T>
+struct ShopAddRef_unk {
+    typedef T& type;
+};
+template <class T>
+struct ShopAddRef_unk<T&> {
+    typedef T& type;
+};
+
+// inferred: std::min_element (inlined in the selection sort)
+template <class It, class Cmp>
+inline It MinElement_unk(It first, It last, Cmp& comp) {
+    if (first == last) {
+        return first;
+    }
+    It result = first;
+    while (++first != last) {
+        if (comp(*first, *result)) {
+            result = first;
+        }
+    }
+    return result;
+}
+
+// inferred: selection sort of the short ranges (0x8058FAD0)
+// NONMATCHING: 93.40% - the original keeps last - 1 and last on the stack
+template <class It, class Cmp>
+void SortSelect_unk(It first, It last, Cmp& comp) {
+    if (first == last) {
+        return;
+    }
+    It end = last - 1;
+    for (; first != end; ++first) {
+        It min = MinElement_unk(first, last, comp);
+        if (min != first) {
+            Swap_unk(*min, *first);
+        }
+    }
+}
+
+// inferred: puts the median of the three elements in *c (0x8058EF08)
+// NONMATCHING: 99.1-99.9% - the wide literal L"%s" of the inlined predicates is a weak @STRING@ here and
+// part of the file pool (@wstringBase0) in the original
+template <class It, class Cmp>
+void SortMedian_unk(It a, It b, It c, Cmp& comp) {
+    bool x = !comp(*c, *a);
+    bool y = !comp(*b, *c);
+    if (x && y) {
+        return;
+    }
+    if (!x && !y) {
+        Swap_unk(*a, *b);
+        return;
+    }
+    if (comp(*b, *a)) {
+        Swap_unk(*a, *b);
+    }
+    if (x) {
+        Swap_unk(*b, *c);
+    } else {
+        Swap_unk(*a, *c);
+    }
+}
+
+// inferred: std::sort (quicksort on a median of three with a rotating offset, selection sort below 21)
+// NONMATCHING: 96-98% (0x8058E0C8, 0x8058E7A4, 0x80591858, 0x80591F34, 0x805933E8, 0x805949B0) - scheduling of
+// the two pivot offsets; with LessC_unk the predicate and the selection sort are inlined here while the
+// original keeps them out of line (0x8058FF18 and 0x80590578 differ in size)
+template <class It, class Cmp>
+void Sort_unk(It first, It last, Cmp comp) {
+    static int sOffset = -4;
+    for (;;) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            SortSelect_unk(first, last, comp);
+            return;
+        }
+        It i = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        It j = first + (3 * n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        It pivot = last - 1;
+        SortMedian_unk(i, j, pivot, comp);
+        i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            ++i;
+        }
+        while (--j != i && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            Swap_unk(*i, *j);
+            ++i;
+            for (;;) {
+                while (comp(*i, *pivot)) {
+                    ++i;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                Swap_unk(*i, *j);
+                ++i;
+            }
+        }
+        if (i == first) {
+            Swap_unk(*i, *pivot);
+            ++i;
+            j = last;
+            if (!comp(*first, *--j)) {
+                while (i != last && !comp(*first, *i)) {
+                    ++i;
+                }
+                if (i < j) {
+                    Swap_unk(*i, *j);
+                }
+            }
+            if (i < j) {
+                for (;;) {
+                    while (!comp(*first, *i)) {
+                        ++i;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    Swap_unk(*i, *j);
+                    ++i;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            Sort_unk<It, typename ShopAddRef_unk<Cmp>::type>(first, i, comp);
+            first = i;
+        } else {
+            Sort_unk<It, typename ShopAddRef_unk<Cmp>::type>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+// inferred: std::sort(list.begin(), list.end(), Pred())
 template <class Pred>
-inline void SortList_unk(std::vector<ShopUpGradeEntry_unk>& list, Pred comp,
-                         void (*sort)(ShopUpGradeEntry_unk**, ShopUpGradeEntry_unk**, Pred*)) {
-    ShopUpGradeEntry_unk* last = list.end();
-    ShopUpGradeEntry_unk* first = list.begin();
-    sort(&first, &last, &comp);
+inline void SortList_unk(std::vector<ShopUpGradeEntry_unk>& list, Pred comp) {
+    Sort_unk(ShopUpGradeIter_unk(list.begin()), ShopUpGradeIter_unk(list.end()), comp);
 }
 
 // NONMATCHING: 94.41% - the original reads the members of the local list through other address forms (lwzx) and repeats the null check of the protector
@@ -1112,15 +1426,15 @@ void ShopUpGrade::fn_8058DB10() {
     }
     if (mTab == 0 || mTab == 2) {
         if (mSortOrder == 0) {
-            SortList_unk(mItems, ShopUpGradeLessA_unk(), fn_805933E8);
+            SortList_unk(mItems, ShopUpGradeLessA_unk());
         } else {
-            SortList_unk(mItems, ShopUpGradeLessB_unk(), fn_80591858);
+            SortList_unk(mItems, ShopUpGradeLessB_unk());
         }
     } else if (mTab == 1) {
         if (mSortOrder == 0) {
-            SortList_unk(mItems, ShopUpGradeLessC_unk(), fn_8058FF18);
+            SortList_unk(mItems, ShopUpGradeLessC_unk());
         } else {
-            SortList_unk(mItems, ShopUpGradeLessD_unk(), fn_8058E0C8);
+            SortList_unk(mItems, ShopUpGradeLessD_unk());
         }
     }
     if (mTab == 0) {
