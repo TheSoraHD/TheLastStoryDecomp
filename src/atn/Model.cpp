@@ -12,6 +12,7 @@
 #include "atn/AABB_unk.h"
 #include "atn/PBone.h"
 #include "atn/RenderManager.h"
+#include "atn/Scene.h"
 #include "atn/RenderSetting_unk.h"
 #include "std/new.h"
 #include <boost/bind.hpp>
@@ -843,6 +844,46 @@ void ModelBase::vf18(RenderManager* view) {
             fn_80095CD0();
         }
     }
+}
+
+extern "C" void fn_8008E818(ModelBase* model, RenderManager* view); // inferred: draws the meshes
+
+// inferred: draw: picks the level of detail (with the LOD bias of the render settings in the shadow and
+// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, still not
+// written, as a member it would need a new declaration in atn/Model_unk.h)
+// NONMATCHING: 92.0% - scheduling of the inlined sphere (fn_80094F98) and the early return layout
+void ModelBase::vf10(RenderManager* view) {
+    if (m20C_31_24 != 8 || !mFlag6_unk) {
+        return;
+    }
+    int lod = m50;
+    Sphere sphere = GetModel_unk()->fn_80094F98();
+    if (view->GetPass_unk() == 3 || view->GetPass_unk() == 4) {
+        m50 += lbl_8087EFA8->m178;
+        if (m50 >= m20C_23_16) {
+            m50 = m20C_23_16 - 1;
+        }
+    }
+    Matrix3x4 mtx = view->mCamera.mView;
+    if ((mFlags & 0x400) == 0x400 && view->GetPass_unk() == 4) {
+        Scene* scene = m1DC;
+        if (scene == 0) {
+            scene = RenderManager::instance_->mScene;
+        }
+        Matrix3x4 t;
+        PSMTXConcat(mtx.m, scene->mReflect.m, t.m);
+        mtx = t;
+    }
+    if (view->GetPass_unk() != 10) {
+        fn_80091A90(mtx.m);
+    }
+    fn_8008E818(this, view);
+    const int* remap = mLods[m50].m10.mData;
+    if (view->GetPass_unk() == 10) {
+        CalcMatrixStack(0, ModelNodeCallback_unk());
+        fn_80091684(view->mCamera.mView.m, remap);
+    }
+    m50 = lod;
 }
 } // namespace atn
 
