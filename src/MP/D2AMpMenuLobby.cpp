@@ -82,6 +82,9 @@ extern "C" int DWC_GetNumConnectionHost();
 extern "C" int fn_806A8E70();
 extern "C" void fn_804DDA04(MpLobbySession_unk* s); // inferred: sends the game mode
 extern "C" int fn_804E4A20(); // inferred: play time of the player
+extern "C" int fn_804EB26C(MpLobbySession_unk* s, int* count); // inferred: nonzero when everybody answered
+extern "C" int fn_804FC010(MpLobbySession_unk* s);              // inferred: nonzero while a request is pending
+extern "C" int fn_804DE560(MpLobbySession_unk* s, int arg, unsigned char* ok); // inferred: ready state of the room
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" void fn_804A53D4(MenuCommonTask* menu, int a, int b, const MP::MpRect_unk* rect, int c); // inferred: cursor
 extern "C" const wchar_t* fn_804FA7C8(MpLobbySession_unk* s, int mode, int map); // inferred: name of a map
@@ -361,6 +364,51 @@ void D2AMpMenuLobby::fn_804BE4A4() {
         fn_804BC628(mD8C);
     } else if (lbl_8087F610->m508 < 90 && GetHostCount_unk() != 1) {
         D2ACommonDialog::sInstance->fn_804AD738();
+    }
+}
+
+// inferred: colors of the buttons of the face select: "start" (col0003) lit for the host when the players can
+// start, col0004 always lit, the index of the local player, and col0005 while the face can be changed
+// NONMATCHING: 99.7% - @stringBase0 offsets (pool order)
+void D2AMpMenuLobby::fn_804BF550() {
+    if (fn_804EB1AC(lbl_8087F610) != 0) {
+        if (mD88 == 6) {
+            if (fn_804FC010(lbl_8087F610)) {
+                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+                mDB0 = 5;
+            } else {
+                int count;
+                if (fn_804EB26C(lbl_8087F610, &count) && mDB0 <= 0 && count > 1 &&
+                    (GetHostCount_unk() > 1 || lbl_8087F628->mC215 != 0)) {
+                    SetPaneValue2_unk(m64->mLayout, "col0003", 0, 255.0f);
+                } else {
+                    SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+                }
+                if (mDB0 > 0) {
+                    mDB0--;
+                }
+            }
+        } else {
+            unsigned char ok = 1;
+            if (fn_804DE560(lbl_8087F610, 0, &ok) == 0 && ok == 0 && GetHostCount_unk() > 1 &&
+                lbl_8087F610->m540 != 2) {
+                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 255.0f);
+            } else if (lbl_8087F610->m540 != 2 &&
+                       (lbl_8087F610->m508 == -1 || lbl_8087F610->m508 > 900 || GetHostCount_unk() == 1)) {
+                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 255.0f);
+            } else {
+                SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+            }
+        }
+    } else {
+        SetPaneValue2_unk(m64->mLayout, "col0003", 0, 0.0f);
+    }
+    SetPaneValue2_unk(m64->mLayout, "col0004", 0, 255.0f);
+    SetPaneFloat_unk(m64->mLayout, "index", (float)mE60);
+    if (mD88 == 4 && D2AMpMenu::sInstance->mC4 == 1 && lbl_8087F628->m25C == 1) {
+        SetPaneValue2_unk(m64->mLayout, "col0005", 0, 255.0f);
+    } else {
+        SetPaneValue2_unk(m64->mLayout, "col0005", 0, 0.0f);
     }
 }
 
