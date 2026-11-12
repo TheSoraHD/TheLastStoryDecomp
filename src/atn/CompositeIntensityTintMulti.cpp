@@ -108,17 +108,30 @@ public:
 };
 
 // inferred: reference to a cache entry
+// Its constructor, AddRef_unk and Release_unk are plain functions of this file (Model.cpp calls them
+// out of line); the texture accessor is inline (weak copy 0x800D8808).
 struct CompositeCacheHandle_unk {
-    CompositeCacheHandle_unk() : mEntry(0) {}
-    void Release_unk() {
-        if (mEntry != 0) {
-            mEntry->fn_800D8458();
-            mEntry = 0;
-        }
-    }
+    CompositeCacheHandle_unk();
+    void AddRef_unk() const;
+    void Release_unk();
     Texture_unk* fn_800D8808() { return (Texture_unk*)((char*)mEntry + 0x18C); } // weak copy 0x800D8808
     CompositeCacheEntry_unk* mEntry;
 };
+
+CompositeCacheHandle_unk::CompositeCacheHandle_unk() : mEntry(0) {}
+
+void CompositeCacheHandle_unk::AddRef_unk() const {
+    if (mEntry != 0) {
+        mEntry->fn_800D8448();
+    }
+}
+
+void CompositeCacheHandle_unk::Release_unk() {
+    if (mEntry != 0) {
+        mEntry->fn_800D8458();
+        mEntry = 0;
+    }
+}
 
 // inferred: renderer interface (see atn/AABBTree.cpp)
 class IRender {
