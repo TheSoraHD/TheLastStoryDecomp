@@ -1389,6 +1389,69 @@ void Em203GreaterDaemonRedMp::fn_802A35B0(int kind) {
     m1634 = 0;
 }
 
+// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0 of
+// Event/Puppeteer_CharaTask.cpp; inlined here, as in game/Em203GreaterDaemon.cpp)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
+// inferred: breath (m14F4): from frame 33 one bullet per frame along m15DC, each one shaking the camera
+// when its frame comes; nonzero when the breath is over (names invented)
+// NONMATCHING: 95.1% - registers and stack slots of the inlined push_back (as in Red fn_8029795C) and
+// the order of the arguments of fn_800FAB80
+int Em203GreaterDaemonRedMp::fn_802A36B8() {
+    if (m14F4 == 0) {
+        return 1;
+    }
+    if (m15C4 >= 120) {
+        return 1;
+    }
+    if (m15C4 >= 33) {
+        atn::Vector3 dir(0.0f, 0.0f, 30.0f);
+        atn::Matrix3x4 m = fn_800109E0(m15DC);
+        PSMTXMultVec(m.m, &dir, &dir);
+        atn::Vector3 pos = m15D0 + dir * (float)(m15C4 - 33);
+        fn_800FAB80(lbl_8087F048, this, m14F4, m15CC, &pos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+        DaemonBolt_unk bolt;
+        bolt.mFrame = m15C4 + 1;
+        bolt.mPos = pos;
+        m15EC.push_back(bolt);
+        if (m15C4 % 4 == 0) {
+            fn_800C344C("SE_MB003_003", &pos, 0, -1, 1.0f);
+        }
+    }
+    for (unsigned int i = 0; i < m15EC.size(); i++) {
+        if (m15C4 == m15EC[i].mFrame) {
+            ShakeCamera_unk(1, 0.2f, 0.1f);
+        }
+    }
+    m15C4++;
+    return 0;
+}
+
 // inferred: rotation-matrix helper for the Z angle in fn_802A3D80.
 extern "C" void fn_802A3D64(Mtx m, float rad) {
     PSMTXRotRad(m, 'z', rad);
@@ -1410,7 +1473,6 @@ extern "C" void fn_802A4120(HomingParam_unk* param);
 extern "C" EnemyTask** fn_802A4184(std::vector<EnemyTask*>* candidates, int index);
 extern "C" EnemyTask* fn_801A0408(CharaManager<EnemyTask>* mgr); // inferred: first enemy
 extern "C" EnemyTask* fn_801A03EC(EnemyTask* enemy);            // inferred: next enemy
-extern "C" atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot); // inferred: rotation matrix (z, y, x)
 Effect_unk* fn_8013A194(); // inferred: bullet manager (lbl_8087F048)
 
 // inferred: fires the laser (m14E8) at the leader (single) or at every player and every other enemy
