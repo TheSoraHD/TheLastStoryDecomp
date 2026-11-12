@@ -40,11 +40,21 @@ struct CosEditLoad_unk {
     CharaTask* mChara;
 };
 
-// inferred: item given to fn_801CF3C0 (id at 0x04, inventory index at 0x08, negative if none)
+// inferred: entry of the equipment lists of the costume menu (0x18 bytes, CosEditProtector::mB34),
+// given to fn_801CF3C0 (id at 0x04, inventory index at 0x08, negative if none); names invented
 struct CosEditItem_unk {
-    int m00;
-    int mId;
-    int mIndex;
+    // inferred: empty entry (name invented)
+    void Clear_unk() {
+        mIndex = -1;
+        mOwner = -1;
+        mEnabled = 0;
+    }
+    void* mItem;  // 0x00: inferred: protector or equipment entry
+    int mId;      // 0x04: inferred: item id (equipments: the slot)
+    int mIndex;   // 0x08: inferred: inventory index (equipments: the item id)
+    int mOwner;   // 0x0C: inferred: member that has it equipped (-1: none)
+    int mEnabled; // 0x10
+    int m14;
 };
 
 // inferred from __vt__11CosEditBase (0x80782608): base of the costume edit menus (equipment

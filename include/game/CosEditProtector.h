@@ -66,7 +66,11 @@ public:
     void fn_801D924C(); // inferred: state 11
     void fn_801D9388(); // inferred: state 12
     void fn_801D94D0(); // inferred: state 13
+    // inferred: equips the entry on the member (nonzero when it changed; name invented)
+    int fn_801DC42C(int member, CharaTask* chara, CosEditItem_unk* entry, int a, int b);
     void fn_801DD26C(int member);
+    // inferred: puts the cursor of the protector list on `item` (name invented)
+    void fn_801E7098(CosEditItem_unk* item, int list, int* cursor, int* top);
     void fn_801E07A4(int member, int list);
     void fn_801E6714();
     void fn_801E6B10();
@@ -129,9 +133,9 @@ public:
     float mB28;
     atn::D2ATask_unk* mBestTask;  // 0xB2C: equip_best.d2a
     atn::D2ATask_unk* mNaked;     // 0xB30: equip_naked.d2a
-    std::vector<int> mB34[2];
-    std::vector<int> mB4C;
-    std::vector<int> mB58;
+    std::vector<CosEditItem_unk> mB34[2]; // inferred: lists of the protectors and of the equipments
+    std::vector<CosEditItem_unk> mB4C;
+    std::vector<CosEditItem_unk> mB58;
     unsigned char mB64[0xB7C - 0xB64];
     int mB7C;
     int mB80;
@@ -168,10 +172,10 @@ public:
     atn::FixedArray_unk<CosEditSet_unk, 4> m1C0C;
     atn::FixedArray_unk<CosEditSet_unk, 4> m1C30;
     atn::FixedArray_unk<CosEditSet_unk, 4> m1C54;
-    std::vector<int> m1C78;
-    std::vector<int> m1C84;
-    std::vector<int> m1C90;
-    std::vector<int> m1C9C;
+    std::vector<CosEditItem_unk> m1C78;
+    std::vector<CosEditItem_unk> m1C84;
+    std::vector<CosEditItem_unk> m1C90;
+    std::vector<CosEditItem_unk> m1C9C;
 };
 
 #endif
