@@ -438,6 +438,49 @@ void LastCocoonImago::fn_8045E548() {
     fn_8045ABB4(m14E0, 0.0f, m568);
 }
 
+// inferred: game state (as in game/LastCocoonQuadruped.cpp); names invented
+struct ImagoGameState_unk {
+    unsigned char m000[0x3A4];
+    float m3A4; // inferred: time of a frame
+};
+extern "C" ImagoGameState_unk* lbl_8087EFA8;
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
+struct HitResult_unk;
+extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
+                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
+
+void LastCocoonImago::fn_8045E780() {
+    mMotion.mTracks[0].m0C = mStatus.fn_8012DB04();
+    float end = mMotion.mTracks[0].m08;
+    if (end >= mMotion.fn_80097D7C(0)) {
+        m14BC = 0;
+        m14C0 = 0;
+        m590 = fn_800F8548(lbl_8087F048);
+        m58C = 0;
+        fn_8016E970(3);
+    }
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= 28.0f && frame <= 58.0f) {
+        float t = mMotion.mTracks[0].m0C * lbl_8087EFA8->m3A4;
+        atn::Vector3 dir;
+        dir.x = 0.0f;
+        dir.y = 0.0f;
+        dir.z = 1.0f;
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(mRot.y);
+        PSMTXMultVec(m.m, &dir, &dir);
+        mPos += dir * 3.75f * t;
+        float turn = t * (0.15f * (m14D4.ToRotation_unk().y - mRot.y));
+        mRot.y = atn::WrapAngle_unk(mRot.y + turn);
+        frame = mMotion.mTracks[0].m08;
+        if (frame >= 35.0f && frame <= 46.0f) {
+            HitInfo_unk* bullet = fn_80219E6C(0x5B6);
+            fn_80144710();
+            fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+        }
+    }
+}
+
 void LastCocoonImago::fn_8045EB60() {
     int fromHang = m58C == 14;
     SetMode_unk(2);
