@@ -129,7 +129,7 @@ public:
     virtual void vf10();          // 0x803E8A50
 
     // inferred: plays the voice `name` of `chara`, with its lip sync
-    atn::SoundRef fn_803EA09C(CharaTask* chara, const char* name, int a, int b, int c, float volume);
+    atn::SoundRef fn_803EA09C(CharaTask* chara, const char* name, int at, int steal, int offset, float volume);
     // inferred: plays the voice `name` at `pos`
     atn::SoundRef fn_803E907C(const char* name, const atn::Vector3* pos, int offset, int steal, float volume);
     // inferred: says the voice `kind` of `chara` (or of a random member of the party) after `delay` frames

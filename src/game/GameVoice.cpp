@@ -22,7 +22,10 @@ extern "C" const char* fn_80049CDC(atn::SoundEngine_unk* engine, unsigned int id
 extern "C" int fn_800CB4EC(atn::SoundRef* sound);  // inferred: the sound is being prepared
 extern "C" bool fn_800CB58C(atn::SoundRef* sound); // inferred: the sound is playing
 extern "C" int fn_800CB6F8(atn::SoundRef* sound);  // inferred: sound id
-extern "C" int fn_8006AA20(const char* path);       // inferred: the file exists
+extern "C" int fn_8006AA20(const char* path);
+extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume); // inferred: 3D sound
+extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: 2D sound
+extern "C" int fn_80049B2C(atn::SoundEngine_unk* engine, unsigned int id); // inferred: the sound is a voice of the stream bank       // inferred: the file exists
 extern "C" void fn_800CB504(atn::SoundRef* sound);  // inferred: starts the prepared sound
 extern "C" void fn_800CB6E4(atn::SoundRef* sound, const void* pos); // inferred: sets the position
 extern "C" void fn_800CB5B4(atn::SoundRef* sound, float volume, int frames); // inferred: sets the volume
@@ -389,6 +392,82 @@ atn::SoundRef GameVoice::fn_803E9B7C(unsigned int id, int offset, int steal, flo
     GameVoiceRequest_unk request;
     request.mState = 1;
     request.mChannel = channel;
+    mRequests.push_back(request);
+    return channel->mSound;
+}
+
+// inferred: loads the lip sync of the voice `name` once (name invented)
+static inline void LoadLip_unk(GameVoiceChannel_unk* channel, const char* name) {
+    if (!channel->mPrepared) {
+        char path[0x100];
+        sprintf(path, "/database/lip/%s.lip\0", name);
+        if (fn_8006AA20(path)) {
+            channel->mFile.vf0C(path);
+        }
+        channel->mPrepared = 1;
+    }
+}
+
+// NONMATCHING: 99.74% - r23/r24 swapped between the id of the inlined CheckPrepared_unk and the sound; r4/r5 in
+// the dead code of GameVoiceRequest_unk::Reset_unk (as fn_803E9B7C)
+// inferred: plays the voice `name` of `chara` (3D at the character when `at` is set) and loads its lip sync
+atn::SoundRef GameVoice::fn_803EA09C(CharaTask* chara, const char* name, int at, int steal, int offset, float volume) {
+    atn::SoundRef ref;
+    if (mRequests.size() >= 32) {
+        return ref;
+    }
+    GameVoiceChannel_unk* channel = fn_803EB668(chara, name, steal);
+    if (channel == 0) {
+        return ref;
+    }
+    channel->CheckPrepared_unk(name);
+    if (!channel->mPlaying) {
+        channel->Stop_unk(0);
+        atn::SoundEngine_unk* engine = lbl_8087EE90;
+        if (fn_80049B2C(engine, fn_80049B74(engine, name))) {
+            if (at != 0 && chara != 0) {
+                const atn::Vector3* pos = &chara->mPos;
+                atn::SoundCore* sound = NewVoice_unk(fn_80049B74(lbl_8087EE90, name));
+                if (sound == 0) {
+                    sound = 0;
+                } else {
+                    sound->mA8 = lbl_8087EFE8->fn_800CFDA0(2);
+                    sound->mAC = lbl_8087EFE8->fn_800CFDC8(8);
+                    sound->fn_800CA7D4(0);
+                    sound->fn_800C97F8(name, pos);
+                }
+                channel->mSound = (atn::SoundObject*)sound;
+            } else {
+                atn::SoundCore* sound = NewVoice_unk(fn_80049B74(lbl_8087EE90, name));
+                if (sound == 0) {
+                    sound = 0;
+                } else {
+                    sound->mA8 = lbl_8087EFE8->fn_800CFDA0(2);
+                    sound->mAC = lbl_8087EFE8->fn_800CFDC8(8);
+                    sound->fn_800CA7D4(0);
+                    sound->fn_800C93D4(name);
+                }
+                channel->mSound = (atn::SoundObject*)sound;
+            }
+        } else if (at != 0 && chara != 0) {
+            channel->mSound = fn_800C344C(name, &chara->mPos, offset, 2, volume);
+        } else {
+            channel->mSound = fn_800C31F4(name, offset, 2, volume);
+        }
+    }
+    channel->mPlaying = 0;
+    LoadLip_unk(channel, name);
+    channel->mPrepared = 0;
+    GameVoiceRequest_unk request;
+    request.mState = 1;
+    request.mChannel = channel;
+    request.mChara = chara;
+    channel->mChara = chara;
+    fn_800CB5B4(&request.mChannel->mSound, volume, 0);
+    fn_800CB654(&request.mChannel->mSound, 1.0f, 1.0f, 1.0f);
+    if (fn_80049C3C(lbl_8087EE90, name) != 0) {
+        fn_800CB654(&request.mChannel->mSound, 0.0f, 0.0f, 0.0f);
+    }
     mRequests.push_back(request);
     return channel->mSound;
 }
