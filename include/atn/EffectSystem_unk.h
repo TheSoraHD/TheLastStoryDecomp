@@ -79,20 +79,31 @@ struct EffectParam_unk;
 struct EffectAnimData_unk {
     int m00;
     EffectParam_unk* mParams;    // 0x04: inferred: one per emitter (0x26C bytes each)
-    unsigned char m08[0x18 - 0x08];
+    int m08;
+    struct EffectFileEntry_unk* mEntries; // 0x0C: inferred: entries of the effect data (0x138 bytes each)
+    unsigned int mParticleDefCount; // 0x10: inferred: particle definitions
+    int m14;
     unsigned int* mAnimFlags;    // 0x18: per emitter, bit 0: animated
     EffectEmitterCurves_unk* mEmitters; // 0x1C
+    int m20;
+    int m24;
+    int* mEmitterOn;             // 0x28: inferred: per emitter, started with the effect
+    int* mParticleOn;            // 0x2C: inferred: per particle definition, started with the effect
 };
 // inferred: parameters of an effect (fields named by offset)
 struct EffectParam_unk {
-    unsigned char m00[0x48];
+    unsigned char m00[0x40];
+    int m40;           // 0x40: inferred: index of the entry of the effect data (EffectAnimData_unk::mEntries)
+    int m44;
     unsigned int m48;  // 0x48: inferred: first frame of the emission
     unsigned int m4C;  // 0x4C: inferred: bits 28-29 render pass, bits 30-31 mode (fn_8022D328)
     int m50;
     int m54;           // 0x54: inferred: frames of the emission (> 0: it stops after them)
     int m58;           // 0x58: inferred: emission period in frames (at least 1)
     int m5C;           // 0x5C: inferred: slots started per emission (at least 1)
-    unsigned char m60[0x6C - 0x60];
+    unsigned char m60[0x64 - 0x60];
+    float m64;         // 0x64: inferred: scale of the movement (EffectInst_unk::mA8)
+    float m68;
     unsigned int m6C;
     unsigned int m70;
     unsigned int m74;
@@ -237,9 +248,9 @@ struct EffectSlot_unk {
     float m1A0;
     float m1A4;
     EffectFade_unk* m1A8; // 0x1A8: inferred: from EffectSystem_unk::m2C
-    int m1AC;
-    int m1B0;
-    int m1B4;
+    unsigned int m1AC; // 0x1AC: inferred: used items of the fade ring (m1A8)
+    unsigned int m1B0; // 0x1B0: inferred: first item of the ring
+    unsigned int m1B4; // 0x1B4: inferred: size of the ring
 };
 
 
