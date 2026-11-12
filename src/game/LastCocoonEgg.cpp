@@ -8,6 +8,7 @@
 #include "std/string.h"
 #include "atn/Keyboard.h"
 #include "atn/Vector4_unk.h"
+#include "atn/Material_unk.h"
 #include "macros.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
@@ -349,6 +350,54 @@ void LastCocoonEgg::fn_80454D4C() {
     }
 }
 
+extern "C" double sin(double x);
+
+// inferred: color as four floats (as LeoColor_unk in game/Em401_01_WhiteLeoPard.cpp); name invented
+struct EggColor_unk {
+    EggColor_unk() {}
+    EggColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    EggColor_unk(GXColor c) : r(c.r / 255.0f), g(c.g / 255.0f), b(c.b / 255.0f), a(c.a / 255.0f) {}
+    EggColor_unk operator-(const EggColor_unk& o) const { return EggColor_unk(r - o.r, g - o.g, b - o.b, a - o.a); }
+    EggColor_unk operator+(const EggColor_unk& o) const { return EggColor_unk(r + o.r, g + o.g, b + o.b, a + o.a); }
+    EggColor_unk operator*(float s) const { return EggColor_unk(r * s, g * s, b * s, a * s); }
+    float r, g, b, a;
+};
+inline EggColor_unk operator*(const atn::Vector4_unk& v, float s) {
+    return EggColor_unk(v.x * s, v.y * s, v.z * s, v.w * s);
+}
+// inferred: name invented
+inline EggColor_unk EggLerp_unk(const EggColor_unk& a, const EggColor_unk& b, float t) {
+    return (b - a) * t + a;
+}
+
+// inferred: base color of the glow of fn_8045531C (static object, initialized in __sinit)
+static atn::Vector4_unk sGlowColor_unk(0.8f, 0.8f, 0.8f, 1.0f);
+
+// NONMATCHING: 99.5% - offset of "light" in the string pool (the strings of the unwritten functions are
+// missing) and the float register of the glow factor
+// inferred: color of the material "light": brightened in mode 8, else pulsing every 120 units of m14D8
+void LastCocoonEgg::fn_8045531C() {
+    Material_unk* material = mMotion.fn_80094B6C("light");
+    if (material != 0) {
+        EggColor_unk color(0.0f, 0.0f, 0.0f, 1.0f);
+        if (m14E0 != 0) {
+            if (m58C == 8) {
+                EggColor_unk base(material->mColor);
+                color = EggLerp_unk(base, EggColor_unk(1.0f, 1.0f, 1.0f, 1.0f), 0.1f);
+            } else {
+                m14D8 += m14DC;
+                if (m14D8 > 120.0f) {
+                    m14D8 -= 120.0f;
+                }
+                float s = (float)sin(6.2831855f * (m14D8 / 120.0f));
+                color = sGlowColor_unk * (0.5f * s + 0.5f);
+            }
+            color.a = 1.0f;
+        }
+        mMotion.fn_80094958("light", &color, &EggColor_unk(material->m20), &EggColor_unk(material->m1C));
+    }
+}
+
 void LastCocoonEgg::fn_80455D80() {
     fn_80232B7C(this, 1000);
     PlayEfp_unk(&m1928, &mMotion);
@@ -532,5 +581,3 @@ void LastCocoonEgg::fn_8045817C() {
     fn_8008771C(group, "ThrowPower", &m2A48, 0, 0, 1.0f, 10000.0f, 10.0f);
 }
 
-// inferred: base color of the glow of fn_8045531C (static object, initialized in __sinit)
-static atn::Vector4_unk sGlowColor_unk(0.8f, 0.8f, 0.8f, 1.0f);
