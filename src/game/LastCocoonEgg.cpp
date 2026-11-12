@@ -8,6 +8,7 @@
 #include "std/string.h"
 #include "atn/Keyboard.h"
 #include "atn/Vector4_unk.h"
+#include "macros.h"
 
 // inferred: effect manager (class unknown), global instance at 0x8087F3C0
 struct EffectMgr_unk {
@@ -317,6 +318,35 @@ atn::Vector3 LastCocoonEgg::vf64(int center) {
         result = m624.mData[0].m04.mCenter;
     }
     return result;
+}
+
+// inferred: column of a matrix (name invented)
+inline atn::Vector3 EggColumn_unk(const atn::Matrix3x4& mtx, int i) {
+    return atn::Vector3(mtx.m[0][i], mtx.m[1][i], mtx.m[2][i]);
+}
+
+// inferred: largest scale axis of a matrix from its column lengths (as in CharaTask's model update; name
+// invented)
+inline float EggMaxScale_unk(const atn::Matrix3x4& mtx) {
+    float sz = EggColumn_unk(mtx, 2).Length_unk();
+    float sy = EggColumn_unk(mtx, 1).Length_unk();
+    float sx = EggColumn_unk(mtx, 0).Length_unk();
+    atn::Vector3 s(sx, sy, sz);
+    return MAX(s.x, MAX(s.y, s.z));
+}
+
+// inferred: updates the matrices of the debug model m14EC from m18BC (largest scale axis from the column
+// lengths, as CharaTask's model update)
+void LastCocoonEgg::fn_80454D4C() {
+    if (m14E4 != 0) {
+        const atn::Matrix3x4& mtx = m18BC;
+        __MtxCopy(m14EC.mMtx.m, mtx.m);
+        m14EC.m54 = EggMaxScale_unk(mtx);
+        m14EC.m20C_15_8 = m14EC.m50;
+        m14EC.m50 = 0;
+        m14EC.fn_80097E80(1);
+        m14EC.CalcMatrixStack(atn::ModelNodeCallback_unk());
+    }
 }
 
 void LastCocoonEgg::fn_80455D80() {
