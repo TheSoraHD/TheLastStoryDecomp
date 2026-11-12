@@ -2,6 +2,7 @@
 #define GAME_EM314IVY_H
 
 #include "atn/Array_unk.h"
+#include "atn/FixedArray.h"
 #include "game/CharaTask.h"
 #include "game/SpecialEnemyBase.h"
 
@@ -50,13 +51,9 @@ public:
     int m150C;
     // inferred: damage spheres kept while hidden; vf104 moves them back into m624 when the ivy appears
     atn::SimpleVector<CharaTask::Item14_unk> m1510;
-    unsigned int m151C; // inferred: number of points drawn by vf14
-    struct Point_unk {
-        unsigned char m00[0x04];
-        atn::Vector3 m04;
-        unsigned char m10[0x14 - 0x10];
-        float m14;
-    }* m1520[0x20];
+    // inferred: route points where the ivy can appear (the nearest one, its neighbours and theirs);
+    // drawn by vf14
+    atn::FixedArray_unk<RoutePoint_unk*, 0x20> mPoints; // 0x151C
     int m15A0;        // inferred: "RandomPosition" == 1
     int m15A4;
     int m15A8;

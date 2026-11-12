@@ -2,6 +2,7 @@
 #include "atn/EffectSystem_unk.h"
 #include "game/BattleTask.h"
 #include "game/GameTask.h"
+#include "game/GameScene.h"
 #include "game/GameVoice.h"
 #include "game/Inventory.h"
 #include "atn/Csv.h"
@@ -30,6 +31,12 @@ typedef EffectColor_unk IvyColor_unk;
 extern "C" void fn_8044D6AC(void* mgr, int money); // inferred: adds money (gmk/RandomMerchant.cpp)
 struct Field_unk;
 extern "C" Field_unk* lbl_8087F430;
+// inferred: path of a route point (8 bytes; as in gmk/MeetingSpot.cpp)
+struct RoutePath_unk {
+    int m00;
+    int m04;
+};
+extern "C" unsigned short fn_803CD958(RoutePath_unk* path, int point); // inferred: next point towards `point`
 extern "C" atn::SoundRef fn_800C344C(const char* name, const void* pos, int arg2, int arg3, float volume);
 
 // inferred: sound effects of the ivy
@@ -49,7 +56,7 @@ Em314Ivy::Em314Ivy(atn::Task* parent, EnemyInfo_unk* info)
     : SpecialEnemyBase(parent, info), m14D4(info->m14),
 
       m14E0(1e16f), m14E4(0), m14EC(0),
-      m14F0(0), m14F4(0), m14F8(0), m14FC(1.0f), m1500(1.0f), m1504(1.0f), m1508(1.0f), m150C(0), m151C(0), m15A0(1), m15A4(0), m15A8(0), m15AC(0), m15B0(-1), m15B4(0), m15B8(0) {
+      m14F0(0), m14F4(0), m14F8(0), m14FC(1.0f), m1500(1.0f), m1504(1.0f), m1508(1.0f), m150C(0), m15A0(1), m15A4(0), m15A8(0), m15AC(0), m15B0(-1), m15B4(0), m15B8(0) {
     char name[0x100];
     char path[0x100];
     if (fn_805A3D68(name, info->m2C)) {
@@ -61,6 +68,87 @@ Em314Ivy::Em314Ivy(atn::Task* parent, EnemyInfo_unk* info)
 }
 
 Em314Ivy::~Em314Ivy() {}
+
+// NONMATCHING: 97.76% - saved registers (this in r25, the new array of the inlined reserve in r24 in the
+// original)
+// inferred: once loaded, collects the route points where the ivy can appear and keeps its damage spheres
+// apart while it is hidden
+int Em314Ivy::vf0C() {
+    if (fn_8013655C() != 0) {
+        return 0;
+    }
+    if (m1438 != 0 && (m1438->mFlags & 2) != 2) {
+        return 0;
+    }
+    if (m14B4.fn_80473F50() != 0) {
+        return 0;
+    }
+    fn_80310C64((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
+    if (m1438 != 0) {
+        m1438->fn_800D246C(0);
+        m1438->mFlags |= 4;
+    }
+    fn_80310C64((const char*)m14B4.fn_80470580(), m14B4.fn_8047059C());
+    vfFC();
+    GameScene* scene = lbl_8087F430 != 0 ? ((GameTask*)lbl_8087F430)->m10D8 : 0;
+    if (scene != 0) {
+        int point = scene->fn_803C1560(&mPos, 0, 0, mC58.m0C.mA0, 1, -1.0f);
+        if (point > 0) {
+            RouteTable_unk* table = (RouteTable_unk*)scene; // inferred: route tables of the scene
+            int count = table->mNumPoints;
+            mPoints.push_back(&table->mPoints[point - 1]);
+            for (int i = 1; i <= count; i++) {
+                if (mPoints.size() >= 0x20) {
+                    break;
+                }
+                if (i == fn_803CD958(&table->mPaths[point - 1], i - 1)) {
+                    mPoints.push_back(&table->mPoints[i - 1]);
+                }
+            }
+            atn::FixedArray_unk<RoutePoint_unk*, 0x20> more;
+            for (unsigned int j = 0; j < mPoints.size(); j++) {
+                RoutePoint_unk* from = mPoints.mData[j];
+                for (int i = 1; i < count; i++) {
+                    if (more.size() >= 0x20) {
+                        break;
+                    }
+                    RoutePoint_unk* p = &table->mPoints[i - 1];
+                    bool found = false;
+                    for (unsigned int k = 0; k < mPoints.size(); k++) {
+                        if (mPoints.mData[k] == p) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found && i == fn_803CD958(&table->mPaths[from->m10 - 1], i - 1)) {
+                        more.push_back(p);
+                    }
+                }
+            }
+            for (unsigned int k = 0; k < more.size(); k++) {
+                if (mPoints.size() >= 0x20) {
+                    break;
+                }
+                mPoints.push_back(more.mData[k]);
+            }
+        }
+    }
+    m1454 = 0;
+    mStatus.m18 |= 0x1C0;
+    mStatus.m18 |= 0x10000;
+    mStatus.m18 |= 0xC010;
+    mStatus.m18 |= 0x2000000;
+    m14A8 &= ~0x04000000;
+    vfFC();
+    if (m624.mSize != 0) {
+        m1510.clear();
+        for (unsigned int i = 0; i < m624.mSize; i++) {
+            m1510.push_back(m624.mData[i]);
+        }
+        m624.clear();
+    }
+    return 1;
+}
 
 void Em314Ivy::fn_80310C64(const char* text, int length) {
     atn::Csv csv(text, length);
@@ -124,13 +212,13 @@ void Em314Ivy::vf10() {
 void Em314Ivy::vf14() {
     fn_80149A30();
     if (m15B8 != 0) {
-        for (unsigned int i = 0; i < m151C; i++) {
-            Point_unk* p = m1520[i];
+        for (unsigned int i = 0; i < mPoints.mSize; i++) {
+            RoutePoint_unk* p = mPoints.mData[i];
             unsigned int color = 0xFFFFFF00;
             if (i == 0) {
                 color = 0xFFFFAA00;
             }
-            lbl_8087EEB0->fn_80062C8C(16, color, p->m04.x, p->m04.y, p->m04.z, 0.0f, p->m14, 5.0f);
+            lbl_8087EEB0->fn_80062C8C(16, color, p->mPos.x, p->mPos.y, p->mPos.z, 0.0f, p->mRadius, 5.0f);
         }
     }
 }
