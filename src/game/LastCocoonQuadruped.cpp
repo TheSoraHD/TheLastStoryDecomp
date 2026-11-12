@@ -9,6 +9,7 @@
 #include "game/EnemyManager.h"
 #include "game/GimmickCommon.h"
 #include "atn/DrawHelper.h"
+#include "game/GameConfig_unk.h"
 #include "atn/Csv.h"
 #include "std/string.h"
 #include "std/string_members.h"
@@ -187,6 +188,9 @@ struct QuadCollResult_unk {
 extern "C" int fn_8004ED34(void* colli, QuadCollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
+extern "C" int fn_8004D388(void* world, QuadCollResult_unk* result, const atn::Vector3* from,
+                           const atn::Vector3* to, unsigned int mask, void* ignore, int arg,
+                           float radius); // inferred: sphere sweep
 // inferred: RouteTable_unk::FindPlace_unk on the field table with the array read inside the loop
 // (as in game/Em208Queen.cpp)
 inline RoutePlace_unk* FindQuadPlace_unk(int id) {
@@ -998,6 +1002,70 @@ void LastCocoonQuadruped::fn_80464608() {
     }
 }
 
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings (m030: frames per second)
+
+// NONMATCHING: 99.9% - stack slots of the position, rotation and color of PlayEfp_unk (reversed)
+// inferred: mode 12: jumps towards m155C (m1568 per frame, with gravity), the bullet 0x5B5 at frame 24
+void LastCocoonQuadruped::fn_80464CF0() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        if (m1574 != 0) {
+            SetMode_unk(13);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x146, 1, 0, 1, 0.0f, 0.1f);
+            m15A8 = 0;
+            fn_80232B7C(this, 1000);
+            PlayEfp_unk(&m179C, &mMotion);
+        } else {
+            SetMode_unk(0);
+            if (m1800 != 0) {
+                ((BattleTask*)lbl_8087F048)->fn_80107A68(&mMotion);
+                m1800 = 0;
+            }
+        }
+        return;
+    }
+    if (m14C0 < 24) {
+        QuadCollResult_unk result;
+        QuadCollResult_unk unused;
+        atn::Vector3 move = m1568;
+        move.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
+        CharaTask::Sphere_unk sphere = fn_80176548(mPos);
+        sphere.mRadius += 30.0f;
+        sphere.mCenter.y += 30.0f;
+        fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &move, 0x80000080, &mColli, 0, sphere.mRadius);
+        mPos = result.m10;
+        mPos.x -= m5A4.x;
+        mPos.y -= m5A4.y;
+        mPos.z -= m5A4.z;
+        mPos.y -= sphere.mRadius;
+    } else if (m14C0 == 24) {
+        fn_80144710();
+        m1574 = 0;
+        float rotY = mRot.y;
+        int id = fn_800F8548(lbl_8087F048);
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, fn_80219E6C(0x5B5), id, 30, -1, rotY);
+    } else {
+        QuadCollResult_unk result;
+        atn::Vector3 move(0.0f, -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030), 1.0f);
+        atn::Matrix3x4 m;
+        QuadRotationZYX_unk(m, mRot);
+        PSMTXMultVec(m.m, &move, &move);
+        QuadCollResult_unk unused;
+        CharaTask::Sphere_unk sphere = fn_80176548(mPos);
+        sphere.mRadius += 30.0f;
+        sphere.mCenter.y += 30.0f;
+        fn_8004D388(lbl_8087EE98, &result, &sphere.mCenter, &move, 0x80000080, &mColli, 0, sphere.mRadius);
+        mPos = result.m10;
+        mPos.x -= m5A4.x;
+        mPos.y -= m5A4.y;
+        mPos.z -= m5A4.z;
+        mPos.y -= sphere.mRadius;
+    }
+}
+
 // NONMATCHING: 99.8% - the bitfield word of the damage record is loaded into r7 (r3 in the original),
 // as in Em204Mulue::fn_802A91D0
 void LastCocoonQuadruped::fn_80465294() {
@@ -1263,9 +1331,6 @@ int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle
     return 0;
 }
 
-extern "C" int fn_8004D388(void* world, QuadCollResult_unk* result, const atn::Vector3* from,
-                           const atn::Vector3* to, unsigned int mask, void* ignore, int arg,
-                           float radius); // inferred: sphere sweep
 
 // NONMATCHING: 99.6% - r28/r29 of the rotated vector and of the direction swapped
 void LastCocoonQuadruped::fn_80468534(atn::Vector3* pos, float* angle, const atn::Vector3& at, float base,

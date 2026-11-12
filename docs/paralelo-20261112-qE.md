@@ -16,7 +16,9 @@ Inicio: 2026-11-12 16:10 (reloj del contenedor). Rama `agent-E`.
   del presupuesto: llama a las copias de Vector3 y a FindPlace_unk; los auxiliares de std::vector son
   copias debiles de Em403WarLion con nombre C).
 
-- Tercera tanda: fn_80468038 (97,7 %: `m560 == 4 || m560 == 5` sale como prueba de rango).
+- Tercera tanda: fn_80468038 (97,7 %: `m560 == 4 || m560 == 5` sale como prueba de rango), fn_80464CF0
+  (modo 12, 99,96 %: ranuras de PlayEfp_unk invertidas; el original construye un QuadCollResult_unk sin
+  usar en cada rama, el de la tercera despues de la matriz).
 
 ## game/LastCocoonImago
 
