@@ -994,6 +994,69 @@ inline void Em203GreaterDaemonRedMp::StartState13_unk() {
     PlayMotion_unk(0x153, 1, 0, 1.0f);
 }
 
+// inferred: state 10 (thunder: m14D8 0 cast, 1 wait, 2 bolts around the target; as Red fn_8029795C)
+// NONMATCHING: 89.5% - the original frame is 0x10 bytes smaller (as in Red fn_8029795C) and the
+// registers of the inlined push_back differ
+void Em203GreaterDaemonRedMp::fn_8029FD34() {
+    if (m14D8 == 0) {
+        float end = mMotion.mTracks[0].m08;
+        if (end >= mMotion.fn_80097D7C(0)) {
+            m14D8 = 1;
+            PlayMotion_unk(2, 1, 0, 1.5f);
+            m14DC = 0;
+            m1600.clear();
+        }
+    } else if (m14D8 == 1) {
+        if (m14DC >= m16C0) {
+            m14D8 = 2;
+            m14DC = 0;
+        }
+    } else if (m14D8 == 2) {
+        if (m16B8 * m16BC >= (int)m1600.mSize && m14DC % m16C8 == 0) {
+            DaemonThunder_unk thunder;
+            if (m1600.mSize == 0) {
+                thunder.mPos = m14D4->mPos;
+                thunder.mFrame = m160C;
+            } else {
+                float step = 2.0f * m16B4 / 6.0f;
+                int x = rand() % (int)(2.0f * m16B4 / step);
+                int z = rand() % (int)(2.0f * m16B4 / step);
+                atn::Vector3 target = m14D4->mPos;
+                atn::Vector3 mid = target + (lbl_8087F430->m080 - target) * 0.5f;
+                atn::Vector3 pos(step * (float)x + (mid.x - m16B4), 0.0f, step * (float)z + (mid.z - m16B4));
+                thunder.mPos = pos;
+                thunder.mFrame = m160C;
+            }
+            Effect_unk* effect = lbl_8087F048;
+            int id = fn_800F8548(effect);
+            fn_800FAB80(effect, this, m1504, id, &thunder.mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            m1600.push_back(thunder);
+        }
+        if (m1600.mSize != 0 && m16B8 % m1600.mSize == 0 && m14DC > m16C8) {
+            m14DC = 0;
+            m14D8 = 1;
+        }
+    }
+    for (unsigned int i = 0; i < m1600.mSize; i++) {
+        if (m160C == m16C4 + m1600[i].mFrame) {
+            Effect_unk* effect = lbl_8087F048;
+            int id = fn_800F8548(effect);
+            fn_800FAB80(effect, this, m1500, id, &m1600[i].mPos, &mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            if (i % 2 == 0) {
+                ShakeCamera_unk(5, 1.0f, 3.0f);
+            }
+        }
+    }
+    int max = m16B8 * m16BC;
+    if ((int)m1600.mSize >= max && m160C >= m16C4 + m1600[max - 1].mFrame + 30) {
+        m14D8 = 0;
+        m1600.clear();
+        ToIdle_unk();
+        m160C = 0;
+    }
+    m160C++;
+}
+
 // inferred: state 11 (dives on the target)
 void Em203GreaterDaemonRedMp::fn_802A057C() {
     atn::Vector3 target = m14D4->mPos;
