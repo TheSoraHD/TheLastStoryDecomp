@@ -28,6 +28,8 @@ public:
             m28 = 0;
             m2C = 0;
         }
+        // inferred: places the parts of the slot on a pane rect (defined in MP/D2AMpMenuLobby.cpp)
+        void SetPos_unk(const MpRect_unk& base);
         MpD2A_unk* mTasks[6]; // inferred: profile, face mark, wait, two balloons, ok
         int m18;
         int m1C;
@@ -51,8 +53,12 @@ public:
     void fn_804BD9B8(); // inferred: enters the state of mD8C
     int fn_804BE330(int count); // inferred: cursor and decide/cancel keys
     void fn_804BE4A4(); // inferred: answer of the common dialog
+    void fn_804BE610(); // inferred: update of the lobby
+    void fn_804BEDB8(); // inferred: update of state 6
     void fn_804BF550();
     void fn_804BF9AC(); // inferred: flashes of the parts
+    void fn_804BFB54(); // inferred: places the player slots
+    void fn_804C0094(); // inferred: guest side of the rules of the host
     void fn_804C0430(); // inferred: countdown before the start
     void fn_804C0548(); // inferred: changes the face
     void fn_804C0A40();
@@ -61,7 +67,9 @@ public:
     void fn_804C1370(); // inferred: draw of states 7-9
     void fn_804C1634();
     void fn_804C2260(int v);
+    void fn_804C18A8();
     void fn_804C2268(int time); // inferred: shows the time left
+    void fn_804C23E4(); // inferred: lottery of the map
     void fn_804C28A0(int count); // inferred: selects the next entry
     void fn_804C2994(int id); // inferred: setter of mDCC (called from atn/PacketPack)
     void fn_804C2D5C(MpLobbyMember_unk* member, const wchar_t* text, int frames, int kind); // inferred: balloon
