@@ -514,6 +514,52 @@ int Actor::vf10() const {
     return 1;
 }
 
+// inferred: largest of three values (std::max by reference)
+inline float MaxScale_unk(const float& a, const float& b) {
+    return (a > b) ? a : b;
+}
+
+// inferred: sets the world matrix of a model and its largest scale axis (inlined; name invented)
+inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
+    static_cast<atn::Matrix3x4&>(model->mMtx) = m;
+    atn::Vector3 scale(atn::Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
+                       atn::Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
+                       atn::Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());
+    // inferred: a max macro (the inner max is evaluated again for the result)
+    model->m54 = scale.x > MaxScale_unk(scale.y, scale.z) ? scale.x : MaxScale_unk(scale.y, scale.z);
+}
+
+// inferred: moves the actor to `pos`
+// NONMATCHING: 99.2% - stack slots of the three column vectors of SetModelMtx_unk (reversed)
+void Actor::fn_8001011C(const atn::Vector3& pos) {
+    switch (m20) {
+    case 7:
+    case 1:
+        GetChara_unk()->mPos = pos;
+        break;
+    case 2:
+        ((GimmickCommon*)m1C)->m6C = pos;
+        break;
+    case 3: {
+        atn::Model* model = ((Puppeteer<atn::Model>*)m1C)->m48;
+        atn::Matrix3x4 m(model->mMtx);
+        m.m[0][3] = pos.x;
+        m.m[1][3] = pos.y;
+        m.m[2][3] = pos.z;
+        SetModelMtx_unk(model, m);
+        ((Puppeteer<atn::Model>*)m1C)->m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        break;
+    }
+    case 4: {
+        atn::Matrix3x4& m = ((DummyData*)m1C)->m18;
+        m.m[0][3] = pos.x;
+        m.m[1][3] = pos.y;
+        m.m[2][3] = pos.z;
+        break;
+    }
+    }
+}
+
 // inferred: position of the actor
 atn::Vector3 Actor::fn_80010374() {
     switch (m20) {

@@ -2,8 +2,8 @@
 
 Inicio: 2026-11-12 16:35 CET. Tope ~19:05.
 
-Total: funciones al 0 % de la cola tocadas 45 -> 27 (DebugInfo, Node, Puppeteer); `report.json` 15117 -> 15122
-(+5, lost 0, sin bajadas). Ninguna unidad pasa a enlazar.
+Total: funciones al 0 % de la cola tocadas 45 -> 26 (DebugInfo, Node, Puppeteer); `report.json` 15117 -> 15123
+(+6, lost 0, sin bajadas). Ninguna unidad pasa a enlazar.
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
@@ -17,7 +17,8 @@ Total: funciones al 0 % de la cola tocadas 45 -> 27 (DebugInfo, Node, Puppeteer)
   ordena y devuelve su indice) 96,7 %; copias de `std::sort` con `game/MslSort_unk.h` (cola B): sort 72,8 %,
   sort recursivo 72,6 %, mediana 56 %. Quedan `fn_805377F0`, `fn_805384CC` (0 %).
 
-- `Event/Puppeteer_CharaTask`: 22 -> 21. `Actor::fn_800112E0` (frente del actor, 84 %, ahora miembro;
+- `Event/Puppeteer_CharaTask`: 22 -> 20. `Actor::fn_8001011C` (mueve el actor, 99,2 %; la matriz del modelo
+  y su escala mayor con un `max` evaluado dos veces, como una macro); `Actor::fn_800112E0` (frente del actor, 84 %, ahora miembro;
   `Event/ActionCameraMode` lo llamaba con un `extern "C"`); `atn::Vector3::fn_80011410` movida antes de su
   primer uso (sigue al 100 %).
 
