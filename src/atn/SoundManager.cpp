@@ -20,10 +20,12 @@ extern "C" int fn_80049B2C(atn::SoundEngine_unk* engine, unsigned int id); // th
 extern "C" void fn_8004A388(atn::SoundEngine_unk* engine, int compressor);
 extern "C" void fn_8004A660(atn::SoundEngine_unk* engine);
 // inferred: debug menu entries
-extern "C" void fn_80087994(void* menu, const char* name, int* value, int callback, int arg);
-extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, int callback,
-                            int arg);
-extern "C" void fn_8008771C(void* menu, const char* name, float* value, int callback, int arg, float min, float max,
+// The callback and its argument are pointers passed as integers: long gives the same code as int
+// and holds a pointer in a 64-bit build (PC port).
+extern "C" void fn_80087994(void* menu, const char* name, int* value, long callback, long arg);
+extern "C" void fn_800874C8(void* menu, const char* name, int* value, int min, int max, int step, long callback,
+                            long arg);
+extern "C" void fn_8008771C(void* menu, const char* name, float* value, long callback, long arg, float min, float max,
                             float step);
 // inferred: debug drawing (atn::DrawHelper)
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -832,24 +834,24 @@ void SoundManager::fn_800D1430() {
         char name[0x20];
         sprintf(name, "Player %d\0", i);
         void* group = fn_8008937C(players, name);
-        fn_80087994(group, "Mute", &mPlayers[i].mMute, (int)fn_800CB800, (int)&mPlayers[i]);
-        fn_8008771C(group, "Volume", &mPlayers[i].mVolume, (int)fn_800CB800, (int)&mPlayers[i], 0.0f, 2.0f, 0.1f);
-        fn_8008771C(group, "Pitch", &mPlayers[i].mPitch, (int)fn_800CB800, (int)&mPlayers[i], 0.1f, 10.0f, 0.1f);
-        fn_8008771C(group, "LPF", &mPlayers[i].mPan, (int)fn_800CB800, (int)&mPlayers[i], 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "FxSendA", &mPlayers[i].mFxSend, (int)fn_800CB800, (int)&mPlayers[i], 0.0f, 1.0f, 0.1f);
+        fn_80087994(group, "Mute", &mPlayers[i].mMute, (long)fn_800CB800, (long)&mPlayers[i]);
+        fn_8008771C(group, "Volume", &mPlayers[i].mVolume, (long)fn_800CB800, (long)&mPlayers[i], 0.0f, 2.0f, 0.1f);
+        fn_8008771C(group, "Pitch", &mPlayers[i].mPitch, (long)fn_800CB800, (long)&mPlayers[i], 0.1f, 10.0f, 0.1f);
+        fn_8008771C(group, "LPF", &mPlayers[i].mPan, (long)fn_800CB800, (long)&mPlayers[i], 0.0f, 1.0f, 0.1f);
+        fn_8008771C(group, "FxSendA", &mPlayers[i].mFxSend, (long)fn_800CB800, (long)&mPlayers[i], 0.0f, 1.0f, 0.1f);
     }
     void* categories = fn_8008937C(menu, "CategoryParam");
     for (int i = 0; i < 32; i++) {
         char name[0x20];
         sprintf(name, "Category %d\0", i);
         void* group = fn_8008937C(categories, name);
-        fn_80087994(group, "Mute", &mCategories[i].mMute, (int)fn_800CBE8C, (int)&mCategories[i]);
-        fn_8008771C(group, "Volume", &mCategories[i].mVolume, (int)fn_800CBE8C, (int)&mCategories[i], 0.0f, 2.0f,
+        fn_80087994(group, "Mute", &mCategories[i].mMute, (long)fn_800CBE8C, (long)&mCategories[i]);
+        fn_8008771C(group, "Volume", &mCategories[i].mVolume, (long)fn_800CBE8C, (long)&mCategories[i], 0.0f, 2.0f,
                     0.1f);
-        fn_8008771C(group, "Pitch", &mCategories[i].mPitch, (int)fn_800CBE8C, (int)&mCategories[i], 0.1f, 10.0f,
+        fn_8008771C(group, "Pitch", &mCategories[i].mPitch, (long)fn_800CBE8C, (long)&mCategories[i], 0.1f, 10.0f,
                     0.1f);
-        fn_8008771C(group, "LPF", &mCategories[i].mPan, (int)fn_800CBE8C, (int)&mCategories[i], 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "FxSendA", &mCategories[i].mFxSend, (int)fn_800CBE8C, (int)&mCategories[i], 0.0f, 1.0f,
+        fn_8008771C(group, "LPF", &mCategories[i].mPan, (long)fn_800CBE8C, (long)&mCategories[i], 0.0f, 1.0f, 0.1f);
+        fn_8008771C(group, "FxSendA", &mCategories[i].mFxSend, (long)fn_800CBE8C, (long)&mCategories[i], 0.0f, 1.0f,
                     0.1f);
     }
     void* scopes = fn_8008937C(menu, "ScopeParam");
@@ -857,11 +859,11 @@ void SoundManager::fn_800D1430() {
         char name[0x20];
         sprintf(name, "Scope %d\0", i);
         void* group = fn_8008937C(scopes, name);
-        fn_80087994(group, "Mute", &mScopes[i].mMute, (int)fn_800CC518, (int)&mScopes[i]);
-        fn_8008771C(group, "Volume", &mScopes[i].mVolume, (int)fn_800CC518, (int)&mScopes[i], 0.0f, 2.0f, 0.1f);
-        fn_8008771C(group, "Pitch", &mScopes[i].mPitch, (int)fn_800CC518, (int)&mScopes[i], 0.1f, 10.0f, 0.1f);
-        fn_8008771C(group, "LPF", &mScopes[i].mPan, (int)fn_800CC518, (int)&mScopes[i], 0.0f, 1.0f, 0.1f);
-        fn_8008771C(group, "FxSendA", &mScopes[i].mFxSend, (int)fn_800CC518, (int)&mScopes[i], 0.0f, 1.0f, 0.1f);
+        fn_80087994(group, "Mute", &mScopes[i].mMute, (long)fn_800CC518, (long)&mScopes[i]);
+        fn_8008771C(group, "Volume", &mScopes[i].mVolume, (long)fn_800CC518, (long)&mScopes[i], 0.0f, 2.0f, 0.1f);
+        fn_8008771C(group, "Pitch", &mScopes[i].mPitch, (long)fn_800CC518, (long)&mScopes[i], 0.1f, 10.0f, 0.1f);
+        fn_8008771C(group, "LPF", &mScopes[i].mPan, (long)fn_800CC518, (long)&mScopes[i], 0.0f, 1.0f, 0.1f);
+        fn_8008771C(group, "FxSendA", &mScopes[i].mFxSend, (long)fn_800CC518, (long)&mScopes[i], 0.0f, 1.0f, 0.1f);
     }
     void* sound3d = fn_8008937C(menu, "3DSound");
     fn_80087994(sound3d, "Enabled", &m3dEnabled, 0, 0);
