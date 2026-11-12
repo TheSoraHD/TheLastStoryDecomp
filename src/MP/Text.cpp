@@ -27,6 +27,10 @@ public:
     ptr_string_base() : mPtr(0) {}
     virtual ~ptr_string_base() {}
     const T* c_str() const { return mPtr != 0 ? mPtr : lbl_808813D0; }
+    ptr_string_base& operator=(const ptr_string_base& o) {
+        mPtr = (T*)o.c_str();
+        return *this;
+    }
 
     T* mPtr;
 };
@@ -398,13 +402,86 @@ extern "C" int fn_80506C10(atn::FixedArray_unk<int, 16>* out, MpRewardPair_unk* 
 }
 
 // ---------------------------------------------------------------------------------------------
-// inferred: entry with a text (0x1C bytes; constructor 0x805072C4, which clears the whole object
-// after constructing the string member)
+// inferred: message of the online lobby (0x1C bytes; constructor 0x805072C4, which clears the whole
+// object after constructing the string member). Same object as MpMessage_unk (MP/MpMessage_unk.h),
+// with the bit fields written by the reader.
 struct MpTextEntry_unk {
     MpTextEntry_unk();
-    int m00[5];
+    unsigned int mVoice;       // 0x00: inferred: sound id of the name
+    unsigned int mLists : 24;  // 0x04: inferred: lists of the lobby where the message appears
+    unsigned int m04 : 8;
+    unsigned int mCategory : 8; // 0x08
+    unsigned int m08 : 24;
+    short m0C;                 // inferred: id of the name (fn_8021F3E8)
+    int m10;                   // inferred: character id of the speaker
     atn::ptr_string_base<wchar_t, 0> mText; // 0x14
 };
+
+// inferred: message table of the online session (lbl_8087F610 + 0x2A50, MpMessageTable_unk of
+// MP/MpMessage_unk.h): 21 categories and the text buffer
+struct MpTextTable_unk {
+    atn::SimpleVector<MpTextEntry_unk> mCategories[21];
+    wchar_t* mText; // 0xFC
+};
+
+extern "C" void* lbl_8087EEC8; // inferred: font used to convert the names
+extern "C" void* lbl_8087EE90; // inferred: sound engine
+extern "C" void fn_8006F420(void* font, char* out, const wchar_t* in, int size); // inferred: wide to multibyte
+extern "C" unsigned int fn_80049B74(void* engine, const char* name); // inferred: sound id of a name
+extern "C" int fn_800DC1DC(const wchar_t* s); // inferred: wide string to int
+extern "C" int fn_80209184(const wchar_t* id); // inferred: character id
+extern "C" int fn_8021F3E8(const char* name);
+
+// NONMATCHING: 93.32% - order of the copies of the two bit field words in the inlined push_back, register
+// allocation, the font loaded before the name, and the "" of new[] (the original has it after "RAID")
+// inferred: reads the message table of the lobby (message_table_xx.u16: an empty first field, the
+// sound name, the category (1-21), the text, 20 list flags, a value and the speaker)
+extern "C" void fn_80506D94(MpTextTable_unk* table, const wchar_t* data, unsigned long size) {
+    atn::CsvU csv(data, size / 2);
+    unsigned long total = 0;
+    while (csv.fn_8005BBF8()) {
+        if (*csv.fn_8005B9CC() != 0) {
+            continue;
+        }
+        csv.fn_8005B9CC();
+        int category = fn_800DC1DC(csv.fn_8005B9CC());
+        if (--category < 0 || category >= 21) {
+            continue;
+        }
+        total += wcslen(csv.fn_8005B9CC()) + 1;
+    }
+    table->mText = new ((MemoryTag)1, "", "", 0) wchar_t[total];
+    unsigned long pos = 0;
+    csv.SetData(data, size / 2);
+    while (csv.fn_8005BBF8()) {
+        if (*csv.fn_8005B9CC() != 0) {
+            continue;
+        }
+        MpTextEntry_unk e;
+        char name[0x100];
+        fn_8006F420(lbl_8087EEC8, name, csv.fn_8005B9CC(), 0x100);
+        e.mVoice = fn_80049B74(lbl_8087EE90, name);
+        int category = fn_800DC1DC(csv.fn_8005B9CC());
+        e.mCategory = category - 1;
+        if (--category < 0 || category >= 21) {
+            continue;
+        }
+        const wchar_t* text = csv.fn_8005B9CC();
+        fn_800DD3FC(table->mText + pos, L"%s", text);
+        e.mText.mPtr = table->mText + pos;
+        pos += wcslen(text) + 1;
+        e.mLists = 0;
+        for (int i = 0; i < 20; i++) {
+            if (*csv.fn_8005B9CC() != 0) {
+                e.mLists |= 1 << i;
+            }
+        }
+        e.m04 = fn_800DC1DC(csv.fn_8005B9CC());
+        e.m10 = fn_80209184(csv.fn_8005B9CC());
+        e.m0C = fn_8021F3E8(name);
+        table->mCategories[category].push_back(e);
+    }
+}
 
 MpTextEntry_unk::MpTextEntry_unk() {
     memset(this, 0, sizeof(*this));
