@@ -1057,11 +1057,12 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
 extern "C" int fn_800DD3FC(wchar_t* out, const wchar_t* format, ...); // inferred: swprintf
 
-// NONMATCHING: 99.81% (0x8058E5F8, 0x80591D88) - L"%s" is a weak @STRING@ here (inline member) and in the
-// file pool in the original
+// inferred: in an unnamed namespace (local linkage: the L"%s" of the predicates goes to the file pool
+// @wstringBase0 as in the original, not to a weak @STRING@)
 // inferred: order of the list (std::sort predicates): the items with a row first; the same item by member
 // (the bag last); then by the main parameter (higher first, by name when equal: A weapons, C protectors)
 // or by name (without the "+n" of the upgrades, shorter first: B weapons, D protectors)
+namespace {
 struct ShopUpGradeLessA_unk {
     bool operator()(const ShopUpGradeEntry_unk& a, const ShopUpGradeEntry_unk& b) const {
         WeaponParamEntry_unk* pa = fn_80206C50(a.mCode);
@@ -1081,8 +1082,10 @@ struct ShopUpGradeLessA_unk {
             }
             return false;
         }
-        if ((float)__fabs(pa->m00 - pb->m00) < 1.1920929e-07f) {
-            return wcscmp(fn_80211480(a.mCode)->mName, fn_80211480(b.mCode)->mName) < 0;
+        if (atn::Abs_unk(pa->m00 - pb->m00) < 1.1920929e-07f) {
+            ItemParamEntry_unk* ia = fn_80211480(a.mCode);
+            ItemParamEntry_unk* ib = fn_80211480(b.mCode);
+            return wcscmp(ia->mName, ib->mName) < 0;
         }
         return pa->m00 > pb->m00;
     }
@@ -1130,6 +1133,8 @@ struct ShopUpGradeLessB_unk {
         return wcscmp(ia->mName, ib->mName) < 0;
     }
 };
+// inferred: empty assert of the shop code (release build)
+#define SHOPUP_ASSERT_UNK(x) ((void)0)
 struct ShopUpGradeLessC_unk {
     bool operator()(const ShopUpGradeEntry_unk& a, const ShopUpGradeEntry_unk& b) const {
         EquipParamEntry_unk* pa = fn_8020EFEC(a.mCode);
@@ -1149,8 +1154,18 @@ struct ShopUpGradeLessC_unk {
             }
             return false;
         }
-        if ((float)__fabs(pa->m08 - pb->m08) < 1.1920929e-07f) {
-            return wcscmp(fn_80211480(a.mCode)->mName, fn_80211480(b.mCode)->mName) < 0;
+        // inferred: debug checks compiled out (they put Sort_unk<LessC_unk> over the inlining budget: the
+        // original calls the predicate and the selection sort out of line there; 9 or more)
+        SHOPUP_ASSERT_UNK(pa != 0);
+        SHOPUP_ASSERT_UNK(pb != 0);
+        SHOPUP_ASSERT_UNK(pa != 0);
+        SHOPUP_ASSERT_UNK(pb != 0);
+        SHOPUP_ASSERT_UNK(pa != 0);
+        SHOPUP_ASSERT_UNK(pb != 0);
+        if (atn::Abs_unk(pa->m08 - pb->m08) < 1.1920929e-07f) {
+            ItemParamEntry_unk* ia = fn_80211480(a.mCode);
+            ItemParamEntry_unk* ib = fn_80211480(b.mCode);
+            return wcscmp(ia->mName, ib->mName) < 0;
         }
         return pa->m08 > pb->m08;
     }
@@ -1198,6 +1213,7 @@ struct ShopUpGradeLessD_unk {
         return wcscmp(ia->mName, ib->mName) < 0;
     }
 };
+} // namespace
 
 // inferred: std::swap of two lines (0x8058ED28)
 inline void Swap_unk(ShopUpGradeEntry_unk& a, ShopUpGradeEntry_unk& b) {
@@ -1233,7 +1249,8 @@ inline It MinElement_unk(It first, It last, Cmp& comp) {
 }
 
 // inferred: selection sort of the short ranges (0x8058FAD0)
-// NONMATCHING: 93.40% - the original keeps last - 1 and last on the stack
+// NONMATCHING: 96.46-96.88% (0x8058FAD0, 0x80591504, 0x8059302C) - the original keeps last - 1 and last on
+// the stack
 template <class It, class Cmp>
 void SortSelect_unk(It first, It last, Cmp& comp) {
     if (first == last) {
@@ -1249,8 +1266,6 @@ void SortSelect_unk(It first, It last, Cmp& comp) {
 }
 
 // inferred: puts the median of the three elements in *c (0x8058EF08)
-// NONMATCHING: 99.1-99.9% - the wide literal L"%s" of the inlined predicates is a weak @STRING@ here and
-// part of the file pool (@wstringBase0) in the original
 template <class It, class Cmp>
 void SortMedian_unk(It a, It b, It c, Cmp& comp) {
     bool x = !comp(*c, *a);
@@ -1273,9 +1288,8 @@ void SortMedian_unk(It a, It b, It c, Cmp& comp) {
 }
 
 // inferred: std::sort (quicksort on a median of three with a rotating offset, selection sort below 21)
-// NONMATCHING: 96-98% (0x8058E0C8, 0x8058E7A4, 0x80591858, 0x80591F34, 0x805933E8, 0x805949B0) - scheduling of
-// the two pivot offsets; with LessC_unk the predicate and the selection sort are inlined here while the
-// original keeps them out of line (0x8058FF18 and 0x80590578 differ in size)
+// NONMATCHING: 97-98% (0x8058E0C8, 0x8058E7A4, 0x8058FF18, 0x80590578, 0x80591858, 0x80591F34, 0x805933E8,
+// 0x805949B0) - scheduling of the two pivot offsets
 template <class It, class Cmp>
 void Sort_unk(It first, It last, Cmp comp) {
     static int sOffset = -4;

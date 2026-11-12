@@ -166,14 +166,15 @@ extern "C" int fn_801173A8(ShopItem_unk* item); // inferred: sort group of an it
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 extern "C" unsigned long wcslen(const wchar_t* s);
 extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
-// NONMATCHING: 98.48% - L"%s" is a weak @STRING@ here (inline member) and part of the file pool
-// (@wstringBase0 + 0x12) in the original (as game/ShopUpGrade.cpp); registers of the names of the new items.
-// The std::sort code of the list (0x80582598-0x80584174) is game/MslSort_unk.h: 94-99%, see its notes
-// (its counter has no -4 initializer: .sbss here, .sdata in the original)
+// NONMATCHING: 99.93% - registers of the names of the new items (r25 for r30). In an unnamed namespace
+// (local linkage: its L"%s" goes to the file pool @wstringBase0 + 0x12 as in the original). The std::sort
+// code of the list (0x80582598-0x80584174) is game/MslSort_unk.h: 95.9-99.9%, see its notes (its counter
+// has no -4 initializer: .sbss here, .sdata in the original)
 // inferred: order of the list (std::sort predicate, 0x805828B0): by group and kind of the item; the
 // materials (kinds other than 2 and 3) by their bag index; the rest the new ones first, then the weapons
 // by their sort key and by name (without the "+n" of the upgrades, shorter first, the new ones by the
 // item name and their order)
+namespace {
 struct ShopEntryLess_unk {
     bool operator()(const ShopEntry5C_unk& a, const ShopEntry5C_unk& b) const {
         ShopItem_unk* ia = (ShopItem_unk*)a.m54;
@@ -245,6 +246,7 @@ struct ShopEntryLess_unk {
         return wcscmp(na, nb) < 0;
     }
 };
+} // namespace
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);

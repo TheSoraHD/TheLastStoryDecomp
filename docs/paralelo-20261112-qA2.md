@@ -6,10 +6,24 @@ Inicio: 2026-11-12 21:32 (CET). Rama `agent-A2`.
 
 - `game/ShopBase`: funciones al 0 % **6 -> 0**. El `std::sort` de la lista (0x80582598-0x80584174) usa
   `game/MslSort_unk.h` con `Iter = ShopEntry5C_unk*` y el predicado nuevo `ShopEntryLess_unk::operator()`
-  (0x805828B0). Al 100 % nueva: `MslSwap_unk<ShopEntry5C_unk>` (0x80582EFC). NONMATCHING: sort 95,9 %
-  (x2, codigo de la cabecera), predicado 98,5 %, mediana 98,9 %, seleccion 94,3 %.
+  (0x805828B0), este en un namespace anonimo. Al 100 % nueva: `MslSwap_unk<ShopEntry5C_unk>` (0x80582EFC).
+  NONMATCHING: sort 95,9 % (x2, codigo de la cabecera), predicado 99,93 %, mediana 99,92 %, seleccion 99,4 %.
+- `game/ShopUpGrade`: funciones al 0 % **2 -> 0** (`__cl__..LessC_unk` 0x80590448 y `SortSelect_unk<..LessC..>`
+  0x80591504). Al 100 % **30 -> 37 / 57**: predicados LessB/LessC/LessD y medianas LessA/B/C/D (las 4 de
+  `L"%s"` que `report.json` ya daba al 100 %). Sort LessA 96,6 -> 97,85 %, Sort LessC 0 -> 98,25 %,
+  seleccion 93,4 -> 96,9 %.
 
 ## NONMATCHING (motivo)
+
+- `L"%s"` de los predicados: con el predicado en un **namespace anonimo** (enlace local) la cadena va al
+  pool del fichero `@wstringBase0` como en el original, no a un `@STRING@` debil. Nombres en `symbols.txt`
+  con `Q2<n>@unnamed@<Fichero>_cpp@...` (ShopBase y ShopUpGrade).
+- ShopUpGrade `Sort_unk<..LessC..>`: el original lo compila por encima del presupuesto de inlining (llama
+  al predicado y a la seleccion) y `Sort_unk<..LessA..>` no, con predicados casi iguales: seis asserts
+  vacios `SHOPUP_ASSERT_UNK` en LessC (5 no bastan). Predicado y mediana con `atn::Abs_unk` y locales
+  `ia`/`ib` para los nombres: al 100 % (LessA tambien).
+- ShopUpGrade fn_80598530 (95,96 %): falta en `@wstringBase0` un `L""` sin referencias en +6 (entre
+  `L"%s"` y `L"+99"`); el pool original es `%s, "", +99, "", ???, --, -`. No encontrado de donde sale.
 
 - `ShopEntryLess_unk::operator()`: `L"%s"` es un `@STRING@` debil aqui (miembro inline) y parte de
   `@wstringBase0` (+0x12) en el original, como en ShopUpGrade; registros de los nombres en la rama de los
@@ -26,11 +40,18 @@ Inicio: 2026-11-12 21:32 (CET). Rama `agent-A2`.
 
 ## Decisiones tomadas sin el usuario
 
+- Predicados de ShopBase y ShopUpGrade en un namespace anonimo (cambia sus nombres mangled y los de las
+  plantillas instanciadas con ellos; renombrados en `symbols.txt`).
+- Asserts vacios (excepcion aprobada para el umbral de autoinline) en `ShopUpGradeLessC_unk`.
+
 - `symbols.txt`: solo renombrados de las 6 funciones del sort de ShopBase y de sus dos contadores
   (`@LOCAL@MslSort_unk<...>@sOffset`).
 - `ShopWeapon_unk` (local de ShopBase.cpp) gana `m78` (clave de orden de las armas), sin cambiar el tamano.
 
 ## Hallazgos
+
+- Una cadena literal en una funcion inline/plantilla con enlace externo sale como `@STRING@` debil; con la
+  clase en un namespace anonimo va al pool del fichero (`@stringBase0`/`@wstringBase0`).
 
 - En el predicado, las comparaciones `a < b` de enteros salen como `xor/srawi/and/subf/srwi`; el orden de los
   registros en el `xor` distingue `a.x < b.x` de `a.x > b.x`.
