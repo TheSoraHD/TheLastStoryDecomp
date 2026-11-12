@@ -1,7 +1,7 @@
 # Siguiente sesion (tras paralelo-20261112)
 
 > Sesion `paralelo-20261112` (8 h, lote en paralelo con 4 agentes) cerrada el 2026-11-12 hacia las 23:45
-> (inicio 14:47; reinicio del servidor 18:33-20:16). Rama `paralelo-20261112` **sin mergear**: pendiente de revision.
+> (inicio 14:47; reinicio del servidor 18:33-20:16). Rama `paralelo-20261112` revisada y mergeada en `main` (2026-11-13) sobre `port-propuestas3-20261112`: 15232 / 18109.
 
 Estado: **15057 -> 15231 / 18109**, lost 0, sin bajadas de fuzzy, rep100 136 -> 135, `main.dol: OK` (build limpio y
 clon limpio). Funciones al 0 %: **870 -> 550**. 42 DRAFT (0 en la ruta). Ninguna unidad nueva enlaza. Split nuevo
