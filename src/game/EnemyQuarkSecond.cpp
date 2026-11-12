@@ -1261,6 +1261,52 @@ void EnemyQuarkSecond::fn_8034315C() {
     PlayEffectA_unk(&m1698, &mMotion, 1.0f);
 }
 
+// inferred: action 3: jumps to the farther of the places 3 and 4 (state 15, as fn_80342674)
+// NONMATCHING: ~90% - stack slots, as fn_80342674
+void EnemyQuarkSecond::fn_803435B8() {
+    ResetState_unk();
+    fn_8016E970(3);
+    fn_8016E970(3);
+    m58C = 15;
+    PlayMotion_unk(0x13F, 0, 1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* p3 = table->FindPlace_unk(3);
+    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    atn::Vector3 a = p3->mPos;
+    atn::Vector3 b = p4->mPos;
+    atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
+    float da = fn_801C3910(a - leader);
+    float db = fn_801C3910(b - leader);
+    atn::Vector3* target = &b;
+    if (da >= db) {
+        target = &a;
+    }
+    SetJump_unk(*target);
+}
+
+// inferred: action 8: jumps to the farther of the places 3 and 4 (state 16, as fn_80342674)
+// NONMATCHING: ~90% - stack slots, as fn_80342674
+void EnemyQuarkSecond::fn_80343B0C() {
+    ResetState_unk();
+    fn_8016E970(3);
+    m58C = 16;
+    m590 = fn_800F8548(lbl_8087F048);
+    PlayMotion_unk(0x13F, 0, 1.0f);
+    RouteTable_unk* table = lbl_8087F430->m10D8;
+    RoutePlace_unk* p3 = table->FindPlace_unk(3);
+    RoutePlace_unk* p4 = table->FindPlace_unk(4);
+    atn::Vector3 a = p3->mPos;
+    atn::Vector3 b = p4->mPos;
+    atn::Vector3 leader = fn_8000D9E8()->GetHead_unk()->mPos;
+    float da = fn_801C3910(a - leader);
+    float db = fn_801C3910(b - leader);
+    atn::Vector3* target = &b;
+    if (da >= db) {
+        target = &a;
+    }
+    SetJump_unk(*target);
+}
+
 void EnemyQuarkSecond::fn_80344060() {
     ResetState_unk();
     fn_8016E970(3);
