@@ -289,13 +289,19 @@ atn/ModelInstance.cpp:
 	.sdata2     start:0x80880C78 end:0x80880C88
 
 atn/Motion_unk.cpp:
-	.text       start:0x8009F70C end:0x800A2978
-	.ctors      start:0x8072D2B8 end:0x8072D2BC
-	.rodata     start:0x807326D0 end:0x807327A0
-	.data       start:0x80778990 end:0x807789D8
-	.bss        start:0x807C73A0 end:0x807C7400
-	.sbss       start:0x8087EF48 end:0x8087EF68
+	.text       start:0x8009F70C end:0x800A0A68
+	.rodata     start:0x807326D0 end:0x80732768
+	.bss        start:0x807C73A0 end:0x807C73B8
+	.sbss       start:0x8087EF48 end:0x8087EF50
 	.sdata2     start:0x80880C88 end:0x80880CA0
+
+atn/MotionBank_unk.cpp:
+	.text       start:0x800A0A68 end:0x800A2978
+	.ctors      start:0x8072D2B8 end:0x8072D2BC
+	.rodata     start:0x80732768 end:0x807327A0
+	.data       start:0x80778990 end:0x807789D8
+	.bss        start:0x807C73B8 end:0x807C7400
+	.sbss       start:0x8087EF50 end:0x8087EF68
 
 atn/NandManager.cpp:
 	.text       start:0x800A2978 end:0x800A5508
