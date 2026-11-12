@@ -96,6 +96,8 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
   candidatos como el original: 0 -> 100 %, y sus 9 llamadores (que la inlinean en crudo) pasan de 0 % a 79-99 %.
   Lo que queda en ellos es `fn_8008B964` (getter de `RenderManager::instance_`, `extern "C"` en `atn/Model.cpp`),
   que el original inlinea en el llamador. `CameraShake_unk` pasa a `GameCamera.h` (miembro `mShake` en 0x900).
+- `GameCamera::fn_803918EC` (balanceo con el xsca del mapa, 97 %): `m8F8` es un float (fotograma). Las curvas
+  `XsfCurveSet_unk`/`Xsca_unk` se declaran por fichero (como en NewCampTask y Em309Ghoul): falta una cabecera.
 - `game/GameEventScript`: `__dt__15GameEventScriptFv` fuera de orden ya en `HEAD` (no es de esta sesion).
 
 ## Pendientes

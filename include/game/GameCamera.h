@@ -209,7 +209,7 @@ public:
     int m8EC;
     int m8F0;
     void* m8F4;            // 0x8F4: inferred: ambient animation of the map (MapTask::m68, LH_Xsca)
-    int m8F8;
+    float m8F8;            // 0x8F8: inferred: frame of the ambient animation
     float m8FC;            // 0x8FC: inferred: scale of the ambient animation (MapId_unk::m64)
     CameraShake_unk mShake; // 0x900: inferred: set from the event scripts (fn_803A450C keeps the parity of the frame)
     unsigned char m910;

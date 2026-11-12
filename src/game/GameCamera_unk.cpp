@@ -470,6 +470,67 @@ void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }
 
+#include "game/SetConfig.h"
+
+// inferred: xsca camera curves (as in game/NewCampTask.cpp and game/Em309Ghoul.cpp)
+struct XsfCurveSet_unk {
+    void fn_805BF410(float time, float* out, int x, int y, int z);
+    unsigned char m00[0x14];
+    float mLength; // 0x14
+};
+struct Xsca_unk {
+    XsfCurveSet_unk* fn_805BDCBC(unsigned int index);
+};
+
+// inferred: ambient sway of the camera m1F4 played from the xsca of the map (m8F4, frame m8F8, scale m8FC;
+// off unless bit 0x10 of the SetConfig flags is set): channels 4-6 turn the view and the up vector, channels
+// 1-3 move the eye in the yaw of the view
+// NONMATCHING: 97.1% - stack slots of the direction temporaries and float registers of the scaled angles
+void GameCamera::fn_803918EC() {
+    if (m8F4 == 0) {
+        return;
+    }
+    atn::Vector3 pos = m1F4.mPos;
+    atn::Vector3 dir = (m1F4.mTarget - m1F4.mPos).GetNormalize();
+    atn::Vector3 up = m1F4.mUp;
+    float dist = m1F4.mDist;
+    float scale = m8FC;
+    if (SetConfig::sInstance != 0 && ((unsigned int)SetConfig::sInstance->m50 & 0x10) != 0x10) {
+        scale = 0.0f;
+    }
+    XsfCurveSet_unk* curve = ((Xsca_unk*)m8F4)->fn_805BDCBC(0);
+    if (m8F8 >= curve->mLength) {
+        m8F8 = 0.0f;
+    }
+    atn::Vector3 angle;
+    curve->fn_805BF410(m8F8, &angle.x, 4, 5, 6);
+    angle.x = 0.017453292f * angle.x * scale;
+    angle.y = 0.017453292f * angle.y * scale;
+    angle.z = 0.017453292f * angle.z * scale;
+    atn::Matrix3x4 m = fn_800109E0(angle);
+    PSMTXMultVec(m.m, &up, &up);
+    atn::Vector3 view = dir.ToRotationZ_unk();
+    angle += view;
+    atn::Vector3 front(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 m2 = fn_800109E0(atn::Vector3(angle.x, angle.y, 0.0f));
+    PSMTXMultVec(m2.m, &front, &front);
+    dir = front.GetNormalize();
+    atn::Vector3 move;
+    curve->fn_805BF410(m8F8, &move.x, 1, 2, 3);
+    move.x *= scale;
+    move.y *= scale;
+    move.z *= scale;
+    Mtx r;
+    PSMTXRotRad(r, 'y', angle.y);
+    PSMTXMultVec(r, &move, &move);
+    pos += move;
+    atn::Vector3 target = pos + dir * dist;
+    m1F4.mPos = pos;
+    m1F4.mTarget = target;
+    m1F4.mUp = up;
+    m8F8 += 1.0f;
+}
+
 // inferred: shakes the target of m1F4 while mShake runs: the offset of the shake turned with the yaw of the
 // direction of view
 // NONMATCHING: 93.4% - order of the loads of the shake frame/length and float registers of the inlined
