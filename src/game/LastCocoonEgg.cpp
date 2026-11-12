@@ -491,5 +491,16 @@ void LastCocoonEgg::fn_80457C48() {
     m14E4 = 0;
 }
 
+extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3, int arg4);
+extern "C" void fn_8008771C(void* group, const char* name, float* value, int arg3, int arg4, float min, float max,
+                            float step);
+
+void LastCocoonEgg::fn_8045817C() {
+    void* group = m2A40.Load("LastCocoonEgg");
+    fn_80087994(group, "DebugDisp", &m2A44, 0, 0);
+    fn_80087994(group, "GrowScaling", &m2A4C, 0, 0);
+    fn_8008771C(group, "ThrowPower", &m2A48, 0, 0, 1.0f, 10000.0f, 10.0f);
+}
+
 // inferred: base color of the glow of fn_8045531C (static object, initialized in __sinit)
 static atn::Vector4_unk sGlowColor_unk(0.8f, 0.8f, 0.8f, 1.0f);
