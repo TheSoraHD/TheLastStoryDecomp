@@ -14,6 +14,7 @@ struct GameUIDuration_unk : public atn::D2A_Task {
 // inferred: gauges of the HUD (GameUI 0x83C, 0x840): d2anime tasks (frame 0x100, end frame 0xA0)
 struct GameUIGauge_unk : public atn::D2A_Task {};
 #include "game/CharaTask.h"
+#include "atn/Sphere.h"
 #include "game/GimmickCommon.h"
 #include "game/CharaManager.h"
 #include "game/PlayerTask.h"
@@ -45,7 +46,11 @@ extern "C" const char* const lbl_80750618[14];
 
 // inferred: field (lbl_8087F430) and its route table at 0x10D8
 struct GameUIField_unk {
-    unsigned char m00[0x10D8];
+    unsigned char m00[0x868];
+    int m868; // inferred: kind of field (5, 7: the leader is the centre of the markers)
+    unsigned char m86C[0x910 - 0x86C];
+    atn::Vector3 m910; // inferred: centre of the markers in the tactical view
+    unsigned char m91C[0x10D8 - 0x91C];
     atn::Task* m10D8;
 };
 extern "C" GameUIField_unk* lbl_8087F430;
@@ -123,7 +128,8 @@ inline GameUIItem_unk* GetItem_unk(int id) {
 }
 extern "C" void fn_80444CF8(wchar_t* text, int item, int count, int rare); // inferred: item name
 extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);       // inferred: wide sprintf
-extern "C" void* lbl_8087F610;           // inferred: multiplayer session
+struct GameUISession_unk;
+extern "C" GameUISession_unk* lbl_8087F610; // inferred: multiplayer session
 extern "C" void fn_804DA478(void* session); // inferred: notifies the session
 extern "C" void fn_801FED24(atn::D2A_Layout_unk* layout, unsigned int hash, int index, float value);
 // inferred: sets one component of a layout parameter by name (name invented)
@@ -655,6 +661,14 @@ extern "C" Field_unk* fn_80121F00();                               // inferred: 
 extern "C" GameUIPlayerInput_unk* fn_80122550(Field_unk* field);   // inferred: field + 0x6C
 extern "C" int fn_80244CA0(atn::Task* table);                      // inferred: (flags >> 1) & 1
 
+// inferred: player of the multiplayer session (0xD5C bytes, as MP/D2AMpMenuLobby)
+struct GameUISessionPlayer_unk {
+    CharaTask* m00;
+    unsigned char m04[0xD0 - 0x04];
+    unsigned int mD0_31 : 1; // inferred: valid
+    unsigned int mD0_lo : 31;
+    unsigned char mD4[0xD5C - 0xD4];
+};
 // inferred: multiplayer session (lbl_8087F610)
 struct GameUISession_unk {
     unsigned char m00[0x4FC];
@@ -671,7 +685,18 @@ struct GameUISession_unk {
     }
     int GetM50C_unk() const { return m50C; }
     bool IsState30_unk() const { return m4FC == 30; }
+    // inferred: player of the session (as MP/D2AMpMenuCockpit GetPlayer_unk); name invented
+    GameUISessionPlayer_unk* GetPlayer_unk(int i) {
+        if (i >= 0 && i < m5E8) {
+            return &m5E4[i];
+        }
+        return 0;
+    }
+    unsigned char m510[0x5E4 - 0x510];
+    GameUISessionPlayer_unk* m5E4; // inferred: players
+    int m5E8;                      // inferred: number of players
 };
+extern "C" GameUISessionPlayer_unk* fn_804EB870(GameUISession_unk* s); // inferred: local player
 extern "C" GameUISession_unk* fn_800F7F90();                                 // inferred: returns lbl_8087F610
 extern "C" int fn_804EB010(GameUISession_unk* session, CharaTask* chara);   // inferred
 extern "C" int fn_804EB7C4(GameUISession_unk* session, CharaTask* chara);   // inferred
@@ -2220,6 +2245,92 @@ void GameUI::fn_803DE648() {
     }
 }
 
+// NONMATCHING: ~96% - the field pointer and the leader are in r6/r5 in the original (swapped here, also the
+// address registers of the copies of the centre and f7/f8); the rest differs only in the @N labels and the
+// offsets of @stringBase0 (pool order of the unit); tried the field in a local before/after the leader,
+// VecAssign_unk for the copies of mF6C
+// inferred: marker `index` of a skill effect: shown near the centre (tactical view or the leader), at the
+// head of its owner (or the centre of its collision), with the name of the skill and of its link
+void GameUI::fn_803DE89C(SkillEffect* bullet, int index) {
+    if (bullet == 0) {
+        return;
+    }
+    bool near = false;
+    PlayerTask* player = lbl_8087F8A0->mHead;
+    atn::Vector3 center(0.0f, 0.0f, 0.0f);
+    bool hasCenter = false;
+    GameUIField_unk* field = lbl_8087F430;
+    if (field != 0) {
+        if (lbl_8087F9F8->m15D8 == 1) {
+            center.Assign_unk(field->m910);
+            hasCenter = true;
+        } else if (field->m868 == 7) {
+            center = player->mF6C;
+            hasCenter = true;
+        } else if (field->m868 == 5 && lbl_8087F610 != 0 && player->m55C == 6 && player->m560 == 13) {
+            center = player->mF6C;
+            hasCenter = true;
+        }
+    }
+    if (hasCenter) {
+        atn::Sphere sphere(bullet->m10, bullet->m5C * bullet->m28);
+        float r = 6.0f + sphere.mRadius;
+        if ((sphere.mCenter - center).LengthSq_unk() < r * r) {
+            near = true;
+        }
+    }
+    if (near) {
+        m10B4[index]->MeltTask();
+        m10B4[index]->SetSpeed_unk(1.0f);
+        fn_801F6D7C(m10B4[index], "base_point", 4, index + 1);
+    } else {
+        m10B4[index]->MeltTask();
+        m10B4[index]->SetSpeed_unk(-1.0f);
+        fn_801F6D7C(m10B4[index], "base_point", 4, index + 100);
+    }
+    atn::Vector3 pos = bullet->m10;
+    HitInfo_unk* hit = bullet->GetHit_unk();
+    if (bullet->m08 != 0 && hit != 0 && (hit->mAC & 0x100000) == 0x100000) {
+        MtxPtr mtx = bullet->m08->GetModel_unk()->GetNodeMtx_unk("head");
+        pos = mtx != 0 ? ((atn::Matrix3x4*)mtx)->GetTrans_unk() : bullet->m08->GetColli_unk()->m48;
+    }
+    atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+    if (screen.x < -200.0f || 1000.0f < screen.x || screen.y < -200.0f || 1000.0f < screen.y ||
+        screen.z > 1.0f || screen.z < 0.0f) {
+        m10B4[index]->FreezeTask();
+        return;
+    }
+    fn_801F6D7C(m10B4[index], "base_point", 0, screen.x);
+    fn_801F6D7C(m10B4[index], "base_point", 1, screen.y);
+    HitInfo_unk* skill = bullet->GetHit_unk();
+    if (skill != 0) {
+        switch (skill->m04) {
+        case 7:
+        case 10:
+        case 13:
+        case 16:
+        case 17:
+        case 18:
+        case 20:
+        case 0x6D8:
+        case 0x4EF8:
+            skill = fn_80219E6C(30001);
+            break;
+        }
+        if (skill->m04 == 0x4EF9) {
+            skill = fn_80219E6C(30002);
+        }
+        fn_801F837C(m10B4[index], "skill_name", (const wchar_t*)skill->m08);
+    }
+    const wchar_t* link = fn_803DF2DC(bullet);
+    GameUIColor_unk color = fn_803DF138(bullet);
+    fn_801F7DF0(m10B4[index], "backColor01", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    fn_801F7DF0(m10B4[index], "backColor02", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    fn_801F7DF0(m10B4[index], "backColor03", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    fn_801F7DF0(m10B4[index], "backColor04", 255.0f * color.r, 255.0f * color.g, 255.0f * color.b);
+    fn_801F837C(m10B4[index], "link_name", link);
+}
+
 void GameUI::fn_803DEE24(SkillEffect* bullet, GameUIColor_unk* add, GameUIColor_unk* mul) {
     *add = GameUIColor_unk(0.0f, 0.0f, 0.0f, 1.0f);
     *mul = GameUIColor_unk(100, 100, 100, 255);
@@ -2331,6 +2442,243 @@ void GameUI::fn_803DF5B4() {
     for (unsigned int i = 0; i < m2F0.mCount; i++) {
         m2F0.mData[i]->m00 = 20;
     }
+}
+
+extern "C" int fn_80219558(int id); // inferred: party member of a character id (negative for the others)
+
+// inferred: order of the HUD windows of the characters: the party members first (by member), then the
+// others by character id (name invented)
+struct GameUIWindowLess_unk {
+    bool operator()(GameUIElem60_unk* a, GameUIElem60_unk* b) const {
+        int ka = fn_80219558(((CharaTask*)a->m08)->m50);
+        int kb = fn_80219558(((CharaTask*)b->m08)->m50);
+        if (ka < 0 && kb >= 0) {
+            return false;
+        }
+        if (ka >= 0 && kb < 0) {
+            return true;
+        }
+        if (ka < 0 && kb < 0) {
+            return ((CharaTask*)a->m08)->m50 < ((CharaTask*)b->m08)->m50;
+        }
+        return ka < kb;
+    }
+};
+
+template <class T>
+inline void GameUISwap_unk(T& a, T& b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+template <class T>
+struct GameUIRef_unk {
+    typedef T& type;
+};
+template <class T>
+struct GameUIRef_unk<T&> {
+    typedef T& type;
+};
+
+// inferred: median of three of the quicksort below (MSL __sort; see game/CharaTask.cpp)
+template <class T, class Compare>
+void GameUIMedian3_unk(T* a, T* b, T* c, Compare& comp) {
+    bool ca = !comp(*c, *a);
+    bool bc = !comp(*b, *c);
+    if (ca && bc) {
+        return;
+    }
+    if (!ca && !bc) {
+        GameUISwap_unk(*a, *b);
+    } else {
+        if (comp(*b, *a)) {
+            GameUISwap_unk(*a, *b);
+        }
+        if (ca) {
+            GameUISwap_unk(*b, *c);
+        } else {
+            GameUISwap_unk(*a, *c);
+        }
+    }
+}
+
+template <class T, class Compare>
+inline T* GameUIMinElement_unk(T* first, T* last, Compare& comp) {
+    T* it;
+    T* result = first;
+    if (first != last) {
+        for (it = first + 1; it != last; it++) {
+            if (comp(*it, *result)) {
+                result = it;
+            }
+        }
+    }
+    return result;
+}
+
+// NONMATCHING: 99.94% (both instantiations) - in the inlined min_element the original keeps *it in r28 and
+// *result in r29 (swapped here); as game/CharaTask.cpp; tried the loop forms of game/CharaTask.cpp and
+// include/game/MslSort_unk.h, `end` local, the predicate by const reference
+// inferred: MSL __sort of the HUD windows (quicksort with a selection sort below 21 elements; the pivots
+// move with a counter of each instantiation, lbl_8087DEF0 and lbl_8087DEF4); as game/GameTask.cpp
+template <class T, class Compare>
+void GameUISort_unk(T* first, T* last, Compare comp) {
+    typedef typename GameUIRef_unk<Compare>::type CompareRef;
+    static int sOffset = -4;
+    while (true) {
+        int n = last - first;
+        if (n <= 1) {
+            return;
+        }
+        if (n <= 20) {
+            if (first != last) {
+                for (; first != last - 1; first++) {
+                    T* min = GameUIMinElement_unk(first, last, comp);
+                    if (min != first) {
+                        GameUISwap_unk(*min, *first);
+                    }
+                }
+            }
+            return;
+        }
+        T* a = first + (n / 4 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        int n3 = n * 3 / 4;
+        T* b = first + (n3 + sOffset % 5);
+        if (++sOffset >= 5) {
+            sOffset = -4;
+        }
+        T* i;
+        T* j;
+        T* pivot = last - 1;
+        GameUIMedian3_unk(a, b, pivot, comp);
+        i = first;
+        j = pivot;
+        while (comp(*i, *pivot)) {
+            i++;
+        }
+        while (i != --j && !comp(*j, *pivot)) {
+        }
+        if (i < j) {
+            GameUISwap_unk(*i, *j);
+            i++;
+            while (true) {
+                while (comp(*i, *pivot)) {
+                    i++;
+                }
+                while (!comp(*--j, *pivot)) {
+                }
+                if (i >= j) {
+                    break;
+                }
+                GameUISwap_unk(*i, *j);
+                i++;
+            }
+        }
+        if (i == first) {
+            T* back = last - 1;
+            GameUISwap_unk(*i, *pivot);
+            i++;
+            if (!comp(*first, *back)) {
+                while (i != last && !comp(*first, *i)) {
+                    i++;
+                }
+                if (i < back) {
+                    GameUISwap_unk(*i, *back);
+                }
+            }
+            j = back;
+            if (i < j) {
+                while (true) {
+                    while (!comp(*first, *i)) {
+                        i++;
+                    }
+                    while (comp(*first, *--j)) {
+                    }
+                    if (i >= j) {
+                        break;
+                    }
+                    GameUISwap_unk(*i, *j);
+                    i++;
+                }
+            }
+            first = i;
+        } else if (i - first < last - i) {
+            GameUISort_unk<T, CompareRef>(first, i, comp);
+            first = i;
+        } else {
+            GameUISort_unk<T, CompareRef>(i, last, comp);
+            last = i;
+        }
+    }
+}
+
+// inferred: window of a character, else the first free one (name invented)
+inline GameUIElem60_unk* GameUIFindWindow_unk(GameUIElem60_unk* windows, CharaTask* c) {
+    for (int k = 0; k < 6; k++) {
+        if ((CharaTask*)windows[k].m08 == c) {
+            return &windows[k];
+        }
+    }
+    for (int k = 0; k < 6; k++) {
+        if (windows[k].m08 == 0) {
+            return &windows[k];
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 99.15% - the original reloads lbl_8087F610 and its count in the body of the loop over the
+// session players (here the load of the loop test is reused) and swaps r29/r30; tried a session local, the
+// accessor as if/else and with a result variable
+// inferred: gives a HUD window (mB0) to each friend (up to 6) and, in multiplayer, to each player of the same
+// side, frees the windows of the characters that left and sorts the active windows (m2F0)
+void GameUI::fn_803DF648(int arg) {
+    FixedArray_unk<CharaTask*, 6> list;
+    for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = ((PlayerTask*)c)->mNext) {
+        if ((!c->IsFlag_unk(4) || c->m55C == 8) && !c->IsFlag54C_unk(0x2000) && c->mC54 != 0 &&
+            c->GetInfo_unk()->m2C > 0 && c->GetInfo_unk()->m2C <= 26) {
+            list.PushBack_unk(c);
+            if (list.full()) {
+                break;
+            }
+        }
+    }
+    if (lbl_8087F610 != 0) {
+        for (int i = 0; i < lbl_8087F610->m5E8; i++) {
+            GameUISession_unk* session = lbl_8087F610;
+            GameUISessionPlayer_unk* p = session->GetPlayer_unk(i);
+            if (p != fn_804EB870(session) && p->m00 != 0 && p->mD0_31 == 1 && lbl_8087F8A0 != 0 &&
+                lbl_8087F8A0->mHead != 0 && lbl_8087F8A0->mHead->fn_8016F3D0(p->m00, 1)) {
+                list.PushBack_unk(p->m00);
+            }
+        }
+    }
+    for (unsigned int i = 0; i < m2F0.mCount; i++) {
+        GameUIElem60_unk* e = m2F0.mData[i];
+        e->m04 = 0;
+        for (unsigned int j = 0; j < list.mCount; j++) {
+            if (list.mData[j] == (CharaTask*)e->m08) {
+                e->m04 = 1;
+            }
+        }
+    }
+    for (unsigned int j = 0; j < list.mCount; j++) {
+        GameUIElem60_unk* e = GameUIFindWindow_unk(mB0, list.mData[j]);
+        if (e != 0) {
+            e->m08 = (int)list.mData[j];
+            e->m04 = 1;
+        }
+    }
+    m2F0.mCount = 0;
+    for (int i = 0; i < 6; i++) {
+        if (mB0[i].m08 != 0) {
+            m2F0.PushBack_unk(&mB0[i]);
+        }
+    }
+    GameUISort_unk(m2F0.begin(), m2F0.end(), GameUIWindowLess_unk());
 }
 
 void GameUI::fn_803E0D4C() {

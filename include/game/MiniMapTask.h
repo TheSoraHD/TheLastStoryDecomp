@@ -9,9 +9,31 @@
 #include "atn/Model_unk.h"
 #include "atn/Task.h"
 #include "atn/Texture_unk.h"
+#include "game/CharaStatus.h"
+
+class CharaTask;
+
+// inferred: point marker of the minimap (0x2C bytes): free when m00 is -1; names invented
+struct MiniMapMarker_unk {
+    MiniMapMarker_unk() : m00(-1), m04(-1), m24(1) {}
+    MiniMapMarker_unk(atn::Vector3 pos, atn::Color color, float scale)
+        : m00(1), m04(-1), mColor(color), mPos(pos), m24(1), mScale(scale) {}
+    int m00;
+    int m04;
+    atn::Color mColor;  // 0x08
+    atn::Vector3 mPos;  // 0x18
+    int m24;            // inferred: cleared for the markers of characters
+    float mScale;       // 0x28
+};
+// inferred: character marked on the minimap and its marker (index of mMarkers); names invented
+struct MiniMapCharaMark_unk {
+    MiniMapCharaMark_unk() : mChara(0), mMarker(-1) {}
+    MiniMapCharaMark_unk(CharaTask* chara, int marker) : mChara(chara), mMarker(marker) {}
+    CharaTask* mChara;
+    int mMarker;
+};
 
 // inferred: map minimap renderer, with a secondary atn::IRender base at +0x48
-class CharaTask;
 class MiniMapTask : public atn::Task, public atn::IRender {
 public:
     MiniMapTask(atn::Task* parent, const char* path);
@@ -26,6 +48,9 @@ public:
     virtual void vf18(atn::RenderManager* view);
     virtual void vf1C();
     // inferred: marks / unmarks a character on the minimap (GameEventScript::fn_803A6744)
+    // inferred: adds / removes a point marker (game/ChaseManager); returns the marker or -1
+    int fn_804AABA8(atn::Vector3 pos, atn::Color color, float scale);
+    void fn_804AAD54(int marker);
     void fn_804AAD68(CharaTask* chara, const atn::Color* color);
     void fn_804AAFCC(CharaTask* chara);
     void fn_804ABF84(atn::RenderManager* view); // inferred: draws the minimap with its orthographic camera
@@ -43,12 +68,8 @@ public:
     float m5FC;                       // inferred: scale of the view (screen height / 52)
     unsigned char m600[0x40];
     atn::Camera m640;                 // inferred: minimap camera
-    int m834;                         // inferred: initialized to -1
-    int m838;                         // inferred: initialized to -1
-    unsigned char m83C[0x1C];         // inferred: camera state
-    int m858;                         // inferred: 1
-    unsigned char m85C[4];            // inferred: alignment
-    unsigned char m860[0xCD8];        // inferred: display records up to m1538
+    MiniMapMarker_unk mMarkers[64];   // 0x834: inferred: point markers (ChaseManager, fn_804AAD68)
+    FixedArray_unk<MiniMapCharaMark_unk, 64> mCharaMarks; // 0x1334: inferred: characters with a marker
     int m1538;                        // inferred: initialized to 0
     unsigned char m153C[0x80];        // inferred: minimap display state
     atn::Task* m15BC;                 // inferred: debug menu group

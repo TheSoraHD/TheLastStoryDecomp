@@ -487,7 +487,7 @@ public:
     int mF94[32];
     int m1014[32];
     float m1094[8];
-    atn::Task* m10B4[8];   // inferred: effect markers (fn_803DE648)
+    GameUIInst_unk* m10B4[8]; // inferred: effect markers (fn_803DE648)
     SkillEffect* m10D4[8];  // inferred: skill effects shown by the markers
     atn::Task* m10F4;
     atn::Task* m10F8;

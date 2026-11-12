@@ -1,4 +1,5 @@
 #include "game/MiniMapTask.h"
+#include "game/CharaTask.h"
 
 #include "atn/Memory.h"
 #include "atn/RenderManager.h"
@@ -18,8 +19,8 @@ extern "C" MiniMapTask* fn_804A7EA4(atn::Task* parent, const char* path) {
 
 // NONMATCHING: 21.93% - resource setup and record initialization are incomplete.
 MiniMapTask::MiniMapTask(atn::Task* parent, const char* path)
-    : atn::Task(parent), m4C(1), m50(), m58(), m208(0x00A00001, 0x20), m640(0, 0), m834(-1), m838(-1),
-      m83C(), m860(), m15C4(), m15F4(), m160C(0) {
+    : atn::Task(parent), m4C(1), m50(), m58(), m208(0x00A00001, 0x20), m640(0, 0), m1538(0),
+      m15C4(), m15F4(), m160C(0) {
     m50.vf0C(path);
 }
 
@@ -49,6 +50,52 @@ extern "C" void fn_804A893C(unsigned int* object, unsigned int flags) {
 
 // NONMATCHING: 0.07% - target performs the main minimap draw/update pass.
 void MiniMapTask::vf14() {}
+
+int MiniMapTask::fn_804AABA8(atn::Vector3 pos, atn::Color color, float scale) {
+    int found = -1;
+    for (int i = 0; i < 64; i++) {
+        if (mMarkers[i].m00 == -1) {
+            found = i;
+            break;
+        }
+    }
+    if (found != -1) {
+        mMarkers[found] = MiniMapMarker_unk(pos, color, scale);
+    }
+    return found;
+}
+
+void MiniMapTask::fn_804AAD54(int marker) {
+    mMarkers[marker].m00 = -1;
+}
+
+// NONMATCHING: 99.58% - registers of the inlined fn_804AABA8 (r8/r9/r11 for the argument copy and the
+// constants); tried push_back with the capacity check, operator[] in the search loop
+void MiniMapTask::fn_804AAD68(CharaTask* chara, const atn::Color* color) {
+    if (chara == 0) {
+        return;
+    }
+    for (unsigned int i = 0; i < mCharaMarks.mCount; i++) {
+        if (mCharaMarks.mData[i].mChara == chara) {
+            return;
+        }
+    }
+    int marker = fn_804AABA8(chara->mPos, *color, 1.0f);
+    if (marker != -1 && !mCharaMarks.full()) {
+        mCharaMarks.PushBack_unk(MiniMapCharaMark_unk(chara, marker));
+        mMarkers[marker].m24 = 0;
+    }
+}
+
+void MiniMapTask::fn_804AAFCC(CharaTask* chara) {
+    for (MiniMapCharaMark_unk* it = mCharaMarks.begin(); it != mCharaMarks.end(); it++) {
+        if (it->mChara == chara) {
+            fn_804AAD54(it->mMarker);
+            mCharaMarks.erase(it);
+            return;
+        }
+    }
+}
 
 // NONMATCHING: 0.22% - target builds and submits minimap render data.
 void MiniMapTask::vf18(atn::RenderManager* view) {

@@ -371,6 +371,43 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
     return dir;
 }
 
+// inferred: name invented (the second operand is evaluated twice, as a macro)
+#define GAMECAMERA_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
+#define GAMECAMERA_MIN_UNK(a, b) ((a) < (b) ? (a) : (b))
+
+// inferred: turns `pos` around `center` on `axis` with the stick value `input` (dead zone 0.2, speed m1C
+// of the parameters, half with `slow`); `angle` keeps the speed of the turn, clamped to the input and
+// slowed down by 0.01 * m1C each frame (fn_80384188, fn_80385B48)
+// NONMATCHING: 98.4% - stack slots of the offset and of the turned position (v/r swapped) and the float
+// registers of the clamp; tried v at the top, r before v, the rotation through an inline taking v by value
+extern "C" void fn_80383F7C(float* angle, atn::Vector3* pos, const atn::Vector3* center, const atn::Vector3* axis,
+                            const GameCameraParam_unk* param, int slow, float input, float rate) {
+    const float dead = 0.2f;
+    if ((float)__fabs(input) > dead) {
+        float speed = (input - (input > 0.0f ? dead : -dead)) / 0.8f;
+        speed *= rate;
+        speed *= slow ? 0.5f : 1.0f;
+        speed *= param->m1C;
+        speed = 1.2f * speed;
+        *angle = 0.15f * speed + *angle;
+        *angle = GAMECAMERA_MIN_UNK((float)__fabs(speed), GAMECAMERA_MAX_UNK(-(float)__fabs(speed), *angle));
+        Mtx m;
+        PSMTXRotAxisRad(m, axis, *angle);
+        atn::Vector3 v;
+        v = *pos - *center;
+        PSMTXMultVec(m, &v, &v);
+        atn::Vector3 r = v + *center;
+        *pos = r;
+        if (*angle > 0.0f) {
+            *angle = GAMECAMERA_MAX_UNK(0.0f, *angle - 0.01f * param->m1C);
+        } else if (*angle < 0.0f) {
+            *angle = GAMECAMERA_MIN_UNK(0.0f, *angle + 0.01f * param->m1C);
+        }
+    } else {
+        *angle = 0.0f;
+    }
+}
+
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
 extern "C" double sin(double x);
 extern "C" double cos(double x);
