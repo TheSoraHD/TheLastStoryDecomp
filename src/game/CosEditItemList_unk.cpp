@@ -969,13 +969,13 @@ void CosEditProtector::fn_801DD26C(int member) {
     for (int i = 0; i < 2; i++) {
         mB34[i].clear();
     }
-    Inventory::Equip_unk* equip = Inventory::Order()->GetEquip_unk(member);
+    Inventory::Equip_unk* equip = &Inventory::Order()->mEquip[member];
     if (Inventory::Order() != 0) {
         for (int slot = 0; slot < 2; slot++) {
             void* cur = fn_801CFAA8(member, slot);
             for (int j = 0; j < (int)((NewCampTask*)m48)->m1224.size(); j++) {
                 NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[j];
-                Inventory::Equip_unk* other = Inventory::Order()->GetEquip_unk(pair->mId);
+                Inventory::Equip_unk* other = &Inventory::Order()->mEquip[pair->mId];
                 int chara = fn_80219544(pair->mId);
                 EquipParamEntry_unk* entry = fn_8020ED84(slot, other->mProtectors[slot].mId);
                 CosEditItem_unk item;
@@ -1151,7 +1151,7 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
     void* cur = fn_801CFA5C(member, slot);
     for (int j = 0; j < (int)((NewCampTask*)m48)->m1224.size(); j++) {
         NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[j];
-        Inventory::Order()->GetEquip_unk(pair->mId);
+        Inventory::Order()->mEquip[pair->mId];
         for (int k = 0; k < 4; k++) {
             void* weapon = fn_801CFA5C(pair->mId, k);
             CosEditItem_unk item;

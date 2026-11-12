@@ -3614,10 +3614,10 @@ void GameTask::fn_80371674() {
     m5650 = 0;
     m5654 = 0;
     MenuCommonTask::sInstance->fn_804A2FBC();
-    mCamera.m900 = mCamera.m900 % 2;
-    mCamera.m904 = 0;
-    mCamera.m908 = 0.0f;
-    mCamera.m90C = 0.0f;
+    mCamera.mShake.mFrame = mCamera.mShake.mFrame % 2;
+    mCamera.mShake.mLength = 0;
+    mCamera.mShake.mWidth = 0.0f;
+    mCamera.mShake.mHeight = 0.0f;
     m5674 = 0;
     lbl_8087F9E8->MeltTask();
     fn_80450B44();

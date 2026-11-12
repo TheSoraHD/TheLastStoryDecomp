@@ -75,8 +75,6 @@ public:
 
     // RSO: Order__9InventoryFv (weak copy 0x801D80B4)
     static Inventory* Order() { return instance_; }
-    // inferred: equipment of a member (weak copy 0x801D80A0 in game/CosEditItemList_unk.cpp); name invented
-    Equip_unk* GetEquip_unk(int member) { return &mEquip[member]; }
 
     // RSO: AddItem__9InventoryFiiiiPiii (0x804439FC); inferred: (id, count, ...) adds items
     void AddItem(int id, int num, int a2, int a3, int* out, int a5, int a6);

@@ -88,7 +88,15 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
   de `operator[]`/`size`/`clear`/`push_back` de las armas (0x801D923C, 0x801D9234, 0x801E6374, 0x801E6384) son otras que
   las de `mB34`. Probado un `CosEditProtItem_unk : CosEditItem_unk` con ctor para `mB34`: `fn_801DD26C` deja de estar por
   encima del presupuesto R3 (lo inlinea todo, 81 -> 0 %) y se pierde `Order__9InventoryFv`; revertido.
-- `Inventory::GetEquip_unk(int)` (copia debil 0x801D80A0, `&mEquip[member]`) en `include/game/Inventory.h`.
+- `Inventory::GetEquip_unk(int)` (copia debil 0x801D80A0, `&mEquip[member]`): probado como miembro de `Inventory` y
+  revertido. **Declarar un miembro mas (aunque sea solo la declaracion) en una clase de una cabecera muy incluida
+  renumera los `@N` de todas las unidades que la incluyen** (labelcheck peor en ~45 unidades, `REP+` en las que no
+  enlazan). Un `struct` nuevo fuera de la clase (`CameraShake_unk` en `GameCamera.h`) no renumera nada.
+- `GameCamera::fn_803920C8` (vibracion): al escribirla, `fn_80392964` pasa del presupuesto R3 y llama a sus
+  candidatos como el original: 0 -> 100 %, y sus 9 llamadores (que la inlinean en crudo) pasan de 0 % a 79-99 %.
+  Lo que queda en ellos es `fn_8008B964` (getter de `RenderManager::instance_`, `extern "C"` en `atn/Model.cpp`),
+  que el original inlinea en el llamador. `CameraShake_unk` pasa a `GameCamera.h` (miembro `mShake` en 0x900).
+- `game/GameEventScript`: `__dt__15GameEventScriptFv` fuera de orden ya en `HEAD` (no es de esta sesion).
 
 ## Pendientes
 

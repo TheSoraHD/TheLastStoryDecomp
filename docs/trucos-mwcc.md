@@ -629,3 +629,5 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Funcion con `inline` que no se inlinea: sus cadenas van a `@STRING@<func>` y no a `@stringBase0`; si el original usa `@stringBase0`, es una funcion normal (`noescritas2-20261110`).
 - Dos `Manager* m = lbl;` en helpers inline separados reproducen las dos cargas del global entre escrituras de miembros (fn_803A11D8) (`noescritas2-20261110`).
 - `fn_8004ED34` (rayo de colision): el original suele pasar primero el punto lejano y luego el cercano; mirar los desplazamientos de pila (+0.1 % en fn_803A9DBC) (`noescritas2-20261110`).
+- Anadir una declaracion de miembro a una clase de una cabecera muy incluida (p. ej. `Inventory`) renumera los `@N` de todas las unidades que la incluyen; un `struct` nuevo fuera de la clase no (fueraruta-20261112).
+- Escribir un candidato grande que faltaba puede subir una funcion por encima del presupuesto R3 y arreglar de golpe todos sus llamadores que la inlinean en crudo (`GameCamera::fn_803920C8` -> `fn_80392964` y 9 llamadores, fueraruta-20261112).

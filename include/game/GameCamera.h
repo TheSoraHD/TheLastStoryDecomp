@@ -75,6 +75,15 @@ struct GameCameraParam_unk {
     int m38;
 };
 
+// inferred: shake of the camera (GameCamera::mShake: frame, length, width and height; names invented)
+struct CameraShake_unk {
+    atn::Vector3 GetOffset_unk() const; // 0x803933F4
+    int mFrame;
+    int mLength;
+    float mWidth;
+    float mHeight;
+};
+
 // Camera of the field (GameTask + 0x6C, constructed by the GameTask constructor; code in
 // game/GameCamera_unk.cpp). Real name from the RSO (__ct__10GameCameraFv, Update__10GameCameraFPC9CharaTask,
 // StartRollBack__10GameCameraFiif...); the constructor 0x8037D8B8 builds two atn::Camera at 0x00 and 0x1F4.
@@ -202,10 +211,7 @@ public:
     void* m8F4;            // 0x8F4: inferred: ambient animation of the map (MapTask::m68, LH_Xsca)
     int m8F8;
     float m8FC;            // 0x8FC: inferred: scale of the ambient animation (MapId_unk::m64)
-    int m900;              // inferred: set from the event scripts (fn_803A450C keeps its parity)
-    int m904;
-    float m908;
-    float m90C;
+    CameraShake_unk mShake; // 0x900: inferred: set from the event scripts (fn_803A450C keeps the parity of the frame)
     unsigned char m910;
     unsigned char m911;
     unsigned char m912[0x914 - 0x912];

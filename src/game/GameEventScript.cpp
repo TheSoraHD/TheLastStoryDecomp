@@ -4043,10 +4043,10 @@ void GameEventScript::fn_803A330C(ScriptResult_unk& result, const ScriptCmd_unk*
 void GameEventScript::fn_803A3444(ScriptResult_unk& result, const ScriptCmd_unk* cmd) {
     const ScriptArgs_unk* args = static_cast<const ScriptArgs_unk*>(cmd);
     GameCamera& camera = lbl_8087F430->mCamera;
-    camera.m900 %= 2;
-    camera.m904 = 90;
-    camera.m908 = 1.0f;
-    camera.m90C = 1.0f;
+    camera.mShake.mFrame %= 2;
+    camera.mShake.mLength = 90;
+    camera.mShake.mWidth = 1.0f;
+    camera.mShake.mHeight = 1.0f;
     for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
         if (player->CanAct_unk()) {
             player->fn_8016CDB8(90, args->m08);
@@ -4360,10 +4360,10 @@ void GameEventScript::fn_803A450C(ScriptResult_unk& result, ScriptCmd_unk* cmd) 
     ScriptArgsF_unk* args = static_cast<ScriptArgsF_unk*>(cmd);
     ScriptCmd_unk* next = NextCmd_unk(cmd);
     GameCamera& camera = lbl_8087F430->mCamera;
-    camera.m900 = camera.m900 % 2;
-    camera.m904 = args->m08;
-    camera.m908 = args->m0C;
-    camera.m90C = args->m10;
+    camera.mShake.mFrame = camera.mShake.mFrame % 2;
+    camera.mShake.mLength = args->m08;
+    camera.mShake.mWidth = args->m0C;
+    camera.mShake.mHeight = args->m10;
     result.mNext = next;
     result.mWait = 0;
 }
@@ -6010,10 +6010,10 @@ void GameEventScript::fn_803A956C(ScriptResult_unk& result, const ScriptCmd_unk*
             field->mCamera.m948.y = 0.0f;
             field->mCamera.m948.z = 0.0f;
             field->mCamera.m954 = 0.0f;
-            field->mCamera.m900 %= 2;
-            field->mCamera.m904 = 30;
-            field->mCamera.m908 = 0.1f;
-            field->mCamera.m90C = 0.2f;
+            field->mCamera.mShake.mFrame %= 2;
+            field->mCamera.mShake.mLength = 30;
+            field->mCamera.mShake.mWidth = 0.1f;
+            field->mCamera.mShake.mHeight = 0.2f;
         }
         if (((unsigned int)args->m10 & 0x10) != 0x10) {
             fn_803935AC(lbl_8074F088[args->m08][args->m0C], 1.0f);

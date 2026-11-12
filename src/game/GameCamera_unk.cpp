@@ -76,8 +76,8 @@ void GameCamera::fn_8037F744() {
     } else {
         (this->*sModeUpdate_unk[m7FC])(leader);
     }
-    if (m900 < m904) {
-        m900++;
+    if (mShake.mFrame < mShake.mLength) {
+        mShake.mFrame++;
     }
     if (m910 != 0) {
         m914 = m914 + 1 < m918 ? m914 + 1 : m918;
@@ -470,6 +470,25 @@ void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }
 
+// inferred: shakes the target of m1F4 while mShake runs: the offset of the shake turned with the yaw of the
+// direction of view
+// NONMATCHING: 93.4% - order of the loads of the shake frame/length and float registers of the inlined
+// GetOffset_unk
+void GameCamera::fn_803920C8() {
+    if (mShake.mFrame >= mShake.mLength) {
+        return;
+    }
+    atn::Vector3 target = m1F4.mTarget;
+    atn::Vector3 norm = (m1F4.mTarget - m1F4.mPos).GetNormalize();
+    atn::Vector3 offset = mShake.GetOffset_unk();
+    atn::Vector3 rot = norm.ToRotationZ_unk();
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot.y);
+    PSMTXMultVec(m, &offset, &offset);
+    target += offset;
+    m1F4.mTarget = target;
+}
+
 extern "C" double cos(double x);
 
 // NONMATCHING: 95.9% - stack slots of the vector temporaries and the copy of the target through a
@@ -610,25 +629,15 @@ void GameCamera::fn_803933A4() {
     m858 = 0;
     m838 = 0;
     m46C = 0;
-    m900 = m900 % 2;
-    m904 = 0;
-    m908 = 0.0f;
-    m90C = 0.0f;
+    mShake.mFrame = mShake.mFrame % 2;
+    mShake.mLength = 0;
+    mShake.mWidth = 0.0f;
+    mShake.mHeight = 0.0f;
     mC20 = 0;
     mC84 = 0;
 }
 
 extern "C" int rand();
-
-// inferred: shake of the camera (GameCamera::m900-m90C: frame, length, width and height; names invented;
-// the caller is not written yet, the type should move to GameCamera.h with it)
-struct CameraShake_unk {
-    atn::Vector3 GetOffset_unk() const;
-    int mFrame;
-    int mLength;
-    float mWidth;
-    float mHeight;
-};
 
 static inline atn::Vector3 Negate_unk(const atn::Vector3& v) {
     return atn::Vector3(-v.x, -v.y, -v.z);
