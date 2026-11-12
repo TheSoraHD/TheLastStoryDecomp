@@ -130,7 +130,7 @@ public:
     // out of the walls
     void fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target, const CharaTask* chara, int collide,
                      float fovy, float t);
-    void fn_8038E540(const CharaTask* chara, int* state, atn::Vector3* pos, atn::Vector3* target,
+    void fn_8038E540(const CharaTask* chara, GameCameraParam_unk* param, atn::Vector3* pos, atn::Vector3* target,
                      const atn::Vector3* charaPos); // inferred: collision of the eye
     void fn_803918EC(); // inferred: ambient sway of the camera (xsca of the map)
     void fn_803920C8();
@@ -186,52 +186,24 @@ public:
     float m514;            // inferred: fovy of the fixed mode
     int m518;              // inferred: m4FC/m508 follow the character
     GameCameraParam_unk m51C; // inferred: parameters of the "hips" side mode (copied by fn_8038F52C)
-    float m558;            // inferred: look distance of the head mode (fn_8038A200)
-    float m55C;            // inferred: fovy of the head mode
-    unsigned char m560[0x568 - 0x560];
-    float m568;            // inferred: height of the eye of the head mode
-    unsigned char m56C[0x5D0 - 0x56C];
-    float m5D0;            // inferred: look distance of the hips mode (fn_8038B148)
-    float m5D4;            // inferred: its fovy
-    unsigned char m5D8[0x5DC - 0x5D8];
-    float m5DC;            // inferred: side offset of its eye
-    float m5E0;            // inferred: height of its eye
-    float m5E4;            // inferred: distance of its eye
-    float m5E8;            // inferred: height of its target
-    unsigned char m5EC[0x60C - 0x5EC];
-    float m60C;            // inferred: distance of the target of the aim mode (fn_8038B650)
-    float m610;            // inferred: its fovy
-    unsigned char m614[0x618 - 0x614];
-    float m618;            // inferred: side offset of its eye
-    float m61C;            // inferred: height of its eye
-    float m620;            // inferred: distance of its eye
-    float m624;            // inferred: lowered eye with mFlag6 and CharaTask::m674
-    unsigned char m628[0x648 - 0x628];
-    int m648;              // inferred: state of the collision of the side mode (fn_8038E540)
-    float m64C;            // inferred: fovy of the side mode
-    unsigned char m650[0x654 - 0x650];
-    float m654;            // inferred: side offset of the side mode
-    float m658;            // inferred: height of its position
-    float m65C;            // inferred: distance of its position behind the character
-    unsigned char m660[0x664 - 0x660];
-    float m664;            // inferred: speed the side mode follows its target with
-    unsigned char m668[0x684 - 0x668];
+    GameCameraParam_unk m558; // inferred: head mode (fn_8038A200; m10: height of the eye)
+    GameCameraParam_unk m594;
+    GameCameraParam_unk m5D0; // inferred: hips mode (fn_8038B148; m0C-m14: offset of the eye, m18: height of the target)
+    GameCameraParam_unk m60C; // inferred: aim mode (fn_8038B650; m0C-m14: offset of the eye, m18: lowered eye)
+    GameCameraParam_unk m648; // inferred: side mode (m0C: side offset, m10: height, m14: distance, m1C: follow speed)
     GameCameraParam_unk m684;
-    unsigned char m6C0[0x73C - 0x6C0];
-    float m73C;          // inferred: fovy of the box camera mode (fn_80388A88)
-    unsigned char m740[0x744 - 0x740];
-    atn::Vector3 m744;   // inferred: position of the box camera mode
-    float m750;          // inferred: height of its target above the character
-    unsigned char m754[0x774 - 0x754];
-    float m774;          // inferred: look distance of the event camera (fn_8038CD94)
-    float m778;          // inferred: its fovy
-    float m77C;          // inferred: its pitch
-    atn::Vector3 m780;   // inferred: its offset from the head of the character
-    unsigned char m78C[0x79C - 0x78C];
-    float m79C;          // inferred: its yaw in degrees
-    unsigned char m7A0[0x7B4 - 0x7A0];
+    GameCameraParam_unk m6C0;
+    GameCameraParam_unk m6FC;
+    GameCameraParam_unk m738; // inferred: box camera mode (fn_80388A88; m0C-m14: position, m18: height of the target)
+    GameCameraParam_unk m774; // inferred: event camera (fn_8038CD94; m08: pitch, m0C-m14: offset from the head,
+                              // m28: yaw in degrees)
+    unsigned char m7B0[0x7B4 - 0x7B0];
     float m7B4;          // inferred: fovy of the low side mode (fn_8038C5B0)
-    unsigned char m7B8[0x7F0 - 0x7B8];
+    unsigned char m7B8[0x7BC - 0x7B8];
+    float m7BC; // inferred: reset by fn_8037DD00
+    float m7C0;
+    float m7C4;
+    unsigned char m7C8[0x7F0 - 0x7C8];
     int m7F0; // inferred: debug display of the camera (fn_8039328C)
     int m7F4;
     unsigned char m7F8[0x7FC - 0x7F8];
