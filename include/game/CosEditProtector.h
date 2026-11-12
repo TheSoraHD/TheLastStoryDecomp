@@ -6,6 +6,7 @@
 #include "std/vector.h"
 
 class CharaStatus;
+struct NewCampPair_unk;
 namespace atn {
 struct D2ATask_unk;
 }
@@ -69,8 +70,11 @@ public:
     // inferred: equips the entry on the member (nonzero when it changed; name invented)
     int fn_801DC42C(int member, CharaTask* chara, CosEditItem_unk* entry, int a, int b);
     void* fn_801DC9A4(void* priorities, void* a, void* b); // inferred: the preferred of two equipments
+    void* fn_801DCBA8(void* priorities, void* a, void* b); // inferred: the preferred of two protectors
+    CosEditItem_unk* fn_801DCDAC(int member, int slot, int a); // inferred: free protector preferred for a slot
     CosEditItem_unk* fn_801DCE88(int member, int slot, int a); // inferred: free entry preferred for a slot
     void fn_801DCF60(int member, CharaTask* chara, int slot, int a); // inferred: takes the protector off
+    CosEditItem_unk* fn_801DD12C(NewCampPair_unk* member, int slot); // inferred: entry to give to another member
     void fn_801DD26C(int member);
     // inferred: puts the cursor of the protector list on `item` (name invented)
     void fn_801E7098(CosEditItem_unk* item, int list, int* cursor, int* top);
@@ -139,7 +143,7 @@ public:
     std::vector<CosEditItem_unk> mB34[2]; // inferred: lists of the protectors and of the equipments
     std::vector<CosEditItem_unk> mB4C;
     std::vector<CosEditItem_unk> mB58;
-    unsigned char mB64[0xB7C - 0xB64];
+    CosEditItem_unk mB64; // inferred: entry given back by fn_801DD12C
     int mB7C;
     int mB80;
     atn::D2ATask_unk* mSort;      // 0xB84: camp_sort.d2a
@@ -174,7 +178,7 @@ public:
     CosEditSet_unk mSets[7];      // 0x1BD4
     atn::FixedArray_unk<CosEditSet_unk, 4> m1C0C;
     atn::FixedArray_unk<CosEditSet_unk, 4> m1C30;
-    atn::FixedArray_unk<CosEditSet_unk, 4> m1C54;
+    atn::FixedArray_unk<NewCampPair_unk*, 8> m1C54; // inferred: members of the party (NewCampTask list)
     std::vector<CosEditItem_unk> m1C78;
     std::vector<CosEditItem_unk> m1C84;
     std::vector<CosEditItem_unk> m1C90;

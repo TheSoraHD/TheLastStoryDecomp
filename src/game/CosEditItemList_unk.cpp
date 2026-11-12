@@ -477,6 +477,240 @@ void CosEditProtector::fn_801D9388() {
 
 extern "C" int fn_80219544(int member); // inferred: character id of a party member
 
+// inferred: equipment priorities of a member (fn_80218BB4/fn_80218BC4) and the data they compare
+// (weapon or protector parameters); names invented
+struct CosEditStat_unk {
+    int mKind;
+    int mValue;
+};
+struct CosEditPriority_unk {
+    int m00;
+    CosEditStat_unk mList[30];
+};
+struct CosEditGear_unk {
+    float mStat0;
+    float mStat1;
+    float mStat2;
+    float mStat3;
+    unsigned char m10[0xE4 - 0x10];
+    CosEditStat_unk mElem0; // 0xE4: inferred: element and its strength
+    unsigned char mEC[0xF8 - 0xEC];
+    CosEditStat_unk mElem1; // 0xF8
+};
+// inferred: protector parameters (same stats, elements at 0xC4 and 0xD8)
+struct CosEditArmor_unk {
+    float mStat0;
+    float mStat1;
+    float mStat2;
+    float mStat3;
+    unsigned char m10[0xC4 - 0x10];
+    CosEditStat_unk mElem0; // 0xC4
+    unsigned char mCC[0xD8 - 0xCC];
+    CosEditStat_unk mElem1; // 0xD8
+};
+
+// inferred: the preferred of two weapons: the first criterion of the member priorities that differs decides (kinds 1-4:
+// a stat, 6: the strength of an element); a when the priorities end
+void* CosEditProtector::fn_801DC9A4(void* priorities, void* a, void* b) {
+    if (priorities == 0) {
+        return a;
+    }
+    if (a != 0 && b == 0) {
+        return a;
+    }
+    if (a == 0 && b != 0) {
+        return b;
+    }
+    CosEditGear_unk* ga = (CosEditGear_unk*)a;
+    CosEditGear_unk* gb = (CosEditGear_unk*)b;
+    CosEditPriority_unk* p = (CosEditPriority_unk*)priorities;
+    for (int i = 0; i < 30; i++) {
+        CosEditStat_unk* c = &p->mList[i];
+        if (c->mKind == 0) {
+            break;
+        }
+        switch (c->mKind) {
+        case 1:
+            if (ga->mStat0 > gb->mStat0) {
+                return a;
+            }
+            if (ga->mStat0 < gb->mStat0) {
+                return b;
+            }
+            break;
+        case 2:
+            if (ga->mStat2 > gb->mStat2) {
+                return a;
+            }
+            if (ga->mStat2 < gb->mStat2) {
+                return b;
+            }
+            break;
+        case 3:
+            if (ga->mStat1 > gb->mStat1) {
+                return a;
+            }
+            if (ga->mStat1 < gb->mStat1) {
+                return b;
+            }
+            break;
+        case 4:
+            if (ga->mStat3 > gb->mStat3) {
+                return a;
+            }
+            if (ga->mStat3 < gb->mStat3) {
+                return b;
+            }
+            break;
+        case 6: {
+            int kind = c->mValue;
+            CosEditStat_unk* ea = 0;
+            if (ga->mElem0.mKind == kind && ga->mElem0.mValue > 0) {
+                ea = &ga->mElem0;
+            }
+            if (ga->mElem1.mKind == kind && ga->mElem1.mValue > 0) {
+                ea = &ga->mElem1;
+            }
+            CosEditStat_unk* eb = 0;
+            if (gb->mElem0.mKind == kind && gb->mElem0.mValue > 0) {
+                eb = &gb->mElem0;
+            }
+            if (gb->mElem1.mKind == kind && gb->mElem1.mValue > 0) {
+                eb = &gb->mElem1;
+            }
+            if (ea != 0 && eb != 0) {
+                if (ea->mValue > eb->mValue) {
+                    return a;
+                }
+                if (ea->mValue < eb->mValue) {
+                    return b;
+                }
+            } else if (ea != 0 && eb == 0) {
+                return a;
+            } else if (ea == 0 && eb != 0) {
+                return b;
+            }
+            break;
+        }
+        }
+    }
+    return a;
+}
+
+// inferred: the preferred of two protectors (as fn_801DC9A4): the first criterion of the member priorities that differs decides (kinds 1-4:
+// a stat, 6: the strength of an element); a when the priorities end
+void* CosEditProtector::fn_801DCBA8(void* priorities, void* a, void* b) {
+    if (priorities == 0) {
+        return a;
+    }
+    if (a != 0 && b == 0) {
+        return a;
+    }
+    if (a == 0 && b != 0) {
+        return b;
+    }
+    CosEditArmor_unk* ga = (CosEditArmor_unk*)a;
+    CosEditArmor_unk* gb = (CosEditArmor_unk*)b;
+    CosEditPriority_unk* p = (CosEditPriority_unk*)priorities;
+    for (int i = 0; i < 30; i++) {
+        CosEditStat_unk* c = &p->mList[i];
+        if (c->mKind == 0) {
+            break;
+        }
+        switch (c->mKind) {
+        case 1:
+            if (ga->mStat0 > gb->mStat0) {
+                return a;
+            }
+            if (ga->mStat0 < gb->mStat0) {
+                return b;
+            }
+            break;
+        case 2:
+            if (ga->mStat2 > gb->mStat2) {
+                return a;
+            }
+            if (ga->mStat2 < gb->mStat2) {
+                return b;
+            }
+            break;
+        case 3:
+            if (ga->mStat1 > gb->mStat1) {
+                return a;
+            }
+            if (ga->mStat1 < gb->mStat1) {
+                return b;
+            }
+            break;
+        case 4:
+            if (ga->mStat3 > gb->mStat3) {
+                return a;
+            }
+            if (ga->mStat3 < gb->mStat3) {
+                return b;
+            }
+            break;
+        case 6: {
+            int kind = c->mValue;
+            CosEditStat_unk* ea = 0;
+            if (ga->mElem0.mKind == kind && ga->mElem0.mValue > 0) {
+                ea = &ga->mElem0;
+            }
+            if (ga->mElem1.mKind == kind && ga->mElem1.mValue > 0) {
+                ea = &ga->mElem1;
+            }
+            CosEditStat_unk* eb = 0;
+            if (gb->mElem0.mKind == kind && gb->mElem0.mValue > 0) {
+                eb = &gb->mElem0;
+            }
+            if (gb->mElem1.mKind == kind && gb->mElem1.mValue > 0) {
+                eb = &gb->mElem1;
+            }
+            if (ea != 0 && eb != 0) {
+                if (ea->mValue > eb->mValue) {
+                    return a;
+                }
+                if (ea->mValue < eb->mValue) {
+                    return b;
+                }
+            } else if (ea != 0 && eb == 0) {
+                return a;
+            } else if (ea == 0 && eb != 0) {
+                return b;
+            }
+            break;
+        }
+        }
+    }
+    return a;
+}
+
+extern "C" void* fn_80218BC4(int member); // inferred: protector priorities of a member
+
+// inferred: free entry of the protector list that the priorities of the member prefer for the slot
+// (a: from the protector it wears)
+CosEditItem_unk* CosEditProtector::fn_801DCDAC(int member, int slot, int a) {
+    void* priorities = fn_80218BC4(member);
+    CosEditItem_unk* result = 0;
+    void* best = fn_801CFA5C(member, slot);
+    if (a == 0) {
+        best = 0;
+    }
+    fn_801E07A4(member, slot);
+    unsigned int count = mB4C.size();
+    for (unsigned int i = 0; i < count; i++) {
+        CosEditItem_unk* e = &mB4C[i];
+        if (e->mOwner < 0) {
+            void* prot = fn_80206C50(e->mId);
+            if (fn_801DCBA8(priorities, best, prot) == prot) {
+                best = prot;
+                result = e;
+            }
+        }
+    }
+    return result;
+}
+
 extern "C" void* fn_80218BB4(int member); // inferred: equipment priorities of a member
 
 // inferred: free entry of the equipment list `slot` that the priorities of the member prefer (a: from
@@ -502,6 +736,80 @@ CosEditItem_unk* CosEditProtector::fn_801DCE88(int member, int slot, int a) {
         }
     }
     return result;
+}
+
+extern "C" bool fn_80206D18(void* weapon, int member, int hand); // inferred: the member can equip the weapon
+
+// inferred: takes the weapon of the hand `slot` off the member; when the hand stays empty, takes one
+// that another member of the party can give
+// NONMATCHING: 0% - written, not compared yet
+void CosEditProtector::fn_801DCF60(int member, CharaTask* chara, int slot, int a) {
+    CosEditItem_unk* e = fn_801DCDAC(member, slot, a);
+    if (e != 0) {
+        fn_801CF3C0(member, chara, e, slot, a, 1);
+    }
+    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
+    if (equip->mWeapons[slot].mId < 0 && m1C54.size() != 0) {
+        for (int i = m1C54.size() - 1; i >= 0; i--) {
+            NewCampPair_unk* other = m1C54[i];
+            for (int j = 0; j < 2; j++) {
+                if (j == 1 && other->mId != 3) {
+                    continue;
+                }
+                void* weapon = fn_801CFA5C(other->mId, j);
+                if (fn_80206D18(weapon, member, slot)) {
+                    CosEditItem_unk* give = fn_801DCDAC(other->mId, j, 0);
+                    if (give == 0) {
+                        give = fn_801DD12C(other, j);
+                    }
+                    if (give != 0 && fn_80206D18(weapon, member, slot)) {
+                        CosEditItem_unk back;
+                        back.mItem = weapon;
+                        back.mId = fn_80206BE4(weapon);
+                        back.mIndex = -1;
+                        back.mOwner = -1;
+                        back.mEnabled = 1;
+                        back.m14 = -1;
+                        fn_801CF3C0(member, chara, &back, slot, 0, 0);
+                        fn_801CF3C0(other->mId, (CharaTask*)other->m04, give, j, 0, 1);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// inferred: takes from another member of the party (latest first) a weapon that `member` can hold
+// in the hand `slot`; the entry given back is mB64
+CosEditItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, int slot) {
+    for (int i = m1C54.size() - 1; i >= 0; i--) {
+        NewCampPair_unk* other = m1C54[i];
+        if (member == other) {
+            continue;
+        }
+        for (int j = 0; j < 2; j++) {
+            if (j == 1 && other->mId != 3) {
+                continue;
+            }
+            void* weapon = fn_801CFA5C(other->mId, j);
+            if (fn_80206D18(weapon, member->mId, slot)) {
+                CosEditItem_unk* give = fn_801DCDAC(other->mId, j, 0);
+                if (give != 0) {
+                    mB64.mItem = weapon;
+                    mB64.mId = fn_80206BE4(weapon);
+                    mB64.mIndex = -1;
+                    mB64.mOwner = -1;
+                    mB64.mEnabled = 1;
+                    mB64.m14 = -1;
+                    fn_801CF3C0(member->mId, (CharaTask*)member->m04, &mB64, slot, 0, 0);
+                    fn_801CF3C0(other->mId, (CharaTask*)other->m04, give, j, 0, 1);
+                    return &mB64;
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 // Members of atn::D2A_TaskInstanceBase<32, 8> with automatic names (as in game/CosEditPalette_unk.cpp)
