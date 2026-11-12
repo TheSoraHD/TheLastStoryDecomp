@@ -321,7 +321,69 @@ void DebugInfo_unk::fn_80221F54(int page) {
     mPages[mPage](this);
 }
 
-// DRAFT: pages 1, 2 and 4 of the debug info are not written
+// inferred: cut `index` of the sequence (0 when out of range)
+inline Cut* GetCutAt_unk(Sequence* seq, int index) {
+    return (index >= 0 && index < (int)seq->mB8.size()) ? seq->mB8[index].get() : 0;
+}
+
+// inferred: page 2 of the debug info: list of the cuts (ten around the current one)
+// NONMATCHING: 96.3% - offsets of the strings in @stringBase0 (pages 0 and 1 are not written) and the
+// register of the length of the cut
+void fn_8022354C(DebugInfo_unk* info) {
+    Sequence* seq = fn_8000DB1C()->fn_80112F54();
+    if (seq == 0) {
+        return;
+    }
+    char buf[0x100];
+    int row = 1;
+    fn_80221CAC(fn_800F7250(), info->m04, info->m08 + info->m0C * row, -1000000.0f, info->m0C, info->m0C,
+                "Cut List:", 0xFFFFFFFF, 1);
+    row += 2;
+    sprintf(buf, "Cut: num=%d", seq->mB8.size());
+    fn_80221CAC(fn_800F7250(), info->m04, info->m08 + info->m0C * row++, -1000000.0f, info->m0C, info->m0C, buf,
+                0xFFFFFFFF, 1);
+    int count = seq->mB8.size();
+    int start = 0;
+    for (int page = 1; page < count / 10 + 1; page++) {
+        if (page * 10 <= seq->m1A0) {
+            start = page * 10;
+        }
+    }
+    int end = start + 10;
+    if (end >= count) {
+        end = count;
+    }
+    for (int i = start; i < end; i++) {
+        if (i == seq->m1A0) {
+            sprintf(buf, ">");
+            // inferred: the original takes the x position for y here (the mark is drawn off the list)
+            fn_80221CAC(fn_800F7250(), info->m04, info->m04 + info->m0C * row, -1000000.0f, info->m0C,
+                        info->m0C, buf, 0xFFFFFFFF, 1);
+        }
+        Cut* cut = GetCutAt_unk(seq, i);
+        if (i < 9) {
+            const char* mark = cut->mIndex == seq->m94 ? "StartCut" : "";
+            const char* skip = cut->fn_8053C124(cut->mSkip);
+            const char* name = fn_80222A24(cut);
+            int len = cut->m2C;
+            int id = cut->mIndex;
+            sprintf(buf, "[%02d]: id=%d, name=%s,  next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
+                    len, skip, mark);
+        } else {
+            const char* mark = cut->mIndex == seq->m94 ? "StartCut" : "";
+            const char* skip = cut->fn_8053C124(cut->mSkip);
+            const char* name = fn_80222A24(cut);
+            int len = cut->m2C;
+            int id = cut->mIndex;
+            sprintf(buf, "[%02d]: id=%d, name=%s, next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
+                    len, skip, mark);
+        }
+        fn_80221CAC(fn_800F7250(), info->m04 + info->m0C, info->m08 + info->m0C * row++, -1000000.0f,
+                    info->m0C, info->m0C, buf, 0xFFFFFFFF, 1);
+    }
+}
+
+// DRAFT: pages 0 and 1 of the debug info are not written
 // NONMATCHING: draft - page 3: actions of the current cut (and the name of the next cut); the earlier pages
 // are not written, so the offsets of the string pool differ
 // inferred: the action is active at the current frame and is shown on the page (mode 0: not listed

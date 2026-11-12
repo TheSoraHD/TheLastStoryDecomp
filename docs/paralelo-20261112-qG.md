@@ -2,12 +2,12 @@
 
 Inicio: 2026-11-12 16:35 CET. Tope ~19:05.
 
-Total: funciones al 0 % de la cola tocadas 45 -> 28 (DebugInfo, Node, Puppeteer); `report.json` 15117 -> 15122
+Total: funciones al 0 % de la cola tocadas 45 -> 27 (DebugInfo, Node, Puppeteer); `report.json` 15117 -> 15122
 (+5, lost 0, sin bajadas). Ninguna unidad pasa a enlazar.
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
-- `Event/DebugInfo_unk`: 17 -> 5. Tabla de la depuracion (`DebugInfoTable_unk`): `fn_80220168` (fija las
+- `Event/DebugInfo_unk`: 17 -> 4. Pagina 2 de la depuracion (`fn_8022354C`, lista de cortes) 96,3 %. Tabla de la depuracion (`DebugInfoTable_unk`): `fn_80220168` (fija las
   columnas, 98,2 %), `fn_8022051C` (anade una fila arriba, 100 %), `fn_802214F8` (sustituye la fila de una
   clave, 55 %), `fn_802219CC` (dibuja la tabla, 88,9 %); copias debiles nuevas: `fn_80220620` (llena, 100 %),
   `size`/`back`/`operator[]` del vector de filas (100 %), `push_back` (98,6 %), constructor copia de la fila
@@ -45,6 +45,8 @@ Total: funciones al 0 % de la cola tocadas 45 -> 28 (DebugInfo, Node, Puppeteer)
   `const DebugInfoColumnDef_unk*`.
 
 ## Hallazgos
+
+- `fn_8022354C` (lista de cortes): el original dibuja la marca `>` con `m04 + m0C * fila` como y (usa la x).
 
 - Declarar una plantilla nueva (aunque no se instancie) o un constructor inline en una cabecera muy incluida
   renumera las etiquetas `@N` de todas las unidades que la incluyen (labelcheck/rep100 peor en todas).
