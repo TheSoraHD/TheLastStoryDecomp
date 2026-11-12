@@ -4,6 +4,12 @@
 // lookups by owner/group and by handle, and the current owner/group of the effects being created.
 // Only the small functions are written; the update, draw and creation code is not decompiled yet.
 #include "atn/EffectSystem_unk.h"
+#include "atn/EffectFileEntry_unk.h"
+#include "atn/RenderManager.h"
+#include "atn/Camera_unk.h"
+#include "atn/Scene.h"
+#include "atn/EffectParams_unk.h"
+#include "math/VecAssign_unk.h"
 
 using atn::Vector3;
 
@@ -14,7 +20,22 @@ static unsigned int sCurrentOwner;   // 0x8087F364
 static int sFrame;                   // 0x8087F368
 static int sFrameBase;               // 0x8087F36C
 static int sCurrentHandle;           // 0x8087F370
+// inferred: time step of the current update and "the frame advances" flag (names invented)
+static float sTimeStep = 1.0f;       // 0x8087DBE0
+static int sFrameStep = 1;           // 0x8087DBE4
 static int sCurrentGroup = -1;       // 0x8087DBE8
+
+// inferred: work buffer of fn_8022D078 (0x30 bytes of floats) and the descriptor passed to fn_8022C9C8
+// by fn_8022DA70 and fn_80231754 (count 5, the buffer and two zero words); names invented
+struct EffectWork_unk {
+    EffectWork_unk(int num, float* data) : mNum(num), mData(data), m08(0), m0C(0) {}
+    int mNum;
+    float* mData;
+    int m08;
+    int m0C;
+};
+static float sEffectWorkBuf_unk[12];
+static EffectWork_unk sEffectWork_unk(5, sEffectWorkBuf_unk);
 
 // inferred: stop request of an instance (name invented)
 inline void Kill_unk(EffectInst_unk* inst) {
@@ -25,14 +46,226 @@ inline void Kill_unk(EffectInst_unk* inst) {
 
 EffectInst_unk::EffectInst_unk()
     : m00(0), mNext(0), m08(0), m0C(0), m10(0), m14(-1), mFlags(0), m1A(0), mKill(0), m1C(0.0f), mOwnerPtr(0),
-      mOwner(0), mGroup(0), mEffect(0), mTag(0), mData(0), mParam(0), mC4(0), mC8(0.0f), mCC(0.0f), mRate(1.0f) {}
+      mOwner(0), mGroup(0), mEffect(0), mTag(0), mData(0), mParam(0), mSlots(0), mC8(0.0f), mCC(0.0f), mRate(1.0f) {}
 
 EffectSlot_unk::EffectSlot_unk()
-    : m00(0), m04(0), m08(0), m0C(0), m10(0), m14(0.0f), m18(0.0f), m1C(0), m20(0), m24(0), m28(0.0f), m2C(0.0f),
+    : m00(0), mNext(0), m08(0), m0C(0), m10(0), m14(0.0f), m18(0.0f), m1C(0), m20(0), m24(0), m28(0.0f), m2C(0.0f),
       m30(0.0f), m34(0.0f), m190(0), m194(0.0f), m198(0.0f), m19C(0.0f), m1A0(0.0f), m1A4(1.0f), m1A8(0), m1AC(0),
       m1B0(0), m1B4(0) {}
 
 EffectFade_unk::EffectFade_unk() : m00(0.0f), m04(0.0f), m08(0.0f), m0C(0.0f), m10(1.0f) {}
+
+// inferred: releases the fade item of a slot (name invented)
+static inline void ReleaseSlot_unk(EffectSystemPool_unk& pool, EffectSlot_unk* slot) {
+    if (slot->m1A8 != 0) {
+        unsigned int block = (unsigned int)(slot->m1A8 - pool.mItems.mData) / pool.mBlockSize;
+        pool.mUsed[block >> 5] &= ~(1 << (block & 31));
+    }
+    slot->m1A8 = 0;
+    slot->m1B4 = 0;
+    slot->m1B0 = 0;
+    slot->m1AC = 0;
+}
+
+// inferred: releases the instances, the slots and the particles
+void EffectSystem_unk::fn_8022C2A0() {
+    if (mInstPool != 0) {
+        delete[] mInstPool;
+        mInstPool = 0;
+        mInstMax = 0;
+    }
+    m08 = 0;
+    mInsts = 0;
+    if (mSlots != 0) {
+        for (int i = 0; i < mSlotCount; i++) {
+            ReleaseSlot_unk(m2C, &mSlots[i]);
+            mSlots[i].m08 = 0;
+        }
+        delete[] mSlots;
+        mSlots = 0;
+        mSlotCount = 0;
+    }
+    m18 = 0;
+    m1C = 0;
+    if (mParticles != 0) {
+        delete[] mParticles;
+        mParticles = 0;
+        mParticleCount = 0;
+    }
+}
+
+// inferred: matrix of an instance from its emitter state (prev null: identity), its position and its mode
+extern "C" void fn_8022C9C8(int* state, const atn::Matrix3x4* prev, float* out, Vector3* pos, unsigned int mode);
+extern "C" void fn_80231754(EffectInst_unk* inst, EffectSlot_unk* slots, float* mtx);
+
+// inferred: moves the instances forward by whole frames (the last one partial)
+void EffectSystem_unk::fn_8022D078(float rate) {
+    float step;
+    float t = rate * lbl_8087EFA8->mTimeScale;
+    sTimeStep = 1.0f;
+    sFrameStep = 1;
+    while (t > 0.0f) {
+        m68++;
+        if (t < 1.0f) {
+            sTimeStep = t;
+            m48 += t;
+            if (m48 < 1.0f) {
+                sFrameStep = 0;
+            }
+            m48 = fmod(m48, 1.0);
+            t = 0.0f;
+        } else {
+            t -= 1.0f;
+        }
+        EffectInst_unk* inst = mInsts;
+        step = sTimeStep;
+        while (inst != 0) {
+            sTimeStep = step * inst->mRate;
+            if ((inst->mFlags & 2) == 2 || inst->mKill != 0 ||
+                ((inst->mFlags & 0x80) == 0x80 && (inst->mFlags & 0x4000) != 0x4000)) {
+                inst = inst->mNext;
+                continue;
+            }
+            Vector3 move = inst->mPos;
+            fn_8022C9C8(&inst->m08, &inst->mMtx, sEffectWorkBuf_unk, &inst->mPos, inst->mParam->m4C);
+            move = move - inst->mPos; // inferred: not used afterwards
+            fn_802301EC(inst, inst->mParam, sEffectWorkBuf_unk);
+            fn_80231754(inst, inst->mSlots, sEffectWorkBuf_unk);
+            EffectInst_unk* next = inst->mNext;
+            if ((inst->m1A & 0x7F) == 0 && inst->mSlots == 0) {
+                Kill_unk(inst);
+            } else {
+                inst->m1C += sTimeStep;
+                if (inst->m1C >= inst->m14 && inst->m14 >= 0) {
+                    inst->m08 = 0;
+                    inst->mMtx = *(atn::Matrix3x4*)sEffectWorkBuf_unk;
+                    inst->m14 = -1;
+                }
+            }
+            inst = next;
+        }
+    }
+}
+
+// inferred: the instance is drawn in this layer and in the current render pass
+extern "C" int fn_8022D328(EffectInst_unk* inst, int layer) {
+    if ((inst->mFlags & 4) == 4 || (inst->mFlags & 0x8000) != 0x8000) {
+        return 0;
+    }
+    if (inst->mLayer != layer) {
+        return 0;
+    }
+    int pass = atn::RenderManager::instance_->m2F8;
+    unsigned int mode = inst->mParam->m4C;
+    unsigned int bits = mode & 0x30000000;
+    switch (pass) {
+    case 4:
+        if ((inst->mFlags & 8) != 8) {
+            return 0;
+        }
+        mode &= 0xC0000000;
+        if (mode == 0x40000000 || mode == 0x80000000) {
+            return 0;
+        }
+        break;
+    case 6:
+        if ((inst->mFlags & 0x10) == 0x10) {
+            return 0;
+        }
+        if (bits != 0x10000000) {
+            return 0;
+        }
+        break;
+    case 0x12:
+        if ((inst->mFlags & 0x10) == 0x10) {
+            return 0;
+        }
+        if (bits != 0x20000000) {
+            return 0;
+        }
+        break;
+    case 0x13:
+        if ((inst->mFlags & 0x10) == 0x10) {
+            return 0;
+        }
+        if (bits != 0x30000000) {
+            return 0;
+        }
+        break;
+    default:
+        if ((inst->mFlags & 0x10) == 0x10) {
+            return 0;
+        }
+        if (bits != 0) {
+            return 0;
+        }
+        break;
+    }
+    return 1;
+}
+
+extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
+
+// inferred: draws the slots of an instance with the camera matrices
+extern "C" void fn_8022DD1C(EffectInst_unk* inst, EffectSlot_unk* slot, atn::Matrix3x4* view, atn::Matrix3x4* invView,
+                            atn::Scene* scene);
+
+// inferred: draws the instances of a layer
+void EffectSystem_unk::fn_8022D478(int layer) {
+    atn::Camera& camera = atn::RenderManager::instance_->mCamera;
+    EffectInst_unk* inst = mInsts;
+    while (mUpdating != 0) {
+    }
+    mUpdating = 1;
+    atn::Matrix3x4 view = camera.mView;
+    atn::Matrix3x4 invView = camera.mInvView;
+    atn::Sphere sphere;
+    atn::Sphere world; // inferred: read before it is set, as in the original
+    for (; inst != 0; inst = inst->mNext) {
+        if (inst->mSlots == 0 || fn_8022D328(inst, layer) == 0) {
+            continue;
+        }
+        sphere.mCenter = inst->mPos;
+        sphere.mRadius = inst->mCC;
+        atn::Scene* scene = atn::RenderManager::instance_->mScene;
+        if (atn::RenderManager::instance_->m2F8 == 4) {
+            scene = atn::RenderManager::instance_->fn_800C122C(world);
+            if (scene == 0) {
+                scene = atn::RenderManager::instance_->mScene;
+            }
+            world = sphere;
+            PSMTXMultVec(scene->mReflect.m, &sphere.mCenter, &sphere.mCenter);
+        }
+        if (fn_8004FF58(&camera.mFrustum, &sphere) == 0) {
+            continue;
+        }
+        if (atn::RenderManager::instance_->m2F8 == 4) {
+            atn::Matrix3x4 mtx;
+            PSMTXConcat(camera.mView.m, scene->mReflect.m, mtx.m);
+            view = mtx;
+            atn::Matrix3x4 inv = mtx;
+            PSMTXInverse(inv.m, inv.m);
+            invView = inv;
+        } else if ((inst->mParam->m4C & 4) == 4) {
+            scene = atn::RenderManager::instance_->fn_800C122C(world);
+            if (scene == 0) {
+                scene = atn::RenderManager::instance_->mScene;
+            }
+        }
+        inst->mFlags |= 0x4000;
+        for (EffectSlot_unk* slot = inst->mSlots; slot != 0; slot = slot->mNext) {
+            if ((slot->m190 & 2) == 2) {
+                fn_8022DD1C(inst, slot, &view, &invView, scene);
+            }
+        }
+    }
+    mUpdating = 0;
+}
+
+// inferred: prepares an entry of the effect data (atn::LoadEffect::vf0C)
+extern "C" void fn_8022D754(EffectFileEntry_unk* entry) {
+    entry->m10C = entry->m108 * entry->m120;
+}
 
 // inferred: frame offset of the effects (game/GameTask.cpp)
 extern "C" void fn_802328DC(int frame) {
@@ -150,6 +383,22 @@ void EffectSystem_unk::fn_80232E48() {
     }
     for (int i = 0; i < mParticleCount; i++) {
         mParticles[i].fn_80238560();
+    }
+}
+
+// inferred: stops the effects and the particles with this tag
+void EffectSystem_unk::fn_80232ED4(int tag) {
+    for (EffectInst_unk* inst = mInsts; inst != 0;) {
+        EffectInst_unk* next = inst->mNext;
+        if (inst->mTag == tag) {
+            Kill_unk(inst);
+        }
+        inst = next;
+    }
+    for (int i = 0; i < mParticleCount; i++) {
+        if (tag == mParticles[i].m90) {
+            mParticles[i].fn_80238560();
+        }
     }
 }
 
@@ -572,15 +821,3 @@ void EffectSystem_unk::fn_80234958(void* effect, int fade) {
         }
     }
 }
-
-// inferred: work buffer of fn_8022D078 (0x30 bytes of floats) and the descriptor passed to fn_8022C9C8
-// by fn_8022DA70 and fn_80231754 (count 5, the buffer and two zero words); names invented
-struct EffectWork_unk {
-    EffectWork_unk(int num, float* data) : mNum(num), mData(data), m08(0), m0C(0) {}
-    int mNum;
-    float* mData;
-    int m08;
-    int m0C;
-};
-static float sEffectWorkBuf_unk[12];
-static EffectWork_unk sEffectWork_unk(5, sEffectWorkBuf_unk);

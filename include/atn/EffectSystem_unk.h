@@ -82,7 +82,9 @@ struct EffectAnimData_unk {
 };
 // inferred: parameters of an effect (fields named by offset)
 struct EffectParam_unk {
-    unsigned char m00[0x6C];
+    unsigned char m00[0x4C];
+    unsigned int m4C;  // 0x4C: inferred: bits 28-29 render pass, bits 30-31 mode (fn_8022D328)
+    unsigned char m50[0x6C - 0x50];
     unsigned int m6C;
     unsigned int m70;
     unsigned int m74;
@@ -125,22 +127,36 @@ struct EffectInst_unk {
     unsigned int mHandle;   // 0x2C
     void* mEffect;          // 0x30
     int mTag;               // 0x34
-    unsigned char m38[0xAC - 0x38];
+    int mLayer;             // 0x38: inferred: layer drawn (fn_8022D328)
+    atn::Matrix3x4 mMtx;    // 0x3C: inferred: matrix of the instance (set from the work buffer by fn_8022D078)
+    unsigned char m6C[0x9C - 0x6C];
+    atn::Vector3 mPos;      // 0x9C: inferred: center of the bounding sphere (radius mCC)
+    int mA8;
     EffectColor_unk mColor; // 0xAC
     EffectAnimData_unk* mData;  // 0xBC
     EffectParam_unk* mParam;    // 0xC0
-    int mC4;
+    struct EffectSlot_unk* mSlots; // 0xC4: inferred: list of the slots (EffectSlot_unk::m04)
     float mC8;
     float mCC;
     atn::Vector3 mVec;      // 0xD0
     float mRate;            // 0xDC
 };
 
+// inferred: four values and a scale (ctor 0x8022BE8C; names invented)
+struct EffectFade_unk {
+    EffectFade_unk();
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+    float m10;
+};
+
 // inferred: element of the system with a constructor (0x1B8 bytes; fields named by offset)
 struct EffectSlot_unk {
     EffectSlot_unk(); // 0x8022BE1C
     int m00;
-    int m04;
+    EffectSlot_unk* mNext; // 0x04: inferred: next slot of the instance
     int m08;
     int m0C;
     int m10;
@@ -174,54 +190,46 @@ struct EffectSlot_unk {
     float m16C;
     float m170;
     unsigned char m174[0x190 - 0x174];
-    int m190;
+    unsigned int m190; // 0x190: inferred: flags (2: drawn)
     float m194;
     float m198;
     float m19C;
     float m1A0;
     float m1A4;
-    int m1A8;
+    EffectFade_unk* m1A8; // 0x1A8: inferred: from EffectSystem_unk::m2C
     int m1AC;
     int m1B0;
     int m1B4;
 };
 
-// inferred: four values and a scale (ctor 0x8022BE8C; names invented)
-struct EffectFade_unk {
-    EffectFade_unk();
-    float m00;
-    float m04;
-    float m08;
-    float m0C;
-    float m10;
-};
 
 // inferred: the effect system kept by the manager (0x88 bytes; its members are in other files)
-// inferred: two empty levels over std::vector (five null checks of `this` in the destructor)
-struct EffectPtrVectorBase_unk : public std::vector<void*> {};
+// inferred: two empty levels over std::vector (five null checks of `this` in the destructor); used
+// as a bitmap of the used blocks of EffectFadePool_unk
+struct EffectPtrVectorBase_unk : public std::vector<unsigned int> {};
 struct EffectPtrVector_unk : public EffectPtrVectorBase_unk {};
-// inferred: element with a constructor (its new[] has a cookie)
-struct EffectSystemElem_unk {
-    EffectSystemElem_unk();
-    unsigned char m00[4];
-};
+// inferred: block allocator of the EffectFade_unk of the slots (0x40 per block, 0x120 blocks; set up
+// by EffectSystem_unk::fn_8022B850, names invented)
 struct EffectSystemPool_unk {
-    EffectSystemPool_unk() : m00(0), m04(0) {}
-    int m00;
-    int m04;
-    atn::SimpleArray<EffectSystemElem_unk> m08;
-    EffectPtrVector_unk m10;
+    EffectSystemPool_unk() : mBlockSize(0), mBlockCount(0) {}
+    unsigned int mBlockSize;  // 0x00
+    unsigned int mBlockCount; // 0x04
+    atn::SimpleArray<EffectFade_unk> mItems; // 0x08
+    EffectPtrVector_unk mUsed; // 0x10
 };
 
 class EffectSystem_unk {
 public:
     EffectSystem_unk()
-        : m00(0), m04(0), m08(0), mInsts(0), m10(0), m14(0), m18(0), m1C(0), mParticleCount(0), mParticles(0), m28(0), m48(0.0f),
+        : mInstMax(0), mInstPool(0), m08(0), mInsts(0), mSlotCount(0), mSlots(0), m18(0), m1C(0), mParticleCount(0), mParticles(0), m28(0), m48(0.0f),
           m4C(0), m50(0), m54(0), m58(0), m5C(0), m60(0), mFlags(0), m68(0), mLayer(0), m70(0), mUpdating(0),
           m78(0), m7C(0), mListener(0), mReplaying(0) {}
     void fn_8022B850(int a, int b, int c); // inferred: init
     void fn_8022BEAC(unsigned int max);
     void fn_8022C2A0();                    // inferred: release
+    void fn_8022D078(float rate);          // inferred: update of the instances
+    void fn_802301EC(EffectInst_unk* inst, EffectParam_unk* param, float* mtx); // inferred: emits the particles of an instance
+    void fn_8022D478(int layer);           // inferred: draws a layer
     void fn_8022C3F0();                    // inferred: update
     void* fn_8022FAC4(void* res, int a, int b, int c, const atn::Vector3* pos, const atn::Vector3* rot,
                       const EffectColor_unk* color, int d, int e, float scale);
@@ -247,12 +255,12 @@ public:
     void fn_8023686C(float rate);
     void fn_802368B0(void* arg);
 
-    int m00;
-    int m04;
-    int m08;
-    EffectInst_unk* mInsts; // 0x0C
-    int m10;
-    int m14;
+    int mInstMax;               // 0x00
+    EffectInst_unk* mInstPool;  // 0x04: inferred: new[] of mInstMax instances
+    EffectInst_unk* m08;        // 0x08: inferred: free list
+    EffectInst_unk* mInsts;     // 0x0C
+    int mSlotCount;             // 0x10
+    EffectSlot_unk* mSlots;     // 0x14
     int m18;
     int m1C;
     int mParticleCount;              // 0x20
