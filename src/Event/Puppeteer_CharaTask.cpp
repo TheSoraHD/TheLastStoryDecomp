@@ -567,6 +567,51 @@ void Actor::fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& m
     }
 }
 
+} // namespace Event
+// inferred: *this = m * *this (weak copy 0x80011410)
+inline void atn::Vector3::fn_80011410(const atn::Matrix3x4& m) {
+    PSMTXMultVec(m.m, this, this);
+}
+namespace Event {
+
+// inferred: front of the actor (z axis of its rotation)
+// NONMATCHING: 84% - scheduling (the original loads the target before the stores of the vector, and the
+// row of case 3 in another register order)
+atn::Vector3 Actor::fn_800112E0() {
+    atn::Vector3 front;
+    switch (m20) {
+    case 7:
+    case 1: {
+        front.Set_unk(0.0f, 0.0f, 1.0f);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(GetChara_unk()->mRot.y);
+        front.fn_80011410(m);
+        break;
+    }
+    case 2: {
+        front.Set_unk(0.0f, 0.0f, 1.0f);
+        atn::Matrix3x4 m;
+        m.fn_8013A13C(((GimmickCommon*)m1C)->m78.y);
+        front.fn_80011410(m);
+        break;
+    }
+    case 3: {
+        atn::Matrix3x4& m = ((Puppeteer<atn::Model>*)m1C)->m48->mMtx;
+        front.Set_unk(m.m[2][0], m.m[2][1], m.m[2][2]);
+        break;
+    }
+    case 4: {
+        atn::Matrix3x4& m = ((DummyData*)m1C)->m18;
+        front.Set_unk(m.m[2][0], m.m[2][1], m.m[2][2]);
+        break;
+    }
+    default:
+        front = lbl_807C7030;
+        break;
+    }
+    return front;
+}
+
 // inferred: rotation of the actor around y
 float Actor::fn_80011964() {
     switch (m20) {
@@ -874,9 +919,6 @@ extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
     return m;
 }
 // inferred: *this = m * *this (declared in math/Vec.h; weak copy 0x80011410)
-inline void atn::Vector3::fn_80011410(const atn::Matrix3x4& m) {
-    PSMTXMultVec(m.m, this, this);
-}
 // inferred: fabs (weak copy 0x80011220)
 extern "C" inline float fn_80011220(float x) {
     double r = __fabs(x);

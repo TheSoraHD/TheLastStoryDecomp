@@ -4,6 +4,7 @@
 #include "Event/Section.h"
 #include "Event/Cut.h"
 #include "atn/Model_unk.h"
+#include "game/MslSort_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
 // inferred: event position to world (Event/Sequence, also used by game/PathData_unk)
@@ -185,6 +186,51 @@ ActionParam_unk* Action::fn_80539330(unsigned int hash) {
 // inferred: const (m10 is loaded before the stack frame is made)
 float Action::fn_805393A4(int frame) const {
     return (float)(frame - m10) / (float)(m14 - m10);
+}
+
+bool KeyLess_unk(const ActionKey_unk& a, const ActionKey_unk& b);
+
+// inferred: clamp of a key component to [lo, hi]
+inline float KeyClamp_unk(float v, float lo, float hi) {
+    v = (hi <= v) ? hi : v;
+    return (lo >= v) ? lo : v;
+}
+
+// inferred: index of the key at `time` (-1: none)
+inline int KeyFind_unk(std::vector<ActionKey_unk>& keys, float time) {
+    for (int i = 0; i < (int)keys.size(); i++) {
+        if (time == keys[i].mTime) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// NONMATCHING: 96.7% - the original copies the keys member by member (floats) in the reallocation of
+// push_back and in the sorts (72-56%): ActionKey_unk is probably not a POD there (a constructor in
+// Event/Action.h renumbers the @N labels of every Event file, so it is not added; with it: median 100%,
+// sorts 87%, this function 90.8%)
+// inferred: sets the key of the curve at its time (time and value clamped to [0, 1]), keeps the curve
+// sorted and returns the index of the key
+int Action::fn_805393F8(const ActionKey_unk& key) {
+    ActionKey_unk k;
+    k.mTime = key.mTime;
+    k.mValue = key.mValue;
+    k.mTime = KeyClamp_unk(k.mTime, 0.0f, 1.0f);
+    k.mValue = KeyClamp_unk(k.mValue, 0.0f, 1.0f);
+    int index = KeyFind_unk(mKeys, k.mTime);
+    if (index == -1) {
+        mKeys.push_back(k);
+    } else {
+        mKeys[index] = k;
+    }
+    MslSort_unk(MslIter_unk<ActionKey_unk>(mKeys.begin()), MslIter_unk<ActionKey_unk>(mKeys.end()), KeyLess_unk);
+    for (int i = 0; i < (int)mKeys.size(); i++) {
+        if (k.mTime == mKeys[i].mTime && k.mValue == mKeys[i].mValue) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 // inferred: comparator of the curve keys (its address is passed to std::sort by fn_805393F8)
