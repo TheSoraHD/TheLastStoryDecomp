@@ -1,24 +1,32 @@
-# Siguiente sesion (tras noescritas2-20261110)
+# Siguiente sesion (tras fueraruta-20261112)
 
-> Sesion `noescritas2-20261110` cerrada el 2026-11-12 02:30 (inicio 2026-11-10 23:27; cortada por el entorno el
-> 2026-11-11 hacia las 04:50 y reanudada el 12). Rama `noescritas2-20261110` mergeada en `main` (2026-11-12).
+> Sesion `fueraruta-20261112` (12 h, unidades fuera de la ruta de arranque) cerrada el 2026-11-12 hacia las 13:00
+> (inicio 02:29). Rama `fueraruta-20261112` subida y **sin mergear** (revisar y mergear en `main`).
 
-Estado: **15008 -> 15030 / 18109**, lost 0, sin bajadas de fuzzy, `main.dol: OK` (build limpio y clon limpio).
-Funciones al 0 %: **1023 -> 972**. 42 DRAFT (0 en la ruta). Splits y game_units sin cambios. En `symbols.txt`,
-ademas de renombrados: una etiqueta duplicada corregida, el byte 0x8087DD38 como `@N` local, `lbl_8074ECE0` partida
-en "Rand" + `sValueTypes_unk` + `sFlagOps_unk`, y `sFlagScopes_unk`/`sLookDelays_unk` locales.
-Notas: `docs/noescritas2-20261110.md`.
+Estado: **15030 -> 15057 / 18109**, lost 0, sin bajadas de fuzzy, `main.dol: OK` (build limpio y clon limpio).
+Funciones al 0 %: **972 -> 870**. 42 DRAFT (0 en la ruta). Ninguna unidad nueva enlaza. Splits sin cambios;
+`game_units.json`: entrada nueva `game/CosEditItemList_unk.cpp` (`matching: false`); `symbols.txt`: renombrados,
+etiquetas `@N` y dos `@STRING@` de Em203GreaterDaemonRedMp a `scope:local`.
+Notas: `docs/fueraruta-20261112.md`.
 
-## Revision
+## Revision al mergear
 
-- Decisiones de `docs/noescritas2-20261110.md` revisadas al mergear (deuda: `extern "C"` con el objeto de sesion de MP, heredada de PacketPack).
-- Cambio de firma compartida: `Event::Manager::fn_8047EA34(int id, atn::Vector3 pos, int arg, float rot)`.
+- Decisiones sin el usuario en `docs/fueraruta-20261112.md` (seccion "Decisiones tomadas sin el usuario").
+- Cabeceras tocadas que incluyen muchas unidades: `game/GameCamera.h` (campos y `CameraShake_unk mShake`),
+  `game/CosEditBase.h` (`CosEditItem_unk`), `game/PopupTask.h` (firma de `fn_8054E528`), `gmk/SwingPart_unk.h`
+  (nueva), `Event/ActionProcessors_unk.h` (nueva), `atn/SingletonNoStatic.h` (destructor vacio).
+- `MP/D2AMpMenuLobby`: `lbl_8087F628` es `atn::net::Manager` (antes una vista local); `MP/D2AMpMenuMessageList.cpp`
+  aun usa su propia vista (deuda de la regla 10).
 
 ## Siguiente
 
-- `game/GameEventScript` (16 al 0 %): fn_80399734 (5 KB, eventos de esferas; comparte con ApproachCharas_unk el
-  bloque "examinar" de la camara y CanLook_unk) y el grupo de `boost::lexical_cast<std::string>(int)` (Boost
-  1.34.1; necesita istream/iostream/stringstream de MSL en `include/std/`), mejor como lote propio.
-- `game/MapPartsGimmickLoc`: dtor y vf0C/vf10 piden una cabecera comun de `SwingPart_unk`.
-- Restos: `game/PopupTask` vf14 (9 KB), `RecycleBuffer_gmk/ItemSlotAnime` fn_80450B84/fn_804515A8,
-  `atn/LayerOcclusionCPU` fn_800B5994.
+- `game/GameCamera_unk` (33 al 0 %): fn_8038C070 (necesita declarar fn_8038E9B0), fn_8038B650 y fn_80389A00
+  (grandes). Los llamadores de la vibracion siguen en 79-99 % por `fn_8008B964` (`extern "C"` en `atn/Model.cpp`;
+  el original la inlinea): resolverlo como inline de `RenderManager` sube de golpe ~9 funciones.
+- `MP/D2AMpMenuLobby` (8 al 0 %): fn_804C0094 (924 bytes, sencilla; declararla en `MP/D2AMpMenuLobby.h`, que
+  incluye PacketPack: pasar `lblmap` a PacketPack y revisar sus etiquetas a mano), fn_804BFB54, fn_804C23E4,
+  fn_804BE610, fn_804BEDB8, fn_804C18A8, vf10 y fn_804BC628 (5 KB).
+- `game/CosEditItemList_unk` (65 al 0 %): copias de `std::sort` y las inlines debiles; ver la nota de los dos tipos
+  de entrada en las notas (no repetir el ctor de protectores).
+- Siguen bloqueadas (sin cambio): `atn/LH_Motion_cont`, `LastCocoonChrysalis` ctor, `GimmickManager` vf0C,
+  `atn/BoneCalc_unk` (paired-single no aprobado).
