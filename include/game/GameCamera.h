@@ -184,7 +184,11 @@ public:
     float m514;            // inferred: fovy of the fixed mode
     int m518;              // inferred: m4FC/m508 follow the character
     GameCameraParam_unk m51C; // inferred: parameters of the "hips" side mode (copied by fn_8038F52C)
-    unsigned char m558[0x648 - 0x558];
+    float m558;            // inferred: look distance of the head mode (fn_8038A200)
+    float m55C;            // inferred: fovy of the head mode
+    unsigned char m560[0x568 - 0x560];
+    float m568;            // inferred: height of the eye of the head mode
+    unsigned char m56C[0x648 - 0x56C];
     int m648;              // inferred: state of the collision of the side mode (fn_8038E540)
     float m64C;            // inferred: fovy of the side mode
     unsigned char m650[0x654 - 0x650];

@@ -445,6 +445,42 @@ void GameCamera::fn_8038A1D8(const CharaTask* chara) {
     m834 = 0;
 }
 
+// inferred: camera at the head of the character (m568 above it) looking m558 in front of it, with the fovy m55C;
+// blended in 5 frames from the saved camera
+// NONMATCHING: 89.7% - scheduling of the three blends
+void GameCamera::fn_8038A200(const CharaTask* chara) {
+    atn::Vector3 pos = mPos;
+    atn::Vector3 target = mTarget;
+    if (m808 == 0) {
+        m80C = pos;
+        m818 = target;
+        m830 = mFovy;
+    }
+    atn::Vector3 eye = chara->mPos;
+    atn::Vector3 offset(0.0f, m568, 0.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &offset, &offset);
+    eye += offset;
+    offset = atn::Vector3(0.0f, m568, m558);
+    PSMTXMultVec(m, &offset, &offset);
+    atn::Vector3 look = offset + eye;
+    pos = (eye - m80C) * ((float)m808 / 5.0f) + m80C;
+    target = (look - m818) * ((float)m808 / 5.0f) + m818;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    mFovy = ((float)m808 / 5.0f) * (m55C - m830) + m830;
+    fn_8004B378();
+    fn_80392964(1, 1, 0, 0);
+    if (++m808 > 5) {
+        m80C = pos;
+        m818 = target;
+        m800 = m7FC;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
 // NONMATCHING: 89.3% - order of the blend temporaries and float registers
 void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target, const CharaTask* chara,
                              int collide, float fovy, float t) {
