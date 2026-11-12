@@ -4,6 +4,7 @@
 #include "atn/Model_unk.h"
 #include "game/GimmickManager.h"
 #include "game/MapPartsBase.h"
+#include "game/MapPartsModel.h"
 #include "gmk/Lemon.h"
 #include "game/MapTask.h"
 #include "game/MapArea.h"
@@ -28,8 +29,37 @@ extern "C" void fn_80087994(void* group, const char* name, int* value, int arg3,
 
 #include "atn/AABB_unk.h"
 
+// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0 of
+// Event/Puppeteer_CharaTask.cpp; inlined here)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
 
-// NONMATCHING (__sinit): 99.94% - only .sdata2 order (fn_80424AD4/fn_80424FB4/fn_80425498 not decompiled).
+
+// NONMATCHING (__sinit): 99.94% - only .sdata2 order.
 // inferred: far away position and the 24 orientations of the room (x, y, z rotations)
 static atn::Vector3 sFar(5000.0f, 5000.0f, 5000.0f);
 static atn::Vector3 sRots[24] = {
@@ -191,7 +221,7 @@ int RotaryRoom::vf0C() {
                             MapPartsArea* areas = (MapPartsArea*)part;
                             for (unsigned int j = 0; j < areas->mAreas.mSize; j++) {
                                 if (areas->mAreas.mData[j]->mHash == mColli[i].mHash) {
-                                    mColli[i].m08 = (int)part;
+                                    mColli[i].m08 = areas;
                                     break;
                                 }
                             }
@@ -256,6 +286,136 @@ void RotaryRoom::vf10() {
         if (++mFrame >= mFrames) {
             mFrame = mFrames;
             fn_80425878(1);
+        }
+    }
+}
+
+// NONMATCHING: 99.16% - registers of the switch value/part pointer and the locator loop counters, and the
+// stack slots of the temporaries of RotateZYX_unk (the original puts the z rotation highest)
+// inferred: fills the entries with the parts of the group (models, locator instances and the gimmicks
+// placed by a gimmick locator) and their matrices
+void RotaryRoom::fn_80424AD4() {
+    int n = 0;
+    for (MapPartsBase* part = mGroup->mParts; part != 0; part = part->mNext) {
+        switch (part->mType) {
+        case 0: {
+            RotaryEntry_unk& e = mEntries.mData[n++];
+            atn::Model* model = &((MapPartsModel*)part)->mModel;
+            e.mType = part->mType;
+            e.mObject = model;
+            e.mMtx = model->mMtx;
+            break;
+        }
+        case 4: {
+            MapPartsLocatorSet* set = (MapPartsLocatorSet*)part;
+            for (int i = 0; i < (int)set->mInstances.mSize; i++) {
+                MapInstance_unk* inst = set->mInstances.mData[i];
+                RotaryEntry_unk& e = mEntries.mData[n++];
+                e.mType = part->mType;
+                e.mObject = inst;
+                e.mMtx = inst->mInst.mMtx;
+            }
+            break;
+        }
+        case 5:
+            for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+                if (g->m20 == part) {
+                    RotaryEntry_unk& e = mEntries.mData[n];
+                    e.mType = part->mType;
+                    e.mObject = g;
+                    e.m08 = g->m6C;
+                    e.m14 = g->m84;
+                    e.mMtx = fn_800109E0(g->m78);
+                    e.mMtx.RotateZYX_unk(e.m14);
+                    n++;
+                    e.mMtx.fn_801479E4(g->m6C);
+                }
+            }
+            break;
+        }
+    }
+}
+
+// NONMATCHING: 99.15% - stack slots of the temporaries (the original keeps the ones of case 0 lowest and
+// those of case 5 apart) and one more saved register
+// inferred: places every entry rotated by t (0 to 1) of the rotation offset around the room position
+void RotaryRoom::fn_80424FB4(float t) {
+    for (unsigned int i = 0; i < mEntries.mSize; i++) {
+        RotaryEntry_unk& e = mEntries.mData[i];
+        atn::Matrix3x4 m = e.mMtx;
+        __SetTrans_unk(m, m.GetTrans_unk() - m6C);
+        atn::Matrix3x4 rot = fn_800109E0(mRotOffset * t);
+        PSMTXConcat(rot.m, m.m, m.m);
+        __SetTrans_unk(m, m.GetTrans_unk() + m6C);
+        switch (e.mType) {
+        case 0: {
+            atn::Model* model = (atn::Model*)e.mObject;
+            *(atn::Matrix3x4*)model->mMtx.m = m;
+            atn::Vector3 az(m.m[0][2], m.m[1][2], m.m[2][2]);
+            float sz = PSVECMag(&az);
+            atn::Vector3 ay(m.m[0][1], m.m[1][1], m.m[2][1]);
+            float sy = PSVECMag(&ay);
+            atn::Vector3 ax(m.m[0][0], m.m[1][0], m.m[2][0]);
+            float sx = PSVECMag(&ax);
+            atn::Vector3 sc(sx, sy, sz);
+            model->m54 = __MAX_unk(sc.x, __MAX_unk(sc.y, sc.z));
+            ((atn::Model*)e.mObject)->CalcMatrixStack(atn::ModelNodeCallback_unk());
+            break;
+        }
+        case 4:
+            ((atn::ModelInstance*)e.mObject)->fn_8009EE30(m);
+            break;
+        case 5:
+            ((GimmickCommon*)e.mObject)->m6C = m.GetTrans_unk();
+            ((GimmickCommon*)e.mObject)->m84 = e.m14 + mRotOffset * t;
+            break;
+        }
+    }
+}
+
+// NONMATCHING: 99.74% - registers of the area list and the list index in the first branch
+// inferred: shows the area list of the current state and moves the others far away (sFar)
+void RotaryRoom::fn_80425498() {
+    RotaryColli_unk* colli = mColli;
+    for (int i = 0; i < 25; i++, colli++) {
+        MapPartsArea* area = colli->m08;
+        if (area == 0) {
+            continue;
+        }
+        if (i == m54) {
+            mGroup->fn_804A0EFC(colli->m08);
+            if (colli->m0C) {
+                MapPartsArea* areas = colli->m08;
+                for (unsigned int j = 0; j < areas->mAreas.size(); j++) {
+                    MapArea* a = areas->mAreas[j];
+                    for (unsigned int k = 0; k < a->mSegments.size(); k++) {
+                        atn::AABB_unk& seg = a->mSegments[k];
+                        seg.mMin -= sFar;
+                        seg.mMax -= sFar;
+                    }
+                }
+                colli->m0C = false;
+                for (unsigned int k = 0; k < 25; k++) {
+                    if (mColli[k].m08 == colli->m08 && mColli[k].m0C) {
+                        mColli[k].m0C = false;
+                    }
+                }
+            }
+        } else if (mGroup->GetArea_unk() != area && !colli->m0C) {
+            for (unsigned int j = 0; j < area->mAreas.size(); j++) {
+                MapArea* a = area->mAreas[j];
+                for (unsigned int k = 0; k < a->mSegments.size(); k++) {
+                    atn::AABB_unk& seg = a->mSegments[k];
+                    seg.mMin += sFar;
+                    seg.mMax += sFar;
+                }
+            }
+            colli->m0C = true;
+            for (unsigned int k = 0; k < 25; k++) {
+                if (mColli[k].m08 == colli->m08 && !mColli[k].m0C) {
+                    mColli[k].m0C = true;
+                }
+            }
         }
     }
 }

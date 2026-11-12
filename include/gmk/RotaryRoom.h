@@ -6,6 +6,7 @@
 #include "game/GimmickCommon.h"
 
 class MapTask;
+class MapPartsArea;
 
 namespace gmk {
 
@@ -24,8 +25,8 @@ struct RotaryColli_unk {
     RotaryColli_unk() : mTree(0), mHash(0), m08(0), m0C(false) {}
     atn::ColliTree* mTree;
     unsigned int mHash;
-    int m08;
-    bool m0C;
+    MapPartsArea* m08; // inferred: area list of the state
+    bool m0C;          // inferred: moved away (sFar)
 };
 
 // inferred: room that rotates its map group ("MAP") between 24 orientations; the state picks
@@ -50,9 +51,9 @@ public:
     virtual void vf6C(void* menu);
     virtual void vf70(int state);
 
-    void fn_80424AD4(); // not decompiled yet
-    void fn_80424FB4(float t); // inferred: places the room at t of the rotation; not decompiled yet
-    void fn_80425498(); // not decompiled yet
+    void fn_80424AD4(); // inferred: fills mEntries
+    void fn_80424FB4(float t); // inferred: places the room at t of the rotation
+    void fn_80425498(); // inferred: shows/hides the area lists
     void fn_80425878(int on); // inferred: switches the parts of type 5
 
     MapTask* mGroup;  // 0xF4
