@@ -80,9 +80,11 @@ public:
     static NewCampPartsMapSelect* fn_8051B920(atn::Task* parent); // inferred: creates the parts
     NewCampPartsMapSelect(atn::Task* parent);                      // 0x8051B984
     virtual ~NewCampPartsMapSelect();                              // 0x8051C2A8
+    virtual void vf10();                                           // 0x8051CF78
     virtual void vf1C(NewCampScene_unk* scene);                    // 0x8051CA74
     virtual void vf20();                                           // 0x8051EC50
     virtual void vf24();                                           // 0x8051EF20
+    virtual void vf28();                                           // 0x8051F138
     virtual void vf2C();                                           // 0x8051F7D0
     virtual void vf30();                                           // 0x8051FF5C
     virtual void vf40(void* menu);                                 // 0x8051C3DC
@@ -167,7 +169,7 @@ public:
     atn::Task* mBattleBoard;             // 0x18E8: map_board01_battle.d2a
     atn::Task* mLogo;                    // 0x18EC: map_logo.d2a
     atn::Vector3 m18F0;
-    unsigned char m18FC[0x1900 - 0x18FC];
+    float m18FC;
     float m1900;
     atn::Task* mMapName;                 // 0x1904: map_name.d2a
     SelectMember* m1908;                 // inferred: member select of the route (deleted by the destructor)
