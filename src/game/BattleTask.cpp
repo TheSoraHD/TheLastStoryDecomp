@@ -13,6 +13,8 @@
 #include "macros.h"
 #include "game/PlayerManager.h"
 #include "game/PlayerTask.h"
+#include "game/EnemyManager.h"
+#include "game/EnemyTask.h"
 #include "game/GameTask.h"
 #include "game/MapTask.h"
 #include "game/GameScene.h"
@@ -1483,6 +1485,87 @@ void BattleTask::fn_8010AC60() {
         p++;
     }
     fn_80105510(40);
+}
+
+// inferred: the character takes part (not stopped, not children only); inlined, name invented
+inline bool IsActive_unk(CharaTask* chara) {
+    return !chara->IsFlag_unk(4) && !chara->IsFlag_unk(1);
+}
+// inferred: active and without the status flag 0x20 (down?); inlined, name invented
+inline bool IsUp_unk(CharaTask* chara) {
+    return IsActive_unk(chara) && !chara->mStatus.IsState_unk(0x20);
+}
+// inferred: up and not grappled; inlined, name invented
+inline bool IsFree_unk(CharaTask* chara) {
+    return IsUp_unk(chara) && !chara->IsGrappled_unk();
+}
+
+// NONMATCHING: 99.5% - registers r5/r6 swapped (life of the player and the base of the battle task)
+// inferred: totals of the battle: keeps the previous ones in m38CA4 and sums the scaled life (m00) and the
+// number (m08) of the players, and the life (m04) and number (m0C) of the enemies
+void BattleTask::fn_8010ACCC() {
+    m38CA4 = m38C90;
+    m38C90.m00 = 0;
+    m38C90.m04 = 0;
+    m38C90.m08 = 0;
+    m38C90.m0C = 0;
+    m38C90.m10 = 0;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        if (!p->IsFlag_unk(4) && p->mStatus.m224 > 0 && !p->IsFlag54C_unk(0x2000) && p->mC54 != 0) {
+            float rate = (float)p->mStatus.m224 / (float)p->mStatus.mParamB.m98;
+            float base = p->mStatus.mParamB.m78;
+            m38C90.m08++;
+            m38C90.m00 += (int)(rate * base);
+        }
+    }
+    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+        if ((IsFree_unk(e) || e->IsFlag54C_unk(0x80000)) && !e->IsFlag54C_unk(0x2000) && e->mC54 != 0) {
+            m38C90.m04 += e->mStatus.mParamB.m78;
+            if (e->mFlag22 == 1) {
+                m38C90.m10 = 1;
+            }
+            m38C90.m0C++;
+        }
+    }
+}
+
+inline bool BattleSel_unk::IsValid_unk() const {
+    bool valid = false;
+    if (m00 > 0 && m04 > 0) {
+        valid = true;
+    }
+    return valid;
+}
+
+// inferred: compares the totals with the stored ones: m38CCC is 1 when the enemies fell to half or the players
+// doubled, 3 in the opposite case; the stored totals follow
+void BattleTask::fn_8010AEF4() {
+    m38CD0 = m38CCC;
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_80375184() != 0) {
+        if (m38C90.IsValid_unk() && m38CB8.IsValid_unk() && m38C90.m10 == 0) {
+            if ((m38CB8.m0C >= 3 && m38CB8.m04 / 2 >= m38C90.m04) ||
+                (m38CB8.m08 >= 2 && m38CB8.m00 * 2 <= m38C90.m00)) {
+                m38CCC = 1;
+                m38CB8 = m38C90;
+            } else if ((m38CB8.m08 >= 3 && m38CB8.m00 / 2 >= m38C90.m00) ||
+                       (m38CB8.m0C >= 2 && m38CB8.m04 * 2 <= m38C90.m04)) {
+                m38CCC = 3;
+                m38CB8 = m38C90;
+            }
+            if (!m38CB8.IsValid_unk() && m38C90.IsValid_unk()) {
+                m38CB8 = m38C90;
+            }
+        }
+    } else {
+        m38CCC = 2;
+        if (m38CB8.IsValid_unk()) {
+            m38CB8.m00 = 0;
+            m38CB8.m04 = 0;
+            m38CB8.m08 = 0;
+            m38CB8.m0C = 0;
+            m38CB8.m10 = 0;
+        }
+    }
 }
 
 int BattleTask::fn_8010B180(CharaTask* a, CharaTask* b) {

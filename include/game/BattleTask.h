@@ -70,8 +70,11 @@ struct BattleChara_unk {
 // inferred from __vt__10BattleTask (0x80779DA0): battle manager (lbl_8087F048). Other units still use
 // partial views of it named Effect_unk (CharaTask, CharaStatus, AI...); the methods those call keep the
 // Effect_unk name until the views are unified. Method names invented.
-// inferred: 0x14-byte record copied member by member (fn_8010ABF4); names invented
+// inferred: 0x14-byte record copied member by member (fn_8010ABF4): totals of the battle (fn_8010ACCC); names
+// invented
 struct BattleSel_unk {
+    bool IsValid_unk() const; // inferred: both sides are alive (defined in game/BattleTask.cpp)
+
     int m00;
     int m04;
     int m08;
@@ -295,9 +298,11 @@ public:
     atn::EfpFile mEfp38AF4[32];  // 0x38AF4: inferred: status and magic effects (EFP files)
     unsigned char m38C74[0x38C90 - 0x38C74];
     BattleSel_unk m38C90; // inferred: selection (copied to m38CB8 by fn_8010ABF4)
-    unsigned char m38CA4[0x38CB8 - 0x38CA4];
+    BattleSel_unk m38CA4; // inferred: previous value of m38C90 (fn_8010ACCC)
     BattleSel_unk m38CB8;
-    unsigned char m38CCC[0x391E0 - 0x38CCC];
+    int m38CCC; // inferred: result of the comparison of the totals (1, 3; 2 when GameTask::fn_80375184 fails)
+    int m38CD0; // inferred: previous m38CCC
+    unsigned char m38CD4[0x391E0 - 0x38CD4];
     int m391E0[0x48][0x48]; // inferred: hate of each character toward each other (fn_8010C948)
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor

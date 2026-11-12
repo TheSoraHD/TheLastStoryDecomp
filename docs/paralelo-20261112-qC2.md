@@ -7,7 +7,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
 - `game/BattleTask`: escritas `fn_800F8548` (id de bala, 100 %), `fn_80101434` (efecto de golpe por nivel, 100 %),
   `fn_8010B250` (escala de bala por nivel con la tabla `lbl_80735ED0` definida en el fuente, 100 %),
   `fn_8010A308` (salpicadura al cruzar agua), `fn_800F3D28` (reinicio de la batalla), `fn_800F39A4` (peticiones de
-  carga de recursos) y `fn_800F3B4C` (espera de esas cargas, 100 %).
+  carga de recursos) y `fn_800F3B4C` (espera de esas cargas, 100 %), `fn_8010ACCC` (totales de jugadores y
+  enemigos) y `fn_8010AEF4` (comparacion de los totales, 100 %).
 - Los marcadores (`BattleMarker_unk`, `BattleMarkers_unk`) pasan del .cpp a `BattleTask.h` como miembro
   `BattleTask::mMarkers` (0x367B8): con el cast `(BattleMarkers_unk*)&m367B4[4]` el compilador no plegaba los
   desplazamientos (fn_800F39A4/fn_800F3B4C).
@@ -21,6 +22,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   accesor `fn_800F8538`).
 - `fn_800F39A4` 97,9 %: el original carga el primer puntero de cadena antes de guardar registros; offsets del
   pool de cadenas distintos (fichero incompleto).
+
+- `fn_8010ACCC` 99,5 %: registros r5/r6 cambiados (vida del jugador y base de `this`).
 
 ## Decisiones tomadas sin el usuario
 
@@ -36,6 +39,9 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   cuerpo inline con parametro con nombre, cambia los `.o` de las unidades que la incluyen (probado con BulletPoint,
   Arms, ControlDive, ReplayBuffer); un struct solo con datos no. `fn_800F72F4` (por encima del presupuesto de
   inline) usa los casts directos, no los accesores. Se quita `MarkerEfp_unk`.
+- `BattleTask.h`: `m38CA4` es un `BattleSel_unk` (copia anterior de `m38C90`), `m38CCC`/`m38CD0` (resultado
+  de la comparacion y el anterior) y `BattleSel_unk::IsValid_unk() const` (declarada sin parametros, definida
+  inline en el .cpp).
 - `mEfp363C0[46]` se parte en `mEfp363C0[26]`, `mSplashEfp[3]` (0x364F8) y `mEfp3651C[17]` (los bucles sobre
   `mEfp363C0[26 + i]` no se reducian a puntero).
 - `CollResult_unk` local en BattleTask.cpp con el constructor inline (como `include/gmk/Lemon.h`); el tipo esta
