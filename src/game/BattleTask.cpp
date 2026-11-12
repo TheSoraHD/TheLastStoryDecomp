@@ -15,6 +15,8 @@
 #include "game/PlayerTask.h"
 #include "game/EnemyManager.h"
 #include "game/EnemyTask.h"
+#include "game/PopupTask.h"
+#include "game/SetConfig.h"
 #include "game/GameTask.h"
 #include "game/MapTask.h"
 #include "game/GameScene.h"
@@ -37,7 +39,12 @@ extern "C" void* fn_80210220(int id); // inferred: record of an attract-hate par
 extern "C" PlayerManager* lbl_8087F8A0;
 extern "C" GameTask* lbl_8087F430;
 extern "C" int rand();
-extern "C" void* lbl_8087F610; // inferred: multiplayer manager (null in single player)
+// inferred: multiplayer manager (as Arena_unk of game/CharaTask.cpp); only the member used here
+struct Arena_unk {
+    unsigned char m000[0x540];
+    int m540; // inferred: mode (2: teams)
+};
+extern "C" Arena_unk* lbl_8087F610; // inferred: multiplayer manager (null in single player)
 extern "C" atn::EfpFile* fn_800EFBC4(int id); // inferred: battle effect of row `id`
 extern "C" atn::EfpFile* fn_800EFDA0(int id); // inferred: skill effect of row `id`
 extern "C" const char* fn_800EFE3C(int id);   // inferred: sound of row `id`
@@ -1403,6 +1410,97 @@ void BattleTask::fn_80108A5C(CharaTask* chara, const atn::Vector3* dir) {
 }
 
 // inferred: the early return as !(a) || !(b) gives the bne over a blr of the original
+// inferred: damage record shown by fn_80108C10 (as StatusDamage_unk of game/CharaStatus.cpp); only the members
+// used here
+struct BattleDamage_unk {
+    int m00; // inferred: kind (1, 4 and 5 are shown)
+    int m04; // inferred: value (negative: recovery)
+    int m08;
+    int m0C;
+    int m10;
+    int m14;
+    int m18;
+};
+extern "C" int fn_804EB7C4(Arena_unk* arena, CharaTask* chara); // inferred: player of a multiplayer session
+extern "C" int fn_804EB814(Arena_unk* arena, CharaTask* chara); // inferred: team of a multiplayer session
+extern "C" int swprintf(wchar_t* s, unsigned int n, const wchar_t* format, ...);
+
+// inferred: the kind of damage has a popup (inlined); name invented
+inline bool IsPopupKind_unk(int kind) {
+    return kind == 1 || kind == 4 || kind == 5;
+}
+
+// NONMATCHING: 97.8% - the early return for an empty damage is a bne/b pair in the original; lbl_8087F610 is reloaded
+// before its mode test; the format string is in the wide string table of the file (not complete)
+// inferred: shows the damage popup of `damage` dealt by `attacker` to `chara` at `pos`, unless the options hide the
+// popups of that side. C name, called by other files as extern "C"
+extern "C" void fn_80108C10(BattleTask* mgr, BattleDamage_unk* damage, const atn::Vector3* pos, CharaTask* attacker,
+                            CharaTask* chara, unsigned int flags, int skipEmpty) {
+    if (!IsPopupKind_unk(damage->m00)) {
+        return;
+    }
+    if (skipEmpty != 0 && damage->m04 == 0 && damage->m0C == 0) {
+        return;
+    }
+    if (lbl_8087F610 == 0) {
+        if (chara != 0 && (chara->mType == 0 || chara->mType == 3) && SetConfig::sInstance->mDrawFriendPopup == 0) {
+            return;
+        }
+        if (chara != 0 && chara->mType == 2 && SetConfig::sInstance->mDrawEnemyPopup == 0) {
+            return;
+        }
+    } else {
+        PlayerTask* head = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+        if (attacker != 0 && !attacker->mFlag2) {
+            if (lbl_8087F610->m540 != 2) {
+                if (head != 0) {
+                    if (chara != 0 && chara->fn_8016F3D0(head, 1) && SetConfig::sInstance->mDrawFriendPopup == 0) {
+                        return;
+                    }
+                    if (chara != 0 && !chara->fn_8016F3D0(head, 1) && SetConfig::sInstance->mDrawEnemyPopup == 0) {
+                        return;
+                    }
+                }
+            } else {
+                if (fn_804EB7C4(lbl_8087F610, chara) != 0 && SetConfig::sInstance->mDrawFriendPopup == 0) {
+                    return;
+                }
+                if (fn_804EB814(lbl_8087F610, chara) != 0 && SetConfig::sInstance->mDrawEnemyPopup == 0) {
+                    return;
+                }
+            }
+        } else if (head != 0) {
+            if (attacker != 0 && !attacker->fn_8016F3D0(head, 1) && SetConfig::sInstance->mDrawFriendPopup == 0) {
+                return;
+            }
+            if (attacker != 0 && attacker->fn_8016F3D0(head, 1) && SetConfig::sInstance->mDrawEnemyPopup == 0) {
+                return;
+            }
+        }
+    }
+    int value = damage->m04;
+    int recover = 0;
+    if (value < 0) {
+        recover = 1;
+        value = -value;
+    }
+    int big = 1;
+    if (attacker != 0 && attacker->mType == 0 && recover != 1) {
+        big = 0;
+    }
+    if ((flags & 0x200000) == 0x200000) {
+        flags &= ~8;
+        if (chara != 0 && chara->mType == 0) {
+            big = 0;
+        }
+    }
+    wchar_t text[32];
+    memset(text, 0, sizeof(text));
+    swprintf(text, 32, L"%d", value);
+    lbl_8087F8A8->fn_8054D794(recover, text, pos, 0, flags, damage->m10, damage->m0C != 0, attacker, chara, big,
+                              damage->m14, damage->m18);
+}
+
 void BattleTask::fn_80109828(const wchar_t* text) {
     if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
         return;

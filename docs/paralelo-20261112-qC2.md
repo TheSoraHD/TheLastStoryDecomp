@@ -9,7 +9,7 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   `fn_8010A308` (salpicadura al cruzar agua), `fn_800F3D28` (reinicio de la batalla), `fn_800F39A4` (peticiones de
   carga de recursos) y `fn_800F3B4C` (espera de esas cargas, 100 %), `fn_8010ACCC` (totales de jugadores y
   enemigos), `fn_8010AEF4` (comparacion de los totales, 100 %), `fn_801002DC` (objetivo de la camara, miembro
-  nuevo) y `fn_8010A868` (efectos temporizados `mStuns`, 100 %).
+  nuevo), `fn_8010A868` (efectos temporizados `mStuns`, 100 %) y `fn_80108C10` (popup de dano).
 - Los marcadores (`BattleMarker_unk`, `BattleMarkers_unk`) pasan del .cpp a `BattleTask.h` como miembro
   `BattleTask::mMarkers` (0x367B8): con el cast `(BattleMarkers_unk*)&m367B4[4]` el compilador no plegaba los
   desplazamientos (fn_800F39A4/fn_800F3B4C).
@@ -28,6 +28,9 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
 
 - `fn_801002DC` 99,9 %: pila; el original pone la diferencia en 0x14 y la suma escalada en 0x20 (probado:
   asignacion aparte, inline del centro, local del objetivo).
+
+- `fn_80108C10` 97,8 %: el `return` por dano vacio sale `bne/b` en el original; `lbl_8087F610` se recarga antes
+  de mirar el modo; la cadena de formato esta en la tabla de cadenas anchas del fichero (incompleto).
 
 ## Decisiones tomadas sin el usuario
 
@@ -53,12 +56,22 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   GameCamera_unk).
 - `mEfp363C0[46]` se parte en `mEfp363C0[26]`, `mSplashEfp[3]` (0x364F8) y `mEfp3651C[17]` (los bucles sobre
   `mEfp363C0[26 + i]` no se reducian a puntero).
+- `fn_80108C10` tambien `extern "C"` (12 llamadores `extern "C"`); su registro de dano es otra vista local
+  (`BattleDamage_unk`, como `StatusDamage_unk`/`DaemonDamage_unk` de otras unidades) y `Arena_unk` local
+  (como en CharaTask.cpp) para `lbl_8087F610`, que pasa de `void*` a `Arena_unk*`.
 - `CollResult_unk` local en BattleTask.cpp con el constructor inline (como `include/gmk/Lemon.h`); el tipo esta
   repetido en muchas unidades (pendiente de unificar en una cabecera).
 - Punteros de `.sdata` a cadenas (`lbl_808813F4`... `lbl_808813D8`) y la tabla `lbl_80735988` siguen `extern`
   como el resto de datos del fichero (`lbl_80735DD0`).
 
 ## Hallazgos
+
+- `return k == 1 || k == 4 || k == 5;` en un inline `bool` da la prueba de bits (`slw`/`andi. 0x19`); con `if` y
+  variable o `switch` sale una cadena de comparaciones.
+- Un borrado de vector inline (`for (i = it - data; i < n - 1; i++) data[i] = data[i + 1]; n--;`) dentro de un
+  helper inline intercambia los registros del indice y del puntero respecto al bucle escrito en linea.
+- Un helper inline con los argumentos de una llamada (`PlayEfpScaled_unk(efp, model, scale)`) adelanta el calculo
+  de esos argumentos antes de los stores del color temporal.
 
 - Una struct solo con datos anadida a una cabecera no cambia los `.o` de quien la incluye; un metodo inline con
   parametro con nombre o un `#include` de cabeceras con declaraciones con nombre si.
