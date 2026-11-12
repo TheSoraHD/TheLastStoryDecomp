@@ -1,5 +1,7 @@
 # port-propuestas3-20261112: cambios del port de PC (fase 2) para la decomp
 
+Mergeada en `main` el 2026-11-12 (revisada: diff, comentarios ASCII, comprobaciones de abajo).
+
 Rama desde `main` 545192a. Referencia: build limpio de `main` (`main.dol: OK`, 15057 / 18109).
 Resultado: **15058 / 18109**, `main.dol: OK`, `regress.py` lost 0, `fuzzdrop.py` 0 bajadas,
 `poolcheck.py` sin avisos en las unidades tocadas, `ordercheck.py` sin funciones fuera de orden
