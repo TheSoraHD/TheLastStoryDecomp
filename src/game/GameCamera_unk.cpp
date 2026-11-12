@@ -659,9 +659,7 @@ void GameCamera::fn_8038952C(const CharaTask* chara) {
     const atn::Model* model = &chara->mMotion;
     const atn::Matrix3x4* node = (const atn::Matrix3x4*)model->GetNodeMtx_unk(model->GetNodeNoByName("hips", 0));
     atn::Vector3 target = node->GetTrans_unk();
-    atn::Vector3 offset(0.0f, 50.0f, 0.0f);
-    atn::Vector3 pos = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
-    SetPosition(pos);
+    SetPosition(const_cast<CharaTask*>(chara)->fn_80178088() + atn::Vector3(0.0f, 50.0f, 0.0f));
     SetTarget_unk(target);
     fn_8004B378();
     fn_80392964(1, 1, 1, 0);

@@ -62,7 +62,30 @@ Rama `agent-D`. Inicio: 2026-11-12 14:55 CET. Referencia: `/home/claude/ref-D` (
 - `fn_8038E23C` (colision del ojo, 772 bytes) no se escribe: necesita declarar un metodo nuevo en
   `GameCamera.h` (incluida por 144 unidades) y eso renumera los `@N`.
 
+## Pendientes
+
+- `fn_8038E23C` (colision, 772 bytes; llamada por fn_8038378C, fn_803884B8, fn_8038A5F0): falta declararla en
+  `GameCamera.h`, y una declaracion de metodo renumera los `@N` de las 144 unidades que la incluyen. Sin ella
+  tampoco se pueden escribir fn_8038A5F0, fn_803884B8 ni fn_8038378C.
+- `__dt__10GameCameraFv` (152 bytes): necesita `ResHandle m7EC` en `GameCamera.h` (incluir `game/ResHandle.h`,
+  cuyas inline renumerarian `@N`).
+- `fn_80382A1C` (1668 bytes, sobre el presupuesto: todo fuera de linea): llama a `TownTask::fn_805B81F0(int, int)`
+  (sin declarar, cabecera de otra cola) y a `atn::Camera::SetUpVector` (metodo nuevo en `Camera_unk.h`).
+- `fn_8037EF48` (seguir al lider, 1784 bytes) y `fn_8038F52C`: no empezadas.
+- `MiniMapTask::fn_804AAFCC`: la zona 0x834-0x1538 son 64 registros de 0x2C y un `static_vector` de 64 pares
+  {CharaTask*, indice} en 0x1334; habria que rehacer el constructor (borrador) para cambiar la cabecera.
+- Mover `fn_8008B964` a `RenderManager.h` en un lote de integracion (ver decisiones).
+- FinishCamera_unk, GameUI, MiniMapTask y PopupTask: sin cambios (no dio tiempo).
+
 ## Hallazgos
 
 - Una definicion de funcion inline en una cabecera gasta numeros `@N` (3 por funcion) en cada unidad que la
   incluye; una declaracion de metodo en una clase tambien renumera; un miembro de datos no.
+- Pila: un `Vector3` con nombre se coloca por encima de los temporales; si en el original una suma queda entre
+  locales con nombre, era un local (`pos` en fn_80389210); si un local queda por debajo de los temporales, era un
+  temporal (expresion directa) o una referencia `const&` a uno.
+- `switch` con 8 `case` consecutivos + 2 sueltos da `subi; cmplwi 7; ble` y luego las comparaciones sueltas.
+- Una funcion con varias copias de un bloque de parametros (`m738 = m51C; m738.m0C = ...`) da stores de constantes
+  ya propagadas y solo lee de memoria el campo no inicializado (m34).
+
+Fin: 2026-11-12 ~16:25 CET.
