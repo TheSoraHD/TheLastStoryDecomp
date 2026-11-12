@@ -1,7 +1,7 @@
 # Siguiente sesion (tras noescritas2-20261110)
 
 > Sesion `noescritas2-20261110` cerrada el 2026-11-12 02:30 (inicio 2026-11-10 23:27; cortada por el entorno el
-> 2026-11-11 hacia las 04:50 y reanudada el 12). Rama `noescritas2-20261110` empujada, **sin mergear**.
+> 2026-11-11 hacia las 04:50 y reanudada el 12). Rama `noescritas2-20261110` mergeada en `main` (2026-11-12).
 
 Estado: **15008 -> 15030 / 18109**, lost 0, sin bajadas de fuzzy, `main.dol: OK` (build limpio y clon limpio).
 Funciones al 0 %: **1023 -> 972**. 42 DRAFT (0 en la ruta). Splits y game_units sin cambios. En `symbols.txt`,
@@ -9,9 +9,9 @@ ademas de renombrados: una etiqueta duplicada corregida, el byte 0x8087DD38 como
 en "Rand" + `sValueTypes_unk` + `sFlagOps_unk`, y `sFlagScopes_unk`/`sLookDelays_unk` locales.
 Notas: `docs/noescritas2-20261110.md`.
 
-## Revisar y mergear
+## Revision
 
-- Revisar las decisiones de `docs/noescritas2-20261110.md` y mergear la rama en `main`.
+- Decisiones de `docs/noescritas2-20261110.md` revisadas al mergear (deuda: `extern "C"` con el objeto de sesion de MP, heredada de PacketPack).
 - Cambio de firma compartida: `Event::Manager::fn_8047EA34(int id, atn::Vector3 pos, int arg, float rot)`.
 
 ## Siguiente
