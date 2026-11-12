@@ -122,6 +122,7 @@ struct Actor : public CommonData {
     void fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx);
     void fn_800121F0(int arg, float distance); // inferred: called with the distance moved
     float fn_80011964(); // inferred: rotation around y
+    atn::Vector3 fn_800112E0(); // inferred: front of the actor
     // inferred: turns the eyes towards `target` (node, camera position, jitter, weight, angle)
     void fn_80012D34(Actor* target, int node, const atn::Vector3& cam, int arg4, const atn::Vector3& jitter,
                      int arg6, float weight, float angle);

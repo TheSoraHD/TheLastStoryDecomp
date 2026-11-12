@@ -62,7 +62,7 @@ public:
     ActionParam_unk* fn_805392BC(unsigned int hash); // inferred: attribute `hash`, 0 if none
     ActionParam_unk* fn_80539330(unsigned int hash); // inferred: same code as fn_805392BC
     float fn_805393A4(int frame) const;   // inferred: position of `frame` between m10 and m14
-    void fn_805393F8(const ActionKey_unk& key); // inferred: adds a key to the curve (sorted by time)
+    int fn_805393F8(const ActionKey_unk& key); // inferred: adds a key to the curve (sorted by time), returns its index
 
     // inferred: parameter n, 0 when the action has fewer parameters (inlined by the behaviours,
     // which only pass constants)
