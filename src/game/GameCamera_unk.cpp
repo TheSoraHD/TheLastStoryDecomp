@@ -496,6 +496,105 @@ void GameCamera::fn_8038BD78(const CharaTask* chara) {
     m834 = 0;
 }
 
+// inferred: blends in 30 frames from the saved camera to the camera of fn_80389060 (eye 35 up and 20 behind
+// the character, looking 10 in front of it); then back to the sub mode with m83C = 6
+// NONMATCHING: 87.8% - scheduling of the two blends (the angle of the rotation is loaded before the matrix)
+void GameCamera::fn_8038D1C0(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+    }
+    atn::Vector3 target = chara->mPos;
+    atn::Vector3 front(0.0f, 0.0f, 10.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    PSMTXMultVec(m, &front, &front);
+    target += front;
+    target = (target - m818) * ((float)m808 / 30.0f) + m818;
+    atn::Vector3 pos = chara->mPos;
+    atn::Vector3 offset(0.0f, 35.0f, -20.0f);
+    Mtx m2;
+    PSMTXRotRad(m2, 'y', chara->mRot.y);
+    PSMTXMultVec(m2, &offset, &offset);
+    pos += offset;
+    pos = (pos - m80C) * ((float)m808 / 30.0f) + m80C;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 0, 0);
+    if (++m808 > 30) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
+// inferred: blends in 10 frames to a camera 40 behind the target (the character) along the line from the point
+// 5 under its head; then back to the sub mode with m83C = 6
+// NONMATCHING: 80.6% - the original adds the offset to the head after the first blend (more float registers)
+void GameCamera::fn_8038D4D4(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m830 = mFovy;
+    }
+    atn::Vector3 target = chara->mPos;
+    atn::Vector3 offset(0.0f, -5.0f, 0.0f);
+    atn::Vector3 head = const_cast<CharaTask*>(chara)->fn_80178088() + offset;
+    target = (target - m818) * ((float)m808 / 10.0f) + m818;
+    atn::Vector3 dir = (target - head).GetNormalize();
+    atn::Vector3 pos = target + dir * 40.0f;
+    pos = (pos - m80C) * ((float)m808 / 10.0f) + m80C;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 0, 0);
+    if (++m808 > 10) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
+// inferred: blends in 23 frames to a camera 30 away from the target (20.451 above the character) along a
+// fixed direction turned with the character; then back to the sub mode with m83C = 6
+// NONMATCHING: 84% - order of the two blends and temporaries of the direction
+void GameCamera::fn_8038D854(const CharaTask* chara) {
+    if (m808 == 0) {
+        m80C = mPos;
+        m818 = mTarget;
+        m824 = m818 - m80C;
+        m830 = mFovy;
+    }
+    atn::Vector3 target = chara->mPos;
+    target.y += 20.451f;
+    atn::Vector3 dir = atn::Vector3(0.4f, 0.2f, 1.0f).GetNormalize();
+    Mtx m;
+    PSMTXRotRad(m, 'y', chara->mRot.y);
+    atn::Vector3 back = dir;
+    PSMTXMultVec(m, &back, &back);
+    back *= 30.0f;
+    atn::Vector3 pos = target - back;
+    target = (target - m818) * ((float)m808 / 23.0f) + m818;
+    pos = (pos - m80C) * ((float)m808 / 23.0f) + m80C;
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(1, 1, 0, 0);
+    if (++m808 > 23) {
+        m800 = m7FC;
+        m838 = 0;
+        m83C = 6;
+        m808 = 0;
+    }
+    m834 = 0;
+}
+
 // NONMATCHING: fn_80392964 is inlined raw as in the original, but the getter fn_8008B964 (extern "C" in
 // atn/Model.cpp) is called where the original inlines it; other differences of its own
 // inferred: one frame of the "hips" camera after saving the current camera in m80C-m830; then goes back
