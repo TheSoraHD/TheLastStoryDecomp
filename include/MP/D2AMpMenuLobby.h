@@ -50,6 +50,7 @@ public:
     int fn_804BE330(int count); // inferred: cursor and decide/cancel keys
     void fn_804BE4A4(); // inferred: answer of the common dialog
     void fn_804BF550();
+    void fn_804BF9AC(); // inferred: flashes of the parts
     void fn_804C0430(); // inferred: countdown before the start
     void fn_804C0548(); // inferred: changes the face
     void fn_804C0A40();

@@ -341,6 +341,30 @@ void D2AMpMenuLobby::fn_804BE4A4() {
     }
 }
 
+// inferred: flashes four parts of the lobby (face select colors 4 and 1, colors 3 and 4 of the profile of the
+// local player) while mDBC[i] counts from 0 to 10 (up to 0xFF and back, 0x33 per frame)
+// NONMATCHING: 99.8% - offsets of the strings until the functions before it are written
+void D2AMpMenuLobby::fn_804BF9AC() {
+    for (int i = 0; i < 4; i++) {
+        if (mDBC[i] == -1) {
+            continue;
+        }
+        float value = (float)(mDBC[i] <= 5 ? mDBC[i] * 0x33 : 0xFF - (mDBC[i] - 5) * 0x33);
+        if (i == 0) {
+            SetPaneValue2_unk(m5C->mLayout, "col0004(1)", 0, value);
+        } else if (i == 1) {
+            SetPaneValue2_unk(m5C->mLayout, "col0001(1)", 0, value);
+        } else if (i == 2) {
+            SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0003(1)", 0, value);
+        } else if (i == 3) {
+            SetPaneValue2_unk(mPlayers[mE60].mTasks[0]->mLayout, "col0004(1)", 0, value);
+        }
+        if (++mDBC[i] > 10) {
+            mDBC[i] = -1;
+        }
+    }
+}
+
 // inferred: before the countdown, waits for the base animation to go back to its first frame and enters the
 // next state; then shows the seconds left on the map (30 - mDCC), fading out at 15 and beeping from 29
 void D2AMpMenuLobby::fn_804C0430() {
