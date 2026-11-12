@@ -231,7 +231,9 @@ struct EffectSlot_unk {
 // inferred: the effect system kept by the manager (0x88 bytes; its members are in other files)
 // inferred: two empty levels over std::vector (five null checks of `this` in the destructor); used
 // as a bitmap of the used blocks of EffectFadePool_unk
-struct EffectPtrVectorBase_unk : public std::vector<unsigned int> {};
+// (pointer elements: their resize clears the new words with memset as in fn_8022BEAC; the words are
+// read as unsigned int)
+struct EffectPtrVectorBase_unk : public std::vector<void*> {};
 struct EffectPtrVector_unk : public EffectPtrVectorBase_unk {};
 // inferred: block allocator of the EffectFade_unk of the slots (0x40 per block, 0x120 blocks; set up
 // by EffectSystem_unk::fn_8022B850, names invented)

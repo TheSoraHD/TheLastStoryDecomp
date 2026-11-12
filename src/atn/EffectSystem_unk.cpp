@@ -44,6 +44,56 @@ inline void Kill_unk(EffectInst_unk* inst) {
     }
 }
 
+// inferred: word of the bitmap of the pool for a block (name invented)
+static inline unsigned int& UsedWord_unk(EffectSystemPool_unk& pool, unsigned int i) {
+    return *(unsigned int*)&pool.mUsed[i >> 5];
+}
+
+// inferred: releases the fade item of a slot (name invented)
+static inline void ReleaseSlot_unk(EffectSystemPool_unk& pool, EffectSlot_unk* slot) {
+    if (slot->m1A8 != 0) {
+        unsigned int block = (unsigned int)(slot->m1A8 - pool.mItems.mData) / pool.mBlockSize;
+        UsedWord_unk(pool, block) &= ~(1 << (block & 31));
+    }
+    slot->m1A8 = 0;
+    slot->m1B4 = 0;
+    slot->m1B0 = 0;
+    slot->m1AC = 0;
+}
+
+// inferred: sets up the pool: count blocks of 0x40 items and their bitmap (name invented)
+static inline void InitPool_unk(EffectSystemPool_unk& pool, unsigned int count) {
+    if (pool.mBlockSize == 0x40 && count == pool.mBlockCount) {
+        return;
+    }
+    pool.mBlockSize = 0x40;
+    pool.mBlockCount = count;
+    pool.mItems.Resize_unk(count << 6, 7);
+    pool.mUsed.resize(count);
+}
+
+extern "C" void fn_8023793C(void* used, void* free, void* buffer, int stride, int count);
+
+// NONMATCHING: 99.5% - index and offset of the slot loop swap r10/r11; registers of the inlined growth
+// of the bitmap vector (see fn_8022BEAC)
+// inferred: allocates the instances, the slots and the particles, sets up the fade pool (0x120
+// blocks) and links the free lists
+void EffectSystem_unk::fn_8022B850(int instMax, int slotCount, int particleCount) {
+    mInstMax = instMax;
+    mInstPool = new ((MemoryTag)7, "", "", 0) EffectInst_unk[instMax];
+    mSlotCount = slotCount;
+    mSlots = new ((MemoryTag)7, "", "", 0) EffectSlot_unk[slotCount];
+    mParticleCount = particleCount;
+    mParticles = new ((MemoryTag)7, "", "", 0) EffectParticle_unk[particleCount];
+    InitPool_unk(m2C, 0x120);
+    fn_8023793C(&mInsts, &m08, mInstPool, sizeof(EffectInst_unk), mInstMax);
+    for (int i = 0; i < mSlotCount; i++) {
+        ReleaseSlot_unk(m2C, &mSlots[i]);
+        mSlots[i].m08 = 0;
+    }
+    fn_8023793C(&m1C, &mFreeSlots, mSlots, sizeof(EffectSlot_unk), mSlotCount);
+}
+
 EffectInst_unk::EffectInst_unk()
     : m00(0), mNext(0), m08(0), m0C(0), m10(0), m14(-1), mFlags(0), m1A(0), mKill(0), m1C(0.0f), mOwnerPtr(0),
       mOwner(0), mGroup(0), mEffect(0), mTag(0), mData(0), mParam(0), mSlots(0), mC8(0.0f), mCC(0.0f), mRate(1.0f) {}
@@ -55,16 +105,10 @@ EffectSlot_unk::EffectSlot_unk()
 
 EffectFade_unk::EffectFade_unk() : m00(0.0f), m04(0.0f), m08(0.0f), m0C(0.0f), m10(1.0f) {}
 
-// inferred: releases the fade item of a slot (name invented)
-static inline void ReleaseSlot_unk(EffectSystemPool_unk& pool, EffectSlot_unk* slot) {
-    if (slot->m1A8 != 0) {
-        unsigned int block = (unsigned int)(slot->m1A8 - pool.mItems.mData) / pool.mBlockSize;
-        pool.mUsed[block >> 5] &= ~(1 << (block & 31));
-    }
-    slot->m1A8 = 0;
-    slot->m1B4 = 0;
-    slot->m1B0 = 0;
-    slot->m1AC = 0;
+// NONMATCHING: 99.4% - registers and stack slots of the inlined growth of the bitmap vector
+// inferred: sets up the fade pool
+void EffectSystem_unk::fn_8022BEAC(unsigned int count) {
+    InitPool_unk(m2C, count);
 }
 
 // inferred: releases the instances, the slots and the particles
@@ -352,10 +396,10 @@ extern "C" void fn_80231508(EffectSlot_unk* slot);
 
 // inferred: takes a free block of the pool (null when all are used; name invented)
 static inline bool IsUsed_unk(EffectSystemPool_unk& pool, unsigned int i) {
-    return ((1 << (i & 31)) & pool.mUsed[i >> 5]) != 0;
+    return (UsedWord_unk(pool, i) & (1 << (i & 31))) != 0;
 }
 static inline void SetUsed_unk(EffectSystemPool_unk& pool, unsigned int i) {
-    pool.mUsed[i >> 5] |= 1 << (i & 31);
+    UsedWord_unk(pool, i) |= 1 << (i & 31);
 }
 static inline EffectFade_unk* AllocFade_unk(EffectSystemPool_unk& pool) {
     for (unsigned int i = 0; i < pool.mBlockCount; i++) {
