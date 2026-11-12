@@ -22,6 +22,8 @@
 #include "atn/DrawHelper.h"
 #include "atn/Color.h"
 #include "atn/D2A_Task.h"
+#include "atn/ResLoader_unk.h"
+#include "atn/Texture_unk.h"
 #include "atn/NodeChunk.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -146,13 +148,86 @@ struct MarkerEfp_unk {
 struct BattleMarkers_unk {
     // inferred: weak copy 0x800F8538; name invented
     BattleMarker_unk* fn_800F8538(int i) { return &mItems[i]; }
+    // inferred: clears a marker (inlined in fn_800F3D28); name invented
+    void Reset_unk(int i) {
+        mItems[i].m70 = 0;
+        mItems[i].mFlags = 0;
+        mItems[i].mMode = 0;
+    }
     BattleMarker_unk mItems[72];
     // inferred: effects of the line (0xC bytes each): 0/1 base and head toward an enemy, 2/3 appearance,
     // 4/5 base and head toward the own side
-    MarkerEfp_unk mEfp[6];     // 0x38978
+    atn::EffFile mEfp[6];      // 0x38978
     int mHideLines;            // 0x389C0: inferred: nonzero hides the lines (sets mode 1)
-    unsigned char mTex[4];     // 0x389C4: inferred: texture of the line (DrawHelper::fn_80064F00)
+    atn::Texture mTex;         // 0x389C4: inferred: texture of the line (DrawHelper::fn_80064F00)
 };
+
+extern "C" const char* lbl_808813F4; // inferred: "/effect/hateline/hate_line_01a.eff" (.sdata of this file)
+extern "C" const char* lbl_808813F8; // inferred: "/effect/hateline/hate_line_01b.eff"
+extern "C" const char* lbl_808813FC; // inferred: "/effect/hateline/hate_line_07a.eff"
+extern "C" const char* lbl_80881400; // inferred: "/effect/hateline/hate_line_07b.eff"
+extern "C" const char* lbl_80881404; // inferred: "/effect/hateline/hate_line_03a.eff"
+extern "C" const char* lbl_80881408; // inferred: "/effect/hateline/hate_line_03b.eff"
+extern "C" const char* lbl_808813D4; // inferred: "/data/d2anime/ui_seek.d2a"
+extern "C" const char* lbl_808813D8; // inferred: "/data/d2anime/ui_seek_arow.d2a"
+extern "C" const char* const lbl_80735988[3]; // inferred: splash effects (.rodata of this file)
+extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
+extern "C" int sprintf(char* s, const char* format, ...);
+
+// NONMATCHING: the original reaches the line effects and the texture as members of this (this + 0x40000 - x
+// each time); here they go through the markers pointer. String pool offsets differ (file not complete)
+// inferred: load requests of the battle resources (called by the constructor): the target lines, the
+// d2anime tasks, the splash and palette effects
+void BattleTask::fn_800F39A4() {
+    BattleMarkers_unk* markers = (BattleMarkers_unk*)&m367B4[4];
+    markers->mEfp[0].LoadRequest(lbl_808813F4);
+    markers->mEfp[1].LoadRequest(lbl_808813F8);
+    markers->mEfp[4].LoadRequest(lbl_808813FC);
+    markers->mEfp[5].LoadRequest(lbl_80881400);
+    markers->mEfp[2].LoadRequest(lbl_80881404);
+    markers->mEfp[3].LoadRequest(lbl_80881408);
+    markers->mTex.fn_800D5908("/battle/hatemove.texture");
+    mCB30 = fn_801F3FF8(this, lbl_808813D4, 0);
+    mCB30->fn_800D246C(1);
+    mCB60 = fn_801F3FF8(this, lbl_808813D8, 0);
+    mCB60->fn_800D246C(1);
+    m3E2F4 = fn_801F3FF8(this, "data/d2anime/ui_hp_up.d2a", 0);
+    m3E2F4->fn_800D246C(1);
+    for (int i = 0; i < 3; i++) {
+        mEfp363C0[26 + i].LoadRequest(lbl_80735988[i]);
+    }
+    mEfp38AF4[24].LoadRequest("data/eff/ef_sc024.efp");
+    for (unsigned int i = 0; i < 31; i++) {
+        char path[256];
+        sprintf(path, "/data/efp/ef_%s.efp", fn_8020BD78(i));
+        mEfp3663C[i].LoadRequest(path);
+    }
+}
+
+// NONMATCHING: 86.5% - registers: in the original the marker of entry i is reached through a separate offset (i * 0x78
+// added to this + 0x30000) and its zero stores use their own register
+// inferred: resets the battle (GameTask::vf10 at a map change): removes the bullets and clears the characters,
+// their hate, the target markers and the effect slots. C name, called by game/GameTask.cpp as extern "C"
+extern "C" void fn_800F3D28(BattleTask* mgr) {
+    mgr->fn_801011B8();
+    for (int i = 0; i < 0x48; i++) {
+        mgr->mCharas[i].mChara = 0;
+        mgr->mCharas[i].m92D = 0;
+        mgr->mCharas[i].m248 = 1.0f;
+        mgr->mCharas[i].m92E = 0;
+        mgr->mCharas[i].m92F = 0;
+        mgr->mCharas[i].fn_801081D8();
+        memset(mgr->m391E0[i], 0, sizeof(mgr->m391E0[i]));
+        ((BattleMarkers_unk*)&mgr->m367B4[4])->Reset_unk(i);
+    }
+    mgr->mCharaCount = 0;
+    mgr->mCBAC = 0;
+    mgr->m3E314 = 0;
+    for (int i = 0; i < 8; i++) {
+        mgr->mSlots[i].mChara = 0;
+        mgr->mSlots[i].mUsed = 0;
+    }
+}
 
 // inferred: player character as seen from here (as game/CharaTask.cpp)
 struct Player_unk : public BattleCharaTask {
@@ -432,7 +507,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
             verts[i].mColor = color.ToU32();
             v->mUV = fn_800F84D8(atn::Vec2_unk(1.0f, 0.0f), atn::Vec2_unk(0.0f, 0.0f), (float)i / (float)count);
         }
-        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)markers->mTex, 0.0f);
+        fn_800F7250()->fn_80064F00(verts, count + 1, 0xA0, 0, (int)&markers->mTex, 0.0f);
         if (marker->m70 == 8) {
             if (info->mC4->IsPlayer()) {
                 if (fn_800F5300(info->mC4)) {
@@ -471,7 +546,7 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         marker->m6C = last;
     }
     if (fn_80239D58(fn_800F7FA0(), marker, 0) == 0) {
-        MarkerEfp_unk* res = (mode == 1 || mode == 3) ? &markers->mEfp[4] : &markers->mEfp[0];
+        atn::EffFile* res = (mode == 1 || mode == 3) ? &markers->mEfp[4] : &markers->mEfp[0];
         fn_800F7F98(fn_800F7FA0(), 1);
         fn_800F84D0(fn_800F7FA0(), 5);
         fn_800F7FA8(fn_800F7FA0(), marker, 0);
@@ -481,6 +556,16 @@ void BattleTask::fn_800F72F4(BattleCharaTask* chara, int arg) {
         fn_800F84D0(fn_800F7FA0(), 0);
         fn_800F7F98(fn_800F7FA0(), 0);
     }
+}
+
+// inferred: next bullet id (wraps after 99999); C name, called by many files as extern "C"
+extern "C" int fn_800F8548(BattleTask* mgr) {
+    int id = mgr->mBulletId;
+    mgr->mBulletId = id + 1;
+    if (mgr->mBulletId > 100000) {
+        mgr->mBulletId = 0;
+    }
+    return id;
 }
 
 extern "C" void* fn_800FAB80(BattleTask* mgr, CharaTask* chara, HitInfo_unk* data, int id, const atn::Vector3* pos,
@@ -578,6 +663,24 @@ int BattleTask::fn_80101340(CharaTask* chara) {
         }
     }
     return count;
+}
+
+// inferred: hit effect of level `level` (1..) and kind `kind` (mEfp363C0[4 + (level - 1) * 7 + kind]);
+// C name, called by other files as extern "C"
+extern "C" void fn_80101434(BattleTask* mgr, const atn::Vector3* pos, const atn::Vector3* rot, int level, int kind) {
+    if (level <= 0 || kind < 0) {
+        return;
+    }
+    bool flag = (unsigned)kind <= 2;
+    fn_800F7FA8(fn_800F7FA0(), mgr, 0);
+    if (flag) {
+        fn_800F7FA0()->mSystem.m78 = 1;
+    }
+    atn::EfpFile (*hits)[7] = (atn::EfpFile (*)[7])&mgr->mEfp363C0[4]; // inferred: [level - 1][kind]
+    fn_8023A680(fn_800F7FA0(), (EffectRes_unk*)&hits[level - 1][kind], -1, 0, 0, pos, rot, 0, 0, -1, 1, 1.0f);
+    if (flag) {
+        fn_800F7FA0()->mSystem.m78 = 0;
+    }
 }
 
 void BattleTask::fn_801021B4(RayObj_unk* obj, int a, int b) {
@@ -1271,6 +1374,52 @@ void BattleTask::fn_80109864(SpEffect_unk* effect, CharaTask* chara) {
     }
 }
 
+// inferred: result of the collision tests of lbl_8087EE98 (0x50 bytes; same layout as include/gmk/Lemon.h and
+// game/CharaTask.cpp, here with the constructor inlined)
+struct CollResult_unk {
+    CollResult_unk() : m34(0), m38(0), m3C(0), m40(0) {}
+    int m00;
+    atn::Vector3 m04; // inferred: hit position
+    atn::Vector3 m10;
+    atn::Vector3 m1C;
+    atn::Vector3 m28;
+    unsigned int* m34; // inferred: collision attribute of the hit (first word: kind, 0x1B water)
+    void* m38;
+    unsigned int m3C;
+    int m40;
+    atn::Vector3 m44;
+};
+extern "C" void* lbl_8087EE98; // inferred: collision manager
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
+
+// NONMATCHING: 97.1% - the original picks the kind with a branch per value (li 0; b / li 1); every form
+// tried gives a preset 1 or mfcr (if/else, ternary, inline, switch); `else if (size >= 6.0f)` adds a compare
+// inferred: splash when the segment from..to crosses water (attribute 0x1B); `size` picks the effect and
+// its scale. C name, called by other files as extern "C"
+extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn::Vector3* to, float size) {
+    CollResult_unk result;
+    if (fn_8004ED34(lbl_8087EE98, &result, from, to, 0x80000000, 0, 0) != 0 && result.m34 != 0 &&
+        result.m34[0] == 0x1B) {
+        int kind = 1;
+        if (size < 6.0f) {
+            kind = 0;
+        }
+        if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0 && lbl_8087F430->GetCurrentMap()->mType == 1) {
+            kind = 2;
+        }
+        float scale = 1.0f;
+        if (size > 8.0f) {
+            scale = size / 8.0f;
+        }
+        fn_800F7FA8(fn_800F7FA0(), 0, 0);
+        atn::EfpFile* splash = &mgr->mEfp363C0[26]; // inferred: one effect per kind
+        fn_8023A8B4(lbl_8087F3C0, &splash[kind], 0, 0, result.m04, lbl_807C7030,
+                    EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
+        fn_800C344C(lbl_80735DD0[23], &result.m04, 0, -1, 1.0f);
+    }
+}
+
 // inferred: the 0.0f bound goes through a variable (MAX evaluates it twice); with the literal f2/f3 come out swapped
 void BattleTask::fn_8010AB34() {
     float add = m38A28;
@@ -1327,6 +1476,36 @@ int BattleTask::fn_8010B180(CharaTask* a, CharaTask* b) {
         }
     }
     return 1;
+}
+
+// inferred: scale of a bullet by level (.rodata of this file)
+extern "C" const float lbl_80735ED0[16] = {0.0f,  0.2f,  4.0f,  6.0f,  8.0f,  10.0f, 12.0f, 14.0f,
+                                           16.0f, 18.0f, 20.0f, 22.0f, 24.0f, 26.0f, 28.0f, 30.0f};
+
+// inferred: scale of a bullet of level `level`, moved by the status 0x37 of the attacker of `param` (a
+// positive value lowers the level, a negative one raises it); C name, called by other files as extern "C"
+extern "C" float fn_8010B250(BattleTask* mgr, int level, BattleCalcParam_unk* param) {
+    if (param != 0 && param->m08 != 0 && param->m00 != 0 && param->m04 != 0 && param->m44 != 1) {
+        int rate = param->m04->mStatus.fn_80134168(0x37, -1);
+        if (rate > 0) {
+            if (rate > rand() % 100) {
+                if (level > 0) {
+                    int down = level - 1;
+                    level = 1;
+                    if (down > 1) {
+                        level = down;
+                    }
+                } else {
+                    level = 0;
+                }
+            }
+        } else if (rate < 0) {
+            if (-rate > rand() % 100) {
+                level += 2;
+            }
+        }
+    }
+    return lbl_80735ED0[(level > 0 ? level : 0) < 15 ? (level > 0 ? level : 0) : 15];
 }
 
 CharaTask* BattleTask::fn_8010C948(CharaTask* chara) {

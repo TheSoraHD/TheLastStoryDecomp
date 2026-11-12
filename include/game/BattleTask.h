@@ -99,6 +99,7 @@ public:
     virtual void vf14();       // 0x800F5314
     int fn_800F3490(); // inferred: nonzero while the battle effects load
     int fn_800F3B4C(); // inferred: nonzero while the other resources load
+    void fn_800F39A4(); // inferred: load requests of the resources
     void fn_80371664(); // inferred: defined in game/GameTask.cpp (0x80371664, clears mCBAC)
     // inferred: index of the character in mCharas, -1 if missing (inlined)
     int FindChara_unk(CharaTask* chara) {
@@ -225,7 +226,8 @@ public:
     int fn_8010D770(HitInfo_unk* hit);
     int fn_8010D7B4(HitInfo_unk* hit);
 
-    unsigned char m48[0x150 - 0x48];
+    unsigned char m48[0x14C - 0x48];
+    int mBulletId;                // 0x14C: inferred: next bullet id (fn_800F8548)
     Bullet mBullets[256];         // 0x150: inferred: bullet pool
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
     BetoModel mSlots[8];           // 0xBA50: inferred: characters with an active battle effect
@@ -241,7 +243,8 @@ public:
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
     atn::EfpFile mEfp363C0[46];  // 0x363C0: inferred: battle effects (EFP files)
-    unsigned char m365E8[0x367B0 - 0x365E8];
+    unsigned char m365E8[0x3663C - 0x365E8];
+    atn::EfpFile mEfp3663C[31]; // 0x3663C: inferred: palette effects (ef_<palette>.efp, fn_800F39A4)
     int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change
     unsigned char m367B4[0x389F4 - 0x367B4];
     int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
@@ -273,7 +276,8 @@ public:
     float m3E2FC; // inferred: alpha of the chant effect
     int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
     EffectColor_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
-    unsigned char m3E314[0x3E398 - 0x3E314];
+    int m3E314; // inferred: cleared by fn_800F3D28
+    unsigned char m3E318[0x3E398 - 0x3E318];
     CharaTask* m3E398; // inferred: user of the bullet being made (set around fn_800FAB80 by fn_800FBA30)
     int m3E39C; // inferred: set while the event script makes a bullet (GameEventScript::fn_803A4A7C)
     unsigned char m3E3A0[0x3E3B0 - 0x3E3A0]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
