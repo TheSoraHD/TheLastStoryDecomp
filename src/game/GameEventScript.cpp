@@ -1421,6 +1421,279 @@ void GameEventScript::fn_80399148() {
     }
 }
 
+// inferred: frames the camera rests on a camera event (kind 7) before it starts, by the field flag 0x121
+// (.rodata 0x8074EEE0; name invented)
+static const int sLookDelays_unk[] = {90, 30};
+
+static inline bool CanLook_unk();
+extern "C" int fn_80051B70(const atn::ColliCapsuleShape_unk* capsule, const atn::ColliSphereShape_unk* sphere);
+extern "C" int fn_803ABE54(const atn::Vector3* from, const atn::Vector3* to, float radius);
+
+// inferred: the events of the event spheres (as fn_80399148 for the boxes, with the kinds of the
+// character points: 3 looked at from 1200 units, 4 examined, 7 camera event after 90 or 30 frames). The
+// look tests are written in place: as inline helpers the function goes over the inline budget (R3).
+// NONMATCHING: 90.1% - registers and stack slots
+void GameEventScript::fn_80399734() {
+    m98 = 0;
+    m9C = 4;
+    PlayerTask* leader = lbl_8087F8A0->mHead;
+    atn::Sphere own;
+    own.mCenter = leader->m614;
+    own.mRadius = leader->m620;
+    if (leader->m55C == 6 && leader->m560 == 11) {
+        atn::ColliResult_unk result;
+        atn::Vector3 to = own.mCenter + atn::Vector3(0.0f, -100.0f, 0.0f);
+        if (fn_8004ED34(lbl_8087EE98, &result, &own.mCenter, &to, 0x80000000, 0, 0)) {
+            own.mCenter = result.m10 + atn::Vector3(0.0f, own.mRadius, 0.0f);
+        }
+    }
+    GameUIElem1C_unk hint;
+    GameScene* scene = mScene;
+    for (unsigned int i = 0; i < scene->mEC.size(); i++) {
+        gs::EventSphere& sphere = scene->mEC[i];
+        bool stop = false;
+        mA0 = sphere.mId;
+        int group = i;
+        if (sphere.m20 >= 0) {
+            group = sphere.m20;
+        }
+        ScriptNpcFlag_unk& state = m10C[group];
+        if (state.m00 >= 0) {
+            mA4 = state.m00;
+            const ScriptEventConds_unk* e = (const ScriptEventConds_unk*)FindEvent_unk(scene->mEC[group].m18[state.m00]);
+            if (e != 0) {
+                bool start = false;
+                switch (e->m0C) {
+                case 0:
+                    if ((state.mFlags & 0x20) == 0x20 && mF4 == &state) {
+                        hint.m14 = 1;
+                        hint.m00 = 6;
+                        switch (e->mC4) {
+                        case 1:
+                            hint.m04 = 1;
+                            break;
+                        case 2:
+                            hint.m04 = 6;
+                            break;
+                        case 3:
+                            hint.m04 = 7;
+                            break;
+                        case 4:
+                            hint.m04 = 8;
+                            break;
+                        case 5:
+                            hint.m04 = 9;
+                            break;
+                        case 6:
+                            hint.m04 = 2;
+                            break;
+                        case 7:
+                            hint.m04 = 10;
+                            break;
+                        case 8:
+                            hint.m04 = 11;
+                            break;
+                        case 9:
+                            hint.m04 = 18;
+                            break;
+                        case 10:
+                            hint.m04 = 21;
+                            break;
+                        case 11:
+                            hint.m04 = 22;
+                            break;
+                        default:
+                            hint.m04 = 1;
+                            break;
+                        }
+                        lbl_8087F490->m764 = hint;
+                        int pressed = TalkAllowed_unk(this) ? 0 : lbl_8087F0A8->mInput.fn_801231D0(0);
+                        if (pressed) {
+                            mE0 = 36;
+                            start = true;
+                            if (lbl_8087F490 != 0) {
+                                lbl_8087F490->fn_803E3384();
+                            }
+                        }
+                    }
+                    break;
+                case 1:
+                    if (fn_803ACF88(i, &own, 1)) {
+                        if ((state.mFlags & 1) != 1) {
+                            start = true;
+                        }
+                        state.mFlags |= 1;
+                    } else {
+                        state.mFlags &= ~1;
+                    }
+                    break;
+                case 8:
+                    if (fn_803ACF88(i, &own, 1)) {
+                        state.mFlags |= 8;
+                    } else {
+                        if ((state.mFlags & 8) == 8) {
+                            start = true;
+                        }
+                        state.mFlags &= ~8;
+                    }
+                    break;
+                case 6:
+                    if (!fn_803ACF88(i, &own, 1)) {
+                        if ((state.mFlags & 4) != 4) {
+                            start = true;
+                        }
+                        state.mFlags |= 4;
+                    }
+                    break;
+                case 2:
+                    start = true;
+                    break;
+                case 3: {
+                    atn::ColliSphereShape_unk bounds(sphere.mPos, sphere.m14);
+                    if (CanLook_unk()) {
+                        atn::ColliCapsuleShape_unk segment;
+                        segment.mStart = lbl_8087F430->mCamera.mPos;
+                        segment.mEnd = lbl_8087F430->mCamera.mTarget;
+                        segment.mEnd -= segment.mStart;
+                        PSVECNormalize(&segment.mEnd, &segment.mEnd);
+                        segment.mEnd = segment.mEnd * 1200.0f + segment.mStart;
+                        atn::ColliSphereShape_unk hit = bounds;
+                        if (fn_80051B70(&segment, &hit) && fn_803ABE54(&segment.mStart, &hit.mCenter, hit.mRadius)) {
+                            int ok;
+                            if (lbl_8087F0A8->m0B0 != 0) {
+                                ok = lbl_8087F0A8->mInput.fn_801240B4(36);
+                            } else {
+                                GameCamera& cam = lbl_8087F430->mCamera;
+                                ok = cam.m7FC == cam.m800 && cam.m808 >= 15;
+                            }
+                            if (ok) {
+                                start = true;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 7: {
+                    atn::ColliSphereShape_unk bounds(sphere.mPos, sphere.m14);
+                    bool seen = false;
+                    if (CanLook_unk()) {
+                        atn::ColliCapsuleShape_unk segment;
+                        segment.mStart = lbl_8087F430->mCamera.mPos;
+                        segment.mEnd = lbl_8087F430->mCamera.mTarget;
+                        segment.mEnd -= segment.mStart;
+                        PSVECNormalize(&segment.mEnd, &segment.mEnd);
+                        segment.mEnd = segment.mEnd * 80.0f + segment.mStart;
+                        atn::ColliSphereShape_unk hit = bounds;
+                        if (fn_80051B70(&segment, &hit) && fn_803ABE54(&segment.mStart, &hit.mCenter, hit.mRadius)) {
+                            int ok;
+                            if (lbl_8087F0A8->m0B0 != 0) {
+                                ok = lbl_8087F0A8->mInput.fn_801240B4(36);
+                            } else {
+                                GameCamera& cam = lbl_8087F430->mCamera;
+                                ok = cam.m7FC == cam.m800 && cam.m808 >= 15;
+                            }
+                            if (ok) {
+                                seen = true;
+                                if (mD4 != e->m00) {
+                                    mD8 = 0;
+                                }
+                                mD4 = e->m00;
+                                if (mF8 == 0) {
+                                    mF8 = e->m00;
+                                }
+                                mD8++;
+                                if (mD8 > sLookDelays_unk[lbl_8087F430->fn_80370174(0x121)]) {
+                                    mD8 = 0;
+                                    start = true;
+                                    fn_803935FC(5, 1.0f);
+                                }
+                            }
+                        }
+                    }
+                    if (!seen && mD4 == e->m00) {
+                        mD8 = 0;
+                    }
+                    break;
+                }
+                case 4: {
+                    atn::ColliSphereShape_unk bounds(sphere.mPos, sphere.m14);
+                    GameCamera& camera = lbl_8087F430->mCamera;
+                    if (CanLook_unk()) {
+                        atn::ColliCapsuleShape_unk segment;
+                        segment.mStart = lbl_8087F430->mCamera.mPos;
+                        segment.mEnd = lbl_8087F430->mCamera.mTarget;
+                        segment.mEnd -= segment.mStart;
+                        PSVECNormalize(&segment.mEnd, &segment.mEnd);
+                        segment.mEnd = segment.mEnd * 1200.0f + segment.mStart;
+                        atn::ColliSphereShape_unk hit = bounds;
+                        atn::Vector3 toCenter = bounds.mCenter - camera.mPos;
+                        float dist = PSVECMag(&toCenter);
+                        atn::Vector3 lo(-bounds.mRadius, -bounds.mRadius, 0.0f);
+                        atn::Vector3 hi(bounds.mRadius, bounds.mRadius, 0.0f);
+                        atn::Matrix3x4 rot = *(atn::Matrix3x4*)&camera.mInvView;
+                        rot.m[0][3] = 0.0f;
+                        rot.m[1][3] = 0.0f;
+                        rot.m[2][3] = 0.0f;
+                        PSMTXMultVec(rot.m, &lo, &lo);
+                        PSMTXMultVec(rot.m, &hi, &hi);
+                        atn::Vector3 p1 = bounds.mCenter + lo;
+                        p1 = atn::RenderManager::instance_->GetScreenPosition(p1);
+                        atn::Vector3 p2 = bounds.mCenter + hi;
+                        p2 = atn::RenderManager::instance_->GetScreenPosition(p2);
+                        atn::Vector2_unk center(0.5f * (p1.x + p2.x), 0.5f * (p1.y + p2.y));
+                        atn::Vector2_unk size(0.5f * (float)__fabs(p1.x - p2.x) + 12.0f,
+                                              0.5f * (float)__fabs(p1.y - p2.y) + 12.0f);
+                        bool seen = false;
+                        if (fn_80051B70(&segment, &hit) && fn_803ABE54(&segment.mStart, &hit.mCenter, hit.mRadius)) {
+                            int ok;
+                            if (lbl_8087F0A8->m0B0 != 0) {
+                                ok = lbl_8087F0A8->mInput.fn_801240B4(36);
+                            } else {
+                                ok = camera.m7FC == camera.m800 && camera.m808 >= 15;
+                            }
+                            if (ok) {
+                                seen = true;
+                                lbl_8087F490->fn_803E6ADC(bounds.mCenter + lo, bounds.mCenter + hi);
+                                start = true;
+                                camera.fn_8037F690(&bounds.mCenter);
+                                fn_803935FC(5, 1.0f);
+                            }
+                        }
+                        if (!seen && dist < 1200.0f) {
+                            if (fn_803ABE54(&segment.mStart, &bounds.mCenter, bounds.mRadius) ||
+                                (lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0xCE))) {
+                                lbl_8087F490->fn_803E3050(bounds.mCenter, atn::Vector3(center.x, center.y, p1.z), size,
+                                                          dist);
+                            }
+                        }
+                    }
+                    break;
+                }
+                }
+                if (start) {
+                    for (int j = 0; j < e->mCount; j++) {
+                        if (e->mConds[j].m00 < 0) {
+                            Done_unk(e->m00) = true;
+                            break;
+                        }
+                    }
+                    ScriptData_unk* data = (ScriptData_unk*)e;
+                    if (fn_8039CF8C(data, &data->mCmds) == 0) {
+                        m8C = 1;
+                        stop = true;
+                    }
+                }
+            }
+            if (m8C != 0) {
+                stop = true;
+            }
+        }
+        if (stop) {
+            break;
+        }
+    }
+}
+
 // NONMATCHING: 98.5% - as fn_8039AF50
 // inferred: same as fn_8039AF50 for the talk event boxes (with m40, the leader must also face the box)
 void GameEventScript::fn_8039AB10() {
@@ -1578,9 +1851,6 @@ void GameEventScript::fn_8039B2BC() {
     }
 }
 
-// inferred: frames the camera rests on a camera event (kind 7) before it starts, by the field flag 0x121
-// (.rodata 0x8074EEE0; name invented)
-static const int sLookDelays_unk[] = {90, 30};
 
 // inferred: a character a camera event (kind 7) can be picked on (name invented)
 struct ApproachEntry_unk {
