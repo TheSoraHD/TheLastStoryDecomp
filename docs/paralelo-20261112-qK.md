@@ -4,15 +4,20 @@ Inicio: 2026-11-12 18:25 CET; corte del servidor 18:33-20:16; reanudado 20:16, t
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
-- `MP/D2AMpMenuLobby`: 8 -> 1 (queda `fn_804BC628`, 5 KB). Escritas, todas `NONMATCHING`:
+- `MP/D2AMpMenuLobby`: 8 -> 0 (todas escritas). 16 -> 25 / 39 funciones al 100 % (`fn_804BD9B8`, `fn_804BE4A4`,
+  `fn_804BF550`, `fn_804BF9AC`, `fn_804BFB54`, vf14, `fn_804C0F88`, `fn_804C1634` y otras suben al 100 % al
+  quedar bien los pools de cadenas). `report.json` 15162 -> 15169, lost 0, sin bajadas, PRECOMMIT OK.
+  Nuevas, todas `NONMATCHING`:
+  - `fn_804BC628` (cambio de estado, 5 KB) 95,6 %: el id del texto del modo (`mode == 1 ? 0xD0 : 0xD1`) sale
+    sin saltos (el original, dos saltos y evaluado dos veces); registros. `SetModeText_unk`, `IsServer_unk`
+    (devuelve `int`: el original compara el resultado con 1) y `memset` explicito del texto de 256.
   - `vf10` (update, switch de estados) 98,6 %: registros (this r30/r31) y los temporales de `ShowRules_unk`.
     Las reglas del anfitrion son una `static inline ShowRules_unk(lobby)` comun con `fn_804C0094` (el codigo
     es identico en las dos); como miembro inline sus literales irian a `.data` (peor). Contador estatico local
     del estado 7 (`lbl_8087F5C8`).
   - `fn_804C0094` (lado del invitado de las reglas del anfitrion) 98,6 %: registros del id del mensaje (r4/r5)
     y de los temporales layout/modo (r26/r27).
-  - `fn_804BFB54` (coloca los huecos de jugador en los "profile_null0N") 99,9 %: solo el offset de
-    "profile_null0%d" en `@stringBase0` (faltan las funciones anteriores). Inline miembro
+  - `fn_804BFB54` (coloca los huecos de jugador en los "profile_null0N"): 100 % tras escribir las anteriores. Inline miembro
     `Player_unk::SetPos_unk` definido `inline` en el `.cpp` (sus literales van a `.data` como
     `@STRING@SetPos_unk...@N`, en orden inverso: casa con `lbl_80790D10..D68`).
   - `fn_804BE610` (update del lobby) 99,9 %: registros volatiles de la busqueda del miembro (como vf0C).
@@ -29,7 +34,7 @@ Funciones al 100 % nuevas: ninguna. Ninguna unidad pasa a enlazar.
 
 ## Decisiones tomadas sin el usuario
 
-- **Regresion aparente aceptada**: `fn_804C0F88` pasa de 100 % en `report.json` a 99,98 % y `fn_804C2D5C`
+- (Resuelto al escribir `fn_804BC628`; se deja por historia) **Regresion aparente**: `fn_804C0F88` pasa de 100 % en `report.json` a 99,98 % y `fn_804C2D5C`
   baja 98,31 -> 98,29. No es una perdida real: `objdiff-cli` ya la daba al 99,6 % (regla 1). El `L""` del pool
   ancho (`@wstringBase0`, `lbl_80790D74`) estaba en 0x18 por casualidad; con L"ON"/L"OFF"/L"%02d" de
   `fn_804C0094` pasa a 0x30. El orden real (ON, OFF, %02d, "", "$B+", "$Ba", ...) llega al escribir
