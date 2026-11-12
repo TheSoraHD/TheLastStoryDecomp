@@ -1,6 +1,9 @@
 #include "game/SkillEffectManager.h"
 #include "game/CharaTask.h"
 #include "game/MapManager.h"
+#include "game/GameTask.h"
+#include "game/MapTask.h"
+#include "gmk/Lemon.h"
 
 // Methods of SkillEffect (class name from the RTTI of the boost::bind in gmk::HealPoint and TacView;
 // file name inferred). A file of its own: its float pool
@@ -37,7 +40,12 @@ extern "C" void* lbl_8087EE98; // inferred: collision world
 extern "C" int fn_8004ECC0(void* world, atn::Vector3* hit, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg); // inferred: ray test
 extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int arg); // inferred: places a ground effect
+extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
+                           unsigned int mask, void* ignore, int arg7); // inferred: ray test
 extern "C" float PSVECSquareMag(const atn::Vector3* v);
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+extern "C" GameTask* lbl_8087F430; // inferred: field task
 extern "C" void fn_80239DAC(EffectMgr_unk* mgr, void* owner, int id, int arg); // inferred: stops an effect
 
 SkillEffect::SkillEffect() : m00(3), m04(0), m08(0), m10(0.0f, 0.0f, 0.0f), m1C(0.0f, 0.0f, 0.0f), m28(1.0f), m60(0),
@@ -374,4 +382,126 @@ int SkillEffect::fn_8059A264() {
         return 1;
     }
     return 0;
+}
+
+// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0 of
+// Event/Puppeteer_CharaTask.cpp; inlined here)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+
+// inferred: dot product (name invented)
+inline float Dot_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+
+// inferred: material of the polygon hit (CollResult_unk::m34); 0x14 is water (name invented)
+inline bool IsWater_unk(const CollResult_unk& res) {
+    return res.m34 != 0 && *(unsigned int*)res.m34 == 0x14;
+}
+
+// inferred: puts a ground effect on the floor under `pos` and turns `rot` to the slope; with `steep`
+// the effect is refused on slopes over 30 degrees. Returns 0 when there is no floor (names invented)
+// NONMATCHING: 99.79% - the original keeps the address of the rotation matrix in r26 for PSMTXMultVec
+// and two pairs of saved registers of the floor search are swapped (r25/r28, r22/r23)
+extern "C" int fn_8059A298(atn::Vector3* pos, atn::Vector3* rot, int steep) {
+    int fail = 0;
+    atn::Matrix3x4 m = fn_800109E0(*rot);
+    atn::Vector3 dir;
+    dir = atn::Vector3(0.0f, 0.0f, 1.0f);
+    PSMTXMultVec(m.m, &dir, &dir);
+    atn::Vector3 start = *pos;
+    atn::Vector3 from = *pos;
+    from += dir * 0.001f;
+    from.y += 3.0f;
+    atn::Vector3 to = *pos;
+    to += dir * 0.001f;
+    to.y -= 350.0f;
+    atn::Vector3 c;
+    atn::Vector3 d;
+    unsigned int mask = 0x80080000;
+    CollResult_unk res;
+    if (fn_8004ED34(lbl_8087EE98, &res, &from, &to, mask, 0, 0)) {
+        if (steep != 0 && Dot_unk(res.m28, atn::Vector3(0.0f, 1.0f, 0.0f)) < 0.8660254f) {
+            fail = 1;
+        } else {
+            if (steep == 0) {
+                float limit = cos(0.8726646304130554);
+                if (Dot_unk(res.m28, atn::Vector3(0.0f, 1.0f, 0.0f)) < limit) {
+                    res.m28 = atn::Vector3(0.0f, 1.0f, 0.0f);
+                    res.m10.y += 2.0f;
+                }
+            }
+            bool water = IsWater_unk(res);
+            *pos = res.m10;
+            *rot = res.m28.ToRotation_unk();
+            rot->x += 1.5707964f;
+            float flat = cos(0.0872664600610733);
+            if (Dot_unk(res.m28, atn::Vector3(0.0f, 1.0f, 0.0f)) >= flat) {
+                float best = 1e16f;
+                atn::Vector3 offset(0.0f, 0.0f, 15.0f);
+                for (int i = 0; i < 4; i++) {
+                    atn::Vector3 a = *pos + atn::Vector3(0.0f, 1.0f, 0.0f);
+                    atn::Vector3 b = *pos + offset + atn::Vector3(0.0f, 1.0f, 0.0f);
+                    if (fn_8004ED34(lbl_8087EE98, &res, &a, &b, mask, 0, 0)) {
+                        b = res.m10;
+                        b += res.m28 * 2.0f;
+                    }
+                    c = b;
+                    d = b + atn::Vector3(0.0f, -25.0f, 0.0f);
+                    if (fn_8004ED34(lbl_8087EE98, &res, &c, &d, mask, 0, 0)) {
+                        float limit = cos(0.0872664600610733);
+                        if (Dot_unk(res.m28, atn::Vector3(0.0f, 1.0f, 0.0f)) >= limit && res.m10.y < best) {
+                            best = res.m10.y;
+                            if (best < pos->y) {
+                                water = IsWater_unk(res);
+                            }
+                        }
+                    }
+                    Mtx ry;
+                    PSMTXRotRad(ry, 'y', 1.5707964f);
+                    PSMTXMultVec(ry, &offset, &offset);
+                }
+                if (best < pos->y) {
+                    pos->y = best;
+                }
+            } else {
+                pos->y += 2.0f;
+            }
+            if (water) {
+                MapTask* map = lbl_8087F430 != 0 ? lbl_8087F430->GetCurrentMap() : 0;
+                if (map != 0 && map->mType == 2 &&
+                    ((map->mId == 5 && map->mSubId == 3) || (map->mId == 14 && map->mSubId == 3) ||
+                     (map->mId == 24 && map->mSubId == 3) || (map->mId == 35 && map->mSubId == 3))) {
+                    pos->y += 2.0f;
+                }
+            }
+        }
+    } else {
+        fail = 1;
+    }
+    return !fail;
 }
