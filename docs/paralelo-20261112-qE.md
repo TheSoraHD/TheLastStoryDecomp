@@ -16,6 +16,15 @@ Inicio: 2026-11-12 16:10 (reloj del contenedor). Rama `agent-E`.
   del presupuesto: llama a las copias de Vector3 y a FindPlace_unk; los auxiliares de std::vector son
   copias debiles de Em403WarLion con nombre C).
 
+- Tercera tanda: fn_80468038 (97,7 %: `m560 == 4 || m560 == 5` sale como prueba de rango).
+
+## game/LastCocoonImago
+
+- Escritas: fn_8045E548 (modo de los motions 0x14B-0x14D), vf20 0x8045B594 (98,8 %: pila). Tablas de
+  .rodata `sImagoAttacks_unk` (0x80754C24) y `sImagoCapsules_unk` (0x80754D30) definidas en el fuente;
+  `m18D4` pasa a `AttackTimer_unk[3]` (la copia de la espera de la tabla 0 sale plegada a 0, como en el
+  original).
+
 ## game/LastCocoonEgg
 
 - fn_8045817C (menu de depuracion, 99,5: solo offsets de cadenas, falta el resto del pool). Las copias

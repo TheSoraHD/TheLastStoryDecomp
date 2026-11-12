@@ -67,6 +67,50 @@ atn::Vector3 LastCocoonImago::vf64(int center) {
     return result;
 }
 
+// inferred: the three attacks of the imago: nodes, two values, a radius and the wait before the first one
+// (names invented)
+struct ImagoAttack_unk {
+    const char* mNode0;
+    const char* mNode1;
+    const char* mNode2;
+    int m0C;
+    int m10;
+    float mRadius;
+    int mWait;
+};
+static const ImagoAttack_unk sImagoAttacks_unk[3] = {
+    {"reference", "", "", -1, -1, 25.0f, 0},
+    {"head", "", "em206_body_l", 100, 200, 12.0f, 1000},
+    {"spine1", "", "", -1, -1, 30.0f, 1000},
+};
+
+// inferred: hit capsules of the body: two nodes and a radius (vf20; names invented)
+struct ImagoCapsule_unk {
+    const char* mFrom;
+    const char* mTo;
+    float mRadius;
+};
+static const ImagoCapsule_unk sImagoCapsules_unk[11] = {
+    {"neck", "ef_eye", 8.0f},
+    {"spine", "neck", 20.0f},
+    {"rightleg", "rightfoot", 10.0f},
+    {"rightupleg", "rightleg", 10.0f},
+    {"leftleg", "leftfoot", 10.0f},
+    {"leftupleg", "leftleg", 10.0f},
+    {"righthand", "rightmiddle3", 10.0f},
+    {"rightarm", "righthand", 10.0f},
+    {"lefthand", "leftmiddle1", 10.0f},
+    {"leftarm", "lefthand", 10.0f},
+    {"tail1", "tail3", 15.0f},
+};
+
+inline void LastCocoonImago::ResetAttacks_unk() {
+    for (int i = 0; i < 3; i++) {
+        m18D4[i].mWait = sImagoAttacks_unk[i].mWait;
+        m18D4[i].mCount = 0;
+    }
+}
+
 inline void LastCocoonImago::SetMode_unk(int mode) {
     m14BC = 0;
     m14C0 = 0;
@@ -113,6 +157,31 @@ void LastCocoonImago::vf24() {
     }
 }
 
+// NONMATCHING: 98.8% - stack slots of the two points and the register of m614.z
+// inferred: places the collision capsule, the hit capsules of the body and the sphere
+void LastCocoonImago::vf20() {
+    m614 = mPos + m5A4;
+    m620 = m5B0;
+    m614.y += m620;
+    atn::Vector3 a = m614;
+    atn::Vector3 b = a;
+    b.y += m5B4 - 2.0f * m620;
+    mColli.m3C = a;
+    mColli.m48 = b;
+    mColli.m54 = m620;
+    for (int i = 0; i < 11; i++) {
+        float r = sImagoCapsules_unk[i].mRadius;
+        a = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sImagoCapsules_unk[i].mFrom))->GetTrans_unk();
+        b = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk(sImagoCapsules_unk[i].mTo))->GetTrans_unk();
+        mCapsules[i].m3C = a;
+        mCapsules[i].m48 = b;
+        mCapsules[i].m54 = r;
+    }
+    m18FC.mSphere = atn::ColliSphereShape_unk(m1948, m1954);
+    m148C = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("head"))->GetTrans_unk();
+    m1498 = 13.0f;
+}
+
 void LastCocoonImago::vf38(int enable) {
     for (int i = 0; i < 11; i++) {
         if (enable) {
@@ -143,6 +212,48 @@ void LastCocoonImago::fn_8045D224() {
     } else {
         mMotion.fn_80097D7C(0);
     }
+}
+
+void LastCocoonImago::fn_8045E548() {
+    if (m14BC == 0) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m14EC = 210;
+            m14BC = 1;
+            mMotion.fn_80097C08(0, 0x14B, 1, 1, 1, 0.0f, 0.025f);
+        }
+    } else if (m14BC == 1) {
+        if (--m14EC < 0) {
+            ResetAttacks_unk();
+            m14BC = 2;
+            mMotion.fn_80097C08(0, 0x14C, 0, 1, 1, 0.0f, 0.025f);
+        }
+    } else if (m14BC == 2) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            atn::Vector3 dir;
+            dir.x = 0.0f;
+            dir.y = 0.0f;
+            dir.z = 1.0f;
+            atn::Matrix3x4 rot;
+            rot.fn_8013A13C(mRot.y);
+            PSMTXMultVec(rot.m, &dir, &dir);
+            dir *= 15.0f;
+            atn::Vector3 pos = dir;
+            m14BC = 0;
+            m14C0 = 0;
+            m590 = fn_800F8548(lbl_8087F048);
+            m58C = 10;
+            fn_8016E970(3);
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x14D, 0, 1, 1, 0.0f, 0.025f);
+            m14D4 = pos;
+            return;
+        }
+    }
+    fn_8045ABB4(m14E0, 0.0f, m568);
 }
 
 void LastCocoonImago::fn_8045EB60() {

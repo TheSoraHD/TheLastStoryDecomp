@@ -15,6 +15,7 @@ class LastCocoonImago : public EnemyTask {
 public:
     LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info); // 0x80458270
     virtual ~LastCocoonImago();                              // 0x8045F9A0
+    virtual void vf20();                                     // 0x8045B594
     virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
     virtual atn::Vector3 vf64(int center);                   // 0x80459EBC
@@ -22,6 +23,9 @@ public:
     virtual int vfB8(wchar_t* name);                         // 0x80459F24
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x8045F6E0
     virtual atn::Vector3 vfD8(CharaTask* target);            // 0x8045F884
+    void fn_8045ABB4(const atn::Vector3& pos, float f1, float f2); // inferred: moves towards pos
+    void fn_8045E548(); // inferred: mode with the motions 0x14B-0x14D, then mode 10
+    inline void ResetAttacks_unk();
     void fn_8045D224(); // inferred: mode update: holds the gimmick motion, frame 120 disables the capsules
     void fn_8045EB60();
     void fn_8045F4CC(); // inferred: sends message 4 to the gimmicks of type 1 touching the body // inferred: mode 2 (motion 0x37, or 0x31 from frame 200 after mode 14)
@@ -58,7 +62,11 @@ public:
     int m18C8;                       // inferred: sphere (m624) used as the center
     int m18CC;
     int m18D0;
-    unsigned char m18D4[0x18EC - 0x18D4];
+    // inferred: wait and counter of the three attacks of sImagoAttacks_unk (names invented)
+    struct AttackTimer_unk {
+        int mWait;
+        int mCount;
+    } m18D4[3];
     int m18EC;
     int m18F0;
     unsigned char m18F4[0x18F8 - 0x18F4];

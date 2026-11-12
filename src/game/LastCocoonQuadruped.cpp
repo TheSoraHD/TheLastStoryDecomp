@@ -1190,6 +1190,79 @@ void LastCocoonQuadruped::fn_80467F50() {
     fn_800C344C("SE_EM206_001", &mPos, 0, -1, 1.0f);
 }
 
+extern "C" int fn_800FBA9C(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           float f); // inferred: the attack reaches the target
+extern "C" int fn_800FBE70(Effect_unk* mgr, CharaTask* chara, CharaTask* target, HitInfo_unk* data, int arg,
+                           atn::Vector3* dir, int a, int b); // inferred: the attack in `dir` reaches the target
+
+// NONMATCHING: 97.7% - `m560 == 4 || m560 == 5` becomes a range test (two compares in the original), which
+// shifts the registers r23-r31
+// inferred: looks for a player attacking it; returns the place to move to (fn_80468534) and its angle
+int LastCocoonQuadruped::fn_80468038(int* count, atn::Vector3* pos, float* angle) {
+    if (++*count > 5) {
+        return 1;
+    }
+    atn::Vector3 at;
+    at.x = 0.0f;
+    at.y = 0.0f;
+    at.z = 0.0f;
+    int found = 0;
+    float yaw = 0.0f;
+    float dist = 40.0f;
+    for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = p->mNext) {
+        if (!p->IsActive_unk() || p->vf78() == 0) {
+            continue;
+        }
+        if (p->m560 == 4 || p->m560 == 5) {
+            if (fn_800FBA9C(lbl_8087F048, p, this, p->m638, -1, 0.0f) >= 0) {
+                at = p->mPos;
+                found = 1;
+                dist = 30.0f;
+                yaw = p->mRot.y;
+                break;
+            }
+        } else if (p->m560 == 30) {
+            HitInfo_unk* data = p->m638;
+            if (data != 0 && data->m01 == 1) {
+                atn::Vector3 dir;
+                dir = p->fn_80158E1C();
+                PSVECNormalize(&dir, &dir);
+                atn::Vector3 from = p->mPos;
+                from.y += 20.0f;
+                atn::Vector3 to = from + dir * 1000.0f;
+                QuadCollResult_unk result;
+                if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, 0, &p->mColli, 0) != 0 &&
+                    (((atn::ColliBase*)result.m38)->mFlags & 2) == 2 &&
+                    ((atn::ColliBase*)result.m38)->m0C == (int)this) {
+                    at = mPos;
+                    yaw = dir.ToRotationZ_unk().y;
+                    found = 1;
+                    dist = 40.0f;
+                    break;
+                }
+            }
+        } else if (p->m560 == 14) {
+            atn::Vector3 dir = p->fn_80158E1C();
+            if (fn_800FBE70(lbl_8087F048, p, this, p->m638, -1, &dir, 1, -1) >= 0) {
+                at = dir;
+                found = 1;
+                yaw = p->mRot.y;
+                break;
+            }
+        } else {
+            at = p->mPos;
+            found = 1;
+            yaw = p->mRot.y;
+            break;
+        }
+    }
+    if (found != 0) {
+        fn_80468534(pos, angle, at, yaw, dist);
+        return 1;
+    }
+    return 0;
+}
+
 extern "C" int fn_8004D388(void* world, QuadCollResult_unk* result, const atn::Vector3* from,
                            const atn::Vector3* to, unsigned int mask, void* ignore, int arg,
                            float radius); // inferred: sphere sweep
