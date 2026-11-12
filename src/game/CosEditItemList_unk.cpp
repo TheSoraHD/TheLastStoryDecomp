@@ -156,7 +156,16 @@ extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...);             
 extern "C" const wchar_t lbl_808813D0[2];                                            // inferred: empty text
 // inferred: camp message table (lbl_8087F1E4, as in game/CosEditPalette_unk.cpp)
 struct CosEditListMsg_unk {
+    struct Pair_unk {
+        int m00;
+        const wchar_t* mText;
+    };
     const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    // inferred: text of an (id, text) pair of the table
+    const wchar_t* GetPair_unk(int id) {
+        Pair_unk* pairs = (Pair_unk*)mText;
+        return pairs[id].mText != 0 ? pairs[id].mText : lbl_808813D0;
+    }
     const wchar_t* mText[1];
 };
 extern "C" CosEditListMsg_unk* lbl_8087F1E4;
@@ -165,9 +174,21 @@ struct CosEditListName_unk {
     unsigned char m00[0x08];
     const wchar_t* mName; // 0x08
 };
-extern "C" CharaInfo_unk* fn_8020924C(int id); // inferred: character data
+// inferred: character data (only the name and the face icon are read)
+struct CosEditCharaInfo_unk {
+    unsigned char m00[0x04];
+    const wchar_t* mName; // 0x04
+    unsigned char m08[0x2C - 0x08];
+    int mIcon;            // 0x2C: inferred: 1-based, 4 per row
+};
+extern "C" CosEditCharaInfo_unk* fn_8020924C(int id); // inferred: character data
 extern "C" int fn_80219558(int id);            // inferred: party member of a character id
-extern "C" void* fn_80206C50(int id);          // inferred: protector data of an item id
+// inferred: protector data (only the kind is read)
+struct CosEditProtData_unk {
+    unsigned char m00[0xB8];
+    int mKind; // 0xB8
+};
+extern "C" CosEditProtData_unk* fn_80206C50(int id); // inferred: protector data of an item id
 
 // inferred: state 2, the list of the equipments of the slot m1E4: A equips the item (taking it
 // from the member who has it), B goes back, the two shoulder buttons sort the list
@@ -207,10 +228,10 @@ void CosEditProtector::fn_801D8560() {
                 void* cur = fn_801CFAA8(member, m1E4);
                 if (e->mEnabled == 0) {
                     fn_80117228(0xB);
-                    CharaInfo_unk* info = fn_8020924C(e->mOwner);
+                    CosEditCharaInfo_unk* info = fn_8020924C(e->mOwner);
                     const wchar_t* format = lbl_8087F1E4->Get_unk(0x225);
                     wchar_t text[0x100];
-                    fn_800DD3FC(text, format, info->m04,
+                    fn_800DD3FC(text, format, info->mName,
                                 ((CosEditListName_unk*)fn_80211480(fn_8020EF80(cur)))->mName);
                     fn_804A4300(MenuCommonTask::sInstance, text);
                     return;
@@ -344,10 +365,10 @@ void CosEditProtector::fn_801D8CC4() {
                         MenuCommonTask::sInstance->fn_804A4294(lbl_8087F1E4->Get_unk(0x223));
                         return;
                     }
-                    CharaInfo_unk* info = fn_8020924C(e->mOwner);
+                    CosEditCharaInfo_unk* info = fn_8020924C(e->mOwner);
                     const wchar_t* format = lbl_8087F1E4->Get_unk(0x225);
                     wchar_t text[0x100];
-                    fn_800DD3FC(text, format, info->m04,
+                    fn_800DD3FC(text, format, info->mName,
                                 ((CosEditListName_unk*)fn_80211480(fn_80206BE4(cur)))->mName);
                     fn_804A4300(MenuCommonTask::sInstance, text);
                     return;
@@ -404,6 +425,267 @@ void CosEditProtector::fn_801D8CC4() {
         fn_804A4494(&m80, &m88, m84, m8C, 1, 3);
         if (cursor != m80) {
             fn_801E6B10();
+        }
+    }
+}
+
+// inferred: state 11, the best equipment page: A applies it (state 12) or takes everything off
+// (state 13), B goes back
+void CosEditProtector::fn_801D924C() {
+    void* pad = lbl_8087EF70;
+    if (fn_800A555C(pad, 0, 4)) {
+        switch (m1BBC) {
+        case 1:
+            fn_80117228(0x12);
+            vf34(12);
+            break;
+        case 0:
+            fn_80117228(0x12);
+            vf34(13);
+            break;
+        }
+    } else if (fn_800A555C(pad, 0, 5)) {
+        fn_80117228(2);
+        vf34(0);
+    } else {
+        int cursor = m80;
+        fn_80510D64(1, 3);
+        if (cursor != m80) {
+            m1BBC = m80;
+        }
+    }
+}
+
+// inferred: state 12, takes every protector and equipment off the member
+void CosEditProtector::fn_801D9388() {
+    int member = fn_801CF334()->mFace;
+    CharaTask* chara = fn_801CF334()->mChara;
+    fn_801DD26C(member);
+    if (fn_801D5420(member, 0)) {
+        fn_801DCF60(member, chara, 0, 1);
+    }
+    if (member == 3) {
+        fn_801DCF60(member, chara, 1, 1);
+    }
+    fn_801DC42C(member, chara, fn_801DCE88(member, 0, 1), 1, 1);
+    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
+    if (!fn_8020EF4C(fn_8020ED84(0, equip->mProtectors[0].mId))) {
+        fn_801DC42C(member, chara, fn_801DCE88(member, 1, 1), 1, 1);
+    }
+    vf34(0);
+}
+
+extern "C" int fn_80219544(int member); // inferred: character id of a party member
+
+// Members of atn::D2A_TaskInstanceBase<32, 8> with automatic names (as in game/CosEditPalette_unk.cpp)
+typedef atn::D2A_TaskInstanceBase<32, 8> CosEditListLayout_unk;
+extern "C" void fn_801F7590(CosEditListLayout_unk* inst, const char* name, const float* uv);
+extern "C" void fn_801F837C(CosEditListLayout_unk* inst, const char* name, const wchar_t* text);
+// inferred: texture rectangle (u0, v0, u1, v1), passed by value (as in game/CosEditPalette_unk.cpp)
+struct CosEditListUV_unk {
+    CosEditListUV_unk() {}
+    CosEditListUV_unk(float u0_, float v0_, float u1_, float v1_) : u0(u0_), v0(v0_), u1(u1_), v1(v1_) {}
+    CosEditListUV_unk(const CosEditListUV_unk& o) { __Vec4Copy(&u0, &o.u0); }
+    CosEditListUV_unk& operator=(const CosEditListUV_unk& o) {
+        __Vec4Copy(&u0, &o.u0);
+        return *this;
+    }
+    float u0, v0, u1, v1;
+};
+extern "C" int fn_80444B64(Inventory* inv, int id);                    // inferred: icon of an item
+extern "C" CosEditListUV_unk fn_80444C50(Inventory* inv, int icon);    // inferred: texture rectangle of an icon
+// inferred: sets a rectangle of the layout (the name comes first, as SetUV_unk of CosEditPalette_unk)
+inline void SetListUV_unk(const char* name, CosEditListLayout_unk* inst, CosEditListUV_unk uv) {
+    fn_801F7590(inst, name, &uv.u0);
+}
+// inferred: equipment data (only the kind and the name are read)
+struct CosEditEquip_unk {
+    unsigned char m00[0x78];
+    int mKind;            // 0x78: inferred: 1 and 3 use the second slot
+    unsigned char m7C[0x80 - 0x7C];
+    const wchar_t* mName; // 0x80
+};
+
+// inferred: draws the page of the equipment list m1E4 (names, icons, face of the member who wears
+// it and the state of each row)
+// NONMATCHING: 0% - written, not compared yet
+void CosEditProtector::fn_801E6714() {
+    m84 = mB34[m1E4].size();
+    m8C = 10;
+    if (m80 >= m84) {
+        m80 = MAX(m84 - 1, 0);
+    }
+    if (m84 >= m8C && m84 - 1 <= m8C + m88 - 1) {
+        m88 = m84 - m8C;
+    }
+    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[fn_801CF334()->mFace];
+    if (mLists[0].mBase != 0) {
+        fn_801D4E74(fn_801CF334()->mFace, mLists[0].mBase->GetTask(), m1B98);
+    }
+    for (int i = 0; i < m8C; i++) {
+        CosEditListLayout_unk* task = (CosEditListLayout_unk*)mLists[0].mItems[i]->GetTask();
+        int index = m88 + i;
+        if (index >= 0 && index < (int)mB34[m1E4].size()) {
+            CosEditItem_unk* e = &mB34[m1E4][index];
+            int sub = 0;
+            int kind = ((CosEditEquip_unk*)e->mItem)->mKind;
+            if (kind == 1 || kind == 3) {
+                sub = 1;
+            }
+            int id = fn_8020EF80(e->mItem);
+            CosEditListName_unk* data = (CosEditListName_unk*)fn_80211480(id);
+            CosEditListUV_unk face(1.0f, 1.0f, 1.0f, 1.0f);
+            CosEditListUV_unk uv = fn_80444C50(Inventory::instance_, fn_80444B64(Inventory::instance_, id));
+            if (data != 0) {
+                fn_801F837C(task, "item01", data->mName);
+            } else if (e->mItem != 0) {
+                fn_801F837C(task, "item01", ((CosEditEquip_unk*)e->mItem)->mName);
+            }
+            SetListUV_unk("iconUv01", task, uv);
+            if (e->mOwner >= 0) {
+                CosEditCharaInfo_unk* info = fn_8020924C(e->mOwner);
+                int icon;
+                if (info != 0) {
+                    icon = info->mIcon;
+                } else {
+                    icon = 0;
+                }
+                if (icon > 0) {
+                    int k = icon - 1;
+                    face = CosEditListUV_unk(0.25f * (k % 4), 0.5f * (k / 4), 0.25f * (k % 4 + 1), 0.5f * (k / 4 + 1));
+                }
+            }
+            SetListUV_unk("uv0001", task, face);
+            SetListUV_unk("mask_uv0001", task, face);
+            if (e->mIndex == equip->mProtectors[sub].mId && equip->mProtectors[sub].m04 < 0) {
+                task->mFrame = 2.0f;
+            } else if (e->mEnabled == 0) {
+                task->mFrame = 3.0f;
+            } else {
+                task->mFrame = 1.0f;
+            }
+        } else {
+            task->mFrame = 0.0f;
+        }
+    }
+}
+
+extern "C" int fn_80444BE8(Inventory* inv, CosEditListName_unk* item); // inferred: icon of an item
+extern "C" int fn_80444C48(Inventory* inv);                            // inferred: icon of the empty slot
+
+// inferred: draws the page of the protector list (as fn_801E6714)
+// NONMATCHING: 0% - written, not compared yet
+void CosEditProtector::fn_801E6B10() {
+    m84 = mB4C.size();
+    m8C = 10;
+    if (m80 >= m84) {
+        m80 = MAX(m84 - 1, 0);
+    }
+    if (m84 >= m8C && m84 - 1 <= m8C + m88 - 1) {
+        m88 = m84 - m8C;
+    }
+    if (mLists[0].mBase != 0) {
+        fn_801D4E74(fn_801CF334()->mFace, mLists[0].mBase->GetTask(), m1B98);
+    }
+    int member = fn_801CF334()->mFace;
+    for (int i = 0; i < m8C; i++) {
+        CosEditListLayout_unk* task = (CosEditListLayout_unk*)mLists[0].mItems[i]->GetTask();
+        int index = m88 + i;
+        if (index >= 0 && index < (int)mB4C.size()) {
+            CosEditItem_unk* e = &mB4C[index];
+            CosEditListName_unk* data = (CosEditListName_unk*)fn_80211480(e->mId);
+            CosEditProtData_unk* prot = fn_80206C50(e->mId);
+            if (data != 0 && prot != 0) {
+                int icon;
+                if (e->mIndex < 0) {
+                    icon = fn_80444BE8(Inventory::instance_, data);
+                    fn_801F837C(task, "item01", data->mName);
+                } else {
+                    icon = fn_80444C48(Inventory::instance_);
+                    fn_801F837C(task, "item01", lbl_8087F1E4->GetPair_unk(prot->mKind + 0xEB));
+                }
+                CosEditListUV_unk uv = fn_80444C50(Inventory::instance_, icon);
+                SetListUV_unk("iconUv01", task, uv);
+                CosEditListUV_unk face(1.0f, 1.0f, 1.0f, 1.0f);
+                if (e->mOwner >= 0) {
+                    CosEditCharaInfo_unk* info = fn_8020924C(e->mOwner);
+                    int faceIcon;
+                    if (info != 0) {
+                        faceIcon = info->mIcon;
+                    } else {
+                        faceIcon = 0;
+                    }
+                    if (faceIcon > 0) {
+                        int k = faceIcon - 1;
+                        face = CosEditListUV_unk(0.25f * (k % 4), 0.5f * (k / 4), 0.25f * (k % 4 + 1),
+                                                 0.5f * (k / 4 + 1));
+                    }
+                    if (e->mOwner == member) {
+                        task->mFrame = 2.0f;
+                    }
+                    if (e->mEnabled != 0) {
+                        task->mFrame = 1.0f;
+                    } else {
+                        task->mFrame = 3.0f;
+                    }
+                } else {
+                    task->mFrame = 1.0f;
+                }
+                SetListUV_unk("uv0001", task, face);
+                SetListUV_unk("mask_uv0001", task, face);
+            }
+        } else {
+            task->mFrame = 0.0f;
+        }
+    }
+}
+
+// inferred: puts the cursor of the equipment list `list` on the entry that the member wears (a: at
+// the top of the page)
+void CosEditProtector::fn_801E6EF0(int member, int list, int* cursor, int* top, int a) {
+    int chara = fn_80219544(member);
+    std::vector<CosEditItem_unk>& items = mB34[list];
+    for (int i = 0; i < (int)items.size(); i++) {
+        if (chara == items[i].mOwner) {
+            *cursor = i;
+            if (a) {
+                *top = i;
+            } else {
+                if (*top > i) {
+                    *top = i;
+                }
+                if (*top < *cursor - 9) {
+                    *top = *cursor - 9;
+                }
+            }
+            if (mB34[list].size() < 10) {
+                *top = 0;
+            }
+            break;
+        }
+    }
+}
+
+// inferred: puts the cursor of the protector list on the protector of the slot `slot` that the member
+// wears (as fn_801E6EF0)
+void CosEditProtector::fn_801E6FC8(int member, int slot, int* cursor, int* top, int a) {
+    int chara = fn_80219544(member);
+    for (int i = 0; i < (int)mB4C.size(); i++) {
+        if (chara == mB4C[i].mOwner && slot == mB4C[i].m14) {
+            *cursor = i;
+            if (a) {
+                *top = i;
+            } else {
+                if (*top > i) {
+                    *top = i;
+                }
+                if (*top < *cursor - 9) {
+                    *top = *cursor - 9;
+                }
+            }
+            if (mB4C.size() < 10) {
+                *top = 0;
+            }
         }
     }
 }
