@@ -6,7 +6,7 @@ Rama `agent-D`. Inicio: 2026-11-12 14:55 CET. Referencia: `/home/claude/ref-D` (
 
 ### game/GameCamera_unk
 
-- Funciones al 0 %: 33 -> 29 (`fn_8037DD00` al **100 %**, `fn_8038C070` 98,1 %, `fn_80389A00` 90,8 %, `fn_8038B650` 92,2 %; NONMATCHING con
+- Funciones al 0 %: 33 -> 28 (`fn_8037DD00` al **100 %**, `fn_803903E0` 98,4 %, `fn_8038C070` 98,1 %, `fn_80389A00` 90,8 %, `fn_8038B650` 92,2 %; NONMATCHING con
   motivo).
 - Nuevas al 100 %: `fn_80389678`, `fn_8038DDE0` (vibracion, por el getter inline) y `fn_80389060` (giro con
   `Matrix3x4::fn_8013A13C`): 20 -> 28 / 90 contando las que vuelven a 100 tras renombrar etiquetas.
@@ -26,6 +26,11 @@ Rama `agent-D`. Inicio: 2026-11-12 14:55 CET. Referencia: `/home/claude/ref-D` (
 - 21 `lbl_808859xx` de `.sdata2` (solo usados por GameCamera) pasan a `@N` locales.
 
 ## NONMATCHING nuevas
+
+- `fn_803903E0` 98,4 % (inicio de la vista tactica, llamada por FinishCamera): asignacion de registros. Trucos que
+  subieron 92 -> 98: la altura del mapa como inline con `return` temprano (un solo camino para 30), `d` reutilizado
+  campo a campo, la mascara del rayo en una variable (`r18`), un puntero `start = &m8A4` para el bucle. Campos
+  nuevos m8BC/m8C8/m8CC.
 
 - `fn_8038B650` 92,2 % (modo de apuntar): la diferencia de la vista de `m1F4` queda en el hueco mas bajo de la
   pila en el original (como si el rayo estuviera en un inline) y redondea (frsp) la z del origen. Los ids

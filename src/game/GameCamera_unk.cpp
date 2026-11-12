@@ -1431,6 +1431,105 @@ void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }
 
+// inferred: the map has a ceiling (MapTask::mEC; written out as in fn_8038E540)
+static inline bool HasCeiling_unk() {
+    bool ceiling = false;
+    bool map = false;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map = true;
+    }
+    if (map && lbl_8087F430->GetCurrentMap()->mEC != 0) {
+        ceiling = true;
+    }
+    return ceiling;
+}
+
+// inferred: height of the view over the ground on maps without a ceiling (10 on map 3, 8 on map 17-2, else 30)
+static inline float ViewHeight_unk() {
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* map = lbl_8087F430->GetCurrentMap();
+        if (map->mId == 3) {
+            return 10.0f;
+        }
+        if (map->mId == 17 && map->mSubId == 2) {
+            return 8.0f;
+        }
+    }
+    return 30.0f;
+}
+
+static inline void AddViewHeight_unk(atn::Vector3* p) {
+    if (!HasCeiling_unk()) {
+        p->y += ViewHeight_unk();
+    }
+}
+
+// inferred: starts the tactical view camera at `target` (m8A4) turned by `angle` (m8A0) around the raised point;
+// with `arg` (m8CC) and a ceiling, the start point is pulled out of the nearest wall found by 8 rays of 30
+// around it (the wall must not be crossed from the other side as well)
+// NONMATCHING: 98.4% - register allocation (the map/ceiling flags of the second check, the loop pointers) and
+// stack slots of the rotated offset and of the start point
+void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
+    m8A4 = *target;
+    atn::Vector3 head = *target;
+    m8A0 = angle;
+    m8CC = arg;
+    m8BC = *target;
+    m8C8 = target->y;
+    head.y += lbl_8087F0A8->m08C;
+    AddViewHeight_unk(&head);
+    atn::Vector3 d(m8A4.x - head.x, 0.0f, m8A4.z - head.z);
+    float len = PSVECMag(&d);
+    d.x = 0.0f;
+    d.y = 0.0f;
+    d.z = len;
+    Mtx m;
+    PSMTXRotRad(m, 'y', -m8A0);
+    PSMTXMultVec(m, &d, &d);
+    m8A4 = atn::Vector3(head.x + d.x, m8A4.y, head.z + d.z);
+    if (m8CC != 0) {
+        m8CC = 0;
+        if (HasCeiling_unk()) {
+            atn::Vector3 from = m8A4;
+            float radius = lbl_8087F0A8->m08C;
+            from.y += radius;
+            AddViewHeight_unk(&from);
+            bool found = false;
+            CollResult_unk best;
+            float bestDist = 1.0e16f;
+            unsigned int mask = 0x08000000;
+            const atn::Vector3* start = &m8A4;
+            for (int i = 0; i < 8; i++) {
+                atn::Vector3 dir(0.0f, 0.0f, 30.0f);
+                Mtx r;
+                PSMTXRotRad(r, 'y', 0.7853982f * (float)i);
+                PSMTXMultVec(r, &dir, &dir);
+                CollResult_unk back;
+                CollResult_unk result;
+                atn::Vector3 a = *start;
+                atn::Vector3 b = *start + dir;
+                if (fn_8004ED34(lbl_8087EE98, &result, &a, &b, mask, 0, 0)) {
+                    int hit = fn_8004ED34(lbl_8087EE98, &back, &b, &a, mask, 0, 0);
+                    atn::Vector3 e = back.m04 - a;
+                    float backDist = PSVECMag(&e);
+                    atn::Vector3 f = result.m04 - a;
+                    float dist = PSVECMag(&f);
+                    if (hit == 0 || dist < backDist - 1.0f) {
+                        found = true;
+                        if (bestDist > dist) {
+                            bestDist = dist;
+                            best = result;
+                        }
+                    }
+                }
+            }
+            if (found) {
+                m8A4 = best.m04 + best.m28 * radius + atn::Vector3(m8A4.x - from.x, 0.0f, m8A4.z - from.z);
+            }
+        }
+    }
+}
+
 #include "game/SetConfig.h"
 
 // inferred: xsca camera curves (as in game/NewCampTask.cpp and game/Em309Ghoul.cpp)
