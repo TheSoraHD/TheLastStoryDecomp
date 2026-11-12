@@ -1,6 +1,6 @@
 # Lote paralelo 2026-11-12, cola F (Efectos)
 
-Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, `atn/EffectManager`.
+Inicio: 2026-11-12 16:30 CET. Fin: 18:05 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, `atn/EffectManager`.
 
 ## Resultado por unidad
 
@@ -16,6 +16,15 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
   fn_8022BEAC (pool de fundidos, 99,4 %).
 - `atn/EffectSystem_unk` (commit 5): 0 % 9 -> 8; escrita NONMATCHING fn_802301EC (movimiento de la instancia y
   emision de slots, 89 %).
+- `atn/EffectSystem_unk` (commit 6): 0 % 8 -> 7; escrita NONMATCHING fn_80230F3C (radio de la instancia, 85 %).
+- **Total EffectSystem_unk**: funciones al 0 % 24 -> 7; al 100 % 33 -> 43 / 58 (+10); escritas NONMATCHING 7
+  (fn_8022B850 99,5, fn_8022BEAC 99,4, fn_8022D790 99,2, fn_8022DA70 98,9, fn_802301EC 89, fn_80230F3C 85,
+  ya estaba fn_8023329C 98). No enlaza todavia (quedan 7 al 0 %: fn_8022C3F0, fn_8022C9C8, fn_8022DD1C,
+  fn_8022FAC4, fn_80230780, fn_8023193C, fn_80233D74). `poolcheck` sin avisos.
+- `atn/EffectManager`: sin cambios (29 al 0 %). Casi todo son instanciaciones de MSL (`num_put::do_put`,
+  `numpunct`, `__put_grouping_float`...) que salen de un `ostringstream` del cargador fn_8023BA10 (EfpInfoList),
+  mas `dtor_8023B9D0` (destructor trivial) y `fn_80243700` (guardas de los `locale::id`): hay que escribir
+  fn_8023BA10 con las cabeceras de MSL de `libs/` para que el compilador las emita; no se empezo por tiempo.
 
 ## NONMATCHING
 

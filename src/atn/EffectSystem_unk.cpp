@@ -573,6 +573,78 @@ void EffectSystem_unk::fn_802301EC(EffectInst_unk* inst, EffectParam_unk* param,
     }
 }
 
+// inferred: largest of two values (a macro: the operands are evaluated again)
+#define EFFECT_MAX_UNK(a, b) ((a) > (b) ? (a) : (b))
+static inline float EffectMax_unk(float a, float b) {
+    return a > b ? a : b;
+}
+#define EFFECT_MAX3_UNK(a, b, c) EFFECT_MAX_UNK(a, EffectMax_unk(b, c))
+
+// NONMATCHING: 85% - the maximum of the three scales is evaluated again by the original only in its
+// inner part (macro over an inline); the model pointer is loaded first; stack slots of the vectors
+// inferred: grows the bounding radius of an instance (mC8) with a slot: a model (its scale and the
+// shape of the emitter), the fade items, or the emission point
+extern "C" void fn_80230F3C(EffectInst_unk* inst, EffectSlot_unk* slot) {
+    EffectFileEntry_unk* entry = slot->m1C;
+    EffectParam_unk* param = inst->mParam;
+    float r;
+    if (entry->mType == 1) {
+        float size = EFFECT_MAX3_UNK(atn::Abs_unk(slot->mB0), atn::Abs_unk(slot->mB4), atn::Abs_unk(slot->mB8)) *
+                     entry->m134;
+        EffectInst_unk* model = slot->m08;
+        float ext = size * model->mA8;
+        ext = size * PSVECMag(&model->mPos) + ext;
+        switch (inst->m08) {
+        case 3:
+            if ((inst->m10 & 1) != 1) {
+                float* m = inst->m0C;
+                Vector3 c3(m[4], m[8], m[12]);
+                float a = PSVECMag(&c3);
+                Vector3 c2(m[3], m[7], m[11]);
+                float b = PSVECMag(&c2);
+                Vector3 c1(m[2], m[6], m[10]);
+                Vector3 k(PSVECMag(&c1), b, a);
+                ext *= EFFECT_MAX_UNK(1.0f, EFFECT_MAX3_UNK(atn::Abs_unk(k.x), atn::Abs_unk(k.y), atn::Abs_unk(k.z)));
+            }
+            break;
+        case 5:
+            if ((inst->m10 & 1) != 1) {
+                float* m = inst->m0C;
+                Vector3 c3(m[2], m[6], m[10]);
+                float a = PSVECMag(&c3);
+                Vector3 c2(m[1], m[5], m[9]);
+                float b = PSVECMag(&c2);
+                Vector3 c1(m[0], m[4], m[8]);
+                Vector3 k(PSVECMag(&c1), b, a);
+                ext *= EFFECT_MAX_UNK(1.0f, EFFECT_MAX3_UNK(atn::Abs_unk(k.x), atn::Abs_unk(k.y), atn::Abs_unk(k.z)));
+            }
+            break;
+        }
+        Vector3 d(slot->m80.x - inst->mPos.x, slot->m80.y - inst->mPos.y, slot->m80.z - inst->mPos.z);
+        r = PSVECMag(&d) + atn::Abs_unk(ext);
+    } else if (param->m4C & 0x20000) {
+        r = 0.0f;
+        for (unsigned int i = 0; i < slot->m1AC; i++) {
+            EffectFade_unk* fade = &slot->m1A8[(i + slot->m1B0) % slot->m1B4];
+            float s = fade->m10 * slot->m1C->m134;
+            Vector3 d(fade->m00 - inst->mPos.x, fade->m04 - inst->mPos.y, fade->m08 - inst->mPos.z);
+            float v = PSVECMag(&d) + atn::Abs_unk(s);
+            if (v > r) {
+                r = v;
+            }
+        }
+    } else {
+        float s = EFFECT_MAX3_UNK(atn::Abs_unk(slot->mB0), atn::Abs_unk(slot->mB4), atn::Abs_unk(slot->mB8));
+        Vector3 d(slot->m80.x - inst->mPos.x, slot->m80.y - inst->mPos.y, slot->m80.z - inst->mPos.z);
+        float size = s * entry->m134;
+        r = PSVECMag(&d) + atn::Abs_unk(size);
+    }
+    float m = EFFECT_MAX_UNK(0.01f, r);
+    if (m > inst->mC8) {
+        inst->mC8 = m;
+    }
+}
+
 // inferred: moves a slot forward along its direction (mCC: distance; mD0/mD4/mD8: rotations x/y/z
 // over its matrix)
 extern "C" void fn_80231508(EffectSlot_unk* slot) {

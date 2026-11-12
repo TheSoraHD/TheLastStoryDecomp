@@ -23,7 +23,7 @@ struct EffectFileEntry_unk {
     int m128;
     int m12C;            // 0x12C: inferred: frame curve (1/3: cosine, 2: triangle, 4: random, 6: reverse)
     float m130;          // 0x130: inferred: loops before it stays on the last frame (0: forever)
-    int m134;
+    float m134;          // 0x134: inferred: size (fn_80230F3C)
 };
 extern "C" void fn_8022D754(EffectFileEntry_unk* entry); // inferred: prepares an entry
 

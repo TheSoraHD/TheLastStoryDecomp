@@ -137,9 +137,9 @@ struct EffectInst_unk {
     EffectInst_unk(); // 0x8022BDB4
     int m00;
     EffectInst_unk* mNext;  // 0x04
-    int m08;
-    int m0C;
-    int m10;
+    unsigned int m08;       // 0x08: inferred: shape of the emitter (3, 5: from the matrix m0C)
+    float* m0C;
+    unsigned int m10;
     int m14;
     unsigned short mFlags;  // 0x18
     unsigned char m1A;
@@ -181,12 +181,12 @@ struct EffectSlot_unk {
     EffectSlot_unk(); // 0x8022BE1C
     int m00;
     EffectSlot_unk* mNext; // 0x04: inferred: next slot of the instance
-    int m08;
+    struct EffectInst_unk* m08; // 0x08: inferred: instance of the model drawn (position m9C, scale mA8)
     int m0C;
     int m10;
     float m14;
     float m18;
-    int m1C;
+    struct EffectFileEntry_unk* m1C; // 0x1C: inferred: entry of the effect data (atn/EffectFileEntry_unk.h)
     int m20;
     int m24;
     float m28;
@@ -201,8 +201,10 @@ struct EffectSlot_unk {
     unsigned char m98[0xA4 - 0x98];
     float mA4;
     unsigned char mA8[0xB0 - 0xA8];
-    float mB0;
-    unsigned char mB4[0xCC - 0xB4];
+    float mB0;             // 0xB0: inferred: scale x, y, z of the slot
+    float mB4;
+    float mB8;
+    unsigned char mBC[0xCC - 0xBC];
     float mCC;             // 0xCC: inferred: distance along the direction (fn_80231508)
     float mD0;             // 0xD0: inferred: rotations x, y, z of the direction
     float mD4;
