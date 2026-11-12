@@ -1100,6 +1100,43 @@ void LastCocoonQuadruped::fn_804654F0() {
     }
 }
 
+// NONMATCHING: 99.6% - r3/r4 of the step copy and the float registers of the sum to mPos
+// inferred: mode 15: the jump of fn_80467C18 (m15BC per frame), then turns towards the place 600
+void LastCocoonQuadruped::fn_804655AC() {
+    float frame = mMotion.mTracks[0].m08;
+    if (frame >= mMotion.fn_80097D7C(0)) {
+        SetMode_unk(16);
+        mMotion.m34C = 1;
+        mMotion.mTracks[0].m20 = 1.0f;
+        mMotion.mTracks[0].m0C = 1.0f;
+        mMotion.fn_80097C08(0, 0x143, 1, 0, 1, 0.0f, 0.1f);
+        if (lbl_8087F430 != 0) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x8C, (int)m15AC);
+        }
+        m18E8 = 0;
+        return;
+    }
+    frame = mMotion.mTracks[0].m08;
+    if (frame <= 30.0f) {
+        atn::Vector3 step = m15BC;
+        bool start = frame <= 5.0f;
+        if (!start) {
+            step.z = 0.0f;
+            step.x = 0.0f;
+        }
+        mPos += step;
+        if (mMotion.mTracks[0].m08 > 20.0f) {
+            RoutePlace_unk* place = FindQuadPlace_unk(600);
+            if (place != 0) {
+                atn::Vector3 d = place->mPos - mPos;
+                mRot.y += 0.3f * atn::WrapAngle_unk(d.ToRotationZ_unk().y - mRot.y);
+            }
+        } else {
+            mRot.y = m15BC.ToRotation_unk().y;
+        }
+    }
+}
+
 void LastCocoonQuadruped::fn_80466370() {
     float frame = mMotion.mTracks[0].m08;
     if (frame >= mMotion.fn_80097D7C(0)) {

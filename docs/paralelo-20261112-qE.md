@@ -18,7 +18,7 @@ Inicio: 2026-11-12 16:10 (reloj del contenedor). Rama `agent-E`.
 
 - Tercera tanda: fn_80468038 (97,7 %: `m560 == 4 || m560 == 5` sale como prueba de rango), fn_80464CF0
   (modo 12, 99,96 %: ranuras de PlayEfp_unk invertidas; el original construye un QuadCollResult_unk sin
-  usar en cada rama, el de la tercera despues de la matriz).
+  usar en cada rama, el de la tercera despues de la matriz), fn_804655AC (modo 15, 99,7 %: registros).
 
 ## game/LastCocoonImago
 
@@ -53,3 +53,25 @@ Inicio: 2026-11-12 16:10 (reloj del contenedor). Rama `agent-E`.
   bloqueo de presupuesto como en Chrysalis/Imago).
 - `ToRotationZ_unk` (z redondeada una vez) en vez de `ToRotation_unk` cuando el asm reusa el `frsp` de z
   para atan2 (`fmr f2, f4`).
+
+## Resumen (cierre 2026-11-12 17:45)
+
+| Unidad | Funciones al 0 % / sin escribir | 100 % |
+|---|---|---|
+| game/LastCocoonQuadruped | 25 -> 3 (fn_80461838, fn_80462038, fn_80465B88) | 25 -> 38 / 54 |
+| game/LastCocoonImago | 21 -> 14 (ctor 0 % por presupuesto, vf10/vf40/vf50, fn_8045ABB4...) | 14 -> 18 / 36 |
+| game/LastCocoonEgg | 18 -> 17 | 20 / 42 (fn_8045817C al 99,5 % por el pool) |
+| game/LastCocoonChrysalis | 1 -> 1 (ctor, bloqueo documentado; no repetido) | 6 / 7 |
+| game/QuadrupedTask | 1 -> 1 (no tocada) | sin cambios |
+
+report.json: 15091 -> 15108 funciones al 100 %, lost 0, sin bajadas. Ninguna unidad nueva enlaza.
+
+## Pendientes
+
+- Quadruped: fn_80461838, fn_80462038 (modo 0/7), fn_80465B88 (modo 16); vf10 al 92 % y fn_80468B68 al
+  20 % (presupuesto de inlining del original).
+- Imago: ctor (presupuesto), vf10 0x8045883C, vf40 0x804596E8, vf50 0x80459FD0, fn_8045ABB4, fn_8045B82C,
+  fn_8045BFFC, fn_8045CB24, fn_8045D3A4, fn_8045DF34, fn_8045EDEC; 0x80459FB8 es un vfBC con argumento
+  (`return arg != &m18FC`), pero `CharaTask::vfBC()` no tiene parametros en la cabecera compartida.
+- Egg: vf0C (por encima del presupuesto; sus copias debiles fn_80453C88/DB4/DBC) y el resto de modos.
+- Unificar `QuadRoutes_unk`, `PathSpline_unk` (game/PathData_unk.cpp) y `gmk::PathData_unk`.
