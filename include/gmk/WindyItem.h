@@ -78,7 +78,7 @@ public:
     virtual ~WindyItem();
     virtual int vf0C();
     virtual void vf10(); // not decompiled
-    virtual void vf14(); // not decompiled (debug drawing)
+    virtual void vf14(); // inferred: debug drawing
     virtual int vf1C();
     virtual void vf20();
     virtual void Start();

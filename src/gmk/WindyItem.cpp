@@ -5,6 +5,7 @@
 #include "game/CharaTask.h"
 #include "game/GimmickManager.h"
 #include "atn/RenderManager.h"
+#include "atn/DrawHelper.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int atoi(const char* s);
@@ -73,8 +74,78 @@ void WindyItem::Start() {
     }
 }
 
-// vf10 (0x804375C0) and vf14 (0x80438814) are not decompiled yet (wind gusts, item paths and debug
-// drawing).
+// vf10 (0x804375C0) is not decompiled yet (wind gusts and item paths).
+
+extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+
+// inferred: point of a path at the parameter `t` (0..1); names invented
+inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
+    if (t <= 0.0f) {
+        return path.mStart;
+    }
+    if (t >= 1.0f) {
+        return path.mEnd;
+    }
+    float d = path.mScale * t;
+    for (int i = 0; i < path.mCount - 1; i++) {
+        float len = path.mLength.mData[i].v;
+        if (d <= len) {
+            float u;
+            if (0.0f == d) {
+                u = 0.0f;
+            } else {
+                u = d / len;
+            }
+            if (i < 0) {
+                return path.mStart;
+            }
+            if (i >= path.mCount - 1) {
+                return path.mEnd;
+            }
+            if (path.mCount < 2) {
+                return lbl_807C7030;
+            }
+            const gmk::WindyCoef_unk& x = path.mX.mData[i];
+            const gmk::WindyCoef_unk& y = path.mY.mData[i];
+            const gmk::WindyCoef_unk& z = path.mZ.mData[i];
+            atn::Vector3 r;
+            r.x = x.a + u * (x.b + u * (x.c + x.d * u));
+            r.y = y.a + u * (y.b + u * (y.c + y.d * u));
+            r.z = z.a + u * (z.b + u * (z.c + z.d * u));
+            return r;
+        }
+        d -= len;
+    }
+    return path.mStart;
+}
+
+// inferred: debug drawing of the areas and of the paths of the blown items
+// NONMATCHING: 97.2% - registers of the hoisted constants of Setup_unk (as in Start) and of the
+// segment loop of Eval_unk
+void WindyItem::vf14() {
+    if (mF08 == 0) {
+        return;
+    }
+    for (unsigned int i = 0; i < mAreas.size(); i++) {
+        mAreas[i].Setup_unk();
+    }
+    for (unsigned int i = 0; i < 8; i++) {
+        WindySlot_unk& slot = mSlots[i];
+        if (slot.mState != 2) {
+            continue;
+        }
+        lbl_8087EEB0->fn_80063D3C(atn::Vector3(slot.mMtx.m[0][3], slot.mMtx.m[1][3], slot.mMtx.m[2][3]), 1.0f, 0.0f, 0xFFFF8800);
+        for (float t = 0.0f; t < 1.0f; t += 0.01f) {
+            atn::Vector3 a = Eval_unk(slot.mPath, t);
+            atn::Vector3 b = Eval_unk(slot.mPath, t + 0.01f);
+            lbl_8087EEB0->fn_80063764(a, b, 0.0f, 0x5500FFFF);
+        }
+    }
+    for (unsigned int i = 0; i < mAreas.size(); i++) {
+        lbl_8087EEB0->fn_800629F0(lbl_807C7030, mAreas[i].mHalf, 0.0f, 0xFFFFFF00, &mAreas[i].mMtx);
+    }
+}
+
 
 int WindyItem::vf1C() {
     if (mEfp.IsLoading() != 0 || mEff.IsLoading() != 0) {
@@ -230,48 +301,9 @@ void gmk::WindyItem::fn_804392C0() {
     }
 }
 
-extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-
-// inferred: point of a path at the parameter `t` (0..1); names invented
-inline atn::Vector3 Eval_unk(const gmk::WindyPath_unk& path, float t) {
-    if (t <= 0.0f) {
-        return path.mStart;
-    }
-    if (t >= 1.0f) {
-        return path.mEnd;
-    }
-    float d = path.mScale * t;
-    for (int i = 0; i < path.mCount - 1; i++) {
-        float len = path.mLength.mData[i].v;
-        if (d <= len) {
-            float u = 0.0f;
-            if (0.0f != d) {
-                u = d / len;
-            }
-            if (i < 0) {
-                return path.mStart;
-            }
-            if (i >= path.mCount - 1) {
-                return path.mEnd;
-            }
-            if (path.mCount < 2) {
-                return lbl_807C7030;
-            }
-            const gmk::WindyCoef_unk& x = path.mX.mData[i];
-            const gmk::WindyCoef_unk& y = path.mY.mData[i];
-            const gmk::WindyCoef_unk& z = path.mZ.mData[i];
-            atn::Vector3 r(x.a + u * (x.b + u * (x.c + x.d * u)), y.a + u * (y.b + u * (y.c + y.d * u)),
-                           z.a + u * (z.b + u * (z.c + z.d * u)));
-            return r;
-        }
-        d -= len;
-    }
-    return path.mStart;
-}
-
 // inferred: update of a blown item (name unknown)
-// NONMATCHING: 93.7% - registers of the inlined path evaluation (Eval_unk) and the shape of the
-// zero test of the segment parameter.
+// NONMATCHING: 98.56% - registers of the segment loop of the inlined path evaluation (Eval_unk:
+// the index and the byte offset are swapped)
 void gmk::WindyItem::fn_8043A08C(WindySlot_unk* slot) {
     switch (slot->mState) {
     case 1:
