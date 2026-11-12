@@ -93,7 +93,9 @@ struct EffectParam_unk {
     unsigned int m80;
     unsigned int m84;
     unsigned int m88;
-    unsigned char m8C[0x9C - 0x8C];
+    unsigned int m8C;       // 0x8C: inferred: bit 0: the color of the slot scales (else adds)
+    unsigned int m90;       // 0x90: inferred: 2: color ratios to red (fn_80233B40)
+    unsigned char m94[0x9C - 0x94];
     unsigned int m9C;
     unsigned int mA0;
     atn::Vector3 mA4;
@@ -103,7 +105,9 @@ struct EffectParam_unk {
     atn::Vector3 m11C;
     unsigned char m128[0x158 - 0x128];
     atn::Vector3 m158;
-    unsigned char m164[0x1F8 - 0x164];
+    unsigned char m164[0x194 - 0x164];
+    EffectColor_unk m194;   // 0x194: inferred: color when not animated
+    unsigned char m1A4[0x1F8 - 0x1A4];
     atn::Vector3 m1F8;
     unsigned char m204[0x238 - 0x204];
     int m238;               // 0x238: inferred: frames the slots move (< 0: always)
@@ -181,14 +185,18 @@ struct EffectSlot_unk {
     atn::Vector3 m74;      // 0x74: inferred: position
     atn::Vector3 m80;      // 0x80: inferred: emission point (m74 + m8C, moved by fn_80231508)
     atn::Vector3 m8C;
-    unsigned char m98[0xCC - 0x98];
+    unsigned char m98[0xA4 - 0x98];
+    float mA4;
+    unsigned char mA8[0xB0 - 0xA8];
+    float mB0;
+    unsigned char mB4[0xCC - 0xB4];
     float mCC;             // 0xCC: inferred: distance along the direction (fn_80231508)
     float mD0;             // 0xD0: inferred: rotations x, y, z of the direction
     float mD4;
     float mD8;
     unsigned char mDC[0xE4 - 0xDC];
     atn::Vector3 mE4;
-    unsigned char mF0[0x100 - 0xF0];
+    EffectColor_unk mF0;   // 0xF0: inferred: color offset or scale of the slot
     atn::Vector3 m100;
     unsigned char m10C[0x114 - 0x10C];
     atn::Vector3 m114;
@@ -203,14 +211,14 @@ struct EffectSlot_unk {
     float m150;
     float m154;
     float m158;
-    unsigned char m15C[0x16C - 0x15C];
+    float m15C;            // 0x15C: inferred: green / red ratio (fn_80233B40)
+    float m160;            // 0x160: inferred: blue / red ratio
+    unsigned char m164[0x16C - 0x164];
     float m16C;
     float m170;
     unsigned char m174[0x190 - 0x174];
     unsigned int m190; // 0x190: inferred: flags (2: drawn)
-    float m194;
-    float m198;
-    float m19C;
+    atn::Vector3 m194;     // 0x194: inferred: emission point when the slot starts (fn_8022DA70)
     float m1A0;
     float m1A4;
     EffectFade_unk* m1A8; // 0x1A8: inferred: from EffectSystem_unk::m2C
@@ -238,7 +246,7 @@ struct EffectSystemPool_unk {
 class EffectSystem_unk {
 public:
     EffectSystem_unk()
-        : mInstMax(0), mInstPool(0), m08(0), mInsts(0), mSlotCount(0), mSlots(0), m18(0), m1C(0), mParticleCount(0), mParticles(0), m28(0), m48(0.0f),
+        : mInstMax(0), mInstPool(0), m08(0), mInsts(0), mSlotCount(0), mSlots(0), mFreeSlots(0), m1C(0), mParticleCount(0), mParticles(0), m28(0), m48(0.0f),
           m4C(0), m50(0), m54(0), m58(0), m5C(0), m60(0), mFlags(0), m68(0), mLayer(0), m70(0), mUpdating(0),
           m78(0), m7C(0), mListener(0), mReplaying(0) {}
     void fn_8022B850(int a, int b, int c); // inferred: init
@@ -278,7 +286,7 @@ public:
     EffectInst_unk* mInsts;     // 0x0C
     int mSlotCount;             // 0x10
     EffectSlot_unk* mSlots;     // 0x14
-    int m18;
+    EffectSlot_unk* mFreeSlots; // 0x18: inferred: free list of the slots (EffectSlot_unk::mNext)
     int m1C;
     int mParticleCount;              // 0x20
     EffectParticle_unk* mParticles;  // 0x24

@@ -50,7 +50,7 @@ EffectInst_unk::EffectInst_unk()
 
 EffectSlot_unk::EffectSlot_unk()
     : m00(0), mNext(0), m08(0), m0C(0), m10(0), m14(0.0f), m18(0.0f), m1C(0), m20(0), m24(0), m28(0.0f), m2C(0.0f),
-      m30(0.0f), m34(0.0f), m190(0), m194(0.0f), m198(0.0f), m19C(0.0f), m1A0(0.0f), m1A4(1.0f), m1A8(0), m1AC(0),
+      m30(0.0f), m34(0.0f), m190(0), m194(0.0f, 0.0f, 0.0f), m1A0(0.0f), m1A4(1.0f), m1A8(0), m1AC(0),
       m1B0(0), m1B4(0) {}
 
 EffectFade_unk::EffectFade_unk() : m00(0.0f), m04(0.0f), m08(0.0f), m0C(0.0f), m10(1.0f) {}
@@ -85,7 +85,7 @@ void EffectSystem_unk::fn_8022C2A0() {
         mSlots = 0;
         mSlotCount = 0;
     }
-    m18 = 0;
+    mFreeSlots = 0;
     m1C = 0;
     if (mParticles != 0) {
         delete[] mParticles;
@@ -264,7 +264,157 @@ void EffectSystem_unk::fn_8022D478(int layer) {
 
 // inferred: prepares an entry of the effect data (atn::LoadEffect::vf0C)
 extern "C" void fn_8022D754(EffectFileEntry_unk* entry) {
-    entry->m10C = entry->m108 * entry->m120;
+    entry->m10C = entry->m108 * entry->mUV.w;
+}
+
+extern "C" double cos(double x);
+extern "C" int rand();
+
+// NONMATCHING: 99.2% - the curve mode and the reloaded frame count swap r26/r27
+// inferred: texture frame of an entry for a frame number (uv: first frame in, frame out; last: random
+// state); returns the frame index
+extern "C" int fn_8022D790(EffectUV_unk* uv, EffectFileEntry_unk* entry, int frame, int unused, int* last) {
+    int n = entry->m108;
+    float h, w, v, u;
+    u = entry->mUV.u;
+    v = entry->mUV.v;
+    w = entry->mUV.w;
+    h = entry->mUV.h;
+    uv->u = u;
+    uv->v = v;
+    uv->w = w;
+    uv->h = h;
+    if (n <= 1) {
+        return 0;
+    }
+    int loop = frame / n;
+    int index = frame % n;
+    if (entry->m130 > 0.0f && loop >= entry->m130) {
+        index = n - 1;
+    }
+    float t = (float)index / (float)n;
+    int mode = entry->m12C == 5 ? 0 : entry->m12C;
+    switch (mode) {
+    case 2: {
+        t *= 2.0f;
+        float d = 1.0f - t;
+        if (d < 0.0f) {
+            d = -d;
+        }
+        t = 1.0f - d;
+        break;
+    }
+    case 3:
+        t *= 2.0f;
+        t = 0.5f * (1.0f + (float)cos(3.1415927f * (1.0f + t)));
+        break;
+    case 1:
+        t = 0.5f * (1.0f + (float)cos(3.1415927f * (1.0f + t)));
+        break;
+    default: {
+        float d = 1.0f - t;
+        if (d < 0.0f) {
+            d = -d;
+        }
+        t = 1.0f - d;
+        break;
+    }
+    }
+    int count = entry->m108;
+    int f = count * t;
+    if (mode == 6) {
+        f = count - f;
+    }
+    if (count == f) {
+        f = count - 1;
+    }
+    if (mode == 4) {
+        if (*last != index) {
+            *last = f;
+            count = entry->m108;
+            index = rand() % count;
+        }
+    } else {
+        index = (*last + f) % count;
+    }
+    uv->u += index * (entry->m10C / count);
+    if (uv->u >= 1.0f) {
+        int w = uv->u;
+        uv->u -= w;
+        uv->v = uv->h * w + uv->v;
+    }
+    return index;
+}
+
+extern "C" EffectSlot_unk* fn_80237B8C(EffectSlot_unk** used, EffectSlot_unk** free, int recycle);
+extern "C" int fn_80230780(void* owner, EffectInst_unk* inst, EffectParam_unk* param, EffectSlot_unk* slot, float t);
+extern "C" void fn_80231508(EffectSlot_unk* slot);
+
+// inferred: takes a free block of the pool (null when all are used; name invented)
+static inline bool IsUsed_unk(EffectSystemPool_unk& pool, unsigned int i) {
+    return ((1 << (i & 31)) & pool.mUsed[i >> 5]) != 0;
+}
+static inline void SetUsed_unk(EffectSystemPool_unk& pool, unsigned int i) {
+    pool.mUsed[i >> 5] |= 1 << (i & 31);
+}
+static inline EffectFade_unk* AllocFade_unk(EffectSystemPool_unk& pool) {
+    for (unsigned int i = 0; i < pool.mBlockCount; i++) {
+        if (!IsUsed_unk(pool, i)) {
+            SetUsed_unk(pool, i);
+            return &pool.mItems.mData[i * pool.mBlockSize];
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: 98.9% - the pool bitmap word is loaded once (the original loads it again for the |=)
+// inferred: starts a slot of an instance: takes it from the free list, sets its matrix and position
+// and its fade items (param->m4C bit 17); free function (the caller passes the system)
+EffectSlot_unk* fn_8022DA70(EffectSystem_unk* system, void* owner, EffectInst_unk* inst, EffectParam_unk* param,
+                            float t) {
+    EffectSlot_unk* slot = fn_80237B8C(&inst->mSlots, &system->mFreeSlots, 0);
+    if (slot == 0) {
+        return 0;
+    }
+    slot->m18 = 0.0f;
+    slot->m190 = 0;
+    fn_8022C9C8(&sEffectWork_unk, 0, slot->mMtx.m[0], &slot->m74, param->m4C);
+    slot->mMtx.m[0][3] = 0.0f;
+    slot->mMtx.m[1][3] = 0.0f;
+    slot->mMtx.m[2][3] = 0.0f;
+    slot->m8C.x = 0.0f;
+    slot->m8C.y = 0.0f;
+    slot->m8C.z = 0.0f;
+    slot->m68.x = 0.0f;
+    slot->m68.y = 0.0f;
+    slot->m68.z = 0.0f;
+    if (fn_80230780(owner, inst, param, slot, t) == 0) {
+        slot->m190 |= 4;
+        return 0;
+    }
+    Vector3 ofs = slot->m68;
+    PSMTXMultVec(slot->mMtx.m, &ofs, &ofs);
+    slot->m74.x += ofs.x;
+    slot->m74.y += ofs.y;
+    slot->m74.z += ofs.z;
+    slot->m80 = slot->m74 + slot->m8C;
+    fn_80231508(slot);
+    if (param->m4C & 0x20000) {
+        slot->m1A8 = AllocFade_unk(system->m2C);
+        slot->m1B4 = 0x40;
+        slot->m1B0 = 0;
+        slot->m1AC = 0;
+        float a4, b0;
+        b0 = slot->mB0;
+        a4 = slot->mA4;
+        slot->m194 = slot->m80;
+        slot->m1A0 = a4;
+        slot->m1A4 = b0;
+    } else {
+        ReleaseSlot_unk(system->m2C, slot);
+    }
+    slot->m190 |= 8;
+    return slot;
 }
 
 // inferred: reduces the emission of an instance with the distance to the camera (param->m25C bit 0):
@@ -839,6 +989,60 @@ extern "C" void fn_802339A8(Vector3* out, EffectSlot_unk* slot, int emitter, Eff
         out->x += slot->m100.x;
         out->y += slot->m100.y;
         out->z += slot->m100.z;
+    }
+}
+
+// inferred: color parameter of an emitter (curves 3-6 when animated, only 6 in mode 1), with its
+// ratios to red and the per-slot offset or scale
+extern "C" void fn_80233B40(EffectColor_unk* out, EffectSlot_unk* slot, int emitter, EffectInst_unk* inst) {
+    EffectAnimData_unk* data = inst->mData;
+    EffectParam_unk* param = inst->mParam;
+    unsigned int flags = data->mAnimFlags[emitter];
+    int mode = ((flags >> 4) & 1) + ((flags >> 5) & 1);
+    switch (mode) {
+    case 0:
+        out->r = param->m194.r;
+        out->g = param->m194.g;
+        out->b = param->m194.b;
+        out->a = param->m194.a;
+        break;
+    case 1:
+        out->a = fn_8023329C(6, emitter, data, 0, 0.0f, 0.0f);
+        out->r = param->m194.r;
+        out->g = param->m194.g;
+        out->b = param->m194.b;
+        break;
+    case 2:
+        out->r = fn_8023329C(3, emitter, data, 0, 0.0f, 0.0f);
+        out->g = fn_8023329C(4, emitter, data, 0, 0.0f, 0.0f);
+        out->b = fn_8023329C(5, emitter, data, 0, 0.0f, 0.0f);
+        out->a = fn_8023329C(6, emitter, data, 0, 0.0f, 0.0f);
+        break;
+    }
+    if (param->m90 == 2) {
+        float r = out->r;
+        float zero = 0.0f;
+        if (r != zero) {
+            slot->m15C = out->g / r;
+            slot->m160 = out->b / out->r;
+        } else {
+            slot->m15C = 0.0f;
+            slot->m160 = 0.0f;
+        }
+    } else {
+        slot->m15C = 1.0f;
+        slot->m160 = 1.0f;
+    }
+    if (param->m8C & 1) {
+        out->r *= slot->mF0.r;
+        out->g *= slot->mF0.g;
+        out->b *= slot->mF0.b;
+        out->a *= slot->mF0.a;
+    } else {
+        out->r += slot->mF0.r;
+        out->g += slot->mF0.g;
+        out->b += slot->mF0.b;
+        out->a += slot->mF0.a;
     }
 }
 

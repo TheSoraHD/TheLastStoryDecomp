@@ -10,8 +10,14 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
 - `atn/EffectSystem_unk` (commit 2): 0 % 18 -> 14; al 100 % nuevas: fn_80230034 (reduccion de la emision con la
   distancia a la camara; funcion libre C++ que recibe el sistema), fn_80231508 (avance de un slot en su
   direccion), fn_80231754 (avance de los slots de una instancia), fn_802328EC (avanzar una instancia N frames).
+- `atn/EffectSystem_unk` (commit 3): 0 % 14 -> 11; al 100 % nueva fn_80233B40 (color de un emisor); escritas
+  NONMATCHING fn_8022D790 (99,2 %) y fn_8022DA70 (98,9 %).
 
 ## NONMATCHING
+
+- `fn_8022D790` 99,2 %: r26/r27 cruzados entre el modo de curva y el numero de frames recargado.
+- `fn_8022DA70` 98,9 %: el original vuelve a cargar la palabra del mapa de bits del pool para el `|=`
+  (quiza un `std::vector<bool>` con referencia proxy); con dos inlines Test/Set sigue saliendo una carga.
 
 ## Decisiones tomadas sin el usuario
 
@@ -35,6 +41,9 @@ Inicio: 2026-11-12 16:30 CET. Rama `agent-F`. Unidades: `atn/EffectSystem_unk`, 
   miembros (`fn_8022D478((int)arg)`: el argumento de fn_802368B0 es la capa; no se cambio su firma).
 - `fn_80230034` escrita como funcion libre C++ (`fn_80230034(EffectSystem_unk*, ...)`) y no como miembro: no se
   sabe si es metodo, y un miembro nuevo renumeraria otra vez las 67 unidades. Revisar si se prefiere miembro.
+- `fn_8022DA70` tambien como funcion libre C++ que recibe el sistema (mismo motivo que fn_80230034).
+- `EffectSlot_unk` + 0x194..0x1A4 parece un `EffectFade_unk` (0,0,0,0,1 en el constructor); se deja como
+  campos sueltos (`Vector3 m194`, `m1A0`, `m1A4`) para no tocar el constructor ya emparejado.
 - `fn_802301EC` renombrado en `symbols.txt` al nombre del miembro declarado (sin escribir aun).
 
 ## Hallazgos
