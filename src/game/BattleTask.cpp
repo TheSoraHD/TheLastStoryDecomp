@@ -1660,6 +1660,89 @@ extern "C" void* lbl_8087EE98; // inferred: collision manager
 extern "C" int fn_8004ED34(void* colli, CollResult_unk* result, const atn::Vector3* from, const atn::Vector3* to,
                            unsigned int mask, void* ignore, int arg7); // inferred: ray test
 
+// inferred: the character is in one of the busy controls (6: 4..11, 29, 30); inlined, name invented
+inline bool IsBusy_unk(CharaTask* chara) {
+    if (chara->m55C == 6) {
+        bool busy = false;
+        if (chara->m560 >= 4 && chara->m560 < 12) {
+            busy = true;
+        }
+        if (busy || (unsigned int)(chara->m560 - 29) <= 1) {
+            return true;
+        }
+    }
+    return false;
+}
+// inferred: the character lost hit points; inlined, name invented
+inline bool IsHurt_unk(CharaTask* chara) {
+    return (float)chara->mStatus.mParamB.m84 - chara->mStatus.m04 > 0.01f;
+}
+// inferred: guard kinds that can be woken up; inlined, name invented
+inline bool IsWakeKind_unk(int kind) {
+    switch (kind) {
+    case 0x17:
+    case 0x48:
+    case 0x45:
+    case 2:
+        return true;
+    }
+    return kind < 1;
+}
+
+// NONMATCHING: 89% - the kind test is a binary search in the original (values below 1 pass too, so it is not a
+// plain switch on 0); registers of the record and of the list pointer differ
+// inferred: wakes up (mC58.mC0 > 0, fn_80171DB0) the waiting enemies that are near the player, are hurt, or have
+// near them an ally of their side that is busy or hurt
+void BattleTask::fn_80109F7C() {
+    if (lbl_8087F430 != 0 && lbl_8087F430->m54E4 != 0 && lbl_8087F430->fn_80375184() != 0) {
+        return;
+    }
+    PlayerTask* head = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    if (head == 0) {
+        return;
+    }
+    for (int i = 0; i < mCharaCount; i++) {
+        CharaTask* chara = mCharas[i].mChara;
+        CharaRes_unk* res = chara->m64;
+        if (!chara->CanAct_unk() || chara->mType != 2 || chara->mC58.mC0 > 0 || res == 0 ||
+            chara->mC58.m11C.fn_8011D1FC() != 0 || !IsWakeKind_unk(((BattleCharaTask*)chara)->m146C)) {
+            continue;
+        }
+        int wake = 0;
+        atn::Vector3 d = head->mPos - chara->mPos;
+        if (PSVECSquareMag(&d) < res->m2C * res->m2C) {
+            wake = 1;
+        }
+        if (IsHurt_unk(chara)) {
+            wake = 1;
+        }
+        if (wake <= 0) {
+            for (int j = 0; j < mCharaCount; j++) {
+                CharaTask* other = mCharas[j].mChara;
+                if (other == chara || other->IsFlag_unk(4) || other->mC58.mC0 == 0) {
+                    continue;
+                }
+                atn::Vector3 d2 = chara->mPos - other->mPos;
+                if (!(PSVECSquareMag(&d2) < res->m28 * res->m28)) {
+                    continue;
+                }
+                if (IsBusy_unk(other)) {
+                    wake = 1;
+                    break;
+                }
+                if (chara->fn_8016F3D0(other, 1) && IsHurt_unk(other)) {
+                    wake = other->mC58.mC0;
+                    break;
+                }
+            }
+        }
+        if (wake > 0) {
+            chara->mC58.mC0 = wake;
+            chara->fn_80171DB0();
+        }
+    }
+}
+
 // NONMATCHING: 97.1% - the original picks the kind with a branch per value (li 0; b / li 1); every form
 // tried gives a preset 1 or mfcr (if/else, ternary, inline, switch); `else if (size >= 6.0f)` adds a compare
 // inferred: splash when the segment from..to crosses water (attribute 0x1B); `size` picks the effect and

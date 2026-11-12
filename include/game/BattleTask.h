@@ -191,6 +191,7 @@ public:
     void fn_80103600(CharaTask* chara);
     BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
     void fn_80103FD4();
+    void fn_80109F7C(); // inferred: wakes up the enemies that see the player, are hurt or have a busy ally near
     void fn_8010A868(); // inferred: updates mStuns
     void fn_8010ABF4();
     void fn_8010AC60(); // inferred: clears the selection and the gimmicks of the characters
