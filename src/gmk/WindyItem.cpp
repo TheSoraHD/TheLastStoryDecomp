@@ -199,20 +199,11 @@ inline int CanSee_unk(const atn::Vector3& eye, const WindySphere_unk& sphere) {
     return fn_8004ECC0(lbl_8087EE98, 0, &line[0], &line[1], 0x80000010, 0, 0) == 0;
 }
 
-// inferred: source of the item added to the inventory (as in gmk/RandomItem.cpp)
-inline void SetSource_unk(Inventory* inv, int set, int type, int map, int point) {
-    inv->mDB14 = set;
-    inv->mDB18 = type;
-    inv->mDB1C = map;
-    inv->mDB20 = point;
-    inv->mDB24 = 0;
-    inv->mDB28 = 0;
-}
-
 // inferred: update: finds the area of the player, runs the gusts and the blown items; looked at through
 // the camera during a gust an item is caught (the player plays motion 100), then it is given with a popup
-// NONMATCHING: 36.6% - over the inline budget here (R3 of docs/inlining.md): our copy calls Eval_unk,
-// CanSee_unk, the Vector3 operators... with bl, the original inlines every candidate
+// NONMATCHING: 89% - the frame is 0x70 bytes bigger (stack temporaries) and registers differ. The source
+// of the inventory is written field by field: with the SetSource_unk inline of gmk/RandomItem the
+// function goes over the inline budget (R3) and calls every inline with bl
 void WindyItem::vf10() {
     if (m54 == 0) {
         if (mActive > 0) {
@@ -360,10 +351,22 @@ void WindyItem::vf10() {
                     int map = -1;
                     int point = -1;
                     if (fn_80216AFC(name, &type, &map, &point)) {
-                        SetSource_unk(Inventory::instance_, 1, type, map, point);
+                        Inventory* inv = Inventory::instance_;
+                        inv->mDB14 = 1;
+                        inv->mDB18 = type;
+                        inv->mDB1C = map;
+                        inv->mDB20 = point;
+                        inv->mDB24 = 0;
+                        inv->mDB28 = 0;
                     }
                     fn_80445130(Inventory::instance_, &id, &count, 0);
-                    SetSource_unk(Inventory::instance_, 0, -1, -1, -1);
+                    Inventory* inv = Inventory::instance_;
+                    inv->mDB14 = 0;
+                    inv->mDB18 = -1;
+                    inv->mDB1C = -1;
+                    inv->mDB20 = -1;
+                    inv->mDB24 = 0;
+                    inv->mDB28 = 0;
                 }
                 void* data = fn_80211480(id);
                 if (data != 0) {
