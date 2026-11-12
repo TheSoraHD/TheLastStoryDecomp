@@ -8,7 +8,8 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   `fn_8010B250` (escala de bala por nivel con la tabla `lbl_80735ED0` definida en el fuente, 100 %),
   `fn_8010A308` (salpicadura al cruzar agua), `fn_800F3D28` (reinicio de la batalla), `fn_800F39A4` (peticiones de
   carga de recursos) y `fn_800F3B4C` (espera de esas cargas, 100 %), `fn_8010ACCC` (totales de jugadores y
-  enemigos) y `fn_8010AEF4` (comparacion de los totales, 100 %).
+  enemigos), `fn_8010AEF4` (comparacion de los totales, 100 %), `fn_801002DC` (objetivo de la camara, miembro
+  nuevo) y `fn_8010A868` (efectos temporizados `mStuns`, 100 %).
 - Los marcadores (`BattleMarker_unk`, `BattleMarkers_unk`) pasan del .cpp a `BattleTask.h` como miembro
   `BattleTask::mMarkers` (0x367B8): con el cast `(BattleMarkers_unk*)&m367B4[4]` el compilador no plegaba los
   desplazamientos (fn_800F39A4/fn_800F3B4C).
@@ -24,6 +25,9 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
   pool de cadenas distintos (fichero incompleto).
 
 - `fn_8010ACCC` 99,5 %: registros r5/r6 cambiados (vida del jugador y base de `this`).
+
+- `fn_801002DC` 99,9 %: pila; el original pone la diferencia en 0x14 y la suma escalada en 0x20 (probado:
+  asignacion aparte, inline del centro, local del objetivo).
 
 ## Decisiones tomadas sin el usuario
 
@@ -42,6 +46,11 @@ Inicio: 2026-11-12 21:32 CET. Rama `agent-C2`. Unidades: `game/BattleTask`, `gam
 - `BattleTask.h`: `m38CA4` es un `BattleSel_unk` (copia anterior de `m38C90`), `m38CCC`/`m38CD0` (resultado
   de la comparacion y el anterior) y `BattleSel_unk::IsValid_unk() const` (declarada sin parametros, definida
   inline en el .cpp).
+- `BattleTask.h`: `mTargetCount`/`mTargets[64]` (0x48/0x4C, lista de objetivos de la camara), `mStunCount`,
+  `mStuns[4]` (`BattleStun_unk`, 0xC bytes) y `mStunEfp[2][3]` (0x3E348, cargados en el constructor); metodos
+  `fn_801002DC` y `fn_8010A868` declarados sin nombres de parametro. Renombrados en `symbols.txt`:
+  `fn_800F39A4`, `fn_801002DC`, `fn_8010A868` a sus nombres de miembro (solo los llama asm: el constructor y
+  GameCamera_unk).
 - `mEfp363C0[46]` se parte en `mEfp363C0[26]`, `mSplashEfp[3]` (0x364F8) y `mEfp3651C[17]` (los bucles sobre
   `mEfp363C0[26 + i]` no se reducian a puntero).
 - `CollResult_unk` local en BattleTask.cpp con el constructor inline (como `include/gmk/Lemon.h`); el tipo esta

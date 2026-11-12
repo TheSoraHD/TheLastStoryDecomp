@@ -110,6 +110,13 @@ struct BattleMarkers_unk {
     unsigned char mTex[0x30];   // 0x389C4: inferred: texture of the line (atn::Texture, DrawHelper::fn_80064F00)
 };
 
+// inferred: entry of BattleTask::mStuns (0xC bytes): character with a timed effect (groups 0x3E9/0x3EA)
+struct BattleStun_unk {
+    CharaTask* mChara;
+    int mTimer;   // inferred: frames left
+    int mStarted; // inferred: the loop effect was started
+};
+
 class BattleTask : public atn::Task {
 public:
     // BattleTask::BetoModel (name from the RTTI name of the node callback functor, 0x80735F10): 0x21C-byte
@@ -168,6 +175,8 @@ public:
     int fn_80101340(CharaTask* chara); // inferred: bullets following `chara`          // inferred: vf14(0) on the active bullets
     void fn_801011B8();          // inferred: removes the active bullets
     void fn_8010129C();          // inferred: vf18 on every bullet
+    // inferred: target of the camera: entry of mTargets nearest to `pos` in the cone `angle` around `dir`
+    CharaTask* fn_801002DC(CharaTask*, const atn::Vector3*, const atn::Vector3*, int, float, float);
     int fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta);
     void fn_801021B4(RayObj_unk* obj, int a, int b); // inferred: cursor target
     void fn_80102824(CharaTask* chara, PlayerTask* leader);
@@ -182,6 +191,7 @@ public:
     void fn_80103600(CharaTask* chara);
     BattleChara_unk* fn_80103F60(CharaTask* chara); // inferred: entry of the character, null if missing
     void fn_80103FD4();
+    void fn_8010A868(); // inferred: updates mStuns
     void fn_8010ABF4();
     void fn_8010AC60(); // inferred: clears the selection and the gimmicks of the characters
     void fn_8010ACCC();
@@ -259,7 +269,8 @@ public:
     int fn_8010D770(HitInfo_unk* hit);
     int fn_8010D7B4(HitInfo_unk* hit);
 
-    unsigned char m48[0x14C - 0x48];
+    unsigned int mTargetCount;   // 0x48: inferred: number of entries of mTargets
+    CharaTask* mTargets[64];     // 0x4C: inferred: characters the camera can lock on (fn_801002DC)
     int mBulletId;                // 0x14C: inferred: next bullet id (fn_800F8548)
     Bullet mBullets[256];         // 0x150: inferred: bullet pool
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
@@ -314,8 +325,10 @@ public:
     float m3E2FC; // inferred: alpha of the chant effect
     int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
     EffectColor_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)
-    int m3E314; // inferred: cleared by fn_800F3D28
-    unsigned char m3E318[0x3E398 - 0x3E318];
+    unsigned int mStunCount;       // 0x3E314: inferred: entries of mStuns (cleared by fn_800F3D28)
+    BattleStun_unk mStuns[4];      // 0x3E318: inferred: characters with a timed effect (fn_8010A868)
+    atn::EfpFile mStunEfp[2][3];   // 0x3E348: inferred: [enemy of the player][-, loop, end] effects
+    unsigned char m3E390[0x3E398 - 0x3E390];
     CharaTask* m3E398; // inferred: user of the bullet being made (set around fn_800FAB80 by fn_800FBA30)
     int m3E39C; // inferred: set while the event script makes a bullet (GameEventScript::fn_803A4A7C)
     unsigned char m3E3A0[0x3E3B0 - 0x3E3A0]; // inferred: size 0x3E3B0 (new of fn_800F13BC)

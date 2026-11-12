@@ -251,7 +251,7 @@ extern "C" void fn_800F3D28(BattleTask* mgr) {
     }
     mgr->mCharaCount = 0;
     mgr->mCBAC = 0;
-    mgr->m3E314 = 0;
+    mgr->mStunCount = 0;
     for (int i = 0; i < 8; i++) {
         mgr->mSlots[i].mChara = 0;
         mgr->mSlots[i].mUsed = 0;
@@ -620,6 +620,42 @@ void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& d
     m38A5C.m4C = 0;
     m38A5C.m0C |= 0x10000;
     fn_800FDF14(&m38A5C);
+}
+
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" double cos(double x);
+
+// NONMATCHING: 99.7% - stack: the original puts the difference at 0x14 and the scaled sum at 0x20 (swapped)
+// inferred: the score of an entry is its distance to the surface plus a penalty that grows away from `dir`
+CharaTask* BattleTask::fn_801002DC(CharaTask* chara, const atn::Vector3* pos, const atn::Vector3* dir, int all,
+                                    float range, float angle) {
+    if (chara == 0) {
+        return 0;
+    }
+    float cosLimit = cos(0.5f * angle);
+    float best = 1e16f;
+    CharaTask* found = 0;
+    for (unsigned int i = 0; i < mTargetCount; i++) {
+        if (all == 0 && mTargets[i]->IsPartyMember_unk()) {
+            continue;
+        }
+        atn::Vector3 d = (mTargets[i]->mColli.m3C + mTargets[i]->mColli.m48) * 0.5f - *pos;
+        float dist = PSVECMag(&d);
+        if (dist < 10.0f || dist > range) {
+            continue;
+        }
+        float score = dist - mTargets[i]->m5B0;
+        PSVECNormalize(&d, &d);
+        float dot = PSVECDotProduct(dir, &d);
+        if (dot > cosLimit) {
+            score += 3000.0f * (1.0f - dot * dot * dot * dot);
+            if (score < best) {
+                best = score;
+                found = mTargets[i];
+            }
+        }
+    }
+    return found;
 }
 
 int BattleTask::fn_80100BB8(CharaTask** out, CharaTask* chara, const atn::Vector3* dir, float range, float theta) {
@@ -1445,6 +1481,56 @@ extern "C" void fn_8010A308(BattleTask* mgr, const atn::Vector3* from, const atn
         fn_8023A8B4(lbl_8087F3C0, &mgr->mSplashEfp[kind], 0, 0, result.m04, lbl_807C7030,
                     EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1, -1, 1, scale);
         fn_800C344C(lbl_80735DD0[23], &result.m04, 0, -1, 1.0f);
+    }
+}
+
+// inferred: plays an EFP effect at the model with a scale (inlined); name invented
+inline void PlayEfpScaled_unk(atn::EfpFile* efp, atn::Model* model, float scale) {
+    fn_8023A8B4(lbl_8087F3C0, efp, model, 0, lbl_807C7030, lbl_807C7030, EffectColor_unk(1.0f, 1.0f, 1.0f, 1.0f), -1,
+                -1, 1, scale);
+}
+
+// inferred: removes an entry of mStuns (inlined); name invented
+inline void EraseStun_unk(BattleTask* mgr, BattleStun_unk* it) {
+    for (unsigned int i = it - mgr->mStuns; i < mgr->mStunCount - 1; i++) {
+        mgr->mStuns[i] = mgr->mStuns[i + 1];
+    }
+    mgr->mStunCount--;
+}
+
+// inferred: counts down the timed effects of mStuns: starts the loop effect once, and at the end stops it, plays
+// the end effect and removes the entry. The effects of the enemies of the player use the second row
+void BattleTask::fn_8010A868() {
+    BattleStun_unk* it = mStuns;
+    while (it != mStuns + mStunCount) {
+        bool enemy;
+        if (lbl_8087F8A0 != 0 && lbl_8087F8A0->mHead != 0) {
+            enemy = !it->mChara->fn_8016F3D0(lbl_8087F8A0->mHead, 1);
+        } else {
+            enemy = it->mChara->mType == 2;
+        }
+        if (it->mChara->mStatus.IsState_unk(0x10000) || it->mChara->mStatus.IsState_unk(0x100)) {
+            enemy = !enemy;
+        }
+        if (it->mTimer <= 0) {
+            int row = !enemy;
+            float scale = MAX(1.0f, it->mChara->mColli.m54 / 5.0f);
+            fn_80239DAC(lbl_8087F3C0, (unsigned int)it->mChara, 0x3E9, 0);
+            fn_80239DAC(lbl_8087F3C0, (unsigned int)it->mChara, 0x3EA, 0);
+            fn_800F7FA8(fn_800F7FA0(), 0, 0);
+            PlayEfpScaled_unk(&mStunEfp[row][2], fn_800F84C8(it->mChara), scale);
+            EraseStun_unk(this, it);
+        } else {
+            it->mTimer--;
+            if (it->mStarted == 0 && fn_80239D58(lbl_8087F3C0, it->mChara, 0x3E9) == 0) {
+                int row = !enemy;
+                float scale = MAX(1.0f, it->mChara->mColli.m54 / 5.0f);
+                fn_800F7FA8(fn_800F7FA0(), it->mChara, 0x3EA);
+                PlayEfpScaled_unk(&mStunEfp[row][1], fn_800F84C8(it->mChara), scale);
+                it->mStarted = 1;
+            }
+            it++;
+        }
     }
 }
 
