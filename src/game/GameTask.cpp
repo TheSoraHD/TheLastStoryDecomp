@@ -246,7 +246,6 @@ extern "C" atn::Task* lbl_8087FA20;
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_800F3D28(BattleTask* battle);
 extern "C" void fn_800F3170(BattleTask* battle);
-extern "C" int fn_800F3490(BattleTask* battle);
 extern "C" void fn_800EFA18(int type, int map);
 extern "C" void fn_8056C3D8(ReplayBuffer* obj);
 extern "C" void fn_80390A88(GameCamera* camera);
@@ -1315,7 +1314,7 @@ void GameTask::vf10() {
             break;
         case 7:
             fn_8046ECDC(lbl_8087F518, 1);
-            if (!fn_800F3490(lbl_8087F048) && !lbl_8087F490->fn_803D1574() && lbl_8087F8A8->fn_800D3FA4()) {
+            if (!lbl_8087F048->fn_800F3490() && !lbl_8087F490->fn_803D1574() && lbl_8087F8A8->fn_800D3FA4()) {
                 m5690.fn_80470528();
                 m550C.mState = 8;
             }
@@ -3092,7 +3091,7 @@ int GameTask::fn_8036FD4C() {
     if (!NpcManager::sInstance->fn_800D3FA4()) {
         busy = 1;
     }
-    if (fn_800F3490(lbl_8087F048)) {
+    if (lbl_8087F048->fn_800F3490()) {
         busy = 1;
     }
     if (lbl_8087F490->fn_803D1574()) {

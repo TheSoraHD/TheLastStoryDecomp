@@ -6,6 +6,7 @@
 #include "atn/EffectSystem_unk.h"
 #include "game/BattleCalc_unk.h"
 #include "game/HomingBullet.h"
+#include "atn/Model_unk.h"
 
 class CharaTask;
 struct ColorF_unk;
@@ -16,6 +17,9 @@ namespace atn {
 struct Vector3;
 }
 namespace atn {
+class D2A_Task;
+struct NodeChunk;
+struct ModelNodeCallbackContext;
 struct Model;
 }
 
@@ -24,13 +28,6 @@ struct RayObj_unk {
     unsigned char m00[0x08];
     unsigned int m08; // inferred: flags (2: the object is a character, 8: another object)
     CharaTask* m0C;
-};
-
-// inferred: 0x21C-byte entry of BattleTask::mSlots (only the flag and the character are known)
-struct BattleSlot_unk {
-    int mUsed;
-    unsigned char m04[0x218 - 0x4];
-    CharaTask* mChara;
 };
 
 // inferred: 0x934-byte entry of BattleTask::mCharas (constructor 0x80108090, built by __construct_array)
@@ -82,8 +79,26 @@ struct BattleSel_unk {
 
 class BattleTask : public atn::Task {
 public:
+    // BattleTask::BetoModel (name from the RTTI name of the node callback functor, 0x80735F10): 0x21C-byte
+    // model drawn on a character with an active battle effect (mSlots)
+    struct BetoModel {
+        BetoModel(); // 0x8010D808 (destructor: weak copy 0x800F1F38)
+        // inferred: node callback (bound by vf0C): the nodes follow the same node of the character, scaled
+        void fn_8010D854(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk, const atn::ModelNodeCallbackContext& context);
+
+        int mUsed;
+        atn::ModelBase mModel; // 0x04
+        CharaTask* mChara;     // 0x218
+    };
+
     BattleTask(atn::Task* parent); // 0x800F1430
     static BattleTask* fn_800F13BC(atn::Task* parent); // inferred: creates the singleton
+    virtual ~BattleTask();     // 0x800F1F94
+    virtual int vf0C();        // 0x800F26D4
+    virtual void vf10();       // 0x800F3EF4
+    virtual void vf14();       // 0x800F5314
+    int fn_800F3490(); // inferred: nonzero while the battle effects load
+    int fn_800F3B4C(); // inferred: nonzero while the other resources load
     void fn_80371664(); // inferred: defined in game/GameTask.cpp (0x80371664, clears mCBAC)
     // inferred: index of the character in mCharas, -1 if missing (inlined)
     int FindChara_unk(CharaTask* chara) {
@@ -210,8 +225,11 @@ public:
     unsigned char m48[0x150 - 0x48];
     Bullet mBullets[256];         // 0x150: inferred: bullet pool
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
-    BattleSlot_unk mSlots[8];      // 0xBA50: inferred: characters with an active battle effect
-    unsigned char mCB30[0xCBAC - 0xCB30];
+    BetoModel mSlots[8];           // 0xBA50: inferred: characters with an active battle effect
+    atn::D2A_Task* mCB30;          // inferred: d2anime task (made by fn_800F39A4)
+    unsigned char mCB34[0xCB60 - 0xCB34];
+    atn::D2A_Task* mCB60;          // inferred: d2anime task (made by fn_800F39A4; may be null)
+    unsigned char mCB64[0xCBAC - 0xCB64];
     int mCBAC;
     unsigned char mCBB0[0xCBF0 - 0xCBB0];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
@@ -247,7 +265,8 @@ public:
     RayObj_unk* m3E2E8; // inferred: cursor target
     int m3E2EC;
     int m3E2F0;
-    unsigned char m3E2F4[0x3E2FC - 0x3E2F4];
+    atn::D2A_Task* m3E2F4; // inferred: d2anime task (made by fn_800F39A4)
+    unsigned char m3E2F8[0x3E2FC - 0x3E2F8];
     float m3E2FC; // inferred: alpha of the chant effect
     int m3E300;   // inferred: state of the chant effect (1: fading in, 2: fading out)
     EffectColor_unk m3E304; // inferred: color of the chant effect (set to 1, 1, 1, 1)

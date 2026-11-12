@@ -21,6 +21,10 @@
 #include "atn/RenderManager.h"
 #include "atn/DrawHelper.h"
 #include "atn/Color.h"
+#include "atn/D2A_Task.h"
+#include "atn/NodeChunk.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 extern "C" BattleTask* lbl_8087F048; // inferred: the battle manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -37,6 +41,15 @@ extern "C" int fn_80219558(int id); // inferred: party member kind of a characte
 extern "C" int fn_80239D58(atn::EffectManager* mgr, void* owner, int id); // inferred: the effect is playing
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
+// inferred: node callback of a model (as game/CharaTask.cpp: the functor manager uses the default allocator of
+// boost::function3, std::allocator<function_base>)
+typedef boost::function<void(atn::Matrix3x4*, const atn::NodeChunk&, const atn::ModelNodeCallbackContext&),
+                        std::allocator<boost::function_base> >
+    NodeCallback_unk;
+// inferred: sets the node callback of a model (weak copy 0x800F29D0 of an inline of atn::Model that the
+// other files call by this name; ModelBase::mB8 is declared with another signature)
+extern "C" void fn_800F29D0(atn::Model* model, NodeCallback_unk callback);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
 extern "C" void fn_8023A8B4(atn::EffectManager* mgr, atn::EfpFile* efp, atn::Model* model, int arg3,
                             const atn::Vector3& pos, const atn::Vector3& rot, const EffectColor_unk& color, int arg7,
                             int arg8, int arg9, float scale);
@@ -64,6 +77,49 @@ BattleTask* BattleTask::fn_800F13BC(atn::Task* parent) {
         lbl_8087F048 = new ((MemoryTag)1, "", "", 0) BattleTask(parent);
     }
     return lbl_8087F048;
+}
+
+// inferred: setup: waits for the effects and the d2anime tasks, then binds the node callback of the effect
+// models (the nodes follow the character the model is drawn on)
+int BattleTask::vf0C() {
+    int ready = 1;
+    if (fn_800D3FA4() == 0) {
+        ready = 0;
+    }
+    if (fn_800F3490() != 0) {
+        ready = 0;
+    }
+    if (fn_800F3B4C() != 0) {
+        ready = 0;
+    }
+    if (ready != 0) {
+        mCB30->fn_800D246C(0);
+        mCB30->mRepeat = 0;
+        mCB30->FreezeTask();
+        if (mCB60 != 0) {
+            mCB60->fn_800D246C(0);
+            mCB60->mRepeat = 1;
+            mCB60->FreezeTask();
+        }
+        m3E2F4->fn_800D246C(0);
+        m3E2F4->mRepeat = 0;
+        m3E2F4->FreezeTask();
+        for (unsigned int i = 0; i < 8; i++) {
+            atn::Model* model = mSlots[i].mModel.GetModel_unk();
+            if (model->m20C_31_24 == 8) {
+                fn_800F29D0(model, boost::bind(&BetoModel::fn_8010D854, &mSlots[i], _1, _2, _3));
+                model->fn_80091CFC("head");
+                model->fn_80091CFC("lefthand");
+                model->fn_80091CFC("leftleg");
+                model->fn_80091CFC("righthand");
+                model->fn_80091CFC("rightleg");
+                model->fn_80091CFC("spine1");
+                model->fn_80091CFC("waist");
+            }
+        }
+        fn_800D246C(1);
+    }
+    return ready;
 }
 
 // ---- fn_800F72F4: target marker of a character (over the inlining budget: every helper below is called
@@ -1329,4 +1385,26 @@ int BattleTask::fn_8010D7B4(HitInfo_unk* hit) {
         return 1;
     }
     return 0;
+}
+
+BattleTask::BetoModel::BetoModel() : mUsed(0), mModel(0x505), mChara(0) {
+}
+
+// inferred: the node takes the position of the node of the same name of the character, scaled by vf60
+void BattleTask::BetoModel::fn_8010D854(atn::Matrix3x4* mtx, const atn::NodeChunk& chunk,
+                                        const atn::ModelNodeCallbackContext& context) {
+    if (mChara != 0) {
+        float scale = mChara->vf60();
+        MtxPtr node = mChara->mMotion.GetNodeMtx_unk(chunk.mName);
+        if (node != 0) {
+            atn::Vector3 pos = ((atn::Matrix3x4*)node)->GetTrans_unk();
+            mtx->fn_801479E4(pos);
+            atn::Vector3 s(scale, scale, scale);
+            atn::Matrix3x4 r;
+            Mtx m;
+            PSMTXScale(m, s.x, s.y, s.z);
+            PSMTXConcat(mtx->m, m, r.m);
+            *mtx = r;
+        }
+    }
 }
