@@ -18,6 +18,17 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
   mismo nombre global que los de `Em203GreaterDaemonRed` y el enlazador fallaba por duplicados).
 - `atn/EffectDesc_unk`: `EffectRender_unk` pasa a ser `typedef atn::GraphicsDevice_unk` (regla 10: un objeto, un
   tipo); `fn_800763C0` se llama con el prototipo de `atn/GraphicsDevice.h` (casts de las texturas `void*`).
+- `game/CosEditItemList_unk.cpp` (nuevo fuente; entrada nueva en `game_units.json`, `matching: false`): tercer
+  fichero de `CosEditProtector` (0x801D80A0-0x801E7FF8). Estaba en `splits.txt` sin entrada en `game_units.json`;
+  se anade justo despues de `game/CosEditPalette_unk.cpp`. Solo se escriben los metodos de `CosEditProtector`; las
+  copias de `std::sort` y las inlines debiles (`vector::operator[]`, `size`, el ctor de `CosEditItem_unk`) quedan.
+- `CosEditItem_unk` (`include/game/CosEditBase.h`) es la entrada de 0x18 bytes de las listas de equipo
+  (`mItem, mId, mIndex, mOwner, mEnabled, m14`). Los ocho `std::vector` de `CosEditProtector` pasan de
+  `std::vector<int>` a `std::vector<CosEditItem_unk>`: el original solo tiene un ctor/dtor debil de vector
+  (0x801D08D4/0x801D08E8), asi que todos son del mismo tipo; renombrados en `symbols.txt`. Sin ctor por defecto
+  (el original copia la entrada seleccionada sin inicializar el local); `Clear_unk` para las tres asignaciones.
+- `CosEditProtector::fn_801DC42C`, `fn_801DC9A4`, `fn_801DCE88`, `fn_801DCF60`, `fn_801E7098` declarados como
+  miembros (usan `this`) y renombrados al mangled en `symbols.txt` antes de escribirlos.
 - `include/Event/ActionProcessors_unk.h` (nueva): las 49 clases de procesadores de acciones salen de
   `ActionEffectPlay.cpp`, `ActionCameraMode.cpp` y `ActionActorPosition.cpp` (y la nueva `ActionActorBehavior`)
   para que `fn_8054E574`/`fn_8054F380` las creen y borren. Las tres copias locales de `atn::SingletonNoStatic`
@@ -56,6 +67,18 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
 - `!x` de un bit da `cntlzw/srwi`; el original de `EffectDesc fn_80235BF8` usa `x ^ 1` (`xori`).
 - Un inicializador constante de un array local (`float m[2][3] = {...}`) se copia de una plantilla de `.rodata`
   palabra a palabra (lwz/stw); asignar elemento a elemento da `stfs` sueltos.
+- Copia de `Vector3` con registros cruzados en funciones `extern "C"` (que `asgwrap.py` no recorre): a mano con
+  `atn::VecAssign_unk` en `atn/ColliTest_unk` llevo seis funciones al 100 % (`fn_8005454C`, `fn_80051E90`,
+  `fn_800520F0`, `fn_8005256C`, `fn_8005361C`, `fn_8005691C`). Tambien `Vector3 dir; VecAssign_unk(dir, move);`
+  en lugar de `Vector3 dir = move;`.
+- Un inline que devuelve `bool` y no se usa (`if (TurnToCheck_unk()) {}`) no conserva la comparacion muerta que el
+  original deja (`EnemyQuarkFirst::vf108`, caso 2).
+- Una estructura de floats copiada entera (`QuarkCamParam_unk p = field->m588;`) se copia por palabras (`lwz/stw`);
+  el original carga solo los campos que no sobrescribe (`lfs`): se escribe campo a campo.
+- `x > y ? x : y` con una llamada en `x` (MAX) recalcula la expresion: el original de `ItemSlotAnime` divide dos
+  veces (`MAX(rate / (float)n, 1.0f)`).
+- `(list.end() - 1)->m06 = v` tras un `push_back` da la direccion `base + 12 * size - 2` del original; `list[size -
+  1]` calcula el indice.
 - Presupuesto de inline (R3) al limite: escribir las asignaciones de un helper pequeno a mano (12 sentencias propias)
   hace que la funcion vuelva a inlinear todo (`WindyItem::vf10`, 36 -> 89 %).
 
