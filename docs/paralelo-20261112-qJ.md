@@ -73,6 +73,15 @@ Inicio: 18:19 (corte del servidor 18:33-20:16; reanudado 20:16). Rama `agent-J`.
   Quedan `setstate`, el ctor de copia de `std::string` y el thunk del dtor de `basic_ostream` (dependen del inline
   de las funciones de iostream de la unidad, ver las notas del fichero).
 
+## atn/Model
+
+- Funciones al 0 %: 15 -> 14. Escrita `ModelBase::fn_80093158` (mapa de joints de un LOD a los del modelo
+  principal; NONMATCHING 97,9 %, dos desplazamientos y el -1 en registros salvados). `ModelJoint_unk::m10` = nombre
+  (cabecera `atn/ModelPose_unk.h`, mismo layout).
+- `pd.sh atn/Model` renombra `lbl_8087D6E8/EC` (`.sdata` de un hueco `auto_09`) a `@STRING@Resize_unk...`, que
+  ya existen en CharaFaceControl -> el enlace falla (multiply-defined). Revertido a mano; **ojo al pasar `pd` a
+  Model**.
+
 ## Pendientes
 
 - `atn/Motion_unk` `fn_800A2664` (0x2B8): `new variate_generator<mt19937, uniform_real<double> >` con semilla

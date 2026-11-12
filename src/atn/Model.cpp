@@ -1503,6 +1503,57 @@ void ModelBase::fn_8009303C() {
     }
 }
 
+// inferred: index of the joint with the given name hash (-1: none or no data)
+static inline int FindJointIndex_unk(ModelData_unk* res, unsigned int hash) {
+    if (res == 0) {
+        return -1;
+    }
+    for (int j = 0; j < res->m44; j++) {
+        if (hash == res->m48[j]->m14) {
+            return j;
+        }
+    }
+    return -1;
+}
+
+// inferred: maps the joints of a level of detail to the joints of the main model (by name hash; a
+// joint named as the level file maps to the joint named as the main file)
+// NONMATCHING: 97.9% - the original keeps two offsets (joints and map) and the -1 in saved registers
+void ModelBase::fn_80093158(ModelLod_unk* lod) {
+    ModelLod_unk* main = &mLods[0];
+    std::string lodName = fn_8006B174(std::string(lod->mHandle.fn_80473F18()));
+    lodName = std::string(lodName, 0, lodName.find('.'));
+    if (lod != main) {
+        lod->m10.Resize_unk(((Res_unk*)lod->m08)->m44, 6);
+    }
+    std::string mainName = fn_8006B174(std::string(main->mHandle.fn_80473F18()));
+    mainName = std::string(mainName, 0, mainName.find('.'));
+    unsigned int hash = fn_800DC6B4(mainName.c_str());
+    int root = FindJointIndex_unk(GetRes_unk(), hash);
+    for (int i = 0; i < ((Res_unk*)lod->m08)->m44; i++) {
+        ModelJoint_unk* joint = ((Res_unk*)lod->m08)->m48[i];
+        if (lod == main) {
+            continue;
+        }
+        lod->m10.mData[i] = -1;
+        Res_unk* mres = GetRes_unk();
+        for (int j = 0; j < mres->m44; j++) {
+            if (joint->m14 == mres->m48[j]->m14) {
+                lod->m10.mData[i] = j;
+                break;
+            }
+        }
+        if (lod->m10.mData[i] == -1 && lodName.compare(joint->m10) == 0) {
+            lod->m10.mData[i] = root;
+        }
+        if (lod->m10.mData[i] == -1) {
+            char msg[0x100];
+            sprintf(msg, "LOD Node '%s' not found in model %s", joint->m10, mLods[0].mHandle.fn_80473F18());
+            lbl_8087EEB8->fn_800697D8(msg);
+        }
+    }
+}
+
 void Model::fn_8009373C(const char* name, int show) {
     int i = FindNode_unk(this, fn_800DC6B4(name), 0);
     if (i >= 0) {
