@@ -60,9 +60,6 @@ struct DialogConfig_unk {
 
 extern "C" int fn_801237E0(SetConfig* config);
 // inferred: weak copies of another file (the original calls them out of line)
-extern "C" inline atn::RenderManager* fn_8008B964() {
-    return atn::RenderManager::instance_;
-}
 inline atn::Camera* atn::RenderManager::fn_800F7258() {
     return &mCamera;
 }

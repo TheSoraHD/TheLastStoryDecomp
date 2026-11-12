@@ -143,8 +143,12 @@ public:
 
 } // namespace atn
 
-// inferred: the render manager (atn::RenderManager::instance_; defined in atn/Model.cpp)
-extern "C" atn::RenderManager* fn_8008B964();
+// inferred: the getter of the render manager (atn::RenderManager::instance_). Inline: the callers that stay
+// under the inlining budget read instance_ directly; the others call the weak copy 0x8008B964, emitted by
+// atn/Model.cpp after its first use (fn_8008B140).
+extern "C" inline atn::RenderManager* fn_8008B964() {
+    return atn::RenderManager::instance_;
+}
 
 
 #endif

@@ -14,11 +14,6 @@
 #include "gmk/Lemon.h"
 #include "chr/CharaEquip_unk.h"
 
-// inferred: the getter of the render manager is inline here (the callers of the shake read
-// atn::RenderManager::instance_ directly); other files call the weak copy 0x8008B964 of atn/Model.cpp
-extern "C" inline atn::RenderManager* fn_8008B964() {
-    return atn::RenderManager::instance_;
-}
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" RenderSetting_unk* lbl_8087EFA8;

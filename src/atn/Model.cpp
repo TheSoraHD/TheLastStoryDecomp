@@ -463,7 +463,7 @@ int ModelBase::fn_8008B140() {
                     busy = 1;
                 }
             }
-            if (busy || atn::RenderManager::instance_->mPassHeads[1] != 0) {
+            if (busy || fn_8008B964()->mPassHeads[1] != 0) {
                 return 1;
             }
             for (unsigned int i = 0; i < m1E4.mSize; i++) {
@@ -553,10 +553,6 @@ int ModelBase::fn_8008B140() {
 }
 } // namespace atn
 
-// inferred: the render system (atn::RenderManager::instance_); called out of line by GameUI and others
-extern "C" atn::RenderManager* fn_8008B964() {
-    return atn::RenderManager::instance_;
-}
 
 namespace atn {
 
