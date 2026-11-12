@@ -1284,7 +1284,8 @@ void D2AMpMenuLobby::vf14() {
 // inferred: draw of the lobby: the base, the logo of the game mode (texts cleared), and for every player slot
 // the profile, the face mark and the balloons (or the wait mark), with the ok mark in the color of the face
 // once the player is ready
-// NONMATCHING: 97.2% - wide and narrow string offsets; order of the shifts of the color
+// NONMATCHING: 97.5% - registers of the string pools and of the member search (as vf0C); order of the shifts
+// of the color
 void D2AMpMenuLobby::fn_804C0A40() {
     int mode = D2AMpMenu::sInstance->mC4;
     m4C->MeltTask();
@@ -1756,8 +1757,7 @@ int D2AMpMenuLobby::fn_804C2C14() {
 
 // inferred: shows `text` in the balloon of the player `member` (kind 0: first balloon, 1: second one) for
 // frames + 30 frames (90 when no time is given), clearing the old text and opening the balloon
-// NONMATCHING: 90.8% - L"" is in the .sdata until the other wide strings of the file are written (the original
-// pools them in .data); the bounds test of the index
+// NONMATCHING: 98.3% - the bounds test of the index (blt + b in the original); registers
 void D2AMpMenuLobby::fn_804C2D5C(MpLobbyMember_unk* member, const wchar_t* text, int frames, int kind) {
     int index = GetAidIndex_unk(member->mCC);
     if (index < 0) {

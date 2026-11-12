@@ -1,6 +1,6 @@
 # Lote paralelo 2026-11-12, cola K (red del lobby y restos)
 
-Inicio: 2026-11-12 18:25 CET; corte del servidor 18:33-20:16; reanudado 20:16, tope ~22:35.
+Inicio: 2026-11-12 18:25 CET; corte del servidor 18:33-20:16; reanudado 20:16, cierre ~21:40.
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
@@ -28,7 +28,16 @@ Inicio: 2026-11-12 18:25 CET; corte del servidor 18:33-20:16; reanudado 20:16, t
     calcula tras el hash.
   - `fn_804C23E4` (sorteo del mapa) 95,8 %: el relleno de `mE14` sale desenrollado entero (el original 8x2);
     busqueda del miembro.
-- `AI/AI_archer_attack01`, `game/GameEventScript`: no tocadas (sin tiempo).
+- `AI/AI_archer_attack01`, `game/GameEventScript`: no tocadas. Las de AI al 0 % son destructores/busquedas del
+  `std::map` de scripts (arbol MSL, ya con `extern "C"` falsos en el fuente) y las de GameEventScript son copias
+  debiles de `basic_stringstream`/`basic_iostream` (no hay `sstream.h` completo): mejor en un lote propio.
+
+## Pendientes
+
+- Busqueda del miembro (`FindMember_unk`): registros volatiles (desplazamiento/miembro cruzados) en vf0C,
+  fn_804BE610, fn_804BEDB8, fn_804C0A40, fn_804C23E4, fn_804C2C14; probadas 4 variantes (puntero fuera del
+  bucle, indice, `unsigned char aid`, orden de la comparacion) sin cambio o peor.
+- `fn_804BC628`: el id del texto del modo con dos saltos en el original.
 
 Funciones al 100 % nuevas: ninguna. Ninguna unidad pasa a enlazar.
 
