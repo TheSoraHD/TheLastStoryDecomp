@@ -10,6 +10,20 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
 
 ## Decisiones tomadas sin el usuario
 
+- `gmk/WindyItem`: `WindyPath_unk` es la misma clase que `Event::PathSpline_unk` con tres campos mas (mT, m54, m58);
+  se anade `WindyPath_unk::Build_unk` (copia de `PathSpline_unk::Build_unk`) en vez de unificar los tipos (la
+  unificacion tocaria `Eval_unk` y las funciones ya emparejadas). Pendiente para un lote de regla 10.
+- `Em203GreaterDaemonRedMp`: los `@STRING@__allocate__Q23std24vector<14DaemonBolt_unk>FUi` y
+  `...<17DaemonThunder_unk>` de su `.data` pasan a `scope:local` en `symbols.txt` (pairnames los renombro con el
+  mismo nombre global que los de `Em203GreaterDaemonRed` y el enlazador fallaba por duplicados).
+- `atn/EffectDesc_unk`: `EffectRender_unk` pasa a ser `typedef atn::GraphicsDevice_unk` (regla 10: un objeto, un
+  tipo); `fn_800763C0` se llama con el prototipo de `atn/GraphicsDevice.h` (casts de las texturas `void*`).
+- `include/Event/ActionProcessors_unk.h` (nueva): las 49 clases de procesadores de acciones salen de
+  `ActionEffectPlay.cpp`, `ActionCameraMode.cpp` y `ActionActorPosition.cpp` (y la nueva `ActionActorBehavior`)
+  para que `fn_8054E574`/`fn_8054F380` las creen y borren. Las tres copias locales de `atn::SingletonNoStatic`
+  se quitan (se usa `atn/SingletonNoStatic.h`), que gana un destructor vacio (el `delete` conserva su prueba de
+  nulo). `fn_805510F8`/`fn_80551100` = `ActionActorBehavior::vf0C/vf08` (renombrados).
+
 - `game/Em314Ivy`: con vf0C escrita, `fn_803132D0` paso del 100 % de objdiff al 99,95 % por el pool de `.sdata2`
   (REP+); al escribir vf100 el pool vuelve a cuadrar y vuelve al 100 % (PRECOMMIT OK).
 - `PopupTask::fn_8054E528` recibe un segundo argumento que no lee (`gmk::RandomItem` lo pasa en r5): firma

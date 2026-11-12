@@ -6,6 +6,7 @@
 #include "Event/Path.h"
 #include "atn/LH_Xsca.h"
 #include "atn/Color4f_unk.h"
+#include "atn/Model_unk.h"
 #include "game/MapManager.h"
 #include "macros.h"
 #include "atn/SoundManager.h"
@@ -40,6 +41,219 @@ namespace Event {
 // inferred: camera of the section of an action
 inline EventCamera_unk* GetCamera_unk(ActionOwner_unk* section) {
     return &lbl_8087F540->mCameras[section->m10];
+}
+
+// inferred: lookup of a path by id (as in Event/ActionActorPosition.cpp)
+inline Path* EventManager_unk::FindPath_unk(int id) {
+    for (int i = 0; i < (int)m154.size(); i++) {
+        Path* path = &m154[(unsigned int)i];
+        if (id == path->m14) {
+            return path;
+        }
+    }
+    return 0;
+}
+
+} // namespace Event
+
+extern "C" atn::Vector3 fn_800112E0(Event::Actor* actor); // inferred: front of an actor (Event/Puppeteer_CharaTask.cpp)
+
+namespace Event {
+
+// inferred: sets the camera of the section (phase 0, modes 0-5: eye and target on actors, orbit, look at,
+// free, two paths and along a path), releases its curves (phases 3 and 4) and holds the kind 6 actors
+// (phase 6). Names invented. The offsets of the actors of kind 6 are converted by the sequence.
+// NONMATCHING: 91.3% - saved registers (the original keeps arg in r31), stack slots of the offsets, and
+// the original passes the two shorts of fn_80112918 without extsh
+int ActionCameraMode::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int mode = arg->GetParam_unk(0)->m04.i;
+        int a = arg->GetParam_unk(1)->m04.i;
+        int b = arg->GetParam_unk(2)->m04.i;
+        EventCamera_unk* camera = GetCamera_unk(section);
+        camera->fn_80112918(a, arg->m18, b);
+        if (mode != 1) {
+            lbl_8087F540->fn_80481818();
+        }
+        if (mode == 0) {
+            Actor* eyeActor = manager->FindActor_unk(arg->GetParam_unk(3)->m04.i);
+            int eyeNode = arg->GetParam_unk(4)->m04.i;
+            atn::Vector3 eyeOffset;
+            eyeOffset.x = arg->GetParam_unk(5)->m04.f;
+            eyeOffset.y = arg->GetParam_unk(6)->m04.f;
+            eyeOffset.z = arg->GetParam_unk(7)->m04.f;
+            if (eyeActor->m20 == 6) {
+                eyeOffset = manager->fn_80541BD8(eyeOffset);
+            }
+            Actor* atActor = manager->FindActor_unk(arg->GetParam_unk(8)->m04.i);
+            int atNode = arg->GetParam_unk(9)->m04.i;
+            atn::Vector3 atOffset;
+            atOffset.x = arg->GetParam_unk(10)->m04.f;
+            atOffset.y = arg->GetParam_unk(11)->m04.f;
+            atOffset.z = arg->GetParam_unk(12)->m04.f;
+            if (atActor->m20 == 6) {
+                atOffset = manager->fn_80541BD8(atOffset);
+            }
+            float roll = 0.017453292f * arg->GetParam_unk(13)->m04.f;
+            int reset = arg->GetParam_unk(14)->m04.i;
+            int id = arg->GetParam_unk(15)->m04.i;
+            CameraTarget_unk eye(eyeActor, eyeOffset);
+            eye.mNode = eyeNode;
+            CameraTarget_unk at(atActor, atOffset);
+            at.mNode = atNode;
+            camera->fn_80112F5C(eye, at, reset == 0, arg->m18 > 0, id, roll);
+        } else if (mode == 1) {
+            Actor* eyeActor = manager->FindActor_unk(arg->GetParam_unk(3)->m04.i);
+            int eyeNode = arg->GetParam_unk(4)->m04.i;
+            atn::Vector3 offset;
+            offset.x = arg->GetParam_unk(5)->m04.f;
+            offset.y = arg->GetParam_unk(6)->m04.f;
+            offset.z = arg->GetParam_unk(7)->m04.f;
+            if (eyeActor->m20 == 6) {
+                offset = manager->fn_80541BD8(offset);
+            }
+            float yaw = 0.017453292f * arg->GetParam_unk(8)->m04.f;
+            float pitch = 0.017453292f * arg->GetParam_unk(9)->m04.f;
+            int keep = arg->GetParam_unk(10)->m04.i;
+            int reset = arg->GetParam_unk(12)->m04.i;
+            int head = arg->GetParam_unk(13)->m04.i;
+            CameraTarget_unk eye(eyeActor, offset);
+            eye.mNode = eyeNode;
+            camera->fn_8011375C(eye, reset == 0, yaw, pitch, 0.035f);
+            camera->m640 = head;
+            if (head != 0) {
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                atn::Model* model = eyeActor->fn_8001296C();
+                atn::Matrix3x4 m(*(atn::Matrix3x4*)model->GetNodeMtx_unk("head"));
+                m.m[0][3] = 0.0f;
+                m.m[1][3] = 0.0f;
+                m.m[2][3] = 0.0f;
+                PSMTXMultVec(m.m, &dir, &dir);
+                camera->m274 = dir;
+            } else {
+                camera->m274 = fn_800112E0(eyeActor);
+            }
+            if (keep == 0) {
+                lbl_8087F540->fn_804816F4();
+            }
+        } else if (mode == 2) {
+            Actor* atActor = manager->FindActor_unk(arg->GetParam_unk(3)->m04.i);
+            int atNode = arg->GetParam_unk(4)->m04.i;
+            atn::Vector3 offset;
+            offset.x = arg->GetParam_unk(5)->m04.f;
+            offset.y = arg->GetParam_unk(6)->m04.f;
+            offset.z = arg->GetParam_unk(7)->m04.f;
+            if (atActor->m20 == 6) {
+                offset = manager->fn_80541BD8(offset);
+            }
+            float roll = 0.017453292f * arg->GetParam_unk(8)->m04.f;
+            float dist = arg->GetParam_unk(9)->m04.f;
+            if (dist < 0.01f) {
+                dist = 0.01f;
+            }
+            int reset = arg->GetParam_unk(10)->m04.i;
+            CameraTarget_unk at(atActor, offset);
+            at.mNode = atNode;
+            camera->fn_801139E4(at, reset == 0, dist, roll);
+        } else if (mode == 3) {
+            camera->fn_801129B4();
+        } else if (mode == 4) {
+            Path* eyePath = manager->FindPath_unk(arg->GetParam_unk(3)->m04.i);
+            if (eyePath == 0) {
+                break;
+            }
+            Path* atPath = manager->FindPath_unk(arg->GetParam_unk(4)->m04.i);
+            if (atPath == 0) {
+                break;
+            }
+            Actor* atActor = manager->FindActor_unk(arg->GetParam_unk(5)->m04.i);
+            int atNode = arg->GetParam_unk(6)->m04.i;
+            atn::Vector3 offset;
+            offset.x = arg->GetParam_unk(7)->m04.f;
+            offset.y = arg->GetParam_unk(8)->m04.f;
+            offset.z = arg->GetParam_unk(9)->m04.f;
+            if (atActor->m20 == 6) {
+                offset = manager->fn_80541BD8(offset);
+            }
+            float roll = 0.017453292f * arg->GetParam_unk(10)->m04.f;
+            int id = arg->GetParam_unk(11)->m04.i;
+            int reset = arg->GetParam_unk(12)->m04.i;
+            CameraTarget_unk eye;
+            eye.mPath = eyePath;
+            CameraTarget_unk at(atActor, offset);
+            at.mNode = atNode;
+            at.mPath = atPath;
+            camera->fn_80113CD4(eye, at, id, reset == 0, roll);
+        } else if (mode == 5) {
+            Path* path = manager->FindPath_unk(arg->GetParam_unk(3)->m04.i);
+            if (path == 0) {
+                break;
+            }
+            Path* atPath = manager->FindPath_unk(arg->GetParam_unk(4)->m04.i);
+            if (atPath == 0) {
+                break;
+            }
+            Actor* atActor = manager->FindActor_unk(arg->GetParam_unk(5)->m04.i);
+            int atNode = arg->GetParam_unk(6)->m04.i;
+            atn::Vector3 offset;
+            offset.x = arg->GetParam_unk(7)->m04.f;
+            offset.y = arg->GetParam_unk(8)->m04.f;
+            offset.z = arg->GetParam_unk(9)->m04.f;
+            if (atActor->m20 == 6) {
+                offset = manager->fn_80541BD8(offset);
+            }
+            float roll = 0.017453292f * arg->GetParam_unk(10)->m04.f;
+            int id = arg->GetParam_unk(11)->m04.i;
+            float speed = arg->GetParam_unk(12)->m04.f / (float)(arg->m14 - arg->m10);
+            float t = arg->GetParam_unk(13)->m04.f;
+            int reset = arg->GetParam_unk(14)->m04.i;
+            CameraTarget_unk at(atActor, offset);
+            at.mNode = atNode;
+            at.mPath = atPath;
+            camera->fn_801140A0(path, at, id, reset == 0, speed, t, roll);
+        }
+        break;
+    }
+    case 3:
+    case 4: {
+        EventCamera_unk* camera = GetCamera_unk(arg->fn_805381A0());
+        lbl_8087F540->fn_8048C884(camera->m28C);
+        int mode = arg->GetParam_unk(0)->m04.i;
+        if (mode == 1) {
+            if (arg->GetParam_unk(11)->m04.i == 0) {
+                lbl_8087F540->fn_804817D4();
+            }
+        } else if (mode == 0 || mode == 4 || mode == 5) {
+            lbl_8087F540->fn_8048BD64(camera->m290);
+        }
+        break;
+    }
+    case 6: {
+        EventManager_unk* manager = arg->fn_805381C8();
+        int mode = arg->GetParam_unk(0)->m04.i;
+        if (mode == 0) {
+            if (manager->FindActor_unk(arg->GetParam_unk(3)->m04.i)->m20 == 6) {
+                arg->fn_80538DC4(5);
+            }
+            if (manager->FindActor_unk(arg->GetParam_unk(8)->m04.i)->m20 == 6) {
+                arg->fn_80538DC4(10);
+            }
+        } else if (mode == 1) {
+            if (manager->FindActor_unk(arg->GetParam_unk(3)->m04.i)->m20 == 6) {
+                arg->fn_80538DC4(5);
+            }
+        } else if (mode == 2) {
+            if (manager->FindActor_unk(arg->GetParam_unk(3)->m04.i)->m20 == 6) {
+                arg->fn_80538DC4(5);
+            }
+        }
+        break;
+    }
+    }
+    return 0;
 }
 
 // inferred: screen effect of the camera mode action (fade/flash: kind, two times and an ARGB color)
