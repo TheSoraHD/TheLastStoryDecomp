@@ -132,6 +132,8 @@ public:
                      float fovy, float t);
     void fn_8038E540(const CharaTask* chara, GameCameraParam_unk* param, atn::Vector3* pos, atn::Vector3* target,
                      const atn::Vector3* charaPos); // inferred: collision of the eye
+    // inferred: pushes the eye out of the walls around the character (0x8038E23C; uses m7FC, m89C)
+    void fn_8038E23C(const CharaTask*, GameCameraParam_unk*, atn::Vector3*);
     void fn_803918EC(); // inferred: ambient sway of the camera (xsca of the map)
     void fn_803920C8();
     void fn_80392510();
