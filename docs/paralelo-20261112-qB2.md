@@ -11,6 +11,11 @@ Inicio: 2026-11-12 21:50 CET (tope 23:35).
   33 % -> 99,5 % y `RenderSetting_unk::ResetPostFx_unk` (0x8052B7F8) se emite: 96,6 %; al 100 % nuevas las
   copias debiles `fn_8052B7F0`, `ResHandle::Load` (0x8052BC90), `vector<NewCampElem_unk>::operator[]`/`size`.
 
+- `game/NewCampPartsMapSelect`: 1 -> 0. `vf14` (0x8051D864, dibujo del mapa, 5 KB) escrita: 92,4 %. Declarada
+  `virtual void vf14()` en `NewCampPartsMapSelect.h` (la vtable apuntaba a la de la base); simbolo
+  `fn_8051D864` -> `vf14__21NewCampPartsMapSelectFv`. Tabla `sBackRanges_unk` (lbl_8075BE80, rangos de los
+  tableros de fondo) definida en el fuente. El `.sdata2` de la unidad queda identico al original.
+
 ## NONMATCHING
 
 - `fn_8052CA6C` 77,6 %, `fn_8052E1A0` 71 %, `fn_8052FA44` 73 %: el `atn::Scene::operator=` implicito pasa el
@@ -21,6 +26,20 @@ Inicio: 2026-11-12 21:50 CET (tope 23:35).
 - `vf0C` 99,5 %: registros del grupo del menu de depuracion (r27/r28); probado declarar `sub` antes: igual.
 - `ResetPostFx_unk` 96,6 %: registros de las constantes del Dof.
 
+- `NewCampPartsMapSelect::vf14` 92,4 %: registros y orden de los temporales de las matrices
+  (`SetEntryScale_unk`, `MoveEntry_unk`) y del offset de la camara. En la unidad faltan cinco cadenas `""` del
+  original en `@stringBase0` (0x1EB, 0x1FC, 0x210-0x212, tras "map_board01_%04d"/"map_board01.d2a"/
+  "map_be010_001_%04d": aqui se fusionan): desplazan 5 bytes las cadenas siguientes (vf10, vf48...).
+
+## Parche de `MslSort_unk.h` (agente A2)
+
+Probado `/home/claude/scratch-A2/MslSort_unk-fix.patch` (sOffset = -4, `n3` aparte, rama `i == first` con
+`j = last; --j`): sube NewCampPartsItem (dos sorts 94,9 -> 100 %, medianas 91,5 -> 94,4 %), CosEditItemList_unk
+(sorts con predicado inline 88,3 -> 89,9 %, 94,2 -> 95,6 %) y Event/Node (72,8 -> 78,4 %); GameUI igual. Pero
+bajan los cuatro sorts de CosEditItemList_unk con predicado fuera de linea (2,89 -> 0 %, ya completamente
+distintos: R3). Por la condicion del integrador (ninguna bajada) **no se aplica**; recomendable aplicarlo en la
+integracion aceptando esa bajada cosmetica.
+
 ## Decisiones tomadas sin el usuario
 
 - `symbols.txt`: renombrados `fn_8052BC90` -> `Load__9ResHandleFPCc`, `fn_8052BCE4` ->
@@ -28,6 +47,9 @@ Inicio: 2026-11-12 21:50 CET (tope 23:35).
   dos etiquetas de `.sdata2` de NewCampTask que `pd.sh` no renumero (`@16438` -> `@17601`, `@16623` -> `@17786`).
 - El color de borrado de `NewCampView_unk` (0x238) se lee con un cast `*(RsColor_unk*)m238`: con un miembro
   `RsColor_unk` el constructor de NewCampView_unk bajaba (llama al constructor de RsColor_unk).
+
+- `symbols.txt`: `@14042`/`@14384` de NewCampPartsMapSelect renombradas a mano a `@15196`/`@15538` (pd.sh no
+  las renumero).
 
 ## Hallazgos
 
