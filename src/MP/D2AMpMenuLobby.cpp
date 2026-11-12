@@ -9,6 +9,11 @@
 #include "MP/D2AMpMenuMessageList.h"
 #include "MP/D2AMpMenu.h"
 
+// inferred: hash of the "CustomData" pane (as in MP/D2AMpMenu.cpp; read by functions not written yet); its
+// initializer is the __sinit of the file (0x804C2FC8)
+extern "C" unsigned int fn_800DC6B4(const char* s);
+static const unsigned int sCustomData = fn_800DC6B4("CustomData");
+
 // inferred: player information returned by fn_804EB870 (local player); only the member used here
 struct MpLobbyPlayerInfo_unk {
     unsigned char m00[0xB0];
