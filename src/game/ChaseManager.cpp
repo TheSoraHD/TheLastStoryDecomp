@@ -9,6 +9,7 @@
 #include "game/ChaserGuard.h"
 #include "atn/RenderManager.h"
 #include "game/TownTask.h"
+#include "game/MiniMapTask.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 struct ChaseEffectMgr_unk;
@@ -46,12 +47,6 @@ struct ChaseField_unk {
     int m5660;
 };
 extern "C" ChaseField_unk* lbl_8087F430;
-struct ChaseColor_unk {
-    ChaseColor_unk(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    float r, g, b, a;
-};
-extern "C" int fn_804AABA8(void* minimap, const atn::Vector3* pos, const ChaseColor_unk* color, float scale);
-extern "C" void fn_804AAD54(void* minimap, int marker);
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 
 ChaseManager* lbl_8087F098;
@@ -65,9 +60,10 @@ inline CharaTask* GetPlayer_unk() {
 }
 
 // inferred: minimap of the town (name invented)
-inline void* GetMiniMap_unk() {
+// inferred: TownTask::m258 is the MiniMapTask (fn_804AABA8, fn_804AAD54 are its methods)
+inline MiniMapTask* GetMiniMap_unk() {
     if (lbl_8087FA20 != 0) {
-        return lbl_8087FA20->m258;
+        return (MiniMapTask*)lbl_8087FA20->m258;
     }
     return 0;
 }
@@ -338,19 +334,17 @@ void ChaseManager::fn_80183588(int id) {
 }
 
 inline void ChaseManager::RemoveMarker_unk() {
-    void* minimap = GetMiniMap_unk();
+    MiniMapTask* minimap = GetMiniMap_unk();
     if (minimap != 0 && mMarker >= 0) {
-        fn_804AAD54(minimap, mMarker);
+        minimap->fn_804AAD54(mMarker);
     }
     mMarker = -1;
 }
 
 inline void ChaseManager::AddMarker_unk() {
-    void* minimap = GetMiniMap_unk();
+    MiniMapTask* minimap = GetMiniMap_unk();
     if (minimap != 0 && mGoalId > 0) {
-        atn::Vector3 pos = mGoal;
-        ChaseColor_unk color(1.0f, 0.7843138f, 0.0f, 1.0f);
-        mMarker = fn_804AABA8(minimap, &pos, &color, 1.0f);
+        mMarker = minimap->fn_804AABA8(mGoal, atn::Color(1.0f, 0.7843138f, 0.0f, 1.0f), 1.0f);
     }
 }
 

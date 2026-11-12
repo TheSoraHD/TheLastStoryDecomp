@@ -1,4 +1,5 @@
 #include "game/MiniMapTask.h"
+#include "game/CharaTask.h"
 
 #include "atn/Memory.h"
 #include "atn/RenderManager.h"
@@ -8,6 +9,13 @@
 #include "atn/Material_unk.h"
 #include "atn/DrawCommand_unk.h"
 #include "atn/GXDecl.h"
+#include "atn/Csv.h"
+#include "string.h"
+#include "atn/D2A_Task.h"
+#include "atn/DrawHelper.h"
+#include "game/GameTask.h"
+#include "game/CharaManager.h"
+#include "game/PlayerTask.h"
 
 extern "C" MiniMapTask* fn_804A7EA4(atn::Task* parent, const char* path) {
     if (parent != 0) {
@@ -18,8 +26,7 @@ extern "C" MiniMapTask* fn_804A7EA4(atn::Task* parent, const char* path) {
 
 // NONMATCHING: 21.93% - resource setup and record initialization are incomplete.
 MiniMapTask::MiniMapTask(atn::Task* parent, const char* path)
-    : atn::Task(parent), m4C(1), m50(), m58(), m208(0x00A00001, 0x20), m640(0, 0), m834(-1), m838(-1),
-      m83C(), m860(), m15C4(), m15F4(), m160C(0) {
+    : atn::Task(parent), m4C(1), m50(), m58(), m208(0x00A00001, 0x20), m640(0, 0), m15C4(), m160C(0) {
     m50.vf0C(path);
 }
 
@@ -50,6 +57,190 @@ extern "C" void fn_804A893C(unsigned int* object, unsigned int flags) {
 // NONMATCHING: 0.07% - target performs the main minimap draw/update pass.
 void MiniMapTask::vf14() {}
 
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
+inline atn::GraphicsDevice_unk* GetGraphics_unk() {
+    return lbl_8087EEE0;
+}
+extern "C" GameTask* lbl_8087F430;
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
+inline void atn::D2A_Task::SetLayoutValue_unk(const char* name, float value) {
+    fn_801FECE0(&mData.m10, fn_800DC6B4(name), value);
+}
+
+// inferred: position of a point of the map on the screen (x and z of the map, 52 / m5FC pixels per unit)
+inline atn::Vector3 MiniMapToScreen_unk(const atn::Vector3& p, float sx, float scale) {
+    atn::Vector3 d((p.x + -50.0f) * sx * scale, 0.0f * scale, (p.z + 70.0f) * scale);
+    return atn::Vector3(0.5f * GetGraphics_unk()->GetWidth_unk() + d.x, d.y,
+                        0.5f * GetGraphics_unk()->GetHeight_unk() + d.z);
+}
+
+// NONMATCHING: 82% - stack layout (the original keeps the leader position at 0x1c and has fewer
+// temporaries) and order of the float operations; tried the frame shown before/after the conversion
+// inferred: places the frame of the minimap (position of the leader on the map, turned with it) and draws
+// the active markers (a point of the size m63C in the colour m620 under each, then the marker in its colour
+// through the mask textures)
+void MiniMapTask::fn_804A9EB4() {
+    float scale = 52.0f / m5FC;
+    float aspect = fn_80076FF8(GetGraphics_unk());
+    float sx = 1.0f / (aspect / ((float)GetGraphics_unk()->GetWidth_unk() / (float)GetGraphics_unk()->GetHeight_unk()));
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    atn::Vector3 pos = leader->mPos;
+    pos = MiniMapToScreen_unk(pos, sx, scale);
+    m5D8->MeltTask();
+    float base[5];
+    base[0] = pos.x;
+    base[1] = pos.z;
+    base[2] = 1.0f;
+    base[3] = 1.0f;
+    base[4] = 10.0f;
+    fn_801F4728(m5D8, "basePos", base);
+    float rot = leader->mRot.y - 3.1415927f;
+    m5D8->SetLayoutValue_unk("rot01", 57.295776f * -rot);
+    m5D8->SetLayoutValue_unk("rot02", 57.295776f * -rot);
+    m5D8->SetLayoutValue_unk("rot03", 57.295776f * -rot);
+    for (unsigned int i = 0; i < 64; i++) {
+        MiniMapMarker_unk* m = &mMarkers[i];
+        if (m->m00 != 1) {
+            continue;
+        }
+        if (m->m04 != -1 && !lbl_8087F430->fn_80370174(m->m04)) {
+            continue;
+        }
+        atn::Vector3 screen = MiniMapToScreen_unk(m->mPos, sx, scale);
+        lbl_8087EEB0->fn_8005E3E4(m620.ToU32(), &m58[7], screen.x - 0.5f * m63C * m->mScale,
+                                  screen.z - 0.5f * m63C * m->mScale, 10.0f, m63C * m->mScale, m63C * m->mScale,
+                                  0.0f, 0.0f, 1.0f, 1.0f, 1, 1);
+        lbl_8087EEB0->fn_8005E7F4(m->mColor.ToU32(), &m58[2], &m58[5], screen.x - 0.5f * m638 * m->mScale,
+                                  screen.z - 0.5f * m638 * m->mScale, 10.0f, m638 * m->mScale, m638 * m->mScale,
+                                  0.0f, 0.0f, 1.0f, 1.0f);
+    }
+    atn::RenderManager::instance_->AddRender(this, 2, 0.0f);
+    atn::RenderManager::instance_->AddRender(this, 16, 0.0f);
+}
+
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+extern "C" int fn_800DC12C(const char* s);   // inferred: string to int
+
+// NONMATCHING: 99.67% - register order of the constants kept over the loop (1 in r26, 0 in r29 and the
+// stack addresses in the original); tried the size in a local, the marker as an index or a pointer
+// inferred: reads the csv of the minimap: markers ("LOCATION"), radar, point, arrow, off areas, lower layer
+void MiniMapTask::fn_804AA490() {
+    atn::Csv csv((const char*)m50.fn_80470580(), m50.fn_8047059C());
+    do {
+        const char* name = csv.fn_8005B9CC();
+        if (strcmp(name, "LOCATION") == 0) {
+            csv.fn_8005B9CC();
+            float x = fn_800DC288(csv.fn_8005B9CC());
+            float y = fn_800DC288(csv.fn_8005B9CC());
+            float z = fn_800DC288(csv.fn_8005B9CC());
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            float a = fn_800DC288(csv.fn_8005B9CC());
+            int marker = fn_804AABA8(atn::Vector3(x, y, z), atn::Color(r, g, b, a), 1.0f);
+            mMarkers[marker].m24 = 0;
+            const char* id = csv.fn_8005B9CC();
+            if (strcmp(id, "") != 0) {
+                mMarkers[marker].m04 = fn_800DC12C(id);
+            }
+        } else if (strcmp(name, "RADAR") == 0) {
+            m5FC = fn_800DC288(csv.fn_8005B9CC());
+            m5DC = fn_800DC288(csv.fn_8005B9CC());
+            m5E0 = fn_800DC288(csv.fn_8005B9CC());
+            m5E4 = fn_800DC288(csv.fn_8005B9CC());
+            m5E8 = fn_800DC288(csv.fn_8005B9CC());
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            float a = fn_800DC288(csv.fn_8005B9CC());
+            m600 = atn::Color(r, g, b, a);
+            m5EC = fn_800DC288(csv.fn_8005B9CC());
+            m5F0 = fn_800DC288(csv.fn_8005B9CC());
+            m5F4 = fn_800DC288(csv.fn_8005B9CC());
+            m5F8 = fn_800DC288(csv.fn_8005B9CC());
+        } else if (strcmp(name, "POINT") == 0) {
+            m638 = fn_800DC288(csv.fn_8005B9CC());
+            m63C = fn_800DC288(csv.fn_8005B9CC());
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            float a = fn_800DC288(csv.fn_8005B9CC());
+            m620 = atn::Color(r, g, b, a);
+        } else if (strcmp(name, "ARROW") == 0) {
+            m630 = fn_800DC288(csv.fn_8005B9CC());
+            m634 = fn_800DC288(csv.fn_8005B9CC());
+            float r = fn_800DC288(csv.fn_8005B9CC());
+            float g = fn_800DC288(csv.fn_8005B9CC());
+            float b = fn_800DC288(csv.fn_8005B9CC());
+            float a = fn_800DC288(csv.fn_8005B9CC());
+            m610 = atn::Color(r, g, b, a);
+        } else if (strcmp(name, "OFF_AREA") == 0) {
+            MiniMapArea_unk area;
+            area.mMin.x = fn_800DC288(csv.fn_8005B9CC());
+            area.mMin.y = fn_800DC288(csv.fn_8005B9CC());
+            area.mMax.x = fn_800DC288(csv.fn_8005B9CC());
+            area.mMax.y = fn_800DC288(csv.fn_8005B9CC());
+            m1538.PushBack_unk(area);
+        } else if (strcmp(name, "LOWER_LAYER") == 0) {
+            m15F4 = fn_800DC288(csv.fn_8005B9CC());
+            m15F8 = fn_800DC288(csv.fn_8005B9CC());
+            m15FC = fn_800DC288(csv.fn_8005B9CC());
+            m1600 = fn_800DC288(csv.fn_8005B9CC());
+            m1604 = fn_800DC288(csv.fn_8005B9CC());
+            m1608 = 1.0f;
+        }
+    } while (csv.fn_8005BBF8() != 0);
+}
+
+int MiniMapTask::fn_804AABA8(atn::Vector3 pos, atn::Color color, float scale) {
+    int found = -1;
+    for (int i = 0; i < 64; i++) {
+        if (mMarkers[i].m00 == -1) {
+            found = i;
+            break;
+        }
+    }
+    if (found != -1) {
+        mMarkers[found] = MiniMapMarker_unk(pos, color, scale);
+    }
+    return found;
+}
+
+void MiniMapTask::fn_804AAD54(int marker) {
+    mMarkers[marker].m00 = -1;
+}
+
+// NONMATCHING: 99.58% - registers of the inlined fn_804AABA8 (r8/r9/r11 for the argument copy and the
+// constants); tried push_back with the capacity check, operator[] in the search loop
+void MiniMapTask::fn_804AAD68(CharaTask* chara, const atn::Color* color) {
+    if (chara == 0) {
+        return;
+    }
+    for (unsigned int i = 0; i < mCharaMarks.mCount; i++) {
+        if (mCharaMarks.mData[i].mChara == chara) {
+            return;
+        }
+    }
+    int marker = fn_804AABA8(chara->mPos, *color, 1.0f);
+    if (marker != -1 && !mCharaMarks.full()) {
+        mCharaMarks.PushBack_unk(MiniMapCharaMark_unk(chara, marker));
+        mMarkers[marker].m24 = 0;
+    }
+}
+
+void MiniMapTask::fn_804AAFCC(CharaTask* chara) {
+    for (MiniMapCharaMark_unk* it = mCharaMarks.begin(); it != mCharaMarks.end(); it++) {
+        if (it->mChara == chara) {
+            fn_804AAD54(it->mMarker);
+            mCharaMarks.erase(it);
+            return;
+        }
+    }
+}
+
 // NONMATCHING: 0.22% - target builds and submits minimap render data.
 void MiniMapTask::vf18(atn::RenderManager* view) {
     (void)view;
@@ -57,14 +248,9 @@ void MiniMapTask::vf18(atn::RenderManager* view) {
 
 
 // ---- fn_804ABF84: draw of the minimap (over the inlining budget: the accessors are weak copies) ----
-extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0;
-extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: screen aspect ratio
 extern "C" void fn_80076760(atn::GraphicsDevice_unk* device, int state, int value);
 extern "C" void fn_80075DEC(atn::GraphicsDevice_unk* device); // inferred: restores the viewport
 // inferred: accessors (inline: weak copies, some of other files)
-inline atn::GraphicsDevice_unk* GetGraphics_unk() {
-    return lbl_8087EEE0;
-}
 extern "C" inline void fn_804A9E4C(atn::Camera* camera, int projType) {
     camera->mProjType = projType;
 }

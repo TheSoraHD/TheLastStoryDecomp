@@ -181,7 +181,7 @@ struct CharaInfo_unk {
     const char* m20; // inferred: extension file name
     int m24;         // inferred: kind (2 and 3 revive as skeletons, CharaTask::fn_8015EFAC)
     int m28;         // inferred: passed to fn_8021FC00
-    int m2C;         // inferred: face pattern index (MP/D2AMpMenuLobby fn_804C18A8)
+    int m2C;         // inferred: face pattern index, 1-26 for the characters shown in the HUD windows (MP/D2AMpMenuLobby fn_804C18A8, GameUI::fn_803DF648)
 };
 
 // inferred: object at CharaTask+0xC58 (constructor 0x8011BD14 called out of line; class unknown)
