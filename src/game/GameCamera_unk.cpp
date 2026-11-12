@@ -199,6 +199,46 @@ extern "C" inline float fn_80385B40(atn::Camera* camera) {
     return camera->mDist;
 }
 
+// inferred: update of the side camera mode (see fn_8038BD78): the target follows the target of the character
+// (10 further in front while it is in control 14 of state 6), the eye stays beside it out of the walls; with
+// the debug option m28C, button 7 gives the default camera
+// NONMATCHING: 99.3% - stack slots of the halfway point and of the front vector
+void GameCamera::fn_80387548(const CharaTask* chara) {
+    if (lbl_8087F0A8->m28C != 0 && lbl_8087F0A8->mInput.fn_801240B4(7)) {
+        fn_8037F9AC(chara);
+        return;
+    }
+    m808++;
+    atn::Vector3 pos = mPos;
+    atn::Vector3 target = mTarget;
+    atn::Vector3 up = mUp;
+    atn::Vector3 point = chara->mF6C;
+    if (lbl_8087F0A8->m040 == 0) {
+        point = (chara->mF6C + chara->mPos) * 0.5f;
+    }
+    if (chara->m55C == 6 && chara->m560 == 14) {
+        atn::Vector3 front(0.0f, 0.0f, 1.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', chara->mRot.y);
+        PSMTXMultVec(m, &front, &front);
+        point += front * 10.0f;
+    }
+    target += (point - target) * m664;
+    atn::Vector3 dir = target - chara->mPos;
+    PSVECNormalize(&dir, &dir);
+    pos = chara->mPos + dir * m65C;
+    pos.y += m658;
+    float side = m654;
+    atn::Vector3 cross;
+    PSVECCrossProduct(&dir, &up, &cross);
+    pos += cross * side;
+    fn_8038E540(chara, &m648, &pos, &target, &chara->mPos);
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8004B378();
+    fn_80392964(0, 1, 0, 0);
+}
+
 // DRAFT: not checked against the original (draft without a description)
 // NONMATCHING: draft
 void GameCamera::fn_80387910(const CharaTask* chara) {

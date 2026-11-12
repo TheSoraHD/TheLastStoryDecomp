@@ -195,7 +195,9 @@ public:
     float m654;            // inferred: side offset of the side mode
     float m658;            // inferred: height of its position
     float m65C;            // inferred: distance of its position behind the character
-    unsigned char m660[0x684 - 0x660];
+    unsigned char m660[0x664 - 0x660];
+    float m664;            // inferred: speed the side mode follows its target with
+    unsigned char m668[0x684 - 0x668];
     GameCameraParam_unk m684;
     unsigned char m6C0[0x73C - 0x6C0];
     float m73C;          // inferred: fovy of the box camera mode (fn_80388A88)
