@@ -961,7 +961,7 @@ inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditRobeLess_unk
 // inferred: builds the lists of the two protector slots for the member: the pieces worn by the party
 // (enabled when both can swap them), then the free pieces of the inventory that the member can wear
 // (one entry per item, after the worn copies of the same piece); finally sorts them
-// NONMATCHING: 81% - the original is over the inlining budget (R3: vector/FixedArray accessors, the
+// NONMATCHING: 83.5% - the original is over the inlining budget (R3: vector/FixedArray accessors, the
 // CosEditItem_unk constructor 0x801D8C90, begin/end called out of line); the std::sort templates are not
 // reconstructed
 void CosEditProtector::fn_801DD26C(int member) {
@@ -969,13 +969,13 @@ void CosEditProtector::fn_801DD26C(int member) {
     for (int i = 0; i < 2; i++) {
         mB34[i].clear();
     }
-    Inventory::Equip_unk* equip = &Inventory::Order()->mEquip[member];
+    Inventory::Equip_unk* equip = Inventory::Order()->GetEquip_unk(member);
     if (Inventory::Order() != 0) {
         for (int slot = 0; slot < 2; slot++) {
             void* cur = fn_801CFAA8(member, slot);
             for (int j = 0; j < (int)((NewCampTask*)m48)->m1224.size(); j++) {
                 NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[j];
-                Inventory::Equip_unk* other = &Inventory::Order()->mEquip[pair->mId];
+                Inventory::Equip_unk* other = Inventory::Order()->GetEquip_unk(pair->mId);
                 int chara = fn_80219544(pair->mId);
                 EquipParamEntry_unk* entry = fn_8020ED84(slot, other->mProtectors[slot].mId);
                 CosEditItem_unk item;
@@ -1111,6 +1111,114 @@ bool CosEditEquipLess_unk::operator()(const CosEditItem_unk& a, const CosEditIte
         }
     }
     return wcscmp(na->mName, nb->mName) < 0;
+}
+
+extern "C" bool fn_80206B9C(int code);                 // inferred: whether an item code is a weapon
+extern "C" int fn_8044453C(Inventory* inv, int index); // inferred: number of items of an entry of the item table
+// inferred: predicates of the three std::sort of the weapon list
+struct CosEditWeaponKindLess_unk {};
+struct CosEditWeaponArmourLess_unk {};
+struct CosEditWeaponRobeLess_unk {};
+extern "C" void fn_801E4E64(CosEditItem_unk** first, CosEditItem_unk** last, CosEditWeaponKindLess_unk* comp);
+extern "C" void fn_801E2D78(CosEditItem_unk** first, CosEditItem_unk** last, CosEditWeaponArmourLess_unk* comp);
+extern "C" void fn_801E0B0C(CosEditItem_unk** first, CosEditItem_unk** last, CosEditWeaponRobeLess_unk* comp);
+inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditWeaponKindLess_unk comp) {
+    CosEditItem_unk* last = list.end();
+    CosEditItem_unk* first = list.begin();
+    fn_801E4E64(&first, &last, &comp);
+}
+inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditWeaponArmourLess_unk comp) {
+    CosEditItem_unk* last = list.end();
+    CosEditItem_unk* first = list.begin();
+    fn_801E2D78(&first, &last, &comp);
+}
+inline void SortList_unk(std::vector<CosEditItem_unk>& list, CosEditWeaponRobeLess_unk comp) {
+    CosEditItem_unk* last = list.end();
+    CosEditItem_unk* first = list.begin();
+    fn_801E0B0C(&first, &last, &comp);
+}
+
+// inferred: builds the weapon list of the hand for the member: the weapons worn by the party (mB58, enabled
+// when both can swap them), then the free weapons of the inventory that the member can hold (one entry per
+// item, after the worn copies of the same weapon); finally sorts it
+// NONMATCHING: 0% - the original is over the inlining budget (R3: every vector accessor, clear, push_back and
+// begin/end called out of line, other weak copies than those of mB34: the weapon entries are probably
+// another type, without constructor); here everything is inlined. The std::sort templates are not
+// reconstructed
+void CosEditProtector::fn_801E07A4(int member, int slot) {
+    mB4C.clear();
+    mB58.clear();
+    void* cur = fn_801CFA5C(member, slot);
+    for (int j = 0; j < (int)((NewCampTask*)m48)->m1224.size(); j++) {
+        NewCampPair_unk* pair = &((NewCampTask*)m48)->m1224[j];
+        Inventory::Order()->GetEquip_unk(pair->mId);
+        for (int k = 0; k < 4; k++) {
+            void* weapon = fn_801CFA5C(pair->mId, k);
+            CosEditItem_unk item;
+            item.mItem = weapon;
+            item.mId = fn_80206BE4(weapon);
+            item.mIndex = -1;
+            item.m14 = k;
+            item.mOwner = fn_80219544(pair->mId);
+            item.mEnabled = 0;
+            if (fn_80206D18(weapon, member, slot) && fn_80206D18(cur, pair->mId, k)) {
+                item.mEnabled = 1;
+                item.m14 = k;
+            }
+            mB58.push_back(item);
+        }
+    }
+    for (int k = 0; k < fn_802114D8(); k++) {
+        if (Inventory::Order() == 0) {
+            continue;
+        }
+        CosEditListParam_unk* param = fn_802114E0(k);
+        if (param == 0 || !fn_80206B9C(param->mId)) {
+            continue;
+        }
+        CosEditProtData_unk* weapon = fn_80206C50(param->mId);
+        if (weapon == 0 || !fn_80206D18(weapon, member, slot)) {
+            continue;
+        }
+        bool found = false;
+        for (unsigned int j = 0; j < mB4C.size(); j++) {
+            if (param->mId == mB4C[j].mId) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            continue;
+        }
+        for (unsigned int j = 0; j < mB58.size(); j++) {
+            if (param->mId == mB58[j].mId) {
+                mB4C.push_back(mB58[j]);
+            }
+        }
+        int count = fn_8044453C(Inventory::Order(), k);
+        for (int j = 0; j < count; j++) {
+            CosEditItem_unk item;
+            item.mItem = weapon;
+            item.mId = param->mId;
+            item.mIndex = -1;
+            item.mOwner = -1;
+            item.mEnabled = 1;
+            item.m14 = -1;
+            mB4C.push_back(item);
+        }
+    }
+    switch (mB80) {
+    case 1:
+        SortList_unk(mB4C, CosEditWeaponKindLess_unk());
+        break;
+    case 0:
+        if (member == 0 || member == 2 || member == 3 || member == 6) {
+            SortList_unk(mB4C, CosEditWeaponArmourLess_unk());
+        } else if (member == 1 || member == 4 || member == 5) {
+            SortList_unk(mB4C, CosEditWeaponRobeLess_unk());
+        }
+        break;
+    }
 }
 
 // inferred: order of the protector list: same item, worn first (by member, then by slot), then by name

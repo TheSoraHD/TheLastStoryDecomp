@@ -82,6 +82,14 @@ Sesion autonoma de 12 h sobre unidades fuera de la ruta de arranque (prompt `cla
 - Presupuesto de inline (R3) al limite: escribir las asignaciones de un helper pequeno a mano (12 sentencias propias)
   hace que la funcion vuelva a inlinear todo (`WindyItem::vf10`, 36 -> 89 %).
 
+- `game/CosEditItemList_unk`: las entradas de protectores (`mB34`) y las de armas (`mB4C`, `mB58`, `mB64`) son
+  probablemente tipos distintos: el ctor del original no inicializa `mB64` (sin constructor), `fn_801DD26C` llama al
+  ctor debil 0x801D8C90 (`mItem = 0; mIndex = mOwner = -1; mEnabled = 0`) en sus entradas locales y las copias debiles
+  de `operator[]`/`size`/`clear`/`push_back` de las armas (0x801D923C, 0x801D9234, 0x801E6374, 0x801E6384) son otras que
+  las de `mB34`. Probado un `CosEditProtItem_unk : CosEditItem_unk` con ctor para `mB34`: `fn_801DD26C` deja de estar por
+  encima del presupuesto R3 (lo inlinea todo, 81 -> 0 %) y se pierde `Order__9InventoryFv`; revertido.
+- `Inventory::GetEquip_unk(int)` (copia debil 0x801D80A0, `&mEquip[member]`) en `include/game/Inventory.h`.
+
 ## Pendientes
 
 - Bloque 1 (las cuatro unidades a las que solo les faltan funciones al 0 %), sin avance, todas bloqueadas:
