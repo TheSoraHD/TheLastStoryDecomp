@@ -9,6 +9,7 @@
 #include "atn/RenderManager.h"
 #include "atn/PBone.h"
 #include "game/CharaTask.h"
+#include "atn/Color.h"
 
 // Actor actions of the events: processors with vf08 (per frame) and vf0C (phase), as in
 // Event/ActionCameraMode. Class names from the RTTI; vtables in the order Material, Wind, Setting,
@@ -1386,6 +1387,108 @@ int ActionActorWind::vf0C(Action* arg, int phase) {
     }
     return 0;
 }
+// NONMATCHING: 99.4% - saved registers (actor/fade lengths/resource permuted) and the event manager kept in
+// a register for the curve (the original reloads it); tried the declaration orders
+// inferred: per frame part of a material change: shows the material (parameter 0: name hash, 1: shown)
+// and fades its colour from the saved one to the colour of the action (parameters 2-5: alpha, red, green,
+// blue) over m18 frames, and back over the last m1C frames (to the colour saved at the start or at the
+// load of the actor: parameters 6 and 7)
+int ActionActorMaterial::vf08(Action* arg) {
+    arg->fn_805381C8();
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    int length;
+    int start;
+    int fadeIn;
+    int fadeOut;
+    Actor* actor;
+    actor = manager->FindActor_unk(section->m10);
+    start = arg->m10;
+    length = arg->m14 - start;
+    fadeIn = arg->m18;
+    fadeOut = arg->m1C;
+    atn::Model* model = actor->fn_8001296C();
+    atn::Model::Res_unk* res = model->GetRes_unk();
+    int index = model->fn_8009290C(arg->GetParam_unk(0)->m04.i);
+    if (index >= 0) {
+    int shown = arg->GetParam_unk(1)->m04.i;
+    const char* const* name = &res->m50[index];
+    model->fn_80093D98(*name, shown);
+    if (shown != 0) {
+    atn::Color target;
+    target.a = arg->GetParam_unk(2)->m04.f;
+    target.r = arg->GetParam_unk(3)->m04.f;
+    target.g = arg->GetParam_unk(4)->m04.f;
+    target.b = arg->GetParam_unk(5)->m04.f;
+    ColorF_unk base = actor->m170[index];
+    float now = arg->fn_805381C8()->m198;
+    GXColor diffuseGX = fn_8000DD98(model->fn_80094B6C(*name));
+    ColorF_unk diffuse(diffuseGX);
+    GXColor ambientGX = model->fn_80094B6C(*name)->m1C;
+    ColorF_unk ambient(ambientGX);
+    GXColor thirdGX = model->fn_80094B6C(*name)->m20;
+    ColorF_unk third(thirdGX);
+    float t = 1.0f;
+    if (now <= (float)(start + fadeIn) && fadeIn >= 1) {
+        int fadeEnd = arg->m18;
+        int fadeStart = arg->m10;
+        float cur = arg->fn_805381C8()->m198;
+        float end = (float)(fadeStart + fadeEnd);
+        float min = lbl_8087F540->mB4;
+        float left = end - cur;
+        if (left < min) {
+            left = 0.0f;
+        }
+        if (left > 0.0f) {
+            t -= left / fadeIn;
+        }
+        float k = lbl_8087F540->fn_8048BD04(actor->m140, t);
+        if (k == 1.0f) {
+            diffuse.a = target.a;
+            diffuse.r = target.r;
+            diffuse.g = target.g;
+            diffuse.b = target.b;
+        } else {
+            diffuse.a = base.a + (target.a - base.a) * k;
+            diffuse.r = base.r + (target.r - base.r) * k;
+            diffuse.g = base.g + (target.g - base.g) * k;
+            diffuse.b = base.b + (target.b - base.b) * k;
+        }
+    }
+    if (now >= (float)(length - fadeOut) && fadeOut >= 1) {
+        atn::Color dst;
+        if (arg->GetParam_unk(6)->m04.i != 0) {
+            ColorF_unk saved = actor->m170[index];
+            dst.r = saved.r;
+            dst.g = saved.g;
+            dst.b = saved.b;
+            dst.a = saved.a;
+        }
+        if (arg->GetParam_unk(7)->m04.i != 0) {
+            ColorF_unk loaded = actor->m158[index];
+            dst.r = loaded.r;
+            dst.g = loaded.g;
+            dst.b = loaded.b;
+            dst.a = loaded.a;
+        }
+        if (now == (float)length) {
+            diffuse.a = dst.a;
+            diffuse.r = dst.r;
+            diffuse.g = dst.g;
+            diffuse.b = dst.b;
+        } else {
+            diffuse.a += (dst.a - diffuse.a) / fadeOut;
+            diffuse.r += (dst.r - diffuse.r) / fadeOut;
+            diffuse.g += (dst.g - diffuse.g) / fadeOut;
+            diffuse.b += (dst.b - diffuse.b) / fadeOut;
+        }
+    }
+    model->fn_80094958(*name, &diffuse, &third, &ambient);
+    }
+    }
+    return 0;
+}
+
 
 int ActionActorWind::vf08(Action* arg) {
     return 0;

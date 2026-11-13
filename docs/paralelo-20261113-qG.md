@@ -11,11 +11,12 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
     `Actor::fn_80012294` (para una pista) 97,6 %: eran `extern "C"` con `self` en ActionActorPosition y Dialog;
     ahora miembros de `Event::Actor` (declarados sin nombres de parametro) y renombrados en `symbols.txt`.
 
-- `Event/ActionActorPosition`: 13 -> 6 (32 -> 33 al 100 %).
+- `Event/ActionActorPosition`: 13 -> 5 (32 -> 33 al 100 %).
   - `ActionActorSetting::fn_80557E00` (nodo de pelo del tipo de pelo, casos que caen) 99,4 %,
     `ActionActorSetting::fn_80557F84` (activa los huesos fisicos de pelo/pendientes/faldon/pecho segun el modelo
     "pc101".."pc107") 99,1 %, `ActionActorSetting::vf0C` 99,96 %, `ActionActorSetting::vf08` 99,4 %.
-  - `ActionActorNode::vf0C` 98,6 %, `ActionActorHeading::vf0C` 98,7 %, `ActionActorEyes::vf0C` 96,5 %.
+  - `ActionActorNode::vf0C` 98,6 %, `ActionActorHeading::vf0C` 98,7 %, `ActionActorEyes::vf0C` 96,5 %,
+    `ActionActorMaterial::vf08` (fundido del color de un material) 99,4 %.
     Los dos `fn_` pasan a miembros de `ActionActorSetting` (declarados sin nombres en
     `Event/ActionProcessors_unk.h`, 4 unidades) y renombrados en `symbols.txt`.
 
@@ -41,7 +42,14 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
 - `ActionActorHeading::vf0C` 98,7 %: huecos de pila de las posiciones de nodos ("neck"/"reference") en orden
   inverso.
 
+- `ActionActorMaterial::vf08` 99,4 %: registros salvados permutados y el gestor de eventos en registro para la
+  curva (el original lo relee).
+
 ## Decisiones tomadas sin el usuario
+
+- `ActionActorMaterial::vf08`: el color destino y el de vuelta son `atn::Color` (constructor por defecto; el
+  original los escribe campo a campo, alfa primero); los colores del material siguen como `ColorF_unk`
+  (`ColorF_unk` no tiene constructor por defecto y anadirlo renumeraria todas las unidades de Actor.h).
 
 - `include/Event/Actor.h` (33 unidades): tres miembros nuevos `fn_80011E98`, `fn_80012054`, `fn_80012294`
   sin nombres de parametro (no renumeran). Llamadores actualizados: `Event/ActionActorPosition.cpp`
@@ -72,6 +80,11 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
   como inline con `return` por caso (`GetTrackMode_unk`).
 
 ## Pendientes
+
+- `ActorAnim_unk::m00` es `SimpleVector<Event::PoseKey_unk>` (0x2C bytes; `Resize_unk` con ese nombre en
+  `fn_8000F1EC`): con el tipo real el destructor 0x8000D7DC sale al 100 %, pero quitar `ActorKey2C_unk` (su
+  constructor inline vacio) renumera las `@N` de ~30 unidades (Event y game/NewCamp*, GameTask...): no se hace en
+  paralelo; pendiente para un lote con `pdbatch.sh` de todas.
 
 - `fn_80012054`/`fn_80011E98`: el 0.1f (`0x80880678`) va detras del 0.3f (`0x80880674`), que aun no usa ninguna
   funcion escrita (probablemente `fn_8000F1EC`): poolcheck dara el orden mal hasta escribirla.
