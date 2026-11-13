@@ -779,6 +779,133 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     fn_80392964(0, 1, 0, 0);
 }
 
+// inferred: the map has a ceiling (MapTask::mEC; written out as in fn_8038E540)
+static inline bool HasCeiling_unk() {
+    bool ceiling = false;
+    bool map = false;
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        map = true;
+    }
+    if (map && lbl_8087F430->GetCurrentMap()->mEC != 0) {
+        ceiling = true;
+    }
+    return ceiling;
+}
+
+// inferred: height of the view over the ground on maps without a ceiling (10 on map 3, 8 on map 17-2, else 30)
+static inline float ViewHeight_unk() {
+    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
+        MapTask* map = lbl_8087F430->GetCurrentMap();
+        if (map->mId == 3) {
+            return 10.0f;
+        }
+        if (map->mId == 17 && map->mSubId == 2) {
+            return 8.0f;
+        }
+    }
+    return 30.0f;
+}
+
+static inline void AddViewHeight_unk(atn::Vector3* p) {
+    if (!HasCeiling_unk()) {
+        p->y += ViewHeight_unk();
+    }
+}
+
+// inferred: sweep test of a sphere (here the camera eye) against the collision world
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius);
+extern "C" void* lbl_8087EF70; // inferred: pads
+extern "C" int fn_800A58D0(void* pad, int port);                          // inferred: classic controller connected
+extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
+
+// inferred: bird view camera: turns m8A0 towards the leader's yaw while m7F4 is set, turns with the right stick of
+// the classic controller (speed mA0C[2]), follows the character over the floor (m8A4, swept on maps with a
+// ceiling) and runs the tactical view camera (fn_80387910)
+// NONMATCHING: 90.6% - stack slots of the ray ends (the original keeps from/to of the floor ray lowest) and
+// the order of the first loads
+void GameCamera::fn_80387DE4(const CharaTask* chara) {
+    atn::Vector3 top = m8A4;
+    top.y += lbl_8087F0A8->m08C;
+    AddViewHeight_unk(&top);
+    float radius = lbl_8087F0A8->m08C;
+    if (m7F4 != 0) {
+        float turn = -atn::WrapAngle_unk(m8A0 - atn::WrapAngle_unk(-m7F8));
+        m96C = 0.3f * turn;
+        m8A0 = atn::WrapAngle_unk(m96C + m8A0);
+        if ((float)__fabs(turn) < 0.05f) {
+            m7F4 = 0;
+        }
+    }
+    if (fn_800A58D0(lbl_8087EF70, 0)) {
+        float x = -fn_800A56A8(lbl_8087EF70, 0, 2, 0);
+        float ax = (float)__fabs(x);
+        if (ax > 0.2f) {
+            float speed = (x > 0.0f ? 1.0f : -1.0f) * ((ax - 0.2f) / 0.8f);
+            mA0C[2] = -speed * 0.017453292f + mA0C[2];
+            mA0C[2] = GAMECAMERA_MAX_UNK(-0.08726646f, GAMECAMERA_MIN_UNK(0.08726646f, mA0C[2])) *
+                      (float)__fabs(speed);
+        } else {
+            mA0C[2] *= 0.7f;
+            if ((float)__fabs(mA0C[2]) < 0.00017453292f) {
+                mA0C[2] = 0.0f;
+            }
+        }
+        if (0.0f != mA0C[2]) {
+            m8A0 = atn::WrapAngle_unk(mA0C[2] + m8A0);
+        }
+    }
+    if (!HasCeiling_unk()) {
+        m8A4 = chara->mPos;
+    } else {
+        CollResult_unk result;
+        CollResult_unk floor;
+        int floorId = -1;
+        atn::Vector3 from = chara->mPos;
+        atn::Vector3 to = chara->mPos;
+        from.y += 5.0f;
+        to.y -= 5.0f;
+        if (fn_8004ED34(lbl_8087EE98, &floor, &from, &to, 0x08000000, 0, 0)) {
+            if (floor.m34 != 0) {
+                floorId = *(int*)floor.m34;
+            }
+        } else {
+            atn::Vector3 zero(0.0f, 0.0f, 0.0f);
+            if (fn_8004D388(lbl_8087EE98, &floor, const_cast<atn::Vector3*>(&chara->mPos), &zero, 0x08000000, 0, 0,
+                            20.0f)) {
+                if (floor.m34 != 0) {
+                    floorId = *(int*)floor.m34;
+                }
+            }
+        }
+        atn::Vector3 move = chara->mPos - m8A4;
+        if (PSVECMag(&move) > 20.0f) {
+            m8A4 = chara->mPos;
+            move = atn::Vector3(0.0f, 0.0f, 0.0f);
+        }
+        move.y = 0.5f * -radius;
+        if (fn_8004D388(lbl_8087EE98, &result, &top, &move, 0x08000000, 0, floorId, radius)) {
+            atn::Vector3 d = result.m10 - top;
+            if ((result.m3C & 1) != 1) {
+                d.y = 0.0f;
+            }
+            m8A4 += d;
+        } else {
+            move.y = 0.0f;
+            m8A4 += move;
+        }
+        atn::Vector3 up = m8A4;
+        atn::Vector3 down = m8A4;
+        up.y += 10.0f + radius;
+        down.y -= 5.0f;
+        if (fn_8004ED34(lbl_8087EE98, &result, &up, &down, 0x08000000, 0, (int)floorId)) {
+            m8A4.y = result.m10.y;
+        }
+        m8B0 = m8A4;
+    }
+    fn_80387910(chara);
+}
+
 // inferred: frame of the first motion track of the character (name invented)
 static inline float MotionFrame_unk(CharaTask* c) {
     return c->mMotion.mTracks[0].m08;
@@ -1799,9 +1926,6 @@ void GameCamera::fn_8038DF5C(const CharaTask* chara) {
 }
 
 
-// inferred: sweep test of a sphere (here the camera eye) against the collision world
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
-                           unsigned int mask, void* ignore, int arg, float radius);
 
 // inferred: pulls the eye in front of the walls between the character and the eye: the hit point is pushed off the
 // wall and swept as a sphere; while it keeps hitting (m89C, up to 8 frames) the eye is blended to it
@@ -2039,38 +2163,6 @@ void GameCamera::fn_80390374() {
     fn_80389838(m804);
 }
 
-// inferred: the map has a ceiling (MapTask::mEC; written out as in fn_8038E540)
-static inline bool HasCeiling_unk() {
-    bool ceiling = false;
-    bool map = false;
-    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
-        map = true;
-    }
-    if (map && lbl_8087F430->GetCurrentMap()->mEC != 0) {
-        ceiling = true;
-    }
-    return ceiling;
-}
-
-// inferred: height of the view over the ground on maps without a ceiling (10 on map 3, 8 on map 17-2, else 30)
-static inline float ViewHeight_unk() {
-    if (lbl_8087F430 != 0 && lbl_8087F430->GetCurrentMap() != 0) {
-        MapTask* map = lbl_8087F430->GetCurrentMap();
-        if (map->mId == 3) {
-            return 10.0f;
-        }
-        if (map->mId == 17 && map->mSubId == 2) {
-            return 8.0f;
-        }
-    }
-    return 30.0f;
-}
-
-static inline void AddViewHeight_unk(atn::Vector3* p) {
-    if (!HasCeiling_unk()) {
-        p->y += ViewHeight_unk();
-    }
-}
 
 // inferred: starts the tactical view camera at `target` (m8A4) turned by `angle` (m8A0) around the raised point;
 // with `arg` (m8CC) and a ceiling, the start point is pulled out of the nearest wall found by 8 rays of 30

@@ -22,7 +22,9 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
 - `fn_8038EF94` (fija los parametros de un modo; switch con tabla): **100 %**.
 - `fn_8038E9B0` (colision del ojo de la vista de pajaro): escrita, NONMATCHING 90,6 % (orden de las cargas de los
   extremos del rayo, como fn_8038E540, y registros float).
-- Funciones al 0 %: 26 -> 17; al 100 %: 30 -> 32 / 90.
+- `fn_80387DE4` (vista de pajaro: giro con el stick del mando clasico, seguimiento del suelo): escrita,
+  NONMATCHING 91,2 % (huecos de pila de los extremos del rayo del suelo y orden de las primeras cargas).
+- Funciones al 0 %: 26 -> 16; al 100 %: 30 -> 32 / 90.
 
 ## NONMATCHING nuevas
 
@@ -39,6 +41,9 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
   `m7B0.m04`...), `ResHandle m7EC` (y `#include "game/ResHandle.h"`: las 153 unidades que incluyen
   GameCamera.h ya la incluian; labelcheck igual), campos del menu m8D8, m8DC, m9EC, m9F0, m9F4, mA04, mA08 y
   la declaracion de `fn_8037E9E0()` y de `fn_8038EF94(const GameCameraParam_unk*, int)`.
+- `GameCamera.h`: `atn::Vector3 m8B0` (copia de m8A4 de la vista de pajaro).
+- `HasCeiling_unk`/`ViewHeight_unk`/`AddViewHeight_unk` (inlines locales) subidas antes de fn_80387DE4; una sola
+  declaracion local de `fn_8004D388` (posicion, movimiento, mascara, ignorado, id, radio).
 - `#include "game/SetConfig.h"` subido al principio de `GameCamera_unk.cpp` (estaba antes de las curvas xsca).
 
 - `GameCamera.h`: `m958[0x98C - 0x958]` partido para `float m96C, m970` (miembros de datos, no renumeran);
@@ -71,4 +76,3 @@ Rama `agent-B`. Inicio: 2026-11-13 01:05 CET. Referencia: `/home/claude/ref-B` (
   constructor por defecto en `GameCameraParam_unk` (inline nueva en una cabecera de 153 unidades).
 - Herencia de `GameCamera`: el destructor original trata la camara de 0x00 como miembro (ver arriba).
 
-- `fn_80387DE4` (vista de pajaro, 1748 bytes): sin escribir (mando `lbl_8087EF70`, `fn_800A56A8`).

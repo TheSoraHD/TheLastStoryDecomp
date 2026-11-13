@@ -236,7 +236,7 @@ public:
     int m89C;            // inferred: frames the eye has been hitting a wall (0-8, fn_8038E540)
     float m8A0; // inferred: yaw of the tactical view camera
     atn::Vector3 m8A4; // inferred: point the tactical view starts from (TacView::fn_805AA4E4)
-    unsigned char m8B0[0x8BC - 0x8B0];
+    atn::Vector3 m8B0; // inferred: copy of m8A4 kept by the bird view camera (fn_80387DE4)
     atn::Vector3 m8BC; // inferred: point given to fn_803903E0
     float m8C8;        // inferred: its height
     int m8CC;          // inferred: fn_803903E0 pulls the start point out of the walls once
