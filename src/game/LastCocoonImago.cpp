@@ -501,6 +501,112 @@ void LastCocoonImago::fn_8045B82C() {
     fn_8045ABB4(rot, move, m568 * speed);
 }
 
+extern "C" double cos(double x);
+// inferred: starts the mode `mode` with the motion `motion` (names invented)
+inline void LastCocoonImago::PlayMode_unk(int mode, int motion) {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = mode;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.025f);
+}
+// inferred: mode 10 (lunge, motion 0x14D) along `dir` (name invented)
+inline void LastCocoonImago::Lunge_unk(const atn::Vector3& dir) {
+    atn::Vector3 v = dir;
+    PlayMode_unk(10, 0x14D);
+    m14D4 = v;
+}
+// inferred: forward direction of the imago (name invented)
+inline atn::Vector3 LastCocoonImago::Front_unk() {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 rot;
+    rot.fn_8013A13C(mRot.y);
+    PSMTXMultVec(rot.m, &v, &v);
+    return v;
+}
+// inferred: mode 11 (motion 0x13F): effect m14F0 and the capsules of the body hit `m14B8` (name invented)
+inline void LastCocoonImago::Charge_unk() {
+    PlayMode_unk(11, 0x13F);
+    fn_80232B7C(this, 1000);
+    PlayEfp_unk(&m14F0, &mMotion);
+    for (int i = 0; i < 11; i++) {
+        mCapsules[i].m20 = 4;
+    }
+    m14FC = m14B8;
+}
+
+// NONMATCHING: 99.8% - frame 0x20 bytes larger (stack slots of the temporaries)
+// inferred: choice of the attack: lunge to the place m18F4 when the gimmick m1960 is ready, otherwise after
+// a wait the charge (mode 11), the lunge (mode 10) or the bite (mode 9, motion 0x156) by distance and angle
+void LastCocoonImago::fn_8045BFFC() {
+    if (m14B8 == 0) {
+        return;
+    }
+    if (m197C == 0 && m1960 != 0 && m1960->m54 == 1) {
+        atn::Vector3 d(m18F4->mPos.x - mPos.x, 0.0f, m18F4->mPos.z - mPos.z);
+        if (d.LengthSq_unk() < 324.0f) {
+            atn::Vector3 v = Front_unk();
+            PlayMode_unk(10, 0x14D);
+            m14D4 = v;
+            return;
+        }
+    }
+    bool fast = (mStatus.m0C & 8) == 8 || (mStatus.m0C & 0x200) == 0x200;
+    int wait = 120;
+    if (!fast) {
+        wait = 60;
+    }
+    if (m18EC != 0) {
+        wait *= 2;
+    }
+    if (m14C0 <= wait) {
+        return;
+    }
+    if (m14D0 >= 5 || m14C0 > wait * 2) {
+        if (m197C != 0) {
+            Charge_unk();
+        } else if (m18EC != 0) {
+            if (m18F0 != 0) {
+                atn::Vector3 v = Front_unk();
+                PlayMode_unk(10, 0x14D);
+                m14D4 = v;
+                if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD2) == 0) {
+                    ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD2, 1);
+                }
+            } else {
+                Charge_unk();
+            }
+        } else {
+            Charge_unk();
+        }
+        m14D0 = 0;
+        return;
+    }
+    atn::Vector3 target = m14B8->mPos;
+    atn::Vector3 dir = target - mPos;
+    float dist = dir.Length_unk();
+    dir.Normalize_unk();
+    atn::Vector3 front = Front_unk();
+    float dot = PSVECDotProduct(&front, &dir);
+    if (dot >= (float)cos(60.0)) {
+        if (dist < 60.0f) {
+            atn::Vector3 v = dir;
+            PlayMode_unk(9, 0x156);
+            m14D4 = v;
+            m14D0++;
+        } else if (dist < 120.0f) {
+            if (m197C == 0) {
+                Lunge_unk(dir);
+            }
+            m14D0++;
+        }
+    }
+}
+
 // NONMATCHING: 98.2% - stack slots of the rotation and r30/r31 of dir and of the copy
 // inferred: placed at pos facing dir, in mode 6 (motion 2)
 void LastCocoonImago::vf80(const atn::Vector3& pos, const atn::Vector3& dir) {

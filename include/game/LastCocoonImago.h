@@ -30,6 +30,11 @@ public:
     virtual void vfCC(atn::Vector3* out, const atn::Vector3& dir); // 0x8045F6E0
     virtual atn::Vector3 vfD8(CharaTask* target);            // 0x8045F884
     void fn_8045B82C(); // inferred: walk of the mode 7
+    void fn_8045BFFC(); // inferred: choice of the attack
+    inline void PlayMode_unk(int mode, int motion);
+    inline void Lunge_unk(const atn::Vector3& dir);
+    inline atn::Vector3 Front_unk();
+    inline void Charge_unk();
     void fn_8045ABB4(const atn::Vector3& pos, float f1, float f2); // inferred: moves towards pos
     void fn_8045DF34(); // inferred: mode 11: carries the gimmick m18F8, then waits for the thrust
     void fn_8045E548(); // inferred: mode with the motions 0x14B-0x14D, then mode 10
@@ -68,7 +73,7 @@ public:
     atn::Vector3 m14E0;
     int m14EC;
     atn::EfpFile m14F0; // inferred: "ef_sk023a.efp"
-    unsigned char m14FC[0x1500 - 0x14FC];
+    CharaTask* m14FC; // inferred: target of the charge (fn_8045BFFC)
     atn::ColliCapsule mCapsules[11]; // 0x1500: inferred: hit capsules (bit 0 of mFlags enables them)
     int m18C8;                       // inferred: sphere (m624) used as the center
     int m18CC;
@@ -87,7 +92,7 @@ public:
     float m1954;
     int m1958;
     int m195C;
-    int m1960;
+    GimmickCommon* m1960; // inferred: gimmick ready when m54 == 1 (fn_8045BFFC)
     atn::LH_Xsca m1964; // inferred: "camera/battle/cm000_em206_00.xsca"
     atn::EfpFile m196C; // inferred: "ef_uc030.efp"
     int m1978;

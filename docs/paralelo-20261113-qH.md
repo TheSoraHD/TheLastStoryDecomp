@@ -37,6 +37,10 @@
   temporal del constructor de Item14_unk). Lerp escrito `(pb - pa) * 0.6f + pa`.
 - fn_8045B82C (paso del modo 7 hacia el lugar m18F4 o hacia el objetivo, luego fn_8045ABB4): 0 -> 97 %
   (el original guarda `toPlace.y` antes de ponerlo a 0; registros). `m14B8` pasa a `CharaTask*`.
+- fn_8045BFFC (eleccion del ataque: embestida al lugar m18F4 si el gimmick m1960 esta listo, carga del
+  modo 11, embestida del modo 10 o mordisco del modo 9 por distancia y angulo): 0 -> 99,8 % (marco de pila
+  0x20 mayor). Inlines nuevos `PlayMode_unk`, `Lunge_unk`, `Front_unk`, `Charge_unk`; `m14FC` = `CharaTask*`
+  (objetivo de la carga), `m1960` = `GimmickCommon*`. Sin `Front_unk` baja a 99,4 %.
 - vf10 = fn_8045883C (0x8045883C) sin escribir.
 - fnstat 18 / 36 (sin cambio).
 
