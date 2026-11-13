@@ -1,6 +1,14 @@
 # Cola K (enemigos) - lote paralelo 2026-11-13
 
-Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
+Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33 (cierre 06:50; un reinicio del servidor hacia 05:55).
+
+## Resumen
+
+Funciones al 0 % / sin escribir de la cola 23 -> 12: EnemyQuarkSecond 10 -> 5, Em316LaserSphere 6 -> 0 (con la
+copia weak de `vector::__insert_one_unk`), Em206CocoonMp 5, Em203GreaterDaemonRedMp 1 y Em203GreaterDaemon 1 sin
+tocar. Todas las escritas son equivalentes y `NONMATCHING` (30-98,8 %); ninguna nueva al 100 % (vf78 de
+EnemyQuarkSecond vuelve al 100 % al reetiquetar). `report.json` 15300 en todos los commits, lost 0, sin bajadas,
+PRECOMMIT OK. Ninguna unidad pasa a enlazar.
 
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
