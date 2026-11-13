@@ -102,7 +102,7 @@ struct Actor : public CommonData {
     void fn_80013508(float* target, const atn::Vector3& pos, float speed);
     void fn_80013530(float speed);
     atn::Vector3 fn_80010374();    // inferred: position of the actor
-    atn::Vector3 fn_80010B68();    // inferred: rotation of the actor
+    atn::Vector3 fn_80010B68() const; // inferred: rotation of the actor
     atn::Model* fn_8001296C();     // inferred: same code as fn_80012A1C
     atn::Model* fn_80012A1C();     // inferred: model of the actor (0 if none)
     MtxPtr fn_80012AC4(unsigned int node); // inferred: node matrix of the actor (ActionEffectPlay)
@@ -122,6 +122,7 @@ struct Actor : public CommonData {
     void fn_8001011C(const atn::Vector3& pos); // inferred: moves the actor to `pos`
     void fn_80010490(const atn::Vector3& rot); // inferred: sets the rotation (radians)
     void fn_80011420(float yaw);               // inferred: sets the rotation around y
+    inline void SetRotation_unk(const atn::Vector3&); // inferred: body of fn_80010490 (Event/Puppeteer_CharaTask.cpp)
     // inferred: places the actor with a matrix, optionally relative to the node matrix `node`
     void fn_8001122C(MtxPtr node, int arg2, int arg3, const atn::Matrix3x4& mtx);
     void fn_800121F0(int arg, float distance); // inferred: called with the distance moved

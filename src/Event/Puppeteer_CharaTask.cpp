@@ -600,18 +600,24 @@ inline float MaxScale_unk(const float& a, const float& b) {
     return (a > b) ? a : b;
 }
 
+// inferred: column of a matrix (inlined; name invented)
+inline atn::Vector3 MtxCol_unk(const atn::Matrix3x4& m, int i) {
+    return atn::Vector3(m.m[0][i], m.m[1][i], m.m[2][i]);
+}
+
 // inferred: sets the world matrix of a model and its largest scale axis (inlined; name invented)
 inline void SetModelMtx_unk(atn::Model* model, const atn::Matrix3x4& m) {
     static_cast<atn::Matrix3x4&>(model->mMtx) = m;
-    atn::Vector3 scale(atn::Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
-                       atn::Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
-                       atn::Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());
+    float sz = MtxCol_unk(m, 2).Length_unk();
+    float sy = MtxCol_unk(m, 1).Length_unk();
+    float sx = MtxCol_unk(m, 0).Length_unk();
+    atn::Vector3 scale(sx, sy, sz);
     // inferred: a max macro (the inner max is evaluated again for the result)
     model->m54 = scale.x > MaxScale_unk(scale.y, scale.z) ? scale.x : MaxScale_unk(scale.y, scale.z);
 }
 
 // inferred: moves the actor to `pos`
-// NONMATCHING: 99.2% - stack slots of the three column vectors of SetModelMtx_unk (reversed)
+// NONMATCHING: 99.6% - registers of the matrix copy (r5/r6 swapped)
 void Actor::fn_8001011C(const atn::Vector3& pos) {
     switch (m20) {
     case 7:
@@ -664,6 +670,127 @@ atn::Vector3 Actor::fn_80010374() {
             atn::Matrix3x4* mtx = &((DummyData*)m1C)->m18;
             return atn::Vector3(mtx->m[0][3], mtx->m[1][3], mtx->m[2][3]);
         }
+    }
+    return lbl_807C7030;
+}
+
+} // namespace Event
+// inferred: as in gmk/Cannonball.cpp (out-of-line copy 0x8013C3B4 in game/CharaTask.cpp)
+inline atn::Vector3 atn::Vector3::operator-() const {
+    return atn::Vector3(-x, -y, -z);
+}
+namespace Event {
+
+} // namespace Event
+extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
+// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0)
+extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(m.m, r, t);
+        __MtxCopy(m.m, t);
+    }
+    return m;
+}
+namespace Event {
+
+// inferred: sets the rotation of the actor (radians; a model or a dummy keeps its translation); inlined in
+// fn_80010490 and fn_80011420 (name invented)
+inline void Actor::SetRotation_unk(const atn::Vector3& rot) {
+    switch (m20) {
+    case 7:
+    case 1:
+        ((Puppeteer<CharaTask>*)m1C)->m48->mRot = rot;
+        break;
+    case 2:
+        ((GimmickCommon*)m1C)->m78 = rot;
+        break;
+    case 3: {
+        atn::Matrix3x4 m = fn_800109E0(rot);
+        atn::Vector3 t = ((Puppeteer<atn::Model>*)m1C)->m48->mMtx.GetTrans_unk();
+        m.m[0][3] = t.x;
+        m.m[1][3] = t.y;
+        m.m[2][3] = t.z;
+        SetModelMtx_unk(((Puppeteer<atn::Model>*)m1C)->m48, m);
+        ((Puppeteer<atn::Model>*)m1C)->m48->CalcMatrixStack(atn::ModelNodeCallback_unk());
+        break;
+    }
+    case 4: {
+        atn::Matrix3x4& d = ((DummyData*)m1C)->m18;
+        atn::Vector3 t = d.GetTrans_unk();
+        d = fn_800109E0(rot);
+        d.m[0][3] = t.x;
+        d.m[1][3] = t.y;
+        d.m[2][3] = t.z;
+        break;
+    }
+    }
+}
+
+// NONMATCHING: 97.6% - registers and stack: the original keeps this and rot in r28/r29, the matrix and the
+// model of the case 3 in r31/r30 (here they share a register) and the matrix of the case 3 at the top of the
+// frame
+void Actor::fn_80010490(const atn::Vector3& rot) {
+    SetRotation_unk(rot);
+}
+
+// inferred: rotation of the z axis of a matrix (inlined; name invented)
+inline atn::Vector3 ZRotation_unk(const atn::Matrix3x4& m) {
+    return atn::Vector3(m.m[2][0], m.m[2][1], m.m[2][2]).ToRotationZ_unk();
+}
+
+// inferred: rotation of the actor (radians; for a model or a dummy, from the z axis of its matrix)
+atn::Vector3 Actor::fn_80010B68() const {
+    switch (m20) {
+    case 6:
+        return lbl_807C7030;
+    case 7:
+    case 1: {
+        Puppeteer<CharaTask>* p = (Puppeteer<CharaTask>*)m1C;
+        if (p != 0) {
+            return p->m48->mRot;
+        }
+        break;
+    }
+    case 2: {
+        GimmickCommon* g = (GimmickCommon*)m1C;
+        if (g != 0) {
+            return g->m78;
+        }
+        break;
+    }
+    case 3: {
+        Puppeteer<atn::Model>* p = (Puppeteer<atn::Model>*)m1C;
+        if (p != 0) {
+            return -p->GetTarget_unk()->mMtx.GetRow_unk(2).ToRotationZ_unk();
+        }
+        break;
+    }
+    case 4: {
+        DummyData* d = (DummyData*)m1C;
+        if (d != 0) {
+            return ZRotation_unk(d->m18);
+        }
+        break;
+    }
     }
     return lbl_807C7030;
 }
@@ -737,6 +864,13 @@ atn::Vector3 Actor::fn_800112E0() {
         break;
     }
     return front;
+}
+
+// inferred: sets the rotation of the actor around y
+// NONMATCHING: 99.0% - stack slots of the rotation matrices (0x30 higher here) and registers of the copy of the
+// matrix of the case 3
+void Actor::fn_80011420(float yaw) {
+    SetRotation_unk(atn::Vector3(0.0f, yaw, 0.0f));
 }
 
 // inferred: rotation of the actor around y
@@ -1115,34 +1249,6 @@ void Actor::fn_80012D0C(float speed) {
 
 // ---- fn_80012D34 and its helpers (over the inlining budget: weak copies at 0x800132EC-0x80013484) ----
 } // namespace Event
-extern "C" void PSMTXRotRad(Mtx m, char axis, float rad);
-// inferred: rotation matrix from euler angles, z then y then x (weak copy 0x800109E0)
-extern "C" inline atn::Matrix3x4 fn_800109E0(const atn::Vector3& rot) {
-    atn::Matrix3x4 m;
-    m.SetIdentity();
-    if (0.0f != rot.z) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'z', rot.z);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.y) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'y', rot.y);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    if (0.0f != rot.x) {
-        Mtx t;
-        Mtx r;
-        PSMTXRotRad(r, 'x', rot.x);
-        PSMTXConcat(m.m, r, t);
-        __MtxCopy(m.m, t);
-    }
-    return m;
-}
 // inferred: *this = m * *this (declared in math/Vec.h; weak copy 0x80011410)
 // inferred: fabs (weak copy 0x80011220)
 extern "C" inline float fn_80011220(float x) {
