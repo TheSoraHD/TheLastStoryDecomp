@@ -41,7 +41,11 @@
   modo 11, embestida del modo 10 o mordisco del modo 9 por distancia y angulo): 0 -> 99,8 % (marco de pila
   0x20 mayor). Inlines nuevos `PlayMode_unk`, `Lunge_unk`, `Front_unk`, `Charge_unk`; `m14FC` = `CharaTask*`
   (objetivo de la carga), `m1960` = `GimmickCommon*`. Sin `Front_unk` baja a 99,4 %.
-- vf10 = fn_8045883C (0x8045883C) sin escribir.
+- vf10 (0x8045883C, antes fn_8045883C; busca los gimmicks 0x6D9C/0x6DD8, objetivo, modos 2/6-15, flechas,
+  brillo y la caida sobre m1960): 0 -> 95 %. Inlines nuevos `EndMode_unk` (vuelta al modo 0) y `Roar_unk`
+  (modo 6). fn_8045D3A4 y fn_8045EDEC declaradas como miembros (renombradas en symbols.txt a
+  `fn_8045D3A4__15LastCocoonImagoFv` y `fn_8045EDEC__15LastCocoonImagoFi`); siguen sin escribir.
+- Tras re-emparejar etiquetas, vfD8 (0x8045F884) pasa a 100 %: fnstat 18 -> 19 / 36.
 - fnstat 18 / 36 (sin cambio).
 
 ## Decisiones tomadas sin el usuario

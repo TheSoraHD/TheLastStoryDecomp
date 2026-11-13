@@ -12,6 +12,7 @@
 #include "std/string_members.h"
 #include "std/string.h"
 #include "macros.h"
+#include "atn/DrawHelper.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -133,6 +134,252 @@ static inline void PlayEfp_unk(atn::EfpFile* efp, void* model) {
     color.b = 1.0f;
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, efp, model, 0, pos, rot, color, -1, -1, 1, 1.0f);
+}
+
+extern "C" double cos(double x);
+// inferred: starts the mode `mode` with the motion `motion` (names invented)
+inline void LastCocoonImago::PlayMode_unk(int mode, int motion) {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = mode;
+    fn_8016E970(3);
+    mMotion.m34C = 1;
+    mMotion.mTracks[0].m20 = 1.0f;
+    mMotion.mTracks[0].m0C = 1.0f;
+    mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.025f);
+}
+// inferred: mode 10 (lunge, motion 0x14D) along `dir` (name invented)
+inline void LastCocoonImago::Lunge_unk(const atn::Vector3& dir) {
+    atn::Vector3 v = dir;
+    PlayMode_unk(10, 0x14D);
+    m14D4 = v;
+}
+// inferred: forward direction of the imago (name invented)
+inline atn::Vector3 LastCocoonImago::Front_unk() {
+    atn::Vector3 v(0.0f, 0.0f, 1.0f);
+    atn::Matrix3x4 rot;
+    rot.fn_8013A13C(mRot.y);
+    PSMTXMultVec(rot.m, &v, &v);
+    return v;
+}
+// inferred: mode 11 (motion 0x13F): effect m14F0 and the capsules of the body hit `m14B8` (name invented)
+inline void LastCocoonImago::Charge_unk() {
+    PlayMode_unk(11, 0x13F);
+    fn_80232B7C(this, 1000);
+    PlayEfp_unk(&m14F0, &mMotion);
+    for (int i = 0; i < 11; i++) {
+        mCapsules[i].m20 = 4;
+    }
+    m14FC = m14B8;
+}
+
+
+// inferred: back to the mode 0 (name invented)
+inline void LastCocoonImago::EndMode_unk() {
+    m14BC = 0;
+    m14C0 = 0;
+    m590 = fn_800F8548(lbl_8087F048);
+    m58C = 0;
+    fn_8016E970(3);
+}
+// inferred: roar of the mode 6 (motion 0x145 from the frame 30; name invented)
+inline void LastCocoonImago::Roar_unk() {
+    if (m14BC == 0) {
+        if (mMotion.mTracks[0].m08 >= 30.0f) {
+            m14BC = 1;
+            mMotion.m34C = 1;
+            mMotion.mTracks[0].m20 = 1.0f;
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x145, 0, 0, 1, 0.0f, 0.025f);
+        }
+    } else if (m14BC == 1) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame > 60.0f) {
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0x5A, 1);
+        } else if (frame >= mMotion.fn_80097D7C(0)) {
+            EndMode_unk();
+        }
+    }
+}
+
+extern "C" HitInfo_unk* fn_80219E6C(int id); // inferred: skill data
+struct HitResult_unk;
+extern "C" int fn_800F8C6C(Effect_unk* mgr, HitResult_unk* results, int count, CharaTask* chara, HitInfo_unk* data,
+                           int id, int time, int hits, float angle); // inferred: deals a hit, returns the hits
+struct HomingParam_unk;
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+
+// NONMATCHING: 95% - not iterated (registers and the order of some blocks)
+// inferred: update: finds the gimmicks 0x6D9C (hang point) and 0x6DD8, keeps the target, runs the mode,
+// the arrows of the weak points, the glow, and the fall onto the gimmick m1960
+void LastCocoonImago::vf10() {
+    if (m18F8 == 0) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+            if (g->mId == 0x6D9C && g->m4C == 100) {
+                m18F8 = g;
+                m1948 = g->m6C;
+                break;
+            }
+        }
+    }
+    if (m1960 == 0) {
+        for (GimmickCommon* g = GimmickManager::instance_->mHead; g != 0; g = g->m5C) {
+            if (g->mId == 0x6DD8 && g->m4C == 1) {
+                m1960 = g;
+                break;
+            }
+        }
+    }
+    m14B8 = mC58.mC4;
+    if (m14B8 == 0) {
+        m14B8 = lbl_8087F8A0->mHead;
+        mC58.mC4 = m14B8;
+    }
+    m14C0++;
+    if (mC58.mC0 == 0 || m14B8 == 0) {
+        fn_8016E970(3);
+        if (m58C == 6) {
+            Roar_unk();
+        }
+    } else {
+        switch (m58C) {
+        case 6:
+            Roar_unk();
+            break;
+        case 7:
+            fn_8045E548();
+            break;
+        case 8:
+            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+                EndMode_unk();
+            }
+            fn_8045ABB4(m14E0, 0.0f, m568);
+            break;
+        case 9: {
+            mMotion.mTracks[0].m0C = mStatus.fn_8012DB04();
+            float frame = mMotion.mTracks[0].m08;
+            if (frame >= mMotion.fn_80097D7C(0)) {
+                EndMode_unk();
+            } else if (mMotion.mTracks[0].m08 >= 57.0f && mMotion.mTracks[0].m08 <= 65.0f) {
+                HitInfo_unk* bullet = fn_80219E6C(0x5B8);
+                fn_80144710();
+                fn_800F8C6C(lbl_8087F048, 0, 0, this, bullet, m590, 30, -1, 0.0f);
+                if (m1984 != 0) {
+                    lbl_8087EEB0->fn_80063D3C(mPos, mStatus.mParamB.m28 + bullet->m40, 0.0f, 0xFFFF0000);
+                }
+            }
+            break;
+        }
+        case 10:
+            fn_8045E780();
+            break;
+        case 11:
+            if (m14BC == 0) {
+                if (mMotion.mTracks[0].m08 >= 104.0f) {
+                    m14BC = 1;
+                    m12CC = 0.4f;
+                    atn::Vector3 hand = ((atn::Matrix3x4*)mMotion.GetNodeMtx_unk("righthand"))->GetTrans_unk();
+                    atn::Vector3 hips =
+                        ((atn::Matrix3x4*)m14FC->mMotion.GetNodeMtx_unk("hips"))->GetTrans_unk();
+                    atn::Vector3 dir = hips - hand;
+                    dir.Normalize_unk();
+                    Effect_unk* mgr = lbl_8087F048;
+                    fn_800F8574(mgr, this, fn_80219E6C(0x5B7), &hand, &dir, 0, 0x24, 0, 0.0f, 1.0f);
+                }
+            } else {
+                if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+                    for (int i = 0; i < 11; i++) {
+                        mCapsules[i].m20 = 0;
+                    }
+                    EndMode_unk();
+                }
+            }
+            break;
+        case 12:
+            fn_8045D3A4();
+            break;
+        case 13:
+            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+                Charge_unk();
+            }
+            break;
+        case 14:
+            fn_8045DF34();
+            break;
+        case 15: {
+            atn::Vector3 g = m1960->m6C;
+            float y = mPos.y;
+            mPos = (g - mPos) * 0.1f + mPos;
+            mPos.y = y;
+            m574.y += -98.1f / (float)(lbl_8087F0A8->m030 * lbl_8087F0A8->m030);
+            mPos.y += m574.y;
+            if (mPos.y < -20.0f) {
+                mPos.y = -20.0f;
+                m574.y = 0.0f;
+            }
+            if (mMotion.mTracks[0].m08 >= mMotion.fn_80097D7C(0)) {
+                EndMode_unk();
+            }
+            break;
+        }
+        case 2:
+            vfEC();
+            break;
+        default:
+            if (m55C != 6) {
+                fn_8016E970(3);
+                fn_80170A20(m14B8, -1.0f, 0);
+            }
+            fn_8045B82C();
+            if (m55C != 6) {
+                fn_8045BFFC();
+            }
+            break;
+        }
+        switch (m18CC) {
+        case 1:
+            if (m18D0 == 0) {
+                fn_8045EDEC(m18C8);
+            }
+            break;
+        case 2:
+            for (int i = 0; i < 2; i++) {
+                fn_8045EDEC(i);
+            }
+            break;
+        }
+        fn_8045CB24();
+        if (m18EC == 0 && ((GameTask*)lbl_8087F430)->fn_80370A78(0xCE) == 2) {
+            m18EC = 1;
+        }
+        if (m195C > 0 && ++m195C > 150) {
+            if (((GameTask*)lbl_8087F430)->fn_80370A78(0xD1) == 0) {
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xD1, 1);
+            }
+        }
+    }
+    if (m197C != 0 && m58C != 15) {
+        mPos.y = -20.0f;
+    }
+    fn_8014C540();
+    fn_80145334();
+    fn_8045F4CC();
+    if (m197C == 0 && m18F4 != 0) {
+        atn::Vector3 d(m18F4->mPos.x - mPos.x, 0.0f, m18F4->mPos.z - mPos.z);
+        if (d.LengthSq_unk() < 225.0f && m1960->m54 == 2) {
+            GimmickMsg_unk gm;
+            gm.mType = 3;
+            m1960->vf40(&gm);
+            PlayMode_unk(15, 0x38);
+            m197C = 1;
+            m574.y = 0.0f;
+        }
+    }
 }
 
 void LastCocoonImago::vf3C(HitInfo_unk* hit) {
@@ -499,44 +746,6 @@ void LastCocoonImago::fn_8045B82C() {
         return;
     }
     fn_8045ABB4(rot, move, m568 * speed);
-}
-
-extern "C" double cos(double x);
-// inferred: starts the mode `mode` with the motion `motion` (names invented)
-inline void LastCocoonImago::PlayMode_unk(int mode, int motion) {
-    m14BC = 0;
-    m14C0 = 0;
-    m590 = fn_800F8548(lbl_8087F048);
-    m58C = mode;
-    fn_8016E970(3);
-    mMotion.m34C = 1;
-    mMotion.mTracks[0].m20 = 1.0f;
-    mMotion.mTracks[0].m0C = 1.0f;
-    mMotion.fn_80097C08(0, motion, 0, 1, 1, 0.0f, 0.025f);
-}
-// inferred: mode 10 (lunge, motion 0x14D) along `dir` (name invented)
-inline void LastCocoonImago::Lunge_unk(const atn::Vector3& dir) {
-    atn::Vector3 v = dir;
-    PlayMode_unk(10, 0x14D);
-    m14D4 = v;
-}
-// inferred: forward direction of the imago (name invented)
-inline atn::Vector3 LastCocoonImago::Front_unk() {
-    atn::Vector3 v(0.0f, 0.0f, 1.0f);
-    atn::Matrix3x4 rot;
-    rot.fn_8013A13C(mRot.y);
-    PSMTXMultVec(rot.m, &v, &v);
-    return v;
-}
-// inferred: mode 11 (motion 0x13F): effect m14F0 and the capsules of the body hit `m14B8` (name invented)
-inline void LastCocoonImago::Charge_unk() {
-    PlayMode_unk(11, 0x13F);
-    fn_80232B7C(this, 1000);
-    PlayEfp_unk(&m14F0, &mMotion);
-    for (int i = 0; i < 11; i++) {
-        mCapsules[i].m20 = 4;
-    }
-    m14FC = m14B8;
 }
 
 // NONMATCHING: 99.8% - frame 0x20 bytes larger (stack slots of the temporaries)

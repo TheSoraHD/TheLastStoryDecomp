@@ -16,6 +16,7 @@ public:
     LastCocoonImago(atn::Task* parent, EnemyInfo_unk* info); // 0x80458270
     virtual ~LastCocoonImago();                              // 0x8045F9A0
     virtual int vf0C();                                      // 0x80458590
+    virtual void vf10();                                     // 0x8045883C
     virtual void vf20();                                     // 0x8045B594
     virtual void vf24();                                     // 0x8045B40C
     virtual void vf38(int enable);                           // 0x8045D1EC
@@ -35,6 +36,10 @@ public:
     inline void Lunge_unk(const atn::Vector3& dir);
     inline atn::Vector3 Front_unk();
     inline void Charge_unk();
+    inline void EndMode_unk();
+    inline void Roar_unk();
+    void fn_8045D3A4();         // inferred: mode 12
+    void fn_8045EDEC(int index); // inferred: arrow of a weak point
     void fn_8045ABB4(const atn::Vector3& pos, float f1, float f2); // inferred: moves towards pos
     void fn_8045DF34(); // inferred: mode 11: carries the gimmick m18F8, then waits for the thrust
     void fn_8045E548(); // inferred: mode with the motions 0x14B-0x14D, then mode 10
