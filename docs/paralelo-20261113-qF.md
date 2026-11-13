@@ -14,6 +14,11 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
   (0,1)-(1,1); 94,2 %) y `Action::fn_805384CC` (posicion relativa al nodo de un actor, girada por su yaw; 99,37 %).
   `fn_805382BC`/`fn_805384CC` llaman ahora a `Actor::fn_80011964` como miembro (antes `extern "C"`).
 
+- `Event/Sequence`: el borrador `fn_8054204C` (anade la curva `id` a la lista 0x184) escrito y equivalente (0,25 ->
+  10 %). Los otros dos borradores (`fn_80542684`, `fn_805428A8`) no son metodos de `Sequence`: son las copias
+  debiles de la construccion y de la reallocacion del `push_back` de `vector<EffectEntry24_unk>` (comentado).
+  Las 19 plantillas al 0 % (0x8054372C-0x80545C3C) siguen sin escribir (ver Pendientes).
+
 ## NONMATCHING
 
 - `Event/DebugInfo_unk`: falta en el pool el `""` que el original pone justo tras `"vector length error"`
@@ -26,6 +31,11 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
   rellena con `{0x28, 0}` (constructor de `ActionParam_unk`; puesto en `Event/Action.h` da 92,1 %, no se deja:
   16 unidades incluyen la cabecera) y sus temporales de pila ocupan 8 bytes menos.
 - `Action::fn_805384CC` 99,37 %: orden del store de `r.z` dentro de `Vector3::RotZ_unk` (`math/Vec.h`).
+
+- `Sequence::fn_8054204C` 10 %: con `std/vector.h` la funcion pasa el presupuesto R3 y llama a todas sus inline;
+  el original las inlinea todas salvo la construccion y la reallocacion del `push_back` de m184 (como si su
+  `push_back` fuera una inline pequena sobre dos ayudantes). `poolcheck` avisa ahora de 3.0 y 1/64 en
+  Sequence.o (la copia debil de `EffectLists_unk::fn_8048A968` que sale aqui; la unidad no se enlaza).
 
 ## Decisiones tomadas sin el usuario
 
@@ -51,6 +61,17 @@ Inicio: 2026-11-13 03:12 CET. Tope 05:42.
   original redondea z una sola vez (`fn_805384CC`).
 
 ## Pendientes
+
+- `Event/Sequence` 0x8054372C-0x80545C3C (19 plantillas, y `EventParser_unk` fn_8057DB14/DC38/E274, y `Manager`
+  fn_80482400/8049003C/80490098): todas salen de `push_back` con otra forma de la de `std/vector.h`. Lo visto:
+  (1) el `push_back` del original parece una inline pequena `size < cap ? construct : realloc(x)`, cuyos dos
+  ayudantes se inlinean o no segun el presupuesto del llamador (Add_unk<Actor> inlinea el realloc con
+  `__grow_cap` sin la comprobacion final, `__vec_set_buf(buf, n, cap)` con ella, `__append_n` y
+  `__push_front` fuera de linea; fn_8054204C llama a construct y realloc); (2) la copia implicita de `Actor`
+  rechaza sus candidatas (las copias de sus miembros salen como copias debiles) porque
+  `atn::SimpleVector` tiene en el original un constructor copia profundo (fn_80544070: `new[]` +
+  `__construct_new_array` + copia), que `atn/Array_unk.h` (352 unidades) no declara: la copia actual es
+  superficial. Las dos cosas tocan cabeceras muy compartidas.
 
 - `ActionParam_unk` probablemente tiene un constructor `m00(0x28), m04(0)` (resize de `fn_805377F0`); ponerlo
   en `Event/Action.h` exige revisar las 16 unidades que la incluyen.
