@@ -40,8 +40,11 @@ struct CosEditLoad_unk {
     CharaTask* mChara;
 };
 
-// inferred: entry of the equipment lists of the costume menu (0x18 bytes, CosEditProtector::mB34),
-// given to fn_801CF3C0 (id at 0x04, inventory index at 0x08, negative if none); names invented
+// inferred: entry of the protector lists of the costume menu (0x18 bytes, CosEditProtector::mB34); names
+// invented. The original has a constructor (weak copy 0x801D8C90: mItem 0, mIndex/mOwner -1, mEnabled 0, called by
+// fn_801DD26C; with it the swap of std::sort keeps the copy in registers, 0x801DBB14), but its push_back takes
+// the POD path of std::vector (std/vector.h dispatches on __builtin_is_pod): pending, see
+// docs/paralelo-20261113-qE.md
 struct CosEditItem_unk {
     // inferred: empty entry (name invented)
     void Clear_unk() {
@@ -55,6 +58,18 @@ struct CosEditItem_unk {
     int mOwner;   // 0x0C: inferred: member that has it equipped (-1: none)
     int mEnabled; // 0x10
     int m14;
+};
+
+// inferred: entry of the weapon lists (CosEditProtector::mB4C/mB58/mB64), the same fields without a constructor
+// (its weak copies of std::sort are other ones, 0x801E26B4-0x801E2D68; the swap copies through the stack),
+// given to fn_801CF3C0 (id at 0x04, inventory index at 0x08, negative if none); names invented
+struct CosEditWeaponItem_unk {
+    void* mItem;  // 0x00: inferred: weapon entry
+    int mId;      // 0x04: inferred: item id
+    int mIndex;   // 0x08: inferred: inventory index
+    int mOwner;   // 0x0C: inferred: member that has it equipped (-1: none)
+    int mEnabled; // 0x10
+    int m14;      // inferred: hand of the member that has it equipped
 };
 
 // inferred from __vt__11CosEditBase (0x80782608): base of the costume edit menus (equipment
@@ -94,7 +109,7 @@ public:
         new (&mLoads[mLoadCount]) CosEditLoad_unk(load);
         mLoadCount++;
     }
-    int fn_801CF3C0(int member, CharaTask* chara, CosEditItem_unk* item, int slot, int add, int remove);
+    int fn_801CF3C0(int member, CharaTask* chara, CosEditWeaponItem_unk* item, int slot, int add, int remove);
     void* fn_801CFA5C(int member, int slot);
     void* fn_801CFAA8(int member, int slot);
 
