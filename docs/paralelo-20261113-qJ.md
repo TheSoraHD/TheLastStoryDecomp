@@ -9,8 +9,9 @@
   (99,36 %), `fn_801191A8` (99,98 %, estado 1, solo pool), `fn_8011999C` (97,77 %, estado 5), `fn_80119F0C`
   (99,43 %, barra de informacion), `vf14` (98,83 %, registro de la historia), `fn_8011A4D0` (99,18 %, ventana de
   confirmacion). El pool `@stringBase0` ya coincide salvo las 3 cadenas de `basic_string` del final. Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
-- `game/ReplayBuffer` 5 -> 3 al 0 %. Escritas: `fn_8056C3D8` (98,77 %, graba un fotograma), `fn_8056F5B4`
-  (98,65 %, graba el fotograma en vivo `mLive`). GameTask 98 -> 106 en fnstat tras `pdbatch` (renumerado por la
+- `game/ReplayBuffer` 5 -> 2 al 0 %. Escritas: `fn_8056C3D8` (98,77 %, graba un fotograma), `fn_8056F5B4`
+  (98,65 %, graba el fotograma en vivo `mLive`), `fn_8056FC24` (96,63 %, restaura `mLive`: personajes, modelos y
+  balas). Quedan `fn_8056DACC` (3,6 KB) y `fn_8056E918` (2,5 KB). GameTask 98 -> 106 en fnstat tras `pdbatch` (renumerado por la
   llamada a miembro).
 
 ## NONMATCHING
@@ -35,6 +36,8 @@
 
 - `ReplayBuffer::fn_8056C3D8` 98,77 % y `fn_8056F5B4` 98,65 %: registros (puntero del fotograma; palabra de flags y
   resultado de `IsSkipped_unk` en el bucle de enemigos, como `ReplayRecorder_unk::fn_8056B3D4`).
+
+- `ReplayBuffer::fn_8056FC24` 96,63 %: marco 0x40 mas pequeno (huecos de las matrices) y registros.
 
 ## Decisiones tomadas sin el usuario
 

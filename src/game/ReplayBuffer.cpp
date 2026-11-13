@@ -635,6 +635,76 @@ void ReplayBuffer::fn_8056F5B4(int charasOnly) {
     }
 }
 
+// NONMATCHING: 96.63% - stack frame 0x40 smaller (slots of the matrices) and registers of the entry pointers
+// inferred: puts the live frame mLive back: the characters (as ReplayRecorder_unk::fn_8056BD34) and, unless
+// `charasOnly`, the gimmick models and the homing bullets
+void ReplayBuffer::fn_8056FC24(int charasOnly) {
+    ReplayFrame_unk* frame = &mLive;
+    int i = 0;
+    if (frame->mNumCharas > 0) {
+    for (; i < frame->mNumCharas; i++) {
+        ReplayChara_unk* entry = &frame->mCharas[i];
+        atn::Model* model = &entry->mChara->mMotion;
+        int node = entry->mNode;
+        model->m20C_15_8 = model->m50;
+        model->m50 = node;
+        model->m34C = entry->m06;
+        Mtx mtx;
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+        }
+        float angle = FromHalf_unk(entry->mAngle);
+        void* out = 0;
+        Mtx world;
+        PSMTXConcat(frame->mLeaderMtx.m, mtx, world);
+        fn_8056A9E4(model, entry->mTracks, 4, world, &out, entry, angle);
+        atn::Vector3 pos(model->mMtx.m[0][3], model->mMtx.m[1][3], model->mMtx.m[2][3]);
+        atn::Vector3 d = atn::RenderManager::instance_->mCamera.mPos - pos;
+        float dist = d.LengthSq_unk();
+        if (entry->mMotion >= 0) {
+            entry->mChara->fn_8014DEE4(entry->mMotion, 1, 0);
+        } else {
+            entry->mChara->fn_8014EEC4(1);
+        }
+        entry->mChara->fn_80148B38(dist);
+    }
+    }
+    if (charasOnly != 0) {
+        return;
+    }
+    for (int i = 0; i < frame->mNumModels; i++) {
+        ReplayModel_unk* entry = &frame->mModels[i];
+        atn::Model* model = entry->mModel;
+        Mtx mtx;
+        for (unsigned int j = 0; j < 12; j++) {
+            unsigned int r = j >> 2;
+            unsigned int c = j & 3;
+            mtx[r][c] = FromHalf_unk(entry->mMtx[r][c]);
+        }
+        void* out = 0;
+        Mtx world;
+        PSMTXConcat(frame->mLeaderMtx.m, mtx, world);
+        fn_8056A9E4(model, &entry->mTrack, 1, world, &out, 0, 0.0f);
+    }
+    for (int i = 0; i < 32; i++) {
+        ReplayBullet_unk* entry = GetBullet_unk(frame, i);
+        Mtx trans;
+        PSMTXTrans(trans, entry->mPos.x, entry->mPos.y, entry->mPos.z);
+        atn::Vector3 rot(FromHalf_unk(entry->mRot[0]), FromHalf_unk(entry->mRot[1]), FromHalf_unk(entry->mRot[2]));
+        atn::Matrix3x4 m;
+        m.SetIdentity();
+        __MtxRotate(m.m, 'z', rot.z);
+        __MtxRotate(m.m, 'y', rot.y);
+        __MtxRotate(m.m, 'x', rot.x);
+        Mtx world;
+        PSMTXConcat(trans, m.m, world);
+        __MtxCopy(trans, world);
+        lbl_8087F048->mHomings[i].vf14(trans);
+    }
+}
+
 void ReplayBuffer::fn_80570254(int frame) {
     m5BDB4 = 0;
     fn_8056DACC(frame);
