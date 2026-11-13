@@ -4,7 +4,7 @@ Inicio 07:35.
 
 ## Resultado por unidad (funciones al 0 % antes -> despues)
 
-- `game/MapPartsGimmickLoc` 15 -> 0; 27 (varias falsas) -> 39/46 al 100 %. Escritas `vf10` (98,96 %) y
+- `game/MapPartsGimmickLoc` 15 -> 0; 27 (varias falsas) -> 39/46 al 100 %. Escritas `vf10` (99,05 %) y
   `fn_804985E4` (100 %); las 28 copias weak que salen de `fn_804985E4` (funcion fuera del presupuesto de inline:
   llama a todo con `bl`) se rehicieron con sus tipos reales y se renombraron en `symbols.txt`:
   `SimpleArray<SwingPart_unk*>/<Record>::operator[]`, `Resize_unk(n, heap, name)` de los dos arrays,
@@ -23,8 +23,9 @@ Inicio 07:35.
 
 ## NONMATCHING
 
-- MPGL `vf10` 98,96 %: los huecos de pila de las rotaciones inline salen en orden inverso (en el original la z
-  queda abajo; en la copia suelta 0x80498354 el orden es el nuestro) y f26/f27 del aleatorio cruzados. Probado
+- MPGL `vf10` 99,05 %: los huecos de pila de las rotaciones inline salen en orden inverso (en el original la z
+  queda abajo; en la copia suelta 0x80498354 tambien al reves que la nuestra). f26/f27 del aleatorio: `min`
+  declarado antes que `max`. Probado
   escribir la rotacion a mano con `Matrix3x4::RotateAxis_unk` (95 %) y con el `RotateAxis_unk` del fichero (89 %).
 - `UpdateRecordMatrix_unk` 99,91 %: huecos de pila de las tres rotaciones.
 - `SetLod_unk` 88,57 %: el original hace `frsp` de la distancia antes de dividir (probado releer el miembro, double).

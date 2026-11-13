@@ -210,9 +210,10 @@ static inline float RandRange_unk(float min, float max) {
 
 extern "C" void fn_8023A108(atn::EffectManager* mgr, unsigned int owner, int group, int count);
 
-// NONMATCHING: 98.96% - the stack slots of the inlined rotations are allocated in the opposite order (z
-// lowest in the original), f26/f27 of the random scale swapped; tried the rotation written out with
-// Matrix3x4::RotateAxis_unk and with the file's RotateAxis_unk (t before r): 95% and 89%
+// NONMATCHING: 99.05% - the stack slots of the inlined rotations are allocated in the opposite order (z
+// lowest in the original); tried the rotation written out with Matrix3x4::RotateAxis_unk and with the
+// file's RotateAxis_unk (t before r): 95% and 89%, and one more inline level (98%). `min` is declared
+// before `max` for f26/f27
 // inferred: effects of the records: mode 0 records are started once (with the effect colour and a random
 // scale), mode 1 records are restarted every m8C (+- m90) frames; then the swinging parts are updated
 void MapPartsGimmickLoc::vf10() {
@@ -232,8 +233,9 @@ void MapPartsGimmickLoc::vf10() {
             }
             fn_80232B7C((unsigned int)&mRecords[i], 0);
             MapPartsGimmickLocRecord_unk* rec = &mRecords[i];
+            float min;
             float max = rec->m94;
-            float min = -max;
+            min = -max;
             fn_8023A680(effects, (EffectRes_unk*)&mRecords[i], -1, 5, (int)&mRecords[i].mMtx, 0, 0,
                         (const EffectColor_unk*)&rec->mColor, 0, -1, 1,
                         mRecords[i].m44 + RandRange_unk(min, max));
@@ -262,8 +264,9 @@ void MapPartsGimmickLoc::vf10() {
                     effects->mSystem.mLayer = 1;
                     fn_80232B7C((unsigned int)&mRecords[i], 0);
                     MapPartsGimmickLocRecord_unk* rec = &mRecords[i];
+                    float min;
                     float max = rec->m94;
-                    float min = -max;
+                    min = -max;
                     fn_8023A680(effects, (EffectRes_unk*)&mRecords[i], -1, 5, (int)&mRecords[i].mMtx, 0, 0,
                                 (const EffectColor_unk*)&rec->mColor, 0, -1, 1,
                                 mRecords[i].m44 + RandRange_unk(min, max));
