@@ -14,7 +14,7 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   - `fn_803405C0` (estado 16, ataque del baston) 98,8 %: huecos de los locales del efecto del paso 0 y
     registros.
 
-- `game/Em316LaserSphere`: 6 -> 2. `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
+- `game/Em316LaserSphere`: 6 -> 0 (todas escritas). `fn_80318AA4` (el personaje apunta a la esfera: magia lanzada, su habilidad o
   la linea de su disparo cruza la capsula) escrita, NONMATCHING 98,4 %: marco 0x10 mayor y registros.
   Se incluye `game/BattleCharaTask.h` (`fn_800E932C`): renumera los `@N` de la unidad (+227); pd.sh y dos a mano
   (`@13913`, `@13962`, floats 0.1 y 0.2 que solo usan funciones sin escribir; tras fn_8031A670, `@14344`, `@14393`).
@@ -29,6 +29,12 @@ Inicio: 2026-11-13 05:03 CET. Rama `agent-K`. Tope 07:33.
   `lo + (hi - lo) * rand() / 32767` (`LaserRand_unk`: 0.20000005 = 1.2f - 1.0f plegado).
   `fn_80319C90` (dispara el laser: matriz trasladada, girada a lo largo del rayo y escalada a su longitud)
   escrita, NONMATCHING 98,3 %: huecos de pila de los temporales.
+  `fn_803176D0` (reparte los objetivos: ordena las esferas activas por el id de su objetivo con
+  `vector::insert`, y da a cada una su indice m14C8 y el tamano de su grupo m14CC) escrita, NONMATCHING 97,7 %
+  (el original prueba la bandera del lider una vez para los dos objetivos y los destructores de los vectores
+  prueban el vector una vez mas). La copia weak 0x8031ACC0 es `vector<Em316LaserSphere*>::__insert_one_unk`
+  (renombrada en `symbols.txt`; 17 %, como la NONMATCHING conocida de `std/vector.h`). `lbl_8087DC50` (1 en
+  `.sdata`) es `static int sFirstCount_unk = 1` (pd.sh la renombra).
 
 ## Decisiones tomadas sin el usuario
 

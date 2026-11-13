@@ -2,6 +2,7 @@
 #include "atn/Csv.h"
 #include "atn/Material_unk.h"
 #include "game/CharaManager.h"
+#include "game/EnemyManager.h"
 #include "game/HitInfo_unk.h"
 #include "game/PlayerTask.h"
 #include "math/Vec.h"
@@ -9,6 +10,7 @@
 #include "chr/ControlBase.h"
 #include "game/BattleCharaTask.h"
 #include "std/string.h"
+#include "std/vector.h"
 #include "std/string_members.h"
 #include <boost/tokenizer.hpp>
 
@@ -66,6 +68,7 @@ static const char* const sSounds_unk[] = {"SE_EM601_006", "SE_EM601_002", "SE_EM
 // inferred: alpha range of the trail models (.sdata 0x8087DC48/0x8087DC4C); names invented
 static float sOne_unk = 1.0f;
 static float sZero_unk = 0.0f;
+static int sFirstCount_unk = 1; // inferred: count of a new group of spheres (fn_803176D0)
 
 // inferred: shared by all the spheres: set once the targets have been shared this frame (lbl_8087F3F4)
 // and the last angle (lbl_8087F3F0); names invented
@@ -511,6 +514,100 @@ void Em316LaserSphere::vf80(const atn::Vector3& pos, const atn::Vector3& offset)
     color.a = 1.0f;
     fn_8023A8B4(lbl_8087F3C0, &m1550, &mMotion, 0, epos, erot, color, -1, -1, 1, 1.0f);
     fn_800C31F4(sSounds_unk[0], 0, -1, 1.0f);
+}
+
+// inferred: target of a sphere for the sharing (the leader when mFlag28, else the default target); name invented
+inline CharaTask* SharedTarget_unk(Em316LaserSphere* sphere) {
+    CharaTask* leader = lbl_8087F8A0->mHead;
+    if (leader->mFlag28) {
+        return leader;
+    }
+    return sphere->m14D4;
+}
+
+// inferred: the character is active, free and not grappled (as IsTarget2_unk of game/Em201ZanGurgFinal.cpp)
+inline bool SphereCanAct_unk(CharaTask* c) {
+    bool active;
+    bool free;
+    bool r;
+    r = false;
+    active = false;
+    free = false;
+    if ((c->mFlags & 4) != 4 && (c->mFlags & 1) != 1) {
+        free = true;
+    }
+    if (free && (c->mStatus.m0C & 0x20) != 0x20) {
+        active = true;
+    }
+    if (active) {
+        bool grappled = false;
+        if (c->m55C == 6 && c->m560 == 28) {
+            grappled = true;
+        }
+        if (!grappled) {
+            r = true;
+        }
+    }
+    return r;
+}
+
+// inferred: shares the targets between the laser spheres (called once per frame): sorts the active spheres
+// by the id of their target and gives each one its index (m14C8) and the size of its group (m14CC)
+// NONMATCHING: 97.7% - the original tests the leader flag once for both targets of the sort, and the destructors
+// of the two vectors test the vector once more (std/vector.h)
+void Em316LaserSphere::fn_803176D0() {
+    std::vector<Em316LaserSphere*> spheres;
+    for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
+        if (!SphereCanAct_unk(e)) {
+            continue;
+        }
+        if (e->m146C != 45 && e->m146C != 49) {
+            continue;
+        }
+        Em316LaserSphere* sphere = (Em316LaserSphere*)e;
+        bool inserted = false;
+        for (Em316LaserSphere** it = spheres.begin(); it != spheres.end(); ++it) {
+            int key = SharedTarget_unk(sphere)->m50;
+            if (SharedTarget_unk(*it)->m50 >= key) {
+                spheres.insert(it, sphere);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) {
+            spheres.push_back(sphere);
+        }
+    }
+    std::vector<int> counts;
+    int last = -1;
+    int index = 0;
+    for (unsigned int i = 0; i < spheres.size(); i++) {
+        Em316LaserSphere* sphere = spheres[i];
+        if (last != SharedTarget_unk(sphere)->m50) {
+            sphere->m14C4 = 0;
+            index = 0;
+            sphere->m14C8 = 0;
+            counts.push_back(sFirstCount_unk);
+        } else {
+            index++;
+            counts[counts.size() - 1]++;
+            sphere->m14C4 = 1;
+            sphere->m14C8 = index;
+        }
+        last = SharedTarget_unk(sphere)->m50;
+    }
+    last = -1;
+    int group = -1;
+    for (unsigned int i = 0; i < spheres.size(); i++) {
+        Em316LaserSphere* sphere = spheres[i];
+        if (last != SharedTarget_unk(sphere)->m50) {
+            group++;
+            sphere->m14CC = counts[group];
+        } else {
+            sphere->m14CC = counts[group];
+        }
+        last = SharedTarget_unk(sphere)->m50;
+    }
 }
 
 void Em316LaserSphere::fn_80317EA0() {
