@@ -14,11 +14,12 @@
   con `atoi`), `Inventory::fn_80449ABC` 55 % (sin constructores, ver decisiones) y su `std::sort`
   (`MslSort_unk`/`MslMedian3_unk` con `ExpOrderLess_unk`, 0x8044A1D8/0x8044B44C/0x8044C6C0, 52-62 %: el
   original es mas grande, mas inlining).
-- `game/AiTarget`: funciones al 0 % 11 -> 6. `fn_80016C10` escrita (NONMATCHING 98,76 %, registros:
+- `game/AiTarget`: funciones al 0 % 11 -> 5. `fn_80016C10` escrita (NONMATCHING 98,76 %, registros:
   el original pone la escena en r30 y el indice*4 en r29, al reves que el nuestro). `AIManager::fn_80018D5C`
   (punto de ruta en un cono) 99,5 %, `fn_80018C80` 92,7 %, `fn_80019254` (la misma busqueda desde un
   punto, con lista de puntos cercanos de reserva) 99,2 % y `fn_80019E88` (punto junto a un escondite) 99,9 %
-  escritas. Las dos ultimas son `extern "C"` con el `AIManager*` delante porque `game/CrowdSimulation` y
+  escritas, y `fn_800197A4` (escondite mas cercano que tapa al objetivo; bits de visitados en
+  `sHideVisited_unk`, antes `lbl_807C66C0`) al 99 %. Las tres ultimas son `extern "C"` con el `AIManager*` delante porque `game/CrowdSimulation` y
   `game/RouteWalker_unk` las enlazan con nombre C.
 
 ## Decisiones tomadas sin el usuario
@@ -62,7 +63,7 @@
 ## Pendientes
 
 - AiTarget: quedan `vf14` (0x80014A5C, 7724 bytes), `fn_80017128`/`fn_8001794C` (scripts de IA),
-  `fn_800197A4` (escondites, resultado en `lbl_807C66C0`) y las dos debiles que salen con `fn_80017128`.
+  y las dos debiles que salen con `fn_80017128`.
 
 - `fn_8001794C`/`fn_80017128` (AiTarget): necesitan `AiInput_unk`/`AiOutput_unk` (hoy locales en
   `AI/AI_archer_attack01.cpp`, con campos sueltos; el original usa arrays) en una cabecera comun, y

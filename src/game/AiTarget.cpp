@@ -492,6 +492,8 @@ int AIManager::fn_80018BAC(CharaTask* chara) {
 
 extern "C" double cos(double x);
 extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+extern "C" void PSVECCrossProduct(const atn::Vector3* a, const atn::Vector3* b, atn::Vector3* axb);
+extern "C" int fn_80019E88(AIManager* ai, atn::Vector3* out, int* kind, int point, gs::HideLink_unk* link);
 extern "C" unsigned short fn_803CD958(U16Table_unk* links, int point); // inferred: the two points are linked
 
 // NONMATCHING: 92.7% - scheduling of the loads of mB4 and of the last float argument
@@ -696,6 +698,151 @@ extern "C" int fn_80019254(AIManager* ai, int point, const atn::Vector3* pos, in
 }
 
 extern "C" float PSVECMag(const atn::Vector3* v);
+
+// inferred: visited hide points of fn_800197A4 (one bit per point)
+static unsigned int sHideVisited_unk[0x80];
+
+// inferred: normalizes unless the vector is (almost) zero; name invented (as in game/Em006DarkMaster.cpp)
+static inline void SafeNormalize_unk(atn::Vector3* v) {
+    if (!((float)__fabs(PSVECSquareMag(v)) < 1.1920929e-7f)) {
+        PSVECNormalize(v, v);
+    }
+}
+
+// NONMATCHING: 99% - register allocation and the order of the bit index computation
+// inferred: nearest hide point for `chara` in the cone `dir`/`angle` that hides it from its target (mC58.mC4;
+// the target is ignored when `arg` is set, without a target or in another group); writes the point beside it
+// with fn_80019E88 (AI/AiCommon_unk)
+extern "C" int fn_800197A4(AIManager* ai, atn::Vector3* out, int* kind, CharaTask* chara, const atn::Vector3* dir,
+                           int arg, float angle) {
+    atn::Vector3 self = chara->mPos;
+    atn::Vector3 enemy = chara->mPos;
+    if (arg == 0) {
+        CharaTask* target = chara->mC58.mC4;
+        if (target == 0) {
+            arg = 1;
+        } else {
+            int group = chara->mC58.mB4;
+            enemy = target->mPos;
+            if (group > 0 && target->mC58.mB4 > 0 && group != target->mC58.mB4) {
+                arg = 1;
+            }
+        }
+    }
+    int best = 0;
+    int bestLink = 0;
+    int group = chara->mC58.mB4;
+    int sub = chara->mC58.mB8;
+    GameScene* scene = lbl_8087F430->m10D8;
+    float bestDist = 1.0e16f;
+    float limit = cos(0.017453292f * angle);
+    atn::Vector3 away = enemy - self;
+    float enemyDist = PSVECSquareMag(&away);
+    if (!((float)__fabs(enemyDist) < 1.1920929e-7f)) {
+        PSVECNormalize(&away, &away);
+    }
+    memset(sHideVisited_unk, 0, sizeof(sHideVisited_unk));
+    for (unsigned int i = 0; i < scene->mB4.size(); i++) {
+        gs::HideLink_unk* link = &scene->mB4.mData[i];
+        if (link->m08 == 0) {
+            continue;
+        }
+        if (chara->mFlag31 && link->mFrom + 1 == chara->mC38 && link->mTo + 1 == chara->mC3C) {
+            continue;
+        }
+        if ((float)__fabs(link->mMid.y - self.y) > 15.0f) {
+            continue;
+        }
+        gs::HidePoint* points[2];
+        points[0] = &scene->mAC.mData[link->mFrom];
+        points[1] = &scene->mAC.mData[link->mTo];
+        atn::Vector3 side = points[1]->mPos - points[0]->mPos;
+        float linkLen = PSVECSquareMag(&side);
+        SafeNormalize_unk(&side);
+        if (arg == 0) {
+            atn::Vector3 toEnemy = enemy - link->mMid;
+            SafeNormalize_unk(&toEnemy);
+            atn::Vector3 up(0.0f, 1.0f, 0.0f);
+            atn::Vector3 normal;
+            PSVECCrossProduct(&up, &toEnemy, &normal);
+            SafeNormalize_unk(&normal);
+            if (PSVECDotProduct(&normal, &side) < 0.70710677f) {
+                continue;
+            }
+        }
+        if (linkLen < chara->m5B0 * chara->m5B0) {
+            continue;
+        }
+        if (points[0]->m3C != 0 && points[1]->m3C != 0) {
+            continue;
+        }
+        for (unsigned int k = 0; k < 2; k++) {
+            gs::HidePoint* p = points[k];
+            unsigned int word = sHideVisited_unk[p->mIndex / 32];
+            unsigned int mask = 1 << (p->mIndex % 32);
+            if ((mask & word) == mask) {
+                continue;
+            }
+            sHideVisited_unk[p->mIndex / 32] = word | mask;
+            if (points[k]->m38 == 0) {
+                continue;
+            }
+            if (fn_80019E88(ai, 0, 0, points[k]->mIndex, link) == 0) {
+                continue;
+            }
+            if (group > 0 && group != points[k]->m1C) {
+                continue;
+            }
+            if (sub > 0 && sub != points[k]->m20) {
+                continue;
+            }
+            p = points[k];
+            if (p->m24 != 0 && chara->mType != 0) {
+                continue;
+            }
+            atn::Vector3 to = p->mPos - self;
+            float dist = PSVECSquareMag(&to);
+            if (dist > 0.0f) {
+                PSVECNormalize(&to, &to);
+            }
+            if ((chara->mC58.mD8 & 4) != 4 && dist < 100.0f) {
+                continue;
+            }
+            if (dist > 400.0f && PSVECDotProduct(&to, dir) < limit) {
+                continue;
+            }
+            if (arg == 0) {
+                atn::Vector3 a = enemy - self;
+                if (PSVECSquareMag(&a) > 0.0f) {
+                    PSVECNormalize(&a, &a);
+                }
+                atn::Vector3 b = enemy - points[k]->mPos;
+                float e = PSVECSquareMag(&b);
+                if (e > 0.0f) {
+                    PSVECNormalize(&b, &b);
+                }
+                if (e < 900.0f && enemyDist > e) {
+                    continue;
+                }
+                if (enemyDist > 6400.0f && 3.0f * (3.0f * enemyDist) < e) {
+                    continue;
+                }
+                if (PSVECDotProduct(&away, &b) < 0.0f) {
+                    continue;
+                }
+            }
+            if (bestDist > dist) {
+                bestDist = dist;
+                bestLink = i;
+                best = points[k]->mIndex;
+            }
+        }
+    }
+    if (best > 0) {
+        fn_80019E88(ai, out, kind, best, &scene->mB4.mData[bestLink]);
+    }
+    return best;
+}
 
 // NONMATCHING: 99.9% - operands of the fmuls of the half length swapped (len * 0.5 in either order)
 // inferred: point beside the hide point `point` along its link (`link`, else the first link of the
