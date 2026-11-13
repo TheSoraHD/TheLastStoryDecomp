@@ -111,7 +111,7 @@ void AIManager::fn_80016888() {
     fn_80017064(lbl_8087F8A0->mHead);
     for (CharaTask* c = FriendManager::sInstance->fn_8036554C(); c != 0; c = NextChara_unk(c)) {
         if (!c->mC58.mHeld_unk) {
-            fn_80016A94(c, boost::function<void()>());
+            fn_80016A94(c, boost::function<int(gs::MovePoint*)>());
         }
         fn_80017064(c);
         c->mC58.m08 = c->mC58.m0C.mDestPoint;
@@ -122,7 +122,7 @@ void AIManager::fn_80016888() {
     }
     for (EnemyTask* e = EnemyManager::sInstance->mHead; e != 0; e = e->mNext) {
         if (!e->mC58.mHeld_unk) {
-            fn_80016A94(e, boost::function<void()>());
+            fn_80016A94(e, boost::function<int(gs::MovePoint*)>());
         }
         fn_80017064(e);
         e->mC58.m08 = e->mC58.m0C.mDestPoint;
@@ -140,14 +140,72 @@ void AIManager::fn_80016888() {
 
 // NONMATCHING: 99.4% - stack slots of the local position and of the returned temporary swapped
 // inferred: puts `chara` at a random point of its route group, facing a random direction
-void AIManager::fn_80016A94(CharaTask* chara, boost::function<void()> callback) {
-    int point = fn_80016C10(chara->mC58.mB4, callback);
+void AIManager::fn_80016A94(CharaTask* chara, boost::function<int(gs::MovePoint*)> filter) {
+    int point = fn_80016C10(chara->mC58.mB4, filter);
     atn::Vector3 pos;
     pos = lbl_8087F430->m10D8->fn_803C11A4(point);
     atn::Vector3 rot = chara->mRot;
     rot.y = 6.2831855f * ((rand() % 1001) / 1000.0f) - 3.1415927f;
     chara->mPos = pos;
     chara->mRot = rot;
+}
+
+// inferred: weight of a move point (m14 plus five times m1C, at most 100); name invented
+static inline int MoveWeight_unk(const gs::MovePoint* p) {
+    int n = p->m1C < 100 ? p->m1C : 100;
+    return (int)p->m14 + n * 5;
+}
+
+int AIManager::fn_80016C10(int group, boost::function<int(gs::MovePoint*)> filter) {
+    GameScene* scene = lbl_8087F430->m10D8;
+    int total = 0;
+    atn::SimpleArray<int> weights;
+    weights.Resize_unk(scene->m74, 0);
+    memset(weights.mData, 0, weights.mSize * sizeof(int));
+    if (group > 0) {
+        for (int i = 1; i <= scene->m74; i++) {
+            if (scene->m98.mData[i - 1].m2C != 0) {
+                gs::MovePoint& p = scene->m98[i - 1];
+                weights[i - 1] = 0;
+                if (filter.empty()) {
+                    if (group == p.m20) {
+                        weights[i - 1] = MoveWeight_unk(&p);
+                    }
+                } else if (filter(&p)) {
+                    weights[i - 1] = MoveWeight_unk(&p);
+                }
+            }
+        }
+    } else {
+        for (int i = 1; i <= scene->m74; i++) {
+            if (scene->m98.mData[i - 1].m2C != 0) {
+                gs::MovePoint& p = scene->m98[i - 1];
+                if (filter.empty() || filter(&p)) {
+                    weights[i - 1] = MoveWeight_unk(&p);
+                }
+            }
+        }
+    }
+    for (int i = 1; i <= scene->m74; i++) {
+        if (scene->m98[i - 1].m2C != 0) {
+            total += weights[i - 1];
+        }
+    }
+    if (total == 0) {
+        return -1;
+    }
+    int r = rand() % total;
+    int found;
+    for (int i = 1; i <= scene->m74; i++) {
+        if (scene->m98[i - 1].m2C != 0) {
+            if (r < weights[i - 1]) {
+                found = i;
+                break;
+            }
+            r -= weights[i - 1];
+        }
+    }
+    return found;
 }
 
 void AIManager::fn_80016FB4() {

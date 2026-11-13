@@ -14,6 +14,9 @@ class EnemyTask;
 class NpcTask;
 class PlayerTask;
 struct HitInfo_unk;
+namespace gs {
+struct MovePoint;
+}
 
 // inferred: object with a position at +0x10 aimed at by AiTarget type 2 (class unknown)
 struct AiTargetObj_unk {
@@ -57,8 +60,10 @@ public:
     static AIManager* fn_800144FC(atn::Task* parent); // inferred: creates the singleton
 
     void fn_80016888();
-    void fn_80016A94(CharaTask* chara, boost::function<void()> callback);
-    int fn_80016C10(int group, boost::function<void()> callback); // inferred: random point of a route group
+    void fn_80016A94(CharaTask* chara, boost::function<int(gs::MovePoint*)> filter);
+    // inferred: random move point weighted by its fields, of group `group` or accepted by `filter` (the
+    // invoker is called with the point and its result is tested; the signature is inferred)
+    int fn_80016C10(int group, boost::function<int(gs::MovePoint*)> filter);
     void fn_80016FB4(); // inferred: clears the targets and the target counters of the characters
     void fn_80017060();
     int fn_80017064(CharaTask* chara); // inferred: runs the AI of a character m98 times

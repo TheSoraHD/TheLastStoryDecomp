@@ -9,6 +9,7 @@
 #include "db/EquipParam_unk.h"
 #include "atn/Memory.h"
 #include "game/PlayerManager.h"
+#include "db/ChapterList_unk.h"
 
 extern "C" const char* fn_8020BD3C(int index); // inferred: name of the group of a colour (db/PaletteTable_unk)
 extern "C" const char* fn_8020BD78(int index); // inferred: name of an effect palette
@@ -28,12 +29,8 @@ struct InventoryIconUV_unk {
     float v1;
 };
 
-// inferred: field (lbl_8087F430); only the member used here
-struct InventoryField_unk {
-    unsigned char m0000[0x5694];
-    int m5694; // inferred: read by fn_8044909C
-};
-extern "C" InventoryField_unk* lbl_8087F430;
+extern "C" GameTask* lbl_8087F430;
+extern "C" PlayerManager* lbl_8087F8A0; // inferred: party
 
 // inferred: the bag of items, the money and the equipment of the party
 Inventory* Inventory::instance_;
@@ -303,6 +300,60 @@ extern "C" int fn_80444CF8(wchar_t* text, int code, int count, int rare) {
     return 1;
 }
 
+extern "C" ChapterEntry_unk* fn_802085E0(int type, int map); // db/ChapterList_unk
+extern "C" int rand();
+
+// inferred: multiplier of the money dropped by the progress of the story (m10D0 / 100000)
+const float lbl_80754730[8] = {1.0f, 1.0f, 1.1f, 1.5f, 2.0f, 3.0f, 3.0f, 0.0f};
+
+// inferred: `base` raised by a random fraction of itself (0-100 %); name invented
+static inline float RandScale_unk(float base) {
+    return base + base * ((rand() % 1001) / 1000.0f);
+}
+
+// inferred: money dropped by an enemy (gmk/DropItem): grows with the level of `chara` (the leader of
+// the party without one, else the level of the chapter) and with the progress of the story
+extern "C" int fn_80444EFC(CharaTask* chara) {
+    int level = 0;
+    int progress = 0;
+    if (chara == 0) {
+        chara = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0;
+    }
+    if (chara != 0) {
+        level = chara->mStatus.mParamA.m78;
+    } else if (lbl_8087F430 != 0 && lbl_8087F430->m10D4 != 0) {
+        level = lbl_8087F430->m10D4->m58;
+    } else if (Inventory::instance_ != 0 && Inventory::instance_->mDB14 != 0 && Inventory::instance_->mDB18 == 2) {
+        ChapterEntry_unk* chapter = fn_802085E0(2, Inventory::instance_->mDB1C);
+        if (chapter != 0) {
+            level = chapter->m58;
+        } else {
+            level = 0;
+        }
+    }
+    float rate = 1.0f;
+    if (lbl_8087F430 != 0) {
+        int v = lbl_8087F430->m10D0;
+        progress = 600000;
+        if ((v > 0 ? v : 0) < progress) {
+            progress = v > 0 ? v : 0;
+        }
+    } else if (Inventory::instance_->mDB14 != 0 && Inventory::instance_->mDB18 == 2) {
+        ChapterEntry_unk* chapter = fn_802085E0(2, Inventory::instance_->mDB1C);
+        if (chapter != 0) {
+            int v = chapter->m04;
+            progress = 600000;
+            if ((v > 0 ? v : 0) < progress) {
+                progress = v > 0 ? v : 0;
+            }
+        }
+    }
+    if (progress > 0) {
+        rate *= lbl_80754730[progress / 100000];
+    }
+    return (int)(rate * (level * 3 * RandScale_unk(8.0f)));
+}
+
 // inferred: chance of finding a weapon by rank (the second one once the weapon was found)
 static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
 static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
@@ -324,9 +375,9 @@ int Inventory::fn_80448F9C(int code) {
             rate = sWeaponRate0_unk[weapon->m118];
         }
         if (lbl_8087F430 != 0) {
-            if (((GameTask*)lbl_8087F430)->fn_80370174(0x8A) == 1) {
+            if (lbl_8087F430->fn_80370174(0x8A) == 1) {
                 rate = 0;
-            } else if (((GameTask*)lbl_8087F430)->fn_80370174(0x8A) >= 2) {
+            } else if (lbl_8087F430->fn_80370174(0x8A) >= 2) {
                 rate = 100;
             }
         }
@@ -334,18 +385,18 @@ int Inventory::fn_80448F9C(int code) {
     return rate;
 }
 
-extern "C" PlayerManager* lbl_8087F8A0; // inferred: party
 
-// inferred: rewards of a defeated enemy (outputs added to m6014/m6018); name invented
-extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate);
 // inferred: settings (lbl_8087F0A8); only the member used here
 struct InventorySettings_unk {
-    unsigned char m000[0x160];
+    unsigned char m000[0xD4];
+    int mD4; // inferred: mode of the level scaling of the rewards (3: by tenths; fn_80449448)
+    unsigned char m0D8[0x160 - 0xD8];
     int m160; // inferred: debug: fixed protectors (fn_8044D208)
     unsigned char m164[0x18C - 0x164];
     int m18C; // inferred: debug: random protectors (fn_8044D208)
     unsigned char m190[0x280 - 0x190];
     int m280; // inferred: experience is shared (fn_80449A18)
+    int m284; // inferred: the rewards are scaled by the difference of levels (fn_80449448)
 };
 extern "C" InventorySettings_unk* lbl_8087F0A8;
 extern "C" void* lbl_8087F610; // inferred: multiplayer session
@@ -381,10 +432,62 @@ void Inventory::fn_804490E0(ItemParamEntry_unk* item, int member) {
         CharaStatus* status = chara != 0 ? chara->GetStatus_unk() : &mPlayers[member];
         status->fn_801342D0((StatusItem_unk*)item, stat);
         status->fn_8012B988();
-        if (lbl_8087F430 == 0 || ((GameTask*)lbl_8087F430)->fn_80375184() == 0) {
+        if (lbl_8087F430 == 0 || lbl_8087F430->fn_80375184() == 0) {
             status->fn_8012D8B8();
         }
     }
+}
+
+extern "C" double pow(double x, double y);
+
+// inferred: rewards of a defeated enemy (outputs added to m6014/m6018 by fn_80449A18): the level is
+// lowered by fn_80375B78 and the rate raised when the enemy is above fn_80375D0C; capped at 99999
+extern "C" void fn_804491F4(int* a, int* b, int level, int exp, int arg4, float rate) {
+    if (lbl_8087F430 != 0 && lbl_8087F430->fn_803754F0() == 0) {
+        level -= lbl_8087F430->fn_80375B78(0);
+        level = level < 1 ? 1 : level;
+    }
+    if (1.0f < rate && rate <= 3.5f && lbl_8087F430 != 0) {
+        int top = lbl_8087F430->fn_80375D0C();
+        if (level > top) {
+            rate = 1.1f > rate + (top - level) ? 1.1f : rate + (top - level);
+        }
+    }
+    int n = (level - 1 < 1 ? 1 : level - 1) > 69 ? 69 : (level - 1 < 1 ? 1 : level - 1);
+    float p = pow((float)n, 1.8f);
+    *a = (int)(60.0f * p / 10.0f) + arg4;
+    *b = (int)(0.25f * (*a * exp));
+    *a = (int)(*a * rate);
+    *b = (int)(*b * rate);
+    *a = *a < 99999 ? *a : 99999;
+    *b = *b < 99999 ? *b : 99999;
+}
+
+// inferred: the original repeats the expressions of the clamps (macros, not inline functions); names
+// invented
+#define INV_MIN_unk(a, b) ((a) < (b) ? (a) : (b))
+#define INV_MAX_unk(a, b) ((a) > (b) ? (a) : (b))
+
+// inferred: scales the rewards `a`/`b` by the difference between the levels `level` and `other` (the
+// experience is not reduced while the flag 0x123 is set and the difference is at most 10)
+extern "C" void fn_80449448(int* a, int* b, int level, int other) {
+    if (lbl_8087F0A8->m284 == 0) {
+        return;
+    }
+    if (level <= other) {
+        if (lbl_8087F0A8->mD4 == 3) {
+            *a = (int)(*a * INV_MAX_unk(1.0f, INV_MIN_unk(3.0f, 0.1f * (other - level))));
+            *b = (int)(*b * INV_MAX_unk(1.0f, INV_MIN_unk(3.0f, 0.1f * (other - level))));
+        } else {
+            *a = (int)(*a * INV_MAX_unk(0.1f, INV_MIN_unk(100.0f, 0.75f * (other - level) + 1.0f)));
+            *b = (int)(*b * INV_MAX_unk(0.1f, INV_MIN_unk(100.0f, 0.75f * (other - level) + 1.0f)));
+        }
+    } else if ((lbl_8087F430 != 0 ? lbl_8087F430->fn_80370174(0x123) == 0 : 1) || level - other > 10) {
+        *a = (int)(*a * INV_MAX_unk(0.05f, INV_MIN_unk(100.0f, 0.18f * (other - level) + 1.0f)));
+        *b = (int)(*b * INV_MAX_unk(0.05f, INV_MIN_unk(100.0f, 0.18f * (other - level) + 1.0f)));
+    }
+    *a = INV_MAX_unk(1, INV_MIN_unk(*a, 99999));
+    *b = INV_MAX_unk(0, INV_MIN_unk(*b, 99999 - *a));
 }
 
 void Inventory::fn_80449A18(int killer, int level, int exp, int arg4, float rate) {
@@ -451,7 +554,6 @@ extern "C" int fn_8044D1A4(Inventory* inventory, int slot, int chara) {
 extern "C" int fn_8044D3A0(Inventory* inventory, int slot, int chara);
 extern "C" void fn_8044D490(Inventory* inventory, int index);
 
-extern "C" int rand();
 
 int Inventory::fn_8044D208(int slot, int chara) {
     int index = fn_80219558(chara);
