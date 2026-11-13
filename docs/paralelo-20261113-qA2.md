@@ -33,6 +33,10 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
     marco 0x10 mayor). Usa `PlayEfp_unk`, `fn_801070C8`/`fn_80107208` (se inlinean) y `HasCond_unk` (inline nuevo).
   - `fn_8010220C` (reticula de la camara: color, anillos con el stick y centro; 99,0 %, registros volatiles).
     Miembros nuevos `mCB34`, `mCB38`, `mCB40`, `mCB48`, `mCB50` (`atn::Vector2_unk`); `Arena_unk::m50C`.
+  - `fn_800FCD24` (bala contra la esfera `index`; 97,3 %: huecos de las matrices de giro). El noveno argumento es
+    el `BattleCalcParam_unk*` de salida (copia de m38A5C), el decimo float no se lee. Inline nuevo
+    `HitCenterAt_unk` (como `HitCenter_unk` con indice); `BattleDamage_unk`/`fn_80108C10`/`fn_8010B250` suben
+    delante.
 
 ## Decisiones tomadas sin el usuario
 
