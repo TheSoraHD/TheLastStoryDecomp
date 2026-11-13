@@ -29,6 +29,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   tras rand()); queda la pila del vector frontal.
 - `game/Em206EggMonster` (fuera de colas): fn_802C38E4 99,32 -> 99,93 (`next = rand() % 2 == 0 ? 2 : 4;`:
   con constantes que difieren en 2 basta un ?: de `int`); quedan las ranuras de pila.
+- `game/EnemyTrista` (fuera de colas): fn_8035CF78 97,99 -> 100 %. El float de fn_800F8C6C va antes de
+  `time` y `count` en la declaracion (el orden de evaluacion del original es 0.0f, 30, m594).
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
@@ -56,7 +58,13 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   `neg`/`cntlzw` donde el original salta son pocas (MaterialParser fn_8007C46C, EffectDesc fn_80234CD8,
   D2AMpMenuLobby fn_804C18A8): pendientes.
 
+- **Orden de evaluacion de argumentos = orden de la declaracion**: un `lfs` de un argumento float antes
+  que los `li`/`lwz` de enteros posteriores indica que el float esta antes en la lista de parametros
+  (EnemyTrista, fn_800F8C6C). `limove.py` (scratch-N2) busca `li` movidos en las parciales.
+
 ## Decisiones tomadas sin el usuario
+- `fn_800F8C6C` en EnemyTrista.cpp declarada con el float en 7a posicion; las otras ~40 unidades la declaran
+  con el float al final (cada una su propia `extern "C"`, deuda de BattleTask): no se tocan.
 
 - `include/gmk/MeetingSpot.h`: `PlayMotion_unk` pasa de `inline` a declaracion normal (la incluyen
   MeetingSpot y GimmickCommon; sin cambio de `@N`, labelcheck/rep100 igual).
