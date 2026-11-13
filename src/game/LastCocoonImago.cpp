@@ -11,6 +11,7 @@
 #include <boost/tokenizer.hpp>
 #include "std/string_members.h"
 #include "std/string.h"
+#include "macros.h"
 
 // inferred: effect/bullet manager (lbl_8087F048); only the member used here (name invented)
 struct Effect_unk {
@@ -367,6 +368,119 @@ void LastCocoonImago::vf80(const atn::Vector3& pos, const atn::Vector3& dir) {
     mRot = rot;
     fn_80144710();
     mMotion.CalcMatrixStack(atn::ModelNodeCallback_unk());
+}
+
+extern "C" double sin(double x);
+// inferred: pulsing glow of the body (frame counter m1978, `speed` degrees per frame); name invented
+static inline float ImagoGlow_unk(const int& frame, float speed) {
+    return 0.6f * MIN(1.0f, 0.5f * (float)sin(0.017453292f * (speed * frame)) + 0.5f) + 0.2f;
+}
+
+// NONMATCHING: 95% - the three channels: ours multiplies the first one and copies it (they start equal)
+// inferred: colours of the body parts: pulsing glow, faded in and out by the frame of the motion in the
+// modes 9, 10 and 12
+void LastCocoonImago::fn_8045CB24() {
+    float r = ImagoGlow_unk(m1978, 4.0f);
+    float g = r;
+    float b = r;
+    switch (m58C) {
+    case 9:
+        if (mMotion.mTracks[0].m08 < 20.0f) {
+            float k = 1.0f - mMotion.mTracks[0].m08 / 20.0f;
+            r *= k;
+            g *= k;
+            b *= k;
+        } else if (mMotion.mTracks[0].m08 < 86.0f) {
+            if (mMotion.mTracks[0].m08 < 71.0f) {
+                g = MIN(1.0f, MAX(0.0f, (mMotion.mTracks[0].m08 - 30.0f) / 20.0f));
+            } else {
+                g = MIN(1.0f, MAX(0.0f, 1.0f - (mMotion.mTracks[0].m08 - 71.0f) / 15.0f));
+            }
+            r = g;
+            m1978 = 0x43;
+            b = 0.0f;
+        } else {
+            float k = MIN(1.0f, (mMotion.mTracks[0].m08 - 76.0f) / 30.0f);
+            r *= k;
+            m1978 = 0x43;
+            g *= k;
+            b *= k;
+        }
+        break;
+    case 10:
+        if (mMotion.mTracks[0].m08 < 20.0f) {
+            float k = 1.0f - mMotion.mTracks[0].m08 / 20.0f;
+            r *= k;
+            g *= k;
+            b *= k;
+        } else if (mMotion.mTracks[0].m08 < 65.0f) {
+            if (mMotion.mTracks[0].m08 < 50.0f) {
+                g = MIN(1.0f, MAX(0.0f, (mMotion.mTracks[0].m08 - 20.0f) / 20.0f));
+            } else {
+                g = MIN(1.0f, MAX(0.0f, 1.0f - (mMotion.mTracks[0].m08 - 50.0f) / 15.0f));
+            }
+            r = g;
+            m1978 = 0x43;
+            b = g;
+        } else {
+            float k = MIN(1.0f, (mMotion.mTracks[0].m08 - 65.0f) / 15.0f);
+            r *= k;
+            m1978 = 0x43;
+            g *= k;
+            b *= k;
+        }
+        break;
+    case 12:
+        if (mMotion.mTracks[0].m08 > 140.0f) {
+            r = ImagoGlow_unk(m1978, 64.0f);
+            g = r;
+            b = r;
+            float end = mMotion.fn_80097D7C(0) - 120.0f;
+            if (mMotion.mTracks[0].m08 > end) {
+                float k = MAX(0.0f, 1.0f - (mMotion.mTracks[0].m08 - end) / 90.0f);
+                r *= k;
+                g *= k;
+                b *= k;
+            }
+        } else {
+            r = ImagoGlow_unk(m1978, 16.0f);
+            g = r;
+            b = r;
+        }
+        break;
+    case 7:
+    case 8:
+    case 14:
+        r = ImagoGlow_unk(m1978, 16.0f);
+        g = r;
+        b = r;
+        break;
+    }
+    Color4f_unk one;
+    Color4f_unk cb;
+    Color4f_unk cg;
+    Color4f_unk cr;
+    cr.r = r;
+    cr.g = r;
+    cr.b = r;
+    cr.a = 1.0f;
+    cg.r = g;
+    cg.g = g;
+    cg.b = g;
+    cg.a = 1.0f;
+    cb.r = b;
+    cb.g = b;
+    cb.b = b;
+    cb.a = 1.0f;
+    one.r = 1.0f;
+    one.g = 1.0f;
+    one.b = 1.0f;
+    one.a = 1.0f;
+    mMotion.fn_80094958("em206_body_l", &cr, &one, &one);
+    mMotion.fn_80094958("em206_tail_l", &cr, &one, &one);
+    mMotion.fn_80094958("em206_rarm_l", &cg, &one, &one);
+    mMotion.fn_80094958("em206_larm_l", &cb, &one, &one);
+    m1978++;
 }
 
 void LastCocoonImago::vf38(int enable) {

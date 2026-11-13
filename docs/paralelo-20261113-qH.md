@@ -20,6 +20,17 @@
 - fnstat: 21 / 42 al 100 % (sin cambio). Sin escribir: 14 -> 9 (quedan las copias debiles de vf0C,
   fn_80454554/64 de vf10, fn_80455638, fn_804562E4).
 
+## game/LastCocoonImago
+
+- fn_8045CB24 (colores de las partes del cuerpo: brillo pulsante con `MIN`/`MAX` de macros.h, que
+  reevaluan el seno como el original; fundidos por el frame del motion en los modos 9, 10 y 12): 0 -> 95 %
+  (los tres canales empiezan iguales y nuestro MWCC multiplica uno y copia; con un `Vector3` baja a 82 %).
+- fn_80459FB8 = `vfBC(void*)`: `return sphere != &m18FC` sale al 100 %, pero anadir el argumento a
+  `CharaTask::vfBC` renumera las `@N` (y un `@enum$`) de muchas unidades que incluyen CharaTask.h
+  (precommit: lost en chr/ControlAppear, labelcheck peor en ~50 unidades). Revertido; pendiente para una
+  sesion con tiempo para `pdbatch.sh` de las 217 unidades.
+- fnstat 18 / 36 (sin cambio).
+
 ## Decisiones tomadas sin el usuario
 
 - `EggField_unk` (lbl_8087F430) pasa a llamarse `Field_unk` en LastCocoonEgg.cpp, con

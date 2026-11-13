@@ -32,6 +32,7 @@ public:
     void fn_8045E548(); // inferred: mode with the motions 0x14B-0x14D, then mode 10
     void fn_8045E780(); // inferred: mode 10: lunges towards m14D4 with the bullet 0x5B6
     inline void ResetAttacks_unk();
+    void fn_8045CB24(); // inferred: colours of the body parts
     void fn_8045D224(); // inferred: mode update: holds the gimmick motion, frame 120 disables the capsules
     void fn_8045EB60();
     void fn_8045F4CC(); // inferred: sends message 4 to the gimmicks of type 1 touching the body // inferred: mode 2 (motion 0x37, or 0x31 from frame 200 after mode 14)
