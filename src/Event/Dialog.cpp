@@ -25,7 +25,6 @@ namespace Event {
 class Dialog;
 }
 
-extern "C" void fn_80012054(Event::Actor* actor, int a, int b, int c, float f1, float f2);
 extern "C" int fn_8006AA20(const char* path); // inferred: nonzero if the file exists
 
 // inferred: render manager (see game/MenuCommonTask.cpp)
@@ -470,7 +469,7 @@ void Dialog::fn_80228FD8() {
             if (actor->fn_800128FC()->m1208 != 0) {
                 actor->fn_800128FC()->fn_801750FC();
             }
-            fn_80012054(actor, 0, 1, 0x14, 1.0f, 0.0f);
+            actor->fn_80012054(0, 1, 0x14, 1.0f, 0.0f);
         }
     }
     if (lbl_8087F430 != 0) {
