@@ -37,6 +37,7 @@ struct GameCameraTimer_unk {
 // inferred: parameters of a camera mode (0x3C bytes, at 0x4C0 and 0x684; copy 0x8037E964, blend 0x8037F830);
 // names invented
 struct GameCameraParam_unk {
+    GameCameraParam_unk(); // inferred: clears m34 (inline, defined in game/GameCamera_unk.cpp)
     // inferred: weak copy 0x8037E964
     GameCameraParam_unk(const GameCameraParam_unk& o)
         : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
@@ -186,7 +187,7 @@ public:
     atn::Camera m1F4;      // 0x1F4: inferred: camera given to the render manager
     unsigned char m3E8[0x424 - 0x3E8];
     GameCameraTimer_unk m424; // inferred: blend of the event camera (fn_8038CD94)
-    unsigned char m430[0x46C - 0x430];
+    GameCameraParam_unk m430; // inferred: parameters the blend m424 starts from (fn_8037E12C)
     GameCameraModeParam_unk m46C;
     GameCameraTimer_unk m4B4; // inferred: blend from m684 to m4C0
     GameCameraParam_unk m4C0;

@@ -23,7 +23,12 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
   del pitch. Salen al 100 % sus copias weak `fn_8037F640` (cos) y `atn::Camera::SetUpVector`.
 - `fn_8038AEF0`: el umbral era 1.0e-6f y el original lee 0.0001 (0x808859DC): corregido (quita el aviso
   1e-06 de poolcheck).
-- Funciones al 0 %: 16 -> 13. Al 100 %: 28 -> 41 de 90.
+- `GameCamera::fn_8037E12C` (0x8037E12C, 1904 bytes; lee el csv de camaras del mapa): escrita, NONMATCHING 66 %:
+  el original copia los ajustes del jugador de GameConfig_unk (0x244-0x333, un struct alli, miembros sueltos
+  aqui) a una local y de vuelta para las dos distancias de fijado (0xF0 bytes mas de pila); el resto coincide.
+  Con sus cadenas ("gun".."fixRotY") el pool queda completo: `fn_8037E9E0`, `fn_8037ECF0` y `fn_8039328C`
+  pasan al 100 % (poolorder igual).
+- Funciones al 0 %: 16 -> 12. Al 100 %: 28 -> 44 de 90.
 
 ## Decisiones tomadas sin el usuario
 
@@ -50,12 +55,16 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
 - Bloque de ayudantes `extern "C" inline` (fn_80011220, fn_8037F664, fn_801C3910, ...) subido delante de
   fn_803830A8 para usarlo en fn_80382A1C; `fn_803830A0` tambien. `fn_805B81F0` declarada `extern "C"` como en
   game/TownTask.cpp.
+- `GameCamera.h`: constructor por defecto `GameCameraParam_unk();` declarado sin definir (pone m34 a 0; la
+  definicion inline esta en `GameCamera_unk.cpp`, no renumera: labelcheck igual) y `GameCameraParam_unk m430` en
+  lugar del relleno (miembro de datos). Con el ctor declarado faltaria aun la herencia para el ctor de GameCamera.
 - `.sdata` lbl_8087DD04..lbl_8087DD34 (extremos de las mezclas) quedan `extern "C"` como lbl_8087DCF0..DD00.
 - Etiquetas ambiguas de `.sdata2` que `pd.sh` no re-empareja, renombradas a mano con su direccion:
   `@15867`->`@16522` (0x808858E8), `@15896`->`@16551` (0x808858F8), `@15877`->`@16532` (0x80885954),
   `@15893`->`@16548` (0x80885910); tras fn_80390A88 otra vez (+732): `@17254` (0x808858E8), `@17283`
   (0x808858F8), `@17280` (0x80885910), `@17264` (0x80885954). En GameTask `@27395`/`@27396` (0x808857A8/AC).
-  Tras fn_80382A1C (+570): `@17824`, `@17853`, `@17850`, `@17834` en las mismas direcciones.
+  Tras fn_80382A1C (+570): `@17824`, `@17853`, `@17850`, `@17834` en las mismas direcciones; tras fn_8037E12C
+  (+187): `@18011`, `@18040`, `@18037`, `@18021`.
 - poolcheck de GameCamera_unk avisa ahora de la cadena '?fff>L' (0.9 seguido de 0.2 en nuestro .sdata2: orden del
   pool por primer uso; la unidad no enlaza).
 
@@ -73,6 +82,8 @@ Unidades: `game/GameCamera_unk`, `game/FinishCamera_unk`.
 ## Pendientes
 
 - `fn_80390A88`: pila (ver arriba).
+- `fn_8037E12C`: agrupar 0x244-0x333 de `GameConfig_unk.h` en un struct (otra familia; cambia sus usos) para
+  llegar al 100 %.
 - `atn::Matrix3x4::fn_8013A13C` deberia ser estatica y devolver la matriz (cambia todos sus llamadores, otra
   familia): con eso fn_80382A1C llegaria casi al 100 %.
 - TacView.h: declarar `fn_805AA94C` como metodo y los campos de `TacViewTarget_unk` (0x10) y `m15AC` (cola A2).

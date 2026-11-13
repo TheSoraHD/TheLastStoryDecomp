@@ -20,6 +20,7 @@
 #include "game/Input_unk.h"
 #include "chr/ControlBase.h"
 #include "game/TacView.h"
+#include "atn/Csv.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -243,6 +244,102 @@ void GameCamera::fn_8037DD00() {
     m424.mActive = 0;
 }
 
+extern "C" int atoi(const char* s);
+extern "C" int strcmp(const char* a, const char* b);
+inline GameCameraParam_unk::GameCameraParam_unk() : m34(0.0f) {}
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+
+// inferred: reads the camera csv of the map (lines "camera, gun|sword, mode, 14 parameters"): the lines of `camera`
+// set the parameters of their mode (fn_8038EF94; the default mode also reads the two lock-on lengths of the player,
+// 60 added); "fixRotY" blends into the fixed camera over 30 frames (none on the first map load), otherwise over
+// `frames` frames from the parameters of the hips mode
+// NONMATCHING: 66% - the original copies the player settings of GameConfig_unk (0x244-0x333, a struct there,
+// separate members here) into a local and back for the two lock-on lengths (0xF0 more bytes of stack)
+void GameCamera::fn_8037E12C(void* data, int size, int camera, int frames) {
+    GameCameraParam_unk base(m51C);
+    atn::Csv csv((const char*)data, size);
+    while (csv.fn_8005BBF8()) {
+        if (camera != atoi(csv.fn_8005B9CC())) {
+            continue;
+        }
+        const char* s = csv.fn_8005B9CC();
+        int weapon = -1;
+        int mode = -1;
+        if (strcmp(s, "gun") == 0) {
+            weapon = -1;
+        } else if (strcmp(s, "sword") == 0) {
+            weapon = 1;
+        }
+        if (weapon < 0) {
+            continue;
+        }
+        s = csv.fn_8005B9CC();
+        if (strcmp(s, "default") == 0) {
+            mode = 0;
+        } else if (strcmp(s, "hide") == 0) {
+            mode = 2;
+        } else if (strcmp(s, "shoot") == 0) {
+            mode = 3;
+        } else if (strcmp(s, "crouch") == 0) {
+            mode = 4;
+        } else if (strcmp(s, "control") == 0) {
+            mode = 1;
+        } else if (strcmp(s, "chant") == 0) {
+            mode = 5;
+        } else if (strcmp(s, "birdView") == 0) {
+            mode = 6;
+        } else if (strcmp(s, "chase") == 0) {
+            mode = 8;
+        } else if (strcmp(s, "chaseRear") == 0) {
+            mode = 9;
+        } else if (strcmp(s, "fix") == 0) {
+            mode = 10;
+        } else if (strcmp(s, "fixRotY") == 0) {
+            mode = 11;
+        }
+        if (mode < 0) {
+            continue;
+        }
+        GameCameraParam_unk param;
+        param.m00 = fn_800DC288(csv.fn_8005B9CC());
+        param.m04 = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+        param.m08 = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+        param.m0C = fn_800DC288(csv.fn_8005B9CC());
+        param.m10 = fn_800DC288(csv.fn_8005B9CC());
+        param.m14 = fn_800DC288(csv.fn_8005B9CC());
+        param.m18 = fn_800DC288(csv.fn_8005B9CC());
+        param.m1C = fn_800DC288(csv.fn_8005B9CC());
+        param.m20 = fn_800DC288(csv.fn_8005B9CC());
+        param.m24 = fn_800DC288(csv.fn_8005B9CC());
+        param.m28 = fn_800DC288(csv.fn_8005B9CC());
+        param.m2C = fn_800DC288(csv.fn_8005B9CC());
+        param.m30 = fn_800DC288(csv.fn_8005B9CC());
+        param.m34 = fn_800DC288(csv.fn_8005B9CC());
+        param.m38 = mode != 6;
+        fn_8038EF94(&param, mode);
+        if (mode == 0) {
+            lbl_8087F0A8->mLockOnLen = 60.0f + fn_800DC288(csv.fn_8005B9CC());
+            lbl_8087F0A8->mLockOnReleaseLen = 60.0f + fn_800DC288(csv.fn_8005B9CC());
+        }
+        if (mode == 11) {
+            frames = 30;
+            if (lbl_8087F430 != 0 && lbl_8087F430->m54EC == 0) {
+                frames = 0;
+            }
+            m424.mActive = 0;
+        }
+        if (m7FC != mode) {
+            m424.mActive = 0;
+        }
+    }
+    if (frames > 0 && m424.mActive != 1 && m424.mActive != 4) {
+        m424.mActive = 1;
+        m430 = base;
+        m424.mStep = 1.0f / (float)frames;
+        m424.mTime = 1.0f;
+    }
+}
+
 // inferred: starts the parameters of a camera mode (blend weight 1, decreased by the speed)
 void GameCameraModeParam_unk::fn_8037E89C(int mode, const GameCameraParam_unk& param, float step) {
     if (mMode != mode && mMode != 4) {
@@ -296,7 +393,6 @@ void GameCamera::fn_8037E9E0() {
 }
 
 // inferred: debug menu of the parameters of a camera mode
-// NONMATCHING: 94.3% - offsets of the strings until the rest of the pool is written; named floats
 void GameCamera::fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* param) {
     void* group = fn_8008937C(menu, name);
     fn_8008771C(group, "Length", &param->m00, 0, 0, 1.0f, 10000.0f, 5.0f);
@@ -3090,8 +3186,6 @@ void GameCamera::fn_80392FE8() {
 }
 
 // inferred: debug display of the camera (position, target and the point of the tactical view)
-// NONMATCHING: only the offsets of the two formats in the file pool differ (0x1F0/0x20D in the original:
-// the strings of the mode functions before them are not written yet)
 void GameCamera::fn_8039328C() {
     if (m7F0 != 0) {
         char buf[256];
