@@ -77,6 +77,7 @@ public:
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
     CampSaveData_unk* GetData_unk() { return mMode == 0 ? (CampSaveData_unk*)m4C : (CampSaveData_unk*)m50; }
+    SaveSlot_unk* GetSlot_unk(int slot) { return &GetData_unk()->mSlots[slot]; } // inferred: name invented
     void fn_80119030(int state, int arg); // inferred: changes the state
     void fn_8011968C();                   // inferred: handles the cancel/back input
     void fn_8011979C();                   // inferred: handles the confirmation window input

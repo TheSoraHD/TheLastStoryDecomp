@@ -5,8 +5,8 @@
 - `game/RouteWalker_unk` 6 -> 2 al 0 %. Al 100 %: `fn_80128CF8` (meta a la vista), `fn_80129670` (segmento entre
   dos puntos). Escritas: `fn_80128090` (97,05 %, replanifica el modo actual), `fn_80129144` (98,97 %, va directo a
   la meta). Quedan `fn_801255C8` (3 KB) y `fn_80126214` (6 KB).
-- `game/CampSaveLoad` 8 -> 5 al 0 %. Al 100 %: `vf10` (0x801185E0). Escritas: `vf0C` (92,83 %), `fn_8011B018`
-  (99,33 %). Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
+- `game/CampSaveLoad` 8 -> 3 al 0 %. Al 100 %: `vf10` (0x801185E0). Escritas: `vf0C` (92,83 %), `fn_8011B018`
+  (99,33 %), `fn_801191A8` (98,58 %, estado 1), `fn_8011999C` (92,34 %, estado 5). Sube `fn_8011B8D4` 95,79 -> 99,93 % (pool de cadenas).
 
 ## NONMATCHING
 
@@ -19,6 +19,9 @@
   misma base (pool aun incompleto: faltan vf14 y los ayudantes de estado).
 - `CampSaveLoad::fn_8011B018` 99,33 %: offsets del pool y registros r23/r24 (tamano/puntero) de los dos `+=`
   cruzados; probado `append` y `replace(size(), 0, s)`.
+- `CampSaveLoad::fn_801191A8` 98,58 % y `fn_8011999C` 92,34 %: registros del layout de `m60` en los textos de
+  aviso (el original lo toma antes del hash del nombre), indice/puntero del ultimo bucle cruzados, pool. Los avisos
+  repetidos no son una inline (los temporales de `SoundRef` estan arriba en la pila, en el orden del fuente).
 
 ## Decisiones tomadas sin el usuario
 
@@ -37,6 +40,8 @@
 - `GameSaveSlot_unk*` por cast desde `SaveSlot_unk*` (vista local de CampSaveLoad del mismo slot de 0xB8 bytes):
   deuda de la regla 10, pendiente unificar.
 - `fn_801F4D80(name, (int)path.c_str())` como en NewCampPartsMapSelect (la firma de `atn/D2A_Task.h` tiene `int`).
+- `CampSaveLoad::GetSlot_unk(int)` inline nueva en `game/CampSaveLoad.h` (el original carga el indice antes de
+  `GetData_unk()`).
 - Renombrados en `symbols.txt`: `vf0C/vf10/vf14__12CampSaveLoadFv`, `fn_8011B018__12CampSaveLoadFiP12SaveSlot_unk`,
   `fn_801191A8/fn_8011999C/fn_80119F0C/fn_8011A4D0__12CampSaveLoadFv`.
 

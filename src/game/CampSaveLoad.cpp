@@ -8,6 +8,8 @@
 #include "game/TutorialTask.h"
 #include "game/GameLoadTask.h"
 #include "db/MapIdTable_unk.h"
+#include "game/GameSaveBackground.h"
+#include "game/GameLoadBackground.h"
 #include "atn/GraphicsDevice.h"
 #include "atn/DrawHelper.h"
 
@@ -413,6 +415,108 @@ void CampSaveLoad::vf1C() {}
 
 void CampSaveLoad::vf20() {}
 
+extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: system text
+extern "C" int fn_800A58D0(void* pad, int port);      // inferred: nonzero with the classic controller
+// inferred: the "delete" button of the current pad (name invented)
+inline int IsDeleteTriggered_unk() {
+    if (lbl_8087EF70 == 0) {
+        return 0;
+    }
+    return fn_800A58D0(lbl_8087EF70, 0) ? IsTriggered_unk(0xE) : IsTriggered_unk(0xF);
+}
+
+// inferred: text of the warning of the camp info panel (name invented)
+static inline void SetWarningText_unk(CampSaveLoad* menu, const wchar_t* text) {
+    SetPaneText_unk(menu->m60, "warning_msg", text);
+}
+
+// NONMATCHING: 98.58% - register of the m60 layout in the warning text, the loop index
+// and frame pointer of the last loop in swapped registers, and the string pool
+// inferred: state 1: choice of the slot
+void CampSaveLoad::fn_801191A8() {
+    if (IsTriggered_unk(4)) {
+        if (mMode == 1) {
+            if (((GameSaveSlot_unk*)&((CampSaveData_unk*)m50)->mSlots[m128])->fn_803BEAB4() == 0) {
+                fn_80117228(11);
+            } else {
+                m16C = 0;
+                fn_80117228(1);
+                fn_80119030(3, 0);
+            }
+        } else {
+            m16C = 0;
+            fn_80117228(1);
+            fn_80119030(3, 0);
+        }
+    } else if (IsTriggered_unk(5)) {
+        if (lbl_8087F430 != 0) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+                m16C = 2;
+                fn_80117228(2);
+                fn_80119030(3, 0);
+            } else {
+                fn_80117228(0x20);
+                fn_80119030(7, 0);
+            }
+        } else {
+            fn_80117228(0x20);
+            fn_80119030(7, 0);
+        }
+    } else if (IsDeleteTriggered_unk()) {
+        if (((GameSaveSlot_unk*)GetSlot_unk(m128))->fn_803BEAB4() == 0) {
+            fn_80117228(11);
+        } else if (m128 == 0) {
+            fn_80119030(4, 1);
+            fn_80117228(11);
+            if (m60 != 0) {
+                SetWarningText_unk(this, fn_80116FC0(1, 0x11A));
+            }
+            m170 = 1;
+        } else {
+            m16C = 1;
+            fn_80117228(1);
+            fn_80119030(3, 0);
+        }
+    } else {
+        int page = m134;
+        fn_8011B570();
+        if (page != m134) {
+            int prev = m128;
+            m128 = m134 * 8 + m130 * 4 + m12C + 1;
+            if (m134 == 2) {
+                m128 = 0;
+            }
+            if (prev != m128) {
+                m4C8 = 0.0f;
+            }
+            int d = m134 - page;
+            if (__abs(d) > 1) {
+                d = -d;
+            }
+            if (d > 0) {
+                mArrows[1].mTask->mFrame = 15.0f;
+                mArrows[1].mPressed = 1;
+            } else {
+                mArrows[0].mTask->mFrame = 15.0f;
+                mArrows[0].mPressed = 1;
+            }
+            if (m134 == 2) {
+                fn_8011B018(0, &GetData_unk()->mSlots[0]);
+                GameSaveSlot_unk empty;
+                for (int i = 2; i < 9; i++) {
+                    fn_8011B018(i + m134 * 8, (SaveSlot_unk*)&empty);
+                }
+            } else {
+                for (int i = 1; i < 9; i++) {
+                    int slot = i + m134 * 8;
+                    fn_8011B018(slot, &GetData_unk()->mSlots[slot]);
+                    m74[i - 1]->mFrame = 15.0f;
+                }
+            }
+        }
+    }
+}
+
 void CampSaveLoad::fn_8011968C() {
     if (IsTriggered_unk(4) || IsTriggered_unk(5)) {
         if (m128 == 0 || mMode != 1 || m16C != 0 || m170 != 2) {
@@ -469,6 +573,102 @@ void CampSaveLoad::fn_8011979C() {
 }
 
 // inferred: out-of-line destructor of the save elements (weak copy, emitted here)
+extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/GameSaveData_unk)
+extern "C" int fn_803BE854(MP::SaveData_unk* data);
+
+// NONMATCHING: 92.34% - registers of the warning texts (the original takes the layout of m60 before hashing the
+// pane name) and the string pool
+// inferred: state 5: waits for the save, load or delete (m16C) of the slot m128
+void CampSaveLoad::fn_8011999C() {
+    m14C++;
+    if (m16C == 0) {
+        if (mMode == 0) {
+            GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m4C->mD70;
+            if (bg->m154 != 0) {
+                return;
+            }
+            if (bg->fn_803B8144() == 0) {
+                fn_8011B018(m128, &((CampSaveData_unk*)m4C)->mSlots[m128]);
+                fn_80119030(6, 0);
+                fn_80117228(12);
+            } else {
+                fn_80119030(4, 1);
+                fn_80117228(11);
+                if (m60 != 0) {
+                    SetWarningText_unk(this, fn_80116FC0(1, 0x11C));
+                }
+                m170 = 1;
+            }
+        } else {
+            GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m50->m14F60;
+            if (bg->m154 != 0) {
+                return;
+            }
+            if (bg->fn_803B8144() != 0) {
+                fn_80119030(4, 1);
+                fn_80117228(11);
+                if (m60 != 0) {
+                    SetWarningText_unk(this, fn_80116FC0(1, 0x11E));
+                }
+                m170 = 1;
+            } else {
+                m50->fn_803B2FBC(m128);
+                if (fn_803BEB54(GetSlot_unk(m128)) != 0 || fn_803BE854(lbl_8087F460) != 0) {
+                    fn_80119030(4, 1);
+                    fn_80117228(11);
+                    if (m64 != 0) {
+                        SetPane_unk(m64, "ynOn", 0.0f);
+                        SetPane_unk(m64, "checkSubType", 0.0f);
+                        SetPaneText_unk(m64, "check_msg", fn_80116FC0(1, 0x11B));
+                    }
+                    if (lbl_8087F460 != 0) {
+                        delete lbl_8087F460;
+                        lbl_8087F460 = 0;
+                    }
+                    m170 = 2;
+                } else {
+                    fn_80119030(8, 0);
+                    fn_80117228(12);
+                }
+            }
+        }
+    } else if (mMode == 0) {
+        GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m4C->mD70;
+        if (bg->m154 != 0) {
+            return;
+        }
+        if (bg->fn_803B8144() == 0) {
+            fn_8011B018(m128, &((CampSaveData_unk*)m4C)->mSlots[m128]);
+            fn_80119030(9, 0);
+            fn_80117228(12);
+        } else {
+            fn_80119030(4, 1);
+            fn_80117228(11);
+            if (m60 != 0) {
+                SetWarningText_unk(this, fn_80116FC0(1, 0x120));
+            }
+            m170 = 1;
+        }
+    } else {
+        GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m50->m14F60;
+        if (bg->m154 != 0) {
+            return;
+        }
+        if (bg->fn_803B8144() == 0) {
+            fn_8011B018(m128, &((CampSaveData_unk*)m50)->mSlots[m128]);
+            fn_80119030(9, 0);
+            fn_80117228(12);
+        } else {
+            fn_80119030(4, 1);
+            fn_80117228(11);
+            if (m60 != 0) {
+                SetWarningText_unk(this, fn_80116FC0(1, 0x120));
+            }
+            m170 = 1;
+        }
+    }
+}
+
 MP::SaveElemB_unk::~SaveElemB_unk() {}
 
 // NONMATCHING: 88.8% - the original converts each pad result to a bool value (neg/or/srwi)
