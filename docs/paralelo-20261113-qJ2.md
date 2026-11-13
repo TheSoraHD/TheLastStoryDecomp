@@ -18,6 +18,9 @@ Inicio 07:35.
   LastCocoonChrysalis); 27/39 al 100 % (sin cambios). Escritas: `fn_802BC4EC` (96,25 %, portada de
   `LastCocoonImago::fn_8045ABB4`), `fn_802BEE44` (estado 13, 95,05 %) y `fn_802BF5C0` (estado 14, 93,92 %).
 
+- `game/GameSaveData_unk` 2 -> 0; 26/37 al 100 % (sin cambios). Escritas: `GameSaveInventory_unk::fn_803BB584`
+  (recoge el inventario, 94,37 %) y `fn_803BC2D4` (lo restaura, 87,31 %).
+
 ## NONMATCHING
 
 - MPGL `vf10` 98,96 %: los huecos de pila de las rotaciones inline salen en orden inverso (en el original la z
@@ -33,6 +36,9 @@ Inicio 07:35.
 - Em206CocoonMp `fn_802BC4EC` 96,25 %, `fn_802BEE44` 95,05 %, `fn_802BF5C0` 93,92 %: huecos de pila
   (matrices de `ToRotation_unk`, temporales), registros flotantes; en las dos ultimas los MIN/MAX de las
   velocidades salen con la comparacion invertida y el `MIN(1.0f, 1.0f)` del original no se pliega alli.
+
+- GameSaveInventory `fn_803BB584` 94,37 % y `fn_803BC2D4` 87,31 %: asignacion de registros y direccionamiento
+  de las copias.
 
 ## Decisiones tomadas sin el usuario
 
@@ -55,6 +61,15 @@ Inicio 07:35.
 - Em206CocoonMp: `#include "gmk/Lemon.h"` (para `CollResult_unk`) y `GameConfig_unk.h`; seis `@N` de
   `.sdata2` renombrados a mano por valor (pairdata los daba por ambiguos).
 
+- GameSaveInventory: los conjuntos de equipo del inventario (`Inventory::Equip_unk`) se copian a/desde los
+  `GameSaveEquipExtra_unk` del guardado a traves de una vista (`AsEquip_unk`), y `MP::SaveElemB_unk` con un
+  `CopyUpgrade_unk` local (el original usa su `operator=` con un `static_string` ancho en 0x294: tocaria
+  `MP/SaveElemB_unk.h` y `atn/static_string.h`, de otras colas). El orden del grupo se lee como 19 palabras desde
+  `Inventory::mOrder` (que sigue en `m64C8`) y las armas como 4 huecos desde `mWeapons` (`Equip_unk::m30`):
+  pendiente ampliar esos miembros en `game/Inventory.h` (cola de ItemManager_unk).
+  En `GameSaveData.h` `m92B4` pasa a `mIdentify[0x100]`, `mOrder[3][6]` (signed char) y `mOrder18`.
+- pd.sh en GameSaveData_unk renombro `lbl_80885CB0` a `sInstance__9SetConfig` (enlace roto): devuelto a mano.
+
 ## Hallazgos
 
 - Funcion fuera del presupuesto de inline: sus inline salen como copias weak; las no plantilla en el orden en que
@@ -62,6 +77,9 @@ Inicio 07:35.
   `Vector3`, `DegToRad_unk`, `GetMapId`...) se llaman en su direccion de la otra unidad.
 - Un inline que devuelve una `Matrix3x4` por valor (`ScaleMatrix_unk`) evita la llamada al constructor vacio
   que sale con `Matrix3x4 m; Set(m, ...)` cuando la funcion esta fuera de presupuesto.
+
+- Copia de un array de structs: `for (i < 16) a[i] = b[i];` con elementos de 0x40 sale como en el original
+  (bucle desenrollado de 8 en 8: 2 x 0x200); copiar el bloque entero como una struct da un bucle de 8 bytes.
 
 ## Pendientes
 
