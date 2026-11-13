@@ -7,6 +7,8 @@
 #include "math/DegToRad_unk.h"
 #include "std/ios_init.h"
 #include "atn/RenderManager.h"
+#include "atn/PBone.h"
+#include "game/CharaTask.h"
 
 // Actor actions of the events: processors with vf08 (per frame) and vf0C (phase), as in
 // Event/ActionCameraMode. Class names from the RTTI; vtables in the order Material, Wind, Setting,
@@ -153,6 +155,8 @@ extern "C" int fn_80224618(ActionOwner_unk* section); // inferred: section->m10 
 extern "C" int fn_80223EB8(Action* arg);              // inferred: arg->m18 (length in frames)
 extern "C" Manager* fn_8000DB1C();              // inferred: returns lbl_8087F540
 extern "C" void PSMTXTranspose(const Mtx src, Mtx dst);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" std::string fn_8006B174(const std::string& path); // inferred: file name of a path
 
 // inferred: step of `cur` towards `goal` in `frames` frames (name invented)
 inline atn::Vector3 Approach_unk(const atn::Vector3& cur, const atn::Vector3& goal, float frames) {
@@ -780,6 +784,371 @@ int ActionActorEyes::vf08(Action* arg) {
             left = 0.0f;
         }
         fn_80554088(arg, length, &actor->m18C.m1C, mode, left, now);
+    }
+    return 0;
+}
+
+// NONMATCHING: offsets of the strings in @stringBase0 ("eye_R", "reference" and "neck" come first in the
+// original: used by the functions of ActionActorEyes/Pose/Heading/Node not written yet)
+// inferred: the node `name` is a hair node of the hair kind `kind` (the cases fall through: each kind also
+// moves the nodes of the following ones)
+int ActionActorSetting::fn_80557E00(int kind, const char* name) {
+    switch (kind) {
+    case 0:
+    case 2:
+    case 3:
+        if (strcmp(name, "hair_b") == 0 || strcmp(name, "hair_f") == 0) {
+            return 1;
+        }
+    case 1:
+        if (strcmp(name, "hair_b") == 0) {
+            return 1;
+        }
+    case 4:
+        if (strcmp(name, "hair_f") == 0 || strcmp(name, "hair_b_long1") == 0) {
+            return 1;
+        }
+    case 5:
+        if (strcmp(name, "hair_b1") == 0 || strcmp(name, "hair_l") == 0 || strcmp(name, "hair_r") == 0) {
+            return 1;
+        }
+    case 6:
+        if (strcmp(name, "hair_b1") == 0 || strcmp(name, "hair_f") == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// NONMATCHING: offsets of the strings (as fn_80557E00); the original walks the bones through the address
+// of the count (chara + 0x434, as a FixedArray_unk of count and array: atn::Model::m384/m388 would be one
+// member) and keeps the node name in one more saved register
+// inferred: enables the physics bones of the character of `actor` that the settings move (hair, earrings,
+// waist cloth and bust), by the kind of the model ("pc101" to "pc107")
+void ActionActorSetting::fn_80557F84(Actor* actor, int hair, int earring, int waist, int bust) {
+    CharaTask* chara = actor->fn_800128FC();
+    if (chara == 0) {
+        return;
+    }
+    std::string name = fn_8006B174(std::string(chara->GetModel_unk()->fn_8008B130()));
+    name = std::string(name, 0, 5);
+    int kind = -1;
+    if (name.compare("pc101") == 0) {
+        kind = 0;
+    } else if (name.compare("pc102") == 0) {
+        kind = 1;
+    } else if (name.compare("pc103") == 0) {
+        kind = 2;
+    } else if (name.compare("pc104") == 0) {
+        kind = 3;
+    } else if (name.compare("pc105") == 0) {
+        kind = 4;
+    } else if (name.compare("pc106") == 0) {
+        kind = 5;
+    } else if (name.compare("pc107") == 0) {
+        kind = 6;
+    }
+    atn::Model* model = chara->GetModel_unk();
+    int onHair = 0;
+    int onEarring = 0;
+    int onWaist = 0;
+    int onBust = 0;
+    for (int i = 0; i < (int)model->m384; i++) {
+        const char* node = model->m388[i]->vf30();
+        if (hair != 0) {
+            onHair = fn_80557E00(kind, node);
+        }
+        if (earring != 0) {
+            switch (kind) {
+            case 0:
+                if (strcmp(node, "earring_L") == 0) {
+                    onEarring = 1;
+                    break;
+                }
+            case 2:
+            case 6:
+                if (strcmp(node, "earring_L") == 0 || strcmp(node, "earring_R") == 0) {
+                    onEarring = 1;
+                    break;
+                }
+            default:
+                onEarring = 0;
+                break;
+            }
+        }
+        if (waist != 0) {
+            switch (kind) {
+            case 0:
+            case 1:
+            case 3:
+                if (strcmp(node, "waistcloth_L2") == 0 || strcmp(node, "waistcloth_R2") == 0) {
+                    onWaist = 1;
+                    break;
+                }
+            case 5:
+                if (strcmp(node, "waistcloth_L1") == 0 || strcmp(node, "waistcloth_R1") == 0) {
+                    onWaist = 1;
+                    break;
+                }
+            default:
+                onWaist = 0;
+                break;
+            }
+        }
+        if (bust != 0) {
+            switch (kind) {
+            case 2:
+            case 5:
+            case 6:
+                if (strcmp(node, "bust_L") == 0 || strcmp(node, "bust_R") == 0) {
+                    onBust = 1;
+                    break;
+                }
+            default:
+                onBust = 0;
+                break;
+            }
+        }
+        if (onHair != 0 || onEarring != 0 || onWaist != 0 || onBust != 0) {
+            model->m388[i]->vf20(1);
+        } else {
+            model->m388[i]->vf20(0);
+        }
+    }
+}
+
+// inferred: starts a blink of the character over `length` frames with the fades of the action (inlined in
+// ActionActorSetting::vf0C; vf08 has the same code with other arguments of the second blink; name invented)
+inline void StartBlink_unk(CharaTask* chara, Action* arg, int length) {
+    ActionParam_unk* param = arg->GetParam_unk(4);
+    float fadeOut = (float)arg->m18;
+    float fadeIn = (float)arg->m1C;
+    float total = (float)length;
+    float weight = param->m04.f;
+    if ((fadeOut >= 1.0f || fadeIn >= 1.0f) && total >= 1.0f) {
+        chara->m1188.StartBlink(weight, 1.0f, total, fadeOut, fadeIn);
+        chara->m1188.m78 = 1;
+    } else if ((atn::Abs_unk(fadeOut) < 1.1920929e-07f && atn::Abs_unk(fadeIn) < 1.1920929e-07f) || total == 0.0f) {
+        chara->m1188.StartBlink(weight, 1.0f, total, 3.0f, 4.0f);
+        if (total >= 1.0f) {
+            chara->m1188.m78 = 1;
+        }
+    } else {
+        chara->m1188.StartBlink(weight, 1.0f, 0.0f, 0.0f, 0.0f);
+    }
+}
+
+// NONMATCHING: the phase 3 keeps the saved node state in r30 (the register of the section) and ours in r28;
+// tried the declaration orders and the locals shared by the phases
+// inferred: settings of an actor (parameter 0: kind); phase 0 applies them, phases 3 and 5 undo some
+int ActionActorSetting::vf0C(Action* arg, int phase) {
+    switch (phase) {
+    case 0: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = section->m10;
+        Actor* actor = manager->FindActor_unk(id);
+        switch (arg->GetParam_unk(0)->m04.i) {
+        case 0:
+            actor->fn_8001256C(arg->GetParam_unk(1)->m04.i);
+            break;
+        case 1:
+            actor->fn_800125C8(arg->GetParam_unk(1)->m04.i);
+            break;
+        case 2:
+        {
+            int id2 = arg->GetParam_unk(1)->m04.h[1];
+            int b = arg->GetParam_unk(1)->m04.h[0];
+            actor->fn_8001282C(id2, b);
+        }
+            break;
+        case 3: {
+            CharaTask* chara = actor != 0 ? actor->fn_800128FC() : 0;
+            if (chara == 0) {
+                break;
+            }
+            int length = arg->m14 - arg->m10;
+            if (length <= 0) {
+                break;
+            }
+            StartBlink_unk(chara, arg, length);
+            break;
+        }
+        case 4:
+        {
+            int msg = arg->GetParam_unk(1)->m04.i;
+            int state = arg->GetParam_unk(2)->m04.i;
+            actor->fn_8001268C(msg, state);
+        }
+            break;
+        case 5:
+            actor->fn_80012638(arg->GetParam_unk(1)->m04.i);
+            break;
+        case 6: {
+            unsigned int hash = arg->GetParam_unk(1)->m04.i;
+            int show = arg->GetParam_unk(2)->m04.i;
+            atn::Model* model = actor->fn_8001296C();
+            if (model != 0) {
+                arg->m38 = model->fn_80093D28(hash);
+                model->fn_800937E8(hash, show);
+            }
+            break;
+        }
+        case 7:
+            actor->fn_8001271C(arg->GetParam_unk(1)->m04.i);
+            break;
+        case 8: {
+            CharaTask* chara = actor->fn_800128FC();
+            if (chara != 0) {
+                if (arg->GetParam_unk(1)->m04.i != 0) {
+                    chara->m6A0 |= 0x10;
+                } else {
+                    chara->m6A0 &= ~0x10;
+                }
+            }
+            break;
+        }
+        case 9: {
+            CharaTask* chara = actor->fn_800128FC();
+            if (chara != 0) {
+                if (arg->GetParam_unk(1)->m04.i != 0) {
+                    chara->mF94 = chara->mF98 - 1;
+                } else {
+                    chara->mF94 = 0;
+                }
+                chara->mFlag23 = 1;
+            }
+            break;
+        }
+        case 10:
+        {
+            int hair = arg->GetParam_unk(1)->m04.i;
+            int earring = arg->GetParam_unk(2)->m04.i;
+            int waist = arg->GetParam_unk(3)->m04.i;
+            fn_80557F84(actor, hair, earring, waist, 0);
+        }
+            break;
+        }
+        break;
+    }
+    case 5: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = section->m10;
+        Actor* actor = manager->FindActor_unk(id);
+        if (arg->GetParam_unk(0)->m04.i == 4) {
+            actor->fn_8001268C(arg->GetParam_unk(1)->m04.i, 1);
+        }
+        break;
+    }
+    case 3: {
+        ActionOwner_unk* section = arg->fn_805381A0();
+        EventManager_unk* manager = arg->fn_805381C8();
+        int id = section->m10;
+        Actor* actor = manager->FindActor_unk(id);
+        ActionParam_unk* param = arg->GetParam_unk(0);
+        if (param->m04.i == 3) {
+            CharaTask* chara = actor != 0 ? actor->fn_800128FC() : 0;
+            if (chara == 0) {
+                break;
+            }
+            if (arg->m14 - arg->m10 > 0) {
+                chara->m1188.m78 = 0;
+            }
+        } else if (param->m04.i == 6) {
+            int prev;
+            unsigned int hash = arg->GetParam_unk(1)->m04.i;
+            prev = arg->m38;
+            atn::Model* model = actor->fn_8001296C();
+            if (model == 0) {
+                break;
+            }
+            if (prev == -1) {
+                model->fn_80093C20(hash);
+            } else {
+                model->fn_800937E8(hash, prev != 0);
+            }
+        } else if (param->m04.i == 9) {
+            CharaTask* chara = actor->fn_800128FC();
+            if (chara == 0) {
+                break;
+            }
+            if (arg->GetParam_unk(1)->m04.i != 0) {
+                chara->mF94 = 0;
+            } else {
+                chara->mF94 = chara->mF98 - 1;
+                chara->mFlag23 = 0;
+            }
+        }
+        break;
+    }
+    }
+    return 0;
+}
+
+// NONMATCHING: float registers (the constant of the int conversions in f6 in the original, the clamps of
+// the kind 9); tried the weight read after the conversions, Clamp_unk and the clamps written out
+// inferred: per frame part of the settings: kind 3 starts a blink of the character, kind 9 moves its
+// counter mF94 towards zero or towards mF98 over the frames left
+int ActionActorSetting::vf08(Action* arg) {
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    int id = section->m10;
+    Actor* actor = manager->FindActor_unk(id);
+    switch (arg->GetParam_unk(0)->m04.i) {
+    case 3: {
+        CharaTask* chara = actor != 0 ? actor->fn_800128FC() : 0;
+        if (chara == 0) {
+            break;
+        }
+        int length = arg->m14 - arg->m10;
+        if (length != 0) {
+            break;
+        }
+        ActionParam_unk* param = arg->GetParam_unk(4);
+        float fadeOut = (float)arg->m18;
+        float fadeIn = (float)arg->m1C;
+        float total = (float)length;
+        float weight = param->m04.f;
+        if ((fadeOut >= 1.0f || fadeIn >= 1.0f) && total >= 1.0f) {
+            chara->m1188.StartBlink(weight, 1.0f, total, fadeOut, fadeIn);
+            chara->m1188.m78 = 1;
+        } else if ((atn::Abs_unk(fadeOut) < 1.1920929e-07f && atn::Abs_unk(fadeIn) < 1.1920929e-07f) ||
+                   total == 0.0f) {
+            chara->m1188.StartBlink(weight, total, 0.0f, 3.0f, 4.0f);
+            if (total >= 1.0f) {
+                chara->m1188.m78 = 1;
+            }
+        } else {
+            chara->m1188.StartBlink(weight, 1.0f, 0.0f, 0.0f, 0.0f);
+        }
+        break;
+    }
+    case 9: {
+        int down = arg->GetParam_unk(1)->m04.i;
+        CharaTask* chara = actor != 0 ? actor->fn_800128FC() : 0;
+        if (chara == 0) {
+            break;
+        }
+        float max = (float)chara->mF98;
+        float cur = (float)chara->mF94;
+        cur = max <= cur ? max : cur;
+        float lo = 0.0f;
+        cur = lo >= cur ? lo : cur;
+        float left = (float)arg->m14 - manager->m198;
+        float next;
+        if (down != 0) {
+            next = cur - cur / left;
+        } else {
+            next = cur + (max - cur) / left;
+        }
+        float top = max - 1.0f;
+        next = top <= next ? top : next;
+        float lo2 = 0.0f;
+        next = lo2 >= next ? lo2 : next;
+        chara->mF94 = (int)next;
+        break;
+    }
     }
     return 0;
 }

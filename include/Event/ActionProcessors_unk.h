@@ -308,6 +308,8 @@ class ActionActorSetting : public ActionProcessor, public atn::SingletonNoStatic
 public:
     virtual int vf08(Action* arg);
     virtual int vf0C(Action* arg, int phase);
+    int fn_80557E00(int, const char*); // inferred: the node is a hair node of the hair kind
+    void fn_80557F84(Actor*, int, int, int, int); // inferred: enables the physics bones of the settings
 };
 
 class ActionActorWind : public ActionProcessor, public atn::SingletonNoStatic<ActionActorWind> {

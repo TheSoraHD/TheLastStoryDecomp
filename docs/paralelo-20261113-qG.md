@@ -11,6 +11,13 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
     `Actor::fn_80012294` (para una pista) 97,6 %: eran `extern "C"` con `self` en ActionActorPosition y Dialog;
     ahora miembros de `Event::Actor` (declarados sin nombres de parametro) y renombrados en `symbols.txt`.
 
+- `Event/ActionActorPosition`: 13 -> 9 (32 al 100 %, sin cambios).
+  - `ActionActorSetting::fn_80557E00` (nodo de pelo del tipo de pelo, casos que caen) 99,4 %,
+    `ActionActorSetting::fn_80557F84` (activa los huesos fisicos de pelo/pendientes/faldon/pecho segun el modelo
+    "pc101".."pc107") 99,1 %, `ActionActorSetting::vf0C` 99,96 %, `ActionActorSetting::vf08` 99,4 %.
+    Los dos `fn_` pasan a miembros de `ActionActorSetting` (declarados sin nombres en
+    `Event/ActionProcessors_unk.h`, 4 unidades) y renombrados en `symbols.txt`.
+
 ## NONMATCHING
 
 - `fn_8000EE8C` 99,84 %: registros del bucle que engancha el equipo (personaje r28 por r31). Con el bucle en un
@@ -19,6 +26,14 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
   planifica distinto los tres bool de `SetMotion`.
 - `fn_80012054` 97,1 %: motion y modelo cruzados (r30/r31).
 - `fn_80012294` 97,6 %: el original compara m20 con 7, 3 y 1 (un switch sigue el orden de sus casos).
+
+- `fn_80557E00`/`fn_80557F84`: desplazamientos de las cadenas en `@stringBase0` ("eye_R", "reference" y "neck"
+  van antes en el original: las usan funciones de Eyes/Pose/Heading/Node sin escribir).
+- `fn_80557F84`: el original recorre los huesos desde la direccion del contador (chara + 0x434, como un
+  `FixedArray_unk` de contador y array: `atn::Model::m384/m388` serian un solo miembro; cabecera de otra cola).
+- `ActionActorSetting::vf0C` 99,96 %: la fase 3 guarda el estado del nodo en r30 (registro de la seccion), el
+  nuestro en r28.
+- `ActionActorSetting::vf08` 99,4 %: registros float (la constante de las conversiones en f6; clamps del tipo 9).
 
 ## Decisiones tomadas sin el usuario
 
@@ -32,7 +47,15 @@ Inicio: 2026-11-13 03:17 CET. Tope 05:47.
   cambiaria el destructor debil).
 - `IsState6_unk` (declarada en Actor.h, definida en ActionActorPosition) definida tambien en Puppeteer_CharaTask.
 
+- `src/Event/ActionActorPosition.cpp` incluye `game/CharaTask.h` y `atn/PBone.h` (re-emparejada con `pd.sh`).
+
 ## Hallazgos
+
+- `name.compare("pc101") == 0` en vez de `name == "pc101"` da los huecos de pila del original (un nivel de
+  inline menos); `std::string(name, 0, 5)` en vez de `name.substr(0, 5)` (substr no se inlinea aqui).
+- Argumentos de una llamada evaluados en orden (param 1 en r4 antes que param 2): pasarlos por locales.
+- Cadena `if (p->m04.i == 3) ... else if (p->m04.i == 6)` con `ActionParam_unk* p = GetParam_unk(0)`: deja el
+  valor en r0 y el tamano de la lista en r4, como el original (con `int kind` local va a r3).
 
 - Dos lecturas de `m20` sin fusionar en `fn_8000EE8C`: la de `== 6` pasa por el accesor `IsState6_unk()`.
 - Un `switch` interior cuyo caso 0 cae al `return 0` final comun (rama nula compartida con default): escribirlo
