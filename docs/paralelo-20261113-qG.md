@@ -2,6 +2,11 @@
 
 Inicio: 2026-11-13 03:17 CET. Tope 05:47.
 
+Total: funciones al 0 % de la cola 32 -> 18 (Puppeteer_CharaTask 19 -> 14, ActionActorPosition 13 -> 4);
+nuevas al 100 % en objdiff: `fn_800119B8`, `ActionActorSetting::vf0C` y `ActionActorSetting::fn_80557E00`
+(esta ultima solo en objdiff: el orden de `@stringBase0` difiere hasta escribir Eyes/Pose/Heading/Node; se deja
+con su `NONMATCHING`). `report.json` 15258 -> 15261, lost 0, sin bajadas. Ninguna unidad pasa a enlazar.
+
 ## Resultado por unidad (funciones al 0 % / sin escribir, antes -> despues)
 
 - `Event/Puppeteer_CharaTask`: 19 -> 14 (81 -> 82 al 100 %).
