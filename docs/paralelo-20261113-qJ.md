@@ -2,9 +2,9 @@
 
 ## Resultado por unidad
 
-- `game/RouteWalker_unk` 6 -> 2 al 0 %. Al 100 %: `fn_80128CF8` (meta a la vista), `fn_80129670` (segmento entre
+- `game/RouteWalker_unk` 6 -> 1 al 0 %. Al 100 %: `fn_80128CF8` (meta a la vista), `fn_80129670` (segmento entre
   dos puntos). Escritas: `fn_80128090` (97,05 %, replanifica el modo actual), `fn_80129144` (98,97 %, va directo a
-  la meta). Quedan `fn_801255C8` (3 KB) y `fn_80126214` (6 KB).
+  la meta), `fn_801255C8` (99,92 %, arranca la ruta planificada). Queda `fn_80126214` (6 KB, la actualizacion).
 - `game/CampSaveLoad` 8 -> 0 al 0 % (todas escritas). Al 100 %: `vf10` (0x801185E0) y `fn_801191A8` (0x801191A8, al completar el pool). Escritas: `vf0C` (92,83 %), `fn_8011B018`
   (99,36 %), `fn_8011999C` (97,77 %, estado 5), `fn_80119F0C`
   (99,43 %, barra de informacion), `vf14` (98,83 %, registro de la historia), `fn_8011A4D0` (99,18 %, ventana de
@@ -19,6 +19,8 @@
 - `RouteWalker_unk::fn_80129144` 98,97 %: solo registros (tabla en r5 y `m44` en r4 en el original). Probado: local
   para `m44` antes y despues de la tabla, tabla pedida en el caso 3, getter inline del sitio, orden de los casos,
   bandera de `m48` tras el switch.
+- `RouteWalker_unk::fn_801255C8` 99,92 %: solo registros (`m48`/`mMode` en r3/r0 cruzados; par r3/r4 de la copia
+  de `m4C - mChara->mPos`, `VecAssign_unk` no lo cambia).
 - `RouteWalker_unk::fn_80128090` 97,05 %: solo registros de los planificadores inlineados (el destino en r26).
 
 - `CampSaveLoad::vf0C` 92,83 %: un registro salvado de mas; el original toma `""` de `@stringBase0 + 0x3D` con la
@@ -95,6 +97,9 @@
   renumera los `@N` de las unidades que la incluyen (ReplayFrame_unk: +5); un `atn::Matrix3x4` suelto o una
   declaracion de metodo sin nombres de parametro no.
 
+- `side = side.GetNormalize()` en vez de copiar a un local, normalizarlo y copiarlo de vuelta da los registros del
+  original en la inline de posicion de punto (RouteWalker_unk::fn_801255C8 99,56 -> 99,92 %).
+
 ## Pendientes
 
-- RouteWalker_unk `fn_801255C8`, `fn_80126214`.
+- RouteWalker_unk `fn_80126214` (6 KB).

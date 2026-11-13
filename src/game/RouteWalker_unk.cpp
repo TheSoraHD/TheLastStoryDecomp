@@ -139,6 +139,122 @@ static inline atn::Vector3 GetPointPos_unk(RouteWalker_unk* walker) {
     return ((GameScene*)table)->fn_803C11A4(point);
 }
 
+// inferred: as GetPointPos_unk for the point `point` (name invented; inlined in fn_801255C8)
+static inline atn::Vector3 GetPointPosAt_unk(RouteWalker_unk* walker, int point) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (((unsigned int)walker->m48 & 2) == 2) {
+        return table->mPoints[point - 1].mPos;
+    }
+    if (((unsigned int)walker->m48 & 0x10) == 0x10) {
+        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+        atn::Vector3 side;
+        PSVECCrossProduct(&walker->m58, &up, &side);
+        if (0.0f == PSVECSquareMag(&side)) {
+            atn::VecAssign_unk(side, up);
+        } else {
+            side = side.GetNormalize();
+        }
+        return ((GameScene*)table)->fn_803C1338(point, &side);
+    }
+    return ((GameScene*)table)->fn_803C11A4(point);
+}
+
+// NONMATCHING: 99.92% - registers only: m48/mMode loaded into r3/r0 swapped before fn_80128CF8 and the r3/r4
+// pair of the copy of m4C - mChara->mPos (VecAssign_unk does not change it)
+// inferred: starts the planned route: walks straight to the goal when it is in sight, otherwise towards the
+// next point (nonzero on success)
+int RouteWalker_unk::fn_801255C8() {
+    if (mChara->IsFlag54C_unk(0x20)) {
+        m48 |= 0x10;
+    }
+    if (fn_80125474() != 0) {
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    RouteTable_unk* table = GetRouteTable_unk();
+    m44 = mMode;
+    if (((unsigned int)m48 & 0x40) != 0x40 && fn_80128CF8() != 0) {
+        fn_80129144();
+    } else {
+        switch (mMode) {
+        case 0:
+            m4C = GetPointPosAt_unk(this, mPointA);
+            break;
+        case 1:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = m10;
+                m94 = 0;
+            }
+            break;
+        case 3:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = table->FindPlace_unk(mPlace)->mPos;
+                m94 = 0;
+            }
+            break;
+        case 4:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = mTarget->mPos;
+                m94 = 0;
+            }
+            break;
+        case 6:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = mChara->mPos;
+                m94 = 0;
+            }
+            break;
+        case 5:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = m30;
+                m94 = 0;
+            }
+            break;
+        case 7:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = mTarget->mPos;
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                Mtx rot;
+                PSMTXRotRad(rot, 'y', mTarget->mRot.y);
+                PSMTXMultVec(rot, &dir, &dir);
+                Mtx rot2;
+                PSMTXRotRad(rot2, 'y', m9C);
+                PSMTXMultVec(rot2, &dir, &dir);
+                m4C += dir * 15.0f;
+                m94 = 0;
+            }
+            break;
+        }
+        m58 = m4C - mChara->mPos;
+    }
+    m70 = fn_80129670(mDestPoint, mPointA);
+    return 1;
+    }
+    m2C = 1;
+    return 0;
+}
+
 // NONMATCHING: 98.65% - stack slots of the vectors of modes 4, 5 and 7 (the original has them in the opposite
 // order) and the load of the facing of the target before the copy of its position
 // inferred: distance from the character to the goal of the route in its mode (-1 without route)
