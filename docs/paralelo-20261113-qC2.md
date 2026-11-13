@@ -6,7 +6,7 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 
 - Funciones al 0 % (fnstat, sin escribir): GameUI 10 -> 5 (y el `__sinit`, que tampoco estaba escrito), MiniMapTask 4 -> 4,
   PopupTask 1 -> 1 (cola 15 -> 10).
-- Escritas (todas NONMATCHING, ninguna nueva al 100 %): `fn_803E2410` 99,6 %, `fn_803E2A30` 92 %,
+- Escritas (todas NONMATCHING, ninguna nueva al 100 %): `fn_803E2410` 99,8 %, `fn_803E2A30` 92 %,
   `__sinit_\GameUI_cpp` 0,76 -> 65,7 %, `fn_803E3468` 90,3 %, `fn_803E5200` 99,3 %, `fn_803D7850` 98,7 %.
 - report.json 15357 -> 15357 (lost 0, sin bajadas); ninguna unidad nueva enlaza.
 
@@ -14,9 +14,10 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
 
 - `GameUI::fn_803E2410(CharaTask*)` (medidor de puntos de magia sobre un personaje: el canto de su magia actual,
   la magia elegida en la vista tactica o el tiempo de los estados de los bits 0 y 31 de `mStatus.m0C`; los
-  personajes con `mFlagB13` dibujan el suyo con `vfC0(this)`): 0 % -> 99,63 %. Resto: registros de los flags de
-  resultado de `CanActB_unk` (r5/r0/r3 en el original; mismo problema que fn_803E4A5C; probados `CanAct_unk()` de
-  CharaTask y las tres condiciones en un `||`) y las etiquetas de 320/170 en `.sdata2`.
+  personajes con `mFlagB13` dibujan el suyo con `vfC0(this)`): 0 % -> 99,77 %. `int type = chara->mType` local y
+  `CharaTask::CanAct_unk()` (en vez de `CanActB_unk`) ponen el tipo y el flag exterior en r5 como el original.
+  Resto: los flags de IsFree/IsActive cruzados (r0/r3; probadas cuatro mezclas de los predicados) y los
+  registros de la copia de (320, 170, 0,5).
 - `GameUI::fn_803E2A30(int, int, atn::Vector3, int, int)` (siguiente medidor de puntos de magia del HUD), desde el
   borrador de la cola C: 0 % -> 92 %. `pos` va **por valor** (el llamador copia el vector); los segundos y el
   fotograma salen de fn_803CE854/fn_803CE8A8 inline. NONMATCHING por el parametro de `SetColor255_unk`
@@ -63,6 +64,9 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   labelcheck volvia a "peor").
 
 ## Hallazgos
+
+- `pd.sh` empareja mal los floats que solo usa un `__sinit` no emparejado (aqui renombro 0x80885F10/14/1C/24 de
+  `lbl_` a `@N` con otro valor): se devolvieron a mano a sus `lbl_` del principio del lote.
 
 - Tras cada funcion nueva el `pd.sh` renumera los floats que solo usa el `__sinit` y labelcheck da "peor":
   renombrarlos por valor (`scratch-C2/tools/fixlabels.py`; no ve una etiqueta cuyo `@N` existe en nuestro .o con
