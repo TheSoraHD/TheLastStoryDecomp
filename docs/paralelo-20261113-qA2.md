@@ -17,7 +17,8 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
     `m38A58` es un `ResHandle` (`Load("Battle")`; el destructor lo libera, 0x800F2370). Miembros de datos
     nuevos: `m367B4`, `m38A08` (int), `m38A10`, `m38A14`, `m38A20`, `m38A24`, `m38A30`, `m38A34`, `m38A3C`-`m38A54`,
     `m3E390`, `m3E3A0`-`m3E3A8` (parametros del menu).
-  - `fn_801092C8` (mensaje del registro de batalla segun `lbl_80735AB0`; 87,9 %: dos casos comparten la cola).
+  - `fn_801092C8` (mensaje del registro de batalla segun `lbl_80735AB0`; 96,2 % con los casos en el orden de los
+    bloques del original: 0x15 primero y 0x17-0x1F antes de 0x14).
   - `fn_8010C00C` (estados de las condiciones del equipo; 97,5 %, registros de los bucles).
   - `fn_800F3170` (libera los efectos de batalla) y `BattleTask::fn_800F3490` (cargando): **100 %** las dos,
     mnemcheck limpio. Tipado de 0x363C0..0x3663C: `mEfp363C0[4]`, `mHitEff[3][7]` (EffFile), `mEfp364EC`,
@@ -90,6 +91,9 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   `fn_80210220`: el tipo `HateParamEntry_unk` es local de `db/HateParam_unk.cpp` (otra cola). Pendiente: cabecera.
 
 ## Hallazgos
+
+- Un `switch` sale con sus bloques en el orden de los `case` del fuente: ponerlos en el orden de los bloques del
+  original evita que dos colas iguales se fusionen (fn_801092C8 87,9 -> 96,2 %).
 
 - Giro ZYX con `RotateAxis_unk`: pasar la matriz por un puntero local (`Matrix3x4* p = &m; p->SetIdentity();
   RotateAxis_unk(*p, ...)`) deja la direccion en un registro salvado como el original; los temporales `r`/`t`

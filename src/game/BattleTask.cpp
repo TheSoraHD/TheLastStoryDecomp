@@ -4000,7 +4000,7 @@ extern "C" wchar_t* wcscpy(wchar_t* dst, const wchar_t* src);
 // inferred: battle log message `id` about `chara` (formats of the message table, pairs of 8 bytes); `value` is the
 // item, weapon, skill or status, `arg` a count. The level flag is set for the items, the weapons, the money and the
 // messages 0x43/0x44. C name, called by other files as extern "C"
-// NONMATCHING: 87.9% - the cases 0x10 and 0x17-0x1F share their tail here, operand order of the table lookups
+// NONMATCHING: 96.2% - operand order and reuse of the table lookups, the name of the character loaded later
 extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value, int arg) {
     if (!(lbl_8087F0A8->m06C > 0) || !(LogMessageTask::sInstance != 0)) {
         return;
@@ -4090,14 +4090,6 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 0x13:
         fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), value, arg);
         break;
-    case 0x14: {
-        BattleState_unk* state = fn_8021AF50(value);
-        if (chara != 0 && chara->m60 != 0 && state != 0) {
-            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
-                        state->mName != 0 ? state->mName : lbl_808813D0);
-        }
-        break;
-    }
     case 0x17:
     case 0x18:
     case 0x19:
@@ -4109,6 +4101,14 @@ extern "C" void fn_801092C8(BattleTask* mgr, int id, CharaTask* chara, int value
     case 0x1F:
         fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04, value);
         break;
+    case 0x14: {
+        BattleState_unk* state = fn_8021AF50(value);
+        if (chara != 0 && chara->m60 != 0 && state != 0) {
+            fn_800DD3FC(text, lbl_8087F1E4->GetPair_unk(def->mMsg), chara->m60->m04,
+                        state->mName != 0 ? state->mName : lbl_808813D0);
+        }
+        break;
+    }
     }
     LogMessageTask::sInstance->fn_8047961C(text, def->mKind, def->mFlags, level);
 }
