@@ -903,75 +903,75 @@ extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: remov
 // inferred: equips the equipment entry on the member (a: puts the old one back in the inventory, b:
 // takes the new one out); a full-body piece also fills the second slot, and taking one off puts the
 // preferred free piece in it. 0 when nothing changes
-// NONMATCHING: 41% - the original calls fn_801DC8C8 out of line: over the inlining budget (R3); writing
-// fn_801DD26C did not change it
+// NONMATCHING: 95.8% - registers (the two flags get the lowest saved registers in the original); fn_801DC8C8 is
+// not auto-inlined in the original (one empty assert in it puts it over the auto-inline threshold)
 int CosEditProtector::fn_801DC42C(int member, CharaTask* chara, CosEditItem_unk* e, int a, int b) {
-    if (e == 0 || e->mIndex < 0) {
-        return 0;
+    if (e != 0 && e->mIndex >= 0) {
+        Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
+        int slot = 0;
+        int kind = ((CosEditEquip_unk*)e->mItem)->mKind;
+        if (kind == 1 || kind == 3) {
+            slot = 1;
+        }
+        if (m1E8 == 2 && e->mIndex == equip->mProtectors[slot].mId) {
+            return 0;
+        }
+        int wasFull = 0;
+        if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, equip->mProtectors[0].mId))) {
+            wasFull = 1;
+        }
+        int isFull = 0;
+        if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, e->mIndex))) {
+            isFull = 1;
+        }
+        fn_801DC8C8(member, slot, e->mIndex);
+        if (slot == 0) {
+            fn_801DC8C8(member, 2, e->mIndex);
+        } else if (slot == 1) {
+            fn_801DC8C8(member, 3, e->mIndex);
+        }
+        if (isFull) {
+            fn_801DC8C8(member, 1, e->mIndex);
+            fn_801DC8C8(member, 3, e->mIndex);
+        }
+        if (a) {
+            Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, slot)), 1, 1, 0, 0, 0, 0);
+        }
+        if (!wasFull && isFull) {
+            Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, 1)), 1, 1, 0, 0, 0, 0);
+        }
+        int base = member * 4;
+        Inventory::instance_->fn_8044D0DC(slot, e->mIndex, slot + base, member);
+        if (slot == 0) {
+            Inventory::instance_->fn_8044D0DC(2, e->mIndex, base + 2, member);
+        } else if (slot == 1) {
+            Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
+        }
+        if (isFull) {
+            Inventory::instance_->fn_8044D0DC(1, e->mIndex, base + 1, member);
+            Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
+        }
+        if (b) {
+            fn_8044441C(Inventory::instance_, fn_8020EF80(fn_8020ED84(slot, e->mIndex)), 1);
+        }
+        CharaStatus* status = Inventory::instance_->GetPlayerStatusInfo(member);
+        fn_801CEA98(member, chara, slot, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(slot), 0xE);
+        if (slot == 0) {
+            fn_801CEA98(member, chara, 2, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(2), 0xE);
+        } else if (slot == 1) {
+            fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
+        }
+        if (isFull) {
+            fn_801CEA98(member, chara, 1, e->mIndex, -1, 0, 0, 0xE);
+            fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
+        }
+        if (wasFull && !isFull) {
+            fn_801DD26C(member);
+            fn_801DC42C(member, chara, fn_801DCE88(member, 1, 0), 0, 1);
+        }
+        return 1;
     }
-    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
-    int slot = 0;
-    int kind = ((CosEditEquip_unk*)e->mItem)->mKind;
-    if (kind == 1 || kind == 3) {
-        slot = 1;
-    }
-    if (m1E8 == 2 && e->mIndex == equip->mProtectors[slot].mId) {
-        return 0;
-    }
-    int wasFull = 0;
-    if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, equip->mProtectors[0].mId))) {
-        wasFull = 1;
-    }
-    int isFull = 0;
-    if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, e->mIndex))) {
-        isFull = 1;
-    }
-    fn_801DC8C8(member, slot, e->mIndex);
-    if (slot == 0) {
-        fn_801DC8C8(member, 2, e->mIndex);
-    } else if (slot == 1) {
-        fn_801DC8C8(member, 3, e->mIndex);
-    }
-    if (isFull) {
-        fn_801DC8C8(member, 1, e->mIndex);
-        fn_801DC8C8(member, 3, e->mIndex);
-    }
-    if (a) {
-        Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, slot)), 1, 1, 0, 0, 0, 0);
-    }
-    if (!wasFull && isFull) {
-        Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, 1)), 1, 1, 0, 0, 0, 0);
-    }
-    int base = member * 4;
-    Inventory::instance_->fn_8044D0DC(slot, e->mIndex, slot + base, member);
-    if (slot == 0) {
-        Inventory::instance_->fn_8044D0DC(2, e->mIndex, base + 2, member);
-    } else if (slot == 1) {
-        Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
-    }
-    if (isFull) {
-        Inventory::instance_->fn_8044D0DC(1, e->mIndex, base + 1, member);
-        Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
-    }
-    if (b) {
-        fn_8044441C(Inventory::instance_, fn_8020EF80(fn_8020ED84(slot, e->mIndex)), 1);
-    }
-    CharaStatus* status = Inventory::instance_->GetPlayerStatusInfo(member);
-    fn_801CEA98(member, chara, slot, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(slot), 0xE);
-    if (slot == 0) {
-        fn_801CEA98(member, chara, 2, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(2), 0xE);
-    } else if (slot == 1) {
-        fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
-    }
-    if (isFull) {
-        fn_801CEA98(member, chara, 1, e->mIndex, -1, 0, 0, 0xE);
-        fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
-    }
-    if (wasFull && !isFull) {
-        fn_801DD26C(member);
-        fn_801DC42C(member, chara, fn_801DCE88(member, 1, 0), 0, 1);
-    }
-    return 1;
+    return 0;
 }
 
 extern "C" int* fn_8044D034(Inventory* inv, int index); // inferred: equipment record
@@ -979,6 +979,7 @@ extern "C" int* fn_8044D034(Inventory* inv, int index); // inferred: equipment r
 // inferred: forgets the record of the equipment of the slot when the new item `id` is of another
 // kind (or the slot was empty)
 void CosEditProtector::fn_801DC8C8(int member, int slot, int id) {
+    COSEDIT_ASSERT_UNK(slot >= 0 && slot < 4);
     EquipParamEntry_unk* cur = fn_8020ED84(slot, Inventory::instance_->mEquip[member].mProtectors[slot].mId);
     EquipParamEntry_unk* next = fn_8020ED84(slot, id);
     int index = slot + member * 4;

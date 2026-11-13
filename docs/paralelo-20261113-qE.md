@@ -15,6 +15,10 @@ Inicio: 2026-11-13 03:05 CET. Tope 05:35.
   dos bytes NUL de mas tras `L"%s"`: offsets de `fn_801E7D78`/`fn_801E7EA8` 99,0 -> 99,25 %); `fn_801E7D78`
   99,64 % con el avance de `skill` en el `for`. Unidad: 52/91 al 100 %.
 
+- Tercer commit: `fn_801DC42C` 41 -> 95,8 %: el original no auto-inlinea `fn_801DC8C8` (un assert vacio en ella
+  basta para pasar el umbral de autoinline) y su cuerpo va dentro de `if (e != 0 && e->mIndex >= 0) { ...
+  return 1; } return 0;`. Quedan los registros de los dos flags.
+
 ## Cambios
 
 - Predicados `CosEditEquipLess_unk` y `CosEditArmorLess_unk` (los dos con `L"%s"`): en un namespace anonimo,
@@ -65,6 +69,12 @@ Inicio: 2026-11-13 03:05 CET. Tope 05:35.
 - Las copias debiles de una inline salen junto a la primera funcion que la referencia aunque alli se inlinee.
 
 ## Pendientes
+
+- `CosEditProtector::vf64` (0x801D19F0, 9 KB, dibujo: bucle de las entradas m50/m54 con vf60/vf58/vf54, textos
+  de colorName/itemName de 0xADC/0xAE0, celdas de color 0xCF8 y de partes 0x10F8, null_status, nowName...):
+  sin escribir en este lote (no cabia con comprobacion en el tiempo que quedaba).
+- `size`/`operator[]` de 0x801DA2F0/0x801DA2F8 leen `0x1224(r3)`: son accesores de `NewCampTask` sobre
+  `m1224`, no de `FixedArray_unk` (NewCampTask.h la incluyen 12 unidades: renumera).
 
 - Accesor de `Inventory::mEquip` (0x801D80A0, tambien lo llama NewCampPartsStatus con un `extern "C"`):
   declararlo en `Inventory.h` renumera 58 unidades.
