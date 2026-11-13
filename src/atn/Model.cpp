@@ -96,6 +96,7 @@ extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 #include "atn/MotionCmd_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
+extern "C" void fn_800991D0(atn::Model* model, int advance); // inferred: applies the node edits/physics (not written)
 
 namespace atn {
 
@@ -2263,6 +2264,140 @@ void Model::fn_80097D9C(Model* src) {
             m21C.mData[i] = src->m21C.mData[j];
         }
     }
+}
+
+// inferred: compares the start of a string with a name (inlined in fn_80097E80); name invented
+static inline int CompareStart_unk(const char* path, const char* name) {
+    std::string file = fn_8006B174(std::string(path));
+    return strncmp(file.c_str(), name, strlen(name));
+}
+
+// inferred: updates the motion of the model: advances and samples every track into the shared pose buffer
+// (one block of 0x100 nodes per track), blends the tracks by weight into the node poses, then the fading track
+// 3, the node edits and the pose callback m35C. Models that are hidden only advance the tracks (fn_80098698).
+// NONMATCHING: 94.7% - in the original the file name of the motion is built, then strlen(m3C8) is called and
+// only then the data pointer of the string is selected (its is_long test is reused by the destructor, so the
+// argument string dies after strncmp); MWCC selects the pointer before strlen in every form tried (one
+// expression, c_str/data/operator[], helper by reference). Also one more saved register and the string pool
+// offsets of "eye_L"/"eye_R" (pool order of the unit).
+int Model::fn_80097E80(int advance) {
+    if (mLods[0].m08 == 0) {
+        return 0;
+    }
+    if ((mFlags & 0x40) == 0x40 && !mFlag6_unk) {
+        fn_80098698();
+        return 0;
+    }
+    unsigned int eyeL = fn_800DC6B4("eye_L");
+    unsigned int eyeR = fn_800DC6B4("eye_R");
+    if (mTracks[0].m04 != 0) {
+        Res_unk* res;
+        const int* remap;
+        float speed = lbl_8087EFA8->m3A4;
+        float dt = m350 * speed;
+        res = (Res_unk*)mLods[m50].m08;
+        remap = mLods[m50].m10.mData;
+        MotionPose_unk* pose = &sNodePoses[0x300];
+        int i;
+        for (i = 0; i < m34C; i++) {
+            Track_unk* t = &mTracks[i];
+            LH_Motion* motion = t->m04;
+            if (motion == 0) {
+                continue;
+            }
+            if (advance) {
+                t->m10 += t->m14 * dt;
+            }
+            if (t->m10 > t->m1C) {
+                t->m10 = t->m1C;
+            }
+            if (m34C == 1) {
+                if (Abs_unk(t->m10 - 1.0f) < 1.1920929e-7f) {
+                    pose = m21C.mData;
+                }
+                memset(pose, 0, m21C.mSize * sizeof(Node_unk));
+                for (int j = 0; j < res->m44; j++) {
+                    NodeRes_unk* joint = res->m48[j];
+                    if (t->m19[0] == 0 && (joint->m14 == eyeL || joint->m14 == eyeR)) {
+                        continue;
+                    }
+                    int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                    int key = m354.mData[t->m00].mData[index];
+                    if (key >= 0) {
+                        fn_800A05FC(motion, &pose[index], key, &m214.mData[index], t->m08);
+                    }
+                }
+                if (m3C0 >= 0) {
+                    int cmp = CompareStart_unk(motion->fn_80473F18(), m3C8);
+                    if (cmp != 0) {
+                        pose[m3C0].mPos.y *= m3C4;
+                    }
+                }
+            } else {
+                MotionPose_unk* out = &sNodePoses[i * 0x100];
+                if (t->m20 > 0.0f) {
+                    memset(out, 0, m21C.mSize * sizeof(Node_unk));
+                    for (int j = 0; j < res->m44; j++) {
+                        NodeRes_unk* joint = res->m48[j];
+                        int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                        int key = m354.mData[t->m00].mData[index];
+                        if (key >= 0) {
+                            fn_800A05FC(motion, &out[index], key, &m214.mData[index], t->m08);
+                        }
+                    }
+                }
+                if (m3C0 >= 0) {
+                    int cmp = CompareStart_unk(motion->fn_80473F18(), m3C8);
+                    if (cmp != 0) {
+                        out[m3C0].mPos.y *= m3C4;
+                    }
+                }
+            }
+            if (advance) {
+                t->m08 += t->m0C * dt;
+            }
+            while (t->m18 && t->m08 >= fn_800A08D4(motion) && t->m0C > 0.0f) {
+                t->m08 -= fn_800A08D4(motion);
+            }
+            while (t->m18 && t->m08 < 0.0f && t->m0C < 0.0f) {
+                t->m08 += fn_800A08D4(motion);
+            }
+        }
+        if (m34C != 1) {
+            bool first = true;
+            for (i = 0; i < m34C; i++) {
+                Track_unk* t = &mTracks[i];
+                if (t->m04 == 0 || t->m20 <= 0.0f) {
+                    continue;
+                }
+                MotionPose_unk* src = &sNodePoses[i * 0x100];
+                if (first) {
+                    memcpy(pose, src, m21C.mSize * sizeof(Node_unk));
+                    first = false;
+                } else {
+                    float w = t->m20 / (t->m20 + mTracks[i - 1].m20);
+                    if (i == 1) {
+                        fn_80098948(pose, m21C.mSize, sNodePoses, src, w);
+                    } else {
+                        fn_80098948(pose, m21C.mSize, pose, src, w);
+                    }
+                }
+            }
+        }
+        if (Abs_unk(mTracks[0].m10 - 1.0f) < 1.1920929e-7f) {
+            if (m34C != 1) {
+                memcpy(m21C.mData, pose, m21C.mSize * sizeof(Node_unk));
+            }
+        } else {
+            fn_80098948(m21C.mData, m21C.mSize, m21C.mData, pose, mTracks[0].m10);
+        }
+    }
+    fn_80098DD8(advance);
+    fn_800991D0(this, advance);
+    if (m35C) {
+        m35C((MotionBuffer*)m21C.mData, GetRes_unk()->m44);
+    }
+    return 1;
 }
 
 // inferred: advances the motion tracks without sampling them (models that are not drawn); track 3 is the
