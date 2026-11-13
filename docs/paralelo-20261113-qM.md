@@ -30,6 +30,8 @@ Cola: restos de game/GameEventScript (12 al 0 %) y AI/AI_archer_attack01 (6 al 0
     de verdad (`AIScriptMapL1_unk lbl_807C6B84;`) el compilador da el destructor al 100 % pero la `__sinit`
     baja a 67,5 % (la primera escritura va por el simbolo, `stw rX, lo(rHA)`; probadas 11 variantes en
     `try.sh`: ctor en lista o cuerpo, base, miembro, `static`, miembro estatico, ctor no inline).
+  - Parcial `fn_8001E1D0` (`map::insert`) 47,60 -> 75,11 %: reescrita con `fn_8003E530`, el compare de MSL y
+    `InsertNode_unk` (los locales sin inicializar: los pone el llamado).
   - `fn_8001E730` (vacia el mapa: borra las factorias en orden y luego `clear()`) 93,82 % y `fn_8001EA18`
     (`find` por nombre con `basic_string::compare(pos, n1, s, n2)` inline) 57,07 %: NONMATCHING (ver abajo).
 - `game/GameScene`: llama a `boost::lexical_cast<std::string, int>` con una declaracion de la plantilla (sin

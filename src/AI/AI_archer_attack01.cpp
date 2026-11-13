@@ -1732,52 +1732,59 @@ extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
     return str;
 }
 
-// NONMATCHING: 47.60% - the tree insertion helper still has a different stack and register layout.
-// inferred: returns the inserted/existing node and a flag in the caller-provided 8-byte pair.
-extern "C" void fn_8001E1D0(void* result, void* tree,
-                             const AIStringWithAllocator_unk* value) {
-    AIScriptMapNode_unk* parent = 0;
-    bool insertLeft = true;
-    bool insertFirst = true;
-    AIScriptMapNode_unk* candidate = fn_8003E530(
-        tree, &value->mString, &parent, &insertLeft, &insertFirst);
+// inferred: std::min (MSL: b < a ? b : a) as inlined in the string compare below
+static inline const unsigned long& AIMin_unk(const unsigned long& a, const unsigned long& b) {
+    return b < a ? b : a;
+}
 
-    bool insert = parent == 0;
-    if (parent != 0) {
-        const AIString_unk* key = &value->mString;
-        const AIString_unk* existing = (const AIString_unk*)&parent->mValue.first;
-        unsigned int keySize = (key->mFlags >> 31) != 0
-                                   ? key->mSize
-                                   : (*(const unsigned char*)key & 0x7F);
-        const char* keyData = (key->mFlags >> 31) != 0
-                                  ? key->mData
-                                  : (const char*)key + 1;
-        unsigned int existingSize = (existing->mFlags >> 31) != 0
-                                        ? existing->mSize
-                                        : (*(const unsigned char*)existing & 0x7F);
-        const char* existingData = (existing->mFlags >> 31) != 0
-                                       ? existing->mData
-                                       : (const char*)existing + 1;
-        unsigned int commonSize = keySize < existingSize ? keySize : existingSize;
-        int cmp = memcmp(keyData, existingData, commonSize);
-        if (cmp == 0) {
-            cmp = keySize < existingSize ? -1 : (keySize == existingSize ? 0 : 1);
+// inferred: MSL basic_string::compare(pos1, n1, s, n2) inlined in the script map lookup
+static inline int AIStrCompare_unk(const std::string& a, unsigned long pos1, unsigned long n1, const char* s,
+                                   unsigned long n2) {
+    unsigned long len = a.size();
+    unsigned long rlen = AIMin_unk(len - pos1, n1);
+    int result = memcmp(a.data() + pos1, s, AIMin_unk(rlen, n2));
+    if (result == 0) {
+        if (rlen < n2) {
+            result = -1;
+        } else if (rlen == n2) {
+            result = 0;
+        } else {
+            result = 1;
         }
-        insert = cmp < 0;
     }
+    return result;
+}
 
-    AIScriptMapNode_unk* node;
-    unsigned char flag;
-    if (insert) {
-        node = ((AIScriptMap_unk*)tree)->InsertNode_unk(candidate, insertLeft, insertFirst,
-                                                         *(const AIScriptMapValue_unk*)value);
-        flag = lbl_8087D6F0;
+// inferred: basic_string::compare(const basic_string&) = compare(0, size(), str.data(), str.size())
+static inline int AIStrCompare_unk(const std::string& a, const std::string& b) {
+    return AIStrCompare_unk(a, 0, a.size(), b.data(), b.size());
+}
+
+// NONMATCHING: 75.11% - the key data and size come from one test of the long bit in the original (two here,
+// as in fn_8001EA18) and the predecessor is at 0x0C of the frame (0x1C here)
+// inferred: std::map::insert(value) on the script map: the insert position, then a new node unless the
+// predecessor has the same key; the result is the pair<iterator, bool> (the two flags are constants of
+// .sdata)
+struct AIScriptInsertResult_unk {
+    AIScriptMapNode_unk* first;
+    bool second;
+};
+
+extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value) {
+    const AIScriptMapValue_unk& v = *(const AIScriptMapValue_unk*)value;
+    AIScriptMapNode_unk* pred;
+    bool leftmost;
+    bool left;
+    AIScriptMapNode_unk* parent = fn_8003E530(tree, &value->mString, &pred, &left, &leftmost);
+    AIScriptInsertResult_unk r;
+    if (pred == 0 || AIStrCompare_unk(pred->mValue.first, v.first) < 0) {
+        r.first = ((AIScriptMap_unk*)tree)->InsertNode_unk(parent, left, leftmost, v);
+        r.second = lbl_8087D6F0;
     } else {
-        node = parent;
-        flag = lbl_8087D6F1;
+        r.first = pred;
+        r.second = lbl_8087D6F1;
     }
-    *(AIScriptMapNode_unk**)result = node;
-    *((unsigned char*)result + 4) = flag;
+    *(AIScriptInsertResult_unk*)result = r;
 }
 
 namespace AI {
@@ -1933,34 +1940,6 @@ extern "C" void fn_8001E730() {
         }
     }
     lbl_807C6B84.clear();
-}
-
-// inferred: std::min (MSL: b < a ? b : a) as inlined in the string compare below
-static inline const unsigned long& AIMin_unk(const unsigned long& a, const unsigned long& b) {
-    return b < a ? b : a;
-}
-
-// inferred: MSL basic_string::compare(pos1, n1, s, n2) inlined in the script map lookup
-static inline int AIStrCompare_unk(const std::string& a, unsigned long pos1, unsigned long n1, const char* s,
-                                   unsigned long n2) {
-    unsigned long len = a.size();
-    unsigned long rlen = AIMin_unk(len - pos1, n1);
-    int result = memcmp(a.data() + pos1, s, AIMin_unk(rlen, n2));
-    if (result == 0) {
-        if (rlen < n2) {
-            result = -1;
-        } else if (rlen == n2) {
-            result = 0;
-        } else {
-            result = 1;
-        }
-    }
-    return result;
-}
-
-// inferred: basic_string::compare(const basic_string&) = compare(0, size(), str.data(), str.size())
-static inline int AIStrCompare_unk(const std::string& a, const std::string& b) {
-    return AIStrCompare_unk(a, 0, a.size(), b.data(), b.size());
 }
 
 // NONMATCHING: 57.07% - the key size and data are loaded once before the search loop (the original reads
