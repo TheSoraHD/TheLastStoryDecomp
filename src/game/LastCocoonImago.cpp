@@ -452,6 +452,55 @@ void LastCocoonImago::vf20() {
     m1498 = 13.0f;
 }
 
+extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+// NONMATCHING: 97% - the dead store of toPlace.y and registers
+// inferred: walk of the mode 7: towards the place m18F4 while the leader is the target and the place is
+// nearer (and ahead), otherwise towards the target; stops near it
+void LastCocoonImago::fn_8045B82C() {
+    float move = 0.0f;
+    atn::Vector3 rot = mRot;
+    float speed = 1.0f;
+    bool fast = (mStatus.m0C & 8) == 8 || (mStatus.m0C & 0x200) == 0x200;
+    if (!fast) {
+        speed *= 2.0f;
+    }
+    if (m55C == 7) {
+        int done = 0;
+        if (m18EC != 0 && m14B8 == lbl_8087F8A0->mHead) {
+            atn::Vector3 toPlace = m18F4->mPos - mPos;
+            toPlace.y = 0.0f;
+            atn::Vector3 toTarget(m14B8->mPos.x - mPos.x, 0.0f, m14B8->mPos.z - mPos.z);
+            if (toPlace.LengthSq_unk() < toTarget.LengthSq_unk()) {
+                if (toPlace.LengthSq_unk() > 25.0f) {
+                    toPlace.Normalize_unk();
+                    toTarget.Normalize_unk();
+                    if (PSVECDotProduct(&toPlace, &toTarget) > 0.70710677f) {
+                        done = 1;
+                        move = 1.0f;
+                        rot = toPlace.ToRotation_unk();
+                    }
+                } else {
+                    move = 0.0f;
+                    rot = toPlace.ToRotation_unk();
+                    done = 1;
+                }
+            }
+        }
+        if (done == 0) {
+            atn::Vector3 dir = m14B8->mPos - mPos;
+            dir.Normalize_unk();
+            atn::Vector3 d = m14B8->mPos - mPos;
+            move = d.Length_unk() < 60.0f ? 0.0f : 1.0f;
+            rot = dir.ToRotation_unk();
+        }
+    } else if (m55C == 6) {
+        fn_8013A258();
+        return;
+    }
+    fn_8045ABB4(rot, move, m568 * speed);
+}
+
 // NONMATCHING: 98.2% - stack slots of the rotation and r30/r31 of dir and of the copy
 // inferred: placed at pos facing dir, in mode 6 (motion 2)
 void LastCocoonImago::vf80(const atn::Vector3& pos, const atn::Vector3& dir) {

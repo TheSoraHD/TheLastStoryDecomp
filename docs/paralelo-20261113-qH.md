@@ -35,6 +35,8 @@
   `bl` desde vf40; nuestro MWCC la inlineaba), como fn_8045ECC4.
 - vf50 (0x80459FD0, antes fn_80459FD0; esferas de dano con `m624.push_back`): 0 -> 98 % (pila del
   temporal del constructor de Item14_unk). Lerp escrito `(pb - pa) * 0.6f + pa`.
+- fn_8045B82C (paso del modo 7 hacia el lugar m18F4 o hacia el objetivo, luego fn_8045ABB4): 0 -> 97 %
+  (el original guarda `toPlace.y` antes de ponerlo a 0; registros). `m14B8` pasa a `CharaTask*`.
 - vf10 = fn_8045883C (0x8045883C) sin escribir.
 - fnstat 18 / 36 (sin cambio).
 
