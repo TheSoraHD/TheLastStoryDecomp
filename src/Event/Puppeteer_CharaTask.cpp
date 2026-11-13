@@ -596,6 +596,113 @@ void Actor::fn_8000EE8C() {
     }
 }
 
+// inferred: saved vectors of ActorAnim_unk, written by fn_8000F1EC (see Event/Actor.h; name invented)
+inline atn::Vector3& SavedVecRef_unk(unsigned char* p) {
+    return *(atn::Vector3*)p;
+}
+
+// inferred: nonzero to bool (inlined; name invented)
+inline bool ToBool_unk(unsigned int v) {
+    return v != 0;
+}
+
+// inferred: start of the event: saves in m18 and m24 the state of the character that fn_8000FAE8 gives back
+// (control mode, task and collision flags, node edits, physics bones) and takes the character over
+// NONMATCHING: 96.3% - registers (this in r29 in the original), the physics bones walked from the address
+// of their count (atn::Model::m384/m388 as one array), and the original reloads the flag word of the
+// character for the clears of mFlag3/mFlag5
+void Actor::fn_8000F1EC() {
+    if (m18_0 == 1) {
+        return;
+    }
+    mB8[0] = 0;
+    mB8[1] = 0;
+    mB8[2] = 0;
+    mC4 = lbl_807C7030;
+    mDC = lbl_807C7030;
+    mE8 = lbl_807C7030;
+    mF4 = lbl_807C7030;
+    m100 = lbl_807C7030;
+    switch (m20) {
+    case 7:
+    case 1: {
+        if (m18_7 == 1) {
+            break;
+        }
+        m18_8 = GetChara_unk()->m55C;
+        if (m18_8 == 6) {
+            GetChara_unk()->fn_80178208(0);
+        }
+        m18_16 = GetChara_unk()->mFlags >> 2;
+        m18_17 = GetChara_unk()->mFlags;
+        m18_18 = ToBool_unk(((GetChara_unk()->m54C >> 3) & 1) ^ 1);
+        m18_19 = !((GetChara_unk()->mFlags >> 2) & 1) && (GetChara_unk()->mColli.mFlags & 1);
+        m18_20 = GetChara_unk()->mStatus.mParamB.m9C;
+        m18_21 = ToBool_unk(GetChara_unk()->mFlag18);
+        m18_22 = GetChara_unk()->m1220.m10 != 0;
+        CharaTask* chara = GetChara_unk();
+        // inferred: m24.m00 is a SimpleVector<Event::PoseKey_unk> (see fn_8000FAE8)
+        *(atn::SimpleVector<Event::PoseKey_unk>*)&m24.m00 = chara->GetModel_unk()->mD8;
+        m24.m0C = GetChara_unk()->m674;
+        SavedVecRef_unk(&m24.m10[0x00]) = GetChara_unk()->mPos;
+        SavedVecRef_unk(&m24.m10[0x0C]) = GetChara_unk()->mRot;
+        m24.m28.clear();
+        atn::Model* bones = GetChara_unk()->GetModel_unk();
+        for (int i = 0; i < (int)bones->m384; i++) {
+            m24.m28.push_back(bones->m388[i]->vf24());
+        }
+        GetChara_unk()->fn_8016E970(8);
+        GetChara_unk()->mFlags |= 4;
+        GetChara_unk()->fn_800D246C(1);
+        GetChara_unk()->fn_8016E5F0(1);
+        GetChara_unk()->mColli.mFlags |= 1;
+        GetChara_unk()->mStatus.mParamB.m9C &= ~1;
+        GetChara_unk()->fn_801446F0();
+        GetChara_unk()->mLook.fn_80129A48(0.3f);
+        GetChara_unk()->m1188.ClearMotion(false);
+        if (GetChara_unk()->mFlag3) {
+            GetChara_unk()->mFlag3 = 0;
+        }
+        if (GetChara_unk()->mFlag5) {
+            GetChara_unk()->mFlag5 = 0;
+        }
+        GetChara_unk()->mFC0 = 0;
+        if (GetChara_unk()->mFlag31) {
+            GetChara_unk()->fn_801539E0();
+            if (GetChara_unk()->mType == 0) {
+                m24.m0C = GetChara_unk()->m674;
+            }
+        }
+        if (GetChara_unk()->mFlag6) {
+            GetChara_unk()->fn_80155DAC(0);
+            if (GetChara_unk()->mType == 0) {
+                m24.m0C = GetChara_unk()->m674;
+            }
+        }
+        if (GetChara_unk()->m139C != 0) {
+            GetChara_unk()->fn_8017A33C(0, 1);
+        }
+        GetChara_unk()->fn_80164DCC(0);
+        if (GetChara_unk()->m1208 != 0) {
+            GetChara_unk()->fn_801750FC();
+        }
+        CharaTask* c = GetChara_unk();
+        if (c->m13FC != 0) {
+            c->fn_8017AC44(0);
+            c->m13FC->fn_801765D8();
+        }
+        m58 = -1;
+        break;
+    }
+    case 2:
+        m18_16 = m1C->mFlags >> 2;
+        m18_17 = m1C->mFlags;
+        m18_18 = ((GimmickCommon*)m1C)->m9C != 0;
+        break;
+    }
+    m18_0 = 1;
+}
+
 // inferred: sets or clears `bit` of a flag word (inlined; name invented)
 inline void SetFlagBit_unk(unsigned int& flags, unsigned int bit, unsigned int on) {
     if (on == 1) {

@@ -15,6 +15,8 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
     `Actor::GetModel_unk` (mismo codigo que fn_8001296C, con `?:` en el caso 2) y la pista en una local con
     `case 1: t = track;` (si no, el caso 1 pierde su comparacion).
   - `Actor::fn_80013558` (copia los colores de material guardados y los vuelve a poner) 97,7 %.
+  - `Actor::fn_8000F1EC` (inicio del evento: guarda en m18/m24 el estado del personaje y lo toma) 96,3 %; con el
+    cast a `SimpleVector<Event::PoseKey_unk>` sale tambien `PoseKey_unk::PoseKey_unk` (0x8000FAE4) al 100 %.
   - `Actor::fn_8000FAE8` (fin del evento: devuelve al personaje el estado guardado en m18/m24) 92,9 %.
   - `fn_8001011C` 99,2 -> 99,6 % (columnas de `SetModelMtx_unk` por `MtxCol_unk`, evaluadas z, y, x).
 
@@ -33,6 +35,8 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 - `fn_80013558` 97,7 %: el `push_back` inline de `std::vector<ColorF_unk>` (std/vector.h, otra familia: el
   original mueve los elementos con un bucle contado) y huecos de pila de los dos colores (invertidos).
 
+- `fn_8000F1EC` 96,3 %: registros (this en r29 en el original), huesos fisicos desde la direccion de su
+  contador, y el original relee la palabra de flags del personaje para borrar mFlag3/mFlag5.
 - `fn_8000FAE8` 92,9 %: el original relee m18 en cada bit guardado (aqui queda en registro), guarda r28-r31 uno a
   uno (un registro mas aqui), recorre los huesos fisicos desde la direccion de su contador
   (`atn::Model::m384/m388` como un array) y copia los offsets de la camara con un temporal de 0x1C bytes
@@ -50,7 +54,7 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   parametro (no renumeran). Llamadores de
   `fn_80010B68` (Event/Path, Event/ActionActorPosition) sin cambios en el fuente; el nombre en `symbols.txt`.
 - `@15509`/`@15510` (0.0f/1.0f de `.sdata2` de la unidad) renombrados a mano (pd.sh no los renombra): ahora
-  `@17150`/`@17151`.
+  `@17637`/`@17638`.
 
 - `Event/Actor.h`: bits de `m18` (MSB primero) detallados: `m18_0` estado guardado, `m18_8` (8 bits) modo de
   control, `m18_16..22` bits guardados del personaje; `ActorAnim_unk::m0C` int. Las dos posiciones guardadas
@@ -71,7 +75,11 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
 - `fn_80013558`: con `fn_8000DD04` (12 asserts vacios) el presupuesto de inline rechaza todo; con
   `GetRes_unk()` lo inlinea todo como el original.
 
+- Las `@STRING@Resize_unk__...` de `.sdata` son cadenas vacias (los argumentos de nombre de `operator new[]`):
+  solo cuenta el nombre de la etiqueta (el tipo del `SimpleVector`).
+
 ## Pendientes
 
-- `fn_8000F1EC` (inicio del evento) depende del tipo de `ActorAnim_unk::m00` (`Resize_unk` de
-  `SimpleVector<Event::PoseKey_unk>`: su nombre esta en una cadena de la unidad): sin escribir.
+- `ActorAnim_unk::m00` como `SimpleVector<Event::PoseKey_unk>` y `m10/m1C` como `atn::Vector3` (lote con
+  `pdbatch.sh` de todas las unidades que incluyen `Event/Actor.h`): quitar los casts de `fn_8000F1EC`,
+  `fn_8000FAE8` y `SavedVec_unk`/`SavedVecRef_unk`.
