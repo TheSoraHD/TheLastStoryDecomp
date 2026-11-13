@@ -22,6 +22,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   fn_801231D0 99,46 (el `return 0` de las acciones 39/40 antes de la llamada; probados if invertido y ?:).
 - `game/EnemyQuarkStand` (fuera de colas, K tenia EnemyQuarkSecond): fn_80351AB8 99,23 -> 99,97 (el motion
   con ?: de `enum`; queda la direccion de los slots por r3).
+- `game/ChaserNpc` (fuera de colas): fn_80180AE0 98,73 -> 99,90 (`MAX(0, m14D0 - 1)` en vez de
+  `MAX(m14D0 - 1, 0)`); queda el orden de los temporales en la pila.
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
@@ -43,6 +45,11 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
 - Constantes de `.sdata2` antes de las de una funcion anterior: un metodo **no inline** que `-inline auto`
   expande en una funcion posterior y que el enlazador quita deja sus constantes en la posicion de su
   definicion (MeetingSpot::PlayMotion_unk).
+
+- `MAX(x, 0)` (macros.h) da `neg/andc/srawi/and`; `MAX(0, x)` da `srawi/andc` (ChaserNpc).
+- `enumscan2.py` (cualquier par de constantes) encuentra 369 funciones; las que tienen en nuestro lado
+  `neg`/`cntlzw` donde el original salta son pocas (MaterialParser fn_8007C46C, EffectDesc fn_80234CD8,
+  D2AMpMenuLobby fn_804C18A8): pendientes.
 
 ## Decisiones tomadas sin el usuario
 
