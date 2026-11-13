@@ -1327,6 +1327,86 @@ void BattleTask::fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& d
 
 extern "C" double cos(double x);
 
+// inferred: character of the camera targets ahead of `chara` (facing `rot->y`) with the nearest hit sphere inside
+// `range` (half of it while fn_801789D8 holds, unless the target has mFlag22) and the cone `theta`, the distance
+// weighted by the angle; a sphere at the reference point wins at once. `all` = 0 skips the party, `aimed` skips the
+// targets with mFlagB6 and favours the enemy that targets `chara`. Two maps limit the height difference
+// NONMATCHING: 97.1% - registers of the arguments permuted, the height sum with the operands swapped
+CharaTask* BattleTask::fn_800FFE68(CharaTask* chara, const atn::Vector3* rot, int all, int aimed, float range,
+                                    float theta) {
+    if (chara == 0) {
+        return 0;
+    }
+    float cosLimit = cos(0.5f * theta);
+    float best = 1e16f;
+    CharaTask* found = 0;
+    int busy = chara->fn_801789D8(0, 0x440000);
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot->y);
+    PSMTXMultVec(m, &dir, &dir);
+    atn::Vector3 pos = chara->mPos;
+    pos.y += chara->m5B0;
+    if (chara->mFlagB9) {
+        pos -= atn::Vector3(0.0f, 24.0f, -2.0f);
+    }
+    for (unsigned int i = 0; i < mTargetCount; i++) {
+        if (all == 0 && mTargets[i]->IsPartyMember_unk()) {
+            continue;
+        }
+        if (!fn_8010B180(chara, mTargets[i])) {
+            continue;
+        }
+        if (aimed != 0 && mTargets[i]->mFlagB6) {
+            continue;
+        }
+        if (lbl_8087F430->GetCurrentMap() != 0) {
+            int type = lbl_8087F430->GetCurrentMap()->mType;
+            int id = lbl_8087F430->GetCurrentMap()->mId;
+            int sub = lbl_8087F430->GetCurrentMap()->mSubId;
+            if (type == 2 && id == 0x11 && sub == 2 && (float)__fabs(chara->mPos.y - mTargets[i]->mPos.y) > 25.0f) {
+                continue;
+            }
+            if (type == 2 && id == 10 && sub == 2 && mTargets[i]->m60->m24 == 0x27 &&
+                (float)__fabs(chara->mPos.y - mTargets[i]->mPos.y) > 18.0f) {
+                continue;
+            }
+        }
+        float limit = range;
+        CharaTask* target = mTargets[i];
+        if (busy != 0 && target->mFlag22 != 1) {
+            limit *= 0.5f;
+        }
+        for (unsigned int j = 0; j < target->m624.mSize; j++) {
+            if ((target->m624.mData[j].m00 & 8) == 8) {
+                continue;
+            }
+            atn::Vector3 d = target->m624.mData[j].m04.mCenter - pos;
+            float dist = PSVECMag(&d);
+            if (0.0f == dist) {
+                best = dist;
+                found = mTargets[i];
+                continue;
+            }
+            dist -= target->m624.mData[j].m04.mRadius;
+            if (aimed != 0 && !mTargets[i]->IsPartyMember_unk() && mTargets[i]->mC58.mC4 == chara &&
+                ((BattleCharaTask*)mTargets[i])->vfE4()) {
+                dist *= 0.001f;
+            }
+            PSVECNormalize(&d, &d);
+            float dot = PSVECDotProduct(&d, &dir);
+            if (dot > cosLimit && dist < limit) {
+                dist += dist * (1.0f - dot);
+                if (dist < best) {
+                    best = dist;
+                    found = mTargets[i];
+                }
+            }
+        }
+    }
+    return found;
+}
+
 // NONMATCHING: 99.7% - stack: the original puts the difference at 0x14 and the scaled sum at 0x20 (swapped)
 // inferred: the score of an entry is its distance to the surface plus a penalty that grows away from `dir`
 CharaTask* BattleTask::fn_801002DC(CharaTask* chara, const atn::Vector3* pos, const atn::Vector3* dir, int all,
@@ -1856,6 +1936,59 @@ void BattleTask::fn_801028E4(CharaTask* chara, CharaTask* other, int value) {
     } else {
         for (int i = 0; i < 0x48; i++) {
             mCharas[i].m08[b] = value;
+        }
+    }
+}
+
+// inferred: entry of db/HateParam_unk (0x80210220); only the field read here (the type is local to that file)
+struct HateParamView_unk {
+    unsigned char m00[0x34];
+    float m34; // inferred: distance at which the attack hate falls to `base`
+};
+
+// inferred: hate added by an attack of `target` with damage `damage` (only from 100000 and outside multiplayer):
+// 200, or with `base` >= 0 from 200 at distance 0 down to `base` at HateParam m34, for `chara` or, without it,
+// for every character; the hate does not drop below 0
+// NONMATCHING: 99.4% - registers of this, base and value permuted (r26-r28)
+void BattleTask::fn_80102A40(CharaTask* chara, CharaTask* target, int damage, int base) {
+    if (lbl_8087F610 == 0 && damage >= 100000) {
+        int value = 200;
+        HateParamView_unk* param = (HateParamView_unk*)fn_80210220(lbl_8087F0A8->mParamIndex);
+        int a = FindChara_unk(chara);
+        int b = FindChara_unk(target);
+        if (b < 0) {
+            return;
+        }
+        if (a >= 0) {
+            BattleChara_unk* entry = &mCharas[a];
+            if (entry->mChara != 0 && entry->mChara->CanAct_unk()) {
+                if (base >= 0) {
+                    atn::Vector3 d = entry->mChara->mPos - target->mPos;
+                    float dist = PSVECMag(&d);
+                    float t = MIN(MAX(dist / param->m34, 0.0f), 1.0f);
+                    value = base + (int)((1.0f - t) * (value - base));
+                }
+                entry->m08[b] += value;
+                if (entry->m08[b] < 0) {
+                    entry->m08[b] = 0;
+                }
+            }
+        } else {
+            for (int i = 0; i < mCharaCount; i++) {
+                BattleChara_unk* entry = &mCharas[i];
+                if (entry->mChara != 0 && entry->mChara->CanAct_unk()) {
+                    if (base >= 0) {
+                        atn::Vector3 d = entry->mChara->mPos - target->mPos;
+                        float dist = PSVECMag(&d);
+                        float t = MIN(MAX(dist / param->m34, 0.0f), 1.0f);
+                        value = base + (int)((1.0f - t) * (value - base));
+                    }
+                    entry->m08[b] += value;
+                    if (entry->m08[b] < 0) {
+                        entry->m08[b] = 0;
+                    }
+                }
+            }
         }
     }
 }
@@ -3616,6 +3749,40 @@ extern "C" void fn_8010CF28(BattleTask* mgr, int kind, CharaTask* chara, CharaTa
         break;
     }
     }
+}
+
+extern "C" unsigned int PSMTXInverse(const Mtx src, Mtx inv);
+
+// inferred: direction on the screen from the centre of the view to `pos` (called by game/GameUI.cpp): the
+// difference of the two directions from the camera, turned by the inverse of the yaw of the view, on the x/y plane
+extern "C" void fn_8010D320(BattleTask* mgr, atn::Vector3 pos) {
+    mgr->mCB58 = 1;
+    atn::Camera& cam = atn::RenderManager::instance_->mCamera;
+    atn::Vector3 dir;
+    dir = cam.mTarget - cam.mPos;
+    dir.Normalize_unk();
+    atn::Vector3 to = pos - cam.mPos;
+    if (to.IsZero_unk()) {
+        to.x = 0.0f;
+        to.y = 0.0f;
+        to.z = 1.0f;
+    }
+    to.Normalize_unk();
+    atn::Vector3 rot = dir.ToRotation_unk();
+    atn::Matrix3x4 m = atn::Matrix3x4::RotY_unk(rot.y);
+    atn::Vector3 diff = to - dir;
+    to = diff;
+    atn::Matrix3x4 inv(m);
+    PSMTXInverse(inv.m, inv.m);
+    PSMTXMultVec(inv.m, &to, &to);
+    to.z = 0.0f;
+    if (to.IsZero_unk()) {
+        to.x = 0.0f;
+        to.y = 1.0f;
+        to.z = 0.0f;
+    }
+    to.Normalize_unk();
+    mgr->mCB70.Set_unk(-to.x, 0.0f, to.y);
 }
 
 int BattleTask::fn_8010D770(HitInfo_unk* hit) {

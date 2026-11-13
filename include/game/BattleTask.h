@@ -301,9 +301,13 @@ public:
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
     BetoModel mSlots[8];           // 0xBA50: inferred: characters with an active battle effect
     atn::D2A_Task* mCB30;          // inferred: d2anime task (made by fn_800F39A4)
-    unsigned char mCB34[0xCB60 - 0xCB34];
+    unsigned char mCB34[0xCB58 - 0xCB34];
+    int mCB58;                     // inferred: set by fn_8010D320 (aim direction valid)
+    unsigned char mCB5C[0xCB60 - 0xCB5C];
     atn::D2A_Task* mCB60;          // inferred: d2anime task (made by fn_800F39A4; may be null)
-    unsigned char mCB64[0xCBAC - 0xCB64];
+    unsigned char mCB64[0xCB70 - 0xCB64];
+    atn::Vector3 mCB70;            // inferred: screen direction to the aimed position (fn_8010D320)
+    unsigned char mCB7C[0xCBAC - 0xCB7C];
     int mCBAC;
     unsigned char mCBB0[0xCBF0 - 0xCBB0];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
