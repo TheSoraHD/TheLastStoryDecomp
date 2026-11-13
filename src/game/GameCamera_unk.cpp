@@ -1,5 +1,5 @@
-// Camera of the field (GameCamera, GameTask + 0x6C). Only a few members are written; the constructor and
-// the update (0x8037F9AC) are still missing, so the unit is not linked.
+// Camera of the field (GameCamera, GameTask + 0x6C). The update of the default mode (0x8037F9AC) and two stick
+// modes (0x80384188, 0x80385B48) are still missing, so the unit is not linked.
 #include "game/GameCamera.h"
 #include "game/GameScene.h"
 #include "game/CharaManager.h"
@@ -15,6 +15,13 @@
 #include "chr/CharaEquip_unk.h"
 #include "math/VecAssign_unk.h"
 #include "game/SetConfig.h"
+#include "game/HitInfo_unk.h"
+#include "game/ChaseManager.h"
+#include "game/Input_unk.h"
+#include "chr/ControlBase.h"
+#include "game/TacView.h"
+#include "atn/Csv.h"
+#include "atn/GraphicsDevice.h"
 
 extern "C" CharaManager<PlayerTask>* lbl_8087F8A0; // inferred: player manager
 extern "C" GameConfig_unk* lbl_8087F0A8;
@@ -34,6 +41,23 @@ extern "C" float lbl_8087DCF8;
 // unit: a global float initialized to zero only stays in .sdata with explicit_zero_data)
 extern "C" float lbl_8087DCFC;
 extern "C" float lbl_8087DD00;
+// inferred: ends of the blends of the special motions of fn_8038F52C (.sdata of this unit: 0.0f, 0.0f, -6.0f,
+// -6.0f, 0.4f, 1.0f, 0.8f, 0.4f, 0.0f, 1.0f, 0.8f, 0.6f, 1.0f)
+extern "C" float lbl_8087DD04;
+extern "C" float lbl_8087DD08;
+extern "C" float lbl_8087DD0C;
+extern "C" float lbl_8087DD10;
+extern "C" float lbl_8087DD14;
+extern "C" float lbl_8087DD18;
+extern "C" float lbl_8087DD1C;
+extern "C" float lbl_8087DD20;
+extern "C" float lbl_8087DD24;
+extern "C" float lbl_8087DD28;
+extern "C" float lbl_8087DD2C;
+extern "C" float lbl_8087DD30;
+extern "C" float lbl_8087DD34;
+class TownTask;
+extern "C" TownTask* lbl_8087FA20; // inferred: town task (game/TownTask.h)
 // .sdata of this unit: lbl_8087DCF0..lbl_8087DD00 are global floats (0.0f except lbl_8087DCF8); a zero
 // initializer goes to .sbss without explicit_zero_data, so they stay extern for now
 
@@ -80,6 +104,44 @@ static inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& 
     atn::Vector3 r;
     PSVECCrossProduct(&a, &b, &r);
     return r;
+}
+
+// inferred: constructors of the parts of the camera (inline; defined here, their only user)
+inline GameCameraTimer_unk::GameCameraTimer_unk() : mActive(0) {}
+inline GameCameraParam_unk::GameCameraParam_unk() : m34(0.0f) {}
+inline GameCameraModeParam_unk::GameCameraModeParam_unk() : mMode(0) {}
+inline CameraShake_unk::CameraShake_unk() : mFrame(0), mLength(0), mWidth(0.0f), mHeight(0.0f) {}
+
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device
+extern "C" float fn_80076FF8(atn::GraphicsDevice_unk* device); // inferred: aspect ratio of the screen
+
+// inferred: builds the three cameras and the parameters, then resets the camera (fn_8037DD00) and registers its
+// debug menu
+GameCamera::GameCamera()
+    : m41C(0.0f), m7F0(0), m7F4(0), m7FC(0), m804(0), m808(0), m834(0), m838(0), m83C(0), m840(0.0f, 0.0f, 0.0f),
+      m84C(0.0f, 0.0f, 0.0f), m858(0), m880(0), m884(0.0f, 0.0f, 0.0f), m890(0.0f, 0.0f, 0.0f), m89C(0),
+      m8A0(3.1415927f), m8A4(0.0f, 0.0f, 0.0f), m8B0(0.0f, 0.0f, 0.0f), m8BC(0.0f, 0.0f, 0.0f), m8C8(0.0f), m8CC(0),
+      m8D0(-1), m8D4(0), m8D8(0.03f), m8DC(16.0f), m8E0(1), m8E4(0), m8E8(0), m8EC(0), m8F0(0), m8F4(0), m8F8(0.0f),
+      m8FC(1.0f), m910(0), m911(0), m914(0), m918(15), m91C(0.0f, 0.0f, 0.0f), m928(0.0f, 0.0f, 0.0f),
+      m93C(0.0f, 0.0f, 0.0f), m948(0.0f, 0.0f, 0.0f), m954(0.0f), m958(0.0f), m95C(1.0f), m96C(0.0f), m970(0.0f),
+      m974(0.0f), m984(0), m988(0.0f), m9EC(0.25f), m9F0(10), m9F4(1), mA04(0.6981317f), mA08(15), mA0C(0.0f),
+      mA10(0.0f), mA14(0.0f), mA18(0.0f), mA1C(0.0f), mC14(-1.0f), mC1C(0.0f), mC20(0), mC84(0), mCA0(0.0f, 0.0f),
+      mCA8(1.0f) {
+    mAspect = fn_80076FF8(lbl_8087EEE0);
+    m800 = m7FC;
+    memset(&m4FC, 0, 0x20);
+    fn_8037DD00();
+    fn_8037E9E0();
+    mC54.mStart = 400.0f;
+    mC54.mEnd = 500.0f;
+    mC54.mNearStart = 30.0f;
+    mC54.mNearEnd = 10.0f;
+    for (int i = 0; i < 3; i++) {
+        mC88[i].x = mC88[i].y = 0.0f;
+    }
+    for (int i = 0; i < 8; i++) {
+        m98C[i].x = m98C[i].y = m98C[i].z = 0.0f;
+    }
 }
 
 // NONMATCHING: 99.97% - the original destroys the camera at 0x00 with -1, as a member and not as the base class
@@ -221,6 +283,101 @@ void GameCamera::fn_8037DD00() {
     m424.mActive = 0;
 }
 
+extern "C" int atoi(const char* s);
+extern "C" int strcmp(const char* a, const char* b);
+extern "C" float fn_800DC288(const char* s); // inferred: string to float
+
+// inferred: reads the camera csv of the map (lines "camera, gun|sword, mode, 14 parameters"): the lines of `camera`
+// set the parameters of their mode (fn_8038EF94; the default mode also reads the two lock-on lengths of the player,
+// 60 added); "fixRotY" blends into the fixed camera over 30 frames (none on the first map load), otherwise over
+// `frames` frames from the parameters of the hips mode
+// NONMATCHING: 66% - the original copies the player settings of GameConfig_unk (0x244-0x333, a struct there,
+// separate members here) into a local and back for the two lock-on lengths (0xF0 more bytes of stack)
+void GameCamera::fn_8037E12C(void* data, int size, int camera, int frames) {
+    GameCameraParam_unk base(m51C);
+    atn::Csv csv((const char*)data, size);
+    while (csv.fn_8005BBF8()) {
+        if (camera != atoi(csv.fn_8005B9CC())) {
+            continue;
+        }
+        const char* s = csv.fn_8005B9CC();
+        int weapon = -1;
+        int mode = -1;
+        if (strcmp(s, "gun") == 0) {
+            weapon = -1;
+        } else if (strcmp(s, "sword") == 0) {
+            weapon = 1;
+        }
+        if (weapon < 0) {
+            continue;
+        }
+        s = csv.fn_8005B9CC();
+        if (strcmp(s, "default") == 0) {
+            mode = 0;
+        } else if (strcmp(s, "hide") == 0) {
+            mode = 2;
+        } else if (strcmp(s, "shoot") == 0) {
+            mode = 3;
+        } else if (strcmp(s, "crouch") == 0) {
+            mode = 4;
+        } else if (strcmp(s, "control") == 0) {
+            mode = 1;
+        } else if (strcmp(s, "chant") == 0) {
+            mode = 5;
+        } else if (strcmp(s, "birdView") == 0) {
+            mode = 6;
+        } else if (strcmp(s, "chase") == 0) {
+            mode = 8;
+        } else if (strcmp(s, "chaseRear") == 0) {
+            mode = 9;
+        } else if (strcmp(s, "fix") == 0) {
+            mode = 10;
+        } else if (strcmp(s, "fixRotY") == 0) {
+            mode = 11;
+        }
+        if (mode < 0) {
+            continue;
+        }
+        GameCameraParam_unk param;
+        param.m00 = fn_800DC288(csv.fn_8005B9CC());
+        param.m04 = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+        param.m08 = 0.017453292f * fn_800DC288(csv.fn_8005B9CC());
+        param.m0C = fn_800DC288(csv.fn_8005B9CC());
+        param.m10 = fn_800DC288(csv.fn_8005B9CC());
+        param.m14 = fn_800DC288(csv.fn_8005B9CC());
+        param.m18 = fn_800DC288(csv.fn_8005B9CC());
+        param.m1C = fn_800DC288(csv.fn_8005B9CC());
+        param.m20 = fn_800DC288(csv.fn_8005B9CC());
+        param.m24 = fn_800DC288(csv.fn_8005B9CC());
+        param.m28 = fn_800DC288(csv.fn_8005B9CC());
+        param.m2C = fn_800DC288(csv.fn_8005B9CC());
+        param.m30 = fn_800DC288(csv.fn_8005B9CC());
+        param.m34 = fn_800DC288(csv.fn_8005B9CC());
+        param.m38 = mode != 6;
+        fn_8038EF94(&param, mode);
+        if (mode == 0) {
+            lbl_8087F0A8->mLockOnLen = 60.0f + fn_800DC288(csv.fn_8005B9CC());
+            lbl_8087F0A8->mLockOnReleaseLen = 60.0f + fn_800DC288(csv.fn_8005B9CC());
+        }
+        if (mode == 11) {
+            frames = 30;
+            if (lbl_8087F430 != 0 && lbl_8087F430->m54EC == 0) {
+                frames = 0;
+            }
+            m424.mActive = 0;
+        }
+        if (m7FC != mode) {
+            m424.mActive = 0;
+        }
+    }
+    if (frames > 0 && m424.mActive != 1 && m424.mActive != 4) {
+        m424.mActive = 1;
+        m430 = base;
+        m424.mStep = 1.0f / (float)frames;
+        m424.mTime = 1.0f;
+    }
+}
+
 // inferred: starts the parameters of a camera mode (blend weight 1, decreased by the speed)
 void GameCameraModeParam_unk::fn_8037E89C(int mode, const GameCameraParam_unk& param, float step) {
     if (mMode != mode && mMode != 4) {
@@ -274,7 +431,6 @@ void GameCamera::fn_8037E9E0() {
 }
 
 // inferred: debug menu of the parameters of a camera mode
-// NONMATCHING: 94.3% - offsets of the strings until the rest of the pool is written; named floats
 void GameCamera::fn_8037ECF0(const char* name, void* menu, GameCameraParam_unk* param) {
     void* group = fn_8008937C(menu, name);
     fn_8008771C(group, "Length", &param->m00, 0, 0, 1.0f, 10000.0f, 5.0f);
@@ -326,9 +482,9 @@ void GameCamera::fn_8037EF48(CharaTask* chara, int place, int reset, float speed
     }
     m7F8 = atn::WrapAngle_unk(m7F8);
     if (reset) {
-        mA0C[0] = 0.0f;
-        mA0C[1] = 0.0f;
-        mA0C[2] = 0.0f;
+        mA0C = 0.0f;
+        mA10 = 0.0f;
+        mA14 = 0.0f;
     }
     if (lbl_8087F0A8->mAlwaysBirdview != 0 && !reset) {
         m7F4 = 0;
@@ -440,6 +596,148 @@ static inline atn::Vector3 LerpV_unk(const atn::Vector3& a, const atn::Vector3& 
     return (b - a) * t + a;
 }
 
+extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
+// inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
+extern "C" inline float fn_80011220(float x) {
+    return __fabs(x);
+}
+extern "C" inline float fn_8037F664(float x) {
+    return sin(x);
+}
+extern "C" inline float fn_801C3910(const atn::Vector3& v) {
+    return sqrt(v.x * v.x + v.z * v.z);
+}
+extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
+    return PSVECDotProduct(&a, &b);
+}
+extern "C" inline float fn_800F8524(const float& a, const float& b, float t) {
+    return t * (b - a) + a;
+}
+extern "C" inline void fn_8032EC94(int* p) {
+    *p = 0;
+}
+// inferred: camera accessors (weak copies; C names: the method names are unknown)
+extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy) {
+    camera->mFovy = fovy;
+}
+extern "C" inline float fn_80385B40(atn::Camera* camera) {
+    return camera->mDist;
+}
+
+// inferred: sweep test of a sphere (here the camera eye) against the collision world
+extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
+                           unsigned int mask, void* ignore, int arg, float radius);
+extern "C" inline TownTask* fn_803830A0() {
+    return lbl_8087FA20;
+}
+// inferred: up vector of the camera (weak copy 0x80382A08)
+inline void atn::Camera::SetUpVector(const atn::Vector3& v) {
+    mUp = v;
+}
+// inferred: collision world (weak copy; as in gmk/Cannonball.cpp)
+inline void* fn_801404F8() {
+    return lbl_8087EE98;
+}
+extern "C" inline float fn_8037F640(float x) {
+    return cos(x);
+}
+extern "C" atn::Vector3 fn_805B81F0(const TownTask* town, int x, int z); // inferred: centre of a cell (game/TownTask.cpp)
+
+// inferred: camera of the town (m6FC): looks at the character m6FC.m10 above it from m6FC.m00 away, turning towards
+// its yaw at the speed m6FC.m2C (immediately with m8EC); lower pitch near the centre cell of the town; the eye is
+// moved in front of the walls (m880 frames back out), and the target goes m6FC.m0C beside the character
+// (over the inlining budget: the accessors are weak copies)
+// NONMATCHING: 64.6% - the original gets the two y rotations from fn_8013A13C as a function returning the matrix
+// by value (here atn::Matrix3x4::RotY_unk; `Matrix3x4 m; m.fn_8013A13C()` adds a call to its empty constructor)
+// and float registers of the pitch blend
+void GameCamera::fn_80382A1C(const CharaTask* chara) {
+    CharaTask* c = const_cast<CharaTask*>(chara);
+    atn::Vector3 pos(*GetPosition_unk());
+    atn::Vector3 target(m868);
+    atn::Vector3 dir = target - pos;
+    dir.Length_unk();
+    float fovy = GetFovy_unk();
+    dir.Normalize_unk();
+    atn::Vector3 rot = (-dir).ToRotation_unk();
+    atn::Vector3 up(0.0f, 1.0f, 0.0f);
+    float fov = m6FC.m24 * (m6FC.m04 - fovy) + fovy;
+    const atn::Vector3& head = c->fn_80178088();
+    atn::Vector3 charaRot(*c->GetRot_unk());
+    target = head;
+    target.y += m6FC.m10;
+    m868 = target;
+    if (m8EC != 0) {
+        rot.y = charaRot.y;
+    }
+    float pitch = -m6FC.m08;
+    if (fn_803830A0()) {
+        atn::Vector3 d = head - fn_805B81F0(fn_803830A0(), 3, 2);
+        d.y = 0.0f;
+        if (head.y < 30.0f && d.LengthSq_unk() < 122500.0f) {
+            pitch *= 0.25f;
+        }
+    }
+    atn::Vector3 r(pitch, rot.y, 0.0f);
+    atn::Vector3 offset(0.0f, 0.0f, m6FC.m00);
+    offset.fn_80011410(fn_800109E0(r));
+    atn::Vector3 eye;
+    eye = offset + target;
+    float turn = -atn::WrapAngle_unk(r.y - atn::WrapAngle_unk(charaRot.y));
+    atn::Vector3 e = eye - target;
+    e.fn_80011410(atn::Matrix3x4::RotY_unk(-r.y));
+    r.y = turn * m6FC.m2C + r.y;
+    e.fn_80011410(atn::Matrix3x4::RotY_unk(r.y));
+    eye = e + target;
+    offset = target - eye;
+    offset.Length_unk();
+    offset.Normalize_unk();
+    CollResult_unk result;
+    offset = target - eye;
+    r = (-offset).ToRotation_unk();
+    rot.x += pitch - rot.x;
+    rot.y = r.y;
+    rot.z = r.z;
+    dir = atn::Vector3(0.0f, 0.0f, m6FC.m00);
+    dir.fn_80011410(fn_800109E0(rot));
+    pos = dir + target;
+    if (fn_8004ED34(fn_801404F8(), &result, &target, &pos, 0x80000008, 0, 0)) {
+        atn::Vector3 hit = target - result.m10;
+        if (hit.LengthSq_unk() > 0.0001f) {
+            pos = result.m10;
+            pos += (target - pos).GetNormalize() * 0.1f;
+            m880 = 10;
+            if ((pos - *GetPosition_unk()).LengthSq_unk() > 0.00001f && m8EC == 0) {
+                pos = atn::Lerp_unk(*GetPosition_unk(), pos, 0.25f);
+            }
+        }
+    } else if (m880 > 0) {
+        m880--;
+        if ((pos - *GetPosition_unk()).LengthSq_unk() > 0.00001f) {
+            pos = atn::Lerp_unk(*GetPosition_unk(), pos, 1.0f - (float)m880 / 10.0f);
+        }
+    }
+    if (fn_8004D388(fn_801404F8(), &result, &pos, &lbl_807C7030, 0x80000008, 0, 0, 3.0f)) {
+        pos = result.m10;
+    }
+    float dist = (target - pos).Length_unk();
+    target.x += m6FC.m0C * (dist / m6FC.m00) * fn_8037F640(rot.y);
+    target.z += -m6FC.m0C * (dist / m6FC.m00) * fn_8037F664(rot.y);
+    if (fn_801C3910(target - pos) < 1.0f) {
+        if (offset.Length_unk() > 0.1f) {
+            pos -= offset.GetNormalize();
+        } else {
+            pos.z += 1.0f;
+        }
+    }
+    SetPosition(pos);
+    SetTarget_unk(target);
+    fn_8037F688(this, fov);
+    SetUpVector(up);
+    fn_8004B378();
+    fn_80392964(1, 1, 1, 1);
+    m8EC = 0;
+}
+
 // inferred: free camera moved with the stick (dead zone 0.2, squared response, turned around the up vector and the
 // side vector at the speed m558.m1C) from frame 15 on, and kept m558.m10 above the character looking m558.m00 away;
 // with m838 set it blends instead the target from m84C to m840 and the fovy from m85C to half m558.m04 (6 steps)
@@ -529,8 +827,6 @@ extern "C" atn::Vector3 fn_80383728(const Camera_unk* camera) {
 // inferred: camera of the ledge without the blend (see fn_8038A5F0; side offset limits lbl_8087DCF0/F4): the eye
 // is turned a third of the way towards the current view direction; with the bird view setting it is the bird view
 // camera (fn_80387DE4)
-// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (no CSE); tried
-// a float lerp inline, other operand orders, the parameters through a pointer
 void GameCamera::fn_8038378C(const CharaTask* chara) {
     if (lbl_8087F0A8->mAlwaysBirdview != 0) {
         fn_80387DE4(chara);
@@ -549,7 +845,7 @@ void GameCamera::fn_8038378C(const CharaTask* chara) {
     t = 1.0f < t ? 1.0f : t;
     if ((flags & 1) == 1) {
         if ((flags & 2) == 2) {
-            offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
+            offset = fn_800F8524(-m594.m0C, m594.m0C, t);
         } else {
             offset = t * (lbl_8087DCF0 - -m594.m0C) + -m594.m0C;
         }
@@ -633,34 +929,6 @@ extern "C" void fn_80383F7C(float* angle, atn::Vector3* pos, const atn::Vector3*
 }
 
 // ---- fn_80387910: camera of the tactical view (over the inlining budget: the accessors are weak copies) ----
-extern "C" float PSVECDotProduct(const atn::Vector3* a, const atn::Vector3* b);
-// inferred: math helpers (weak copies; as in game/Em309Ghoul.cpp, game/BattleTask.cpp, gmk/Cannonball.cpp)
-extern "C" inline float fn_80011220(float x) {
-    return __fabs(x);
-}
-extern "C" inline float fn_8037F664(float x) {
-    return sin(x);
-}
-extern "C" inline float fn_801C3910(const atn::Vector3& v) {
-    return sqrt(v.x * v.x + v.z * v.z);
-}
-extern "C" inline float fn_801A03E8(const atn::Vector3& a, const atn::Vector3& b) {
-    return PSVECDotProduct(&a, &b);
-}
-extern "C" inline float fn_800F8524(const float* a, const float* b, float t) {
-    return t * (*b - *a) + *a;
-}
-extern "C" inline void fn_8032EC94(int* p) {
-    *p = 0;
-}
-// inferred: camera accessors (weak copies; C names: the method names are unknown)
-extern "C" inline void fn_8037F688(atn::Camera* camera, float fovy) {
-    camera->mFovy = fovy;
-}
-extern "C" inline float fn_80385B40(atn::Camera* camera) {
-    return camera->mDist;
-}
-
 // inferred: update of the side camera mode (see fn_8038BD78): the target follows the target of the character
 // (10 further in front while it is in control 14 of state 6), the eye stays beside it out of the walls; with
 // the debug option m28C, button 7 gives the default camera
@@ -764,10 +1032,10 @@ void GameCamera::fn_80387910(const CharaTask* chara) {
     dist = (target - pos).Length_unk();
     if (dist > 0.1f) {
         float camDist = fn_80385B40(this);
-        dist = fn_800F8524(&camDist, &dist, 0.4f);
+        dist = fn_800F8524(camDist, dist, 0.4f);
         float pitch = fn_80383728(this).ToRotation_unk().x;
         atn::Vector3 r = (target - pos).ToRotation_unk();
-        r.x = fn_800F8524(&pitch, &r.x, 0.4f);
+        r.x = fn_800F8524(pitch, r.x, 0.4f);
         atn::Matrix3x4 m = fn_800109E0(r);
         dir = atn::Vector3(0.0f, 0.0f, 1.0f).Transform_unk(m);
         pos = target - dir * dist;
@@ -812,15 +1080,12 @@ static inline void AddViewHeight_unk(atn::Vector3* p) {
     }
 }
 
-// inferred: sweep test of a sphere (here the camera eye) against the collision world
-extern "C" int fn_8004D388(void* world, CollResult_unk* result, atn::Vector3* pos, atn::Vector3* move,
-                           unsigned int mask, void* ignore, int arg, float radius);
 extern "C" void* lbl_8087EF70; // inferred: pads
 extern "C" int fn_800A58D0(void* pad, int port);                          // inferred: classic controller connected
 extern "C" float fn_800A56A8(void* pad, int port, int axis, int arg); // inferred: stick axis
 
 // inferred: bird view camera: turns m8A0 towards the leader's yaw while m7F4 is set, turns with the right stick of
-// the classic controller (speed mA0C[2]), follows the character over the floor (m8A4, swept on maps with a
+// the classic controller (speed mA14), follows the character over the floor (m8A4, swept on maps with a
 // ceiling) and runs the tactical view camera (fn_80387910)
 // NONMATCHING: 90.6% - stack slots of the ray ends (the original keeps from/to of the floor ray lowest) and
 // the order of the first loads
@@ -842,17 +1107,17 @@ void GameCamera::fn_80387DE4(const CharaTask* chara) {
         float ax = (float)__fabs(x);
         if (ax > 0.2f) {
             float speed = (x > 0.0f ? 1.0f : -1.0f) * ((ax - 0.2f) / 0.8f);
-            mA0C[2] = -speed * 0.017453292f + mA0C[2];
-            mA0C[2] = GAMECAMERA_MAX_UNK(-0.08726646f, GAMECAMERA_MIN_UNK(0.08726646f, mA0C[2])) *
+            mA14 = -speed * 0.017453292f + mA14;
+            mA14 = GAMECAMERA_MAX_UNK(-0.08726646f, GAMECAMERA_MIN_UNK(0.08726646f, mA14)) *
                       (float)__fabs(speed);
         } else {
-            mA0C[2] *= 0.7f;
-            if ((float)__fabs(mA0C[2]) < 0.00017453292f) {
-                mA0C[2] = 0.0f;
+            mA14 *= 0.7f;
+            if ((float)__fabs(mA14) < 0.00017453292f) {
+                mA14 = 0.0f;
             }
         }
-        if (0.0f != mA0C[2]) {
-            m8A0 = atn::WrapAngle_unk(mA0C[2] + m8A0);
+        if (0.0f != mA14) {
+            m8A0 = atn::WrapAngle_unk(mA14 + m8A0);
         }
     }
     if (!HasCeiling_unk()) {
@@ -1118,11 +1383,11 @@ void GameCamera::fn_80389838(int mode) {
     m808 = 0;
     m838 = 0;
     m880 = 0;
-    mA0C[0] = 0.0f;
-    mA0C[1] = 0.0f;
-    mA0C[2] = 0.0f;
-    mA0C[3] = 0.0f;
-    mA0C[4] = 0.0f;
+    mA0C = 0.0f;
+    mA10 = 0.0f;
+    mA14 = 0.0f;
+    mA18 = 0.0f;
+    mA1C = 0.0f;
     lbl_8087F0A8->mInput.m10 = 3;
 }
 
@@ -1259,7 +1524,6 @@ void GameCamera::fn_8038A200(const CharaTask* chara) {
 // inferred: camera of the ledge (CharaTask::mC14-mC44): looks along the wall from m594.m00 away, turned by
 // m594.m08 and moved sideways by up to m594.m0C towards the free ends of the ledge; blended from the saved camera
 // in 15 frames (5 from the sub mode 3)
-// NONMATCHING: 99.6% - the original loads m594.m0C twice in the first lerp of the side offset (as fn_8038378C)
 void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     int frames = 15;
     if (m800 == 3) {
@@ -1296,7 +1560,7 @@ void GameCamera::fn_8038A5F0(const CharaTask* chara) {
     t = 1.0f < t ? 1.0f : t;
     if ((flags & 1) == 1) {
         if ((flags & 2) == 2) {
-            offset = t * (m594.m0C - -m594.m0C) + -m594.m0C;
+            offset = fn_800F8524(-m594.m0C, m594.m0C, t);
         } else {
             offset = t * (lbl_8087DCFC - -m594.m0C) + -m594.m0C;
         }
@@ -1348,7 +1612,7 @@ void GameCamera::fn_8038AEF0(const atn::Vector3* pos, const atn::Vector3* target
     atn::Vector3 d = look - eye;
     if (d.x * d.x + d.z * d.z < 1.0f) {
         atn::Vector3 h(d.x, 0.0f, d.z);
-        if (PSVECSquareMag(&h) < 1.0e-6f) {
+        if (PSVECSquareMag(&h) < 0.0001f) {
             h = atn::Vector3(0.0f, 0.0f, 1.0f);
         } else {
             PSVECNormalize(&h, &h);
@@ -2159,8 +2423,328 @@ void GameCamera::fn_8038EF94(const GameCameraParam_unk* param, int mode) {
     }
 }
 
-void GameCamera::fn_80390374() {
+// ---- fn_8038F52C: camera mode from the action of the character (over the inlining budget: the accessors
+// are weak copies) ----
+// inferred: accessors of the character and of the singletons (weak copies; C names: the method names are
+// unknown)
+extern "C" inline int fn_8038B648(CharaTask* chara) {
+    return chara->mC48;
+}
+extern "C" inline int fn_80267B20(CharaTask* chara) {
+    return chara->m55C;
+}
+extern "C" inline int fn_80267B28(CharaTask* chara) {
+    return chara->m560;
+}
+extern "C" inline atn::Model* fn_800F84C8(CharaTask* chara) {
+    return (atn::Model*)&chara->mMotion;
+}
+extern "C" inline chr::ControlBase* fn_80387540(CharaTask* chara) {
+    return chara->mControl.get();
+}
+extern "C" inline HitInfo_unk* fn_80339F6C(CharaTask* chara) {
+    return chara->m638;
+}
+extern "C" inline int fn_80382A00(CharaTask* chara) {
+    return chara->m58C;
+}
+extern "C" inline ChaseManager* fn_803903C4() {
+    return lbl_8087F098;
+}
+extern "C" inline int fn_803903CC(ChaseManager* mgr) {
+    return mgr->mState != 0;
+}
+// inferred: camera part of SetConfig (from mAttackTurnSpeed; as in Event/Path.cpp, weak copies 0x801156C4 and
+// 0x801156D8); names invented
+struct CameraConfig_unk {
+    float m00; // inferred: SetConfig::mAttackTurnSpeed
+};
+inline SetConfig* GetSetConfig_unk() {
+    return SetConfig::sInstance;
+}
+inline CameraConfig_unk* GetCameraConfig_unk(SetConfig* config) {
+    return (CameraConfig_unk*)&config->mAttackTurnSpeed;
+}
+// inferred: settings (lbl_8087F0A8) and field (lbl_8087F430) as the accessors of other files see them (as in
+// game/CharaTask.cpp and game/GameUI.cpp)
+struct Settings_unk {
+    Input_unk* fn_80116BAC(); // inferred: pad (this + 0x48C)
+};
+extern "C" Settings_unk* fn_800F52F8(); // inferred: returns lbl_8087F0A8
+struct Field_unk {
+    GameScene* fn_8013C504(); // inferred: scene of the field
+};
+extern "C" Field_unk* fn_80121F00(); // inferred: returns lbl_8087F430
+
+inline void GameCamera::fn_80390374() {
     fn_80389838(m804);
+}
+
+// inferred: chooses the camera mode from the state (m55C) and the control (m560) of `chara` (GameTask): hanging,
+// attacks, special motions; some controls change the parameters of the hips mode (m51C) through m46C
+void GameCamera::fn_8038F52C(CharaTask* chara) {
+    int set = 0;
+    if (m7FC != 6 && m7FC != 19) {
+        if (chara->fn_8013C3A8()) {
+            if (fn_8038B648(chara)) {
+                fn_80389838(3);
+            } else {
+                fn_80389838(2);
+            }
+        } else if (chara->fn_801479D8()) {
+            fn_80389838(4);
+        } else if (fn_80267B20(chara) == 6) {
+            switch (fn_80267B28(chara)) {
+            case 13:
+            case 33:
+            case 34:
+                fn_80389838(5);
+                break;
+            case 14: {
+                float frame = fn_800F84C8(chara)->GetMotionFrame(0);
+                float len = fn_800F84C8(chara)->fn_80097D7C(0);
+                GameCameraParam_unk p(m51C);
+                p.m00 *= 1.6f;
+                p.m04 *= 1.1f;
+                p.m08 = atn::DegToRad_unk(25.0f);
+                m46C.fn_8037E89C(3, p, 1.0f);
+                m46C.mParam.m00 = p.m00;
+                set = 1;
+                m46C.mParam.m04 = p.m04;
+                m46C.mParam.m08 = p.m08;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 29:
+                if (fn_80387540(chara) && fn_80387540(chara)->vf58()) {
+                    fn_80389838(4);
+                } else {
+                    fn_80389838(5);
+                }
+                break;
+            case 30:
+            case 31:
+                if (fn_80339F6C(chara) && (int)fn_80339F6C(chara)->m02 == 4) {
+                    fn_80390374();
+                }
+                break;
+            case 11:
+            case 15:
+            case 16:
+                fn_80389838(7);
+                break;
+            case 8:
+            case 24:
+            case 25:
+            case 26:
+            case 27:
+            case 41:
+            case 58:
+            case 84:
+                fn_80390374();
+                fn_8037EF30(0, 1, -1.0f);
+                break;
+            case 23:
+                fn_80390374();
+                if (fn_80382A00(chara) != 2 || !chara->fn_8015EB2C()) {
+                    fn_8037EF30(0, 0, -1.0f);
+                }
+                break;
+            case 40: {
+                GameCameraParam_unk p(m51C);
+                p.m0C = 0.0f;
+                m46C.fn_8037E89C(2, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 4:
+            case 48:
+            case 50:
+                fn_80390374();
+                fn_8037EF30(0, 0, GetCameraConfig_unk(GetSetConfig_unk())->m00);
+                break;
+            case 113:
+            case 115:
+                fn_80389838(13);
+                break;
+            case 76:
+                fn_80389838(14);
+                break;
+            case 77:
+                fn_80389838(15);
+                break;
+            case 81:
+                fn_80389838(20);
+                fn_8037EF30(1, 1, -1.0f);
+                break;
+            case 110:
+            case 111:
+            case 112:
+                fn_80390374();
+                fn_8037EF30(1, 1, -1.0f);
+                break;
+            case 9:
+            case 10:
+            case 95: {
+                GameCameraParam_unk p(m51C);
+                p.m04 *= 0.7f;
+                m46C.fn_8037E89C(3, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 141: {
+                float frame = fn_800F84C8(chara)->GetMotionFrame(0);
+                float len = fn_800F84C8(chara)->fn_80097D7C(0);
+                GameCameraParam_unk p(m51C);
+                if (fn_800F84C8(chara)->fn_80139F2C(0) == 0x16E) {
+                    float from = -atn::DegToRad_unk(20.0f);
+                    float to = atn::DegToRad_unk(10.0f);
+                    if (frame > 33.0f) {
+                        p.m08 += fn_800F8524(from, to, GAMECAMERA_MIN_UNK(1.0f, (frame - 23.0f) / 4.0f));
+                    } else if (frame > 14.0f) {
+                        p.m08 += fn_800F8524(lbl_8087DD04, from, GAMECAMERA_MIN_UNK(1.0f, (frame - 14.0f) / 3.0f));
+                    }
+                    p.m04 *= 0.7f;
+                } else if (fn_800F84C8(chara)->fn_80139F2C(0) == 0x170) {
+                    float from = -atn::DegToRad_unk(10.0f);
+                    float to = atn::DegToRad_unk(5.0f);
+                    if (frame > 33.0f) {
+                        p.m08 += fn_800F8524(from, to, GAMECAMERA_MIN_UNK(1.0f, (frame - 23.0f) / 4.0f));
+                    } else if (frame > 14.0f) {
+                        p.m08 += fn_800F8524(lbl_8087DD08, from, GAMECAMERA_MIN_UNK(1.0f, (frame - 14.0f) / 3.0f));
+                    }
+                    if (frame > len - 13.0f) {
+                        float t = GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - (len - 13.0f)) / 12.0f));
+                        p.m0C = fn_800F8524(lbl_8087DD0C, p.m0C, t);
+                        p.m34 = fn_800F8524(-atn::DegToRad_unk(7.0f), p.m34, t);
+                    } else {
+                        float t = GAMECAMERA_MAX_UNK(0.0f, GAMECAMERA_MIN_UNK(1.0f, (frame - 16.0f) / 10.0f));
+                        p.m0C = fn_800F8524(p.m0C, lbl_8087DD10, t);
+                        p.m34 = fn_800F8524(p.m34, -atn::DegToRad_unk(7.0f), t);
+                    }
+                    p.m04 *= 0.6f;
+                } else {
+                    float from = -atn::DegToRad_unk(15.0f);
+                    float to = atn::DegToRad_unk(0.0f);
+                    if (frame > len - 10.0f) {
+                        p.m00 *= fn_800F8524(lbl_8087DD14, lbl_8087DD18,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - (len - 10.0f)) / 9.0f)));
+                        p.m08 = fn_800F8524(m46C.mParam.m08, p.m08,
+                                            GAMECAMERA_MIN_UNK(1.0f, (frame - (len - 10.0f)) / 6.0f));
+                    } else if (frame > 33.0f) {
+                        p.m08 += fn_800F8524(from, to, GAMECAMERA_MIN_UNK(1.0f, (frame - 23.0f) / 4.0f));
+                        p.m00 *= fn_800F8524(lbl_8087DD1C, lbl_8087DD20,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - 33.0f) / 5.0f)));
+                    } else {
+                        p.m08 += fn_800F8524(lbl_8087DD24, from,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, (frame - 14.0f) / 3.0f)));
+                        p.m00 *= fn_800F8524(lbl_8087DD28, lbl_8087DD2C,
+                                             GAMECAMERA_MIN_UNK(1.0f, GAMECAMERA_MAX_UNK(0.0f, frame / 5.0f)));
+                    }
+                }
+                m46C.fn_8037E89C(3, p, 0.1f);
+                m46C.mParam.m08 = GAMECAMERA_MAX_UNK(-atn::DegToRad_unk(25.0f), p.m08);
+                set = 1;
+                m46C.mParam.m04 = p.m04;
+                m46C.mParam.m00 = p.m00;
+                m46C.mParam.m0C = p.m0C;
+                m46C.mParam.m34 = p.m34;
+                fn_80390374();
+                fn_8037EF30(0, 1, -1.0f);
+                break;
+            }
+            case 121: {
+                GameCameraParam_unk p(m51C);
+                p.m00 = 45.0f;
+                p.m28 = 0.3f;
+                p.m0C = 25.0f;
+                p.m10 = 10.0f;
+                m46C.fn_8037E89C(3, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                break;
+            }
+            case 138: {
+                GameCameraParam_unk p(m51C);
+                p.m00 = 45.0f;
+                p.m28 = 0.3f;
+                p.m0C = 25.0f;
+                p.m10 = 10.0f;
+                m46C.fn_8037E89C(3, p, 0.1f);
+                set = 1;
+                fn_80390374();
+                break;
+            }
+            case 132: {
+                GameCameraParam_unk p(m51C);
+                if (fn_800F84C8(chara)->GetMotionFrame(0) < 22.0f) {
+                    p.m00 *= 0.6f;
+                } else if (fn_800F84C8(chara)->GetMotionFrame(0) > 41.0f) {
+                    p.m00 *= GAMECAMERA_MAX_UNK(1.0f, 1.2f - 0.03f * (fn_800F84C8(chara)->GetMotionFrame(0) - 41.0f));
+                } else {
+                    p.m00 *= GAMECAMERA_MIN_UNK(1.2f, 0.15f * (fn_800F84C8(chara)->GetMotionFrame(0) - 22.0f) + 0.6f);
+                }
+                m46C.fn_8037E89C(3, p, 0.1f);
+                m46C.mParam.m00 = p.m00;
+                set = 1;
+                m46C.mParam.m0C = p.m0C;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 139: {
+                GameCameraParam_unk p(m51C);
+                if (fn_800F84C8(chara)->GetMotionFrame(0) > fn_800F84C8(chara)->fn_80097D7C(0) - 8.0f) {
+                    p.m00 *= fn_800F8524(lbl_8087DD30, lbl_8087DD34,
+                                         GAMECAMERA_MIN_UNK(1.0f, (fn_800F84C8(chara)->GetMotionFrame(0) -
+                                                                   (fn_800F84C8(chara)->fn_80097D7C(0) - 8.0f)) /
+                                                                      8.0f));
+                } else {
+                    p.m00 *= 0.6f;
+                }
+                m46C.fn_8037E89C(3, p, 0.1f);
+                m46C.mParam.m00 = p.m00;
+                set = 1;
+                m46C.mParam.m0C = p.m0C;
+                fn_80390374();
+                fn_8037EF30(0, 0, -1.0f);
+                break;
+            }
+            case 129:
+                break;
+            default:
+                fn_80390374();
+                break;
+            }
+        } else if (fn_803830A0() && fn_800F52F8()->fn_80116BAC()->fn_801240B4(0x24)) {
+            fn_80389838(9);
+        } else if (fn_803903C4() && fn_803903CC(fn_803903C4())) {
+            fn_80389838(8);
+        } else if (fn_80121F00() && fn_80121F00()->fn_8013C504()) {
+            gs::CameraBox* box = fn_80121F00()->fn_8013C504()->fn_803C2048(chara);
+            if (box) {
+                if (box->m2C == 1) {
+                    fn_80389838(10);
+                } else if (box->m2C == 2) {
+                    fn_80389838(11);
+                } else {
+                    fn_80390374();
+                }
+            } else {
+                fn_80390374();
+            }
+        } else {
+            fn_80390374();
+        }
+    }
+    if (!set && m46C.mMode != 4) {
+        fn_8032EC94(&m46C.mMode);
+    }
 }
 
 
@@ -2227,6 +2811,218 @@ void GameCamera::fn_803903E0(const atn::Vector3* target, float angle, int arg) {
                 m8A4 = best.m04 + best.m28 * radius + atn::Vector3(m8A4.x - from.x, 0.0f, m8A4.z - from.z);
             }
         }
+    }
+}
+
+// ---- fn_80390A88: free camera of the tactical view ----
+extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
+// inferred: TacView::fn_805AA94C (moves the view point with the stick; not declared in game/TacView.h)
+extern "C" void fn_805AA94C(TacView* view, atn::Vector3* pos, atn::Vector3* move, int free, int reset);
+// inferred: parts of TacView not declared in game/TacView.h (names invented): the object aimed at by the cursor
+// keeps its position at 0x10, and m15AC is a task with a state at 0x48
+struct TacViewTargetPos_unk {
+    unsigned char m00[0x10];
+    atn::Vector3 m10;
+};
+struct TacViewTask_unk {
+    int IsIdle_unk() const { return m48 == 0; }
+    unsigned char m00[0x48];
+    int m48;
+};
+
+// inferred: normalizes `v` unless it is (almost) zero
+static inline void SafeNormalize_unk(atn::Vector3* v) {
+    if ((float)__fabs(v->LengthSq_unk()) < 1.1920929e-07f) {
+        return;
+    }
+    v->Normalize_unk();
+}
+
+// inferred: the view moves to its point (TacView::m159C)
+static inline bool TacViewMoving_unk(TacView* view) {
+    bool moving = false;
+    if (view->m15D8 == 1 && view->m15A8 > 0) {
+        moving = true;
+    }
+    return moving;
+}
+
+// inferred: `p` raised by the radius of the eye (and by the view height on maps without a ceiling)
+static inline atn::Vector3 RaisedPos_unk(const atn::Vector3& p) {
+    atn::Vector3 r = p;
+    r.y += lbl_8087F0A8->m08C;
+    AddViewHeight_unk(&r);
+    return r;
+}
+
+// inferred: free camera of the tactical view (m8E0): the left stick moves the point m8A4 (relative to the yaw m8A0)
+// within m8E8 ? 800 : 400 of m8BC (the view point of TacView while it moves it), swept against the walls (three
+// tries up the steps on maps with a ceiling); while the view is open the point follows the cursor; the right
+// stick and the buttons 2/3 turn the yaw
+// NONMATCHING: ~63% - stack layout (the original has 0x10 more bytes of locals: Mtx at 0x168, move at 0x158,
+// the copy of the cursor split over 0x140/0x0C/0x1C) and the scheduling of the first vector sums
+void GameCamera::fn_80390A88() {
+    if (m8E0 == 0) {
+        return;
+    }
+    atn::Vector3 move;
+    move.x = -fn_800A56A8(lbl_8087EF70, 0, 0, 0);
+    move.y = 0.0f;
+    move.z = fn_800A56A8(lbl_8087EF70, 0, 1, 0);
+    if ((float)__fabs(move.x) < 0.3f) {
+        move.x = 0.0f;
+    }
+    if ((float)__fabs(move.z) < 0.3f) {
+        move.z = 0.0f;
+    }
+    int free = lbl_8087F9F8->mA70 == 0;
+    float radius = lbl_8087F0A8->m08C;
+    atn::Vector3 pos = m8A4;
+    pos.y += radius;
+    AddViewHeight_unk(&pos);
+    if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+        TacViewSel_unk sel = lbl_8087F9F8->m48;
+        if (lbl_8087F9F8->m15D8 == 1) {
+            free = 1;
+        }
+        fn_805AA94C(lbl_8087F9F8, &m8A4, &move, free, m8D4);
+        if (m8D4 != 0) {
+            m8D4 = 0;
+        }
+    }
+    Mtx m;
+    PSMTXRotRad(m, 'y', -m8A0);
+    PSMTXMultVec(m, &move, &move);
+    move *= lbl_8087F0A8->m064;
+    if (free) {
+        float minDist = 0.001f;
+        float maxDist = m8E8 ? 800.0f : 400.0f;
+        if (m8E8) {
+            maxDist *= 2.0f;
+        }
+        atn::Vector3 center = m8BC;
+        int follow = 1;
+        if (lbl_8087F9F8->m15D8 == 1) {
+            if (!TacViewMoving_unk(lbl_8087F9F8)) {
+                minDist = 0.001f;
+                maxDist = lbl_8087F9F8->m15ED ? 600.0f : 200.0f;
+                center = lbl_8087F9F8->m15DC;
+            } else {
+                follow = 0;
+            }
+        }
+        if (follow) {
+            atn::Vector3 eye = m8A4;
+            atn::Vector3 dir = move;
+            atn::Vector3 d = eye + dir - center;
+            if (PSVECMag(&d) > 0.0f) {
+                eye += move;
+            } else {
+                dir = eye + dir - center;
+                dir.y = 0.0f;
+                SafeNormalize_unk(&dir);
+                eye = dir * (0.00001f + minDist) + center;
+            }
+            dir = eye - center;
+            if (maxDist < PSVECMag(&dir)) {
+                PSVECNormalize(&dir, &dir);
+                eye = center + dir * maxDist;
+            }
+            eye.y = GAMECAMERA_MAX_UNK(center.y - 10.0f, GAMECAMERA_MIN_UNK(10.0f + center.y, eye.y));
+            pos = RaisedPos_unk(m8A4);
+            move = eye - pos;
+            move.y = 0.0f;
+        }
+    }
+    unsigned int mask = 0x80000008;
+    if (HasCeiling_unk()) {
+        mask = 0x08000000;
+        pos.y += m8C8 - m8A4.y;
+        move.y = 0.5f * -radius + move.y;
+    }
+    if (free) {
+        if (lbl_8087F9F8 != 0 && TacViewMoving_unk(lbl_8087F9F8)) {
+            lbl_8087F9F8->fn_805AA82C(&m8A4);
+        } else {
+            CollResult_unk result;
+            if (HasCeiling_unk()) {
+                int tries = 0;
+                bool aimed = false;
+                bool sub = false;
+                if (lbl_8087F9F8 != 0 && lbl_8087F9F8->m15AC != 0) {
+                    sub = true;
+                }
+                if (sub && !((TacViewTask_unk*)lbl_8087F9F8->m15AC)->IsIdle_unk()) {
+                    aimed = true;
+                }
+                int floor = aimed ? lbl_8087F9F8->m15DC.y : m8BC.y;
+                do {
+                    if (fn_8004D388(lbl_8087EE98, &result, &pos, &move, mask, 0, -1, radius)) {
+                        atn::Vector3 d = result.m10 - pos;
+                        if (result.m10.y - (float)floor > 20.0f) {
+                            atn::Vector3 from = result.m10;
+                            atn::Vector3 to = result.m10;
+                            to.y -= 2.0f * radius;
+                            tries++;
+                            if (fn_8004ED34(lbl_8087EE98, &result, &from, &to, mask, 0, -1) &&
+                                result.m28.x * result.m28.x + result.m28.z * result.m28.z > 0.001f &&
+                                move.x * move.x + move.z * move.z > 0.001f) {
+                                atn::Vector3 n(-result.m28.x, 0.0f, -result.m28.z);
+                                PSVECNormalize(&n, &n);
+                                move.y = 0.0f;
+                                float dot = PSVECDotProduct(&n, &move);
+                                move -= n * dot;
+                                move.y = 0.2f * -radius;
+                            } else {
+                                move *= 0.5f;
+                            }
+                        } else {
+                            m8C8 += d.y;
+                            if (m8C8 < m8A4.y) {
+                                m8C8 = m8A4.y;
+                            }
+                            d.y = 0.0f;
+                            m8A4 += d;
+                            break;
+                        }
+                    } else {
+                        move.y = 0.0f;
+                        m8A4 += move;
+                        break;
+                    }
+                    pos = m8A4;
+                    pos.y = m8C8 + radius;
+                } while (tries < 3);
+            } else {
+                fn_8004D388(lbl_8087EE98, &result, &pos, &move, mask, 0, 0, radius);
+                atn::Vector3 d = result.m10 - pos;
+                d.y = 0.0f;
+                m8A4 += d;
+            }
+        }
+    } else if (lbl_8087F9F8->m48.mState == 0) {
+        m8A4 += (lbl_8087F9F8->m48.m04->GetTacViewPosition() - m8A4) * 0.2f;
+    } else if (lbl_8087F9F8->m48.mState == 1) {
+        m8A4 += (((TacViewTargetPos_unk*)lbl_8087F9F8->m48.mTarget)->m10 - m8A4) * 0.2f;
+    }
+    float turn = 0.0f;
+    if (fn_800A58D0(lbl_8087EF70, 0)) {
+        float x = -fn_800A56A8(lbl_8087EF70, 0, 2, 0);
+        if ((float)__fabs(x) < 0.3f) {
+            x = 0.0f;
+        }
+        turn = x * -0.08726646f;
+    }
+    if (lbl_8087F9F8 == 0 || lbl_8087F9F8->mA70 == 0 || lbl_8087F9F8->mA78 != 0) {
+        if (fn_800A55D4(lbl_8087EF70, 0, 2)) {
+            turn -= 0.08726646f;
+        }
+        if (fn_800A55D4(lbl_8087EF70, 0, 3)) {
+            turn += 0.08726646f;
+        }
+    }
+    if ((float)__fabs(turn) > 0.001f) {
+        m8A0 = atn::WrapAngle_unk(turn + m8A0);
     }
 }
 
@@ -2425,8 +3221,6 @@ void GameCamera::fn_80392FE8() {
 }
 
 // inferred: debug display of the camera (position, target and the point of the tactical view)
-// NONMATCHING: only the offsets of the two formats in the file pool differ (0x1F0/0x20D in the original:
-// the strings of the mode functions before them are not written yet)
 void GameCamera::fn_8039328C() {
     if (m7F0 != 0) {
         char buf[256];

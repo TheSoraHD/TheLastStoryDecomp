@@ -47,6 +47,7 @@ struct Camera {
     void SetPosition(const Vector3& v) { mPos = v; }
     const Vector3* GetRot_unk() const { return &mRot; }
     float GetFovy_unk() const { return mFovy; }
+    void SetUpVector(const Vector3&); // inferred: weak copy 0x80382A08 (defined in game/GameCamera_unk.cpp)
 
     int mType;              // 0x00: 0 = look at, 1 = position and angles, 2 = look at with roll
     int mProjType;          // 0x04: 0 = perspective, 1 = orthographic
