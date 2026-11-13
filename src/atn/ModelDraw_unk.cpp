@@ -311,38 +311,7 @@ extern "C" void fn_800D594C(atn::Texture_unk* tex, const char* path); // inferre
 extern "C" void* fn_8047614C(atn::LH_Model* model, int mesh); // inferred: vertex arrays
 extern "C" void* fn_80476170(atn::LH_Model* model, int mesh); // inferred: vertex description
 
-// inferred: draw state of a model (built on the stack by atn::Model, fn_8008E818)
-struct DrawEntry_unk {
-    DrawEntry_unk(atn::LH_Model* model, Mtx* mtx, Mtx* nodes, int m18, DrawColor_unk* color, DrawMaterials_unk* mats,
-                  DrawRemap_unk* remap, const atn::Sphere* sphere, int* m40, unsigned int flags, atn::Scene* lens,
-                  int m98, const DrawCallback_unk* cb);
-
-    int m00; // inferred: pass
-    int m04;
-    atn::LH_Model* m08;
-    DrawModel_unk* m0C;
-    Mtx* m10;
-    Mtx* m14; // inferred: node matrices
-    int m18;
-    DrawColor_unk* m1C;
-    DrawMaterials_unk* m20;
-    DrawRemap_unk* m24;
-    int m28;
-    float m2C; // inferred: largest scale
-    atn::Sphere m30;
-    int* m40; // inferred: node remap
-    unsigned char* m44; // inferred: node visibility
-    int m48; // inferred: only the "op_" nodes
-    unsigned char* m4C; // inferred: material visibility
-    short* m50; // inferred: nodes to draw
-    unsigned int m54;
-    int m58;
-    void* m5C;
-    LightSet_unk m60;
-    atn::Scene* m84;
-    DrawCallback_unk m88;
-    int m98;
-};
+#include "atn/DrawEntry_unk.h"
 
 extern "C" {
 void fn_8009B93C(DrawEntry_unk* entry);

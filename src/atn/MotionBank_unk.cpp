@@ -1,5 +1,5 @@
 // atn/MotionBank_unk.cpp (file name invented): the motion banks shared by the models, kept in two static
-// maps (0x800A0A68-0x800A2664), and the random generator of MP::CryptMP (0x800A2664, not written yet).
+// maps (0x800A0A68-0x800A2664), and the random generator of MP::CryptMP (0x800A2664).
 // Split out of atn/Motion_unk at 0x800A0A68: own string pool at 0x80732768, .data, the second half of
 // .bss/.sbss and the __sinit (the one of <iostream>).
 #include "atn/Model_unk.h"
@@ -9,6 +9,7 @@
 #include "atn/Memory.h"
 #include "std/ios_init.h"
 #include "std/tree.h"
+#include "std/tr1_random.h"
 
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 extern "C" void fn_800A09D0(short* out, atn::Model* model, atn::LH_Motion* motion); // atn/Motion_unk
@@ -480,4 +481,23 @@ extern "C" MotionBankRef_unk fn_800A130C(MotionBankCache_unk* cache, atn::Model*
         use->mValue.second.mRef++;
         return MotionBankRef_unk(cache->mBanks.At_unk(bankKey).second.mData, useKey);
     }
+}
+
+// inferred: random generator of MP::CryptMP (called from MP/CryptMP vf1C), created on first use with the tick
+// as seed
+typedef std::tr1::variate_generator<std::tr1::mt19937, std::tr1::uniform_real<double> > Random_unk;
+extern "C" unsigned long OSGetTick();
+static double sRandMin_unk = 0.0;
+static double sRandMax_unk = 1.0;
+static Random_unk* sRandom_unk;
+
+// NONMATCHING: 83.4% - the original builds the engine before the distribution and keeps the temporaries in
+// ascending order (same as MP/CryptMP vf0C); MWCC evaluates the distribution first here. The range doubles are in
+// .data in the original (0x807789C8 = 0.0, 0x807789D0 = 1.0); here the zero one goes to .bss.
+extern "C" Random_unk* fn_800A2664() {
+    if (sRandom_unk == 0) {
+        sRandom_unk = new ((MemoryTag)1, "", "", 0)
+            Random_unk(std::tr1::mt19937(OSGetTick()), std::tr1::uniform_real<double>(sRandMin_unk, sRandMax_unk));
+    }
+    return sRandom_unk;
 }
