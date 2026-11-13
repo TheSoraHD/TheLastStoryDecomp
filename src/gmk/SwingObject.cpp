@@ -9,6 +9,7 @@
 #include <boost/function.hpp>
 #include "atn/RenderManager.h"
 #include "atn/NodeChunk.h"
+#include "atn/MapModelCache_unk.h"
 
 extern "C" int strcmp(const char* a, const char* b);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -18,7 +19,7 @@ extern "C" InstData_unk* fn_8009F788(const char* name); // inferred: finds or lo
 extern "C" int fn_8009FFCC(InstData_unk* data);         // inferred: nonzero while loading
 extern "C" char lbl_8087D710[2]; // inferred: " " (field separators of the tab CSV)
 extern "C" float fn_800DC288(const char* s); // inferred: string to float
-extern "C" int fn_800DC6B4(const char* s);   // inferred: hash of a name
+extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: hash of a name (as atn/MapModelCache_unk.h)
 extern "C" float PSVECSquareMag(const atn::Vector3* v); // inferred: squared length
 extern "C" void fn_800874C8(void* group, const char* name, int* value, int arg3, int max, int step, int arg6,
                             int arg7);
@@ -428,9 +429,9 @@ void SwingObject::fn_803FFC50() {
 }
 } // namespace gmk
 
-// inferred: model of the building data (name invented)
+// inferred: model of the building data (InstData_unk is an entry of the map model cache)
 inline atn::Model* GetInstModel_unk(InstData_unk* data) {
-    return (atn::Model*)((char*)data + 0x10);
+    return ((MapModelCache_unk*)data)->mModel.GetModel_unk();
 }
 
 static char sSwingPath_unk[0x100]; // inferred: path buffer of the swinging map parts (0x807C8770)

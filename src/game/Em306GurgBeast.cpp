@@ -1,3 +1,4 @@
+#include "macros.h"
 #include "game/Em306GurgBeast.h"
 #include "game/GameCamera.h"
 #include "atn/Csv.h"

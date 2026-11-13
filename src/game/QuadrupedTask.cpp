@@ -1,3 +1,4 @@
+#include "macros.h"
 #include "game/QuadrupedTask.h"
 #include "game/GameScene.h"
 #include "chr/ControlDropDown.h"

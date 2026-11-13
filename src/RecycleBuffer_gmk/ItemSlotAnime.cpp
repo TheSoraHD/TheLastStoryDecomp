@@ -1,3 +1,4 @@
+#include "macros.h"
 #include "gmk/ItemSlotAnime.h"
 #include "atn/Task.h"
 #include "game/GameTask.h"

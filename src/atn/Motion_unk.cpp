@@ -33,23 +33,7 @@ std::basic_string<char> fn_8006B0C8(const std::basic_string<char>& path);
 
 extern "C" void fn_80095CD0(atn::Model* model); // inferred: update
 
-// inferred: map model loaded from a csv list (0x22C bytes; created by fn_8009F788). Names invented
-// (not the MapArea of game/MapArea.h).
-struct MapModelCache_unk {
-    MapModelCache_unk(const char* path) : m08(0), m0C(0), mModel(9), m228(0) {
-        std::basic_string<char> name = fn_8006B174(std::basic_string<char>(path));
-        mFile.vf0C(name.c_str());
-        m224 = fn_800DC6B4(name.c_str());
-        mModel.GetModel_unk()->m98 = 0.00001f * (unsigned short)m224;
-    }
-
-    atn::LH_Binary mFile;   // 0x00: inferred: the csv list
-    int m08;                // inferred: the csv was read
-    int m0C;                // inferred: the model is loaded
-    atn::ModelBase mModel; // 0x10
-    unsigned int m224;      // inferred: hash of the file name
-    int m228;               // inferred: reference count
-};
+#include "atn/MapModelCache_unk.h"
 
 extern "C" void fn_800A005C(MapModelCache_unk* model);
 extern "C" int fn_8009FFCC(MapModelCache_unk* model);

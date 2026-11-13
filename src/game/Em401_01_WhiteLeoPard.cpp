@@ -1,3 +1,4 @@
+#include "macros.h"
 #include "game/Em401_01_WhiteLeoPard.h"
 #include "chr/ControlBase.h"
 #include "game/CharaManager.h"

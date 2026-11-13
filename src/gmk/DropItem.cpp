@@ -1,3 +1,4 @@
+#include "macros.h"
 // inferred: file boundaries from the vtable/RTTI of gmk::DropItem, its own 0.0f in .sdata2 (0x808862C0) and
 // its creator 0x804093B4 (see docs/splits-auto-C.md, group 5)
 

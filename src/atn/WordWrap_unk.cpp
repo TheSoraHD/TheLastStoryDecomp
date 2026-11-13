@@ -235,9 +235,9 @@ std::basic_string<wchar_t> fn_800DFB40(const wchar_t* text, float maxWidth, floa
 void fn_800E0000(std::vector<std::basic_string<wchar_t> >* lines, const wchar_t* text, float maxWidth, float size,
                  float spacing, int a, int b, MeasureChar_unk measure) {
     std::basic_string<wchar_t> wrapped = fn_800DFB40(text, maxWidth, size, spacing, a, b, measure, 0);
-    unsigned long pos = 0;
+    std::basic_string<wchar_t>::size_type pos = 0;
     for (;;) {
-        unsigned long end = wrapped.find((wchar_t)0xA, pos);
+        std::basic_string<wchar_t>::size_type end = wrapped.find((wchar_t)0xA, pos);
         if (end == std::basic_string<wchar_t>::npos) {
             break;
         }
