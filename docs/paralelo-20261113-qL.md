@@ -19,7 +19,7 @@
 
 ## atn/Model
 
-- Funciones al 0 %: 10 -> 4. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
+- Funciones al 0 %: 10 -> 3. Escrita `Model::fn_80097E80` (actualizacion de la animacion: avanza y muestrea las
   pistas en el buffer compartido `sNodePoses` (bloques de 0x100 nodos por pista, 0x300 para la mezcla), mezcla por
   peso, pista 3, `fn_800991D0` y la llamada a `m35C`; NONMATCHING 94,7 %: el original llama a `strlen(m3C8)`
   antes de elegir el puntero de la cadena del nombre de fichero y reutiliza esa prueba en el destructor; MWCC
@@ -48,7 +48,10 @@
   al 100 %, ahora `W`, por eso `ordercheck` la cuenta como "missing"). Con asignaciones de `AABB_unk` en
   fn_8008EEDC el `operator=` debil sale detras de ella: se usan copias por miembro. `ModelJoint_unk`
   (`atn/ModelPose_unk.h`) gana los miembros de datos `m2C` y la caja `m58`/`m64` (antes relleno).
-- Cada cambio de numeracion deja el 255.0f de `.sdata2` (0x80880C14) sin renombrar por pd: ahora `@19818`.
+- Escrita `Model::fn_8008CD60` (cola del modelo en las pasadas de render segun `mFlags`, escena de la esfera,
+  dibujo de depuracion de joints y esfera con `DrawHelper`; NONMATCHING 95,8 %: el original guarda las pruebas
+  de flags como bool en registros y recarga `mFlags`; probado con inline que devuelven bool, igual o peor).
+- Cada cambio de numeracion deja el 255.0f de `.sdata2` (0x80880C14) sin renombrar por pd: ahora `@20749`.
 - `pd.sh atn/Model` vuelve a renombrar `lbl_8087D6E8/EC`: devueltos a mano.
 
 ## Decisiones tomadas sin el usuario
@@ -65,6 +68,9 @@
   (no a `.rodata`): explica los `0.0`/`1.0` de `.data` de MotionBank_unk y CryptMP.
 
 ## Pendientes
+
+- `ModelBase::vf14` (0x8008FA24) recibe 4 argumentos (el cuarto es la caja de salida de fn_8008EEDC), la
+  cabecera declara 3: cambiar la firma de la virtual toca `atn/Model_unk.h` y sus derivadas; no hecho.
 
 - `m20C_7` de `ModelBase` es un bit con signo en `fn_8008E818` (srawi): la cabecera lo declara `unsigned`
   (cabecera compartida, no tocado).

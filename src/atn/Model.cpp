@@ -19,6 +19,7 @@
 #include "nw4r/math/triangular.h"
 #include "atn/Light_unk.h"
 #include "atn/DrawEntry_unk.h"
+#include "atn/DrawHelper.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
@@ -831,6 +832,76 @@ void ModelBase::fn_8008C950() {
     m9C = (res->GetMax_unk() + res->GetMin_unk()) * 0.5f;
     mA8 = (res->GetMax_unk() - res->GetMin_unk()).Length_unk() * 0.5f;
     CalcMatrixStack(0, ModelNodeCallback_unk());
+}
+
+// inferred: queues the model in the render passes of its flags (only the occlusion pass while its occlusion
+// data is pending); updates the scene of the bounding sphere and draws the debug joints and sphere
+// NONMATCHING: 95.8% - the original keeps the flag tests as bool values (0/1 in registers: the test of 0x10000,
+// the occlusion and reflection conditions) and reloads mFlags for each pass test
+void Model::fn_8008CD60() {
+    if (fn_804761B0(&mLods[0].mHandle)) {
+        RenderManager::instance_->AddRender(this, 0, m98);
+        return;
+    }
+    if (mLods[0].m08 == 0) {
+        return;
+    }
+    RenderManager::instance_->AddRender(this, 2, 0.0f);
+    if ((mFlags & 0x10000) != 0x10000) {
+        m1DC = RenderManager::instance_->fn_800C122C(fn_80094F98());
+    }
+    if ((mFlags & 0x400000) == 0x400000) {
+        RenderManager::instance_->AddRender(this, 0x10, m98);
+        return;
+    }
+    bool noOcclusion = (mFlags & 2) == 2 || fn_80476194(&mLods[0].mHandle);
+    bool occluder = noOcclusion || fn_804761B0(&mLods[0].mHandle);
+    if (occluder) {
+        RenderManager::instance_->AddRender(this, 0, m98);
+    } else if (lbl_8087EFA8->m014 == 0) {
+        if ((mFlags & 4) == 4) {
+            RenderManager::instance_->AddRender(this, 3, m98);
+        }
+        bool reflect = false;
+        if ((mFlags & 0x400) == 0x400 || (mFlags & 0x800) == 0x800) {
+            Scene* scene = (m1DC != 0) ? m1DC : RenderManager::instance_->mScene;
+            if (scene->mReflectChara != 0 || (mFlags & 0x1000) == 0x1000) {
+                reflect = true;
+            }
+        }
+        if (reflect) {
+            RenderManager::instance_->AddRender(this, 4, m98);
+        }
+        if ((mFlags & 0x1000000) != 0x1000000 && (mFlags & 0x10) == 0x10) {
+            RenderManager::instance_->AddRender(this, 8, m98);
+        }
+        if ((mFlags & 0x1000000) != 0x1000000 && (mFlags & 0x20) == 0x20) {
+            RenderManager::instance_->AddRender(this, 6, m98);
+        }
+        if ((mFlags & 0x4000) == 0x4000) {
+            RenderManager::instance_->AddRender(this, 10, m98);
+            RenderManager::instance_->AddRender(this, 5, m98);
+        }
+        if ((mFlags & 0x2000) == 0x2000) {
+            RenderManager::instance_->AddRender(this, 9, m98);
+        }
+    }
+    if (lbl_8087EFA8->m00C != 0) {
+        for (int i = 0; i < GetRes_unk()->m44; i++) {
+            MtxPtr m = GetNodeMtx_unk(i);
+            NodeRes_unk* joint = GetRes_unk()->m48[i];
+            lbl_8087EEB0->fn_80063D3C(Vector3(m[0][3], m[1][3], m[2][3]), 0.5f, m98, 0xFFFFFFFF);
+            if (joint->m1C >= 0) {
+                MtxPtr p = GetNodeMtx_unk(joint->m1C);
+                lbl_8087EEB0->fn_80063764(Vector3(p[0][3], p[1][3], p[2][3]), Vector3(m[0][3], m[1][3], m[2][3]), m98,
+                                          0xFFFFFFFF);
+            }
+        }
+    }
+    if (lbl_8087EFA8->m010 != 0) {
+        Sphere sphere = fn_80094F98();
+        lbl_8087EEB0->fn_80063D3C(sphere.mCenter, sphere.mRadius, m98, 0xFFFFFFFF);
+    }
 }
 
 void ModelBase::vf18(RenderManager* view) {
