@@ -77,7 +77,8 @@ public:
     char m0C[0x14];
     locale* mLoc;                // 0x20
     void* mRdbuf;                // 0x24: setstate sets badbit without a stream buffer
-    char m28[8];
+    char m28[4];
+    streamsize mWidth;           // 0x2C: inferred: field width (num_put::do_put pads to it and clears it)
     unsigned short mFlags;       // 0x30
     unsigned char mState;        // 0x32
     unsigned char mExceptions;   // 0x33

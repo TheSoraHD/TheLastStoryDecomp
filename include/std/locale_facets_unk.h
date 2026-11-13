@@ -52,6 +52,14 @@ template <class C, class T = char_traits<C> >
 class ostreambuf_iterator {
 public:
     ostreambuf_iterator(basic_ostream<C, T>& s) : sbuf_(s.rdbuf()) {}
+    ostreambuf_iterator& operator=(C c) {
+        if (sbuf_ != 0 && sbuf_->sputc(c) == -1) {
+            sbuf_ = 0;
+        }
+        return *this;
+    }
+    ostreambuf_iterator& operator*() { return *this; }
+    ostreambuf_iterator& operator++() { return *this; }
     bool failed() const { return sbuf_ == 0; }
 
     basic_streambuf<C, T>* sbuf_;
@@ -61,9 +69,9 @@ public:
 template <class Facet>
 inline const Facet& use_facet(const locale& loc) {
     size_t i = Facet::id.get();
-    __locale_imp* imp = loc.mImp.mPtr;
     const locale::facet* f;
-    if (i >= imp->facets_.size() || (f = imp->facets_[i]) == 0) {
+    if (i >= loc.mImp.mPtr->facets_.size() || (f = loc.mImp.mPtr->facets_[i]) == 0) {
+        __locale_imp* imp = loc.mImp.mPtr;
         imp->replace(new Facet, Facet::id.get());
         f = loc.mImp.mPtr->facets_[i];
     }
@@ -108,11 +116,33 @@ typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base&
     return do_put(out, str, fill, (long double)v);
 }
 
+// inferred: a narrow literal as a string of the character type (weak copy 0x80243514)
+inline string __literal(const char* s, char) {
+    return string(s);
+}
+
+// inferred: the ios_base flags used by num_put (only used here; dec 0x02, hex 0x08, oct 0x40)
+enum {
+    __boolalpha_unk = 0x01,
+    __hex_unk = 0x08,
+    __internal_unk = 0x10,
+    __left_unk = 0x20,
+    __oct_unk = 0x40,
+    __basefield_unk = 0x4A,
+    __adjustfield_unk = 0xB0
+};
+
 template <class C>
 class numpunct : public locale::facet {
 public:
     typedef C char_type;
     typedef basic_string<C> string_type;
+
+    // inferred: inlined in num_put::do_put(bool) (0x8023C0C0); the names are literals of .data
+    explicit numpunct(size_t refs = 0) : locale::facet(refs), decimal_point_('.'), thousands_sep_(',') {
+        truename_ = __literal("true", C());
+        falsename_ = __literal("false", C());
+    }
 
     char_type decimal_point() const;
     char_type thousands_sep() const;
@@ -139,6 +169,7 @@ protected:
 
 template <class C>
 locale::id numpunct<C>::id;
+
 
 template <class C>
 typename numpunct<C>::string_type numpunct<C>::truename() const {
@@ -181,8 +212,46 @@ typename numpunct<C>::char_type numpunct<C>::do_thousands_sep() const {
 template <class C>
 numpunct<C>::~numpunct() {}
 
-// inferred: the basefield flags of ios_base (only used here; dec 0x02, hex 0x08, oct 0x40)
-enum { __basefield_unk = 0x4A, __hex_unk = 0x08, __oct_unk = 0x40 };
+// NONMATCHING: 88% - stack slots of the two name temporaries of the inlined numpunct constructor swapped,
+// registers of the facet and the table
+// inferred: bool output (0x8023C0C0): without boolalpha as a long; else the true or false name of the
+// numpunct of the stream, padded with the fill character to the width (left, internal or right), which is
+// cleared
+template <class C, class O>
+typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill, bool v) const {
+    if ((str.flags() & __boolalpha_unk) != 0) {
+        const numpunct<C>& np = use_facet<numpunct<C> >(str.getloc());
+        basic_string<C> s = v ? np.truename() : np.falsename();
+        int n = s.size();
+        const C* p = s.data();
+        int pad = 0;
+        if (str.mWidth > n) {
+            pad = str.mWidth - n;
+        }
+        unsigned short adjust = str.flags() & __adjustfield_unk;
+        if (adjust != __left_unk && adjust != __internal_unk) {
+            for (int i = 0; i < pad; i++) {
+                *out = fill;
+            }
+        }
+        if (adjust == __internal_unk) {
+            for (int i = 0; i < pad; i++) {
+                *out = fill;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            *out = *p++;
+        }
+        if (adjust == __left_unk) {
+            for (int i = 0; i < pad; i++) {
+                *out = fill;
+            }
+        }
+        str.mWidth = 0;
+        return out;
+    }
+    return do_put(out, str, fill, (long)v);
+}
 
 // inferred: integer output (weak copy 0x8023BA10): octal and hexadecimal go through the unsigned long put;
 // a failed put sets badbit and failbit
@@ -206,11 +275,6 @@ basic_ostream<C, T>& basic_ostream<C, T>::operator<<(int n) {
         }
     }
     return *this;
-}
-
-// inferred: a narrow literal as a string of the character type (weak copy 0x80243514)
-inline string __literal(const char* s, char) {
-    return string(s);
 }
 
 } // namespace std

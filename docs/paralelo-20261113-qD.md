@@ -20,6 +20,10 @@ Inicio: 2026-11-13 01:18 CET. Rama `agent-D`. Unidades: `atn/EffectSystem_unk`, 
   el original inlinea el ctor y el dtor del sentry; aqui se llaman, ver docs/mwcc-blockers.md del sentry). 0 % 16 -> 15.
   `std::locale::imp` pasa a llamarse `std::__locale_imp` (nombre del DOL, `replace__Q23std12__locale_imp...`).
 
+- `atn/EffectManager` (commit 5): escrita NONMATCHING `num_put::do_put(bool)` (0x8023C0C0, 88 %: huecos de pila de
+  los dos nombres del ctor inline de `numpunct`); con ella sale `std::__literal` (0x80243514) al 100 %. 0 % 15 -> 13,
+  al 100 % 38 -> 39. `ios_base::mWidth` (0x2C, antes relleno) y `basic_streambuf::sputc` (inline, solo WordWrap).
+
 ## Decisiones tomadas sin el usuario
 
 - Empece por fn_8022DD1C y no por EffectManager: la cola de EffectManager son 26 instanciaciones de MSL
