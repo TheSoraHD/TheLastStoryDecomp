@@ -40,6 +40,12 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   - `fn_800FC410` (golpe directo de un personaje contra la esfera `index`; 98,7 %: huecos de las matrices de giro,
     como fn_800FD658). Lee `mControl->vf2C()` (numero de ventanas de golpe), `m598`/`m59D`/`m59E`/`m59F`/`m5A0`
     del atacante y `GameConfig_unk::mForceRatio`.
+  - `BattleTask::fn_8010B398` (estados que da el golpe y los que pierde el blanco; 98,8 %, registros): miembro
+    nuevo declarado en `BattleTask.h` sin nombres de parametro (solo lo llama fn_800FDF14), renombrado en
+    `symbols.txt`. Inlines nuevos `AttackArms_unk` (arma del ataque, como en fn_80101CDC) e `IsStatusBullet_unk`;
+    `BattleItem_unk` gana `mConds[2]` (0xEC, condiciones de la flecha). El tercer argumento de
+    `Arms::fn_80044E98`/`fn_80044FBC` es la posicion del golpe: se pasa con `(int)&pos` (la firma de `Arms.h`
+    lo tipa `int`; pendiente corregirla en su cola).
 
 ## Decisiones tomadas sin el usuario
 
@@ -69,6 +75,9 @@ Funciones al 0 % al empezar: BattleTask 29, TacView 6, BattleCharaTask 1.
   `fn_80210220`: el tipo `HateParamEntry_unk` es local de `db/HateParam_unk.cpp` (otra cola). Pendiente: cabecera.
 
 ## Hallazgos
+
+- `0x18F <= id && id <= 0x195` (constante a la izquierda) evita la fusion en `subi/cmplwi` (fn_8010B398; ya en
+  trucos-mwcc.md, linea 53/294).
 
 - `int n = 1; if (p) n = p->vf();` da el `li r4, 1` antes de la llamada; el ternario lo pone despues (fn_800FC410).
 

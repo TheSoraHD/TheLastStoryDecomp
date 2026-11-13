@@ -44,6 +44,7 @@
 #include "db/EquipParam_unk.h"
 #include "game/SkillEffectManager.h"
 #include "game/HomeButtonMenu.h"
+#include "game/CrossbowMenuTask.h"
 #include "atn/GraphicsDevice.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -3884,6 +3885,8 @@ extern "C" void fn_80108F38(BattleTask* mgr, const atn::Vector3* pos, int status
 struct BattleItem_unk {
     unsigned char m00[0x8];
     const wchar_t* mName;
+    unsigned char m0C[0xEC - 0xC];
+    ArmsCond_unk mConds[2]; // 0xEC: inferred: status conditions of the arrow (fn_8010B398)
 };
 // inferred: weapon data (only the kind is read; its name is the entry 0xEB + kind of the message table)
 struct BattleWeapon_unk {
@@ -4454,6 +4457,208 @@ inline CharaTask* GetCharaAt_unk(BattleTask* mgr, int i) {
         return 0;
     }
     return mgr->mCharas[i].mChara;
+}
+
+extern "C" atn::Task* lbl_8087FA20; // inferred: town task (null outside the towns; as game/GameTask.cpp)
+
+// inferred: weapon of `chara` used by the attack (the left one in the double attack control), as in fn_80101CDC
+// (name invented)
+inline Arms* AttackArms_unk(CharaTask* chara) {
+    Arms* arms;
+    if (chara == 0 || chara->m648 == 0) {
+        arms = 0;
+    } else {
+        arms = (Arms*)chara->m648;
+        if (chara->m55C == 6 && chara->m560 == 4 && chara->m64C != 0 && chara->mControl.get() != 0 &&
+            chara->mControl->vf30() % 2 == 1) {
+            arms = (Arms*)chara->m64C;
+        }
+    }
+    return arms;
+}
+
+// inferred: the hit `hit` is one of the magic bullets that apply the status 0x3F (name invented)
+inline bool IsStatusBullet_unk(HitInfo_unk* hit) {
+    bool r;
+    if (hit != 0 && (hit->m04 == 0xCC || hit->m04 == 0xD1 || hit->m04 == 0xD5 || hit->m04 == 0x5BC ||
+                     hit->m04 == 0x658)) {
+        r = true;
+    } else {
+        r = false;
+    }
+    return r;
+}
+
+// inferred: status effects given by the hit `param`: the statuses 0x30, 0x3E, 0x3F and 0x42 of the attacker (or of
+// the user of the bullet, m3E398), the counter statuses 0x40 and 0x23 of the target with their chance, the
+// conditions of the weapon, of the selected arrow and of the weapons 399-405; then the target loses the statuses
+// its state forbids, and each status is logged. Nonzero when one of them is shown
+// NONMATCHING: 98.8% - register allocation (attacker, target and their statuses permuted)
+int BattleTask::fn_8010B398(BattleCalcParam_unk* param) {
+    CharaTask* attacker = (CharaTask*)param->m00; // inferred: the field is an int (see fn_800FD658)
+    CharaTask* chara = param->m04;
+    int result = 0;
+    if (attacker == 0 || chara == 0) {
+        return 0;
+    }
+    int kind = param->m44;
+    atn::Vector3 pos = param->m1C;
+    unsigned int flags = param->m0C;
+    Arms* arms = AttackArms_unk(attacker);
+    if (arms == 0 || arms->m274 == 0) {
+        return 0;
+    }
+    HitInfo_unk* hit = param->m08;
+    CharaStatus* status = &attacker->mStatus;
+    CharaStatus* target = &chara->mStatus;
+    if (m3E398 != 0) {
+        attacker = m3E398;
+        arms = AttackArms_unk(attacker);
+    }
+    status->mEntries.mCount = 0;
+    if (m3E39C != 0) {
+        return 0;
+    }
+    if (param->m08 != 0 && (param->m08->mAC & 0x8000) == 0x8000 && !param->m08->m90.Check(0x2000000)) {
+        return 0;
+    }
+    if (lbl_8087FA20 != 0) {
+        return 0;
+    }
+    if (status->fn_80134134(0x30)) {
+        status->mEntries.push_back(*status->fn_80134134(0x30)->mEntry);
+    }
+    if (status->fn_80134134(0x3E)) {
+        status->mEntries.push_back(*status->fn_80134134(0x3E)->mEntry);
+    }
+    if (status->fn_80134134(0x3F) && (kind == 0 || IsStatusBullet_unk(hit))) {
+        status->mEntries.push_back(*status->fn_80134134(0x3F)->mEntry);
+    }
+    if (status->fn_80134134(0x42) && hit != 0 && (hit->mAC & 0x2000000) == 0x2000000) {
+        status->mEntries.push_back(*status->fn_80134134(0x42)->mEntry);
+    }
+    if (target->fn_80134134(0x40)) {
+        CharaStatusRef_unk* ref = target->fn_80134134(0x40);
+        int chance = target->fn_801341B8(0x40, -1);
+        if (chance > rand() % 100 && hit != 0 && (hit->mAC & 4) != 4) {
+            status->mEntries.push_back(*ref->mEntry);
+        }
+    }
+    if (target->fn_80134134(0x23)) {
+        for (unsigned int i = 0; i < target->mRefs.mCount; i++) {
+            CharaStatusEntry_unk* entry = target->mRefs[i].mEntry;
+            if (entry->mId == 0x23 && entry->m10 > rand() % 100 && (entry->mSub != 9 || (hit->mAC & 4) != 4)) {
+                status->mEntries.push_back(*entry);
+            }
+        }
+    }
+    for (int i = 0; i < 2; i++) {
+        // inferred: the third argument of the condition tests is the position of the hit
+        if (arms->fn_80044E98(i, kind, (int)&pos, flags, attacker, chara, hit)) {
+            ArmsCond_unk* cond = &arms->m274->mC4[i];
+            if (cond->m10 > rand() % 100) {
+                status->mEntries.push_back(*(CharaStatusEntry_unk*)cond);
+            }
+        }
+    }
+    if (attacker->mType == 0 && attacker->fn_8014FCE8() && CrossbowMenuTask::sInstance != 0) {
+        BattleItem_unk* arrow =
+            fn_80211480(CrossbowMenuTask::sInstance->m4C.mData[CrossbowMenuTask::sInstance->m150]);
+        if (arrow != 0) {
+            ArmsCond_unk* cond = arrow->mConds;
+            for (int i = 0; i < 2; i++, cond++) {
+                if (Arms::fn_80044FBC(cond, kind, (int)&pos, flags, attacker, chara, 0) && cond->m10 > rand() % 100) {
+                    status->mEntries.push_back(*(CharaStatusEntry_unk*)cond);
+                }
+            }
+        }
+    }
+    if (arms->m274->m78 == 0) {
+        int id = arms->m274->m80 % 1000;
+        if (0x18F <= id && id <= 0x195) {
+            ArmsCond_unk cond;
+            cond.m00 = 0x3F;
+            cond.m04 = 7;
+            cond.m08 = 2;
+            cond.m0C = 0;
+            cond.m10 = 100;
+            if (Arms::fn_80044FBC(&cond, kind, (int)&pos, flags, attacker, chara, hit)) {
+                status->mEntries.push_back(*(CharaStatusEntry_unk*)&cond);
+            }
+        }
+    }
+    if (status->fn_80133EE8(0x11) && (target->m18 & 0x10000)) {
+        status->fn_80133E24(0x11, -1);
+    }
+    if (status->fn_80133EE8(0x12) && ((target->m18 & 0x400000) || (target->m18 & 1) || chara->mFlag22 == 1)) {
+        status->fn_80133E24(0x12, -1);
+    }
+    if (status->fn_80133EE8(0x13) && (target->m18 & 0x80)) {
+        status->fn_80133E24(0x13, -1);
+    }
+    if (status->fn_80133EE8(0x14) && ((target->m18 & 1) || chara->mFlag22 == 1)) {
+        status->fn_80133E24(0x14, -1);
+    }
+    if (status->fn_80133EE8(0x15) && (target->m18 & 0x40)) {
+        status->fn_80133E24(0x15, -1);
+    }
+    if (status->fn_80133EE8(0x16) && (target->m18 & 0x10)) {
+        status->fn_80133E24(0x16, -1);
+    }
+    if (status->fn_80133EE8(0x17) && (target->m18 & 0x8000)) {
+        status->fn_80133E24(0x17, -1);
+    }
+    if (status->fn_80133EE8(0x19) && (target->m18 & 4)) {
+        status->fn_80133E24(0x19, -1);
+    }
+    if (status->fn_80133EE8(0x18) && (target->m18 & 0x4000)) {
+        status->fn_80133E24(0x18, -1);
+    }
+    if (status->fn_80133EE8(0x13) &&
+        ((target->m0C & 0x40) == 0x40 || (target->m0C & 0x100) == 0x100 || (target->m0C & 0x4000) == 0x4000 ||
+         (target->m0C & 0x10000) == 0x10000 || (target->m0C & 0x10) == 0x10)) {
+        status->fn_80133E24(0x13, -1);
+    }
+    if (status->fn_80133EE8(0x11) &&
+        ((target->m0C & 0x40) == 0x40 || (target->m0C & 0x100) == 0x100 || (target->m0C & 0x4000) == 0x4000 ||
+         (target->m0C & 0x80) == 0x80 || (target->m0C & 0x10) == 0x10)) {
+        status->fn_80133E24(0x11, -1);
+    }
+    if (status->fn_80133EE8(1) && chara->mFlag22 == 1) {
+        status->fn_80133E24(1, -1);
+    }
+    for (unsigned int i = 0; i < status->mEntries.mCount; i++) {
+        CharaStatusEntry_unk* entry = &status->mEntries[i];
+        bool shown = true;
+        if (entry->mSub == 0x13) {
+            shown = false;
+        }
+        if (entry->mId == 0x22) {
+            shown = false;
+        }
+        if (entry->mId == 0x3F) {
+            shown = false;
+        }
+        if (entry->mSub == 0x11) {
+            shown = false;
+        }
+        if (entry->mId == 0x3C) {
+            shown = false;
+        }
+        if (entry->mId == 0x42 && !(param->m08 != 0 && (param->m08->mAC & 0x2000000) == 0x2000000)) {
+            shown = false;
+        }
+        if (entry->mSub == 0x1A) {
+            shown = false;
+        }
+        if (shown) {
+            result = 1;
+        }
+        if (entry->mId != 0x3C) {
+            fn_80109864((SpEffect_unk*)entry, attacker);
+        }
+    }
+    return result;
 }
 
 // inferred: applies the status `ref` of an equipment condition: the conditions 0x1D, 0x1F and 0x21 go to every player

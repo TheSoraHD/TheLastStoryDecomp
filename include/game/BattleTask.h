@@ -286,6 +286,7 @@ public:
     void fn_8010AB34();
     void fn_8010AB94();
     int fn_8010B180(CharaTask* a, CharaTask* b); // inferred: the two characters can reach each other (AI areas)
+    int fn_8010B398(BattleCalcParam_unk*); // inferred: status effects of the hit (nonzero if one is shown)
     float fn_8010CA24();
     float fn_8010CA2C();
     float fn_8010CA34();
