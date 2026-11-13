@@ -33,6 +33,8 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   `time` y `count` en la declaracion (el orden de evaluacion del original es 0.0f, 30, m594).
 - `game/Em401_01_WhiteLeoPard` (fuera de colas): fn_8031FE4C 98,63 -> 100 % con la misma firma de
   fn_800F8C6C (float antes). `game/QuadrupedTask`: fn_80566FB4 86,11 -> 87,52 con la misma firma.
+- `game/Em202SpiderBase` (fuera de colas): fn_80285FA0 99,65 -> 100 % (`float dist;` declarada antes y
+  `float rate = 1.0f;` asignada primero: el 1.0f se carga en el prologo y dist queda en f31).
 - `chr/ControlShoot`: ctor 98,76 -> 99,90 %. El motion de los casos 0x25/0x26 con el ternario de `enum` y
   `mFB4 = mData->m48 + mFB4`. Queda el registro del cero de mFB0/mFB4 (r6 por r4).
 - Sin cambio (intentos revertidos, 2-8 cada una): `db/MapEnvSeTable_unk` fn_80214F80 (operator[] e inline
@@ -76,6 +78,11 @@ Lista: `/home/claude/scratch/n-candidates.txt` (98 % y menos, y las de 99 % que 
   A-M ni de la ruta (salida de `enumscan.py`), empezando por chr/ControlStickByQuark.
 
 ## Pendientes
+
+- `GameBgm::fn_8037D4C0`: con la firma `(int id, float volume, int fade, int b, int c)` SongManager
+  fn_805A2FD4 y fn_805A32C8 pasan a 99,95 (solo el nombre mangled; con el renombrado en symbols.txt
+  quedarian al 100 %). Hay ~45 llamadas en 14 ficheros (PacketPack, GameTask, Event/Manager, Em203*,
+  Em206CocoonMp, GameEventScript...): no lo hago (otras colas y fuera de alcance). Revertido.
 
 - `/home/claude/scratch-N2/bin/enumscan.py` lista funciones <100 % con `li rX, C; bxx; li rX, C+-1`
   (sin pares 0/1): 52 en todo el juego, la mayoria de otras colas (Event/Action*, MP/D2AMpMenu*, chr/Control*,
