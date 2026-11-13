@@ -1104,6 +1104,90 @@ inline void QuarkRotZYX_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
     __MtxRotate(m.m, 'x', rot.x);
 }
 
+extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
+                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
+                            float b); // inferred: fires a bullet (as in game/Em201ZanGurgFinal.cpp)
+
+// inferred: plays an effect bound to a matrix (kind 5: `target` is a Matrix3x4; as gmk/PlayEffect.cpp, which
+// passes a model)
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int kind, const void* target,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale);
+
+// inferred: rotation matrix z, y, x with the angle compared on the right (as RotateZYX_unk of math/Vec.h, without
+// the product; names invented)
+inline void QuarkRotate_unk(Mtx m, char axis, float rad) {
+    if (0.0f != rad) {
+        Mtx r;
+        PSMTXRotRad(r, axis, rad);
+        Mtx t;
+        PSMTXConcat(m, r, t);
+        __MtxCopy(m, t);
+    }
+}
+inline void QuarkRotZYX2_unk(atn::Matrix3x4& m, const atn::Vector3& rot) {
+    m.SetIdentity();
+    QuarkRotate_unk(m.m, 'z', rot.z);
+    QuarkRotate_unk(m.m, 'y', rot.y);
+    QuarkRotate_unk(m.m, 'x', rot.x);
+}
+
+// inferred: laser (state 6): turns to the target, then fires the laser from the head to its spine
+// NONMATCHING: 99.35% - stack slots (the original keeps the turn locals 0x1C lower and the matrix 8 higher), the
+// target node model in r28 and the order of the loads of the y/x angle compares (5 variants)
+void EnemyQuarkSecond::fn_8033C490() {
+    if (m14B4 == 0) {
+        CharaTask* t = m14B0;
+        float target = (t->mPos - mPos).ToRotationZ_unk().y;
+        float d = atn::WrapAngle_unk(target - mRot.y);
+        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+            mRot.y = target;
+        } else if (d <= 0.0f) {
+            mRot.y -= 0.20943952f;
+        } else {
+            mRot.y += 0.20943952f;
+        }
+        atn::Matrix3x4 m;
+        QuarkRotZYX2_unk(m, mRot * 0.3f);
+        if (mMotion.mTracks[0].m08 >= 70.0f) {
+            m14B4++;
+            fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
+            fn_80232B7C(this, 0x3E8);
+            Color4f_unk color;
+            color.r = 1.0f;
+            color.g = 1.0f;
+            color.b = 1.0f;
+            color.a = 1.0f;
+            fn_8023A8B4(lbl_8087F3C0, &m15BC, &mMotion, 0, lbl_807C7030, lbl_807C7030, color, -1, -1, 1, 1.0f);
+        }
+    } else if (m14B4 == 1) {
+        if (mMotion.mTracks[0].m08 >= 75.0f) {
+            m14B4++;
+            atn::Vector3 pos(0.0f, 0.0f, 20.0f);
+            PSMTXMultVec(mMotion.GetNodeMtx_unk("head"), &pos, &pos);
+            m15D4 = GetNodePos_unk(m14B0->mMotion.GetNodeMtx_unk("spine")) - pos;
+            PSVECNormalize(&m15D4, &m15D4);
+            m15E0.SetIdentity();
+            m15E0.RotateZYX_unk(m15D4.ToRotation_unk());
+            m15E0.fn_801479E4(pos);
+            fn_80232B7C(this, 0x3E8);
+            fn_8023A680(lbl_8087F3C0, &m15C8, -1, 5, &m15E0, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_80144710();
+            fn_800F8574(lbl_8087F048, this, m14D0, &pos, &m15D4, 0, 0, 0, 0.0f, 1.0f);
+            fn_800C31F4("SE_EM211_009_2", 0, -1, 1.0f);
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            ResetState_unk();
+            fn_8016E970(3);
+            m58C = 0;
+            PlayMotion_unk(2, 1, 1.0f);
+            fn_80239DAC(lbl_8087F3C0, this, 0x3E8, 1);
+        }
+    }
+}
+
 // inferred: rain attack (state 13): jumps to the centre of the arena, chants the sonic skill while rising, then
 // starts the rain of bullets in front of it and comes down
 // NONMATCHING: 95.9% - the original frame is 0x30 bytes larger (it also stores three dead floats at 0x18, 0x28
@@ -1210,9 +1294,6 @@ struct QuarkHoming_unk : public HomingParam_unk {
         mCount = -1;
     }
 };
-extern "C" void fn_800F8574(Effect_unk* mgr, CharaTask* owner, HitInfo_unk* data, const atn::Vector3* pos,
-                            const atn::Vector3* dir, HomingParam_unk* param, int arg6, int arg7, float a,
-                            float b); // inferred: fires a bullet (as in game/Em201ZanGurgFinal.cpp)
 
 // inferred: party member that can be targeted (as IsTarget2_unk of game/Em201ZanGurgFinal.cpp)
 inline bool IsBurstTarget_unk(CharaTask* c) {
@@ -1315,6 +1396,68 @@ inline bool IsFrameReached_unk(atn::Model* model, float frame) {
     return r;
 }
 
+// inferred: SetJump_unk with the rotation of ToRotationZ_unk (z read once; inlined in state 10); name invented
+inline void QuarkSetJumpZ_unk(EnemyQuarkSecond* self, const atn::Vector3& target) {
+    atn::Vector3 t = target;
+    self->m1568.mTarget = t;
+    self->m1568.mTarget.y = 0.0f;
+    self->m1568.mRot = (t - self->mPos).ToRotationZ_unk();
+    atn::Vector3 dir = target - self->mPos;
+    dir.y = 0.0f;
+    self->m1568.mDir = dir;
+    PSVECNormalize(&self->m1568.mDir, &self->m1568.mDir);
+    self->m1568.mStart = self->mPos;
+    self->m570 = 0.0f;
+}
+
+// inferred: jump attack (state 10): slows the motion around the landing, moves from the start of the jump to its
+// target, follows the target until frame 49 and hits on landing
+// NONMATCHING: 95.6% - stack slots and float registers (the turn target in f31, the copies of the jump target and
+// the order of the loads of the lerp); 6 variants
+void EnemyQuarkSecond::fn_8033E058() {
+    if (IsNearEnd_unk(&mMotion, 5.0f)) {
+        ResetState_unk();
+        fn_8016E970(3);
+        m58C = 0;
+        PlayMotion_unk(2, 1, 1.0f);
+        return;
+    }
+    bool slow = false;
+    if (mMotion.mTracks[0].m08 >= 65.0f && mMotion.mTracks[0].m08 < 67.0f) {
+        slow = true;
+    }
+    if (slow) {
+        mMotion.mTracks[0].m0C = 0.15f;
+    } else {
+        mMotion.mTracks[0].m0C = 2.0f;
+    }
+    ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m1698, 0, mMotion.mTracks[0].m0C);
+    float t = MAX(0.0f, MIN(1.0f, (mMotion.mTracks[0].m08 - 58.0f) / 3.0f));
+    mPos = (m1568.mTarget - m1568.mStart) * t + m1568.mStart;
+    if (mMotion.mTracks[0].m08 <= 49.0f) {
+        CharaTask* c = m14B0;
+        float target = (c->mPos - mPos).ToRotationZ_unk().y;
+        float d = atn::WrapAngle_unk(target - mRot.y);
+        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+            mRot.y = target;
+        } else if (d <= 0.0f) {
+            mRot.y -= 0.20943952f;
+        } else {
+            mRot.y += 0.20943952f;
+        }
+        atn::Vector3 p = m14B0->mPos;
+        QuarkSetJumpZ_unk(this, p);
+        atn::Vector3 back(0.0f, 0.0f, 45.0f);
+        Mtx m;
+        PSMTXRotRad(m, 'y', m1568.mRot.y);
+        PSMTXMultVec(m, &back, &back);
+        m1568.mTarget -= back;
+    }
+    if (mMotion.mTracks[0].m08 >= 61.0f && mMotion.mTracks[0].m08 < 65.0f) {
+        fn_800F8C6C(lbl_8087F048, 0, 0, this, m14D4, m590, 30, -1, 0.0f);
+    }
+}
+
 // inferred: jump step of the stick attack and of the jumps (motions 0x13F rise, 0x140 flight, 0x141 landing): moves
 // along the direction of the jump (m1568) at m570, turns towards `target` and rises `height` over the motion;
 // `flat`: distance in the xz plane. Not a member: a function of the file with the enemy as first argument (name
@@ -1377,7 +1520,246 @@ static void fn_8033E8D4(EnemyQuarkSecond* self, int flat, const atn::Vector3* ta
     self->mPos.y += height / self->mMotion.fn_80097D7C(0);
 }
 
+// inferred: party member that can be targeted, with the tests nested (name invented)
+inline bool IsSwordTarget_unk(CharaTask* c) {
+    bool r = false;
+    bool busy = false;
+    if ((c->mFlags & 4) == 4 || (c->mFlags & 1) == 1) {
+        busy = true;
+    }
+    if (!busy && (c->mStatus.m0C & 0x20) != 0x20) {
+        bool grappled = false;
+        if (c->m55C == 6 && c->m560 == 28) {
+            grappled = true;
+        }
+        if (!grappled) {
+            r = true;
+        }
+    }
+    return r;
+}
+
+// inferred: sword attack (state 8): jumps to the centre of the arena, chants the sword skill (mFB8/mFBC: chant time),
+// then fires five homing swords from the spine in a fan at the target (or at the targetable party members) and
+// comes down
+// NONMATCHING: 97.2% - the original frame is 0x50 bytes larger (it stores 1.0f in four dead slots 0x14 apart before
+// the target array: an inline not identified) and keeps the locals of the loop in other slots; 3 variants
+void EnemyQuarkSecond::fn_8033EF90() {
+    if (m14B4 == 0) {
+        fn_8033E8D4(this, 1, &m1598, 90.0f);
+        if (mMotion.mTracks[0].m00 == 0x141) {
+            mMotion.fn_80097C08(0, 0x16B, 0, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = 1.0f;
+            m14B8 = 0;
+            m14B4++;
+            fn_8016E970(6);
+            m560 = 0x1D;
+            SetHit_unk(m14DC);
+            mFB8 = (float)m14B8;
+            mFBC = (float)m14DC->mC0;
+        }
+    } else if (m14B4 == 1) {
+        mFB8 = (float)m14B8;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.fn_80097C08(0, 0x16C, 0, 0, 1, 0.0f, 0.1f);
+            m14B4++;
+        }
+    } else if (m14B4 == 2) {
+        mFB8 = (float)m14B8;
+        if (m14B8 >= m14DC->mC0) {
+            fn_8016E970(3);
+            mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.05f);
+            mMotion.mTracks[0].m0C = 0.7f;
+            m14B4++;
+        }
+    } else if (m14B4 == 3) {
+        if (mMotion.mTracks[0].m08 >= 35.0f) {
+            FixedArray_unk<CharaTask*, 4> targets;
+            CharaTask* t = m14B0;
+            if (t->mFlag28) {
+                targets.PushBack_unk(t);
+            } else {
+                for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
+                    if (IsSwordTarget_unk(p)) {
+                        targets.PushBack_unk(p);
+                    }
+                }
+            }
+            if (targets.mCount != 0) {
+                for (int i = 0; i < 5; i++) {
+                    CharaTask* target = targets[i % targets.mCount];
+                    atn::Vector3 dir(0.0f, 1.0f, 0.0f);
+                    atn::Vector3 rot(0.0f, mRot.y, 3.1415927f * (((float)i + 0.5f) / 5.0f) - 1.5707964f);
+                    atn::Matrix3x4 m;
+                    QuarkRotZYX2_unk(m, rot);
+                    PSMTXMultVec(m.m, &dir, &dir);
+                    atn::Vector3 pos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine"));
+                    QuarkHoming_unk param;
+                    param.mTarget = target;
+                    param.mAccel = 0.3f;
+                    param.mMaxSpeed = 8.0f;
+                    param.mTurn = 0.62831855f;
+                    param.mDelay = 6.0f;
+                    param.mCount = fn_800F8548(lbl_8087F048);
+                    fn_800F8574(lbl_8087F048, this, m14DC, &pos, &dir, &param, 0x104, 0, 0.0f, 1.0f);
+                }
+            }
+            fn_800C31F4("SE_EM211_012", 0, -1, 1.0f);
+            m14B4++;
+        }
+    } else if (m14B4 == 4) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.mTracks[0].m0C = 1.0f;
+            mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+            m14B4++;
+        }
+    } else {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            ResetState_unk();
+            fn_8016E970(3);
+            m58C = 0;
+            PlayMotion_unk(2, 1, 1.0f);
+            mPos.y = 0.0f;
+        } else {
+            mPos.y -= 90.0f / mMotion.fn_80097D7C(0);
+            if (mPos.y < 0.0f) {
+                mPos.y = 0.0f;
+            }
+        }
+    }
+}
+
 extern "C" int rand();
+
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+
+// inferred: scale of the rain sphere while it grows (frames 0-35 of motion 0x14D) and while it shrinks (.sdata of
+// the unit, names invented)
+static float sGrowFrom_unk = 0.1f;
+static float sGrowTo_unk = 4.0f;
+static float sShrinkFrom_unk = 4.0f;
+static float sShrinkTo_unk = 0.01f;
+
+// inferred: matrix translated to `pos` and scaled by `scale` (the scale is kept in a local vector); name
+// invented
+inline void QuarkTransScale_unk(atn::Matrix3x4& m, const atn::Vector3& pos, float scale) {
+    Mtx t;
+    PSMTXTrans(t, pos.x, pos.y, pos.z);
+    __MtxCopy(m.m, t);
+    atn::Vector3 s(scale, scale, scale);
+    Mtx sm;
+    PSMTXScale(sm, s.x, s.y, s.z);
+    Mtx r;
+    PSMTXConcat(m.m, sm, r);
+    __MtxCopy(m.m, r);
+}
+
+// inferred: Front_unk reading the rotation after the forward vector is set (name invented)
+inline atn::Vector3 QuarkFront_unk(const atn::Vector3& rot, float dist) {
+    atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+    Mtx m;
+    PSMTXRotRad(m, 'y', rot.y);
+    PSMTXMultVec(m, &dir, &dir);
+    return atn::Vector3(dir.x * dist, dir.y * dist, dir.z * dist);
+}
+
+// inferred: random value in [lo, lo + range] (name invented)
+inline float QuarkRand_unk(float range, float lo) {
+    return range * ((float)rand() / 32767.0f) + lo;
+}
+
+// inferred: rain attack (state 15): jumps to the centre of the arena, chants the rain skill (mFB8/mFBC) with a sphere
+// in front of it, then grows the sphere and rains three bullets on each party member while it shrinks, and comes down
+// NONMATCHING: 97.7% - the constant scale 0.1 is kept in f20 across PSMTXTrans (the original loads it after) and
+// stack slots of the matrices; 4 variants
+void EnemyQuarkSecond::fn_8033F7FC() {
+    if (m14B4 == 0) {
+        fn_8033E8D4(this, 1, &m1598, 90.0f);
+        if (mMotion.mTracks[0].m00 == 0x141) {
+            m14B4++;
+            mMotion.fn_80097C08(0, 0x16B, 0, 0, 1, 0.0f, 0.1f);
+            atn::Vector3 pos = mPos + QuarkFront_unk(mRot, 35.0f);
+            pos.y += 30.0f;
+            QuarkTransScale_unk(m15E0, pos, 0.1f);
+            fn_80232B7C(this, 0x3EF);
+            fn_8023A680(lbl_8087F3C0, &m1668, -1, 5, &m15E0, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8016E970(6);
+            m560 = 0x1D;
+            SetHit_unk(m14DC);
+            mFB8 = (float)m14B8;
+            mFBC = (float)m14E4[0]->mC0;
+        }
+    } else if (m14B4 == 1) {
+        mFB8 = (float)m14B8;
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            mMotion.fn_80097C08(0, 0x16C, 0, 0, 1, 0.0f, 0.1f);
+            m14B4++;
+        }
+    } else if (m14B4 == 2) {
+        mFB8 = (float)m14B8;
+        if (m14B8 >= m14E4[0]->mC0) {
+            m14B4++;
+            fn_80239DAC(lbl_8087F3C0, this, 0x3EA, 1);
+            mMotion.fn_80097C08(0, 0x14D, 0, 0, 1, 0.0f, 0.1f);
+            atn::Vector3 pos = mPos + QuarkFront_unk(mRot, 35.0f);
+            pos.y += 30.0f;
+            QuarkTransScale_unk(m15E0, pos, 0.1f);
+            fn_80232B7C(this, 0x3EF);
+            fn_8023A680(lbl_8087F3C0, &m1668, -1, 5, &m15E0, 0, 0, 0, 0, -1, 1, 1.0f);
+        }
+    } else if (m14B4 == 3) {
+        fn_8016E970(3);
+        atn::Vector3 pos = mPos + QuarkFront_unk(mRot, 35.0f);
+        pos.y += 30.0f;
+        float frame = mMotion.mTracks[0].m08;
+        float scale = frame / 35.0f * (sGrowTo_unk - sGrowFrom_unk) + sGrowFrom_unk;
+        if (frame >= 35.0f) {
+            scale = (frame - 35.0f) / 35.0f * (sShrinkTo_unk - sShrinkFrom_unk) + sShrinkFrom_unk;
+            for (PlayerTask* p = lbl_8087F8A0->mHead; p != 0; p = (PlayerTask*)p->mNext) {
+                for (int i = 0; i < 3; i++) {
+                    atn::Vector3 target = p->mPos;
+                    target += atn::Vector3(QuarkRand_unk(40.0f, -20.0f), QuarkRand_unk(40.0f, -20.0f),
+                                           QuarkRand_unk(40.0f, -20.0f));
+                    atn::Vector3 dir = target - pos;
+                    PSVECNormalize(&dir, &dir);
+                    atn::Vector3 from = pos + dir * QuarkRand_unk(30.0f, -10.0f);
+                    Effect_unk* mgr = lbl_8087F048;
+                    fn_800F8574(mgr, this, m14E4[rand() % 2], &from, &dir, 0, 0x1000000, 0, 0.0f, 1.0f);
+                }
+            }
+            if (mMotion.mTracks[0].m08 >= 70.0f) {
+                m14B4++;
+                fn_80239DAC(lbl_8087F3C0, this, 0x3EF, 0);
+            }
+        }
+        QuarkTransScale_unk(m15E0, pos, scale);
+    } else if (m14B4 == 4) {
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0) - 1.0f) {
+            m14B4++;
+            fn_80239DAC(lbl_8087F3C0, this, 0x3EF, 0);
+            mMotion.fn_80097C08(0, 0x141, 0, 0, 1, 0.0f, 0.1f);
+        }
+    } else {
+        mPos.y -= 90.0f / mMotion.fn_80097D7C(0);
+        if (mPos.y < 0.0f) {
+            mPos.y = 0.0f;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            ResetState_unk();
+            fn_8016E970(3);
+            m58C = 0;
+            PlayMotion_unk(2, 1, 1.0f);
+            mPos.y = 0.0f;
+        }
+    }
+}
 
 // inferred: pulls bullet `b` towards `target` in the stick attack; a bullet that arrives is kept (its skill,
 // at most 32) and removed. Not a member: the original is a function of the file with the enemy as first
@@ -1529,8 +1911,198 @@ void EnemyQuarkSecond::fn_8034100C() {
     }
 }
 
-// NONMATCHING: 99.99% - only the offset of "SE_EM211_012" in @stringBase0 (the strings of the
-// functions not written yet come before it)
+// inferred: camera parameters, camera mode and look point of the field (lbl_8087F430 + 0x588, 0x4D8, 0x97C; as in
+// game/Em101ElderZesya.cpp, names invented)
+struct QuarkCamParam_unk {
+    QuarkCamParam_unk(const QuarkCamParam_unk& o)
+        : m00(o.m00), m04(o.m04), m08(o.m08), m0C(o.m0C), m10(o.m10), m14(o.m14), m18(o.m18), m1C(o.m1C),
+          m20(o.m20), m24(o.m24), m28(o.m28), m2C(o.m2C), m30(o.m30), m34(o.m34), m38(o.m38) {}
+    QuarkCamParam_unk& operator=(const QuarkCamParam_unk& o) {
+        m00 = o.m00;
+        m04 = o.m04;
+        m08 = o.m08;
+        m0C = o.m0C;
+        m10 = o.m10;
+        m14 = o.m14;
+        m18 = o.m18;
+        m1C = o.m1C;
+        m20 = o.m20;
+        m24 = o.m24;
+        m28 = o.m28;
+        m2C = o.m2C;
+        m30 = o.m30;
+        m34 = o.m34;
+        m38 = o.m38;
+        return *this;
+    }
+    float m00;
+    float m04;
+    float m08;
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    float m20;
+    float m24;
+    float m28;
+    float m2C;
+    float m30;
+    float m34;
+    int m38;
+};
+struct QuarkCamera_unk {
+    void Set_unk(int mode, const QuarkCamParam_unk& param) {
+        if (mMode != mode) {
+            mMode = mode;
+            mParam = param;
+            m08 = 0.05f;
+            m04 = 1.0f;
+        }
+    }
+    int mMode;
+    float m04;
+    float m08;
+    QuarkCamParam_unk mParam;
+};
+struct QuarkLook_unk {
+    void Set_unk(const atn::Vector3& pos, bool flag) {
+        m01 = m00;
+        m00 = 1;
+        mPos = pos;
+        m24 = 0.0f;
+        if (flag) {
+            m04 = 1;
+        } else {
+            m04 = 0;
+        }
+    }
+    unsigned char m00;
+    unsigned char m01;
+    unsigned char m02[2];
+    int m04;
+    unsigned char m08[4];
+    atn::Vector3 mPos;
+    unsigned char m18[0x24 - 0x18];
+    float m24;
+};
+// inferred: the same field seen with its camera members (Field_unk of this file keeps only the words it clears)
+struct QuarkField_unk {
+    unsigned char m000[0x4D8];
+    QuarkCamera_unk m4D8;
+    unsigned char m520[0x588 - 0x520];
+    QuarkCamParam_unk m588;
+    unsigned char m5C4[0x8A0 - 0x5C4];
+    CharaTask* m8A0;
+    unsigned char m8A4[0x96C - 0x8A4];
+    int m96C; // inferred: camera shake
+    int m970;
+    float m974;
+    float m978;
+    QuarkLook_unk m97C;
+};
+
+// inferred: scale of the boss while it rises in the finale (.sdata of the unit, names invented)
+static float sFinaleFrom_unk = 0.4f;
+static float sFinaleTo_unk = 1.0f;
+
+// inferred: progress of the growth of the finale (the frame is read before the length); name invented
+inline float QuarkFinaleRate_unk(atn::Model* model) {
+    float frame = model->mTracks[0].m08;
+    return (frame - 10.0f) / (model->fn_80097D7C(0) - 15.0f);
+}
+
+// inferred: finale (state 17): turns to the leader, then turns into the third form (motion 0x1E1): grows from the
+// centre of the arena with the camera on its spine, shakes the camera and hides
+// NONMATCHING: 99% - registers (the leader/manager pair, the turn locals) and the flag of the look point: the
+// original folds it after the test (two `b`), ours keeps a zero in r29; 5 variants
+void EnemyQuarkSecond::fn_803412AC() {
+    Fall_unk();
+    QuarkField_unk* field = (QuarkField_unk*)lbl_8087F430;
+    if (m14B4 == 0) {
+        CharaTask* t = m14B0 = lbl_8087F8A0->mHead;
+        float target = (t->mPos - mPos).ToRotationZ_unk().y;
+        float d = atn::WrapAngle_unk(target - mRot.y);
+        if ((d < 0.0f ? -d : d) <= 0.20943952f) {
+            mRot.y = target;
+        } else if (d <= 0.0f) {
+            mRot.y -= 0.20943952f;
+        } else {
+            mRot.y += 0.20943952f;
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            m14B4++;
+            if ((mStatus.m0C & 0x20) != 0x20) {
+                mStatus.m04 = 0.0f;
+                mStatus.fn_8013310C(0x20, 0);
+                ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCE, 1);
+                mMotion.fn_8009373C("op_01_horn_l", 0);
+                mMotion.fn_8009373C("op_01_hornlight_l", 0);
+            }
+            mMotion.fn_80097C08(0, 0x1E1, 0, 0, 1, 0.0f, 0.1f);
+            mMotion.mTracks[0].m0C = 0.5f;
+            m6A4.mData[0]->mFlags.mFlag = 0;
+            mPos.x = 0.0f;
+            mPos.y = 0.0f;
+            mPos.z = 0.0f;
+            m14B8 = 0;
+            m1758->mPos = mPos;
+            m1758->mRot = mRot;
+            m1758->mMotion.mTracks[0].m08 = 0.0f;
+            m1758->mMotion.mTracks[0].m0C = mMotion.mTracks[0].m0C;
+            PlayerTask* lead = lbl_8087F8A0->mHead;
+            Effect_unk* mgr = lbl_8087F048;
+            fn_800FAB80(mgr, lead, fn_80219E6C(0x780), fn_800F8548(mgr), mPos, mRot, 0, 30, -1, -1, 0.0f, 1.0f);
+            fn_80232B7C(&m168C, 0);
+            PlayEffectB_unk(&m168C, &mMotion);
+            ((atn::EffectManager*)lbl_8087F3C0)->fn_8023A254((unsigned int)&m168C, 0, 0.5f);
+            fn_800C31F4("SE_DG040_106", 0, -1, 1.0f);
+        }
+    } else if (m14B4 == 1 || m14B4 == 2) {
+        float t = MAX(0.0f, MIN(1.0f, QuarkFinaleRate_unk(&mMotion)));
+        float scale = t * (sFinaleTo_unk - sFinaleFrom_unk) + sFinaleFrom_unk;
+        m540.x = scale;
+        m540.y = scale;
+        m540.z = scale;
+        if (field->m8A0 == 0) {
+            QuarkCamera_unk* cam = &field->m4D8;
+            QuarkCamParam_unk param = field->m588;
+            param.m08 = 0.08726646f;
+            param.m04 = 0.7853982f;
+            param.m00 = 15.0f;
+            param.m10 = 8.0f;
+            field->m8A0 = this;
+            cam->Set_unk(4, param);
+            QuarkLook_unk* look = &field->m97C;
+            look->Set_unk(GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1")), false);
+        } else {
+            field->m8A0 = this;
+            field->m97C.mPos = GetNodePos_unk(mMotion.GetNodeMtx_unk("spine1"));
+        }
+        float frame = mMotion.mTracks[0].m08;
+        if (frame >= mMotion.fn_80097D7C(0)) {
+            fn_80344BB4();
+            ((GameTask*)lbl_8087F430)->fn_80370AE4(0xCF, 1);
+            m14B8 = 0;
+            m14B4++;
+            fn_801765D8();
+        }
+        if (mMotion.mTracks[0].m08 >= 108.0f && m14B4 == 1) {
+            field->m96C %= 2;
+            field->m970 = 30;
+            field->m974 = 0.0f;
+            field->m978 = 10.0f;
+            m14B4++;
+        }
+        if (mMotion.mTracks[0].m08 >= 110.0f) {
+            fn_8016E4C4(0);
+        }
+    } else {
+        fn_80344BB4();
+    }
+}
+
 void EnemyQuarkSecond::fn_80341BEC() {
     if (m14B4 == 0) {
         if (mMotion.mTracks[0].m08 >= 35.0f) {
@@ -1538,7 +2110,7 @@ void EnemyQuarkSecond::fn_80341BEC() {
             m14BC = 1;
             fn_80232B7C(&m1610, 0);
             PlayEffect_unk(&m1610, &mMotion, 4.0f);
-            fn_800C344C("SE_EM211_012", &mPos, 0, -1, 1.0f);
+            fn_800C344C("SE_SP007_001", &mPos, 0, -1, 1.0f);
         }
     } else {
         float frame = mMotion.mTracks[0].m08;
@@ -1804,8 +2376,6 @@ int EnemyQuarkSecond::fn_803446BC(const atn::Vector3& pos) {
     return (float)sqrt(d.x * d.x + d.z * d.z) >= 380.0f;
 }
 
-// NONMATCHING: 99.8% - only the offsets of the strings in @stringBase0 (the strings of the state
-// functions, not written yet, come before them in the pool)
 void EnemyQuarkSecond::fn_80344780() {
     void* group = m175C.Load("Quark");
     fn_80087994(group, "DebugDisp", &m1760, 0, 0);

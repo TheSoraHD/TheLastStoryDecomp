@@ -23,11 +23,15 @@ struct LastCocoonEggPart_unk {
 };
 
 // inferred: 0x5C-byte record of the egg (32 at 0x19AC; the constructor, weak copy 0x804533A8, only clears the
-// first word); names invented
+// first word): an orb of life drained from an attacker that flies back to the egg (fn_80455638); names invented
 struct LastCocoonEggSeg_unk {
     LastCocoonEggSeg_unk() : m00(0) {}
-    int m00;
-    unsigned char m04[0x5C - 0x04];
+    int m00;               // inferred: in use
+    atn::Vector3 m04;      // inferred: position
+    float m10;             // inferred: drained hit points
+    atn::Vector3 m14;      // inferred: start ("spine" of the attacker)
+    atn::Vector3 m20;      // inferred: end (the egg, raised by 10 * m14D0)
+    atn::Matrix3x4 m2C;    // inferred: matrix of the effect m1994
 };
 
 // inferred: post effect settings of the egg (bloom and color matrix of the render settings; constructor
