@@ -16,63 +16,22 @@ namespace atn {
 class Scene;
 }
 
-// inferred: three-word vector view of 8-byte records in MapPartsGimmickLoc's temporary CSV data.
-struct MapPartsGimmickLocArray8_unk {
-    bool fn_80499684() const;
-    unsigned int fn_80499694() const;
-    void* fn_80499724(int index) const;
-
-    void* mData;
-    unsigned int mSize;
-    unsigned int mCapacity;
-};
-
-// inferred: three-word vector view of pointer entries in the same CSV parser.
-struct MapPartsGimmickLocArray4_unk {
-    void* fn_8049981C(int index) const;
-
-    void* mData;
-    unsigned int mSize;
-    unsigned int mCapacity;
-};
-
-// inferred: object configured by MapPartsGimmickLoc::fn_804985E4 through these setters (a gimmick
-// created from the locator file; real class unknown). They were members of MapPartsGimmickLoc, whose
-// constructor puts other members at these offsets (atn::LH_Binary at 0x58, the name at 0x70).
-class MapPartsGimmickLocObj_unk {
-public:
-    void fn_80498EAC(const atn::Vector3& value);
-    void fn_80498EC0(const atn::Vector3& value);
-    void fn_80498ED4(const atn::Vector3& value);
-    void fn_80498EE8(int value);
-    void fn_80498EF0(int value);
-    void fn_80498F14(float value, const atn::Vector3& range);
-
-    unsigned char m00[0x58];
-    int m58;
-    unsigned char m5C[0x10];
-    atn::Vector3 m6C;
-    atn::Vector3 m78;
-    unsigned char m84[0x0C];
-    atn::Vector3 m90;
-    unsigned char m9C[8];
-    int mA4;
-};
-
 // inferred: record of the locator file (0xA0 bytes): an effect of the areas (SetAreaEffConfig); names invented
 struct MapPartsGimmickLocRecord_unk {
-    MapPartsGimmickLocRecord_unk() { mName[0] = '\0'; } // 0x804997E4
+    MapPartsGimmickLocRecord_unk() {} // 0x804997E4
     atn::EffFile mEff;        // 0x00: inferred: effect of the record
-    char mName[0x20];         // 0x0C: inferred: material name of the effect colour (SetAreaEffConfig)
+    atn::static_string<32, char, std::char_traits<char> > mName; // 0x0C: inferred: material name of the effect colour (SetAreaEffConfig)
     atn::Vector3 m2C;         // 0x2C: inferred: position (the area is looked up around it)
     atn::Vector3 m38;         // 0x38: inferred: rotation
-    unsigned char m44[0x78 - 0x44];
+    float m44;                // 0x44: inferred: scale of the effect (x scale of the locator)
+    atn::Matrix3x4 mMtx;      // 0x48: inferred: placement (translation, then rotation z, y, x)
     atn::Color mColor;        // 0x78: inferred: effect colour of the area
-    unsigned char m88[0x90 - 0x88];
-    int m90;                  // inferred: number of variants
-    int m94;
-    int m98;                  // inferred: variant picked at random (fn_80499B9C)
-    int m9C;
+    int m88;                  // inferred: 0: started once, 1: restarted every m8C frames (vf10)
+    int m8C;                  // inferred: base count (frames between starts in mode 1)
+    int m90;                  // inferred: random range of m8C (and number of variants)
+    float m94;                // inferred: random range of the scale
+    int m98;                  // inferred: variant picked at random (fn_80499B9C), frames left in mode 1
+    unsigned int m9C;         // inferred: flags (1: effect option 8)
 };
 
 // inferred: map-part location controller (RTTI at 0x80790560; fields are established by local
@@ -88,12 +47,6 @@ public:
     virtual bool vf20(const atn::Vector3& pos);           // 0x80499FE4
     virtual void vf28(atn::CsvTab* csv);                  // 0x80497248
     virtual void vf2C(unsigned int hash, int draw);       // 0x80499E14
-    void* fn_80498E7C(int index);
-    void fn_80498EF8(const atn::Vector3& scale);
-    void fn_80498F08();
-    void fn_80498F0C(int value);
-    void fn_80498F4C();
-    void fn_80499388(int value);
     void fn_804985E4(); // inferred: creates the gimmicks of the locator file
     void SetAreaEffConfig(); // 0x8049982C (RSO name): effect colours of the areas of the gimmicks
     void fn_8049994C(const atn::Vector3& pos, const atn::Vector3& rot); // inferred: places the gimmicks of the part
@@ -111,7 +64,8 @@ public:
     atn::Texture_unk mTexture; // 0xF0
     unsigned char m120;       // inferred: shown (vf14, vf2C)
     unsigned char m121;
-    float m124[4];            // inferred: a colour (0 at the start)
+    atn::Vector3 m124;        // 0x124: inferred: offset of the locators (POSITION x y z)
+    float m130;               // 0x130: inferred: hidden below this height (HIDE_BIRDVIEW_Y)
 };
 
 #endif
