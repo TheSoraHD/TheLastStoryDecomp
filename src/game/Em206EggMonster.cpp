@@ -947,7 +947,7 @@ void Em206EggMonster::fn_802C3154() {
     }
 }
 
-// NONMATCHING: 98.8% - stack slots of the locals (rotation, ray ends) and the frsp before atan2
+// NONMATCHING: 99.9% - stack slots of the locals (rotation, ray ends) and the frsp before atan2
 int Em206EggMonster::fn_802C38E4() {
     int next = -1;
     if (m15B8 != 0 && m15BC < 0 && m1594 != 2 && m15C0 < 2) {
@@ -971,10 +971,7 @@ int Em206EggMonster::fn_802C38E4() {
             case 0:
                 if (dist < 60.0f && m15B4 != 0) {
                     if (m1700 != 0) {
-                        next = 4;
-                        if (rand() % 2 == 0) {
-                            next = 2;
-                        }
+                        next = rand() % 2 == 0 ? 2 : 4;
                     } else {
                         next = 2;
                     }

@@ -1452,18 +1452,6 @@ inline const FixedLevel_unk* FindFixedLevel_unk(int kind) {
     return 0;
 }
 
-// inferred: stat differences after levelling up (fn_8013354C); name invented
-struct LevelUpResult_unk {
-    unsigned char m00[8];
-    float m08; // level
-    float m0C;
-    float m10;
-    float m14;
-    float m18;
-    float m1C;
-    int m20;
-};
-
 // inferred: scratch status used to compute the stats of a level (0x13C bytes on the stack of
 // fn_8013354C); name invented
 struct StatusSim_unk {

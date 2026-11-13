@@ -30,10 +30,10 @@ public:
     // inferred: experience won in a battle by one party member (0x90 bytes, game/BattleResult)
     struct ExpEntry_unk {
         CharaTask* mChara;
-        unsigned char m04[0x80 - 0x04];
+        LevelUpResult_unk mResult; // 0x04: inferred: stats won (CharaStatus::fn_8013354C)
         int mExpA; // 0x80: inferred: experience won
         int mExpB; // 0x84
-        unsigned char m88[0x8C - 0x88];
+        int mExp;  // 0x88: inferred: mExpA + mExpB, given to fn_8013354C
         int mLevelUp; // 0x8C: inferred: levels won
     };
 
@@ -76,8 +76,11 @@ public:
     // RSO: Order__9InventoryFv (weak copy 0x801D80B4)
     static Inventory* Order() { return instance_; }
 
-    // RSO: AddItem__9InventoryFiiiiPiii (0x804439FC); inferred: (id, count, ...) adds items
-    void AddItem(int id, int num, int a2, int a3, int* out, int a5, int a6);
+    // RSO: AddItem__9InventoryFiiiiPiii (0x804439FC); inferred: (id, count, ...) adds items; a2: always
+    // got, a3: weapons use their chance (fn_80448F9C), out: got or sent to identify, a5: at most 10
+    // weapons/protectors, a6: marks the newest item
+    // inferred: returns the number added (0 when the code is not an item)
+    int AddItem(int id, int num, int a2, int a3, int* out, int a5, int a6);
 
     // RSO: AddMoney__9InventoryFi (0x8044D678); inferred: money += n, clamped to 0..999999
     void AddMoney(int n);
@@ -96,12 +99,13 @@ public:
 
     Item_unk mItems[0x600];                         // 0x0000: inferred: the bag (code < 0: free slot)
     int mMoney;                                     // 0x6000
-    unsigned char m6004[0x6014 - 0x6004];
+    unsigned char m6004[0x600C - 0x6004];
+    int m600C; // inferred: totals of m6014/m6018 (fn_80449ABC)
+    int m6010;
     int m6014; // inferred: totals added by fn_80449A18 (first output of fn_804491F4)
     int m6018; // inferred: second output of fn_804491F4
 
-    atn::FixedArray_unk<ExpEntry_unk, 7> mExpEntries; // 0x601C: inferred: party of the last battle
-    unsigned char m6410[0x64A0 - 0x6410];
+    atn::FixedArray_unk<ExpEntry_unk, 8> mExpEntries; // 0x601C: inferred: party of the last battle (fn_80449ABC)
     int mOrder[10];                                 // 0x64A0: inferred: order of the members (RSO GetPlayerOrder)
     unsigned char m64C8[0x64EC - 0x64C8];
     CharaStatus mPlayers[7];                        // 0x64EC (destroyed by fn_80442F68)
@@ -113,7 +117,7 @@ public:
     atn::LH_Binary mLoader;                         // 0xDB00
     int mLoaded;                                    // 0xDB08: inferred: mLoader done (fn_8044386C)
     int mDB0C;                                      // inferred: cleared by the shops around AddItem (0x805849E8)
-    unsigned char mDB10[0xDB14 - 0xDB10];
+    int mDB10;                                      // inferred: the stat items can be drawn (fn_80445F44)
     int mDB14;                                      // inferred: read by fn_8044909C; 1 while mDB18-mDB20 are set
     int mDB18;                                      // inferred: map of the item being added (type, map,
     int mDB1C;                                      // point of fn_80216AFC; -1 when unset, gmk::RandomItem)

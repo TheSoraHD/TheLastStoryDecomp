@@ -249,7 +249,14 @@ float ControlAttackBase::vf60() {
     return rate;
 }
 
-// NONMATCHING: 98.9% - stack slot of the front vector of the mFlag31 branch, registers of the start frame.
+// inferred: the two front attacks of the attack table (names invented); enum constants keep the ?: as a
+// branch after rand()
+enum {
+    kAttackKind19_unk = 19,
+    kAttackKind20_unk = 20,
+};
+
+// NONMATCHING: 99.6% - stack slot of the front vector of the mFlag31 branch, registers of the start frame.
 ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : ControlAttackBase(chara, dir) {
     chara->m560 = 4;
     Motion_unk* motion = &mChara->mMotion;
@@ -273,10 +280,7 @@ ControlAttack::ControlAttack(Chara_unk* chara, const atn::Vector3& dir) : Contro
         float back70 = cos(atn::DegToRad_unk(70.0f));
         if (motion->fn_80097D40(0x158) != 0) {
             if (dot > front35) {
-                int kind = 20;
-                if (rand() % 2 == 0) {
-                    kind = 19;
-                }
+                int kind = rand() % 2 == 0 ? kAttackKind19_unk : kAttackKind20_unk;
                 if (IsAutoAttack_unk(mChara)) {
                     id = 0x162;
                 } else {

@@ -7,12 +7,17 @@
 #include "MP/SaveLoad.h"
 #include "game/TutorialTask.h"
 #include "game/GameLoadTask.h"
+#include "db/MapIdTable_unk.h"
+#include "game/GameConfig_unk.h"
+#include "game/GameSaveBackground.h"
+#include "game/GameLoadBackground.h"
+#include "atn/GraphicsDevice.h"
+#include "atn/DrawHelper.h"
 
 extern "C" unsigned long strlen(const char* s);
 extern "C" void* memcpy(void* dst, const void* src, unsigned long n);
 
 // inferred: creates a d2anime task playing `path` (returns the task)
-extern "C" atn::Task* fn_801F3FF8(atn::Task* parent, const char* path, int arg);
 // inferred: creates a d2anime task (other variant of fn_801F3FF8, no extra argument)
 extern "C" atn::Task* fn_801F64D0(atn::Task* parent, const char* path);
 
@@ -24,13 +29,7 @@ struct Field_unk {
 };
 extern "C" Field_unk* lbl_8087F430;
 
-// inferred: game settings (lbl_8087F0A8); only the members used here
-struct Settings_unk {
-    unsigned char m0000[0x113C];
-    int m113C;           // inferred: chapter (1-based)
-    unsigned char m1140;
-};
-extern "C" Settings_unk* lbl_8087F0A8;
+extern "C" GameConfig_unk* lbl_8087F0A8; // inferred: game settings
 
 extern "C" int fn_803BEB54(SaveSlot_unk* slot); // inferred: nonzero if the slot is empty
 
@@ -53,19 +52,8 @@ extern "C" atn::SoundRef fn_80117228(int id);
 extern "C" int sprintf(char* s, const char* format, ...);
 extern "C" unsigned int fn_800DC6B4(const char* s); // inferred: string hash
 // inferred: 2D point of a d2anime pane (names invented)
-struct D2APoint_unk {
-    D2APoint_unk() {}
-    float x;
-    float y;
-    float mScaleX;
-    float mScaleY;
-    float m10;
-    float m14;
-};
 // inferred: position of the pane `hash` of `layout`
-extern "C" D2APoint_unk fn_801F4E8C(atn::Task* layout, unsigned int hash);
-extern "C" void fn_801F4728(D2ATask_unk* task, const char* name, const D2APoint_unk* pos);
-extern "C" void fn_801F6E78(atn::Task* task, const char* name, const D2APoint_unk* pos);
+extern "C" void fn_801F6E78(atn::Task* task, const char* name, const atn::D2A_DrawRect* pos);
 extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
 // inferred: sets the value `index` of the pane `name` (name invented)
 inline void SetPaneValue_unk(void* layout, const char* name, int index, float value) {
@@ -174,10 +162,10 @@ CampSaveLoad::CampSaveLoad(atn::Task* parent)
     (m60 = fn_801F3FF8(this, "/data/d2anime/camp_info.d2a", 0))->fn_800D246C(1);
     (m64 = fn_801F3FF8(this, "/data/d2anime/camp_info2.d2a", 0))->fn_800D246C(1);
     (m68 = fn_801F3FF8(this, "/data/d2anime/camp_info5.d2a", 0))->fn_800D246C(1);
-    (m118 = fn_801F3FF8(this, "/data/d2anime/save_arrow_l.d2a", 0))->fn_800D246C(1);
-    m11C = 0;
-    (m120 = fn_801F3FF8(this, "/data/d2anime/save_arrow_r.d2a", 0))->fn_800D246C(1);
-    m124 = 0;
+    (mArrows[0].mTask = fn_801F3FF8(this, "/data/d2anime/save_arrow_l.d2a", 0))->fn_800D246C(1);
+    mArrows[0].mPressed = 0;
+    (mArrows[1].mTask = fn_801F3FF8(this, "/data/d2anime/save_arrow_r.d2a", 0))->fn_800D246C(1);
+    mArrows[1].mPressed = 0;
     (m6C = fn_801F3FF8(this, "/data/d2anime/camp_cursor.d2a", 0))->fn_800D246C(1);
     const char* clearPath = "/data/d2anime/save_select_clear.d2a";
     for (int i = 0; i < 8; i++) {
@@ -194,6 +182,285 @@ CampSaveLoad::CampSaveLoad(atn::Task* parent)
 
 CampSaveLoad::~CampSaveLoad() {
     mEntries.Free_unk();
+}
+
+// inferred: map of a save slot (db/MapIdTable_unk)
+extern "C" MapId_unk* fn_8021771C(int type, int map, int point);
+extern "C" int strcmp(const char* a, const char* b);
+// inferred: plays a d2anime (as in game/MenuCommonTask.cpp)
+extern "C" void fn_804A3AF0(atn::Task* anime, int arg1, int repeat, float frame, float speed);
+extern "C" void fn_804A3B60(atn::Task* layout, int arg1, int repeat, float frame, float speed);
+extern "C" void fn_801FECE0(void* layout, unsigned int hash, float value); // inferred: sets a value of a pane
+// inferred: sets the value of the pane `name` of the layout of `anime` (name invented)
+inline void SetPane_unk(atn::D2A_Task* anime, const char* name, float value) {
+    fn_801FECE0(&anime->mData.m10, fn_800DC6B4(name), value);
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (screen size)
+
+// NONMATCHING: 92.83% - one more saved register (the string pool of the unit is not complete yet: the original
+// keeps "" at @stringBase0 + 0x3D off the same base register)
+int CampSaveLoad::vf0C() {
+    if (m54 == 0) {
+        m54 = 1;
+    } else if (m54 == 1) {
+        if (m50 == 0 || (m50->mFlags & 2) != 2 || m50->fn_803B87A8() == 0) {
+            for (int i = 0; i < 17; i++) {
+                GameSaveSlot_unk* slot = (GameSaveSlot_unk*)&GetData_unk()->mSlots[i];
+                if (slot->fn_803BEAB4() != 0) {
+                    MapId_unk* map = fn_8021771C(slot->m30, slot->m32, slot->m31);
+                    if (map != 0 && strcmp(map->m70, "") != 0) {
+                        std::string path = "data/texture/";
+                        path += map->m70;
+                        path += ".texture";
+                        mTextures[i].fn_800D5908(path.c_str());
+                    }
+                }
+            }
+            m54 = 2;
+        }
+    } else if (fn_800D3FA4() != 0 && m4B8.fn_80473F50() == 0) {
+        int length = (unsigned int)m4B8.fn_8047059C() >> 1;
+        fn_8011B8D4((const wchar_t*)m4B8.fn_80470580(), length);
+        fn_804A3AF0(m70, 1, 0, 0.0f, 1.0f);
+        SetPane_unk(m70, "arrowR", 0.0f);
+        SetPane_unk(m70, "arrowL", 0.0f);
+        SetPane_unk(m70, "frameOn", 0.0f);
+        for (int i = 0; i < 2; i++) {
+            fn_804A3AF0(mArrows[i].mTask, 1, 0, 0.0f, 1.0f);
+        }
+        fn_804A3AF0(m58, 1, 1, 0.0f, 1.0f);
+        fn_804A3AF0(m5C, 1, 0, 0.0f, -2.0f);
+        fn_804A3AF0(m60, 1, 0, 0.0f, -2.0f);
+        fn_804A3AF0(m64, 1, 0, 0.0f, -2.0f);
+        fn_804A3AF0(m68, 1, 0, 0.0f, -2.0f);
+        SetPane_unk(m64, "frameOn", 0.0f);
+        SetPane_unk(m68, "frameOn", 0.0f);
+        fn_804A3AF0(m6C, 1, 1, 0.0f, 1.0f);
+        for (int i = 0; i < 8; i++) {
+            fn_804A3AF0(m94[i], 1, 0, 0.0f, 0.0f);
+            fn_804A3AF0(mB4[i], 1, 0, 0.0f, 0.0f);
+            fn_804A3B60(mF4[i], 1, 0, 0.0f, 0.0f);
+            m94[i]->mFlags |= 4;
+            mB4[i]->mFlags |= 4;
+            mF4[i]->mFlags |= 4;
+        }
+        fn_804A3AF0(m114, 1, 0, 0.0f, 0.0f);
+        fn_80119030(0, 0);
+        m138 = 1;
+        m4C8 = 0.0f;
+        if (m128 < 0) {
+            m134 = 0;
+            m12C = 0;
+            m130 = 0;
+        } else {
+            m134 = m128 / 8;
+            int pos = m128 % 8;
+            m12C = pos % 4;
+            m130 = pos / 4;
+        }
+        for (int i = 1; i < 9; i++) {
+            int slot = i + m134 * 8;
+            fn_8011B018(slot, &GetData_unk()->mSlots[slot]);
+        }
+        m4AC.fn_80470528();
+        return 1;
+    }
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+        lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight,
+                                  0xFF000000);
+    }
+    return 0;
+}
+
+extern "C" void fn_801FEE08(void* layout, unsigned int hash, const wchar_t* text);
+// inferred: sets the text of the pane `name` of the layout of `anime` (name invented)
+inline void SetPaneText_unk(atn::D2A_Task* anime, const char* name, const wchar_t* text) {
+    fn_801FEE08(&anime->mData.m10, fn_800DC6B4(name), text);
+}
+extern "C" void fn_800D2338(atn::Task* task); // inferred: removes the task
+
+// inferred: sets a text or a value of the pane `name` of a layout (names invented)
+inline void SetLayoutText_unk(void* layout, const char* name, const wchar_t* text) {
+    fn_801FEE08(layout, fn_800DC6B4(name), text);
+}
+inline void SetLayoutValue_unk(void* layout, const char* name, int index, float value) {
+    fn_801FED24(layout, fn_800DC6B4(name), index, value);
+}
+
+
+// inferred: holds an arrow on its last frames while it is pressed (name invented)
+static inline void UpdateArrow_unk(CampArrow_unk& arrow) {
+    atn::D2A_Task* task = arrow.mTask;
+    if (task->mFrame >= 15.0f) {
+        if (arrow.mPressed != 0) {
+            task->mSpeed = 1.0f;
+            if (task->IsEnd_unk()) {
+                arrow.mPressed = 0;
+            }
+        } else {
+            task->mFrame = 15.0f;
+            task->mSpeed = 0.0f;
+        }
+    }
+}
+
+void CampSaveLoad::vf10() {
+    int prev = m128;
+    m128 = m134 * 8 + m130 * 4 + m12C + 1;
+    if (m134 == 2) {
+        m128 = 0;
+    }
+    if (prev != m128) {
+        m4C8 = 0.0f;
+    }
+    if (lbl_8087EF70 == 0) {
+        return;
+    }
+    float warning = 0.0f;
+    if (m164 > 0) {
+        if (m164 != 45) {
+            warning = 1.0f;
+        }
+        m164--;
+    }
+    if (m70 != 0) {
+        SetPane_unk(m70, "dispWarning", warning);
+    }
+    for (int i = 0; i < 2; i++) {
+        UpdateArrow_unk(mArrows[i]);
+    }
+    switch (m13C) {
+    case 0:
+        if (m70->mFrame >= 15.0f) {
+            fn_80119030(1, 0);
+        }
+        break;
+    case 1:
+        fn_801191A8();
+        break;
+    case 3:
+        fn_8011979C();
+        break;
+    case 4:
+        fn_8011968C();
+        break;
+    case 5:
+        fn_8011999C();
+        break;
+    case 6:
+        if (IsTriggered_unk(4) || IsTriggered_unk(5)) {
+            fn_80119030(7, 0);
+        }
+        break;
+    case 9:
+        if (IsTriggered_unk(4) || IsTriggered_unk(5)) {
+            fn_80117228(1);
+            fn_80119030(1, 0);
+        }
+        break;
+    }
+    if (m70 != 0) {
+        if (mMode == 0) {
+            SetPaneText_unk(m70, "titleName", L"SAVE DATA");
+        } else {
+            SetPaneText_unk(m70, "titleName", L"LOAD DATA");
+        }
+    }
+    fn_8011AD38();
+    if (m178 != 0 && m178->IsFlag_unk(2)) {
+        m178->fn_800D246C(0);
+        if (m178->mState == 4) {
+            fn_800D2338(m178);
+            m178 = 0;
+        }
+    }
+}
+
+extern "C" int fn_800A55D4(void* pad, int port, int button); // inferred: button held
+// inferred: button held (name invented)
+inline int IsHeld_unk(int button) {
+    return lbl_8087EF70 != 0 ? fn_800A55D4(lbl_8087EF70, 0, button) : 0;
+}
+extern "C" void fn_801FEDBC(void* layout, unsigned int hash, int index, float value);
+// inferred: name invented (as SetLayoutValue_unk)
+inline void SetLayoutValue2_unk(void* layout, const char* name, int index, float value) {
+    fn_801FEDBC(layout, fn_800DC6B4(name), index, value);
+}
+extern "C" void* fn_801FEC74(void* layout, const char* name); // inferred: finds a pane
+// inferred: text of a pane (returned by value)
+extern "C" std::basic_string<wchar_t> fn_800A4450(void* pane, int a, int b);
+extern "C" void* lbl_8087EEC8; // inferred: font manager
+extern "C" float fn_8006EF48(void* font, float size, const wchar_t* text, float f2, int a, int b); // text width
+
+// inferred: extra draw parameters of a pane (the color at 0x08; names invented)
+struct CampDrawWork_unk {
+    float m00;
+    float m04;
+    atn::Color mColor;
+};
+
+// NONMATCHING: 98.83% - registers of the entry loop and of the two colors (ToU32 ORs in another order) and the
+// string pool
+// inferred: draws the story log of the selected slot, scrolling in the "StoryLog" pane
+void CampSaveLoad::vf14() {
+    fn_80119F0C();
+    fn_8011A4D0();
+    if (m60 != 0) {
+        if (m13C == 4 && m170 != 2) {
+            m60->mSpeed = 2.0f;
+        } else {
+            m60->mSpeed = -2.0f;
+        }
+    }
+    m4C8 += IsHeld_unk(9) ? 3.0f : 1.5f;
+    float scroll = m4C8 < 50.0f ? 0.0f : m4C8 - 50.0f;
+    GameSaveSlot_unk* save = (GameSaveSlot_unk*)GetSlot_unk(m128);
+    const wchar_t* text;
+    bool used = (bool)save->fn_803BEAB4();
+    if (used) {
+        used = !fn_803BEB54((SaveSlot_unk*)save);
+    }
+    if (used) {
+        text = 0;
+        int act = save->m74;
+        int chapter = save->m7C;
+        for (unsigned int i = 0; i < mEntries.size(); i++) {
+            CampSaveLoadEntry_unk& entry = mEntries[i];
+            if (entry.m00 <= act && act < entry.m04) {
+                if (entry.m08 <= 0 && text == 0) {
+                    text = entry.m0C.c_str();
+                } else if (entry.m08 == chapter) {
+                    text = entry.m0C.c_str();
+                }
+            }
+        }
+    } else {
+        text = 0;
+    }
+    if (text != 0) {
+        atn::D2A_DrawRect rect;
+        atn::Color color;
+        atn::D2A_DrawExtra extra;
+        CampDrawWork_unk work;
+        atn::D2A_Task* bar = m5C;
+        bar->GetDrawParams_unk(fn_800DC6B4("StoryLog"), &rect, &color, &extra, &work);
+        float scale = 0.05f;
+        float width = fn_8006EF48(lbl_8087EEC8, rect.w, fn_800A4450(fn_801FEC74(&m5C->mData.m10, "logText"), 0, 0).data(),
+                                  0.0f, 1, 1);
+        SetLayoutValue2_unk(&m5C->mData.m10, "logColor", 0, 0.0f);
+        unsigned int color2 = work.mColor.ToU32();
+        lbl_8087EEB0->fn_80061AE4(text, color.ToU32(), 1, 1, 0, 1, color2, rect.x - scroll, rect.y, rect.z,
+                                  rect.w, rect.h, 0.0f, work.m00, work.m04, rect.x - width * scale, width, scale);
+        if (scroll > fn_8006EF48(lbl_8087EEC8, rect.w, text, 0.0f, 1, 1)) {
+            m4C8 = 0.0f;
+        }
+    } else {
+        SetLayoutValue2_unk(&m5C->mData.m10, "logColor", 0, 0.0f);
+    }
+    if (lbl_8087F430 != 0 && ((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+        lbl_8087EEB0->fn_80060D58(0.0f, 0.0f, 100.0f, (float)lbl_8087EEE0->mWidth, (float)lbl_8087EEE0->mHeight,
+                                  0xFF000000);
+    }
 }
 
 void CampSaveLoad::fn_80119030(int state, int arg) {
@@ -238,6 +505,106 @@ void CampSaveLoad::fn_80119030(int state, int arg) {
 void CampSaveLoad::vf1C() {}
 
 void CampSaveLoad::vf20() {}
+
+extern "C" const wchar_t* fn_80116FC0(int a, int id); // inferred: system text
+extern "C" int fn_800A58D0(void* pad, int port);      // inferred: nonzero with the classic controller
+// inferred: the "delete" button of the current pad (name invented)
+inline int IsDeleteTriggered_unk() {
+    if (lbl_8087EF70 == 0) {
+        return 0;
+    }
+    return fn_800A58D0(lbl_8087EF70, 0) ? IsTriggered_unk(0xE) : IsTriggered_unk(0xF);
+}
+
+// inferred: text of the warning of the camp info panel (name invented)
+static inline void SetWarningText_unk(CampSaveLoad* menu, const wchar_t* text) {
+    SetLayoutText_unk(&menu->m60->mData.m10, "warning_msg", text);
+}
+
+// inferred: state 1: choice of the slot
+void CampSaveLoad::fn_801191A8() {
+    if (IsTriggered_unk(4)) {
+        if (mMode == 1) {
+            if (((GameSaveSlot_unk*)&((CampSaveData_unk*)m50)->mSlots[m128])->fn_803BEAB4() == 0) {
+                fn_80117228(11);
+            } else {
+                m16C = 0;
+                fn_80117228(1);
+                fn_80119030(3, 0);
+            }
+        } else {
+            m16C = 0;
+            fn_80117228(1);
+            fn_80119030(3, 0);
+        }
+    } else if (IsTriggered_unk(5)) {
+        if (lbl_8087F430 != 0) {
+            if (((GameTask*)lbl_8087F430)->fn_80370174(0x391) > 0) {
+                m16C = 2;
+                fn_80117228(2);
+                fn_80119030(3, 0);
+            } else {
+                fn_80117228(0x20);
+                fn_80119030(7, 0);
+            }
+        } else {
+            fn_80117228(0x20);
+            fn_80119030(7, 0);
+        }
+    } else if (IsDeleteTriggered_unk()) {
+        if (((GameSaveSlot_unk*)GetSlot_unk(m128))->fn_803BEAB4() == 0) {
+            fn_80117228(11);
+        } else if (m128 == 0) {
+            fn_80119030(4, 1);
+            fn_80117228(11);
+            if (m60 != 0) {
+                SetWarningText_unk(this, fn_80116FC0(1, 0x11A));
+            }
+            m170 = 1;
+        } else {
+            m16C = 1;
+            fn_80117228(1);
+            fn_80119030(3, 0);
+        }
+    } else {
+        int page = m134;
+        fn_8011B570();
+        if (page != m134) {
+            int prev = m128;
+            m128 = m134 * 8 + m130 * 4 + m12C + 1;
+            if (m134 == 2) {
+                m128 = 0;
+            }
+            if (prev != m128) {
+                m4C8 = 0.0f;
+            }
+            int d = m134 - page;
+            if (__abs(d) > 1) {
+                d = -d;
+            }
+            if (d > 0) {
+                mArrows[1].mTask->mFrame = 15.0f;
+                mArrows[1].mPressed = 1;
+            } else {
+                mArrows[0].mTask->mFrame = 15.0f;
+                mArrows[0].mPressed = 1;
+            }
+            if (m134 == 2) {
+                fn_8011B018(0, &GetData_unk()->mSlots[0]);
+                GameSaveSlot_unk empty;
+                for (int i = 2; i < 9; i++) {
+                    fn_8011B018(i + m134 * 8, (SaveSlot_unk*)&empty);
+                }
+            } else {
+                for (int i = 1; i < 9; i++) {
+                    int slot = i + m134 * 8;
+                    fn_8011B018(slot, &GetData_unk()->mSlots[slot]);
+                    m74[i - 1]->mFrame = 15.0f;
+                }
+            }
+        }
+    }
+}
 
 void CampSaveLoad::fn_8011968C() {
     if (IsTriggered_unk(4) || IsTriggered_unk(5)) {
@@ -295,46 +662,380 @@ void CampSaveLoad::fn_8011979C() {
 }
 
 // inferred: out-of-line destructor of the save elements (weak copy, emitted here)
+extern "C" MP::SaveData_unk* lbl_8087F460; // inferred: current save data (game/GameSaveData_unk)
+extern "C" int fn_803BE854(MP::SaveData_unk* data);
+
+// NONMATCHING: 97.77% - one more saved register around the m64 panes, the text and layout registers of the
+// second warning swapped, and the string pool
+// inferred: state 5: waits for the save, load or delete (m16C) of the slot m128
+void CampSaveLoad::fn_8011999C() {
+    m14C++;
+    if (m16C == 0) {
+        if (mMode == 0) {
+            GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m4C->mD70;
+            if (bg->m154 != 0) {
+                return;
+            }
+            if (bg->fn_803B8144() == 0) {
+                fn_8011B018(m128, &((CampSaveData_unk*)m4C)->mSlots[m128]);
+                fn_80119030(6, 0);
+                fn_80117228(12);
+            } else {
+                fn_80119030(4, 1);
+                fn_80117228(11);
+                if (m60 != 0) {
+                    SetWarningText_unk(this, fn_80116FC0(1, 0x11C));
+                }
+                m170 = 1;
+            }
+        } else {
+            GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m50->m14F60;
+            if (bg->m154 != 0) {
+                return;
+            }
+            if (bg->fn_803B8144() != 0) {
+                fn_80119030(4, 1);
+                fn_80117228(11);
+                if (m60 != 0) {
+                    SetWarningText_unk(this, fn_80116FC0(1, 0x11E));
+                }
+                m170 = 1;
+            } else {
+                m50->fn_803B2FBC(m128);
+                if (fn_803BEB54(GetSlot_unk(m128)) != 0 || fn_803BE854(lbl_8087F460) != 0) {
+                    fn_80119030(4, 1);
+                    fn_80117228(11);
+                    if (m64 != 0) {
+                        SetPane_unk(m64, "ynOn", 0.0f);
+                        SetPane_unk(m64, "checkSubType", 0.0f);
+                        SetPaneText_unk(m64, "check_msg", fn_80116FC0(1, 0x11B));
+                    }
+                    if (lbl_8087F460 != 0) {
+                        delete lbl_8087F460;
+                        lbl_8087F460 = 0;
+                    }
+                    m170 = 2;
+                } else {
+                    fn_80119030(8, 0);
+                    fn_80117228(12);
+                }
+            }
+        }
+    } else if (mMode == 0) {
+        GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m4C->mD70;
+        if (bg->m154 != 0) {
+            return;
+        }
+        if (bg->fn_803B8144() == 0) {
+            fn_8011B018(m128, &((CampSaveData_unk*)m4C)->mSlots[m128]);
+            fn_80119030(9, 0);
+            fn_80117228(12);
+        } else {
+            fn_80119030(4, 1);
+            fn_80117228(11);
+            if (m60 != 0) {
+                SetWarningText_unk(this, fn_80116FC0(1, 0x120));
+            }
+            m170 = 1;
+        }
+    } else {
+        GameSaveLoadBackgroundCommon* bg = (GameSaveLoadBackgroundCommon*)m50->m14F60;
+        if (bg->m154 != 0) {
+            return;
+        }
+        if (bg->fn_803B8144() == 0) {
+            fn_8011B018(m128, &((CampSaveData_unk*)m50)->mSlots[m128]);
+            fn_80119030(9, 0);
+            fn_80117228(12);
+        } else {
+            fn_80119030(4, 1);
+            fn_80117228(11);
+            if (m60 != 0) {
+                SetWarningText_unk(this, fn_80116FC0(1, 0x120));
+            }
+            m170 = 1;
+        }
+    }
+}
+
 MP::SaveElemB_unk::~SaveElemB_unk() {}
+
+extern "C" void fn_801FED24(void* layout, unsigned int hash, int index, float value);
+extern "C" int fn_8006BA30(); // inferred: language of the game
+extern "C" int fn_800DD3FC(wchar_t* s, const wchar_t* format, ...); // inferred: swprintf
+extern "C" const wchar_t lbl_808813D0[2]; // inferred: empty text
+// inferred: camp message table (lbl_8087F1E4, as in game/CosEditItemList_unk.cpp)
+struct CampSaveLoadMsg_unk {
+    const wchar_t* Get_unk(int id) { return mText[id] != 0 ? mText[id] : lbl_808813D0; }
+    const wchar_t* mText[1];
+};
+extern "C" CampSaveLoadMsg_unk* lbl_8087F1E4;
+
+// NONMATCHING: 99.08% - string pool offsets and the registers of the message text of "ampm" (r27/r28)
+// inferred: fills the info bar (m5C) with the slot m128: map, act, level, date and play time
+void CampSaveLoad::fn_80119F0C() {
+    if (m5C == 0) {
+        return;
+    }
+    GameSaveSlot_unk* save = (GameSaveSlot_unk*)GetSlot_unk(m128);
+    if (save->fn_803BEAB4() != 0) {
+    if (fn_803BEB54((SaveSlot_unk*)save) == 0) {
+        m5C->mSpeed = 2.0f;
+        MapId_unk* map = fn_8021771C(save->m30, save->m32, save->m31);
+        if (map != 0) {
+            SetLayoutText_unk(&m5C->mData.m10, "mapName", map->mName);
+            m5C->SetNumber_unk("act", save->m74 / 100000, 0);
+            void* pane = fn_801FEC74(&m5C->mData.m10, "string0017_01(1)");
+            if (pane != 0) {
+                float w = fn_8006EF48(lbl_8087EEC8, 16.0f, fn_800A4450(pane, 0, 0).data(), 0.0f, 1, 4);
+                SetLayoutValue_unk(&m5C->mData.m10, "pos0007", 0, -100.0f + w);
+            }
+        }
+        int level = save->mParty.mCharas[0].mLevel;
+        for (int i = 0; i < 7; i++) {
+            if (save->mParty.mCharas[i].mId == 1) {
+                level = save->mParty.mCharas[i].mLevel;
+                break;
+            }
+        }
+        m5C->SetNumber_unk("level", level, 0);
+        if (mMode == 1) {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2777));
+        } else {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2776));
+        }
+        wchar_t text[0x100];
+        wchar_t date[0x100];
+        switch (fn_8006BA30()) {
+        case 2:
+            fn_800DD3FC(date, L"%d.%d.%d", save->m14, save->m18 + 1, save->m1C);
+            break;
+        case 4:
+            fn_800DD3FC(date, L"%d-%d-%d", save->m14, save->m18 + 1, save->m1C);
+            break;
+        default:
+            fn_800DD3FC(date, L"%d/%d/%d", save->m14, save->m18 + 1, save->m1C);
+            break;
+        }
+        fn_800DD3FC(text, L"%s %2d:%02d", date, save->m10, save->m0C);
+        SetLayoutText_unk(&m5C->mData.m10, "day", text);
+        m5C->SetText_unk("time", (int)"");
+        float hour = save->m10; // inferred: unused (the original keeps the dead int to float conversion)
+        m5C->SetText_unk("ampm", (int)"");
+        int sec = save->m70 / 30;
+        int min = sec / 60;
+        fn_800DD3FC(text, L"%d:%02d:%02d", min / 60, min % 60, sec % 60);
+        SetLayoutText_unk(&m5C->mData.m10, "playTime", text);
+    } else {
+        m5C->mSpeed = 2.0f;
+        SetLayoutText_unk(&m5C->mData.m10, "mapName", L"");
+        m5C->SetNumber_unk("act", 0, 0);
+        m5C->SetNumber_unk("level", 0, 0);
+        if (mMode == 1) {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2777));
+        } else {
+            SetLayoutText_unk(&m5C->mData.m10, "saveloadType", fn_80116FC0(0, 0x2776));
+        }
+        SetLayoutText_unk(&m5C->mData.m10, "day", L"");
+        SetLayoutText_unk(&m5C->mData.m10, "time", L"");
+        SetLayoutText_unk(&m5C->mData.m10, "ampm", lbl_8087F1E4->Get_unk(0x38D));
+        m5C->SetText_unk("playTime", (int)"0:00:00");
+    }
+    } else {
+        m5C->mSpeed = -2.0f;
+    }
+}
+
+// inferred: sets a float value of the pane `name` of a layout (name invented)
+inline void SetLayoutFloat_unk(void* layout, const char* name, float value) {
+    fn_801FECE0(layout, fn_800DC6B4(name), value);
+}
+
+// NONMATCHING: 99.18% - registers of L"" and the layout in the first two texts, the stack slots of the two button
+// icons (the original has them at 0x30/0x20) and the string pool
+// inferred: confirmation window (m64/m68), button icons (m58) and cursor (m6C) of the states 3-9
+void CampSaveLoad::fn_8011A4D0() {
+    if (m64 == 0 || m58 == 0) {
+        return;
+    }
+    int newer = 0;
+    m58->FreezeTask();
+    m6C->FreezeTask();
+    SetLayoutText_unk(&m58->mData.m10, "string0001(1)", L"");
+    SetLayoutText_unk(&m58->mData.m10, "string0002(1)", L"");
+    ButtonUv_unk uv = lbl_8087F0A8->mInput.fn_80124C6C(0);
+    m58->SetParam2_unk("btnUv", (const float*)&uv);
+    ButtonUv_unk mask = lbl_8087F0A8->mInput.fn_80124C6C(0);
+    m58->SetParam2_unk("btnUvMask", (const float*)&mask);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0001(2)", 2, 12.0f);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 4, -101.0f);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 0, 320.0f);
+    SetLayoutValue_unk(&m58->mData.m10, "pos0007(2)", 1, 230.0f);
+    if (m13C == 3) {
+        GameSaveSlot_unk* save = (GameSaveSlot_unk*)GetSlot_unk(m128);
+        if (m16C == 0) {
+            if (mMode == 1) {
+                newer = fn_8011BBD0(m128);
+                if (newer == 0) {
+                    SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x11D));
+                }
+            } else if (save->fn_803BEAB4() != 0) {
+                SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x114));
+            } else {
+                SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x115));
+            }
+        } else if (m16C == 2) {
+            SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x119));
+        } else {
+            SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x116));
+        }
+        atn::D2A_Task* window = newer != 0 ? m68 : m64;
+        SetPane_unk(window, "ynOn", 1.0f);
+        SetPane_unk(window, "checkSubType", 0.0f);
+        window->mSpeed = 2.0f;
+        if (window->IsEnd_unk()) {
+            m6C->MeltTask();
+            char name[0x40];
+            sprintf(name, "cursor_point%d", m148 + 1);
+            atn::D2A_DrawRect rect = fn_801F4E8C(window, fn_800DC6B4(name));
+            SetLayoutValue_unk(&m6C->mData.m10, "cursor_pos", 0, rect.x);
+            SetLayoutValue_unk(&m6C->mData.m10, "cursor_pos", 1, rect.y);
+            SetLayoutValue_unk(&m6C->mData.m10, "cursor_pos", 4, rect.z);
+            SetLayoutFloat_unk(&m6C->mData.m10, "wRate", rect.w);
+            SetLayoutFloat_unk(&m6C->mData.m10, "hRate", rect.h);
+        }
+    } else if (m13C == 4) {
+        if (m170 != 2) {
+            m64->mSpeed = -2.0f;
+            m68->mSpeed = -2.0f;
+        } else {
+            m64->mSpeed = 2.0f;
+            m68->mSpeed = -2.0f;
+        }
+    } else if (m13C == 5) {
+        std::basic_string<wchar_t> msg;
+        if (m16C == 0) {
+            if (mMode == 0) {
+                msg = fn_80116FC0(0, 200);
+            } else {
+                msg = fn_80116FC0(0, 201);
+            }
+        } else {
+            msg = fn_80116FC0(0, 202);
+        }
+        SetLayoutFloat_unk(&m64->mData.m10, "ynOn", 0.0f);
+        SetLayoutFloat_unk(&m64->mData.m10, "checkSubType", 0.0f);
+        SetLayoutText_unk(&m64->mData.m10, "check_msg", msg.c_str());
+    } else if (m13C == 6) {
+        SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x118));
+        m64->mSpeed = 2.0f;
+        SetLayoutFloat_unk(&m64->mData.m10, "ynOn", 0.0f);
+        SetLayoutFloat_unk(&m64->mData.m10, "checkSubType", 0.0f);
+        if (m64->IsEnd_unk()) {
+            m58->MeltTask();
+        }
+    } else if (m13C == 9) {
+        SetLayoutText_unk(&m64->mData.m10, "check_msg", fn_80116FC0(1, 0x11F));
+        m64->mSpeed = 2.0f;
+        SetLayoutFloat_unk(&m64->mData.m10, "ynOn", 0.0f);
+        SetLayoutFloat_unk(&m64->mData.m10, "checkSubType", 0.0f);
+        if (m64->IsEnd_unk()) {
+            m58->MeltTask();
+        }
+    } else {
+        m64->mSpeed = -2.0f;
+        m68->mSpeed = -2.0f;
+    }
+}
 
 // NONMATCHING: 88.8% - the original converts each pad result to a bool value (neg/or/srwi)
 // before testing it
 // NONMATCHING: 98.7% - floating-point register allocation of the two frame values (and the
 // string pool offsets until all the functions of the file are written)
 void CampSaveLoad::fn_8011AD38() {
-    atn::Task* layout = m70;
+    atn::D2A_Task* layout = m70;
     for (int i = 0; i < 8; i++) {
         char name[0x40];
         sprintf(name, "save_data%02d", i);
-        D2APoint_unk pos = fn_801F4E8C(layout, fn_800DC6B4(name));
-        pos.mScaleX = 1.0f;
-        pos.mScaleY = 1.0f;
-        fn_801F4728(m74[i], "basePoint", &pos);
+        atn::D2A_DrawRect pos = fn_801F4E8C(layout, fn_800DC6B4(name));
+        pos.w = 1.0f;
+        pos.h = 1.0f;
+        fn_801F4728(m74[i], "basePoint", &pos.x);
         fn_801F6E78(mF4[i], "basePoint", &pos);
-        D2ATask_unk* frame = m74[i];
-        float cur = frame->m100;
-        float end = frame->mA0;
+        atn::D2A_Task* frame = m74[i];
+        float cur = frame->mFrame;
+        float end = frame->mData.mEndFrame;
         if (m13C == 0) {
-            frame->m100 = MIN(15.0f, cur + 1.0f);
+            frame->mFrame = MIN(15.0f, cur + 1.0f);
         } else if ((m128 - 1) % 8 == i) {
-            frame->m100 = MAX(15.0f, MIN(end, cur + 1.0f));
+            frame->mFrame = MAX(15.0f, MIN(end, cur + 1.0f));
         } else if (m128 == 0 && i == 0) {
-            frame->m100 = MAX(15.0f, MIN(end, cur + 1.0f));
-            SetPaneValue_unk(m74[i]->m58, "basePoint", 0, 270.0f);
-            SetPaneValue_unk(m74[i]->m58, "basePoint", 1, 160.0f);
-            SetPaneValue_unk(m74[i]->m58, "basePoint", 2, 1.5f);
-            SetPaneValue_unk(m74[i]->m58, "basePoint", 3, 1.5f);
+            frame->mFrame = MAX(15.0f, MIN(end, cur + 1.0f));
+            SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 0, 270.0f);
+            SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 1, 160.0f);
+            SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 2, 1.5f);
+            SetPaneValue_unk(&m74[i]->mData.m10, "basePoint", 3, 1.5f);
             fn_801F6D7C(mF4[i], "basePoint", 0, 270.0f);
             fn_801F6D7C(mF4[i], "basePoint", 1, 160.0f);
             fn_801F6D7C(mF4[i], "basePoint", 2, 1.5f);
             fn_801F6D7C(mF4[i], "basePoint", 3, 1.5f);
         } else {
-            frame->m100 = MAX(15.0f, cur - 1.0f);
+            frame->mFrame = MAX(15.0f, cur - 1.0f);
         }
         mF4[i]->mFlags |= 4;
-        if (mD4[i] != 0 && m74[i]->m100 >= 15.0f) {
+        if (mD4[i] != 0 && m74[i]->mFrame >= 15.0f) {
             mF4[i]->mFlags &= ~4;
         }
+    }
+}
+
+
+// NONMATCHING: 99.33% - string pool offsets and the size/pointer registers of the two appends swapped (r23/r24)
+// inferred: shows the save slot `index` in its frame (index - 1) % 8: icon, number, play time and map thumbnail,
+// or the "no data" panel
+void CampSaveLoad::fn_8011B018(int index, SaveSlot_unk* slot) {
+    int i = index == 0 ? 0 : (index - 1) % 8;
+    GameSaveSlot_unk* save = (GameSaveSlot_unk*)slot;
+    if (save->fn_803BEAB4() != 0) {
+        atn::D2A_Task* icon = index == 0 ? m114 : m94[i];
+        icon->SetNumber_unk("indexStr", index, -2);
+        wchar_t text[0x100];
+        int sec = save->m70 / 30;
+        int min = sec / 60;
+        fn_800DD3FC(text, L"%d:%02d:%02d", min / 60, min % 60, sec % 60);
+        SetPaneText_unk(icon, "dayStr", text);
+        MapId_unk* map = fn_8021771C(save->m30, save->m32, save->m31);
+        if (map != 0 && strcmp(map->m70, "") != 0) {
+            std::string path = "data/texture/";
+            path += map->m70;
+            path += ".texture";
+            icon->fn_801F4D80("thumbnail", (int)path.c_str());
+        }
+        m74[i] = icon;
+        icon->MeltTask();
+        mB4[i]->FreezeTask();
+        mD4[i] = save->m78 != 0;
+        if (i == 0) {
+            if (index == 0) {
+                m94[i]->FreezeTask();
+            } else {
+                m114->FreezeTask();
+            }
+        }
+    } else {
+        mB4[i]->SetNumber_unk("indexStr", index, -2);
+        m74[i] = mB4[i];
+        m94[i]->FreezeTask();
+        mB4[i]->MeltTask();
+        mD4[i] = 0;
+        if (i == 0) {
+            m114->FreezeTask();
+        }
+    }
+    if (index >= 17) {
+        m74[i]->FreezeTask();
+    } else {
+        m74[i]->MeltTask();
     }
 }
 

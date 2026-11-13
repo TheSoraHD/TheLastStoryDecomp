@@ -7,14 +7,47 @@
 #include "game/MslSort_unk.h"
 
 extern "C" atn::Vector3 lbl_807C7030; // inferred: zero vector
-// inferred: event position to world (Event/Sequence, also used by game/PathData_unk)
-extern "C" float fn_80011964(Event::Actor* actor); // inferred: yaw of the actor
+
+extern "C" Event::ParamDef_unk* fn_80008210(int id, int* count, int variant); // inferred: attributes of a command
 
 namespace Event {
 
 Action::Action(Channel* channel, int index)
     : mChannel(channel), m0C(0), m10(0), m14(0), m18(0), m1C(0) {
     fn_805377F0(channel->m0C, index);
+}
+
+// inferred: sets the action to the command `id` (its variant `variant`): the attributes take their defaults
+// and the curve goes from (0, 1) to (1, 1)
+// NONMATCHING: 94.2% - the inlined resize of the attributes: the original fills the new elements with
+// {0x28, 0} (a constructor of ActionParam_unk; with it in Event/Action.h: 92.1%, not kept) and lays out its
+// stack temporaries in 8 bytes less
+void Action::fn_805377F0(int id, int variant) {
+    m0C = 0;
+    m10 = 0;
+    m14 = 0;
+    mParams.clear();
+    mKeys.clear();
+    m38 = 0;
+    int count;
+    ParamDef_unk* defs = fn_80008210(id, &count, variant);
+    if (defs == 0 || count == 0) {
+        return;
+    }
+    m0C = id;
+    mParams.resize(count);
+    for (int i = 0; i < count; i++) {
+        mParams[i].m04.i = defs[i].mDefault.mValue;
+        mParams[i].m00 = defs[i].mType;
+    }
+    ActionKey_unk start;
+    start.mTime = 0.0f;
+    start.mValue = 1.0f;
+    mKeys.push_back(start);
+    ActionKey_unk end;
+    end.mTime = 1.0f;
+    end.mValue = 1.0f;
+    mKeys.push_back(end);
 }
 
 ActionOwner_unk* Action::fn_805381A0() {
@@ -79,9 +112,43 @@ atn::Vector3 Action::fn_805382BC(int n) {
         return manager->fn_80541BD8(v);
     }
     Mtx m;
-    PSMTXRotRad(m, 'y', fn_80011964(actor));
+    PSMTXRotRad(m, 'y', actor->fn_80011964());
     PSMTXMultVec(m, &v, &v);
     v += actor->fn_80010374();
+    return v;
+}
+
+// inferred: position of the parameters n+2..n+4 relative to the node n+1 of the actor n (turned by the yaw
+// of the node), or to the actor itself when it has no model or no node
+// NONMATCHING: 99.37% - order of the store of r.z in the inlined Vector3::RotZ_unk (math/Vec.h)
+atn::Vector3 Action::fn_805384CC(int n) {
+    EventManager_unk* manager = (EventManager_unk*)mChannel->mSection->mCut->mSequence;
+    Actor* actor = manager->FindActor_unk(GetParamAt_unk(n)->m04.i);
+    atn::Vector3 v;
+    v.x = GetParamAt_unk(n + 2)->m04.f;
+    v.y = GetParamAt_unk(n + 3)->m04.f;
+    v.z = GetParamAt_unk(n + 4)->m04.f;
+    if (actor->m20 == 6) {
+        return manager->fn_80541BD8(v);
+    }
+    atn::Model* model = actor->fn_80012A1C();
+    unsigned int node = GetParamAt_unk(n + 1)->m04.i;
+    if (model != 0 && node != 0) {
+        MtxPtr mtx = model->GetNodeMtxByHash_unk(node);
+        if (mtx != 0) {
+            const atn::Matrix3x4* nm = (const atn::Matrix3x4*)mtx;
+            atn::Vector3 rot = nm->GetRow_unk(2).ToRotationZ_unk();
+            Mtx m;
+            PSMTXRotRad(m, 'y', rot.y);
+            PSMTXMultVec(m, &v, &v);
+            v += nm->GetTrans_unk();
+        }
+    } else {
+        Mtx m;
+        PSMTXRotRad(m, 'y', actor->fn_80011964());
+        PSMTXMultVec(m, &v, &v);
+        v += actor->fn_80010374();
+    }
     return v;
 }
 

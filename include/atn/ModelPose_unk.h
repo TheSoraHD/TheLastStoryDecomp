@@ -23,11 +23,14 @@ struct ModelJoint_unk {
     int m1C;          // inferred: parent node
     int m20;          // inferred: first child (-1: none)
     int m24;          // inferred: next sibling (-1: none)
-    unsigned char m28[0x34 - 0x28];
+    unsigned char m28[0x2C - 0x28];
+    int m2C; // inferred: nonzero when the joint has meshes (atn::Model fn_8008EEDC)
+    unsigned char m30[0x34 - 0x30];
     atn::Vector3 m34; // inferred: initial scale
     atn::Vector3 m40; // inferred: initial rotation (euler)
     atn::Vector3 m4C; // inferred: initial position
-    unsigned char m58[0x70 - 0x58];
+    atn::Vector3 m58; // inferred: bounding box of the meshes of the joint (min, max; fn_8008EEDC)
+    atn::Vector3 m64;
     int m70; // inferred: > 0 for the joints kept by atn::LoadModel (atn/LH_Model.cpp)
     // inferred: bind pose by value (defined in atn/Model.cpp, used by fn_80099010); names invented
     inline atn::Vector3 GetScale_unk() const;

@@ -4,6 +4,7 @@
 // self-relative offsets of the tree into pointers. Real file name unknown: the link order puts it
 // between game/Gun and game/HomeButtonMenu. All names invented.
 #include "game/ChunkFile_unk.h"
+#include "std/locale_facets_unk.h"
 
 typedef unsigned int u32_unk;
 
@@ -350,20 +351,9 @@ void ColliTreeData_unk::fn_8044058C(int* list, u32_unk count) {
     }
 }
 
-// inferred: once guards emitted by the original .ctors entry for the collision data templates.
-extern "C" signed char lbl_8087F3CC;
-extern "C" signed char lbl_8087F3CD;
-
-class ColliDataInit_unk {
-public:
-    ColliDataInit_unk() {
-        if (lbl_8087F3CC == 0) {
-            lbl_8087F3CC = 1;
-        }
-        if (lbl_8087F3CD == 0) {
-            lbl_8087F3CD = 1;
-        }
-    }
-};
-
-static ColliDataInit_unk sColliDataInit;
+// inferred: the __sinit of the file only sets the guards of the ids of the MSL numeric facets (weak static
+// members, std/locale_facets_unk.h; same guards as atn/EffectManager)
+namespace std {
+template locale::id num_put<char>::id;
+template locale::id numpunct<char>::id;
+} // namespace std

@@ -30,6 +30,7 @@
 #include "atn/ColliBase.h"
 #include <boost/tokenizer.hpp>
 #include "game/MapTask.h"
+#include "std/locale_facets_unk.h"
 
 typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
 
@@ -62,7 +63,11 @@ extern "C" float fn_800DC288(const char* s); // inferred: string to float
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" std::string fn_8006B2D8(const std::string& path); // inferred: name without extension
 extern "C" std::string& fn_8006AD24(std::string& path, const std::string& ext); // inferred: sets the extension
-extern "C" std::string fn_80393BEC(const int& value); // inferred: lexical_cast<std::string>(int)
+// inferred: Boost 1.34 lexical_cast, defined (weak copy 0x80393BEC) in game/GameEventScript.cpp
+namespace boost {
+template <typename Target, typename Source>
+Target lexical_cast(const Source&);
+} // namespace boost
 extern "C" GameEventScript* fn_80393610(atn::Task* parent, const char* path, int area, int map); // inferred: event script
 extern "C" int fn_803CE160(int area, int map, int sub); // inferred: the map uses the town BGM groups
 extern "C" void fn_800C3094(const char* group); // inferred: loads a sound group
@@ -212,7 +217,7 @@ GameScene::GameScene(atn::Task* parent, int area, int map, int sub)
             for (unsigned int i = 1; i < 3; i++) {
                 std::string file = fn_8006B2D8(std::string(scene));
                 file += "_sub";
-                file += fn_80393BEC(i + 1);
+                file += boost::lexical_cast<std::string, int>(i + 1);
                 file += ".gs";
                 if (fn_8006AA20(file.c_str())) {
                     m4C[i].vf0C(file.c_str());
@@ -2434,20 +2439,9 @@ gs::BgmBox* GameScene::fn_803CCDAC(atn::SimpleArray<gs::BgmBox>& boxes, CharaTas
     return best;
 }
 
-// inferred: once guards shared with the weak collision-data initializer.
-extern "C" signed char lbl_8087F3CC;
-extern "C" signed char lbl_8087F3CD;
-
-class GameSceneInit_unk {
-public:
-    GameSceneInit_unk() {
-        if (lbl_8087F3CC == 0) {
-            lbl_8087F3CC = 1;
-        }
-        if (lbl_8087F3CD == 0) {
-            lbl_8087F3CD = 1;
-        }
-    }
-};
-
-static GameSceneInit_unk sGameSceneInit;
+// inferred: the __sinit of the file only sets the guards of the ids of the MSL numeric facets (weak static
+// members, std/locale_facets_unk.h; same guards as atn/EffectManager)
+namespace std {
+template locale::id num_put<char>::id;
+template locale::id numpunct<char>::id;
+} // namespace std

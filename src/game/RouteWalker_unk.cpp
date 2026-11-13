@@ -4,6 +4,8 @@
 #include "chr/ControlBase.h"
 #include "game/CharaTask.h"
 #include "game/ResHandle.h"
+#include "game/GameConfig_unk.h"
+#include "math/VecAssign_unk.h"
 
 // inferred: field objects that own the route tables
 struct RouteField_unk {
@@ -137,6 +139,122 @@ static inline atn::Vector3 GetPointPos_unk(RouteWalker_unk* walker) {
     return ((GameScene*)table)->fn_803C11A4(point);
 }
 
+// inferred: as GetPointPos_unk for the point `point` (name invented; inlined in fn_801255C8)
+static inline atn::Vector3 GetPointPosAt_unk(RouteWalker_unk* walker, int point) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    if (((unsigned int)walker->m48 & 2) == 2) {
+        return table->mPoints[point - 1].mPos;
+    }
+    if (((unsigned int)walker->m48 & 0x10) == 0x10) {
+        atn::Vector3 up(0.0f, 1.0f, 0.0f);
+        atn::Vector3 side;
+        PSVECCrossProduct(&walker->m58, &up, &side);
+        if (0.0f == PSVECSquareMag(&side)) {
+            atn::VecAssign_unk(side, up);
+        } else {
+            side = side.GetNormalize();
+        }
+        return ((GameScene*)table)->fn_803C1338(point, &side);
+    }
+    return ((GameScene*)table)->fn_803C11A4(point);
+}
+
+// NONMATCHING: 99.92% - registers only: m48/mMode loaded into r3/r0 swapped before fn_80128CF8 and the r3/r4
+// pair of the copy of m4C - mChara->mPos (VecAssign_unk does not change it)
+// inferred: starts the planned route: walks straight to the goal when it is in sight, otherwise towards the
+// next point (nonzero on success)
+int RouteWalker_unk::fn_801255C8() {
+    if (mChara->IsFlag54C_unk(0x20)) {
+        m48 |= 0x10;
+    }
+    if (fn_80125474() != 0) {
+    if (mChara->mFlag31) {
+        mChara->fn_801539E0();
+    }
+    if (mChara->mFlag6) {
+        mChara->fn_80155DAC(0);
+    }
+    RouteTable_unk* table = GetRouteTable_unk();
+    m44 = mMode;
+    if (((unsigned int)m48 & 0x40) != 0x40 && fn_80128CF8() != 0) {
+        fn_80129144();
+    } else {
+        switch (mMode) {
+        case 0:
+            m4C = GetPointPosAt_unk(this, mPointA);
+            break;
+        case 1:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = m10;
+                m94 = 0;
+            }
+            break;
+        case 3:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = table->FindPlace_unk(mPlace)->mPos;
+                m94 = 0;
+            }
+            break;
+        case 4:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = mTarget->mPos;
+                m94 = 0;
+            }
+            break;
+        case 6:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = mChara->mPos;
+                m94 = 0;
+            }
+            break;
+        case 5:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = m30;
+                m94 = 0;
+            }
+            break;
+        case 7:
+            if (mPointA > 0) {
+                mMode = 0;
+                m4C = GetPointPosAt_unk(this, mPointA);
+            } else {
+                m4C = mTarget->mPos;
+                atn::Vector3 dir(0.0f, 0.0f, 1.0f);
+                Mtx rot;
+                PSMTXRotRad(rot, 'y', mTarget->mRot.y);
+                PSMTXMultVec(rot, &dir, &dir);
+                Mtx rot2;
+                PSMTXRotRad(rot2, 'y', m9C);
+                PSMTXMultVec(rot2, &dir, &dir);
+                m4C += dir * 15.0f;
+                m94 = 0;
+            }
+            break;
+        }
+        m58 = m4C - mChara->mPos;
+    }
+    m70 = fn_80129670(mDestPoint, mPointA);
+    return 1;
+    }
+    m2C = 1;
+    return 0;
+}
+
 // NONMATCHING: 98.65% - stack slots of the vectors of modes 4, 5 and 7 (the original has them in the opposite
 // order) and the load of the facing of the target before the copy of its position
 // inferred: distance from the character to the goal of the route in its mode (-1 without route)
@@ -212,6 +330,38 @@ int RouteWalker_unk::fn_80127EF4() {
     return 0;
 }
 
+// NONMATCHING: register allocation of the inlined planners only (the original keeps the destination in r26
+// in every case; ours puts it above the arguments)
+// inferred: plans the route of the current mode again from the position of the character
+void RouteWalker_unk::fn_80128090() {
+    switch (m44) {
+    case 0:
+        fn_80128508(mPointB, &mChara->mPos, m48);
+        break;
+    case 1:
+        fn_801286F0(mLink, &mChara->mPos, m48);
+        break;
+    case 2:
+        return;
+    case 3:
+        fn_80128818(mPlace, &mChara->mPos, m48);
+        break;
+    case 4:
+        fn_80128930(mTarget, &mChara->mPos, m48);
+        break;
+    case 5:
+        fn_80128A30(&m30, &mChara->mPos, m48, m3C);
+        break;
+    case 6:
+        fn_80128B20(mTarget, &mChara->mPos, m48, mRadius);
+        break;
+    case 7:
+        fn_80128C08(mTarget, &mChara->mPos, m48, m9C);
+        break;
+    }
+    fn_801255C8();
+}
+
 void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) {
     RouteTable_unk* table = GetRouteTable_unk();
     if (table != 0 && start > 0) {
@@ -239,7 +389,8 @@ void RouteWalker_unk::fn_80128508(int start, const atn::Vector3* dest, int arg) 
     }
 }
 
-void RouteWalker_unk::fn_801286F0(int link, const atn::Vector3* b, int c) {
+// noinline: called with bl from fn_80128090, which inlines the other planners
+__declspec(noinline) void RouteWalker_unk::fn_801286F0(int link, const atn::Vector3* b, int c) {
     RouteTable_unk* table = GetRouteTable_unk();
     if (table != 0 && link > 0) {
         fn_8012539C();
@@ -331,4 +482,141 @@ void RouteWalker_unk::fn_80128C08(chr::Chara_unk* target, const atn::Vector3* de
     mTarget = target;
     mRadius = 30.0f;
     m9C = arg2;
+}
+
+// inferred: a x b (name invented)
+static inline atn::Vector3 Cross_unk(const atn::Vector3& a, const atn::Vector3& b) {
+    atn::Vector3 r;
+    PSVECCrossProduct(&a, &b, &r);
+    return r;
+}
+
+// inferred: line check against the field (name invented)
+static inline int LineHit_unk(const atn::Vector3& from, const atn::Vector3& to) {
+    return fn_8004ECC0(lbl_8087EE98, 0, &from, &to, 0x80000000, 0, 0);
+}
+
+// inferred: game settings (lbl_8087F0A8)
+extern "C" GameConfig_unk* lbl_8087F0A8;
+
+// inferred: nonzero if the goal of the route is in sight: both sides of the character (its radius
+// apart) reach the goal without hitting the field
+int RouteWalker_unk::fn_80128CF8() {
+    if (lbl_8087F0A8->m060 == 0) {
+        return 0;
+    }
+    if (((unsigned int)m48 & 2) == 2 || ((unsigned int)m48 & 4) == 4) {
+        return 0;
+    }
+    RouteTable_unk* table = GetRouteTable_unk();
+    atn::Vector3 up(0.0f, mChara->m5B0, 0.0f);
+    atn::Vector3 from = mChara->mPos + up;
+    atn::Vector3 to;
+    switch (m44) {
+    case 1:
+        atn::VecAssign_unk(to, m10 + up);
+        break;
+    case 3:
+        atn::VecAssign_unk(to, table->FindPlace_unk(mPlace)->mPos + up);
+        break;
+    case 4:
+    case 7:
+        if (mPointA <= 0) {
+            return 1;
+        }
+        return 0;
+    case 5:
+        atn::VecAssign_unk(to, m30 + up);
+        break;
+    default:
+        return 0;
+    }
+    atn::Vector3 dir = to - from;
+    if (PSVECSquareMag(&dir) < 0.0001f) {
+        return 1;
+    }
+    PSVECNormalize(&dir, &dir);
+    atn::Vector3 side = Cross_unk(dir, atn::Vector3(0.0f, 1.0f, 0.0f));
+    if ((float)__fabs(PSVECSquareMag(&side)) < 1.1920929e-7f) {
+        side = Cross_unk(dir, atn::Vector3(0.0f, 0.0f, -1.0f));
+        if ((float)__fabs(PSVECSquareMag(&side)) < 1.1920929e-7f) {
+            return 1;
+        }
+    }
+    PSVECNormalize(&side, &side);
+    side *= mChara->m5B0;
+    if (LineHit_unk(from + side, to + side) != 0 || LineHit_unk(from - side, to - side) != 0) {
+        return 0;
+    }
+    return 1;
+}
+
+// NONMATCHING: register allocation only: the original keeps the route table in r5 and m44 in r4 (ours the
+// other way round). Tried: a local for m44 (before and after the table), the table fetched in case 3, an inline
+// place getter, the case order and the m48 flag after the switch.
+// inferred: walks straight to the goal of the mode in m44 (the goal is in sight)
+void RouteWalker_unk::fn_80129144() {
+    RouteTable_unk* table = GetRouteTable_unk();
+    switch (m44) {
+    case 1:
+        mDestPoint = mPointB;
+        m4C = m10;
+        m58 = m4C - mChara->mPos;
+        break;
+    case 3:
+        mDestPoint = mPointB;
+        m4C = table->FindPlace_unk(mPlace)->mPos;
+        m58 = m4C - mChara->mPos;
+        break;
+    case 4:
+    case 6:
+    case 7: {
+        int area = mChara->mC58.mB4;
+        if (area > 0 && mTarget->mC58.mB4 > 0 && area != mTarget->mC58.mB4) {
+            fn_80127D8C(0, 0, 0);
+        } else {
+            mDestPoint = mPointB;
+            m4C = mTarget->mPos;
+            m58 = m4C - mChara->mPos;
+        }
+        if (m44 == 6) {
+            m48 |= 0x20;
+        }
+        break;
+    }
+    case 5:
+        mDestPoint = mPointB;
+        m4C = m30;
+        m58 = m4C - mChara->mPos;
+        break;
+    default:
+        fn_80127D8C(0, 0, 0);
+        break;
+    }
+    mMode = m44;
+    m94 = 0;
+}
+
+// inferred: point of the route tables by id (name invented)
+static inline RoutePoint_unk* GetPoint_unk(RouteTable_unk* table, int point) {
+    return &table->mPoints[point - 1];
+}
+
+CharaSubSeg_unk RouteWalker_unk::fn_80129670(int from, int to) {
+    RouteTable_unk* table = GetRouteTable_unk();
+    CharaSubSeg_unk seg;
+    if (from > 0 && to > 0 && from != to) {
+        seg.m00 = GetPoint_unk(table, from)->mPos;
+        seg.m0C = GetPoint_unk(table, to)->mPos - seg.m00;
+        seg.m18 = GetPoint_unk(table, from)->mRadius;
+        seg.m1C = GetPoint_unk(table, to)->mRadius;
+    } else if (to > 0) {
+        seg.m00 = mChara->mPos;
+        seg.m0C = GetPoint_unk(table, to)->mPos - seg.m00;
+        seg.m18 = GetPoint_unk(table, to)->mRadius;
+        seg.m1C = GetPoint_unk(table, to)->mRadius;
+    } else {
+        seg = m70;
+    }
+    return seg;
 }

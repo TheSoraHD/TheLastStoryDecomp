@@ -35,6 +35,11 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - Con `-ipa file` MWCC también inlinea funciones definidas **después** del llamador: helpers compartidos que el original llama con `bl` (cola `fn_8003CDB0..fn_8003DBA4`, accesores `fn_8001C260/26C/278`) necesitan `__declspec(noinline)` en la definición (precedente MP/CryptMP). Al añadir un callee, mirar la cuenta de toda la unidad, no solo la función nueva.
 - Una funcion fuera de presupuesto escrita con los mismos accesores inline que el original saca todas sus copias weak al 100% aunque ella no llegue (GameUI `fn_803D2A6C` +86).
 - Copias weak de virtuales inline emitidas por la vtable: en orden inverso a la declaracion dentro de cada clase.
+- Una funcion por encima del presupuesto de inline saca todas sus inline como copias weak justo detras (primero las no plantilla, en orden de uso; luego las plantillas). Las copias weak de una inline salen detras de la primera funcion que la referencia, aunque alli se inlinee (`fn_8008B964` en atn/Model tras `fn_8008B140`; paralelo-20261113).
+- Cada nivel de inline invierte el orden en la pila de los locales de bloques repetidos: tres rotaciones en una inline propia (`RotateEulerZYX_unk`) o un bloque `Mtx t; Mtx r;` sacado a una `static inline` dan el orden del original (MapPartsGimmickLoc, ControlBase vf18, Arms vf10).
+- Indice y desplazamiento de un bucle cruzados (r29/r30), o dos locales de un bloque en registros salvados cruzados: sacar el bucle/bloque a una `static inline` que recibe `this` (TownTpcLoader vf0C, LemonBucket vf10, GameLoadTask vf10).
+- Un miembro cargado dos veces sin CSE en un lerp `t * (m - a) + a`: lerp inline con parametros `const float&` (GameCamera `fn_800F8524`).
+- Un minimo `bge X; b Y; X: fmr`: inline `if (a < b) { return a; } return b;`; `MIN`/`MAX` de `macros.h` (macro, no inline) cuando el original recalcula la expresion tras el salto.
 
 ## Registros y pila
 
@@ -92,6 +97,15 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 
 - FPR de constantes intercambiados alrededor de una llamada (1.0f en f1 en el original): la firma real tiene un `float` final (`fn_8023A8B4(..., 1.0f)`, MapPartsEfp).
 - Índice `unsigned` en un accesor con comprobación de rango (`Get_unk(unsigned)`) ordena los incrementos contador-luego-puntero; declarar el puntero exterior antes del `for` deja los contadores en salvados (EventLoader_unk).
+- MWCC ordena los locales de la pila por tamano (`CollResult_unk` 0x50 y `Mtx` arriba aunque se declaren despues).
+- Un `switch` sale con sus bloques en el orden de los `case` del fuente: ponerlos en el orden de los bloques del original evita que dos colas iguales se fusionen; `default: goto etiqueta;` cuando el default salta por encima del codigo comun.
+- `x / 4.0f` da `fmuls x, 0.25` con x primero; `0.25f * x` lo da al reves.
+- `int n = 1; if (p) n = p->vf();` pone el `li r4, 1` antes de la llamada; el ternario lo pone despues.
+- Una conversion int -> float muerta (`lis 0x4330` + `xoris` + dos `stw` sin `lfd`) es un local `float` sin usar.
+- `if (scoped_ptr)` pasa por el `unspecified_bool` de Boost (`__ptmf_null`); la prueba simple del original es `p.get() != 0`.
+- Un argumento que el llamador pone en un registro y la funcion no lee: la funcion tiene un parametro sin usar.
+- Un `?:` de constantes `int` que se diferencian en 1 (o 7/0) sale como aritmetica sin salto; con constantes de un `enum` queda el salto del original (gmk/MeetingSpot, gmk/Augur).
+- `MAX(0, x)` da `srawi/andc`; `MAX(x, 0)` da otra secuencia.
 ## Datos y secciones
 
 - Estáticas: inicializadas primero, no inicializadas por orden de primer uso; `= NULL` explícito cambia el orden en `.bss`.
@@ -129,6 +143,10 @@ Al añadir un hallazgo: una línea, con el ejemplo (unidad o dirección) entre p
 - `strlen` de `<string.h>` es intrínseca: incluir `boost/function` (que la arrastra) cambió el código de `Bgm`; en `SoundManager.h` basta una declaración adelantada de `boost::function`.
 
 - Floats en locales con nombre: el orden de asignación decide el de `.sdata2` y el de declaración los registros; `float x, y, z; z = 3.7f; y = 0.5f; x = 0.0f;` da pool z-primero con x en el registro bajo (Gun::vf14).
+- Un parametro con nombre en una declaracion de cabecera, una inline o una plantilla nueva (aunque no se use) consume `@N` en cada unidad que la incluye; los miembros de datos no. Declarar sin nombres de parametro y comprobar con `labelcheck.py`.
+- `pairdata` deja ambiguas las etiquetas de `.sdata2` con el mismo valor o cuando una funcion NONMATCHING carga las constantes en otro orden: re-emparejar por valor contra nm del `.o` (dentro de una unidad cada valor es unico salvo duplicados del original).
+- Orden de vtables, RTTI y sus cadenas de nombre en `.data`/`.rodata` = inverso al orden de declaracion de las clases: se corrige con el orden de los `#include` o partiendo una cabecera (MP/func_enter_setting).
+- Las cadenas de una inline van al `@stringBase0` detras de las de la funcion que la usa por primera vez; un literal en un `operator()` de un predicado en namespace anonimo va al pool del fichero.
 ## Enlazado y símbolos
 
 - Enlazador GC/1.3.2: quita datos no debiles sin referencias (tambien `static`), pero conserva los debiles (estaticos de plantilla, locales de inline) aunque nadie los use; un debil duplicado no ocupa sitio. Si de la seccion de un objeto no quita nada, copia la seccion entera (con su relleno final); si quita algo, reempaqueta por tamano de simbolo y la seccion acaba en el ultimo simbolo. Importa solo en el ultimo objeto de cada seccion (Gecko `extab`: 0x12 frente a 0x14). (`nw4r-20261105`)

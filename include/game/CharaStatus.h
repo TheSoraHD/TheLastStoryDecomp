@@ -121,6 +121,10 @@ public:
     int fn_801255C8(); // inferred: starts the planned route (nonzero on success, fn_8016F824)
     void fn_80126214(); // inferred: update (called every frame by CharaTask::fn_80139560)
     float fn_801279E8(); // inferred: distance (compared with 20 by CharaTask::vf34)
+    void fn_80128090(); // inferred: plans the route again
+    int fn_80128CF8(); // inferred: nonzero if the goal is in sight
+    void fn_80129144(); // inferred: walks straight to the goal
+    CharaSubSeg_unk fn_80129670(int, int); // inferred: segment from point a to point b of the route
     atn::Vector3* fn_80139F58(); // inferred: accessors called out of line from CharaTask
     int fn_8013C3F4();
     CharaSubSeg_unk* fn_8013C3FC();
@@ -323,6 +327,23 @@ struct CharaStatusData_unk {
     unsigned int m54;      // 0x1FC: inferred: index into a table of 5 factors (fn_8012F034)
     int m58;
     unsigned char m5C[0x7C - 0x5C];
+};
+
+// inferred: stat differences after levelling up (CharaStatus::fn_8013354C; 0x7C bytes, kept in
+// Inventory::ExpEntry_unk and summed by Inventory::fn_80449ABC); name invented
+struct LevelUpResult_unk {
+    int m00;
+    int m04;
+    float m08; // level
+    float m0C;
+    float m10;
+    float m14;
+    float m18;
+    float m1C;
+    int m20;
+    int m24[8];
+    unsigned int m44[4]; // inferred: flags (or-ed by Inventory::fn_80449ABC)
+    int m54[10];
 };
 
 class CharaStatusBase {

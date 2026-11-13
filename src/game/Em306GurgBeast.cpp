@@ -474,7 +474,13 @@ inline atn::Vector3 BeastFront_unk(const atn::Vector3& rot) {
 // inferred: state machine: 6 wait, 7 choose a goal, 8/9 turn, 10/11 charge, 12/13 back to a home point, 14 the
 // leader may get on (button 4), 15/16 ridden by the leader (stick moves it, button 5 throws him off), 17 the
 // rider is dropped; 2 down
-// NONMATCHING: 99.60% - register coloring only: the inlined CanAct_unk (r0/r4, known blocker), r29/r30 of the
+// inferred: states 10 and 11 (names invented); enum constants keep the ?: as a branch
+enum {
+    kGurgState10_unk = 10,
+    kGurgState11_unk = 11,
+};
+
+// NONMATCHING: 99.85% - register coloring only: the inlined CanAct_unk (r0/r4, known blocker), r29/r30 of the
 // node lookups of state 7 and of the stick direction, r28/r30 of the home point loop (~25 forms)
 void Em306GurgBeast::vf104() {
     m14C0++;
@@ -511,11 +517,7 @@ void Em306GurgBeast::vf104() {
     case 8:
     case 9:
         if (mFlag31) {
-            int next = 11;
-            if (m58C == 8) {
-                next = 10;
-            }
-            vf100(next);
+            vf100(m58C == 8 ? kGurgState10_unk : kGurgState11_unk);
         }
         vf108();
         break;

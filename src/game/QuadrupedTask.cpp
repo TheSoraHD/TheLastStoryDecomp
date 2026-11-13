@@ -70,8 +70,9 @@ extern "C" int fn_8004D388(void* world, CollResult_unk* result, CharaTask::Spher
 struct Effect_unk;
 extern "C" Effect_unk* lbl_8087F048;
 extern "C" int fn_800F8548(Effect_unk* mgr); // inferred: new bullet id
-extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, int time,
-                           int c, float f); // inferred: deals a hit, returns the damage dealt
+// inferred: deals a hit, returns the damage dealt; the float goes before time and count (as in EnemyTrista)
+extern "C" int fn_800F8C6C(Effect_unk* mgr, int a, int b, CharaTask* chara, HitInfo_unk* data, int id, float f,
+                           int time, int c);
 
 extern "C" int rand();
 extern "C" double sqrt(double x);
@@ -240,7 +241,7 @@ inline int QuadrupedTask_IsStuck_unk(CharaTask* self, const atn::Vector3& prev) 
 }
 
 // inferred: state machine (m58C)
-// NONMATCHING: 86.11% - scheduling of the hit reactions and order of the Vector3 temporaries
+// NONMATCHING: 87.52% - scheduling of the hit reactions and order of the Vector3 temporaries
 void QuadrupedTask::fn_80566FB4() {
     switch (m58C) {
     case 0:
@@ -317,7 +318,7 @@ void QuadrupedTask::fn_80566FB4() {
         fn_805675FC();
         if (lbl_8087F048 != 0 && fn_80158CA4() && m594 != 0) {
             fn_80144710();
-            int damage = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 30, m594, 0.0f);
+            int damage = fn_800F8C6C(lbl_8087F048, 0, 0, this, m638, m590, 0.0f, 30, m594);
             if (m594 > 0) {
                 m594 -= damage;
             }

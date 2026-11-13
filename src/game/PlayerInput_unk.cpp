@@ -60,9 +60,6 @@ struct DialogConfig_unk {
 
 extern "C" int fn_801237E0(SetConfig* config);
 // inferred: weak copies of another file (the original calls them out of line)
-extern "C" inline atn::RenderManager* fn_8008B964() {
-    return atn::RenderManager::instance_;
-}
 inline atn::Camera* atn::RenderManager::fn_800F7258() {
     return &mCamera;
 }
@@ -260,7 +257,13 @@ void Input_unk::fn_8012256C() {
     }
 }
 
-// NONMATCHING: 99.3% - case 44: the original keeps `li r3, 0` / `beq` / `li r3, 7`; MWCC makes it branchless
+// inferred: results of case 44 (names invented); enum constants keep the ?: as a branch (with int
+// constants MWCC makes it branchless)
+enum {
+    kInput00_unk = 0,
+    kInput07_unk = 7,
+};
+
 int Input_unk::fn_80122C70(int action) {
     if (m14[action]) {
         return 0x21;
@@ -379,10 +382,7 @@ int Input_unk::fn_80122C70(int action) {
     case 45:
         return fn_800A58D0(GetPad_unk(), 0) ? 0xD : 0xE;
     case 44:
-        if (fn_800A58D0(GetPad_unk(), 0)) {
-            return 7;
-        }
-        return 0;
+        return fn_800A58D0(GetPad_unk(), 0) ? kInput07_unk : kInput00_unk;
     case 46:
         return fn_800A58D0(GetPad_unk(), 0) ? 0xF : 0xE;
     case 48:

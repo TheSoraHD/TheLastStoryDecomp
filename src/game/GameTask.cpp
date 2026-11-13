@@ -67,6 +67,9 @@
 #include "game/EnemyTask.h"
 #include "db/MapIdTable_unk.h"
 #include "db/ChapterList_unk.h"
+#include "db/GrowthParseGlobal.h"
+#include "atn/Layer3D.h"
+#include "game/SongManager.h"
 #include "atn/Font_unk.h"
 #include "atn/FixedArray.h"
 #include "game/Input_unk.h"
@@ -193,7 +196,8 @@ struct MpSettings_unk {
     int m194;
     unsigned char m198[0x280 - 0x198];
     int m280; // inferred: no experience is shared at the end of a battle (GameTask fn_80374964)
-    unsigned char m284[0x290 - 0x284];
+    int m284; // inferred: the party level follows the chapter (GameTask::fn_80367A40)
+    unsigned char m288[0x290 - 0x288];
     int m290; // inferred: the map name stays shown with the default camera (GameTask fn_8036CFA4)
     unsigned char m294[0x2BC - 0x294];
     float m2BC; // inferred: added to the frame limit of the finish camera (GameTask fn_8036D2D0)
@@ -226,8 +230,6 @@ extern "C" void fn_80047B54(void* sound, int arg);
 extern "C" void fn_800F2C9C(void* battle);
 extern "C" void fn_800EF588(int type, int map);
 extern "C" void fn_8004829C(void* sound, const char** groups, int count);
-extern "C" void fn_803D022C(void* obj);
-extern "C" void fn_803D0B20(void* obj);
 extern "C" atn::Task* fn_8052A888(atn::Task* parent);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 
@@ -238,18 +240,14 @@ extern "C" void fn_80450B28();         // inferred: freezes the item slot animat
 extern "C" void fn_80450B44(); // inferred: resumes the item slot animations
 extern "C" void fn_800A5B30(void* pad, int arg); // inferred: pad reset (atn/Pad_unk.cpp)
 extern "C" int VISetTimeToDimming(int type);
+extern "C" int VIEnableDimming(int enable);
 extern "C" atn::SoundRef fn_800C31F4(const char* name, int arg2, int arg3, float volume); // inferred: plays a sound
-extern "C" void fn_803D83A8(GameUI* ui);
-extern "C" void fn_803DAB4C(GameUI* ui, int icons, int tacView);
 extern "C" TacView* lbl_8087F9F8; // inferred: the tactical view
 extern "C" atn::Task* lbl_8087FA20;
 extern "C" int fn_8006AA20(const char* path); // inferred: the file exists
 extern "C" void fn_800F3D28(BattleTask* battle);
 extern "C" void fn_800F3170(BattleTask* battle);
 extern "C" void fn_800EFA18(int type, int map);
-extern "C" void fn_8056C3D8(ReplayBuffer* obj);
-extern "C" void fn_80390A88(GameCamera* camera);
-extern "C" void fn_8038F52C(GameCamera* camera, CharaTask* chara); // inferred: update of the camera around `chara`
 extern "C" int fn_800A555C(void* obj, int a, int b);
 extern "C" void* lbl_8087EF70;
 extern "C" void fn_804A5E40(MenuCommonTask* menu, int kind, atn::Vector3* pos, int arg);
@@ -289,8 +287,6 @@ extern "C" int fn_8021446C(int level, int magic); // inferred: second weapon of 
 extern "C" int fn_802143EC(int level, int magic, int seed); // inferred: protector of the level
 extern "C" void fn_8044D184(Inventory* inventory, int slot, int item, int upgrade, int index);
 extern "C" void fn_80218268(int type, int map, int sub);
-extern "C" void fn_803D164C(GameUI* ui);
-extern "C" void fn_803D2194(GameUI* ui);
 extern "C" int strncmp(const char* a, const char* b, unsigned long n);
 extern "C" int atoi(const char* s);
 extern "C" unsigned long strlen(const char* s);
@@ -502,9 +498,9 @@ GameTask::GameTask(atn::Task* parent, const Option& option)
         const char* groups[2] = {"GROUP_SYSTEM", "GROUP_PC001"};
         fn_8004829C(lbl_8087EE90, groups, 2);
     }
-    fn_803D022C(lbl_8087F490);
+    lbl_8087F490->fn_803D022C();
     if (!fn_8036555C(option.mType, option.mMap, option.mSub)) {
-        fn_803D0B20(lbl_8087F490);
+        lbl_8087F490->fn_803D0B20();
     }
     m5620 = atn::FadeColor::Create(this, 10, 0xFF000000, 0);
     m5624 = atn::FadeCapture::Create(this, 30, 0xFFFFFFFF, 0xFF000000, 0);
@@ -555,6 +551,89 @@ extern "C" void* fn_8036635C() {
 }
 
 GameMessage::~GameMessage() {}
+
+extern "C" void fn_8004895C(void* sound); // inferred: releases the sound groups (game/NewTitleTask.cpp)
+extern "C" void fn_80049654(void* sound);
+extern "C" void fn_800498D4(void* sound);
+extern "C" void fn_800EF8DC(); // inferred: game/BattleEfp_unk.cpp
+
+// NONMATCHING: 98.6% - float registers and store order of the inlined ResetPostFx_unk (the depth of field
+// block; MapTask::fn_8049ED90 has the same differences). The weak RenderConfig::SetColorMatrix after this
+// function (0x80366D40) comes out behind it because fn_803729B4 calls it out of line
+// inferred: the field is deleted: releases the managers and restores the render settings (the bloom is
+// switched on before the reset, as in the original: two stores to 0x54)
+GameTask::~GameTask() {
+    lbl_8087F430 = 0;
+    if (m10E0 != 0) {
+        fn_800D2338(m10E0);
+    }
+    if (lbl_8087F3C0 != 0) {
+        lbl_8087F3C0->mCheckTrace = 0;
+        lbl_8087F3C0->mSystem.mListener = 0;
+    }
+    if (lbl_8087EE98 != 0) {
+        lbl_8087EE98->m9034 = 1;
+    }
+    if (m5590 != 0) {
+        delete m5590;
+    }
+    if (m5628 != 0) {
+        delete m5628;
+    }
+    void* data = m550C.mFile.fn_80470580();
+    unsigned int count = m550C.mFile.fn_8047059C() / sizeof(unsigned int);
+    if (data != 0) {
+        lbl_8087F518->fn_8046F96C((unsigned int*)data, count);
+        m550C.mFile.fn_80473F88();
+    }
+    fn_800EF8DC();
+    Inventory::fn_80442F68();
+    if (lbl_8087EE90 != 0 && lbl_8087F610 == 0) {
+        fn_8004895C(lbl_8087EE90);
+    }
+    if (lbl_8087EE90 != 0) {
+        fn_80049654(lbl_8087EE90);
+        fn_800498D4(lbl_8087EE90);
+    }
+    lbl_8087EFE8->fn_800CE368();
+    lbl_8087EFE8->m34D4 = 0;
+    lbl_8087EFE8->mOutputMode = 0;
+    if (lbl_8087F3C0 != 0) {
+        fn_800D2338(lbl_8087F3C0);
+    }
+    if (sGameTaskStatic_unk.m00 != 0) {
+        sGameTaskStatic_unk.m00 = 0;
+    }
+    lbl_8087F460 = 0;
+    atn::RenderManager::instance_->fn_800C16B4()->SetLight_unk(0);
+    atn::RenderManager::instance_->fn_800C16B4()->fn_800C289C(0);
+    atn::RenderManager::instance_->m54964 = 0;
+    RenderSetting_unk* render = lbl_8087EFA8;
+    render->m054.mEnabled = 1;
+    render->ResetPostFx_unk();
+    lbl_8087EFA8->ResetShadow_unk();
+    DamageEffectParam_unk damage(*lbl_8087EFA8->GetDamage_unk());
+    damage.mEnabled = 0;
+    lbl_8087EFA8->SetDamage_unk(damage);
+    lbl_8087EFA8->SetMotionBlur_unk(0);
+    lbl_8087EFA8->SetFrameSpeed_unk(1.0f);
+    if (lbl_8087F610 == 0 && HomeButtonMenu::sInstance != 0) {
+        HomeButtonMenu::sInstance->m88 = 1;
+    }
+    if (lbl_8087EF70 != 0) {
+        fn_800A5B30(lbl_8087EF70, 5);
+    }
+    VIEnableDimming(1);
+    VISetTimeToDimming(0);
+    if (lbl_8087F610 == 0) {
+        SetConfig::sInstance->fn_8057EF40();
+        lbl_8087F420->m0C = 0;
+        if (lbl_8087F018 != 0) {
+            lbl_8087F018->m40E0 = 0;
+        }
+    }
+    ((PostFxMgrView_unk*)lbl_8087EF8C)->mMotionBlur.fn_800AFEBC(2);
+}
 
 // inferred: dungeon number of a map id ("dg01_00" -> 100; "dg09_xx01" adds the sub dungeon)
 static inline int GetDungeonId_unk(const char* id) {
@@ -765,8 +844,8 @@ int GameTask::vf0C() {
     if (mOption.m1C == 0 && m10D0 >= 100000 && 403000 > m10D0) {
         fn_80370320(0x11F, 1, 0);
     }
-    fn_803D164C(lbl_8087F490);
-    fn_803D2194(lbl_8087F490);
+    lbl_8087F490->fn_803D164C();
+    lbl_8087F490->fn_803D2194();
     m5620->mFrame = 0;
     m5620->mDelay = 3;
     m5620->mDuration = 10;
@@ -807,6 +886,103 @@ int GameTask::vf0C() {
     }
     }
     return 0;
+}
+
+// inferred: evaluates an atn::ParseTree compiled into a ParseCode_unk (atn/ParseTree.cpp)
+extern "C" float fn_800A6BDC(const unsigned char* code);
+
+// NONMATCHING: 98% - the copies of CharaStatusData_unk and CharaStatus: the original copies m54..m7C and
+// m2CC..m2EC in 8-byte pairs (one aggregate each: as an anonymous struct it matches, but the anonymous type
+// takes an @N in every unit including CharaStatus.h)
+// inferred: sets the level of the party and the enemies for the field (arg: the field starts; else the
+// saved status is restored)
+void GameTask::fn_80367A40(int arg) {
+    int done = 0;
+    if (arg != 0) {
+        if (lbl_8087F0A8->m284 != 0 && mOption.m1C == 0 && m10D4 != 0) {
+            for (int i = 0; i < 7; i++) {
+                fn_8020A81C((const char*)fn_8020924C(fn_80219544(i))->m14);
+                Inventory::instance_->mPlayers[i].m1A8.m08 = m10D4->m54 - 4;
+            }
+            if (sGameTaskStatic_unk.m00 != 0) {
+                for (int i = 0; i < 7; i++) {
+                    fn_8020A81C((const char*)fn_8020924C(fn_80219544(i))->m14);
+                    Inventory::instance_->mPlayers[i].m1A8.m08 += sGameTaskStatic_unk.m28;
+                }
+                for (EnemyTask* enemy = EnemyManager::sInstance->mHead; enemy != 0; enemy = enemy->mNext) {
+                    if (fn_8020FCE8(enemy->m5C->mC8)) {
+                        enemy->mStatus.m1A8.m08 += sGameTaskStatic_unk.m2C;
+                        enemy->mStatus.fn_8012B3E8();
+                        enemy->mStatus.fn_8012B988();
+                        enemy->mStatus.fn_8012D8B8();
+                    }
+                }
+            }
+            done = 1;
+        }
+    } else if (m550C.m34 != 0) {
+        ((GameSaveParty_unk*)m550C.m34)->fn_803BAD6C();
+        if (m10D4 != 0) {
+            done = 1;
+        }
+    }
+    if (done) {
+        if (arg != 0) {
+            for (int i = 0; i < 7; i++) {
+                chr::CharaData_unk* data = fn_8020A81C((const char*)fn_8020924C(fn_80219544(i))->m14);
+                CharaStatus& status = Inventory::instance_->mPlayers[i];
+                int level = (int)status.m1A8.m08 + data->mParam.m78;
+                db::GrowthEntry_unk* growth = fn_8020FCE8(100);
+                if (growth != 0) {
+                    growth->m40.m08 = level;
+                    float vm0C = fn_800A6BDC(growth->m40.m04.m00);
+                    status.m1A8.m0C = vm0C / 2.0f;
+                    growth->m04.m08 = level;
+                    float vm10 = fn_800A6BDC(growth->m04.m04.m00);
+                    status.m1A8.m10 = vm10 / 2.0f;
+                    growth->m10.m08 = level;
+                    float vm14 = fn_800A6BDC(growth->m10.m04.m00);
+                    status.m1A8.m14 = vm14 / 2.0f;
+                    growth->m1C.m08 = level;
+                    float vm18 = fn_800A6BDC(growth->m1C.m04.m00);
+                    status.m1A8.m18 = vm18 / 2.0f;
+                    growth->m28.m08 = level;
+                    float vm1C = fn_800A6BDC(growth->m28.m04.m00);
+                    status.m1A8.m1C = vm1C / 2.0f;
+                }
+            }
+        }
+        for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+            int member = fn_80219558(player->m50);
+            if (0 <= member && member < 7) {
+                player->mStatus.m1A8 = Inventory::instance_->mPlayers[member].m1A8;
+                player->mStatus.fn_8012B3E8();
+                player->mStatus.fn_8012B988();
+                player->mStatus.fn_8012D8B8();
+                Inventory::instance_->mPlayers[member] = player->mStatus;
+                Inventory::instance_->mPlayers[member].mChara = 0;
+                Inventory::instance_->mPlayers[member].mRefs.mCount = 0;
+            }
+        }
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        int member = fn_80219558(player->m50);
+        if ((0 <= member && member < 7) || member == 9 || member == 10 || member == 12) {
+            continue;
+        }
+        if (m10D4 != 0 && player->m5C->mC8 >= 0) {
+            if (mGlobalFlags[283] > 0) {
+                int level = (int)(m10D4->m58 * lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m00 + 0.2f);
+                level += lbl_8087F0A8->mD8[lbl_8087F0A8->mD4].m04;
+                player->mStatus.m1A8.m08 += MAX(60, level + 4) - 4;
+            } else {
+                player->mStatus.m1A8.m08 += m10D4->m54 - 4;
+            }
+        }
+        player->mStatus.fn_8012B3E8();
+        player->mStatus.fn_8012B988();
+        player->mStatus.fn_8012D8B8();
+    }
 }
 
 int GameTask::fn_8036823C() {
@@ -1307,7 +1483,7 @@ void GameTask::vf10() {
             if (!fn_8036555C(m550C.mType, m550C.mId, m550C.mSub)) {
                 fn_800F2C9C(lbl_8087F048);
                 lbl_8087F8A8->fn_8054A9A8();
-                fn_803D0B20(lbl_8087F490);
+                lbl_8087F490->fn_803D0B20();
             }
             m550C.mState = 7;
             fn_8046ECDC(lbl_8087F518, 1);
@@ -1365,8 +1541,8 @@ void GameTask::vf10() {
                 m5748 = 5;
             }
             fn_80367A40(0);
-            fn_803D164C(lbl_8087F490);
-            fn_803D2194(lbl_8087F490);
+            lbl_8087F490->fn_803D164C();
+            lbl_8087F490->fn_803D2194();
             lbl_8087F490->fn_803E32EC();
             lbl_8087F490->fn_800D246C(0);
             if (m574C > 0) {
@@ -1589,7 +1765,7 @@ void GameTask::vf10() {
             mGlobalFlags[2] = 0;
         }
         if (m5590 != 0) {
-            fn_8056C3D8(m5590);
+            m5590->fn_8056C3D8();
         }
         if (m5620->mActive == 0) {
             m54F0 = 0;
@@ -1605,13 +1781,13 @@ void GameTask::vf10() {
                     fn_803731E8();
                 } else {
                     if (mCamera.m7FC == 6 && mCamera.m7FC == mCamera.m800 && lbl_8087F9F8->mA70 == 0) {
-                        fn_80390A88(&mCamera);
+                        mCamera.fn_80390A88();
                     }
                     fn_8036CC90();
                 }
             } else {
                 if (player->m55C == 5) {
-                    fn_8038F52C(&mCamera, player);
+                    mCamera.fn_8038F52C(player);
                     mCamera.fn_8037F744();
                 } else {
                     fn_8036CC90();
@@ -1984,7 +2160,7 @@ void GameTask::vf14() {
         }
     }
     lbl_8087F490->fn_803D2A6C();
-    fn_803D83A8(lbl_8087F490);
+    lbl_8087F490->fn_803D83A8();
     int showIcons = 0;
     int tacView = 0;
     int swing = SetConfig::sInstance->mSwingReplay;
@@ -2150,7 +2326,7 @@ void GameTask::vf14() {
         m56E4++;
         break;
     }
-    fn_803DAB4C(lbl_8087F490, showIcons, tacView);
+    lbl_8087F490->fn_803DAB4C(showIcons, tacView);
     mCamera.fn_8039328C();
 }
 
@@ -2205,7 +2381,7 @@ extern "C" void fn_800E4278(PlayerTask* player, GameTask* task); // inferred: in
 // distance in f4
 void GameTask::fn_8036CC90() {
     PlayerTask* leader = lbl_8087F8A0->mHead;
-    fn_8038F52C(&mCamera, leader);
+    mCamera.fn_8038F52C(leader);
     if (mCamera.m7FC != 6 && !leader->IsFlag_unk(4) && !leader->IsFlag_unk(1) && m56D4 == 0) {
         fn_800E4278(leader, this);
     }
@@ -3028,6 +3204,175 @@ void GameTask::fn_8036EE0C() {
     }
 }
 
+// NONMATCHING: 98.7% - the copy of CharaStatus (m2CC..m2EC in 8-byte pairs in the original, see fn_80367A40)
+// and the registers of the inlined IsDungeonCleared_unk (the original reuses those of the dead arguments)
+// inferred: changes the map (save: data to restore; else the party is saved in m5628); a: kept in m550C.m24,
+// reason: copy format of the capture fade; arg9 unused
+extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, GameSaveData_unk* save,
+                            int reason, int arg9) {
+    if (save == 0) {
+        task->m5628->fn_803BAAE0();
+    }
+    for (PlayerTask* player = lbl_8087F8A0->mHead; player != 0; player = player->mNext) {
+        int member = fn_80219558(player->m50);
+        if (member >= 0 && member < 7) {
+            Inventory::instance_->mPlayers[member] = player->mStatus;
+            Inventory::instance_->mPlayers[member].mChara = 0;
+            Inventory::instance_->mPlayers[member].mRefs.mCount = 0;
+        }
+    }
+    task->m550C.m30 = (int)save;
+    if (save != 0) {
+        task->m550C.m34 = 0;
+        task->m550C.mType = save->mFlags.mMap;
+        task->m550C.mId = save->mFlags.mPoint;
+        task->m550C.mSub = save->mFlags.mArea;
+        task->m550C.m14 = -1;
+    } else {
+        task->m550C.m34 = (int)task->m5628;
+        task->m550C.mType = type;
+        task->m550C.mId = id;
+        task->m550C.mSub = subId;
+        task->m550C.m14 = entry;
+    }
+    if (task->m10D8 != 0 && task->m10D8->m64 != 0) {
+        task->m550C.mPrevType = task->m10D8->m64->mType;
+        task->m550C.mPrevId = task->m10D8->m64->mId;
+        task->m550C.mPrevSub = task->m10D8->m64->mSubId;
+    } else {
+        task->m550C.mPrevType = -1;
+        task->m550C.mPrevId = -1;
+        task->m550C.mPrevSub = -1;
+    }
+    task->m550C.m24 = a;
+    task->m550C.mState = 1;
+    if (task->m54F0 == 1) {
+        task->m5620->mZ = -100.1f;
+    }
+    task->m5624->mFrame = 0;
+    task->m5624->mDelay = 0;
+    task->m5624->mWait = 9999999;
+    task->m5624->mColor0 = 0xFFFFFFFF;
+    task->m5624->mColor1 = 0xFF000000;
+    task->m5624->m78 = reason;
+    task->m5624->mDuration = 30;
+    if (task->m563C >= 0) {
+        task->m5624->mActive = 1;
+        task->m563C = -1;
+    }
+    if (save == 0) {
+        task->m5670 = 0;
+    }
+    int oldType = task->mOption.mType;
+    int oldMap = task->mOption.mMap;
+    task->mOption.mType = task->m550C.mType;
+    task->mOption.mMap = task->m550C.mId;
+    task->mOption.mSub = task->m550C.mSub;
+    task->mOption.m10 = task->m550C.m14;
+    task->mGlobalFlags[6] = 0;
+    task->mGlobalFlags[27] = 0;
+    task->mGlobalFlags[37] = 0;
+    task->mGlobalFlags[3] = 0;
+    task->mGlobalFlags[10] = 0;
+    task->mGlobalFlags[11] = 0;
+    task->mGlobalFlags[31] = 0;
+    task->mGlobalFlags[32] = 0;
+    task->mGlobalFlags[38] = 0;
+    task->mGlobalFlags[43] = 0;
+    task->mGlobalFlags[100] = 0;
+    task->mGlobalFlags[102] = 0;
+    task->mGlobalFlags[104] = 0;
+    task->mGlobalFlags[105] = 0;
+    task->mGlobalFlags[109] = 0;
+    task->mGlobalFlags[137] = 0;
+    task->mGlobalFlags[206] = 0;
+    task->mGlobalFlags[210] = 0;
+    task->mGlobalFlags[905] = 0;
+    task->mGlobalFlags[906] = 0;
+    task->mGlobalFlags[208] = 0;
+    task->mGlobalFlags[212] = 0;
+    task->mGlobalFlags[1352] = 0;
+    task->mGlobalFlags[103] = 0;
+    task->mGlobalFlags[217] = 0;
+    task->mGlobalFlags[219] = 0;
+    task->mGlobalFlags[281] = 0;
+    task->mGlobalFlags[282] = 0;
+    task->mGlobalFlags[101] = 0;
+    task->mGlobalFlags[908] = 0;
+    task->mGlobalFlags[909] = 0;
+    task->mGlobalFlags[910] = 0;
+    task->mGlobalFlags[288] = 0;
+    task->mGlobalFlags[289] = 0;
+    task->mGlobalFlags[916] = 0;
+    task->mGlobalFlags[291] = 0;
+    task->mGlobalFlags[917] = 0;
+    task->mGlobalFlags[918] = 0;
+    task->mGlobalFlags[921] = 0;
+    if (atn::RenderManager::instance_->mLayers[4] != 0) {
+        atn::RenderManager::instance_->mLayers[4]->m04 = 1;
+    }
+    if (atn::RenderManager::instance_->mLayers[3] != 0) {
+        atn::RenderManager::instance_->mLayers[3]->m04 = 1;
+    }
+    lbl_8087EFA8->m104.mEnabled = 1;
+    lbl_8087EFA8->m02C = 0;
+    task->m56F4.mCount = 0;
+    task->m571C.mCount = 0;
+    if (oldType != task->mOption.mType || oldMap != task->mOption.mMap) {
+        int cleared = task->IsDungeonCleared_unk(task->mOption.mType, task->mOption.mMap, task->mOption.mSub);
+        task->m5694 = cleared;
+        task->m5698 = cleared;
+    } else {
+        task->m5698 = 0;
+    }
+    HomeButtonMenu::sInstance->m88 = 0;
+    if (lbl_8087F498 != 0) {
+        lbl_8087F498->fn_803EBAC8(60, 0);
+        lbl_8087F498->fn_803EB4A8(0, 0);
+    }
+    if (lbl_8087F490 != 0 && lbl_8087F490->m262C.m0C != 0) {
+        lbl_8087F490->fn_803E63D0();
+    }
+    if (task->m56F0 != 0 && task->m56F0->mId == 0x8E) {
+        fn_800D2338(task->m56F0);
+        task->m56F0 = 0;
+    }
+    if (save != 0) {
+        if (SongManager::sInstance != 0) {
+            SongManager::sInstance->fn_805A2FD4(0);
+        }
+        if (lbl_8087EFE8 != 0) {
+            lbl_8087EFE8->fn_800CFD18(task, 15);
+        }
+    }
+    int play = 1;
+    if (oldType == 2) {
+        switch (oldMap) {
+        case 0x21:
+        case 0x3F:
+            if (task->mOption.mType == 2 && (task->mOption.mMap == 0x21 || task->mOption.mMap == 0x3F)) {
+                play = 0;
+            }
+            break;
+        case 0x22:
+            if (task->mOption.mType == 2 && task->mOption.mMap == 0x22) {
+                play = 0;
+            }
+            break;
+        case 0x28:
+            if (task->mOption.mType == 2 && task->mOption.mMap == 0x28) {
+                play = 0;
+            }
+            break;
+        }
+    }
+    if (play && GameBgm::sInstance != 0 &&
+        (GameBgm::sInstance->m84 != 0 ? GameBgm::sInstance->mNext.mId : GameBgm::sInstance->mReq.mId) > 0 &&
+        !GameBgm::sInstance->fn_8037D34C()) {
+        GameBgm::sInstance->fn_8037D3E8(1, 16, 45);
+    }
+}
+
 void GameTask::fn_8036FB4C(int entry) {
     m54E4 = 12;
     m10D8->m134->fn_800D246C(1);
@@ -3453,9 +3798,6 @@ void GameTask::fn_80370CD0() {
     m54E4 = 6;
 }
 
-extern "C" void fn_8036F268(GameTask* task, int type, int id, int subId, int entry, int a, void* save,
-                            int reason, int arg9); // inferred: changes the map (save: data to restore)
-
 // inferred: leaves the game over screen: continues from `save` (or from the copy the field started from), or
 // stays on the map when `stay` is set (called by game/GameOverTask and game/NewCampPartsTop)
 void GameTask::fn_80370F8C(int count, void* save, int stay) {
@@ -3482,9 +3824,9 @@ void GameTask::fn_80370F8C(int count, void* save, int stay) {
     GameBgm::sInstance->fn_8037D4C0(0, 60, 1, 0, 1.0f);
     if (stay == 0) {
         if (save != 0) {
-            fn_8036F268(lbl_8087F430, 0, 0, 0, 0, 1, save, 0x12, 0);
+            fn_8036F268(lbl_8087F430, 0, 0, 0, 0, 1, (GameSaveData_unk*)save, 0x12, 0);
         } else {
-            fn_8036F268(lbl_8087F430, 0, 0, 0, 0, 1, m562C.mPtr->mData, 0x12, 0);
+            fn_8036F268(lbl_8087F430, 0, 0, 0, 0, 1, (GameSaveData_unk*)m562C.mPtr->mData, 0x12, 0);
         }
     } else if (m10D8 != 0) {
         m10D8->MeltTask();

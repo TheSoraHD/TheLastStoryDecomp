@@ -46,7 +46,6 @@ namespace atn {
 struct Camera;
 }
 typedef atn::Camera Camera_unk;
-extern "C" void fn_803E2A30(void* draw, int kind, int alpha, atn::Vector3 pos, int a, int b);
 // inferred: player manager
 struct PlayerManager_unk {
     unsigned char m00[0x48];
@@ -232,7 +231,7 @@ void Np131LivingArmor::vfC0(void* draw) {
             if (a < 0) {
                 a = 0;
             }
-            fn_803E2A30(draw, 2, a, screen, 1, 0);
+            static_cast<GameUI*>(draw)->fn_803E2A30(2, a, screen, 1, 0);
         }
     }
 }

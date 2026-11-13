@@ -10,6 +10,7 @@
 #include "atn/Scene.h"
 #include "atn/EffectParams_unk.h"
 #include "math/VecAssign_unk.h"
+#include "atn/EffectVertex_unk.h"
 
 using atn::Vector3;
 
@@ -717,6 +718,339 @@ EffectSlot_unk* fn_8022DA70(EffectSystem_unk* system, void* owner, EffectInst_un
     }
     slot->m190 |= 8;
     return slot;
+}
+
+extern "C" void PSMTXRotAxisRad(Mtx m, const atn::Vector3* axis, float rad);
+// inferred: vertex buffer and draw queue of the effects (atn/EffectDesc_unk.cpp)
+extern "C" EffectVertex_unk* fn_80234C84(int count);
+extern "C" void fn_80236B84(int count, EffectVertex_unk* verts, void* a, void* b, const float* color,
+                            unsigned int flags, int useCenter, const atn::Matrix3x4* view, float f, int c);
+extern "C" void fn_80236FFC(const atn::Matrix3x4* mtx, void* model, const float* color, unsigned int flags,
+                            const float* uv, const atn::Matrix3x4* view, int arg);
+
+// inferred: rotation matrix from three angles applied in the order given (an angle of 0 is skipped;
+// the identity, the rotations and the copy are inlined in every use of fn_8022DD1C); name invented
+static inline atn::Matrix3x4 EffectRotate_unk(char a0, const float& r0, char a1, const float& r1, char a2,
+                                               const float& r2) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != r0) {
+        atn::Matrix3x4::RotateAxis_unk(m, a0, r0);
+    }
+    if (0.0f != r1) {
+        atn::Matrix3x4::RotateAxis_unk(m, a1, r1);
+    }
+    if (0.0f != r2) {
+        atn::Matrix3x4::RotateAxis_unk(m, a2, r2);
+    }
+    return m;
+}
+
+// inferred: largest length of the three axes of a matrix (name invented)
+static inline float EffectMaxScale_unk(const atn::Matrix3x4& m) {
+    Vector3 s(Vector3(m.m[0][0], m.m[1][0], m.m[2][0]).Length_unk(),
+              Vector3(m.m[0][1], m.m[1][1], m.m[2][1]).Length_unk(),
+              Vector3(m.m[0][2], m.m[1][2], m.m[2][2]).Length_unk());
+    float yz = s.y > s.z ? s.y : s.z;
+    if (s.x > yz) {
+        return s.x;
+    }
+    return s.y > s.z ? s.y : s.z;
+}
+
+// inferred: point of a fade item of a slot (name invented)
+static inline Vector3 FadePos_unk(const EffectFade_unk* f) {
+    return Vector3(f->m00, f->m04, f->m08);
+}
+
+// inferred: point of a Catmull-Rom spline between b and c (name invented)
+static inline Vector3 CatmullRom_unk(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& d, float t) {
+    float t2 = t * t;
+    float t3 = t2 * t;
+    float c0 = 2.0f * t2 - t3 - t;
+    float c2 = t + (-3.0f * t3 + 4.0f * t2);
+    float c1 = 2.0f + (3.0f * t3 - 5.0f * t2);
+    float c3 = t3 - t2;
+    return (a * c0 + b * c1 + c * c2 + d * c3) * 0.5f;
+}
+
+// NONMATCHING: 81% - frame 0x90 bytes larger (stack slots of the matrix temporaries), the angles of the
+// rotations kept in registers (the original reloads them from the slot), registers and scheduling of the
+// index arithmetic of the trail ring
+// inferred: draws a slot of an instance: culled by the camera distance (param->m25C bit 1); the
+// matrix of the slot by the mode of param->m4C (bit 0: angles of the slot, 0x200/0x400: facing the
+// camera yaw, else the billboard of the inverse view); then a model (entry type 1), a trail of the
+// fade ring with a Catmull-Rom spline (bit 17) or a quad
+extern "C" void fn_8022DD1C(EffectInst_unk* inst, EffectSlot_unk* slot, atn::Matrix3x4* view, atn::Matrix3x4* invView,
+                            atn::Scene* scene) {
+    EffectParam_unk* param = inst->mParam;
+    if ((param->m25C & 2) != 0) {
+        Vector3 d = invView->GetTrans_unk() - slot->m80;
+        if (PSVECMag(&d) > param->m260 + param->m264) {
+            return;
+        }
+    }
+    if ((inst->mFlags & 0x20) == 0x20) {
+        slot->m10 |= 0x400000;
+    } else {
+        slot->m10 &= ~0x400000;
+    }
+    if ((inst->mFlags & 0x100) == 0x100) {
+        slot->m10 |= 0x800000;
+    } else {
+        slot->m10 &= ~0x800000;
+    }
+    EffectFileEntry_unk* entry = slot->m1C;
+    EffectColor_unk color(inst->mColor.r * slot->mBC.r, inst->mColor.g * slot->mBC.g, inst->mColor.b * slot->mBC.b,
+                          inst->mColor.a * slot->mBC.a);
+    EffectUV_unk uv(slot->m28, slot->m2C, slot->m30, slot->m34);
+    float pivotU = entry->m110;
+    float pivotV = entry->m114;
+    Vector3 pos;
+    if (0.0f != param->m60) {
+        Vector3 dir = invView->GetTrans_unk() - slot->m80;
+        PSVECNormalize(&dir, &dir);
+        pos = dir * param->m60;
+        pos += slot->m80;
+    } else {
+        pos = slot->m80;
+    }
+    unsigned int flags = param->m4C;
+    int useCenter = 0;
+    if ((flags & 0x10) == 0) {
+        uv.u += uv.w;
+        uv.w = -uv.w;
+    }
+    if ((flags & 0x20) == 0) {
+        uv.v += uv.h;
+        uv.h = -uv.h;
+    }
+    atn::Matrix3x4 mtx;
+    if (flags & 1) {
+        atn::Matrix3x4 rot;
+        if (flags & 0x80000) {
+            rot = EffectRotate_unk('z', slot->mAC, 'x', slot->mA4, 'y', slot->mA8);
+        } else if (flags & 0x100000) {
+            rot = EffectRotate_unk('z', slot->mAC, 'y', slot->mA8, 'x', slot->mA4);
+        } else {
+            rot = EffectRotate_unk('y', slot->mA8, 'x', slot->mA4, 'z', slot->mAC);
+        }
+        if (param->m4C & 0x800) {
+            Vector3 dir = slot->m174;
+            dir.fn_80139F60();
+            atn::Matrix3x4 r = EffectRotate_unk('y', dir.y, 'x', dir.x, 'z', dir.z);
+            PSMTXConcat(r.m, rot.m, rot.m);
+        }
+        if (param->m240 != 0) {
+            atn::Matrix3x4 r;
+            PSMTXRotAxisRad(r.m, &slot->m184, slot->m180);
+            PSMTXConcat(r.m, rot.m, rot.m);
+        }
+        atn::Matrix3x4 t;
+        PSMTXConcat(slot->mMtx.m, rot.m, t.m);
+        pivotU = 1.0f - pivotU;
+        mtx = t;
+        mtx.fn_801479E4(pos);
+    } else if (flags & 0x200) {
+        Vector3 r(0.0f, atn::RenderManager::instance_->mCamera.mRot.y, -slot->mAC);
+        atn::Matrix3x4 rot = EffectRotate_unk('y', r.y, 'x', r.x, 'z', r.z);
+        mtx = rot;
+        mtx.fn_801479E4(pos);
+        uv.u += uv.w;
+        uv.w = -uv.w;
+        if (param->m4C & 0x40) {
+            float s = EffectMaxScale_unk(slot->mMtx);
+            Vector3 sc(s, s, s);
+            atn::Matrix3x4 sm;
+            PSMTXScale(sm.m, sc.x, sc.y, sc.z);
+            atn::Matrix3x4 t;
+            PSMTXConcat(mtx.m, sm.m, t.m);
+            mtx = t;
+        }
+    } else if (flags & 0x400) {
+        Vector3 r(0.0f, atn::RenderManager::instance_->mCamera.mRot.y, -slot->mAC);
+        atn::Matrix3x4 rot = EffectRotate_unk('y', r.y, 'x', r.x, 'z', r.z);
+        uv.u += uv.w;
+        uv.w = -uv.w;
+        atn::Matrix3x4 t;
+        PSMTXConcat(slot->mMtx.m, rot.m, t.m);
+        mtx = t;
+        mtx.fn_801479E4(pos);
+    } else if ((flags & 0x20000) == 0) {
+        mtx = *invView;
+        if (param->m4C & 0x40) {
+            float s = EffectMaxScale_unk(slot->mMtx);
+            Vector3 sc(s, s, s);
+            atn::Matrix3x4 sm;
+            PSMTXScale(sm.m, sc.x, sc.y, sc.z);
+            atn::Matrix3x4 t;
+            PSMTXConcat(mtx.m, sm.m, t.m);
+            mtx = t;
+        }
+        mtx.fn_801479E4(pos);
+        if (0.0f != slot->mAC) {
+            atn::Matrix3x4 r;
+            PSMTXRotRad(r.m, 'z', slot->mAC);
+            atn::Matrix3x4 t;
+            PSMTXConcat(mtx.m, r.m, t.m);
+            mtx = t;
+        }
+        useCenter = 1;
+        pivotU = 1.0f - pivotU;
+    }
+
+    if (entry->mType == 1) {
+        mtx.m[0][3] = 0.0f;
+        mtx.m[1][3] = 0.0f;
+        mtx.m[2][3] = 0.0f;
+        float size = entry->m134;
+        Vector3 sc(slot->mB0 * size, slot->mB4 * size, slot->mB8 * size);
+        atn::Matrix3x4 sm;
+        PSMTXScale(sm.m, sc.x, sc.y, sc.z);
+        atn::Matrix3x4 t;
+        PSMTXConcat(mtx.m, sm.m, t.m);
+        mtx = t;
+        mtx.fn_801479E4(pos);
+        fn_80236FFC(&mtx, slot->m08, &color.r, slot->m10, &slot->mDC, view, (int)scene);
+        return;
+    }
+
+    if ((param->m4C & 0x20000) == 0x20000) {
+        // trail along the fade ring of the slot
+        unsigned int n = slot->m1AC;
+        if (n <= 1) {
+            return;
+        }
+        int seg = (int)param->m11C.z > 1 ? (int)param->m11C.z : 1;
+        EffectVertex_unk* verts = fn_80234C84(seg * n * 2);
+        if (verts == 0) {
+            return;
+        }
+        int count = 0;
+        float width = 1.0f;
+        float du = uv.w / (float)(n - 1);
+        float v0 = uv.v;
+        float u = uv.u;
+        if (param->m4C & 0x40) {
+            width = EffectMaxScale_unk(slot->mMtx);
+        }
+        float v1 = v0 + uv.h;
+        Vector3 prev;
+        for (unsigned int i = 0; i < slot->m1AC; i++) {
+            unsigned int base = slot->m1B0;
+            unsigned int size = slot->m1B4;
+            EffectFade_unk* ring = slot->m1A8;
+            int i0 = (int)i - 2 > 0 ? (int)i - 2 : 0;
+            int i1 = (int)i - 1 > 0 ? (int)i - 1 : 0;
+            unsigned int i3 = i + 1 < slot->m1AC - 1 ? i + 1 : slot->m1AC - 1;
+            EffectFade_unk* f0 = &ring[(i0 + base) % size];
+            EffectFade_unk* f1 = &ring[(i1 + base) % size];
+            EffectFade_unk* f2 = &ring[(i + base) % size];
+            EffectFade_unk* f3 = &ring[(i3 + base) % size];
+            prev = FadePos_unk(f1);
+            for (int j = 0; j < seg; j++) {
+                float t = (float)(j + 1) / (float)seg;
+                if (i == 0) {
+                    t = 1.0f;
+                }
+                Vector3 p;
+                float w;
+                float angle;
+                if (1.0f == t) {
+                    p = FadePos_unk(f2);
+                    w = f2->m10;
+                    angle = f2->m0C;
+                } else {
+                    p = CatmullRom_unk(FadePos_unk(f0), FadePos_unk(f1), FadePos_unk(f2), FadePos_unk(f3), t);
+                    w = t * (f2->m10 - f1->m10) + f1->m10;
+                    angle = t * (f2->m0C - f1->m0C) + f1->m0C;
+                }
+                w *= width;
+                Vector3 side;
+                if (i == 0) {
+                    side = FadePos_unk(f3) - p;
+                } else {
+                    side = p - prev;
+                }
+                prev = p;
+                if (param->m4C & 1) {
+                    Vector3 axis = side;
+                    Vector3 up(0.0f, 1.0f, 0.0f);
+                    Vector3 c;
+                    PSVECCrossProduct(&side, &up, &c);
+                    side = c;
+                    if (!(0.0f == axis.x && 0.0f == axis.y && 0.0f == axis.z)) {
+                        atn::Matrix3x4 r;
+                        PSMTXRotAxisRad(r.m, &axis, angle);
+                        PSMTXMultVec(r.m, &side, &side);
+                    }
+                } else {
+                    Vector3 axis = invView->GetTrans_unk() - p;
+                    Vector3 c;
+                    PSVECCrossProduct(&axis, &side, &c);
+                    side = c;
+                }
+                if (PSVECSquareMag(&side) > 0.0f) {
+                    PSVECNormalize(&side, &side);
+                }
+                EffectVertex_unk* v = &verts[count];
+                float vu = u - du * (1.0f - t);
+                count += 2;
+                v[0].mPos.x = w * side.x + p.x;
+                v[0].mPos.y = w * side.y + p.y;
+                v[0].mPos.z = w * side.z + p.z;
+                v[1].mPos.x = -w * side.x + p.x;
+                v[1].mPos.y = -w * side.y + p.y;
+                v[1].mPos.z = -w * side.z + p.z;
+                v[0].u = vu;
+                v[0].v = v1;
+                v[1].u = vu;
+                v[1].v = v0;
+                if (i == 0) {
+                    break;
+                }
+            }
+            u += du;
+        }
+        fn_80236B84(count, verts, slot->m08, (void*)slot->m0C, &color.r, slot->m10, 1, view, param->m68, (int)scene);
+        return;
+    }
+
+    // quad
+    EffectVertex_unk* verts = fn_80234C84(4);
+    if (verts == 0) {
+        return;
+    }
+    float size = entry->m134;
+    float pu = pivotU * size;
+    float pv = pivotV * size;
+    verts[0].mPos.x = -slot->mB0 * (size - pu);
+    verts[0].mPos.y = slot->mB4 * pv;
+    verts[0].mPos.z = 0.0f;
+    verts[1].mPos.x = -slot->mB0 * (entry->m134 - pu);
+    verts[1].mPos.y = -slot->mB4 * (entry->m134 - pv);
+    verts[1].mPos.z = 0.0f;
+    verts[2].mPos.x = slot->mB0 * pu;
+    verts[2].mPos.y = slot->mB4 * pv;
+    verts[2].mPos.z = 0.0f;
+    verts[3].mPos.x = slot->mB0 * pu;
+    verts[3].mPos.y = -slot->mB4 * (entry->m134 - pv);
+    verts[3].mPos.z = 0.0f;
+    float u1 = uv.u + uv.w;
+    float v1 = uv.v + uv.h;
+    verts[0].u = u1;
+    verts[0].v = v1;
+    verts[1].u = u1;
+    verts[1].v = uv.v;
+    verts[2].u = uv.u;
+    verts[2].v = v1;
+    verts[3].u = uv.u;
+    verts[3].v = uv.v;
+    PSMTXMultVec(mtx.m, &verts[0].mPos, &verts[0].mPos);
+    PSMTXMultVec(mtx.m, &verts[1].mPos, &verts[1].mPos);
+    PSMTXMultVec(mtx.m, &verts[2].mPos, &verts[2].mPos);
+    PSMTXMultVec(mtx.m, &verts[3].mPos, &verts[3].mPos);
+    fn_80236B84(4, verts, slot->m08, (void*)slot->m0C, &color.r, slot->m10, useCenter, view, param->m68, (int)scene);
 }
 
 // inferred: owner and group of a particle (name invented)

@@ -204,7 +204,8 @@ int fn_8001B5B4(atn::Vector3 pos, int arg);
 int fn_8001BA88(CharaTask* chara, int point, int a, int b, float c, float d, float e); // inferred: route point search
 extern double lbl_8072FF68;
 extern unsigned char lbl_807C6B78[];
-extern unsigned char lbl_807C6B84[];
+struct AIScriptMap_unk;
+extern AIScriptMap_unk lbl_807C6B84; // inferred: the script map (see AIScriptMap_unk)
 extern unsigned char lbl_8087D6F0;
 extern unsigned char lbl_8087D6F1;
 void __register_global_object(void* object, void (*destructor)(void*, int), void* dso);
@@ -256,7 +257,7 @@ int fn_8003DBA4();
 int fn_8003D6E8();
 void fn_8001C284();
 void fn_8001E730();
-void* fn_8001EA18(void*);
+void* fn_8001EA18(const char* name);
 AiInput_unk* fn_8001C260();
 AiOutput_unk* fn_8001C26C();
 AiTargets_unk* fn_8001C278();
@@ -1420,7 +1421,7 @@ extern "C" void fn_8001C088();
 extern "C" void fn_8001C1C0(unsigned char* script);
 
 // inferred: this global sentinel is registered with the destructor for its three linked buckets.
-extern "C" void fn_8003E6B8(void* object, int freeObject);
+extern "C" void* fn_8003E6B8(void* object, int freeObject);
 extern "C" void fn_8003E688();
 
 // inferred: three-word MSL string header; the high bit selects the heap-buffer representation.
@@ -1450,8 +1451,89 @@ struct AIScriptMapNode_unk {
     void SetParent(AIScriptMapNode_unk* parent) { mParentColor = (unsigned long)parent | (mParentColor & 1); }
 };
 
+// inferred: the script map (std::map<std::string, factory>, MSL <tree>) at 0x807C6B84: size, root (the
+// end node is at &mRoot) and first node, as ScriptTreeData_unk of game/GameEventScript.h; the nodes are
+// freed by the recursive Destroy_unk (0x8003DEE0)
+struct AIScriptMap_unk {
+    ~AIScriptMap_unk() {
+        if (mRoot != 0) {
+            Destroy_unk(mRoot);
+        }
+    }
+
+    unsigned long mSize;
+    AIScriptMapNode_unk* mRoot;
+    AIScriptMapNode_unk* mFirst;
+
+    AIScriptMapNode_unk* End_unk() { return (AIScriptMapNode_unk*)&mRoot; }
+    AIScriptMapNode_unk* InsertNode_unk(AIScriptMapNode_unk* parent, bool left, bool leftmost,
+                                        const AIScriptMapValue_unk& value); // 0x8003DD50
+    void Destroy_unk(AIScriptMapNode_unk* node);                            // 0x8003DEE0
+    // inferred: MSL __tree::find (lower bound, then the key test), inlined in fn_8001EA18
+    AIScriptMapNode_unk* Find_unk(const std::string& key) {
+        AIScriptMapNode_unk* result = End_unk();
+        AIScriptMapNode_unk* x = mRoot;
+        while (x != 0) {
+            if (x->mValue.first.compare(key) >= 0) {
+                result = x;
+                x = x->mLeft;
+            } else {
+                x = x->mRight;
+            }
+        }
+        if (result == End_unk() || key.compare(result->mValue.first) < 0) {
+            result = End_unk();
+        }
+        return result;
+    }
+    static AIScriptMapNode_unk* Allocate_unk() {
+        AIScriptMapNode_unk* p = (AIScriptMapNode_unk*)::operator new(sizeof(AIScriptMapNode_unk));
+        if (p == 0) {
+            __msl_error("Memory allocation failure");
+        }
+        return p;
+    }
+    // inferred: frees the node if the construction does not finish (as ScriptTreeData_unk::NodeHolder_unk)
+    struct NodeHolder_unk {
+        NodeHolder_unk(void* alloc, AIScriptMapNode_unk* node) : mAlloc(alloc), mNode(node) {}
+        ~NodeHolder_unk() {
+            if (mNode != 0) {
+                operator delete(mNode);
+            }
+        }
+        AIScriptMapNode_unk* release() {
+            AIScriptMapNode_unk* node = mNode;
+            mNode = 0;
+            return node;
+        }
+        void* mAlloc;
+        AIScriptMapNode_unk* mNode;
+    };
+    // inferred: MSL __tree::clear (inlined in fn_8001E730)
+    void clear() {
+        if (mRoot != 0) {
+            Destroy_unk(mRoot);
+            mSize = 0;
+            mRoot = 0;
+            mFirst = End_unk();
+        }
+    }
+};
+
+// inferred: the layers of std::map over the tree (the destructor 0x8003E6B8 tests the object five times: once
+// for the delete and once per layer, as the ScriptTree layers of game/GameEventScript.h)
+struct AIScriptMapL3_unk : public AIScriptMap_unk {
+    ~AIScriptMapL3_unk() {}
+};
+struct AIScriptMapL2_unk : public AIScriptMapL3_unk {
+    ~AIScriptMapL2_unk() {}
+};
+struct AIScriptMapL1_unk : public AIScriptMapL2_unk {
+    ~AIScriptMapL1_unk() {}
+};
+
 extern "C" int memcmp(const void*, const void*, unsigned long);
-extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, unsigned char* insertLeft, unsigned char* insertFirst);
+extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key, AIScriptMapNode_unk** parent, bool* insertLeft, bool* insertFirst);
 
 void operator delete(void* ptr);
 extern "C" void* fn_8001E168(AIString_unk* str, int freeObject);
@@ -1463,11 +1545,7 @@ struct AIStringWithAllocator_unk {
 };
 extern "C" AIStringWithAllocator_unk* fn_8001E0B8(AIStringWithAllocator_unk* dst, const AIStringWithAllocator_unk* src, const unsigned int* allocator);
 
-extern "C" AIScriptMapNode_unk* fn_8003DD50(void* tree,
-                                             AIScriptMapNode_unk* candidate,
-                                             unsigned char insertLeft,
-                                             unsigned char insertFirst,
-                                             const AIStringWithAllocator_unk* key);
+
 extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value);
 extern "C" void fn_8001C068(CharaTask* chara, const char* name);
 
@@ -1517,7 +1595,7 @@ extern "C" void fn_8001C1BC() {}
 // inferred: applies the selected script's two indexed parameter values to global state.
 extern "C" void fn_8001C1C0(unsigned char* script) {
     fn_8001C088();
-    unsigned char* result = (unsigned char*)fn_8001EA18(script);
+    unsigned char* result = (unsigned char*)fn_8001EA18((const char*)script);
     if (result != 0) {
         AiInput_unk* in = fn_8001C260();
         AiOutput_unk* out = fn_8001C26C();
@@ -1559,7 +1637,7 @@ extern "C" void fn_8001C284() {
         std::string key(NAME); \
         objects[I] = new ((MemoryTag)3, "", "", 0) AI::Script::CLASS(); \
         fn_8001E0B8(&values[I], (const AIStringWithAllocator_unk*)&key, (const unsigned int*)&objects[I]); \
-        fn_8001E1D0(pairs[I], lbl_807C6B84, &values[I]); \
+        fn_8001E1D0(pairs[I], &lbl_807C6B84, &values[I]); \
         fn_8001E168(&values[I].mString, -1); \
     } while (0)
     REGISTER_AI_SCRIPT(0, "archer_attack01", AI_archer_attack01);
@@ -1671,51 +1749,31 @@ extern "C" void* fn_8001E168(AIString_unk* str, int freeObject) {
     return str;
 }
 
-// NONMATCHING: 47.60% - the tree insertion helper still has a different stack and register layout.
-// inferred: returns the inserted/existing node and a flag in the caller-provided 8-byte pair.
-extern "C" void fn_8001E1D0(void* result, void* tree,
-                             const AIStringWithAllocator_unk* value) {
-    AIScriptMapNode_unk* parent = 0;
-    unsigned char insertLeft = 1;
-    unsigned char insertFirst = 1;
-    AIScriptMapNode_unk* candidate = fn_8003E530(
-        tree, &value->mString, &parent, &insertLeft, &insertFirst);
+// NONMATCHING: 94.07% - the predecessor is at 0x0C of the frame (0x1C here, after the temporaries of the
+// inlined compare) and its register is swapped with the insert position
+// inferred: std::map::insert(value) on the script map: the insert position, then a new node unless the
+// predecessor has the same key; the result is the pair<iterator, bool> (the two flags are constants of
+// .sdata)
+struct AIScriptInsertResult_unk {
+    AIScriptMapNode_unk* first;
+    bool second;
+};
 
-    bool insert = parent == 0;
-    if (parent != 0) {
-        const AIString_unk* key = &value->mString;
-        const AIString_unk* existing = (const AIString_unk*)&parent->mValue.first;
-        unsigned int keySize = (key->mFlags >> 31) != 0
-                                   ? key->mSize
-                                   : (*(const unsigned char*)key & 0x7F);
-        const char* keyData = (key->mFlags >> 31) != 0
-                                  ? key->mData
-                                  : (const char*)key + 1;
-        unsigned int existingSize = (existing->mFlags >> 31) != 0
-                                        ? existing->mSize
-                                        : (*(const unsigned char*)existing & 0x7F);
-        const char* existingData = (existing->mFlags >> 31) != 0
-                                       ? existing->mData
-                                       : (const char*)existing + 1;
-        unsigned int commonSize = keySize < existingSize ? keySize : existingSize;
-        int cmp = memcmp(keyData, existingData, commonSize);
-        if (cmp == 0) {
-            cmp = keySize < existingSize ? -1 : (keySize == existingSize ? 0 : 1);
-        }
-        insert = cmp < 0;
-    }
-
-    AIScriptMapNode_unk* node;
-    unsigned char flag;
-    if (insert) {
-        node = fn_8003DD50(tree, candidate, insertLeft, insertFirst, value);
-        flag = lbl_8087D6F0;
+extern "C" void fn_8001E1D0(void* result, void* tree, const AIStringWithAllocator_unk* value) {
+    const AIScriptMapValue_unk& v = *(const AIScriptMapValue_unk*)value;
+    AIScriptMapNode_unk* pred;
+    bool leftmost;
+    bool left;
+    AIScriptMapNode_unk* parent = fn_8003E530(tree, &value->mString, &pred, &left, &leftmost);
+    AIScriptInsertResult_unk r;
+    if (pred == 0 || pred->mValue.first.compare(v.first) < 0) {
+        r.first = ((AIScriptMap_unk*)tree)->InsertNode_unk(parent, left, leftmost, v);
+        r.second = lbl_8087D6F0;
     } else {
-        node = parent;
-        flag = lbl_8087D6F1;
+        r.first = pred;
+        r.second = lbl_8087D6F1;
     }
-    *(AIScriptMapNode_unk**)result = node;
-    *((unsigned char*)result + 4) = flag;
+    *(AIScriptInsertResult_unk*)result = r;
 }
 
 namespace AI {
@@ -1849,6 +1907,39 @@ AI_sword_pointguard01::AI_sword_pointguard01() {} // 0x8001E710
 AI_return_guard01::AI_return_guard01() {} // 0x8001E720
 } // namespace Script
 } // namespace AI
+
+// NONMATCHING: 93.82% - the address of the map is kept in r30 (the original loads it again with lis/addi
+// after the loop and for each call) and one more saved register
+// inferred: empties the script map: deletes the factories in key order, then the nodes
+extern "C" void fn_8001E730() {
+    for (AIScriptMapNode_unk* x = lbl_807C6B84.mFirst; x != lbl_807C6B84.End_unk();) {
+        operator delete(x->mValue.second);
+        if (x->mRight != 0) {
+            AIScriptMapNode_unk* y = x->mRight;
+            while (y->mLeft != 0) {
+                y = y->mLeft;
+            }
+            x = y;
+        } else {
+            AIScriptMapNode_unk* p;
+            while (x != (p = x->Parent())->mLeft) {
+                x = p;
+            }
+            x = p;
+        }
+    }
+    lbl_807C6B84.clear();
+}
+
+// inferred: called with bl by fn_8001C1C0 (MWCC would inline it: noinline as in fn_8003DBA4)
+// NONMATCHING: 88.02% - the key size and data are loaded once before the search loop (the original reads
+// them again for every node and saves four registers instead of seven)
+// inferred: std::map<std::string, factory>::find on the script map (0x807C6B84, end node at +0x04 whose
+// left link is the root): the factory of the named script, 0 if there is none
+extern "C" __declspec(noinline) void* fn_8001EA18(const char* name) {
+    AIScriptMapNode_unk* it = lbl_807C6B84.Find_unk(std::string(name));
+    return it != lbl_807C6B84.End_unk() ? it->mValue.second : 0;
+}
 
 extern "C" int fn_8001ECD0(void* object, int type) {
     AIValue_unk* value = (AIValue_unk*)object;
@@ -10300,7 +10391,52 @@ extern "C" __declspec(noinline) int fn_8003DBA4() {
     return 6;
 }
 
-// NONMATCHING: 88.17% - the loop setup and register allocation differ from the tree-search body.
+// NONMATCHING: 99.05% - the pool string is addressed as base + 0x454 in the original (one more addi) and
+// the stack slots of the iterator tag copy are swapped (as in game/GameEventScript)
+// inferred: MSL __tree::insert_node (as ScriptTreeData_unk::InsertNode_unk of game/GameEventScript.h); the
+// length error message is in the string pool of the unit (+0x454, see the note on em_scout)
+AIScriptMapNode_unk* AIScriptMap_unk::InsertNode_unk(AIScriptMapNode_unk* parent, bool left, bool leftmost,
+                                                     const AIScriptMapValue_unk& value) {
+    if (mSize == 0xFFFFFFFF) {
+        __msl_error((const char*)(lbl_807307A0 + 0x454)); // "tree::insert length error"
+    }
+    NodeHolder_unk holder(&mRoot, Allocate_unk());
+    ::new (&holder.mNode->mValue) AIScriptMapValue_unk(value);
+    AIScriptMapNode_unk* node = holder.release();
+    node->mRight = 0;
+    node->mLeft = 0;
+    ::new (&node->mParentColor) unsigned long((unsigned long)parent);
+    if (left) {
+        parent->mLeft = node;
+    } else {
+        parent->mRight = node;
+    }
+    mSize++;
+    std::__red_black_tree_void::balance_insert((std::__tree_node_base_void*)node, (std::__tree_node_base_void*)mRoot);
+    if (leftmost) {
+        mFirst = node;
+    }
+    return node;
+}
+
+// inferred: frees a subtree; the release asserts of the parents are evaluated (as
+// AudioMap_unk::Destroy of atn/AudioDevice.cpp: without them MWCC expands three levels)
+void AIScriptMap_unk::Destroy_unk(AIScriptMapNode_unk* node) {
+    if (node->mLeft != 0) {
+        (void)((AIScriptMapNode_unk*)node->mLeft->mParentColor == node);
+        Destroy_unk(node->mLeft);
+    }
+    if (node->mRight != 0) {
+        (void)((AIScriptMapNode_unk*)node->mRight->mParentColor == node);
+        Destroy_unk(node->mRight);
+    }
+    // inferred: allocator destroy and deallocate (no null test of the node)
+    (&node->mValue)->~AIScriptMapValue_unk();
+    operator delete(node);
+}
+
+// NONMATCHING: 92.93% - stack slots of the size temporaries of the inlined basic_string::compare
+// (std/string.h) differ (12/8 here, 16/20 in the original)
 // inferred: finds the insertion position for a string key and returns the last visited node.
 namespace std {
 
@@ -10353,27 +10489,16 @@ template void __red_black_tree<__tree_node_base_void*>::balance_insert(__tree_no
 
 extern "C" AIScriptMapNode_unk* fn_8003E530(void* tree, const AIString_unk* key,
                                             AIScriptMapNode_unk** parent,
-                                            unsigned char* insertLeft,
-                                            unsigned char* insertFirst) {
-    AIScriptMapNode_unk* node = *(AIScriptMapNode_unk**)((unsigned char*)tree + 4);
-    AIScriptMapNode_unk* candidate = (AIScriptMapNode_unk*)((unsigned char*)tree + 4);
+                                            bool* insertLeft,
+                                            bool* insertFirst) {
+    AIScriptMapNode_unk* candidate = ((AIScriptMap_unk*)tree)->End_unk();
     *parent = 0;
+    AIScriptMapNode_unk* node = ((AIScriptMap_unk*)tree)->mRoot;
     *insertLeft = 1;
     *insertFirst = 1;
     while (node != 0) {
         candidate = node;
-        AIString_unk* nodeKey = (AIString_unk*)&node->mValue.first;
-        unsigned int nodeSize;
-        const char* nodeData;
-        if ((nodeKey->mFlags >> 31) == 0) {
-            nodeSize = *(unsigned char*)nodeKey & 0x7F;
-            nodeData = (const char*)nodeKey + 1;
-        } else {
-            nodeSize = nodeKey->mSize;
-            nodeData = nodeKey->mData;
-        }
-        std::string* keyString = (std::string*)key;
-        int cmp = keyString->compare(0, keyString->size(), nodeData, nodeSize);
+        int cmp = ((const std::string*)key)->compare(node->mValue.first);
         if (cmp < 0) {
             node = node->mLeft;
             *insertLeft = 1;
@@ -10393,9 +10518,22 @@ extern "C" void fn_8003E688() {
         void* last;
         void* end;
     };
-    ListHead_unk* head = (ListHead_unk*)lbl_807C6B84;
+    ListHead_unk* head = (ListHead_unk*)&lbl_807C6B84;
     head->first = 0;
     head->last = 0;
     head->end = &head->last;
-    __register_global_object(head, fn_8003E6B8, lbl_807C6B78);
+    __register_global_object(head, (void (*)(void*, int))fn_8003E6B8, lbl_807C6B78);
+}
+
+// inferred: the destructor of the script map registered by fn_8003E688 (the deleting destructor of the
+// std::map layers; written here because the registration above is written by hand: a global object
+// gives the same code but addresses the first store through the symbol, 67.5% for fn_8003E688)
+extern "C" void* fn_8003E6B8(void* object, int freeObject) {
+    if (object != 0) {
+        ((AIScriptMapL1_unk*)object)->~AIScriptMapL1_unk();
+        if (freeObject > 0) {
+            operator delete(object);
+        }
+    }
+    return object;
 }

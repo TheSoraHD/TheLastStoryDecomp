@@ -7,6 +7,7 @@
 #include "game/BattleCalc_unk.h"
 #include "game/HomingBullet.h"
 #include "atn/Model_unk.h"
+#include "game/ResHandle.h"
 
 class CharaTask;
 struct ColorF_unk;
@@ -111,6 +112,24 @@ struct BattleMarkers_unk {
 };
 
 // inferred: entry of BattleTask::mStuns (0xC bytes): character with a timed effect (groups 0x3E9/0x3EA)
+// inferred: debug record of a bullet hit test (0x28 bytes; ring of 32 in BattleTask, filled by fn_800FAB80
+// when enabled); names invented
+struct BattleShot_unk {
+    int mKind;          // inferred: 1 = bullet
+    HitInfo_unk* mData;
+    atn::Vector3 mPos;
+    atn::Vector3 mDir;
+    float mRadius;
+    int m24;
+};
+struct BattleShots_unk {
+    void Push_unk(const BattleShot_unk&); // inferred: inline, defined in game/BattleTask.cpp
+    unsigned int mCount;
+    BattleShot_unk mItems[32];
+    unsigned int mHead; // inferred: index of the oldest record
+    int mEnabled;
+};
+
 struct BattleStun_unk {
     CharaTask* mChara;
     int mTimer;   // inferred: frames left
@@ -156,8 +175,14 @@ public:
     // inferred: start (model, group) and stop (character, group) of the battle effects; the stop
     // functions call fn_80239DAC with the effect group of the start
     void fn_800FDE60(int effect, CharaTask* chara, const atn::Vector3& dir); // inferred: starts an attack effect
-    void fn_800FDF14(BattleCalcParam_unk* param);
-    void fn_80100BC0();          // inferred: stops the effects (fn_801055A8 and effect group 5)
+    int fn_800FDF14(BattleCalcParam_unk* param); // inferred: returns the result of the hit (fn_800FD658)
+    // inferred: hit sphere of `chara` nearest to the position (-1: none or the hit does not reach it); game/Bullet
+    int fn_800FC1D0(CharaTask*, CharaTask*, HitInfo_unk*, int, const atn::Vector3*, int, int);
+    // inferred: stops the effects (fn_801055A8 and effect group 5); callback of the debug menu (fn_80100BF0)
+    static void fn_80100BC0(void*, void*);
+    void fn_80100BF0(); // inferred: debug menu "Battle" (called by the constructor)
+    void fn_801018E4(BattleCalcParam_unk*); // inferred: hit effect of the attack parameters
+    void fn_80101CDC(BattleCalcParam_unk*); // inferred: hit sound of the attack parameters
     void fn_800F72F4(class BattleCharaTask* chara, int arg); // inferred: draws the target line of `chara`
     void fn_801055A8(int arg);
     // inferred: plays the battle effect `id` (fn_800EFBC4) / skill effect (fn_800EFDA0) after stopping the group
@@ -167,6 +192,7 @@ public:
                      const atn::Vector3* rot, const EffectColor_unk* color, float scale);
     // inferred: chant effect (CharaTask::fn_80145334): shown at pos (restarted when `changed`)
     void fn_8010743C(const atn::Vector3* pos, int changed, float f);
+    void fn_8010C3E4(); // inferred: updates the hate table m391E0
     CharaTask* fn_8010C948(CharaTask* chara); // inferred: the character `chara` hates most
     void fn_80105DCC(CharaTask* chara, atn::Model* model, int level); // inferred: charge effect of the level
     Bullet* fn_801010A0();       // inferred: free bullet
@@ -183,6 +209,7 @@ public:
     void fn_801031D0(CharaTask* chara, CharaTask* other, int all); // inferred: removes the hate entries of `other`
     void fn_8010337C(CharaTask* chara, CharaTask* other);
     int fn_80103484(CharaTask* chara, CharaTask* other); // inferred: hate toward `other` (average without `chara`) // inferred: clears m6E4 of `other`
+    int fn_80103B58(CharaTask*, CharaTask*, int); // inferred: `chara` may aim at `target`
     void fn_80103E60(CharaTask* target); // inferred: counts the characters aiming at `target`
     void fn_801027A4(CharaTask* chara);
     void fn_801028E4(CharaTask* chara, CharaTask* other, int value); // inferred: sets m08 of `other` (hate) // inferred: adds the character to mCharas
@@ -259,6 +286,7 @@ public:
     void fn_8010AB34();
     void fn_8010AB94();
     int fn_8010B180(CharaTask* a, CharaTask* b); // inferred: the two characters can reach each other (AI areas)
+    int fn_8010B398(BattleCalcParam_unk*); // inferred: status effects of the hit (nonzero if one is shown)
     float fn_8010CA24();
     float fn_8010CA2C();
     float fn_8010CA34();
@@ -277,35 +305,63 @@ public:
     HomingBullet mHomings[32];    // 0xA150: inferred: homing bullet pool
     BetoModel mSlots[8];           // 0xBA50: inferred: characters with an active battle effect
     atn::D2A_Task* mCB30;          // inferred: d2anime task (made by fn_800F39A4)
-    unsigned char mCB34[0xCB60 - 0xCB34];
+    int mCB34;                 // inferred: the reticle was updated this frame (fn_8010220C)
+    atn::Vector2_unk mCB38;    // inferred: stick offset of the reticle
+    atn::Vector2_unk mCB40;    // inferred: previous mCB38
+    atn::Vector2_unk mCB48;    // inferred: center of the reticle (moves toward mCB50)
+    atn::Vector2_unk mCB50;    // inferred: target of the center
+    int mCB58;                     // inferred: set by fn_8010D320 (aim direction valid)
+    unsigned char mCB5C[0xCB60 - 0xCB5C];
     atn::D2A_Task* mCB60;          // inferred: d2anime task (made by fn_800F39A4; may be null)
-    unsigned char mCB64[0xCBAC - 0xCB64];
+    unsigned char mCB64[0xCB70 - 0xCB64];
+    atn::Vector3 mCB70;            // inferred: screen direction to the aimed position (fn_8010D320)
+    unsigned char mCB7C[0xCBAC - 0xCB7C]; // inferred: atn::Texture (raw storage, see BattleMarkers_unk)
     int mCBAC;
     unsigned char mCBB0[0xCBF0 - 0xCBB0];
     BattleChara_unk mCharas[0x48]; // 0xCBF0: inferred: characters known to the battle (CharaTask::fn_80176E30)
-    unsigned char m36290[0x363B0 - 0x36290];
+    int m36290[72]; // inferred: times each entry of mCharas was chosen as a target (fn_80103600)
     int mCharaCount;               // 0x363B0
     unsigned char m363B4[0x363BC - 0x363B4];
     int m363BC;
-    atn::EfpFile mEfp363C0[26];  // 0x363C0: inferred: battle effects (EFP files)
-    atn::EfpFile mSplashEfp[3];  // 0x364F8: inferred: splashes on water (fn_8010A308; loaded by fn_800F39A4)
-    atn::EfpFile mEfp3651C[17];  // 0x3651C: inferred: battle effects (EFP files)
-    unsigned char m365E8[0x3663C - 0x365E8];
+    // inferred: battle effects; the atn::EffFile members (released with EffFile::Destroy by fn_800F3170) are raw
+    // storage for the reason given at BattleMarkers_unk
+    atn::EfpFile mEfp363C0[4];        // 0x363C0
+    unsigned char mHitEff[3][7][0xC]; // 0x363F0: inferred: atn::EffFile, hit effects [level - 1][kind] (fn_80101434)
+    atn::EfpFile mEfp364EC;           // 0x364EC
+    atn::EfpFile mSplashEfp[3];       // 0x364F8: inferred: splashes on water (fn_8010A308; loaded by fn_800F39A4)
+    unsigned char mEff3651C[5][0xC]; // 0x3651C: inferred: atn::EffFile, hit per level
+    unsigned char mEff36558[5][0xC]; // 0x36558: inferred: atn::EffFile, strong hit or guard per level
+    unsigned char mEff36594[3][0xC]; // 0x36594: inferred: atn::EffFile, status effects (poison, curse, 0x40)
+    atn::EfpFile mEfp365B8[4];        // 0x365B8: inferred: [0]/[1] stone (fn_80101524), [2]/[3]
+    atn::EfpFile mEfp365E8[7];        // 0x365E8
     atn::EfpFile mEfp3663C[31]; // 0x3663C: inferred: palette effects (ef_<palette>.efp, fn_800F39A4)
-    int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change
-    unsigned char m367B4[0x367B8 - 0x367B4];
+    int m367B0; // inferred: copied from GameTask::m5618 at the end of a map change; debug "DrawHateArrow"
+    int m367B4; // inferred: debug "DrawHateNumber"
     BattleMarkers_unk mMarkers; // 0x367B8: inferred: target lines
-    int m389F4; // inferred: owner tag of the chant effect (its address is the effect owner)
-    unsigned char m389F8[0x38A04 - 0x389F8];
+    unsigned char m389F4[0xC]; // inferred: atn::EffFile of the chant effect (raw storage; its address is the owner tag)
+    int m38A00; // inferred: nonzero draws the target lines of every friend (fn_801055A8)
     float m38A04; // inferred: gauge value, clamped to [0, m38A0C]
-    float m38A08;
-    float m38A0C; // inferred: gauge maximum
-    unsigned char m38A10[0x38A28 - 0x38A10];
+    int m38A08;   // inferred: debug "DebugMode" of the morale
+    float m38A0C; // inferred: gauge maximum ("Max")
+    float m38A10; // inferred: "DownSpeed"
+    float m38A14; // inferred: "SwordAttack"
+    float m38A18; // inferred: gauge gained by a bullet hit of a player (fn_800FDB20)
+    float m38A1C; // inferred: gauge gained by a hit of a player (fn_800FB4B0)
+    float m38A20; // inferred: "Defeat"
+    float m38A24; // inferred: "Damage"
     float m38A28; // inferred: gauge increments
     float m38A2C;
-    unsigned char m38A30[0x38A48 - 0x38A30];
+    float m38A30; // inferred: "WaitMin"
+    float m38A34; // inferred: "WaitMax"
+    float m38A38; // inferred: rate of m38A1C for the characters with mFlag28
+    float m38A3C; // inferred: "HateDownBoost"
+    float m38A40; // inferred: "EnemyRatio"
+    float m38A44; // inferred: tension "Attack"
     float m38A48; // inferred: gauge gained by a magic
-    unsigned char m38A4C[0x38A5C - 0x38A4C];
+    float m38A4C; // inferred: tension "Defeat"
+    float m38A50; // inferred: tension "Damage"
+    float m38A54; // inferred: tension "Boss"
+    ResHandle m38A58; // inferred: debug folder "Battle" (fn_80100BF0; released by the destructor)
     BattleCalcParam_unk m38A5C; // inferred: parameters of the current attack
     atn::EfpFile mEfp38AF4[32];  // 0x38AF4: inferred: status and magic effects (EFP files)
     unsigned char m38C74[0x38C90 - 0x38C74];
@@ -314,7 +370,7 @@ public:
     BattleSel_unk m38CB8;
     int m38CCC; // inferred: result of the comparison of the totals (1, 3; 2 when GameTask::fn_80375184 fails)
     int m38CD0; // inferred: previous m38CCC
-    unsigned char m38CD4[0x391E0 - 0x38CD4];
+    BattleShots_unk mShots; // 0x38CD4
     int m391E0[0x48][0x48]; // inferred: hate of each character toward each other (fn_8010C948)
     int m3E2E0; // inferred: character under the cursor
     CharaTask* m3E2E4; // inferred: object under the cursor
@@ -329,10 +385,14 @@ public:
     unsigned int mStunCount;       // 0x3E314: inferred: entries of mStuns (cleared by fn_800F3D28)
     BattleStun_unk mStuns[4];      // 0x3E318: inferred: characters with a timed effect (fn_8010A868)
     atn::EfpFile mStunEfp[2][3];   // 0x3E348: inferred: [enemy of the player][-, loop, end] effects
-    unsigned char m3E390[0x3E398 - 0x3E390];
+    int m3E390; // inferred: debug "DrawPick"
+    int m3E394; // inferred: the battle effects are loaded (cleared by fn_800F3170)
     CharaTask* m3E398; // inferred: user of the bullet being made (set around fn_800FAB80 by fn_800FBA30)
     int m3E39C; // inferred: set while the event script makes a bullet (GameEventScript::fn_803A4A7C)
-    unsigned char m3E3A0[0x3E3B0 - 0x3E3A0]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
+    float m3E3A0; // inferred: debug "ReticleBlur"
+    float m3E3A4; // inferred: debug "ReticleCenterLerp"
+    float m3E3A8; // inferred: debug "ReticleCenterOfs"
+    unsigned char m3E3AC[0x3E3B0 - 0x3E3AC]; // inferred: size 0x3E3B0 (new of fn_800F13BC)
 };
 
 #endif

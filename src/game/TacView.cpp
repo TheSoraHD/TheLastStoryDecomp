@@ -518,6 +518,217 @@ void TacView::fn_805AB828(int mode) {
     }
 }
 
+extern "C" HitInfo_unk* fn_80219344(CharaTask* chara); // inferred: default skill of the character
+
+// inferred: the gauge of `chara` is full (players only check the ratio; nonzero 0x4 state never) (name invented)
+inline bool IsGaugeFull_unk(CharaTask* chara) {
+    bool full = false;
+    if ((chara->mStatus.m0C & 4) != 4) {
+        bool ok = true;
+        if (chara->mType == 0) {
+            float rate = chara->mStatus.mParamB.m88 > 0 ? chara->mStatus.m08 / (float)chara->mStatus.mParamB.m88 : 0.0f;
+            if (!((float)__fabs(rate - 1.0f) < 1.1920929e-7f)) {
+                ok = false;
+            }
+        }
+        if (ok) {
+            full = true;
+        }
+    }
+    return full;
+}
+
+// inferred: commands of the character under the cursor (m54): kinds m64, sub kinds m74, icons m84 and enabled
+// flags m50 by the party member kind (or by the kind of the character data), the "special" command m64[3]
+// (9 while an enemy is in state 0x22) and the skill of each command
+// NONMATCHING: 97.1% - register allocation (r28/r29) and the order of some stores of the cases; the slot loop
+void TacView::fn_805ABE74() {
+    if (m48.mState != 0) {
+        return;
+    }
+    CharaTask* chara = m48.m04;
+    if (chara->mType == 2) {
+        return;
+    }
+    m54.fn_805AE188();
+    int kind = fn_80219558(chara->m50);
+    if (0 <= kind && kind < 7) {
+        m54.m64[0] = 5;
+        m54.m74[0] = chara->mStatus.m2CC - 1;
+    }
+    if (chara->mStatus.m228 < 1.0f) {
+        m54.m50[0] = 0;
+    }
+    m54.mObj = (AiTargetObj_unk*)fn_805AA390(chara); // inferred: the kind of the charged skill (see fn_805AE188)
+    switch (kind) {
+    case 0:
+        m54.m64[1] = 6;
+        m54.m64[2] = 1;
+        m54.m50[2] = IsGaugeFull_unk(chara);
+        m54.m84[0] = 8;
+        m54.m84[1] = 0;
+        m54.m84[2] = 8;
+        break;
+    case 1:
+    case 9:
+    case 10:
+        m54.m64[1] = 1;
+        m54.m64[2] = 3;
+        if (m54.m50[0]) {
+            m54.m50[0] = IsGaugeFull_unk(chara);
+        }
+        m54.m50[1] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+        m54.m50[2] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+        m54.m84[0] = 2;
+        m54.m84[1] = 9;
+        m54.m84[2] = 3;
+        break;
+    case 2:
+    case 3:
+        if (kind == 2) {
+            m54.m64[1] = 6;
+        } else {
+            m54.m64[1] = 7;
+        }
+        m54.m64[2] = 4;
+        m54.m84[0] = 0;
+        m54.m84[1] = 0;
+        m54.m84[2] = 2;
+        break;
+    case 4:
+        m54.m64[1] = 1;
+        m54.m64[2] = 4;
+        if (m54.m50[0]) {
+            m54.m50[0] = IsGaugeFull_unk(chara);
+        }
+        m54.m50[1] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+        m54.m50[2] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+        m54.m84[0] = 5;
+        m54.m84[1] = 5;
+        m54.m84[2] = 4;
+        break;
+    case 5:
+        m54.m64[1] = 3;
+        m54.m64[2] = 1;
+        if (m54.m50[0]) {
+            m54.m50[0] = IsGaugeFull_unk(chara);
+        }
+        m54.m50[1] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+        m54.m50[2] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+        m54.m84[0] = 3;
+        m54.m84[1] = 3;
+        m54.m84[2] = 7;
+        break;
+    case 6:
+        m54.m64[1] = 1;
+        m54.m64[2] = 4;
+        if (m54.m50[0]) {
+            m54.m50[0] = IsGaugeFull_unk(chara);
+        }
+        m54.m50[1] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+        m54.m84[0] = 6;
+        m54.m84[1] = 6;
+        m54.m84[2] = 0;
+        break;
+    case 11:
+        m54.m64[1] = 7;
+        m54.m84[1] = 0;
+        m54.m50[2] = 0;
+        break;
+    default:
+        switch (chara->m5C->m122) {
+        case 1:
+            m54.m64[1] = 6;
+            m54.m84[1] = 0;
+            m54.m50[2] = 0;
+            break;
+        case 2: {
+            m54.m64[1] = 1;
+            m54.m74[1] = 0;
+            m54.m50[1] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+            HitInfo_unk* skill = fn_80219E6C(chara->mStatus.m2D0[0].m[0]);
+            if (skill != 0 && skill->m74.m04 > 0.0f) {
+                m54.m84[1] = 6;
+            } else {
+                m54.m84[1] = 5;
+            }
+            m54.m50[2] = 0;
+            break;
+        }
+        case 3:
+            m54.m64[1] = 3;
+            m54.m74[1] = 0;
+            m54.m50[1] = ((chara->mStatus.m0C >> 2) & 1) ^ 1;
+            m54.m84[1] = 3;
+            m54.m50[2] = 0;
+            break;
+        case 4:
+            m54.m64[1] = 0xB;
+            m54.m64[2] = 0xA;
+            m54.m84[1] = 1;
+            m54.m84[2] = 0;
+            break;
+        }
+        break;
+    }
+    bool special = false;
+    for (EnemyTask* enemy = EnemyManager::sInstance != 0 ? EnemyManager::sInstance->mHead : 0; enemy != 0;
+         enemy = enemy->mNext) {
+        if (enemy->CanAct_unk() && enemy->mC58.mC0 > 0 && enemy->m146C == 0x22) {
+            special = true;
+            break;
+        }
+    }
+    if (special) {
+        m54.m64[3] = 9;
+        if (chara->mType == 0) {
+            m54.m50[3] = 0;
+        }
+    } else {
+        m54.m64[3] = 8;
+        bool on = false;
+        if (lbl_8087F9E8 != 0 && lbl_8087F9E8->fn_8059D30C(chara) > 0) {
+            on = true;
+        }
+        for (PlayerTask* p = lbl_8087F8A0 != 0 ? lbl_8087F8A0->mHead : 0; p != 0; p = p->mNext) {
+            if ((p->mFlags & 4) != 4 && (p->m54C & 0x2000) != 0x2000 && p->m5C != 0 &&
+                (unsigned char)(p->m5C->m122 - 2) <= 1) {
+                on = true;
+                break;
+            }
+        }
+        m54.m50[3] = on;
+    }
+    for (int i = 0; i < 4; i++) {
+        int type = m54.m64[i];
+        if (type < 0) {
+            continue;
+        }
+        if (type < 6) {
+            if (0 <= kind && kind < 7) {
+                int slot = m54.m74[i];
+                if (slot >= 0) {
+                    m54.m54[i] = chara->mStatus.m2D0[slot].m[0] > 0 ? fn_80219E6C(chara->mStatus.m2D0[slot].m[0]) : 0;
+                } else {
+                    m54.m54[i] = fn_80219344(chara);
+                }
+            } else {
+                int slot = m54.m74[i];
+                if (slot >= 0) {
+                    m54.m54[i] = fn_80219E6C(chara->mStatus.m2D0[slot].m[0]);
+                } else {
+                    m54.m54[i] = fn_80219E6C(chara->mStatus.m2D0[i].m[0]);
+                }
+            }
+        } else {
+            m54.m54[i] = &sSkillParams_unk[type - 6];
+        }
+        if (m54.m54[i] == 0) {
+            m54.m50[i] = 0;
+        }
+    }
+}
+
 void TacView::fn_805ADC00() {
     m1594 = 0;
     mEntries.clear();

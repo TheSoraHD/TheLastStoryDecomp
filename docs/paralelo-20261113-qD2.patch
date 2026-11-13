@@ -1,0 +1,131 @@
+diff --git a/include/std/locale_facets_unk.h b/include/std/locale_facets_unk.h
+index 6043b7d..7ec0259 100644
+--- a/include/std/locale_facets_unk.h
++++ b/include/std/locale_facets_unk.h
+@@ -12,6 +12,10 @@
+ #include "std/ostream.h"
+ #include "std/vector.h"
+ 
++// MSL_C math (sign and class of a double)
++extern "C" int __signbitd(double);
++extern "C" int __fpclassifyd(double);
++
+ namespace std {
+ 
+ // inferred: reference-counted base of the facets (the deleting destructors of the facets only test the
+@@ -53,7 +57,11 @@ class ostreambuf_iterator {
+ public:
+     ostreambuf_iterator(basic_ostream<C, T>& s) : sbuf_(s.rdbuf()) {}
+     ostreambuf_iterator& operator=(C c) {
++        bool failed = false;
+         if (sbuf_ != 0 && sbuf_->sputc(c) == -1) {
++            failed = true;
++        }
++        if (failed) {
+             sbuf_ = 0;
+         }
+         return *this;
+@@ -125,10 +133,12 @@ inline string __literal(const char* s, char) {
+ // inferred: the ios_base flags used by num_put (only used here; dec 0x02, hex 0x08, oct 0x40)
+ enum {
+     __boolalpha_unk = 0x01,
++    __fixed_unk = 0x04,
+     __hex_unk = 0x08,
+     __internal_unk = 0x10,
+     __left_unk = 0x20,
+     __oct_unk = 0x40,
++    __scientific_unk = 0x100,
+     __basefield_unk = 0x4A,
+     __adjustfield_unk = 0xB0,
+     __showbase_unk = 0x200,
+@@ -146,6 +156,7 @@ class ctype<char> : public locale::facet {
+ public:
+     explicit ctype(const unsigned short* tab = 0, bool del = false, size_t refs = 0);
+     char widen(char c) const { return do_widen(c); }
++    const char* toupper(char* low, const char* high) const { return do_toupper(low, high); }
+ 
+     static locale::id id;
+ 
+@@ -531,6 +542,69 @@ typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base&
+     return __put_padded_unk(out, str, fill, buf, 0, buf, 10);
+ }
+ 
++// inferred: the three float formats of a finite value into a string (weak copies, not written yet): general
++// (0x802407CC), scientific (0x802411B8) and fixed (0x80241CB8); names invented
++template <class C>
++void __put_float_general_unk(ios_base&, basic_string<C>&, long double);
++template <class C>
++void __put_float_scientific_unk(ios_base&, basic_string<C>&, long double);
++template <class C>
++void __put_float_fixed_unk(ios_base&, basic_string<C>&, long double);
++
++// inferred: a finite value formatted fixed, scientific or general after the flags, else nan or inf (inlined by
++// do_put(long double); name invented)
++template <class C>
++inline void __put_float_unk(ios_base& str, basic_string<C>& s, long double v) {
++    if (__fpclassifyd(v) > 2) {
++        switch (str.flags() & (__fixed_unk | __scientific_unk)) {
++        case __fixed_unk:
++            __put_float_fixed_unk(str, s, v);
++            break;
++        case __scientific_unk:
++            __put_float_scientific_unk(str, s, v);
++            break;
++        default:
++            __put_float_general_unk(str, s, v);
++            break;
++        }
++    } else {
++        if (__fpclassifyd(v) == 1) {
++            s = __literal("nan", C());
++        } else {
++            s = __literal("inf", C());
++        }
++        if ((str.flags() & __uppercase_unk) != 0) {
++            const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
++            ct.toupper((C*)s.data(), s.data() + s.size());
++        }
++    }
++}
++
++// NONMATCHING: 90% - the string is passed through a saved register in the original, registers of the facet
++// (the replace of use_facet), stack slots of the iterator tags of the string assignments
++// inferred: float output (0x8023F5E0): the sign (or + with showpos) as a prefix; a finite value formatted fixed,
++// scientific or general after the flags; else nan or inf (upper case with uppercase); then padded like the
++// integers
++template <class C, class O>
++typename num_put<C, O>::iter_type num_put<C, O>::do_put(iter_type out, ios_base& str, char_type fill,
++                                                        long double v) const {
++    const ctype<C>& ct = use_facet<ctype<C> >(str.getloc());
++    C pre[1];
++    int npre = 0;
++    bool neg = __signbitd(v);
++    if (!neg && (str.flags() & __showpos_unk) != 0) {
++        npre = 1;
++        pre[0] = ct.widen('+');
++    } else if (neg) {
++        npre = 1;
++        pre[0] = ct.widen('-');
++        v = -v;
++    }
++    basic_string<C> s;
++    __put_float_unk(str, s, v);
++    return __put_padded_unk(out, str, fill, pre, npre, s.data(), (int)s.size());
++}
++
+ // inferred: bool output (0x8023C0C0): without boolalpha as a long; else the true or false name of the
+ // numpunct of the stream, padded with the fill character to the width (left, internal or right), which is
+ // cleared
+diff --git a/src/atn/EffectManager.cpp b/src/atn/EffectManager.cpp
+index 1e0b336..8c22dd7 100644
+--- a/src/atn/EffectManager.cpp
++++ b/src/atn/EffectManager.cpp
+@@ -552,6 +552,8 @@ template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base&
+ template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                          unsigned long long v) const;
+ template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill, double v) const;
++template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
++                                                         long double v) const;
+ template num_put<char>::iter_type num_put<char>::do_put(iter_type out, ios_base& str, char fill,
+                                                          const void* v) const;
+ template numpunct<char>::string_type numpunct<char>::truename() const;

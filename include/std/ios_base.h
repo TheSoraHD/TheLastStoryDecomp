@@ -40,8 +40,8 @@ public:
     enum openmode { app = 0x01, ate = 0x02, binary = 0x04, in = 0x08, out = 0x10, trunc = 0x20 };
     // inferred: values from basic_stringbuf::seekoff (0x800E2064)
     enum seekdir { beg = 1, cur = 2, end = 4 };
-    // inferred: only unitbuf is used (0x800E1630)
-    enum fmtflags { unitbuf = 0x2000 };
+    // inferred: unitbuf (0x800E1630) and skipws (cleared by boost::lexical_cast, 0x80393BEC)
+    enum fmtflags { skipws = 0x1000, unitbuf = 0x2000 };
 
     virtual ~ios_base(); // 0x8068B50C
 
@@ -50,6 +50,9 @@ public:
     // inferred: tests badbit | failbit (0x800E1630)
     bool fail() const { return (mState & (badbit | failbit)) != 0; }
     unsigned short flags() const { return mFlags; }
+    // inferred: inlined in boost::lexical_cast (0x80393BEC); defined in std/istream.h
+    void unsetf(fmtflags);
+    streamsize precision(streamsize);
     // inferred: inlined in the sentry (0x800E14A4); the string is the @STRING@ of clear in the RSO
     void clear(iostate state) {
         mState = state;
@@ -64,6 +67,11 @@ public:
     void setstate(iostate state);
     static void throw_failure(const char* msg); // 0x8068B39C
 
+protected:
+    void init(void*); // 0x8068B610: called by the stream constructors with the stream buffer
+
+public:
+
     // inferred: 0x8068B770 builds cin/cout/cerr/clog on __files (once, with guards)
     class Init {
     public:
@@ -77,7 +85,8 @@ public:
     char m0C[0x14];
     locale* mLoc;                // 0x20
     void* mRdbuf;                // 0x24: setstate sets badbit without a stream buffer
-    char m28[8];
+    streamsize mPrecision;       // 0x28: inferred: saved and restored with the width by num_put::do_put(const void*)
+    streamsize mWidth;           // 0x2C: inferred: field width (num_put::do_put pads to it and clears it)
     unsigned short mFlags;       // 0x30
     unsigned char mState;        // 0x32
     unsigned char mExceptions;   // 0x33
@@ -93,9 +102,15 @@ public:
     virtual ~basic_ios() {}
     basic_streambuf<C, T>* rdbuf() const { return (basic_streambuf<C, T>*)mRdbuf; }
     basic_ostream<C, T>* tie() const { return mTie; }
+    C widen(char) const; // inferred: defined in std/istream.h
 
+protected:
+    void init(basic_streambuf<C, T>*); // inferred: defined in std/istream.h
+
+public:
     basic_ostream<C, T>* mTie; // 0x34
-    char m38[4];
+    C mFill;                   // 0x38: inferred: set to widen(' ') by init (0x80393BEC)
+    char m39[3];
 };
 
 } // namespace std

@@ -2,6 +2,7 @@
 #define GAME_CAMPSAVELOAD_H
 
 #include "atn/Task.h"
+#include "atn/D2A_Task.h"
 #include "atn/Texture_unk.h"
 #include "atn/LH_Binary.h"
 #include "atn/Array_unk.h"
@@ -44,6 +45,7 @@ struct SaveSlot_unk {
 };
 
 class GameLoadTask;
+class TutorialPopup;
 
 // inferred: view of GameSaveLoadCommon (save task fn_803B7944 / load task fn_803B27F8) (see src/auto_03_803B27AC_text.cpp)
 struct CampSaveData_unk {
@@ -54,14 +56,11 @@ struct CampSaveData_unk {
     int mD64;
 };
 
-// inferred: d2anime task (made by fn_801F3FF8); only the members used here, names invented
-class D2ATask_unk : public atn::Task {
-public:
-    unsigned char m48[0x58 - 0x48];
-    unsigned char m58[0xA0 - 0x58]; // 0x58: inferred: layout (fn_801FED24)
-    float mA0;                      // 0xA0: inferred: last frame
-    unsigned char mA4[0x100 - 0xA4];
-    float m100;                     // 0x100: inferred: current frame
+
+// inferred: arrow of the page (left/right) and its "pressed" flag (names invented)
+struct CampArrow_unk {
+    atn::D2A_Task* mTask;
+    int mPressed;
 };
 
 // inferred from __vt__12CampSaveLoad (0x8077A030) and its constructor (0x80117B54); base of the
@@ -72,40 +71,43 @@ public:
     virtual ~CampSaveLoad(); // 0x80117EF4 (inlined in the destructors of the menus)
     virtual int vf0C();  // 0x80117FE4
     virtual void vf10(); // 0x801185E0
+    void fn_801191A8(); // inferred: state 1 (slot selection)
+    void fn_8011999C(); // inferred: state 5
+    void fn_80119F0C(); // inferred: info bar
+    void fn_8011A4D0(); // inferred: slot frames and cursor
     virtual void vf14(); // 0x801189B4
     virtual void vf1C(); // 0x801191A0
     virtual void vf20(); // 0x801191A4
     CampSaveData_unk* GetData_unk() { return mMode == 0 ? (CampSaveData_unk*)m4C : (CampSaveData_unk*)m50; }
+    SaveSlot_unk* GetSlot_unk(int slot) { return &GetData_unk()->mSlots[slot]; } // inferred: name invented
     void fn_80119030(int state, int arg); // inferred: changes the state
     void fn_8011968C();                   // inferred: handles the cancel/back input
     void fn_8011979C();                   // inferred: handles the confirmation window input
     void fn_8011B3D8(int wrap);           // inferred: moves the cursor m154 within [0, m158)
     void fn_8011B570();                   // inferred: moves the cursor on the slot grid
     void fn_8011B8D4(const wchar_t* text, int length); // inferred: reads the list of entries
-    void fn_8011AD38();                   // inferred: animates the slot frames
+    void fn_8011AD38();
+    void fn_8011B018(int, SaveSlot_unk*); // inferred: shows a save slot                   // inferred: animates the slot frames
     int fn_8011BBD0(int slot);            // inferred: nonzero if the slot is newer than the current data
 
     int mMode;                  // 0x48: inferred: 0 save, 1 load
     GameSaveTask* m4C;          // 0x4C: save menu task (fn_803B7944); seen as CampSaveData_unk by GetData_unk
     GameLoadTask* m50;          // 0x50: inferred: load task of the load menu (seen as CampSaveData_unk by GetData_unk)
     int m54;
-    atn::Task* m58;             // 0x58: inferred: new map icon animation
-    atn::Task* m5C;             // 0x5C: inferred: info bar
-    atn::Task* m60;             // 0x60: inferred: camp info panels
-    atn::Task* m64;
-    atn::Task* m68;
-    atn::Task* m6C;             // 0x6C: inferred: cursor
-    atn::Task* m70;             // 0x70: inferred: menu animation task (fn_801F3FF8)
-    D2ATask_unk* m74[8];        // 0x74: inferred: slot frames
-    atn::Task* m94[8];          // 0x94: inferred: slot icons
-    atn::Task* mB4[8];          // 0xB4: inferred: "no data" panels
+    atn::D2A_Task* m58;             // 0x58: inferred: new map icon animation
+    atn::D2A_Task* m5C;             // 0x5C: inferred: info bar
+    atn::D2A_Task* m60;             // 0x60: inferred: camp info panels
+    atn::D2A_Task* m64;
+    atn::D2A_Task* m68;
+    atn::D2A_Task* m6C;             // 0x6C: inferred: cursor
+    atn::D2A_Task* m70;             // 0x70: inferred: menu animation task (fn_801F3FF8)
+    atn::D2A_Task* m74[8];        // 0x74: inferred: slot frames
+    atn::D2A_Task* m94[8];          // 0x94: inferred: slot icons
+    atn::D2A_Task* mB4[8];          // 0xB4: inferred: "no data" panels
     int mD4[8];
     atn::Task* mF4[8];          // 0xF4: inferred: "clear" marks
-    atn::Task* m114;
-    atn::Task* m118;            // 0x118: inferred: left arrow
-    int m11C;
-    atn::Task* m120;            // 0x120: inferred: right arrow
-    int m124;
+    atn::D2A_Task* m114;
+    CampArrow_unk mArrows[2];   // 0x118: inferred: left and right arrows
     int m128;                   // 0x128: inferred: selected slot
     int m12C;
     int m130;
@@ -126,7 +128,7 @@ public:
     int m16C;
     int m170;
     int m174;
-    atn::Task* m178;            // 0x178: inferred: message window
+    TutorialPopup* m178;        // 0x178: inferred: message window
     atn::Texture_unk mTextures[17]; // 0x17C
     ResRef_unk m4AC;            // 0x4AC: inferred: "/preload/saveload.pk"
     int m4B0;                   // inferred: set once the archive is in use (was ResRef_unk::m04)

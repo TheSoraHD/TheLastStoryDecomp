@@ -829,8 +829,8 @@ void Em202ForestSpider::vf118() {
     if (frame >= mMotion.fn_80097D7C(0)) {
         wchar_t text[256];
         memset(text, 0, sizeof(text));
-        const wchar_t* name = m18EC->m60->m04;
-        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB7), name);
+        CharaInfo_unk* info = m18EC->m60;
+        fn_800DD3FC(text, lbl_8087F1E4->Get_unk(0xB7), info->m04);
         ((BattleTask*)lbl_8087F048)->fn_80109828(text);
         m14E0 = 600;
         m1908.push_back(m18EC);

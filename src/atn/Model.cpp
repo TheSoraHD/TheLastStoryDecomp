@@ -17,6 +17,9 @@
 #include "std/new.h"
 #include <boost/bind.hpp>
 #include "nw4r/math/triangular.h"
+#include "atn/Light_unk.h"
+#include "atn/DrawEntry_unk.h"
+#include "atn/DrawHelper.h"
 
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int strcmp(const char* a, const char* b);
@@ -96,6 +99,7 @@ extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, co
 #include "atn/MotionCmd_unk.h"
 extern "C" void fn_800A0A68(atn::MotionCmd_unk* cmd, atn::Model* model, const atn::LH_Motion* src); // inferred: copies
 extern "C" float fn_800A08D4(atn::LH_Motion* motion); // inferred: length of the motion
+extern "C" void fn_800991D0(atn::Model* model, int advance); // inferred: applies the node edits/physics (not written)
 
 namespace atn {
 
@@ -463,7 +467,7 @@ int ModelBase::fn_8008B140() {
                     busy = 1;
                 }
             }
-            if (busy || atn::RenderManager::instance_->mPassHeads[1] != 0) {
+            if (busy || fn_8008B964()->mPassHeads[1] != 0) {
                 return 1;
             }
             for (unsigned int i = 0; i < m1E4.mSize; i++) {
@@ -553,10 +557,6 @@ int ModelBase::fn_8008B140() {
 }
 } // namespace atn
 
-// inferred: the render system (atn::RenderManager::instance_); called out of line by GameUI and others
-extern "C" atn::RenderManager* fn_8008B964() {
-    return atn::RenderManager::instance_;
-}
 
 namespace atn {
 
@@ -834,6 +834,76 @@ void ModelBase::fn_8008C950() {
     CalcMatrixStack(0, ModelNodeCallback_unk());
 }
 
+// inferred: queues the model in the render passes of its flags (only the occlusion pass while its occlusion
+// data is pending); updates the scene of the bounding sphere and draws the debug joints and sphere
+// NONMATCHING: 95.8% - the original keeps the flag tests as bool values (0/1 in registers: the test of 0x10000,
+// the occlusion and reflection conditions) and reloads mFlags for each pass test
+void Model::fn_8008CD60() {
+    if (fn_804761B0(&mLods[0].mHandle)) {
+        RenderManager::instance_->AddRender(this, 0, m98);
+        return;
+    }
+    if (mLods[0].m08 == 0) {
+        return;
+    }
+    RenderManager::instance_->AddRender(this, 2, 0.0f);
+    if ((mFlags & 0x10000) != 0x10000) {
+        m1DC = RenderManager::instance_->fn_800C122C(fn_80094F98());
+    }
+    if ((mFlags & 0x400000) == 0x400000) {
+        RenderManager::instance_->AddRender(this, 0x10, m98);
+        return;
+    }
+    bool noOcclusion = (mFlags & 2) == 2 || fn_80476194(&mLods[0].mHandle);
+    bool occluder = noOcclusion || fn_804761B0(&mLods[0].mHandle);
+    if (occluder) {
+        RenderManager::instance_->AddRender(this, 0, m98);
+    } else if (lbl_8087EFA8->m014 == 0) {
+        if ((mFlags & 4) == 4) {
+            RenderManager::instance_->AddRender(this, 3, m98);
+        }
+        bool reflect = false;
+        if ((mFlags & 0x400) == 0x400 || (mFlags & 0x800) == 0x800) {
+            Scene* scene = (m1DC != 0) ? m1DC : RenderManager::instance_->mScene;
+            if (scene->mReflectChara != 0 || (mFlags & 0x1000) == 0x1000) {
+                reflect = true;
+            }
+        }
+        if (reflect) {
+            RenderManager::instance_->AddRender(this, 4, m98);
+        }
+        if ((mFlags & 0x1000000) != 0x1000000 && (mFlags & 0x10) == 0x10) {
+            RenderManager::instance_->AddRender(this, 8, m98);
+        }
+        if ((mFlags & 0x1000000) != 0x1000000 && (mFlags & 0x20) == 0x20) {
+            RenderManager::instance_->AddRender(this, 6, m98);
+        }
+        if ((mFlags & 0x4000) == 0x4000) {
+            RenderManager::instance_->AddRender(this, 10, m98);
+            RenderManager::instance_->AddRender(this, 5, m98);
+        }
+        if ((mFlags & 0x2000) == 0x2000) {
+            RenderManager::instance_->AddRender(this, 9, m98);
+        }
+    }
+    if (lbl_8087EFA8->m00C != 0) {
+        for (int i = 0; i < GetRes_unk()->m44; i++) {
+            MtxPtr m = GetNodeMtx_unk(i);
+            NodeRes_unk* joint = GetRes_unk()->m48[i];
+            lbl_8087EEB0->fn_80063D3C(Vector3(m[0][3], m[1][3], m[2][3]), 0.5f, m98, 0xFFFFFFFF);
+            if (joint->m1C >= 0) {
+                MtxPtr p = GetNodeMtx_unk(joint->m1C);
+                lbl_8087EEB0->fn_80063764(Vector3(p[0][3], p[1][3], p[2][3]), Vector3(m[0][3], m[1][3], m[2][3]), m98,
+                                          0xFFFFFFFF);
+            }
+        }
+    }
+    if (lbl_8087EFA8->m010 != 0) {
+        Sphere sphere = fn_80094F98();
+        lbl_8087EEB0->fn_80063D3C(sphere.mCenter, sphere.mRadius, m98, 0xFFFFFFFF);
+    }
+}
+
 void ModelBase::vf18(RenderManager* view) {
     if (m20C_31_24 == 8) {
         fn_8008D78C();
@@ -849,8 +919,8 @@ void ModelBase::vf18(RenderManager* view) {
 extern "C" void fn_8008E818(ModelBase* model, RenderManager* view); // inferred: draws the meshes
 
 // inferred: draw: picks the level of detail (with the LOD bias of the render settings in the shadow and
-// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, still not
-// written, as a member it would need a new declaration in atn/Model_unk.h)
+// reflection passes), updates the skinning matrices for the view and draws (fn_8008E818, extern "C": as a
+// member it would need a new declaration in atn/Model_unk.h)
 // NONMATCHING: 92.0% - scheduling of the inlined sphere (fn_80094F98) and the early return layout
 void ModelBase::vf10(RenderManager* view) {
     if (m20C_31_24 != 8 || !mFlag6_unk) {
@@ -887,8 +957,150 @@ void ModelBase::vf10(RenderManager* view) {
 }
 } // namespace atn
 
+namespace atn {
+struct GraphicsDevice_unk;
+}
+extern "C" atn::GraphicsDevice_unk* lbl_8087EEE0; // inferred: graphics device (include/atn/GraphicsDevice.h)
+extern "C" void fn_80076760(atn::GraphicsDevice_unk* device, int state, int value); // inferred: render state
+extern "C" unsigned short* fn_804761CC(atn::LH_Model* model); // inferred: nodes to draw (atn/LH_Model.cpp)
+extern "C" int fn_804761E8(atn::LH_Model* model);             // inferred: number of nodes to draw
+
+// inferred: blinking of the materials of m15C in the pass 10 (value in [0, 1] moved by sBlinkStep in the
+// direction sBlinkDir); names invented
+static float sBlinkStep_unk = 0.01f;
+static float sBlinkDir_unk = 1.0f;
+static float sBlink_unk;
+
+// inferred: value clamped to [lo, hi], by reference (the two bounds are constant temporaries in .sdata); name
+// invented
+static inline float ClampRef_unk(float v, const float& lo, const float& hi) {
+    return (v < lo) ? lo : ((v > hi) ? hi : v);
+}
+
+// inferred: colour from four floats in [0, 1] (name invented)
+static inline GXColor ToGXColor_unk(float r, float g, float b, float a) {
+    GXColor c;
+    c.r = (unsigned char)(255.0f * r);
+    c.g = (unsigned char)(255.0f * g);
+    c.b = (unsigned char)(255.0f * b);
+    c.a = (unsigned char)(255.0f * a);
+    return c;
+}
+
+// inferred: nodes to draw of a draw state (name invented)
+static inline void SetDrawNodes_unk(DrawEntry_unk& entry, short* nodes, unsigned int count) {
+    entry.m50 = nodes;
+    entry.m54 = count;
+}
+
+// inferred: draws the meshes of the model: level of detail (the shadow model in the shadow pass), materials
+// of the pass, world matrix and bounding sphere, then the draw state DrawEntry_unk (atn/ModelDraw_unk.cpp)
+// NONMATCHING: 93.9% - the original reads m50 and the colour m40 through the matrix block (GetMtx_unk + 0x48 /
+// + 0x38, as fn_80091684), m20C_7 is a signed bit there (srawi), the store of the blink value is scheduled after
+// the colour and the order of the stack arguments of the constructor
+extern "C" void fn_8008E818(atn::ModelBase* model, atn::RenderManager* view) {
+    using namespace atn;
+    ModelBase::Mtx_unk* mtx = model->GetMtx_unk();
+    ModelLod_unk* lod = &model->mLods[model->m50];
+    if (model->mFlag5_unk && model->mFlag4_unk && fn_8008B964()->GetPass_unk() == 3) {
+        lod = &model->m1C4;
+    }
+    int* remap = lod->m10.mData;
+    if (view->GetPass_unk() == 10) {
+        float v = sBlinkStep_unk * sBlinkDir_unk + sBlink_unk;
+        if (v > 1.0f || v < 0.0f) {
+            sBlinkDir_unk *= -1.0f;
+        }
+        sBlink_unk = ClampRef_unk(v, 0.0f, 1.0f);
+        model->m15C->mMaterials.mData[0]->mColor =
+            ToGXColor_unk(model->m14C, model->m150, model->m154, model->m158);
+    }
+    MaterialSet_unk* mats = &model->m104;
+    SimpleArray<int>* matRemap = &model->m104.m08[model->m50];
+    if (model->m138 != 0) {
+        mats = model->m138;
+        matRemap = &model->m138->m08[model->m50];
+    }
+    if (view->GetPass_unk() == 5) {
+        mats = model->m160;
+        matRemap = &model->m160->m08[model->m50];
+    } else if (view->GetPass_unk() == 10) {
+        mats = model->m15C;
+        matRemap = &model->m15C->m08[model->m50];
+    }
+    Sphere sphere = model->GetModel_unk()->fn_80094F98();
+    DrawCallback_unk cb = *(DrawCallback_unk*)&model->m1F0;
+    DrawEntry_unk entry(&lod->mHandle, (Mtx*)mtx, (Mtx*)model->m58, (int)mtx->mNodes.mData, (DrawColor_unk*)&model->m40,
+                        (DrawMaterials_unk*)mats, (DrawRemap_unk*)matRemap, &sphere, remap, model->mFlags,
+                        model->m1DC != 0 ? model->m1DC : RenderManager::instance_->mScene,
+                        (int)model->m208.get(), &cb);
+    entry.m44 = model->mEC.mData;
+    entry.m48 = model->m20C_7;
+    if (model->mFlag5_unk && model->mFlag4_unk && RenderManager::instance_->GetPass_unk() == 3) {
+        entry.m4C = 0;
+    } else {
+        entry.m4C = model->mF4.mData;
+    }
+    SetDrawNodes_unk(entry, (short*)fn_804761CC(&lod->mHandle), fn_804761E8(&lod->mHandle));
+    if (lod == &model->m1C4) {
+        entry.m58 = 1;
+    }
+    entry.m5C = (void*)model->m1E0;
+    int pass = RenderManager::instance_->GetPass_unk();
+    if (pass == 8) {
+        entry.m00 = 2;
+    } else if (pass == 10) {
+        entry.m00 = 1;
+    } else if (pass == 6) {
+        entry.m00 = 1;
+    } else if (pass == 9) {
+        entry.m00 = 4;
+    } else if (pass == 0) {
+        if ((model->mFlags & 0x80) == 0x80) {
+            fn_80076760(lbl_8087EEE0, 6, 2);
+        } else {
+            fn_80076760(lbl_8087EEE0, 6, 1);
+        }
+    }
+    fn_8009B93C(&entry);
+}
+
+inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m);
+
+// inferred: adds to `out` the world boxes of the joints of the tree from `node` (and its next siblings) whose
+// bounding sphere is in the frustum; `arg` is passed down unused. fn_8008F5F8 is inline (the original
+// expands it here and keeps its weak copy right after this function)
+// NONMATCHING: 80.4% - copies of the box corners and registers of the inlined fn_8008F5F8
+extern "C" void fn_8008EEDC(atn::ModelBase* model, const atn::ModelBase::NodeRes_unk* node, int arg,
+                            const Frustum_unk* frustum, atn::AABB_unk* out) {
+    using namespace atn;
+    ModelLod_unk* lod = &model->mLods[model->m50];
+    while (node != 0) {
+        if (node->m70 != 0 && node->m2C != 0) {
+            Sphere sphere;
+            sphere.mCenter = (node->m58 + node->m64) * 0.5f;
+            Vector3 d = node->m58 - node->m64;
+            sphere.mRadius = PSVECMag(&d) * 0.5f;
+            sphere.mRadius *= model->mAC;
+            PSMTXMultVec(model->mMtx.mNodes.mData[node->m18].m, &sphere.mCenter, &sphere.mCenter);
+            if (fn_8004FF58(frustum, &sphere)) {
+                AABB_unk box(node->m58, node->m64);
+                AABB_unk scaled = fn_80070B60(&box, model->mAC);
+                AABB_unk world = fn_8008F5F8(scaled, model->mMtx.mNodes.mData[node->m18]);
+                AABB_unk merged = out->Merge_unk(world);
+                out->mMin = merged.mMin;
+                out->mMax = merged.mMax;
+            }
+        }
+        if (node->m20 != -1) {
+            fn_8008EEDC(model, ((ModelBase::Res_unk*)lod->m08)->m48[node->m20], arg, frustum, out);
+        }
+        node = (node->m24 != -1) ? ((ModelBase::Res_unk*)lod->m08)->m48[node->m24] : 0;
+    }
+}
+
 // inferred: bounding box of `box` transformed by `m` (its eight corners)
-atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m) {
+inline atn::AABB_unk fn_8008F5F8(const atn::AABB_unk& box, const atn::Matrix3x4& m) {
     float maxZ = box.mMax.z;
     float maxY = box.mMax.y;
     float maxX = box.mMax.x;
@@ -1056,6 +1268,63 @@ extern "C" void fn_800909B0(atn::Matrix3x4* out, const atn::Matrix3x4* mats, con
         AddMtx_unk(*out, t);
         w++;
         out++;
+    }
+}
+
+// inferred: skinning weights of a vertex block with three joints (0x1C bytes); names invented
+struct SkinWeight3_unk {
+    int m00;
+    int mIndex0;
+    float mWeight0;
+    int mIndex1;
+    float mWeight1;
+    int mIndex2;
+    float mWeight2;
+};
+
+// inferred: skinning weights of a vertex block with four joints (0x24 bytes); names invented
+struct SkinWeight4_unk {
+    int m00;
+    int mIndex0;
+    float mWeight0;
+    int mIndex1;
+    float mWeight1;
+    int mIndex2;
+    float mWeight2;
+    int mIndex3;
+    float mWeight3;
+};
+
+// inferred: **out = mats[a] * wa + mats[b] * wb + mats[c] * wc for each weight, advancing *out
+// NONMATCHING: 77% - the original adds the second matrix before scaling the third one, keeping the loads of
+// the third matrix between the stores of the sum (17 saved float registers); order of the temporaries
+extern "C" void fn_80090C58(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight3_unk* w, int n) {
+    for (int i = 0; i < n; i++) {
+        atn::Matrix3x4 t0 = ScaleMtx_unk(mats[w->mIndex0], w->mWeight0);
+        atn::Matrix3x4 t1 = ScaleMtx_unk(mats[w->mIndex1], w->mWeight1);
+        **out = t0;
+        atn::Matrix3x4 t2 = ScaleMtx_unk(mats[w->mIndex2], w->mWeight2);
+        AddMtx_unk(**out, t1);
+        AddMtx_unk(**out, t2);
+        w++;
+        (*out)++;
+    }
+}
+
+// inferred: same with four joints
+// NONMATCHING: 70% - as fn_80090C58 (order of the scaled temporaries and the sums)
+extern "C" void fn_800910D4(atn::Matrix3x4** out, const atn::Matrix3x4* mats, const SkinWeight4_unk* w, int n) {
+    for (int i = 0; i < n; i++) {
+        atn::Matrix3x4 t0 = ScaleMtx_unk(mats[w->mIndex0], w->mWeight0);
+        atn::Matrix3x4 t1 = ScaleMtx_unk(mats[w->mIndex1], w->mWeight1);
+        **out = t0;
+        atn::Matrix3x4 t2 = ScaleMtx_unk(mats[w->mIndex2], w->mWeight2);
+        AddMtx_unk(**out, t1);
+        AddMtx_unk(**out, t2);
+        atn::Matrix3x4 t3 = ScaleMtx_unk(mats[w->mIndex3], w->mWeight3);
+        AddMtx_unk(**out, t3);
+        w++;
+        (*out)++;
     }
 }
 
@@ -1250,16 +1519,6 @@ extern "C" void DCZeroRange(void* addr, unsigned long size);
 extern "C" asm void fn_80099F74(register const SkinWeight2_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
 extern "C" asm void fn_8009A018(register const SkinWeight3_unk* w, register const atn::Matrix3x4* mats, register atn::Matrix3x4* out, register int n);
 
-// inferred: skinning weights of a vertex block with three joints (0x1C bytes); names invented
-struct SkinWeight3_unk {
-    int m00;
-    int mIndex0;
-    float mWeight0;
-    int mIndex1;
-    float mWeight1;
-    int mIndex2;
-    float mWeight2;
-};
 
 // inferred: double-buffered transfer of an array to the locked cache, 32 entries a block (buffers at
 // 0xE0001800 and right after the first one); names invented
@@ -2051,9 +2310,11 @@ void Model::fn_80096218(SimpleVector<unsigned int>* list, void* arg) {
             }
         }
     }
-    SimpleVector<unsigned int>* composites = (SimpleVector<unsigned int>*)arg;
+    // inferred: a list of cache entries (own instantiation: its reserve strings are at 0x8087D7CC; with the
+    // entry pointer type the value is loaded later than in the original)
+    SimpleVector<unsigned long>* composites = (SimpleVector<unsigned long>*)arg;
     for (unsigned int i = 0; i < m1E4.size(); i++) {
-        composites->push_back((unsigned int)m1E4[i]->m14.mEntry);
+        composites->push_back((unsigned long)m1E4[i]->m14.mEntry);
     }
 }
 
@@ -2267,6 +2528,140 @@ void Model::fn_80097D9C(Model* src) {
             m21C.mData[i] = src->m21C.mData[j];
         }
     }
+}
+
+// inferred: compares the start of a string with a name (inlined in fn_80097E80); name invented
+static inline int CompareStart_unk(const char* path, const char* name) {
+    std::string file = fn_8006B174(std::string(path));
+    return strncmp(file.c_str(), name, strlen(name));
+}
+
+// inferred: updates the motion of the model: advances and samples every track into the shared pose buffer
+// (one block of 0x100 nodes per track), blends the tracks by weight into the node poses, then the fading track
+// 3, the node edits and the pose callback m35C. Models that are hidden only advance the tracks (fn_80098698).
+// NONMATCHING: 94.7% - in the original the file name of the motion is built, then strlen(m3C8) is called and
+// only then the data pointer of the string is selected (its is_long test is reused by the destructor, so the
+// argument string dies after strncmp); MWCC selects the pointer before strlen in every form tried (one
+// expression, c_str/data/operator[], helper by reference). Also one more saved register and the string pool
+// offsets of "eye_L"/"eye_R" (pool order of the unit).
+int Model::fn_80097E80(int advance) {
+    if (mLods[0].m08 == 0) {
+        return 0;
+    }
+    if ((mFlags & 0x40) == 0x40 && !mFlag6_unk) {
+        fn_80098698();
+        return 0;
+    }
+    unsigned int eyeL = fn_800DC6B4("eye_L");
+    unsigned int eyeR = fn_800DC6B4("eye_R");
+    if (mTracks[0].m04 != 0) {
+        Res_unk* res;
+        const int* remap;
+        float speed = lbl_8087EFA8->m3A4;
+        float dt = m350 * speed;
+        res = (Res_unk*)mLods[m50].m08;
+        remap = mLods[m50].m10.mData;
+        MotionPose_unk* pose = &sNodePoses[0x300];
+        int i;
+        for (i = 0; i < m34C; i++) {
+            Track_unk* t = &mTracks[i];
+            LH_Motion* motion = t->m04;
+            if (motion == 0) {
+                continue;
+            }
+            if (advance) {
+                t->m10 += t->m14 * dt;
+            }
+            if (t->m10 > t->m1C) {
+                t->m10 = t->m1C;
+            }
+            if (m34C == 1) {
+                if (Abs_unk(t->m10 - 1.0f) < 1.1920929e-7f) {
+                    pose = m21C.mData;
+                }
+                memset(pose, 0, m21C.mSize * sizeof(Node_unk));
+                for (int j = 0; j < res->m44; j++) {
+                    NodeRes_unk* joint = res->m48[j];
+                    if (t->m19[0] == 0 && (joint->m14 == eyeL || joint->m14 == eyeR)) {
+                        continue;
+                    }
+                    int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                    int key = m354.mData[t->m00].mData[index];
+                    if (key >= 0) {
+                        fn_800A05FC(motion, &pose[index], key, &m214.mData[index], t->m08);
+                    }
+                }
+                if (m3C0 >= 0) {
+                    int cmp = CompareStart_unk(motion->fn_80473F18(), m3C8);
+                    if (cmp != 0) {
+                        pose[m3C0].mPos.y *= m3C4;
+                    }
+                }
+            } else {
+                MotionPose_unk* out = &sNodePoses[i * 0x100];
+                if (t->m20 > 0.0f) {
+                    memset(out, 0, m21C.mSize * sizeof(Node_unk));
+                    for (int j = 0; j < res->m44; j++) {
+                        NodeRes_unk* joint = res->m48[j];
+                        int index = (remap != 0) ? remap[joint->m18] : joint->m18;
+                        int key = m354.mData[t->m00].mData[index];
+                        if (key >= 0) {
+                            fn_800A05FC(motion, &out[index], key, &m214.mData[index], t->m08);
+                        }
+                    }
+                }
+                if (m3C0 >= 0) {
+                    int cmp = CompareStart_unk(motion->fn_80473F18(), m3C8);
+                    if (cmp != 0) {
+                        out[m3C0].mPos.y *= m3C4;
+                    }
+                }
+            }
+            if (advance) {
+                t->m08 += t->m0C * dt;
+            }
+            while (t->m18 && t->m08 >= fn_800A08D4(motion) && t->m0C > 0.0f) {
+                t->m08 -= fn_800A08D4(motion);
+            }
+            while (t->m18 && t->m08 < 0.0f && t->m0C < 0.0f) {
+                t->m08 += fn_800A08D4(motion);
+            }
+        }
+        if (m34C != 1) {
+            bool first = true;
+            for (i = 0; i < m34C; i++) {
+                Track_unk* t = &mTracks[i];
+                if (t->m04 == 0 || t->m20 <= 0.0f) {
+                    continue;
+                }
+                MotionPose_unk* src = &sNodePoses[i * 0x100];
+                if (first) {
+                    memcpy(pose, src, m21C.mSize * sizeof(Node_unk));
+                    first = false;
+                } else {
+                    float w = t->m20 / (t->m20 + mTracks[i - 1].m20);
+                    if (i == 1) {
+                        fn_80098948(pose, m21C.mSize, sNodePoses, src, w);
+                    } else {
+                        fn_80098948(pose, m21C.mSize, pose, src, w);
+                    }
+                }
+            }
+        }
+        if (Abs_unk(mTracks[0].m10 - 1.0f) < 1.1920929e-7f) {
+            if (m34C != 1) {
+                memcpy(m21C.mData, pose, m21C.mSize * sizeof(Node_unk));
+            }
+        } else {
+            fn_80098948(m21C.mData, m21C.mSize, m21C.mData, pose, mTracks[0].m10);
+        }
+    }
+    fn_80098DD8(advance);
+    fn_800991D0(this, advance);
+    if (m35C) {
+        m35C((MotionBuffer*)m21C.mData, GetRes_unk()->m44);
+    }
+    return 1;
 }
 
 // inferred: advances the motion tracks without sampling them (models that are not drawn); track 3 is the

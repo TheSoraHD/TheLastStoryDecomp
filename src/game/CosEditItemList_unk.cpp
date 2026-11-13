@@ -342,7 +342,7 @@ void CosEditProtector::fn_801D8560() {
 // NONMATCHING: 98.7% - registers and scheduling
 void CosEditProtector::fn_801D8CC4() {
     if (mB4C.size() != 0 && m80 < (int)mB4C.size()) {
-        CosEditItem_unk* e = &mB4C[m80];
+        CosEditWeaponItem_unk* e = &mB4C[m80];
         void* item = fn_80206C50(e->mId);
         fn_801E7D78(mSelect, item, e->mIndex < 0);
         CosEditListItem_unk* data = fn_80211480(fn_80206BE4(item));
@@ -360,7 +360,7 @@ void CosEditProtector::fn_801D8CC4() {
         if (mB4C.size() != 0 && m80 < (int)mB4C.size()) {
             CharaTask* chara = fn_801CF334()->mChara;
             int member = fn_801CF334()->mFace;
-            CosEditItem_unk* e = &mB4C[m80];
+            CosEditWeaponItem_unk* e = &mB4C[m80];
             int ok;
             if (e->mOwner >= 0) {
                 void* cur = fn_801CFA5C(member, m1E4);
@@ -380,7 +380,7 @@ void CosEditProtector::fn_801D8CC4() {
                 }
                 int other = fn_80219558(e->mOwner);
                 CharaTask* otherChara = (CharaTask*)((NewCampTask*)m48)->fn_80530384(other).m04;
-                CosEditItem_unk back;
+                CosEditWeaponItem_unk back;
                 back.mItem = cur;
                 back.mId = fn_80206BE4(cur);
                 back.mIndex = -1;
@@ -408,7 +408,7 @@ void CosEditProtector::fn_801D8CC4() {
     } else if (fn_800A555C(pad, 0, 13) && mB4C.size() != 0) {
         fn_80117228(0x12);
         mB80 = 1;
-        CosEditItem_unk sel;
+        CosEditWeaponItem_unk sel;
         if (mB4C.size() != 0) {
             sel = mB4C[m80];
         }
@@ -418,7 +418,7 @@ void CosEditProtector::fn_801D8CC4() {
     } else if (fn_800A555C(pad, 0, 12) && mB4C.size() != 0) {
         fn_80117228(0x12);
         mB80 = 0;
-        CosEditItem_unk sel;
+        CosEditWeaponItem_unk sel;
         if (mB4C.size() != 0) {
             sel = mB4C[m80];
         }
@@ -492,6 +492,23 @@ extern "C" int fn_804444E8(Inventory* inv, int id);                   // inferre
 extern "C" int wcscmp(const wchar_t* a, const wchar_t* b);
 
 typedef MslIter_unk<CosEditItem_unk> CosEditItemIter_unk;
+// inferred: release asserts (empty). The original is over the inlining budget (R3) in the sorts with the two
+// predicates in the anonymous namespace below and in fn_801E07A4 (their iterator operators, vector accessors,
+// selection sort and predicate are called out of line): the predicates and the begin()/end() of the weapon
+// lists are larger than their code; names invented
+#define COSEDIT_ASSERT_UNK(x) ((void)0)
+#define COSEDIT_ASSERT10_UNK(x)                                                                              \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x);                                                                                   \
+    COSEDIT_ASSERT_UNK(x)
+
 // inferred: begin() and end() of the lists as iterators (weak copies 0x801DC410 and 0x801DC418)
 inline CosEditItemIter_unk CosEditBegin_unk(std::vector<CosEditItem_unk>& list) {
     return CosEditItemIter_unk(list.begin());
@@ -499,13 +516,91 @@ inline CosEditItemIter_unk CosEditBegin_unk(std::vector<CosEditItem_unk>& list) 
 inline CosEditItemIter_unk CosEditEnd_unk(std::vector<CosEditItem_unk>& list) {
     return CosEditItemIter_unk(list.end());
 }
+// inferred: the same for the weapon lists (weak copies 0x801E66F8 and 0x801E6700)
+typedef MslIter_unk<CosEditWeaponItem_unk> CosEditWeaponIter_unk;
+inline CosEditWeaponIter_unk CosEditBegin_unk(std::vector<CosEditWeaponItem_unk>& list) {
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    return CosEditWeaponIter_unk(list.begin());
+}
+inline CosEditWeaponIter_unk CosEditEnd_unk(std::vector<CosEditWeaponItem_unk>& list) {
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    COSEDIT_ASSERT10_UNK(list.size() <= list.capacity());
+    return CosEditWeaponIter_unk(list.end());
+}
 
 // inferred: predicates of the std::sort of the lists: by kind (out of line, below), for the members who wear
 // armour (physical defence first) and for the others (magic defence first); the members' own pieces first,
 // then by value and name
+extern "C" wchar_t* wcschr(const wchar_t* s, wchar_t c);
+extern "C" unsigned long wcslen(const wchar_t* s);
+
+namespace {
+// inferred: in an anonymous namespace (its L"%s" goes to the @wstringBase0 pool of the file, as ShopBase)
 struct CosEditEquipLess_unk {
-    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
+    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+        COSEDIT_ASSERT_UNK(&a != 0);
+        COSEDIT_ASSERT_UNK(&b != 0);
+        COSEDIT_ASSERT_UNK(a.mItem != 0);
+        COSEDIT_ASSERT_UNK(b.mItem != 0);
+        if (a.mIndex == b.mIndex) {
+            COSEDIT_ASSERT_UNK(a.mOwner >= -1);
+            COSEDIT_ASSERT_UNK(b.mOwner >= -1);
+            if (a.mOwner >= 0 && b.mOwner >= 0) {
+                return a.mOwner < b.mOwner;
+            }
+            if (a.mOwner >= 0) {
+                return true;
+            }
+            return false;
+        }
+        CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
+        COSEDIT_ASSERT_UNK(na != 0);
+        COSEDIT_ASSERT_UNK(na->mName != 0);
+        CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
+        COSEDIT_ASSERT_UNK(nb != 0);
+        COSEDIT_ASSERT_UNK(nb->mName != 0);
+        wchar_t sa[64];
+        COSEDIT_ASSERT_UNK(wcslen(na->mName) < 64);
+        fn_800DD3FC(sa, L"%s\0", na->mName);
+        wchar_t* plus = wcschr(sa, L'+');
+        if (plus != 0) {
+            COSEDIT_ASSERT_UNK(plus > sa);
+            *plus = 0;
+        }
+        wchar_t sb[64];
+        COSEDIT_ASSERT_UNK(wcslen(nb->mName) < 64);
+        fn_800DD3FC(sb, L"%s\0", nb->mName);
+        plus = wcschr(sb, L'+');
+        if (plus != 0) {
+            COSEDIT_ASSERT_UNK(plus > sb);
+            *plus = 0;
+        }
+        if (wcscmp(sa, sb) == 0) {
+            int la = wcslen(na->mName);
+            int lb = wcslen(nb->mName);
+            COSEDIT_ASSERT_UNK(la > 0);
+            COSEDIT_ASSERT_UNK(lb > 0);
+            if (la != lb) {
+                COSEDIT_ASSERT_UNK(la < 64);
+                COSEDIT_ASSERT_UNK(lb < 64);
+                return la < lb;
+            }
+        }
+        COSEDIT_ASSERT_UNK(na != nb);
+        COSEDIT_ASSERT_UNK(&a != &b);
+        return wcscmp(na->mName, nb->mName) < 0;
+    }
 };
+} // namespace
 struct CosEditArmourLess_unk {
     bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
         if (a.mIndex == b.mIndex) {
@@ -808,75 +903,75 @@ extern "C" void fn_8044441C(Inventory* inv, int id, int num); // inferred: remov
 // inferred: equips the equipment entry on the member (a: puts the old one back in the inventory, b:
 // takes the new one out); a full-body piece also fills the second slot, and taking one off puts the
 // preferred free piece in it. 0 when nothing changes
-// NONMATCHING: 41% - the original calls fn_801DC8C8 out of line: over the inlining budget (R3); writing
-// fn_801DD26C did not change it
+// NONMATCHING: 95.8% - registers (the two flags get the lowest saved registers in the original); fn_801DC8C8 is
+// not auto-inlined in the original (one empty assert in it puts it over the auto-inline threshold)
 int CosEditProtector::fn_801DC42C(int member, CharaTask* chara, CosEditItem_unk* e, int a, int b) {
-    if (e == 0 || e->mIndex < 0) {
-        return 0;
+    if (e != 0 && e->mIndex >= 0) {
+        Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
+        int slot = 0;
+        int kind = ((CosEditEquip_unk*)e->mItem)->mKind;
+        if (kind == 1 || kind == 3) {
+            slot = 1;
+        }
+        if (m1E8 == 2 && e->mIndex == equip->mProtectors[slot].mId) {
+            return 0;
+        }
+        int wasFull = 0;
+        if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, equip->mProtectors[0].mId))) {
+            wasFull = 1;
+        }
+        int isFull = 0;
+        if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, e->mIndex))) {
+            isFull = 1;
+        }
+        fn_801DC8C8(member, slot, e->mIndex);
+        if (slot == 0) {
+            fn_801DC8C8(member, 2, e->mIndex);
+        } else if (slot == 1) {
+            fn_801DC8C8(member, 3, e->mIndex);
+        }
+        if (isFull) {
+            fn_801DC8C8(member, 1, e->mIndex);
+            fn_801DC8C8(member, 3, e->mIndex);
+        }
+        if (a) {
+            Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, slot)), 1, 1, 0, 0, 0, 0);
+        }
+        if (!wasFull && isFull) {
+            Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, 1)), 1, 1, 0, 0, 0, 0);
+        }
+        int base = member * 4;
+        Inventory::instance_->fn_8044D0DC(slot, e->mIndex, slot + base, member);
+        if (slot == 0) {
+            Inventory::instance_->fn_8044D0DC(2, e->mIndex, base + 2, member);
+        } else if (slot == 1) {
+            Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
+        }
+        if (isFull) {
+            Inventory::instance_->fn_8044D0DC(1, e->mIndex, base + 1, member);
+            Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
+        }
+        if (b) {
+            fn_8044441C(Inventory::instance_, fn_8020EF80(fn_8020ED84(slot, e->mIndex)), 1);
+        }
+        CharaStatus* status = Inventory::instance_->GetPlayerStatusInfo(member);
+        fn_801CEA98(member, chara, slot, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(slot), 0xE);
+        if (slot == 0) {
+            fn_801CEA98(member, chara, 2, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(2), 0xE);
+        } else if (slot == 1) {
+            fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
+        }
+        if (isFull) {
+            fn_801CEA98(member, chara, 1, e->mIndex, -1, 0, 0, 0xE);
+            fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
+        }
+        if (wasFull && !isFull) {
+            fn_801DD26C(member);
+            fn_801DC42C(member, chara, fn_801DCE88(member, 1, 0), 0, 1);
+        }
+        return 1;
     }
-    Inventory::Equip_unk* equip = &Inventory::instance_->mEquip[member];
-    int slot = 0;
-    int kind = ((CosEditEquip_unk*)e->mItem)->mKind;
-    if (kind == 1 || kind == 3) {
-        slot = 1;
-    }
-    if (m1E8 == 2 && e->mIndex == equip->mProtectors[slot].mId) {
-        return 0;
-    }
-    int wasFull = 0;
-    if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, equip->mProtectors[0].mId))) {
-        wasFull = 1;
-    }
-    int isFull = 0;
-    if (slot == 0 && fn_8020EF4C(fn_8020ED84(0, e->mIndex))) {
-        isFull = 1;
-    }
-    fn_801DC8C8(member, slot, e->mIndex);
-    if (slot == 0) {
-        fn_801DC8C8(member, 2, e->mIndex);
-    } else if (slot == 1) {
-        fn_801DC8C8(member, 3, e->mIndex);
-    }
-    if (isFull) {
-        fn_801DC8C8(member, 1, e->mIndex);
-        fn_801DC8C8(member, 3, e->mIndex);
-    }
-    if (a) {
-        Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, slot)), 1, 1, 0, 0, 0, 0);
-    }
-    if (!wasFull && isFull) {
-        Inventory::instance_->AddItem(fn_8020EF80(fn_801CFAA8(member, 1)), 1, 1, 0, 0, 0, 0);
-    }
-    int base = member * 4;
-    Inventory::instance_->fn_8044D0DC(slot, e->mIndex, slot + base, member);
-    if (slot == 0) {
-        Inventory::instance_->fn_8044D0DC(2, e->mIndex, base + 2, member);
-    } else if (slot == 1) {
-        Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
-    }
-    if (isFull) {
-        Inventory::instance_->fn_8044D0DC(1, e->mIndex, base + 1, member);
-        Inventory::instance_->fn_8044D0DC(3, e->mIndex, base + 3, member);
-    }
-    if (b) {
-        fn_8044441C(Inventory::instance_, fn_8020EF80(fn_8020ED84(slot, e->mIndex)), 1);
-    }
-    CharaStatus* status = Inventory::instance_->GetPlayerStatusInfo(member);
-    fn_801CEA98(member, chara, slot, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(slot), 0xE);
-    if (slot == 0) {
-        fn_801CEA98(member, chara, 2, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(2), 0xE);
-    } else if (slot == 1) {
-        fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
-    }
-    if (isFull) {
-        fn_801CEA98(member, chara, 1, e->mIndex, -1, 0, 0, 0xE);
-        fn_801CEA98(member, chara, 3, e->mIndex, -1, 0, isFull ? 0 : status->fn_801347C8(3), 0xE);
-    }
-    if (wasFull && !isFull) {
-        fn_801DD26C(member);
-        fn_801DC42C(member, chara, fn_801DCE88(member, 1, 0), 0, 1);
-    }
-    return 1;
+    return 0;
 }
 
 extern "C" int* fn_8044D034(Inventory* inv, int index); // inferred: equipment record
@@ -884,6 +979,7 @@ extern "C" int* fn_8044D034(Inventory* inv, int index); // inferred: equipment r
 // inferred: forgets the record of the equipment of the slot when the new item `id` is of another
 // kind (or the slot was empty)
 void CosEditProtector::fn_801DC8C8(int member, int slot, int id) {
+    COSEDIT_ASSERT_UNK(slot >= 0 && slot < 4);
     EquipParamEntry_unk* cur = fn_8020ED84(slot, Inventory::instance_->mEquip[member].mProtectors[slot].mId);
     EquipParamEntry_unk* next = fn_8020ED84(slot, id);
     int index = slot + member * 4;
@@ -1112,9 +1208,9 @@ extern "C" void* fn_80218BC4(int member); // inferred: protector priorities of a
 
 // inferred: free entry of the protector list that the priorities of the member prefer for the slot
 // (a: from the protector it wears)
-CosEditItem_unk* CosEditProtector::fn_801DCDAC(int member, int slot, int a) {
+CosEditWeaponItem_unk* CosEditProtector::fn_801DCDAC(int member, int slot, int a) {
     void* priorities = fn_80218BC4(member);
-    CosEditItem_unk* result = 0;
+    CosEditWeaponItem_unk* result = 0;
     void* best = fn_801CFA5C(member, slot);
     if (a == 0) {
         best = 0;
@@ -1122,7 +1218,7 @@ CosEditItem_unk* CosEditProtector::fn_801DCDAC(int member, int slot, int a) {
     fn_801E07A4(member, slot);
     unsigned int count = mB4C.size();
     for (unsigned int i = 0; i < count; i++) {
-        CosEditItem_unk* e = &mB4C[i];
+        CosEditWeaponItem_unk* e = &mB4C[i];
         if (e->mOwner < 0) {
             void* prot = fn_80206C50(e->mId);
             if (fn_801DCBA8(priorities, best, prot) == prot) {
@@ -1167,7 +1263,7 @@ extern "C" bool fn_80206D18(void* weapon, int member, int hand); // inferred: th
 // that another member of the party can give
 // NONMATCHING: 97.5% - registers and scheduling
 void CosEditProtector::fn_801DCF60(int member, CharaTask* chara, int slot, int a) {
-    CosEditItem_unk* e = fn_801DCDAC(member, slot, a);
+    CosEditWeaponItem_unk* e = fn_801DCDAC(member, slot, a);
     if (e != 0) {
         fn_801CF3C0(member, chara, e, slot, a, 1);
     }
@@ -1181,12 +1277,12 @@ void CosEditProtector::fn_801DCF60(int member, CharaTask* chara, int slot, int a
                 }
                 void* weapon = fn_801CFA5C(other->mId, j);
                 if (fn_80206D18(weapon, member, slot)) {
-                    CosEditItem_unk* give = fn_801DCDAC(other->mId, j, 0);
+                    CosEditWeaponItem_unk* give = fn_801DCDAC(other->mId, j, 0);
                     if (give == 0) {
                         give = fn_801DD12C(other, j);
                     }
                     if (give != 0 && fn_80206D18(weapon, member, slot)) {
-                        CosEditItem_unk back;
+                        CosEditWeaponItem_unk back;
                         back.mItem = weapon;
                         back.mId = fn_80206BE4(weapon);
                         back.mIndex = -1;
@@ -1205,7 +1301,7 @@ void CosEditProtector::fn_801DCF60(int member, CharaTask* chara, int slot, int a
 
 // inferred: takes from another member of the party (latest first) a weapon that `member` can hold
 // in the hand `slot`; the entry given back is mB64
-CosEditItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, int slot) {
+CosEditWeaponItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, int slot) {
     for (int i = m1C54.size() - 1; i >= 0; i--) {
         NewCampPair_unk* other = m1C54[i];
         if (member == other) {
@@ -1217,7 +1313,7 @@ CosEditItem_unk* CosEditProtector::fn_801DD12C(NewCampPair_unk* member, int slot
             }
             void* weapon = fn_801CFA5C(other->mId, j);
             if (fn_80206D18(weapon, member->mId, slot)) {
-                CosEditItem_unk* give = fn_801DCDAC(other->mId, j, 0);
+                CosEditWeaponItem_unk* give = fn_801DCDAC(other->mId, j, 0);
                 if (give != 0) {
                     mB64.mItem = weapon;
                     mB64.mId = fn_80206BE4(weapon);
@@ -1351,40 +1447,6 @@ extern "C" unsigned long wcslen(const wchar_t* s);
 
 // inferred: order of the equipment list (std::sort predicate): items worn first (by member), then
 // by name without the "+n" suffix, the shorter name first; names invented
-bool CosEditEquipLess_unk::operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
-    if (a.mIndex == b.mIndex) {
-        if (a.mOwner >= 0 && b.mOwner >= 0) {
-            return a.mOwner < b.mOwner;
-        }
-        if (a.mOwner >= 0) {
-            return true;
-        }
-        return false;
-    }
-    CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_8020EF80(a.mItem));
-    CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_8020EF80(b.mItem));
-    wchar_t sa[64];
-    fn_800DD3FC(sa, L"%s", na->mName);
-    wchar_t* plus = wcschr(sa, L'+');
-    if (plus != 0) {
-        *plus = 0;
-    }
-    wchar_t sb[64];
-    fn_800DD3FC(sb, L"%s", nb->mName);
-    plus = wcschr(sb, L'+');
-    if (plus != 0) {
-        *plus = 0;
-    }
-    if (wcscmp(sa, sb) == 0) {
-        int la = wcslen(na->mName);
-        int lb = wcslen(nb->mName);
-        if (la != lb) {
-            return la < lb;
-        }
-    }
-    return wcscmp(na->mName, nb->mName) < 0;
-}
-
 extern "C" bool fn_80206B9C(int code);                 // inferred: whether an item code is a weapon
 extern "C" int fn_8044453C(Inventory* inv, int index); // inferred: number of items of an entry of the item table
 // inferred: weapon data (only the attack values are read)
@@ -1392,13 +1454,72 @@ struct CosEditWeaponStat_unk {
     float mAttack; // 0x00
     float mMagic;  // 0x04
 };
-// inferred: predicates of the std::sort of the weapon list: by kind (out of line, below), for the members who
+// inferred: predicates of the std::sort of the weapon list: by kind, for the members who
 // wear armour (attack first) and for the others (magic first); the members' own weapons first
+namespace {
+// inferred: order of the weapon list: same item, worn first (by member, then by slot), then by name as
+// CosEditEquipLess_unk (in the anonymous namespace too)
 struct CosEditArmorLess_unk {
-    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const;
+    bool operator()(const CosEditWeaponItem_unk& a, const CosEditWeaponItem_unk& b) const {
+        COSEDIT_ASSERT_UNK(&a != 0);
+        COSEDIT_ASSERT_UNK(&b != 0);
+        COSEDIT_ASSERT_UNK(a.mItem != 0);
+        COSEDIT_ASSERT_UNK(b.mItem != 0);
+        if (a.mId == b.mId) {
+            COSEDIT_ASSERT_UNK(a.mOwner >= -1);
+            COSEDIT_ASSERT_UNK(b.mOwner >= -1);
+            if (a.mOwner >= 0 && b.mOwner >= 0) {
+                if (a.mOwner == b.mOwner) {
+                    return a.m14 < b.m14;
+                }
+                return a.mOwner < b.mOwner;
+            }
+            if (a.mOwner >= 0) {
+                return true;
+            }
+            return false;
+        }
+        CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
+        COSEDIT_ASSERT_UNK(na != 0);
+        COSEDIT_ASSERT_UNK(na->mName != 0);
+        CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
+        COSEDIT_ASSERT_UNK(nb != 0);
+        COSEDIT_ASSERT_UNK(nb->mName != 0);
+        wchar_t sa[64];
+        COSEDIT_ASSERT_UNK(wcslen(na->mName) < 64);
+        fn_800DD3FC(sa, L"%s\0", na->mName);
+        wchar_t* plus = wcschr(sa, L'+');
+        if (plus != 0) {
+            COSEDIT_ASSERT_UNK(plus > sa);
+            *plus = 0;
+        }
+        wchar_t sb[64];
+        COSEDIT_ASSERT_UNK(wcslen(nb->mName) < 64);
+        fn_800DD3FC(sb, L"%s\0", nb->mName);
+        plus = wcschr(sb, L'+');
+        if (plus != 0) {
+            COSEDIT_ASSERT_UNK(plus > sb);
+            *plus = 0;
+        }
+        if (wcscmp(sa, sb) == 0) {
+            int la = wcslen(na->mName);
+            int lb = wcslen(nb->mName);
+            COSEDIT_ASSERT_UNK(la > 0);
+            COSEDIT_ASSERT_UNK(lb > 0);
+            if (la != lb) {
+                COSEDIT_ASSERT_UNK(la < 64);
+                COSEDIT_ASSERT_UNK(lb < 64);
+                return la < lb;
+            }
+        }
+        COSEDIT_ASSERT_UNK(na != nb);
+        COSEDIT_ASSERT_UNK(&a != &b);
+        return wcscmp(na->mName, nb->mName) < 0;
+    }
 };
+} // namespace
 struct CosEditWeaponArmourLess_unk {
-    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+    bool operator()(const CosEditWeaponItem_unk& a, const CosEditWeaponItem_unk& b) const {
         if (a.mId == b.mId) {
             if (a.mOwner >= 0 && b.mOwner >= 0) {
                 if (a.mOwner == b.mOwner) {
@@ -1421,7 +1542,7 @@ struct CosEditWeaponArmourLess_unk {
     }
 };
 struct CosEditWeaponRobeLess_unk {
-    bool operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
+    bool operator()(const CosEditWeaponItem_unk& a, const CosEditWeaponItem_unk& b) const {
         if (a.mId == b.mId) {
             if (a.mOwner >= 0 && b.mOwner >= 0) {
                 if (a.mOwner == b.mOwner) {
@@ -1447,9 +1568,9 @@ struct CosEditWeaponRobeLess_unk {
 // inferred: builds the weapon list of the hand for the member: the weapons worn by the party (mB58, enabled
 // when both can swap them), then the free weapons of the inventory that the member can hold (one entry per
 // item, after the worn copies of the same weapon); finally sorts it
-// NONMATCHING: 0% - the original is over the inlining budget (R3: every vector accessor, clear, push_back and
-// begin/end called out of line, other weak copies than those of mB34: the weapon entries are probably
-// another type, without constructor); here everything is inlined
+// NONMATCHING: 97.2% - over the inlining budget as the original (asserts of the weapon begin()/end()); the
+// original also calls the Inventory accessor of mEquip (weak copy 0x801D80A0, a member of Inventory that is not
+// declared: Inventory.h is included by 58 units) and keeps the two entries in one stack slot
 void CosEditProtector::fn_801E07A4(int member, int slot) {
     mB4C.clear();
     mB58.clear();
@@ -1459,7 +1580,7 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
         Inventory::Order()->mEquip[pair->mId];
         for (int k = 0; k < 4; k++) {
             void* weapon = fn_801CFA5C(pair->mId, k);
-            CosEditItem_unk item;
+            CosEditWeaponItem_unk item;
             item.mItem = weapon;
             item.mId = fn_80206BE4(weapon);
             item.mIndex = -1;
@@ -1502,7 +1623,7 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
         }
         int count = fn_8044453C(Inventory::Order(), k);
         for (int j = 0; j < count; j++) {
-            CosEditItem_unk item;
+            CosEditWeaponItem_unk item;
             item.mItem = weapon;
             item.mId = param->mId;
             item.mIndex = -1;
@@ -1524,45 +1645,6 @@ void CosEditProtector::fn_801E07A4(int member, int slot) {
         }
         break;
     }
-}
-
-// inferred: order of the protector list: same item, worn first (by member, then by slot), then by name
-// as CosEditEquipLess_unk
-bool CosEditArmorLess_unk::operator()(const CosEditItem_unk& a, const CosEditItem_unk& b) const {
-    if (a.mId == b.mId) {
-        if (a.mOwner >= 0 && b.mOwner >= 0) {
-            if (a.mOwner == b.mOwner) {
-                return a.m14 < b.m14;
-            }
-            return a.mOwner < b.mOwner;
-        }
-        if (a.mOwner >= 0) {
-            return true;
-        }
-        return false;
-    }
-    CosEditListName_unk* na = (CosEditListName_unk*)fn_80211480(fn_80206BE4(a.mItem));
-    CosEditListName_unk* nb = (CosEditListName_unk*)fn_80211480(fn_80206BE4(b.mItem));
-    wchar_t sa[64];
-    fn_800DD3FC(sa, L"%s", na->mName);
-    wchar_t* plus = wcschr(sa, L'+');
-    if (plus != 0) {
-        *plus = 0;
-    }
-    wchar_t sb[64];
-    fn_800DD3FC(sb, L"%s", nb->mName);
-    plus = wcschr(sb, L'+');
-    if (plus != 0) {
-        *plus = 0;
-    }
-    if (wcscmp(sa, sb) == 0) {
-        int la = wcslen(na->mName);
-        int lb = wcslen(nb->mName);
-        if (la != lb) {
-            return la < lb;
-        }
-    }
-    return wcscmp(na->mName, nb->mName) < 0;
 }
 
 // Members of atn::D2A_TaskInstanceBase<32, 8> with automatic names (as in game/CosEditPalette_unk.cpp)
@@ -1673,7 +1755,7 @@ void CosEditProtector::fn_801E6B10() {
         CosEditListLayout_unk* task = (CosEditListLayout_unk*)mLists[0].mItems[i]->GetTask();
         int index = m88 + i;
         if (index >= 0 && index < (int)mB4C.size()) {
-            CosEditItem_unk* e = &mB4C[index];
+            CosEditWeaponItem_unk* e = &mB4C[index];
             CosEditListName_unk* data = (CosEditListName_unk*)fn_80211480(e->mId);
             CosEditProtData_unk* prot = fn_80206C50(e->mId);
             if (data != 0 && prot != 0) {
@@ -1727,7 +1809,8 @@ void CosEditProtector::fn_801E6EF0(int member, int list, int* cursor, int* top, 
     int chara = fn_80219544(member);
     std::vector<CosEditItem_unk>& items = mB34[list];
     for (int i = 0; i < (int)items.size(); i++) {
-        if (chara == items[i].mOwner) {
+        CosEditItem_unk& e = items[i];
+        if (e.mOwner == chara) {
             *cursor = i;
             if (a) {
                 *top = i;
@@ -1752,7 +1835,8 @@ void CosEditProtector::fn_801E6EF0(int member, int list, int* cursor, int* top, 
 void CosEditProtector::fn_801E6FC8(int member, int slot, int* cursor, int* top, int a) {
     int chara = fn_80219544(member);
     for (int i = 0; i < (int)mB4C.size(); i++) {
-        if (chara == mB4C[i].mOwner && slot == mB4C[i].m14) {
+        CosEditWeaponItem_unk& e = mB4C[i];
+        if (e.mOwner == chara && e.m14 == slot) {
             *cursor = i;
             if (a) {
                 *top = i;
@@ -1773,10 +1857,10 @@ void CosEditProtector::fn_801E6FC8(int member, int slot, int* cursor, int* top, 
 
 // inferred: puts the cursor of the protector list on the entry of `item` (same item, same owner and
 // slot, or both free), keeping its row on the page
-void CosEditProtector::fn_801E7098(CosEditItem_unk* item, int list, int* cursor, int* top) {
+void CosEditProtector::fn_801E7098(CosEditWeaponItem_unk* item, int list, int* cursor, int* top) {
     int row = *cursor - *top;
     for (int i = 0; i < (int)mB4C.size(); i++) {
-        CosEditItem_unk* e = &mB4C[i];
+        CosEditWeaponItem_unk* e = &mB4C[i];
         if (e->mId == item->mId &&
             ((e->mOwner < 0 && item->mOwner < 0) || (e->mOwner == item->mOwner && e->m14 == item->m14))) {
             *cursor = i;
@@ -2018,7 +2102,7 @@ extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
     memset(names[0], 0, sizeof(names[0]));
     memset(names[1], 0, sizeof(names[1]));
     CosEditStat_unk* skill = &((CosEditArmor_unk*)item)->mElem0;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++, skill = (CosEditStat_unk*)((char*)skill + 0x14)) {
         if (item == 0) {
             wcscpy(names[i], L"-----");
         } else if (known == 0) {
@@ -2030,7 +2114,6 @@ extern "C" void fn_801E7D78(atn::D3Anime* anime, void* item, int known) {
         sprintf(name, "skill_name%02d", i);
         CosEditListTask_unk* task = (CosEditListTask_unk*)anime->GetTask();
         fn_801FEE08(task->mLayout, fn_800DC6B4(name), names[i]);
-        skill = (CosEditStat_unk*)((char*)skill + 0x14);
     }
 }
 

@@ -1,6 +1,6 @@
+#include "atn/Csv.h"
 #include "game/Arms.h"
 #include "game/GameTask.h"
-#include "atn/Csv.h"
 #include "atn/Memory.h"
 #include "game/CharaTask.h"
 #include "game/HitInfo_unk.h"
@@ -88,7 +88,7 @@ int Arms::vf0C() {
         if (GetModel_unk()->fn_8008B140()) {
             return 1;
         }
-        if (m29C && m29C->IsLoading()) {
+        if (m29C && m29C.get()->IsLoading()) {
             return 1;
         }
         m278 = GetModel_unk()->GetNodeNoByName("shot", 0);
@@ -146,13 +146,30 @@ void Arms::fn_8004439C() {
     }
 }
 
-// inferred: *this = *this * rot(axis, rad) (as in game/CharaTask.cpp; name invented)
-inline void Rotate_unk(atn::Matrix3x4& mtx, char axis, float rad) {
-    Mtx t;
-    Mtx r;
-    PSMTXRotRad(r, axis, rad);
-    PSMTXConcat(mtx.m, r, t);
-    __MtxCopy(mtx.m, t);
+// inferred: rotation matrix rot_y * rot_x * rot_z (name invented)
+inline void SetRotYXZ_unk(atn::Matrix3x4* p, const atn::Vector3& rot) {
+    p->SetIdentity();
+    if (0.0f != rot.y) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'y', rot.y);
+        PSMTXConcat(p->m, r, t);
+        __MtxCopy(p->m, t);
+    }
+    if (0.0f != rot.x) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'x', rot.x);
+        PSMTXConcat(p->m, r, t);
+        __MtxCopy(p->m, t);
+    }
+    if (0.0f != rot.z) {
+        Mtx t;
+        Mtx r;
+        PSMTXRotRad(r, 'z', rot.z);
+        PSMTXConcat(p->m, r, t);
+        __MtxCopy(p->m, t);
+    }
 }
 
 // inferred: mtx = mtx * rot_y * rot_x * rot_z (names invented)
@@ -160,16 +177,7 @@ inline void RotateYXZ_unk(atn::Matrix3x4& mtx, const atn::Vector3& rot) {
     atn::Matrix3x4 t;
     atn::Matrix3x4 m;
     atn::Matrix3x4* p = &m;
-    p->SetIdentity();
-    if (0.0f != rot.y) {
-        Rotate_unk(*p, 'y', rot.y);
-    }
-    if (0.0f != rot.x) {
-        Rotate_unk(*p, 'x', rot.x);
-    }
-    if (0.0f != rot.z) {
-        Rotate_unk(*p, 'z', rot.z);
-    }
+    SetRotYXZ_unk(p, rot);
     PSMTXConcat(mtx.m, p->m, t.m);
     mtx = t;
 }
@@ -189,9 +197,23 @@ inline float Max3_unk(const atn::Vector3& v) {
     return v.x > yz ? v.x : (v.y > v.z ? v.y : v.z);
 }
 
-// NONMATCHING: 99.90% - stack slot of the scale vector `s` (the original keeps it below the three
-// column temporaries); tried a temporary argument and an inline helper (both reorder the rotation
-// blocks).
+// inferred: length of the column `i` of a matrix (name invented; as in game/Gun.cpp)
+inline float ColumnLength_unk(const atn::Matrix3x4& m, int i) {
+    atn::Vector3 v(m.m[0][i], m.m[1][i], m.m[2][i]);
+    return PSVECMag(&v);
+}
+
+// inferred: sets the world matrix of a model and its largest scale axis (name invented; as in
+// game/Gun.cpp)
+inline void SetMtx_unk(atn::Model* model, const atn::Matrix3x4& mtx) {
+    __MtxCopy(model->mMtx.m, mtx.m);
+    float sz = ColumnLength_unk(mtx, 2);
+    float sy = ColumnLength_unk(mtx, 1);
+    float sx = ColumnLength_unk(mtx, 0);
+    atn::Vector3 s(sx, sy, sz);
+    model->m54 = Max3_unk(s);
+}
+
 void Arms::vf10() {
     if (m284 != 3) {
         vf0C();
@@ -203,11 +225,7 @@ void Arms::vf10() {
     mtx = t;
     RotateYXZ_unk(mtx, m258);
     Scale_unk(mtx, m264);
-    __MtxCopy(GetModel_unk()->mMtx.m, mtx.m);
-    atn::Vector3 s(atn::Vector3(mtx.m[0][0], mtx.m[1][0], mtx.m[2][0]).Length_unk(),
-                   atn::Vector3(mtx.m[0][1], mtx.m[1][1], mtx.m[2][1]).Length_unk(),
-                   atn::Vector3(mtx.m[0][2], mtx.m[1][2], mtx.m[2][2]).Length_unk());
-    GetModel_unk()->m54 = Max3_unk(s);
+    SetMtx_unk(GetModel_unk(), mtx);
     if (GetModel_unk()->GetRes_unk() != 0) {
         GetModel_unk()->CalcMatrixStack(0, atn::ModelNodeCallback_unk());
     }

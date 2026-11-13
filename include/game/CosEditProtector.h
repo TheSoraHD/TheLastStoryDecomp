@@ -72,13 +72,13 @@ public:
     void fn_801DC8C8(int member, int slot, int id); // inferred: forgets the record of a replaced equipment
     void* fn_801DC9A4(void* priorities, void* a, void* b); // inferred: the preferred of two equipments
     void* fn_801DCBA8(void* priorities, void* a, void* b); // inferred: the preferred of two protectors
-    CosEditItem_unk* fn_801DCDAC(int member, int slot, int a); // inferred: free protector preferred for a slot
+    CosEditWeaponItem_unk* fn_801DCDAC(int member, int slot, int a); // inferred: free protector preferred for a slot
     CosEditItem_unk* fn_801DCE88(int member, int slot, int a); // inferred: free entry preferred for a slot
     void fn_801DCF60(int member, CharaTask* chara, int slot, int a); // inferred: takes the protector off
-    CosEditItem_unk* fn_801DD12C(NewCampPair_unk* member, int slot); // inferred: entry to give to another member
+    CosEditWeaponItem_unk* fn_801DD12C(NewCampPair_unk* member, int slot); // inferred: entry to give to another member
     void fn_801DD26C(int member);
     // inferred: puts the cursor of the protector list on `item` (name invented)
-    void fn_801E7098(CosEditItem_unk* item, int list, int* cursor, int* top);
+    void fn_801E7098(CosEditWeaponItem_unk* item, int list, int* cursor, int* top);
     void fn_801E714C(int member, atn::D2A_Task* task); // inferred: shows the equipment of the member
     void fn_801E75F8(int member, CharaStatus* status, atn::D3Anime* base, NewCampPartsEntry_unk* entry);
     void fn_801E07A4(int member, int list);
@@ -144,9 +144,9 @@ public:
     atn::D2ATask_unk* mBestTask;  // 0xB2C: equip_best.d2a
     atn::D2ATask_unk* mNaked;     // 0xB30: equip_naked.d2a
     std::vector<CosEditItem_unk> mB34[2]; // inferred: lists of the protectors and of the equipments
-    std::vector<CosEditItem_unk> mB4C;
-    std::vector<CosEditItem_unk> mB58;
-    CosEditItem_unk mB64; // inferred: entry given back by fn_801DD12C
+    std::vector<CosEditWeaponItem_unk> mB4C; // inferred: list of the weapons of a hand
+    std::vector<CosEditWeaponItem_unk> mB58; // inferred: weapons worn by the party
+    CosEditWeaponItem_unk mB64; // inferred: entry given back by fn_801DD12C
     int mB7C;
     int mB80;
     atn::D2ATask_unk* mSort;      // 0xB84: camp_sort.d2a
