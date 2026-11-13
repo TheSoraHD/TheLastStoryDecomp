@@ -370,6 +370,8 @@ public:
     void fn_803DCD34(CharaTask*, int, int, int); // inferred: party window of a character
     void fn_803E0E10(CharaTask* chara, GameUIElem60_unk* window, int index); // inferred: updates a window
     void fn_803E3468(atn::D2A_Task* a, atn::D2A_Task* b, GameUIElem1C_unk* button, int arg);
+    void fn_803E2410(CharaTask*); // inferred: magic point gauge of a character
+    void fn_803E2A30(int, int, atn::Vector3, int, int); // inferred: next magic point gauge of the HUD
     // inferred: weak copies 0x803D6DE4 and 0x803D71A8; names invented
     bool IsNoMenu_unk() const { return m262C.m0C == 0; }
     bool IsHint1_unk() const { return mD8C == 1; }

@@ -164,7 +164,9 @@ struct GameUISession_unk {
     }
     // inferred: the level and the last attack of the characters are shown (byte of m5A8; GameUI::fn_803D022C)
     unsigned char IsShowLevel_unk() const { return m5A8; }
-    unsigned char m510[0x5A8 - 0x510];
+    unsigned char m510[0x540 - 0x510];
+    int m540; // inferred: state of the match (2: playing; GameUI::fn_803E2410)
+    unsigned char m544[0x5A8 - 0x544];
     int m5A8;
     unsigned char m5AC[0x5E4 - 0x5AC];
     GameUISessionPlayer_unk* m5E4; // inferred: players
@@ -3718,6 +3720,227 @@ void GameUI::fn_803E0D84() {
         }
     }
     m30C.mMid.mBase.mCount -= (int)m30C.mMid.mBase.mCount;
+}
+
+extern "C" int fn_8021A888(HitInfo_unk* hit); // inferred: the magic is an attack magic (as CharaTask.cpp)
+
+// inferred: magic point gauge over a character: the chant of its current magic (kind 0/1 by the magic for
+// the party, 2/3 for kind-2 characters), the magic chosen in the tactics view, or the time of the states
+// of bits 0 and 31 (kinds 4 and 5); characters of flag B13 draw their own (vfC0)
+void GameUI::fn_803E2410(CharaTask* chara) {
+    if (chara->mFlagB13) {
+        chara->vfC0(this);
+        return;
+    }
+    if (!CanActB_unk(chara)) {
+        return;
+    }
+    if (chara->mType != 0 && chara->mC58.mC0 == 0) {
+        return;
+    }
+    if (chara->mFlag26 != 1) {
+        return;
+    }
+    if (lbl_8087F610 != 0 && chara->mType != 0 && lbl_8087F610->m540 != 2) {
+        return;
+    }
+    if (chara->fn_80160324()) {
+        HitInfo_unk* hit = chara->m638;
+        if (hit == 0) {
+            return;
+        }
+        int speed = (hit->mAC >> 5) & 1;
+        atn::Vector3 pos = chara->vf58();
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        if (chara->mType == 0) {
+            screen = atn::Vector3(320.0f, 170.0f, 0.5f);
+        }
+        if (0.0f < screen.z && screen.z < 1.0f) {
+            int frames = chara->fn_8016DAB0();
+            if (chara->mType == 2) {
+                if (fn_8021A888(hit)) {
+                    fn_803E2A30(2, frames, screen, 1, speed);
+                } else {
+                    fn_803E2A30(3, frames, screen, 1, 0);
+                }
+            } else {
+                int count = 1;
+                PlayerTask* player = lbl_8087F8A0->mHead;
+                if (player != 0 && player->mFlag28) {
+                    count = 2;
+                }
+                if (chara->fn_801789D8(0x4FBF, 0)) {
+                    count <<= 1;
+                }
+                if (((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
+                    count <<= 1;
+                }
+                if (fn_8021A888(hit)) {
+                    fn_803E2A30(0, frames, screen, count, 0);
+                } else {
+                    fn_803E2A30(1, frames, screen, count, 0);
+                }
+            }
+        }
+    } else if (lbl_8087F9F8 != 0 && lbl_8087F9F8->mA70 != 0) {
+        atn::Vector3 pos = chara->vf58();
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        if (0.0f < screen.z && screen.z < 1.0f) {
+            if (chara->mType == 2) {
+                return;
+            }
+            int count = 1;
+            PlayerTask* player = lbl_8087F8A0->mHead;
+            if (player != 0 && player->mFlag28) {
+                count = 2;
+            }
+            if (chara->fn_801789D8(0x4FBF, 0)) {
+                count <<= 1;
+            }
+            if (((unsigned int)chara->mStatus.m14 & 0x2000) == 0x2000) {
+                count <<= 1;
+            }
+            HitInfo_unk* hit = lbl_8087F9F8->fn_805ADD3C(chara);
+            if (hit != 0) {
+                int frames = chara->fn_8016DAB0();
+                if (fn_8021A888(hit)) {
+                    fn_803E2A30(0, frames, screen, count, 0);
+                } else {
+                    fn_803E2A30(1, frames, screen, count, 0);
+                }
+            }
+        }
+    } else if ((chara->mStatus.m0C & 1) == 1) {
+        atn::Vector3 pos = chara->mPos + atn::Vector3(0.0f, 20.0f, 0.0f);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        bool show = true;
+        if (lbl_8087F610 != 0 && chara->mType != 0) {
+            show = false;
+        }
+        if (show && 0.0f < screen.z && screen.z < 1.0f) {
+            int frames = chara->mStatus.fn_801333A4(1);
+            if (frames < 0) {
+                frames = 0;
+            }
+            fn_803E2A30(4, frames, screen, 1, 0);
+        }
+    } else if ((chara->mStatus.m0C & 0x80000000) == 0x80000000) {
+        atn::Vector3 pos = chara->mPos + atn::Vector3(0.0f, 15.0f, 0.0f);
+        atn::Vector3 screen = atn::RenderManager::instance_->GetScreenPosition(pos);
+        if (0.0f < screen.z && screen.z < 1.0f) {
+            int frames = chara->mStatus.fn_801333A4(0x80000000);
+            if (frames < 0) {
+                frames = 0;
+            }
+            fn_803E2A30(5, frames, screen, 1, 0);
+        }
+    }
+}
+
+// inferred: colour parameter of a d2anime instance from a colour of the HUD (see SetInstColor_unk)
+inline void SetInstColorU_unk(GameUIInst_unk* inst, const char* name, GameUIColor_unk c) {
+    atn::D2A_RGB_unk rgb;
+    rgb.r = c.r;
+    rgb.g = c.g;
+    rgb.b = c.b;
+    inst->SetColor255_unk(name, rgb);
+}
+
+// inferred: next magic point gauge of the HUD (mA90/mAB8/mAE0[mA8C]) at `pos`: `frames` left (seconds and
+// sub-second frame), colour by `kind`, `count` points lit (the giga gauge when more than one) and the
+// speed gauge when `speed`
+// NONMATCHING: the colour is passed to SetColor255_unk as D2A_RGB_unk (the original copies the whole
+// colour; parameter of atn/D2A_TaskInstance.h, see pendientes)
+void GameUI::fn_803E2A30(int kind, int frames, atn::Vector3 pos, int count, int speed) {
+    if (mA8C < 10) {
+        int seconds = fn_803CE854(frames);
+        int sub = fn_803CE8A8(frames);
+        GameUIInst_unk* point = mA90[mA8C];
+        GameUISmallInst_unk* giga = AsSmallInst_unk(mAB8[mA8C]);
+        GameUISmallInst_unk* gauge = AsSmallInst_unk(mAE0[mA8C]);
+        point->MeltTask();
+        fn_801F6D7C(point, "basePoint", 0, pos.x);
+        fn_801F6D7C(point, "basePoint", 1, pos.y);
+        giga->SetValue1_unk("basePoint", 0, pos.x);
+        giga->SetValue1_unk("basePoint", 1, pos.y);
+        gauge->SetValue1_unk("basePoint", 0, pos.x);
+        gauge->SetValue1_unk("basePoint", 1, pos.y);
+        if (frames == 0) {
+            fn_801F837C(point, "damage", lbl_8078C638 + 42);
+        } else {
+            fn_801F8598(point, "damage", seconds, 0);
+        }
+        bool lit = false;
+        bool many = false;
+        int max = (seconds > 12 ? 12 : seconds) < 0 ? 0 : (seconds > 12 ? 12 : seconds);
+        GameUIColor_unk color;
+        if (kind == 0) {
+            lit = true;
+            if (count > 1) {
+                many = true;
+            }
+            color = m2728;
+        } else if (kind == 1) {
+            lit = true;
+            if (count > 1) {
+                many = true;
+            }
+            color = m2738;
+        } else if (kind == 2) {
+            lit = true;
+            if (speed != 0) {
+                color = m2768;
+            } else {
+                color = m2748;
+            }
+        } else if (kind == 3) {
+            lit = true;
+            color = m2758;
+        } else if (kind == 4) {
+            color = m2778;
+        } else if (kind == 5) {
+            color = GameUIColor_unk(240, 0, 0, 255);
+        } else {
+            color = GameUIColor_unk(240, 170, 0, 255);
+        }
+        SetInstColorU_unk(point, "baseColor", color);
+        fn_801F6C80(point, "colOn", 0.0f);
+        fn_801F6C80(point, "colR", 255.0f * color.r);
+        fn_801F6C80(point, "colG", 255.0f * color.g);
+        fn_801F6C80(point, "colB", 255.0f * color.b);
+        for (int i = 0; i < 12; i++) {
+            char name[64];
+            sprintf(name, "pointCol%02d", i + 1);
+            fn_801F791C(point, name, 0, (lit && i < max) ? 255.0f : 0.0f);
+        }
+        fn_801F791C(point, "hateCol", 0, many ? 255.0f : 0.0f);
+        if (many) {
+            giga->MeltTask();
+            giga->SetValue0_unk("colOn", 0.0f);
+            giga->SetValue0_unk("colR", 255.0f * color.r);
+            giga->SetValue0_unk("colG", 255.0f * color.g);
+            giga->SetValue0_unk("colB", 255.0f * color.b);
+            giga->SetNumber_unk("string0003(1)", count, 0);
+        }
+        if (frames == 0) {
+            point->mFrame = 15.0f;
+            gauge->mFrame = 15.0f;
+        } else {
+            point->mFrame = sub;
+            gauge->mFrame = sub;
+        }
+        if (giga->mFrame >= 15.0f) {
+            giga->mFrame = 14.0f;
+        }
+        if (speed != 0) {
+            gauge->MeltTask();
+            gauge->SetValue0_unk("colOn", 0.0f);
+            gauge->SetValue0_unk("colR", 50.0f);
+            gauge->SetValue0_unk("colG", 20.0f);
+            gauge->SetValue0_unk("colB", 90.0f);
+        }
+        mA8C++;
+    }
 }
 
 // NONMATCHING: 92.3% - the original addresses the members of the temporary mark with separate registers
