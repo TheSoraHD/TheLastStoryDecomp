@@ -197,6 +197,22 @@ inline atn::Matrix3x4 MakeRotYXZ_unk(const atn::Vector3& rot) {
     return m;
 }
 
+// inferred: rotation matrix from angles, applied in the order z, y, x (ActionActorHeading::vf08)
+inline atn::Matrix3x4 MakeRotZYX_unk(const atn::Vector3& rot) {
+    atn::Matrix3x4 m;
+    m.SetIdentity();
+    if (0.0f != rot.z) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'z', rot.z);
+    }
+    if (0.0f != rot.y) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'y', rot.y);
+    }
+    if (0.0f != rot.x) {
+        atn::Matrix3x4::RotateAxis_unk(m, 'x', rot.x);
+    }
+    return m;
+}
+
 inline float Distance_unk(const atn::Vector3& a, const atn::Vector3& b) {
     return (b - a).Length_unk();
 }
@@ -941,6 +957,95 @@ int ActionActorEyes::vf0C(Action* arg, int phase) {
         break;
     }
     }
+    return 0;
+}
+
+// inferred: turns the head of the actor: towards the angles of the parameters 5-7 (from the neck), or
+// towards the node of the target actor moved by the parameters 2-4; eases from the last goal (actor->mDC /
+// actor->mE8) along the curve of the actor during the fade in, and stops for the fade out
+// NONMATCHING: 97.1% - stack frame 0x10 larger here (slots of the vectors and of the converted offset) and
+// the registers of the index and of the id in the two actor lookups (r4/r5)
+int ActionActorHeading::vf08(Action* arg) {
+    float now = arg->fn_805381C8()->m198;
+    if (!(now >= 1.0f)) {
+        return 0;
+    }
+    ActionOwner_unk* section = arg->fn_805381A0();
+    EventManager_unk* manager = arg->fn_805381C8();
+    Actor* actor = manager->GetActors_unk()->Find_unk(section->m10);
+    Actor* target = manager->GetActors_unk()->Find_unk(arg->GetParam_unk(0)->m04.i);
+    unsigned int node = arg->GetParam_unk(1)->m04.i;
+    atn::Vector3 offset;
+    offset.x = arg->GetParam_unk(2)->m04.f;
+    offset.y = arg->GetParam_unk(3)->m04.f;
+    offset.z = arg->GetParam_unk(4)->m04.f;
+    atn::Vector3 angles;
+    angles.x = atn::DegToRad_unk(arg->GetParam_unk(5)->m04.f);
+    angles.y = atn::DegToRad_unk(arg->GetParam_unk(6)->m04.f);
+    angles.z = atn::DegToRad_unk(arg->GetParam_unk(7)->m04.f);
+    if (target->m20 == 6) {
+        offset = manager->fn_80541BD8(offset);
+    }
+    float t = 1.0f;
+    if (arg->m18 > 0) {
+        float left = (float)(arg->m18 + arg->m10) - manager->m198;
+        if (left > 0.0f) {
+            t = lbl_8087F540->fn_8048BD04(actor->m134, 1.0f - left / (float)arg->m18);
+        }
+    }
+    if (arg->m1C > 0 && (float)arg->m14 - manager->m198 < (float)arg->m1C) {
+        return 0;
+    }
+    atn::Vector3 base = actor->fn_80010374();
+    if (actor->fn_8001296C() != 0) {
+        MtxPtr neck = GetNodeMtxByHash_unk(actor->fn_8001296C(), fn_800DC6B4("neck"));
+        if (neck != 0) {
+            base = atn::Vector3(neck[0][3], neck[1][3], neck[2][3]);
+        }
+    }
+    if (PSVECSquareMag(&angles) != 0.0f) {
+        if (t == 1.0f) {
+            atn::Vector3 front = actor->fn_800112E0();
+            atn::Matrix3x4 m = MakeRotZYX_unk(angles);
+            PSMTXMultVec(m.m, &front, &front);
+            base += front * 10.0f;
+            actor->mE8 = base;
+            actor->mDC = angles;
+        } else {
+            atn::Vector3 prev = actor->mDC;
+            angles = prev + (angles - prev) * t;
+        }
+        actor->fn_80012CBC(angles, 1.0f);
+        return 0;
+    }
+    atn::Vector3 pos = target->fn_80010374();
+    if (target->fn_8001296C() != 0) {
+        MtxPtr mtx = GetNodeMtxByHash_unk(target->fn_8001296C(), node);
+        if (mtx != 0) {
+            pos = atn::Vector3(mtx[0][3], mtx[1][3], mtx[2][3]);
+        }
+    }
+    pos += offset;
+    if (t == 1.0f) {
+        atn::Vector3 dir = pos - base;
+        if (PSVECMag(&dir) > 0.0f) {
+            PSVECNormalize(&dir, &dir);
+            atn::Vector3 rot = dir.ToRotationZ_unk();
+            rot -= actor->fn_800112E0().ToRotationZ_unk();
+            actor->mDC = rot;
+        }
+        actor->mE8 = pos;
+    } else {
+        atn::Vector3 prev = actor->mE8;
+        atn::Vector3 d = pos - prev;
+        float dist = PSVECMag(&d);
+        if (dist > 0.0f) {
+            dist *= t;
+            PSVECNormalize(&d, &d);
+        }
+        pos = prev + d * dist;
+    }
+    actor->fn_80012CE4(pos, 1.0f);
     return 0;
 }
 

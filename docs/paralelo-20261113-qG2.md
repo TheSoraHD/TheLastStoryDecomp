@@ -18,7 +18,10 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   - `Actor::fn_8000FAE8` (fin del evento: devuelve al personaje el estado guardado en m18/m24) 92,9 %.
   - `fn_8001011C` 99,2 -> 99,6 % (columnas de `SetModelMtx_unk` por `MtxCol_unk`, evaluadas z, y, x).
 
-- `Event/ActionActorPosition`: 4 -> 3.
+- `Event/ActionActorPosition`: 4 -> 2.
+  - `ActionActorHeading::vf08` (gira la cabeza: hacia los angulos de los parametros 5-7 desde el cuello o hacia
+    el nodo del actor objetivo desplazado por 2-4; transicion por la curva, parada en el fundido de salida)
+    97,1 %.
   - `ActionActorEyes::fn_80554088` (ojos fuera de la ventana de vagabundeo: hacia los angulos de los
     parametros 6-8 o hacia el nodo del actor objetivo desplazado por 2-4, con transicion por la curva) 93,7 %.
 
@@ -36,6 +39,9 @@ Inicio: 2026-11-13 07:19 CET. Tope 09:49.
   (`GameCamera::m93C/m948/m954`); "z" en otro sitio del pool de cadenas.
 - `ActionActorEyes::fn_80554088` 93,7 %: marco 0x10 menor aqui (huecos de los vectores), registros volatiles de
   las dos busquedas de actores y orden de las cargas de `arg->m18` y del gestor de eventos.
+
+- `ActionActorHeading::vf08` 97,1 %: marco 0x10 mayor aqui (huecos de los vectores y del offset convertido) y
+  registros del indice y del id en las dos busquedas de actores (r4/r5).
 
 ## Decisiones tomadas sin el usuario
 
