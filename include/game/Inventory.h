@@ -76,8 +76,11 @@ public:
     // RSO: Order__9InventoryFv (weak copy 0x801D80B4)
     static Inventory* Order() { return instance_; }
 
-    // RSO: AddItem__9InventoryFiiiiPiii (0x804439FC); inferred: (id, count, ...) adds items
-    void AddItem(int id, int num, int a2, int a3, int* out, int a5, int a6);
+    // RSO: AddItem__9InventoryFiiiiPiii (0x804439FC); inferred: (id, count, ...) adds items; a2: always
+    // got, a3: weapons use their chance (fn_80448F9C), out: got or sent to identify, a5: at most 10
+    // weapons/protectors, a6: marks the newest item
+    // inferred: returns the number added (0 when the code is not an item)
+    int AddItem(int id, int num, int a2, int a3, int* out, int a5, int a6);
 
     // RSO: AddMoney__9InventoryFi (0x8044D678); inferred: money += n, clamped to 0..999999
     void AddMoney(int n);

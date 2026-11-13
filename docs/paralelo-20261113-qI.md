@@ -2,8 +2,10 @@
 
 ## Resultado por unidad
 
-- `game/ItemManager_unk`: funciones al 0 % 19 -> 10. Al 100 %: `fn_80444EFC` (dinero que suelta un enemigo),
-  `fn_804491F4` (recompensas de un enemigo), `fn_80449448` (escala de recompensas por diferencia de nivel).
+- `game/ItemManager_unk`: funciones al 0 % 19 -> 8. Al 100 %: `fn_80444EFC` (dinero que suelta un enemigo),
+  `fn_804491F4` (recompensas de un enemigo), `fn_80449448` (escala de recompensas por diferencia de nivel),
+  `Inventory::AddItem` (0x804439FC). `fn_80445130` (sorteo de los codigos aleatorios 0x2711-0x271A) escrita,
+  NONMATCHING 98,5 % (un `cmpwi` del resultado no usado de `fn_80213B78`).
   `fn_80444C50` vuelve a 100 % tras el re-emparejado de datos. Escritas NONMATCHING: `fn_80444020` 88,7 %
   (constantes 0/-1/1/0xF0000 en r19-r23 en el original), `fn_80448B80` 99,85 % (operandos de cuatro `cmpw`
   con `atoi`), `Inventory::fn_80449ABC` 55 % (sin constructores, ver decisiones) y su `std::sort`
@@ -34,6 +36,10 @@
 
 ## Hallazgos
 
+- `AddItem`: el original toma la direccion de los propios parametros (`fn_80445130(this, &id, &num, 0)`), no de
+  copias locales; el cuerpo de `fn_80448F9C` va inlineado a mano (MWCC no lo inlinea solo).
+- Bucles de `FixedArray_unk` con induccion de puntero: `list.mData[i]`, no `operator[](int)` (este da `mulli`).
+
 - Clamps con la expresion repetida (recalculo tras el salto) = macros `MIN`/`MAX` (`a < b ? a : b`), no inline;
   el literal va a la izquierda (`1.0f > x ? 1.0f : x`) para que salga `fcmpo f_lit, f_x`.
 - `fmuls` con los operandos al reves en `n * 3 * (8 + 8 * r)`: el factor aleatorio sale de una inline
@@ -42,6 +48,13 @@
   lee `mData[i - 1]` directamente y el punto se toma con `operator[]`.
 
 ## Pendientes
+
+- `Inventory::AddItem` devuelve `int` (antes `void` en `Inventory.h`; los llamadores ignoran el valor).
+- `DropSetting_unk` (ItemManager_unk) es una vista de `InitSetting_unk` de `db/InitSetting_unk.cpp`: falta una
+  cabecera comun.
+- Quedan al 0 % en ItemManager_unk: ctor, `fn_80445F44` y sus dos `std::sort` (0x804467F0-0x80448908).
+- GameTask `fn_803731E8`: `FinishCamera_unk::fn_803786FC` recibe en realidad un entero (`leader != mChara ? 30
+  : 0`), no un `CharaTask*`; corregir la firma exige tocar `game/FinishCamera_unk`.
 
 - `fn_80449ABC`: con constructores (`LevelUpResult_unk() { memset }`, `ExpEntry_unk() : mChara(0), ... {}`) la
   copia sale miembro a miembro como en el original; exige re-emparejar las unidades que incluyen las cabeceras.

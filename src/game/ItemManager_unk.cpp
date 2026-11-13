@@ -75,6 +75,134 @@ void Inventory::fn_804438E0(int code) {
     }
 }
 
+// inferred: chance of finding a weapon by rank (the second one once the weapon was found)
+static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
+static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
+
+extern "C" int rand();
+extern "C" int fn_80445130(Inventory* inventory, int* code, int* count, int arg); // inferred: random item
+extern "C" int fn_80444564(Inventory* inventory, int code);
+
+// inferred: items of a weapon that is not got go to the list to identify (with flag 0xA1)
+int Inventory::AddItem(int id, int num, int a2, int a3, int* out, int a5, int a6) {
+    fn_80445130(this, &id, &num, 0);
+    int index = fn_8021150C(id);
+    if (index < 0 || 0x600 <= index) {
+        return 0;
+    }
+    ItemParamEntry_unk* item = fn_80211480(id);
+    if (item == 0) {
+        return 0;
+    }
+    int got = 1;
+    if (fn_80206B9C(id)) {
+        int rate;
+        if (a3 != 0) {
+            if (a2 != 0) {
+                rate = 100;
+            } else {
+                // inferred: the body of fn_80448F9C, inlined
+                int c = id;
+                rate = 100;
+                if (fn_80206B9C(c)) {
+                    WeaponParamEntry_unk* weapon = fn_80206C50(c);
+                    int i = fn_8021150C(c);
+                    unsigned int flags;
+                    if (i < 0 || 0x600 <= i) {
+                        flags = 0;
+                    } else {
+                        flags = mItems[i].m0C;
+                    }
+                    if ((flags & 1) == 1) {
+                        rate = sWeaponRate1_unk[weapon->m118];
+                    } else {
+                        rate = sWeaponRate0_unk[weapon->m118];
+                    }
+                    if (lbl_8087F430 != 0) {
+                        if (lbl_8087F430->fn_80370174(0x8A) == 1) {
+                            rate = 0;
+                        } else if (lbl_8087F430->fn_80370174(0x8A) >= 2) {
+                            rate = 100;
+                        }
+                    }
+                }
+            }
+        } else {
+            rate = a2 != 0 ? 100 : 0;
+        }
+        if (rate <= rand() % 100) {
+            got = 0;
+        }
+    }
+    if (fn_80206B9C(id) || fn_8020EF04(id)) {
+        if (a5 != 0 && got != 0 && num + fn_80444564(this, id) > 10) {
+            num = 10 - fn_80444564(this, id);
+        }
+    } else if (item->mBC == 6) {
+        if (item->m64 == 2) {
+            for (int i = 0; i < 7; i++) {
+                fn_804490E0(item, i);
+            }
+        } else {
+            fn_804490E0(item, 0);
+        }
+        num = 0;
+    } else if (num + mItems[index].mCount > 99) {
+        num = 99 - mItems[index].mCount;
+    }
+    if (got != 0) {
+        mItems[index].mCode = id;
+        mItems[index].mCount += num;
+        if (a6 != 0) {
+            fn_804438E0(id);
+        }
+    } else {
+        for (int i = 0; i < num; i++) {
+            int c = id;
+            ItemParamEntry_unk* entry = fn_80211480(c);
+            if (entry != 0 && entry->mBC == 2 && mIdentify.size() < 0x100) {
+                mIdentify.push_back(c);
+            }
+        }
+        if (lbl_8087F430 != 0) {
+            lbl_8087F430->fn_803750E4(0xA1);
+        }
+    }
+    if (out != 0) {
+        *out = got;
+    }
+    if (lbl_8087F430 != 0) {
+        if (id == 0x74) {
+            lbl_8087F430->fn_803750E4(0x91);
+        }
+        if (id == 0x143) {
+            lbl_8087F430->fn_803750E4(0x1B8);
+        }
+        if ((fn_80206B9C(id) || fn_8020EF04(id)) && lbl_8087F430->m10D0 >= 108000) {
+            lbl_8087F430->fn_803750E4(0x148);
+        }
+        if (item->mBC == 6 && item->mB4 == 5) {
+            lbl_8087F430->fn_803750E4(0x146);
+        }
+        if (fn_80206B9C(id) && fn_80206C50(id)->mF0 != 0 && lbl_8087F430->m10D0 >= 108000) {
+            lbl_8087F430->fn_803750E4(0x151);
+        }
+        if (fn_8020EF04(id) && ((fn_8020EFEC(id)->mKind == 0 && fn_8020EFEC(id)->mE0 >= 6) ||
+                                  (fn_8020EFEC(id)->mKind == 1 && fn_8020EFEC(id)->mE0 >= 7))) {
+            lbl_8087F430->fn_803750E4(0x1AF);
+        }
+        if (fn_80206B9C(id)) {
+            WeaponParamEntry_unk* weapon = fn_80206C50(id);
+            if ((weapon->mC4[0].m00 == 0x3F && weapon->mC4[0].m04 == 7) ||
+                (weapon->mC4[1].m00 == 0x3F && weapon->mC4[1].m04 == 7) ||
+                (weapon->mKind == 0 && weapon->mId >= 399 && 405 >= weapon->mId)) {
+                lbl_8087F430->fn_803750E4(0x1B4);
+            }
+        }
+    }
+    return num;
+}
+
 // inferred: drop tables (db, as in gmk/TreasureBox.cpp; names invented)
 struct ItemEntry_unk {
     int mId;
@@ -95,7 +223,6 @@ extern "C" void fn_80108C10(void* battle, DamageResult_unk* damage, const atn::V
                             CharaTask* target, int arg5, int arg6);
 // inferred: message of an item got (game/BattleTask; 1 item, 2 weapon, 3 money)
 extern "C" void fn_801092C8(void* battle, int kind, int arg, int code, int count);
-extern "C" void fn_80445130(Inventory* inventory, int* code, int* count, int arg);
 extern "C" int fn_80444EFC(CharaTask* chara);
 
 // inferred: gets the entry `index` (drawn when negative) of the drop table `table`: the items used at once
@@ -418,7 +545,6 @@ extern "C" int fn_80444CF8(wchar_t* text, int code, int count, int rare) {
 }
 
 extern "C" ChapterEntry_unk* fn_802085E0(int type, int map); // db/ChapterList_unk
-extern "C" int rand();
 
 // inferred: multiplier of the money dropped by the progress of the story (m10D0 / 100000)
 const float lbl_80754730[8] = {1.0f, 1.0f, 1.1f, 1.5f, 2.0f, 3.0f, 3.0f, 0.0f};
@@ -469,6 +595,210 @@ extern "C" int fn_80444EFC(CharaTask* chara) {
         rate *= lbl_80754730[progress / 100000];
     }
     return (int)(rate * (level * 3 * RandScale_unk(8.0f)));
+}
+
+// inferred: settings of the drops (db/InitSetting_unk.cpp, InitSetting_unk; only the members used here)
+struct DropSetting_unk {
+    unsigned char m000[0x100];
+    int mRate[10];  // 0x100: "DropItem", by item kind (mBC)
+    float mRare[3]; // 0x128: "DropItemRare"
+};
+extern "C" DropSetting_unk* fn_80210AC4();
+extern "C" bool fn_80213B78(int code, int type, int id, int sub); // db/ItemRare_unk: rare item of a place
+
+// inferred: candidate of a random item (0xC bytes; names invented)
+struct ItemCandidate_unk {
+    ItemCandidate_unk() : mCode(0), mCount(1), mWeight(10), mItem(0) {}
+    int mCode;
+    short mCount;
+    short mWeight;
+    ItemParamEntry_unk* mItem;
+};
+typedef atn::FixedArray_unk<ItemCandidate_unk, 384> ItemCandidates_unk;
+// inferred: fills `list` with the candidates of the random code `code` (0x80445F44)
+extern "C" int fn_80445F44(Inventory* inventory, ItemCandidates_unk* list, int code, int count, int arg);
+
+// inferred: the item is rare in the current place (the map of the field, else the place of the item being
+// added); name invented
+static inline bool IsRareHere_unk(int code) {
+    int type = -1;
+    int id = -1;
+    int sub = -1;
+    if (lbl_8087F430 != 0) {
+        if (lbl_8087F430->GetCurrentMap() != 0) {
+            MapTask* map = lbl_8087F430->GetCurrentMap();
+            type = map->mType;
+            id = map->mId;
+            sub = map->mSubId;
+        }
+    } else if (Inventory::instance_ != 0 && Inventory::instance_->mDB14 != 0) {
+        type = Inventory::instance_->mDB18;
+        id = Inventory::instance_->mDB1C;
+        sub = Inventory::instance_->mDB20;
+    }
+    return fn_80213B78(code, type, id, sub);
+}
+
+// inferred: keeps only the rare candidates of the place / removes them; names invented
+static inline void KeepRare_unk(ItemCandidates_unk& list) {
+    for (ItemCandidate_unk* p = list.begin(); p != list.end();) {
+        if (!IsRareHere_unk(p->mCode)) {
+            list.erase(p);
+        } else {
+            p++;
+        }
+    }
+}
+static inline void RemoveRare_unk(ItemCandidates_unk& list) {
+    for (ItemCandidate_unk* p = list.begin(); p != list.end();) {
+        if (IsRareHere_unk(p->mCode)) {
+            list.erase(p);
+        } else {
+            p++;
+        }
+    }
+}
+
+// NONMATCHING: 98.5% - the original compares the result of the unused IsRareHere_unk of the count of the
+// kinds (cmpwi without a branch)
+// inferred: replaces the random codes 0x2711-0x271A by an item drawn from the candidates of fn_80445F44 (the
+// rare ones of the place with the chance mRare); 0 for the code 0x2719 and the unknown ones
+extern "C" int fn_80445130(Inventory* inventory, int* code, int* count, int arg) {
+    ItemCandidates_unk list;
+    int total = 0;
+    DropSetting_unk* setting = fn_80210AC4();
+    int rare = 0;
+    int found = 0;
+    int ret = 1;
+    switch (*code) {
+    case 0x2711:
+    case 0x2715:
+    case 0x2718:
+    case 0x271A: {
+        if (fn_80445F44(inventory, &list, *code, *count, arg) == 0) {
+            break;
+        }
+        for (unsigned int i = 0; i < list.size(); i++) {
+            if (IsRareHere_unk(list.mData[i].mCode)) {
+                found++;
+            }
+        }
+        float rate = setting->mRare[0];
+        if (*code == 0x271A) {
+            rate *= 5.0f;
+        }
+        if (rate > 100.0f * ((rand() % 1001) / 1000.0f)) {
+            rare = 1;
+        }
+        if (rare) {
+            if (found > 0) {
+                KeepRare_unk(list);
+            }
+        } else {
+            RemoveRare_unk(list);
+        }
+        for (unsigned int i = 0; i < list.size(); i++) {
+            total += list.mData[i].mWeight;
+        }
+        break;
+    }
+    case 0x2712:
+    case 0x2716:
+        if (fn_80445F44(inventory, &list, *code, *count, arg) == 0) {
+            break;
+        }
+        for (unsigned int i = 0; i < list.size(); i++) {
+            total += list.mData[i].mWeight;
+        }
+        break;
+    case 0x2713:
+    case 0x2717: {
+        if (fn_80445F44(inventory, &list, *code, *count, arg) == 0) {
+            break;
+        }
+        for (unsigned int i = 0; i < list.size(); i++) {
+            if (IsRareHere_unk(list.mData[i].mCode)) {
+                found++;
+            }
+        }
+        float rate = setting->mRare[1];
+        if (*code == 0x2717) {
+            rate = setting->mRare[2];
+        }
+        if (rate > 100.0f * ((rand() % 1001) / 1000.0f)) {
+            rare = 1;
+        }
+        if (rare) {
+            if (found > 0) {
+                KeepRare_unk(list);
+            }
+        } else {
+            RemoveRare_unk(list);
+        }
+        int kinds[10];
+        memset(kinds, 0, sizeof(kinds));
+        for (unsigned int i = 0; i < list.size(); i++) {
+            ItemParamEntry_unk* item = list.mData[i].mItem;
+            IsRareHere_unk(item->mId);
+            kinds[item->mBC]++;
+        }
+        int rates[10];
+        if (*code == 0x2713) {
+            memset(rates, 0, sizeof(rates));
+            for (int k = 0; k < 10; k++) {
+                if (kinds[k] > 0) {
+                    rates[k] = setting->mRate[k] * 100 / kinds[k];
+                }
+            }
+        } else {
+            for (int k = 0; k < 10; k++) {
+                rates[k] = 10;
+            }
+        }
+        for (unsigned int i = 0; i < list.size(); i++) {
+            list.mData[i].mWeight = rates[fn_80211480(list.mData[i].mCode)->mBC];
+            total += list.mData[i].mWeight;
+        }
+        break;
+    }
+    case 0x2714:
+        if (fn_80445F44(inventory, &list, *code, *count, arg) == 0) {
+            break;
+        }
+        for (unsigned int i = 0; i < list.size(); i++) {
+            total += list.mData[i].mWeight;
+        }
+        break;
+    default:
+        ret = 0;
+        break;
+    }
+    if (ret != 0) {
+        if (total > 0) {
+            int r = rand() % total;
+            ItemCandidate_unk* p = list.mData;
+            for (unsigned int i = 0; i < list.size(); i++, p++) {
+                if (r < p->mWeight) {
+                    *code = p->mCode;
+                    *count = p->mCount;
+                    break;
+                }
+                r -= p->mWeight;
+            }
+        } else {
+            *code = 0x2714;
+            *count = fn_80444EFC(0);
+        }
+    }
+    if (inventory->mDB0C != 0) {
+        if ((lbl_8087F430 != 0 && lbl_8087F430->fn_80370174(0x11B) > 0) ||
+            (inventory->mDB14 != 0 && inventory->mDB28 > 0)) {
+            if (*code == 0x137 || *code == 0x138) {
+                *code = 0x139;
+            }
+        }
+    }
+    return ret;
 }
 
 extern "C" int strcmp(const char* a, const char* b);
@@ -573,9 +903,6 @@ extern "C" int fn_80448B80(Inventory* inventory, const char* map, const char* fr
     return ret;
 }
 
-// inferred: chance of finding a weapon by rank (the second one once the weapon was found)
-static const int sWeaponRate0_unk[5] = {0, 0, 100, 100, 100};
-static const int sWeaponRate1_unk[5] = {0, 100, 100, 100, 100};
 
 int Inventory::fn_80448F9C(int code) {
     int rate = 100;
