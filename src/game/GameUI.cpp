@@ -2896,6 +2896,81 @@ void GameUI::fn_803D2A6C() {
     }
 }
 
+// inferred: centre and radius of a character for the hate lines (the battle collision when bit C31 of
+// BattleCharaTask::m14A8 is set; names invented)
+inline const atn::Vector3& GetLineCenter_unk(CharaTask* c) {
+    return static_cast<BattleCharaTask*>(c)->mFlagC31 ? static_cast<BattleCharaTask*>(c)->m148C : c->mColli.m48;
+}
+inline float GetLineRadius_unk(CharaTask* c) {
+    return static_cast<BattleCharaTask*>(c)->mFlagC31 ? static_cast<BattleCharaTask*>(c)->m1498 : c->m5B0;
+}
+extern "C" void PSMTXTrans(Mtx m, float x, float y, float z);
+extern "C" void PSMTXScale(Mtx m, float x, float y, float z);
+extern "C" void fn_8023A680(EffectMgr_unk* mgr, atn::EffFile* res, int arg2, int arg3, atn::Model* model,
+                            const atn::Vector3* pos, const atn::Vector3* rot, int arg7, int arg8, int arg9,
+                            int arg10, float scale);
+
+// inferred: hate line `index` from `from` to `to` (between the edges of their collisions): the end slides
+// towards the target over five frames when `slide` (m78), the two effects of m1554/m1584 are placed along
+// the line (the colour by the kind of attack of `from`)
+// NONMATCHING: 98.7% - stack offsets of the temporaries (the original frame is 0x20 bytes larger; the
+// matrices of the inlined RotateZYX_unk are laid out in another order) and float registers
+void GameUI::fn_803D7850(CharaTask* from, CharaTask* to, int index, int slide) {
+    atn::Vector3 p0(GetLineCenter_unk(from));
+    atn::Vector3 p1(GetLineCenter_unk(to));
+    atn::Vector3 dir(p1.x - p0.x, 0.0f, p1.z - p0.z);
+    float dist = dir.Length_unk();
+    if (dist - (1.5f * GetLineRadius_unk(from) + 1.5f * GetLineRadius_unk(to)) > 1.0f) {
+        GameUIElem7C_unk* e = &m15BC[index];
+        dir.Normalize_unk();
+        p0 += dir * GetLineRadius_unk(from) * 1.5f;
+        p1 -= dir * GetLineRadius_unk(to) * 1.5f;
+        if (m15B8 == 0) {
+            e->m60 = p1;
+            e->m78 = 0.0f;
+        } else if (slide != 0) {
+            e->m78 = 1.0f;
+            mSeMask |= 0x2000;
+        }
+        float width = 0.5f;
+        if (e->m78 > 0.0f) {
+            p1 = (e->m60 - p1) * e->m78 + p1;
+            e->m78 = e->m78 - 0.2f;
+        } else {
+            e->m60 = p1;
+        }
+        dir = (p1 - dir * GetLineRadius_unk(to)) - p0;
+        atn::Vector3 rot = dir.ToRotation_unk();
+        float len = dir.Length_unk() / 50.0f;
+        atn::Matrix3x4 trans;
+        PSMTXTrans(trans.m, p0.x, p0.y, p0.z);
+        e->m00 = trans;
+        e->m00.RotateZYX_unk(rot);
+        atn::Matrix3x4 scale;
+        PSMTXScale(scale.m, width, width, len);
+        atn::Matrix3x4 t;
+        PSMTXConcat(e->m00.m, scale.m, t.m);
+        e->m00 = t;
+        atn::Vector3 end = p0 + dir;
+        atn::Matrix3x4 trans2;
+        PSMTXTrans(trans2.m, end.x, end.y, end.z);
+        e->m30 = trans2;
+        e->m30.RotateZYX_unk(rot);
+        if (m15B8 == 0) {
+            int color = 3;
+            if (from->mType != 2) {
+                color = 0;
+            } else if (from->mStatus.fn_80134250()) {
+                color = 2;
+            } else if (from->mStatus.fn_80134270()) {
+                color = 1;
+            }
+            fn_8023A680(lbl_8087F3C0, &m1554[color], -1, 5, (atn::Model*)&e->m00, 0, 0, 0, 0, -1, 1, 1.0f);
+            fn_8023A680(lbl_8087F3C0, &m1584[color], -1, 5, (atn::Model*)&e->m30, 0, 0, 0, 0, -1, 1, 1.0f);
+        }
+    }
+}
+
 // inferred: stops the effects of m1554 (called by game/TacView)
 void GameUI::fn_803D8344() {
     if (m15B8 != 0) {

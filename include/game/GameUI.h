@@ -222,7 +222,10 @@ struct GameUIName0C_unk {
 // inferred: 0x7C-byte element of the arrays at 0x1174 and 0x15BC (names invented)
 struct GameUIElem7C_unk {
     GameUIElem7C_unk() : m78(0.0f) {}
-    unsigned char m00[0x78];
+    atn::Matrix3x4 m00; // inferred: matrices of the two effects of a hate line (GameUI::fn_803D7850)
+    atn::Matrix3x4 m30;
+    atn::Vector3 m60;   // inferred: end of the line kept while it slides
+    unsigned char m6C[0x78 - 0x6C];
     float m78;
 };
 
@@ -312,6 +315,7 @@ public:
     // update; 0x803DAB4C: icons and TacView flags)
     void fn_803D164C();
     void fn_803D2194();
+    void fn_803D7850(CharaTask*, CharaTask*, int, int); // inferred: hate line between two characters
     void fn_803D8344();
     void fn_803D83A8();
     void fn_803DAB4C(int, int);

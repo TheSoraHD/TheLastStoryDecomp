@@ -33,6 +33,11 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   m2670..m2674): 0 % -> 99,2 %. `top.y += 5; top.y += m149C` (BattleCharaTask) y `Vector3 scale(1, 1, 1)` antes
   de asignarle el lerp suben de 89 a 99,2. Resto: el lerp suma la base al final (`atn::Lerp_unk` la suma
   primero; escrito al reves se mueven los temporales).
+- `GameUI::fn_803D7850(CharaTask*, CharaTask*, int, int)` (linea de odio `index` entre dos personajes, entre
+  los bordes de sus colisiones; el extremo se desliza 5 fotogramas cuando `slide`; dos efectos de m1554/m1584
+  con el color segun el tipo de ataque): 0 % -> 98,7 %. `float dist` local, `p1 = (m60 - p1) * t + p1` y
+  `float width = 0.5f` antes del `if` (se queda en f31) suben de 96,6. Resto: la pila (0x20 bytes menos aqui;
+  matrices del `RotateZYX_unk` inline en otro orden) y registros float.
 
 ## Decisiones tomadas sin el usuario
 
@@ -43,6 +48,10 @@ Unidades: `game/GameUI`, `game/MiniMapTask`, `game/PopupTask`.
   declaracion y llamada como `static_cast<GameUI*>(draw)->fn_803E2A30(...)` (lo pide el prompt al renombrar);
   re-emparejada con `pd.sh`, sin bajadas.
 - `GameUISession_unk` (local de GameUI.cpp) gana `int m540` (estado de la partida, 2 = jugando).
+- `GameUI.h`: declarado `fn_803D7850(CharaTask*, CharaTask*, int, int)` sin nombres; `symbols.txt`:
+  `fn_803D7850` -> `fn_803D7850__6GameUIFP9CharaTaskP9CharaTaskii` (solo lo llama fn_803D83A8, sin escribir).
+  `GameUIElem7C_unk` pasa de `unsigned char m00[0x78]` a `atn::Matrix3x4 m00, m30; atn::Vector3 m60;` + relleno
+  (solo miembros de datos; el ctor de GameUI sigue en 98,11 %).
 - `GameUIField_unk` (local) gana `atn::Vector3 mEye` en 0x74 (posicion de la camara).
 - `extern "C" GameConfig_unk* lbl_8087F0A8` se sube en GameUI.cpp (antes de fn_803E3468).
 - `symbols.txt`: seis floats de `.sdata2` que solo usa el `__sinit` (0x80885DA0, DB0, DB8, DD8, DE8, DFC) se
