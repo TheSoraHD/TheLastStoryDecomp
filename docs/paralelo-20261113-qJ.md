@@ -24,8 +24,8 @@
 - `RouteWalker_unk::fn_80128090` 97,05 %: solo registros de los planificadores inlineados (el destino en r26).
 
 - `CampSaveLoad::vf0C` 92,83 %: un registro salvado de mas; el original toma `""` de `@stringBase0 + 0x3D` con la
-  misma base (pool aun incompleto: faltan vf14 y los ayudantes de estado).
-- `CampSaveLoad::fn_8011B018` 99,33 %: offsets del pool y registros r23/r24 (tamano/puntero) de los dos `+=`
+  misma base y nosotros con otra reubicacion (sigue igual con el pool ya completo).
+- `CampSaveLoad::fn_8011B018` 99,46 %: registros r23/r24 (tamano/puntero) de los dos `+=`
   cruzados; probado `append` y `replace(size(), 0, s)`.
 - `CampSaveLoad::fn_8011999C` 97,77 %: un registro salvado de mas en los paneles de `m64` y texto/layout del
   segundo aviso cruzados. Los avisos repetidos no son una inline (los temporales de `SoundRef` estan arriba en la
@@ -103,3 +103,10 @@
 ## Pendientes
 
 - RouteWalker_unk `fn_80126214` (6 KB).
+- ReplayBuffer `fn_8056DACC` (3,6 KB), `fn_8056E918` (2,5 KB, interpolacion de balas).
+- Sin tocar por tiempo: `game/MapPartsGimmickLoc` (15 al 0 %; hay que rehacer antes las funciones "al 100 %" que son
+  copias weak de otras clases, ver qI), `game/GameSaveData_unk` (2, copias de estructuras de 3,4/3,6 KB),
+  `game/Bullet` `fn_80110858` (6 KB). `game/CharaTask` `fn_8017B434` no esta sin escribir: ya existe (~94 %, 0 % en
+  el report por tamano).
+- Unificar las vistas locales: `SaveSlot_unk`/`GameSaveSlot_unk` (CampSaveLoad), `CampSaveLoadMsg_unk` (tabla de
+  mensajes; requiere arreglar `MP/D2AMpMenu_unk.h`, que redefine `atn::D2A_Task`), `ReplayFrameTime_unk`.
