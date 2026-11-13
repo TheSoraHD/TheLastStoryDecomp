@@ -1,5 +1,6 @@
-// Debug display of the events (Event::DebugInfo_unk, Event::Manager + 0x1DFC). Only part of the unit is
-// written (the pages 0x80221FA4-0x80224A2C and their tables are missing), so it is not linked.
+// Debug display of the events (Event::DebugInfo_unk, Event::Manager + 0x1DFC). Every function is written; the
+// pool @stringBase0 lacks the "" that follows "vector length error" in the original (its first user is unknown)
+// and the three basic_string messages before the column names, so the pages are one byte off (not linked).
 #include "Event/DebugInfo_unk.h"
 #include "game/GameConfig_unk.h"
 #include "Event/Manager.h"
@@ -10,10 +11,12 @@
 #include "Event/Action.h"
 #include "atn/DrawHelper.h"
 #include "atn/Model_unk.h"
+#include "game/MapTask.h"
 
 extern "C" GameConfig_unk* lbl_8087F0A8;
 extern "C" Event::Manager* lbl_8087F540;
 extern "C" int sprintf(char* s, const char* format, ...);
+extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
 
 // inferred: accessors (inline: weak copies, some of other files)
 extern "C" inline Event::Manager* fn_8000DB1C() {
@@ -272,7 +275,8 @@ int DebugInfoTable_unk::fn_80221CBC(const void* key) {
 }
 
 // inferred: number of cuts from the current one to the cut `index` (0: current, -1: not reached)
-int fn_80221CF8(int index) {
+// inferred: noinline: page 0 calls it with bl (MWCC would inline it there)
+__declspec(noinline) int fn_80221CF8(int index) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     int count = 0;
     if (index == seq->m94) {
@@ -321,13 +325,289 @@ void DebugInfo_unk::fn_80221F54(int page) {
     mPages[mPage](this);
 }
 
+// inferred: name of the MA of the event (weak copy 0x80222A38; C name: the method name is unknown)
+extern "C" inline std::string fn_80222A38(const Event::Manager* mgr) {
+    return mgr->m1E7C;
+}
+
+// inferred: delay of the MA (end - start)
+static inline float GetMADelay_unk(Manager* mgr) {
+    float end;
+    float start = mgr->m1E88;
+    end = mgr->m1E8C;
+    return end - start;
+}
+
+// inferred: frames of the cuts before the cut `index`, plus `frame`
+static inline float GetElapsed_unk(Sequence* seq, int index, float frame) {
+    float elapsed = 0.0f;
+    for (int i = 0; i < (int)seq->mB8.size(); i++) {
+        Cut* c = seq->IsCutIndex_unk(i) ? seq->mB8[i].get() : 0;
+        if (index == c->mIndex) {
+            elapsed += frame;
+            break;
+        }
+        elapsed += c->m2C;
+    }
+    return elapsed;
+}
+
+// inferred: frames of all the cuts
+static inline int GetTotal_unk(Sequence* seq) {
+    int total = 0;
+    for (int i = 0; i < (int)seq->mB8.size(); i++) {
+        Cut* c = seq->IsCutIndex_unk(i) ? seq->mB8[i].get() : 0;
+        total += c->m2C;
+    }
+    return total;
+}
+
+// inferred: frame rate of the event
+static inline float GetFps_unk(Manager* mgr) {
+    return mgr->m1EB4;
+}
+
+// inferred: draws a line of the event info (x 40, size 12)
+static inline void DrawInfoLine_unk(float x, float y, const std::string& text) {
+    fn_80221CAC(fn_800F7250(), x, y, -1000000.0f, 12.0f, 12.0f, text.c_str(), 0xFFFFFFFF, 0);
+}
+
+// inferred: page 0 of the debug info: the event, the current cut, the frames, the MA and the frame rate
+// NONMATCHING: 99.83% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
+// stack slots of the iterator tags of the two appends
+void fn_80221FA4(DebugInfo_unk* info) {
+    Sequence* seq = fn_8000DB1C()->fn_80112F54();
+    if (seq == 0) {
+        return;
+    }
+    Cut* cut = seq->fn_805411DC();
+    if (cut == 0) {
+        return;
+    }
+    float frame = seq->m198;
+    float x = 40.0f;
+    float y = 246.0f;
+    std::string text = fn_800DC980("Event       : %s\n", seq->mName.c_str());
+    DrawInfoLine_unk(x, y, text);
+    y += 13.0f;
+    text = fn_800DC980("Cut Number  : %d\n", fn_80221CF8(cut->mIndex));
+    DrawInfoLine_unk(x, y, text);
+    y += 13.0f;
+    text = fn_800DC980("Cut Name    : %s\n", cut->mName.c_str());
+    DrawInfoLine_unk(x, y, text);
+    y += 13.0f;
+    text = fn_800DC980("Cut Frame   : %.02f / %.02f\n", frame, (float)cut->m2C);
+    DrawInfoLine_unk(x, y, text);
+    y += 13.0f;
+    float elapsed = GetElapsed_unk(fn_8000DB1C()->fn_80112F54(), cut->mIndex, frame);
+    int total = GetTotal_unk(fn_8000DB1C()->fn_80112F54());
+    text = fn_800DC980("Total Frame : %.02f / %.02f\n", elapsed, (float)total);
+    DrawInfoLine_unk(x, y, text);
+    y += 13.0f;
+    int ma = fn_8000DB1C()->m1E78;
+    text = "MA          : ";
+    if (ma != 0) {
+        text += fn_80222A38(fn_8000DB1C());
+    } else {
+        text += "\n";
+    }
+    DrawInfoLine_unk(x, y, text);
+    y += 13.0f;
+    text = "MA Delay    : ";
+    if (ma != 0) {
+        text += fn_800DC980("%.02f\n", GetMADelay_unk(fn_8000DB1C()));
+    }
+    DrawInfoLine_unk(x, y, text);
+    y += 13.0f;
+    text = fn_800DC980("Fps         : %.02f\n", GetFps_unk(fn_8000DB1C()));
+    DrawInfoLine_unk(x, y, text);
+    lbl_8087F0A8->mDrawSystemInfo = 2;
+}
+
+// inferred: name of the state of a sequence (inline with external linkage: its literals go to .data, in
+// reverse order)
+inline const char* GetSequenceStateName_unk(int state) {
+    switch (state) {
+    case 0:
+        return "error";
+    case 1:
+        return "created";
+    case 2:
+        return "loading xml";
+    case 3:
+        return "loading bin";
+    case 4:
+        return "loaded";
+    case 5:
+        return "unprepared";
+    case 6:
+        return "preparing";
+    case 7:
+        return "stop";
+    case 8:
+        return "ready";
+    case 9:
+        return "play";
+    case 10:
+        return "playing";
+    case 11:
+        return "pause";
+    case 12:
+        return "paused";
+    case 13:
+        return "finish";
+    case 14:
+        return "finished";
+    }
+    return 0;
+}
+
+// inferred: name of the kind of a sequence (m50)
+inline const char* GetSequenceTypeName_unk(int type) {
+    switch (type) {
+    case 1:
+        return "main";
+    case 2:
+        return "background";
+    case 3:
+        return "in_game";
+    }
+    return 0;
+}
+
+// inferred: origin and position of the event (copied by value)
+static inline atn::Vector3 GetOrigin_unk(Sequence* seq) {
+    return seq->m9C;
+}
+static inline atn::Vector3 GetPos_unk(Sequence* seq) {
+    return seq->mA8;
+}
+
+// inferred: cameras and frame time of the manager
+static inline int GetCurCam_unk(Manager* mgr) {
+    return mgr->m1A38;
+}
+static inline int GetPreCam_unk(Manager* mgr) {
+    return mgr->m1A3C;
+}
+static inline float GetSpeed_unk(Manager* mgr) {
+    return mgr->mB4;
+}
+
+// inferred: first cut of the sequence
+static inline int GetStartCut_unk(Sequence* seq) {
+    return seq->m94;
+}
+
+// inferred: wait mode of the sequence
+static inline int GetWaitMode_unk(Sequence* seq) {
+    return seq->m54;
+}
+
+// inferred: radians to degrees
+static inline float RadToDeg_unk(float rad) {
+    return 57.295776f * rad;
+}
+
+// inferred: a sound plays on the channel `i` of the sequence
+static inline bool HasSound_unk(Sequence* seq, int i) {
+    return seq->m174[i].mPtr != 0;
+}
+
+// inferred: draws a row of a debug page
+static inline void DrawRow_unk(DebugInfo_unk* info, int row, const char* text) {
+    fn_80221CAC(fn_800F7250(), info->m04, info->m08 + info->m0C * row, -1000000.0f, info->m0C, info->m0C, text,
+                0xFFFFFFFF, 1);
+}
+
+// inferred: page 1 of the debug info: state of the manager and of the sequence
+// NONMATCHING: 99.31% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
+// registers of the sound channel flags
+void fn_80222AD0(DebugInfo_unk* info) {
+    Sequence* seq = fn_8000DB1C()->fn_80112F54();
+    if (seq == 0) {
+        return;
+    }
+    int row = 1;
+    const char* cam = "error";
+    switch (fn_8000DB1C()->m1A38) {
+    case 0:
+        cam = "main";
+        break;
+    case 1:
+        cam = "sub1";
+        break;
+    case 2:
+        cam = "sub2";
+        break;
+    case 3:
+        cam = "sub3";
+        break;
+    }
+    int mem = seq->m288 / 1024;
+    char buf[0x100];
+    DrawRow_unk(info, row++, "Event Info:");
+    row++;
+    DrawRow_unk(info, row++, "Manager:");
+    sprintf(buf, " state=%s, cam=%s, mem=%d KB", fn_8000DB1C()->fn_804803A4() ? "Ready" : "Initializing", cam, mem);
+    DrawRow_unk(info, row++, buf);
+    {
+        Manager* m = fn_8000DB1C();
+        sprintf(buf, " speed=%.2f, skipping=%s ", GetSpeed_unk(m), m->fn_801130F4() ? "1" : "0");
+    }
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " curCamIndex=%d, preCamIndex=%d ", GetCurCam_unk(fn_8000DB1C()), GetPreCam_unk(fn_8000DB1C()));
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " charaNum=%d ", fn_8000DB1C()->m1A70.size());
+    DrawRow_unk(info, row++, buf);
+    row++;
+    DrawRow_unk(info, row++, "Seqence:");
+    sprintf(buf, " state=%s, id=%d ", GetSequenceStateName_unk(seq->m194), seq->m190);
+    DrawRow_unk(info, row++, buf);
+    std::string type = GetSequenceTypeName_unk(seq->m50);
+    char map[0x100];
+    MapTask::GetMapNameFromId(map, seq->GetState_unk().m02, seq->GetState_unk().m00, seq->GetState_unk().m03);
+    sprintf(buf, " name=%s, type=%s, waitMode=%d, map=%s ", seq->mName.c_str(), type.c_str(), GetWaitMode_unk(seq), map);
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " messageFile=%s ", seq->m68.c_str());
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " startCut=%d, emptyHands=%s, customFov=%s, ", GetStartCut_unk(seq), seq->m98_3 ? "1" : "0",
+            seq->m98_4 ? "1" : "0");
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " orientation=%f, cutNumber=%d ", RadToDeg_unk(seq->mB4), seq->mB8.size());
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " Origin: x=%f, y=%f, z=%f ", GetOrigin_unk(seq).x, GetOrigin_unk(seq).y, GetOrigin_unk(seq).z);
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " Pos   : x=%f, y=%f, z=%f ", GetPos_unk(seq).x, GetPos_unk(seq).y, GetPos_unk(seq).z);
+    DrawRow_unk(info, row++, buf);
+    sprintf(buf, " Frame: cur=%.2f ", seq->m198);
+    // inferred: the original takes the x position for y here (as the mark of fn_8022354C)
+    fn_80221CAC(fn_800F7250(), info->m04, info->m04 + info->m0C * row++, -1000000.0f, info->m0C, info->m0C, buf,
+                0xFFFFFFFF, 1);
+    bool snd0 = HasSound_unk(seq, 0);
+    bool snd1 = HasSound_unk(seq, 1);
+    bool snd2 = HasSound_unk(seq, 2);
+    bool snd3 = HasSound_unk(seq, 3);
+    sprintf(buf, " sndChannel=[%s][%s][%s][%s]", snd0 ? " " : "X", snd1 ? " " : "X", snd2 ? " " : "X",
+            snd3 ? " " : "X");
+    DrawRow_unk(info, row++, buf);
+}
+
 // inferred: cut `index` of the sequence (0 when out of range)
 inline Cut* GetCutAt_unk(Sequence* seq, int index) {
     return (index >= 0 && index < (int)seq->mB8.size()) ? seq->mB8[index].get() : 0;
 }
 
+// inferred: length of a cut and next cut (inline getters)
+static inline int GetCutLength_unk(Cut* cut) {
+    return cut->m2C;
+}
+static inline int GetNext_unk(Cut* cut) {
+    return cut->fn_8053B028();
+}
+
 // inferred: page 2 of the debug info: list of the cuts (ten around the current one)
-// NONMATCHING: 96.3% - offsets of the strings in @stringBase0 (pages 0 and 1 are not written) and the
+// NONMATCHING: 96.6% - offsets of the strings in @stringBase0 (the "" after "vector length error") and the
 // register of the length of the cut
 void fn_8022354C(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
@@ -367,25 +647,20 @@ void fn_8022354C(DebugInfo_unk* info) {
             const char* name = fn_80222A24(cut);
             int len = cut->m2C;
             int id = cut->mIndex;
-            sprintf(buf, "[%02d]: id=%d, name=%s,  next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
-                    len, skip, mark);
+            sprintf(buf, "[%02d]: id=%d, name=%s,  next=%d, len=%d, skip=%s, %s", i, id, name, GetNext_unk(cut), len, skip, mark);
         } else {
             const char* mark = cut->mIndex == seq->m94 ? "StartCut" : "";
             const char* skip = cut->fn_8053C124(cut->mSkip);
             const char* name = fn_80222A24(cut);
             int len = cut->m2C;
             int id = cut->mIndex;
-            sprintf(buf, "[%02d]: id=%d, name=%s, next=%d, len=%d, skip=%s, %s", i, id, name, cut->fn_8053B028(),
-                    len, skip, mark);
+            sprintf(buf, "[%02d]: id=%d, name=%s, next=%d, len=%d, skip=%s, %s", i, id, name, GetNext_unk(cut), len, skip, mark);
         }
         fn_80221CAC(fn_800F7250(), info->m04 + info->m0C, info->m08 + info->m0C * row++, -1000000.0f,
                     info->m0C, info->m0C, buf, 0xFFFFFFFF, 1);
     }
 }
 
-// DRAFT: pages 0 and 1 of the debug info are not written
-// NONMATCHING: draft - page 3: actions of the current cut (and the name of the next cut); the earlier pages
-// are not written, so the offsets of the string pool differ
 // inferred: the action is active at the current frame and is shown on the page (mode 0: not listed
 // yet in the table of page 3; mode 1: a motion action)
 int fn_802238D0(DebugInfo_unk* info, Action* action, Action* other, int mode) {
@@ -515,12 +790,11 @@ extern "C" inline Actor* fn_802249EC(DataList_unk<Actor>* actors, int id) {
 }
 
 extern "C" const char* fn_80218218(int motion);           // inferred: motion name
-extern "C" std::string fn_800DC980(const char* format, ...); // inferred: formatted string
 
 // inferred: channel of the action (defined as extern "C" in Event/Node.cpp)
 extern "C" void* fn_805381AC(void* self);
 
-// NONMATCHING: draft (offsets of the strings in @stringBase0)
+// NONMATCHING: 99.96% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 // inferred: adds (or replaces) the row of a motion; the key is the action, moved by `upper` for the
 // upper body motion; the color marks a changed speed or start frame
 void fn_80223F50(DebugInfo_unk* info, Action* action, int motion, int start, int loop, float speed, int upper) {
@@ -552,27 +826,31 @@ void fn_80223F50(DebugInfo_unk* info, Action* action, int motion, int start, int
 }
 
 // ---- fn_80224184: page 4 (motion actions; over the inlining budget: weak copies) ----
-// inferred: attribute of the action by name (weak copy 0x802245C0; C name: the method name is unknown)
-extern "C" __declspec(noinline) inline ActionParam_unk* fn_802245C0(Action* action, const char* name) {
+// inferred: attribute of the action by name (weak copy 0x802245C0; C name: the method name is unknown). The
+// empty assertions put fn_80224184 over the inlining budget (R3: the original calls every inline there)
+extern "C" inline ActionParam_unk* fn_802245C0(Action* action, const char* name) {
+    SEQ_ASSERT10_UNK;
+    SEQ_ASSERT10_UNK;
+    SEQ_ASSERT10_UNK;
     return action->fn_805392BC(fn_800DC880(name));
 }
 // inferred: value of an attribute read as int, float, motion and flag (four weak copies with the
 // same code; names unknown)
-extern "C" __declspec(noinline) inline int fn_802245B8(ActionParam_unk* param) {
+extern "C" inline int fn_802245B8(ActionParam_unk* param) {
     return param->m04.i;
 }
-extern "C" __declspec(noinline) inline float fn_80224600(ActionParam_unk* param) {
+extern "C" inline float fn_80224600(ActionParam_unk* param) {
     return param->m04.f;
 }
-extern "C" __declspec(noinline) inline int fn_80224608(ActionParam_unk* param) {
+extern "C" inline int fn_80224608(ActionParam_unk* param) {
     return param->m04.i;
 }
-extern "C" __declspec(noinline) inline int fn_80224610(ActionParam_unk* param) {
+extern "C" inline int fn_80224610(ActionParam_unk* param) {
     return param->m04.i;
 }
 
-// NONMATCHING: draft - under the inlining budget here (the original calls push_back, the string
-// constructor and the attribute accessors out of line; the accessors are noinline here)
+// inferred: page 4 of the debug info: motion actions of the current cut
+// NONMATCHING: 99.92% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 void fn_80224184(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
@@ -650,7 +928,7 @@ void fn_80224184(DebugInfo_unk* info) {
 // inferred: motion tracks shown for each character
 static const int sTracks_unk[3] = {0, 3, 4};
 
-// NONMATCHING: offsets of the strings in @stringBase0 (pages 1, 2 and 4 are missing)
+// NONMATCHING: 99.88% - offsets of the strings in @stringBase0 (the "" after "vector length error")
 void fn_80224638(DebugInfo_unk* info) {
     Sequence* seq = fn_8000DB1C()->fn_80112F54();
     if (seq == 0) {
